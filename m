@@ -1,80 +1,69 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from forwardcorp1b.mail.yandex.net (forwardcorp1b.mail.yandex.net [178.154.239.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36D784776B;
-	Mon, 11 Dec 2023 13:53:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3018B487B4
+	for <virtualization@lists.linux.dev>; Mon, 11 Dec 2023 14:27:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex-team.ru
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yandex-team.ru
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JNxZzgpL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36C73C433C7;
-	Mon, 11 Dec 2023 13:53:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1702302790;
-	bh=ce52MwjmCIqIGNpNziEdwAz/8cYu0NoXFtL2rJUJqLo=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=JNxZzgpLHXLGUscfzHgZELbcJv8FCZjRWlDswmv6kZ/fHe9TzniSXBiDUY8MLEmkp
-	 1ussrscWsZwFtr9vDld/wApBpwEGqZ9kZ/UZxtOW20Qq50CcoypgyzDPph3BT2Z3R0
-	 V3V4CWhEaJ+K4pTfZTWo2+ESa9Z6fU2l3VB2RofURrCyodAfuzwWcLoGj5FRmJgiyu
-	 L2V4sX1pGb/zE2ookO7hvAeLvKMVuNagm/o3aBX854R77zWmjQbU4+mGQ4GektHfmF
-	 5LgQmxHhArjQYTUL6HBN1AtOfF99/KcjS0HSjfj7fvCortbANtGJWG0jn1UjpdSNFP
-	 86xQCMNIlQsnA==
-From: Sasha Levin <sashal@kernel.org>
-To: linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Cc: Shannon Nelson <shannon.nelson@amd.com>,
-	"Michael S . Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Sasha Levin <sashal@kernel.org>,
-	allen.hubbe@amd.com,
-	virtualization@lists.linux.dev
-Subject: [PATCH AUTOSEL 6.6 26/47] pds_vdpa: set features order
-Date: Mon, 11 Dec 2023 08:50:27 -0500
-Message-ID: <20231211135147.380223-26-sashal@kernel.org>
-X-Mailer: git-send-email 2.42.0
-In-Reply-To: <20231211135147.380223-1-sashal@kernel.org>
-References: <20231211135147.380223-1-sashal@kernel.org>
+	dkim=pass (1024-bit key) header.d=yandex-team.ru header.i=@yandex-team.ru header.b="0keANDS6"
+Received: from mail-nwsmtp-smtp-corp-main-66.iva.yp-c.yandex.net (mail-nwsmtp-smtp-corp-main-66.iva.yp-c.yandex.net [IPv6:2a02:6b8:c0c:bd84:0:640:4b62:0])
+	by forwardcorp1b.mail.yandex.net (Yandex) with ESMTP id 571116154A;
+	Mon, 11 Dec 2023 17:26:20 +0300 (MSK)
+Received: from kniv-nix.yandex-team.ru (unknown [2a02:6b8:b081:b718::1:2a])
+	by mail-nwsmtp-smtp-corp-main-66.iva.yp-c.yandex.net (smtpcorp/Yandex) with ESMTPSA id FQiaE60IfSw0-y85DjH1F;
+	Mon, 11 Dec 2023 17:26:19 +0300
+X-Yandex-Fwd: 1
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex-team.ru;
+	s=default; t=1702304779;
+	bh=okgSQ4jSQ39ig7kfarAvRYBE8MWRoq0a2/YUSKkMo0Q=;
+	h=Message-Id:Date:Cc:Subject:To:From;
+	b=0keANDS6V0C7aVY3xGtXMkiaVMTvJdnVS5F3XyDJyx9XiAkgJ6M8OgSpGHth7NGnY
+	 NuX+yg8iQbYu4HsIpsvKwre/gFTts5MXRR1vzSU0Rk7E3DdsZU8oFspCy15oQkOo1g
+	 x7OUziUIHBQoOXJ6fuEr42ns6WbdTn8ctoOTyiDo=
+Authentication-Results: mail-nwsmtp-smtp-corp-main-66.iva.yp-c.yandex.net; dkim=pass header.i=@yandex-team.ru
+From: Nikolay Kuratov <kniv@yandex-team.ru>
+To: linux-kernel@vger.kernel.org
+Cc: sgarzare@redhat.com,
+	netdev@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	kvm@vger.kernel.org,
+	Nikolay Kuratov <kniv@yandex-team.ru>
+Subject: [PATCH] vsock/virtio: Fix unsigned integer wrap around in virtio_transport_has_space()
+Date: Mon, 11 Dec 2023 17:25:05 +0300
+Message-Id: <20231211142505.4076725-1-kniv@yandex-team.ru>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.6.5
 Content-Transfer-Encoding: 8bit
 
-From: Shannon Nelson <shannon.nelson@amd.com>
+We need to do signed arithmetic if we expect condition
+`if (bytes < 0)` to be possible
 
-[ Upstream commit cefc9ba6aed48a3aa085888e3262ac2aa975714b ]
+Found by Linux Verification Center (linuxtesting.org) with SVACE
 
-Fix up the order that the device and negotiated features
-are checked to get a more reliable difference when things
-get changed.
-
-Signed-off-by: Shannon Nelson <shannon.nelson@amd.com>
-Message-Id: <20231110221802.46841-4-shannon.nelson@amd.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Nikolay Kuratov <kniv@yandex-team.ru>
 ---
- drivers/vdpa/pds/vdpa_dev.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/vmw_vsock/virtio_transport_common.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/vdpa/pds/vdpa_dev.c b/drivers/vdpa/pds/vdpa_dev.c
-index 9fc89c82d1f01..25c0fe5ec3d5d 100644
---- a/drivers/vdpa/pds/vdpa_dev.c
-+++ b/drivers/vdpa/pds/vdpa_dev.c
-@@ -318,9 +318,8 @@ static int pds_vdpa_set_driver_features(struct vdpa_device *vdpa_dev, u64 featur
- 		return -EOPNOTSUPP;
- 	}
+diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+index c8e162c9d1df..6df246b53260 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -843,7 +843,7 @@ static s64 virtio_transport_has_space(struct vsock_sock *vsk)
+ 	struct virtio_vsock_sock *vvs = vsk->trans;
+ 	s64 bytes;
  
--	pdsv->negotiated_features = nego_features;
--
- 	driver_features = pds_vdpa_get_driver_features(vdpa_dev);
-+	pdsv->negotiated_features = nego_features;
- 	dev_dbg(dev, "%s: %#llx => %#llx\n",
- 		__func__, driver_features, nego_features);
+-	bytes = vvs->peer_buf_alloc - (vvs->tx_cnt - vvs->peer_fwd_cnt);
++	bytes = (s64)vvs->peer_buf_alloc - (vvs->tx_cnt - vvs->peer_fwd_cnt);
+ 	if (bytes < 0)
+ 		bytes = 0;
  
 -- 
-2.42.0
+2.34.1
 
