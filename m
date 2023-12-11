@@ -1,163 +1,175 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9152E4E601
-	for <virtualization@lists.linux-foundation.org>; Mon, 11 Dec 2023 17:40:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0730F54FA8
+	for <virtualization@lists.linux-foundation.org>; Mon, 11 Dec 2023 21:25:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ILT7ZiPQ"
+	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="lB55k2+B"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 09F7360BAC
-	for <virtualization@lists.linux-foundation.org>; Mon, 11 Dec 2023 17:40:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 09F7360BAC
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=ILT7ZiPQ
+	by smtp4.osuosl.org (Postfix) with ESMTP id 8062240879
+	for <virtualization@lists.linux-foundation.org>; Mon, 11 Dec 2023 21:25:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8062240879
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.a=rsa-sha256 header.s=mail header.b=lB55k2+B
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -4.401
+X-Spam-Score: -2.1
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ta3X7mc1-yiE
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id zLmhNpFNXYgT
 	for <virtualization@lists.linux-foundation.org>;
-	Mon, 11 Dec 2023 17:40:30 +0000 (UTC)
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id A8D2E60BA0
-	for <virtualization@lists.linux-foundation.org>; Mon, 11 Dec 2023 17:40:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A8D2E60BA0
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sin.source.kernel.org (Postfix) with ESMTP id 5FB25CE126B
-	for <virtualization@lists.linux-foundation.org>; Mon, 11 Dec 2023 17:40:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38C8AC433CB
-	for <virtualization@lists.linux-foundation.org>; Mon, 11 Dec 2023 17:40:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1702316424;
-	bh=hOU4jYl2zjD7dm4WiF388gDlJNEcYLRmL4FrrPgk5yA=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=ILT7ZiPQGYhBDRi5b3lf2uIdYB4fRbuh2WtUGL5lqBhOSH9SQvJlRI4vIBz2v17S+
-	 blGaty3kzjUowjXu+vwC+cpgSyt00WKM35hBVSFNoLhiDqRYp1qNOKsm9iz9+8yiST
-	 Q7K6KPtg6FMORGKJpZx3r5qFsWADIKZ7z27AI70Za4hAoGh4qLSigaBPpfhbzDtG4B
-	 WegId6wDnidKSJcRZAEmY6Gsyb2qXOjKSyhqb3S+T2soCbbL8ZCGJnTGo/vdm3VtFH
-	 5din7ZlxT5L0DDzybGDn3dJwXQ4AqFpESE3FPPogtTM2eGc+sDPJnDgua4TycmkKSN
-	 p4xYROwwpkw+g==
-Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-50bfa5a6cffso5395889e87.0
-        for <virtualization@lists.linux-foundation.org>; Mon, 11 Dec 2023 09:40:24 -0800 (PST)
-X-Gm-Message-State: AOJu0Yy9UE2e0cVf7K3pqadjq0E/mUnjfqgACAhJRuKyl5OiuhmjDdgj
-	rNVtcp63PS9erKkixrsKsfzyL9hu7M+v4jdzSfk=
-X-Google-Smtp-Source: AGHT+IFTGNQtSpFmM7O8UeOW1n7sWiGpQ/OA3GeoRRIZNv3WRNPCLATv59ZjIlJ2ZFi1fcYwSJZuwHeltryOcI6rOhc=
-X-Received: by 2002:a2e:b046:0:b0:2ca:34cd:77e4 with SMTP id
- d6-20020a2eb046000000b002ca34cd77e4mr1895908ljl.103.1702316422374; Mon, 11
- Dec 2023 09:40:22 -0800 (PST)
+	Mon, 11 Dec 2023 21:25:34 +0000 (UTC)
+Received: from mx1.sberdevices.ru (mx1.sberdevices.ru [37.18.73.165])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 2A14A40570
+	for <virtualization@lists.linux-foundation.org>; Mon, 11 Dec 2023 21:25:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2A14A40570
+Received: from p-infra-ksmg-sc-msk01 (localhost [127.0.0.1])
+	by mx1.sberdevices.ru (Postfix) with ESMTP id 67B63100010;
+	Tue, 12 Dec 2023 00:25:30 +0300 (MSK)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru 67B63100010
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
+	s=mail; t=1702329930;
+	bh=t/kjl2Vjg1LdCA2ZU1r92JWEZ4RRp+5azAC7FUXgjBk=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type:From;
+	b=lB55k2+BYtSfnNlz5b9l8/U/Azat0EnnDjxhY2MVPfddzMHK0gO5W50xAv8S+k/sp
+	 758C8c7g1jW2rRGy9oq74peiE7XTercg5N62GSznh9J+q2B3JoD5R8211pZZBoJkFy
+	 4/nche9UKEzYY7bowi7ACojzesNTe068y3swCmYPyO7FSZcC6CXwm+PSsmYTMwGV4q
+	 JH4kIcTkS0rSrmDcVnWdRe6BaKviJ+N6+c7xoe9vl7HVU2xQBrBGkPRdxn2PShTaeQ
+	 Myye2YCiqAVQ8dRtPkJbO3QeDoUDqcqlUj+dvs2jlhDpKu7uD6qb4LEN22iBUvatCS
+	 BwUs+YMA97nyQ==
+Received: from smtp.sberdevices.ru (p-i-exch-sc-m01.sberdevices.ru [172.16.192.107])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by mx1.sberdevices.ru (Postfix) with ESMTPS;
+	Tue, 12 Dec 2023 00:25:30 +0300 (MSK)
+Received: from localhost.localdomain (100.64.160.123) by
+ p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.40; Tue, 12 Dec 2023 00:25:29 +0300
+From: Arseniy Krasnov <avkrasnov@salutedevices.com>
+To: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella
+	<sgarzare@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet
+	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
+	<pabeni@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
+	<jasowang@redhat.com>, Bobby Eshleman <bobby.eshleman@bytedance.com>
+CC: <kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
+	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<kernel@sberdevices.ru>, <oxffffaa@gmail.com>, <avkrasnov@salutedevices.com>
+Subject: [PATCH net-next v8 1/4] vsock: update SO_RCVLOWAT setting callback
+Date: Tue, 12 Dec 2023 00:16:55 +0300
+Message-ID: <20231211211658.2904268-2-avkrasnov@salutedevices.com>
+X-Mailer: git-send-email 2.35.0
+In-Reply-To: <20231211211658.2904268-1-avkrasnov@salutedevices.com>
+References: <20231211211658.2904268-1-avkrasnov@salutedevices.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20231015141644.260646-1-akihiko.odaki@daynix.com>
- <CAADnVQLfUDmgYng8Cw1hiZOMfWNWLjbn7ZGc4yOEz-XmeFEz5Q@mail.gmail.com>
- <2594bb24-74dc-4785-b46d-e1bffcc3e7ed@daynix.com> <CAADnVQ+J+bOtvEfdvgUse_Rr07rM5KOZ5DtAmHDgRmi70W68+g@mail.gmail.com>
- <CACGkMEs22078F7rSLEz6eQabkZZ=kujSONUNMThZz5Gp=YiidQ@mail.gmail.com>
- <CAADnVQLt8NWvP8qGWMPx=12PwWWE69P7aS2dbm=khAJkCnJEoQ@mail.gmail.com>
- <9a4853ad-5ef4-4b15-a49e-9edb5ae4468e@daynix.com> <6253fb6b-9a53-484a-9be5-8facd46c051e@daynix.com>
- <CAPhsuW5JYoM-Mkehdy=FQsG1nvjbYGzwRZx8BkpG1P7cHdD=eQ@mail.gmail.com>
- <dba89d4b-84aa-4c9f-b016-56fd3ade04b2@daynix.com> <CAPhsuW5KLgt_gsih7zi+T99iYVbt7hk7=OCwYzin-H3=OhF54Q@mail.gmail.com>
- <a1f09866-a443-4f74-8025-6cdb32eb1d2c@daynix.com> <CAPhsuW4o5o41a+jVjgGP+Ck3eUD8w6coLXMTYewXKJYmciLLnQ@mail.gmail.com>
- <664003d3-aadb-4938-80f6-67fab1c9dcdd@daynix.com> <d30a038b-d10f-468d-8879-478a6c5b814b@daynix.com>
- <CAPhsuW5CMYiOMUDCgfQyo=K31igZZ+BgXyL6yfq1OG3r2CzQ4g@mail.gmail.com> <49a5b971-ae97-4118-ae20-f651ad14bed7@daynix.com>
-In-Reply-To: <49a5b971-ae97-4118-ae20-f651ad14bed7@daynix.com>
-From: Song Liu <song@kernel.org>
-Date: Mon, 11 Dec 2023 09:40:10 -0800
-X-Gmail-Original-Message-ID: <CAPhsuW7E6Dyp8VTiuwbreB18Lt93n9Fa2hdd2sEschUDzgQiSg@mail.gmail.com>
-Message-ID: <CAPhsuW7E6Dyp8VTiuwbreB18Lt93n9Fa2hdd2sEschUDzgQiSg@mail.gmail.com>
-Subject: Re: [RFC PATCH v2 1/7] bpf: Introduce BPF_PROG_TYPE_VNET_HASH
-To: Akihiko Odaki <akihiko.odaki@daynix.com>
-Cc: Alexei Starovoitov <alexei.starovoitov@gmail.com>, Jason Wang <jasowang@redhat.com>, 
-	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
-	Andrii Nakryiko <andrii@kernel.org>, Martin KaFai Lau <martin.lau@linux.dev>, 
-	Yonghong Song <yonghong.song@linux.dev>, John Fastabend <john.fastabend@gmail.com>, 
-	KP Singh <kpsingh@kernel.org>, Stanislav Fomichev <sdf@google.com>, Hao Luo <haoluo@google.com>, 
-	Jiri Olsa <jolsa@kernel.org>, Jonathan Corbet <corbet@lwn.net>, 
-	Willem de Bruijn <willemdebruijn.kernel@gmail.com>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Mykola Lysenko <mykolal@fb.com>, Shuah Khan <shuah@kernel.org>, bpf <bpf@vger.kernel.org>, 
-	"open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, 
-	Network Development <netdev@vger.kernel.org>, kvm@vger.kernel.org, 
-	virtualization@lists.linux-foundation.org, 
-	"open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>, 
-	Yuri Benditovich <yuri.benditovich@daynix.com>, Andrew Melnychenko <andrew@daynix.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) To
+ p-i-exch-sc-m01.sberdevices.ru (172.16.192.107)
+X-KSMG-Rule-ID: 10
+X-KSMG-Message-Action: clean
+X-KSMG-AntiSpam-Lua-Profiles: 182030 [Dec 11 2023]
+X-KSMG-AntiSpam-Version: 6.0.0.2
+X-KSMG-AntiSpam-Envelope-From: avkrasnov@salutedevices.com
+X-KSMG-AntiSpam-Rate: 0
+X-KSMG-AntiSpam-Status: not_detected
+X-KSMG-AntiSpam-Method: none
+X-KSMG-AntiSpam-Auth: dkim=none
+X-KSMG-AntiSpam-Info: LuaCore: 7 0.3.7 6d6bf5bd8eea7373134f756a2fd73e9456bb7d1a, {Tracking_from_domain_doesnt_match_to}, smtp.sberdevices.ru:5.0.1,7.1.1;salutedevices.com:7.1.1;100.64.160.123:7.1.2;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;127.0.0.199:7.1.2, FromAlignment: s, ApMailHostAddress: 100.64.160.123
+X-MS-Exchange-Organization-SCL: -1
+X-KSMG-AntiSpam-Interceptor-Info: scan successful
+X-KSMG-AntiPhishing: Clean
+X-KSMG-LinksScanning: Clean
+X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2023/12/11 18:02:00 #22660190
+X-KSMG-AntiVirus-Status: Clean, skipped
 
-On Sun, Dec 10, 2023 at 9:04=E2=80=AFPM Akihiko Odaki <akihiko.odaki@daynix=
-.com> wrote:
->
-[...]
-> >
-> > I don't think we can provide stability guarantees before seeing somethi=
-ng
-> > being used in the field. How do we know it will be useful forever? If a
-> > couple years later, there is only one person using it somewhere in the
-> > world, why should we keep supporting it? If there are millions of virtu=
-al
-> > machines using it, why would you worry about it being removed?
->
-> I have a different opinion about providing stability guarantees; I
-> believe it is safe to provide such a guarantee without actual use in a
-> field. We develop features expecting there are real uses, and if it
-> turns out otherwise, we can break the stated guarantee since there is no
-> real use cases anyway. It is fine even breaking UAPIs in such a case,
-> which is stated in Documentation/admin-guide/reporting-regressions.rst.
->
-> So I rather feel easy about guaranteeing UAPI stability; we can just
-> guarantee the UAPI-level stability for a particular kfunc and use it
-> from QEMU expecting the stability. If the feature is found not useful,
-> QEMU and the kernel can just remove it.
+Do not return if transport callback for SO_RCVLOWAT is set (only in
+error case). In this case we don't need to set 'sk_rcvlowat' field in
+each transport - only in 'vsock_set_rcvlowat()'. Also, if 'sk_rcvlowat'
+is now set only in af_vsock.c, change callback name from 'set_rcvlowat'
+to 'notify_set_rcvlowat'.
 
-It appears that we more or less agree that this feature may not be
-something we will support forever.
+Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+---
+ Changelog:
+ v3 -> v4:
+  * Rename 'set_rcvlowat' to 'notify_set_rcvlowat'.
+  * Commit message updated.
 
-> I'm more concerned about the other case, which means that there will be
-> wide uses of this feature. A kernel developer may assume the stability
-> of the interface is like one of kernel internal APIs
-> (Documentation/bpf/kfuncs.rst says kfuncs are like EXPORT_SYMBOL_GPL)
-> and decide to change it, breaking old QEMU binaries and that's something
-> I would like to avoid.
->
-> Regarding the breakage scenario, I think we can avoid the kfuncs removal
-> just by saying "we won't remove them". I'm more worried the case that a
-> change in the BPF kfunc infrastucture requires to recompile the binary.
->
-> So, in short, I don't think we can say "kfuncs are like
-> EXPORT_SYMBOL_GPL" and "you can freely use kfuncs in a normal userspace
-> application like QEMU" at the same time.
->
-> >
-[...]
->
-> >
-> > I would recommend you give option 2 a try and share the code. This is
-> > probably the best way to move the discussion forward.
->
-> I'd like to add a documentation change to say the added kfuncs are
-> exceptional cases that are not like EXPORT_SYMBOL_GPL in that case. Will
-> it work?
+ include/net/af_vsock.h           | 2 +-
+ net/vmw_vsock/af_vsock.c         | 9 +++++++--
+ net/vmw_vsock/hyperv_transport.c | 4 ++--
+ 3 files changed, 10 insertions(+), 5 deletions(-)
 
-It will not.
+diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+index e302c0e804d0..535701efc1e5 100644
+--- a/include/net/af_vsock.h
++++ b/include/net/af_vsock.h
+@@ -137,7 +137,6 @@ struct vsock_transport {
+ 	u64 (*stream_rcvhiwat)(struct vsock_sock *);
+ 	bool (*stream_is_active)(struct vsock_sock *);
+ 	bool (*stream_allow)(u32 cid, u32 port);
+-	int (*set_rcvlowat)(struct vsock_sock *vsk, int val);
+ 
+ 	/* SEQ_PACKET. */
+ 	ssize_t (*seqpacket_dequeue)(struct vsock_sock *vsk, struct msghdr *msg,
+@@ -168,6 +167,7 @@ struct vsock_transport {
+ 		struct vsock_transport_send_notify_data *);
+ 	/* sk_lock held by the caller */
+ 	void (*notify_buffer_size)(struct vsock_sock *, u64 *);
++	int (*notify_set_rcvlowat)(struct vsock_sock *vsk, int val);
+ 
+ 	/* Shutdown. */
+ 	int (*shutdown)(struct vsock_sock *, int);
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 816725af281f..54ba7316f808 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -2264,8 +2264,13 @@ static int vsock_set_rcvlowat(struct sock *sk, int val)
+ 
+ 	transport = vsk->transport;
+ 
+-	if (transport && transport->set_rcvlowat)
+-		return transport->set_rcvlowat(vsk, val);
++	if (transport && transport->notify_set_rcvlowat) {
++		int err;
++
++		err = transport->notify_set_rcvlowat(vsk, val);
++		if (err)
++			return err;
++	}
+ 
+ 	WRITE_ONCE(sk->sk_rcvlowat, val ? : 1);
+ 	return 0;
+diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
+index 7cb1a9d2cdb4..e2157e387217 100644
+--- a/net/vmw_vsock/hyperv_transport.c
++++ b/net/vmw_vsock/hyperv_transport.c
+@@ -816,7 +816,7 @@ int hvs_notify_send_post_enqueue(struct vsock_sock *vsk, ssize_t written,
+ }
+ 
+ static
+-int hvs_set_rcvlowat(struct vsock_sock *vsk, int val)
++int hvs_notify_set_rcvlowat(struct vsock_sock *vsk, int val)
+ {
+ 	return -EOPNOTSUPP;
+ }
+@@ -856,7 +856,7 @@ static struct vsock_transport hvs_transport = {
+ 	.notify_send_pre_enqueue  = hvs_notify_send_pre_enqueue,
+ 	.notify_send_post_enqueue = hvs_notify_send_post_enqueue,
+ 
+-	.set_rcvlowat             = hvs_set_rcvlowat
++	.notify_set_rcvlowat      = hvs_notify_set_rcvlowat
+ };
+ 
+ static bool hvs_check_transport(struct vsock_sock *vsk)
+-- 
+2.25.1
 
-The BPF community had a lot of discussions about the stability of BPF APIs,=
- for
-example in [1]. Therefore, this is not a light decision.
-
-AFAICT, what is being proposed in this RFC is way less stable than many kfu=
-ncs
-we added recently. We are not changing the stability guarantee for this. Le=
-t's
-invest our time wisely and work on more meaningful things, for example, a
-prototype that may actually get accepted.
-
-Thanks,
-Song
-
-[1] https://lore.kernel.org/bpf/20221207205537.860248-1-joannelkoong@gmail.=
-com/
