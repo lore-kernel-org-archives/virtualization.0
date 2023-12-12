@@ -1,249 +1,350 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 557FE7A208
-	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 17:51:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0461F7D8B9
+	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 18:00:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="HwT2nbkZ"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="h2PuWfy3"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id DF5C94052A
-	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 17:51:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DF5C94052A
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.a=rsa-sha256 header.s=mail header.b=HwT2nbkZ
+	by smtp3.osuosl.org (Postfix) with ESMTP id 9192360BC3
+	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 18:00:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9192360BC3
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=h2PuWfy3
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.101
+X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 0m19Ge4rP_H6
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id T8RBNOz4J8sL
 	for <virtualization@lists.linux-foundation.org>;
-	Tue, 12 Dec 2023 17:51:29 +0000 (UTC)
-Received: from mx1.sberdevices.ru (mx1.sberdevices.ru [37.18.73.165])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 5D8FE40207
-	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 17:51:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5D8FE40207
-Received: from p-infra-ksmg-sc-msk01 (localhost [127.0.0.1])
-	by mx1.sberdevices.ru (Postfix) with ESMTP id 7D5FD100049;
-	Tue, 12 Dec 2023 20:51:27 +0300 (MSK)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru 7D5FD100049
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
-	s=mail; t=1702403487;
-	bh=yGJlOf/j2McGPzvljEr6MMisBrMZAZjoccSqTDW4uRI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type:From;
-	b=HwT2nbkZMMUfG+DcLYYdXbAFOzWmYbAiTgiStOJHzJon4H0V6FpYVQYy8DzMUF4eg
-	 ssqLixs3C0TJOodMS3BPA6x3wqkStgi2uZNs8OyqBGmaXxqSLHoWFTla0y1X8WtBFS
-	 hGQnq4aNseFR1RFquhM9okKSTRlU1jxD+FXCB+VK8MpESfiUvRWtxArrbQ8wqIcG/M
-	 Mo8n4oohTiczMTowa7YprzLYFkwAVkL9VyHqUWmxMpq9GLTTLopJN3voste/JtYgOW
-	 UzmH31wgPN/WU09FZLCfC1+VctVeqkIys+9HSkKRdV0HG+cJC75AVVFDsljI/PoSZI
-	 fXwZDKvTn0ZGA==
-Received: from smtp.sberdevices.ru (p-i-exch-sc-m01.sberdevices.ru [172.16.192.107])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mx1.sberdevices.ru (Postfix) with ESMTPS;
-	Tue, 12 Dec 2023 20:51:27 +0300 (MSK)
-Received: from [192.168.0.106] (100.64.160.123) by
- p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.40; Tue, 12 Dec 2023 20:51:26 +0300
-Message-ID: <7b362aef-6774-0e08-81e9-0a6f7f616290@salutedevices.com>
-Date: Tue, 12 Dec 2023 20:43:07 +0300
+	Tue, 12 Dec 2023 18:00:12 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 17AEB60B20
+	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 18:00:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 17AEB60B20
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1702404010;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Hi+Je7A1ir5Jf7RMpbBJ6wePhajEbToaWXnOvXBTaw4=;
+	b=h2PuWfy3D+a9HlcTpemTh5DUfzHxYeVyrIJp4gC5zw1ofK+ObkxDm+e9XLrNX9iGPKa2Ty
+	546eQJRrKH5BtRKOthGhBAqtgbhzqRu/Pf++Wv/aOjHrWVR61vLO1H9V2Mp93qHL7nWUAU
+	CdlsR00qy4fK1doTReDYmKdE6j7fJ7U=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-571-cQdurivHN7uPMpxFWqb4NA-1; Tue, 12 Dec 2023 13:00:08 -0500
+X-MC-Unique: cQdurivHN7uPMpxFWqb4NA-1
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-40c299d1e36so41114785e9.1
+        for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 10:00:08 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1702404005; x=1703008805;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Hi+Je7A1ir5Jf7RMpbBJ6wePhajEbToaWXnOvXBTaw4=;
+        b=nGbbfiRjwhoddUuMhi1MqLzZAOZP4fQ9bBCzpHr5DdyfGzBhFyQOjSJfNT2nlF4GUQ
+         bdzNRADMyeQRYatlEng7RSgjK/soOnh+qLAK9wqUfoLz987SbKpKsUBb3AC3B4TwSo9n
+         bU0O443lv1/g77om3eR3LG4vfXsja8Y9bBfzljv4P6QH43YAU4ou0pU9nOngzhr2uxoj
+         ztKIUQaOLlV3Dpoxm5lF4fWcBj5r4mEwJLWurUjfhHiB4R7lkFGNYw54zCuEIJ/9Icxd
+         /FL8p6hFDaePvMyPIP3b7P52YZUROrhXsrBtHd6fMTkE/mkWMD9Y/QOLvERpiUNEtkeh
+         u1og==
+X-Gm-Message-State: AOJu0YzlbZcWtL031uQ1vfKnfJ0fzHMDc6wMyG1Icv/lPqwJSdErqgW7
+	Dj2plmRBsT1WhXYSU2ae+YYrEvEbNZ7/bMe5QoAkCDKfj/nCgZx+xpZ5Bs1ErEXXTWGfYdB2utL
+	yQZ6qWUt+2UsZ8CQef5320D7yynk5UFeKe9HlAJpzOA==
+X-Received: by 2002:a05:600c:22d7:b0:40b:5f03:6f2f with SMTP id 23-20020a05600c22d700b0040b5f036f2fmr2295073wmg.265.1702404004886;
+        Tue, 12 Dec 2023 10:00:04 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFSDxTS0Dbwm0yWFWvFpkddTtVCdD25MSkyGCWfgQkzixXvX6A/om8nqxSeqL3MjgQ1Ea26IA==
+X-Received: by 2002:a05:600c:22d7:b0:40b:5f03:6f2f with SMTP id 23-20020a05600c22d700b0040b5f036f2fmr2295066wmg.265.1702404004421;
+        Tue, 12 Dec 2023 10:00:04 -0800 (PST)
+Received: from redhat.com ([2.52.23.105])
+        by smtp.gmail.com with ESMTPSA id c17-20020a05600c0a5100b0040b4fca8620sm19831250wmq.37.2023.12.12.10.00.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 12 Dec 2023 10:00:03 -0800 (PST)
+Date: Tue, 12 Dec 2023 12:59:59 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: Maxime Coquelin <maxime.coquelin@redhat.com>, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com, paul@paul-moore.com, jmorris@namei.org,
+	serge@hallyn.com, stephen.smalley.work@gmail.com,
+	eparis@parisplace.org, xieyongji@bytedance.com,
+	virtualization@lists.linux-foundation.org,
+	linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+	selinux@vger.kernel.org, david.marchand@redhat.com, lulu@redhat.com
+Subject: Re: [PATCH v5 4/4] vduse: Add LSM hook to check Virtio device type
+Message-ID: <20231212124518-mutt-send-email-mst@kernel.org>
+References: <20231212131712.1816324-1-maxime.coquelin@redhat.com>
+ <20231212131712.1816324-5-maxime.coquelin@redhat.com>
+ <c58da5f5-131f-425e-b008-260506d1bc0d@schaufler-ca.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: [PATCH net-next v8 0/4] send credit update during setting
- SO_RCVLOWAT
-Content-Language: en-US
-To: "Michael S. Tsirkin" <mst@redhat.com>
-CC: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella
-	<sgarzare@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet
-	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
-	<pabeni@redhat.com>, Jason Wang <jasowang@redhat.com>, Bobby Eshleman
-	<bobby.eshleman@bytedance.com>, <kvm@vger.kernel.org>,
-	<virtualization@lists.linux-foundation.org>, <netdev@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <kernel@sberdevices.ru>, <oxffffaa@gmail.com>
-References: <20231211211658.2904268-1-avkrasnov@salutedevices.com>
- <20231212105423-mutt-send-email-mst@kernel.org>
- <d27f22f0-0f1e-e1bb-5b13-a524dc6e94d7@salutedevices.com>
- <20231212111131-mutt-send-email-mst@kernel.org>
-From: Arseniy Krasnov <avkrasnov@salutedevices.com>
-In-Reply-To: <20231212111131-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) To
- p-i-exch-sc-m01.sberdevices.ru (172.16.192.107)
-X-KSMG-Rule-ID: 10
-X-KSMG-Message-Action: clean
-X-KSMG-AntiSpam-Lua-Profiles: 182068 [Dec 12 2023]
-X-KSMG-AntiSpam-Version: 6.1.0.3
-X-KSMG-AntiSpam-Envelope-From: avkrasnov@salutedevices.com
-X-KSMG-AntiSpam-Rate: 0
-X-KSMG-AntiSpam-Status: not_detected
-X-KSMG-AntiSpam-Method: none
-X-KSMG-AntiSpam-Auth: dkim=none
-X-KSMG-AntiSpam-Info: LuaCore: 7 0.3.7 6d6bf5bd8eea7373134f756a2fd73e9456bb7d1a, {Tracking_uf_ne_domains}, {Tracking_from_domain_doesnt_match_to}, smtp.sberdevices.ru:5.0.1,7.1.1;lore.kernel.org:7.1.1;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;salutedevices.com:7.1.1;100.64.160.123:7.1.2;git.kernel.org:7.1.1;127.0.0.199:7.1.2, FromAlignment: s, ApMailHostAddress: 100.64.160.123
-X-MS-Exchange-Organization-SCL: -1
-X-KSMG-AntiSpam-Interceptor-Info: scan successful
-X-KSMG-AntiPhishing: Clean, bases: 2023/12/12 17:04:00
-X-KSMG-LinksScanning: Clean, bases: 2023/12/12 17:03:00
-X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2023/12/12 12:50:00 #22667219
-X-KSMG-AntiVirus-Status: Clean, skipped
+In-Reply-To: <c58da5f5-131f-425e-b008-260506d1bc0d@schaufler-ca.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-
-
-On 12.12.2023 19:12, Michael S. Tsirkin wrote:
-> On Tue, Dec 12, 2023 at 06:59:03PM +0300, Arseniy Krasnov wrote:
->>
->>
->> On 12.12.2023 18:54, Michael S. Tsirkin wrote:
->>> On Tue, Dec 12, 2023 at 12:16:54AM +0300, Arseniy Krasnov wrote:
->>>> Hello,
->>>>
->>>>                                DESCRIPTION
->>>>
->>>> This patchset fixes old problem with hungup of both rx/tx sides and adds
->>>> test for it. This happens due to non-default SO_RCVLOWAT value and
->>>> deferred credit update in virtio/vsock. Link to previous old patchset:
->>>> https://lore.kernel.org/netdev/39b2e9fd-601b-189d-39a9-914e5574524c@sberdevices.ru/
->>>
->>>
->>> Patchset:
->>>
->>> Acked-by: Michael S. Tsirkin <mst@redhat.com>
->>
->> Thanks!
->>
->>>
->>>
->>> But I worry whether we actually need 3/8 in net not in net-next.
->>
->> Because of "Fixes" tag ? I think this problem is not critical and reproducible
->> only in special cases, but i'm not familiar with netdev process so good, so I don't
->> have strong opinion. I guess @Stefano knows better.
->>
->> Thanks, Arseniy
+On Tue, Dec 12, 2023 at 08:33:39AM -0800, Casey Schaufler wrote:
+> On 12/12/2023 5:17 AM, Maxime Coquelin wrote:
+> > This patch introduces a LSM hook for devices creation,
+> > destruction (ioctl()) and opening (open()) operations,
+> > checking the application is allowed to perform these
+> > operations for the Virtio device type.
 > 
-> Fixes means "if you have that other commit then you need this commit
-> too". I think as a minimum you need to rearrange patches to make the
-> fix go in first. We don't want a regression followed by a fix.
+> My earlier comments on a vduse specific LSM hook still hold.
+> I would much prefer to see a device permissions hook(s) that
+> are useful for devices in general. Not just vduse devices.
+> I know that there are already some very special purpose LSM
+> hooks, but the experience with maintaining them is why I don't
+> want more of them. 
 
-I see, ok, @Stefano WDYT? I think rearrange doesn't break anything, because this
-patch fixes problem that is not related with the new patches from this patchset.
+What exactly does this mean? Devices like tap etc? How do we
+find them all though?
 
-Thanks, Arseniy
+> >
+> > Signed-off-by: Maxime Coquelin <maxime.coquelin@redhat.com>
+> > ---
+> >  MAINTAINERS                         |  1 +
+> >  drivers/vdpa/vdpa_user/vduse_dev.c  | 13 ++++++++++++
+> >  include/linux/lsm_hook_defs.h       |  2 ++
+> >  include/linux/security.h            |  6 ++++++
+> >  include/linux/vduse.h               | 14 +++++++++++++
+> >  security/security.c                 | 15 ++++++++++++++
+> >  security/selinux/hooks.c            | 32 +++++++++++++++++++++++++++++
+> >  security/selinux/include/classmap.h |  2 ++
+> >  8 files changed, 85 insertions(+)
+> >  create mode 100644 include/linux/vduse.h
+> >
+> > diff --git a/MAINTAINERS b/MAINTAINERS
+> > index a0fb0df07b43..4e83b14358d2 100644
+> > --- a/MAINTAINERS
+> > +++ b/MAINTAINERS
+> > @@ -23040,6 +23040,7 @@ F:	drivers/net/virtio_net.c
+> >  F:	drivers/vdpa/
+> >  F:	drivers/virtio/
+> >  F:	include/linux/vdpa.h
+> > +F:	include/linux/vduse.h
+> >  F:	include/linux/virtio*.h
+> >  F:	include/linux/vringh.h
+> >  F:	include/uapi/linux/virtio_*.h
+> > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
+> > index fa62825be378..59ab7eb62e20 100644
+> > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> > @@ -8,6 +8,7 @@
+> >   *
+> >   */
+> >  
+> > +#include "linux/security.h"
+> >  #include <linux/init.h>
+> >  #include <linux/module.h>
+> >  #include <linux/cdev.h>
+> > @@ -30,6 +31,7 @@
+> >  #include <uapi/linux/virtio_blk.h>
+> >  #include <uapi/linux/virtio_ring.h>
+> >  #include <linux/mod_devicetable.h>
+> > +#include <linux/vduse.h>
+> >  
+> >  #include "iova_domain.h"
+> >  
+> > @@ -1442,6 +1444,10 @@ static int vduse_dev_open(struct inode *inode, struct file *file)
+> >  	if (dev->connected)
+> >  		goto unlock;
+> >  
+> > +	ret = -EPERM;
+> > +	if (security_vduse_perm_check(VDUSE_PERM_OPEN, dev->device_id))
+> > +		goto unlock;
+> > +
+> >  	ret = 0;
+> >  	dev->connected = true;
+> >  	file->private_data = dev;
+> > @@ -1664,6 +1670,9 @@ static int vduse_destroy_dev(char *name)
+> >  	if (!dev)
+> >  		return -EINVAL;
+> >  
+> > +	if (security_vduse_perm_check(VDUSE_PERM_DESTROY, dev->device_id))
+> > +		return -EPERM;
+> > +
+> >  	mutex_lock(&dev->lock);
+> >  	if (dev->vdev || dev->connected) {
+> >  		mutex_unlock(&dev->lock);
+> > @@ -1828,6 +1837,10 @@ static int vduse_create_dev(struct vduse_dev_config *config,
+> >  	int ret;
+> >  	struct vduse_dev *dev;
+> >  
+> > +	ret = -EPERM;
+> > +	if (security_vduse_perm_check(VDUSE_PERM_CREATE, config->device_id))
+> > +		goto err;
+> > +
+> >  	ret = -EEXIST;
+> >  	if (vduse_find_dev(config->name))
+> >  		goto err;
+> > diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+> > index ff217a5ce552..3930ab2ae974 100644
+> > --- a/include/linux/lsm_hook_defs.h
+> > +++ b/include/linux/lsm_hook_defs.h
+> > @@ -419,3 +419,5 @@ LSM_HOOK(int, 0, uring_override_creds, const struct cred *new)
+> >  LSM_HOOK(int, 0, uring_sqpoll, void)
+> >  LSM_HOOK(int, 0, uring_cmd, struct io_uring_cmd *ioucmd)
+> >  #endif /* CONFIG_IO_URING */
+> > +
+> > +LSM_HOOK(int, 0, vduse_perm_check, enum vduse_op_perm op_perm, u32 device_id)
+> > diff --git a/include/linux/security.h b/include/linux/security.h
+> > index 1d1df326c881..2a2054172394 100644
+> > --- a/include/linux/security.h
+> > +++ b/include/linux/security.h
+> > @@ -32,6 +32,7 @@
+> >  #include <linux/string.h>
+> >  #include <linux/mm.h>
+> >  #include <linux/sockptr.h>
+> > +#include <linux/vduse.h>
+> >  
+> >  struct linux_binprm;
+> >  struct cred;
+> > @@ -484,6 +485,7 @@ int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen);
+> >  int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen);
+> >  int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen);
+> >  int security_locked_down(enum lockdown_reason what);
+> > +int security_vduse_perm_check(enum vduse_op_perm op_perm, u32 device_id);
+> >  #else /* CONFIG_SECURITY */
+> >  
+> >  static inline int call_blocking_lsm_notifier(enum lsm_event event, void *data)
+> > @@ -1395,6 +1397,10 @@ static inline int security_locked_down(enum lockdown_reason what)
+> >  {
+> >  	return 0;
+> >  }
+> > +static inline int security_vduse_perm_check(enum vduse_op_perm op_perm, u32 device_id)
+> > +{
+> > +	return 0;
+> > +}
+> >  #endif	/* CONFIG_SECURITY */
+> >  
+> >  #if defined(CONFIG_SECURITY) && defined(CONFIG_WATCH_QUEUE)
+> > diff --git a/include/linux/vduse.h b/include/linux/vduse.h
+> > new file mode 100644
+> > index 000000000000..7a20dcc43997
+> > --- /dev/null
+> > +++ b/include/linux/vduse.h
+> > @@ -0,0 +1,14 @@
+> > +/* SPDX-License-Identifier: GPL-2.0 */
+> > +#ifndef _LINUX_VDUSE_H
+> > +#define _LINUX_VDUSE_H
+> > +
+> > +/*
+> > + * The permission required for a VDUSE device operation.
+> > + */
+> > +enum vduse_op_perm {
+> > +	VDUSE_PERM_CREATE,
+> > +	VDUSE_PERM_DESTROY,
+> > +	VDUSE_PERM_OPEN,
+> > +};
+> > +
+> > +#endif /* _LINUX_VDUSE_H */
+> > diff --git a/security/security.c b/security/security.c
+> > index dcb3e7014f9b..150abf85f97d 100644
+> > --- a/security/security.c
+> > +++ b/security/security.c
+> > @@ -5337,3 +5337,18 @@ int security_uring_cmd(struct io_uring_cmd *ioucmd)
+> >  	return call_int_hook(uring_cmd, 0, ioucmd);
+> >  }
+> >  #endif /* CONFIG_IO_URING */
+> > +
+> > +/**
+> > + * security_vduse_perm_check() - Check if a VDUSE device type operation is allowed
+> > + * @op_perm: the operation type
+> > + * @device_id: the Virtio device ID
+> > + *
+> > + * Check whether the Virtio device creation is allowed
+> > + *
+> > + * Return: Returns 0 if permission is granted.
+> > + */
+> > +int security_vduse_perm_check(enum vduse_op_perm op_perm, u32 device_id)
+> > +{
+> > +	return call_int_hook(vduse_perm_check, 0, op_perm, device_id);
+> > +}
+> > +EXPORT_SYMBOL(security_vduse_perm_check);
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index feda711c6b7b..18845e4f682f 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -21,6 +21,8 @@
+> >   *  Copyright (C) 2016 Mellanox Technologies
+> >   */
+> >  
+> > +#include "av_permissions.h"
+> > +#include "linux/vduse.h"
+> >  #include <linux/init.h>
+> >  #include <linux/kd.h>
+> >  #include <linux/kernel.h>
+> > @@ -92,6 +94,7 @@
+> >  #include <linux/fsnotify.h>
+> >  #include <linux/fanotify.h>
+> >  #include <linux/io_uring.h>
+> > +#include <uapi/linux/virtio_ids.h>
+> >  
+> >  #include "avc.h"
+> >  #include "objsec.h"
+> > @@ -6950,6 +6953,34 @@ static int selinux_uring_cmd(struct io_uring_cmd *ioucmd)
+> >  }
+> >  #endif /* CONFIG_IO_URING */
+> >  
+> > +static int selinux_vduse_perm_check(enum vduse_op_perm op_perm, u32 device_id)
+> > +{
+> > +	u32 requested_op, requested_type, sid = current_sid();
+> > +	int ret;
+> > +
+> > +	if (op_perm == VDUSE_PERM_CREATE)
+> > +		requested_op = VDUSE__CREATE;
+> > +	else if (op_perm == VDUSE__DESTROY)
+> > +		requested_op = VDUSE__DESTROY;
+> > +	else if (op_perm == VDUSE_PERM_OPEN)
+> > +		requested_op = VDUSE__OPEN;
+> > +	else
+> > +		return -EINVAL;
+> > +
+> > +	ret = avc_has_perm(sid, sid, SECCLASS_VDUSE, requested_op, NULL);
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	if (device_id == VIRTIO_ID_NET)
+> > +		requested_type = VDUSE__NET;
+> > +	else if (device_id == VIRTIO_ID_BLOCK)
+> > +		requested_type = VDUSE__BLOCK;
+> > +	else
+> > +		return -EINVAL;
+> > +
+> > +	return avc_has_perm(sid, sid, SECCLASS_VDUSE, requested_type, NULL);
+> > +}
+> > +
+> >  /*
+> >   * IMPORTANT NOTE: When adding new hooks, please be careful to keep this order:
+> >   * 1. any hooks that don't belong to (2.) or (3.) below,
+> > @@ -7243,6 +7274,7 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
+> >  #ifdef CONFIG_PERF_EVENTS
+> >  	LSM_HOOK_INIT(perf_event_alloc, selinux_perf_event_alloc),
+> >  #endif
+> > +	LSM_HOOK_INIT(vduse_perm_check, selinux_vduse_perm_check),
+> >  };
+> >  
+> >  static __init int selinux_init(void)
+> > diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+> > index a3c380775d41..b0a358cbac1c 100644
+> > --- a/security/selinux/include/classmap.h
+> > +++ b/security/selinux/include/classmap.h
+> > @@ -256,6 +256,8 @@ const struct security_class_mapping secclass_map[] = {
+> >  	  { "override_creds", "sqpoll", "cmd", NULL } },
+> >  	{ "user_namespace",
+> >  	  { "create", NULL } },
+> > +	{ "vduse",
+> > +	  { "create", "destroy", "open", "net", "block", NULL} },
+> >  	{ NULL }
+> >    };
+> >  
 
-> 
->>>
->>> Thanks!
->>>
->>>> Here is what happens step by step:
->>>>
->>>>                                   TEST
->>>>
->>>>                             INITIAL CONDITIONS
->>>>
->>>> 1) Vsock buffer size is 128KB.
->>>> 2) Maximum packet size is also 64KB as defined in header (yes it is
->>>>    hardcoded, just to remind about that value).
->>>> 3) SO_RCVLOWAT is default, e.g. 1 byte.
->>>>
->>>>
->>>>                                  STEPS
->>>>
->>>>             SENDER                              RECEIVER
->>>> 1) sends 128KB + 1 byte in a
->>>>    single buffer. 128KB will
->>>>    be sent, but for 1 byte
->>>>    sender will wait for free
->>>>    space at peer. Sender goes
->>>>    to sleep.
->>>>
->>>>
->>>> 2)                                     reads 64KB, credit update not sent
->>>> 3)                                     sets SO_RCVLOWAT to 64KB + 1
->>>> 4)                                     poll() -> wait forever, there is
->>>>                                        only 64KB available to read.
->>>>
->>>> So in step 4) receiver also goes to sleep, waiting for enough data or
->>>> connection shutdown message from the sender. Idea to fix it is that rx
->>>> kicks tx side to continue transmission (and may be close connection)
->>>> when rx changes number of bytes to be woken up (e.g. SO_RCVLOWAT) and
->>>> this value is bigger than number of available bytes to read.
->>>>
->>>> I've added small test for this, but not sure as it uses hardcoded value
->>>> for maximum packet length, this value is defined in kernel header and
->>>> used to control deferred credit update. And as this is not available to
->>>> userspace, I can't control test parameters correctly (if one day this
->>>> define will be changed - test may become useless). 
->>>>
->>>> Head for this patchset is:
->>>> https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next.git/commit/?id=021b0c952f226236f2edf89c737efb9a28d1422d
->>>>
->>>> Link to v1:
->>>> https://lore.kernel.org/netdev/20231108072004.1045669-1-avkrasnov@salutedevices.com/
->>>> Link to v2:
->>>> https://lore.kernel.org/netdev/20231119204922.2251912-1-avkrasnov@salutedevices.com/
->>>> Link to v3:
->>>> https://lore.kernel.org/netdev/20231122180510.2297075-1-avkrasnov@salutedevices.com/
->>>> Link to v4:
->>>> https://lore.kernel.org/netdev/20231129212519.2938875-1-avkrasnov@salutedevices.com/
->>>> Link to v5:
->>>> https://lore.kernel.org/netdev/20231130130840.253733-1-avkrasnov@salutedevices.com/
->>>> Link to v6:
->>>> https://lore.kernel.org/netdev/20231205064806.2851305-1-avkrasnov@salutedevices.com/
->>>> Link to v7:
->>>> https://lore.kernel.org/netdev/20231206211849.2707151-1-avkrasnov@salutedevices.com/
->>>>
->>>> Changelog:
->>>> v1 -> v2:
->>>>  * Patchset rebased and tested on new HEAD of net-next (see hash above).
->>>>  * New patch is added as 0001 - it removes return from SO_RCVLOWAT set
->>>>    callback in 'af_vsock.c' when transport callback is set - with that
->>>>    we can set 'sk_rcvlowat' only once in 'af_vsock.c' and in future do
->>>>    not copy-paste it to every transport. It was discussed in v1.
->>>>  * See per-patch changelog after ---.
->>>> v2 -> v3:
->>>>  * See changelog after --- in 0003 only (0001 and 0002 still same).
->>>> v3 -> v4:
->>>>  * Patchset rebased and tested on new HEAD of net-next (see hash above).
->>>>  * See per-patch changelog after ---.
->>>> v4 -> v5:
->>>>  * Change patchset tag 'RFC' -> 'net-next'.
->>>>  * See per-patch changelog after ---.
->>>> v5 -> v6:
->>>>  * New patch 0003 which sends credit update during reading bytes from
->>>>    socket.
->>>>  * See per-patch changelog after ---.
->>>> v6 -> v7:
->>>>  * Patchset rebased and tested on new HEAD of net-next (see hash above).
->>>>  * See per-patch changelog after ---.
->>>> v7 -> v8:
->>>>  * See per-patch changelog after ---.
->>>>
->>>> Arseniy Krasnov (4):
->>>>   vsock: update SO_RCVLOWAT setting callback
->>>>   virtio/vsock: send credit update during setting SO_RCVLOWAT
->>>>   virtio/vsock: fix logic which reduces credit update messages
->>>>   vsock/test: two tests to check credit update logic
->>>>
->>>>  drivers/vhost/vsock.c                   |   1 +
->>>>  include/linux/virtio_vsock.h            |   1 +
->>>>  include/net/af_vsock.h                  |   2 +-
->>>>  net/vmw_vsock/af_vsock.c                |   9 +-
->>>>  net/vmw_vsock/hyperv_transport.c        |   4 +-
->>>>  net/vmw_vsock/virtio_transport.c        |   1 +
->>>>  net/vmw_vsock/virtio_transport_common.c |  43 +++++-
->>>>  net/vmw_vsock/vsock_loopback.c          |   1 +
->>>>  tools/testing/vsock/vsock_test.c        | 175 ++++++++++++++++++++++++
->>>>  9 files changed, 229 insertions(+), 8 deletions(-)
->>>>
->>>> -- 
->>>> 2.25.1
->>>
-> 
