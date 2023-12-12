@@ -1,79 +1,79 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF20C5B5D5
-	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 18:27:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8784B320B
+	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 18:33:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PpW0KCeq"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Sg+GXmAM"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 51DBB60AA7
-	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 18:27:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 51DBB60AA7
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PpW0KCeq
+	by smtp4.osuosl.org (Postfix) with ESMTP id 10A7441A7A
+	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 18:33:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 10A7441A7A
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Sg+GXmAM
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id iEw6v8zGY3_d
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id c1Y9VjaLS_7j
 	for <virtualization@lists.linux-foundation.org>;
-	Tue, 12 Dec 2023 18:27:20 +0000 (UTC)
+	Tue, 12 Dec 2023 18:33:38 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 41FCE60A84
-	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 18:27:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 41FCE60A84
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 3621741A43
+	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 18:33:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3621741A43
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1702405639;
+	s=mimecast20190719; t=1702406017;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=9I/WhQuPQ9xKjL/QBC35QAnSnzeBaWbmyN2v17V0JOE=;
-	b=PpW0KCeqac1shh6ugpAlHB5o6VjayWR3DR3HfDd+9BoQjycLWh6CiJHPH6ORvWozOEvLpn
-	piMErqonu87B/qgEGY1679Nzwn6+lYxKt/AQKVhzUBMT3RQudzZX0SPId/xJ3LieYiXJe+
-	TSv/RbtCKygyDtqILvde5e4JTI36ouo=
-Received: from mail-oo1-f72.google.com (mail-oo1-f72.google.com
- [209.85.161.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=DY4Ho2xtxV0ldC2dQ8P0wLgCZVZkQ1qv4NfOBypcZ+I=;
+	b=Sg+GXmAMvgKZcqzMioHXAJe+4Csu0BFtp/sL7e0B2R/p3ZyrUuUfbVQ0fCKiraK7sgUBM4
+	HexWSZ9hFhi4nu0iSDfwF5RGavrArznBRAczGaZEl42D6/73FSF93rrFBPrt+NOnNcfJ5N
+	X+1GE0Yygf2nQKowS6AA1jl5Z5sKIS8=
+Received: from mail-yb1-f199.google.com (mail-yb1-f199.google.com
+ [209.85.219.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-120-tLrqowE3PEi7qqM5X2ODKg-1; Tue, 12 Dec 2023 13:27:17 -0500
-X-MC-Unique: tLrqowE3PEi7qqM5X2ODKg-1
-Received: by mail-oo1-f72.google.com with SMTP id 006d021491bc7-590b580ae39so4707566eaf.3
-        for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 10:27:17 -0800 (PST)
+ us-mta-624-deS4YLjmNguO1Og7R3Tqtw-1; Tue, 12 Dec 2023 13:33:34 -0500
+X-MC-Unique: deS4YLjmNguO1Og7R3Tqtw-1
+Received: by mail-yb1-f199.google.com with SMTP id 3f1490d57ef6-dbcc8f895daso226188276.2
+        for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 10:33:34 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702405637; x=1703010437;
+        d=1e100.net; s=20230601; t=1702406014; x=1703010814;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=9I/WhQuPQ9xKjL/QBC35QAnSnzeBaWbmyN2v17V0JOE=;
-        b=SlWEeijpB/rkXmwWp+2nZNaqaqSrUJzy2mlBVtWOU/ScsCLxOmj4IG/BMhxeVSYlEN
-         jtheQAyz1h+tHSvUy05lVNm5v5b/1z8m6Yy3/+YxBt9uHZUlLzCxCXXIWOt2WGJ+MBSu
-         dGf2OwRMSNzKD8Eg3trx7eoD4ed3wU5AkC0ZgD4vRXejvW9JiKQoEb75nVA0/Ng6Iwzl
-         +11j7OciswbAGS1LqbWa5Zx7+MDimr6WV7egD9pXdO/O4GMu4l191TE4zNXtPJRfdFDf
-         gOcIDKRjrx4bwbGlXlNPWRRuBSxqWABiDQFEUhlzE8h5yUe+jIYE/uZo8YQhReevFnlV
-         g18Q==
-X-Gm-Message-State: AOJu0YxCmQEQSOPYuyceR34d3VEHoHhcxUT0A43aI7F9JpKq9ykMHuSX
-	pSlV48vIQzybuGvuBlp0fkBo0KLArG5JngOCZP2tX0spFEVcekYc/E3jOWdsyO8t7P0plqjDt+8
-	dwu2H68+lRmmJJ77c7PRGOm2MuYlBhIdTvQTIdVHTffYNV+0mkkzpFZvyzg==
-X-Received: by 2002:a05:6870:7247:b0:1ff:8a1:3a7b with SMTP id y7-20020a056870724700b001ff08a13a7bmr8108096oaf.79.1702405637165;
-        Tue, 12 Dec 2023 10:27:17 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEloJeZ3a0OZHp0Ze9feyHcq9XcVgdLpOrobqWfSDxMy222VbNJv5X0qTa2Of/QZg6ORvvPNWfH6KuDpS4ajtk=
-X-Received: by 2002:a05:6870:7247:b0:1ff:8a1:3a7b with SMTP id
- y7-20020a056870724700b001ff08a13a7bmr8108037oaf.79.1702405635418; Tue, 12 Dec
- 2023 10:27:15 -0800 (PST)
+        bh=DY4Ho2xtxV0ldC2dQ8P0wLgCZVZkQ1qv4NfOBypcZ+I=;
+        b=sroATD2fkQYApgcM53A3lTpX5uNJDTLVH9wT1tV0IUfcHkGDo/A4+4qV/N+ylZfY2Z
+         JD6R0YfffTecF/h+6dpR8Ox04Yi0BZhNH//2wksek2L/9evfRZ6cZeNm5iBNASDmdBnN
+         uTkso3JrxLF0275Ef0kYieDt40OSvk4tvU76MZd1vHILwcf4l55iMB09FI+oAhUIT6Q1
+         Oh+xkplushk4maFymmQO+JuFCF3RDv5ukYeLjxGagNvM52hDjwm3iwpcEl0wsVPV4Amg
+         yOJDPjhg9ywgg7uVuJzyv6NE9Nx/97ArqxjAas3Y+e5ehV8aNseD+imTr9dDolbvZDKB
+         NDug==
+X-Gm-Message-State: AOJu0YyutBTAG8U+KBhlOJ2/juYSLuVgSgMd0q+9InA4sM3wcamoRIj9
+	/t1qwgCRmDKoRMJDksyhdPyVFpqXpu2y+3X5nj6DyRgq1SVRvGC5b3rIbcHlXoCzlhXPp+EP4Cm
+	epatfOqVq2S43vMaSoyBoPtqnGrDGxbYSGPIkoAcHfo61NFujaE+3xl4mAA==
+X-Received: by 2002:a25:694e:0:b0:db7:dad0:76d4 with SMTP id e75-20020a25694e000000b00db7dad076d4mr4083017ybc.112.1702406013889;
+        Tue, 12 Dec 2023 10:33:33 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGgHGmEdl6YUM2TV851wK+4D25Di/15UW9oEJOx2YbjevvT2YLhlXlylB0hU41DH45mMWlAUyKq8X2SP6Z8qeI=
+X-Received: by 2002:a25:694e:0:b0:db7:dad0:76d4 with SMTP id
+ e75-20020a25694e000000b00db7dad076d4mr4083010ybc.112.1702406013590; Tue, 12
+ Dec 2023 10:33:33 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20231205104609.876194-1-dtatulea@nvidia.com> <20231205104609.876194-8-dtatulea@nvidia.com>
-In-Reply-To: <20231205104609.876194-8-dtatulea@nvidia.com>
+References: <20231205104609.876194-1-dtatulea@nvidia.com> <20231205104609.876194-9-dtatulea@nvidia.com>
+In-Reply-To: <20231205104609.876194-9-dtatulea@nvidia.com>
 From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Tue, 12 Dec 2023 19:26:39 +0100
-Message-ID: <CAJaqyWe=qP_DOHdETYSBSLtNsxdQOPh6FBS+YBSCwownOv4rfA@mail.gmail.com>
-Subject: Re: [PATCH vhost v2 7/8] vdpa/mlx5: Introduce reference counting to mrs
+Date: Tue, 12 Dec 2023 19:32:57 +0100
+Message-ID: <CAJaqyWcZou64q2VBgVdJMK3KbJVx9eduRiju8vjXnKa8gv52ng@mail.gmail.com>
+Subject: Re: [PATCH vhost v2 8/8] vdpa/mlx5: Add mkey leak detection
 To: Dragos Tatulea <dtatulea@nvidia.com>
 Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
 	Si-Wei Liu <si-wei.liu@oracle.com>, Saeed Mahameed <saeedm@nvidia.com>, 
@@ -88,21 +88,8 @@ Content-Transfer-Encoding: quoted-printable
 On Tue, Dec 5, 2023 at 11:47=E2=80=AFAM Dragos Tatulea <dtatulea@nvidia.com=
 > wrote:
 >
-> Deleting the old mr during mr update (.set_map) and then modifying the
-> vqs with the new mr is not a good flow for firmware. The firmware
-> expects that mkeys are deleted after there are no more vqs referencing
-> them.
->
-> Introduce reference counting for mrs to fix this. It is the only way to
-> make sure that mkeys are not in use by vqs.
->
-> An mr reference is taken when the mr is associated to the mr asid table
-> and when the mr is linked to the vq on create/modify. The reference is
-> released when the mkey is unlinked from the vq (trough modify/destroy)
-> and from the mr asid table.
->
-> To make things consistent, get rid of mlx5_vdpa_destroy_mr and use
-> get/put semantics everywhere.
+> Track allocated mrs in a list and show warning when leaks are detected
+> on device free or reset.
 >
 > Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
 > Reviewed-by: Gal Pressman <gal@nvidia.com>
@@ -110,281 +97,107 @@ On Tue, Dec 5, 2023 at 11:47=E2=80=AFAM Dragos Tatulea <dtatulea@nvidia.com=
 Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
 
 > ---
->  drivers/vdpa/mlx5/core/mlx5_vdpa.h |  8 +++--
->  drivers/vdpa/mlx5/core/mr.c        | 50 ++++++++++++++++++++----------
->  drivers/vdpa/mlx5/net/mlx5_vnet.c  | 45 ++++++++++++++++++++++-----
->  3 files changed, 78 insertions(+), 25 deletions(-)
+>  drivers/vdpa/mlx5/core/mlx5_vdpa.h |  2 ++
+>  drivers/vdpa/mlx5/core/mr.c        | 23 +++++++++++++++++++++++
+>  drivers/vdpa/mlx5/net/mlx5_vnet.c  |  2 ++
+>  3 files changed, 27 insertions(+)
 >
 > diff --git a/drivers/vdpa/mlx5/core/mlx5_vdpa.h b/drivers/vdpa/mlx5/core/=
 mlx5_vdpa.h
-> index 84547d998bcf..1a0d27b6e09a 100644
+> index 1a0d27b6e09a..50aac8fe57ef 100644
 > --- a/drivers/vdpa/mlx5/core/mlx5_vdpa.h
 > +++ b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-> @@ -35,6 +35,8 @@ struct mlx5_vdpa_mr {
->         struct vhost_iotlb *iotlb;
->
+> @@ -37,6 +37,7 @@ struct mlx5_vdpa_mr {
 >         bool user_mr;
-> +
-> +       refcount_t refcount;
+>
+>         refcount_t refcount;
+> +       struct list_head mr_list;
 >  };
 >
 >  struct mlx5_vdpa_resources {
-> @@ -118,8 +120,10 @@ int mlx5_vdpa_destroy_mkey(struct mlx5_vdpa_dev *mvd=
-ev, u32 mkey);
->  struct mlx5_vdpa_mr *mlx5_vdpa_create_mr(struct mlx5_vdpa_dev *mvdev,
->                                          struct vhost_iotlb *iotlb);
->  void mlx5_vdpa_destroy_mr_resources(struct mlx5_vdpa_dev *mvdev);
-> -void mlx5_vdpa_destroy_mr(struct mlx5_vdpa_dev *mvdev,
-> -                         struct mlx5_vdpa_mr *mr);
-> +void mlx5_vdpa_get_mr(struct mlx5_vdpa_dev *mvdev,
-> +                     struct mlx5_vdpa_mr *mr);
-> +void mlx5_vdpa_put_mr(struct mlx5_vdpa_dev *mvdev,
-> +                     struct mlx5_vdpa_mr *mr);
->  void mlx5_vdpa_update_mr(struct mlx5_vdpa_dev *mvdev,
->                          struct mlx5_vdpa_mr *mr,
->                          unsigned int asid);
+> @@ -95,6 +96,7 @@ struct mlx5_vdpa_dev {
+>         u32 generation;
+>
+>         struct mlx5_vdpa_mr *mr[MLX5_VDPA_NUM_AS];
+> +       struct list_head mr_list_head;
+>         /* serialize mr access */
+>         struct mutex mr_mtx;
+>         struct mlx5_control_vq cvq;
 > diff --git a/drivers/vdpa/mlx5/core/mr.c b/drivers/vdpa/mlx5/core/mr.c
-> index 2197c46e563a..c7dc8914354a 100644
+> index c7dc8914354a..4758914ccf86 100644
 > --- a/drivers/vdpa/mlx5/core/mr.c
 > +++ b/drivers/vdpa/mlx5/core/mr.c
-> @@ -498,32 +498,52 @@ static void destroy_user_mr(struct mlx5_vdpa_dev *m=
-vdev, struct mlx5_vdpa_mr *mr
->
->  static void _mlx5_vdpa_destroy_mr(struct mlx5_vdpa_dev *mvdev, struct ml=
-x5_vdpa_mr *mr)
->  {
-> +       if (WARN_ON(!mr))
-> +               return;
-> +
->         if (mr->user_mr)
->                 destroy_user_mr(mvdev, mr);
->         else
->                 destroy_dma_mr(mvdev, mr);
+> @@ -508,6 +508,8 @@ static void _mlx5_vdpa_destroy_mr(struct mlx5_vdpa_de=
+v *mvdev, struct mlx5_vdpa_
 >
 >         vhost_iotlb_free(mr->iotlb);
+>
+> +       list_del(&mr->mr_list);
 > +
-> +       kfree(mr);
+>         kfree(mr);
 >  }
 >
-> -void mlx5_vdpa_destroy_mr(struct mlx5_vdpa_dev *mvdev,
-> -                         struct mlx5_vdpa_mr *mr)
-> +static void _mlx5_vdpa_put_mr(struct mlx5_vdpa_dev *mvdev,
-> +                             struct mlx5_vdpa_mr *mr)
->  {
->         if (!mr)
->                 return;
->
-> +       if (refcount_dec_and_test(&mr->refcount))
-> +               _mlx5_vdpa_destroy_mr(mvdev, mr);
-> +}
-> +
-> +void mlx5_vdpa_put_mr(struct mlx5_vdpa_dev *mvdev,
-> +                     struct mlx5_vdpa_mr *mr)
-> +{
->         mutex_lock(&mvdev->mr_mtx);
-> +       _mlx5_vdpa_put_mr(mvdev, mr);
-> +       mutex_unlock(&mvdev->mr_mtx);
-> +}
->
-> -       _mlx5_vdpa_destroy_mr(mvdev, mr);
-> +static void _mlx5_vdpa_get_mr(struct mlx5_vdpa_dev *mvdev,
-> +                             struct mlx5_vdpa_mr *mr)
-> +{
-> +       if (!mr)
-> +               return;
->
-> -       for (int i =3D 0; i < MLX5_VDPA_NUM_AS; i++) {
-> -               if (mvdev->mr[i] =3D=3D mr)
-> -                       mvdev->mr[i] =3D NULL;
-> -       }
-> +       refcount_inc(&mr->refcount);
-> +}
->
-> +void mlx5_vdpa_get_mr(struct mlx5_vdpa_dev *mvdev,
-> +                     struct mlx5_vdpa_mr *mr)
-> +{
-> +       mutex_lock(&mvdev->mr_mtx);
-> +       _mlx5_vdpa_get_mr(mvdev, mr);
->         mutex_unlock(&mvdev->mr_mtx);
-> -
-> -       kfree(mr);
->  }
->
->  void mlx5_vdpa_update_mr(struct mlx5_vdpa_dev *mvdev,
-> @@ -534,20 +554,16 @@ void mlx5_vdpa_update_mr(struct mlx5_vdpa_dev *mvde=
+> @@ -560,12 +562,31 @@ void mlx5_vdpa_update_mr(struct mlx5_vdpa_dev *mvde=
 v,
->
->         mutex_lock(&mvdev->mr_mtx);
->
-> +       _mlx5_vdpa_put_mr(mvdev, old_mr);
->         mvdev->mr[asid] =3D new_mr;
-> -       if (old_mr) {
-> -               _mlx5_vdpa_destroy_mr(mvdev, old_mr);
-> -               kfree(old_mr);
-> -       }
->
 >         mutex_unlock(&mvdev->mr_mtx);
-> -
 >  }
 >
+> +static void mlx5_vdpa_show_mr_leaks(struct mlx5_vdpa_dev *mvdev)
+> +{
+> +       struct mlx5_vdpa_mr *mr;
+> +
+> +       mutex_lock(&mvdev->mr_mtx);
+> +
+> +       list_for_each_entry(mr, &mvdev->mr_list_head, mr_list) {
+> +
+> +               mlx5_vdpa_warn(mvdev, "mkey still alive after resource de=
+lete: "
+> +                                     "mr: %p, mkey: 0x%x, refcount: %u\n=
+",
+> +                                      mr, mr->mkey, refcount_read(&mr->r=
+efcount));
+> +       }
+> +
+> +       mutex_unlock(&mvdev->mr_mtx);
+> +
+> +}
+> +
 >  void mlx5_vdpa_destroy_mr_resources(struct mlx5_vdpa_dev *mvdev)
 >  {
 >         for (int i =3D 0; i < MLX5_VDPA_NUM_AS; i++)
-> -               mlx5_vdpa_destroy_mr(mvdev, mvdev->mr[i]);
-> +               mlx5_vdpa_update_mr(mvdev, NULL, i);
+>                 mlx5_vdpa_update_mr(mvdev, NULL, i);
 >
 >         prune_iotlb(mvdev->cvq.iotlb);
+> +
+> +       mlx5_vdpa_show_mr_leaks(mvdev);
 >  }
-> @@ -607,6 +623,8 @@ struct mlx5_vdpa_mr *mlx5_vdpa_create_mr(struct mlx5_=
-vdpa_dev *mvdev,
+>
+>  static int _mlx5_vdpa_create_mr(struct mlx5_vdpa_dev *mvdev,
+> @@ -592,6 +613,8 @@ static int _mlx5_vdpa_create_mr(struct mlx5_vdpa_dev =
+*mvdev,
 >         if (err)
->                 goto out_err;
+>                 goto err_iotlb;
 >
-> +       refcount_set(&mr->refcount, 1);
-> +
->         return mr;
->
->  out_err:
-> @@ -651,7 +669,7 @@ int mlx5_vdpa_reset_mr(struct mlx5_vdpa_dev *mvdev, u=
-nsigned int asid)
->         if (asid >=3D MLX5_VDPA_NUM_AS)
->                 return -EINVAL;
->
-> -       mlx5_vdpa_destroy_mr(mvdev, mvdev->mr[asid]);
-> +       mlx5_vdpa_update_mr(mvdev, NULL, asid);
->
->         if (asid =3D=3D 0 && MLX5_CAP_GEN(mvdev->mdev, umem_uid_0)) {
->                 if (mlx5_vdpa_create_dma_mr(mvdev))
-> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/ml=
-x5_vnet.c
-> index 6a21223d97a8..133cbb66dcfe 100644
-> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> @@ -123,6 +123,9 @@ struct mlx5_vdpa_virtqueue {
->
->         u64 modified_fields;
->
-> +       struct mlx5_vdpa_mr *vq_mr;
-> +       struct mlx5_vdpa_mr *desc_mr;
-> +
->         struct msi_map map;
->
->         /* keep last in the struct */
-> @@ -946,6 +949,14 @@ static int create_virtqueue(struct mlx5_vdpa_net *nd=
-ev, struct mlx5_vdpa_virtque
->         kfree(in);
->         mvq->virtq_id =3D MLX5_GET(general_obj_out_cmd_hdr, out, obj_id);
->
-> +       mlx5_vdpa_get_mr(mvdev, vq_mr);
-> +       mvq->vq_mr =3D vq_mr;
-> +
-> +       if (vq_desc_mr && MLX5_CAP_DEV_VDPA_EMULATION(mvdev->mdev, desc_g=
-roup_mkey_supported)) {
-> +               mlx5_vdpa_get_mr(mvdev, vq_desc_mr);
-> +               mvq->desc_mr =3D vq_desc_mr;
-> +       }
+> +       list_add_tail(&mr->mr_list, &mvdev->mr_list_head);
 > +
 >         return 0;
 >
->  err_cmd:
-> @@ -972,6 +983,12 @@ static void destroy_virtqueue(struct mlx5_vdpa_net *=
-ndev, struct mlx5_vdpa_virtq
->         }
->         mvq->fw_state =3D MLX5_VIRTIO_NET_Q_OBJECT_NONE;
->         umems_destroy(ndev, mvq);
+>  err_iotlb:
+> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/ml=
+x5_vnet.c
+> index 133cbb66dcfe..778821bab7d9 100644
+> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> @@ -3722,6 +3722,8 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *=
+v_mdev, const char *name,
+>         if (err)
+>                 goto err_mpfs;
+>
+> +       INIT_LIST_HEAD(&mvdev->mr_list_head);
 > +
-> +       mlx5_vdpa_put_mr(&ndev->mvdev, mvq->vq_mr);
-> +       mvq->vq_mr =3D NULL;
-> +
-> +       mlx5_vdpa_put_mr(&ndev->mvdev, mvq->desc_mr);
-> +       mvq->desc_mr =3D NULL;
->  }
->
->  static u32 get_rqpn(struct mlx5_vdpa_virtqueue *mvq, bool fw)
-> @@ -1207,6 +1224,8 @@ static int modify_virtqueue(struct mlx5_vdpa_net *n=
-dev,
->         int inlen =3D MLX5_ST_SZ_BYTES(modify_virtio_net_q_in);
->         u32 out[MLX5_ST_SZ_DW(modify_virtio_net_q_out)] =3D {};
->         struct mlx5_vdpa_dev *mvdev =3D &ndev->mvdev;
-> +       struct mlx5_vdpa_mr *desc_mr =3D NULL;
-> +       struct mlx5_vdpa_mr *vq_mr =3D NULL;
->         bool state_change =3D false;
->         void *obj_context;
->         void *cmd_hdr;
-> @@ -1257,19 +1276,19 @@ static int modify_virtqueue(struct mlx5_vdpa_net =
-*ndev,
->                 MLX5_SET(virtio_net_q_object, obj_context, hw_used_index,=
- mvq->used_idx);
->
->         if (mvq->modified_fields & MLX5_VIRTQ_MODIFY_MASK_VIRTIO_Q_MKEY) =
-{
-> -               struct mlx5_vdpa_mr *mr =3D mvdev->mr[mvdev->group2asid[M=
-LX5_VDPA_DATAVQ_GROUP]];
-> +               vq_mr =3D mvdev->mr[mvdev->group2asid[MLX5_VDPA_DATAVQ_GR=
-OUP]];
->
-> -               if (mr)
-> -                       MLX5_SET(virtio_q, vq_ctx, virtio_q_mkey, mr->mke=
-y);
-> +               if (vq_mr)
-> +                       MLX5_SET(virtio_q, vq_ctx, virtio_q_mkey, vq_mr->=
-mkey);
->                 else
->                         mvq->modified_fields &=3D ~MLX5_VIRTQ_MODIFY_MASK=
-_VIRTIO_Q_MKEY;
->         }
->
->         if (mvq->modified_fields & MLX5_VIRTQ_MODIFY_MASK_DESC_GROUP_MKEY=
-) {
-> -               struct mlx5_vdpa_mr *mr =3D mvdev->mr[mvdev->group2asid[M=
-LX5_VDPA_DATAVQ_DESC_GROUP]];
-> +               desc_mr =3D mvdev->mr[mvdev->group2asid[MLX5_VDPA_DATAVQ_=
-DESC_GROUP]];
->
-> -               if (mr && MLX5_CAP_DEV_VDPA_EMULATION(mvdev->mdev, desc_g=
-roup_mkey_supported))
-> -                       MLX5_SET(virtio_q, vq_ctx, desc_group_mkey, mr->m=
-key);
-> +               if (desc_mr && MLX5_CAP_DEV_VDPA_EMULATION(mvdev->mdev, d=
-esc_group_mkey_supported))
-> +                       MLX5_SET(virtio_q, vq_ctx, desc_group_mkey, desc_=
-mr->mkey);
->                 else
->                         mvq->modified_fields &=3D ~MLX5_VIRTQ_MODIFY_MASK=
-_DESC_GROUP_MKEY;
->         }
-> @@ -1282,6 +1301,18 @@ static int modify_virtqueue(struct mlx5_vdpa_net *=
-ndev,
->         if (state_change)
->                 mvq->fw_state =3D state;
->
-> +       if (mvq->modified_fields & MLX5_VIRTQ_MODIFY_MASK_VIRTIO_Q_MKEY) =
-{
-> +               mlx5_vdpa_put_mr(mvdev, mvq->vq_mr);
-> +               mlx5_vdpa_get_mr(mvdev, vq_mr);
-> +               mvq->vq_mr =3D vq_mr;
-> +       }
-> +
-> +       if (mvq->modified_fields & MLX5_VIRTQ_MODIFY_MASK_DESC_GROUP_MKEY=
-) {
-> +               mlx5_vdpa_put_mr(mvdev, mvq->desc_mr);
-> +               mlx5_vdpa_get_mr(mvdev, desc_mr);
-> +               mvq->desc_mr =3D desc_mr;
-> +       }
-> +
->         mvq->modified_fields =3D 0;
->
->  done:
-> @@ -3095,7 +3126,7 @@ static int set_map_data(struct mlx5_vdpa_dev *mvdev=
-, struct vhost_iotlb *iotlb,
->         return mlx5_vdpa_update_cvq_iotlb(mvdev, iotlb, asid);
->
->  out_err:
-> -       mlx5_vdpa_destroy_mr(mvdev, new_mr);
-> +       mlx5_vdpa_put_mr(mvdev, new_mr);
->         return err;
->  }
->
+>         if (MLX5_CAP_GEN(mvdev->mdev, umem_uid_0)) {
+>                 err =3D mlx5_vdpa_create_dma_mr(mvdev);
+>                 if (err)
 > --
 > 2.42.0
 >
