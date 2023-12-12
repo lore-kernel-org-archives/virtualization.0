@@ -1,215 +1,171 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FC74D2E1
-	for <virtualization@lists.linux.dev>; Tue, 12 Dec 2023 04:35:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3195718049
+	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 08:05:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fY21y5tr"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1702355720;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=3VntsOLPXuWJtx6zQj2tvFN5GConn9kSc0M72tw246g=;
-	b=fY21y5trR46im1+Qy8QOObhsQMJZbsfgzNB7fhDoPU7RrAhQEZHRxrbTkOJr/QnXUS/ctd
-	YmcPfJZ3e7gld/jOwfpll2xV2ROhej+hMuL8+as9EOhNMZQxKNLIuWR9kj+eyZbcx2QLFu
-	vCWvYPcmaEUYKd2Kx1HxfiC3GspD9Fg=
-Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
- [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-345-l2DdY2mPPyCf7-eDRn9pog-1; Mon, 11 Dec 2023 23:35:16 -0500
-X-MC-Unique: l2DdY2mPPyCf7-eDRn9pog-1
-Received: by mail-qk1-f199.google.com with SMTP id af79cd13be357-77f54de7f10so531876485a.1
-        for <virtualization@lists.linux.dev>; Mon, 11 Dec 2023 20:35:16 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="k3iFPADr"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id AC52D60F48
+	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 08:05:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AC52D60F48
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=k3iFPADr
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -1.898
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id A3pMaOUTeX0l
+	for <virtualization@lists.linux-foundation.org>;
+	Tue, 12 Dec 2023 08:05:24 +0000 (UTC)
+Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 6175060C06
+	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 08:05:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6175060C06
+Received: by mail-pg1-x530.google.com with SMTP id 41be03b00d2f7-5ca1b4809b5so659516a12.3
+        for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 00:05:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1702368322; x=1702973122; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:cc:subject:from:to:content-language
+         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=xyrJ/oaF1a1+OdMWUr85QqR8PoKu+Afm3G/pEUOxUgM=;
+        b=k3iFPADrj4gEEUR7hOsWAmIkXSm9jzEkNfI9TQ1lTZRpsY+P+JAcYuFvD6hByQLE0B
+         gQXTXe/0WKsOkM/uCfIgaijzGDuemKSNcdzNlueRBqXqMNHp6zd/6+AcpT4O7CzYJAHK
+         ZQOtjsYMBBkGfXVI54boqp1Eyx7ZxLll+S3VeMjeCFiRzx87k6xH7JHGuLo31vWxGIt9
+         y5oGnjkiCxGY8qsa6yGUqmC+ZYPNw/J5jBJgwe+qbbaV+MO5BMQioEVLwrXaOLNYCGz2
+         JoSlCWFECe6InYC35EUUchqESiZ2oHNbEtrnNnCpCtIQmsSkcYwcv9c6IbnS2PiIMn3D
+         pErQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702355716; x=1702960516;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=3VntsOLPXuWJtx6zQj2tvFN5GConn9kSc0M72tw246g=;
-        b=I0FTedyBm8YIX95Rpt3Ql4sJh9Xxazq5bMTp33r0CWAT47pzbaCjx438/hwdUuNKmi
-         Uoc5EFNw2FwyiFNWyBbPGk5tLb75sSmLvCt9lNqiGdzOhrVhCU2xmETNO3WgyOtEZM1Q
-         GFeOdUwZ1Mo69AJMUlnVuCTAFKqZgIiVwzyk2b12wltjJdu4KUPfwrBDOvE+UA1jOIM7
-         fpAfzWL/X7Z6xb1WqjvB4J9BSrYTjRf+Rc6m+F1vRJOyVXE1CV4RcUeUAMRPLmUpMPdi
-         CVXHpkSxKQKm8o5tHkJ625cblZ/J/9aQ11lRhM2bHi2zveA7XFq0jTLBRt/EFRMmJDlv
-         g0bg==
-X-Gm-Message-State: AOJu0Ywp4PmeB/8ZLxjO9Ecu4OTorpZZzhLSSEfliQXIBsk3lrHpckUt
-	aFfbEzIpv2ccO7eiqNj9WupC/xulYS9kTsrTxAcU7zhzuN/KqTfo5xw1q5vr5ikYzWYaJKZwZOs
-	TbIMCqoevI63G2gRJeM5dE8i9vC9bdXOYiynIhHm4ywk=
-X-Received: by 2002:a05:620a:4614:b0:77f:6dd:4dba with SMTP id br20-20020a05620a461400b0077f06dd4dbamr8523584qkb.96.1702355716196;
-        Mon, 11 Dec 2023 20:35:16 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGrOyuf1Odoaak2ZYdtgyzyZFIpFfyG35pal8NbvcJN0xXVIGcCgktqW+IfyPOYVkS+zor94oNUfe4BlGyRZ3A=
-X-Received: by 2002:a05:620a:4614:b0:77f:6dd:4dba with SMTP id
- br20-20020a05620a461400b0077f06dd4dbamr8523573qkb.96.1702355715908; Mon, 11
- Dec 2023 20:35:15 -0800 (PST)
+        d=1e100.net; s=20230601; t=1702368322; x=1702973122;
+        h=content-transfer-encoding:cc:subject:from:to:content-language
+         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=xyrJ/oaF1a1+OdMWUr85QqR8PoKu+Afm3G/pEUOxUgM=;
+        b=gmxUGDwFi1IAN+lQzLJB9RqzSG47Jr8JZWUcpfD4ZskPhgt6ri5TuKqiUjsLfocU4J
+         xb8anFD1HRO86CpoGre00dXZ7PhDsCrndu7iq2cDkQKEGNJiP9L9EE72ShFPopD9uF52
+         WYJnDVPbYriAmfrLDrkGHGxaZTHUSprX/yZSe4FSxVnVB7Q3V32seGJRA2FBvcjKQF68
+         h1vgpIw6St9mbSUYIgCuBGyXkChqliBdVAFcmCeY0sChQ3UCmH+OmSPX57y+0iTfqBdd
+         1dJZSZS7ERD2+fiyoqb24D0v7EVm4osqz7527E3shphcbYmN7t8BBNmNQiktfvcqDjev
+         jhvQ==
+X-Gm-Message-State: AOJu0YweX0YaqVdrNCJ8YmAulY2VcX6fZU8CvSXFv178G5n5VBw/ORaw
+	Sb7dIYcDY/dPtvmVN57Ejqa4EQ==
+X-Google-Smtp-Source: AGHT+IEql1gIzfMgiC3uwAyX05ccRP/TJmlVXqhwk7OLXHzm7HuO8eWQfZEt37CKdp9jdfYH1gF7Bw==
+X-Received: by 2002:a05:6a21:999d:b0:18f:fb0d:e961 with SMTP id ve29-20020a056a21999d00b0018ffb0de961mr3147656pzb.60.1702368322598;
+        Tue, 12 Dec 2023 00:05:22 -0800 (PST)
+Received: from [157.82.205.15] ([157.82.205.15])
+        by smtp.gmail.com with ESMTPSA id j17-20020a056a00175100b006ce6bf5491dsm7531509pfc.198.2023.12.12.00.05.16
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 12 Dec 2023 00:05:22 -0800 (PST)
+Message-ID: <2f33be45-fe11-4b69-8e89-4d2824a0bf01@daynix.com>
+Date: Tue, 12 Dec 2023 17:05:15 +0900
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20231205113444.63015-1-linyunsheng@huawei.com>
- <20231205113444.63015-7-linyunsheng@huawei.com> <CACGkMEvVezZnHK-gRWY+MUd_6awnprb024scqPNmMQ05P8rWTQ@mail.gmail.com>
- <424670ab-23d8-663b-10cb-d88906767956@huawei.com>
-In-Reply-To: <424670ab-23d8-663b-10cb-d88906767956@huawei.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 12 Dec 2023 12:35:04 +0800
-Message-ID: <CACGkMEsMdP1B-9RaqibJYfFsd_qJpB+Kta5BnyD_WXH=W2w_OQ@mail.gmail.com>
-Subject: Re: [PATCH net-next 6/6] tools: virtio: introduce vhost_net_test
-To: Yunsheng Lin <linyunsheng@huawei.com>
-Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	virtualization@lists.linux.dev
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Content-Language: en-US
+To: Alexei Starovoitov <alexei.starovoitov@gmail.com>,
+ Jason Wang <jasowang@redhat.com>, Alexei Starovoitov <ast@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>, Andrii Nakryiko <andrii@kernel.org>,
+ Martin KaFai Lau <martin.lau@linux.dev>,
+ Yonghong Song <yonghong.song@linux.dev>,
+ John Fastabend <john.fastabend@gmail.com>, KP Singh <kpsingh@kernel.org>,
+ Stanislav Fomichev <sdf@google.com>, Hao Luo <haoluo@google.com>,
+ Jiri Olsa <jolsa@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>, Mykola Lysenko <mykolal@fb.com>,
+ Shuah Khan <shuah@kernel.org>, Yuri Benditovich
+ <yuri.benditovich@daynix.com>, Andrew Melnychenko <andrew@daynix.com>,
+ Benjamin Tissoires <bentiss@kernel.org>
+From: Akihiko Odaki <akihiko.odaki@daynix.com>
+Subject: Should I add BPF kfuncs for userspace apps? And how?
+Cc: bpf <bpf@vger.kernel.org>,
+ "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, kvm@vger.kernel.org,
+ LKML <linux-kernel@vger.kernel.org>,
+ virtualization@lists.linux-foundation.org,
+ "open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>,
+ Network Development <netdev@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Thu, Dec 7, 2023 at 7:28=E2=80=AFPM Yunsheng Lin <linyunsheng@huawei.com=
-> wrote:
->
-> On 2023/12/7 14:00, Jason Wang wrote:
-> > On Tue, Dec 5, 2023 at 7:35=E2=80=AFPM Yunsheng Lin <linyunsheng@huawei=
-.com> wrote:
-> ...
->
-> >> +
-> >> +static int tun_alloc(void)
-> >> +{
-> >> +       struct ifreq ifr;
-> >> +       int fd, e;
-> >> +
-> >> +       fd =3D open("/dev/net/tun", O_RDWR);
-> >> +       if (fd < 0) {
-> >> +               perror("Cannot open /dev/net/tun");
-> >> +               return fd;
-> >> +       }
-> >> +
-> >> +       memset(&ifr, 0, sizeof(ifr));
-> >> +
-> >> +       ifr.ifr_flags =3D IFF_TUN | IFF_NO_PI;
-> >
-> > Why did you use IFF_TUN but not IFF_TAP here?
->
-> To be honest, no particular reason, I just picked IFF_TUN and it happened
-> to work for me to test changing in vhost_net_build_xdp().
->
-> Is there a particular reason you perfer the IFF_TAP over IFF_TUN?
+Hi,
 
-No preference here. It only matters if you want to test L2 or L3.
+It is said eBPF is a safe way to extend kernels and that is very 
+attarctive, but we need to use kfuncs to add new usage of eBPF and 
+kfuncs are said as unstable as EXPORT_SYMBOL_GPL. So now I'd like to ask 
+some questions:
 
+1) Which should I choose, BPF kfuncs or ioctl, when adding a new feature 
+for userspace apps?
+2) How should I use BPF kfuncs from userspace apps if I add them?
 
->
-> >
-> >> +       strncpy(ifr.ifr_name, "tun0", IFNAMSIZ);
-> >
-> > tun0 is pretty common if there's a VPN. Do we need some randomized name=
- here?
->
-> How about something like below?
->
-> snprintf(ifr.ifr_name, IFNAMSIZ, "tun_%d", getpid());
->
-> >
-> >
-> >> +
-> >> +       e =3D ioctl(fd, TUNSETIFF, (void *) &ifr);
-> >> +       if (e < 0) {
-> >> +               perror("ioctl[TUNSETIFF]");
-> >> +               close(fd);
-> >> +               return e;
-> >> +       }
-> >> +
-> >> +       return fd;
-> >> +}
-> >> +
-> >> +/* Unused */
-> >> +void *__kmalloc_fake, *__kfree_ignore_start, *__kfree_ignore_end;
-> >
-> > Why do we need trick like these here?
->
-> That is because of the below error:
-> tools/virtio/./linux/kernel.h:58: undefined reference to `__kmalloc_fake'
->
-> when virtio_ring.c is compiled in the userspace, the kmalloc raleted func=
-tion
-> is implemented in tools/virtio/./linux/kernel.h, which requires those var=
-ibles
-> to be defined.
->
-> >
-> >> +
-> >> +struct vq_info {
-> >> +       int kick;
-> >> +       int call;
-> >> +       int num;
-> >> +       int idx;
-> >> +       void *ring;
-> >> +       /* copy used for control */
-> >> +       struct vring vring;
-> >> +       struct virtqueue *vq;
-> >> +};
-> >> +
-> >> +struct vdev_info {
-> >> +       struct virtio_device vdev;
-> >> +       int control;
-> >> +       struct pollfd fds[1];
-> >> +       struct vq_info vqs[1];
-> >> +       int nvqs;
-> >> +       void *buf;
-> >> +       size_t buf_size;
-> >> +       struct vhost_memory *mem;
-> >> +};
-> >> +
-> >> +static struct vhost_vring_file no_backend =3D { .index =3D 1, .fd =3D=
- -1 },
-> >> +                                    backend =3D { .index =3D 1, .fd =
-=3D 1 };
-> >
-> > A magic number like fd =3D 1 is pretty confusing.
-> >
-> > And I don't see why we need global variables here.
->
-> I was using the virtio_test.c as reference, will try to remove it
-> if it is possible.
->
-> >
-> >> +static const struct vhost_vring_state null_state =3D {};
-> >> +
->
-> ..
->
-> >> +
-> >> +done:
-> >> +       backend.fd =3D tun_alloc();
-> >> +       assert(backend.fd >=3D 0);
-> >> +       vdev_info_init(&dev, features);
-> >> +       vq_info_add(&dev, 256);
-> >> +       run_test(&dev, &dev.vqs[0], delayed, batch, reset, nbufs);
-> >
-> > I'd expect we are testing some basic traffic here. E.g can we use a
-> > packet socket then we can test both tx and rx?
->
-> Yes, only rx for tun is tested.
-> Do you have an idea how to test the tx too? As I am not familar enough
-> with vhost_net and tun yet.
+Here, a "userspace app" means something not like a system-wide daemon 
+like systemd (particularly, I have QEMU in mind). I'll describe the 
+context more below:
 
-Maybe you can have a packet socket to bind to the tun/tap. Then you can tes=
-t:
+---
 
-1) TAP RX: by write a packet via virtqueue through vhost_net and read
-it from packet socket
-2) TAP TX:  by write via packet socket and read it from the virtqueue
-through vhost_net
+I'm working on a new feature that aids virtio-net implementations using 
+tuntap virtual network device. You can see [1] for details, but 
+basically it's to extend BPF_PROG_TYPE_SOCKET_FILTER to report four more 
+bytes.
 
-Thanks
+However, with long discussions we have confirmed extending 
+BPF_PROG_TYPE_SOCKET_FILTER is not going to happen, and adding kfuncs is 
+the way forward. So I decided how to add kfuncs to the kernel and how to 
+use it. There are rich documentations for the kernel side, but I found 
+little about the userspace. The best I could find is a systemd change 
+proposal that is based on WIP kernel changes[2].
 
->
-> >
-> > Thanks
->
+So now I'm wondering how I should use BPF kfuncs from userspace apps if 
+I add them. In the systemd discussion, it is told that Linus said it's 
+fine to use BPF kfuncs in a private infrastructure big companies own, or 
+in systemd as those users know well about the system[3]. Indeed, those 
+users should be able to make more assumptions on the kernel than 
+"normal" userspace applications can.
 
+Returning to my proposal, I'm proposing a new feature to be used by QEMU 
+or other VMM applications. QEMU is more like a normal userspace 
+application, and usually does not make much assumptions on the kernel it 
+runs on. For example, it's generally safe to run a Debian container 
+including QEMU installed with apt on Fedora. BPF kfuncs may work even in 
+such a situation thanks to CO-RE, but it sounds like *accidentally* 
+creating UAPIs.
+
+Considering all above, how can I integrate BPF kfuncs to the application?
+
+If BPF kfuncs are like EXPORT_SYMBOL_GPL, the natural way to handle them 
+is to think of BPF programs as some sort of kernel modules and 
+incorporate logic that behaves like modprobe. More concretely, I can put 
+eBPF binaries to a directory like:
+/usr/local/share/qemu/ebpf/$KERNEL_RELEASE
+
+Then, QEMU can uname() and get the path to the binary. It will give an 
+error if it can't find the binary for the current kernel so that it 
+won't create accidental UAPIs.
+
+The obvious downside of this is that it complicates packaging a lot; it 
+requires packaging QEMU eBPF binaries each time a new kernel comes up. 
+This complexity is centrally managed by modprobe for kernel modules, but 
+apparently each application needs to take care of it for BPF programs.
+
+In conclusion, I see too much complexity to use BPF in a userspace 
+application, which we didn't have to care for 
+BPF_PROG_TYPE_SOCKET_FILTER. Isn't there a better way? Or shouldn't I 
+use BPF in my case in the first place?
+
+Thanks,
+Akihiko Odaki
+
+[1] 
+https://lore.kernel.org/all/20231015141644.260646-1-akihiko.odaki@daynix.com/
+[2] https://github.com/systemd/systemd/pull/29797
+[3] https://github.com/systemd/systemd/pull/29797#discussion_r1384637939
