@@ -1,323 +1,488 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A42EF5EE99
-	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 12:41:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B61F661665
+	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 13:10:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="lx5sjYrT"
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="QTgQnEFx"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 2FFF04048C
-	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 12:41:23 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2FFF04048C
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=lx5sjYrT
+	by smtp4.osuosl.org (Postfix) with ESMTP id 2088F41680
+	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 13:10:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2088F41680
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=QTgQnEFx
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -1.898
+X-Spam-Score: -7.101
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id jdkgNUfHb_Rn
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id anugb4vbmTgz
 	for <virtualization@lists.linux-foundation.org>;
-	Tue, 12 Dec 2023 12:41:21 +0000 (UTC)
-Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 73910402E5
-	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 12:41:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 73910402E5
-Received: by mail-pl1-x630.google.com with SMTP id d9443c01a7336-1d045097b4cso31965185ad.0
-        for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 04:41:21 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1702384881; x=1702989681; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=o0UI/+qhCr+lBggOzWzGiJKh9KuolOqGxWBzrz2xh3g=;
-        b=lx5sjYrTwasN+yOMLI4I993l11oSLLKgtmuDH0d/0mqkK4PEzKf60aZ0+TeqAQgEbo
-         Azfk1m3B9pWL9JZThtmt4OabVdR8ul4K1XRtdxACA1RMgVyvYVVVS4uyaerBb6jkB8PQ
-         9BNIbGjgjuOOj5BIWCqEvwqenB54G1VihBagIAr8rv1ox7cKj6GecytDIMgd7w+EVMNn
-         fkBYnybZHDmYIUkDUMcB4qvHQlBKMgtBN/JV3Yc2hUtENxRqz4LuUKP7m66UQX8zPfE/
-         HuZzP2uOhnS2iuIxWgLx9U+AAJ/Ied8k9ts1/megu3l8jNJ49ZOxukIWSnZz5tCrkC+M
-         eDpA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702384881; x=1702989681;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=o0UI/+qhCr+lBggOzWzGiJKh9KuolOqGxWBzrz2xh3g=;
-        b=MaiKJCz4PoJXNILgPrTEzwfTgghNTbvnFCZgEI/sxscGM8rF0mOZtGsIBSbTs8n70I
-         SgxicSKJn8eDb8QWeYeYUDnTSUIlKIRChWwG3999Pa6MVnjHpiBOZ4WuG5bbqmjqJAlf
-         01vvq3TS8p+ebl5mYvstsDr7DGm5vsqDR/DZUk1urz2LewDRLQyI7igKisW8vf9Zd2Oi
-         R50WVXfKDp34TPzmyksJIdIMAl3OIEcDmPE15fKs5JX1/5Pzcjs/fTMvWoD4KWm8kUb0
-         KVkaKWMAqQCBHrt0zoNNxq5+TB1XijueC5BeLu6MDJoEmrA23N4DsOEnaOwL5Dy2jZXI
-         OSTQ==
-X-Gm-Message-State: AOJu0Yw5jjR8WGldFHbGlvr9wxS3O6w0cWbsrwkFFnMWQ/Uf0gM/TIVY
-	4U9ZIUbg81GD2vMwyZe6wCLPMA==
-X-Google-Smtp-Source: AGHT+IHS/Z+mwvpoVVeNK3a4KjPTd64ECoTEIFO60YHkegn5DEbwuewms4n2mKqZR5d7o3VqKAPu8g==
-X-Received: by 2002:a17:902:704c:b0:1d0:6ffd:cec8 with SMTP id h12-20020a170902704c00b001d06ffdcec8mr3005669plt.129.1702384880602;
-        Tue, 12 Dec 2023 04:41:20 -0800 (PST)
-Received: from [157.82.205.15] ([157.82.205.15])
-        by smtp.gmail.com with ESMTPSA id h2-20020a170902704200b001d06b63bb98sm8500451plt.71.2023.12.12.04.41.14
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 12 Dec 2023 04:41:20 -0800 (PST)
-Message-ID: <e256c6df-0a66-4f86-ae96-bff17920c2fb@daynix.com>
-Date: Tue, 12 Dec 2023 21:41:13 +0900
+	Tue, 12 Dec 2023 13:10:15 +0000 (UTC)
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id BC0784167A
+	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 13:10:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BC0784167A
+Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
+	by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20231212131010euoutp016c53dea20d2d0e7399b11cf62260b397~gF5phdnLx1711717117euoutp01T;
+	Tue, 12 Dec 2023 13:10:10 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20231212131010euoutp016c53dea20d2d0e7399b11cf62260b397~gF5phdnLx1711717117euoutp01T
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1702386611;
+	bh=WkqzshImINpLziy/1ItP4WywwE9JFpvAyRaOB0ulk4M=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
+	b=QTgQnEFxUXq4Ig6szJPW6sQT+jFV9goAujAdO87SUPDcc8gMVHMPPoRkfSoQf595s
+	 2a8EUPQcPliIFQnH0D5QmvEsbmxJMHew1J7gdp4TCwylLwitSyiIC6NCoAwil0Vmlr
+	 f7hhTn5daKKmLPJvPIafcxNnrmDBUcpJXqFmp88Y=
+Received: from eusmges1new.samsung.com (unknown [203.254.199.242]) by
+	eucas1p1.samsung.com (KnoxPortal) with ESMTP id
+	20231212131010eucas1p198776c7caea1edf7b633166c8d9b6527~gF5pTR4Yi1663116631eucas1p1V;
+	Tue, 12 Dec 2023 13:10:10 +0000 (GMT)
+Received: from eucas1p2.samsung.com ( [182.198.249.207]) by
+	eusmges1new.samsung.com (EUCPMTA) with SMTP id 9E.3D.09539.2BB58756; Tue, 12
+	Dec 2023 13:10:10 +0000 (GMT)
+Received: from eusmtrp2.samsung.com (unknown [182.198.249.139]) by
+	eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
+	20231212131010eucas1p104d069ac6d6c97fce4987caa62c996ee~gF5o6M68l2876828768eucas1p1g;
+	Tue, 12 Dec 2023 13:10:10 +0000 (GMT)
+Received: from eusmgms1.samsung.com (unknown [182.198.249.179]) by
+	eusmtrp2.samsung.com (KnoxPortal) with ESMTP id
+	20231212131010eusmtrp2cae2503dda123611d510aa4f3c873031~gF5o5eTft1872018720eusmtrp2k;
+	Tue, 12 Dec 2023 13:10:10 +0000 (GMT)
+X-AuditID: cbfec7f2-52bff70000002543-34-65785bb21995
+Received: from eusmtip1.samsung.com ( [203.254.199.221]) by
+	eusmgms1.samsung.com (EUCPMTA) with SMTP id D5.9B.09146.2BB58756; Tue, 12
+	Dec 2023 13:10:10 +0000 (GMT)
+Received: from CAMSVWEXC02.scsc.local (unknown [106.1.227.72]) by
+	eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
+	20231212131010eusmtip1cd48a7c4b4d16ae1e96e73e40258d0a8~gF5otTPIy0778007780eusmtip1x;
+	Tue, 12 Dec 2023 13:10:10 +0000 (GMT)
+Received: from localhost (106.210.248.229) by CAMSVWEXC02.scsc.local
+	(2002:6a01:e348::6a01:e348) with Microsoft SMTP Server (TLS) id 15.0.1497.2;
+	Tue, 12 Dec 2023 13:10:09 +0000
+Date: Tue, 12 Dec 2023 14:10:08 +0100
+From: Joel Granados <j.granados@samsung.com>
+To: Lu Baolu <baolu.lu@linux.intel.com>
+CC: Jason Gunthorpe <jgg@ziepe.ca>, Kevin Tian <kevin.tian@intel.com>, Joerg
+	Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy
+	<robin.murphy@arm.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>,
+	Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>, Jacob Pan
+	<jacob.jun.pan@linux.intel.com>, <iommu@lists.linux.dev>,
+	<linux-kselftest@vger.kernel.org>,
+	<virtualization@lists.linux-foundation.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v2 3/6] iommufd: Initializing and releasing IO page
+ fault data
+Message-ID: <20231212131008.k6s5xwjgolp6geps@localhost>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: Should I add BPF kfuncs for userspace apps? And how?
-Content-Language: en-US
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Alexei Starovoitov <alexei.starovoitov@gmail.com>,
- Jason Wang <jasowang@redhat.com>, Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, Andrii Nakryiko <andrii@kernel.org>,
- Martin KaFai Lau <martin.lau@linux.dev>,
- Yonghong Song <yonghong.song@linux.dev>,
- John Fastabend <john.fastabend@gmail.com>, KP Singh <kpsingh@kernel.org>,
- Stanislav Fomichev <sdf@google.com>, Hao Luo <haoluo@google.com>,
- Jiri Olsa <jolsa@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo
- <xuanzhuo@linux.alibaba.com>, Mykola Lysenko <mykolal@fb.com>,
- Shuah Khan <shuah@kernel.org>, Yuri Benditovich
- <yuri.benditovich@daynix.com>, Andrew Melnychenko <andrew@daynix.com>,
- Benjamin Tissoires <bentiss@kernel.org>, bpf <bpf@vger.kernel.org>,
- "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, kvm@vger.kernel.org,
- LKML <linux-kernel@vger.kernel.org>,
- virtualization@lists.linux-foundation.org,
- "open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>,
- Network Development <netdev@vger.kernel.org>
-References: <2f33be45-fe11-4b69-8e89-4d2824a0bf01@daynix.com>
- <CAO-hwJJhzHtKrUEw0zrjgub3+eapgJG-zsG0HRB=PaPi6BxG+w@mail.gmail.com>
-From: Akihiko Odaki <akihiko.odaki@daynix.com>
-In-Reply-To: <CAO-hwJJhzHtKrUEw0zrjgub3+eapgJG-zsG0HRB=PaPi6BxG+w@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg="pgp-sha512";
+	protocol="application/pgp-signature"; boundary="paapshyymo2eyrec"
+Content-Disposition: inline
+In-Reply-To: <20231026024930.382898-4-baolu.lu@linux.intel.com>
+X-ClientProxiedBy: CAMSVWEXC01.scsc.local (2002:6a01:e347::6a01:e347) To
+	CAMSVWEXC02.scsc.local (2002:6a01:e348::6a01:e348)
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFuphk+LIzCtJLcpLzFFi42LZduzned1N0RWpBiv3a1hsnriVzeLXFwuL
+	pQfXs1g0rL7AajFzxglGi87ZG9gtlr7dym5xedccNovpd96zWex9+pjN4uCHJ6wWy8/OY7No
+	uWNqMffnNRYHPo8nB+cxeayZt4bRY/Gel0wem1Z1snncubaHzWPeyUCPyTeWM3q82DyT0aO3
+	+R2bx+dNch5bP99mCeCO4rJJSc3JLEst0rdL4MpY+HMOa8HZ6IpLDQ+YGhhPencxcnBICJhI
+	nPgg3cXIxSEksIJR4nTDB3YI5wujxMmXO9ggnM+MEhu3/GbqYuQE67h/dDFU1XJGiT/T17PC
+	VR2+fhPK2coo0XJ9BStIC4uAqsTTw/fAbDYBHYnzb+4wgywXEVCXePYlAKSeWeAOs8SpFxA1
+	wgIhEqve7WcHsXkFzCWentjFCmELSpyc+YQFxGYWqJCYvXwK2BxmAWmJ5f84QMKcAvYS2y/e
+	ZIG4VFmif+kcVgi7VuLUlltMILskBL5xShx+OwPqHReJs3PusEHYwhKvjm9hh7BlJP7vnA/V
+	MJlRYv8/SMhICKxmlFjW+BWq21qi5coTqA5HiV89C5ghwconceOtIMShfBKTtk2HCvNKdLQJ
+	QVSrSay+94ZlAqPyLCSvzULy2iyE1yDCOhILdn9iwxDWlli28DUzhG0rsW7de5YFjOyrGMVT
+	S4tz01OLDfNSy/WKE3OLS/PS9ZLzczcxAhPp6X/HP+1gnPvqo94hRiYOxkOMKkDNjzasvsAo
+	xZKXn5eqJMJ7ckd5qhBvSmJlVWpRfnxRaU5q8SFGaQ4WJXFe1RT5VCGB9MSS1OzU1ILUIpgs
+	EwenVANTgvYTK8Gtd9S4EoscNgXYzn76+zVL+nJZ9dBLWvWFHAldJ7emL9l1cNViIZEnK9Zd
+	cc28//vfzvlzudhXPohzv74gO0GvKvLCladLPO88kzW+ce3jrkmznzzesfrk0gQNmU9SYsa6
+	skEyXTUhHqZ2d004j4RO/jS3RL/77Rzfutuxzpt0mNm330s0Obir67jkd7sJJtHbk1ki3nW/
+	rDS657My6RqXk8iZVPHan3fY1+zrsn2vuWCtS/rDE8bTVBfHz1X+MME9bcs1p0kRKmJ3LdJm
+	velcxWg10zxVfb1/3SEDj9emHpaLDN4LzThZx8T1ctoh9wX87MvUb35cFe07bQ77oYou4Z2R
+	GzZK2R5VV2Ipzkg01GIuKk4EAHD4r9YfBAAA
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFlrBKsWRmVeSWpSXmKPExsVy+t/xu7qboitSDe4e5LXYPHErm8WvLxYW
+	Sw+uZ7FoWH2B1WLmjBOMFp2zN7BbLH27ld3i8q45bBbT77xns9j79DGbxcEPT1gtlp+dx2bR
+	csfUYu7PaywOfB5PDs5j8lgzbw2jx+I9L5k8Nq3qZPO4c20Pm8e8k4Eek28sZ/R4sXkmo0dv
+	8zs2j8+b5Dy2fr7NEsAdpWdTlF9akqqQkV9cYqsUbWhhpGdoaaFnZGKpZ2hsHmtlZKqkb2eT
+	kpqTWZZapG+XoJcx//191oLT0RWHZk5iamA87t3FyMkhIWAicf/oYvYuRi4OIYGljBKz9yxi
+	gUjISGz8cpUVwhaW+HOtiw2i6COjxOd1b6A6tjJKLN+7jBGkikVAVeLp4XtgHWwCOhLn39xh
+	7mLk4BARUJd49iUApJ5Z4A6zxMEfu8E2CAuESLQvPcYEYvMKmEs8PbELrFdIoFji2tm5zBBx
+	QYmTM5+A1TMLlElc/7+ICWQms4C0xPJ/HCBhTgF7ie0Xb0IdrSzRv3QO1NG1Ep//PmOcwCg8
+	C8mkWUgmzUKYBBHWkrjx7yWmsLbEsoWvmSFsW4l1696zLGBkX8UoklpanJueW2yoV5yYW1ya
+	l66XnJ+7iRGYTLYd+7l5B+O8Vx/1DjEycTAeYlQB6ny0YfUFRimWvPy8VCUR3pM7ylOFeFMS
+	K6tSi/Lji0pzUosPMZoCA3Eis5Rocj4wzeWVxBuaGZgamphZGphamhkrifN6FnQkCgmkJ5ak
+	ZqemFqQWwfQxcXBKNTCZz/4rIVVsMdn8q2pLzW+emB631ybS6zQ1PM4WPzUWeMNX8/b+X4HJ
+	UXdbJh+ZLLz16Lb5IW8VfxleSj8xq0VUKcHGbOLBeZLxMR9KHm7VzptfuVBfW4sv6c2fMCXH
+	D1/5V7cfzOxlPahw/lKag9LE9Fu357kenlNmI3DqyGKXJt2bl7UnHxa9MHNni9GayL5t9x0c
+	z24ROyb52fXoys61jldO5j95coJz6qvJnMEhLlWSa3hvz5q+Lsjd8u58pyhvx79K/Ce4pJiK
+	+o/uP1BuuMwkZdch5eaelUFNbTv/HLx//ErwbDWnBY8snt1hmZkcyae/cXmL0MKQgralvzpX
+	iP3eqTfPg/lDnVbLxQ3zlFiKMxINtZiLihMBF63rT7sDAAA=
+X-CMS-MailID: 20231212131010eucas1p104d069ac6d6c97fce4987caa62c996ee
+X-Msg-Generator: CA
+X-RootMTR: 20231212131010eucas1p104d069ac6d6c97fce4987caa62c996ee
+X-EPHeader: CA
+CMS-TYPE: 201P
+X-CMS-RootMailID: 20231212131010eucas1p104d069ac6d6c97fce4987caa62c996ee
+References: <20231026024930.382898-1-baolu.lu@linux.intel.com>
+	<20231026024930.382898-4-baolu.lu@linux.intel.com>
+	<CGME20231212131010eucas1p104d069ac6d6c97fce4987caa62c996ee@eucas1p1.samsung.com>
 
-On 2023/12/12 19:39, Benjamin Tissoires wrote:
-> Hi,
-> 
-> On Tue, Dec 12, 2023 at 9:11 AM Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
->>
->> Hi,
+--paapshyymo2eyrec
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hi,
+On Thu, Oct 26, 2023 at 10:49:27AM +0800, Lu Baolu wrote:
+> Add some housekeeping code for IO page fault dilivery. Add a fault field
+> in the iommufd_hw_pagetable structure to store pending IO page faults and
+> other related data.
+>=20
+> The fault field is allocated and initialized when an IOPF-capable user
+> HWPT is allocated. It is indicated by the IOMMU_HWPT_ALLOC_IOPF_CAPABLE
+> flag being set in the allocation user data. The fault field exists until
+> the HWPT is destroyed. This also means that you can determine whether a
+> HWPT is IOPF-capable by checking the fault field.
+>=20
+> When an IOPF-capable HWPT is attached to a device (could also be a PASID =
+of
+> a device in the future), the iommufd device pointer is saved for the pasid
+> of the device. The pointer is recalled and all pending iopf groups are
+> discarded after the HWPT is detached from the device.
+>=20
+> Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+> ---
+>  include/linux/iommu.h                   |  6 +++
+>  drivers/iommu/iommufd/iommufd_private.h | 10 ++++
+>  drivers/iommu/iommufd/device.c          | 69 +++++++++++++++++++++++--
+>  drivers/iommu/iommufd/hw_pagetable.c    | 56 +++++++++++++++++++-
+>  4 files changed, 137 insertions(+), 4 deletions(-)
+>=20
+> diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+> index 615d8a5f9dee..600ca3842c8a 100644
+> --- a/include/linux/iommu.h
+> +++ b/include/linux/iommu.h
+> @@ -130,6 +130,12 @@ struct iopf_group {
+>  	struct work_struct work;
+>  	struct device *dev;
+>  	struct iommu_domain *domain;
+> +
+> +	/*
+> +	 * Used by iopf handlers, like iommufd, to hook the iopf group
+> +	 * on its own lists.
+> +	 */
+> +	struct list_head node;
+>  };
+> =20
+>  /**
+> diff --git a/drivers/iommu/iommufd/iommufd_private.h b/drivers/iommu/iomm=
+ufd/iommufd_private.h
+> index 1bd412cff2d6..0dbaa2dc5b22 100644
+> --- a/drivers/iommu/iommufd/iommufd_private.h
+> +++ b/drivers/iommu/iommufd/iommufd_private.h
+> @@ -230,6 +230,15 @@ int iommufd_option_rlimit_mode(struct iommu_option *=
+cmd,
+> =20
+>  int iommufd_vfio_ioas(struct iommufd_ucmd *ucmd);
+> =20
+> +struct hw_pgtable_fault {
+> +	struct iommufd_ctx *ictx;
+> +	struct iommufd_hw_pagetable *hwpt;
+> +	/* Protect below iopf lists. */
+> +	struct mutex mutex;
+> +	struct list_head deliver;
+> +	struct list_head response;
+> +};
+> +
+>  /*
+>   * A HW pagetable is called an iommu_domain inside the kernel. This user=
+ object
+>   * allows directly creating and inspecting the domains. Domains that hav=
+e kernel
+> @@ -239,6 +248,7 @@ int iommufd_vfio_ioas(struct iommufd_ucmd *ucmd);
+>  struct iommufd_hw_pagetable {
+>  	struct iommufd_object obj;
+>  	struct iommu_domain *domain;
+> +	struct hw_pgtable_fault *fault;
+> =20
+>  	void (*abort)(struct iommufd_object *obj);
+>  	void (*destroy)(struct iommufd_object *obj);
+> diff --git a/drivers/iommu/iommufd/device.c b/drivers/iommu/iommufd/devic=
+e.c
+> index 645ab5d290fe..0a8e03d5e7c5 100644
+> --- a/drivers/iommu/iommufd/device.c
+> +++ b/drivers/iommu/iommufd/device.c
+> @@ -456,6 +456,16 @@ int iommufd_hw_pagetable_attach(struct iommufd_hw_pa=
+getable *hwpt,
+>  	if (rc)
+>  		goto err_unlock;
+> =20
+> +	if (hwpt->fault) {
+> +		void *curr;
+> +
+> +		curr =3D iopf_pasid_cookie_set(idev->dev, IOMMU_NO_PASID, idev);
+I'm hitting an error here when I try to attach to a hwpt that I created
+previously with the `IOMMU_HWPT_ALLOC_IOPF_CAPABLE` flag.
 
-Thanks for reply.
+I get an -ENODEV from iopf_pasid_cookie_set which is triggered by
+dev->iommu->fault_param being 0x0.
 
->>
->> It is said eBPF is a safe way to extend kernels and that is very
->> attarctive, but we need to use kfuncs to add new usage of eBPF and
->> kfuncs are said as unstable as EXPORT_SYMBOL_GPL. So now I'd like to ask
->> some questions:
->>
->> 1) Which should I choose, BPF kfuncs or ioctl, when adding a new feature
->> for userspace apps?
->> 2) How should I use BPF kfuncs from userspace apps if I add them?
->>
->> Here, a "userspace app" means something not like a system-wide daemon
->> like systemd (particularly, I have QEMU in mind). I'll describe the
->> context more below:
-> 
-> I'm probably not the best person in the world to answer your
-> questions, Alexei and others from the BPF core group are, but given
-> that you pointed at a thread I was involved in, I feel I can give you
-> a few pointers.
-> 
-> But first and foremost, I encourage you to schedule an agenda item in
-> the BPF office hour[4]. Being able to talk with the core people
-> directly was tremendously helpful to me to understand their point.
+I looked around and I see that the fault param gets set in
+iopf_queue_add_device which is called from iommu_dev_enable_feature
+only. Furthermore iommu_dev_enable_feature is only called in idxd and
+uacce drivers.
 
-I prefer emails because I'm not very fluent when speaking in English and 
-may have a difficultly to listen to other people, but I may try it in 
-future.
+Questions:
+1. Should iopf_queue_add_device get called from the
+   IOMMU_HWPT_ALLOC_IOPF_CAPABLE ioctl call? This make sense to me as
+   this is where the device and the IOPF are related from user space.
+2. This is not intended to work only with idxd and uacce. right?
 
-> 
-> 
->>
->> ---
->>
->> I'm working on a new feature that aids virtio-net implementations using
->> tuntap virtual network device. You can see [1] for details, but
->> basically it's to extend BPF_PROG_TYPE_SOCKET_FILTER to report four more
->> bytes.
->>
->> However, with long discussions we have confirmed extending
->> BPF_PROG_TYPE_SOCKET_FILTER is not going to happen, and adding kfuncs is
->> the way forward. So I decided how to add kfuncs to the kernel and how to
->> use it. There are rich documentations for the kernel side, but I found
->> little about the userspace. The best I could find is a systemd change
->> proposal that is based on WIP kernel changes[2].
-> 
-> Yes, as Alexei already replied, BPF is not adding new stable APIs,
-> only kfuncs. The reason being that once it's marked as stable, you
-> can't really remove it, even if you think it's badly designed and
-> useless.
-> 
-> Kfuncs, OTOH are "unstable" by default meaning that the constraints
-> around it are more relaxed.
-> 
-> However, "unstable" doesn't mean "unusable". It just means that the
-> kernel might or might not have the function when you load your program
-> in userspace. So you have to take that fact into account from day one,
-> both from the kernel side and the userspace side. The kernel docs have
-> a nice paragraph explaining that situation and makes the distinction
-> between relatively unused kfuncs, and well known established ones.
-> 
-> Regarding the systemd discussion you are mentioning ([2]), this is
-> something that I have on my plate for a long time. I think I even
-> mentioned it to Alexei at Kernel Recipes this year, and he frowned his
-> eyebrows when I mentioned it. And looking at the systemd code and the
-> benefits over a plain ioctl, it is clearer that in that case, a plain
-> ioctl is better, mostly because we already know the API and the
-> semantic.
-> 
-> A kfunc would be interesting in cases where you are not sure about the
-> overall design, and so you can give a shot at various API solutions
-> without having to keep your bad v1 design forever.
-> 
->>
->> So now I'm wondering how I should use BPF kfuncs from userspace apps if
->> I add them. In the systemd discussion, it is told that Linus said it's
->> fine to use BPF kfuncs in a private infrastructure big companies own, or
->> in systemd as those users know well about the system[3]. Indeed, those
->> users should be able to make more assumptions on the kernel than
->> "normal" userspace applications can.
->>
->> Returning to my proposal, I'm proposing a new feature to be used by QEMU
->> or other VMM applications. QEMU is more like a normal userspace
->> application, and usually does not make much assumptions on the kernel it
->> runs on. For example, it's generally safe to run a Debian container
->> including QEMU installed with apt on Fedora. BPF kfuncs may work even in
->> such a situation thanks to CO-RE, but it sounds like *accidentally*
->> creating UAPIs.
->>
->> Considering all above, how can I integrate BPF kfuncs to the application?
-> 
-> FWIW, I'm not sure you can rely on BPF calls from a container. There
-> is a high chance the syscall gets disabled by the runtime.
+Best
+> +		if (IS_ERR(curr)) {
+> +			rc =3D PTR_ERR(curr);
+> +			goto err_unresv;
+> +		}
+> +	}
+> +
+>  	/*
+>  	 * Only attach to the group once for the first device that is in the
+>  	 * group. All the other devices will follow this attachment. The user
+> @@ -466,17 +476,20 @@ int iommufd_hw_pagetable_attach(struct iommufd_hw_p=
+agetable *hwpt,
+>  	if (list_empty(&idev->igroup->device_list)) {
+>  		rc =3D iommufd_group_setup_msi(idev->igroup, hwpt);
+>  		if (rc)
+> -			goto err_unresv;
+> +			goto err_unset;
+> =20
+>  		rc =3D iommu_attach_group(hwpt->domain, idev->igroup->group);
+>  		if (rc)
+> -			goto err_unresv;
+> +			goto err_unset;
+>  		idev->igroup->hwpt =3D hwpt;
+>  	}
+>  	refcount_inc(&hwpt->obj.users);
+>  	list_add_tail(&idev->group_item, &idev->igroup->device_list);
+>  	mutex_unlock(&idev->igroup->lock);
+>  	return 0;
+> +err_unset:
+> +	if (hwpt->fault)
+> +		iopf_pasid_cookie_set(idev->dev, IOMMU_NO_PASID, NULL);
+>  err_unresv:
+>  	iommufd_device_remove_rr(idev, hwpt);
+>  err_unlock:
+> @@ -484,6 +497,30 @@ int iommufd_hw_pagetable_attach(struct iommufd_hw_pa=
+getable *hwpt,
+>  	return rc;
+>  }
+> =20
+> +/*
+> + * Discard all pending page faults. Called when a hw pagetable is detach=
+ed
+> + * from a device. The iommu core guarantees that all page faults have be=
+en
+> + * responded, hence there's no need to respond it again.
+> + */
+> +static void iommufd_hw_pagetable_discard_iopf(struct iommufd_hw_pagetabl=
+e *hwpt)
+> +{
+> +	struct iopf_group *group, *next;
+> +
+> +	if (!hwpt->fault)
+> +		return;
+> +
+> +	mutex_lock(&hwpt->fault->mutex);
+> +	list_for_each_entry_safe(group, next, &hwpt->fault->deliver, node) {
+> +		list_del(&group->node);
+> +		iopf_free_group(group);
+> +	}
+> +	list_for_each_entry_safe(group, next, &hwpt->fault->response, node) {
+> +		list_del(&group->node);
+> +		iopf_free_group(group);
+> +	}
+> +	mutex_unlock(&hwpt->fault->mutex);
+> +}
+> +
+>  struct iommufd_hw_pagetable *
+>  iommufd_hw_pagetable_detach(struct iommufd_device *idev)
+>  {
+> @@ -491,6 +528,8 @@ iommufd_hw_pagetable_detach(struct iommufd_device *id=
+ev)
+> =20
+>  	mutex_lock(&idev->igroup->lock);
+>  	list_del(&idev->group_item);
+> +	if (hwpt->fault)
+> +		iopf_pasid_cookie_set(idev->dev, IOMMU_NO_PASID, NULL);
+>  	if (list_empty(&idev->igroup->device_list)) {
+>  		iommu_detach_group(hwpt->domain, idev->igroup->group);
+>  		idev->igroup->hwpt =3D NULL;
+> @@ -498,6 +537,8 @@ iommufd_hw_pagetable_detach(struct iommufd_device *id=
+ev)
+>  	iommufd_device_remove_rr(idev, hwpt);
+>  	mutex_unlock(&idev->igroup->lock);
+> =20
+> +	iommufd_hw_pagetable_discard_iopf(hwpt);
+> +
+>  	/* Caller must destroy hwpt */
+>  	return hwpt;
+>  }
+> @@ -563,9 +604,24 @@ iommufd_device_do_replace(struct iommufd_device *ide=
+v,
+>  	if (rc)
+>  		goto err_unresv;
+> =20
+> +	if (old_hwpt->fault) {
+> +		iommufd_hw_pagetable_discard_iopf(old_hwpt);
+> +		iopf_pasid_cookie_set(idev->dev, IOMMU_NO_PASID, NULL);
+> +	}
+> +
+> +	if (hwpt->fault) {
+> +		void *curr;
+> +
+> +		curr =3D iopf_pasid_cookie_set(idev->dev, IOMMU_NO_PASID, idev);
+> +		if (IS_ERR(curr)) {
+> +			rc =3D PTR_ERR(curr);
+> +			goto err_unresv;
+> +		}
+> +	}
+> +
+>  	rc =3D iommu_group_replace_domain(igroup->group, hwpt->domain);
+>  	if (rc)
+> -		goto err_unresv;
+> +		goto err_unset;
+> =20
+>  	if (iommufd_hw_pagetable_compare_ioas(old_hwpt, hwpt)) {
+>  		list_for_each_entry(cur, &igroup->device_list, group_item)
+> @@ -583,8 +639,15 @@ iommufd_device_do_replace(struct iommufd_device *ide=
+v,
+>  					      &old_hwpt->obj.users));
+>  	mutex_unlock(&idev->igroup->lock);
+> =20
+> +	iommufd_hw_pagetable_discard_iopf(old_hwpt);
+> +
+>  	/* Caller must destroy old_hwpt */
+>  	return old_hwpt;
+> +err_unset:
+> +	if (hwpt->fault)
+> +		iopf_pasid_cookie_set(idev->dev, IOMMU_NO_PASID, NULL);
+> +	if (old_hwpt->fault)
+> +		iopf_pasid_cookie_set(idev->dev, IOMMU_NO_PASID, idev);
+>  err_unresv:
+>  	if (iommufd_hw_pagetable_compare_ioas(old_hwpt, hwpt)) {
+>  		list_for_each_entry(cur, &igroup->device_list, group_item)
+> diff --git a/drivers/iommu/iommufd/hw_pagetable.c b/drivers/iommu/iommufd=
+/hw_pagetable.c
+> index 72c46de1396b..9f94c824cf86 100644
+> --- a/drivers/iommu/iommufd/hw_pagetable.c
+> +++ b/drivers/iommu/iommufd/hw_pagetable.c
+> @@ -38,9 +38,38 @@ static void iommufd_kernel_managed_hwpt_destroy(struct=
+ iommufd_object *obj)
+>  	refcount_dec(&hwpt->ioas->obj.users);
+>  }
+> =20
+> +static struct hw_pgtable_fault *hw_pagetable_fault_alloc(void)
+> +{
+> +	struct hw_pgtable_fault *fault;
+> +
+> +	fault =3D kzalloc(sizeof(*fault), GFP_KERNEL);
+> +	if (!fault)
+> +		return ERR_PTR(-ENOMEM);
+> +
+> +	INIT_LIST_HEAD(&fault->deliver);
+> +	INIT_LIST_HEAD(&fault->response);
+> +	mutex_init(&fault->mutex);
+> +
+> +	return fault;
+> +}
+> +
+> +static void hw_pagetable_fault_free(struct hw_pgtable_fault *fault)
+> +{
+> +	WARN_ON(!list_empty(&fault->deliver));
+> +	WARN_ON(!list_empty(&fault->response));
+> +
+> +	kfree(fault);
+> +}
+> +
+>  void iommufd_hw_pagetable_destroy(struct iommufd_object *obj)
+>  {
+> -	container_of(obj, struct iommufd_hw_pagetable, obj)->destroy(obj);
+> +	struct iommufd_hw_pagetable *hwpt =3D
+> +		container_of(obj, struct iommufd_hw_pagetable, obj);
+> +
+> +	if (hwpt->fault)
+> +		hw_pagetable_fault_free(hwpt->fault);
+> +
+> +	hwpt->destroy(obj);
+>  }
+> =20
+>  static void iommufd_user_managed_hwpt_abort(struct iommufd_object *obj)
+> @@ -289,6 +318,17 @@ iommufd_hw_pagetable_alloc(struct iommufd_ctx *ictx,
+>  	return ERR_PTR(rc);
+>  }
+> =20
+> +static int iommufd_hw_pagetable_iopf_handler(struct iopf_group *group)
+> +{
+> +	struct iommufd_hw_pagetable *hwpt =3D group->domain->fault_data;
+> +
+> +	mutex_lock(&hwpt->fault->mutex);
+> +	list_add_tail(&group->node, &hwpt->fault->deliver);
+> +	mutex_unlock(&hwpt->fault->mutex);
+> +
+> +	return 0;
+> +}
+> +
+>  int iommufd_hwpt_alloc(struct iommufd_ucmd *ucmd)
+>  {
+>  	struct iommufd_hw_pagetable *(*alloc_fn)(
+> @@ -364,6 +404,20 @@ int iommufd_hwpt_alloc(struct iommufd_ucmd *ucmd)
+>  		goto out_unlock;
+>  	}
+> =20
+> +	if (cmd->flags & IOMMU_HWPT_ALLOC_IOPF_CAPABLE) {
+> +		hwpt->fault =3D hw_pagetable_fault_alloc();
+> +		if (IS_ERR(hwpt->fault)) {
+> +			rc =3D PTR_ERR(hwpt->fault);
+> +			hwpt->fault =3D NULL;
+> +			goto out_hwpt;
+> +		}
+> +
+> +		hwpt->fault->ictx =3D ucmd->ictx;
+> +		hwpt->fault->hwpt =3D hwpt;
+> +		hwpt->domain->iopf_handler =3D iommufd_hw_pagetable_iopf_handler;
+> +		hwpt->domain->fault_data =3D hwpt;
+> +	}
+> +
+>  	cmd->out_hwpt_id =3D hwpt->obj.id;
+>  	rc =3D iommufd_ucmd_respond(ucmd, sizeof(*cmd));
+>  	if (rc)
+> --=20
+> 2.34.1
+>=20
 
-Right. Container runtimes will not pass CAP_BPF by default, but that 
-restriction can be lifted and I think that's a valid scenario.
+--=20
 
-> 
->>
->> If BPF kfuncs are like EXPORT_SYMBOL_GPL, the natural way to handle them
->> is to think of BPF programs as some sort of kernel modules and
->> incorporate logic that behaves like modprobe. More concretely, I can put
->> eBPF binaries to a directory like:
->> /usr/local/share/qemu/ebpf/$KERNEL_RELEASE
-> 
-> I would advise against that (one program per kernel release). Simply
-> because your kfunc may or may not have been backported to kernel
-> release v6.X.Y+1 while it was not there when v6.X.Y was out. So
-> relying on the kernel number is just going to be a headache.
-> 
-> As I understand it, the way forward is to rely on the kernel, libbpf
-> and CO-RE: if the function is not available, the program will simply
-> not load, and you'll know that this version of the code is not
-> available (or has changed API).
-> 
-> So what I would do if some kfunc API is becoming deprecated, is
-> embedding both code paths in the same BPF unit, but marking them as
-> not loaded by libppf. Then I can load the compilation unit, try v2 of
-> the API, and if it's not available, try v1, and if not, then mention
-> that I can not rely on BPF. Of course, this can also be done with
-> separate compilation units.
+Joel Granados
 
-Doesn't it mean that the kernel is free to break old versions of QEMU 
-including BPF programs? That's something I'd like to avoid.
+--paapshyymo2eyrec
+Content-Type: application/pgp-signature; name="signature.asc"
 
-> 
->>
->> Then, QEMU can uname() and get the path to the binary. It will give an
->> error if it can't find the binary for the current kernel so that it
->> won't create accidental UAPIs.
->>
->> The obvious downside of this is that it complicates packaging a lot; it
->> requires packaging QEMU eBPF binaries each time a new kernel comes up.
->> This complexity is centrally managed by modprobe for kernel modules, but
->> apparently each application needs to take care of it for BPF programs.
-> 
-> For my primary use case: HID-BPF, I put kfuncs in kernel v6.3 and
-> given that I haven't touch this part of the API, the same compilation
-> unit compiled in the v6.3 era still works on a v6.7-rcx, so no, IMO
-> it's not complex and doesn't require to follow the kernel releases
-> (which is the whole point of HID-BPF FWIW).
+-----BEGIN PGP SIGNATURE-----
 
-I also expect BPF kfuncs will work well for long if I introduce its 
-usage to QEMU in practice. That said, the interface stability is about 
-when something unexpected happens. What if the interface QEMU relies on 
-is deemed sub-optimal? Without following kernel releases, QEMU may 
-accidentally lose the feature relying on eBPF.
+iQGzBAABCgAdFiEErkcJVyXmMSXOyyeQupfNUreWQU8FAmV4W64ACgkQupfNUreW
+QU8T+QwAhxeoC/seS4ueQ1BklBDrgoiCu/onlz5YZEPgdxDJP3xAw+j7sjzqYsgY
+ROVMp5nqyjoYHOESkLSO1dIY0Ifqz0xYg2XARHFru69yvWS4O859qN8axgeiDTQ3
+a7zW184TdbcuRUzXzXBWrZ6ddpS+EQm8mHtjuAoQESDx40Yc5QSURhXexQ6+rfog
+ToWmxvzzdPKMx63k/gjTVFnZgw43x2aqCr5UTQliVZQBPbDYbmb/mCp1NEmELYqo
+rQzJHKRJNcAs7HnPejndq90jwN6640xr1se6Sfk6jKAhoWOE9EkMPUAofrMQPAcT
+vA7XAAV+G48C8g9BiM+9ugKfJMY/OcQ6OqkbxuqESz4wXevgVgsBqY9T71yoSqQB
+ux2g98x955j1jkY8JxQ45VaNXN2e9N3vYIy8cthIxDxIqYuEIwSfqt++zzaeV+W2
+uqizeq6nmd0WkUkgxNEWDywXuskxgn6GRsEb+3j+o+DuqOJQOgccPMadM7bfB17x
+KoCNsBxP
+=4je1
+-----END PGP SIGNATURE-----
 
-> 
->>
->> In conclusion, I see too much complexity to use BPF in a userspace
->> application, which we didn't have to care for
->> BPF_PROG_TYPE_SOCKET_FILTER. Isn't there a better way? Or shouldn't I
->> use BPF in my case in the first place?
-> 
-> Given that I'm not a network person, I'm not sure about your use case,
-> but I would make my decision based on:
-> - do I know exactly what I want to achieve and I'm confident that I'll
-> write the proper kernel API from day one? (if not then kfuncs is
-> appealing because  it's less workload in the long run, but userspace
-> needs to be slightly smarter)
-
-Personally I'm confident that the initial UAPI design will not do a bad 
-thing at least. However, there is a high chance that the design needs to 
-be extended to accommodate new features.
-
-> - are all of my use cases covered by using BPF? (what happens if I run
-> QEMU in a container?) -> BPF might or might not be a solution
-
-Yes. Containers can be used to 1) have a different userspace or 2) 
-isolate things for security.
-
-Regarding 2), QEMU and libvirt has sandbox mechanisms so we can rely on 
-them instead of containers so we can just pass capabilities to the 
-container. At least, we can always have a setuid helper outside 
-container, and pass around file descriptors it generates.
-
-So 1) is the only problem that matters.
-
-> 
-> But the nice thing about using BPF kfuncs is that it allows you to
-> have a testing (not-)UAPI kernel interface. You can then implement the
-> userspace changes and see how it behaves. And then, once you got the
-> right design, you can decide to promote it to a proper syscall or
-> ioctl if you want.
-
-I expect it's possible to have testing ioctls. Quickly searching online, 
-there are experimental ioctls[1][2]. I also know DRM has a relaxed 
-policy for closed-source userspace[3].
-
-So I'm seeing the distinction of UAPI/kfunc even less definitive; UAPIs 
-can also be broken if the subsystem maintainers agree and there is no 
-real user. I also think it's natural to say a kfunc will be stable as 
-long as there is a user, but it contradicts with the current situation. 
-kfunc is expressed as EXPORT_SYMBOL_GPL in the documentation, and Linus 
-expects kfunc is for users like big companies or systemd, which closely 
-follow the kernel, according to the systemd discussion I cited in the 
-last email.
-
-According to the discussion above, it may be better off abandoning BPF 
-and implementing all in kernel, with ioctl as I have a (hopefully) sound 
-idea of UAPI design. But I'll also continue considering the BPF option; 
-BPF is still attractive due to its extensibility and safety.
-
-Regards,
-Akihiko Odaki
-
-[1] 
-https://www.kernel.org/doc/html/v6.6/userspace-api/media/v4l/hist-v4l2.html?highlight=experimental#experimental-api-elements
-[2] 
-https://www.kernel.org/doc/html/v6.6/userspace-api/media/dvb/dmx-expbuf.html?highlight=experimental
-[3] 
-https://www.kernel.org/doc/html/v6.6/gpu/drm-uapi.html#open-source-userspace-requirements
+--paapshyymo2eyrec--
