@@ -1,171 +1,203 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3195718049
-	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 08:05:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="k3iFPADr"
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCCB518050
+	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 08:11:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id AC52D60F48
-	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 08:05:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AC52D60F48
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=k3iFPADr
+	by smtp2.osuosl.org (Postfix) with ESMTP id 376F240490
+	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 08:11:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 376F240490
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -1.898
+X-Spam-Score: -9.899
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id A3pMaOUTeX0l
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id l0lEE8-f37Ce
 	for <virtualization@lists.linux-foundation.org>;
-	Tue, 12 Dec 2023 08:05:24 +0000 (UTC)
-Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 6175060C06
-	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 08:05:23 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6175060C06
-Received: by mail-pg1-x530.google.com with SMTP id 41be03b00d2f7-5ca1b4809b5so659516a12.3
-        for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 00:05:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1702368322; x=1702973122; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:cc:subject:from:to:content-language
-         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=xyrJ/oaF1a1+OdMWUr85QqR8PoKu+Afm3G/pEUOxUgM=;
-        b=k3iFPADrj4gEEUR7hOsWAmIkXSm9jzEkNfI9TQ1lTZRpsY+P+JAcYuFvD6hByQLE0B
-         gQXTXe/0WKsOkM/uCfIgaijzGDuemKSNcdzNlueRBqXqMNHp6zd/6+AcpT4O7CzYJAHK
-         ZQOtjsYMBBkGfXVI54boqp1Eyx7ZxLll+S3VeMjeCFiRzx87k6xH7JHGuLo31vWxGIt9
-         y5oGnjkiCxGY8qsa6yGUqmC+ZYPNw/J5jBJgwe+qbbaV+MO5BMQioEVLwrXaOLNYCGz2
-         JoSlCWFECe6InYC35EUUchqESiZ2oHNbEtrnNnCpCtIQmsSkcYwcv9c6IbnS2PiIMn3D
-         pErQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702368322; x=1702973122;
-        h=content-transfer-encoding:cc:subject:from:to:content-language
-         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=xyrJ/oaF1a1+OdMWUr85QqR8PoKu+Afm3G/pEUOxUgM=;
-        b=gmxUGDwFi1IAN+lQzLJB9RqzSG47Jr8JZWUcpfD4ZskPhgt6ri5TuKqiUjsLfocU4J
-         xb8anFD1HRO86CpoGre00dXZ7PhDsCrndu7iq2cDkQKEGNJiP9L9EE72ShFPopD9uF52
-         WYJnDVPbYriAmfrLDrkGHGxaZTHUSprX/yZSe4FSxVnVB7Q3V32seGJRA2FBvcjKQF68
-         h1vgpIw6St9mbSUYIgCuBGyXkChqliBdVAFcmCeY0sChQ3UCmH+OmSPX57y+0iTfqBdd
-         1dJZSZS7ERD2+fiyoqb24D0v7EVm4osqz7527E3shphcbYmN7t8BBNmNQiktfvcqDjev
-         jhvQ==
-X-Gm-Message-State: AOJu0YweX0YaqVdrNCJ8YmAulY2VcX6fZU8CvSXFv178G5n5VBw/ORaw
-	Sb7dIYcDY/dPtvmVN57Ejqa4EQ==
-X-Google-Smtp-Source: AGHT+IEql1gIzfMgiC3uwAyX05ccRP/TJmlVXqhwk7OLXHzm7HuO8eWQfZEt37CKdp9jdfYH1gF7Bw==
-X-Received: by 2002:a05:6a21:999d:b0:18f:fb0d:e961 with SMTP id ve29-20020a056a21999d00b0018ffb0de961mr3147656pzb.60.1702368322598;
-        Tue, 12 Dec 2023 00:05:22 -0800 (PST)
-Received: from [157.82.205.15] ([157.82.205.15])
-        by smtp.gmail.com with ESMTPSA id j17-20020a056a00175100b006ce6bf5491dsm7531509pfc.198.2023.12.12.00.05.16
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 12 Dec 2023 00:05:22 -0800 (PST)
-Message-ID: <2f33be45-fe11-4b69-8e89-4d2824a0bf01@daynix.com>
-Date: Tue, 12 Dec 2023 17:05:15 +0900
+	Tue, 12 Dec 2023 08:11:50 +0000 (UTC)
+Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 63B9B401D5
+	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 08:11:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 63B9B401D5
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VyLmTHU_1702368701;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VyLmTHU_1702368701)
+          by smtp.aliyun-inc.com;
+          Tue, 12 Dec 2023 16:11:42 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: netdev@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	virtualization@lists.linux-foundation.org
+Subject: [PATCH v1] virtio_net: fix missing dma unmap for resize
+Date: Tue, 12 Dec 2023 16:11:41 +0800
+Message-Id: <20231212081141.39757-1-xuanzhuo@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Content-Language: en-US
-To: Alexei Starovoitov <alexei.starovoitov@gmail.com>,
- Jason Wang <jasowang@redhat.com>, Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, Andrii Nakryiko <andrii@kernel.org>,
- Martin KaFai Lau <martin.lau@linux.dev>,
- Yonghong Song <yonghong.song@linux.dev>,
- John Fastabend <john.fastabend@gmail.com>, KP Singh <kpsingh@kernel.org>,
- Stanislav Fomichev <sdf@google.com>, Hao Luo <haoluo@google.com>,
- Jiri Olsa <jolsa@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo
- <xuanzhuo@linux.alibaba.com>, Mykola Lysenko <mykolal@fb.com>,
- Shuah Khan <shuah@kernel.org>, Yuri Benditovich
- <yuri.benditovich@daynix.com>, Andrew Melnychenko <andrew@daynix.com>,
- Benjamin Tissoires <bentiss@kernel.org>
-From: Akihiko Odaki <akihiko.odaki@daynix.com>
-Subject: Should I add BPF kfuncs for userspace apps? And how?
-Cc: bpf <bpf@vger.kernel.org>,
- "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, kvm@vger.kernel.org,
- LKML <linux-kernel@vger.kernel.org>,
- virtualization@lists.linux-foundation.org,
- "open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>,
- Network Development <netdev@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Git-Hash: 9b708181512b
+Content-Transfer-Encoding: 8bit
 
-Hi,
+For rq, we have three cases getting buffers from virtio core:
 
-It is said eBPF is a safe way to extend kernels and that is very 
-attarctive, but we need to use kfuncs to add new usage of eBPF and 
-kfuncs are said as unstable as EXPORT_SYMBOL_GPL. So now I'd like to ask 
-some questions:
+1. virtqueue_get_buf{,_ctx}
+2. virtqueue_detach_unused_buf
+3. callback for virtqueue_resize
 
-1) Which should I choose, BPF kfuncs or ioctl, when adding a new feature 
-for userspace apps?
-2) How should I use BPF kfuncs from userspace apps if I add them?
+But in commit 295525e29a5b("virtio_net: merge dma operations when
+filling mergeable buffers"), I missed the dma unmap for the #3 case.
 
-Here, a "userspace app" means something not like a system-wide daemon 
-like systemd (particularly, I have QEMU in mind). I'll describe the 
-context more below:
+That will leak some memory, because I did not release the pages referred
+by the unused buffers.
 
+If we do such script, we will make the system OOM.
+
+    while true
+    do
+            ethtool -G ens4 rx 128
+            ethtool -G ens4 rx 256
+            free -m
+    done
+
+Fixes: 295525e29a5b ("virtio_net: merge dma operations when filling mergeable buffers")
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
 
-I'm working on a new feature that aids virtio-net implementations using 
-tuntap virtual network device. You can see [1] for details, but 
-basically it's to extend BPF_PROG_TYPE_SOCKET_FILTER to report four more 
-bytes.
+v1: rename to virtnet_rq_free_buf_check_dma()
 
-However, with long discussions we have confirmed extending 
-BPF_PROG_TYPE_SOCKET_FILTER is not going to happen, and adding kfuncs is 
-the way forward. So I decided how to add kfuncs to the kernel and how to 
-use it. There are rich documentations for the kernel side, but I found 
-little about the userspace. The best I could find is a systemd change 
-proposal that is based on WIP kernel changes[2].
+ drivers/net/virtio_net.c | 60 ++++++++++++++++++++--------------------
+ 1 file changed, 30 insertions(+), 30 deletions(-)
 
-So now I'm wondering how I should use BPF kfuncs from userspace apps if 
-I add them. In the systemd discussion, it is told that Linus said it's 
-fine to use BPF kfuncs in a private infrastructure big companies own, or 
-in systemd as those users know well about the system[3]. Indeed, those 
-users should be able to make more assumptions on the kernel than 
-"normal" userspace applications can.
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index d16f592c2061..58ebbffeb952 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -334,7 +334,6 @@ struct virtio_net_common_hdr {
+ 	};
+ };
 
-Returning to my proposal, I'm proposing a new feature to be used by QEMU 
-or other VMM applications. QEMU is more like a normal userspace 
-application, and usually does not make much assumptions on the kernel it 
-runs on. For example, it's generally safe to run a Debian container 
-including QEMU installed with apt on Fedora. BPF kfuncs may work even in 
-such a situation thanks to CO-RE, but it sounds like *accidentally* 
-creating UAPIs.
+-static void virtnet_rq_free_unused_buf(struct virtqueue *vq, void *buf);
+ static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf);
 
-Considering all above, how can I integrate BPF kfuncs to the application?
+ static bool is_xdp_frame(void *ptr)
+@@ -408,6 +407,17 @@ static struct page *get_a_page(struct receive_queue *rq, gfp_t gfp_mask)
+ 	return p;
+ }
 
-If BPF kfuncs are like EXPORT_SYMBOL_GPL, the natural way to handle them 
-is to think of BPF programs as some sort of kernel modules and 
-incorporate logic that behaves like modprobe. More concretely, I can put 
-eBPF binaries to a directory like:
-/usr/local/share/qemu/ebpf/$KERNEL_RELEASE
++static void virtnet_rq_free_buf(struct virtnet_info *vi,
++				struct receive_queue *rq, void *buf)
++{
++	if (vi->mergeable_rx_bufs)
++		put_page(virt_to_head_page(buf));
++	else if (vi->big_packets)
++		give_pages(rq, buf);
++	else
++		put_page(virt_to_head_page(buf));
++}
++
+ static void enable_delayed_refill(struct virtnet_info *vi)
+ {
+ 	spin_lock_bh(&vi->refill_lock);
+@@ -634,17 +644,6 @@ static void *virtnet_rq_get_buf(struct receive_queue *rq, u32 *len, void **ctx)
+ 	return buf;
+ }
 
-Then, QEMU can uname() and get the path to the binary. It will give an 
-error if it can't find the binary for the current kernel so that it 
-won't create accidental UAPIs.
+-static void *virtnet_rq_detach_unused_buf(struct receive_queue *rq)
+-{
+-	void *buf;
+-
+-	buf = virtqueue_detach_unused_buf(rq->vq);
+-	if (buf && rq->do_dma)
+-		virtnet_rq_unmap(rq, buf, 0);
+-
+-	return buf;
+-}
+-
+ static void virtnet_rq_init_one_sg(struct receive_queue *rq, void *buf, u32 len)
+ {
+ 	struct virtnet_rq_dma *dma;
+@@ -744,6 +743,20 @@ static void virtnet_rq_set_premapped(struct virtnet_info *vi)
+ 	}
+ }
 
-The obvious downside of this is that it complicates packaging a lot; it 
-requires packaging QEMU eBPF binaries each time a new kernel comes up. 
-This complexity is centrally managed by modprobe for kernel modules, but 
-apparently each application needs to take care of it for BPF programs.
++static void virtnet_rq_free_buf_check_dma(struct virtqueue *vq, void *buf)
++{
++	struct virtnet_info *vi = vq->vdev->priv;
++	struct receive_queue *rq;
++	int i = vq2rxq(vq);
++
++	rq = &vi->rq[i];
++
++	if (rq->do_dma)
++		virtnet_rq_unmap(rq, buf, 0);
++
++	virtnet_rq_free_buf(vi, rq, buf);
++}
++
+ static void free_old_xmit_skbs(struct send_queue *sq, bool in_napi)
+ {
+ 	unsigned int len;
+@@ -1764,7 +1777,7 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
+ 	if (unlikely(len < vi->hdr_len + ETH_HLEN)) {
+ 		pr_debug("%s: short packet %i\n", dev->name, len);
+ 		DEV_STATS_INC(dev, rx_length_errors);
+-		virtnet_rq_free_unused_buf(rq->vq, buf);
++		virtnet_rq_free_buf(vi, rq, buf);
+ 		return;
+ 	}
 
-In conclusion, I see too much complexity to use BPF in a userspace 
-application, which we didn't have to care for 
-BPF_PROG_TYPE_SOCKET_FILTER. Isn't there a better way? Or shouldn't I 
-use BPF in my case in the first place?
+@@ -2392,7 +2405,7 @@ static int virtnet_rx_resize(struct virtnet_info *vi,
+ 	if (running)
+ 		napi_disable(&rq->napi);
 
-Thanks,
-Akihiko Odaki
+-	err = virtqueue_resize(rq->vq, ring_num, virtnet_rq_free_unused_buf);
++	err = virtqueue_resize(rq->vq, ring_num, virtnet_rq_free_buf_check_dma);
+ 	if (err)
+ 		netdev_err(vi->dev, "resize rx fail: rx queue index: %d err: %d\n", qindex, err);
 
-[1] 
-https://lore.kernel.org/all/20231015141644.260646-1-akihiko.odaki@daynix.com/
-[2] https://github.com/systemd/systemd/pull/29797
-[3] https://github.com/systemd/systemd/pull/29797#discussion_r1384637939
+@@ -4031,19 +4044,6 @@ static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf)
+ 		xdp_return_frame(ptr_to_xdp(buf));
+ }
+
+-static void virtnet_rq_free_unused_buf(struct virtqueue *vq, void *buf)
+-{
+-	struct virtnet_info *vi = vq->vdev->priv;
+-	int i = vq2rxq(vq);
+-
+-	if (vi->mergeable_rx_bufs)
+-		put_page(virt_to_head_page(buf));
+-	else if (vi->big_packets)
+-		give_pages(&vi->rq[i], buf);
+-	else
+-		put_page(virt_to_head_page(buf));
+-}
+-
+ static void free_unused_bufs(struct virtnet_info *vi)
+ {
+ 	void *buf;
+@@ -4057,10 +4057,10 @@ static void free_unused_bufs(struct virtnet_info *vi)
+ 	}
+
+ 	for (i = 0; i < vi->max_queue_pairs; i++) {
+-		struct receive_queue *rq = &vi->rq[i];
++		struct virtqueue *vq = vi->rq[i].vq;
+
+-		while ((buf = virtnet_rq_detach_unused_buf(rq)) != NULL)
+-			virtnet_rq_free_unused_buf(rq->vq, buf);
++		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL)
++			virtnet_rq_free_buf_check_dma(vq, buf);
+ 		cond_resched();
+ 	}
+ }
+--
+2.32.0.3.g01195cf9f
+
