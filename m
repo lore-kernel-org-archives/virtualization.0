@@ -1,350 +1,391 @@
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0461F7D8B9
-	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 18:00:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF20C5B5D5
+	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 18:27:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="h2PuWfy3"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PpW0KCeq"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 9192360BC3
-	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 18:00:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9192360BC3
+	by smtp3.osuosl.org (Postfix) with ESMTP id 51DBB60AA7
+	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 18:27:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 51DBB60AA7
 Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=h2PuWfy3
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PpW0KCeq
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.099
 X-Spam-Level:
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id T8RBNOz4J8sL
+	with ESMTP id iEw6v8zGY3_d
 	for <virtualization@lists.linux-foundation.org>;
-	Tue, 12 Dec 2023 18:00:12 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 17AEB60B20
-	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 18:00:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 17AEB60B20
+	Tue, 12 Dec 2023 18:27:20 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 41FCE60A84
+	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 18:27:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 41FCE60A84
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1702404010;
+	s=mimecast20190719; t=1702405639;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Hi+Je7A1ir5Jf7RMpbBJ6wePhajEbToaWXnOvXBTaw4=;
-	b=h2PuWfy3D+a9HlcTpemTh5DUfzHxYeVyrIJp4gC5zw1ofK+ObkxDm+e9XLrNX9iGPKa2Ty
-	546eQJRrKH5BtRKOthGhBAqtgbhzqRu/Pf++Wv/aOjHrWVR61vLO1H9V2Mp93qHL7nWUAU
-	CdlsR00qy4fK1doTReDYmKdE6j7fJ7U=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=9I/WhQuPQ9xKjL/QBC35QAnSnzeBaWbmyN2v17V0JOE=;
+	b=PpW0KCeqac1shh6ugpAlHB5o6VjayWR3DR3HfDd+9BoQjycLWh6CiJHPH6ORvWozOEvLpn
+	piMErqonu87B/qgEGY1679Nzwn6+lYxKt/AQKVhzUBMT3RQudzZX0SPId/xJ3LieYiXJe+
+	TSv/RbtCKygyDtqILvde5e4JTI36ouo=
+Received: from mail-oo1-f72.google.com (mail-oo1-f72.google.com
+ [209.85.161.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-571-cQdurivHN7uPMpxFWqb4NA-1; Tue, 12 Dec 2023 13:00:08 -0500
-X-MC-Unique: cQdurivHN7uPMpxFWqb4NA-1
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-40c299d1e36so41114785e9.1
-        for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 10:00:08 -0800 (PST)
+ us-mta-120-tLrqowE3PEi7qqM5X2ODKg-1; Tue, 12 Dec 2023 13:27:17 -0500
+X-MC-Unique: tLrqowE3PEi7qqM5X2ODKg-1
+Received: by mail-oo1-f72.google.com with SMTP id 006d021491bc7-590b580ae39so4707566eaf.3
+        for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 10:27:17 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702404005; x=1703008805;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Hi+Je7A1ir5Jf7RMpbBJ6wePhajEbToaWXnOvXBTaw4=;
-        b=nGbbfiRjwhoddUuMhi1MqLzZAOZP4fQ9bBCzpHr5DdyfGzBhFyQOjSJfNT2nlF4GUQ
-         bdzNRADMyeQRYatlEng7RSgjK/soOnh+qLAK9wqUfoLz987SbKpKsUBb3AC3B4TwSo9n
-         bU0O443lv1/g77om3eR3LG4vfXsja8Y9bBfzljv4P6QH43YAU4ou0pU9nOngzhr2uxoj
-         ztKIUQaOLlV3Dpoxm5lF4fWcBj5r4mEwJLWurUjfhHiB4R7lkFGNYw54zCuEIJ/9Icxd
-         /FL8p6hFDaePvMyPIP3b7P52YZUROrhXsrBtHd6fMTkE/mkWMD9Y/QOLvERpiUNEtkeh
-         u1og==
-X-Gm-Message-State: AOJu0YzlbZcWtL031uQ1vfKnfJ0fzHMDc6wMyG1Icv/lPqwJSdErqgW7
-	Dj2plmRBsT1WhXYSU2ae+YYrEvEbNZ7/bMe5QoAkCDKfj/nCgZx+xpZ5Bs1ErEXXTWGfYdB2utL
-	yQZ6qWUt+2UsZ8CQef5320D7yynk5UFeKe9HlAJpzOA==
-X-Received: by 2002:a05:600c:22d7:b0:40b:5f03:6f2f with SMTP id 23-20020a05600c22d700b0040b5f036f2fmr2295073wmg.265.1702404004886;
-        Tue, 12 Dec 2023 10:00:04 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFSDxTS0Dbwm0yWFWvFpkddTtVCdD25MSkyGCWfgQkzixXvX6A/om8nqxSeqL3MjgQ1Ea26IA==
-X-Received: by 2002:a05:600c:22d7:b0:40b:5f03:6f2f with SMTP id 23-20020a05600c22d700b0040b5f036f2fmr2295066wmg.265.1702404004421;
-        Tue, 12 Dec 2023 10:00:04 -0800 (PST)
-Received: from redhat.com ([2.52.23.105])
-        by smtp.gmail.com with ESMTPSA id c17-20020a05600c0a5100b0040b4fca8620sm19831250wmq.37.2023.12.12.10.00.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 Dec 2023 10:00:03 -0800 (PST)
-Date: Tue, 12 Dec 2023 12:59:59 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: Maxime Coquelin <maxime.coquelin@redhat.com>, jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com, paul@paul-moore.com, jmorris@namei.org,
-	serge@hallyn.com, stephen.smalley.work@gmail.com,
-	eparis@parisplace.org, xieyongji@bytedance.com,
-	virtualization@lists.linux-foundation.org,
-	linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
-	selinux@vger.kernel.org, david.marchand@redhat.com, lulu@redhat.com
-Subject: Re: [PATCH v5 4/4] vduse: Add LSM hook to check Virtio device type
-Message-ID: <20231212124518-mutt-send-email-mst@kernel.org>
-References: <20231212131712.1816324-1-maxime.coquelin@redhat.com>
- <20231212131712.1816324-5-maxime.coquelin@redhat.com>
- <c58da5f5-131f-425e-b008-260506d1bc0d@schaufler-ca.com>
+        d=1e100.net; s=20230601; t=1702405637; x=1703010437;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=9I/WhQuPQ9xKjL/QBC35QAnSnzeBaWbmyN2v17V0JOE=;
+        b=SlWEeijpB/rkXmwWp+2nZNaqaqSrUJzy2mlBVtWOU/ScsCLxOmj4IG/BMhxeVSYlEN
+         jtheQAyz1h+tHSvUy05lVNm5v5b/1z8m6Yy3/+YxBt9uHZUlLzCxCXXIWOt2WGJ+MBSu
+         dGf2OwRMSNzKD8Eg3trx7eoD4ed3wU5AkC0ZgD4vRXejvW9JiKQoEb75nVA0/Ng6Iwzl
+         +11j7OciswbAGS1LqbWa5Zx7+MDimr6WV7egD9pXdO/O4GMu4l191TE4zNXtPJRfdFDf
+         gOcIDKRjrx4bwbGlXlNPWRRuBSxqWABiDQFEUhlzE8h5yUe+jIYE/uZo8YQhReevFnlV
+         g18Q==
+X-Gm-Message-State: AOJu0YxCmQEQSOPYuyceR34d3VEHoHhcxUT0A43aI7F9JpKq9ykMHuSX
+	pSlV48vIQzybuGvuBlp0fkBo0KLArG5JngOCZP2tX0spFEVcekYc/E3jOWdsyO8t7P0plqjDt+8
+	dwu2H68+lRmmJJ77c7PRGOm2MuYlBhIdTvQTIdVHTffYNV+0mkkzpFZvyzg==
+X-Received: by 2002:a05:6870:7247:b0:1ff:8a1:3a7b with SMTP id y7-20020a056870724700b001ff08a13a7bmr8108096oaf.79.1702405637165;
+        Tue, 12 Dec 2023 10:27:17 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEloJeZ3a0OZHp0Ze9feyHcq9XcVgdLpOrobqWfSDxMy222VbNJv5X0qTa2Of/QZg6ORvvPNWfH6KuDpS4ajtk=
+X-Received: by 2002:a05:6870:7247:b0:1ff:8a1:3a7b with SMTP id
+ y7-20020a056870724700b001ff08a13a7bmr8108037oaf.79.1702405635418; Tue, 12 Dec
+ 2023 10:27:15 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <c58da5f5-131f-425e-b008-260506d1bc0d@schaufler-ca.com>
+References: <20231205104609.876194-1-dtatulea@nvidia.com> <20231205104609.876194-8-dtatulea@nvidia.com>
+In-Reply-To: <20231205104609.876194-8-dtatulea@nvidia.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Tue, 12 Dec 2023 19:26:39 +0100
+Message-ID: <CAJaqyWe=qP_DOHdETYSBSLtNsxdQOPh6FBS+YBSCwownOv4rfA@mail.gmail.com>
+Subject: Re: [PATCH vhost v2 7/8] vdpa/mlx5: Introduce reference counting to mrs
+To: Dragos Tatulea <dtatulea@nvidia.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Si-Wei Liu <si-wei.liu@oracle.com>, Saeed Mahameed <saeedm@nvidia.com>, 
+	Leon Romanovsky <leon@kernel.org>, virtualization@lists.linux-foundation.org, 
+	Gal Pressman <gal@nvidia.com>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Parav Pandit <parav@nvidia.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Dec 12, 2023 at 08:33:39AM -0800, Casey Schaufler wrote:
-> On 12/12/2023 5:17 AM, Maxime Coquelin wrote:
-> > This patch introduces a LSM hook for devices creation,
-> > destruction (ioctl()) and opening (open()) operations,
-> > checking the application is allowed to perform these
-> > operations for the Virtio device type.
-> 
-> My earlier comments on a vduse specific LSM hook still hold.
-> I would much prefer to see a device permissions hook(s) that
-> are useful for devices in general. Not just vduse devices.
-> I know that there are already some very special purpose LSM
-> hooks, but the experience with maintaining them is why I don't
-> want more of them. 
+On Tue, Dec 5, 2023 at 11:47=E2=80=AFAM Dragos Tatulea <dtatulea@nvidia.com=
+> wrote:
+>
+> Deleting the old mr during mr update (.set_map) and then modifying the
+> vqs with the new mr is not a good flow for firmware. The firmware
+> expects that mkeys are deleted after there are no more vqs referencing
+> them.
+>
+> Introduce reference counting for mrs to fix this. It is the only way to
+> make sure that mkeys are not in use by vqs.
+>
+> An mr reference is taken when the mr is associated to the mr asid table
+> and when the mr is linked to the vq on create/modify. The reference is
+> released when the mkey is unlinked from the vq (trough modify/destroy)
+> and from the mr asid table.
+>
+> To make things consistent, get rid of mlx5_vdpa_destroy_mr and use
+> get/put semantics everywhere.
+>
+> Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
+> Reviewed-by: Gal Pressman <gal@nvidia.com>
 
-What exactly does this mean? Devices like tap etc? How do we
-find them all though?
+Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
 
-> >
-> > Signed-off-by: Maxime Coquelin <maxime.coquelin@redhat.com>
-> > ---
-> >  MAINTAINERS                         |  1 +
-> >  drivers/vdpa/vdpa_user/vduse_dev.c  | 13 ++++++++++++
-> >  include/linux/lsm_hook_defs.h       |  2 ++
-> >  include/linux/security.h            |  6 ++++++
-> >  include/linux/vduse.h               | 14 +++++++++++++
-> >  security/security.c                 | 15 ++++++++++++++
-> >  security/selinux/hooks.c            | 32 +++++++++++++++++++++++++++++
-> >  security/selinux/include/classmap.h |  2 ++
-> >  8 files changed, 85 insertions(+)
-> >  create mode 100644 include/linux/vduse.h
-> >
-> > diff --git a/MAINTAINERS b/MAINTAINERS
-> > index a0fb0df07b43..4e83b14358d2 100644
-> > --- a/MAINTAINERS
-> > +++ b/MAINTAINERS
-> > @@ -23040,6 +23040,7 @@ F:	drivers/net/virtio_net.c
-> >  F:	drivers/vdpa/
-> >  F:	drivers/virtio/
-> >  F:	include/linux/vdpa.h
-> > +F:	include/linux/vduse.h
-> >  F:	include/linux/virtio*.h
-> >  F:	include/linux/vringh.h
-> >  F:	include/uapi/linux/virtio_*.h
-> > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > index fa62825be378..59ab7eb62e20 100644
-> > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > @@ -8,6 +8,7 @@
-> >   *
-> >   */
-> >  
-> > +#include "linux/security.h"
-> >  #include <linux/init.h>
-> >  #include <linux/module.h>
-> >  #include <linux/cdev.h>
-> > @@ -30,6 +31,7 @@
-> >  #include <uapi/linux/virtio_blk.h>
-> >  #include <uapi/linux/virtio_ring.h>
-> >  #include <linux/mod_devicetable.h>
-> > +#include <linux/vduse.h>
-> >  
-> >  #include "iova_domain.h"
-> >  
-> > @@ -1442,6 +1444,10 @@ static int vduse_dev_open(struct inode *inode, struct file *file)
-> >  	if (dev->connected)
-> >  		goto unlock;
-> >  
-> > +	ret = -EPERM;
-> > +	if (security_vduse_perm_check(VDUSE_PERM_OPEN, dev->device_id))
-> > +		goto unlock;
-> > +
-> >  	ret = 0;
-> >  	dev->connected = true;
-> >  	file->private_data = dev;
-> > @@ -1664,6 +1670,9 @@ static int vduse_destroy_dev(char *name)
-> >  	if (!dev)
-> >  		return -EINVAL;
-> >  
-> > +	if (security_vduse_perm_check(VDUSE_PERM_DESTROY, dev->device_id))
-> > +		return -EPERM;
-> > +
-> >  	mutex_lock(&dev->lock);
-> >  	if (dev->vdev || dev->connected) {
-> >  		mutex_unlock(&dev->lock);
-> > @@ -1828,6 +1837,10 @@ static int vduse_create_dev(struct vduse_dev_config *config,
-> >  	int ret;
-> >  	struct vduse_dev *dev;
-> >  
-> > +	ret = -EPERM;
-> > +	if (security_vduse_perm_check(VDUSE_PERM_CREATE, config->device_id))
-> > +		goto err;
-> > +
-> >  	ret = -EEXIST;
-> >  	if (vduse_find_dev(config->name))
-> >  		goto err;
-> > diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-> > index ff217a5ce552..3930ab2ae974 100644
-> > --- a/include/linux/lsm_hook_defs.h
-> > +++ b/include/linux/lsm_hook_defs.h
-> > @@ -419,3 +419,5 @@ LSM_HOOK(int, 0, uring_override_creds, const struct cred *new)
-> >  LSM_HOOK(int, 0, uring_sqpoll, void)
-> >  LSM_HOOK(int, 0, uring_cmd, struct io_uring_cmd *ioucmd)
-> >  #endif /* CONFIG_IO_URING */
-> > +
-> > +LSM_HOOK(int, 0, vduse_perm_check, enum vduse_op_perm op_perm, u32 device_id)
-> > diff --git a/include/linux/security.h b/include/linux/security.h
-> > index 1d1df326c881..2a2054172394 100644
-> > --- a/include/linux/security.h
-> > +++ b/include/linux/security.h
-> > @@ -32,6 +32,7 @@
-> >  #include <linux/string.h>
-> >  #include <linux/mm.h>
-> >  #include <linux/sockptr.h>
-> > +#include <linux/vduse.h>
-> >  
-> >  struct linux_binprm;
-> >  struct cred;
-> > @@ -484,6 +485,7 @@ int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen);
-> >  int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen);
-> >  int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen);
-> >  int security_locked_down(enum lockdown_reason what);
-> > +int security_vduse_perm_check(enum vduse_op_perm op_perm, u32 device_id);
-> >  #else /* CONFIG_SECURITY */
-> >  
-> >  static inline int call_blocking_lsm_notifier(enum lsm_event event, void *data)
-> > @@ -1395,6 +1397,10 @@ static inline int security_locked_down(enum lockdown_reason what)
-> >  {
-> >  	return 0;
-> >  }
-> > +static inline int security_vduse_perm_check(enum vduse_op_perm op_perm, u32 device_id)
-> > +{
-> > +	return 0;
-> > +}
-> >  #endif	/* CONFIG_SECURITY */
-> >  
-> >  #if defined(CONFIG_SECURITY) && defined(CONFIG_WATCH_QUEUE)
-> > diff --git a/include/linux/vduse.h b/include/linux/vduse.h
-> > new file mode 100644
-> > index 000000000000..7a20dcc43997
-> > --- /dev/null
-> > +++ b/include/linux/vduse.h
-> > @@ -0,0 +1,14 @@
-> > +/* SPDX-License-Identifier: GPL-2.0 */
-> > +#ifndef _LINUX_VDUSE_H
-> > +#define _LINUX_VDUSE_H
-> > +
-> > +/*
-> > + * The permission required for a VDUSE device operation.
-> > + */
-> > +enum vduse_op_perm {
-> > +	VDUSE_PERM_CREATE,
-> > +	VDUSE_PERM_DESTROY,
-> > +	VDUSE_PERM_OPEN,
-> > +};
-> > +
-> > +#endif /* _LINUX_VDUSE_H */
-> > diff --git a/security/security.c b/security/security.c
-> > index dcb3e7014f9b..150abf85f97d 100644
-> > --- a/security/security.c
-> > +++ b/security/security.c
-> > @@ -5337,3 +5337,18 @@ int security_uring_cmd(struct io_uring_cmd *ioucmd)
-> >  	return call_int_hook(uring_cmd, 0, ioucmd);
-> >  }
-> >  #endif /* CONFIG_IO_URING */
-> > +
-> > +/**
-> > + * security_vduse_perm_check() - Check if a VDUSE device type operation is allowed
-> > + * @op_perm: the operation type
-> > + * @device_id: the Virtio device ID
-> > + *
-> > + * Check whether the Virtio device creation is allowed
-> > + *
-> > + * Return: Returns 0 if permission is granted.
-> > + */
-> > +int security_vduse_perm_check(enum vduse_op_perm op_perm, u32 device_id)
-> > +{
-> > +	return call_int_hook(vduse_perm_check, 0, op_perm, device_id);
-> > +}
-> > +EXPORT_SYMBOL(security_vduse_perm_check);
-> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > index feda711c6b7b..18845e4f682f 100644
-> > --- a/security/selinux/hooks.c
-> > +++ b/security/selinux/hooks.c
-> > @@ -21,6 +21,8 @@
-> >   *  Copyright (C) 2016 Mellanox Technologies
-> >   */
-> >  
-> > +#include "av_permissions.h"
-> > +#include "linux/vduse.h"
-> >  #include <linux/init.h>
-> >  #include <linux/kd.h>
-> >  #include <linux/kernel.h>
-> > @@ -92,6 +94,7 @@
-> >  #include <linux/fsnotify.h>
-> >  #include <linux/fanotify.h>
-> >  #include <linux/io_uring.h>
-> > +#include <uapi/linux/virtio_ids.h>
-> >  
-> >  #include "avc.h"
-> >  #include "objsec.h"
-> > @@ -6950,6 +6953,34 @@ static int selinux_uring_cmd(struct io_uring_cmd *ioucmd)
-> >  }
-> >  #endif /* CONFIG_IO_URING */
-> >  
-> > +static int selinux_vduse_perm_check(enum vduse_op_perm op_perm, u32 device_id)
-> > +{
-> > +	u32 requested_op, requested_type, sid = current_sid();
-> > +	int ret;
-> > +
-> > +	if (op_perm == VDUSE_PERM_CREATE)
-> > +		requested_op = VDUSE__CREATE;
-> > +	else if (op_perm == VDUSE__DESTROY)
-> > +		requested_op = VDUSE__DESTROY;
-> > +	else if (op_perm == VDUSE_PERM_OPEN)
-> > +		requested_op = VDUSE__OPEN;
-> > +	else
-> > +		return -EINVAL;
-> > +
-> > +	ret = avc_has_perm(sid, sid, SECCLASS_VDUSE, requested_op, NULL);
-> > +	if (ret)
-> > +		return ret;
-> > +
-> > +	if (device_id == VIRTIO_ID_NET)
-> > +		requested_type = VDUSE__NET;
-> > +	else if (device_id == VIRTIO_ID_BLOCK)
-> > +		requested_type = VDUSE__BLOCK;
-> > +	else
-> > +		return -EINVAL;
-> > +
-> > +	return avc_has_perm(sid, sid, SECCLASS_VDUSE, requested_type, NULL);
-> > +}
-> > +
-> >  /*
-> >   * IMPORTANT NOTE: When adding new hooks, please be careful to keep this order:
-> >   * 1. any hooks that don't belong to (2.) or (3.) below,
-> > @@ -7243,6 +7274,7 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
-> >  #ifdef CONFIG_PERF_EVENTS
-> >  	LSM_HOOK_INIT(perf_event_alloc, selinux_perf_event_alloc),
-> >  #endif
-> > +	LSM_HOOK_INIT(vduse_perm_check, selinux_vduse_perm_check),
-> >  };
-> >  
-> >  static __init int selinux_init(void)
-> > diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-> > index a3c380775d41..b0a358cbac1c 100644
-> > --- a/security/selinux/include/classmap.h
-> > +++ b/security/selinux/include/classmap.h
-> > @@ -256,6 +256,8 @@ const struct security_class_mapping secclass_map[] = {
-> >  	  { "override_creds", "sqpoll", "cmd", NULL } },
-> >  	{ "user_namespace",
-> >  	  { "create", NULL } },
-> > +	{ "vduse",
-> > +	  { "create", "destroy", "open", "net", "block", NULL} },
-> >  	{ NULL }
-> >    };
-> >  
+> ---
+>  drivers/vdpa/mlx5/core/mlx5_vdpa.h |  8 +++--
+>  drivers/vdpa/mlx5/core/mr.c        | 50 ++++++++++++++++++++----------
+>  drivers/vdpa/mlx5/net/mlx5_vnet.c  | 45 ++++++++++++++++++++++-----
+>  3 files changed, 78 insertions(+), 25 deletions(-)
+>
+> diff --git a/drivers/vdpa/mlx5/core/mlx5_vdpa.h b/drivers/vdpa/mlx5/core/=
+mlx5_vdpa.h
+> index 84547d998bcf..1a0d27b6e09a 100644
+> --- a/drivers/vdpa/mlx5/core/mlx5_vdpa.h
+> +++ b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
+> @@ -35,6 +35,8 @@ struct mlx5_vdpa_mr {
+>         struct vhost_iotlb *iotlb;
+>
+>         bool user_mr;
+> +
+> +       refcount_t refcount;
+>  };
+>
+>  struct mlx5_vdpa_resources {
+> @@ -118,8 +120,10 @@ int mlx5_vdpa_destroy_mkey(struct mlx5_vdpa_dev *mvd=
+ev, u32 mkey);
+>  struct mlx5_vdpa_mr *mlx5_vdpa_create_mr(struct mlx5_vdpa_dev *mvdev,
+>                                          struct vhost_iotlb *iotlb);
+>  void mlx5_vdpa_destroy_mr_resources(struct mlx5_vdpa_dev *mvdev);
+> -void mlx5_vdpa_destroy_mr(struct mlx5_vdpa_dev *mvdev,
+> -                         struct mlx5_vdpa_mr *mr);
+> +void mlx5_vdpa_get_mr(struct mlx5_vdpa_dev *mvdev,
+> +                     struct mlx5_vdpa_mr *mr);
+> +void mlx5_vdpa_put_mr(struct mlx5_vdpa_dev *mvdev,
+> +                     struct mlx5_vdpa_mr *mr);
+>  void mlx5_vdpa_update_mr(struct mlx5_vdpa_dev *mvdev,
+>                          struct mlx5_vdpa_mr *mr,
+>                          unsigned int asid);
+> diff --git a/drivers/vdpa/mlx5/core/mr.c b/drivers/vdpa/mlx5/core/mr.c
+> index 2197c46e563a..c7dc8914354a 100644
+> --- a/drivers/vdpa/mlx5/core/mr.c
+> +++ b/drivers/vdpa/mlx5/core/mr.c
+> @@ -498,32 +498,52 @@ static void destroy_user_mr(struct mlx5_vdpa_dev *m=
+vdev, struct mlx5_vdpa_mr *mr
+>
+>  static void _mlx5_vdpa_destroy_mr(struct mlx5_vdpa_dev *mvdev, struct ml=
+x5_vdpa_mr *mr)
+>  {
+> +       if (WARN_ON(!mr))
+> +               return;
+> +
+>         if (mr->user_mr)
+>                 destroy_user_mr(mvdev, mr);
+>         else
+>                 destroy_dma_mr(mvdev, mr);
+>
+>         vhost_iotlb_free(mr->iotlb);
+> +
+> +       kfree(mr);
+>  }
+>
+> -void mlx5_vdpa_destroy_mr(struct mlx5_vdpa_dev *mvdev,
+> -                         struct mlx5_vdpa_mr *mr)
+> +static void _mlx5_vdpa_put_mr(struct mlx5_vdpa_dev *mvdev,
+> +                             struct mlx5_vdpa_mr *mr)
+>  {
+>         if (!mr)
+>                 return;
+>
+> +       if (refcount_dec_and_test(&mr->refcount))
+> +               _mlx5_vdpa_destroy_mr(mvdev, mr);
+> +}
+> +
+> +void mlx5_vdpa_put_mr(struct mlx5_vdpa_dev *mvdev,
+> +                     struct mlx5_vdpa_mr *mr)
+> +{
+>         mutex_lock(&mvdev->mr_mtx);
+> +       _mlx5_vdpa_put_mr(mvdev, mr);
+> +       mutex_unlock(&mvdev->mr_mtx);
+> +}
+>
+> -       _mlx5_vdpa_destroy_mr(mvdev, mr);
+> +static void _mlx5_vdpa_get_mr(struct mlx5_vdpa_dev *mvdev,
+> +                             struct mlx5_vdpa_mr *mr)
+> +{
+> +       if (!mr)
+> +               return;
+>
+> -       for (int i =3D 0; i < MLX5_VDPA_NUM_AS; i++) {
+> -               if (mvdev->mr[i] =3D=3D mr)
+> -                       mvdev->mr[i] =3D NULL;
+> -       }
+> +       refcount_inc(&mr->refcount);
+> +}
+>
+> +void mlx5_vdpa_get_mr(struct mlx5_vdpa_dev *mvdev,
+> +                     struct mlx5_vdpa_mr *mr)
+> +{
+> +       mutex_lock(&mvdev->mr_mtx);
+> +       _mlx5_vdpa_get_mr(mvdev, mr);
+>         mutex_unlock(&mvdev->mr_mtx);
+> -
+> -       kfree(mr);
+>  }
+>
+>  void mlx5_vdpa_update_mr(struct mlx5_vdpa_dev *mvdev,
+> @@ -534,20 +554,16 @@ void mlx5_vdpa_update_mr(struct mlx5_vdpa_dev *mvde=
+v,
+>
+>         mutex_lock(&mvdev->mr_mtx);
+>
+> +       _mlx5_vdpa_put_mr(mvdev, old_mr);
+>         mvdev->mr[asid] =3D new_mr;
+> -       if (old_mr) {
+> -               _mlx5_vdpa_destroy_mr(mvdev, old_mr);
+> -               kfree(old_mr);
+> -       }
+>
+>         mutex_unlock(&mvdev->mr_mtx);
+> -
+>  }
+>
+>  void mlx5_vdpa_destroy_mr_resources(struct mlx5_vdpa_dev *mvdev)
+>  {
+>         for (int i =3D 0; i < MLX5_VDPA_NUM_AS; i++)
+> -               mlx5_vdpa_destroy_mr(mvdev, mvdev->mr[i]);
+> +               mlx5_vdpa_update_mr(mvdev, NULL, i);
+>
+>         prune_iotlb(mvdev->cvq.iotlb);
+>  }
+> @@ -607,6 +623,8 @@ struct mlx5_vdpa_mr *mlx5_vdpa_create_mr(struct mlx5_=
+vdpa_dev *mvdev,
+>         if (err)
+>                 goto out_err;
+>
+> +       refcount_set(&mr->refcount, 1);
+> +
+>         return mr;
+>
+>  out_err:
+> @@ -651,7 +669,7 @@ int mlx5_vdpa_reset_mr(struct mlx5_vdpa_dev *mvdev, u=
+nsigned int asid)
+>         if (asid >=3D MLX5_VDPA_NUM_AS)
+>                 return -EINVAL;
+>
+> -       mlx5_vdpa_destroy_mr(mvdev, mvdev->mr[asid]);
+> +       mlx5_vdpa_update_mr(mvdev, NULL, asid);
+>
+>         if (asid =3D=3D 0 && MLX5_CAP_GEN(mvdev->mdev, umem_uid_0)) {
+>                 if (mlx5_vdpa_create_dma_mr(mvdev))
+> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/ml=
+x5_vnet.c
+> index 6a21223d97a8..133cbb66dcfe 100644
+> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> @@ -123,6 +123,9 @@ struct mlx5_vdpa_virtqueue {
+>
+>         u64 modified_fields;
+>
+> +       struct mlx5_vdpa_mr *vq_mr;
+> +       struct mlx5_vdpa_mr *desc_mr;
+> +
+>         struct msi_map map;
+>
+>         /* keep last in the struct */
+> @@ -946,6 +949,14 @@ static int create_virtqueue(struct mlx5_vdpa_net *nd=
+ev, struct mlx5_vdpa_virtque
+>         kfree(in);
+>         mvq->virtq_id =3D MLX5_GET(general_obj_out_cmd_hdr, out, obj_id);
+>
+> +       mlx5_vdpa_get_mr(mvdev, vq_mr);
+> +       mvq->vq_mr =3D vq_mr;
+> +
+> +       if (vq_desc_mr && MLX5_CAP_DEV_VDPA_EMULATION(mvdev->mdev, desc_g=
+roup_mkey_supported)) {
+> +               mlx5_vdpa_get_mr(mvdev, vq_desc_mr);
+> +               mvq->desc_mr =3D vq_desc_mr;
+> +       }
+> +
+>         return 0;
+>
+>  err_cmd:
+> @@ -972,6 +983,12 @@ static void destroy_virtqueue(struct mlx5_vdpa_net *=
+ndev, struct mlx5_vdpa_virtq
+>         }
+>         mvq->fw_state =3D MLX5_VIRTIO_NET_Q_OBJECT_NONE;
+>         umems_destroy(ndev, mvq);
+> +
+> +       mlx5_vdpa_put_mr(&ndev->mvdev, mvq->vq_mr);
+> +       mvq->vq_mr =3D NULL;
+> +
+> +       mlx5_vdpa_put_mr(&ndev->mvdev, mvq->desc_mr);
+> +       mvq->desc_mr =3D NULL;
+>  }
+>
+>  static u32 get_rqpn(struct mlx5_vdpa_virtqueue *mvq, bool fw)
+> @@ -1207,6 +1224,8 @@ static int modify_virtqueue(struct mlx5_vdpa_net *n=
+dev,
+>         int inlen =3D MLX5_ST_SZ_BYTES(modify_virtio_net_q_in);
+>         u32 out[MLX5_ST_SZ_DW(modify_virtio_net_q_out)] =3D {};
+>         struct mlx5_vdpa_dev *mvdev =3D &ndev->mvdev;
+> +       struct mlx5_vdpa_mr *desc_mr =3D NULL;
+> +       struct mlx5_vdpa_mr *vq_mr =3D NULL;
+>         bool state_change =3D false;
+>         void *obj_context;
+>         void *cmd_hdr;
+> @@ -1257,19 +1276,19 @@ static int modify_virtqueue(struct mlx5_vdpa_net =
+*ndev,
+>                 MLX5_SET(virtio_net_q_object, obj_context, hw_used_index,=
+ mvq->used_idx);
+>
+>         if (mvq->modified_fields & MLX5_VIRTQ_MODIFY_MASK_VIRTIO_Q_MKEY) =
+{
+> -               struct mlx5_vdpa_mr *mr =3D mvdev->mr[mvdev->group2asid[M=
+LX5_VDPA_DATAVQ_GROUP]];
+> +               vq_mr =3D mvdev->mr[mvdev->group2asid[MLX5_VDPA_DATAVQ_GR=
+OUP]];
+>
+> -               if (mr)
+> -                       MLX5_SET(virtio_q, vq_ctx, virtio_q_mkey, mr->mke=
+y);
+> +               if (vq_mr)
+> +                       MLX5_SET(virtio_q, vq_ctx, virtio_q_mkey, vq_mr->=
+mkey);
+>                 else
+>                         mvq->modified_fields &=3D ~MLX5_VIRTQ_MODIFY_MASK=
+_VIRTIO_Q_MKEY;
+>         }
+>
+>         if (mvq->modified_fields & MLX5_VIRTQ_MODIFY_MASK_DESC_GROUP_MKEY=
+) {
+> -               struct mlx5_vdpa_mr *mr =3D mvdev->mr[mvdev->group2asid[M=
+LX5_VDPA_DATAVQ_DESC_GROUP]];
+> +               desc_mr =3D mvdev->mr[mvdev->group2asid[MLX5_VDPA_DATAVQ_=
+DESC_GROUP]];
+>
+> -               if (mr && MLX5_CAP_DEV_VDPA_EMULATION(mvdev->mdev, desc_g=
+roup_mkey_supported))
+> -                       MLX5_SET(virtio_q, vq_ctx, desc_group_mkey, mr->m=
+key);
+> +               if (desc_mr && MLX5_CAP_DEV_VDPA_EMULATION(mvdev->mdev, d=
+esc_group_mkey_supported))
+> +                       MLX5_SET(virtio_q, vq_ctx, desc_group_mkey, desc_=
+mr->mkey);
+>                 else
+>                         mvq->modified_fields &=3D ~MLX5_VIRTQ_MODIFY_MASK=
+_DESC_GROUP_MKEY;
+>         }
+> @@ -1282,6 +1301,18 @@ static int modify_virtqueue(struct mlx5_vdpa_net *=
+ndev,
+>         if (state_change)
+>                 mvq->fw_state =3D state;
+>
+> +       if (mvq->modified_fields & MLX5_VIRTQ_MODIFY_MASK_VIRTIO_Q_MKEY) =
+{
+> +               mlx5_vdpa_put_mr(mvdev, mvq->vq_mr);
+> +               mlx5_vdpa_get_mr(mvdev, vq_mr);
+> +               mvq->vq_mr =3D vq_mr;
+> +       }
+> +
+> +       if (mvq->modified_fields & MLX5_VIRTQ_MODIFY_MASK_DESC_GROUP_MKEY=
+) {
+> +               mlx5_vdpa_put_mr(mvdev, mvq->desc_mr);
+> +               mlx5_vdpa_get_mr(mvdev, desc_mr);
+> +               mvq->desc_mr =3D desc_mr;
+> +       }
+> +
+>         mvq->modified_fields =3D 0;
+>
+>  done:
+> @@ -3095,7 +3126,7 @@ static int set_map_data(struct mlx5_vdpa_dev *mvdev=
+, struct vhost_iotlb *iotlb,
+>         return mlx5_vdpa_update_cvq_iotlb(mvdev, iotlb, asid);
+>
+>  out_err:
+> -       mlx5_vdpa_destroy_mr(mvdev, new_mr);
+> +       mlx5_vdpa_put_mr(mvdev, new_mr);
+>         return err;
+>  }
+>
+> --
+> 2.42.0
+>
 
