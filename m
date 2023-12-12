@@ -1,222 +1,378 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2A7463589
-	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 19:44:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EAFE38DC5
+	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 22:55:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="Kdv7SYP1"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="QQnwWaO8"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 5D6F58176B
-	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 19:44:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5D6F58176B
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=Kdv7SYP1
+	by smtp2.osuosl.org (Postfix) with ESMTP id 6B350404D5
+	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 22:55:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6B350404D5
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.a=rsa-sha256 header.s=s2048 header.b=QQnwWaO8
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.103
+X-Spam-Score: -1.899
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id zcLaKxTa8y5H
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id hlPRLfD1EWW2
 	for <virtualization@lists.linux-foundation.org>;
-	Tue, 12 Dec 2023 19:44:08 +0000 (UTC)
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2061a.outbound.protection.outlook.com [IPv6:2a01:111:f400:fe59::61a])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id EDD0B81E29
-	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 19:44:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org EDD0B81E29
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Aryd77CV1636k1PmJkonFhgOzFHEV8hJ8d8aCd/7BIISJRJ6Z7G3o2g9QHv1Oe02dA79PiRbJM9uVOEH+DZCiif1VIHjlwy+XL/ADnb0de3FL78feXM1+cWu0Vc2JtLNtpQS8z6sVq04dnZSAh4+gMbp6L1hcSs4iAdPaXQX6FxZVDWrJAE7LyZwG4qgKrBcO5ux84kqft14X8PdE0GalxOKU4BOawAZe2gOfYz1IImCAykt825ksVRF/Pxu4plmZoipTjOvWFnHfUuBTGfPJdXdx1if0SEWcScy86fpsSggT1lpkJsKgDRebKdaIzqGsrrZhs0LSjDidrTuPtEBBA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=YokdHGPCK0aJJzld6E/LOqWBz1AXXqpZoBRs9hUCejw=;
- b=XaLYaCs8XOfT/aNLKQZ/PQ+jdUIwAeOYwVmypgSCyzcRB8RI3U9UW9EnG+sp1DL2dhsGtKQQ5usJqivHL3+p+psSlOI69WdJIcaHy/xVeUdtBeuTxxnFvqaQJMdrO/6szFax+GApsNc8q/fidtOWnxWsrVP51PD2qcEE4p98HFhXpbvz8KeoCQQRAzXobmb5HpdK0HUttzQSqDUMUj7zlO2z5Y47FkCwjcIIwjsl+Q4+s1Y+rzWLpDAq76dtiy+e96WX/5Ov3zRxUbtLtSRYvg9+DgukF7TleufY3O+cx87DfaxXgdpq5SFZhHYfG7RFdoiDGYuVvtQCjokiJUCnAQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=YokdHGPCK0aJJzld6E/LOqWBz1AXXqpZoBRs9hUCejw=;
- b=Kdv7SYP1hf8bbyHa20zgRwWyuklWEmGSRxPYK+9p4fN9v91V7RCWjaYT2GOu3IkSabp1GcrB93Dg40la9+mggRv9FFNZ30Jm7O0AIBKrUfdBNZzOu5W5gfSMjNlDRyPhGdvUuPJDqt2YPAOlAbBTwqORzCQ9ms+iMv7eXIupYlXD5ORyC9MOQuGBbm14k1oBCcH/moQvAWVDEYc73V1FhCbw7regetBcNC7RXSOJQcbASwoQ9nDcJIw5CjUOV42RLMtIRJ+9SHSVat/PtSwGEvx7wqEsH8u5fHVz28k6Wa+yFKQPCTMav1COSdIMn1YmYu+o+KFfOKaWXITl/1ySsA==
-Received: from DM6PR12MB5565.namprd12.prod.outlook.com (2603:10b6:5:1b6::13)
- by SN7PR12MB7298.namprd12.prod.outlook.com (2603:10b6:806:2ae::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7068.32; Tue, 12 Dec
- 2023 19:44:04 +0000
-Received: from DM6PR12MB5565.namprd12.prod.outlook.com
- ([fe80::bd76:47ad:38a9:a258]) by DM6PR12MB5565.namprd12.prod.outlook.com
- ([fe80::bd76:47ad:38a9:a258%5]) with mapi id 15.20.7091.022; Tue, 12 Dec 2023
- 19:44:03 +0000
-From: Dragos Tatulea <dtatulea@nvidia.com>
-To: "eperezma@redhat.com" <eperezma@redhat.com>
-CC: "xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>, Parav Pandit
-	<parav@nvidia.com>, Gal Pressman <gal@nvidia.com>,
-	"virtualization@lists.linux-foundation.org"
-	<virtualization@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "si-wei.liu@oracle.com"
-	<si-wei.liu@oracle.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-	"mst@redhat.com" <mst@redhat.com>, Saeed Mahameed <saeedm@nvidia.com>,
-	"jasowang@redhat.com" <jasowang@redhat.com>, "leon@kernel.org"
-	<leon@kernel.org>
-Subject: Re: [PATCH vhost v2 4/8] vdpa/mlx5: Mark vq addrs for modification in
- hw vq
-Thread-Topic: [PATCH vhost v2 4/8] vdpa/mlx5: Mark vq addrs for modification
- in hw vq
-Thread-Index: AQHaJ2ha4Gy9JBIWuEWZX8/WZ4ytmbCmEe0AgAAGXwA=
-Date: Tue, 12 Dec 2023 19:44:03 +0000
-Message-ID: <0eb3ba6fa53f599e3ad99fcb1a1140d2086b4df8.camel@nvidia.com>
-References: <20231205104609.876194-1-dtatulea@nvidia.com>
-	 <20231205104609.876194-5-dtatulea@nvidia.com>
-	 <CAJaqyWeEY9LNTE8QEnJgLhgS7HiXr5gJEwwPBrC3RRBsAE4_7Q@mail.gmail.com>
-In-Reply-To:
- <CAJaqyWeEY9LNTE8QEnJgLhgS7HiXr5gJEwwPBrC3RRBsAE4_7Q@mail.gmail.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-user-agent: Evolution 3.50.2 (3.50.2-1.fc39) 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: DM6PR12MB5565:EE_|SN7PR12MB7298:EE_
-x-ms-office365-filtering-correlation-id: c434d15d-02b1-4864-caf8-08dbfb4ab1c4
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info:
- QPUNZsIIL2nuLoL0YJd/PBLfiPrG87UBU8AFyoqQu8B+8dhFQN/jJca8P4oiE4WUAIY1w7QJb5R44wP9Z8AiyQOGcBhD1dqO7ro52sySCAK4HEVlGWVqSXkaUKae4BjYjD8crpENdf+sabo1ClXWTBn8v12jWIe/W7dzG9V4b5m+2//5HA0GmS87d1wldBWhPLM9rijTLtCv01UjawytW3c/uOOCjutmnHmkJTEWKSldjVBGECEntUBc07fIgD5fwh+d3t5Kx8NSHU7YRaKcywJdBM38pRkmN0h+vcrLU+DwRKekKHK0da7eob1FRe66ObTReZOZ5RraI1Hhsg4mUDziSJ6lE27Lvc27Iq8w0li6UFw5kfpCZ3lhPy/algmFac0PJpAS+HvYH/f1sMXauUoxTwOOFPr0GudXumut4CSkvEL+K7uHlvzx51REyrIFGpTu+EIX541gaAa2h2TmnU6YLSkCpx1OpxV06ldKV/g5K9CyOUaU+HbF7H6LUkjI5qn8l8w48YQDy31xS8N9JfshIsXBJ0wXvmc4e1lbt/Q/1YJLc/mJzyNSFTpJobAsrLNFUI/bGQuqoqOhs949f2MwzAvkZzYq/SAH73AgptdMaa5fi0wAMessIE/U5OKz
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR12MB5565.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(39860400002)(366004)(346002)(396003)(376002)(136003)(230922051799003)(64100799003)(1800799012)(451199024)(186009)(6506007)(6512007)(5660300002)(2616005)(36756003)(53546011)(64756008)(38070700009)(4001150100001)(6486002)(66946007)(66476007)(66556008)(76116006)(54906003)(6916009)(91956017)(66574015)(66446008)(2906002)(83380400001)(86362001)(478600001)(41300700001)(4326008)(8936002)(8676002)(122000001)(316002)(38100700002)(71200400001);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?utf-8?B?bzZmanpCQzJaRWk1b1ZTUitFclhtZEwzYjFOMFZMUnNpaXBsUjAzL2xwRFJL?=
- =?utf-8?B?Y0h0SndXQk5SZUVUYk5FaUFCRUVNb3kxc3hIb0lSQlVtWHlsTDJFOFFqRkhj?=
- =?utf-8?B?bGR3SmppaUJ3RjNJUTZER2xMckJkT1BCWkF1Ulkya1JyTEo5TXpzTkZjUlg0?=
- =?utf-8?B?TW1veXRLZEErZ3RjVjNKZ05uRnRBMG5BOWZmNDR3cVltaFd3VkdXSnNweklL?=
- =?utf-8?B?WUlycm9YdUR2NWYzRnlBRTIyZFJlMFdORWJnWDVGendPa0dtRDNaZ1Q3ZE9q?=
- =?utf-8?B?RXFJampqTzh4b09sVVcvZGY1bzBqem5VMWg2V1QxYXFITk9jK1Q4Z0I1M1Rm?=
- =?utf-8?B?aytocjBtd3A0bitCQlErMWRjSUZpSE5nU0thNUY3WU9jbjBad09ZZ3pGcTBz?=
- =?utf-8?B?NGRhOGxTNlI5eXU1a2tGdCs5ZHJ5QVMyQVNVd2NuUERVS2ZEZmV3cVRCenhN?=
- =?utf-8?B?R2lIcnJKb0RqQ0xRdFVSamg2c29kbzIzeU53ZzRRcWZobEhCdU5pdlJLd3FY?=
- =?utf-8?B?SEV4MGNuaUtzR0tFUXdlUGx2WFhHL3NLaXhUQTk4bG5KbTVMbjJyUkVOTVl0?=
- =?utf-8?B?M1BLTGNhTkJvcjJCWnZYdVg2enlFK3dXMkJkcWRPTGJDdlRwZnllU2podzE4?=
- =?utf-8?B?ZytmOEtaUkVkZWJvcm1JNFN6MmlBVTdxcEhCcWh5SHRFOWR2NTdzcHR5TERD?=
- =?utf-8?B?NkNzZTg5OUplZnNOeERNaXlQd3BlZEJyMmpJOEZmVVhEWWgxL3BXT2hiQk1J?=
- =?utf-8?B?bzNNeXFIY2ZtZTRYQ3hTMlVOVkgwb2RBY1h4M1ZFZE1UdWxSZGNGNFRSTVhP?=
- =?utf-8?B?bmdrK2ZWdEhJU21OY3ExbDl6d0czUjEwL1QrZ0NKRkQ2SWlUNmRneTJhdFRh?=
- =?utf-8?B?TzQ1NTd5ZUdGZzBqNmRQTklBdFVGUmtlZUFidExRRlp2T2libEFPMzMzTmha?=
- =?utf-8?B?SStKcTRuQlR5R3kwcnR4UHFBV2pFODRNR1hTYk9sUVlyeUh5enRMNzEvdHVu?=
- =?utf-8?B?VW9pblFQdUdudXZFVXNHelh4L1JTQVd1OEdTV2dna0FEMmg1aTBzbDhpK2px?=
- =?utf-8?B?T2YyTDJaQ1pwU0IzNzQrUnYvWHg0MG5PcllCYmxtdlhOTEpTVTlWYWVpZVVw?=
- =?utf-8?B?Q1dWamwydW9WUlQvOGtqUmJ1M21EK2NTTVRObXpKT0dsYnlrUVRxVXFnTXE5?=
- =?utf-8?B?Qmcrd2owM1R1MGJXWWFkRWFDSUFQRkhnWVdzZE8xUzhOWnR6OFh6NGN0Q1JI?=
- =?utf-8?B?dnpTUXUxTFZyUTVESGpLTVdvUXNDQndYRHpFdTFKWVAyNTFrNlVralJ6dmpx?=
- =?utf-8?B?emlwbG5XbThScDlXaUlLQkZySTlSTzlXL2JFL0NUcnRFT3hnbEZMYkVValJ2?=
- =?utf-8?B?TTV4QkZwNTNnZGVOM1ZzU0xPaXlPR09HSHZxKzlUQ2t5WklDQWxRYUZrWStF?=
- =?utf-8?B?Q2l2T28wNVl3TGtaTW92Vkt4bGJCKzJlVytEd0dCL1FGdmJuUjhJMjF5RW9J?=
- =?utf-8?B?cUN6dXdyZjQ3WU5taEVJNGNuYzVoWmdBQ1RqOUN4MTkxTGNEZnpZcjdDWGxw?=
- =?utf-8?B?ZFY0UjZLU0VraWpFQjRhSllGVTJsWUd5d0xTWEJvMFZYOWJFVlhLamhCS0dr?=
- =?utf-8?B?SDlOL1o4MUF1NzhwZC82VEdYTzlOdGFCMWxGUkNpRFhjOC9vTkZXYkV1TXBq?=
- =?utf-8?B?RWk4Z20wZWNuY2psOTc5M3N6VGh3TjVlelNTeFQvdFUySTM1UXVjbjQxRjdD?=
- =?utf-8?B?eUZydXEvd05aMDc5QjdpbWZxWktHRFl3d0pST3kxdTFHTmg3YUJvU3c5NklC?=
- =?utf-8?B?NllyeTZXcEVXOWpEdFlXWFhldk55ekphM1R2dzBoNFdOZEFUMUFtdDRkQWMw?=
- =?utf-8?B?cEtEejVnWnRIWFhtNGlBTEpHei9RZkplb0VxMWFIVjZFRjFYbFl3YWljdElk?=
- =?utf-8?B?QTZUa1BjSTdKNzFwZXpSeVZHS3hYd3p0NXRjbFFleXlIOEZBejBJNXkvb2hY?=
- =?utf-8?B?Z084Z1ZMTlliRVM0NUFRcnhGd1NUSWVxOWkxSDRVNHhHUHQ3UnVON054WlpK?=
- =?utf-8?B?RUxLcFVucFVra3FCOHkvQURhMzBxMW8xRE96bG5ab1M5TUlFMWtYRmRpRERC?=
- =?utf-8?B?UWdlZ21jbGkzbElsU01INElSdER5MjZHSzBGdjZ6OFY2SGFxc2NlYldRcCtq?=
- =?utf-8?B?VjBsZm9WYzJOVkZSUDF2WUNXSDdjbW1uWnROVTRsalJGVDZ0YktHZW5NVUlp?=
- =?utf-8?B?TmlQa0JibndXc1lzeFkxbStTamJ3PT0=?=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <19CDCA6C83E0C44A9AF1DC6C64507541@namprd12.prod.outlook.com>
-Content-Transfer-Encoding: base64
+	Tue, 12 Dec 2023 22:55:40 +0000 (UTC)
+Received: from sonic312-30.consmr.mail.ne1.yahoo.com (sonic312-30.consmr.mail.ne1.yahoo.com [66.163.191.211])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id B6D0940137
+	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 22:55:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B6D0940137
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1702421739; bh=UyvNy/1r7rKshBkXFGtwCWlk0Hq4SWkz0HZPRlMSG2g=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=QQnwWaO8gTdjDwIBh9Gslbm5SNC+pUsqtzGBtJFsgtTcHfZmOCQtJeyhmisXlrVCGJ3DvTKjQsRUbbvAq0IV4iejurvxD760a/3uA69KOHYCPC3HNeD4nDIHo4h1KquJ/valMko9Ya+/Ry5ENCG9bPWs9nA2iK1cjtA/OEgAHBgHpTGA4LMg8Ua+HG11dGeSXsuQodj4v03U7gROLzNAVQYsta4vTyoZZIOeKyoSedS2J4+CwR+wIsFKu0jcRUZo87vmWZ9LlPKyZpdkpqnlUms+NvsHP33G/WybBhmYoLSnOEO4cKNJGnHs4FCECdUVjRhKQdwjWWTwUGhojFeoSA==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1702421739; bh=QKVjAmdal/b3W99XCqH5xDUTKf9snk38fsEDnGje/5Y=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=AdPXxj7VMd39lRl11aRO+DFWwQRpHeomlR2H/CYBuHPxv6Ar/R9lAguN/74XL+O+UWI34IQ3c3nZLP0BP3uWp9ffJESzA71TBdnMG+w3OJjOQTliU4e+8v9VbeEFLGnoIl7hpAUHwDGGItd8DrwgQ8zd2hJ/Geo/F95KMyjj8TQ++AQRI1Ha1uWy9jNvivbjqNPqtZCHjGQt/YNfgEdTLEoZkagzc8e+kwqtcjcaomaCurAmKCAAK4pnRFA3LgYsWunNUXxbuF8rfmVv7Fm6iH9YTopRu1uv+cBgnxabN3NWxa475iAivb48EZa+PXd1u9bGYr6SPZcYX2j1jcSuow==
+X-YMail-OSG: BrJmdSEVM1ll_DS2dIlDHLvHCo0H3W5whJBSlX.zKariIaX6jRqpUcaMLQ1Frnj
+ BmRH.DxlqfLfuDQmCiY5lP5BxDOHxXoY.Wj0wrtag65dNf7iJjOXufrjOWxCvZxtZZHgZ98raVh6
+ nRn3PjA6ZTyAXaoVgDQnMn2ob5Z46J2RfKx6fq2b2R4u34bKLT0lYPRC5_952dLbpwuHGG7ndPU2
+ R2FX.a8YjV7MtiYfqqf1ugx0Qa2vMBwd9KTA6TdDSHBtNpvgoiHREsO0ylnRLbMjjRz50sjLN5mI
+ HJlBpnBOvNI8NLZBFU56Upvyvb2ruJZLbdZNgIMMNeDXTcz01PIdRpY5v3stFIoff9qcpIFimcg_
+ 0nkqCgfK0TCzuWuIuodk3fWJ7E_bymQ93_l4o_k40vsS27Gvt16eTeOdPK7OQvYUvW5ToJfcff4v
+ b42X8tUP.j0Zu8.RBZz_e.4U.lf5cVvqusb9b_YLOsLuGd0JgVbYMpSUwdq9yvB4ez5iliiJuRL0
+ d5EHn10vD8PaT8VBGFBb.nuklDsgv4vtzNDAEnlTicAtG71EhJgfnAjQ0axV3xH1dxf7iYmIgbXH
+ J_FnnRNQPMJypbrpAknmWxvPQAmdXSgDwxCDLHA8JUHe3oyEG.ChYTMNuXXUTIfUuUiayrD5y8YO
+ VifzZAO8dq0LLMvn7JgaJTaBDHaipxZk46OEyMqjNmtl2WgjkmfvSg6eYGU.eAGfvQHxM8wrOvyl
+ XxI4FV7Es0AX4CHofkJuIfCB6mvPhdBKrrKDysTbL8YSLj8_bUgIjxDOyC2dzR7J8IX7iuSAOrSY
+ ww7xO2cGjAGQPgtKIuveQ3STDdNH3eSNp0q.0x._LB7wiRfF.uWEvwZfprzgHvcpJb3T7KHITKby
+ akWc6o6pT7MC7333NnP8bIaMuilm5_o65dabWEX_y6LtiLaIiSFLDJ4mgSnwGu17MFim0f3GyAYn
+ sCqW32OTfGiu3bJI3m2QvOnD9YP.yK2Hg61V1rTpjaJEVmcxO3UfY9VHSfm6mUcGs6YA8oQoKq.w
+ OsQOC3V4oelhBNc6S3lgqkgqCZLVROEkez7SUzsqJ31hsExoqZcMXLfFE2uDC_xuw_soRZ4WGj6v
+ EqW6ZKDaRHtN9cruULUpeIt8cWld801U84MCpX8bfkfE24iABQ.mFp3noGVozR4NjEo2b3i1E59d
+ Ra_8zlhfEqNM0.MhC62xxHeX7xLn1FswWvTGPGcG2dwU1W7i6A7XE5o9Vs5FkO0eow44Rn00oK0n
+ CdTmfQyCbucLblQlQdVYmMW9rANCFRZKrOXNFEgkdPkftaqxWp8h2MuqR1ujZFLLdjUceueQJAjF
+ 3.u7gXDpSgVksb4DaujhZ7WQ1flgaGzyMY.yma7J7S1xEEuOONdtTBVnIWLheSIAzW2qgCsb74KQ
+ pU2jBsdb4zznnbN3ecOqqiIOnzDLyUthP3xIubFEiobCVlYtY6zI9xqezbzifst9u62W4Z.BCoC8
+ OuwSRDf3UPv2RTctxp.k8KrgSSGApbQ791NmiRxTTIqehWAS3lI99RL4c_M_epZ75hPpnLDzTZDC
+ SyOsoN8C4KQWpj3n8lJymgPu5M0Er6oE_GT9IwPnBTCxCq38mXtOcRotbstCcuiLA24ORjZOR.DY
+ I4ejr_J5ATAaWODUnkmSQIbnrUay78Omk91JRBsfW8hBfvtuvZ05SzXIx8w0UHjoD0UCnJrArVU2
+ MdIGbCJGf9QyeQBNv5hY3rxh5D72_i1iH0kqd1g7FHvCFODW.UkKfDn1Z9Xo1qweuaRs6g1DD5c6
+ P7GfLUPW3Q20jepJUvP9I3VeDiEHDOJ3tWshyzRU9wIiGyUUInRVX0YOwzGcTrz06BNLNVZLu.wg
+ w._dRMjRanEbeA_mHEPlM3H02tCe4W1ts47MdjPUqw7n4nb38W6704CHpWG0Jh116hz373pWXL10
+ kheJjIQf9NykxvgXq_iWOU17TLv4SaWCR87dHqFCZS8iZe6Y.vR0qM5T9uAKpB.ywvPB7BUkuf7M
+ ZPLlsRUir3soWqwnyRXlKKDCcMPX_oK4SEVaZnsyH4S_GwXPmr3JAxC_u0tbEkeYo8e9uoa9sThr
+ CqAJZ_qykz1NybhcD0KF3.pl5AVj6qYJECY4VcxXcEhJiHzYHz2NP3WezHjtCG99LLOKw29VReGd
+ 6v3M9AJT_.mwMRnSmGPw4UMafJ1gEJVRezoXr5CX_JAkz9eVoX3UyZCxaQp3nb8XN8CObrTLE5i.
+ R0kzagfieVrlpGs5E0nVkGelbETPrscraCxWm7NBo41NQKS2tAh0rlX9e1aAbiIPbsMbha9DEF1r
+ YiTKtcR0hAvo-
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: 37c829e1-9f20-4ed1-86a1-d10dc92b524a
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic312.consmr.mail.ne1.yahoo.com with HTTP; Tue, 12 Dec 2023 22:55:39 +0000
+Received: by hermes--production-gq1-64499dfdcc-fxj72 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 7fc3c2d3c0f3eb597f2f21d521e36336;
+          Tue, 12 Dec 2023 22:55:34 +0000 (UTC)
+Message-ID: <f7bd9ef6-cfa1-4b7e-a9f9-0b6015ac394f@schaufler-ca.com>
+Date: Tue, 12 Dec 2023 14:55:33 -0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: DM6PR12MB5565.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: c434d15d-02b1-4864-caf8-08dbfb4ab1c4
-X-MS-Exchange-CrossTenant-originalarrivaltime: 12 Dec 2023 19:44:03.1504
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: i/de6rxYyZkx+IOheah+V+IQZLKfLeVz8xRVINem68wpKAhTZRlVIe00jPAMHzGwiE9ufSKtW8jbDw0NBDHGnQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB7298
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v5 4/4] vduse: Add LSM hook to check Virtio device type
+Content-Language: en-US
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Maxime Coquelin <maxime.coquelin@redhat.com>, jasowang@redhat.com,
+ xuanzhuo@linux.alibaba.com, paul@paul-moore.com, jmorris@namei.org,
+ serge@hallyn.com, stephen.smalley.work@gmail.com, eparis@parisplace.org,
+ xieyongji@bytedance.com, virtualization@lists.linux-foundation.org,
+ linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+ selinux@vger.kernel.org, david.marchand@redhat.com, lulu@redhat.com,
+ Casey Schaufler <casey@schaufler-ca.com>
+References: <20231212131712.1816324-1-maxime.coquelin@redhat.com>
+ <20231212131712.1816324-5-maxime.coquelin@redhat.com>
+ <c58da5f5-131f-425e-b008-260506d1bc0d@schaufler-ca.com>
+ <20231212124518-mutt-send-email-mst@kernel.org>
+From: Casey Schaufler <casey@schaufler-ca.com>
+In-Reply-To: <20231212124518-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Mailer: WebService/1.1.21952 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 
-T24gVHVlLCAyMDIzLTEyLTEyIGF0IDIwOjIxICswMTAwLCBFdWdlbmlvIFBlcmV6IE1hcnRpbiB3
-cm90ZToNCj4gT24gVHVlLCBEZWMgNSwgMjAyMyBhdCAxMTo0NuKAr0FNIERyYWdvcyBUYXR1bGVh
-IDxkdGF0dWxlYUBudmlkaWEuY29tPiB3cm90ZToNCj4gPiANCj4gPiBBZGRyZXNzZXMgZ2V0IHNl
-dCBieSAuc2V0X3ZxX2FkZHJlc3MuIGh3IHZxIGFkZHJlc3NlcyB3aWxsIGJlIHVwZGF0ZWQgb24N
-Cj4gPiBuZXh0IG1vZGlmeV92aXJ0cXVldWUuDQo+ID4gDQo+ID4gU2lnbmVkLW9mZi1ieTogRHJh
-Z29zIFRhdHVsZWEgPGR0YXR1bGVhQG52aWRpYS5jb20+DQo+ID4gUmV2aWV3ZWQtYnk6IEdhbCBQ
-cmVzc21hbiA8Z2FsQG52aWRpYS5jb20+DQo+ID4gQWNrZWQtYnk6IEV1Z2VuaW8gUMOpcmV6IDxl
-cGVyZXptYUByZWRoYXQuY29tPg0KPiANCj4gSSdtIGtpbmQgb2Ygb2sgd2l0aCB0aGlzIHBhdGNo
-IGFuZCB0aGUgbmV4dCBvbmUgYWJvdXQgc3RhdGUsIGJ1dCBJDQo+IGRpZG4ndCBhY2sgdGhlbSBp
-biB0aGUgcHJldmlvdXMgc2VyaWVzLg0KPiANClNvcnJ5IGFib3V0IHRoZSBBY2sgbWlzcGxhY2Vt
-ZW50LiBJIGdvdCBjb25mdXNlZC4NCg0KPiBNeSBtYWluIGNvbmNlcm4gaXMgdGhhdCBpdCBpcyBu
-b3QgdmFsaWQgdG8gY2hhbmdlIHRoZSB2cSBhZGRyZXNzIGFmdGVyDQo+IERSSVZFUl9PSyBpbiBW
-aXJ0SU8sIHdoaWNoIHZEUEEgZm9sbG93cy4gT25seSBtZW1vcnkgbWFwcyBhcmUgb2sgdG8NCj4g
-Y2hhbmdlIGF0IHRoaXMgbW9tZW50LiBJJ20gbm90IHN1cmUgYWJvdXQgdnEgc3RhdGUgaW4gdkRQ
-QSwgYnV0IHZob3N0DQo+IGZvcmJpZHMgY2hhbmdpbmcgaXQgd2l0aCBhbiBhY3RpdmUgYmFja2Vu
-ZC4NCj4gDQo+IFN1c3BlbmQgaXMgbm90IGRlZmluZWQgaW4gVmlydElPIGF0IHRoaXMgbW9tZW50
-IHRob3VnaCwgc28gbWF5YmUgaXQgaXMNCj4gb2sgdG8gZGVjaWRlIHRoYXQgYWxsIG9mIHRoZXNl
-IHBhcmFtZXRlcnMgbWF5IGNoYW5nZSBkdXJpbmcgc3VzcGVuZC4NCj4gTWF5YmUgdGhlIGJlc3Qg
-dGhpbmcgaXMgdG8gcHJvdGVjdCB0aGlzIHdpdGggYSB2RFBBIGZlYXR1cmUgZmxhZy4NCj4gDQo+
-IEphc29uLCB3aGF0IGRvIHlvdSB0aGluaz8NCj4gDQo+IFRoYW5rcyENCj4gDQo+ID4gLS0tDQo+
-ID4gIGRyaXZlcnMvdmRwYS9tbHg1L25ldC9tbHg1X3ZuZXQuYyAgfCA5ICsrKysrKysrKw0KPiA+
-ICBpbmNsdWRlL2xpbnV4L21seDUvbWx4NV9pZmNfdmRwYS5oIHwgMSArDQo+ID4gIDIgZmlsZXMg
-Y2hhbmdlZCwgMTAgaW5zZXJ0aW9ucygrKQ0KPiA+IA0KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJz
-L3ZkcGEvbWx4NS9uZXQvbWx4NV92bmV0LmMgYi9kcml2ZXJzL3ZkcGEvbWx4NS9uZXQvbWx4NV92
-bmV0LmMNCj4gPiBpbmRleCBmOGYwODhjY2VkNTAuLjgwZTA2NmRlMDg2NiAxMDA2NDQNCj4gPiAt
-LS0gYS9kcml2ZXJzL3ZkcGEvbWx4NS9uZXQvbWx4NV92bmV0LmMNCj4gPiArKysgYi9kcml2ZXJz
-L3ZkcGEvbWx4NS9uZXQvbWx4NV92bmV0LmMNCj4gPiBAQCAtMTIwOSw2ICsxMjA5LDcgQEAgc3Rh
-dGljIGludCBtb2RpZnlfdmlydHF1ZXVlKHN0cnVjdCBtbHg1X3ZkcGFfbmV0ICpuZGV2LA0KPiA+
-ICAgICAgICAgYm9vbCBzdGF0ZV9jaGFuZ2UgPSBmYWxzZTsNCj4gPiAgICAgICAgIHZvaWQgKm9i
-al9jb250ZXh0Ow0KPiA+ICAgICAgICAgdm9pZCAqY21kX2hkcjsNCj4gPiArICAgICAgIHZvaWQg
-KnZxX2N0eDsNCj4gPiAgICAgICAgIHZvaWQgKmluOw0KPiA+ICAgICAgICAgaW50IGVycjsNCj4g
-PiANCj4gPiBAQCAtMTIzMCw2ICsxMjMxLDcgQEAgc3RhdGljIGludCBtb2RpZnlfdmlydHF1ZXVl
-KHN0cnVjdCBtbHg1X3ZkcGFfbmV0ICpuZGV2LA0KPiA+ICAgICAgICAgTUxYNV9TRVQoZ2VuZXJh
-bF9vYmpfaW5fY21kX2hkciwgY21kX2hkciwgdWlkLCBuZGV2LT5tdmRldi5yZXMudWlkKTsNCj4g
-PiANCj4gPiAgICAgICAgIG9ial9jb250ZXh0ID0gTUxYNV9BRERSX09GKG1vZGlmeV92aXJ0aW9f
-bmV0X3FfaW4sIGluLCBvYmpfY29udGV4dCk7DQo+ID4gKyAgICAgICB2cV9jdHggPSBNTFg1X0FE
-RFJfT0YodmlydGlvX25ldF9xX29iamVjdCwgb2JqX2NvbnRleHQsIHZpcnRpb19xX2NvbnRleHQp
-Ow0KPiA+IA0KPiA+ICAgICAgICAgaWYgKG12cS0+bW9kaWZpZWRfZmllbGRzICYgTUxYNV9WSVJU
-UV9NT0RJRllfTUFTS19TVEFURSkgew0KPiA+ICAgICAgICAgICAgICAgICBpZiAoIWlzX3ZhbGlk
-X3N0YXRlX2NoYW5nZShtdnEtPmZ3X3N0YXRlLCBzdGF0ZSwgaXNfcmVzdW1hYmxlKG5kZXYpKSkg
-ew0KPiA+IEBAIC0xMjQxLDYgKzEyNDMsMTIgQEAgc3RhdGljIGludCBtb2RpZnlfdmlydHF1ZXVl
-KHN0cnVjdCBtbHg1X3ZkcGFfbmV0ICpuZGV2LA0KPiA+ICAgICAgICAgICAgICAgICBzdGF0ZV9j
-aGFuZ2UgPSB0cnVlOw0KPiA+ICAgICAgICAgfQ0KPiA+IA0KPiA+ICsgICAgICAgaWYgKG12cS0+
-bW9kaWZpZWRfZmllbGRzICYgTUxYNV9WSVJUUV9NT0RJRllfTUFTS19WSVJUSU9fUV9BRERSUykg
-ew0KPiA+ICsgICAgICAgICAgICAgICBNTFg1X1NFVDY0KHZpcnRpb19xLCB2cV9jdHgsIGRlc2Nf
-YWRkciwgbXZxLT5kZXNjX2FkZHIpOw0KPiA+ICsgICAgICAgICAgICAgICBNTFg1X1NFVDY0KHZp
-cnRpb19xLCB2cV9jdHgsIHVzZWRfYWRkciwgbXZxLT5kZXZpY2VfYWRkcik7DQo+ID4gKyAgICAg
-ICAgICAgICAgIE1MWDVfU0VUNjQodmlydGlvX3EsIHZxX2N0eCwgYXZhaWxhYmxlX2FkZHIsIG12
-cS0+ZHJpdmVyX2FkZHIpOw0KPiA+ICsgICAgICAgfQ0KPiA+ICsNCj4gPiAgICAgICAgIE1MWDVf
-U0VUNjQodmlydGlvX25ldF9xX29iamVjdCwgb2JqX2NvbnRleHQsIG1vZGlmeV9maWVsZF9zZWxl
-Y3QsIG12cS0+bW9kaWZpZWRfZmllbGRzKTsNCj4gPiAgICAgICAgIGVyciA9IG1seDVfY21kX2V4
-ZWMobmRldi0+bXZkZXYubWRldiwgaW4sIGlubGVuLCBvdXQsIHNpemVvZihvdXQpKTsNCj4gPiAg
-ICAgICAgIGlmIChlcnIpDQo+ID4gQEAgLTIyMDIsNiArMjIxMCw3IEBAIHN0YXRpYyBpbnQgbWx4
-NV92ZHBhX3NldF92cV9hZGRyZXNzKHN0cnVjdCB2ZHBhX2RldmljZSAqdmRldiwgdTE2IGlkeCwg
-dTY0IGRlc2NfDQo+ID4gICAgICAgICBtdnEtPmRlc2NfYWRkciA9IGRlc2NfYXJlYTsNCj4gPiAg
-ICAgICAgIG12cS0+ZGV2aWNlX2FkZHIgPSBkZXZpY2VfYXJlYTsNCj4gPiAgICAgICAgIG12cS0+
-ZHJpdmVyX2FkZHIgPSBkcml2ZXJfYXJlYTsNCj4gPiArICAgICAgIG12cS0+bW9kaWZpZWRfZmll
-bGRzIHw9IE1MWDVfVklSVFFfTU9ESUZZX01BU0tfVklSVElPX1FfQUREUlM7DQo+ID4gICAgICAg
-ICByZXR1cm4gMDsNCj4gPiAgfQ0KPiA+IA0KPiA+IGRpZmYgLS1naXQgYS9pbmNsdWRlL2xpbnV4
-L21seDUvbWx4NV9pZmNfdmRwYS5oIGIvaW5jbHVkZS9saW51eC9tbHg1L21seDVfaWZjX3ZkcGEu
-aA0KPiA+IGluZGV4IGI4NmQ1MWE4NTVmNi4uOTU5NGFjNDA1NzQwIDEwMDY0NA0KPiA+IC0tLSBh
-L2luY2x1ZGUvbGludXgvbWx4NS9tbHg1X2lmY192ZHBhLmgNCj4gPiArKysgYi9pbmNsdWRlL2xp
-bnV4L21seDUvbWx4NV9pZmNfdmRwYS5oDQo+ID4gQEAgLTE0NSw2ICsxNDUsNyBAQCBlbnVtIHsN
-Cj4gPiAgICAgICAgIE1MWDVfVklSVFFfTU9ESUZZX01BU0tfU1RBVEUgICAgICAgICAgICAgICAg
-ICAgID0gKHU2NCkxIDw8IDAsDQo+ID4gICAgICAgICBNTFg1X1ZJUlRRX01PRElGWV9NQVNLX0RJ
-UlRZX0JJVE1BUF9QQVJBTVMgICAgICA9ICh1NjQpMSA8PCAzLA0KPiA+ICAgICAgICAgTUxYNV9W
-SVJUUV9NT0RJRllfTUFTS19ESVJUWV9CSVRNQVBfRFVNUF9FTkFCTEUgPSAodTY0KTEgPDwgNCwN
-Cj4gPiArICAgICAgIE1MWDVfVklSVFFfTU9ESUZZX01BU0tfVklSVElPX1FfQUREUlMgICAgICAg
-ICAgID0gKHU2NCkxIDw8IDYsDQo+ID4gICAgICAgICBNTFg1X1ZJUlRRX01PRElGWV9NQVNLX0RF
-U0NfR1JPVVBfTUtFWSAgICAgICAgICA9ICh1NjQpMSA8PCAxNCwNCj4gPiAgfTsNCj4gPiANCj4g
-PiAtLQ0KPiA+IDIuNDIuMA0KPiA+IA0KPiANCg0K
+On 12/12/2023 9:59 AM, Michael S. Tsirkin wrote:
+> On Tue, Dec 12, 2023 at 08:33:39AM -0800, Casey Schaufler wrote:
+>> On 12/12/2023 5:17 AM, Maxime Coquelin wrote:
+>>> This patch introduces a LSM hook for devices creation,
+>>> destruction (ioctl()) and opening (open()) operations,
+>>> checking the application is allowed to perform these
+>>> operations for the Virtio device type.
+>> My earlier comments on a vduse specific LSM hook still hold.
+>> I would much prefer to see a device permissions hook(s) that
+>> are useful for devices in general. Not just vduse devices.
+>> I know that there are already some very special purpose LSM
+>> hooks, but the experience with maintaining them is why I don't
+>> want more of them. 
+> What exactly does this mean?
+
+You have proposed an LSM hook that is only useful for vduse.
+You want to implement a set of controls that only apply to vduse.
+I can't help but think that if someone (i.e. you) wants to control
+device creation for vduse that there could well be a use case for
+control over device creation for some other set of devices. It is
+quite possible that someone out there is desperately trying to
+solve the same problem you have, but with a different device.
+
+I have no desire to have to deal with
+	security_vduse_perm_check()
+	security_odddev_perm_check()
+	...
+	security_evendev_perm_check()
+
+when we should be able to have
+	security_device_perm_check()
+
+that can service them all.
+
+
+>  Devices like tap etc? How do we
+> find them all though?
+
+I'm not suggesting you find them all. I'm suggesting that you provide
+an interface that someone could use if they wanted to. I think you
+will be surprised how many will appear (with complaints about the
+interface you propose, of course) if you implement a generally useful
+LSM hook.
+
+>
+>>> Signed-off-by: Maxime Coquelin <maxime.coquelin@redhat.com>
+>>> ---
+>>>  MAINTAINERS                         |  1 +
+>>>  drivers/vdpa/vdpa_user/vduse_dev.c  | 13 ++++++++++++
+>>>  include/linux/lsm_hook_defs.h       |  2 ++
+>>>  include/linux/security.h            |  6 ++++++
+>>>  include/linux/vduse.h               | 14 +++++++++++++
+>>>  security/security.c                 | 15 ++++++++++++++
+>>>  security/selinux/hooks.c            | 32 +++++++++++++++++++++++++++++
+>>>  security/selinux/include/classmap.h |  2 ++
+>>>  8 files changed, 85 insertions(+)
+>>>  create mode 100644 include/linux/vduse.h
+>>>
+>>> diff --git a/MAINTAINERS b/MAINTAINERS
+>>> index a0fb0df07b43..4e83b14358d2 100644
+>>> --- a/MAINTAINERS
+>>> +++ b/MAINTAINERS
+>>> @@ -23040,6 +23040,7 @@ F:	drivers/net/virtio_net.c
+>>>  F:	drivers/vdpa/
+>>>  F:	drivers/virtio/
+>>>  F:	include/linux/vdpa.h
+>>> +F:	include/linux/vduse.h
+>>>  F:	include/linux/virtio*.h
+>>>  F:	include/linux/vringh.h
+>>>  F:	include/uapi/linux/virtio_*.h
+>>> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
+>>> index fa62825be378..59ab7eb62e20 100644
+>>> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+>>> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+>>> @@ -8,6 +8,7 @@
+>>>   *
+>>>   */
+>>>  
+>>> +#include "linux/security.h"
+>>>  #include <linux/init.h>
+>>>  #include <linux/module.h>
+>>>  #include <linux/cdev.h>
+>>> @@ -30,6 +31,7 @@
+>>>  #include <uapi/linux/virtio_blk.h>
+>>>  #include <uapi/linux/virtio_ring.h>
+>>>  #include <linux/mod_devicetable.h>
+>>> +#include <linux/vduse.h>
+>>>  
+>>>  #include "iova_domain.h"
+>>>  
+>>> @@ -1442,6 +1444,10 @@ static int vduse_dev_open(struct inode *inode, struct file *file)
+>>>  	if (dev->connected)
+>>>  		goto unlock;
+>>>  
+>>> +	ret = -EPERM;
+>>> +	if (security_vduse_perm_check(VDUSE_PERM_OPEN, dev->device_id))
+>>> +		goto unlock;
+>>> +
+>>>  	ret = 0;
+>>>  	dev->connected = true;
+>>>  	file->private_data = dev;
+>>> @@ -1664,6 +1670,9 @@ static int vduse_destroy_dev(char *name)
+>>>  	if (!dev)
+>>>  		return -EINVAL;
+>>>  
+>>> +	if (security_vduse_perm_check(VDUSE_PERM_DESTROY, dev->device_id))
+>>> +		return -EPERM;
+>>> +
+>>>  	mutex_lock(&dev->lock);
+>>>  	if (dev->vdev || dev->connected) {
+>>>  		mutex_unlock(&dev->lock);
+>>> @@ -1828,6 +1837,10 @@ static int vduse_create_dev(struct vduse_dev_config *config,
+>>>  	int ret;
+>>>  	struct vduse_dev *dev;
+>>>  
+>>> +	ret = -EPERM;
+>>> +	if (security_vduse_perm_check(VDUSE_PERM_CREATE, config->device_id))
+>>> +		goto err;
+>>> +
+>>>  	ret = -EEXIST;
+>>>  	if (vduse_find_dev(config->name))
+>>>  		goto err;
+>>> diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+>>> index ff217a5ce552..3930ab2ae974 100644
+>>> --- a/include/linux/lsm_hook_defs.h
+>>> +++ b/include/linux/lsm_hook_defs.h
+>>> @@ -419,3 +419,5 @@ LSM_HOOK(int, 0, uring_override_creds, const struct cred *new)
+>>>  LSM_HOOK(int, 0, uring_sqpoll, void)
+>>>  LSM_HOOK(int, 0, uring_cmd, struct io_uring_cmd *ioucmd)
+>>>  #endif /* CONFIG_IO_URING */
+>>> +
+>>> +LSM_HOOK(int, 0, vduse_perm_check, enum vduse_op_perm op_perm, u32 device_id)
+>>> diff --git a/include/linux/security.h b/include/linux/security.h
+>>> index 1d1df326c881..2a2054172394 100644
+>>> --- a/include/linux/security.h
+>>> +++ b/include/linux/security.h
+>>> @@ -32,6 +32,7 @@
+>>>  #include <linux/string.h>
+>>>  #include <linux/mm.h>
+>>>  #include <linux/sockptr.h>
+>>> +#include <linux/vduse.h>
+>>>  
+>>>  struct linux_binprm;
+>>>  struct cred;
+>>> @@ -484,6 +485,7 @@ int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen);
+>>>  int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen);
+>>>  int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen);
+>>>  int security_locked_down(enum lockdown_reason what);
+>>> +int security_vduse_perm_check(enum vduse_op_perm op_perm, u32 device_id);
+>>>  #else /* CONFIG_SECURITY */
+>>>  
+>>>  static inline int call_blocking_lsm_notifier(enum lsm_event event, void *data)
+>>> @@ -1395,6 +1397,10 @@ static inline int security_locked_down(enum lockdown_reason what)
+>>>  {
+>>>  	return 0;
+>>>  }
+>>> +static inline int security_vduse_perm_check(enum vduse_op_perm op_perm, u32 device_id)
+>>> +{
+>>> +	return 0;
+>>> +}
+>>>  #endif	/* CONFIG_SECURITY */
+>>>  
+>>>  #if defined(CONFIG_SECURITY) && defined(CONFIG_WATCH_QUEUE)
+>>> diff --git a/include/linux/vduse.h b/include/linux/vduse.h
+>>> new file mode 100644
+>>> index 000000000000..7a20dcc43997
+>>> --- /dev/null
+>>> +++ b/include/linux/vduse.h
+>>> @@ -0,0 +1,14 @@
+>>> +/* SPDX-License-Identifier: GPL-2.0 */
+>>> +#ifndef _LINUX_VDUSE_H
+>>> +#define _LINUX_VDUSE_H
+>>> +
+>>> +/*
+>>> + * The permission required for a VDUSE device operation.
+>>> + */
+>>> +enum vduse_op_perm {
+>>> +	VDUSE_PERM_CREATE,
+>>> +	VDUSE_PERM_DESTROY,
+>>> +	VDUSE_PERM_OPEN,
+>>> +};
+>>> +
+>>> +#endif /* _LINUX_VDUSE_H */
+>>> diff --git a/security/security.c b/security/security.c
+>>> index dcb3e7014f9b..150abf85f97d 100644
+>>> --- a/security/security.c
+>>> +++ b/security/security.c
+>>> @@ -5337,3 +5337,18 @@ int security_uring_cmd(struct io_uring_cmd *ioucmd)
+>>>  	return call_int_hook(uring_cmd, 0, ioucmd);
+>>>  }
+>>>  #endif /* CONFIG_IO_URING */
+>>> +
+>>> +/**
+>>> + * security_vduse_perm_check() - Check if a VDUSE device type operation is allowed
+>>> + * @op_perm: the operation type
+>>> + * @device_id: the Virtio device ID
+>>> + *
+>>> + * Check whether the Virtio device creation is allowed
+>>> + *
+>>> + * Return: Returns 0 if permission is granted.
+>>> + */
+>>> +int security_vduse_perm_check(enum vduse_op_perm op_perm, u32 device_id)
+>>> +{
+>>> +	return call_int_hook(vduse_perm_check, 0, op_perm, device_id);
+>>> +}
+>>> +EXPORT_SYMBOL(security_vduse_perm_check);
+>>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+>>> index feda711c6b7b..18845e4f682f 100644
+>>> --- a/security/selinux/hooks.c
+>>> +++ b/security/selinux/hooks.c
+>>> @@ -21,6 +21,8 @@
+>>>   *  Copyright (C) 2016 Mellanox Technologies
+>>>   */
+>>>  
+>>> +#include "av_permissions.h"
+>>> +#include "linux/vduse.h"
+>>>  #include <linux/init.h>
+>>>  #include <linux/kd.h>
+>>>  #include <linux/kernel.h>
+>>> @@ -92,6 +94,7 @@
+>>>  #include <linux/fsnotify.h>
+>>>  #include <linux/fanotify.h>
+>>>  #include <linux/io_uring.h>
+>>> +#include <uapi/linux/virtio_ids.h>
+>>>  
+>>>  #include "avc.h"
+>>>  #include "objsec.h"
+>>> @@ -6950,6 +6953,34 @@ static int selinux_uring_cmd(struct io_uring_cmd *ioucmd)
+>>>  }
+>>>  #endif /* CONFIG_IO_URING */
+>>>  
+>>> +static int selinux_vduse_perm_check(enum vduse_op_perm op_perm, u32 device_id)
+>>> +{
+>>> +	u32 requested_op, requested_type, sid = current_sid();
+>>> +	int ret;
+>>> +
+>>> +	if (op_perm == VDUSE_PERM_CREATE)
+>>> +		requested_op = VDUSE__CREATE;
+>>> +	else if (op_perm == VDUSE__DESTROY)
+>>> +		requested_op = VDUSE__DESTROY;
+>>> +	else if (op_perm == VDUSE_PERM_OPEN)
+>>> +		requested_op = VDUSE__OPEN;
+>>> +	else
+>>> +		return -EINVAL;
+>>> +
+>>> +	ret = avc_has_perm(sid, sid, SECCLASS_VDUSE, requested_op, NULL);
+>>> +	if (ret)
+>>> +		return ret;
+>>> +
+>>> +	if (device_id == VIRTIO_ID_NET)
+>>> +		requested_type = VDUSE__NET;
+>>> +	else if (device_id == VIRTIO_ID_BLOCK)
+>>> +		requested_type = VDUSE__BLOCK;
+>>> +	else
+>>> +		return -EINVAL;
+>>> +
+>>> +	return avc_has_perm(sid, sid, SECCLASS_VDUSE, requested_type, NULL);
+>>> +}
+>>> +
+>>>  /*
+>>>   * IMPORTANT NOTE: When adding new hooks, please be careful to keep this order:
+>>>   * 1. any hooks that don't belong to (2.) or (3.) below,
+>>> @@ -7243,6 +7274,7 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
+>>>  #ifdef CONFIG_PERF_EVENTS
+>>>  	LSM_HOOK_INIT(perf_event_alloc, selinux_perf_event_alloc),
+>>>  #endif
+>>> +	LSM_HOOK_INIT(vduse_perm_check, selinux_vduse_perm_check),
+>>>  };
+>>>  
+>>>  static __init int selinux_init(void)
+>>> diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+>>> index a3c380775d41..b0a358cbac1c 100644
+>>> --- a/security/selinux/include/classmap.h
+>>> +++ b/security/selinux/include/classmap.h
+>>> @@ -256,6 +256,8 @@ const struct security_class_mapping secclass_map[] = {
+>>>  	  { "override_creds", "sqpoll", "cmd", NULL } },
+>>>  	{ "user_namespace",
+>>>  	  { "create", NULL } },
+>>> +	{ "vduse",
+>>> +	  { "create", "destroy", "open", "net", "block", NULL} },
+>>>  	{ NULL }
+>>>    };
+>>>  
+>
