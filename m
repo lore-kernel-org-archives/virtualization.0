@@ -1,167 +1,215 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FC916AB3
-	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 03:02:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FC74D2E1
+	for <virtualization@lists.linux.dev>; Tue, 12 Dec 2023 04:35:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YTAQLKme"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 36E0781E2C
-	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 03:02:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 36E0781E2C
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=YTAQLKme
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id kJX-qPp9TGbS
-	for <virtualization@lists.linux-foundation.org>;
-	Tue, 12 Dec 2023 03:02:09 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 3F3EE813B0
-	for <virtualization@lists.linux-foundation.org>; Tue, 12 Dec 2023 03:02:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3F3EE813B0
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fY21y5tr"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1702350128;
+	s=mimecast20190719; t=1702355720;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=/NcUhW82kVg4Fgb3Dq1SvC66NLPOJJ84gCXl550jBOg=;
-	b=YTAQLKmeRK52CKGEKwZvDgFRDUiOtUz0V6bQEdXiPYfn6dY/0pCCXCtrnhwMxVVih6uQj5
-	3VQHz7sbTBhuTu2qQNfzp4GM1zMwNpMUKHOxjObviOQ/j1AHjEricSwPdILkPuoz5QZW7m
-	buVzfXnfmzP4njL3LzsJ2/YtFBR8YBY=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=3VntsOLPXuWJtx6zQj2tvFN5GConn9kSc0M72tw246g=;
+	b=fY21y5trR46im1+Qy8QOObhsQMJZbsfgzNB7fhDoPU7RrAhQEZHRxrbTkOJr/QnXUS/ctd
+	YmcPfJZ3e7gld/jOwfpll2xV2ROhej+hMuL8+as9EOhNMZQxKNLIuWR9kj+eyZbcx2QLFu
+	vCWvYPcmaEUYKd2Kx1HxfiC3GspD9Fg=
+Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
+ [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-443-UWOZ6AoFMEamwZIXat14nQ-1; Mon, 11 Dec 2023 22:02:06 -0500
-X-MC-Unique: UWOZ6AoFMEamwZIXat14nQ-1
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-2866c800dd5so6186248a91.0
-        for <virtualization@lists.linux-foundation.org>; Mon, 11 Dec 2023 19:02:06 -0800 (PST)
+ us-mta-345-l2DdY2mPPyCf7-eDRn9pog-1; Mon, 11 Dec 2023 23:35:16 -0500
+X-MC-Unique: l2DdY2mPPyCf7-eDRn9pog-1
+Received: by mail-qk1-f199.google.com with SMTP id af79cd13be357-77f54de7f10so531876485a.1
+        for <virtualization@lists.linux.dev>; Mon, 11 Dec 2023 20:35:16 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702350126; x=1702954926;
+        d=1e100.net; s=20230601; t=1702355716; x=1702960516;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=/NcUhW82kVg4Fgb3Dq1SvC66NLPOJJ84gCXl550jBOg=;
-        b=JhKc2UKRGDSuCUDGSOM0QUGcIBGdsD9uhsCgYXmib+o41BvEygnq++AD+9xGmcGB2A
-         qw7kIL6MhucdRzluiYLRVYTJWhnupm5rG2PW/HdZ/QUqtAideGFznOTrCA0jsWQzIKE7
-         9AwAs1m2DpoSl+EEr4Tug+OcHmAnZCCI6roK7FTv1dxWtLWXAeLNastdOqKclT75bqRY
-         JDO208Pk9BSmkOCdW/a4PS2Ggf1Jj9ckAXijinJk41YCReW9rM10KGFBU3Lz9qtgfzl7
-         eYVmrVmMNG4RG3uNZQBMfMa5c3R7mFJgPOYjLx9FrzERdSfmUFygNC1IEx6vXNgclJaR
-         UrjA==
-X-Gm-Message-State: AOJu0YzhH2+1BEHokhbYEfCxlxzCzKdvn1W4R9ns0OS4/InHk3QVfxI+
-	DKGjPXRqFlUbpgBYbZ2X9HpBLEFxaQV6L+XobCxb1OPiv0HB8qW/ul1iSvuJM9KgxXI206+do6r
-	M3tkx444qND2U2xByHfX4MMjW5ehRi1siI3r2ft2RZMEK6q663dCVcDdBYQ==
-X-Received: by 2002:a17:90b:152:b0:286:db83:a092 with SMTP id em18-20020a17090b015200b00286db83a092mr4170423pjb.20.1702350125889;
-        Mon, 11 Dec 2023 19:02:05 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEGo0L3DeFF6N2EfhNxrYtxwbIS2B3jOa/l8pkOd4cweE+LAc92ES33i4Vds/ETJ1R24YNUMPLgjbPbXCLyTOg=
-X-Received: by 2002:a17:90b:152:b0:286:db83:a092 with SMTP id
- em18-20020a17090b015200b00286db83a092mr4170415pjb.20.1702350125585; Mon, 11
- Dec 2023 19:02:05 -0800 (PST)
+        bh=3VntsOLPXuWJtx6zQj2tvFN5GConn9kSc0M72tw246g=;
+        b=I0FTedyBm8YIX95Rpt3Ql4sJh9Xxazq5bMTp33r0CWAT47pzbaCjx438/hwdUuNKmi
+         Uoc5EFNw2FwyiFNWyBbPGk5tLb75sSmLvCt9lNqiGdzOhrVhCU2xmETNO3WgyOtEZM1Q
+         GFeOdUwZ1Mo69AJMUlnVuCTAFKqZgIiVwzyk2b12wltjJdu4KUPfwrBDOvE+UA1jOIM7
+         fpAfzWL/X7Z6xb1WqjvB4J9BSrYTjRf+Rc6m+F1vRJOyVXE1CV4RcUeUAMRPLmUpMPdi
+         CVXHpkSxKQKm8o5tHkJ625cblZ/J/9aQ11lRhM2bHi2zveA7XFq0jTLBRt/EFRMmJDlv
+         g0bg==
+X-Gm-Message-State: AOJu0Ywp4PmeB/8ZLxjO9Ecu4OTorpZZzhLSSEfliQXIBsk3lrHpckUt
+	aFfbEzIpv2ccO7eiqNj9WupC/xulYS9kTsrTxAcU7zhzuN/KqTfo5xw1q5vr5ikYzWYaJKZwZOs
+	TbIMCqoevI63G2gRJeM5dE8i9vC9bdXOYiynIhHm4ywk=
+X-Received: by 2002:a05:620a:4614:b0:77f:6dd:4dba with SMTP id br20-20020a05620a461400b0077f06dd4dbamr8523584qkb.96.1702355716196;
+        Mon, 11 Dec 2023 20:35:16 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGrOyuf1Odoaak2ZYdtgyzyZFIpFfyG35pal8NbvcJN0xXVIGcCgktqW+IfyPOYVkS+zor94oNUfe4BlGyRZ3A=
+X-Received: by 2002:a05:620a:4614:b0:77f:6dd:4dba with SMTP id
+ br20-20020a05620a461400b0077f06dd4dbamr8523573qkb.96.1702355715908; Mon, 11
+ Dec 2023 20:35:15 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20231208070754.3132339-1-stevensd@chromium.org> <20231211113710-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20231211113710-mutt-send-email-mst@kernel.org>
+References: <20231205113444.63015-1-linyunsheng@huawei.com>
+ <20231205113444.63015-7-linyunsheng@huawei.com> <CACGkMEvVezZnHK-gRWY+MUd_6awnprb024scqPNmMQ05P8rWTQ@mail.gmail.com>
+ <424670ab-23d8-663b-10cb-d88906767956@huawei.com>
+In-Reply-To: <424670ab-23d8-663b-10cb-d88906767956@huawei.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 12 Dec 2023 11:01:53 +0800
-Message-ID: <CACGkMEs_MajTFxGVcK5R8oqQzTxuL4Pm=uUnOonDczWzqaucsw@mail.gmail.com>
-Subject: Re: [PATCH v2] virtio: Add support for no-reset virtio PCI PM
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: David Stevens <stevensd@chromium.org>, virtualization@lists.linux-foundation.org, 
-	linux-kernel@vger.kernel.org
+Date: Tue, 12 Dec 2023 12:35:04 +0800
+Message-ID: <CACGkMEsMdP1B-9RaqibJYfFsd_qJpB+Kta5BnyD_WXH=W2w_OQ@mail.gmail.com>
+Subject: Re: [PATCH net-next 6/6] tools: virtio: introduce vhost_net_test
+To: Yunsheng Lin <linyunsheng@huawei.com>
+Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	virtualization@lists.linux.dev
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Dec 12, 2023 at 12:37=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com=
+On Thu, Dec 7, 2023 at 7:28=E2=80=AFPM Yunsheng Lin <linyunsheng@huawei.com=
 > wrote:
 >
-> On Fri, Dec 08, 2023 at 04:07:54PM +0900, David Stevens wrote:
-> > If a virtio_pci_device supports native PCI power management and has the
-> > No_Soft_Reset bit set, then skip resetting and reinitializing the devic=
-e
-> > when suspending and restoring the device. This allows system-wide low
-> > power states like s2idle to be used in systems with stateful virtio
-> > devices that can't simply be re-initialized (e.g. virtio-fs).
-> >
-> > Signed-off-by: David Stevens <stevensd@chromium.org>
+> On 2023/12/7 14:00, Jason Wang wrote:
+> > On Tue, Dec 5, 2023 at 7:35=E2=80=AFPM Yunsheng Lin <linyunsheng@huawei=
+.com> wrote:
+> ...
 >
-> tagged, thanks!
-> I'm still debating with myself whether we can classify this
-> as a bugfix ... better not risk it I guess.
+> >> +
+> >> +static int tun_alloc(void)
+> >> +{
+> >> +       struct ifreq ifr;
+> >> +       int fd, e;
+> >> +
+> >> +       fd =3D open("/dev/net/tun", O_RDWR);
+> >> +       if (fd < 0) {
+> >> +               perror("Cannot open /dev/net/tun");
+> >> +               return fd;
+> >> +       }
+> >> +
+> >> +       memset(&ifr, 0, sizeof(ifr));
+> >> +
+> >> +       ifr.ifr_flags =3D IFF_TUN | IFF_NO_PI;
+> >
+> > Why did you use IFF_TUN but not IFF_TAP here?
+>
+> To be honest, no particular reason, I just picked IFF_TUN and it happened
+> to work for me to test changing in vhost_net_build_xdp().
+>
+> Is there a particular reason you perfer the IFF_TAP over IFF_TUN?
 
-It might be suitable if there's a hypervisor that advertises
-no_soft_reset (but it seems Qemu doesn't).
+No preference here. It only matters if you want to test L2 or L3.
+
+
+>
+> >
+> >> +       strncpy(ifr.ifr_name, "tun0", IFNAMSIZ);
+> >
+> > tun0 is pretty common if there's a VPN. Do we need some randomized name=
+ here?
+>
+> How about something like below?
+>
+> snprintf(ifr.ifr_name, IFNAMSIZ, "tun_%d", getpid());
+>
+> >
+> >
+> >> +
+> >> +       e =3D ioctl(fd, TUNSETIFF, (void *) &ifr);
+> >> +       if (e < 0) {
+> >> +               perror("ioctl[TUNSETIFF]");
+> >> +               close(fd);
+> >> +               return e;
+> >> +       }
+> >> +
+> >> +       return fd;
+> >> +}
+> >> +
+> >> +/* Unused */
+> >> +void *__kmalloc_fake, *__kfree_ignore_start, *__kfree_ignore_end;
+> >
+> > Why do we need trick like these here?
+>
+> That is because of the below error:
+> tools/virtio/./linux/kernel.h:58: undefined reference to `__kmalloc_fake'
+>
+> when virtio_ring.c is compiled in the userspace, the kmalloc raleted func=
+tion
+> is implemented in tools/virtio/./linux/kernel.h, which requires those var=
+ibles
+> to be defined.
+>
+> >
+> >> +
+> >> +struct vq_info {
+> >> +       int kick;
+> >> +       int call;
+> >> +       int num;
+> >> +       int idx;
+> >> +       void *ring;
+> >> +       /* copy used for control */
+> >> +       struct vring vring;
+> >> +       struct virtqueue *vq;
+> >> +};
+> >> +
+> >> +struct vdev_info {
+> >> +       struct virtio_device vdev;
+> >> +       int control;
+> >> +       struct pollfd fds[1];
+> >> +       struct vq_info vqs[1];
+> >> +       int nvqs;
+> >> +       void *buf;
+> >> +       size_t buf_size;
+> >> +       struct vhost_memory *mem;
+> >> +};
+> >> +
+> >> +static struct vhost_vring_file no_backend =3D { .index =3D 1, .fd =3D=
+ -1 },
+> >> +                                    backend =3D { .index =3D 1, .fd =
+=3D 1 };
+> >
+> > A magic number like fd =3D 1 is pretty confusing.
+> >
+> > And I don't see why we need global variables here.
+>
+> I was using the virtio_test.c as reference, will try to remove it
+> if it is possible.
+>
+> >
+> >> +static const struct vhost_vring_state null_state =3D {};
+> >> +
+>
+> ..
+>
+> >> +
+> >> +done:
+> >> +       backend.fd =3D tun_alloc();
+> >> +       assert(backend.fd >=3D 0);
+> >> +       vdev_info_init(&dev, features);
+> >> +       vq_info_add(&dev, 256);
+> >> +       run_test(&dev, &dev.vqs[0], delayed, batch, reset, nbufs);
+> >
+> > I'd expect we are testing some basic traffic here. E.g can we use a
+> > packet socket then we can test both tx and rx?
+>
+> Yes, only rx for tun is tested.
+> Do you have an idea how to test the tx too? As I am not familar enough
+> with vhost_net and tun yet.
+
+Maybe you can have a packet socket to bind to the tun/tap. Then you can tes=
+t:
+
+1) TAP RX: by write a packet via virtqueue through vhost_net and read
+it from packet socket
+2) TAP TX:  by write via packet socket and read it from the virtqueue
+through vhost_net
 
 Thanks
 
 >
-> > ---
-> > v1 -> v2:
-> >  - Check the No_Soft_Reset bit
 > >
-> >  drivers/virtio/virtio_pci_common.c | 34 +++++++++++++++++++++++++++++-
-> >  1 file changed, 33 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio=
-_pci_common.c
-> > index c2524a7207cf..3a95ecaf12dc 100644
-> > --- a/drivers/virtio/virtio_pci_common.c
-> > +++ b/drivers/virtio/virtio_pci_common.c
-> > @@ -492,8 +492,40 @@ static int virtio_pci_restore(struct device *dev)
-> >       return virtio_device_restore(&vp_dev->vdev);
-> >  }
-> >
-> > +static bool vp_supports_pm_no_reset(struct device *dev)
-> > +{
-> > +     struct pci_dev *pci_dev =3D to_pci_dev(dev);
-> > +     u16 pmcsr;
-> > +
-> > +     if (!pci_dev->pm_cap)
-> > +             return false;
-> > +
-> > +     pci_read_config_word(pci_dev, pci_dev->pm_cap + PCI_PM_CTRL, &pmc=
-sr);
-> > +     if (PCI_POSSIBLE_ERROR(pmcsr)) {
-> > +             dev_err(dev, "Unable to query pmcsr");
-> > +             return false;
-> > +     }
-> > +
-> > +     return pmcsr & PCI_PM_CTRL_NO_SOFT_RESET;
-> > +}
-> > +
-> > +static int virtio_pci_suspend(struct device *dev)
-> > +{
-> > +     return vp_supports_pm_no_reset(dev) ? 0 : virtio_pci_freeze(dev);
-> > +}
-> > +
-> > +static int virtio_pci_resume(struct device *dev)
-> > +{
-> > +     return vp_supports_pm_no_reset(dev) ? 0 : virtio_pci_restore(dev)=
-;
-> > +}
-> > +
-> >  static const struct dev_pm_ops virtio_pci_pm_ops =3D {
-> > -     SET_SYSTEM_SLEEP_PM_OPS(virtio_pci_freeze, virtio_pci_restore)
-> > +     .suspend =3D virtio_pci_suspend,
-> > +     .resume =3D virtio_pci_resume,
-> > +     .freeze =3D virtio_pci_freeze,
-> > +     .thaw =3D virtio_pci_restore,
-> > +     .poweroff =3D virtio_pci_freeze,
-> > +     .restore =3D virtio_pci_restore,
-> >  };
-> >  #endif
-> >
-> > --
-> > 2.43.0.472.g3155946c3a-goog
+> > Thanks
 >
 
