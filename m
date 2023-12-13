@@ -1,228 +1,204 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C03F23771
-	for <virtualization@lists.linux-foundation.org>; Wed, 13 Dec 2023 11:23:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEA9328DB5
+	for <virtualization@lists.linux.dev>; Wed, 13 Dec 2023 12:01:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RxxGgRPS"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 7D99741765
-	for <virtualization@lists.linux-foundation.org>; Wed, 13 Dec 2023 11:23:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7D99741765
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RxxGgRPS
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 5OMirvHGoqaw
-	for <virtualization@lists.linux-foundation.org>;
-	Wed, 13 Dec 2023 11:23:47 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 5A06A40608
-	for <virtualization@lists.linux-foundation.org>; Wed, 13 Dec 2023 11:23:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5A06A40608
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CQQLAnqQ"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1702466626;
+	s=mimecast20190719; t=1702468860;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=7Y+yhg2kzKRracDkULVJwjSDml4IjcPt6n8GLCXMB3I=;
-	b=RxxGgRPSNz2F15OogsTjXpZy4WbGGChdwlDZkOUIA581wHhDJfaR4o8h2Au4dGJMgktJJ6
-	evz8GqzqQCwJykCqMa9atYRqsuSyzmS8MeD+rqjIZu640hJysBvc8yapl4vIt8JWtPltBD
-	SJ7zAiTu8GKa2EssmOWUmqkwkygqIjA=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+	 in-reply-to:in-reply-to:references:references;
+	bh=nTPYpZwAOhjAyPYYnK4hzvfKTahVi5tJRBmZC1f6ZW8=;
+	b=CQQLAnqQbHtNxnvHZKenqqaLoMBpGtsGjUdN5n8Vuij2pIw8JWexDOZkm0zu1xCG2MGzds
+	XghIj5cVWodhXCZ+KW3XjK+19BycSenweQVduJz3AWEm3mhmI3iBw8QP0XwnSbktNuyXQB
+	PwdmXL6EsZgTxqr2W80t/eSnVbkO+i8=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-411-k2g5QuaDMYKUw_v-lTjg7Q-1; Wed, 13 Dec 2023 06:23:41 -0500
-X-MC-Unique: k2g5QuaDMYKUw_v-lTjg7Q-1
-Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 657DE837187;
-	Wed, 13 Dec 2023 11:23:40 +0000 (UTC)
-Received: from [10.39.208.4] (unknown [10.39.208.4])
-	by smtp.corp.redhat.com (Postfix) with ESMTPS id 3D316492BC6;
-	Wed, 13 Dec 2023 11:23:37 +0000 (UTC)
-Message-ID: <8afc44f7-cef5-4b4a-afac-85a4eb967d3e@redhat.com>
-Date: Wed, 13 Dec 2023 12:23:35 +0100
+ us-mta-614-qo1WJBFUMm2NayrTzN55rg-1; Wed, 13 Dec 2023 07:00:58 -0500
+X-MC-Unique: qo1WJBFUMm2NayrTzN55rg-1
+Received: by mail-ed1-f72.google.com with SMTP id 4fb4d7f45d1cf-54455e2a5c8so3946499a12.3
+        for <virtualization@lists.linux.dev>; Wed, 13 Dec 2023 04:00:58 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1702468858; x=1703073658;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=nTPYpZwAOhjAyPYYnK4hzvfKTahVi5tJRBmZC1f6ZW8=;
+        b=SshlJxu9HIprm3KF3UnuV7a4bixvJsvGjTE39kfJL79A6glBv09e3TMANqML64Hm25
+         xpDlGqela07hELqA4BSClSInrfTl/MSoU1uZcIOoFeuORP0MJ4Yqh1j1GFdHsXVvGqD4
+         zyw5lkv+CbClwlTTbdx2Dc8zFr6eYwqJ3lR4EabkCfMjFqmMNXukeUaschu7XEqhYQ76
+         Ij9Xc24RBn1erj1avPDRrTSoEEroDpts6Us3KrR7hW5arvicOdEAj8S+kmzQ37YUW5J3
+         mTpedH+7UTkPMYDl2l6NdfQ8f/WZYfJtNoM+qNCTKjB/2nJDk0AeKdvQXTs0xpapaNtV
+         rHiA==
+X-Gm-Message-State: AOJu0Yw9qdWSzI7RGLDWtwgirp87ApoE8Fa3Yu0m1vk5wXF56cVUizUP
+	+87V63S1FPyp4nlVjCkOUm4aPF1S8bZ6KuQVgCRlEnPPowKiFoMY2WqmqkCyaJeZVhByWuTixB4
+	P28ZtsYljoITsaBOc3qG6gKhW51k=
+X-Received: by 2002:a50:858d:0:b0:551:1775:207 with SMTP id a13-20020a50858d000000b0055117750207mr2984141edh.17.1702468857814;
+        Wed, 13 Dec 2023 04:00:57 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IF0c9/lpfdtIRoYWRQu0pmj/b0D4R6L9UEAHj8W7P/aMFmYE+jvnwxBab8G5vMGQjvYkS/yKg==
+X-Received: by 2002:a50:858d:0:b0:551:1775:207 with SMTP id a13-20020a50858d000000b0055117750207mr2984133edh.17.1702468857417;
+        Wed, 13 Dec 2023 04:00:57 -0800 (PST)
+Received: from redhat.com ([2a02:14f:16d:d414:dc39:9ae8:919b:572d])
+        by smtp.gmail.com with ESMTPSA id c63-20020a509fc5000000b0054c738b6c31sm5913003edf.55.2023.12.13.04.00.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 13 Dec 2023 04:00:56 -0800 (PST)
+Date: Wed, 13 Dec 2023 07:00:53 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Tobias Huschle <huschle@linux.ibm.com>
+Cc: Jason Wang <jasowang@redhat.com>, Abel Wu <wuyun.abel@bytedance.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org
+Subject: Re: Re: Re: EEVDF/vhost regression (bisected to 86bfbb7ce4f6
+ sched/fair: Add lag based placement)
+Message-ID: <20231213061719-mutt-send-email-mst@kernel.org>
+References: <20231207014626-mutt-send-email-mst@kernel.org>
+ <56082.123120804242300177@us-mta-137.us.mimecast.lan>
+ <20231208052150-mutt-send-email-mst@kernel.org>
+ <53044.123120806415900549@us-mta-342.us.mimecast.lan>
+ <20231209053443-mutt-send-email-mst@kernel.org>
+ <CACGkMEuSGT-e-i-8U7hum-N_xEnsEKL+_07Mipf6gMLFFhj2Aw@mail.gmail.com>
+ <20231211115329-mutt-send-email-mst@kernel.org>
+ <CACGkMEudZnF7hUajgt0wtNPCxH8j6A3L1DgJj2ayJWhv9Bh1WA@mail.gmail.com>
+ <20231212111433-mutt-send-email-mst@kernel.org>
+ <42870.123121305373200110@us-mta-641.us.mimecast.lan>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 2/4] vduse: Temporarily disable control queue features
-Content-Language: en-US
-To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, paul@paul-moore.com,
- jmorris@namei.org, serge@hallyn.com, stephen.smalley.work@gmail.com,
- eparis@parisplace.org, xieyongji@bytedance.com,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
- linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
- david.marchand@redhat.com, lulu@redhat.com, casey@schaufler-ca.com
-References: <20231212131712.1816324-1-maxime.coquelin@redhat.com>
- <20231212131712.1816324-3-maxime.coquelin@redhat.com>
- <CACGkMEthp13a20TGashiFNDovK+b10mgfdX8L=3Xv05g5-eo0w@mail.gmail.com>
-From: Maxime Coquelin <maxime.coquelin@redhat.com>
-Autocrypt: addr=maxime.coquelin@redhat.com; keydata=
- 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
- Mwqu3GQ=
-In-Reply-To: <CACGkMEthp13a20TGashiFNDovK+b10mgfdX8L=3Xv05g5-eo0w@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+In-Reply-To: <42870.123121305373200110@us-mta-641.us.mimecast.lan>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.9
 
-Hi Jason,
-
-On 12/13/23 05:52, Jason Wang wrote:
-> On Tue, Dec 12, 2023 at 9:17 PM Maxime Coquelin
-> <maxime.coquelin@redhat.com> wrote:
->>
->> Virtio-net driver control queue implementation is not safe
->> when used with VDUSE. If the VDUSE application does not
->> reply to control queue messages, it currently ends up
->> hanging the kernel thread sending this command.
->>
->> Some work is on-going to make the control queue
->> implementation robust with VDUSE. Until it is completed,
->> let's disable control virtqueue and features that depend on
->> it.
->>
->> Signed-off-by: Maxime Coquelin <maxime.coquelin@redhat.com>
+On Wed, Dec 13, 2023 at 11:37:23AM +0100, Tobias Huschle wrote:
+> On Tue, Dec 12, 2023 at 11:15:01AM -0500, Michael S. Tsirkin wrote:
+> > On Tue, Dec 12, 2023 at 11:00:12AM +0800, Jason Wang wrote:
+> > > On Tue, Dec 12, 2023 at 12:54 AM Michael S. Tsirkin <mst@redhat.com> wrote:
 > 
-> I wonder if it's better to fail instead of a mask as a start.
-
-I think it is better to use a mask and not fail, so that we can in the
-future use a recent VDUSE application with an older kernel.
-
-Why would it be better to fail than negotiating?
-
-Thanks,
-Maxime
-
-> Thanks
+> We played around with the suggestions and some other ideas.
+> I would like to share some initial results.
 > 
->> ---
->>   drivers/vdpa/vdpa_user/vduse_dev.c | 37 ++++++++++++++++++++++++++++++
->>   1 file changed, 37 insertions(+)
->>
->> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
->> index 0486ff672408..fe4b5c8203fd 100644
->> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
->> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
->> @@ -28,6 +28,7 @@
->>   #include <uapi/linux/virtio_config.h>
->>   #include <uapi/linux/virtio_ids.h>
->>   #include <uapi/linux/virtio_blk.h>
->> +#include <uapi/linux/virtio_ring.h>
->>   #include <linux/mod_devicetable.h>
->>
->>   #include "iova_domain.h"
->> @@ -46,6 +47,30 @@
->>
->>   #define IRQ_UNBOUND -1
->>
->> +#define VDUSE_NET_VALID_FEATURES_MASK           \
->> +       (BIT_ULL(VIRTIO_NET_F_CSUM) |           \
->> +        BIT_ULL(VIRTIO_NET_F_GUEST_CSUM) |     \
->> +        BIT_ULL(VIRTIO_NET_F_MTU) |            \
->> +        BIT_ULL(VIRTIO_NET_F_MAC) |            \
->> +        BIT_ULL(VIRTIO_NET_F_GUEST_TSO4) |     \
->> +        BIT_ULL(VIRTIO_NET_F_GUEST_TSO6) |     \
->> +        BIT_ULL(VIRTIO_NET_F_GUEST_ECN) |      \
->> +        BIT_ULL(VIRTIO_NET_F_GUEST_UFO) |      \
->> +        BIT_ULL(VIRTIO_NET_F_HOST_TSO4) |      \
->> +        BIT_ULL(VIRTIO_NET_F_HOST_TSO6) |      \
->> +        BIT_ULL(VIRTIO_NET_F_HOST_ECN) |       \
->> +        BIT_ULL(VIRTIO_NET_F_HOST_UFO) |       \
->> +        BIT_ULL(VIRTIO_NET_F_MRG_RXBUF) |      \
->> +        BIT_ULL(VIRTIO_NET_F_STATUS) |         \
->> +        BIT_ULL(VIRTIO_NET_F_HOST_USO) |       \
->> +        BIT_ULL(VIRTIO_F_ANY_LAYOUT) |         \
->> +        BIT_ULL(VIRTIO_RING_F_INDIRECT_DESC) | \
->> +        BIT_ULL(VIRTIO_RING_F_EVENT_IDX) |          \
->> +        BIT_ULL(VIRTIO_F_VERSION_1) |          \
->> +        BIT_ULL(VIRTIO_F_ACCESS_PLATFORM) |     \
->> +        BIT_ULL(VIRTIO_F_RING_PACKED) |        \
->> +        BIT_ULL(VIRTIO_F_IN_ORDER))
->> +
->>   struct vduse_virtqueue {
->>          u16 index;
->>          u16 num_max;
->> @@ -1782,6 +1807,16 @@ static struct attribute *vduse_dev_attrs[] = {
->>
->>   ATTRIBUTE_GROUPS(vduse_dev);
->>
->> +static void vduse_dev_features_filter(struct vduse_dev_config *config)
->> +{
->> +       /*
->> +        * Temporarily filter out virtio-net's control virtqueue and features
->> +        * that depend on it while CVQ is being made more robust for VDUSE.
->> +        */
->> +       if (config->device_id == VIRTIO_ID_NET)
->> +               config->features &= VDUSE_NET_VALID_FEATURES_MASK;
->> +}
->> +
->>   static int vduse_create_dev(struct vduse_dev_config *config,
->>                              void *config_buf, u64 api_version)
->>   {
->> @@ -1797,6 +1832,8 @@ static int vduse_create_dev(struct vduse_dev_config *config,
->>          if (!dev)
->>                  goto err;
->>
->> +       vduse_dev_features_filter(config);
->> +
->>          dev->api_version = api_version;
->>          dev->device_features = config->features;
->>          dev->device_id = config->device_id;
->> --
->> 2.43.0
->>
+> We tried the following:
 > 
+> 1. Call uncondtional schedule in the vhost_worker function
+> 2. Change the HZ value from 100 to 1000
+> 3. Reverting 05bfb338fa8d vhost: Fix livepatch timeouts in vhost_worker()
+> 4. Adding a cond_resched to translate_desc
+> 5. Reducing VHOST_NET_WEIGHT to 25% of its original value
+> 
+> Please find the diffs below.
+> 
+> Summary:
+> 
+> Option 1 is very very hacky but resolved the regression.
+> Option 2 reduces the regression by ~20%.
+> Options 3-5 do not help unfortunately.
+> 
+> Potential explanation:
+> 
+> While the vhost is executing, the need_resched flag is not set (observable
+> in the traces). Therefore cond_resched and alike will do nothing. vhost
+> will continue executing until the need_resched flag is set by an external
+> party, e.g. by a request to migrate the vhost.
+> 
+> Calling schedule unconditionally forces the scheduler to re-evaluate all 
+> tasks and their vruntime/deadline/vlag values. The scheduler comes to the
+> correct conclusion, that the kworker should be executed and from there it
+> is smooth sailing. I will have to verify that sequence by collecting more
+> traces, but this seems rather plausible.
+> This hack might of course introduce all kinds of side effects but might
+> provide an indicator that this is the actual problem.
+> The big question would be how to solve this conceptually, and, first
+> things first, whether you think this is a viable hypothesis.
+> 
+> Increasing the HZ value helps most likely because the other CPUs take 
+> scheduling/load balancing decisions more often as well and therefore
+> trigger the migration faster.
+> 
+> Bringing down VHOST_NET_WEIGHT even more might also help to shorten the
+> vhost loop. But I have no intuition how low we can/should go here.
+> 
+> 
+> We also changed vq_err to print error messages, but did not encounter any.
+> 
+> Diffs:
+> --------------------------------------------------------------------------
+> 
+> 1. Call uncondtional schedule in the vhost_worker function
+> 
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index e0c181ad17e3..16d73fd28831 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -414,6 +414,7 @@ static bool vhost_worker(void *data)
+>                 }
+>         }
+>  
+> +       schedule();
+>         return !!node;
+>  }
+
+
+So, this helps.
+But this is very surprising!
+
+
+static int vhost_task_fn(void *data)
+{
+        struct vhost_task *vtsk = data;
+        bool dead = false;
+
+        for (;;) {
+                bool did_work;
+
+                if (!dead && signal_pending(current)) {
+                        struct ksignal ksig;
+                        /*
+                         * Calling get_signal will block in SIGSTOP,
+                         * or clear fatal_signal_pending, but remember
+                         * what was set.
+                         *
+                         * This thread won't actually exit until all
+                         * of the file descriptors are closed, and
+                         * the release function is called.
+                         */
+                        dead = get_signal(&ksig);
+                        if (dead)
+                                clear_thread_flag(TIF_SIGPENDING);
+                }
+
+                /* mb paired w/ vhost_task_stop */
+                set_current_state(TASK_INTERRUPTIBLE);
+
+                if (test_bit(VHOST_TASK_FLAGS_STOP, &vtsk->flags)) {
+                        __set_current_state(TASK_RUNNING);
+                        break;
+                }
+
+                did_work = vtsk->fn(vtsk->data);
+                if (!did_work)
+                        schedule();
+        }
+
+        complete(&vtsk->exited);
+        do_exit(0);
+
+}
+
+Apparently schedule is already called?
+
+
+-- 
+MST
 
