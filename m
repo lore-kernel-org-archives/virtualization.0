@@ -1,158 +1,167 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83A3B2EB0A
-	for <virtualization@lists.linux.dev>; Wed, 13 Dec 2023 14:55:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 082782FC41
+	for <virtualization@lists.linux-foundation.org>; Wed, 13 Dec 2023 15:05:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZMJXr0mx"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="jJaHkYX4"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 800F441F23
+	for <virtualization@lists.linux-foundation.org>; Wed, 13 Dec 2023 15:05:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 800F441F23
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=jJaHkYX4
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Zg1DUxow9NjB
+	for <virtualization@lists.linux-foundation.org>;
+	Wed, 13 Dec 2023 15:05:48 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 8C5CF41F0E
+	for <virtualization@lists.linux-foundation.org>; Wed, 13 Dec 2023 15:05:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8C5CF41F0E
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1702479329;
+	s=mimecast20190719; t=1702479947;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=uIFKxiFZihO9GqXmA3HovwJ/rQqe1hgcv8SZULAHlOU=;
-	b=ZMJXr0mxOBRHFf0F0NNc3YH6vkNWgd2VtQtTW/XqAj1Z2ehbepuOLp2jaYsvwlZ0mv7wRH
-	I4WZsVhcufGVHpRWUoMmyKstyQDAWe2SvpHJ2T1FLKzJb5/i281CzStzOFKBsopmk5J+Xe
-	dHBIAfKlt4FvRhfG4oQh/xfwjh+wmQ4=
-Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
- [209.85.208.197]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=IALMnPT1Pn+mCAgvupcIeg/euyf0UU0goFir4mrBYA0=;
+	b=jJaHkYX4wMgf9YZG/4+CO3WMXmN1PWTuiELI9VKesGTGqsVfPjohezNSAj7UEy3yo97DCY
+	SAcAaVbLy+jlvtFuXwxlr+ZbA3iGXy/1MLLhdohsNGe1PX0kmAxvmXC3wyAuL3ILkYXnVM
+	Fum10CT9kzdfllyzpmjxdzhsR7zRkbg=
+Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
+ [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-479-qEscf4KwNQWXRTfDPjzeww-1; Wed, 13 Dec 2023 09:55:25 -0500
-X-MC-Unique: qEscf4KwNQWXRTfDPjzeww-1
-Received: by mail-lj1-f197.google.com with SMTP id 38308e7fff4ca-2ca31b054e4so54313581fa.2
-        for <virtualization@lists.linux.dev>; Wed, 13 Dec 2023 06:55:25 -0800 (PST)
+ us-mta-269-Mn-QzqbDM3OnWWMRIcTLtA-1; Wed, 13 Dec 2023 10:05:45 -0500
+X-MC-Unique: Mn-QzqbDM3OnWWMRIcTLtA-1
+Received: by mail-ej1-f69.google.com with SMTP id a640c23a62f3a-a1d03a03bc9so393423066b.0
+        for <virtualization@lists.linux-foundation.org>; Wed, 13 Dec 2023 07:05:45 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702479324; x=1703084124;
+        d=1e100.net; s=20230601; t=1702479944; x=1703084744;
         h=in-reply-to:content-transfer-encoding:content-disposition
          :mime-version:references:message-id:subject:cc:to:from:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=uIFKxiFZihO9GqXmA3HovwJ/rQqe1hgcv8SZULAHlOU=;
-        b=MRfsywK8TAC5TOKgfD969wBcJQkZNTig7kBtLETufD4cqHhTl0QDX+Bi5o3Q4TSPGZ
-         WCehXctF8/JUGIIinTiYc+2j/Dh/tJ6LDK9X1oagc6WqYHmBQL1MFaUR3B4+ZpCoSJQO
-         3CezV2b/luODRrCvqDBizu7x3KLBi5VMYxzW1/j+AWHNkJuPukWLWtjSR1o4D9k0lUjg
-         GE0IKQYPEEV8r67pkpgQ6JhczgQJ/wNtXyTY1IklrqQ37aIFZcO67JaZxl4kcyFP8It8
-         FptC4zVuhzEnOJXCprn7ovcbC2hkOdjI69F79tmTF1NJS63lx7AJMypnJTApCXi1yMtb
-         qR3A==
-X-Gm-Message-State: AOJu0YzScjp2561A+sILwE8Zs6n3s0buD9dT4ZfSsnYKiZeIigpw8LIV
-	nZuUWM+mV0qa9rX25HZd3FyOKEz/0drFr79EKPe3dK5Zp+D6iAPObUrPpM5+b/Qkmm9mTJK8PvK
-	sSRgQkkQcJSdUYkpeylaO1RY731w=
-X-Received: by 2002:a2e:828f:0:b0:2c9:e9eb:8ccb with SMTP id y15-20020a2e828f000000b002c9e9eb8ccbmr3769065ljg.69.1702479324253;
-        Wed, 13 Dec 2023 06:55:24 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHviyKH7wfcVf+I7xtZv4/UFi1AvA8vImQUb3UJSgTbMIYjDNrX0hdJf2t7gC7r7QeAbgewkg==
-X-Received: by 2002:a2e:828f:0:b0:2c9:e9eb:8ccb with SMTP id y15-20020a2e828f000000b002c9e9eb8ccbmr3769060ljg.69.1702479323843;
-        Wed, 13 Dec 2023 06:55:23 -0800 (PST)
+        bh=IALMnPT1Pn+mCAgvupcIeg/euyf0UU0goFir4mrBYA0=;
+        b=kX5tnuZ/vYYM7TAW5+acalMLH9GbW4+CpB/gypRkPX3T6u/+N1sbvZ04gOHCN8bLhC
+         h/LSh80oSGO3nrl2fwamrs7+oaCWdmMTVXOPnvThE9DslBzpG1812ddMvRK03y264WFL
+         ZZEYBJ8xpgXAMtGGyzhyL3cPbx8DjsdSmMW6CerMHftNgJlynCEJjdWZg8zj/7jdNmN9
+         50cHVtnUzKT17cLTUsbF76wqEk8bUA/OUE3jYPYrG2QZviHCZ1Uz1YAoknUdUIdJdVqa
+         p4ygSxuwei+WbC4pIUDm7IOfkFS/VgEF5TIx3vWp9Ips4kUGOAH4lUQiqiJhEtJqbVKh
+         Lrqg==
+X-Gm-Message-State: AOJu0YwUvZbmSHY5ZZw+kP344cRFHS821nH8yxurEO531//BpT8n9htU
+	AwbAi1zBfPEZj9OFxt2MgGnGFhXfWASjQ5fv+j4btciLh5l11AJlUs6znsYoiZ5HxAjGJFM+pXW
+	AktEWhkx+PBmYsgTubUwpY2UU43XdzSncm/X1VWu0Iw==
+X-Received: by 2002:a17:907:bcf:b0:a19:a19b:789f with SMTP id ez15-20020a1709070bcf00b00a19a19b789fmr3597387ejc.98.1702479944247;
+        Wed, 13 Dec 2023 07:05:44 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGZkaTVx2I2WnVbfMFnlq6Ewpkn6ejNgpIAppfp1qF9bmTmBolwTuhqkmoUq1qGvz3Weq6q9g==
+X-Received: by 2002:a17:907:bcf:b0:a19:a19b:789f with SMTP id ez15-20020a1709070bcf00b00a19a19b789fmr3597373ejc.98.1702479943907;
+        Wed, 13 Dec 2023 07:05:43 -0800 (PST)
 Received: from redhat.com ([2a02:14f:16d:d414:dc39:9ae8:919b:572d])
-        by smtp.gmail.com with ESMTPSA id ck9-20020a0564021c0900b0054f4097fea2sm5763020edb.0.2023.12.13.06.55.21
+        by smtp.gmail.com with ESMTPSA id cx12-20020a170907168c00b00a1caa9dd507sm7941199ejd.52.2023.12.13.07.05.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 Dec 2023 06:55:23 -0800 (PST)
-Date: Wed, 13 Dec 2023 09:55:18 -0500
+        Wed, 13 Dec 2023 07:05:42 -0800 (PST)
+Date: Wed, 13 Dec 2023 10:05:37 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Tobias Huschle <huschle@linux.ibm.com>
-Cc: Jason Wang <jasowang@redhat.com>, Abel Wu <wuyun.abel@bytedance.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org
-Subject: Re: Re: Re: EEVDF/vhost regression (bisected to 86bfbb7ce4f6
- sched/fair: Add lag based placement)
-Message-ID: <20231213094854-mutt-send-email-mst@kernel.org>
-References: <20231208052150-mutt-send-email-mst@kernel.org>
- <53044.123120806415900549@us-mta-342.us.mimecast.lan>
- <20231209053443-mutt-send-email-mst@kernel.org>
- <CACGkMEuSGT-e-i-8U7hum-N_xEnsEKL+_07Mipf6gMLFFhj2Aw@mail.gmail.com>
- <20231211115329-mutt-send-email-mst@kernel.org>
- <CACGkMEudZnF7hUajgt0wtNPCxH8j6A3L1DgJj2ayJWhv9Bh1WA@mail.gmail.com>
- <20231212111433-mutt-send-email-mst@kernel.org>
- <42870.123121305373200110@us-mta-641.us.mimecast.lan>
- <20231213061719-mutt-send-email-mst@kernel.org>
- <25485.123121307454100283@us-mta-18.us.mimecast.lan>
+To: Arseniy Krasnov <avkrasnov@salutedevices.com>
+Cc: Stefano Garzarella <sgarzare@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org,
+	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, kernel@sberdevices.ru,
+	oxffffaa@gmail.com
+Subject: Re: [PATCH net-next v8 0/4] send credit update during setting
+ SO_RCVLOWAT
+Message-ID: <20231213100518-mutt-send-email-mst@kernel.org>
+References: <20231211211658.2904268-1-avkrasnov@salutedevices.com>
+ <20231212105423-mutt-send-email-mst@kernel.org>
+ <d27f22f0-0f1e-e1bb-5b13-a524dc6e94d7@salutedevices.com>
+ <20231212111131-mutt-send-email-mst@kernel.org>
+ <7b362aef-6774-0e08-81e9-0a6f7f616290@salutedevices.com>
+ <ucmekzurgt3zcaezzdkk6277ukjmwaoy6kdq6tzivbtqd4d32b@izqbcsixgngk>
+ <402ea723-d154-45c9-1efe-b0022d9ea95a@salutedevices.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <25485.123121307454100283@us-mta-18.us.mimecast.lan>
+In-Reply-To: <402ea723-d154-45c9-1efe-b0022d9ea95a@salutedevices.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 
-On Wed, Dec 13, 2023 at 01:45:35PM +0100, Tobias Huschle wrote:
-> On Wed, Dec 13, 2023 at 07:00:53AM -0500, Michael S. Tsirkin wrote:
-> > On Wed, Dec 13, 2023 at 11:37:23AM +0100, Tobias Huschle wrote:
-> > > On Tue, Dec 12, 2023 at 11:15:01AM -0500, Michael S. Tsirkin wrote:
-> > > > On Tue, Dec 12, 2023 at 11:00:12AM +0800, Jason Wang wrote:
-> > > > > On Tue, Dec 12, 2023 at 12:54â€¯AM Michael S. Tsirkin <mst@redhat.com> wrote:
+On Wed, Dec 13, 2023 at 12:08:27PM +0300, Arseniy Krasnov wrote:
 > 
-> [...]
+> 
+> On 13.12.2023 11:43, Stefano Garzarella wrote:
+> > On Tue, Dec 12, 2023 at 08:43:07PM +0300, Arseniy Krasnov wrote:
+> >>
+> >>
+> >> On 12.12.2023 19:12, Michael S. Tsirkin wrote:
+> >>> On Tue, Dec 12, 2023 at 06:59:03PM +0300, Arseniy Krasnov wrote:
+> >>>>
+> >>>>
+> >>>> On 12.12.2023 18:54, Michael S. Tsirkin wrote:
+> >>>>> On Tue, Dec 12, 2023 at 12:16:54AM +0300, Arseniy Krasnov wrote:
+> >>>>>> Hello,
+> >>>>>>
+> >>>>>>                                DESCRIPTION
+> >>>>>>
+> >>>>>> This patchset fixes old problem with hungup of both rx/tx sides and adds
+> >>>>>> test for it. This happens due to non-default SO_RCVLOWAT value and
+> >>>>>> deferred credit update in virtio/vsock. Link to previous old patchset:
+> >>>>>> https://lore.kernel.org/netdev/39b2e9fd-601b-189d-39a9-914e5574524c@sberdevices.ru/
+> >>>>>
+> >>>>>
+> >>>>> Patchset:
+> >>>>>
+> >>>>> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+> >>>>
+> >>>> Thanks!
+> >>>>
+> >>>>>
+> >>>>>
+> >>>>> But I worry whether we actually need 3/8 in net not in net-next.
+> >>>>
+> >>>> Because of "Fixes" tag ? I think this problem is not critical and reproducible
+> >>>> only in special cases, but i'm not familiar with netdev process so good, so I don't
+> >>>> have strong opinion. I guess @Stefano knows better.
+> >>>>
+> >>>> Thanks, Arseniy
+> >>>
+> >>> Fixes means "if you have that other commit then you need this commit
+> >>> too". I think as a minimum you need to rearrange patches to make the
+> >>> fix go in first. We don't want a regression followed by a fix.
+> >>
+> >> I see, ok, @Stefano WDYT? I think rearrange doesn't break anything, because this
+> >> patch fixes problem that is not related with the new patches from this patchset.
 > > 
-> > Apparently schedule is already called?
+> > I agree, patch 3 is for sure net material (I'm fine with both rearrangement or send it separately), but IMHO also patch 2 could be.
+> > I think with the same fixes tag, since before commit b89d882dc9fc ("vsock/virtio: reduce credit update messages") we sent a credit update
+> > for every bytes we read, so we should not have this problem, right?
+> 
+> Agree for 2, so I think I can rearrange: two fixes go first, then current 0001, and then tests. And send it as V9 for 'net' only ?
+> 
+> Thanks, Arseniy
+
+
+hmm why not net-next?
+
 > > 
-> 
-> What about this: 
-> 
-> static int vhost_task_fn(void *data)
-> {
-> 	<...>
-> 	did_work = vtsk->fn(vtsk->data);  --> this calls vhost_worker if I'm not mistaken
-> 	if (!did_work)
-> 		schedule();
-> 	<...>
-> }
-> 
-> static bool vhost_worker(void *data)
-> {
-> 	struct vhost_worker *worker = data;
-> 	struct vhost_work *work, *work_next;
-> 	struct llist_node *node;
-> 
-> 	node = llist_del_all(&worker->work_list);
-> 	if (node) {
-> 		<...>
-> 		llist_for_each_entry_safe(work, work_next, node, node) {
-> 			<...>
-> 		}
-> 	}
-> 
-> 	return !!node;
-> }
-> 
-> The llist_for_each_entry_safe does not actually change the node value, doesn't it?
-> 
-> If it does not change it, !!node would return 1.
-> Thereby skipping the schedule.
-> 
-> This was changed recently with:
-> f9010dbdce91 fork, vhost: Use CLONE_THREAD to fix freezer/ps regression
-> 
-> It returned a hardcoded 0 before. The commit message explicitly mentions this
-> change to make vhost_worker return 1 if it did something.
-> 
-> Seems indeed like a nasty little side effect caused by EEVDF not scheduling
-> the woken up kworker right away.
-
-
-So we are actually making an effort to be nice.
-Documentation/kernel-hacking/hacking.rst says:
-
-If you're doing longer computations: first think userspace. If you
-**really** want to do it in kernel you should regularly check if you need
-to give up the CPU (remember there is cooperative multitasking per CPU).
-Idiom::
-
-    cond_resched(); /* Will sleep */
-
-
-and this is what vhost.c does.
-
-At this point I'm not sure why it's appropriate to call schedule() as opposed to
-cond_resched(). Ideas?
-
-
--- 
-MST
+> > So, maybe all the series could be "net".
+> > 
+> > Thanks,
+> > Stefano
+> > 
 
