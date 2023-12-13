@@ -1,150 +1,298 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B843F1EB37
-	for <virtualization@lists.linux-foundation.org>; Wed, 13 Dec 2023 08:43:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 463861EB2B
+	for <virtualization@lists.linux-foundation.org>; Wed, 13 Dec 2023 08:44:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PLfroUip"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cJIUHi9v"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 410CA831DE
-	for <virtualization@lists.linux-foundation.org>; Wed, 13 Dec 2023 08:43:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 410CA831DE
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PLfroUip
+	by smtp2.osuosl.org (Postfix) with ESMTP id D043C40572
+	for <virtualization@lists.linux-foundation.org>; Wed, 13 Dec 2023 08:44:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D043C40572
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cJIUHi9v
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9YR5EHgYnpqX
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id tm9AhGxr2e0U
 	for <virtualization@lists.linux-foundation.org>;
-	Wed, 13 Dec 2023 08:43:41 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 50B44831A9
-	for <virtualization@lists.linux-foundation.org>; Wed, 13 Dec 2023 08:43:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 50B44831A9
+	Wed, 13 Dec 2023 08:44:09 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 9C12D40191
+	for <virtualization@lists.linux-foundation.org>; Wed, 13 Dec 2023 08:44:09 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9C12D40191
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1702457020;
+	s=mimecast20190719; t=1702457048;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=9ypvU2CFpvjA4GuEgMA1XFzF02HXPcVncJHhzWckfAo=;
-	b=PLfroUipTS2suUMv1kE+11kz/ddaz1vL4/IxVBK4dxA7GhC5BpioE73i4qeLwhA+yHYnJL
-	zPX74g/QYzPCtCZrDw4P+fnwAbuGIKFmShz5uaeSJIXbAiTuMu2UioNZxcGmuISE2x0xPW
-	4PuXrCouG03+6BsCmK1VYmQ1/nVBBBg=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=qfqVQSJRAi4yLOOtJPJSCDtKhzln1Z+5pNkKF7qquFs=;
+	b=cJIUHi9v/fJDEWCUZwrmoWNeeSmRbUyFeNe9xPe1MXHAPZpbHj1GNvm/SjBjk6gh29vJMg
+	1L4fQqv2WtMlAOI7jHv/dRBRe1g5Ey8sDE05kUDfZWNG89PYX1+ULVPgNBC2A2i0IhhtdB
+	7yk+7w5yJKpqFrhXpcLwcQTVtlnGmrs=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-648-zl8jBc4ZMSK2iG2fIBs8FQ-1; Wed, 13 Dec 2023 03:43:37 -0500
-X-MC-Unique: zl8jBc4ZMSK2iG2fIBs8FQ-1
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-40b554730c5so46464295e9.0
-        for <virtualization@lists.linux-foundation.org>; Wed, 13 Dec 2023 00:43:36 -0800 (PST)
+ us-mta-257-wnddwMRFO-6bhaLKZI8OYA-1; Wed, 13 Dec 2023 03:44:04 -0500
+X-MC-Unique: wnddwMRFO-6bhaLKZI8OYA-1
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-33608b14b3cso4702417f8f.0
+        for <virtualization@lists.linux-foundation.org>; Wed, 13 Dec 2023 00:44:04 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702457016; x=1703061816;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+        d=1e100.net; s=20230601; t=1702457044; x=1703061844;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=9ypvU2CFpvjA4GuEgMA1XFzF02HXPcVncJHhzWckfAo=;
-        b=dA9EhzL3toBRUvm91Fp3K68qyh2mA3r4VA1XRUyNlzAVzns2ROTzGxDVTJQ5X1llYz
-         rXQeF0rL2CU6VC3VaO6CNbiFZ2YNpNcXYHlJadDhlye0zYZhXpQpCHiSKTj7mM3hRoiz
-         feuM8vhe4T487QCaJd8HzJEg+y+S0Lg46rL15zA+zj2JDkVhRsrrO+8+K+EmuBJAE67g
-         y15pk1hhVGxhcEdZ/WO59OIUlKR8iaR4HmHU/RZ//fL5Wf00SDVCtF5ji3Cv4zVDZuEH
-         FBuYiz0nKxu1PsdYqaUwCg2r9rPV5N7ZbGHE9ZlFomzIGS9vta8HB9VLhr0Y3WV5HAI+
-         W07w==
-X-Gm-Message-State: AOJu0YwmXRbKbKM09TGxyRgBgjLr8LwQSduyi4PApxq0XAXnJHPLxrRX
-	duwYlHfm59kRXJSep9zAODTyhEmH25yc501OXqPEe/1Gg6fdGpkjck+cvCB/6rB+tybib6zV+Io
-	PJ9wcK62sBfQhunoKvEw1HgLnMq7TCgKeW8R652Zl8A==
-X-Received: by 2002:a05:600c:401:b0:40c:26ef:b24b with SMTP id q1-20020a05600c040100b0040c26efb24bmr3913394wmb.188.1702457015952;
-        Wed, 13 Dec 2023 00:43:35 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IF1lQ4+EUeiLIk83v4dqAAgqvxh6iPVGvNgRE5vCofRk3mqgAvKUjUC7mCTX0q96Nl9r/GPpQ==
-X-Received: by 2002:a05:600c:401:b0:40c:26ef:b24b with SMTP id q1-20020a05600c040100b0040c26efb24bmr3913382wmb.188.1702457015584;
-        Wed, 13 Dec 2023 00:43:35 -0800 (PST)
-Received: from sgarzare-redhat ([5.179.184.12])
-        by smtp.gmail.com with ESMTPSA id j17-20020a05600c1c1100b0040b48690c49sm19575443wms.6.2023.12.13.00.43.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 Dec 2023 00:43:35 -0800 (PST)
-Date: Wed, 13 Dec 2023 09:43:29 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Arseniy Krasnov <avkrasnov@salutedevices.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kernel@sberdevices.ru, 
-	oxffffaa@gmail.com
-Subject: Re: [PATCH net-next v8 0/4] send credit update during setting
- SO_RCVLOWAT
-Message-ID: <ucmekzurgt3zcaezzdkk6277ukjmwaoy6kdq6tzivbtqd4d32b@izqbcsixgngk>
-References: <20231211211658.2904268-1-avkrasnov@salutedevices.com>
- <20231212105423-mutt-send-email-mst@kernel.org>
- <d27f22f0-0f1e-e1bb-5b13-a524dc6e94d7@salutedevices.com>
- <20231212111131-mutt-send-email-mst@kernel.org>
- <7b362aef-6774-0e08-81e9-0a6f7f616290@salutedevices.com>
+        bh=qfqVQSJRAi4yLOOtJPJSCDtKhzln1Z+5pNkKF7qquFs=;
+        b=GT9ZfjjVTPG4b4YKDdpG+UrWZDK1vtElxDci4y7+WpZJ6/BcficvLn9UY5fhB4QjUm
+         fcm0BBAwkgtURtdSL6bOeadFjl3Be98Chfn9BQNlKJUx5HV4M1rQ2Rfqkb8ZpaeRTqSY
+         Ni4isfd7sUBoELb06muRVd4Z6efa4zhUiwOVQ3AUNhmpSxvqDRe0GH2OKnc/a+0uWEwv
+         z/Txwa4Vpa+uU7u+hN5o70eg2kiiQXkdn+iWhnSK3xe3hFDPlGnDr61p10WpFGRRYG/P
+         dCT6SM2p3aVXesKfuYZIGZ3PEKLnmlCikMYfLEzxJc9ujWBLJWMc6qeJPj42rVBfwFBK
+         2NSw==
+X-Gm-Message-State: AOJu0YxLxE2v9GsHyQqBQBa8lcHkcqb79hxFBDJZwvJJtnqPy/5yeOx7
+	cXlDFYNPUI+pA0ah0wJ0KKygCnDiXupSA2/kVCfxvqZzbPDX5yLtw8/hz2/tU/x/Cul1y9CIxR1
+	eNgqzt6owyIsT7Bh2NkXpDOb6kVzx2KT23nWKyvNdvw==
+X-Received: by 2002:a05:6000:194d:b0:333:e8d:99d8 with SMTP id e13-20020a056000194d00b003330e8d99d8mr3730302wry.36.1702457043782;
+        Wed, 13 Dec 2023 00:44:03 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IG88dmgge6yrjWrlgDuSdPh9cn2yZG5BY1u9wbP4iSYbFPi536vo12xDX0CrFJL3sRy/OLwXA==
+X-Received: by 2002:a05:6000:194d:b0:333:e8d:99d8 with SMTP id e13-20020a056000194d00b003330e8d99d8mr3730286wry.36.1702457043179;
+        Wed, 13 Dec 2023 00:44:03 -0800 (PST)
+Received: from ?IPV6:2003:cb:c709:6e00:7e5:5f4d:f300:5d52? (p200300cbc7096e0007e55f4df3005d52.dip0.t-ipconnect.de. [2003:cb:c709:6e00:7e5:5f4d:f300:5d52])
+        by smtp.gmail.com with ESMTPSA id s18-20020a5d4ed2000000b00336421f1818sm194453wrv.112.2023.12.13.00.44.02
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 13 Dec 2023 00:44:02 -0800 (PST)
+Message-ID: <2146e48d-5fb3-4444-81c5-9c8d8cb18811@redhat.com>
+Date: Wed, 13 Dec 2023 09:44:01 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <7b362aef-6774-0e08-81e9-0a6f7f616290@salutedevices.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] virtio_balloon: stay awake while adjusting balloon
+To: David Stevens <stevensd@chromium.org>,
+ "Michael S . Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+References: <20231211114346.1132386-1-stevensd@google.com>
+From: David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <20231211114346.1132386-1-stevensd@google.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Tue, Dec 12, 2023 at 08:43:07PM +0300, Arseniy Krasnov wrote:
->
->
->On 12.12.2023 19:12, Michael S. Tsirkin wrote:
->> On Tue, Dec 12, 2023 at 06:59:03PM +0300, Arseniy Krasnov wrote:
->>>
->>>
->>> On 12.12.2023 18:54, Michael S. Tsirkin wrote:
->>>> On Tue, Dec 12, 2023 at 12:16:54AM +0300, Arseniy Krasnov wrote:
->>>>> Hello,
->>>>>
->>>>>                                DESCRIPTION
->>>>>
->>>>> This patchset fixes old problem with hungup of both rx/tx sides and adds
->>>>> test for it. This happens due to non-default SO_RCVLOWAT value and
->>>>> deferred credit update in virtio/vsock. Link to previous old patchset:
->>>>> https://lore.kernel.org/netdev/39b2e9fd-601b-189d-39a9-914e5574524c@sberdevices.ru/
->>>>
->>>>
->>>> Patchset:
->>>>
->>>> Acked-by: Michael S. Tsirkin <mst@redhat.com>
->>>
->>> Thanks!
->>>
->>>>
->>>>
->>>> But I worry whether we actually need 3/8 in net not in net-next.
->>>
->>> Because of "Fixes" tag ? I think this problem is not critical and reproducible
->>> only in special cases, but i'm not familiar with netdev process so good, so I don't
->>> have strong opinion. I guess @Stefano knows better.
->>>
->>> Thanks, Arseniy
->>
->> Fixes means "if you have that other commit then you need this commit
->> too". I think as a minimum you need to rearrange patches to make the
->> fix go in first. We don't want a regression followed by a fix.
->
->I see, ok, @Stefano WDYT? I think rearrange doesn't break anything, 
->because this
->patch fixes problem that is not related with the new patches from this patchset.
+On 11.12.23 12:43, David Stevens wrote:
+> From: David Stevens <stevensd@chromium.org>
+> 
 
-I agree, patch 3 is for sure net material (I'm fine with both 
-rearrangement or send it separately), but IMHO also patch 2 could be.
-I think with the same fixes tag, since before commit b89d882dc9fc 
-("vsock/virtio: reduce credit update messages") we sent a credit update
-for every bytes we read, so we should not have this problem, right?
+Hi David,
 
-So, maybe all the series could be "net".
+> Add a wakeup event for when the balloon is inflating or deflating.
+> Userspace can enable this wakeup event to prevent the system from
+> suspending while the balloon is being adjusted. This allows
+> /sys/power/wakeup_count to be used without breaking virtio_balloon's
+> cooperative memory management.
 
-Thanks,
-Stefano
+
+Can you add/share some more details
+
+> 
+> Signed-off-by: David Stevens <stevensd@chromium.org>
+> ---
+>   drivers/virtio/virtio_balloon.c | 59 +++++++++++++++++++++++++++------
+>   1 file changed, 49 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index 1fe93e93f5bc..811d8937246a 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -119,6 +119,11 @@ struct virtio_balloon {
+>   	/* Free page reporting device */
+>   	struct virtqueue *reporting_vq;
+>   	struct page_reporting_dev_info pr_dev_info;
+> +
+> +	/* State for keeping the wakeup_source active while adjusting the balloon */
+> +	spinlock_t adjustment_lock;
+> +	u32 adjustment_seqno;
+
+Using a simple flag that gets set when updating the balloon size and 
+test-and-clear when testing for changes should be easier to get.
+
+bool adjustment_balloon_size_changed;
+
+or sth like that.
+
+> +	bool adjustment_in_progress;
+>   };
+>   
+>   static const struct virtio_device_id id_table[] = {
+> @@ -437,6 +442,31 @@ static void virtio_balloon_queue_free_page_work(struct virtio_balloon *vb)
+>   	queue_work(vb->balloon_wq, &vb->report_free_page_work);
+>   }
+>   
+> +static void start_update_balloon_size(struct virtio_balloon *vb)
+> +{
+> +	unsigned long flags;
+> +
+> +	spin_lock_irqsave(&vb->adjustment_lock, flags);
+> +	vb->adjustment_seqno++;
+> +	if (!vb->adjustment_in_progress) {
+> +		vb->adjustment_in_progress = true;
+> +		pm_stay_awake(&vb->vdev->dev);
+> +	}
+> +	spin_unlock_irqrestore(&vb->adjustment_lock, flags);
+> +
+> +	queue_work(system_freezable_wq, &vb->update_balloon_size_work);
+> +}
+> +
+> +static void end_update_balloon_size(struct virtio_balloon *vb, u32 seqno)
+> +{
+> +	spin_lock(&vb->adjustment_lock);
+> +	if (vb->adjustment_seqno == seqno && vb->adjustment_in_progress) {
+> +		vb->adjustment_in_progress = false;
+> +		pm_relax(&vb->vdev->dev);
+> +	}
+> +	spin_unlock(&vb->adjustment_lock);
+> +}
+> +
+>   static void virtballoon_changed(struct virtio_device *vdev)
+>   {
+>   	struct virtio_balloon *vb = vdev->priv;
+> @@ -444,8 +474,7 @@ static void virtballoon_changed(struct virtio_device *vdev)
+>   
+>   	spin_lock_irqsave(&vb->stop_update_lock, flags);
+>   	if (!vb->stop_update) {
+> -		queue_work(system_freezable_wq,
+> -			   &vb->update_balloon_size_work);
+> +		start_update_balloon_size(vb);
+>   		virtio_balloon_queue_free_page_work(vb);
+>   	}
+>   	spin_unlock_irqrestore(&vb->stop_update_lock, flags);
+> @@ -473,22 +502,29 @@ static void update_balloon_size_func(struct work_struct *work)
+>   {
+>   	struct virtio_balloon *vb;
+>   	s64 diff;
+> +	u32 seqno;
+>   
+>   	vb = container_of(work, struct virtio_balloon,
+>   			  update_balloon_size_work);
+> -	diff = towards_target(vb);
+>   
+> -	if (!diff)
+> -		return;
+> +	spin_lock(&vb->adjustment_lock);
+> +	seqno = vb->adjustment_seqno;
+> +	spin_unlock(&vb->adjustment_lock);
+>   
+> -	if (diff > 0)
+> -		diff -= fill_balloon(vb, diff);
+> -	else
+> -		diff += leak_balloon(vb, -diff);
+> -	update_balloon_size(vb);
+> +	diff = towards_target(vb);
+> +
+> +	if (diff) {
+> +		if (diff > 0)
+> +			diff -= fill_balloon(vb, diff);
+> +		else
+> +			diff += leak_balloon(vb, -diff);
+> +		update_balloon_size(vb);
+> +	}
+>   
+>   	if (diff)
+>   		queue_work(system_freezable_wq, work);
+> +	else
+> +		end_update_balloon_size(vb, seqno);
+
+What if we stop the workqueue and unload the driver -- see 
+remove_common() -- won't you leave pm_stay_awake() wrongly set?
+
+>   }
+>   
+>   static int init_vqs(struct virtio_balloon *vb)
+> @@ -992,6 +1028,9 @@ static int virtballoon_probe(struct virtio_device *vdev)
+>   			goto out_unregister_oom;
+>   	}
+>   
+> +	spin_lock_init(&vb->adjustment_lock);
+> +	device_set_wakeup_capable(&vb->vdev->dev, true);
+
+
+I'm a bit confused: Documentation/driver-api/pm/devices.rst documents
+
+"
+The :c:member:`power.can_wakeup` flag just records whether the device 
+(and its driver) can physically support wakeup events.  The
+:c:func:`device_set_wakeup_capable()` routine affects this flag.
+"
+
+...
+
+"
+Whether or not a device is capable of issuing wakeup events is a 
+hardware matter, and the kernel is responsible for keeping track of it.
+"
+
+But how is the virtio-balloon device capable of waking up the machine? 
+Your patch merely implies that the virtio-baloon device is capable to 
+prohbit going to sleep.
+
+What am I missing?
+
+-- 
+Cheers,
+
+David / dhildenb
 
