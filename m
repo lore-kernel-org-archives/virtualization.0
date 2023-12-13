@@ -1,83 +1,73 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C781E2031B
-	for <virtualization@lists.linux-foundation.org>; Wed, 13 Dec 2023 09:42:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76F16224E0
+	for <virtualization@lists.linux-foundation.org>; Wed, 13 Dec 2023 10:16:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EAAq0JUl"
+	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="Ip6PUfSf"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 4BB8181D21
-	for <virtualization@lists.linux-foundation.org>; Wed, 13 Dec 2023 09:42:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4BB8181D21
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=EAAq0JUl
+	by smtp4.osuosl.org (Postfix) with ESMTP id 928F141C55
+	for <virtualization@lists.linux-foundation.org>; Wed, 13 Dec 2023 10:16:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 928F141C55
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.a=rsa-sha256 header.s=mail header.b=Ip6PUfSf
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.099
+X-Spam-Score: -2.101
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id c0-S4SCeHVJA
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id vdtnU_P3psIs
 	for <virtualization@lists.linux-foundation.org>;
-	Wed, 13 Dec 2023 09:42:00 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 2132881B72
-	for <virtualization@lists.linux-foundation.org>; Wed, 13 Dec 2023 09:41:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2132881B72
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1702460518;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=XMjiM4LhWNswCgPTt5l6t+VxQtdI2J7qu3AHHUQiHmI=;
-	b=EAAq0JUlKUfVWvPLenjn2li3RJHfT822xN7HFRCB+LuPc55382fXypRrFLG3BYGmmRTnGG
-	EL49PlqBpcEQsDJ6+LnhEUb8fx4MPdw0xYdOw6dULuD2HeKMv80a4Ho3T3Sm7HZ6dXRm9f
-	gADLgPvoaxby8Hid16UYzjVd243ssmE=
-Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
- [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-92-QHay_BHFPEyK1s2KeLW9hw-1; Wed, 13 Dec 2023 04:41:57 -0500
-X-MC-Unique: QHay_BHFPEyK1s2KeLW9hw-1
-Received: by mail-lf1-f70.google.com with SMTP id 2adb3069b0e04-50bf6201648so5262270e87.2
-        for <virtualization@lists.linux-foundation.org>; Wed, 13 Dec 2023 01:41:56 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702460516; x=1703065316;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=XMjiM4LhWNswCgPTt5l6t+VxQtdI2J7qu3AHHUQiHmI=;
-        b=pXxWUp/KSJWFz47vGhjO5q3UjzohB8Jc5I2EOiFab85U+mpkplkLMEadJ9f/n7W6Nb
-         6ZbN8O0eitl7TExjkqKselNmq6JuS2/wmn+WGrecBnojZJjUftlsvhld6N/mj8Xmj8xl
-         QcjcUR8PahDy90x4DPv3NrZJmj3oU2plxPKEWr4WNWmD6iJZbSz/yfY/yvDRwfkFL8Q1
-         KXV336EeBtSUbchDR6VMCFbXUpKIDQMnOC04DwUiYCRmcd/z+83ibsATXhAXJRmsRMoh
-         zph2wRsyORJXfMQPWRqeouInQ6XUjhNjB0n8XeZ9SQ5DIJMfpFDVpBQrSjmnrFOlTvuc
-         FrmQ==
-X-Gm-Message-State: AOJu0YwMgGCtFxUbmHQsT8ZbZg5ZK5A/6pupjXR6XrtU0Ecb/XEOo9cO
-	ouycgq5jvkTTFUWjB+IdUueCFEFsr27JuIU4quu35iGL/Wrwnny+XHe+tyol+16EsSXqS4jkj92
-	b6wKeiH8j6VQQAA/qQVhpuZT0NDQelEuYvxsaCNX5Zw==
-X-Received: by 2002:a05:6512:3eb:b0:50b:e5bf:cd08 with SMTP id n11-20020a05651203eb00b0050be5bfcd08mr2969680lfq.0.1702460515798;
-        Wed, 13 Dec 2023 01:41:55 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFWUHETsBer3EAOA0gPfl7B0VS0WtqWT/aW1HbYvhGOGQYIsmV3HSuvb3hi939lrTpgrAbrSA==
-X-Received: by 2002:a05:6512:3eb:b0:50b:e5bf:cd08 with SMTP id n11-20020a05651203eb00b0050be5bfcd08mr2969675lfq.0.1702460515420;
-        Wed, 13 Dec 2023 01:41:55 -0800 (PST)
-Received: from sgarzare-redhat ([5.179.184.12])
-        by smtp.gmail.com with ESMTPSA id e4-20020a5d65c4000000b003333ed23356sm12977633wrw.4.2023.12.13.01.41.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 Dec 2023 01:41:54 -0800 (PST)
-Date: Wed, 13 Dec 2023 10:41:47 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Arseniy Krasnov <avkrasnov@salutedevices.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kernel@sberdevices.ru, 
-	oxffffaa@gmail.com
+	Wed, 13 Dec 2023 10:16:44 +0000 (UTC)
+Received: from mx1.sberdevices.ru (mx2.sberdevices.ru [45.89.224.132])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 24F7E41C2B
+	for <virtualization@lists.linux-foundation.org>; Wed, 13 Dec 2023 10:16:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 24F7E41C2B
+Received: from p-infra-ksmg-sc-msk02 (localhost [127.0.0.1])
+	by mx1.sberdevices.ru (Postfix) with ESMTP id A7AC0120041;
+	Wed, 13 Dec 2023 13:16:40 +0300 (MSK)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru A7AC0120041
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
+	s=mail; t=1702462600;
+	bh=fDqSilOxyyIEJK0arkhLr4La7YzBbCeFPREGB3Y8lHA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type:From;
+	b=Ip6PUfSfuh16oihBSfumKZ17VT1OGtIIhv7s4yZRhW+qrTZB62/YKL+NmD5NTyP6x
+	 m1TSyjz7LyardqFJ1RXNNrBf3Xd/VPjqOxOAWihX05JHAamk7rku43EC3K4sFYRqGg
+	 +IZd+Mzm6o+mdFGXYdDPsT6seKLWodk/SWa9yr9jZFKzev3p9OSs3RQu2h2hen0euf
+	 FG7uPCiEB0uJm5CNW1KS/2CcM8wn3K4XzgIefpwh7GpshIGZ5tN2P16gV318QqfYwx
+	 Hvaba1e7EgG/tAUrX+GmZTPqRIpslItoJ3HxNnTtdbW3W74VoZDT/MGptK9Ijn2jGW
+	 yMPdxXBRm6Ugw==
+Received: from smtp.sberdevices.ru (p-i-exch-sc-m01.sberdevices.ru [172.16.192.107])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by mx1.sberdevices.ru (Postfix) with ESMTPS;
+	Wed, 13 Dec 2023 13:16:40 +0300 (MSK)
+Received: from [192.168.0.106] (100.64.160.123) by
+ p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.40; Wed, 13 Dec 2023 13:16:40 +0300
+Message-ID: <6b43e38a-d047-6e7a-329c-bbc11aefb99a@salutedevices.com>
+Date: Wed, 13 Dec 2023 13:08:19 +0300
+Precedence: bulk
+X-Mailing-List: virtualization@lists.linux.dev
+List-Id: <virtualization.lists.linux.dev>
+List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
+List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.7.1
 Subject: Re: [PATCH net-next v8 0/4] send credit update during setting
  SO_RCVLOWAT
-Message-ID: <msexilrot3dmvzrsn25zfwmcnbxpsmiuuvktzbnirq34udk6as@pdz6yt4rrjvo>
+Content-Language: en-US
+To: Stefano Garzarella <sgarzare@redhat.com>
+CC: "Michael S. Tsirkin" <mst@redhat.com>, Stefan Hajnoczi
+	<stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet
+	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
+	<pabeni@redhat.com>, Jason Wang <jasowang@redhat.com>, Bobby Eshleman
+	<bobby.eshleman@bytedance.com>, <kvm@vger.kernel.org>,
+	<virtualization@lists.linux-foundation.org>, <netdev@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <kernel@sberdevices.ru>, <oxffffaa@gmail.com>
 References: <20231211211658.2904268-1-avkrasnov@salutedevices.com>
  <20231212105423-mutt-send-email-mst@kernel.org>
  <d27f22f0-0f1e-e1bb-5b13-a524dc6e94d7@salutedevices.com>
@@ -85,86 +75,104 @@ References: <20231211211658.2904268-1-avkrasnov@salutedevices.com>
  <7b362aef-6774-0e08-81e9-0a6f7f616290@salutedevices.com>
  <ucmekzurgt3zcaezzdkk6277ukjmwaoy6kdq6tzivbtqd4d32b@izqbcsixgngk>
  <402ea723-d154-45c9-1efe-b0022d9ea95a@salutedevices.com>
-Precedence: bulk
-X-Mailing-List: virtualization@lists.linux.dev
-List-Id: <virtualization.lists.linux.dev>
-List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
-List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-In-Reply-To: <402ea723-d154-45c9-1efe-b0022d9ea95a@salutedevices.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Disposition: inline
+ <msexilrot3dmvzrsn25zfwmcnbxpsmiuuvktzbnirq34udk6as@pdz6yt4rrjvo>
+From: Arseniy Krasnov <avkrasnov@salutedevices.com>
+In-Reply-To: <msexilrot3dmvzrsn25zfwmcnbxpsmiuuvktzbnirq34udk6as@pdz6yt4rrjvo>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: p-i-exch-sc-m02.sberdevices.ru (172.16.192.103) To
+ p-i-exch-sc-m01.sberdevices.ru (172.16.192.107)
+X-KSMG-Rule-ID: 10
+X-KSMG-Message-Action: clean
+X-KSMG-AntiSpam-Lua-Profiles: 182074 [Dec 13 2023]
+X-KSMG-AntiSpam-Version: 6.1.0.3
+X-KSMG-AntiSpam-Envelope-From: avkrasnov@salutedevices.com
+X-KSMG-AntiSpam-Rate: 0
+X-KSMG-AntiSpam-Status: not_detected
+X-KSMG-AntiSpam-Method: none
+X-KSMG-AntiSpam-Auth: dkim=none
+X-KSMG-AntiSpam-Info: LuaCore: 7 0.3.7 6d6bf5bd8eea7373134f756a2fd73e9456bb7d1a, {Tracking_uf_ne_domains}, {Tracking_from_domain_doesnt_match_to}, d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;salutedevices.com:7.1.1;smtp.sberdevices.ru:7.1.1,5.0.1;100.64.160.123:7.1.2;127.0.0.199:7.1.2;lore.kernel.org:7.1.1, FromAlignment: s, ApMailHostAddress: 100.64.160.123
+X-MS-Exchange-Organization-SCL: -1
+X-KSMG-AntiSpam-Interceptor-Info: scan successful
+X-KSMG-AntiPhishing: Clean, bases: 2023/12/13 07:20:00
+X-KSMG-LinksScanning: Clean, bases: 2023/12/13 07:20:00
+X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2023/12/13 06:29:00 #22674381
+X-KSMG-AntiVirus-Status: Clean, skipped
 
-On Wed, Dec 13, 2023 at 12:08:27PM +0300, Arseniy Krasnov wrote:
->
->
->On 13.12.2023 11:43, Stefano Garzarella wrote:
->> On Tue, Dec 12, 2023 at 08:43:07PM +0300, Arseniy Krasnov wrote:
->>>
->>>
->>> On 12.12.2023 19:12, Michael S. Tsirkin wrote:
->>>> On Tue, Dec 12, 2023 at 06:59:03PM +0300, Arseniy Krasnov wrote:
->>>>>
->>>>>
->>>>> On 12.12.2023 18:54, Michael S. Tsirkin wrote:
->>>>>> On Tue, Dec 12, 2023 at 12:16:54AM +0300, Arseniy Krasnov wrote:
->>>>>>> Hello,
->>>>>>>
->>>>>>>                                DESCRIPTION
->>>>>>>
->>>>>>> This patchset fixes old problem with hungup of both rx/tx sides and adds
->>>>>>> test for it. This happens due to non-default SO_RCVLOWAT value and
->>>>>>> deferred credit update in virtio/vsock. Link to previous old patchset:
->>>>>>> https://lore.kernel.org/netdev/39b2e9fd-601b-189d-39a9-914e5574524c@sberdevices.ru/
->>>>>>
->>>>>>
->>>>>> Patchset:
->>>>>>
->>>>>> Acked-by: Michael S. Tsirkin <mst@redhat.com>
->>>>>
->>>>> Thanks!
->>>>>
->>>>>>
->>>>>>
->>>>>> But I worry whether we actually need 3/8 in net not in net-next.
->>>>>
->>>>> Because of "Fixes" tag ? I think this problem is not critical and reproducible
->>>>> only in special cases, but i'm not familiar with netdev process so good, so I don't
->>>>> have strong opinion. I guess @Stefano knows better.
->>>>>
->>>>> Thanks, Arseniy
->>>>
->>>> Fixes means "if you have that other commit then you need this commit
->>>> too". I think as a minimum you need to rearrange patches to make the
->>>> fix go in first. We don't want a regression followed by a fix.
->>>
->>> I see, ok, @Stefano WDYT? I think rearrange doesn't break anything, because this
->>> patch fixes problem that is not related with the new patches from this patchset.
+
+
+On 13.12.2023 12:41, Stefano Garzarella wrote:
+> On Wed, Dec 13, 2023 at 12:08:27PM +0300, Arseniy Krasnov wrote:
 >>
->> I agree, patch 3 is for sure net material (I'm fine with both rearrangement or send it separately), but IMHO also patch 2 could be.
->> I think with the same fixes tag, since before commit b89d882dc9fc ("vsock/virtio: reduce credit update messages") we sent a credit update
->> for every bytes we read, so we should not have this problem, right?
->
->Agree for 2, so I think I can rearrange: two fixes go first, then current 0001, and then tests. And send it as V9 for 'net' only ?
+>>
+>> On 13.12.2023 11:43, Stefano Garzarella wrote:
+>>> On Tue, Dec 12, 2023 at 08:43:07PM +0300, Arseniy Krasnov wrote:
+>>>>
+>>>>
+>>>> On 12.12.2023 19:12, Michael S. Tsirkin wrote:
+>>>>> On Tue, Dec 12, 2023 at 06:59:03PM +0300, Arseniy Krasnov wrote:
+>>>>>>
+>>>>>>
+>>>>>> On 12.12.2023 18:54, Michael S. Tsirkin wrote:
+>>>>>>> On Tue, Dec 12, 2023 at 12:16:54AM +0300, Arseniy Krasnov wrote:
+>>>>>>>> Hello,
+>>>>>>>>
+>>>>>>>> Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â  DESCRIPTION
+>>>>>>>>
+>>>>>>>> This patchset fixes old problem with hungup of both rx/tx sides and adds
+>>>>>>>> test for it. This happens due to non-default SO_RCVLOWAT value and
+>>>>>>>> deferred credit update in virtio/vsock. Link to previous old patchset:
+>>>>>>>> https://lore.kernel.org/netdev/39b2e9fd-601b-189d-39a9-914e5574524c@sberdevices.ru/
+>>>>>>>
+>>>>>>>
+>>>>>>> Patchset:
+>>>>>>>
+>>>>>>> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+>>>>>>
+>>>>>> Thanks!
+>>>>>>
+>>>>>>>
+>>>>>>>
+>>>>>>> But I worry whether we actually need 3/8 in net not in net-next.
+>>>>>>
+>>>>>> Because of "Fixes" tag ? I think this problem is not critical and reproducible
+>>>>>> only in special cases, but i'm not familiar with netdev process so good, so I don't
+>>>>>> have strong opinion. I guess @Stefano knows better.
+>>>>>>
+>>>>>> Thanks, Arseniy
+>>>>>
+>>>>> Fixes means "if you have that other commit then you need this commit
+>>>>> too". I think as a minimum you need to rearrange patches to make the
+>>>>> fix go in first. We don't want a regression followed by a fix.
+>>>>
+>>>> I see, ok, @Stefano WDYT? I think rearrange doesn't break anything, because this
+>>>> patch fixes problem that is not related with the new patches from this patchset.
+>>>
+>>> I agree, patch 3 is for sure net material (I'm fine with both rearrangement or send it separately), but IMHO also patch 2 could be.
+>>> I think with the same fixes tag, since before commit b89d882dc9fc ("vsock/virtio: reduce credit update messages") we sent a credit update
+>>> for every bytes we read, so we should not have this problem, right?
+>>
+>> Agree for 2, so I think I can rearrange: two fixes go first, then current 0001, and then tests. And send it as V9 for 'net' only ?
+> 
+> Maybe you can add this to patch 1 if we want it on net:
+> 
+> Fixes: e38f22c860ed ("vsock: SO_RCVLOWAT transport set callback")
+> 
+> Then I think that patch should go before patch 2, so we don't need to
+> touch that code multiple times.
+> 
+> so, IMHO the order should be the actual order or 3 - 1 - 2 - 4.
+> 
+> Another option is to send just 2 & 3 to net, and the rest (1 & 4) to net-next. IMHO should be fine to send the entire series to net with the fixes tag also in patch 1.
 
-Maybe you can add this to patch 1 if we want it on net:
+Ok, agree that it is good to send whole patchset to net without splitting it.
 
-Fixes: e38f22c860ed ("vsock: SO_RCVLOWAT transport set callback")
+> 
+> Net maintainers and Michael might have a different advice.
 
-Then I think that patch should go before patch 2, so we don't need to
-touch that code multiple times.
+Ok
 
-so, IMHO the order should be the actual order or 3 - 1 - 2 - 4.
-
-Another option is to send just 2 & 3 to net, and the rest (1 & 4) to 
-net-next. IMHO should be fine to send the entire series to net with the 
-fixes tag also in patch 1.
-
-Net maintainers and Michael might have a different advice.
-
-Thanks,
-Stefano
-
+> 
+> Thanks,
+> Stefano
+> 
