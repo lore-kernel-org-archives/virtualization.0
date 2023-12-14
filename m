@@ -1,204 +1,159 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32E263FB0D
-	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 11:18:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E3B233CC5
+	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 12:38:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EWDga/2J"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="giWuE538"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id A1E9A43713
-	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 11:18:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A1E9A43713
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=EWDga/2J
+	by smtp1.osuosl.org (Postfix) with ESMTP id 04A6A83D89
+	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 12:38:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 04A6A83D89
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=giWuE538
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.099
+X-Spam-Score: -2.103
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id SLWcu2IXSvnt
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Dv2BroDaoJ9T
 	for <virtualization@lists.linux-foundation.org>;
-	Thu, 14 Dec 2023 11:18:08 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 6A77E436F2
-	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 11:18:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6A77E436F2
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1702552687;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=VaN6TC3I4TNZRPtVPtcTdPQQalk1XpMFkRRRirXd7I0=;
-	b=EWDga/2JP0zUrH00LkWSF8z8SGIvb0jbZ/qNn+iP+G0OPUjjv0fhdbEIaf85IEwNbp5HFl
-	Ee5wwvi+HxwkuUJRohdrV4URn6Eu3/N3h7Cf/vgWeKuDdI3fJuQSNzO8JN0iXuGwYGtO9V
-	ZrNwsmNu7oQEqZEDtVGfsGe4t9SSb8o=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-219-ToCVrTiPOACT63po9ZfIwg-1; Thu, 14 Dec 2023 06:18:04 -0500
-X-MC-Unique: ToCVrTiPOACT63po9ZfIwg-1
-Received: by mail-ed1-f69.google.com with SMTP id 4fb4d7f45d1cf-55285349727so74445a12.1
-        for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 03:18:03 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702552683; x=1703157483;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=VaN6TC3I4TNZRPtVPtcTdPQQalk1XpMFkRRRirXd7I0=;
-        b=WqwMHZzAhB+frZOaSryfX8vAugmPl//f5E4fTPXL0rr/A0I3XCJPz0UO6/gYNACOlm
-         VmIIFGoW1ocDOvR6dxh/mXGzZWT5kB2CdGgYwM0XKhH5ZJAY9RP24Jres+43U92/9Umo
-         EWkQzcfPLFKms8L7mL4J0vuPH0+bZiSjBDT2jWUhefsia1DLlE4eyfcufrhGthA8rrYj
-         /fCyECGaR2W1Mm6tK566r9UhrJsSZn6kpNxIox/OHmAMxeX0pf1ophx2+gvGJe8ytlX1
-         VfxJnSO90tKXgYnfyCdFfK+IehAgvFMvnKGtzKUB82YlTalBamFF26o7cQ3ctUqmgvwz
-         HDlg==
-X-Gm-Message-State: AOJu0YzVZYyLQHZIcHbVNc28Z1z30b+Gm3zRtEvOAUAX5jk1YcdZIAKK
-	mADAABAId1uNPiCn6CsDUDlXsLm0eCThgqxCiRo6Cre98mUnA2cJeq87hoJdFBvEA7SbQ0XCuPB
-	BtDnVkRrOugIFh0RaRaMEjpoE73Yo4PAFRl6B2i4FPw==
-X-Received: by 2002:a05:6402:2318:b0:551:76e6:afdb with SMTP id l24-20020a056402231800b0055176e6afdbmr2088868eda.77.1702552683022;
-        Thu, 14 Dec 2023 03:18:03 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IExaY3rnjXkKwpudV8D5zjSW1Nso5V7k/Hde8rQ0+0YKYqG4gygBYOpDhXTnB2wvb4N1mYL8Q==
-X-Received: by 2002:a05:6402:2318:b0:551:76e6:afdb with SMTP id l24-20020a056402231800b0055176e6afdbmr2088851eda.77.1702552682642;
-        Thu, 14 Dec 2023 03:18:02 -0800 (PST)
-Received: from redhat.com ([2.52.132.243])
-        by smtp.gmail.com with ESMTPSA id dk4-20020a0564021d8400b005522eddd380sm1316992edb.34.2023.12.14.03.17.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 14 Dec 2023 03:18:01 -0800 (PST)
-Date: Thu, 14 Dec 2023 06:17:57 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Arseniy Krasnov <avkrasnov@salutedevices.com>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org,
-	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, kernel@sberdevices.ru,
-	oxffffaa@gmail.com
-Subject: Re: [PATCH net-next v9 3/4] vsock: update SO_RCVLOWAT setting
- callback
-Message-ID: <20231214061738-mutt-send-email-mst@kernel.org>
-References: <20231214091947.395892-1-avkrasnov@salutedevices.com>
- <20231214091947.395892-4-avkrasnov@salutedevices.com>
- <20231214052502-mutt-send-email-mst@kernel.org>
- <e0e601a9-6cb2-e484-eb70-f41e7ec69c65@salutedevices.com>
+	Thu, 14 Dec 2023 12:38:57 +0000 (UTC)
+Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on20608.outbound.protection.outlook.com [IPv6:2a01:111:f400:fe5a::608])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 2303A83D87
+	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 12:38:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2303A83D87
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=SoZnwnlC7q+9FdTlGSSm9pdmzSrUEKKVkcRlY2S4Nkqme1Yp8sWIR/NNYag/E9MQpvLc24ET1wIjhtr+K40XBdNCCoBpckXX+2uKXPDork1P3gtrOaSdNeVi3rwGD4OhhYjDDx1QFRNALon5uJBb7W4Bc7l74RT+0Zt/1acEwaL3DIIeBdIEIHwiDoVUEIS2gB8CKZqrRybn59TDFztQRuj4T7V/p5QFNm88/lnyqoNZ4ArD988ISAT7i9QRxBJfWQNXkA+LA4U/MD000HJs/TfKwGAu3iktnCb5ADaKPdjCL2V7mOXb1voLljEpnb/8/g59KoD/TgI/O6MtmiY4PA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=8ixQtpvTNaYyDToUTw43Dlrc0d/yTizWm3gUpC5jls0=;
+ b=MF7VpTz5uUSS+Vf7H3BnQ9V4JHapCb6gkClyS18SDU5QrCCeCBT01mM6gPUjhbq/9TzLrHRknf05nI/7a4v53n9MH1lwRUxkvwgPu7wdpCqudRM5rN0ixzIuatWvCRWY603iUmho7hPBBqMQQutgihOF+bkJUgT6Wt1/g/t1IfIBovHmuSuN9DMB0s86xny4KWB5RPUx+wE+ZF4qKGlywDOIAj/jpNBNCsKkLX1XUVR7ilJbfo4+W56vUrMgTRlut+o3aOD0IzHqiA+RK7ij3OxIcT3i7kpcoOTkapwyKy7AblmLUtPq6HdK5xcbGX9Of3hauBpeSUNtolJlM5CyAw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.160) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=8ixQtpvTNaYyDToUTw43Dlrc0d/yTizWm3gUpC5jls0=;
+ b=giWuE538Xmp6lO5yu3J5JGH+/JUiZj7cHXUWuyE9+yG9CvUIN36FmwDdDp1Fsh4nb78Qy21hKCzPaqODvPvNoulF3I+NmEc6qUWDdutYiMMSoFnqUEV/BD1mBCgvJ+ru4J8U29EhGEUiE00OeYDNgHmzv07el7pjr9Soj+s4gV974HjDOuMgXpc8HAsZl/wMwhQRmAnCntIMV+OufZ61Lv/gcRpCL1dWfVEk7BXfGgIZL8lMvN5TVumpV8xEduqxc/Se1oe++4+l7qtCgphBY7FUW+x47ZlsK4VmEU06eGLdWXE+GYys7ZB2iEhbJckWwhXE16EmKqIoWWku26y8Ig==
+Received: from BY5PR20CA0001.namprd20.prod.outlook.com (2603:10b6:a03:1f4::14)
+ by MN2PR12MB4046.namprd12.prod.outlook.com (2603:10b6:208:1da::23) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7091.28; Thu, 14 Dec
+ 2023 12:38:53 +0000
+Received: from DS3PEPF000099D5.namprd04.prod.outlook.com
+ (2603:10b6:a03:1f4:cafe::a1) by BY5PR20CA0001.outlook.office365.com
+ (2603:10b6:a03:1f4::14) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7091.26 via Frontend
+ Transport; Thu, 14 Dec 2023 12:38:53 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.160) by
+ DS3PEPF000099D5.mail.protection.outlook.com (10.167.17.6) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.7091.26 via Frontend Transport; Thu, 14 Dec 2023 12:38:53 +0000
+Received: from rnnvmail203.nvidia.com (10.129.68.9) by mail.nvidia.com
+ (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Thu, 14 Dec
+ 2023 04:38:34 -0800
+Received: from rnnvmail202.nvidia.com (10.129.68.7) by rnnvmail203.nvidia.com
+ (10.129.68.9) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Thu, 14 Dec
+ 2023 04:38:33 -0800
+Received: from vdi.nvidia.com (10.127.8.10) by mail.nvidia.com (10.129.68.7)
+ with Microsoft SMTP Server id 15.2.986.41 via Frontend Transport; Thu, 14 Dec
+ 2023 04:38:30 -0800
+From: Yishai Hadas <yishaih@nvidia.com>
+To: <alex.williamson@redhat.com>, <mst@redhat.com>, <jasowang@redhat.com>,
+	<jgg@nvidia.com>
+CC: <kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
+	<parav@nvidia.com>, <feliu@nvidia.com>, <jiri@nvidia.com>,
+	<kevin.tian@intel.com>, <joao.m.martins@oracle.com>, <si-wei.liu@oracle.com>,
+	<leonro@nvidia.com>, <yishaih@nvidia.com>, <maorg@nvidia.com>
+Subject: [PATCH V8 vfio 1/9] virtio: Define feature bit for administration virtqueue
+Date: Thu, 14 Dec 2023 14:38:00 +0200
+Message-ID: <20231214123808.76664-2-yishaih@nvidia.com>
+X-Mailer: git-send-email 2.21.0
+In-Reply-To: <20231214123808.76664-1-yishaih@nvidia.com>
+References: <20231214123808.76664-1-yishaih@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <e0e601a9-6cb2-e484-eb70-f41e7ec69c65@salutedevices.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DS3PEPF000099D5:EE_|MN2PR12MB4046:EE_
+X-MS-Office365-Filtering-Correlation-Id: e00abcd9-1199-41f7-ff20-08dbfca1a183
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	XIR81xPc18pyXRHCHBKh/AMWdwuk78OOqGBEFuHu/aRCyOZat6wGt0pP0sdEk8kAd/sBSvYSVjpxyOSusV3cp/ig3AaZeDZQEz7h//ZiBhnPIQdwh97AbesymgUO1B8GDTO38aJY6RKUHTeFcUXQIdC8UMuIHJUXGbg+in5UtwU+gfXiMK3Xam+j9mm1JJtXZL4qqa2/sOUws1VjmKaW/vfPOKU8w+7eBpANqjgxoD6laECX9nJ9DnVxWOGcxKGkjSE0LxKk7GeoOII0KDIUGoUvl0naZ6XWPxbZdnGHE3P3CbOM6Gom2c+KO6suTOyPYZk4auaTTxofW1AAK2qFbzcuYv+z1LzbIrPTsjjgu7uxDnqWPaKX4RTy9h4LLWrxkyxtBCl3TpOLCtJE11J7G1N5p6RSJC7UzMvWc3YjX4wJ4j7Tuuo4PNfUmdkpnT+oSU4ln53UCIF2PgNoalk6K5ms8Mu/mEnib1TZcvEk+dOWzCkbF7wo12hkx1j8HRgM4gpd0NViEtKgcmrs1zrZmLGwRxqNS8rcd8o7/0KyFyyUuEpuVEtL1X1OcOk3Dw6XAdwyFPKd8haQGzqbZLK8VshFQChFDZ/cmC/bZSnSD/qn5i/l1nKZTrIW5jqCxQLWl6zM5avFNEFlmbjz9qMCwtm5AYAhRVcJvVEVaDWU/L/iBc9TJKgFRYevnTinVrRHpq0rQKqeeCFQa5ttBSOs4kZskBnDCJOW/dgZtDRz1QxH3SBdyrlzR2rDetmNVEI3TvCfGw7wz3scpyg7aQQ+NQ==
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230031)(4636009)(346002)(136003)(396003)(39860400002)(376002)(230922051799003)(186009)(64100799003)(451199024)(82310400011)(1800799012)(40470700004)(36840700001)(46966006)(82740400003)(40460700003)(83380400001)(426003)(36860700001)(2616005)(107886003)(7636003)(1076003)(336012)(26005)(8676002)(8936002)(4326008)(110136005)(316002)(2906002)(47076005)(5660300002)(478600001)(6666004)(7696005)(6636002)(54906003)(70206006)(70586007)(41300700001)(356005)(36756003)(86362001)(40480700001)(2101003);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Dec 2023 12:38:53.1367
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: e00abcd9-1199-41f7-ff20-08dbfca1a183
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	DS3PEPF000099D5.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB4046
 
-On Thu, Dec 14, 2023 at 01:52:50PM +0300, Arseniy Krasnov wrote:
-> 
-> 
-> On 14.12.2023 13:29, Michael S. Tsirkin wrote:
-> > On Thu, Dec 14, 2023 at 12:19:46PM +0300, Arseniy Krasnov wrote:
-> >> Do not return if transport callback for SO_RCVLOWAT is set (only in
-> >> error case). In this case we don't need to set 'sk_rcvlowat' field in
-> >> each transport - only in 'vsock_set_rcvlowat()'. Also, if 'sk_rcvlowat'
-> >> is now set only in af_vsock.c, change callback name from 'set_rcvlowat'
-> >> to 'notify_set_rcvlowat'.
-> >>
-> >> Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
-> >> Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-> >> Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> > 
-> > Maybe squash this with patch 2/4?
-> 
-> You mean just do 'git squash' without updating commit message manually?
-> 
-> Thanks, Arseniy
+From: Feng Liu <feliu@nvidia.com>
 
-commit message should reflect all that patch does.
+Introduce VIRTIO_F_ADMIN_VQ which is used for administration virtqueue
+support.
 
-> > 
-> >> ---
-> >>  Changelog:
-> >>  v3 -> v4:
-> >>   * Rename 'set_rcvlowat' to 'notify_set_rcvlowat'.
-> >>   * Commit message updated.
-> >>
-> >>  include/net/af_vsock.h           | 2 +-
-> >>  net/vmw_vsock/af_vsock.c         | 9 +++++++--
-> >>  net/vmw_vsock/hyperv_transport.c | 4 ++--
-> >>  3 files changed, 10 insertions(+), 5 deletions(-)
-> >>
-> >> diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
-> >> index e302c0e804d0..535701efc1e5 100644
-> >> --- a/include/net/af_vsock.h
-> >> +++ b/include/net/af_vsock.h
-> >> @@ -137,7 +137,6 @@ struct vsock_transport {
-> >>  	u64 (*stream_rcvhiwat)(struct vsock_sock *);
-> >>  	bool (*stream_is_active)(struct vsock_sock *);
-> >>  	bool (*stream_allow)(u32 cid, u32 port);
-> >> -	int (*set_rcvlowat)(struct vsock_sock *vsk, int val);
-> >>  
-> >>  	/* SEQ_PACKET. */
-> >>  	ssize_t (*seqpacket_dequeue)(struct vsock_sock *vsk, struct msghdr *msg,
-> >> @@ -168,6 +167,7 @@ struct vsock_transport {
-> >>  		struct vsock_transport_send_notify_data *);
-> >>  	/* sk_lock held by the caller */
-> >>  	void (*notify_buffer_size)(struct vsock_sock *, u64 *);
-> >> +	int (*notify_set_rcvlowat)(struct vsock_sock *vsk, int val);
-> >>  
-> >>  	/* Shutdown. */
-> >>  	int (*shutdown)(struct vsock_sock *, int);
-> >> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> >> index 816725af281f..54ba7316f808 100644
-> >> --- a/net/vmw_vsock/af_vsock.c
-> >> +++ b/net/vmw_vsock/af_vsock.c
-> >> @@ -2264,8 +2264,13 @@ static int vsock_set_rcvlowat(struct sock *sk, int val)
-> >>  
-> >>  	transport = vsk->transport;
-> >>  
-> >> -	if (transport && transport->set_rcvlowat)
-> >> -		return transport->set_rcvlowat(vsk, val);
-> >> +	if (transport && transport->notify_set_rcvlowat) {
-> >> +		int err;
-> >> +
-> >> +		err = transport->notify_set_rcvlowat(vsk, val);
-> >> +		if (err)
-> >> +			return err;
-> >> +	}
-> >>  
-> >>  	WRITE_ONCE(sk->sk_rcvlowat, val ? : 1);
-> >>  	return 0;
-> > 
-> > 
-> > 
-> > I would s
-> > 
-> >> diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
-> >> index 7cb1a9d2cdb4..e2157e387217 100644
-> >> --- a/net/vmw_vsock/hyperv_transport.c
-> >> +++ b/net/vmw_vsock/hyperv_transport.c
-> >> @@ -816,7 +816,7 @@ int hvs_notify_send_post_enqueue(struct vsock_sock *vsk, ssize_t written,
-> >>  }
-> >>  
-> >>  static
-> >> -int hvs_set_rcvlowat(struct vsock_sock *vsk, int val)
-> >> +int hvs_notify_set_rcvlowat(struct vsock_sock *vsk, int val)
-> >>  {
-> >>  	return -EOPNOTSUPP;
-> >>  }
-> >> @@ -856,7 +856,7 @@ static struct vsock_transport hvs_transport = {
-> >>  	.notify_send_pre_enqueue  = hvs_notify_send_pre_enqueue,
-> >>  	.notify_send_post_enqueue = hvs_notify_send_post_enqueue,
-> >>  
-> >> -	.set_rcvlowat             = hvs_set_rcvlowat
-> >> +	.notify_set_rcvlowat      = hvs_notify_set_rcvlowat
-> >>  };
-> >>  
-> >>  static bool hvs_check_transport(struct vsock_sock *vsk)
-> >> -- 
-> >> 2.25.1
-> > 
+Signed-off-by: Feng Liu <feliu@nvidia.com>
+Reviewed-by: Parav Pandit <parav@nvidia.com>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Yishai Hadas <yishaih@nvidia.com>
+---
+ include/uapi/linux/virtio_config.h | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
+index 8881aea60f6f..2445f365bce7 100644
+--- a/include/uapi/linux/virtio_config.h
++++ b/include/uapi/linux/virtio_config.h
+@@ -52,7 +52,7 @@
+  * rest are per-device feature bits.
+  */
+ #define VIRTIO_TRANSPORT_F_START	28
+-#define VIRTIO_TRANSPORT_F_END		41
++#define VIRTIO_TRANSPORT_F_END		42
+ 
+ #ifndef VIRTIO_CONFIG_NO_LEGACY
+ /* Do we get callbacks when the ring is completely used, even if we've
+@@ -114,4 +114,10 @@
+  * This feature indicates that the driver can reset a queue individually.
+  */
+ #define VIRTIO_F_RING_RESET		40
++
++/*
++ * This feature indicates that the device support administration virtqueues.
++ */
++#define VIRTIO_F_ADMIN_VQ		41
++
+ #endif /* _UAPI_LINUX_VIRTIO_CONFIG_H */
+-- 
+2.27.0
 
