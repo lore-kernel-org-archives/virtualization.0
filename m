@@ -1,222 +1,217 @@
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB2712EB1C
-	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 09:47:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85BEE35EF3
+	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 09:56:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OfKdIUbs"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Yagx8o6O"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 4EF6F405B1
-	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 09:47:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4EF6F405B1
+	by smtp2.osuosl.org (Postfix) with ESMTP id 0A490436DF
+	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 09:56:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0A490436DF
 Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=OfKdIUbs
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Yagx8o6O
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.099
 X-Spam-Level:
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id nuArBvJw8J17
+	with ESMTP id n76U1EB2fGj3
 	for <virtualization@lists.linux-foundation.org>;
-	Thu, 14 Dec 2023 09:47:56 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 09CAC402D4
-	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 09:47:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 09CAC402D4
+	Thu, 14 Dec 2023 09:56:15 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 674E9405B1
+	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 09:56:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 674E9405B1
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1702547274;
+	s=mimecast20190719; t=1702547774;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=5PF84afDWkdufDlSaavaOE20R3k7202dyNd13pNjgKM=;
-	b=OfKdIUbsAb5Lj/MLLCeJm7KO7W6wCvPBoJ6L4JARjqI1rpLBy8W4eaGkGWxsmhUyypMrVj
-	BQsuW+rMuqFS5vlO0ror+k3SB2UGxdGoypE/CtrrCnCCkHGG/XNmLOcCO8bGXUrJk9s3I4
-	D6xXfUt34xS4d6FXKegT438FYddXq2o=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	 in-reply-to:in-reply-to:references:references;
+	bh=/tkL8YLXBdtuh1lhYs0W2zJGNUrEl73DXiA9GWiR3Xc=;
+	b=Yagx8o6OikMINwIq3qxQBSoNrcZlY+uGSN99PVI/cWREyimdBK/GIaCh5YS+dm08g81MJn
+	+qmzCNDedgP/9k2brURSCi2M79e0iW5CjYud5HfB5DRLt3RHawv6MPSNUrZ6A8eqJom0ug
+	SQOfEtJdb55+qrh1uYtKx9i72v8ARTQ=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-680-iDUNgTgKOI-t_A5ZEmsgDQ-1; Thu, 14 Dec 2023 04:47:52 -0500
-X-MC-Unique: iDUNgTgKOI-t_A5ZEmsgDQ-1
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-40c348e529fso46585185e9.2
-        for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 01:47:52 -0800 (PST)
+ us-mta-663-u5qBmTTIOiuOhbqdmWqwKA-1; Thu, 14 Dec 2023 04:56:13 -0500
+X-MC-Unique: u5qBmTTIOiuOhbqdmWqwKA-1
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-33641bbc49dso869328f8f.0
+        for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 01:56:12 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702547271; x=1703152071;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
-         :references:cc:to:content-language:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+        d=1e100.net; s=20230601; t=1702547771; x=1703152571;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=5PF84afDWkdufDlSaavaOE20R3k7202dyNd13pNjgKM=;
-        b=wZCHz6CUofRZY0JasQyHZml3bCBNwwqpDtF1d5OPb0gEAr7J4+qY5NctIEoi3VWrkU
-         JJEMdksT8IkI1Ngl6dRTgN6BNLVo4fDR4uSokACnwVAku/x3o7KbVxE9uDFgJZ4/t8Mj
-         l0fZXav5hhvR2KD+tCNxgFj81+fbT5OdjBkzFHiQdKBcbUok4tLykS504BEppcJHi/CH
-         EgPmjlD+NiwoH8nsWYJCm7jwG7nSqGqNOhrbvM/JFR9t/x7S3XHxQOdHP5CeWjDSSFbF
-         K5zGYYOUdWCne7FzepuSl4mI8qTLIF38Vykag8E//05496wfdM8KQ0IoWPIW0ppcD+11
-         64Jg==
-X-Gm-Message-State: AOJu0YwY/D5aHXw+AXXYr7Gey0FHmuRYtcnWl8iqdJv0ObYbbGWlR0D0
-	ij+0TuRCDv1ufqnd3B5yGouyAv9j9E8tlkKCxhKT6PXbL3RjW9mPNHDeJlv9c5JDCB/kyYmMHrh
-	LwfXWp7o2T5sdJVxi1AF+V6gCl/sTubq47DQ1R0tApA==
-X-Received: by 2002:a05:600c:181b:b0:40c:3dce:b02c with SMTP id n27-20020a05600c181b00b0040c3dceb02cmr4246372wmp.156.1702547271567;
-        Thu, 14 Dec 2023 01:47:51 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFHwHS3zkCqHcdbEXN95kRzMkgUvUEeVAvgoRWWCHE4s54G90NsvwmBMAxA0az5XLrHhfg94g==
-X-Received: by 2002:a05:600c:181b:b0:40c:3dce:b02c with SMTP id n27-20020a05600c181b00b0040c3dceb02cmr4246363wmp.156.1702547271166;
-        Thu, 14 Dec 2023 01:47:51 -0800 (PST)
-Received: from ?IPV6:2a09:80c0:192:0:5dac:bf3d:c41:c3e7? ([2a09:80c0:192:0:5dac:bf3d:c41:c3e7])
-        by smtp.gmail.com with ESMTPSA id g20-20020a05600c4ed400b0040c31bb66dcsm23628094wmq.20.2023.12.14.01.47.50
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 14 Dec 2023 01:47:50 -0800 (PST)
-Message-ID: <9fb51bfc-576a-4c7b-92c2-c161e7f08ae7@redhat.com>
-Date: Thu, 14 Dec 2023 10:47:50 +0100
+        bh=/tkL8YLXBdtuh1lhYs0W2zJGNUrEl73DXiA9GWiR3Xc=;
+        b=DJTuvmd6WHdAM2v5HnPODqDAFreQlNNIvJu01Si1Zg8b1naAFO0TEFM6IJdAl50/Db
+         7O6xn0PeQPe3JL6/Cpjub81fgPmae2D7F47ZYQu/yZJSF6FCLBpkyhe+LdMzNAwEvakP
+         LYOOC/78RYftDjtoRhYBPV6gVaWhIr8ZwRZifgfItsTlgULyhzURn/fe51pbkHamMfs6
+         EC9R2CDtAoo591HnXZ2+7vkwjLyfVjzeWtWczusK6UvKyKr99sMG88TJQSqE7+Oeb+D4
+         5rKipe3q1x0lNTjOnwkohmbfmM/qdALurlQplipPVATDVA5DdPdXHhBge4oSyoOPoy9j
+         C6vA==
+X-Gm-Message-State: AOJu0YxxUw4BmjmtYxmwGS1uYbdeeEkl1l1JczSKAyz2naePf0+903Z7
+	1FoLvRlsbzZ/m/tToMEvi6HMiZJsDEseoiNgUdmZ/IdsaEoJL+PS430zqIc4sMiBY6WRAztPFWa
+	13h82vFW6F136baJgBmXEoQfkH+z9jFbnvnP7KHvztQ==
+X-Received: by 2002:a5d:614a:0:b0:336:9f9:6df with SMTP id y10-20020a5d614a000000b0033609f906dfmr5151063wrt.5.1702547771644;
+        Thu, 14 Dec 2023 01:56:11 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEiakjz1ILbcnOG+FrF8iuBB/YhiQdiiOV88jj7k12GPoMjsxf1aAqx1tuBwIkVtWxpFGD4+Q==
+X-Received: by 2002:a5d:614a:0:b0:336:9f9:6df with SMTP id y10-20020a5d614a000000b0033609f906dfmr5151053wrt.5.1702547771279;
+        Thu, 14 Dec 2023 01:56:11 -0800 (PST)
+Received: from sgarzare-redhat ([5.11.101.217])
+        by smtp.gmail.com with ESMTPSA id c15-20020adfe74f000000b0033335644478sm15617053wrn.114.2023.12.14.01.56.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 14 Dec 2023 01:56:10 -0800 (PST)
+Date: Thu, 14 Dec 2023 10:56:04 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Arseniy Krasnov <avkrasnov@salutedevices.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kernel@sberdevices.ru, 
+	oxffffaa@gmail.com
+Subject: Re: [PATCH net-next v9 0/4] send credit update during setting
+ SO_RCVLOWAT
+Message-ID: <4qaygyv6sw4qip6gnu2dirw7d7r3f3cmmh3qctnznda3rslzug@r2cyub6rjw6h>
+References: <20231214091947.395892-1-avkrasnov@salutedevices.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] virtio: Add support for no-reset virtio PCI PM
-To: David Stevens <stevensd@chromium.org>,
- "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-References: <20231208070754.3132339-1-stevensd@chromium.org>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
- dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
- QZLQMzNE74ap+GDK0wnacPQFpcG1AE9RMq3aeErY5tujekBS32jfC/7AnH7I0v1v1TbbK3Gp
- XNeiN4QroO+5qaSr0ID2sz5jtBLRb15RMre27E1ImpaIv2Jw8NJgW0k/D1RyKCwaTsgRdwuK
- Kx/Y91XuSBdz0uOyU/S8kM1+ag0wvsGlpBVxRR/xw/E8M7TEwuCZQArqqTCmkG6HGcXFT0V9
- PXFNNgV5jXMQRwU0O/ztJIQqsE5LsUomE//bLwzj9IVsaQpKDqW6TAPjcdBDPLHvriq7kGjt
- WhVhdl0qEYB8lkBEU7V2Yb+SYhmhpDrti9Fq1EsmhiHSkxJcGREoMK/63r9WLZYI3+4W2rAc
- UucZa4OT27U5ZISjNg3Ev0rxU5UH2/pT4wJCfxwocmqaRr6UYmrtZmND89X0KigoFD/XSeVv
- jwBRNjPAubK9/k5NoRrYqztM9W6sJqrH8+UWZ1Idd/DdmogJh0gNC0+N42Za9yBRURfIdKSb
- B3JfpUqcWwE7vUaYrHG1nw54pLUoPG6sAA7Mehl3nd4pZUALHwARAQABzSREYXZpZCBIaWxk
- ZW5icmFuZCA8ZGF2aWRAcmVkaGF0LmNvbT7CwZgEEwEIAEICGwMGCwkIBwMCBhUIAgkKCwQW
- AgMBAh4BAheAAhkBFiEEG9nKrXNcTDpGDfzKTd4Q9wD/g1oFAl8Ox4kFCRKpKXgACgkQTd4Q
- 9wD/g1oHcA//a6Tj7SBNjFNM1iNhWUo1lxAja0lpSodSnB2g4FCZ4R61SBR4l/psBL73xktp
- rDHrx4aSpwkRP6Epu6mLvhlfjmkRG4OynJ5HG1gfv7RJJfnUdUM1z5kdS8JBrOhMJS2c/gPf
- wv1TGRq2XdMPnfY2o0CxRqpcLkx4vBODvJGl2mQyJF/gPepdDfcT8/PY9BJ7FL6Hrq1gnAo4
- 3Iv9qV0JiT2wmZciNyYQhmA1V6dyTRiQ4YAc31zOo2IM+xisPzeSHgw3ONY/XhYvfZ9r7W1l
- pNQdc2G+o4Di9NPFHQQhDw3YTRR1opJaTlRDzxYxzU6ZnUUBghxt9cwUWTpfCktkMZiPSDGd
- KgQBjnweV2jw9UOTxjb4LXqDjmSNkjDdQUOU69jGMUXgihvo4zhYcMX8F5gWdRtMR7DzW/YE
- BgVcyxNkMIXoY1aYj6npHYiNQesQlqjU6azjbH70/SXKM5tNRplgW8TNprMDuntdvV9wNkFs
- 9TyM02V5aWxFfI42+aivc4KEw69SE9KXwC7FSf5wXzuTot97N9Phj/Z3+jx443jo2NR34XgF
- 89cct7wJMjOF7bBefo0fPPZQuIma0Zym71cP61OP/i11ahNye6HGKfxGCOcs5wW9kRQEk8P9
- M/k2wt3mt/fCQnuP/mWutNPt95w9wSsUyATLmtNrwccz63XOwU0EVcufkQEQAOfX3n0g0fZz
- Bgm/S2zF/kxQKCEKP8ID+Vz8sy2GpDvveBq4H2Y34XWsT1zLJdvqPI4af4ZSMxuerWjXbVWb
- T6d4odQIG0fKx4F8NccDqbgHeZRNajXeeJ3R7gAzvWvQNLz4piHrO/B4tf8svmRBL0ZB5P5A
- 2uhdwLU3NZuK22zpNn4is87BPWF8HhY0L5fafgDMOqnf4guJVJPYNPhUFzXUbPqOKOkL8ojk
- CXxkOFHAbjstSK5Ca3fKquY3rdX3DNo+EL7FvAiw1mUtS+5GeYE+RMnDCsVFm/C7kY8c2d0G
- NWkB9pJM5+mnIoFNxy7YBcldYATVeOHoY4LyaUWNnAvFYWp08dHWfZo9WCiJMuTfgtH9tc75
- 7QanMVdPt6fDK8UUXIBLQ2TWr/sQKE9xtFuEmoQGlE1l6bGaDnnMLcYu+Asp3kDT0w4zYGsx
- 5r6XQVRH4+5N6eHZiaeYtFOujp5n+pjBaQK7wUUjDilPQ5QMzIuCL4YjVoylWiBNknvQWBXS
- lQCWmavOT9sttGQXdPCC5ynI+1ymZC1ORZKANLnRAb0NH/UCzcsstw2TAkFnMEbo9Zu9w7Kv
- AxBQXWeXhJI9XQssfrf4Gusdqx8nPEpfOqCtbbwJMATbHyqLt7/oz/5deGuwxgb65pWIzufa
- N7eop7uh+6bezi+rugUI+w6DABEBAAHCwXwEGAEIACYCGwwWIQQb2cqtc1xMOkYN/MpN3hD3
- AP+DWgUCXw7HsgUJEqkpoQAKCRBN3hD3AP+DWrrpD/4qS3dyVRxDcDHIlmguXjC1Q5tZTwNB
- boaBTPHSy/Nksu0eY7x6HfQJ3xajVH32Ms6t1trDQmPx2iP5+7iDsb7OKAb5eOS8h+BEBDeq
- 3ecsQDv0fFJOA9ag5O3LLNk+3x3q7e0uo06XMaY7UHS341ozXUUI7wC7iKfoUTv03iO9El5f
- XpNMx/YrIMduZ2+nd9Di7o5+KIwlb2mAB9sTNHdMrXesX8eBL6T9b+MZJk+mZuPxKNVfEQMQ
- a5SxUEADIPQTPNvBewdeI80yeOCrN+Zzwy/Mrx9EPeu59Y5vSJOx/z6OUImD/GhX7Xvkt3kq
- Er5KTrJz3++B6SH9pum9PuoE/k+nntJkNMmQpR4MCBaV/J9gIOPGodDKnjdng+mXliF3Ptu6
- 3oxc2RCyGzTlxyMwuc2U5Q7KtUNTdDe8T0uE+9b8BLMVQDDfJjqY0VVqSUwImzTDLX9S4g/8
- kC4HRcclk8hpyhY2jKGluZO0awwTIMgVEzmTyBphDg/Gx7dZU1Xf8HFuE+UZ5UDHDTnwgv7E
- th6RC9+WrhDNspZ9fJjKWRbveQgUFCpe1sa77LAw+XFrKmBHXp9ZVIe90RMe2tRL06BGiRZr
- jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <20231208070754.3132339-1-stevensd@chromium.org>
+In-Reply-To: <20231214091947.395892-1-avkrasnov@salutedevices.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-On 08.12.23 08:07, David Stevens wrote:
-> If a virtio_pci_device supports native PCI power management and has the
-> No_Soft_Reset bit set, then skip resetting and reinitializing the device
-> when suspending and restoring the device. This allows system-wide low
-> power states like s2idle to be used in systems with stateful virtio
-> devices that can't simply be re-initialized (e.g. virtio-fs).
-> 
-> Signed-off-by: David Stevens <stevensd@chromium.org>
-> ---
-> v1 -> v2:
->   - Check the No_Soft_Reset bit
-> 
->   drivers/virtio/virtio_pci_common.c | 34 +++++++++++++++++++++++++++++-
->   1 file changed, 33 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-> index c2524a7207cf..3a95ecaf12dc 100644
-> --- a/drivers/virtio/virtio_pci_common.c
-> +++ b/drivers/virtio/virtio_pci_common.c
-> @@ -492,8 +492,40 @@ static int virtio_pci_restore(struct device *dev)
->   	return virtio_device_restore(&vp_dev->vdev);
->   }
->   
-> +static bool vp_supports_pm_no_reset(struct device *dev)
-> +{
-> +	struct pci_dev *pci_dev = to_pci_dev(dev);
-> +	u16 pmcsr;
-> +
-> +	if (!pci_dev->pm_cap)
-> +		return false;
-> +
-> +	pci_read_config_word(pci_dev, pci_dev->pm_cap + PCI_PM_CTRL, &pmcsr);
-> +	if (PCI_POSSIBLE_ERROR(pmcsr)) {
-> +		dev_err(dev, "Unable to query pmcsr");
-> +		return false;
-> +	}
-> +
-> +	return pmcsr & PCI_PM_CTRL_NO_SOFT_RESET;
-> +}
-> +
-> +static int virtio_pci_suspend(struct device *dev)
-> +{
-> +	return vp_supports_pm_no_reset(dev) ? 0 : virtio_pci_freeze(dev);
-> +}
-> +
-> +static int virtio_pci_resume(struct device *dev)
-> +{
-> +	return vp_supports_pm_no_reset(dev) ? 0 : virtio_pci_restore(dev);
-> +}
-> +
->   static const struct dev_pm_ops virtio_pci_pm_ops = {
-> -	SET_SYSTEM_SLEEP_PM_OPS(virtio_pci_freeze, virtio_pci_restore)
-> +	.suspend = virtio_pci_suspend,
-> +	.resume = virtio_pci_resume,
-> +	.freeze = virtio_pci_freeze,
-> +	.thaw = virtio_pci_restore,
-> +	.poweroff = virtio_pci_freeze,
-> +	.restore = virtio_pci_restore,
->   };
->   #endif
->   
+On Thu, Dec 14, 2023 at 12:19:43PM +0300, Arseniy Krasnov wrote:
+>Hello,
+>
+>                               DESCRIPTION
+>
+>This patchset fixes old problem with hungup of both rx/tx sides and adds
+>test for it. This happens due to non-default SO_RCVLOWAT value and
+>deferred credit update in virtio/vsock. Link to previous old patchset:
+>https://lore.kernel.org/netdev/39b2e9fd-601b-189d-39a9-914e5574524c@sberdevices.ru/
+>
+>Here is what happens step by step:
+>
+>                                  TEST
+>
+>                            INITIAL CONDITIONS
+>
+>1) Vsock buffer size is 128KB.
+>2) Maximum packet size is also 64KB as defined in header (yes it is
+>   hardcoded, just to remind about that value).
+>3) SO_RCVLOWAT is default, e.g. 1 byte.
+>
+>
+>                                 STEPS
+>
+>            SENDER                              RECEIVER
+>1) sends 128KB + 1 byte in a
+>   single buffer. 128KB will
+>   be sent, but for 1 byte
+>   sender will wait for free
+>   space at peer. Sender goes
+>   to sleep.
+>
+>
+>2)                                     reads 64KB, credit update not sent
+>3)                                     sets SO_RCVLOWAT to 64KB + 1
+>4)                                     poll() -> wait forever, there is
+>                                       only 64KB available to read.
+>
+>So in step 4) receiver also goes to sleep, waiting for enough data or
+>connection shutdown message from the sender. Idea to fix it is that rx
+>kicks tx side to continue transmission (and may be close connection)
+>when rx changes number of bytes to be woken up (e.g. SO_RCVLOWAT) and
+>this value is bigger than number of available bytes to read.
+>
+>I've added small test for this, but not sure as it uses hardcoded value
+>for maximum packet length, this value is defined in kernel header and
+>used to control deferred credit update. And as this is not available to
+>userspace, I can't control test parameters correctly (if one day this
+>define will be changed - test may become useless).
+>
+>Head for this patchset is:
+>https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next.git/commit/?id=9bab51bd662be4c3ebb18a28879981d69f3ef15a
+>
+>Link to v1:
+>https://lore.kernel.org/netdev/20231108072004.1045669-1-avkrasnov@salutedevices.com/
+>Link to v2:
+>https://lore.kernel.org/netdev/20231119204922.2251912-1-avkrasnov@salutedevices.com/
+>Link to v3:
+>https://lore.kernel.org/netdev/20231122180510.2297075-1-avkrasnov@salutedevices.com/
+>Link to v4:
+>https://lore.kernel.org/netdev/20231129212519.2938875-1-avkrasnov@salutedevices.com/
+>Link to v5:
+>https://lore.kernel.org/netdev/20231130130840.253733-1-avkrasnov@salutedevices.com/
+>Link to v6:
+>https://lore.kernel.org/netdev/20231205064806.2851305-1-avkrasnov@salutedevices.com/
+>Link to v7:
+>https://lore.kernel.org/netdev/20231206211849.2707151-1-avkrasnov@salutedevices.com/
+>Link to v8:
+>https://lore.kernel.org/netdev/20231211211658.2904268-1-avkrasnov@salutedevices.com/
+>
+>Changelog:
+>v1 -> v2:
+> * Patchset rebased and tested on new HEAD of net-next (see hash above).
+> * New patch is added as 0001 - it removes return from SO_RCVLOWAT set
+>   callback in 'af_vsock.c' when transport callback is set - with that
+>   we can set 'sk_rcvlowat' only once in 'af_vsock.c' and in future do
+>   not copy-paste it to every transport. It was discussed in v1.
+> * See per-patch changelog after ---.
+>v2 -> v3:
+> * See changelog after --- in 0003 only (0001 and 0002 still same).
+>v3 -> v4:
+> * Patchset rebased and tested on new HEAD of net-next (see hash above).
+> * See per-patch changelog after ---.
+>v4 -> v5:
+> * Change patchset tag 'RFC' -> 'net-next'.
+> * See per-patch changelog after ---.
+>v5 -> v6:
+> * New patch 0003 which sends credit update during reading bytes from
+>   socket.
+> * See per-patch changelog after ---.
+>v6 -> v7:
+> * Patchset rebased and tested on new HEAD of net-next (see hash above).
+> * See per-patch changelog after ---.
+>v7 -> v8:
+> * See per-patch changelog after ---.
+>v8 -> v9:
+> * Patchset rebased and tested on new HEAD of net-next (see hash above).
+> * Add 'Fixes' tag for the current 0002.
+> * Reorder patches by moving two fixes first.
+>
+>Arseniy Krasnov (4):
+>  virtio/vsock: fix logic which reduces credit update messages
+>  virtio/vsock: send credit update during setting SO_RCVLOWAT
+>  vsock: update SO_RCVLOWAT setting callback
+>  vsock/test: two tests to check credit update logic
 
-Am I correct with my assumption that this will make s2idle work with virtio-mem-pci as well?
+This order will break the bisectability, since now patch 2 will not
+build if patch 3 is not applied.
 
-Right now, all suspending is disabled, but really only s4/hibernate is problematic.
+So you need to implement in patch 2 `set_rcvlowat` and in patch 3
+updated it to `notify_set_rcvlowat`, otherwise we always need to
+backport patch 3 in stable branches, that should be applied before
+patch 2.
 
-[root@vm-0 ~]# echo "s2idle" > /sys/power/mem_sleep
-[root@vm-0 ~]# echo "mem" > /sys/power/state
-[  101.822991] PM: suspend entry (s2idle)
-[  101.828978] Filesystems sync: 0.004 seconds
-[  101.831618] Freezing user space processes
-[  101.834569] Freezing user space processes completed (elapsed 0.001 seconds)
-[  101.836915] OOM killer disabled.
-[  101.838072] Freezing remaining freezable tasks
-[  101.841054] Freezing remaining freezable tasks completed (elapsed 0.001 seconds)
-[  101.843538] printk: Suspending console(s) (use no_console_suspend to debug)
-[  101.957676] virtio_mem virtio0: save/restore not supported.
-[  101.957683] virtio-pci 0000:00:02.0: PM: pci_pm_suspend(): virtio_pci_freeze+0x0/0x50 returns -1
-[  101.957702] virtio-pci 0000:00:02.0: PM: dpm_run_callback(): pci_pm_suspend+0x0/0x170 returns -1
-[  101.957718] virtio-pci 0000:00:02.0: PM: failed to suspend async: error -1
+You have 2 options:
+a. move patch 3 before patch 2 without changing the code
+b. change patch 2 to use `set_rcvlowat` and updated that code in patch 3
 
+I don't have a strong opinion, but I slightly prefer option a. BTW that
+forces us to backport more patches on stable branches, so I'm fine with
+option b as well.
 
--- 
-Cheers,
-
-David / dhildenb
+That said:
+Nacked-by: Stefano Garzarella <sgarzare@redhat.com>
 
