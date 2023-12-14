@@ -1,75 +1,73 @@
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2A5D2EB09
-	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 09:37:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB2712EB1C
+	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 09:47:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="gpfguuDm"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OfKdIUbs"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 375E0436DF
-	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 09:37:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 375E0436DF
+	by smtp2.osuosl.org (Postfix) with ESMTP id 4EF6F405B1
+	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 09:47:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4EF6F405B1
 Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=gpfguuDm
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=OfKdIUbs
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.103
+X-Spam-Score: -2.099
 X-Spam-Level:
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id dWsj_rPzoqNp
+	with ESMTP id nuArBvJw8J17
 	for <virtualization@lists.linux-foundation.org>;
-	Thu, 14 Dec 2023 09:37:37 +0000 (UTC)
-Received: from NAM04-BN8-obe.outbound.protection.outlook.com (mail-bn8nam04on20617.outbound.protection.outlook.com [IPv6:2a01:111:f400:7e8d::617])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 202E9405B1
-	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 09:37:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 202E9405B1
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=UaOjyynDrF/TOtBCDBbf9p+fXFxSmmWZOjsqfrVdr5lS0ZSGaGz0xJD6kncvkxqTbqTYeJczI2mz7/6/gmk5UaF5viA6qVKxGrxt3K3oMG0hV6V+qc1oy85eYnO7Kz0kE7Z8l4QNrRBu4hurjE2hj62Acu94n/6q8DT8HR91PqzYKQ8fxudl0x9YhwIf22L1ozexvJQgodcZC7WPOuf1yBk/UvxwTLMEhCIN7QEy9F5jXEbKRs88NktpkQx8S1jmg756pgkMFZvaEJU432z8skDKug5hi5mgdMKtm57bAMilRkJytW+mv3UFPyU1t0b0hBe0CpT8iDkz+dSoh63T7w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=4lv/ykUTyxXpCjdXygp5Y113WtyjEX+Ewo2/qTom714=;
- b=GOBA44dHngEJqtwBPDZWbNcYtRFMLgmGHo4PVeq8nZyGJps81GnDXchFMD0htgqjHf9f4NUmnB8HE1pu0MG94YcisSsJr3YN46TDZLZ3RfQFFW9Zrwp5N83PI1yZjDvASopUmZXYAms6HvyqcbCmKn8wQbPC7JKhwhn5ASNmjDSAB4gsGdtpylacwKML3UWjqsYIPPE5lIQ3AgaUs9vPCtPd7EL/bGZYm1ROIUB4UAvDJbjI1bokokDaIXkL36kw5opAqi0BMdFBq2ZoUWW4Xwpn7/p8A72SxNBl9liuGFhLKolatecVN1dMWDqlgWuhSR7eXYD+1pFzipATGf65Hg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.160) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=4lv/ykUTyxXpCjdXygp5Y113WtyjEX+Ewo2/qTom714=;
- b=gpfguuDmSnegZDUCo7Nlio5q1CcaGIpFmDCjbIZCDDl7lm369gKZbCaT207eHTWdjHP35tDROFIZjTgqyHn9Snevk27kWqhQ+vnWU30/jGn5bPQ13PO60pa+SHKPYBeVtb+1cPI2DFFRrM/hLQTs/dyfG43a9n6x6IkJL4GGUh9pSoeWKJH76oDXtoeJOkVdiTE1xNTW58NgkI/MZ11canwgfyVKTO0T2FB8uBBr6RcFZQxWMsVnGkwwowOEy/U6kj/jzPdoO3txH6mz8D6VsvHk/guIuUDiQRgXB1hKYP6gjKtbMJ6oK+uhnEvwWQdpqUuWscUQ6o0IkW2TI4+26A==
-Received: from MN2PR15CA0011.namprd15.prod.outlook.com (2603:10b6:208:1b4::24)
- by DS0PR12MB8576.namprd12.prod.outlook.com (2603:10b6:8:165::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7091.28; Thu, 14 Dec
- 2023 09:37:33 +0000
-Received: from BL6PEPF0001AB59.namprd02.prod.outlook.com
- (2603:10b6:208:1b4:cafe::c6) by MN2PR15CA0011.outlook.office365.com
- (2603:10b6:208:1b4::24) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7091.26 via Frontend
- Transport; Thu, 14 Dec 2023 09:37:33 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.160) by
- BL6PEPF0001AB59.mail.protection.outlook.com (10.167.241.11) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.7091.26 via Frontend Transport; Thu, 14 Dec 2023 09:37:33 +0000
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
- (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Thu, 14 Dec
- 2023 01:37:17 -0800
-Received: from [172.27.58.65] (10.126.230.35) by rnnvmail201.nvidia.com
- (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Thu, 14 Dec
- 2023 01:37:12 -0800
-Message-ID: <37bcb2f0-a83d-4806-809c-ec5d004ddb20@nvidia.com>
-Date: Thu, 14 Dec 2023 11:37:10 +0200
+	Thu, 14 Dec 2023 09:47:56 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 09CAC402D4
+	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 09:47:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 09CAC402D4
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1702547274;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=5PF84afDWkdufDlSaavaOE20R3k7202dyNd13pNjgKM=;
+	b=OfKdIUbsAb5Lj/MLLCeJm7KO7W6wCvPBoJ6L4JARjqI1rpLBy8W4eaGkGWxsmhUyypMrVj
+	BQsuW+rMuqFS5vlO0ror+k3SB2UGxdGoypE/CtrrCnCCkHGG/XNmLOcCO8bGXUrJk9s3I4
+	D6xXfUt34xS4d6FXKegT438FYddXq2o=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-680-iDUNgTgKOI-t_A5ZEmsgDQ-1; Thu, 14 Dec 2023 04:47:52 -0500
+X-MC-Unique: iDUNgTgKOI-t_A5ZEmsgDQ-1
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-40c348e529fso46585185e9.2
+        for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 01:47:52 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1702547271; x=1703152071;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
+         :references:cc:to:content-language:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=5PF84afDWkdufDlSaavaOE20R3k7202dyNd13pNjgKM=;
+        b=wZCHz6CUofRZY0JasQyHZml3bCBNwwqpDtF1d5OPb0gEAr7J4+qY5NctIEoi3VWrkU
+         JJEMdksT8IkI1Ngl6dRTgN6BNLVo4fDR4uSokACnwVAku/x3o7KbVxE9uDFgJZ4/t8Mj
+         l0fZXav5hhvR2KD+tCNxgFj81+fbT5OdjBkzFHiQdKBcbUok4tLykS504BEppcJHi/CH
+         EgPmjlD+NiwoH8nsWYJCm7jwG7nSqGqNOhrbvM/JFR9t/x7S3XHxQOdHP5CeWjDSSFbF
+         K5zGYYOUdWCne7FzepuSl4mI8qTLIF38Vykag8E//05496wfdM8KQ0IoWPIW0ppcD+11
+         64Jg==
+X-Gm-Message-State: AOJu0YwY/D5aHXw+AXXYr7Gey0FHmuRYtcnWl8iqdJv0ObYbbGWlR0D0
+	ij+0TuRCDv1ufqnd3B5yGouyAv9j9E8tlkKCxhKT6PXbL3RjW9mPNHDeJlv9c5JDCB/kyYmMHrh
+	LwfXWp7o2T5sdJVxi1AF+V6gCl/sTubq47DQ1R0tApA==
+X-Received: by 2002:a05:600c:181b:b0:40c:3dce:b02c with SMTP id n27-20020a05600c181b00b0040c3dceb02cmr4246372wmp.156.1702547271567;
+        Thu, 14 Dec 2023 01:47:51 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFHwHS3zkCqHcdbEXN95kRzMkgUvUEeVAvgoRWWCHE4s54G90NsvwmBMAxA0az5XLrHhfg94g==
+X-Received: by 2002:a05:600c:181b:b0:40c:3dce:b02c with SMTP id n27-20020a05600c181b00b0040c3dceb02cmr4246363wmp.156.1702547271166;
+        Thu, 14 Dec 2023 01:47:51 -0800 (PST)
+Received: from ?IPV6:2a09:80c0:192:0:5dac:bf3d:c41:c3e7? ([2a09:80c0:192:0:5dac:bf3d:c41:c3e7])
+        by smtp.gmail.com with ESMTPSA id g20-20020a05600c4ed400b0040c31bb66dcsm23628094wmq.20.2023.12.14.01.47.50
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 14 Dec 2023 01:47:50 -0800 (PST)
+Message-ID: <9fb51bfc-576a-4c7b-92c2-c161e7f08ae7@redhat.com>
+Date: Thu, 14 Dec 2023 10:47:50 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -77,255 +75,148 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH V7 vfio 9/9] vfio/virtio: Introduce a vfio driver over
- virtio devices
+Subject: Re: [PATCH v2] virtio: Add support for no-reset virtio PCI PM
+To: David Stevens <stevensd@chromium.org>,
+ "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+References: <20231208070754.3132339-1-stevensd@chromium.org>
+From: David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <20231208070754.3132339-1-stevensd@chromium.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Language: en-US
-To: "Michael S. Tsirkin" <mst@redhat.com>
-CC: <alex.williamson@redhat.com>, <jasowang@redhat.com>, <jgg@nvidia.com>,
-	<kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
-	<parav@nvidia.com>, <feliu@nvidia.com>, <jiri@nvidia.com>,
-	<kevin.tian@intel.com>, <joao.m.martins@oracle.com>, <si-wei.liu@oracle.com>,
-	<leonro@nvidia.com>, <maorg@nvidia.com>
-References: <20231207102820.74820-1-yishaih@nvidia.com>
- <20231207102820.74820-10-yishaih@nvidia.com>
- <20231214013642-mutt-send-email-mst@kernel.org>
- <ea0cdfc9-35f4-4cc1-b0de-aaef0bebeb51@nvidia.com>
- <20231214041515-mutt-send-email-mst@kernel.org>
-From: Yishai Hadas <yishaih@nvidia.com>
-In-Reply-To: <20231214041515-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: rnnvmail202.nvidia.com (10.129.68.7) To
- rnnvmail201.nvidia.com (10.129.68.8)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BL6PEPF0001AB59:EE_|DS0PR12MB8576:EE_
-X-MS-Office365-Filtering-Correlation-Id: f11806a4-0dab-46f5-1475-08dbfc884cac
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info:
-	2jZ8Zd3W1sEB+EcBxt4cPcu9ypV/eqVlwpcNQrVrQzRPj5W4KOlhEzoZmw5Hf254AIKPwP+efpA/HwDDeTlPJbFxQDJ5AdLGbYAD6wptZQnCD1rxqAV5yGvnspziIOKP2IBa04Z+Vkh+KJSTk74BnlIpERtyUpPTU9BRvWaFhALXyVWFYeOIOSFcg5xdZQr3wF5X3iuBt1mFT7Is/iGO8tfDjbmcJ6uh1+i7P2af+Jy7kfizK8WTBzQagNmAQSG8RQeRkHMsT8aoCeL3r63ZWF0iCmH71K7PJyL5k+4nsRttRNTfheyQo7ygsPz6KdAeROX2mhjfifHTbPZPvzMxkJyE2bVV4MXChZfuKS2Y95bAQYiV2pvrGoLcrESqtE+BlZ1WyN6TZ5E5fAAFroFHn4D8gHIUabDBS1SBjV4YgPTun+Xl29w0Qf+53BiSjPxglLaWa3DbcZcOximvyS8hVDyq+/p9WnwfZ6wrAY/GE2zPdmK2sQ1/R7pnzNpVMByLPMxP7x36RuEiGU5exmcBoHwfhpcRbtPGyB0zyIYlUeuRCPQCDbIjJXzqEufUZyIqwZSozIoKZmdHWtcLD8UHJCV7+FCfsM0+4HGvgGBSxcVV2YCP27m9YnXHFt4W8IvJ1uM9U0tpt6kmkvRmTFM37+TPDbDs8ihx85MUa4PU7g0yahblz9Yro3tVB0cnXW91AZ2IT1Hx7Up6f06O27P6CL8ldnWFdwnt9LeYVsnL6heL+SdoYsIbiKWoiVn2tNJNKYoTGQQF/8C3AFzxSf0BcHbmJ3CK7YjqAH3h/Vz68bT7viQJCniq1Zmvb0V73QkR
-X-Forefront-Antispam-Report:
-	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230031)(4636009)(39860400002)(346002)(396003)(376002)(136003)(230922051799003)(186009)(64100799003)(451199024)(1800799012)(82310400011)(46966006)(40470700004)(36840700001)(82740400003)(7636003)(356005)(40460700003)(2906002)(36756003)(41300700001)(31696002)(86362001)(31686004)(2616005)(4326008)(8676002)(8936002)(966005)(478600001)(40480700001)(336012)(426003)(83380400001)(54906003)(70206006)(70586007)(316002)(6916009)(16576012)(36860700001)(5660300002)(53546011)(16526019)(107886003)(47076005)(26005)(43740500002);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Dec 2023 09:37:33.3123
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: f11806a4-0dab-46f5-1475-08dbfc884cac
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	BL6PEPF0001AB59.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB8576
 
-On 14/12/2023 11:19, Michael S. Tsirkin wrote:
-> On Thu, Dec 14, 2023 at 11:03:49AM +0200, Yishai Hadas wrote:
->> On 14/12/2023 8:38, Michael S. Tsirkin wrote:
->>> On Thu, Dec 07, 2023 at 12:28:20PM +0200, Yishai Hadas wrote:
->>>> Introduce a vfio driver over virtio devices to support the legacy
->>>> interface functionality for VFs.
->>>>
->>>> Background, from the virtio spec [1].
->>>> --------------------------------------------------------------------
->>>> In some systems, there is a need to support a virtio legacy driver with
->>>> a device that does not directly support the legacy interface. In such
->>>> scenarios, a group owner device can provide the legacy interface
->>>> functionality for the group member devices. The driver of the owner
->>>> device can then access the legacy interface of a member device on behalf
->>>> of the legacy member device driver.
->>>>
->>>> For example, with the SR-IOV group type, group members (VFs) can not
->>>> present the legacy interface in an I/O BAR in BAR0 as expected by the
->>>> legacy pci driver. If the legacy driver is running inside a virtual
->>>> machine, the hypervisor executing the virtual machine can present a
->>>> virtual device with an I/O BAR in BAR0. The hypervisor intercepts the
->>>> legacy driver accesses to this I/O BAR and forwards them to the group
->>>> owner device (PF) using group administration commands.
->>>> --------------------------------------------------------------------
->>>>
->>>> Specifically, this driver adds support for a virtio-net VF to be exposed
->>>> as a transitional device to a guest driver and allows the legacy IO BAR
->>>> functionality on top.
->>>>
->>>> This allows a VM which uses a legacy virtio-net driver in the guest to
->>>> work transparently over a VF which its driver in the host is that new
->>>> driver.
->>>>
->>>> The driver can be extended easily to support some other types of virtio
->>>> devices (e.g virtio-blk), by adding in a few places the specific type
->>>> properties as was done for virtio-net.
->>>>
->>>> For now, only the virtio-net use case was tested and as such we introduce
->>>> the support only for such a device.
->>>>
->>>> Practically,
->>>> Upon probing a VF for a virtio-net device, in case its PF supports
->>>> legacy access over the virtio admin commands and the VF doesn't have BAR
->>>> 0, we set some specific 'vfio_device_ops' to be able to simulate in SW a
->>>> transitional device with I/O BAR in BAR 0.
->>>>
->>>> The existence of the simulated I/O bar is reported later on by
->>>> overwriting the VFIO_DEVICE_GET_REGION_INFO command and the device
->>>> exposes itself as a transitional device by overwriting some properties
->>>> upon reading its config space.
->>>>
->>>> Once we report the existence of I/O BAR as BAR 0 a legacy driver in the
->>>> guest may use it via read/write calls according to the virtio
->>>> specification.
->>>>
->>>> Any read/write towards the control parts of the BAR will be captured by
->>>> the new driver and will be translated into admin commands towards the
->>>> device.
->>>>
->>>> Any data path read/write access (i.e. virtio driver notifications) will
->>>> be forwarded to the physical BAR which its properties were supplied by
->>>> the admin command VIRTIO_ADMIN_CMD_LEGACY_NOTIFY_INFO upon the
->>>> probing/init flow.
->>>>
->>>> With that code in place a legacy driver in the guest has the look and
->>>> feel as if having a transitional device with legacy support for both its
->>>> control and data path flows.
->>>>
->>>> [1]
->>>> https://github.com/oasis-tcs/virtio-spec/commit/03c2d32e5093ca9f2a17797242fbef88efe94b8c
->>>>
->>>> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
->>>> Signed-off-by: Yishai Hadas <yishaih@nvidia.com>
->>>> ---
->>>>    MAINTAINERS                      |   7 +
->>>>    drivers/vfio/pci/Kconfig         |   2 +
->>>>    drivers/vfio/pci/Makefile        |   2 +
->>>>    drivers/vfio/pci/virtio/Kconfig  |  16 +
->>>>    drivers/vfio/pci/virtio/Makefile |   4 +
->>>>    drivers/vfio/pci/virtio/main.c   | 567 +++++++++++++++++++++++++++++++
->>>>    6 files changed, 598 insertions(+)
->>>>    create mode 100644 drivers/vfio/pci/virtio/Kconfig
->>>>    create mode 100644 drivers/vfio/pci/virtio/Makefile
->>>>    create mode 100644 drivers/vfio/pci/virtio/main.c
->>>>
->>>> diff --git a/MAINTAINERS b/MAINTAINERS
->>>> index 012df8ccf34e..b246b769092d 100644
->>>> --- a/MAINTAINERS
->>>> +++ b/MAINTAINERS
->>>> @@ -22872,6 +22872,13 @@ L:	kvm@vger.kernel.org
->>>>    S:	Maintained
->>>>    F:	drivers/vfio/pci/mlx5/
->>>> +VFIO VIRTIO PCI DRIVER
->>>> +M:	Yishai Hadas <yishaih@nvidia.com>
->>>> +L:	kvm@vger.kernel.org
->>>> +L:	virtualization@lists.linux-foundation.org
->>>> +S:	Maintained
->>>> +F:	drivers/vfio/pci/virtio
->>>> +
->>>>    VFIO PCI DEVICE SPECIFIC DRIVERS
->>>>    R:	Jason Gunthorpe <jgg@nvidia.com>
->>>>    R:	Yishai Hadas <yishaih@nvidia.com>
->>>> diff --git a/drivers/vfio/pci/Kconfig b/drivers/vfio/pci/Kconfig
->>>> index 8125e5f37832..18c397df566d 100644
->>>> --- a/drivers/vfio/pci/Kconfig
->>>> +++ b/drivers/vfio/pci/Kconfig
->>>> @@ -65,4 +65,6 @@ source "drivers/vfio/pci/hisilicon/Kconfig"
->>>>    source "drivers/vfio/pci/pds/Kconfig"
->>>> +source "drivers/vfio/pci/virtio/Kconfig"
->>>> +
->>>>    endmenu
->>>> diff --git a/drivers/vfio/pci/Makefile b/drivers/vfio/pci/Makefile
->>>> index 45167be462d8..046139a4eca5 100644
->>>> --- a/drivers/vfio/pci/Makefile
->>>> +++ b/drivers/vfio/pci/Makefile
->>>> @@ -13,3 +13,5 @@ obj-$(CONFIG_MLX5_VFIO_PCI)           += mlx5/
->>>>    obj-$(CONFIG_HISI_ACC_VFIO_PCI) += hisilicon/
->>>>    obj-$(CONFIG_PDS_VFIO_PCI) += pds/
->>>> +
->>>> +obj-$(CONFIG_VIRTIO_VFIO_PCI) += virtio/
->>>> diff --git a/drivers/vfio/pci/virtio/Kconfig b/drivers/vfio/pci/virtio/Kconfig
->>>> new file mode 100644
->>>> index 000000000000..3a6707639220
->>>> --- /dev/null
->>>> +++ b/drivers/vfio/pci/virtio/Kconfig
->>>> @@ -0,0 +1,16 @@
->>>> +# SPDX-License-Identifier: GPL-2.0-only
->>>> +config VIRTIO_VFIO_PCI
->>>> +        tristate "VFIO support for VIRTIO NET PCI devices"
->>>> +        depends on VIRTIO_PCI
->>>> +        select VFIO_PCI_CORE
->>>> +        help
->>>> +          This provides support for exposing VIRTIO NET VF devices which support
->>>> +          legacy IO access, using the VFIO framework that can work with a legacy
->>>> +          virtio driver in the guest.
->>>> +          Based on PCIe spec, VFs do not support I/O Space; thus, VF BARs shall
->>>> +          not indicate I/O Space.
->>>> +          As of that this driver emulated I/O BAR in software to let a VF be
->>>> +          seen as a transitional device in the guest and let it work with
->>>> +          a legacy driver.
->>>> +
->>>> +          If you don't know what to do here, say N.
->>>
->>> BTW shouldn't this driver be limited to X86? Things like lack of memory
->>> barriers will make legacy virtio racy on e.g. ARM will they not?
->>> And endian-ness will be broken on PPC ...
->>>
->>
->> OK, if so, we can come with the below extra code.
->> Makes sense ?
->>
->> I'll squash it as part of V8 to the relevant patch.
->>
->> diff --git a/drivers/virtio/virtio_pci_modern.c
->> b/drivers/virtio/virtio_pci_modern.c
->> index 37a0035f8381..b652e91b9df4 100644
->> --- a/drivers/virtio/virtio_pci_modern.c
->> +++ b/drivers/virtio/virtio_pci_modern.c
->> @@ -794,6 +794,9 @@ bool virtio_pci_admin_has_legacy_io(struct pci_dev
->> *pdev)
->>          struct virtio_device *virtio_dev = virtio_pci_vf_get_pf_dev(pdev);
->>          struct virtio_pci_device *vp_dev;
->>
->> +#ifndef CONFIG_X86
->> +       return false;
->> +#endif
->>          if (!virtio_dev)
->>                  return false;
->>
->> Yishai
+On 08.12.23 08:07, David Stevens wrote:
+> If a virtio_pci_device supports native PCI power management and has the
+> No_Soft_Reset bit set, then skip resetting and reinitializing the device
+> when suspending and restoring the device. This allows system-wide low
+> power states like s2idle to be used in systems with stateful virtio
+> devices that can't simply be re-initialized (e.g. virtio-fs).
 > 
-> Isn't there going to be a bunch more dead code that compiler won't be
-> able to elide?
+> Signed-off-by: David Stevens <stevensd@chromium.org>
+> ---
+> v1 -> v2:
+>   - Check the No_Soft_Reset bit
 > 
+>   drivers/virtio/virtio_pci_common.c | 34 +++++++++++++++++++++++++++++-
+>   1 file changed, 33 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+> index c2524a7207cf..3a95ecaf12dc 100644
+> --- a/drivers/virtio/virtio_pci_common.c
+> +++ b/drivers/virtio/virtio_pci_common.c
+> @@ -492,8 +492,40 @@ static int virtio_pci_restore(struct device *dev)
+>   	return virtio_device_restore(&vp_dev->vdev);
+>   }
+>   
+> +static bool vp_supports_pm_no_reset(struct device *dev)
+> +{
+> +	struct pci_dev *pci_dev = to_pci_dev(dev);
+> +	u16 pmcsr;
+> +
+> +	if (!pci_dev->pm_cap)
+> +		return false;
+> +
+> +	pci_read_config_word(pci_dev, pci_dev->pm_cap + PCI_PM_CTRL, &pmcsr);
+> +	if (PCI_POSSIBLE_ERROR(pmcsr)) {
+> +		dev_err(dev, "Unable to query pmcsr");
+> +		return false;
+> +	}
+> +
+> +	return pmcsr & PCI_PM_CTRL_NO_SOFT_RESET;
+> +}
+> +
+> +static int virtio_pci_suspend(struct device *dev)
+> +{
+> +	return vp_supports_pm_no_reset(dev) ? 0 : virtio_pci_freeze(dev);
+> +}
+> +
+> +static int virtio_pci_resume(struct device *dev)
+> +{
+> +	return vp_supports_pm_no_reset(dev) ? 0 : virtio_pci_restore(dev);
+> +}
+> +
+>   static const struct dev_pm_ops virtio_pci_pm_ops = {
+> -	SET_SYSTEM_SLEEP_PM_OPS(virtio_pci_freeze, virtio_pci_restore)
+> +	.suspend = virtio_pci_suspend,
+> +	.resume = virtio_pci_resume,
+> +	.freeze = virtio_pci_freeze,
+> +	.thaw = virtio_pci_restore,
+> +	.poweroff = virtio_pci_freeze,
+> +	.restore = virtio_pci_restore,
+>   };
+>   #endif
+>   
 
-On my setup the compiler didn't complain about dead-code (I simulated it 
-by using ifdef CONFIG_X86 return false).
+Am I correct with my assumption that this will make s2idle work with virtio-mem-pci as well?
 
-However, if we suspect that some compiler might complain, we can come 
-with the below instead.
+Right now, all suspending is disabled, but really only s4/hibernate is problematic.
 
-Do you prefer that ?
+[root@vm-0 ~]# echo "s2idle" > /sys/power/mem_sleep
+[root@vm-0 ~]# echo "mem" > /sys/power/state
+[  101.822991] PM: suspend entry (s2idle)
+[  101.828978] Filesystems sync: 0.004 seconds
+[  101.831618] Freezing user space processes
+[  101.834569] Freezing user space processes completed (elapsed 0.001 seconds)
+[  101.836915] OOM killer disabled.
+[  101.838072] Freezing remaining freezable tasks
+[  101.841054] Freezing remaining freezable tasks completed (elapsed 0.001 seconds)
+[  101.843538] printk: Suspending console(s) (use no_console_suspend to debug)
+[  101.957676] virtio_mem virtio0: save/restore not supported.
+[  101.957683] virtio-pci 0000:00:02.0: PM: pci_pm_suspend(): virtio_pci_freeze+0x0/0x50 returns -1
+[  101.957702] virtio-pci 0000:00:02.0: PM: dpm_run_callback(): pci_pm_suspend+0x0/0x170 returns -1
+[  101.957718] virtio-pci 0000:00:02.0: PM: failed to suspend async: error -1
 
-index 37a0035f8381..53e29824d404 100644
---- a/drivers/virtio/virtio_pci_modern.c
-+++ b/drivers/virtio/virtio_pci_modern.c
-@@ -782,6 +782,7 @@ static void vp_modern_destroy_avq(struct 
-virtio_device *vdev)
-          BIT_ULL(VIRTIO_ADMIN_CMD_LEGACY_DEV_CFG_READ) | \
-          BIT_ULL(VIRTIO_ADMIN_CMD_LEGACY_NOTIFY_INFO))
 
-+#ifdef CONFIG_X86
-  /*
-   * virtio_pci_admin_has_legacy_io - Checks whether the legacy IO
-   * commands are supported
-@@ -807,6 +808,12 @@ bool virtio_pci_admin_has_legacy_io(struct pci_dev 
-*pdev)
-                 return true;
-         return false;
-  }
-+#else
-+bool virtio_pci_admin_has_legacy_io(struct pci_dev *pdev)
-+{
-+       return false;
-+}
-+#endif
-  EXPORT_SYMBOL_GPL(virtio_pci_admin_has_legacy_io);
+-- 
+Cheers,
 
-Yishai
+David / dhildenb
+
