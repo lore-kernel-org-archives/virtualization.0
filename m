@@ -1,337 +1,242 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D41B8C07
-	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 06:09:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F8A0D274
+	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 06:38:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="hm+13mE2"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="D8rvy7Vt"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id E1BBE829B6
-	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 06:09:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E1BBE829B6
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=hm+13mE2
+	by smtp2.osuosl.org (Postfix) with ESMTP id A443040540
+	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 06:38:59 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A443040540
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=D8rvy7Vt
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -4.401
+X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id BoSEU_we6RwC
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id WFzrvFn-Vz4V
 	for <virtualization@lists.linux-foundation.org>;
-	Thu, 14 Dec 2023 06:08:59 +0000 (UTC)
-Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.151])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 34FCC82531
-	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 06:08:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 34FCC82531
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1702534139; x=1734070139;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=7suAOmY3HMhyuZ7sdoLSrFYxKrQIjnIsBLgaXZvLbrQ=;
-  b=hm+13mE2meIQrKrpGWCt3XNzhSjbSsNejNvthCrR0x5ZxwwOP/bsuKAS
-   acZrGMZVicPzRXvrUB0k4+x9tx+waA7btlAgvDoejN46m13x9RijJ01RY
-   oBymzPJFgI8lWzr9eWZO37um0MuqAmycynmgsuE7df47OzdgRLivUxn4s
-   P3AXB5BE2wg84bUvtgIVJsrcrFfzJZe8WxX5pTlXCA3/SJbDw/Wj0lCkZ
-   8lluHJcWH27+CV4ziiU570sYKmZyGPGqv5NEO7pewy7H7Fl29X/aa4d3L
-   mAGYwAkneGjfXD/gJ+a0aYeJY+HzB0P4tnqZBwajkr7s3VZd3MsSk4cFi
-   g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10923"; a="375228832"
-X-IronPort-AV: E=Sophos;i="6.04,274,1695711600"; 
-   d="scan'208";a="375228832"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Dec 2023 22:08:58 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10923"; a="808457940"
-X-IronPort-AV: E=Sophos;i="6.04,274,1695711600"; 
-   d="scan'208";a="808457940"
-Received: from fmsmsx601.amr.corp.intel.com ([10.18.126.81])
-  by orsmga001.jf.intel.com with ESMTP/TLS/AES256-GCM-SHA384; 13 Dec 2023 22:08:57 -0800
-Received: from fmsmsx612.amr.corp.intel.com (10.18.126.92) by
- fmsmsx601.amr.corp.intel.com (10.18.126.81) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.35; Wed, 13 Dec 2023 22:08:55 -0800
-Received: from fmsmsx603.amr.corp.intel.com (10.18.126.83) by
- fmsmsx612.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.35; Wed, 13 Dec 2023 22:08:48 -0800
-Received: from fmsedg601.ED.cps.intel.com (10.1.192.135) by
- fmsmsx603.amr.corp.intel.com (10.18.126.83) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.35 via Frontend Transport; Wed, 13 Dec 2023 22:08:48 -0800
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com (104.47.70.100)
- by edgegateway.intel.com (192.55.55.70) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.35; Wed, 13 Dec 2023 22:07:57 -0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=h8Tn5E1CjxvetxDqUW/RTM7vyYoTH78iG0Pe4ELaMzLYL81oD/0d7lE7CGFDDDlCzhxAoWdHuTJsHoFy+favuWWGrPzMsRxMuKbnmu6Lsgl58+krp+vXLsZqVc7eHeHF5p/3p44yJLjnMFakfR1IO9V+Ak4GB9hYdljaz7GYDABnEk5ML1Tq3UREUukHBolbmyJcaZ3zJueq6LT+K+FuPAXzDJisGbzhZtyzgVmZ6aLpgizmjKeRELRPRlJoj+R/yOvVbz6mi6jIP+/hKER9yziM+aI//ru/SfnsRIZCNM6epjlQddiv17HKCNeBuv/xOs8ASHq5B37zCxgEmhJkWg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=7suAOmY3HMhyuZ7sdoLSrFYxKrQIjnIsBLgaXZvLbrQ=;
- b=R6LXjpGOSLEBV7V6L8JsNcZeKN42qwNpfkFoKIby3uaaLLYDI7zWMO7GOmNXDDXpYeyoWWHUz5pArVDQrr4DYgmAd5x+PAaTOWIkYfjKX910P5IWYRNQFFwigQahddGIOAehowCBATUUAjB5AWROziLZSVKckdb/XDjl4EvTztxeVgs8GPNCd7lbMjaGat+sH2+MlD7tmtuEABGQs44ROvOPbhTZYpFa4e1FzJQsb6jIW5UE3wVD3zp15xxr4oi2IpbvYLlTMtjV9PHQdbWzOJwOIcPIbfI33lp6wjtlAe9eS+ZydsNj2eJ6qTQWg7TxPNceR2M96A9A5m7zCp+huw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
- by DM4PR11MB5970.namprd11.prod.outlook.com (2603:10b6:8:5d::6) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.7068.38; Thu, 14 Dec 2023 06:07:55 +0000
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::e7a4:a757:2f2e:f96a]) by BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::e7a4:a757:2f2e:f96a%3]) with mapi id 15.20.7091.028; Thu, 14 Dec 2023
- 06:07:55 +0000
-From: "Tian, Kevin" <kevin.tian@intel.com>
-To: Yishai Hadas <yishaih@nvidia.com>, "alex.williamson@redhat.com"
-	<alex.williamson@redhat.com>, "jgg@nvidia.com" <jgg@nvidia.com>,
-	"mst@redhat.com" <mst@redhat.com>
-CC: "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-	"virtualization@lists.linux-foundation.org"
-	<virtualization@lists.linux-foundation.org>, "parav@nvidia.com"
-	<parav@nvidia.com>, "feliu@nvidia.com" <feliu@nvidia.com>, "jiri@nvidia.com"
-	<jiri@nvidia.com>, "joao.m.martins@oracle.com" <joao.m.martins@oracle.com>,
-	"si-wei.liu@oracle.com" <si-wei.liu@oracle.com>, "leonro@nvidia.com"
-	<leonro@nvidia.com>, "maorg@nvidia.com" <maorg@nvidia.com>,
-	"jasowang@redhat.com" <jasowang@redhat.com>
-Subject: RE: [PATCH V7 vfio 9/9] vfio/virtio: Introduce a vfio driver over
+	Thu, 14 Dec 2023 06:38:58 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id DE9E44047D
+	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 06:38:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DE9E44047D
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1702535936;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=CStFjsje2guvaYKG3OMp/CQkO/Z19E4xLoQuKFDnmtM=;
+	b=D8rvy7VtGTUbeuHrBPR8lMvhToaMJAZmpzkKcDaDwdT20o24z6y19U0RXgpNDd+ZXbmfsO
+	cKCwefktY3+wyPgYkQYH6cXQcBX1tmF75bYmMkg93uC53RrhBlMzSfafN5jH8ZXK59tXxX
+	VoKdb4rdcdR5TvaOIOTEXBNJtCbpYVg=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-668-OzneMgxxP8qSqNogdBKCHg-1; Thu, 14 Dec 2023 01:38:54 -0500
+X-MC-Unique: OzneMgxxP8qSqNogdBKCHg-1
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-33608afc552so5850993f8f.2
+        for <virtualization@lists.linux-foundation.org>; Wed, 13 Dec 2023 22:38:54 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1702535933; x=1703140733;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=CStFjsje2guvaYKG3OMp/CQkO/Z19E4xLoQuKFDnmtM=;
+        b=IVmHXijvrLShW5Us7AfPvHw1txLlQNjoUy/FLQZH4WrQgNxY1L80wO+csNzltG+2yR
+         9GmVqq8WqZDHN3SPFsA0nqelRgA7jaIVKdbIZf/yipkZtZ2RjDMvX5uqj6/mKi5yVsjI
+         Ba2NIuT591fDvvu1t7HeT+wyoMdRv9xnIg3jwSdEyAA8HHCyDfN84dWMVfDzPHpTx9oj
+         H0dyCC4FpOtOSs2Y3k8oS+aIlkmzcjFfdlAoqvOWxbrkuArrkGPY08j+bmDklG73PUeS
+         0DqnIpsJPon6gC4RLDSJIc77F+lNGuc7D/9eB0eORBhtYPHc8/KEq8KOrBdh1PB/GUvu
+         ICpg==
+X-Gm-Message-State: AOJu0Yw3LcJkLLiPXB0ITWhAMc8hCVd5KHLyoHUDUCBwSwUyNQ1E0Qtx
+	e1TBNjVMRRJ9Yx0SbXNfEcWAgSmnpvmaIc26wVbTEirkDTxrEhfj2QXLAj7+N236uxCKdScSYe9
+	r1V9huF6WfBp0W3KyTXbg5bQe38sC4ZEwP/wn0NErsw==
+X-Received: by 2002:a05:600c:358c:b0:408:37d4:b5ba with SMTP id p12-20020a05600c358c00b0040837d4b5bamr3984314wmq.12.1702535933636;
+        Wed, 13 Dec 2023 22:38:53 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEqpUZZPugAckon48anwdvP475bOlG0WqJqvBm/iyVY7c0+ENzMrUOmafn3ZDwWrobosExGDw==
+X-Received: by 2002:a05:600c:358c:b0:408:37d4:b5ba with SMTP id p12-20020a05600c358c00b0040837d4b5bamr3984304wmq.12.1702535933297;
+        Wed, 13 Dec 2023 22:38:53 -0800 (PST)
+Received: from redhat.com ([2.52.132.243])
+        by smtp.gmail.com with ESMTPSA id vx4-20020a170907a78400b00a0a2553ec99sm8883448ejc.65.2023.12.13.22.38.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 13 Dec 2023 22:38:52 -0800 (PST)
+Date: Thu, 14 Dec 2023 01:38:48 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Yishai Hadas <yishaih@nvidia.com>
+Cc: alex.williamson@redhat.com, jasowang@redhat.com, jgg@nvidia.com,
+	kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+	parav@nvidia.com, feliu@nvidia.com, jiri@nvidia.com,
+	kevin.tian@intel.com, joao.m.martins@oracle.com,
+	si-wei.liu@oracle.com, leonro@nvidia.com, maorg@nvidia.com
+Subject: Re: [PATCH V7 vfio 9/9] vfio/virtio: Introduce a vfio driver over
  virtio devices
-Thread-Topic: [PATCH V7 vfio 9/9] vfio/virtio: Introduce a vfio driver over
- virtio devices
-Thread-Index: AQHaKPhWxx9HXujfsUi0tG4mXIDTXLCm0VsQgABbiACAASSPMA==
-Date: Thu, 14 Dec 2023 06:07:55 +0000
-Message-ID: <BN9PR11MB5276C5E5AF53B2DCCD654DEF8C8CA@BN9PR11MB5276.namprd11.prod.outlook.com>
+Message-ID: <20231214013642-mutt-send-email-mst@kernel.org>
 References: <20231207102820.74820-1-yishaih@nvidia.com>
  <20231207102820.74820-10-yishaih@nvidia.com>
- <BN9PR11MB5276C9276E78C66B0C5DA9088C8DA@BN9PR11MB5276.namprd11.prod.outlook.com>
- <fc4a3133-0233-4843-a4e4-ad86e5b91b3d@nvidia.com>
-In-Reply-To: <fc4a3133-0233-4843-a4e4-ad86e5b91b3d@nvidia.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: BN9PR11MB5276:EE_|DM4PR11MB5970:EE_
-x-ms-office365-filtering-correlation-id: 86de4f51-1326-4dc6-2a5e-08dbfc6b0356
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: EATSq8+uqm+iRCl8h08Aa8NhTcFHWSubrO4X84M8RfrPn0DQ3lshTuXEDKJpj1e8oOiXUDrcQl7hAtH7sn0Ho+f6ZebOIbfhFBtL67ARMVd+tMXw43T284NYh86zk4k/hH17xEsu0Z8xu/wAynvQZlLxfuNCf281W9uLSk67V5Wdv9w43uBFj8j95BG4sFLQx5jBensANuQg0VISOzY9Nvuw1LZcb3DwRn/7KR61u5uTc8FvQlBs5ePrVr7kOANi25do4seZkBd1G7DzOE/mI9GY+houty+DX/4fzekZCwMJvZWq1Xl8b0qZz+Vkjfg0e4aJUO/CiU7tCBcwzFRjYtfn8rsqyk6PQvWp6zU6d6fOqIluS6bUlS3Lhn0F7SwiufhspMjqaq1iXm39VBeI3PCVN5EUxjO1YhYvL/6pjyJoqqOhV7WUWCX52qdhMxIbgKnxmq9r3GOFR3EBon4A4TUbOe0K2lVj0LRD7StHXOM9Ln1RaO8WXon4zJZDC6AF+CqLqjVRO6oNrqP5EPGSxpL/MbLv4SyRK7tFGNbD5lAP510+cwlx1IO78AzbWVrg17EzHiB/XM2+DxLMYjYCsai4m54hzcqw6+e1kdnJSfI=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(39860400002)(136003)(396003)(346002)(366004)(376002)(230922051799003)(1800799012)(186009)(64100799003)(451199024)(966005)(9686003)(71200400001)(4326008)(8676002)(8936002)(83380400001)(478600001)(52536014)(26005)(110136005)(66946007)(76116006)(64756008)(66556008)(66476007)(66446008)(54906003)(316002)(55016003)(5660300002)(6506007)(7696005)(53546011)(7416002)(122000001)(2906002)(82960400001)(41300700001)(86362001)(38100700002)(33656002)(38070700009);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?utf-8?B?c0VJOElyWkN3RTFuZFliOTFQS2VyQXZCdEg2VHk1bklGUjF6RmtrRWVkZmt3?=
- =?utf-8?B?aVZ1TlR0L2gvR0JYODBCZER1dkFsWWpQMkNxRTdoUGtQWVdwV0Fzcy82YWVT?=
- =?utf-8?B?alIycDFVTjZHKzlpRjlUOFR5anNic1ZHd05nSWl4UUh0M0gxQW1TTU1rRWRV?=
- =?utf-8?B?dlRpenkxeHNCYjB5S29DZlNPNmdIclgvN0ljU1psZkpWZGhkcE5VL3ZWQlhi?=
- =?utf-8?B?RE4xdlJ1dElKS3pEN2NaSmpnWmh0cmZlZ3IwUnNmZ1JoYUVMMkNJWkQxdnEx?=
- =?utf-8?B?a2dnUU1ZeHR2Q2gxSENXUHV4UTc0TlZsY0preCtlTzQzNFN1YXp5aHkreXVJ?=
- =?utf-8?B?WDNVWmk2cy9ZY3l4dWo4ZkVkanBHNGZFOW1oYk1jcEw0bktQL3I1VXdTVWZ3?=
- =?utf-8?B?Q0U4aTRMOG9ObngrbDI3aFVZMVRpMXVYaUt6a2Rhc08rTFBNSzRheEtuSERl?=
- =?utf-8?B?VDNyRGFzWVBWZkFGeHZjZjcvd3diUVlpOUxVNWlMWFZzZ1Jkd3d4N0ZFUmVG?=
- =?utf-8?B?Q3UydFpXcG1QS2ZJK2dWZUo2TE9xVHVTUE90YkJqRndydnFhM3dtY1hoZmV4?=
- =?utf-8?B?dzZiWVlJQ0daSDZLczJRMndYN2xkM1RGUTNnVjdaU0pJZU42RG9mRXo3OGNQ?=
- =?utf-8?B?VVRVU1NKSTc1VXNDQXJpenNMcUxNMWZ1SHc5SVZKNVdjdFlDVUdqWUNWNjNz?=
- =?utf-8?B?MFc3Sk1BYTBrYTBmdHNLeDZjK21BZkgxZkRhTjV1ZHNFZjR6QzE0U3NUU21J?=
- =?utf-8?B?SktoTXA4RGw0MUJMUmNZTEJpbjZqbmFLS2ZvSmM5d3dmZzUxd01GL2J2dWxN?=
- =?utf-8?B?SFBFRTJMQTUxay9wRmhCY1JFc0pZTnFzaHM0Q21GZUo4ZHFiVFcwQWJWRExH?=
- =?utf-8?B?QkQvSktTSG1YOTI1anlNSVhBaDlLdzBkSVZsMFAwVXpJbHZ2YXFNemdxbE9F?=
- =?utf-8?B?UjhpanRqSXc3bC8xbUNjQ2FoVWRiR0xzemNyVXR1TWhEaDhlQUtLUU1mcFNr?=
- =?utf-8?B?TUJ1cUtON3lwSFkyL081bERUTnNNMjZEOUc5SEhZNDh5VC9aMENrVWZ5MEht?=
- =?utf-8?B?QkY0SFJtRm0zTWxJdzNWOXRzWWJSdDJjeWtPTXBxWm5uVlJtd3I3SkpmQyt4?=
- =?utf-8?B?V2hPVlBwbVNybFNVSEQ1UEZBaXFVSnpKNnhsWlVkVk5POHF1N2p6MnZCc2xD?=
- =?utf-8?B?eGZ3cnNUZ1l1ZW1zTmI0bEROUzJxOEN1TGp2aGZ1cUVNVExUOEFpTE5FRFZh?=
- =?utf-8?B?UGFTNHB6aDZiajZjYkNoK1o2dkVjQ0xOVEM2WTdiS3A3Wkdzd2xRcFRzQzNS?=
- =?utf-8?B?NFBBcEM3aEp1SGQ1Z1Y3c2NaNmx1NEQ5QXNkajhUbDYrbWlLODNpSXBGb044?=
- =?utf-8?B?TXgvbDdUMC9SSnNPUzNWOU96ODd0a0JJUmZyK3ZiSko4K3BFN21kT3Y3TGVI?=
- =?utf-8?B?dnZreEJzenI0NW1nVHJXT0VrQUo3bXBoRDBHVUVEcnhzQU1QWlRhejFBVzVH?=
- =?utf-8?B?MHg3MC9XV3ZRRG1nWklQdms3VitIUkVRb3oyNkYvOTZWZVg4cDFTWEEzdDNt?=
- =?utf-8?B?UCtUd2V3MVRkQWpkdWpyM3VCM0JYUERuamVlNkJqTlJrWEdhQXhVOEloVm5V?=
- =?utf-8?B?aXkxQWh0WjA4SDBIcjJCUVAyeWZFTzQxaUs2djRHVjNTQ3hqVWhVcEp4UlRG?=
- =?utf-8?B?L0NPNXlHMDA0UndiVmZrYWNTd1VwQy9MYmdrUXJKN1ByTldERXdQc3F6Q0ln?=
- =?utf-8?B?bGdua3U0RERkNDZ5ZTNsQlJiTi9oblhpWXhIblVnU2Jhbi9qcm1IbGxrT1Nh?=
- =?utf-8?B?UjlkZ3JXdWI5YnVneXd1cm80L2p3bkZza3NiQ3UvLzc5MHpCR1liYkdCQ2hU?=
- =?utf-8?B?YlZrcFRia1RMc2ltSnVlaW9JU0liMzBuVXZ1Y3loSyt4S2h1NjFwVi96THhN?=
- =?utf-8?B?M2VveTc4TzZuRWpyUk1hd2ZIcy9JQWtDOUNUdjgrVGw5MEVhOGJ1K2lseDR5?=
- =?utf-8?B?SDBUUUJxeDNVZmJDeEpIRTBUMzc1M2JkbWtUa0JXNXRzejFZZzhBZFUzU2ti?=
- =?utf-8?B?VTl6MktrQUVQV3JaWXV2aXo5eldkVkJvcEdvcXk4SEIwbHBTOE16aVFlOG9S?=
- =?utf-8?Q?+uCTFEqL+hbBGh4jUj/fpwPx6?=
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 86de4f51-1326-4dc6-2a5e-08dbfc6b0356
-X-MS-Exchange-CrossTenant-originalarrivaltime: 14 Dec 2023 06:07:55.0689
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: MjatmwpqTPh2AQs8+8xMta9tGsd0gbSxq7h96dPAXPFCmARf4qQGEcMEmrLPEgf2h3FDDcQwebZfvCewBf8qag==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR11MB5970
-X-OriginatorOrg: intel.com
+In-Reply-To: <20231207102820.74820-10-yishaih@nvidia.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-PiBGcm9tOiBZaXNoYWkgSGFkYXMgPHlpc2hhaWhAbnZpZGlhLmNvbT4NCj4gU2VudDogV2VkbmVz
-ZGF5LCBEZWNlbWJlciAxMywgMjAyMyA4OjI1IFBNDQo+IA0KPiBPbiAxMy8xMi8yMDIzIDEwOjIz
-LCBUaWFuLCBLZXZpbiB3cm90ZToNCj4gPj4gRnJvbTogWWlzaGFpIEhhZGFzIDx5aXNoYWloQG52
-aWRpYS5jb20+DQo+ID4+IFNlbnQ6IFRodXJzZGF5LCBEZWNlbWJlciA3LCAyMDIzIDY6MjggUE0N
-Cj4gPj4NCj4gPj4gKw0KPiA+PiArc3RhdGljIHNzaXplX3QgdmlydGlvdmZfcGNpX3JlYWRfY29u
-ZmlnKHN0cnVjdCB2ZmlvX2RldmljZSAqY29yZV92ZGV2LA0KPiA+PiArCQkJCQljaGFyIF9fdXNl
-ciAqYnVmLCBzaXplX3QgY291bnQsDQo+ID4+ICsJCQkJCWxvZmZfdCAqcHBvcykNCj4gPj4gK3sN
-Cj4gPj4gKwlzdHJ1Y3QgdmlydGlvdmZfcGNpX2NvcmVfZGV2aWNlICp2aXJ0dmRldiA9IGNvbnRh
-aW5lcl9vZigNCj4gPj4gKwkJY29yZV92ZGV2LCBzdHJ1Y3QgdmlydGlvdmZfcGNpX2NvcmVfZGV2
-aWNlLCBjb3JlX2RldmljZS52ZGV2KTsNCj4gPj4gKwlsb2ZmX3QgcG9zID0gKnBwb3MgJiBWRklP
-X1BDSV9PRkZTRVRfTUFTSzsNCj4gPj4gKwlzaXplX3QgcmVnaXN0ZXJfb2Zmc2V0Ow0KPiA+PiAr
-CWxvZmZfdCBjb3B5X29mZnNldDsNCj4gPj4gKwlzaXplX3QgY29weV9jb3VudDsNCj4gPj4gKwlf
-X2xlMzIgdmFsMzI7DQo+ID4+ICsJX19sZTE2IHZhbDE2Ow0KPiA+PiArCXU4IHZhbDg7DQo+ID4+
-ICsJaW50IHJldDsNCj4gPj4gKw0KPiA+PiArCXJldCA9IHZmaW9fcGNpX2NvcmVfcmVhZChjb3Jl
-X3ZkZXYsIGJ1ZiwgY291bnQsIHBwb3MpOw0KPiA+PiArCWlmIChyZXQgPCAwKQ0KPiA+PiArCQly
-ZXR1cm4gcmV0Ow0KPiA+PiArDQo+ID4+ICsJaWYgKHJhbmdlX2ludGVyc2VjdF9yYW5nZShwb3Ms
-IGNvdW50LCBQQ0lfREVWSUNFX0lELCBzaXplb2YodmFsMTYpLA0KPiA+PiArCQkJCSAgJmNvcHlf
-b2Zmc2V0LCAmY29weV9jb3VudCwNCj4gPj4gJnJlZ2lzdGVyX29mZnNldCkpIHsNCj4gPj4gKwkJ
-dmFsMTYgPSBjcHVfdG9fbGUxNihWSVJUSU9fVFJBTlNfSURfTkVUKTsNCj4gPj4gKwkJaWYgKGNv
-cHlfdG9fdXNlcihidWYgKyBjb3B5X29mZnNldCwgKHZvaWQgKikmdmFsMTYgKw0KPiA+PiByZWdp
-c3Rlcl9vZmZzZXQsIGNvcHlfY291bnQpKQ0KPiA+PiArCQkJcmV0dXJuIC1FRkFVTFQ7DQo+ID4+
-ICsJfQ0KPiA+PiArDQo+ID4+ICsJaWYgKChsZTE2X3RvX2NwdSh2aXJ0dmRldi0+cGNpX2NtZCkg
-JiBQQ0lfQ09NTUFORF9JTykgJiYNCj4gPj4gKwkgICAgcmFuZ2VfaW50ZXJzZWN0X3JhbmdlKHBv
-cywgY291bnQsIFBDSV9DT01NQU5ELCBzaXplb2YodmFsMTYpLA0KPiA+PiArCQkJCSAgJmNvcHlf
-b2Zmc2V0LCAmY29weV9jb3VudCwNCj4gPj4gJnJlZ2lzdGVyX29mZnNldCkpIHsNCj4gPj4gKwkJ
-aWYgKGNvcHlfZnJvbV91c2VyKCh2b2lkICopJnZhbDE2ICsgcmVnaXN0ZXJfb2Zmc2V0LCBidWYg
-Kw0KPiA+PiBjb3B5X29mZnNldCwNCj4gPj4gKwkJCQkgICBjb3B5X2NvdW50KSkNCj4gPj4gKwkJ
-CXJldHVybiAtRUZBVUxUOw0KPiA+PiArCQl2YWwxNiB8PSBjcHVfdG9fbGUxNihQQ0lfQ09NTUFO
-RF9JTyk7DQo+ID4+ICsJCWlmIChjb3B5X3RvX3VzZXIoYnVmICsgY29weV9vZmZzZXQsICh2b2lk
-ICopJnZhbDE2ICsNCj4gPj4gcmVnaXN0ZXJfb2Zmc2V0LA0KPiA+PiArCQkJCSBjb3B5X2NvdW50
-KSkNCj4gPj4gKwkJCXJldHVybiAtRUZBVUxUOw0KPiA+PiArCX0NCj4gPg0KPiA+IHRoZSB3cml0
-ZSBoYW5kbGVyIGNhbGxzIHZmaW9fcGNpX2NvcmVfd3JpdGUoKSBmb3IgUENJX0NPTU1BTkQgc28N
-Cj4gPiB0aGUgY29yZSB2Y29uZmlnIHNob3VsZCBoYXZlIHRoZSBsYXRlc3QgY29weSBvZiB0aGUg
-SU8gYml0IHZhbHVlIHdoaWNoDQo+ID4gaXMgY29waWVkIHRvIHRoZSB1c2VyIGJ1ZmZlciBieSB2
-ZmlvX3BjaV9jb3JlX3JlYWQoKS4gdGhlbiBub3QgbmVjZXNzYXJ5DQo+ID4gdG8gdXBkYXRlIGl0
-IGFnYWluLg0KPiANCj4gWW91IGFzc3VtZSB0aGUgdGhlICd2Y29uZmlnJyBtZWNoYW5pc20vZmxv
-dyBpcyBhbHdheXMgYXBwbGljYWJsZSBmb3INCj4gdGhhdCBzcGVjaWZpYyBmaWVsZCwgdGhpcyBz
-aG91bGQgYmUgZG91YmxlLWNoZWNrZWQuDQo+IEhvd2V2ZXIsIGFzIGZvciBub3cgdGhlIGRyaXZl
-ciBkb2Vzbid0IHJlbHkgLyB1c2UgdGhlIHZjb25maWcgZm9yIG90aGVyDQo+IGZpZWxkcyBhcyBp
-dCBkb2Vzbid0IG1hdGNoIGFuZCBuZWVkIGEgYmlnIHJlZmFjdG9yLCBJIHByZWZlciB0byBub3Qg
-cmVseQ0KPiBvbiBpdCBhdCBhbGwgYW5kIGhhdmUgaXQgaGVyZS4NCg0KaWl1YyB0aGlzIGRyaXZl
-ciBkb2VzIHJlbGllcyBvbiB2Y29uZmlnIGZvciBvdGhlciBmaWVsZHMuIEl0IGZpcnN0IGNhbGxz
-DQp2ZmlvX3BjaV9jb3JlX3JlYWQoKSBhbmQgdGhlbiBtb2RpZmllcyBzZWxlY3RlZCBmaWVsZHMg
-d2hpY2ggbmVlZHMNCnNwZWNpYWwgdHdlYWsgaW4gdGhpcyBkcml2ZXIuDQoNCmJ0dyB3aGF0IHZp
-cnRpby1uZXQgc3BlY2lmaWMgdHdlYWsgaXMgYXBwbGllZCB0byBQQ0lfQ09NTUFORD8gWW91DQpi
-YXNpY2FsbHkgY2FjaGUgdGhlIGNtZCB2YWx1ZSBhbmQgdGhlbiBzZXQgUENJX0NPTU1BTkRfSU8g
-aWYNCml0J3Mgc2V0IGluIHRoZSBjYWNoZWQgdmFsdWUuIEJ1dCB0aGlzIGlzIGFscmVhZHkgY292
-ZXJlZCBieSBwY2kNCnZjb25maWcuIElmIGFueXRoaW5nIGlzIGJyb2tlbiB0aGVyZSB0aGVuIHdl
-IGFscmVhZHkgaGF2ZSBhIGJpZw0KdHJvdWJsZS4NCg0KVGhlIHRyaWNrIGZvciBiYXIwIG1ha2Vz
-IHNlbnNlIGFzIGl0IGRvZXNuJ3QgZXhpc3QgcGh5c2ljYWxseSB0aGVuDQp0aGUgdmNvbmZpZyBt
-ZWNoYW5pc20gbWF5IG5vdCBnaXZlIHRoZSBleHBlY3RlZCByZXN1bHQuIEJ1dA0KSSBkaWRuJ3Qg
-c2VlIHRoZSBzYW1lIHJhdGlvbmFsZSBmb3IgUENJX0NPTU1BTkQuDQoNCj4gPj4gKw0KPiA+PiAr
-c3RhdGljIHNzaXplX3QNCj4gPj4gK3ZpcnRpb3ZmX3BjaV9jb3JlX3dyaXRlKHN0cnVjdCB2Zmlv
-X2RldmljZSAqY29yZV92ZGV2LCBjb25zdCBjaGFyIF9fdXNlcg0KPiA+PiAqYnVmLA0KPiA+PiAr
-CQkJc2l6ZV90IGNvdW50LCBsb2ZmX3QgKnBwb3MpDQo+ID4+ICt7DQo+ID4+ICsJc3RydWN0IHZp
-cnRpb3ZmX3BjaV9jb3JlX2RldmljZSAqdmlydHZkZXYgPSBjb250YWluZXJfb2YoDQo+ID4+ICsJ
-CWNvcmVfdmRldiwgc3RydWN0IHZpcnRpb3ZmX3BjaV9jb3JlX2RldmljZSwgY29yZV9kZXZpY2Uu
-dmRldik7DQo+ID4+ICsJdW5zaWduZWQgaW50IGluZGV4ID0gVkZJT19QQ0lfT0ZGU0VUX1RPX0lO
-REVYKCpwcG9zKTsNCj4gPj4gKwlsb2ZmX3QgcG9zID0gKnBwb3MgJiBWRklPX1BDSV9PRkZTRVRf
-TUFTSzsNCj4gPj4gKw0KPiA+PiArCWlmICghY291bnQpDQo+ID4+ICsJCXJldHVybiAwOw0KPiA+
-PiArDQo+ID4+ICsJaWYgKGluZGV4ID09IFZGSU9fUENJX0NPTkZJR19SRUdJT05fSU5ERVgpIHsN
-Cj4gPj4gKwkJc2l6ZV90IHJlZ2lzdGVyX29mZnNldDsNCj4gPj4gKwkJbG9mZl90IGNvcHlfb2Zm
-c2V0Ow0KPiA+PiArCQlzaXplX3QgY29weV9jb3VudDsNCj4gPj4gKw0KPiA+PiArCQlpZiAocmFu
-Z2VfaW50ZXJzZWN0X3JhbmdlKHBvcywgY291bnQsIFBDSV9DT01NQU5ELA0KPiA+PiBzaXplb2Yo
-dmlydHZkZXYtPnBjaV9jbWQpLA0KPiA+PiArCQkJCQkgICZjb3B5X29mZnNldCwgJmNvcHlfY291
-bnQsDQo+ID4+ICsJCQkJCSAgJnJlZ2lzdGVyX29mZnNldCkpIHsNCj4gPj4gKwkJCWlmIChjb3B5
-X2Zyb21fdXNlcigodm9pZCAqKSZ2aXJ0dmRldi0+cGNpX2NtZCArDQo+ID4+IHJlZ2lzdGVyX29m
-ZnNldCwNCj4gPj4gKwkJCQkJICAgYnVmICsgY29weV9vZmZzZXQsDQo+ID4+ICsJCQkJCSAgIGNv
-cHlfY291bnQpKQ0KPiA+PiArCQkJCXJldHVybiAtRUZBVUxUOw0KPiA+PiArCQl9DQo+ID4+ICsN
-Cj4gPj4gKwkJaWYgKHJhbmdlX2ludGVyc2VjdF9yYW5nZShwb3MsIGNvdW50LCBQQ0lfQkFTRV9B
-RERSRVNTXzAsDQo+ID4+ICsJCQkJCSAgc2l6ZW9mKHZpcnR2ZGV2LT5wY2lfYmFzZV9hZGRyXzAp
-LA0KPiA+PiArCQkJCQkgICZjb3B5X29mZnNldCwgJmNvcHlfY291bnQsDQo+ID4+ICsJCQkJCSAg
-JnJlZ2lzdGVyX29mZnNldCkpIHsNCj4gPj4gKwkJCWlmIChjb3B5X2Zyb21fdXNlcigodm9pZCAq
-KSZ2aXJ0dmRldi0NCj4gPj4+IHBjaV9iYXNlX2FkZHJfMCArIHJlZ2lzdGVyX29mZnNldCwNCj4g
-Pj4gKwkJCQkJICAgYnVmICsgY29weV9vZmZzZXQsDQo+ID4+ICsJCQkJCSAgIGNvcHlfY291bnQp
-KQ0KPiA+PiArCQkJCXJldHVybiAtRUZBVUxUOw0KPiA+PiArCQl9DQo+ID4+ICsJfQ0KPiA+DQo+
-ID4gd3JhcCBhYm92ZSBpbnRvIHZpcnRpb3ZmX3BjaV93cml0ZV9jb25maWcoKSB0byBiZSBzeW1t
-ZXRyaWMgd2l0aA0KPiA+IHRoZSByZWFkIHBhdGguDQo+IA0KPiBVcG9uIHRoZSByZWFkIHBhdGgs
-IHdlIGRvIHRoZSBmdWxsIGZsb3cgYW5kIHJldHVybiB0byB0aGUgdXNlci4gSGVyZSB3ZQ0KPiBq
-dXN0IHNhdmUgc29tZSBkYXRhIGFuZCBjb250aW51ZSB0byBjYWxsIHRoZSBjb3JlLCBzbyBJJ20g
-bm90IHN1cmUgdGhhdA0KPiB0aGlzIHdvcnRoIGEgZGVkaWNhdGVkIGZ1bmN0aW9uLg0KDQpJIGRv
-bid0IHNlZSBhIHJlYWwgZGlmZmVyZW5jZS4NCg0KZm9yIHRoZSByZWFkIHBhdGggeW91IGZpcnN0
-IGNhbGwgdmZpb19wY2lfY29yZV9yZWFkKCkgdGhlbiBtb2RpZmllcyBzb21lDQpmaWVsZHMuDQoN
-CmZvciB0aGUgd3JpdGUgcGF0aCB5b3Ugc2F2ZSBzb21lIGRhdGEgdGhlbiBjYWxsIHZmaW9fcGNp
-X2NvcmVfd3JpdGUoKS4NCg0KPiANCj4gSG93ZXZlciwgdGhpcyBjYW4gYmUgZG9uZSwgZG8geW91
-IHN0aWxsIHN1Z2dlc3QgaXQgZm9yIFY4ID8NCg0KeWVzDQoNCj4gPj4gK3N0YXRpYyBpbnQgdmly
-dGlvdmZfcGNpX2luaXRfZGV2aWNlKHN0cnVjdCB2ZmlvX2RldmljZSAqY29yZV92ZGV2KQ0KPiA+
-PiArew0KPiA+PiArCXN0cnVjdCB2aXJ0aW92Zl9wY2lfY29yZV9kZXZpY2UgKnZpcnR2ZGV2ID0g
-Y29udGFpbmVyX29mKA0KPiA+PiArCQljb3JlX3ZkZXYsIHN0cnVjdCB2aXJ0aW92Zl9wY2lfY29y
-ZV9kZXZpY2UsIGNvcmVfZGV2aWNlLnZkZXYpOw0KPiA+PiArCXN0cnVjdCBwY2lfZGV2ICpwZGV2
-Ow0KPiA+PiArCWludCByZXQ7DQo+ID4+ICsNCj4gPj4gKwlyZXQgPSB2ZmlvX3BjaV9jb3JlX2lu
-aXRfZGV2KGNvcmVfdmRldik7DQo+ID4+ICsJaWYgKHJldCkNCj4gPj4gKwkJcmV0dXJuIHJldDsN
-Cj4gPj4gKw0KPiA+PiArCXBkZXYgPSB2aXJ0dmRldi0+Y29yZV9kZXZpY2UucGRldjsNCj4gPj4g
-KwlyZXQgPSB2aXJ0aW92Zl9yZWFkX25vdGlmeV9pbmZvKHZpcnR2ZGV2KTsNCj4gPj4gKwlpZiAo
-cmV0KQ0KPiA+PiArCQlyZXR1cm4gcmV0Ow0KPiA+PiArDQo+ID4+ICsJLyogQmVpbmcgcmVhZHkg
-d2l0aCBhIGJ1ZmZlciB0aGF0IHN1cHBvcnRzIE1TSVggKi8NCj4gPj4gKwl2aXJ0dmRldi0+YmFy
-MF92aXJ0dWFsX2J1Zl9zaXplID0gVklSVElPX1BDSV9DT05GSUdfT0ZGKHRydWUpICsNCj4gPj4g
-KwkJCQl2aXJ0aW92Zl9nZXRfZGV2aWNlX2NvbmZpZ19zaXplKHBkZXYtDQo+ID4+PiBkZXZpY2Up
-Ow0KPiA+DQo+ID4gd2hpY2ggY29kZSBpcyByZWxldmFudCB0byBNU0lYPw0KPiANCj4gVGhlIGJ1
-ZmZlciBzaXplIG11c3QgaW5jbHVkZSB0aGUgTVNJWCBwYXJ0IHRvIG1hdGNoIHRoZSB2aXJ0aW8t
-bmV0DQo+IHNwZWNpZmljYXRpb24uDQo+IA0KPiBBcyBwYXJ0IG9mIHZpcnRpb3ZmX2lzc3VlX2xl
-Z2FjeV9yd19jbWQoKSB3ZSBtYXkgdXNlIHRoZSBmdWxsIGJ1ZmZlcg0KPiB1cG9uIHJlYWQvd3Jp
-dGUuDQoNCmF0IGxlYXN0IG1lbnRpb24gdGhhdCBNU0lYIGlzIGluIHRoZSBkZXZpY2UgY29uZmln
-IHJlZ2lvbiBvdGhlcndpc2UNCml0J3Mgbm90IGhlbHBmdWwgdG8gcGVvcGxlIHcvbyB2aXJ0aW8g
-YmFja2dyb3VuZC4NCg0KPiA+PiArDQo+ID4+ICtzdGF0aWMgY29uc3Qgc3RydWN0IHZmaW9fZGV2
-aWNlX29wcyB2aXJ0aW92Zl92ZmlvX3BjaV9vcHMgPSB7DQo+ID4+ICsJLm5hbWUgPSAidmlydGlv
-LXZmaW8tcGNpIiwNCj4gPj4gKwkuaW5pdCA9IHZmaW9fcGNpX2NvcmVfaW5pdF9kZXYsDQo+ID4+
-ICsJLnJlbGVhc2UgPSB2ZmlvX3BjaV9jb3JlX3JlbGVhc2VfZGV2LA0KPiA+PiArCS5vcGVuX2Rl
-dmljZSA9IHZpcnRpb3ZmX3BjaV9vcGVuX2RldmljZSwNCj4gPg0KPiA+IGNvdWxkIGJlIHZmaW9f
-cGNpX2NvcmVfb3Blbl9kZXZpY2UoKS4gR2l2ZW4gdmlydGlvdmYgc3BlY2lmaWMgaW5pdCBmdW5j
-DQo+ID4gaXMgbm90IGNhbGxlZCAgdmlydGlvdmZfcGNpX29wZW5fZGV2aWNlKCkgaXMgZXNzZW50
-aWFsbHkgc2FtZSBhcyB0aGUNCj4gPiBjb3JlIGZ1bmMuDQo+IA0KPiBXZSBkb24ndCBoYXZlIHRv
-ZGF5IHZmaW9fcGNpX2NvcmVfb3Blbl9kZXZpY2UoKSBhcyBhbiBleHBvcnRlZCBmdW5jdGlvbi4N
-Cj4gDQo+IFRoZSB2aXJ0aW92Zl9wY2lfb3Blbl9kZXZpY2UoKSBtYXRjaGVzIGJvdGggY2FzZXMg
-c28gSSBkb24ndCBzZWUgYSByZWFsDQo+IHJlYXNvbiB0byBleHBvcnQgaXQgbm93Lg0KPiANCj4g
-QnkgdGhlIHdheSwgaXQgZm9sbG93cyBvdGhlciBkcml2ZXJzIGluIHZmaW8sIHNlZSBmb3IgZXhh
-bXBsZSBoZXJlIFsxXS4NCj4gDQo+IFsxXQ0KPiBodHRwczovL2VsaXhpci5ib290bGluLmNvbS9s
-aW51eC92Ni43LQ0KPiByYzUvc291cmNlL2RyaXZlcnMvdmZpby9wY2kvaGlzaWxpY29uL2hpc2lf
-YWNjX3ZmaW9fcGNpLmMjTDEzODMNCg0KYWgsIHllcy4NCg0KPiA+PiArDQo+ID4+ICtzdGF0aWMg
-aW50IHZpcnRpb3ZmX3BjaV9wcm9iZShzdHJ1Y3QgcGNpX2RldiAqcGRldiwNCj4gPj4gKwkJCSAg
-ICAgIGNvbnN0IHN0cnVjdCBwY2lfZGV2aWNlX2lkICppZCkNCj4gPj4gK3sNCj4gPj4gKwljb25z
-dCBzdHJ1Y3QgdmZpb19kZXZpY2Vfb3BzICpvcHMgPSAmdmlydGlvdmZfdmZpb19wY2lfb3BzOw0K
-PiA+PiArCXN0cnVjdCB2aXJ0aW92Zl9wY2lfY29yZV9kZXZpY2UgKnZpcnR2ZGV2Ow0KPiA+PiAr
-CWludCByZXQ7DQo+ID4+ICsNCj4gPj4gKwlpZiAocGRldi0+aXNfdmlydGZuICYmIHZpcnRpb19w
-Y2lfYWRtaW5faGFzX2xlZ2FjeV9pbyhwZGV2KSAmJg0KPiA+PiArCSAgICAhdmlydGlvdmZfYmFy
-MF9leGlzdHMocGRldikpDQo+ID4+ICsJCW9wcyA9ICZ2aXJ0aW92Zl92ZmlvX3BjaV90cmFuX29w
-czsNCj4gPg0KPiA+IEkgaGF2ZSBhIGNvbmZ1c2lvbiBoZXJlLg0KPiA+DQo+ID4gd2h5IGRvIHdl
-IHdhbnQgdG8gYWxsb3cgdGhpcyBkcml2ZXIgYmluZGluZyB0byBub24tbWF0Y2hpbmcgVkYgb3IN
-Cj4gPiBldmVuIFBGPw0KPiANCj4gVGhlIGludGVudGlvbiBpcyB0byBhbGxvdyB0aGUgYmluZGlu
-ZyBvZiBhbnkgdmlydGlvLW5ldCBkZXZpY2UgKGkuZS4gUEYsDQo+IFZGIHdoaWNoIGlzIG5vdCB0
-cmFuc2l0aW9uYWwgY2FwYWJsZSkgdG8gaGF2ZSBhIHNpbmdsZSBkcml2ZXIgb3ZlciBWRklPDQo+
-IGZvciBhbGwgdmlydGlvLW5ldCBkZXZpY2VzLg0KPiANCj4gVGhpcyBlbmFibGVzIGFueSB1c2Vy
-IHNwYWNlIGFwcGxpY2F0aW9uIHRvIGJpbmQgYW5kIHVzZSBhbnkgdmlydGlvLW5ldA0KPiBkZXZp
-Y2Ugd2l0aG91dCB0aGUgbmVlZCB0byBjYXJlLg0KPiANCj4gSW4gY2FzZSB0aGUgZGV2aWNlIGlz
-IG5vdCB0cmFuc2l0aW9uYWwgY2FwYWJsZSwgaXQgd2lsbCBzaW1wbHkgdXNlIHRoZQ0KPiBnZW5l
-cmljIHZmaW8gZnVuY3Rpb25hbGl0eS4NCg0KSXMgaXQgdXNlZnVsIHRvIHByaW50IGEgbWVzc2Fn
-ZSBoZXJlPw0KDQo+IA0KPiA+DQo+ID4gaWYgdGhhdCBpcyB0aGUgaW50ZW50aW9uIHRoZW4gdGhl
-IG5hbWluZy9kZXNjcmlwdGlvbiBzaG91bGQgYmUgYWRqdXN0ZWQNCj4gPiB0byBub3Qgc3BlY2lm
-aWMgdG8gdmYgdGhyb3VnaG91dCB0aGlzIHBhdGNoLg0KPiA+DQo+ID4gZS5nLiBkb24ndCB1c2Ug
-InZpcnRpb3ZmXyIgcHJlZml4Li4uDQo+IA0KPiBUaGUgbWFpbiBmdW5jdGlvbmFsaXR5IGlzIHRv
-IHN1cHBseSB0aGUgdHJhbnNpdGlvbmFsIGRldmljZSB0byB1c2VyDQo+IHNwYWNlIGZvciB0aGUg
-VkYsIGhlbmNlIHRoZSBwcmVmaXggYW5kIHRoZSBkZXNjcmlwdGlvbiBmb3IgdGhhdCBkcml2ZXIN
-Cj4gcmVmZXJzIHRvIFZGLg0KPiANCj4gTGV0J3Mgc3RheSB3aXRoIHRoYXQuDQoNCm9rDQoNCj4g
-DQo+ID4NCj4gPiB0aGUgY29uZmlnIG9wdGlvbiBpcyBnZW5lcmljOg0KPiA+DQo+ID4gK2NvbmZp
-ZyBWSVJUSU9fVkZJT19QQ0kNCj4gPiArICAgICAgICB0cmlzdGF0ZSAiVkZJTyBzdXBwb3J0IGZv
-ciBWSVJUSU8gTkVUIFBDSSBkZXZpY2VzIg0KPiA+DQo+ID4gYnV0IHRoZSBkZXNjcmlwdGlvbiBp
-cyBzcGVjaWZpYyB0byB2ZjoNCj4gPg0KPiA+ICsgICAgICAgICAgVGhpcyBwcm92aWRlcyBzdXBw
-b3J0IGZvciBleHBvc2luZyBWSVJUSU8gTkVUIFZGIGRldmljZXMgd2hpY2gNCj4gc3VwcG9ydA0K
-PiA+ICsgICAgICAgICAgbGVnYWN5IElPIGFjY2VzcywgdXNpbmcgdGhlIFZGSU8gZnJhbWV3b3Jr
-IHRoYXQgY2FuIHdvcmsgd2l0aCBhDQo+IGxlZ2FjeQ0KPiA+ICsgICAgICAgICAgdmlydGlvIGRy
-aXZlciBpbiB0aGUgZ3Vlc3QuDQo+ID4NCj4gPiB0aGVuIHRoZSBtb2R1bGUgZGVzY3JpcHRpb24g
-aXMgZ2VuZXJpYyBhZ2FpbjoNCj4gPg0KPiA+ICtNT0RVTEVfREVTQ1JJUFRJT04oDQo+ID4gKwki
-VklSVElPIFZGSU8gUENJIC0gVXNlciBMZXZlbCBtZXRhLWRyaXZlciBmb3IgVklSVElPIE5FVCBk
-ZXZpY2VzIik7DQo+ID4NCj4gDQo+IFllcywgYXMgdGhlIGJpbmRpbmcgYWxsb3dzIHRoYXQsIGl0
-IGxvb2tzIGZpbmUgdG8gbWUuDQo+IA0KDQp3aGF0IGFib3V0IHJldmlzaW5nIHRoZSBrY29uZmln
-IG1lc3NhZ2UgdG8gbWFrZSBpdCBjbGVhciB0aGF0IGl0J3MNCmZvciBhbGwgdmlydGlvLW5ldCBk
-ZXZpY2Ugd2l0aCBzcGVjaWFsIHRyaWNrIHRvIG1ha2UgVkYgYXMgYQ0KdHJhbnNpdGlvbmFsIGRl
-dmljZT8NCg==
+On Thu, Dec 07, 2023 at 12:28:20PM +0200, Yishai Hadas wrote:
+> Introduce a vfio driver over virtio devices to support the legacy
+> interface functionality for VFs.
+> 
+> Background, from the virtio spec [1].
+> --------------------------------------------------------------------
+> In some systems, there is a need to support a virtio legacy driver with
+> a device that does not directly support the legacy interface. In such
+> scenarios, a group owner device can provide the legacy interface
+> functionality for the group member devices. The driver of the owner
+> device can then access the legacy interface of a member device on behalf
+> of the legacy member device driver.
+> 
+> For example, with the SR-IOV group type, group members (VFs) can not
+> present the legacy interface in an I/O BAR in BAR0 as expected by the
+> legacy pci driver. If the legacy driver is running inside a virtual
+> machine, the hypervisor executing the virtual machine can present a
+> virtual device with an I/O BAR in BAR0. The hypervisor intercepts the
+> legacy driver accesses to this I/O BAR and forwards them to the group
+> owner device (PF) using group administration commands.
+> --------------------------------------------------------------------
+> 
+> Specifically, this driver adds support for a virtio-net VF to be exposed
+> as a transitional device to a guest driver and allows the legacy IO BAR
+> functionality on top.
+> 
+> This allows a VM which uses a legacy virtio-net driver in the guest to
+> work transparently over a VF which its driver in the host is that new
+> driver.
+> 
+> The driver can be extended easily to support some other types of virtio
+> devices (e.g virtio-blk), by adding in a few places the specific type
+> properties as was done for virtio-net.
+> 
+> For now, only the virtio-net use case was tested and as such we introduce
+> the support only for such a device.
+> 
+> Practically,
+> Upon probing a VF for a virtio-net device, in case its PF supports
+> legacy access over the virtio admin commands and the VF doesn't have BAR
+> 0, we set some specific 'vfio_device_ops' to be able to simulate in SW a
+> transitional device with I/O BAR in BAR 0.
+> 
+> The existence of the simulated I/O bar is reported later on by
+> overwriting the VFIO_DEVICE_GET_REGION_INFO command and the device
+> exposes itself as a transitional device by overwriting some properties
+> upon reading its config space.
+> 
+> Once we report the existence of I/O BAR as BAR 0 a legacy driver in the
+> guest may use it via read/write calls according to the virtio
+> specification.
+> 
+> Any read/write towards the control parts of the BAR will be captured by
+> the new driver and will be translated into admin commands towards the
+> device.
+> 
+> Any data path read/write access (i.e. virtio driver notifications) will
+> be forwarded to the physical BAR which its properties were supplied by
+> the admin command VIRTIO_ADMIN_CMD_LEGACY_NOTIFY_INFO upon the
+> probing/init flow.
+> 
+> With that code in place a legacy driver in the guest has the look and
+> feel as if having a transitional device with legacy support for both its
+> control and data path flows.
+> 
+> [1]
+> https://github.com/oasis-tcs/virtio-spec/commit/03c2d32e5093ca9f2a17797242fbef88efe94b8c
+> 
+> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+> Signed-off-by: Yishai Hadas <yishaih@nvidia.com>
+> ---
+>  MAINTAINERS                      |   7 +
+>  drivers/vfio/pci/Kconfig         |   2 +
+>  drivers/vfio/pci/Makefile        |   2 +
+>  drivers/vfio/pci/virtio/Kconfig  |  16 +
+>  drivers/vfio/pci/virtio/Makefile |   4 +
+>  drivers/vfio/pci/virtio/main.c   | 567 +++++++++++++++++++++++++++++++
+>  6 files changed, 598 insertions(+)
+>  create mode 100644 drivers/vfio/pci/virtio/Kconfig
+>  create mode 100644 drivers/vfio/pci/virtio/Makefile
+>  create mode 100644 drivers/vfio/pci/virtio/main.c
+> 
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 012df8ccf34e..b246b769092d 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -22872,6 +22872,13 @@ L:	kvm@vger.kernel.org
+>  S:	Maintained
+>  F:	drivers/vfio/pci/mlx5/
+>  
+> +VFIO VIRTIO PCI DRIVER
+> +M:	Yishai Hadas <yishaih@nvidia.com>
+> +L:	kvm@vger.kernel.org
+> +L:	virtualization@lists.linux-foundation.org
+> +S:	Maintained
+> +F:	drivers/vfio/pci/virtio
+> +
+>  VFIO PCI DEVICE SPECIFIC DRIVERS
+>  R:	Jason Gunthorpe <jgg@nvidia.com>
+>  R:	Yishai Hadas <yishaih@nvidia.com>
+> diff --git a/drivers/vfio/pci/Kconfig b/drivers/vfio/pci/Kconfig
+> index 8125e5f37832..18c397df566d 100644
+> --- a/drivers/vfio/pci/Kconfig
+> +++ b/drivers/vfio/pci/Kconfig
+> @@ -65,4 +65,6 @@ source "drivers/vfio/pci/hisilicon/Kconfig"
+>  
+>  source "drivers/vfio/pci/pds/Kconfig"
+>  
+> +source "drivers/vfio/pci/virtio/Kconfig"
+> +
+>  endmenu
+> diff --git a/drivers/vfio/pci/Makefile b/drivers/vfio/pci/Makefile
+> index 45167be462d8..046139a4eca5 100644
+> --- a/drivers/vfio/pci/Makefile
+> +++ b/drivers/vfio/pci/Makefile
+> @@ -13,3 +13,5 @@ obj-$(CONFIG_MLX5_VFIO_PCI)           += mlx5/
+>  obj-$(CONFIG_HISI_ACC_VFIO_PCI) += hisilicon/
+>  
+>  obj-$(CONFIG_PDS_VFIO_PCI) += pds/
+> +
+> +obj-$(CONFIG_VIRTIO_VFIO_PCI) += virtio/
+> diff --git a/drivers/vfio/pci/virtio/Kconfig b/drivers/vfio/pci/virtio/Kconfig
+> new file mode 100644
+> index 000000000000..3a6707639220
+> --- /dev/null
+> +++ b/drivers/vfio/pci/virtio/Kconfig
+> @@ -0,0 +1,16 @@
+> +# SPDX-License-Identifier: GPL-2.0-only
+> +config VIRTIO_VFIO_PCI
+> +        tristate "VFIO support for VIRTIO NET PCI devices"
+> +        depends on VIRTIO_PCI
+> +        select VFIO_PCI_CORE
+> +        help
+> +          This provides support for exposing VIRTIO NET VF devices which support
+> +          legacy IO access, using the VFIO framework that can work with a legacy
+> +          virtio driver in the guest.
+> +          Based on PCIe spec, VFs do not support I/O Space; thus, VF BARs shall
+> +          not indicate I/O Space.
+> +          As of that this driver emulated I/O BAR in software to let a VF be
+> +          seen as a transitional device in the guest and let it work with
+> +          a legacy driver.
+> +
+> +          If you don't know what to do here, say N.
+
+BTW shouldn't this driver be limited to X86? Things like lack of memory
+barriers will make legacy virtio racy on e.g. ARM will they not?
+And endian-ness will be broken on PPC ...
+
+-- 
+MST
+
