@@ -1,365 +1,179 @@
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F671D302
-	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 08:35:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D27F22EF4
+	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 08:45:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QlZoOgmC"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id E53A480BE1
-	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 08:35:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E53A480BE1
+	by smtp1.osuosl.org (Postfix) with ESMTP id 93FD0813D2
+	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 08:45:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 93FD0813D2
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QlZoOgmC
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -9.899
+X-Spam-Score: -2.099
 X-Spam-Level:
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Eu6riv2o3W-g
+	with ESMTP id ePZNZsOXt0YJ
 	for <virtualization@lists.linux-foundation.org>;
-	Thu, 14 Dec 2023 08:35:27 +0000 (UTC)
-Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id CBD8480BBD
-	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 08:35:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CBD8480BBD
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0VyTfLmw_1702542920;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VyTfLmw_1702542920)
-          by smtp.aliyun-inc.com;
-          Thu, 14 Dec 2023 16:35:20 +0800
-Message-ID: <1702542805.219648-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [RFC 1/4] virtio_ring: introduce virtqueue_get_buf_ctx_dma()
-Date: Thu, 14 Dec 2023 16:33:25 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux-foundation.org,
- "Michael S . Tsirkin" <mst@redhat.com>
-References: <20231114113104.33994-1-xuanzhuo@linux.alibaba.com>
- <20231114113104.33994-2-xuanzhuo@linux.alibaba.com>
- <CACGkMEtYxbXwJUVwz-OcT1LybEpHcgWXCzpmrFPgGJo_yP9LWA@mail.gmail.com>
- <1700547126.793057-4-xuanzhuo@linux.alibaba.com>
- <CACGkMEuBmkw90XqaVLU-eU1qq1aft9gDf91YGs3umSccdrDYVQ@mail.gmail.com>
- <1700634557.818587-3-xuanzhuo@linux.alibaba.com>
- <CACGkMEusOSqhqcMxcajXKeOGuvoABAyXmBpc-EQMrP2JQEh_Qg@mail.gmail.com>
- <1700635902.0042756-4-xuanzhuo@linux.alibaba.com>
- <CACGkMEv0b6MUcTzvPGBdoqmfUEQ5rwDYfQ7E012gj0zb2SQ02w@mail.gmail.com>
- <1700805079.7386818-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEs5PEN1URObB4UxCJ7LNb4oQeoPmCEQ=L1uCyq8RMcEzQ@mail.gmail.com>
-In-Reply-To: <CACGkMEs5PEN1URObB4UxCJ7LNb4oQeoPmCEQ=L1uCyq8RMcEzQ@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+	Thu, 14 Dec 2023 08:45:42 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 55609813A0
+	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 08:45:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 55609813A0
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1702543541;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=uecrAR2SvWDsLJrH3uSpDFiFSpzellwPNoFaP7Q0oHU=;
+	b=QlZoOgmCrZmBFJs1x86L/yJ+EQUdnf6QIyRTtV4t94XoAP1Abopi3teYt3UD0JW2oFYGA3
+	q0qZcKovP1+BxmuuXhVz6pjCVIlj6akneYJQ8RpX4tLpfc9NqmCUnDZ4GwgFzM0BpBEEVs
+	rm6S+T26HI+IIjxcdk3Y40UVCxJhKPg=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-643-eOxW9f-zMump5N8_cuNBUw-1; Thu, 14 Dec 2023 03:45:39 -0500
+X-MC-Unique: eOxW9f-zMump5N8_cuNBUw-1
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-40c2dd83bc4so48812935e9.1
+        for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 00:45:39 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1702543538; x=1703148338;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=uecrAR2SvWDsLJrH3uSpDFiFSpzellwPNoFaP7Q0oHU=;
+        b=qYGRJsSs2SnjdXf7xIPiXhWslGt0pZqOhozptlsrp/LiEa6pF0O4ju5fIB80lihf/u
+         JcRIuJ/JHZ/toMv1LjkJos+e2FR+pqlngsuVhpmdysGfhzz26ergIGcWsLp8TtCbhm3X
+         uveRtjRGdDvH0WUD1N2twpK9KM+U897/KgSfz1H5DespGRWuWcMv47MJXqUP3Z10s57d
+         6QTL3LBrmuDHM/NrKgiDdYX9oulXQTmaRfy5A3yzNPWT1STTpsx2Ug1IqSahtypEl6Xj
+         9/i15ngJJGdUxnvAiAxSmCgssXNqth1j3ZqIiRRXEuFJc21aRXdWVrppbukj2tQKlOnT
+         aaHw==
+X-Gm-Message-State: AOJu0YxB/IXIUQOFCqcmHGetcE+zCOAtfpbCURQMB64x/Ap55BKB2g5M
+	9ab28xxOBBpobYe6h/izY43aPm+ItaDfIY5QbwZIL2QvEK/DoxvGWWgmD1l3KoqgCL3YEZNgXo1
+	+q1+pHp1CCsS8vRUEotkFf6VHkVhdpxPi0ZE/s20ZZg==
+X-Received: by 2002:a05:600c:246:b0:409:637b:890d with SMTP id 6-20020a05600c024600b00409637b890dmr4662202wmj.2.1702543538710;
+        Thu, 14 Dec 2023 00:45:38 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEd9LpPd9LlR4EdQvDKYuR630GgNDCt0NG+pjD6dcylIDtVJwCEubGxS9oHa85KaPw5yjKlKA==
+X-Received: by 2002:a05:600c:246:b0:409:637b:890d with SMTP id 6-20020a05600c024600b00409637b890dmr4662193wmj.2.1702543538360;
+        Thu, 14 Dec 2023 00:45:38 -0800 (PST)
+Received: from sgarzare-redhat ([5.11.101.217])
+        by smtp.gmail.com with ESMTPSA id dd14-20020a0560001e8e00b003364277e714sm2802139wrb.89.2023.12.14.00.45.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 14 Dec 2023 00:45:37 -0800 (PST)
+Date: Thu, 14 Dec 2023 09:45:33 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Arseniy Krasnov <avkrasnov@salutedevices.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kernel@sberdevices.ru, 
+	oxffffaa@gmail.com
+Subject: Re: [PATCH net-next v8 0/4] send credit update during setting
+ SO_RCVLOWAT
+Message-ID: <gu2yvaqqgrfnffnh67fodsoob4cdpcw4zaifncku3qvadtuq5j@6unpf5ifdmtd>
+References: <20231211211658.2904268-1-avkrasnov@salutedevices.com>
+ <20231212105423-mutt-send-email-mst@kernel.org>
+ <d27f22f0-0f1e-e1bb-5b13-a524dc6e94d7@salutedevices.com>
+ <20231212111131-mutt-send-email-mst@kernel.org>
+ <7b362aef-6774-0e08-81e9-0a6f7f616290@salutedevices.com>
+ <ucmekzurgt3zcaezzdkk6277ukjmwaoy6kdq6tzivbtqd4d32b@izqbcsixgngk>
+ <402ea723-d154-45c9-1efe-b0022d9ea95a@salutedevices.com>
+ <20231213100518-mutt-send-email-mst@kernel.org>
+ <20231213100957-mutt-send-email-mst@kernel.org>
+ <8e6b06a5-eeb3-84c8-c6df-a8b81b596295@salutedevices.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+In-Reply-To: <8e6b06a5-eeb3-84c8-c6df-a8b81b596295@salutedevices.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Fri, 24 Nov 2023 14:00:51 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Fri, Nov 24, 2023 at 1:56=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba=
-.com> wrote:
-> >
-> > On Fri, 24 Nov 2023 12:14:57 +0800, Jason Wang <jasowang@redhat.com> wr=
-ote:
-> > > On Wed, Nov 22, 2023 at 2:57=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.ali=
-baba.com> wrote:
-> > > >
-> > > > On Wed, 22 Nov 2023 14:47:02 +0800, Jason Wang <jasowang@redhat.com=
-> wrote:
-> > > > > On Wed, Nov 22, 2023 at 2:34=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux=
-.alibaba.com> wrote:
-> > > > > >
-> > > > > > On Wed, 22 Nov 2023 14:03:32 +0800, Jason Wang <jasowang@redhat=
-.com> wrote:
-> > > > > > > On Tue, Nov 21, 2023 at 2:27=E2=80=AFPM Xuan Zhuo <xuanzhuo@l=
-inux.alibaba.com> wrote:
-> > > > > > > >
-> > > > > > > > On Thu, 16 Nov 2023 16:11:11 +0800, Jason Wang <jasowang@re=
-dhat.com> wrote:
-> > > > > > > > > On Tue, Nov 14, 2023 at 7:31=E2=80=AFPM Xuan Zhuo <xuanzh=
-uo@linux.alibaba.com> wrote:
-> > > > > > > > > >
-> > > > > > > > > > introduce virtqueue_get_buf_ctx_dma() to collect the dm=
-a info when
-> > > > > > > > > > get buf from virtio core for premapped mode.
-> > > > > > > > > >
-> > > > > > > > > > If the virtio queue is premapped mode, the virtio-net s=
-end buf may
-> > > > > > > > > > have many desc. Every desc dma address need to be unmap=
-. So here we
-> > > > > > > > > > introduce a new helper to collect the dma address of th=
-e buffer from
-> > > > > > > > > > the virtio core.
-> > > > > > > > >
-> > > > > > > > > So looking at vring_desc_extra, what we have right now is:
-> > > > > > > > >
-> > > > > > > > > struct vring_desc_extra {
-> > > > > > > > >         dma_addr_t addr;                /* Descriptor DMA=
- addr. */
-> > > > > > > > >         u32 len;                        /* Descriptor len=
-gth. */
-> > > > > > > > >         u16 flags;                      /* Descriptor fla=
-gs. */
-> > > > > > > > >         u16 next;                       /* The next desc =
-state in a list. */
-> > > > > > > > > };
-> > > > > > > > >
-> > > > > > > > > And sg is
-> > > > > > > > >
-> > > > > > > > > struct scatterlist {
-> > > > > > > > >         unsigned long   page_link;
-> > > > > > > > > unsigned int    offset;
-> > > > > > > > >         unsigned int    length;
-> > > > > > > > >         dma_addr_t      dma_address;
-> > > > > > > > > #ifdef CONFIG_NEED_SG_DMA_LENGTH
-> > > > > > > > >         unsigned int    dma_length;
-> > > > > > > > > #endif
-> > > > > > > > > #ifdef CONFIG_NEED_SG_DMA_FLAGS
-> > > > > > > > >         unsigned int    dma_flags;
-> > > > > > > > > #endif
-> > > > > > > > > };
-> > > > > > > > >
-> > > > > > > > > Would it better just store sg?
-> > > > > > > >
-> > > > > > > > Do you mean we expose the vring_desc_extra to dirver?
-> > > > > > >
-> > > > > > > Maybe or not, (or just us sg for desc_extra).
-> > > > > > >
-> > > > > > > Anyhow, any method needs to be benchmarked to see the perform=
-ance impact.
-> > > > > > >
-> > > > > > > >
-> > > > > > > > How about introducing such a new structure?
-> > > > > > > >
-> > > > > > > > struct virtio_dma_item {
-> > > > > > > >          dma_addr_t addr;
-> > > > > > > >          u32 len;
-> > > > > > > > };
-> > > > > > > >
-> > > > > > > > struct virtio_dma_head {
-> > > > > > > >         u32 num;
-> > > > > > > >         u32 used;
-> > > > > > > >         struct virtio_dma_item items[];
-> > > > > > > > };
-> > > > > > > >
-> > > > > > > > Then we just need to pass one pointer to the virtio.
-> > > > > > >
-> > > > > > > Just to make sure I understand here, where did we store those=
- arrays?
-> > > > > >
-> > > > > >
-> > > > > > On the stack, or we can reuse the memory space of sq->sg.
-> > > > > >
-> > > > > > dma =3D (struct virtio_dma_head*)sq->sg;
-> > > > >
-> > > > > Ok, we need some benchmark for sure.
-> > > > >
-> > > > > >
-> > > > > >
-> > > > > > >
-> > > > > > > > num is used to pass the size of items
-> > > > > > > > used is used to return the num used by virtio core.
-> > > > > > > >
-> > > > > > > > >
-> > > > > > > > > More below
-> > > > > > > > >
-> > > > > > > > > >
-> > > > > > > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > > > > > > > ---
-> > > > > > > > > >  drivers/virtio/virtio_ring.c | 148 +++++++++++++++++++=
-+++++++---------
-> > > > > > > > > >  include/linux/virtio.h       |   2 +
-> > > > > > > > > >  2 files changed, 115 insertions(+), 35 deletions(-)
-> > > > > > > > > >
-> > > > > > > > > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/vir=
-tio/virtio_ring.c
-> > > > > > > > > > index 51d8f3299c10..0b3caee4ef9d 100644
-> > > > > > > > > > --- a/drivers/virtio/virtio_ring.c
-> > > > > > > > > > +++ b/drivers/virtio/virtio_ring.c
-> > > > > > > > > > @@ -362,6 +362,20 @@ static struct device *vring_dma_de=
-v(const struct vring_virtqueue *vq)
-> > > > > > > > > >         return vq->dma_dev;
-> > > > > > > > > >  }
-> > > > > > > > > >
-> > > > > > > > > > +static void store_dma_to_sg(struct scatterlist **sgp, =
-dma_addr_t addr, unsigned int length)
-> > > > > > > > > > +{
-> > > > > > > > > > +       struct scatterlist *sg;
-> > > > > > > > > > +
-> > > > > > > > > > +       sg =3D *sgp;
-> > > > > > > > > > +
-> > > > > > > > > > +       sg->dma_address =3D addr;
-> > > > > > > > > > +       sg->length =3D length;
-> > > > > > > > > > +
-> > > > > > > > > > +       sg =3D sg_next(sg);
-> > > > > > > > > > +
-> > > > > > > > > > +       *sgp =3D sg;
-> > > > > > > > > > +}
-> > > > > > > > > > +
-> > > > > > > > > >  /* Map one sg entry. */
-> > > > > > > > > >  static int vring_map_one_sg(const struct vring_virtque=
-ue *vq, struct scatterlist *sg,
-> > > > > > > > > >                             enum dma_data_direction dir=
-ection, dma_addr_t *addr)
-> > > > > > > > > > @@ -441,12 +455,18 @@ static void virtqueue_init(struct=
- vring_virtqueue *vq, u32 num)
-> > > > > > > > > >   */
-> > > > > > > > > >
-> > > > > > > > > >  static void vring_unmap_one_split_indirect(const struc=
-t vring_virtqueue *vq,
-> > > > > > > > > > -                                          const struct=
- vring_desc *desc)
-> > > > > > > > > > +                                          const struct=
- vring_desc *desc,
-> > > > > > > > > > +                                          struct scatt=
-erlist **sg)
-> > > > > > > > > >  {
-> > > > > > > > > >         u16 flags;
-> > > > > > > > > >
-> > > > > > > > > > -       if (!vq->do_unmap)
-> > > > > > > > > > +       if (!vq->do_unmap) {
-> > > > > > > > > > +               if (*sg)
-> > > > > > > > >
-> > > > > > > > > Can we simply move the
-> > > > > > > > >
-> > > > > > > > > if (*sg) to store_dma_to_sg()?
-> > > > > > > >
-> > > > > > > > OK
-> > > > > > > >
-> > > > > > > >
-> > > > > > > > >
-> > > > > > > > > > +                       store_dma_to_sg(sg,
-> > > > > > > > > > +                                       virtio64_to_cpu=
-(vq->vq.vdev, desc->addr),
-> > > > > > > > > > +                                       virtio32_to_cpu=
-(vq->vq.vdev, desc->len));
-> > > > > > > > > >                 return;
-> > > > > > > > > > +       }
-> > > > > > > > > >
-> > > > > > > > > >         flags =3D virtio16_to_cpu(vq->vq.vdev, desc->fl=
-ags);
-> > > > > > > > > >
-> > > > > > > > > > @@ -458,7 +478,7 @@ static void vring_unmap_one_split_i=
-ndirect(const struct vring_virtqueue *vq,
-> > > > > > > > > >  }
-> > > > > > > > > >
-> > > > > > > > > >  static unsigned int vring_unmap_one_split(const struct=
- vring_virtqueue *vq,
-> > > > > > > > > > -                                         unsigned int =
-i)
-> > > > > > > > > > +                                         unsigned int =
-i, struct scatterlist **sg)
-> > > > > > > > > >  {
-> > > > > > > > > >         struct vring_desc_extra *extra =3D vq->split.de=
-sc_extra;
-> > > > > > > > > >         u16 flags;
-> > > > > > > > > > @@ -475,8 +495,11 @@ static unsigned int vring_unmap_on=
-e_split(const struct vring_virtqueue *vq,
-> > > > > > > > > >                                  (flags & VRING_DESC_F_=
-WRITE) ?
-> > > > > > > > > >                                  DMA_FROM_DEVICE : DMA_=
-TO_DEVICE);
-> > > > > > > > > >         } else {
-> > > > > > > > > > -               if (!vq->do_unmap)
-> > > > > > > > > > +               if (!vq->do_unmap) {
-> > > > > > > > >
-> > > > > > > > > The:
-> > > > > > > > >
-> > > > > > > > > else {
-> > > > > > > > >       if {
-> > > > > > > > >             if {
-> > > > > > > > > }
-> > > > > > > > >
-> > > > > > > > > seems odd. I think I would prefer
-> > > > > > > > >
-> > > > > > > > > if (flags & VRING_DESC_F_INDIRECT) {
-> > > > > > > > > } else if (!vq->do_unmap) {
-> > > > > > > > > } else {
-> > > > > > > > > }
-> > > > > > > >
-> > > > > > > >
-> > > > > > > > Will fix.
-> > > > > > > >
-> > > > > > > >
-> > > > > > > > >
-> > > > > > > > > here
-> > > > > > > > >
-> > > > > > > > > Btw, I really think do_unmap is not a good name, we proba=
-bly need to
-> > > > > > > > > rename it as "unmap_desc".
-> > > > > > > >
-> > > > > > > > How about a separate patch for this?
-> > > > > > > >
-> > > > > > > > >
-> > > > > > > > >
-> > > > > > > > > > +                       if (*sg)
-> > > > > > > > > > +                               store_dma_to_sg(sg, ext=
-ra[i].addr, extra[i].len);
-> > > > > > > > >
-> > > > > > > > > In which case we need to unmap by driver but we don't nee=
-d a dma address?
-> > > > > > > >
-> > > > > > > > Sorry, do not get it.
-> > > > > > >
-> > > > > > > I meant, I don't get how we can reach to this check.
-> > > > > >
-> > > > > > This is the main way. I think you miss something.
-> > > > >
-> > > > > Or maybe you can explain the case where vq->do_unmap is false but=
- *sg is NULL?
-> > > >
-> > > >
-> > > > If vq->do_unmap is false, that is premapped mode or use_dma_api is =
-false.
-> > > > If the *sg is null, that means that the driver call the API
-> > > > virtqueue_get_buf_ctx or virtqueue_get_buf.
-> > > > If the *sg is not null, that means that the driver call the API
-> > > >
-> > > >         void *virtqueue_get_buf_ctx_dma(struct virtqueue *_vq, unsi=
-gned int *len,
-> > > >                                         struct scatterlist *sg, voi=
-d **ctx);
-> > > >
-> > > > Thanks.
-> > >
-> > > Ok, but my question still:
-> > >
-> > > 1) you explain one possible way here is use_dma_api is false and the
-> > > driver doesn't call virtqueue_get_buf_ctx_dma().
-> >
-> > If the use_dma_api is false, then we cannot set to premapped mode.
-> > If the driver calls virtqueue_get_buf_ctx_dma(), that works as
-> > virtqueue_get_buf_ctx().
-> >
-> >
-> > > 2) what happens if the driver uses a preamp but doesn't use
-> > > virtqueue_get_buf_ctx_dma()? Should we warn in this case?
-
-
-About this, may we should not add warn.
-
-Such as the virtio-net rq and the AF_XDP, the driver will manage the dma me=
-ta,
-so the driver do not need to get the dma info from the virtio core.
-
-Thanks.
-
-
-> >
-> > The developer should know that he need to do unmap, so I think
-> > that is not needed.
->
-> Well, kind of layer violation here. Driver may trust the virtio core
-> but not verse vica.
->
-> E.g there are several WARN_ON() in the virtio_ring.
->
-> Thanks
->
-> >
-> > Thanks.
-> >
-> >
-> >
-> > >
-> > > Thanks
-> > >
-> >
+On Wed, Dec 13, 2023 at 08:11:57PM +0300, Arseniy Krasnov wrote:
 >
 >
+>On 13.12.2023 18:13, Michael S. Tsirkin wrote:
+>> On Wed, Dec 13, 2023 at 10:05:44AM -0500, Michael S. Tsirkin wrote:
+>>> On Wed, Dec 13, 2023 at 12:08:27PM +0300, Arseniy Krasnov wrote:
+>>>>
+>>>>
+>>>> On 13.12.2023 11:43, Stefano Garzarella wrote:
+>>>>> On Tue, Dec 12, 2023 at 08:43:07PM +0300, Arseniy Krasnov wrote:
+>>>>>>
+>>>>>>
+>>>>>> On 12.12.2023 19:12, Michael S. Tsirkin wrote:
+>>>>>>> On Tue, Dec 12, 2023 at 06:59:03PM +0300, Arseniy Krasnov wrote:
+>>>>>>>>
+>>>>>>>>
+>>>>>>>> On 12.12.2023 18:54, Michael S. Tsirkin wrote:
+>>>>>>>>> On Tue, Dec 12, 2023 at 12:16:54AM +0300, Arseniy Krasnov wrote:
+>>>>>>>>>> Hello,
+>>>>>>>>>>
+>>>>>>>>>>                                DESCRIPTION
+>>>>>>>>>>
+>>>>>>>>>> This patchset fixes old problem with hungup of both rx/tx sides and adds
+>>>>>>>>>> test for it. This happens due to non-default SO_RCVLOWAT value and
+>>>>>>>>>> deferred credit update in virtio/vsock. Link to previous old patchset:
+>>>>>>>>>> https://lore.kernel.org/netdev/39b2e9fd-601b-189d-39a9-914e5574524c@sberdevices.ru/
+>>>>>>>>>
+>>>>>>>>>
+>>>>>>>>> Patchset:
+>>>>>>>>>
+>>>>>>>>> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+>>>>>>>>
+>>>>>>>> Thanks!
+>>>>>>>>
+>>>>>>>>>
+>>>>>>>>>
+>>>>>>>>> But I worry whether we actually need 3/8 in net not in net-next.
+>>>>>>>>
+>>>>>>>> Because of "Fixes" tag ? I think this problem is not critical and reproducible
+>>>>>>>> only in special cases, but i'm not familiar with netdev process so good, so I don't
+>>>>>>>> have strong opinion. I guess @Stefano knows better.
+>>>>>>>>
+>>>>>>>> Thanks, Arseniy
+>>>>>>>
+>>>>>>> Fixes means "if you have that other commit then you need this commit
+>>>>>>> too". I think as a minimum you need to rearrange patches to make the
+>>>>>>> fix go in first. We don't want a regression followed by a fix.
+>>>>>>
+>>>>>> I see, ok, @Stefano WDYT? I think rearrange doesn't break anything, because this
+>>>>>> patch fixes problem that is not related with the new patches from this patchset.
+>>>>>
+>>>>> I agree, patch 3 is for sure net material (I'm fine with both rearrangement or send it separately), but IMHO also patch 2 could be.
+>>>>> I think with the same fixes tag, since before commit b89d882dc9fc ("vsock/virtio: reduce credit update messages") we sent a credit update
+>>>>> for every bytes we read, so we should not have this problem, right?
+>>>>
+>>>> Agree for 2, so I think I can rearrange: two fixes go first, then current 0001, and then tests. And send it as V9 for 'net' only ?
+>>>>
+>>>> Thanks, Arseniy
+>>>
+>>>
+>>> hmm why not net-next?
+>>
+>> Oh I missed your previous discussion. I think everything in net-next is
+>> safer.  Having said that, I won't nack it net, either.
+>
+>So, summarizing all above:
+>1) This patchset entirely goes to net-next as v9
+>2) I reorder patches like 3 - 2 - 1 - 4, e.g. two fixes goes first with Fixes tag
+>3) Add Acked-by: Michael S. Tsirkin <mst@redhat.com> to each patch
+>
+>@Michael, @Stefano ?
+
+Okay, let's do that ;-)
+
+Stefano
+
