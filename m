@@ -1,341 +1,464 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 359EA53A6
-	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 05:27:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9BB26AB6
+	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 05:51:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="h2Wp+wj0";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="jCPAzYTF"
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="xQ5jgaoa"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 9C55E41D66
-	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 05:27:02 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9C55E41D66
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-11-20 header.b=h2Wp+wj0;
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=jCPAzYTF
+	by smtp2.osuosl.org (Postfix) with ESMTP id 42A9B4047D
+	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 05:51:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 42A9B4047D
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=xQ5jgaoa
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.798
+X-Spam-Score: -1.898
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id wn_CmL2h-fIQ
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id TTnZIpl-2dTD
 	for <virtualization@lists.linux-foundation.org>;
-	Thu, 14 Dec 2023 05:26:56 +0000 (UTC)
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 6629B41D64
-	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 05:26:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6629B41D64
-Received: from pps.filterd (m0333521.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BE0SC1a012939;
-	Thu, 14 Dec 2023 05:26:55 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : content-transfer-encoding : content-type :
- mime-version; s=corp-2023-11-20;
- bh=zORhsPcXtV2jlio+bhW8L0m0rnNNqoSrBL+dlXLpGzY=;
- b=h2Wp+wj0rUSLoguHjunbeS0bLqdONhh8Tz8pbIHAwfX4uozw5AR9I6gmbGQQhkP0AraV
- tENNYj4fSMbZrzoSxZjoFIsyyKe50/R0l9eqCsD8/O1vRUaTHf8gdqu0rJmwLZWpcU42
- QsujwHle0jNlVN9DEbTBBO13aRxcJhhM4KATEKRi7dHeOSoDn3pa6e0sOJAjGg7aYghD
- JQsVoOeJDpArcNNeoUiaYG+XCLr9eHDZptybeKoAps0T57NIkMrmsyw7y6kXxDLDJ0uL
- hSSlznqIJzwfTpzOVosbF7gHLP8mKoEG663cNAFRlWbst3Qx2wK5F806b1JP7yI/xB8g EA== 
-Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3uvf5c9xgn-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 14 Dec 2023 05:26:55 +0000
-Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 3BE3e0GF008286;
-	Thu, 14 Dec 2023 05:26:54 GMT
-Received: from nam10-dm6-obe.outbound.protection.outlook.com (mail-dm6nam10lp2101.outbound.protection.outlook.com [104.47.58.101])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3uvep9gkge-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 14 Dec 2023 05:26:54 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=oayQPp/MMUeIBBPXx9tMXkZfkJAFRF2OV1ukK7qiqdWZBBoqXoCNtw+sqx1/7bk8go/5KxRYKBpdcAYxkWeqRT522/n/wttZYL2KQ7KLQaSuG67jSzv9Gseo8u2drk8688OQb0Z7+qMVovEKRg3JDZZXUXyq2+VkeZ1YRpuOONDOXfMdKv3IZEtBio/2p/+PHrEUF1oDPaLy/9pV3UZVHleqO5rN2VcdHtlaK2uAxJDOo3ne8/aQXow6QnZxJ0nOLi8vQupvZEcYS6V6Td4BvWFTIhXvFNQrg2zmGLyWWVk5KzKJRhduX7ekv5Vo7IvM8Oq/rlssi0SeCr1s9/LE2Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=zORhsPcXtV2jlio+bhW8L0m0rnNNqoSrBL+dlXLpGzY=;
- b=caSb+3Q6O8HoiinqAxbieJqSvfoCy6896VxCl/eiM335ptVqhJSekAfm7hoSGoUpulPGzlVe/AJa1zyvnKrqrKlSIF9CLv8vO7E2owa3GIRrsMlfXWunvM2cmRTXCDfgME1mdcWmlzZCaYJJh1Vt6+wtVd2fbH0uAItoUopIPDyFfgYQL6/lwWakRPczAq+RLY1RGy2PM3qMwOxA1txWTFp10qLuahM4OHUcfZB7FY8Q3zVadEFcF5laRLZsMXxWAZh5KxLRUzuDv8YmVjeBbon/dWrwOk6wE6gBHO3PSWBtmE9r7fIZ46348AETKGj1W5Mp7feelbx67aJufaxTnw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
+	Thu, 14 Dec 2023 05:51:21 +0000 (UTC)
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 3E7B140124
+	for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 05:51:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3E7B140124
+Received: by mail-pl1-x635.google.com with SMTP id d9443c01a7336-1d367e7092eso2432145ad.0
+        for <virtualization@lists.linux-foundation.org>; Wed, 13 Dec 2023 21:51:21 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=zORhsPcXtV2jlio+bhW8L0m0rnNNqoSrBL+dlXLpGzY=;
- b=jCPAzYTFAfyZS15EmVgLGC+mHC27aGbkntSYIuNmnrKyrClkwL93z+X5K3upatTsHz036joL4VNDBjB/AbawhGKGbnrVl0KM7CyHEI6/teDxukBm0CLK+SVcntcpZORunHQbZL/58gj1KrGPbMKZJmKznJmTQniV/zD1pTfoasI=
-Received: from CY8PR10MB7243.namprd10.prod.outlook.com (2603:10b6:930:7c::10)
- by BLAPR10MB5044.namprd10.prod.outlook.com (2603:10b6:208:326::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7091.29; Thu, 14 Dec
- 2023 05:26:51 +0000
-Received: from CY8PR10MB7243.namprd10.prod.outlook.com
- ([fe80::449f:4fd9:2d3e]) by CY8PR10MB7243.namprd10.prod.outlook.com
- ([fe80::449f:4fd9:2d3e%4]) with mapi id 15.20.7091.028; Thu, 14 Dec 2023
- 05:26:51 +0000
-From: Mike Christie <michael.christie@oracle.com>
-To: stefanha@redhat.com, jasowang@redhat.com, mst@redhat.com,
-        sgarzare@redhat.com, pbonzini@redhat.com, martin.petersen@oracle.com,
-        linux-scsi@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: Mike Christie <michael.christie@oracle.com>
-Subject: [PATCH 1/1] scsi: virtio_scsi: Add mq_poll support
-Date: Wed, 13 Dec 2023 23:26:49 -0600
-Message-Id: <20231214052649.57743-1-michael.christie@oracle.com>
-X-Mailer: git-send-email 2.34.1
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: DS7PR03CA0005.namprd03.prod.outlook.com
- (2603:10b6:5:3b8::10) To CY8PR10MB7243.namprd10.prod.outlook.com
- (2603:10b6:930:7c::10)
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1702533080; x=1703137880; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=rLainWpRefX2BTolt8NbE6C+P9Qi+Zj6K6itw8mdgIw=;
+        b=xQ5jgaoaCbj1GNSh+xRbH4nzeSc/Ah1xIepWdbTvHhUHdMIktl1nbMOr2EBshJCmFh
+         aAgWW27TUZ4s4n55VDtDR8Sa0RKfjmuM4r3XalJcIj1d8jVcisK3a2rcjby8b1WMzeMT
+         G7wqqcIKR/KcGwGmKEBNitO3LlmoTOU4GdTMn3c4WNc/6waUcBIbgLqEAV/0ULsIYDYt
+         rsemVdNqaFxlU1jf8KRW5bLpDQW3vEkKQO3vrTUMDA6hthGMaA4JKTawyogT08RAe/OP
+         tD1HdKhDCTWe25xMYspr7ojWkMlxsdjhbtAIi/FfIBQZfRb635S867bmUSwZCqUBMIKw
+         7F7A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1702533080; x=1703137880;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=rLainWpRefX2BTolt8NbE6C+P9Qi+Zj6K6itw8mdgIw=;
+        b=cV8DtnJeyZZjAvhYSMamMk4oXF9lyfOFDAa+DoVl8nTfqkg0/w3zN9AGJEOsk1+u8k
+         4mSyCxi7tSnlu9FNvqTs0oTpriYv4L2Ersz+IwL+kk2Gr3r1+xCXH9Lh8UgNc7iz94he
+         mbIrgpndJ6kBgPvaWxUtp6Q7w7kqtyZpxf4GmyTA5Ohw6tabhS6qouNCiQdSzhdWoOH5
+         hpV7gcsFKw63BkFKlSecHnzE7owGU5AwVujFccTwv/xiB4J1JaiblWG5Ck9lJzXcW4E9
+         qCOC4qzsSlEYkMwYDeSbl0ilZ9wDgGIEhzS1C6m376pyp0PvB/zynnFG57VpY4NLISKR
+         +xAw==
+X-Gm-Message-State: AOJu0Yyc1ccXLMjxslb3///yuNfnwY0fldDwt2DVneHI/b878b+GJ/Ma
+	piGXCTymC3JUaWPkR9r5ppERMA==
+X-Google-Smtp-Source: AGHT+IFRyNQvpvdQRX4JOkIHdq7XsS4REgw0KvXGNYFu7hOA1IvlbkCqaQ4DOqq+4tpbuujLUp6ryw==
+X-Received: by 2002:a17:903:32ce:b0:1d0:c535:c5d5 with SMTP id i14-20020a17090332ce00b001d0c535c5d5mr11735028plr.60.1702533080380;
+        Wed, 13 Dec 2023 21:51:20 -0800 (PST)
+Received: from [192.168.205.173] ([157.82.200.183])
+        by smtp.gmail.com with ESMTPSA id jl13-20020a170903134d00b001d0b410271fsm11481858plb.218.2023.12.13.21.51.13
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 13 Dec 2023 21:51:20 -0800 (PST)
+Message-ID: <0d68722c-9e29-407b-9ef0-331683c995d2@daynix.com>
+Date: Thu, 14 Dec 2023 14:51:12 +0900
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY8PR10MB7243:EE_|BLAPR10MB5044:EE_
-X-MS-Office365-Filtering-Correlation-Id: f66d9bcd-69bc-4ec2-a422-08dbfc65465b
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 
-	4JSNJrzxnPPXEqxAVlPmJHhC2r8PcRffC2imzoONA6ZLKJK35xG0cYLOX1Qnl553HLOxae55pQjQuEEWOttkvTKTRnLA4TW3U7LHMt8RYtjgnLlL8JPFIThqvVaZG8FqYILouJdeZi53RCJaL4aZhHQ0OeVuGaCHVea6fIAfEXmSBqS4qDo9ZsqqlB8evlkLOmUUAOwOVxE2ux0CeBHNeOm4rot/AH6ovmHFysRGmn3+fjJ5RnCbT3S35JC2yXFkJALX64NfGo9Nf2blnYCIw7M9KIiI8LFWeeci7PxTK0daBwK2iHZXIDG7wUYeBp8HtAtkiayUpffMyn458tTQ0DpY79VW4P7EqMS73Oq2Mje0xbODHtrU+PBWgHKOGCpm4x1Bk/d6VU/powMSzOFpVUkr+293NHFJ9kSaxap9FztzHsb7lY08t3ZsyhwvkxI68NQOXREiXVzI/QSqA8saTRvr2hm9iu6dOcQpclIaomk6+C58I4UMDhKFALeb96uXh5vEEsoHfhbbgmJgMb9q6kahYsTnudtpaRCA5pOzES7/M3gwTYjUlsioRIfKcKY1
-X-Forefront-Antispam-Report: 
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR10MB7243.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(136003)(346002)(366004)(396003)(39860400002)(376002)(230922051799003)(186009)(64100799003)(451199024)(1800799012)(83380400001)(2616005)(6512007)(107886003)(1076003)(26005)(38100700002)(8676002)(8936002)(4326008)(316002)(2906002)(5660300002)(6486002)(478600001)(41300700001)(6506007)(66476007)(66946007)(66556008)(36756003)(86362001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: 
-	=?us-ascii?Q?uYt+wj8uMhKSEk41c7oHYRlde2jbqk44c233Gf8Z9/qRMkeHwEYAN6ve6nos?=
- =?us-ascii?Q?8B25dd886ySrHGbbBBz+ZfyMi+4kJTyY6Qua9QS6NkNCTrETQbHZ0wkeqRRT?=
- =?us-ascii?Q?Rkf9JXW2AX4A5j9QZw7Yg6a+eOeh8/zGqYG3b+0zK/T9yp0O4lc9wYCW0AWn?=
- =?us-ascii?Q?Kermon8I4CjyYY3TxgQf0eY6YKkJccz80r0Tbnj8I0cW+rmiJub5KjPHUh9k?=
- =?us-ascii?Q?5u/9z0uIfYM5+L+VDcz/O5Kc49QOUhz8eZqlxiX2HGINgjqfuugBL6WSjWHD?=
- =?us-ascii?Q?/8OVpw5w0T6DiPR7qN3x5p0t1yQAeAchCj1RfVSAvCnfu0171Gc1+3MKovIB?=
- =?us-ascii?Q?RTGxbsAI8Xy0B9ITczBYXkryr4OdZXkh1oJYpjr7WTT2X9I9DDbOHje1uljd?=
- =?us-ascii?Q?jffcvbX3RM2BQCiSJYbWr3YSpMTA68n7QdswTNOgDH54Dtx30QWyLF9+3J4h?=
- =?us-ascii?Q?r5k8DnK9gjpGVDyV2L6DHlJ4A1zRAarmSTEcrFZC8EO7XDJUSmAzhoXLJ1r8?=
- =?us-ascii?Q?uSPUG/DG9Z9BFzk+iPmO3ZhA/ZNNPLNJ+6R0OUwW4KQ/PYcYyUugwefzrwK2?=
- =?us-ascii?Q?zR9bRrqAaGJw2oR0eQSi92N2S02Dk9uvcMifZsov8lplsRNPPK5QYvEDeDbe?=
- =?us-ascii?Q?52NUN5TZHKWAW4xAKrymF20ii/CSVx33DD4TIEnuSYHLNClc3MXHDv4lbfEP?=
- =?us-ascii?Q?K74jj4nC41Mu+PwvPEBL3UlKi/6oGw3Xsv91mMVGc+pPQzTA1Mlkf8XRJtF8?=
- =?us-ascii?Q?jUXStiWhou7vAZKMh4TinXyN3maHxTfXgNHpY+3+0Gfv9WGnkWurso6qWYc2?=
- =?us-ascii?Q?e10HJoyAeC6vULs07QYP0vcb9qORmJgx0fVhL4VI/2eTDbKZ7wDo/Uw8mdvF?=
- =?us-ascii?Q?060oP3yZVpq4PnSxXpw4rmQrb5m4ysxi3Tpu3rfH4/VKoWdvNxmTDCd9lhFo?=
- =?us-ascii?Q?2Q12ogT8GoWpVXHgYG0uOkjgAFvIPF52Xls559mwy9zuF9N7LGue7NOVL7Fo?=
- =?us-ascii?Q?ZuqcEexUYxhmHcmtsZ/QdPxKeps7F6wDPbCQ1mWphLbLhvw7iQYJu6p0/gDQ?=
- =?us-ascii?Q?VYmL0KlhShGd1OUQcj5DVAhTH1EpFI2tfotL+4WS+bYPEunJLtURUCu1hjr1?=
- =?us-ascii?Q?Z90xFY5sfTa8hmbfufURb04Q2izmqHpstqLMYRv+LI+Bas0Ds0AcLcOATDbL?=
- =?us-ascii?Q?8U54VIlaAcFmStN/0UIUwPW39GtMN07NlLFobIjWGXDTgnhZp77lC6HbMTa4?=
- =?us-ascii?Q?e+aqH2kJz1PnIx7kaC4NkEqXzdWEOUGX3Zc4mzW0G2z/5qByejk70rH5gt1h?=
- =?us-ascii?Q?otW/aucNfMvB92vIwn+Fj45Yd7Fi0mfEeBrjXmjNSLMW3H5pGNmeV4yNtrH5?=
- =?us-ascii?Q?5d2RHBE8H8xMvqsHFa43oxsJEV5zgmheaKumMBmVoXC9F5iOAfALJ3q8c1US?=
- =?us-ascii?Q?/4fo2bBtWX1MOcIcaDREH+UCCIdp0TCgPAaFzneqK8n9QGJ58AXCKEIftj17?=
- =?us-ascii?Q?e1z3N2D+PaO6VDQbc/Rz5CdUQ4qpHSEuXCNPAWzkeZEX9pHQFC7V727iW6U4?=
- =?us-ascii?Q?3FWWaoo74UomW1w/VPfCOxdRc3CuHmCgOBcBVwGm3KQXgCGEEYhNFc4h+Js3?=
- =?us-ascii?Q?BQ=3D=3D?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: 
-	XsbSYWfXtvBTn1mrDZp+nLrIqHrdlsv9FgcCuwyh/DUVFgHIbKV/hd3VL3KFmBm34CgUiVdNaOFnwjLsN9FjsE5XdADHg7fIR1Rrhm4bG+YqW1zHbaSFOSeLQG9i/aOhRU3lQDhlPgsz0dLQ7OQxWzcTGUIrR2DxaNjGu5xgATVcFmAotiw+0MdVrxr/BU2O00dEsvct1pKKcBgRmWXKVHQfq2gbN1l+bi/x9trkfSgwhVLH4Y6hieQKK2l+hgLyqYCqPWRPUIjdAefrY+KnCdtghDPw/cPBrzSt1pCMzZwzjnPVddMsShaldxEMbSzvvQOsrpf4mP637I6ZfRykSs4UbK2t+hPf6NVP31JBt76aP+LKW5edQAxCnuUGeccc3H07IpHF4X15yTYW8WeFuTTSQyAQTV26llud0D7di3Be3LvUmPQ+MNJazn603ETtSMNRox0WRitAR6ZaaJOwmYB9fzc9wr4nCjBH4HSmWGdkiTo6PxhjWsTrzy3OCGLXnzJXEhYwjjIkggkWKGMcizTRCgb0cPK1VzDHQ0bB/N80d9ahukeaNGcrf7b85Y7CzYHDjtsJ5drNS3Gn4kh5ra3MiIaDfs09DSYz6B7VyTU=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: f66d9bcd-69bc-4ec2-a422-08dbfc65465b
-X-MS-Exchange-CrossTenant-AuthSource: CY8PR10MB7243.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Dec 2023 05:26:50.6908
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: Nx3C5xe1s9KjdBM9+oG/ZFN5ekHH+vFKK+JbuAr1+CPXP9v9O0qVTMyLCtdIsC+K25n4OF4fWp9lHkAb2Wy/hM6IPK8edUBo37/FQrJQ2Z4=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BLAPR10MB5044
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-12-14_02,2023-12-13_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 malwarescore=0
- mlxlogscore=999 adultscore=0 phishscore=0 suspectscore=0 mlxscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2312140031
-X-Proofpoint-ORIG-GUID: MLHbxdVv_fzYuxVVqBFm0f-DNDnN5x1r
-X-Proofpoint-GUID: MLHbxdVv_fzYuxVVqBFm0f-DNDnN5x1r
+User-Agent: Mozilla Thunderbird
+Subject: Re: Should I add BPF kfuncs for userspace apps? And how?
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Alexei Starovoitov <alexei.starovoitov@gmail.com>,
+ Jason Wang <jasowang@redhat.com>, Alexei Starovoitov <ast@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>, Andrii Nakryiko <andrii@kernel.org>,
+ Martin KaFai Lau <martin.lau@linux.dev>,
+ Yonghong Song <yonghong.song@linux.dev>,
+ John Fastabend <john.fastabend@gmail.com>, KP Singh <kpsingh@kernel.org>,
+ Stanislav Fomichev <sdf@google.com>, Hao Luo <haoluo@google.com>,
+ Jiri Olsa <jolsa@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>, Mykola Lysenko <mykolal@fb.com>,
+ Shuah Khan <shuah@kernel.org>, Yuri Benditovich
+ <yuri.benditovich@daynix.com>, Andrew Melnychenko <andrew@daynix.com>,
+ Benjamin Tissoires <bentiss@kernel.org>, bpf <bpf@vger.kernel.org>,
+ "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, kvm@vger.kernel.org,
+ LKML <linux-kernel@vger.kernel.org>,
+ virtualization@lists.linux-foundation.org,
+ "open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>,
+ Network Development <netdev@vger.kernel.org>
+References: <2f33be45-fe11-4b69-8e89-4d2824a0bf01@daynix.com>
+ <CAO-hwJJhzHtKrUEw0zrjgub3+eapgJG-zsG0HRB=PaPi6BxG+w@mail.gmail.com>
+ <e256c6df-0a66-4f86-ae96-bff17920c2fb@daynix.com>
+ <CAO-hwJKMrWYRNpuprDj9=k87V0yHtLPEJuQ94bpOF3O81=v0kA@mail.gmail.com>
+Content-Language: en-US
+From: Akihiko Odaki <akihiko.odaki@daynix.com>
+In-Reply-To: <CAO-hwJKMrWYRNpuprDj9=k87V0yHtLPEJuQ94bpOF3O81=v0kA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-This adds polling support to virtio-scsi. It's based on and works similar
-to virtblk support where we add a module param to specify the number of
-poll queues then subtract to calculate the IO queues.
+On 2023/12/13 19:22, Benjamin Tissoires wrote:
+> On Tue, Dec 12, 2023 at 1:41 PM Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
+>>
+>> On 2023/12/12 19:39, Benjamin Tissoires wrote:
+>>> Hi,
+>>>
+>>> On Tue, Dec 12, 2023 at 9:11 AM Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
+>>>>
+>>>> Hi,
+>>
+>> Hi,
+>>
+>> Thanks for reply.
+>>
+>>>>
+>>>> It is said eBPF is a safe way to extend kernels and that is very
+>>>> attarctive, but we need to use kfuncs to add new usage of eBPF and
+>>>> kfuncs are said as unstable as EXPORT_SYMBOL_GPL. So now I'd like to ask
+>>>> some questions:
+>>>>
+>>>> 1) Which should I choose, BPF kfuncs or ioctl, when adding a new feature
+>>>> for userspace apps?
+>>>> 2) How should I use BPF kfuncs from userspace apps if I add them?
+>>>>
+>>>> Here, a "userspace app" means something not like a system-wide daemon
+>>>> like systemd (particularly, I have QEMU in mind). I'll describe the
+>>>> context more below:
+>>>
+>>> I'm probably not the best person in the world to answer your
+>>> questions, Alexei and others from the BPF core group are, but given
+>>> that you pointed at a thread I was involved in, I feel I can give you
+>>> a few pointers.
+>>>
+>>> But first and foremost, I encourage you to schedule an agenda item in
+>>> the BPF office hour[4]. Being able to talk with the core people
+>>> directly was tremendously helpful to me to understand their point.
+>>
+>> I prefer emails because I'm not very fluent when speaking in English and
+>> may have a difficultly to listen to other people, but I may try it in
+>> future.
+>>
+>>>
+>>>
+>>>>
+>>>> ---
+>>>>
+>>>> I'm working on a new feature that aids virtio-net implementations using
+>>>> tuntap virtual network device. You can see [1] for details, but
+>>>> basically it's to extend BPF_PROG_TYPE_SOCKET_FILTER to report four more
+>>>> bytes.
+>>>>
+>>>> However, with long discussions we have confirmed extending
+>>>> BPF_PROG_TYPE_SOCKET_FILTER is not going to happen, and adding kfuncs is
+>>>> the way forward. So I decided how to add kfuncs to the kernel and how to
+>>>> use it. There are rich documentations for the kernel side, but I found
+>>>> little about the userspace. The best I could find is a systemd change
+>>>> proposal that is based on WIP kernel changes[2].
+>>>
+>>> Yes, as Alexei already replied, BPF is not adding new stable APIs,
+>>> only kfuncs. The reason being that once it's marked as stable, you
+>>> can't really remove it, even if you think it's badly designed and
+>>> useless.
+>>>
+>>> Kfuncs, OTOH are "unstable" by default meaning that the constraints
+>>> around it are more relaxed.
+>>>
+>>> However, "unstable" doesn't mean "unusable". It just means that the
+>>> kernel might or might not have the function when you load your program
+>>> in userspace. So you have to take that fact into account from day one,
+>>> both from the kernel side and the userspace side. The kernel docs have
+>>> a nice paragraph explaining that situation and makes the distinction
+>>> between relatively unused kfuncs, and well known established ones.
+>>>
+>>> Regarding the systemd discussion you are mentioning ([2]), this is
+>>> something that I have on my plate for a long time. I think I even
+>>> mentioned it to Alexei at Kernel Recipes this year, and he frowned his
+>>> eyebrows when I mentioned it. And looking at the systemd code and the
+>>> benefits over a plain ioctl, it is clearer that in that case, a plain
+>>> ioctl is better, mostly because we already know the API and the
+>>> semantic.
+>>>
+>>> A kfunc would be interesting in cases where you are not sure about the
+>>> overall design, and so you can give a shot at various API solutions
+>>> without having to keep your bad v1 design forever.
+>>>
+>>>>
+>>>> So now I'm wondering how I should use BPF kfuncs from userspace apps if
+>>>> I add them. In the systemd discussion, it is told that Linus said it's
+>>>> fine to use BPF kfuncs in a private infrastructure big companies own, or
+>>>> in systemd as those users know well about the system[3]. Indeed, those
+>>>> users should be able to make more assumptions on the kernel than
+>>>> "normal" userspace applications can.
+>>>>
+>>>> Returning to my proposal, I'm proposing a new feature to be used by QEMU
+>>>> or other VMM applications. QEMU is more like a normal userspace
+>>>> application, and usually does not make much assumptions on the kernel it
+>>>> runs on. For example, it's generally safe to run a Debian container
+>>>> including QEMU installed with apt on Fedora. BPF kfuncs may work even in
+>>>> such a situation thanks to CO-RE, but it sounds like *accidentally*
+>>>> creating UAPIs.
+>>>>
+>>>> Considering all above, how can I integrate BPF kfuncs to the application?
+>>>
+>>> FWIW, I'm not sure you can rely on BPF calls from a container. There
+>>> is a high chance the syscall gets disabled by the runtime.
+>>
+>> Right. Container runtimes will not pass CAP_BPF by default, but that
+>> restriction can be lifted and I think that's a valid scenario.
+>>
+>>>
+>>>>
+>>>> If BPF kfuncs are like EXPORT_SYMBOL_GPL, the natural way to handle them
+>>>> is to think of BPF programs as some sort of kernel modules and
+>>>> incorporate logic that behaves like modprobe. More concretely, I can put
+>>>> eBPF binaries to a directory like:
+>>>> /usr/local/share/qemu/ebpf/$KERNEL_RELEASE
+>>>
+>>> I would advise against that (one program per kernel release). Simply
+>>> because your kfunc may or may not have been backported to kernel
+>>> release v6.X.Y+1 while it was not there when v6.X.Y was out. So
+>>> relying on the kernel number is just going to be a headache.
+>>>
+>>> As I understand it, the way forward is to rely on the kernel, libbpf
+>>> and CO-RE: if the function is not available, the program will simply
+>>> not load, and you'll know that this version of the code is not
+>>> available (or has changed API).
+>>>
+>>> So what I would do if some kfunc API is becoming deprecated, is
+>>> embedding both code paths in the same BPF unit, but marking them as
+>>> not loaded by libppf. Then I can load the compilation unit, try v2 of
+>>> the API, and if it's not available, try v1, and if not, then mention
+>>> that I can not rely on BPF. Of course, this can also be done with
+>>> separate compilation units.
+>>
+>> Doesn't it mean that the kernel is free to break old versions of QEMU
+>> including BPF programs? That's something I'd like to avoid.
+> 
+> Couple of points here:
+> - when you say "the kernel", it feels like you are talking about an
+> external actor tampering with your code. But if you submit a kernel
+> patch with a specific use case and get yourself involved in the
+> community, why would anybody change your kfunc API without you knowing
+> it?
 
-When using 8 poll queues and a vhost worker per queue we see 4K IOPs
-with fio:
+You are right in the practical aspect.  I can pay efforts to keep kfunc 
+APIs alive and I'm also sure other developers would also try not to 
+break them for good.
 
-fio --filename=/dev/sda --direct=1 --rw=randread --bs=4k \
---ioengine=io_uring --hipri --iodepth=128  --numjobs=$NUM_JOBS
+Nevertheless I'm being careful to evaluate APIs from both of the kernel 
+and userspace (QEMU) viewpoints. If I fail to keep kfuncs stable because 
+I die in an accident, for example, it's a poor excuse for other QEMU 
+developers that I intended to keep them stable with my personal effort.
 
-increase like:
+> - the whole warning about "unstable" policy means that the user space
+> component should not take for granted the capability. So if the kfunc
+> changes/disappears for good reasons (because it was marked as well
+> used and deprecated for quite some time), qemu should not *break*, it
+> should not provide the functionality, or have a secondary plan.
+> 
+> But even if you are encountering such issues, in case of a change in
+> the ABI of your kfunc, it should be easy enough to backport the bpf
+> changes to your old QEMUs and ask users to upgrade the user space if
+> they upgrade their kernel.
+> 
+> AFAIU, it is as unstable as you want it to be. It's just that we are
+> not in the "we don't break user space" contract, because we are
+> talking about adding a kernel functionality from userspace, which
+> requires knowing the kernel intrinsics.
 
-jobs	base	poll
-1	207K	296K
-2	392K	552K
-3	581K	860K
-4	765K	1235K
-5	936K	1598K
-6	1104K	1880K
-7	1253K	2095K
-8	1311k	2187K
+I must admit I'm still not convinced the proposed BPF program 
+functionality needs to know internals of the kernel.
 
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
----
- drivers/scsi/virtio_scsi.c | 78 +++++++++++++++++++++++++++++++++++---
- 1 file changed, 73 insertions(+), 5 deletions(-)
+The eBPF program QEMU carries is just to calculate hashes from packets. 
+It doesn't need to know the details of how the kernel handles packets. 
+It only needs to have an access to the packet content.
 
-diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
-index 9d1bdcdc1331..4cf20be668a6 100644
---- a/drivers/scsi/virtio_scsi.c
-+++ b/drivers/scsi/virtio_scsi.c
-@@ -37,6 +37,11 @@
- #define VIRTIO_SCSI_EVENT_LEN 8
- #define VIRTIO_SCSI_VQ_BASE 2
- 
-+static unsigned int virtscsi_poll_queues;
-+module_param(virtscsi_poll_queues, uint, 0644);
-+MODULE_PARM_DESC(virtscsi_poll_queues,
-+		 "The number of dedicated virtqueues for polling I/O");
-+
- /* Command queue element */
- struct virtio_scsi_cmd {
- 	struct scsi_cmnd *sc;
-@@ -76,6 +81,7 @@ struct virtio_scsi {
- 	struct virtio_scsi_event_node event_list[VIRTIO_SCSI_EVENT_LEN];
- 
- 	u32 num_queues;
-+	int io_queues[HCTX_MAX_TYPES];
- 
- 	struct hlist_node node;
- 
-@@ -722,9 +728,49 @@ static int virtscsi_abort(struct scsi_cmnd *sc)
- static void virtscsi_map_queues(struct Scsi_Host *shost)
- {
- 	struct virtio_scsi *vscsi = shost_priv(shost);
--	struct blk_mq_queue_map *qmap = &shost->tag_set.map[HCTX_TYPE_DEFAULT];
-+	int i, qoff;
-+
-+	for (i = 0, qoff = 0; i < shost->nr_maps; i++) {
-+		struct blk_mq_queue_map *map = &shost->tag_set.map[i];
-+
-+		map->nr_queues = vscsi->io_queues[i];
-+		map->queue_offset = qoff;
-+		qoff += map->nr_queues;
-+
-+		if (map->nr_queues == 0)
-+			continue;
-+
-+		/*
-+		 * Regular queues have interrupts and hence CPU affinity is
-+		 * defined by the core virtio code, but polling queues have
-+		 * no interrupts so we let the block layer assign CPU affinity.
-+		 */
-+		if (i == HCTX_TYPE_POLL)
-+			blk_mq_map_queues(map);
-+		else
-+			blk_mq_virtio_map_queues(map, vscsi->vdev, 2);
-+	}
-+}
-+
-+static int virtscsi_mq_poll(struct Scsi_Host *shost, unsigned int queue_num)
-+{
-+	struct virtio_scsi *vscsi = shost_priv(shost);
-+	struct virtio_scsi_vq *virtscsi_vq = &vscsi->req_vqs[queue_num];
-+	unsigned long flags;
-+	unsigned int len;
-+	int found = 0;
-+	void *buf;
-+
-+	spin_lock_irqsave(&virtscsi_vq->vq_lock, flags);
-+
-+	while ((buf = virtqueue_get_buf(virtscsi_vq->vq, &len)) != NULL) {
-+		virtscsi_complete_cmd(vscsi, buf);
-+		found++;
-+	}
-+
-+	spin_unlock_irqrestore(&virtscsi_vq->vq_lock, flags);
- 
--	blk_mq_virtio_map_queues(qmap, vscsi->vdev, 2);
-+	return found;
- }
- 
- static void virtscsi_commit_rqs(struct Scsi_Host *shost, u16 hwq)
-@@ -751,6 +797,7 @@ static const struct scsi_host_template virtscsi_host_template = {
- 	.this_id = -1,
- 	.cmd_size = sizeof(struct virtio_scsi_cmd),
- 	.queuecommand = virtscsi_queuecommand,
-+	.mq_poll = virtscsi_mq_poll,
- 	.commit_rqs = virtscsi_commit_rqs,
- 	.change_queue_depth = virtscsi_change_queue_depth,
- 	.eh_abort_handler = virtscsi_abort,
-@@ -795,13 +842,14 @@ static int virtscsi_init(struct virtio_device *vdev,
- {
- 	int err;
- 	u32 i;
--	u32 num_vqs;
-+	u32 num_vqs, num_poll_vqs, num_req_vqs;
- 	vq_callback_t **callbacks;
- 	const char **names;
- 	struct virtqueue **vqs;
- 	struct irq_affinity desc = { .pre_vectors = 2 };
- 
--	num_vqs = vscsi->num_queues + VIRTIO_SCSI_VQ_BASE;
-+	num_req_vqs = vscsi->num_queues;
-+	num_vqs = num_req_vqs + VIRTIO_SCSI_VQ_BASE;
- 	vqs = kmalloc_array(num_vqs, sizeof(struct virtqueue *), GFP_KERNEL);
- 	callbacks = kmalloc_array(num_vqs, sizeof(vq_callback_t *),
- 				  GFP_KERNEL);
-@@ -812,15 +860,31 @@ static int virtscsi_init(struct virtio_device *vdev,
- 		goto out;
- 	}
- 
-+	num_poll_vqs = min_t(unsigned int, virtscsi_poll_queues,
-+			     num_req_vqs - 1);
-+	vscsi->io_queues[HCTX_TYPE_DEFAULT] = num_req_vqs - num_poll_vqs;
-+	vscsi->io_queues[HCTX_TYPE_READ] = 0;
-+	vscsi->io_queues[HCTX_TYPE_POLL] = num_poll_vqs;
-+
-+	dev_info(&vdev->dev, "%d/%d/%d default/read/poll queues\n",
-+		 vscsi->io_queues[HCTX_TYPE_DEFAULT],
-+		 vscsi->io_queues[HCTX_TYPE_READ],
-+		 vscsi->io_queues[HCTX_TYPE_POLL]);
-+
- 	callbacks[0] = virtscsi_ctrl_done;
- 	callbacks[1] = virtscsi_event_done;
- 	names[0] = "control";
- 	names[1] = "event";
--	for (i = VIRTIO_SCSI_VQ_BASE; i < num_vqs; i++) {
-+	for (i = VIRTIO_SCSI_VQ_BASE; i < num_vqs - num_poll_vqs; i++) {
- 		callbacks[i] = virtscsi_req_done;
- 		names[i] = "request";
- 	}
- 
-+	for (; i < num_vqs; i++) {
-+		callbacks[i] = NULL;
-+		names[i] = "request_poll";
-+	}
-+
- 	/* Discover virtqueues and write information to configuration.  */
- 	err = virtio_find_vqs(vdev, num_vqs, vqs, callbacks, names, &desc);
- 	if (err)
-@@ -874,6 +938,7 @@ static int virtscsi_probe(struct virtio_device *vdev)
- 
- 	sg_elems = virtscsi_config_get(vdev, seg_max) ?: 1;
- 	shost->sg_tablesize = sg_elems;
-+	shost->nr_maps = 1;
- 	vscsi = shost_priv(shost);
- 	vscsi->vdev = vdev;
- 	vscsi->num_queues = num_queues;
-@@ -883,6 +948,9 @@ static int virtscsi_probe(struct virtio_device *vdev)
- 	if (err)
- 		goto virtscsi_init_failed;
- 
-+	if (vscsi->io_queues[HCTX_TYPE_POLL])
-+		shost->nr_maps = HCTX_TYPE_POLL + 1;
-+
- 	shost->can_queue = virtqueue_get_vring_size(vscsi->req_vqs[0].vq);
- 
- 	cmd_per_lun = virtscsi_config_get(vdev, cmd_per_lun) ?: 1;
--- 
-2.34.1
+It is exactly what BPF_PROG_TYPE_SOCKET_FILTER does, but it lacks a 
+mechanism to report hash values so I need to extend it or invent a new 
+method. Extending BPF_PROG_TYPE_SOCKET_FILTER is not a way forward since 
+CO-RE is superior to the context rewrite it relies on. But apparently 
+adopting kfuncs and CO-RE also means to lose the "we don't break user 
+space" contract although I have no intention to expose kernel internals 
+to the eBPF program.
 
+> 
+>>
+>>>
+>>>>
+>>>> Then, QEMU can uname() and get the path to the binary. It will give an
+>>>> error if it can't find the binary for the current kernel so that it
+>>>> won't create accidental UAPIs.
+>>>>
+>>>> The obvious downside of this is that it complicates packaging a lot; it
+>>>> requires packaging QEMU eBPF binaries each time a new kernel comes up.
+>>>> This complexity is centrally managed by modprobe for kernel modules, but
+>>>> apparently each application needs to take care of it for BPF programs.
+>>>
+>>> For my primary use case: HID-BPF, I put kfuncs in kernel v6.3 and
+>>> given that I haven't touch this part of the API, the same compilation
+>>> unit compiled in the v6.3 era still works on a v6.7-rcx, so no, IMO
+>>> it's not complex and doesn't require to follow the kernel releases
+>>> (which is the whole point of HID-BPF FWIW).
+>>
+>> I also expect BPF kfuncs will work well for long if I introduce its
+>> usage to QEMU in practice. That said, the interface stability is about
+>> when something unexpected happens. What if the interface QEMU relies on
+>> is deemed sub-optimal? Without following kernel releases, QEMU may
+>> accidentally lose the feature relying on eBPF.
+> 
+> In the same way, anybody can tamper with your ioctl or syscall without
+> QEMU knowing it.
+
+I suppose it's only the case when the ioctl is marked as experimental, 
+and it's also possible to mark it stable when the design is 
+consolidated. The latter part matters; once I and other kernel/QEMU 
+developers become confident, I'd like to drop the experimental notes 
+from the kernel and QEMU and expect kfuncs to keep working.
+
+> And what you need to follow is not the kernel *releases*, but the
+> changes in the kfuncs you are interested in.
+
+That works as long as a version of kfunc is stable across kernel 
+releases. I have to ensure that a breaking change will always require a 
+different symbol for that purpose.
+
+> 
+>>
+>>>
+>>>>
+>>>> In conclusion, I see too much complexity to use BPF in a userspace
+>>>> application, which we didn't have to care for
+>>>> BPF_PROG_TYPE_SOCKET_FILTER. Isn't there a better way? Or shouldn't I
+>>>> use BPF in my case in the first place?
+>>>
+>>> Given that I'm not a network person, I'm not sure about your use case,
+>>> but I would make my decision based on:
+>>> - do I know exactly what I want to achieve and I'm confident that I'll
+>>> write the proper kernel API from day one? (if not then kfuncs is
+>>> appealing because  it's less workload in the long run, but userspace
+>>> needs to be slightly smarter)
+>>
+>> Personally I'm confident that the initial UAPI design will not do a bad
+>> thing at least. However, there is a high chance that the design needs to
+>> be extended to accommodate new features.
+> 
+> Not trying to offend you or anything, but designs can change for
+> multiple reasons. Floppy disks were a good design at the time, and it
+> took decades to remove support for it in the kernel. In the same way,
+> removing an architecture from the kernel is hard, because even if you
+> can not run a new kernel on those architectures, "we do not break
+> userspace".
+
+It's a totally valid point. I expect the underlying networking technique 
+(RSS) will matter for the next decade, but I'm not sure after that.
+
+> 
+> The whole BPF approach is to say that users of BPF are not plain
+> random users, and they have to know a little bit of the kernel, and
+> they know that once the kfunc is here, it doesn't mean it'll stay here
+> forever.
+> 
+>>
+>>> - are all of my use cases covered by using BPF? (what happens if I run
+>>> QEMU in a container?) -> BPF might or might not be a solution
+>>
+>> Yes. Containers can be used to 1) have a different userspace or 2)
+>> isolate things for security.
+>>
+>> Regarding 2), QEMU and libvirt has sandbox mechanisms so we can rely on
+>> them instead of containers so we can just pass capabilities to the
+>> container. At least, we can always have a setuid helper outside
+>> container, and pass around file descriptors it generates.
+>>
+>> So 1) is the only problem that matters.
+>>
+>>>
+>>> But the nice thing about using BPF kfuncs is that it allows you to
+>>> have a testing (not-)UAPI kernel interface. You can then implement the
+>>> userspace changes and see how it behaves. And then, once you got the
+>>> right design, you can decide to promote it to a proper syscall or
+>>> ioctl if you want.
+>>
+>> I expect it's possible to have testing ioctls. Quickly searching online,
+>> there are experimental ioctls[1][2]. I also know DRM has a relaxed
+>> policy for closed-source userspace[3].
+> 
+> Sure, but handling a change in the API in those cases is tough in the
+> kernel. You probably need to bump versions, return different values
+> depending on how many parameters you are given, and you are never sure
+> the caller is using the right parameters. BPF simplifies this by
+> actually checking the types of the caller, and if there is a
+> discrepancy, it'll notify userspace that it is doing something bad.
+
+That's the whole reason I'm reluctant to have an ioctl while I intend to 
+use it like a UAPI. BPF looks nice; it's safer, allows to extend the 
+functionality when the virtio spec QEMU implements gets updated and to 
+reuse the existing code for BPF_PROG_TYPE_SOCKET_FILTER.
+
+> 
+>>
+>> So I'm seeing the distinction of UAPI/kfunc even less definitive; UAPIs
+>> can also be broken if the subsystem maintainers agree and there is no
+>> real user. I also think it's natural to say a kfunc will be stable as
+>> long as there is a user, but it contradicts with the current situation.
+> 
+> Please read more carefully the kernel docs [4] (just quoting here the
+> beginning):
+> 
+> """
+> Like any other change to the kernel, maintainers will not change or
+> remove a kfunc without having a reasonable justification. Whether or
+> not they'll choose to change a kfunc will ultimately depend on a
+> variety of factors, such as how widely used the kfunc is, how long the
+> kfunc has been in the kernel, whether an alternative kfunc exists,
+> what the norm is in terms of stability for the subsystem in question,
+> and of course what the technical cost is of continuing to support the
+> kfunc.
+> """
+> 
+>> kfunc is expressed as EXPORT_SYMBOL_GPL in the documentation, and Linus
+>> expects kfunc is for users like big companies or systemd, which closely
+>> follow the kernel, according to the systemd discussion I cited in the
+>> last email.
+> 
+> Please re-read the doc[4], it's not a 1-to-1 matching to EXPORT_SYMBOL_GPL.
+> And being the one who reported Linus' words in that systemd thread,
+> Linus was not concerned about "potential situations that may or may
+> not happen", because he expected the people who use kfunc to do the
+> right thing. Because they are not average programmers. And QEMU
+> developers would definitely fit in that category IMO.
+> 
+> And the whole "you can consider kfunc similar to EXPORT_SYMBOL_GPL" is
+> just a warning for user space that the kfunc will never be kept only
+> for stability reasons. So when you want to use a kfunc, you need to be
+> aware of it and not segfault if it's not there (which can not happen
+> TBH unless you don't check that your program was correctly loaded).
+> 
+>>
+>> According to the discussion above, it may be better off abandoning BPF
+>> and implementing all in kernel, with ioctl as I have a (hopefully) sound
+>> idea of UAPI design. But I'll also continue considering the BPF option;
+>> BPF is still attractive due to its extensibility and safety.
+> 
+> We can not tell you to choose one solution over the other. The choice
+> is yours. I personally find BPF more appealing because it allows the
+> user space application to define its own kernel API for its own needs
+> while relying on just a few defined kfuncs.
+> 
+> But again, sometimes it doesn't work, like the systemd thread you
+> linked, it's too big overhead for little gain compared to an ioctl in
+> that particular case.
+> 
+> IMO the biggest issue for you is not the stability of the API, but the
+> container capabilities. Because allowing CAP_BPF allows for a whole
+> lot of nasty things to happen :)
+
+I'll keep thinking about what QEMU developers can do for kfuncs, lacking 
+UAPI stability, and if it makes sense to require CAP_BPF.
+
+Regards,
+Akihiko Odaki
