@@ -1,239 +1,237 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com [209.85.216.70])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEFE0805
-	for <virtualization@lists.linux-foundation.org>; Fri, 15 Dec 2023 00:32:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="WbfcaxTn"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 3047F402F3
-	for <virtualization@lists.linux-foundation.org>; Fri, 15 Dec 2023 00:32:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3047F402F3
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=WbfcaxTn
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -4.401
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id PSBpGwxbhyRX
-	for <virtualization@lists.linux-foundation.org>;
-	Fri, 15 Dec 2023 00:32:18 +0000 (UTC)
-Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.151])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 207BE400EC
-	for <virtualization@lists.linux-foundation.org>; Fri, 15 Dec 2023 00:32:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 207BE400EC
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1702600338; x=1734136338;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=ku7WQGklrBCEaH7tlqv6KAMnPSzyvuiFquBA+11VJAY=;
-  b=WbfcaxTnyQ3BO6y6AQjQCPhpkThcB/G1HQ0okLs/uWfzpFyGtbK1Q6pf
-   MQ/rQNkbsO9unD4WjeFK5p5xhAmzmKHZG9rywO7VZGGZVe/Hl9JFYqumL
-   VfuJ1OXOOrzyDLCg4cEBGk1WHJWa7quw0IyoDz+HOKfZmJXScEu/Eg4B9
-   3XZ3cRvRse+/i46dfiUnoEwLz55/Uw2uaoec5c0jTyIeljTGl1H89VP/a
-   ksAmQAElahjHl4c8qCo+e3DVf2YEcjiyHPYXiADE2L/0aUP5yrfNzbz8y
-   JwFFNVCPx6o1wf53iTm+CRmLMvQZdJ0/eSrx+vW07b6oDBHfPepQI5qLK
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10924"; a="375358734"
-X-IronPort-AV: E=Sophos;i="6.04,277,1695711600"; 
-   d="scan'208";a="375358734"
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Dec 2023 16:32:15 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10924"; a="1105929521"
-X-IronPort-AV: E=Sophos;i="6.04,277,1695711600"; 
-   d="scan'208";a="1105929521"
-Received: from fmsmsx602.amr.corp.intel.com ([10.18.126.82])
-  by fmsmga005.fm.intel.com with ESMTP/TLS/AES256-GCM-SHA384; 14 Dec 2023 16:32:15 -0800
-Received: from fmsmsx611.amr.corp.intel.com (10.18.126.91) by
- fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.35; Thu, 14 Dec 2023 16:32:15 -0800
-Received: from fmsmsx610.amr.corp.intel.com (10.18.126.90) by
- fmsmsx611.amr.corp.intel.com (10.18.126.91) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.35; Thu, 14 Dec 2023 16:32:14 -0800
-Received: from fmsedg601.ED.cps.intel.com (10.1.192.135) by
- fmsmsx610.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.35 via Frontend Transport; Thu, 14 Dec 2023 16:32:14 -0800
-Received: from NAM02-SN1-obe.outbound.protection.outlook.com (104.47.57.40) by
- edgegateway.intel.com (192.55.55.70) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.35; Thu, 14 Dec 2023 16:32:14 -0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=VJluKAUJSC0tso0aFNKlTyfmj9i3bxMOJx5NYgq0S+RRoCsdTwfrKPzzZjS93tcQjumJv8IqDljtvgkkhK6uGKkYxO7Yv6m44qSXy8AyIFWS8GgXZC7wb5+xM1OAz2o+wIsW53yjWSUmsPzZ7MYuMLgDKf7aYe1X/IweaMhjDh8iARdPWrpSY0wSbC4yetFut0nwsB6JvZcEKtwxZLgKGXOb5NKgrtu8Pj80YtC2+jyeXJyTiuvsEIJSK7XaBrG2EvzaRaSiKTKwJ/lfHfMAspeT+QDP5jq5A+s3tppOP1gvFvMPT0oGjOeAZWD1w8t4BF+Oh+i6bAVDGPvpgBr3Xg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=ku7WQGklrBCEaH7tlqv6KAMnPSzyvuiFquBA+11VJAY=;
- b=kB/KYGdws1CcttUrcGetJlWr24naPR3VsNsFvDk35hXvcf7Evw1VU5LHvh5wkToIkX+0mMvGyvpYNDYAxC+VhSywVNR5DcfGfdvMD9hM/SHWDQcxRnxf/0sOVbkr37qlghLK6A80sRgv8pNQ/Q5xHXOlu0k0HH5LE/7I1jdDPzzjESlSZbSME6HRtP6/nVhsouUyJ2E9W84GNXRj/YUpxrtLuY/gN5CvfcxJbT1M/v5MNgcbSm6Tq57ulJpUc0JQtpkv9IVAgcFg3vAQ0Wx1IMzmk4Jd6wrRrQDcWxYH99wn7EXton5kcaVhtPqnuFO0Hi+KdW0FdFOOSXsqTVfF8g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
- by BN9PR11MB5243.namprd11.prod.outlook.com (2603:10b6:408:134::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7091.31; Fri, 15 Dec
- 2023 00:32:12 +0000
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::e7a4:a757:2f2e:f96a]) by BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::e7a4:a757:2f2e:f96a%3]) with mapi id 15.20.7091.029; Fri, 15 Dec 2023
- 00:32:12 +0000
-From: "Tian, Kevin" <kevin.tian@intel.com>
-To: Yishai Hadas <yishaih@nvidia.com>, "alex.williamson@redhat.com"
-	<alex.williamson@redhat.com>, "jgg@nvidia.com" <jgg@nvidia.com>,
-	"mst@redhat.com" <mst@redhat.com>
-CC: "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-	"virtualization@lists.linux-foundation.org"
-	<virtualization@lists.linux-foundation.org>, "parav@nvidia.com"
-	<parav@nvidia.com>, "feliu@nvidia.com" <feliu@nvidia.com>, "jiri@nvidia.com"
-	<jiri@nvidia.com>, "joao.m.martins@oracle.com" <joao.m.martins@oracle.com>,
-	"si-wei.liu@oracle.com" <si-wei.liu@oracle.com>, "leonro@nvidia.com"
-	<leonro@nvidia.com>, "maorg@nvidia.com" <maorg@nvidia.com>,
-	"jasowang@redhat.com" <jasowang@redhat.com>
-Subject: RE: [PATCH V7 vfio 9/9] vfio/virtio: Introduce a vfio driver over
- virtio devices
-Thread-Topic: [PATCH V7 vfio 9/9] vfio/virtio: Introduce a vfio driver over
- virtio devices
-Thread-Index: AQHaKPhWxx9HXujfsUi0tG4mXIDTXLCm0VsQgABbiACAASSPMIAAM8IAgAEE5VA=
-Date: Fri, 15 Dec 2023 00:32:12 +0000
-Message-ID: <BN9PR11MB5276BFAA012C5B0F02807BC58C93A@BN9PR11MB5276.namprd11.prod.outlook.com>
-References: <20231207102820.74820-1-yishaih@nvidia.com>
- <20231207102820.74820-10-yishaih@nvidia.com>
- <BN9PR11MB5276C9276E78C66B0C5DA9088C8DA@BN9PR11MB5276.namprd11.prod.outlook.com>
- <fc4a3133-0233-4843-a4e4-ad86e5b91b3d@nvidia.com>
- <BN9PR11MB5276C5E5AF53B2DCCD654DEF8C8CA@BN9PR11MB5276.namprd11.prod.outlook.com>
- <310c600b-c6d7-4c17-9606-76de5ef0e41b@nvidia.com>
-In-Reply-To: <310c600b-c6d7-4c17-9606-76de5ef0e41b@nvidia.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: BN9PR11MB5276:EE_|BN9PR11MB5243:EE_
-x-ms-office365-filtering-correlation-id: 1f4adad8-838c-4f3c-f6b0-08dbfd0547c1
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: rtxhl85da581deZhHGNLoiKDzra/51fFeyGG10EzndUf1tYtDYVwb+uOQ22I01eAL9sKGGkbfoy9P11r8HjnMBthgZfeIEy7VwAaz7PWBgm7U1dXZfzFiGFUEZjlfoxwwDoBFQjApJithJqTwS6fIYPP3xBWL81qORMyZHF287ZBrrkJEuVLaN/QmgdZD8W8rQqhj2wOmMm96qz8po7ezhsuKpJyNvR0zN+Kf4O0ZpzY0aMoNkHk0unAu3VMAsF3F1x4LxtzLnCaLe5pWMC/wMIFF+W7Xu5ltgtllFaNLp8AtMIxKUXPk/+CGQlaxXzZToYLGI43ka/IjWArkuion3rd5PDGDC4pMk2beuNMkZ0kvIIViRKG7X6f3pOm7mEW3VPjsFSB0T8+LavROLYeVkFunOtfTs3oRfJlyqI5jXLaSBnvdNGyQ2frYbxIL7mJHAVufqisdDDKORB1z38k7lk1EtmzRmaFo3yGLj3SgKYxJpVyR7OwlR8EQD90TiDz4d2M0UMYWCzka5EJLrf2i5ZwRnsFcl512kQZC+l4eXW7WSmUx1jq9ejn1SOOGxGiNeQQylK5btOrmLJJ2d08mSLTH2BM0iYVZkvmajRTCEQ/6FypSJx3MfHQhlTFrPvL
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(39860400002)(396003)(136003)(346002)(376002)(366004)(230922051799003)(64100799003)(1800799012)(451199024)(186009)(4326008)(8936002)(52536014)(8676002)(2906002)(7416002)(5660300002)(478600001)(6506007)(7696005)(9686003)(53546011)(110136005)(54906003)(64756008)(66446008)(66476007)(66556008)(66946007)(76116006)(316002)(41300700001)(38100700002)(122000001)(55016003)(33656002)(86362001)(38070700009)(82960400001)(71200400001)(26005)(83380400001);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?utf-8?B?Vm5iWmJxVjVQV1FFRnJ2TmNuY3YxYVpOMnJPMGNsZDdkOXBnRWRyT0dJSWh2?=
- =?utf-8?B?MXhWWFpndXdpQVhWejhKdkgwUHNzZ1NLc0kyMllhbmRMRmIrMElHNlUxQzNO?=
- =?utf-8?B?WmpZYXRVZU1FcWx1TDZieDl4TzRsZXhKSVVaTSsxYUlMYzNXWFl6d3paWGJ0?=
- =?utf-8?B?QVBQNmNkRjE3QmY5L2xvMmtoWXk0M3k5YlNvTGc5U0VIT2Z2RG1IRTBzNGc2?=
- =?utf-8?B?WUEzclE3TnVqR2g4L0pObzFUcnJGZE9kajYvTkxEZ2Z4T0srdG5TdzFGOVAv?=
- =?utf-8?B?N2tqcXF1cmkyT1Q2VC9vU3hKVkZKVjV5cGVGRll2ZFBRMlE1SHhOY0ErQTFX?=
- =?utf-8?B?VG5UZHd5WHlxdnVmZFNMSGRwQ3EvN1hsTEhjTlBJRTRhNnM4QlljZFp5a2tT?=
- =?utf-8?B?bGJUQnJDRlB6TlNKM2t6QU1nMlU5YTZpTjB0UDJQQ2E3dFNmNHdZRGd5cVN6?=
- =?utf-8?B?K0ZjSzYvQ3dGWXRoRzd1c01TbVNVaHBhZmhKK3NnS3R5aVdFRXBFM0xKSmJq?=
- =?utf-8?B?WTJOWnlUV0RON1lLaStJT0NGbEV6RW9BZCtlcktoRlM0MUFHWnRXdWltSlo5?=
- =?utf-8?B?S3lWSm1WbzRLQkhrcmVCdmQ3cmZRYi9ISDRrUkY3TzJCbjhBZVh0ckoyejhr?=
- =?utf-8?B?d2Naek1LRnR5bUlEVGMySFp2L3pZaTB2MU1mYWJ4T0RFdkt6TUU2TkdFRFpw?=
- =?utf-8?B?d2kzQVBNSUdoM3BhQURDZmEyejRUMTJzS3NKaUxuUmFkemg0eU9TQlNuV21I?=
- =?utf-8?B?amFDdGMrVm9mZGhmL0YrVGllOW9aMHRNd0kvL0RwS0MweWtMWk9aUXM2Wnp0?=
- =?utf-8?B?aVozaEt1SUYyMUoyejFJV1YvdjFVdFdEaWU5UDJXNXhvUzBHRXdONGVRZWZY?=
- =?utf-8?B?ZFc1RTBrNTVGS1RyU0VVV1prRGNwazNEQkdBNDVGdHhFTitTbDA3WVYwallJ?=
- =?utf-8?B?MkEzWUJxTk9DNmRGS0JxYTA2Zk9XcDdVN2ZudXp4Q2pRQkdCZDdna3F1aSt1?=
- =?utf-8?B?bW01RUFoWjBqTTZNMEgyWXlVZ0c4YkhTbUVMYkZoOXFUWWxnTEJoMysvczdy?=
- =?utf-8?B?VVV3eVJ2TTAvYmwxU1BpS3RUdjRvcy9TaEFpQjlZK2hpbFBvN3lneXJwWjhS?=
- =?utf-8?B?Uk90SGdJNUVGcFV5RzJURGowY2RFaytwc3FraE1sK0hKWDVsaFpGb2VKYU03?=
- =?utf-8?B?eUI3VVQ4NnRrcEkvSFd0N0FjRThhamFHQjRRbDA4Q2kvNW9IMWNFam9NWHdi?=
- =?utf-8?B?Rk9WNmtOKzdTT0FhQjVhNEdsVkJFK3daZWpQeFd5RWdSVTNzQVBBSjJrQ3M2?=
- =?utf-8?B?c0xzWkQzUzRBTFhjYmJLL2NkbXp4UURxVGtvYVVZQXMvMEF3VUpCSXhONGtE?=
- =?utf-8?B?Zmo5K28wa2NPYUszQWVTTUp0eWJ6TUl4RTNKT1NDRW8yeGp0bzBWR0NOZGR6?=
- =?utf-8?B?amtYdGgvSUN4U1NaY3J2bnFXOE1qNkJEZ1puUFplc3hWQ3RyTW9Kc2VzdDNG?=
- =?utf-8?B?TFFpdDE2WXluSDhhY3REUCs5QUQyWUhLRndacVZJZU44TEp4UXJPUnhnVnMz?=
- =?utf-8?B?b3dkaytTbDRJYkVWQkl3YzZKdWFadWZtTXR5YU50Y2pzQVVZSCtHY2xIL2du?=
- =?utf-8?B?NnpkM1N5QUp4aFJ3NWkzak82bjNDSUd2TzJzRzNsR1puVWhhMGw5S1hxR0Q1?=
- =?utf-8?B?MDc3empYQVpySU5pVnJFb0RCSnlNVU1TTG1VNXVGSHVnR2h1NmhGclNOUnlu?=
- =?utf-8?B?VDJ6MEUzdHlPcDBMVnVQcXBlOUtOL0psTkRmYUdQeXkzd2NjcmJvRmhHZ2tw?=
- =?utf-8?B?MnpERUNhdWhKTVRYbUpRVnAvbnFyZER1SmtRdi9DeEN3UVNMbUJuYmI4OFdS?=
- =?utf-8?B?a0t5YTIyckw4Q3oxbWp4dHd1ZHcveWt4d2JFd043eG9DdWJHbU1nVTVUdndl?=
- =?utf-8?B?OWw3Q2haaFk0UE1DSjZYT0dKQzFiU3c2bWVjM1JiLytrc3RXNmFEYVFsWjVY?=
- =?utf-8?B?ejhMMG9LeWtLMXBWbkd0UEI5LzV6TWN6cUgzRWxrb09mbHlGNUVyTmVzMjlR?=
- =?utf-8?B?czhOZE9CTDhmZktpbkVISG1BQWZZc1drQUhMRC8vb0IxNnF5V2pNN2l2TUJa?=
- =?utf-8?Q?+wsygE5C8PZ7eXbFT0sNwtXwJ?=
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2805360
+	for <virtualization@lists.linux.dev>; Fri, 15 Dec 2023 00:35:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-28b172aa2e7so137851a91.0
+        for <virtualization@lists.linux.dev>; Thu, 14 Dec 2023 16:35:25 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1702600525; x=1703205325;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=PpiBzlfrnyqIuQMXcxxAE3wrYIST7IEhD0UwkZce/1Q=;
+        b=vCy/stZHR0fkQwjNPxvZFvvwAC8zQv4q1NW/bDo8pJixt4iuOJLzqFHxhyez2YB/qi
+         ziRxyKeQQM11+wS/U2Lsd3qU1DAMs6yoIU9Eo7oGWjNq9gv5rgnuwwNRXrtzOR33OTKl
+         tZ//9Ji/tqkmkK7NkrovUrh5TPqabfuDysGTHFMR8CkDi41a0RNKatiJRYn0tpLqbmDw
+         zbVE5t7mT/6ZktQSHPNYrmf8qTlTH1gSjkZzK9yx30tDlAkSlBjxF/zYpk9jq/AHJ+sT
+         C9ZKNdqn9h80whq5Q+9u+Gj/552O58o82/JqEgMxJ0XhDYr6Ct011KF0TG/N3NuDEOcF
+         nt+w==
+X-Gm-Message-State: AOJu0Yx0qH/XN+oFDV7r0z+6FZA3Wb5OJ/d6HbFpfwPDVCPJOYl88qVg
+	moF5lqX+Jqa5WRdoD3DRuogQCN0dNJL2WNmZWQYf1rHcPi3v
+X-Google-Smtp-Source: AGHT+IGaIzMF79kOfKHIq2JDhG1lXUHqCodVYyI/W4O0MR6qTozBuCullboeEuAuEmknQK2FwXVBmLN7FknkaMBU0yQ3UfraJGWk
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 1f4adad8-838c-4f3c-f6b0-08dbfd0547c1
-X-MS-Exchange-CrossTenant-originalarrivaltime: 15 Dec 2023 00:32:12.3203
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: uNn1k6UYM9qPJnatnN9T/HzxumC+8CDMZ63TgvQhXkcEisaV84/1EUf2wGsoHCh2fNFkv8UY93gv7UoGrtgZig==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN9PR11MB5243
-X-OriginatorOrg: intel.com
+X-Received: by 2002:a17:90b:1c88:b0:28b:2844:c35e with SMTP id
+ oo8-20020a17090b1c8800b0028b2844c35emr216736pjb.5.1702600525206; Thu, 14 Dec
+ 2023 16:35:25 -0800 (PST)
+Date: Thu, 14 Dec 2023 16:35:25 -0800
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <0000000000007fdc93060c819337@google.com>
+Subject: [syzbot] [dri?] [virtualization?] upstream boot error: INFO: task
+ hung in drm_atomic_get_plane_state (2)
+From: syzbot <syzbot+7e3df8432b2f284f38dc@syzkaller.appspotmail.com>
+To: airlied@redhat.com, daniel@ffwll.ch, dri-devel@lists.freedesktop.org, 
+	gurchetansingh@chromium.org, kraxel@redhat.com, linux-kernel@vger.kernel.org, 
+	maarten.lankhorst@linux.intel.com, mripard@kernel.org, olvaffe@gmail.com, 
+	syzkaller-bugs@googlegroups.com, tzimmermann@suse.de, 
+	virtualization@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
 
-PiBGcm9tOiBZaXNoYWkgSGFkYXMgPHlpc2hhaWhAbnZpZGlhLmNvbT4NCj4gU2VudDogVGh1cnNk
-YXksIERlY2VtYmVyIDE0LCAyMDIzIDQ6NTggUE0NCj4gDQo+IE9uIDE0LzEyLzIwMjMgODowNywg
-VGlhbiwgS2V2aW4gd3JvdGU6DQo+ID4+IEZyb206IFlpc2hhaSBIYWRhcyA8eWlzaGFpaEBudmlk
-aWEuY29tPg0KPiA+PiBTZW50OiBXZWRuZXNkYXksIERlY2VtYmVyIDEzLCAyMDIzIDg6MjUgUE0N
-Cj4gPj4NCj4gPj4gT24gMTMvMTIvMjAyMyAxMDoyMywgVGlhbiwgS2V2aW4gd3JvdGU6DQo+ID4+
-Pj4gRnJvbTogWWlzaGFpIEhhZGFzIDx5aXNoYWloQG52aWRpYS5jb20+DQo+ID4+Pj4gU2VudDog
-VGh1cnNkYXksIERlY2VtYmVyIDcsIDIwMjMgNjoyOCBQTQ0KPiA+Pj4+DQo+ID4+Pj4gKw0KPiA+
-Pj4+ICtzdGF0aWMgc3NpemVfdCB2aXJ0aW92Zl9wY2lfcmVhZF9jb25maWcoc3RydWN0IHZmaW9f
-ZGV2aWNlICpjb3JlX3ZkZXYsDQo+ID4+Pj4gKwkJCQkJY2hhciBfX3VzZXIgKmJ1Ziwgc2l6ZV90
-IGNvdW50LA0KPiA+Pj4+ICsJCQkJCWxvZmZfdCAqcHBvcykNCj4gPj4+PiArew0KPiA+Pj4+ICsJ
-c3RydWN0IHZpcnRpb3ZmX3BjaV9jb3JlX2RldmljZSAqdmlydHZkZXYgPSBjb250YWluZXJfb2Yo
-DQo+ID4+Pj4gKwkJY29yZV92ZGV2LCBzdHJ1Y3QgdmlydGlvdmZfcGNpX2NvcmVfZGV2aWNlLCBj
-b3JlX2RldmljZS52ZGV2KTsNCj4gPj4+PiArCWxvZmZfdCBwb3MgPSAqcHBvcyAmIFZGSU9fUENJ
-X09GRlNFVF9NQVNLOw0KPiA+Pj4+ICsJc2l6ZV90IHJlZ2lzdGVyX29mZnNldDsNCj4gPj4+PiAr
-CWxvZmZfdCBjb3B5X29mZnNldDsNCj4gPj4+PiArCXNpemVfdCBjb3B5X2NvdW50Ow0KPiA+Pj4+
-ICsJX19sZTMyIHZhbDMyOw0KPiA+Pj4+ICsJX19sZTE2IHZhbDE2Ow0KPiA+Pj4+ICsJdTggdmFs
-ODsNCj4gPj4+PiArCWludCByZXQ7DQo+ID4+Pj4gKw0KPiA+Pj4+ICsJcmV0ID0gdmZpb19wY2lf
-Y29yZV9yZWFkKGNvcmVfdmRldiwgYnVmLCBjb3VudCwgcHBvcyk7DQo+ID4+Pj4gKwlpZiAocmV0
-IDwgMCkNCj4gPj4+PiArCQlyZXR1cm4gcmV0Ow0KPiA+Pj4+ICsNCj4gPj4+PiArCWlmIChyYW5n
-ZV9pbnRlcnNlY3RfcmFuZ2UocG9zLCBjb3VudCwgUENJX0RFVklDRV9JRCwgc2l6ZW9mKHZhbDE2
-KSwNCj4gPj4+PiArCQkJCSAgJmNvcHlfb2Zmc2V0LCAmY29weV9jb3VudCwNCj4gPj4+PiAmcmVn
-aXN0ZXJfb2Zmc2V0KSkgew0KPiA+Pj4+ICsJCXZhbDE2ID0gY3B1X3RvX2xlMTYoVklSVElPX1RS
-QU5TX0lEX05FVCk7DQo+ID4+Pj4gKwkJaWYgKGNvcHlfdG9fdXNlcihidWYgKyBjb3B5X29mZnNl
-dCwgKHZvaWQgKikmdmFsMTYgKw0KPiA+Pj4+IHJlZ2lzdGVyX29mZnNldCwgY29weV9jb3VudCkp
-DQo+ID4+Pj4gKwkJCXJldHVybiAtRUZBVUxUOw0KPiA+Pj4+ICsJfQ0KPiA+Pj4+ICsNCj4gPj4+
-PiArCWlmICgobGUxNl90b19jcHUodmlydHZkZXYtPnBjaV9jbWQpICYgUENJX0NPTU1BTkRfSU8p
-ICYmDQo+ID4+Pj4gKwkgICAgcmFuZ2VfaW50ZXJzZWN0X3JhbmdlKHBvcywgY291bnQsIFBDSV9D
-T01NQU5ELCBzaXplb2YodmFsMTYpLA0KPiA+Pj4+ICsJCQkJICAmY29weV9vZmZzZXQsICZjb3B5
-X2NvdW50LA0KPiA+Pj4+ICZyZWdpc3Rlcl9vZmZzZXQpKSB7DQo+ID4+Pj4gKwkJaWYgKGNvcHlf
-ZnJvbV91c2VyKCh2b2lkICopJnZhbDE2ICsgcmVnaXN0ZXJfb2Zmc2V0LCBidWYgKw0KPiA+Pj4+
-IGNvcHlfb2Zmc2V0LA0KPiA+Pj4+ICsJCQkJICAgY29weV9jb3VudCkpDQo+ID4+Pj4gKwkJCXJl
-dHVybiAtRUZBVUxUOw0KPiA+Pj4+ICsJCXZhbDE2IHw9IGNwdV90b19sZTE2KFBDSV9DT01NQU5E
-X0lPKTsNCj4gPj4+PiArCQlpZiAoY29weV90b191c2VyKGJ1ZiArIGNvcHlfb2Zmc2V0LCAodm9p
-ZCAqKSZ2YWwxNiArDQo+ID4+Pj4gcmVnaXN0ZXJfb2Zmc2V0LA0KPiA+Pj4+ICsJCQkJIGNvcHlf
-Y291bnQpKQ0KPiA+Pj4+ICsJCQlyZXR1cm4gLUVGQVVMVDsNCj4gPj4+PiArCX0NCj4gPj4+DQo+
-ID4+PiB0aGUgd3JpdGUgaGFuZGxlciBjYWxscyB2ZmlvX3BjaV9jb3JlX3dyaXRlKCkgZm9yIFBD
-SV9DT01NQU5EIHNvDQo+ID4+PiB0aGUgY29yZSB2Y29uZmlnIHNob3VsZCBoYXZlIHRoZSBsYXRl
-c3QgY29weSBvZiB0aGUgSU8gYml0IHZhbHVlIHdoaWNoDQo+ID4+PiBpcyBjb3BpZWQgdG8gdGhl
-IHVzZXIgYnVmZmVyIGJ5IHZmaW9fcGNpX2NvcmVfcmVhZCgpLiB0aGVuIG5vdCBuZWNlc3NhcnkN
-Cj4gPj4+IHRvIHVwZGF0ZSBpdCBhZ2Fpbi4NCj4gPj4NCj4gPj4gWW91IGFzc3VtZSB0aGUgdGhl
-ICd2Y29uZmlnJyBtZWNoYW5pc20vZmxvdyBpcyBhbHdheXMgYXBwbGljYWJsZSBmb3INCj4gPj4g
-dGhhdCBzcGVjaWZpYyBmaWVsZCwgdGhpcyBzaG91bGQgYmUgZG91YmxlLWNoZWNrZWQuDQo+ID4+
-IEhvd2V2ZXIsIGFzIGZvciBub3cgdGhlIGRyaXZlciBkb2Vzbid0IHJlbHkgLyB1c2UgdGhlIHZj
-b25maWcgZm9yIG90aGVyDQo+ID4+IGZpZWxkcyBhcyBpdCBkb2Vzbid0IG1hdGNoIGFuZCBuZWVk
-IGEgYmlnIHJlZmFjdG9yLCBJIHByZWZlciB0byBub3QgcmVseQ0KPiA+PiBvbiBpdCBhdCBhbGwg
-YW5kIGhhdmUgaXQgaGVyZS4NCj4gPg0KPiA+IGlpdWMgdGhpcyBkcml2ZXIgZG9lcyByZWxpZXMg
-b24gdmNvbmZpZyBmb3Igb3RoZXIgZmllbGRzLiBJdCBmaXJzdCBjYWxscw0KPiA+IHZmaW9fcGNp
-X2NvcmVfcmVhZCgpIGFuZCB0aGVuIG1vZGlmaWVzIHNlbGVjdGVkIGZpZWxkcyB3aGljaCBuZWVk
-cw0KPiA+IHNwZWNpYWwgdHdlYWsgaW4gdGhpcyBkcml2ZXIuDQo+IA0KPiBObywgdGhlcmUgaXMg
-bm8gZGVwZW5kZW5jeSBhdCBhbGwgb24gdmNvbmZpZyBmb3Igb3RoZXIgZmllbGRzIGluIHRoZSBk
-cml2ZXIuDQo+IA0KPiB2ZmlvX3BjaV9jb3JlX3JlYWQoKSBmb3IgbW9zdCBvZiBpdHMgZmllbGRz
-IGluY2x1ZGluZyB0aGUgUENJX0NPTU1BTkQNCj4gZ29lcyBkaXJlY3RseSBvdmVyIHRoZSBQQ0kg
-QVBJL2Zsb3cgdG8gdGhlIGRldmljZSBhbmQgZG9lc24ndCB1c2UgdGhlDQo+IHZjb25maWcuDQo+
-IA0KPiBTbywgd2UgbXVzdCBzYXZlL3Jlc3RvcmUgdGhlIFBDSV9DT01NQU5EIG9uIHRoZSBkcml2
-ZXIgY29udGV4dCB0byBoYXZlDQo+IGl0IHByb3Blcmx5IHJlcG9ydGVkL2VtdWxhdGVkIHRoZSBQ
-Q0lfQ09NTUFORF9JTyBiaXQuDQoNCnlvdSBhcmUgcmlnaHQuIHNvcnJ5IHRoYXQgSSBpZ25vcmVk
-IHRoaXMgZmFjdC4NCg0K
+Hello,
+
+syzbot found the following issue on:
+
+HEAD commit:    a39b6ac3781d Linux 6.7-rc5
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=15277d6ce80000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=b6602324d4e5a4a9
+dashboard link: https://syzkaller.appspot.com/bug?extid=7e3df8432b2f284f38dc
+compiler:       gcc (Debian 12.2.0-14) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40
+
+Downloadable assets:
+disk image (non-bootable): https://storage.googleapis.com/syzbot-assets/7bc7510fe41f/non_bootable_disk-a39b6ac3.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/87b10cd1584b/vmlinux-a39b6ac3.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/15b2b9a9ed4f/bzImage-a39b6ac3.xz
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+7e3df8432b2f284f38dc@syzkaller.appspotmail.com
+
+INFO: task swapper/0:1 blocked for more than 143 seconds.
+      Not tainted 6.7.0-rc5-syzkaller #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:swapper/0       state:D stack:22160 pid:1     tgid:1     ppid:0      flags:0x00004000
+Call Trace:
+ <TASK>
+ context_switch kernel/sched/core.c:5376 [inline]
+ __schedule+0xedb/0x5af0 kernel/sched/core.c:6688
+ __schedule_loop kernel/sched/core.c:6763 [inline]
+ schedule+0xe9/0x270 kernel/sched/core.c:6778
+ schedule_preempt_disabled+0x13/0x20 kernel/sched/core.c:6835
+ __mutex_lock_common kernel/locking/mutex.c:679 [inline]
+ __ww_mutex_lock.constprop.0+0xf57/0x2660 kernel/locking/mutex.c:754
+ ww_mutex_lock+0x37/0x140 kernel/locking/mutex.c:871
+ modeset_lock+0x484/0x6c0 drivers/gpu/drm/drm_modeset_lock.c:314
+ drm_modeset_lock drivers/gpu/drm/drm_modeset_lock.c:396 [inline]
+ drm_modeset_lock+0x59/0x90 drivers/gpu/drm/drm_modeset_lock.c:392
+ drm_atomic_get_plane_state+0x199/0x580 drivers/gpu/drm/drm_atomic.c:544
+ drm_client_modeset_commit_atomic+0x246/0x810 drivers/gpu/drm/drm_client_modeset.c:1003
+ drm_client_modeset_commit_locked+0x14d/0x580 drivers/gpu/drm/drm_client_modeset.c:1154
+ pan_display_atomic drivers/gpu/drm/drm_fb_helper.c:1370 [inline]
+ drm_fb_helper_pan_display+0x2a5/0x990 drivers/gpu/drm/drm_fb_helper.c:1430
+ fb_pan_display+0x477/0x7c0 drivers/video/fbdev/core/fbmem.c:191
+ bit_update_start+0x49/0x1f0 drivers/video/fbdev/core/bitblit.c:390
+ fbcon_switch+0xbb3/0x12e0 drivers/video/fbdev/core/fbcon.c:2170
+ redraw_screen+0x2bd/0x750 drivers/tty/vt/vt.c:969
+ con2fb_init_display drivers/video/fbdev/core/fbcon.c:808 [inline]
+ set_con2fb_map+0x793/0x1050 drivers/video/fbdev/core/fbcon.c:867
+ do_fb_registered drivers/video/fbdev/core/fbcon.c:3007 [inline]
+ fbcon_fb_registered+0x21d/0x660 drivers/video/fbdev/core/fbcon.c:3023
+ do_register_framebuffer drivers/video/fbdev/core/fbmem.c:449 [inline]
+ register_framebuffer+0x4b2/0x860 drivers/video/fbdev/core/fbmem.c:515
+ __drm_fb_helper_initial_config_and_unlock+0xd7c/0x1600 drivers/gpu/drm/drm_fb_helper.c:1871
+ drm_fb_helper_initial_config drivers/gpu/drm/drm_fb_helper.c:1936 [inline]
+ drm_fb_helper_initial_config+0x44/0x60 drivers/gpu/drm/drm_fb_helper.c:1928
+ drm_fbdev_generic_client_hotplug+0x1a7/0x270 drivers/gpu/drm/drm_fbdev_generic.c:279
+ drm_client_register+0x195/0x280 drivers/gpu/drm/drm_client.c:149
+ drm_fbdev_generic_setup+0x11c/0x330 drivers/gpu/drm/drm_fbdev_generic.c:341
+ virtio_gpu_probe+0x1be/0x3c0 drivers/gpu/drm/virtio/virtgpu_drv.c:105
+ virtio_dev_probe+0x56e/0x870 drivers/virtio/virtio.c:305
+ call_driver_probe drivers/base/dd.c:579 [inline]
+ really_probe+0x234/0xc90 drivers/base/dd.c:658
+ __driver_probe_device+0x1de/0x4b0 drivers/base/dd.c:800
+ driver_probe_device+0x4c/0x1a0 drivers/base/dd.c:830
+ __driver_attach+0x274/0x570 drivers/base/dd.c:1216
+ bus_for_each_dev+0x13c/0x1d0 drivers/base/bus.c:368
+ bus_add_driver+0x2e9/0x630 drivers/base/bus.c:673
+ driver_register+0x15c/0x4a0 drivers/base/driver.c:246
+ do_one_initcall+0x11c/0x650 init/main.c:1236
+ do_initcall_level init/main.c:1298 [inline]
+ do_initcalls init/main.c:1314 [inline]
+ do_basic_setup init/main.c:1333 [inline]
+ kernel_init_freeable+0x687/0xc10 init/main.c:1551
+ kernel_init+0x1c/0x2a0 init/main.c:1441
+ ret_from_fork+0x45/0x80 arch/x86/kernel/process.c:147
+ ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:242
+ </TASK>
+INFO: task kworker/0:0:7 blocked for more than 143 seconds.
+      Not tainted 6.7.0-rc5-syzkaller #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:kworker/0:0     state:D stack:28704 pid:7     tgid:7     ppid:2      flags:0x00004000
+Workqueue: events virtio_gpu_dequeue_ctrl_func
+Call Trace:
+ <TASK>
+ context_switch kernel/sched/core.c:5376 [inline]
+ __schedule+0xedb/0x5af0 kernel/sched/core.c:6688
+ __schedule_loop kernel/sched/core.c:6763 [inline]
+ schedule+0xe9/0x270 kernel/sched/core.c:6778
+ schedule_preempt_disabled+0x13/0x20 kernel/sched/core.c:6835
+ __mutex_lock_common kernel/locking/mutex.c:679 [inline]
+ __mutex_lock+0x5b9/0x9d0 kernel/locking/mutex.c:747
+ drm_client_dev_hotplug drivers/gpu/drm/drm_client.c:227 [inline]
+ drm_client_dev_hotplug+0x169/0x3c0 drivers/gpu/drm/drm_client.c:214
+ virtio_gpu_cmd_get_display_info_cb+0x3e0/0x550 drivers/gpu/drm/virtio/virtgpu_vq.c:674
+ virtio_gpu_dequeue_ctrl_func+0x21b/0x9a0 drivers/gpu/drm/virtio/virtgpu_vq.c:235
+ process_one_work+0x886/0x15d0 kernel/workqueue.c:2627
+ process_scheduled_works kernel/workqueue.c:2700 [inline]
+ worker_thread+0x8b9/0x1290 kernel/workqueue.c:2781
+ kthread+0x2c6/0x3a0 kernel/kthread.c:388
+ ret_from_fork+0x45/0x80 arch/x86/kernel/process.c:147
+ ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:242
+ </TASK>
+INFO: task kworker/2:1:36 blocked for more than 143 seconds.
+      Not tainted 6.7.0-rc5-syzkaller #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:kworker/2:1     state:D stack:26720 pid:36    tgid:36    ppid:2      flags:0x00004000
+Workqueue: events drm_fb_helper_damage_work
+Call Trace:
+ <TASK>
+ context_switch kernel/sched/core.c:5376 [inline]
+ __schedule+0xedb/0x5af0 kernel/sched/core.c:6688
+ __schedule_loop kernel/sched/core.c:6763 [inline]
+ schedule+0xe9/0x270 kernel/sched/core.c:6778
+ virtio_gpu_queue_ctrl_sgs drivers/gpu/drm/virtio/virtgpu_vq.c:341 [inline]
+ virtio_gpu_queue_fenced_ctrl_buffer+0x497/0xff0 drivers/gpu/drm/virtio/virtgpu_vq.c:415
+ virtio_gpu_resource_flush drivers/gpu/drm/virtio/virtgpu_plane.c:152 [inline]
+ virtio_gpu_primary_plane_update+0x1059/0x1590 drivers/gpu/drm/virtio/virtgpu_plane.c:227
+ drm_atomic_helper_commit_planes+0x92f/0xfe0 drivers/gpu/drm/drm_atomic_helper.c:2798
+ drm_atomic_helper_commit_tail+0x69/0xf0 drivers/gpu/drm/drm_atomic_helper.c:1747
+ commit_tail+0x353/0x410 drivers/gpu/drm/drm_atomic_helper.c:1832
+ drm_atomic_helper_commit+0x2f9/0x380 drivers/gpu/drm/drm_atomic_helper.c:2070
+ drm_atomic_commit+0x20b/0x2d0 drivers/gpu/drm/drm_atomic.c:1513
+ drm_atomic_helper_dirtyfb+0x611/0x7b0 drivers/gpu/drm/drm_damage_helper.c:181
+ drm_fbdev_generic_helper_fb_dirty+0x827/0xbb0 drivers/gpu/drm/drm_fbdev_generic.c:230
+ drm_fb_helper_fb_dirty drivers/gpu/drm/drm_fb_helper.c:390 [inline]
+ drm_fb_helper_damage_work+0x283/0x5e0 drivers/gpu/drm/drm_fb_helper.c:413
+ process_one_work+0x886/0x15d0 kernel/workqueue.c:2627
+ process_scheduled_works kernel/workqueue.c:2700 [inline]
+ worker_thread+0x8b9/0x1290 kernel/workqueue.c:2781
+ kthread+0x2c6/0x3a0 kernel/kthread.c:388
+ ret_from_fork+0x45/0x80 arch/x86/kernel/process.c:147
+ ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:242
+ </TASK>
+
+Showing all locks held in the system:
+9 locks held by swapper/0/1:
+ #0: ffff888102fd6170 (&dev->mutex){....}-{3:3}, at: device_lock include/linux/device.h:992 [inline]
+ #0: ffff888102fd6170 (&dev->mutex){....}-{3:3}, at: __device_driver_lock drivers/base/dd.c:1095 [inline]
+ #0: ffff888102fd6170 (&dev->mutex){....}-{3:3}, at: __driver_attach+0x269/0x570 drivers/base/dd.c:1215
+ #1: ffff8881067782f8 (&dev->clientlist_mutex){+.+.}-{3:3}, at: drm_client_register+0x54/0x280 drivers/gpu/drm/drm_client.c:135
+ #2: ffffffff8dab0f68 (registration_lock){+.+.}-{3:3}, at: register_framebuffer+0x7a/0x860 drivers/video/fbdev/core/fbmem.c:514
+ #3: ffffffff8cf958c0 (console_lock){+.+.}-{0:0}, at: fbcon_fb_registered+0x3c/0x660 drivers/video/fbdev/core/fbcon.c:3019
+ #4: ffff888106bb2a80 (&helper->lock){+.+.}-{3:3}, at: drm_fb_helper_pan_display+0xd5/0x990 drivers/gpu/drm/drm_fb_helper.c:1423
+ #5: ffff8881067781b0 (&dev->master_mutex){+.+.}-{3:3}, at: drm_master_internal_acquire+0x21/0x70 drivers/gpu/drm/drm_auth.c:458
+ #6: ffff888106bb2898 (&client->modeset_mutex){+.+.}-{3:3}, at: drm_client_modeset_commit_locked+0x4c/0x580 drivers/gpu/drm/drm_client_modeset.c:1152
+ #7: ffffc90000267328 (crtc_ww_class_acquire){+.+.}-{0:0}, at: drm_client_modeset_commit_atomic+0xd0/0x810 drivers/gpu/drm/drm_client_modeset.c:990
+ #8: ffff88801d5538b0 (crtc_ww_class_mutex){+.+.}-{3:3}, at: modeset_lock+0x484/0x6c0 drivers/gpu/drm/drm_modeset_lock.c:314
+3 locks held by kworker/0:0/7:
+ #0: ffff888013069d38 ((wq_completion)events){+.+.}-{0:0}, at: process_one_work+0x789/0x15d0 kernel/workqueue.c:2602
+ #1: ffffc900002c7d80 ((work_completion)(&vgvq->dequeue_work)){+.+.}-{0:0}, at: process_one_work+0x7eb/0x15d0 kernel/workqueue.c:2603
+ #2: ffff8881067782f8 (&dev->clientlist_mutex){+.+.}-{3:3}, at: drm_client_dev_hotplug drivers/gpu/drm/drm_client.c:227 [inline]
+ #2: ffff8881067782f8 (&dev->clientlist_mutex){+.+.}-{3:3}, at: drm_client_dev_hotplug+0x169/0x3c0 drivers/gpu/drm/drm_client.c:214
+5 locks held by kworker/2:1/36:
+ #0: ffff888013069d38 ((wq_completion)events){+.+.}-{0:0}, at: process_one_work+0x789/0x15d0 kernel/workqueue.c:2602
+ #1: ffffc90000b27d80 ((work_completion)(&helper->damage_work)){+.+.}-{0:0}, at: process_one_work+0x7eb/0x15d0 kernel/workqueue.c:2603
+ #2: ffffc90000b27a40 (crtc_ww_class_acquire){+.+.}-{0:0}, at: drm_atomic_helper_dirtyfb+0xb5/0x7b0 drivers/gpu/drm/drm_damage_helper.c:123
+ #3: ffff88801d5538b0 (crtc_ww_class_mutex){+.+.}-{3:3}, at: modeset_lock+0x484/0x6c0 drivers/gpu/drm/drm_modeset_lock.c:314
+ #4: ffffffff8dbe7f90 (drm_unplug_srcu){.+.+}-{0:0}, at: srcu_lock_acquire include/linux/srcu.h:116 [inline]
+ #4: ffffffff8dbe7f90 (drm_unplug_srcu){.+.+}-{0:0}, at: srcu_read_lock include/linux/srcu.h:215 [inline]
+ #4: ffffffff8dbe7f90 (drm_unplug_srcu){.+.+}-{0:0}, at: drm_dev_enter+0x49/0x160 drivers/gpu/drm/drm_drv.c:450
+1 lock held by khungtaskd/38:
+ #0: ffffffff8cfa82e0 (rcu_read_lock){....}-{1:2}, at: rcu_lock_acquire include/linux/rcupdate.h:301 [inline]
+ #0: ffffffff8cfa82e0 (rcu_read_lock){....}-{1:2}, at: rcu_read_lock include/linux/rcupdate.h:747 [inline]
+ #0: ffffffff8cfa82e0 (rcu_read_lock){....}-{1:2}, at: debug_show_all_locks+0x75/0x340 kernel/locking/lockdep.c:6614
+2 locks held by kworker/u16:6/366:
+ #0: ffff888013079938 ((wq_completion)events_unbound){+.+.}-{0:0}, at: process_one_work+0x789/0x15d0 kernel/workqueue.c:2602
+ #1: ffffc90003377d80 ((work_completion)(&(&kfence_timer)->work)){+.+.}-{0:0}, at: process_one_work+0x7eb/0x15d0 kernel/workqueue.c:2603
+
+=============================================
+
+
+
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
+
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup
