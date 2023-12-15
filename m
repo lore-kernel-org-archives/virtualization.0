@@ -1,237 +1,242 @@
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com [209.85.216.70])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2805360
-	for <virtualization@lists.linux.dev>; Fri, 15 Dec 2023 00:35:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-28b172aa2e7so137851a91.0
-        for <virtualization@lists.linux.dev>; Thu, 14 Dec 2023 16:35:25 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702600525; x=1703205325;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=PpiBzlfrnyqIuQMXcxxAE3wrYIST7IEhD0UwkZce/1Q=;
-        b=vCy/stZHR0fkQwjNPxvZFvvwAC8zQv4q1NW/bDo8pJixt4iuOJLzqFHxhyez2YB/qi
-         ziRxyKeQQM11+wS/U2Lsd3qU1DAMs6yoIU9Eo7oGWjNq9gv5rgnuwwNRXrtzOR33OTKl
-         tZ//9Ji/tqkmkK7NkrovUrh5TPqabfuDysGTHFMR8CkDi41a0RNKatiJRYn0tpLqbmDw
-         zbVE5t7mT/6ZktQSHPNYrmf8qTlTH1gSjkZzK9yx30tDlAkSlBjxF/zYpk9jq/AHJ+sT
-         C9ZKNdqn9h80whq5Q+9u+Gj/552O58o82/JqEgMxJ0XhDYr6Ct011KF0TG/N3NuDEOcF
-         nt+w==
-X-Gm-Message-State: AOJu0Yx0qH/XN+oFDV7r0z+6FZA3Wb5OJ/d6HbFpfwPDVCPJOYl88qVg
-	moF5lqX+Jqa5WRdoD3DRuogQCN0dNJL2WNmZWQYf1rHcPi3v
-X-Google-Smtp-Source: AGHT+IGaIzMF79kOfKHIq2JDhG1lXUHqCodVYyI/W4O0MR6qTozBuCullboeEuAuEmknQK2FwXVBmLN7FknkaMBU0yQ3UfraJGWk
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCD6423D1
+	for <virtualization@lists.linux-foundation.org>; Fri, 15 Dec 2023 00:36:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="kTH8TXIJ"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 2ADE2402F3
+	for <virtualization@lists.linux-foundation.org>; Fri, 15 Dec 2023 00:36:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2ADE2402F3
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=kTH8TXIJ
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.101
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id w_I6RMTM8iWf
+	for <virtualization@lists.linux-foundation.org>;
+	Fri, 15 Dec 2023 00:36:21 +0000 (UTC)
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.11])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id A66E9400EC
+	for <virtualization@lists.linux-foundation.org>; Fri, 15 Dec 2023 00:36:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A66E9400EC
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1702600582; x=1734136582;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=m69RW9tleeRYt41ZEUhaXaH27VqfmXwrJvK1uS5fBsk=;
+  b=kTH8TXIJdym4iUt+Mo8845bKrCQd08fA2i9u0fDKRohE0lUBvwVAXY8Z
+   JHA+hoeJfcY3vdIDtOoF1yQt8lU4oiFRZNiHakjLcX7JVXpUHERmAfWgF
+   GHx6pCGwtIPsO4A3Y2l88lyE4xZtSzXqJy1JhrNeWMQM16uTMr5yAUYY4
+   6x4klVMQ2EesO/ELOnSeM3MHLqwuXSxbRQ2v+UCDlGlOEH1iokRfL9wEq
+   0GXh1tX4rX6iRJpULELZ6hoDVH6qC5mbNLN+/87i+UhwWKao0R0Kut4sz
+   mrMT/ZKuCHexiVekrF2BCijlFVds8rbOsGfyoEGP7CIcz6+j6eRTgoD6H
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10924"; a="2030536"
+X-IronPort-AV: E=Sophos;i="6.04,277,1695711600"; 
+   d="scan'208";a="2030536"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by fmvoesa105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Dec 2023 16:36:21 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10924"; a="808779306"
+X-IronPort-AV: E=Sophos;i="6.04,277,1695711600"; 
+   d="scan'208";a="808779306"
+Received: from fmsmsx601.amr.corp.intel.com ([10.18.126.81])
+  by orsmga001.jf.intel.com with ESMTP/TLS/AES256-GCM-SHA384; 14 Dec 2023 16:35:48 -0800
+Received: from fmsmsx610.amr.corp.intel.com (10.18.126.90) by
+ fmsmsx601.amr.corp.intel.com (10.18.126.81) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.35; Thu, 14 Dec 2023 16:35:48 -0800
+Received: from fmsedg601.ED.cps.intel.com (10.1.192.135) by
+ fmsmsx610.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.35 via Frontend Transport; Thu, 14 Dec 2023 16:35:48 -0800
+Received: from NAM02-SN1-obe.outbound.protection.outlook.com (104.47.57.40) by
+ edgegateway.intel.com (192.55.55.70) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.35; Thu, 14 Dec 2023 16:35:46 -0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=aAA2/uDTZK/odbf+kuu0q9geDEfePJEaCnz2Ba4qNJCa8saPu9wz2eK5FKPrlv5A7RWByO5Ke9Nqbb3cKrZEMkvOf43ShTzfGT5dh3HSL2b6RWLEZwiryDvTKDtQTotCCpO42vxX7jIIQLaqT52KTHZB2PyD0BhTdV3qN/vA6RgkrmSRKPW+W/adVVBpBJpaIQQLwKBURaZu82lmxk8mryzl0gRNvgd2bnUnZBLfI14vSU49c2WfqBTIzhHoQBnugSoV7pSu3n4SLSvJWTRsI0Z2RfuMqXZldOhv8ogHfGdzDfxhWMM/MLEeXrXShVz9cKzD/omP7ZqNKKMfbHkyeg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=m69RW9tleeRYt41ZEUhaXaH27VqfmXwrJvK1uS5fBsk=;
+ b=avmrByL5BzS2zP95aOFmDlhxEnPezykq9G2aHTaqpXnjH3H9ocpq3YGb8dMQas52ga+pGDWhVmsX/+3CPDhFCS0WIV3sdBZO9NUM7hgUBU7bIKgme0zemqLfGMxUfoPvA0fG092BejrLrW3XBEJnpdpiUQ0xpCeJTlzMLwhH1LARIh1uknsYPVOarqtMuP9qCZIX/qNRZj+uemNZOzCCtgrIZQNbEvDzNa4Rm2o/BmHdNvg5Su2DN42tbZkv/7cOx4m3+qZuGfIX3L9oMnY7aMQl/27STb9/Y0b4zqHYzggwzrNWmR7IcMu465pN7BhnyvQir2QY6VZj2ZJvAWYCpQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
+ by BN9PR11MB5243.namprd11.prod.outlook.com (2603:10b6:408:134::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7091.31; Fri, 15 Dec
+ 2023 00:35:44 +0000
+Received: from BN9PR11MB5276.namprd11.prod.outlook.com
+ ([fe80::e7a4:a757:2f2e:f96a]) by BN9PR11MB5276.namprd11.prod.outlook.com
+ ([fe80::e7a4:a757:2f2e:f96a%3]) with mapi id 15.20.7091.029; Fri, 15 Dec 2023
+ 00:35:44 +0000
+From: "Tian, Kevin" <kevin.tian@intel.com>
+To: Yishai Hadas <yishaih@nvidia.com>, "alex.williamson@redhat.com"
+	<alex.williamson@redhat.com>, "mst@redhat.com" <mst@redhat.com>,
+	"jasowang@redhat.com" <jasowang@redhat.com>, "jgg@nvidia.com"
+	<jgg@nvidia.com>
+CC: "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+	"virtualization@lists.linux-foundation.org"
+	<virtualization@lists.linux-foundation.org>, "parav@nvidia.com"
+	<parav@nvidia.com>, "feliu@nvidia.com" <feliu@nvidia.com>, "jiri@nvidia.com"
+	<jiri@nvidia.com>, "joao.m.martins@oracle.com" <joao.m.martins@oracle.com>,
+	"si-wei.liu@oracle.com" <si-wei.liu@oracle.com>, "leonro@nvidia.com"
+	<leonro@nvidia.com>, "maorg@nvidia.com" <maorg@nvidia.com>
+Subject: RE: [PATCH V8 vfio 9/9] vfio/virtio: Introduce a vfio driver over
+ virtio devices
+Thread-Topic: [PATCH V8 vfio 9/9] vfio/virtio: Introduce a vfio driver over
+ virtio devices
+Thread-Index: AQHaLoqas2GbVXtrDkCrjuOJsdjKCrCpf97g
+Date: Fri, 15 Dec 2023 00:35:44 +0000
+Message-ID: <BN9PR11MB52765F808AB35422D10846EF8C93A@BN9PR11MB5276.namprd11.prod.outlook.com>
+References: <20231214123808.76664-1-yishaih@nvidia.com>
+ <20231214123808.76664-10-yishaih@nvidia.com>
+In-Reply-To: <20231214123808.76664-10-yishaih@nvidia.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: BN9PR11MB5276:EE_|BN9PR11MB5243:EE_
+x-ms-office365-filtering-correlation-id: 171a0f3b-eb7a-4a21-847e-08dbfd05c65e
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: QXoxZ+onh5h8STyrJLJAt9OYOIZmLJKI7tq+yHoBHTtw/rJA7UYAHxOJE1Elarfo0f0U2wiBT1YehFG+pNCCes4jUr9GVyHuplFrqMGZ97ezsxl4Gq07lEoNbnSASt2yZdtcq4+slUtFzEHzKzHFl27fN9wiGHFO/jwP0UjIXJ5CGIBCaIA9B2vrNzLBOAaEos37+PYmr7VZGbZbOkK5kXhgydGgSpE4n2ZmMa27+nW+jbuMwGZWKUvCgVWsuRBoAGP9Ba6aV6Etalb23paV8yxO7DDyae7bF7Up7LKob0Xjpy+m7AgEk0fvuTpoggNqE6F7nqYXScPBXAPP1McXwfAO0pE0jtra1FhzTMhCv5GbobVKnWDe1d2qqsNjglST2Ms+6/v71yvHwUiYPZa5IN6/JrI4Lgd1vgPibE28SmJ9+Bnzu5gqBfY6dM838Fv+GZ7bpvzn2Dhpzxafv6s+i2On9deTX+fc/b+o51BtuH4r3hRtgqUO9WlngNO18EdHAGF4XbrkT7b+zwcHLOza0xlad+BjhUJllBnsN+9UTCzcETWR2XVp6bnSYSfj4xiZAdXY7kW++5OshtkU1Im2hw/c7ZZNY7FoiWo7E8pTmzU=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(39860400002)(396003)(136003)(346002)(376002)(366004)(230922051799003)(64100799003)(1800799012)(451199024)(186009)(4326008)(8936002)(52536014)(8676002)(2906002)(7416002)(5660300002)(478600001)(6506007)(7696005)(9686003)(110136005)(54906003)(64756008)(66446008)(66476007)(66556008)(66946007)(76116006)(316002)(966005)(41300700001)(38100700002)(122000001)(55016003)(33656002)(86362001)(38070700009)(82960400001)(71200400001)(26005)(83380400001);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?I8IgqCfFITJSgv9rMmQRyxebxCRTsW3tTA+5ZFMbf/bdIh2WjjG3UmBzhXNr?=
+ =?us-ascii?Q?caQB+Nl/lvSZV6/1F8TxhuOYHHjRXC0CSO4kBjCflRh5VdVF5W4NNwqlX6m0?=
+ =?us-ascii?Q?Gm/7Ecarx9y6CjKuGFm/U2PdW4egnn+OCH8eu1XbsO30xNbp0r2T1HT6fNS4?=
+ =?us-ascii?Q?RxrHSq55/vsJGjd/DUwgfSy102W+DsQU8j83ng2NXcp6OQ7Ix1qStgaFvQyk?=
+ =?us-ascii?Q?sjGUQYfJPBy5w+R+MMVBxWfHL8u6ecJVQoxSj8Z/NTAvSu+fVwiYGutFtSki?=
+ =?us-ascii?Q?T523ksqPsiGa/wFgQhGDoErguC3r3agFRdvm71+LJrVkba4iTK3XSrqelP5m?=
+ =?us-ascii?Q?YdYnqA06drgcAIvMqcCP+NloKUyQkK9a64F3cPR6foOpxodEHBoMi8nII4Sy?=
+ =?us-ascii?Q?c5D7vlZpMZgrEM6qo3ZLOgpTkjDIGQUJAZa0aSlBbY/mq0RqXLFVXsa6Ge17?=
+ =?us-ascii?Q?dofqXgQar+Y1Cg3fjm+wKCgH0ac5XGMKtrwxXwz6Wgj9hRQmvK/P02vxV/ap?=
+ =?us-ascii?Q?J75tEU8X69gAIoFGL9v8QkxmIAVkFARqUUfnmLw4961D8CAqprDB1Q3vAhC5?=
+ =?us-ascii?Q?EU9dqlVc7jOOS3QljdfSiiUTD7dFoIfdnTddamUXOCZcMDAvjanxIy1Oek8N?=
+ =?us-ascii?Q?lR6/B41W2wtnXy+8weljrQmFNxH80Ia7xtS7GHzIC7izgFySa28SvQFhA7v1?=
+ =?us-ascii?Q?BKM5Y/heIfW7BCDtzTr27JMirgjCZBtSqo55xeOpM8Rc6NzN2qMEztWojmbZ?=
+ =?us-ascii?Q?22aTQxioWz9ocrEgns6jHB0HiEV4SMPcPL5YdQNhJvoq7KDjgKJEI75W9UD0?=
+ =?us-ascii?Q?SQUQdYBH/KCy2Bxgb8LsUepIsjawhhpHM2znSBLPHbPvNJuxlG3FDmg89wWg?=
+ =?us-ascii?Q?fM5zygN5+2Rg9TFY/C/r1bWdH3o23a3E5l7avv1dY7AyLBAKsRzl82/x5jNk?=
+ =?us-ascii?Q?vDXYxOek1SWzqugPsdE0GTqUABBH9Xxp+EtNR03GR/kl+vfvpowL2ztEOSQ5?=
+ =?us-ascii?Q?MoifBeZUC9Za3FKEAIj8Yma2ys8SEqkI1IxSWACjiP2TEd/Y0YmWlxcEc9Dm?=
+ =?us-ascii?Q?Te8OWC6bctl+NvmuVkVhUdNBSKfHzKf4NdUBfCYXR9GBIi8YUmAwzYENvbih?=
+ =?us-ascii?Q?iwtKV7zdAoZ8zAiS2zMqbguYS7OLOGIozfR73GVKwp8b43L4UJFj3+6AoZRx?=
+ =?us-ascii?Q?L/1+0V4KpYDNBIa2Lb7jWNVSOGyVr99pjZhLC0HjQ7ygsXGtViEEpybM5XL+?=
+ =?us-ascii?Q?6s5d89tINFTK+2M+Hca8FcV6V9LKoEea9obft1ED5KkKGU6fS9t/SDrSNhup?=
+ =?us-ascii?Q?YaSpNuDBqhCqMnH+wB/D5DmpmNfQB+0mt4NzNhiXYSaLpV930RsXUBSic+6G?=
+ =?us-ascii?Q?gX/Wsm7gyidQz0BbZg89kfZ+Fs858K+Pcf8o3Osx4fqfpRGQE9Wq3PN6zdt8?=
+ =?us-ascii?Q?wi1B003j3+EkqdxyCpMCM6Dbzt0GqoDSViN88ReBUkwXmwXGTvZCTZSJQXLi?=
+ =?us-ascii?Q?BVRC3qmKqiBvsSsIu0zOCHyoIIwR7ZfImb1ScJoOZXMsCa+9l16PKNH9CDFl?=
+ =?us-ascii?Q?OzQKEncOmYvrSzfRLeIMdkprMNUT/975drZ5Y4ZJ?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a17:90b:1c88:b0:28b:2844:c35e with SMTP id
- oo8-20020a17090b1c8800b0028b2844c35emr216736pjb.5.1702600525206; Thu, 14 Dec
- 2023 16:35:25 -0800 (PST)
-Date: Thu, 14 Dec 2023 16:35:25 -0800
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <0000000000007fdc93060c819337@google.com>
-Subject: [syzbot] [dri?] [virtualization?] upstream boot error: INFO: task
- hung in drm_atomic_get_plane_state (2)
-From: syzbot <syzbot+7e3df8432b2f284f38dc@syzkaller.appspotmail.com>
-To: airlied@redhat.com, daniel@ffwll.ch, dri-devel@lists.freedesktop.org, 
-	gurchetansingh@chromium.org, kraxel@redhat.com, linux-kernel@vger.kernel.org, 
-	maarten.lankhorst@linux.intel.com, mripard@kernel.org, olvaffe@gmail.com, 
-	syzkaller-bugs@googlegroups.com, tzimmermann@suse.de, 
-	virtualization@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 171a0f3b-eb7a-4a21-847e-08dbfd05c65e
+X-MS-Exchange-CrossTenant-originalarrivaltime: 15 Dec 2023 00:35:44.7421
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: iKdrE09//z1GoesQw2s0kqLxbYhbqyq3PbLJpxhawNMGBXERZZYnVi5uQhu5v7ETbG1i6UqykLAM1wSPKxj7rw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN9PR11MB5243
+X-OriginatorOrg: intel.com
 
-Hello,
+> From: Yishai Hadas <yishaih@nvidia.com>
+> Sent: Thursday, December 14, 2023 8:38 PM
+>=20
+> Introduce a vfio driver over virtio devices to support the legacy
+> interface functionality for VFs.
+>=20
+> Background, from the virtio spec [1].
+> --------------------------------------------------------------------
+> In some systems, there is a need to support a virtio legacy driver with
+> a device that does not directly support the legacy interface. In such
+> scenarios, a group owner device can provide the legacy interface
+> functionality for the group member devices. The driver of the owner
+> device can then access the legacy interface of a member device on behalf
+> of the legacy member device driver.
+>=20
+> For example, with the SR-IOV group type, group members (VFs) can not
+> present the legacy interface in an I/O BAR in BAR0 as expected by the
+> legacy pci driver. If the legacy driver is running inside a virtual
+> machine, the hypervisor executing the virtual machine can present a
+> virtual device with an I/O BAR in BAR0. The hypervisor intercepts the
+> legacy driver accesses to this I/O BAR and forwards them to the group
+> owner device (PF) using group administration commands.
+> --------------------------------------------------------------------
+>=20
+> Specifically, this driver adds support for a virtio-net VF to be exposed
+> as a transitional device to a guest driver and allows the legacy IO BAR
+> functionality on top.
+>=20
+> This allows a VM which uses a legacy virtio-net driver in the guest to
+> work transparently over a VF which its driver in the host is that new
+> driver.
+>=20
+> The driver can be extended easily to support some other types of virtio
+> devices (e.g virtio-blk), by adding in a few places the specific type
+> properties as was done for virtio-net.
+>=20
+> For now, only the virtio-net use case was tested and as such we introduce
+> the support only for such a device.
+>=20
+> Practically,
+> Upon probing a VF for a virtio-net device, in case its PF supports
+> legacy access over the virtio admin commands and the VF doesn't have BAR
+> 0, we set some specific 'vfio_device_ops' to be able to simulate in SW a
+> transitional device with I/O BAR in BAR 0.
+>=20
+> The existence of the simulated I/O bar is reported later on by
+> overwriting the VFIO_DEVICE_GET_REGION_INFO command and the device
+> exposes itself as a transitional device by overwriting some properties
+> upon reading its config space.
+>=20
+> Once we report the existence of I/O BAR as BAR 0 a legacy driver in the
+> guest may use it via read/write calls according to the virtio
+> specification.
+>=20
+> Any read/write towards the control parts of the BAR will be captured by
+> the new driver and will be translated into admin commands towards the
+> device.
+>=20
+> In addition, any data path read/write access (i.e. virtio driver
+> notifications) will be captured by the driver and forwarded to the
+> physical BAR which its properties were supplied by the admin command
+> VIRTIO_ADMIN_CMD_LEGACY_NOTIFY_INFO upon the probing/init flow.
+>=20
+> With that code in place a legacy driver in the guest has the look and
+> feel as if having a transitional device with legacy support for both its
+> control and data path flows.
+>=20
+> [1]
+> https://github.com/oasis-tcs/virtio-
+> spec/commit/03c2d32e5093ca9f2a17797242fbef88efe94b8c
+>=20
+> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+> Signed-off-by: Yishai Hadas <yishaih@nvidia.com>
 
-syzbot found the following issue on:
+aside from the non-x86 discussion:
 
-HEAD commit:    a39b6ac3781d Linux 6.7-rc5
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=15277d6ce80000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=b6602324d4e5a4a9
-dashboard link: https://syzkaller.appspot.com/bug?extid=7e3df8432b2f284f38dc
-compiler:       gcc (Debian 12.2.0-14) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40
-
-Downloadable assets:
-disk image (non-bootable): https://storage.googleapis.com/syzbot-assets/7bc7510fe41f/non_bootable_disk-a39b6ac3.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/87b10cd1584b/vmlinux-a39b6ac3.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/15b2b9a9ed4f/bzImage-a39b6ac3.xz
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+7e3df8432b2f284f38dc@syzkaller.appspotmail.com
-
-INFO: task swapper/0:1 blocked for more than 143 seconds.
-      Not tainted 6.7.0-rc5-syzkaller #0
-"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-task:swapper/0       state:D stack:22160 pid:1     tgid:1     ppid:0      flags:0x00004000
-Call Trace:
- <TASK>
- context_switch kernel/sched/core.c:5376 [inline]
- __schedule+0xedb/0x5af0 kernel/sched/core.c:6688
- __schedule_loop kernel/sched/core.c:6763 [inline]
- schedule+0xe9/0x270 kernel/sched/core.c:6778
- schedule_preempt_disabled+0x13/0x20 kernel/sched/core.c:6835
- __mutex_lock_common kernel/locking/mutex.c:679 [inline]
- __ww_mutex_lock.constprop.0+0xf57/0x2660 kernel/locking/mutex.c:754
- ww_mutex_lock+0x37/0x140 kernel/locking/mutex.c:871
- modeset_lock+0x484/0x6c0 drivers/gpu/drm/drm_modeset_lock.c:314
- drm_modeset_lock drivers/gpu/drm/drm_modeset_lock.c:396 [inline]
- drm_modeset_lock+0x59/0x90 drivers/gpu/drm/drm_modeset_lock.c:392
- drm_atomic_get_plane_state+0x199/0x580 drivers/gpu/drm/drm_atomic.c:544
- drm_client_modeset_commit_atomic+0x246/0x810 drivers/gpu/drm/drm_client_modeset.c:1003
- drm_client_modeset_commit_locked+0x14d/0x580 drivers/gpu/drm/drm_client_modeset.c:1154
- pan_display_atomic drivers/gpu/drm/drm_fb_helper.c:1370 [inline]
- drm_fb_helper_pan_display+0x2a5/0x990 drivers/gpu/drm/drm_fb_helper.c:1430
- fb_pan_display+0x477/0x7c0 drivers/video/fbdev/core/fbmem.c:191
- bit_update_start+0x49/0x1f0 drivers/video/fbdev/core/bitblit.c:390
- fbcon_switch+0xbb3/0x12e0 drivers/video/fbdev/core/fbcon.c:2170
- redraw_screen+0x2bd/0x750 drivers/tty/vt/vt.c:969
- con2fb_init_display drivers/video/fbdev/core/fbcon.c:808 [inline]
- set_con2fb_map+0x793/0x1050 drivers/video/fbdev/core/fbcon.c:867
- do_fb_registered drivers/video/fbdev/core/fbcon.c:3007 [inline]
- fbcon_fb_registered+0x21d/0x660 drivers/video/fbdev/core/fbcon.c:3023
- do_register_framebuffer drivers/video/fbdev/core/fbmem.c:449 [inline]
- register_framebuffer+0x4b2/0x860 drivers/video/fbdev/core/fbmem.c:515
- __drm_fb_helper_initial_config_and_unlock+0xd7c/0x1600 drivers/gpu/drm/drm_fb_helper.c:1871
- drm_fb_helper_initial_config drivers/gpu/drm/drm_fb_helper.c:1936 [inline]
- drm_fb_helper_initial_config+0x44/0x60 drivers/gpu/drm/drm_fb_helper.c:1928
- drm_fbdev_generic_client_hotplug+0x1a7/0x270 drivers/gpu/drm/drm_fbdev_generic.c:279
- drm_client_register+0x195/0x280 drivers/gpu/drm/drm_client.c:149
- drm_fbdev_generic_setup+0x11c/0x330 drivers/gpu/drm/drm_fbdev_generic.c:341
- virtio_gpu_probe+0x1be/0x3c0 drivers/gpu/drm/virtio/virtgpu_drv.c:105
- virtio_dev_probe+0x56e/0x870 drivers/virtio/virtio.c:305
- call_driver_probe drivers/base/dd.c:579 [inline]
- really_probe+0x234/0xc90 drivers/base/dd.c:658
- __driver_probe_device+0x1de/0x4b0 drivers/base/dd.c:800
- driver_probe_device+0x4c/0x1a0 drivers/base/dd.c:830
- __driver_attach+0x274/0x570 drivers/base/dd.c:1216
- bus_for_each_dev+0x13c/0x1d0 drivers/base/bus.c:368
- bus_add_driver+0x2e9/0x630 drivers/base/bus.c:673
- driver_register+0x15c/0x4a0 drivers/base/driver.c:246
- do_one_initcall+0x11c/0x650 init/main.c:1236
- do_initcall_level init/main.c:1298 [inline]
- do_initcalls init/main.c:1314 [inline]
- do_basic_setup init/main.c:1333 [inline]
- kernel_init_freeable+0x687/0xc10 init/main.c:1551
- kernel_init+0x1c/0x2a0 init/main.c:1441
- ret_from_fork+0x45/0x80 arch/x86/kernel/process.c:147
- ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:242
- </TASK>
-INFO: task kworker/0:0:7 blocked for more than 143 seconds.
-      Not tainted 6.7.0-rc5-syzkaller #0
-"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-task:kworker/0:0     state:D stack:28704 pid:7     tgid:7     ppid:2      flags:0x00004000
-Workqueue: events virtio_gpu_dequeue_ctrl_func
-Call Trace:
- <TASK>
- context_switch kernel/sched/core.c:5376 [inline]
- __schedule+0xedb/0x5af0 kernel/sched/core.c:6688
- __schedule_loop kernel/sched/core.c:6763 [inline]
- schedule+0xe9/0x270 kernel/sched/core.c:6778
- schedule_preempt_disabled+0x13/0x20 kernel/sched/core.c:6835
- __mutex_lock_common kernel/locking/mutex.c:679 [inline]
- __mutex_lock+0x5b9/0x9d0 kernel/locking/mutex.c:747
- drm_client_dev_hotplug drivers/gpu/drm/drm_client.c:227 [inline]
- drm_client_dev_hotplug+0x169/0x3c0 drivers/gpu/drm/drm_client.c:214
- virtio_gpu_cmd_get_display_info_cb+0x3e0/0x550 drivers/gpu/drm/virtio/virtgpu_vq.c:674
- virtio_gpu_dequeue_ctrl_func+0x21b/0x9a0 drivers/gpu/drm/virtio/virtgpu_vq.c:235
- process_one_work+0x886/0x15d0 kernel/workqueue.c:2627
- process_scheduled_works kernel/workqueue.c:2700 [inline]
- worker_thread+0x8b9/0x1290 kernel/workqueue.c:2781
- kthread+0x2c6/0x3a0 kernel/kthread.c:388
- ret_from_fork+0x45/0x80 arch/x86/kernel/process.c:147
- ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:242
- </TASK>
-INFO: task kworker/2:1:36 blocked for more than 143 seconds.
-      Not tainted 6.7.0-rc5-syzkaller #0
-"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-task:kworker/2:1     state:D stack:26720 pid:36    tgid:36    ppid:2      flags:0x00004000
-Workqueue: events drm_fb_helper_damage_work
-Call Trace:
- <TASK>
- context_switch kernel/sched/core.c:5376 [inline]
- __schedule+0xedb/0x5af0 kernel/sched/core.c:6688
- __schedule_loop kernel/sched/core.c:6763 [inline]
- schedule+0xe9/0x270 kernel/sched/core.c:6778
- virtio_gpu_queue_ctrl_sgs drivers/gpu/drm/virtio/virtgpu_vq.c:341 [inline]
- virtio_gpu_queue_fenced_ctrl_buffer+0x497/0xff0 drivers/gpu/drm/virtio/virtgpu_vq.c:415
- virtio_gpu_resource_flush drivers/gpu/drm/virtio/virtgpu_plane.c:152 [inline]
- virtio_gpu_primary_plane_update+0x1059/0x1590 drivers/gpu/drm/virtio/virtgpu_plane.c:227
- drm_atomic_helper_commit_planes+0x92f/0xfe0 drivers/gpu/drm/drm_atomic_helper.c:2798
- drm_atomic_helper_commit_tail+0x69/0xf0 drivers/gpu/drm/drm_atomic_helper.c:1747
- commit_tail+0x353/0x410 drivers/gpu/drm/drm_atomic_helper.c:1832
- drm_atomic_helper_commit+0x2f9/0x380 drivers/gpu/drm/drm_atomic_helper.c:2070
- drm_atomic_commit+0x20b/0x2d0 drivers/gpu/drm/drm_atomic.c:1513
- drm_atomic_helper_dirtyfb+0x611/0x7b0 drivers/gpu/drm/drm_damage_helper.c:181
- drm_fbdev_generic_helper_fb_dirty+0x827/0xbb0 drivers/gpu/drm/drm_fbdev_generic.c:230
- drm_fb_helper_fb_dirty drivers/gpu/drm/drm_fb_helper.c:390 [inline]
- drm_fb_helper_damage_work+0x283/0x5e0 drivers/gpu/drm/drm_fb_helper.c:413
- process_one_work+0x886/0x15d0 kernel/workqueue.c:2627
- process_scheduled_works kernel/workqueue.c:2700 [inline]
- worker_thread+0x8b9/0x1290 kernel/workqueue.c:2781
- kthread+0x2c6/0x3a0 kernel/kthread.c:388
- ret_from_fork+0x45/0x80 arch/x86/kernel/process.c:147
- ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:242
- </TASK>
-
-Showing all locks held in the system:
-9 locks held by swapper/0/1:
- #0: ffff888102fd6170 (&dev->mutex){....}-{3:3}, at: device_lock include/linux/device.h:992 [inline]
- #0: ffff888102fd6170 (&dev->mutex){....}-{3:3}, at: __device_driver_lock drivers/base/dd.c:1095 [inline]
- #0: ffff888102fd6170 (&dev->mutex){....}-{3:3}, at: __driver_attach+0x269/0x570 drivers/base/dd.c:1215
- #1: ffff8881067782f8 (&dev->clientlist_mutex){+.+.}-{3:3}, at: drm_client_register+0x54/0x280 drivers/gpu/drm/drm_client.c:135
- #2: ffffffff8dab0f68 (registration_lock){+.+.}-{3:3}, at: register_framebuffer+0x7a/0x860 drivers/video/fbdev/core/fbmem.c:514
- #3: ffffffff8cf958c0 (console_lock){+.+.}-{0:0}, at: fbcon_fb_registered+0x3c/0x660 drivers/video/fbdev/core/fbcon.c:3019
- #4: ffff888106bb2a80 (&helper->lock){+.+.}-{3:3}, at: drm_fb_helper_pan_display+0xd5/0x990 drivers/gpu/drm/drm_fb_helper.c:1423
- #5: ffff8881067781b0 (&dev->master_mutex){+.+.}-{3:3}, at: drm_master_internal_acquire+0x21/0x70 drivers/gpu/drm/drm_auth.c:458
- #6: ffff888106bb2898 (&client->modeset_mutex){+.+.}-{3:3}, at: drm_client_modeset_commit_locked+0x4c/0x580 drivers/gpu/drm/drm_client_modeset.c:1152
- #7: ffffc90000267328 (crtc_ww_class_acquire){+.+.}-{0:0}, at: drm_client_modeset_commit_atomic+0xd0/0x810 drivers/gpu/drm/drm_client_modeset.c:990
- #8: ffff88801d5538b0 (crtc_ww_class_mutex){+.+.}-{3:3}, at: modeset_lock+0x484/0x6c0 drivers/gpu/drm/drm_modeset_lock.c:314
-3 locks held by kworker/0:0/7:
- #0: ffff888013069d38 ((wq_completion)events){+.+.}-{0:0}, at: process_one_work+0x789/0x15d0 kernel/workqueue.c:2602
- #1: ffffc900002c7d80 ((work_completion)(&vgvq->dequeue_work)){+.+.}-{0:0}, at: process_one_work+0x7eb/0x15d0 kernel/workqueue.c:2603
- #2: ffff8881067782f8 (&dev->clientlist_mutex){+.+.}-{3:3}, at: drm_client_dev_hotplug drivers/gpu/drm/drm_client.c:227 [inline]
- #2: ffff8881067782f8 (&dev->clientlist_mutex){+.+.}-{3:3}, at: drm_client_dev_hotplug+0x169/0x3c0 drivers/gpu/drm/drm_client.c:214
-5 locks held by kworker/2:1/36:
- #0: ffff888013069d38 ((wq_completion)events){+.+.}-{0:0}, at: process_one_work+0x789/0x15d0 kernel/workqueue.c:2602
- #1: ffffc90000b27d80 ((work_completion)(&helper->damage_work)){+.+.}-{0:0}, at: process_one_work+0x7eb/0x15d0 kernel/workqueue.c:2603
- #2: ffffc90000b27a40 (crtc_ww_class_acquire){+.+.}-{0:0}, at: drm_atomic_helper_dirtyfb+0xb5/0x7b0 drivers/gpu/drm/drm_damage_helper.c:123
- #3: ffff88801d5538b0 (crtc_ww_class_mutex){+.+.}-{3:3}, at: modeset_lock+0x484/0x6c0 drivers/gpu/drm/drm_modeset_lock.c:314
- #4: ffffffff8dbe7f90 (drm_unplug_srcu){.+.+}-{0:0}, at: srcu_lock_acquire include/linux/srcu.h:116 [inline]
- #4: ffffffff8dbe7f90 (drm_unplug_srcu){.+.+}-{0:0}, at: srcu_read_lock include/linux/srcu.h:215 [inline]
- #4: ffffffff8dbe7f90 (drm_unplug_srcu){.+.+}-{0:0}, at: drm_dev_enter+0x49/0x160 drivers/gpu/drm/drm_drv.c:450
-1 lock held by khungtaskd/38:
- #0: ffffffff8cfa82e0 (rcu_read_lock){....}-{1:2}, at: rcu_lock_acquire include/linux/rcupdate.h:301 [inline]
- #0: ffffffff8cfa82e0 (rcu_read_lock){....}-{1:2}, at: rcu_read_lock include/linux/rcupdate.h:747 [inline]
- #0: ffffffff8cfa82e0 (rcu_read_lock){....}-{1:2}, at: debug_show_all_locks+0x75/0x340 kernel/locking/lockdep.c:6614
-2 locks held by kworker/u16:6/366:
- #0: ffff888013079938 ((wq_completion)events_unbound){+.+.}-{0:0}, at: process_one_work+0x789/0x15d0 kernel/workqueue.c:2602
- #1: ffffc90003377d80 ((work_completion)(&(&kfence_timer)->work)){+.+.}-{0:0}, at: process_one_work+0x7eb/0x15d0 kernel/workqueue.c:2603
-
-=============================================
-
-
-
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
-
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
-
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
-
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
-
-If you want to undo deduplication, reply with:
-#syz undup
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
