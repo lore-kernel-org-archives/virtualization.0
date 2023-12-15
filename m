@@ -1,307 +1,246 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 792DA79F3
-	for <virtualization@lists.linux-foundation.org>; Fri, 15 Dec 2023 05:50:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98E99C8F5
+	for <virtualization@lists.linux-foundation.org>; Fri, 15 Dec 2023 05:54:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="XfwxIDjR"
+	dkim=pass (2048-bit key) header.d=brainfault-org.20230601.gappssmtp.com header.i=@brainfault-org.20230601.gappssmtp.com header.b="rGAuh9U2"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id D445C60FEE
-	for <virtualization@lists.linux-foundation.org>; Fri, 15 Dec 2023 05:50:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D445C60FEE
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=XfwxIDjR
+	by smtp4.osuosl.org (Postfix) with ESMTP id 20032409DF
+	for <virtualization@lists.linux-foundation.org>; Fri, 15 Dec 2023 05:54:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 20032409DF
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=brainfault-org.20230601.gappssmtp.com header.i=@brainfault-org.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=rGAuh9U2
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -1.898
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6ExndxQRQkZD
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id w_Drnc20BkgX
 	for <virtualization@lists.linux-foundation.org>;
-	Fri, 15 Dec 2023 05:50:05 +0000 (UTC)
-Received: from mail-oi1-x22f.google.com (mail-oi1-x22f.google.com [IPv6:2607:f8b0:4864:20::22f])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 2972E60B9C
-	for <virtualization@lists.linux-foundation.org>; Fri, 15 Dec 2023 05:50:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2972E60B9C
-Received: by mail-oi1-x22f.google.com with SMTP id 5614622812f47-3b9f8c9307dso329556b6e.0
-        for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 21:50:04 -0800 (PST)
+	Fri, 15 Dec 2023 05:54:20 +0000 (UTC)
+Received: from mail-qt1-x836.google.com (mail-qt1-x836.google.com [IPv6:2607:f8b0:4864:20::836])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 416E94098B
+	for <virtualization@lists.linux-foundation.org>; Fri, 15 Dec 2023 05:54:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 416E94098B
+Received: by mail-qt1-x836.google.com with SMTP id d75a77b69052e-425fbac8fc7so2847231cf.3
+        for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 21:54:20 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1702619404; x=1703224204; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=xFKDorqrFC5bosM2lt/mDyJdprik2aA7TxjdYt0y1e4=;
-        b=XfwxIDjR533i0HZPTzwGqIe95IBy74RRKL0S9uXf+BJDD2Lvqm+bExNt+anFl9wHel
-         z8YH1aECo/MXUJFutDeTTBQKUVMTM3zhBRlR9qJfbkEs1wfauf3ayUaP4c7cFPloyhPZ
-         QbXJknfpFATZbSBv/8tqvUPvMXYt6wMySuOeKU0MTaUGSAnz1aggLrMA4HtpgrL1C9zM
-         Ey3SYKHHXelkC+Zc9LJ/gm9Iq1120QfrKZ3ZUsQHcPlT4HqSPEiw43xJGQ8IyOsHnwUq
-         MQwNeU/tOdhgLVJXVkPBJWhmDnDUie6LUjrV4ZOaEFDbmK4tLYCaU3NU5sXdCQSrxbRa
-         qZXg==
+        d=brainfault-org.20230601.gappssmtp.com; s=20230601; t=1702619659; x=1703224459; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=IIlGBUI7+xyayXLeWefjq6qjRUJDvM6KcbCYeer1jRk=;
+        b=rGAuh9U2sL6JvMtf0+KrorkulBwA0EAZPJNlgpcOtk5Rrvea8bhIZvxGwuIlu3Az9x
+         O8lnR4fks1355f76+Gd37XU2roBB9U5CDM+THhNLf6vBCDTXIfHQ99CAJQ/SKq0oc6fN
+         NRy17CG2Ful8GlctK6kYoDEsAd6sOkSagYZf+bbS0D9PdLCZEOSxm9Bpstvq3Khi/MML
+         Aw05cNpJ1km9lMjiFxY1tzxieikyWwyffzk3BR5l5xqNYX32tTV3m+XZ2d7Km+xBran8
+         B4RUMXRwbUNnku81wy8z8nsSmj38Be5mCQ39NZCd95aqZAT1cJ74T+2iIYnB3fXYrquf
+         /1/Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702619404; x=1703224204;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=xFKDorqrFC5bosM2lt/mDyJdprik2aA7TxjdYt0y1e4=;
-        b=dbdzV3C1gis6F1A4LsOl+n7unBlmSlJ7OopaYeTib4WzDxmrGmZCXw/XCoQxl0Xhq/
-         Esuou/kKJYQsZdTqkm3fEt8uhCq8ri+bVU69ikxl2+FFpCy7DaAZJcHaVTmCMoZmqCT2
-         942xqKyjPYr+CBPzN5bCG0uG5sgYKrRzisBIVtjNfxiZ/a58dPifH3ur7J3M0CAbCL+u
-         Odc10jjaaCUGC8tDIhE6O5PSoD6mFyCJV8xxKimqzNfa87NPnpwnIlWQ3MFxAH0/hVRA
-         dMEU7MrVFaOxrLTLCTz2lUIxVGRfTqA87lZOR2RQk4HzylaENYlsAnD9rW4WAk+tR99L
-         EzkA==
-X-Gm-Message-State: AOJu0YwNCHFXgjDeixTWWG4OLqf/0cW1wy14qmVjZE00MYM1IejRvg+C
-	rKoGCFIbGcIm3sZUUzFbSZCfcg==
-X-Google-Smtp-Source: AGHT+IGx2R7EsZiNCgpjAWLFVnSbXZ01T55zLVZoewTO79uTMzNCSJGSk/7hhmSoBW352drVsZLTPg==
-X-Received: by 2002:a05:6808:16a3:b0:3b9:e7e2:f30 with SMTP id bb35-20020a05680816a300b003b9e7e20f30mr13382782oib.7.1702619403985;
-        Thu, 14 Dec 2023 21:50:03 -0800 (PST)
-Received: from [157.82.205.15] ([157.82.205.15])
-        by smtp.gmail.com with ESMTPSA id q5-20020a170902bd8500b001c9d011581dsm13310686pls.164.2023.12.14.21.49.57
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 14 Dec 2023 21:50:03 -0800 (PST)
-Message-ID: <72b8e198-7058-469a-a1e0-17f48330deca@daynix.com>
-Date: Fri, 15 Dec 2023 14:49:56 +0900
+        d=1e100.net; s=20230601; t=1702619659; x=1703224459;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=IIlGBUI7+xyayXLeWefjq6qjRUJDvM6KcbCYeer1jRk=;
+        b=VuGogEuxQiOhVntqA9L1fr/0+p8WW6H9NKii3GfLPtycU7lYWYnZR54TzDBVWLErEn
+         XXLEOobirdhtZmlDYCMVSGgySFDKAt1m3bgxsxh6sS6jopCTQ+5brZg0TNgYWMVau3Mh
+         itAOIOIwiRm+awCz3BJGKUvq7BPxnPM+0eAOPVcav+KGI7bPrXYydkU6zy0P7n4S09JC
+         xhLI+W8pXqjMq4ObW7/SGbg/fEiHt8F2PTHF4eE5vmJv1IrCFqCZffSW6oWlMrL+gu0T
+         eYiS1eC+VG3jNp7XnMYuJJX8M7lxYKoeJ/zgexbH+LQ7rUpHSJ4EHmbA8Qrut3OzCVeo
+         7mLg==
+X-Gm-Message-State: AOJu0Yy3t1mcrJeCFunklnqjiorITsFv1Yaxdi8IDl4n0QXxhP1L3vFT
+	H/MTpaERAMVa9x5ERe9Muk3tRrPHqukX0/sEqOS5Zw==
+X-Google-Smtp-Source: AGHT+IHOyrKLgnQy+W8sgXbtsBZvEa32nid80KmWXfHMez/R3halXXDJw+VufpLEgn2w4DBWuWK08pywPMQMUQMgxdk=
+X-Received: by 2002:a05:622a:100f:b0:425:4043:18ce with SMTP id
+ d15-20020a05622a100f00b00425404318cemr14467505qte.129.1702619658984; Thu, 14
+ Dec 2023 21:54:18 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: Should I add BPF kfuncs for userspace apps? And how?
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>,
- Alexei Starovoitov <alexei.starovoitov@gmail.com>,
- Jason Wang <jasowang@redhat.com>, Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, Andrii Nakryiko <andrii@kernel.org>,
- Martin KaFai Lau <martin.lau@linux.dev>,
- Yonghong Song <yonghong.song@linux.dev>,
- John Fastabend <john.fastabend@gmail.com>, KP Singh <kpsingh@kernel.org>,
- Stanislav Fomichev <sdf@google.com>, Hao Luo <haoluo@google.com>,
- Jiri Olsa <jolsa@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo
- <xuanzhuo@linux.alibaba.com>, Mykola Lysenko <mykolal@fb.com>,
- Shuah Khan <shuah@kernel.org>, Yuri Benditovich
- <yuri.benditovich@daynix.com>, Andrew Melnychenko <andrew@daynix.com>,
- Benjamin Tissoires <bentiss@kernel.org>, bpf <bpf@vger.kernel.org>,
- "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, kvm@vger.kernel.org,
- LKML <linux-kernel@vger.kernel.org>,
- virtualization@lists.linux-foundation.org,
- "open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>,
- Network Development <netdev@vger.kernel.org>
-References: <2f33be45-fe11-4b69-8e89-4d2824a0bf01@daynix.com>
- <CAO-hwJJhzHtKrUEw0zrjgub3+eapgJG-zsG0HRB=PaPi6BxG+w@mail.gmail.com>
- <e256c6df-0a66-4f86-ae96-bff17920c2fb@daynix.com>
- <CAO-hwJKMrWYRNpuprDj9=k87V0yHtLPEJuQ94bpOF3O81=v0kA@mail.gmail.com>
- <0d68722c-9e29-407b-9ef0-331683c995d2@daynix.com>
- <20231214094042.75f704f6@hermes.local>
-Content-Language: en-US
-From: Akihiko Odaki <akihiko.odaki@daynix.com>
-In-Reply-To: <20231214094042.75f704f6@hermes.local>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+References: <20231214101552.100721-15-ajones@ventanamicro.com> <20231214101552.100721-18-ajones@ventanamicro.com>
+In-Reply-To: <20231214101552.100721-18-ajones@ventanamicro.com>
+From: Anup Patel <anup@brainfault.org>
+Date: Fri, 15 Dec 2023 11:24:06 +0530
+Message-ID: <CAAhSdy0zYkQLTuERqV4rePC8akQa90bvMNmG_QHm_5kHn1DVnw@mail.gmail.com>
+Subject: Re: [PATCH v2 03/13] RISC-V: paravirt: Implement steal-time support
+To: Andrew Jones <ajones@ventanamicro.com>
+Cc: kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
+	virtualization@lists.linux-foundation.org, atishp@atishpatra.org, 
+	pbonzini@redhat.com, paul.walmsley@sifive.com, palmer@dabbelt.com, 
+	aou@eecs.berkeley.edu, jgross@suse.com, srivatsa@csail.mit.edu, 
+	guoren@kernel.org, conor.dooley@microchip.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 2023/12/15 2:40, Stephen Hemminger wrote:
-> On Thu, 14 Dec 2023 14:51:12 +0900
-> Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
-> 
->> On 2023/12/13 19:22, Benjamin Tissoires wrote:
->>> On Tue, Dec 12, 2023 at 1:41 PM Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
->>>>
->>>> On 2023/12/12 19:39, Benjamin Tissoires wrote:
->>>>> Hi,
->>>>>
->>>>> On Tue, Dec 12, 2023 at 9:11 AM Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
->>>>>>
->>>>>> Hi,
->>>>
->>>> Hi,
->>>>
->>>> Thanks for reply.
->>>>   
->>>>>>
->>>>>> It is said eBPF is a safe way to extend kernels and that is very
->>>>>> attarctive, but we need to use kfuncs to add new usage of eBPF and
->>>>>> kfuncs are said as unstable as EXPORT_SYMBOL_GPL. So now I'd like to ask
->>>>>> some questions:
->>>>>>
->>>>>> 1) Which should I choose, BPF kfuncs or ioctl, when adding a new feature
->>>>>> for userspace apps?
->>>>>> 2) How should I use BPF kfuncs from userspace apps if I add them?
->>>>>>
->>>>>> Here, a "userspace app" means something not like a system-wide daemon
->>>>>> like systemd (particularly, I have QEMU in mind). I'll describe the
->>>>>> context more below:
->>>>>
->>>>> I'm probably not the best person in the world to answer your
->>>>> questions, Alexei and others from the BPF core group are, but given
->>>>> that you pointed at a thread I was involved in, I feel I can give you
->>>>> a few pointers.
->>>>>
->>>>> But first and foremost, I encourage you to schedule an agenda item in
->>>>> the BPF office hour[4]. Being able to talk with the core people
->>>>> directly was tremendously helpful to me to understand their point.
->>>>
->>>> I prefer emails because I'm not very fluent when speaking in English and
->>>> may have a difficultly to listen to other people, but I may try it in
->>>> future.
->>>>   
->>>>>
->>>>>   
->>>>>>
->>>>>> ---
->>>>>>
->>>>>> I'm working on a new feature that aids virtio-net implementations using
->>>>>> tuntap virtual network device. You can see [1] for details, but
->>>>>> basically it's to extend BPF_PROG_TYPE_SOCKET_FILTER to report four more
->>>>>> bytes.
->>>>>>
->>>>>> However, with long discussions we have confirmed extending
->>>>>> BPF_PROG_TYPE_SOCKET_FILTER is not going to happen, and adding kfuncs is
->>>>>> the way forward. So I decided how to add kfuncs to the kernel and how to
->>>>>> use it. There are rich documentations for the kernel side, but I found
->>>>>> little about the userspace. The best I could find is a systemd change
->>>>>> proposal that is based on WIP kernel changes[2].
->>>>>
->>>>> Yes, as Alexei already replied, BPF is not adding new stable APIs,
->>>>> only kfuncs. The reason being that once it's marked as stable, you
->>>>> can't really remove it, even if you think it's badly designed and
->>>>> useless.
->>>>>
->>>>> Kfuncs, OTOH are "unstable" by default meaning that the constraints
->>>>> around it are more relaxed.
->>>>>
->>>>> However, "unstable" doesn't mean "unusable". It just means that the
->>>>> kernel might or might not have the function when you load your program
->>>>> in userspace. So you have to take that fact into account from day one,
->>>>> both from the kernel side and the userspace side. The kernel docs have
->>>>> a nice paragraph explaining that situation and makes the distinction
->>>>> between relatively unused kfuncs, and well known established ones.
->>>>>
->>>>> Regarding the systemd discussion you are mentioning ([2]), this is
->>>>> something that I have on my plate for a long time. I think I even
->>>>> mentioned it to Alexei at Kernel Recipes this year, and he frowned his
->>>>> eyebrows when I mentioned it. And looking at the systemd code and the
->>>>> benefits over a plain ioctl, it is clearer that in that case, a plain
->>>>> ioctl is better, mostly because we already know the API and the
->>>>> semantic.
->>>>>
->>>>> A kfunc would be interesting in cases where you are not sure about the
->>>>> overall design, and so you can give a shot at various API solutions
->>>>> without having to keep your bad v1 design forever.
->>>>>   
->>>>>>
->>>>>> So now I'm wondering how I should use BPF kfuncs from userspace apps if
->>>>>> I add them. In the systemd discussion, it is told that Linus said it's
->>>>>> fine to use BPF kfuncs in a private infrastructure big companies own, or
->>>>>> in systemd as those users know well about the system[3]. Indeed, those
->>>>>> users should be able to make more assumptions on the kernel than
->>>>>> "normal" userspace applications can.
->>>>>>
->>>>>> Returning to my proposal, I'm proposing a new feature to be used by QEMU
->>>>>> or other VMM applications. QEMU is more like a normal userspace
->>>>>> application, and usually does not make much assumptions on the kernel it
->>>>>> runs on. For example, it's generally safe to run a Debian container
->>>>>> including QEMU installed with apt on Fedora. BPF kfuncs may work even in
->>>>>> such a situation thanks to CO-RE, but it sounds like *accidentally*
->>>>>> creating UAPIs.
->>>>>>
->>>>>> Considering all above, how can I integrate BPF kfuncs to the application?
->>>>>
->>>>> FWIW, I'm not sure you can rely on BPF calls from a container. There
->>>>> is a high chance the syscall gets disabled by the runtime.
->>>>
->>>> Right. Container runtimes will not pass CAP_BPF by default, but that
->>>> restriction can be lifted and I think that's a valid scenario.
->>>>   
->>>>>   
->>>>>>
->>>>>> If BPF kfuncs are like EXPORT_SYMBOL_GPL, the natural way to handle them
->>>>>> is to think of BPF programs as some sort of kernel modules and
->>>>>> incorporate logic that behaves like modprobe. More concretely, I can put
->>>>>> eBPF binaries to a directory like:
->>>>>> /usr/local/share/qemu/ebpf/$KERNEL_RELEASE
->>>>>
->>>>> I would advise against that (one program per kernel release). Simply
->>>>> because your kfunc may or may not have been backported to kernel
->>>>> release v6.X.Y+1 while it was not there when v6.X.Y was out. So
->>>>> relying on the kernel number is just going to be a headache.
->>>>>
->>>>> As I understand it, the way forward is to rely on the kernel, libbpf
->>>>> and CO-RE: if the function is not available, the program will simply
->>>>> not load, and you'll know that this version of the code is not
->>>>> available (or has changed API).
->>>>>
->>>>> So what I would do if some kfunc API is becoming deprecated, is
->>>>> embedding both code paths in the same BPF unit, but marking them as
->>>>> not loaded by libppf. Then I can load the compilation unit, try v2 of
->>>>> the API, and if it's not available, try v1, and if not, then mention
->>>>> that I can not rely on BPF. Of course, this can also be done with
->>>>> separate compilation units.
->>>>
->>>> Doesn't it mean that the kernel is free to break old versions of QEMU
->>>> including BPF programs? That's something I'd like to avoid.
->>>
->>> Couple of points here:
->>> - when you say "the kernel", it feels like you are talking about an
->>> external actor tampering with your code. But if you submit a kernel
->>> patch with a specific use case and get yourself involved in the
->>> community, why would anybody change your kfunc API without you knowing
->>> it?
->>
->> You are right in the practical aspect.  I can pay efforts to keep kfunc
->> APIs alive and I'm also sure other developers would also try not to
->> break them for good.
->>
->> Nevertheless I'm being careful to evaluate APIs from both of the kernel
->> and userspace (QEMU) viewpoints. If I fail to keep kfuncs stable because
->> I die in an accident, for example, it's a poor excuse for other QEMU
->> developers that I intended to keep them stable with my personal effort.
->>
->>> - the whole warning about "unstable" policy means that the user space
->>> component should not take for granted the capability. So if the kfunc
->>> changes/disappears for good reasons (because it was marked as well
->>> used and deprecated for quite some time), qemu should not *break*, it
->>> should not provide the functionality, or have a secondary plan.
->>>
->>> But even if you are encountering such issues, in case of a change in
->>> the ABI of your kfunc, it should be easy enough to backport the bpf
->>> changes to your old QEMUs and ask users to upgrade the user space if
->>> they upgrade their kernel.
->>>
->>> AFAIU, it is as unstable as you want it to be. It's just that we are
->>> not in the "we don't break user space" contract, because we are
->>> talking about adding a kernel functionality from userspace, which
->>> requires knowing the kernel intrinsics.
->>
->> I must admit I'm still not convinced the proposed BPF program
->> functionality needs to know internals of the kernel.
->>
->> The eBPF program QEMU carries is just to calculate hashes from packets.
->> It doesn't need to know the details of how the kernel handles packets.
->> It only needs to have an access to the packet content.
->>
->> It is exactly what BPF_PROG_TYPE_SOCKET_FILTER does, but it lacks a
->> mechanism to report hash values so I need to extend it or invent a new
->> method. Extending BPF_PROG_TYPE_SOCKET_FILTER is not a way forward since
->> CO-RE is superior to the context rewrite it relies on. But apparently
->> adopting kfuncs and CO-RE also means to lose the "we don't break user
->> space" contract although I have no intention to expose kernel internals
->> to the eBPF program.
-> 
-> An example is how one part of DPDK recomputes RSS over TAP.
-> 
-> https://git.dpdk.org/dpdk/tree/drivers/net/tap/bpf/tap_bpf_program.c
-> 
-> This feature is likely to be removed, because it is not actively used
-> and the changes in BPF program loading broke it on current kernel
-> releases.  Which brings up the point that since the kernel does
-> not have stable API/ABI for BPF program infrastructure, I would
-> avoid it for projects that don't want to deal with that.
+On Thu, Dec 14, 2023 at 3:45=E2=80=AFPM Andrew Jones <ajones@ventanamicro.c=
+om> wrote:
+>
+> When the SBI STA extension exists we can use it to implement
+> paravirt steal-time support. Fill in the empty pv-time functions
+> with an SBI STA implementation and add the Kconfig knobs allowing
+> it to be enabled.
+>
+> Signed-off-by: Andrew Jones <ajones@ventanamicro.com>
+> ---
+>  arch/riscv/Kconfig           | 19 ++++++++++
+>  arch/riscv/kernel/paravirt.c | 67 ++++++++++++++++++++++++++++++++++--
+>  2 files changed, 83 insertions(+), 3 deletions(-)
+>
+> diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+> index 95a2a06acc6a..b99fd8129edf 100644
+> --- a/arch/riscv/Kconfig
+> +++ b/arch/riscv/Kconfig
+> @@ -724,6 +724,25 @@ config COMPAT
+>
+>           If you want to execute 32-bit userspace applications, say Y.
+>
+> +config PARAVIRT
+> +       bool "Enable paravirtualization code"
+> +       depends on RISCV_SBI
+> +       help
+> +         This changes the kernel so it can modify itself when it is run
+> +         under a hypervisor, potentially improving performance significa=
+ntly
+> +         over full virtualization.
+> +
+> +config PARAVIRT_TIME_ACCOUNTING
+> +       bool "Paravirtual steal time accounting"
+> +       depends on PARAVIRT
+> +       help
+> +         Select this option to enable fine granularity task steal time
+> +         accounting. Time spent executing other tasks in parallel with
+> +         the current vCPU is discounted from the vCPU power. To account =
+for
+> +         that, there can be a small performance impact.
+> +
+> +         If in doubt, say N here.
+> +
+>  config RELOCATABLE
+>         bool "Build a relocatable kernel"
+>         depends on MMU && 64BIT && !XIP_KERNEL
+> diff --git a/arch/riscv/kernel/paravirt.c b/arch/riscv/kernel/paravirt.c
+> index 141dbcc36fa2..b09dfd81bcd2 100644
+> --- a/arch/riscv/kernel/paravirt.c
+> +++ b/arch/riscv/kernel/paravirt.c
+> @@ -6,12 +6,21 @@
+>  #define pr_fmt(fmt) "riscv-pv: " fmt
+>
+>  #include <linux/cpuhotplug.h>
+> +#include <linux/compiler.h>
+> +#include <linux/errno.h>
+>  #include <linux/init.h>
+>  #include <linux/jump_label.h>
+> +#include <linux/kconfig.h>
+> +#include <linux/kernel.h>
+> +#include <linux/percpu-defs.h>
+>  #include <linux/printk.h>
+>  #include <linux/static_call.h>
+>  #include <linux/types.h>
+>
+> +#include <asm/barrier.h>
+> +#include <asm/page.h>
+> +#include <asm/sbi.h>
+> +
+>  struct static_key paravirt_steal_enabled;
+>  struct static_key paravirt_steal_rq_enabled;
+>
+> @@ -31,24 +40,76 @@ static int __init parse_no_stealacc(char *arg)
+>
+>  early_param("no-steal-acc", parse_no_stealacc);
+>
+> +DEFINE_PER_CPU(struct sbi_sta_struct, steal_time) __aligned(64);
+> +
+>  static bool __init has_pv_steal_clock(void)
+>  {
+> +       if (sbi_spec_version >=3D sbi_mk_version(2, 0) &&
+> +           sbi_probe_extension(SBI_EXT_STA) > 0) {
+> +               pr_info("SBI STA extension detected\n");
+> +               return true;
+> +       }
+> +
+>         return false;
+>  }
+>
+> -static int pv_time_cpu_online(unsigned int cpu)
+> +static int sbi_sta_steal_time_set_shmem(unsigned long lo, unsigned long =
+hi,
+> +                                       unsigned long flags)
+>  {
+> +       struct sbiret ret;
+> +
+> +       ret =3D sbi_ecall(SBI_EXT_STA, SBI_EXT_STA_STEAL_TIME_SET_SHMEM,
+> +                       lo, hi, flags, 0, 0, 0);
+> +       if (ret.error) {
+> +               if (lo =3D=3D SBI_STA_SHMEM_DISABLE && hi =3D=3D SBI_STA_=
+SHMEM_DISABLE)
+> +                       pr_warn("Failed to disable steal-time shmem");
+> +               else
+> +                       pr_warn("Failed to set steal-time shmem");
+> +               return sbi_err_map_linux_errno(ret.error);
+> +       }
+> +
+>         return 0;
+>  }
+>
+> +static int pv_time_cpu_online(unsigned int cpu)
+> +{
+> +       struct sbi_sta_struct *st =3D this_cpu_ptr(&steal_time);
+> +       phys_addr_t pa =3D __pa(st);
+> +       unsigned long lo =3D (unsigned long)pa;
+> +       unsigned long hi =3D IS_ENABLED(CONFIG_32BIT) ? upper_32_bits((u6=
+4)pa) : 0;
+> +
+> +       return sbi_sta_steal_time_set_shmem(lo, hi, 0);
+> +}
+> +
+>  static int pv_time_cpu_down_prepare(unsigned int cpu)
+>  {
+> -       return 0;
+> +       return sbi_sta_steal_time_set_shmem(SBI_STA_SHMEM_DISABLE,
+> +                                           SBI_STA_SHMEM_DISABLE, 0);
+>  }
+>
+>  static u64 pv_time_steal_clock(int cpu)
+>  {
+> -       return 0;
+> +       struct sbi_sta_struct *st =3D per_cpu_ptr(&steal_time, cpu);
+> +       u32 sequence;
+> +       u64 steal;
+> +
+> +       if (IS_ENABLED(CONFIG_32BIT)) {
+> +               /*
+> +                * Check the sequence field before and after reading the =
+steal
+> +                * field. Repeat the read if it is different or odd.
+> +                */
+> +               do {
+> +                       sequence =3D READ_ONCE(st->sequence);
+> +                       virt_rmb();
+> +                       steal =3D READ_ONCE(st->steal);
+> +                       virt_rmb();
+> +               } while ((le32_to_cpu(sequence) & 1) ||
+> +                        sequence !=3D READ_ONCE(st->sequence));
 
-It's unfortunate to hear that, but thanks for the information.
-I'll consider more about the option not using BPF (plain ioctl and 
-in-kernel implementation).
+Actually, we should be doing this sequence for both RV64 and RV32
+because for RV64 the steal time value is valid only when sequence is
+an even number.
+
+> +       } else {
+> +               steal =3D READ_ONCE(st->steal);
+> +       }
+> +
+> +       return le64_to_cpu(steal);
+>  }
+>
+>  int __init pv_time_init(void)
+> --
+> 2.43.0
+>
+
+Regards,
+Anup
