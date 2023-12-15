@@ -1,177 +1,293 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D8E9381
-	for <virtualization@lists.linux-foundation.org>; Fri, 15 Dec 2023 01:00:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82310D266
+	for <virtualization@lists.linux-foundation.org>; Fri, 15 Dec 2023 05:37:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="YYGTLlRJ"
+	dkim=pass (2048-bit key) header.d=brainfault-org.20230601.gappssmtp.com header.i=@brainfault-org.20230601.gappssmtp.com header.b="rbpV9GR6"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id D398E60FFD
-	for <virtualization@lists.linux-foundation.org>; Fri, 15 Dec 2023 01:00:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D398E60FFD
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=YYGTLlRJ
+	by smtp2.osuosl.org (Postfix) with ESMTP id E3C884012F
+	for <virtualization@lists.linux-foundation.org>; Fri, 15 Dec 2023 05:37:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E3C884012F
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key) header.d=brainfault-org.20230601.gappssmtp.com header.i=@brainfault-org.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=rbpV9GR6
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.101
+X-Spam-Score: -1.898
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id l582F5VI9m_3
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 8WjVYDjiGJ6R
 	for <virtualization@lists.linux-foundation.org>;
-	Fri, 15 Dec 2023 01:00:54 +0000 (UTC)
-Received: from mail-lf1-x134.google.com (mail-lf1-x134.google.com [IPv6:2a00:1450:4864:20::134])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 72F1260FE6
-	for <virtualization@lists.linux-foundation.org>; Fri, 15 Dec 2023 01:00:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 72F1260FE6
-Received: by mail-lf1-x134.google.com with SMTP id 2adb3069b0e04-50bf3efe2cbso91850e87.2
-        for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 17:00:54 -0800 (PST)
+	Fri, 15 Dec 2023 05:37:38 +0000 (UTC)
+Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id A4A02400EC
+	for <virtualization@lists.linux-foundation.org>; Fri, 15 Dec 2023 05:37:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A4A02400EC
+Received: by mail-pg1-x535.google.com with SMTP id 41be03b00d2f7-5c6b9583dcbso287079a12.2
+        for <virtualization@lists.linux-foundation.org>; Thu, 14 Dec 2023 21:37:38 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1702602052; x=1703206852; darn=lists.linux-foundation.org;
+        d=brainfault-org.20230601.gappssmtp.com; s=20230601; t=1702618658; x=1703223458; darn=lists.linux-foundation.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=aeaw3ji0pg6zC2peZEVGQL9hjW+bOoI/oOULSseP2eQ=;
-        b=YYGTLlRJuui9pJ1GzTywJYab6ds8e+BTw4a1cLzvteDhC4F9oLebqHxEYdi86fjBLy
-         A6Xg+mjun9/bCsSdBQWHcbU+4dy5JebDoHwMJSv6qAF7FwXp6kguz8d7KntJI5sKBuOG
-         QdvKMibZeqXktwFZclvH2FR//SOWIqC8PztkE=
+        bh=zNqbOmNvKh9QFAYj74aoI4A4kXa8MDiFHewVGG4RU68=;
+        b=rbpV9GR6K+v8YtW8TaC6J0zCDxuoXGAjbIFbBZ96N719Aw4ftLCCxudkJnRwSCRWZl
+         +Eo9rYWl7mnqBp1r8x4e9yj/ISlfwb0nQ2L/bzzfDEFBi6UNJW5YGmhZ2QZUS++dba4O
+         VoUMn6UaDE1RcTNGis4V46Km4NTsT37IiRTMScvqAYUus6M0kVtFiC4HNIZ+xmJv3QQ9
+         cSd64qKsIgrLaDcJp0IMBowmhZhb4ZdxBGFUfqeNA+ErV/WcezLaMCo/vpGSiTNOzUXE
+         zeNPiqKfCMcr+eMz4bCoys0CrOfZ5/JS08y5FDNlrwDFVeN7KVwp2G9K8/OAPx8Kprw+
+         UR2w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702602052; x=1703206852;
+        d=1e100.net; s=20230601; t=1702618658; x=1703223458;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=aeaw3ji0pg6zC2peZEVGQL9hjW+bOoI/oOULSseP2eQ=;
-        b=H3FaDq7WhLoVLUBY/nMp71l0oqXCAZtdZQvLmKa5QZc5yhrg3Z+wTUfB36ZYPFm+RS
-         CpPzuzVH09RjXz+LesIufrsoyRZw0rWGVwqCPQNKrCRpLxJwdyuCK2Wu5DcwmDkK/JcX
-         KBrbwUI7/NEcIxOC/WWU/Pq8EIncvEY2WzTMy2GXTU/c929TYeM47E2eJfbR0QZW+igy
-         CeQkgM4RKWiOwKkl40GVLV5Z/+5e+nEAwB0dkXmnxxPX/YWsslE7cUBR49N808W2ovxF
-         5XtV6ie5yexHdMAlkCCtWxL9Y3O+MxGRjHrmrMQ1ZeAWLlwNd4LsIHYEB1nK3bDvhIrB
-         tHtA==
-X-Gm-Message-State: AOJu0YwLrLR7TZIT+FZCUvnVPB2aykUHPAEhWke2O6FpWNg7UH/Guufd
-	IzzNoD7zNUa1isb1hMb/0iyAi3SRvPELs4s6Df02pw==
-X-Google-Smtp-Source: AGHT+IE04S5Qh7uJe6rBqhFgzTVg8/E62kzoLJ68Pm4mv9JVFbY+sJs88Raftysa85n96dacTNvUxuni1E51J6YM/Kc=
-X-Received: by 2002:a05:6512:3b8d:b0:50d:1487:8d11 with SMTP id
- g13-20020a0565123b8d00b0050d14878d11mr3154911lfv.144.1702602052113; Thu, 14
- Dec 2023 17:00:52 -0800 (PST)
+        bh=zNqbOmNvKh9QFAYj74aoI4A4kXa8MDiFHewVGG4RU68=;
+        b=mKvMtqRPmxKje1YcrUd0ReNCyHvB62rlbPKX2UpaNsHc0/Iv41FRyJpeszxHbicgDc
+         yMBVQmsknHXbkqNIKSHSwWjVZfJyPcDWBW7vLVoJO4ZdGYcDrFQCXFpn71UvM3BhgRur
+         JhE4enUIZ23LCsTTgZvKJjMYTBaUyOO2hKS3u8S0AISi4hOZ71pKrL617boKAPcrA1O7
+         nCdNI+qRQcs8lGWw9DDoBW8barab4FRAxlS0FnJ3Af/7ZfOhcDvwj0A+15t5LX/XTpPe
+         2zoiHqiw+yYRO7JNlik2pdQvJvoZXzF9IjqPLDICdq0UdRmopWw0FHR6vOr3r+3i9MpM
+         iNeg==
+X-Gm-Message-State: AOJu0YyNziV/xMcYmglAauHZZ4a13I6Qj4jNNfjb4EFSyNk8eY90XpsW
+	P0tPeFeERzkN2Sux/5HfLhkK5arlC+dLY0Qi6xxXfQ==
+X-Google-Smtp-Source: AGHT+IGMPFzX6BnHAZZwS4eYoD32gnEMTkQyv5/KvIJMQ7kFvWswZP724l8JJstjtYoR7wdKTFfd8/FBru1MYAQnkuE=
+X-Received: by 2002:a05:6a21:6da1:b0:18f:97c:9792 with SMTP id
+ wl33-20020a056a216da100b0018f097c9792mr13715490pzb.122.1702618657743; Thu, 14
+ Dec 2023 21:37:37 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20231208070754.3132339-1-stevensd@chromium.org> <9fb51bfc-576a-4c7b-92c2-c161e7f08ae7@redhat.com>
-In-Reply-To: <9fb51bfc-576a-4c7b-92c2-c161e7f08ae7@redhat.com>
-From: David Stevens <stevensd@chromium.org>
-Date: Fri, 15 Dec 2023 10:00:41 +0900
-Message-ID: <CAD=HUj6ZsZo_kxZazDDDUp61pEHupuf0Lf7WqkKBsMOA1CYcNQ@mail.gmail.com>
-Subject: Re: [PATCH v2] virtio: Add support for no-reset virtio PCI PM
-To: David Hildenbrand <david@redhat.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+References: <20231214101552.100721-15-ajones@ventanamicro.com> <20231214101552.100721-16-ajones@ventanamicro.com>
+In-Reply-To: <20231214101552.100721-16-ajones@ventanamicro.com>
+From: Anup Patel <anup@brainfault.org>
+Date: Fri, 15 Dec 2023 11:07:24 +0530
+Message-ID: <CAAhSdy0JgONbwAc_oaT6e7WAv9PjjmC-_zHGbHqpQ=BoZJQBEQ@mail.gmail.com>
+Subject: Re: [PATCH v2 01/13] RISC-V: paravirt: Add skeleton for pv-time support
+To: Andrew Jones <ajones@ventanamicro.com>
+Cc: kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
+	virtualization@lists.linux-foundation.org, atishp@atishpatra.org, 
+	pbonzini@redhat.com, paul.walmsley@sifive.com, palmer@dabbelt.com, 
+	aou@eecs.berkeley.edu, jgross@suse.com, srivatsa@csail.mit.edu, 
+	guoren@kernel.org, conor.dooley@microchip.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Dec 14, 2023 at 6:47=E2=80=AFPM David Hildenbrand <david@redhat.com=
-> wrote:
+On Thu, Dec 14, 2023 at 3:45=E2=80=AFPM Andrew Jones <ajones@ventanamicro.c=
+om> wrote:
 >
-> On 08.12.23 08:07, David Stevens wrote:
-> > If a virtio_pci_device supports native PCI power management and has the
-> > No_Soft_Reset bit set, then skip resetting and reinitializing the devic=
-e
-> > when suspending and restoring the device. This allows system-wide low
-> > power states like s2idle to be used in systems with stateful virtio
-> > devices that can't simply be re-initialized (e.g. virtio-fs).
-> >
-> > Signed-off-by: David Stevens <stevensd@chromium.org>
-> > ---
-> > v1 -> v2:
-> >   - Check the No_Soft_Reset bit
-> >
-> >   drivers/virtio/virtio_pci_common.c | 34 +++++++++++++++++++++++++++++=
--
-> >   1 file changed, 33 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio=
-_pci_common.c
-> > index c2524a7207cf..3a95ecaf12dc 100644
-> > --- a/drivers/virtio/virtio_pci_common.c
-> > +++ b/drivers/virtio/virtio_pci_common.c
-> > @@ -492,8 +492,40 @@ static int virtio_pci_restore(struct device *dev)
-> >       return virtio_device_restore(&vp_dev->vdev);
-> >   }
-> >
-> > +static bool vp_supports_pm_no_reset(struct device *dev)
-> > +{
-> > +     struct pci_dev *pci_dev =3D to_pci_dev(dev);
-> > +     u16 pmcsr;
-> > +
-> > +     if (!pci_dev->pm_cap)
-> > +             return false;
-> > +
-> > +     pci_read_config_word(pci_dev, pci_dev->pm_cap + PCI_PM_CTRL, &pmc=
-sr);
-> > +     if (PCI_POSSIBLE_ERROR(pmcsr)) {
-> > +             dev_err(dev, "Unable to query pmcsr");
-> > +             return false;
-> > +     }
-> > +
-> > +     return pmcsr & PCI_PM_CTRL_NO_SOFT_RESET;
-> > +}
-> > +
-> > +static int virtio_pci_suspend(struct device *dev)
-> > +{
-> > +     return vp_supports_pm_no_reset(dev) ? 0 : virtio_pci_freeze(dev);
-> > +}
-> > +
-> > +static int virtio_pci_resume(struct device *dev)
-> > +{
-> > +     return vp_supports_pm_no_reset(dev) ? 0 : virtio_pci_restore(dev)=
-;
-> > +}
-> > +
-> >   static const struct dev_pm_ops virtio_pci_pm_ops =3D {
-> > -     SET_SYSTEM_SLEEP_PM_OPS(virtio_pci_freeze, virtio_pci_restore)
-> > +     .suspend =3D virtio_pci_suspend,
-> > +     .resume =3D virtio_pci_resume,
-> > +     .freeze =3D virtio_pci_freeze,
-> > +     .thaw =3D virtio_pci_restore,
-> > +     .poweroff =3D virtio_pci_freeze,
-> > +     .restore =3D virtio_pci_restore,
-> >   };
-> >   #endif
-> >
+> Add the files and functions needed to support paravirt time on
+> RISC-V. Also include the common code needed for the first
+> application of pv-time, which is steal-time. In the next
+> patches we'll complete the functions to fully enable steal-time
+> support.
 >
-> Am I correct with my assumption that this will make s2idle work with virt=
-io-mem-pci as well?
->
-> Right now, all suspending is disabled, but really only s4/hibernate is pr=
-oblematic.
->
-> [root@vm-0 ~]# echo "s2idle" > /sys/power/mem_sleep
-> [root@vm-0 ~]# echo "mem" > /sys/power/state
-> [  101.822991] PM: suspend entry (s2idle)
-> [  101.828978] Filesystems sync: 0.004 seconds
-> [  101.831618] Freezing user space processes
-> [  101.834569] Freezing user space processes completed (elapsed 0.001 sec=
-onds)
-> [  101.836915] OOM killer disabled.
-> [  101.838072] Freezing remaining freezable tasks
-> [  101.841054] Freezing remaining freezable tasks completed (elapsed 0.00=
-1 seconds)
-> [  101.843538] printk: Suspending console(s) (use no_console_suspend to d=
-ebug)
-> [  101.957676] virtio_mem virtio0: save/restore not supported.
-> [  101.957683] virtio-pci 0000:00:02.0: PM: pci_pm_suspend(): virtio_pci_=
-freeze+0x0/0x50 returns -1
-> [  101.957702] virtio-pci 0000:00:02.0: PM: dpm_run_callback(): pci_pm_su=
-spend+0x0/0x170 returns -1
-> [  101.957718] virtio-pci 0000:00:02.0: PM: failed to suspend async: erro=
-r -1
+> Signed-off-by: Andrew Jones <ajones@ventanamicro.com>
 
-QEMU's virtio-pci devices don't advertise no_soft_reset, so this patch
-won't affect vanilla QEMU. But if you add PCI_PM_CTRL_NO_SOFT_RESET to
-the capability, then it should work. I'm working with crosvm, which
-doesn't have virtio-mem implemented, but this patch makes virtio-fs
-work with no extra kernel changes.
+LGTM.
 
--David
+Reviewed-by: Anup Patel <anup@brainfault.org>
+
+Regards,
+Anup
+
+> ---
+>  .../admin-guide/kernel-parameters.txt         |  6 +-
+>  arch/riscv/include/asm/paravirt.h             | 28 +++++++
+>  arch/riscv/include/asm/paravirt_api_clock.h   |  1 +
+>  arch/riscv/kernel/Makefile                    |  1 +
+>  arch/riscv/kernel/paravirt.c                  | 77 +++++++++++++++++++
+>  arch/riscv/kernel/time.c                      |  3 +
+>  6 files changed, 113 insertions(+), 3 deletions(-)
+>  create mode 100644 arch/riscv/include/asm/paravirt.h
+>  create mode 100644 arch/riscv/include/asm/paravirt_api_clock.h
+>  create mode 100644 arch/riscv/kernel/paravirt.c
+>
+> diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentat=
+ion/admin-guide/kernel-parameters.txt
+> index 65731b060e3f..a0d9259e4857 100644
+> --- a/Documentation/admin-guide/kernel-parameters.txt
+> +++ b/Documentation/admin-guide/kernel-parameters.txt
+> @@ -3985,9 +3985,9 @@
+>                         vulnerability. System may allow data leaks with t=
+his
+>                         option.
+>
+> -       no-steal-acc    [X86,PV_OPS,ARM64,PPC/PSERIES] Disable paravirtua=
+lized
+> -                       steal time accounting. steal time is computed, bu=
+t
+> -                       won't influence scheduler behaviour
+> +       no-steal-acc    [X86,PV_OPS,ARM64,PPC/PSERIES,RISCV] Disable
+> +                       paravirtualized steal time accounting. steal time=
+ is
+> +                       computed, but won't influence scheduler behaviour
+>
+>         nosync          [HW,M68K] Disables sync negotiation for all devic=
+es.
+>
+> diff --git a/arch/riscv/include/asm/paravirt.h b/arch/riscv/include/asm/p=
+aravirt.h
+> new file mode 100644
+> index 000000000000..c0abde70fc2c
+> --- /dev/null
+> +++ b/arch/riscv/include/asm/paravirt.h
+> @@ -0,0 +1,28 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +#ifndef _ASM_RISCV_PARAVIRT_H
+> +#define _ASM_RISCV_PARAVIRT_H
+> +
+> +#ifdef CONFIG_PARAVIRT
+> +#include <linux/static_call_types.h>
+> +
+> +struct static_key;
+> +extern struct static_key paravirt_steal_enabled;
+> +extern struct static_key paravirt_steal_rq_enabled;
+> +
+> +u64 dummy_steal_clock(int cpu);
+> +
+> +DECLARE_STATIC_CALL(pv_steal_clock, dummy_steal_clock);
+> +
+> +static inline u64 paravirt_steal_clock(int cpu)
+> +{
+> +       return static_call(pv_steal_clock)(cpu);
+> +}
+> +
+> +int __init pv_time_init(void);
+> +
+> +#else
+> +
+> +#define pv_time_init() do {} while (0)
+> +
+> +#endif /* CONFIG_PARAVIRT */
+> +#endif /* _ASM_RISCV_PARAVIRT_H */
+> diff --git a/arch/riscv/include/asm/paravirt_api_clock.h b/arch/riscv/inc=
+lude/asm/paravirt_api_clock.h
+> new file mode 100644
+> index 000000000000..65ac7cee0dad
+> --- /dev/null
+> +++ b/arch/riscv/include/asm/paravirt_api_clock.h
+> @@ -0,0 +1 @@
+> +#include <asm/paravirt.h>
+> diff --git a/arch/riscv/kernel/Makefile b/arch/riscv/kernel/Makefile
+> index fee22a3d1b53..807c2bde1f83 100644
+> --- a/arch/riscv/kernel/Makefile
+> +++ b/arch/riscv/kernel/Makefile
+> @@ -85,6 +85,7 @@ obj-$(CONFIG_SMP)             +=3D sbi-ipi.o
+>  obj-$(CONFIG_SMP) +=3D cpu_ops_sbi.o
+>  endif
+>  obj-$(CONFIG_HOTPLUG_CPU)      +=3D cpu-hotplug.o
+> +obj-$(CONFIG_PARAVIRT)         +=3D paravirt.o
+>  obj-$(CONFIG_KGDB)             +=3D kgdb.o
+>  obj-$(CONFIG_KEXEC_CORE)       +=3D kexec_relocate.o crash_save_regs.o m=
+achine_kexec.o
+>  obj-$(CONFIG_KEXEC_FILE)       +=3D elf_kexec.o machine_kexec_file.o
+> diff --git a/arch/riscv/kernel/paravirt.c b/arch/riscv/kernel/paravirt.c
+> new file mode 100644
+> index 000000000000..141dbcc36fa2
+> --- /dev/null
+> +++ b/arch/riscv/kernel/paravirt.c
+> @@ -0,0 +1,77 @@
+> +// SPDX-License-Identifier: GPL-2.0-only
+> +/*
+> + * Copyright (c) 2023 Ventana Micro Systems Inc.
+> + */
+> +
+> +#define pr_fmt(fmt) "riscv-pv: " fmt
+> +
+> +#include <linux/cpuhotplug.h>
+> +#include <linux/init.h>
+> +#include <linux/jump_label.h>
+> +#include <linux/printk.h>
+> +#include <linux/static_call.h>
+> +#include <linux/types.h>
+> +
+> +struct static_key paravirt_steal_enabled;
+> +struct static_key paravirt_steal_rq_enabled;
+> +
+> +static u64 native_steal_clock(int cpu)
+> +{
+> +       return 0;
+> +}
+> +
+> +DEFINE_STATIC_CALL(pv_steal_clock, native_steal_clock);
+> +
+> +static bool steal_acc =3D true;
+> +static int __init parse_no_stealacc(char *arg)
+> +{
+> +       steal_acc =3D false;
+> +       return 0;
+> +}
+> +
+> +early_param("no-steal-acc", parse_no_stealacc);
+> +
+> +static bool __init has_pv_steal_clock(void)
+> +{
+> +       return false;
+> +}
+> +
+> +static int pv_time_cpu_online(unsigned int cpu)
+> +{
+> +       return 0;
+> +}
+> +
+> +static int pv_time_cpu_down_prepare(unsigned int cpu)
+> +{
+> +       return 0;
+> +}
+> +
+> +static u64 pv_time_steal_clock(int cpu)
+> +{
+> +       return 0;
+> +}
+> +
+> +int __init pv_time_init(void)
+> +{
+> +       int ret;
+> +
+> +       if (!has_pv_steal_clock())
+> +               return 0;
+> +
+> +       ret =3D cpuhp_setup_state(CPUHP_AP_ONLINE_DYN,
+> +                               "riscv/pv_time:online",
+> +                               pv_time_cpu_online,
+> +                               pv_time_cpu_down_prepare);
+> +       if (ret < 0)
+> +               return ret;
+> +
+> +       static_call_update(pv_steal_clock, pv_time_steal_clock);
+> +
+> +       static_key_slow_inc(&paravirt_steal_enabled);
+> +       if (steal_acc)
+> +               static_key_slow_inc(&paravirt_steal_rq_enabled);
+> +
+> +       pr_info("using paravirt steal-time\n");
+> +
+> +       return 0;
+> +}
+> diff --git a/arch/riscv/kernel/time.c b/arch/riscv/kernel/time.c
+> index 23641e82a9df..ba3477197789 100644
+> --- a/arch/riscv/kernel/time.c
+> +++ b/arch/riscv/kernel/time.c
+> @@ -12,6 +12,7 @@
+>  #include <asm/sbi.h>
+>  #include <asm/processor.h>
+>  #include <asm/timex.h>
+> +#include <asm/paravirt.h>
+>
+>  unsigned long riscv_timebase __ro_after_init;
+>  EXPORT_SYMBOL_GPL(riscv_timebase);
+> @@ -45,4 +46,6 @@ void __init time_init(void)
+>         timer_probe();
+>
+>         tick_setup_hrtimer_broadcast();
+> +
+> +       pv_time_init();
+>  }
+> --
+> 2.43.0
+>
