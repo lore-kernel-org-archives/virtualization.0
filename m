@@ -1,64 +1,64 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B55524207D
-	for <virtualization@lists.linux-foundation.org>; Sun, 17 Dec 2023 20:40:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04E3A4207D
+	for <virtualization@lists.linux-foundation.org>; Sun, 17 Dec 2023 20:40:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b="XfqaobOX"
+	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b="SkN4O/cY"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 54B9A410A3
-	for <virtualization@lists.linux-foundation.org>; Sun, 17 Dec 2023 20:40:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 54B9A410A3
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.a=rsa-sha256 header.s=google header.b=XfqaobOX
+	by smtp1.osuosl.org (Postfix) with ESMTP id 7064B813C2
+	for <virtualization@lists.linux-foundation.org>; Sun, 17 Dec 2023 20:40:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7064B813C2
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.a=rsa-sha256 header.s=google header.b=SkN4O/cY
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.1
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id HGOFWRUNbqZq
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id sgRXiMd4H-N3
 	for <virtualization@lists.linux-foundation.org>;
-	Sun, 17 Dec 2023 20:40:48 +0000 (UTC)
-Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 4C78640985
-	for <virtualization@lists.linux-foundation.org>; Sun, 17 Dec 2023 20:40:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4C78640985
-Received: by mail-ej1-x631.google.com with SMTP id a640c23a62f3a-a2330a92ae6so99911466b.0
-        for <virtualization@lists.linux-foundation.org>; Sun, 17 Dec 2023 12:40:48 -0800 (PST)
+	Sun, 17 Dec 2023 20:40:50 +0000 (UTC)
+Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 7CEC2813BB
+	for <virtualization@lists.linux-foundation.org>; Sun, 17 Dec 2023 20:40:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7CEC2813BB
+Received: by mail-ed1-x533.google.com with SMTP id 4fb4d7f45d1cf-5534d8fcf7bso255028a12.3
+        for <virtualization@lists.linux-foundation.org>; Sun, 17 Dec 2023 12:40:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ventanamicro.com; s=google; t=1702845646; x=1703450446; darn=lists.linux-foundation.org;
+        d=ventanamicro.com; s=google; t=1702845648; x=1703450448; darn=lists.linux-foundation.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=NtGr4Fn+I2+EzIJxOXUDFqiD7JlAKn3Prc9Bkz+E+cc=;
-        b=XfqaobOX58oj4rLVNbbfVCjDsaBeh8OyDv5vWwUcohfMSZGnnoEwgIrsAWkpO95muI
-         f1uSe90U0KEkReGtOL6T+wc7cuNNLXh7Zdc+mnKDxPkuI6chfwuhQLLv/hJnDOkMDh2q
-         ok20Gz225Y0s5gJOcoH3RHTrcoqRgULpJEigSzxvwKmyd63NRNxA6puv5hx3EBXRXCaS
-         lKOnlEtftnRsIEZ/FbJe9TxTZEi7fTvcJpfdP1zkzR3FXsppumVbToWKe0drlrxq8a1B
-         645S5m0j3epslbiaJr+EHmSKiWwTHWMP7anRcnlNfCvaZxQah9ICNTpOTMC0roG9yymx
-         Ja7w==
+        bh=vqR2C7zz01TFiIRh8DqKIf6Ieu9BaM0pJyMslNaYBQk=;
+        b=SkN4O/cYhp8RYfgnVl0r/nA642fy84+B4vxENzwzmb9OJjYHjvq3SJ82abhuYV9n7N
+         7MTEJRZklth1W4/1q1RLAYI/pxrp/k+V1YeMFfLbTWAGTbMHwjP84a5YRIEA76Aj7wjb
+         iW2glMSWY+CAjVh3RlfveuOSA/VGxCX6a37mwFJ6jOBT52BvinDt0EV0CWeNieht8E+2
+         U4EV4RcJmt9qz42YB50tWcKw1Xh9laPf9F04T4qUGSouxB0tk4DhSSiJU6/GCaEtX5Ap
+         +YXjFUkqXbzLuhqAvDjudLq8zwLiFEDy0A4eMx2bqS0wImBqptUA8ojML5MVNXObtgCW
+         3ZEg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702845646; x=1703450446;
+        d=1e100.net; s=20230601; t=1702845648; x=1703450448;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=NtGr4Fn+I2+EzIJxOXUDFqiD7JlAKn3Prc9Bkz+E+cc=;
-        b=KSI/ChHz4jW6tbai1sZ8JHUUBPJPQP1GQEaRVigBqiyUZxRtFZekmRuvR6OVRgofls
-         ZBUYX+XkE6HTeHFGuXf9Ih/sW98oy09LhFe6f7aZB+yHfBJB/70W0g/2S2GbxFp9W3Dx
-         e5Pvd3ywGySZZfL7ubJzqQIoMLoAsJ6Z1QO9HZXvpCUn5PZqrya06lOgxgUMUW+Q7ntf
-         zrJlA24vl4vKxB13noYWyLiOeOTgel3BB1D9LroQU9aMWSviwzSQXIxt9O+wqj4zXkQO
-         U2NdhNObzwTmMOreC5PAcLJzuU6LkYTnJZoON3mb3luyB3GEOnMnMzxitJMx6vyzO3HH
-         ympQ==
-X-Gm-Message-State: AOJu0YxGiP9J9SLRTq874BGGTlqn7+1ZQXMS4bjSxgpiLO8OXO68yeZY
-	3jHsSWp6mw0NLxlYgTRouCOyVw==
-X-Google-Smtp-Source: AGHT+IGZSyA+qVaXofC6/vCZf32Av6rxB35TER1A+ZgRIjF4fteian0c+B1PhM+QLysyNcIBtGTkig==
-X-Received: by 2002:a17:906:74db:b0:a23:5776:d03f with SMTP id z27-20020a17090674db00b00a235776d03fmr385947ejl.64.1702845646284;
-        Sun, 17 Dec 2023 12:40:46 -0800 (PST)
+        bh=vqR2C7zz01TFiIRh8DqKIf6Ieu9BaM0pJyMslNaYBQk=;
+        b=AmpZVy0mZrJfdszb5F0Ur5p8YFHsPGUpC/0cszwlQgmFzlmNLRh6H89+ScqJrGOclc
+         CV7sanX2JrLEHV4PtwrRxZaQ1ql1YywVJRgyJVPAgiM3//xgJfY0o0duxoZ+NSbg5IKy
+         BJMrFVNKCV7y1j+npbwKkPwE/ZKFVIypb+aGh6CuVsyZzEl6UwsJinDKwfWxC0QmgUAg
+         8tmXFiFTmdUYlYfP7lsWClH9KAlBU3wjY4zgbJtSisUIJgEruWsCmepS68Xy98zBqanD
+         6yyAtwR4rbhPS/SAqsCveXpHgbfZwAU70SAdlUFYAgRXfl3o8x7W1jAD38czFyV06yNX
+         1IKA==
+X-Gm-Message-State: AOJu0Yxs0gZuSXBLklKqq+ThjkMjBSigEGVQiuLlM8VhDdZgm5tDJT5c
+	lOXsQ3PBpXIqQDA1hRfznsNznw==
+X-Google-Smtp-Source: AGHT+IEfGs4OQaguX6OAmX8Oe3Y0KxLn+ASdz7H+Iz7dSMU5rXaa7WIYeXOCpVviVKaTjXqSem+pTw==
+X-Received: by 2002:a17:906:c20e:b0:9e6:38f2:8439 with SMTP id d14-20020a170906c20e00b009e638f28439mr6546645ejz.60.1702845648676;
+        Sun, 17 Dec 2023 12:40:48 -0800 (PST)
 Received: from localhost (cst-prg-88-42.cust.vodafone.cz. [46.135.88.42])
-        by smtp.gmail.com with ESMTPSA id tm6-20020a170907c38600b00a1db955c809sm13328040ejc.73.2023.12.17.12.40.45
+        by smtp.gmail.com with ESMTPSA id tk7-20020a170907c28700b00a1d1ebc2206sm13365557ejc.72.2023.12.17.12.40.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 17 Dec 2023 12:40:45 -0800 (PST)
+        Sun, 17 Dec 2023 12:40:48 -0800 (PST)
 From: Andrew Jones <ajones@ventanamicro.com>
 To: kvm-riscv@lists.infradead.org,
 	linux-riscv@lists.infradead.org,
@@ -73,9 +73,9 @@ Cc: anup@brainfault.org,
 	srivatsa@csail.mit.edu,
 	guoren@kernel.org,
 	conor.dooley@microchip.com
-Subject: [PATCH v3 08/13] RISC-V: KVM: Add support for SBI STA registers
-Date: Sun, 17 Dec 2023 21:40:28 +0100
-Message-ID: <20231217204019.36492-23-ajones@ventanamicro.com>
+Subject: [PATCH v3 09/13] RISC-V: KVM: Implement SBI STA extension
+Date: Sun, 17 Dec 2023 21:40:29 +0100
+Message-ID: <20231217204019.36492-24-ajones@ventanamicro.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20231217204019.36492-15-ajones@ventanamicro.com>
 References: <20231217204019.36492-15-ajones@ventanamicro.com>
@@ -88,212 +88,161 @@ MIME-Version: 1.0
 Content-type: text/plain
 Content-Transfer-Encoding: 8bit
 
-KVM userspace needs to be able to save and restore the steal-time
-shared memory address. Provide the address through the get/set-one-reg
-interface with two ulong-sized SBI STA extension registers (lo and hi).
-64-bit KVM userspace must not set the hi register to anything other
-than zero and is allowed to completely neglect saving/restoring it.
+Add a select SCHED_INFO to the KVM config in order to get run_delay
+info. Then implement SBI STA's set-steal-time-shmem function and
+kvm_riscv_vcpu_record_steal_time() to provide the steal-time info
+to guests.
 
 Reviewed-by: Anup Patel <anup@brainfault.org>
 Signed-off-by: Andrew Jones <ajones@ventanamicro.com>
 ---
- arch/riscv/include/asm/kvm_vcpu_sbi.h |  5 +++
- arch/riscv/include/uapi/asm/kvm.h     |  9 +++++
- arch/riscv/kvm/vcpu_onereg.c          | 36 +++++++++++-------
- arch/riscv/kvm/vcpu_sbi.c             |  5 +++
- arch/riscv/kvm/vcpu_sbi_sta.c         | 55 +++++++++++++++++++++++++++
- 5 files changed, 96 insertions(+), 14 deletions(-)
+ arch/riscv/kvm/Kconfig        |  1 +
+ arch/riscv/kvm/vcpu_sbi_sta.c | 96 ++++++++++++++++++++++++++++++++++-
+ 2 files changed, 95 insertions(+), 2 deletions(-)
 
-diff --git a/arch/riscv/include/asm/kvm_vcpu_sbi.h b/arch/riscv/include/asm/kvm_vcpu_sbi.h
-index dd60f73b5c36..b96705258cf9 100644
---- a/arch/riscv/include/asm/kvm_vcpu_sbi.h
-+++ b/arch/riscv/include/asm/kvm_vcpu_sbi.h
-@@ -70,6 +70,11 @@ bool riscv_vcpu_supports_sbi_ext(struct kvm_vcpu *vcpu, int idx);
- int kvm_riscv_vcpu_sbi_ecall(struct kvm_vcpu *vcpu, struct kvm_run *run);
- void kvm_riscv_vcpu_sbi_init(struct kvm_vcpu *vcpu);
+diff --git a/arch/riscv/kvm/Kconfig b/arch/riscv/kvm/Kconfig
+index dfc237d7875b..148e52b516cf 100644
+--- a/arch/riscv/kvm/Kconfig
++++ b/arch/riscv/kvm/Kconfig
+@@ -32,6 +32,7 @@ config KVM
+ 	select KVM_XFER_TO_GUEST_WORK
+ 	select MMU_NOTIFIER
+ 	select PREEMPT_NOTIFIERS
++	select SCHED_INFO
+ 	help
+ 	  Support hosting virtualized guest machines.
  
-+int kvm_riscv_vcpu_get_reg_sbi_sta(struct kvm_vcpu *vcpu, unsigned long reg_num,
-+				   unsigned long *reg_val);
-+int kvm_riscv_vcpu_set_reg_sbi_sta(struct kvm_vcpu *vcpu, unsigned long reg_num,
-+				   unsigned long reg_val);
-+
- #ifdef CONFIG_RISCV_SBI_V01
- extern const struct kvm_vcpu_sbi_extension vcpu_sbi_ext_v01;
- #endif
-diff --git a/arch/riscv/include/uapi/asm/kvm.h b/arch/riscv/include/uapi/asm/kvm.h
-index 30f89a0e855f..d8974f954f2a 100644
---- a/arch/riscv/include/uapi/asm/kvm.h
-+++ b/arch/riscv/include/uapi/asm/kvm.h
-@@ -161,6 +161,12 @@ enum KVM_RISCV_SBI_EXT_ID {
- 	KVM_RISCV_SBI_EXT_MAX,
- };
- 
-+/* SBI STA extension registers for KVM_GET_ONE_REG and KVM_SET_ONE_REG */
-+struct kvm_riscv_sbi_sta {
-+	unsigned long shmem_lo;
-+	unsigned long shmem_hi;
-+};
-+
- /* Possible states for kvm_riscv_timer */
- #define KVM_RISCV_TIMER_STATE_OFF	0
- #define KVM_RISCV_TIMER_STATE_ON	1
-@@ -244,6 +250,9 @@ enum KVM_RISCV_SBI_EXT_ID {
- 
- /* Registers for specific SBI extensions are mapped as type 10 */
- #define KVM_REG_RISCV_SBI		(0x0a << KVM_REG_RISCV_TYPE_SHIFT)
-+#define KVM_REG_RISCV_SBI_STA		(0x0 << KVM_REG_RISCV_SUBTYPE_SHIFT)
-+#define KVM_REG_RISCV_SBI_STA_REG(name)		\
-+		(offsetof(struct kvm_riscv_sbi_sta, name) / sizeof(unsigned long))
- 
- /* Device Control API: RISC-V AIA */
- #define KVM_DEV_RISCV_APLIC_ALIGN		0x1000
-diff --git a/arch/riscv/kvm/vcpu_onereg.c b/arch/riscv/kvm/vcpu_onereg.c
-index 901480e73817..66d8fa648cfe 100644
---- a/arch/riscv/kvm/vcpu_onereg.c
-+++ b/arch/riscv/kvm/vcpu_onereg.c
-@@ -961,27 +961,35 @@ static unsigned long num_sbi_ext_regs(struct kvm_vcpu *vcpu)
- 	return copy_sbi_ext_reg_indices(vcpu, NULL);
- }
- 
--static inline unsigned long num_sbi_regs(struct kvm_vcpu *vcpu)
--{
--	return 0;
--}
--
- static int copy_sbi_reg_indices(struct kvm_vcpu *vcpu, u64 __user *uindices)
- {
--	int n = num_sbi_regs(vcpu);
-+	struct kvm_vcpu_sbi_context *scontext = &vcpu->arch.sbi_context;
-+	int total = 0;
- 
--	for (int i = 0; i < n; i++) {
--		u64 reg = KVM_REG_RISCV | KVM_REG_SIZE_U64 |
--			  KVM_REG_RISCV_SBI | i;
-+	if (scontext->ext_status[KVM_RISCV_SBI_EXT_STA] == KVM_RISCV_SBI_EXT_STATUS_ENABLED) {
-+		u64 size = IS_ENABLED(CONFIG_32BIT) ? KVM_REG_SIZE_U32 : KVM_REG_SIZE_U64;
-+		int n = sizeof(struct kvm_riscv_sbi_sta) / sizeof(unsigned long);
- 
--		if (uindices) {
--			if (put_user(reg, uindices))
--				return -EFAULT;
--			uindices++;
-+		for (int i = 0; i < n; i++) {
-+			u64 reg = KVM_REG_RISCV | size |
-+				  KVM_REG_RISCV_SBI | KVM_REG_RISCV_SBI_STA | i;
-+
-+			if (uindices) {
-+				if (put_user(reg, uindices))
-+					return -EFAULT;
-+				uindices++;
-+			}
- 		}
-+
-+		total += n;
- 	}
- 
--	return n;
-+	return total;
-+}
-+
-+static inline unsigned long num_sbi_regs(struct kvm_vcpu *vcpu)
-+{
-+	return copy_sbi_reg_indices(vcpu, NULL);
- }
- 
- static inline unsigned long num_vector_regs(const struct kvm_vcpu *vcpu)
-diff --git a/arch/riscv/kvm/vcpu_sbi.c b/arch/riscv/kvm/vcpu_sbi.c
-index 834176242ddf..0689f6813968 100644
---- a/arch/riscv/kvm/vcpu_sbi.c
-+++ b/arch/riscv/kvm/vcpu_sbi.c
-@@ -345,6 +345,8 @@ int kvm_riscv_vcpu_set_reg_sbi(struct kvm_vcpu *vcpu,
- 	reg_num &= ~KVM_REG_RISCV_SUBTYPE_MASK;
- 
- 	switch (reg_subtype) {
-+	case KVM_REG_RISCV_SBI_STA:
-+		return kvm_riscv_vcpu_set_reg_sbi_sta(vcpu, reg_num, reg_val);
- 	default:
- 		return -EINVAL;
- 	}
-@@ -370,6 +372,9 @@ int kvm_riscv_vcpu_get_reg_sbi(struct kvm_vcpu *vcpu,
- 	reg_num &= ~KVM_REG_RISCV_SUBTYPE_MASK;
- 
- 	switch (reg_subtype) {
-+	case KVM_REG_RISCV_SBI_STA:
-+		ret = kvm_riscv_vcpu_get_reg_sbi_sta(vcpu, reg_num, &reg_val);
-+		break;
- 	default:
- 		return -EINVAL;
- 	}
 diff --git a/arch/riscv/kvm/vcpu_sbi_sta.c b/arch/riscv/kvm/vcpu_sbi_sta.c
-index 6592d287fc4e..87bf1a5f05ce 100644
+index 87bf1a5f05ce..01f09fe8c3b0 100644
 --- a/arch/riscv/kvm/vcpu_sbi_sta.c
 +++ b/arch/riscv/kvm/vcpu_sbi_sta.c
-@@ -3,6 +3,8 @@
-  * Copyright (c) 2023 Ventana Micro Systems Inc.
-  */
- 
-+#include <linux/kconfig.h>
-+#include <linux/kernel.h>
+@@ -6,9 +6,15 @@
+ #include <linux/kconfig.h>
+ #include <linux/kernel.h>
  #include <linux/kvm_host.h>
++#include <linux/mm.h>
++#include <linux/sizes.h>
  
++#include <asm/bug.h>
++#include <asm/current.h>
  #include <asm/kvm_vcpu_sbi.h>
-@@ -59,3 +61,56 @@ const struct kvm_vcpu_sbi_extension vcpu_sbi_ext_sta = {
- 	.handler = kvm_sbi_ext_sta_handler,
- 	.probe = kvm_sbi_ext_sta_probe,
- };
++#include <asm/page.h>
+ #include <asm/sbi.h>
++#include <asm/uaccess.h>
+ 
+ void kvm_riscv_vcpu_sbi_sta_reset(struct kvm_vcpu *vcpu)
+ {
+@@ -19,14 +25,100 @@ void kvm_riscv_vcpu_sbi_sta_reset(struct kvm_vcpu *vcpu)
+ void kvm_riscv_vcpu_record_steal_time(struct kvm_vcpu *vcpu)
+ {
+ 	gpa_t shmem = vcpu->arch.sta.shmem;
++	u64 last_steal = vcpu->arch.sta.last_steal;
++	u32 *sequence_ptr, sequence;
++	u64 *steal_ptr, steal;
++	unsigned long hva;
++	gfn_t gfn;
+ 
+ 	if (shmem == INVALID_GPA)
+ 		return;
 +
-+int kvm_riscv_vcpu_get_reg_sbi_sta(struct kvm_vcpu *vcpu,
-+				   unsigned long reg_num,
-+				   unsigned long *reg_val)
-+{
-+	switch (reg_num) {
-+	case KVM_REG_RISCV_SBI_STA_REG(shmem_lo):
-+		*reg_val = (unsigned long)vcpu->arch.sta.shmem;
-+		break;
-+	case KVM_REG_RISCV_SBI_STA_REG(shmem_hi):
++	/*
++	 * shmem is 64-byte aligned (see the enforcement in
++	 * kvm_sbi_sta_steal_time_set_shmem()) and the size of sbi_sta_struct
++	 * is 64 bytes, so we know all its offsets are in the same page.
++	 */
++	gfn = shmem >> PAGE_SHIFT;
++	hva = kvm_vcpu_gfn_to_hva(vcpu, gfn);
++
++	if (WARN_ON(kvm_is_error_hva(hva))) {
++		vcpu->arch.sta.shmem = INVALID_GPA;
++		return;
++	}
++
++	sequence_ptr = (u32 *)(hva + offset_in_page(shmem) +
++			       offsetof(struct sbi_sta_struct, sequence));
++	steal_ptr = (u64 *)(hva + offset_in_page(shmem) +
++			    offsetof(struct sbi_sta_struct, steal));
++
++	if (WARN_ON(get_user(sequence, sequence_ptr)))
++		return;
++
++	sequence = le32_to_cpu(sequence);
++	sequence += 1;
++
++	if (WARN_ON(put_user(cpu_to_le32(sequence), sequence_ptr)))
++		return;
++
++	if (!WARN_ON(get_user(steal, steal_ptr))) {
++		steal = le64_to_cpu(steal);
++		vcpu->arch.sta.last_steal = READ_ONCE(current->sched_info.run_delay);
++		steal += vcpu->arch.sta.last_steal - last_steal;
++		WARN_ON(put_user(cpu_to_le64(steal), steal_ptr));
++	}
++
++	sequence += 1;
++	WARN_ON(put_user(cpu_to_le32(sequence), sequence_ptr));
++
++	kvm_vcpu_mark_page_dirty(vcpu, gfn);
+ }
+ 
+ static int kvm_sbi_sta_steal_time_set_shmem(struct kvm_vcpu *vcpu)
+ {
+-	return SBI_ERR_FAILURE;
++	struct kvm_cpu_context *cp = &vcpu->arch.guest_context;
++	unsigned long shmem_phys_lo = cp->a0;
++	unsigned long shmem_phys_hi = cp->a1;
++	u32 flags = cp->a2;
++	struct sbi_sta_struct zero_sta = {0};
++	unsigned long hva;
++	bool writable;
++	gpa_t shmem;
++	int ret;
++
++	if (flags != 0)
++		return SBI_ERR_INVALID_PARAM;
++
++	if (shmem_phys_lo == SBI_STA_SHMEM_DISABLE &&
++	    shmem_phys_hi == SBI_STA_SHMEM_DISABLE) {
++		vcpu->arch.sta.shmem = INVALID_GPA;
++		return 0;
++	}
++
++	if (shmem_phys_lo & (SZ_64 - 1))
++		return SBI_ERR_INVALID_PARAM;
++
++	shmem = shmem_phys_lo;
++
++	if (shmem_phys_hi != 0) {
 +		if (IS_ENABLED(CONFIG_32BIT))
-+			*reg_val = upper_32_bits(vcpu->arch.sta.shmem);
++			shmem |= ((gpa_t)shmem_phys_hi << 32);
 +		else
-+			*reg_val = 0;
-+		break;
-+	default:
-+		return -EINVAL;
++			return SBI_ERR_INVALID_ADDRESS;
 +	}
 +
-+	return 0;
-+}
++	hva = kvm_vcpu_gfn_to_hva_prot(vcpu, shmem >> PAGE_SHIFT, &writable);
++	if (kvm_is_error_hva(hva) || !writable)
++		return SBI_ERR_INVALID_ADDRESS;
 +
-+int kvm_riscv_vcpu_set_reg_sbi_sta(struct kvm_vcpu *vcpu,
-+				   unsigned long reg_num,
-+				   unsigned long reg_val)
-+{
-+	switch (reg_num) {
-+	case KVM_REG_RISCV_SBI_STA_REG(shmem_lo):
-+		if (IS_ENABLED(CONFIG_32BIT)) {
-+			gpa_t hi = upper_32_bits(vcpu->arch.sta.shmem);
++	ret = kvm_vcpu_write_guest(vcpu, shmem, &zero_sta, sizeof(zero_sta));
++	if (ret)
++		return SBI_ERR_FAILURE;
 +
-+			vcpu->arch.sta.shmem = reg_val;
-+			vcpu->arch.sta.shmem |= hi << 32;
-+		} else {
-+			vcpu->arch.sta.shmem = reg_val;
-+		}
-+		break;
-+	case KVM_REG_RISCV_SBI_STA_REG(shmem_hi):
-+		if (IS_ENABLED(CONFIG_32BIT)) {
-+			gpa_t lo = lower_32_bits(vcpu->arch.sta.shmem);
-+
-+			vcpu->arch.sta.shmem = ((gpa_t)reg_val << 32);
-+			vcpu->arch.sta.shmem |= lo;
-+		} else if (reg_val != 0) {
-+			return -EINVAL;
-+		}
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
++	vcpu->arch.sta.shmem = shmem;
++	vcpu->arch.sta.last_steal = current->sched_info.run_delay;
 +
 +	return 0;
-+}
+ }
+ 
+ static int kvm_sbi_ext_sta_handler(struct kvm_vcpu *vcpu, struct kvm_run *run,
+@@ -52,7 +144,7 @@ static int kvm_sbi_ext_sta_handler(struct kvm_vcpu *vcpu, struct kvm_run *run,
+ 
+ static unsigned long kvm_sbi_ext_sta_probe(struct kvm_vcpu *vcpu)
+ {
+-	return 0;
++	return !!sched_info_on();
+ }
+ 
+ const struct kvm_vcpu_sbi_extension vcpu_sbi_ext_sta = {
 -- 
 2.43.0
 
