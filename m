@@ -1,145 +1,187 @@
-Received: from www62.your-server.de (www62.your-server.de [213.133.104.62])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DED231094F;
-	Mon, 18 Dec 2023 08:52:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=iogearbox.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iogearbox.net
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEA5112B6F
+	for <virtualization@lists.linux-foundation.org>; Mon, 18 Dec 2023 09:21:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=iogearbox.net header.i=@iogearbox.net header.b="pVnxw0u3"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=iogearbox.net; s=default2302; h=Content-Transfer-Encoding:Content-Type:
-	In-Reply-To:MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender
-	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
-	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID;
-	bh=u9rU7FfAkS1Xg3KQP7X+Uy8VuWy1sh7xNAOO2EeOmow=; b=pVnxw0u3V2KMrtdVYsexwpdnA5
-	XUz4IKQOBNxaBluhdNYzL8zwlyI8CjvzruSXco86xKeQ6QX9cV0XiRUgx1SayqkGcLFTuuCdNcreN
-	IYv72Eo9aa2ezSpHM/sq6jV2R3+vIjjFyGjsK/x2Nl8dUJj/GySOniPAkjktHMBS0gwug9YlUSVKk
-	E1ANshGn7IEXwUCrQ0edmmtKumnnePMpDfJ7tvxXWWIUvjf8OwTHC7AAiHt93l6j9w58BEch4hds3
-	CFiaDf4S4lSKklzGWwvE7xj7zzlkiYN9B3rJVXyRh4lviegYdZLL2jkzTg8CtU/F3vHY7hgsqJnoi
-	sJS6vhrQ==;
-Received: from sslproxy06.your-server.de ([78.46.172.3])
-	by www62.your-server.de with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-	(Exim 4.94.2)
-	(envelope-from <daniel@iogearbox.net>)
-	id 1rF9M8-000GMZ-Kc; Mon, 18 Dec 2023 09:52:08 +0100
-Received: from [85.1.206.226] (helo=linux.home)
-	by sslproxy06.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
-	(Exim 4.92)
-	(envelope-from <daniel@iogearbox.net>)
-	id 1rF9M6-000DSm-B8; Mon, 18 Dec 2023 09:52:06 +0100
-Subject: Re: [PATCH net-next 16/24] net: netkit, veth, tun, virt*: Use
- nested-BH locking for XDP redirect.
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
- linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Cc: "David S. Miller" <davem@davemloft.net>, Boqun Feng
- <boqun.feng@gmail.com>, Eric Dumazet <edumazet@google.com>,
- Frederic Weisbecker <frederic@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>,
- Waiman Long <longman@redhat.com>, Will Deacon <will@kernel.org>,
- "K. Y. Srinivasan" <kys@microsoft.com>, "Michael S. Tsirkin"
- <mst@redhat.com>, Alexei Starovoitov <ast@kernel.org>,
- Andrii Nakryiko <andrii@kernel.org>, Dexuan Cui <decui@microsoft.com>,
- Haiyang Zhang <haiyangz@microsoft.com>, Hao Luo <haoluo@google.com>,
- Jesper Dangaard Brouer <hawk@kernel.org>, Jiri Olsa <jolsa@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>, Juergen Gross <jgross@suse.com>,
- KP Singh <kpsingh@kernel.org>, Martin KaFai Lau <martin.lau@linux.dev>,
- Nikolay Aleksandrov <razor@blackwall.org>, Song Liu <song@kernel.org>,
- Stanislav Fomichev <sdf@google.com>,
- Stefano Stabellini <sstabellini@kernel.org>, Wei Liu <wei.liu@kernel.org>,
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- Yonghong Song <yonghong.song@linux.dev>, bpf@vger.kernel.org,
- virtualization@lists.linux.dev, xen-devel@lists.xenproject.org
-References: <20231215171020.687342-1-bigeasy@linutronix.de>
- <20231215171020.687342-17-bigeasy@linutronix.de>
-From: Daniel Borkmann <daniel@iogearbox.net>
-Message-ID: <74feb818-7109-cb1e-8eec-a037c17a2871@iogearbox.net>
-Date: Mon, 18 Dec 2023 09:52:05 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.2
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PhZay9RQ"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 5CBF760E7C
+	for <virtualization@lists.linux-foundation.org>; Mon, 18 Dec 2023 09:21:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5CBF760E7C
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PhZay9RQ
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id BBsmkjQaJKfX
+	for <virtualization@lists.linux-foundation.org>;
+	Mon, 18 Dec 2023 09:21:49 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 900BE6068B
+	for <virtualization@lists.linux-foundation.org>; Mon, 18 Dec 2023 09:21:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 900BE6068B
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1702891308;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=rZwDCgO8gEoCaElLjJ9XMxUFtV5ecpFh3LYKHxML9SI=;
+	b=PhZay9RQApgX6CEovX2M3y2meTZzpSJxIM6xXf/mw5wUuQzNdukC4/eAQj+xsbn/NJQE84
+	GSIcDjs+6Dt/gDIgCqJGmVcmXAUjIqFx4Aqp7t1Lpc4pSClLoRVrPgJM3DjL94DtROaqoC
+	ZbZLQkouJV7hEbk3lPeWL+qDlIWFS+U=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-423--yFZ_ISOOV-sMb4UZ24sbA-1; Mon, 18 Dec 2023 04:21:45 -0500
+X-MC-Unique: -yFZ_ISOOV-sMb4UZ24sbA-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 859A485A58A;
+	Mon, 18 Dec 2023 09:21:44 +0000 (UTC)
+Received: from [10.39.208.26] (unknown [10.39.208.26])
+	by smtp.corp.redhat.com (Postfix) with ESMTPS id 751C71121313;
+	Mon, 18 Dec 2023 09:21:40 +0000 (UTC)
+Message-ID: <b793a98c-dfde-4bf6-9057-6fa359cf4723@redhat.com>
+Date: Mon, 18 Dec 2023 10:21:38 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20231215171020.687342-17-bigeasy@linutronix.de>
-Content-Type: text/plain; charset=utf-8; format=flowed
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v5 2/4] vduse: Temporarily disable control queue features
 Content-Language: en-US
+To: Jason Wang <jasowang@redhat.com>
+Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, paul@paul-moore.com,
+ jmorris@namei.org, serge@hallyn.com, stephen.smalley.work@gmail.com,
+ eparis@parisplace.org, xieyongji@bytedance.com,
+ virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
+ linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+ david.marchand@redhat.com, lulu@redhat.com, casey@schaufler-ca.com
+References: <20231212131712.1816324-1-maxime.coquelin@redhat.com>
+ <20231212131712.1816324-3-maxime.coquelin@redhat.com>
+ <CACGkMEthp13a20TGashiFNDovK+b10mgfdX8L=3Xv05g5-eo0w@mail.gmail.com>
+ <8afc44f7-cef5-4b4a-afac-85a4eb967d3e@redhat.com>
+ <CACGkMEtNZyHDzo2e_N9SM9dw4CK8vpZHWBrk7TFFixD1T7cdjw@mail.gmail.com>
+From: Maxime Coquelin <maxime.coquelin@redhat.com>
+Autocrypt: addr=maxime.coquelin@redhat.com; keydata=
+ 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
+ Mwqu3GQ=
+In-Reply-To: <CACGkMEtNZyHDzo2e_N9SM9dw4CK8vpZHWBrk7TFFixD1T7cdjw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Authenticated-Sender: daniel@iogearbox.net
-X-Virus-Scanned: Clear (ClamAV 0.103.10/27126/Sun Dec 17 10:37:59 2023)
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.3
 
-Hi Sebastian,
 
-On 12/15/23 6:07 PM, Sebastian Andrzej Siewior wrote:
-> The per-CPU variables used during bpf_prog_run_xdp() invocation and
-> later during xdp_do_redirect() rely on disabled BH for their protection.
-> Without locking in local_bh_disable() on PREEMPT_RT these data structure
-> require explicit locking.
+
+On 12/18/23 03:50, Jason Wang wrote:
+> On Wed, Dec 13, 2023 at 7:23 PM Maxime Coquelin
+> <maxime.coquelin@redhat.com> wrote:
+>>
+>> Hi Jason,
+>>
+>> On 12/13/23 05:52, Jason Wang wrote:
+>>> On Tue, Dec 12, 2023 at 9:17 PM Maxime Coquelin
+>>> <maxime.coquelin@redhat.com> wrote:
+>>>>
+>>>> Virtio-net driver control queue implementation is not safe
+>>>> when used with VDUSE. If the VDUSE application does not
+>>>> reply to control queue messages, it currently ends up
+>>>> hanging the kernel thread sending this command.
+>>>>
+>>>> Some work is on-going to make the control queue
+>>>> implementation robust with VDUSE. Until it is completed,
+>>>> let's disable control virtqueue and features that depend on
+>>>> it.
+>>>>
+>>>> Signed-off-by: Maxime Coquelin <maxime.coquelin@redhat.com>
+>>>
+>>> I wonder if it's better to fail instead of a mask as a start.
+>>
+>> I think it is better to use a mask and not fail, so that we can in the
+>> future use a recent VDUSE application with an older kernel.
 > 
-> This is a follow-up on the previous change which introduced
-> bpf_run_lock.redirect_lock and uses it now within drivers.
+> It may confuse the userspace unless userspace can do post check after
+> CREATE_DEV.
 > 
-> The simple way is to acquire the lock before bpf_prog_run_xdp() is
-> invoked and hold it until the end of function.
-> This does not always work because some drivers (cpsw, atlantic) invoke
-> xdp_do_flush() in the same context.
-> Acquiring the lock in bpf_prog_run_xdp() and dropping in
-> xdp_do_redirect() (without touching drivers) does not work because not
-> all driver, which use bpf_prog_run_xdp(), do support XDP_REDIRECT (and
-> invoke xdp_do_redirect()).
+> And for blk we fail when WCE is set in feature_is_valid():
 > 
-> Ideally the minimal locking scope would be bpf_prog_run_xdp() +
-> xdp_do_redirect() and everything else (error recovery, DMA unmapping,
-> free/ alloc of memory, …) would happen outside of the locked section.
-[...]
+> static bool features_is_valid(u64 features)
+> {
+>          if (!(features & (1ULL << VIRTIO_F_ACCESS_PLATFORM)))
+>                  return false;
+> 
+>          /* Now we only support read-only configuration space */
+>          if (features & (1ULL << VIRTIO_BLK_F_CONFIG_WCE))
+>                  return false;
+> 
+>          return true;
+> }
 
->   drivers/net/hyperv/netvsc_bpf.c |  1 +
->   drivers/net/netkit.c            | 13 +++++++----
->   drivers/net/tun.c               | 28 +++++++++++++----------
->   drivers/net/veth.c              | 40 ++++++++++++++++++++-------------
->   drivers/net/virtio_net.c        |  1 +
->   drivers/net/xen-netfront.c      |  1 +
->   6 files changed, 52 insertions(+), 32 deletions(-)
-[...]
+Ok, consistency with other devices types is indeed better.
 
-Please exclude netkit from this set given it does not support XDP, but
-instead only accepts tc BPF typed programs.
+But should I fail if any of the feature advertised by the application is
+not listed by the VDUSE driver, or just fail if control queue is being
+advertised by the application?
 
 Thanks,
-Daniel
+Maxime
 
-> diff --git a/drivers/net/netkit.c b/drivers/net/netkit.c
-> index 39171380ccf29..fbcf78477bda8 100644
-> --- a/drivers/net/netkit.c
-> +++ b/drivers/net/netkit.c
-> @@ -80,8 +80,15 @@ static netdev_tx_t netkit_xmit(struct sk_buff *skb, struct net_device *dev)
->   	netkit_prep_forward(skb, !net_eq(dev_net(dev), dev_net(peer)));
->   	skb->dev = peer;
->   	entry = rcu_dereference(nk->active);
-> -	if (entry)
-> -		ret = netkit_run(entry, skb, ret);
-> +	if (entry) {
-> +		scoped_guard(local_lock_nested_bh, &bpf_run_lock.redirect_lock) {
-> +			ret = netkit_run(entry, skb, ret);
-> +			if (ret == NETKIT_REDIRECT) {
-> +				dev_sw_netstats_tx_add(dev, 1, len);
-> +				skb_do_redirect(skb);
-> +			}
-> +		}
-> +	}
->   	switch (ret) {
->   	case NETKIT_NEXT:
->   	case NETKIT_PASS:
-> @@ -95,8 +102,6 @@ static netdev_tx_t netkit_xmit(struct sk_buff *skb, struct net_device *dev)
->   		}
->   		break;
->   	case NETKIT_REDIRECT:
-> -		dev_sw_netstats_tx_add(dev, 1, len);
-> -		skb_do_redirect(skb);
->   		break;
->   	case NETKIT_DROP:
->   	default:
+> Thanks
+> 
+>>
+>> Why would it be better to fail than negotiating?
+>>
+>> Thanks,
+>> Maxime
+>>
+> 
+
