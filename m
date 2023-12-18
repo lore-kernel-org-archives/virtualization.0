@@ -1,204 +1,142 @@
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35D8B35F0D
-	for <virtualization@lists.linux-foundation.org>; Sun, 17 Dec 2023 20:41:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB72D5238
+	for <virtualization@lists.linux-foundation.org>; Mon, 18 Dec 2023 02:51:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b="OPzx8sy+"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JsesuWhn"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id B3DB68190B
-	for <virtualization@lists.linux-foundation.org>; Sun, 17 Dec 2023 20:41:02 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B3DB68190B
+	by smtp1.osuosl.org (Postfix) with ESMTP id 4E2B981B10
+	for <virtualization@lists.linux-foundation.org>; Mon, 18 Dec 2023 02:51:09 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4E2B981B10
 Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.a=rsa-sha256 header.s=google header.b=OPzx8sy+
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=JsesuWhn
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.092
+X-Spam-Score: -2.099
 X-Spam-Level:
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id tVynvsGMtNO1
+	with ESMTP id op4-gTi_-YeU
 	for <virtualization@lists.linux-foundation.org>;
-	Sun, 17 Dec 2023 20:41:02 +0000 (UTC)
-Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id CCB3381871
-	for <virtualization@lists.linux-foundation.org>; Sun, 17 Dec 2023 20:41:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CCB3381871
-Received: by mail-lf1-x136.google.com with SMTP id 2adb3069b0e04-50c222a022dso2741233e87.1
-        for <virtualization@lists.linux-foundation.org>; Sun, 17 Dec 2023 12:41:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ventanamicro.com; s=google; t=1702845660; x=1703450460; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=R3/0Hma02Vd0ly7A0sb99/J3m8aSq89MJrcPUNSRUYI=;
-        b=OPzx8sy+mpXKDSdFdraUtSa2pxlsnMcjiKLcBWbCMuAskhikOPU1dt31Q6LEPZ7uNk
-         I5PMpW0xo7SGNdlJ3vrsjQJC7t+xHRwtjC4BxkhC68lfUb1VXJozxuwvnWnJUMaZN1Bu
-         DhnB5AoZCxKqTWTFTuuuBb8R1ggNbnmKnziV6rC/r2EUI7XxaDrzSgVs/4KwJJsTIBWe
-         PLEVrE/8xelMgRKYuql5Fn6K0i+6NZK4S7YtQaxsQ1f20RBrTtyOcDjKf7Xps1vonjlw
-         UE7sXWprDsVt254M5Mrpjft6/pNMqwBVCdH4sblfMtE5Q3SVHntmnY2BxzTxlRWuaXIM
-         M9Uw==
+	Mon, 18 Dec 2023 02:51:08 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 02197819ED
+	for <virtualization@lists.linux-foundation.org>; Mon, 18 Dec 2023 02:51:07 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 02197819ED
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1702867866;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ISMFEsMM1g2N73O1vBRmcaqbJpJmsUd8b4uizvNzNBg=;
+	b=JsesuWhng555TSELCf/0d+hTwPMH+9UgGFuDDGCw8QtjvZ537Wa68QpZdCvNrdZowoAL1P
+	yW+d/8DeJPk6kkOMmaK8WlaZGwk/DZbVsWD6gzh8CglDgY9vDENzMGpEdrP2NfImTc1jHt
+	VnbyxZlBhCaRj/wYNAHws8kUw/9Aomg=
+Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
+ [209.85.210.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-607-WzSY5TRvMO2A4YYv6NZMBQ-1; Sun, 17 Dec 2023 21:51:02 -0500
+X-MC-Unique: WzSY5TRvMO2A4YYv6NZMBQ-1
+Received: by mail-pf1-f198.google.com with SMTP id d2e1a72fcca58-6d4adee9c25so1684218b3a.0
+        for <virtualization@lists.linux-foundation.org>; Sun, 17 Dec 2023 18:51:02 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702845660; x=1703450460;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1702867862; x=1703472662;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=R3/0Hma02Vd0ly7A0sb99/J3m8aSq89MJrcPUNSRUYI=;
-        b=ie+ZCcOmJxojSUPkYs2stVvKXpGepPmHXpFMlzvuo4qyE2BVQCwQ/bre9SukVeqERg
-         QeQcxF5rVj/gXVf/DKUyxZoOJh19BkelgxEBCBeKBgFaaFEeYmaRckkyBBANdR9NKUJR
-         gfqhqEWzkEGC6mapnxmRf3snX03UIul5DWBm2EPmyJSNfEeTXMHn0aC4XMxyBlMIc3S3
-         3rZBkj3mC4ojUxoXGQ8OMwgpxEAuwc9OP+/z+4BuSlLIbfoiV+9UKtatb6LAkfkvhXeA
-         ii54sy9kDSKUqUGJ7+nYbeHPV8dsekgSa/q+HF7jtgQqqNZi1J+lriS20PVAOqouwx6d
-         qWbw==
-X-Gm-Message-State: AOJu0YwwHz+3gTXA0YVNeGMb+hA9guhzym7tR1VWkNtXCd+x3x9YbYrR
-	y24DmTvkX437aj+CvsEVSuHAaQ==
-X-Google-Smtp-Source: AGHT+IERXKNF/+s+NEEHzdapPwlDcWN89Zm4uZLWWe/4d5WgczvSO/z3yTIm2LP04zK6s+fR6i5MCg==
-X-Received: by 2002:a05:6512:398e:b0:50d:12b4:e02c with SMTP id j14-20020a056512398e00b0050d12b4e02cmr7559657lfu.53.1702845659741;
-        Sun, 17 Dec 2023 12:40:59 -0800 (PST)
-Received: from localhost (cst-prg-88-42.cust.vodafone.cz. [46.135.88.42])
-        by smtp.gmail.com with ESMTPSA id ul5-20020a170907ca8500b00a1fa7e39957sm9677795ejc.136.2023.12.17.12.40.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 17 Dec 2023 12:40:59 -0800 (PST)
-From: Andrew Jones <ajones@ventanamicro.com>
-To: kvm-riscv@lists.infradead.org,
-	linux-riscv@lists.infradead.org,
-	virtualization@lists.linux-foundation.org
-Cc: anup@brainfault.org,
-	atishp@atishpatra.org,
-	pbonzini@redhat.com,
-	paul.walmsley@sifive.com,
-	palmer@dabbelt.com,
-	aou@eecs.berkeley.edu,
-	jgross@suse.com,
-	srivatsa@csail.mit.edu,
-	guoren@kernel.org,
-	conor.dooley@microchip.com
-Subject: [PATCH v3 13/13] RISC-V: KVM: selftests: Add get-reg-list test for STA registers
-Date: Sun, 17 Dec 2023 21:40:33 +0100
-Message-ID: <20231217204019.36492-28-ajones@ventanamicro.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20231217204019.36492-15-ajones@ventanamicro.com>
-References: <20231217204019.36492-15-ajones@ventanamicro.com>
+        bh=ISMFEsMM1g2N73O1vBRmcaqbJpJmsUd8b4uizvNzNBg=;
+        b=G8o+IjeQgVk+HYtkvQkVayBHpg6ubbMTH6TyrpWekCQCf/f9w8M4NQlwYWBzq2dpUg
+         omEPHI03wtEAQfsVRl9sEmKZxyOSUQXIwjB7+SZqxQe2yi+HP8egrbfDISeqnvI+dUEJ
+         f94I0wETkfigyrfKxIIQ2CC6u3C2QcxlxNkh0fCOMkms6L/zPpi1/H4yiwbSJC5r7viq
+         GLn4vNGeJyUR5Oi4kZ2vr5/cK+3ceYhqOnkjLnYwFUt+qjEEZCWDCHJOJlYRnMN/TVLO
+         8zh+53PMHfyl9xqJ9a1+YfTK3WKQQ6VxHza3kb3a23A6urV9f37GB5v6ooBdqcdrT3XK
+         FgTg==
+X-Gm-Message-State: AOJu0YygHSP9MxeRNROv4WSgVQ6Jcl4rtNo1tstbUgvBh5VHKI9wzVDV
+	8/JPdPbc0o8rckOKhOWBOHBpGyftiDF4qrWtaUW67gSnAva5+PisId9kUilt0ZV95BkRyLZCSfd
+	iYuz769Ewg/l4/LKJeDF6fm+Bb4qVLcSwHQFrnYGk4QrDASd7KVWWVjbnyg==
+X-Received: by 2002:a05:6a21:9985:b0:190:2ae6:c685 with SMTP id ve5-20020a056a21998500b001902ae6c685mr20022271pzb.42.1702867861871;
+        Sun, 17 Dec 2023 18:51:01 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFCv9GdFyIZMKAWiwa9SY6YkVr3sTTb5Jm6rcirsnGe0JpRLP24GGIM7M1p0A2vBwQ/GToGo563T213nOdDLUM=
+X-Received: by 2002:a05:6a21:9985:b0:190:2ae6:c685 with SMTP id
+ ve5-20020a056a21998500b001902ae6c685mr20022250pzb.42.1702867861638; Sun, 17
+ Dec 2023 18:51:01 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-type: text/plain
-Content-Transfer-Encoding: 8bit
+References: <20231212131712.1816324-1-maxime.coquelin@redhat.com>
+ <20231212131712.1816324-3-maxime.coquelin@redhat.com> <CACGkMEthp13a20TGashiFNDovK+b10mgfdX8L=3Xv05g5-eo0w@mail.gmail.com>
+ <8afc44f7-cef5-4b4a-afac-85a4eb967d3e@redhat.com>
+In-Reply-To: <8afc44f7-cef5-4b4a-afac-85a4eb967d3e@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 18 Dec 2023 10:50:50 +0800
+Message-ID: <CACGkMEtNZyHDzo2e_N9SM9dw4CK8vpZHWBrk7TFFixD1T7cdjw@mail.gmail.com>
+Subject: Re: [PATCH v5 2/4] vduse: Temporarily disable control queue features
+To: Maxime Coquelin <maxime.coquelin@redhat.com>
+Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, paul@paul-moore.com, 
+	jmorris@namei.org, serge@hallyn.com, stephen.smalley.work@gmail.com, 
+	eparis@parisplace.org, xieyongji@bytedance.com, 
+	virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
+	david.marchand@redhat.com, lulu@redhat.com, casey@schaufler-ca.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Add SBI STA and its two registers to the get-reg-list test.
+On Wed, Dec 13, 2023 at 7:23=E2=80=AFPM Maxime Coquelin
+<maxime.coquelin@redhat.com> wrote:
+>
+> Hi Jason,
+>
+> On 12/13/23 05:52, Jason Wang wrote:
+> > On Tue, Dec 12, 2023 at 9:17=E2=80=AFPM Maxime Coquelin
+> > <maxime.coquelin@redhat.com> wrote:
+> >>
+> >> Virtio-net driver control queue implementation is not safe
+> >> when used with VDUSE. If the VDUSE application does not
+> >> reply to control queue messages, it currently ends up
+> >> hanging the kernel thread sending this command.
+> >>
+> >> Some work is on-going to make the control queue
+> >> implementation robust with VDUSE. Until it is completed,
+> >> let's disable control virtqueue and features that depend on
+> >> it.
+> >>
+> >> Signed-off-by: Maxime Coquelin <maxime.coquelin@redhat.com>
+> >
+> > I wonder if it's better to fail instead of a mask as a start.
+>
+> I think it is better to use a mask and not fail, so that we can in the
+> future use a recent VDUSE application with an older kernel.
 
-Reviewed-by: Anup Patel <anup@brainfault.org>
-Signed-off-by: Andrew Jones <ajones@ventanamicro.com>
----
- .../selftests/kvm/riscv/get-reg-list.c        | 43 +++++++++++++++++++
- 1 file changed, 43 insertions(+)
+It may confuse the userspace unless userspace can do post check after
+CREATE_DEV.
 
-diff --git a/tools/testing/selftests/kvm/riscv/get-reg-list.c b/tools/testing/selftests/kvm/riscv/get-reg-list.c
-index b8da2e86bf9c..55dd1fc3c536 100644
---- a/tools/testing/selftests/kvm/riscv/get-reg-list.c
-+++ b/tools/testing/selftests/kvm/riscv/get-reg-list.c
-@@ -71,6 +71,7 @@ bool filter_reg(__u64 reg)
- 	case KVM_REG_RISCV_SBI_EXT | KVM_REG_RISCV_SBI_SINGLE | KVM_RISCV_SBI_EXT_HSM:
- 	case KVM_REG_RISCV_SBI_EXT | KVM_REG_RISCV_SBI_SINGLE | KVM_RISCV_SBI_EXT_PMU:
- 	case KVM_REG_RISCV_SBI_EXT | KVM_REG_RISCV_SBI_SINGLE | KVM_RISCV_SBI_EXT_DBCN:
-+	case KVM_REG_RISCV_SBI_EXT | KVM_REG_RISCV_SBI_SINGLE | KVM_RISCV_SBI_EXT_STA:
- 	case KVM_REG_RISCV_SBI_EXT | KVM_REG_RISCV_SBI_SINGLE | KVM_RISCV_SBI_EXT_EXPERIMENTAL:
- 	case KVM_REG_RISCV_SBI_EXT | KVM_REG_RISCV_SBI_SINGLE | KVM_RISCV_SBI_EXT_VENDOR:
- 		return true;
-@@ -461,6 +462,7 @@ static const char *sbi_ext_single_id_to_str(__u64 reg_off)
- 		KVM_SBI_EXT_ARR(KVM_RISCV_SBI_EXT_SRST),
- 		KVM_SBI_EXT_ARR(KVM_RISCV_SBI_EXT_HSM),
- 		KVM_SBI_EXT_ARR(KVM_RISCV_SBI_EXT_PMU),
-+		KVM_SBI_EXT_ARR(KVM_RISCV_SBI_EXT_STA),
- 		KVM_SBI_EXT_ARR(KVM_RISCV_SBI_EXT_EXPERIMENTAL),
- 		KVM_SBI_EXT_ARR(KVM_RISCV_SBI_EXT_VENDOR),
- 		KVM_SBI_EXT_ARR(KVM_RISCV_SBI_EXT_DBCN),
-@@ -509,6 +511,32 @@ static const char *sbi_ext_id_to_str(const char *prefix, __u64 id)
- 	return strdup_printf("%lld | %lld /* UNKNOWN */", reg_subtype, reg_off);
- }
- 
-+static const char *sbi_sta_id_to_str(__u64 reg_off)
-+{
-+	switch (reg_off) {
-+	case 0: return "KVM_REG_RISCV_SBI_STA | KVM_REG_RISCV_SBI_STA_REG(shmem_lo)";
-+	case 1: return "KVM_REG_RISCV_SBI_STA | KVM_REG_RISCV_SBI_STA_REG(shmem_hi)";
-+	}
-+	return strdup_printf("KVM_REG_RISCV_SBI_STA | %lld /* UNKNOWN */", reg_off);
-+}
-+
-+static const char *sbi_id_to_str(const char *prefix, __u64 id)
-+{
-+	__u64 reg_off = id & ~(REG_MASK | KVM_REG_RISCV_SBI);
-+	__u64 reg_subtype = reg_off & KVM_REG_RISCV_SUBTYPE_MASK;
-+
-+	assert((id & KVM_REG_RISCV_TYPE_MASK) == KVM_REG_RISCV_SBI);
-+
-+	reg_off &= ~KVM_REG_RISCV_SUBTYPE_MASK;
-+
-+	switch (reg_subtype) {
-+	case KVM_REG_RISCV_SBI_STA:
-+		return sbi_sta_id_to_str(reg_off);
-+	}
-+
-+	return strdup_printf("%lld | %lld /* UNKNOWN */", reg_subtype, reg_off);
-+}
-+
- void print_reg(const char *prefix, __u64 id)
- {
- 	const char *reg_size = NULL;
-@@ -565,6 +593,10 @@ void print_reg(const char *prefix, __u64 id)
- 		printf("\tKVM_REG_RISCV | %s | KVM_REG_RISCV_SBI_EXT | %s,\n",
- 				reg_size, sbi_ext_id_to_str(prefix, id));
- 		break;
-+	case KVM_REG_RISCV_SBI:
-+		printf("\tKVM_REG_RISCV | %s | KVM_REG_RISCV_SBI | %s,\n",
-+				reg_size, sbi_id_to_str(prefix, id));
-+		break;
- 	default:
- 		printf("\tKVM_REG_RISCV | %s | 0x%llx /* UNKNOWN */,\n",
- 				reg_size, id & ~REG_MASK);
-@@ -651,6 +683,12 @@ static __u64 sbi_base_regs[] = {
- 	KVM_REG_RISCV | KVM_REG_SIZE_ULONG | KVM_REG_RISCV_SBI_EXT | KVM_REG_RISCV_SBI_SINGLE | KVM_RISCV_SBI_EXT_VENDOR,
- };
- 
-+static __u64 sbi_sta_regs[] = {
-+	KVM_REG_RISCV | KVM_REG_SIZE_ULONG | KVM_REG_RISCV_SBI_EXT | KVM_REG_RISCV_SBI_SINGLE | KVM_RISCV_SBI_EXT_STA,
-+	KVM_REG_RISCV | KVM_REG_SIZE_ULONG | KVM_REG_RISCV_SBI | KVM_REG_RISCV_SBI_STA | KVM_REG_RISCV_SBI_STA_REG(shmem_lo),
-+	KVM_REG_RISCV | KVM_REG_SIZE_ULONG | KVM_REG_RISCV_SBI | KVM_REG_RISCV_SBI_STA | KVM_REG_RISCV_SBI_STA_REG(shmem_hi),
-+};
-+
- static __u64 zicbom_regs[] = {
- 	KVM_REG_RISCV | KVM_REG_SIZE_ULONG | KVM_REG_RISCV_CONFIG | KVM_REG_RISCV_CONFIG_REG(zicbom_block_size),
- 	KVM_REG_RISCV | KVM_REG_SIZE_ULONG | KVM_REG_RISCV_ISA_EXT | KVM_REG_RISCV_ISA_SINGLE | KVM_RISCV_ISA_EXT_ZICBOM,
-@@ -757,6 +795,9 @@ static __u64 fp_d_regs[] = {
- #define SUBLIST_SBI_BASE \
- 	{"sbi-base", .feature_type = VCPU_FEATURE_SBI_EXT, .feature = KVM_RISCV_SBI_EXT_V01, \
- 	 .regs = sbi_base_regs, .regs_n = ARRAY_SIZE(sbi_base_regs),}
-+#define SUBLIST_SBI_STA \
-+	{"sbi-sta", .feature_type = VCPU_FEATURE_SBI_EXT, .feature = KVM_RISCV_SBI_EXT_STA, \
-+	 .regs = sbi_sta_regs, .regs_n = ARRAY_SIZE(sbi_sta_regs),}
- #define SUBLIST_ZICBOM \
- 	{"zicbom", .feature = KVM_RISCV_ISA_EXT_ZICBOM, .regs = zicbom_regs, .regs_n = ARRAY_SIZE(zicbom_regs),}
- #define SUBLIST_ZICBOZ \
-@@ -832,6 +873,7 @@ static struct vcpu_reg_list config_sbi_##ext = {		\
- /* Note: The below list is alphabetically sorted. */
- 
- KVM_SBI_EXT_SUBLIST_CONFIG(base, BASE);
-+KVM_SBI_EXT_SUBLIST_CONFIG(sta, STA);
- KVM_SBI_EXT_SIMPLE_CONFIG(pmu, PMU);
- KVM_SBI_EXT_SIMPLE_CONFIG(dbcn, DBCN);
- 
-@@ -858,6 +900,7 @@ KVM_ISA_EXT_SIMPLE_CONFIG(zihpm, ZIHPM);
- 
- struct vcpu_reg_list *vcpu_configs[] = {
- 	&config_sbi_base,
-+	&config_sbi_sta,
- 	&config_sbi_pmu,
- 	&config_sbi_dbcn,
- 	&config_aia,
--- 
-2.43.0
+And for blk we fail when WCE is set in feature_is_valid():
+
+static bool features_is_valid(u64 features)
+{
+        if (!(features & (1ULL << VIRTIO_F_ACCESS_PLATFORM)))
+                return false;
+
+        /* Now we only support read-only configuration space */
+        if (features & (1ULL << VIRTIO_BLK_F_CONFIG_WCE))
+                return false;
+
+        return true;
+}
+
+Thanks
+
+>
+> Why would it be better to fail than negotiating?
+>
+> Thanks,
+> Maxime
+>
 
