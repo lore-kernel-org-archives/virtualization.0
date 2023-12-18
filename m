@@ -1,151 +1,123 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oa1-f47.google.com (mail-oa1-f47.google.com [209.85.160.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 091083A1C7
-	for <virtualization@lists.linux-foundation.org>; Mon, 18 Dec 2023 15:30:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67640498A2
+	for <virtualization@lists.linux.dev>; Mon, 18 Dec 2023 16:36:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="NcuYLtrO"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 865E0410DC
-	for <virtualization@lists.linux-foundation.org>; Mon, 18 Dec 2023 15:30:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 865E0410DC
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=NcuYLtrO
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.101
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id C1cfxDQbM8rt
-	for <virtualization@lists.linux-foundation.org>;
-	Mon, 18 Dec 2023 15:30:26 +0000 (UTC)
-Received: from mail-lf1-x131.google.com (mail-lf1-x131.google.com [IPv6:2a00:1450:4864:20::131])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 7D6FE408E5
-	for <virtualization@lists.linux-foundation.org>; Mon, 18 Dec 2023 15:30:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7D6FE408E5
-Received: by mail-lf1-x131.google.com with SMTP id 2adb3069b0e04-50e30b28c1aso2097839e87.0
-        for <virtualization@lists.linux-foundation.org>; Mon, 18 Dec 2023 07:30:26 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RcODc6iK"
+Received: by mail-oa1-f47.google.com with SMTP id 586e51a60fabf-203ae9903a6so655113fac.0
+        for <virtualization@lists.linux.dev>; Mon, 18 Dec 2023 08:36:36 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1702913424; x=1703518224; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1702917395; x=1703522195; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:subject:references
+         :in-reply-to:message-id:cc:to:from:date:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=PG0K7UPoSMBYTVf/4BeN4sLj8j0yHDIwZIH4KmzwU1Y=;
-        b=NcuYLtrODO6VMmUjZKaN34gSX1E9i2bCl/TvY8IHHD6rmM3kNGiuZAqeVa2pwKH9Z7
-         mUvtk+6CJiizoAW67GX/Hei6/JNa9dTmzX/XE6Wruw2bj4whOcnuy3+W8xN1En74e3r2
-         iazPfq/Qmv9a7SvE/yPvjSfnldf6U+7PtQ4F0=
+        bh=lQV19gsqAR0o53Ir8ZJ+QKmKnVhQISOohb4gzU/oY50=;
+        b=RcODc6iKhqWzCnGVJsP7txpaoxmJakgXfkazeBZ+9uGkqnM0CCFNwfIOSd4ChC0n2U
+         q9ZZMcoODIec5BQHYfyx0MqW2n5der/yLf4aCkHiZoROKS0CejttJlRnRD1PiGu6ccol
+         9w9w8XiG17YCIW+HKm8ZtT9RsUa5x36KA/CxRLbqETXkV6GbT/0udopDLltQ+UCgn/2u
+         ThckvOEcwMS3woFDsSZUJx8PuUaDvP+gNfOqZJ3iP1VoDsYyr1eN7Jd9C3nlBcZ6Pxh6
+         Q+NJmff+8qoGqeHrs5AFt8cz2RHUjqXqBntqQn0AbmrSpRJA1Ra66+n37rs/7KPfB3qt
+         NRmg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702913424; x=1703518224;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=PG0K7UPoSMBYTVf/4BeN4sLj8j0yHDIwZIH4KmzwU1Y=;
-        b=IFt7a+fN3TcIObIsdFASYH7WLKL6P/+WRsnwLe5zRqxG6HzYh6gMDcQexYlkTMnaVG
-         IRkbC57Qf+/evZ7wT1Ibe0K1fgj9QAyxuywi+4lFuTByJKh4+mqC7/MCN/low+MtGydd
-         i6Wk4kqm/fSsRrTtfn1x7NtKGWzjdn2BANhlT9e4hJxiS/MWaKXPn4PFF6C6ds56/QTt
-         UaRP7hvW9y/pprnjGdQg3K9aWnt47mdR8XHwdArWI+Iw3X3jhz9s7+ueEu0CUgVB4rVJ
-         zRZceBKmWGCNYlAC3PapF1/GIq+oZvU51Tr/2/qeQrq3D29gl+N1OZeQPTrOM+q1dwb+
-         kbTg==
-X-Gm-Message-State: AOJu0YywluiNaVzJC4xupVzhlCx228pHDpMqzjLNei0zi2CR63BhUHHv
-	ClcJid4UCOnbmOEbkYqVsvlpFK5QMu6I5oIiblJbKA==
-X-Google-Smtp-Source: AGHT+IG7ioPSvk7odK8dBT0pCW2tc41P9y6yj1h99EeW3lSZFG0Zdz4kd95MRNuNhrGzwwRGUp9I6GLj+Q74re80cLw=
-X-Received: by 2002:a05:6512:3b87:b0:50e:2cbd:cc50 with SMTP id
- g7-20020a0565123b8700b0050e2cbdcc50mr2142056lfv.23.1702913424387; Mon, 18 Dec
- 2023 07:30:24 -0800 (PST)
+        d=1e100.net; s=20230601; t=1702917395; x=1703522195;
+        h=content-transfer-encoding:mime-version:subject:references
+         :in-reply-to:message-id:cc:to:from:date:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=lQV19gsqAR0o53Ir8ZJ+QKmKnVhQISOohb4gzU/oY50=;
+        b=cQZvwJNyQiNe/k9S2ZgfNKQBP3GG0xN6b8sGiS0s4RwE222Gjp9U5aBqdcZACFRyo1
+         PFt7jGcVMIPNwNHhzMvtVLd4dGlPMF10Ve2Jc984S5e1hmrbQIYIntP0xRg1bWvLKuIg
+         mChGAEKziD4lkq/z+F/nG2W7oYcOKTeQc68rUwT4VUQ1APjfO0YwgVz/SBn9bEc/7FOt
+         1u6cqyZjyKleomOQMzgJ9NC5cg9NdyQ67Pw3bMdiuW6MM9HQXhKEeJTmi5thwTKB0nL7
+         IY/7D5E/P2SKACcMtfM45Pue4gfFD9zoBlRMzGR3sHbH8vmPGojQrDCz8tzTEmYzXfHq
+         n0/w==
+X-Gm-Message-State: AOJu0YyPTxH2/BJaSMc/NL0CwoA8B8a1qgC//36/JvWLxvztbNqpVPYA
+	6WV7d9OgbffYl6MN7I+JBR4=
+X-Google-Smtp-Source: AGHT+IElzJWlJ9gs7JsWQZZ0tgpLq9OGnBM00u2DOHZw3YzQXThA4bGST+JUjXecMMmFXfbzQ/IWjA==
+X-Received: by 2002:a05:6870:a40b:b0:203:936b:70d with SMTP id m11-20020a056870a40b00b00203936b070dmr3344641oal.62.1702917395435;
+        Mon, 18 Dec 2023 08:36:35 -0800 (PST)
+Received: from localhost (114.66.194.35.bc.googleusercontent.com. [35.194.66.114])
+        by smtp.gmail.com with ESMTPSA id bm27-20020a05620a199b00b0077d62e78db9sm8408821qkb.128.2023.12.18.08.36.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 18 Dec 2023 08:36:34 -0800 (PST)
+Date: Mon, 18 Dec 2023 11:36:34 -0500
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+To: Steffen Trumtrar <s.trumtrar@pengutronix.de>, 
+ "Michael S. Tsirkin" <mst@redhat.com>, 
+ Jason Wang <jasowang@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+ "David S. Miller" <davem@davemloft.net>, 
+ Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>, 
+ Richard Cochran <richardcochran@gmail.com>
+Cc: virtualization@lists.linux.dev, 
+ netdev@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, 
+ Willem de Bruijn <willemb@google.com>
+Message-ID: <65807512bc20b_805482941e@willemb.c.googlers.com.notmuch>
+In-Reply-To: <20231218-v6-7-topic-virtio-net-ptp-v1-0-cac92b2d8532@pengutronix.de>
+References: <20231218-v6-7-topic-virtio-net-ptp-v1-0-cac92b2d8532@pengutronix.de>
+Subject: Re: [PATCH RFC 0/4] virtio-net: add tx-hash, rx-tstamp, tx-tstamp and
+ tx-time
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-References: <20231211114346.1132386-1-stevensd@google.com> <2146e48d-5fb3-4444-81c5-9c8d8cb18811@redhat.com>
- <CAD=HUj7e9NaaYhos82JZoxhyX6J0bu+m0i7-_TqNbXiCDZ-Uxg@mail.gmail.com>
- <bc88dab5-e65a-401f-a44d-ad0c707c0f74@redhat.com> <CAD=HUj7h-cF929AbSL0bmZE7J=G1aQjZuYSgChPBkSGJ+wfoyQ@mail.gmail.com>
- <2b8f4855-98f4-4515-bd5f-f93983d45714@redhat.com>
-In-Reply-To: <2b8f4855-98f4-4515-bd5f-f93983d45714@redhat.com>
-From: David Stevens <stevensd@chromium.org>
-Date: Mon, 18 Dec 2023 10:30:13 -0500
-Message-ID: <CAD=HUj5gZYBN=6Kk+jrva-VidHdU4YNXnVu+9R2p-HT3qEuKtg@mail.gmail.com>
-Subject: Re: [PATCH] virtio_balloon: stay awake while adjusting balloon
-To: David Hildenbrand <david@redhat.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Mime-Version: 1.0
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: 7bit
 
-On Mon, Dec 18, 2023 at 10:18=E2=80=AFAM David Hildenbrand <david@redhat.co=
-m> wrote:
->
-> On 18.12.23 16:16, David Stevens wrote:
-> > On Mon, Dec 18, 2023 at 6:37=E2=80=AFAM David Hildenbrand <david@redhat=
-.com> wrote:
-> >>
-> >> On 14.12.23 05:13, David Stevens wrote:
-> >>> On Wed, Dec 13, 2023 at 5:44=E2=80=AFPM David Hildenbrand <david@redh=
-at.com> wrote:
-> >>>>
-> >>>> On 11.12.23 12:43, David Stevens wrote:
-> >>>>> From: David Stevens <stevensd@chromium.org>
-> >>>>>
-> >>>>
-> >>>> Hi David,
-> >>>>
-> >>>>> Add a wakeup event for when the balloon is inflating or deflating.
-> >>>>> Userspace can enable this wakeup event to prevent the system from
-> >>>>> suspending while the balloon is being adjusted. This allows
-> >>>>> /sys/power/wakeup_count to be used without breaking virtio_balloon'=
-s
-> >>>>> cooperative memory management.
-> >>>>
-> >>>> Can you add/share some more details
-> >>>
-> >>> I'm working on enabling support for Linux s2Idle in our Android
-> >>> virtual machine, to restrict apps from running in the background
-> >>> without holding an Android partial wakelock. With the patch I recentl=
-y
-> >>> sent out [1], since crosvm advertises native PCI power management for
-> >>> virtio devices, the Android guest can properly enter s2idle, and it
-> >>> can be woken up by incoming IO. However, one of the remaining problem=
-s
-> >>> is that when the host needs to reclaim memory from the guest via the
-> >>> virtio-balloon, there is nothing preventing the guest from entering
-> >>> s2idle before the balloon driver finishes returning memory to the
-> >>> host.
-> >>
-> >> Thanks for the information. So you also want to wakeup the VM when
-> >> wanting to get more memory from the VM?
-> >>
-> >> Using which mechanism would that wakeup happen? Likely not the device
-> >> itself?
-> >
-> > The wakeup would happen via the parent device's interrupt. I've sent a
-> > new version of this patch that uses the parent device's wakeup event
-> > instead of adding a new one.
-> >
-> >>>
-> >>> One alternative to this approach would be to add a virtballoon_suspen=
-d
-> >>> callback to abort suspend if the balloon is inflating/adjusting.
-> >>> However, it seems cleaner to just prevent suspend in the first place.
-> >>
-> >> Also, the PM notifier could also be used with very high priority, so t=
-he
-> >> device would respond early to PM_SUSPEND_PREPARE.
-> >
-> > One drawback of blocking suspend via a PM notifier is that the
-> > behavior isn't configurable by userspace, whereas wakeup events can be
-> > enabled/disabled by userspace.
->
-> The question is if that behavior for the balloon is really worth it
-> being configured by user space?
+Steffen Trumtrar wrote:
+> This series tries to pick up the work on the virtio-net timestamping
+> feature from Willem de Bruijn.
+> 
+> Original series
+>     Message-Id: 20210208185558.995292-1-willemdebruijn.kernel@gmail.com
+>     Subject: [PATCH RFC v2 0/4] virtio-net: add tx-hash, rx-tstamp,
+>     tx-tstamp and tx-time
+>     From: Willem de Bruijn <willemb@google.com>
+> 
+>     RFC for four new features to the virtio network device:
+> 
+>     1. pass tx flow state to host, for routing + telemetry
+>     2. pass rx tstamp to guest, for better RTT estimation
+>     3. pass tx tstamp to guest, idem
+>     3. pass tx delivery time to host, for accurate pacing
+> 
+>     All would introduce an extension to the virtio spec.
+> 
+> The original series consisted of a hack around the DMA API, which should
+> be fixed in this series.
+> 
+> The changes in this series are to the driver side. For the changes to qemu see:
+>     https://github.com/strumtrar/qemu/tree/v8.1.1/virtio-net-ptp
+> 
+> Currently only virtio-net is supported. The original series used
+> vhost-net as backend. However, the path through tun via sendmsg doesn't
+> allow us to write data back to the driver side without any hacks.
+> Therefore use the way via plain virtio-net without vhost albeit better
+> performance.
+> 
+> Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
 
-It seems to me that the current behavior of completely resetting the
-virtio balloon in virtballoon_freeze is basically antithetical to the
-power management integration I'm adding, where power management
-doesn't interrupt the virtio balloon's operation at all. So if there
-are any systems that are actually happy with the current power
-management behavior, they probably don't want suspend to be blocked by
-inflation/deflation.
+Thanks for picking this back up, Steffen. Nice to see that the code still
+applies mostly cleanly.
 
--David
+For context: I dropped the work only because I had no real device
+implementation. The referenced patch series to qemu changes that.
+
+I suppose the main issue is the virtio API changes that this introduces,
+which will have to be accepted to the spec.
+
+One small comment to patch 4: there I just assumed the virtual device
+time is CLOCK_TAI. There is a concurrent feature under review for HW
+pacing offload with AF_XDP sockets. The clock issue comes up a bit. In
+general, for hardware we cannot assume a clock. For virtio, perhaps
+assuming the same monotonic hardware clock in guest and host can be
+assumed. But this clock alignment needs some thought.
+
