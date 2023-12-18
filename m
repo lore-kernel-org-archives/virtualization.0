@@ -1,200 +1,203 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D92D3A1D3
-	for <virtualization@lists.linux-foundation.org>; Mon, 18 Dec 2023 15:18:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CAF54239F
+	for <virtualization@lists.linux-foundation.org>; Mon, 18 Dec 2023 15:19:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HiZEFnG5"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="mgr4ILrL"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 8AF4B81EA1
-	for <virtualization@lists.linux-foundation.org>; Mon, 18 Dec 2023 15:18:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8AF4B81EA1
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=HiZEFnG5
+	by smtp3.osuosl.org (Postfix) with ESMTP id 0F8F560EE6
+	for <virtualization@lists.linux-foundation.org>; Mon, 18 Dec 2023 15:19:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0F8F560EE6
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=mgr4ILrL
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.099
+X-Spam-Score: -2.101
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id I3BQZhyVJkgZ
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id StWzjAjLXr2R
 	for <virtualization@lists.linux-foundation.org>;
-	Mon, 18 Dec 2023 15:18:09 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id C663781A4E
-	for <virtualization@lists.linux-foundation.org>; Mon, 18 Dec 2023 15:18:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C663781A4E
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1702912687;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=jtx/wzMZ1hRWUVGblVa5mU4I3sco2aMsq+3DdgGhKG4=;
-	b=HiZEFnG5zTx1K0TQzjD2ytzzFOrgSLmrpJb+GNWQ6Hr5scj2aTUSEhfqOcY13YT+gG4Q10
-	Cz4zfGNoT3BOhfSQTf0AJ8iIlsgrWDrhZmpYuu5yKWAqo4L0VDXcamDzkxj9mfDrXqI4gl
-	epGiSmG/SPkXGxyxZXohYDTXIIC3fJ4=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-628-8AAVgNDcONeLhSL8VFWu7g-1; Mon, 18 Dec 2023 10:18:04 -0500
-X-MC-Unique: 8AAVgNDcONeLhSL8VFWu7g-1
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-40c469953a8so22725405e9.1
-        for <virtualization@lists.linux-foundation.org>; Mon, 18 Dec 2023 07:18:04 -0800 (PST)
+	Mon, 18 Dec 2023 15:19:02 +0000 (UTC)
+Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id BD2F760E80
+	for <virtualization@lists.linux-foundation.org>; Mon, 18 Dec 2023 15:19:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BD2F760E80
+Received: by mail-pl1-x62a.google.com with SMTP id d9443c01a7336-1d3b81d9719so5493605ad.2
+        for <virtualization@lists.linux-foundation.org>; Mon, 18 Dec 2023 07:19:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1702912742; x=1703517542; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=XmSCxqVBdvceRVp8l3JOrS4y62t292lMmgaWp/xD5yk=;
+        b=mgr4ILrLTNavHyFRomFq1H3xwMeKy3N/zqdru40zJoUAbeioZbwk/tzGvfGJ9sJXKK
+         IiT6xRF8EkYPRdD3yr0JX0iQtZj3hWcPcqREml5Ho/ZXY61dsnBLAqAsjgtw3LSBrokQ
+         u3m3Wem8Wg19BTFbhT8QK2UHmtJjpXO4gSOQA=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702912683; x=1703517483;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
-         :references:cc:to:content-language:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=jtx/wzMZ1hRWUVGblVa5mU4I3sco2aMsq+3DdgGhKG4=;
-        b=I117k2g7V5fwds8JAispE5gbwfKMysBjGL32QEY63fCzujRRd/B3NE569eyUdDD6E2
-         DUWypgNZiqK0plDLpEsjgg+yjv4peWpE0C+cNnUY53L2VCXAjOBME6tXWvus1JnnOKrq
-         1xNn5mQPo2JGs7QykMqcub1emN2ZOBuYZf4tTj8mDxvBKFjmUWyA3rrRi2sMeTWYaYo6
-         tg5oNptg8tQnRrXB/erVQyILftkSpMb/rrDtpp1wY1G3qLx2I3baWDzO+hmcjjpBKOtW
-         xtm2NBw8PPfBwmxyRYSbaEdK7lh/w/5lyvlVoZXUum99ZL1sjGtZOi7F5IVf1thfPZ+/
-         wXZg==
-X-Gm-Message-State: AOJu0Yy3P6yfZRNT0Z6+l/5KPNHRBounb1PMEjm4T6BtZOc25CF+jFMx
-	NBDPmqi3LfD2pR5DpSY3pNiJ0sOq/EyN1sBV0gvby7+TQAEbJoiSMmrq6EjdNJ0TE9Uy+P+gXy/
-	P7Z7KJXbeeDGwQErJmCF2T61z7qiQDDIcZNB5iP6UnA==
-X-Received: by 2002:a05:600c:444c:b0:40b:5e1b:54a0 with SMTP id v12-20020a05600c444c00b0040b5e1b54a0mr8980504wmn.44.1702912683285;
-        Mon, 18 Dec 2023 07:18:03 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGJ1IiQx/5r+arm/glRHhXBjDFvDJMeKLz9ZNsXYbilc/1w5KSKyCkuFhzzMq7jNhHvTF3mJQ==
-X-Received: by 2002:a05:600c:444c:b0:40b:5e1b:54a0 with SMTP id v12-20020a05600c444c00b0040b5e1b54a0mr8980495wmn.44.1702912682841;
-        Mon, 18 Dec 2023 07:18:02 -0800 (PST)
-Received: from ?IPV6:2003:cb:c72b:b500:b53e:6e32:1408:27ac? (p200300cbc72bb500b53e6e32140827ac.dip0.t-ipconnect.de. [2003:cb:c72b:b500:b53e:6e32:1408:27ac])
-        by smtp.gmail.com with ESMTPSA id n9-20020a05600c4f8900b0040c41846923sm35987625wmq.26.2023.12.18.07.18.02
+        d=1e100.net; s=20230601; t=1702912742; x=1703517542;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=XmSCxqVBdvceRVp8l3JOrS4y62t292lMmgaWp/xD5yk=;
+        b=kpBEb11BB+fpoXrSp2eUm4H1rJeb59bnwPUvm+9GI5OnT4iR3KO7CrHgjmuq70a1al
+         Qc2sMmG9tj+8BDUhriKb1COKeq7KsmGbm0y7T+j5X1gwvlsvvTTx/RV1ckVhuuqw0oDx
+         jt0FPKP8rZkFzzilVoUFZ48HV4vM+Cgohp1/xRNalZtefUU79mxWm0kI6iVCeQgrDBSj
+         b6Y3yj2WNXU5jnCzoqfQtnVdzlDDGIeVj2NMHFeoSqu9PlPs7veT2hHVYbsY38fPvnQI
+         TeI13tqyAUvhhY71gLy9G6K5+87UR1fuyo1a2ffg34VUAYHARFj3PGrtEAgsiHXkex5d
+         l3EQ==
+X-Gm-Message-State: AOJu0YzTxwqWlEAaqU98Y9tkrvqp9OAYRfAxZ8b0Sz2zIN4mQAR98MRG
+	ROgAs6S36NiEtQ+KVry8C6+RjOeR0q5RPgSdFiM=
+X-Google-Smtp-Source: AGHT+IFBLDWTrxqHzpacLkEIOONVOQWppVZJgDOzuOYrpu86Oq3gL8gLmFqD8UBT/yIzelpI2poRjA==
+X-Received: by 2002:a17:902:e5d2:b0:1d3:41b6:6d7b with SMTP id u18-20020a170902e5d200b001d341b66d7bmr6120832plf.108.1702912742074;
+        Mon, 18 Dec 2023 07:19:02 -0800 (PST)
+Received: from localhost ([2401:fa00:8f:203:3a86:36f7:a34d:55f2])
+        by smtp.gmail.com with UTF8SMTPSA id v4-20020a17090331c400b001d0c5037ed3sm19353681ple.46.2023.12.18.07.18.59
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 18 Dec 2023 07:18:02 -0800 (PST)
-Message-ID: <2b8f4855-98f4-4515-bd5f-f93983d45714@redhat.com>
-Date: Mon, 18 Dec 2023 16:18:01 +0100
+        Mon, 18 Dec 2023 07:19:00 -0800 (PST)
+From: David Stevens <stevensd@chromium.org>
+X-Google-Original-From: David Stevens <stevensd@google.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>,
+	David Hildenbrand <david@redhat.com>
+Cc: virtualization@lists.linux-foundation.org,
+	linux-kernel@vger.kernel.org,
+	David Stevens <stevensd@chromium.org>
+Subject: [PATCH v2] virtio_balloon: stay awake while adjusting balloon
+Date: Tue, 19 Dec 2023 00:18:42 +0900
+Message-ID: <20231218151842.2756673-1-stevensd@google.com>
+X-Mailer: git-send-email 2.43.0.472.g3155946c3a-goog
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] virtio_balloon: stay awake while adjusting balloon
-To: David Stevens <stevensd@chromium.org>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-References: <20231211114346.1132386-1-stevensd@google.com>
- <2146e48d-5fb3-4444-81c5-9c8d8cb18811@redhat.com>
- <CAD=HUj7e9NaaYhos82JZoxhyX6J0bu+m0i7-_TqNbXiCDZ-Uxg@mail.gmail.com>
- <bc88dab5-e65a-401f-a44d-ad0c707c0f74@redhat.com>
- <CAD=HUj7h-cF929AbSL0bmZE7J=G1aQjZuYSgChPBkSGJ+wfoyQ@mail.gmail.com>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <CAD=HUj7h-cF929AbSL0bmZE7J=G1aQjZuYSgChPBkSGJ+wfoyQ@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-On 18.12.23 16:16, David Stevens wrote:
-> On Mon, Dec 18, 2023 at 6:37 AM David Hildenbrand <david@redhat.com> wrote:
->>
->> On 14.12.23 05:13, David Stevens wrote:
->>> On Wed, Dec 13, 2023 at 5:44 PM David Hildenbrand <david@redhat.com> wrote:
->>>>
->>>> On 11.12.23 12:43, David Stevens wrote:
->>>>> From: David Stevens <stevensd@chromium.org>
->>>>>
->>>>
->>>> Hi David,
->>>>
->>>>> Add a wakeup event for when the balloon is inflating or deflating.
->>>>> Userspace can enable this wakeup event to prevent the system from
->>>>> suspending while the balloon is being adjusted. This allows
->>>>> /sys/power/wakeup_count to be used without breaking virtio_balloon's
->>>>> cooperative memory management.
->>>>
->>>> Can you add/share some more details
->>>
->>> I'm working on enabling support for Linux s2Idle in our Android
->>> virtual machine, to restrict apps from running in the background
->>> without holding an Android partial wakelock. With the patch I recently
->>> sent out [1], since crosvm advertises native PCI power management for
->>> virtio devices, the Android guest can properly enter s2idle, and it
->>> can be woken up by incoming IO. However, one of the remaining problems
->>> is that when the host needs to reclaim memory from the guest via the
->>> virtio-balloon, there is nothing preventing the guest from entering
->>> s2idle before the balloon driver finishes returning memory to the
->>> host.
->>
->> Thanks for the information. So you also want to wakeup the VM when
->> wanting to get more memory from the VM?
->>
->> Using which mechanism would that wakeup happen? Likely not the device
->> itself?
-> 
-> The wakeup would happen via the parent device's interrupt. I've sent a
-> new version of this patch that uses the parent device's wakeup event
-> instead of adding a new one.
-> 
->>>
->>> One alternative to this approach would be to add a virtballoon_suspend
->>> callback to abort suspend if the balloon is inflating/adjusting.
->>> However, it seems cleaner to just prevent suspend in the first place.
->>
->> Also, the PM notifier could also be used with very high priority, so the
->> device would respond early to PM_SUSPEND_PREPARE.
-> 
-> One drawback of blocking suspend via a PM notifier is that the
-> behavior isn't configurable by userspace, whereas wakeup events can be
-> enabled/disabled by userspace.
+From: David Stevens <stevensd@chromium.org>
 
-The question is if that behavior for the balloon is really worth it 
-being configured by user space?
+A virtio_balloon's parent device may be configured so that a
+configuration change interrupt is a wakeup event. Extend the processing
+of such a wakeup event until the balloon finishes inflating or deflating
+by calling pm_stay_awake/pm_relax in the virtio_balloon driver. Note
+that these calls are no-ops if the parent device doesn't support wakeup
+events or if the wakeup events are not enabled.
 
+This change allows the guest to use system power states such as s2idle
+without running the risk the virtio_balloon's cooperative memory
+management becoming unresponsive to the host's requests.
+
+Signed-off-by: David Stevens <stevensd@chromium.org>
+---
+v1 -> v2:
+ - Use adjustment_signal_pending flag instead of a sequence number
+ - Call pm_stay_awake/pm_relax on parent device instead of adding a wake
+   event to the virtio balloon device
+
+ drivers/virtio/virtio_balloon.c | 57 +++++++++++++++++++++++++++------
+ 1 file changed, 47 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 1fe93e93f5bc..a3c11159cbe0 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -119,6 +119,11 @@ struct virtio_balloon {
+ 	/* Free page reporting device */
+ 	struct virtqueue *reporting_vq;
+ 	struct page_reporting_dev_info pr_dev_info;
++
++	/* State for keeping the wakeup_source active while adjusting the balloon */
++	spinlock_t adjustment_lock;
++	bool adjustment_signal_pending;
++	bool adjustment_in_progress;
+ };
+ 
+ static const struct virtio_device_id id_table[] = {
+@@ -437,6 +442,31 @@ static void virtio_balloon_queue_free_page_work(struct virtio_balloon *vb)
+ 	queue_work(vb->balloon_wq, &vb->report_free_page_work);
+ }
+ 
++static void start_update_balloon_size(struct virtio_balloon *vb)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&vb->adjustment_lock, flags);
++	vb->adjustment_signal_pending = true;
++	if (!vb->adjustment_in_progress) {
++		vb->adjustment_in_progress = true;
++		pm_stay_awake(vb->vdev->dev.parent);
++	}
++	spin_unlock_irqrestore(&vb->adjustment_lock, flags);
++
++	queue_work(system_freezable_wq, &vb->update_balloon_size_work);
++}
++
++static void end_update_balloon_size(struct virtio_balloon *vb)
++{
++	spin_lock(&vb->adjustment_lock);
++	if (!vb->adjustment_signal_pending && vb->adjustment_in_progress) {
++		vb->adjustment_in_progress = false;
++		pm_relax(vb->vdev->dev.parent);
++	}
++	spin_unlock(&vb->adjustment_lock);
++}
++
+ static void virtballoon_changed(struct virtio_device *vdev)
+ {
+ 	struct virtio_balloon *vb = vdev->priv;
+@@ -444,8 +474,7 @@ static void virtballoon_changed(struct virtio_device *vdev)
+ 
+ 	spin_lock_irqsave(&vb->stop_update_lock, flags);
+ 	if (!vb->stop_update) {
+-		queue_work(system_freezable_wq,
+-			   &vb->update_balloon_size_work);
++		start_update_balloon_size(vb);
+ 		virtio_balloon_queue_free_page_work(vb);
+ 	}
+ 	spin_unlock_irqrestore(&vb->stop_update_lock, flags);
+@@ -476,19 +505,25 @@ static void update_balloon_size_func(struct work_struct *work)
+ 
+ 	vb = container_of(work, struct virtio_balloon,
+ 			  update_balloon_size_work);
+-	diff = towards_target(vb);
+ 
+-	if (!diff)
+-		return;
++	spin_lock(&vb->adjustment_lock);
++	vb->adjustment_signal_pending = false;
++	spin_unlock(&vb->adjustment_lock);
+ 
+-	if (diff > 0)
+-		diff -= fill_balloon(vb, diff);
+-	else
+-		diff += leak_balloon(vb, -diff);
+-	update_balloon_size(vb);
++	diff = towards_target(vb);
++
++	if (diff) {
++		if (diff > 0)
++			diff -= fill_balloon(vb, diff);
++		else
++			diff += leak_balloon(vb, -diff);
++		update_balloon_size(vb);
++	}
+ 
+ 	if (diff)
+ 		queue_work(system_freezable_wq, work);
++	else
++		end_update_balloon_size(vb);
+ }
+ 
+ static int init_vqs(struct virtio_balloon *vb)
+@@ -992,6 +1027,8 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ 			goto out_unregister_oom;
+ 	}
+ 
++	spin_lock_init(&vb->adjustment_lock);
++
+ 	virtio_device_ready(vdev);
+ 
+ 	if (towards_target(vb))
 -- 
-Cheers,
-
-David / dhildenb
+2.43.0.472.g3155946c3a-goog
 
