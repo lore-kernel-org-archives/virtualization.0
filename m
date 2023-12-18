@@ -1,247 +1,275 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1815225CE
-	for <virtualization@lists.linux-foundation.org>; Mon, 18 Dec 2023 11:37:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="if1vzRPj"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 47767405E0
-	for <virtualization@lists.linux-foundation.org>; Mon, 18 Dec 2023 11:37:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 47767405E0
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=if1vzRPj
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id wX9DKB26u-lv
-	for <virtualization@lists.linux-foundation.org>;
-	Mon, 18 Dec 2023 11:37:35 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 0F61D4011C
-	for <virtualization@lists.linux-foundation.org>; Mon, 18 Dec 2023 11:37:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0F61D4011C
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1702899453;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=AusT7ZPnhk1twpCXoviM0u2LF3pOgqSfSWmSoggvTFg=;
-	b=if1vzRPjc36d1qEjWpvkWwE41OYjH8VGXQADVK1dOzRupAfByvl6ciIJMHUMr9UAfMwRWD
-	zTUxRo6OfR1upxFE44CNEOWtGolZoMMIccP/iavNGOqWgI6n3PEc8BMRe1S8odWFxF96BI
-	PlXYwXv9Gq8rwC2OHJu/SfMOJlV0V68=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-107-OPXomg3XNRSu1pvM6AGQgw-1; Mon, 18 Dec 2023 06:37:31 -0500
-X-MC-Unique: OPXomg3XNRSu1pvM6AGQgw-1
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-40d17446f11so9425345e9.0
-        for <virtualization@lists.linux-foundation.org>; Mon, 18 Dec 2023 03:37:31 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702899451; x=1703504251;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
-         :references:cc:to:content-language:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=AusT7ZPnhk1twpCXoviM0u2LF3pOgqSfSWmSoggvTFg=;
-        b=r5D+W3bmbNJxKRNbTeKdiykSGhXDNRkcb1AogvcxC0w/bZbzMJ9ZevXB5aZwJTKxZZ
-         JL9H8NpxqgYVAQL/1IAdk/AcyfgwViXn8jVeQqBSlb+sun/3xnygZym1CmHKMWT0ucjs
-         Da3mtmJ03Bq+IQcG/cFbmuJoEpirnIf5A3oLptNdvTq0v78OTV2OtS2EeHJu6k73RtXl
-         LJ7hAlRi1OzoQ1B81zbrwmUgiR6AArkkfdILmA9l9II7vVl5AuzqNpl1FK6j0+J7AH+A
-         sxhxfaSnU1TaD+Vf7Kfe/tO5RkjLM86CTq7pCHtaoic+7o9tYL341NSWN+AsZ2P3FHOo
-         nNLQ==
-X-Gm-Message-State: AOJu0Yzz+M9Y2fQVIIJ7LPZjNynB7fQ/D+WD8lFp4hESMOR9wQmcEMz+
-	Xmny6L9uMuAG2ptyEqGsaJGqOac21kDhkEPo6mjxGPqeIO+UYlTaoNdde4/jP4z1n79LZxUu7xT
-	8Nbmrlw7V5StUFkwbqTFVZ2guWkPCbIBf2G2A3996JA==
-X-Received: by 2002:a05:600c:511f:b0:40b:4a7f:c9ca with SMTP id o31-20020a05600c511f00b0040b4a7fc9camr6723980wms.34.1702899450800;
-        Mon, 18 Dec 2023 03:37:30 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEGggtJ15K5/v6P+TsCmiqaxZBNEu5dAquIiCeunbWkZdPRu8lWojdarINpy3D8vtJzaM61gA==
-X-Received: by 2002:a05:600c:511f:b0:40b:4a7f:c9ca with SMTP id o31-20020a05600c511f00b0040b4a7fc9camr6723973wms.34.1702899450385;
-        Mon, 18 Dec 2023 03:37:30 -0800 (PST)
-Received: from ?IPV6:2003:cb:c72b:b500:b53e:6e32:1408:27ac? (p200300cbc72bb500b53e6e32140827ac.dip0.t-ipconnect.de. [2003:cb:c72b:b500:b53e:6e32:1408:27ac])
-        by smtp.gmail.com with ESMTPSA id t13-20020a05600c450d00b00405c7591b09sm41662488wmo.35.2023.12.18.03.37.29
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 18 Dec 2023 03:37:30 -0800 (PST)
-Message-ID: <bc88dab5-e65a-401f-a44d-ad0c707c0f74@redhat.com>
-Date: Mon, 18 Dec 2023 12:37:29 +0100
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97F7536B19
+	for <virtualization@lists.linux.dev>; Mon, 18 Dec 2023 11:38:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
+Received: from ptz.office.stw.pengutronix.de ([2a0a:edc0:0:900:1d::77] helo=ratatoskr.trumtrar.info)
+	by metis.whiteo.stw.pengutronix.de with esmtp (Exim 4.92)
+	(envelope-from <s.trumtrar@pengutronix.de>)
+	id 1rFBwZ-0000Vp-E4; Mon, 18 Dec 2023 12:37:55 +0100
+From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+Date: Mon, 18 Dec 2023 12:37:10 +0100
+Subject: [PATCH RFC 3/4] virtio-net: support transmit timestamp
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] virtio_balloon: stay awake while adjusting balloon
-To: David Stevens <stevensd@chromium.org>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-References: <20231211114346.1132386-1-stevensd@google.com>
- <2146e48d-5fb3-4444-81c5-9c8d8cb18811@redhat.com>
- <CAD=HUj7e9NaaYhos82JZoxhyX6J0bu+m0i7-_TqNbXiCDZ-Uxg@mail.gmail.com>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
- dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
- QZLQMzNE74ap+GDK0wnacPQFpcG1AE9RMq3aeErY5tujekBS32jfC/7AnH7I0v1v1TbbK3Gp
- XNeiN4QroO+5qaSr0ID2sz5jtBLRb15RMre27E1ImpaIv2Jw8NJgW0k/D1RyKCwaTsgRdwuK
- Kx/Y91XuSBdz0uOyU/S8kM1+ag0wvsGlpBVxRR/xw/E8M7TEwuCZQArqqTCmkG6HGcXFT0V9
- PXFNNgV5jXMQRwU0O/ztJIQqsE5LsUomE//bLwzj9IVsaQpKDqW6TAPjcdBDPLHvriq7kGjt
- WhVhdl0qEYB8lkBEU7V2Yb+SYhmhpDrti9Fq1EsmhiHSkxJcGREoMK/63r9WLZYI3+4W2rAc
- UucZa4OT27U5ZISjNg3Ev0rxU5UH2/pT4wJCfxwocmqaRr6UYmrtZmND89X0KigoFD/XSeVv
- jwBRNjPAubK9/k5NoRrYqztM9W6sJqrH8+UWZ1Idd/DdmogJh0gNC0+N42Za9yBRURfIdKSb
- B3JfpUqcWwE7vUaYrHG1nw54pLUoPG6sAA7Mehl3nd4pZUALHwARAQABzSREYXZpZCBIaWxk
- ZW5icmFuZCA8ZGF2aWRAcmVkaGF0LmNvbT7CwZgEEwEIAEICGwMGCwkIBwMCBhUIAgkKCwQW
- AgMBAh4BAheAAhkBFiEEG9nKrXNcTDpGDfzKTd4Q9wD/g1oFAl8Ox4kFCRKpKXgACgkQTd4Q
- 9wD/g1oHcA//a6Tj7SBNjFNM1iNhWUo1lxAja0lpSodSnB2g4FCZ4R61SBR4l/psBL73xktp
- rDHrx4aSpwkRP6Epu6mLvhlfjmkRG4OynJ5HG1gfv7RJJfnUdUM1z5kdS8JBrOhMJS2c/gPf
- wv1TGRq2XdMPnfY2o0CxRqpcLkx4vBODvJGl2mQyJF/gPepdDfcT8/PY9BJ7FL6Hrq1gnAo4
- 3Iv9qV0JiT2wmZciNyYQhmA1V6dyTRiQ4YAc31zOo2IM+xisPzeSHgw3ONY/XhYvfZ9r7W1l
- pNQdc2G+o4Di9NPFHQQhDw3YTRR1opJaTlRDzxYxzU6ZnUUBghxt9cwUWTpfCktkMZiPSDGd
- KgQBjnweV2jw9UOTxjb4LXqDjmSNkjDdQUOU69jGMUXgihvo4zhYcMX8F5gWdRtMR7DzW/YE
- BgVcyxNkMIXoY1aYj6npHYiNQesQlqjU6azjbH70/SXKM5tNRplgW8TNprMDuntdvV9wNkFs
- 9TyM02V5aWxFfI42+aivc4KEw69SE9KXwC7FSf5wXzuTot97N9Phj/Z3+jx443jo2NR34XgF
- 89cct7wJMjOF7bBefo0fPPZQuIma0Zym71cP61OP/i11ahNye6HGKfxGCOcs5wW9kRQEk8P9
- M/k2wt3mt/fCQnuP/mWutNPt95w9wSsUyATLmtNrwccz63XOwU0EVcufkQEQAOfX3n0g0fZz
- Bgm/S2zF/kxQKCEKP8ID+Vz8sy2GpDvveBq4H2Y34XWsT1zLJdvqPI4af4ZSMxuerWjXbVWb
- T6d4odQIG0fKx4F8NccDqbgHeZRNajXeeJ3R7gAzvWvQNLz4piHrO/B4tf8svmRBL0ZB5P5A
- 2uhdwLU3NZuK22zpNn4is87BPWF8HhY0L5fafgDMOqnf4guJVJPYNPhUFzXUbPqOKOkL8ojk
- CXxkOFHAbjstSK5Ca3fKquY3rdX3DNo+EL7FvAiw1mUtS+5GeYE+RMnDCsVFm/C7kY8c2d0G
- NWkB9pJM5+mnIoFNxy7YBcldYATVeOHoY4LyaUWNnAvFYWp08dHWfZo9WCiJMuTfgtH9tc75
- 7QanMVdPt6fDK8UUXIBLQ2TWr/sQKE9xtFuEmoQGlE1l6bGaDnnMLcYu+Asp3kDT0w4zYGsx
- 5r6XQVRH4+5N6eHZiaeYtFOujp5n+pjBaQK7wUUjDilPQ5QMzIuCL4YjVoylWiBNknvQWBXS
- lQCWmavOT9sttGQXdPCC5ynI+1ymZC1ORZKANLnRAb0NH/UCzcsstw2TAkFnMEbo9Zu9w7Kv
- AxBQXWeXhJI9XQssfrf4Gusdqx8nPEpfOqCtbbwJMATbHyqLt7/oz/5deGuwxgb65pWIzufa
- N7eop7uh+6bezi+rugUI+w6DABEBAAHCwXwEGAEIACYCGwwWIQQb2cqtc1xMOkYN/MpN3hD3
- AP+DWgUCXw7HsgUJEqkpoQAKCRBN3hD3AP+DWrrpD/4qS3dyVRxDcDHIlmguXjC1Q5tZTwNB
- boaBTPHSy/Nksu0eY7x6HfQJ3xajVH32Ms6t1trDQmPx2iP5+7iDsb7OKAb5eOS8h+BEBDeq
- 3ecsQDv0fFJOA9ag5O3LLNk+3x3q7e0uo06XMaY7UHS341ozXUUI7wC7iKfoUTv03iO9El5f
- XpNMx/YrIMduZ2+nd9Di7o5+KIwlb2mAB9sTNHdMrXesX8eBL6T9b+MZJk+mZuPxKNVfEQMQ
- a5SxUEADIPQTPNvBewdeI80yeOCrN+Zzwy/Mrx9EPeu59Y5vSJOx/z6OUImD/GhX7Xvkt3kq
- Er5KTrJz3++B6SH9pum9PuoE/k+nntJkNMmQpR4MCBaV/J9gIOPGodDKnjdng+mXliF3Ptu6
- 3oxc2RCyGzTlxyMwuc2U5Q7KtUNTdDe8T0uE+9b8BLMVQDDfJjqY0VVqSUwImzTDLX9S4g/8
- kC4HRcclk8hpyhY2jKGluZO0awwTIMgVEzmTyBphDg/Gx7dZU1Xf8HFuE+UZ5UDHDTnwgv7E
- th6RC9+WrhDNspZ9fJjKWRbveQgUFCpe1sa77LAw+XFrKmBHXp9ZVIe90RMe2tRL06BGiRZr
- jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <CAD=HUj7e9NaaYhos82JZoxhyX6J0bu+m0i7-_TqNbXiCDZ-Uxg@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20231218-v6-7-topic-virtio-net-ptp-v1-3-cac92b2d8532@pengutronix.de>
+References: <20231218-v6-7-topic-virtio-net-ptp-v1-0-cac92b2d8532@pengutronix.de>
+In-Reply-To: <20231218-v6-7-topic-virtio-net-ptp-v1-0-cac92b2d8532@pengutronix.de>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Richard Cochran <richardcochran@gmail.com>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Willem de Bruijn <willemb@google.com>
+X-Mailer: b4 0.12.3
+X-Developer-Signature: v=1; a=openpgp-sha256; l=8554;
+ i=s.trumtrar@pengutronix.de; h=from:subject:message-id;
+ bh=8hMAxYNzHYaVhUxwKSBTNbNGO8KM+28aw/y7rrmeGlo=;
+ b=owGbwMvMwCUmvd38QH3grB+Mp9WSGFIb9FmzBJi5L3y8EKam4PA96br4Mp/DM07fN8m8JxV/uPla
+ 4vPSjlIWBjEuBlkxRZbItYc0Ngt/1vly/DwDzBxWJpAhDFycAjCRq8WMDLc3fv0YeSjis6a1sPWEkw
+ /PpzJ/KAhbnR2aMuHjhvKn/u2MDPOuc568EqiyNNFm3e5D4Udf9QXduzXtVfxWp6SItSwlnxkB
+X-Developer-Key: i=s.trumtrar@pengutronix.de; a=openpgp;
+ fpr=59ADC228B313F32CF4C7CF001BB737C07F519AF8
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:900:1d::77
+X-SA-Exim-Mail-From: s.trumtrar@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: virtualization@lists.linux.dev
 
-On 14.12.23 05:13, David Stevens wrote:
-> On Wed, Dec 13, 2023 at 5:44 PM David Hildenbrand <david@redhat.com> wrote:
->>
->> On 11.12.23 12:43, David Stevens wrote:
->>> From: David Stevens <stevensd@chromium.org>
->>>
->>
->> Hi David,
->>
->>> Add a wakeup event for when the balloon is inflating or deflating.
->>> Userspace can enable this wakeup event to prevent the system from
->>> suspending while the balloon is being adjusted. This allows
->>> /sys/power/wakeup_count to be used without breaking virtio_balloon's
->>> cooperative memory management.
->>
->> Can you add/share some more details
-> 
-> I'm working on enabling support for Linux s2Idle in our Android
-> virtual machine, to restrict apps from running in the background
-> without holding an Android partial wakelock. With the patch I recently
-> sent out [1], since crosvm advertises native PCI power management for
-> virtio devices, the Android guest can properly enter s2idle, and it
-> can be woken up by incoming IO. However, one of the remaining problems
-> is that when the host needs to reclaim memory from the guest via the
-> virtio-balloon, there is nothing preventing the guest from entering
-> s2idle before the balloon driver finishes returning memory to the
-> host.
+From: Willem de Bruijn <willemb@google.com>
 
-Thanks for the information. So you also want to wakeup the VM when 
-wanting to get more memory from the VM?
+Add optional PTP hardware tx timestamp offload for virtio-net.
 
-Using which mechanism would that wakeup happen? Likely not the device 
-itself?
+Accurate RTT measurement requires timestamps close to the wire.
+Introduce virtio feature VIRTIO_NET_F_TX_TSTAMP, the transmit
+equivalent to VIRTIO_NET_F_RX_TSTAMP.
 
-> 
-> One alternative to this approach would be to add a virtballoon_suspend
-> callback to abort suspend if the balloon is inflating/adjusting.
-> However, it seems cleaner to just prevent suspend in the first place.
+The driver sets VIRTIO_NET_HDR_F_TSTAMP to request a timestamp
+returned on completion. If the feature is negotiated, the device
+either places the timestamp or clears the feature bit.
 
-Also, the PM notifier could also be used with very high priority, so the 
-device would respond early to PM_SUSPEND_PREPARE.
+The timestamp straddles (virtual) hardware domains. Like PTP, use
+international atomic time (CLOCK_TAI) as global clock base. The driver
+must sync with the device, e.g., through kvm-clock.
 
-[...]
+Modify can_push to ensure that on tx completion the header, and thus
+timestamp, is in a predicatable location at skb_vnet_hdr.
 
->>>                queue_work(system_freezable_wq, work);
->>> +     else
->>> +             end_update_balloon_size(vb, seqno);
->>
->> What if we stop the workqueue and unload the driver -- see
->> remove_common() -- won't you leave pm_stay_awake() wrongly set?
-> 
-> When a device gets removed, its wakeup source is destroyed, which
-> automatically calls __pm_relax.
+Tested: modified txtimestamp.c to with h/w timestamping:
+  -       sock_opt = SOF_TIMESTAMPING_SOFTWARE |
+  +       sock_opt = SOF_TIMESTAMPING_RAW_HARDWARE |
+  + do_test(family, SOF_TIMESTAMPING_TX_HARDWARE);
 
-Ah, thanks.
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Co-developed-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
 
-> 
->>>    }
->>>
->>>    static int init_vqs(struct virtio_balloon *vb)
->>> @@ -992,6 +1028,9 @@ static int virtballoon_probe(struct virtio_device *vdev)
->>>                        goto out_unregister_oom;
->>>        }
->>>
->>> +     spin_lock_init(&vb->adjustment_lock);
->>> +     device_set_wakeup_capable(&vb->vdev->dev, true);
->>
->>
->> I'm a bit confused: Documentation/driver-api/pm/devices.rst documents
->>
->> "
->> The :c:member:`power.can_wakeup` flag just records whether the device
->> (and its driver) can physically support wakeup events.  The
->> :c:func:`device_set_wakeup_capable()` routine affects this flag.
->> "
->>
->> ...
->>
->> "
->> Whether or not a device is capable of issuing wakeup events is a
->> hardware matter, and the kernel is responsible for keeping track of it.
->> "
->>
->> But how is the virtio-balloon device capable of waking up the machine?
->> Your patch merely implies that the virtio-baloon device is capable to
->> prohbit going to sleep.
->>
->> What am I missing?
-> 
-> The underlying virtio_pci_device is capable of waking up the machine,
-> if it supports PCI power management. The core PCI code will keep the
-> machine awake while processing the interrupt (i.e. during
-> virtballoon_changed), but after processing is handed off to the
-> virtio-balloon driver, the virtio-balloon driver needs to keep the
-> machine awake until the processing is actually completed.
-> 
-> An alternative to making vb->vdev->dev wakeup capable is to plumb the
-> pm_stay_awake/pm_relax calls to the underlying virtio_pci_device. Would
-> that be a preferable approach?
+--
+  Changes to original RFC v2:
+  - append write-able descriptor for TX timestamp
 
-The way you describe it, it rather belongs into the PCI code, because 
-that's what actually makes the device PM-capable (i.e., would not apply 
-to virtio-ccw or virtio-mmio). The virtio-balloon itself is not 
-PM-capable. But how hard is it to move that handling into PCI specific code?
+Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+---
+ drivers/net/virtio_net.c        | 79 +++++++++++++++++++++++++++++++++++------
+ include/uapi/linux/virtio_net.h |  1 +
+ 2 files changed, 70 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 9bb6cdaf49cc9..4065834957fbd 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -280,6 +280,12 @@ struct virtnet_info {
+ 	/* Device will pass rx timestamp. Requires has_rx_tstamp */
+ 	bool enable_rx_tstamp;
+ 
++	/* Device can pass CLOCK_TAI transmit time to the driver */
++	bool has_tx_tstamp;
++
++	/* Device will pass tx timestamp. Requires has_tx_tstamp */
++	bool enable_tx_tstamp;
++
+ 	/* Has control virtqueue */
+ 	bool has_cvq;
+ 
+@@ -760,6 +766,21 @@ static void virtnet_rq_set_premapped(struct virtnet_info *vi)
+ 	}
+ }
+ 
++static void virtnet_record_tx_tstamp(const struct send_queue *sq,
++				     struct sk_buff *skb)
++{
++	const struct virtio_net_hdr_hash_ts *h = skb_vnet_hdr_ht(skb);
++	const struct virtnet_info *vi = sq->vq->vdev->priv;
++	struct skb_shared_hwtstamps ts;
++
++	if (h->hash.hdr.flags & VIRTIO_NET_HDR_F_TSTAMP &&
++	    vi->enable_tx_tstamp) {
++		/* Write the timestamp from the userspace to the skb */
++		ts.hwtstamp = ns_to_ktime(le64_to_cpu(h->tstamp));
++		skb_tstamp_tx(skb, &ts);
++	}
++}
++
+ static void free_old_xmit_skbs(struct send_queue *sq, bool in_napi)
+ {
+ 	unsigned int len;
+@@ -771,6 +792,7 @@ static void free_old_xmit_skbs(struct send_queue *sq, bool in_napi)
+ 		if (likely(!is_xdp_frame(ptr))) {
+ 			struct sk_buff *skb = ptr;
+ 
++			virtnet_record_tx_tstamp(sq, skb);
+ 			pr_debug("Sent skb %p\n", skb);
+ 
+ 			bytes += skb->len;
+@@ -2312,7 +2334,7 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
+ 	struct virtio_net_hdr_mrg_rxbuf *hdr;
+ 	const unsigned char *dest = ((struct ethhdr *)skb->data)->h_dest;
+ 	struct virtnet_info *vi = sq->vq->vdev->priv;
+-	struct virtio_net_hdr_v1_hash *ht;
++	struct virtio_net_hdr_hash_ts *ht;
+ 	int num_sg;
+ 	unsigned hdr_len = vi->hdr_len;
+ 	bool can_push;
+@@ -2321,7 +2343,8 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
+ 
+ 	can_push = vi->any_header_sg &&
+ 		!((unsigned long)skb->data & (__alignof__(*hdr) - 1)) &&
+-		!skb_header_cloned(skb) && skb_headroom(skb) >= hdr_len;
++		!skb_header_cloned(skb) && skb_headroom(skb) >= hdr_len &&
++		!vi->enable_tx_tstamp;
+ 	/* Even if we can, don't push here yet as this would skew
+ 	 * csum_start offset below. */
+ 	if (can_push)
+@@ -2342,10 +2365,12 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
+ 		u16 report = skb->l4_hash ? VIRTIO_NET_HASH_REPORT_L4 :
+ 					    VIRTIO_NET_HASH_REPORT_OTHER;
+ 
+-		ht->hash_value = cpu_to_le32(skb->hash);
+-		ht->hash_report = cpu_to_le16(report);
+-		ht->hash_state = cpu_to_le16(VIRTIO_NET_HASH_STATE_DEFAULT);
++		ht->hash.value = cpu_to_le32(skb->hash);
++		ht->hash.report = cpu_to_le16(report);
++		ht->hash.flow_state = cpu_to_le16(VIRTIO_NET_HASH_STATE_DEFAULT);
+ 	}
++	if (vi->enable_tx_tstamp && skb_shinfo(skb)->tx_flags & SKBTX_HW_TSTAMP)
++		ht->hash.hdr.flags |= VIRTIO_NET_HDR_F_TSTAMP;
+ 
+ 	sg_init_table(sq->sg, skb_shinfo(skb)->nr_frags + (can_push ? 1 : 2));
+ 	if (can_push) {
+@@ -2362,7 +2387,23 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
+ 			return num_sg;
+ 		num_sg++;
+ 	}
+-	return virtqueue_add_outbuf(sq->vq, sq->sg, num_sg, skb, GFP_ATOMIC);
++
++	/* Append a writeable descriptor after the RO ones. TX timestamp is
++	 * received via this descriptor
++	 */
++	if (ht->hash.hdr.flags & VIRTIO_NET_HDR_F_TSTAMP) {
++		struct virtio_net_hdr_hash_ts *h = skb_vnet_hdr_ht(skb);
++		struct scatterlist *sgs[2];
++		struct scatterlist sg_in;
++
++		sg_init_one(&sg_in, &h->tstamp, sizeof(h->tstamp));
++		sgs[0] = sq->sg;
++		sgs[1] = &sg_in;
++
++		return virtqueue_add_sgs(sq->vq, sgs, 1, 1, skb, GFP_ATOMIC);
++	} else {
++		return virtqueue_add_outbuf(sq->vq, sq->sg, num_sg, skb, GFP_ATOMIC);
++	}
+ }
+ 
+ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+@@ -3556,7 +3597,13 @@ static int virtnet_get_ts_info(struct net_device *dev,
+ 		info->rx_filters = HWTSTAMP_FILTER_NONE;
+ 	}
+ 
+-	info->tx_types = HWTSTAMP_TX_OFF;
++	if (vi->has_tx_tstamp) {
++		info->so_timestamping |= SOF_TIMESTAMPING_TX_HARDWARE |
++					 SOF_TIMESTAMPING_RAW_HARDWARE;
++		info->tx_types = HWTSTAMP_TX_ON;
++	} else {
++		info->tx_types = HWTSTAMP_TX_OFF;
++	}
+ 
+ 	return 0;
+ }
+@@ -3984,7 +4031,8 @@ static int virtnet_ioctl_set_hwtstamp(struct net_device *dev, struct ifreq *ifr)
+ 		return -EFAULT;
+ 	if (tsconf.flags)
+ 		return -EINVAL;
+-	if (tsconf.tx_type != HWTSTAMP_TX_OFF)
++	if (tsconf.tx_type != HWTSTAMP_TX_OFF &&
++	    tsconf.tx_type != HWTSTAMP_TX_ON)
+ 		return -ERANGE;
+ 	if (tsconf.rx_filter != HWTSTAMP_FILTER_NONE &&
+ 	    tsconf.rx_filter != HWTSTAMP_FILTER_ALL)
+@@ -3995,6 +4043,11 @@ static int virtnet_ioctl_set_hwtstamp(struct net_device *dev, struct ifreq *ifr)
+ 	else
+ 		vi->enable_rx_tstamp = tsconf.rx_filter == HWTSTAMP_FILTER_ALL;
+ 
++	if (!vi->has_tx_tstamp)
++		tsconf.tx_type = HWTSTAMP_TX_OFF;
++	else
++		vi->enable_tx_tstamp = tsconf.tx_type == HWTSTAMP_TX_ON;
++
+ 	if (copy_to_user(ifr->ifr_data, &tsconf, sizeof(tsconf)))
+ 		return -EFAULT;
+ 
+@@ -4009,7 +4062,8 @@ static int virtnet_ioctl_get_hwtstamp(struct net_device *dev, struct ifreq *ifr)
+ 	tsconf.flags = 0;
+ 	tsconf.rx_filter = vi->enable_rx_tstamp ? HWTSTAMP_FILTER_ALL :
+ 						  HWTSTAMP_FILTER_NONE;
+-	tsconf.tx_type = HWTSTAMP_TX_OFF;
++	tsconf.tx_type = vi->enable_tx_tstamp ? HWTSTAMP_TX_ON :
++						HWTSTAMP_TX_OFF;
+ 
+ 	if (copy_to_user(ifr->ifr_data, &tsconf, sizeof(tsconf)))
+ 		return -EFAULT;
+@@ -4639,6 +4693,11 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 		vi->hdr_len = sizeof(struct virtio_net_hdr_hash_ts);
+ 	}
+ 
++	if (virtio_has_feature(vdev, VIRTIO_NET_F_TX_TSTAMP)) {
++		vi->has_tx_tstamp = true;
++		vi->hdr_len = sizeof(struct virtio_net_hdr_hash_ts);
++	}
++
+ 	if (virtio_has_feature(vdev, VIRTIO_F_ANY_LAYOUT) ||
+ 	    virtio_has_feature(vdev, VIRTIO_F_VERSION_1))
+ 		vi->any_header_sg = true;
+@@ -4882,7 +4941,7 @@ static struct virtio_device_id id_table[] = {
+ 	VIRTIO_NET_F_RSS, VIRTIO_NET_F_HASH_REPORT, VIRTIO_NET_F_NOTF_COAL, \
+ 	VIRTIO_NET_F_VQ_NOTF_COAL, \
+ 	VIRTIO_NET_F_GUEST_HDRLEN, \
+-	VIRTIO_NET_F_TX_HASH, VIRTIO_NET_F_RX_TSTAMP
++	VIRTIO_NET_F_TX_HASH, VIRTIO_NET_F_RX_TSTAMP, VIRTIO_NET_F_TX_TSTAMP
+ 
+ static unsigned int features[] = {
+ 	VIRTNET_FEATURES,
+diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
+index 6a0a6f299a13b..03a7ef45372d7 100644
+--- a/include/uapi/linux/virtio_net.h
++++ b/include/uapi/linux/virtio_net.h
+@@ -56,6 +56,7 @@
+ #define VIRTIO_NET_F_MQ	22	/* Device supports Receive Flow
+ 					 * Steering */
+ #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
++#define VIRTIO_NET_F_TX_TSTAMP	  49	/* Device sends TAI transmit time */
+ #define VIRTIO_NET_F_RX_TSTAMP	  50	/* Device sends TAI receive time */
+ #define VIRTIO_NET_F_TX_HASH	  51	/* Driver sends hash report */
+ #define VIRTIO_NET_F_VQ_NOTF_COAL 52	/* Device supports virtqueue notification coalescing */
 
 -- 
-Cheers,
-
-David / dhildenb
+2.42.0
 
