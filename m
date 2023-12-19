@@ -1,227 +1,348 @@
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BD571CF8D
-	for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 15:40:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26D7231A61
+	for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 17:15:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BRenXE3y"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="B+FGsuBa"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id A682560D73
-	for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 15:40:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A682560D73
+	by smtp3.osuosl.org (Postfix) with ESMTP id 8816660F16
+	for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 17:15:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8816660F16
 Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=BRenXE3y
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=B+FGsuBa
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.099
+X-Spam-Score: -0.599
 X-Spam-Level:
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id C9fB62n6bJYi
+	with ESMTP id i73Flg6pSCpz
 	for <virtualization@lists.linux-foundation.org>;
-	Tue, 19 Dec 2023 15:40:00 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id D359960C30
-	for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 15:39:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D359960C30
+	Tue, 19 Dec 2023 17:14:59 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 0E89260EDB
+	for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 17:14:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0E89260EDB
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1703000398;
+	s=mimecast20190719; t=1703006097;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=PK+LuygYmhG2CvJvGWMAjuhLlJlhJqXboi52bYDOrnM=;
-	b=BRenXE3yELFBPl3Pm0BEGooKYOjqljyMmaDRRmvnVjHBAMfM7kQwa8vHgv/jHmNw81hjKH
-	63bcos38Thr/ZgleEjYPGu3Teru619qBE9YEx46bRH/3pOdKwLK0RFtySPXDD9XCeX/3re
-	rMMzCnuTMXNcr4DGnw8NT2hDa36J8IE=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	 in-reply-to:in-reply-to:references:references;
+	bh=HELkwcQYyrepD0av1zWxDq9wbFAM2F/4OPKzg9x021M=;
+	b=B+FGsuBaIpyHHSCbTXy5uBIXRwDw61B5labnMW+NLjS7oFOAF26Aov9+cM0CLpaI6ooe2t
+	EL5Mh1GKbP6rVSmJBv7YUV4LG4XajoQTP4CvfuKtLOOaEpdRELDWpK67J3T0Wj2D4Vex6a
+	sKqTDIQhmDADEIipBbXN5LQbsFLb3aY=
+Received: from mail-oi1-f199.google.com (mail-oi1-f199.google.com
+ [209.85.167.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-345-HjSThukPN4aod72i7dZERQ-1; Tue, 19 Dec 2023 10:39:57 -0500
-X-MC-Unique: HjSThukPN4aod72i7dZERQ-1
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-336599bf65eso3230207f8f.2
-        for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 07:39:56 -0800 (PST)
+ us-mta-302-H8vQT3-AP5yCgoGOo6jbNw-1; Tue, 19 Dec 2023 12:14:56 -0500
+X-MC-Unique: H8vQT3-AP5yCgoGOo6jbNw-1
+Received: by mail-oi1-f199.google.com with SMTP id 5614622812f47-3ba53cbc652so1518316b6e.2
+        for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 09:14:56 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703000396; x=1703605196;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=PK+LuygYmhG2CvJvGWMAjuhLlJlhJqXboi52bYDOrnM=;
-        b=K6pOUg6G3Q9TPaHAFL69/j8df/3JFg2mU+g29dC/zuQqoj/OrWN8Vv+m8WOcMb6R3W
-         HrA+bHCt12T/zRgQT8NNnRpPHzwb7TeQTcrj4k63364AelNJ3sQG5E/A0wAIV7QwuCTx
-         +LEG2TddIvfACwprhC+Q3dCKubo8ghkAO/TNttz7FAHeZRV/qYBU55wcvajMq7Hcy1cr
-         yATUxSVFxlKTNaOaNz+C2T8OjKN4hG+HvRdBP1YWQkb1w0uzgBplRa3ld6R2Hk4NGGuF
-         Efxj1BG5fWrfp+VOIbcL7Bi3pHSx1cEPv9yq0115ljqDnpj+WC56HJeIvFixeJIijlRh
-         Yp6Q==
-X-Gm-Message-State: AOJu0YzIURytXU7gp8VThvzw8yLTEUDolSdqbVqDGzIX2Nk2Zc5qokke
-	LvLG4Iy0t0ZiZ+qoFR2J6OBGRJJttygV2iPMC1h3LE+L+DrmcJe/GTINkCsOB0gWKwskjIYMELR
-	EdHjENTpROgQmId2VAp7coSFX8bSsZ5KsFwmkFRgs9A==
-X-Received: by 2002:a05:600c:154c:b0:40d:30a4:c51 with SMTP id f12-20020a05600c154c00b0040d30a40c51mr41227wmg.11.1703000395877;
-        Tue, 19 Dec 2023 07:39:55 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFp1DVxyhAk0i9CV+i/v6SuQdOLBY26mxjgz1WawO4Q7LKSE/AJ2fgyScCtGgKw6oKf5fTjzw==
-X-Received: by 2002:a05:600c:154c:b0:40d:30a4:c51 with SMTP id f12-20020a05600c154c00b0040d30a40c51mr41218wmg.11.1703000395497;
-        Tue, 19 Dec 2023 07:39:55 -0800 (PST)
-Received: from ?IPV6:2003:cb:c734:400:39cf:76ec:bfd8:fe73? (p200300cbc734040039cf76ecbfd8fe73.dip0.t-ipconnect.de. [2003:cb:c734:400:39cf:76ec:bfd8:fe73])
-        by smtp.gmail.com with ESMTPSA id e7-20020a05600c4e4700b0040c41846919sm3422569wmq.41.2023.12.19.07.39.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 19 Dec 2023 07:39:55 -0800 (PST)
-Message-ID: <5eae51df-2ac7-41c4-bf3e-7dc299898855@redhat.com>
-Date: Tue, 19 Dec 2023 16:39:54 +0100
+        d=1e100.net; s=20230601; t=1703006095; x=1703610895;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=HELkwcQYyrepD0av1zWxDq9wbFAM2F/4OPKzg9x021M=;
+        b=p4geH2khZb7R12/3d2+Ww32fNMHKBA3Bip2hzrXWi9BIg4PnFeUeVNRAn+oA2oavRq
+         OxS+Et3fMKY1U2DVCJ5B5EKQhvXErvmhblNNfv9Jfycme6RiOAehyuguChs7jtnaYQ7F
+         2v6c8u9xs/OaCII+qSvniEXAh24sKhmU1j7TgbcMO34LFSPl3I0+qdbqHPSKY6bqyFYf
+         szN73KO1Du61KdQdftqjcY5WZBbiJk6gNqby065FlS9LidkpDdkCiAB9Er0e6EQ7SZKO
+         OVGF1toJSK5TcSTWAhAzOJgPvnfpQrRN/ciNNJqXCdnTY27KFrf/caYdZYFpeOHqREa3
+         g0iQ==
+X-Gm-Message-State: AOJu0YwugwEw8HFMhqodPQNKedYy6Wl2Ln4h6R2gVa3PN3sbng07X54H
+	VJP5BMcMdc56OZ4Yzx5TMTyWDDlji5WICrz3Gef0roBQ9fycal+IVUdM+6vBokcCkNo5bt+wTM0
+	IX6CExl9BMMTYka4aZQ8YTiUSdwyhaI6eMBh4g+ppaw==
+X-Received: by 2002:a05:6808:318e:b0:3b9:ef98:840c with SMTP id cd14-20020a056808318e00b003b9ef98840cmr17635755oib.15.1703006095334;
+        Tue, 19 Dec 2023 09:14:55 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IF/XPg+pre0SOQusR7uU6BeIgXPDWGP9gopV7QlJzt8ZKYpyRgJd5oidy+fBNWTyOqUgWEYGQ==
+X-Received: by 2002:a05:6808:318e:b0:3b9:ef98:840c with SMTP id cd14-20020a056808318e00b003b9ef98840cmr17635731oib.15.1703006094975;
+        Tue, 19 Dec 2023 09:14:54 -0800 (PST)
+Received: from redhat.com ([38.15.60.12])
+        by smtp.gmail.com with ESMTPSA id 18-20020aca0912000000b003b85cc30fe8sm5196607oij.36.2023.12.19.09.14.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 Dec 2023 09:14:54 -0800 (PST)
+Date: Tue, 19 Dec 2023 10:14:52 -0700
+From: Alex Williamson <alex.williamson@redhat.com>
+To: Yishai Hadas <yishaih@nvidia.com>
+Cc: <mst@redhat.com>, <jasowang@redhat.com>, <jgg@nvidia.com>,
+ <kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
+ <parav@nvidia.com>, <feliu@nvidia.com>, <jiri@nvidia.com>,
+ <kevin.tian@intel.com>, <joao.m.martins@oracle.com>,
+ <si-wei.liu@oracle.com>, <leonro@nvidia.com>, <maorg@nvidia.com>
+Subject: Re: [PATCH V10 vfio 0/9] Introduce a vfio driver over virtio
+ devices
+Message-ID: <20231219101452.10105890.alex.williamson@redhat.com>
+In-Reply-To: <20231219093247.170936-1-yishaih@nvidia.com>
+References: <20231219093247.170936-1-yishaih@nvidia.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] virtio_balloon: stay awake while adjusting balloon
-To: David Stevens <stevensd@chromium.org>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-References: <20231218151842.2756673-1-stevensd@google.com>
- <aae229d7-0675-47c5-9a02-5ba0b6a64906@redhat.com>
- <CAD=HUj4jzxVB3=9kYVr+Y+3Ef2EUVztA4aVOXvha2zsCyzDGQQ@mail.gmail.com>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <CAD=HUj4jzxVB3=9kYVr+Y+3Ef2EUVztA4aVOXvha2zsCyzDGQQ@mail.gmail.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On 19.12.23 15:37, David Stevens wrote:
-> On Mon, Dec 18, 2023 at 12:33 PM David Hildenbrand <david@redhat.com> wrote:
->>
->> On 18.12.23 16:18, David Stevens wrote:
->>> From: David Stevens <stevensd@chromium.org>
->>>
->>> A virtio_balloon's parent device may be configured so that a
->>> configuration change interrupt is a wakeup event. Extend the processing
->>> of such a wakeup event until the balloon finishes inflating or deflating
->>> by calling pm_stay_awake/pm_relax in the virtio_balloon driver. Note
->>> that these calls are no-ops if the parent device doesn't support wakeup
->>> events or if the wakeup events are not enabled.
->>>
->>> This change allows the guest to use system power states such as s2idle
->>> without running the risk the virtio_balloon's cooperative memory
->>> management becoming unresponsive to the host's requests.
->>>
->>> Signed-off-by: David Stevens <stevensd@chromium.org>
->>> ---
->>> v1 -> v2:
->>>    - Use adjustment_signal_pending flag instead of a sequence number
->>>    - Call pm_stay_awake/pm_relax on parent device instead of adding a wake
->>>      event to the virtio balloon device
->>>
->>>    drivers/virtio/virtio_balloon.c | 57 +++++++++++++++++++++++++++------
->>>    1 file changed, 47 insertions(+), 10 deletions(-)
->>>
->>> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
->>> index 1fe93e93f5bc..a3c11159cbe0 100644
->>> --- a/drivers/virtio/virtio_balloon.c
->>> +++ b/drivers/virtio/virtio_balloon.c
->>> @@ -119,6 +119,11 @@ struct virtio_balloon {
->>>        /* Free page reporting device */
->>>        struct virtqueue *reporting_vq;
->>>        struct page_reporting_dev_info pr_dev_info;
->>> +
->>> +     /* State for keeping the wakeup_source active while adjusting the balloon */
->>> +     spinlock_t adjustment_lock;
->>> +     bool adjustment_signal_pending;
->>> +     bool adjustment_in_progress;
->>>    };
->>>
->>>    static const struct virtio_device_id id_table[] = {
->>> @@ -437,6 +442,31 @@ static void virtio_balloon_queue_free_page_work(struct virtio_balloon *vb)
->>>        queue_work(vb->balloon_wq, &vb->report_free_page_work);
->>>    }
->>>
->>> +static void start_update_balloon_size(struct virtio_balloon *vb)
->>> +{
->>> +     unsigned long flags;
->>> +
->>> +     spin_lock_irqsave(&vb->adjustment_lock, flags);
->>> +     vb->adjustment_signal_pending = true;
->>> +     if (!vb->adjustment_in_progress) {
->>> +             vb->adjustment_in_progress = true;
->>> +             pm_stay_awake(vb->vdev->dev.parent);
->>> +     }
->>> +     spin_unlock_irqrestore(&vb->adjustment_lock, flags);
->>> +
->>> +     queue_work(system_freezable_wq, &vb->update_balloon_size_work);
->>> +}
->>> +
->>> +static void end_update_balloon_size(struct virtio_balloon *vb)
->>> +{
->>> +     spin_lock(&vb->adjustment_lock);
->>> +     if (!vb->adjustment_signal_pending && vb->adjustment_in_progress) {
->>
->> How could vb->adjustment_in_progress ever not be set at this point?
->>
->>> +             vb->adjustment_in_progress = false;
->>> +             pm_relax(vb->vdev->dev.parent);
->>> +     }
->>> +     spin_unlock(&vb->adjustment_lock);
->>> +}
->>> +
->>
->> LGTM, although I wonder what happens when calling pm_stay_awake() etc.
->> on a parent device that is not wakeup-even-capable?
+On Tue, 19 Dec 2023 11:32:38 +0200
+Yishai Hadas <yishaih@nvidia.com> wrote:
+
+> This series introduce a vfio driver over virtio devices to support the
+> legacy interface functionality for VFs.
 > 
-> If the parent device is not wakeup capable or if wakeup isn't enabled,
-> then the vb->vdev->dev.parent->power.wakeup pointer will be NULL, so
-> the NULL checks in __pm_relax/__pm_stay_awake will immediately return.
+> Background, from the virtio spec [1].
+> --------------------------------------------------------------------
+> In some systems, there is a need to support a virtio legacy driver with
+> a device that does not directly support the legacy interface. In such
+> scenarios, a group owner device can provide the legacy interface
+> functionality for the group member devices. The driver of the owner
+> device can then access the legacy interface of a member device on behalf
+> of the legacy member device driver.
+> 
+> For example, with the SR-IOV group type, group members (VFs) can not
+> present the legacy interface in an I/O BAR in BAR0 as expected by the
+> legacy pci driver. If the legacy driver is running inside a virtual
+> machine, the hypervisor executing the virtual machine can present a
+> virtual device with an I/O BAR in BAR0. The hypervisor intercepts the
+> legacy driver accesses to this I/O BAR and forwards them to the group
+> owner device (PF) using group administration commands.
+> --------------------------------------------------------------------
+> 
+> The first 6 patches are in the virtio area and handle the below:
+> - Introduce the admin virtqueue infrastcture.
+> - Expose the layout of the commands that should be used for
+>   supporting the legacy access.
+> - Expose APIs to enable upper layers as of vfio, net, etc
+>   to execute admin commands.
+> 
+> The above follows the virtio spec that was lastly accepted in that area
+> [1].
+> 
+> The last 3 patches are in the vfio area and handle the below:
+> - Expose some APIs from vfio/pci to be used by the vfio/virtio driver.
+> - Introduce a vfio driver over virtio devices to support the legacy
+>   interface functionality for VFs. 
+> 
+> The series was tested successfully over virtio-net VFs in the host,
+> while running in the guest both modern and legacy drivers.
+> 
+> [1]
+> https://github.com/oasis-tcs/virtio-spec/commit/03c2d32e5093ca9f2a17797242fbef88efe94b8c
+> 
+> Changes from V9: https://lore.kernel.org/kvm/20231218083755.96281-1-yishaih@nvidia.com/
+> Virtio:
+> - Introduce a new config option VIRTIO_PCI_ADMIN_LEGACY which considers X86 or
+>   COMPILE_TEST, then use it instead of CONFIG_X86.
+> Vfio:
+> Patch #9:
+> - Change Kconfig to depend on VIRTIO_PCI_ADMIN_LEGACY.
+> - Drop a redundant blank line at the end of Makefile.
+> 
+> The above changes were suggested by Alex.
+> 
+> Changes from V8: https://lore.kernel.org/kvm/20231214123808.76664-1-yishaih@nvidia.com/
+> Virtio:
+> - Adapt to support the legacy IO functionality only on X86, as
+>   was suggested by Michael.
+> Vfio:
+> Patch #9:
+> - Change Kconfig to depend on X86, as suggested by Alex. 
+> - Add Reviewed-by: Kevin Tian <kevin.tian@intel.com>.
+> 
+> Changes from V7: https://lore.kernel.org/kvm/20231207102820.74820-1-yishaih@nvidia.com/
+> Virtio:
+> Patch #6
+> - Let virtio_pci_admin_has_legacy_io() return false on non X86 systems,
+>   as was discussed with Michael.
+> Vfio:
+> Patch #7, #8:
+> - Add Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+> Patch #9:
+> - Improve the Kconfig description and the commit log, as was suggested by Kevin.
+> - Rename translate_io_bar_to_mem_bar() to virtiovf_pci_bar0_rw(), as
+>   was suggested by Kevin.
+> - Refactor to have virtiovf_pci_write_config() as we have
+>   virtiovf_pci_read_config(), as was suggested by Kevin.
+> - Drop a note about MSIX which doesn't give any real value, as was
+>   suggested by Kevin.
+> 
+> Changes from V6: https://lore.kernel.org/kvm/20231206083857.241946-1-yishaih@nvidia.com/
+> Vfio:
+> - Put the pm_runtime stuff into translate_io_bar_to_mem_bar() and
+>   organize the callers to be more success oriented, as suggested by Jason.
+> - Add missing 'ops' (i.e. 'detach_ioas' and 'device_feature'), as mentioned by Jason.
+> - Clean virtiovf_bar0_exists() to cast to bool automatically, as
+>   suggested by Jason.
+> - Add Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>.
+> 
+> Changes from V5: https://lore.kernel.org/kvm/20231205170623.197877-1-yishaih@nvidia.com/
+> Vfio:
+> - Rename vfio_pci_iowrite64 to vfio_pci_core_iowrite64 as was mentioned
+>   by Alex.
+> 
+> Changes from V4: https://lore.kernel.org/all/20231129143746.6153-7-yishaih@nvidia.com/T/
+> Virtio:
+> - Drop the unused macro 'VIRTIO_ADMIN_MAX_CMD_OPCODE' as was asked by
+>   Michael.
+> - Add Acked-by: Michael S. Tsirkin <mst@redhat.com>
+> Vfio:
+> - Export vfio_pci_core_setup_barmap() in place and rename
+>   vfio_pci_iowrite/read<xxx> to have the 'core' prefix as part of the
+>   functions names, as was discussed with Alex.
+> - Improve packing of struct virtiovf_pci_core_device, as was suggested
+>   by Alex.
+> - Upon reset, set 'pci_cmd' back to zero, in addition, if
+>   the user didn't set the 'PCI_COMMAND_IO' bit, return -EIO upon any
+>   read/write towards the IO bar, as was suggested by Alex.
+> - Enforce by BUILD_BUG_ON that 'bar0_virtual_buf_size' is power of 2 as
+>   part of virtiovf_pci_init_device() and clean the 'sizing calculation'
+>   code accordingly, as was suggested by Alex.
+> 
+> Changes from V3: https://www.spinics.net/lists/kvm/msg333008.html
+> Virtio:
+> - Rebase on top of 6.7 rc3.
+> Vfio:
+> - Fix a typo, drop 'acc' from 'virtiovf_acc_vfio_pci_tran_ops'.
+> 
+> Changes from V2: https://lore.kernel.org/all/20231029155952.67686-8-yishaih@nvidia.com/T/
+> Virtio:
+> - Rebase on top of 6.7 rc1.
+> - Add a mutex to serialize admin commands execution and virtqueue
+>   deletion, as was suggested by Michael.
+> - Remove the 'ref_count' usage which is not needed any more.
+> - Reduce the depth of the admin vq to match a single command at a given time.
+> - Add a supported check upon command execution and move to use a single
+>   flow of virtqueue_exec_admin_cmd().
+> - Improve the description of the exported commands to better match the
+>   specification and the expected usage as was asked by Michael.
+> 
+> Vfio:
+> - Upon calling to virtio_pci_admin_legacy/common_device_io_read/write()
+>   supply the 'offset' within the relevant configuration area, following
+>   the virtio exported APIs.
+> 
+> Changes from V1: https://lore.kernel.org/all/20231023104548.07b3aa19.alex.williamson@redhat.com/T/
+> Virtio:
+> - Drop its first patch, it was accepted upstream already.
+> - Add a new patch (#6) which initializes the supported admin commands
+>   upon admin queue activation as was suggested by Michael.
+> - Split the legacy_io_read/write commands per common/device
+>   configuration as was asked by Michael.
+> - Don't expose any more the list query/used APIs outside of virtio.
+> - Instead, expose an API to check whether the legacy io functionality is
+>   supported as was suggested by Michael.
+> - Fix some Krobot's note by adding the missing include file.
+> 
+> Vfio:
+> - Refer specifically to virtio-net as part of the driver/module description
+>   as Alex asked.
+> - Change to check MSIX enablement based on the irq type of the given vfio
+>   core device. In addition, drop its capable checking from the probe flow
+>   as was asked by Alex.
+> - Adapt to use the new virtio exposed APIs and clean some code accordingly.
+> - Adapt to some cleaner style code in some places (if/else) as was suggested
+>   by Alex.
+> - Fix the range_intersect_range() function and adapt its usage as was
+>   pointed by Alex.
+> - Make struct virtiovf_pci_core_device better packed.
+> - Overwrite the subsystem vendor ID to be 0x1af4 as was discussed in
+>   the ML.
+> - Add support for the 'bar sizing negotiation' as was asked by Alex.
+> - Drop the 'acc' from the 'ops' as Alex asked.
+> 
+> Changes from V0: https://www.spinics.net/lists/linux-virtualization/msg63802.html
+> 
+> Virtio:
+> - Fix the common config map size issue that was reported by Michael
+>   Tsirkin.
+> - Do not use vp_dev->vqs[] array upon vp_del_vqs() as was asked by
+>   Michael, instead skip the AQ specifically.
+> - Move admin vq implementation into virtio_pci_modern.c as was asked by
+>   Michael.
+> - Rename structure virtio_avq to virtio_pci_admin_vq and some extra
+>   corresponding renames.
+> - Remove exported symbols virtio_pci_vf_get_pf_dev(),
+>   virtio_admin_cmd_exec() as now callers are local to the module.
+> - Handle inflight commands as part of the device reset flow.
+> - Introduce APIs per admin command in virtio-pci as was asked by Michael.
+> 
+> Vfio:
+> - Change to use EXPORT_SYMBOL_GPL instead of EXPORT_SYMBOL for
+>   vfio_pci_core_setup_barmap() and vfio_pci_iowrite#xxx() as pointed by
+>   Alex.
+> - Drop the intermediate patch which prepares the commands and calls the
+>   generic virtio admin command API (i.e. virtio_admin_cmd_exec()).
+> - Instead, call directly to the new APIs per admin command that are
+>   exported from Virtio - based on Michael's request.
+> - Enable only virtio-net as part of the pci_device_id table to enforce
+>   upon binding only what is supported as suggested by Alex.
+> - Add support for byte-wise access (read/write) over the device config
+>   region as was asked by Alex.
+> - Consider whether MSIX is practically enabled/disabled to choose the
+>   right opcode upon issuing read/write admin command, as mentioned
+>   by Michael.
+> - Move to use VIRTIO_PCI_CONFIG_OFF instead of adding some new defines
+>   as was suggested by Michael.
+> - Set the '.close_device' op to vfio_pci_core_close_device() as was
+>   pointed by Alex.
+> - Adapt to Vfio multi-line comment style in a few places.
+> - Add virtualization@lists.linux-foundation.org in the MAINTAINERS file
+>   to be CCed for the new driver as was suggested by Jason.
+> 
+> Yishai
+> 
+> Feng Liu (4):
+>   virtio: Define feature bit for administration virtqueue
+>   virtio-pci: Introduce admin virtqueue
+>   virtio-pci: Introduce admin command sending function
+>   virtio-pci: Introduce admin commands
+> 
+> Yishai Hadas (5):
+>   virtio-pci: Initialize the supported admin commands
+>   virtio-pci: Introduce APIs to execute legacy IO admin commands
+>   vfio/pci: Expose vfio_pci_core_setup_barmap()
+>   vfio/pci: Expose vfio_pci_core_iowrite/read##size()
+>   vfio/virtio: Introduce a vfio driver over virtio devices
+> 
+>  MAINTAINERS                                 |   7 +
+>  drivers/vfio/pci/Kconfig                    |   2 +
+>  drivers/vfio/pci/Makefile                   |   2 +
+>  drivers/vfio/pci/vfio_pci_rdwr.c            |  57 +-
+>  drivers/vfio/pci/virtio/Kconfig             |  15 +
+>  drivers/vfio/pci/virtio/Makefile            |   3 +
+>  drivers/vfio/pci/virtio/main.c              | 576 ++++++++++++++++++++
+>  drivers/virtio/Kconfig                      |   5 +
+>  drivers/virtio/Makefile                     |   1 +
+>  drivers/virtio/virtio.c                     |  37 +-
+>  drivers/virtio/virtio_pci_admin_legacy_io.c | 244 +++++++++
+>  drivers/virtio/virtio_pci_common.c          |  14 +
+>  drivers/virtio/virtio_pci_common.h          |  42 +-
+>  drivers/virtio/virtio_pci_modern.c          | 259 ++++++++-
+>  drivers/virtio/virtio_pci_modern_dev.c      |  24 +-
+>  include/linux/vfio_pci_core.h               |  20 +
+>  include/linux/virtio.h                      |   8 +
+>  include/linux/virtio_config.h               |   4 +
+>  include/linux/virtio_pci_admin.h            |  23 +
+>  include/linux/virtio_pci_modern.h           |   2 +
+>  include/uapi/linux/virtio_config.h          |   8 +-
+>  include/uapi/linux/virtio_pci.h             |  68 +++
+>  22 files changed, 1385 insertions(+), 36 deletions(-)
+>  create mode 100644 drivers/vfio/pci/virtio/Kconfig
+>  create mode 100644 drivers/vfio/pci/virtio/Makefile
+>  create mode 100644 drivers/vfio/pci/virtio/main.c
+>  create mode 100644 drivers/virtio/virtio_pci_admin_legacy_io.c
+>  create mode 100644 include/linux/virtio_pci_admin.h
+> 
 
-Ah, I missed that NULL check, makes sense. Thanks!
+The vfio parts look good to me.  I'll merge the last 3 patches in the
+series through the vfio tree once virtio maintainers are satisfied and
+provide a branch or tag to merge the dependencies.  Thanks,
 
--- 
-Cheers,
-
-David / dhildenb
+Alex
 
