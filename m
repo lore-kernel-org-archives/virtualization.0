@@ -1,222 +1,127 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3126F42054
-	for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 18:10:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D07E237D1E
+	for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 18:20:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="dwKZsxvI"
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="XtWM25UL"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id C135982BE5
-	for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 18:10:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C135982BE5
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=dwKZsxvI
+	by smtp3.osuosl.org (Postfix) with ESMTP id 4F5B360E43
+	for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 18:20:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4F5B360E43
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.a=rsa-sha256 header.s=google header.b=XtWM25UL
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.103
+X-Spam-Score: -2.1
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id sLHYHh1BgFsH
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id DWaGPLL31FJO
 	for <virtualization@lists.linux-foundation.org>;
-	Tue, 19 Dec 2023 18:10:22 +0000 (UTC)
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on20616.outbound.protection.outlook.com [IPv6:2a01:111:f400:fe5a::616])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id F3B0B82B9F
-	for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 18:10:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F3B0B82B9F
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=CYDzmx52GbsOqF8a+KVSazDhdsyjEIDc2d/5D+pGi9Bxu7nFIs7fVpLgvPgdby6YGl9m5us8/vmwrm2pGF/Rd6ujr6o647RKiDFUbf3b1Vt22Cht6GKFlhIRIpnldQZd/wKURjiEu5+WaLlwAfE8/rOGLFysfnGkNouc34sIXt/bbD3D0NXzBIQBEjsh6CCH03OdkfDdj8wQiQ9WbIit8jh/pCqBj42a06TyKQBaOD5BmOHcSnR4amFqy4VkLWE0xteNuYZRb1RZDljloFwIbJ/U+f653ymAlZD8BZjeljasus5D67bwJ/Pm7QEoxKIvQv4AzLltIIpljib3xU/PZQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=MKO46lgwXxoc9p1PhLlI2slnpBU+0n8UQO1kpc1S1rY=;
- b=REQnaZ5+5f7rSFoalnvhmNY9V+SD36M2n3ZgMeQrCZA3b8u9L7S10IOn9HvT46D74hzA67zMfAVxyqQHhcDzz+glmRLRXt86cpZKWKLWLSpsdr/3swuD8cSIQWzg36hYdlXHZVT03I/UpCkVsQ6RxjU67nTjUg4+HyxWmR7hFn500q8xTPzGgHZCyvkhIK9eAXNocRfht/BFZO7y+Er6NA+CKh9ZJ9erEMP6hvgFo3NSzic3LhXSwx4ZC17qEKl6DWbqAmBqjECs/0dseyin+M2SVHKBk29dOknp0apOTzLwqOljDIkKYdpb6pqiu0i8rB/lQ3Oi6YianwULITeolA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.161) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=MKO46lgwXxoc9p1PhLlI2slnpBU+0n8UQO1kpc1S1rY=;
- b=dwKZsxvIf45R6vg6rhgRJhIBlL+JMp+3qErlkXy+k9D+O6+l3vhNK+KB1uORd9Dz8vagfVW6C7S7rpM1UZlFBtY5cmvrTkK6i6vP1F5Bv7pa2RG8Gmvi/p+pc60MiGEHNWN1+Hgq8ZQJQQoRIMennmsz6qyRyGqzLeFAQMTV/FT2zvykFzdj9CuShIN8no4btHMhtYiLJi9f4IvutY/KHqdCwM3ZV3XdgQ0ZB3hEP7hF/uF1wuiF+R7t4T6d7OAtaYU+h2oCDe6pCUGC2su8OnKiQWrqdmRv5tLEp3G3DiEV8TsZOkkYErsL5LRhxTbr/k5ne4Xn839aR9l2Gxn3TQ==
-Received: from BLAPR03CA0129.namprd03.prod.outlook.com (2603:10b6:208:32e::14)
- by DS0PR12MB7996.namprd12.prod.outlook.com (2603:10b6:8:14f::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7091.38; Tue, 19 Dec
- 2023 18:10:16 +0000
-Received: from BL6PEPF0001AB75.namprd02.prod.outlook.com
- (2603:10b6:208:32e:cafe::b8) by BLAPR03CA0129.outlook.office365.com
- (2603:10b6:208:32e::14) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7091.38 via Frontend
- Transport; Tue, 19 Dec 2023 18:10:16 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.161) by
- BL6PEPF0001AB75.mail.protection.outlook.com (10.167.242.168) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.7113.14 via Frontend Transport; Tue, 19 Dec 2023 18:10:16 +0000
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
- (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Tue, 19 Dec
- 2023 10:10:03 -0800
-Received: from rnnvmail205.nvidia.com (10.129.68.10) by rnnvmail201.nvidia.com
- (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Tue, 19 Dec
- 2023 10:10:02 -0800
-Received: from c-237-113-220-225.mtl.labs.mlnx (10.127.8.12) by
- mail.nvidia.com (10.129.68.10) with Microsoft SMTP Server id 15.2.986.41 via
- Frontend Transport; Tue, 19 Dec 2023 10:09:59 -0800
-From: Dragos Tatulea <dtatulea@nvidia.com>
-To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-	Eugenio Perez Martin <eperezma@redhat.com>, Si-Wei Liu
-	<si-wei.liu@oracle.com>, Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky
-	<leon@kernel.org>, <virtualization@lists.linux-foundation.org>, Gal Pressman
-	<gal@nvidia.com>
-CC: Dragos Tatulea <dtatulea@nvidia.com>, <kvm@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, Parav Pandit <parav@nvidia.com>, Xuan Zhuo
-	<xuanzhuo@linux.alibaba.com>
-Subject: [PATCH vhost v4 15/15] vdpa/mlx5: Add mkey leak detection
-Date: Tue, 19 Dec 2023 20:08:58 +0200
-Message-ID: <20231219180858.120898-16-dtatulea@nvidia.com>
-X-Mailer: git-send-email 2.42.0
-In-Reply-To: <20231219180858.120898-1-dtatulea@nvidia.com>
-References: <20231219180858.120898-1-dtatulea@nvidia.com>
+	Tue, 19 Dec 2023 18:20:44 +0000 (UTC)
+Received: from mail-yb1-xb32.google.com (mail-yb1-xb32.google.com [IPv6:2607:f8b0:4864:20::b32])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 03F6860BEC
+	for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 18:20:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 03F6860BEC
+Received: by mail-yb1-xb32.google.com with SMTP id 3f1490d57ef6-dbccfd048d4so3544945276.3
+        for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 10:20:43 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1703010043; x=1703614843; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=tgph0xx62tfEVrK2mU0HsXwH2WGhvP+EnxtPD5Kw9NY=;
+        b=XtWM25ULaNW3FgKAwRT9rzlGYzOXN3k2Vpv3V6ftKKtXv/L5KPuDqpGsBAber3tm96
+         Ff27vgl4OE3gfwGOKoFuzNg7pHyIX+7lLR/VPFDjz6RGqMO60qMUZLySc8cwJZkXdUNH
+         cP7GZGwRWYtr48zzz+yItepwk5mAifI3JuTnj6MPl0Mgpu8pjkxcN8/El5gMvfdYh9F5
+         bANeMCe8aVZEv7mk6BCP1p9kNVLvgaU2fgFeihusL4lkBAec2Qm95+l8uMETyRNjfIq7
+         bOIHYHLrnuVv5lJYT9ahKIbi1JdxhXCaFNkHHuoVX1qbToLJeS/qfxmF6dHkMF8VVouz
+         m9tA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1703010043; x=1703614843;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=tgph0xx62tfEVrK2mU0HsXwH2WGhvP+EnxtPD5Kw9NY=;
+        b=IjuGh8FuWMYw6oKQlV8KpmbEejpbuSooCXCl4uGkOMTeiv/7qf4P+JhwPtJZ6RTtNx
+         knh9tEUlpDjKp8T6dfcqSQJCBuUHqOUC1nvNQXKT4CfRGVhXKeKATRfU8pB9/p79TbfV
+         otALNjc/dWvEoek/j9Mr0NT446ORQjCLqN31MY6ATyy+mdBQgKkZdVA/KDtcQh9cKLme
+         5Gs554+L64n6nWdEJVmErukc7KPtXBCRRWYUodTZVt50Aay/ZYSZnXTNP/XAc906ijtn
+         3TOOjobm7e/ISr9eB1AxjD5QQrWQpfhUixdzZA+PEmSLlQK9twWkwFFYSlmqeMk2WUZ9
+         qW6Q==
+X-Gm-Message-State: AOJu0YyXCJC4pXoFk15sLqLVOkzHpR6NQPR7lQlxH+IXbOkxfnDbRMd8
+	45iOudcepy+ab6IpdijVGlxj1NGN2vPyd5Op6NmM
+X-Google-Smtp-Source: AGHT+IG2ONgtcoT47Z9l781a7bW2xcjjJeRGvkYkQbojW55k5C8WrZ/0wZW5Ybv1u01qKlii34AZLXUE8IlWaWZfrbo=
+X-Received: by 2002:a25:ac01:0:b0:dbc:efce:f34c with SMTP id
+ w1-20020a25ac01000000b00dbcefcef34cmr4115248ybi.0.1703010042731; Tue, 19 Dec
+ 2023 10:20:42 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+References: <20231212131712.1816324-1-maxime.coquelin@redhat.com>
+ <20231212131712.1816324-5-maxime.coquelin@redhat.com> <CAEjxPJ6zMbM5jPkLC_wDHsXWXofWcDntHRDWQTS6hojECVJPTw@mail.gmail.com>
+In-Reply-To: <CAEjxPJ6zMbM5jPkLC_wDHsXWXofWcDntHRDWQTS6hojECVJPTw@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 19 Dec 2023 13:20:31 -0500
+Message-ID: <CAHC9VhSkGwzWV8T06LdoGXyvrnP7tiYMPYmbmVxWoQg6wzEDiQ@mail.gmail.com>
+Subject: Re: [PATCH v5 4/4] vduse: Add LSM hook to check Virtio device type
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: Maxime Coquelin <maxime.coquelin@redhat.com>, mst@redhat.com, jasowang@redhat.com, 
+	xuanzhuo@linux.alibaba.com, jmorris@namei.org, serge@hallyn.com, 
+	eparis@parisplace.org, xieyongji@bytedance.com, 
+	virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
+	david.marchand@redhat.com, lulu@redhat.com, casey@schaufler-ca.com
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-X-NV-OnPremToCloud: ExternallySecured
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BL6PEPF0001AB75:EE_|DS0PR12MB7996:EE_
-X-MS-Office365-Filtering-Correlation-Id: a8c7a0a5-8d40-424c-4fe3-08dc00bdc11c
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info:
-	fD3pj2K2/23gktmNY3Dcxb1UftwqDM1kCHqkbjdv7cjLER9zcsgHprv3dp49p/m6RUzGqFa5/p4/hLGCq7MPgknUPz4vFr7UNP0B9TnwKmS2MUg5vQ3BzJLZtQXeY+dw2whzpgwNod50seX39zbdiG5rlaRFp8CixefEoqqZ4S32qvHOFM0JtRVD9dnFviYq+ghjxI6TYXEyZqxpGDOsLZi5ExDs+cDCC0ypK8SUw3wrEoAiuoPvdsz1FYlw3YqrXWPJdcoMAYtDhOM5eBdTHB8gb7EuzxDvlsYBUwfpaY9nT46ILqz4uHr/sst5pTr40Hn7r+UGytL3jFNJlLVpGylQCVOOCz4YCuUqittqdxGDtQd9d14c1m4NRb+GBmpKBTvh2q6JCGjQPetZnunem7ZDpTuovyUwQRPfFkWDwQCTqasz+c41eL1CS7TBFPv22nIRzRTVPuDrsd7lN7+d2lnLG8OPHNho/lRgCqRXIhbJANwrdR7wYkzqEZsTQ2CPehedWThTE7Ye+4cHiMmnXfQGY7i+KB8X3dSPRw5Qh1bysvUczR4wxV2kn1xX/nauJmjNZDFxBoXaFs3YzqipE5YNshTTfpb+WD55ztaWuYXEPPoGVCC7M3nFcPxSf+jjoJpwNrPbD8HXM0caeoQXQIj01OCS/gi83ANw5BmCAoGAC2qTVnWNpzdn3w1fvORejI2l7eajjiE+5Js6ydnuVe56AjS2oEsn1uxDS8BBgu0qxw+weWKRlegSlyi8284muIEp6Q46oQmsmodllLNCQJUZ9YmtCUNm7KJbM59yB5U=
-X-Forefront-Antispam-Report:
-	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230031)(4636009)(39860400002)(136003)(346002)(376002)(396003)(230273577357003)(230922051799003)(230173577357003)(1800799012)(82310400011)(451199024)(64100799003)(186009)(36840700001)(40470700004)(46966006)(336012)(26005)(82740400003)(426003)(2616005)(66574015)(1076003)(2906002)(47076005)(36860700001)(5660300002)(83380400001)(4326008)(110136005)(8936002)(8676002)(478600001)(41300700001)(316002)(6636002)(70206006)(54906003)(70586007)(7636003)(356005)(86362001)(36756003)(40480700001)(40460700003);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Dec 2023 18:10:16.6413
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: a8c7a0a5-8d40-424c-4fe3-08dc00bdc11c
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	BL6PEPF0001AB75.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB7996
+Content-Transfer-Encoding: quoted-printable
 
-Track allocated mrs in a list and show warning when leaks are detected
-on device free or reset.
+On Mon, Dec 18, 2023 at 12:21=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+> On Tue, Dec 12, 2023 at 8:17=E2=80=AFAM Maxime Coquelin
+> <maxime.coquelin@redhat.com> wrote:
+> > This patch introduces a LSM hook for devices creation,
+> > destruction (ioctl()) and opening (open()) operations,
+> > checking the application is allowed to perform these
+> > operations for the Virtio device type.
+>
+> Can you explain why the existing LSM hooks and SELinux implementation
+> are not sufficient? We already control the ability to open device
+> nodes via selinux_inode_permission() and selinux_file_open(), and can
+> support fine-grained per-cmd ioctl checking via selinux_file_ioctl().
+> And it should already be possible to label these nodes distinctly
+> through existing mechanisms (file_contexts if udev-created/labeled,
+> genfs_contexts if kernel-created). What exactly can't you do today
+> that this hook enables?
 
-Reviewed-by: Gal Pressman <gal@nvidia.com>
-Acked-by: Eugenio Pérez <eperezma@redhat.com>
-Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
----
- drivers/vdpa/mlx5/core/mlx5_vdpa.h |  2 ++
- drivers/vdpa/mlx5/core/mr.c        | 23 +++++++++++++++++++++++
- drivers/vdpa/mlx5/net/mlx5_vnet.c  |  2 ++
- 3 files changed, 27 insertions(+)
+I asked something similar back in the v4 patchset to see if there was
+some special labeling concerns that required the use of a dedicated
+hook and from what I can see there are none.
 
-diff --git a/drivers/vdpa/mlx5/core/mlx5_vdpa.h b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-index 1a0d27b6e09a..50aac8fe57ef 100644
---- a/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-+++ b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-@@ -37,6 +37,7 @@ struct mlx5_vdpa_mr {
- 	bool user_mr;
- 
- 	refcount_t refcount;
-+	struct list_head mr_list;
- };
- 
- struct mlx5_vdpa_resources {
-@@ -95,6 +96,7 @@ struct mlx5_vdpa_dev {
- 	u32 generation;
- 
- 	struct mlx5_vdpa_mr *mr[MLX5_VDPA_NUM_AS];
-+	struct list_head mr_list_head;
- 	/* serialize mr access */
- 	struct mutex mr_mtx;
- 	struct mlx5_control_vq cvq;
-diff --git a/drivers/vdpa/mlx5/core/mr.c b/drivers/vdpa/mlx5/core/mr.c
-index c7dc8914354a..4758914ccf86 100644
---- a/drivers/vdpa/mlx5/core/mr.c
-+++ b/drivers/vdpa/mlx5/core/mr.c
-@@ -508,6 +508,8 @@ static void _mlx5_vdpa_destroy_mr(struct mlx5_vdpa_dev *mvdev, struct mlx5_vdpa_
- 
- 	vhost_iotlb_free(mr->iotlb);
- 
-+	list_del(&mr->mr_list);
-+
- 	kfree(mr);
- }
- 
-@@ -560,12 +562,31 @@ void mlx5_vdpa_update_mr(struct mlx5_vdpa_dev *mvdev,
- 	mutex_unlock(&mvdev->mr_mtx);
- }
- 
-+static void mlx5_vdpa_show_mr_leaks(struct mlx5_vdpa_dev *mvdev)
-+{
-+	struct mlx5_vdpa_mr *mr;
-+
-+	mutex_lock(&mvdev->mr_mtx);
-+
-+	list_for_each_entry(mr, &mvdev->mr_list_head, mr_list) {
-+
-+		mlx5_vdpa_warn(mvdev, "mkey still alive after resource delete: "
-+				      "mr: %p, mkey: 0x%x, refcount: %u\n",
-+				       mr, mr->mkey, refcount_read(&mr->refcount));
-+	}
-+
-+	mutex_unlock(&mvdev->mr_mtx);
-+
-+}
-+
- void mlx5_vdpa_destroy_mr_resources(struct mlx5_vdpa_dev *mvdev)
- {
- 	for (int i = 0; i < MLX5_VDPA_NUM_AS; i++)
- 		mlx5_vdpa_update_mr(mvdev, NULL, i);
- 
- 	prune_iotlb(mvdev->cvq.iotlb);
-+
-+	mlx5_vdpa_show_mr_leaks(mvdev);
- }
- 
- static int _mlx5_vdpa_create_mr(struct mlx5_vdpa_dev *mvdev,
-@@ -592,6 +613,8 @@ static int _mlx5_vdpa_create_mr(struct mlx5_vdpa_dev *mvdev,
- 	if (err)
- 		goto err_iotlb;
- 
-+	list_add_tail(&mr->mr_list, &mvdev->mr_list_head);
-+
- 	return 0;
- 
- err_iotlb:
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index f81968b3f9cf..a783e8bd784d 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -3729,6 +3729,8 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
- 	if (err)
- 		goto err_mpfs;
- 
-+	INIT_LIST_HEAD(&mvdev->mr_list_head);
-+
- 	if (MLX5_CAP_GEN(mvdev->mdev, umem_uid_0)) {
- 		err = mlx5_vdpa_create_dma_mr(mvdev);
- 		if (err)
--- 
-2.43.0
+> Other items to consider:
+> - If vduse devices are created using anonymous inodes, then SELinux
+> grew a general facility for labeling and controlling the creation of
+> those via selinux_inode_init_security_anon().
 
+For the vduse folks, the associated LSM API function is
+security_inode_init_security_anon(); please don't call into SELinux
+directly.
+
+> - You can encode information about the device into its SELinux type
+> that then allows you to distinguish things like net vs block based on
+> the device's SELinux security context rather than encoding that in the
+> permission bits.
+> - If you truly need new LSM hooks (which you need to prove first),
+> then you should pass some usable information about the object in
+> question to allow SELinux to find a security context for it. Like an
+> inode associated with the device, for example.
+
+I agree with Stephen and I still remain skeptical that these hooks are
+needed.  Until I see a compelling case as to why the existing LSM
+hooks are not sufficient I can't ACK these hooks.
+
+--=20
+paul-moore.com
