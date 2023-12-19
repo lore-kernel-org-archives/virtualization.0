@@ -1,107 +1,258 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.8])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C0A43D0C7
-	for <virtualization@lists.linux.dev>; Tue, 19 Dec 2023 23:23:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86BE440BE2
+	for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 23:39:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="lgIdbIZ7"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1703028212; x=1734564212;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=vS5AE7N9nQ3SlnVS08m4qPs43i9JpvyT0LdsYgBIZjI=;
-  b=lgIdbIZ7ew6czjd6kxX4fknJ0sYdBUk5SZu5eacEcjDShbkQd8L5aYGJ
-   k+LHxwz2cHuZZU3GbyRzPcyeNs/1XZ9/Ny/mdQzC06gOqbwPH7qEpMFHK
-   KG7hn9ntEsGbYtXqQ6R5mF3Eqi5a06E1CbBe474Vza+H42fzHVDkH8RCn
-   x3AyWVG1DgMAIRnsuW7yTBfbQ3jdMHji/uPrhTb/70Dc85QEoOQQUgFrC
-   yAcU+F+EKknS2khAsjqzB4xNdhKTA9JFhPEsXUJQ4m04ra3IeIw2s7Wwh
-   oujEbJYCY20N19eqjj3fjWntqAvC51FECYT9zGJbArHjglRY3keCfXaEh
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10929"; a="9196785"
-X-IronPort-AV: E=Sophos;i="6.04,289,1695711600"; 
-   d="scan'208";a="9196785"
-Received: from fmviesa002.fm.intel.com ([10.60.135.142])
-  by fmvoesa102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Dec 2023 15:23:31 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.04,289,1695711600"; 
-   d="scan'208";a="10561229"
-Received: from lveltman-mobl.ger.corp.intel.com (HELO box.shutemov.name) ([10.252.33.252])
-  by fmviesa002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Dec 2023 15:23:26 -0800
-Received: by box.shutemov.name (Postfix, from userid 1000)
-	id 1DC2210A43B; Wed, 20 Dec 2023 02:23:23 +0300 (+03)
-Date: Wed, 20 Dec 2023 02:23:23 +0300
-From: kirill.shutemov@linux.intel.com
-To: Alexey Makhalov <alexey.makhalov@broadcom.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-	bp@alien8.de, hpa@zytor.com, dave.hansen@linux.intel.com,
-	mingo@redhat.com, tglx@linutronix.de, x86@kernel.org,
-	netdev@vger.kernel.org, richardcochran@gmail.com,
-	linux-input@vger.kernel.org, dmitry.torokhov@gmail.com,
-	zackr@vmware.com, linux-graphics-maintainer@vmware.com,
-	pv-drivers@vmware.com, namit@vmware.com, timothym@vmware.com,
-	akaher@vmware.com, jsipek@vmware.com,
-	dri-devel@lists.freedesktop.org, daniel@ffwll.ch, airlied@gmail.com,
-	tzimmermann@suse.de, mripard@kernel.org,
-	maarten.lankhorst@linux.intel.com, horms@kernel.org
-Subject: Re: [PATCH v3 6/6] x86/vmware: Add TDX hypercall support
-Message-ID: <20231219232323.euweerulgsgbodx5@box.shutemov.name>
-References: <20231219215751.9445-1-alexey.makhalov@broadcom.com>
- <20231219215751.9445-7-alexey.makhalov@broadcom.com>
+	dkim=pass (1024-bit key) header.d=atishpatra.org header.i=@atishpatra.org header.b="NiL+b25r"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 0CA5082303
+	for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 23:39:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0CA5082303
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key) header.d=atishpatra.org header.i=@atishpatra.org header.a=rsa-sha256 header.s=google header.b=NiL+b25r
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 1z3OeKRuMYzL
+	for <virtualization@lists.linux-foundation.org>;
+	Tue, 19 Dec 2023 23:39:39 +0000 (UTC)
+Received: from mail-lj1-x22e.google.com (mail-lj1-x22e.google.com [IPv6:2a00:1450:4864:20::22e])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id DB4B781420
+	for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 23:39:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DB4B781420
+Received: by mail-lj1-x22e.google.com with SMTP id 38308e7fff4ca-2cc88818ff0so2097071fa.0
+        for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 15:39:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=atishpatra.org; s=google; t=1703029176; x=1703633976; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ZrUDFecCet6gZBRxQv29lsaiiA78KMcu1FbUE+jBkPQ=;
+        b=NiL+b25rOROCSr2N8vQ8SkOADZXfyfPZSAut1fJmGrNHYXI9IhK4YwmTeIGflIrHgh
+         TYMtn/ADMaDB6NCVGAbuaZUNYXbpE1cMe6nxvdFDQLiyR3c2MOfGOmeW+Ud6iKph1bNL
+         T+F3o2CyKV/4KbUttFUB2XIyP3+vLM4ssg/WM=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1703029176; x=1703633976;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ZrUDFecCet6gZBRxQv29lsaiiA78KMcu1FbUE+jBkPQ=;
+        b=l43QUeaUjedXr7EJkm3lnyygREhKlEA8d+OvO9oKdtVurW/JIdScHzAJNbWezYdGOW
+         uPp6/ZAjeQetBUMOM81UNMRx3e678Salpp5goyKxYIQdX7zQDKYJspnOiWyMc3meRCgF
+         yaj55WmvJ8dmQ8Qdjj/eIOEmXeE/67herrHbl+Ojr28PgEvDLM2sV6ixDgQtj6nNSyOm
+         uf1Dqvi5fuqwKKpOpPdRm/WLclopE824QNXt9U0zQR6SCA1JF+gWPCT7+rD8m6ML4VHa
+         STPAJOGgVq8OO5ZIiUYdfozVyIJmoUJtqnG/lhPf0rY6WP/7rlpbaC4TOeBOJj/t2o8G
+         xhEQ==
+X-Gm-Message-State: AOJu0Yz4qJZtSkqVpVdKSMHi3sxBy51fqn9wH+CmNxnV7l6XrEyeq0WK
+	FuzC+hYFs83fPa7vLdiaOjdBZYUkKuwOCRnyu6lZ
+X-Google-Smtp-Source: AGHT+IHjXLywwJbBxLJNSjFCFVMkmz0JytamZuhMCROJFXq7C9hIs+DPj37alVdm5TGGkSRTdH1EBMzNRkkenL8WQa0=
+X-Received: by 2002:a2e:8746:0:b0:2cc:7019:4cee with SMTP id
+ q6-20020a2e8746000000b002cc70194ceemr1146189ljj.24.1703029176502; Tue, 19 Dec
+ 2023 15:39:36 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20231219215751.9445-7-alexey.makhalov@broadcom.com>
+References: <20231217204019.36492-15-ajones@ventanamicro.com> <20231217204019.36492-27-ajones@ventanamicro.com>
+In-Reply-To: <20231217204019.36492-27-ajones@ventanamicro.com>
+From: Atish Patra <atishp@atishpatra.org>
+Date: Tue, 19 Dec 2023 15:39:24 -0800
+Message-ID: <CAOnJCUJtMC89mhTbQ2=jH=6gHnjW3_o4vsLkhgUi7gm21EbZ3Q@mail.gmail.com>
+Subject: Re: [PATCH v3 12/13] RISC-V: KVM: selftests: Add steal_time test support
+To: Andrew Jones <ajones@ventanamicro.com>
+Cc: kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
+	virtualization@lists.linux-foundation.org, anup@brainfault.org, 
+	pbonzini@redhat.com, paul.walmsley@sifive.com, palmer@dabbelt.com, 
+	aou@eecs.berkeley.edu, jgross@suse.com, srivatsa@csail.mit.edu, 
+	guoren@kernel.org, conor.dooley@microchip.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Dec 19, 2023 at 01:57:51PM -0800, Alexey Makhalov wrote:
-> diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-> index 3aa1adaed18f..ef07ab7a07e1 100644
-> --- a/arch/x86/kernel/cpu/vmware.c
-> +++ b/arch/x86/kernel/cpu/vmware.c
-> @@ -428,6 +428,30 @@ static bool __init vmware_legacy_x2apic_available(void)
->  		(eax & BIT(VCPU_LEGACY_X2APIC));
->  }
->  
-> +#ifdef CONFIG_INTEL_TDX_GUEST
-> +unsigned long vmware_tdx_hypercall(unsigned long cmd,
-> +				   struct tdx_module_args *args)
-> +{
-> +	if (!hypervisor_is_type(X86_HYPER_VMWARE))
-> +		return 0;
-> +
-> +	if (cmd & ~VMWARE_CMD_MASK) {
-> +		pr_warn("Out of range command %x\n", cmd);
-> +		return 0;
-
-Is zero success? Shouldn't it be an error?
-
-> +	}
-> +
-> +	args->r10 = VMWARE_TDX_VENDOR_LEAF;
-> +	args->r11 = VMWARE_TDX_HCALL_FUNC;
-> +	args->r12 = VMWARE_HYPERVISOR_MAGIC;
-> +	args->r13 = cmd;
-> +
-> +	__tdx_hypercall(args);
-> +
-> +	return args->r12;
-> +}
-> +EXPORT_SYMBOL_GPL(vmware_tdx_hypercall);
+On Sun, Dec 17, 2023 at 12:40=E2=80=AFPM Andrew Jones <ajones@ventanamicro.=
+com> wrote:
+>
+> With the introduction of steal-time accounting support for
+> RISC-V KVM we can add RISC-V support to the steal_time test.
+>
+> Reviewed-by: Anup Patel <anup@brainfault.org>
+> Signed-off-by: Andrew Jones <ajones@ventanamicro.com>
+> ---
+>  tools/testing/selftests/kvm/Makefile          |  5 +-
+>  .../selftests/kvm/include/riscv/processor.h   |  1 +
+>  tools/testing/selftests/kvm/steal_time.c      | 99 +++++++++++++++++++
+>  3 files changed, 103 insertions(+), 2 deletions(-)
+>
+> diff --git a/tools/testing/selftests/kvm/Makefile b/tools/testing/selftes=
+ts/kvm/Makefile
+> index 963435959a92..4bf4f52341a8 100644
+> --- a/tools/testing/selftests/kvm/Makefile
+> +++ b/tools/testing/selftests/kvm/Makefile
+> @@ -194,12 +194,13 @@ TEST_GEN_PROGS_s390x +=3D kvm_binary_stats_test
+>
+>  TEST_GEN_PROGS_riscv +=3D demand_paging_test
+>  TEST_GEN_PROGS_riscv +=3D dirty_log_test
+> -TEST_GEN_PROGS_riscv +=3D guest_print_test
+>  TEST_GEN_PROGS_riscv +=3D get-reg-list
+> +TEST_GEN_PROGS_riscv +=3D guest_print_test
+> +TEST_GEN_PROGS_riscv +=3D kvm_binary_stats_test
+>  TEST_GEN_PROGS_riscv +=3D kvm_create_max_vcpus
+>  TEST_GEN_PROGS_riscv +=3D kvm_page_table_test
+>  TEST_GEN_PROGS_riscv +=3D set_memory_region_test
+> -TEST_GEN_PROGS_riscv +=3D kvm_binary_stats_test
+> +TEST_GEN_PROGS_riscv +=3D steal_time
+>
+>  SPLIT_TESTS +=3D get-reg-list
+>
+> diff --git a/tools/testing/selftests/kvm/include/riscv/processor.h b/tool=
+s/testing/selftests/kvm/include/riscv/processor.h
+> index dc50ad62e150..a0f9efe5a2a8 100644
+> --- a/tools/testing/selftests/kvm/include/riscv/processor.h
+> +++ b/tools/testing/selftests/kvm/include/riscv/processor.h
+> @@ -128,6 +128,7 @@ static inline uint64_t __kvm_reg_id(uint64_t type, ui=
+nt64_t subtype,
+>
+>  enum sbi_ext_id {
+>         SBI_EXT_BASE =3D 0x10,
+> +       SBI_EXT_STA =3D 0x535441,
+>  };
+>
+>  enum sbi_ext_base_fid {
+> diff --git a/tools/testing/selftests/kvm/steal_time.c b/tools/testing/sel=
+ftests/kvm/steal_time.c
+> index 171adfb2a6cb..bae0c5026f82 100644
+> --- a/tools/testing/selftests/kvm/steal_time.c
+> +++ b/tools/testing/selftests/kvm/steal_time.c
+> @@ -11,7 +11,9 @@
+>  #include <pthread.h>
+>  #include <linux/kernel.h>
+>  #include <asm/kvm.h>
+> +#ifndef __riscv
+>  #include <asm/kvm_para.h>
 > +#endif
+>
+>  #include "test_util.h"
+>  #include "kvm_util.h"
+> @@ -203,6 +205,103 @@ static void steal_time_dump(struct kvm_vm *vm, uint=
+32_t vcpu_idx)
+>         pr_info("    st_time: %ld\n", st->st_time);
+>  }
+>
+> +#elif defined(__riscv)
 > +
->  #ifdef CONFIG_AMD_MEM_ENCRYPT
->  static void vmware_sev_es_hcall_prepare(struct ghcb *ghcb,
->  					struct pt_regs *regs)
-> -- 
-> 2.39.0
-> 
+> +/* SBI STA shmem must have 64-byte alignment */
+> +#define STEAL_TIME_SIZE                ((sizeof(struct sta_struct) + 63)=
+ & ~63)
+> +
+> +static vm_paddr_t st_gpa[NR_VCPUS];
+> +
+> +struct sta_struct {
+> +       uint32_t sequence;
+> +       uint32_t flags;
+> +       uint64_t steal;
+> +       uint8_t preempted;
+> +       uint8_t pad[47];
+> +} __packed;
+> +
+> +static void sta_set_shmem(vm_paddr_t gpa, unsigned long flags)
+> +{
+> +       unsigned long lo =3D (unsigned long)gpa;
+> +#if __riscv_xlen =3D=3D 32
+> +       unsigned long hi =3D (unsigned long)(gpa >> 32);
+> +#else
+> +       unsigned long hi =3D gpa =3D=3D -1 ? -1 : 0;
+> +#endif
+> +       struct sbiret ret =3D sbi_ecall(SBI_EXT_STA, 0, lo, hi, flags, 0,=
+ 0, 0);
+> +
+> +       GUEST_ASSERT(ret.value =3D=3D 0 && ret.error =3D=3D 0);
+> +}
+> +
+> +static void check_status(struct sta_struct *st)
+> +{
+> +       GUEST_ASSERT(!(READ_ONCE(st->sequence) & 1));
+> +       GUEST_ASSERT(READ_ONCE(st->flags) =3D=3D 0);
+> +       GUEST_ASSERT(READ_ONCE(st->preempted) =3D=3D 0);
+> +}
+> +
+> +static void guest_code(int cpu)
+> +{
+> +       struct sta_struct *st =3D st_gva[cpu];
+> +       uint32_t sequence;
+> +       long out_val =3D 0;
+> +       bool probe;
+> +
+> +       probe =3D guest_sbi_probe_extension(SBI_EXT_STA, &out_val);
+> +       GUEST_ASSERT(probe && out_val =3D=3D 1);
+> +
+> +       sta_set_shmem(st_gpa[cpu], 0);
+> +       GUEST_SYNC(0);
+> +
+> +       check_status(st);
+> +       WRITE_ONCE(guest_stolen_time[cpu], st->steal);
+> +       sequence =3D READ_ONCE(st->sequence);
+> +       check_status(st);
+> +       GUEST_SYNC(1);
+> +
+> +       check_status(st);
+> +       GUEST_ASSERT(sequence < READ_ONCE(st->sequence));
+> +       WRITE_ONCE(guest_stolen_time[cpu], st->steal);
+> +       check_status(st);
+> +       GUEST_DONE();
+> +}
+> +
+> +static bool is_steal_time_supported(struct kvm_vcpu *vcpu)
+> +{
+> +       uint64_t id =3D RISCV_SBI_EXT_REG(KVM_RISCV_SBI_EXT_STA);
+> +       unsigned long enabled;
+> +
+> +       vcpu_get_reg(vcpu, id, &enabled);
+> +       TEST_ASSERT(enabled =3D=3D 0 || enabled =3D=3D 1, "Expected boole=
+an result");
+> +
+> +       return enabled;
+> +}
+> +
+> +static void steal_time_init(struct kvm_vcpu *vcpu, uint32_t i)
+> +{
+> +       /* ST_GPA_BASE is identity mapped */
+> +       st_gva[i] =3D (void *)(ST_GPA_BASE + i * STEAL_TIME_SIZE);
+> +       st_gpa[i] =3D addr_gva2gpa(vcpu->vm, (vm_vaddr_t)st_gva[i]);
+> +       sync_global_to_guest(vcpu->vm, st_gva[i]);
+> +       sync_global_to_guest(vcpu->vm, st_gpa[i]);
+> +}
+> +
+> +static void steal_time_dump(struct kvm_vm *vm, uint32_t vcpu_idx)
+> +{
+> +       struct sta_struct *st =3D addr_gva2hva(vm, (ulong)st_gva[vcpu_idx=
+]);
+> +       int i;
+> +
+> +       pr_info("VCPU%d:\n", vcpu_idx);
+> +       pr_info("    sequence:  %d\n", st->sequence);
+> +       pr_info("    flags:     %d\n", st->flags);
+> +       pr_info("    steal:     %"PRIu64"\n", st->steal);
+> +       pr_info("    preempted: %d\n", st->preempted);
+> +       pr_info("    pad:      ");
+> +       for (i =3D 0; i < 47; ++i)
+> +               pr_info("%d", st->pad[i]);
+> +       pr_info("\n");
+> +}
+> +
+>  #endif
+>
+>  static void *do_steal_time(void *arg)
+> --
+> 2.43.0
+>
 
--- 
-  Kiryl Shutsemau / Kirill A. Shutemov
+Reviewed-by: Atish Patra <atishp@rivosinc.com>
+
+--=20
+Regards,
+Atish
