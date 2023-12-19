@@ -1,318 +1,156 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CECBB1A70B
-	for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 14:03:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BA371C69D
+	for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 14:30:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ju2Kq8r8"
+	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b="XdRUyBDf"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 5A35840374
-	for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 14:03:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5A35840374
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Ju2Kq8r8
+	by smtp4.osuosl.org (Postfix) with ESMTP id 78738410B7
+	for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 14:30:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 78738410B7
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.a=rsa-sha256 header.s=google header.b=XdRUyBDf
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.099
+X-Spam-Score: -2.1
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id uQoILLQd3K9y
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id A_yW5iHo3RYh
 	for <virtualization@lists.linux-foundation.org>;
-	Tue, 19 Dec 2023 14:03:07 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 904EA408D3
-	for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 14:03:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 904EA408D3
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1702994586;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=z7pBhfHOUQ5GeQwzcNE9zvKhjGxyQjhxQqPSb40q/TQ=;
-	b=Ju2Kq8r8n4ro+3HDDF/ct22TpMR2rGUCmS9vBOVX9c7MxZqlWSxJIMZ///TC+diqVXnTZQ
-	S2IpIQQ6hJ65ExTBS7KnHACiwrixJSyLtS1GlH8HhCv04IOGjqeJE5ljkmufCqKo2kmCuu
-	5G6gpPrLLrZCjRqqZE9TbLflkLoMrkE=
-Received: from mail-yb1-f199.google.com (mail-yb1-f199.google.com
- [209.85.219.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-651-wKygTMkqOYCr5XIW-GUZ_A-1; Tue, 19 Dec 2023 09:03:04 -0500
-X-MC-Unique: wKygTMkqOYCr5XIW-GUZ_A-1
-Received: by mail-yb1-f199.google.com with SMTP id 3f1490d57ef6-dbce2a8d700so4546565276.1
-        for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 06:03:04 -0800 (PST)
+	Tue, 19 Dec 2023 14:30:02 +0000 (UTC)
+Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 44EEE4159C
+	for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 14:30:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 44EEE4159C
+Received: by mail-ej1-x634.google.com with SMTP id a640c23a62f3a-a236d2cc372so192813766b.3
+        for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 06:30:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ventanamicro.com; s=google; t=1702996200; x=1703601000; darn=lists.linux-foundation.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=LmB6XvSqGvAwRBDdkbtoIzjwp96a7xR5GmSDPtFeoNg=;
+        b=XdRUyBDf17Iu/veag+XGR9o1MBopQ+RwLtKXqIh22so9uLoUb2F1+7vrh/hrqWKdIV
+         XwdC+eAIM28jza/HSm3kXx7LFgEcJLqt5LI/Y6dP55KJ8e/he3/jbCKZ4R+0AlMQ3oOi
+         4eyfv7fVZE/EvYvRWq+B/qb1vWwG3xb8EcZX+GIImVqBxFZnd0W1HozUkeGub0lXix85
+         Mi5rlTo8XIQUs73mmI/N/wJ44TctAgDY9gA7DxgQl9+yvMjdxHb/ATppbU8vWr7my5p6
+         Sf2zlHvmp8UODv92ZV3ugA0jiF1opKsFFtqp2HDCrBgCppOKT67qBwrwitI+GHG8+t4y
+         j8vg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702994584; x=1703599384;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=z7pBhfHOUQ5GeQwzcNE9zvKhjGxyQjhxQqPSb40q/TQ=;
-        b=WagYeWkurbcB/4QrOErxuc6uzHlIqKlHdM5x76f7dZbvKtz9DgxW58aDBKrFeZBv1g
-         9Tm4hJvoD2bN3QGRRhcqzDL8718j8h6dWsKiXH+ymflodIRo8mtaHRqxjNjkfmK3q/+P
-         nMIFVkii/SbeaZMSdRab5kj3ki3Q6MGs3ECVD8MszoIWlzrLCwZ7fAKG2wXJgU3Q391a
-         0Uz1smLATpR7bzvjsk5j8FfbGLVLhykgcnd9hS2L5OurOB3Q2UoKZtsMO+eDHw7hun8y
-         TRfcYqJQm82sXJHPd75/B/Q1X0OIEg0WDqib2hWzB2m/CTuDu/3SJU46AAidVxyAeRe+
-         M69g==
-X-Gm-Message-State: AOJu0Yytk1l76fcofIOg1V2ARMA0sPZcF+GYyvKcxY28CEp4XN57rDlN
-	dSZMELGoN161VYKAYmzlxmS7a6kGPxAnDvXn4plOAVI+8EMg/Hs87C3v+xnJ0pJnPxXHlqWSDfU
-	CZUE1XVJ1FASNizdZfLGnayXNRe6sZM41tKkgQp1THTO15/WefqL0oyimvg==
-X-Received: by 2002:a5b:f81:0:b0:db5:41fe:30c with SMTP id q1-20020a5b0f81000000b00db541fe030cmr10513362ybh.64.1702994584011;
-        Tue, 19 Dec 2023 06:03:04 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEiU0YfzN07Vi8tPeRdLAu3jf0k0Strc/HI4vFI2e/A0/PT/h8UORzxQ4ReAVWzobSeFzElEt/DWZt36c0p7EQ=
-X-Received: by 2002:a5b:f81:0:b0:db5:41fe:30c with SMTP id q1-20020a5b0f81000000b00db541fe030cmr10513339ybh.64.1702994583529;
- Tue, 19 Dec 2023 06:03:03 -0800 (PST)
+        d=1e100.net; s=20230601; t=1702996200; x=1703601000;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=LmB6XvSqGvAwRBDdkbtoIzjwp96a7xR5GmSDPtFeoNg=;
+        b=pd2DaA3sZNnAOO+cMBZIttktQaV53y3WMzdxe1I+baiAV/St1eZRdsP9fzZhdOiegr
+         vmuUAYX9UQywruBTMTxxhQ7kb4Sy3HY/cg1HK7Yvz6NHy/fCZYPEJ2mcImPvBiK7UTC1
+         3vu3kZKRSegCqbHeiW24qQ6Rg+Pz+qpcaQ0Ylr7tZqgsGoifp0wezWM6UcySxDo4oNYF
+         KXwEpjJSukrlML695gh8mlephOlnzO2Pur10QdzRyycYd6WZrSWjQB8xFkpgd7lfM7xG
+         HxT8TQLrDy+8PSrvYx7r/5GnRzNa+q72TjmVA8GaNqlbdNzlBikxprR1Os/nroeTOkZj
+         tEZA==
+X-Gm-Message-State: AOJu0Yxsr6w/a0LmHfeaZD50DIV1yb6lO1H+K3wsZWWwenA2JPnvC6LE
+	vP1PfZrdvd8/FJgGv9tSAaxGoA==
+X-Google-Smtp-Source: AGHT+IHwNjxs5OhEsK3+Gz90Sq6b7RCFum4m3Y7neFzvc/yieqcSn85ljedasiaSoZ8JlNEfAqxM/g==
+X-Received: by 2002:a17:906:c0cc:b0:a1f:612a:d3b5 with SMTP id bn12-20020a170906c0cc00b00a1f612ad3b5mr9645315ejb.141.1702996199984;
+        Tue, 19 Dec 2023 06:29:59 -0800 (PST)
+Received: from localhost (cst-prg-1-247.cust.vodafone.cz. [46.135.1.247])
+        by smtp.gmail.com with ESMTPSA id th18-20020a1709078e1200b00a1f8df4e2d5sm13346430ejc.178.2023.12.19.06.29.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 Dec 2023 06:29:59 -0800 (PST)
+Date: Tue, 19 Dec 2023 15:29:57 +0100
+From: Andrew Jones <ajones@ventanamicro.com>
+To: Atish Patra <atishp@atishpatra.org>
+Cc: kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
+	virtualization@lists.linux-foundation.org, anup@brainfault.org, pbonzini@redhat.com, 
+	paul.walmsley@sifive.com, palmer@dabbelt.com, aou@eecs.berkeley.edu, jgross@suse.com, 
+	srivatsa@csail.mit.edu, guoren@kernel.org, conor.dooley@microchip.com
+Subject: Re: [PATCH v3 01/13] RISC-V: paravirt: Add skeleton for pv-time
+ support
+Message-ID: <20231219-3ed5ceb6bcb61fcfebc4a342@orel>
+References: <20231217204019.36492-15-ajones@ventanamicro.com>
+ <20231217204019.36492-16-ajones@ventanamicro.com>
+ <CAOnJCULYeMz63LA-MR-Y9HqCU+dhBQdXf7Shwhu1FXFuck5gWA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20231205104609.876194-1-dtatulea@nvidia.com> <20231205104609.876194-5-dtatulea@nvidia.com>
- <CAJaqyWeEY9LNTE8QEnJgLhgS7HiXr5gJEwwPBrC3RRBsAE4_7Q@mail.gmail.com>
- <27312106-07b9-4719-970c-b8e1aed7c4eb@oracle.com> <075cf7d1ada0ee4ee30d46b993a1fe21acfe9d92.camel@nvidia.com>
- <20231214084526-mutt-send-email-mst@kernel.org> <9a6465a3d6c8fde63643fbbdde60d5dd84b921d4.camel@nvidia.com>
- <CAJaqyWfF9eVehQ+wutMDdwYToMq=G1+War_7wANmnyuONj=18g@mail.gmail.com>
- <9c387650e7c22118370fa0fe3588ee009ce56f11.camel@nvidia.com>
- <0bfb42ee1248b82eaedd88bdc9e97e83919f2405.camel@nvidia.com>
- <CAJaqyWdv5xAXp2jiAj=z+3+Bu+6=sXiE0HtOZrMSSZmvVsHeJw@mail.gmail.com>
- <161c7e63d9c7f64afc959b1ea4a068ee2ddafa6c.camel@nvidia.com>
- <CAJaqyWf=ZtoSDGdhYrJdXMQuFvahzF5FtWkdShBmTGaewvQLrw@mail.gmail.com>
- <7c267819eb52f933251c118ba2d1ceb75043c5b2.camel@nvidia.com>
- <CAJaqyWccZJFdfww-_vmj4kJvJkWKFt_VBWmujfVTsFxHohkiZg@mail.gmail.com>
- <8fc4e1f156b075ec3f4c65acc1e10439f767bf81.camel@nvidia.com>
- <CAJaqyWe-nfb4F2PxTKz3R=fKf6EZzSbKSPm_SwdXjxQCybVmdQ@mail.gmail.com> <60ed697361d5a366a3a9a7ce6c8d3602cba40491.camel@nvidia.com>
-In-Reply-To: <60ed697361d5a366a3a9a7ce6c8d3602cba40491.camel@nvidia.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Tue, 19 Dec 2023 15:02:27 +0100
-Message-ID: <CAJaqyWcRnz5p0QzwbpFzdnpwJaH3JmMFBBV4Pux88yU6A0x5ZA@mail.gmail.com>
-Subject: Re: [PATCH vhost v2 4/8] vdpa/mlx5: Mark vq addrs for modification in
- hw vq
-To: Dragos Tatulea <dtatulea@nvidia.com>
-Cc: "xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>, Parav Pandit <parav@nvidia.com>, 
-	Gal Pressman <gal@nvidia.com>, 
-	"virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, 
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
-	"si-wei.liu@oracle.com" <si-wei.liu@oracle.com>, "mst@redhat.com" <mst@redhat.com>, 
-	"kvm@vger.kernel.org" <kvm@vger.kernel.org>, Saeed Mahameed <saeedm@nvidia.com>, 
-	"jasowang@redhat.com" <jasowang@redhat.com>, "leon@kernel.org" <leon@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAOnJCULYeMz63LA-MR-Y9HqCU+dhBQdXf7Shwhu1FXFuck5gWA@mail.gmail.com>
 
-On Tue, Dec 19, 2023 at 12:16=E2=80=AFPM Dragos Tatulea <dtatulea@nvidia.co=
-m> wrote:
->
-> On Tue, 2023-12-19 at 08:24 +0100, Eugenio Perez Martin wrote:
-> > On Mon, Dec 18, 2023 at 2:58=E2=80=AFPM Dragos Tatulea <dtatulea@nvidia=
-.com> wrote:
-> > >
-> > > On Mon, 2023-12-18 at 13:06 +0100, Eugenio Perez Martin wrote:
-> > > > On Mon, Dec 18, 2023 at 11:52=E2=80=AFAM Dragos Tatulea <dtatulea@n=
-vidia.com> wrote:
-> > > > >
-> > > > > On Mon, 2023-12-18 at 11:16 +0100, Eugenio Perez Martin wrote:
-> > > > > > On Sat, Dec 16, 2023 at 12:03=E2=80=AFPM Dragos Tatulea <dtatul=
-ea@nvidia.com> wrote:
-> > > > > > >
-> > > > > > > On Fri, 2023-12-15 at 18:56 +0100, Eugenio Perez Martin wrote=
-:
-> > > > > > > > On Fri, Dec 15, 2023 at 3:13=E2=80=AFPM Dragos Tatulea <dta=
-tulea@nvidia.com> wrote:
-> > > > > > > > >
-> > > > > > > > > On Fri, 2023-12-15 at 12:35 +0000, Dragos Tatulea wrote:
-> > > > > > > > > > On Thu, 2023-12-14 at 19:30 +0100, Eugenio Perez Martin=
- wrote:
-> > > > > > > > > > > On Thu, Dec 14, 2023 at 4:51=E2=80=AFPM Dragos Tatule=
-a <dtatulea@nvidia.com> wrote:
-> > > > > > > > > > > >
-> > > > > > > > > > > > On Thu, 2023-12-14 at 08:45 -0500, Michael S. Tsirk=
-in wrote:
-> > > > > > > > > > > > > On Thu, Dec 14, 2023 at 01:39:55PM +0000, Dragos =
-Tatulea wrote:
-> > > > > > > > > > > > > > On Tue, 2023-12-12 at 15:44 -0800, Si-Wei Liu w=
-rote:
-> > > > > > > > > > > > > > >
-> > > > > > > > > > > > > > > On 12/12/2023 11:21 AM, Eugenio Perez Martin =
-wrote:
-> > > > > > > > > > > > > > > > On Tue, Dec 5, 2023 at 11:46=E2=80=AFAM Dra=
-gos Tatulea <dtatulea@nvidia.com> wrote:
-> > > > > > > > > > > > > > > > > Addresses get set by .set_vq_address. hw =
-vq addresses will be updated on
-> > > > > > > > > > > > > > > > > next modify_virtqueue.
-> > > > > > > > > > > > > > > > >
-> > > > > > > > > > > > > > > > > Signed-off-by: Dragos Tatulea <dtatulea@n=
-vidia.com>
-> > > > > > > > > > > > > > > > > Reviewed-by: Gal Pressman <gal@nvidia.com=
->
-> > > > > > > > > > > > > > > > > Acked-by: Eugenio P=C3=A9rez <eperezma@re=
-dhat.com>
-> > > > > > > > > > > > > > > > I'm kind of ok with this patch and the next=
- one about state, but I
-> > > > > > > > > > > > > > > > didn't ack them in the previous series.
-> > > > > > > > > > > > > > > >
-> > > > > > > > > > > > > > > > My main concern is that it is not valid to =
-change the vq address after
-> > > > > > > > > > > > > > > > DRIVER_OK in VirtIO, which vDPA follows. On=
-ly memory maps are ok to
-> > > > > > > > > > > > > > > > change at this moment. I'm not sure about v=
-q state in vDPA, but vhost
-> > > > > > > > > > > > > > > > forbids changing it with an active backend.
-> > > > > > > > > > > > > > > >
-> > > > > > > > > > > > > > > > Suspend is not defined in VirtIO at this mo=
-ment though, so maybe it is
-> > > > > > > > > > > > > > > > ok to decide that all of these parameters m=
-ay change during suspend.
-> > > > > > > > > > > > > > > > Maybe the best thing is to protect this wit=
-h a vDPA feature flag.
-> > > > > > > > > > > > > > > I think protect with vDPA feature flag could =
-work, while on the other
-> > > > > > > > > > > > > > > hand vDPA means vendor specific optimization =
-is possible around suspend
-> > > > > > > > > > > > > > > and resume (in case it helps performance), wh=
-ich doesn't have to be
-> > > > > > > > > > > > > > > backed by virtio spec. Same applies to vhost =
-user backend features,
-> > > > > > > > > > > > > > > variations there were not backed by spec eith=
-er. Of course, we should
-> > > > > > > > > > > > > > > try best to make the default behavior backwar=
-d compatible with
-> > > > > > > > > > > > > > > virtio-based backend, but that circles back t=
-o no suspend definition in
-> > > > > > > > > > > > > > > the current virtio spec, for which I hope we =
-don't cease development on
-> > > > > > > > > > > > > > > vDPA indefinitely. After all, the virtio base=
-d vdap backend can well
-> > > > > > > > > > > > > > > define its own feature flag to describe (mino=
-r difference in) the
-> > > > > > > > > > > > > > > suspend behavior based on the later spec once=
- it is formed in future.
-> > > > > > > > > > > > > > >
-> > > > > > > > > > > > > > So what is the way forward here? From what I un=
-derstand the options are:
-> > > > > > > > > > > > > >
-> > > > > > > > > > > > > > 1) Add a vdpa feature flag for changing device =
-properties while suspended.
-> > > > > > > > > > > > > >
-> > > > > > > > > > > > > > 2) Drop these 2 patches from the series for now=
-. Not sure if this makes sense as
-> > > > > > > > > > > > > > this. But then Si-Wei's qemu device suspend/res=
-ume poc [0] that exercises this
-> > > > > > > > > > > > > > code won't work anymore. This means the series =
-would be less well tested.
-> > > > > > > > > > > > > >
-> > > > > > > > > > > > > > Are there other possible options? What do you t=
-hink?
-> > > > > > > > > > > > > >
-> > > > > > > > > > > > > > [0] https://github.com/siwliu-kernel/qemu/tree/=
-svq-resume-wip
-> > > > > > > > > > > > >
-> > > > > > > > > > > > > I am fine with either of these.
-> > > > > > > > > > > > >
-> > > > > > > > > > > > How about allowing the change only under the follow=
-ing conditions:
-> > > > > > > > > > > >   vhost_vdpa_can_suspend && vhost_vdpa_can_resume &=
-&
-> > > > > > > > > > > > VHOST_BACKEND_F_ENABLE_AFTER_DRIVER_OK is set
-> > > > > > > > > > > >
-> > > > > > > > > > > > ?
-> > > > > > > > > > >
-> > > > > > > > > > > I think the best option by far is 1, as there is no h=
-int in the
-> > > > > > > > > > > combination of these 3 indicating that you can change=
- device
-> > > > > > > > > > > properties in the suspended state.
-> > > > > > > > > > >
-> > > > > > > > > > Sure. Will respin a v3 without these two patches.
-> > > > > > > > > >
-> > > > > > > > > > Another series can implement option 2 and add these 2 p=
-atches on top.
-> > > > > > > > > Hmm...I misunderstood your statement and sent a erroneus =
-v3. You said that
-> > > > > > > > > having a feature flag is the best option.
-> > > > > > > > >
-> > > > > > > > > Will add a feature flag in v4: is this similar to the
-> > > > > > > > > VHOST_BACKEND_F_ENABLE_AFTER_DRIVER_OK flag?
-> > > > > > > > >
-> > > > > > > >
-> > > > > > > > Right, it should be easy to return it from .get_backend_fea=
-tures op if
-> > > > > > > > the FW returns that capability, isn't it?
-> > > > > > > >
-> > > > > > > Yes, that's easy. But I wonder if we need one feature bit for=
- each type of
-> > > > > > > change:
-> > > > > > > - VHOST_BACKEND_F_CHANGEABLE_VQ_ADDR_IN_SUSPEND
-> > > > > > > - VHOST_BACKEND_F_CHANGEABLE_VQ_STATE_IN_SUSPEND
-> > > > > > >
-> > > > > >
-> > > > > > I'd say yes. Although we could configure SVQ initial state in u=
-serland
-> > > > > > as different than 0 for this first step, it would be needed in =
-the
-> > > > > > long term.
-> > > > > >
-> > > > > > > Or would a big one VHOST_BACKEND_F_CAN_RECONFIG_VQ_IN_SUSPEND=
- suffice?
-> > > > > > >
-> > > > > >
-> > > > > > I'd say "reconfig vq" is not valid as mlx driver doesn't allow
-> > > > > > changing queue sizes, for example, isn't it?
-> > > > > >
-> > > > > Modifying the queue size for a vq is indeed not supported by the =
-mlx device.
-> > > > >
-> > > > > > To define that it is
-> > > > > > valid to change "all parameters" seems very confident.
-> > > > > >
-> > > > > Ack
-> > > > >
-> > > > > > > To me having individual feature bits makes sense. But it coul=
-d also takes too
-> > > > > > > many bits if more changes are required.
-> > > > > > >
-> > > > > >
-> > > > > > Yes, that's a good point. Maybe it is valid to define a subset =
-of
-> > > > > > features that can be changed., but I think it is way clearer to=
- just
-> > > > > > check for individual feature bits.
-> > > > > >
-> > > > > I will prepare extra patches with the 2 feature bits approach.
-> > > > >
-> > > > > Is it necessary to add checks in the vdpa core that block changin=
-g these
-> > > > > properties if the state is driver ok and the device doesn't suppo=
-rt the feature?
-> > > > >
-> > > >
-> > > > Yes, I think it is better to protect for changes in vdpa core.
-> > > >
-> > > Hmmm... there is no suspended state available. I would only add check=
-s for the
-> > > DRIVER_OK state of the device because adding a is_suspended state/op =
-seems out
-> > > of scope for this series. Any thoughts?
-> > >
+On Mon, Dec 18, 2023 at 04:48:04PM -0800, Atish Patra wrote:
+> On Sun, Dec 17, 2023 at 12:40 PM Andrew Jones <ajones@ventanamicro.com> wrote:
+...
+> > +int __init pv_time_init(void)
+> > +{
+> > +       int ret;
+> > +
+> > +       if (!has_pv_steal_clock())
+> > +               return 0;
+> > +
+> > +       ret = cpuhp_setup_state(CPUHP_AP_ONLINE_DYN,
+> > +                               "riscv/pv_time:online",
+> > +                               pv_time_cpu_online,
+> > +                               pv_time_cpu_down_prepare);
+> > +       if (ret < 0)
+> > +               return ret;
+> > +
+> > +       static_call_update(pv_steal_clock, pv_time_steal_clock);
+> > +
+> > +       static_key_slow_inc(&paravirt_steal_enabled);
+> > +       if (steal_acc)
+> > +               static_key_slow_inc(&paravirt_steal_rq_enabled);
+> > +
+> > +       pr_info("using paravirt steal-time\n");
+> > +
+> 
+> Nit comment:
+> If the scheduler doesn't take stolen time into consideration (when If
+> no-steal-acc is specified in the command line),
+> the above log is a bit misleading ? ARM64 also seems to be doing the
+> same thing.
+> 
+> Maybe the intention of the log is to steal time extension presence
+> rather than actual usage in place ?
+
+You're right that the word "using" isn't great. "Computing" would be
+better as, even with no-steal-acc, steal time gets computed and shows
+up in /proc/stat.
+
+> 
+> > +       return 0;
+> > +}
+> > diff --git a/arch/riscv/kernel/time.c b/arch/riscv/kernel/time.c
+> > index 23641e82a9df..ba3477197789 100644
+> > --- a/arch/riscv/kernel/time.c
+> > +++ b/arch/riscv/kernel/time.c
+> > @@ -12,6 +12,7 @@
+> >  #include <asm/sbi.h>
+> >  #include <asm/processor.h>
+> >  #include <asm/timex.h>
+> > +#include <asm/paravirt.h>
 > >
-> > I can develop it so you can include it in your series for sure, I will
-> > send it ASAP.
+> >  unsigned long riscv_timebase __ro_after_init;
+> >  EXPORT_SYMBOL_GPL(riscv_timebase);
+> > @@ -45,4 +46,6 @@ void __init time_init(void)
+> >         timer_probe();
 > >
-> If it's a matter of:
-> - Adding a suspended state to struct vhost_vdpa.
-> - Setting it to true on successful device suspend.
-> - Clearing it on successful device resume and device reset.
->
-> I can add this patch. I'm just not sure about the locking part. But maybe=
- I can
-> send it and we can debate on the code.
->
+> >         tick_setup_hrtimer_broadcast();
+> > +
+> > +       pv_time_init();
+> >  }
+> > --
+> > 2.43.0
+> >
+> 
+> Other than that, lgtm.
+> 
+> Reviewed-by: Atish Patra <atishp@rivosinc.com>
 
-Yes, that was the plan basically.
-
-I think vhost_vdpa_suspend / vhost_vdpa_resume are already called from
-vhost_vdpa_unlocked_ioctl with the lock acquired, is that what you
-mean?
-
-Thanks!
-
+Thanks,
+drew
