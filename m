@@ -1,353 +1,315 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE02238DEE
-	for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 18:44:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 004C138FBA
+	for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 19:58:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VerCywWG"
+	dkim=pass (1024-bit key) header.d=atishpatra.org header.i=@atishpatra.org header.b="hAsxyn1t"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 23EFD41D8C
-	for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 18:44:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 23EFD41D8C
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VerCywWG
+	by smtp1.osuosl.org (Postfix) with ESMTP id 55AD98139F
+	for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 19:58:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 55AD98139F
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key) header.d=atishpatra.org header.i=@atishpatra.org header.a=rsa-sha256 header.s=google header.b=hAsxyn1t
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.099
+X-Spam-Score: -2.1
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Hb27U7uWtHHp
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id NdS-NfJ1g_r9
 	for <virtualization@lists.linux-foundation.org>;
-	Tue, 19 Dec 2023 18:44:38 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 9665941D83
-	for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 18:44:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9665941D83
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1703011475;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tYIgn4mJmHOom7gApKHCw4vn+Ok1BdlGf7HkD2gSeHo=;
-	b=VerCywWG3wE2TjUkTnvaXNrj2p7AtivQfQLhae7X5nnk9nyOnB3HJwHcGB3FLi/shFYNbQ
-	5nXhJsuXcYO16+kRU529DnxzFMcI94ZcGhqS1O03h5MXWixc3N6GBzWL5+FCCGIFbXg4Le
-	y0rjR2B63w8VwWRH98jP88Ti8VJKI4M=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-497-F_Mt3GJnOXCJ7cPPZG4JJg-1; Tue, 19 Dec 2023 13:44:32 -0500
-X-MC-Unique: F_Mt3GJnOXCJ7cPPZG4JJg-1
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-336695c70b9so1355436f8f.2
-        for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 10:44:32 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703011471; x=1703616271;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+	Tue, 19 Dec 2023 19:58:41 +0000 (UTC)
+Received: from mail-lf1-x132.google.com (mail-lf1-x132.google.com [IPv6:2a00:1450:4864:20::132])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 1565C81367
+	for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 19:58:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1565C81367
+Received: by mail-lf1-x132.google.com with SMTP id 2adb3069b0e04-50e39ac39bcso3533232e87.3
+        for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 11:58:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=atishpatra.org; s=google; t=1703015918; x=1703620718; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=tYIgn4mJmHOom7gApKHCw4vn+Ok1BdlGf7HkD2gSeHo=;
-        b=JAQHbhBnAp24+kxDfMsYUMvvdNtB4uxyXa8mxjOvriemJAskzUX/QjozRfAS6VWnVz
-         Nc+d5BTTQB1F/uPy1ZzaAn+Ut7nusgYKe5HQ3+FOe+JsnU65hq9xNoAwv5BeDAEzH1Gt
-         CqaTY8AkUEInRPnGQk30nrxdmc0cvkm6MbpBJsSBqlwGVCkrezwN/wUX/QqYOW6HUoyR
-         0E88z++sgPBnfZL67wME3h/zitUNijdiAoT9qbqGICdCztpmD2goWb+PEesCqIv5NWFy
-         9lshxx8LmYFqmHu9ZyzUG6Zv80S18ce2SeJ9CwHrLq4+5+E3vRkfO7fg6yKbsRWtSoM+
-         mcHw==
-X-Gm-Message-State: AOJu0YwhusIXs/dgtfIPEMcEtTUgMD+NcHekHKT3J1lxfngAn5MQPBpK
-	wsbE46Iv9/UWVBfiXXQdZYkN4kdu7neM+snt0ZUgQQpWuPFJBkHSyO1hbkQ1MQqvLgbsNW26GCP
-	Lc3tuYvN/Mfnb8jAxe5oHa0Z9pXAMOo4NTHL+OK03UA==
-X-Received: by 2002:a05:600c:384e:b0:40d:2c83:de1 with SMTP id s14-20020a05600c384e00b0040d2c830de1mr298969wmr.242.1703011471018;
-        Tue, 19 Dec 2023 10:44:31 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGvALy6dHqKPRkkCc2flIIfGnmRMQ9asZLGw+CdpJq+pIRZ6E2OslspaHz0fYbtnY2Qos22Cw==
-X-Received: by 2002:a05:600c:384e:b0:40d:2c83:de1 with SMTP id s14-20020a05600c384e00b0040d2c830de1mr298966wmr.242.1703011470567;
-        Tue, 19 Dec 2023 10:44:30 -0800 (PST)
-Received: from redhat.com ([2.52.148.230])
-        by smtp.gmail.com with ESMTPSA id j13-20020a5d564d000000b003365f5e87f4sm9567970wrw.95.2023.12.19.10.44.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Dec 2023 10:44:29 -0800 (PST)
-Date: Tue, 19 Dec 2023 13:44:25 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Alex Williamson <alex.williamson@redhat.com>
-Cc: Yishai Hadas <yishaih@nvidia.com>, jasowang@redhat.com, jgg@nvidia.com,
-	kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
-	parav@nvidia.com, feliu@nvidia.com, jiri@nvidia.com,
-	kevin.tian@intel.com, joao.m.martins@oracle.com,
-	si-wei.liu@oracle.com, leonro@nvidia.com, maorg@nvidia.com
-Subject: Re: [PATCH V10 vfio 0/9] Introduce a vfio driver over virtio devices
-Message-ID: <20231219134344-mutt-send-email-mst@kernel.org>
-References: <20231219093247.170936-1-yishaih@nvidia.com>
- <20231219101452.10105890.alex.williamson@redhat.com>
+        bh=NUpc0GIaihpMqWIzUEOt1vmY7MxFwzzDxw8L+NYF9YA=;
+        b=hAsxyn1tQLgcWE68izd8csUJ/rw576C61LJMxM5y8j1Pjms5DkzD6u0RMYBDGFPcZx
+         WZn8zoxPJmFAPb670Xu8GwE50AFRNAN2+duOsOs9pqnkGMwHQq/cYjXFb/QIySok+h/7
+         0ehx+MTERd325S7IcuQSDgFxUP0HejRqCstv4=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1703015918; x=1703620718;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=NUpc0GIaihpMqWIzUEOt1vmY7MxFwzzDxw8L+NYF9YA=;
+        b=RVTimLivUJzZJinjUUUOZYirb0wTa23IxRQWIV6bdXhelzfSiyYCzRFzxRsqA0kXyq
+         jPG+nghV4Xsnd+j1FBfjLffLVYfaL8D4mrofcJNCTWtowl5mOJi6f/VMQZdEX4pt2zRn
+         PoT8y2E43n7yNDXbGf6rOUdmhgpX1hbsuac3X5VK3F3jK3od2bQ2yVebcnPj5S2XhrlY
+         /kvEdJcGZfogwGQurfPqkFeXQA00HF7OC9lo29Gdu0pELQUvMGZiMtfSx6kjXH/VJxSn
+         rgG3TIK6zQSfu2XHQOvGaIYTdhaXHb3+9O6tbLu+BUy9pDZUETbj2Udl7fBTKsP8+5QT
+         zxdw==
+X-Gm-Message-State: AOJu0YyrUo3Jwx4rK5we0tPCo38x/01ABh7JcyItBfvsuJEv9l5zZHog
+	4NYiuX5NQbbgLdpdRCl/4e3iwPPvZFGkkORQ1NWX
+X-Google-Smtp-Source: AGHT+IHbDvdbFCmSHNu4I6rDIJ0rzafYpLMCvgEz4R0ldqhXLtEPZBIGa+TqATNzpuKkojMuX/jsq7nCAmVGY78wKXc=
+X-Received: by 2002:ac2:5edd:0:b0:50e:3568:4875 with SMTP id
+ d29-20020ac25edd000000b0050e35684875mr1147236lfq.219.1703015918327; Tue, 19
+ Dec 2023 11:58:38 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20231219101452.10105890.alex.williamson@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+References: <20231217204019.36492-15-ajones@ventanamicro.com> <20231217204019.36492-22-ajones@ventanamicro.com>
+In-Reply-To: <20231217204019.36492-22-ajones@ventanamicro.com>
+From: Atish Patra <atishp@atishpatra.org>
+Date: Tue, 19 Dec 2023 11:58:27 -0800
+Message-ID: <CAOnJCU+h_ed-x7L5oFwWTWoKAq8M3Vk8XUQo1-jhPPaty5Y7Jg@mail.gmail.com>
+Subject: Re: [PATCH v3 07/13] RISC-V: KVM: Add support for SBI extension registers
+To: Andrew Jones <ajones@ventanamicro.com>
+Cc: kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
+	virtualization@lists.linux-foundation.org, anup@brainfault.org, 
+	pbonzini@redhat.com, paul.walmsley@sifive.com, palmer@dabbelt.com, 
+	aou@eecs.berkeley.edu, jgross@suse.com, srivatsa@csail.mit.edu, 
+	guoren@kernel.org, conor.dooley@microchip.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Dec 19, 2023 at 10:14:52AM -0700, Alex Williamson wrote:
-> On Tue, 19 Dec 2023 11:32:38 +0200
-> Yishai Hadas <yishaih@nvidia.com> wrote:
-> 
-> > This series introduce a vfio driver over virtio devices to support the
-> > legacy interface functionality for VFs.
-> > 
-> > Background, from the virtio spec [1].
-> > --------------------------------------------------------------------
-> > In some systems, there is a need to support a virtio legacy driver with
-> > a device that does not directly support the legacy interface. In such
-> > scenarios, a group owner device can provide the legacy interface
-> > functionality for the group member devices. The driver of the owner
-> > device can then access the legacy interface of a member device on behalf
-> > of the legacy member device driver.
-> > 
-> > For example, with the SR-IOV group type, group members (VFs) can not
-> > present the legacy interface in an I/O BAR in BAR0 as expected by the
-> > legacy pci driver. If the legacy driver is running inside a virtual
-> > machine, the hypervisor executing the virtual machine can present a
-> > virtual device with an I/O BAR in BAR0. The hypervisor intercepts the
-> > legacy driver accesses to this I/O BAR and forwards them to the group
-> > owner device (PF) using group administration commands.
-> > --------------------------------------------------------------------
-> > 
-> > The first 6 patches are in the virtio area and handle the below:
-> > - Introduce the admin virtqueue infrastcture.
-> > - Expose the layout of the commands that should be used for
-> >   supporting the legacy access.
-> > - Expose APIs to enable upper layers as of vfio, net, etc
-> >   to execute admin commands.
-> > 
-> > The above follows the virtio spec that was lastly accepted in that area
-> > [1].
-> > 
-> > The last 3 patches are in the vfio area and handle the below:
-> > - Expose some APIs from vfio/pci to be used by the vfio/virtio driver.
-> > - Introduce a vfio driver over virtio devices to support the legacy
-> >   interface functionality for VFs. 
-> > 
-> > The series was tested successfully over virtio-net VFs in the host,
-> > while running in the guest both modern and legacy drivers.
-> > 
-> > [1]
-> > https://github.com/oasis-tcs/virtio-spec/commit/03c2d32e5093ca9f2a17797242fbef88efe94b8c
-> > 
-> > Changes from V9: https://lore.kernel.org/kvm/20231218083755.96281-1-yishaih@nvidia.com/
-> > Virtio:
-> > - Introduce a new config option VIRTIO_PCI_ADMIN_LEGACY which considers X86 or
-> >   COMPILE_TEST, then use it instead of CONFIG_X86.
-> > Vfio:
-> > Patch #9:
-> > - Change Kconfig to depend on VIRTIO_PCI_ADMIN_LEGACY.
-> > - Drop a redundant blank line at the end of Makefile.
-> > 
-> > The above changes were suggested by Alex.
-> > 
-> > Changes from V8: https://lore.kernel.org/kvm/20231214123808.76664-1-yishaih@nvidia.com/
-> > Virtio:
-> > - Adapt to support the legacy IO functionality only on X86, as
-> >   was suggested by Michael.
-> > Vfio:
-> > Patch #9:
-> > - Change Kconfig to depend on X86, as suggested by Alex. 
-> > - Add Reviewed-by: Kevin Tian <kevin.tian@intel.com>.
-> > 
-> > Changes from V7: https://lore.kernel.org/kvm/20231207102820.74820-1-yishaih@nvidia.com/
-> > Virtio:
-> > Patch #6
-> > - Let virtio_pci_admin_has_legacy_io() return false on non X86 systems,
-> >   as was discussed with Michael.
-> > Vfio:
-> > Patch #7, #8:
-> > - Add Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-> > Patch #9:
-> > - Improve the Kconfig description and the commit log, as was suggested by Kevin.
-> > - Rename translate_io_bar_to_mem_bar() to virtiovf_pci_bar0_rw(), as
-> >   was suggested by Kevin.
-> > - Refactor to have virtiovf_pci_write_config() as we have
-> >   virtiovf_pci_read_config(), as was suggested by Kevin.
-> > - Drop a note about MSIX which doesn't give any real value, as was
-> >   suggested by Kevin.
-> > 
-> > Changes from V6: https://lore.kernel.org/kvm/20231206083857.241946-1-yishaih@nvidia.com/
-> > Vfio:
-> > - Put the pm_runtime stuff into translate_io_bar_to_mem_bar() and
-> >   organize the callers to be more success oriented, as suggested by Jason.
-> > - Add missing 'ops' (i.e. 'detach_ioas' and 'device_feature'), as mentioned by Jason.
-> > - Clean virtiovf_bar0_exists() to cast to bool automatically, as
-> >   suggested by Jason.
-> > - Add Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>.
-> > 
-> > Changes from V5: https://lore.kernel.org/kvm/20231205170623.197877-1-yishaih@nvidia.com/
-> > Vfio:
-> > - Rename vfio_pci_iowrite64 to vfio_pci_core_iowrite64 as was mentioned
-> >   by Alex.
-> > 
-> > Changes from V4: https://lore.kernel.org/all/20231129143746.6153-7-yishaih@nvidia.com/T/
-> > Virtio:
-> > - Drop the unused macro 'VIRTIO_ADMIN_MAX_CMD_OPCODE' as was asked by
-> >   Michael.
-> > - Add Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> > Vfio:
-> > - Export vfio_pci_core_setup_barmap() in place and rename
-> >   vfio_pci_iowrite/read<xxx> to have the 'core' prefix as part of the
-> >   functions names, as was discussed with Alex.
-> > - Improve packing of struct virtiovf_pci_core_device, as was suggested
-> >   by Alex.
-> > - Upon reset, set 'pci_cmd' back to zero, in addition, if
-> >   the user didn't set the 'PCI_COMMAND_IO' bit, return -EIO upon any
-> >   read/write towards the IO bar, as was suggested by Alex.
-> > - Enforce by BUILD_BUG_ON that 'bar0_virtual_buf_size' is power of 2 as
-> >   part of virtiovf_pci_init_device() and clean the 'sizing calculation'
-> >   code accordingly, as was suggested by Alex.
-> > 
-> > Changes from V3: https://www.spinics.net/lists/kvm/msg333008.html
-> > Virtio:
-> > - Rebase on top of 6.7 rc3.
-> > Vfio:
-> > - Fix a typo, drop 'acc' from 'virtiovf_acc_vfio_pci_tran_ops'.
-> > 
-> > Changes from V2: https://lore.kernel.org/all/20231029155952.67686-8-yishaih@nvidia.com/T/
-> > Virtio:
-> > - Rebase on top of 6.7 rc1.
-> > - Add a mutex to serialize admin commands execution and virtqueue
-> >   deletion, as was suggested by Michael.
-> > - Remove the 'ref_count' usage which is not needed any more.
-> > - Reduce the depth of the admin vq to match a single command at a given time.
-> > - Add a supported check upon command execution and move to use a single
-> >   flow of virtqueue_exec_admin_cmd().
-> > - Improve the description of the exported commands to better match the
-> >   specification and the expected usage as was asked by Michael.
-> > 
-> > Vfio:
-> > - Upon calling to virtio_pci_admin_legacy/common_device_io_read/write()
-> >   supply the 'offset' within the relevant configuration area, following
-> >   the virtio exported APIs.
-> > 
-> > Changes from V1: https://lore.kernel.org/all/20231023104548.07b3aa19.alex.williamson@redhat.com/T/
-> > Virtio:
-> > - Drop its first patch, it was accepted upstream already.
-> > - Add a new patch (#6) which initializes the supported admin commands
-> >   upon admin queue activation as was suggested by Michael.
-> > - Split the legacy_io_read/write commands per common/device
-> >   configuration as was asked by Michael.
-> > - Don't expose any more the list query/used APIs outside of virtio.
-> > - Instead, expose an API to check whether the legacy io functionality is
-> >   supported as was suggested by Michael.
-> > - Fix some Krobot's note by adding the missing include file.
-> > 
-> > Vfio:
-> > - Refer specifically to virtio-net as part of the driver/module description
-> >   as Alex asked.
-> > - Change to check MSIX enablement based on the irq type of the given vfio
-> >   core device. In addition, drop its capable checking from the probe flow
-> >   as was asked by Alex.
-> > - Adapt to use the new virtio exposed APIs and clean some code accordingly.
-> > - Adapt to some cleaner style code in some places (if/else) as was suggested
-> >   by Alex.
-> > - Fix the range_intersect_range() function and adapt its usage as was
-> >   pointed by Alex.
-> > - Make struct virtiovf_pci_core_device better packed.
-> > - Overwrite the subsystem vendor ID to be 0x1af4 as was discussed in
-> >   the ML.
-> > - Add support for the 'bar sizing negotiation' as was asked by Alex.
-> > - Drop the 'acc' from the 'ops' as Alex asked.
-> > 
-> > Changes from V0: https://www.spinics.net/lists/linux-virtualization/msg63802.html
-> > 
-> > Virtio:
-> > - Fix the common config map size issue that was reported by Michael
-> >   Tsirkin.
-> > - Do not use vp_dev->vqs[] array upon vp_del_vqs() as was asked by
-> >   Michael, instead skip the AQ specifically.
-> > - Move admin vq implementation into virtio_pci_modern.c as was asked by
-> >   Michael.
-> > - Rename structure virtio_avq to virtio_pci_admin_vq and some extra
-> >   corresponding renames.
-> > - Remove exported symbols virtio_pci_vf_get_pf_dev(),
-> >   virtio_admin_cmd_exec() as now callers are local to the module.
-> > - Handle inflight commands as part of the device reset flow.
-> > - Introduce APIs per admin command in virtio-pci as was asked by Michael.
-> > 
-> > Vfio:
-> > - Change to use EXPORT_SYMBOL_GPL instead of EXPORT_SYMBOL for
-> >   vfio_pci_core_setup_barmap() and vfio_pci_iowrite#xxx() as pointed by
-> >   Alex.
-> > - Drop the intermediate patch which prepares the commands and calls the
-> >   generic virtio admin command API (i.e. virtio_admin_cmd_exec()).
-> > - Instead, call directly to the new APIs per admin command that are
-> >   exported from Virtio - based on Michael's request.
-> > - Enable only virtio-net as part of the pci_device_id table to enforce
-> >   upon binding only what is supported as suggested by Alex.
-> > - Add support for byte-wise access (read/write) over the device config
-> >   region as was asked by Alex.
-> > - Consider whether MSIX is practically enabled/disabled to choose the
-> >   right opcode upon issuing read/write admin command, as mentioned
-> >   by Michael.
-> > - Move to use VIRTIO_PCI_CONFIG_OFF instead of adding some new defines
-> >   as was suggested by Michael.
-> > - Set the '.close_device' op to vfio_pci_core_close_device() as was
-> >   pointed by Alex.
-> > - Adapt to Vfio multi-line comment style in a few places.
-> > - Add virtualization@lists.linux-foundation.org in the MAINTAINERS file
-> >   to be CCed for the new driver as was suggested by Jason.
-> > 
-> > Yishai
-> > 
-> > Feng Liu (4):
-> >   virtio: Define feature bit for administration virtqueue
-> >   virtio-pci: Introduce admin virtqueue
-> >   virtio-pci: Introduce admin command sending function
-> >   virtio-pci: Introduce admin commands
-> > 
-> > Yishai Hadas (5):
-> >   virtio-pci: Initialize the supported admin commands
-> >   virtio-pci: Introduce APIs to execute legacy IO admin commands
-> >   vfio/pci: Expose vfio_pci_core_setup_barmap()
-> >   vfio/pci: Expose vfio_pci_core_iowrite/read##size()
-> >   vfio/virtio: Introduce a vfio driver over virtio devices
-> > 
-> >  MAINTAINERS                                 |   7 +
-> >  drivers/vfio/pci/Kconfig                    |   2 +
-> >  drivers/vfio/pci/Makefile                   |   2 +
-> >  drivers/vfio/pci/vfio_pci_rdwr.c            |  57 +-
-> >  drivers/vfio/pci/virtio/Kconfig             |  15 +
-> >  drivers/vfio/pci/virtio/Makefile            |   3 +
-> >  drivers/vfio/pci/virtio/main.c              | 576 ++++++++++++++++++++
-> >  drivers/virtio/Kconfig                      |   5 +
-> >  drivers/virtio/Makefile                     |   1 +
-> >  drivers/virtio/virtio.c                     |  37 +-
-> >  drivers/virtio/virtio_pci_admin_legacy_io.c | 244 +++++++++
-> >  drivers/virtio/virtio_pci_common.c          |  14 +
-> >  drivers/virtio/virtio_pci_common.h          |  42 +-
-> >  drivers/virtio/virtio_pci_modern.c          | 259 ++++++++-
-> >  drivers/virtio/virtio_pci_modern_dev.c      |  24 +-
-> >  include/linux/vfio_pci_core.h               |  20 +
-> >  include/linux/virtio.h                      |   8 +
-> >  include/linux/virtio_config.h               |   4 +
-> >  include/linux/virtio_pci_admin.h            |  23 +
-> >  include/linux/virtio_pci_modern.h           |   2 +
-> >  include/uapi/linux/virtio_config.h          |   8 +-
-> >  include/uapi/linux/virtio_pci.h             |  68 +++
-> >  22 files changed, 1385 insertions(+), 36 deletions(-)
-> >  create mode 100644 drivers/vfio/pci/virtio/Kconfig
-> >  create mode 100644 drivers/vfio/pci/virtio/Makefile
-> >  create mode 100644 drivers/vfio/pci/virtio/main.c
-> >  create mode 100644 drivers/virtio/virtio_pci_admin_legacy_io.c
-> >  create mode 100644 include/linux/virtio_pci_admin.h
-> > 
-> 
-> The vfio parts look good to me.  I'll merge the last 3 patches in the
-> series through the vfio tree once virtio maintainers are satisfied and
-> provide a branch or tag to merge the dependencies.  Thanks,
-> 
-> Alex
+On Sun, Dec 17, 2023 at 12:40=E2=80=AFPM Andrew Jones <ajones@ventanamicro.=
+com> wrote:
+>
+> Some SBI extensions have state that needs to be saved / restored
+> when migrating the VM. Provide a get/set-one-reg register type
+> for SBI extension registers. Each SBI extension that uses this type
+> will have its own subtype. There are currently no subtypes defined.
+> The next patch introduces the first one.
+>
+> Reviewed-by: Anup Patel <anup@brainfault.org>
+> Signed-off-by: Andrew Jones <ajones@ventanamicro.com>
+> ---
+>  arch/riscv/include/asm/kvm_vcpu_sbi.h |  4 ++
+>  arch/riscv/include/uapi/asm/kvm.h     |  3 ++
+>  arch/riscv/kvm/vcpu_onereg.c          | 42 +++++++++++++++++--
+>  arch/riscv/kvm/vcpu_sbi.c             | 58 +++++++++++++++++++++++++++
+>  4 files changed, 103 insertions(+), 4 deletions(-)
+>
+> diff --git a/arch/riscv/include/asm/kvm_vcpu_sbi.h b/arch/riscv/include/a=
+sm/kvm_vcpu_sbi.h
+> index 99c23bb37a37..dd60f73b5c36 100644
+> --- a/arch/riscv/include/asm/kvm_vcpu_sbi.h
+> +++ b/arch/riscv/include/asm/kvm_vcpu_sbi.h
+> @@ -60,6 +60,10 @@ int kvm_riscv_vcpu_set_reg_sbi_ext(struct kvm_vcpu *vc=
+pu,
+>                                    const struct kvm_one_reg *reg);
+>  int kvm_riscv_vcpu_get_reg_sbi_ext(struct kvm_vcpu *vcpu,
+>                                    const struct kvm_one_reg *reg);
+> +int kvm_riscv_vcpu_set_reg_sbi(struct kvm_vcpu *vcpu,
+> +                              const struct kvm_one_reg *reg);
+> +int kvm_riscv_vcpu_get_reg_sbi(struct kvm_vcpu *vcpu,
+> +                              const struct kvm_one_reg *reg);
+>  const struct kvm_vcpu_sbi_extension *kvm_vcpu_sbi_find_ext(
+>                                 struct kvm_vcpu *vcpu, unsigned long exti=
+d);
+>  bool riscv_vcpu_supports_sbi_ext(struct kvm_vcpu *vcpu, int idx);
+> diff --git a/arch/riscv/include/uapi/asm/kvm.h b/arch/riscv/include/uapi/=
+asm/kvm.h
+> index e961d79622fb..30f89a0e855f 100644
+> --- a/arch/riscv/include/uapi/asm/kvm.h
+> +++ b/arch/riscv/include/uapi/asm/kvm.h
+> @@ -242,6 +242,9 @@ enum KVM_RISCV_SBI_EXT_ID {
+>  #define KVM_REG_RISCV_VECTOR_REG(n)    \
+>                 ((n) + sizeof(struct __riscv_v_ext_state) / sizeof(unsign=
+ed long))
+>
+> +/* Registers for specific SBI extensions are mapped as type 10 */
+> +#define KVM_REG_RISCV_SBI              (0x0a << KVM_REG_RISCV_TYPE_SHIFT=
+)
+> +
 
-You can go ahead and merge the virtio patches too, with my ack:
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+nit comment: KVM_REG_RISCV_SBI looks bit odd when we already have
+KVM_REG_RISCV_SBI_EXT for
+extension enabling/disabling.
 
-These are self contained enough that I don't expect any conflicts.
+How about renaming this to KVM_REG_RISCV_SBI_EXT_STATE or something
+similar indicate that this
+for a specific extension state ?
 
+
+>  /* Device Control API: RISC-V AIA */
+>  #define KVM_DEV_RISCV_APLIC_ALIGN              0x1000
+>  #define KVM_DEV_RISCV_APLIC_SIZE               0x4000
+> diff --git a/arch/riscv/kvm/vcpu_onereg.c b/arch/riscv/kvm/vcpu_onereg.c
+> index 11cdbf844291..901480e73817 100644
+> --- a/arch/riscv/kvm/vcpu_onereg.c
+> +++ b/arch/riscv/kvm/vcpu_onereg.c
+> @@ -961,6 +961,29 @@ static unsigned long num_sbi_ext_regs(struct kvm_vcp=
+u *vcpu)
+>         return copy_sbi_ext_reg_indices(vcpu, NULL);
+>  }
+>
+> +static inline unsigned long num_sbi_regs(struct kvm_vcpu *vcpu)
+> +{
+> +       return 0;
+> +}
+> +
+> +static int copy_sbi_reg_indices(struct kvm_vcpu *vcpu, u64 __user *uindi=
+ces)
+> +{
+> +       int n =3D num_sbi_regs(vcpu);
+> +
+> +       for (int i =3D 0; i < n; i++) {
+> +               u64 reg =3D KVM_REG_RISCV | KVM_REG_SIZE_U64 |
+> +                         KVM_REG_RISCV_SBI | i;
+> +
+> +               if (uindices) {
+> +                       if (put_user(reg, uindices))
+> +                               return -EFAULT;
+> +                       uindices++;
+> +               }
+> +       }
+> +
+> +       return n;
+> +}
+> +
+>  static inline unsigned long num_vector_regs(const struct kvm_vcpu *vcpu)
+>  {
+>         if (!riscv_isa_extension_available(vcpu->arch.isa, v))
+> @@ -1028,6 +1051,7 @@ unsigned long kvm_riscv_vcpu_num_regs(struct kvm_vc=
+pu *vcpu)
+>         res +=3D num_vector_regs(vcpu);
+>         res +=3D num_isa_ext_regs(vcpu);
+>         res +=3D num_sbi_ext_regs(vcpu);
+> +       res +=3D num_sbi_regs(vcpu);
+>
+>         return res;
+>  }
+> @@ -1083,6 +1107,12 @@ int kvm_riscv_vcpu_copy_reg_indices(struct kvm_vcp=
+u *vcpu,
+>         ret =3D copy_sbi_ext_reg_indices(vcpu, uindices);
+>         if (ret < 0)
+>                 return ret;
+> +       uindices +=3D ret;
+> +
+> +       ret =3D copy_sbi_reg_indices(vcpu, uindices);
+> +       if (ret < 0)
+> +               return ret;
+> +       uindices +=3D ret;
+>
+>         return 0;
+>  }
+> @@ -1105,12 +1135,14 @@ int kvm_riscv_vcpu_set_reg(struct kvm_vcpu *vcpu,
+>         case KVM_REG_RISCV_FP_D:
+>                 return kvm_riscv_vcpu_set_reg_fp(vcpu, reg,
+>                                                  KVM_REG_RISCV_FP_D);
+> +       case KVM_REG_RISCV_VECTOR:
+> +               return kvm_riscv_vcpu_set_reg_vector(vcpu, reg);
+>         case KVM_REG_RISCV_ISA_EXT:
+>                 return kvm_riscv_vcpu_set_reg_isa_ext(vcpu, reg);
+>         case KVM_REG_RISCV_SBI_EXT:
+>                 return kvm_riscv_vcpu_set_reg_sbi_ext(vcpu, reg);
+> -       case KVM_REG_RISCV_VECTOR:
+> -               return kvm_riscv_vcpu_set_reg_vector(vcpu, reg);
+> +       case KVM_REG_RISCV_SBI:
+> +               return kvm_riscv_vcpu_set_reg_sbi(vcpu, reg);
+>         default:
+>                 break;
+>         }
+> @@ -1136,12 +1168,14 @@ int kvm_riscv_vcpu_get_reg(struct kvm_vcpu *vcpu,
+>         case KVM_REG_RISCV_FP_D:
+>                 return kvm_riscv_vcpu_get_reg_fp(vcpu, reg,
+>                                                  KVM_REG_RISCV_FP_D);
+> +       case KVM_REG_RISCV_VECTOR:
+> +               return kvm_riscv_vcpu_get_reg_vector(vcpu, reg);
+>         case KVM_REG_RISCV_ISA_EXT:
+>                 return kvm_riscv_vcpu_get_reg_isa_ext(vcpu, reg);
+>         case KVM_REG_RISCV_SBI_EXT:
+>                 return kvm_riscv_vcpu_get_reg_sbi_ext(vcpu, reg);
+> -       case KVM_REG_RISCV_VECTOR:
+> -               return kvm_riscv_vcpu_get_reg_vector(vcpu, reg);
+> +       case KVM_REG_RISCV_SBI:
+> +               return kvm_riscv_vcpu_get_reg_sbi(vcpu, reg);
+>         default:
+>                 break;
+>         }
+> diff --git a/arch/riscv/kvm/vcpu_sbi.c b/arch/riscv/kvm/vcpu_sbi.c
+> index 088daaa23dd8..834176242ddf 100644
+> --- a/arch/riscv/kvm/vcpu_sbi.c
+> +++ b/arch/riscv/kvm/vcpu_sbi.c
+> @@ -325,6 +325,64 @@ int kvm_riscv_vcpu_get_reg_sbi_ext(struct kvm_vcpu *=
+vcpu,
+>         return 0;
+>  }
+>
+> +int kvm_riscv_vcpu_set_reg_sbi(struct kvm_vcpu *vcpu,
+> +                              const struct kvm_one_reg *reg)
+> +{
+> +       unsigned long __user *uaddr =3D
+> +                       (unsigned long __user *)(unsigned long)reg->addr;
+> +       unsigned long reg_num =3D reg->id & ~(KVM_REG_ARCH_MASK |
+> +                                           KVM_REG_SIZE_MASK |
+> +                                           KVM_REG_RISCV_SBI);
+> +       unsigned long reg_subtype, reg_val;
+> +
+> +       if (KVM_REG_SIZE(reg->id) !=3D sizeof(unsigned long))
+> +               return -EINVAL;
+> +
+> +       if (copy_from_user(&reg_val, uaddr, KVM_REG_SIZE(reg->id)))
+> +               return -EFAULT;
+> +
+> +       reg_subtype =3D reg_num & KVM_REG_RISCV_SUBTYPE_MASK;
+> +       reg_num &=3D ~KVM_REG_RISCV_SUBTYPE_MASK;
+> +
+> +       switch (reg_subtype) {
+> +       default:
+> +               return -EINVAL;
+> +       }
+> +
+> +       return 0;
+> +}
+> +
+> +int kvm_riscv_vcpu_get_reg_sbi(struct kvm_vcpu *vcpu,
+> +                              const struct kvm_one_reg *reg)
+> +{
+> +       unsigned long __user *uaddr =3D
+> +                       (unsigned long __user *)(unsigned long)reg->addr;
+> +       unsigned long reg_num =3D reg->id & ~(KVM_REG_ARCH_MASK |
+> +                                           KVM_REG_SIZE_MASK |
+> +                                           KVM_REG_RISCV_SBI);
+> +       unsigned long reg_subtype, reg_val;
+> +       int ret;
+> +
+> +       if (KVM_REG_SIZE(reg->id) !=3D sizeof(unsigned long))
+> +               return -EINVAL;
+> +
+> +       reg_subtype =3D reg_num & KVM_REG_RISCV_SUBTYPE_MASK;
+> +       reg_num &=3D ~KVM_REG_RISCV_SUBTYPE_MASK;
+> +
+> +       switch (reg_subtype) {
+> +       default:
+> +               return -EINVAL;
+> +       }
+> +
+> +       if (ret)
+> +               return ret;
+> +
+> +       if (copy_to_user(uaddr, &reg_val, KVM_REG_SIZE(reg->id)))
+> +               return -EFAULT;
+> +
+> +       return 0;
+> +}
+> +
+>  const struct kvm_vcpu_sbi_extension *kvm_vcpu_sbi_find_ext(
+>                                 struct kvm_vcpu *vcpu, unsigned long exti=
+d)
+>  {
+> --
+> 2.43.0
+>
+
+Other than that, lgtm.
+
+Reviewed-by: Atish Patra <atishp@rivosinc.com>
+
+--=20
+Regards,
+Atish
