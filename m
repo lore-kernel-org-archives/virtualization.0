@@ -1,121 +1,251 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAA552D620
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 13:32:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C36A3D965
+	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 14:45:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Fw/7IhDR"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="T0BFeuCx"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 3923182159
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 13:32:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3923182159
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Fw/7IhDR
+	by smtp2.osuosl.org (Postfix) with ESMTP id 19FEF43662
+	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 14:45:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 19FEF43662
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=T0BFeuCx
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id nhqrl238_EfW
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ZZCYPzRQ_Mtg
 	for <virtualization@lists.linux-foundation.org>;
-	Wed, 20 Dec 2023 13:32:40 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 7F03E80E67
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 13:32:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7F03E80E67
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1703079159;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=VMzfUMpfCRySKV14r2ACq/M+O86IvQcMgWeUukBTaDE=;
-	b=Fw/7IhDRA+57AMeTrk8LZo5kM3Rg7Lf/+v5HcPuYUrxY/HH5nFJn485jT+9qpo399TlduM
-	nLHet7/U2fHlaXbz7vy0JjMaOT9attxDnyAuWzeRk3LkPywjopWt7oVRcGHlsSPYcezfEX
-	3dAf5MKcvtnpxDRULIJ9tNim6yl+GyU=
-Received: from mail-yw1-f197.google.com (mail-yw1-f197.google.com
- [209.85.128.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-479-In1brmmyM7-MEmFWb7c0NA-1; Wed, 20 Dec 2023 08:32:37 -0500
-X-MC-Unique: In1brmmyM7-MEmFWb7c0NA-1
-Received: by mail-yw1-f197.google.com with SMTP id 00721157ae682-5ca26c07848so77070497b3.0
-        for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 05:32:37 -0800 (PST)
+	Wed, 20 Dec 2023 14:45:27 +0000 (UTC)
+Received: from mail-qv1-xf31.google.com (mail-qv1-xf31.google.com [IPv6:2607:f8b0:4864:20::f31])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id DA10A404FE
+	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 14:45:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DA10A404FE
+Received: by mail-qv1-xf31.google.com with SMTP id 6a1803df08f44-67ef18444ecso41139036d6.0
+        for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 06:45:26 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1703083525; x=1703688325; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:mime-version:subject:references
+         :in-reply-to:message-id:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=00hWthZLZR4bx/F9jEFUNl/uLb7wDcknN2yFH2/3Afo=;
+        b=T0BFeuCxLIChHsZFD4bcEdjuJPqriLSMo2Qb9/STriqAoLjQNbp8Ow3ooOCF9axjFm
+         yCIQep0dFi9QWPogoRv5whEJTXgTT/u59KNeBNINNKmA2e4llht2k3XW7qxZm9TDTjA7
+         QTMhtEGQLUbthde+AJGh5u1b0czSvKmmaTCUFgTXiZen9Feh1a8nyoRdW9XMZo14Qjvu
+         s75t1+GM2mTK/7njtrIiepqRqe61Hva48kSuwAq/YyoBcxBmqetgi/c+Zw5fPspZU3/f
+         keZZcsDpvhJe0TMZp4XxwZcC34UcP2RIaYBQC6TV2AtRiZfv6hR5zLMfxk+7RvyxwU+m
+         2C6A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703079157; x=1703683957;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=VMzfUMpfCRySKV14r2ACq/M+O86IvQcMgWeUukBTaDE=;
-        b=A62OcWboDRV63zjvCTo6F3IwOHw5Vxla8O+8Hnxf4akvkY5nQdj1HmxtdRXEUKh0SY
-         TO2huHYwV+fz67wmwvtQ30t/5MXRAD0z87xcrsGno7PY17p2iauWqNG4WHQ+zKp5Meu+
-         1CV8ihbdkxeRXOmnwgksTzitOWUD6VuMaWN+6tFDDCddUViahUkIGKnk41a5bDTHvNGG
-         aCXQFDUMa1xsC+2FZ9J7uSWGBPGPcEWu3VuiLmM48KCfYbD1q0gJxOHhaupqnr18PF5E
-         +3CTizw6mOdd5kc7cIrO+Aq/VjbQ90Zm7CyRkAzx/yhnV8kkQUmaYkBrkJJ9n+YHLrEr
-         X21g==
-X-Gm-Message-State: AOJu0Ywn0gzyHtTg4CC+B7DBvopiYSJtXW6FlcZCMt18hIFzGj2I6tbu
-	znghKlMYukQde5gXhm+ner639bwEaf7VGKHhP1elDEdoMvmOwP7qvR7gdNDK8KDvCeF6U5POzU+
-	L4RZAT02Fq1WZTQRI4NTWd87dazHMvuxDb5IRgQukTDUOenBf/dihheEXQA==
-X-Received: by 2002:a81:7104:0:b0:5d7:9515:6ae3 with SMTP id m4-20020a817104000000b005d795156ae3mr14296457ywc.33.1703079157221;
-        Wed, 20 Dec 2023 05:32:37 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHBizLEtuC1w25WSPAQRdmgfmzbhlgoBE+Ri28WemJThaBvVsn/cvQCI5dtZtYAosoVwA/ga7C8ipUzBYNV8OQ=
-X-Received: by 2002:a81:7104:0:b0:5d7:9515:6ae3 with SMTP id
- m4-20020a817104000000b005d795156ae3mr14296452ywc.33.1703079157026; Wed, 20
- Dec 2023 05:32:37 -0800 (PST)
+        d=1e100.net; s=20230601; t=1703083525; x=1703688325;
+        h=content-transfer-encoding:mime-version:subject:references
+         :in-reply-to:message-id:cc:to:from:date:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=00hWthZLZR4bx/F9jEFUNl/uLb7wDcknN2yFH2/3Afo=;
+        b=GwzDIzkTTG828+B7e3jd5ZRtKvq/hY1gr3xzknFlR4ODy3mE1BYWAKjmho5ZNWElLn
+         Duco6ejhEmzxU6UXudmhP/HyeUaxt3t8d+jW4qnxz7fJzaZRe5Z0Mbmd9QbC9rqa+sts
+         uBjajpNGg4Hf17UnMIjvu2MrBJU3JcD8k8aSgnpjSmjNG6bXOWuHSWANuSjFOwded3od
+         oL/DC45ywQ75MpYfs0iDxxfzUkKDBB+Fi79pe+spZHlgWIdGUztFmOAC1ILOyqiRObtd
+         e4BliSLrN0MK00tQYrYNy+QaoxtjyXaCvlo/R8tQmQaFM9TLsOz7W4qOnujXY868qijy
+         91rg==
+X-Gm-Message-State: AOJu0YwphUgwFS/k4tg/TQnmUDjBjEhl7x8b7rAu7/XuNoZNR1m2J/n3
+	y99JsLptLm6E7Hptn5MLBcI=
+X-Google-Smtp-Source: AGHT+IHv7lb+06r/c9ShUIhRC6qHu+HFbvkuZ1S27Ryc/Xemou3/giVSsr8JKcTU/7LdyInq8/HT0g==
+X-Received: by 2002:ad4:5de2:0:b0:67f:276d:a113 with SMTP id jn2-20020ad45de2000000b0067f276da113mr10263563qvb.72.1703083525574;
+        Wed, 20 Dec 2023 06:45:25 -0800 (PST)
+Received: from localhost (114.66.194.35.bc.googleusercontent.com. [35.194.66.114])
+        by smtp.gmail.com with ESMTPSA id f9-20020a37ad09000000b0077fb3fca44asm887159qkm.95.2023.12.20.06.45.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 20 Dec 2023 06:45:25 -0800 (PST)
+Date: Wed, 20 Dec 2023 09:45:25 -0500
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+To: Heng Qi <hengqi@linux.alibaba.com>, 
+ netdev@vger.kernel.org, 
+ virtualization@lists.linux-foundation.org
+Cc: Jason Wang <jasowang@redhat.com>, 
+ "Michael S. Tsirkin" <mst@redhat.com>, 
+ "David S. Miller" <davem@davemloft.net>, 
+ Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>, 
+ Alexei Starovoitov <ast@kernel.org>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Message-ID: <6582fe057cb9_1a34a429435@willemb.c.googlers.com.notmuch>
+In-Reply-To: <f9f7d28624f8084ef07842ee569c22b324ee4055.1703059341.git.hengqi@linux.alibaba.com>
+References: <f9f7d28624f8084ef07842ee569c22b324ee4055.1703059341.git.hengqi@linux.alibaba.com>
+Subject: Re: [PATCH net-next] virtio-net: switch napi_tx without downing nic
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-References: <20231219180858.120898-1-dtatulea@nvidia.com> <20231219180858.120898-3-dtatulea@nvidia.com>
- <CACGkMEv7xQkZYJAgAUK6C3oUrZ9vuUJdTKRzihXcNPb-iWdpJw@mail.gmail.com> <CACGkMEsaaDGi63__YrvsTC1HqgTaEWHvGokK1bJS5+m1XYM-6w@mail.gmail.com>
-In-Reply-To: <CACGkMEsaaDGi63__YrvsTC1HqgTaEWHvGokK1bJS5+m1XYM-6w@mail.gmail.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Wed, 20 Dec 2023 14:32:01 +0100
-Message-ID: <CAJaqyWdoaj8a7q1KrGqWmkYvAw_R_p0utcWvDvkyVm1nUOAxrA@mail.gmail.com>
-Subject: Re: [PATCH vhost v4 02/15] vdpa: Add VHOST_BACKEND_F_CHANGEABLE_VQ_ADDR_IN_SUSPEND
- flag
-To: Jason Wang <jasowang@redhat.com>
-Cc: Dragos Tatulea <dtatulea@nvidia.com>, "Michael S . Tsirkin" <mst@redhat.com>, 
-	Si-Wei Liu <si-wei.liu@oracle.com>, Saeed Mahameed <saeedm@nvidia.com>, 
-	Leon Romanovsky <leon@kernel.org>, virtualization@lists.linux-foundation.org, 
-	Gal Pressman <gal@nvidia.com>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Parav Pandit <parav@nvidia.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Mime-Version: 1.0
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: 7bit
 
-On Wed, Dec 20, 2023 at 5:06=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
-ote:
->
-> On Wed, Dec 20, 2023 at 11:46=E2=80=AFAM Jason Wang <jasowang@redhat.com>=
- wrote:
-> >
-> > On Wed, Dec 20, 2023 at 2:09=E2=80=AFAM Dragos Tatulea <dtatulea@nvidia=
-.com> wrote:
-> > >
-> > > The virtio spec doesn't allow changing virtqueue addresses after
-> > > DRIVER_OK. Some devices do support this operation when the device is
-> > > suspended. The VHOST_BACKEND_F_CHANGEABLE_VQ_ADDR_IN_SUSPEND flag
-> > > advertises this support as a backend features.
-> >
-> > There's an ongoing effort in virtio spec to introduce the suspend state=
-.
-> >
-> > So I wonder if it's better to just allow such behaviour?
->
-> Actually I mean, allow drivers to modify the parameters during suspend
-> without a new feature.
->
+Heng Qi wrote:
+> virtio-net has two ways to switch napi_tx: one is through the
+> module parameter, and the other is through coalescing parameter
+> settings (provided that the nic status is down).
+> 
+> Sometimes we face performance regression caused by napi_tx,
+> then we need to switch napi_tx when debugging. However, the
+> existing methods are a bit troublesome, such as needing to
+> reload the driver or turn off the network card. So try to make
+> this update.
+> 
+> Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
+> Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
-That would be ideal, but how do userland checks if it can suspend +
-change properties + resume?
+The commit does not explain why it is safe to do so.
 
-The only way that comes to my mind is to make sure all parents return
-error if userland tries to do it, and then fallback in userland. I'm
-ok with that, but I'm not sure if the current master & previous kernel
-has a coherent behavior. Do they return error? Or return success
-without changing address / vq state?
+The tx-napi weights are not really weights: it is a boolean whether
+napi is used for transmit cleaning, or whether packets are cleaned
+in ndo_start_xmit.
+
+There certainly are some subtle issues with regard to pausing/waking
+queues when switching between modes.
+
+Calling napi_enable/napi_disable without bringing down the device is
+allowed. The actually napi.weight field is only updated when neither
+napi nor ndo_start_xmit is running. So I don't see an immediate issue.
+
+
+> ---
+>  drivers/net/virtio_net.c | 81 ++++++++++++++++++----------------------
+>  1 file changed, 37 insertions(+), 44 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 10614e9f7cad..12f8e1f9971c 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -3559,16 +3559,37 @@ static int virtnet_coal_params_supported(struct ethtool_coalesce *ec)
+>  	return 0;
+>  }
+>  
+> -static int virtnet_should_update_vq_weight(int dev_flags, int weight,
+> -					   int vq_weight, bool *should_update)
+> +static void virtnet_switch_napi_tx(struct virtnet_info *vi, u32 qstart,
+> +				   u32 qend, u32 tx_frames)
+>  {
+> -	if (weight ^ vq_weight) {
+> -		if (dev_flags & IFF_UP)
+> -			return -EBUSY;
+> -		*should_update = true;
+> -	}
+> +	struct net_device *dev = vi->dev;
+> +	int new_weight, cur_weight;
+> +	struct netdev_queue *txq;
+> +	struct send_queue *sq;
+>  
+> -	return 0;
+> +	new_weight = tx_frames ? NAPI_POLL_WEIGHT : 0;
+> +	for (; qstart < qend; qstart++) {
+> +		sq = &vi->sq[qstart];
+> +		cur_weight = sq->napi.weight;
+> +		if (!(new_weight ^ cur_weight))
+> +			continue;
+> +
+> +		if (!(dev->flags & IFF_UP)) {
+> +			sq->napi.weight = new_weight;
+> +			continue;
+> +		}
+> +
+> +		if (cur_weight)
+> +			virtnet_napi_tx_disable(&sq->napi);
+> +
+> +		txq = netdev_get_tx_queue(dev, qstart);
+> +		__netif_tx_lock_bh(txq);
+> +		sq->napi.weight = new_weight;
+> +		__netif_tx_unlock_bh(txq);
+> +
+> +		if (!cur_weight)
+> +			virtnet_napi_tx_enable(vi, sq->vq, &sq->napi);
+> +	}
+>  }
+>  
+>  static int virtnet_set_coalesce(struct net_device *dev,
+> @@ -3577,25 +3598,11 @@ static int virtnet_set_coalesce(struct net_device *dev,
+>  				struct netlink_ext_ack *extack)
+>  {
+>  	struct virtnet_info *vi = netdev_priv(dev);
+> -	int ret, queue_number, napi_weight;
+> -	bool update_napi = false;
+> -
+> -	/* Can't change NAPI weight if the link is up */
+> -	napi_weight = ec->tx_max_coalesced_frames ? NAPI_POLL_WEIGHT : 0;
+> -	for (queue_number = 0; queue_number < vi->max_queue_pairs; queue_number++) {
+> -		ret = virtnet_should_update_vq_weight(dev->flags, napi_weight,
+> -						      vi->sq[queue_number].napi.weight,
+> -						      &update_napi);
+> -		if (ret)
+> -			return ret;
+> -
+> -		if (update_napi) {
+> -			/* All queues that belong to [queue_number, vi->max_queue_pairs] will be
+> -			 * updated for the sake of simplicity, which might not be necessary
+> -			 */
+> -			break;
+> -		}
+> -	}
+> +	int ret;
+> +
+> +	/* Param tx_frames can be used to switch napi_tx */
+> +	virtnet_switch_napi_tx(vi, 0, vi->max_queue_pairs,
+> +			       ec->tx_max_coalesced_frames);
+>  
+>  	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_NOTF_COAL))
+>  		ret = virtnet_send_notf_coal_cmds(vi, ec);
+> @@ -3605,11 +3612,6 @@ static int virtnet_set_coalesce(struct net_device *dev,
+>  	if (ret)
+>  		return ret;
+>  
+> -	if (update_napi) {
+> -		for (; queue_number < vi->max_queue_pairs; queue_number++)
+> -			vi->sq[queue_number].napi.weight = napi_weight;
+> -	}
+> -
+>  	return ret;
+>  }
+>  
+> @@ -3641,19 +3643,13 @@ static int virtnet_set_per_queue_coalesce(struct net_device *dev,
+>  					  struct ethtool_coalesce *ec)
+>  {
+>  	struct virtnet_info *vi = netdev_priv(dev);
+> -	int ret, napi_weight;
+> -	bool update_napi = false;
+> +	int ret;
+>  
+>  	if (queue >= vi->max_queue_pairs)
+>  		return -EINVAL;
+>  
+> -	/* Can't change NAPI weight if the link is up */
+> -	napi_weight = ec->tx_max_coalesced_frames ? NAPI_POLL_WEIGHT : 0;
+> -	ret = virtnet_should_update_vq_weight(dev->flags, napi_weight,
+> -					      vi->sq[queue].napi.weight,
+> -					      &update_napi);
+> -	if (ret)
+> -		return ret;
+> +	/* Param tx_frames can be used to switch napi_tx */
+> +	virtnet_switch_napi_tx(vi, queue, queue, ec->tx_max_coalesced_frames);
+>  
+>  	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL))
+>  		ret = virtnet_send_notf_coal_vq_cmds(vi, ec, queue);
+> @@ -3663,9 +3659,6 @@ static int virtnet_set_per_queue_coalesce(struct net_device *dev,
+>  	if (ret)
+>  		return ret;
+>  
+> -	if (update_napi)
+> -		vi->sq[queue].napi.weight = napi_weight;
+> -
+>  	return 0;
+>  }
+>  
+> -- 
+> 2.19.1.6.gb485710b
+> 
+
 
