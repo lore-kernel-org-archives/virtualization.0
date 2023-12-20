@@ -1,241 +1,198 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 313A3125AC
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 06:41:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9B3113ACF
+	for <virtualization@lists.linux.dev>; Wed, 20 Dec 2023 07:01:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=brainfault-org.20230601.gappssmtp.com header.i=@brainfault-org.20230601.gappssmtp.com header.b="LD0GSGLR"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id AA3C141E3A
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 06:41:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AA3C141E3A
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=brainfault-org.20230601.gappssmtp.com header.i=@brainfault-org.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=LD0GSGLR
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -1.898
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id JY3kw5r4_rzv
-	for <virtualization@lists.linux-foundation.org>;
-	Wed, 20 Dec 2023 06:41:54 +0000 (UTC)
-Received: from mail-oo1-xc33.google.com (mail-oo1-xc33.google.com [IPv6:2607:f8b0:4864:20::c33])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 8E4E641E27
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 06:41:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8E4E641E27
-Received: by mail-oo1-xc33.google.com with SMTP id 006d021491bc7-58dd3528497so3777673eaf.3
-        for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 22:41:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=brainfault-org.20230601.gappssmtp.com; s=20230601; t=1703054513; x=1703659313; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=BN8ws6aob+i7GzJge6YLErack05h3kL4ycYwmV8Hv9E=;
-        b=LD0GSGLRwVRPtjbhK2/qLGjBNbhyxZ9zPEHqoOdhBniBmWbaAypWET8Cgs5vO4/Qwf
-         R/hEaZmQiQA1My7Jalk2E5oqrgC+H35qIMCKOFBwj+nywS448p7mFjyeSBCL+kic7g7l
-         FRWrhipFXUa2SfhKlBkGGtiwiaQ9j6ap+6HjVmJFDxQcJiZTb1Bt0y9oe0U/UzcSbcHB
-         B6h/BZBWXOlVgrsANQCTK9GKlIPfkqnTsmhwJsnP06OqjyqBEIWuJPm6yhsAY6bKP48C
-         jiAQRTKi33tLfMBx3Et3OSlwlt0OMv9yJmxmmTPO8831KHkyPlG3VUPoyKw8IXcuL9U7
-         W2Cw==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZyX4htmf"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1703055710;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=rd5YQ9r+q6yCXPyEf0CX/bG54ESKopDl5R8m4Jw2XKA=;
+	b=ZyX4htmfTAuXCB3konZzIoBs5KFHmublUUSzornPOP3swiIEtkqxppCpbJgO5A+vmt8IpA
+	gsrq6Nm+TqUqePE2W+7ouOsNI6Hf3CS485Hx63L/KHHiHZn4qQAMwrnEhZLuyc0ppbO36y
+	fh12oyKrzARIhYieBS58Narp+0xry1s=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-194-IIOkitkcNiqPDYGVG7gKZQ-1; Wed, 20 Dec 2023 02:01:49 -0500
+X-MC-Unique: IIOkitkcNiqPDYGVG7gKZQ-1
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-40c4a824c4bso41563695e9.2
+        for <virtualization@lists.linux.dev>; Tue, 19 Dec 2023 23:01:49 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703054513; x=1703659313;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=BN8ws6aob+i7GzJge6YLErack05h3kL4ycYwmV8Hv9E=;
-        b=CGUHp2XiBfL3Im0UURanjMYtCfdbqGsTjXSnUsKspXoBnCcvJobJcJ+beziguXkmBA
-         GLlpS7huOHI99Hpg2zEOrxn0mpwxTLqu98BEjkiFtn2Gtu0aq/MRFgPwEoNMtGA3g8w3
-         c8SBKTkWqx3jMEIUPuZNRauDzPZVlhpyhtLeYd+Y+S/szKJMAKsBZRg3/pXSYujsm6iD
-         7ah7TA9dfXfIypOdLJpShfpeWvw3GjnPDONS3WkUpSPXuweK6nO7J2TAUSCXFHh31unP
-         yu/hg/xkhnrRPj73dWqZgcwWf6PafxBHoNyQAudPodmkniEl9UoM59KWXOrYWrPfd8M/
-         tGEw==
-X-Gm-Message-State: AOJu0Yx4SV15KCH9RXlTBtQBAk6WCv2bEWOyi2jFWPcEz1DWPtZh0GNL
-	Ie24mGHHaijmooT2VuKnCzsXU4HOVyivQz0VMiJvfw==
-X-Google-Smtp-Source: AGHT+IE4lLzB3fcAVMK0KRAhjf1irt6O7ewgUPrYZ00fT9i/H81XeJGqessePq38WFZQ+QslVvsXvtIcssmbbvmqkrI=
-X-Received: by 2002:a05:6358:6503:b0:173:b44:1889 with SMTP id
- v3-20020a056358650300b001730b441889mr199232rwg.16.1703054513140; Tue, 19 Dec
- 2023 22:41:53 -0800 (PST)
+        d=1e100.net; s=20230601; t=1703055708; x=1703660508;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=rd5YQ9r+q6yCXPyEf0CX/bG54ESKopDl5R8m4Jw2XKA=;
+        b=BX7PVG9HM5CC4OfzjD+4IzEpHGJ48gNeJrmvo5+x3LOdZxQxvUqOBXP4HEve/GwLim
+         mhnVNiMBBkl3b64XbKQKw09pnuo84qeRck3SuWQeTZZV0T0nSbGe/pDXuH8KSkNoWr3W
+         JCUAYqebRaAsqSF2IytphNcVs+Sxt9Xrnodr5mL0+LtQAAs3JsqLG8hv9rXwLeXmuqJe
+         GZhDGGeb4BeI/vm8NAOE52DKITdFb2iyFqghEv3tTr5SslbRecFB3jEvKFobVv0Xy/Xi
+         zK9nSoYraKT+v52hBfy6k30v2XtRQX4CQ3gmySHi2Sjnpchf9zI8wyBtPwF5eUlxUAZS
+         cLUA==
+X-Gm-Message-State: AOJu0YzXKh5J7fZKCVfWqhI9ECHJ2EJx+aw5FnuAKDR7I9Iai9oCXKNT
+	lOF3frdyPvVdLbup7wF+4zsaXpME5hEaQ0b7l9v8DF8vWq4+oCKtMHUoC38Lt58NHuHNtsL5/6J
+	BC9bDBsar1rez+Ue0ajxsf8RzvFA=
+X-Received: by 2002:a05:600c:16d4:b0:40c:848:71bf with SMTP id l20-20020a05600c16d400b0040c084871bfmr9535303wmn.186.1703055708162;
+        Tue, 19 Dec 2023 23:01:48 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHZ1vB4EZFQLQdvC5TbQGze9IygzOlVUMt02E+45ULlDlpd0iQcsLeDos6Dyx2Se+helIaGdA==
+X-Received: by 2002:a05:600c:16d4:b0:40c:848:71bf with SMTP id l20-20020a05600c16d400b0040c084871bfmr9535297wmn.186.1703055707788;
+        Tue, 19 Dec 2023 23:01:47 -0800 (PST)
+Received: from redhat.com ([2.52.148.230])
+        by smtp.gmail.com with ESMTPSA id k17-20020adff291000000b003367bb8898dsm637039wro.66.2023.12.19.23.01.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 Dec 2023 23:01:46 -0800 (PST)
+Date: Wed, 20 Dec 2023 02:01:43 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Changyuan Lyu <changyuanl@google.com>
+Cc: jasowang@redhat.com, dan.j.williams@intel.com, dave.jiang@intel.com,
+	linux-kernel@vger.kernel.org, nvdimm@lists.linux.dev,
+	pankaj.gupta.linux@gmail.com, virtualization@lists.linux.dev,
+	vishal.l.verma@intel.com, xuanzhuo@linux.alibaba.com
+Subject: Re: [PATCH v2] virtio_pmem: support feature SHMEM_REGION
+Message-ID: <20231220020100-mutt-send-email-mst@kernel.org>
+References: <CACGkMEuEY5xJyf6H6RgqSuD0PeY9kynYywxzM2+3W6MPaav0Zw@mail.gmail.com>
+ <20231220061301.228671-1-changyuanl@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20231217204019.36492-15-ajones@ventanamicro.com> <20231217204019.36492-18-ajones@ventanamicro.com>
-In-Reply-To: <20231217204019.36492-18-ajones@ventanamicro.com>
-From: Anup Patel <anup@brainfault.org>
-Date: Wed, 20 Dec 2023 12:11:40 +0530
-Message-ID: <CAAhSdy2y_scAkgEnW2VMq-VD8-pUUEfT3eFnozZBRbJ_uGgeYg@mail.gmail.com>
-Subject: Re: [PATCH v3 03/13] RISC-V: paravirt: Implement steal-time support
-To: Andrew Jones <ajones@ventanamicro.com>
-Cc: kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
-	virtualization@lists.linux-foundation.org, atishp@atishpatra.org, 
-	pbonzini@redhat.com, paul.walmsley@sifive.com, palmer@dabbelt.com, 
-	aou@eecs.berkeley.edu, jgross@suse.com, srivatsa@csail.mit.edu, 
-	guoren@kernel.org, conor.dooley@microchip.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20231220061301.228671-1-changyuanl@google.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Mon, Dec 18, 2023 at 2:10=E2=80=AFAM Andrew Jones <ajones@ventanamicro.c=
-om> wrote:
->
-> When the SBI STA extension exists we can use it to implement
-> paravirt steal-time support. Fill in the empty pv-time functions
-> with an SBI STA implementation and add the Kconfig knobs allowing
-> it to be enabled.
->
-> Signed-off-by: Andrew Jones <ajones@ventanamicro.com>
+On Tue, Dec 19, 2023 at 10:13:00PM -0800, Changyuan Lyu wrote:
+> On Tue, Dec 19, 2023 at 7:57 PM Jason Wang <jasowang@redhat.com> wrote:
+> >
+> > On Tue, Dec 19, 2023 at 3:19 PM Changyuan Lyu <changyuanl@google.com> wrote:
+> > >
+> > > +/* shmid of the shared memory region corresponding to the pmem */
+> > > +#define VIRTIO_PMEM_SHMCAP_ID 0
+> >
+> > NIT: not a native speaker, but any reason for "CAP" here? Would it be
+> > better to use SHMMEM_REGION_ID?
+> 
+> I was following the name VIRTIO_FS_SHMCAP_ID_CACHE in
+> include/uapi/linux/virtio_fs.h, where I guess "CAP" was referring to
+> the shared memory capability when the device is on PCI bus. I agree
+> SHMMEM_REGION_ID is a better name.
+> 
+> On Tue, Dec 19, 2023 at 3:19 PM Changyuan Lyu <changyuanl@google.com> wrote:
+> >
+> > +		if (!have_shm) {
+> > +			dev_err(&vdev->dev, "failed to get shared memory region %d\n",
+> > +					VIRTIO_PMEM_SHMCAP_ID);
+> > +			return -EINVAL;
+> > +		}
+> 
+> I realized that it needs to jump to tag out_vq to clean up vqs
+> instead of simply returnning an error.
+> 
+> Thanks for reviewing the patch!
+> 
+> ---8<---
+> 
+> As per virtio spec 1.2 section 5.19.5.2, if the feature
+> VIRTIO_PMEM_F_SHMEM_REGION has been negotiated, the driver MUST query
+> shared memory ID 0 for the physical address ranges.
 
-LGTM.
+This is not a great description. Please describe what the patch does.
 
-Reviewed-by: Anup Patel <anup@brainfault.org>
-
-Regards,
-Anup
-
+> Signed-off-by: Changyuan Lyu <changyuanl@google.com>
+> 
 > ---
->  arch/riscv/Kconfig           | 19 +++++++++++
->  arch/riscv/kernel/paravirt.c | 63 ++++++++++++++++++++++++++++++++++--
->  2 files changed, 79 insertions(+), 3 deletions(-)
->
-> diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-> index 95a2a06acc6a..b99fd8129edf 100644
-> --- a/arch/riscv/Kconfig
-> +++ b/arch/riscv/Kconfig
-> @@ -724,6 +724,25 @@ config COMPAT
->
->           If you want to execute 32-bit userspace applications, say Y.
->
-> +config PARAVIRT
-> +       bool "Enable paravirtualization code"
-> +       depends on RISCV_SBI
-> +       help
-> +         This changes the kernel so it can modify itself when it is run
-> +         under a hypervisor, potentially improving performance significa=
-ntly
-> +         over full virtualization.
+> V2:
+>   * renamed VIRTIO_PMEM_SHMCAP_ID to VIRTIO_PMEM_SHMEM_REGION_ID
+>   * fixed the error handling when region 0 does not exist
+> ---
+>  drivers/nvdimm/virtio_pmem.c     | 30 ++++++++++++++++++++++++++----
+>  include/uapi/linux/virtio_pmem.h |  8 ++++++++
+>  2 files changed, 34 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/nvdimm/virtio_pmem.c b/drivers/nvdimm/virtio_pmem.c
+> index a92eb172f0e7..8e447c7558cb 100644
+> --- a/drivers/nvdimm/virtio_pmem.c
+> +++ b/drivers/nvdimm/virtio_pmem.c
+> @@ -35,6 +35,8 @@ static int virtio_pmem_probe(struct virtio_device *vdev)
+>  	struct nd_region *nd_region;
+>  	struct virtio_pmem *vpmem;
+>  	struct resource res;
+> +	struct virtio_shm_region shm_reg;
+> +	bool have_shm;
+>  	int err = 0;
+>  
+>  	if (!vdev->config->get) {
+> @@ -57,10 +59,24 @@ static int virtio_pmem_probe(struct virtio_device *vdev)
+>  		goto out_err;
+>  	}
+>  
+> -	virtio_cread_le(vpmem->vdev, struct virtio_pmem_config,
+> -			start, &vpmem->start);
+> -	virtio_cread_le(vpmem->vdev, struct virtio_pmem_config,
+> -			size, &vpmem->size);
+> +	if (virtio_has_feature(vdev, VIRTIO_PMEM_F_SHMEM_REGION)) {
+> +		have_shm = virtio_get_shm_region(vdev, &shm_reg,
+> +				(u8)VIRTIO_PMEM_SHMEM_REGION_ID);
+> +		if (!have_shm) {
+> +			dev_err(&vdev->dev, "failed to get shared memory region %d\n",
+> +					VIRTIO_PMEM_SHMEM_REGION_ID);
+> +			err = -ENXIO;
+> +			goto out_vq;
+> +		}
+> +		vpmem->start = shm_reg.addr;
+> +		vpmem->size = shm_reg.len;
+> +	} else {
+> +		virtio_cread_le(vpmem->vdev, struct virtio_pmem_config,
+> +				start, &vpmem->start);
+> +		virtio_cread_le(vpmem->vdev, struct virtio_pmem_config,
+> +				size, &vpmem->size);
+> +	}
 > +
-> +config PARAVIRT_TIME_ACCOUNTING
-> +       bool "Paravirtual steal time accounting"
-> +       depends on PARAVIRT
-> +       help
-> +         Select this option to enable fine granularity task steal time
-> +         accounting. Time spent executing other tasks in parallel with
-> +         the current vCPU is discounted from the vCPU power. To account =
-for
-> +         that, there can be a small performance impact.
-> +
-> +         If in doubt, say N here.
-> +
->  config RELOCATABLE
->         bool "Build a relocatable kernel"
->         depends on MMU && 64BIT && !XIP_KERNEL
-> diff --git a/arch/riscv/kernel/paravirt.c b/arch/riscv/kernel/paravirt.c
-> index 141dbcc36fa2..cc6a85432678 100644
-> --- a/arch/riscv/kernel/paravirt.c
-> +++ b/arch/riscv/kernel/paravirt.c
-> @@ -6,12 +6,21 @@
->  #define pr_fmt(fmt) "riscv-pv: " fmt
->
->  #include <linux/cpuhotplug.h>
-> +#include <linux/compiler.h>
-> +#include <linux/errno.h>
->  #include <linux/init.h>
->  #include <linux/jump_label.h>
-> +#include <linux/kconfig.h>
-> +#include <linux/kernel.h>
-> +#include <linux/percpu-defs.h>
->  #include <linux/printk.h>
->  #include <linux/static_call.h>
->  #include <linux/types.h>
->
-> +#include <asm/barrier.h>
-> +#include <asm/page.h>
-> +#include <asm/sbi.h>
-> +
->  struct static_key paravirt_steal_enabled;
->  struct static_key paravirt_steal_rq_enabled;
->
-> @@ -31,24 +40,72 @@ static int __init parse_no_stealacc(char *arg)
->
->  early_param("no-steal-acc", parse_no_stealacc);
->
-> +DEFINE_PER_CPU(struct sbi_sta_struct, steal_time) __aligned(64);
-> +
->  static bool __init has_pv_steal_clock(void)
->  {
-> +       if (sbi_spec_version >=3D sbi_mk_version(2, 0) &&
-> +           sbi_probe_extension(SBI_EXT_STA) > 0) {
-> +               pr_info("SBI STA extension detected\n");
-> +               return true;
-> +       }
-> +
->         return false;
+>  
+>  	res.start = vpmem->start;
+>  	res.end   = vpmem->start + vpmem->size - 1;
+> @@ -122,7 +138,13 @@ static void virtio_pmem_remove(struct virtio_device *vdev)
+>  	virtio_reset_device(vdev);
 >  }
->
-> -static int pv_time_cpu_online(unsigned int cpu)
-> +static int sbi_sta_steal_time_set_shmem(unsigned long lo, unsigned long =
-hi,
-> +                                       unsigned long flags)
->  {
-> +       struct sbiret ret;
+>  
+> +static unsigned int features[] = {
+> +	VIRTIO_PMEM_F_SHMEM_REGION,
+> +};
 > +
-> +       ret =3D sbi_ecall(SBI_EXT_STA, SBI_EXT_STA_STEAL_TIME_SET_SHMEM,
-> +                       lo, hi, flags, 0, 0, 0);
-> +       if (ret.error) {
-> +               if (lo =3D=3D SBI_STA_SHMEM_DISABLE && hi =3D=3D SBI_STA_=
-SHMEM_DISABLE)
-> +                       pr_warn("Failed to disable steal-time shmem");
-> +               else
-> +                       pr_warn("Failed to set steal-time shmem");
-> +               return sbi_err_map_linux_errno(ret.error);
-> +       }
+>  static struct virtio_driver virtio_pmem_driver = {
+> +	.feature_table		= features,
+> +	.feature_table_size	= ARRAY_SIZE(features),
+>  	.driver.name		= KBUILD_MODNAME,
+>  	.driver.owner		= THIS_MODULE,
+>  	.id_table		= id_table,
+> diff --git a/include/uapi/linux/virtio_pmem.h b/include/uapi/linux/virtio_pmem.h
+> index d676b3620383..c5e49b6e58b1 100644
+> --- a/include/uapi/linux/virtio_pmem.h
+> +++ b/include/uapi/linux/virtio_pmem.h
+> @@ -14,6 +14,14 @@
+>  #include <linux/virtio_ids.h>
+>  #include <linux/virtio_config.h>
+>  
+> +/* Feature bits */
+> +#define VIRTIO_PMEM_F_SHMEM_REGION 0	/* guest physical address range will be
+> +					 * indicated as shared memory region 0
+> +					 */
 > +
->         return 0;
->  }
->
-> +static int pv_time_cpu_online(unsigned int cpu)
-> +{
-> +       struct sbi_sta_struct *st =3D this_cpu_ptr(&steal_time);
-> +       phys_addr_t pa =3D __pa(st);
-> +       unsigned long lo =3D (unsigned long)pa;
-> +       unsigned long hi =3D IS_ENABLED(CONFIG_32BIT) ? upper_32_bits((u6=
-4)pa) : 0;
+> +/* shmid of the shared memory region corresponding to the pmem */
+> +#define VIRTIO_PMEM_SHMEM_REGION_ID 0
 > +
-> +       return sbi_sta_steal_time_set_shmem(lo, hi, 0);
-> +}
-> +
->  static int pv_time_cpu_down_prepare(unsigned int cpu)
->  {
-> -       return 0;
-> +       return sbi_sta_steal_time_set_shmem(SBI_STA_SHMEM_DISABLE,
-> +                                           SBI_STA_SHMEM_DISABLE, 0);
->  }
->
->  static u64 pv_time_steal_clock(int cpu)
->  {
-> -       return 0;
-> +       struct sbi_sta_struct *st =3D per_cpu_ptr(&steal_time, cpu);
-> +       u32 sequence;
-> +       u64 steal;
-> +
-> +       /*
-> +        * Check the sequence field before and after reading the steal
-> +        * field. Repeat the read if it is different or odd.
-> +        */
-> +       do {
-> +               sequence =3D READ_ONCE(st->sequence);
-> +               virt_rmb();
-> +               steal =3D READ_ONCE(st->steal);
-> +               virt_rmb();
-> +       } while ((le32_to_cpu(sequence) & 1) ||
-> +                sequence !=3D READ_ONCE(st->sequence));
-> +
-> +       return le64_to_cpu(steal);
->  }
->
->  int __init pv_time_init(void)
-> --
-> 2.43.0
->
+>  struct virtio_pmem_config {
+>  	__le64 start;
+>  	__le64 size;
+> -- 
+> 2.43.0.472.g3155946c3a-goog
+
