@@ -1,79 +1,79 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C8DB1F5F5
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 03:47:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A29A0200BE
+	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 03:47:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aMHVnsUt"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BoVBXp1a"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id D756A4090D
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 03:47:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D756A4090D
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=aMHVnsUt
+	by smtp1.osuosl.org (Postfix) with ESMTP id 4520783260
+	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 03:47:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4520783260
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=BoVBXp1a
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id wmAnyWzm_Rgs
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id bUApE6xlIZKg
 	for <virtualization@lists.linux-foundation.org>;
-	Wed, 20 Dec 2023 03:47:22 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id ECAB74011F
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 03:47:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org ECAB74011F
+	Wed, 20 Dec 2023 03:47:23 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 8671682C61
+	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 03:47:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8671682C61
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1703044040;
+	s=mimecast20190719; t=1703044042;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=jXT8y9tlblfV00CjChE7U+F283GXLav1fpyYasxi31k=;
-	b=aMHVnsUt1/bOLudb/os4Mb/68bsPqJ6iTGCmDukE7FnDsJNW9tcY+XsKOirBSOcgP+H7p0
-	ZBdqSwusPkXAuZRmh6mOXuNTZmFRqAT7L2k/KlJg7SK7kmTzk1Kf3Gkh/IEjRAo0Jw9AW2
-	iSw34WuxUhUmMoSByNozU6nod53Db+I=
-Received: from mail-oo1-f69.google.com (mail-oo1-f69.google.com
- [209.85.161.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=zeRKaaUGMF/rV1Pw2tqp6lNgEKTL5KPcCr8EDMoKMeM=;
+	b=BoVBXp1aSRuYG6C7ze3k3Yd3ctOJK2iBDudvgG7XHsgESZ+SRzWqki6ANfZuOSGlfdmjLQ
+	MYSmgshA0XmnkBM7WA821on6m8z9qpLuUZXSZWilWv/jALwuctlZY5iUfp+PgmCfs8lIm1
+	FWpZ5eviBUjrsI0bOU0IaVcUoKLPZWI=
+Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
+ [209.85.222.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-497-H_oVEG6VO6ahMpvOLITTMA-1; Tue, 19 Dec 2023 22:47:18 -0500
-X-MC-Unique: H_oVEG6VO6ahMpvOLITTMA-1
-Received: by mail-oo1-f69.google.com with SMTP id 006d021491bc7-5919d9e57a3so5289102eaf.1
-        for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 19:47:18 -0800 (PST)
+ us-mta-610-WSoySObPMiO6REJ6O3o4ig-1; Tue, 19 Dec 2023 22:47:20 -0500
+X-MC-Unique: WSoySObPMiO6REJ6O3o4ig-1
+Received: by mail-qk1-f200.google.com with SMTP id af79cd13be357-77fb91da85cso761788185a.2
+        for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 19:47:20 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703044038; x=1703648838;
+        d=1e100.net; s=20230601; t=1703044040; x=1703648840;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=jXT8y9tlblfV00CjChE7U+F283GXLav1fpyYasxi31k=;
-        b=MpJR7+qq/W0sxZN70Ijq6CgTfCYo/yKO6oD4baa/HnSyCuIegU0okBkhO5YFk59n0T
-         Nb1RW0m8kwSXc1d/lqBIyzatXbMGnUsYoUz5QnnJtSLaHXULYyJmVGFDiMfPRjJC8qTg
-         KhoNrqhj2bCu3Ufi5tA/kQg/eLC5ZUA5GF6rSz3FbRUklpJ86jlB8VxMjWh4qrmZMkew
-         +3XcPzNsMlMcUA3oeLypyNgifwUQBEdFTnDKk7rOViZ4AKQzCnad97VOH9AEcS26+XkQ
-         n5zb2H7+ILrBDa0gEMeHq+SmaJNMW/nrtutf6Y7u5HKlvnryXHism8Ekn0xy5VRnHizY
-         Nr5g==
-X-Gm-Message-State: AOJu0YwpFyn2nuTMOw/wRZ/aqA3hIzZnBJhK2R835hmQRTqKkB1vN7GT
-	bJz8AlS3bLIjxoxYqKvoDJLvZmbODKUValEhtnIr4s+YT2+J2BNVOkV7GTcBKlsvtT0b+zscISv
-	/VPWwHlHPDuQ7VfKsdf/gk9iF8G9YcCW4++leEUeZTW81jRU2jwttxeRo8w==
-X-Received: by 2002:a05:6359:6a6:b0:170:406d:42e7 with SMTP id ei38-20020a05635906a600b00170406d42e7mr18126797rwb.39.1703044038238;
-        Tue, 19 Dec 2023 19:47:18 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEZ0zz4zEAWU43T+4oCW+F/doXzW3xC/zXGOAN1e58DPokWZLVU/waMdMYVR9sY2LCmHpV9lPtvyLyHoo9xicM=
-X-Received: by 2002:a05:6359:6a6:b0:170:406d:42e7 with SMTP id
- ei38-20020a05635906a600b00170406d42e7mr18126783rwb.39.1703044037924; Tue, 19
- Dec 2023 19:47:17 -0800 (PST)
+        bh=zeRKaaUGMF/rV1Pw2tqp6lNgEKTL5KPcCr8EDMoKMeM=;
+        b=E4eOGFGuWWjyIiUWjvj2fmmz3LB32hM/D4BsrlpMPW7EJYfgLxAAf4QBa7XlvUYw/f
+         bQIVl/oQPLaJA/NzH5ikqcm8vhWZ7VA+eFrgp51ucL5BjsFf4SM3g3byCH4Ez5CiHIS3
+         ZozCyRQDA3Ea/ilwCGbJQbZTIkl4b3CTHlhhc2egE7gk9jwe6nFEOHkZguRIVXmLZtpr
+         NF2sBz3bexEGsV+coSRnG+K55ev48+s5OzaTIY2wzECBW3o4dR42w27ZirWJuAexFCoH
+         0kPyEYT3N6y49f0YBLOs/w1bHjRzg7vjbJ6hDi/JxqdlAjZu829GZkmBqebbZoRnbeRb
+         BVWg==
+X-Gm-Message-State: AOJu0YwbykniTLOBX8kGBxDe/jo1ERA8GAHYsYY2DmiiyKMpF7g2xLKS
+	NonIzhAeF7VYa6bbuoftysThj9pxoWjVVOFGsc9tB+at343h9DEN/r0Fywa57Iur1l/8QorLcl+
+	y5EMT17C9sDWoRVnv1R9ySN08ASlaOvJyPGfaFtXBhrieqZdkgAvR/2R6ZA==
+X-Received: by 2002:a05:620a:1025:b0:781:2e4:a333 with SMTP id a5-20020a05620a102500b0078102e4a333mr1851796qkk.101.1703044040366;
+        Tue, 19 Dec 2023 19:47:20 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IF2eu48vysOQiZNwVknIUUkOGzk8lLz1dfUfotvXOLhv6Vyvhvaja8sHuwdb2gwij5dOp0VLjJ8belHFZFJh4k=
+X-Received: by 2002:a05:620a:1025:b0:781:2e4:a333 with SMTP id
+ a5-20020a05620a102500b0078102e4a333mr1851780qkk.101.1703044040147; Tue, 19
+ Dec 2023 19:47:20 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20231219180858.120898-1-dtatulea@nvidia.com> <20231219180858.120898-14-dtatulea@nvidia.com>
-In-Reply-To: <20231219180858.120898-14-dtatulea@nvidia.com>
+References: <20231219180858.120898-1-dtatulea@nvidia.com> <20231219180858.120898-15-dtatulea@nvidia.com>
+In-Reply-To: <20231219180858.120898-15-dtatulea@nvidia.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 20 Dec 2023 11:47:05 +0800
-Message-ID: <CACGkMEtbGurh-HUb3eDcH74y7YDnvd06K8=MvRHj+4NLyaJ3Ag@mail.gmail.com>
-Subject: Re: [PATCH vhost v4 13/15] vdpa/mlx5: Use vq suspend/resume during .set_map
+Date: Wed, 20 Dec 2023 11:47:08 +0800
+Message-ID: <CACGkMEtMkjORddUC4x+O9JsDevQBpo0KiJu1XCcvxgKgqfXuGQ@mail.gmail.com>
+Subject: Re: [PATCH vhost v4 14/15] vdpa/mlx5: Introduce reference counting to mrs
 To: Dragos Tatulea <dtatulea@nvidia.com>
 Cc: "Michael S . Tsirkin" <mst@redhat.com>, Eugenio Perez Martin <eperezma@redhat.com>, 
 	Si-Wei Liu <si-wei.liu@oracle.com>, Saeed Mahameed <saeedm@nvidia.com>, 
@@ -88,13 +88,21 @@ Content-Transfer-Encoding: quoted-printable
 On Wed, Dec 20, 2023 at 2:10=E2=80=AFAM Dragos Tatulea <dtatulea@nvidia.com=
 > wrote:
 >
-> Instead of tearing down and setting up vq resources, use vq
-> suspend/resume during .set_map to speed things up a bit.
+> Deleting the old mr during mr update (.set_map) and then modifying the
+> vqs with the new mr is not a good flow for firmware. The firmware
+> expects that mkeys are deleted after there are no more vqs referencing
+> them.
 >
-> The vq mr is updated with the new mapping while the vqs are suspended.
+> Introduce reference counting for mrs to fix this. It is the only way to
+> make sure that mkeys are not in use by vqs.
 >
-> If the device doesn't support resumable vqs, do the old teardown and
-> setup dance.
+> An mr reference is taken when the mr is associated to the mr asid table
+> and when the mr is linked to the vq on create/modify. The reference is
+> released when the mkey is unlinked from the vq (trough modify/destroy)
+> and from the mr asid table.
+>
+> To make things consistent, get rid of mlx5_vdpa_destroy_mr and use
+> get/put semantics everywhere.
 >
 > Reviewed-by: Gal Pressman <gal@nvidia.com>
 > Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
