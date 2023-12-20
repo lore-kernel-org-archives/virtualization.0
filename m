@@ -1,138 +1,210 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yb1-f201.google.com (mail-yb1-f201.google.com [209.85.219.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B90AC4645F
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 16:33:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F6AD1DDD4
+	for <virtualization@lists.linux.dev>; Wed, 20 Dec 2023 20:49:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--changyuanl.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="B7qAiI6g"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 5DAC14085E
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 16:33:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5DAC14085E
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=B7qAiI6g
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ccjYJm6ssVEy
-	for <virtualization@lists.linux-foundation.org>;
-	Wed, 20 Dec 2023 16:33:07 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 85E56408C3
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 16:33:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 85E56408C3
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1703089986;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=otTibsUCfMz/7ItOEyfiSpPc/e6QlSfHglq36d1YbNk=;
-	b=B7qAiI6gbxD7Nc+iYJ30AVcD2rkrOI7WmUiyO0MjXNEBDghEllYS+SIZlk2IHVY6XlfENu
-	iWXuRUn46+nHWfPl7hGb44VpXAWISD61KZsXqrjKVpn5JgfenoZK4IYGt/hqS+qo4lwa6x
-	wYEZSFISwdqli4mv3RwoLqX1ABtRmeg=
-Received: from mail-yw1-f199.google.com (mail-yw1-f199.google.com
- [209.85.128.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-362-qzlFv0kVNHOwWCfx7zdZpA-1; Wed, 20 Dec 2023 11:33:03 -0500
-X-MC-Unique: qzlFv0kVNHOwWCfx7zdZpA-1
-Received: by mail-yw1-f199.google.com with SMTP id 00721157ae682-5cf4696e202so80475187b3.2
-        for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 08:33:02 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="RfJtprYT"
+Received: by mail-yb1-f201.google.com with SMTP id 3f1490d57ef6-dbcd9f4396eso159951276.0
+        for <virtualization@lists.linux.dev>; Wed, 20 Dec 2023 12:49:48 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1703105388; x=1703710188; darn=lists.linux.dev;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=+67tASvvfvVlycjBWIPAKXF8pqUpHvg7cTGJy7iScoY=;
+        b=RfJtprYTXT4u3vOJ1fOzS+yHrdVd9gejYn5BOFN2weiSOBZ/fVNULEt0bInVHI735b
+         suNHJ0qwm/zaoHq+RExLGPHDtRadqB1sYqzl9Gcw6q1SlJyQoWsA9emWMiE/5Nu9pSGb
+         tbe8aRJuo0SdQJtFDfc3Vz7IUYnQoLzmhXIycGKiJ3qAd1YKfnw1Z/NORoEOmS8VAlLD
+         29wrsK0MYMHCC2IE9ubPS3BAaVkC4Ne7eGR720ZfWPlM9cDQT4vz0fyDIoaGdy+B82yU
+         IBRIrYvr1Lu8U9wtbWG+SlI4jtVAYIV0HAw5CAhEjVVFMXr6mcSI8FY7g8PFYM1G8mBn
+         gmfQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703089982; x=1703694782;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=otTibsUCfMz/7ItOEyfiSpPc/e6QlSfHglq36d1YbNk=;
-        b=TkBPLRBYVqmQlWUd6X9bQ73pX3XCmbSzBJMKZU+558+P8LiACSummOVrqEBKhlehTI
-         DX4C5TIcM//M/g7O2sLLql59DUEQNSgxgse6lQhJHqstqJwwc4qWH9b0as9u09WeTPOh
-         EDzfcoHAh7lm7m4JrDF9WizocHRjhkJC9zGXcKcuxHd0AE4VTRW1yQIsm23cEaE+5Glf
-         F2a3rVJeI8Gm0La5hEZCnwYe4t4nAG9zu/oi1Mh0UT1B03IrvGaQxwZz0jHL8hBEaW6i
-         O4DCI8kav48cxbsLgDcZ4Wq9VUqMMReB8jcNpszUIrYZ2JlqgmMFFEnH06ipS838GFLR
-         V4eA==
-X-Gm-Message-State: AOJu0Yy6IoFPQiYZc0BmwZS6pdzeVXyqQiA6tJYp6DhfMg0Y427wswCV
-	O+B+axaP8ExcV9kanBby2qWRd4XmounlHHEsrCz3vy3g1qKZIZwijiDtsp0TO6NG/t2MgbaNBzK
-	ZugjOeseUN/k+YzA9S3ImH/dXfZy0eUGZRlw0ivsIqluHF8W+EdWzGO32IA==
-X-Received: by 2002:a5b:c05:0:b0:dbd:a328:1c2f with SMTP id f5-20020a5b0c05000000b00dbda3281c2fmr1023251ybq.41.1703089982172;
-        Wed, 20 Dec 2023 08:33:02 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHxhOo8JZya50yoD++DuZn2aQCcR+4aKP5ovWmXTbl92nbHy9Oe+57z2KJM2qPl/cwWRbY/iOnjD143LPLkDL8=
-X-Received: by 2002:a5b:c05:0:b0:dbd:a328:1c2f with SMTP id
- f5-20020a5b0c05000000b00dbda3281c2fmr1023239ybq.41.1703089981874; Wed, 20 Dec
- 2023 08:33:01 -0800 (PST)
+        d=1e100.net; s=20230601; t=1703105388; x=1703710188;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=+67tASvvfvVlycjBWIPAKXF8pqUpHvg7cTGJy7iScoY=;
+        b=iIOs3+yd3ayHwFfLT7E03qnqoseup6HL2N50PEZgjbLoP/VQM9OsrZUASKvddM59f/
+         cWGnFsi2VRtRI9ReYtE5w1KsxJkubha/bLKst19L5uJyqMIIrYdV5V5jZtoEza6lz6qj
+         n18Q/P2pImlK9hqzuLkoCi8SmGL7bPudi3vljKr48FlpYNdf0KYEEiIsHBmTzVKk/gOl
+         Y8URHhr+gYuZizPcr4M112yY5JU6tqB/Lz0DyTzrd5Ii8eu5/AF0oKwYmB7PtS/Ocb4K
+         Z7LYWiG+1QDmcioTVcATzayrHtoXgPDatnCQa2objj0C9gKijOdtvb+rl37GqrMZHISg
+         kRLA==
+X-Gm-Message-State: AOJu0YyfIrgPyCCYk42HZK28N3bvECY3xk601eZZrUnUtGh2VrVYSiAv
+	RiLS0RYUkyorWFIdPFrVImgJJ5qUglRHKcW8
+X-Google-Smtp-Source: AGHT+IFGz/g8oviURbSJJeUW8nOMBtaCgjO0s5GEio3sKCF+sokVNU4wY8bytqJ5H4vjvQnhZJx9AlAUQr7FnGnG
+X-Received: from changyuanl-desktop.svl.corp.google.com ([2620:15c:2a3:200:7133:a1e9:e9d0:684b])
+ (user=changyuanl job=sendgmr) by 2002:a25:850d:0:b0:dbd:460e:1262 with SMTP
+ id w13-20020a25850d000000b00dbd460e1262mr123237ybk.3.1703105388077; Wed, 20
+ Dec 2023 12:49:48 -0800 (PST)
+Date: Wed, 20 Dec 2023 12:49:06 -0800
+In-Reply-To: <20231220023653-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-References: <20231219180858.120898-1-dtatulea@nvidia.com> <20231219180858.120898-9-dtatulea@nvidia.com>
-In-Reply-To: <20231219180858.120898-9-dtatulea@nvidia.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Wed, 20 Dec 2023 17:32:26 +0100
-Message-ID: <CAJaqyWfhO532qW+9eWmJqV3JxvvqnB2QZfi1JqUYXPLuiAsggQ@mail.gmail.com>
-Subject: Re: [PATCH vhost v4 08/15] vdpa: Block vq state change in DRIVER_OK
- unless device supports it
-To: Dragos Tatulea <dtatulea@nvidia.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Si-Wei Liu <si-wei.liu@oracle.com>, Saeed Mahameed <saeedm@nvidia.com>, 
-	Leon Romanovsky <leon@kernel.org>, virtualization@lists.linux-foundation.org, 
-	Gal Pressman <gal@nvidia.com>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Parav Pandit <parav@nvidia.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
+Mime-Version: 1.0
+References: <20231220023653-mutt-send-email-mst@kernel.org>
+X-Mailer: git-send-email 2.43.0.472.g3155946c3a-goog
+Message-ID: <20231220204906.566922-1-changyuanl@google.com>
+Subject: [PATCH v4] virtio_pmem: support feature SHMEM_REGION
+From: Changyuan Lyu <changyuanl@google.com>
+To: mst@redhat.com
+Cc: changyuanl@google.com, dan.j.williams@intel.com, dave.jiang@intel.com, 
+	jasowang@redhat.com, linux-kernel@vger.kernel.org, nvdimm@lists.linux.dev, 
+	pankaj.gupta.linux@gmail.com, virtualization@lists.linux.dev, 
+	vishal.l.verma@intel.com, xuanzhuo@linux.alibaba.com
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Dec 19, 2023 at 7:10=E2=80=AFPM Dragos Tatulea <dtatulea@nvidia.com=
-> wrote:
->
-> Virtqueue state change during DRIVE_OK is not supported by the virtio
-> standard. Allow this op in DRIVER_OK only for devices that support
-> changing the state during DRIVER_OK if the device is suspended.
->
-> Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
-> Suggested-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+Thanks Michael for the feedback!
 
-Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+On Tue, Dec 19, 2023 at 11:44 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+>
+> > On Tue, Dec 19, 2023 at 11:32:27PM -0800, Changyuan Lyu wrote:
+> > 
+> > +		if (!have_shm) {
+> > +			dev_err(&vdev->dev, "failed to get shared memory region %d\n",
+> > +					VIRTIO_PMEM_SHMEM_REGION_ID);
+> > +			err = -ENXIO;
+> > +			goto out_vq;
+> > +		}
+>
+> Maybe additionally, add a validate callback and clear
+> VIRTIO_PMEM_F_SHMEM_REGION if VIRTIO_PMEM_SHMEM_REGION_ID is not there.
 
-> ---
->  drivers/vhost/vdpa.c | 6 ++++++
->  1 file changed, 6 insertions(+)
+Done.
+
+> > +/* Feature bits */
+> > +#define VIRTIO_PMEM_F_SHMEM_REGION 0	/* guest physical address range will be
+> > +					 * indicated as shared memory region 0
+> > +					 */
 >
-> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> index 6bfa3391935a..77509440c723 100644
-> --- a/drivers/vhost/vdpa.c
-> +++ b/drivers/vhost/vdpa.c
-> @@ -641,6 +641,9 @@ static bool vhost_vdpa_vq_config_allowed(struct vhost=
-_vdpa *v, unsigned int cmd)
->         case VHOST_SET_VRING_ADDR:
->                 feature =3D VHOST_BACKEND_F_CHANGEABLE_VQ_ADDR_IN_SUSPEND=
-;
->                 break;
-> +       case VHOST_SET_VRING_BASE:
-> +               feature =3D VHOST_BACKEND_F_CHANGEABLE_VQ_STATE_IN_SUSPEN=
-D;
-> +               break;
->         default:
->                 return false;
->         }
-> @@ -737,6 +740,9 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa =
-*v, unsigned int cmd,
->                 break;
->
->         case VHOST_SET_VRING_BASE:
-> +               if (!vhost_vdpa_vq_config_allowed(v, cmd))
-> +                       return -EOPNOTSUPP;
-> +
->                 if (vhost_has_feature(vq, VIRTIO_F_RING_PACKED)) {
->                         vq_state.packed.last_avail_idx =3D vq->last_avail=
-_idx & 0x7fff;
->                         vq_state.packed.last_avail_counter =3D !!(vq->las=
-t_avail_idx & 0x8000);
-> --
-> 2.43.0
->
+> Either make this comment shorter to fit in one line, or put the
+> multi-line comment before the define.
+
+Done.
+
+---8<---
+
+This patch adds the support for feature VIRTIO_PMEM_F_SHMEM_REGION
+(virtio spec v1.2 section 5.19.5.2 [1]). 
+
+During feature negotiation, if VIRTIO_PMEM_F_SHMEM_REGION is offered
+by the device, the driver looks for a shared memory region of id 0.
+If it is found, this feature is understood. Otherwise, this feature
+bit is cleared.
+
+During probe, if VIRTIO_PMEM_F_SHMEM_REGION has been negotiated,
+virtio pmem ignores the `start` and `size` fields in device config
+and uses the physical address range of shared memory region 0.
+
+[1] https://docs.oasis-open.org/virtio/virtio/v1.2/csd01/virtio-v1.2-csd01.html#x1-6480002
+
+Signed-off-by: Changyuan Lyu <changyuanl@google.com>
+---
+v4:
+  * added virtio_pmem_validate callback. 
+v3:
+  * updated the patch description.
+V2:
+  * renamed VIRTIO_PMEM_SHMCAP_ID to VIRTIO_PMEM_SHMEM_REGION_ID
+  * fixed the error handling when region 0 does not exist
+---
+ drivers/nvdimm/virtio_pmem.c     | 36 ++++++++++++++++++++++++++++----
+ include/uapi/linux/virtio_pmem.h |  7 +++++++
+ 2 files changed, 39 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/nvdimm/virtio_pmem.c b/drivers/nvdimm/virtio_pmem.c
+index a92eb172f0e7..4ceced5cefcf 100644
+--- a/drivers/nvdimm/virtio_pmem.c
++++ b/drivers/nvdimm/virtio_pmem.c
+@@ -29,12 +29,27 @@ static int init_vq(struct virtio_pmem *vpmem)
+ 	return 0;
+ };
+ 
++static int virtio_pmem_validate(struct virtio_device *vdev)
++{
++	struct virtio_shm_region shm_reg;
++
++	if (virtio_has_feature(vdev, VIRTIO_PMEM_F_SHMEM_REGION) &&
++		!virtio_get_shm_region(vdev, &shm_reg, (u8)VIRTIO_PMEM_SHMEM_REGION_ID)
++	) {
++		dev_notice(&vdev->dev, "failed to get shared memory region %d\n",
++				VIRTIO_PMEM_SHMEM_REGION_ID);
++		__virtio_clear_bit(vdev, VIRTIO_PMEM_F_SHMEM_REGION);
++	}
++	return 0;
++}
++
+ static int virtio_pmem_probe(struct virtio_device *vdev)
+ {
+ 	struct nd_region_desc ndr_desc = {};
+ 	struct nd_region *nd_region;
+ 	struct virtio_pmem *vpmem;
+ 	struct resource res;
++	struct virtio_shm_region shm_reg;
+ 	int err = 0;
+ 
+ 	if (!vdev->config->get) {
+@@ -57,10 +72,16 @@ static int virtio_pmem_probe(struct virtio_device *vdev)
+ 		goto out_err;
+ 	}
+ 
+-	virtio_cread_le(vpmem->vdev, struct virtio_pmem_config,
+-			start, &vpmem->start);
+-	virtio_cread_le(vpmem->vdev, struct virtio_pmem_config,
+-			size, &vpmem->size);
++	if (virtio_has_feature(vdev, VIRTIO_PMEM_F_SHMEM_REGION)) {
++		virtio_get_shm_region(vdev, &shm_reg, (u8)VIRTIO_PMEM_SHMEM_REGION_ID);
++		vpmem->start = shm_reg.addr;
++		vpmem->size = shm_reg.len;
++	} else {
++		virtio_cread_le(vpmem->vdev, struct virtio_pmem_config,
++				start, &vpmem->start);
++		virtio_cread_le(vpmem->vdev, struct virtio_pmem_config,
++				size, &vpmem->size);
++	}
+ 
+ 	res.start = vpmem->start;
+ 	res.end   = vpmem->start + vpmem->size - 1;
+@@ -122,10 +143,17 @@ static void virtio_pmem_remove(struct virtio_device *vdev)
+ 	virtio_reset_device(vdev);
+ }
+ 
++static unsigned int features[] = {
++	VIRTIO_PMEM_F_SHMEM_REGION,
++};
++
+ static struct virtio_driver virtio_pmem_driver = {
++	.feature_table		= features,
++	.feature_table_size	= ARRAY_SIZE(features),
+ 	.driver.name		= KBUILD_MODNAME,
+ 	.driver.owner		= THIS_MODULE,
+ 	.id_table		= id_table,
++	.validate		= virtio_pmem_validate,
+ 	.probe			= virtio_pmem_probe,
+ 	.remove			= virtio_pmem_remove,
+ };
+diff --git a/include/uapi/linux/virtio_pmem.h b/include/uapi/linux/virtio_pmem.h
+index d676b3620383..ede4f3564977 100644
+--- a/include/uapi/linux/virtio_pmem.h
++++ b/include/uapi/linux/virtio_pmem.h
+@@ -14,6 +14,13 @@
+ #include <linux/virtio_ids.h>
+ #include <linux/virtio_config.h>
+ 
++/* Feature bits */
++/* guest physical address range will be indicated as shared memory region 0 */
++#define VIRTIO_PMEM_F_SHMEM_REGION 0
++
++/* shmid of the shared memory region corresponding to the pmem */
++#define VIRTIO_PMEM_SHMEM_REGION_ID 0
++
+ struct virtio_pmem_config {
+ 	__le64 start;
+ 	__le64 size;
+-- 
+2.43.0.472.g3155946c3a-goog
 
