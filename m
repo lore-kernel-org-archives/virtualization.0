@@ -1,166 +1,113 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 645CFC2C3
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 03:50:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61E3A8F42
+	for <virtualization@lists.linux.dev>; Wed, 20 Dec 2023 03:53:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Zs8C4tIM"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id D842540B25
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 03:50:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D842540B25
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Zs8C4tIM
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 1IRhQCBQh8XT
-	for <virtualization@lists.linux-foundation.org>;
-	Wed, 20 Dec 2023 03:50:38 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id E3A8E40ACD
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 03:50:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E3A8E40ACD
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Qbe9WYQV"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1703044236;
+	s=mimecast20190719; t=1703044379;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=S3W0GnoD8052wYxUNxx5sjwSUJEmm53y4MFQD1spj90=;
-	b=Zs8C4tIMjXfpoPWteiLHb4cOjJ7iLJnAU8Oi+5VZVhOqy98IDRBjUfqSwQFhU01q1eIlaY
-	ZH7XL3RughbR2BnLLhaymbruTPcVhiP19aDnBiDIXWCfeY4zt+1koD4TtvKqm1UTwxvGOa
-	OMJ8TOdK2TM2MzjtrFY1APaEgAHcjFQ=
+	bh=vIn5APMs5q/H2mkbVIU64Mx79XhFiyV1fy9ppFrUsQ0=;
+	b=Qbe9WYQVvKZsvb9ts2k2tf3a5aNhVgfH4JJSnmb3t+ljzR7Y7wE/GG8e0qydiuUTrO2NWz
+	pIW2Z7X8GzJeNyZ87xQflhObIAlPuEhmUBjXWZhqPmb3vrPyMmPEjF/7lh1Fn8buqPutlm
+	Io8MzpIpvAw3B8HjruIEYmdChb2pRko=
 Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com
  [209.85.215.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-122-trf7h8xGNzGTaVPOb97HfQ-1; Tue, 19 Dec 2023 22:50:32 -0500
-X-MC-Unique: trf7h8xGNzGTaVPOb97HfQ-1
-Received: by mail-pg1-f199.google.com with SMTP id 41be03b00d2f7-5cd86813215so3228171a12.0
-        for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 19:50:32 -0800 (PST)
+ us-mta-649-3FTlRBHgOoaktlktR-lppg-1; Tue, 19 Dec 2023 22:52:58 -0500
+X-MC-Unique: 3FTlRBHgOoaktlktR-lppg-1
+Received: by mail-pg1-f199.google.com with SMTP id 41be03b00d2f7-5cd86813215so3229482a12.0
+        for <virtualization@lists.linux.dev>; Tue, 19 Dec 2023 19:52:58 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703044232; x=1703649032;
+        d=1e100.net; s=20230601; t=1703044377; x=1703649177;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=S3W0GnoD8052wYxUNxx5sjwSUJEmm53y4MFQD1spj90=;
-        b=tSYmDtY+2kclZVMHaYIYe9oPwuQQBcwNfGzyemk6nf6kIvGhaB7CexbvsVwnDA4n0D
-         55WG02jQm6zUjAY4OxPmdhci4s9glWv5NSilZPHcwOW8LcF86wvAmUJL+ZhPzjDPffAf
-         mDKx7AI83u5/hCWgJQMYt7GTHVcEwNlgyn7LzAC7hD/PrUlOL4lqvMbn5o4xx7HdDRuA
-         DC0II0uLxNIEnGHGPkLHvfaQ01FBn0jC6kF8dLaPp4g0gn8a7OvNHbPquwuXjABtiaDu
-         /ZpVNGecHXG64rq16K7YkGOkZg6Bo+UxuYU279yHkhvaxyi3DiFtjzBNRW1UZUwJl68s
-         PGYw==
-X-Gm-Message-State: AOJu0Yx+f2x2NTJwI8IkmMKCXfJ+EDj1zEWMyEh9ZY5SIYwp39fRfXrd
-	EN+62HdWqCjogntpFdl4dcgdpD13CRaWOfZvs7wDq2lO+wnoAo3pbodDwFHvN+NV2ABVLaUzJtU
-	/rhpMHv/7x8bMKKI9qOKVEsGNh1E39LGOs2D6VQv/B+ul0cuXL2GbVWTbow==
-X-Received: by 2002:a05:6a20:3942:b0:18f:97c:6163 with SMTP id r2-20020a056a20394200b0018f097c6163mr25126890pzg.96.1703044231874;
-        Tue, 19 Dec 2023 19:50:31 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGlS58nfNxtutIIFpX7OkMLYAGwj8W61RJzPQoLQF6krRhPkz+M0a6Jvi/MXgB4l8Yvs6wX2joqA2UTLWTKpdM=
-X-Received: by 2002:a05:6a20:3942:b0:18f:97c:6163 with SMTP id
- r2-20020a056a20394200b0018f097c6163mr25126875pzg.96.1703044231593; Tue, 19
- Dec 2023 19:50:31 -0800 (PST)
+        bh=vIn5APMs5q/H2mkbVIU64Mx79XhFiyV1fy9ppFrUsQ0=;
+        b=AYdSEz3gOvSKNbORuQzQP6q4/Ju248QeHvP3SJTccw5CNkNXlGFiXZcqgHWW3nT9oJ
+         Qol1LBmAXq3sJ0K3Xo60Q7Kaa329TdAzYoXD8yBshWBJQthSvpDQWSnNs7GYgMMHiPnw
+         A/EznAo6zshiS4BvxfHf1+TP+WsWyEQszgR/TgGEv2C2VTn9/TuIvPBaSwZzkkTdL4Wm
+         PQI0DW+Xt+cta0SRFNuX18sNiXCnk0rOiexM4UNW9nisqWZHCAuCyscDb8DkhtBHm0L8
+         1aKJvEeDqSVtP+vPDGyxN+UyE9+1oNgZUAimo3JiFCev4MYdcx5EGsa/Hwxji/dcXqj6
+         zeYw==
+X-Gm-Message-State: AOJu0Yx4QgK5Zb2un7BM+KQeT2OnirRVczI/LFtbI6lnS/2/pxWb4fZq
+	/mjKz+YpyaRxnt93LZD8wkt4Ue1hfVhWW5hLU0U+G3dJ2JGR8ohptHPZRb89HiiI9HR4xsOu37E
+	D9mK7dj+ogKXUXWroY5Qxr7UskE/q8sbP1Mqxkw1a/V4Xwf0C13E8mQ==
+X-Received: by 2002:a05:6a20:9225:b0:194:cb44:b0b4 with SMTP id i37-20020a056a20922500b00194cb44b0b4mr526128pzf.2.1703044376848;
+        Tue, 19 Dec 2023 19:52:56 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGnMr21VcQdQT+Lk5xChXSsBuDnDzHafReZLcU6LBc8taYyagaiLau7y0wRNSCh7k4SnAF95Kz+VAAjOKYBcWA=
+X-Received: by 2002:a05:6a20:9225:b0:194:cb44:b0b4 with SMTP id
+ i37-20020a056a20922500b00194cb44b0b4mr526122pzf.2.1703044376631; Tue, 19 Dec
+ 2023 19:52:56 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20231212131712.1816324-1-maxime.coquelin@redhat.com>
- <20231212131712.1816324-3-maxime.coquelin@redhat.com> <CACGkMEthp13a20TGashiFNDovK+b10mgfdX8L=3Xv05g5-eo0w@mail.gmail.com>
- <8afc44f7-cef5-4b4a-afac-85a4eb967d3e@redhat.com> <CACGkMEtNZyHDzo2e_N9SM9dw4CK8vpZHWBrk7TFFixD1T7cdjw@mail.gmail.com>
- <b793a98c-dfde-4bf6-9057-6fa359cf4723@redhat.com>
-In-Reply-To: <b793a98c-dfde-4bf6-9057-6fa359cf4723@redhat.com>
+References: <d7534cc4caf4ff9d6b072744352c1b69487779ea.1702230703.git.christophe.jaillet@wanadoo.fr>
+In-Reply-To: <d7534cc4caf4ff9d6b072744352c1b69487779ea.1702230703.git.christophe.jaillet@wanadoo.fr>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 20 Dec 2023 11:50:20 +0800
-Message-ID: <CACGkMEsUcVazoagKuTuFQdn55khyyDwOnYKLJuOyyt8_ib7wiA@mail.gmail.com>
-Subject: Re: [PATCH v5 2/4] vduse: Temporarily disable control queue features
-To: Maxime Coquelin <maxime.coquelin@redhat.com>
-Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, paul@paul-moore.com, 
-	jmorris@namei.org, serge@hallyn.com, stephen.smalley.work@gmail.com, 
-	eparis@parisplace.org, xieyongji@bytedance.com, 
-	virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
-	david.marchand@redhat.com, lulu@redhat.com, casey@schaufler-ca.com
+Date: Wed, 20 Dec 2023 11:52:45 +0800
+Message-ID: <CACGkMEuE5a29uXXWfy1Ma+ZqSzWKhS1J1b2XHvhyC90wDFP02g@mail.gmail.com>
+Subject: Re: [PATCH] vdpa: Remove usage of the deprecated ida_simple_xx() API
+To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org, 
+	virtualization@lists.linux.dev
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Dec 18, 2023 at 5:21=E2=80=AFPM Maxime Coquelin
-<maxime.coquelin@redhat.com> wrote:
+On Mon, Dec 11, 2023 at 1:52=E2=80=AFAM Christophe JAILLET
+<christophe.jaillet@wanadoo.fr> wrote:
 >
+> ida_alloc() and ida_free() should be preferred to the deprecated
+> ida_simple_get() and ida_simple_remove().
 >
+> This is less verbose.
 >
-> On 12/18/23 03:50, Jason Wang wrote:
-> > On Wed, Dec 13, 2023 at 7:23=E2=80=AFPM Maxime Coquelin
-> > <maxime.coquelin@redhat.com> wrote:
-> >>
-> >> Hi Jason,
-> >>
-> >> On 12/13/23 05:52, Jason Wang wrote:
-> >>> On Tue, Dec 12, 2023 at 9:17=E2=80=AFPM Maxime Coquelin
-> >>> <maxime.coquelin@redhat.com> wrote:
-> >>>>
-> >>>> Virtio-net driver control queue implementation is not safe
-> >>>> when used with VDUSE. If the VDUSE application does not
-> >>>> reply to control queue messages, it currently ends up
-> >>>> hanging the kernel thread sending this command.
-> >>>>
-> >>>> Some work is on-going to make the control queue
-> >>>> implementation robust with VDUSE. Until it is completed,
-> >>>> let's disable control virtqueue and features that depend on
-> >>>> it.
-> >>>>
-> >>>> Signed-off-by: Maxime Coquelin <maxime.coquelin@redhat.com>
-> >>>
-> >>> I wonder if it's better to fail instead of a mask as a start.
-> >>
-> >> I think it is better to use a mask and not fail, so that we can in the
-> >> future use a recent VDUSE application with an older kernel.
-> >
-> > It may confuse the userspace unless userspace can do post check after
-> > CREATE_DEV.
-> >
-> > And for blk we fail when WCE is set in feature_is_valid():
-> >
-> > static bool features_is_valid(u64 features)
-> > {
-> >          if (!(features & (1ULL << VIRTIO_F_ACCESS_PLATFORM)))
-> >                  return false;
-> >
-> >          /* Now we only support read-only configuration space */
-> >          if (features & (1ULL << VIRTIO_BLK_F_CONFIG_WCE))
-> >                  return false;
-> >
-> >          return true;
-> > }
->
-> Ok, consistency with other devices types is indeed better.
->
-> But should I fail if any of the feature advertised by the application is
-> not listed by the VDUSE driver, or just fail if control queue is being
-> advertised by the application?
+> Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-Maybe it's better to fail for any other of the features that depend on
-the control vq.
+Acked-by: Jason Wang <jasowang@redhat.com>
 
 Thanks
 
+> ---
+>  drivers/vdpa/vdpa.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 >
-> Thanks,
-> Maxime
+> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+> index a7612e0783b3..d0695680b282 100644
+> --- a/drivers/vdpa/vdpa.c
+> +++ b/drivers/vdpa/vdpa.c
+> @@ -131,7 +131,7 @@ static void vdpa_release_dev(struct device *d)
+>         if (ops->free)
+>                 ops->free(vdev);
 >
-> > Thanks
-> >
-> >>
-> >> Why would it be better to fail than negotiating?
-> >>
-> >> Thanks,
-> >> Maxime
-> >>
-> >
+> -       ida_simple_remove(&vdpa_index_ida, vdev->index);
+> +       ida_free(&vdpa_index_ida, vdev->index);
+>         kfree(vdev->driver_override);
+>         kfree(vdev);
+>  }
+> @@ -205,7 +205,7 @@ struct vdpa_device *__vdpa_alloc_device(struct device=
+ *parent,
+>         return vdev;
+>
+>  err_name:
+> -       ida_simple_remove(&vdpa_index_ida, vdev->index);
+> +       ida_free(&vdpa_index_ida, vdev->index);
+>  err_ida:
+>         kfree(vdev);
+>  err:
+> --
+> 2.34.1
 >
 
