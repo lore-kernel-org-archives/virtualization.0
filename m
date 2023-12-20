@@ -1,101 +1,192 @@
-Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
+Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5894A8C02
-	for <virtualization@lists.linux.dev>; Wed, 20 Dec 2023 03:18:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A09B8BEB
+	for <virtualization@lists.linux.dev>; Wed, 20 Dec 2023 03:30:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="z4TBpj9f"
-Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-5cd88c84949so385944a12.1
-        for <virtualization@lists.linux.dev>; Tue, 19 Dec 2023 19:18:12 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="b2vH7Nlf"
+Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-28b48f70766so1864296a91.3
+        for <virtualization@lists.linux.dev>; Tue, 19 Dec 2023 19:30:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1703042291; x=1703647091; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=kF+V1Jg1BXc6LruEx2QSeT3aVZaOhuhdq7yp1ywFjS8=;
-        b=z4TBpj9fzNkLIF0MtpRK0jaqq0IEqFIgjPNPhszlRJBDX9aV5lsarzC1v107ALarzd
-         qcJ8zvb1HLXlfHEJMR6Dibt8jp1Bufil9Arc6VVp+S3RiQZdHPggK5QRxt6dS8YVuHNN
-         nLKu0OCVn73BmYeOMUG9I2X9+gE+9+3BwfcdTGBm7m1yd02B9+hGJxGhZ1J2UgLl3Reg
-         YWvBqaDlh52vYNEoEarkxDmyGG4/ZMxrqTgByLGYcqzi+Yn55oxZ/eiv+juzUdtgMW6M
-         BPpCxr2EzdXAzzQnhiCtQDA9bjM7XyfxUjdy/sv3LNJ48E8SHjca0rhvGJXWi7bwSbu0
-         SPMA==
+        d=broadcom.com; s=google; t=1703043005; x=1703647805; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
+         :to:content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=sUq2OM1li7CxkIrkWDtdEiY2oiOCTUFA1jYnFMugiCM=;
+        b=b2vH7NlfYNS89U/c7F8e+znqE8aMDAuH+QPb0CLuMU0EutfvMzeehqijYB/fsxy+4t
+         EdZPC0BnCdwQ2ME1B2vqkgXMMQPIC/V5TGGeq+mqj/spnexdNV8tL8H2gLPv22Zjvsme
+         pvq9Ibi+H31y3gVy5hhLAY8NbzXd0tZyntr6g=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703042291; x=1703647091;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=kF+V1Jg1BXc6LruEx2QSeT3aVZaOhuhdq7yp1ywFjS8=;
-        b=iHc2nsRMRzYkoMj0yhJnkgh6bHYFzcxSAiC36YKNBPhmnldtdF+Gw1sIhcX7Wni5qE
-         fLYuJ7fTveSLJREK+ZxotqcVc024XEF7YYCNBLqtm2K/7dU1oFqGYwLyoraTDjFARZ8X
-         Q3virLSF6GzqXPTXoIqtbGriplAEc2yS9OS5rYTZhZ11VSEgKf6tGoIqM0SbI8YW780+
-         uEUxSEZX3NZbAfNfIr5csQicXchOQhJ/z9Zje9Mc8sfwTNEh/EuPKzAe/q2vcIe4WyOW
-         ksxmCxT+3/lVqw1dpdwuoZ7T9yX4YMoKYxEC/KARP1kckxIjcStVcMM6EZF5jZLfwqqD
-         nggw==
-X-Gm-Message-State: AOJu0YwjLkvuKpukJzfzoGd1o4r0gJ80/cjp4Ye9O4qNpLLR2etqp9Dt
-	BHaCyQFmy33ZOKtCFoTSbDYQdg==
-X-Google-Smtp-Source: AGHT+IGJy8KYnZyMHC+4fzSHET6hgmed+3GNH6+zA4QShlWQzZGtRyh4P66B+nvfNY4nmXMHOASd9w==
-X-Received: by 2002:a05:6a20:3c8d:b0:18b:2020:8cd1 with SMTP id b13-20020a056a203c8d00b0018b20208cd1mr42952817pzj.3.1703042291622;
-        Tue, 19 Dec 2023 19:18:11 -0800 (PST)
-Received: from [127.0.0.1] ([198.8.77.194])
-        by smtp.gmail.com with ESMTPSA id d6-20020aa78e46000000b006d088356541sm16958284pfr.104.2023.12.19.19.18.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Dec 2023 19:18:11 -0800 (PST)
-From: Jens Axboe <axboe@kernel.dk>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, 
- Stefan Hajnoczi <stefanha@redhat.com>, Damien Le Moal <dlemoal@kernel.org>, 
- "Martin K. Petersen" <martin.petersen@oracle.com>, dm-devel@lists.linux.dev, 
- linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
- linux-nvme@lists.infradead.org, linux-scsi@vger.kernel.org, 
- linux-btrfs@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net
-In-Reply-To: <20231217165359.604246-1-hch@lst.de>
-References: <20231217165359.604246-1-hch@lst.de>
-Subject: Re: remove support for the host aware zoned model
-Message-Id: <170304229020.683808.16849978519505449769.b4-ty@kernel.dk>
-Date: Tue, 19 Dec 2023 20:18:10 -0700
+        d=1e100.net; s=20230601; t=1703043005; x=1703647805;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
+         :to:content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=sUq2OM1li7CxkIrkWDtdEiY2oiOCTUFA1jYnFMugiCM=;
+        b=D+o+gNSXnKPjUH6t1qUxZy2wLoxLDFXNZdsRN0ZFOmyc+wZc1sS4E1hQ3JJ0a1/DrP
+         kKU+Hxs0iYkUPN2pNu/acb9jD4B6lHKePJuZBBh58uVn4po1tcD+lkI/hnoU5p6zqw0Z
+         WZOg2OcFtAOcJ7ehyQGOKXdrS9H9qOcMDBd4q8BJp0pQssAzZDgqLKZOvGa6AJZJUXLj
+         YuyFFoHHgf8YinzCon+Z081yiwTAQgHgNNDsjTTeGQuvZuEX1jxCP474CMkHbQ85WHqW
+         iDZnwEQelwxAwZtXvIRqQ0LJhv4A86kyI/2v1FkKfU/D0sHA1DnHo2dbi7NuVV4oKTog
+         x2sA==
+X-Gm-Message-State: AOJu0YxB7jin3Q9TKNNmWdpunKN6rUV1aOSxfpVmMN8gmmZe2kXU4BMT
+	4Q6UsbIrBanAkWClD0+LLfUuhA==
+X-Google-Smtp-Source: AGHT+IEyUAv+ITNtl62B1KaAoSR3d91Ea/PTHOO2rzx6Z7ZW3/qRzKUylZEstlP7OvWBD6PwHNK7xg==
+X-Received: by 2002:a17:902:d491:b0:1d3:6a11:1fbd with SMTP id c17-20020a170902d49100b001d36a111fbdmr7432822plg.118.1703043005517;
+        Tue, 19 Dec 2023 19:30:05 -0800 (PST)
+Received: from [192.168.0.111] (d-174-140-102-53.fl.cpe.atlanticbb.net. [174.140.102.53])
+        by smtp.gmail.com with ESMTPSA id n16-20020a170903111000b001d3320f6143sm14934478plh.269.2023.12.19.19.30.01
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 19 Dec 2023 19:30:05 -0800 (PST)
+Message-ID: <e6a4d942-0711-4035-840b-9b2b116ae70c@broadcom.com>
+Date: Tue, 19 Dec 2023 19:30:00 -0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 2/6] x86/vmware: Introduce vmware_hypercall API
+Content-Language: en-US
+To: kirill.shutemov@linux.intel.com
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+ bp@alien8.de, hpa@zytor.com, dave.hansen@linux.intel.com, mingo@redhat.com,
+ tglx@linutronix.de, x86@kernel.org, netdev@vger.kernel.org,
+ richardcochran@gmail.com, linux-input@vger.kernel.org,
+ dmitry.torokhov@gmail.com, zackr@vmware.com,
+ linux-graphics-maintainer@vmware.com, pv-drivers@vmware.com,
+ namit@vmware.com, timothym@vmware.com, akaher@vmware.com, jsipek@vmware.com,
+ dri-devel@lists.freedesktop.org, daniel@ffwll.ch, airlied@gmail.com,
+ tzimmermann@suse.de, mripard@kernel.org, maarten.lankhorst@linux.intel.com,
+ horms@kernel.org
+References: <20231219215751.9445-1-alexey.makhalov@broadcom.com>
+ <20231219215751.9445-3-alexey.makhalov@broadcom.com>
+ <20231219232023.u4dyuvbzbh565grk@box.shutemov.name>
+ <75eed318-2d22-429d-ab95-80610ba82934@broadcom.com>
+ <20231220005156.2rymnxu5bv6wdwlx@box.shutemov.name>
+From: Alexey Makhalov <alexey.makhalov@broadcom.com>
+Autocrypt: addr=alexey.makhalov@broadcom.com; keydata=
+ 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 EuY0
+In-Reply-To: <20231220005156.2rymnxu5bv6wdwlx@box.shutemov.name>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.13-dev-7edf1
 
 
-On Sun, 17 Dec 2023 17:53:54 +0100, Christoph Hellwig wrote:
-> hen zones were first added the SCSI and ATA specs, two different
-> models were supported (in addition to the drive managed one that
-> is invisible to the host):
+
+On 12/19/23 4:51 PM, kirill.shutemov@linux.intel.com wrote:
+> On Tue, Dec 19, 2023 at 04:17:40PM -0800, Alexey Makhalov wrote:
+>>
+>>
+>> On 12/19/23 3:20 PM, kirill.shutemov@linux.intel.com wrote:
+>>> On Tue, Dec 19, 2023 at 01:57:47PM -0800, Alexey Makhalov wrote:
+>>>> +static inline
+>>>> +unsigned long vmware_hypercall1(unsigned long cmd, unsigned long in1)
+>>> ...
+>>>> +static inline
+>>>> +unsigned long vmware_hypercall3(unsigned long cmd, unsigned long in1,
+>>>> +				uint32_t *out1, uint32_t *out2)
+>>> ...
+>>>> +static inline
+>>>> +unsigned long vmware_hypercall4(unsigned long cmd, unsigned long in1,
+>>>> +				uint32_t *out1, uint32_t *out2,
+>>>> +				uint32_t *out3)
+>>> ...
+>>>> +static inline
+>>>> +unsigned long vmware_hypercall5(unsigned long cmd, unsigned long in1,
+>>>> +				unsigned long in3, unsigned long in4,
+>>>> +				unsigned long in5, uint32_t *out2)
+>>> ...
+>>>> +static inline
+>>>> +unsigned long vmware_hypercall6(unsigned long cmd, unsigned long in1,
+>>>> +				unsigned long in3, uint32_t *out2,
+>>>> +				uint32_t *out3, uint32_t *out4,
+>>>> +				uint32_t *out5)
+>>> ...
+>>>> +static inline
+>>>> +unsigned long vmware_hypercall7(unsigned long cmd, unsigned long in1,
+>>>> +				unsigned long in3, unsigned long in4,
+>>>> +				unsigned long in5, uint32_t *out1,
+>>>> +				uint32_t *out2, uint32_t *out3)
+>>>
+>>> Naming is weird. The number in the name doesn't help much as there seems
+>>> no system on how many of the parameters are ins and outs.
+>>
+>> There was internal discussion on hypercall API naming. One of proposals was
+>> using 2 digits - number of input and number of output arguments.
+>> And it definitely looked weird. So, we agreed to have just single number  -
+>> total number of arguments excluding cmd.
 > 
->  - host managed where non-conventional zones there is strict requirement
->    to write at the write pointer, or else an error is returned
->  - host aware where a write point is maintained if writes always happen
->    at it, otherwise it is left in an under-defined state and the
->    sequential write preferred zones behave like conventional zones
->    (probably very badly performing ones, though)
+> Have you considered naming them by number of input parameters? Number of
+> output parameters as demanded by users.
 > 
-> [...]
+> So vmware_hypercall4() will become vmware_hypercall1() and current
+> vmware_hypercall1() and vmware_hypercall3() will go away.
+> 
+> It is still awful, but /maybe/ better that this, I donno.
+> 
 
-Applied, thanks!
+Deprecating vmware_hypercall1 and vmware_hypercall3 in favor of 
+vmware_hypercall4 will generate less efficient code for the caller of 
+first ones.
+Using current vmware_hypercall4 instead of vmware_hypercall1 will force 
+the caller to allocate additional variables (register or on stack 
+memory) for hypercall asm inline to put additional output registers on. 
+And specifically to 'usage' of *out3 - compiler will unnecessary 
+'clobber' useful rdx, when hypervisor will keep it unchanged.
 
-[1/5] virtio_blk: cleanup zoned device probing
-      commit: 77360cadaae562f437b3e98dc3af748d8d75bdc2
-[2/5] virtio_blk: remove the broken zone revalidation support
-      commit: a971ed8002110f211899279cd7295756d263b771
-[3/5] block: remove support for the host aware zone model
-      commit: 7437bb73f087e5f216f9c6603f5149d354e315af
-[4/5] block: simplify disk_set_zoned
-      commit: d73e93b4dfab10c80688b061c30048df05585c7e
-[5/5] sd: only call disk_clear_zoned when needed
-      commit: 5cc99b89785c55430a5674b32ad0d9e57a8ec251
+Unfortunately VMware hypercall ABI is not as beautiful as KVM one, 
+especially in number of output arguments and their ordering. rbp 
+register usage as an argument is a separate bummer((. So we have to work 
+with what we have.
 
-Best regards,
--- 
-Jens Axboe
+Current set of functions includes only 6 functions (for LB), which is 
+the optimum between readability, maintainability and performance. It 
+covers all current kernel callers and all new callers from yet to be 
+upstreamed patches that we have in Photon OS including 2 patches for x86 
+and arm64 guest support.
 
-
-
+Regards,
+--Alexey
