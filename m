@@ -1,64 +1,64 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DAB54C3AF
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 16:00:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 402854174A
+	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 16:00:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b="IT5pbTjA"
+	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b="iJO7XzAv"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id C4C3A4206B
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 16:00:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C4C3A4206B
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.a=rsa-sha256 header.s=google header.b=IT5pbTjA
+	by smtp3.osuosl.org (Postfix) with ESMTP id A99996151C
+	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 16:00:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A99996151C
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.a=rsa-sha256 header.s=google header.b=iJO7XzAv
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.1
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id gyRUPGO9DlZM
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id A4YIAlMbCC3g
 	for <virtualization@lists.linux-foundation.org>;
-	Wed, 20 Dec 2023 16:00:30 +0000 (UTC)
-Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id CA15D4206A
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 16:00:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CA15D4206A
-Received: by mail-wr1-x429.google.com with SMTP id ffacd0b85a97d-33679c49fe5so735607f8f.3
-        for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 08:00:29 -0800 (PST)
+	Wed, 20 Dec 2023 16:00:33 +0000 (UTC)
+Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id BB0F760AC6
+	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 16:00:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BB0F760AC6
+Received: by mail-wr1-x436.google.com with SMTP id ffacd0b85a97d-3366827ca79so3263645f8f.3
+        for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 08:00:32 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ventanamicro.com; s=google; t=1703088028; x=1703692828; darn=lists.linux-foundation.org;
+        d=ventanamicro.com; s=google; t=1703088030; x=1703692830; darn=lists.linux-foundation.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Ef7BOv98cAGOovGfjdBZq243xgaKf+nknpOtiiGkzlE=;
-        b=IT5pbTjAH+CngLrt0HhgSfxrvXbsR8zxmfw0CKrV+t5XvZ3DId1ZpfyUWN8LR8yaTx
-         Ynvq786ha+F/o/Qu5QvCZO9FWH/eZAWRNnktApkSemUbw/OwsBT8bpwCYQ0u/J0yFL1D
-         TwUy9QswjK5IqB1lYnUZNcCIbotrgeOqmtrAIpUf3uzk07AUibHsHkKE6pn8MB8MwVRI
-         RHdSS+74XWOpJKLTG0UF/gyR0Uwdh4VxHywXH8WR5Fz5J/dUzuP97wCrkCbY5exrSoFH
-         ahtYHlROQj0y/L5Cn+f9OooAsMo8HE4sJbY902/b0g/t46BNxoyWwW2C+sRf8Q/diEm0
-         t3Mg==
+        bh=r9WZowL+tiFdWWavUDOR83U5hXyPT732YQIbLq7cwAs=;
+        b=iJO7XzAvBaCozFDAoC2PJL5+UkmyFryTT6+FZtXdiI5aUFY0yeVchhD1v6cXN+Gy30
+         Gnnx2Vvf0SVNjlF/iogEH3Nk7gXT7dK53zTS7xAdFkFl6DqnRiTVUakZkBKiwKsUFzZ1
+         0OUtdLO5ze5KcWA6XzsoP+6V4x8JZUn5WOw4Im+p7szmTOJY3VxpYkaZ9HE1R62v/ZmF
+         h5xS2VNOJr0/xZtEMoBdR23IDsWrPCoEHNEHbcWqEPWV0+CQv7t10aOFo33gMfVm5qao
+         L0jcNERpWA1saUb41Zs6Wzvfh4uG6qg38iW12s1xi7+EM2HPoRqEV+OcIe6C7IZZwIG7
+         VXXg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703088028; x=1703692828;
+        d=1e100.net; s=20230601; t=1703088030; x=1703692830;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Ef7BOv98cAGOovGfjdBZq243xgaKf+nknpOtiiGkzlE=;
-        b=vpZnzvw3YU7q3tnpOO/fNy2NNTIId7lppwOKAGL2S8B3YfdtqNq1BVq2ubUze//Hed
-         qerfZySSSAZMLHfudfjdz8gu5qmMYArzg21aasJIJecryzFx/HdfAJoNjgDBeJwwvFgx
-         LmsAkmg5HoFywVQ4Ea5Oa/ER04s9XTBkTlviKjZD2RjIQurapaBbHT3p2lAXRdzpGX/w
-         p4ewcgiMHU5PrP8YMHFNhc2QUBsH+sgJQQ5nPN+GliVVBfSZuWImTQnEF+iTw2dUr+qL
-         yL/fJMkkHwolOotOVZ4GwSO34I5WWG6DAngqCm9oNCh9gxmz8ufHvXs93phdimFLCq5H
-         lDUQ==
-X-Gm-Message-State: AOJu0YwFR8RCxuMRjTMiRTOoYaeb8o1+t2XK6YgP4BXHSxymQuGIerX6
-	ABVD8LHdYauo68B3MNaSSSoqUg==
-X-Google-Smtp-Source: AGHT+IEUaGQVUmOJpZrX/6wcMiUkr7MlMCgJwXmlqp3SKkS+7blylWY6WOfvZFXTaKATAxCW7rwCPQ==
-X-Received: by 2002:adf:f68c:0:b0:336:64cd:3fc3 with SMTP id v12-20020adff68c000000b0033664cd3fc3mr3328065wrp.59.1703088027960;
-        Wed, 20 Dec 2023 08:00:27 -0800 (PST)
+        bh=r9WZowL+tiFdWWavUDOR83U5hXyPT732YQIbLq7cwAs=;
+        b=K2OZPB+Hvdj3CeD7xjP9lSiyRgJhK+pLVZyA01Xj4oLhato1dgcjQZkgiqGVg5ukuQ
+         yqCF+CqvvQUjazmpNL285bAV5Soaz2DcY6y/0hrLZyWkNmReBqNd+kTWyGO/I+xcuLK1
+         mD8uOYts8AaIK7rKM3E8GfbsUREn1ZKZDAVfH5MXIFL8CBuuyhmFuZmSH1m8xwCmI0L7
+         DpFoGSmLcOAHM1aratwf8r2exd1ICM+Ei6qau1yJ/m08JDGUFHwBUCr+r3DxvBSfni40
+         mtOWkc8HAWo4ywJcb18ORVRQkuAuiuNiBYUdXtfgh3KY4qWSP46RHKbOkBdsHG0q6Ah8
+         U3iw==
+X-Gm-Message-State: AOJu0YzFYGroVSGaqhHMLeiKkXuG814rJ4OxjIl1U3ZwhWjO+ccHF5hJ
+	df+5FhlqlNW/nApZKcSCD22SGQ==
+X-Google-Smtp-Source: AGHT+IEVa6diqsl6ZvfXSq0rGo7hhkqDRW+n7TrUzKDkkOE6cmouItUMotaPVRNMlhVQdWbIguLklw==
+X-Received: by 2002:a05:6000:2ae:b0:336:7a51:5fad with SMTP id l14-20020a05600002ae00b003367a515fadmr862343wry.141.1703088030605;
+        Wed, 20 Dec 2023 08:00:30 -0800 (PST)
 Received: from localhost (cst-prg-16-115.cust.vodafone.cz. [46.135.16.115])
-        by smtp.gmail.com with ESMTPSA id d5-20020a5d5385000000b0033662cf5e51sm10303884wrv.93.2023.12.20.08.00.27
+        by smtp.gmail.com with ESMTPSA id z18-20020a5d4412000000b003367a51217csm2000039wrq.34.2023.12.20.08.00.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 20 Dec 2023 08:00:27 -0800 (PST)
+        Wed, 20 Dec 2023 08:00:30 -0800 (PST)
 From: Andrew Jones <ajones@ventanamicro.com>
 To: kvm-riscv@lists.infradead.org,
 	linux-riscv@lists.infradead.org,
@@ -74,9 +74,9 @@ Cc: anup@brainfault.org,
 	guoren@kernel.org,
 	conor.dooley@microchip.com,
 	Atish Patra <atishp@rivosinc.com>
-Subject: [PATCH v4 04/13] RISC-V: KVM: Add SBI STA extension skeleton
-Date: Wed, 20 Dec 2023 17:00:17 +0100
-Message-ID: <20231220160012.40184-19-ajones@ventanamicro.com>
+Subject: [PATCH v4 05/13] RISC-V: KVM: Add steal-update vcpu request
+Date: Wed, 20 Dec 2023 17:00:18 +0100
+Message-ID: <20231220160012.40184-20-ajones@ventanamicro.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20231220160012.40184-15-ajones@ventanamicro.com>
 References: <20231220160012.40184-15-ajones@ventanamicro.com>
@@ -89,126 +89,79 @@ MIME-Version: 1.0
 Content-type: text/plain
 Content-Transfer-Encoding: 8bit
 
-Add the files and functions needed to support the SBI STA
-(steal-time accounting) extension. In the next patches we'll
-complete the functions to fully enable SBI STA support.
+Add a new vcpu request to inform a vcpu that it should record its
+steal-time information. The request is made each time it has been
+detected that the vcpu task was not assigned a cpu for some time,
+which is easy to do by making the request from vcpu-load. The record
+function is just a stub for now and will be filled in with the rest
+of the steal-time support functions in following patches.
 
 Reviewed-by: Anup Patel <anup@brainfault.org>
 Reviewed-by: Atish Patra <atishp@rivosinc.com>
 Signed-off-by: Andrew Jones <ajones@ventanamicro.com>
 ---
- arch/riscv/include/asm/kvm_vcpu_sbi.h |  1 +
- arch/riscv/include/uapi/asm/kvm.h     |  1 +
- arch/riscv/kvm/Makefile               |  1 +
- arch/riscv/kvm/vcpu_sbi.c             |  4 +++
- arch/riscv/kvm/vcpu_sbi_sta.c         | 47 +++++++++++++++++++++++++++
- 5 files changed, 54 insertions(+)
- create mode 100644 arch/riscv/kvm/vcpu_sbi_sta.c
+ arch/riscv/include/asm/kvm_host.h | 3 +++
+ arch/riscv/kvm/vcpu.c             | 5 +++++
+ arch/riscv/kvm/vcpu_sbi_sta.c     | 4 ++++
+ 3 files changed, 12 insertions(+)
 
-diff --git a/arch/riscv/include/asm/kvm_vcpu_sbi.h b/arch/riscv/include/asm/kvm_vcpu_sbi.h
-index bffda0ac59b6..99c23bb37a37 100644
---- a/arch/riscv/include/asm/kvm_vcpu_sbi.h
-+++ b/arch/riscv/include/asm/kvm_vcpu_sbi.h
-@@ -76,6 +76,7 @@ extern const struct kvm_vcpu_sbi_extension vcpu_sbi_ext_rfence;
- extern const struct kvm_vcpu_sbi_extension vcpu_sbi_ext_srst;
- extern const struct kvm_vcpu_sbi_extension vcpu_sbi_ext_hsm;
- extern const struct kvm_vcpu_sbi_extension vcpu_sbi_ext_dbcn;
-+extern const struct kvm_vcpu_sbi_extension vcpu_sbi_ext_sta;
- extern const struct kvm_vcpu_sbi_extension vcpu_sbi_ext_experimental;
- extern const struct kvm_vcpu_sbi_extension vcpu_sbi_ext_vendor;
+diff --git a/arch/riscv/include/asm/kvm_host.h b/arch/riscv/include/asm/kvm_host.h
+index 0eefd9c991ae..230b82c3118d 100644
+--- a/arch/riscv/include/asm/kvm_host.h
++++ b/arch/riscv/include/asm/kvm_host.h
+@@ -41,6 +41,7 @@
+ 	KVM_ARCH_REQ_FLAGS(4, KVM_REQUEST_WAIT | KVM_REQUEST_NO_WAKEUP)
+ #define KVM_REQ_HFENCE			\
+ 	KVM_ARCH_REQ_FLAGS(5, KVM_REQUEST_WAIT | KVM_REQUEST_NO_WAKEUP)
++#define KVM_REQ_STEAL_UPDATE		KVM_ARCH_REQ(6)
  
-diff --git a/arch/riscv/include/uapi/asm/kvm.h b/arch/riscv/include/uapi/asm/kvm.h
-index 60d3b21dead7..e961d79622fb 100644
---- a/arch/riscv/include/uapi/asm/kvm.h
-+++ b/arch/riscv/include/uapi/asm/kvm.h
-@@ -157,6 +157,7 @@ enum KVM_RISCV_SBI_EXT_ID {
- 	KVM_RISCV_SBI_EXT_EXPERIMENTAL,
- 	KVM_RISCV_SBI_EXT_VENDOR,
- 	KVM_RISCV_SBI_EXT_DBCN,
-+	KVM_RISCV_SBI_EXT_STA,
- 	KVM_RISCV_SBI_EXT_MAX,
- };
+ enum kvm_riscv_hfence_type {
+ 	KVM_RISCV_HFENCE_UNKNOWN = 0,
+@@ -372,4 +373,6 @@ bool kvm_riscv_vcpu_has_interrupts(struct kvm_vcpu *vcpu, u64 mask);
+ void kvm_riscv_vcpu_power_off(struct kvm_vcpu *vcpu);
+ void kvm_riscv_vcpu_power_on(struct kvm_vcpu *vcpu);
  
-diff --git a/arch/riscv/kvm/Makefile b/arch/riscv/kvm/Makefile
-index 4c2067fc59fc..c9646521f113 100644
---- a/arch/riscv/kvm/Makefile
-+++ b/arch/riscv/kvm/Makefile
-@@ -26,6 +26,7 @@ kvm-$(CONFIG_RISCV_SBI_V01) += vcpu_sbi_v01.o
- kvm-y += vcpu_sbi_base.o
- kvm-y += vcpu_sbi_replace.o
- kvm-y += vcpu_sbi_hsm.o
-+kvm-y += vcpu_sbi_sta.o
- kvm-y += vcpu_timer.o
- kvm-$(CONFIG_RISCV_PMU_SBI) += vcpu_pmu.o vcpu_sbi_pmu.o
- kvm-y += aia.o
-diff --git a/arch/riscv/kvm/vcpu_sbi.c b/arch/riscv/kvm/vcpu_sbi.c
-index dcdff4458190..088daaa23dd8 100644
---- a/arch/riscv/kvm/vcpu_sbi.c
-+++ b/arch/riscv/kvm/vcpu_sbi.c
-@@ -70,6 +70,10 @@ static const struct kvm_riscv_sbi_extension_entry sbi_ext[] = {
- 		.ext_idx = KVM_RISCV_SBI_EXT_DBCN,
- 		.ext_ptr = &vcpu_sbi_ext_dbcn,
- 	},
-+	{
-+		.ext_idx = KVM_RISCV_SBI_EXT_STA,
-+		.ext_ptr = &vcpu_sbi_ext_sta,
-+	},
- 	{
- 		.ext_idx = KVM_RISCV_SBI_EXT_EXPERIMENTAL,
- 		.ext_ptr = &vcpu_sbi_ext_experimental,
++void kvm_riscv_vcpu_record_steal_time(struct kvm_vcpu *vcpu);
++
+ #endif /* __RISCV_KVM_HOST_H__ */
+diff --git a/arch/riscv/kvm/vcpu.c b/arch/riscv/kvm/vcpu.c
+index bf3952d1a621..6995b8b641e4 100644
+--- a/arch/riscv/kvm/vcpu.c
++++ b/arch/riscv/kvm/vcpu.c
+@@ -541,6 +541,8 @@ void kvm_arch_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
+ 
+ 	kvm_riscv_vcpu_aia_load(vcpu, cpu);
+ 
++	kvm_make_request(KVM_REQ_STEAL_UPDATE, vcpu);
++
+ 	vcpu->cpu = cpu;
+ }
+ 
+@@ -614,6 +616,9 @@ static void kvm_riscv_check_vcpu_requests(struct kvm_vcpu *vcpu)
+ 
+ 		if (kvm_check_request(KVM_REQ_HFENCE, vcpu))
+ 			kvm_riscv_hfence_process(vcpu);
++
++		if (kvm_check_request(KVM_REQ_STEAL_UPDATE, vcpu))
++			kvm_riscv_vcpu_record_steal_time(vcpu);
+ 	}
+ }
+ 
 diff --git a/arch/riscv/kvm/vcpu_sbi_sta.c b/arch/riscv/kvm/vcpu_sbi_sta.c
-new file mode 100644
-index 000000000000..839911dcd837
---- /dev/null
+index 839911dcd837..e28351c9488b 100644
+--- a/arch/riscv/kvm/vcpu_sbi_sta.c
 +++ b/arch/riscv/kvm/vcpu_sbi_sta.c
-@@ -0,0 +1,47 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Copyright (c) 2023 Ventana Micro Systems Inc.
-+ */
-+
-+#include <linux/kvm_host.h>
-+
-+#include <asm/kvm_vcpu_sbi.h>
-+#include <asm/sbi.h>
-+
-+static int kvm_sbi_sta_steal_time_set_shmem(struct kvm_vcpu *vcpu)
+@@ -8,6 +8,10 @@
+ #include <asm/kvm_vcpu_sbi.h>
+ #include <asm/sbi.h>
+ 
++void kvm_riscv_vcpu_record_steal_time(struct kvm_vcpu *vcpu)
 +{
-+	return SBI_ERR_FAILURE;
 +}
 +
-+static int kvm_sbi_ext_sta_handler(struct kvm_vcpu *vcpu, struct kvm_run *run,
-+				   struct kvm_vcpu_sbi_return *retdata)
-+{
-+	struct kvm_cpu_context *cp = &vcpu->arch.guest_context;
-+	unsigned long funcid = cp->a6;
-+	int ret;
-+
-+	switch (funcid) {
-+	case SBI_EXT_STA_STEAL_TIME_SET_SHMEM:
-+		ret = kvm_sbi_sta_steal_time_set_shmem(vcpu);
-+		break;
-+	default:
-+		ret = SBI_ERR_NOT_SUPPORTED;
-+		break;
-+	}
-+
-+	retdata->err_val = ret;
-+
-+	return 0;
-+}
-+
-+static unsigned long kvm_sbi_ext_sta_probe(struct kvm_vcpu *vcpu)
-+{
-+	return 0;
-+}
-+
-+const struct kvm_vcpu_sbi_extension vcpu_sbi_ext_sta = {
-+	.extid_start = SBI_EXT_STA,
-+	.extid_end = SBI_EXT_STA,
-+	.handler = kvm_sbi_ext_sta_handler,
-+	.probe = kvm_sbi_ext_sta_probe,
-+};
+ static int kvm_sbi_sta_steal_time_set_shmem(struct kvm_vcpu *vcpu)
+ {
+ 	return SBI_ERR_FAILURE;
 -- 
 2.43.0
 
