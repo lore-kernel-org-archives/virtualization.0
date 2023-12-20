@@ -1,138 +1,121 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.151])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A9C42554D;
-	Wed, 20 Dec 2023 13:09:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAA552D620
+	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 13:32:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ROEhlwb5"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1703077793; x=1734613793;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=YmJJ/ywwMFUEe1HB9Rdue5kNC/FoUdtA01gR+RQluFc=;
-  b=ROEhlwb5eTuAZjxH4rdvGPHnGn75LWdanAjiLgKyFJP6IJdOklo4jYqQ
-   egBsDeqNySGktz7k+qGsFVL5h+ALcQMrVU9sgAJDcRdOmXGV8fjkuRSr2
-   2M4D+2h0gpOmu0HFa8XI9k1vxAKi9WppCmcQZoccVoqrCYWu2X2ZnUh3t
-   6JMpDY1u4xFtPk78FfQ3/R39I36rjQd5H8hSmS3YMd1Sw7pUA5XqOyoek
-   9Yte8eyU7/4GWuxRF0C2RbcR9DHaf/pTGxtVuyPY0+S9v5UOFJr6MuMt0
-   j1FMQ+WjE+qilYtX58V9d+OuHuYjHo0D1755LV9a0PSxA1ZRsva+pILqd
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10929"; a="375966910"
-X-IronPort-AV: E=Sophos;i="6.04,291,1695711600"; 
-   d="scan'208";a="375966910"
-Received: from fmviesa002.fm.intel.com ([10.60.135.142])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Dec 2023 05:09:52 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.04,291,1695711600"; 
-   d="scan'208";a="10751570"
-Received: from lkp-server02.sh.intel.com (HELO b07ab15da5fe) ([10.239.97.151])
-  by fmviesa002.fm.intel.com with ESMTP; 20 Dec 2023 05:09:45 -0800
-Received: from kbuild by b07ab15da5fe with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1rFwKV-0006tP-0m;
-	Wed, 20 Dec 2023 13:09:43 +0000
-Date: Wed, 20 Dec 2023 21:09:00 +0800
-From: kernel test robot <lkp@intel.com>
-To: Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-	bp@alien8.de, hpa@zytor.com, dave.hansen@linux.intel.com,
-	mingo@redhat.com, tglx@linutronix.de
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	dmitry.torokhov@gmail.com, tzimmermann@suse.de,
-	pv-drivers@vmware.com, netdev@vger.kernel.org,
-	richardcochran@gmail.com, x86@kernel.org,
-	dri-devel@lists.freedesktop.org, horms@kernel.org,
-	akaher@vmware.com, timothym@vmware.com,
-	linux-graphics-maintainer@vmware.com, mripard@kernel.org,
-	jsipek@vmware.com, linux-input@vger.kernel.org, namit@vmware.com,
-	kirill.shutemov@linux.intel.com, airlied@gmail.com,
-	zackr@vmware.com
-Subject: Re: [PATCH v3 6/6] x86/vmware: Add TDX hypercall support
-Message-ID: <202312202020.5O1T2aSk-lkp@intel.com>
-References: <20231219215751.9445-7-alexey.makhalov@broadcom.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Fw/7IhDR"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 3923182159
+	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 13:32:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3923182159
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Fw/7IhDR
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id nhqrl238_EfW
+	for <virtualization@lists.linux-foundation.org>;
+	Wed, 20 Dec 2023 13:32:40 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 7F03E80E67
+	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 13:32:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7F03E80E67
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1703079159;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=VMzfUMpfCRySKV14r2ACq/M+O86IvQcMgWeUukBTaDE=;
+	b=Fw/7IhDRA+57AMeTrk8LZo5kM3Rg7Lf/+v5HcPuYUrxY/HH5nFJn485jT+9qpo399TlduM
+	nLHet7/U2fHlaXbz7vy0JjMaOT9attxDnyAuWzeRk3LkPywjopWt7oVRcGHlsSPYcezfEX
+	3dAf5MKcvtnpxDRULIJ9tNim6yl+GyU=
+Received: from mail-yw1-f197.google.com (mail-yw1-f197.google.com
+ [209.85.128.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-479-In1brmmyM7-MEmFWb7c0NA-1; Wed, 20 Dec 2023 08:32:37 -0500
+X-MC-Unique: In1brmmyM7-MEmFWb7c0NA-1
+Received: by mail-yw1-f197.google.com with SMTP id 00721157ae682-5ca26c07848so77070497b3.0
+        for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 05:32:37 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1703079157; x=1703683957;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=VMzfUMpfCRySKV14r2ACq/M+O86IvQcMgWeUukBTaDE=;
+        b=A62OcWboDRV63zjvCTo6F3IwOHw5Vxla8O+8Hnxf4akvkY5nQdj1HmxtdRXEUKh0SY
+         TO2huHYwV+fz67wmwvtQ30t/5MXRAD0z87xcrsGno7PY17p2iauWqNG4WHQ+zKp5Meu+
+         1CV8ihbdkxeRXOmnwgksTzitOWUD6VuMaWN+6tFDDCddUViahUkIGKnk41a5bDTHvNGG
+         aCXQFDUMa1xsC+2FZ9J7uSWGBPGPcEWu3VuiLmM48KCfYbD1q0gJxOHhaupqnr18PF5E
+         +3CTizw6mOdd5kc7cIrO+Aq/VjbQ90Zm7CyRkAzx/yhnV8kkQUmaYkBrkJJ9n+YHLrEr
+         X21g==
+X-Gm-Message-State: AOJu0Ywn0gzyHtTg4CC+B7DBvopiYSJtXW6FlcZCMt18hIFzGj2I6tbu
+	znghKlMYukQde5gXhm+ner639bwEaf7VGKHhP1elDEdoMvmOwP7qvR7gdNDK8KDvCeF6U5POzU+
+	L4RZAT02Fq1WZTQRI4NTWd87dazHMvuxDb5IRgQukTDUOenBf/dihheEXQA==
+X-Received: by 2002:a81:7104:0:b0:5d7:9515:6ae3 with SMTP id m4-20020a817104000000b005d795156ae3mr14296457ywc.33.1703079157221;
+        Wed, 20 Dec 2023 05:32:37 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHBizLEtuC1w25WSPAQRdmgfmzbhlgoBE+Ri28WemJThaBvVsn/cvQCI5dtZtYAosoVwA/ga7C8ipUzBYNV8OQ=
+X-Received: by 2002:a81:7104:0:b0:5d7:9515:6ae3 with SMTP id
+ m4-20020a817104000000b005d795156ae3mr14296452ywc.33.1703079157026; Wed, 20
+ Dec 2023 05:32:37 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20231219215751.9445-7-alexey.makhalov@broadcom.com>
+References: <20231219180858.120898-1-dtatulea@nvidia.com> <20231219180858.120898-3-dtatulea@nvidia.com>
+ <CACGkMEv7xQkZYJAgAUK6C3oUrZ9vuUJdTKRzihXcNPb-iWdpJw@mail.gmail.com> <CACGkMEsaaDGi63__YrvsTC1HqgTaEWHvGokK1bJS5+m1XYM-6w@mail.gmail.com>
+In-Reply-To: <CACGkMEsaaDGi63__YrvsTC1HqgTaEWHvGokK1bJS5+m1XYM-6w@mail.gmail.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Wed, 20 Dec 2023 14:32:01 +0100
+Message-ID: <CAJaqyWdoaj8a7q1KrGqWmkYvAw_R_p0utcWvDvkyVm1nUOAxrA@mail.gmail.com>
+Subject: Re: [PATCH vhost v4 02/15] vdpa: Add VHOST_BACKEND_F_CHANGEABLE_VQ_ADDR_IN_SUSPEND
+ flag
+To: Jason Wang <jasowang@redhat.com>
+Cc: Dragos Tatulea <dtatulea@nvidia.com>, "Michael S . Tsirkin" <mst@redhat.com>, 
+	Si-Wei Liu <si-wei.liu@oracle.com>, Saeed Mahameed <saeedm@nvidia.com>, 
+	Leon Romanovsky <leon@kernel.org>, virtualization@lists.linux-foundation.org, 
+	Gal Pressman <gal@nvidia.com>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Parav Pandit <parav@nvidia.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi Alexey,
+On Wed, Dec 20, 2023 at 5:06=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
+ote:
+>
+> On Wed, Dec 20, 2023 at 11:46=E2=80=AFAM Jason Wang <jasowang@redhat.com>=
+ wrote:
+> >
+> > On Wed, Dec 20, 2023 at 2:09=E2=80=AFAM Dragos Tatulea <dtatulea@nvidia=
+.com> wrote:
+> > >
+> > > The virtio spec doesn't allow changing virtqueue addresses after
+> > > DRIVER_OK. Some devices do support this operation when the device is
+> > > suspended. The VHOST_BACKEND_F_CHANGEABLE_VQ_ADDR_IN_SUSPEND flag
+> > > advertises this support as a backend features.
+> >
+> > There's an ongoing effort in virtio spec to introduce the suspend state=
+.
+> >
+> > So I wonder if it's better to just allow such behaviour?
+>
+> Actually I mean, allow drivers to modify the parameters during suspend
+> without a new feature.
+>
 
-kernel test robot noticed the following build warnings:
+That would be ideal, but how do userland checks if it can suspend +
+change properties + resume?
 
-[auto build test WARNING on drm-misc/drm-misc-next]
-[also build test WARNING on dtor-input/next dtor-input/for-linus linus/master v6.7-rc6 next-20231220]
-[cannot apply to tip/x86/vmware]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+The only way that comes to my mind is to make sure all parents return
+error if userland tries to do it, and then fallback in userland. I'm
+ok with that, but I'm not sure if the current master & previous kernel
+has a coherent behavior. Do they return error? Or return success
+without changing address / vq state?
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Alexey-Makhalov/x86-vmware-Move-common-macros-to-vmware-h/20231220-060028
-base:   git://anongit.freedesktop.org/drm/drm-misc drm-misc-next
-patch link:    https://lore.kernel.org/r/20231219215751.9445-7-alexey.makhalov%40broadcom.com
-patch subject: [PATCH v3 6/6] x86/vmware: Add TDX hypercall support
-config: x86_64-allyesconfig (https://download.01.org/0day-ci/archive/20231220/202312202020.5O1T2aSk-lkp@intel.com/config)
-compiler: clang version 16.0.4 (https://github.com/llvm/llvm-project.git ae42196bc493ffe877a7e3dff8be32035dea4d07)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20231220/202312202020.5O1T2aSk-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202312202020.5O1T2aSk-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
->> arch/x86/kernel/cpu/vmware.c:439:40: warning: format specifies type 'unsigned int' but the argument has type 'unsigned long' [-Wformat]
-                   pr_warn("Out of range command %x\n", cmd);
-                                                 ~~     ^~~
-                                                 %lx
-   include/linux/printk.h:508:37: note: expanded from macro 'pr_warn'
-           printk(KERN_WARNING pr_fmt(fmt), ##__VA_ARGS__)
-                                      ~~~     ^~~~~~~~~~~
-   include/linux/printk.h:455:60: note: expanded from macro 'printk'
-   #define printk(fmt, ...) printk_index_wrap(_printk, fmt, ##__VA_ARGS__)
-                                                       ~~~    ^~~~~~~~~~~
-   include/linux/printk.h:427:19: note: expanded from macro 'printk_index_wrap'
-                   _p_func(_fmt, ##__VA_ARGS__);                           \
-                           ~~~~    ^~~~~~~~~~~
-   1 warning generated.
-
-
-vim +439 arch/x86/kernel/cpu/vmware.c
-
-   430	
-   431	#ifdef CONFIG_INTEL_TDX_GUEST
-   432	unsigned long vmware_tdx_hypercall(unsigned long cmd,
-   433					   struct tdx_module_args *args)
-   434	{
-   435		if (!hypervisor_is_type(X86_HYPER_VMWARE))
-   436			return 0;
-   437	
-   438		if (cmd & ~VMWARE_CMD_MASK) {
- > 439			pr_warn("Out of range command %x\n", cmd);
-   440			return 0;
-   441		}
-   442	
-   443		args->r10 = VMWARE_TDX_VENDOR_LEAF;
-   444		args->r11 = VMWARE_TDX_HCALL_FUNC;
-   445		args->r12 = VMWARE_HYPERVISOR_MAGIC;
-   446		args->r13 = cmd;
-   447	
-   448		__tdx_hypercall(args);
-   449	
-   450		return args->r12;
-   451	}
-   452	EXPORT_SYMBOL_GPL(vmware_tdx_hypercall);
-   453	#endif
-   454	
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
