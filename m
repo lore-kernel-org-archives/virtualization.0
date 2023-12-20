@@ -1,80 +1,80 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C02024AF91
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 16:12:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBAEE2D614
+	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 16:31:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Jnkv2fLH"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Sx3FdSrE"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 3FEA961527
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 16:12:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3FEA961527
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Jnkv2fLH
+	by smtp1.osuosl.org (Postfix) with ESMTP id 4D2C881FC9
+	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 16:31:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4D2C881FC9
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Sx3FdSrE
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id yAl89wFsfxzM
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id enIDij8aR1Ih
 	for <virtualization@lists.linux-foundation.org>;
-	Wed, 20 Dec 2023 16:12:54 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 74CCB61524
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 16:12:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 74CCB61524
+	Wed, 20 Dec 2023 16:31:41 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 769078145F
+	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 16:31:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 769078145F
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1703088773;
+	s=mimecast20190719; t=1703089900;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=/R2O8TJ4542iZyXv/uB6h7A35AJkq8aJE1UHdDp43cM=;
-	b=Jnkv2fLHkaQdxM/NL9/IWEXWG4NGcLqNBP1zG99IbjKL+c+DHmwv0kJ+BtScsPq/eK1EnQ
-	ACFLhjRuOEWqPCRQHFeZonjtZSU58dl/rGklIMz2jqWE1nTJr5SHXAGrgsAa8MNxXS4D6I
-	PvbLLthGlbxQfX3d61LyJAW4aKKCK6I=
-Received: from mail-yw1-f198.google.com (mail-yw1-f198.google.com
- [209.85.128.198]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=IgZDAP5MsLlemQXzE+yHPnrJJciIAnmmc9CrE5dpHC4=;
+	b=Sx3FdSrEl8SfJC0OUF1JBPvaldcaiYPkWVbFaTo636Got2yCEaC/6Z/45Y+DFfBW7eO1pc
+	az8wrjOveS57PtmO+hALSq4G3lRN54naOvEbsD4alvzGtpRnK/rJd5EMwMh+caIqFkFXYI
+	VsDu5YkVizUkrmLYYoNAfymsqhELfY0=
+Received: from mail-yw1-f200.google.com (mail-yw1-f200.google.com
+ [209.85.128.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-270-hnHh3Ao8Mw69QEAHsjWrUQ-1; Wed, 20 Dec 2023 11:12:51 -0500
-X-MC-Unique: hnHh3Ao8Mw69QEAHsjWrUQ-1
-Received: by mail-yw1-f198.google.com with SMTP id 00721157ae682-5e73e6a17d5so44106077b3.0
-        for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 08:12:51 -0800 (PST)
+ us-mta-201-Uqf6wj0gP_u9ssU3_zXcbg-1; Wed, 20 Dec 2023 11:31:38 -0500
+X-MC-Unique: Uqf6wj0gP_u9ssU3_zXcbg-1
+Received: by mail-yw1-f200.google.com with SMTP id 00721157ae682-5e8e0c7f9a8so4668627b3.0
+        for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 08:31:38 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703088771; x=1703693571;
+        d=1e100.net; s=20230601; t=1703089898; x=1703694698;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=/R2O8TJ4542iZyXv/uB6h7A35AJkq8aJE1UHdDp43cM=;
-        b=n4W6yuiW0dkO8to9isrzF+HMmaw/b4g+F6+uzbrGWqDNvpO8uxCIZwtpv9uWX2Rbm7
-         MDNeWnM/nSQJ0LE1a6TUslcaxXMC22fNyOk7tMPce9Pn51fUHmZlfmaA2/riDHn41D//
-         00p220TM3g+jFQofWMFk3fSs7dJaGrWFhH3+DGQiT3mkgnAFF8QufQW4V2GlpdS3+4Vp
-         JRZWCOktmDebDaSWU5bdLsleXBFn8qlQlYn4PdIWjDUzdcFxLDx/hYh1sns18AsmfzsD
-         IK+qtPkqwFsrSB2AEkEw7JGVzh+gUxfNA97fogu4y37yt8WNKipQ9y0xAAo8Fw6FpNTI
-         0lSA==
-X-Gm-Message-State: AOJu0YwkDYli6yuT1+1/LLgFlDUEQHog17Pk3yiEj4bwqURRaZk8Biqf
-	hmwdLHG99mSlWYSEUKJyGlvRQQ4NiVhZgTPPhNIwdOLvKWSy30bjfa2IIJWFQyM3c6Pmz7n24pH
-	mQJbPudxzD4cb/AGEas/7G6i+iGYQ1FZT99cl5RYsguaz4P0GdvV7krrc2A==
-X-Received: by 2002:a0d:c484:0:b0:5d7:1940:dd79 with SMTP id g126-20020a0dc484000000b005d71940dd79mr16406968ywd.79.1703088770846;
-        Wed, 20 Dec 2023 08:12:50 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFl9HuJvZdKloOZeydrDbBWg/CYLQwNnyxXZYFdRHvKNBSwps+IR8b+dmnGiDTqDuL+cw7PJL7bJDjI3MeSc9E=
-X-Received: by 2002:a0d:c484:0:b0:5d7:1940:dd79 with SMTP id
- g126-20020a0dc484000000b005d71940dd79mr16406957ywd.79.1703088770610; Wed, 20
- Dec 2023 08:12:50 -0800 (PST)
+        bh=IgZDAP5MsLlemQXzE+yHPnrJJciIAnmmc9CrE5dpHC4=;
+        b=JgP0tjThrrbYm1ZxImbP9F+ns4zGQLLLDY9bWeI0kIEacaYZ+ont5hTneEgenPJdzR
+         h6NFHzHEJFSsDaIh0A+gQqBoCo3rvchjwgas+c1GIgeIvAkD7mS6RFPnSa5CCZbq1UzH
+         J9FuBaNHNHwP2IPRKw0h3xc2cbVLCCA4wH55PioV/xLkTf/QXuczMe0HIW0/cvm3Yvqg
+         eVA/DB6m5hXRjL9OybGPK/qrxYktX3NYGr5nHb01URiczT/lXkTfTlT1rxf07/Rr5nRy
+         E9WWFliQqs68lk6ejYpxlhlFvrWUebuuCeogg7+b2YrQG+J0hxWu0BbZBaT4IKLbNcrd
+         C6Lw==
+X-Gm-Message-State: AOJu0YxVIcFrryzJGIBpjKwiTOIymJR5629Dcbnfks4Y6eHbVczcljdD
+	tPXjm92kNbCoipQ2ZpfqnM3BgG9B0iQCMOdJ2j9HXSPDgGCgoT84Ya3VBrC7CWiy6wfRuPhMEli
+	sTRW11IRx29aAEL9jLBT0mX1vxWHAO9CC/zhns++6X3hrhsagY2zSWlYtLg==
+X-Received: by 2002:a0d:dd82:0:b0:5e6:e9d0:990b with SMTP id g124-20020a0ddd82000000b005e6e9d0990bmr1808823ywe.32.1703089898121;
+        Wed, 20 Dec 2023 08:31:38 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IG1KXR2BgnYGD0+xnFjeY7zp2Hbz1GeSRtIDMZmECKqn9k3gArnzq6WK6nrkxuFCZoLxJrHlOvpLl9D9VtzDrA=
+X-Received: by 2002:a0d:dd82:0:b0:5e6:e9d0:990b with SMTP id
+ g124-20020a0ddd82000000b005e6e9d0990bmr1808809ywe.32.1703089897863; Wed, 20
+ Dec 2023 08:31:37 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20231219180858.120898-1-dtatulea@nvidia.com> <20231219180858.120898-6-dtatulea@nvidia.com>
-In-Reply-To: <20231219180858.120898-6-dtatulea@nvidia.com>
+References: <20231219180858.120898-1-dtatulea@nvidia.com> <20231219180858.120898-8-dtatulea@nvidia.com>
+In-Reply-To: <20231219180858.120898-8-dtatulea@nvidia.com>
 From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Wed, 20 Dec 2023 17:12:14 +0100
-Message-ID: <CAJaqyWfXnRNDzCL3GgdQby7ZmKxxRic5wsi2RTX24sa1Lz4F4g@mail.gmail.com>
-Subject: Re: [PATCH vhost v4 05/15] vdpa: Accept VHOST_BACKEND_F_CHANGEABLE_VQ_STATE_IN_SUSPEND
- backend feature
+Date: Wed, 20 Dec 2023 17:31:01 +0100
+Message-ID: <CAJaqyWet3m8HmHRTJNshQgCn0jqyrO476j0Z-rwwqyDNj4B66w@mail.gmail.com>
+Subject: Re: [PATCH vhost v4 07/15] vdpa: Block vq address change in DRIVER_OK
+ unless device supports it
 To: Dragos Tatulea <dtatulea@nvidia.com>
 Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
 	Si-Wei Liu <si-wei.liu@oracle.com>, Saeed Mahameed <saeedm@nvidia.com>, 
@@ -89,7 +89,9 @@ Content-Transfer-Encoding: quoted-printable
 On Tue, Dec 19, 2023 at 7:09=E2=80=AFPM Dragos Tatulea <dtatulea@nvidia.com=
 > wrote:
 >
-> If userland sets this feature, allow it.
+> Virtqueue address change during DRIVE_OK is not supported by the virtio
+> standard. Allow this op in DRIVER_OK only for devices that support
+> changing the address during DRIVER_OK if the device is suspended.
 >
 > Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
 > Suggested-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
@@ -97,25 +99,58 @@ On Tue, Dec 19, 2023 at 7:09=E2=80=AFPM Dragos Tatulea <dtatulea@nvidia.com=
 Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
 
 > ---
->  drivers/vhost/vdpa.c | 1 +
->  1 file changed, 1 insertion(+)
+>  drivers/vhost/vdpa.c | 26 ++++++++++++++++++++++++++
+>  1 file changed, 26 insertions(+)
 >
 > diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> index 2250fcd90e5b..b4e8ddf86485 100644
+> index 00b4fa8e89f2..6bfa3391935a 100644
 > --- a/drivers/vhost/vdpa.c
 > +++ b/drivers/vhost/vdpa.c
-> @@ -750,6 +750,7 @@ static long vhost_vdpa_unlocked_ioctl(struct file *fi=
-lep,
->                                  BIT_ULL(VHOST_BACKEND_F_SUSPEND) |
->                                  BIT_ULL(VHOST_BACKEND_F_RESUME) |
->                                  BIT_ULL(VHOST_BACKEND_F_CHANGEABLE_VQ_AD=
-DR_IN_SUSPEND) |
-> +                                BIT_ULL(VHOST_BACKEND_F_CHANGEABLE_VQ_ST=
-ATE_IN_SUSPEND) |
->                                  BIT_ULL(VHOST_BACKEND_F_ENABLE_AFTER_DRI=
-VER_OK)))
->                         return -EOPNOTSUPP;
->                 if ((features & BIT_ULL(VHOST_BACKEND_F_SUSPEND)) &&
+> @@ -625,6 +625,29 @@ static long vhost_vdpa_resume(struct vhost_vdpa *v)
+>         return ret;
+>  }
+>
+> +static bool vhost_vdpa_vq_config_allowed(struct vhost_vdpa *v, unsigned =
+int cmd)
+> +{
+> +       struct vdpa_device *vdpa =3D v->vdpa;
+> +       const struct vdpa_config_ops *ops =3D vdpa->config;
+> +       int feature;
+> +
+> +       if (!(ops->get_status(vdpa) & VIRTIO_CONFIG_S_DRIVER_OK))
+> +               return true;
+> +
+> +       if (!v->suspended)
+> +               return false;
+> +
+> +       switch (cmd) {
+> +       case VHOST_SET_VRING_ADDR:
+> +               feature =3D VHOST_BACKEND_F_CHANGEABLE_VQ_ADDR_IN_SUSPEND=
+;
+> +               break;
+> +       default:
+> +               return false;
+> +       }
+> +
+> +       return v->vdev.vqs && vhost_backend_has_feature(v->vdev.vqs[0], f=
+eature);
+> +}
+> +
+>  static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cm=
+d,
+>                                    void __user *argp)
+>  {
+> @@ -703,6 +726,9 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa =
+*v, unsigned int cmd,
+>
+>         switch (cmd) {
+>         case VHOST_SET_VRING_ADDR:
+> +               if (!vhost_vdpa_vq_config_allowed(v, cmd))
+> +                       return -EOPNOTSUPP;
+> +
+>                 if (ops->set_vq_address(vdpa, idx,
+>                                         (u64)(uintptr_t)vq->desc,
+>                                         (u64)(uintptr_t)vq->avail,
 > --
 > 2.43.0
 >
