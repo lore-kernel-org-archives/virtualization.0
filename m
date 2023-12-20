@@ -1,114 +1,173 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f181.google.com (mail-qt1-f181.google.com [209.85.160.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 660CEF9FB
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 04:06:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F97F210E5
+	for <virtualization@lists.linux.dev>; Wed, 20 Dec 2023 04:25:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MQHVrLdi"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id E8E9340AA4
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 04:06:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E8E9340AA4
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=MQHVrLdi
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id tksZ-saDdZbL
-	for <virtualization@lists.linux-foundation.org>;
-	Wed, 20 Dec 2023 04:06:04 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 9144740A5B
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 04:06:04 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9144740A5B
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1703045163;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=od6b06R9di1R/4iYBvwR9HNhISJUCGr44+UWNtXtRoc=;
-	b=MQHVrLdiTnYXrw0TsTvqsw7g/+M4/YK//6u5ghkO6uJMkdtWueDTmWOVcYC0+84OnsPtBr
-	CRJlyc3k2ErmsGfxbmvLCd7QsgMEhdsvofSjae84SHOrSeW3rffOP2KvbOaJHVkAiaklLC
-	s+SaepToKj1tfMOCkQaWM2rvIRnM5Mo=
-Received: from mail-oi1-f198.google.com (mail-oi1-f198.google.com
- [209.85.167.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-611-yYsaec44N1eIu3Gg0-TpdA-1; Tue, 19 Dec 2023 23:06:01 -0500
-X-MC-Unique: yYsaec44N1eIu3Gg0-TpdA-1
-Received: by mail-oi1-f198.google.com with SMTP id 5614622812f47-3b9d731fd1bso6594249b6e.1
-        for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 20:06:01 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A2zmD5TJ"
+Received: by mail-qt1-f181.google.com with SMTP id d75a77b69052e-42788536cddso1801161cf.2
+        for <virtualization@lists.linux.dev>; Tue, 19 Dec 2023 20:25:13 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1703046312; x=1703651112; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:subject:references
+         :in-reply-to:message-id:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=rmdtaBqyL+TTKmGt9TVdr/9Xg5s2fXpiGZdJ9KSKVKk=;
+        b=A2zmD5TJO6RrxA8bH2O3pyS9QMCDrfNmn1yx9h7NUmmzq6OrSgcCQQGq090aYu+U5O
+         Q3Zj1VeoBGM6r/+lrFGScYexkpOPEC+sTZ7xwfn6b78RXFKAvDXfgRy4whu/UvGlsMB9
+         OMx9l4MH580vyr8W4y9NsR9YdHy88C/ToW1O7MMr0tBRkSs5/HJuhbxp7qa7yZQ756FI
+         VpNOgHHE78iLKMG+lIaLjtdp3Y+zl855s1BfBUHwBLxqxPz3e3FKDIKW4pjZ3m1G8Wom
+         OQnn8Y1D4QBnMZLy6pGar3o0TwBY59DDaj61WSj2icUOqG8mEs9fWtDq2qlj1QFC5mJC
+         ANVQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703045161; x=1703649961;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=od6b06R9di1R/4iYBvwR9HNhISJUCGr44+UWNtXtRoc=;
-        b=Pc3o1RCWLj9TpHvCfz9Z1gWh4oi9rGW8z5KqtjjQj6hbWZkLzI+ZgGejWN9NP870dH
-         I/mgTLoqUADzTrrXlCWlhMGTJPQ5//wVOmFYj2s8GNg3JK/Wc6i3i9ukQy4T80rOjZGY
-         NfLQIpTvHb8CD+a9ViV9KOwdpSmiOKDe3GtFFbxREPUqt1bMrNEHcPubYsJC7G6uLSkY
-         R0+G+cL8XSoqvzFi9wg72eHMEwsBNZk+U7KwXB5wjoQAEHsYkLatHtupTicER9ect5qx
-         URtPadnTYayz0dTjNIQyRS91KJnDoxFXL/SkJo/L24SLtoa25MuMwJhHvsG8T6bGzZGd
-         yc2g==
-X-Gm-Message-State: AOJu0Yy4TLs2TVNjRL/rncw4rzTODzeA8xyQP68ChRELwL2k7Ts+q1U5
-	dzZ9mlqRaQqByO4Cd6wXXAY3snYeApihO/RqUK8d5Dxm1Yy2cCgkN/+rrQdcn9wFdfce6TBL7qI
-	wfbv7YlDYjsd5NOJXpPlU7tZvmpyZx13LWsU21tdZRqE9OxOM0027jmfA/w==
-X-Received: by 2002:a05:6808:2022:b0:3bb:5f46:fc92 with SMTP id q34-20020a056808202200b003bb5f46fc92mr2662220oiw.32.1703045161219;
-        Tue, 19 Dec 2023 20:06:01 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IF7bNzJNP++sajjpkBSvZbj8fBXUFR3JlD7KqetxxL+4FHj3ZcsomiOKSot/CNkMhv11b5giD9zm5wB0LFKSTg=
-X-Received: by 2002:a05:6808:2022:b0:3bb:5f46:fc92 with SMTP id
- q34-20020a056808202200b003bb5f46fc92mr2662209oiw.32.1703045161039; Tue, 19
- Dec 2023 20:06:01 -0800 (PST)
+        d=1e100.net; s=20230601; t=1703046312; x=1703651112;
+        h=content-transfer-encoding:mime-version:subject:references
+         :in-reply-to:message-id:cc:to:from:date:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=rmdtaBqyL+TTKmGt9TVdr/9Xg5s2fXpiGZdJ9KSKVKk=;
+        b=VfZHxykuetzBkLtPfU1uHqkmLM5KljkMO7f4h6Z37bVE1wvjpS4noX6OQmENvG5ZCq
+         AM64a/FLezIDtJwDHUx6cKf78zzTZHZXBEE6Gt/mKa8sR20tALu23dQ8vEANrjjpK1/I
+         Jw+wQ7tYljCJaAO8VpfYrG+PTn3XQH92Xh4phSECLfuH0eEUY8cj8cGGugw+6WL3rpUz
+         Lwf0sqfe7M8TTK6nV35jJGXI8jL5+PFxjcx8XsMiByYPVMT8Gto5dbXl1ntSb5OOq5TP
+         Adjo6aB6XGnQCy5J42ey7BPUj0814hZMENl+f3UaBM4WqgCNYleTxWg/z/JJe7isUrE9
+         erAA==
+X-Gm-Message-State: AOJu0YyTRL9MdDeSurQCzjl+9xx24AyoxgfiW/CCgQJzWwyzvq4yQz7y
+	1ELdo+maVx5i4/URPcWEClA=
+X-Google-Smtp-Source: AGHT+IGLTvjYynOwjVav8Ui6s6MVyyOYM4txTbrMGOvYl1pHF8IRUtOQeOVHuof1hW+tO6p06z9uCw==
+X-Received: by 2002:a05:622a:188e:b0:427:86ad:47dd with SMTP id v14-20020a05622a188e00b0042786ad47ddmr864739qtc.16.1703046312174;
+        Tue, 19 Dec 2023 20:25:12 -0800 (PST)
+Received: from localhost (114.66.194.35.bc.googleusercontent.com. [35.194.66.114])
+        by smtp.gmail.com with ESMTPSA id hh12-20020a05622a618c00b00425f0ab0393sm6253689qtb.17.2023.12.19.20.25.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 Dec 2023 20:25:11 -0800 (PST)
+Date: Tue, 19 Dec 2023 23:25:11 -0500
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+To: Jason Wang <jasowang@redhat.com>, 
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: Steffen Trumtrar <s.trumtrar@pengutronix.de>, 
+ "Michael S. Tsirkin" <mst@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+ "David S. Miller" <davem@davemloft.net>, 
+ Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>, 
+ Richard Cochran <richardcochran@gmail.com>, 
+ virtualization@lists.linux.dev, 
+ netdev@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, 
+ Willem de Bruijn <willemb@google.com>
+Message-ID: <65826ca77a39e_190a43294eb@willemb.c.googlers.com.notmuch>
+In-Reply-To: <CACGkMEuuz3R5CgBpKrnBwtFP3ZxWULDMm47LhtxYYHSSUy_2fQ@mail.gmail.com>
+References: <20231218-v6-7-topic-virtio-net-ptp-v1-0-cac92b2d8532@pengutronix.de>
+ <65807512bc20b_805482941e@willemb.c.googlers.com.notmuch>
+ <CACGkMEuuz3R5CgBpKrnBwtFP3ZxWULDMm47LhtxYYHSSUy_2fQ@mail.gmail.com>
+Subject: Re: [PATCH RFC 0/4] virtio-net: add tx-hash, rx-tstamp, tx-tstamp and
+ tx-time
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-References: <20231219180858.120898-1-dtatulea@nvidia.com> <20231219180858.120898-3-dtatulea@nvidia.com>
- <CACGkMEv7xQkZYJAgAUK6C3oUrZ9vuUJdTKRzihXcNPb-iWdpJw@mail.gmail.com>
-In-Reply-To: <CACGkMEv7xQkZYJAgAUK6C3oUrZ9vuUJdTKRzihXcNPb-iWdpJw@mail.gmail.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 20 Dec 2023 12:05:50 +0800
-Message-ID: <CACGkMEsaaDGi63__YrvsTC1HqgTaEWHvGokK1bJS5+m1XYM-6w@mail.gmail.com>
-Subject: Re: [PATCH vhost v4 02/15] vdpa: Add VHOST_BACKEND_F_CHANGEABLE_VQ_ADDR_IN_SUSPEND
- flag
-To: Dragos Tatulea <dtatulea@nvidia.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Eugenio Perez Martin <eperezma@redhat.com>, 
-	Si-Wei Liu <si-wei.liu@oracle.com>, Saeed Mahameed <saeedm@nvidia.com>, 
-	Leon Romanovsky <leon@kernel.org>, virtualization@lists.linux-foundation.org, 
-	Gal Pressman <gal@nvidia.com>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Parav Pandit <parav@nvidia.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Content-Type: text/plain;
+ charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Dec 20, 2023 at 11:46=E2=80=AFAM Jason Wang <jasowang@redhat.com> w=
-rote:
->
-> On Wed, Dec 20, 2023 at 2:09=E2=80=AFAM Dragos Tatulea <dtatulea@nvidia.c=
-om> wrote:
+Jason Wang wrote:
+> On Tue, Dec 19, 2023 at 12:36=E2=80=AFAM Willem de Bruijn
+> <willemdebruijn.kernel@gmail.com> wrote:
 > >
-> > The virtio spec doesn't allow changing virtqueue addresses after
-> > DRIVER_OK. Some devices do support this operation when the device is
-> > suspended. The VHOST_BACKEND_F_CHANGEABLE_VQ_ADDR_IN_SUSPEND flag
-> > advertises this support as a backend features.
->
-> There's an ongoing effort in virtio spec to introduce the suspend state.
->
-> So I wonder if it's better to just allow such behaviour?
+> > Steffen Trumtrar wrote:
+> > > This series tries to pick up the work on the virtio-net timestampin=
+g
+> > > feature from Willem de Bruijn.
+> > >
+> > > Original series
+> > >     Message-Id: 20210208185558.995292-1-willemdebruijn.kernel@gmail=
+.com
+> > >     Subject: [PATCH RFC v2 0/4] virtio-net: add tx-hash, rx-tstamp,=
 
-Actually I mean, allow drivers to modify the parameters during suspend
-without a new feature.
+> > >     tx-tstamp and tx-time
+> > >     From: Willem de Bruijn <willemb@google.com>
+> > >
+> > >     RFC for four new features to the virtio network device:
+> > >
+> > >     1. pass tx flow state to host, for routing + telemetry
+> > >     2. pass rx tstamp to guest, for better RTT estimation
+> > >     3. pass tx tstamp to guest, idem
+> > >     3. pass tx delivery time to host, for accurate pacing
+> > >
+> > >     All would introduce an extension to the virtio spec.
+> > >
+> > > The original series consisted of a hack around the DMA API, which s=
+hould
+> > > be fixed in this series.
+> > >
+> > > The changes in this series are to the driver side. For the changes =
+to qemu see:
+> > >     https://github.com/strumtrar/qemu/tree/v8.1.1/virtio-net-ptp
+> > >
+> > > Currently only virtio-net is supported. The original series used
+> > > vhost-net as backend. However, the path through tun via sendmsg doe=
+sn't
+> > > allow us to write data back to the driver side without any hacks.
+> > > Therefore use the way via plain virtio-net without vhost albeit bet=
+ter
+> > > performance.
+> > >
+> > > Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+> >
+> > Thanks for picking this back up, Steffen. Nice to see that the code s=
+till
+> > applies mostly cleanly.
+> >
+> > For context: I dropped the work only because I had no real device
+> > implementation. The referenced patch series to qemu changes that.
+> >
+> > I suppose the main issue is the virtio API changes that this introduc=
+es,
+> > which will have to be accepted to the spec.
+> >
+> > One small comment to patch 4: there I just assumed the virtual device=
 
-Thanks
+> > time is CLOCK_TAI. There is a concurrent feature under review for HW
+> > pacing offload with AF_XDP sockets. The clock issue comes up a bit. I=
+n
+> > general, for hardware we cannot assume a clock.
+> =
 
->
+> Any reason for this? E.g some modern NIC have PTP support.
+
+I meant that we cannot assume a specific clock, if aiming to offload
+existing pacing (or "launch time") methods.
+
+The issue discussed in the AF_XDP thread is whether to use CLOCK_TAI
+or CLOCK_MONOTONIC. Both of which are already in use in software
+pacing offload, in the ETF and FQ qdiscs, respectively.
+
+But for virtio it may be acceptable to restrict to one clock, such as
+CLOCK_REALTIME or CLOCK_TAI.
+
+CLOCK_MONOTONIC being boottime is almost certain to have an offset.
+Even if the clocks' rates are synchronized with phc2sys.
+
+> > For virtio, perhaps
+> > assuming the same monotonic hardware clock in guest and host can be
+> > assumed.
+> =
+
+> Note that virtio can be implemented in hardware now. So we can assume
+> things like the kvm ptp clock.
+> =
+
+> > But this clock alignment needs some thought.
+> >
+> =
+
 > Thanks
->
->
+> =
+
+
 
