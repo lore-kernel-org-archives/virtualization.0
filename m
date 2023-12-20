@@ -1,226 +1,196 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f177.google.com (mail-pg1-f177.google.com [209.85.215.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1482E3DB80
-	for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 23:40:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D792ABA31
+	for <virtualization@lists.linux.dev>; Wed, 20 Dec 2023 00:17:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=atishpatra.org header.i=@atishpatra.org header.b="akoJxb0g"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 92D4D401A4
-	for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 23:40:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 92D4D401A4
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=atishpatra.org header.i=@atishpatra.org header.a=rsa-sha256 header.s=google header.b=akoJxb0g
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.1
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Jg8N6vmLBMet
-	for <virtualization@lists.linux-foundation.org>;
-	Tue, 19 Dec 2023 23:40:49 +0000 (UTC)
-Received: from mail-lj1-x233.google.com (mail-lj1-x233.google.com [IPv6:2a00:1450:4864:20::233])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id E80ED40004
-	for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 23:40:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E80ED40004
-Received: by mail-lj1-x233.google.com with SMTP id 38308e7fff4ca-2cc3facf0c0so2162371fa.0
-        for <virtualization@lists.linux-foundation.org>; Tue, 19 Dec 2023 15:40:48 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="OJULQTZt"
+Received: by mail-pg1-f177.google.com with SMTP id 41be03b00d2f7-5cdbc7bebecso567361a12.1
+        for <virtualization@lists.linux.dev>; Tue, 19 Dec 2023 16:17:46 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=atishpatra.org; s=google; t=1703029247; x=1703634047; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=GCi2t1W6pKq3yvd5hq6jD1cRXXQEKYYgdb3VO0qkSBg=;
-        b=akoJxb0gtgioljPKS46ZlaTbLQE/i2MnJDAMlY1EPHZB2K4MUAVsnmdqWYseLoFLVX
-         FnAAGIW4oi/DBQuQ+eSGkaEFupsbUJrmGgGOti/NQXP6wwn6RaSW8Odf/WPVTF5JAWfJ
-         Wuo0qZun75/bj7dueIVy8i+P2aUJNq770FwV0=
+        d=broadcom.com; s=google; t=1703031466; x=1703636266; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=vOWpbpPDJWdl4peog2qHCPFpo/pUG5DQNuld5TpDu3Q=;
+        b=OJULQTZtrXACJnM9igOOkH5Fl1LjJvlXxvTvExMOxIRXSrM7iBIeUPL9fmtPDKAxik
+         igRdAmp/LT0u3fVkllrWN1WUrPcacwdYONXNVDaX/NzMekJE9HnHp93h8YMujvNLH50l
+         7Ck1Oek80ICEVOHZ8/wBkT5dsjh2rYtCUe3hE=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703029247; x=1703634047;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=GCi2t1W6pKq3yvd5hq6jD1cRXXQEKYYgdb3VO0qkSBg=;
-        b=C0+YGE3VRujQM1uXQ3/9t8v+60SGZT3VnevJRGRzxgLpW0HUQGKJMHwh/GmBv0xQhA
-         qiYSr9yZWAsCSYWz5bs1ZZBhP5GtjFSA0x6etU3mFcAfIAt6KFtDTpOI864klZUeDAV7
-         g0gZ8v+y2iwEK9fw/JtXxP3ilgTcvWyeLhWAtG2M78acgzlzZd44ZE2FObl/Irjngq1P
-         fNfHebGY1pAdfDB/gZC7C5JJ3w/9ZNntBr8ZZEZCGPbITB2JWJoJWSiicCFqMdMYlQoa
-         j6Au3nkCZBzu7bygGx3+msYz2IPPbMdWpfqsxjDQvGUPiEdaR9duz4QsIWUDkhjzjG9s
-         kE9g==
-X-Gm-Message-State: AOJu0YydlgTDL28YOwiyKdvmOxpMdJdqZEIz5CAmKubI6NgBBFTj0Tet
-	wBhtNnBLVSYM8S6HZtWe2nu2UPohdN97tRB5tZwx
-X-Google-Smtp-Source: AGHT+IGcgFMWmhRM+UvuHN6NK7hZQIoCiJxodaYktQklOrqE0UjCAwtQM1aBD0C5P5/mP5Gg1LUzIKLDa39sNEkmN5g=
-X-Received: by 2002:a05:651c:103a:b0:2cc:72fc:c906 with SMTP id
- w26-20020a05651c103a00b002cc72fcc906mr1102587ljm.1.1703029246653; Tue, 19 Dec
- 2023 15:40:46 -0800 (PST)
+        d=1e100.net; s=20230601; t=1703031466; x=1703636266;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=vOWpbpPDJWdl4peog2qHCPFpo/pUG5DQNuld5TpDu3Q=;
+        b=wwnYnZnRYBvhTcrvFQGiOvH3yvRwFPTVtDJGaTXNg+FIDi5ApzF7QKNSdB3D5kVPbV
+         zvK06mIu7XfQM5SJTSD4nss1KW2lLu1U0GdN13x8R2RZFHDKnMaEVY+5mBVDjqbqSV8H
+         QhUnfqVWBazFT/WFkesgxOZUvY7JsOJTG+qVtChjbNWSJmcdyQVu0fHBTx1CeCAfmcyW
+         DrP5q3X3c7IYx67EksVurrl+kJOPSeymZWAKYyDlLUbPD4ZyTl2TP75Er27t3n8ZYiY2
+         XWRztmF/z2VwX/05pR2gAHjTbYzflXlPfT5p5rvj+QY4XqeCgrUe4PI+vHq6nbycIeya
+         WBwA==
+X-Gm-Message-State: AOJu0Yyt47xAnffRRsvnNF1qk5YzFe0+DS158mmtFi3MA08+kNka6l+f
+	SiDTIF8hho77TH0fpzSWXUYZ6g==
+X-Google-Smtp-Source: AGHT+IHIuMekCRXvJUY/dSTCtVx5xTxiebzylcTaZ86KKFW45a58KJKBg/YJ3jHYGLae3yu3QQ0CvA==
+X-Received: by 2002:a17:902:d2cf:b0:1d0:6ffd:8352 with SMTP id n15-20020a170902d2cf00b001d06ffd8352mr8742191plc.93.1703031466096;
+        Tue, 19 Dec 2023 16:17:46 -0800 (PST)
+Received: from [192.168.0.111] (d-174-140-102-53.fl.cpe.atlanticbb.net. [174.140.102.53])
+        by smtp.gmail.com with ESMTPSA id c7-20020a170902d48700b001d0c1281ef5sm21587781plg.89.2023.12.19.16.17.42
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 19 Dec 2023 16:17:45 -0800 (PST)
+Message-ID: <75eed318-2d22-429d-ab95-80610ba82934@broadcom.com>
+Date: Tue, 19 Dec 2023 16:17:40 -0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20231217204019.36492-15-ajones@ventanamicro.com> <20231217204019.36492-28-ajones@ventanamicro.com>
-In-Reply-To: <20231217204019.36492-28-ajones@ventanamicro.com>
-From: Atish Patra <atishp@atishpatra.org>
-Date: Tue, 19 Dec 2023 15:40:35 -0800
-Message-ID: <CAOnJCU+CUqafAF8nPQCh+awOhp+nEOYdwbkpuath0BFZyROuug@mail.gmail.com>
-Subject: Re: [PATCH v3 13/13] RISC-V: KVM: selftests: Add get-reg-list test
- for STA registers
-To: Andrew Jones <ajones@ventanamicro.com>
-Cc: kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
-	virtualization@lists.linux-foundation.org, anup@brainfault.org, 
-	pbonzini@redhat.com, paul.walmsley@sifive.com, palmer@dabbelt.com, 
-	aou@eecs.berkeley.edu, jgross@suse.com, srivatsa@csail.mit.edu, 
-	guoren@kernel.org, conor.dooley@microchip.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-On Sun, Dec 17, 2023 at 12:41=E2=80=AFPM Andrew Jones <ajones@ventanamicro.=
-com> wrote:
->
-> Add SBI STA and its two registers to the get-reg-list test.
->
-> Reviewed-by: Anup Patel <anup@brainfault.org>
-> Signed-off-by: Andrew Jones <ajones@ventanamicro.com>
-> ---
->  .../selftests/kvm/riscv/get-reg-list.c        | 43 +++++++++++++++++++
->  1 file changed, 43 insertions(+)
->
-> diff --git a/tools/testing/selftests/kvm/riscv/get-reg-list.c b/tools/tes=
-ting/selftests/kvm/riscv/get-reg-list.c
-> index b8da2e86bf9c..55dd1fc3c536 100644
-> --- a/tools/testing/selftests/kvm/riscv/get-reg-list.c
-> +++ b/tools/testing/selftests/kvm/riscv/get-reg-list.c
-> @@ -71,6 +71,7 @@ bool filter_reg(__u64 reg)
->         case KVM_REG_RISCV_SBI_EXT | KVM_REG_RISCV_SBI_SINGLE | KVM_RISCV=
-_SBI_EXT_HSM:
->         case KVM_REG_RISCV_SBI_EXT | KVM_REG_RISCV_SBI_SINGLE | KVM_RISCV=
-_SBI_EXT_PMU:
->         case KVM_REG_RISCV_SBI_EXT | KVM_REG_RISCV_SBI_SINGLE | KVM_RISCV=
-_SBI_EXT_DBCN:
-> +       case KVM_REG_RISCV_SBI_EXT | KVM_REG_RISCV_SBI_SINGLE | KVM_RISCV=
-_SBI_EXT_STA:
->         case KVM_REG_RISCV_SBI_EXT | KVM_REG_RISCV_SBI_SINGLE | KVM_RISCV=
-_SBI_EXT_EXPERIMENTAL:
->         case KVM_REG_RISCV_SBI_EXT | KVM_REG_RISCV_SBI_SINGLE | KVM_RISCV=
-_SBI_EXT_VENDOR:
->                 return true;
-> @@ -461,6 +462,7 @@ static const char *sbi_ext_single_id_to_str(__u64 reg=
-_off)
->                 KVM_SBI_EXT_ARR(KVM_RISCV_SBI_EXT_SRST),
->                 KVM_SBI_EXT_ARR(KVM_RISCV_SBI_EXT_HSM),
->                 KVM_SBI_EXT_ARR(KVM_RISCV_SBI_EXT_PMU),
-> +               KVM_SBI_EXT_ARR(KVM_RISCV_SBI_EXT_STA),
->                 KVM_SBI_EXT_ARR(KVM_RISCV_SBI_EXT_EXPERIMENTAL),
->                 KVM_SBI_EXT_ARR(KVM_RISCV_SBI_EXT_VENDOR),
->                 KVM_SBI_EXT_ARR(KVM_RISCV_SBI_EXT_DBCN),
-> @@ -509,6 +511,32 @@ static const char *sbi_ext_id_to_str(const char *pre=
-fix, __u64 id)
->         return strdup_printf("%lld | %lld /* UNKNOWN */", reg_subtype, re=
-g_off);
->  }
->
-> +static const char *sbi_sta_id_to_str(__u64 reg_off)
-> +{
-> +       switch (reg_off) {
-> +       case 0: return "KVM_REG_RISCV_SBI_STA | KVM_REG_RISCV_SBI_STA_REG=
-(shmem_lo)";
-> +       case 1: return "KVM_REG_RISCV_SBI_STA | KVM_REG_RISCV_SBI_STA_REG=
-(shmem_hi)";
-> +       }
-> +       return strdup_printf("KVM_REG_RISCV_SBI_STA | %lld /* UNKNOWN */"=
-, reg_off);
-> +}
-> +
-> +static const char *sbi_id_to_str(const char *prefix, __u64 id)
-> +{
-> +       __u64 reg_off =3D id & ~(REG_MASK | KVM_REG_RISCV_SBI);
-> +       __u64 reg_subtype =3D reg_off & KVM_REG_RISCV_SUBTYPE_MASK;
-> +
-> +       assert((id & KVM_REG_RISCV_TYPE_MASK) =3D=3D KVM_REG_RISCV_SBI);
-> +
-> +       reg_off &=3D ~KVM_REG_RISCV_SUBTYPE_MASK;
-> +
-> +       switch (reg_subtype) {
-> +       case KVM_REG_RISCV_SBI_STA:
-> +               return sbi_sta_id_to_str(reg_off);
-> +       }
-> +
-> +       return strdup_printf("%lld | %lld /* UNKNOWN */", reg_subtype, re=
-g_off);
-> +}
-> +
->  void print_reg(const char *prefix, __u64 id)
->  {
->         const char *reg_size =3D NULL;
-> @@ -565,6 +593,10 @@ void print_reg(const char *prefix, __u64 id)
->                 printf("\tKVM_REG_RISCV | %s | KVM_REG_RISCV_SBI_EXT | %s=
-,\n",
->                                 reg_size, sbi_ext_id_to_str(prefix, id));
->                 break;
-> +       case KVM_REG_RISCV_SBI:
-> +               printf("\tKVM_REG_RISCV | %s | KVM_REG_RISCV_SBI | %s,\n"=
-,
-> +                               reg_size, sbi_id_to_str(prefix, id));
-> +               break;
->         default:
->                 printf("\tKVM_REG_RISCV | %s | 0x%llx /* UNKNOWN */,\n",
->                                 reg_size, id & ~REG_MASK);
-> @@ -651,6 +683,12 @@ static __u64 sbi_base_regs[] =3D {
->         KVM_REG_RISCV | KVM_REG_SIZE_ULONG | KVM_REG_RISCV_SBI_EXT | KVM_=
-REG_RISCV_SBI_SINGLE | KVM_RISCV_SBI_EXT_VENDOR,
->  };
->
-> +static __u64 sbi_sta_regs[] =3D {
-> +       KVM_REG_RISCV | KVM_REG_SIZE_ULONG | KVM_REG_RISCV_SBI_EXT | KVM_=
-REG_RISCV_SBI_SINGLE | KVM_RISCV_SBI_EXT_STA,
-> +       KVM_REG_RISCV | KVM_REG_SIZE_ULONG | KVM_REG_RISCV_SBI | KVM_REG_=
-RISCV_SBI_STA | KVM_REG_RISCV_SBI_STA_REG(shmem_lo),
-> +       KVM_REG_RISCV | KVM_REG_SIZE_ULONG | KVM_REG_RISCV_SBI | KVM_REG_=
-RISCV_SBI_STA | KVM_REG_RISCV_SBI_STA_REG(shmem_hi),
-> +};
-> +
->  static __u64 zicbom_regs[] =3D {
->         KVM_REG_RISCV | KVM_REG_SIZE_ULONG | KVM_REG_RISCV_CONFIG | KVM_R=
-EG_RISCV_CONFIG_REG(zicbom_block_size),
->         KVM_REG_RISCV | KVM_REG_SIZE_ULONG | KVM_REG_RISCV_ISA_EXT | KVM_=
-REG_RISCV_ISA_SINGLE | KVM_RISCV_ISA_EXT_ZICBOM,
-> @@ -757,6 +795,9 @@ static __u64 fp_d_regs[] =3D {
->  #define SUBLIST_SBI_BASE \
->         {"sbi-base", .feature_type =3D VCPU_FEATURE_SBI_EXT, .feature =3D=
- KVM_RISCV_SBI_EXT_V01, \
->          .regs =3D sbi_base_regs, .regs_n =3D ARRAY_SIZE(sbi_base_regs),}
-> +#define SUBLIST_SBI_STA \
-> +       {"sbi-sta", .feature_type =3D VCPU_FEATURE_SBI_EXT, .feature =3D =
-KVM_RISCV_SBI_EXT_STA, \
-> +        .regs =3D sbi_sta_regs, .regs_n =3D ARRAY_SIZE(sbi_sta_regs),}
->  #define SUBLIST_ZICBOM \
->         {"zicbom", .feature =3D KVM_RISCV_ISA_EXT_ZICBOM, .regs =3D zicbo=
-m_regs, .regs_n =3D ARRAY_SIZE(zicbom_regs),}
->  #define SUBLIST_ZICBOZ \
-> @@ -832,6 +873,7 @@ static struct vcpu_reg_list config_sbi_##ext =3D {   =
-         \
->  /* Note: The below list is alphabetically sorted. */
->
->  KVM_SBI_EXT_SUBLIST_CONFIG(base, BASE);
-> +KVM_SBI_EXT_SUBLIST_CONFIG(sta, STA);
->  KVM_SBI_EXT_SIMPLE_CONFIG(pmu, PMU);
->  KVM_SBI_EXT_SIMPLE_CONFIG(dbcn, DBCN);
->
-> @@ -858,6 +900,7 @@ KVM_ISA_EXT_SIMPLE_CONFIG(zihpm, ZIHPM);
->
->  struct vcpu_reg_list *vcpu_configs[] =3D {
->         &config_sbi_base,
-> +       &config_sbi_sta,
->         &config_sbi_pmu,
->         &config_sbi_dbcn,
->         &config_aia,
-> --
-> 2.43.0
->
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 2/6] x86/vmware: Introduce vmware_hypercall API
+To: kirill.shutemov@linux.intel.com
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+ bp@alien8.de, hpa@zytor.com, dave.hansen@linux.intel.com, mingo@redhat.com,
+ tglx@linutronix.de, x86@kernel.org, netdev@vger.kernel.org,
+ richardcochran@gmail.com, linux-input@vger.kernel.org,
+ dmitry.torokhov@gmail.com, zackr@vmware.com,
+ linux-graphics-maintainer@vmware.com, pv-drivers@vmware.com,
+ namit@vmware.com, timothym@vmware.com, akaher@vmware.com, jsipek@vmware.com,
+ dri-devel@lists.freedesktop.org, daniel@ffwll.ch, airlied@gmail.com,
+ tzimmermann@suse.de, mripard@kernel.org, maarten.lankhorst@linux.intel.com,
+ horms@kernel.org
+References: <20231219215751.9445-1-alexey.makhalov@broadcom.com>
+ <20231219215751.9445-3-alexey.makhalov@broadcom.com>
+ <20231219232023.u4dyuvbzbh565grk@box.shutemov.name>
+Content-Language: en-US
+From: Alexey Makhalov <alexey.makhalov@broadcom.com>
+Autocrypt: addr=alexey.makhalov@broadcom.com; keydata=
+ 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 EuY0
+In-Reply-To: <20231219232023.u4dyuvbzbh565grk@box.shutemov.name>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
 
-Reviewed-by: Atish Patra <atishp@rivosinc.com>
---=20
+
+On 12/19/23 3:20 PM, kirill.shutemov@linux.intel.com wrote:
+> On Tue, Dec 19, 2023 at 01:57:47PM -0800, Alexey Makhalov wrote:
+>> +static inline
+>> +unsigned long vmware_hypercall1(unsigned long cmd, unsigned long in1)
+> ...
+>> +static inline
+>> +unsigned long vmware_hypercall3(unsigned long cmd, unsigned long in1,
+>> +				uint32_t *out1, uint32_t *out2)
+> ...
+>> +static inline
+>> +unsigned long vmware_hypercall4(unsigned long cmd, unsigned long in1,
+>> +				uint32_t *out1, uint32_t *out2,
+>> +				uint32_t *out3)
+> ...
+>> +static inline
+>> +unsigned long vmware_hypercall5(unsigned long cmd, unsigned long in1,
+>> +				unsigned long in3, unsigned long in4,
+>> +				unsigned long in5, uint32_t *out2)
+> ...
+>> +static inline
+>> +unsigned long vmware_hypercall6(unsigned long cmd, unsigned long in1,
+>> +				unsigned long in3, uint32_t *out2,
+>> +				uint32_t *out3, uint32_t *out4,
+>> +				uint32_t *out5)
+> ...
+>> +static inline
+>> +unsigned long vmware_hypercall7(unsigned long cmd, unsigned long in1,
+>> +				unsigned long in3, unsigned long in4,
+>> +				unsigned long in5, uint32_t *out1,
+>> +				uint32_t *out2, uint32_t *out3)
+> 
+> Naming is weird. The number in the name doesn't help much as there seems
+> no system on how many of the parameters are ins and outs.
+
+There was internal discussion on hypercall API naming. One of proposals 
+was using 2 digits - number of input and number of output arguments.
+And it definitely looked weird. So, we agreed to have just single number 
+  - total number of arguments excluding cmd.
+
+> 
+> Why these combinations of ins/outs are supported?
+
+VMware hypercalls can use up to 6 ins and 6 outs for LB and 7 ins and 7 
+outs for HB calls. The mapping to x86 registers is below:
+in0/out0 - rax
+in1/out1 - rbx
+in2/out2 - rcx
+in3/out3 - rdx
+in4/out4 - rsi
+in5/out5 - rdi
+in6/out6 - rbp (only used in high bandwidth hypercalls)
+args 0, 2 and 6 are remapped to r12, r13 and r14 for TDX.
+
+There is a standard on some arguments such as cmd on in2, magic on in0 
+and output value is on out0. While other arguments are not standardized 
+across hypercall.
+
+Theoreticaly max hypercall, in term of number of arguments:
+vmware_hypercall9(cmd, in1, in3, in4, in5, *out1, *out2, *out3, *out4, 
+*out5)
+But there is no such called in a linux kernel.
+
+Current combination of hypercalls covers all current and future (not yet 
+upstreamed) callers, with round up to next number in some cases.
+
+
+> 
+> And as an outsider, I'm curious where in2 got lost :P
+> 
+'lost' arguments:
+in0 - indirectly initialized inside hypercall function.
+out0 - return value from the hypercall.
+[LB hypercalls] in2 <- input cmd
+[HB hypercalls] in1 <- input cmd
+
+
 Regards,
-Atish
+--Alexey
+
