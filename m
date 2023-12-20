@@ -1,205 +1,121 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DE54482C9
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 16:12:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AACF4C629
+	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 16:12:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b="omIi2mc2"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aAYeNCKu"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id A75FE61524
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 16:12:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A75FE61524
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.a=rsa-sha256 header.s=google header.b=omIi2mc2
+	by smtp4.osuosl.org (Postfix) with ESMTP id A1CF04161A
+	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 16:12:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A1CF04161A
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=aAYeNCKu
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.1
+X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id RV8qsE8dx0Me
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 1c_uDj2-xxlW
 	for <virtualization@lists.linux-foundation.org>;
-	Wed, 20 Dec 2023 16:11:58 +0000 (UTC)
-Received: from mail-lf1-x131.google.com (mail-lf1-x131.google.com [IPv6:2a00:1450:4864:20::131])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id D9F2161523
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 16:11:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D9F2161523
-Received: by mail-lf1-x131.google.com with SMTP id 2adb3069b0e04-50e59505881so104303e87.1
-        for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 08:11:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ventanamicro.com; s=google; t=1703088715; x=1703693515; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=FGx3mvOX20FMBsOoq/Rtz9Ujh/ImS9qvHUsXKwO1l94=;
-        b=omIi2mc2pBV2tVSebudvz89mrOwmdCy9vm2jNoEvyuZfgZVdsIYZ/SNm5nKZU097tg
-         XPUzXygSEWCBGvGxHMbfcjk0yJvMLn/Xnos1aF7iOyQd/nEj6kbb3zeR75NKidE/DMsn
-         yA+r1OIpNQC+V8r3zwPCzfnYtBS4U+8ld5Ej9o/s6mTIF65jSNLilDHJo4PxX9RfNe/C
-         u+ZfMGHeNjalUtgOZG5SOJUmV9XlIaF6lW4UMWFzjjz7RkKQEm5iSIgi6NIdPnnUK/KR
-         SqrjHpFwHu2U00ja9gYykg+XY3FlX3tihe68Pss1zRAJgeVu89heZkT+sCUzI4rzy+Hs
-         5UxA==
+	Wed, 20 Dec 2023 16:12:36 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id E9EB8415E7
+	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 16:12:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E9EB8415E7
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1703088754;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=vEaUEcnajrqgltfyosH4+omdF/fMexYhj4bOk+VvvgM=;
+	b=aAYeNCKuFX0LtNZanY07NyIxH4iv+eNmZ4oc7aUEAz48jU/L3OTGNT5IDuaG2ffxGWJpXH
+	m09PokzsUDXGLJg6oLyvBtHGu2vWNFcKOpCyXS5/g7Dr0DvUjONN0p47/NOk9o21ui4C5v
+	0GfSZtMhMvpxzeudYHRYJjk2c6+RYfA=
+Received: from mail-yw1-f198.google.com (mail-yw1-f198.google.com
+ [209.85.128.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-657-M5jPG8UcMs2S3GVy98HlSA-1; Wed, 20 Dec 2023 11:12:32 -0500
+X-MC-Unique: M5jPG8UcMs2S3GVy98HlSA-1
+Received: by mail-yw1-f198.google.com with SMTP id 00721157ae682-5e763e03f4dso29462697b3.2
+        for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 08:12:32 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703088715; x=1703693515;
+        d=1e100.net; s=20230601; t=1703088752; x=1703693552;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=FGx3mvOX20FMBsOoq/Rtz9Ujh/ImS9qvHUsXKwO1l94=;
-        b=ciCLXueEzAaHdO3bDeJECl40GhNI7ZYLAE2TDGK5xn9Zzmf1NBQgNWPO/XlldqxLR2
-         s0z7k4vJz9czoTra0xei6WhFph+WWbfRpMhb9nwL9No6VLWfsS0MX5bArcowjEb2J4Mf
-         1+YPrA4ECERIcsJxk32GyHic8mgX1v6QijyzcLo9I2LbgT9zWoA9SGgdlGw7HHRE+o5G
-         VL7IQpjZcizFiWqVvr79wn5UEANDEb4ZeYGTlSX6AZnElbYNQv73uCnSLtZcPbBG4pTt
-         /kncMQHtKfRRYQEab8mNz9F9rpi+W3s03gUkzd5zhNSEElSrLqv17wT1HvcaoyLqVTr4
-         qUWA==
-X-Gm-Message-State: AOJu0YxkfR9XdCQRsi0tkOWlzY19A9miTU5uP0PaGhtMREtSsoAtfyMm
-	5i11I7mtjQaIeRu/NPe/ny8QPQjnddPzXrukIQd92g==
-X-Google-Smtp-Source: AGHT+IHTIBxn/hAWuX2YpEeUprzxay2hcYxN4T2+QPQhdmFxKBZSfCel3BGt1XgcPLx+r4rAxV26oNPcsoEoxPZnobw=
-X-Received: by 2002:a05:6512:3e1a:b0:50e:4ffa:589e with SMTP id
- i26-20020a0565123e1a00b0050e4ffa589emr895516lfv.42.1703088715341; Wed, 20 Dec
- 2023 08:11:55 -0800 (PST)
+        bh=vEaUEcnajrqgltfyosH4+omdF/fMexYhj4bOk+VvvgM=;
+        b=SCHr1jE0F2W/X/8/sqwRnng2EEnNk1ps6pJ9IR04+9YVJcPkA+fmF/xffQQPmOBxa+
+         Ac325nJwqWuBfOUUgsaJTqpUIwA2EuwB97msaXU03+uLyQoSzCJ7Yk+ZEXZ/v8p21w6T
+         R5AeB8rBh0RerKOmFTPPGl7yVRcHTQFqpmRlCkOZ6c7P1atIo1wQh3sdQa0LEwVelL0c
+         zf9rS1OnEEPA4AN66/NLGFcbKesI492s78tGv0ux9cv72AgYaSDHNaR4/gv11MsHmZj/
+         nOpi50gn5RvwfRYzPKavN0ytSjKC7W+7IntgxSdS5TpmmRylIxDmV6T2c84Jq5eFC4NP
+         FwpQ==
+X-Gm-Message-State: AOJu0YyR0Ck0XearJPNTDayG8uOoJaDfaGKplfTwd0eyIQXnZwxcxO6U
+	GnHcvDYHUSr+tBbrKEr4prEQHN1HR+QjhaREz0xeqklLhJEg2/zgItxwHwXci3TMdDTyrLPI5cM
+	nd7gt8dhT66hTfhnEtuYR1ipOtys2dL5VXi6xrPQ5cBoJ3roQN7ksQWxyXw==
+X-Received: by 2002:a25:b28c:0:b0:dbd:ae7b:fa8 with SMTP id k12-20020a25b28c000000b00dbdae7b0fa8mr579083ybj.89.1703088752243;
+        Wed, 20 Dec 2023 08:12:32 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHHWUzQ5gSLWTlGDWQ2EyGysa9J4p1aJm/bZyTvMiHKlVwkL61HZXv/dGZYlfl74NKZqaTdvxihWh9dq51N+XM=
+X-Received: by 2002:a25:b28c:0:b0:dbd:ae7b:fa8 with SMTP id
+ k12-20020a25b28c000000b00dbdae7b0fa8mr579074ybj.89.1703088752028; Wed, 20 Dec
+ 2023 08:12:32 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20231220160012.40184-15-ajones@ventanamicro.com>
-In-Reply-To: <20231220160012.40184-15-ajones@ventanamicro.com>
-From: Anup Patel <apatel@ventanamicro.com>
-Date: Wed, 20 Dec 2023 21:41:43 +0530
-Message-ID: <CAK9=C2Vzp=P6Cg-WEDZGCAsKW01fkNWbozGqNn0fYAA7qCbOYA@mail.gmail.com>
-Subject: Re: [PATCH v4 00/13] RISC-V: Add steal-time support
-To: palmer@dabbelt.com, Palmer Dabbelt <palmer@rivosinc.com>
-Cc: kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
-	virtualization@lists.linux-foundation.org, anup@brainfault.org, 
-	atishp@atishpatra.org, pbonzini@redhat.com, paul.walmsley@sifive.com, 
-	aou@eecs.berkeley.edu, jgross@suse.com, srivatsa@csail.mit.edu, 
-	guoren@kernel.org, conor.dooley@microchip.com, 
-	Andrew Jones <ajones@ventanamicro.com>
+References: <20231219180858.120898-1-dtatulea@nvidia.com> <20231219180858.120898-5-dtatulea@nvidia.com>
+In-Reply-To: <20231219180858.120898-5-dtatulea@nvidia.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Wed, 20 Dec 2023 17:11:55 +0100
+Message-ID: <CAJaqyWeZK5WmZRnUv4+MF=A1ALsx_OOcWHXDV1EquwpBhTkVJQ@mail.gmail.com>
+Subject: Re: [PATCH vhost v4 04/15] vdpa: Accept VHOST_BACKEND_F_CHANGEABLE_VQ_ADDR_IN_SUSPEND
+ backend feature
+To: Dragos Tatulea <dtatulea@nvidia.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Si-Wei Liu <si-wei.liu@oracle.com>, Saeed Mahameed <saeedm@nvidia.com>, 
+	Leon Romanovsky <leon@kernel.org>, virtualization@lists.linux-foundation.org, 
+	Gal Pressman <gal@nvidia.com>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Parav Pandit <parav@nvidia.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-Hi Palmer,
+On Tue, Dec 19, 2023 at 7:09=E2=80=AFPM Dragos Tatulea <dtatulea@nvidia.com=
+> wrote:
+>
+> If userland sets this feature, allow it.
+>
+> Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
+> Suggested-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
 
-On Wed, Dec 20, 2023 at 9:30=E2=80=AFPM Andrew Jones <ajones@ventanamicro.c=
-om> wrote:
->
-> One frequently touted benefit of virtualization is the ability to
-> consolidate machines, increasing resource utilization.  It may even be
-> desirable to overcommit, at the risk of one or more VCPUs having to wait.
-> Hypervisors which have interfaces for guests to retrieve the amount of
-> time each VCPU had to wait give observers within the guests ways to
-> account for less progress than would otherwise be expected. The SBI STA
-> extension[1] provides a standard interface for guest VCPUs to retrieve
-> the amount of time "stolen".
->
-> This series has three parts:
->  1) Patches 01-03 - Add paravirt support to RISC-V and implement
->                     steal-time accounting support using the SBI STA
->                     extension.
->  2) Patches 04-09 - Implement SBI STA in KVM so KVM guests, such as
->                     Linux guests which enable the paravirt steal-time
->                     support, can be enlightened about stolen time.
->  3) Patches 10-13 - Add RISC-V support to the KVM selftests steal_time
->                     test and the SBI extension regs in the get-reg-list
->                     test.
->
-> These patches are based on kvm-riscv/riscv_kvm_queue
->
-> [1] https://github.com/riscv-non-isa/riscv-sbi-doc/blob/master/src/ext-st=
-eal-time.adoc
->
-> This patches are also available here
-> https://github.com/jones-drew/linux/commits/kvm/steal-time-v4
->
-> Changes since v3:
->  - Use work "Computing" instead of "using" in pr_info [Atish]
->  - Rename KVM_REG_RISCV_SBI to KVM_REG_RISCV_SBI_STATE [Atish, Anup]
->  - Picked up r-b's from Atish and Anup
->
-> Changes since v2:
->  - Always check sequence in case the SBI impl isn't writing steal
->    atomically [Anup]
->  - Create a reset function for sta and also reset last_steal [Anup]
->  - Picked up Anup's r-b's
->
-> Changes since v1:
->  - sbi_sta_steal_time_set_shmem() now maps SBI errors to linux errors [Co=
-nor]
->  - Squashed v1 patch 4 into v1 patch 3 [Conor]
->  - Moved kvm_riscv_vcpu_set/get_reg_sbi() to arch/riscv/kvm/vcpu_sbi.c
->    which seems like a more appropriate file for them
->  - Rebased on kvm-riscv/riscv_kvm_queue which has all the dependencies
->
-> Changes since RFC:
->  - Rebased on v6.7-rc3 (plus the patches mentioned above)
->  - Added defines for the -1's [Conor]
->  - Added a comment to the steal read sequence [Conor]
->  - Only do the steal read sequence for 32-bit and added READ_ONCE's
->  - Check for SBI v2.0 implementation
->  - Rename set_steal_time_shmem to steal_time_set_shmem
->  - Add get-reg-list support and test with get-reg-list kselftest
->  - A few other minor improvements
->  - Picked up one r-b from Conor
->
-> Thanks,
-> drew
->
->
-> Andrew Jones (13):
->   RISC-V: paravirt: Add skeleton for pv-time support
->   RISC-V: Add SBI STA extension definitions
->   RISC-V: paravirt: Implement steal-time support
->   RISC-V: KVM: Add SBI STA extension skeleton
->   RISC-V: KVM: Add steal-update vcpu request
->   RISC-V: KVM: Add SBI STA info to vcpu_arch
->   RISC-V: KVM: Add support for SBI extension registers
->   RISC-V: KVM: Add support for SBI STA registers
->   RISC-V: KVM: Implement SBI STA extension
->   RISC-V: KVM: selftests: Move sbi_ecall to processor.c
->   RISC-V: KVM: selftests: Add guest_sbi_probe_extension
->   RISC-V: KVM: selftests: Add steal_time test support
->   RISC-V: KVM: selftests: Add get-reg-list test for STA registers
+Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
 
-Can you please review and ack the first three patches ?
-
-Regards,
-Anup
-
+> ---
+>  drivers/vhost/vdpa.c | 1 +
+>  1 file changed, 1 insertion(+)
 >
->  .../admin-guide/kernel-parameters.txt         |   6 +-
->  arch/riscv/Kconfig                            |  19 ++
->  arch/riscv/include/asm/kvm_host.h             |  10 +
->  arch/riscv/include/asm/kvm_vcpu_sbi.h         |  10 +
->  arch/riscv/include/asm/paravirt.h             |  28 +++
->  arch/riscv/include/asm/paravirt_api_clock.h   |   1 +
->  arch/riscv/include/asm/sbi.h                  |  17 ++
->  arch/riscv/include/uapi/asm/kvm.h             |  13 ++
->  arch/riscv/kernel/Makefile                    |   1 +
->  arch/riscv/kernel/paravirt.c                  | 134 +++++++++++
->  arch/riscv/kernel/time.c                      |   3 +
->  arch/riscv/kvm/Kconfig                        |   1 +
->  arch/riscv/kvm/Makefile                       |   1 +
->  arch/riscv/kvm/vcpu.c                         |   7 +
->  arch/riscv/kvm/vcpu_onereg.c                  |  51 ++++-
->  arch/riscv/kvm/vcpu_sbi.c                     |  67 ++++++
->  arch/riscv/kvm/vcpu_sbi_sta.c                 | 208 ++++++++++++++++++
->  tools/testing/selftests/kvm/Makefile          |   5 +-
->  .../selftests/kvm/include/riscv/processor.h   |  22 ++
->  .../selftests/kvm/lib/riscv/processor.c       |  45 ++++
->  tools/testing/selftests/kvm/lib/riscv/ucall.c |  26 ---
->  .../selftests/kvm/riscv/get-reg-list.c        |  43 ++++
->  tools/testing/selftests/kvm/steal_time.c      |  99 +++++++++
->  23 files changed, 782 insertions(+), 35 deletions(-)
->  create mode 100644 arch/riscv/include/asm/paravirt.h
->  create mode 100644 arch/riscv/include/asm/paravirt_api_clock.h
->  create mode 100644 arch/riscv/kernel/paravirt.c
->  create mode 100644 arch/riscv/kvm/vcpu_sbi_sta.c
->
+> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+> index da7ec77cdaff..2250fcd90e5b 100644
+> --- a/drivers/vhost/vdpa.c
+> +++ b/drivers/vhost/vdpa.c
+> @@ -749,6 +749,7 @@ static long vhost_vdpa_unlocked_ioctl(struct file *fi=
+lep,
+>                                  BIT_ULL(VHOST_BACKEND_F_IOTLB_PERSIST) |
+>                                  BIT_ULL(VHOST_BACKEND_F_SUSPEND) |
+>                                  BIT_ULL(VHOST_BACKEND_F_RESUME) |
+> +                                BIT_ULL(VHOST_BACKEND_F_CHANGEABLE_VQ_AD=
+DR_IN_SUSPEND) |
+>                                  BIT_ULL(VHOST_BACKEND_F_ENABLE_AFTER_DRI=
+VER_OK)))
+>                         return -EOPNOTSUPP;
+>                 if ((features & BIT_ULL(VHOST_BACKEND_F_SUSPEND)) &&
 > --
 > 2.43.0
 >
->
-> --
-> kvm-riscv mailing list
-> kvm-riscv@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/kvm-riscv
+
