@@ -1,166 +1,138 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.151])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97F3625571
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 12:57:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A9C42554D;
+	Wed, 20 Dec 2023 13:09:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="HyfwzRyQ"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 2111383267
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 12:57:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2111383267
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=HyfwzRyQ
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.103
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id SOuaq64ZDx5x
-	for <virtualization@lists.linux-foundation.org>;
-	Wed, 20 Dec 2023 12:57:24 +0000 (UTC)
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2061c.outbound.protection.outlook.com [IPv6:2a01:111:f400:fe5a::61c])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 6842C83264
-	for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 12:57:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6842C83264
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=cqRjZQ+xtmcsCooBq9xkIxQhQOtRQYzVdeYwkzG7quH/6DQ6dVxR3c0W1uszT8tTrwsH7ya+PMytFTYrkrxO2jnEpmZyFNAUZMGwmF5TLlJEzy6pSQGAc8LiGbkA8U1TdBBn/f7kXlksj2MK5t+IKzS2DqoYVNwUAx9AvwWy0SbCL4WdVN6HpTZsn4V56EB0nPdJnSRiYBABNV2lmLIdpTXIVmGSMwpT8/DXGGgjS0Jfz5iPU/mkPv/iC5SzKweSa198/64gGHDeWfhg/cD27oCcVady4bwW8S10EZOlFX6SPFBTQI5XkQi1lQ0gxfMiTJXh59XbUZbPSPlQGX6dhg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=9nbddyPnZXJru3VzEK8Uo0vzKY+VXukfwbF53RfKdaY=;
- b=XKFXrzLsP/k4I3XLaLcRgqP+GjH7ha9xoPojtUpdC+OIQhHaNK7HqMcaGDlAPAVB9zkVcFkmYitwxItyRFJRfUp5NJN7lF3JQJmuij/It6yB3779ZsUNE6TJzzCFXdvfHG7GV6nPUsl+J840TFLKkHlBqijz+nIdOrctUJgOpJKV7SMAwrMg4Dlbhr+0X4WXb92MHHNVIYMOxfTWcSZ3jzZVW+Xq0nE/ScmhBJuYIa/FstJ8Qnknk+65HJ/Wm3d+EI0aJBu/71TbWw1gYzvv6uD1UQD68Ksnc3FSz57CaVoSlXz285krkp0jRr7008zOONaQor5snhE8in46vLtw8Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=9nbddyPnZXJru3VzEK8Uo0vzKY+VXukfwbF53RfKdaY=;
- b=HyfwzRyQJLxaIncOPywTBGi9dqcyz276ZVmEFPw93TztmIH5AHfnI7NhTwD/DyjQ/Va/x/0lyv8vtzU97vi6eepw9V0cK23XMAEBjD67IzLj5wKrR0WaHg2G/btNGeO0Dlt7ATYPNJqY+BWH/+zBRfoReAJOmabBgmWyNHSf+kzdrjtVyGR9fSaGsiEpYWUyF/3/GKcaLj4QrvEPAtKERc1Xbpc3H8iYVw6MAjgTS1MLLoWDSGS7JvHSibfS9FAFLDCEvDavTbY093evYKQCmP6xHnquXIOWepoSxdMcJSSntWjnDAMsoiOOmfUX4cQiZkV2zgPcGeRnw6UUnyGtmg==
-Received: from DM6PR12MB5565.namprd12.prod.outlook.com (2603:10b6:5:1b6::13)
- by DM6PR12MB4420.namprd12.prod.outlook.com (2603:10b6:5:2a7::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7113.18; Wed, 20 Dec
- 2023 12:57:19 +0000
-Received: from DM6PR12MB5565.namprd12.prod.outlook.com
- ([fe80::bd76:47ad:38a9:a258]) by DM6PR12MB5565.namprd12.prod.outlook.com
- ([fe80::bd76:47ad:38a9:a258%5]) with mapi id 15.20.7113.016; Wed, 20 Dec 2023
- 12:57:19 +0000
-From: Dragos Tatulea <dtatulea@nvidia.com>
-To: "jasowang@redhat.com" <jasowang@redhat.com>
-CC: "xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>, Parav Pandit
-	<parav@nvidia.com>, Gal Pressman <gal@nvidia.com>, "eperezma@redhat.com"
-	<eperezma@redhat.com>, "virtualization@lists.linux-foundation.org"
-	<virtualization@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "si-wei.liu@oracle.com"
-	<si-wei.liu@oracle.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-	"mst@redhat.com" <mst@redhat.com>, Saeed Mahameed <saeedm@nvidia.com>,
-	"leon@kernel.org" <leon@kernel.org>
-Subject: Re: [PATCH vhost v4 02/15] vdpa: Add
- VHOST_BACKEND_F_CHANGEABLE_VQ_ADDR_IN_SUSPEND flag
-Thread-Topic: [PATCH vhost v4 02/15] vdpa: Add
- VHOST_BACKEND_F_CHANGEABLE_VQ_ADDR_IN_SUSPEND flag
-Thread-Index: AQHaMqaBunnLiYiUz0i03/j7bu1zQ7CxiQYAgAAFTwCAAJR8gA==
-Date: Wed, 20 Dec 2023 12:57:19 +0000
-Message-ID: <5e55c4e1bb1d8dff4943431bab090d541749e9a5.camel@nvidia.com>
-References: <20231219180858.120898-1-dtatulea@nvidia.com>
-	 <20231219180858.120898-3-dtatulea@nvidia.com>
-	 <CACGkMEv7xQkZYJAgAUK6C3oUrZ9vuUJdTKRzihXcNPb-iWdpJw@mail.gmail.com>
-	 <CACGkMEsaaDGi63__YrvsTC1HqgTaEWHvGokK1bJS5+m1XYM-6w@mail.gmail.com>
-In-Reply-To:
- <CACGkMEsaaDGi63__YrvsTC1HqgTaEWHvGokK1bJS5+m1XYM-6w@mail.gmail.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-user-agent: Evolution 3.50.2 (3.50.2-1.fc39) 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: DM6PR12MB5565:EE_|DM6PR12MB4420:EE_
-x-ms-office365-filtering-correlation-id: 579781f9-4ef4-40fa-f3f3-08dc015b331d
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info:
- uK38thw8AtstewkbrOH4+l5jsOPMObbdAKWCt3tlAEvzfmIzIPDX6G18FFr4TBWuJwGE6DyFtPJl3TndSVa01G4g27es7vkrwGaeG9/UKfeaGIWOGkP30ulV9SRQBnx0Vo6soQ2Y8tf/jvuGbMncqwW1y55C4UbLd5gIB3pE2FXOvtOxMMSuM50vHgxX1neHMkNtEe0pcUThfWIY/V2Q+OkF42sCrswXgp66p2DG1q1MhC8jTX8rK5SEXKbEQY4YqeIjRbvjThBImL4aUXrEmMdKWOtpSdJkxLQv7NqyDZo+H7LspQhVfCpzszoyt81SMS/Fe28ZSHAR5DbAiZGsG1vRickZbB584vjDQbPSYnEQbxTMmn7lUnOod+1JZTKCTYYNYGL9KuAd4JENr+U5613eZIn4Ui7MuAU+9bjtlUZ7RGK2qGuG8nEIMEqXqwMgz7MbUN5g9VzJlXrIZxs/vkx6CsxvoibjyrQaCcfJj2dvIYwYlJ36Hw1r8nAnEeRN7tPcDPb6iqbkNAIS4HEMB9McYkRW4aqOe/denCtlcDV2NECp7f+OOu+il8Tb2/rjcccveZKz5xxKqSKeUpwFYk5uRcJV6plfc1nb9I98o7JUAIliYEGaexcRSEscq1nB
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR12MB5565.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(396003)(39860400002)(136003)(346002)(376002)(366004)(230922051799003)(1800799012)(451199024)(64100799003)(186009)(38070700009)(4744005)(4326008)(91956017)(83380400001)(53546011)(5660300002)(64756008)(6512007)(6506007)(6916009)(66476007)(8936002)(54906003)(66556008)(66946007)(76116006)(8676002)(6486002)(66446008)(2616005)(478600001)(316002)(122000001)(38100700002)(36756003)(71200400001)(2906002)(4001150100001)(86362001)(41300700001);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?utf-8?B?RkN3ejkwbEVJK1RLZ2l4OXlNN0FhMndRNEdvclBucFY4YzkzYURQMU5JYzQw?=
- =?utf-8?B?SG5yYlJKWUVDUlhxclVPOHN0bkZJNmNUZm51NUlObG5vQy9mdmtzUGRFakRn?=
- =?utf-8?B?UmNobGN1T3VwbjJEcmRKTVJVUkFGNk1CM3pvM2hTcHRkYVVUMncvN0FnQyt5?=
- =?utf-8?B?MDE5b0ladjRRK2kyRlZyZm1xNW1JRzRZU2pqNHozeFpKTmJrVEc1NFZORm16?=
- =?utf-8?B?bE1mYkNtN2UxK2JBWVIxaUtpdm55dzBlQ2I4UU9ENWhZa0ZjYnkwd0t0dEN1?=
- =?utf-8?B?OS96YkFxSjkrd2VZM1czQ3E0bGk5S3R2ZGVtcnJMME9sRXAxWFdiaUdnZDVs?=
- =?utf-8?B?aG1USURVdDV2Z0lEMHVjbnliSHA5Vit2ME81d3N2ditzeGZOSEpudkVjMzJl?=
- =?utf-8?B?dUJ3L3VzQ3J3R1MzSThQcndGa2hvNUphT2RUVVVzYmhIQTFzQmtwcW9KMnRi?=
- =?utf-8?B?NUwreXhkUjcyTFhFNGgyNDlwd3paL1BOMW4vWXovcDFKc3J0ZEdFWmMwUkRM?=
- =?utf-8?B?SjFjY3BlTDBMWEszcCtvSUZJdkV1ZllBNnFwL2l2aFNSa09tb0VaV0xYSVgr?=
- =?utf-8?B?Q2RYQzhPWXYrR25QaTFIZG9xNTlXRDZhV3VJMW9ucnhRSVkxMmlnREQrV29k?=
- =?utf-8?B?TTl0VGFCeGR0S043YkVUbFp3L25iZmJNbVM1UmI0ZVNOZlA0N2d5L20vOUQx?=
- =?utf-8?B?bmxYbGNzWUwwOTB1NHN2Wks3STNZMEg2VW00TCtJdkpiMUR0SFo1bEhQb24v?=
- =?utf-8?B?dW5OdG9oWlpiMFhXcEJpMXRsbkdsV0FzeXhMall6K1RxOGZwN0paeTZTaWV5?=
- =?utf-8?B?QnZDazdwZXZMLyt2ZGU2RmRzaTU4WmUwSEtyZHRDNEo4N1crQ1AzUDIrOWM4?=
- =?utf-8?B?RGZLY0RNelp6eS9EdWhEOXJkRktIUGNiTUJEd2JqengrWS9wT1A2bG1yd05z?=
- =?utf-8?B?MEloV0k3dnBQRjdtcG1YOERvbWxXSVgzNEhxRHVwOTYyR09wWEh5a21iV2JO?=
- =?utf-8?B?QklwS1dGYnZkRlVQN1FEMkVZMHdiYzlDQm1LOEx4RUJVQzdQTXh2bHdPWURU?=
- =?utf-8?B?SkNqREM0ZWxaWlQwd3o0bmVoQnYvT0lPUFRTYlFVeXdjcUFROWczVlExd1Za?=
- =?utf-8?B?R2pVYkFoeDhPZmdWSkNua2JsbGhjUVN2aDk5V0Zpa1VpbGRYREdFYUN3bkNP?=
- =?utf-8?B?dUk5bWJ4Nzk2MG9NVTdmY3A2L3hScCt5NGFuQ0pIUnBpOTJCN2FKT2taWUdO?=
- =?utf-8?B?Sjd3OGxtQk5MckhLbElSN05sQ3lsalh1UERLWFZva0F3czNSUG9HSHhJVkhT?=
- =?utf-8?B?bnk3NVNXaXpMTGdhSUd0cExycXl5Wm9Vd0kySWhvdThINXVkclZtbkQ3cE5t?=
- =?utf-8?B?ZmhSVUFXUzFQek5JcDJEL3lSdkpJN3NpakVoVFAzYkF1YWRiNEZzcW1xKzFk?=
- =?utf-8?B?aWVLMm9PMkg2M2ROQVBCeXBWUk05MXVPd1o1L21wVWRHazQ5U0lLRGpwUnBW?=
- =?utf-8?B?a2x0ZDlrS3JQQmNtR2JuTWYzazltN2hwZHQ3ZlREcjZ4TXVybk5sdmlxQWxQ?=
- =?utf-8?B?K0R3WHA3SXlqOXYvczZqWHlzT2V1YlpkWnkxczZEdUl2djAxZDhGVytrSkI1?=
- =?utf-8?B?RkF4WUptMUF5RlZrYkRUTDF3WmN4cTNvdi95Z1dFbjREWm1NRkpZcnJrejk5?=
- =?utf-8?B?cW1ZNDJ3SXByYTBaWWhQUFdNVStwMjZXYm1LM3BIbmdldTJEZHZUdVlvZi9u?=
- =?utf-8?B?UkZBbmZFSzNOelUycDlpeXJ1UXlLMkNkSCs4emdLRXhjcC81NDROZjQ3bm5M?=
- =?utf-8?B?dG5UTU1COW5tVkM2NFhmeWx2d2ZQUVZXUmhaWWVXR3E3aHRZenJrako0Nld6?=
- =?utf-8?B?YSt4RmRSZDY2VW41RVo0Um9DS3NvQ3J1alhJM3lMOVNER1cwNDBwc3R2WmN2?=
- =?utf-8?B?N3Rld3lCTDMrN0tjMnpPUG84d3dYeGJRQ0c5dkUxa3lDTUFUc3RlNnFJRjEw?=
- =?utf-8?B?STloajJNNy9XRUpDT2Y5L1RHN0NLNHlaNG54aHp6QmswK21oVUVLUnl3VmhJ?=
- =?utf-8?B?M0ZheC8yWUgxN0RLU09iN2dLUE8zRzJFeHRRUkJyUkUzSzlzS2hMWFZGdFg1?=
- =?utf-8?B?YnBpcTFnZmZSbGE2SmR3S1AwMUZWa1JTckNRcmQrNngxWDJuRmVhcUowRDQ4?=
- =?utf-8?Q?ZErsumKcHm+jPTwhiEFGjrPDTV4NiQtJDtBP50YQRs1a?=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <BAE73233ED137C4084C6A2CF6195458B@namprd12.prod.outlook.com>
-Content-Transfer-Encoding: base64
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ROEhlwb5"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1703077793; x=1734613793;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=YmJJ/ywwMFUEe1HB9Rdue5kNC/FoUdtA01gR+RQluFc=;
+  b=ROEhlwb5eTuAZjxH4rdvGPHnGn75LWdanAjiLgKyFJP6IJdOklo4jYqQ
+   egBsDeqNySGktz7k+qGsFVL5h+ALcQMrVU9sgAJDcRdOmXGV8fjkuRSr2
+   2M4D+2h0gpOmu0HFa8XI9k1vxAKi9WppCmcQZoccVoqrCYWu2X2ZnUh3t
+   6JMpDY1u4xFtPk78FfQ3/R39I36rjQd5H8hSmS3YMd1Sw7pUA5XqOyoek
+   9Yte8eyU7/4GWuxRF0C2RbcR9DHaf/pTGxtVuyPY0+S9v5UOFJr6MuMt0
+   j1FMQ+WjE+qilYtX58V9d+OuHuYjHo0D1755LV9a0PSxA1ZRsva+pILqd
+   A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10929"; a="375966910"
+X-IronPort-AV: E=Sophos;i="6.04,291,1695711600"; 
+   d="scan'208";a="375966910"
+Received: from fmviesa002.fm.intel.com ([10.60.135.142])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Dec 2023 05:09:52 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.04,291,1695711600"; 
+   d="scan'208";a="10751570"
+Received: from lkp-server02.sh.intel.com (HELO b07ab15da5fe) ([10.239.97.151])
+  by fmviesa002.fm.intel.com with ESMTP; 20 Dec 2023 05:09:45 -0800
+Received: from kbuild by b07ab15da5fe with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1rFwKV-0006tP-0m;
+	Wed, 20 Dec 2023 13:09:43 +0000
+Date: Wed, 20 Dec 2023 21:09:00 +0800
+From: kernel test robot <lkp@intel.com>
+To: Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+	bp@alien8.de, hpa@zytor.com, dave.hansen@linux.intel.com,
+	mingo@redhat.com, tglx@linutronix.de
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	dmitry.torokhov@gmail.com, tzimmermann@suse.de,
+	pv-drivers@vmware.com, netdev@vger.kernel.org,
+	richardcochran@gmail.com, x86@kernel.org,
+	dri-devel@lists.freedesktop.org, horms@kernel.org,
+	akaher@vmware.com, timothym@vmware.com,
+	linux-graphics-maintainer@vmware.com, mripard@kernel.org,
+	jsipek@vmware.com, linux-input@vger.kernel.org, namit@vmware.com,
+	kirill.shutemov@linux.intel.com, airlied@gmail.com,
+	zackr@vmware.com
+Subject: Re: [PATCH v3 6/6] x86/vmware: Add TDX hypercall support
+Message-ID: <202312202020.5O1T2aSk-lkp@intel.com>
+References: <20231219215751.9445-7-alexey.makhalov@broadcom.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: DM6PR12MB5565.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 579781f9-4ef4-40fa-f3f3-08dc015b331d
-X-MS-Exchange-CrossTenant-originalarrivaltime: 20 Dec 2023 12:57:19.0530
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: oJaJu/Y3SvBl73cRWFloum+svNDSh52ld4AuRFUT1b5d/E54sKvcSneHCD5NvecE1vCAN80oPcJD5CR9YwgNBQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4420
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20231219215751.9445-7-alexey.makhalov@broadcom.com>
 
-T24gV2VkLCAyMDIzLTEyLTIwIGF0IDEyOjA1ICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOg0KPiBP
-biBXZWQsIERlYyAyMCwgMjAyMyBhdCAxMTo0NuKAr0FNIEphc29uIFdhbmcgPGphc293YW5nQHJl
-ZGhhdC5jb20+IHdyb3RlOg0KPiA+IA0KPiA+IE9uIFdlZCwgRGVjIDIwLCAyMDIzIGF0IDI6MDni
-gK9BTSBEcmFnb3MgVGF0dWxlYSA8ZHRhdHVsZWFAbnZpZGlhLmNvbT4gd3JvdGU6DQo+ID4gPiAN
-Cj4gPiA+IFRoZSB2aXJ0aW8gc3BlYyBkb2Vzbid0IGFsbG93IGNoYW5naW5nIHZpcnRxdWV1ZSBh
-ZGRyZXNzZXMgYWZ0ZXINCj4gPiA+IERSSVZFUl9PSy4gU29tZSBkZXZpY2VzIGRvIHN1cHBvcnQg
-dGhpcyBvcGVyYXRpb24gd2hlbiB0aGUgZGV2aWNlIGlzDQo+ID4gPiBzdXNwZW5kZWQuIFRoZSBW
-SE9TVF9CQUNLRU5EX0ZfQ0hBTkdFQUJMRV9WUV9BRERSX0lOX1NVU1BFTkQgZmxhZw0KPiA+ID4g
-YWR2ZXJ0aXNlcyB0aGlzIHN1cHBvcnQgYXMgYSBiYWNrZW5kIGZlYXR1cmVzLg0KPiA+IA0KPiA+
-IFRoZXJlJ3MgYW4gb25nb2luZyBlZmZvcnQgaW4gdmlydGlvIHNwZWMgdG8gaW50cm9kdWNlIHRo
-ZSBzdXNwZW5kIHN0YXRlLg0KPiA+IA0KPiA+IFNvIEkgd29uZGVyIGlmIGl0J3MgYmV0dGVyIHRv
-IGp1c3QgYWxsb3cgc3VjaCBiZWhhdmlvdXI/DQo+IA0KPiBBY3R1YWxseSBJIG1lYW4sIGFsbG93
-IGRyaXZlcnMgdG8gbW9kaWZ5IHRoZSBwYXJhbWV0ZXJzIGR1cmluZyBzdXNwZW5kDQo+IHdpdGhv
-dXQgYSBuZXcgZmVhdHVyZS4NCj4gDQpGaW5lIGJ5IG1lLiBMZXNzIGNvZGUgaXMgYmV0dGVyIHRo
-YW4gbW9yZSBjb2RlLiBUaGUgdjIgb2YgdGhpcyBzZXJpZXMgd291bGQgYmUNCnN1ZmZpY2llbnQg
-dGhlbi4NCg0KVGhhbmtzDQo=
+Hi Alexey,
+
+kernel test robot noticed the following build warnings:
+
+[auto build test WARNING on drm-misc/drm-misc-next]
+[also build test WARNING on dtor-input/next dtor-input/for-linus linus/master v6.7-rc6 next-20231220]
+[cannot apply to tip/x86/vmware]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Alexey-Makhalov/x86-vmware-Move-common-macros-to-vmware-h/20231220-060028
+base:   git://anongit.freedesktop.org/drm/drm-misc drm-misc-next
+patch link:    https://lore.kernel.org/r/20231219215751.9445-7-alexey.makhalov%40broadcom.com
+patch subject: [PATCH v3 6/6] x86/vmware: Add TDX hypercall support
+config: x86_64-allyesconfig (https://download.01.org/0day-ci/archive/20231220/202312202020.5O1T2aSk-lkp@intel.com/config)
+compiler: clang version 16.0.4 (https://github.com/llvm/llvm-project.git ae42196bc493ffe877a7e3dff8be32035dea4d07)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20231220/202312202020.5O1T2aSk-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202312202020.5O1T2aSk-lkp@intel.com/
+
+All warnings (new ones prefixed by >>):
+
+>> arch/x86/kernel/cpu/vmware.c:439:40: warning: format specifies type 'unsigned int' but the argument has type 'unsigned long' [-Wformat]
+                   pr_warn("Out of range command %x\n", cmd);
+                                                 ~~     ^~~
+                                                 %lx
+   include/linux/printk.h:508:37: note: expanded from macro 'pr_warn'
+           printk(KERN_WARNING pr_fmt(fmt), ##__VA_ARGS__)
+                                      ~~~     ^~~~~~~~~~~
+   include/linux/printk.h:455:60: note: expanded from macro 'printk'
+   #define printk(fmt, ...) printk_index_wrap(_printk, fmt, ##__VA_ARGS__)
+                                                       ~~~    ^~~~~~~~~~~
+   include/linux/printk.h:427:19: note: expanded from macro 'printk_index_wrap'
+                   _p_func(_fmt, ##__VA_ARGS__);                           \
+                           ~~~~    ^~~~~~~~~~~
+   1 warning generated.
+
+
+vim +439 arch/x86/kernel/cpu/vmware.c
+
+   430	
+   431	#ifdef CONFIG_INTEL_TDX_GUEST
+   432	unsigned long vmware_tdx_hypercall(unsigned long cmd,
+   433					   struct tdx_module_args *args)
+   434	{
+   435		if (!hypervisor_is_type(X86_HYPER_VMWARE))
+   436			return 0;
+   437	
+   438		if (cmd & ~VMWARE_CMD_MASK) {
+ > 439			pr_warn("Out of range command %x\n", cmd);
+   440			return 0;
+   441		}
+   442	
+   443		args->r10 = VMWARE_TDX_VENDOR_LEAF;
+   444		args->r11 = VMWARE_TDX_HCALL_FUNC;
+   445		args->r12 = VMWARE_HYPERVISOR_MAGIC;
+   446		args->r13 = cmd;
+   447	
+   448		__tdx_hypercall(args);
+   449	
+   450		return args->r12;
+   451	}
+   452	EXPORT_SYMBOL_GPL(vmware_tdx_hypercall);
+   453	#endif
+   454	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
