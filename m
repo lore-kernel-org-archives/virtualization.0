@@ -1,141 +1,202 @@
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AE3B4419
-	for <virtualization@lists.linux.dev>; Thu, 21 Dec 2023 02:48:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.162.254])
-	by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4SwZbS1mx1zWhk9;
-	Thu, 21 Dec 2023 10:47:32 +0800 (CST)
-Received: from dggpemm500005.china.huawei.com (unknown [7.185.36.74])
-	by mail.maildlp.com (Postfix) with ESMTPS id E054B180076;
-	Thu, 21 Dec 2023 10:47:52 +0800 (CST)
-Received: from [10.69.30.204] (10.69.30.204) by dggpemm500005.china.huawei.com
- (7.185.36.74) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.35; Thu, 21 Dec
- 2023 10:47:52 +0800
-Subject: Re: [PATCH net-next 6/6] tools: virtio: introduce vhost_net_test
-To: Jason Wang <jasowang@redhat.com>
-CC: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>,
-	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, "Michael S.
- Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	<virtualization@lists.linux.dev>
-References: <20231205113444.63015-1-linyunsheng@huawei.com>
- <20231205113444.63015-7-linyunsheng@huawei.com>
- <CACGkMEvVezZnHK-gRWY+MUd_6awnprb024scqPNmMQ05P8rWTQ@mail.gmail.com>
- <424670ab-23d8-663b-10cb-d88906767956@huawei.com>
- <CACGkMEsMdP1B-9RaqibJYfFsd_qJpB+Kta5BnyD_WXH=W2w_OQ@mail.gmail.com>
- <c5b5d36c-d0ca-c943-5355-343214d92c26@huawei.com>
- <CACGkMEs8HWq_NFNk=Pp3qxuo7AWBsybXT78LPgC-nKaP_u3LqA@mail.gmail.com>
-From: Yunsheng Lin <linyunsheng@huawei.com>
-Message-ID: <8401fefd-d0da-efb9-78ab-cc4974a35801@huawei.com>
-Date: Thu, 21 Dec 2023 10:47:52 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:52.0) Gecko/20100101
- Thunderbird/52.2.0
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9797CAD27
+	for <virtualization@lists.linux.dev>; Thu, 21 Dec 2023 02:56:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NpPWB6QM"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1703127409;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Dy9GExM8H85FeptYc4aP4CuqEGh1LXnHJxON2C2sOE4=;
+	b=NpPWB6QMFbmjeV+EhQX6zOWsz17H8lQsaUxKmbSRXpYsCK5wZUvBm9O4hfc0N8RewJ7GxO
+	OX82x1IbfZmTMhCSaink7WApvDT56xYh/GWFzUxOouHxIrhLhuaRYZrX6l10rrJPljRKzu
+	Wgxl4TQVXrD4RGaDQCuNMIHi7RSB0rY=
+Received: from mail-oi1-f200.google.com (mail-oi1-f200.google.com
+ [209.85.167.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-142-wYHBLfhAPWuT-nmI-FQj6A-1; Wed, 20 Dec 2023 21:56:48 -0500
+X-MC-Unique: wYHBLfhAPWuT-nmI-FQj6A-1
+Received: by mail-oi1-f200.google.com with SMTP id 5614622812f47-3b8b07fbc1dso422420b6e.0
+        for <virtualization@lists.linux.dev>; Wed, 20 Dec 2023 18:56:47 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1703127407; x=1703732207;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Dy9GExM8H85FeptYc4aP4CuqEGh1LXnHJxON2C2sOE4=;
+        b=r3gdnFI92ZlRXbK0WW36W5PEv4Oij9AMxHZUhirrTaoq7GKOiXikRGFgf/v4FByPLw
+         vddX6q3wFsBYvr3bLfiY/9xHOmIV5j3JLiUQZnI5QXR6ecs3jnMQHTixDz5OkWkWCUB+
+         drFgFZwY9+Vp5kmEfLwTzlVOgbqcT75MlQVFIrzidQVBqm6pbAqzGwF85fX0v/inDRJj
+         aAqK3GdxPgyeNdaurVDAmVR+VkZmMFvEWOJuqycuO5cEoVAsgK3SthStjwMown2ueARa
+         UYCrLos94xrbOebgXH/mreFUiKOvIjMZJAkGSCEUZlr80VSND+MPA0XzbfFMVTB+cp4S
+         abGQ==
+X-Gm-Message-State: AOJu0YxYnPcpCxo5Rlt/OtsVa3UQXCLBBlxUY0gaK3xz0zPQ4lOSsFCe
+	fajk3SQFsX047vVVRPjdy7EiLXkLQ1ZYjASyFHB6wAN7E3e/5m53fpL66ECSYBz/mYmFMhiIP4p
+	4T7NPiBGlcF3qcP+jpwQrE8XkKA9DPkj1oR8gscwGxZ0=
+X-Received: by 2002:a05:6808:6493:b0:3ba:d81:8408 with SMTP id fh19-20020a056808649300b003ba0d818408mr23393851oib.41.1703127407408;
+        Wed, 20 Dec 2023 18:56:47 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFyl65VFlMHa3cUJ5xXSrW3xmo3VJtJx7xqAR/g/kwK7zYwdc5eHGcz9muBKfu2b/AhN640Cu/VtJUrszNnCjY=
+X-Received: by 2002:a05:6808:6493:b0:3ba:d81:8408 with SMTP id
+ fh19-20020a056808649300b003ba0d818408mr23393843oib.41.1703127407171; Wed, 20
+ Dec 2023 18:56:47 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEs8HWq_NFNk=Pp3qxuo7AWBsybXT78LPgC-nKaP_u3LqA@mail.gmail.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
- dggpemm500005.china.huawei.com (7.185.36.74)
+References: <20231205113444.63015-1-linyunsheng@huawei.com>
+ <20231205113444.63015-7-linyunsheng@huawei.com> <CACGkMEvVezZnHK-gRWY+MUd_6awnprb024scqPNmMQ05P8rWTQ@mail.gmail.com>
+ <424670ab-23d8-663b-10cb-d88906767956@huawei.com> <CACGkMEsMdP1B-9RaqibJYfFsd_qJpB+Kta5BnyD_WXH=W2w_OQ@mail.gmail.com>
+ <c5b5d36c-d0ca-c943-5355-343214d92c26@huawei.com> <CACGkMEs8HWq_NFNk=Pp3qxuo7AWBsybXT78LPgC-nKaP_u3LqA@mail.gmail.com>
+ <8401fefd-d0da-efb9-78ab-cc4974a35801@huawei.com>
+In-Reply-To: <8401fefd-d0da-efb9-78ab-cc4974a35801@huawei.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 21 Dec 2023 10:56:36 +0800
+Message-ID: <CACGkMEvKOWpxpBR+YRuiJJ3aEsdxU2q+qVwmFw=L5gS3e7A35w@mail.gmail.com>
+Subject: Re: [PATCH net-next 6/6] tools: virtio: introduce vhost_net_test
+To: Yunsheng Lin <linyunsheng@huawei.com>
+Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	virtualization@lists.linux.dev
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 2023/12/21 10:33, Jason Wang wrote:
-> On Wed, Dec 20, 2023 at 8:45 PM Yunsheng Lin <linyunsheng@huawei.com> wrote:
->>
->> On 2023/12/12 12:35, Jason Wang wrote:>>>> +done:
->>>>>> +       backend.fd = tun_alloc();
->>>>>> +       assert(backend.fd >= 0);
->>>>>> +       vdev_info_init(&dev, features);
->>>>>> +       vq_info_add(&dev, 256);
->>>>>> +       run_test(&dev, &dev.vqs[0], delayed, batch, reset, nbufs);
->>>>>
->>>>> I'd expect we are testing some basic traffic here. E.g can we use a
->>>>> packet socket then we can test both tx and rx?
->>>>
->>>> Yes, only rx for tun is tested.
->>>> Do you have an idea how to test the tx too? As I am not familar enough
->>>> with vhost_net and tun yet.
->>>
->>> Maybe you can have a packet socket to bind to the tun/tap. Then you can test:
->>>
->>> 1) TAP RX: by write a packet via virtqueue through vhost_net and read
->>> it from packet socket
->>> 2) TAP TX:  by write via packet socket and read it from the virtqueue
->>> through vhost_net
->>
->> When implementing the TAP TX by adding VHOST_NET_F_VIRTIO_NET_HDR,
->> I found one possible use of uninitialized data in vhost_net_build_xdp().
->>
->> And vhost_hlen is set to sizeof(struct virtio_net_hdr_mrg_rxbuf) and
->> sock_hlen is set to zero in vhost_net_set_features() for both tx and rx
->> queue.
->>
->> For vhost_net_build_xdp() called by handle_tx_copy():
->>
->> The (gso->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) checking below may cause a
->> read of uninitialized data if sock_hlen is zero.
-> 
-> Which data is uninitialized here?
+On Thu, Dec 21, 2023 at 10:48=E2=80=AFAM Yunsheng Lin <linyunsheng@huawei.c=
+om> wrote:
+>
+> On 2023/12/21 10:33, Jason Wang wrote:
+> > On Wed, Dec 20, 2023 at 8:45=E2=80=AFPM Yunsheng Lin <linyunsheng@huawe=
+i.com> wrote:
+> >>
+> >> On 2023/12/12 12:35, Jason Wang wrote:>>>> +done:
+> >>>>>> +       backend.fd =3D tun_alloc();
+> >>>>>> +       assert(backend.fd >=3D 0);
+> >>>>>> +       vdev_info_init(&dev, features);
+> >>>>>> +       vq_info_add(&dev, 256);
+> >>>>>> +       run_test(&dev, &dev.vqs[0], delayed, batch, reset, nbufs);
+> >>>>>
+> >>>>> I'd expect we are testing some basic traffic here. E.g can we use a
+> >>>>> packet socket then we can test both tx and rx?
+> >>>>
+> >>>> Yes, only rx for tun is tested.
+> >>>> Do you have an idea how to test the tx too? As I am not familar enou=
+gh
+> >>>> with vhost_net and tun yet.
+> >>>
+> >>> Maybe you can have a packet socket to bind to the tun/tap. Then you c=
+an test:
+> >>>
+> >>> 1) TAP RX: by write a packet via virtqueue through vhost_net and read
+> >>> it from packet socket
+> >>> 2) TAP TX:  by write via packet socket and read it from the virtqueue
+> >>> through vhost_net
+> >>
+> >> When implementing the TAP TX by adding VHOST_NET_F_VIRTIO_NET_HDR,
+> >> I found one possible use of uninitialized data in vhost_net_build_xdp(=
+).
+> >>
+> >> And vhost_hlen is set to sizeof(struct virtio_net_hdr_mrg_rxbuf) and
+> >> sock_hlen is set to zero in vhost_net_set_features() for both tx and r=
+x
+> >> queue.
+> >>
+> >> For vhost_net_build_xdp() called by handle_tx_copy():
+> >>
+> >> The (gso->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) checking below may caus=
+e a
+> >> read of uninitialized data if sock_hlen is zero.
+> >
+> > Which data is uninitialized here?
+>
+> The 'gso', as the sock_hlen is zero, there is no copying for:
+>
+>          copied =3D copy_page_from_iter(alloc_frag->page,
+>                                       alloc_frag->offset +
+>                                       offsetof(struct tun_xdp_hdr, gso),
+>                                       sock_hlen, from);
 
-The 'gso', as the sock_hlen is zero, there is no copying for:
+I think you're right. This is something we need to fix.
 
-         copied = copy_page_from_iter(alloc_frag->page,
-                                      alloc_frag->offset +
-                                      offsetof(struct tun_xdp_hdr, gso),
-                                      sock_hlen, from);
+Or we can drop VHOST_NET_F_VIRTIO_NET_HDR as we managed to survive for year=
+s:
 
-> 
->>
->> And it seems vhost_hdr is skipped in get_tx_bufs():
->> https://elixir.bootlin.com/linux/latest/source/drivers/vhost/net.c#L616
->>
->> static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
->>                                struct iov_iter *from)
->> {
->> ...
->>         buflen += SKB_DATA_ALIGN(len + pad);
->>         alloc_frag->offset = ALIGN((u64)alloc_frag->offset, SMP_CACHE_BYTES);
->>         if (unlikely(!vhost_net_page_frag_refill(net, buflen,
->>                                                  alloc_frag, GFP_KERNEL)))
->>                 return -ENOMEM;
->>
->>         buf = (char *)page_address(alloc_frag->page) + alloc_frag->offset;
->>         copied = copy_page_from_iter(alloc_frag->page,
->>                                      alloc_frag->offset +
->>                                      offsetof(struct tun_xdp_hdr, gso),
->>                                      sock_hlen, from);
->>         if (copied != sock_hlen)
->>                 return -EFAULT;
->>
->>         hdr = buf;
->>         gso = &hdr->gso;
->>
->>         if ((gso->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) &&
->>             vhost16_to_cpu(vq, gso->csum_start) +
->>             vhost16_to_cpu(vq, gso->csum_offset) + 2 >
->>             vhost16_to_cpu(vq, gso->hdr_len)) {
->> ...
->> }
->>
->> I seems the handle_tx_copy() does not handle the VHOST_NET_F_VIRTIO_NET_HDR
->> case correctly, Or do I miss something obvious here?
-> 
-> In get_tx_bufs() we did:
-> 
->         *len = init_iov_iter(vq, &msg->msg_iter, nvq->vhost_hlen, *out);
-> 
-> Which covers this case?
+https://patchwork.ozlabs.org/project/netdev/patch/1528429842-22835-1-git-se=
+nd-email-jasowang@redhat.com/#1930760
 
-It does not seems to cover it, as the vhost_hdr is just skipped without any
-handling in get_tx_bufs():
-https://elixir.bootlin.com/linux/v6.7-rc6/source/drivers/vhost/net.c#L616
+>
+> >
+> >>
+> >> And it seems vhost_hdr is skipped in get_tx_bufs():
+> >> https://elixir.bootlin.com/linux/latest/source/drivers/vhost/net.c#L61=
+6
+> >>
+> >> static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
+> >>                                struct iov_iter *from)
+> >> {
+> >> ...
+> >>         buflen +=3D SKB_DATA_ALIGN(len + pad);
+> >>         alloc_frag->offset =3D ALIGN((u64)alloc_frag->offset, SMP_CACH=
+E_BYTES);
+> >>         if (unlikely(!vhost_net_page_frag_refill(net, buflen,
+> >>                                                  alloc_frag, GFP_KERNE=
+L)))
+> >>                 return -ENOMEM;
+> >>
+> >>         buf =3D (char *)page_address(alloc_frag->page) + alloc_frag->o=
+ffset;
+> >>         copied =3D copy_page_from_iter(alloc_frag->page,
+> >>                                      alloc_frag->offset +
+> >>                                      offsetof(struct tun_xdp_hdr, gso)=
+,
+> >>                                      sock_hlen, from);
+> >>         if (copied !=3D sock_hlen)
+> >>                 return -EFAULT;
+> >>
+> >>         hdr =3D buf;
+> >>         gso =3D &hdr->gso;
+> >>
+> >>         if ((gso->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) &&
+> >>             vhost16_to_cpu(vq, gso->csum_start) +
+> >>             vhost16_to_cpu(vq, gso->csum_offset) + 2 >
+> >>             vhost16_to_cpu(vq, gso->hdr_len)) {
+> >> ...
+> >> }
+> >>
+> >> I seems the handle_tx_copy() does not handle the VHOST_NET_F_VIRTIO_NE=
+T_HDR
+> >> case correctly, Or do I miss something obvious here?
+> >
+> > In get_tx_bufs() we did:
+> >
+> >         *len =3D init_iov_iter(vq, &msg->msg_iter, nvq->vhost_hlen, *ou=
+t);
+> >
+> > Which covers this case?
+>
+> It does not seems to cover it, as the vhost_hdr is just skipped without a=
+ny
+> handling in get_tx_bufs():
+> https://elixir.bootlin.com/linux/v6.7-rc6/source/drivers/vhost/net.c#L616
 
-> 
-> Thanks
+My understanding is that in this case vhost can't do more than this as
+the socket doesn't know vnet_hdr.
+
+Let's see if Michael is ok with this.
+
+Thanks
+
+>
+> >
+> > Thanks
+>
+
