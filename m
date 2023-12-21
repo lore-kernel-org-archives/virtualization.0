@@ -1,193 +1,240 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EF86442B
-	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 03:33:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YQ7P0d7P"
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96030945A
+	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 05:18:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id DA30F60B4E
-	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 03:33:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DA30F60B4E
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=YQ7P0d7P
+	by smtp4.osuosl.org (Postfix) with ESMTP id 21E0C42117
+	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 05:18:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 21E0C42117
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.099
+X-Spam-Score: -9.899
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id nwNWa2bCIJUg
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id s_J_5xGBB5JN
 	for <virtualization@lists.linux-foundation.org>;
-	Thu, 21 Dec 2023 03:33:06 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id EDDA860B30
-	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 03:33:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org EDDA860B30
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1703129584;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=d7FZ7AbvKJbxFkFYCPY/SnK8b/d1PgFCZ+bWPWNhxMg=;
-	b=YQ7P0d7P8WmhiP62FTe5kJzley7H2olVinBy6M2ACoOVdMeuvUv+S1tUYCu1crMjnQcCXc
-	Vl3QUCPlPeBRg9VIFETIsCLI+qOcAxKDXYyBAdeFHUtsr79b8/eQeH+aDS+WvELeMAY7Hw
-	plDlgjITy/VuISJCbWfjRR8DDRaFiN8=
-Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com
- [209.85.215.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-240-7jXKw50uOHK9yqqqFHZifg-1; Wed, 20 Dec 2023 22:33:02 -0500
-X-MC-Unique: 7jXKw50uOHK9yqqqFHZifg-1
-Received: by mail-pg1-f198.google.com with SMTP id 41be03b00d2f7-5c641d55e27so241696a12.1
-        for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 19:33:01 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703129581; x=1703734381;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=d7FZ7AbvKJbxFkFYCPY/SnK8b/d1PgFCZ+bWPWNhxMg=;
-        b=Gra8Wvtc8e2jNnaWIVDZN0aNgfGkRHnnTfCL884DCbpSQp8Qrh5/phgfjFWUA2ylTT
-         C6P9GP8Xi99xkf9R2ecSfL/9dFgx7Deo8Ezi17W5ps89p80z9kpyB73Os7BBOHROEJcx
-         UuW48alSDjmtM1A3rFMzN/M3AsAguMwf0f5i8sy6tbAEVqiTt4JnQw/ZPV3phNSSDZJd
-         sYFfqU9ilcTzyLkTeEtBeBD8HF6qFKUVVmPvk/57m8+vXbIvYVZkcgxAvABk0LaKoUp8
-         UUUI93yQ3hJvxV+sQmK/vpnAxIajNvRjPgppuQh3xOKYJ8J66RIPytdrl4EA6XIewwue
-         P8aA==
-X-Gm-Message-State: AOJu0YxdEIYj9CMImu+DTuXEST8g11F0fMWcZlkowyI0/2s0t3o0CfHx
-	XvD8pHARAiCjP+a8tHSYX0Ky4FVKNUOp3Pt4sO1xZ49bYC0Pc+1r2OA5Lv2OMzWxk5MkmFJcX9a
-	mjnAx2r6zh2nlorqGogmEjXPC0XF5b08Q040OmQe/1jWCRwEOxv7Rt5O+Yg==
-X-Received: by 2002:a05:6a20:8f14:b0:18c:26cc:c054 with SMTP id b20-20020a056a208f1400b0018c26ccc054mr79984pzk.7.1703129580742;
-        Wed, 20 Dec 2023 19:33:00 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHIDYSu9gMeojq2Rvy3LuwbWAorLY8lWDAztSbBbRberFuQkwgkrggCRLcnpZYbQboVH7FekH5CNQJxXeXQpk0=
-X-Received: by 2002:a05:6a20:8f14:b0:18c:26cc:c054 with SMTP id
- b20-20020a056a208f1400b0018c26ccc054mr79976pzk.7.1703129580403; Wed, 20 Dec
- 2023 19:33:00 -0800 (PST)
+	Thu, 21 Dec 2023 05:18:29 +0000 (UTC)
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id AFC434208F
+	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 05:18:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AFC434208F
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0VywS86E_1703135900;
+Received: from 30.221.144.254(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0VywS86E_1703135900)
+          by smtp.aliyun-inc.com;
+          Thu, 21 Dec 2023 13:18:21 +0800
+Message-ID: <084142b9-7e0d-4eae-82d2-0736494953cd@linux.alibaba.com>
+Date: Thu, 21 Dec 2023 13:18:20 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20231207080353.6575-1-xuanzhuo@linux.alibaba.com> <20231207080353.6575-6-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <20231207080353.6575-6-xuanzhuo@linux.alibaba.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 21 Dec 2023 11:32:49 +0800
-Message-ID: <CACGkMEstikKFNTrTeytjrDhuaGxEys=t=ZqGK1Eqv6giemWneQ@mail.gmail.com>
-Subject: Re: [PATCH v2 5/5] virtio_net: sq support premapped mode
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: virtualization@lists.linux-foundation.org, 
-	"Michael S. Tsirkin" <mst@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next] virtio-net: switch napi_tx without downing nic
+To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+ netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Alexei Starovoitov <ast@kernel.org>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+References: <f9f7d28624f8084ef07842ee569c22b324ee4055.1703059341.git.hengqi@linux.alibaba.com>
+ <6582fe057cb9_1a34a429435@willemb.c.googlers.com.notmuch>
+From: Heng Qi <hengqi@linux.alibaba.com>
+In-Reply-To: <6582fe057cb9_1a34a429435@willemb.c.googlers.com.notmuch>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Thu, Dec 7, 2023 at 4:04=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.co=
-m> wrote:
->
-> If the xsk is enabling, the xsk tx will share the send queue.
-> But the xsk requires that the send queue use the premapped mode.
-> So the send queue must support premapped mode.
->
-> command: pktgen_sample01_simple.sh -i eth0 -s 16/1400 -d 10.0.0.123 -m 00=
-:16:3e:12:e1:3e -n 0 -p 100
-> matchine:  ecs.ebmg6e.26xlarge of Aliyun
-> cpu: Intel(R) Xeon(R) Platinum 8269CY CPU @ 2.50GHz
-> iommu mode: intel_iommu=3Don iommu.strict=3D1 iommu=3Dnopt
->
->                       |        iommu off           |        iommu on
-> ----------------------|--------------------------------------------------=
----
->                       | 16         |  1400         | 16         | 1400
-> ----------------------|--------------------------------------------------=
----
-> Before:               |1716796.00  |  1581829.00   | 390756.00  | 374493.=
-00
-> After(premapped off): |1733794.00  |  1576259.00   | 390189.00  | 378128.=
-00
-> After(premapped on):  |1707107.00  |  1562917.00   | 385667.00  | 373584.=
-00
->
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> ---
->  drivers/net/virtio/main.c       | 120 ++++++++++++++++++++++++++++----
 
-Any reason to depend this series to the relocation series?
 
->  drivers/net/virtio/virtio_net.h |  10 ++-
->  2 files changed, 117 insertions(+), 13 deletions(-)
->
-> diff --git a/drivers/net/virtio/main.c b/drivers/net/virtio/main.c
-> index 83f24de00497..9600ffe1af86 100644
-> --- a/drivers/net/virtio/main.c
-> +++ b/drivers/net/virtio/main.c
-> @@ -167,13 +167,39 @@ static struct xdp_frame *ptr_to_xdp(void *ptr)
->         return (struct xdp_frame *)((unsigned long)ptr & ~VIRTIO_XDP_FLAG=
-);
->  }
->
-> +static void virtnet_sq_unmap_buf(struct virtnet_sq *sq, struct virtio_dm=
-a_head *dma)
-> +{
-> +       int i;
-> +
-> +       if (!dma)
-> +               return;
-> +
-> +       for (i =3D 0; i < dma->next; ++i)
-> +               virtqueue_dma_unmap_single_attrs(sq->vq,
-> +                                                dma->items[i].addr,
-> +                                                dma->items[i].length,
-> +                                                DMA_TO_DEVICE, 0);
-> +       dma->next =3D 0;
-> +}
-> +
->  static void __free_old_xmit(struct virtnet_sq *sq, bool in_napi,
->                             u64 *bytes, u64 *packets)
->  {
-> +       struct virtio_dma_head *dma;
->         unsigned int len;
->         void *ptr;
->
-> -       while ((ptr =3D virtqueue_get_buf(sq->vq, &len)) !=3D NULL) {
-> +       if (virtqueue_get_dma_premapped(sq->vq)) {
-> +               dma =3D &sq->dma.head;
-> +               dma->num =3D ARRAY_SIZE(sq->dma.items);
-> +               dma->next =3D 0;
-> +       } else {
-> +               dma =3D NULL;
-> +       }
-> +
-> +       while ((ptr =3D virtqueue_get_buf_ctx_dma(sq->vq, &len, dma, NULL=
-)) !=3D NULL) {
-> +               virtnet_sq_unmap_buf(sq, dma);
-> +
->                 if (!is_xdp_frame(ptr)) {
->                         struct sk_buff *skb =3D ptr;
->
-> @@ -567,16 +593,70 @@ static void *virtnet_rq_alloc(struct virtnet_rq *rq=
-, u32 size, gfp_t gfp)
->         return buf;
->  }
->
-> -static void virtnet_rq_set_premapped(struct virtnet_info *vi)
-> +static void virtnet_set_premapped(struct virtnet_info *vi)
->  {
->         int i;
->
-> -       /* disable for big mode */
-> -       if (!vi->mergeable_rx_bufs && vi->big_packets)
-> -               return;
-> +       for (i =3D 0; i < vi->max_queue_pairs; i++) {
-> +               virtqueue_set_dma_premapped(vi->sq[i].vq);
->
-> -       for (i =3D 0; i < vi->max_queue_pairs; i++)
-> -               virtqueue_set_dma_premapped(vi->rq[i].vq);
-> +               /* disable for big mode */
+在 2023/12/20 下午10:45, Willem de Bruijn 写道:
+> Heng Qi wrote:
+>> virtio-net has two ways to switch napi_tx: one is through the
+>> module parameter, and the other is through coalescing parameter
+>> settings (provided that the nic status is down).
+>>
+>> Sometimes we face performance regression caused by napi_tx,
+>> then we need to switch napi_tx when debugging. However, the
+>> existing methods are a bit troublesome, such as needing to
+>> reload the driver or turn off the network card. So try to make
+>> this update.
+>>
+>> Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
+>> Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> The commit does not explain why it is safe to do so.
 
-Let's use a TODO here.
+virtnet_napi_tx_disable ensures that already scheduled tx napi ends and 
+no new tx napi will be scheduled.
 
-Other looks good.
+Afterwards, if the __netif_tx_lock_bh lock is held, the stack cannot 
+send the packet.
 
-Thanks
+Then we can safely toggle the weight to indicate where to clear the buffers.
+
+>
+> The tx-napi weights are not really weights: it is a boolean whether
+> napi is used for transmit cleaning, or whether packets are cleaned
+> in ndo_start_xmit.
+
+Right.
+
+>
+> There certainly are some subtle issues with regard to pausing/waking
+> queues when switching between modes.
+
+What are "subtle issues" and if there are any, we find them.
+So far my test results show it's working fine.
+
+>
+> Calling napi_enable/napi_disable without bringing down the device is
+> allowed. The actually napi.weight field is only updated when neither
+> napi nor ndo_start_xmit is running.
+
+YES.
+
+> So I don't see an immediate issue.
+
+Switching napi_tx requires reloading the driver or downing the nic, 
+which is troublesome.
+I think it would be better if we could find a better way.
+
+Thanks!
+
+>
+>
+>> ---
+>>   drivers/net/virtio_net.c | 81 ++++++++++++++++++----------------------
+>>   1 file changed, 37 insertions(+), 44 deletions(-)
+>>
+>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>> index 10614e9f7cad..12f8e1f9971c 100644
+>> --- a/drivers/net/virtio_net.c
+>> +++ b/drivers/net/virtio_net.c
+>> @@ -3559,16 +3559,37 @@ static int virtnet_coal_params_supported(struct ethtool_coalesce *ec)
+>>   	return 0;
+>>   }
+>>   
+>> -static int virtnet_should_update_vq_weight(int dev_flags, int weight,
+>> -					   int vq_weight, bool *should_update)
+>> +static void virtnet_switch_napi_tx(struct virtnet_info *vi, u32 qstart,
+>> +				   u32 qend, u32 tx_frames)
+>>   {
+>> -	if (weight ^ vq_weight) {
+>> -		if (dev_flags & IFF_UP)
+>> -			return -EBUSY;
+>> -		*should_update = true;
+>> -	}
+>> +	struct net_device *dev = vi->dev;
+>> +	int new_weight, cur_weight;
+>> +	struct netdev_queue *txq;
+>> +	struct send_queue *sq;
+>>   
+>> -	return 0;
+>> +	new_weight = tx_frames ? NAPI_POLL_WEIGHT : 0;
+>> +	for (; qstart < qend; qstart++) {
+>> +		sq = &vi->sq[qstart];
+>> +		cur_weight = sq->napi.weight;
+>> +		if (!(new_weight ^ cur_weight))
+>> +			continue;
+>> +
+>> +		if (!(dev->flags & IFF_UP)) {
+>> +			sq->napi.weight = new_weight;
+>> +			continue;
+>> +		}
+>> +
+>> +		if (cur_weight)
+>> +			virtnet_napi_tx_disable(&sq->napi);
+>> +
+>> +		txq = netdev_get_tx_queue(dev, qstart);
+>> +		__netif_tx_lock_bh(txq);
+>> +		sq->napi.weight = new_weight;
+>> +		__netif_tx_unlock_bh(txq);
+>> +
+>> +		if (!cur_weight)
+>> +			virtnet_napi_tx_enable(vi, sq->vq, &sq->napi);
+>> +	}
+>>   }
+>>   
+>>   static int virtnet_set_coalesce(struct net_device *dev,
+>> @@ -3577,25 +3598,11 @@ static int virtnet_set_coalesce(struct net_device *dev,
+>>   				struct netlink_ext_ack *extack)
+>>   {
+>>   	struct virtnet_info *vi = netdev_priv(dev);
+>> -	int ret, queue_number, napi_weight;
+>> -	bool update_napi = false;
+>> -
+>> -	/* Can't change NAPI weight if the link is up */
+>> -	napi_weight = ec->tx_max_coalesced_frames ? NAPI_POLL_WEIGHT : 0;
+>> -	for (queue_number = 0; queue_number < vi->max_queue_pairs; queue_number++) {
+>> -		ret = virtnet_should_update_vq_weight(dev->flags, napi_weight,
+>> -						      vi->sq[queue_number].napi.weight,
+>> -						      &update_napi);
+>> -		if (ret)
+>> -			return ret;
+>> -
+>> -		if (update_napi) {
+>> -			/* All queues that belong to [queue_number, vi->max_queue_pairs] will be
+>> -			 * updated for the sake of simplicity, which might not be necessary
+>> -			 */
+>> -			break;
+>> -		}
+>> -	}
+>> +	int ret;
+>> +
+>> +	/* Param tx_frames can be used to switch napi_tx */
+>> +	virtnet_switch_napi_tx(vi, 0, vi->max_queue_pairs,
+>> +			       ec->tx_max_coalesced_frames);
+>>   
+>>   	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_NOTF_COAL))
+>>   		ret = virtnet_send_notf_coal_cmds(vi, ec);
+>> @@ -3605,11 +3612,6 @@ static int virtnet_set_coalesce(struct net_device *dev,
+>>   	if (ret)
+>>   		return ret;
+>>   
+>> -	if (update_napi) {
+>> -		for (; queue_number < vi->max_queue_pairs; queue_number++)
+>> -			vi->sq[queue_number].napi.weight = napi_weight;
+>> -	}
+>> -
+>>   	return ret;
+>>   }
+>>   
+>> @@ -3641,19 +3643,13 @@ static int virtnet_set_per_queue_coalesce(struct net_device *dev,
+>>   					  struct ethtool_coalesce *ec)
+>>   {
+>>   	struct virtnet_info *vi = netdev_priv(dev);
+>> -	int ret, napi_weight;
+>> -	bool update_napi = false;
+>> +	int ret;
+>>   
+>>   	if (queue >= vi->max_queue_pairs)
+>>   		return -EINVAL;
+>>   
+>> -	/* Can't change NAPI weight if the link is up */
+>> -	napi_weight = ec->tx_max_coalesced_frames ? NAPI_POLL_WEIGHT : 0;
+>> -	ret = virtnet_should_update_vq_weight(dev->flags, napi_weight,
+>> -					      vi->sq[queue].napi.weight,
+>> -					      &update_napi);
+>> -	if (ret)
+>> -		return ret;
+>> +	/* Param tx_frames can be used to switch napi_tx */
+>> +	virtnet_switch_napi_tx(vi, queue, queue, ec->tx_max_coalesced_frames);
+>>   
+>>   	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL))
+>>   		ret = virtnet_send_notf_coal_vq_cmds(vi, ec, queue);
+>> @@ -3663,9 +3659,6 @@ static int virtnet_set_per_queue_coalesce(struct net_device *dev,
+>>   	if (ret)
+>>   		return ret;
+>>   
+>> -	if (update_napi)
+>> -		vi->sq[queue].napi.weight = napi_weight;
+>> -
+>>   	return 0;
+>>   }
+>>   
+>> -- 
+>> 2.19.1.6.gb485710b
+>>
 
