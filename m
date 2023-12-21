@@ -1,160 +1,209 @@
-Received: from tarta.nabijaczleweli.xyz (tarta.nabijaczleweli.xyz [139.28.40.42])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2072125DA
-	for <virtualization@lists.linux.dev>; Thu, 21 Dec 2023 03:09:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nabijaczleweli.xyz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nabijaczleweli.xyz
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DEEF156CB
+	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 03:12:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nabijaczleweli.xyz header.i=@nabijaczleweli.xyz header.b="QZmoX77V"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=nabijaczleweli.xyz;
-	s=202305; t=1703128153;
-	bh=Th4fa7MCjmNnRPOCcYkriGTTe1mzhXYl0tas+sW0PFs=;
-	h=Date:From:Cc:Subject:References:In-Reply-To:From;
-	b=QZmoX77VwzQxQHIG1I56OoFEDolsC6mQnhbznWXo6F2+hmH01F3MkkiwHN9SXcwzJ
-	 g0QW/nQrIqn41sTciSQNp7k1k2PfnQ99LjtiwdJSr/g6T31J/41WDWbRaOQc9fUCrX
-	 U3SOYC7eBBoXhVWDZPomuDCJU8gtlUwOnfDTgBvFcTC5dSOLfepH/1EdkurAwN7DqW
-	 HY1ui1CQ/r2/R8oX3lE2APrABJuAvFGhimZHGma1oxyaePZP8+80wxo7peqNlLXJ5l
-	 pEV43tDp8/0XgbfVtoJyAFCaWSk2k/2meqF0FfbFhjcFEYbu9Wf5qkF9fuIjw25XeS
-	 n00zYlXNJ/HNA==
-Received: from tarta.nabijaczleweli.xyz (unknown [192.168.1.250])
-	by tarta.nabijaczleweli.xyz (Postfix) with ESMTPSA id 44BF813DB4;
-	Thu, 21 Dec 2023 04:09:13 +0100 (CET)
-Date: Thu, 21 Dec 2023 04:09:13 +0100
-From: 
-	Ahelenia =?utf-8?Q?Ziemia=C5=84ska?= <nabijaczleweli@nabijaczleweli.xyz>
-Cc: Jens Axboe <axboe@kernel.dk>, Christian Brauner <brauner@kernel.org>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org, 
-	Miklos Szeredi <miklos@szeredi.hu>, Vivek Goyal <vgoyal@redhat.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux.dev
-Subject: [PATCH v2 09/11] fuse: file: limit splice_read to virtiofs
-Message-ID: <9b5cd13bc9e9c570978ec25b25ba5e4081b3d56b.1703126594.git.nabijaczleweli@nabijaczleweli.xyz>
-References: <cover.1703126594.git.nabijaczleweli@nabijaczleweli.xyz>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="hBKipCWj"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 0C45C60B1E
+	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 03:12:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0C45C60B1E
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=hBKipCWj
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 8Eo6HAZ7hO4o
+	for <virtualization@lists.linux-foundation.org>;
+	Thu, 21 Dec 2023 03:12:32 +0000 (UTC)
+X-Greylist: delayed 527 seconds by postgrey-1.37 at util1.osuosl.org; Thu, 21 Dec 2023 03:12:32 UTC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 211CC60ABD
+Received: from out-183.mta1.migadu.com (out-183.mta1.migadu.com [95.215.58.183])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 211CC60ABD
+	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 03:12:31 +0000 (UTC)
+Message-ID: <d26c6d0b-92a1-4baa-bceb-dc267b5b60e6@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1703127822;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=lSGR6BpM5LFLg85n+qCyVz2si87tNmxs2mEQFIna14A=;
+	b=hBKipCWj3UruqG+L4NKeZjsgmC+JvKKYeQdn3Yk7Hb8HEG9/KnaGCQZGCdN4dBp6qY0SMO
+	3PyG06A3VqzLBRJPRpyFxSpWwmmlMUrjqeLOYr5cF+vgp68MVwp4RxEw1p2ZclKddxacDe
+	BhZwQK2feRyhDn+SpbNaIDIiAQCEins=
+Date: Thu, 21 Dec 2023 11:02:44 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="qp36uiiyfau5l6kb"
-Content-Disposition: inline
-In-Reply-To: <cover.1703126594.git.nabijaczleweli@nabijaczleweli.xyz>
-User-Agent: NeoMutt/20231103-116-3b855e-dirty
+Subject: Re: [PATCH net-next] virtio-net: switch napi_tx without downing nic
+To: Heng Qi <hengqi@linux.alibaba.com>, netdev@vger.kernel.org,
+ virtualization@lists.linux-foundation.org
+Cc: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Alexei Starovoitov <ast@kernel.org>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+References: <f9f7d28624f8084ef07842ee569c22b324ee4055.1703059341.git.hengqi@linux.alibaba.com>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Zhu Yanjun <yanjun.zhu@linux.dev>
+In-Reply-To: <f9f7d28624f8084ef07842ee569c22b324ee4055.1703059341.git.hengqi@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
+在 2023/12/20 16:07, Heng Qi 写道:
+> virtio-net has two ways to switch napi_tx: one is through the
+> module parameter, and the other is through coalescing parameter
+> settings (provided that the nic status is down).
+> 
+> Sometimes we face performance regression caused by napi_tx,
+> then we need to switch napi_tx when debugging. However, the
+> existing methods are a bit troublesome, such as needing to
+> reload the driver or turn off the network card. So try to make
+> this update.
 
---qp36uiiyfau5l6kb
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+What scenario can trigger this? We want to make tests on our device.
 
-Potentially-blocking splice_reads are allowed for normal filesystems
-like NFS because they're blessed by root.
+Zhu Yanjun
 
-FUSE is commonly used suid-root, and allows anyone to trivially create
-a file that, when spliced from, will just sleep forever with the pipe
-lock held.
+> 
+> Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
+> Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> ---
+>   drivers/net/virtio_net.c | 81 ++++++++++++++++++----------------------
+>   1 file changed, 37 insertions(+), 44 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 10614e9f7cad..12f8e1f9971c 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -3559,16 +3559,37 @@ static int virtnet_coal_params_supported(struct ethtool_coalesce *ec)
+>   	return 0;
+>   }
+>   
+> -static int virtnet_should_update_vq_weight(int dev_flags, int weight,
+> -					   int vq_weight, bool *should_update)
+> +static void virtnet_switch_napi_tx(struct virtnet_info *vi, u32 qstart,
+> +				   u32 qend, u32 tx_frames)
+>   {
+> -	if (weight ^ vq_weight) {
+> -		if (dev_flags & IFF_UP)
+> -			return -EBUSY;
+> -		*should_update = true;
+> -	}
+> +	struct net_device *dev = vi->dev;
+> +	int new_weight, cur_weight;
+> +	struct netdev_queue *txq;
+> +	struct send_queue *sq;
+>   
+> -	return 0;
+> +	new_weight = tx_frames ? NAPI_POLL_WEIGHT : 0;
+> +	for (; qstart < qend; qstart++) {
+> +		sq = &vi->sq[qstart];
+> +		cur_weight = sq->napi.weight;
+> +		if (!(new_weight ^ cur_weight))
+> +			continue;
+> +
+> +		if (!(dev->flags & IFF_UP)) {
+> +			sq->napi.weight = new_weight;
+> +			continue;
+> +		}
+> +
+> +		if (cur_weight)
+> +			virtnet_napi_tx_disable(&sq->napi);
+> +
+> +		txq = netdev_get_tx_queue(dev, qstart);
+> +		__netif_tx_lock_bh(txq);
+> +		sq->napi.weight = new_weight;
+> +		__netif_tx_unlock_bh(txq);
+> +
+> +		if (!cur_weight)
+> +			virtnet_napi_tx_enable(vi, sq->vq, &sq->napi);
+> +	}
+>   }
+>   
+>   static int virtnet_set_coalesce(struct net_device *dev,
+> @@ -3577,25 +3598,11 @@ static int virtnet_set_coalesce(struct net_device *dev,
+>   				struct netlink_ext_ack *extack)
+>   {
+>   	struct virtnet_info *vi = netdev_priv(dev);
+> -	int ret, queue_number, napi_weight;
+> -	bool update_napi = false;
+> -
+> -	/* Can't change NAPI weight if the link is up */
+> -	napi_weight = ec->tx_max_coalesced_frames ? NAPI_POLL_WEIGHT : 0;
+> -	for (queue_number = 0; queue_number < vi->max_queue_pairs; queue_number++) {
+> -		ret = virtnet_should_update_vq_weight(dev->flags, napi_weight,
+> -						      vi->sq[queue_number].napi.weight,
+> -						      &update_napi);
+> -		if (ret)
+> -			return ret;
+> -
+> -		if (update_napi) {
+> -			/* All queues that belong to [queue_number, vi->max_queue_pairs] will be
+> -			 * updated for the sake of simplicity, which might not be necessary
+> -			 */
+> -			break;
+> -		}
+> -	}
+> +	int ret;
+> +
+> +	/* Param tx_frames can be used to switch napi_tx */
+> +	virtnet_switch_napi_tx(vi, 0, vi->max_queue_pairs,
+> +			       ec->tx_max_coalesced_frames);
+>   
+>   	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_NOTF_COAL))
+>   		ret = virtnet_send_notf_coal_cmds(vi, ec);
+> @@ -3605,11 +3612,6 @@ static int virtnet_set_coalesce(struct net_device *dev,
+>   	if (ret)
+>   		return ret;
+>   
+> -	if (update_napi) {
+> -		for (; queue_number < vi->max_queue_pairs; queue_number++)
+> -			vi->sq[queue_number].napi.weight = napi_weight;
+> -	}
+> -
+>   	return ret;
+>   }
+>   
+> @@ -3641,19 +3643,13 @@ static int virtnet_set_per_queue_coalesce(struct net_device *dev,
+>   					  struct ethtool_coalesce *ec)
+>   {
+>   	struct virtnet_info *vi = netdev_priv(dev);
+> -	int ret, napi_weight;
+> -	bool update_napi = false;
+> +	int ret;
+>   
+>   	if (queue >= vi->max_queue_pairs)
+>   		return -EINVAL;
+>   
+> -	/* Can't change NAPI weight if the link is up */
+> -	napi_weight = ec->tx_max_coalesced_frames ? NAPI_POLL_WEIGHT : 0;
+> -	ret = virtnet_should_update_vq_weight(dev->flags, napi_weight,
+> -					      vi->sq[queue].napi.weight,
+> -					      &update_napi);
+> -	if (ret)
+> -		return ret;
+> +	/* Param tx_frames can be used to switch napi_tx */
+> +	virtnet_switch_napi_tx(vi, queue, queue, ec->tx_max_coalesced_frames);
+>   
+>   	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL))
+>   		ret = virtnet_send_notf_coal_vq_cmds(vi, ec, queue);
+> @@ -3663,9 +3659,6 @@ static int virtnet_set_per_queue_coalesce(struct net_device *dev,
+>   	if (ret)
+>   		return ret;
+>   
+> -	if (update_napi)
+> -		vi->sq[queue].napi.weight = napi_weight;
+> -
+>   	return 0;
+>   }
+>   
 
-The only way IPC to the fusing process could be avoided is if
-!(ff->open_flags & FOPEN_DIRECT_IO) and the range was already cached
-and we weren't past the end. Just refuse it.
-
-virtiofs behaves like a normal filesystem and can only be mounted
-by root, it's unaffected by use of a new "trusted" connection flag.
-This may be extended to include real FUSE mounts by processes which
-aren't suid, to match the semantics for normal filesystems.
-
-Signed-off-by: Ahelenia Ziemia=C5=84ska <nabijaczleweli@nabijaczleweli.xyz>
----
- fs/fuse/file.c      | 17 ++++++++++++++++-
- fs/fuse/fuse_i.h    |  3 +++
- fs/fuse/virtio_fs.c |  1 +
- 3 files changed, 20 insertions(+), 1 deletion(-)
-
-diff --git a/fs/fuse/file.c b/fs/fuse/file.c
-index a660f1f21540..20bb16ddfcc9 100644
---- a/fs/fuse/file.c
-+++ b/fs/fuse/file.c
-@@ -3200,6 +3200,21 @@ static ssize_t fuse_copy_file_range(struct file *src=
-_file, loff_t src_off,
- 	return ret;
- }
-=20
-+static long fuse_splice_read(struct file *in, loff_t *ppos,
-+			     struct pipe_inode_info *pipe, size_t len,
-+			     unsigned int flags)
-+{
-+	struct inode *inode =3D file_inode(in);
-+
-+	if (fuse_is_bad(inode))
-+		return -EIO;
-+
-+	if (get_fuse_conn(inode)->trusted)
-+		return filemap_splice_read(in, ppos, pipe, len, flags);
-+
-+	return -EINVAL;
-+}
-+
- static const struct file_operations fuse_file_operations =3D {
- 	.llseek		=3D fuse_file_llseek,
- 	.read_iter	=3D fuse_file_read_iter,
-@@ -3212,7 +3227,7 @@ static const struct file_operations fuse_file_operati=
-ons =3D {
- 	.lock		=3D fuse_file_lock,
- 	.get_unmapped_area =3D thp_get_unmapped_area,
- 	.flock		=3D fuse_file_flock,
--	.splice_read	=3D filemap_splice_read,
-+	.splice_read	=3D fuse_splice_read,
- 	.splice_write	=3D iter_file_splice_write,
- 	.unlocked_ioctl	=3D fuse_file_ioctl,
- 	.compat_ioctl	=3D fuse_file_compat_ioctl,
-diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
-index 1df83eebda92..463c5d4ad8b4 100644
---- a/fs/fuse/fuse_i.h
-+++ b/fs/fuse/fuse_i.h
-@@ -818,6 +818,9 @@ struct fuse_conn {
- 	/* Is statx not implemented by fs? */
- 	unsigned int no_statx:1;
-=20
-+	/* Do we trust this connection to always respond? */
-+	bool trusted:1;
-+
- 	/** The number of requests waiting for completion */
- 	atomic_t num_waiting;
-=20
-diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-index 5f1be1da92ce..fce0fe24899a 100644
---- a/fs/fuse/virtio_fs.c
-+++ b/fs/fuse/virtio_fs.c
-@@ -1448,6 +1448,7 @@ static int virtio_fs_get_tree(struct fs_context *fsc)
- 	fc->delete_stale =3D true;
- 	fc->auto_submounts =3D true;
- 	fc->sync_fs =3D true;
-+	fc->trusted =3D true;
-=20
- 	/* Tell FUSE to split requests that exceed the virtqueue's size */
- 	fc->max_pages_limit =3D min_t(unsigned int, fc->max_pages_limit,
---=20
-2.39.2
-
---qp36uiiyfau5l6kb
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEfWlHToQCjFzAxEFjvP0LAY0mWPEFAmWDrFgACgkQvP0LAY0m
-WPE6bBAArSzFLci7I06LCeYhlu5UXyY+B2cQcDtpihX9SkF7Jy5KxZDikGWZLFgl
-bDzsYbSxr7ya3KLjC4/XUG18ZV5NWOE36PkTM/54kRGaKiL3BrkoWptISfAeYiPy
-EVuo3CzWkEy5ZgqI7f8yUES+UE05NvPyw5AkA7j6xLow2Dqtcun8L0wS4kj/UdGt
-VATtgv0202LWj2sC73W50T5K8KLLpkCHPljDM6cMHwXbMPCwp62As9sAXzKwMqAj
-aOm7/2qeRscObS3t4xi8Itxw0Vf/91jv7UMBTZesov5bxpF9HGJUqyd/I/17/nkn
-pPJb2PznxC85sQBOPfl2fdySOGiI36ViowF4HIjadR2efnc2kguR0xj5G3garPhq
-gv7B/LFjIS61cNHW7KgGuQ7gBs+axR6cm0sKy6k9BYZSewuYWPAT3uCiYKO84j+m
-Yx/cm7WFzzk1HPQyKRJhGEoyb6ne+2j6xmMwDszHkGlKx6hyT6g5KJ5E5Ot1xgSI
-STf1mvLA6M4op071/rh9ziNaJUNV48ar8pqeqOJBnHTtd7lFzoM5MRzcDqjHT2Fr
-khzXnBP/oShH2Zqyuh2lIv5IZx5Hmg/rP325AZjMJzoT76LNZV9zbcvT99dAYjaE
-rnX7WVmcHO8BRC+0zv56YlvfXfbIYc7DHo8IZ8RW4bgqii4hToM=
-=bHn5
------END PGP SIGNATURE-----
-
---qp36uiiyfau5l6kb--
