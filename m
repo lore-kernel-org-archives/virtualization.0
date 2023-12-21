@@ -1,200 +1,236 @@
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EF606E594
-	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 12:09:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9C5F36085
+	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 14:34:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FSlC2V45"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="JdkrmPQQ"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 8798960AC9
-	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 12:09:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8798960AC9
+	by smtp3.osuosl.org (Postfix) with ESMTP id 2F24060A6B
+	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 14:34:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2F24060A6B
 Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=FSlC2V45
+	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=JdkrmPQQ
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.099
+X-Spam-Score: -2.1
 X-Spam-Level:
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id wSLvd8k-ykB0
+	with ESMTP id CvrBKi9H5pJG
 	for <virtualization@lists.linux-foundation.org>;
-	Thu, 21 Dec 2023 12:09:08 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 7A76560A7F
-	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 12:09:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7A76560A7F
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1703160546;
+	Thu, 21 Dec 2023 14:34:39 +0000 (UTC)
+Received: from out-177.mta1.migadu.com (out-177.mta1.migadu.com [IPv6:2001:41d0:203:375::b1])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 86476600CC
+	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 14:34:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 86476600CC
+Message-ID: <7b3b6c67-05e0-4a90-8142-66f055e15d83@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1703169276;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=u2zddOQ1qeYa0ve/5dlXq/cgaEaRPGUue1VUy/g3vDE=;
-	b=FSlC2V45wHsApUV/R4OtDoTK2QSsXp3FxSOJDyDi9sX8EXewVemNBagcuSEW8yaf0CX2xZ
-	MSCGxofPFW6lI1P8lSYtPu/L8HmOR2rEQGXdbSYqK6wF9Q1SvZaDxyoVFTir9ImDmWmKme
-	wQIX5bH/tCIZhdg3UpaTiYAjIqepKtg=
-Received: from mail-yw1-f197.google.com (mail-yw1-f197.google.com
- [209.85.128.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-618-DOHtsjrnNTGbUtilmEyJ5Q-1; Thu, 21 Dec 2023 07:09:05 -0500
-X-MC-Unique: DOHtsjrnNTGbUtilmEyJ5Q-1
-Received: by mail-yw1-f197.google.com with SMTP id 00721157ae682-5e76b663ef3so13227797b3.1
-        for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 04:09:05 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703160545; x=1703765345;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=u2zddOQ1qeYa0ve/5dlXq/cgaEaRPGUue1VUy/g3vDE=;
-        b=GHHZTPPLGzEtV/h+Orj5O+6yNR8WaPoTGgHmC2v5mPqENx5R5znhG4xlobhII9fE79
-         5kkITEKRDFDxWNfKFiQ3HUyqLQDRtP9aggdf7/iePi8o+mCysa2VFcD2217L4NN+IfQm
-         66n7asKUbsG+RKiVe8BeK5JV+pX8vXtbgWuwG3qGJbUiySGc+V8urZ09vY6GtiPWN8LL
-         ZQWJP9y5HMgw08LeKYwUHlGRuUbRd9P0fUBGVb8cfrunwHtFS7EUnls1ys8WgaAgoez1
-         bgVuW5wprl9+a1nD/pt7OOHtJJN7xg96Oh5puGAQpAvHq/XioT5tawGAcqISjzs/30md
-         zZVA==
-X-Gm-Message-State: AOJu0YyOiJW/iq2IC6ykjaWwIjpMJ+XFUWj/QeCWw7d1VnEQ90AyR5NR
-	I5OCZmVfsVY4/vQdL3yX53HfaRuB/qZ1jqdxmSLo9VC50KhSOb9cyZeo6aTbkTpq2DvlpiNAT8Q
-	kDoA+xu0Noe0gYB+cJVv/hiuGGFFnatBPfnXai8CjVRCHmaGblJCkRQ4pIQ==
-X-Received: by 2002:a0d:eacc:0:b0:5e8:d7b2:cdcd with SMTP id t195-20020a0deacc000000b005e8d7b2cdcdmr1029737ywe.48.1703160544743;
-        Thu, 21 Dec 2023 04:09:04 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IE+wUNNsjF8vEWQGGMpBGoBAUApRdPfu53AYtmvTV2W30g5Q9Sc3RlTNwEHeRRatnR6DBa23ya1wKjB1B+7qt4=
-X-Received: by 2002:a0d:eacc:0:b0:5e8:d7b2:cdcd with SMTP id
- t195-20020a0deacc000000b005e8d7b2cdcdmr1029718ywe.48.1703160543744; Thu, 21
- Dec 2023 04:09:03 -0800 (PST)
+	bh=e6iOTHH/qin4z7nteRbrVZQnh9ljwpfWeOWXpZKN3Zc=;
+	b=JdkrmPQQ6P9zXTmRJkJGRSA7QblRDYiBvB77/9C1sp5dKOestp+db8LAbS6S72Drc/3THZ
+	l5FbH03BUo8v2GgKBKg2U02H24wACnFJQkvl4EiVOGiRbpFr7XgQV3aazYbbquxcU11YmI
+	6XVnU7TY9fq49kYGJd3vdWenWe9WcHY=
+Date: Thu, 21 Dec 2023 22:34:29 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20231219180858.120898-1-dtatulea@nvidia.com> <20231219180858.120898-3-dtatulea@nvidia.com>
- <CACGkMEv7xQkZYJAgAUK6C3oUrZ9vuUJdTKRzihXcNPb-iWdpJw@mail.gmail.com>
- <CACGkMEsaaDGi63__YrvsTC1HqgTaEWHvGokK1bJS5+m1XYM-6w@mail.gmail.com>
- <CAJaqyWdoaj8a7q1KrGqWmkYvAw_R_p0utcWvDvkyVm1nUOAxrA@mail.gmail.com>
- <CACGkMEuM7bXxsxHUs_SodiDQ2+akrLqqzWZBJSZEcnMASUkb+g@mail.gmail.com>
- <CAJaqyWeBVVcTZEzZK=63Ymk85wnRFd+_wK56UfEHNXBH-qy1Zg@mail.gmail.com> <70adc734331c1289dceb3bcdc991f3da7e4db2f0.camel@nvidia.com>
-In-Reply-To: <70adc734331c1289dceb3bcdc991f3da7e4db2f0.camel@nvidia.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Thu, 21 Dec 2023 13:08:27 +0100
-Message-ID: <CAJaqyWeUHiZXMFkNBpinCsJAXojtPkGz+SjzUNDPx5W=qqON1w@mail.gmail.com>
-Subject: Re: [PATCH vhost v4 02/15] vdpa: Add VHOST_BACKEND_F_CHANGEABLE_VQ_ADDR_IN_SUSPEND
- flag
-To: Dragos Tatulea <dtatulea@nvidia.com>
-Cc: "jasowang@redhat.com" <jasowang@redhat.com>, 
-	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>, Parav Pandit <parav@nvidia.com>, 
-	"virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Gal Pressman <gal@nvidia.com>, 
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
-	"si-wei.liu@oracle.com" <si-wei.liu@oracle.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, 
-	"mst@redhat.com" <mst@redhat.com>, Saeed Mahameed <saeedm@nvidia.com>, "leon@kernel.org" <leon@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH net-next] virtio-net: switch napi_tx without downing nic
+To: Heng Qi <hengqi@linux.alibaba.com>
+Cc: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Alexei Starovoitov <ast@kernel.org>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+References: <f9f7d28624f8084ef07842ee569c22b324ee4055.1703059341.git.hengqi@linux.alibaba.com>
+ <d26c6d0b-92a1-4baa-bceb-dc267b5b60e6@linux.dev>
+ <46097ac2-c498-4b9f-898f-27ef097b9c85@linux.alibaba.com>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Zhu Yanjun <yanjun.zhu@linux.dev>
+In-Reply-To: <46097ac2-c498-4b9f-898f-27ef097b9c85@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-On Thu, Dec 21, 2023 at 12:52=E2=80=AFPM Dragos Tatulea <dtatulea@nvidia.co=
-m> wrote:
+
+在 2023/12/21 13:20, Heng Qi 写道:
 >
-> On Thu, 2023-12-21 at 08:46 +0100, Eugenio Perez Martin wrote:
-> > On Thu, Dec 21, 2023 at 3:03=E2=80=AFAM Jason Wang <jasowang@redhat.com=
-> wrote:
-> > >
-> > > On Wed, Dec 20, 2023 at 9:32=E2=80=AFPM Eugenio Perez Martin
-> > > <eperezma@redhat.com> wrote:
-> > > >
-> > > > On Wed, Dec 20, 2023 at 5:06=E2=80=AFAM Jason Wang <jasowang@redhat=
-.com> wrote:
-> > > > >
-> > > > > On Wed, Dec 20, 2023 at 11:46=E2=80=AFAM Jason Wang <jasowang@red=
-hat.com> wrote:
-> > > > > >
-> > > > > > On Wed, Dec 20, 2023 at 2:09=E2=80=AFAM Dragos Tatulea <dtatule=
-a@nvidia.com> wrote:
-> > > > > > >
-> > > > > > > The virtio spec doesn't allow changing virtqueue addresses af=
-ter
-> > > > > > > DRIVER_OK. Some devices do support this operation when the de=
-vice is
-> > > > > > > suspended. The VHOST_BACKEND_F_CHANGEABLE_VQ_ADDR_IN_SUSPEND =
-flag
-> > > > > > > advertises this support as a backend features.
-> > > > > >
-> > > > > > There's an ongoing effort in virtio spec to introduce the suspe=
-nd state.
-> > > > > >
-> > > > > > So I wonder if it's better to just allow such behaviour?
-> > > > >
-> > > > > Actually I mean, allow drivers to modify the parameters during su=
-spend
-> > > > > without a new feature.
-> > > > >
-> > > >
-> > > > That would be ideal, but how do userland checks if it can suspend +
-> > > > change properties + resume?
-> > >
-> > > As discussed, it looks to me the only device that supports suspend is
-> > > simulator and it supports change properties.
-> > >
-> > > E.g:
-> > >
-> > > static int vdpasim_set_vq_address(struct vdpa_device *vdpa, u16 idx,
-> > >                                   u64 desc_area, u64 driver_area,
-> > >                                   u64 device_area)
-> > > {
-> > >         struct vdpasim *vdpasim =3D vdpa_to_sim(vdpa);
-> > >         struct vdpasim_virtqueue *vq =3D &vdpasim->vqs[idx];
-> > >
-> > >         vq->desc_addr =3D desc_area;
-> > >         vq->driver_addr =3D driver_area;
-> > >         vq->device_addr =3D device_area;
-> > >
-> > >         return 0;
-> > > }
-> > >
-> >
-> > So in the current kernel master it is valid to set a different vq
-> > address while the device is suspended in vdpa_sim. But it is not valid
-> > in mlx5, as the FW will not be updated in resume (Dragos, please
-> > correct me if I'm wrong). Both of them return success.
-> >
-> In the current state, there is no resume. HW Virtqueues will just get re-=
-created
-> with the new address.
 >
-
-Oh, then all of this is effectively transparent to the userspace
-except for the time it takes?
-
-In that case you're right, we don't need feature flags. But I think it
-would be great to also move the error return in case userspace tries
-to modify vq parameters out of suspend state.
-
-Thanks!
-
-
-> > How can we know in the destination QEMU if it is valid to suspend &
-> > set address? Should we handle this as a bugfix and backport the
-> > change?
-> >
-> > > >
-> > > > The only way that comes to my mind is to make sure all parents retu=
-rn
-> > > > error if userland tries to do it, and then fallback in userland.
-> > >
-> > > Yes.
-> > >
-> > > > I'm
-> > > > ok with that, but I'm not sure if the current master & previous ker=
-nel
-> > > > has a coherent behavior. Do they return error? Or return success
-> > > > without changing address / vq state?
-> > >
-> > > We probably don't need to worry too much here, as e.g set_vq_address
-> > > could fail even without suspend (just at uAPI level).
-> > >
-> >
-> > I don't get this, sorry. I rephrased my point with an example earlier
-> > in the mail.
-> >
+> 在 2023/12/21 上午11:02, Zhu Yanjun 写道:
+>> 在 2023/12/20 16:07, Heng Qi 写道:
+>>> virtio-net has two ways to switch napi_tx: one is through the
+>>> module parameter, and the other is through coalescing parameter
+>>> settings (provided that the nic status is down).
+>>>
+>>> Sometimes we face performance regression caused by napi_tx,
+>>> then we need to switch napi_tx when debugging. However, the
+>>> existing methods are a bit troublesome, such as needing to
+>>> reload the driver or turn off the network card. So try to make
+>>> this update.
+>>
+>> What scenario can trigger this? We want to make tests on our device.
 >
+> Hi Zhu Yanjun, you can use the following cmds:
+>
+> ethtool -C tx-frames 0, to disable napi_tx
+> ethtool -C tx-frames 1, to enable napi_tx
 
+
+Thanks a lot. Just now I made tests on our device. I confirmed that 
+virtion_net driver can work well after running "ethtool -C NIC tx-frames 
+0 && sleep 3 && ethtool -C NIC tx-frames 1".
+
+You can add "Reviewed-and-tested-by: Zhu Yanjun <yanjun.zhu@linux.dev>"
+
+Thanks,
+
+Zhu Yanjun
+
+>
+> Thanks.
+>
+>>
+>> Zhu Yanjun
+>>
+>>>
+>>> Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
+>>> Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+>>> ---
+>>>   drivers/net/virtio_net.c | 81 
+>>> ++++++++++++++++++----------------------
+>>>   1 file changed, 37 insertions(+), 44 deletions(-)
+>>>
+>>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>>> index 10614e9f7cad..12f8e1f9971c 100644
+>>> --- a/drivers/net/virtio_net.c
+>>> +++ b/drivers/net/virtio_net.c
+>>> @@ -3559,16 +3559,37 @@ static int 
+>>> virtnet_coal_params_supported(struct ethtool_coalesce *ec)
+>>>       return 0;
+>>>   }
+>>>   -static int virtnet_should_update_vq_weight(int dev_flags, int 
+>>> weight,
+>>> -                       int vq_weight, bool *should_update)
+>>> +static void virtnet_switch_napi_tx(struct virtnet_info *vi, u32 
+>>> qstart,
+>>> +                   u32 qend, u32 tx_frames)
+>>>   {
+>>> -    if (weight ^ vq_weight) {
+>>> -        if (dev_flags & IFF_UP)
+>>> -            return -EBUSY;
+>>> -        *should_update = true;
+>>> -    }
+>>> +    struct net_device *dev = vi->dev;
+>>> +    int new_weight, cur_weight;
+>>> +    struct netdev_queue *txq;
+>>> +    struct send_queue *sq;
+>>>   -    return 0;
+>>> +    new_weight = tx_frames ? NAPI_POLL_WEIGHT : 0;
+>>> +    for (; qstart < qend; qstart++) {
+>>> +        sq = &vi->sq[qstart];
+>>> +        cur_weight = sq->napi.weight;
+>>> +        if (!(new_weight ^ cur_weight))
+>>> +            continue;
+>>> +
+>>> +        if (!(dev->flags & IFF_UP)) {
+>>> +            sq->napi.weight = new_weight;
+>>> +            continue;
+>>> +        }
+>>> +
+>>> +        if (cur_weight)
+>>> +            virtnet_napi_tx_disable(&sq->napi);
+>>> +
+>>> +        txq = netdev_get_tx_queue(dev, qstart);
+>>> +        __netif_tx_lock_bh(txq);
+>>> +        sq->napi.weight = new_weight;
+>>> +        __netif_tx_unlock_bh(txq);
+>>> +
+>>> +        if (!cur_weight)
+>>> +            virtnet_napi_tx_enable(vi, sq->vq, &sq->napi);
+>>> +    }
+>>>   }
+>>>     static int virtnet_set_coalesce(struct net_device *dev,
+>>> @@ -3577,25 +3598,11 @@ static int virtnet_set_coalesce(struct 
+>>> net_device *dev,
+>>>                   struct netlink_ext_ack *extack)
+>>>   {
+>>>       struct virtnet_info *vi = netdev_priv(dev);
+>>> -    int ret, queue_number, napi_weight;
+>>> -    bool update_napi = false;
+>>> -
+>>> -    /* Can't change NAPI weight if the link is up */
+>>> -    napi_weight = ec->tx_max_coalesced_frames ? NAPI_POLL_WEIGHT : 0;
+>>> -    for (queue_number = 0; queue_number < vi->max_queue_pairs; 
+>>> queue_number++) {
+>>> -        ret = virtnet_should_update_vq_weight(dev->flags, napi_weight,
+>>> - vi->sq[queue_number].napi.weight,
+>>> -                              &update_napi);
+>>> -        if (ret)
+>>> -            return ret;
+>>> -
+>>> -        if (update_napi) {
+>>> -            /* All queues that belong to [queue_number, 
+>>> vi->max_queue_pairs] will be
+>>> -             * updated for the sake of simplicity, which might not 
+>>> be necessary
+>>> -             */
+>>> -            break;
+>>> -        }
+>>> -    }
+>>> +    int ret;
+>>> +
+>>> +    /* Param tx_frames can be used to switch napi_tx */
+>>> +    virtnet_switch_napi_tx(vi, 0, vi->max_queue_pairs,
+>>> +                   ec->tx_max_coalesced_frames);
+>>>         if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_NOTF_COAL))
+>>>           ret = virtnet_send_notf_coal_cmds(vi, ec);
+>>> @@ -3605,11 +3612,6 @@ static int virtnet_set_coalesce(struct 
+>>> net_device *dev,
+>>>       if (ret)
+>>>           return ret;
+>>>   -    if (update_napi) {
+>>> -        for (; queue_number < vi->max_queue_pairs; queue_number++)
+>>> -            vi->sq[queue_number].napi.weight = napi_weight;
+>>> -    }
+>>> -
+>>>       return ret;
+>>>   }
+>>>   @@ -3641,19 +3643,13 @@ static int 
+>>> virtnet_set_per_queue_coalesce(struct net_device *dev,
+>>>                         struct ethtool_coalesce *ec)
+>>>   {
+>>>       struct virtnet_info *vi = netdev_priv(dev);
+>>> -    int ret, napi_weight;
+>>> -    bool update_napi = false;
+>>> +    int ret;
+>>>         if (queue >= vi->max_queue_pairs)
+>>>           return -EINVAL;
+>>>   -    /* Can't change NAPI weight if the link is up */
+>>> -    napi_weight = ec->tx_max_coalesced_frames ? NAPI_POLL_WEIGHT : 0;
+>>> -    ret = virtnet_should_update_vq_weight(dev->flags, napi_weight,
+>>> -                          vi->sq[queue].napi.weight,
+>>> -                          &update_napi);
+>>> -    if (ret)
+>>> -        return ret;
+>>> +    /* Param tx_frames can be used to switch napi_tx */
+>>> +    virtnet_switch_napi_tx(vi, queue, queue, 
+>>> ec->tx_max_coalesced_frames);
+>>>         if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL))
+>>>           ret = virtnet_send_notf_coal_vq_cmds(vi, ec, queue);
+>>> @@ -3663,9 +3659,6 @@ static int 
+>>> virtnet_set_per_queue_coalesce(struct net_device *dev,
+>>>       if (ret)
+>>>           return ret;
+>>>   -    if (update_napi)
+>>> -        vi->sq[queue].napi.weight = napi_weight;
+>>> -
+>>>       return 0;
+>>>   }
+>
