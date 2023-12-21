@@ -1,209 +1,200 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD14B6EB44
-	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 11:52:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EF606E594
+	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 12:09:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="Q60LB/fZ"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FSlC2V45"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 48F2C40179
-	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 11:52:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 48F2C40179
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=Q60LB/fZ
+	by smtp3.osuosl.org (Postfix) with ESMTP id 8798960AC9
+	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 12:09:09 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8798960AC9
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=FSlC2V45
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.103
+X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id gK4qfzWYTrhu
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id wSLvd8k-ykB0
 	for <virtualization@lists.linux-foundation.org>;
-	Thu, 21 Dec 2023 11:52:37 +0000 (UTC)
-Received: from NAM02-BN1-obe.outbound.protection.outlook.com (mail-bn1nam02on2060f.outbound.protection.outlook.com [IPv6:2a01:111:f400:7eb2::60f])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 9405640232
-	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 11:52:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9405640232
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=J1aO4dzA6q9UljqwPNi3JCD3QmcZeVgiWQFPeoevSzMZVt8RmE0yJ+A3VD7oMMsCQIqtYK3WwWgtp/4+HLPbhoeM9wHN9ecpq3yMHQ1sIzlft2slHMHskintTS/DOIOYeVYTEtPQzm7V9E7ElTjOUCndkZwd03IOBi16plxrC2fgVnHpBkyd+Lqn02kQlOUpGQ/AoVmZEukPRm8QFWztPxCdJ9cfzpCGy00gbpcx/i2hRNM8MbEH1BwVEbQoQSetgMJ/603iQX0iiJ7jF7zZqJThjNMqYEM9np9H4BQyb9tbv1jmBDxcUUXYVXJf5FTPw6LUGlyHG3HgbI3wJMLlNg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=U9FyfLHG6JekhDHvr0oYyzHvmEfJR6D8YFcQ3QRC334=;
- b=dFErdZeQkEd9MvtYzTcVi1iKs+qtJc6l9rlnpmfDS/OJUQvsUK7a4Ks3dJcP2umJZccpuO0Ndx/yrdyS/AnbT0++ADMPoEYLUle94eVFTkhD+baVoXO+DhjVL0t9sGIf/dSCaNsR/YftjlKfAZr+MHqJxWPspNmw5oqAM+emy4xHB+CVaMSpsLMzWwROEgTGIndTny/QySiqEL0FGT1V0ElrtFK3XR2rVPggyPZnezUtcQZMh/UtUIhl4XPOoQ1jwSfhFVbFc6J35KvkmGFoGr9v1U9gMfIBBYGQMU3Ygai/sssJq35tScQEye7zAvZCyumgHmr24rzGCZ1YEg6IXw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=U9FyfLHG6JekhDHvr0oYyzHvmEfJR6D8YFcQ3QRC334=;
- b=Q60LB/fZXhSfL5AGk+Iyxf9Ca5WvrQhk5krm94u1VAjQMitkGz5AjmAiW5VzTWOuXl5ZXTN7/6d7j60gkwQz32d0hTS+vHjGUmpV4gq46a62VIRcRJ/0emJUGWfk28opP5EDPkIgMWOzudwi4rGiwEx4j1hr/1pJQXJF5tuoq/SH2TBEoS0Wsel2EcBUGItWxEmKvBrlONIe7rYJUjyGObd6S+MRz6ejL4Y3HiQXEaIxxGMvPXbTw4TGXdmr19fCR1FU/GGnmycEpuity4ZP5w9mtqSnxLCh4+XALYY2wvmNkOsqwOFogidH6M4mMc20omU2xJChYbo1DVBvOZk/dQ==
-Received: from DM6PR12MB5565.namprd12.prod.outlook.com (2603:10b6:5:1b6::13)
- by BY5PR12MB4965.namprd12.prod.outlook.com (2603:10b6:a03:1c4::16) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7113.20; Thu, 21 Dec
- 2023 11:52:33 +0000
-Received: from DM6PR12MB5565.namprd12.prod.outlook.com
- ([fe80::bd76:47ad:38a9:a258]) by DM6PR12MB5565.namprd12.prod.outlook.com
- ([fe80::bd76:47ad:38a9:a258%5]) with mapi id 15.20.7113.019; Thu, 21 Dec 2023
- 11:52:33 +0000
-From: Dragos Tatulea <dtatulea@nvidia.com>
-To: "jasowang@redhat.com" <jasowang@redhat.com>, "eperezma@redhat.com"
-	<eperezma@redhat.com>
-CC: "xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>, Parav Pandit
-	<parav@nvidia.com>, "virtualization@lists.linux-foundation.org"
-	<virtualization@lists.linux-foundation.org>, Gal Pressman <gal@nvidia.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"si-wei.liu@oracle.com" <si-wei.liu@oracle.com>, "kvm@vger.kernel.org"
-	<kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, Saeed Mahameed
-	<saeedm@nvidia.com>, "leon@kernel.org" <leon@kernel.org>
-Subject: Re: [PATCH vhost v4 02/15] vdpa: Add
- VHOST_BACKEND_F_CHANGEABLE_VQ_ADDR_IN_SUSPEND flag
-Thread-Topic: [PATCH vhost v4 02/15] vdpa: Add
- VHOST_BACKEND_F_CHANGEABLE_VQ_ADDR_IN_SUSPEND flag
-Thread-Index:
- AQHaMqaBunnLiYiUz0i03/j7bu1zQ7CxiQYAgAAFTwCAAJ4xgIAA0diAgABf+YCAAES4AA==
-Date: Thu, 21 Dec 2023 11:52:33 +0000
-Message-ID: <70adc734331c1289dceb3bcdc991f3da7e4db2f0.camel@nvidia.com>
-References: <20231219180858.120898-1-dtatulea@nvidia.com>
-	 <20231219180858.120898-3-dtatulea@nvidia.com>
-	 <CACGkMEv7xQkZYJAgAUK6C3oUrZ9vuUJdTKRzihXcNPb-iWdpJw@mail.gmail.com>
-	 <CACGkMEsaaDGi63__YrvsTC1HqgTaEWHvGokK1bJS5+m1XYM-6w@mail.gmail.com>
-	 <CAJaqyWdoaj8a7q1KrGqWmkYvAw_R_p0utcWvDvkyVm1nUOAxrA@mail.gmail.com>
-	 <CACGkMEuM7bXxsxHUs_SodiDQ2+akrLqqzWZBJSZEcnMASUkb+g@mail.gmail.com>
-	 <CAJaqyWeBVVcTZEzZK=63Ymk85wnRFd+_wK56UfEHNXBH-qy1Zg@mail.gmail.com>
-In-Reply-To:
- <CAJaqyWeBVVcTZEzZK=63Ymk85wnRFd+_wK56UfEHNXBH-qy1Zg@mail.gmail.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-user-agent: Evolution 3.50.2 (3.50.2-1.fc39) 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: DM6PR12MB5565:EE_|BY5PR12MB4965:EE_
-x-ms-office365-filtering-correlation-id: 552eca50-0719-4b21-6a72-08dc021b5180
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info:
- qS/OLqTPNS8zdgLBbMnlfRMB47oyEbGrBmJ4zLh/cjMtmlhs/yqi/CrBeBzgTICp7XxRwuB0FFn4Xon5bO2ROsKJpi43IyUQ4fkeJxfFMhMI/i2JV6+Tp5v+BQKSzTortb0G54uP6K6pa2mKKtnxogiJpMPtevbOohnJlF/WZIRBi5YUQAwcDefVqfaA8ZqJckIBe3LQ0cmCJI0UUEBr9k03pKFAFWsdGMYjyuu7yRx/0fLWqlG4bkqEa8lsKa8IeAoaTzRTxBQiOyb4jXjDperx4B0oEHU9q8YLHKPBqL2Yq6xVG9SizVtphhs18d8qHlwitvHV4qN5OBDqlvieEEOQkyMgu7X4Qvde2xQzGBli/y5OQJkbrf9WKa7MxvgDraZwgNLCK6ubbCWIO5RZjYW2UxqmGgimvW1r7grfVaMNk8CKCBVk9YQJi5zPVOEhK5LNmlGY3HANrFFNNSJENjUwceXZ5f8i11XV7KqYUTX5I755GLiknWK+ebkkoXKSeOTSt0hB5R6AgJmoiMHem+OaVT8x2bgwT8tM+mbxVIoI9tdTjG5k3LtT9kLEuTklG/x0qaoe/L3TlUuh9CajeuDD3unEemuiNQIL9y26Ye6319w4762qR3fgPaOikSKG
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR12MB5565.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(346002)(136003)(396003)(39860400002)(366004)(376002)(230922051799003)(1800799012)(186009)(64100799003)(451199024)(478600001)(6486002)(71200400001)(6506007)(6512007)(36756003)(53546011)(66446008)(64756008)(66556008)(66476007)(91956017)(66946007)(76116006)(8676002)(83380400001)(8936002)(4326008)(2906002)(110136005)(5660300002)(54906003)(316002)(38100700002)(66899024)(4001150100001)(2616005)(122000001)(41300700001)(38070700009)(86362001);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?utf-8?B?WFdJSEc0VUNNVXpQdHQybWZkYm90QmZDS3o1SDBoZVRtTmpNcDVRcS9CQWFC?=
- =?utf-8?B?Y0psQVcyWGNZbDQrWXp0UDVxUXpYcTFIZnh6d0ozemFQWmtnL01CQ1BTOVd1?=
- =?utf-8?B?S1RaVUo4M0E1V1dYbTFlNTFGeVdIellYeEVETzc2T05DU3V0THYyUld2cndI?=
- =?utf-8?B?ci9UUlNBSEJVMzNxeGpHdFVYVjZENHlXa1F6WEhaeGU4UVIwTm1WMnkwTWZG?=
- =?utf-8?B?d0UwL0RtOW1pR1FvZGpJeFkxNFFpTnNkWmdzbFF4dXZkUnV4VnRzQnVneU9G?=
- =?utf-8?B?cU5DT0JSaFBBbWdWWER6Z2o0YUhWNnh0RVFDYy9aeElIek13V1NHR21ueHBi?=
- =?utf-8?B?Y2E0NnpWOUxOeGxEZXBZbVVSMHhiWWxUbFNnVHZlWHNZNGNtUkFnUE0wRndq?=
- =?utf-8?B?dVA0MngvMDBMdSsyOG9KZHpKdVVSKzQxQ2l2K1dwRzNGMTgxZGhXT1RxWC9E?=
- =?utf-8?B?aTdaUlRpK0VrS3dPNGswQURvZWVHY0Y5aldFMUFkekZQMW5PTDNmYjNHTGU4?=
- =?utf-8?B?ajRaS1E5b21MaUJtZjNYck5CY1o5REpyS2VNQlk2ZU1YSG4vazVYVVpHdTZX?=
- =?utf-8?B?RnNOWnp0TkxZQTRuNU1zUGdCbE1IMXc1REhnODA0RG9VeVBHUGxoZmdLNGpz?=
- =?utf-8?B?K0s1TGhkU3lrUlpZdXhaeEw1RkpPNndVcU1iOVBGWUl1Z1U4YXllN3lzUVd4?=
- =?utf-8?B?aVYzVTYzYU5ENnJEbzd3MWJXOGVtL005WjJiMUVMSGlFMTNHT1FXRmwxVEZv?=
- =?utf-8?B?ZTQzSFZiclZrNWxBUzlPa0xUNGZFYU1UbW5rbzRMSkw5ejZtVTd0eTNNa0RL?=
- =?utf-8?B?OUlPK1RFb3JoSEF2Um14d1dHR2twb0xNU285c0FMVDdWOGdBYTVmeE9rNjNL?=
- =?utf-8?B?Z01SSjVsaXgxT0I2dUxMRk9JUEwrSWgrZG8zK2pxdC9jemRod3R4eUJUdFlO?=
- =?utf-8?B?L3hhVldSSk5WbExDdWhrL1R6UjZZanpMOHI5Skd5WDlZS2Z2UW0zbjIvaWxM?=
- =?utf-8?B?cmRPZ0VDTHpvbWkzaFErVDE5SDRvbkY2VlBjRmRVTVkxQ1drT2kvaFZRZ0py?=
- =?utf-8?B?dkV1bC9sczBmSHhZdk1ibzhWRHRFRWsrRTZROXJ2cGQ2S2p2MzlsVHUvVGFh?=
- =?utf-8?B?dEJQaHZZK3dOdlg1ZG1iMVcwK244cnBoTXpuNGxvWmFSNENhVlpmY2swakhF?=
- =?utf-8?B?QkIrWXBEN0JRU3g0bzlEU282aGg1R1lVLzlvVEpVaW9ieHIxNjhiNUt2UytN?=
- =?utf-8?B?UFcxWmh5TFJVN3hXcS9DUTExZGRpb1U4dys4K3dDUVZ5ME5remNkSnR1OWdN?=
- =?utf-8?B?UmFJL1R1SHBWOFZyZEZaMDcvRFVjYkN4QTd1VlplVitmWmR5UUdwQndNVm4x?=
- =?utf-8?B?NzYvc2VWU3NwQ0gyMTQ4QjJ1NnhwWHJxdjB6dnVZME9TSE5laStoUVNoZUtM?=
- =?utf-8?B?WXRMbnVtQjRidm4zRUsxcUhFZ0EzZDViMkdCak41VHpBVlU4Q3JOZEhLTGtC?=
- =?utf-8?B?Wi82Qk01cEQ2ZGpGWjhPemhJVkNsaEc5OEJhb1BNeTdPVjNsbkplb2U2a0dM?=
- =?utf-8?B?dXhnL3pnTWpBU29uSEN4U29ydzhMVFAvU2dxNkZ4V0lNNmZYYk9CbzZ5OEp2?=
- =?utf-8?B?djNxaVRsZUhKRnRERW10NGk1SzlZdzlsZHhxYTlvRVJwaWl1YU93VGtjS2Ir?=
- =?utf-8?B?dmMvckwwVVU2VTlEQ09DUTluaVVvVHduMUtwQjdpVXFoc3hDUzY1WGdUaHRE?=
- =?utf-8?B?OC9RWGlvNlRjZ004T0dWSkZxZkRNZ3M4V2w2L0RyREZ1aTZvTVM3NTVCdHZB?=
- =?utf-8?B?eEtZb1pSYk5JR1JxR1lhMVI0OXp5NjlOcVFOQ0JJYko1QWJZOG5OYmNQcnhR?=
- =?utf-8?B?Wmp4N2Q4Q2p0TXg5ZjhnTnZZYjZuMmdBa01LVmhLRmVKa0VkNFhucGdsUDl2?=
- =?utf-8?B?MEtzcEN0Q0xQOEJuNFdGMk0zbWxEMFM3RnpyeXBITEhQellqbGh2SXNRRFJs?=
- =?utf-8?B?UUZpeWdibWVSaTB4aFV1aklXNHY0RWg2V3Ztc00wa0xJeGEwMmJEdkdWTUtT?=
- =?utf-8?B?b1A2eVdYQVpxblk2NTdVSklJblJMWFhnVjRzd0RJcW5zZFZDZlhuVmxOeUd0?=
- =?utf-8?B?dzR5TnE0d3UwZ1IzeDNrbWhLei9IMmNuUmtBb21UeE93ZGt0SU5HcEJqKy9N?=
- =?utf-8?Q?4tCJFADaxl3gN0K0jGChQfelj1UQeXPYCEbSlbVzl7Tq?=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <47C5FE835EA2EE4E802254CD3A2C07A0@namprd12.prod.outlook.com>
-Content-Transfer-Encoding: base64
+	Thu, 21 Dec 2023 12:09:08 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 7A76560A7F
+	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 12:09:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7A76560A7F
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1703160546;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=u2zddOQ1qeYa0ve/5dlXq/cgaEaRPGUue1VUy/g3vDE=;
+	b=FSlC2V45wHsApUV/R4OtDoTK2QSsXp3FxSOJDyDi9sX8EXewVemNBagcuSEW8yaf0CX2xZ
+	MSCGxofPFW6lI1P8lSYtPu/L8HmOR2rEQGXdbSYqK6wF9Q1SvZaDxyoVFTir9ImDmWmKme
+	wQIX5bH/tCIZhdg3UpaTiYAjIqepKtg=
+Received: from mail-yw1-f197.google.com (mail-yw1-f197.google.com
+ [209.85.128.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-618-DOHtsjrnNTGbUtilmEyJ5Q-1; Thu, 21 Dec 2023 07:09:05 -0500
+X-MC-Unique: DOHtsjrnNTGbUtilmEyJ5Q-1
+Received: by mail-yw1-f197.google.com with SMTP id 00721157ae682-5e76b663ef3so13227797b3.1
+        for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 04:09:05 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1703160545; x=1703765345;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=u2zddOQ1qeYa0ve/5dlXq/cgaEaRPGUue1VUy/g3vDE=;
+        b=GHHZTPPLGzEtV/h+Orj5O+6yNR8WaPoTGgHmC2v5mPqENx5R5znhG4xlobhII9fE79
+         5kkITEKRDFDxWNfKFiQ3HUyqLQDRtP9aggdf7/iePi8o+mCysa2VFcD2217L4NN+IfQm
+         66n7asKUbsG+RKiVe8BeK5JV+pX8vXtbgWuwG3qGJbUiySGc+V8urZ09vY6GtiPWN8LL
+         ZQWJP9y5HMgw08LeKYwUHlGRuUbRd9P0fUBGVb8cfrunwHtFS7EUnls1ys8WgaAgoez1
+         bgVuW5wprl9+a1nD/pt7OOHtJJN7xg96Oh5puGAQpAvHq/XioT5tawGAcqISjzs/30md
+         zZVA==
+X-Gm-Message-State: AOJu0YyOiJW/iq2IC6ykjaWwIjpMJ+XFUWj/QeCWw7d1VnEQ90AyR5NR
+	I5OCZmVfsVY4/vQdL3yX53HfaRuB/qZ1jqdxmSLo9VC50KhSOb9cyZeo6aTbkTpq2DvlpiNAT8Q
+	kDoA+xu0Noe0gYB+cJVv/hiuGGFFnatBPfnXai8CjVRCHmaGblJCkRQ4pIQ==
+X-Received: by 2002:a0d:eacc:0:b0:5e8:d7b2:cdcd with SMTP id t195-20020a0deacc000000b005e8d7b2cdcdmr1029737ywe.48.1703160544743;
+        Thu, 21 Dec 2023 04:09:04 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IE+wUNNsjF8vEWQGGMpBGoBAUApRdPfu53AYtmvTV2W30g5Q9Sc3RlTNwEHeRRatnR6DBa23ya1wKjB1B+7qt4=
+X-Received: by 2002:a0d:eacc:0:b0:5e8:d7b2:cdcd with SMTP id
+ t195-20020a0deacc000000b005e8d7b2cdcdmr1029718ywe.48.1703160543744; Thu, 21
+ Dec 2023 04:09:03 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: DM6PR12MB5565.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 552eca50-0719-4b21-6a72-08dc021b5180
-X-MS-Exchange-CrossTenant-originalarrivaltime: 21 Dec 2023 11:52:33.4008
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: pjMzZoWTDnhrrzPuFF+FfuKlaXve90bCqYFVqcOa6jF3ARAEQ7d1S2K3gGJOvcwt5WH9i0OLGXfSCQJxaUZPLQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR12MB4965
+References: <20231219180858.120898-1-dtatulea@nvidia.com> <20231219180858.120898-3-dtatulea@nvidia.com>
+ <CACGkMEv7xQkZYJAgAUK6C3oUrZ9vuUJdTKRzihXcNPb-iWdpJw@mail.gmail.com>
+ <CACGkMEsaaDGi63__YrvsTC1HqgTaEWHvGokK1bJS5+m1XYM-6w@mail.gmail.com>
+ <CAJaqyWdoaj8a7q1KrGqWmkYvAw_R_p0utcWvDvkyVm1nUOAxrA@mail.gmail.com>
+ <CACGkMEuM7bXxsxHUs_SodiDQ2+akrLqqzWZBJSZEcnMASUkb+g@mail.gmail.com>
+ <CAJaqyWeBVVcTZEzZK=63Ymk85wnRFd+_wK56UfEHNXBH-qy1Zg@mail.gmail.com> <70adc734331c1289dceb3bcdc991f3da7e4db2f0.camel@nvidia.com>
+In-Reply-To: <70adc734331c1289dceb3bcdc991f3da7e4db2f0.camel@nvidia.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Thu, 21 Dec 2023 13:08:27 +0100
+Message-ID: <CAJaqyWeUHiZXMFkNBpinCsJAXojtPkGz+SjzUNDPx5W=qqON1w@mail.gmail.com>
+Subject: Re: [PATCH vhost v4 02/15] vdpa: Add VHOST_BACKEND_F_CHANGEABLE_VQ_ADDR_IN_SUSPEND
+ flag
+To: Dragos Tatulea <dtatulea@nvidia.com>
+Cc: "jasowang@redhat.com" <jasowang@redhat.com>, 
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>, Parav Pandit <parav@nvidia.com>, 
+	"virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Gal Pressman <gal@nvidia.com>, 
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
+	"si-wei.liu@oracle.com" <si-wei.liu@oracle.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, 
+	"mst@redhat.com" <mst@redhat.com>, Saeed Mahameed <saeedm@nvidia.com>, "leon@kernel.org" <leon@kernel.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-T24gVGh1LCAyMDIzLTEyLTIxIGF0IDA4OjQ2ICswMTAwLCBFdWdlbmlvIFBlcmV6IE1hcnRpbiB3
-cm90ZToNCj4gT24gVGh1LCBEZWMgMjEsIDIwMjMgYXQgMzowM+KAr0FNIEphc29uIFdhbmcgPGph
-c293YW5nQHJlZGhhdC5jb20+IHdyb3RlOg0KPiA+IA0KPiA+IE9uIFdlZCwgRGVjIDIwLCAyMDIz
-IGF0IDk6MzLigK9QTSBFdWdlbmlvIFBlcmV6IE1hcnRpbg0KPiA+IDxlcGVyZXptYUByZWRoYXQu
-Y29tPiB3cm90ZToNCj4gPiA+IA0KPiA+ID4gT24gV2VkLCBEZWMgMjAsIDIwMjMgYXQgNTowNuKA
-r0FNIEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+IHdyb3RlOg0KPiA+ID4gPiANCj4g
-PiA+ID4gT24gV2VkLCBEZWMgMjAsIDIwMjMgYXQgMTE6NDbigK9BTSBKYXNvbiBXYW5nIDxqYXNv
-d2FuZ0ByZWRoYXQuY29tPiB3cm90ZToNCj4gPiA+ID4gPiANCj4gPiA+ID4gPiBPbiBXZWQsIERl
-YyAyMCwgMjAyMyBhdCAyOjA54oCvQU0gRHJhZ29zIFRhdHVsZWEgPGR0YXR1bGVhQG52aWRpYS5j
-b20+IHdyb3RlOg0KPiA+ID4gPiA+ID4gDQo+ID4gPiA+ID4gPiBUaGUgdmlydGlvIHNwZWMgZG9l
-c24ndCBhbGxvdyBjaGFuZ2luZyB2aXJ0cXVldWUgYWRkcmVzc2VzIGFmdGVyDQo+ID4gPiA+ID4g
-PiBEUklWRVJfT0suIFNvbWUgZGV2aWNlcyBkbyBzdXBwb3J0IHRoaXMgb3BlcmF0aW9uIHdoZW4g
-dGhlIGRldmljZSBpcw0KPiA+ID4gPiA+ID4gc3VzcGVuZGVkLiBUaGUgVkhPU1RfQkFDS0VORF9G
-X0NIQU5HRUFCTEVfVlFfQUREUl9JTl9TVVNQRU5EIGZsYWcNCj4gPiA+ID4gPiA+IGFkdmVydGlz
-ZXMgdGhpcyBzdXBwb3J0IGFzIGEgYmFja2VuZCBmZWF0dXJlcy4NCj4gPiA+ID4gPiANCj4gPiA+
-ID4gPiBUaGVyZSdzIGFuIG9uZ29pbmcgZWZmb3J0IGluIHZpcnRpbyBzcGVjIHRvIGludHJvZHVj
-ZSB0aGUgc3VzcGVuZCBzdGF0ZS4NCj4gPiA+ID4gPiANCj4gPiA+ID4gPiBTbyBJIHdvbmRlciBp
-ZiBpdCdzIGJldHRlciB0byBqdXN0IGFsbG93IHN1Y2ggYmVoYXZpb3VyPw0KPiA+ID4gPiANCj4g
-PiA+ID4gQWN0dWFsbHkgSSBtZWFuLCBhbGxvdyBkcml2ZXJzIHRvIG1vZGlmeSB0aGUgcGFyYW1l
-dGVycyBkdXJpbmcgc3VzcGVuZA0KPiA+ID4gPiB3aXRob3V0IGEgbmV3IGZlYXR1cmUuDQo+ID4g
-PiA+IA0KPiA+ID4gDQo+ID4gPiBUaGF0IHdvdWxkIGJlIGlkZWFsLCBidXQgaG93IGRvIHVzZXJs
-YW5kIGNoZWNrcyBpZiBpdCBjYW4gc3VzcGVuZCArDQo+ID4gPiBjaGFuZ2UgcHJvcGVydGllcyAr
-IHJlc3VtZT8NCj4gPiANCj4gPiBBcyBkaXNjdXNzZWQsIGl0IGxvb2tzIHRvIG1lIHRoZSBvbmx5
-IGRldmljZSB0aGF0IHN1cHBvcnRzIHN1c3BlbmQgaXMNCj4gPiBzaW11bGF0b3IgYW5kIGl0IHN1
-cHBvcnRzIGNoYW5nZSBwcm9wZXJ0aWVzLg0KPiA+IA0KPiA+IEUuZzoNCj4gPiANCj4gPiBzdGF0
-aWMgaW50IHZkcGFzaW1fc2V0X3ZxX2FkZHJlc3Moc3RydWN0IHZkcGFfZGV2aWNlICp2ZHBhLCB1
-MTYgaWR4LA0KPiA+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB1NjQgZGVzY19h
-cmVhLCB1NjQgZHJpdmVyX2FyZWEsDQo+ID4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgIHU2NCBkZXZpY2VfYXJlYSkNCj4gPiB7DQo+ID4gICAgICAgICBzdHJ1Y3QgdmRwYXNpbSAq
-dmRwYXNpbSA9IHZkcGFfdG9fc2ltKHZkcGEpOw0KPiA+ICAgICAgICAgc3RydWN0IHZkcGFzaW1f
-dmlydHF1ZXVlICp2cSA9ICZ2ZHBhc2ltLT52cXNbaWR4XTsNCj4gPiANCj4gPiAgICAgICAgIHZx
-LT5kZXNjX2FkZHIgPSBkZXNjX2FyZWE7DQo+ID4gICAgICAgICB2cS0+ZHJpdmVyX2FkZHIgPSBk
-cml2ZXJfYXJlYTsNCj4gPiAgICAgICAgIHZxLT5kZXZpY2VfYWRkciA9IGRldmljZV9hcmVhOw0K
-PiA+IA0KPiA+ICAgICAgICAgcmV0dXJuIDA7DQo+ID4gfQ0KPiA+IA0KPiANCj4gU28gaW4gdGhl
-IGN1cnJlbnQga2VybmVsIG1hc3RlciBpdCBpcyB2YWxpZCB0byBzZXQgYSBkaWZmZXJlbnQgdnEN
-Cj4gYWRkcmVzcyB3aGlsZSB0aGUgZGV2aWNlIGlzIHN1c3BlbmRlZCBpbiB2ZHBhX3NpbS4gQnV0
-IGl0IGlzIG5vdCB2YWxpZA0KPiBpbiBtbHg1LCBhcyB0aGUgRlcgd2lsbCBub3QgYmUgdXBkYXRl
-ZCBpbiByZXN1bWUgKERyYWdvcywgcGxlYXNlDQo+IGNvcnJlY3QgbWUgaWYgSSdtIHdyb25nKS4g
-Qm90aCBvZiB0aGVtIHJldHVybiBzdWNjZXNzLg0KPiANCkluIHRoZSBjdXJyZW50IHN0YXRlLCB0
-aGVyZSBpcyBubyByZXN1bWUuIEhXIFZpcnRxdWV1ZXMgd2lsbCBqdXN0IGdldCByZS1jcmVhdGVk
-DQp3aXRoIHRoZSBuZXcgYWRkcmVzcy4gDQoNCj4gSG93IGNhbiB3ZSBrbm93IGluIHRoZSBkZXN0
-aW5hdGlvbiBRRU1VIGlmIGl0IGlzIHZhbGlkIHRvIHN1c3BlbmQgJg0KPiBzZXQgYWRkcmVzcz8g
-U2hvdWxkIHdlIGhhbmRsZSB0aGlzIGFzIGEgYnVnZml4IGFuZCBiYWNrcG9ydCB0aGUNCj4gY2hh
-bmdlPw0KPiANCj4gPiA+IA0KPiA+ID4gVGhlIG9ubHkgd2F5IHRoYXQgY29tZXMgdG8gbXkgbWlu
-ZCBpcyB0byBtYWtlIHN1cmUgYWxsIHBhcmVudHMgcmV0dXJuDQo+ID4gPiBlcnJvciBpZiB1c2Vy
-bGFuZCB0cmllcyB0byBkbyBpdCwgYW5kIHRoZW4gZmFsbGJhY2sgaW4gdXNlcmxhbmQuDQo+ID4g
-DQo+ID4gWWVzLg0KPiA+IA0KPiA+ID4gSSdtDQo+ID4gPiBvayB3aXRoIHRoYXQsIGJ1dCBJJ20g
-bm90IHN1cmUgaWYgdGhlIGN1cnJlbnQgbWFzdGVyICYgcHJldmlvdXMga2VybmVsDQo+ID4gPiBo
-YXMgYSBjb2hlcmVudCBiZWhhdmlvci4gRG8gdGhleSByZXR1cm4gZXJyb3I/IE9yIHJldHVybiBz
-dWNjZXNzDQo+ID4gPiB3aXRob3V0IGNoYW5naW5nIGFkZHJlc3MgLyB2cSBzdGF0ZT8NCj4gPiAN
-Cj4gPiBXZSBwcm9iYWJseSBkb24ndCBuZWVkIHRvIHdvcnJ5IHRvbyBtdWNoIGhlcmUsIGFzIGUu
-ZyBzZXRfdnFfYWRkcmVzcw0KPiA+IGNvdWxkIGZhaWwgZXZlbiB3aXRob3V0IHN1c3BlbmQgKGp1
-c3QgYXQgdUFQSSBsZXZlbCkuDQo+ID4gDQo+IA0KPiBJIGRvbid0IGdldCB0aGlzLCBzb3JyeS4g
-SSByZXBocmFzZWQgbXkgcG9pbnQgd2l0aCBhbiBleGFtcGxlIGVhcmxpZXINCj4gaW4gdGhlIG1h
-aWwuDQo+IA0KDQo=
+On Thu, Dec 21, 2023 at 12:52=E2=80=AFPM Dragos Tatulea <dtatulea@nvidia.co=
+m> wrote:
+>
+> On Thu, 2023-12-21 at 08:46 +0100, Eugenio Perez Martin wrote:
+> > On Thu, Dec 21, 2023 at 3:03=E2=80=AFAM Jason Wang <jasowang@redhat.com=
+> wrote:
+> > >
+> > > On Wed, Dec 20, 2023 at 9:32=E2=80=AFPM Eugenio Perez Martin
+> > > <eperezma@redhat.com> wrote:
+> > > >
+> > > > On Wed, Dec 20, 2023 at 5:06=E2=80=AFAM Jason Wang <jasowang@redhat=
+.com> wrote:
+> > > > >
+> > > > > On Wed, Dec 20, 2023 at 11:46=E2=80=AFAM Jason Wang <jasowang@red=
+hat.com> wrote:
+> > > > > >
+> > > > > > On Wed, Dec 20, 2023 at 2:09=E2=80=AFAM Dragos Tatulea <dtatule=
+a@nvidia.com> wrote:
+> > > > > > >
+> > > > > > > The virtio spec doesn't allow changing virtqueue addresses af=
+ter
+> > > > > > > DRIVER_OK. Some devices do support this operation when the de=
+vice is
+> > > > > > > suspended. The VHOST_BACKEND_F_CHANGEABLE_VQ_ADDR_IN_SUSPEND =
+flag
+> > > > > > > advertises this support as a backend features.
+> > > > > >
+> > > > > > There's an ongoing effort in virtio spec to introduce the suspe=
+nd state.
+> > > > > >
+> > > > > > So I wonder if it's better to just allow such behaviour?
+> > > > >
+> > > > > Actually I mean, allow drivers to modify the parameters during su=
+spend
+> > > > > without a new feature.
+> > > > >
+> > > >
+> > > > That would be ideal, but how do userland checks if it can suspend +
+> > > > change properties + resume?
+> > >
+> > > As discussed, it looks to me the only device that supports suspend is
+> > > simulator and it supports change properties.
+> > >
+> > > E.g:
+> > >
+> > > static int vdpasim_set_vq_address(struct vdpa_device *vdpa, u16 idx,
+> > >                                   u64 desc_area, u64 driver_area,
+> > >                                   u64 device_area)
+> > > {
+> > >         struct vdpasim *vdpasim =3D vdpa_to_sim(vdpa);
+> > >         struct vdpasim_virtqueue *vq =3D &vdpasim->vqs[idx];
+> > >
+> > >         vq->desc_addr =3D desc_area;
+> > >         vq->driver_addr =3D driver_area;
+> > >         vq->device_addr =3D device_area;
+> > >
+> > >         return 0;
+> > > }
+> > >
+> >
+> > So in the current kernel master it is valid to set a different vq
+> > address while the device is suspended in vdpa_sim. But it is not valid
+> > in mlx5, as the FW will not be updated in resume (Dragos, please
+> > correct me if I'm wrong). Both of them return success.
+> >
+> In the current state, there is no resume. HW Virtqueues will just get re-=
+created
+> with the new address.
+>
+
+Oh, then all of this is effectively transparent to the userspace
+except for the time it takes?
+
+In that case you're right, we don't need feature flags. But I think it
+would be great to also move the error return in case userspace tries
+to modify vq parameters out of suspend state.
+
+Thanks!
+
+
+> > How can we know in the destination QEMU if it is valid to suspend &
+> > set address? Should we handle this as a bugfix and backport the
+> > change?
+> >
+> > > >
+> > > > The only way that comes to my mind is to make sure all parents retu=
+rn
+> > > > error if userland tries to do it, and then fallback in userland.
+> > >
+> > > Yes.
+> > >
+> > > > I'm
+> > > > ok with that, but I'm not sure if the current master & previous ker=
+nel
+> > > > has a coherent behavior. Do they return error? Or return success
+> > > > without changing address / vq state?
+> > >
+> > > We probably don't need to worry too much here, as e.g set_vq_address
+> > > could fail even without suspend (just at uAPI level).
+> > >
+> >
+> > I don't get this, sorry. I rephrased my point with an example earlier
+> > in the mail.
+> >
+>
+
