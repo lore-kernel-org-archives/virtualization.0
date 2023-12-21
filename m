@@ -1,172 +1,158 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52DA4156D4
-	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 07:47:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B565F4D5B0
+	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 10:01:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WAQqCzvq"
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="z/ryT7sP"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id D50F4405F1
-	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 07:47:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D50F4405F1
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=WAQqCzvq
+	by smtp3.osuosl.org (Postfix) with ESMTP id 2BFD5615B4
+	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 10:01:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2BFD5615B4
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=z/ryT7sP
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.099
+X-Spam-Score: -2.103
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ZqRqWwJJdAZD
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id G4q_DY92wXJL
 	for <virtualization@lists.linux-foundation.org>;
-	Thu, 21 Dec 2023 07:47:14 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 911FE40323
-	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 07:47:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 911FE40323
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1703144833;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=PlcV0Wl9P/jGyxXi9Ck909fZjHTENS6mZGvZmebR75E=;
-	b=WAQqCzvqYqSg5dxbPn0SlabbzYmcu2i3Uh1eF4t5vzRKoGTDS8oU+qzG0GUCJu4E5hEr3P
-	wR9SlruRuZhPg64NmPRxgjKgRlT/c+1S3srr8cgzHDg2UkhlYNgIyTavt9eKY5d7s2Su6P
-	ZCJG1oXgDEPYxYeFgLL8OtVjDd2Tvzc=
-Received: from mail-yw1-f200.google.com (mail-yw1-f200.google.com
- [209.85.128.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-308-EwfQxAr4OUSb4LEieUBkyg-1; Thu, 21 Dec 2023 02:47:11 -0500
-X-MC-Unique: EwfQxAr4OUSb4LEieUBkyg-1
-Received: by mail-yw1-f200.google.com with SMTP id 00721157ae682-5e8d966fbc0so5451907b3.1
-        for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 23:47:11 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703144831; x=1703749631;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=PlcV0Wl9P/jGyxXi9Ck909fZjHTENS6mZGvZmebR75E=;
-        b=NCNHkDeBRHOySV5Kn1VdXBYIDjE5kwlLkSbaYa/lLoOyhpr0UvjfpA8UVTbNxPYdgV
-         swfVLq+ArCkZsJ1nBLZiE+SXGLT+XEQNYp0dgeHYpTqiLgw9r1QLmdu+3GzN9fFLmQtP
-         O4T2k2OgE/YVUowuxxjvct22QqQBbqJGUANC3XrKBozC6/ZEW1WjcD6RxdrKn62d/L6L
-         ctlfJb3/b4zhC6ymyF4OwoUVAyM8E9v7InrHsbtLoc4vFrMhSHnVWCQsPZDTGMTvT1a4
-         hcNnGfmssjK74ngeowTXW0c0nUmLIgjxjPc5G+gASKSYHu2xeLwJtNy8R4uV8Jn/sOzN
-         QZfQ==
-X-Gm-Message-State: AOJu0YxFiPof667xaPfPkfxZJnD9HtSPW6L0sQRs+mLXM7YB6VFAstqu
-	/66+2ku1AuqwwbYLxO3KrU6bU8dzDv9pUY9NJQCZGptzY84lC5OVQjvIqa4l0UP+1ZavRbqNAff
-	ktjcc7eHB/MTjp1/FdLNDdNOwZZS0tY9bEvCiaHKp7prMFk0AvH0oq38T74xJdi2yVw==
-X-Received: by 2002:a0d:c884:0:b0:5e4:f37f:77bf with SMTP id k126-20020a0dc884000000b005e4f37f77bfmr137769ywd.44.1703144831317;
-        Wed, 20 Dec 2023 23:47:11 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IG4raem6zvLQ2SqFeGLOE9UsK5JmzVgNr2wDScKhZAihi30XayLStBJINxqev0P4dXtn5/fl8IbWI0WfvmYdcU=
-X-Received: by 2002:a0d:c884:0:b0:5e4:f37f:77bf with SMTP id
- k126-20020a0dc884000000b005e4f37f77bfmr137764ywd.44.1703144831077; Wed, 20
- Dec 2023 23:47:11 -0800 (PST)
+	Thu, 21 Dec 2023 10:01:15 +0000 (UTC)
+Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on20601.outbound.protection.outlook.com [IPv6:2a01:111:f400:7eae::601])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id C147C60B27
+	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 10:01:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C147C60B27
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=m0Ew2dtPc6oQhx3eoWAqf8xS+o/P51fetzU5kg6vzv7t7UkWPiFnmB1j03D4bpUeyRbrwvyYFj0qCCy/fxBhJzFExLja+jpMYQiW85jWBTuLUSK64lbJXLx1Ex/ffBIrrZc0SPnL621G72UnPeQkfGPzzdtx0r26GiAABvMgHR8cGZR8PC29mZjFfIhfaodH8o4nCMp6V+tcs292HQrS3SpaHNRNd89WqRnQ0maS72NlF/r0n/J5rbEZG2+edlNK02NJauyj4g0vS2IG2D5HUieV4fUSRvfHYb6/IY9wuODXjZDy1J36lhbb42byV0ipsvlNO/BZWUayezsgyVTJJQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=kIqUW4wHlwuRx/2Dx9D0HbGlKskmFLu/rdd8JsqSDDs=;
+ b=H68cHQQkCov2oOJiQmTpx66K+a210mScsnT1noJrghaTDeqhhs1Vn+573LRO1oDzDBJikfaRbDuNor/2GHV1Wvj9uZ+d9iXN72V5QOlSGZieaskYKRzl4kMTylP1MXuCCqodQdiOQj5lS+F/VuNtdf+UYkZL/FyrtmQSItpg7HUkYWeGlMuDwX8fRKUbaXfAOVmUaDCQnAdu2IPSnS73GCc8sAJp9xtbK5+yac5aei3wYs1C5geMlyOboXrb3FpvXN0RtMszHXmuB2WNfToZ9Y0Y1J87AFujDwHM7LH87qOjZfyC+vHTsdtwPdsLb3w6rD0bitd0nr2QQd4Nyq0NrQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=chromium.org smtp.mailfrom=amd.com;
+ dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
+ header.from=amd.com; dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=kIqUW4wHlwuRx/2Dx9D0HbGlKskmFLu/rdd8JsqSDDs=;
+ b=z/ryT7sPSUO0qwEFyXZqhKPGBi00EHlymTyfoL0nbsaaLxIlZ/Ui2b+/eXmWPOXw0fHhHxdxWZtAkLjXZv59vaO2kjMGGCgbnSeQcfhDXWTZyr46wZup3QMwb2SjHLtye1v/mpyE9A4aLjb5JJn42/azZ3w82D3VxarjYBrpOMA=
+Received: from SJ0PR03CA0126.namprd03.prod.outlook.com (2603:10b6:a03:33c::11)
+ by IA0PR12MB8693.namprd12.prod.outlook.com (2603:10b6:208:48e::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7113.18; Thu, 21 Dec
+ 2023 10:01:12 +0000
+Received: from MWH0EPF000971E5.namprd02.prod.outlook.com
+ (2603:10b6:a03:33c:cafe::22) by SJ0PR03CA0126.outlook.office365.com
+ (2603:10b6:a03:33c::11) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7113.21 via Frontend
+ Transport; Thu, 21 Dec 2023 10:01:11 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
+Received: from SATLEXMB04.amd.com (165.204.84.17) by
+ MWH0EPF000971E5.mail.protection.outlook.com (10.167.243.73) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.7113.14 via Frontend Transport; Thu, 21 Dec 2023 10:01:11 +0000
+Received: from jenkins-julia.amd.com (10.180.168.240) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.34; Thu, 21 Dec
+ 2023 04:00:45 -0600
+From: Julia Zhang <julia.zhang@amd.com>
+To: Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+	<olvaffe@gmail.com>, David Airlie <airlied@redhat.com>, Gerd Hoffmann
+	<kraxel@redhat.com>, <linux-kernel@vger.kernel.org>,
+	<dri-devel@lists.freedesktop.org>, <amd-gfx@lists.freedesktop.org>,
+	<virtualization@lists.linux-foundation.org>
+CC: Alex Deucher <alexander.deucher@amd.com>,
+	=?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>, Daniel Vetter
+	<daniel@ffwll.ch>, David Airlie <airlied@gmail.com>, Erik Faye-Lund
+	<kusmabite@gmail.com>, =?UTF-8?q?Marek=20Ol=C5=A1=C3=A1k?=
+	<marek.olsak@amd.com>, Pierre-Eric Pelloux-Prayer
+	<pierre-eric.pelloux-prayer@amd.com>, Honglei Huang <honglei1.huang@amd.com>,
+	Chen Jiqian <Jiqian.Chen@amd.com>, Huang Rui <ray.huang@amd.com>, Julia Zhang
+	<julia.zhang@amd.com>
+Subject: [PATCH v2 0/1]  Implementation of resource_query_layout
+Date: Thu, 21 Dec 2023 18:00:15 +0800
+Message-ID: <20231221100016.4022353-1-julia.zhang@amd.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20231219180858.120898-1-dtatulea@nvidia.com> <20231219180858.120898-3-dtatulea@nvidia.com>
- <CACGkMEv7xQkZYJAgAUK6C3oUrZ9vuUJdTKRzihXcNPb-iWdpJw@mail.gmail.com>
- <CACGkMEsaaDGi63__YrvsTC1HqgTaEWHvGokK1bJS5+m1XYM-6w@mail.gmail.com>
- <CAJaqyWdoaj8a7q1KrGqWmkYvAw_R_p0utcWvDvkyVm1nUOAxrA@mail.gmail.com> <CACGkMEuM7bXxsxHUs_SodiDQ2+akrLqqzWZBJSZEcnMASUkb+g@mail.gmail.com>
-In-Reply-To: <CACGkMEuM7bXxsxHUs_SodiDQ2+akrLqqzWZBJSZEcnMASUkb+g@mail.gmail.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Thu, 21 Dec 2023 08:46:35 +0100
-Message-ID: <CAJaqyWeBVVcTZEzZK=63Ymk85wnRFd+_wK56UfEHNXBH-qy1Zg@mail.gmail.com>
-Subject: Re: [PATCH vhost v4 02/15] vdpa: Add VHOST_BACKEND_F_CHANGEABLE_VQ_ADDR_IN_SUSPEND
- flag
-To: Jason Wang <jasowang@redhat.com>
-Cc: Dragos Tatulea <dtatulea@nvidia.com>, "Michael S . Tsirkin" <mst@redhat.com>, 
-	Si-Wei Liu <si-wei.liu@oracle.com>, Saeed Mahameed <saeedm@nvidia.com>, 
-	Leon Romanovsky <leon@kernel.org>, virtualization@lists.linux-foundation.org, 
-	Gal Pressman <gal@nvidia.com>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Parav Pandit <parav@nvidia.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
+ (10.181.40.145)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: MWH0EPF000971E5:EE_|IA0PR12MB8693:EE_
+X-MS-Office365-Filtering-Correlation-Id: f21830e3-4559-4470-e980-08dc020bc2d8
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	PywOhVOVcwjMNVb3y3nXMhFDc/0kzY80NASvX0DG0LmxQetXCP7S7v35WNG8CZa2+vimDBy7tJNLXDkXp12WPiGJBjdSISz7anAVPEP7XQoZNpIzeNkS+eAp4YdXQQo+F4nkhLU741QtCykWQRjcAqpzARq5k94KbTeaq6DJ/Lkl7JyIRXHpAyF/UhlaaQIfdPe1qIDW6ZniSxzhX1FiMNFvjuQq77dVhysnOGB0SnQuJ1uXRwrDmTr76bv8GEs1OAeIuPHYi6p3oyjPRqcMBSiXd41JG2LM4DBdcHo/MGTTiM2uEsXkZ+Qua1DOrXu8ymeZsZjr6ITW38jBIHnzsVtpVD3ERwEef94i7welivNeyb8783DCPTB8RvM/RFJjEESFPLHmTjaxfO1OcEeaGhfcbOmgA9bhmXAwBb2UJTkAz38jqsUDk2VnjSMa6SUMS4LV1nY221rHrVcPf1LRzpfDQ5tI8kEo55S2wvFJRksxoOoyIOGjDcFyQjSL0PG9/aMCZiPuZMU7hNERfCiLXqSJsBGalHwyD0HkDSN54CbIGUbdyK15rxwNx+qNnwV1f5w5UMgACJ54HlBScZWbcfY/USz3qMl5ZOBqCkuOk037DOUdlbwXCUarGUAS8F8AMqlNW6V9Dwybe+dR7KH/txU+1HScvmfsWqS46+6Sw2woQJ1SSvXfgbiQ5yjajS9WLmOBvkGWWxDcmd52fjEvSbqrQCidYzgjBW6P2yREYamCUaLLgHvnjlvgUbaAASUYMi6AQw8dP+uLfjpwqq3Yzg==
+X-Forefront-Antispam-Report:
+	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230031)(4636009)(39860400002)(136003)(396003)(376002)(346002)(230922051799003)(186009)(1800799012)(64100799003)(82310400011)(451199024)(46966006)(36840700001)(40470700004)(336012)(6666004)(1076003)(2616005)(16526019)(26005)(426003)(7696005)(7416002)(47076005)(83380400001)(478600001)(110136005)(8676002)(36860700001)(4326008)(41300700001)(54906003)(5660300002)(44832011)(70206006)(316002)(70586007)(356005)(82740400003)(81166007)(8936002)(86362001)(36756003)(2906002)(40460700003)(40480700001)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Dec 2023 10:01:11.5252
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: f21830e3-4559-4470-e980-08dc020bc2d8
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	MWH0EPF000971E5.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA0PR12MB8693
 
-On Thu, Dec 21, 2023 at 3:03=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
-ote:
->
-> On Wed, Dec 20, 2023 at 9:32=E2=80=AFPM Eugenio Perez Martin
-> <eperezma@redhat.com> wrote:
-> >
-> > On Wed, Dec 20, 2023 at 5:06=E2=80=AFAM Jason Wang <jasowang@redhat.com=
-> wrote:
-> > >
-> > > On Wed, Dec 20, 2023 at 11:46=E2=80=AFAM Jason Wang <jasowang@redhat.=
-com> wrote:
-> > > >
-> > > > On Wed, Dec 20, 2023 at 2:09=E2=80=AFAM Dragos Tatulea <dtatulea@nv=
-idia.com> wrote:
-> > > > >
-> > > > > The virtio spec doesn't allow changing virtqueue addresses after
-> > > > > DRIVER_OK. Some devices do support this operation when the device=
- is
-> > > > > suspended. The VHOST_BACKEND_F_CHANGEABLE_VQ_ADDR_IN_SUSPEND flag
-> > > > > advertises this support as a backend features.
-> > > >
-> > > > There's an ongoing effort in virtio spec to introduce the suspend s=
-tate.
-> > > >
-> > > > So I wonder if it's better to just allow such behaviour?
-> > >
-> > > Actually I mean, allow drivers to modify the parameters during suspen=
-d
-> > > without a new feature.
-> > >
-> >
-> > That would be ideal, but how do userland checks if it can suspend +
-> > change properties + resume?
->
-> As discussed, it looks to me the only device that supports suspend is
-> simulator and it supports change properties.
->
-> E.g:
->
-> static int vdpasim_set_vq_address(struct vdpa_device *vdpa, u16 idx,
->                                   u64 desc_area, u64 driver_area,
->                                   u64 device_area)
-> {
->         struct vdpasim *vdpasim =3D vdpa_to_sim(vdpa);
->         struct vdpasim_virtqueue *vq =3D &vdpasim->vqs[idx];
->
->         vq->desc_addr =3D desc_area;
->         vq->driver_addr =3D driver_area;
->         vq->device_addr =3D device_area;
->
->         return 0;
-> }
->
+Hi all,
 
-So in the current kernel master it is valid to set a different vq
-address while the device is suspended in vdpa_sim. But it is not valid
-in mlx5, as the FW will not be updated in resume (Dragos, please
-correct me if I'm wrong). Both of them return success.
+Sorry to late reply. This is v2 of the implementation of
+resource_query_layout. This adds a new ioctl to let guest query information
+of host resource, which is originally from Daniel Stone. We add some
+changes to support query the correct stride of host resource before it's
+created, which is to support to blit data from dGPU to virtio iGPU for dGPU
+prime feature. 
 
-How can we know in the destination QEMU if it is valid to suspend &
-set address? Should we handle this as a bugfix and backport the
-change?
+Changes from v1 to v2:
+-Squash two patches to a single patch. 
+-A small modification of VIRTIO_GPU_F_RESOURCE_QUERY_LAYOUT
 
-> >
-> > The only way that comes to my mind is to make sure all parents return
-> > error if userland tries to do it, and then fallback in userland.
->
-> Yes.
->
-> > I'm
-> > ok with that, but I'm not sure if the current master & previous kernel
-> > has a coherent behavior. Do they return error? Or return success
-> > without changing address / vq state?
->
-> We probably don't need to worry too much here, as e.g set_vq_address
-> could fail even without suspend (just at uAPI level).
->
 
-I don't get this, sorry. I rephrased my point with an example earlier
-in the mail.
+Below is description of v1:
+This add implementation of resource_query_layout to get the information of
+how the host has actually allocated the buffer. This function is now used
+to query the stride for guest linear resource for dGPU prime on guest VMs.
+
+v1 of kernel side:
+ https:
+//lore.kernel.org/xen-devel/20231110074027.24862-1-julia.zhang@amd.com/T/#t
+
+v1 of qemu side:
+https:
+//lore.kernel.org/qemu-devel/20231110074027.24862-1-julia.zhang@amd.com/T/#t
+
+Daniel Stone (1):
+  drm/virtio: Implement RESOURCE_GET_LAYOUT ioctl
+
+ drivers/gpu/drm/virtio/virtgpu_drv.c   |  1 +
+ drivers/gpu/drm/virtio/virtgpu_drv.h   | 22 ++++++++-
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c | 66 ++++++++++++++++++++++++++
+ drivers/gpu/drm/virtio/virtgpu_kms.c   |  8 +++-
+ drivers/gpu/drm/virtio/virtgpu_vq.c    | 63 ++++++++++++++++++++++++
+ include/uapi/drm/virtgpu_drm.h         | 21 ++++++++
+ include/uapi/linux/virtio_gpu.h        | 30 ++++++++++++
+ 7 files changed, 208 insertions(+), 3 deletions(-)
+
+-- 
+2.34.1
 
