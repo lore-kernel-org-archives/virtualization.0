@@ -1,412 +1,157 @@
-Received: from mail-yw1-f202.google.com (mail-yw1-f202.google.com [209.85.128.202])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86ECE4B5A4
-	for <virtualization@lists.linux.dev>; Wed, 20 Dec 2023 21:45:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--almasrymina.bounces.google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C478E63A1
+	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 02:03:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="BcU0VXKV"
-Received: by mail-yw1-f202.google.com with SMTP id 00721157ae682-5e526de698cso3515487b3.0
-        for <virtualization@lists.linux.dev>; Wed, 20 Dec 2023 13:45:15 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1703108714; x=1703713514; darn=lists.linux.dev;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=pSfGiYEOSrWhT7vJRbksaXM9O2Vnhi91teaNhuWoGzQ=;
-        b=BcU0VXKVNlqZMgW8DvWszeOzfAYoEAEjyrBSW0NjF2kOKcT0GQnmFidAW5GUPnL/ik
-         PGEJTaQUkLaqDChbfFwpi0YIOcf3lcifdXtBsCeh1/j3XFSBVn7OzCzlCHttFKK9sUjc
-         r+rm0Ec2s4fN12zQXQ9oKnDMGFPbUdxDW/yuVsXRIcuAJMuJhMIefecqkHC31aHBkJLg
-         4MmEBfyhV5/48QKeyoaoJKqVugqW48IHHT9kTbICBkKE9F/3nshRBkySG5ni9e1BqNX/
-         26Qi4wZTgvv0PgeC8VmaOrqTUINpuxc5BOc2D1TIOjue346uy2AEWnhX634eRPLDZRFG
-         Mu4Q==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FlpHFSmR"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 53CA64016B
+	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 02:03:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 53CA64016B
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=FlpHFSmR
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id XKYPGeqoek0X
+	for <virtualization@lists.linux-foundation.org>;
+	Thu, 21 Dec 2023 02:03:21 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 1AA154013B
+	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 02:03:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1AA154013B
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1703124200;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=YVgqAvwwX5PZ+K0StsYhb5ohbh7FF/syTZKMQDbQ9v4=;
+	b=FlpHFSmRxISlxdC4imaprHhmFqKZce5fhdrYcJG5zeNt5zUUr13BPs5vKUnVDqwIod9bPw
+	dGvyAe+DqWJdSqvM99IiFoCXqKj+fopdsKNYpgiPHqn2b5nlG/WL1DjWIJxjKSIprXOQHO
+	XeqUiKgearbMNEN0p0j4hGUG3SND7O8=
+Received: from mail-pf1-f197.google.com (mail-pf1-f197.google.com
+ [209.85.210.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-482-sQPBweJUOzmUM9GJKQwmPQ-1; Wed, 20 Dec 2023 21:03:17 -0500
+X-MC-Unique: sQPBweJUOzmUM9GJKQwmPQ-1
+Received: by mail-pf1-f197.google.com with SMTP id d2e1a72fcca58-6d289e2b084so352528b3a.2
+        for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 18:03:17 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703108714; x=1703713514;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=pSfGiYEOSrWhT7vJRbksaXM9O2Vnhi91teaNhuWoGzQ=;
-        b=Hp3Mmw45QjXnfw9qjbThlGtagihcM2AMM2mDHcacNs4Bh20EWjQWwuX9sbuj9oPpmw
-         lJ3RLz3kzRLDw2uq/HbO9asLjT1AztDHJwAtIcVuGp73wRDZncoEAcCcgOXrwlrvRRqQ
-         4vU6tlSWDnW+nEAOOj1bqw4exHy8xE0plfndorTgskeqqhZ6Ojl69wfRcsYhASl3DuzN
-         HmdL5UreUpMTELo42WmWGMtBRL7sdN06t1nsl4evzBMjwYnsY1aogvGCU85qJrIOxZfF
-         KErOpOuouEUddPvSfu5oray0wSpz1CphfTzCLB/F9LxOrcOZ2SbHWyo/Le364k1agxl+
-         N4eg==
-X-Gm-Message-State: AOJu0YwZ5big/C7S9LPUezWLbWVXEoTH7uI4KibPO4eKonct1HmOWyGE
-	962X3uMyHTY2rcCrWkXuDhpA/Qo4BqJdSsI0tA==
-X-Google-Smtp-Source: AGHT+IHGnbashIz1SnTXMKMKvKthPIu5jQx0h2f9n011BQPb1PwmsgUuJz+sHAqzL844RMkRhALqJcU2quPBzfn1uQ==
-X-Received: from almasrymina.svl.corp.google.com ([2620:15c:2c4:200:13cc:a33:a435:3fe9])
- (user=almasrymina job=sendgmr) by 2002:a05:690c:3510:b0:5d7:29d7:8a35 with
- SMTP id fq16-20020a05690c351000b005d729d78a35mr207421ywb.5.1703108714801;
- Wed, 20 Dec 2023 13:45:14 -0800 (PST)
-Date: Wed, 20 Dec 2023 13:45:02 -0800
-In-Reply-To: <20231220214505.2303297-1-almasrymina@google.com>
+        d=1e100.net; s=20230601; t=1703124196; x=1703728996;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=YVgqAvwwX5PZ+K0StsYhb5ohbh7FF/syTZKMQDbQ9v4=;
+        b=kVLcAaIZgAaEwcFY4BLIoYuLNp3GCfEAvzs0twc5nGIgbZLS1MpTO9nGCDwMhwhf2h
+         rTtlLDz41oExL6lJvYgFLDR7tLWBpEVRd4GkyKEnC4jgDZ0nB4/auOlnSbm75xcTazIo
+         W51T/sAmuBiJ7gjHOFjCLTPg2UM2ExB5Grc78OGzo0DA32qZj/CEXpuuyFabTrSknPnV
+         d/qJl2ixJAunSrJhLSM4ml2z2AyvUHyAwHCb6lSLFE+Bz8xUqyurocBL1ZzugHZzqi8G
+         f9fM2hrwe+rYeoGcqddxA5kiqIqFmgdfgv2ku/LO+0oglpobQDII8olphUXTxDz/kPin
+         wYBw==
+X-Gm-Message-State: AOJu0Yzxw7UBuK6hK/oa7buX9lHa1KBJKx8jQgjjs0QvOAx3ahIkdv0D
+	9tVhuD27NWGlsvUB0+xIDeMy9WfHGKaTvbyEpfW4gfrA7pX4w0V8tmEyuHk4SZ3bnxgff1f5hiY
+	DHooA5JJgduzJh2SU1WLZnJ9ryhiZO8KYNWynooHWrrL+UbfuD90tUGH/og==
+X-Received: by 2002:a05:6a00:708:b0:6d9:46f4:4226 with SMTP id 8-20020a056a00070800b006d946f44226mr2361719pfl.20.1703124196283;
+        Wed, 20 Dec 2023 18:03:16 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IF/KGKYSCtd/fkWAWhBJnYkjiak2fMrNDbFAXlC8oYYs9VT364GRHf9AqL3ddt2MNKwq9lVLHfwyUtJQ0JG1u4=
+X-Received: by 2002:a05:6a00:708:b0:6d9:46f4:4226 with SMTP id
+ 8-20020a056a00070800b006d946f44226mr2361704pfl.20.1703124196001; Wed, 20 Dec
+ 2023 18:03:16 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20231220214505.2303297-1-almasrymina@google.com>
-X-Mailer: git-send-email 2.43.0.472.g3155946c3a-goog
-Message-ID: <20231220214505.2303297-4-almasrymina@google.com>
-Subject: [PATCH net-next v3 3/3] net: add netmem_ref to skb_frag_t
-From: Mina Almasry <almasrymina@google.com>
-To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, kvm@vger.kernel.org, 
-	virtualization@lists.linux.dev
-Cc: Mina Almasry <almasrymina@google.com>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, 
-	David Howells <dhowells@redhat.com>, Jason Gunthorpe <jgg@nvidia.com>, 
-	"=?UTF-8?q?Christian=20K=C3=B6nig?=" <christian.koenig@amd.com>, Shakeel Butt <shakeelb@google.com>, 
-	Yunsheng Lin <linyunsheng@huawei.com>, Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+MIME-Version: 1.0
+References: <20231219180858.120898-1-dtatulea@nvidia.com> <20231219180858.120898-3-dtatulea@nvidia.com>
+ <CACGkMEv7xQkZYJAgAUK6C3oUrZ9vuUJdTKRzihXcNPb-iWdpJw@mail.gmail.com>
+ <CACGkMEsaaDGi63__YrvsTC1HqgTaEWHvGokK1bJS5+m1XYM-6w@mail.gmail.com> <CAJaqyWdoaj8a7q1KrGqWmkYvAw_R_p0utcWvDvkyVm1nUOAxrA@mail.gmail.com>
+In-Reply-To: <CAJaqyWdoaj8a7q1KrGqWmkYvAw_R_p0utcWvDvkyVm1nUOAxrA@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 21 Dec 2023 10:03:05 +0800
+Message-ID: <CACGkMEuM7bXxsxHUs_SodiDQ2+akrLqqzWZBJSZEcnMASUkb+g@mail.gmail.com>
+Subject: Re: [PATCH vhost v4 02/15] vdpa: Add VHOST_BACKEND_F_CHANGEABLE_VQ_ADDR_IN_SUSPEND
+ flag
+To: Eugenio Perez Martin <eperezma@redhat.com>
+Cc: Dragos Tatulea <dtatulea@nvidia.com>, "Michael S . Tsirkin" <mst@redhat.com>, 
+	Si-Wei Liu <si-wei.liu@oracle.com>, Saeed Mahameed <saeedm@nvidia.com>, 
+	Leon Romanovsky <leon@kernel.org>, virtualization@lists.linux-foundation.org, 
+	Gal Pressman <gal@nvidia.com>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Parav Pandit <parav@nvidia.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Use netmem_ref instead of page in skb_frag_t. Currently netmem_ref
-is always a struct page underneath, but the abstraction allows efforts
-to add support for skb frags not backed by pages.
+On Wed, Dec 20, 2023 at 9:32=E2=80=AFPM Eugenio Perez Martin
+<eperezma@redhat.com> wrote:
+>
+> On Wed, Dec 20, 2023 at 5:06=E2=80=AFAM Jason Wang <jasowang@redhat.com> =
+wrote:
+> >
+> > On Wed, Dec 20, 2023 at 11:46=E2=80=AFAM Jason Wang <jasowang@redhat.co=
+m> wrote:
+> > >
+> > > On Wed, Dec 20, 2023 at 2:09=E2=80=AFAM Dragos Tatulea <dtatulea@nvid=
+ia.com> wrote:
+> > > >
+> > > > The virtio spec doesn't allow changing virtqueue addresses after
+> > > > DRIVER_OK. Some devices do support this operation when the device i=
+s
+> > > > suspended. The VHOST_BACKEND_F_CHANGEABLE_VQ_ADDR_IN_SUSPEND flag
+> > > > advertises this support as a backend features.
+> > >
+> > > There's an ongoing effort in virtio spec to introduce the suspend sta=
+te.
+> > >
+> > > So I wonder if it's better to just allow such behaviour?
+> >
+> > Actually I mean, allow drivers to modify the parameters during suspend
+> > without a new feature.
+> >
+>
+> That would be ideal, but how do userland checks if it can suspend +
+> change properties + resume?
 
-There is unfortunately 1 instance where the skb_frag_t is assumed to be
-a bio_vec in kcm. For this case, add a debug assert that the skb frag is
-indeed backed by a page, and do a cast.
+As discussed, it looks to me the only device that supports suspend is
+simulator and it supports change properties.
 
-Add skb[_frag]_fill_netmem_*() and skb_add_rx_frag_netmem() helpers so
-that the API can be used to create netmem skbs.
+E.g:
 
-Signed-off-by: Mina Almasry <almasrymina@google.com>
+static int vdpasim_set_vq_address(struct vdpa_device *vdpa, u16 idx,
+                                  u64 desc_area, u64 driver_area,
+                                  u64 device_area)
+{
+        struct vdpasim *vdpasim =3D vdpa_to_sim(vdpa);
+        struct vdpasim_virtqueue *vq =3D &vdpasim->vqs[idx];
 
----
+        vq->desc_addr =3D desc_area;
+        vq->driver_addr =3D driver_area;
+        vq->device_addr =3D device_area;
 
-v3;
-- Renamed the fields in skb_frag_t.
+        return 0;
+}
 
-v2:
-- Add skb frag filling helpers.
+>
+> The only way that comes to my mind is to make sure all parents return
+> error if userland tries to do it, and then fallback in userland.
 
----
- include/linux/skbuff.h | 92 +++++++++++++++++++++++++++++-------------
- net/core/skbuff.c      | 22 +++++++---
- net/kcm/kcmsock.c      | 10 ++++-
- 3 files changed, 89 insertions(+), 35 deletions(-)
+Yes.
 
-diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
-index 7ce38874dbd1..729c95e97be1 100644
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -37,6 +37,7 @@
- #endif
- #include <net/net_debug.h>
- #include <net/dropreason-core.h>
-+#include <net/netmem.h>
- 
- /**
-  * DOC: skb checksums
-@@ -359,7 +360,11 @@ extern int sysctl_max_skb_frags;
-  */
- #define GSO_BY_FRAGS	0xFFFF
- 
--typedef struct bio_vec skb_frag_t;
-+typedef struct skb_frag {
-+	netmem_ref netmem;
-+	unsigned int len;
-+	unsigned int offset;
-+} skb_frag_t;
- 
- /**
-  * skb_frag_size() - Returns the size of a skb fragment
-@@ -367,7 +372,7 @@ typedef struct bio_vec skb_frag_t;
-  */
- static inline unsigned int skb_frag_size(const skb_frag_t *frag)
- {
--	return frag->bv_len;
-+	return frag->len;
- }
- 
- /**
-@@ -377,7 +382,7 @@ static inline unsigned int skb_frag_size(const skb_frag_t *frag)
-  */
- static inline void skb_frag_size_set(skb_frag_t *frag, unsigned int size)
- {
--	frag->bv_len = size;
-+	frag->len = size;
- }
- 
- /**
-@@ -387,7 +392,7 @@ static inline void skb_frag_size_set(skb_frag_t *frag, unsigned int size)
-  */
- static inline void skb_frag_size_add(skb_frag_t *frag, int delta)
- {
--	frag->bv_len += delta;
-+	frag->len += delta;
- }
- 
- /**
-@@ -397,7 +402,7 @@ static inline void skb_frag_size_add(skb_frag_t *frag, int delta)
-  */
- static inline void skb_frag_size_sub(skb_frag_t *frag, int delta)
- {
--	frag->bv_len -= delta;
-+	frag->len -= delta;
- }
- 
- /**
-@@ -417,7 +422,7 @@ static inline bool skb_frag_must_loop(struct page *p)
-  *	skb_frag_foreach_page - loop over pages in a fragment
-  *
-  *	@f:		skb frag to operate on
-- *	@f_off:		offset from start of f->bv_page
-+ *	@f_off:		offset from start of f->netmem
-  *	@f_len:		length from f_off to loop over
-  *	@p:		(temp var) current page
-  *	@p_off:		(temp var) offset from start of current page,
-@@ -2431,22 +2436,37 @@ static inline unsigned int skb_pagelen(const struct sk_buff *skb)
- 	return skb_headlen(skb) + __skb_pagelen(skb);
- }
- 
-+static inline void skb_frag_fill_netmem_desc(skb_frag_t *frag,
-+					     netmem_ref netmem, int off,
-+					     int size)
-+{
-+	frag->netmem = netmem;
-+	frag->offset = off;
-+	skb_frag_size_set(frag, size);
-+}
-+
- static inline void skb_frag_fill_page_desc(skb_frag_t *frag,
- 					   struct page *page,
- 					   int off, int size)
- {
--	frag->bv_page = page;
--	frag->bv_offset = off;
--	skb_frag_size_set(frag, size);
-+	skb_frag_fill_netmem_desc(frag, page_to_netmem(page), off, size);
-+}
-+
-+static inline void __skb_fill_netmem_desc_noacc(struct skb_shared_info *shinfo,
-+						int i, netmem_ref netmem,
-+						int off, int size)
-+{
-+	skb_frag_t *frag = &shinfo->frags[i];
-+
-+	skb_frag_fill_netmem_desc(frag, netmem, off, size);
- }
- 
- static inline void __skb_fill_page_desc_noacc(struct skb_shared_info *shinfo,
- 					      int i, struct page *page,
- 					      int off, int size)
- {
--	skb_frag_t *frag = &shinfo->frags[i];
--
--	skb_frag_fill_page_desc(frag, page, off, size);
-+	__skb_fill_netmem_desc_noacc(shinfo, i, page_to_netmem(page), off,
-+				     size);
- }
- 
- /**
-@@ -2462,10 +2482,10 @@ static inline void skb_len_add(struct sk_buff *skb, int delta)
- }
- 
- /**
-- * __skb_fill_page_desc - initialise a paged fragment in an skb
-+ * __skb_fill_netmem_desc - initialise a fragment in an skb
-  * @skb: buffer containing fragment to be initialised
-- * @i: paged fragment index to initialise
-- * @page: the page to use for this fragment
-+ * @i: fragment index to initialise
-+ * @netmem: the netmem to use for this fragment
-  * @off: the offset to the data with @page
-  * @size: the length of the data
-  *
-@@ -2474,10 +2494,13 @@ static inline void skb_len_add(struct sk_buff *skb, int delta)
-  *
-  * Does not take any additional reference on the fragment.
-  */
--static inline void __skb_fill_page_desc(struct sk_buff *skb, int i,
--					struct page *page, int off, int size)
-+static inline void __skb_fill_netmem_desc(struct sk_buff *skb, int i,
-+					  netmem_ref netmem, int off,
-+					  int size)
- {
--	__skb_fill_page_desc_noacc(skb_shinfo(skb), i, page, off, size);
-+	struct page *page = netmem_to_page(netmem);
-+
-+	__skb_fill_netmem_desc_noacc(skb_shinfo(skb), i, netmem, off, size);
- 
- 	/* Propagate page pfmemalloc to the skb if we can. The problem is
- 	 * that not all callers have unique ownership of the page but rely
-@@ -2485,7 +2508,21 @@ static inline void __skb_fill_page_desc(struct sk_buff *skb, int i,
- 	 */
- 	page = compound_head(page);
- 	if (page_is_pfmemalloc(page))
--		skb->pfmemalloc	= true;
-+		skb->pfmemalloc = true;
-+}
-+
-+static inline void __skb_fill_page_desc(struct sk_buff *skb, int i,
-+					struct page *page, int off, int size)
-+{
-+	__skb_fill_netmem_desc(skb, i, page_to_netmem(page), off, size);
-+}
-+
-+static inline void skb_fill_netmem_desc(struct sk_buff *skb, int i,
-+					netmem_ref netmem, int off,
-+					int size)
-+{
-+	__skb_fill_netmem_desc(skb, i, netmem, off, size);
-+	skb_shinfo(skb)->nr_frags = i + 1;
- }
- 
- /**
-@@ -2505,8 +2542,7 @@ static inline void __skb_fill_page_desc(struct sk_buff *skb, int i,
- static inline void skb_fill_page_desc(struct sk_buff *skb, int i,
- 				      struct page *page, int off, int size)
- {
--	__skb_fill_page_desc(skb, i, page, off, size);
--	skb_shinfo(skb)->nr_frags = i + 1;
-+	skb_fill_netmem_desc(skb, i, page_to_netmem(page), off, size);
- }
- 
- /**
-@@ -2532,6 +2568,8 @@ static inline void skb_fill_page_desc_noacc(struct sk_buff *skb, int i,
- 
- void skb_add_rx_frag(struct sk_buff *skb, int i, struct page *page, int off,
- 		     int size, unsigned int truesize);
-+void skb_add_rx_frag_netmem(struct sk_buff *skb, int i, netmem_ref netmem,
-+			    int off, int size, unsigned int truesize);
- 
- void skb_coalesce_rx_frag(struct sk_buff *skb, int i, int size,
- 			  unsigned int truesize);
-@@ -3380,7 +3418,7 @@ static inline void skb_propagate_pfmemalloc(const struct page *page,
-  */
- static inline unsigned int skb_frag_off(const skb_frag_t *frag)
- {
--	return frag->bv_offset;
-+	return frag->offset;
- }
- 
- /**
-@@ -3390,7 +3428,7 @@ static inline unsigned int skb_frag_off(const skb_frag_t *frag)
-  */
- static inline void skb_frag_off_add(skb_frag_t *frag, int delta)
- {
--	frag->bv_offset += delta;
-+	frag->offset += delta;
- }
- 
- /**
-@@ -3400,7 +3438,7 @@ static inline void skb_frag_off_add(skb_frag_t *frag, int delta)
-  */
- static inline void skb_frag_off_set(skb_frag_t *frag, unsigned int offset)
- {
--	frag->bv_offset = offset;
-+	frag->offset = offset;
- }
- 
- /**
-@@ -3411,7 +3449,7 @@ static inline void skb_frag_off_set(skb_frag_t *frag, unsigned int offset)
- static inline void skb_frag_off_copy(skb_frag_t *fragto,
- 				     const skb_frag_t *fragfrom)
- {
--	fragto->bv_offset = fragfrom->bv_offset;
-+	fragto->offset = fragfrom->offset;
- }
- 
- /**
-@@ -3422,7 +3460,7 @@ static inline void skb_frag_off_copy(skb_frag_t *fragto,
-  */
- static inline struct page *skb_frag_page(const skb_frag_t *frag)
- {
--	return frag->bv_page;
-+	return netmem_to_page(frag->netmem);
- }
- 
- /**
-@@ -3526,7 +3564,7 @@ static inline void *skb_frag_address_safe(const skb_frag_t *frag)
- static inline void skb_frag_page_copy(skb_frag_t *fragto,
- 				      const skb_frag_t *fragfrom)
- {
--	fragto->bv_page = fragfrom->bv_page;
-+	fragto->netmem = fragfrom->netmem;
- }
- 
- bool skb_page_frag_refill(unsigned int sz, struct page_frag *pfrag, gfp_t prio);
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index 4d4b11b0a83d..8b55e927bbe9 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -845,16 +845,24 @@ struct sk_buff *__napi_alloc_skb(struct napi_struct *napi, unsigned int len,
- }
- EXPORT_SYMBOL(__napi_alloc_skb);
- 
--void skb_add_rx_frag(struct sk_buff *skb, int i, struct page *page, int off,
--		     int size, unsigned int truesize)
-+void skb_add_rx_frag_netmem(struct sk_buff *skb, int i, netmem_ref netmem,
-+			    int off, int size, unsigned int truesize)
- {
- 	DEBUG_NET_WARN_ON_ONCE(size > truesize);
- 
--	skb_fill_page_desc(skb, i, page, off, size);
-+	skb_fill_netmem_desc(skb, i, netmem, off, size);
- 	skb->len += size;
- 	skb->data_len += size;
- 	skb->truesize += truesize;
- }
-+EXPORT_SYMBOL(skb_add_rx_frag_netmem);
-+
-+void skb_add_rx_frag(struct sk_buff *skb, int i, struct page *page, int off,
-+		     int size, unsigned int truesize)
-+{
-+	skb_add_rx_frag_netmem(skb, i, page_to_netmem(page), off, size,
-+			       truesize);
-+}
- EXPORT_SYMBOL(skb_add_rx_frag);
- 
- void skb_coalesce_rx_frag(struct sk_buff *skb, int i, int size,
-@@ -1904,10 +1912,11 @@ int skb_copy_ubufs(struct sk_buff *skb, gfp_t gfp_mask)
- 
- 	/* skb frags point to kernel buffers */
- 	for (i = 0; i < new_frags - 1; i++) {
--		__skb_fill_page_desc(skb, i, head, 0, psize);
-+		__skb_fill_netmem_desc(skb, i, page_to_netmem(head), 0, psize);
- 		head = (struct page *)page_private(head);
- 	}
--	__skb_fill_page_desc(skb, new_frags - 1, head, 0, d_off);
-+	__skb_fill_netmem_desc(skb, new_frags - 1, page_to_netmem(head), 0,
-+			       d_off);
- 	skb_shinfo(skb)->nr_frags = new_frags;
- 
- release:
-@@ -3645,7 +3654,8 @@ skb_zerocopy(struct sk_buff *to, struct sk_buff *from, int len, int hlen)
- 		if (plen) {
- 			page = virt_to_head_page(from->head);
- 			offset = from->data - (unsigned char *)page_address(page);
--			__skb_fill_page_desc(to, 0, page, offset, plen);
-+			__skb_fill_netmem_desc(to, 0, page_to_netmem(page),
-+					       offset, plen);
- 			get_page(page);
- 			j = 1;
- 			len -= plen;
-diff --git a/net/kcm/kcmsock.c b/net/kcm/kcmsock.c
-index 65d1f6755f98..3180a54b2c68 100644
---- a/net/kcm/kcmsock.c
-+++ b/net/kcm/kcmsock.c
-@@ -636,9 +636,15 @@ static int kcm_write_msgs(struct kcm_sock *kcm)
- 		for (i = 0; i < skb_shinfo(skb)->nr_frags; i++)
- 			msize += skb_shinfo(skb)->frags[i].bv_len;
- 
-+		/* The cast to struct bio_vec* here assumes the frags are
-+		 * struct page based. WARN if there is no page in this skb.
-+		 */
-+		DEBUG_NET_WARN_ON_ONCE(
-+			!skb_frag_page(&skb_shinfo(skb)->frags[0]));
-+
- 		iov_iter_bvec(&msg.msg_iter, ITER_SOURCE,
--			      skb_shinfo(skb)->frags, skb_shinfo(skb)->nr_frags,
--			      msize);
-+			      (const struct bio_vec *)skb_shinfo(skb)->frags,
-+			      skb_shinfo(skb)->nr_frags, msize);
- 		iov_iter_advance(&msg.msg_iter, txm->frag_offset);
- 
- 		do {
--- 
-2.43.0.472.g3155946c3a-goog
+> I'm
+> ok with that, but I'm not sure if the current master & previous kernel
+> has a coherent behavior. Do they return error? Or return success
+> without changing address / vq state?
+
+We probably don't need to worry too much here, as e.g set_vq_address
+could fail even without suspend (just at uAPI level).
+
+Thanks
+
+>
 
