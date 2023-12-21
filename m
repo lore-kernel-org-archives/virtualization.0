@@ -1,157 +1,171 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C478E63A1
-	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 02:03:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 221F339E
+	for <virtualization@lists.linux.dev>; Thu, 21 Dec 2023 02:33:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FlpHFSmR"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 53CA64016B
-	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 02:03:23 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 53CA64016B
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=FlpHFSmR
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id XKYPGeqoek0X
-	for <virtualization@lists.linux-foundation.org>;
-	Thu, 21 Dec 2023 02:03:21 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 1AA154013B
-	for <virtualization@lists.linux-foundation.org>; Thu, 21 Dec 2023 02:03:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1AA154013B
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="P5JEAGjs"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1703124200;
+	s=mimecast20190719; t=1703126008;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=YVgqAvwwX5PZ+K0StsYhb5ohbh7FF/syTZKMQDbQ9v4=;
-	b=FlpHFSmRxISlxdC4imaprHhmFqKZce5fhdrYcJG5zeNt5zUUr13BPs5vKUnVDqwIod9bPw
-	dGvyAe+DqWJdSqvM99IiFoCXqKj+fopdsKNYpgiPHqn2b5nlG/WL1DjWIJxjKSIprXOQHO
-	XeqUiKgearbMNEN0p0j4hGUG3SND7O8=
-Received: from mail-pf1-f197.google.com (mail-pf1-f197.google.com
- [209.85.210.197]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=5a0totasfvFwZIblW4qXBdcjfAygTJ0zVbYLxO+qMnc=;
+	b=P5JEAGjsU2KP4WxTW2t/ru0HNvvzev86x06Eyi90miHjBtqR1yfzH/KeIGjeQhK/SGEDdJ
+	MynTcZYqFy72gvN8wQHuYXOI88+4ZIXjAMCfE/ymWABy+gfcJBuKdkohL3gfjER0wRcLma
+	M1aSC50UgFK58y5aQ+A0CQcA34aISg4=
+Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
+ [209.85.210.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-482-sQPBweJUOzmUM9GJKQwmPQ-1; Wed, 20 Dec 2023 21:03:17 -0500
-X-MC-Unique: sQPBweJUOzmUM9GJKQwmPQ-1
-Received: by mail-pf1-f197.google.com with SMTP id d2e1a72fcca58-6d289e2b084so352528b3a.2
-        for <virtualization@lists.linux-foundation.org>; Wed, 20 Dec 2023 18:03:17 -0800 (PST)
+ us-mta-655-splodJH-MhCoIFPKH80lTg-1; Wed, 20 Dec 2023 21:33:24 -0500
+X-MC-Unique: splodJH-MhCoIFPKH80lTg-1
+Received: by mail-pf1-f198.google.com with SMTP id d2e1a72fcca58-6d9247e9c67so387034b3a.2
+        for <virtualization@lists.linux.dev>; Wed, 20 Dec 2023 18:33:24 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703124196; x=1703728996;
+        d=1e100.net; s=20230601; t=1703126003; x=1703730803;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=YVgqAvwwX5PZ+K0StsYhb5ohbh7FF/syTZKMQDbQ9v4=;
-        b=kVLcAaIZgAaEwcFY4BLIoYuLNp3GCfEAvzs0twc5nGIgbZLS1MpTO9nGCDwMhwhf2h
-         rTtlLDz41oExL6lJvYgFLDR7tLWBpEVRd4GkyKEnC4jgDZ0nB4/auOlnSbm75xcTazIo
-         W51T/sAmuBiJ7gjHOFjCLTPg2UM2ExB5Grc78OGzo0DA32qZj/CEXpuuyFabTrSknPnV
-         d/qJl2ixJAunSrJhLSM4ml2z2AyvUHyAwHCb6lSLFE+Bz8xUqyurocBL1ZzugHZzqi8G
-         f9fM2hrwe+rYeoGcqddxA5kiqIqFmgdfgv2ku/LO+0oglpobQDII8olphUXTxDz/kPin
-         wYBw==
-X-Gm-Message-State: AOJu0Yzxw7UBuK6hK/oa7buX9lHa1KBJKx8jQgjjs0QvOAx3ahIkdv0D
-	9tVhuD27NWGlsvUB0+xIDeMy9WfHGKaTvbyEpfW4gfrA7pX4w0V8tmEyuHk4SZ3bnxgff1f5hiY
-	DHooA5JJgduzJh2SU1WLZnJ9ryhiZO8KYNWynooHWrrL+UbfuD90tUGH/og==
-X-Received: by 2002:a05:6a00:708:b0:6d9:46f4:4226 with SMTP id 8-20020a056a00070800b006d946f44226mr2361719pfl.20.1703124196283;
-        Wed, 20 Dec 2023 18:03:16 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IF/KGKYSCtd/fkWAWhBJnYkjiak2fMrNDbFAXlC8oYYs9VT364GRHf9AqL3ddt2MNKwq9lVLHfwyUtJQ0JG1u4=
-X-Received: by 2002:a05:6a00:708:b0:6d9:46f4:4226 with SMTP id
- 8-20020a056a00070800b006d946f44226mr2361704pfl.20.1703124196001; Wed, 20 Dec
- 2023 18:03:16 -0800 (PST)
+        bh=5a0totasfvFwZIblW4qXBdcjfAygTJ0zVbYLxO+qMnc=;
+        b=hsygm1xNMLgrEbye+kNmJARamhAFEb5nIEq0Ah2o45e4WnfWKceO2aq4OyX1NBZ2Hv
+         z4/xKjwASd6vOYSWZcWnIjPdKJxP8VK1oeri6vCHFt7nTvYpK7P4/eCCFf04m/T2qVkz
+         fsT500Oa4qaeNEY7idGJ3HyNY5tutfaWmTtFwvYknKtXjAKCSHfOyymMurAclEIWpjvy
+         tDksRZy+Ndqa8Vj0HparWDNTL43gUOtD+sFsc7BQb/lI9jMYFhwXaX+IYZ/kNLDtOrsL
+         XoAuWwFGmvukejmN/+dbYhOTvkOvcrTz7afAkIZixnn/xi/esJVdtq2arr8q9ifYFk7E
+         CbQg==
+X-Gm-Message-State: AOJu0YzkIlZPOAH9aT85iLteuG4AToIKoylHJbNig+3a+M/gZlwJWcmC
+	5QgWvWf7I55vweIWXot3N+0zc/yj9jWmxcYh2CeYwnkpg3BcjQoDc5ggueamFs7IoATH3m5qlXq
+	wz2BbbCMaUiCMHQhtwk6bcViul02E+zY+Btg8KZIfjU8=
+X-Received: by 2002:a05:6a00:428a:b0:6d9:471d:faee with SMTP id bx10-20020a056a00428a00b006d9471dfaeemr2568769pfb.55.1703126003609;
+        Wed, 20 Dec 2023 18:33:23 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFvNTtsHVi+NyeUO0tGmuPBmvsTAynsN/eV3C4oEjj91VnICK+2rcyqXiyLi2OseyD5girnnKsziyM5XzUlxx0=
+X-Received: by 2002:a05:6a00:428a:b0:6d9:471d:faee with SMTP id
+ bx10-20020a056a00428a00b006d9471dfaeemr2568755pfb.55.1703126003294; Wed, 20
+ Dec 2023 18:33:23 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20231219180858.120898-1-dtatulea@nvidia.com> <20231219180858.120898-3-dtatulea@nvidia.com>
- <CACGkMEv7xQkZYJAgAUK6C3oUrZ9vuUJdTKRzihXcNPb-iWdpJw@mail.gmail.com>
- <CACGkMEsaaDGi63__YrvsTC1HqgTaEWHvGokK1bJS5+m1XYM-6w@mail.gmail.com> <CAJaqyWdoaj8a7q1KrGqWmkYvAw_R_p0utcWvDvkyVm1nUOAxrA@mail.gmail.com>
-In-Reply-To: <CAJaqyWdoaj8a7q1KrGqWmkYvAw_R_p0utcWvDvkyVm1nUOAxrA@mail.gmail.com>
+References: <20231205113444.63015-1-linyunsheng@huawei.com>
+ <20231205113444.63015-7-linyunsheng@huawei.com> <CACGkMEvVezZnHK-gRWY+MUd_6awnprb024scqPNmMQ05P8rWTQ@mail.gmail.com>
+ <424670ab-23d8-663b-10cb-d88906767956@huawei.com> <CACGkMEsMdP1B-9RaqibJYfFsd_qJpB+Kta5BnyD_WXH=W2w_OQ@mail.gmail.com>
+ <c5b5d36c-d0ca-c943-5355-343214d92c26@huawei.com>
+In-Reply-To: <c5b5d36c-d0ca-c943-5355-343214d92c26@huawei.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 21 Dec 2023 10:03:05 +0800
-Message-ID: <CACGkMEuM7bXxsxHUs_SodiDQ2+akrLqqzWZBJSZEcnMASUkb+g@mail.gmail.com>
-Subject: Re: [PATCH vhost v4 02/15] vdpa: Add VHOST_BACKEND_F_CHANGEABLE_VQ_ADDR_IN_SUSPEND
- flag
-To: Eugenio Perez Martin <eperezma@redhat.com>
-Cc: Dragos Tatulea <dtatulea@nvidia.com>, "Michael S . Tsirkin" <mst@redhat.com>, 
-	Si-Wei Liu <si-wei.liu@oracle.com>, Saeed Mahameed <saeedm@nvidia.com>, 
-	Leon Romanovsky <leon@kernel.org>, virtualization@lists.linux-foundation.org, 
-	Gal Pressman <gal@nvidia.com>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Parav Pandit <parav@nvidia.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Date: Thu, 21 Dec 2023 10:33:11 +0800
+Message-ID: <CACGkMEs8HWq_NFNk=Pp3qxuo7AWBsybXT78LPgC-nKaP_u3LqA@mail.gmail.com>
+Subject: Re: [PATCH net-next 6/6] tools: virtio: introduce vhost_net_test
+To: Yunsheng Lin <linyunsheng@huawei.com>
+Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	virtualization@lists.linux.dev
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Dec 20, 2023 at 9:32=E2=80=AFPM Eugenio Perez Martin
-<eperezma@redhat.com> wrote:
->
-> On Wed, Dec 20, 2023 at 5:06=E2=80=AFAM Jason Wang <jasowang@redhat.com> =
-wrote:
-> >
-> > On Wed, Dec 20, 2023 at 11:46=E2=80=AFAM Jason Wang <jasowang@redhat.co=
+On Wed, Dec 20, 2023 at 8:45=E2=80=AFPM Yunsheng Lin <linyunsheng@huawei.co=
 m> wrote:
-> > >
-> > > On Wed, Dec 20, 2023 at 2:09=E2=80=AFAM Dragos Tatulea <dtatulea@nvid=
-ia.com> wrote:
-> > > >
-> > > > The virtio spec doesn't allow changing virtqueue addresses after
-> > > > DRIVER_OK. Some devices do support this operation when the device i=
-s
-> > > > suspended. The VHOST_BACKEND_F_CHANGEABLE_VQ_ADDR_IN_SUSPEND flag
-> > > > advertises this support as a backend features.
-> > >
-> > > There's an ongoing effort in virtio spec to introduce the suspend sta=
-te.
-> > >
-> > > So I wonder if it's better to just allow such behaviour?
-> >
-> > Actually I mean, allow drivers to modify the parameters during suspend
-> > without a new feature.
-> >
 >
-> That would be ideal, but how do userland checks if it can suspend +
-> change properties + resume?
+> On 2023/12/12 12:35, Jason Wang wrote:>>>> +done:
+> >>>> +       backend.fd =3D tun_alloc();
+> >>>> +       assert(backend.fd >=3D 0);
+> >>>> +       vdev_info_init(&dev, features);
+> >>>> +       vq_info_add(&dev, 256);
+> >>>> +       run_test(&dev, &dev.vqs[0], delayed, batch, reset, nbufs);
+> >>>
+> >>> I'd expect we are testing some basic traffic here. E.g can we use a
+> >>> packet socket then we can test both tx and rx?
+> >>
+> >> Yes, only rx for tun is tested.
+> >> Do you have an idea how to test the tx too? As I am not familar enough
+> >> with vhost_net and tun yet.
+> >
+> > Maybe you can have a packet socket to bind to the tun/tap. Then you can=
+ test:
+> >
+> > 1) TAP RX: by write a packet via virtqueue through vhost_net and read
+> > it from packet socket
+> > 2) TAP TX:  by write via packet socket and read it from the virtqueue
+> > through vhost_net
+>
+> When implementing the TAP TX by adding VHOST_NET_F_VIRTIO_NET_HDR,
+> I found one possible use of uninitialized data in vhost_net_build_xdp().
+>
+> And vhost_hlen is set to sizeof(struct virtio_net_hdr_mrg_rxbuf) and
+> sock_hlen is set to zero in vhost_net_set_features() for both tx and rx
+> queue.
+>
+> For vhost_net_build_xdp() called by handle_tx_copy():
+>
+> The (gso->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) checking below may cause a
+> read of uninitialized data if sock_hlen is zero.
 
-As discussed, it looks to me the only device that supports suspend is
-simulator and it supports change properties.
-
-E.g:
-
-static int vdpasim_set_vq_address(struct vdpa_device *vdpa, u16 idx,
-                                  u64 desc_area, u64 driver_area,
-                                  u64 device_area)
-{
-        struct vdpasim *vdpasim =3D vdpa_to_sim(vdpa);
-        struct vdpasim_virtqueue *vq =3D &vdpasim->vqs[idx];
-
-        vq->desc_addr =3D desc_area;
-        vq->driver_addr =3D driver_area;
-        vq->device_addr =3D device_area;
-
-        return 0;
-}
+Which data is uninitialized here?
 
 >
-> The only way that comes to my mind is to make sure all parents return
-> error if userland tries to do it, and then fallback in userland.
+> And it seems vhost_hdr is skipped in get_tx_bufs():
+> https://elixir.bootlin.com/linux/latest/source/drivers/vhost/net.c#L616
+>
+> static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
+>                                struct iov_iter *from)
+> {
+> ...
+>         buflen +=3D SKB_DATA_ALIGN(len + pad);
+>         alloc_frag->offset =3D ALIGN((u64)alloc_frag->offset, SMP_CACHE_B=
+YTES);
+>         if (unlikely(!vhost_net_page_frag_refill(net, buflen,
+>                                                  alloc_frag, GFP_KERNEL))=
+)
+>                 return -ENOMEM;
+>
+>         buf =3D (char *)page_address(alloc_frag->page) + alloc_frag->offs=
+et;
+>         copied =3D copy_page_from_iter(alloc_frag->page,
+>                                      alloc_frag->offset +
+>                                      offsetof(struct tun_xdp_hdr, gso),
+>                                      sock_hlen, from);
+>         if (copied !=3D sock_hlen)
+>                 return -EFAULT;
+>
+>         hdr =3D buf;
+>         gso =3D &hdr->gso;
+>
+>         if ((gso->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) &&
+>             vhost16_to_cpu(vq, gso->csum_start) +
+>             vhost16_to_cpu(vq, gso->csum_offset) + 2 >
+>             vhost16_to_cpu(vq, gso->hdr_len)) {
+> ...
+> }
+>
+> I seems the handle_tx_copy() does not handle the VHOST_NET_F_VIRTIO_NET_H=
+DR
+> case correctly, Or do I miss something obvious here?
 
-Yes.
+In get_tx_bufs() we did:
 
-> I'm
-> ok with that, but I'm not sure if the current master & previous kernel
-> has a coherent behavior. Do they return error? Or return success
-> without changing address / vq state?
+        *len =3D init_iov_iter(vq, &msg->msg_iter, nvq->vhost_hlen, *out);
 
-We probably don't need to worry too much here, as e.g set_vq_address
-could fail even without suspend (just at uAPI level).
+Which covers this case?
 
 Thanks
 
+>
+> >
+> > Thanks
+> >
+> >>
+> >>>
+> >>> Thanks
+> >>
+> >
+> > .
+> >
 >
 
