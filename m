@@ -1,47 +1,46 @@
-Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.100])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCAF62E831;
-	Fri, 22 Dec 2023 20:14:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A05D434188;
+	Fri, 22 Dec 2023 23:41:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="MmSdDrmv"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="hYfvJyQb"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1703276074; x=1734812074;
+  t=1703288484; x=1734824484;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=7KvrfUBuDJWsLYn6DKnutSiX/U794E0nm9Hg9vcFODI=;
-  b=MmSdDrmvFPEyDuI5g4YtavFmqhnM1VpVyuEk2IIWSYkllNlHWoVmP5U/
-   cmvuxV/XQHtNqc+2vdA/MfB2r5jYE8f9srY5eh433A9UtqEL5BWUThOzt
-   gimB7tymDPAt+lejWDnJhEFH8L8mYR2hc/Zz9+sbgZlpkrcqflsS1wUgK
-   6pQBN08vwMGjKtVbmphRXTTOoMfPuMlvYxyVyw5tTkqx5xLfToP9h+V+P
-   LoBOSHYG7U0FS4FnKZV5QMM2myQYAEwTtR/htqDaQniXIasrTx+yjjkJk
-   ZG7FBL8UYvxPSqVF0+gVX9uWUHuOE9NJQe5KqKwI4kp9p8yTBXYkSnt3e
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10932"; a="462593277"
+  bh=VYldxlNfCDK2XZRBuiMTRKlwofmXO4n507rdIZtn5hQ=;
+  b=hYfvJyQbBfZAdFnVoXI85k+25XrK6hNRSyU5TW/bxWr3p4NKO0fO3h0x
+   F39Anp1q3KRAzX9z6Vchu/uXeg/rUE5cpSzFM4fgocvbbCvgWl5Q0AE7f
+   YQNA5A619cGaHK0u4kxgY1o5sRzNo/VtBKQmIFlhNv/jHN0m5LKGlV8ZD
+   1rhvVzj8vA1ydLptZvIb1wUjxicqVJiD8tO5+N1NLFOv5vIrMw+s/bXm4
+   MAvIztVP+zUesXl477FAx5UM4RdFxl4PNiaffLkkp9hhc3qnetQ3oAU3D
+   3m8v1y26HSWEloN3AbNS0UMt8e4fxAeND7jmzuJ1DwzJ46TqPJiS/os0Q
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10932"; a="3007883"
 X-IronPort-AV: E=Sophos;i="6.04,297,1695711600"; 
-   d="scan'208";a="462593277"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Dec 2023 12:14:34 -0800
+   d="scan'208";a="3007883"
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Dec 2023 15:41:23 -0800
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10932"; a="843034099"
+X-IronPort-AV: E=McAfee;i="6600,9927,10932"; a="950449947"
 X-IronPort-AV: E=Sophos;i="6.04,297,1695711600"; 
-   d="scan'208";a="843034099"
+   d="scan'208";a="950449947"
 Received: from lkp-server02.sh.intel.com (HELO b07ab15da5fe) ([10.239.97.151])
-  by fmsmga008.fm.intel.com with ESMTP; 22 Dec 2023 12:14:29 -0800
+  by orsmga005.jf.intel.com with ESMTP; 22 Dec 2023 15:41:19 -0800
 Received: from kbuild by b07ab15da5fe with local (Exim 4.96)
 	(envelope-from <lkp@intel.com>)
-	id 1rGluK-0009q3-0q;
-	Fri, 22 Dec 2023 20:14:19 +0000
-Date: Sat, 23 Dec 2023 04:10:18 +0800
+	id 1rGp8j-000A0N-17;
+	Fri, 22 Dec 2023 23:41:14 +0000
+Date: Sat, 23 Dec 2023 07:39:30 +0800
 From: kernel test robot <lkp@intel.com>
 To: Mina Almasry <almasrymina@google.com>, linux-kernel@vger.kernel.org,
 	netdev@vger.kernel.org, kvm@vger.kernel.org,
 	virtualization@lists.linux.dev
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	Mina Almasry <almasrymina@google.com>,
+Cc: oe-kbuild-all@lists.linux.dev, Mina Almasry <almasrymina@google.com>,
 	Eric Dumazet <edumazet@google.com>,
 	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
 	Stefan Hajnoczi <stefanha@redhat.com>,
@@ -53,7 +52,7 @@ Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
 	Yunsheng Lin <linyunsheng@huawei.com>,
 	Willem de Bruijn <willemdebruijn.kernel@gmail.com>
 Subject: Re: [PATCH net-next v3 3/3] net: add netmem_ref to skb_frag_t
-Message-ID: <202312230340.iCf8sOop-lkp@intel.com>
+Message-ID: <202312230739.g0Tfssdt-lkp@intel.com>
 References: <20231220214505.2303297-4-almasrymina@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -75,21 +74,21 @@ url:    https://github.com/intel-lab-lkp/linux/commits/Mina-Almasry/vsock-virtio
 base:   net-next/main
 patch link:    https://lore.kernel.org/r/20231220214505.2303297-4-almasrymina%40google.com
 patch subject: [PATCH net-next v3 3/3] net: add netmem_ref to skb_frag_t
-config: powerpc-allmodconfig (https://download.01.org/0day-ci/archive/20231223/202312230340.iCf8sOop-lkp@intel.com/config)
-compiler: clang version 18.0.0git (https://github.com/llvm/llvm-project d3ef86708241a3bee902615c190dead1638c4e09)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20231223/202312230340.iCf8sOop-lkp@intel.com/reproduce)
+config: i386-randconfig-141-20231222 (https://download.01.org/0day-ci/archive/20231223/202312230739.g0Tfssdt-lkp@intel.com/config)
+compiler: gcc-12 (Debian 12.2.0-14) 12.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20231223/202312230739.g0Tfssdt-lkp@intel.com/reproduce)
 
 If you fix the issue in a separate patch/commit (i.e. not just a new version of
 the same patch/commit), kindly add following tags
 | Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202312230340.iCf8sOop-lkp@intel.com/
+| Closes: https://lore.kernel.org/oe-kbuild-all/202312230739.g0Tfssdt-lkp@intel.com/
 
 All errors (new ones prefixed by >>):
 
->> net/kcm/kcmsock.c:637:39: error: no member named 'bv_len' in 'struct skb_frag'
+   net/kcm/kcmsock.c: In function 'kcm_write_msgs':
+>> net/kcm/kcmsock.c:637:59: error: 'skb_frag_t' {aka 'struct skb_frag'} has no member named 'bv_len'
      637 |                         msize += skb_shinfo(skb)->frags[i].bv_len;
-         |                                  ~~~~~~~~~~~~~~~~~~~~~~~~~ ^
-   1 error generated.
+         |                                                           ^
 
 
 vim +637 net/kcm/kcmsock.c
