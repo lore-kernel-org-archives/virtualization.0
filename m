@@ -1,52 +1,51 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.120])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E60E10940;
-	Sat, 23 Dec 2023 17:04:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 101EC12E52;
+	Sat, 23 Dec 2023 17:25:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="jUoEP2DW"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="khN6mjZJ"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1703351096; x=1734887096;
+  t=1703352319; x=1734888319;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=kEFd7MhTmJumlNW/XsckxCIHQkiQQHT0Q8nvzk57iQk=;
-  b=jUoEP2DWoF6fCE5hvHMBCUQfhHzuEuFT67pX3Dx5vzd1mZqZbBtFVd+/
-   y7BcUgNysXxYwrf8lu0Tmv1PTA255pvq27Fw5eikBPkLJZc9RNNar6aY5
-   tv+9cOlOJlD+4ZVjgwAD52CfGPo21d6w1BXmQnBqlKBB+ifEoEkuatv1m
-   F0YSahNOWZMJWn1WZ61KR0sWcgfD0VTYRkZqQ8cOug9pxo4kUEBgjVajO
-   +W0iKpix4Pn8oE+IGx7LH96w6egpHhzYjYgk41W99/L0lTQ7ATXLwXqtG
-   B5QduvMLR/YJTlfzYA9RRyppN/yg/Qm/7dMlXmbnYm39+yk/vCqU/QqzB
+  bh=8Gmznqo30uZrkAtxT6dU+7NcE2umT81kQB26aiSA/wU=;
+  b=khN6mjZJAuUUVpExwhDCutqsTT30dsp2ifQHRuttmKrqjcZMdSoYwYei
+   GqAQNAncPYV8zJFHi0db4F1LkEuEoTTdsUq9O35bxa7tTAkxFX2FVdl4W
+   4hIBi2GfS6bQE6pkm/oEQaViWyQcBZXWyWVra89kwLHMl9+FU7l6CY++m
+   6DjNPo2vLLZFOtRT0G9ZR9txXLUVo1movPSDdXEPxM6E79KkjFW3GX47S
+   gyP5mOVYJ6M5QKuTLtjDYiBJN1dme5Hr8mWQrSMbQDmlvwvdby29Y5MTn
+   5LKAzh2/PD8J9jagdjjYtk7U7iwKD6+48gP06v+BD3BtTxD7OJ1xQRwjx
    g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10933"; a="395095585"
+X-IronPort-AV: E=McAfee;i="6600,9927,10933"; a="3452132"
 X-IronPort-AV: E=Sophos;i="6.04,299,1695711600"; 
-   d="scan'208";a="395095585"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Dec 2023 09:04:54 -0800
+   d="scan'208";a="3452132"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmvoesa104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Dec 2023 09:25:17 -0800
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10933"; a="727163995"
+X-IronPort-AV: E=McAfee;i="6600,9927,10933"; a="753581772"
 X-IronPort-AV: E=Sophos;i="6.04,299,1695711600"; 
-   d="scan'208";a="727163995"
+   d="scan'208";a="753581772"
 Received: from lkp-server02.sh.intel.com (HELO b07ab15da5fe) ([10.239.97.151])
-  by orsmga003.jf.intel.com with ESMTP; 23 Dec 2023 09:04:52 -0800
+  by orsmga006.jf.intel.com with ESMTP; 23 Dec 2023 09:25:14 -0800
 Received: from kbuild by b07ab15da5fe with local (Exim 4.96)
 	(envelope-from <lkp@intel.com>)
-	id 1rH5QU-000BEF-26;
-	Sat, 23 Dec 2023 17:04:43 +0000
-Date: Sun, 24 Dec 2023 01:03:11 +0800
+	id 1rH5jv-000BGJ-2D;
+	Sat, 23 Dec 2023 17:24:54 +0000
+Date: Sun, 24 Dec 2023 01:23:30 +0800
 From: kernel test robot <lkp@intel.com>
 To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, netdev@vger.kernel.org
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	"Michael S. Tsirkin" <mst@redhat.com>,
+Cc: oe-kbuild-all@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>,
 	Jason Wang <jasowang@redhat.com>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
 	Eric Dumazet <edumazet@google.com>,
 	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
 	virtualization@lists.linux.dev
 Subject: Re: [PATCH net-next 3/6] virtio_net: support device stats
-Message-ID: <202312240041.YOiIXVkG-lkp@intel.com>
+Message-ID: <202312240155.ow7kvQZO-lkp@intel.com>
 References: <20231222033021.20649-4-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -73,59 +72,35 @@ url:    https://github.com/intel-lab-lkp/linux/commits/Xuan-Zhuo/virtio_net-intr
 base:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git linux-next
 patch link:    https://lore.kernel.org/r/20231222033021.20649-4-xuanzhuo%40linux.alibaba.com
 patch subject: [PATCH net-next 3/6] virtio_net: support device stats
-config: arm-defconfig (https://download.01.org/0day-ci/archive/20231224/202312240041.YOiIXVkG-lkp@intel.com/config)
-compiler: clang version 14.0.6 (https://github.com/llvm/llvm-project.git f28c006a5895fc0e329fe15fead81e37457cb1d1)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20231224/202312240041.YOiIXVkG-lkp@intel.com/reproduce)
+config: arc-haps_hs_defconfig (https://download.01.org/0day-ci/archive/20231224/202312240155.ow7kvQZO-lkp@intel.com/config)
+compiler: arc-elf-gcc (GCC) 13.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20231224/202312240155.ow7kvQZO-lkp@intel.com/reproduce)
 
 If you fix the issue in a separate patch/commit (i.e. not just a new version of
 the same patch/commit), kindly add following tags
 | Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202312240041.YOiIXVkG-lkp@intel.com/
+| Closes: https://lore.kernel.org/oe-kbuild-all/202312240155.ow7kvQZO-lkp@intel.com/
 
 All warnings (new ones prefixed by >>):
 
->> drivers/net/virtio_net.c:224:2: warning: shift count >= width of type [-Wshift-count-overflow]
-           VIRTNET_DEVICE_STATS_MAP_ITEM(CVQ, cvq, CQ),
-           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   drivers/net/virtio_net.c:215:3: note: expanded from macro 'VIRTNET_DEVICE_STATS_MAP_ITEM'
-                   VIRTIO_NET_STATS_TYPE_##TYPE,                   \
-                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   <scratch space>:61:1: note: expanded from here
-   VIRTIO_NET_STATS_TYPE_CVQ
-   ^~~~~~~~~~~~~~~~~~~~~~~~~
-   include/uapi/linux/virtio_net.h:419:45: note: expanded from macro 'VIRTIO_NET_STATS_TYPE_CVQ'
-   #define VIRTIO_NET_STATS_TYPE_CVQ       (1L << 32)
-                                               ^  ~~
-   1 warning generated.
+   In file included from include/linux/virtio_net.h:8,
+                    from drivers/net/virtio_net.c:12:
+>> include/uapi/linux/virtio_net.h:419:45: warning: left shift count >= width of type [-Wshift-count-overflow]
+     419 | #define VIRTIO_NET_STATS_TYPE_CVQ       (1L << 32)
+         |                                             ^~
+   drivers/net/virtio_net.c:215:17: note: in expansion of macro 'VIRTIO_NET_STATS_TYPE_CVQ'
+     215 |                 VIRTIO_NET_STATS_TYPE_##TYPE,                   \
+         |                 ^~~~~~~~~~~~~~~~~~~~~~
+   drivers/net/virtio_net.c:224:9: note: in expansion of macro 'VIRTNET_DEVICE_STATS_MAP_ITEM'
+     224 |         VIRTNET_DEVICE_STATS_MAP_ITEM(CVQ, cvq, CQ),
+         |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-vim +224 drivers/net/virtio_net.c
+vim +419 include/uapi/linux/virtio_net.h
 
-   212	
-   213	#define VIRTNET_DEVICE_STATS_MAP_ITEM(TYPE, type, queue_type)	\
-   214		{							\
-   215			VIRTIO_NET_STATS_TYPE_##TYPE,			\
-   216			sizeof(struct virtio_net_stats_ ## type),	\
-   217			ARRAY_SIZE(virtnet_stats_ ## type ##_desc),	\
-   218			VIRTNET_STATS_Q_TYPE_##queue_type,		\
-   219			VIRTIO_NET_STATS_TYPE_REPLY_##TYPE,		\
-   220			&virtnet_stats_##type##_desc[0]			\
-   221		}
-   222	
-   223	static struct virtnet_stats_map virtio_net_stats_map[] = {
- > 224		VIRTNET_DEVICE_STATS_MAP_ITEM(CVQ, cvq, CQ),
-   225	
-   226		VIRTNET_DEVICE_STATS_MAP_ITEM(RX_BASIC, rx_basic, RX),
-   227		VIRTNET_DEVICE_STATS_MAP_ITEM(RX_CSUM,  rx_csum,  RX),
-   228		VIRTNET_DEVICE_STATS_MAP_ITEM(RX_GSO,   rx_gso,   RX),
-   229		VIRTNET_DEVICE_STATS_MAP_ITEM(RX_SPEED, rx_speed, RX),
-   230	
-   231		VIRTNET_DEVICE_STATS_MAP_ITEM(TX_BASIC, tx_basic, TX),
-   232		VIRTNET_DEVICE_STATS_MAP_ITEM(TX_CSUM,  tx_csum,  TX),
-   233		VIRTNET_DEVICE_STATS_MAP_ITEM(TX_GSO,   tx_gso,   TX),
-   234		VIRTNET_DEVICE_STATS_MAP_ITEM(TX_SPEED, tx_speed, TX),
-   235	};
-   236	
+ba106d1c676c80 Xuan Zhuo 2023-12-22  418  
+ba106d1c676c80 Xuan Zhuo 2023-12-22 @419  #define VIRTIO_NET_STATS_TYPE_CVQ       (1L << 32)
+ba106d1c676c80 Xuan Zhuo 2023-12-22  420  
 
 -- 
 0-DAY CI Kernel Test Service
