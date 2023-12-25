@@ -1,228 +1,116 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6A5856462
-	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 13:00:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D7C952F8C
+	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 13:28:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZXT427gL"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GkMMQUES"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 4E7C38174A
-	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 13:00:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4E7C38174A
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=ZXT427gL
+	by smtp2.osuosl.org (Postfix) with ESMTP id 8745C40127
+	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 13:28:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8745C40127
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=GkMMQUES
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -4.401
+X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id q8W0Ipq_s4ha
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id NIWCiik_ldC3
 	for <virtualization@lists.linux-foundation.org>;
-	Mon, 25 Dec 2023 13:00:12 +0000 (UTC)
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 4791A81747
-	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 13:00:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4791A81747
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by ams.source.kernel.org (Postfix) with ESMTP id 4E930B80AD1;
-	Mon, 25 Dec 2023 13:00:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AAF6C433C8;
-	Mon, 25 Dec 2023 13:00:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1703509209;
-	bh=i65yVHqfrtHAC1FsA7TLUXKq1EbxyrbVpeWkIY/6CZw=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=ZXT427gLfM0kV/iENXlWjVpcKXK0E5GPLoxwWEpooytFCeCuovrQTk+WEIgGGqh8x
-	 OVcRzDL5suoRiCiPeetOg8KyBDar+wBhy43mEk7KF/SRSXZH934lG2GtJMYoCIb9jH
-	 SAHmgyMJU2N//OZz9IzHWLp636MlqCVlef05rQlPV+oUCR5yx2Gt5TmGInl/dz1UMS
-	 HojV2YmK1LwPBV+CeHnBMRJ05fhaAIFvv4pdqhk5df6LPB8tVkem+dzeTJauVCpVtA
-	 R9+J0rSMGhdFPGv9TnXgdY9BQ5wFjkEA4qKjcafts1hfy2NGomFhSzE3TevGXmHML/
-	 AN51wnmcojLxw==
-From: guoren@kernel.org
-To: paul.walmsley@sifive.com,
-	palmer@dabbelt.com,
-	guoren@kernel.org,
-	panqinglin2020@iscas.ac.cn,
-	bjorn@rivosinc.com,
-	conor.dooley@microchip.com,
-	leobras@redhat.com,
-	peterz@infradead.org,
-	anup@brainfault.org,
-	keescook@chromium.org,
-	wuwei2016@iscas.ac.cn,
-	xiaoguang.xing@sophgo.com,
-	chao.wei@sophgo.com,
-	unicorn_wang@outlook.com,
-	uwu@icenowy.me,
-	jszhang@kernel.org,
-	wefu@redhat.com,
-	atishp@atishpatra.org
-Cc: linux-riscv@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	kvm@vger.kernel.org,
-	virtualization@lists.linux-foundation.org,
-	Guo Ren <guoren@linux.alibaba.com>
-Subject: [PATCH V12 14/14] RISC-V: paravirt: pvqspinlock: Add trace point for pv_kick/wait
-Date: Mon, 25 Dec 2023 07:58:47 -0500
-Message-Id: <20231225125847.2778638-15-guoren@kernel.org>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20231225125847.2778638-1-guoren@kernel.org>
-References: <20231225125847.2778638-1-guoren@kernel.org>
+	Mon, 25 Dec 2023 13:27:58 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 709C0400DC
+	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 13:27:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 709C0400DC
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1703510876;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+	bh=eQrFSUCYGMhy2SsSQLQNb28k56c6BCyeTM61vN0o41o=;
+	b=GkMMQUESaZURPC8ZfFz72h5Y9EokqUeQtYHZbcOWUYbToA5YEI3VZGGpRu9yUKP6N1tXZQ
+	FeBGbTOvZeVL4tQDnp6jICRe15iK2VyTXMqktblkLmwCDo/WRzkMeRag3gguHxdFYKo6xk
+	rONJoZzSvx8M9aNKqnLuy1tbdJJgGbA=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-172-UTsNduYAMFmoVhvOAXCO8g-1; Mon, 25 Dec 2023 08:27:53 -0500
+X-MC-Unique: UTsNduYAMFmoVhvOAXCO8g-1
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3367c893deeso2827718f8f.2
+        for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 05:27:53 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1703510872; x=1704115672;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=eQrFSUCYGMhy2SsSQLQNb28k56c6BCyeTM61vN0o41o=;
+        b=Mn7RdxMMRij1LiD0T1jo6InNA/I76x8HqvCuLucgaqcTahv4Enyk3EVo2EUYS08sRa
+         Es6g6aNaU+tac5qLQ5lLkd1eP1242MSrrLyQCYg23aQUiH+zHd///gqibwfwkwHbREqy
+         /xXFf+FSuzlHlIvmR3znfagOvuWMTKVUs2DhS+q2uOPBHabetaDDxwn2Z3UhDoXFjhmS
+         1aq8VNAMYl5zVFL/BqvXhyRxv5YIPyDvjgMA+xHXs4bk3JkhJdAJHVPAFl5FklaXMDQz
+         DgzgICCg+268em0niZM0O98FztjQfDb7/vWu1HMEmUB8fKyoERTTAXHYtpyv3NpIkWAi
+         a3Gw==
+X-Gm-Message-State: AOJu0YyAiRaiHIqmmpp+Q7tEJ1yPlqU+h/6Cjq699cuq6Y6gYyv8Gdjl
+	LN8hLX3qPldLo7K/C6FKTlGnRywHmUQE/w6eAg0pLlKLwbygYd4dIbhLCQeBif2/U9LnS5MwRaO
+	sdtQ0T3cxT/pKzJavUQaQz17GsjWuNkhSMUq9cp0EmDPuPjn1iQ==
+X-Received: by 2002:adf:efc3:0:b0:336:6413:682 with SMTP id i3-20020adfefc3000000b0033664130682mr2892622wrp.42.1703510872088;
+        Mon, 25 Dec 2023 05:27:52 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFADLrFfKMHOhtA8f351FSOXWF1tCR+mhRQi9Bja66IW8vKteZ/pT7INfLkesHcwbnd7uOsEA==
+X-Received: by 2002:adf:efc3:0:b0:336:6413:682 with SMTP id i3-20020adfefc3000000b0033664130682mr2892612wrp.42.1703510871682;
+        Mon, 25 Dec 2023 05:27:51 -0800 (PST)
+Received: from redhat.com ([2a06:c701:73ef:4100:2cf6:9475:f85:181e])
+        by smtp.gmail.com with ESMTPSA id t16-20020adfe450000000b0033666ec47b7sm10354728wrm.99.2023.12.25.05.27.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 25 Dec 2023 05:27:51 -0800 (PST)
+Date: Mon, 25 Dec 2023 08:27:49 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+	hongyu.ning@linux.intel.com, jasowang@redhat.com, lkp@intel.com,
+	mst@redhat.com, stefanha@redhat.com, suwan.kim027@gmail.com,
+	xuanzhuo@linux.alibaba.com
+Subject: [GIT PULL] virtio: bugfixes
+Message-ID: <20231225082749-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Mutt-Fcc: =sent
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-From: Guo Ren <guoren@linux.alibaba.com>
+The following changes since commit cefc9ba6aed48a3aa085888e3262ac2aa975714b:
 
-Add trace point for pv_kick&wait, here is the output:
+  pds_vdpa: set features order (2023-12-01 09:55:01 -0500)
 
-ls /sys/kernel/debug/tracing/events/paravirt/
- enable   filter   pv_kick  pv_wait
+are available in the Git repository at:
 
-cat /sys/kernel/debug/tracing/trace
- entries-in-buffer/entries-written: 33927/33927   #P:12
+  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
-                                _-----=> irqs-off/BH-disabled
-                               / _----=> need-resched
-                              | / _---=> hardirq/softirq
-                              || / _--=> preempt-depth
-                              ||| / _-=> migrate-disable
-                              |||| /     delay
-           TASK-PID     CPU#  |||||  TIMESTAMP  FUNCTION
-              | |         |   |||||     |         |
-             sh-100     [001] d..2.    28.312294: pv_wait: cpu 1 out of wfi
-         <idle>-0       [000] d.h4.    28.322030: pv_kick: cpu 0 kick target cpu 1
-             sh-100     [001] d..2.    30.982631: pv_wait: cpu 1 out of wfi
-         <idle>-0       [000] d.h4.    30.993289: pv_kick: cpu 0 kick target cpu 1
-             sh-100     [002] d..2.    44.987573: pv_wait: cpu 2 out of wfi
-         <idle>-0       [000] d.h4.    44.989000: pv_kick: cpu 0 kick target cpu 2
-         <idle>-0       [003] d.s3.    51.593978: pv_kick: cpu 3 kick target cpu 4
-      rcu_sched-15      [004] d..2.    51.595192: pv_wait: cpu 4 out of wfi
-lock_torture_wr-115     [004] ...2.    52.656482: pv_kick: cpu 4 kick target cpu 2
-lock_torture_wr-113     [002] d..2.    52.659146: pv_wait: cpu 2 out of wfi
-lock_torture_wr-114     [008] d..2.    52.659507: pv_wait: cpu 8 out of wfi
-lock_torture_wr-114     [008] d..2.    52.663503: pv_wait: cpu 8 out of wfi
-lock_torture_wr-113     [002] ...2.    52.666128: pv_kick: cpu 2 kick target cpu 8
-lock_torture_wr-114     [008] d..2.    52.667261: pv_wait: cpu 8 out of wfi
-lock_torture_wr-114     [009] .n.2.    53.141515: pv_kick: cpu 9 kick target cpu 11
-lock_torture_wr-113     [002] d..2.    53.143339: pv_wait: cpu 2 out of wfi
-lock_torture_wr-116     [007] d..2.    53.143412: pv_wait: cpu 7 out of wfi
-lock_torture_wr-118     [000] d..2.    53.143457: pv_wait: cpu 0 out of wfi
-lock_torture_wr-115     [008] d..2.    53.143481: pv_wait: cpu 8 out of wfi
-lock_torture_wr-117     [011] d..2.    53.143522: pv_wait: cpu 11 out of wfi
-lock_torture_wr-117     [011] ...2.    53.143987: pv_kick: cpu 11 kick target cpu 8
-lock_torture_wr-115     [008] ...2.    53.144269: pv_kick: cpu 8 kick target cpu 7
+for you to fetch changes up to b8e0792449928943c15d1af9f63816911d139267:
 
-Reviewed-by: Leonardo Bras <leobras@redhat.com>
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-Signed-off-by: Guo Ren <guoren@kernel.org>
----
- arch/riscv/kernel/qspinlock_paravirt.c        |  8 +++
- .../kernel/trace_events_filter_paravirt.h     | 60 +++++++++++++++++++
- 2 files changed, 68 insertions(+)
- create mode 100644 arch/riscv/kernel/trace_events_filter_paravirt.h
+  virtio_blk: fix snprintf truncation compiler warning (2023-12-04 09:43:53 -0500)
 
-diff --git a/arch/riscv/kernel/qspinlock_paravirt.c b/arch/riscv/kernel/qspinlock_paravirt.c
-index 4b04c93c4b9b..0e6d11357243 100644
---- a/arch/riscv/kernel/qspinlock_paravirt.c
-+++ b/arch/riscv/kernel/qspinlock_paravirt.c
-@@ -9,10 +9,16 @@
- #include <asm/qspinlock_paravirt.h>
- #include <asm/sbi.h>
- 
-+#define CREATE_TRACE_POINTS
-+#include "trace_events_filter_paravirt.h"
-+
- void pv_kick(int cpu)
- {
- 	sbi_ecall(SBI_EXT_PVLOCK, SBI_EXT_PVLOCK_KICK_CPU,
- 		  cpuid_to_hartid_map(cpu), 0, 0, 0, 0, 0);
-+
-+	trace_pv_kick(smp_processor_id(), cpu);
-+
- 	return;
- }
- 
-@@ -28,6 +34,8 @@ void pv_wait(u8 *ptr, u8 val)
- 		goto out;
- 
- 	wait_for_interrupt();
-+
-+	trace_pv_wait(smp_processor_id());
- out:
- 	local_irq_restore(flags);
- }
-diff --git a/arch/riscv/kernel/trace_events_filter_paravirt.h b/arch/riscv/kernel/trace_events_filter_paravirt.h
-new file mode 100644
-index 000000000000..9ff5aa451b12
---- /dev/null
-+++ b/arch/riscv/kernel/trace_events_filter_paravirt.h
-@@ -0,0 +1,60 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * Copyright (c), 2023 Alibaba Cloud
-+ * Authors:
-+ *	Guo Ren <guoren@linux.alibaba.com>
-+ */
-+#undef TRACE_SYSTEM
-+#define TRACE_SYSTEM paravirt
-+
-+#if !defined(_TRACE_PARAVIRT_H) || defined(TRACE_HEADER_MULTI_READ)
-+#define _TRACE_PARAVIRT_H
-+
-+#include <linux/tracepoint.h>
-+
-+TRACE_EVENT(pv_kick,
-+	TP_PROTO(int cpu, int target),
-+	TP_ARGS(cpu, target),
-+
-+	TP_STRUCT__entry(
-+		__field(int, cpu)
-+		__field(int, target)
-+	),
-+
-+	TP_fast_assign(
-+		__entry->cpu = cpu;
-+		__entry->target = target;
-+	),
-+
-+	TP_printk("cpu %d kick target cpu %d",
-+		__entry->cpu,
-+		__entry->target
-+	)
-+);
-+
-+TRACE_EVENT(pv_wait,
-+	TP_PROTO(int cpu),
-+	TP_ARGS(cpu),
-+
-+	TP_STRUCT__entry(
-+		__field(int, cpu)
-+	),
-+
-+	TP_fast_assign(
-+		__entry->cpu = cpu;
-+	),
-+
-+	TP_printk("cpu %d out of wfi",
-+		__entry->cpu
-+	)
-+);
-+
-+#endif /* _TRACE_PARAVIRT_H || TRACE_HEADER_MULTI_READ */
-+
-+#undef TRACE_INCLUDE_PATH
-+#undef TRACE_INCLUDE_FILE
-+#define TRACE_INCLUDE_PATH ../../../arch/riscv/kernel/
-+#define TRACE_INCLUDE_FILE trace_events_filter_paravirt
-+
-+/* This part must be outside protection */
-+#include <trace/define_trace.h>
--- 
-2.40.1
+----------------------------------------------------------------
+virtio: bugfixes
+
+A couple of bugfixes: one for a regression.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Stefan Hajnoczi (1):
+      virtio_blk: fix snprintf truncation compiler warning
+
+Xuan Zhuo (1):
+      virtio_ring: fix syncs DMA memory with different direction
+
+ drivers/block/virtio_blk.c   | 8 ++++----
+ drivers/virtio/virtio_ring.c | 6 ++----
+ 2 files changed, 6 insertions(+), 8 deletions(-)
 
