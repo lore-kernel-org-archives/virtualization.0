@@ -1,67 +1,67 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97907A54
-	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 04:13:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47793EA4
+	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 04:15:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="M6ixUz8j"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EOcll6ev"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id EBA9260BE5
-	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 04:13:04 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org EBA9260BE5
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=M6ixUz8j
+	by smtp1.osuosl.org (Postfix) with ESMTP id BC73581A39
+	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 04:15:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BC73581A39
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=EOcll6ev
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -0.599
+X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id fLTGQLfVbXbw
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 3VydKgv87eLJ
 	for <virtualization@lists.linux-foundation.org>;
-	Mon, 25 Dec 2023 04:13:04 +0000 (UTC)
+	Mon, 25 Dec 2023 04:15:01 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id CA582607B0
-	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 04:13:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CA582607B0
+	by smtp1.osuosl.org (Postfix) with ESMTPS id D151E8135C
+	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 04:15:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D151E8135C
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1703477582;
+	s=mimecast20190719; t=1703477699;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=vFoTY6b03xbq0VaHKBl1A88a4qKRBJ1TFj0E7CCdM8Y=;
-	b=M6ixUz8jkAkJboKmR1cwvqPfVlFw6GTKT3nW0XIKXTCYLQICoyzDe7pb83D/U8MabyUKrs
-	84f0MU4AKBnKf8tUg/twcFzwkGGxiepOUvh+H/zUT3lzkgbkwfDSZOpjXPr1E4TOBQVXDU
-	Lg5KeaS3fKWpXmRvY5AXwboJmhUA7T4=
-Received: from mail-oa1-f71.google.com (mail-oa1-f71.google.com
- [209.85.160.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=33FAc0WEwTbg2UMGsuBoi+7e1xe2LV80bB+5hU/sZPA=;
+	b=EOcll6ev63aHPhT8NOqAVNXT8dNZNPAoXdSTw3KGr42TXKmrKruaMZwTzyWXNXi+FH4tgr
+	EViZekyqS3Sn1uqTirJUnp84h1NGGvXRfnWDPfLcrJ0csk/mR9crM+nSvtYlqEzrjaKn/3
+	bPixaEzKP8BBoHeSJkJcUPIDMVGTGRo=
+Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com
+ [209.85.215.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-356-Ad_LOJTJO6iB9ryQnVkSMw-1; Sun, 24 Dec 2023 23:13:00 -0500
-X-MC-Unique: Ad_LOJTJO6iB9ryQnVkSMw-1
-Received: by mail-oa1-f71.google.com with SMTP id 586e51a60fabf-2041bbdbbedso4474910fac.3
-        for <virtualization@lists.linux-foundation.org>; Sun, 24 Dec 2023 20:13:00 -0800 (PST)
+ us-mta-324-9FDICb0jN7KMaAHKEtBS9A-1; Sun, 24 Dec 2023 23:14:58 -0500
+X-MC-Unique: 9FDICb0jN7KMaAHKEtBS9A-1
+Received: by mail-pg1-f199.google.com with SMTP id 41be03b00d2f7-5ce10b4cea9so570456a12.1
+        for <virtualization@lists.linux-foundation.org>; Sun, 24 Dec 2023 20:14:57 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703477580; x=1704082380;
+        d=1e100.net; s=20230601; t=1703477697; x=1704082497;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=vFoTY6b03xbq0VaHKBl1A88a4qKRBJ1TFj0E7CCdM8Y=;
-        b=RyC7RhOPCgR2WQ29ImnKhlvqqLcGm1wm2PCR1oK+hjKIbIwN/ibNKsopPWOb2vPnkH
-         vGzBjh2tGAui5EK+hE3Rsp2q9PzhYsh5dlUEEwHi2hjyWqJwELeiHrwk2LKMN2Ts6evy
-         6oAMAGJudQ3QjMefclXk3hFgW74MKnor9qGVKtag+L8jSL4K4MCPQff20IJHJETW0a0e
-         o7OfHxo8ZJyW+1QbPcOoQrRjY2n5jk7by5E1RKvctobdlCaE8JUrtM+hlCcPkFMWWIPr
-         MI2orymzYtv9UmUYtzsOURZJH4cetW3pkhZtGPRn/NDDVWQNwf/L1vusFB/50qpqUa6o
-         B8CQ==
-X-Gm-Message-State: AOJu0Yy7zoaY9dfWxUKbnT7J1htaKyHyn0G6+KBRUI57eqwYpCVQJvZ/
-	T0s8eT+KaOYYQyp2G/EFBpSjuufYlPqpMng4G/Wj+HSvYrA2ouEl0qbiVInKGR0dUIZ+/V/9sdn
-	eW6bron+SBOyR9vFMXkMEla9svR3uj3PoOl2MBkKjOOXLHG3wUXrGuFUhj54lL5vEHw==
-X-Received: by 2002:a05:6870:a70a:b0:204:4160:6634 with SMTP id g10-20020a056870a70a00b0020441606634mr5612927oam.46.1703477580072;
-        Sun, 24 Dec 2023 20:13:00 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFEMNp5s++3ahd6zEyAbh/zOppG/O9KQ0VVCKhianOFO2YTK2NCpYDEVmZYR9tk8u33FMCCDHDZVl9vacTWGfk=
-X-Received: by 2002:a05:6870:a70a:b0:204:4160:6634 with SMTP id
- g10-20020a056870a70a00b0020441606634mr5612919oam.46.1703477579781; Sun, 24
- Dec 2023 20:12:59 -0800 (PST)
+        bh=33FAc0WEwTbg2UMGsuBoi+7e1xe2LV80bB+5hU/sZPA=;
+        b=IGnfWCJKpCNvUP8DXHs4SsfuKLMMDHjYlQcKWBJ9X9U6U7Sw5rCK+jmrU9atJTC4Hl
+         xfihiwyu5pHrN72dE7R6ESeBinqIeKYu4CIZhgwbB4lGMYL5j815rLtVNQS8/es/kTUN
+         SJJmx3rQajIdPVow/Grg5ppOcEzquLDYcqmVCkhQwTPR21CXCzR36JgWmN4V9VPLt4lF
+         q9glnjQ0EA7f0RYgDVHl4/BASpJLeWdOiAweGJaQttUCu9Gl9jTJKpr2S3+qeh4X/Eg9
+         uo8M4SlZI37swN8LqXnsV5COOabdzM8iBN4LP2wzgiG0AxKvMZ+Oo40g2pvn7aW2qdXf
+         +j7w==
+X-Gm-Message-State: AOJu0YwGa1r15wZ9moihS65HkFfKiNXPEsNcmHq35or646/bi605iTrL
+	eJCCF7HCeU2+rYQsWtQPLZY66A/93adWE1QX0xZGy4ZqkrGCoqk92j3X2n9jZaN5m1SJTI0d9Ij
+	WdWp+P1Gpvv0wFkKJtD6baOIny889R9MBH3OLBEpP5RZj2IYuCL9TwbJxAs2HEUrNBw==
+X-Received: by 2002:a05:6a20:109f:b0:195:fd1:104a with SMTP id w31-20020a056a20109f00b001950fd1104amr4326571pze.24.1703477697054;
+        Sun, 24 Dec 2023 20:14:57 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGHWZqen9JynZ2YTW9WAokGJQ4DxOKyRJ+nBVloh6rApg8yD3xhSDxgCCagmqs+lZu0swvTqExINEkW/NZqUUY=
+X-Received: by 2002:a05:6a20:109f:b0:195:fd1:104a with SMTP id
+ w31-20020a056a20109f00b001950fd1104amr4326557pze.24.1703477696748; Sun, 24
+ Dec 2023 20:14:56 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -71,16 +71,16 @@ MIME-Version: 1.0
 References: <f9f7d28624f8084ef07842ee569c22b324ee4055.1703059341.git.hengqi@linux.alibaba.com>
  <6582fe057cb9_1a34a429435@willemb.c.googlers.com.notmuch> <084142b9-7e0d-4eae-82d2-0736494953cd@linux.alibaba.com>
  <65845456cad2a_50168294ba@willemb.c.googlers.com.notmuch> <CACGkMEthxep1rvWvEmykeevLhOxiSTR1oog_PkYTRCaeavMGSA@mail.gmail.com>
- <20231222031024-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20231222031024-mutt-send-email-mst@kernel.org>
+ <CAL+tcoDM+Kqu1=11m5gc58vY3uKVA6JiggBy_FyCghHY3Za0Qw@mail.gmail.com>
+In-Reply-To: <CAL+tcoDM+Kqu1=11m5gc58vY3uKVA6JiggBy_FyCghHY3Za0Qw@mail.gmail.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 25 Dec 2023 12:12:48 +0800
-Message-ID: <CACGkMEsZDYFuvxgw63U5naLTYH5XNwMTMNvsoz439AWonFE4Vg@mail.gmail.com>
+Date: Mon, 25 Dec 2023 12:14:45 +0800
+Message-ID: <CACGkMEsDFTPUVXfSj5FGTK_722F1QkKHJG3GNV3qvsaKATZV_w@mail.gmail.com>
 Subject: Re: [PATCH net-next] virtio-net: switch napi_tx without downing nic
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Xing <kerneljasonxing@gmail.com>
 Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, Heng Qi <hengqi@linux.alibaba.com>, 
 	netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
 	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Alexei Starovoitov <ast@kernel.org>, 
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 X-Mimecast-Spam-Score: 0
@@ -88,10 +88,13 @@ X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Dec 22, 2023 at 4:14=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
- wrote:
+On Mon, Dec 25, 2023 at 10:25=E2=80=AFAM Jason Xing <kerneljasonxing@gmail.=
+com> wrote:
 >
-> On Fri, Dec 22, 2023 at 10:35:07AM +0800, Jason Wang wrote:
+> Hello Jason,
+> On Fri, Dec 22, 2023 at 10:36=E2=80=AFAM Jason Wang <jasowang@redhat.com>=
+ wrote:
+> >
 > > On Thu, Dec 21, 2023 at 11:06=E2=80=AFPM Willem de Bruijn
 > > <willemdebruijn.kernel@gmail.com> wrote:
 > > >
@@ -156,41 +159,31 @@ ing
 > >
 > > +1
 > >
+> [...]
 > > And instead of trying to do this, it would be much better to optimize
 > > the NAPI performance. Then we can drop the orphan mode.
 >
-> "To address your problem, optimize our code to the level which we
-> couldn't achieve in more than 10 years".
+> Do you mean when to call skb_orphan()? If yes, I just want to provide
+> more information that we also have some performance issues where the
+> flow control takes a bad effect, especially under some small
+> throughput in our production environment.
 
-Last time QE didn't report any issue for TCP. For others, the code
-might just need some optimization if it really matters, it's just
-because nobody has worked on this part in the past years.
+I think you need to describe it in detail.
 
-The ethtool trick is just for debugging purposes, I can hardly believe
-it is used by any management layer software.
+> What strikes me as odd is if I restart the network, then the issue
+> will go with the wind. I cannot reproduce it in my testing machine.
+> One more thing: if I force skb_orphan() the current skb in every
+> start_xmit(), it could also solve the issue but not in a proper way.
+> After all, it drops the flow control... :S
 
-> That's not a reasonable
-> requirement. Not getting an interrupt will always be better for some
-> workloads.
-
-So NAPI has been enabled by default for many years. And most of the
-NIC doesn't do orphans. Orphan has known issues like pktgen and
-others. Keeping two modes may result in tricky code and complicate the
-features like BQL [1]. We would have interrupt coalescing and dim
-soon. Admin can enable the heuristic or tweak it according to the
-workload which is much more user friendly than orphaning.
-
-I don't see a strong point to keep the orphan mode any more
-considering the advantages of NAPI.
+Yes, that's the known issue.
 
 Thanks
 
-[1] https://lore.kernel.org/lkml/20181205225323.12555-2-mst@redhat.com/
-
-
-
 >
->
+> Thanks,
+> Jason
+> >
 > > >
 > > > The napi_tx and non-napi code paths differ in how they handle at leas=
 t
@@ -231,5 +224,7 @@ s
 > > > message.
 > >
 > > Thanks
+> >
+> >
 >
 
