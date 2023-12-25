@@ -1,120 +1,78 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ot1-f54.google.com (mail-ot1-f54.google.com [209.85.210.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 804E352F6F
-	for <virtualization@lists.linux.dev>; Mon, 25 Dec 2023 16:09:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33DB253E11
+	for <virtualization@lists.linux.dev>; Mon, 25 Dec 2023 21:35:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="D9mqPlfT"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1703520585;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=VqafsTsLWFL6NUacBRAsGtc9kpoOdr+j/kVqdz2KGps=;
-	b=D9mqPlfTwYuNJi4B6KW9virIn25oAF6KJO1DPRjL3QgxGoYi/aZvQhQ6SxaAucfl1mfkTI
-	2BhAsqnTfOgOxR+qFBkoEO02/lLWZdSG4DtRAMJ7mE1KRUKAFVGeLstdjJ6VVrBdaG+4BT
-	HC6YfH4aB8ZfJIQTKQ076gm3A3IuBSk=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-627-Uc_mpmg6P9yg0qEbMck2iQ-1; Mon, 25 Dec 2023 11:09:44 -0500
-X-MC-Unique: Uc_mpmg6P9yg0qEbMck2iQ-1
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-40d31116cffso31408145e9.2
-        for <virtualization@lists.linux.dev>; Mon, 25 Dec 2023 08:09:43 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MyBd3Qm0"
+Received: by mail-ot1-f54.google.com with SMTP id 46e09a7af769-6dbca8c6eeeso803302a34.1
+        for <virtualization@lists.linux.dev>; Mon, 25 Dec 2023 13:35:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1703540133; x=1704144933; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=Vk3BrCUhkF8HNi8hqkxjkr1dZsGMp84ddJ6VAzsBSHI=;
+        b=MyBd3Qm0GWXYn8nlECiQ1KY+jq7h/hWOvEjjvNAJg7mSR5ecld+brae9YwLYxD2TWV
+         qgddFpmPEj9DrkGF1rO70q97TT8MpekGHvJ+5DLZpHoJG0vTzcMARruX86KxXNRBCYRF
+         5hwl3PQTL2uQ4BUtM9V732XMaHXnnWezeNYEk/R+8u1429dx6fXZc9hSDj58Xz7S2RWZ
+         8gYmdEgElMp0K/qFWGLpL1JYXkzVN3ROCUeiRjEK2oiuO7tJ/ZdRjaWIGWt/UMYTzjTj
+         C2tahImRycGb+2sY82TsKx/vQ5J8VGFXl30lRPp6QLY7PwyBg8JJSu0FD+Hu3JVaoiso
+         6wfw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703520583; x=1704125383;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=VqafsTsLWFL6NUacBRAsGtc9kpoOdr+j/kVqdz2KGps=;
-        b=B1GFLfeQAOXK2dT/l4nwdUWRUJhg2Yz4fsGG1ss6uWunechQxUYFrb6ARRhGDRyk5Z
-         xhYCVCF3C2pU+LbYb4fcjOW+vt9tTVmlEE20G1KtWo7VOGt8bC+qZpoNpMAyVy6O46j/
-         NimuaJtt+akjYzImEsDkQOK2G0/lp9UWTvkObsdksoD7heDo3jMKkm8pxQnaM9oRhWfH
-         nGOf9wHsU+/LnfR1kkaHD3StocG/IKUqQYoKit0zlc5GhRKjtI6fRSkiLqP51JJAcMv3
-         n6M0wMwoRytzSsRunqg85vEYEqzKHcxpX8FZlDjlG0QURcU6ZqjKYvOybiPN3Ef/N0/h
-         P4Sw==
-X-Gm-Message-State: AOJu0Yx43GGw2kg9S5SDFr0aMbd51lL5LHlsqwhAxXVhw5G5xN749HVt
-	0iGtyDO9Qg/6qJemY1MCvoqnae3HX8e8ftqvLYFJ61rPdDGYKeoPvIfpMCCNFlDINTHAt8sFmoU
-	+FUFefFOZonoIFP/yHj5I8yHK241wtaHu6FE=
-X-Received: by 2002:a05:600c:4587:b0:40c:33be:d193 with SMTP id r7-20020a05600c458700b0040c33bed193mr4060358wmo.78.1703520582991;
-        Mon, 25 Dec 2023 08:09:42 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHfGGCax+SlWX/roShT1Wqm6zJg2zHkXbA4PNy8JwUTudzLUljk5TaAwhoH/7jZ8kvUv2pY7Q==
-X-Received: by 2002:a05:600c:4587:b0:40c:33be:d193 with SMTP id r7-20020a05600c458700b0040c33bed193mr4060329wmo.78.1703520582646;
-        Mon, 25 Dec 2023 08:09:42 -0800 (PST)
-Received: from redhat.com ([2a06:c701:73ef:4100:2cf6:9475:f85:181e])
-        by smtp.gmail.com with ESMTPSA id f12-20020a05600c4e8c00b0040d3db8186fsm16769282wmq.5.2023.12.25.08.09.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 Dec 2023 08:09:41 -0800 (PST)
-Date: Mon, 25 Dec 2023 11:09:37 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Pasha Tatashin <pasha.tatashin@soleen.com>
-Cc: akpm@linux-foundation.org, alex.williamson@redhat.com,
-	alim.akhtar@samsung.com, alyssa@rosenzweig.io,
-	asahi@lists.linux.dev, baolu.lu@linux.intel.com,
-	bhelgaas@google.com, cgroups@vger.kernel.org, corbet@lwn.net,
-	david@redhat.com, dwmw2@infradead.org, hannes@cmpxchg.org,
-	heiko@sntech.de, iommu@lists.linux.dev, jasowang@redhat.com,
-	jernej.skrabec@gmail.com, jgg@ziepe.ca, jonathanh@nvidia.com,
-	joro@8bytes.org, kevin.tian@intel.com,
-	krzysztof.kozlowski@linaro.org, kvm@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, linux-rockchip@lists.infradead.org,
-	linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
-	linux-tegra@vger.kernel.org, lizefan.x@bytedance.com,
-	marcan@marcan.st, mhiramat@kernel.org, m.szyprowski@samsung.com,
-	netdev@vger.kernel.org, paulmck@kernel.org, rdunlap@infradead.org,
-	robin.murphy@arm.com, samuel@sholland.org,
-	suravee.suthikulpanit@amd.com, sven@svenpeter.dev,
-	thierry.reding@gmail.com, tj@kernel.org, tomas.mudrunka@gmail.com,
-	vdumpa@nvidia.com, virtualization@lists.linux.dev, wens@csie.org,
-	will@kernel.org, yu-cheng.yu@intel.com
-Subject: Re: [PATCH 15/16] vhost-vdpa: account iommu allocations
-Message-ID: <20231225110930-mutt-send-email-mst@kernel.org>
-References: <20231128204938.1453583-1-pasha.tatashin@soleen.com>
- <20231128204938.1453583-16-pasha.tatashin@soleen.com>
+        d=1e100.net; s=20230601; t=1703540133; x=1704144933;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Vk3BrCUhkF8HNi8hqkxjkr1dZsGMp84ddJ6VAzsBSHI=;
+        b=aVUHLoyVU8Ky62bYrNFBQkGIVa0VfnHg9vBAve8/ihHbMuVN445ZrvPcVH3UyPrFuN
+         fVA4TKjNwtHFIT4yfrDg2nutYv8sZRf7I2JQobn4dPQZO/6a6vyqDZ2xT11XdgQQrLzu
+         zF4hFunJEEcJef3qLCd1djkbU8rZ2kyXV5/hW2sI98klQuCFwd+ti+LPhDYh+kzFhI3F
+         GsXVTjMJ01diJehcZIyQ+Bo3N9jSyr5HAEx6+4LGUSgos09CgaYytpc74k3cyyonqMwt
+         /cPu/ycVoAiJ4Ch32FNdPftyYKUFPJIxhnzwQYoumtF9xHf/EssquWiPehE/IMSNRzb+
+         tz/Q==
+X-Gm-Message-State: AOJu0YyPq51enX1bCPfFapwsKL7UNlxibyeuNLlw0FZ4twS6ELhKKBfk
+	m36hIjdWmZQjp9kmNLSCTzHdLJ2HF4pbvJqpVp+XvioelO8=
+X-Google-Smtp-Source: AGHT+IF1ALMcZKnA4llsyBw7rVtGfnYUrZqqpeQaYHATEY6RAt9XEi5JjGL9mAun1x7rCUMA0cgxJM1hWmcGDvIbtRo=
+X-Received: by 2002:a05:6359:c1c:b0:174:ed0f:672e with SMTP id
+ gn28-20020a0563590c1c00b00174ed0f672emr2919571rwb.1.1703540132944; Mon, 25
+ Dec 2023 13:35:32 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20231128204938.1453583-16-pasha.tatashin@soleen.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+From: Askar Safin <safinaskar@gmail.com>
+Date: Tue, 26 Dec 2023 00:34:44 +0300
+Message-ID: <CAPnZJGCdr7pw80Pq38UacmxsbQAowmasPtFxQVCP+tm6Cj9pUg@mail.gmail.com>
+Subject: Re: Avoid unprivileged splice(file->)/(->socket) pipe exclusion
+To: =?UTF-8?Q?Ahelenia_Ziemia=C5=84ska?= <nabijaczleweli@nabijaczleweli.xyz>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-man <linux-man@vger.kernel.org>, linux-s390@vger.kernel.org, 
+	linux-serial@vger.kernel.org, netdev@vger.kernel.org, 
+	virtualization@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Nov 28, 2023 at 08:49:37PM +0000, Pasha Tatashin wrote:
-> iommu allocations should be accounted in order to allow admins to
-> monitor and limit the amount of iommu memory.
-> 
-> Signed-off-by: Pasha Tatashin <pasha.tatashin@soleen.com>
+Hi, Ahelenia Ziemia=C5=84ska! Thanks a lot for all this splice-related hard=
+ work!
 
+In https://lore.kernel.org/lkml/CAHk-=3DwgG_2cmHgZwKjydi7=3DiimyHyN8aessnbM=
+9XQ9ufbaUz9g@mail.gmail.com/
+Linus said:
+> I have grown to pretty much hate
+> splice() over the years, just because it's been a constant source of
+> sorrow in so many ways.
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+> It's just that it was never as lovely and as useful as it promised to
+> be. So I'd actually be more than happy to just say "let's decommission
+> splice entirely, just keeping the interfaces alive for backwards
+> compatibility"
 
+So probably we should do this as Linus suggested? I. e. fully remove
+splice by replacing it with trivial read-write?
 
-> ---
->  drivers/vhost/vdpa.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> index da7ec77cdaff..a51c69c078d9 100644
-> --- a/drivers/vhost/vdpa.c
-> +++ b/drivers/vhost/vdpa.c
-> @@ -968,7 +968,8 @@ static int vhost_vdpa_map(struct vhost_vdpa *v, struct vhost_iotlb *iotlb,
->  			r = ops->set_map(vdpa, asid, iotlb);
->  	} else {
->  		r = iommu_map(v->domain, iova, pa, size,
-> -			      perm_to_iommu_flags(perm), GFP_KERNEL);
-> +			      perm_to_iommu_flags(perm),
-> +			      GFP_KERNEL_ACCOUNT);
->  	}
->  	if (r) {
->  		vhost_iotlb_del_range(iotlb, iova, iova + size - 1);
-> -- 
-> 2.43.0.rc2.451.g8631bc7472-goog
-
+--=20
+Askar Safin
