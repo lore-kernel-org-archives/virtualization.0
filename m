@@ -1,183 +1,309 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7163E1C14
-	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 08:03:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B36352F6F
+	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 12:59:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JD8AGyFu"
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="o8WFdtZf"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id D94B3414A1
-	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 08:03:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D94B3414A1
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=JD8AGyFu
+	by smtp3.osuosl.org (Postfix) with ESMTP id DB69560B4C
+	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 12:59:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DB69560B4C
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=o8WFdtZf
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.099
+X-Spam-Score: -4.401
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id EHnVaIWZNOsl
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 82wfzHl4Aw0H
 	for <virtualization@lists.linux-foundation.org>;
-	Mon, 25 Dec 2023 08:03:57 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id D701E4149D
-	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 08:03:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D701E4149D
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1703491435;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=wCwTTNNyqrMfZw/hNOREXjBR0xNOBHLOAENENPZLEbY=;
-	b=JD8AGyFuchz+ctYzFghPlm5vRei5rOD4jSjk8AGl5Pi9scuDSWPm7gGibFw0Vhlth6SFYs
-	jdeF+yCsEjPWEe2e9mZb2elUoOVz1b/OqJGvP37nJLxQZiVktbWXfoccV7oGjAdi5heFMp
-	sxYdkz0xAMG9YBa/svij0ukiwfn5aP8=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-596-fIUDjsIeOSS1SINItALObA-1; Mon, 25 Dec 2023 03:03:51 -0500
-X-MC-Unique: fIUDjsIeOSS1SINItALObA-1
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-40d17446f11so40517575e9.0
-        for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 00:03:51 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703491431; x=1704096231;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=wCwTTNNyqrMfZw/hNOREXjBR0xNOBHLOAENENPZLEbY=;
-        b=AW8xq8zjbLpyhXm09YFYR9NCptJWEBcyXmuFuTWclO7y7IB5YQdqmwb9vt5DWnF/i2
-         HFbfsU9s8FbULTRfhSk32OZcM+GEf6yUhBh52Os3GMsFT3nghE1SgupaW9DpoAXrc0yH
-         7K+fiXwi2nE4SJ9IfkQMQBq6TzMuQDSxuCGuq4mIwMY1S4LaRD0lrLFhlDvYj3AOlEBz
-         J92cJiq9Hr8/W2puFgozV1PAOnXNDerAGl2nUs2I4Dlkwaa8OOGpUdSi5al5OLGsf+lb
-         Z4z6IGox7oG+8w4RTOgJ5/jSgGJjqdUEFuKTyy/BUIbMpU0LdkTxAzsYJ3zgV41L3yhx
-         Wy6Q==
-X-Gm-Message-State: AOJu0YwmqgCUuzIJhzpMT6m5rLXVIRraaT+56/K0RpxpfQdFZgW3tfxV
-	0yJGwLMcFKzyMFUGxusR8D7TFZhAqiAx6dtmT3xCs4QpAxyRcY+Ep8d94cp3M0/TcUD5t9dzLAb
-	xyaEZ8IQsFpc5wqxNl7RCEihgoyDw3dzKrM4Qrl9rDX1FVG5C5w==
-X-Received: by 2002:a05:600c:524c:b0:408:434c:dae7 with SMTP id fc12-20020a05600c524c00b00408434cdae7mr2777987wmb.2.1703491430690;
-        Mon, 25 Dec 2023 00:03:50 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEZgyHSr0SfK4IlMsoMWoOO6taBhyRbYG9Be5tX7F8nmLfhtDinWZt84jKjwnyMxfcf5lIUjg==
-X-Received: by 2002:a05:600c:524c:b0:408:434c:dae7 with SMTP id fc12-20020a05600c524c00b00408434cdae7mr2777976wmb.2.1703491430375;
-        Mon, 25 Dec 2023 00:03:50 -0800 (PST)
-Received: from redhat.com ([2.55.177.189])
-        by smtp.gmail.com with ESMTPSA id w18-20020adfee52000000b0033657376b62sm9789710wro.105.2023.12.25.00.03.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 Dec 2023 00:03:49 -0800 (PST)
-Date: Mon, 25 Dec 2023 03:03:46 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
-	Heng Qi <hengqi@linux.alibaba.com>, netdev@vger.kernel.org,
+	Mon, 25 Dec 2023 12:59:11 +0000 (UTC)
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 1921460803
+	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 12:59:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1921460803
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by sin.source.kernel.org (Postfix) with ESMTP id 1B48ACE0E34;
+	Mon, 25 Dec 2023 12:59:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F704C433C8;
+	Mon, 25 Dec 2023 12:58:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1703509143;
+	bh=me1g9HblztxsBmrb/PVT3corizKldTsjfk6ZS3LImJU=;
+	h=From:To:Cc:Subject:Date:From;
+	b=o8WFdtZfThKVy0nwqLvF+M+9jReTczDYnOZy1wL7TYO2xOSCSsDTYag/J5kWhC6V0
+	 1ZzAKPpdFPqECgte7cma56HFB7va2NyG7ER6zAUkqeQb4EeDjK9nSnACZFns1FXbEH
+	 EeVK8UdR+WfqU76dbmJZEnGlSOWkhC473p4SPZhGwdcNXdh0TtozdcttytPGkyIYU1
+	 A8UgAZhZz6k+E/3CQsvbS2Ay0/jes20HDZ0eA9Z2JTsrua9cXI9T1tj4F0etBcmrNs
+	 hSbcQvhkasfZmhXA1gxzqEx8MbrDQd6IIeqZlfiHIrzCWmtmzhz2E+bz/0X3/O+eVU
+	 IeHPfce/m1JCg==
+From: guoren@kernel.org
+To: paul.walmsley@sifive.com,
+	palmer@dabbelt.com,
+	guoren@kernel.org,
+	panqinglin2020@iscas.ac.cn,
+	bjorn@rivosinc.com,
+	conor.dooley@microchip.com,
+	leobras@redhat.com,
+	peterz@infradead.org,
+	anup@brainfault.org,
+	keescook@chromium.org,
+	wuwei2016@iscas.ac.cn,
+	xiaoguang.xing@sophgo.com,
+	chao.wei@sophgo.com,
+	unicorn_wang@outlook.com,
+	uwu@icenowy.me,
+	jszhang@kernel.org,
+	wefu@redhat.com,
+	atishp@atishpatra.org
+Cc: linux-riscv@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	kvm@vger.kernel.org,
 	virtualization@lists.linux-foundation.org,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next] virtio-net: switch napi_tx without downing nic
-Message-ID: <20231225025936-mutt-send-email-mst@kernel.org>
-References: <f9f7d28624f8084ef07842ee569c22b324ee4055.1703059341.git.hengqi@linux.alibaba.com>
- <6582fe057cb9_1a34a429435@willemb.c.googlers.com.notmuch>
- <084142b9-7e0d-4eae-82d2-0736494953cd@linux.alibaba.com>
- <65845456cad2a_50168294ba@willemb.c.googlers.com.notmuch>
- <CACGkMEthxep1rvWvEmykeevLhOxiSTR1oog_PkYTRCaeavMGSA@mail.gmail.com>
- <20231222031024-mutt-send-email-mst@kernel.org>
- <CACGkMEsZDYFuvxgw63U5naLTYH5XNwMTMNvsoz439AWonFE4Vg@mail.gmail.com>
+	Guo Ren <guoren@linux.alibaba.com>
+Subject: [PATCH V12 00/14] riscv: Add Native/Paravirt qspinlock support 
+Date: Mon, 25 Dec 2023 07:58:33 -0500
+Message-Id: <20231225125847.2778638-1-guoren@kernel.org>
+X-Mailer: git-send-email 2.40.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEsZDYFuvxgw63U5naLTYH5XNwMTMNvsoz439AWonFE4Vg@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 
-On Mon, Dec 25, 2023 at 12:12:48PM +0800, Jason Wang wrote:
-> On Fri, Dec 22, 2023 at 4:14 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > On Fri, Dec 22, 2023 at 10:35:07AM +0800, Jason Wang wrote:
-> > > On Thu, Dec 21, 2023 at 11:06 PM Willem de Bruijn
-> > > <willemdebruijn.kernel@gmail.com> wrote:
-> > > >
-> > > > Heng Qi wrote:
-> > > > >
-> > > > >
-> > > > > 在 2023/12/20 下午10:45, Willem de Bruijn 写道:
-> > > > > > Heng Qi wrote:
-> > > > > >> virtio-net has two ways to switch napi_tx: one is through the
-> > > > > >> module parameter, and the other is through coalescing parameter
-> > > > > >> settings (provided that the nic status is down).
-> > > > > >>
-> > > > > >> Sometimes we face performance regression caused by napi_tx,
-> > > > > >> then we need to switch napi_tx when debugging. However, the
-> > > > > >> existing methods are a bit troublesome, such as needing to
-> > > > > >> reload the driver or turn off the network card.
-> > >
-> > > Why is this troublesome? We don't need to turn off the card, it's just
-> > > a toggling of the interface.
-> > >
-> > > This ends up with pretty simple code.
-> > >
-> > > > So try to make
-> > > > > >> this update.
-> > > > > >>
-> > > > > >> Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
-> > > > > >> Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > > > The commit does not explain why it is safe to do so.
-> > > > >
-> > > > > virtnet_napi_tx_disable ensures that already scheduled tx napi ends and
-> > > > > no new tx napi will be scheduled.
-> > > > >
-> > > > > Afterwards, if the __netif_tx_lock_bh lock is held, the stack cannot
-> > > > > send the packet.
-> > > > >
-> > > > > Then we can safely toggle the weight to indicate where to clear the buffers.
-> > > > >
-> > > > > >
-> > > > > > The tx-napi weights are not really weights: it is a boolean whether
-> > > > > > napi is used for transmit cleaning, or whether packets are cleaned
-> > > > > > in ndo_start_xmit.
-> > > > >
-> > > > > Right.
-> > > > >
-> > > > > >
-> > > > > > There certainly are some subtle issues with regard to pausing/waking
-> > > > > > queues when switching between modes.
-> > > > >
-> > > > > What are "subtle issues" and if there are any, we find them.
-> > > >
-> > > > A single runtime test is not sufficient to exercise all edge cases.
-> > > >
-> > > > Please don't leave it to reviewers to establish the correctness of a
-> > > > patch.
-> > >
-> > > +1
-> > >
-> > > And instead of trying to do this, it would be much better to optimize
-> > > the NAPI performance. Then we can drop the orphan mode.
-> >
-> > "To address your problem, optimize our code to the level which we
-> > couldn't achieve in more than 10 years".
-> 
-> Last time QE didn't report any issue for TCP. For others, the code
-> might just need some optimization if it really matters, it's just
-> because nobody has worked on this part in the past years.
+From: Guo Ren <guoren@linux.alibaba.com>
 
-You think nobody worked on performance of virtio net because nobody
-could bother? I think it's just micro optimized to a level where
-progress is difficult.
+patch[1 - 8]: Native   qspinlock
+patch[9 -14]: Paravirt qspinlock
 
-> The ethtool trick is just for debugging purposes, I can hardly believe
-> it is used by any management layer software.
+This series based on:
+ - v6.7-rc7
+ - Rework & improve riscv cmpxchg.h and atomic.h
+   https://lore.kernel.org/linux-riscv/20230810040349.92279-2-leobras@redhat.com/
 
-It's UAPI - someone somewhere uses it, management layer or not.
+You can directly try it:
+https://github.com/guoren83/linux/tree/qspinlock_v12 
+
+Native qspinlock
+================
+
+This time we've proved the qspinlock on th1520 [1] & sg2042 [2], which
+gives stability and performance improvement. All T-HEAD processors have
+a strong LR/SC forward progress guarantee than the requirements of the
+ISA, which could satisfy the xchg_tail of native_qspinlock. Now,
+qspinlock has been run with us for more than 1 year, and we have enough
+confidence to enable it for all the T-HEAD processors. Of causes, we
+found a livelock problem with the qspinlock lock torture test from the
+CPU store merge buffer delay mechanism, which caused the queued spinlock
+becomes a dead ring and RCU warning to come out. We introduce a custom
+WRITE_ONCE to solve this, which will be fixed in the next generation of
+hardware.
+
+We've tested the patch on SOPHGO sg2042 & th1520 and passed the stress
+test on Fedora & Ubuntu & OpenEuler ... Here is the performance
+comparison between qspinlock and ticket_lock on sg2042 (64 cores):
+
+sysbench test=threads threads=32 yields=100 lock=8 (+13.8%):
+  queued_spinlock 0.5109/0.00
+  ticket_spinlock 0.5814/0.00
+
+perf futex/hash (+6.7%):
+  queued_spinlock 1444393 operations/sec (+- 0.09%)
+  ticket_spinlock 1353215 operations/sec (+- 0.15%)
+
+perf futex/wake-parallel (+8.6%):
+  queued_spinlock (waking 1/64 threads) in 0.0253 ms (+-2.90%)
+  ticket_spinlock (waking 1/64 threads) in 0.0275 ms (+-3.12%)
+
+perf futex/requeue (+4.2%):
+  queued_spinlock Requeued 64 of 64 threads in 0.0785 ms (+-0.55%)
+  ticket_spinlock Requeued 64 of 64 threads in 0.0818 ms (+-4.12%)
+
+
+System Benchmarks (+6.4%)
+  queued_spinlock:
+    System Benchmarks Index Values               BASELINE       RESULT    INDEX
+    Dhrystone 2 using register variables         116700.0  628613745.4  53865.8
+    Double-Precision Whetstone                       55.0     182422.8  33167.8
+    Execl Throughput                                 43.0      13116.6   3050.4
+    File Copy 1024 bufsize 2000 maxblocks          3960.0    7762306.2  19601.8
+    File Copy 256 bufsize 500 maxblocks            1655.0    3417556.8  20649.9
+    File Copy 4096 bufsize 8000 maxblocks          5800.0    7427995.7  12806.9
+    Pipe Throughput                               12440.0   23058600.5  18535.9
+    Pipe-based Context Switching                   4000.0    2835617.7   7089.0
+    Process Creation                                126.0      12537.3    995.0
+    Shell Scripts (1 concurrent)                     42.4      57057.4  13456.9
+    Shell Scripts (8 concurrent)                      6.0       7367.1  12278.5
+    System Call Overhead                          15000.0   33308301.3  22205.5
+                                                                       ========
+    System Benchmarks Index Score                                       12426.1
+
+  ticket_spinlock:
+    System Benchmarks Index Values               BASELINE       RESULT    INDEX
+    Dhrystone 2 using register variables         116700.0  626541701.9  53688.2
+    Double-Precision Whetstone                       55.0     181921.0  33076.5
+    Execl Throughput                                 43.0      12625.1   2936.1
+    File Copy 1024 bufsize 2000 maxblocks          3960.0    6553792.9  16550.0
+    File Copy 256 bufsize 500 maxblocks            1655.0    3189231.6  19270.3
+    File Copy 4096 bufsize 8000 maxblocks          5800.0    7221277.0  12450.5
+    Pipe Throughput                               12440.0   20594018.7  16554.7
+    Pipe-based Context Switching                   4000.0    2571117.7   6427.8
+    Process Creation                                126.0      10798.4    857.0
+    Shell Scripts (1 concurrent)                     42.4      57227.5  13497.1
+    Shell Scripts (8 concurrent)                      6.0       7329.2  12215.3
+    System Call Overhead                          15000.0   30766778.4  20511.2
+                                                                       ========
+    System Benchmarks Index Score                                       11670.7
+
+The qspinlock has a significant improvement on SOPHGO SG2042 64
+cores platform than the ticket_lock.
+
+Paravirt qspinlock
+==================
+
+We implemented kvm_kick_cpu/kvm_wait_cpu and add tracepoints to observe
+the behaviors and introduce a new SBI extension SBI_EXT_PVLOCK.
+
+Changlog:
+V12:
+ - Remove force thead qspinlock with errata
+ - Separate Zicbop patch from this series
+ - Remove cpus >= 16 patch
+ - Cleanup rebase and move it on v6.7-rc7
+ - Reorder the coding struct with the last version's advice.
+
+V11:
+https://lore.kernel.org/linux-riscv/20230910082911.3378782-1-guoren@kernel.org/
+ - Based on Leonardo Bras's cmpxchg_small patches v5.
+ - Based on Guo Ren's Optimize arch_spin_value_unlocked patch v3.
+ - Remove abusing alternative framework and use jump_label instead.
+ - Introduce prefetch.w to improve T-HEAD processors' LR/SC forward
+   progress guarantee.
+ - Optimize qspinlock xchg_tail when NR_CPUS >= 16K.
+
+V10:
+https://lore.kernel.org/linux-riscv/20230802164701.192791-1-guoren@kernel.org/
+ - Using an alternative framework instead of static_key_branch in the
+   asm/spinlock.h.
+ - Fixup store merge buffer problem, which causes qspinlock lock
+   torture test livelock.
+ - Add paravirt qspinlock support, include KVM backend
+ - Add Compact NUMA-awared qspinlock support 
+
+V9:
+https://lore.kernel.org/linux-riscv/20220808071318.3335746-1-guoren@kernel.org/
+ - Cleanup generic ticket-lock code, (Using smp_mb__after_spinlock as
+   RCsc)
+ - Add qspinlock and combo-lock for riscv
+ - Add qspinlock to openrisc
+ - Use generic header in csky
+ - Optimize cmpxchg & atomic code
+
+V8:
+https://lore.kernel.org/linux-riscv/20220724122517.1019187-1-guoren@kernel.org/
+ - Coding convention ticket fixup
+ - Move combo spinlock into riscv and simply asm-generic/spinlock.h
+ - Fixup xchg16 with wrong return value
+ - Add csky qspinlock
+ - Add combo & qspinlock & ticket-lock comparison
+ - Clean up unnecessary riscv acquire and release definitions
+ - Enable ARCH_INLINE_READ*/WRITE*/SPIN* for riscv & csky
+
+V7:
+https://lore.kernel.org/linux-riscv/20220628081946.1999419-1-guoren@kernel.org/
+ - Add combo spinlock (ticket & queued) support
+ - Rename ticket_spinlock.h
+ - Remove unnecessary atomic_read in ticket_spin_value_unlocked  
+
+V6:
+https://lore.kernel.org/linux-riscv/20220621144920.2945595-1-guoren@kernel.org/
+ - Fixup Clang compile problem Reported-by: kernel test robot
+ - Cleanup asm-generic/spinlock.h
+ - Remove changelog in patch main comment part, suggested by
+   Conor.Dooley
+ - Remove "default y if NUMA" in Kconfig
+
+V5:
+https://lore.kernel.org/linux-riscv/20220620155404.1968739-1-guoren@kernel.org/
+ - Update comment with RISC-V forward guarantee feature.
+ - Back to V3 direction and optimize asm code.
+
+V4:
+https://lore.kernel.org/linux-riscv/1616868399-82848-4-git-send-email-guoren@kernel.org/
+ - Remove custom sub-word xchg implementation
+ - Add ARCH_USE_QUEUED_SPINLOCKS_XCHG32 in locking/qspinlock
+
+V3:
+https://lore.kernel.org/linux-riscv/1616658937-82063-1-git-send-email-guoren@kernel.org/
+ - Coding convention by Peter Zijlstra's advices
+
+V2:
+https://lore.kernel.org/linux-riscv/1606225437-22948-2-git-send-email-guoren@kernel.org/
+ - Coding convention in cmpxchg.h
+ - Re-implement short xchg
+ - Remove char & cmpxchg implementations
+
+V1:
+https://lore.kernel.org/linux-riscv/20190211043829.30096-1-michaeljclark@mac.com/
+ - Using cmpxchg loop to implement sub-word atomic
+
+Guo Ren (14):
+  asm-generic: ticket-lock: Reuse arch_spinlock_t of qspinlock
+  asm-generic: ticket-lock: Add separate ticket-lock.h
+  riscv: errata: Move errata vendor func-id into vendorid_list.h
+  riscv: qspinlock: errata: Add ERRATA_THEAD_WRITE_ONCE fixup
+  riscv: qspinlock: Add basic queued_spinlock support
+  riscv: qspinlock: Introduce combo spinlock
+  riscv: qspinlock: Add virt_spin_lock() support for VM guest
+  riscv: qspinlock: Force virt_spin_lock for KVM guests
+  RISC-V: paravirt: Add pvqspinlock KVM backend
+  RISC-V: paravirt: Add pvqspinlock frontend skeleton
+  RISC-V: paravirt: pvqspinlock: Add SBI implementation
+  RISC-V: paravirt: pvqspinlock: Add nopvspin kernel parameter
+  RISC-V: paravirt: pvqspinlock: Add kconfig entry
+  RISC-V: paravirt: pvqspinlock: Add trace point for pv_kick/wait
+
+ .../admin-guide/kernel-parameters.txt         |   8 +-
+ arch/riscv/Kconfig                            |  35 ++++++
+ arch/riscv/Kconfig.errata                     |  19 ++++
+ arch/riscv/errata/thead/errata.c              |  20 ++++
+ arch/riscv/include/asm/Kbuild                 |   3 +-
+ arch/riscv/include/asm/errata_list.h          |  18 ---
+ arch/riscv/include/asm/kvm_vcpu_sbi.h         |   1 +
+ arch/riscv/include/asm/qspinlock.h            |  35 ++++++
+ arch/riscv/include/asm/qspinlock_paravirt.h   |  29 +++++
+ arch/riscv/include/asm/rwonce.h               |  31 ++++++
+ arch/riscv/include/asm/sbi.h                  |  14 +++
+ arch/riscv/include/asm/spinlock.h             |  88 +++++++++++++++
+ arch/riscv/include/asm/vendorid_list.h        |  19 ++++
+ arch/riscv/include/uapi/asm/kvm.h             |   1 +
+ arch/riscv/kernel/Makefile                    |   1 +
+ arch/riscv/kernel/qspinlock_paravirt.c        |  83 ++++++++++++++
+ arch/riscv/kernel/sbi.c                       |   2 +-
+ arch/riscv/kernel/setup.c                     |  68 ++++++++++++
+ .../kernel/trace_events_filter_paravirt.h     |  60 ++++++++++
+ arch/riscv/kvm/Makefile                       |   1 +
+ arch/riscv/kvm/vcpu_sbi.c                     |   4 +
+ arch/riscv/kvm/vcpu_sbi_pvlock.c              |  57 ++++++++++
+ include/asm-generic/qspinlock.h               |   2 +
+ include/asm-generic/rwonce.h                  |   2 +
+ include/asm-generic/spinlock.h                |  87 +--------------
+ include/asm-generic/spinlock_types.h          |  12 +-
+ include/asm-generic/ticket_spinlock.h         | 105 ++++++++++++++++++
+ 27 files changed, 688 insertions(+), 117 deletions(-)
+ create mode 100644 arch/riscv/include/asm/qspinlock.h
+ create mode 100644 arch/riscv/include/asm/qspinlock_paravirt.h
+ create mode 100644 arch/riscv/include/asm/rwonce.h
+ create mode 100644 arch/riscv/include/asm/spinlock.h
+ create mode 100644 arch/riscv/kernel/qspinlock_paravirt.c
+ create mode 100644 arch/riscv/kernel/trace_events_filter_paravirt.h
+ create mode 100644 arch/riscv/kvm/vcpu_sbi_pvlock.c
+ create mode 100644 include/asm-generic/ticket_spinlock.h
 
 -- 
-MST
+2.40.1
 
