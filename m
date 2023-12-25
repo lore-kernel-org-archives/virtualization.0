@@ -1,141 +1,183 @@
-Received: from mout.web.de (mout.web.de [212.227.15.4])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0C4CDDB3;
-	Sun, 24 Dec 2023 19:56:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 037BC15B9
+	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 00:23:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="QoZIYXi9"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de; s=s29768273;
-	t=1703447762; x=1704052562; i=markus.elfring@web.de;
-	bh=cm+fIZLlDlbOzuqZGb6TsofPaKLKFGH0UKkUeJ6PVQI=;
-	h=X-UI-Sender-Class:Date:To:From:Subject:Cc;
-	b=QoZIYXi9cZqtNGtvF4UCvUpoCNwOxR8e3FLbju/ydTYgpkVlGSLCy5MC8nVGT41d
-	 eResBJliME/ri5g5oXcpGtQd7eN/tTvbli+mycPuwFfAAEpCYPv8bFFpmcWBLUZ+A
-	 M1E4tfznDYRUXyX/fTG/K//nt3lCGAOz2gskuUMd+dPhYyRfMbOgIT5O8xlvrpe9j
-	 kj1gTCRZ1uGzPVOtzG7VUm8SuIOZuY32IdW8pcMq8q59rfsq76B94swfYIVlX4K4S
-	 0RObHdyPjK6Jfb4r07GwvwAVFrg3aDQw6uV3QIzkWhBmAhK8U6JXyFXDEdAkt+G82
-	 REFyZpZ7q9FVI2T+tw==
-X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
-Received: from [192.168.178.21] ([94.31.85.95]) by smtp.web.de (mrweb005
- [213.165.67.108]) with ESMTPSA (Nemesis) id 1N7xeZ-1rDu1x2ZpT-014bII; Sun, 24
- Dec 2023 20:56:02 +0100
-Message-ID: <2413f22f-f0c3-45e0-9f6b-a551bdf0f54c@web.de>
-Date: Sun, 24 Dec 2023 20:55:57 +0100
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="cSwH1Pl5"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 67FF2415CA
+	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 00:23:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 67FF2415CA
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=cSwH1Pl5
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -4.401
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id peuOrgfQsxQA
+	for <virtualization@lists.linux-foundation.org>;
+	Mon, 25 Dec 2023 00:23:40 +0000 (UTC)
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.151])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 308F041559
+	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 00:23:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 308F041559
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1703463820; x=1734999820;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=YJh+wDeictl+xtWW+8VJ+rNO8BXxEMpGjARlTTa1wMI=;
+  b=cSwH1Pl5OVELc3ViZKVcM7Eu2YddfSAdFD8tR30xwQwmIJJdnFfTqQOC
+   KUKWy2xn000g135CXXFSmru797KfjmuTlmAqerhYOI4bUOGkuky5Ifpuk
+   iFzNZDoM7HHZwwwPvJ4qjfM2Nn5VFuIK5adFS5Elx20ZdqsaFbPEoCboD
+   8AtWorzp7xF3u9KSzgF2a1k79ZGSpWbs/ib5Cj3XZdqfEloE59hDeR83d
+   aRA9v5c+njtE0DWLFXoZADLL7iUjv5H1QCgAUIxcgGL0wrDNiqqX80sPt
+   /zREmu6nCXZIrXTDl6z6jWYBTQDyEB/1yyTrW1LqeI6/4aG/6kJ9h97/e
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10934"; a="376398402"
+X-IronPort-AV: E=Sophos;i="6.04,302,1695711600"; 
+   d="scan'208";a="376398402"
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Dec 2023 16:23:38 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10934"; a="950863770"
+X-IronPort-AV: E=Sophos;i="6.04,302,1695711600"; 
+   d="scan'208";a="950863770"
+Received: from lkp-server02.sh.intel.com (HELO b07ab15da5fe) ([10.239.97.151])
+  by orsmga005.jf.intel.com with ESMTP; 24 Dec 2023 16:23:32 -0800
+Received: from kbuild by b07ab15da5fe with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1rHYjt-000ClZ-05;
+	Mon, 25 Dec 2023 00:23:06 +0000
+Date: Mon, 25 Dec 2023 08:19:56 +0800
+From: kernel test robot <lkp@intel.com>
+To: Julia Zhang <julia.zhang@amd.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>, David Airlie <airlied@redhat.com>,
+	Gerd Hoffmann <kraxel@redhat.com>, linux-kernel@vger.kernel.org,
+	dri-devel@lists.freedesktop.org, amd-gfx@lists.freedesktop.org,
+	virtualization@lists.linux-foundation.org
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>,
+	Daniel Stone <daniels@collabora.com>,
+	Erik Faye-Lund <kusmabite@gmail.com>,
+	Marek =?utf-8?B?T2zFocOhaw==?= <marek.olsak@amd.com>,
+	Chen Jiqian <Jiqian.Chen@amd.com>, Huang Rui <ray.huang@amd.com>,
+	Honglei Huang <honglei1.huang@amd.com>,
+	Alex Deucher <alexander.deucher@amd.com>,
+	Julia Zhang <julia.zhang@amd.com>,
+	Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
+Subject: Re: [PATCH 1/1] drm/virtio: Implement RESOURCE_GET_LAYOUT ioctl
+Message-ID: <202312250806.sVSnK275-lkp@intel.com>
+References: <20231221100016.4022353-2-julia.zhang@amd.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-To: virtualization@lists.linux.dev, linux-crypto@vger.kernel.org,
- kernel-janitors@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
- Gonglei <arei.gonglei@huawei.com>, Herbert Xu <herbert@gondor.apana.org.au>,
- Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Content-Language: en-GB
-From: Markus Elfring <Markus.Elfring@web.de>
-Subject: [PATCH] crypto: virtio - Less function calls in
- __virtio_crypto_akcipher_do_req() after error detection
-Cc: LKML <linux-kernel@vger.kernel.org>, cocci@inria.fr
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:js4ydb7183jogO2zNXAOsnmwRjTJkFts4230ojusF5s86M+AW5+
- R5GJtNhXdNtM4tEDbq+iQg1RPiFfkUqzLSGBlTwOtVrdN81X0QdPgkZwQOUuzk5G6JgcA2/
- a9bXWU4zIOkvteJDFZzgqHxnSoSM5vjhMP+WvH/mLObV2o2cMeoKp3S7dg2xNq5LAjTBtMO
- gxGXiKX2GEOup1Ii5BzbA==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:WbQ2yg1lmBc=;3P3aWHeDFAyqdOaqJJeKgIAbuWq
- IaQuiX66fOG4HO1fbgWMKF56zCIYOlf1AD/+aEXdGYWKqhXFP09cN9kpPPdfEShTApKnr6BWB
- OBGdTNc/CPS36kVuShgdvl6opR6/xO359mXEID+rkcOltIguEUYU2CITRnsfLCRZSQ0E//dKh
- IXtHvmiBcN6iEiektNZQDOKynYCUCBBps2/cHdgz0qtl3KxEgKhbyrPRSZeQMFybO2F/5xFtt
- p0y2gz506LIVL0Z+76Fyr/WQAUqwFVBvqylEhEJaWnhlg7tjc8JHXoLkfqazE8//fxucj0rzd
- 9C2tARpcByUWLK1rMuufdESRp6PZi+WnZXuJb+hQiWvcnPtZ4tmVIRs5TnZi0tFfuC/euHMRo
- NraWgvInU3jVsmCI//aiVaC8snV1L/ZY7i9A14A30bQoxtgao3NIR0ONSAqE95d04LblUro1d
- hRzksKgd17O0eknBO6fIbO+He7glZ8dbMZQGmX7yrMKEZT6PRYtc2mLJP2LbHorzed4YXR+1d
- IYpBsO7e65qV7dpR739Wo4SO+I14ReGMPJzC1dflQ/hmg8jwpUkiHkt/njIbGAKLKx/9wFgKS
- EjSVQ5YZ1iVI39XMUnPUcNaog3hVm4xnsZLJR32H9Od9xyY6upJ5/eex2a6SCLGBq5pthhaJA
- rKkFNI0hbwchKG59NklNFDR6FOBOESDr9TjazPDUTtrY1BxFQr9Mf6l6R9vZ+ckSZyyzp6aDA
- JktyzBrAQlO6KNOQUYxLkUdPYWigCLlRRvz45mv+vYTHm4WsnRQPoYfX7wVRbOsdr4cwWlaJ5
- SvB5fkElpx88XTzd8X0oPqsrZ81am9pzI4lThisgJXALB4sD1xBBYOCdfkPZpw5NlLSdmo8yI
- MsvPcbhr2uh59j20gkLG3pcXm9dQ7ixm67c1pklP9d9ccELRpnpWxsmdEq7JPbQliKyiT9syi
- 20AXhQ==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20231221100016.4022353-2-julia.zhang@amd.com>
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Sun, 24 Dec 2023 20:42:19 +0100
+Hi Julia,
 
-The kfree() function was called in up to two cases by the
-__virtio_crypto_akcipher_do_req() function during error handling
-even if the passed variable contained a null pointer.
-This issue was detected by using the Coccinelle software.
+kernel test robot noticed the following build warnings:
 
-* Adjust jump targets.
+[auto build test WARNING on v6.7-rc6]
+[also build test WARNING on linus/master]
+[cannot apply to drm-misc/drm-misc-next drm/drm-next next-20231222]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-* Delete two initialisations which became unnecessary
-  with this refactoring.
+url:    https://github.com/intel-lab-lkp/linux/commits/Julia-Zhang/drm-virtio-Implement-RESOURCE_GET_LAYOUT-ioctl/20231222-182142
+base:   v6.7-rc6
+patch link:    https://lore.kernel.org/r/20231221100016.4022353-2-julia.zhang%40amd.com
+patch subject: [PATCH 1/1] drm/virtio: Implement RESOURCE_GET_LAYOUT ioctl
+config: i386-randconfig-004-20231225 (https://download.01.org/0day-ci/archive/20231225/202312250806.sVSnK275-lkp@intel.com/config)
+compiler: clang version 16.0.4 (https://github.com/llvm/llvm-project.git ae42196bc493ffe877a7e3dff8be32035dea4d07)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20231225/202312250806.sVSnK275-lkp@intel.com/reproduce)
 
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
-=2D--
- drivers/crypto/virtio/virtio_crypto_akcipher_algs.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202312250806.sVSnK275-lkp@intel.com/
 
-diff --git a/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c b/drivers=
-/crypto/virtio/virtio_crypto_akcipher_algs.c
-index 2621ff8a9376..15dbe67f0d31 100644
-=2D-- a/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
-+++ b/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
-@@ -224,11 +224,11 @@ static int __virtio_crypto_akcipher_do_req(struct vi=
-rtio_crypto_akcipher_request
- 	struct virtio_crypto *vcrypto =3D ctx->vcrypto;
- 	struct virtio_crypto_op_data_req *req_data =3D vc_req->req_data;
- 	struct scatterlist *sgs[4], outhdr_sg, inhdr_sg, srcdata_sg, dstdata_sg;
--	void *src_buf =3D NULL, *dst_buf =3D NULL;
-+	void *src_buf, *dst_buf =3D NULL;
- 	unsigned int num_out =3D 0, num_in =3D 0;
- 	int node =3D dev_to_node(&vcrypto->vdev->dev);
- 	unsigned long flags;
--	int ret =3D -ENOMEM;
-+	int ret;
- 	bool verify =3D vc_akcipher_req->opcode =3D=3D VIRTIO_CRYPTO_AKCIPHER_VE=
-RIFY;
- 	unsigned int src_len =3D verify ? req->src_len + req->dst_len : req->src=
-_len;
+All warnings (new ones prefixed by >>):
 
-@@ -239,7 +239,7 @@ static int __virtio_crypto_akcipher_do_req(struct virt=
-io_crypto_akcipher_request
- 	/* src data */
- 	src_buf =3D kcalloc_node(src_len, 1, GFP_KERNEL, node);
- 	if (!src_buf)
--		goto err;
-+		return -ENOMEM;
+>> drivers/gpu/drm/virtio/virtgpu_ioctl.c:712:1: warning: unused label 'valid' [-Wunused-label]
+   valid:
+   ^~~~~~
+   1 warning generated.
 
- 	if (verify) {
- 		/* for verify operation, both src and dst data work as OUT direction */
-@@ -254,7 +254,7 @@ static int __virtio_crypto_akcipher_do_req(struct virt=
-io_crypto_akcipher_request
- 		/* dst data */
- 		dst_buf =3D kcalloc_node(req->dst_len, 1, GFP_KERNEL, node);
- 		if (!dst_buf)
--			goto err;
-+			goto free_src;
 
- 		sg_init_one(&dstdata_sg, dst_buf, req->dst_len);
- 		sgs[num_out + num_in++] =3D &dstdata_sg;
-@@ -277,9 +277,9 @@ static int __virtio_crypto_akcipher_do_req(struct virt=
-io_crypto_akcipher_request
- 	return 0;
+vim +/valid +712 drivers/gpu/drm/virtio/virtgpu_ioctl.c
 
- err:
--	kfree(src_buf);
- 	kfree(dst_buf);
--
-+free_src;
-+	kfree(src_buf);
- 	return -ENOMEM;
- }
+   673	
+   674	static int virtio_gpu_resource_query_layout_ioctl(struct drm_device *dev,
+   675							  void *data,
+   676							  struct drm_file *file)
+   677	{
+   678		struct drm_virtgpu_resource_query_layout *args = data;
+   679		struct virtio_gpu_device *vgdev = dev->dev_private;
+   680		struct drm_gem_object *obj = NULL;
+   681		struct virtio_gpu_object *bo = NULL;
+   682		struct virtio_gpu_query_info bo_info = {0};
+   683		int ret = 0;
+   684		int i;
+   685	
+   686		if (!vgdev->has_resource_query_layout) {
+   687			DRM_ERROR("failing: no RQL on host\n");
+   688			return -EINVAL;
+   689		}
+   690	
+   691		if (args->handle > 0) {
+   692			obj = drm_gem_object_lookup(file, args->handle);
+   693			if (obj == NULL) {
+   694				DRM_ERROR("invalid handle 0x%x\n", args->handle);
+   695				return -ENOENT;
+   696			}
+   697			bo = gem_to_virtio_gpu_obj(obj);
+   698		}
+   699	
+   700		ret = virtio_gpu_cmd_get_resource_layout(vgdev, &bo_info, args->width,
+   701							 args->height, args->format,
+   702							 args->bind, bo ? bo->hw_res_handle : 0);
+   703		if (ret)
+   704			goto out;
+   705	
+   706		ret = wait_event_timeout(vgdev->resp_wq,
+   707					 atomic_read(&bo_info.is_valid),
+   708					 5 * HZ);
+   709		if (!ret)
+   710			goto out;
+   711	
+ > 712	valid:
+   713		smp_rmb();
+   714		WARN_ON(atomic_read(&bo_info.is_valid));
+   715		args->num_planes = bo_info.num_planes;
+   716		args->modifier = bo_info.modifier;
+   717		for (i = 0; i < args->num_planes; i++) {
+   718			args->planes[i].offset = bo_info.planes[i].offset;
+   719			args->planes[i].stride = bo_info.planes[i].stride;
+   720		}
+   721		for (; i < VIRTIO_GPU_MAX_RESOURCE_PLANES; i++) {
+   722			args->planes[i].offset = 0;
+   723			args->planes[i].stride = 0;
+   724		}
+   725		ret = 0;
+   726	
+   727	out:
+   728		if (obj)
+   729			drm_gem_object_put(obj);
+   730		return ret;
+   731	}
+   732	
 
-=2D-
-2.43.0
-
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
