@@ -1,183 +1,201 @@
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 037BC15B9
-	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 00:23:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBB9F17DB
+	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 02:25:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="cSwH1Pl5"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KKARG5Ok"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 67FF2415CA
-	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 00:23:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 67FF2415CA
+	by smtp4.osuosl.org (Postfix) with ESMTP id 4377D41584
+	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 02:25:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4377D41584
 Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=cSwH1Pl5
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=KKARG5Ok
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -4.401
+X-Spam-Score: -2.099
 X-Spam-Level:
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id peuOrgfQsxQA
+	with ESMTP id goP8x5wVhfkM
 	for <virtualization@lists.linux-foundation.org>;
-	Mon, 25 Dec 2023 00:23:40 +0000 (UTC)
-Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.151])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 308F041559
-	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 00:23:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 308F041559
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1703463820; x=1734999820;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=YJh+wDeictl+xtWW+8VJ+rNO8BXxEMpGjARlTTa1wMI=;
-  b=cSwH1Pl5OVELc3ViZKVcM7Eu2YddfSAdFD8tR30xwQwmIJJdnFfTqQOC
-   KUKWy2xn000g135CXXFSmru797KfjmuTlmAqerhYOI4bUOGkuky5Ifpuk
-   iFzNZDoM7HHZwwwPvJ4qjfM2Nn5VFuIK5adFS5Elx20ZdqsaFbPEoCboD
-   8AtWorzp7xF3u9KSzgF2a1k79ZGSpWbs/ib5Cj3XZdqfEloE59hDeR83d
-   aRA9v5c+njtE0DWLFXoZADLL7iUjv5H1QCgAUIxcgGL0wrDNiqqX80sPt
-   /zREmu6nCXZIrXTDl6z6jWYBTQDyEB/1yyTrW1LqeI6/4aG/6kJ9h97/e
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10934"; a="376398402"
-X-IronPort-AV: E=Sophos;i="6.04,302,1695711600"; 
-   d="scan'208";a="376398402"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Dec 2023 16:23:38 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10934"; a="950863770"
-X-IronPort-AV: E=Sophos;i="6.04,302,1695711600"; 
-   d="scan'208";a="950863770"
-Received: from lkp-server02.sh.intel.com (HELO b07ab15da5fe) ([10.239.97.151])
-  by orsmga005.jf.intel.com with ESMTP; 24 Dec 2023 16:23:32 -0800
-Received: from kbuild by b07ab15da5fe with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1rHYjt-000ClZ-05;
-	Mon, 25 Dec 2023 00:23:06 +0000
-Date: Mon, 25 Dec 2023 08:19:56 +0800
-From: kernel test robot <lkp@intel.com>
-To: Julia Zhang <julia.zhang@amd.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Chia-I Wu <olvaffe@gmail.com>, David Airlie <airlied@redhat.com>,
-	Gerd Hoffmann <kraxel@redhat.com>, linux-kernel@vger.kernel.org,
-	dri-devel@lists.freedesktop.org, amd-gfx@lists.freedesktop.org,
-	virtualization@lists.linux-foundation.org
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>,
-	Daniel Stone <daniels@collabora.com>,
-	Erik Faye-Lund <kusmabite@gmail.com>,
-	Marek =?utf-8?B?T2zFocOhaw==?= <marek.olsak@amd.com>,
-	Chen Jiqian <Jiqian.Chen@amd.com>, Huang Rui <ray.huang@amd.com>,
-	Honglei Huang <honglei1.huang@amd.com>,
-	Alex Deucher <alexander.deucher@amd.com>,
-	Julia Zhang <julia.zhang@amd.com>,
-	Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
-Subject: Re: [PATCH 1/1] drm/virtio: Implement RESOURCE_GET_LAYOUT ioctl
-Message-ID: <202312250806.sVSnK275-lkp@intel.com>
-References: <20231221100016.4022353-2-julia.zhang@amd.com>
+	Mon, 25 Dec 2023 02:25:28 +0000 (UTC)
+Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id BD6FF41583
+	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 02:25:27 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BD6FF41583
+Received: by mail-ej1-x62c.google.com with SMTP id a640c23a62f3a-a23566e91d5so403557066b.0
+        for <virtualization@lists.linux-foundation.org>; Sun, 24 Dec 2023 18:25:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1703471126; x=1704075926; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=SbIFx2o+cEw7nOLFhxQ0X7KzqVoERgpLQibm5Hb+6QY=;
+        b=KKARG5OkSGP1rZaXTP3xe/P8RsGbTqDbNZ/mqSQB0TxSQWeI3GkIFvu7s/KeOC3zN/
+         LKf1wX6JI7LqEgoJ14qIr0umfb25cMk9EZq8jBn0ZwTKC60OVUkeqDK456ugHk7nsD3N
+         0E1m+V5t4natULox2SFEMCpdbsvkr6G1c3AFHMys2ZbLIZBw9bBb8+v3BQmzIhSyyMu/
+         w2h4biI0i6rgWDnWKslnQ3/JqPUMO0fSWGTwWobpHiZsYwu9/SmKlqVhhVx1uv6Ho5KX
+         qqpRKZpFzbhpyNRDS7k3Uvs31sNq5Yx2AOhIIUyhBrH1aOGVJm19ILqzKuvbnNXLIvPv
+         gdPw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1703471126; x=1704075926;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=SbIFx2o+cEw7nOLFhxQ0X7KzqVoERgpLQibm5Hb+6QY=;
+        b=Drx7GIxswVLe8ht1sMYXTacVJHb+MvaZk5HNVXrG2/7tyEHdEv6x+ln85mg++IJFl+
+         7yV3FVP3HkP8Iw7OPCoc4XKM/2ucsi0X4XdVwyvmvFX8zLt1SHNrEnps0ZSU8dY2uIdf
+         X/7Q7QNrf/z9P0LIL+5dnUtjEROCOBWZJdinz92ZtG8DqQg2AoyHbkKKDgLlEYiawTv0
+         y+y30pKHfdeTYmjgBCkoyJYWV0Mt635G4iBUTSTaWRbbtL7D/lpY9x98PUv09UVADnMP
+         73IeJ68sppEEjnSGQbW8hTKQrFsltnfZs5IX0JSS5ELTu7A0XSjStVebgYGaORcWPUqE
+         nw0A==
+X-Gm-Message-State: AOJu0YwEfxYqppZtDdn3iTD056HK1caekaj97jT39osx9PR8ck4Mj9az
+	PPqsTs/juTpWNoVY+vh6uz9PpN1V0rq2yq5/6LM=
+X-Google-Smtp-Source: AGHT+IH4FzjlFYYa4nRcVYYwulNS15yheWqq6OC4EN/TrmeE31IEUgyMLdMk9eyVEFHW6uOvNyjHMCpn5l5S8AvvGuA=
+X-Received: by 2002:a17:906:fb16:b0:a23:62fe:9856 with SMTP id
+ lz22-20020a170906fb1600b00a2362fe9856mr1541156ejb.158.1703471125475; Sun, 24
+ Dec 2023 18:25:25 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20231221100016.4022353-2-julia.zhang@amd.com>
+References: <f9f7d28624f8084ef07842ee569c22b324ee4055.1703059341.git.hengqi@linux.alibaba.com>
+ <6582fe057cb9_1a34a429435@willemb.c.googlers.com.notmuch> <084142b9-7e0d-4eae-82d2-0736494953cd@linux.alibaba.com>
+ <65845456cad2a_50168294ba@willemb.c.googlers.com.notmuch> <CACGkMEthxep1rvWvEmykeevLhOxiSTR1oog_PkYTRCaeavMGSA@mail.gmail.com>
+In-Reply-To: <CACGkMEthxep1rvWvEmykeevLhOxiSTR1oog_PkYTRCaeavMGSA@mail.gmail.com>
+From: Jason Xing <kerneljasonxing@gmail.com>
+Date: Mon, 25 Dec 2023 10:24:48 +0800
+Message-ID: <CAL+tcoDM+Kqu1=11m5gc58vY3uKVA6JiggBy_FyCghHY3Za0Qw@mail.gmail.com>
+Subject: Re: [PATCH net-next] virtio-net: switch napi_tx without downing nic
+To: Jason Wang <jasowang@redhat.com>
+Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, Heng Qi <hengqi@linux.alibaba.com>, 
+	netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+	"Michael S. Tsirkin" <mst@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Alexei Starovoitov <ast@kernel.org>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi Julia,
+Hello Jason,
+On Fri, Dec 22, 2023 at 10:36=E2=80=AFAM Jason Wang <jasowang@redhat.com> w=
+rote:
+>
+> On Thu, Dec 21, 2023 at 11:06=E2=80=AFPM Willem de Bruijn
+> <willemdebruijn.kernel@gmail.com> wrote:
+> >
+> > Heng Qi wrote:
+> > >
+> > >
+> > > =E5=9C=A8 2023/12/20 =E4=B8=8B=E5=8D=8810:45, Willem de Bruijn =E5=86=
+=99=E9=81=93:
+> > > > Heng Qi wrote:
+> > > >> virtio-net has two ways to switch napi_tx: one is through the
+> > > >> module parameter, and the other is through coalescing parameter
+> > > >> settings (provided that the nic status is down).
+> > > >>
+> > > >> Sometimes we face performance regression caused by napi_tx,
+> > > >> then we need to switch napi_tx when debugging. However, the
+> > > >> existing methods are a bit troublesome, such as needing to
+> > > >> reload the driver or turn off the network card.
+>
+> Why is this troublesome? We don't need to turn off the card, it's just
+> a toggling of the interface.
+>
+> This ends up with pretty simple code.
+>
+> > So try to make
+> > > >> this update.
+> > > >>
+> > > >> Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
+> > > >> Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > The commit does not explain why it is safe to do so.
+> > >
+> > > virtnet_napi_tx_disable ensures that already scheduled tx napi ends a=
+nd
+> > > no new tx napi will be scheduled.
+> > >
+> > > Afterwards, if the __netif_tx_lock_bh lock is held, the stack cannot
+> > > send the packet.
+> > >
+> > > Then we can safely toggle the weight to indicate where to clear the b=
+uffers.
+> > >
+> > > >
+> > > > The tx-napi weights are not really weights: it is a boolean whether
+> > > > napi is used for transmit cleaning, or whether packets are cleaned
+> > > > in ndo_start_xmit.
+> > >
+> > > Right.
+> > >
+> > > >
+> > > > There certainly are some subtle issues with regard to pausing/wakin=
+g
+> > > > queues when switching between modes.
+> > >
+> > > What are "subtle issues" and if there are any, we find them.
+> >
+> > A single runtime test is not sufficient to exercise all edge cases.
+> >
+> > Please don't leave it to reviewers to establish the correctness of a
+> > patch.
+>
+> +1
+>
+[...]
+> And instead of trying to do this, it would be much better to optimize
+> the NAPI performance. Then we can drop the orphan mode.
 
-kernel test robot noticed the following build warnings:
+Do you mean when to call skb_orphan()? If yes, I just want to provide
+more information that we also have some performance issues where the
+flow control takes a bad effect, especially under some small
+throughput in our production environment.
+What strikes me as odd is if I restart the network, then the issue
+will go with the wind. I cannot reproduce it in my testing machine.
+One more thing: if I force skb_orphan() the current skb in every
+start_xmit(), it could also solve the issue but not in a proper way.
+After all, it drops the flow control... :S
 
-[auto build test WARNING on v6.7-rc6]
-[also build test WARNING on linus/master]
-[cannot apply to drm-misc/drm-misc-next drm/drm-next next-20231222]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Julia-Zhang/drm-virtio-Implement-RESOURCE_GET_LAYOUT-ioctl/20231222-182142
-base:   v6.7-rc6
-patch link:    https://lore.kernel.org/r/20231221100016.4022353-2-julia.zhang%40amd.com
-patch subject: [PATCH 1/1] drm/virtio: Implement RESOURCE_GET_LAYOUT ioctl
-config: i386-randconfig-004-20231225 (https://download.01.org/0day-ci/archive/20231225/202312250806.sVSnK275-lkp@intel.com/config)
-compiler: clang version 16.0.4 (https://github.com/llvm/llvm-project.git ae42196bc493ffe877a7e3dff8be32035dea4d07)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20231225/202312250806.sVSnK275-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202312250806.sVSnK275-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
->> drivers/gpu/drm/virtio/virtgpu_ioctl.c:712:1: warning: unused label 'valid' [-Wunused-label]
-   valid:
-   ^~~~~~
-   1 warning generated.
-
-
-vim +/valid +712 drivers/gpu/drm/virtio/virtgpu_ioctl.c
-
-   673	
-   674	static int virtio_gpu_resource_query_layout_ioctl(struct drm_device *dev,
-   675							  void *data,
-   676							  struct drm_file *file)
-   677	{
-   678		struct drm_virtgpu_resource_query_layout *args = data;
-   679		struct virtio_gpu_device *vgdev = dev->dev_private;
-   680		struct drm_gem_object *obj = NULL;
-   681		struct virtio_gpu_object *bo = NULL;
-   682		struct virtio_gpu_query_info bo_info = {0};
-   683		int ret = 0;
-   684		int i;
-   685	
-   686		if (!vgdev->has_resource_query_layout) {
-   687			DRM_ERROR("failing: no RQL on host\n");
-   688			return -EINVAL;
-   689		}
-   690	
-   691		if (args->handle > 0) {
-   692			obj = drm_gem_object_lookup(file, args->handle);
-   693			if (obj == NULL) {
-   694				DRM_ERROR("invalid handle 0x%x\n", args->handle);
-   695				return -ENOENT;
-   696			}
-   697			bo = gem_to_virtio_gpu_obj(obj);
-   698		}
-   699	
-   700		ret = virtio_gpu_cmd_get_resource_layout(vgdev, &bo_info, args->width,
-   701							 args->height, args->format,
-   702							 args->bind, bo ? bo->hw_res_handle : 0);
-   703		if (ret)
-   704			goto out;
-   705	
-   706		ret = wait_event_timeout(vgdev->resp_wq,
-   707					 atomic_read(&bo_info.is_valid),
-   708					 5 * HZ);
-   709		if (!ret)
-   710			goto out;
-   711	
- > 712	valid:
-   713		smp_rmb();
-   714		WARN_ON(atomic_read(&bo_info.is_valid));
-   715		args->num_planes = bo_info.num_planes;
-   716		args->modifier = bo_info.modifier;
-   717		for (i = 0; i < args->num_planes; i++) {
-   718			args->planes[i].offset = bo_info.planes[i].offset;
-   719			args->planes[i].stride = bo_info.planes[i].stride;
-   720		}
-   721		for (; i < VIRTIO_GPU_MAX_RESOURCE_PLANES; i++) {
-   722			args->planes[i].offset = 0;
-   723			args->planes[i].stride = 0;
-   724		}
-   725		ret = 0;
-   726	
-   727	out:
-   728		if (obj)
-   729			drm_gem_object_put(obj);
-   730		return ret;
-   731	}
-   732	
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Thanks,
+Jason
+>
+> >
+> > The napi_tx and non-napi code paths differ in how they handle at least
+> > the following structures:
+> >
+> > 1. skb: non-napi orphans these in ndo_start_xmit. Without napi this is
+> > needed as delay until the next ndo_start_xmit and thus completion is
+> > unbounded.
+> >
+> > When switching to napi mode, orphaned skbs may now be cleaned by the
+> > napi handler. This is indeed safe.
+> >
+> > When switching from napi to non-napi, the unbound latency resurfaces.
+> > It is a small edge case, and I think a potentially acceptable risk, if
+> > the user of this knob is aware of the risk.
+> >
+> > 2. virtqueue callback ("interrupt" masking). The non-napi path enables
+> > the interrupt (disables the mask) when available descriptors falls
+> > beneath a low watermark, and reenables when it recovers above a high
+> > watermark. Napi disables when napi is scheduled, and reenables on
+> > napi complete.
+> >
+> > 3. dev_queue->state (QUEUE_STATE_DRV_XOFF). if the ring falls below
+> > a low watermark, the driver stops the stack for queuing more packets.
+> > In napi mode, it schedules napi to clean packets. See the calls to
+> > netif_xmit_stopped, netif_stop_subqueue, netif_start_subqueue and
+> > netif_tx_wake_queue.
+> >
+> > Some if this can be assumed safe by looking at existing analogous
+> > code, such as the queue stop/start in virtnet_tx_resize.
+> >
+> > But that all virtqueue callback and dev_queue->state transitions are
+> > correct when switching between modes at runtime is not trivial to
+> > establish, deserves some thought and explanation in the commit
+> > message.
+>
+> Thanks
+>
+>
