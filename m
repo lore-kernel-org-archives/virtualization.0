@@ -1,67 +1,61 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA52E10A2B
-	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 06:47:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32DC015B9
+	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 07:52:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cc1C6w4n"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nFLhCSDm"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 099E94019F
-	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 06:47:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 099E94019F
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cc1C6w4n
+	by smtp1.osuosl.org (Postfix) with ESMTP id A960C81468
+	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 07:52:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A960C81468
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=nFLhCSDm
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -0.599
+X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id TL9HGUQo3w2s
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id lqRfiyF4iuPN
 	for <virtualization@lists.linux-foundation.org>;
-	Mon, 25 Dec 2023 06:47:53 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 0199A400FF
-	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 06:47:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0199A400FF
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1703486871;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=/xLEF3rnqF8tI7BPYNvQbmlqvrh1QxVBzNXBUpXiDmY=;
-	b=cc1C6w4nJu2D0fQCS3ftT9dU8Da7fwLsA6qJ9C8AAT+HvSoETDynMdK2v5YLgkI/hG/bGI
-	8OQFTK2xMgJl2N5krdcP3I9DkEEWlmfREwGV/q0UOR9zzdxRJlE3NchMe3dHMyzuxvpQCm
-	puEBEEoOUqDdZ0tyBPHxz1+aWIHIo2I=
-Received: from mail-oi1-f197.google.com (mail-oi1-f197.google.com
- [209.85.167.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-575-MlC8ThsTNl2nNvOUJWIP5Q-1; Mon, 25 Dec 2023 01:47:50 -0500
-X-MC-Unique: MlC8ThsTNl2nNvOUJWIP5Q-1
-Received: by mail-oi1-f197.google.com with SMTP id 5614622812f47-3bb7be37ad4so3261865b6e.1
-        for <virtualization@lists.linux-foundation.org>; Sun, 24 Dec 2023 22:47:49 -0800 (PST)
+	Mon, 25 Dec 2023 07:52:41 +0000 (UTC)
+Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 6D4238140B
+	for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 07:52:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6D4238140B
+Received: by mail-ej1-x632.google.com with SMTP id a640c23a62f3a-a2340c803c6so414552066b.0
+        for <virtualization@lists.linux-foundation.org>; Sun, 24 Dec 2023 23:52:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1703490759; x=1704095559; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=EzBgT1IsgIHrYIkRmXZCqjRIslOBcvcoDE5q0v7kiK0=;
+        b=nFLhCSDmvTr7INPuFAo1KfFc696CpqMA+lA0+MJ7FGGrYxvuRpluT8PEla1wsyRqGE
+         X5Nq6MgUuuoNq6LjJHz6SFHq8jX0pPMf/rB/QYnf/quNdMApweVzbGRWt2hegn7LFKUT
+         YMt7Cf0wkk+483gZO20ZLcMZxFjcFZ9/IjblZaRtcdiMGy5GRuYgoSQzqPzPzbJ+znCG
+         xOZ1oEoW8T+qeHnxDX18lefI5v+L+V5hhzVUdxOYKTDk8e1UEvay4nU6pJNGgKPV/JL5
+         BF3gEQVzcBgHP9h1au3m3Slh3QT8E5L5QOvh2d4ZfwBARAqp0zrH+tA0vXGlbEGBYw4O
+         8+JA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703486869; x=1704091669;
+        d=1e100.net; s=20230601; t=1703490759; x=1704095559;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=/xLEF3rnqF8tI7BPYNvQbmlqvrh1QxVBzNXBUpXiDmY=;
-        b=fKbU9rRSqiRCkHY/HWwBQC25QQ5WesdiMmRm569uXe4qXJbS43zHhAp9p2EVsnDF0T
-         P/e0+KCgC3IIKwZ8QdQlKZmYTHilMXcWfR02rr6HdOtqppp34Rti4MYKW/JWyCPhCRGv
-         KrxtAMKiBdlo9hbvGOBwM4AzlueJAwpupDTUdUPpU5C+vLEvyCcDfVsBspdodlsgWQEJ
-         Vo5apnw8FGZbJqVw2pe8xRFjpXXcHx2opjWeg63UkYwAy1/9IvvN2LaUsO88nt1CYu2v
-         C+ihXSMcX0mwAS6A+fEStG9LcOQ+A5QNP0Qs8OAm3HoBPM9wM3piY5qB0cOc0hRSyucj
-         rDwA==
-X-Gm-Message-State: AOJu0YzCyYGW842ql0gWwm6i0Y6pAyZz3k+BftmgL9PM0zH+KdKxzW8J
-	9ctmsAbAhAaTcg/M3b02T7yD4PMK8sLMvHiLLIhmwU5Aecxsko13l/iXI6plWX0oRHqHt/hLEvl
-	hHlJ9yXUYNDw9fB1wCMdAhq30zZqonFUBI4xEYcsnq7/eqxUR3Fv5+BHgbZcsqq+Kig==
-X-Received: by 2002:a05:6808:1512:b0:3b9:ebea:3bc2 with SMTP id u18-20020a056808151200b003b9ebea3bc2mr5434670oiw.69.1703486869333;
-        Sun, 24 Dec 2023 22:47:49 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHkOXV+btxe8XFnwLoE2qrv6Qw7Q59TP4QWleTqn7lW5NfmnG7AUarFi2yYrPKXrpmBoZcM5fkObZgmfjrjp1s=
-X-Received: by 2002:a05:6808:1512:b0:3b9:ebea:3bc2 with SMTP id
- u18-20020a056808151200b003b9ebea3bc2mr5434662oiw.69.1703486869058; Sun, 24
- Dec 2023 22:47:49 -0800 (PST)
+        bh=EzBgT1IsgIHrYIkRmXZCqjRIslOBcvcoDE5q0v7kiK0=;
+        b=vqm020D2EtqfG8uYAtoLEBRhJ4YygX/3r2o2utXVRo7hdz7ft1J7SIsvO9BjI0/WWX
+         e/MOUHLCXLti7nblDKM8bmjnOHM4IVjHkjYozzJ3JULVFGh3hwp9DSy4Rpq4S4qj9IO3
+         dorqTkagon01/bTTZ42vBlrgWP8ducvHLSyLU/2B4WAA8RuLhdMzrWeUzqNwQV9ZVDoM
+         J08OEmzrbPBNiZ9q+jh+6iSNXLJzXXQJ50iolf7cwm3vSUsUPFMGLdpjq2YP5ubiCIxa
+         ZOMulm7DYJr7INkVmoBhqMIytEjdM/eE2sqqVT3xAGOnHiLRc62VdfTU2X22dUHWlHWP
+         OXXw==
+X-Gm-Message-State: AOJu0Yz3so0rggA4m+Ign4uZF6eCwy7NhRtk7cD2cbCSCIO7jQNVxEE4
+	k23t4hfOJWQTc8I9FNtBgYx2sC8hx6dKIOrq0QE=
+X-Google-Smtp-Source: AGHT+IEPwyYSdPkSHJRGh23HEDCJAuNKRuIOemDugAAW34KjB6cT5b/fEnckDKErUDnIZ+8tb7tPRx6q7AQ68I2la8s=
+X-Received: by 2002:a17:906:220c:b0:a26:e4dc:1e17 with SMTP id
+ s12-20020a170906220c00b00a26e4dc1e17mr817964ejs.31.1703490759200; Sun, 24 Dec
+ 2023 23:52:39 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -75,22 +69,20 @@ References: <f9f7d28624f8084ef07842ee569c22b324ee4055.1703059341.git.hengqi@linu
  <CACGkMEsDFTPUVXfSj5FGTK_722F1QkKHJG3GNV3qvsaKATZV_w@mail.gmail.com>
  <CAL+tcoA_kXEb2uBznUY8A+-uVcB_rXx1j39Wt8UTNx+6F0iHNA@mail.gmail.com> <CACGkMEspead380Sx-5HRjAO4LYc+R2EM+-K-7cYYuus72gPXbw@mail.gmail.com>
 In-Reply-To: <CACGkMEspead380Sx-5HRjAO4LYc+R2EM+-K-7cYYuus72gPXbw@mail.gmail.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 25 Dec 2023 14:47:37 +0800
-Message-ID: <CACGkMEuNPZZthCK9VTPiTL=oVPYNJSi2O_DyBt+SBoxrW-EHuA@mail.gmail.com>
+From: Jason Xing <kerneljasonxing@gmail.com>
+Date: Mon, 25 Dec 2023 15:52:02 +0800
+Message-ID: <CAL+tcoD6oqSGyNgP8scLnHBnHthXY4KGjtL_Y74tSNajppcJKQ@mail.gmail.com>
 Subject: Re: [PATCH net-next] virtio-net: switch napi_tx without downing nic
-To: Jason Xing <kerneljasonxing@gmail.com>
+To: Jason Wang <jasowang@redhat.com>
 Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, Heng Qi <hengqi@linux.alibaba.com>, 
 	netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, 
 	"Michael S. Tsirkin" <mst@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
 	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Alexei Starovoitov <ast@kernel.org>, 
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Dec 25, 2023 at 2:44=E2=80=AFPM Jason Wang <jasowang@redhat.com> wr=
+On Mon, Dec 25, 2023 at 2:45=E2=80=AFPM Jason Wang <jasowang@redhat.com> wr=
 ote:
 >
 > On Mon, Dec 25, 2023 at 2:34=E2=80=AFPM Jason Xing <kerneljasonxing@gmail=
@@ -198,9 +190,73 @@ e
 >
 > What do you mean by delay here? Is it an interrupt delay? If yes, Does
 > it work better if you simply remove
+
+Delay means the interval between start_xmit() to skb free. I counted
+some numbers and then found out that some of them have very long
+intervals which might be normal?
+
+$ sudo bpftrace txcompletion.bt
+Attaching 4 probes...
+trace from virtio start_xmit() to tcp_wfree() longer than 0 ns
+^C
+
+@average: 384386
+@count: 348302
+@hist:
+[1K, 2K)            9551 |@@@@                                             =
+   |
+[2K, 4K)          116513 |@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@=
+@@@|
+[4K, 8K)           88295 |@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@          =
+   |
+[8K, 16K)          39965 |@@@@@@@@@@@@@@@@@                                =
+   |
+[16K, 32K)         39584 |@@@@@@@@@@@@@@@@@                                =
+   |
+[32K, 64K)         53970 |@@@@@@@@@@@@@@@@@@@@@@@@                         =
+   |
+[64K, 128K)          415 |                                                 =
+   |
+[128K, 256K)           0 |                                                 =
+   |
+[256K, 512K)           0 |                                                 =
+   |
+[512K, 1M)             0 |                                                 =
+   |
+[1M, 2M)               0 |                                                 =
+   |
+[2M, 4M)               0 |                                                 =
+   |
+[4M, 8M)               0 |                                                 =
+   |
+[8M, 16M)              0 |                                                 =
+   |
+[16M, 32M)             0 |                                                 =
+   |
+[32M, 64M)             0 |                                                 =
+   |
+[64M, 128M)            0 |                                                 =
+   |
+[128M, 256M)           0 |                                                 =
+   |
+[256M, 512M)           0 |                                                 =
+   |
+[512M, 1G)             0 |                                                 =
+   |
+[1G, 2G)               0 |                                                 =
+   |
+[2G, 4G)               9 |                                                 =
+   |
+
 >
 > virtqueue_enable_cb_delayed() with virtqueue_enable_cb()? As the
 > former may delay the interrupt more or less depend on the traffic.
+
+Due to the complexity of the production environment, I suspect the
+interrupt could be delayed on the host.
+
+Thanks for the suggestion.
+
 >
 > > of decreasing of sk_wmem_alloc, then it will
 > > hit the limit of TSQ mechanism, finally causing transmitting slowly in
@@ -218,12 +274,6 @@ e
 > > > > After all, it drops the flow control... :S
 > > >
 > > > Yes, that's the known issue.
-
-Just to clarify, I mean the skb_orphan() drop flow control is a known
-issue. Not the restart...
-
-Thanks
-
 > >
 > > Really? Did you have some numbers or have some discussion links to
 > > share? I failed to reproduce on my testing machine, probably the short
@@ -231,6 +281,9 @@ Thanks
 >
 > I basically mean it is a known side effect of skb_orphan() as it might
 > decrease sk_wmem_alloc too early.
+
+Oh, I got it wrong :(
+
 >
 > Thanks
 >
@@ -306,4 +359,4 @@ to
 > > > >
 > > >
 > >
-
+>
