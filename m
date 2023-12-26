@@ -1,87 +1,112 @@
-Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.65])
+Received: from out-174.mta0.migadu.com (out-174.mta0.migadu.com [91.218.175.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B68F4E1CD
-	for <virtualization@lists.linux.dev>; Tue, 26 Dec 2023 11:50:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96F294E602
+	for <virtualization@lists.linux.dev>; Tue, 26 Dec 2023 11:54:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="B+G5KAMD"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1703591416; x=1735127416;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=v1xdHtRyvG94UP1kD9FPSjUs3Ibi0hmcmPueEEKvHFM=;
-  b=B+G5KAMD1VbPoVgTya+frdUG95vCAjoUGRfX807q/dFfgCSzvVlW9TpQ
-   K8zJ4I7FfBWaJe2eSJoRX+dkXlbgzx5wYvuDuru72NDpglbISA9WtlnLa
-   +eJrw6WARuSzzQL57dKwsFBWU29S8/0KME1hfWQMLpmnRs/1O4GZUk1Jd
-   zncerY+NXS6HnGOerHCdKZjEVAlKkkQLp5pWpO9nByF2er7DdVDn43OHe
-   GODanh06GNVYJXHyQNw9jMH21SdcbslKo6FtR5fqR24+hX5IHaZPx+hv7
-   o7nU3lAUyUG6Z7P/eT6IiGSZjxJJcCuhLY0oIHGDVuHFnzj4ez6ea3+4e
-   Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10934"; a="400162574"
-X-IronPort-AV: E=Sophos;i="6.04,306,1695711600"; 
-   d="scan'208";a="400162574"
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Dec 2023 03:50:15 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10934"; a="777935768"
-X-IronPort-AV: E=Sophos;i="6.04,306,1695711600"; 
-   d="scan'208";a="777935768"
-Received: from unknown (HELO intel-71.bj.intel.com) ([10.238.154.71])
-  by orsmga002.jf.intel.com with ESMTP; 26 Dec 2023 03:50:12 -0800
-From: Zhu Yanjun <yanjun.zhu@intel.com>
-To: mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org
-Cc: Zhu Yanjun <yanjun.zhu@linux.dev>
-Subject: [PATCH 1/1] =?UTF-8?q?virtio=5Fnet:=20Fix=20"=E2=80=98%d=E2=80=99?= =?UTF-8?q?=20directive=20writing=20between=201=20and=2011=20bytes=20into?= =?UTF-8?q?=20a=20region=20of=20size=2010"=20warnings?=
-Date: Tue, 26 Dec 2023 19:45:07 +0800
-Message-Id: <20231226114507.2447118-1-yanjun.zhu@intel.com>
-X-Mailer: git-send-email 2.27.0
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="GFTEudeO"
+Message-ID: <b1034710-62df-4623-a0ad-d09a6bb12765@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1703591644;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=BLCcnkK5biKO6x64oecDD2AmldlFVyLGs0Jfsxv6Q+4=;
+	b=GFTEudeOQ+r4mw7bVPntWNURZ9p16OSToW8mOrWFvaFFP54ko2ehbBcu6yM3Qp0LGUnUNl
+	4rzHqendVduV+UV5yBVZaDFXDJLbsfZSHWCFWmMEMfgIgh2VjQWpC+cBvzZK9Qm+ard4Vi
+	VqtKXWMnfAR1YjNhr8jj6icJxgeMlAw=
+Date: Tue, 26 Dec 2023 19:53:58 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
+Subject: =?UTF-8?B?UmU6IFtQQVRDSCAxLzFdIHZpcnRpb19uZXQ6IEZpeCAi4oCYJWTigJkg?=
+ =?UTF-8?Q?directive_writing_between_1_and_11_bytes_into_a_region_of_size_10?=
+ =?UTF-8?Q?=22_warnings?=
+To: Zhu Yanjun <yanjun.zhu@intel.com>, mst@redhat.com, jasowang@redhat.com,
+ xuanzhuo@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, virtualization@lists.linux.dev,
+ netdev@vger.kernel.org
+References: <20231226114507.2447118-1-yanjun.zhu@intel.com>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 From: Zhu Yanjun <yanjun.zhu@linux.dev>
+In-Reply-To: <20231226114507.2447118-1-yanjun.zhu@intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-Fix a warning when building virtio_net driver.
+The warnings are as below:
 
-Signed-off-by: Zhu Yanjun <yanjun.zhu@linux.dev>
----
- drivers/net/virtio_net.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+"
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 49625638ad43..cf57eddf768a 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -4508,10 +4508,11 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
- {
- 	vq_callback_t **callbacks;
- 	struct virtqueue **vqs;
--	int ret = -ENOMEM;
--	int i, total_vqs;
- 	const char **names;
-+	int ret = -ENOMEM;
-+	int total_vqs;
- 	bool *ctx;
-+	u16 i;
- 
- 	/* We expect 1 RX virtqueue followed by 1 TX virtqueue, followed by
- 	 * possible N-1 RX/TX queue pairs used in multiqueue mode, followed by
--- 
-2.41.0
+drivers/net/virtio_net.c: In function ‘init_vqs’:
+drivers/net/virtio_net.c:4551:48: warning: ‘%d’ directive writing 
+between 1 and 11 bytes into a region of size 10 [-Wformat-overflow=]
+  4551 |                 sprintf(vi->rq[i].name, "input.%d", i);
+       |                                                ^~
+In function ‘virtnet_find_vqs’,
+     inlined from ‘init_vqs’ at drivers/net/virtio_net.c:4645:8:
+drivers/net/virtio_net.c:4551:41: note: directive argument in the range 
+[-2147483643, 65534]
+  4551 |                 sprintf(vi->rq[i].name, "input.%d", i);
+       |                                         ^~~~~~~~~~
+drivers/net/virtio_net.c:4551:17: note: ‘sprintf’ output between 8 and 
+18 bytes into a destination of size 16
+  4551 |                 sprintf(vi->rq[i].name, "input.%d", i);
+       |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+drivers/net/virtio_net.c: In function ‘init_vqs’:
+drivers/net/virtio_net.c:4552:49: warning: ‘%d’ directive writing 
+between 1 and 11 bytes into a region of size 9 [-Wformat-overflow=]
+  4552 |                 sprintf(vi->sq[i].name, "output.%d", i);
+       |                                                 ^~
+In function ‘virtnet_find_vqs’,
+     inlined from ‘init_vqs’ at drivers/net/virtio_net.c:4645:8:
+drivers/net/virtio_net.c:4552:41: note: directive argument in the range 
+[-2147483643, 65534]
+  4552 |                 sprintf(vi->sq[i].name, "output.%d", i);
+       |                                         ^~~~~~~~~~~
+drivers/net/virtio_net.c:4552:17: note: ‘sprintf’ output between 9 and 
+19 bytes into a destination of size 16
+  4552 |                 sprintf(vi->sq[i].name, "output.%d", i);
 
+"
+
+Please review.
+
+Best Regards,
+
+Zhu Yanjun
+
+在 2023/12/26 19:45, Zhu Yanjun 写道:
+> From: Zhu Yanjun <yanjun.zhu@linux.dev>
+>
+> Fix a warning when building virtio_net driver.
+>
+> Signed-off-by: Zhu Yanjun <yanjun.zhu@linux.dev>
+> ---
+>   drivers/net/virtio_net.c | 5 +++--
+>   1 file changed, 3 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 49625638ad43..cf57eddf768a 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -4508,10 +4508,11 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+>   {
+>   	vq_callback_t **callbacks;
+>   	struct virtqueue **vqs;
+> -	int ret = -ENOMEM;
+> -	int i, total_vqs;
+>   	const char **names;
+> +	int ret = -ENOMEM;
+> +	int total_vqs;
+>   	bool *ctx;
+> +	u16 i;
+>   
+>   	/* We expect 1 RX virtqueue followed by 1 TX virtqueue, followed by
+>   	 * possible N-1 RX/TX queue pairs used in multiqueue mode, followed by
