@@ -1,150 +1,215 @@
-Received: from mout.web.de (mout.web.de [212.227.17.12])
+Received: from out-185.mta0.migadu.com (out-185.mta0.migadu.com [91.218.175.185])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0429E4E1A0;
-	Tue, 26 Dec 2023 10:13:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CE424E1C6
+	for <virtualization@lists.linux.dev>; Tue, 26 Dec 2023 11:26:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="qctTj9H1"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de; s=s29768273;
-	t=1703585548; x=1704190348; i=markus.elfring@web.de;
-	bh=dPv4vm2V0dtNM9i6ea9tTX3+xLFfWPWmI5QeWJPTnZk=;
-	h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:
-	 In-Reply-To;
-	b=qctTj9H1YVuIc3m8+kAdWWGMz52a5nerjKipKUSb6X8ybQ8HqLI6Fm7K+JOA1q/j
-	 chiHL60LtJaQG8B58YOM4rEr9Xx+MEj4DQLXr80xtHmwVA+t2Lzh4Juxb/xXQLn/8
-	 JUBotIqKsiDzTLSsPto/n+/GwCINXYPM13DmwzXE3nBTKZ+uqlOqTu4ESJcHDKrKB
-	 o/oPJWLn42XMytEJk9QA5fSpUPH3u+Ga9weIjWDsGTDlmxjN/45/L3ayhy8ZxKW7l
-	 NbMKFMb2jaAQxa7Z6K9Os2ldxslTommCScCEiAI7p6J++Oe1zU6KUu5yMo0Y+dwts
-	 Ih+seoMJWTukJthKvw==
-X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
-Received: from [192.168.178.21] ([94.31.85.95]) by smtp.web.de (mrweb106
- [213.165.67.124]) with ESMTPSA (Nemesis) id 1MgzaR-1qmKZd2f09-00h0gW; Tue, 26
- Dec 2023 11:12:28 +0100
-Message-ID: <7bf9a4fa-1675-45a6-88dd-82549ae2c6e0@web.de>
-Date: Tue, 26 Dec 2023 11:12:23 +0100
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="oStvdJ88"
+Message-ID: <a2102a2b-0863-4f0e-b70b-8a1460571b15@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1703589992;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=tmW+UU4R/GQl4t1JifZU8VoKdZXoi50g70i4shR/PeE=;
+	b=oStvdJ882sr/zQDWgATK0OaqOsuColfWSslc7AE53WFU0op9KCkERdWGqDR+UeRsNp58Np
+	4dyc6gcr7/jbi/eh1TxgbJumKLPgeZCgfI/yNLK2o4mzZV2hnry+v9qT96Y1obQYQr9m3W
+	fNYkjyp2M5K18tHrnSPAT8J+0jCKshc=
+Date: Tue, 26 Dec 2023 19:26:26 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: [PATCH v2] crypto: virtio - Less function calls in
- __virtio_crypto_akcipher_do_req() after error detection
-Content-Language: en-GB
-To: kernel test robot <lkp@intel.com>, virtualization@lists.linux.dev,
- linux-crypto@vger.kernel.org, kernel-janitors@vger.kernel.org,
- "David S. Miller" <davem@davemloft.net>, Gonglei <arei.gonglei@huawei.com>,
- Herbert Xu <herbert@gondor.apana.org.au>, Jason Wang <jasowang@redhat.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
- netdev@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, cocci@inria.fr
-References: <2413f22f-f0c3-45e0-9f6b-a551bdf0f54c@web.de>
- <202312260852.0ge5O8IL-lkp@intel.com>
-From: Markus Elfring <Markus.Elfring@web.de>
-In-Reply-To: <202312260852.0ge5O8IL-lkp@intel.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:YN0MO2vfA1atqF0nbfqn3SUIOjqrjmmzVaCGbVBzhr1uK75lo+t
- Z+XanIEq02qD07l7cGh0qCNmrpZhVE1z34Lyp8XzjJZz1NMCNGi0WvNA0YgL+CUCd3AkrUH
- u4m7w4Ne71OdUv3nbMx76OomPu4ThXd6ZHN3zMk7meKGBNwTcpJaMKYb1ZhMM9nhYIGQd72
- CDypDzv2I327qYKzDGLtg==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:8nuqnBAmzpc=;fggNP23Hu6H5jAMVog3j6WuwsVy
- SNSPoYpjKMwrNPMQKvNUF2W2BCNiSMXM6+szPZlgk5czdie42gPPZHtJ7lVD+Ve9gzqracOJ/
- vJ5Nm0XtiPrhTYtne9KKJkgViiSJ9VRdwEOQg6qSSh0Mb6GF61My09Xu6t5blbdrTD8JCW+hi
- ZTyonCXTwrNSC5ybEZGjj1n1oSG7o6W0ZyXTEGYjlWq1Uw0g/0LYWTSyw0Ul4AyVOp9mf5bar
- LyyuaOfeY/6x8vmc4qN2V+wcRolHAdWvCkMblNmdfH5VNDTOO/6vgqOkQJ+4I+RmhODXe5aEk
- zcSDuO/zOLanNfFuqFZDqVUBziTSeoqXMdbMmvR+VbZse1YRLch5Kgaddv1kU57k/LvAdCeV/
- jITnam948vgtGL4CSq8sG+SNxwq7haNKwfXVlqMV0PvdcaZKULiS7OwcIu+JAjAExqHxn9VhC
- sQxEIQsHz0Vros/asQqPXaV9By64fZ4xZV9YTcYW9kYUMzFbACzWecX2MxryUt7VZdNL0hAKD
- h8b9hiub2b7uHr2lWE6sgLF0Lza1HRxLQE4P1gx/2/FK+TdMtwfi6fdlCUq0YAtkVAjhJ3Itc
- 7IQDzC6bKhG423ry4K5JJNPQrTieQVnchifFCJs9ji2RXXV7XAHJXJVTFsCMbvMSzqAYgrCjE
- ju2Lwc6iP4UF7ZT3PH1U5EkOjtkCUdjCEKcUxI9LG/RG9IQd4xrfJgOvxzxFRAa0hNFbco+mU
- 3K0PdeaQhY/3yQPOjtIfTCJAM0mn9o5LiJ/TwzfQnF6fBQgzwjZPllvg7PJdAgRahw1GDP0AU
- 4q0P9MY9OqRHgjCkBcqICAHF0Pb6L3gb166r70ry43nveXIZQuABdfP9ZVueBQ6dIV4gzclr9
- T3QMf/bkPp2VN9TN5sd/4dEflY8gfYX/vQqODRKtrK+Izhm70lJna8tRR0QH1TcGjBgoTUfi3
- VOtIf1J/PSAE+RJkUJCU2HoAB14=
+Subject: Re: [PATCH net-next v1 1/6] virtio_net: introduce device stats
+ feature and structures
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, netdev@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ virtualization@lists.linux.dev
+References: <20231226073103.116153-1-xuanzhuo@linux.alibaba.com>
+ <20231226073103.116153-2-xuanzhuo@linux.alibaba.com>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Zhu Yanjun <yanjun.zhu@linux.dev>
+In-Reply-To: <20231226073103.116153-2-xuanzhuo@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Tue, 26 Dec 2023 11:00:20 +0100
 
-The kfree() function was called in up to two cases by the
-__virtio_crypto_akcipher_do_req() function during error handling
-even if the passed variable contained a null pointer.
-This issue was detected by using the Coccinelle software.
+在 2023/12/26 15:30, Xuan Zhuo 写道:
+> The virtio-net device stats spec:
+>
+> https://github.com/oasis-tcs/virtio-spec/commit/42f389989823039724f95bbbd243291ab0064f82
+>
+> This commit introduces the relative feature and structures.
+>
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> ---
+>   include/uapi/linux/virtio_net.h | 137 ++++++++++++++++++++++++++++++++
+>   1 file changed, 137 insertions(+)
+>
+> diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
+> index cc65ef0f3c3e..8fca4d1b7635 100644
+> --- a/include/uapi/linux/virtio_net.h
+> +++ b/include/uapi/linux/virtio_net.h
+> @@ -56,6 +56,7 @@
+>   #define VIRTIO_NET_F_MQ	22	/* Device supports Receive Flow
+>   					 * Steering */
+>   #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
+> +#define VIRTIO_NET_F_DEVICE_STATS 50	/* Device can provide device-level statistics. */
+>   #define VIRTIO_NET_F_VQ_NOTF_COAL 52	/* Device supports virtqueue notification coalescing */
+>   #define VIRTIO_NET_F_NOTF_COAL	53	/* Device supports notifications coalescing */
+>   #define VIRTIO_NET_F_GUEST_USO4	54	/* Guest can handle USOv4 in. */
+> @@ -406,4 +407,140 @@ struct  virtio_net_ctrl_coal_vq {
+>   	struct virtio_net_ctrl_coal coal;
+>   };
+>   
+> +/*
+> + * Device Statistics
+> + */
+> +#define VIRTIO_NET_CTRL_STATS         8
+> +#define VIRTIO_NET_CTRL_STATS_QUERY   0
+> +#define VIRTIO_NET_CTRL_STATS_GET     1
+> +
+> +struct virtio_net_stats_capabilities {
+> +
+> +#define VIRTIO_NET_STATS_TYPE_CVQ       (1ULL << 32)
+> +
+> +#define VIRTIO_NET_STATS_TYPE_RX_BASIC  (1ULL << 0)
+> +#define VIRTIO_NET_STATS_TYPE_RX_CSUM   (1ULL << 1)
+> +#define VIRTIO_NET_STATS_TYPE_RX_GSO    (1ULL << 2)
+> +#define VIRTIO_NET_STATS_TYPE_RX_SPEED  (1ULL << 3)
+> +
+> +#define VIRTIO_NET_STATS_TYPE_TX_BASIC  (1ULL << 16)
+> +#define VIRTIO_NET_STATS_TYPE_TX_CSUM   (1ULL << 17)
+> +#define VIRTIO_NET_STATS_TYPE_TX_GSO    (1ULL << 18)
+> +#define VIRTIO_NET_STATS_TYPE_TX_SPEED  (1ULL << 19)
+> +
+> +	__le64 supported_stats_types[1];
+> +};
+> +
+> +struct virtio_net_ctrl_queue_stats {
+> +	struct {
+> +		__le16 vq_index;
+> +		__le16 reserved[3];
+> +		__le64 types_bitmap[1];
+> +	} stats[1];
+> +};
+> +
+> +struct virtio_net_stats_reply_hdr {
+> +#define VIRTIO_NET_STATS_TYPE_REPLY_CVQ       32
+> +
+> +#define VIRTIO_NET_STATS_TYPE_REPLY_RX_BASIC  0
+> +#define VIRTIO_NET_STATS_TYPE_REPLY_RX_CSUM   1
+> +#define VIRTIO_NET_STATS_TYPE_REPLY_RX_GSO    2
+> +#define VIRTIO_NET_STATS_TYPE_REPLY_RX_SPEED  3
+> +
+> +#define VIRTIO_NET_STATS_TYPE_REPLY_TX_BASIC  16
+> +#define VIRTIO_NET_STATS_TYPE_REPLY_TX_CSUM   17
+> +#define VIRTIO_NET_STATS_TYPE_REPLY_TX_GSO    18
+> +#define VIRTIO_NET_STATS_TYPE_REPLY_TX_SPEED  19
+> +	__u8 type;
+> +	__u8 reserved;
 
-* Adjust jump targets.
+Thanks a lot. I have made tests. The mentioned errors are fixed in this 
+patch series.
 
-* Delete two initialisations which became unnecessary
-  with this refactoring.
+Zhu Yanjun
 
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
-=2D--
-
-v2:
-A typo was fixed for the delimiter of a label.
-
- drivers/crypto/virtio/virtio_crypto_akcipher_algs.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c b/drivers=
-/crypto/virtio/virtio_crypto_akcipher_algs.c
-index 2621ff8a9376..057da5bd8d30 100644
-=2D-- a/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
-+++ b/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
-@@ -224,11 +224,11 @@ static int __virtio_crypto_akcipher_do_req(struct vi=
-rtio_crypto_akcipher_request
- 	struct virtio_crypto *vcrypto =3D ctx->vcrypto;
- 	struct virtio_crypto_op_data_req *req_data =3D vc_req->req_data;
- 	struct scatterlist *sgs[4], outhdr_sg, inhdr_sg, srcdata_sg, dstdata_sg;
--	void *src_buf =3D NULL, *dst_buf =3D NULL;
-+	void *src_buf, *dst_buf =3D NULL;
- 	unsigned int num_out =3D 0, num_in =3D 0;
- 	int node =3D dev_to_node(&vcrypto->vdev->dev);
- 	unsigned long flags;
--	int ret =3D -ENOMEM;
-+	int ret;
- 	bool verify =3D vc_akcipher_req->opcode =3D=3D VIRTIO_CRYPTO_AKCIPHER_VE=
-RIFY;
- 	unsigned int src_len =3D verify ? req->src_len + req->dst_len : req->src=
-_len;
-
-@@ -239,7 +239,7 @@ static int __virtio_crypto_akcipher_do_req(struct virt=
-io_crypto_akcipher_request
- 	/* src data */
- 	src_buf =3D kcalloc_node(src_len, 1, GFP_KERNEL, node);
- 	if (!src_buf)
--		goto err;
-+		return -ENOMEM;
-
- 	if (verify) {
- 		/* for verify operation, both src and dst data work as OUT direction */
-@@ -254,7 +254,7 @@ static int __virtio_crypto_akcipher_do_req(struct virt=
-io_crypto_akcipher_request
- 		/* dst data */
- 		dst_buf =3D kcalloc_node(req->dst_len, 1, GFP_KERNEL, node);
- 		if (!dst_buf)
--			goto err;
-+			goto free_src;
-
- 		sg_init_one(&dstdata_sg, dst_buf, req->dst_len);
- 		sgs[num_out + num_in++] =3D &dstdata_sg;
-@@ -277,9 +277,9 @@ static int __virtio_crypto_akcipher_do_req(struct virt=
-io_crypto_akcipher_request
- 	return 0;
-
- err:
--	kfree(src_buf);
- 	kfree(dst_buf);
--
-+free_src:
-+	kfree(src_buf);
- 	return -ENOMEM;
- }
-
-=2D-
-2.43.0
-
+> +	__le16 vq_index;
+> +	__le16 reserved1;
+> +	__le16 size;
+> +};
+> +
+> +struct virtio_net_stats_cvq {
+> +	struct virtio_net_stats_reply_hdr hdr;
+> +
+> +	__le64 command_num;
+> +	__le64 ok_num;
+> +};
+> +
+> +struct virtio_net_stats_rx_basic {
+> +	struct virtio_net_stats_reply_hdr hdr;
+> +
+> +	__le64 rx_notifications;
+> +
+> +	__le64 rx_packets;
+> +	__le64 rx_bytes;
+> +
+> +	__le64 rx_interrupts;
+> +
+> +	__le64 rx_drops;
+> +	__le64 rx_drop_overruns;
+> +};
+> +
+> +struct virtio_net_stats_tx_basic {
+> +	struct virtio_net_stats_reply_hdr hdr;
+> +
+> +	__le64 tx_notifications;
+> +
+> +	__le64 tx_packets;
+> +	__le64 tx_bytes;
+> +
+> +	__le64 tx_interrupts;
+> +
+> +	__le64 tx_drops;
+> +	__le64 tx_drop_malformed;
+> +};
+> +
+> +struct virtio_net_stats_rx_csum {
+> +	struct virtio_net_stats_reply_hdr hdr;
+> +
+> +	__le64 rx_csum_valid;
+> +	__le64 rx_needs_csum;
+> +	__le64 rx_csum_none;
+> +	__le64 rx_csum_bad;
+> +};
+> +
+> +struct virtio_net_stats_tx_csum {
+> +	struct virtio_net_stats_reply_hdr hdr;
+> +
+> +	__le64 tx_csum_none;
+> +	__le64 tx_needs_csum;
+> +};
+> +
+> +struct virtio_net_stats_rx_gso {
+> +	struct virtio_net_stats_reply_hdr hdr;
+> +
+> +	__le64 rx_gso_packets;
+> +	__le64 rx_gso_bytes;
+> +	__le64 rx_gso_packets_coalesced;
+> +	__le64 rx_gso_bytes_coalesced;
+> +};
+> +
+> +struct virtio_net_stats_tx_gso {
+> +	struct virtio_net_stats_reply_hdr hdr;
+> +
+> +	__le64 tx_gso_packets;
+> +	__le64 tx_gso_bytes;
+> +	__le64 tx_gso_segments;
+> +	__le64 tx_gso_segments_bytes;
+> +	__le64 tx_gso_packets_noseg;
+> +	__le64 tx_gso_bytes_noseg;
+> +};
+> +
+> +struct virtio_net_stats_rx_speed {
+> +	struct virtio_net_stats_reply_hdr hdr;
+> +
+> +	__le64 rx_packets_allowance_exceeded;
+> +	__le64 rx_bytes_allowance_exceeded;
+> +};
+> +
+> +struct virtio_net_stats_tx_speed {
+> +	struct virtio_net_stats_reply_hdr hdr;
+> +
+> +	__le64 tx_packets_allowance_exceeded;
+> +	__le64 tx_bytes_allowance_exceeded;
+> +};
+> +
+>   #endif /* _UAPI_LINUX_VIRTIO_NET_H */
