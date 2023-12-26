@@ -1,206 +1,219 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F33DF107A6
-	for <virtualization@lists.linux-foundation.org>; Tue, 26 Dec 2023 03:32:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="U4J1fql2"
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A9CA4BA82
+	for <virtualization@lists.linux-foundation.org>; Tue, 26 Dec 2023 05:59:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 64F89607A1
-	for <virtualization@lists.linux-foundation.org>; Tue, 26 Dec 2023 03:32:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 64F89607A1
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=U4J1fql2
+	by smtp1.osuosl.org (Postfix) with ESMTP id 5E6FF81391
+	for <virtualization@lists.linux-foundation.org>; Tue, 26 Dec 2023 05:59:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5E6FF81391
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -0.599
+X-Spam-Score: -9.9
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id NOWbLxhTM8C3
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id YUYhazEYY5Bz
 	for <virtualization@lists.linux-foundation.org>;
-	Tue, 26 Dec 2023 03:32:40 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 6B2CC60792
-	for <virtualization@lists.linux-foundation.org>; Tue, 26 Dec 2023 03:32:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6B2CC60792
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1703561559;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ph9pqyH1SKt/ykslqZ05q7LYqXwWOYyL1VmFIBCy1cs=;
-	b=U4J1fql2wjqPXeNYpOrAh9qirGPZAUcqRCELVrm5hYFIHNtZzovJuwMwWCsC/iLGcb5aRl
-	xA8P8l0qhFO290RENJTfgPLKPmhFqxIl3gQc3LYY10FzHFAI6gAsL/xRpSAH05S0pwTfHA
-	TlsaK2NTGB2de9ugj048wDfggqWbYqA=
-Received: from mail-pl1-f197.google.com (mail-pl1-f197.google.com
- [209.85.214.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-345-nfd3RxwoONaQjAgWqcaSPQ-1; Mon, 25 Dec 2023 22:32:37 -0500
-X-MC-Unique: nfd3RxwoONaQjAgWqcaSPQ-1
-Received: by mail-pl1-f197.google.com with SMTP id d9443c01a7336-1d4212b6871so28336325ad.0
-        for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 19:32:37 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703561556; x=1704166356;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ph9pqyH1SKt/ykslqZ05q7LYqXwWOYyL1VmFIBCy1cs=;
-        b=OXpYZMkqMqBZEd7IW1eFikh+cCCqyVQuS8dyq6Nu8eMIo1s+l2B56YyPxNVs6J8PN8
-         fIEdSq8hd5psSwy0nWynXknNcKHCF/IJ30WUuhKvcjAl2OE0iibyrzZDXI8J4YRPbG65
-         zH9i3zZPma+ngAjz/6hlz+AmxHHiYIx4oE//l9dQxVoqyX2zU2RFSZSZUDOjX8nEu7a8
-         Hu2cVxOTzdCPi+5badPUEt2b11zcCgB+43mJA0Lu2VqB/zzv2yLWQjSu4Wilyupbi1OC
-         6GJwQ7ZEr8+ndUI722wlvdYL3GXm2L7d/kpHCSuKTdbvxysRT1dQ82SgKvuqDIpD0L5f
-         YfeA==
-X-Gm-Message-State: AOJu0YwtO8I4Qsp8J6mURQweLxnx50E636TxR3G+cItfzC/DTmb3YVK/
-	WUq3BOWm6FH/o6OIJG498WY/3R3y5ZjXadkUXmvX3xMYsoezOBp/nM8/7wTSayvzA3rT7J4AQnz
-	EN2QRkOkwdycdZosTQAfmXzfpb7z3zgJk/PYunXhQs88Bukpy8V7G1gMCyAZx4cENSQ==
-X-Received: by 2002:a17:903:124d:b0:1d4:69a5:edbb with SMTP id u13-20020a170903124d00b001d469a5edbbmr1426746plh.48.1703561556491;
-        Mon, 25 Dec 2023 19:32:36 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IERAn1+duEGCL81U434Oigr4BxdRwF+MbGMw6zhv+eHeSmA8fvL2MRrv0cQH7UGDE2MpsZdeQ0V7zpgkVbj1tg=
-X-Received: by 2002:a17:903:124d:b0:1d4:69a5:edbb with SMTP id
- u13-20020a170903124d00b001d469a5edbbmr1426729plh.48.1703561556191; Mon, 25
- Dec 2023 19:32:36 -0800 (PST)
+	Tue, 26 Dec 2023 05:59:33 +0000 (UTC)
+Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 8C6DD81390
+	for <virtualization@lists.linux-foundation.org>; Tue, 26 Dec 2023 05:59:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8C6DD81390
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VzGemBJ_1703570365;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VzGemBJ_1703570365)
+          by smtp.aliyun-inc.com;
+          Tue, 26 Dec 2023 13:59:26 +0800
+Message-ID: <1703570229.7040236-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH v1] virtio_net: fix missing dma unmap for resize
+Date: Tue, 26 Dec 2023 13:57:09 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org,
+ Jason Wang <jasowang@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>,
+ virtualization@lists.linux-foundation.org
+References: <20231212081141.39757-1-xuanzhuo@linux.alibaba.com>
+ <20231212032514-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20231212032514-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-References: <f9f7d28624f8084ef07842ee569c22b324ee4055.1703059341.git.hengqi@linux.alibaba.com>
- <6582fe057cb9_1a34a429435@willemb.c.googlers.com.notmuch> <084142b9-7e0d-4eae-82d2-0736494953cd@linux.alibaba.com>
- <65845456cad2a_50168294ba@willemb.c.googlers.com.notmuch> <CACGkMEthxep1rvWvEmykeevLhOxiSTR1oog_PkYTRCaeavMGSA@mail.gmail.com>
- <20231222031024-mutt-send-email-mst@kernel.org> <CACGkMEsZDYFuvxgw63U5naLTYH5XNwMTMNvsoz439AWonFE4Vg@mail.gmail.com>
- <20231225025936-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20231225025936-mutt-send-email-mst@kernel.org>
-From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 26 Dec 2023 11:32:24 +0800
-Message-ID: <CACGkMEsJQv=KoU0UiPNM_CkaqHf=uLRONdDB36=y80=m_jwONA@mail.gmail.com>
-Subject: Re: [PATCH net-next] virtio-net: switch napi_tx without downing nic
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, Heng Qi <hengqi@linux.alibaba.com>, 
-	netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Alexei Starovoitov <ast@kernel.org>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Dec 25, 2023 at 4:03=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
- wrote:
->
-> On Mon, Dec 25, 2023 at 12:12:48PM +0800, Jason Wang wrote:
-> > On Fri, Dec 22, 2023 at 4:14=E2=80=AFPM Michael S. Tsirkin <mst@redhat.=
-com> wrote:
-> > >
-> > > On Fri, Dec 22, 2023 at 10:35:07AM +0800, Jason Wang wrote:
-> > > > On Thu, Dec 21, 2023 at 11:06=E2=80=AFPM Willem de Bruijn
-> > > > <willemdebruijn.kernel@gmail.com> wrote:
-> > > > >
-> > > > > Heng Qi wrote:
-> > > > > >
-> > > > > >
-> > > > > > =E5=9C=A8 2023/12/20 =E4=B8=8B=E5=8D=8810:45, Willem de Bruijn =
-=E5=86=99=E9=81=93:
-> > > > > > > Heng Qi wrote:
-> > > > > > >> virtio-net has two ways to switch napi_tx: one is through th=
-e
-> > > > > > >> module parameter, and the other is through coalescing parame=
-ter
-> > > > > > >> settings (provided that the nic status is down).
-> > > > > > >>
-> > > > > > >> Sometimes we face performance regression caused by napi_tx,
-> > > > > > >> then we need to switch napi_tx when debugging. However, the
-> > > > > > >> existing methods are a bit troublesome, such as needing to
-> > > > > > >> reload the driver or turn off the network card.
-> > > >
-> > > > Why is this troublesome? We don't need to turn off the card, it's j=
-ust
-> > > > a toggling of the interface.
-> > > >
-> > > > This ends up with pretty simple code.
-> > > >
-> > > > > So try to make
-> > > > > > >> this update.
-> > > > > > >>
-> > > > > > >> Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
-> > > > > > >> Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > > > > The commit does not explain why it is safe to do so.
-> > > > > >
-> > > > > > virtnet_napi_tx_disable ensures that already scheduled tx napi =
-ends and
-> > > > > > no new tx napi will be scheduled.
-> > > > > >
-> > > > > > Afterwards, if the __netif_tx_lock_bh lock is held, the stack c=
-annot
-> > > > > > send the packet.
-> > > > > >
-> > > > > > Then we can safely toggle the weight to indicate where to clear=
- the buffers.
-> > > > > >
-> > > > > > >
-> > > > > > > The tx-napi weights are not really weights: it is a boolean w=
-hether
-> > > > > > > napi is used for transmit cleaning, or whether packets are cl=
-eaned
-> > > > > > > in ndo_start_xmit.
-> > > > > >
-> > > > > > Right.
-> > > > > >
-> > > > > > >
-> > > > > > > There certainly are some subtle issues with regard to pausing=
-/waking
-> > > > > > > queues when switching between modes.
-> > > > > >
-> > > > > > What are "subtle issues" and if there are any, we find them.
-> > > > >
-> > > > > A single runtime test is not sufficient to exercise all edge case=
-s.
-> > > > >
-> > > > > Please don't leave it to reviewers to establish the correctness o=
-f a
-> > > > > patch.
-> > > >
-> > > > +1
-> > > >
-> > > > And instead of trying to do this, it would be much better to optimi=
-ze
-> > > > the NAPI performance. Then we can drop the orphan mode.
-> > >
-> > > "To address your problem, optimize our code to the level which we
-> > > couldn't achieve in more than 10 years".
+On Tue, 12 Dec 2023 03:26:41 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Tue, Dec 12, 2023 at 04:11:41PM +0800, Xuan Zhuo wrote:
+> > For rq, we have three cases getting buffers from virtio core:
 > >
-> > Last time QE didn't report any issue for TCP. For others, the code
-> > might just need some optimization if it really matters, it's just
-> > because nobody has worked on this part in the past years.
+> > 1. virtqueue_get_buf{,_ctx}
+> > 2. virtqueue_detach_unused_buf
+> > 3. callback for virtqueue_resize
+> >
+> > But in commit 295525e29a5b("virtio_net: merge dma operations when
+> > filling mergeable buffers"), I missed the dma unmap for the #3 case.
+> >
+> > That will leak some memory, because I did not release the pages referred
+> > by the unused buffers.
+> >
+> > If we do such script, we will make the system OOM.
+> >
+> >     while true
+> >     do
+> >             ethtool -G ens4 rx 128
+> >             ethtool -G ens4 rx 256
+> >             free -m
+> >     done
+> >
+> > Fixes: 295525e29a5b ("virtio_net: merge dma operations when filling mergeable buffers")
+> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > ---
+> >
+> > v1: rename to virtnet_rq_free_buf_check_dma()
 >
-> You think nobody worked on performance of virtio net because nobody
-> could bother?
+> The fact that we check does not matter what matters is
+> that we unmap. I'd change the name to reflect that.
 
-No, I just describe what I've seen from the list. No patches were
-posted for performance optimization in recent years.
 
-> I think it's just micro optimized to a level where
-> progress is difficult.
+Hi Michael:
+
+I see one "[GIT PULL] virtio: bugfixes". But this is not in the list.
+
+So I hope this is your list.
+
+Thanks.
+
+
 >
 >
-
-Maybe.
-
-Let me clarify what I meant.
-
-If people can help to optimize the NAPI to be as fast as orphans or
-something like 80%-90% of orphans. It should be sufficient to remove
-the orphan path completely. This allows a lot of good features to be
-built easily on top.
-
-To me, it seems fine to remove it even now as it breaks socket
-accounting which is actually a bug and NAPI has been enabled for years
-but if you don't wish to do that, that's fine.  We can wait for the
-coalescing and dim to be used for a while and revisit this.
-
-Thanks
-
+> >
+> >  drivers/net/virtio_net.c | 60 ++++++++++++++++++++--------------------
+> >  1 file changed, 30 insertions(+), 30 deletions(-)
+> >
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index d16f592c2061..58ebbffeb952 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -334,7 +334,6 @@ struct virtio_net_common_hdr {
+> >  	};
+> >  };
+> >
+> > -static void virtnet_rq_free_unused_buf(struct virtqueue *vq, void *buf);
+> >  static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf);
+> >
+> >  static bool is_xdp_frame(void *ptr)
+> > @@ -408,6 +407,17 @@ static struct page *get_a_page(struct receive_queue *rq, gfp_t gfp_mask)
+> >  	return p;
+> >  }
+> >
+> > +static void virtnet_rq_free_buf(struct virtnet_info *vi,
+> > +				struct receive_queue *rq, void *buf)
+> > +{
+> > +	if (vi->mergeable_rx_bufs)
+> > +		put_page(virt_to_head_page(buf));
+> > +	else if (vi->big_packets)
+> > +		give_pages(rq, buf);
+> > +	else
+> > +		put_page(virt_to_head_page(buf));
+> > +}
+> > +
+> >  static void enable_delayed_refill(struct virtnet_info *vi)
+> >  {
+> >  	spin_lock_bh(&vi->refill_lock);
+> > @@ -634,17 +644,6 @@ static void *virtnet_rq_get_buf(struct receive_queue *rq, u32 *len, void **ctx)
+> >  	return buf;
+> >  }
+> >
+> > -static void *virtnet_rq_detach_unused_buf(struct receive_queue *rq)
+> > -{
+> > -	void *buf;
+> > -
+> > -	buf = virtqueue_detach_unused_buf(rq->vq);
+> > -	if (buf && rq->do_dma)
+> > -		virtnet_rq_unmap(rq, buf, 0);
+> > -
+> > -	return buf;
+> > -}
+> > -
+> >  static void virtnet_rq_init_one_sg(struct receive_queue *rq, void *buf, u32 len)
+> >  {
+> >  	struct virtnet_rq_dma *dma;
+> > @@ -744,6 +743,20 @@ static void virtnet_rq_set_premapped(struct virtnet_info *vi)
+> >  	}
+> >  }
+> >
+> > +static void virtnet_rq_free_buf_check_dma(struct virtqueue *vq, void *buf)
+> > +{
+> > +	struct virtnet_info *vi = vq->vdev->priv;
+> > +	struct receive_queue *rq;
+> > +	int i = vq2rxq(vq);
+> > +
+> > +	rq = &vi->rq[i];
+> > +
+> > +	if (rq->do_dma)
+> > +		virtnet_rq_unmap(rq, buf, 0);
+> > +
+> > +	virtnet_rq_free_buf(vi, rq, buf);
+> > +}
+> > +
+> >  static void free_old_xmit_skbs(struct send_queue *sq, bool in_napi)
+> >  {
+> >  	unsigned int len;
+> > @@ -1764,7 +1777,7 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
+> >  	if (unlikely(len < vi->hdr_len + ETH_HLEN)) {
+> >  		pr_debug("%s: short packet %i\n", dev->name, len);
+> >  		DEV_STATS_INC(dev, rx_length_errors);
+> > -		virtnet_rq_free_unused_buf(rq->vq, buf);
+> > +		virtnet_rq_free_buf(vi, rq, buf);
+> >  		return;
+> >  	}
+> >
+> > @@ -2392,7 +2405,7 @@ static int virtnet_rx_resize(struct virtnet_info *vi,
+> >  	if (running)
+> >  		napi_disable(&rq->napi);
+> >
+> > -	err = virtqueue_resize(rq->vq, ring_num, virtnet_rq_free_unused_buf);
+> > +	err = virtqueue_resize(rq->vq, ring_num, virtnet_rq_free_buf_check_dma);
+> >  	if (err)
+> >  		netdev_err(vi->dev, "resize rx fail: rx queue index: %d err: %d\n", qindex, err);
+> >
+> > @@ -4031,19 +4044,6 @@ static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf)
+> >  		xdp_return_frame(ptr_to_xdp(buf));
+> >  }
+> >
+> > -static void virtnet_rq_free_unused_buf(struct virtqueue *vq, void *buf)
+> > -{
+> > -	struct virtnet_info *vi = vq->vdev->priv;
+> > -	int i = vq2rxq(vq);
+> > -
+> > -	if (vi->mergeable_rx_bufs)
+> > -		put_page(virt_to_head_page(buf));
+> > -	else if (vi->big_packets)
+> > -		give_pages(&vi->rq[i], buf);
+> > -	else
+> > -		put_page(virt_to_head_page(buf));
+> > -}
+> > -
+> >  static void free_unused_bufs(struct virtnet_info *vi)
+> >  {
+> >  	void *buf;
+> > @@ -4057,10 +4057,10 @@ static void free_unused_bufs(struct virtnet_info *vi)
+> >  	}
+> >
+> >  	for (i = 0; i < vi->max_queue_pairs; i++) {
+> > -		struct receive_queue *rq = &vi->rq[i];
+> > +		struct virtqueue *vq = vi->rq[i].vq;
+> >
+> > -		while ((buf = virtnet_rq_detach_unused_buf(rq)) != NULL)
+> > -			virtnet_rq_free_unused_buf(rq->vq, buf);
+> > +		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL)
+> > +			virtnet_rq_free_buf_check_dma(vq, buf);
+> >  		cond_resched();
+> >  	}
+> >  }
+> > --
+> > 2.32.0.3.g01195cf9f
+>
