@@ -1,97 +1,84 @@
-Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from szxga07-in.huawei.com (szxga07-in.huawei.com [45.249.212.35])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0A2D4E60C
-	for <virtualization@lists.linux.dev>; Tue, 26 Dec 2023 12:14:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=smartx.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=smartx.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=smartx-com.20230601.gappssmtp.com header.i=@smartx-com.20230601.gappssmtp.com header.b="vUuc+1EO"
-Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-554fe147ddeso1021166a12.3
-        for <virtualization@lists.linux.dev>; Tue, 26 Dec 2023 04:14:26 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=smartx-com.20230601.gappssmtp.com; s=20230601; t=1703592865; x=1704197665; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=QgFlNYVpTW4/LSUdsscecibsDCHhy6INDSaJkTsHmeY=;
-        b=vUuc+1EOolEn81OR1Yptb6RD+4fmrxNCE/OHb33rPidlg7bJaQ8QYZRcemi79ZIol5
-         zE5nWjs9rydUzWFTBYyqq4VW428jhIkpTKvwpGQNCWWhWH0ZHsN20zwPoHdVGUIv5I4O
-         qCAoab0JjSQm6Hza8a2MFStSy3nuPJVWYKs9VjgAxYYx6MTb0/cTHGRow3xTLiSsdenW
-         cO+iamTv/ZwLYAkNKPNgjdGETnNTKk3Dm9cRbnFp4395dJYitnsJTxaNHQpdastvHCb0
-         ElvyN7OySFOJCxsCm+zkussP+YPXb3FPgfhFw1xzuTxpJmloS4nTBtFiLfinJ74lP6ha
-         6Phw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703592865; x=1704197665;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=QgFlNYVpTW4/LSUdsscecibsDCHhy6INDSaJkTsHmeY=;
-        b=d79cmcCARiSGvxF14rDpyImnnYtLUHrmlOdj+EoWZu7Ti+zAhtgMEx4IEg1FvwW+Ik
-         NJOoPzvb65r+B2Fr5iT6L/XXyDrbwfz5BBhRs+wcrb3CxrXLQnHCEDdj1fECdci30Ccl
-         SWRwk7hMixx4gzjQSoJTcom3cCyDGIUrQA8fHearDj1UIP0rctbNKB5MY2kTmg4IwdS7
-         5yca39rg5FYsPG+C9KMCkzTUmLZx01O3swOAeGX6szS5F5mwb7WUSx53OtTs4FOFpBn9
-         YMx6aG4qft+HJ6j9oxj66Dc0X7R3XubOXyQfMY/zioYaEFMnti99dqGLVhoa21USmLIB
-         KY6A==
-X-Gm-Message-State: AOJu0YzDFKKBxdP/mW3WL/Vbtzj3PgzSFKyGaUYIvuMqYE4uh2DDu+/O
-	6GhsL58y9G4+QZgEkfsDMfCMhpf5iPVcHfUCH+MFzdN8AClH9A==
-X-Google-Smtp-Source: AGHT+IHxzCgO2oCLfPXnR4/Me1mMAqfQos7RB3BFSZ2u3yzZCPtF4kJmY71gWFuDLOAwlb8zPxryR79r59mCSy96caI=
-X-Received: by 2002:a17:907:1b12:b0:a26:ebc6:eb7e with SMTP id
- mp18-20020a1709071b1200b00a26ebc6eb7emr965572ejc.194.1703592864489; Tue, 26
- Dec 2023 04:14:24 -0800 (PST)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1E224E617;
+	Tue, 26 Dec 2023 12:22:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.163.44])
+	by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4Szv4h5Tm1z1R6Hw;
+	Tue, 26 Dec 2023 20:20:52 +0800 (CST)
+Received: from kwepemi500024.china.huawei.com (unknown [7.221.188.100])
+	by mail.maildlp.com (Postfix) with ESMTPS id F10C21402DE;
+	Tue, 26 Dec 2023 20:22:11 +0800 (CST)
+Received: from dggpemm500006.china.huawei.com (7.185.36.236) by
+ kwepemi500024.china.huawei.com (7.221.188.100) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.35; Tue, 26 Dec 2023 20:22:11 +0800
+Received: from dggpemm500006.china.huawei.com ([7.185.36.236]) by
+ dggpemm500006.china.huawei.com ([7.185.36.236]) with mapi id 15.01.2507.035;
+ Tue, 26 Dec 2023 20:22:11 +0800
+From: "Gonglei (Arei)" <arei.gonglei@huawei.com>
+To: Markus Elfring <Markus.Elfring@web.de>, kernel test robot <lkp@intel.com>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>,
+	"kernel-janitors@vger.kernel.org" <kernel-janitors@vger.kernel.org>, "David
+ S. Miller" <davem@davemloft.net>, Herbert Xu <herbert@gondor.apana.org.au>,
+	Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+	"Xuan Zhuo" <xuanzhuo@linux.alibaba.com>
+CC: "llvm@lists.linux.dev" <llvm@lists.linux.dev>,
+	"oe-kbuild-all@lists.linux.dev" <oe-kbuild-all@lists.linux.dev>,
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>, LKML
+	<linux-kernel@vger.kernel.org>, "cocci@inria.fr" <cocci@inria.fr>
+Subject: RE: [PATCH v2] crypto: virtio - Less function calls in
+ __virtio_crypto_akcipher_do_req() after error detection
+Thread-Topic: [PATCH v2] crypto: virtio - Less function calls in
+ __virtio_crypto_akcipher_do_req() after error detection
+Thread-Index: AQHaN+QUjZOxb6ORnEG4ZWEqtSGvn7C7fD+A
+Date: Tue, 26 Dec 2023 12:22:11 +0000
+Message-ID: <deb25ea00a57448d94496db1c46af693@huawei.com>
+References: <2413f22f-f0c3-45e0-9f6b-a551bdf0f54c@web.de>
+ <202312260852.0ge5O8IL-lkp@intel.com>
+ <7bf9a4fa-1675-45a6-88dd-82549ae2c6e0@web.de>
+In-Reply-To: <7bf9a4fa-1675-45a6-88dd-82549ae2c6e0@web.de>
+Accept-Language: zh-CN, en-US
+Content-Language: zh-CN
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20231207043118.118158-1-fengli@smartx.com> <20231225092010-mutt-send-email-mst@kernel.org>
- <AB23804D-FF38-47B8-ADC6-C0A19B7083CC@smartx.com> <20231226040342-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20231226040342-mutt-send-email-mst@kernel.org>
-From: Li Feng <fengli@smartx.com>
-Date: Tue, 26 Dec 2023 20:14:13 +0800
-Message-ID: <CAHckoCyBxHd6Lc8UPh_3urSHz_eDj6jrm+c80+wKBmypzjvz+A@mail.gmail.com>
-Subject: Re: [PATCH] virtio_blk: set the default scheduler to none
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jens Axboe <axboe@kernel.dk>, Jason Wang <jasowang@redhat.com>, 
-	Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	"open list:BLOCK LAYER" <linux-block@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, 
-	"open list:VIRTIO BLOCK AND SCSI DRIVERS" <virtualization@lists.linux.dev>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Dec 26, 2023 at 5:05=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
- wrote:
->
-> On Tue, Dec 26, 2023 at 05:01:40PM +0800, Li Feng wrote:
-> > Hi MST and paolo,
-> >
-> > mq-deadline is good for slow media, and none is good for high-speed med=
-ia.
-> > It depends on how the community views this issue. When virtio-blk adopt=
-s
-> > multi-queue,it automatically changes from deadline to none, which is no=
-t
-> > uniform here.
->
-> It's not virtio-blk changing though, it's linux doing that, right?
-> Is virtio-blk special somehow?
->
-Yes, it=E2=80=99s the common code path.
-
-Each block driver has a chance to set the default none scheduler, like loop=
-,
-it has set the none as the default scheduler.
-
-https://lkml.kernel.org/stable/20230809103647.895397540@linuxfoundation.org=
-/
-
-> > I don't have ideas right now to answer Christoph/Paolo's question.
-> >
-> > Thanks,
-> > Li
->
-> --
-> MST
->
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogTWFya3VzIEVsZnJpbmcg
+W21haWx0bzpNYXJrdXMuRWxmcmluZ0B3ZWIuZGVdDQo+IFNlbnQ6IFR1ZXNkYXksIERlY2VtYmVy
+IDI2LCAyMDIzIDY6MTIgUE0NCj4gVG86IGtlcm5lbCB0ZXN0IHJvYm90IDxsa3BAaW50ZWwuY29t
+PjsgdmlydHVhbGl6YXRpb25AbGlzdHMubGludXguZGV2Ow0KPiBsaW51eC1jcnlwdG9Admdlci5r
+ZXJuZWwub3JnOyBrZXJuZWwtamFuaXRvcnNAdmdlci5rZXJuZWwub3JnOyBEYXZpZCBTLiBNaWxs
+ZXINCj4gPGRhdmVtQGRhdmVtbG9mdC5uZXQ+OyBHb25nbGVpIChBcmVpKSA8YXJlaS5nb25nbGVp
+QGh1YXdlaS5jb20+OyBIZXJiZXJ0DQo+IFh1IDxoZXJiZXJ0QGdvbmRvci5hcGFuYS5vcmcuYXU+
+OyBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPjsNCj4gTWljaGFlbCBTLiBUc2lya2lu
+IDxtc3RAcmVkaGF0LmNvbT47IFh1YW4gWmh1bw0KPiA8eHVhbnpodW9AbGludXguYWxpYmFiYS5j
+b20+DQo+IENjOiBsbHZtQGxpc3RzLmxpbnV4LmRldjsgb2Uta2J1aWxkLWFsbEBsaXN0cy5saW51
+eC5kZXY7IG5ldGRldkB2Z2VyLmtlcm5lbC5vcmc7DQo+IExLTUwgPGxpbnV4LWtlcm5lbEB2Z2Vy
+Lmtlcm5lbC5vcmc+OyBjb2NjaUBpbnJpYS5mcg0KPiBTdWJqZWN0OiBbUEFUQ0ggdjJdIGNyeXB0
+bzogdmlydGlvIC0gTGVzcyBmdW5jdGlvbiBjYWxscyBpbg0KPiBfX3ZpcnRpb19jcnlwdG9fYWtj
+aXBoZXJfZG9fcmVxKCkgYWZ0ZXIgZXJyb3IgZGV0ZWN0aW9uDQo+IA0KPiBGcm9tOiBNYXJrdXMg
+RWxmcmluZyA8ZWxmcmluZ0B1c2Vycy5zb3VyY2Vmb3JnZS5uZXQ+DQo+IERhdGU6IFR1ZSwgMjYg
+RGVjIDIwMjMgMTE6MDA6MjAgKzAxMDANCj4gDQo+IFRoZSBrZnJlZSgpIGZ1bmN0aW9uIHdhcyBj
+YWxsZWQgaW4gdXAgdG8gdHdvIGNhc2VzIGJ5IHRoZQ0KPiBfX3ZpcnRpb19jcnlwdG9fYWtjaXBo
+ZXJfZG9fcmVxKCkgZnVuY3Rpb24gZHVyaW5nIGVycm9yIGhhbmRsaW5nIGV2ZW4gaWYgdGhlDQo+
+IHBhc3NlZCB2YXJpYWJsZSBjb250YWluZWQgYSBudWxsIHBvaW50ZXIuDQo+IFRoaXMgaXNzdWUg
+d2FzIGRldGVjdGVkIGJ5IHVzaW5nIHRoZSBDb2NjaW5lbGxlIHNvZnR3YXJlLg0KPiANCj4gKiBB
+ZGp1c3QganVtcCB0YXJnZXRzLg0KPiANCj4gKiBEZWxldGUgdHdvIGluaXRpYWxpc2F0aW9ucyB3
+aGljaCBiZWNhbWUgdW5uZWNlc3NhcnkNCj4gICB3aXRoIHRoaXMgcmVmYWN0b3JpbmcuDQo+IA0K
+PiBTaWduZWQtb2ZmLWJ5OiBNYXJrdXMgRWxmcmluZyA8ZWxmcmluZ0B1c2Vycy5zb3VyY2Vmb3Jn
+ZS5uZXQ+DQo+IC0tLQ0KPiANCj4gdjI6DQo+IEEgdHlwbyB3YXMgZml4ZWQgZm9yIHRoZSBkZWxp
+bWl0ZXIgb2YgYSBsYWJlbC4NCj4gDQo+ICBkcml2ZXJzL2NyeXB0by92aXJ0aW8vdmlydGlvX2Ny
+eXB0b19ha2NpcGhlcl9hbGdzLmMgfCAxMiArKysrKystLS0tLS0NCj4gIDEgZmlsZSBjaGFuZ2Vk
+LCA2IGluc2VydGlvbnMoKyksIDYgZGVsZXRpb25zKC0pDQo+IA0KDQpSZXZpZXdlZC1ieTogR29u
+Z2xlaSA8YXJlaS5nb25nbGVpQGh1YXdlaS5jb20+DQoNCg0KUmVnYXJkcywNCi1Hb25nbGVpDQo=
