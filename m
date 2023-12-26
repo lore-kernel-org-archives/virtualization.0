@@ -1,177 +1,163 @@
-Received: from mail-oi1-f174.google.com (mail-oi1-f174.google.com [209.85.167.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DB4F53E07
-	for <virtualization@lists.linux.dev>; Tue, 26 Dec 2023 18:01:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=networkplumber.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=networkplumber.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6135351C25
+	for <virtualization@lists.linux.dev>; Tue, 26 Dec 2023 18:11:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=networkplumber-org.20230601.gappssmtp.com header.i=@networkplumber-org.20230601.gappssmtp.com header.b="mIaOJOf4"
-Received: by mail-oi1-f174.google.com with SMTP id 5614622812f47-3bb968c02baso1666766b6e.0
-        for <virtualization@lists.linux.dev>; Tue, 26 Dec 2023 10:01:17 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=networkplumber-org.20230601.gappssmtp.com; s=20230601; t=1703613676; x=1704218476; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=YoARjY6dq1LfQwY8KQWRcArsxSYoaW5I2Zkew951zeU=;
-        b=mIaOJOf4e6IGVX/FsOw5AoeiK3rxDsHnfs5JNbx5nJzR1MSNCo5I9DKVb6m/sOHAKn
-         WgjT4g4WL22ZujFTDyeTaJaehtWtOs/SSVyJ11XebeBeQEHIiH4Z5pcHTwnf1ph3bR2y
-         HwJeWyJ6xvVwv75mZ0koTnvwKpm7iks1AuRGiD18hTEVfhg1bDLJYtZoDkCUrXxhT8xw
-         makU7rLfWHusnztmp7ywnanM+hCR2NyRP4ToYytQizoWTJ5fcVe3s3L6nsSu8uK2pY8v
-         F2humLCdlEZlG1ncbDQw27aIViYxkUDVCCk9K3F4MzoLPA/UE5nMEBgSIrm4nPYLumR/
-         U91g==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="caLyKgfB"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1703614287;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=hT6GvBmX89c+TsvMimuxFBTAQCwbiQqPyRqut34DI6c=;
+	b=caLyKgfBnKlDH5aheZyVZcbM7sL4yme/uTYiVPXtX4L8A7mEWGKvw1KvKys4Y5hoKqQfvJ
+	YJWJEP9eLZqdvTA7HmsH5w16rJv5G8jpfsnYuPpjY9MplMIJdNhWGUnBZxRNj/o7AeKs4m
+	yS49VVdc4olLwaKtkDkkHARVsDBAslw=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-414-r6PVbrTOO-WC5AqRPDj-uA-1; Tue, 26 Dec 2023 13:11:24 -0500
+X-MC-Unique: r6PVbrTOO-WC5AqRPDj-uA-1
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-33680996d4fso3648047f8f.0
+        for <virtualization@lists.linux.dev>; Tue, 26 Dec 2023 10:11:24 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703613676; x=1704218476;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=YoARjY6dq1LfQwY8KQWRcArsxSYoaW5I2Zkew951zeU=;
-        b=bdjZCCspJTpi+O48LYC5ajQJYu6AUSescM8M+96ih9RsZd+aO/ZBzWVzZTswtu8i8M
-         +svmk1RLJSGePVeMGfdUVJ7W+qtQn239bFqUS10kRM4//u6i4zdbQxSxket2Z39ZY3+A
-         F7/bBg0LI27facC3F0Zw39usOvRajvSzk3H66nEyh8V3aYnBEkBkWtCha6FrD0jGAke9
-         01KC6gClDQBuswhtH/CJp9X/t0GGIk7ZKpo3FxlDtb38FXpNgU0E3SrJIMmME3/pD5TA
-         KGfC4eOIKqCNzj0Rv9I2wJX2ST4SVKccx9wHw2u7//E7IfjNvG+g5okIVmk8WD0N6x3R
-         zUhA==
-X-Gm-Message-State: AOJu0YxGoG4pXavhWiLPj9nOCNlx/YOZJWUfIm4oh2ypkK3wy2KB6wJT
-	AHLUZk1q9cTot/k17fp7DXuPLodqXSM9Tg==
-X-Google-Smtp-Source: AGHT+IEDX9QG4TbSdych5DWmivLSsBVR3FKH0cNi7175BlRLj7lg6pFY3ao5xnxtu65uFqGf1XGdnw==
-X-Received: by 2002:a05:6358:919b:b0:174:b771:e282 with SMTP id j27-20020a056358919b00b00174b771e282mr4678407rwa.20.1703613676388;
-        Tue, 26 Dec 2023 10:01:16 -0800 (PST)
-Received: from hermes.local (204-195-123-141.wavecable.com. [204.195.123.141])
-        by smtp.gmail.com with ESMTPSA id v27-20020aa799db000000b006d842c1eb6fsm4575030pfi.210.2023.12.26.10.01.15
+        d=1e100.net; s=20230601; t=1703614283; x=1704219083;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=hT6GvBmX89c+TsvMimuxFBTAQCwbiQqPyRqut34DI6c=;
+        b=inZqTW3So8AO3uimD6PHSdOC2OA+n722IFQLCWpxrn32wQ5568ArRkFdktK8ui9r+2
+         iqEHWfxJ3vg1Cr4DHyfUkayI9QKw7ci7VeJ+ixJPJJncP7TSjg0ivu1UQlw6BMmd9T6E
+         xGIIydfi+1vHwBRiRya/XNsmPvKfniUdK93vEsKyLFbIkVx1kCow0v1mpviYgHNu6GGL
+         Jm5b/ej8ItjMxSka5QROb3dsabL+jYz1Z3DsTOU+twM7Vd6nhM/LBHArpC9h7e+5wy5w
+         KlxrcosWit74T+LDv0Y4q/h8Pdi7PSCYIJS3vkX3nwcCD3B7A0bre+4WTDZFpAPP79nX
+         VORg==
+X-Gm-Message-State: AOJu0Yzrn9Gq8hcDoLjiYG0wHuCF+BYiRd6WdDyEDDaT71YIyS9vZ5VS
+	hZX0z9aJHgXX2TCbb9K4dSRp+9bYVp/5nsFVgtp8OPz9ss0g56i4s1wj5gU01KSt5T4TrMVUm7g
+	Nt0SEYjz4NpK+lKOtmTbJLDSzifVs99NUWe4=
+X-Received: by 2002:a05:6000:1091:b0:336:4ba9:e2b3 with SMTP id y17-20020a056000109100b003364ba9e2b3mr4036885wrw.58.1703614282984;
+        Tue, 26 Dec 2023 10:11:22 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEGXob+rV7M1PH+RPj4+87x11/2hKBwDb4SfJTkxlS6lAfVaflaggsdNvr5HvrCeMfv5UKIxQ==
+X-Received: by 2002:a05:6000:1091:b0:336:4ba9:e2b3 with SMTP id y17-20020a056000109100b003364ba9e2b3mr4036877wrw.58.1703614282620;
+        Tue, 26 Dec 2023 10:11:22 -0800 (PST)
+Received: from redhat.com ([2.55.177.189])
+        by smtp.gmail.com with ESMTPSA id k15-20020adfe3cf000000b003367a51217csm13082390wrm.34.2023.12.26.10.11.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 Dec 2023 10:01:16 -0800 (PST)
-Date: Tue, 26 Dec 2023 10:01:13 -0800
-From: Stephen Hemminger <stephen@networkplumber.org>
-To: Zhu Yanjun <yanjun.zhu@linux.dev>
-Cc: Zhu Yanjun <yanjun.zhu@intel.com>, mst@redhat.com, jasowang@redhat.com,
- xuanzhuo@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, virtualization@lists.linux.dev,
- netdev@vger.kernel.org
-Subject: Re: [PATCH 1/1] virtio_net: Fix =?UTF-8?B?IuKAmCVk4oCZ?= directive
- writing between 1 and 11 bytes into a region of size 10" warnings
-Message-ID: <20231226100113.4ea54838@hermes.local>
-In-Reply-To: <b1034710-62df-4623-a0ad-d09a6bb12765@linux.dev>
+        Tue, 26 Dec 2023 10:11:21 -0800 (PST)
+Date: Tue, 26 Dec 2023 13:11:18 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: Zhu Yanjun <yanjun.zhu@linux.dev>, Zhu Yanjun <yanjun.zhu@intel.com>,
+	jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+	pabeni@redhat.com, virtualization@lists.linux.dev,
+	netdev@vger.kernel.org
+Subject: Re: [PATCH 1/1] virtio_net: =?utf-8?Q?Fix_?=
+ =?utf-8?B?IuKAmCVk4oCZIGRpcmVjdGl2ZSB3cml0aW4=?= =?utf-8?Q?g?= between 1 and
+ 11 bytes into a region of size 10" warnings
+Message-ID: <20231226130707-mutt-send-email-mst@kernel.org>
 References: <20231226114507.2447118-1-yanjun.zhu@intel.com>
-	<b1034710-62df-4623-a0ad-d09a6bb12765@linux.dev>
+ <b1034710-62df-4623-a0ad-d09a6bb12765@linux.dev>
+ <20231226100113.4ea54838@hermes.local>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20231226100113.4ea54838@hermes.local>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Tue, 26 Dec 2023 19:53:58 +0800
-Zhu Yanjun <yanjun.zhu@linux.dev> wrote:
+On Tue, Dec 26, 2023 at 10:01:13AM -0800, Stephen Hemminger wrote:
+> On Tue, 26 Dec 2023 19:53:58 +0800
+> Zhu Yanjun <yanjun.zhu@linux.dev> wrote:
+> 
+> > The warnings are as below:
+> > 
+> > "
+> > 
+> > drivers/net/virtio_net.c: In function ‘init_vqs’:
+> > drivers/net/virtio_net.c:4551:48: warning: ‘%d’ directive writing 
+> > between 1 and 11 bytes into a region of size 10 [-Wformat-overflow=]
+> >   4551 |                 sprintf(vi->rq[i].name, "input.%d", i);
+> >        |                                                ^~
+> > In function ‘virtnet_find_vqs’,
+> >      inlined from ‘init_vqs’ at drivers/net/virtio_net.c:4645:8:
+> > drivers/net/virtio_net.c:4551:41: note: directive argument in the range 
+> > [-2147483643, 65534]
+> >   4551 |                 sprintf(vi->rq[i].name, "input.%d", i);
+> >        |                                         ^~~~~~~~~~
+> > drivers/net/virtio_net.c:4551:17: note: ‘sprintf’ output between 8 and 
+> > 18 bytes into a destination of size 16
+> >   4551 |                 sprintf(vi->rq[i].name, "input.%d", i);
+> >        |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> > drivers/net/virtio_net.c: In function ‘init_vqs’:
+> > drivers/net/virtio_net.c:4552:49: warning: ‘%d’ directive writing 
+> > between 1 and 11 bytes into a region of size 9 [-Wformat-overflow=]
+> >   4552 |                 sprintf(vi->sq[i].name, "output.%d", i);
+> >        |                                                 ^~
+> > In function ‘virtnet_find_vqs’,
+> >      inlined from ‘init_vqs’ at drivers/net/virtio_net.c:4645:8:
+> > drivers/net/virtio_net.c:4552:41: note: directive argument in the range 
+> > [-2147483643, 65534]
+> >   4552 |                 sprintf(vi->sq[i].name, "output.%d", i);
+> >        |                                         ^~~~~~~~~~~
+> > drivers/net/virtio_net.c:4552:17: note: ‘sprintf’ output between 9 and 
+> > 19 bytes into a destination of size 16
+> >   4552 |                 sprintf(vi->sq[i].name, "output.%d", i);
+> > 
+> > "
+> > 
+> > Please review.
+> > 
+> > Best Regards,
+> > 
+> > Zhu Yanjun
+> > 
+> > 在 2023/12/26 19:45, Zhu Yanjun 写道:
+> > > From: Zhu Yanjun <yanjun.zhu@linux.dev>
+> > >
+> > > Fix a warning when building virtio_net driver.
+> > >
+> > > Signed-off-by: Zhu Yanjun <yanjun.zhu@linux.dev>
+> > > ---
+> > >   drivers/net/virtio_net.c | 5 +++--
+> > >   1 file changed, 3 insertions(+), 2 deletions(-)
+> > >
+> > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > > index 49625638ad43..cf57eddf768a 100644
+> > > --- a/drivers/net/virtio_net.c
+> > > +++ b/drivers/net/virtio_net.c
+> > > @@ -4508,10 +4508,11 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+> > >   {
+> > >   	vq_callback_t **callbacks;
+> > >   	struct virtqueue **vqs;
+> > > -	int ret = -ENOMEM;
+> > > -	int i, total_vqs;
+> > >   	const char **names;
+> > > +	int ret = -ENOMEM;
+> > > +	int total_vqs;
+> > >   	bool *ctx;
+> > > +	u16 i;
+> > >   
+> > >   	/* We expect 1 RX virtqueue followed by 1 TX virtqueue, followed by
+> > >   	 * possible N-1 RX/TX queue pairs used in multiqueue mode, followed by  
+> > 
+> 
+> If you change the variable type to u16, then the format string should no
+> longer use %d. Instead should be %u
 
-> The warnings are as below:
->=20
-> "
->=20
-> drivers/net/virtio_net.c: In function =E2=80=98init_vqs=E2=80=99:
-> drivers/net/virtio_net.c:4551:48: warning: =E2=80=98%d=E2=80=99 directive=
- writing=20
-> between 1 and 11 bytes into a region of size 10 [-Wformat-overflow=3D]
->  =C2=A04551 |=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 sprintf(vi->rq[i].name, "input.%d", i);
->  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0 ^~
-> In function =E2=80=98virtnet_find_vqs=E2=80=99,
->  =C2=A0=C2=A0=C2=A0 inlined from =E2=80=98init_vqs=E2=80=99 at drivers/ne=
-t/virtio_net.c:4645:8:
-> drivers/net/virtio_net.c:4551:41: note: directive argument in the range=20
-> [-2147483643, 65534]
->  =C2=A04551 |=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 sprintf(vi->rq[i].name, "input.%d", i);
->  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ^~~~~~~~~~
-> drivers/net/virtio_net.c:4551:17: note: =E2=80=98sprintf=E2=80=99 output =
-between 8 and=20
-> 18 bytes into a destination of size 16
->  =C2=A04551 |=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 sprintf(vi->rq[i].name, "input.%d", i);
->  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ^~~~~~~~~~~~~~~~~=
-~~~~~~~~~~~~~~~~~~~~~
-> drivers/net/virtio_net.c: In function =E2=80=98init_vqs=E2=80=99:
-> drivers/net/virtio_net.c:4552:49: warning: =E2=80=98%d=E2=80=99 directive=
- writing=20
-> between 1 and 11 bytes into a region of size 9 [-Wformat-overflow=3D]
->  =C2=A04552 |=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 sprintf(vi->sq[i].name, "output.%d", i=
-);
->  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0 ^~
-> In function =E2=80=98virtnet_find_vqs=E2=80=99,
->  =C2=A0=C2=A0=C2=A0 inlined from =E2=80=98init_vqs=E2=80=99 at drivers/ne=
-t/virtio_net.c:4645:8:
-> drivers/net/virtio_net.c:4552:41: note: directive argument in the range=20
-> [-2147483643, 65534]
->  =C2=A04552 |=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 sprintf(vi->sq[i].name, "output.%d", i=
-);
->  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ^~~~~~~~~~~
-> drivers/net/virtio_net.c:4552:17: note: =E2=80=98sprintf=E2=80=99 output =
-between 9 and=20
-> 19 bytes into a destination of size 16
->  =C2=A04552 |=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 sprintf(vi->sq[i].name, "output.%d", i=
-);
->=20
-> "
->=20
-> Please review.
->=20
-> Best Regards,
->=20
-> Zhu Yanjun
->=20
-> =E5=9C=A8 2023/12/26 19:45, Zhu Yanjun =E5=86=99=E9=81=93:
-> > From: Zhu Yanjun <yanjun.zhu@linux.dev>
-> >
-> > Fix a warning when building virtio_net driver.
-> >
-> > Signed-off-by: Zhu Yanjun <yanjun.zhu@linux.dev>
-> > ---
-> >   drivers/net/virtio_net.c | 5 +++--
-> >   1 file changed, 3 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index 49625638ad43..cf57eddf768a 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -4508,10 +4508,11 @@ static int virtnet_find_vqs(struct virtnet_info=
- *vi)
-> >   {
-> >   	vq_callback_t **callbacks;
-> >   	struct virtqueue **vqs;
-> > -	int ret =3D -ENOMEM;
-> > -	int i, total_vqs;
-> >   	const char **names;
-> > +	int ret =3D -ENOMEM;
-> > +	int total_vqs;
-> >   	bool *ctx;
-> > +	u16 i;
-> >  =20
-> >   	/* We expect 1 RX virtqueue followed by 1 TX virtqueue, followed by
-> >   	 * possible N-1 RX/TX queue pairs used in multiqueue mode, followed =
-by =20
->=20
+I would just use unsigned FWIW. But it doesn't matter the range is
+limited here. It's just that the compiler can't figure it out.
 
-If you change the variable type to u16, then the format string should no
-longer use %d. Instead should be %u
+-- 
+MST
 
