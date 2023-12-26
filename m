@@ -1,366 +1,179 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.120])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 838B2523E
-	for <virtualization@lists.linux-foundation.org>; Tue, 26 Dec 2023 00:36:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3AF01374;
+	Tue, 26 Dec 2023 00:54:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="rjHlGvwN"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 18423813BE
-	for <virtualization@lists.linux-foundation.org>; Tue, 26 Dec 2023 00:36:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 18423813BE
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=rjHlGvwN
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -4.401
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id TA5139an62ax
-	for <virtualization@lists.linux-foundation.org>;
-	Tue, 26 Dec 2023 00:36:08 +0000 (UTC)
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id B699D812B5
-	for <virtualization@lists.linux-foundation.org>; Tue, 26 Dec 2023 00:36:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B699D812B5
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by ams.source.kernel.org (Postfix) with ESMTP id 209B8B80B84
-	for <virtualization@lists.linux-foundation.org>; Tue, 26 Dec 2023 00:36:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79C54C433C7
-	for <virtualization@lists.linux-foundation.org>; Tue, 26 Dec 2023 00:36:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1703550963;
-	bh=NHdbFiqsifSTiK+myGWpMLxahvziN4vk1QnX3vAD/xI=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=rjHlGvwNgTOShocE/QLzg5emLQ8EoLisMuyX5Mgjrb/GFqLxEkjEue17lJevKsl3X
-	 hgUrLrK5jghOZ2/+sGpLcaTF/d81n6XAgpeUDG4gZ8Ra7zq8GxkWhxA0AHHmlp5NsX
-	 jPiGHnLAS05wXQ46MAgD33R9elmbS3hXtN9BZg1WinM1sLokQBzpsAyHTfpePYGc0h
-	 94ys7niwqmjzucsIt7WGfn/HhoztH/u8CZKFkdTD0/mO27U9IXXaUgWKmRgei2sT3V
-	 Bv6hG9gHMon3GM0rBsyXeWk1Dxqt/mM3WGSnbydIUqAGGrX6q3qnr5g1fer6LBh5sY
-	 cs3pS6poIy2Lw==
-Received: by mail-ed1-f42.google.com with SMTP id 4fb4d7f45d1cf-54c70c70952so4638299a12.3
-        for <virtualization@lists.linux-foundation.org>; Mon, 25 Dec 2023 16:36:03 -0800 (PST)
-X-Gm-Message-State: AOJu0YzR1kq6VzvUbfIc8ni24sNgtSVyB2GSGkFTUtA/+H9B7IhuUQmX
-	kGsN6F0xwjumX3IybEIriRREZj1AtuTLgFQL2ZY=
-X-Google-Smtp-Source: AGHT+IE/DGwHcZeEvOZIP8lchNXJdA2d9NxNnD9HVfrcsOGhHd6pzHxvV/RkMgS24DOoBI8q8XuLYEKI8vxwzqF1A68=
-X-Received: by 2002:a50:8e49:0:b0:553:4257:969d with SMTP id
- 9-20020a508e49000000b005534257969dmr3394385edx.66.1703550961867; Mon, 25 Dec
- 2023 16:36:01 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="BmEFzdrI"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1703552067; x=1735088067;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=pp3yixifKh4e84Gsh9xMcrGD30UJ+VlNoUczk/kPuOw=;
+  b=BmEFzdrI4rzohIG6DV0WMw3MpYSUckJSlix8DSRQ9rV6uF1mdeUCUD7q
+   6FSji+y4ysPsS2oJjvMQuRrNFHd35l433DyoTPGyhxx+b9fg+0vLeRmD6
+   dhFKcEgu3ycrkX6EOahLzC1RBsDZdpj5Hm5O4X7LJ86LH8iZ/+jGGJ5b0
+   4uDHfgt63oBQayKEu6NnzDlqCmbbiNEviaKNt16N7brNPpax+Glf7ti8V
+   ZhlQJcEz4lGYD2CVbP21Tggy+ZNfoaDZbXpaP9zLGehhCErki8/jogdHu
+   qjS6hfvDLbh3gJKVmTjXL/X+JBiXNXlLdJlnk1Lx6ORYYOr23jhmgsGQr
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10934"; a="395200394"
+X-IronPort-AV: E=Sophos;i="6.04,304,1695711600"; 
+   d="scan'208";a="395200394"
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Dec 2023 16:54:26 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10934"; a="1024992757"
+X-IronPort-AV: E=Sophos;i="6.04,304,1695711600"; 
+   d="scan'208";a="1024992757"
+Received: from lkp-server02.sh.intel.com (HELO b07ab15da5fe) ([10.239.97.151])
+  by fmsmga006.fm.intel.com with ESMTP; 25 Dec 2023 16:54:23 -0800
+Received: from kbuild by b07ab15da5fe with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1rHvi8-000Dp7-2z;
+	Tue, 26 Dec 2023 00:54:20 +0000
+Date: Tue, 26 Dec 2023 08:54:01 +0800
+From: kernel test robot <lkp@intel.com>
+To: Markus Elfring <Markus.Elfring@web.de>, virtualization@lists.linux.dev,
+	linux-crypto@vger.kernel.org, kernel-janitors@vger.kernel.org,
+	"David S. Miller" <davem@davemloft.net>,
+	Gonglei <arei.gonglei@huawei.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	Jason Wang <jasowang@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	netdev@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
+	cocci@inria.fr
+Subject: Re: [PATCH] crypto: virtio - Less function calls in
+ __virtio_crypto_akcipher_do_req() after error detection
+Message-ID: <202312260852.0ge5O8IL-lkp@intel.com>
+References: <2413f22f-f0c3-45e0-9f6b-a551bdf0f54c@web.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20231225125847.2778638-1-guoren@kernel.org>
-In-Reply-To: <20231225125847.2778638-1-guoren@kernel.org>
-From: Guo Ren <guoren@kernel.org>
-Date: Tue, 26 Dec 2023 08:35:50 +0800
-X-Gmail-Original-Message-ID: <CAJF2gTRgd297NZqumBLMV0jmVqn2sQ3xjZ5sRuy9L7HXq+gU5Q@mail.gmail.com>
-Message-ID: <CAJF2gTRgd297NZqumBLMV0jmVqn2sQ3xjZ5sRuy9L7HXq+gU5Q@mail.gmail.com>
-Subject: Re: [PATCH V12 00/14] riscv: Add Native/Paravirt qspinlock support
-To: Waiman Long <longman@redhat.com>, Boqun Feng <boqun.feng@gmail.com>
-Cc: linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org, 
-	kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, 
-	Guo Ren <guoren@linux.alibaba.com>, paul.walmsley@sifive.com, palmer@dabbelt.com, 
-	guoren@kernel.org, panqinglin2020@iscas.ac.cn, bjorn@rivosinc.com, 
-	conor.dooley@microchip.com, leobras@redhat.com, peterz@infradead.org, 
-	anup@brainfault.org, keescook@chromium.org, wuwei2016@iscas.ac.cn, 
-	xiaoguang.xing@sophgo.com, chao.wei@sophgo.com, unicorn_wang@outlook.com, 
-	uwu@icenowy.me, jszhang@kernel.org, wefu@redhat.com, atishp@atishpatra.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2413f22f-f0c3-45e0-9f6b-a551bdf0f54c@web.de>
 
-Sorry, I missed people on the list.
-F.Y.I
-Waiman Long <longman@redhat.com>
-Boqun Feng <boqun.feng@gmail.com>
+Hi Markus,
 
-Here is Link:
-https://lore.kernel.org/linux-riscv/20231225125847.2778638-1-guoren@kernel.=
-org/
+kernel test robot noticed the following build errors:
 
+[auto build test ERROR on herbert-cryptodev-2.6/master]
+[also build test ERROR on herbert-crypto-2.6/master linus/master v6.7-rc7 next-20231222]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-On Mon, Dec 25, 2023 at 8:59=E2=80=AFPM <guoren@kernel.org> wrote:
->
-> From: Guo Ren <guoren@linux.alibaba.com>
->
-> patch[1 - 8]: Native   qspinlock
-> patch[9 -14]: Paravirt qspinlock
->
-> This series based on:
->  - v6.7-rc7
->  - Rework & improve riscv cmpxchg.h and atomic.h
->    https://lore.kernel.org/linux-riscv/20230810040349.92279-2-leobras@red=
-hat.com/
->
-> You can directly try it:
-> https://github.com/guoren83/linux/tree/qspinlock_v12
->
-> Native qspinlock
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
->
-> This time we've proved the qspinlock on th1520 [1] & sg2042 [2], which
-> gives stability and performance improvement. All T-HEAD processors have
-> a strong LR/SC forward progress guarantee than the requirements of the
-> ISA, which could satisfy the xchg_tail of native_qspinlock. Now,
-> qspinlock has been run with us for more than 1 year, and we have enough
-> confidence to enable it for all the T-HEAD processors. Of causes, we
-> found a livelock problem with the qspinlock lock torture test from the
-> CPU store merge buffer delay mechanism, which caused the queued spinlock
-> becomes a dead ring and RCU warning to come out. We introduce a custom
-> WRITE_ONCE to solve this, which will be fixed in the next generation of
-> hardware.
->
-> We've tested the patch on SOPHGO sg2042 & th1520 and passed the stress
-> test on Fedora & Ubuntu & OpenEuler ... Here is the performance
-> comparison between qspinlock and ticket_lock on sg2042 (64 cores):
->
-> sysbench test=3Dthreads threads=3D32 yields=3D100 lock=3D8 (+13.8%):
->   queued_spinlock 0.5109/0.00
->   ticket_spinlock 0.5814/0.00
->
-> perf futex/hash (+6.7%):
->   queued_spinlock 1444393 operations/sec (+- 0.09%)
->   ticket_spinlock 1353215 operations/sec (+- 0.15%)
->
-> perf futex/wake-parallel (+8.6%):
->   queued_spinlock (waking 1/64 threads) in 0.0253 ms (+-2.90%)
->   ticket_spinlock (waking 1/64 threads) in 0.0275 ms (+-3.12%)
->
-> perf futex/requeue (+4.2%):
->   queued_spinlock Requeued 64 of 64 threads in 0.0785 ms (+-0.55%)
->   ticket_spinlock Requeued 64 of 64 threads in 0.0818 ms (+-4.12%)
->
->
-> System Benchmarks (+6.4%)
->   queued_spinlock:
->     System Benchmarks Index Values               BASELINE       RESULT   =
- INDEX
->     Dhrystone 2 using register variables         116700.0  628613745.4  5=
-3865.8
->     Double-Precision Whetstone                       55.0     182422.8  3=
-3167.8
->     Execl Throughput                                 43.0      13116.6   =
-3050.4
->     File Copy 1024 bufsize 2000 maxblocks          3960.0    7762306.2  1=
-9601.8
->     File Copy 256 bufsize 500 maxblocks            1655.0    3417556.8  2=
-0649.9
->     File Copy 4096 bufsize 8000 maxblocks          5800.0    7427995.7  1=
-2806.9
->     Pipe Throughput                               12440.0   23058600.5  1=
-8535.9
->     Pipe-based Context Switching                   4000.0    2835617.7   =
-7089.0
->     Process Creation                                126.0      12537.3   =
- 995.0
->     Shell Scripts (1 concurrent)                     42.4      57057.4  1=
-3456.9
->     Shell Scripts (8 concurrent)                      6.0       7367.1  1=
-2278.5
->     System Call Overhead                          15000.0   33308301.3  2=
-2205.5
->                                                                        =
-=3D=3D=3D=3D=3D=3D=3D=3D
->     System Benchmarks Index Score                                       1=
-2426.1
->
->   ticket_spinlock:
->     System Benchmarks Index Values               BASELINE       RESULT   =
- INDEX
->     Dhrystone 2 using register variables         116700.0  626541701.9  5=
-3688.2
->     Double-Precision Whetstone                       55.0     181921.0  3=
-3076.5
->     Execl Throughput                                 43.0      12625.1   =
-2936.1
->     File Copy 1024 bufsize 2000 maxblocks          3960.0    6553792.9  1=
-6550.0
->     File Copy 256 bufsize 500 maxblocks            1655.0    3189231.6  1=
-9270.3
->     File Copy 4096 bufsize 8000 maxblocks          5800.0    7221277.0  1=
-2450.5
->     Pipe Throughput                               12440.0   20594018.7  1=
-6554.7
->     Pipe-based Context Switching                   4000.0    2571117.7   =
-6427.8
->     Process Creation                                126.0      10798.4   =
- 857.0
->     Shell Scripts (1 concurrent)                     42.4      57227.5  1=
-3497.1
->     Shell Scripts (8 concurrent)                      6.0       7329.2  1=
-2215.3
->     System Call Overhead                          15000.0   30766778.4  2=
-0511.2
->                                                                        =
-=3D=3D=3D=3D=3D=3D=3D=3D
->     System Benchmarks Index Score                                       1=
-1670.7
->
-> The qspinlock has a significant improvement on SOPHGO SG2042 64
-> cores platform than the ticket_lock.
->
-> Paravirt qspinlock
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
->
-> We implemented kvm_kick_cpu/kvm_wait_cpu and add tracepoints to observe
-> the behaviors and introduce a new SBI extension SBI_EXT_PVLOCK.
->
-> Changlog:
-> V12:
->  - Remove force thead qspinlock with errata
->  - Separate Zicbop patch from this series
->  - Remove cpus >=3D 16 patch
->  - Cleanup rebase and move it on v6.7-rc7
->  - Reorder the coding struct with the last version's advice.
->
-> V11:
-> https://lore.kernel.org/linux-riscv/20230910082911.3378782-1-guoren@kerne=
-l.org/
->  - Based on Leonardo Bras's cmpxchg_small patches v5.
->  - Based on Guo Ren's Optimize arch_spin_value_unlocked patch v3.
->  - Remove abusing alternative framework and use jump_label instead.
->  - Introduce prefetch.w to improve T-HEAD processors' LR/SC forward
->    progress guarantee.
->  - Optimize qspinlock xchg_tail when NR_CPUS >=3D 16K.
->
-> V10:
-> https://lore.kernel.org/linux-riscv/20230802164701.192791-1-guoren@kernel=
-.org/
->  - Using an alternative framework instead of static_key_branch in the
->    asm/spinlock.h.
->  - Fixup store merge buffer problem, which causes qspinlock lock
->    torture test livelock.
->  - Add paravirt qspinlock support, include KVM backend
->  - Add Compact NUMA-awared qspinlock support
->
-> V9:
-> https://lore.kernel.org/linux-riscv/20220808071318.3335746-1-guoren@kerne=
-l.org/
->  - Cleanup generic ticket-lock code, (Using smp_mb__after_spinlock as
->    RCsc)
->  - Add qspinlock and combo-lock for riscv
->  - Add qspinlock to openrisc
->  - Use generic header in csky
->  - Optimize cmpxchg & atomic code
->
-> V8:
-> https://lore.kernel.org/linux-riscv/20220724122517.1019187-1-guoren@kerne=
-l.org/
->  - Coding convention ticket fixup
->  - Move combo spinlock into riscv and simply asm-generic/spinlock.h
->  - Fixup xchg16 with wrong return value
->  - Add csky qspinlock
->  - Add combo & qspinlock & ticket-lock comparison
->  - Clean up unnecessary riscv acquire and release definitions
->  - Enable ARCH_INLINE_READ*/WRITE*/SPIN* for riscv & csky
->
-> V7:
-> https://lore.kernel.org/linux-riscv/20220628081946.1999419-1-guoren@kerne=
-l.org/
->  - Add combo spinlock (ticket & queued) support
->  - Rename ticket_spinlock.h
->  - Remove unnecessary atomic_read in ticket_spin_value_unlocked
->
-> V6:
-> https://lore.kernel.org/linux-riscv/20220621144920.2945595-1-guoren@kerne=
-l.org/
->  - Fixup Clang compile problem Reported-by: kernel test robot
->  - Cleanup asm-generic/spinlock.h
->  - Remove changelog in patch main comment part, suggested by
->    Conor.Dooley
->  - Remove "default y if NUMA" in Kconfig
->
-> V5:
-> https://lore.kernel.org/linux-riscv/20220620155404.1968739-1-guoren@kerne=
-l.org/
->  - Update comment with RISC-V forward guarantee feature.
->  - Back to V3 direction and optimize asm code.
->
-> V4:
-> https://lore.kernel.org/linux-riscv/1616868399-82848-4-git-send-email-guo=
-ren@kernel.org/
->  - Remove custom sub-word xchg implementation
->  - Add ARCH_USE_QUEUED_SPINLOCKS_XCHG32 in locking/qspinlock
->
-> V3:
-> https://lore.kernel.org/linux-riscv/1616658937-82063-1-git-send-email-guo=
-ren@kernel.org/
->  - Coding convention by Peter Zijlstra's advices
->
-> V2:
-> https://lore.kernel.org/linux-riscv/1606225437-22948-2-git-send-email-guo=
-ren@kernel.org/
->  - Coding convention in cmpxchg.h
->  - Re-implement short xchg
->  - Remove char & cmpxchg implementations
->
-> V1:
-> https://lore.kernel.org/linux-riscv/20190211043829.30096-1-michaeljclark@=
-mac.com/
->  - Using cmpxchg loop to implement sub-word atomic
->
-> Guo Ren (14):
->   asm-generic: ticket-lock: Reuse arch_spinlock_t of qspinlock
->   asm-generic: ticket-lock: Add separate ticket-lock.h
->   riscv: errata: Move errata vendor func-id into vendorid_list.h
->   riscv: qspinlock: errata: Add ERRATA_THEAD_WRITE_ONCE fixup
->   riscv: qspinlock: Add basic queued_spinlock support
->   riscv: qspinlock: Introduce combo spinlock
->   riscv: qspinlock: Add virt_spin_lock() support for VM guest
->   riscv: qspinlock: Force virt_spin_lock for KVM guests
->   RISC-V: paravirt: Add pvqspinlock KVM backend
->   RISC-V: paravirt: Add pvqspinlock frontend skeleton
->   RISC-V: paravirt: pvqspinlock: Add SBI implementation
->   RISC-V: paravirt: pvqspinlock: Add nopvspin kernel parameter
->   RISC-V: paravirt: pvqspinlock: Add kconfig entry
->   RISC-V: paravirt: pvqspinlock: Add trace point for pv_kick/wait
->
->  .../admin-guide/kernel-parameters.txt         |   8 +-
->  arch/riscv/Kconfig                            |  35 ++++++
->  arch/riscv/Kconfig.errata                     |  19 ++++
->  arch/riscv/errata/thead/errata.c              |  20 ++++
->  arch/riscv/include/asm/Kbuild                 |   3 +-
->  arch/riscv/include/asm/errata_list.h          |  18 ---
->  arch/riscv/include/asm/kvm_vcpu_sbi.h         |   1 +
->  arch/riscv/include/asm/qspinlock.h            |  35 ++++++
->  arch/riscv/include/asm/qspinlock_paravirt.h   |  29 +++++
->  arch/riscv/include/asm/rwonce.h               |  31 ++++++
->  arch/riscv/include/asm/sbi.h                  |  14 +++
->  arch/riscv/include/asm/spinlock.h             |  88 +++++++++++++++
->  arch/riscv/include/asm/vendorid_list.h        |  19 ++++
->  arch/riscv/include/uapi/asm/kvm.h             |   1 +
->  arch/riscv/kernel/Makefile                    |   1 +
->  arch/riscv/kernel/qspinlock_paravirt.c        |  83 ++++++++++++++
->  arch/riscv/kernel/sbi.c                       |   2 +-
->  arch/riscv/kernel/setup.c                     |  68 ++++++++++++
->  .../kernel/trace_events_filter_paravirt.h     |  60 ++++++++++
->  arch/riscv/kvm/Makefile                       |   1 +
->  arch/riscv/kvm/vcpu_sbi.c                     |   4 +
->  arch/riscv/kvm/vcpu_sbi_pvlock.c              |  57 ++++++++++
->  include/asm-generic/qspinlock.h               |   2 +
->  include/asm-generic/rwonce.h                  |   2 +
->  include/asm-generic/spinlock.h                |  87 +--------------
->  include/asm-generic/spinlock_types.h          |  12 +-
->  include/asm-generic/ticket_spinlock.h         | 105 ++++++++++++++++++
->  27 files changed, 688 insertions(+), 117 deletions(-)
->  create mode 100644 arch/riscv/include/asm/qspinlock.h
->  create mode 100644 arch/riscv/include/asm/qspinlock_paravirt.h
->  create mode 100644 arch/riscv/include/asm/rwonce.h
->  create mode 100644 arch/riscv/include/asm/spinlock.h
->  create mode 100644 arch/riscv/kernel/qspinlock_paravirt.c
->  create mode 100644 arch/riscv/kernel/trace_events_filter_paravirt.h
->  create mode 100644 arch/riscv/kvm/vcpu_sbi_pvlock.c
->  create mode 100644 include/asm-generic/ticket_spinlock.h
->
-> --
-> 2.40.1
->
->
+url:    https://github.com/intel-lab-lkp/linux/commits/Markus-Elfring/crypto-virtio-Less-function-calls-in-__virtio_crypto_akcipher_do_req-after-error-detection/20231225-154431
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/herbert/cryptodev-2.6.git master
+patch link:    https://lore.kernel.org/r/2413f22f-f0c3-45e0-9f6b-a551bdf0f54c%40web.de
+patch subject: [PATCH] crypto: virtio - Less function calls in __virtio_crypto_akcipher_do_req() after error detection
+config: arm-randconfig-001-20231225 (https://download.01.org/0day-ci/archive/20231226/202312260852.0ge5O8IL-lkp@intel.com/config)
+compiler: clang version 16.0.4 (https://github.com/llvm/llvm-project.git ae42196bc493ffe877a7e3dff8be32035dea4d07)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20231226/202312260852.0ge5O8IL-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202312260852.0ge5O8IL-lkp@intel.com/
+
+All error/warnings (new ones prefixed by >>):
+
+>> drivers/crypto/virtio/virtio_crypto_akcipher_algs.c:281:1: error: use of undeclared identifier 'free_src'; did you mean 'free_irq'?
+   free_src;
+   ^~~~~~~~
+   free_irq
+   include/linux/interrupt.h:196:20: note: 'free_irq' declared here
+   extern const void *free_irq(unsigned int, void *);
+                      ^
+>> drivers/crypto/virtio/virtio_crypto_akcipher_algs.c:257:9: error: use of undeclared label 'free_src'
+                           goto free_src;
+                                ^
+>> drivers/crypto/virtio/virtio_crypto_akcipher_algs.c:281:1: warning: expression result unused [-Wunused-value]
+   free_src;
+   ^~~~~~~~
+   1 warning and 2 errors generated.
 
 
---
-Best Regards
- Guo Ren
+vim +281 drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
+
+   218	
+   219	static int __virtio_crypto_akcipher_do_req(struct virtio_crypto_akcipher_request *vc_akcipher_req,
+   220			struct akcipher_request *req, struct data_queue *data_vq)
+   221	{
+   222		struct virtio_crypto_akcipher_ctx *ctx = vc_akcipher_req->akcipher_ctx;
+   223		struct virtio_crypto_request *vc_req = &vc_akcipher_req->base;
+   224		struct virtio_crypto *vcrypto = ctx->vcrypto;
+   225		struct virtio_crypto_op_data_req *req_data = vc_req->req_data;
+   226		struct scatterlist *sgs[4], outhdr_sg, inhdr_sg, srcdata_sg, dstdata_sg;
+   227		void *src_buf, *dst_buf = NULL;
+   228		unsigned int num_out = 0, num_in = 0;
+   229		int node = dev_to_node(&vcrypto->vdev->dev);
+   230		unsigned long flags;
+   231		int ret;
+   232		bool verify = vc_akcipher_req->opcode == VIRTIO_CRYPTO_AKCIPHER_VERIFY;
+   233		unsigned int src_len = verify ? req->src_len + req->dst_len : req->src_len;
+   234	
+   235		/* out header */
+   236		sg_init_one(&outhdr_sg, req_data, sizeof(*req_data));
+   237		sgs[num_out++] = &outhdr_sg;
+   238	
+   239		/* src data */
+   240		src_buf = kcalloc_node(src_len, 1, GFP_KERNEL, node);
+   241		if (!src_buf)
+   242			return -ENOMEM;
+   243	
+   244		if (verify) {
+   245			/* for verify operation, both src and dst data work as OUT direction */
+   246			sg_copy_to_buffer(req->src, sg_nents(req->src), src_buf, src_len);
+   247			sg_init_one(&srcdata_sg, src_buf, src_len);
+   248			sgs[num_out++] = &srcdata_sg;
+   249		} else {
+   250			sg_copy_to_buffer(req->src, sg_nents(req->src), src_buf, src_len);
+   251			sg_init_one(&srcdata_sg, src_buf, src_len);
+   252			sgs[num_out++] = &srcdata_sg;
+   253	
+   254			/* dst data */
+   255			dst_buf = kcalloc_node(req->dst_len, 1, GFP_KERNEL, node);
+   256			if (!dst_buf)
+ > 257				goto free_src;
+   258	
+   259			sg_init_one(&dstdata_sg, dst_buf, req->dst_len);
+   260			sgs[num_out + num_in++] = &dstdata_sg;
+   261		}
+   262	
+   263		vc_akcipher_req->src_buf = src_buf;
+   264		vc_akcipher_req->dst_buf = dst_buf;
+   265	
+   266		/* in header */
+   267		sg_init_one(&inhdr_sg, &vc_req->status, sizeof(vc_req->status));
+   268		sgs[num_out + num_in++] = &inhdr_sg;
+   269	
+   270		spin_lock_irqsave(&data_vq->lock, flags);
+   271		ret = virtqueue_add_sgs(data_vq->vq, sgs, num_out, num_in, vc_req, GFP_ATOMIC);
+   272		virtqueue_kick(data_vq->vq);
+   273		spin_unlock_irqrestore(&data_vq->lock, flags);
+   274		if (ret)
+   275			goto err;
+   276	
+   277		return 0;
+   278	
+   279	err:
+   280		kfree(dst_buf);
+ > 281	free_src;
+   282		kfree(src_buf);
+   283		return -ENOMEM;
+   284	}
+   285	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
