@@ -1,41 +1,41 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.120])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3AF01374;
-	Tue, 26 Dec 2023 00:54:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6938F4F5;
+	Tue, 26 Dec 2023 02:57:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="BmEFzdrI"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Cq4p8Xff"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1703552067; x=1735088067;
+  t=1703559479; x=1735095479;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=pp3yixifKh4e84Gsh9xMcrGD30UJ+VlNoUczk/kPuOw=;
-  b=BmEFzdrI4rzohIG6DV0WMw3MpYSUckJSlix8DSRQ9rV6uF1mdeUCUD7q
-   6FSji+y4ysPsS2oJjvMQuRrNFHd35l433DyoTPGyhxx+b9fg+0vLeRmD6
-   dhFKcEgu3ycrkX6EOahLzC1RBsDZdpj5Hm5O4X7LJ86LH8iZ/+jGGJ5b0
-   4uDHfgt63oBQayKEu6NnzDlqCmbbiNEviaKNt16N7brNPpax+Glf7ti8V
-   ZhlQJcEz4lGYD2CVbP21Tggy+ZNfoaDZbXpaP9zLGehhCErki8/jogdHu
-   qjS6hfvDLbh3gJKVmTjXL/X+JBiXNXlLdJlnk1Lx6ORYYOr23jhmgsGQr
+  bh=kPxH4mlVpKO8ProfOWoMD/kdu7a2S1nyI4WvfcycFWc=;
+  b=Cq4p8XffqJz3i8aterm2Q5vGykRKmXX68UtCWImLJMqxJDzLhG/82ibC
+   FfBFxtOb/KbR3Gt2uU5tW9TniABnf2FIQ1XXwSnVZZ5dRTnVjVPf6GVlP
+   8w8PbxeE1rlqzp0UUYRmirhJt3MtPqFg4wdTV3wlHxpX8e8Sr10FDo1EU
+   P5OWFAMww4ePi3AjJeHD0PJMALEkXiilF9PiUw9QfYw35mzKmDQIMpJ3C
+   QyKJesWpvMWk5AKdfoSAhhlDd+y0LmHrfjMwH4ty5ggHjci0xU0T0Ruml
+   7v62eYmH35niNcOpKLwPxxVf06rbEjZRo32/lVnw4OtFH9MP2FAtSf/UZ
    Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10934"; a="395200394"
+X-IronPort-AV: E=McAfee;i="6600,9927,10934"; a="3398842"
 X-IronPort-AV: E=Sophos;i="6.04,304,1695711600"; 
-   d="scan'208";a="395200394"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Dec 2023 16:54:26 -0800
+   d="scan'208";a="3398842"
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by orvoesa105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Dec 2023 18:57:58 -0800
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10934"; a="1024992757"
+X-IronPort-AV: E=McAfee;i="6600,9927,10934"; a="848321521"
 X-IronPort-AV: E=Sophos;i="6.04,304,1695711600"; 
-   d="scan'208";a="1024992757"
+   d="scan'208";a="848321521"
 Received: from lkp-server02.sh.intel.com (HELO b07ab15da5fe) ([10.239.97.151])
-  by fmsmga006.fm.intel.com with ESMTP; 25 Dec 2023 16:54:23 -0800
+  by fmsmga004.fm.intel.com with ESMTP; 25 Dec 2023 18:57:54 -0800
 Received: from kbuild by b07ab15da5fe with local (Exim 4.96)
 	(envelope-from <lkp@intel.com>)
-	id 1rHvi8-000Dp7-2z;
-	Tue, 26 Dec 2023 00:54:20 +0000
-Date: Tue, 26 Dec 2023 08:54:01 +0800
+	id 1rHxdg-000Dw3-1L;
+	Tue, 26 Dec 2023 02:57:52 +0000
+Date: Tue, 26 Dec 2023 10:57:24 +0800
 From: kernel test robot <lkp@intel.com>
 To: Markus Elfring <Markus.Elfring@web.de>, virtualization@lists.linux.dev,
 	linux-crypto@vger.kernel.org, kernel-janitors@vger.kernel.org,
@@ -45,12 +45,11 @@ To: Markus Elfring <Markus.Elfring@web.de>, virtualization@lists.linux.dev,
 	Jason Wang <jasowang@redhat.com>,
 	"Michael S. Tsirkin" <mst@redhat.com>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	netdev@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
-	cocci@inria.fr
+Cc: oe-kbuild-all@lists.linux.dev, netdev@vger.kernel.org,
+	LKML <linux-kernel@vger.kernel.org>, cocci@inria.fr
 Subject: Re: [PATCH] crypto: virtio - Less function calls in
  __virtio_crypto_akcipher_do_req() after error detection
-Message-ID: <202312260852.0ge5O8IL-lkp@intel.com>
+Message-ID: <202312261008.7ahERlAx-lkp@intel.com>
 References: <2413f22f-f0c3-45e0-9f6b-a551bdf0f54c@web.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -76,34 +75,28 @@ url:    https://github.com/intel-lab-lkp/linux/commits/Markus-Elfring/crypto-vir
 base:   https://git.kernel.org/pub/scm/linux/kernel/git/herbert/cryptodev-2.6.git master
 patch link:    https://lore.kernel.org/r/2413f22f-f0c3-45e0-9f6b-a551bdf0f54c%40web.de
 patch subject: [PATCH] crypto: virtio - Less function calls in __virtio_crypto_akcipher_do_req() after error detection
-config: arm-randconfig-001-20231225 (https://download.01.org/0day-ci/archive/20231226/202312260852.0ge5O8IL-lkp@intel.com/config)
-compiler: clang version 16.0.4 (https://github.com/llvm/llvm-project.git ae42196bc493ffe877a7e3dff8be32035dea4d07)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20231226/202312260852.0ge5O8IL-lkp@intel.com/reproduce)
+config: x86_64-rhel-8.3-bpf (https://download.01.org/0day-ci/archive/20231226/202312261008.7ahERlAx-lkp@intel.com/config)
+compiler: gcc-12 (Debian 12.2.0-14) 12.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20231226/202312261008.7ahERlAx-lkp@intel.com/reproduce)
 
 If you fix the issue in a separate patch/commit (i.e. not just a new version of
 the same patch/commit), kindly add following tags
 | Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202312260852.0ge5O8IL-lkp@intel.com/
+| Closes: https://lore.kernel.org/oe-kbuild-all/202312261008.7ahERlAx-lkp@intel.com/
 
-All error/warnings (new ones prefixed by >>):
+All errors (new ones prefixed by >>):
 
->> drivers/crypto/virtio/virtio_crypto_akcipher_algs.c:281:1: error: use of undeclared identifier 'free_src'; did you mean 'free_irq'?
-   free_src;
-   ^~~~~~~~
-   free_irq
-   include/linux/interrupt.h:196:20: note: 'free_irq' declared here
-   extern const void *free_irq(unsigned int, void *);
-                      ^
->> drivers/crypto/virtio/virtio_crypto_akcipher_algs.c:257:9: error: use of undeclared label 'free_src'
-                           goto free_src;
-                                ^
->> drivers/crypto/virtio/virtio_crypto_akcipher_algs.c:281:1: warning: expression result unused [-Wunused-value]
-   free_src;
-   ^~~~~~~~
-   1 warning and 2 errors generated.
+   drivers/crypto/virtio/virtio_crypto_akcipher_algs.c: In function '__virtio_crypto_akcipher_do_req':
+>> drivers/crypto/virtio/virtio_crypto_akcipher_algs.c:281:1: error: 'free_src' undeclared (first use in this function)
+     281 | free_src;
+         | ^~~~~~~~
+   drivers/crypto/virtio/virtio_crypto_akcipher_algs.c:281:1: note: each undeclared identifier is reported only once for each function it appears in
+>> drivers/crypto/virtio/virtio_crypto_akcipher_algs.c:257:25: error: label 'free_src' used but not defined
+     257 |                         goto free_src;
+         |                         ^~~~
 
 
-vim +281 drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
+vim +/free_src +281 drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
 
    218	
    219	static int __virtio_crypto_akcipher_do_req(struct virtio_crypto_akcipher_request *vc_akcipher_req,
