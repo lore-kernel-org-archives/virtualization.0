@@ -1,108 +1,126 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5DBC428E3F
-	for <virtualization@lists.linux.dev>; Wed, 27 Dec 2023 10:06:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 917DB45019
+	for <virtualization@lists.linux.dev>; Wed, 27 Dec 2023 14:31:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="jQuiJLhV"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1703671580;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Vpvi0QuylzJT57z4Iry1XFcRTO36VgwNkYMSy6kylAQ=;
-	b=jQuiJLhVeDlz2xfDFyT9fIcVGOhJ1/uX0Ejmm76mK/LIyFDiTUqWnVN7OWD570CWhHmaKC
-	1fBpAY06BMcjOVzdyws5CY2Hy3MWM/6BZ1uIZ1caQvZ+pwfnn0h5MM3Xp0Xd1lTSiPQrZ9
-	aS4z6yYqtZx/tR3WtDjAc2izAImx2+I=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-634-aZDQSISOPbeqMO1_L2gTJg-1; Wed, 27 Dec 2023 05:06:18 -0500
-X-MC-Unique: aZDQSISOPbeqMO1_L2gTJg-1
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-40d5d0de143so5983405e9.1
-        for <virtualization@lists.linux.dev>; Wed, 27 Dec 2023 02:06:18 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703671577; x=1704276377;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Vpvi0QuylzJT57z4Iry1XFcRTO36VgwNkYMSy6kylAQ=;
-        b=pn5d0DJ5VWrQ18RlJNTLcHfW2hGCG4rGy3YbXFQLjaryUgCdG+EQPuui4pzW2l5zZx
-         bNH8j0rKwFwKxYrzuAhHs8fQSGEd7etMuEhZ3k+D01OxBdgH+H14SwH6L7+dfYcXhcQg
-         auSYMzH4mTGVIijGizX17FxwZWNXIee6OCfNcJqJ9aSoaN7Lo4ozTV6VXK0ZyEzVE17b
-         AG7/nqErcv3jPYcDdF9qeOg/Q+DHZiYzIrE21WLQhaRy/DNKjnDrPTZHrmQRYsH/GUVN
-         bYlCnhX/Ys9OKE54RMRHSm2xC9mobEJ/jiabKW9Q8vzEWXmUy53IplnkvG5E/j040KRh
-         aB3Q==
-X-Gm-Message-State: AOJu0Yzb62Jl41a6U9eifXrmJhWVzUrWHBcXQ6Wm/5sw+06UENmkbu8z
-	aZuV/QTeQ2d1sNBMKQvuF91ScTxxZbKG45WLQd0yVsYfmMuipduoixbhAdO7yPzaMEf/Z9uEn5w
-	dFcwDTrTYUtM8ZmuePWDfvDv9pFIcSCnohAU=
-X-Received: by 2002:a05:600c:3f94:b0:40d:5e3e:33af with SMTP id fs20-20020a05600c3f9400b0040d5e3e33afmr217827wmb.51.1703671577590;
-        Wed, 27 Dec 2023 02:06:17 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IG5FpgrgHxxLBaIeXm7LTM0yLsMuN+g4thXte0aFhycFE23DDxpgalZv2U5QOQ/j0TgZHDoNg==
-X-Received: by 2002:a05:600c:3f94:b0:40d:5e3e:33af with SMTP id fs20-20020a05600c3f9400b0040d5e3e33afmr217822wmb.51.1703671577203;
-        Wed, 27 Dec 2023 02:06:17 -0800 (PST)
-Received: from redhat.com ([2.55.177.189])
-        by smtp.gmail.com with ESMTPSA id r19-20020a05600c459300b0040d128e9c62sm31122809wmo.18.2023.12.27.02.06.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 Dec 2023 02:06:16 -0800 (PST)
-Date: Wed, 27 Dec 2023 05:06:12 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Li Feng <fengli@smartx.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, Jens Axboe <axboe@kernel.dk>,
-	Jason Wang <jasowang@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	"open list:BLOCK LAYER" <linux-block@vger.kernel.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	"open list:VIRTIO BLOCK AND SCSI DRIVERS" <virtualization@lists.linux.dev>
-Subject: Re: [PATCH] virtio_blk: set the default scheduler to none
-Message-ID: <20231227050544-mutt-send-email-mst@kernel.org>
-References: <20231207043118.118158-1-fengli@smartx.com>
- <20231225092010-mutt-send-email-mst@kernel.org>
- <AB23804D-FF38-47B8-ADC6-C0A19B7083CC@smartx.com>
- <20231226103743-mutt-send-email-mst@kernel.org>
- <2E148FC5-F9A9-4A86-99F1-8D0B93412181@smartx.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="miOpfA2A"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1703687519; x=1735223519;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=xwMfHKbkQwNKPl4uucOthAGFoZAxX0bATL04XKuEVJo=;
+  b=miOpfA2AQzXN7kp7YQgN00JhUTylQY/fPAsAv3tA3jDEnyLrx/HhOCvi
+   EXwnqBl2RangttopKcpZoip9YjDt6jVVMSn8RQXrXG14rqKq8y2qkp0jX
+   jLRUMq1zfx6PwqczJB0QXaKno1B27BJ95LgePDc6HrhEkwqZaxC2GbvAw
+   452WUgHhZUjhcd1N9yWpW6HlYjrXfnPKEdO8ur6N1J12vOo+NM2UlqKJu
+   rdotqkurtZCp/uJThIlO/tnboZGM97D2GEzSL15H0TlRHZDbp/ntl8WqP
+   AkNB3zBqW1Epo8yAQPNidDddf3vE3IGtpqwc/wPhjkgr2FcdOTDqQ+vVb
+   A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10936"; a="18008899"
+X-IronPort-AV: E=Sophos;i="6.04,309,1695711600"; 
+   d="scan'208";a="18008899"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Dec 2023 06:31:49 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10936"; a="781749890"
+X-IronPort-AV: E=Sophos;i="6.04,309,1695711600"; 
+   d="scan'208";a="781749890"
+Received: from unknown (HELO intel-71.bj.intel.com) ([10.238.154.71])
+  by fmsmga007.fm.intel.com with ESMTP; 27 Dec 2023 06:31:46 -0800
+From: Zhu Yanjun <yanjun.zhu@intel.com>
+To: mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org
+Cc: Zhu Yanjun <yanjun.zhu@linux.dev>
+Subject: [PATCH v2 1/1] =?UTF-8?q?virtio=5Fnet:=20Fix=20"=E2=80=98%d?= =?UTF-8?q?=E2=80=99=20directive=20writing=20between=201=20and=2011=20byte?= =?UTF-8?q?s=20into=20a=20region=20of=20size=2010"=20warnings?=
+Date: Wed, 27 Dec 2023 22:26:37 +0800
+Message-Id: <20231227142637.2479149-1-yanjun.zhu@intel.com>
+X-Mailer: git-send-email 2.27.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <2E148FC5-F9A9-4A86-99F1-8D0B93412181@smartx.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Wed, Dec 27, 2023 at 03:26:30PM +0800, Li Feng wrote:
-> 
-> 
-> > On Dec 26, 2023, at 23:38, Michael S. Tsirkin <mst@redhat.com> wrote:
-> > 
-> > On Tue, Dec 26, 2023 at 05:01:40PM +0800, Li Feng wrote:
-> >> I don't have ideas right now to answer Christoph/Paolo's question.
-> > 
-> > Paolo did some testing on this thread and posted some concerns.
-> > Do you disagree with his analysis?
-> 
-> Paolo gave a very detailed data analysis. Indeed, in some low queue depth
-> scenarios, the data dropped somewhat. However, I suspect that it may be 
-> caused by other problems (such as test fluctuations) rather than the benefits 
-> brought by deadline. 
+From: Zhu Yanjun <yanjun.zhu@linux.dev>
 
-Maybe. I think it would be up to you to prove this then.
+Fix the warnings when building virtio_net driver.
 
+"
+drivers/net/virtio_net.c: In function ‘init_vqs’:
+drivers/net/virtio_net.c:4551:48: warning: ‘%d’ directive writing between 1 and 11 bytes into a region of size 10 [-Wformat-overflow=]
+ 4551 |                 sprintf(vi->rq[i].name, "input.%d", i);
+      |                                                ^~
+In function ‘virtnet_find_vqs’,
+    inlined from ‘init_vqs’ at drivers/net/virtio_net.c:4645:8:
+drivers/net/virtio_net.c:4551:41: note: directive argument in the range [-2147483643, 65534]
+ 4551 |                 sprintf(vi->rq[i].name, "input.%d", i);
+      |                                         ^~~~~~~~~~
+drivers/net/virtio_net.c:4551:17: note: ‘sprintf’ output between 8 and 18 bytes into a destination of size 16
+ 4551 |                 sprintf(vi->rq[i].name, "input.%d", i);
+      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+drivers/net/virtio_net.c: In function ‘init_vqs’:
+drivers/net/virtio_net.c:4552:49: warning: ‘%d’ directive writing between 1 and 11 bytes into a region of size 9 [-Wformat-overflow=]
+ 4552 |                 sprintf(vi->sq[i].name, "output.%d", i);
+      |                                                 ^~
+In function ‘virtnet_find_vqs’,
+    inlined from ‘init_vqs’ at drivers/net/virtio_net.c:4645:8:
+drivers/net/virtio_net.c:4552:41: note: directive argument in the range [-2147483643, 65534]
+ 4552 |                 sprintf(vi->sq[i].name, "output.%d", i);
+      |                                         ^~~~~~~~~~~
+drivers/net/virtio_net.c:4552:17: note: ‘sprintf’ output between 9 and 19 bytes into a destination of size 16
+ 4552 |                 sprintf(vi->sq[i].name, "output.%d", i);
 
-> BTW, I think 128 queue depth test is a very important and common performance
-> test item for storage devices.
-> 
-> Thanks,
-> Li
-> 
-> > 
-> > -- 
-> > MST
-> > 
+"
+
+Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Signed-off-by: Zhu Yanjun <yanjun.zhu@linux.dev>
+---
+ drivers/net/virtio_net.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index d16f592c2061..89a15cc81396 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -4096,10 +4096,11 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+ {
+ 	vq_callback_t **callbacks;
+ 	struct virtqueue **vqs;
+-	int ret = -ENOMEM;
+-	int i, total_vqs;
+ 	const char **names;
++	int ret = -ENOMEM;
++	int total_vqs;
+ 	bool *ctx;
++	u16 i;
+ 
+ 	/* We expect 1 RX virtqueue followed by 1 TX virtqueue, followed by
+ 	 * possible N-1 RX/TX queue pairs used in multiqueue mode, followed by
+@@ -4136,8 +4137,8 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+ 	for (i = 0; i < vi->max_queue_pairs; i++) {
+ 		callbacks[rxq2vq(i)] = skb_recv_done;
+ 		callbacks[txq2vq(i)] = skb_xmit_done;
+-		sprintf(vi->rq[i].name, "input.%d", i);
+-		sprintf(vi->sq[i].name, "output.%d", i);
++		sprintf(vi->rq[i].name, "input.%u", i);
++		sprintf(vi->sq[i].name, "output.%u", i);
+ 		names[rxq2vq(i)] = vi->rq[i].name;
+ 		names[txq2vq(i)] = vi->sq[i].name;
+ 		if (ctx)
+-- 
+2.27.0
 
