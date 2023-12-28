@@ -1,219 +1,117 @@
-Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C8195386
-	for <virtualization@lists.linux.dev>; Thu, 28 Dec 2023 01:45:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R421e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VzMRcoc_1703727933;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VzMRcoc_1703727933)
-          by smtp.aliyun-inc.com;
-          Thu, 28 Dec 2023 09:45:34 +0800
-Message-ID: <1703727887.489213-3-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next v1 1/6] virtio_net: introduce device stats feature and structures
-Date: Thu, 28 Dec 2023 09:44:47 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org,
- Jason Wang <jasowang@redhat.com>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- virtualization@lists.linux.dev,
- Zhu Yanjun <yanjun.zhu@linux.dev>
-References: <20231226073103.116153-1-xuanzhuo@linux.alibaba.com>
- <20231226073103.116153-2-xuanzhuo@linux.alibaba.com>
- <20231227160338-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20231227160338-mutt-send-email-mst@kernel.org>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 174B14409
+	for <virtualization@lists.linux.dev>; Thu, 28 Dec 2023 07:23:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=smartx.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=smartx.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=smartx-com.20230601.gappssmtp.com header.i=@smartx-com.20230601.gappssmtp.com header.b="F/s2gqbI"
+Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-1d41bb4da91so15198095ad.0
+        for <virtualization@lists.linux.dev>; Wed, 27 Dec 2023 23:23:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=smartx-com.20230601.gappssmtp.com; s=20230601; t=1703748230; x=1704353030; darn=lists.linux.dev;
+        h=to:references:message-id:content-transfer-encoding:cc:date
+         :in-reply-to:from:subject:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=5TS3IlhabUMeMhlcESxYLb6eSGYrLYo3Ig5rpjdUNeg=;
+        b=F/s2gqbIQj4QXLj/D7p4mKd8zkTe+A6su7LdwwKTBxtCW5lZNMMH9AJbcVby245vnN
+         0p6JqTqib0mL9t4voBjnQTyb+V1JiBFSmm8VkkKoNou6W+Skp7HlywuJkiSrqCXaxPTA
+         MebdSZrIaLe+u8UU4Va7SW+txz8swS2ssIsIxnuHMWqrGHKxjNG9CExAeA2wd7qpq/JW
+         C+nWtekgKKAEL5SNK5mjVZmaiv41YjfFiIMajR789dgGmig2IeCmVmdhNBYTy0A7EEOk
+         meRvk14PjxqhzB0LA6w2nl1Fw5/oEnwNeDi46eZnWXtJUuAQrCVxoZjrN51vISX0MKje
+         pLSA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1703748230; x=1704353030;
+        h=to:references:message-id:content-transfer-encoding:cc:date
+         :in-reply-to:from:subject:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=5TS3IlhabUMeMhlcESxYLb6eSGYrLYo3Ig5rpjdUNeg=;
+        b=cAqvwYUR1Ib88xWX0enFPfupRlgnxhSP2NTtKJmIJrXpFmTh7Ejj3SdTqyG+zd4QCG
+         C3c6QUJU3ekPhBMOFQGU8XuKL0BXqAaSXxn537mDr0bxERwRi31Agiq7t/8McpuMSk0H
+         5emTfUN9UBynUmhej38YsKI7Y6qkUc6IWB0cFyZYiCP8PMCYRc3lJp5GbQ0WaYoD1d3j
+         8QQ6OQ6j5B78cDT9N498UFMsuKmbtx9rqXwVmuYI/jM1vmWPwExNKMBl7E/rqT2cwcuM
+         Vbrts094Hidvt9wbj+svvBn9TlalugtYJwPKi34KXEqHwDD/GSvQ1i4zPVHdHlmhFIWd
+         50sw==
+X-Gm-Message-State: AOJu0Yz8pa2MuhdftZS/D94FJN0P4Y+Wme4g0+zU6BrioWpE+Vsj03bV
+	hX3GpddsA08N1objOMfuaSyMup0A8CEODg==
+X-Google-Smtp-Source: AGHT+IFyvLhzXFMJ5PbTZF/J8a62bVgxOg0ZB1uWE0WCuQw5a65QLBUpvBTSD0CYPdtp0b15f4cSuw==
+X-Received: by 2002:a17:902:c947:b0:1d4:3b8a:639a with SMTP id i7-20020a170902c94700b001d43b8a639amr2994233pla.124.1703748230281;
+        Wed, 27 Dec 2023 23:23:50 -0800 (PST)
+Received: from smtpclient.apple ([8.210.91.195])
+        by smtp.gmail.com with ESMTPSA id s5-20020a170902ea0500b001d45f92c436sm6347479plg.5.2023.12.27.23.23.47
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 27 Dec 2023 23:23:49 -0800 (PST)
+Content-Type: text/plain;
+	charset=us-ascii
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-
-On Wed, 27 Dec 2023 16:05:25 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Tue, Dec 26, 2023 at 03:30:58PM +0800, Xuan Zhuo wrote:
-> > The virtio-net device stats spec:
-> >
-> > https://github.com/oasis-tcs/virtio-spec/commit/42f389989823039724f95bbbd243291ab0064f82
-> >
-> > This commit introduces the relative feature and structures.
-> >
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > ---
-> >  include/uapi/linux/virtio_net.h | 137 ++++++++++++++++++++++++++++++++
-> >  1 file changed, 137 insertions(+)
-> >
-> > diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
-> > index cc65ef0f3c3e..8fca4d1b7635 100644
-> > --- a/include/uapi/linux/virtio_net.h
-> > +++ b/include/uapi/linux/virtio_net.h
-> > @@ -56,6 +56,7 @@
-> >  #define VIRTIO_NET_F_MQ	22	/* Device supports Receive Flow
-> >  					 * Steering */
-> >  #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
-> > +#define VIRTIO_NET_F_DEVICE_STATS 50	/* Device can provide device-level statistics. */
-> >  #define VIRTIO_NET_F_VQ_NOTF_COAL 52	/* Device supports virtqueue notification coalescing */
-> >  #define VIRTIO_NET_F_NOTF_COAL	53	/* Device supports notifications coalescing */
-> >  #define VIRTIO_NET_F_GUEST_USO4	54	/* Guest can handle USOv4 in. */
-> > @@ -406,4 +407,140 @@ struct  virtio_net_ctrl_coal_vq {
-> >  	struct virtio_net_ctrl_coal coal;
-> >  };
-> >
-> > +/*
-> > + * Device Statistics
-> > + */
-> > +#define VIRTIO_NET_CTRL_STATS         8
-> > +#define VIRTIO_NET_CTRL_STATS_QUERY   0
-> > +#define VIRTIO_NET_CTRL_STATS_GET     1
-> > +
-> > +struct virtio_net_stats_capabilities {
-> > +
-> > +#define VIRTIO_NET_STATS_TYPE_CVQ       (1ULL << 32)
-> > +
-> > +#define VIRTIO_NET_STATS_TYPE_RX_BASIC  (1ULL << 0)
-> > +#define VIRTIO_NET_STATS_TYPE_RX_CSUM   (1ULL << 1)
-> > +#define VIRTIO_NET_STATS_TYPE_RX_GSO    (1ULL << 2)
-> > +#define VIRTIO_NET_STATS_TYPE_RX_SPEED  (1ULL << 3)
-> > +
-> > +#define VIRTIO_NET_STATS_TYPE_TX_BASIC  (1ULL << 16)
-> > +#define VIRTIO_NET_STATS_TYPE_TX_CSUM   (1ULL << 17)
-> > +#define VIRTIO_NET_STATS_TYPE_TX_GSO    (1ULL << 18)
-> > +#define VIRTIO_NET_STATS_TYPE_TX_SPEED  (1ULL << 19)
-> > +
-> > +	__le64 supported_stats_types[1];
-> > +};
-> > +
-> > +struct virtio_net_ctrl_queue_stats {
-> > +	struct {
-> > +		__le16 vq_index;
-> > +		__le16 reserved[3];
-> > +		__le64 types_bitmap[1];
-> > +	} stats[1];
-> > +};
-> > +
-> > +struct virtio_net_stats_reply_hdr {
-> > +#define VIRTIO_NET_STATS_TYPE_REPLY_CVQ       32
-> > +
-> > +#define VIRTIO_NET_STATS_TYPE_REPLY_RX_BASIC  0
-> > +#define VIRTIO_NET_STATS_TYPE_REPLY_RX_CSUM   1
-> > +#define VIRTIO_NET_STATS_TYPE_REPLY_RX_GSO    2
-> > +#define VIRTIO_NET_STATS_TYPE_REPLY_RX_SPEED  3
-> > +
-> > +#define VIRTIO_NET_STATS_TYPE_REPLY_TX_BASIC  16
-> > +#define VIRTIO_NET_STATS_TYPE_REPLY_TX_CSUM   17
-> > +#define VIRTIO_NET_STATS_TYPE_REPLY_TX_GSO    18
-> > +#define VIRTIO_NET_STATS_TYPE_REPLY_TX_SPEED  19
-> > +	__u8 type;
-> > +	__u8 reserved;
-> > +	__le16 vq_index;
-> > +	__le16 reserved1;
-> > +	__le16 size;
-> > +};
-> > +
-> > +struct virtio_net_stats_cvq {
-> > +	struct virtio_net_stats_reply_hdr hdr;
-> > +
-> > +	__le64 command_num;
-> > +	__le64 ok_num;
-> > +};
-> > +
-> > +struct virtio_net_stats_rx_basic {
-> > +	struct virtio_net_stats_reply_hdr hdr;
-> > +
-> > +	__le64 rx_notifications;
-> > +
-> > +	__le64 rx_packets;
-> > +	__le64 rx_bytes;
-> > +
-> > +	__le64 rx_interrupts;
-> > +
-> > +	__le64 rx_drops;
-> > +	__le64 rx_drop_overruns;
-> > +};
-> > +
-> > +struct virtio_net_stats_tx_basic {
-> > +	struct virtio_net_stats_reply_hdr hdr;
-> > +
-> > +	__le64 tx_notifications;
-> > +
-> > +	__le64 tx_packets;
-> > +	__le64 tx_bytes;
-> > +
-> > +	__le64 tx_interrupts;
-> > +
-> > +	__le64 tx_drops;
-> > +	__le64 tx_drop_malformed;
-> > +};
-> > +
-> > +struct virtio_net_stats_rx_csum {
-> > +	struct virtio_net_stats_reply_hdr hdr;
-> > +
-> > +	__le64 rx_csum_valid;
-> > +	__le64 rx_needs_csum;
-> > +	__le64 rx_csum_none;
-> > +	__le64 rx_csum_bad;
-> > +};
-> > +
-> > +struct virtio_net_stats_tx_csum {
-> > +	struct virtio_net_stats_reply_hdr hdr;
-> > +
-> > +	__le64 tx_csum_none;
-> > +	__le64 tx_needs_csum;
-> > +};
-> > +
-> > +struct virtio_net_stats_rx_gso {
-> > +	struct virtio_net_stats_reply_hdr hdr;
-> > +
-> > +	__le64 rx_gso_packets;
-> > +	__le64 rx_gso_bytes;
-> > +	__le64 rx_gso_packets_coalesced;
-> > +	__le64 rx_gso_bytes_coalesced;
-> > +};
-> > +
-> > +struct virtio_net_stats_tx_gso {
-> > +	struct virtio_net_stats_reply_hdr hdr;
-> > +
-> > +	__le64 tx_gso_packets;
-> > +	__le64 tx_gso_bytes;
-> > +	__le64 tx_gso_segments;
-> > +	__le64 tx_gso_segments_bytes;
-> > +	__le64 tx_gso_packets_noseg;
-> > +	__le64 tx_gso_bytes_noseg;
-> > +};
-> > +
-> > +struct virtio_net_stats_rx_speed {
-> > +	struct virtio_net_stats_reply_hdr hdr;
-> > +
-> > +	__le64 rx_packets_allowance_exceeded;
-> > +	__le64 rx_bytes_allowance_exceeded;
-> > +};
-> > +
-> > +struct virtio_net_stats_tx_speed {
-> > +	struct virtio_net_stats_reply_hdr hdr;
-> > +
-> > +	__le64 tx_packets_allowance_exceeded;
-> > +	__le64 tx_bytes_allowance_exceeded;
-> > +};
-> > +
->
-> A ton of duplication here. E.g.  virtio_net_stats_rx_speed and
-> virtio_net_stats_tx_speed are exactly the same.
->
-
-YES.
-
-But I don't think it matters.
-
-Thanks.
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3774.100.2.1.4\))
+Subject: Re: [PATCH] virtio_blk: set the default scheduler to none
+From: Li Feng <fengli@smartx.com>
+In-Reply-To: <20231227050544-mutt-send-email-mst@kernel.org>
+Date: Thu, 28 Dec 2023 15:25:10 +0800
+Cc: Paolo Bonzini <pbonzini@redhat.com>,
+ Jens Axboe <axboe@kernel.dk>,
+ Jason Wang <jasowang@redhat.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ "open list:BLOCK LAYER" <linux-block@vger.kernel.org>,
+ linux-kernel <linux-kernel@vger.kernel.org>,
+ "open list:VIRTIO BLOCK AND SCSI DRIVERS" <virtualization@lists.linux.dev>
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <9679B268-5BD7-4731-86CC-6B5CF7CE2DF2@smartx.com>
+References: <20231207043118.118158-1-fengli@smartx.com>
+ <20231225092010-mutt-send-email-mst@kernel.org>
+ <AB23804D-FF38-47B8-ADC6-C0A19B7083CC@smartx.com>
+ <20231226103743-mutt-send-email-mst@kernel.org>
+ <2E148FC5-F9A9-4A86-99F1-8D0B93412181@smartx.com>
+ <20231227050544-mutt-send-email-mst@kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+X-Mailer: Apple Mail (2.3774.100.2.1.4)
 
 
->
->
->
->
-> >  #endif /* _UAPI_LINUX_VIRTIO_NET_H */
-> > --
-> > 2.32.0.3.g01195cf9f
->
+
+> On Dec 27, 2023, at 18:06, Michael S. Tsirkin <mst@redhat.com> wrote:
+>=20
+> On Wed, Dec 27, 2023 at 03:26:30PM +0800, Li Feng wrote:
+>>=20
+>>=20
+>>> On Dec 26, 2023, at 23:38, Michael S. Tsirkin <mst@redhat.com> =
+wrote:
+>>>=20
+>>> On Tue, Dec 26, 2023 at 05:01:40PM +0800, Li Feng wrote:
+>>>> I don't have ideas right now to answer Christoph/Paolo's question.
+>>>=20
+>>> Paolo did some testing on this thread and posted some concerns.
+>>> Do you disagree with his analysis?
+>>=20
+>> Paolo gave a very detailed data analysis. Indeed, in some low queue =
+depth
+>> scenarios, the data dropped somewhat. However, I suspect that it may =
+be=20
+>> caused by other problems (such as test fluctuations) rather than the =
+benefits=20
+>> brought by deadline.
+>=20
+> Maybe. I think it would be up to you to prove this then.
+Ok.
+
+>=20
+>=20
+>> BTW, I think 128 queue depth test is a very important and common =
+performance
+>> test item for storage devices.
+>>=20
+>> Thanks,
+>> Li
+>>=20
+>>>=20
+>>> --=20
+>>> MST
+>>>=20
+>=20
+
