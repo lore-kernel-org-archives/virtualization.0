@@ -1,29 +1,29 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95C6DBE64
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE96BBE68
 	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 07:31:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 3E83460A69
-	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 07:31:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3E83460A69
+	by smtp2.osuosl.org (Postfix) with ESMTP id A0DBF41A31
+	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 07:31:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A0DBF41A31
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -9.899
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 2tizXvIeh0sb
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id b2mrd0vl7iFC
 	for <virtualization@lists.linux-foundation.org>;
-	Fri, 29 Dec 2023 07:31:24 +0000 (UTC)
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 02FDB60A63
-	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 07:31:23 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 02FDB60A63
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R861e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0VzQsXtn_1703835078;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VzQsXtn_1703835078)
+	Fri, 29 Dec 2023 07:31:22 +0000 (UTC)
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 7754B4018E
+	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 07:31:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7754B4018E
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R781e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0VzQtf15_1703835074;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VzQtf15_1703835074)
           by smtp.aliyun-inc.com;
-          Fri, 29 Dec 2023 15:31:19 +0800
+          Fri, 29 Dec 2023 15:31:14 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: netdev@vger.kernel.org
 Cc: "David S. Miller" <davem@davemloft.net>,
@@ -39,9 +39,9 @@ Cc: "David S. Miller" <davem@davemloft.net>,
 	John Fastabend <john.fastabend@gmail.com>,
 	virtualization@lists.linux-foundation.org,
 	bpf@vger.kernel.org
-Subject: [PATCH net-next v3 08/27] virtio_ring: introduce virtqueue_detach_unused_buf_dma()
-Date: Fri, 29 Dec 2023 15:30:49 +0800
-Message-Id: <20231229073108.57778-9-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH net-next v3 04/27] virtio_net: move core structures to virtio_net.h
+Date: Fri, 29 Dec 2023 15:30:45 +0800
+Message-Id: <20231229073108.57778-5-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20231229073108.57778-1-xuanzhuo@linux.alibaba.com>
 References: <20231229073108.57778-1-xuanzhuo@linux.alibaba.com>
@@ -54,113 +54,461 @@ MIME-Version: 1.0
 X-Git-Hash: 20112a26898d
 Content-Transfer-Encoding: 8bit
 
-introduce virtqueue_detach_unused_buf_dma() to collect the dma
-info when get buf from virtio core for premapped mode.
+Move some core structures (send_queue, receive_queue, virtnet_info)
+definitions and the relative structures definitions into the
+virtio_net.h file.
 
-If the virtio queue is premapped mode, the virtio-net send buf may
-have many desc. Every desc dma address need to be unmap. So here we
-introduce a new helper to collect the dma address of the buffer from
-the virtio core.
+That will be used by the other c code files.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/virtio/virtio_ring.c | 33 +++++++++++++++++++++++++--------
- include/linux/virtio.h       |  1 +
- 2 files changed, 26 insertions(+), 8 deletions(-)
+ drivers/net/virtio/main.c       | 189 +------------------------------
+ drivers/net/virtio/virtio_net.h | 193 ++++++++++++++++++++++++++++++++
+ 2 files changed, 195 insertions(+), 187 deletions(-)
+ create mode 100644 drivers/net/virtio/virtio_net.h
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index b700d4e6e7dd..a2d6aea551a7 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -1012,7 +1012,7 @@ static bool virtqueue_enable_cb_delayed_split(struct virtqueue *_vq)
- 	return true;
- }
+diff --git a/drivers/net/virtio/main.c b/drivers/net/virtio/main.c
+index b01afd19061f..c104cfa801e8 100644
+--- a/drivers/net/virtio/main.c
++++ b/drivers/net/virtio/main.c
+@@ -6,7 +6,6 @@
+ //#define DEBUG
+ #include <linux/netdevice.h>
+ #include <linux/etherdevice.h>
+-#include <linux/ethtool.h>
+ #include <linux/module.h>
+ #include <linux/virtio.h>
+ #include <linux/virtio_net.h>
+@@ -16,7 +15,6 @@
+ #include <linux/if_vlan.h>
+ #include <linux/slab.h>
+ #include <linux/cpu.h>
+-#include <linux/average.h>
+ #include <linux/filter.h>
+ #include <linux/kernel.h>
+ #include <net/route.h>
+@@ -24,6 +22,8 @@
+ #include <net/net_failover.h>
+ #include <net/netdev_rx_queue.h>
  
--static void *virtqueue_detach_unused_buf_split(struct virtqueue *_vq)
-+static void *virtqueue_detach_unused_buf_split(struct virtqueue *_vq, struct virtio_dma_head *dma)
- {
- 	struct vring_virtqueue *vq = to_vvq(_vq);
- 	unsigned int i;
-@@ -1025,7 +1025,7 @@ static void *virtqueue_detach_unused_buf_split(struct virtqueue *_vq)
- 			continue;
- 		/* detach_buf_split clears data, so grab it now. */
- 		buf = vq->split.desc_state[i].data;
--		detach_buf_split(vq, i, NULL, NULL);
-+		detach_buf_split(vq, i, dma, NULL);
- 		vq->split.avail_idx_shadow--;
- 		vq->split.vring.avail->idx = cpu_to_virtio16(_vq->vdev,
- 				vq->split.avail_idx_shadow);
-@@ -1909,7 +1909,7 @@ static bool virtqueue_enable_cb_delayed_packed(struct virtqueue *_vq)
- 	return true;
- }
- 
--static void *virtqueue_detach_unused_buf_packed(struct virtqueue *_vq)
-+static void *virtqueue_detach_unused_buf_packed(struct virtqueue *_vq, struct virtio_dma_head *dma)
- {
- 	struct vring_virtqueue *vq = to_vvq(_vq);
- 	unsigned int i;
-@@ -1922,7 +1922,7 @@ static void *virtqueue_detach_unused_buf_packed(struct virtqueue *_vq)
- 			continue;
- 		/* detach_buf clears data, so grab it now. */
- 		buf = vq->packed.desc_state[i].data;
--		detach_buf_packed(vq, i, NULL, NULL);
-+		detach_buf_packed(vq, i, dma, NULL);
- 		END_USE(vq);
- 		return buf;
- 	}
-@@ -2614,19 +2614,36 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *_vq)
- EXPORT_SYMBOL_GPL(virtqueue_enable_cb_delayed);
- 
- /**
-- * virtqueue_detach_unused_buf - detach first unused buffer
-+ * virtqueue_detach_unused_buf_dma - detach first unused buffer
-  * @_vq: the struct virtqueue we're talking about.
-+ * @dma: the head of the array to store the dma info
-+ *
-+ * more see virtqueue_get_buf_ctx_dma()
-  *
-  * Returns NULL or the "data" token handed to virtqueue_add_*().
-  * This is not valid on an active queue; it is useful for device
-  * shutdown or the reset queue.
-  */
--void *virtqueue_detach_unused_buf(struct virtqueue *_vq)
-+void *virtqueue_detach_unused_buf_dma(struct virtqueue *_vq, struct virtio_dma_head *dma)
- {
- 	struct vring_virtqueue *vq = to_vvq(_vq);
- 
--	return vq->packed_ring ? virtqueue_detach_unused_buf_packed(_vq) :
--				 virtqueue_detach_unused_buf_split(_vq);
-+	return vq->packed_ring ? virtqueue_detach_unused_buf_packed(_vq, dma) :
-+				 virtqueue_detach_unused_buf_split(_vq, dma);
-+}
-+EXPORT_SYMBOL_GPL(virtqueue_detach_unused_buf_dma);
++#include "virtio_net.h"
 +
-+/**
-+ * virtqueue_detach_unused_buf - detach first unused buffer
-+ * @_vq: the struct virtqueue we're talking about.
-+ *
-+ * Returns NULL or the "data" token handed to virtqueue_add_*().
-+ * This is not valid on an active queue; it is useful for device
-+ * shutdown or the reset queue.
+ static int napi_weight = NAPI_POLL_WEIGHT;
+ module_param(napi_weight, int, 0444);
+ 
+@@ -47,13 +47,6 @@ module_param(napi_tx, bool, 0644);
+ 
+ #define VIRTIO_XDP_FLAG	BIT(0)
+ 
+-/* RX packet size EWMA. The average packet size is used to determine the packet
+- * buffer size when refilling RX rings. As the entire RX ring may be refilled
+- * at once, the weight is chosen so that the EWMA will be insensitive to short-
+- * term, transient changes in packet size.
+- */
+-DECLARE_EWMA(pkt_len, 0, 64)
+-
+ #define VIRTNET_DRIVER_VERSION "1.0.0"
+ 
+ static const unsigned long guest_offloads[] = {
+@@ -79,28 +72,6 @@ struct virtnet_stat_desc {
+ 	size_t offset;
+ };
+ 
+-struct virtnet_sq_stats {
+-	struct u64_stats_sync syncp;
+-	u64_stats_t packets;
+-	u64_stats_t bytes;
+-	u64_stats_t xdp_tx;
+-	u64_stats_t xdp_tx_drops;
+-	u64_stats_t kicks;
+-	u64_stats_t tx_timeouts;
+-};
+-
+-struct virtnet_rq_stats {
+-	struct u64_stats_sync syncp;
+-	u64_stats_t packets;
+-	u64_stats_t bytes;
+-	u64_stats_t drops;
+-	u64_stats_t xdp_packets;
+-	u64_stats_t xdp_tx;
+-	u64_stats_t xdp_redirects;
+-	u64_stats_t xdp_drops;
+-	u64_stats_t kicks;
+-};
+-
+ #define VIRTNET_SQ_STAT(m)	offsetof(struct virtnet_sq_stats, m)
+ #define VIRTNET_RQ_STAT(m)	offsetof(struct virtnet_rq_stats, m)
+ 
+@@ -127,80 +98,6 @@ static const struct virtnet_stat_desc virtnet_rq_stats_desc[] = {
+ #define VIRTNET_SQ_STATS_LEN	ARRAY_SIZE(virtnet_sq_stats_desc)
+ #define VIRTNET_RQ_STATS_LEN	ARRAY_SIZE(virtnet_rq_stats_desc)
+ 
+-struct virtnet_interrupt_coalesce {
+-	u32 max_packets;
+-	u32 max_usecs;
+-};
+-
+-/* The dma information of pages allocated at a time. */
+-struct virtnet_rq_dma {
+-	dma_addr_t addr;
+-	u32 ref;
+-	u16 len;
+-	u16 need_sync;
+-};
+-
+-/* Internal representation of a send virtqueue */
+-struct send_queue {
+-	/* Virtqueue associated with this send _queue */
+-	struct virtqueue *vq;
+-
+-	/* TX: fragments + linear part + virtio header */
+-	struct scatterlist sg[MAX_SKB_FRAGS + 2];
+-
+-	/* Name of the send queue: output.$index */
+-	char name[16];
+-
+-	struct virtnet_sq_stats stats;
+-
+-	struct virtnet_interrupt_coalesce intr_coal;
+-
+-	struct napi_struct napi;
+-
+-	/* Record whether sq is in reset state. */
+-	bool reset;
+-};
+-
+-/* Internal representation of a receive virtqueue */
+-struct receive_queue {
+-	/* Virtqueue associated with this receive_queue */
+-	struct virtqueue *vq;
+-
+-	struct napi_struct napi;
+-
+-	struct bpf_prog __rcu *xdp_prog;
+-
+-	struct virtnet_rq_stats stats;
+-
+-	struct virtnet_interrupt_coalesce intr_coal;
+-
+-	/* Chain pages by the private ptr. */
+-	struct page *pages;
+-
+-	/* Average packet length for mergeable receive buffers. */
+-	struct ewma_pkt_len mrg_avg_pkt_len;
+-
+-	/* Page frag for packet buffer allocation. */
+-	struct page_frag alloc_frag;
+-
+-	/* RX: fragments + linear part + virtio header */
+-	struct scatterlist sg[MAX_SKB_FRAGS + 2];
+-
+-	/* Min single buffer size for mergeable buffers case. */
+-	unsigned int min_buf_len;
+-
+-	/* Name of this receive queue: input.$index */
+-	char name[16];
+-
+-	struct xdp_rxq_info xdp_rxq;
+-
+-	/* Record the last dma info to free after new pages is allocated. */
+-	struct virtnet_rq_dma *last_dma;
+-
+-	/* Do dma by self */
+-	bool do_dma;
+-};
+-
+ /* This structure can contain rss message with maximum settings for indirection table and keysize
+  * Note, that default structure that describes RSS configuration virtio_net_rss_config
+  * contains same info but can't handle table values.
+@@ -234,88 +131,6 @@ struct control_buf {
+ 	struct virtio_net_ctrl_coal_vq coal_vq;
+ };
+ 
+-struct virtnet_info {
+-	struct virtio_device *vdev;
+-	struct virtqueue *cvq;
+-	struct net_device *dev;
+-	struct send_queue *sq;
+-	struct receive_queue *rq;
+-	unsigned int status;
+-
+-	/* Max # of queue pairs supported by the device */
+-	u16 max_queue_pairs;
+-
+-	/* # of queue pairs currently used by the driver */
+-	u16 curr_queue_pairs;
+-
+-	/* # of XDP queue pairs currently used by the driver */
+-	u16 xdp_queue_pairs;
+-
+-	/* xdp_queue_pairs may be 0, when xdp is already loaded. So add this. */
+-	bool xdp_enabled;
+-
+-	/* I like... big packets and I cannot lie! */
+-	bool big_packets;
+-
+-	/* number of sg entries allocated for big packets */
+-	unsigned int big_packets_num_skbfrags;
+-
+-	/* Host will merge rx buffers for big packets (shake it! shake it!) */
+-	bool mergeable_rx_bufs;
+-
+-	/* Host supports rss and/or hash report */
+-	bool has_rss;
+-	bool has_rss_hash_report;
+-	u8 rss_key_size;
+-	u16 rss_indir_table_size;
+-	u32 rss_hash_types_supported;
+-	u32 rss_hash_types_saved;
+-
+-	/* Has control virtqueue */
+-	bool has_cvq;
+-
+-	/* Host can handle any s/g split between our header and packet data */
+-	bool any_header_sg;
+-
+-	/* Packet virtio header size */
+-	u8 hdr_len;
+-
+-	/* Work struct for delayed refilling if we run low on memory. */
+-	struct delayed_work refill;
+-
+-	/* Is delayed refill enabled? */
+-	bool refill_enabled;
+-
+-	/* The lock to synchronize the access to refill_enabled */
+-	spinlock_t refill_lock;
+-
+-	/* Work struct for config space updates */
+-	struct work_struct config_work;
+-
+-	/* Does the affinity hint is set for virtqueues? */
+-	bool affinity_hint_set;
+-
+-	/* CPU hotplug instances for online & dead */
+-	struct hlist_node node;
+-	struct hlist_node node_dead;
+-
+-	struct control_buf *ctrl;
+-
+-	/* Ethtool settings */
+-	u8 duplex;
+-	u32 speed;
+-
+-	/* Interrupt coalescing settings */
+-	struct virtnet_interrupt_coalesce intr_coal_tx;
+-	struct virtnet_interrupt_coalesce intr_coal_rx;
+-
+-	unsigned long guest_offloads;
+-	unsigned long guest_offloads_capable;
+-
+-	/* failover when STANDBY feature enabled */
+-	struct failover *failover;
+-};
+-
+ struct padded_vnet_hdr {
+ 	struct virtio_net_hdr_v1_hash hdr;
+ 	/*
+diff --git a/drivers/net/virtio/virtio_net.h b/drivers/net/virtio/virtio_net.h
+new file mode 100644
+index 000000000000..38061e15d494
+--- /dev/null
++++ b/drivers/net/virtio/virtio_net.h
+@@ -0,0 +1,193 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++
++#ifndef __VIRTIO_NET_H__
++#define __VIRTIO_NET_H__
++
++#include <linux/ethtool.h>
++#include <linux/average.h>
++
++/* RX packet size EWMA. The average packet size is used to determine the packet
++ * buffer size when refilling RX rings. As the entire RX ring may be refilled
++ * at once, the weight is chosen so that the EWMA will be insensitive to short-
++ * term, transient changes in packet size.
 + */
-+void *virtqueue_detach_unused_buf(struct virtqueue *_vq)
-+{
-+	return virtqueue_detach_unused_buf_dma(_vq, NULL);
- }
- EXPORT_SYMBOL_GPL(virtqueue_detach_unused_buf);
- 
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index 7a5e9ea7d420..2596f0e7e395 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -104,6 +104,7 @@ bool virtqueue_poll(struct virtqueue *vq, unsigned);
- bool virtqueue_enable_cb_delayed(struct virtqueue *vq);
- 
- void *virtqueue_detach_unused_buf(struct virtqueue *vq);
-+void *virtqueue_detach_unused_buf_dma(struct virtqueue *_vq, struct virtio_dma_head *dma);
- 
- unsigned int virtqueue_get_vring_size(const struct virtqueue *vq);
- 
++DECLARE_EWMA(pkt_len, 0, 64)
++
++struct virtnet_sq_stats {
++	struct u64_stats_sync syncp;
++	u64_stats_t packets;
++	u64_stats_t bytes;
++	u64_stats_t xdp_tx;
++	u64_stats_t xdp_tx_drops;
++	u64_stats_t kicks;
++	u64_stats_t tx_timeouts;
++};
++
++struct virtnet_rq_stats {
++	struct u64_stats_sync syncp;
++	u64_stats_t packets;
++	u64_stats_t bytes;
++	u64_stats_t drops;
++	u64_stats_t xdp_packets;
++	u64_stats_t xdp_tx;
++	u64_stats_t xdp_redirects;
++	u64_stats_t xdp_drops;
++	u64_stats_t kicks;
++};
++
++struct virtnet_interrupt_coalesce {
++	u32 max_packets;
++	u32 max_usecs;
++};
++
++/* The dma information of pages allocated at a time. */
++struct virtnet_rq_dma {
++	dma_addr_t addr;
++	u32 ref;
++	u16 len;
++	u16 need_sync;
++};
++
++/* Internal representation of a send virtqueue */
++struct send_queue {
++	/* Virtqueue associated with this send _queue */
++	struct virtqueue *vq;
++
++	/* TX: fragments + linear part + virtio header */
++	struct scatterlist sg[MAX_SKB_FRAGS + 2];
++
++	/* Name of the send queue: output.$index */
++	char name[16];
++
++	struct virtnet_sq_stats stats;
++
++	struct virtnet_interrupt_coalesce intr_coal;
++
++	struct napi_struct napi;
++
++	/* Record whether sq is in reset state. */
++	bool reset;
++};
++
++/* Internal representation of a receive virtqueue */
++struct receive_queue {
++	/* Virtqueue associated with this receive_queue */
++	struct virtqueue *vq;
++
++	struct napi_struct napi;
++
++	struct bpf_prog __rcu *xdp_prog;
++
++	struct virtnet_rq_stats stats;
++
++	struct virtnet_interrupt_coalesce intr_coal;
++
++	/* Chain pages by the private ptr. */
++	struct page *pages;
++
++	/* Average packet length for mergeable receive buffers. */
++	struct ewma_pkt_len mrg_avg_pkt_len;
++
++	/* Page frag for packet buffer allocation. */
++	struct page_frag alloc_frag;
++
++	/* RX: fragments + linear part + virtio header */
++	struct scatterlist sg[MAX_SKB_FRAGS + 2];
++
++	/* Min single buffer size for mergeable buffers case. */
++	unsigned int min_buf_len;
++
++	/* Name of this receive queue: input.$index */
++	char name[16];
++
++	struct xdp_rxq_info xdp_rxq;
++
++	/* Record the last dma info to free after new pages is allocated. */
++	struct virtnet_rq_dma *last_dma;
++
++	/* Do dma by self */
++	bool do_dma;
++};
++
++struct virtnet_info {
++	struct virtio_device *vdev;
++	struct virtqueue *cvq;
++	struct net_device *dev;
++	struct send_queue *sq;
++	struct receive_queue *rq;
++	unsigned int status;
++
++	/* Max # of queue pairs supported by the device */
++	u16 max_queue_pairs;
++
++	/* # of queue pairs currently used by the driver */
++	u16 curr_queue_pairs;
++
++	/* # of XDP queue pairs currently used by the driver */
++	u16 xdp_queue_pairs;
++
++	/* xdp_queue_pairs may be 0, when xdp is already loaded. So add this. */
++	bool xdp_enabled;
++
++	/* I like... big packets and I cannot lie! */
++	bool big_packets;
++
++	/* number of sg entries allocated for big packets */
++	unsigned int big_packets_num_skbfrags;
++
++	/* Host will merge rx buffers for big packets (shake it! shake it!) */
++	bool mergeable_rx_bufs;
++
++	/* Host supports rss and/or hash report */
++	bool has_rss;
++	bool has_rss_hash_report;
++	u8 rss_key_size;
++	u16 rss_indir_table_size;
++	u32 rss_hash_types_supported;
++	u32 rss_hash_types_saved;
++
++	/* Has control virtqueue */
++	bool has_cvq;
++
++	/* Host can handle any s/g split between our header and packet data */
++	bool any_header_sg;
++
++	/* Packet virtio header size */
++	u8 hdr_len;
++
++	/* Work struct for delayed refilling if we run low on memory. */
++	struct delayed_work refill;
++
++	/* Is delayed refill enabled? */
++	bool refill_enabled;
++
++	/* The lock to synchronize the access to refill_enabled */
++	spinlock_t refill_lock;
++
++	/* Work struct for config space updates */
++	struct work_struct config_work;
++
++	/* Does the affinity hint is set for virtqueues? */
++	bool affinity_hint_set;
++
++	/* CPU hotplug instances for online & dead */
++	struct hlist_node node;
++	struct hlist_node node_dead;
++
++	struct control_buf *ctrl;
++
++	/* Ethtool settings */
++	u8 duplex;
++	u32 speed;
++
++	/* Interrupt coalescing settings */
++	struct virtnet_interrupt_coalesce intr_coal_tx;
++	struct virtnet_interrupt_coalesce intr_coal_rx;
++
++	unsigned long guest_offloads;
++	unsigned long guest_offloads_capable;
++
++	/* failover when STANDBY feature enabled */
++	struct failover *failover;
++};
++#endif
 -- 
 2.32.0.3.g01195cf9f
 
