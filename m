@@ -1,53 +1,52 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 045D014A84
-	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 20:58:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D78D14A84
+	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 21:00:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 856B361135
-	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 20:58:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 856B361135
+	by smtp2.osuosl.org (Postfix) with ESMTP id D4E4540540
+	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 21:00:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D4E4540540
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -1.898
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id UIOaseqU8txS
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id IM4W3QSIkcZN
 	for <virtualization@lists.linux-foundation.org>;
-	Fri, 29 Dec 2023 20:58:02 +0000 (UTC)
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 55122606CB
-	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 20:58:02 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 55122606CB
+	Fri, 29 Dec 2023 21:00:03 +0000 (UTC)
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 92777435BE
+	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 21:00:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 92777435BE
 Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
  relay.mimecast.com with ESMTP with both STARTTLS and AUTH (version=TLSv1.2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-129-6k2WdJMjPBWp2oR0msDm8g-1; Fri, 29 Dec 2023 20:56:21 +0000
-X-MC-Unique: 6k2WdJMjPBWp2oR0msDm8g-1
+ uk-mta-41-5wEkoRtvMh2PFOiaJkfYoA-1; Fri, 29 Dec 2023 20:52:04 +0000
+X-MC-Unique: 5wEkoRtvMh2PFOiaJkfYoA-1
 Received: from AcuMS.Aculab.com (10.202.163.4) by AcuMS.aculab.com
  (10.202.163.4) with Microsoft SMTP Server (TLS) id 15.0.1497.48; Fri, 29 Dec
- 2023 20:56:03 +0000
+ 2023 20:51:46 +0000
 Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
- id 15.00.1497.048; Fri, 29 Dec 2023 20:56:03 +0000
+ id 15.00.1497.048; Fri, 29 Dec 2023 20:51:46 +0000
 From: David Laight <David.Laight@ACULAB.COM>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-	"'peterz@infradead.org'" <peterz@infradead.org>, "'longman@redhat.com'"
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"peterz@infradead.org" <peterz@infradead.org>, "longman@redhat.com"
 	<longman@redhat.com>
-CC: "'mingo@redhat.com'" <mingo@redhat.com>, "'will@kernel.org'"
-	<will@kernel.org>, "'boqun.feng@gmail.com'" <boqun.feng@gmail.com>, "'Linus
+CC: "mingo@redhat.com" <mingo@redhat.com>, "will@kernel.org"
+	<will@kernel.org>, "boqun.feng@gmail.com" <boqun.feng@gmail.com>, "'Linus
  Torvalds'" <torvalds@linux-foundation.org>, "'xinhui.pan@linux.vnet.ibm.com'"
 	<xinhui.pan@linux.vnet.ibm.com>,
 	"'virtualization@lists.linux-foundation.org'"
 	<virtualization@lists.linux-foundation.org>, 'Zeng Heng'
 	<zengheng4@huawei.com>
-Subject: [PATCH next 3/5] locking/osq_lock: Clarify osq_wait_next()
-Thread-Topic: [PATCH next 3/5] locking/osq_lock: Clarify osq_wait_next()
-Thread-Index: Ado6mW78N1Y4ctAHQ36yzrF5D7u/HQ==
-Date: Fri, 29 Dec 2023 20:56:03 +0000
-Message-ID: <7c8828aec72e42eeb841ca0ee3397e9a@AcuMS.aculab.com>
-References: <73a4b31c9c874081baabad9e5f2e5204@AcuMS.aculab.com>
-In-Reply-To: <73a4b31c9c874081baabad9e5f2e5204@AcuMS.aculab.com>
+Subject: [PATCH next 0/5] locking/osq_lock: Optimisations to osq_lock code
+Thread-Topic: [PATCH next 0/5] locking/osq_lock: Optimisations to osq_lock
+ code
+Thread-Index: Ado6lJ8STYITmewCRxaK5t3V4duzKg==
+Date: Fri, 29 Dec 2023 20:51:46 +0000
+Message-ID: <73a4b31c9c874081baabad9e5f2e5204@AcuMS.aculab.com>
 Accept-Language: en-GB, en-US
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
@@ -64,93 +63,49 @@ Content-Language: en-US
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 
-osq_wait_next() is passed 'prev' from osq_lock() and NULL from osq_unlock()
-but only needs the 'cpu' value to write to lock->tail.
-Just pass prev->cpu or OSQ_UNLOCKED_VAL instead.
+Zeng Heng noted that heavy use of the osq (optimistic spin queue) code
+used rather more cpu than might be expected. See:
+https://lore.kernel.org/lkml/202312210155.Wc2HUK8C-lkp@intel.com/T/#mcc46ee=
+dd1ef22a0d668828b1d088508c9b1875b8
 
-Also directly return NULL or 'next' instead of breaking the loop.
+Part of the problem is there is a pretty much guaranteed cache line reload
+reading node->prev->cpu for the vcpu_is_preempted() check (even on bare met=
+al)
+in the wakeup path which slows it down.
+(On bare metal the hypervisor call is patched out, but the argument is stil=
+l read.)
 
-Should have no effect on the generated code since gcc manages to
-assume that 'prev !=3D NULL' due to an earlier dereference.
+Careful analysis shows that it isn't necessary to dirty the per-cpu data
+on the fast-path osq_lock() path. This may be slightly beneficial.
 
-Signed-off-by: David Laight <david.laight@aculab.com>
----
- kernel/locking/osq_lock.c | 23 ++++++++++-------------
- 1 file changed, 10 insertions(+), 13 deletions(-)
+The code also uses this_cpu_ptr() to get the address of the per-cpu data.
+On x86-64 (at least) this is implemented as:
+=09 &per_cpu_data[smp_processor_id()]->member
+ie there is a real function call, an array index and an add.
+However if raw_cpu_read() can used then (which is typically just an offset
+from register - %gs for x86-64) the code will be faster.
+Putting the address of the per-cpu node into itself means that only one
+cache line need be loaded.
 
-diff --git a/kernel/locking/osq_lock.c b/kernel/locking/osq_lock.c
-index 55f5db896c02..9bb3a077ba92 100644
---- a/kernel/locking/osq_lock.c
-+++ b/kernel/locking/osq_lock.c
-@@ -48,18 +48,17 @@ static inline struct optimistic_spin_node *decode_cpu(i=
-nt encoded_cpu_val)
- static inline struct optimistic_spin_node *
- osq_wait_next(struct optimistic_spin_queue *lock,
- =09      struct optimistic_spin_node *node,
--=09      struct optimistic_spin_node *prev)
-+=09      int old)
- {
--=09struct optimistic_spin_node *next =3D NULL;
-+=09struct optimistic_spin_node *next;
- =09int curr =3D node->cpu;
--=09int old;
-=20
- =09/*
--=09 * If there is a prev node in queue, then the 'old' value will be
--=09 * the prev node's CPU #, else it's set to OSQ_UNLOCKED_VAL since if
--=09 * we're currently last in queue, then the queue will then become empty=
-.
-+=09 * If osq_lock() is being cancelled there must be a previous node
-+=09 * and 'old' is its CPU #.
-+=09 * For osq_unlock() there is never a previous node and old is set
-+=09 * to OSQ_UNLOCKED_VAL.
- =09 */
--=09old =3D prev ? prev->cpu : OSQ_UNLOCKED_VAL;
-=20
- =09for (;;) {
- =09=09if (atomic_read(&lock->tail) =3D=3D curr &&
-@@ -69,7 +68,7 @@ osq_wait_next(struct optimistic_spin_queue *lock,
- =09=09=09 * will now observe @lock and will complete its
- =09=09=09 * unlock()/unqueue().
- =09=09=09 */
--=09=09=09break;
-+=09=09=09return NULL;
- =09=09}
-=20
- =09=09/*
-@@ -85,13 +84,11 @@ osq_wait_next(struct optimistic_spin_queue *lock,
- =09=09if (node->next) {
- =09=09=09next =3D xchg(&node->next, NULL);
- =09=09=09if (next)
--=09=09=09=09break;
-+=09=09=09=09return next;
- =09=09}
-=20
- =09=09cpu_relax();
- =09}
--
--=09return next;
- }
-=20
- bool osq_lock(struct optimistic_spin_queue *lock)
-@@ -192,7 +189,7 @@ bool osq_lock(struct optimistic_spin_queue *lock)
- =09 * back to @prev.
- =09 */
-=20
--=09next =3D osq_wait_next(lock, node, prev);
-+=09next =3D osq_wait_next(lock, node, prev->cpu);
- =09if (!next)
- =09=09return false;
-=20
-@@ -232,7 +229,7 @@ void osq_unlock(struct optimistic_spin_queue *lock)
- =09=09return;
- =09}
-=20
--=09next =3D osq_wait_next(lock, node, NULL);
-+=09next =3D osq_wait_next(lock, node, OSQ_UNLOCKED_VAL);
- =09if (next)
- =09=09WRITE_ONCE(next->locked, 1);
- }
+I can't see a list of per-cpu data initialisation functions, so the fields
+are initialised on the first osq_lock() call.
+
+The last patch avoids the cache line reload calling vcpu_is_preempted()
+by simply saving node->prev->cpu as node->prev_cpu and updating it when
+node->prev changes.
+This is simpler than the patch proposed by Waimon.
+
+David Laight (5):
+  Move the definition of optimistic_spin_node into osf_lock.c
+  Avoid dirtying the local cpu's 'node' in the osq_lock() fast path.
+  Clarify osq_wait_next()
+  Optimise per-cpu data accesses.
+  Optimise vcpu_is_preempted() check.
+
+ include/linux/osq_lock.h  |  5 ----
+ kernel/locking/osq_lock.c | 61 +++++++++++++++++++++------------------
+ 2 files changed, 33 insertions(+), 33 deletions(-)
+
 --=20
 2.17.1
 
