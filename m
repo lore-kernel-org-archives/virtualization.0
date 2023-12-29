@@ -1,283 +1,277 @@
-Received: from mail-oa1-f53.google.com (mail-oa1-f53.google.com [209.85.160.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABEB011C86
-	for <virtualization@lists.linux.dev>; Thu, 28 Dec 2023 19:24:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB230629
+	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 00:16:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="RRpHVgZC"
-Received: by mail-oa1-f53.google.com with SMTP id 586e51a60fabf-20400d5b54eso4669623fac.1
-        for <virtualization@lists.linux.dev>; Thu, 28 Dec 2023 11:24:52 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=dabbelt-com.20230601.gappssmtp.com header.i=@dabbelt-com.20230601.gappssmtp.com header.b="ialVJ0vb"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 4A3E6404B9
+	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 00:16:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4A3E6404B9
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key) header.d=dabbelt-com.20230601.gappssmtp.com header.i=@dabbelt-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=ialVJ0vb
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -1.9
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id nqI5G2KkTas7
+	for <virtualization@lists.linux-foundation.org>;
+	Fri, 29 Dec 2023 00:16:07 +0000 (UTC)
+Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id DCB7A404FF
+	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 00:16:06 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DCB7A404FF
+Received: by mail-pg1-x52d.google.com with SMTP id 41be03b00d2f7-5cd8667c59eso4882304a12.2
+        for <virtualization@lists.linux-foundation.org>; Thu, 28 Dec 2023 16:16:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1703791492; x=1704396292; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=X6NHqoeKipmnRRrBtGGekIe1Ago4hx2yTydoB5DSv04=;
-        b=RRpHVgZCOVRHicIjy2NLGI2qp2qUkW5Qr0F37Ry9P12b7KjmD4hblOIJL116zBigKk
-         MArA9I1TEU827fc3Jlhx0UITZhlPn49iyRZLfHAdRARLfzwNcsVDxMY2eUa9Mi47tmNF
-         rgVKyQ/IWlKncXn2ugXtVgvWFBslmAFnSqZZs=
+        d=dabbelt-com.20230601.gappssmtp.com; s=20230601; t=1703808966; x=1704413766; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:mime-version:message-id:to:from:cc
+         :in-reply-to:subject:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=AaiBamP1ZrgGVOA1x9thdMvEUyAh0k54wDBeqiex9tQ=;
+        b=ialVJ0vbzTJhZpdOdZyNQzECvjGCtoie7joVrrrKtHkFw98I09Vdm0TmgZDDJnMp8W
+         sUuaeZlxuR/KsiroNj2/679bLWI94npyyFWGz4V0RMoO/5QX0gjqM29yHg8p2w7j1UvN
+         HOaviUsmCSzfb/jDyfLho/2GEJmtePq3i9jr43GnuAgo16kTkRKvRohTKa/HxHDhBazQ
+         vqa//huI9hfa9OEuiIT6uerPSnEVO9ZNT1Pf9peJEBWDge2c8pYaNJiOZSxV5nO5eUde
+         YeDSZK5u3Pf9kcROnQ5YCRNRSk/UbSqModt03/hB/hidbYYT+r+Uias/H8bHko5cNVBo
+         bZuw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703791492; x=1704396292;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=X6NHqoeKipmnRRrBtGGekIe1Ago4hx2yTydoB5DSv04=;
-        b=QBZezOQJGDXUYHRMvnEHVcvhleTYpb96nAhbtJRQBVnIdtunVL5GYE5rBTF3wexNGZ
-         YEEBDZ2zAmM1sz5DYJ5CLWidV3aCt9jj7pboFHxM+Jj0C/YM+D3raYpZBkrdnDmTt7dj
-         hxXwPxvlg5jDeCIUCahKg5y2juETlPFSaxhJSBCArsqDCjrV9ccIAx9Ot3CnGZ9tLnMk
-         RZVBeoBEUt1HpZG8xQKhBBLiMbwDLalnCyC71PKnnoCWPeCm/Hm4K0LvYbbaeib3SAY5
-         mTWyj9UJ/0+73bphuc11rPl00OMcYE3Sg/Kiv6uhAx8+EVtiJw4GNwX5UfQpCmAq0n4m
-         2+vg==
-X-Gm-Message-State: AOJu0Yw6s9JzBkFgIjqwONZjabCqauGvhvhestiHtekQNkc1Dki+o2/Q
-	O4XDPG25ijKPD6q+EU21hlXQcRekoeMj
-X-Google-Smtp-Source: AGHT+IGJebG9JICRtVEUcH3Odb3+eLOWCUIwJ1rjVhgy8IuYbT6wze/ypQ5qNR6Xj+Jk0qDwouIr2w==
-X-Received: by 2002:a05:6870:9106:b0:204:792:8a55 with SMTP id o6-20020a056870910600b0020407928a55mr12289655oae.37.1703791491770;
-        Thu, 28 Dec 2023 11:24:51 -0800 (PST)
-Received: from amakhalov-build-vm.eng.vmware.com ([128.177.82.146])
-        by smtp.gmail.com with ESMTPSA id k16-20020aa79990000000b006d9aa04574csm9522987pfh.52.2023.12.28.11.24.49
+        d=1e100.net; s=20230601; t=1703808966; x=1704413766;
+        h=content-transfer-encoding:mime-version:message-id:to:from:cc
+         :in-reply-to:subject:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=AaiBamP1ZrgGVOA1x9thdMvEUyAh0k54wDBeqiex9tQ=;
+        b=N++giELKuoeUmfUHSUeakHPLU/kjzHXCTlqfUwccSfXm3zq4ugLDa5xD2ZtC7sY56P
+         P1bLHlOUKgN4wRTOOk6VRLSJ8AaVFu5aC0Xmn839VGXdewiDqTIAiiIUhLE86XX2k6Ot
+         cgn3SwOXkdv2uZ7dhhaAEYyOzqV/jW5EFJW1y0GPDbFSVJeiXj9aebt8HkjULm5YKZzO
+         ZdbYhWgLHYiji4AvNRKO+Ejvoju7fWe9CGN2Q+Xt+J5q8uOkY7FmQH3XvKaUnl7TV+2k
+         MScbOJ2DPxemMFTXnzvpYsc2mxOKXwj2vMzyp0rpnKZL3hS+pRhYYC9QIfeUM4ee/g75
+         0Cug==
+X-Gm-Message-State: AOJu0YxiFLNsqXiurmHuiOQkaYS60hmNoHWINgKxILuNZDMaer3nf3S7
+	clg1s2vuDf0qrrx8v7yhDdNilxUhKBKoqg==
+X-Google-Smtp-Source: AGHT+IGrTD0Zn7Buyuyy772W+6XimqueZcV/zBY8TrLV4vlEhpDWdr/f0anYg4OhyHZcJ1Kwr9C+Cg==
+X-Received: by 2002:a05:6a21:819f:b0:196:14d4:cfe8 with SMTP id pd31-20020a056a21819f00b0019614d4cfe8mr4003643pzb.26.1703808966135;
+        Thu, 28 Dec 2023 16:16:06 -0800 (PST)
+Received: from localhost ([12.44.203.122])
+        by smtp.gmail.com with ESMTPSA id h10-20020a056a00230a00b006da1d9f4adcsm1935153pfh.127.2023.12.28.16.16.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 28 Dec 2023 11:24:51 -0800 (PST)
-From: Alexey Makhalov <alexey.makhalov@broadcom.com>
-To: linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	bp@alien8.de,
-	hpa@zytor.com,
-	dave.hansen@linux.intel.com,
-	mingo@redhat.com,
-	tglx@linutronix.de
-Cc: x86@kernel.org,
-	netdev@vger.kernel.org,
-	richardcochran@gmail.com,
-	linux-input@vger.kernel.org,
-	dmitry.torokhov@gmail.com,
-	zackr@vmware.com,
-	linux-graphics-maintainer@vmware.com,
-	pv-drivers@vmware.com,
-	namit@vmware.com,
-	timothym@vmware.com,
-	akaher@vmware.com,
-	jsipek@vmware.com,
-	dri-devel@lists.freedesktop.org,
-	daniel@ffwll.ch,
-	airlied@gmail.com,
-	tzimmermann@suse.de,
-	mripard@kernel.org,
-	maarten.lankhorst@linux.intel.com,
-	horms@kernel.org,
-	kirill.shutemov@linux.intel.com
-Subject: [PATCH v4 6/6] x86/vmware: Add TDX hypercall support
-Date: Thu, 28 Dec 2023 11:24:21 -0800
-Message-Id: <20231228192421.29894-7-alexey.makhalov@broadcom.com>
-X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20231228192421.29894-1-alexey.makhalov@broadcom.com>
-References: <20231228192421.29894-1-alexey.makhalov@broadcom.com>
+        Thu, 28 Dec 2023 16:16:04 -0800 (PST)
+Date: Thu, 28 Dec 2023 16:16:04 -0800 (PST)
+X-Google-Original-Date: Thu, 28 Dec 2023 16:15:29 PST (-0800)
+Subject:     Re: [PATCH v4 01/13] RISC-V: paravirt: Add skeleton for pv-time support
+In-Reply-To: <20231220160012.40184-16-ajones@ventanamicro.com>
+CC: kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org,
+  virtualization@lists.linux-foundation.org, anup@brainfault.org, atishp@atishpatra.org, pbonzini@redhat.com,
+  Paul Walmsley <paul.walmsley@sifive.com>, aou@eecs.berkeley.edu, jgross@suse.com, srivatsa@csail.mit.edu,
+  guoren@kernel.org, Conor Dooley <conor.dooley@microchip.com>, Atish Patra <atishp@rivosinc.com>
+From: Palmer Dabbelt <palmer@dabbelt.com>
+To: ajones@ventanamicro.com
+Message-ID: <mhng-e6ad083f-423f-48c7-842f-bc2477c5a843@palmer-ri-x1c9a>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
+Mime-Version: 1.0 (MHng)
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-From: Alexey Makhalov <amakhalov@vmware.com>
+On Wed, 20 Dec 2023 08:00:14 PST (-0800), ajones@ventanamicro.com wrote:
+> Add the files and functions needed to support paravirt time on
+> RISC-V. Also include the common code needed for the first
+> application of pv-time, which is steal-time. In the next
+> patches we'll complete the functions to fully enable steal-time
+> support.
+>
+> Reviewed-by: Anup Patel <anup@brainfault.org>
+> Reviewed-by: Atish Patra <atishp@rivosinc.com>
+> Signed-off-by: Andrew Jones <ajones@ventanamicro.com>
+> ---
+>  .../admin-guide/kernel-parameters.txt         |  6 +-
+>  arch/riscv/include/asm/paravirt.h             | 28 +++++++
+>  arch/riscv/include/asm/paravirt_api_clock.h   |  1 +
+>  arch/riscv/kernel/Makefile                    |  1 +
+>  arch/riscv/kernel/paravirt.c                  | 77 +++++++++++++++++++
+>  arch/riscv/kernel/time.c                      |  3 +
+>  6 files changed, 113 insertions(+), 3 deletions(-)
+>  create mode 100644 arch/riscv/include/asm/paravirt.h
+>  create mode 100644 arch/riscv/include/asm/paravirt_api_clock.h
+>  create mode 100644 arch/riscv/kernel/paravirt.c
+>
+> diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+> index 65731b060e3f..a0d9259e4857 100644
+> --- a/Documentation/admin-guide/kernel-parameters.txt
+> +++ b/Documentation/admin-guide/kernel-parameters.txt
+> @@ -3985,9 +3985,9 @@
+>  			vulnerability. System may allow data leaks with this
+>  			option.
+>
+> -	no-steal-acc	[X86,PV_OPS,ARM64,PPC/PSERIES] Disable paravirtualized
+> -			steal time accounting. steal time is computed, but
+> -			won't influence scheduler behaviour
+> +	no-steal-acc	[X86,PV_OPS,ARM64,PPC/PSERIES,RISCV] Disable
+> +			paravirtualized steal time accounting. steal time is
+> +			computed, but won't influence scheduler behaviour
+>
+>  	nosync		[HW,M68K] Disables sync negotiation for all devices.
+>
+> diff --git a/arch/riscv/include/asm/paravirt.h b/arch/riscv/include/asm/paravirt.h
+> new file mode 100644
+> index 000000000000..c0abde70fc2c
+> --- /dev/null
+> +++ b/arch/riscv/include/asm/paravirt.h
+> @@ -0,0 +1,28 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +#ifndef _ASM_RISCV_PARAVIRT_H
+> +#define _ASM_RISCV_PARAVIRT_H
+> +
+> +#ifdef CONFIG_PARAVIRT
+> +#include <linux/static_call_types.h>
+> +
+> +struct static_key;
+> +extern struct static_key paravirt_steal_enabled;
+> +extern struct static_key paravirt_steal_rq_enabled;
+> +
+> +u64 dummy_steal_clock(int cpu);
+> +
+> +DECLARE_STATIC_CALL(pv_steal_clock, dummy_steal_clock);
+> +
+> +static inline u64 paravirt_steal_clock(int cpu)
+> +{
+> +	return static_call(pv_steal_clock)(cpu);
+> +}
+> +
+> +int __init pv_time_init(void);
+> +
+> +#else
+> +
+> +#define pv_time_init() do {} while (0)
+> +
+> +#endif /* CONFIG_PARAVIRT */
+> +#endif /* _ASM_RISCV_PARAVIRT_H */
+> diff --git a/arch/riscv/include/asm/paravirt_api_clock.h b/arch/riscv/include/asm/paravirt_api_clock.h
+> new file mode 100644
+> index 000000000000..65ac7cee0dad
+> --- /dev/null
+> +++ b/arch/riscv/include/asm/paravirt_api_clock.h
+> @@ -0,0 +1 @@
+> +#include <asm/paravirt.h>
+> diff --git a/arch/riscv/kernel/Makefile b/arch/riscv/kernel/Makefile
+> index fee22a3d1b53..807c2bde1f83 100644
+> --- a/arch/riscv/kernel/Makefile
+> +++ b/arch/riscv/kernel/Makefile
+> @@ -85,6 +85,7 @@ obj-$(CONFIG_SMP)		+= sbi-ipi.o
+>  obj-$(CONFIG_SMP) += cpu_ops_sbi.o
+>  endif
+>  obj-$(CONFIG_HOTPLUG_CPU)	+= cpu-hotplug.o
+> +obj-$(CONFIG_PARAVIRT)		+= paravirt.o
+>  obj-$(CONFIG_KGDB)		+= kgdb.o
+>  obj-$(CONFIG_KEXEC_CORE)	+= kexec_relocate.o crash_save_regs.o machine_kexec.o
+>  obj-$(CONFIG_KEXEC_FILE)	+= elf_kexec.o machine_kexec_file.o
+> diff --git a/arch/riscv/kernel/paravirt.c b/arch/riscv/kernel/paravirt.c
+> new file mode 100644
+> index 000000000000..080c95d2a295
+> --- /dev/null
+> +++ b/arch/riscv/kernel/paravirt.c
+> @@ -0,0 +1,77 @@
+> +// SPDX-License-Identifier: GPL-2.0-only
+> +/*
+> + * Copyright (c) 2023 Ventana Micro Systems Inc.
+> + */
+> +
+> +#define pr_fmt(fmt) "riscv-pv: " fmt
+> +
+> +#include <linux/cpuhotplug.h>
+> +#include <linux/init.h>
+> +#include <linux/jump_label.h>
+> +#include <linux/printk.h>
+> +#include <linux/static_call.h>
+> +#include <linux/types.h>
+> +
+> +struct static_key paravirt_steal_enabled;
+> +struct static_key paravirt_steal_rq_enabled;
+> +
+> +static u64 native_steal_clock(int cpu)
+> +{
+> +	return 0;
+> +}
+> +
+> +DEFINE_STATIC_CALL(pv_steal_clock, native_steal_clock);
+> +
+> +static bool steal_acc = true;
+> +static int __init parse_no_stealacc(char *arg)
+> +{
+> +	steal_acc = false;
+> +	return 0;
+> +}
+> +
+> +early_param("no-steal-acc", parse_no_stealacc);
+> +
+> +static bool __init has_pv_steal_clock(void)
+> +{
+> +	return false;
+> +}
+> +
+> +static int pv_time_cpu_online(unsigned int cpu)
+> +{
+> +	return 0;
+> +}
+> +
+> +static int pv_time_cpu_down_prepare(unsigned int cpu)
+> +{
+> +	return 0;
+> +}
+> +
+> +static u64 pv_time_steal_clock(int cpu)
+> +{
+> +	return 0;
+> +}
+> +
+> +int __init pv_time_init(void)
+> +{
+> +	int ret;
+> +
+> +	if (!has_pv_steal_clock())
+> +		return 0;
+> +
+> +	ret = cpuhp_setup_state(CPUHP_AP_ONLINE_DYN,
+> +				"riscv/pv_time:online",
+> +				pv_time_cpu_online,
+> +				pv_time_cpu_down_prepare);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	static_call_update(pv_steal_clock, pv_time_steal_clock);
+> +
+> +	static_key_slow_inc(&paravirt_steal_enabled);
+> +	if (steal_acc)
+> +		static_key_slow_inc(&paravirt_steal_rq_enabled);
+> +
+> +	pr_info("Computing paravirt steal-time\n");
+> +
+> +	return 0;
+> +}
+> diff --git a/arch/riscv/kernel/time.c b/arch/riscv/kernel/time.c
+> index 23641e82a9df..ba3477197789 100644
+> --- a/arch/riscv/kernel/time.c
+> +++ b/arch/riscv/kernel/time.c
+> @@ -12,6 +12,7 @@
+>  #include <asm/sbi.h>
+>  #include <asm/processor.h>
+>  #include <asm/timex.h>
+> +#include <asm/paravirt.h>
+>
+>  unsigned long riscv_timebase __ro_after_init;
+>  EXPORT_SYMBOL_GPL(riscv_timebase);
+> @@ -45,4 +46,6 @@ void __init time_init(void)
+>  	timer_probe();
+>
+>  	tick_setup_hrtimer_broadcast();
+> +
+> +	pv_time_init();
+>  }
 
-VMware hypercalls use I/O port, VMCALL or VMMCALL instructions.
-Add __tdx_hypercall path to support TDX guests.
-
-No change in high bandwidth hypercalls, as only low bandwidth
-ones are supported for TDX guests.
-
-Co-developed-by: Tim Merrifield <timothym@vmware.com>
-Signed-off-by: Tim Merrifield <timothym@vmware.com>
-Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
-Reviewed-by: Nadav Amit <namit@vmware.com>
----
- arch/x86/include/asm/vmware.h | 79 +++++++++++++++++++++++++++++++++++
- arch/x86/kernel/cpu/vmware.c  | 24 +++++++++++
- 2 files changed, 103 insertions(+)
-
-diff --git a/arch/x86/include/asm/vmware.h b/arch/x86/include/asm/vmware.h
-index 84a31f579a30..3bd593c6591d 100644
---- a/arch/x86/include/asm/vmware.h
-+++ b/arch/x86/include/asm/vmware.h
-@@ -18,6 +18,12 @@
-  * arg2 - Hypercall command
-  * arg3 bits [15:0] - Port number, LB and direction flags
-  *
-+ * - Low bandwidth TDX hypercalls (x86_64 only) are similar to LB
-+ * hypercalls. They also have up to 6 input and 6 output on registers
-+ * arguments, with different argument to register mapping:
-+ * %r12 (arg0), %rbx (arg1), %r13 (arg2), %rdx (arg3),
-+ * %rsi (arg4), %rdi (arg5).
-+ *
-  * - High bandwidth (HB) hypercalls are I/O port based only. They have
-  * up to 7 input and 7 output arguments passed and returned using
-  * registers: %eax (arg0), %ebx (arg1), %ecx (arg2), %edx (arg3),
-@@ -54,12 +60,61 @@
- #define VMWARE_CMD_GETHZ		45
- #define VMWARE_CMD_GETVCPU_INFO		68
- #define VMWARE_CMD_STEALCLOCK		91
-+/*
-+ * Hypercall command mask:
-+ *   bits [6:0] command, range [0, 127]
-+ *   bits [19:16] sub-command, range [0, 15]
-+ */
-+#define VMWARE_CMD_MASK			0xf007fU
- 
- #define CPUID_VMWARE_FEATURES_ECX_VMMCALL	BIT(0)
- #define CPUID_VMWARE_FEATURES_ECX_VMCALL	BIT(1)
- 
- extern u8 vmware_hypercall_mode;
- 
-+#define VMWARE_TDX_VENDOR_LEAF 0x1af7e4909ULL
-+#define VMWARE_TDX_HCALL_FUNC  1
-+
-+extern unsigned long vmware_tdx_hypercall(unsigned long cmd,
-+					  struct tdx_module_args *args);
-+
-+/*
-+ * TDCALL[TDG.VP.VMCALL] uses %rax (arg0) and %rcx (arg2). Therefore,
-+ * we remap those registers to %r12 and %r13, respectively.
-+ */
-+static inline
-+unsigned long vmware_tdx_hypercall_args(unsigned long cmd, unsigned long in1,
-+					unsigned long in3, unsigned long in4,
-+					unsigned long in5,
-+					uint32_t *out1, uint32_t *out2,
-+					uint32_t *out3, uint32_t *out4,
-+					uint32_t *out5)
-+{
-+	unsigned long ret;
-+
-+	struct tdx_module_args args = {
-+		.rbx = in1,
-+		.rdx = in3,
-+		.rsi = in4,
-+		.rdi = in5,
-+	};
-+
-+	ret = vmware_tdx_hypercall(cmd, &args);
-+
-+	if (out1)
-+		*out1 = args.rbx;
-+	if (out2)
-+		*out2 = args.r13;
-+	if (out3)
-+		*out3 = args.rdx;
-+	if (out4)
-+		*out4 = args.rsi;
-+	if (out5)
-+		*out5 = args.rdi;
-+
-+	return ret;
-+}
-+
- /*
-  * The low bandwidth call. The low word of %edx is presumed to have OUT bit
-  * set. The high word of %edx may contain input data from the caller.
-@@ -87,6 +142,10 @@ unsigned long vmware_hypercall1(unsigned long cmd, unsigned long in1)
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall_args(cmd, in1, 0, 0, 0,
-+						 NULL, NULL, NULL, NULL, NULL);
-+
- 	asm_inline volatile (VMWARE_HYPERCALL
- 		: "=a" (out0)
- 		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-@@ -105,6 +164,10 @@ unsigned long vmware_hypercall3(unsigned long cmd, unsigned long in1,
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall_args(cmd, in1, 0, 0, 0,
-+						 out1, out2, NULL, NULL, NULL);
-+
- 	asm_inline volatile (VMWARE_HYPERCALL
- 		: "=a" (out0), "=b" (*out1), "=c" (*out2)
- 		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-@@ -124,6 +187,10 @@ unsigned long vmware_hypercall4(unsigned long cmd, unsigned long in1,
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall_args(cmd, in1, 0, 0, 0,
-+						 out1, out2, out3, NULL, NULL);
-+
- 	asm_inline volatile (VMWARE_HYPERCALL
- 		: "=a" (out0), "=b" (*out1), "=c" (*out2), "=d" (*out3)
- 		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-@@ -143,6 +210,10 @@ unsigned long vmware_hypercall5(unsigned long cmd, unsigned long in1,
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall_args(cmd, in1, in3, in4, in5,
-+						 NULL, out2, NULL, NULL, NULL);
-+
- 	asm_inline volatile (VMWARE_HYPERCALL
- 		: "=a" (out0), "=c" (*out2)
- 		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-@@ -165,6 +236,10 @@ unsigned long vmware_hypercall6(unsigned long cmd, unsigned long in1,
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall_args(cmd, in1, in3, 0, 0,
-+						 NULL, out2, out3, out4, out5);
-+
- 	asm_inline volatile (VMWARE_HYPERCALL
- 		: "=a" (out0), "=c" (*out2), "=d" (*out3), "=S" (*out4),
- 		  "=D" (*out5)
-@@ -186,6 +261,10 @@ unsigned long vmware_hypercall7(unsigned long cmd, unsigned long in1,
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall_args(cmd, in1, in3, in4, in5,
-+						 out1, out2, out3, NULL, NULL);
-+
- 	asm_inline volatile (VMWARE_HYPERCALL
- 		: "=a" (out0), "=b" (*out1), "=c" (*out2), "=d" (*out3)
- 		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index 3aa1adaed18f..a88dcd25aefe 100644
---- a/arch/x86/kernel/cpu/vmware.c
-+++ b/arch/x86/kernel/cpu/vmware.c
-@@ -428,6 +428,30 @@ static bool __init vmware_legacy_x2apic_available(void)
- 		(eax & BIT(VCPU_LEGACY_X2APIC));
- }
- 
-+#ifdef CONFIG_INTEL_TDX_GUEST
-+unsigned long vmware_tdx_hypercall(unsigned long cmd,
-+				   struct tdx_module_args *args)
-+{
-+	if (!hypervisor_is_type(X86_HYPER_VMWARE))
-+		return ULONG_MAX;
-+
-+	if (cmd & ~VMWARE_CMD_MASK) {
-+		pr_warn_once("Out of range command %lx\n", cmd);
-+		return ULONG_MAX;
-+	}
-+
-+	args->r10 = VMWARE_TDX_VENDOR_LEAF;
-+	args->r11 = VMWARE_TDX_HCALL_FUNC;
-+	args->r12 = VMWARE_HYPERVISOR_MAGIC;
-+	args->r13 = cmd;
-+
-+	__tdx_hypercall(args);
-+
-+	return args->r12;
-+}
-+EXPORT_SYMBOL_GPL(vmware_tdx_hypercall);
-+#endif
-+
- #ifdef CONFIG_AMD_MEM_ENCRYPT
- static void vmware_sev_es_hcall_prepare(struct ghcb *ghcb,
- 					struct pt_regs *regs)
--- 
-2.39.0
-
+Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
