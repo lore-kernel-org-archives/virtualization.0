@@ -1,81 +1,78 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from mout.web.de (mout.web.de [212.227.15.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BB74134D5
-	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 07:31:51 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id DA6C260A69
-	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 07:31:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DA6C260A69
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -9.899
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id dvYPbCnIpr3s
-	for <virtualization@lists.linux-foundation.org>;
-	Fri, 29 Dec 2023 07:31:50 +0000 (UTC)
-Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 3F7C160A63
-	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 07:31:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3F7C160A63
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0VzQzeWh_1703835099;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VzQzeWh_1703835099)
-          by smtp.aliyun-inc.com;
-          Fri, 29 Dec 2023 15:31:40 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: netdev@vger.kernel.org
-Cc: "David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>,
-	virtualization@lists.linux-foundation.org,
-	bpf@vger.kernel.org
-Subject: [PATCH net-next v3 27/27] virtio_net: xdp_features add NETDEV_XDP_ACT_XSK_ZEROCOPY
-Date: Fri, 29 Dec 2023 15:31:08 +0800
-Message-Id: <20231229073108.57778-28-xuanzhuo@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20231229073108.57778-1-xuanzhuo@linux.alibaba.com>
-References: <20231229073108.57778-1-xuanzhuo@linux.alibaba.com>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E01EC7487;
+	Fri, 29 Dec 2023 08:34:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="vrKqCjdE"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de; s=s29768273;
+	t=1703838883; x=1704443683; i=markus.elfring@web.de;
+	bh=Rd9blyw8YSGBTPzYlKen2IAboPPNyjav2zaAADiVhFk=;
+	h=X-UI-Sender-Class:Date:To:From:Subject:Cc;
+	b=vrKqCjdEGXXAYVio+EPvrIc9l4Eiq33ZRhQfxoqTeBsdtl3LvFQBUEEduKKk+WMN
+	 9jTMfqCitFEvet+zeW4uSR2nvbNOWecI5xFldMA46nhlAINtNI6wDwZFNQl/UqjS/
+	 XemCXdJs6fAOZDLXNQWaa0YkQgn0FJG1J3Kl59WaPoqDID2wkfThP+zcT1WeF69o/
+	 cnZkL0rocAxuZYuA3rklOt65djFY2IEdabHaDqNNF+jab6yKDv2hSREEr+n40b3F3
+	 Td5QRDug25y0iGIUT2O2O3qcIo7kyqRNl8Hje19oIdyu+NKGDIMpmi9FtqNG15bKd
+	 dtUXtbmn1bar9v1FWw==
+X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
+Received: from [192.168.178.21] ([94.31.85.95]) by smtp.web.de (mrweb005
+ [213.165.67.108]) with ESMTPSA (Nemesis) id 1MCXZf-1rRhAG01fn-009alK; Fri, 29
+ Dec 2023 09:34:43 +0100
+Message-ID: <c5c14b02-660a-46e1-9eb3-1a16d7c84922@web.de>
+Date: Fri, 29 Dec 2023 09:34:32 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Git-Hash: 20112a26898d
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+To: virtualization@lists.linux.dev, linux-fsdevel@vger.kernel.org,
+ kernel-janitors@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>,
+ Stefan Hajnoczi <stefanha@redhat.com>, Vivek Goyal <vgoyal@redhat.com>
+Content-Language: en-GB
+From: Markus Elfring <Markus.Elfring@web.de>
+Subject: [PATCH 0/2] virtiofs: Adjustments for two function implementations
+Cc: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:YarFuQXl4Lg4zqIhzbNfiS9AhDDsTY/3rsdJpMImfKl/sZf9NNP
+ 4swOTI3Fx/OksKHKHA4D+uL4yfdgeAjsMEZdKOctlQBDBVcpMaPgEi3vsS1lePZ0fUOaU2z
+ hYffU8OEZFqdjUrHLGYint17QxBxIKAw5fkBKte549eb+i+1nu16QLj96rPoBYRWetzYy9j
+ Qh7c/1SI2Todq/BDFh1LQ==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:qv+ZKPX4/fw=;QxllQUETTtbPJ5zMHoYOYVlG5J8
+ BZn/Jx2Vs89rtI/m6H+ImUxQJLvDrjU/YkHy0ZMKd9AWwS94h25GUekQJmukbgkZoWe2mx42h
+ s6G1OE5PzgxGi/MYaBtalA5jLxQ93G/5Xdyrhi86fiKbom0g50n0Kqpk75tqfABEyqg3Dy7yR
+ RJ9mwwceU3ZwNOLcXZKuKFxtLVhnYwJm3bt27iCac1Auu8RSyC4TXNiJbNB+iMcY9kC1NEnkl
+ JVJS5Es7+Icn1ptBsuGflgzpeZdKfxAy417GU4OK7+f2pC4g+hvR/G+6olkQXEce6aCgHLjDt
+ tkW1ka0ZmblN4Ankg8XiCoCejid68TseePx7rNV0w+2f9+senbVmhbwS2UtE9+XPFdIQwzrQW
+ tuCRtTKQqE7N6mBd7Kl9dyeTGVLYEePUXMNLkBik8nakiuojMvfZ3kePeA+YjsO5L4LPfg7dF
+ E5g8rxl4t5b9OLEq7Uyfkf0emgXGCDIfwX+SpSynsoLOVDFDSPjMiKBb2hws0uZbyFNlOuaET
+ rlHXHP/L4ZZGLucQAmWB1W/Vy1cPxQAKE6q8acKaIAp7rbSUPM3YR83pGV/Q244JQCYeUlo9x
+ AbWXaYaqNGzEB14BZoydKreOCvnC+/lTTrNPoX0daDsaD1y/1e8thuuV6zsVvlOggS8F2h14W
+ zqVK86SgMlp022bNxf+gjEbTyzOS6yYr6z98f8Zfd6SoK4vewBg0Ix8AA0nkgtFv4TsDq3RL5
+ mKJyl2bd+w0a3MXRkPGPX0KiTCVrVayAox9LKBnrrLaPBAi1cmyOCdnkhzRAfcNx9q1i7rVjS
+ q2hmX/qhVwygnc02kFHu+wuMtGp7IJDtGaRWhzraHZ1EeaG9tH/Kdg68Ku9IPdmrDPyL72mvI
+ yFgpxwgaPyUL67+WYQcMg8Ca45Fuk4xGeGV35LWPa6KEdmRl2BLSakpduu9RMapwCTNHpPwR6
+ QBJ+3w==
 
-Now, we supported AF_XDP(xsk). Add NETDEV_XDP_ACT_XSK_ZEROCOPY to
-xdp_features.
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Fri, 29 Dec 2023 09:28:09 +0100
 
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
----
- drivers/net/virtio/main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+A few update suggestions were taken into account
+from static source code analysis.
 
-diff --git a/drivers/net/virtio/main.c b/drivers/net/virtio/main.c
-index cc0194c14c98..ec28f87f04a7 100644
---- a/drivers/net/virtio/main.c
-+++ b/drivers/net/virtio/main.c
-@@ -4375,7 +4375,8 @@ static int virtnet_probe(struct virtio_device *vdev)
- 		dev->hw_features |= NETIF_F_GRO_HW;
- 
- 	dev->vlan_features = dev->features;
--	dev->xdp_features = NETDEV_XDP_ACT_BASIC | NETDEV_XDP_ACT_REDIRECT;
-+	dev->xdp_features = NETDEV_XDP_ACT_BASIC | NETDEV_XDP_ACT_REDIRECT |
-+		NETDEV_XDP_ACT_XSK_ZEROCOPY;
- 
- 	/* MTU range: 68 - 65535 */
- 	dev->min_mtu = MIN_MTU;
--- 
-2.32.0.3.g01195cf9f
+Markus Elfring (2):
+  Improve three size determinations
+  Improve error handling in virtio_fs_get_tree()
+
+ fs/fuse/virtio_fs.c | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
+
+=2D-
+2.43.0
 
