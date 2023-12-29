@@ -1,36 +1,35 @@
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE0D614A84
-	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 20:57:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 045D014A84
+	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 20:58:03 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 3F59D61135
-	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 20:57:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3F59D61135
+	by smtp3.osuosl.org (Postfix) with ESMTP id 856B361135
+	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 20:58:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 856B361135
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -0.498
+X-Spam-Score: -1.898
 X-Spam-Level:
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id qW03qAxzNJuC
+	with ESMTP id UIOaseqU8txS
 	for <virtualization@lists.linux-foundation.org>;
-	Fri, 29 Dec 2023 20:57:35 +0000 (UTC)
-X-Greylist: delayed 327 seconds by postgrey-1.37 at util1.osuosl.org; Fri, 29 Dec 2023 20:57:34 UTC
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C2885606CB
+	Fri, 29 Dec 2023 20:58:02 +0000 (UTC)
 Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id C2885606CB
-	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 20:57:34 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 55122606CB
+	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 20:58:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 55122606CB
 Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
  relay.mimecast.com with ESMTP with both STARTTLS and AUTH (version=TLSv1.2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-311-yCoQCupGOBSlWEcLQ3ukbA-1; Fri, 29 Dec 2023 20:57:31 +0000
-X-MC-Unique: yCoQCupGOBSlWEcLQ3ukbA-1
+ uk-mta-129-6k2WdJMjPBWp2oR0msDm8g-1; Fri, 29 Dec 2023 20:56:21 +0000
+X-MC-Unique: 6k2WdJMjPBWp2oR0msDm8g-1
 Received: from AcuMS.Aculab.com (10.202.163.4) by AcuMS.aculab.com
  (10.202.163.4) with Microsoft SMTP Server (TLS) id 15.0.1497.48; Fri, 29 Dec
- 2023 20:57:14 +0000
+ 2023 20:56:03 +0000
 Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
- id 15.00.1497.048; Fri, 29 Dec 2023 20:57:14 +0000
+ id 15.00.1497.048; Fri, 29 Dec 2023 20:56:03 +0000
 From: David Laight <David.Laight@ACULAB.COM>
 To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
 	"'peterz@infradead.org'" <peterz@infradead.org>, "'longman@redhat.com'"
@@ -42,12 +41,11 @@ CC: "'mingo@redhat.com'" <mingo@redhat.com>, "'will@kernel.org'"
 	"'virtualization@lists.linux-foundation.org'"
 	<virtualization@lists.linux-foundation.org>, 'Zeng Heng'
 	<zengheng4@huawei.com>
-Subject: [PATCH next 4/5] locking/osq_lock: Optimise per-cpu data accesses.
-Thread-Topic: [PATCH next 4/5] locking/osq_lock: Optimise per-cpu data
- accesses.
-Thread-Index: Ado6mZUJWFdx4PkETd+mn/PWVjPd0A==
-Date: Fri, 29 Dec 2023 20:57:13 +0000
-Message-ID: <bddb6b00434d4492abca4725c10f8d5a@AcuMS.aculab.com>
+Subject: [PATCH next 3/5] locking/osq_lock: Clarify osq_wait_next()
+Thread-Topic: [PATCH next 3/5] locking/osq_lock: Clarify osq_wait_next()
+Thread-Index: Ado6mW78N1Y4ctAHQ36yzrF5D7u/HQ==
+Date: Fri, 29 Dec 2023 20:56:03 +0000
+Message-ID: <7c8828aec72e42eeb841ca0ee3397e9a@AcuMS.aculab.com>
 References: <73a4b31c9c874081baabad9e5f2e5204@AcuMS.aculab.com>
 In-Reply-To: <73a4b31c9c874081baabad9e5f2e5204@AcuMS.aculab.com>
 Accept-Language: en-GB, en-US
@@ -66,59 +64,93 @@ Content-Language: en-US
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 
-this_cpu_ptr() is rather more expensive than raw_cpu_read() since
-the latter can use an 'offset from register' (%gs for x86-84).
+osq_wait_next() is passed 'prev' from osq_lock() and NULL from osq_unlock()
+but only needs the 'cpu' value to write to lock->tail.
+Just pass prev->cpu or OSQ_UNLOCKED_VAL instead.
 
-Add a 'self' field to 'struct optimistic_spin_node' that can be
-read with raw_cpu_read(), initialise on first call.
+Also directly return NULL or 'next' instead of breaking the loop.
+
+Should have no effect on the generated code since gcc manages to
+assume that 'prev !=3D NULL' due to an earlier dereference.
 
 Signed-off-by: David Laight <david.laight@aculab.com>
 ---
- kernel/locking/osq_lock.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ kernel/locking/osq_lock.c | 23 ++++++++++-------------
+ 1 file changed, 10 insertions(+), 13 deletions(-)
 
 diff --git a/kernel/locking/osq_lock.c b/kernel/locking/osq_lock.c
-index 9bb3a077ba92..b60b0add0161 100644
+index 55f5db896c02..9bb3a077ba92 100644
 --- a/kernel/locking/osq_lock.c
 +++ b/kernel/locking/osq_lock.c
-@@ -13,7 +13,7 @@
-  */
+@@ -48,18 +48,17 @@ static inline struct optimistic_spin_node *decode_cpu(i=
+nt encoded_cpu_val)
+ static inline struct optimistic_spin_node *
+ osq_wait_next(struct optimistic_spin_queue *lock,
+ =09      struct optimistic_spin_node *node,
+-=09      struct optimistic_spin_node *prev)
++=09      int old)
+ {
+-=09struct optimistic_spin_node *next =3D NULL;
++=09struct optimistic_spin_node *next;
+ =09int curr =3D node->cpu;
+-=09int old;
 =20
- struct optimistic_spin_node {
--=09struct optimistic_spin_node *next, *prev;
-+=09struct optimistic_spin_node *self, *next, *prev;
- =09int locked; /* 1 if lock acquired */
- =09int cpu; /* encoded CPU # + 1 value */
- };
-@@ -93,12 +93,16 @@ osq_wait_next(struct optimistic_spin_queue *lock,
+ =09/*
+-=09 * If there is a prev node in queue, then the 'old' value will be
+-=09 * the prev node's CPU #, else it's set to OSQ_UNLOCKED_VAL since if
+-=09 * we're currently last in queue, then the queue will then become empty=
+.
++=09 * If osq_lock() is being cancelled there must be a previous node
++=09 * and 'old' is its CPU #.
++=09 * For osq_unlock() there is never a previous node and old is set
++=09 * to OSQ_UNLOCKED_VAL.
+ =09 */
+-=09old =3D prev ? prev->cpu : OSQ_UNLOCKED_VAL;
+=20
+ =09for (;;) {
+ =09=09if (atomic_read(&lock->tail) =3D=3D curr &&
+@@ -69,7 +68,7 @@ osq_wait_next(struct optimistic_spin_queue *lock,
+ =09=09=09 * will now observe @lock and will complete its
+ =09=09=09 * unlock()/unqueue().
+ =09=09=09 */
+-=09=09=09break;
++=09=09=09return NULL;
+ =09=09}
+=20
+ =09=09/*
+@@ -85,13 +84,11 @@ osq_wait_next(struct optimistic_spin_queue *lock,
+ =09=09if (node->next) {
+ =09=09=09next =3D xchg(&node->next, NULL);
+ =09=09=09if (next)
+-=09=09=09=09break;
++=09=09=09=09return next;
+ =09=09}
+=20
+ =09=09cpu_relax();
+ =09}
+-
+-=09return next;
+ }
 =20
  bool osq_lock(struct optimistic_spin_queue *lock)
- {
--=09struct optimistic_spin_node *node =3D this_cpu_ptr(&osq_node);
-+=09struct optimistic_spin_node *node =3D raw_cpu_read(osq_node.self);
- =09struct optimistic_spin_node *prev, *next;
- =09int old;
-=20
--=09if (unlikely(node->cpu =3D=3D OSQ_UNLOCKED_VAL))
--=09=09node->cpu =3D encode_cpu(smp_processor_id());
-+=09if (unlikely(!node)) {
-+=09=09int cpu =3D encode_cpu(smp_processor_id());
-+=09=09node =3D decode_cpu(cpu);
-+=09=09node->self =3D node;
-+=09=09node->cpu =3D cpu;
-+=09}
-=20
- =09/*
- =09 * We need both ACQUIRE (pairs with corresponding RELEASE in
-@@ -222,7 +226,7 @@ void osq_unlock(struct optimistic_spin_queue *lock)
- =09/*
- =09 * Second most likely case.
+@@ -192,7 +189,7 @@ bool osq_lock(struct optimistic_spin_queue *lock)
+ =09 * back to @prev.
  =09 */
--=09node =3D this_cpu_ptr(&osq_node);
-+=09node =3D raw_cpu_read(osq_node.self);
- =09next =3D xchg(&node->next, NULL);
- =09if (next) {
+=20
+-=09next =3D osq_wait_next(lock, node, prev);
++=09next =3D osq_wait_next(lock, node, prev->cpu);
+ =09if (!next)
+ =09=09return false;
+=20
+@@ -232,7 +229,7 @@ void osq_unlock(struct optimistic_spin_queue *lock)
+ =09=09return;
+ =09}
+=20
+-=09next =3D osq_wait_next(lock, node, NULL);
++=09next =3D osq_wait_next(lock, node, OSQ_UNLOCKED_VAL);
+ =09if (next)
  =09=09WRITE_ONCE(next->locked, 1);
+ }
 --=20
 2.17.1
 
