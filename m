@@ -1,29 +1,29 @@
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2742BE65
-	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 07:31:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86ACDE540
+	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 07:31:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 56CC682EC7
-	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 07:31:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 56CC682EC7
+	by smtp1.osuosl.org (Postfix) with ESMTP id 35AD882EF0
+	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 07:31:27 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 35AD882EF0
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -9.899
+X-Spam-Score: -9.9
 X-Spam-Level:
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Y9niVy13AJQ3
+	with ESMTP id VufODm9WvS5P
 	for <virtualization@lists.linux-foundation.org>;
-	Fri, 29 Dec 2023 07:31:23 +0000 (UTC)
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 3C56E82EE1
-	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 07:31:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3C56E82EE1
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0VzQsXsA_1703835075;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VzQsXsA_1703835075)
+	Fri, 29 Dec 2023 07:31:26 +0000 (UTC)
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id EBD9B82EE1
+	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 07:31:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org EBD9B82EE1
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R851e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0VzQtf4H_1703835079;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VzQtf4H_1703835079)
           by smtp.aliyun-inc.com;
-          Fri, 29 Dec 2023 15:31:16 +0800
+          Fri, 29 Dec 2023 15:31:20 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: netdev@vger.kernel.org
 Cc: "David S. Miller" <davem@davemloft.net>,
@@ -39,9 +39,9 @@ Cc: "David S. Miller" <davem@davemloft.net>,
 	John Fastabend <john.fastabend@gmail.com>,
 	virtualization@lists.linux-foundation.org,
 	bpf@vger.kernel.org
-Subject: [PATCH net-next v3 05/27] virtio_net: add prefix virtnet to all struct inside virtio_net.h
-Date: Fri, 29 Dec 2023 15:30:46 +0800
-Message-Id: <20231229073108.57778-6-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH net-next v3 09/27] virtio_ring: introduce virtqueue_get_dma_premapped()
+Date: Fri, 29 Dec 2023 15:30:50 +0800
+Message-Id: <20231229073108.57778-10-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20231229073108.57778-1-xuanzhuo@linux.alibaba.com>
 References: <20231229073108.57778-1-xuanzhuo@linux.alibaba.com>
@@ -54,470 +54,158 @@ MIME-Version: 1.0
 X-Git-Hash: 20112a26898d
 Content-Transfer-Encoding: 8bit
 
-We move some structures to the header file, but these structures do not
-prefixed with virtnet. This patch adds virtnet for these.
+Introduce helper virtqueue_get_dma_premapped(), then the driver
+can know whether dma unmap is needed.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- drivers/net/virtio/main.c       | 100 ++++++++++++++++----------------
- drivers/net/virtio/virtio_net.h |  12 ++--
- 2 files changed, 56 insertions(+), 56 deletions(-)
+ drivers/net/virtio/main.c       | 22 +++++++++-------------
+ drivers/net/virtio/virtio_net.h |  3 ---
+ drivers/virtio/virtio_ring.c    | 22 ++++++++++++++++++++++
+ include/linux/virtio.h          |  1 +
+ 4 files changed, 32 insertions(+), 16 deletions(-)
 
 diff --git a/drivers/net/virtio/main.c b/drivers/net/virtio/main.c
-index c104cfa801e8..541c18c93e80 100644
+index b95a59884687..70d2a4e7b43f 100644
 --- a/drivers/net/virtio/main.c
 +++ b/drivers/net/virtio/main.c
-@@ -166,7 +166,7 @@ static struct xdp_frame *ptr_to_xdp(void *ptr)
- 	return (struct xdp_frame *)((unsigned long)ptr & ~VIRTIO_XDP_FLAG);
- }
- 
--static void __free_old_xmit(struct send_queue *sq, bool in_napi,
-+static void __free_old_xmit(struct virtnet_sq *sq, bool in_napi,
- 			    u64 *bytes, u64 *packets)
- {
- 	unsigned int len;
-@@ -223,7 +223,7 @@ skb_vnet_common_hdr(struct sk_buff *skb)
-  * private is used to chain pages for big packets, put the whole
-  * most recent used list in the beginning for reuse
-  */
--static void give_pages(struct receive_queue *rq, struct page *page)
-+static void give_pages(struct virtnet_rq *rq, struct page *page)
- {
- 	struct page *end;
- 
-@@ -233,7 +233,7 @@ static void give_pages(struct receive_queue *rq, struct page *page)
- 	rq->pages = page;
- }
- 
--static struct page *get_a_page(struct receive_queue *rq, gfp_t gfp_mask)
-+static struct page *get_a_page(struct virtnet_rq *rq, gfp_t gfp_mask)
- {
- 	struct page *p = rq->pages;
- 
-@@ -247,7 +247,7 @@ static struct page *get_a_page(struct receive_queue *rq, gfp_t gfp_mask)
- }
- 
- static void virtnet_rq_free_buf(struct virtnet_info *vi,
--				struct receive_queue *rq, void *buf)
-+				struct virtnet_rq *rq, void *buf)
- {
- 	if (vi->mergeable_rx_bufs)
- 		put_page(virt_to_head_page(buf));
-@@ -344,7 +344,7 @@ static struct sk_buff *virtnet_build_skb(void *buf, unsigned int buflen,
- 
- /* Called from bottom half context */
- static struct sk_buff *page_to_skb(struct virtnet_info *vi,
--				   struct receive_queue *rq,
-+				   struct virtnet_rq *rq,
- 				   struct page *page, unsigned int offset,
- 				   unsigned int len, unsigned int truesize,
- 				   unsigned int headroom)
-@@ -443,7 +443,7 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
- 	return skb;
- }
- 
--static void virtnet_rq_unmap(struct receive_queue *rq, void *buf, u32 len)
-+static void virtnet_rq_unmap(struct virtnet_rq *rq, void *buf, u32 len)
- {
- 	struct page *page = virt_to_head_page(buf);
- 	struct virtnet_rq_dma *dma;
-@@ -472,7 +472,7 @@ static void virtnet_rq_unmap(struct receive_queue *rq, void *buf, u32 len)
- 	put_page(page);
- }
- 
--static void *virtnet_rq_get_buf(struct receive_queue *rq, u32 *len, void **ctx)
-+static void *virtnet_rq_get_buf(struct virtnet_rq *rq, u32 *len, void **ctx)
- {
+@@ -478,7 +478,7 @@ static void *virtnet_rq_get_buf(struct virtnet_rq *rq, u32 *len, void **ctx)
  	void *buf;
  
-@@ -483,7 +483,7 @@ static void *virtnet_rq_get_buf(struct receive_queue *rq, u32 *len, void **ctx)
+ 	buf = virtqueue_get_buf_ctx(rq->vq, len, ctx);
+-	if (buf && rq->do_dma)
++	if (buf && virtqueue_get_dma_premapped(rq->vq))
+ 		virtnet_rq_unmap(rq, buf, *len);
+ 
  	return buf;
+@@ -491,7 +491,7 @@ static void virtnet_rq_init_one_sg(struct virtnet_rq *rq, void *buf, u32 len)
+ 	u32 offset;
+ 	void *head;
+ 
+-	if (!rq->do_dma) {
++	if (!virtqueue_get_dma_premapped(rq->vq)) {
+ 		sg_init_one(rq->sg, buf, len);
+ 		return;
+ 	}
+@@ -521,7 +521,7 @@ static void *virtnet_rq_alloc(struct virtnet_rq *rq, u32 size, gfp_t gfp)
+ 
+ 	head = page_address(alloc_frag->page);
+ 
+-	if (rq->do_dma) {
++	if (virtqueue_get_dma_premapped(rq->vq)) {
+ 		dma = head;
+ 
+ 		/* new pages */
+@@ -575,12 +575,8 @@ static void virtnet_rq_set_premapped(struct virtnet_info *vi)
+ 	if (!vi->mergeable_rx_bufs && vi->big_packets)
+ 		return;
+ 
+-	for (i = 0; i < vi->max_queue_pairs; i++) {
+-		if (virtqueue_set_dma_premapped(vi->rq[i].vq))
+-			continue;
+-
+-		vi->rq[i].do_dma = true;
+-	}
++	for (i = 0; i < vi->max_queue_pairs; i++)
++		virtqueue_set_dma_premapped(vi->rq[i].vq);
  }
  
--static void virtnet_rq_init_one_sg(struct receive_queue *rq, void *buf, u32 len)
-+static void virtnet_rq_init_one_sg(struct virtnet_rq *rq, void *buf, u32 len)
- {
- 	struct virtnet_rq_dma *dma;
- 	dma_addr_t addr;
-@@ -508,7 +508,7 @@ static void virtnet_rq_init_one_sg(struct receive_queue *rq, void *buf, u32 len)
- 	rq->sg[0].length = len;
- }
+ static void free_old_xmit(struct virtnet_sq *sq, bool in_napi)
+@@ -1638,7 +1634,7 @@ static int add_recvbuf_small(struct virtnet_info *vi, struct virtnet_rq *rq,
  
--static void *virtnet_rq_alloc(struct receive_queue *rq, u32 size, gfp_t gfp)
-+static void *virtnet_rq_alloc(struct virtnet_rq *rq, u32 size, gfp_t gfp)
- {
- 	struct page_frag *alloc_frag = &rq->alloc_frag;
- 	struct virtnet_rq_dma *dma;
-@@ -585,7 +585,7 @@ static void virtnet_rq_set_premapped(struct virtnet_info *vi)
- static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *buf)
- {
- 	struct virtnet_info *vi = vq->vdev->priv;
--	struct receive_queue *rq;
-+	struct virtnet_rq *rq;
- 	int i = vq2rxq(vq);
- 
- 	rq = &vi->rq[i];
-@@ -596,7 +596,7 @@ static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *buf)
- 	virtnet_rq_free_buf(vi, rq, buf);
- }
- 
--static void free_old_xmit(struct send_queue *sq, bool in_napi)
-+static void free_old_xmit(struct virtnet_sq *sq, bool in_napi)
- {
- 	u64 bytes = 0, packets = 0;
- 
-@@ -626,7 +626,7 @@ static bool is_xdp_raw_buffer_queue(struct virtnet_info *vi, int q)
- 
- static void check_sq_full_and_disable(struct virtnet_info *vi,
- 				      struct net_device *dev,
--				      struct send_queue *sq)
-+				      struct virtnet_sq *sq)
- {
- 	bool use_napi = sq->napi.weight;
- 	int qnum;
-@@ -660,7 +660,7 @@ static void check_sq_full_and_disable(struct virtnet_info *vi,
- }
- 
- static int __virtnet_xdp_xmit_one(struct virtnet_info *vi,
--				   struct send_queue *sq,
-+				   struct virtnet_sq *sq,
- 				   struct xdp_frame *xdpf)
- {
- 	struct virtio_net_hdr_mrg_rxbuf *hdr;
-@@ -749,10 +749,10 @@ static int virtnet_xdp_xmit(struct net_device *dev,
- 			    int n, struct xdp_frame **frames, u32 flags)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
--	struct receive_queue *rq = vi->rq;
-+	struct virtnet_rq *rq = vi->rq;
- 	u64 bytes = 0, packets = 0;
- 	struct bpf_prog *xdp_prog;
--	struct send_queue *sq;
-+	struct virtnet_sq *sq;
- 	int nxmit = 0;
- 	int kicks = 0;
- 	int ret;
-@@ -892,7 +892,7 @@ static unsigned int virtnet_get_headroom(struct virtnet_info *vi)
-  * across multiple buffers (num_buf > 1), and we make sure buffers
-  * have enough headroom.
-  */
--static struct page *xdp_linearize_page(struct receive_queue *rq,
-+static struct page *xdp_linearize_page(struct virtnet_rq *rq,
- 				       int *num_buf,
- 				       struct page *p,
- 				       int offset,
-@@ -973,7 +973,7 @@ static struct sk_buff *receive_small_build_skb(struct virtnet_info *vi,
- 
- static struct sk_buff *receive_small_xdp(struct net_device *dev,
- 					 struct virtnet_info *vi,
--					 struct receive_queue *rq,
-+					 struct virtnet_rq *rq,
- 					 struct bpf_prog *xdp_prog,
- 					 void *buf,
- 					 unsigned int xdp_headroom,
-@@ -1060,7 +1060,7 @@ static struct sk_buff *receive_small_xdp(struct net_device *dev,
- 
- static struct sk_buff *receive_small(struct net_device *dev,
- 				     struct virtnet_info *vi,
--				     struct receive_queue *rq,
-+				     struct virtnet_rq *rq,
- 				     void *buf, void *ctx,
- 				     unsigned int len,
- 				     unsigned int *xdp_xmit,
-@@ -1107,7 +1107,7 @@ static struct sk_buff *receive_small(struct net_device *dev,
- 
- static struct sk_buff *receive_big(struct net_device *dev,
- 				   struct virtnet_info *vi,
--				   struct receive_queue *rq,
-+				   struct virtnet_rq *rq,
- 				   void *buf,
- 				   unsigned int len,
- 				   struct virtnet_rq_stats *stats)
-@@ -1128,7 +1128,7 @@ static struct sk_buff *receive_big(struct net_device *dev,
- 	return NULL;
- }
- 
--static void mergeable_buf_free(struct receive_queue *rq, int num_buf,
-+static void mergeable_buf_free(struct virtnet_rq *rq, int num_buf,
- 			       struct net_device *dev,
- 			       struct virtnet_rq_stats *stats)
- {
-@@ -1202,7 +1202,7 @@ static struct sk_buff *build_skb_from_xdp_buff(struct net_device *dev,
- /* TODO: build xdp in big mode */
- static int virtnet_build_xdp_buff_mrg(struct net_device *dev,
- 				      struct virtnet_info *vi,
--				      struct receive_queue *rq,
-+				      struct virtnet_rq *rq,
- 				      struct xdp_buff *xdp,
- 				      void *buf,
- 				      unsigned int len,
-@@ -1290,7 +1290,7 @@ static int virtnet_build_xdp_buff_mrg(struct net_device *dev,
- }
- 
- static void *mergeable_xdp_get_buf(struct virtnet_info *vi,
--				   struct receive_queue *rq,
-+				   struct virtnet_rq *rq,
- 				   struct bpf_prog *xdp_prog,
- 				   void *ctx,
- 				   unsigned int *frame_sz,
-@@ -1365,7 +1365,7 @@ static void *mergeable_xdp_get_buf(struct virtnet_info *vi,
- 
- static struct sk_buff *receive_mergeable_xdp(struct net_device *dev,
- 					     struct virtnet_info *vi,
--					     struct receive_queue *rq,
-+					     struct virtnet_rq *rq,
- 					     struct bpf_prog *xdp_prog,
- 					     void *buf,
- 					     void *ctx,
-@@ -1425,7 +1425,7 @@ static struct sk_buff *receive_mergeable_xdp(struct net_device *dev,
- 
- static struct sk_buff *receive_mergeable(struct net_device *dev,
- 					 struct virtnet_info *vi,
--					 struct receive_queue *rq,
-+					 struct virtnet_rq *rq,
- 					 void *buf,
- 					 void *ctx,
- 					 unsigned int len,
-@@ -1570,7 +1570,7 @@ static void virtio_skb_set_hash(const struct virtio_net_hdr_v1_hash *hdr_hash,
- 	skb_set_hash(skb, __le32_to_cpu(hdr_hash->hash_value), rss_hash_type);
- }
- 
--static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
-+static void receive_buf(struct virtnet_info *vi, struct virtnet_rq *rq,
- 			void *buf, unsigned int len, void **ctx,
- 			unsigned int *xdp_xmit,
- 			struct virtnet_rq_stats *stats)
-@@ -1630,7 +1630,7 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
-  * not need to use  mergeable_len_to_ctx here - it is enough
-  * to store the headroom as the context ignoring the truesize.
-  */
--static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
-+static int add_recvbuf_small(struct virtnet_info *vi, struct virtnet_rq *rq,
- 			     gfp_t gfp)
- {
- 	char *buf;
-@@ -1659,7 +1659,7 @@ static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
- 	return err;
- }
- 
--static int add_recvbuf_big(struct virtnet_info *vi, struct receive_queue *rq,
-+static int add_recvbuf_big(struct virtnet_info *vi, struct virtnet_rq *rq,
- 			   gfp_t gfp)
- {
- 	struct page *first, *list = NULL;
-@@ -1708,7 +1708,7 @@ static int add_recvbuf_big(struct virtnet_info *vi, struct receive_queue *rq,
- 	return err;
- }
- 
--static unsigned int get_mergeable_buf_len(struct receive_queue *rq,
-+static unsigned int get_mergeable_buf_len(struct virtnet_rq *rq,
- 					  struct ewma_pkt_len *avg_pkt_len,
- 					  unsigned int room)
- {
-@@ -1726,7 +1726,7 @@ static unsigned int get_mergeable_buf_len(struct receive_queue *rq,
- }
- 
- static int add_recvbuf_mergeable(struct virtnet_info *vi,
--				 struct receive_queue *rq, gfp_t gfp)
-+				 struct virtnet_rq *rq, gfp_t gfp)
- {
- 	struct page_frag *alloc_frag = &rq->alloc_frag;
- 	unsigned int headroom = virtnet_get_headroom(vi);
-@@ -1781,7 +1781,7 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
-  * before we're receiving packets, or from refill_work which is
-  * careful to disable receiving (using napi_disable).
-  */
--static bool try_fill_recv(struct virtnet_info *vi, struct receive_queue *rq,
-+static bool try_fill_recv(struct virtnet_info *vi, struct virtnet_rq *rq,
- 			  gfp_t gfp)
- {
- 	int err;
-@@ -1813,7 +1813,7 @@ static bool try_fill_recv(struct virtnet_info *vi, struct receive_queue *rq,
- static void skb_recv_done(struct virtqueue *rvq)
- {
- 	struct virtnet_info *vi = rvq->vdev->priv;
--	struct receive_queue *rq = &vi->rq[vq2rxq(rvq)];
-+	struct virtnet_rq *rq = &vi->rq[vq2rxq(rvq)];
- 
- 	virtqueue_napi_schedule(&rq->napi, rvq);
- }
-@@ -1863,7 +1863,7 @@ static void refill_work(struct work_struct *work)
+ 	err = virtqueue_add_inbuf_ctx(rq->vq, rq->sg, 1, buf, ctx, gfp);
+ 	if (err < 0) {
+-		if (rq->do_dma)
++		if (virtqueue_get_dma_premapped(rq->vq))
+ 			virtnet_rq_unmap(rq, buf, 0);
+ 		put_page(virt_to_head_page(buf));
+ 	}
+@@ -1753,7 +1749,7 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
+ 	ctx = mergeable_len_to_ctx(len + room, headroom);
+ 	err = virtqueue_add_inbuf_ctx(rq->vq, rq->sg, 1, buf, ctx, gfp);
+ 	if (err < 0) {
+-		if (rq->do_dma)
++		if (virtqueue_get_dma_premapped(rq->vq))
+ 			virtnet_rq_unmap(rq, buf, 0);
+ 		put_page(virt_to_head_page(buf));
+ 	}
+@@ -3822,7 +3818,7 @@ static void free_receive_page_frags(struct virtnet_info *vi)
  	int i;
+ 	for (i = 0; i < vi->max_queue_pairs; i++)
+ 		if (vi->rq[i].alloc_frag.page) {
+-			if (vi->rq[i].do_dma && vi->rq[i].last_dma)
++			if (virtqueue_get_dma_premapped(vi->rq[i].vq) && vi->rq[i].last_dma)
+ 				virtnet_rq_unmap(&vi->rq[i], vi->rq[i].last_dma, 0);
+ 			put_page(vi->rq[i].alloc_frag.page);
+ 		}
+@@ -3850,7 +3846,7 @@ static void virtnet_rq_free_unused_bufs(struct virtqueue *vq)
+ 	rq = &vi->rq[i];
  
- 	for (i = 0; i < vi->curr_queue_pairs; i++) {
--		struct receive_queue *rq = &vi->rq[i];
-+		struct virtnet_rq *rq = &vi->rq[i];
+ 	while ((buf = virtqueue_detach_unused_buf(vq)) != NULL) {
+-		if (rq->do_dma)
++		if (virtqueue_get_dma_premapped(rq->vq))
+ 			virtnet_rq_unmap(rq, buf, 0);
  
- 		napi_disable(&rq->napi);
- 		still_empty = !try_fill_recv(vi, rq, GFP_KERNEL);
-@@ -1877,7 +1877,7 @@ static void refill_work(struct work_struct *work)
- 	}
- }
- 
--static int virtnet_receive(struct receive_queue *rq, int budget,
-+static int virtnet_receive(struct virtnet_rq *rq, int budget,
- 			   unsigned int *xdp_xmit)
- {
- 	struct virtnet_info *vi = rq->vq->vdev->priv;
-@@ -1927,11 +1927,11 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
- 	return packets;
- }
- 
--static void virtnet_poll_cleantx(struct receive_queue *rq)
-+static void virtnet_poll_cleantx(struct virtnet_rq *rq)
- {
- 	struct virtnet_info *vi = rq->vq->vdev->priv;
- 	unsigned int index = vq2rxq(rq->vq);
--	struct send_queue *sq = &vi->sq[index];
-+	struct virtnet_sq *sq = &vi->sq[index];
- 	struct netdev_queue *txq = netdev_get_tx_queue(vi->dev, index);
- 
- 	if (!sq->napi.weight || is_xdp_raw_buffer_queue(vi, index))
-@@ -1957,10 +1957,10 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
- 
- static int virtnet_poll(struct napi_struct *napi, int budget)
- {
--	struct receive_queue *rq =
--		container_of(napi, struct receive_queue, napi);
-+	struct virtnet_rq *rq =
-+		container_of(napi, struct virtnet_rq, napi);
- 	struct virtnet_info *vi = rq->vq->vdev->priv;
--	struct send_queue *sq;
-+	struct virtnet_sq *sq;
- 	unsigned int received;
- 	unsigned int xdp_xmit = 0;
- 
-@@ -2051,7 +2051,7 @@ static int virtnet_open(struct net_device *dev)
- 
- static int virtnet_poll_tx(struct napi_struct *napi, int budget)
- {
--	struct send_queue *sq = container_of(napi, struct send_queue, napi);
-+	struct virtnet_sq *sq = container_of(napi, struct virtnet_sq, napi);
- 	struct virtnet_info *vi = sq->vq->vdev->priv;
- 	unsigned int index = vq2txq(sq->vq);
- 	struct netdev_queue *txq;
-@@ -2095,7 +2095,7 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
- 	return 0;
- }
- 
--static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
-+static int xmit_skb(struct virtnet_sq *sq, struct sk_buff *skb)
- {
- 	struct virtio_net_hdr_mrg_rxbuf *hdr;
- 	const unsigned char *dest = ((struct ethhdr *)skb->data)->h_dest;
-@@ -2146,7 +2146,7 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
- 	int qnum = skb_get_queue_mapping(skb);
--	struct send_queue *sq = &vi->sq[qnum];
-+	struct virtnet_sq *sq = &vi->sq[qnum];
- 	int err;
- 	struct netdev_queue *txq = netdev_get_tx_queue(dev, qnum);
- 	bool kick = !netdev_xmit_more();
-@@ -2200,7 +2200,7 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
- }
- 
- static int virtnet_rx_resize(struct virtnet_info *vi,
--			     struct receive_queue *rq, u32 ring_num)
-+			     struct virtnet_rq *rq, u32 ring_num)
- {
- 	bool running = netif_running(vi->dev);
- 	int err, qindex;
-@@ -2223,7 +2223,7 @@ static int virtnet_rx_resize(struct virtnet_info *vi,
- }
- 
- static int virtnet_tx_resize(struct virtnet_info *vi,
--			     struct send_queue *sq, u32 ring_num)
-+			     struct virtnet_sq *sq, u32 ring_num)
- {
- 	bool running = netif_running(vi->dev);
- 	struct netdev_queue *txq;
-@@ -2369,8 +2369,8 @@ static void virtnet_stats(struct net_device *dev,
- 
- 	for (i = 0; i < vi->max_queue_pairs; i++) {
- 		u64 tpackets, tbytes, terrors, rpackets, rbytes, rdrops;
--		struct receive_queue *rq = &vi->rq[i];
--		struct send_queue *sq = &vi->sq[i];
-+		struct virtnet_rq *rq = &vi->rq[i];
-+		struct virtnet_sq *sq = &vi->sq[i];
- 
- 		do {
- 			start = u64_stats_fetch_begin(&sq->stats.syncp);
-@@ -2686,8 +2686,8 @@ static int virtnet_set_ringparam(struct net_device *dev,
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
- 	u32 rx_pending, tx_pending;
--	struct receive_queue *rq;
--	struct send_queue *sq;
-+	struct virtnet_rq *rq;
-+	struct virtnet_sq *sq;
- 	int i, err;
- 
- 	if (ring->rx_mini_pending || ring->rx_jumbo_pending)
-@@ -3016,7 +3016,7 @@ static void virtnet_get_ethtool_stats(struct net_device *dev,
- 	size_t offset;
- 
- 	for (i = 0; i < vi->curr_queue_pairs; i++) {
--		struct receive_queue *rq = &vi->rq[i];
-+		struct virtnet_rq *rq = &vi->rq[i];
- 
- 		stats_base = (const u8 *)&rq->stats;
- 		do {
-@@ -3031,7 +3031,7 @@ static void virtnet_get_ethtool_stats(struct net_device *dev,
- 	}
- 
- 	for (i = 0; i < vi->curr_queue_pairs; i++) {
--		struct send_queue *sq = &vi->sq[i];
-+		struct virtnet_sq *sq = &vi->sq[i];
- 
- 		stats_base = (const u8 *)&sq->stats;
- 		do {
-@@ -3718,7 +3718,7 @@ static int virtnet_set_features(struct net_device *dev,
- static void virtnet_tx_timeout(struct net_device *dev, unsigned int txqueue)
- {
- 	struct virtnet_info *priv = netdev_priv(dev);
--	struct send_queue *sq = &priv->sq[txqueue];
-+	struct virtnet_sq *sq = &priv->sq[txqueue];
- 	struct netdev_queue *txq = netdev_get_tx_queue(dev, txqueue);
- 
- 	u64_stats_update_begin(&sq->stats.syncp);
+ 		virtnet_rq_free_buf(vi, rq, buf);
 diff --git a/drivers/net/virtio/virtio_net.h b/drivers/net/virtio/virtio_net.h
-index 38061e15d494..ebf9f344648a 100644
+index ebf9f344648a..2ca968db6153 100644
 --- a/drivers/net/virtio/virtio_net.h
 +++ b/drivers/net/virtio/virtio_net.h
-@@ -49,8 +49,8 @@ struct virtnet_rq_dma {
+@@ -104,9 +104,6 @@ struct virtnet_rq {
+ 
+ 	/* Record the last dma info to free after new pages is allocated. */
+ 	struct virtnet_rq_dma *last_dma;
+-
+-	/* Do dma by self */
+-	bool do_dma;
  };
  
- /* Internal representation of a send virtqueue */
--struct send_queue {
--	/* Virtqueue associated with this send _queue */
-+struct virtnet_sq {
-+	/* Virtqueue associated with this virtnet_sq */
- 	struct virtqueue *vq;
+ struct virtnet_info {
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index a2d6aea551a7..e4a4b9323a37 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -2905,6 +2905,28 @@ int virtqueue_set_dma_premapped(struct virtqueue *_vq)
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_set_dma_premapped);
  
- 	/* TX: fragments + linear part + virtio header */
-@@ -70,8 +70,8 @@ struct send_queue {
- };
++/**
++ * virtqueue_get_dma_premapped - get the vring premapped mode
++ * @_vq: the struct virtqueue we're talking about.
++ *
++ * Get the premapped mode of the vq.
++ *
++ * Returns bool for the vq premapped mode.
++ */
++bool virtqueue_get_dma_premapped(struct virtqueue *_vq)
++{
++	struct vring_virtqueue *vq = to_vvq(_vq);
++	bool premapped;
++
++	START_USE(vq);
++	premapped = vq->premapped;
++	END_USE(vq);
++
++	return premapped;
++
++}
++EXPORT_SYMBOL_GPL(virtqueue_get_dma_premapped);
++
+ /**
+  * virtqueue_reset - detach and recycle all unused buffers
+  * @_vq: the struct virtqueue we're talking about.
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 2596f0e7e395..3e9a2bb75af6 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -98,6 +98,7 @@ bool virtqueue_enable_cb(struct virtqueue *vq);
+ unsigned virtqueue_enable_cb_prepare(struct virtqueue *vq);
  
- /* Internal representation of a receive virtqueue */
--struct receive_queue {
--	/* Virtqueue associated with this receive_queue */
-+struct virtnet_rq {
-+	/* Virtqueue associated with this virtnet_rq */
- 	struct virtqueue *vq;
+ int virtqueue_set_dma_premapped(struct virtqueue *_vq);
++bool virtqueue_get_dma_premapped(struct virtqueue *_vq);
  
- 	struct napi_struct napi;
-@@ -113,8 +113,8 @@ struct virtnet_info {
- 	struct virtio_device *vdev;
- 	struct virtqueue *cvq;
- 	struct net_device *dev;
--	struct send_queue *sq;
--	struct receive_queue *rq;
-+	struct virtnet_sq *sq;
-+	struct virtnet_rq *rq;
- 	unsigned int status;
+ bool virtqueue_poll(struct virtqueue *vq, unsigned);
  
- 	/* Max # of queue pairs supported by the device */
 -- 
 2.32.0.3.g01195cf9f
 
