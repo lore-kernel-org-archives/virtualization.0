@@ -1,29 +1,29 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99ED7134A8
-	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 07:31:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23285134A8
+	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 07:31:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 3EA0E60A69
-	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 07:31:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3EA0E60A69
+	by smtp2.osuosl.org (Postfix) with ESMTP id 4A6EA41A34
+	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 07:31:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4A6EA41A34
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -9.9
+X-Spam-Score: -9.899
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9SOWArHCFy8L
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id KNzyTx96GFSf
 	for <virtualization@lists.linux-foundation.org>;
-	Fri, 29 Dec 2023 07:31:42 +0000 (UTC)
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 369AA60A63
-	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 07:31:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 369AA60A63
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R951e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0VzQyWBn_1703835097;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VzQyWBn_1703835097)
+	Fri, 29 Dec 2023 07:31:38 +0000 (UTC)
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id EE6314015A
+	for <virtualization@lists.linux-foundation.org>; Fri, 29 Dec 2023 07:31:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EE6314015A
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R441e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0VzQtfC1_1703835093;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VzQtfC1_1703835093)
           by smtp.aliyun-inc.com;
-          Fri, 29 Dec 2023 15:31:38 +0800
+          Fri, 29 Dec 2023 15:31:33 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: netdev@vger.kernel.org
 Cc: "David S. Miller" <davem@davemloft.net>,
@@ -39,9 +39,9 @@ Cc: "David S. Miller" <davem@davemloft.net>,
 	John Fastabend <john.fastabend@gmail.com>,
 	virtualization@lists.linux-foundation.org,
 	bpf@vger.kernel.org
-Subject: [PATCH net-next v3 25/27] virtio_net: xsk: rx: free the unused xsk buffer
-Date: Fri, 29 Dec 2023 15:31:06 +0800
-Message-Id: <20231229073108.57778-26-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH net-next v3 21/27] virtio_net: separate receive_buf
+Date: Fri, 29 Dec 2023 15:31:02 +0800
+Message-Id: <20231229073108.57778-22-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20231229073108.57778-1-xuanzhuo@linux.alibaba.com>
 References: <20231229073108.57778-1-xuanzhuo@linux.alibaba.com>
@@ -54,34 +54,91 @@ MIME-Version: 1.0
 X-Git-Hash: 20112a26898d
 Content-Transfer-Encoding: 8bit
 
-Since this will be called in other circumstances(freeze), we must check
-whether it is xsk's buffer in this function. It cannot be judged outside
-this function.
+This commit separates the function receive_buf(), then we wrap the logic
+of handling the skb to an independent function virtnet_receive_done().
+The subsequent commit will reuse it.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- drivers/net/virtio/main.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/net/virtio/main.c | 56 ++++++++++++++++++++++-----------------
+ 1 file changed, 32 insertions(+), 24 deletions(-)
 
 diff --git a/drivers/net/virtio/main.c b/drivers/net/virtio/main.c
-index b1567f0746e8..cc0194c14c98 100644
+index 212af542bfbe..325d39c39792 100644
 --- a/drivers/net/virtio/main.c
 +++ b/drivers/net/virtio/main.c
-@@ -3962,6 +3962,14 @@ void virtnet_rq_free_unused_bufs(struct virtqueue *vq)
- 	rq = &vi->rq[i];
+@@ -1565,32 +1565,11 @@ static void virtio_skb_set_hash(const struct virtio_net_hdr_v1_hash *hdr_hash,
+ 	skb_set_hash(skb, __le32_to_cpu(hdr_hash->hash_value), rss_hash_type);
+ }
  
- 	while ((buf = virtqueue_detach_unused_buf(vq)) != NULL) {
-+		if (rq->xsk.pool) {
-+			struct xdp_buff *xdp;
-+
-+			xdp = (struct xdp_buff *)buf;
-+			xsk_buff_free(xdp);
-+			continue;
-+		}
-+
- 		if (virtqueue_get_dma_premapped(rq->vq))
- 			virtnet_rq_unmap(rq, buf, 0);
+-static void receive_buf(struct virtnet_info *vi, struct virtnet_rq *rq,
+-			void *buf, unsigned int len, void **ctx,
+-			unsigned int *xdp_xmit,
+-			struct virtnet_rq_stats *stats)
++static void virtnet_receive_done(struct virtnet_info *vi, struct virtnet_rq *rq,
++				 struct sk_buff *skb)
+ {
+-	struct net_device *dev = vi->dev;
+-	struct sk_buff *skb;
+ 	struct virtio_net_common_hdr *hdr;
+-
+-	if (unlikely(len < vi->hdr_len + ETH_HLEN)) {
+-		pr_debug("%s: short packet %i\n", dev->name, len);
+-		DEV_STATS_INC(dev, rx_length_errors);
+-		virtnet_rq_free_buf(vi, rq, buf);
+-		return;
+-	}
+-
+-	if (vi->mergeable_rx_bufs)
+-		skb = receive_mergeable(dev, vi, rq, buf, ctx, len, xdp_xmit,
+-					stats);
+-	else if (vi->big_packets)
+-		skb = receive_big(dev, vi, rq, buf, len, stats);
+-	else
+-		skb = receive_small(dev, vi, rq, buf, ctx, len, xdp_xmit, stats);
+-
+-	if (unlikely(!skb))
+-		return;
++	struct net_device *dev = vi->dev;
  
+ 	hdr = skb_vnet_common_hdr(skb);
+ 	if (dev->features & NETIF_F_RXHASH && vi->has_rss_hash_report)
+@@ -1620,6 +1599,35 @@ static void receive_buf(struct virtnet_info *vi, struct virtnet_rq *rq,
+ 	dev_kfree_skb(skb);
+ }
+ 
++static void receive_buf(struct virtnet_info *vi, struct virtnet_rq *rq,
++			void *buf, unsigned int len, void **ctx,
++			unsigned int *xdp_xmit,
++			struct virtnet_rq_stats *stats)
++{
++	struct net_device *dev = vi->dev;
++	struct sk_buff *skb;
++
++	if (unlikely(len < vi->hdr_len + ETH_HLEN)) {
++		pr_debug("%s: short packet %i\n", dev->name, len);
++		DEV_STATS_INC(dev, rx_length_errors);
++		virtnet_rq_free_buf(vi, rq, buf);
++		return;
++	}
++
++	if (vi->mergeable_rx_bufs)
++		skb = receive_mergeable(dev, vi, rq, buf, ctx, len, xdp_xmit,
++					stats);
++	else if (vi->big_packets)
++		skb = receive_big(dev, vi, rq, buf, len, stats);
++	else
++		skb = receive_small(dev, vi, rq, buf, ctx, len, xdp_xmit, stats);
++
++	if (unlikely(!skb))
++		return;
++
++	virtnet_receive_done(vi, rq, skb);
++}
++
+ /* Unlike mergeable buffers, all buffers are allocated to the
+  * same size, except for the headroom. For this reason we do
+  * not need to use  mergeable_len_to_ctx here - it is enough
 -- 
 2.32.0.3.g01195cf9f
 
