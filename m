@@ -1,58 +1,58 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42F4E8BE3
-	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 00:30:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E9A263A
+	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 01:02:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="SM2Wu6UP"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="FDJr7v6l"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id B3477400BA
-	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 00:30:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B3477400BA
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=SM2Wu6UP
+	by smtp4.osuosl.org (Postfix) with ESMTP id A6E0441730
+	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 01:02:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A6E0441730
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=FDJr7v6l
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.101
+X-Spam-Score: -4.401
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id mQs1i0pUWmgy
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ui-qbXhGKgPi
 	for <virtualization@lists.linux-foundation.org>;
-	Sat, 30 Dec 2023 00:30:36 +0000 (UTC)
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 109364010C
-	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 00:30:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 109364010C
+	Sat, 30 Dec 2023 01:02:00 +0000 (UTC)
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.43])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 2EBA841724
+	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 01:01:59 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2EBA841724
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1703896236; x=1735432236;
+  t=1703898120; x=1735434120;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=+qStPU0nZNPUJ75qySDvHcPxamWqfgmF4KGOB/CSmI4=;
-  b=SM2Wu6UPNR//uAhLpEkpAbB5y7QY0aSL1zgmY5g5f+imBNIRVl8cNuhk
-   9b88BgQ/8DDX67BEdDG8ATdMGD9wdfdzqc6eHqw9qyCKkFasfb+8U0/Pv
-   AA2bJ1U3PYyRL3QP1nYieI45mT7SCcnSZOrDujNWge/C4948P5J45NoyM
-   tQerc/foQ68JfOy7At7pzOvpnlrFwFiY+8fLxVvsce7NoDh1pTgZlaNZ2
-   FeFqG6iU+9MaZQMFocjzhwE16M0XVCfkJK+4WCvpjgzW/yPl7eWpxp0PH
-   v9Bk09/bvIpc400R3ucK7GkddivLO1VPJxOVSspFV1N8j55yJmM3UHfCc
-   g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10938"; a="15326935"
+  bh=fl2/SuRgzVqZlBIChP27OFh3BMH212QemBexgIGaErM=;
+  b=FDJr7v6lsvpDkVZBq55Mei/Q3pWzy5dzAxc4C7g1fo2gzaSB0QBnNR7Q
+   VFMrCYSaTgsl97XKLrwlKgwTXPiq+fdMzg/gtc2HBGMe0eD+dFAfQyfjM
+   bbpBDXbKEaF0x12HstIlRwMoczZZyrFqQZBI+HdNhXOXHXhkhoRIJUlVA
+   HjZloFYOwVm4h2kMPFMQ3x9baYqFffjXYotWsKsscjGkZWMB0t5Us2Gi0
+   s6NDMJu1iEUl1S6CFNrsm3i0NBXYjIIsAjs8AbzOEmrJxVHtaZkKzXQ/a
+   l1ZFKh9pRtGXp9PAl8LjzSgk1F96AANtdoG/zKix299WWxgI9WutW9gq1
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10938"; a="482869961"
 X-IronPort-AV: E=Sophos;i="6.04,316,1695711600"; 
-   d="scan'208";a="15326935"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Dec 2023 16:28:57 -0800
+   d="scan'208";a="482869961"
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Dec 2023 17:01:58 -0800
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10938"; a="897649074"
+X-IronPort-AV: E=McAfee;i="6600,9927,10938"; a="772072408"
 X-IronPort-AV: E=Sophos;i="6.04,316,1695711600"; 
-   d="scan'208";a="897649074"
+   d="scan'208";a="772072408"
 Received: from lkp-server02.sh.intel.com (HELO b07ab15da5fe) ([10.239.97.151])
-  by fmsmga002.fm.intel.com with ESMTP; 29 Dec 2023 16:28:53 -0800
+  by orsmga007.jf.intel.com with ESMTP; 29 Dec 2023 17:01:55 -0800
 Received: from kbuild by b07ab15da5fe with local (Exim 4.96)
 	(envelope-from <lkp@intel.com>)
-	id 1rJNDf-000Hub-2P;
-	Sat, 30 Dec 2023 00:28:51 +0000
-Date: Sat, 30 Dec 2023 08:28:24 +0800
+	id 1rJNjc-000Hwb-2U;
+	Sat, 30 Dec 2023 01:01:52 +0000
+Date: Sat, 30 Dec 2023 09:01:04 +0800
 From: kernel test robot <lkp@intel.com>
 To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, netdev@vger.kernel.org
 Cc: oe-kbuild-all@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
@@ -65,10 +65,10 @@ Cc: oe-kbuild-all@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
 	Jesper Dangaard Brouer <hawk@kernel.org>,
 	John Fastabend <john.fastabend@gmail.com>,
 	virtualization@lists.linux-foundation.org, bpf@vger.kernel.org
-Subject: Re: [PATCH net-next v3 16/27] virtio_net: xsk: tx: support xmit xsk
- buffer
-Message-ID: <202312300834.bOCLH0Mi-lkp@intel.com>
-References: <20231229073108.57778-17-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next v3 23/27] virtio_net: xsk: rx: support recv
+ merge mode
+Message-ID: <202312300808.efv5HGcd-lkp@intel.com>
+References: <20231229073108.57778-24-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -77,7 +77,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20231229073108.57778-17-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20231229073108.57778-24-xuanzhuo@linux.alibaba.com>
 
 Hi Xuan,
 
@@ -91,96 +91,92 @@ https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
 url:    https://github.com/intel-lab-lkp/linux/commits/Xuan-Zhuo/virtio_net-rename-free_old_xmit_skbs-to-free_old_xmit/20231229-155253
 base:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git linux-next
-patch link:    https://lore.kernel.org/r/20231229073108.57778-17-xuanzhuo%40linux.alibaba.com
-patch subject: [PATCH net-next v3 16/27] virtio_net: xsk: tx: support xmit xsk buffer
-config: x86_64-randconfig-004-20231229 (https://download.01.org/0day-ci/archive/20231230/202312300834.bOCLH0Mi-lkp@intel.com/config)
-compiler: gcc-12 (Debian 12.2.0-14) 12.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20231230/202312300834.bOCLH0Mi-lkp@intel.com/reproduce)
+patch link:    https://lore.kernel.org/r/20231229073108.57778-24-xuanzhuo%40linux.alibaba.com
+patch subject: [PATCH net-next v3 23/27] virtio_net: xsk: rx: support recv merge mode
+config: arm64-defconfig (https://download.01.org/0day-ci/archive/20231230/202312300808.efv5HGcd-lkp@intel.com/config)
+compiler: aarch64-linux-gcc (GCC) 13.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20231230/202312300808.efv5HGcd-lkp@intel.com/reproduce)
 
 If you fix the issue in a separate patch/commit (i.e. not just a new version of
 the same patch/commit), kindly add following tags
 | Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202312300834.bOCLH0Mi-lkp@intel.com/
+| Closes: https://lore.kernel.org/oe-kbuild-all/202312300808.efv5HGcd-lkp@intel.com/
 
 All warnings (new ones prefixed by >>):
 
-   In function 'virtnet_xsk_xmit_one',
-       inlined from 'virtnet_xsk_xmit_batch' at drivers/net/virtio/xsk.c:58:9,
-       inlined from 'virtnet_xsk_xmit' at drivers/net/virtio/xsk.c:80:9:
->> drivers/net/virtio/xsk.c:34:16: warning: 'virtqueue_add_outbuf' accessing 32 bytes in a region of size 8 [-Wstringop-overflow=]
-      34 |         return virtqueue_add_outbuf(sq->vq, sq->sg, 2,
-         |                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      35 |                                     virtnet_xsk_to_ptr(desc->len), GFP_ATOMIC);
-         |                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   drivers/net/virtio/xsk.c:34:16: note: referencing argument 2 of type 'struct scatterlist[0]'
-   In file included from include/linux/virtio_config.h:7,
-                    from include/uapi/linux/virtio_net.h:30,
-                    from include/linux/virtio_net.h:8,
-                    from drivers/net/virtio/virtio_net.h:8,
-                    from drivers/net/virtio/xsk.c:6:
-   include/linux/virtio.h: In function 'virtnet_xsk_xmit':
-   include/linux/virtio.h:42:5: note: in a call to function 'virtqueue_add_outbuf'
-      42 | int virtqueue_add_outbuf(struct virtqueue *vq,
-         |     ^~~~~~~~~~~~~~~~~~~~
+   drivers/net/virtio/main.c: In function 'virtnet_receive':
+>> drivers/net/virtio/main.c:1895:27: warning: variable 'pctx' set but not used [-Wunused-but-set-variable]
+    1895 |         void *buf, *ctx, *pctx = NULL;
+         |                           ^~~~
 
 
-vim +/virtqueue_add_outbuf +34 drivers/net/virtio/xsk.c
+vim +/pctx +1895 drivers/net/virtio/main.c
 
-    16	
-    17	static int virtnet_xsk_xmit_one(struct virtnet_sq *sq,
-    18					struct xsk_buff_pool *pool,
-    19					struct xdp_desc *desc)
-    20	{
-    21		struct virtnet_info *vi;
-    22		dma_addr_t addr;
-    23	
-    24		vi = sq->vq->vdev->priv;
-    25	
-    26		addr = xsk_buff_raw_get_dma(pool, desc->addr);
-    27		xsk_buff_raw_dma_sync_for_device(pool, addr, desc->len);
-    28	
-    29		sg_init_table(sq->sg, 2);
-    30	
-    31		sg_fill_dma(sq->sg, sq->xsk.hdr_dma_address, vi->hdr_len);
-    32		sg_fill_dma(sq->sg + 1, addr, desc->len);
-    33	
-  > 34		return virtqueue_add_outbuf(sq->vq, sq->sg, 2,
-    35					    virtnet_xsk_to_ptr(desc->len), GFP_ATOMIC);
-    36	}
-    37	
-    38	static int virtnet_xsk_xmit_batch(struct virtnet_sq *sq,
-    39					  struct xsk_buff_pool *pool,
-    40					  unsigned int budget,
-    41					  u64 *kicks)
-    42	{
-    43		struct xdp_desc *descs = pool->tx_descs;
-    44		u32 nb_pkts, max_pkts, i;
-    45		bool kick = false;
-    46		int err;
-    47	
-    48		/* Every xsk tx packet needs two desc(virtnet header and packet). So we
-    49		 * use sq->vq->num_free / 2 as the limitation.
-    50		 */
-    51		max_pkts = min_t(u32, budget, sq->vq->num_free / 2);
-    52	
-    53		nb_pkts = xsk_tx_peek_release_desc_batch(pool, max_pkts);
-    54		if (!nb_pkts)
-    55			return 0;
-    56	
-    57		for (i = 0; i < nb_pkts; i++) {
-  > 58			err = virtnet_xsk_xmit_one(sq, pool, &descs[i]);
-    59			if (unlikely(err))
-    60				break;
-    61	
-    62			kick = true;
-    63		}
-    64	
-    65		if (kick && virtqueue_kick_prepare(sq->vq) && virtqueue_notify(sq->vq))
-    66			(*kicks)++;
-    67	
-    68		return i;
-    69	}
-    70	
+  1889	
+  1890	static int virtnet_receive(struct virtnet_rq *rq, int budget,
+  1891				   unsigned int *xdp_xmit)
+  1892	{
+  1893		struct virtnet_info *vi = rq->vq->vdev->priv;
+  1894		struct virtnet_rq_stats stats = {};
+> 1895		void *buf, *ctx, *pctx = NULL;
+  1896		unsigned int len;
+  1897		int packets = 0;
+  1898		int i;
+  1899	
+  1900		if (rq->xsk.pool) {
+  1901			struct sk_buff *skb;
+  1902	
+  1903			while (packets < budget) {
+  1904				buf = virtqueue_get_buf(rq->vq, &len);
+  1905				if (!buf)
+  1906					break;
+  1907	
+  1908				skb = virtnet_receive_xsk_buf(vi, rq, buf, len, xdp_xmit, &stats);
+  1909				if (skb)
+  1910					virtnet_receive_done(vi, rq, skb);
+  1911	
+  1912				packets++;
+  1913			}
+  1914		} else {
+  1915			if (!vi->big_packets || vi->mergeable_rx_bufs)
+  1916				pctx = &ctx;
+  1917			else
+  1918				ctx = NULL;
+  1919	
+  1920			while (packets < budget) {
+  1921				buf = virtnet_rq_get_buf(rq, &len, &ctx);
+  1922				if (!buf)
+  1923					break;
+  1924	
+  1925				receive_buf(vi, rq, buf, len, ctx, xdp_xmit, &stats);
+  1926				packets++;
+  1927			}
+  1928		}
+  1929	
+  1930		if (rq->vq->num_free > min((unsigned int)budget, virtqueue_get_vring_size(rq->vq)) / 2) {
+  1931			if (!try_fill_recv(vi, rq, GFP_ATOMIC)) {
+  1932				spin_lock(&vi->refill_lock);
+  1933				if (vi->refill_enabled)
+  1934					schedule_delayed_work(&vi->refill, 0);
+  1935				spin_unlock(&vi->refill_lock);
+  1936			}
+  1937		}
+  1938	
+  1939		u64_stats_set(&stats.packets, packets);
+  1940		u64_stats_update_begin(&rq->stats.syncp);
+  1941		for (i = 0; i < VIRTNET_RQ_STATS_LEN; i++) {
+  1942			size_t offset = virtnet_rq_stats_desc[i].offset;
+  1943			u64_stats_t *item, *src;
+  1944	
+  1945			item = (u64_stats_t *)((u8 *)&rq->stats + offset);
+  1946			src = (u64_stats_t *)((u8 *)&stats + offset);
+  1947			u64_stats_add(item, u64_stats_read(src));
+  1948		}
+  1949		u64_stats_update_end(&rq->stats.syncp);
+  1950	
+  1951		return packets;
+  1952	}
+  1953	
 
 -- 
 0-DAY CI Kernel Test Service
