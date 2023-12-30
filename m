@@ -1,53 +1,57 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4207E555
-	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 22:39:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE3F6E555
+	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 22:47:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 57D7F607C0
-	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 22:39:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 57D7F607C0
+	by smtp1.osuosl.org (Postfix) with ESMTP id 728618215C
+	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 22:47:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 728618215C
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -1.898
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id NgY3nH7F5rap
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id RMK69LISUGrE
 	for <virtualization@lists.linux-foundation.org>;
-	Sat, 30 Dec 2023 22:39:23 +0000 (UTC)
+	Sat, 30 Dec 2023 22:47:40 +0000 (UTC)
 Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 59DE56077D
-	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 22:39:23 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 59DE56077D
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 6F7078215B
+	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 22:47:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6F7078215B
 Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
  relay.mimecast.com with ESMTP with both STARTTLS and AUTH (version=TLSv1.2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-56-J9DeA6IWNj20ulVSrrgVVg-1; Sat, 30 Dec 2023 22:39:20 +0000
-X-MC-Unique: J9DeA6IWNj20ulVSrrgVVg-1
+ uk-mta-44-HrekTaZ8MoaRuuAvFWTwrg-1; Sat, 30 Dec 2023 22:47:37 +0000
+X-MC-Unique: HrekTaZ8MoaRuuAvFWTwrg-1
 Received: from AcuMS.Aculab.com (10.202.163.4) by AcuMS.aculab.com
  (10.202.163.4) with Microsoft SMTP Server (TLS) id 15.0.1497.48; Sat, 30 Dec
- 2023 22:39:02 +0000
+ 2023 22:47:19 +0000
 Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
- id 15.00.1497.048; Sat, 30 Dec 2023 22:39:02 +0000
+ id 15.00.1497.048; Sat, 30 Dec 2023 22:47:19 +0000
 From: David Laight <David.Laight@ACULAB.COM>
-To: 'Linus Torvalds' <torvalds@linux-foundation.org>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"peterz@infradead.org" <peterz@infradead.org>, "longman@redhat.com"
-	<longman@redhat.com>, "mingo@redhat.com" <mingo@redhat.com>,
-	"will@kernel.org" <will@kernel.org>, "boqun.feng@gmail.com"
-	<boqun.feng@gmail.com>, "xinhui.pan@linux.vnet.ibm.com"
-	<xinhui.pan@linux.vnet.ibm.com>, "virtualization@lists.linux-foundation.org"
-	<virtualization@lists.linux-foundation.org>, Zeng Heng <zengheng4@huawei.com>
-Subject: RE: [PATCH next 0/5] locking/osq_lock: Optimisations to osq_lock code
-Thread-Topic: [PATCH next 0/5] locking/osq_lock: Optimisations to osq_lock
- code
-Thread-Index: Ado6lJ8STYITmewCRxaK5t3V4duzKgAw3MqAAAYz05A=
-Date: Sat, 30 Dec 2023 22:39:02 +0000
-Message-ID: <1015f066d717465191c7b7599257f683@AcuMS.aculab.com>
+To: 'Ingo Molnar' <mingo@kernel.org>
+CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+	"'peterz@infradead.org'" <peterz@infradead.org>, "'longman@redhat.com'"
+	<longman@redhat.com>, "'mingo@redhat.com'" <mingo@redhat.com>,
+	"'will@kernel.org'" <will@kernel.org>, "'boqun.feng@gmail.com'"
+	<boqun.feng@gmail.com>, 'Linus Torvalds' <torvalds@linux-foundation.org>,
+	"'xinhui.pan@linux.vnet.ibm.com'" <xinhui.pan@linux.vnet.ibm.com>,
+	"'virtualization@lists.linux-foundation.org'"
+	<virtualization@lists.linux-foundation.org>, 'Zeng Heng'
+	<zengheng4@huawei.com>
+Subject: RE: [PATCH next 4/5] locking/osq_lock: Optimise per-cpu data
+ accesses.
+Thread-Topic: [PATCH next 4/5] locking/osq_lock: Optimise per-cpu data
+ accesses.
+Thread-Index: Ado6mZUJWFdx4PkETd+mn/PWVjPd0AAxm5QAAARO0qA=
+Date: Sat, 30 Dec 2023 22:47:19 +0000
+Message-ID: <f11f674ae0ab4ef0a2ae76235c6352d2@AcuMS.aculab.com>
 References: <73a4b31c9c874081baabad9e5f2e5204@AcuMS.aculab.com>
- <CAHk-=wg7PKm+9tv+60DTfZuu-Kh00uR8zKAGtTdUkSOXaLO1_g@mail.gmail.com>
-In-Reply-To: <CAHk-=wg7PKm+9tv+60DTfZuu-Kh00uR8zKAGtTdUkSOXaLO1_g@mail.gmail.com>
+ <bddb6b00434d4492abca4725c10f8d5a@AcuMS.aculab.com>
+ <ZZB/jIvKgKQ2sV7M@gmail.com>
+In-Reply-To: <ZZB/jIvKgKQ2sV7M@gmail.com>
 Accept-Language: en-GB, en-US
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
@@ -62,18 +66,40 @@ X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: aculab.com
 Content-Language: en-US
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: quoted-printable
 
-RnJvbTogTGludXMgVG9ydmFsZHMNCj4gU2VudDogMzAgRGVjZW1iZXIgMjAyMyAxOTo0MQ0KPiAN
-Cj4gT24gRnJpLCAyOSBEZWMgMjAyMyBhdCAxMjo1MiwgRGF2aWQgTGFpZ2h0IDxEYXZpZC5MYWln
-aHRAYWN1bGFiLmNvbT4gd3JvdGU6DQo+ID4NCj4gPiBEYXZpZCBMYWlnaHQgKDUpOg0KPiA+ICAg
-TW92ZSB0aGUgZGVmaW5pdGlvbiBvZiBvcHRpbWlzdGljX3NwaW5fbm9kZSBpbnRvIG9zZl9sb2Nr
-LmMNCj4gPiAgIENsYXJpZnkgb3NxX3dhaXRfbmV4dCgpDQo+IA0KPiBJIHRvb2sgdGhlc2UgdHdv
-IGFzIHByZXBhcmF0b3J5IGluZGVwZW5kZW50IHBhdGNoZXMsIHdpdGggdGhhdA0KPiBvc3Ffd2Fp
-dF9uZXh0KCkgY2xhcmlmaWNhdGlvbiBzcGxpdCBpbnRvIHR3by4NCj4gDQo+IEkgYWxzbyBkaWQg
-dGhlIHJlbmFtaW5nIHRoYXQgV2FpbWFuIGFza2VkIGZvci4NCg0KT2ssIEknbGwgdHJ5IHRvIHJl
-bW92ZSB0aGVtIGZyb20gYW55IHJlc3Bpbi4NCihPciBhdCBsZWFzdCBwdXQgdGhlbSBmaXJzdCEp
-DQoNCglEYXZpZA0KDQotDQpSZWdpc3RlcmVkIEFkZHJlc3MgTGFrZXNpZGUsIEJyYW1sZXkgUm9h
-ZCwgTW91bnQgRmFybSwgTWlsdG9uIEtleW5lcywgTUsxIDFQVCwgVUsNClJlZ2lzdHJhdGlvbiBO
-bzogMTM5NzM4NiAoV2FsZXMpDQo=
+From: Ingo Molnar
+> Sent: 30 December 2023 20:38
+>=20
+> * David Laight <David.Laight@ACULAB.COM> wrote:
+>=20
+> >  bool osq_lock(struct optimistic_spin_queue *lock)
+> >  {
+> > -=09struct optimistic_spin_node *node =3D this_cpu_ptr(&osq_node);
+> > +=09struct optimistic_spin_node *node =3D raw_cpu_read(osq_node.self);
+> >  =09struct optimistic_spin_node *prev, *next;
+> >  =09int old;
+> >
+> > -=09if (unlikely(node->cpu =3D=3D OSQ_UNLOCKED_VAL))
+> > -=09=09node->cpu =3D encode_cpu(smp_processor_id());
+> > +=09if (unlikely(!node)) {
+> > +=09=09int cpu =3D encode_cpu(smp_processor_id());
+> > +=09=09node =3D decode_cpu(cpu);
+> > +=09=09node->self =3D node;
+> > +=09=09node->cpu =3D cpu;
+>=20
+> This whole initialization sequence is suboptimal and needs to be
+> cleaned up first: the node->cpu field is constant once initialized, so
+> it should be initialized from appropriate init methods, not runtime in
+> osq_lock(), right?
+
+I thought that as well, but there would need to be a list of 'init'
+functions for the per-cpu data. I didn't spot one.
+
+=09David
+
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1=
+PT, UK
+Registration No: 1397386 (Wales)
 
