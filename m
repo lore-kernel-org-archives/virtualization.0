@@ -1,152 +1,98 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4EAD7946E
-	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 15:57:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2172DC2E3
+	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 19:41:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AF4bBU9A"
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="ZMp4HfyB"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id BF51C40122
-	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 15:57:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BF51C40122
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=AF4bBU9A
+	by smtp1.osuosl.org (Postfix) with ESMTP id 967ED8223D
+	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 19:41:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 967ED8223D
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google header.b=ZMp4HfyB
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.099
+X-Spam-Score: -1.751
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6upAo7ySCopk
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id rv_wrCUoa0Zr
 	for <virtualization@lists.linux-foundation.org>;
-	Sat, 30 Dec 2023 15:57:38 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 84C3D40195
-	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 15:57:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 84C3D40195
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1703951857;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=D8YGP5w/TfVq3L6L3AbJfFKhLcWdghWgoyKI0rbGjFU=;
-	b=AF4bBU9A9YCCnHL1F0i5exqbEortGWW1dg/BaOYOisI+6+X7ciWtFUcCCYibunw4pzhTV0
-	VRp5L7RA1iI/NK+5FNcbUCjPhDGh0bXzLJyCAZMGsXhpXVtih+cdcOYBeMpKaIVZwuNKMm
-	AMyhpaNFkCxBTsTAybBHH5GGcTK5TGo=
-Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
- by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-371-a1hG0aTjNg25b3aYpFm7Eg-1; Sat,
- 30 Dec 2023 10:57:30 -0500
-X-MC-Unique: a1hG0aTjNg25b3aYpFm7Eg-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 372B53804A48;
-	Sat, 30 Dec 2023 15:57:30 +0000 (UTC)
-Received: from [10.22.32.90] (unknown [10.22.32.90])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id 5C0601121306;
-	Sat, 30 Dec 2023 15:57:29 +0000 (UTC)
-Message-ID: <3b5c5cf3-1b8b-4815-8d19-2e28c9751305@redhat.com>
-Date: Sat, 30 Dec 2023 10:57:29 -0500
+	Sat, 30 Dec 2023 19:41:02 +0000 (UTC)
+Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id CC52382241
+	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 19:41:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CC52382241
+Received: by mail-ej1-x62f.google.com with SMTP id a640c23a62f3a-a27c65bd757so45742366b.3
+        for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 11:41:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google; t=1703965259; x=1704570059; darn=lists.linux-foundation.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=GoFIhXDqs+3JV6YOccBLM5u+iUwrlM3KyelM0uyYE3o=;
+        b=ZMp4HfyBNmFqp2TUxfz7wuzL2AAfeNUMQIZt8L9OG+y6jua3HZzpRynXd/CCp+wRV9
+         tcjqgMHRn97ddWKKqQiZPd8jY0JBFlC74Lj3/WB8RMg8RRowVQfsT+4ype0m53OSVZW+
+         oYj9rlUTnHOJ+83AyELYamJj0OYhfVcDlUgT4=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1703965259; x=1704570059;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=GoFIhXDqs+3JV6YOccBLM5u+iUwrlM3KyelM0uyYE3o=;
+        b=cC6l3uYQJa8gzyMhHZbl9ekPKmX/9ICu/Hk6AezognDZ8SUOTDln7cW1wNbzoftBRx
+         PSAS4i2dS40b7H2r9qllZlEdpUWhzWLzUMDeH3V/R1YSGRk8qg7CwXUcBm2CsAGrbz7N
+         0ctEZP/XaV6H1w08lZnZaUnhc/KcSIcEIWW74IMtoj76J3dhjlRGXrm60J55Qz0g0jyq
+         mgFpwSmU1cRRSxGFfZePzoVnCKESAel1M1uFRmvQZ08MUaf51V/Zc+AbLXdqzOg/dDl1
+         QrpR9v4h4kB9auIDy22WdIJYgPWqbCXJUj77tIq23qYk4XNVq6u+9RTG2LJPAyCuB43p
+         S/ag==
+X-Gm-Message-State: AOJu0Yyq9dyYaxlLud0VMdxyV8DlTJnogWfZKtIcuEMW88c7Ldwio5JT
+	7HdYhEtjDgGThAvhyRV3XWdpStdqdjIDC26kcJxrFVvfvzxbh6nG
+X-Google-Smtp-Source: AGHT+IHJ1vp9p+OTAxNoxGrh3p0EdTinI/LN+PPPX6xJdqEiCHfC2alHkfkngeDv91+T6xlkL8Q8Og==
+X-Received: by 2002:a17:907:944d:b0:a27:2f12:4756 with SMTP id dl13-20020a170907944d00b00a272f124756mr4591621ejc.39.1703965259694;
+        Sat, 30 Dec 2023 11:40:59 -0800 (PST)
+Received: from mail-ej1-f47.google.com (mail-ej1-f47.google.com. [209.85.218.47])
+        by smtp.gmail.com with ESMTPSA id d3-20020a170907272300b00a230f3799a4sm9391304ejl.225.2023.12.30.11.40.58
+        for <virtualization@lists.linux-foundation.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 30 Dec 2023 11:40:58 -0800 (PST)
+Received: by mail-ej1-f47.google.com with SMTP id a640c23a62f3a-a23350cd51cso870549666b.2
+        for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 11:40:58 -0800 (PST)
+X-Received: by 2002:a17:906:3a16:b0:a26:e4ec:b6ca with SMTP id
+ z22-20020a1709063a1600b00a26e4ecb6camr3417319eje.92.1703965258406; Sat, 30
+ Dec 2023 11:40:58 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH next 5/5] locking/osq_lock: Optimise vcpu_is_preempted()
- check.
-Content-Language: en-US
-From: Waiman Long <longman@redhat.com>
-To: David Laight <David.Laight@ACULAB.COM>,
- "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
- "'peterz@infradead.org'" <peterz@infradead.org>
-Cc: "'mingo@redhat.com'" <mingo@redhat.com>,
- "'will@kernel.org'" <will@kernel.org>,
- "'boqun.feng@gmail.com'" <boqun.feng@gmail.com>,
- 'Linus Torvalds' <torvalds@linux-foundation.org>,
- "'xinhui.pan@linux.vnet.ibm.com'" <xinhui.pan@linux.vnet.ibm.com>,
- "'virtualization@lists.linux-foundation.org'"
- <virtualization@lists.linux-foundation.org>,
- 'Zeng Heng' <zengheng4@huawei.com>
 References: <73a4b31c9c874081baabad9e5f2e5204@AcuMS.aculab.com>
- <23cef5ac49494b9087953f529ae5df16@AcuMS.aculab.com>
- <e7cf4154-294e-40bd-a485-0b23220d4b7a@redhat.com>
-In-Reply-To: <e7cf4154-294e-40bd-a485-0b23220d4b7a@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.3
+In-Reply-To: <73a4b31c9c874081baabad9e5f2e5204@AcuMS.aculab.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Sat, 30 Dec 2023 11:40:41 -0800
+X-Gmail-Original-Message-ID: <CAHk-=wg7PKm+9tv+60DTfZuu-Kh00uR8zKAGtTdUkSOXaLO1_g@mail.gmail.com>
+Message-ID: <CAHk-=wg7PKm+9tv+60DTfZuu-Kh00uR8zKAGtTdUkSOXaLO1_g@mail.gmail.com>
+Subject: Re: [PATCH next 0/5] locking/osq_lock: Optimisations to osq_lock code
+To: David Laight <David.Laight@aculab.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
+	"peterz@infradead.org" <peterz@infradead.org>, "longman@redhat.com" <longman@redhat.com>, 
+	"mingo@redhat.com" <mingo@redhat.com>, "will@kernel.org" <will@kernel.org>, 
+	"boqun.feng@gmail.com" <boqun.feng@gmail.com>, 
+	"xinhui.pan@linux.vnet.ibm.com" <xinhui.pan@linux.vnet.ibm.com>, 
+	"virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, 
+	Zeng Heng <zengheng4@huawei.com>
+Content-Type: text/plain; charset="UTF-8"
 
-On 12/29/23 22:13, Waiman Long wrote:
+On Fri, 29 Dec 2023 at 12:52, David Laight <David.Laight@aculab.com> wrote:
 >
-> On 12/29/23 15:58, David Laight wrote:
->> The vcpu_is_preempted() test stops osq_lock() spinning if a virtual
->>    cpu is no longer running.
->> Although patched out for bare-metal the code still needs the cpu number.
->> Reading this from 'prev->cpu' is a pretty much guaranteed have a 
->> cache miss
->> when osq_unlock() is waking up the next cpu.
->>
->> Instead save 'prev->cpu' in 'node->prev_cpu' and use that value instead.
->> Update in the osq_lock() 'unqueue' path when 'node->prev' is changed.
->>
->> This is simpler than checking for 'node->prev' changing and caching
->> 'prev->cpu'.
->>
->> Signed-off-by: David Laight <david.laight@aculab.com>
->> ---
->>   kernel/locking/osq_lock.c | 14 ++++++--------
->>   1 file changed, 6 insertions(+), 8 deletions(-)
->>
->> diff --git a/kernel/locking/osq_lock.c b/kernel/locking/osq_lock.c
->> index b60b0add0161..89be63627434 100644
->> --- a/kernel/locking/osq_lock.c
->> +++ b/kernel/locking/osq_lock.c
->> @@ -14,8 +14,9 @@
->>     struct optimistic_spin_node {
->>       struct optimistic_spin_node *self, *next, *prev;
->> -    int locked; /* 1 if lock acquired */
->> -    int cpu; /* encoded CPU # + 1 value */
->> +    int locked;    /* 1 if lock acquired */
->> +    int cpu;       /* encoded CPU # + 1 value */
->> +    int prev_cpu;  /* actual CPU # for vpcu_is_preempted() */
->>   };
->>     static DEFINE_PER_CPU_SHARED_ALIGNED(struct optimistic_spin_node, 
->> osq_node);
->> @@ -29,11 +30,6 @@ static inline int encode_cpu(int cpu_nr)
->>       return cpu_nr + 1;
->>   }
->>   -static inline int node_cpu(struct optimistic_spin_node *node)
->> -{
->> -    return node->cpu - 1;
->> -}
->> -
->>   static inline struct optimistic_spin_node *decode_cpu(int 
->> encoded_cpu_val)
->>   {
->>       int cpu_nr = encoded_cpu_val - 1;
->> @@ -114,6 +110,7 @@ bool osq_lock(struct optimistic_spin_queue *lock)
->>       if (old == OSQ_UNLOCKED_VAL)
->>           return true;
->>   +    node->prev_cpu = old - 1;
->>       prev = decode_cpu(old);
->>       node->prev = prev;
->>       node->locked = 0;
->> @@ -148,7 +145,7 @@ bool osq_lock(struct optimistic_spin_queue *lock)
->>        * polling, be careful.
->>        */
->>       if (smp_cond_load_relaxed(&node->locked, VAL || need_resched() ||
->> -                  vcpu_is_preempted(node_cpu(node->prev))))
->> +                  vcpu_is_preempted(node->prev_cpu)))
+> David Laight (5):
+>   Move the definition of optimistic_spin_node into osf_lock.c
+>   Clarify osq_wait_next()
 
-On second thought, I believe it is more correct to use READ_ONCE() to 
-access "node->prev_cpu" as this field is subjected to change by a 
-WRITE_ONCE().
+I took these two as preparatory independent patches, with that
+osq_wait_next() clarification split into two.
 
-Cheers,
-Longman
+I also did the renaming that Waiman asked for.
 
-
+           Linus
