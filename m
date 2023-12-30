@@ -1,78 +1,79 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50FF0C153
-	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 20:41:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3B01C2C6
+	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 20:59:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="Npw/yrRX"
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="TeuCtirG"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 8061F82096
-	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 20:41:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8061F82096
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google header.b=Npw/yrRX
+	by smtp4.osuosl.org (Postfix) with ESMTP id 2C8184159F
+	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 20:59:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2C8184159F
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google header.b=TeuCtirG
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -1.751
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id aEyO7XLuOfuz
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id RrC_5zCfWuVg
 	for <virtualization@lists.linux-foundation.org>;
-	Sat, 30 Dec 2023 20:41:33 +0000 (UTC)
-Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 81E3181AC1
-	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 20:41:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 81E3181AC1
-Received: by mail-ej1-x62f.google.com with SMTP id a640c23a62f3a-a27c65bd757so48104266b.3
-        for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 12:41:33 -0800 (PST)
+	Sat, 30 Dec 2023 20:59:29 +0000 (UTC)
+Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com [IPv6:2a00:1450:4864:20::12d])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 2FAA14051E
+	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 20:59:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2FAA14051E
+Received: by mail-lf1-x12d.google.com with SMTP id 2adb3069b0e04-50e49a0b5caso8753401e87.0
+        for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 12:59:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google; t=1703968891; x=1704573691; darn=lists.linux-foundation.org;
+        d=linux-foundation.org; s=google; t=1703969967; x=1704574767; darn=lists.linux-foundation.org;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=oqev+qKsNZg84TyjAN9i8DWy8xYTUxkGZNijcPktMwo=;
-        b=Npw/yrRXrNcb3ExGT3dTu1jVFW5ioXV0yeUFRcX6DHqAjn+fCM+qQ/VUe7wtTqVvs3
-         4PCbOb40R8FAUDZwKHU2LtqkHe+3qh8CJo0WbwU+838MqOpClbg8GEfOdDaev6SLuUGJ
-         TPPyF5G1IW2wTiZh+bFgd0NcylRQeb/Y9iRd8=
+        bh=XGj2dvokpHswaDS3CEAC9U/qRCEFu6exlHCSnvHBeOU=;
+        b=TeuCtirGpZiERVEhxpsdlgyJ6HzZb/ywMbcepDNFZVfPF7kuRJSbh6EUfuZjsVsF8R
+         ZtBaRUeBsDxr3QpiIvlSPRQ3Rj6myIPQiCC80ljOyh/ZI+Z9tkbhaeUX6FOrcZuRSjwd
+         dJ06bIaTg4nJFb5fE+7UdOYFpzzT13tpyyuXs=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703968891; x=1704573691;
+        d=1e100.net; s=20230601; t=1703969967; x=1704574767;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=oqev+qKsNZg84TyjAN9i8DWy8xYTUxkGZNijcPktMwo=;
-        b=ao/MWDQd0Bh9BTMc8tpp5Xd8vfNYBhobT05HTXShv1uYCKrr36s/ofszHCBSPvV++8
-         k3csufRK4QEzZL7szD2v+DWjPZv+/I9SurgmQ1HcNJkI7sBdlOSLPKi3oL4bop4x87Lf
-         w3pkYR3aNCxrYGTuzRT9KABrb2AxqvT9KVUk79U68w6TrLhvblj7RFWWpeu/FNGAj+aW
-         T0EOqo08WVR+3EjBxE1xU9ZjOKpCVJm9wTNgf2q5cIAXpsekzfNfOlSA1xfDoEsqUpKJ
-         MSvO7nEkif0kxFJPVj5J7iqowWUyUl2q3w1Ta2Z14XNyrQZTk2I6EVVMOpOgRIL5Mdlg
-         kHaQ==
-X-Gm-Message-State: AOJu0YzReM0DLxb9oDLsK951PlrCs+lmHCUQ0iquPGPU1M40BP3d2f7V
-	GpVweW3gwEzgWDYNPAgjYwqTxnY1ytTR2LnM+S2h53P3QWqPRF2z
-X-Google-Smtp-Source: AGHT+IFBdpF1sXZ7Nas/VVZMkAy5DjBRj9Fsy63Sdt7dET+EWOQaY0uMGCJE78p9AXYwRuadSqdE2w==
-X-Received: by 2002:a17:907:bb8a:b0:a26:ac38:df92 with SMTP id xo10-20020a170907bb8a00b00a26ac38df92mr6706920ejc.145.1703968891226;
-        Sat, 30 Dec 2023 12:41:31 -0800 (PST)
-Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com. [209.85.218.50])
-        by smtp.gmail.com with ESMTPSA id zr16-20020a170907711000b00a26af4d96c6sm8546510ejb.4.2023.12.30.12.41.30
+        bh=XGj2dvokpHswaDS3CEAC9U/qRCEFu6exlHCSnvHBeOU=;
+        b=k4x/DGVHFH5/sCaalCjr8kcj8v5FfIRRuBb1HHDUKbXLb25pgAlLD3puhnDOHc9bCX
+         hzeEC25JFxBaIGyp5wFOjEH+S7EvGHQ7KCNTxqrcqqRFDfO5N7GZNNOYyv7XzVw6G8sr
+         95+ObgHEvD+pYTMw4UnFc5LRRW6dRH4znCk9zEB8GZ8njWPKAhPVlo2pxzVIgnSmWjeu
+         GgwNWz6DXgLdmSq0HaHaATDGNywOCcT0xYsMhhRs8JUguOY5HAwtAqvKXKJg7Y+tP0VS
+         DWq6H+nVRnfabY9GYOhl4yClvopBE1nx1NtYMMu8cR8aHOK9BmBr9MXjCeK602yVUuYQ
+         pjOA==
+X-Gm-Message-State: AOJu0Yy4i66aRxtPfwZ+h2SO/QEQUllItXcDS5R2F72LyBdmi3YTctQJ
+	GScSaHJ2wPSiqeWZzcO5Yc46V7acsvNblD77+mZTIAW9+LqV9iSA
+X-Google-Smtp-Source: AGHT+IGjkj3tYvoRd1TUsZx7zniJusg2pZyzevb2DLcarcG++olj5KlvLkj/1exI+wrxDgNtWbjdGw==
+X-Received: by 2002:ac2:5f55:0:b0:50e:7554:d33b with SMTP id 21-20020ac25f55000000b0050e7554d33bmr4564448lfz.26.1703969966861;
+        Sat, 30 Dec 2023 12:59:26 -0800 (PST)
+Received: from mail-lf1-f51.google.com (mail-lf1-f51.google.com. [209.85.167.51])
+        by smtp.gmail.com with ESMTPSA id t13-20020a192d4d000000b0050e770a3b21sm2197733lft.5.2023.12.30.12.59.25
         for <virtualization@lists.linux-foundation.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 30 Dec 2023 12:41:30 -0800 (PST)
-Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-a27874c861aso165911866b.1
-        for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 12:41:30 -0800 (PST)
-X-Received: by 2002:a17:906:208a:b0:a26:f083:d89a with SMTP id
- 10-20020a170906208a00b00a26f083d89amr3518174ejq.75.1703968889891; Sat, 30 Dec
- 2023 12:41:29 -0800 (PST)
+        Sat, 30 Dec 2023 12:59:26 -0800 (PST)
+Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-50e49a0b5caso8753395e87.0
+        for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 12:59:25 -0800 (PST)
+X-Received: by 2002:a05:6512:3e24:b0:50e:6b5d:5976 with SMTP id
+ i36-20020a0565123e2400b0050e6b5d5976mr6269030lfv.40.1703969965196; Sat, 30
+ Dec 2023 12:59:25 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <73a4b31c9c874081baabad9e5f2e5204@AcuMS.aculab.com> <bddb6b00434d4492abca4725c10f8d5a@AcuMS.aculab.com>
-In-Reply-To: <bddb6b00434d4492abca4725c10f8d5a@AcuMS.aculab.com>
+References: <73a4b31c9c874081baabad9e5f2e5204@AcuMS.aculab.com>
+ <bddb6b00434d4492abca4725c10f8d5a@AcuMS.aculab.com> <CAHk-=wjbWTbRKDP=Yb9VWBGjSBEGB3dJ0=--+7-4oA2n1=1FKw@mail.gmail.com>
+In-Reply-To: <CAHk-=wjbWTbRKDP=Yb9VWBGjSBEGB3dJ0=--+7-4oA2n1=1FKw@mail.gmail.com>
 From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Sat, 30 Dec 2023 12:41:12 -0800
-X-Gmail-Original-Message-ID: <CAHk-=wjbWTbRKDP=Yb9VWBGjSBEGB3dJ0=--+7-4oA2n1=1FKw@mail.gmail.com>
-Message-ID: <CAHk-=wjbWTbRKDP=Yb9VWBGjSBEGB3dJ0=--+7-4oA2n1=1FKw@mail.gmail.com>
+Date: Sat, 30 Dec 2023 12:59:08 -0800
+X-Gmail-Original-Message-ID: <CAHk-=wjsO=ODvUcwi=SPSzvsxW7Gj+3OU8q4CfHa+zMcivF6Bw@mail.gmail.com>
+Message-ID: <CAHk-=wjsO=ODvUcwi=SPSzvsxW7Gj+3OU8q4CfHa+zMcivF6Bw@mail.gmail.com>
 Subject: Re: [PATCH next 4/5] locking/osq_lock: Optimise per-cpu data accesses.
 To: David Laight <David.Laight@aculab.com>
 Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
@@ -82,137 +83,50 @@ Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
 	"xinhui.pan@linux.vnet.ibm.com" <xinhui.pan@linux.vnet.ibm.com>, 
 	"virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, 
 	Zeng Heng <zengheng4@huawei.com>
-Content-Type: multipart/mixed; boundary="000000000000641af2060dc02c7b"
-
---000000000000641af2060dc02c7b
 Content-Type: text/plain; charset="UTF-8"
 
-On Fri, 29 Dec 2023 at 12:57, David Laight <David.Laight@aculab.com> wrote:
+On Sat, 30 Dec 2023 at 12:41, Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
 >
-> this_cpu_ptr() is rather more expensive than raw_cpu_read() since
-> the latter can use an 'offset from register' (%gs for x86-84).
->
-> Add a 'self' field to 'struct optimistic_spin_node' that can be
-> read with raw_cpu_read(), initialise on first call.
+> UNTESTED patch to just do the "this_cpu_write()" parts attached.
+> Again, note how we do end up doing that this_cpu_ptr conversion later
+> anyway, but at least it's off the critical path.
 
-No, this is horrible.
+Also note that while 'this_cpu_ptr()' doesn't exactly generate lovely
+code, it really is still better than caching a value in memory.
 
-The problem isn't the "this_cpu_ptr()", it's the rest of the code.
+At least the memory location that 'this_cpu_ptr()' accesses is
+slightly more likely to be hot (and is right next to the cpu number,
+iirc).
 
->  bool osq_lock(struct optimistic_spin_queue *lock)
->  {
-> -       struct optimistic_spin_node *node = this_cpu_ptr(&osq_node);
-> +       struct optimistic_spin_node *node = raw_cpu_read(osq_node.self);
+That said, I think we should fix this_cpu_ptr() to not ever generate
+that disgusting cltq just because the cpu pointer has the wrong
+signedness. I don't quite know how to do it, but this:
 
-No. Both of these are crap.
+  -#define per_cpu_offset(x) (__per_cpu_offset[x])
+  +#define per_cpu_offset(x) (__per_cpu_offset[(unsigned)(x)])
 
->         struct optimistic_spin_node *prev, *next;
->         int old;
->
-> -       if (unlikely(node->cpu == OSQ_UNLOCKED_VAL))
-> -               node->cpu = encode_cpu(smp_processor_id());
-> +       if (unlikely(!node)) {
-> +               int cpu = encode_cpu(smp_processor_id());
-> +               node = decode_cpu(cpu);
-> +               node->self = node;
-> +               node->cpu = cpu;
-> +       }
+at least helps a *bit*. It gets rid of the cltq, at least, but if
+somebody actually passes in an 'unsigned long' cpuid, it would cause
+an unnecessary truncation.
 
-The proper fix here is to not do that silly
-
-        node = this_cpu_ptr(&osq_node);
-        ..
-        node->next = NULL;
-
-dance at all, but to simply do
-
-        this_cpu_write(osq_node.next, NULL);
-
-in the first place. That makes the whole thing just a single store off
-the segment descriptor.
-
-Yes, you'll eventually end up doing that
-
-        node = this_cpu_ptr(&osq_node);
-
-thing because it then wants to use that raw pointer to do
-
-        WRITE_ONCE(prev->next, node);
-
-but that's a separate issue and still does not make it worth it to
-create a pointless self-pointer.
-
-Btw, if you *really* want to solve that separate issue, then make the
-optimistic_spin_node struct not contain the pointers at all, but the
-CPU numbers, and then turn those numbers into the pointers the exact
-same way it does for the "lock->tail" thing, ie doing that whole
-
-        prev = decode_cpu(old);
-
-dance. That *may* then result in avoiding turning them into pointers
-at all in some cases.
-
-Also, I think that you might want to look into making OSQ_UNLOCKED_VAL
-be -1 instead, and add something like
-
-  #define IS_OSQ_UNLOCKED(x) ((int)(x)<0)
-
-and that would then avoid the +1 / -1 games in encoding/decoding the
-CPU numbers. It causes silly code generated like this:
+And gcc still generates
 
         subl    $1, %eax        #, cpu_nr
-...
-        cltq
         addq    __per_cpu_offset(,%rax,8), %rcx
 
-which seems honestly stupid. The cltq is there for sign-extension,
-which is because all these things are "int", and the "subl" will
-zero-extend to 64-bit, not sign-extend.
-
-At that point, I think gcc might be able to just generate
+instead of just doing
 
         addq    __per_cpu_offset-8(,%rax,8), %rcx
 
-but honestly, I think it would be nicer to just have decode_cpu() do
+because it still needs to clear the upper 32 bits and doesn't know
+that the 'xchg()' already did that.
 
-        unsigned int cpu_nr = encoded_cpu_val;
+Oh well. I guess even without the -1/+1 games by the OSQ code, we
+would still end up with a "movl" just to do that upper bits clearing
+that the compiler doesn't know is unnecessary.
 
-        return per_cpu_ptr(&osq_node, cpu_nr);
+I don't think we have any reasonable way to tell the compiler that the
+register output of our xchg() inline asm has the upper 32 bits clear.
 
-and not have the -1/+1 at all.
-
-Hmm?
-
-UNTESTED patch to just do the "this_cpu_write()" parts attached.
-Again, note how we do end up doing that this_cpu_ptr conversion later
-anyway, but at least it's off the critical path.
-
-                 Linus
-
---000000000000641af2060dc02c7b
-Content-Type: text/x-patch; charset="US-ASCII"; name="patch.diff"
-Content-Disposition: attachment; filename="patch.diff"
-Content-Transfer-Encoding: base64
-Content-ID: <f_lqsj1wd50>
-X-Attachment-Id: f_lqsj1wd50
-
-IGtlcm5lbC9sb2NraW5nL29zcV9sb2NrLmMgfCAxMiArKysrKysrLS0tLS0KIDEgZmlsZSBjaGFu
-Z2VkLCA3IGluc2VydGlvbnMoKyksIDUgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEva2VybmVs
-L2xvY2tpbmcvb3NxX2xvY2suYyBiL2tlcm5lbC9sb2NraW5nL29zcV9sb2NrLmMKaW5kZXggNzVh
-NmY2MTMzODY2Li5jM2ExNjZiNzkwMGMgMTAwNjQ0Ci0tLSBhL2tlcm5lbC9sb2NraW5nL29zcV9s
-b2NrLmMKKysrIGIva2VybmVsL2xvY2tpbmcvb3NxX2xvY2suYwpAQCAtOTIsMTQgKzkyLDE0IEBA
-IG9zcV93YWl0X25leHQoc3RydWN0IG9wdGltaXN0aWNfc3Bpbl9xdWV1ZSAqbG9jaywKIAogYm9v
-bCBvc3FfbG9jayhzdHJ1Y3Qgb3B0aW1pc3RpY19zcGluX3F1ZXVlICpsb2NrKQogewotCXN0cnVj
-dCBvcHRpbWlzdGljX3NwaW5fbm9kZSAqbm9kZSA9IHRoaXNfY3B1X3B0cigmb3NxX25vZGUpOwor
-CXN0cnVjdCBvcHRpbWlzdGljX3NwaW5fbm9kZSAqbm9kZTsKIAlzdHJ1Y3Qgb3B0aW1pc3RpY19z
-cGluX25vZGUgKnByZXYsICpuZXh0OwogCWludCBjdXJyID0gZW5jb2RlX2NwdShzbXBfcHJvY2Vz
-c29yX2lkKCkpOwogCWludCBvbGQ7CiAKLQlub2RlLT5sb2NrZWQgPSAwOwotCW5vZGUtPm5leHQg
-PSBOVUxMOwotCW5vZGUtPmNwdSA9IGN1cnI7CisJdGhpc19jcHVfd3JpdGUob3NxX25vZGUubmV4
-dCwgTlVMTCk7CisJdGhpc19jcHVfd3JpdGUob3NxX25vZGUubG9ja2VkLCAwKTsKKwl0aGlzX2Nw
-dV93cml0ZShvc3Ffbm9kZS5jcHUsIGN1cnIpOwogCiAJLyoKIAkgKiBXZSBuZWVkIGJvdGggQUNR
-VUlSRSAocGFpcnMgd2l0aCBjb3JyZXNwb25kaW5nIFJFTEVBU0UgaW4KQEAgLTExMiw3ICsxMTIs
-OSBAQCBib29sIG9zcV9sb2NrKHN0cnVjdCBvcHRpbWlzdGljX3NwaW5fcXVldWUgKmxvY2spCiAJ
-CXJldHVybiB0cnVlOwogCiAJcHJldiA9IGRlY29kZV9jcHUob2xkKTsKLQlub2RlLT5wcmV2ID0g
-cHJldjsKKwl0aGlzX2NwdV93cml0ZShvc3Ffbm9kZS5wcmV2LCBwcmV2KTsKKworCW5vZGUgPSB0
-aGlzX2NwdV9wdHIoJm9zcV9ub2RlKTsKIAogCS8qCiAJICogb3NxX2xvY2soKQkJCXVucXVldWUK
---000000000000641af2060dc02c7b--
+              Linus
