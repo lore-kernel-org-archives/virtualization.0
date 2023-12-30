@@ -1,132 +1,137 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3B01C2C6
-	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 20:59:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="TeuCtirG"
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3892CDDA9
+	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 22:38:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 2C8184159F
-	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 20:59:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2C8184159F
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google header.b=TeuCtirG
+	by smtp3.osuosl.org (Postfix) with ESMTP id BEA86607C0
+	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 22:38:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BEA86607C0
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -1.751
+X-Spam-Score: -1.898
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id RrC_5zCfWuVg
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 6WzzpFG7f_Fr
 	for <virtualization@lists.linux-foundation.org>;
-	Sat, 30 Dec 2023 20:59:29 +0000 (UTC)
-Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com [IPv6:2a00:1450:4864:20::12d])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 2FAA14051E
-	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 20:59:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2FAA14051E
-Received: by mail-lf1-x12d.google.com with SMTP id 2adb3069b0e04-50e49a0b5caso8753401e87.0
-        for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 12:59:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google; t=1703969967; x=1704574767; darn=lists.linux-foundation.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=XGj2dvokpHswaDS3CEAC9U/qRCEFu6exlHCSnvHBeOU=;
-        b=TeuCtirGpZiERVEhxpsdlgyJ6HzZb/ywMbcepDNFZVfPF7kuRJSbh6EUfuZjsVsF8R
-         ZtBaRUeBsDxr3QpiIvlSPRQ3Rj6myIPQiCC80ljOyh/ZI+Z9tkbhaeUX6FOrcZuRSjwd
-         dJ06bIaTg4nJFb5fE+7UdOYFpzzT13tpyyuXs=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703969967; x=1704574767;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=XGj2dvokpHswaDS3CEAC9U/qRCEFu6exlHCSnvHBeOU=;
-        b=k4x/DGVHFH5/sCaalCjr8kcj8v5FfIRRuBb1HHDUKbXLb25pgAlLD3puhnDOHc9bCX
-         hzeEC25JFxBaIGyp5wFOjEH+S7EvGHQ7KCNTxqrcqqRFDfO5N7GZNNOYyv7XzVw6G8sr
-         95+ObgHEvD+pYTMw4UnFc5LRRW6dRH4znCk9zEB8GZ8njWPKAhPVlo2pxzVIgnSmWjeu
-         GgwNWz6DXgLdmSq0HaHaATDGNywOCcT0xYsMhhRs8JUguOY5HAwtAqvKXKJg7Y+tP0VS
-         DWq6H+nVRnfabY9GYOhl4yClvopBE1nx1NtYMMu8cR8aHOK9BmBr9MXjCeK602yVUuYQ
-         pjOA==
-X-Gm-Message-State: AOJu0Yy4i66aRxtPfwZ+h2SO/QEQUllItXcDS5R2F72LyBdmi3YTctQJ
-	GScSaHJ2wPSiqeWZzcO5Yc46V7acsvNblD77+mZTIAW9+LqV9iSA
-X-Google-Smtp-Source: AGHT+IGjkj3tYvoRd1TUsZx7zniJusg2pZyzevb2DLcarcG++olj5KlvLkj/1exI+wrxDgNtWbjdGw==
-X-Received: by 2002:ac2:5f55:0:b0:50e:7554:d33b with SMTP id 21-20020ac25f55000000b0050e7554d33bmr4564448lfz.26.1703969966861;
-        Sat, 30 Dec 2023 12:59:26 -0800 (PST)
-Received: from mail-lf1-f51.google.com (mail-lf1-f51.google.com. [209.85.167.51])
-        by smtp.gmail.com with ESMTPSA id t13-20020a192d4d000000b0050e770a3b21sm2197733lft.5.2023.12.30.12.59.25
-        for <virtualization@lists.linux-foundation.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 30 Dec 2023 12:59:26 -0800 (PST)
-Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-50e49a0b5caso8753395e87.0
-        for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 12:59:25 -0800 (PST)
-X-Received: by 2002:a05:6512:3e24:b0:50e:6b5d:5976 with SMTP id
- i36-20020a0565123e2400b0050e6b5d5976mr6269030lfv.40.1703969965196; Sat, 30
- Dec 2023 12:59:25 -0800 (PST)
+	Sat, 30 Dec 2023 22:38:11 +0000 (UTC)
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 8254B60774
+	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 22:38:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8254B60774
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with both STARTTLS and AUTH (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-225-rooaNgzzMKyamPFKEtCO9g-1; Sat, 30 Dec 2023 22:38:08 +0000
+X-MC-Unique: rooaNgzzMKyamPFKEtCO9g-1
+Received: from AcuMS.Aculab.com (10.202.163.4) by AcuMS.aculab.com
+ (10.202.163.4) with Microsoft SMTP Server (TLS) id 15.0.1497.48; Sat, 30 Dec
+ 2023 22:37:49 +0000
+Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
+ id 15.00.1497.048; Sat, 30 Dec 2023 22:37:49 +0000
+From: David Laight <David.Laight@ACULAB.COM>
+To: 'Waiman Long' <longman@redhat.com>, "'linux-kernel@vger.kernel.org'"
+	<linux-kernel@vger.kernel.org>, "'peterz@infradead.org'"
+	<peterz@infradead.org>
+CC: "'mingo@redhat.com'" <mingo@redhat.com>, "'will@kernel.org'"
+	<will@kernel.org>, "'boqun.feng@gmail.com'" <boqun.feng@gmail.com>, "'Linus
+ Torvalds'" <torvalds@linux-foundation.org>, "'xinhui.pan@linux.vnet.ibm.com'"
+	<xinhui.pan@linux.vnet.ibm.com>,
+	"'virtualization@lists.linux-foundation.org'"
+	<virtualization@lists.linux-foundation.org>, 'Zeng Heng'
+	<zengheng4@huawei.com>
+Subject: RE: [PATCH next 5/5] locking/osq_lock: Optimise vcpu_is_preempted()
+ check.
+Thread-Topic: [PATCH next 5/5] locking/osq_lock: Optimise vcpu_is_preempted()
+ check.
+Thread-Index: Ado6mcFsTi5k8LaETrKavOOIB4in0QAnx9ObAA2GvrA=
+Date: Sat, 30 Dec 2023 22:37:49 +0000
+Message-ID: <d5b2f1ed1fa3473fb8b73a0836f9b3b1@AcuMS.aculab.com>
+References: <73a4b31c9c874081baabad9e5f2e5204@AcuMS.aculab.com>
+ <23cef5ac49494b9087953f529ae5df16@AcuMS.aculab.com>
+ <e7cf4154-294e-40bd-a485-0b23220d4b7a@redhat.com>
+ <3b5c5cf3-1b8b-4815-8d19-2e28c9751305@redhat.com>
+In-Reply-To: <3b5c5cf3-1b8b-4815-8d19-2e28c9751305@redhat.com>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <73a4b31c9c874081baabad9e5f2e5204@AcuMS.aculab.com>
- <bddb6b00434d4492abca4725c10f8d5a@AcuMS.aculab.com> <CAHk-=wjbWTbRKDP=Yb9VWBGjSBEGB3dJ0=--+7-4oA2n1=1FKw@mail.gmail.com>
-In-Reply-To: <CAHk-=wjbWTbRKDP=Yb9VWBGjSBEGB3dJ0=--+7-4oA2n1=1FKw@mail.gmail.com>
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Sat, 30 Dec 2023 12:59:08 -0800
-X-Gmail-Original-Message-ID: <CAHk-=wjsO=ODvUcwi=SPSzvsxW7Gj+3OU8q4CfHa+zMcivF6Bw@mail.gmail.com>
-Message-ID: <CAHk-=wjsO=ODvUcwi=SPSzvsxW7Gj+3OU8q4CfHa+zMcivF6Bw@mail.gmail.com>
-Subject: Re: [PATCH next 4/5] locking/osq_lock: Optimise per-cpu data accesses.
-To: David Laight <David.Laight@aculab.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
-	"peterz@infradead.org" <peterz@infradead.org>, "longman@redhat.com" <longman@redhat.com>, 
-	"mingo@redhat.com" <mingo@redhat.com>, "will@kernel.org" <will@kernel.org>, 
-	"boqun.feng@gmail.com" <boqun.feng@gmail.com>, 
-	"xinhui.pan@linux.vnet.ibm.com" <xinhui.pan@linux.vnet.ibm.com>, 
-	"virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, 
-	Zeng Heng <zengheng4@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 
-On Sat, 30 Dec 2023 at 12:41, Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
->
-> UNTESTED patch to just do the "this_cpu_write()" parts attached.
-> Again, note how we do end up doing that this_cpu_ptr conversion later
-> anyway, but at least it's off the critical path.
+RnJvbTogV2FpbWFuIExvbmcNCj4gU2VudDogMzAgRGVjZW1iZXIgMjAyMyAxNTo1Nw0KPiANCj4g
+T24gMTIvMjkvMjMgMjI6MTMsIFdhaW1hbiBMb25nIHdyb3RlOg0KPiA+DQo+ID4gT24gMTIvMjkv
+MjMgMTU6NTgsIERhdmlkIExhaWdodCB3cm90ZToNCj4gPj4gVGhlIHZjcHVfaXNfcHJlZW1wdGVk
+KCkgdGVzdCBzdG9wcyBvc3FfbG9jaygpIHNwaW5uaW5nIGlmIGEgdmlydHVhbA0KPiA+PiDCoMKg
+IGNwdSBpcyBubyBsb25nZXIgcnVubmluZy4NCj4gPj4gQWx0aG91Z2ggcGF0Y2hlZCBvdXQgZm9y
+IGJhcmUtbWV0YWwgdGhlIGNvZGUgc3RpbGwgbmVlZHMgdGhlIGNwdSBudW1iZXIuDQo+ID4+IFJl
+YWRpbmcgdGhpcyBmcm9tICdwcmV2LT5jcHUnIGlzIGEgcHJldHR5IG11Y2ggZ3VhcmFudGVlZCBo
+YXZlIGENCj4gPj4gY2FjaGUgbWlzcw0KPiA+PiB3aGVuIG9zcV91bmxvY2soKSBpcyB3YWtpbmcg
+dXAgdGhlIG5leHQgY3B1Lg0KPiA+Pg0KPiA+PiBJbnN0ZWFkIHNhdmUgJ3ByZXYtPmNwdScgaW4g
+J25vZGUtPnByZXZfY3B1JyBhbmQgdXNlIHRoYXQgdmFsdWUgaW5zdGVhZC4NCj4gPj4gVXBkYXRl
+IGluIHRoZSBvc3FfbG9jaygpICd1bnF1ZXVlJyBwYXRoIHdoZW4gJ25vZGUtPnByZXYnIGlzIGNo
+YW5nZWQuDQo+ID4+DQo+ID4+IFRoaXMgaXMgc2ltcGxlciB0aGFuIGNoZWNraW5nIGZvciAnbm9k
+ZS0+cHJldicgY2hhbmdpbmcgYW5kIGNhY2hpbmcNCj4gPj4gJ3ByZXYtPmNwdScuDQo+ID4+DQo+
+ID4+IFNpZ25lZC1vZmYtYnk6IERhdmlkIExhaWdodCA8ZGF2aWQubGFpZ2h0QGFjdWxhYi5jb20+
+DQo+ID4+IC0tLQ0KPiA+PiDCoCBrZXJuZWwvbG9ja2luZy9vc3FfbG9jay5jIHwgMTQgKysrKysr
+LS0tLS0tLS0NCj4gPj4gwqAgMSBmaWxlIGNoYW5nZWQsIDYgaW5zZXJ0aW9ucygrKSwgOCBkZWxl
+dGlvbnMoLSkNCj4gPj4NCj4gPj4gZGlmZiAtLWdpdCBhL2tlcm5lbC9sb2NraW5nL29zcV9sb2Nr
+LmMgYi9rZXJuZWwvbG9ja2luZy9vc3FfbG9jay5jDQo+ID4+IGluZGV4IGI2MGIwYWRkMDE2MS4u
+ODliZTYzNjI3NDM0IDEwMDY0NA0KPiA+PiAtLS0gYS9rZXJuZWwvbG9ja2luZy9vc3FfbG9jay5j
+DQo+ID4+ICsrKyBiL2tlcm5lbC9sb2NraW5nL29zcV9sb2NrLmMNCj4gPj4gQEAgLTE0LDggKzE0
+LDkgQEANCj4gPj4gwqAgwqAgc3RydWN0IG9wdGltaXN0aWNfc3Bpbl9ub2RlIHsNCj4gPj4gwqDC
+oMKgwqDCoCBzdHJ1Y3Qgb3B0aW1pc3RpY19zcGluX25vZGUgKnNlbGYsICpuZXh0LCAqcHJldjsN
+Cj4gPj4gLcKgwqDCoCBpbnQgbG9ja2VkOyAvKiAxIGlmIGxvY2sgYWNxdWlyZWQgKi8NCj4gPj4g
+LcKgwqDCoCBpbnQgY3B1OyAvKiBlbmNvZGVkIENQVSAjICsgMSB2YWx1ZSAqLw0KPiA+PiArwqDC
+oMKgIGludCBsb2NrZWQ7wqDCoMKgIC8qIDEgaWYgbG9jayBhY3F1aXJlZCAqLw0KPiA+PiArwqDC
+oMKgIGludCBjcHU7wqDCoMKgwqDCoMKgIC8qIGVuY29kZWQgQ1BVICMgKyAxIHZhbHVlICovDQo+
+ID4+ICvCoMKgwqAgaW50IHByZXZfY3B1O8KgIC8qIGFjdHVhbCBDUFUgIyBmb3IgdnBjdV9pc19w
+cmVlbXB0ZWQoKSAqLw0KPiA+PiDCoCB9Ow0KPiA+PiDCoCDCoCBzdGF0aWMgREVGSU5FX1BFUl9D
+UFVfU0hBUkVEX0FMSUdORUQoc3RydWN0IG9wdGltaXN0aWNfc3Bpbl9ub2RlLA0KPiA+PiBvc3Ff
+bm9kZSk7DQo+ID4+IEBAIC0yOSwxMSArMzAsNiBAQCBzdGF0aWMgaW5saW5lIGludCBlbmNvZGVf
+Y3B1KGludCBjcHVfbnIpDQo+ID4+IMKgwqDCoMKgwqAgcmV0dXJuIGNwdV9uciArIDE7DQo+ID4+
+IMKgIH0NCj4gPj4gwqAgLXN0YXRpYyBpbmxpbmUgaW50IG5vZGVfY3B1KHN0cnVjdCBvcHRpbWlz
+dGljX3NwaW5fbm9kZSAqbm9kZSkNCj4gPj4gLXsNCj4gPj4gLcKgwqDCoCByZXR1cm4gbm9kZS0+
+Y3B1IC0gMTsNCj4gPj4gLX0NCj4gPj4gLQ0KPiA+PiDCoCBzdGF0aWMgaW5saW5lIHN0cnVjdCBv
+cHRpbWlzdGljX3NwaW5fbm9kZSAqZGVjb2RlX2NwdShpbnQNCj4gPj4gZW5jb2RlZF9jcHVfdmFs
+KQ0KPiA+PiDCoCB7DQo+ID4+IMKgwqDCoMKgwqAgaW50IGNwdV9uciA9IGVuY29kZWRfY3B1X3Zh
+bCAtIDE7DQo+ID4+IEBAIC0xMTQsNiArMTEwLDcgQEAgYm9vbCBvc3FfbG9jayhzdHJ1Y3Qgb3B0
+aW1pc3RpY19zcGluX3F1ZXVlICpsb2NrKQ0KPiA+PiDCoMKgwqDCoMKgIGlmIChvbGQgPT0gT1NR
+X1VOTE9DS0VEX1ZBTCkNCj4gPj4gwqDCoMKgwqDCoMKgwqDCoMKgIHJldHVybiB0cnVlOw0KPiA+
+PiDCoCArwqDCoMKgIG5vZGUtPnByZXZfY3B1ID0gb2xkIC0gMTsNCj4gPj4gwqDCoMKgwqDCoCBw
+cmV2ID0gZGVjb2RlX2NwdShvbGQpOw0KPiA+PiDCoMKgwqDCoMKgIG5vZGUtPnByZXYgPSBwcmV2
+Ow0KPiA+PiDCoMKgwqDCoMKgIG5vZGUtPmxvY2tlZCA9IDA7DQo+ID4+IEBAIC0xNDgsNyArMTQ1
+LDcgQEAgYm9vbCBvc3FfbG9jayhzdHJ1Y3Qgb3B0aW1pc3RpY19zcGluX3F1ZXVlICpsb2NrKQ0K
+PiA+PiDCoMKgwqDCoMKgwqAgKiBwb2xsaW5nLCBiZSBjYXJlZnVsLg0KPiA+PiDCoMKgwqDCoMKg
+wqAgKi8NCj4gPj4gwqDCoMKgwqDCoCBpZiAoc21wX2NvbmRfbG9hZF9yZWxheGVkKCZub2RlLT5s
+b2NrZWQsIFZBTCB8fCBuZWVkX3Jlc2NoZWQoKSB8fA0KPiA+PiAtwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoCB2Y3B1X2lzX3ByZWVtcHRlZChub2RlX2NwdShub2RlLT5wcmV2KSkp
+KQ0KPiA+PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB2Y3B1X2lzX3ByZWVt
+cHRlZChub2RlLT5wcmV2X2NwdSkpKQ0KPiANCj4gT24gc2Vjb25kIHRob3VnaHQsIEkgYmVsaWV2
+ZSBpdCBpcyBtb3JlIGNvcnJlY3QgdG8gdXNlIFJFQURfT05DRSgpIHRvDQo+IGFjY2VzcyAibm9k
+ZS0+cHJldl9jcHUiIGFzIHRoaXMgZmllbGQgaXMgc3ViamVjdGVkIHRvIGNoYW5nZSBieSBhDQo+
+IFdSSVRFX09OQ0UoKS4NCg0KSXQgY2FuIGJlIGRvbmUuLi4NCg0KQXJlbid0IHByZXR0eSBtdWNo
+IGFsbCB0aGUgJ25vZGUnIG1lbWJlcnMgYWNjZXNzZWQgbGlrZSB0aGF0Pw0KVGhlcmUgYXJlIGEg
+c3ByaW5rbGluZyBvZiBSRUFEX09OQ0UoKSBhbmQgV1JJVEVfT05DRSgpIGJ1dCB0aGV5DQphcmUg
+bm90IGFsd2F5cyB1c2VkLg0KDQpNYXliZSB0aGUgc3RydWN0dXJlIG1lbWJlcihzKSBzaG91bGQg
+anVzdCBiZSBtYXJrZWQgJ3ZvbGF0aWxlJyA6LSkNClRoYXQgc2hvdWxkIGhhdmUgZXhhY3RseSB0
+aGUgc2FtZSBlZmZlY3QgYXMgdGhlIHZvbGF0aWxlIGNhc3QNCmluc2lkZSBSRUFEL1dSSVRFX09O
+Q0UoKS4NCihJIGtub3cgdGhlcmUgaXMgYSBkb2N1bWVudCBhYm91dCBub3QgdXNpbmcgdm9sYXRp
+bGUuLi4pDQoNCkkndmUgbm90IGFjdHVhbGx5IGNoZWNrZWQgd2hldGhlciB0aGUgdHdvIGV4aXN0
+aW5nIFdSSVRFX09OQ0UoKQ0KaW4gJ1N0ZXAgQycgbmVlZCB0byBiZSBvcmRlcmVkIC0gYW5kIHdo
+ZXRoZXIgdGhhdCBpcyBndWFyYW50ZWVkDQpieSB0aGUgY29kZSwgZXNwZWNpYWxseSBvbiBvdXQg
+Z29vZCBvbGQgZnJpZW5kICdBbHBoYScgKGlzIHRoYXQNCmhvcnJpZCBjYWNoZSBzeXN0ZW0gc3Rp
+bGwgc3VwcG9ydGVkPykuDQoNCglEYXZpZA0KDQotDQpSZWdpc3RlcmVkIEFkZHJlc3MgTGFrZXNp
+ZGUsIEJyYW1sZXkgUm9hZCwgTW91bnQgRmFybSwgTWlsdG9uIEtleW5lcywgTUsxIDFQVCwgVUsN
+ClJlZ2lzdHJhdGlvbiBObzogMTM5NzM4NiAoV2FsZXMpDQo=
 
-Also note that while 'this_cpu_ptr()' doesn't exactly generate lovely
-code, it really is still better than caching a value in memory.
-
-At least the memory location that 'this_cpu_ptr()' accesses is
-slightly more likely to be hot (and is right next to the cpu number,
-iirc).
-
-That said, I think we should fix this_cpu_ptr() to not ever generate
-that disgusting cltq just because the cpu pointer has the wrong
-signedness. I don't quite know how to do it, but this:
-
-  -#define per_cpu_offset(x) (__per_cpu_offset[x])
-  +#define per_cpu_offset(x) (__per_cpu_offset[(unsigned)(x)])
-
-at least helps a *bit*. It gets rid of the cltq, at least, but if
-somebody actually passes in an 'unsigned long' cpuid, it would cause
-an unnecessary truncation.
-
-And gcc still generates
-
-        subl    $1, %eax        #, cpu_nr
-        addq    __per_cpu_offset(,%rax,8), %rcx
-
-instead of just doing
-
-        addq    __per_cpu_offset-8(,%rax,8), %rcx
-
-because it still needs to clear the upper 32 bits and doesn't know
-that the 'xchg()' already did that.
-
-Oh well. I guess even without the -1/+1 games by the OSQ code, we
-would still end up with a "movl" just to do that upper bits clearing
-that the compiler doesn't know is unnecessary.
-
-I don't think we have any reasonable way to tell the compiler that the
-register output of our xchg() inline asm has the upper 32 bits clear.
-
-              Linus
