@@ -1,167 +1,144 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 377EB1FAF
-	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 03:20:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CDC96AB3
+	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 11:09:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Zn+PB99O"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AIl9Y7yz"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id B88DB40111
-	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 03:20:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B88DB40111
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Zn+PB99O
+	by smtp1.osuosl.org (Postfix) with ESMTP id C40F481AC1
+	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 11:09:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C40F481AC1
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=AIl9Y7yz
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.099
+X-Spam-Score: -1.5
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ba7kDfgE1DWg
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id C1cWoEQdGbxD
 	for <virtualization@lists.linux-foundation.org>;
-	Sat, 30 Dec 2023 03:20:31 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 9171C400BA
-	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 03:20:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9171C400BA
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1703906430;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=LJA7Dz6XH3eb7dofNJf23l8/rgg/xnXgNticl1fyqpU=;
-	b=Zn+PB99O/xagQKtT7SgUAn9gRfV7GdHMfcRy+3k8ZEsNC0eix2/1kytD9xriTditinlsew
-	aDunU8Tvp7szsQTsE2EBfPxFJVQggQQ1ssnm3nzIWnPek4EYfHNz/Ng2WdbJPlusxpPXYX
-	Z9WOeCha7SLj+gPt51A81Je+iKlCs3g=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-573-jTpncnn7P_m9NnT-cmNEiA-1; Fri, 29 Dec 2023 22:20:26 -0500
-X-MC-Unique: jTpncnn7P_m9NnT-cmNEiA-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 2FBA485A589;
-	Sat, 30 Dec 2023 03:20:26 +0000 (UTC)
-Received: from [10.22.16.36] (unknown [10.22.16.36])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id 7B18F2166B31;
-	Sat, 30 Dec 2023 03:20:25 +0000 (UTC)
-Message-ID: <835f65d9-a041-4956-b89d-7cd3660c3ab8@redhat.com>
-Date: Fri, 29 Dec 2023 22:20:25 -0500
+	Sat, 30 Dec 2023 11:09:26 +0000 (UTC)
+Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id EFC4E81A24
+	for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 11:09:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org EFC4E81A24
+Received: by mail-wm1-x331.google.com with SMTP id 5b1f17b1804b1-40d604b4b30so14702135e9.1
+        for <virtualization@lists.linux-foundation.org>; Sat, 30 Dec 2023 03:09:25 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1703934564; x=1704539364; darn=lists.linux-foundation.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:sender
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=IV2BKMSLhIOyXxbde9JcIy67hYaYu6fjXIgvjqlaklk=;
+        b=AIl9Y7yz9fm6g9izCsegfrWgihJWUYcWaJNjofyzo7+2ZP3TJSlP/gUHO6AlIk0VF5
+         gUBch8y7472sVO4lh/iY2uAd6IffQB+96vvZgI0AmzNSkzQtRqscIbEuEN6EyDEy+qgj
+         eavG0Y/A8cofvsthuUwiD//bCU/lD1IN6oJoxaaRUSfv7zQGIPI73JFUMbQUfEI7Qkq4
+         YvWsSUnstRnAka94OxxxM1iBNmhM9X5oc3ID+UumY6EEvOotikrBWfpj/mR1n3gEn1CS
+         5m/SGdnI+b4cgM6wTDfMUuZNXuTRbfQamZI0H1y2mQuMPRAVoKEVwX79m2bp57Wusmh9
+         kaag==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1703934564; x=1704539364;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:sender
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=IV2BKMSLhIOyXxbde9JcIy67hYaYu6fjXIgvjqlaklk=;
+        b=dpxiYJYusX1rtEPupqBXwqNkiHTntFTpf7FIpYHy3hUBWpW3la01fxmD658OHrWb2u
+         7zNBbooX7O9jg4Y/ZcYG/Z8cpS2+8/T2Wg2R8VjbwsmDiHFGxSoKYg7dxkla/3KvsIHN
+         YeCBKZV2WlKSpqQva8FEYp1Tp8E4HxclLFZw+jAbjIM2Qv065PEGMe5NB8RjzdDNWX8H
+         Nlc3v2K8Dh1msQXZK88HoknNjFKXLeAUtoavoeNrpJtkV/A2lho9WNySBpLZAErjwh3Z
+         o0oEjbH8vBqSJKwKKlJxuVsdvktJ3wpzRR0+y1FhGx2nByk3jQA7hMcU7AENApE7X44O
+         qbbg==
+X-Gm-Message-State: AOJu0YzamVPgg7yjsE7sg5vzIJpAv8pMUBc4i8gCx9qxgHj9Hpy8I7ZD
+	Fzg6TO9QUnNGTQVsVyYAnwY=
+X-Google-Smtp-Source: AGHT+IHuqKd2XEDM9fpOy8gKESWCWJV0+bgGNvMKM9jUh8XBjrtBgKsh/lXXCzQqVstiQ9x3o0vSyQ==
+X-Received: by 2002:a05:600c:5398:b0:40d:418f:a66 with SMTP id hg24-20020a05600c539800b0040d418f0a66mr6147250wmb.7.1703934563783;
+        Sat, 30 Dec 2023 03:09:23 -0800 (PST)
+Received: from gmail.com (195-38-113-95.pool.digikabel.hu. [195.38.113.95])
+        by smtp.gmail.com with ESMTPSA id p7-20020adfe607000000b00336843ae919sm21033294wrm.49.2023.12.30.03.09.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 30 Dec 2023 03:09:22 -0800 (PST)
+Sender: Ingo Molnar <mingo.kernel.org@gmail.com>
+Date: Sat, 30 Dec 2023 12:09:20 +0100
+From: Ingo Molnar <mingo@kernel.org>
+To: Waiman Long <longman@redhat.com>
+Cc: David Laight <David.Laight@aculab.com>,
+	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+	"'peterz@infradead.org'" <peterz@infradead.org>,
+	"'mingo@redhat.com'" <mingo@redhat.com>,
+	"'will@kernel.org'" <will@kernel.org>,
+	"'boqun.feng@gmail.com'" <boqun.feng@gmail.com>,
+	'Linus Torvalds' <torvalds@linux-foundation.org>,
+	"'xinhui.pan@linux.vnet.ibm.com'" <xinhui.pan@linux.vnet.ibm.com>,
+	"'virtualization@lists.linux-foundation.org'" <virtualization@lists.linux-foundation.org>,
+	'Zeng Heng' <zengheng4@huawei.com>
+Subject: Re: [PATCH next 4/5] locking/osq_lock: Optimise per-cpu data
+ accesses.
+Message-ID: <ZY/6YCNJ7tSCmiGo@gmail.com>
+References: <73a4b31c9c874081baabad9e5f2e5204@AcuMS.aculab.com>
+ <bddb6b00434d4492abca4725c10f8d5a@AcuMS.aculab.com>
+ <346c40b5-686f-461e-a1e3-9f255418efb2@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH next 2/5] locking/osq_lock: Avoid dirtying the local cpu's
- 'node' in the osq_lock() fast path.
-Content-Language: en-US
-To: David Laight <David.Laight@ACULAB.COM>,
- "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
- "'peterz@infradead.org'" <peterz@infradead.org>
-Cc: "'mingo@redhat.com'" <mingo@redhat.com>,
- "'will@kernel.org'" <will@kernel.org>,
- "'boqun.feng@gmail.com'" <boqun.feng@gmail.com>,
- 'Linus Torvalds' <torvalds@linux-foundation.org>,
- "'xinhui.pan@linux.vnet.ibm.com'" <xinhui.pan@linux.vnet.ibm.com>,
- "'virtualization@lists.linux-foundation.org'"
- <virtualization@lists.linux-foundation.org>,
- 'Zeng Heng' <zengheng4@huawei.com>
-References: <73a4b31c9c874081baabad9e5f2e5204@AcuMS.aculab.com>
- <fbb1f9ed42b2460c93eeac43a92157c8@AcuMS.aculab.com>
-From: Waiman Long <longman@redhat.com>
-In-Reply-To: <fbb1f9ed42b2460c93eeac43a92157c8@AcuMS.aculab.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.6
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <346c40b5-686f-461e-a1e3-9f255418efb2@redhat.com>
 
 
-On 12/29/23 17:11, David Laight wrote:
-> osq_lock() starts by setting node->next to NULL and node->locked to 0.
-> Careful analysis shows that node->next is always NULL on entry.
->
-> node->locked is set non-zero by another cpu to force a wakeup.
-> This can only happen after the 'prev->next = node' assignment,
-> so locked can be set to zero just before that (along with the assignment
-> to node->prev).
->
-> Only initialise node->cpu once, after that use its value instead
-> of smp_processor_id() - which is probably a real function call.
->
-> Should reduce cache-line bouncing a little.
->
-> Signed-off-by: David Laight <david.laight@aculab.com>
-> ---
->
-> Re-send without the 'RE:' on the subject line.
->   kernel/locking/osq_lock.c | 13 ++++++-------
->   1 file changed, 6 insertions(+), 7 deletions(-)
->
-> diff --git a/kernel/locking/osq_lock.c b/kernel/locking/osq_lock.c
-> index d414eef4bec6..55f5db896c02 100644
-> --- a/kernel/locking/osq_lock.c
-> +++ b/kernel/locking/osq_lock.c
-> @@ -51,7 +51,7 @@ osq_wait_next(struct optimistic_spin_queue *lock,
->   	      struct optimistic_spin_node *prev)
->   {
->   	struct optimistic_spin_node *next = NULL;
-> -	int curr = encode_cpu(smp_processor_id());
-> +	int curr = node->cpu;
->   	int old;
->   
->   	/*
-> @@ -98,12 +98,10 @@ bool osq_lock(struct optimistic_spin_queue *lock)
->   {
->   	struct optimistic_spin_node *node = this_cpu_ptr(&osq_node);
->   	struct optimistic_spin_node *prev, *next;
-> -	int curr = encode_cpu(smp_processor_id());
->   	int old;
->   
-> -	node->locked = 0;
-> -	node->next = NULL;
+* Waiman Long <longman@redhat.com> wrote:
 
-I have some concern about not clearing node->next at the beginning. I 
-know that next is supposed to be cleared at the end. I do have some 
-worry that there may exist a race condition that leaves next not cleared 
-before it is used again. So you either have to prove that such a race 
-does not exist, or initializing it to NULL at the beginning like it is 
-today.
+> On 12/29/23 15:57, David Laight wrote:
+> > this_cpu_ptr() is rather more expensive than raw_cpu_read() since
+> > the latter can use an 'offset from register' (%gs for x86-84).
+> > 
+> > Add a 'self' field to 'struct optimistic_spin_node' that can be
+> > read with raw_cpu_read(), initialise on first call.
+> > 
+> > Signed-off-by: David Laight <david.laight@aculab.com>
+> > ---
+> >   kernel/locking/osq_lock.c | 14 +++++++++-----
+> >   1 file changed, 9 insertions(+), 5 deletions(-)
+> > 
+> > diff --git a/kernel/locking/osq_lock.c b/kernel/locking/osq_lock.c
+> > index 9bb3a077ba92..b60b0add0161 100644
+> > --- a/kernel/locking/osq_lock.c
+> > +++ b/kernel/locking/osq_lock.c
+> > @@ -13,7 +13,7 @@
+> >    */
+> >   struct optimistic_spin_node {
+> > -	struct optimistic_spin_node *next, *prev;
+> > +	struct optimistic_spin_node *self, *next, *prev;
+> >   	int locked; /* 1 if lock acquired */
+> >   	int cpu; /* encoded CPU # + 1 value */
+> >   };
+> > @@ -93,12 +93,16 @@ osq_wait_next(struct optimistic_spin_queue *lock,
+> >   bool osq_lock(struct optimistic_spin_queue *lock)
+> >   {
+> > -	struct optimistic_spin_node *node = this_cpu_ptr(&osq_node);
+> > +	struct optimistic_spin_node *node = raw_cpu_read(osq_node.self);
+> 
+> My gcc 11 compiler produces the following x86-64 code:
+> 
+> 92        struct optimistic_spin_node *node = this_cpu_ptr(&osq_node);
+>    0x0000000000000029 <+25>:    mov    %rcx,%rdx
+>    0x000000000000002c <+28>:    add %gs:0x0(%rip),%rdx        # 0x34
+> <osq_lock+36>
+> 
+> Which looks pretty optimized for me. Maybe older compiler may generate more
+> complex code. However, I do have some doubt as to the benefit of this patch
+> at the expense of making the code a bit more complex.
 
-Cheers,
-Longman
+GCC-11 is plenty of a look-back window in terms of compiler efficiency: 
+latest enterprise distros use GCC-11 or newer, while recent desktop 
+distros use GCC-13. Anything older won't matter, because no major 
+distribution is going to use new kernels with old compilers.
 
-> -	node->cpu = curr;
-> +	if (unlikely(node->cpu == OSQ_UNLOCKED_VAL))
-> +		node->cpu = encode_cpu(smp_processor_id());
->   
->   	/*
->   	 * We need both ACQUIRE (pairs with corresponding RELEASE in
-> @@ -111,12 +109,13 @@ bool osq_lock(struct optimistic_spin_queue *lock)
->   	 * the node fields we just initialised) semantics when updating
->   	 * the lock tail.
->   	 */
-> -	old = atomic_xchg(&lock->tail, curr);
-> +	old = atomic_xchg(&lock->tail, node->cpu);
->   	if (old == OSQ_UNLOCKED_VAL)
->   		return true;
->   
->   	prev = decode_cpu(old);
->   	node->prev = prev;
-> +	node->locked = 0;
->   
->   	/*
->   	 * osq_lock()			unqueue
-> @@ -214,7 +213,7 @@ bool osq_lock(struct optimistic_spin_queue *lock)
->   void osq_unlock(struct optimistic_spin_queue *lock)
->   {
->   	struct optimistic_spin_node *node, *next;
-> -	int curr = encode_cpu(smp_processor_id());
-> +	int curr = raw_cpu_read(osq_node.cpu);
->   
->   	/*
->   	 * Fast path for the uncontended case.
+Thanks,
 
+	Ingo
