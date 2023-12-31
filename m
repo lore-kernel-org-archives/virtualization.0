@@ -1,276 +1,95 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB9EF14F92
-	for <virtualization@lists.linux-foundation.org>; Sun, 31 Dec 2023 08:30:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="d1uk5UH4";
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=lists.infradead.org header.i=@lists.infradead.org header.b="iQJ+cNE0";
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gkC6EgOJ"
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 298BA8F48
+	for <virtualization@lists.linux-foundation.org>; Sun, 31 Dec 2023 10:37:07 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 0BC5F40133
-	for <virtualization@lists.linux-foundation.org>; Sun, 31 Dec 2023 08:30:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0BC5F40133
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=d1uk5UH4;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=lists.infradead.org header.i=@lists.infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=iQJ+cNE0;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=gkC6EgOJ
+	by smtp3.osuosl.org (Postfix) with ESMTP id 9D0B86076C
+	for <virtualization@lists.linux-foundation.org>; Sun, 31 Dec 2023 10:37:07 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9D0B86076C
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -5.4
+X-Spam-Score: -1.898
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id d9g8YL2YAlKp
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id BtqrAg1t_JNY
 	for <virtualization@lists.linux-foundation.org>;
-	Sun, 31 Dec 2023 08:30:41 +0000 (UTC)
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 740E8400FE
-	for <virtualization@lists.linux-foundation.org>; Sun, 31 Dec 2023 08:30:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 740E8400FE
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sin.source.kernel.org (Postfix) with ESMTP id 266E5CE03F7;
-	Sun, 31 Dec 2023 08:30:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50866C433C7;
-	Sun, 31 Dec 2023 08:30:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1704011435;
-	bh=dnHR257j+jKliUOroX7jMso8+9dco+Hs5nZRQGQYmtM=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-Id:
-	 List-Unsubscribe:List-Archive:List-Post:List-Help:List-Subscribe:
-	 From;
-	b=d1uk5UH41V7wufapyLnymGetbYvcmf3WG3zRg64H+XZacA7jdyNXpDQgIGks5KUqb
-	 6bi7r7C3CwQQv0VuSvFlUgng0nWsekir0F0AEdt3WSohTED5lHKuR4kItvPsdcSiX/
-	 PsgW7DujbjoVT+gRM8Y8n9vKkEw/MLkUYTqAWgPNqzYEVrAu075+eCyViE1CjeBYVn
-	 HDJ+bHBmr+6W1MWsY+gXvSSMej0kfShWq5Vemk9B7gvim93Z4yfcOyru+hZchQd+vC
-	 VLOvTqIxUD5WxDP2XVu24aNW5BurmO/Ij0SliYmdBfL7KbDdUlVVngKqwUJAu1bTiA
-	 qhKVi9IFCBYUw==
-From: guoren@kernel.org
-To: paul.walmsley@sifive.com,
-	palmer@dabbelt.com,
-	guoren@kernel.org,
-	panqinglin2020@iscas.ac.cn,
-	bjorn@rivosinc.com,
-	conor.dooley@microchip.com,
-	leobras@redhat.com,
-	peterz@infradead.org,
-	keescook@chromium.org,
-	wuwei2016@iscas.ac.cn,
-	xiaoguang.xing@sophgo.com,
-	chao.wei@sophgo.com,
-	unicorn_wang@outlook.com,
-	uwu@icenowy.me,
-	jszhang@kernel.org,
-	wefu@redhat.com,
-	atishp@atishpatra.org,
-	ajones@ventanamicro.com,
-	anup@brainfault.org,
-	mingo@redhat.com,
-	will@kernel.org,
-	palmer@rivosinc.com,
-	longman@redhat.com,
-	boqun.feng@gmail.com,
-	tglx@linutronix.de,
-	paulmck@kernel.org,
-	rostedt@goodmis.org,
-	rdunlap@infradead.org,
-	catalin.marinas@arm.com,
-	alexghiti@rivosinc.com,
-	greentime.hu@sifive.com
-Cc: linux-riscv@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	linux-arch@vger.kernel.org,
-	linux-doc@vger.kernel.org,
-	kvm@vger.kernel.org,
-	virtualization@lists.linux-foundation.org,
-	linux-csky@vger.kernel.org,
-	Guo Ren <guoren@linux.alibaba.com>
-Subject: [PATCH V11 03/17] riscv: Use Zicbop in arch_xchg when available
-Date: Sun, 31 Dec 2023 03:29:54 -0500
-Message-Id: <20230910082911.3378782-4-guoren@kernel.org>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20230910082911.3378782-1-guoren@kernel.org>
-References: <20230910082911.3378782-1-guoren@kernel.org>
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133]) (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits)) (No client certificate requested) by smtp.lore.kernel.org (Postfix) with ESMTPS id 50958EEB580 for <linux-riscv@archiver.kernel.org>; Sun, 10 Sep 2023 08:30:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lists.infradead.org; s=bombadil.20210309; h=Sender: Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post: List-Archive:List-Unsubscribe:List-Id:MIME-Version:References:In-Reply-To: Message-Id:Date:Subject:Cc:To:From:Reply-To:Content-ID:Content-Description: Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID: List-Owner; bh=4L0nrjop/yYiW0hH7bWnUJW3x1Y2/z29AccgRVRtGJQ=; b=iQJ+cNE0UPz98m csVnUhzqLl2rjuEOUfC+YpbtFNWCh2y+UNoXnbV8DhWN697TF18Q0nw5+MVq4R4lVhFd4SUReZi5G 0dQFD2Zmwm9IEEMuNkVjaQ2eRmeP1P3CAGM8BPioJecgfuph63p47wjl7zeaNZybr4wGkL6+rlXS9 XcRR4DO94575Yl84OvMg9VrhtSmHn7p1Eyz4VaXv5s2z1zaA/teyqEuioRkiYgTT+F88+XwxDhu25 SU4MrkqDYhkIGZD1mtB8gDj4dZi8An+Z9/5hpwiq6KW1LT/UxqVQay6mH62tDdZLWEFBMW4iVceKc kmzjURUL+ntk1RHUT1Rw==;
-Received: from localhost ([::1] helo=bombadil.infradead.org) by bombadil.infradead.org with esmtp (Exim 4.96 #2 (Red Hat Linux)) id 1qfFpx-00GHdE-2K; Sun, 10 Sep 2023 08:30:33 +0000
-Received: from ams.source.kernel.org ([145.40.68.75]) by bombadil.infradead.org with esmtps (Exim 4.96 #2 (Red Hat Linux)) id 1qfFpu-00GHcQ-0G for linux-riscv@lists.infradead.org; Sun, 10 Sep 2023 08:30:31 +0000
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140]) (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits) key-exchange X25519 server-signature RSA-PSS (2048 bits)) (No client certificate requested) by ams.source.kernel.org (Postfix) with ESMTPS id 4766DB80AF3; Sun, 10 Sep 2023 08:30:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F0A2C433CC; Sun, 10 Sep 2023 08:30:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org; s=k20201202; t=1694334627; bh=JHxtCSFAXXj+aAh2d1UzrcmVnbP7XJ2TAFbFny2j3pM=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From; b=gkC6EgOJCLxEIUZxkbIuR1YvLQRbsEdcIriRqReFcbydI85IYQob0oUNpPRgyojoN Ngd6SVyuYUJtvWMoqh6PbN8d13dOhFeQ6J2Gzu/aCowb49eOF7LBbcoUn40G3KqnDS Pdtvoj+iD080UL1k8d9qE19wDPh1uSP0OwUxMwi2n7mncnsNvPCJCMOyMx9hCYGlzd XwOnTEXflDp0+8Vfk/PHZSusn8wvbkhZFtrOifwwgZWYXuqhfdfpCog0ptjNWSqU6D Ig3SYK1z5xii6D7nfdzIEgQbg+tJf3vrftC1cnvT4pqDpP2WsggkJXCzcJPS5Hw+wr QhrAAJDCXpvvg==
-X-Mailer: git-send-email 2.36.1
+	Sun, 31 Dec 2023 10:37:06 +0000 (UTC)
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 6E5B660769
+	for <virtualization@lists.linux-foundation.org>; Sun, 31 Dec 2023 10:37:06 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6E5B660769
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with both STARTTLS and AUTH (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-167-hl52G5dpPUiy9gyuEPsLjw-1; Sun, 31 Dec 2023 10:37:02 +0000
+X-MC-Unique: hl52G5dpPUiy9gyuEPsLjw-1
+Received: from AcuMS.Aculab.com (10.202.163.4) by AcuMS.aculab.com
+ (10.202.163.4) with Microsoft SMTP Server (TLS) id 15.0.1497.48; Sun, 31 Dec
+ 2023 10:36:43 +0000
+Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
+ id 15.00.1497.048; Sun, 31 Dec 2023 10:36:42 +0000
+From: David Laight <David.Laight@ACULAB.COM>
+To: 'Waiman Long' <longman@redhat.com>, 'Ingo Molnar' <mingo@kernel.org>
+CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+	"'peterz@infradead.org'" <peterz@infradead.org>, "'mingo@redhat.com'"
+	<mingo@redhat.com>, "'will@kernel.org'" <will@kernel.org>,
+	"'boqun.feng@gmail.com'" <boqun.feng@gmail.com>, 'Linus Torvalds'
+	<torvalds@linux-foundation.org>, "'xinhui.pan@linux.vnet.ibm.com'"
+	<xinhui.pan@linux.vnet.ibm.com>,
+	"'virtualization@lists.linux-foundation.org'"
+	<virtualization@lists.linux-foundation.org>, 'Zeng Heng'
+	<zengheng4@huawei.com>
+Subject: RE: [PATCH next 4/5] locking/osq_lock: Optimise per-cpu data
+ accesses.
+Thread-Topic: [PATCH next 4/5] locking/osq_lock: Optimise per-cpu data
+ accesses.
+Thread-Index: Ado6mZUJWFdx4PkETd+mn/PWVjPd0AAdwkAdAABoNTAAIPHkAAAPh8wQ
+Date: Sun, 31 Dec 2023 10:36:42 +0000
+Message-ID: <2241a2a53f48448c9fb435f893444cd7@AcuMS.aculab.com>
+References: <73a4b31c9c874081baabad9e5f2e5204@AcuMS.aculab.com>
+ <bddb6b00434d4492abca4725c10f8d5a@AcuMS.aculab.com>
+ <346c40b5-686f-461e-a1e3-9f255418efb2@redhat.com>
+ <ZY/6YCNJ7tSCmiGo@gmail.com>
+ <4b9da867c24f4ff990851050c8f61515@AcuMS.aculab.com>
+ <910ac70a-5503-4594-b5b2-b2ba86bf8435@redhat.com>
+In-Reply-To: <910ac70a-5503-4594-b5b2-b2ba86bf8435@redhat.com>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-BeenThere: linux-riscv@lists.infradead.org
-X-Mailman-Version: 2.1.34
-Precedence: list
-List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
-List-Post: <mailto:linux-riscv@lists.infradead.org>
-List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
-Content-Type: text/plain; charset="us-ascii"
-Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
-Errors-To: linux-riscv-bounces+linux-riscv=archiver.kernel.org@lists.infradead.org
-Content-Transfer-Encoding: 8bit
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 
-From: Guo Ren <guoren@linux.alibaba.com>
-
-Cache-block prefetch instructions are HINTs to the hardware to
-indicate that software intends to perform a particular type of
-memory access in the near future. Enable ARCH_HAS_PREFETCHW and
-improve the arch_xchg for qspinlock xchg_tail.
-
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-Signed-off-by: Guo Ren <guoren@kernel.org>
----
- arch/riscv/Kconfig                 | 15 +++++++++++++++
- arch/riscv/include/asm/cmpxchg.h   |  4 +++-
- arch/riscv/include/asm/hwcap.h     |  1 +
- arch/riscv/include/asm/insn-def.h  |  5 +++++
- arch/riscv/include/asm/processor.h | 13 +++++++++++++
- arch/riscv/kernel/cpufeature.c     |  1 +
- 6 files changed, 38 insertions(+), 1 deletion(-)
-
-diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-index e9ae6fa232c3..2c346fe169c1 100644
---- a/arch/riscv/Kconfig
-+++ b/arch/riscv/Kconfig
-@@ -617,6 +617,21 @@ config RISCV_ISA_ZICBOZ
- 
- 	   If you don't know what to do here, say Y.
- 
-+config RISCV_ISA_ZICBOP
-+	bool "Zicbop extension support for cache block prefetch"
-+	depends on MMU
-+	depends on RISCV_ALTERNATIVE
-+	default y
-+	help
-+	   Adds support to dynamically detect the presence of the ZICBOP
-+	   extension (Cache Block Prefetch Operations) and enable its
-+	   usage.
-+
-+	   The Zicbop extension can be used to prefetch cache block for
-+	   read/write/instruction fetch.
-+
-+	   If you don't know what to do here, say Y.
-+
- config TOOLCHAIN_HAS_ZIHINTPAUSE
- 	bool
- 	default y
-diff --git a/arch/riscv/include/asm/cmpxchg.h b/arch/riscv/include/asm/cmpxchg.h
-index 702725727671..56eff7a9d2d2 100644
---- a/arch/riscv/include/asm/cmpxchg.h
-+++ b/arch/riscv/include/asm/cmpxchg.h
-@@ -11,6 +11,7 @@
- 
- #include <asm/barrier.h>
- #include <asm/fence.h>
-+#include <asm/processor.h>
- 
- #define __arch_xchg_masked(prepend, append, r, p, n)			\
- ({									\
-@@ -25,6 +26,7 @@
- 									\
- 	__asm__ __volatile__ (						\
- 	       prepend							\
-+	       PREFETCHW_ASM(%5)					\
- 	       "0:	lr.w %0, %2\n"					\
- 	       "	and  %1, %0, %z4\n"				\
- 	       "	or   %1, %1, %z3\n"				\
-@@ -32,7 +34,7 @@
- 	       "	bnez %1, 0b\n"					\
- 	       append							\
- 	       : "=&r" (__retx), "=&r" (__rc), "+A" (*(__ptr32b))	\
--	       : "rJ" (__newx), "rJ" (~__mask)				\
-+	       : "rJ" (__newx), "rJ" (~__mask), "rJ" (__ptr32b)		\
- 	       : "memory");						\
- 									\
- 	r = (__typeof__(*(p)))((__retx & __mask) >> __s);		\
-diff --git a/arch/riscv/include/asm/hwcap.h b/arch/riscv/include/asm/hwcap.h
-index b7b58258f6c7..78b7b8b53778 100644
---- a/arch/riscv/include/asm/hwcap.h
-+++ b/arch/riscv/include/asm/hwcap.h
-@@ -58,6 +58,7 @@
- #define RISCV_ISA_EXT_ZICSR		40
- #define RISCV_ISA_EXT_ZIFENCEI		41
- #define RISCV_ISA_EXT_ZIHPM		42
-+#define RISCV_ISA_EXT_ZICBOP		43
- 
- #define RISCV_ISA_EXT_MAX		64
- 
-diff --git a/arch/riscv/include/asm/insn-def.h b/arch/riscv/include/asm/insn-def.h
-index 6960beb75f32..dc590d331894 100644
---- a/arch/riscv/include/asm/insn-def.h
-+++ b/arch/riscv/include/asm/insn-def.h
-@@ -134,6 +134,7 @@
- 
- #define RV_OPCODE_MISC_MEM	RV_OPCODE(15)
- #define RV_OPCODE_SYSTEM	RV_OPCODE(115)
-+#define RV_OPCODE_PREFETCH	RV_OPCODE(19)
- 
- #define HFENCE_VVMA(vaddr, asid)				\
- 	INSN_R(OPCODE_SYSTEM, FUNC3(0), FUNC7(17),		\
-@@ -196,4 +197,8 @@
- 	INSN_I(OPCODE_MISC_MEM, FUNC3(2), __RD(0),		\
- 	       RS1(base), SIMM12(4))
- 
-+#define CBO_prefetchw(base)					\
-+	INSN_R(OPCODE_PREFETCH, FUNC3(6), FUNC7(0),		\
-+	       RD(x0), RS1(base), RS2(x0))
-+
- #endif /* __ASM_INSN_DEF_H */
-diff --git a/arch/riscv/include/asm/processor.h b/arch/riscv/include/asm/processor.h
-index de9da852f78d..7ad3a24212e8 100644
---- a/arch/riscv/include/asm/processor.h
-+++ b/arch/riscv/include/asm/processor.h
-@@ -12,6 +12,8 @@
- #include <vdso/processor.h>
- 
- #include <asm/ptrace.h>
-+#include <asm/insn-def.h>
-+#include <asm/hwcap.h>
- 
- #ifdef CONFIG_64BIT
- #define DEFAULT_MAP_WINDOW	(UL(1) << (MMAP_VA_BITS - 1))
-@@ -103,6 +105,17 @@ static inline void arch_thread_struct_whitelist(unsigned long *offset,
- #define KSTK_EIP(tsk)		(ulong)(task_pt_regs(tsk)->epc)
- #define KSTK_ESP(tsk)		(ulong)(task_pt_regs(tsk)->sp)
- 
-+#define ARCH_HAS_PREFETCHW
-+#define PREFETCHW_ASM(base)	ALTERNATIVE(__nops(1), \
-+					    CBO_prefetchw(base), \
-+					    0, \
-+					    RISCV_ISA_EXT_ZICBOP, \
-+					    CONFIG_RISCV_ISA_ZICBOP)
-+static inline void prefetchw(const void *ptr)
-+{
-+	asm volatile(PREFETCHW_ASM(%0)
-+		: : "r" (ptr) : "memory");
-+}
- 
- /* Do necessary setup to start up a newly executed thread. */
- extern void start_thread(struct pt_regs *regs,
-diff --git a/arch/riscv/kernel/cpufeature.c b/arch/riscv/kernel/cpufeature.c
-index ef7b4fd9e876..e0b897db0b97 100644
---- a/arch/riscv/kernel/cpufeature.c
-+++ b/arch/riscv/kernel/cpufeature.c
-@@ -159,6 +159,7 @@ const struct riscv_isa_ext_data riscv_isa_ext[] = {
- 	__RISCV_ISA_EXT_DATA(h, RISCV_ISA_EXT_h),
- 	__RISCV_ISA_EXT_DATA(zicbom, RISCV_ISA_EXT_ZICBOM),
- 	__RISCV_ISA_EXT_DATA(zicboz, RISCV_ISA_EXT_ZICBOZ),
-+	__RISCV_ISA_EXT_DATA(zicbop, RISCV_ISA_EXT_ZICBOP),
- 	__RISCV_ISA_EXT_DATA(zicntr, RISCV_ISA_EXT_ZICNTR),
- 	__RISCV_ISA_EXT_DATA(zicsr, RISCV_ISA_EXT_ZICSR),
- 	__RISCV_ISA_EXT_DATA(zifencei, RISCV_ISA_EXT_ZIFENCEI),
--- 
-2.36.1
-
-
-_______________________________________________
-linux-riscv mailing list
-linux-riscv@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-riscv
+RnJvbTogV2FpbWFuIExvbmcNCj4gU2VudDogMzEgRGVjZW1iZXIgMjAyMyAwMzowNA0KLi4uLg0K
+PiBUaGUgcHJlc2VuY2Ugb2YgZGVidWdfc21wX3Byb2Nlc3Nvcl9pZCBpbiB5b3VyIGNvbXBpbGVk
+IGNvZGUgaXMgbGlrZWx5DQo+IGR1ZSB0byB0aGUgc2V0dGluZyBvZiBDT05GSUdfREVCVUdfUFJF
+RU1QVCBpbiB5b3VyIGtlcm5lbCBjb25maWcuDQo+IA0KPiAjaWZkZWYgQ09ORklHX0RFQlVHX1BS
+RUVNUFQNCj4gIMKgIGV4dGVybiB1bnNpZ25lZCBpbnQgZGVidWdfc21wX3Byb2Nlc3Nvcl9pZCh2
+b2lkKTsNCj4gIyBkZWZpbmUgc21wX3Byb2Nlc3Nvcl9pZCgpIGRlYnVnX3NtcF9wcm9jZXNzb3Jf
+aWQoKQ0KPiAjZWxzZQ0KPiAjIGRlZmluZSBzbXBfcHJvY2Vzc29yX2lkKCkgX19zbXBfcHJvY2Vz
+c29yX2lkKCkNCj4gI2VuZGlmDQo+IA0KPiBJIGRvbid0IGhhdmUgdGhhdCBjb25maWcgZW50cnkg
+aW4gbXkga2VybmVsIGNvbmZpZyBhbmQgc28gSSBvbmx5IGdldCAyDQo+IGluc3RydWN0aW9ucyBm
+b3IgdGhpc19jcHVfcHRyKCkuIFdlIGFyZSBub3QgZ29pbmcgdG8gb3B0aW1pemUgdGhlIGNvZGUN
+Cj4gc3BlY2lmaWNhbGx5IGZvciBDT05GSUdfREVCVUdfUFJFRU1QVCBhbmQgc28gdGhpcyBwYXRj
+aCBzaG91bGQgYmUgZHJvcHBlZC4NCg0KWWVzLCBJIGRpc2NvdmVyZWQgdGhhdCBsYXRlIGxhc3Qg
+bmlnaHQuDQpJJ3ZlIG5vIGlkZWEgd2h5IGl0IGlzIHNldC4NCkl0IG1pZ2h0IGV2ZW4gYmUgaW5o
+ZXJpdGVkIGZyb20gdGhlIHVidW50dSAxOC4wNCAoSSB0aGluaykgLmNvbmZpZw0KSSBzdGFydGVk
+IHdpdGggKG1vc3RseSByZW1vdmluZyBleHRyYSBtb2R1bGVzIHRvIHJlZHVjZSBjb21waWxlDQp0
+aW1lIGFuZCB0aGUgc2l6ZSBvZiB1cmFtZGlzaykuDQoNCkknbGwgbG9vayBhdCB0aGUgcGF0Y2hl
+cyBhZ2Fpbi4NClNhdmluZyBub2RlLT5wcmV2LT5jcHUgYXMgbm9kZS0+cHJldl9jcHUgd2lsbCBk
+ZWZpbml0ZWx5IHNhdmUNCnRoZSBjYWNoZS1saW5lIGJvdW5jZS4NCg0KCURhdmlkDQoNCi0NClJl
+Z2lzdGVyZWQgQWRkcmVzcyBMYWtlc2lkZSwgQnJhbWxleSBSb2FkLCBNb3VudCBGYXJtLCBNaWx0
+b24gS2V5bmVzLCBNSzEgMVBULCBVSw0KUmVnaXN0cmF0aW9uIE5vOiAxMzk3Mzg2IChXYWxlcykN
+Cg==
 
