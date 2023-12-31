@@ -1,206 +1,276 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A6A715A4
-	for <virtualization@lists.linux-foundation.org>; Sun, 31 Dec 2023 03:04:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB9EF14F92
+	for <virtualization@lists.linux-foundation.org>; Sun, 31 Dec 2023 08:30:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="I/pxPufF"
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="d1uk5UH4";
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=lists.infradead.org header.i=@lists.infradead.org header.b="iQJ+cNE0";
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gkC6EgOJ"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id CC6918123C
-	for <virtualization@lists.linux-foundation.org>; Sun, 31 Dec 2023 03:04:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CC6918123C
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=I/pxPufF
+	by smtp2.osuosl.org (Postfix) with ESMTP id 0BC5F40133
+	for <virtualization@lists.linux-foundation.org>; Sun, 31 Dec 2023 08:30:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0BC5F40133
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=d1uk5UH4;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=lists.infradead.org header.i=@lists.infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=iQJ+cNE0;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=gkC6EgOJ
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.099
+X-Spam-Score: -5.4
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id U84gc8q-NtJl
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id d9g8YL2YAlKp
 	for <virtualization@lists.linux-foundation.org>;
-	Sun, 31 Dec 2023 03:04:18 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id E9245810CC
-	for <virtualization@lists.linux-foundation.org>; Sun, 31 Dec 2023 03:04:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E9245810CC
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1703991856;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=IT/n07HZ/2mOvnFD6dGSeRcaJ3NLAIa0Bqdh0XqcV1E=;
-	b=I/pxPufFJNe2QtTaIPiVn3WdUCIjAuQpRlDZWapepwra5jrXzppk1ewn/dqz4whH2q6gyS
-	8e1liUmd5XbayzW5TuaZJpRJpYFzJ0Hl7Gktm8Q+y+Ijh9YSydXSgKVW9XcFodPXSZkVRu
-	WWlPl/3damk0HhYq8GfeAtTAyQqSE80=
-Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
- by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-688-84_5THisOfOJ0RMlQRNxgQ-1; Sat,
- 30 Dec 2023 22:04:12 -0500
-X-MC-Unique: 84_5THisOfOJ0RMlQRNxgQ-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id CEA7E2837811;
-	Sun, 31 Dec 2023 03:04:11 +0000 (UTC)
-Received: from [10.22.32.46] (unknown [10.22.32.46])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id 1E5051121306;
-	Sun, 31 Dec 2023 03:04:11 +0000 (UTC)
-Message-ID: <910ac70a-5503-4594-b5b2-b2ba86bf8435@redhat.com>
-Date: Sat, 30 Dec 2023 22:04:10 -0500
+	Sun, 31 Dec 2023 08:30:41 +0000 (UTC)
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 740E8400FE
+	for <virtualization@lists.linux-foundation.org>; Sun, 31 Dec 2023 08:30:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 740E8400FE
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by sin.source.kernel.org (Postfix) with ESMTP id 266E5CE03F7;
+	Sun, 31 Dec 2023 08:30:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50866C433C7;
+	Sun, 31 Dec 2023 08:30:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1704011435;
+	bh=dnHR257j+jKliUOroX7jMso8+9dco+Hs5nZRQGQYmtM=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-Id:
+	 List-Unsubscribe:List-Archive:List-Post:List-Help:List-Subscribe:
+	 From;
+	b=d1uk5UH41V7wufapyLnymGetbYvcmf3WG3zRg64H+XZacA7jdyNXpDQgIGks5KUqb
+	 6bi7r7C3CwQQv0VuSvFlUgng0nWsekir0F0AEdt3WSohTED5lHKuR4kItvPsdcSiX/
+	 PsgW7DujbjoVT+gRM8Y8n9vKkEw/MLkUYTqAWgPNqzYEVrAu075+eCyViE1CjeBYVn
+	 HDJ+bHBmr+6W1MWsY+gXvSSMej0kfShWq5Vemk9B7gvim93Z4yfcOyru+hZchQd+vC
+	 VLOvTqIxUD5WxDP2XVu24aNW5BurmO/Ij0SliYmdBfL7KbDdUlVVngKqwUJAu1bTiA
+	 qhKVi9IFCBYUw==
+From: guoren@kernel.org
+To: paul.walmsley@sifive.com,
+	palmer@dabbelt.com,
+	guoren@kernel.org,
+	panqinglin2020@iscas.ac.cn,
+	bjorn@rivosinc.com,
+	conor.dooley@microchip.com,
+	leobras@redhat.com,
+	peterz@infradead.org,
+	keescook@chromium.org,
+	wuwei2016@iscas.ac.cn,
+	xiaoguang.xing@sophgo.com,
+	chao.wei@sophgo.com,
+	unicorn_wang@outlook.com,
+	uwu@icenowy.me,
+	jszhang@kernel.org,
+	wefu@redhat.com,
+	atishp@atishpatra.org,
+	ajones@ventanamicro.com,
+	anup@brainfault.org,
+	mingo@redhat.com,
+	will@kernel.org,
+	palmer@rivosinc.com,
+	longman@redhat.com,
+	boqun.feng@gmail.com,
+	tglx@linutronix.de,
+	paulmck@kernel.org,
+	rostedt@goodmis.org,
+	rdunlap@infradead.org,
+	catalin.marinas@arm.com,
+	alexghiti@rivosinc.com,
+	greentime.hu@sifive.com
+Cc: linux-riscv@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	linux-arch@vger.kernel.org,
+	linux-doc@vger.kernel.org,
+	kvm@vger.kernel.org,
+	virtualization@lists.linux-foundation.org,
+	linux-csky@vger.kernel.org,
+	Guo Ren <guoren@linux.alibaba.com>
+Subject: [PATCH V11 03/17] riscv: Use Zicbop in arch_xchg when available
+Date: Sun, 31 Dec 2023 03:29:54 -0500
+Message-Id: <20230910082911.3378782-4-guoren@kernel.org>
+X-Mailer: git-send-email 2.40.1
+In-Reply-To: <20230910082911.3378782-1-guoren@kernel.org>
+References: <20230910082911.3378782-1-guoren@kernel.org>
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133]) (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits)) (No client certificate requested) by smtp.lore.kernel.org (Postfix) with ESMTPS id 50958EEB580 for <linux-riscv@archiver.kernel.org>; Sun, 10 Sep 2023 08:30:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lists.infradead.org; s=bombadil.20210309; h=Sender: Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post: List-Archive:List-Unsubscribe:List-Id:MIME-Version:References:In-Reply-To: Message-Id:Date:Subject:Cc:To:From:Reply-To:Content-ID:Content-Description: Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID: List-Owner; bh=4L0nrjop/yYiW0hH7bWnUJW3x1Y2/z29AccgRVRtGJQ=; b=iQJ+cNE0UPz98m csVnUhzqLl2rjuEOUfC+YpbtFNWCh2y+UNoXnbV8DhWN697TF18Q0nw5+MVq4R4lVhFd4SUReZi5G 0dQFD2Zmwm9IEEMuNkVjaQ2eRmeP1P3CAGM8BPioJecgfuph63p47wjl7zeaNZybr4wGkL6+rlXS9 XcRR4DO94575Yl84OvMg9VrhtSmHn7p1Eyz4VaXv5s2z1zaA/teyqEuioRkiYgTT+F88+XwxDhu25 SU4MrkqDYhkIGZD1mtB8gDj4dZi8An+Z9/5hpwiq6KW1LT/UxqVQay6mH62tDdZLWEFBMW4iVceKc kmzjURUL+ntk1RHUT1Rw==;
+Received: from localhost ([::1] helo=bombadil.infradead.org) by bombadil.infradead.org with esmtp (Exim 4.96 #2 (Red Hat Linux)) id 1qfFpx-00GHdE-2K; Sun, 10 Sep 2023 08:30:33 +0000
+Received: from ams.source.kernel.org ([145.40.68.75]) by bombadil.infradead.org with esmtps (Exim 4.96 #2 (Red Hat Linux)) id 1qfFpu-00GHcQ-0G for linux-riscv@lists.infradead.org; Sun, 10 Sep 2023 08:30:31 +0000
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140]) (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits) key-exchange X25519 server-signature RSA-PSS (2048 bits)) (No client certificate requested) by ams.source.kernel.org (Postfix) with ESMTPS id 4766DB80AF3; Sun, 10 Sep 2023 08:30:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F0A2C433CC; Sun, 10 Sep 2023 08:30:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org; s=k20201202; t=1694334627; bh=JHxtCSFAXXj+aAh2d1UzrcmVnbP7XJ2TAFbFny2j3pM=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From; b=gkC6EgOJCLxEIUZxkbIuR1YvLQRbsEdcIriRqReFcbydI85IYQob0oUNpPRgyojoN Ngd6SVyuYUJtvWMoqh6PbN8d13dOhFeQ6J2Gzu/aCowb49eOF7LBbcoUn40G3KqnDS Pdtvoj+iD080UL1k8d9qE19wDPh1uSP0OwUxMwi2n7mncnsNvPCJCMOyMx9hCYGlzd XwOnTEXflDp0+8Vfk/PHZSusn8wvbkhZFtrOifwwgZWYXuqhfdfpCog0ptjNWSqU6D Ig3SYK1z5xii6D7nfdzIEgQbg+tJf3vrftC1cnvT4pqDpP2WsggkJXCzcJPS5Hw+wr QhrAAJDCXpvvg==
+X-Mailer: git-send-email 2.36.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH next 4/5] locking/osq_lock: Optimise per-cpu data
- accesses.
-Content-Language: en-US
-To: David Laight <David.Laight@ACULAB.COM>, 'Ingo Molnar' <mingo@kernel.org>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
- "'peterz@infradead.org'" <peterz@infradead.org>,
- "'mingo@redhat.com'" <mingo@redhat.com>, "'will@kernel.org'"
- <will@kernel.org>, "'boqun.feng@gmail.com'" <boqun.feng@gmail.com>,
- 'Linus Torvalds' <torvalds@linux-foundation.org>,
- "'xinhui.pan@linux.vnet.ibm.com'" <xinhui.pan@linux.vnet.ibm.com>,
- "'virtualization@lists.linux-foundation.org'"
- <virtualization@lists.linux-foundation.org>,
- 'Zeng Heng' <zengheng4@huawei.com>
-References: <73a4b31c9c874081baabad9e5f2e5204@AcuMS.aculab.com>
- <bddb6b00434d4492abca4725c10f8d5a@AcuMS.aculab.com>
- <346c40b5-686f-461e-a1e3-9f255418efb2@redhat.com>
- <ZY/6YCNJ7tSCmiGo@gmail.com>
- <4b9da867c24f4ff990851050c8f61515@AcuMS.aculab.com>
-From: Waiman Long <longman@redhat.com>
-In-Reply-To: <4b9da867c24f4ff990851050c8f61515@AcuMS.aculab.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+X-BeenThere: linux-riscv@lists.infradead.org
+X-Mailman-Version: 2.1.34
+Precedence: list
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+Content-Type: text/plain; charset="us-ascii"
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+linux-riscv=archiver.kernel.org@lists.infradead.org
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.3
+
+From: Guo Ren <guoren@linux.alibaba.com>
+
+Cache-block prefetch instructions are HINTs to the hardware to
+indicate that software intends to perform a particular type of
+memory access in the near future. Enable ARCH_HAS_PREFETCHW and
+improve the arch_xchg for qspinlock xchg_tail.
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Signed-off-by: Guo Ren <guoren@kernel.org>
+---
+ arch/riscv/Kconfig                 | 15 +++++++++++++++
+ arch/riscv/include/asm/cmpxchg.h   |  4 +++-
+ arch/riscv/include/asm/hwcap.h     |  1 +
+ arch/riscv/include/asm/insn-def.h  |  5 +++++
+ arch/riscv/include/asm/processor.h | 13 +++++++++++++
+ arch/riscv/kernel/cpufeature.c     |  1 +
+ 6 files changed, 38 insertions(+), 1 deletion(-)
+
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index e9ae6fa232c3..2c346fe169c1 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -617,6 +617,21 @@ config RISCV_ISA_ZICBOZ
+ 
+ 	   If you don't know what to do here, say Y.
+ 
++config RISCV_ISA_ZICBOP
++	bool "Zicbop extension support for cache block prefetch"
++	depends on MMU
++	depends on RISCV_ALTERNATIVE
++	default y
++	help
++	   Adds support to dynamically detect the presence of the ZICBOP
++	   extension (Cache Block Prefetch Operations) and enable its
++	   usage.
++
++	   The Zicbop extension can be used to prefetch cache block for
++	   read/write/instruction fetch.
++
++	   If you don't know what to do here, say Y.
++
+ config TOOLCHAIN_HAS_ZIHINTPAUSE
+ 	bool
+ 	default y
+diff --git a/arch/riscv/include/asm/cmpxchg.h b/arch/riscv/include/asm/cmpxchg.h
+index 702725727671..56eff7a9d2d2 100644
+--- a/arch/riscv/include/asm/cmpxchg.h
++++ b/arch/riscv/include/asm/cmpxchg.h
+@@ -11,6 +11,7 @@
+ 
+ #include <asm/barrier.h>
+ #include <asm/fence.h>
++#include <asm/processor.h>
+ 
+ #define __arch_xchg_masked(prepend, append, r, p, n)			\
+ ({									\
+@@ -25,6 +26,7 @@
+ 									\
+ 	__asm__ __volatile__ (						\
+ 	       prepend							\
++	       PREFETCHW_ASM(%5)					\
+ 	       "0:	lr.w %0, %2\n"					\
+ 	       "	and  %1, %0, %z4\n"				\
+ 	       "	or   %1, %1, %z3\n"				\
+@@ -32,7 +34,7 @@
+ 	       "	bnez %1, 0b\n"					\
+ 	       append							\
+ 	       : "=&r" (__retx), "=&r" (__rc), "+A" (*(__ptr32b))	\
+-	       : "rJ" (__newx), "rJ" (~__mask)				\
++	       : "rJ" (__newx), "rJ" (~__mask), "rJ" (__ptr32b)		\
+ 	       : "memory");						\
+ 									\
+ 	r = (__typeof__(*(p)))((__retx & __mask) >> __s);		\
+diff --git a/arch/riscv/include/asm/hwcap.h b/arch/riscv/include/asm/hwcap.h
+index b7b58258f6c7..78b7b8b53778 100644
+--- a/arch/riscv/include/asm/hwcap.h
++++ b/arch/riscv/include/asm/hwcap.h
+@@ -58,6 +58,7 @@
+ #define RISCV_ISA_EXT_ZICSR		40
+ #define RISCV_ISA_EXT_ZIFENCEI		41
+ #define RISCV_ISA_EXT_ZIHPM		42
++#define RISCV_ISA_EXT_ZICBOP		43
+ 
+ #define RISCV_ISA_EXT_MAX		64
+ 
+diff --git a/arch/riscv/include/asm/insn-def.h b/arch/riscv/include/asm/insn-def.h
+index 6960beb75f32..dc590d331894 100644
+--- a/arch/riscv/include/asm/insn-def.h
++++ b/arch/riscv/include/asm/insn-def.h
+@@ -134,6 +134,7 @@
+ 
+ #define RV_OPCODE_MISC_MEM	RV_OPCODE(15)
+ #define RV_OPCODE_SYSTEM	RV_OPCODE(115)
++#define RV_OPCODE_PREFETCH	RV_OPCODE(19)
+ 
+ #define HFENCE_VVMA(vaddr, asid)				\
+ 	INSN_R(OPCODE_SYSTEM, FUNC3(0), FUNC7(17),		\
+@@ -196,4 +197,8 @@
+ 	INSN_I(OPCODE_MISC_MEM, FUNC3(2), __RD(0),		\
+ 	       RS1(base), SIMM12(4))
+ 
++#define CBO_prefetchw(base)					\
++	INSN_R(OPCODE_PREFETCH, FUNC3(6), FUNC7(0),		\
++	       RD(x0), RS1(base), RS2(x0))
++
+ #endif /* __ASM_INSN_DEF_H */
+diff --git a/arch/riscv/include/asm/processor.h b/arch/riscv/include/asm/processor.h
+index de9da852f78d..7ad3a24212e8 100644
+--- a/arch/riscv/include/asm/processor.h
++++ b/arch/riscv/include/asm/processor.h
+@@ -12,6 +12,8 @@
+ #include <vdso/processor.h>
+ 
+ #include <asm/ptrace.h>
++#include <asm/insn-def.h>
++#include <asm/hwcap.h>
+ 
+ #ifdef CONFIG_64BIT
+ #define DEFAULT_MAP_WINDOW	(UL(1) << (MMAP_VA_BITS - 1))
+@@ -103,6 +105,17 @@ static inline void arch_thread_struct_whitelist(unsigned long *offset,
+ #define KSTK_EIP(tsk)		(ulong)(task_pt_regs(tsk)->epc)
+ #define KSTK_ESP(tsk)		(ulong)(task_pt_regs(tsk)->sp)
+ 
++#define ARCH_HAS_PREFETCHW
++#define PREFETCHW_ASM(base)	ALTERNATIVE(__nops(1), \
++					    CBO_prefetchw(base), \
++					    0, \
++					    RISCV_ISA_EXT_ZICBOP, \
++					    CONFIG_RISCV_ISA_ZICBOP)
++static inline void prefetchw(const void *ptr)
++{
++	asm volatile(PREFETCHW_ASM(%0)
++		: : "r" (ptr) : "memory");
++}
+ 
+ /* Do necessary setup to start up a newly executed thread. */
+ extern void start_thread(struct pt_regs *regs,
+diff --git a/arch/riscv/kernel/cpufeature.c b/arch/riscv/kernel/cpufeature.c
+index ef7b4fd9e876..e0b897db0b97 100644
+--- a/arch/riscv/kernel/cpufeature.c
++++ b/arch/riscv/kernel/cpufeature.c
+@@ -159,6 +159,7 @@ const struct riscv_isa_ext_data riscv_isa_ext[] = {
+ 	__RISCV_ISA_EXT_DATA(h, RISCV_ISA_EXT_h),
+ 	__RISCV_ISA_EXT_DATA(zicbom, RISCV_ISA_EXT_ZICBOM),
+ 	__RISCV_ISA_EXT_DATA(zicboz, RISCV_ISA_EXT_ZICBOZ),
++	__RISCV_ISA_EXT_DATA(zicbop, RISCV_ISA_EXT_ZICBOP),
+ 	__RISCV_ISA_EXT_DATA(zicntr, RISCV_ISA_EXT_ZICNTR),
+ 	__RISCV_ISA_EXT_DATA(zicsr, RISCV_ISA_EXT_ZICSR),
+ 	__RISCV_ISA_EXT_DATA(zifencei, RISCV_ISA_EXT_ZIFENCEI),
+-- 
+2.36.1
 
 
-On 12/30/23 06:35, David Laight wrote:
-> From: Ingo Molnar
->> Sent: 30 December 2023 11:09
->>
->>
->> * Waiman Long <longman@redhat.com> wrote:
->>
->>> On 12/29/23 15:57, David Laight wrote:
->>>> this_cpu_ptr() is rather more expensive than raw_cpu_read() since
->>>> the latter can use an 'offset from register' (%gs for x86-84).
->>>>
->>>> Add a 'self' field to 'struct optimistic_spin_node' that can be
->>>> read with raw_cpu_read(), initialise on first call.
->>>>
->>>> Signed-off-by: David Laight <david.laight@aculab.com>
->>>> ---
->>>>    kernel/locking/osq_lock.c | 14 +++++++++-----
->>>>    1 file changed, 9 insertions(+), 5 deletions(-)
->>>>
->>>> diff --git a/kernel/locking/osq_lock.c b/kernel/locking/osq_lock.c
->>>> index 9bb3a077ba92..b60b0add0161 100644
->>>> --- a/kernel/locking/osq_lock.c
->>>> +++ b/kernel/locking/osq_lock.c
->>>> @@ -13,7 +13,7 @@
->>>>     */
->>>>    struct optimistic_spin_node {
->>>> -	struct optimistic_spin_node *next, *prev;
->>>> +	struct optimistic_spin_node *self, *next, *prev;
->>>>    	int locked; /* 1 if lock acquired */
->>>>    	int cpu; /* encoded CPU # + 1 value */
->>>>    };
->>>> @@ -93,12 +93,16 @@ osq_wait_next(struct optimistic_spin_queue *lock,
->>>>    bool osq_lock(struct optimistic_spin_queue *lock)
->>>>    {
->>>> -	struct optimistic_spin_node *node = this_cpu_ptr(&osq_node);
->>>> +	struct optimistic_spin_node *node = raw_cpu_read(osq_node.self);
->>> My gcc 11 compiler produces the following x86-64 code:
->>>
->>> 92        struct optimistic_spin_node *node = this_cpu_ptr(&osq_node);
->>>     0x0000000000000029 <+25>:    mov    %rcx,%rdx
->>>     0x000000000000002c <+28>:    add %gs:0x0(%rip),%rdx        # 0x34
->>> <osq_lock+36>
->>>
->>> Which looks pretty optimized for me. Maybe older compiler may generate more
->>> complex code. However, I do have some doubt as to the benefit of this patch
->>> at the expense of making the code a bit more complex.
-> My changed code is one instruction shorter!
->    18:   65 48 8b 15 00 00 00    mov    %gs:0x0(%rip),%rdx        # 20 <osq_lock+0x20>
->    1f:   00
->                          1c: R_X86_64_PC32       .data..percpu..shared_aligned-0x4
-> However is might have one less cache line miss.
->
->> GCC-11 is plenty of a look-back window in terms of compiler efficiency:
->> latest enterprise distros use GCC-11 or newer, while recent desktop
->> distros use GCC-13. Anything older won't matter, because no major
->> distribution is going to use new kernels with old compilers.
-> There must be a difference in the header files as well.
-> Possibly forced by the older compiler I'm using (7.5 from Ubuntu 18.04).
-> But maybe based on some config option.
->
-> I'm seeing this_cpu_ptr(&xxx) converted to per_cpu_ptr(&xxx, smp_processor_id())
-> which necessitates an array lookup (indexed by cpu number).
-> Whereas I think you are seeing it implemented as
->    raw_cpu_read(per_cpu_data_base) + offset_to(xxx)
->
-> So the old code generates (after the prologue):
->    10:   49 89 fd                mov    %rdi,%r13
->    13:   49 c7 c4 00 00 00 00    mov    $0x0,%r12
->                          16: R_X86_64_32S        .data..percpu..shared_aligned
->    1a:   e8 00 00 00 00          callq  1f <osq_lock+0x1f>
->                          1b: R_X86_64_PC32       debug_smp_processor_id-0x4
->    1f:   89 c0                   mov    %eax,%eax
->    21:   48 8b 1c c5 00 00 00    mov    0x0(,%rax,8),%rbx
->    28:   00
->                          25: R_X86_64_32S        __per_cpu_offset
->    29:   e8 00 00 00 00          callq  2e <osq_lock+0x2e>
->                          2a: R_X86_64_PC32       debug_smp_processor_id-0x4
->    2e:   4c 01 e3                add    %r12,%rbx
->    31:   83 c0 01                add    $0x1,%eax
->    34:   c7 43 10 00 00 00 00    movl   $0x0,0x10(%rbx)
->    3b:   48 c7 03 00 00 00 00    movq   $0x0,(%rbx)
->    42:   89 43 14                mov    %eax,0x14(%rbx)
->    45:   41 87 45 00             xchg   %eax,0x0(%r13)
->
-> I was also surprised that smp_processor_id() is a real function rather
-> than an offset from %gs.
-
-I have looked up definition of this_cpu_ptr() and gotten the following 
-results:
-
-this_cpu_ptr() => raw_cpu_ptr() => arch_raw_cpu_ptr()
-
-/*
-  * Compared to the generic __my_cpu_offset version, the following
-  * saves one instruction and avoids clobbering a temp register.
-  */
-#define arch_raw_cpu_ptr(ptr)                           \
-({                                                      \
-         unsigned long tcp_ptr__;                        \
-         asm ("add " __percpu_arg(1) ", %0"              \
-              : "=r" (tcp_ptr__)                         \
-              : "m" (this_cpu_off), "0" (ptr));          \
-         (typeof(*(ptr)) __kernel __force *)tcp_ptr__;   \
-})
-
-The presence of debug_smp_processor_id in your compiled code is likely 
-due to the setting of CONFIG_DEBUG_PREEMPT in your kernel config.
-
-#ifdef CONFIG_DEBUG_PREEMPT
-   extern unsigned int debug_smp_processor_id(void);
-# define smp_processor_id() debug_smp_processor_id()
-#else
-# define smp_processor_id() __smp_processor_id()
-#endif
-
-I don't have that config entry in my kernel config and so I only get 2 
-instructions for this_cpu_ptr(). We are not going to optimize the code 
-specifically for CONFIG_DEBUG_PREEMPT and so this patch should be dropped.
-
-Cheers,
-Longman
+_______________________________________________
+linux-riscv mailing list
+linux-riscv@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-riscv
 
