@@ -1,148 +1,285 @@
-Received: from mail-io1-f69.google.com (mail-io1-f69.google.com [209.85.166.69])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FDDC3C0A
-	for <virtualization@lists.linux.dev>; Mon,  1 Jan 2024 13:38:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-io1-f69.google.com with SMTP id ca18e2360f4ac-7baec2c5f30so648089339f.0
-        for <virtualization@lists.linux.dev>; Mon, 01 Jan 2024 05:38:25 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1704116304; x=1704721104;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=z5YDMiJSlsHOP12PCKlsRYjuR3Y0/7OZtq/1K6RFk70=;
-        b=t7Ijz/dwitgyrN+AXARNeD5b6XKHmle41e6OZlkfJRcJ17U4m/EDPQXcKyQCY8dPW7
-         j3HhJMu8wSf0wraD85XYcjtk6DNP9n1NlTuA9irr1xvM0axAYioVs+y8OXue2QWvhsmm
-         IzaA5FiMY05cV4mjIoodlbTHsLsZmwPD1gzVzugEHIz0Tkw2B4J3yf7cRPXxnIqrr9Lt
-         T1aBovlTueTTqXJ5C0FVT9JQ1fjg/zK1x/AlOkOKf+rTWY6iF59r+UjDbz1nCSctFy9v
-         eICXxzBsvBvOHvAp2vhF/5jQQ4YkSHgQn0qcDjDMditVowbhnomU0dx21U+u/xB9T+E7
-         uqaA==
-X-Gm-Message-State: AOJu0Yy+R49pE1K9KvR0INvGQ6xnY9Fo7F46deOFDkJU1/rc1eZUe2Dc
-	Wj9lldYoPKTSxE8UM1dnBhGiZkqB2uEb0/JHtQARQveMiIMx
-X-Google-Smtp-Source: AGHT+IEXSvlSbRC6oNtINCqL3gA2YPz1FBSJoXBpGKJLrPe6jk9+j32YcD/6x9Wy4ktUOnQMQUPaQscdjjGJQ3TXjbsEoBqDwu9H
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24E12DDA2;
+	Mon,  1 Jan 2024 19:57:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="I8OC6XDh"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1704139051; x=1735675051;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=mHc+oFCXO4KaJrp9tQ/fBj06SdhowXnTNqW1HqCuYzQ=;
+  b=I8OC6XDhzM8GobPbCorKphzQexMWtD2jN7waRgY6jNh5u6GI+gYiQ7kC
+   p7s9uSzkCBLwImBjPB8vkUbJf+fGiS2X805XNGerBiiDZ7uTwBTDFK3N1
+   /3jC/nRqz0vgILZ50ccf/DvrGez2ccIHmVju8an4+dfjlnXW1xq0BcyY9
+   /azwwC2wjfvLpYNClElc+dp/F73DcqtLZ66BZdAIpDc+zXJ3ftLwAyoI2
+   Z8oWk+7rHM3gG0PJPtvSKCG8RExtJaLvfejbppmdP/ZL2QjtxiPXzDAGU
+   eALUc1PCzkk1B0nmJniJgN/Fqjg4wYZgzA+F6hcY2oxXzxI1E8Km//fAo
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10940"; a="10205030"
+X-IronPort-AV: E=Sophos;i="6.04,323,1695711600"; 
+   d="scan'208";a="10205030"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jan 2024 11:57:30 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10940"; a="845382647"
+X-IronPort-AV: E=Sophos;i="6.04,323,1695711600"; 
+   d="scan'208";a="845382647"
+Received: from lkp-server02.sh.intel.com (HELO b07ab15da5fe) ([10.239.97.151])
+  by fmsmga008.fm.intel.com with ESMTP; 01 Jan 2024 11:57:27 -0800
+Received: from kbuild by b07ab15da5fe with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1rKOPc-000KV2-0y;
+	Mon, 01 Jan 2024 19:57:24 +0000
+Date: Tue, 2 Jan 2024 03:56:58 +0800
+From: kernel test robot <lkp@intel.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, netdev@vger.kernel.org
+Cc: oe-kbuild-all@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	virtualization@lists.linux.dev, Zhu Yanjun <yanjun.zhu@linux.dev>
+Subject: Re: [PATCH net-next v1 3/6] virtio_net: support device stats
+Message-ID: <202401020308.rvzTx1oI-lkp@intel.com>
+References: <20231226073103.116153-4-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6e02:1a8d:b0:360:f2c:cde6 with SMTP id
- k13-20020a056e021a8d00b003600f2ccde6mr1708877ilv.6.1704116304564; Mon, 01 Jan
- 2024 05:38:24 -0800 (PST)
-Date: Mon, 01 Jan 2024 05:38:24 -0800
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <000000000000fd588e060de27ef4@google.com>
-Subject: [syzbot] [virtualization?] KMSAN: uninit-value in virtqueue_add (4)
-From: syzbot <syzbot+d7521c1e3841ed075a42@syzkaller.appspotmail.com>
-To: jasowang@redhat.com, linux-kernel@vger.kernel.org, mst@redhat.com, 
-	syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev, 
-	xuanzhuo@linux.alibaba.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20231226073103.116153-4-xuanzhuo@linux.alibaba.com>
 
-Hello,
+Hi Xuan,
 
-syzbot found the following issue on:
+kernel test robot noticed the following build warnings:
 
-HEAD commit:    fbafc3e621c3 Merge tag 'for_linus' of git://git.kernel.org..
-git tree:       upstream
-console+strace: https://syzkaller.appspot.com/x/log.txt?x=173df3e9e80000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=e0c7078a6b901aa3
-dashboard link: https://syzkaller.appspot.com/bug?extid=d7521c1e3841ed075a42
-compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=1300b4a1e80000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=130b0379e80000
+[auto build test WARNING on mst-vhost/linux-next]
+[also build test WARNING on linus/master v6.7-rc8]
+[cannot apply to net-next/main horms-ipvs/master next-20231222]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/1520f7b6daa4/disk-fbafc3e6.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/8b490af009d5/vmlinux-fbafc3e6.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/202ca200f4a4/bzImage-fbafc3e6.xz
+url:    https://github.com/intel-lab-lkp/linux/commits/Xuan-Zhuo/virtio_net-introduce-device-stats-feature-and-structures/20231226-153227
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git linux-next
+patch link:    https://lore.kernel.org/r/20231226073103.116153-4-xuanzhuo%40linux.alibaba.com
+patch subject: [PATCH net-next v1 3/6] virtio_net: support device stats
+config: x86_64-randconfig-121-20240101 (https://download.01.org/0day-ci/archive/20240102/202401020308.rvzTx1oI-lkp@intel.com/config)
+compiler: gcc-7 (Ubuntu 7.5.0-6ubuntu2) 7.5.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240102/202401020308.rvzTx1oI-lkp@intel.com/reproduce)
 
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+d7521c1e3841ed075a42@syzkaller.appspotmail.com
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202401020308.rvzTx1oI-lkp@intel.com/
 
-=====================================================
-BUG: KMSAN: uninit-value in vring_map_one_sg drivers/virtio/virtio_ring.c:380 [inline]
-BUG: KMSAN: uninit-value in virtqueue_add_split drivers/virtio/virtio_ring.c:614 [inline]
-BUG: KMSAN: uninit-value in virtqueue_add+0x21c6/0x6530 drivers/virtio/virtio_ring.c:2210
- vring_map_one_sg drivers/virtio/virtio_ring.c:380 [inline]
- virtqueue_add_split drivers/virtio/virtio_ring.c:614 [inline]
- virtqueue_add+0x21c6/0x6530 drivers/virtio/virtio_ring.c:2210
- virtqueue_add_sgs+0x186/0x1a0 drivers/virtio/virtio_ring.c:2244
- __virtscsi_add_cmd drivers/scsi/virtio_scsi.c:467 [inline]
- virtscsi_add_cmd+0x838/0xad0 drivers/scsi/virtio_scsi.c:501
- virtscsi_queuecommand+0x896/0xa60 drivers/scsi/virtio_scsi.c:598
- scsi_dispatch_cmd drivers/scsi/scsi_lib.c:1516 [inline]
- scsi_queue_rq+0x4874/0x5790 drivers/scsi/scsi_lib.c:1758
- blk_mq_dispatch_rq_list+0x13f8/0x3600 block/blk-mq.c:2049
- __blk_mq_do_dispatch_sched block/blk-mq-sched.c:170 [inline]
- blk_mq_do_dispatch_sched block/blk-mq-sched.c:184 [inline]
- __blk_mq_sched_dispatch_requests+0x10af/0x2500 block/blk-mq-sched.c:309
- blk_mq_sched_dispatch_requests+0x160/0x2d0 block/blk-mq-sched.c:333
- blk_mq_run_work_fn+0xd0/0x280 block/blk-mq.c:2434
- process_one_work kernel/workqueue.c:2627 [inline]
- process_scheduled_works+0x104e/0x1e70 kernel/workqueue.c:2700
- worker_thread+0xf45/0x1490 kernel/workqueue.c:2781
- kthread+0x3ed/0x540 kernel/kthread.c:388
- ret_from_fork+0x66/0x80 arch/x86/kernel/process.c:147
- ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:242
+sparse warnings: (new ones prefixed by >>)
+>> drivers/net/virtio_net.c:3432:52: sparse: sparse: incorrect type in argument 2 (different base types) @@     expected restricted __virtio16 [usertype] val @@     got restricted __le16 [usertype] vq_index @@
+   drivers/net/virtio_net.c:3432:52: sparse:     expected restricted __virtio16 [usertype] val
+   drivers/net/virtio_net.c:3432:52: sparse:     got restricted __le16 [usertype] vq_index
+   drivers/net/virtio_net.c:3457:83: sparse: sparse: incorrect type in argument 2 (different base types) @@     expected restricted __virtio64 [usertype] val @@     got unsigned long long [usertype] @@
+   drivers/net/virtio_net.c:3457:83: sparse:     expected restricted __virtio64 [usertype] val
+   drivers/net/virtio_net.c:3457:83: sparse:     got unsigned long long [usertype]
+>> drivers/net/virtio_net.c:3429:81: sparse: sparse: incorrect type in argument 2 (different base types) @@     expected restricted __virtio16 [usertype] val @@     got restricted __le16 [usertype] size @@
+   drivers/net/virtio_net.c:3429:81: sparse:     expected restricted __virtio16 [usertype] val
+   drivers/net/virtio_net.c:3429:81: sparse:     got restricted __le16 [usertype] size
+>> drivers/net/virtio_net.c:3519:82: sparse: sparse: incorrect type in argument 2 (different base types) @@     expected restricted __virtio64 [usertype] val @@     got restricted __le64 [assigned] [usertype] v @@
+   drivers/net/virtio_net.c:3519:82: sparse:     expected restricted __virtio64 [usertype] val
+   drivers/net/virtio_net.c:3519:82: sparse:     got restricted __le64 [assigned] [usertype] v
 
-Uninit was created at:
- __alloc_pages+0x9a4/0xe00 mm/page_alloc.c:4591
- alloc_pages_mpol+0x62b/0x9d0 mm/mempolicy.c:2133
- alloc_pages mm/mempolicy.c:2204 [inline]
- folio_alloc+0x1da/0x380 mm/mempolicy.c:2211
- filemap_alloc_folio+0xa5/0x430 mm/filemap.c:974
- __filemap_get_folio+0xa5a/0x1760 mm/filemap.c:1918
- ext4_da_write_begin+0x7f8/0xec0 fs/ext4/inode.c:2891
- generic_perform_write+0x3f5/0xc40 mm/filemap.c:3918
- ext4_buffered_write_iter+0x564/0xaa0 fs/ext4/file.c:299
- ext4_file_write_iter+0x20f/0x3460
- __kernel_write_iter+0x329/0x930 fs/read_write.c:517
- dump_emit_page fs/coredump.c:888 [inline]
- dump_user_range+0x593/0xcd0 fs/coredump.c:915
- elf_core_dump+0x528d/0x5a40 fs/binfmt_elf.c:2077
- do_coredump+0x32c9/0x4920 fs/coredump.c:764
- get_signal+0x2185/0x2d10 kernel/signal.c:2890
- arch_do_signal_or_restart+0x53/0xca0 arch/x86/kernel/signal.c:309
- exit_to_user_mode_loop+0xe8/0x320 kernel/entry/common.c:168
- exit_to_user_mode_prepare+0x163/0x220 kernel/entry/common.c:204
- irqentry_exit_to_user_mode+0xd/0x30 kernel/entry/common.c:309
- irqentry_exit+0x16/0x40 kernel/entry/common.c:412
- exc_page_fault+0x246/0x6f0 arch/x86/mm/fault.c:1564
- asm_exc_page_fault+0x2b/0x30 arch/x86/include/asm/idtentry.h:570
+vim +3432 drivers/net/virtio_net.c
 
-Bytes 0-4095 of 4096 are uninitialized
-Memory access of size 4096 starts at ffff88812c79c000
+  3352	
+  3353	static int virtnet_get_hw_stats(struct virtnet_info *vi,
+  3354					struct virtnet_stats_ctx *ctx)
+  3355	{
+  3356		struct virtio_net_ctrl_queue_stats *req;
+  3357		struct virtio_net_stats_reply_hdr *hdr;
+  3358		struct scatterlist sgs_in, sgs_out;
+  3359		u32 num_rx, num_tx, num_cq, offset;
+  3360		int qnum, i, j,  qid, res_size;
+  3361		struct virtnet_stats_map *m;
+  3362		void *reply, *p;
+  3363		u64 bitmap;
+  3364		int ok;
+  3365		u64 *v;
+  3366	
+  3367		if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_DEVICE_STATS))
+  3368			return 0;
+  3369	
+  3370		qnum = 0;
+  3371		if (ctx->bitmap_cq)
+  3372			qnum += 1;
+  3373	
+  3374		if (ctx->bitmap_rx)
+  3375			qnum += vi->curr_queue_pairs;
+  3376	
+  3377		if (ctx->bitmap_tx)
+  3378			qnum += vi->curr_queue_pairs;
+  3379	
+  3380		req = kcalloc(qnum, sizeof(*req), GFP_KERNEL);
+  3381		if (!req)
+  3382			return -ENOMEM;
+  3383	
+  3384		res_size = (ctx->size_rx + ctx->size_tx) * vi->curr_queue_pairs + ctx->size_cq;
+  3385		reply = kmalloc(res_size, GFP_KERNEL);
+  3386		if (!reply) {
+  3387			kfree(req);
+  3388			return -ENOMEM;
+  3389		}
+  3390	
+  3391		j = 0;
+  3392		for (i = 0; i < vi->curr_queue_pairs; ++i) {
+  3393			if (ctx->bitmap_rx) {
+  3394				req->stats[j].vq_index = cpu_to_le16(i * 2);
+  3395				req->stats[j].types_bitmap[0] = cpu_to_le64(ctx->bitmap_rx);
+  3396				++j;
+  3397			}
+  3398	
+  3399			if (ctx->bitmap_tx) {
+  3400				req->stats[j].vq_index = cpu_to_le16(i * 2 + 1);
+  3401				req->stats[j].types_bitmap[0] = cpu_to_le64(ctx->bitmap_tx);
+  3402				++j;
+  3403			}
+  3404		}
+  3405	
+  3406		if (ctx->size_cq) {
+  3407			req->stats[j].vq_index = cpu_to_le16(vi->max_queue_pairs * 2);
+  3408			req->stats[j].types_bitmap[0] = cpu_to_le64(ctx->bitmap_cq);
+  3409			++j;
+  3410		}
+  3411	
+  3412		sg_init_one(&sgs_out, req, sizeof(*req) * j);
+  3413		sg_init_one(&sgs_in, reply, res_size);
+  3414	
+  3415		ok = virtnet_send_command(vi, VIRTIO_NET_CTRL_STATS,
+  3416					  VIRTIO_NET_CTRL_STATS_GET,
+  3417					  &sgs_out, &sgs_in);
+  3418		kfree(req);
+  3419	
+  3420		if (!ok) {
+  3421			kfree(reply);
+  3422			return ok;
+  3423		}
+  3424	
+  3425		num_rx = VIRTNET_RQ_STATS_LEN + ctx->num_rx;
+  3426		num_tx = VIRTNET_SQ_STATS_LEN + ctx->num_tx;
+  3427		num_cq = ctx->num_tx;
+  3428	
+> 3429		for (p = reply; p - reply < res_size; p += virtio16_to_cpu(vi->vdev, hdr->size)) {
+  3430			hdr = p;
+  3431	
+> 3432			qid = virtio16_to_cpu(vi->vdev, hdr->vq_index);
+  3433	
+  3434			if (qid == vi->max_queue_pairs * 2) {
+  3435				offset = 0;
+  3436				bitmap = ctx->bitmap_cq;
+  3437			} else if (qid % 2) {
+  3438				offset = num_cq + num_rx * vi->curr_queue_pairs + num_tx * (qid / 2);
+  3439				offset += VIRTNET_SQ_STATS_LEN;
+  3440				bitmap = ctx->bitmap_tx;
+  3441			} else {
+  3442				offset = num_cq + num_rx * (qid / 2) + VIRTNET_RQ_STATS_LEN;
+  3443				bitmap = ctx->bitmap_rx;
+  3444			}
+  3445	
+  3446			for (i = 0; i < ARRAY_SIZE(virtio_net_stats_map); ++i) {
+  3447				m = &virtio_net_stats_map[i];
+  3448	
+  3449				if (m->flag & bitmap)
+  3450					offset += m->num;
+  3451	
+  3452				if (hdr->type != m->type)
+  3453					continue;
+  3454	
+  3455				for (j = 0; j < m->num; ++j) {
+  3456					v = p + m->desc[j].offset;
+  3457					ctx->data[offset + j] = virtio64_to_cpu(vi->vdev, *v);
+  3458				}
+  3459	
+  3460				break;
+  3461			}
+  3462		}
+  3463	
+  3464		kfree(reply);
+  3465		return 0;
+  3466	}
+  3467	
+  3468	static void virtnet_get_strings(struct net_device *dev, u32 stringset, u8 *data)
+  3469	{
+  3470		struct virtnet_info *vi = netdev_priv(dev);
+  3471		unsigned int i, j;
+  3472		u8 *p = data;
+  3473	
+  3474		switch (stringset) {
+  3475		case ETH_SS_STATS:
+  3476			virtnet_get_hw_stats_string(vi, VIRTNET_STATS_Q_TYPE_CQ, 0, &p);
+  3477	
+  3478			for (i = 0; i < vi->curr_queue_pairs; i++) {
+  3479				for (j = 0; j < VIRTNET_RQ_STATS_LEN; j++)
+  3480					ethtool_sprintf(&p, "rx_queue_%u_%s", i,
+  3481							virtnet_rq_stats_desc[j].desc);
+  3482	
+  3483				virtnet_get_hw_stats_string(vi, VIRTNET_STATS_Q_TYPE_RX, i, &p);
+  3484			}
+  3485	
+  3486			for (i = 0; i < vi->curr_queue_pairs; i++) {
+  3487				for (j = 0; j < VIRTNET_SQ_STATS_LEN; j++)
+  3488					ethtool_sprintf(&p, "tx_queue_%u_%s", i,
+  3489							virtnet_sq_stats_desc[j].desc);
+  3490	
+  3491				virtnet_get_hw_stats_string(vi, VIRTNET_STATS_Q_TYPE_TX, i, &p);
+  3492			}
+  3493			break;
+  3494		}
+  3495	}
+  3496	
+  3497	static int virtnet_get_sset_count(struct net_device *dev, int sset)
+  3498	{
+  3499		struct virtnet_info *vi = netdev_priv(dev);
+  3500		struct virtnet_stats_ctx ctx = {0};
+  3501		u32 pair_count;
+  3502	
+  3503		switch (sset) {
+  3504		case ETH_SS_STATS:
+  3505			if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_DEVICE_STATS) &&
+  3506			    !vi->device_stats_cap) {
+  3507				struct scatterlist sg;
+  3508	
+  3509				sg_init_one(&sg, &vi->ctrl->stats_cap, sizeof(vi->ctrl->stats_cap));
+  3510	
+  3511				if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_STATS,
+  3512							  VIRTIO_NET_CTRL_STATS_QUERY,
+  3513							  NULL, &sg)) {
+  3514					dev_warn(&dev->dev, "Fail to get stats capability\n");
+  3515				} else {
+  3516					__le64 v;
+  3517	
+  3518					v = vi->ctrl->stats_cap.supported_stats_types[0];
+> 3519					vi->device_stats_cap = virtio64_to_cpu(vi->vdev, v);
+  3520				}
+  3521			}
+  3522	
+  3523			virtnet_stats_ctx_init(vi, &ctx, NULL);
+  3524	
+  3525			pair_count = VIRTNET_RQ_STATS_LEN + VIRTNET_SQ_STATS_LEN;
+  3526			pair_count += ctx.num_rx + ctx.num_tx;
+  3527	
+  3528			return ctx.num_cq + vi->curr_queue_pairs * pair_count;
+  3529		default:
+  3530			return -EOPNOTSUPP;
+  3531		}
+  3532	}
+  3533	
 
-CPU: 0 PID: 997 Comm: kworker/0:1H Not tainted 6.7.0-rc7-syzkaller-00003-gfbafc3e621c3 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 11/17/2023
-Workqueue: kblockd blk_mq_run_work_fn
-=====================================================
-
-
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
-
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
-
-If you want syzbot to run the reproducer, reply with:
-#syz test: git://repo/address.git branch-or-commit-hash
-If you attach or paste a git patch, syzbot will apply it before testing.
-
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
-
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
-
-If you want to undo deduplication, reply with:
-#syz undup
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
