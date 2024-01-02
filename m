@@ -1,102 +1,159 @@
-Received: from mout.web.de (mout.web.de [212.227.15.3])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF95914F8A;
-	Tue,  2 Jan 2024 16:50:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 414F215AD3
+	for <virtualization@lists.linux-foundation.org>; Tue,  2 Jan 2024 18:54:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="cxt/tmu0"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de; s=s29768273;
-	t=1704214232; x=1704819032; i=markus.elfring@web.de;
-	bh=YzuA4S6nhHOojFNtxACZ01ivp0AQ+vZQh6tXXT3uSYg=;
-	h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:
-	 In-Reply-To;
-	b=cxt/tmu0gTkOeM16FCwRmi7vy74xROcj1smMkUn7BfUYHfasx3s23jnp0w9/YRxj
-	 vttktd3Eeb2W1tTJjcRBanEnGBNjz3VTPtpMq/ur7cFF4OUCuWO87Y+UpAPvRI0zH
-	 z10qgCXBpzHnPXGit13+kHf3ZCGDhqC9f0rInjtQ0Op9JOI7QPK1OnhNANZJATRjg
-	 mZ8rZ/EyJHT4m7j/7db1nA45YJGHeMgsEJkTxLQMyM0rk8CojFMTGScN3zIV5podX
-	 u5IxtTmOymadbnPwHaPEubNqWy3FitxHqA/bSzmIChB6Ywicj024T1mEaYvXQRQvU
-	 mQFz07bJJoL+Pm2swA==
-X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
-Received: from [192.168.178.21] ([94.31.91.95]) by smtp.web.de (mrweb006
- [213.165.67.108]) with ESMTPSA (Nemesis) id 1MIyeU-1rf7AY2eug-00KrZK; Tue, 02
- Jan 2024 17:50:32 +0100
-Message-ID: <a08b7922-c28d-4667-b7f3-a4064ff7d6b3@web.de>
-Date: Tue, 2 Jan 2024 17:50:31 +0100
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="m/ROensU"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id BB15B40399
+	for <virtualization@lists.linux-foundation.org>; Tue,  2 Jan 2024 18:54:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BB15B40399
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=m/ROensU
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id kAVkmJCJiJTn
+	for <virtualization@lists.linux-foundation.org>;
+	Tue,  2 Jan 2024 18:54:48 +0000 (UTC)
+Received: from mail-qv1-xf33.google.com (mail-qv1-xf33.google.com [IPv6:2607:f8b0:4864:20::f33])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 9688B40150
+	for <virtualization@lists.linux-foundation.org>; Tue,  2 Jan 2024 18:54:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9688B40150
+Received: by mail-qv1-xf33.google.com with SMTP id 6a1803df08f44-680285e7ce8so50794606d6.0
+        for <virtualization@lists.linux-foundation.org>; Tue, 02 Jan 2024 10:54:48 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1704221687; x=1704826487; darn=lists.linux-foundation.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:feedback-id:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=7+SZED/A1h752GveqQ8KwOCCj8k8UMoXQ0xqbzwkRoU=;
+        b=m/ROensUWBBj809BhI73VRs+hueDtuB4B90U2DZwgwlTK/kAInTs3NiEEPZHuUfvVN
+         Kv2Bxty7uOHuAhMgSZ+IBclw8nqXywjXKIr7ZJhZeHt2XLhsRAxnxAVal+oBBqyBiWVS
+         yywSdQdSp52aJ1zdvxb9D1ba9SGkUOqH50MMVVeRFcZgZP3KCNm45SQvAPS6vkry0Aot
+         tes2kgfxTE3ZiFXMDgnyYJxSXZUrnri9WZT5q6b4eGeEybjKeniECXxZ3xDmcvjPV8Oe
+         KQ91oXTdz6bPvhA64LhElU3RcoEwtiwmoYcaeTo+C6w6Lb6gHhZn1wwabKRN0cKEAt5V
+         G9qQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1704221687; x=1704826487;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:feedback-id:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=7+SZED/A1h752GveqQ8KwOCCj8k8UMoXQ0xqbzwkRoU=;
+        b=dayiFBjVL7WQngsYstjRkIDydmbKNSRsnYJvFk1jk7rHysCkHxOz3SKRr+/tKcpVTA
+         vnb4sXvIeF5Hs8Kn12f+vrly7lTGxifhXPUlcJsD9OrDC9e2HZxYAGC8QbMgj54A8AkF
+         EPIWIyKnZKsi9SXZ7O0xzIfEIPnGp71CmP0+dZqDAjieX+4QNBPt7K7LLed7FVUyoeWF
+         rm7IApC7yWrIKWNbtSdMwpNl9j040ULNPObyQtAZJUzABRW4F1q3z8XqXkYIeXh6te4g
+         w2qi9gxLVkkvmBF+Drip+tKiqkEN8+Xhpg2huZX6yR0HWuCCfs2W8foder23EUEUaukq
+         9dow==
+X-Gm-Message-State: AOJu0Yw33ryN/EQfmsatMJtSXUBAHBaXp0j0Qvqbv/ieTcqasljWin/Z
+	Zy5aPWJzz5rUAaV0ij1aHwc=
+X-Google-Smtp-Source: AGHT+IHt9oM7jcNvtSrnx1JCFtehkduc1/Ie4c2Q+Lqt/rA5TSXbSiTNystkkxgnUkG8KVlm6pshZQ==
+X-Received: by 2002:a05:6214:2388:b0:680:b8bf:f844 with SMTP id fw8-20020a056214238800b00680b8bff844mr3313901qvb.102.1704221687335;
+        Tue, 02 Jan 2024 10:54:47 -0800 (PST)
+Received: from auth2-smtp.messagingengine.com (auth2-smtp.messagingengine.com. [66.111.4.228])
+        by smtp.gmail.com with ESMTPSA id v7-20020a0cf907000000b00680b1947dbbsm1771086qvn.111.2024.01.02.10.54.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 02 Jan 2024 10:54:47 -0800 (PST)
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+	by mailauth.nyi.internal (Postfix) with ESMTP id 5EDBD27C005A;
+	Tue,  2 Jan 2024 13:54:46 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Tue, 02 Jan 2024 13:54:46 -0500
+X-ME-Sender: <xms:9VuUZWgN9VGSUQIcIAw6Qm5nngKre_n2hLqvl9x109fIYhrB92EY6Q>
+    <xme:9VuUZXBBOOOiIs3Mz8Qj0sFo_wFcqCRGFQ9WVEI3nWTn5yyMkI4eHMTHmXOqxRsij
+    E9Q7lo7ml833dWhKQ>
+X-ME-Received: <xmr:9VuUZeHUXrTJJt68x7O0dVBX6t1mJUwg2J1heirT8LfzdU8Hklb6bSl50jI>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvkedrvdegfedghedtucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvfevuffkfhggtggujgesthdtrodttddtvdenucfhrhhomhepuehoqhhu
+    nhcuhfgvnhhguceosghoqhhunhdrfhgvnhhgsehgmhgrihhlrdgtohhmqeenucggtffrrg
+    htthgvrhhnpeeitdefvefhteeklefgtefhgeelkeefffelvdevhfehueektdevhfettddv
+    teevvdenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    gsohhquhhnodhmvghsmhhtphgruhhthhhpvghrshhonhgrlhhithihqdeiledvgeehtdei
+    gedqudejjeekheehhedvqdgsohhquhhnrdhfvghngheppehgmhgrihhlrdgtohhmsehfih
+    igmhgvrdhnrghmvg
+X-ME-Proxy: <xmx:9VuUZfQ18qHaofXyXVaU2589e0q4QQ9vZUtEqam379RRIvm7oDBwPA>
+    <xmx:9VuUZTz1zSFoSABJEAW-NwIAAwC7tPga1q9lclCQ2jHPxFRDp5e_ag>
+    <xmx:9VuUZd7uOws8DGaDpJg6wGguHL2vWrT3Q-IJc35Zh-f-VS3YAZyQmQ>
+    <xmx:9luUZbe7kBIC5qlFDrTWkyYNxbMwBrUQ7OMf4Yrkw0bcsprhFabA9Q>
+Feedback-ID: iad51458e:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
+ 2 Jan 2024 13:54:44 -0500 (EST)
+Date: Tue, 2 Jan 2024 10:53:43 -0800
+From: Boqun Feng <boqun.feng@gmail.com>
+To: David Laight <David.Laight@aculab.com>
+Cc: 'Waiman Long' <longman@redhat.com>,
+	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+	"'peterz@infradead.org'" <peterz@infradead.org>,
+	"'mingo@redhat.com'" <mingo@redhat.com>,
+	"'will@kernel.org'" <will@kernel.org>,
+	'Linus Torvalds' <torvalds@linux-foundation.org>,
+	"'xinhui.pan@linux.vnet.ibm.com'" <xinhui.pan@linux.vnet.ibm.com>,
+	"'virtualization@lists.linux-foundation.org'" <virtualization@lists.linux-foundation.org>,
+	'Zeng Heng' <zengheng4@huawei.com>
+Subject: Re: [PATCH next 2/5] locking/osq_lock: Avoid dirtying the local
+ cpu's 'node' in the osq_lock() fast path.
+Message-ID: <ZZRbtwwcusePltww@boqun-archlinux>
+References: <73a4b31c9c874081baabad9e5f2e5204@AcuMS.aculab.com>
+ <fbb1f9ed42b2460c93eeac43a92157c8@AcuMS.aculab.com>
+ <835f65d9-a041-4956-b89d-7cd3660c3ab8@redhat.com>
+ <fedbf107b9344e7b85711c0de59ae0a3@AcuMS.aculab.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [2/2] virtiofs: Improve error handling in virtio_fs_get_tree()
-Content-Language: en-GB
-To: Matthew Wilcox <willy@infradead.org>, virtualization@lists.linux.dev,
- linux-fsdevel@vger.kernel.org, kernel-janitors@vger.kernel.org
-Cc: Miklos Szeredi <miklos@szeredi.hu>, Stefan Hajnoczi
- <stefanha@redhat.com>, Vivek Goyal <vgoyal@redhat.com>,
- LKML <linux-kernel@vger.kernel.org>
-References: <c5c14b02-660a-46e1-9eb3-1a16d7c84922@web.de>
- <5745d81c-3c06-4871-9785-12a469870934@web.de>
- <ZY6Iir/idOZBiREy@casper.infradead.org>
- <54b353b6-949d-45a1-896d-bb5acb2ed4ed@web.de>
- <ZY7V+ywWV/iKs4Hn@casper.infradead.org>
- <691350ea-39e9-4031-a066-27d7064cd9d9@web.de>
- <ZZPisBFGvF/qp2eB@casper.infradead.org>
- <9b27d89d-c410-4898-b801-00d2a00fb693@web.de>
- <ZZQ5vKRcq9kkQxSD@casper.infradead.org>
-From: Markus Elfring <Markus.Elfring@web.de>
-In-Reply-To: <ZZQ5vKRcq9kkQxSD@casper.infradead.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:Fgny9c5f2W3jpLqzVc7i9FuUiueq2RLS53d72LSSK3RKZc3zftm
- SsP1AV7t8VO8xthakUAB6NvI3QaBLyBbnq4mrGqVN/LvkJogBg0W80X8H/yrMhFi1YsU4xv
- C2vSlapjMi+j6VketDeCrzsqKvWK1UecJmULvqMgwHTKNURCdcFTpHJVBoWNsEavBDM4uu7
- DM9zSY0XWfHQMyfaA8ALA==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:INHlZ34bTrY=;zJ6eL3Bj8LtupwNNsZ/tNpt+E2E
- rhyAK3+huAVszX+0JbpGi64wipqZXXquvT4FmqAX7pGXUkHtAEoOHZIokacWsiAyrws3VQQeg
- DIXuuLYzp0aIuiVIkLmUmqRsavOE26MAy5tZdoMkNJMu7znwwSxof//lHLJHqspM7G04K+1CB
- lgysUAozHm8yIUawO6/9T0gSrzzF3TXmYjwKDkCpGct18rREpOAfzaO6oY5QVX++Bd9W4CHC+
- NbE6zpqSx/pi/ylp/zDkcYgF07rRsGZHbP2E9yASNv43STyAIK3V2W/A7tStBaWWfle82L5XR
- bNWST7bzpauZtH3bauwe0HWUvoMQvjV0qbllMqX8INYz5x4NR87GRSm+VnS6UwEeWSm0v3fRJ
- +iBHgX0EX3lWuJoBp/eu6Tf5ua9nLns/mUzPDtxetGhdLz9LdfLdYX3bv4W7/1IuLOOWuZ/Ap
- py6IlmAMef9Pd1cL9RM1twOr90kLwBsxQbKM/1TqV9AlEh5BGM1tEZHLTouOTfEmA7JdU7tSH
- RWJj9NRY82jXBs2s2ZomWUoqPdjLvmww41zM80qegF4RQrmASVMjj3DFJJJ6JTcTZ4MXDgJK7
- y7GPQ0WHvENX0DUd7xdEHlrViDvcbHjaoEnbiedprJ0iYRZB2RmynuzyeNSTJGtcP0xakIsFD
- Nhyv/faX+I0RWr8Aiz2KX3susJR7RPm4y8nN4i40T4KSJITTgmtrYsTvpuEl9lzcaQdD7Rdfk
- +BjKi+dBPasvlXNEp4iIxEAWpnqdPu/AJp5iJ3UJaC+GEpPZQ1rUNgu/BGtqaQddSiCMLuOXr
- r0CEC5MpHK2gxv/aBAyEJWHVaQMwQGYDXQaR3zVstjx2w1G+f2VFo7fR7HG+hpV6INVeI4flw
- 0rkTsIFFgwiL75v4U80TKk11B71DGoSjAR1Cg0V2UtZTsoLK8hSh4YWuF83pWInQeZHeSUoIB
- eLOjiw==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <fedbf107b9344e7b85711c0de59ae0a3@AcuMS.aculab.com>
 
->> It is probably clear that the function call =E2=80=9Ckfree(NULL)=E2=80=
-=9D does not perform
->> data processing which is really useful for the caller.
->> Such a call is kept in some cases because programmers did not like to i=
-nvest
->> development resources for its avoidance.
->
-> on the contrary, it is extremely useful for callers to not have to perfo=
-rm
-> the NULL check themselves.
+On Sat, Dec 30, 2023 at 03:49:52PM +0000, David Laight wrote:
+[...]
+> I don't completely understand the 'acquire'/'release' semantics (they didn't
+> exist when I started doing SMP kernel code in the late 1980s).
+> But it looks odd that osq_unlock()'s fast path uses _release but the very
+> similar code in osq_wait_next() uses _acquire.
+> 
 
-Some function calls indicate a resource allocation failure by a null point=
-er.
-Such pointer checks are generally performed for error detection
-so that appropriate exception handling can be chosen.
+The _release in osq_unlock() is needed since unlocks are needed to be
+RELEASE so that lock+unlock can be a critical section (i.e. no memory
+accesses can escape). When osq_wait_next() is used in non unlock cases,
+the RELEASE is not required. As for the case where osq_wait_next() is
+used in osq_unlock(), there is a xchg() preceding it, which provides a
+full barrier, so things are fine.
 
+/me wonders whether we can relax the _acquire in osq_wait_next() into
+a _relaxed.
 
->                             It also mirrors userspace where free(NULL)
-> is valid according to ISO/ANSI C, so eases the transition for programmer=
-s
-> who are coming from userspace.  It costs nothing in the implementation
-> as it is part of the check for the ZERO_PTR.
+> Indeed, apart from some (assumed) optimisations, I think osq_unlock()
+> could just be:
+> 	next = osq_wait_next(lock, this_cpu_ptr(&osq_node), 0);
+> 	if (next)
+> 		next->locked = 1;
+> 
 
-How many development efforts do you dare to spend on more complete
-and efficient error/exception handling?
+If so we need to provide some sort of RELEASE semantics for the
+osq_unlock() in all the cases.
 
 Regards,
-Markus
+Boqun
+
+> I don't think the order of the tests for lock->tail and node->next
+> matter in osq_wait_next().
+> If they were swapped the 'Second most likely case' code from osq_unlock()
+> could be removed.
+> (The 'uncontended case' doesn't need to load the address of 'node'.)
+> 
+> 	David
+> 		
+> 
+> -
+> Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+> Registration No: 1397386 (Wales)
