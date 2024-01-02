@@ -1,103 +1,130 @@
-Received: from mail-yw1-f202.google.com (mail-yw1-f202.google.com [209.85.128.202])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9201168B7
-	for <virtualization@lists.linux.dev>; Tue,  2 Jan 2024 20:59:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--almasrymina.bounces.google.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="UZTUDtCV"
-Received: by mail-yw1-f202.google.com with SMTP id 00721157ae682-5e898eb4432so131710967b3.0
-        for <virtualization@lists.linux.dev>; Tue, 02 Jan 2024 12:59:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1704229149; x=1704833949; darn=lists.linux.dev;
-        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=6OrdrWvBDxOQfJ4vcbx726UKsh13Gg6rlqSW8b/m6AQ=;
-        b=UZTUDtCVZVHcEpwwIgB7VmGmJlOLmgkwzLctvcgVEcHhLRHGAQ3xne4lh0poMVjJHZ
-         +8cWk2j7JW1Lf16H2yqNd5Pl/rnorQR50TM6aoG4if1e87VVbyGmmgj8rYDKGVAA/9kQ
-         xAhyl0isY5G9/UtyVyaW2k1SV3armpuRVShkEz9Ce8RgxcSc1HZ+oiZ9d9GtDDV1rk1R
-         7y2kSloWGqXi2bX9G1mfqkWzdyUVppbaqnjKWg9/R495Vh5jqdyaQ8iQ/rnaQ4W7zWcG
-         feTTgZkKuqj7hYRrFhB2FCM9EVuG8yFiu8AJagyZGvJDuqKo4y5yPSIhq0DPfEbljCG7
-         tcJg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1704229149; x=1704833949;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=6OrdrWvBDxOQfJ4vcbx726UKsh13Gg6rlqSW8b/m6AQ=;
-        b=MOUtk643gOwYfeKyAfN3iL5bIcA2z8+7LIKqIx8VcoWIYG3Vq9E9Cwc4mGptqTP8Rx
-         vZylYXLZi2Fr2Rhlz3kWp6uatCQCX25S8z0x1SRWRzsJwoUhZFPOoQeWePqQx8jAESCc
-         RRed4zhDO5MUabWoVSR/fqbmjMqX/kKs/H7cXXWwUBlA5Jdk29Q6LpqI3ECe234kU/7y
-         wmrYcMauFexCC2fgdaFe2pJ30Y+HrrkFvofH4ud8vXxeZDHWEB6q51DIt6qc84F5bWcp
-         q/jj5MQ8umNtmcFQNf299gWPvHHCXc1yk+uF5BoSkGJMEFXZ8xw73Ky6gqG6N8UGcSeE
-         B5cw==
-X-Gm-Message-State: AOJu0YyON5sjwK6q+T9zPH1RZt1zjuBR+xgqYsxyuaQGjisVza2H5zNG
-	9M7rIhqbE/ISNnZBxcZypdl75ClH/hBLy8ini3JM6DRX
-X-Google-Smtp-Source: AGHT+IEYBVWVkGFDvnDDwSh8ZR1uFwBIdUhOiKNQJdQm7yNcrBncdU6lu+BqxXTaSudF2V5VYA6E0+s7Hmgg6J64Ng==
-X-Received: from almasrymina.svl.corp.google.com ([2620:15c:2c4:200:9a04:c262:c978:d762])
- (user=almasrymina job=sendgmr) by 2002:a25:b9c1:0:b0:dbd:b7cb:8a6b with SMTP
- id y1-20020a25b9c1000000b00dbdb7cb8a6bmr513742ybj.1.1704229148829; Tue, 02
- Jan 2024 12:59:08 -0800 (PST)
-Date: Tue,  2 Jan 2024 12:59:04 -0800
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E70917740
+	for <virtualization@lists.linux-foundation.org>; Tue,  2 Jan 2024 23:32:26 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id AAB1141711
+	for <virtualization@lists.linux-foundation.org>; Tue,  2 Jan 2024 23:32:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AAB1141711
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -1.898
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 2O0ASuN-Iy4w
+	for <virtualization@lists.linux-foundation.org>;
+	Tue,  2 Jan 2024 23:32:24 +0000 (UTC)
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 12392416D0
+	for <virtualization@lists.linux-foundation.org>; Tue,  2 Jan 2024 23:32:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 12392416D0
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with both STARTTLS and AUTH (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-206-al3PGIShPmOwyO1qSkjVCw-1; Tue, 02 Jan 2024 23:32:19 +0000
+X-MC-Unique: al3PGIShPmOwyO1qSkjVCw-1
+Received: from AcuMS.Aculab.com (10.202.163.6) by AcuMS.aculab.com
+ (10.202.163.6) with Microsoft SMTP Server (TLS) id 15.0.1497.48; Tue, 2 Jan
+ 2024 23:32:05 +0000
+Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
+ id 15.00.1497.048; Tue, 2 Jan 2024 23:32:05 +0000
+From: David Laight <David.Laight@ACULAB.COM>
+To: 'Boqun Feng' <boqun.feng@gmail.com>
+CC: 'Waiman Long' <longman@redhat.com>, "'linux-kernel@vger.kernel.org'"
+	<linux-kernel@vger.kernel.org>, "'peterz@infradead.org'"
+	<peterz@infradead.org>, "'mingo@redhat.com'" <mingo@redhat.com>,
+	"'will@kernel.org'" <will@kernel.org>, 'Linus Torvalds'
+	<torvalds@linux-foundation.org>, "'xinhui.pan@linux.vnet.ibm.com'"
+	<xinhui.pan@linux.vnet.ibm.com>,
+	"'virtualization@lists.linux-foundation.org'"
+	<virtualization@lists.linux-foundation.org>, 'Zeng Heng'
+	<zengheng4@huawei.com>
+Subject: RE: [PATCH next 2/5] locking/osq_lock: Avoid dirtying the local cpu's
+ 'node' in the osq_lock() fast path.
+Thread-Topic: [PATCH next 2/5] locking/osq_lock: Avoid dirtying the local
+ cpu's 'node' in the osq_lock() fast path.
+Thread-Index: Ado6o/zBb4T2uRNuSTy7E9ZX7SDa6wAKyRqAABQrXQAAo0zNgAAH1EaA
+Date: Tue, 2 Jan 2024 23:32:05 +0000
+Message-ID: <92f36f59a1c0437e9e4848cb86d1d756@AcuMS.aculab.com>
+References: <73a4b31c9c874081baabad9e5f2e5204@AcuMS.aculab.com>
+ <fbb1f9ed42b2460c93eeac43a92157c8@AcuMS.aculab.com>
+ <835f65d9-a041-4956-b89d-7cd3660c3ab8@redhat.com>
+ <fedbf107b9344e7b85711c0de59ae0a3@AcuMS.aculab.com>
+ <ZZRbtwwcusePltww@boqun-archlinux>
+In-Reply-To: <ZZRbtwwcusePltww@boqun-archlinux>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.43.0.472.g3155946c3a-goog
-Message-ID: <20240102205905.793738-1-almasrymina@google.com>
-Subject: [PATCH net-next v3] vsock/virtio: use skb_frag_*() helpers
-From: Mina Almasry <almasrymina@google.com>
-To: kvm@vger.kernel.org, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Mina Almasry <almasrymina@google.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
-	Stefano Garzarella <sgarzare@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Minor fix for virtio: code wanting to access the fields inside an skb
-frag should use the skb_frag_*() helpers, instead of accessing the
-fields directly. This allows for extensions where the underlying
-memory is not a page.
+From: Boqun Feng
+> Sent: 02 January 2024 18:54
+>=20
+> On Sat, Dec 30, 2023 at 03:49:52PM +0000, David Laight wrote:
+> [...]
+> > But it looks odd that osq_unlock()'s fast path uses _release but the ve=
+ry
+> > similar code in osq_wait_next() uses _acquire.
+> >
+>=20
+> The _release in osq_unlock() is needed since unlocks are needed to be
+> RELEASE so that lock+unlock can be a critical section (i.e. no memory
+> accesses can escape). When osq_wait_next() is used in non unlock cases,
+> the RELEASE is not required. As for the case where osq_wait_next() is
+> used in osq_unlock(), there is a xchg() preceding it, which provides a
+> full barrier, so things are fine.
 
-Acked-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Mina Almasry <almasrymina@google.com>
+I know there have been issues with ACQUIRE/RELEASE/FULL xchg in this code,
+but are FULL xchg always needed on node->next?
 
----
+> /me wonders whether we can relax the _acquire in osq_wait_next() into
+> a _relaxed.
 
-v3:
-- Applied Stefano's Acked-by.
-- Forked this patch from 'Abstract page from net stack'.
+I wouldn't have worried about relaxed v release.
 
-v2:
+> > Indeed, apart from some (assumed) optimisations, I think osq_unlock()
+> > could just be:
+> > =09next =3D osq_wait_next(lock, this_cpu_ptr(&osq_node), 0);
+> > =09if (next)
+> > =09=09next->locked =3D 1;
+> >
+>=20
+> If so we need to provide some sort of RELEASE semantics for the
+> osq_unlock() in all the cases.
 
-- Also fix skb_frag_off() + skb_frag_size() (David)
-- Did not apply the reviewed-by from Stefano since the patch changed
-relatively much.
+I wonder how often the unqueue code happens, and especially for
+the last cpu in the list?
+I'd only expect need_resched() to return true after spinning for
+a while - in which case perhaps it is more likely that there are
+a lot of cpu in the queue and the cpu being removed won't be last.
+So osq_wait_next() exits on xchg(&node->next, NULL) !=3D NULL
+which is full barrier.
 
----
- net/vmw_vsock/virtio_transport.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+On a slightly different note I've also wondered if 'osq_node'
+actually needs to be cache line aligned?
+You definitely don't want it spanning 2 cache line, but I'd
+expect that per-cpu data is mostly accessed by its own cpu?
+So you really aren't going to get false sharing with some
+other per-cpu data since the cpu is busy in this code.
+So __aligned(16) would do?
 
-diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-index f495b9e5186b..1748268e0694 100644
---- a/net/vmw_vsock/virtio_transport.c
-+++ b/net/vmw_vsock/virtio_transport.c
-@@ -153,10 +153,10 @@ virtio_transport_send_pkt_work(struct work_struct *work)
- 				 * 'virt_to_phys()' later to fill the buffer descriptor.
- 				 * We don't touch memory at "virtual" address of this page.
- 				 */
--				va = page_to_virt(skb_frag->bv_page);
-+				va = page_to_virt(skb_frag_page(skb_frag));
- 				sg_init_one(sgs[out_sg],
--					    va + skb_frag->bv_offset,
--					    skb_frag->bv_len);
-+					    va + skb_frag_off(skb_frag),
-+					    skb_frag_size(skb_frag));
- 				out_sg++;
- 			}
- 		}
--- 
-2.43.0.472.g3155946c3a-goog
+=09David
+
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1=
+PT, UK
+Registration No: 1397386 (Wales)
 
