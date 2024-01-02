@@ -1,156 +1,82 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.10])
+Received: from mout.web.de (mout.web.de [212.227.15.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6CC1A3C;
-	Tue,  2 Jan 2024 02:18:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A10ED2E4;
+	Tue,  2 Jan 2024 09:35:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="hAZtpUnH"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1704161896; x=1735697896;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=mDNd5uZ157AwkiZSpl+8cKaipWo9mwt38jhXrnbiw8I=;
-  b=hAZtpUnHfjTcrKyoiBG0rT/9F6G4Z/amK8nc7O7TGRCjbvMKWJisHi59
-   sq7Kuo9AEVfKvmN+jqkK6wGOwkQ0A7ft7bvJbropBvX84hILN3q1g81Gd
-   HxwIeU/DV0sL4XwnjPEqIc38209M8voCWgFcWOY/ZJ+BlFV4cpAUp2fUt
-   LPZkcgjEcpBjbNQvodlYJAHnjvoWU4S4cqp+CgFM2rubLm6oiOqhPN15X
-   DOjZ9L4wvH12TLi1sahY0KrjzumfjqVHHyAYq+5InBNoZcsKyvynq6cf9
-   aAcQdaiBvbMD+fpEfWqfTOqnTm5kkaF7lp/59Sv8wPDL44naPII3kxy3A
-   Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10940"; a="4158707"
-X-IronPort-AV: E=Sophos;i="6.04,324,1695711600"; 
-   d="scan'208";a="4158707"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmvoesa104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jan 2024 18:18:12 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10940"; a="845434104"
-X-IronPort-AV: E=Sophos;i="6.04,324,1695711600"; 
-   d="scan'208";a="845434104"
-Received: from lkp-server02.sh.intel.com (HELO b07ab15da5fe) ([10.239.97.151])
-  by fmsmga008.fm.intel.com with ESMTP; 01 Jan 2024 18:18:09 -0800
-Received: from kbuild by b07ab15da5fe with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1rKUM2-000KhQ-1S;
-	Tue, 02 Jan 2024 02:18:06 +0000
-Date: Tue, 2 Jan 2024 10:17:55 +0800
-From: kernel test robot <lkp@intel.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, netdev@vger.kernel.org
-Cc: oe-kbuild-all@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	virtualization@lists.linux.dev, Zhu Yanjun <yanjun.zhu@linux.dev>
-Subject: Re: [PATCH net-next v1 4/6] virtio_net: stats map include driver
- stats
-Message-ID: <202401020928.JpmKXuhu-lkp@intel.com>
-References: <20231226073103.116153-5-xuanzhuo@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="Udm2tBP4"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de; s=s29768273;
+	t=1704188118; x=1704792918; i=markus.elfring@web.de;
+	bh=tSNyrdvOrmxmScfoESQeoGJjZVGUwhPYL8i1sd6cwWM=;
+	h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:
+	 In-Reply-To;
+	b=Udm2tBP4J/pdhzcrUlquYZ/Ml4NaW2Z5Hka8bruypnqytiTwG7Nf8eqcwNJXe8lZ
+	 iz8dMSFTjAJpZEHCPH5Nd18iA2dYcFkq15GFaE7M2DhnXI9epg5/IfxH6hQCkAr/o
+	 5f8BS6DQrr3yCjozlTMN7EyROVMS8KoJeU3Nmu+CrcQS2ErLfRggjGW0Yf/rFjBgp
+	 bSbeN+UC/GgBQYTSdGvyDXYYvjUy0sxPN0hkOvwOt7woeBaZzwk06qPZREErcazLL
+	 swGkqMY+Ev/Bb3Y6jxBq8pVzApGH57IDcfxbXTXq7IS47mkQkz3J/wZ9ZO/uzkTmu
+	 OWqODwJ6knAT0NBCzw==
+X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
+Received: from [192.168.178.21] ([94.31.91.95]) by smtp.web.de (mrweb005
+ [213.165.67.108]) with ESMTPSA (Nemesis) id 1MIc7N-1rPqVf0ZZl-00EZ1s; Tue, 02
+ Jan 2024 10:35:18 +0100
+Message-ID: <691350ea-39e9-4031-a066-27d7064cd9d9@web.de>
+Date: Tue, 2 Jan 2024 10:35:17 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20231226073103.116153-5-xuanzhuo@linux.alibaba.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [2/2] virtiofs: Improve error handling in virtio_fs_get_tree()
+Content-Language: en-GB
+To: Matthew Wilcox <willy@infradead.org>, virtualization@lists.linux.dev,
+ linux-fsdevel@vger.kernel.org, kernel-janitors@vger.kernel.org
+Cc: Miklos Szeredi <miklos@szeredi.hu>, Stefan Hajnoczi
+ <stefanha@redhat.com>, Vivek Goyal <vgoyal@redhat.com>,
+ LKML <linux-kernel@vger.kernel.org>
+References: <c5c14b02-660a-46e1-9eb3-1a16d7c84922@web.de>
+ <5745d81c-3c06-4871-9785-12a469870934@web.de>
+ <ZY6Iir/idOZBiREy@casper.infradead.org>
+ <54b353b6-949d-45a1-896d-bb5acb2ed4ed@web.de>
+ <ZY7V+ywWV/iKs4Hn@casper.infradead.org>
+From: Markus Elfring <Markus.Elfring@web.de>
+In-Reply-To: <ZY7V+ywWV/iKs4Hn@casper.infradead.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:WoH4l/kfnG/D1YD+yV/7PtW8vygvEXgrYZtTCzrEtR8rGb9nxd1
+ d2KCgCErE3OUiwfidxwk5zEYEyBK3fQnMJclRQNSL2tLRTtVqBWurw9IKowTgr/wKU18Lgz
+ Pyq6fdyUTgT9bnpQKXz+EtFKA1pGV1KS1Gbm91FBfLm4hyYpmn5IWu3PZt7uPZgfNin6AJF
+ 4KZy3HwzXsjySVAtkDofA==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:Cbq+ZiV+SZY=;Jt3xakHM8aRBkoWFImzl9NKcJMc
+ Jt61HqtLCDFYLCp0v/8MdPdAs8HNbzVdui4BKaK/9i9/8NwiMp2ciQ/uDrdLcxs4QL5AjfjaV
+ Sogs1IW0o69j9NWQPFZ5XkJfGL0oC5Pq2vWOmMFU34GT77pMbtKSKwKmrZCDOrC20ueIWJsvc
+ +GS1UM/dYfPgMCLMu+f3G2pWvYRfT+0mxEMSl4elkSydgQ3MAbcHt0Sq5i1qFb94PrFgVsNC3
+ jsd9iTcKEe02bfabtUrT2uQR+en9ZTamWsEJdCBZb3OtfruBvuFaL3C/sAQK2y3WkjPc+8gwB
+ Mb2s0xrA0gDA0BAiDij6xeTCgGDUFLe1HxkouFj5xoMlYjqEctBDMtc8JyiZCSXOJWtPqZcqr
+ 4JlwO7FPw8n/lnrLZygREIQx/ODLs3mIN75vvgFX/aXXkHEc5d2/B5wPt4envf2PVuL4O1rU7
+ P7E+EyrWBK4NXmXc6rVyVJq+0+SPRSIKqX4u4pK6+oMTtxT2sLawUlXJrYvHJwC9BAH/S1r3j
+ b/l/DSSdMzoeQ9bfnsUeqm8ab4BZKIPcRLtQIasrG5lsl/LiS0wKH21Avgi5+RpSQSna48Pq/
+ q2Rmn6anSCzcn0QohSbUXP1mmakNf8z0kTmhqPQfl4wyqoTa+u+SHZqooywxt8+IXRxCPXntL
+ ZMurQ2W5DVhHha4v+0+d7HNcLd3T507P6MNE18vEeD75hJd25FCby1WwNlzhnPLxd5d9krc1I
+ HDKHNKtvK+B6pTrsEw/pRwJ2ESrqFvL31Wlf2XZ8K7335Fe5775Hs3NVW2Rp8XAbmrkBmTF1w
+ TmaZYDZL5hAqrJt7W/X6wJBHr7faUIZBhBE2IDYnyUs/6RS3+4CjGlRhN9DhlpvB9MeeTwfvS
+ SHrnQrz3Hdo3EyW5yNYP/IBs6cIBNlM8ExDxkIZLaqkTwUZaBenMFAOr+l2c1S1AAGAj+t8HN
+ YkO4Bg==
 
-Hi Xuan,
+>>> So what?  kfree(NULL) is perfectly acceptable.
+>>
+>> I suggest to reconsider the usefulness of such a special function call.
+>
+> Can you be more explicit in your suggestion?
 
-kernel test robot noticed the following build warnings:
+I hope that the change acceptance can grow for the presented transformatio=
+n.
+Are you looking for an improved patch description?
 
-[auto build test WARNING on mst-vhost/linux-next]
-[also build test WARNING on linus/master v6.7-rc8]
-[cannot apply to net-next/main horms-ipvs/master next-20231222]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Xuan-Zhuo/virtio_net-introduce-device-stats-feature-and-structures/20231226-153227
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git linux-next
-patch link:    https://lore.kernel.org/r/20231226073103.116153-5-xuanzhuo%40linux.alibaba.com
-patch subject: [PATCH net-next v1 4/6] virtio_net: stats map include driver stats
-config: x86_64-randconfig-121-20240101 (https://download.01.org/0day-ci/archive/20240102/202401020928.JpmKXuhu-lkp@intel.com/config)
-compiler: gcc-7 (Ubuntu 7.5.0-6ubuntu2) 7.5.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240102/202401020928.JpmKXuhu-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202401020928.JpmKXuhu-lkp@intel.com/
-
-sparse warnings: (new ones prefixed by >>)
->> drivers/net/virtio_net.c:3416:83: sparse: sparse: incorrect type in argument 2 (different base types) @@     expected restricted __virtio64 [usertype] val @@     got unsigned long long const [usertype] @@
-   drivers/net/virtio_net.c:3416:83: sparse:     expected restricted __virtio64 [usertype] val
-   drivers/net/virtio_net.c:3416:83: sparse:     got unsigned long long const [usertype]
-   drivers/net/virtio_net.c:3500:52: sparse: sparse: incorrect type in argument 2 (different base types) @@     expected restricted __virtio16 [usertype] val @@     got restricted __le16 [usertype] vq_index @@
-   drivers/net/virtio_net.c:3500:52: sparse:     expected restricted __virtio16 [usertype] val
-   drivers/net/virtio_net.c:3500:52: sparse:     got restricted __le16 [usertype] vq_index
-   drivers/net/virtio_net.c:3498:81: sparse: sparse: incorrect type in argument 2 (different base types) @@     expected restricted __virtio16 [usertype] val @@     got restricted __le16 [usertype] size @@
-   drivers/net/virtio_net.c:3498:81: sparse:     expected restricted __virtio16 [usertype] val
-   drivers/net/virtio_net.c:3498:81: sparse:     got restricted __le16 [usertype] size
-   drivers/net/virtio_net.c:3549:82: sparse: sparse: incorrect type in argument 2 (different base types) @@     expected restricted __virtio64 [usertype] val @@     got restricted __le64 [assigned] [usertype] v @@
-   drivers/net/virtio_net.c:3549:82: sparse:     expected restricted __virtio64 [usertype] val
-   drivers/net/virtio_net.c:3549:82: sparse:     got restricted __le64 [assigned] [usertype] v
-
-vim +3416 drivers/net/virtio_net.c
-
-  3378	
-  3379	static void virtnet_fill_stats(struct virtnet_info *vi, u32 qid,
-  3380				       struct virtnet_stats_ctx *ctx,
-  3381				       const u8 *base, bool from_driver, u8 type)
-  3382	{
-  3383		struct virtnet_stats_map *m;
-  3384		const u64_stats_t *v_stat;
-  3385		u32 queue_type;
-  3386		const u64 *v;
-  3387		u64 offset;
-  3388		int i, j;
-  3389	
-  3390		if (qid == vi->max_queue_pairs * 2) {
-  3391			offset = 0;
-  3392			queue_type = VIRTNET_STATS_Q_TYPE_CQ;
-  3393		} else if (qid % 2) {
-  3394			offset = ctx->num_cq + ctx->num_rx * vi->curr_queue_pairs + ctx->num_tx * (qid / 2);
-  3395			queue_type = VIRTNET_STATS_Q_TYPE_TX;
-  3396		} else {
-  3397			offset = ctx->num_cq + ctx->num_rx * (qid / 2);
-  3398			queue_type = VIRTNET_STATS_Q_TYPE_RX;
-  3399		}
-  3400	
-  3401		for (i = 0; i < ARRAY_SIZE(virtio_net_stats_map); ++i) {
-  3402			m = &virtio_net_stats_map[i];
-  3403	
-  3404			if (m->queue_type != queue_type)
-  3405				continue;
-  3406	
-  3407			if (from_driver != m->from_driver)
-  3408				goto skip;
-  3409	
-  3410			if (type != m->type)
-  3411				goto skip;
-  3412	
-  3413			for (j = 0; j < m->num; ++j) {
-  3414				if (!from_driver) {
-  3415					v = (const u64 *)(base + m->desc[j].offset);
-> 3416					ctx->data[offset + j] = virtio64_to_cpu(vi->vdev, *v);
-  3417				} else {
-  3418					v_stat = (const u64_stats_t *)(base + m->desc[j].offset);
-  3419					ctx->data[offset + j] = u64_stats_read(v_stat);
-  3420				}
-  3421			}
-  3422	
-  3423			break;
-  3424	skip:
-  3425			if (virtnet_stats_valid(vi, m))
-  3426				offset += m->num;
-  3427		}
-  3428	}
-  3429	
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Regards,
+Markus
