@@ -1,51 +1,49 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17CC616402
-	for <virtualization@lists.linux.dev>; Tue,  2 Jan 2024 20:21:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA6CA16409
+	for <virtualization@lists.linux.dev>; Tue,  2 Jan 2024 20:42:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="W74Nv5jR"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QU7WXHz6"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1704226899;
+	s=mimecast20190719; t=1704228123;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=mf+A2l9BZ4h/BUGC6R/qVkbg+mOP6JOePma0+l5vK88=;
-	b=W74Nv5jR2UbTeOa/A7dHaTDtunCx57+Jy2bsIlc9N56WYUTaXrDDs54gW0BAvCCv6XyKsb
-	MhiFgfG+p0E8J+eoVE6Pi0aExpCEsZ7aCIjnbj0pNPXfmnRXliGHv09q5T1CuBheF8Klcf
-	g8Qt9dsek6+E11c3Tafz2Veky9jig+M=
+	bh=UbAgTltj/0phRLhEdJ+tD7nQJLUShjq5nTzZeX6dGnA=;
+	b=QU7WXHz6Z9MIGkBzoQ6iGsMq0vDAfgmHrnSXqpbEoXu5+vpZFaSLJruLEDxwGpWSeaaIyb
+	JcrnpsjDxr0UkkLpQYehJPZDMSBtcRP5U5WF0kOfpSE0fwDFYzpqF5yVose/SOTuBPLR1l
+	81Ls1yPxi1zgEy/kr8iyyxyoVIHXRT4=
 Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
  by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-290-UkVYTtcVN_K3sGanpLGXSw-1; Tue,
- 02 Jan 2024 15:21:35 -0500
-X-MC-Unique: UkVYTtcVN_K3sGanpLGXSw-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-461-w-0h2nGVNXaaWUPgwAeXig-1; Tue,
+ 02 Jan 2024 15:42:01 -0500
+X-MC-Unique: w-0h2nGVNXaaWUPgwAeXig-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 5A9413C0E644;
-	Tue,  2 Jan 2024 20:21:35 +0000 (UTC)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id EED5938116E3;
+	Tue,  2 Jan 2024 20:42:00 +0000 (UTC)
 Received: from fedora.redhat.com (unknown [10.22.16.212])
-	by smtp.corp.redhat.com (Postfix) with ESMTPS id 982691C060AF;
-	Tue,  2 Jan 2024 20:21:34 +0000 (UTC)
+	by smtp.corp.redhat.com (Postfix) with ESMTPS id 4008F2166B31;
+	Tue,  2 Jan 2024 20:42:00 +0000 (UTC)
 Received: by fedora.redhat.com (Postfix, from userid 1000)
-	id A6B1428C5E5; Tue,  2 Jan 2024 15:21:33 -0500 (EST)
-Date: Tue, 2 Jan 2024 15:21:33 -0500
+	id C273D28C5EF; Tue,  2 Jan 2024 15:41:59 -0500 (EST)
+Date: Tue, 2 Jan 2024 15:41:59 -0500
 From: Vivek Goyal <vgoyal@redhat.com>
 To: Markus Elfring <Markus.Elfring@web.de>
 Cc: virtualization@lists.linux.dev, linux-fsdevel@vger.kernel.org,
 	kernel-janitors@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>,
 	Stefan Hajnoczi <stefanha@redhat.com>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Matthew Wilcox <willy@infradead.org>
-Subject: Re: [PATCH 2/2] virtiofs: Improve error handling in
- virtio_fs_get_tree()
-Message-ID: <ZZRwTctKN8h5VCqh@redhat.com>
+	LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/2] virtiofs: Improve three size determinations
+Message-ID: <ZZR1FxR4cUzuDzLK@redhat.com>
 References: <c5c14b02-660a-46e1-9eb3-1a16d7c84922@web.de>
- <5745d81c-3c06-4871-9785-12a469870934@web.de>
+ <02fe18da-55f5-47c5-a297-58411edbb78b@web.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -55,83 +53,66 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <5745d81c-3c06-4871-9785-12a469870934@web.de>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.7
+In-Reply-To: <02fe18da-55f5-47c5-a297-58411edbb78b@web.de>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.6
 
-On Fri, Dec 29, 2023 at 09:38:47AM +0100, Markus Elfring wrote:
+On Fri, Dec 29, 2023 at 09:36:36AM +0100, Markus Elfring wrote:
 > From: Markus Elfring <elfring@users.sourceforge.net>
-> Date: Fri, 29 Dec 2023 09:15:07 +0100
+> Date: Fri, 29 Dec 2023 08:42:04 +0100
 > 
-> The kfree() function was called in two cases by
-> the virtio_fs_get_tree() function during error handling
-> even if the passed variable contained a null pointer.
-> This issue was detected by using the Coccinelle software.
-> 
-> * Thus use another label.
-> 
-> * Move an error code assignment into an if branch.
-> 
-> * Delete an initialisation (for the variable “fc”)
->   which became unnecessary with this refactoring.
-> 
-> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+> Replace the specification of data structures by pointer dereferences
+> as the parameter for the operator “sizeof” to make the corresponding size
+> determination a bit safer according to the Linux coding style convention.
 
-As Matthew said that kfree(NULL) is perfectly acceptable usage in kernel,
-so I really don't feel that this patch is required. Current code looks
-good as it is.
+I had a look at coding-style.rst and it does say that dereferencing the
+pointer is preferred form. Primary argument seems to be that somebody
+might change the pointer variable type but not the corresponding type
+passed to sizeof().
+
+There is some value to the argument. I don't feel strongly about it.
+
+Miklos, if you like this change, feel free to apply. 
 
 Thanks
 Vivek
-
+  
+> 
+> This issue was detected by using the Coccinelle software.
+> 
+> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 > ---
->  fs/fuse/virtio_fs.c | 13 ++++++++-----
->  1 file changed, 8 insertions(+), 5 deletions(-)
+>  fs/fuse/virtio_fs.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
 > 
 > diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-> index 2f8ba9254c1e..0746f54ec743 100644
+> index 5f1be1da92ce..2f8ba9254c1e 100644
 > --- a/fs/fuse/virtio_fs.c
 > +++ b/fs/fuse/virtio_fs.c
-> @@ -1415,10 +1415,10 @@ static int virtio_fs_get_tree(struct fs_context *fsc)
->  {
->  	struct virtio_fs *fs;
->  	struct super_block *sb;
-> -	struct fuse_conn *fc = NULL;
-> +	struct fuse_conn *fc;
->  	struct fuse_mount *fm;
->  	unsigned int virtqueue_size;
-> -	int err = -EIO;
-> +	int err;
-> 
->  	/* This gets a reference on virtio_fs object. This ptr gets installed
->  	 * in fc->iq->priv. Once fuse_conn is going away, it calls ->put()
-> @@ -1431,13 +1431,15 @@ static int virtio_fs_get_tree(struct fs_context *fsc)
->  	}
-> 
->  	virtqueue_size = virtqueue_get_vring_size(fs->vqs[VQ_REQUEST].vq);
-> -	if (WARN_ON(virtqueue_size <= FUSE_HEADER_OVERHEAD))
-> -		goto out_err;
-> +	if (WARN_ON(virtqueue_size <= FUSE_HEADER_OVERHEAD)) {
-> +		err = -EIO;
-> +		goto lock_mutex;
-> +	}
+> @@ -1435,11 +1435,11 @@ static int virtio_fs_get_tree(struct fs_context *fsc)
+>  		goto out_err;
 > 
 >  	err = -ENOMEM;
->  	fc = kzalloc(sizeof(*fc), GFP_KERNEL);
+> -	fc = kzalloc(sizeof(struct fuse_conn), GFP_KERNEL);
+> +	fc = kzalloc(sizeof(*fc), GFP_KERNEL);
 >  	if (!fc)
-> -		goto out_err;
-> +		goto lock_mutex;
+>  		goto out_err;
 > 
->  	fm = kzalloc(sizeof(*fm), GFP_KERNEL);
+> -	fm = kzalloc(sizeof(struct fuse_mount), GFP_KERNEL);
+> +	fm = kzalloc(sizeof(*fm), GFP_KERNEL);
 >  	if (!fm)
-> @@ -1476,6 +1478,7 @@ static int virtio_fs_get_tree(struct fs_context *fsc)
+>  		goto out_err;
 > 
->  out_err:
->  	kfree(fc);
-> +lock_mutex:
->  	mutex_lock(&virtio_fs_mutex);
->  	virtio_fs_put(fs);
->  	mutex_unlock(&virtio_fs_mutex);
+> @@ -1495,7 +1495,7 @@ static int virtio_fs_init_fs_context(struct fs_context *fsc)
+>  	if (fsc->purpose == FS_CONTEXT_FOR_SUBMOUNT)
+>  		return fuse_init_fs_context_submount(fsc);
+> 
+> -	ctx = kzalloc(sizeof(struct fuse_fs_context), GFP_KERNEL);
+> +	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
+>  	if (!ctx)
+>  		return -ENOMEM;
+>  	fsc->fs_private = ctx;
 > --
 > 2.43.0
+> 
 > 
 
