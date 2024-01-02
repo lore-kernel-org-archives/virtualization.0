@@ -1,58 +1,152 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFCE2D268;
-	Tue,  2 Jan 2024 10:17:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="sb5aHNMh"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=9XzDx6zZ6qJD2AqPIsRJuoeK0l+mVQ9Fy8pq/VyTgQM=; b=sb5aHNMhiZ0qDUzXBTFXlfZcgu
-	kobm8NLF+hVBiee4q3GhgkRaQw8wzIsvH0uynPzXhfimS7OvE8R/GpYmSKUrKOMgGyEZvRx+yfRkF
-	SAGfiyTOF/GTApBL3R8noyyhQVD60PFSovEXGXz0VrUimOwv1qpe7nepDDPrenMJTOScCdNz7mtbs
-	ogJnopbaKSLIhGgjab4Ew8nZRv0f1YgRajZ5vgy//W8a4pZbzpmnONzOgxhA+tOfC98J3bh61eqeQ
-	7LArNYPuQGCu52EePosEYuW37VF+nkHKtOjiWdYFLgLFFf7iAyNMFhatIf4KmoEvU89SZTiCi8QdC
-	BMpIMftg==;
-Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-	id 1rKbpo-009y51-79; Tue, 02 Jan 2024 10:17:20 +0000
-Date: Tue, 2 Jan 2024 10:17:20 +0000
-From: Matthew Wilcox <willy@infradead.org>
-To: Markus Elfring <Markus.Elfring@web.de>
-Cc: virtualization@lists.linux.dev, linux-fsdevel@vger.kernel.org,
-	kernel-janitors@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Vivek Goyal <vgoyal@redhat.com>,
-	LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [2/2] virtiofs: Improve error handling in virtio_fs_get_tree()
-Message-ID: <ZZPisBFGvF/qp2eB@casper.infradead.org>
-References: <c5c14b02-660a-46e1-9eb3-1a16d7c84922@web.de>
- <5745d81c-3c06-4871-9785-12a469870934@web.de>
- <ZY6Iir/idOZBiREy@casper.infradead.org>
- <54b353b6-949d-45a1-896d-bb5acb2ed4ed@web.de>
- <ZY7V+ywWV/iKs4Hn@casper.infradead.org>
- <691350ea-39e9-4031-a066-27d7064cd9d9@web.de>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B843DDDA7
+	for <virtualization@lists.linux-foundation.org>; Tue,  2 Jan 2024 10:20:35 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 3C660408BC
+	for <virtualization@lists.linux-foundation.org>; Tue,  2 Jan 2024 10:20:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3C660408BC
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -1.898
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id mWrGGJwKIgiJ
+	for <virtualization@lists.linux-foundation.org>;
+	Tue,  2 Jan 2024 10:20:34 +0000 (UTC)
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 13ED5408A0
+	for <virtualization@lists.linux-foundation.org>; Tue,  2 Jan 2024 10:20:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 13ED5408A0
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with both STARTTLS and AUTH (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-7-5Ka6-v20NqyBx0GakCnmcg-1; Tue, 02 Jan 2024 10:20:31 +0000
+X-MC-Unique: 5Ka6-v20NqyBx0GakCnmcg-1
+Received: from AcuMS.Aculab.com (10.202.163.4) by AcuMS.aculab.com
+ (10.202.163.4) with Microsoft SMTP Server (TLS) id 15.0.1497.48; Tue, 2 Jan
+ 2024 10:20:14 +0000
+Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
+ id 15.00.1497.048; Tue, 2 Jan 2024 10:20:14 +0000
+From: David Laight <David.Laight@ACULAB.COM>
+To: 'Ingo Molnar' <mingo@kernel.org>
+CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+	"'peterz@infradead.org'" <peterz@infradead.org>, "'longman@redhat.com'"
+	<longman@redhat.com>, "'mingo@redhat.com'" <mingo@redhat.com>,
+	"'will@kernel.org'" <will@kernel.org>, "'boqun.feng@gmail.com'"
+	<boqun.feng@gmail.com>, 'Linus Torvalds' <torvalds@linux-foundation.org>,
+	"'virtualization@lists.linux-foundation.org'"
+	<virtualization@lists.linux-foundation.org>, 'Zeng Heng'
+	<zengheng4@huawei.com>
+Subject: RE: [PATCH next v2 5/5] locking/osq_lock: Optimise decode_cpu() and
+ per_cpu_ptr().
+Thread-Topic: [PATCH next v2 5/5] locking/osq_lock: Optimise decode_cpu() and
+ per_cpu_ptr().
+Thread-Index: Ado8NCf0vtha6NqURtGgfE7//QxHewBLYOUAAABil0A=
+Date: Tue, 2 Jan 2024 10:20:14 +0000
+Message-ID: <c0bccbe448024994a28b80b5b50d8475@AcuMS.aculab.com>
+References: <2b4e8a5816a742d2bd23fdbaa8498e80@AcuMS.aculab.com>
+ <7c1148fe64fb46a7a81c984776cd91df@AcuMS.aculab.com>
+ <ZZPdUv6uRvqXlyYo@gmail.com>
+In-Reply-To: <ZZPdUv6uRvqXlyYo@gmail.com>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <691350ea-39e9-4031-a066-27d7064cd9d9@web.de>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jan 02, 2024 at 10:35:17AM +0100, Markus Elfring wrote:
-> >>> So what?  kfree(NULL) is perfectly acceptable.
-> >>
-> >> I suggest to reconsider the usefulness of such a special function call.
+From: Ingo Molnar
+> Sent: 02 January 2024 09:54
+>=20
+>=20
+> * David Laight <David.Laight@ACULAB.COM> wrote:
+>=20
+> > per_cpu_ptr() indexes __per_cpu_offset[] with the cpu number.
+> > This requires the cpu number be 64bit.
+> > However the value is osq_lock() comes from a 32bit xchg() and there
+> > isn't a way of telling gcc the high bits are zero (they are) so
+> > there will always be an instruction to clear the high bits.
 > >
-> > Can you be more explicit in your suggestion?
-> 
-> I hope that the change acceptance can grow for the presented transformation.
-> Are you looking for an improved patch description?
+> > The cpu number is also offset by one (to make the initialiser 0)
+> > It seems to be impossible to get gcc to convert __per_cpu_offset[cpu_p1=
+ - 1]
+> > into (__per_cpu_offset - 1)[cpu_p1] (transferring the offset to the add=
+ress).
+> >
+> > Converting the cpu number to 32bit unsigned prior to the decrement mean=
+s
+> > that gcc knows the decrement has set the high bits to zero and doesn't
+> > add a register-register move (or cltq) to zero/sign extend the value.
+> >
+> > Not massive but saves two instructions.
+> >
+> > Signed-off-by: David Laight <david.laight@aculab.com>
+> > ---
+> >  kernel/locking/osq_lock.c | 6 ++----
+> >  1 file changed, 2 insertions(+), 4 deletions(-)
+> >
+> > diff --git a/kernel/locking/osq_lock.c b/kernel/locking/osq_lock.c
+> > index 35bb99e96697..37a4fa872989 100644
+> > --- a/kernel/locking/osq_lock.c
+> > +++ b/kernel/locking/osq_lock.c
+> > @@ -29,11 +29,9 @@ static inline int encode_cpu(int cpu_nr)
+> >  =09return cpu_nr + 1;
+> >  }
+> >
+> > -static inline struct optimistic_spin_node *decode_cpu(int encoded_cpu_=
+val)
+> > +static inline struct optimistic_spin_node *decode_cpu(unsigned int enc=
+oded_cpu_val)
+> >  {
+> > -=09int cpu_nr =3D encoded_cpu_val - 1;
+> > -
+> > -=09return per_cpu_ptr(&osq_node, cpu_nr);
+> > +=09return per_cpu_ptr(&osq_node, encoded_cpu_val - 1);
+>=20
+> So why do we 'encode' the CPU number to begin with?
+>=20
+> Why not use -1 as the special value? Checks for negative values
+> generates similarly fast machine code compared to checking for 0, if
+> the value is also used (which it is in most cases here). What am I
+> missing? We seem to be going through a lot of unnecessary hoops, and
+> some of that is in the runtime path.
 
-Do you consider more clarity in your argumentation?
+You'd really have to ask the person who did the original patch
+that changed lock->tail from a pointer to an int (saving 8 bytes)
+in every mutex and rwsem.
+
+I suspect the reason is that it is so much safer to have the
+initialiser being zero, rather than a non-zero value with zero
+being a valid value.
+
+It is also hard to avoid an extra instruction in the per_cpu_ptr()
+code - something has to extend the 32bit result from xchg() to
+a 64bit one for the array index.
+The asm for an unsigned 32bit exchange could return a 64bit result
+(which would have the desired effect), but that won't work for
+a signed value.
+The '-1' in the vcpu_is_preempted() path will be executed in parallel
+with something else and is likely to have no measurable effect.
+
+So it is a slightly risky change that has less benefit than the
+other changes (which save cache line accesses).
+
+=09David
+
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1=
+PT, UK
+Registration No: 1397386 (Wales)
+
