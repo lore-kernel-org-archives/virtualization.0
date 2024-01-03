@@ -1,205 +1,195 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from dggsgout11.his.huawei.com (unknown [45.249.212.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E69CF18C17
-	for <virtualization@lists.linux-foundation.org>; Wed,  3 Jan 2024 10:40:07 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 31DC28106A
-	for <virtualization@lists.linux-foundation.org>; Wed,  3 Jan 2024 10:40:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 31DC28106A
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -1.898
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id vdyvvjOxZR6d
-	for <virtualization@lists.linux-foundation.org>;
-	Wed,  3 Jan 2024 10:40:05 +0000 (UTC)
-X-Greylist: delayed 2401 seconds by postgrey-1.37 at util1.osuosl.org; Wed, 03 Jan 2024 10:40:05 UTC
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8F97A80F3D
-Received: from www262.sakura.ne.jp (www262.sakura.ne.jp [202.181.97.72])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 8F97A80F3D
-	for <virtualization@lists.linux-foundation.org>; Wed,  3 Jan 2024 10:40:05 +0000 (UTC)
-Received: from fsav119.sakura.ne.jp (fsav119.sakura.ne.jp [27.133.134.246])
-	by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id 4039xoqo003148;
-	Wed, 3 Jan 2024 18:59:50 +0900 (JST)
-	(envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
-Received: from www262.sakura.ne.jp (202.181.97.72)
- by fsav119.sakura.ne.jp (F-Secure/fsigk_smtp/550/fsav119.sakura.ne.jp);
- Wed, 03 Jan 2024 18:59:50 +0900 (JST)
-X-Virus-Status: clean(F-Secure/fsigk_smtp/550/fsav119.sakura.ne.jp)
-Received: from [192.168.1.6] (M106072142033.v4.enabler.ne.jp [106.72.142.33])
-	(authenticated bits=0)
-	by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTPSA id 4039xnG5003145
-	(version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NO);
-	Wed, 3 Jan 2024 18:59:50 +0900 (JST)
-	(envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
-Message-ID: <7e6554dc-29e1-44b5-9fd0-3b3537f5b63c@I-love.SAKURA.ne.jp>
-Date: Wed, 3 Jan 2024 18:59:49 +0900
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 017D518E1E
+	for <virtualization@lists.linux.dev>; Wed,  3 Jan 2024 10:58:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=huaweicloud.com
+Received: from mail.maildlp.com (unknown [172.19.163.216])
+	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4T4msr2kDpz4f3lDb
+	for <virtualization@lists.linux.dev>; Wed,  3 Jan 2024 18:58:24 +0800 (CST)
+Received: from mail02.huawei.com (unknown [10.116.40.112])
+	by mail.maildlp.com (Postfix) with ESMTP id 0FC3D1A01C2
+	for <virtualization@lists.linux.dev>; Wed,  3 Jan 2024 18:58:30 +0800 (CST)
+Received: from huaweicloud.com (unknown [10.175.124.27])
+	by APP1 (Coremail) with SMTP id cCh0CgDHyhDUPZVlW02hFQ--.58083S4;
+	Wed, 03 Jan 2024 18:58:29 +0800 (CST)
+From: Hou Tao <houtao@huaweicloud.com>
+To: linux-fsdevel@vger.kernel.org
+Cc: Miklos Szeredi <miklos@szeredi.hu>,
+	Vivek Goyal <vgoyal@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	"Michael S . Tsirkin" <mst@redhat.com>,
+	linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	houtao1@huawei.com
+Subject: [PATCH] virtiofs: limit the length of ITER_KVEC dio by max_nopage_rw
+Date: Wed,  3 Jan 2024 18:59:29 +0800
+Message-Id: <20240103105929.1902658-1-houtao@huaweicloud.com>
+X-Mailer: git-send-email 2.29.2
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [syzbot] [virtualization?] KMSAN: uninit-value in virtqueue_add
- (4)
-Content-Language: en-US
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-To: syzbot <syzbot+d7521c1e3841ed075a42@syzkaller.appspotmail.com>,
-        syzkaller-bugs@googlegroups.com, linux-mm <linux-mm@kvack.org>,
-        "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>,
-        "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>
-References: <000000000000fd588e060de27ef4@google.com>
- <2c1dad81-9b22-47fb-b0e9-6e4a2a2c67be@I-love.SAKURA.ne.jp>
-In-Reply-To: <2c1dad81-9b22-47fb-b0e9-6e4a2a2c67be@I-love.SAKURA.ne.jp>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:cCh0CgDHyhDUPZVlW02hFQ--.58083S4
+X-Coremail-Antispam: 1UD129KBjvJXoW3ArWfGw4UurWftrWDJr4rAFb_yoW7AFWxpr
+	4ftFy5ZF4xXF47urZxJF4j9ryfCwn3GF42gr95W3Z3uF17Z342kF1FvFyUuFy7urW8JrWI
+	qr4ktry2vrs0vaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUgEb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k2
+	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+	vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7Cj
+	xVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x
+	0267AKxVW0oVCq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG
+	6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFV
+	Cjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JMxAIw28IcxkI7VAKI48JMxC20s026xCaFVCj
+	c4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4
+	CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1x
+	MIIF0xvE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCI42IY6xAIw20EY4v20xvaj40_WFyUJV
+	Cq3wCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIY
+	CTnIWIevJa73UjIFyTuYvjxUrR6zUUUUU
+X-CM-SenderInfo: xkrx3t3r6k3tpzhluzxrxghudrp/
 
-Well, no suggestions from MM people? This is currently second top crasher
-for syzbot and the reproducer is doing nothing special.
+From: Hou Tao <houtao1@huawei.com>
 
-syzbot is reporting uninit-value at kmsan_handle_dma() in vring_map_one_sg().
+When trying to insert a 10MB kernel module kept in a virtiofs with cache
+disabled, the following warning was reported:
 
-----------
-	if (!vq->use_dma_api) {
-		/*
-		 * If DMA is not used, KMSAN doesn't know that the scatterlist
-		 * is initialized by the hardware. Explicitly check/unpoison it
-		 * depending on the direction.
-		 */
-		kmsan_handle_dma(sg_page(sg), sg->offset, sg->length, direction);
-		*addr = (dma_addr_t)sg_phys(sg);
-		return 0;
-	}
-----------
+  ------------[ cut here ]------------
+  WARNING: CPU: 2 PID: 439 at mm/page_alloc.c:4544 ......
+  Modules linked in:
+  CPU: 2 PID: 439 Comm: insmod Not tainted 6.7.0-rc7+ #33
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), ......
+  RIP: 0010:__alloc_pages+0x2c4/0x360
+  ......
+  Call Trace:
+   <TASK>
+   ? __warn+0x8f/0x150
+   ? __alloc_pages+0x2c4/0x360
+   __kmalloc_large_node+0x86/0x160
+   __kmalloc+0xcd/0x140
+   virtio_fs_enqueue_req+0x240/0x6d0
+   virtio_fs_wake_pending_and_unlock+0x7f/0x190
+   queue_request_and_unlock+0x58/0x70
+   fuse_simple_request+0x18b/0x2e0
+   fuse_direct_io+0x58a/0x850
+   fuse_file_read_iter+0xdb/0x130
+   __kernel_read+0xf3/0x260
+   kernel_read+0x45/0x60
+   kernel_read_file+0x1ad/0x2b0
+   init_module_from_file+0x6a/0xe0
+   idempotent_init_module+0x179/0x230
+   __x64_sys_finit_module+0x5d/0xb0
+   do_syscall_64+0x36/0xb0
+   entry_SYSCALL_64_after_hwframe+0x6e/0x76
+   ......
+   </TASK>
+  ---[ end trace 0000000000000000 ]---
 
-syzbot is reporting the page was allocated in ext4_da_write_begin().
+The warning happened as follow. In copy_args_to_argbuf(), virtiofs uses
+kmalloc-ed memory as bound buffer for fuse args, but
+fuse_get_user_pages() only limits the length of fuse arg by max_read or
+max_write for IOV_KVEC io (e.g., kernel_read_file from finit_module()).
+For virtiofs, max_read is UINT_MAX, so a big read request which is about
+10MB is passed to copy_args_to_argbuf(), kmalloc() is called in turn
+with len=10MB, and triggers the warning in __alloc_pages():
+WARN_ON_ONCE_GFP(order > MAX_ORDER, gfp)).
 
-----------
-	folio = __filemap_get_folio(mapping, index, FGP_WRITEBEGIN,
-			mapping_gfp_mask(mapping));
-	if (IS_ERR(folio))
-		return PTR_ERR(folio);
+A feasible solution is to limit the value of max_read for virtiofs, so
+the length passed to kmalloc() will be limited. However it will affects
+the max read size for ITER_IOVEC io and the value of max_write also needs
+limitation. So instead of limiting the values of max_read and max_write,
+introducing max_nopage_rw to cap both the values of max_read and
+max_write when the fuse dio read/write request is initiated from kernel.
 
-	/* In case writeback began while the folio was unlocked */
-	folio_wait_stable(folio);
+Considering that fuse read/write request from kernel is uncommon and to
+decrease the demand for large contiguous pages, set max_nopage_rw as
+256KB instead of KMALLOC_MAX_SIZE - 4096 or similar.
 
-#ifdef CONFIG_FS_ENCRYPTION
-	ret = ext4_block_write_begin(folio, pos, len, ext4_da_get_block_prep);
-#else
-	ret = __block_write_begin(&folio->page, pos, len, ext4_da_get_block_prep);
-#endif
-----------
+Fixes: a62a8ef9d97d ("virtio-fs: add virtiofs filesystem")
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+---
+ fs/fuse/file.c      | 12 +++++++++++-
+ fs/fuse/fuse_i.h    |  3 +++
+ fs/fuse/inode.c     |  1 +
+ fs/fuse/virtio_fs.c |  6 ++++++
+ 4 files changed, 21 insertions(+), 1 deletion(-)
 
-Since folio_wait_stable() calls folio_wait_writeback(), I'm guessing that
-blk_mq_run_work_fn() is triggered by folio_wait_stable().
-
-----------
-void folio_wait_stable(struct folio *folio)
-{
-	if (mapping_stable_writes(folio_mapping(folio)))
-		folio_wait_writeback(folio);
-}
-----------
-
-If my guess is correct, I wonder how AS_STABLE_WRITES could be already set on a
-folio struct returned by __filemap_get_folio() ? When AS_STABLE_WRITES is set?
-
-Are there anything we can do for debugging this? Is adding a kernel config option that
-does s/union/struct/g for helping debugger/printk() to inspect values in "struct folio"
-possible?
-
-Not directly related to this report, but I worry that
-mapping_stable_writes(folio_mapping(folio)) might hit NULL pointer
-dereference bug because folio_mapping() might return NULL and
-mapping_stable_writes() assumes that the argument is not NULL.
-
-On 2024/01/02 16:38, Tetsuo Handa wrote:
-> #syz set subsystems: mm
-> 
-> On 2024/01/01 22:38, syzbot wrote:
->> Hello,
->>
->> syzbot found the following issue on:
->>
->> HEAD commit:    fbafc3e621c3 Merge tag 'for_linus' of git://git.kernel.org..
->> git tree:       upstream
->> console+strace: https://syzkaller.appspot.com/x/log.txt?x=173df3e9e80000
->> kernel config:  https://syzkaller.appspot.com/x/.config?x=e0c7078a6b901aa3
->> dashboard link: https://syzkaller.appspot.com/bug?extid=d7521c1e3841ed075a42
->> compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
->> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=1300b4a1e80000
->> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=130b0379e80000
->>
->> Downloadable assets:
->> disk image: https://storage.googleapis.com/syzbot-assets/1520f7b6daa4/disk-fbafc3e6.raw.xz
->> vmlinux: https://storage.googleapis.com/syzbot-assets/8b490af009d5/vmlinux-fbafc3e6.xz
->> kernel image: https://storage.googleapis.com/syzbot-assets/202ca200f4a4/bzImage-fbafc3e6.xz
->>
->> IMPORTANT: if you fix the issue, please add the following tag to the commit:
->> Reported-by: syzbot+d7521c1e3841ed075a42@syzkaller.appspotmail.com
->>
->> =====================================================
->> BUG: KMSAN: uninit-value in vring_map_one_sg drivers/virtio/virtio_ring.c:380 [inline]
->> BUG: KMSAN: uninit-value in virtqueue_add_split drivers/virtio/virtio_ring.c:614 [inline]
->> BUG: KMSAN: uninit-value in virtqueue_add+0x21c6/0x6530 drivers/virtio/virtio_ring.c:2210
->>  vring_map_one_sg drivers/virtio/virtio_ring.c:380 [inline]
->>  virtqueue_add_split drivers/virtio/virtio_ring.c:614 [inline]
->>  virtqueue_add+0x21c6/0x6530 drivers/virtio/virtio_ring.c:2210
->>  virtqueue_add_sgs+0x186/0x1a0 drivers/virtio/virtio_ring.c:2244
->>  __virtscsi_add_cmd drivers/scsi/virtio_scsi.c:467 [inline]
->>  virtscsi_add_cmd+0x838/0xad0 drivers/scsi/virtio_scsi.c:501
->>  virtscsi_queuecommand+0x896/0xa60 drivers/scsi/virtio_scsi.c:598
->>  scsi_dispatch_cmd drivers/scsi/scsi_lib.c:1516 [inline]
->>  scsi_queue_rq+0x4874/0x5790 drivers/scsi/scsi_lib.c:1758
->>  blk_mq_dispatch_rq_list+0x13f8/0x3600 block/blk-mq.c:2049
->>  __blk_mq_do_dispatch_sched block/blk-mq-sched.c:170 [inline]
->>  blk_mq_do_dispatch_sched block/blk-mq-sched.c:184 [inline]
->>  __blk_mq_sched_dispatch_requests+0x10af/0x2500 block/blk-mq-sched.c:309
->>  blk_mq_sched_dispatch_requests+0x160/0x2d0 block/blk-mq-sched.c:333
->>  blk_mq_run_work_fn+0xd0/0x280 block/blk-mq.c:2434
->>  process_one_work kernel/workqueue.c:2627 [inline]
->>  process_scheduled_works+0x104e/0x1e70 kernel/workqueue.c:2700
->>  worker_thread+0xf45/0x1490 kernel/workqueue.c:2781
->>  kthread+0x3ed/0x540 kernel/kthread.c:388
->>  ret_from_fork+0x66/0x80 arch/x86/kernel/process.c:147
->>  ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:242
->>
->> Uninit was created at:
->>  __alloc_pages+0x9a4/0xe00 mm/page_alloc.c:4591
->>  alloc_pages_mpol+0x62b/0x9d0 mm/mempolicy.c:2133
->>  alloc_pages mm/mempolicy.c:2204 [inline]
->>  folio_alloc+0x1da/0x380 mm/mempolicy.c:2211
->>  filemap_alloc_folio+0xa5/0x430 mm/filemap.c:974
->>  __filemap_get_folio+0xa5a/0x1760 mm/filemap.c:1918
->>  ext4_da_write_begin+0x7f8/0xec0 fs/ext4/inode.c:2891
->>  generic_perform_write+0x3f5/0xc40 mm/filemap.c:3918
->>  ext4_buffered_write_iter+0x564/0xaa0 fs/ext4/file.c:299
->>  ext4_file_write_iter+0x20f/0x3460
->>  __kernel_write_iter+0x329/0x930 fs/read_write.c:517
->>  dump_emit_page fs/coredump.c:888 [inline]
->>  dump_user_range+0x593/0xcd0 fs/coredump.c:915
->>  elf_core_dump+0x528d/0x5a40 fs/binfmt_elf.c:2077
->>  do_coredump+0x32c9/0x4920 fs/coredump.c:764
->>  get_signal+0x2185/0x2d10 kernel/signal.c:2890
->>  arch_do_signal_or_restart+0x53/0xca0 arch/x86/kernel/signal.c:309
->>  exit_to_user_mode_loop+0xe8/0x320 kernel/entry/common.c:168
->>  exit_to_user_mode_prepare+0x163/0x220 kernel/entry/common.c:204
->>  irqentry_exit_to_user_mode+0xd/0x30 kernel/entry/common.c:309
->>  irqentry_exit+0x16/0x40 kernel/entry/common.c:412
->>  exc_page_fault+0x246/0x6f0 arch/x86/mm/fault.c:1564
->>  asm_exc_page_fault+0x2b/0x30 arch/x86/include/asm/idtentry.h:570
->>
->> Bytes 0-4095 of 4096 are uninitialized
->> Memory access of size 4096 starts at ffff88812c79c000
->>
->> CPU: 0 PID: 997 Comm: kworker/0:1H Not tainted 6.7.0-rc7-syzkaller-00003-gfbafc3e621c3 #0
->> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 11/17/2023
->> Workqueue: kblockd blk_mq_run_work_fn
->> =====================================================
-> 
+diff --git a/fs/fuse/file.c b/fs/fuse/file.c
+index a660f1f21540..f1beb7c0b782 100644
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -1422,6 +1422,16 @@ static int fuse_get_user_pages(struct fuse_args_pages *ap, struct iov_iter *ii,
+ 	return ret < 0 ? ret : 0;
+ }
+ 
++static size_t fuse_max_dio_rw_size(const struct fuse_conn *fc,
++				   const struct iov_iter *iter, int write)
++{
++	unsigned int nmax = write ? fc->max_write : fc->max_read;
++
++	if (iov_iter_is_kvec(iter))
++		nmax = min(nmax, fc->max_nopage_rw);
++	return nmax;
++}
++
+ ssize_t fuse_direct_io(struct fuse_io_priv *io, struct iov_iter *iter,
+ 		       loff_t *ppos, int flags)
+ {
+@@ -1432,7 +1442,7 @@ ssize_t fuse_direct_io(struct fuse_io_priv *io, struct iov_iter *iter,
+ 	struct inode *inode = mapping->host;
+ 	struct fuse_file *ff = file->private_data;
+ 	struct fuse_conn *fc = ff->fm->fc;
+-	size_t nmax = write ? fc->max_write : fc->max_read;
++	size_t nmax = fuse_max_dio_rw_size(fc, iter, write);
+ 	loff_t pos = *ppos;
+ 	size_t count = iov_iter_count(iter);
+ 	pgoff_t idx_from = pos >> PAGE_SHIFT;
+diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
+index 1df83eebda92..fc753cd34211 100644
+--- a/fs/fuse/fuse_i.h
++++ b/fs/fuse/fuse_i.h
+@@ -594,6 +594,9 @@ struct fuse_conn {
+ 	/** Constrain ->max_pages to this value during feature negotiation */
+ 	unsigned int max_pages_limit;
+ 
++	/** Maximum read/write size when there is no page in request */
++	unsigned int max_nopage_rw;
++
+ 	/** Input queue */
+ 	struct fuse_iqueue iq;
+ 
+diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
+index 2a6d44f91729..4cbbcb4a4b71 100644
+--- a/fs/fuse/inode.c
++++ b/fs/fuse/inode.c
+@@ -923,6 +923,7 @@ void fuse_conn_init(struct fuse_conn *fc, struct fuse_mount *fm,
+ 	fc->user_ns = get_user_ns(user_ns);
+ 	fc->max_pages = FUSE_DEFAULT_MAX_PAGES_PER_REQ;
+ 	fc->max_pages_limit = FUSE_MAX_MAX_PAGES;
++	fc->max_nopage_rw = UINT_MAX;
+ 
+ 	INIT_LIST_HEAD(&fc->mounts);
+ 	list_add(&fm->fc_entry, &fc->mounts);
+diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+index 5f1be1da92ce..3aac31d45198 100644
+--- a/fs/fuse/virtio_fs.c
++++ b/fs/fuse/virtio_fs.c
+@@ -1452,6 +1452,12 @@ static int virtio_fs_get_tree(struct fs_context *fsc)
+ 	/* Tell FUSE to split requests that exceed the virtqueue's size */
+ 	fc->max_pages_limit = min_t(unsigned int, fc->max_pages_limit,
+ 				    virtqueue_size - FUSE_HEADER_OVERHEAD);
++	/* copy_args_to_argbuf() uses kmalloc-ed memory as bounce buffer
++	 * for fuse args, so limit the total size of these args to prevent
++	 * the warning in __alloc_pages() and decrease the demand for large
++	 * contiguous pages.
++	 */
++	fc->max_nopage_rw = min(fc->max_nopage_rw, 256U << 10);
+ 
+ 	fsc->s_fs_info = fm;
+ 	sb = sget_fc(fsc, virtio_fs_test_super, set_anon_super_fc);
+-- 
+2.29.2
 
