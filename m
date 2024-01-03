@@ -1,658 +1,205 @@
-Received: from szxga07-in.huawei.com (szxga07-in.huawei.com [45.249.212.35])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9125518AE5
-	for <virtualization@lists.linux.dev>; Wed,  3 Jan 2024 09:57:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.162.112])
-	by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4T4lV61qqdz1Q7RJ;
-	Wed,  3 Jan 2024 17:56:14 +0800 (CST)
-Received: from dggpemm500005.china.huawei.com (unknown [7.185.36.74])
-	by mail.maildlp.com (Postfix) with ESMTPS id 5F78F1404FD;
-	Wed,  3 Jan 2024 17:57:40 +0800 (CST)
-Received: from localhost.localdomain (10.69.192.56) by
- dggpemm500005.china.huawei.com (7.185.36.74) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.35; Wed, 3 Jan 2024 17:57:30 +0800
-From: Yunsheng Lin <linyunsheng@huawei.com>
-To: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>
-CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Yunsheng Lin
-	<linyunsheng@huawei.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
-	<jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	<virtualization@lists.linux.dev>
-Subject: [PATCH net-next 6/6] tools: virtio: introduce vhost_net_test
-Date: Wed, 3 Jan 2024 17:56:49 +0800
-Message-ID: <20240103095650.25769-7-linyunsheng@huawei.com>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20240103095650.25769-1-linyunsheng@huawei.com>
-References: <20240103095650.25769-1-linyunsheng@huawei.com>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E69CF18C17
+	for <virtualization@lists.linux-foundation.org>; Wed,  3 Jan 2024 10:40:07 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 31DC28106A
+	for <virtualization@lists.linux-foundation.org>; Wed,  3 Jan 2024 10:40:07 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 31DC28106A
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -1.898
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id vdyvvjOxZR6d
+	for <virtualization@lists.linux-foundation.org>;
+	Wed,  3 Jan 2024 10:40:05 +0000 (UTC)
+X-Greylist: delayed 2401 seconds by postgrey-1.37 at util1.osuosl.org; Wed, 03 Jan 2024 10:40:05 UTC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8F97A80F3D
+Received: from www262.sakura.ne.jp (www262.sakura.ne.jp [202.181.97.72])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 8F97A80F3D
+	for <virtualization@lists.linux-foundation.org>; Wed,  3 Jan 2024 10:40:05 +0000 (UTC)
+Received: from fsav119.sakura.ne.jp (fsav119.sakura.ne.jp [27.133.134.246])
+	by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id 4039xoqo003148;
+	Wed, 3 Jan 2024 18:59:50 +0900 (JST)
+	(envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Received: from www262.sakura.ne.jp (202.181.97.72)
+ by fsav119.sakura.ne.jp (F-Secure/fsigk_smtp/550/fsav119.sakura.ne.jp);
+ Wed, 03 Jan 2024 18:59:50 +0900 (JST)
+X-Virus-Status: clean(F-Secure/fsigk_smtp/550/fsav119.sakura.ne.jp)
+Received: from [192.168.1.6] (M106072142033.v4.enabler.ne.jp [106.72.142.33])
+	(authenticated bits=0)
+	by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTPSA id 4039xnG5003145
+	(version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NO);
+	Wed, 3 Jan 2024 18:59:50 +0900 (JST)
+	(envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Message-ID: <7e6554dc-29e1-44b5-9fd0-3b3537f5b63c@I-love.SAKURA.ne.jp>
+Date: Wed, 3 Jan 2024 18:59:49 +0900
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
- dggpemm500005.china.huawei.com (7.185.36.74)
+User-Agent: Mozilla Thunderbird
+Subject: Re: [syzbot] [virtualization?] KMSAN: uninit-value in virtqueue_add
+ (4)
+Content-Language: en-US
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+To: syzbot <syzbot+d7521c1e3841ed075a42@syzkaller.appspotmail.com>,
+        syzkaller-bugs@googlegroups.com, linux-mm <linux-mm@kvack.org>,
+        "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>,
+        "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>
+References: <000000000000fd588e060de27ef4@google.com>
+ <2c1dad81-9b22-47fb-b0e9-6e4a2a2c67be@I-love.SAKURA.ne.jp>
+In-Reply-To: <2c1dad81-9b22-47fb-b0e9-6e4a2a2c67be@I-love.SAKURA.ne.jp>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-introduce vhost_net_test basing on virtio_test to test
-vhost_net changing in the kernel.
+Well, no suggestions from MM people? This is currently second top crasher
+for syzbot and the reproducer is doing nothing special.
 
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
----
- tools/virtio/Makefile         |   8 +-
- tools/virtio/vhost_net_test.c | 574 ++++++++++++++++++++++++++++++++++
- 2 files changed, 579 insertions(+), 3 deletions(-)
- create mode 100644 tools/virtio/vhost_net_test.c
+syzbot is reporting uninit-value at kmsan_handle_dma() in vring_map_one_sg().
 
-diff --git a/tools/virtio/Makefile b/tools/virtio/Makefile
-index d128925980e0..e25e99c1c3b7 100644
---- a/tools/virtio/Makefile
-+++ b/tools/virtio/Makefile
-@@ -1,8 +1,9 @@
- # SPDX-License-Identifier: GPL-2.0
- all: test mod
--test: virtio_test vringh_test
-+test: virtio_test vringh_test vhost_net_test
- virtio_test: virtio_ring.o virtio_test.o
- vringh_test: vringh_test.o vringh.o virtio_ring.o
-+vhost_net_test: virtio_ring.o vhost_net_test.o
- 
- try-run = $(shell set -e;		\
- 	if ($(1)) >/dev/null 2>&1;	\
-@@ -49,6 +50,7 @@ oot-clean: OOT_BUILD+=clean
- 
- .PHONY: all test mod clean vhost oot oot-clean oot-build
- clean:
--	${RM} *.o vringh_test virtio_test vhost_test/*.o vhost_test/.*.cmd \
--              vhost_test/Module.symvers vhost_test/modules.order *.d
-+	${RM} *.o vringh_test virtio_test vhost_net_test vhost_test/*.o \
-+              vhost_test/.*.cmd vhost_test/Module.symvers \
-+              vhost_test/modules.order *.d
- -include *.d
-diff --git a/tools/virtio/vhost_net_test.c b/tools/virtio/vhost_net_test.c
-new file mode 100644
-index 000000000000..cfffcef53d94
---- /dev/null
-+++ b/tools/virtio/vhost_net_test.c
-@@ -0,0 +1,574 @@
-+// SPDX-License-Identifier: GPL-2.0
-+#define _GNU_SOURCE
-+#include <getopt.h>
-+#include <limits.h>
-+#include <string.h>
-+#include <poll.h>
-+#include <sys/eventfd.h>
-+#include <stdlib.h>
-+#include <assert.h>
-+#include <unistd.h>
-+#include <sys/ioctl.h>
-+#include <sys/stat.h>
-+#include <sys/types.h>
-+#include <fcntl.h>
-+#include <stdbool.h>
-+#include <linux/virtio_types.h>
-+#include <linux/vhost.h>
-+#include <linux/virtio.h>
-+#include <linux/virtio_ring.h>
-+#include <linux/if.h>
-+#include <linux/if_tun.h>
-+#include <linux/in.h>
-+#include <linux/if_packet.h>
-+#include <netinet/ether.h>
-+
-+#define RANDOM_BATCH	-1
-+#define HDR_LEN		12
-+#define TEST_BUF_LEN	256
-+#define TEST_PTYPE	ETH_P_LOOPBACK
-+
-+/* Used by implementation of kmalloc() in tools/virtio/linux/kernel.h */
-+void *__kmalloc_fake, *__kfree_ignore_start, *__kfree_ignore_end;
-+
-+struct vq_info {
-+	int kick;
-+	int call;
-+	int idx;
-+	long started;
-+	long completed;
-+	struct pollfd fds;
-+	void *ring;
-+	/* copy used for control */
-+	struct vring vring;
-+	struct virtqueue *vq;
-+};
-+
-+struct vdev_info {
-+	struct virtio_device vdev;
-+	int control;
-+	struct vq_info vqs[2];
-+	int nvqs;
-+	void *buf;
-+	size_t buf_size;
-+	char *test_buf;
-+	char *res_buf;
-+	struct vhost_memory *mem;
-+	int sock;
-+	int ifindex;
-+	unsigned char mac[ETHER_ADDR_LEN];
-+};
-+
-+static int tun_alloc(struct vdev_info *dev)
-+{
-+	struct ifreq ifr;
-+	int len = HDR_LEN;
-+	int fd, e;
-+
-+	fd = open("/dev/net/tun", O_RDWR);
-+	if (fd < 0) {
-+		perror("Cannot open /dev/net/tun");
-+		return fd;
-+	}
-+
-+	memset(&ifr, 0, sizeof(ifr));
-+
-+	ifr.ifr_flags = IFF_TAP | IFF_NO_PI | IFF_VNET_HDR;
-+	snprintf(ifr.ifr_name, IFNAMSIZ, "tun_%d", getpid());
-+
-+	e = ioctl(fd, TUNSETIFF, &ifr);
-+	if (e < 0) {
-+		perror("ioctl[TUNSETIFF]");
-+		close(fd);
-+		return e;
-+	}
-+
-+	e = ioctl(fd, TUNSETVNETHDRSZ, &len);
-+	if (e < 0) {
-+		perror("ioctl[TUNSETVNETHDRSZ]");
-+		close(fd);
-+		return e;
-+	}
-+
-+	e = ioctl(fd, SIOCGIFHWADDR, &ifr);
-+	if (e < 0) {
-+		perror("ioctl[SIOCGIFHWADDR]");
-+		close(fd);
-+		return e;
-+	}
-+
-+	memcpy(dev->mac, &ifr.ifr_hwaddr.sa_data, ETHER_ADDR_LEN);
-+	return fd;
-+}
-+
-+static void vdev_create_socket(struct vdev_info *dev)
-+{
-+	struct ifreq ifr;
-+
-+	dev->sock = socket(AF_PACKET, SOCK_RAW, htons(TEST_PTYPE));
-+	assert(dev->sock != -1);
-+
-+	snprintf(ifr.ifr_name, IFNAMSIZ, "tun_%d", getpid());
-+	assert(ioctl(dev->sock, SIOCGIFINDEX, &ifr) >= 0);
-+
-+	dev->ifindex = ifr.ifr_ifindex;
-+
-+	/* Set the flags that bring the device up */
-+	assert(ioctl(dev->sock, SIOCGIFFLAGS, &ifr) >= 0);
-+	ifr.ifr_flags |= (IFF_UP | IFF_RUNNING);
-+	assert(ioctl(dev->sock, SIOCSIFFLAGS, &ifr) >= 0);
-+}
-+
-+static void vdev_send_packet(struct vdev_info *dev)
-+{
-+	char *sendbuf = dev->test_buf + HDR_LEN;
-+	struct sockaddr_ll saddrll = {0};
-+	int sockfd = dev->sock;
-+	int ret;
-+
-+	memset(&saddrll, 0, sizeof(saddrll));
-+	saddrll.sll_family = PF_PACKET;
-+	saddrll.sll_ifindex = dev->ifindex;
-+	saddrll.sll_halen = ETH_ALEN;
-+	saddrll.sll_protocol = htons(TEST_PTYPE);
-+
-+	ret = sendto(sockfd, sendbuf, TEST_BUF_LEN, 0,
-+		     (struct sockaddr *)&saddrll,
-+		     sizeof(struct sockaddr_ll));
-+	assert(ret >= 0);
-+}
-+
-+static bool vq_notify(struct virtqueue *vq)
-+{
-+	struct vq_info *info = vq->priv;
-+	unsigned long long v = 1;
-+	int r;
-+
-+	r = write(info->kick, &v, sizeof(v));
-+	assert(r == sizeof(v));
-+
-+	return true;
-+}
-+
-+static void vq_callback(struct virtqueue *vq)
-+{
-+}
-+
-+static void vhost_vq_setup(struct vdev_info *dev, struct vq_info *info)
-+{
-+	struct vhost_vring_addr addr = {
-+		.index = info->idx,
-+		.desc_user_addr = (uint64_t)(unsigned long)info->vring.desc,
-+		.avail_user_addr = (uint64_t)(unsigned long)info->vring.avail,
-+		.used_user_addr = (uint64_t)(unsigned long)info->vring.used,
-+	};
-+	struct vhost_vring_state state = { .index = info->idx };
-+	struct vhost_vring_file file = { .index = info->idx };
-+	int r;
-+
-+	state.num = info->vring.num;
-+	r = ioctl(dev->control, VHOST_SET_VRING_NUM, &state);
-+	assert(r >= 0);
-+
-+	state.num = 0;
-+	r = ioctl(dev->control, VHOST_SET_VRING_BASE, &state);
-+	assert(r >= 0);
-+
-+	r = ioctl(dev->control, VHOST_SET_VRING_ADDR, &addr);
-+	assert(r >= 0);
-+
-+	file.fd = info->kick;
-+	r = ioctl(dev->control, VHOST_SET_VRING_KICK, &file);
-+	assert(r >= 0);
-+
-+	file.fd = info->call;
-+	r = ioctl(dev->control, VHOST_SET_VRING_CALL, &file);
-+	assert(r >= 0);
-+}
-+
-+static void vq_reset(struct vq_info *info, int num, struct virtio_device *vdev)
-+{
-+	if (info->vq)
-+		vring_del_virtqueue(info->vq);
-+
-+	memset(info->ring, 0, vring_size(num, 4096));
-+	vring_init(&info->vring, num, info->ring, 4096);
-+	info->vq = vring_new_virtqueue(info->idx, num, 4096, vdev, true, false,
-+				       info->ring, vq_notify, vq_callback, "test");
-+	assert(info->vq);
-+	info->vq->priv = info;
-+}
-+
-+static void vq_info_add(struct vdev_info *dev, int idx, int num, int fd)
-+{
-+	struct vhost_vring_file backend = { .index = idx, .fd = fd };
-+	struct vq_info *info = &dev->vqs[idx];
-+	int r;
-+
-+	info->idx = idx;
-+	info->kick = eventfd(0, EFD_NONBLOCK);
-+	info->call = eventfd(0, EFD_NONBLOCK);
-+	r = posix_memalign(&info->ring, 4096, vring_size(num, 4096));
-+	assert(r >= 0);
-+	vq_reset(info, num, &dev->vdev);
-+	vhost_vq_setup(dev, info);
-+	info->fds.fd = info->call;
-+	info->fds.events = POLLIN;
-+
-+	r = ioctl(dev->control, VHOST_NET_SET_BACKEND, &backend);
-+	assert(!r);
-+}
-+
-+static void vdev_info_init(struct vdev_info *dev, unsigned long long features)
-+{
-+	struct ether_header *eh;
-+	int i, r;
-+
-+	dev->vdev.features = features;
-+	INIT_LIST_HEAD(&dev->vdev.vqs);
-+	spin_lock_init(&dev->vdev.vqs_list_lock);
-+
-+	dev->buf_size = (HDR_LEN + TEST_BUF_LEN) * 2;
-+	dev->buf = malloc(dev->buf_size);
-+	assert(dev->buf);
-+	dev->test_buf = dev->buf;
-+	dev->res_buf = dev->test_buf + HDR_LEN + TEST_BUF_LEN;
-+
-+	memset(dev->test_buf, 0, HDR_LEN + TEST_BUF_LEN);
-+	eh = (struct ether_header *)(dev->test_buf + HDR_LEN);
-+	eh->ether_type = htons(TEST_PTYPE);
-+	memcpy(eh->ether_dhost, dev->mac, ETHER_ADDR_LEN);
-+	memcpy(eh->ether_shost, dev->mac, ETHER_ADDR_LEN);
-+
-+	for (i = sizeof(*eh); i < TEST_BUF_LEN; i++)
-+		dev->test_buf[i + HDR_LEN] = (char)i;
-+
-+	dev->control = open("/dev/vhost-net", O_RDWR);
-+	assert(dev->control >= 0);
-+
-+	r = ioctl(dev->control, VHOST_SET_OWNER, NULL);
-+	assert(r >= 0);
-+
-+	dev->mem = malloc(offsetof(struct vhost_memory, regions) +
-+			  sizeof(dev->mem->regions[0]));
-+	assert(dev->mem);
-+	memset(dev->mem, 0, offsetof(struct vhost_memory, regions) +
-+	       sizeof(dev->mem->regions[0]));
-+	dev->mem->nregions = 1;
-+	dev->mem->regions[0].guest_phys_addr = (long)dev->buf;
-+	dev->mem->regions[0].userspace_addr = (long)dev->buf;
-+	dev->mem->regions[0].memory_size = dev->buf_size;
-+
-+	r = ioctl(dev->control, VHOST_SET_MEM_TABLE, dev->mem);
-+	assert(r >= 0);
-+
-+	r = ioctl(dev->control, VHOST_SET_FEATURES, &features);
-+	assert(r >= 0);
-+
-+	dev->nvqs = 2;
-+}
-+
-+static void wait_for_interrupt(struct vq_info *vq)
-+{
-+	unsigned long long val;
-+
-+	poll(&vq->fds, 1, -1);
-+
-+	if (vq->fds.revents & POLLIN)
-+		read(vq->fds.fd, &val, sizeof(val));
-+}
-+
-+static void run_tx_test(struct vdev_info *dev, struct vq_info *vq,
-+			bool delayed, int batch, int bufs)
-+{
-+	const bool random_batch = batch == RANDOM_BATCH;
-+	long long spurious = 0;
-+	struct scatterlist sl;
-+	unsigned int len;
-+	int r;
-+
-+	for (;;) {
-+		long started_before = vq->started;
-+		long completed_before = vq->completed;
-+
-+		virtqueue_disable_cb(vq->vq);
-+		do {
-+			if (random_batch)
-+				batch = (random() % vq->vring.num) + 1;
-+
-+			while (vq->started < bufs &&
-+			       (vq->started - vq->completed) < batch) {
-+				sg_init_one(&sl, dev->test_buf, HDR_LEN + TEST_BUF_LEN);
-+				r = virtqueue_add_outbuf(vq->vq, &sl, 1,
-+							 dev->test_buf + vq->started,
-+							 GFP_ATOMIC);
-+				if (unlikely(r != 0)) {
-+					if (r == -ENOSPC &&
-+					    vq->started > started_before)
-+						r = 0;
-+					else
-+						r = -1;
-+					break;
-+				}
-+
-+				++vq->started;
-+
-+				if (unlikely(!virtqueue_kick(vq->vq))) {
-+					r = -1;
-+					break;
-+				}
-+			}
-+
-+			if (vq->started >= bufs)
-+				r = -1;
-+
-+			/* Flush out completed bufs if any */
-+			while (virtqueue_get_buf(vq->vq, &len)) {
-+				int n, i;
-+
-+				n = recvfrom(dev->sock, dev->res_buf, TEST_BUF_LEN, 0, NULL, NULL);
-+				assert(n == TEST_BUF_LEN);
-+
-+				for (i = ETHER_HDR_LEN; i < n; i++)
-+					assert(dev->res_buf[i] == (char)i);
-+
-+				++vq->completed;
-+				r = 0;
-+			}
-+		} while (r == 0);
-+
-+		if (vq->completed == completed_before && vq->started == started_before)
-+			++spurious;
-+
-+		assert(vq->completed <= bufs);
-+		assert(vq->started <= bufs);
-+		if (vq->completed == bufs)
-+			break;
-+
-+		if (delayed) {
-+			if (virtqueue_enable_cb_delayed(vq->vq))
-+				wait_for_interrupt(vq);
-+		} else {
-+			if (virtqueue_enable_cb(vq->vq))
-+				wait_for_interrupt(vq);
-+		}
-+	}
-+	printf("TX spurious wakeups: 0x%llx started=0x%lx completed=0x%lx\n",
-+	       spurious, vq->started, vq->completed);
-+}
-+
-+static void run_rx_test(struct vdev_info *dev, struct vq_info *vq,
-+			bool delayed, int batch, int bufs)
-+{
-+	const bool random_batch = batch == RANDOM_BATCH;
-+	long long spurious = 0;
-+	struct scatterlist sl;
-+	unsigned int len;
-+	int r;
-+
-+	for (;;) {
-+		long started_before = vq->started;
-+		long completed_before = vq->completed;
-+
-+		do {
-+			if (random_batch)
-+				batch = (random() % vq->vring.num) + 1;
-+
-+			while (vq->started < bufs &&
-+			       (vq->started - vq->completed) < batch) {
-+				sg_init_one(&sl, dev->res_buf, HDR_LEN + TEST_BUF_LEN);
-+
-+				r = virtqueue_add_inbuf(vq->vq, &sl, 1,
-+							dev->res_buf + vq->started,
-+							GFP_ATOMIC);
-+				if (unlikely(r != 0)) {
-+					if (r == -ENOSPC &&
-+					    vq->started > started_before)
-+						r = 0;
-+					else
-+						r = -1;
-+					break;
-+				}
-+
-+				++vq->started;
-+
-+				vdev_send_packet(dev);
-+
-+				if (unlikely(!virtqueue_kick(vq->vq))) {
-+					r = -1;
-+					break;
-+				}
-+			}
-+
-+			if (vq->started >= bufs)
-+				r = -1;
-+
-+			/* Flush out completed bufs if any */
-+			while (virtqueue_get_buf(vq->vq, &len)) {
-+				struct ether_header *eh;
-+				int i;
-+
-+				eh = (struct ether_header *)(dev->res_buf + HDR_LEN);
-+
-+				/* tun netdev is up and running, ignore the
-+				 * non-TEST_PTYPE packet.
-+				 */
-+				if (eh->ether_type != htons(TEST_PTYPE)) {
-+					++vq->completed;
-+					r = 0;
-+					continue;
-+				}
-+
-+				assert(len == TEST_BUF_LEN + HDR_LEN);
-+
-+				for (i = ETHER_HDR_LEN; i < TEST_BUF_LEN; i++)
-+					assert(dev->res_buf[i + HDR_LEN] == (char)i);
-+
-+				++vq->completed;
-+				r = 0;
-+			}
-+		} while (r == 0);
-+		if (vq->completed == completed_before && vq->started == started_before)
-+			++spurious;
-+
-+		assert(vq->completed <= bufs);
-+		assert(vq->started <= bufs);
-+		if (vq->completed == bufs)
-+			break;
-+	}
-+
-+	printf("RX spurious wakeups: 0x%llx started=0x%lx completed=0x%lx\n",
-+	       spurious, vq->started, vq->completed);
-+}
-+
-+static const char optstring[] = "h";
-+static const struct option longopts[] = {
-+	{
-+		.name = "help",
-+		.val = 'h',
-+	},
-+	{
-+		.name = "event-idx",
-+		.val = 'E',
-+	},
-+	{
-+		.name = "no-event-idx",
-+		.val = 'e',
-+	},
-+	{
-+		.name = "indirect",
-+		.val = 'I',
-+	},
-+	{
-+		.name = "no-indirect",
-+		.val = 'i',
-+	},
-+	{
-+		.name = "virtio-1",
-+		.val = '1',
-+	},
-+	{
-+		.name = "no-virtio-1",
-+		.val = '0',
-+	},
-+	{
-+		.name = "delayed-interrupt",
-+		.val = 'D',
-+	},
-+	{
-+		.name = "no-delayed-interrupt",
-+		.val = 'd',
-+	},
-+	{
-+		.name = "buf-num",
-+		.val = 'n',
-+		.has_arg = required_argument,
-+	},
-+	{
-+		.name = "batch",
-+		.val = 'b',
-+		.has_arg = required_argument,
-+	},
-+	{
-+	}
-+};
-+
-+static void help(int status)
-+{
-+	fprintf(stderr, "Usage: vhost_net_test [--help]"
-+		" [--no-indirect]"
-+		" [--no-event-idx]"
-+		" [--no-virtio-1]"
-+		" [--delayed-interrupt]"
-+		" [--buf-num]"
-+		" [--batch=random/N]"
-+		"\n");
-+
-+	exit(status);
-+}
-+
-+int main(int argc, char **argv)
-+{
-+	unsigned long long features = (1ULL << VIRTIO_RING_F_INDIRECT_DESC) |
-+		(1ULL << VIRTIO_RING_F_EVENT_IDX) | (1ULL << VIRTIO_F_VERSION_1);
-+	long batch = 1, nbufs = 0x100000;
-+	struct vdev_info dev;
-+	bool delayed = false;
-+	int o, fd;
-+
-+	for (;;) {
-+		o = getopt_long(argc, argv, optstring, longopts, NULL);
-+		switch (o) {
-+		case -1:
-+			goto done;
-+		case '?':
-+			help(2);
-+		case 'e':
-+			features &= ~(1ULL << VIRTIO_RING_F_EVENT_IDX);
-+			break;
-+		case 'h':
-+			help(0);
-+		case 'i':
-+			features &= ~(1ULL << VIRTIO_RING_F_INDIRECT_DESC);
-+			break;
-+		case '0':
-+			features &= ~(1ULL << VIRTIO_F_VERSION_1);
-+			break;
-+		case 'D':
-+			delayed = true;
-+			break;
-+		case 'b':
-+			if (!strcmp(optarg, "random")) {
-+				batch = RANDOM_BATCH;
-+			} else {
-+				batch = strtol(optarg, NULL, 10);
-+				assert(batch > 0);
-+				assert(batch < (long)INT_MAX + 1);
-+			}
-+			break;
-+		case 'n':
-+			nbufs = strtol(optarg, NULL, 10);
-+			assert(nbufs > 0);
-+			break;
-+		default:
-+			assert(0);
-+			break;
-+		}
-+	}
-+
-+done:
-+	memset(&dev, 0, sizeof(dev));
-+
-+	fd = tun_alloc(&dev);
-+	assert(fd >= 0);
-+
-+	vdev_info_init(&dev, features);
-+	vq_info_add(&dev, 0, 256, fd);
-+	vq_info_add(&dev, 1, 256, fd);
-+	vdev_create_socket(&dev);
-+
-+	run_rx_test(&dev, &dev.vqs[0], delayed, batch, nbufs);
-+	run_tx_test(&dev, &dev.vqs[1], delayed, batch, nbufs);
-+
-+	return 0;
-+}
--- 
-2.33.0
+----------
+	if (!vq->use_dma_api) {
+		/*
+		 * If DMA is not used, KMSAN doesn't know that the scatterlist
+		 * is initialized by the hardware. Explicitly check/unpoison it
+		 * depending on the direction.
+		 */
+		kmsan_handle_dma(sg_page(sg), sg->offset, sg->length, direction);
+		*addr = (dma_addr_t)sg_phys(sg);
+		return 0;
+	}
+----------
+
+syzbot is reporting the page was allocated in ext4_da_write_begin().
+
+----------
+	folio = __filemap_get_folio(mapping, index, FGP_WRITEBEGIN,
+			mapping_gfp_mask(mapping));
+	if (IS_ERR(folio))
+		return PTR_ERR(folio);
+
+	/* In case writeback began while the folio was unlocked */
+	folio_wait_stable(folio);
+
+#ifdef CONFIG_FS_ENCRYPTION
+	ret = ext4_block_write_begin(folio, pos, len, ext4_da_get_block_prep);
+#else
+	ret = __block_write_begin(&folio->page, pos, len, ext4_da_get_block_prep);
+#endif
+----------
+
+Since folio_wait_stable() calls folio_wait_writeback(), I'm guessing that
+blk_mq_run_work_fn() is triggered by folio_wait_stable().
+
+----------
+void folio_wait_stable(struct folio *folio)
+{
+	if (mapping_stable_writes(folio_mapping(folio)))
+		folio_wait_writeback(folio);
+}
+----------
+
+If my guess is correct, I wonder how AS_STABLE_WRITES could be already set on a
+folio struct returned by __filemap_get_folio() ? When AS_STABLE_WRITES is set?
+
+Are there anything we can do for debugging this? Is adding a kernel config option that
+does s/union/struct/g for helping debugger/printk() to inspect values in "struct folio"
+possible?
+
+Not directly related to this report, but I worry that
+mapping_stable_writes(folio_mapping(folio)) might hit NULL pointer
+dereference bug because folio_mapping() might return NULL and
+mapping_stable_writes() assumes that the argument is not NULL.
+
+On 2024/01/02 16:38, Tetsuo Handa wrote:
+> #syz set subsystems: mm
+> 
+> On 2024/01/01 22:38, syzbot wrote:
+>> Hello,
+>>
+>> syzbot found the following issue on:
+>>
+>> HEAD commit:    fbafc3e621c3 Merge tag 'for_linus' of git://git.kernel.org..
+>> git tree:       upstream
+>> console+strace: https://syzkaller.appspot.com/x/log.txt?x=173df3e9e80000
+>> kernel config:  https://syzkaller.appspot.com/x/.config?x=e0c7078a6b901aa3
+>> dashboard link: https://syzkaller.appspot.com/bug?extid=d7521c1e3841ed075a42
+>> compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
+>> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=1300b4a1e80000
+>> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=130b0379e80000
+>>
+>> Downloadable assets:
+>> disk image: https://storage.googleapis.com/syzbot-assets/1520f7b6daa4/disk-fbafc3e6.raw.xz
+>> vmlinux: https://storage.googleapis.com/syzbot-assets/8b490af009d5/vmlinux-fbafc3e6.xz
+>> kernel image: https://storage.googleapis.com/syzbot-assets/202ca200f4a4/bzImage-fbafc3e6.xz
+>>
+>> IMPORTANT: if you fix the issue, please add the following tag to the commit:
+>> Reported-by: syzbot+d7521c1e3841ed075a42@syzkaller.appspotmail.com
+>>
+>> =====================================================
+>> BUG: KMSAN: uninit-value in vring_map_one_sg drivers/virtio/virtio_ring.c:380 [inline]
+>> BUG: KMSAN: uninit-value in virtqueue_add_split drivers/virtio/virtio_ring.c:614 [inline]
+>> BUG: KMSAN: uninit-value in virtqueue_add+0x21c6/0x6530 drivers/virtio/virtio_ring.c:2210
+>>  vring_map_one_sg drivers/virtio/virtio_ring.c:380 [inline]
+>>  virtqueue_add_split drivers/virtio/virtio_ring.c:614 [inline]
+>>  virtqueue_add+0x21c6/0x6530 drivers/virtio/virtio_ring.c:2210
+>>  virtqueue_add_sgs+0x186/0x1a0 drivers/virtio/virtio_ring.c:2244
+>>  __virtscsi_add_cmd drivers/scsi/virtio_scsi.c:467 [inline]
+>>  virtscsi_add_cmd+0x838/0xad0 drivers/scsi/virtio_scsi.c:501
+>>  virtscsi_queuecommand+0x896/0xa60 drivers/scsi/virtio_scsi.c:598
+>>  scsi_dispatch_cmd drivers/scsi/scsi_lib.c:1516 [inline]
+>>  scsi_queue_rq+0x4874/0x5790 drivers/scsi/scsi_lib.c:1758
+>>  blk_mq_dispatch_rq_list+0x13f8/0x3600 block/blk-mq.c:2049
+>>  __blk_mq_do_dispatch_sched block/blk-mq-sched.c:170 [inline]
+>>  blk_mq_do_dispatch_sched block/blk-mq-sched.c:184 [inline]
+>>  __blk_mq_sched_dispatch_requests+0x10af/0x2500 block/blk-mq-sched.c:309
+>>  blk_mq_sched_dispatch_requests+0x160/0x2d0 block/blk-mq-sched.c:333
+>>  blk_mq_run_work_fn+0xd0/0x280 block/blk-mq.c:2434
+>>  process_one_work kernel/workqueue.c:2627 [inline]
+>>  process_scheduled_works+0x104e/0x1e70 kernel/workqueue.c:2700
+>>  worker_thread+0xf45/0x1490 kernel/workqueue.c:2781
+>>  kthread+0x3ed/0x540 kernel/kthread.c:388
+>>  ret_from_fork+0x66/0x80 arch/x86/kernel/process.c:147
+>>  ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:242
+>>
+>> Uninit was created at:
+>>  __alloc_pages+0x9a4/0xe00 mm/page_alloc.c:4591
+>>  alloc_pages_mpol+0x62b/0x9d0 mm/mempolicy.c:2133
+>>  alloc_pages mm/mempolicy.c:2204 [inline]
+>>  folio_alloc+0x1da/0x380 mm/mempolicy.c:2211
+>>  filemap_alloc_folio+0xa5/0x430 mm/filemap.c:974
+>>  __filemap_get_folio+0xa5a/0x1760 mm/filemap.c:1918
+>>  ext4_da_write_begin+0x7f8/0xec0 fs/ext4/inode.c:2891
+>>  generic_perform_write+0x3f5/0xc40 mm/filemap.c:3918
+>>  ext4_buffered_write_iter+0x564/0xaa0 fs/ext4/file.c:299
+>>  ext4_file_write_iter+0x20f/0x3460
+>>  __kernel_write_iter+0x329/0x930 fs/read_write.c:517
+>>  dump_emit_page fs/coredump.c:888 [inline]
+>>  dump_user_range+0x593/0xcd0 fs/coredump.c:915
+>>  elf_core_dump+0x528d/0x5a40 fs/binfmt_elf.c:2077
+>>  do_coredump+0x32c9/0x4920 fs/coredump.c:764
+>>  get_signal+0x2185/0x2d10 kernel/signal.c:2890
+>>  arch_do_signal_or_restart+0x53/0xca0 arch/x86/kernel/signal.c:309
+>>  exit_to_user_mode_loop+0xe8/0x320 kernel/entry/common.c:168
+>>  exit_to_user_mode_prepare+0x163/0x220 kernel/entry/common.c:204
+>>  irqentry_exit_to_user_mode+0xd/0x30 kernel/entry/common.c:309
+>>  irqentry_exit+0x16/0x40 kernel/entry/common.c:412
+>>  exc_page_fault+0x246/0x6f0 arch/x86/mm/fault.c:1564
+>>  asm_exc_page_fault+0x2b/0x30 arch/x86/include/asm/idtentry.h:570
+>>
+>> Bytes 0-4095 of 4096 are uninitialized
+>> Memory access of size 4096 starts at ffff88812c79c000
+>>
+>> CPU: 0 PID: 997 Comm: kworker/0:1H Not tainted 6.7.0-rc7-syzkaller-00003-gfbafc3e621c3 #0
+>> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 11/17/2023
+>> Workqueue: kblockd blk_mq_run_work_fn
+>> =====================================================
+> 
 
