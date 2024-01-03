@@ -1,161 +1,94 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [46.235.227.194])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E56721D696;
-	Wed,  3 Jan 2024 21:03:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FFBC1D55B
+	for <virtualization@lists.linux.dev>; Wed,  3 Jan 2024 21:08:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qhgA6zSG"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B24FC433C8;
-	Wed,  3 Jan 2024 21:03:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1704315806;
-	bh=QD5FzN6yb4XKKIWHNV4g4iP1F/YPzPhiGQBAapNVvtQ=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=qhgA6zSGsOLSi2ieOTuDZQtB01KRNK73RK87gFiJodsEj78ZlGhP9kS3M9abrgRd2
-	 jVCPN4pupWLYo8ANtXAZICT5gcF6eO7iLMBJxjkNuLuYK4953S3XNQWoIzelzkxJXZ
-	 V1fr17cwDx2DmOB71zg2Af0KfW8f81tLSOnBZ7O92MMx5pAliQ2uvSzZjimBPHJhQw
-	 WUMDaDNCQb698zCY+N9UN5jcSmuEAKomy84bRq38VBJZy7Ggq5Zz4jrFOe6dQvseq6
-	 zdEY5SBz4w5PsunILjZ95aDj6b5kTZJM09Dtgkc5tAzIwYvSzRlf9J83SfZ7DL/Pos
-	 V7riDGoD8dtqA==
-Date: Wed, 3 Jan 2024 21:03:21 +0000
-From: Simon Horman <horms@kernel.org>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH net-next 3/6] virtio_net: support device stats
-Message-ID: <20240103210321.GD31813@kernel.org>
-References: <20231222033021.20649-1-xuanzhuo@linux.alibaba.com>
- <20231222033021.20649-4-xuanzhuo@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="2+nPMrKw"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1704316094;
+	bh=duGESKBgxXGs3L/CZsA4/2AFzoxTyxROtWlIKBFet9w=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=2+nPMrKwoooJ5f2BvPBb0bhW6EMTHLDpBHXF/UdT0hp5uqrd9TILdfXgXpVbeKm6V
+	 jcnEg7rONfa0xHivyj8GwYeVhfdQmQ66ZnGUH4JvpUhnJWF2nbxy2SmDJaN9c0bTZY
+	 Vti+ooF0LnT4C+B4rWbe5Dzj80q9XliLM0uj+pGDk2G16covq0wKRvJAxlD1CPzw1+
+	 OVFa7Zh3LuTiYezYaoVR6134DsPOVbK0cid+QSDmnnvqSIijI3SB89DNeE+UpyXjPs
+	 vI5zTIHD4HVlGWjeAQbruUgLgnaaryoVLox09YDwXTa0hoWVCyjgy9MUv5p0OcPmYY
+	 NXp4LOxl7uYsA==
+Received: from [100.109.49.129] (cola.collaboradmins.com [195.201.22.229])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: dmitry.osipenko)
+	by madrid.collaboradmins.com (Postfix) with ESMTPSA id 946CD3780629;
+	Wed,  3 Jan 2024 21:08:13 +0000 (UTC)
+Message-ID: <0617eeeb-c0af-4ab0-8ae1-e87ba0044948@collabora.com>
+Date: Thu, 4 Jan 2024 00:08:10 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20231222033021.20649-4-xuanzhuo@linux.alibaba.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 1/1] drm/virtio: Spelling fixes
+Content-Language: en-US
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org
+Cc: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Daniel Vetter <daniel@ffwll.ch>
+References: <20231219151955.2477488-1-andriy.shevchenko@linux.intel.com>
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <20231219151955.2477488-1-andriy.shevchenko@linux.intel.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Fri, Dec 22, 2023 at 11:30:18AM +0800, Xuan Zhuo wrote:
-> As the spec https://github.com/oasis-tcs/virtio-spec/commit/42f389989823039724f95bbbd243291ab0064f82
+On 12/19/23 18:19, Andy Shevchenko wrote:
+> While making a spelling mistake myself for `git grep kvalloc`
+> I found that the only file has such a typo. Fix it and update
+> to the standard de facto of how we refer to the functions.
+> Also spell usr-out as user-out, it seems this driver uses its
+> own terminology nobody else can decypher, make it more readable.
 > 
-> Virtio-net supports to get the stats from the device by ethtool -S <eth0>.
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+>  drivers/gpu/drm/virtio/virtgpu_submit.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
 > 
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-
-Hi Xuan Zhuo,
-
-some minor feedback from my side relating to Sparse warnings.
-
-...
-
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-
-...
-
-> +static int virtnet_get_hw_stats(struct virtnet_info *vi,
-> +				struct virtnet_stats_ctx *ctx)
-> +{
-> +	struct virtio_net_ctrl_queue_stats *req;
-> +	struct virtio_net_stats_reply_hdr *hdr;
-> +	struct scatterlist sgs_in, sgs_out;
-> +	u32 num_rx, num_tx, num_cq, offset;
-> +	int qnum, i, j,  qid, res_size;
-> +	struct virtnet_stats_map *m;
-> +	void *reply, *p;
-> +	u64 bitmap;
-> +	int ok;
-> +	u64 *v;
-
-...
-
-> +	for (p = reply; p - reply < res_size; p += virtio16_to_cpu(vi->vdev, hdr->size)) {
-
-The type of the second parameter of _virtio16_to_cpu() is __virtio16.
-But the type of the size field of virtio_net_stats_reply_hdr is __le16.
-This does not seem correct.
-
-> +		hdr = p;
-> +
-> +		qid = virtio16_to_cpu(vi->vdev, hdr->vq_index);
-
-Similarly, the vq_index field of virtio_net_stats_reply_hdr is also __le16.
-
-...
-
-> +		for (i = 0; i < ARRAY_SIZE(virtio_net_stats_map); ++i) {
-> +			m = &virtio_net_stats_map[i];
-> +
-> +			if (m->flag & bitmap)
-> +				offset += m->num;
-> +
-> +			if (hdr->type != m->type)
-> +				continue;
-> +
-> +			for (j = 0; j < m->num; ++j) {
-> +				v = p + m->desc[j].offset;
-> +				ctx->data[offset + j] = virtio64_to_cpu(vi->vdev, *v);
-
-Here the type of the second parameter of virtio64_to_cpu() is __virtio64.
-But the type of *v is u64.
-
-> +			}
-> +
-> +			break;
-> +		}
-> +	}
-> +
-> +	kfree(reply);
-> +	return 0;
-> +}
-> +
-
-...
-
-> @@ -3183,11 +3497,35 @@ static void virtnet_get_strings(struct net_device *dev, u32 stringset, u8 *data)
->  static int virtnet_get_sset_count(struct net_device *dev, int sset)
->  {
->  	struct virtnet_info *vi = netdev_priv(dev);
-> +	struct virtnet_stats_ctx ctx = {0};
-> +	u32 pair_count;
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_submit.c b/drivers/gpu/drm/virtio/virtgpu_submit.c
+> index 5c514946bbad..1c7c7f61a222 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_submit.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_submit.c
+> @@ -99,8 +99,8 @@ virtio_gpu_parse_deps(struct virtio_gpu_submit *submit)
+>  		return 0;
 >  
->  	switch (sset) {
->  	case ETH_SS_STATS:
-> -		return vi->curr_queue_pairs * (VIRTNET_RQ_STATS_LEN +
-> -					       VIRTNET_SQ_STATS_LEN);
-> +		if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_DEVICE_STATS) &&
-> +		    !vi->device_stats_cap) {
-> +			struct scatterlist sg;
-> +
-> +			sg_init_one(&sg, &vi->ctrl->stats_cap, sizeof(vi->ctrl->stats_cap));
-> +
-> +			if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_STATS,
-> +						  VIRTIO_NET_CTRL_STATS_QUERY,
-> +						  NULL, &sg)) {
-> +				dev_warn(&dev->dev, "Fail to get stats capability\n");
-> +			} else {
-> +				__le64 v;
-> +
-> +				v = vi->ctrl->stats_cap.supported_stats_types[0];
-> +				vi->device_stats_cap = virtio64_to_cpu(vi->vdev, v);
+>  	/*
+> -	 * kvalloc at first tries to allocate memory using kmalloc and
+> -	 * falls back to vmalloc only on failure. It also uses __GFP_NOWARN
+> +	 * kvmalloc() at first tries to allocate memory using kmalloc() and
+> +	 * falls back to vmalloc() only on failure. It also uses __GFP_NOWARN
+>  	 * internally for allocations larger than a page size, preventing
+>  	 * storm of KMSG warnings.
+>  	 */
+> @@ -529,7 +529,7 @@ int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
+>  	virtio_gpu_submit(&submit);
+>  
+>  	/*
+> -	 * Set up usr-out data after submitting the job to optimize
+> +	 * Set up user-out data after submitting the job to optimize
+>  	 * the job submission path.
+>  	 */
+>  	virtio_gpu_install_out_fence_fd(&submit);
 
-Similarly, the type of v is __le64.
+Applied to misc-next, thanks
 
-> +			}
-> +		}
-> +
-> +		virtnet_stats_ctx_init(vi, &ctx, NULL);
-> +
-> +		pair_count = VIRTNET_RQ_STATS_LEN + VIRTNET_SQ_STATS_LEN;
-> +		pair_count += ctx.num_rx + ctx.num_tx;
-> +
-> +		return ctx.num_cq + vi->curr_queue_pairs * pair_count;
->  	default:
->  		return -EOPNOTSUPP;
->  	}
+-- 
+Best regards,
+Dmitry
 
-...
