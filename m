@@ -1,40 +1,35 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F3C21BDC4;
-	Wed,  3 Jan 2024 16:24:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E56721D696;
+	Wed,  3 Jan 2024 21:03:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NKpfvShb"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9D1FC433C7;
-	Wed,  3 Jan 2024 16:24:04 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qhgA6zSG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B24FC433C8;
+	Wed,  3 Jan 2024 21:03:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1704299050;
-	bh=oDxUJ0csC6lWNRIuyYFs6Gg2tiCMbVHu/gNkuWzoWzM=;
+	s=k20201202; t=1704315806;
+	bh=QD5FzN6yb4XKKIWHNV4g4iP1F/YPzPhiGQBAapNVvtQ=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=NKpfvShb6tkMIJpN0xEoI1S0zR4aLeaRArZwkobSudX3RkKpGjhNHy7iR044qE4HK
-	 zvd6GWk3J7PgtL/GHT0G+bH7zAu57/uWcaWQpl5nx7+3IBolmGkmWRh77k32S1xFb9
-	 xvQV48hg5VbrUz/0abaminyQw6+uu42GfcWgX792V6X4CooopX/mcrkaLa9KuEQK7a
-	 OCwGZ8d3eQJGe7BxWsFYgxw5etLbuRKscIsP8BJuXk6bD4qyHF2joQcWgyl9H5PftA
-	 syayVLlMizbNxE4C5uOh4kdVTMjdA5sia4spSl9GLJz4Mi8zT7Fg2MATiYcCUxvmij
-	 enitnIElliOow==
-Date: Wed, 3 Jan 2024 16:24:02 +0000
+	b=qhgA6zSGsOLSi2ieOTuDZQtB01KRNK73RK87gFiJodsEj78ZlGhP9kS3M9abrgRd2
+	 jVCPN4pupWLYo8ANtXAZICT5gcF6eO7iLMBJxjkNuLuYK4953S3XNQWoIzelzkxJXZ
+	 V1fr17cwDx2DmOB71zg2Af0KfW8f81tLSOnBZ7O92MMx5pAliQ2uvSzZjimBPHJhQw
+	 WUMDaDNCQb698zCY+N9UN5jcSmuEAKomy84bRq38VBJZy7Ggq5Zz4jrFOe6dQvseq6
+	 zdEY5SBz4w5PsunILjZ95aDj6b5kTZJM09Dtgkc5tAzIwYvSzRlf9J83SfZ7DL/Pos
+	 V7riDGoD8dtqA==
+Date: Wed, 3 Jan 2024 21:03:21 +0000
 From: Simon Horman <horms@kernel.org>
-To: Alexey Makhalov <alexey.makhalov@broadcom.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-	bp@alien8.de, hpa@zytor.com, dave.hansen@linux.intel.com,
-	mingo@redhat.com, tglx@linutronix.de, x86@kernel.org,
-	netdev@vger.kernel.org, richardcochran@gmail.com,
-	linux-input@vger.kernel.org, dmitry.torokhov@gmail.com,
-	zackr@vmware.com, linux-graphics-maintainer@vmware.com,
-	pv-drivers@vmware.com, namit@vmware.com, timothym@vmware.com,
-	akaher@vmware.com, jsipek@vmware.com,
-	dri-devel@lists.freedesktop.org, daniel@ffwll.ch, airlied@gmail.com,
-	tzimmermann@suse.de, mripard@kernel.org,
-	maarten.lankhorst@linux.intel.com, kirill.shutemov@linux.intel.com
-Subject: Re: [PATCH v4 2/6] x86/vmware: Introduce VMware hypercall API
-Message-ID: <20240103162402.GA31813@kernel.org>
-References: <20231228192421.29894-1-alexey.makhalov@broadcom.com>
- <20231228192421.29894-3-alexey.makhalov@broadcom.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH net-next 3/6] virtio_net: support device stats
+Message-ID: <20240103210321.GD31813@kernel.org>
+References: <20231222033021.20649-1-xuanzhuo@linux.alibaba.com>
+ <20231222033021.20649-4-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -43,45 +38,124 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20231228192421.29894-3-alexey.makhalov@broadcom.com>
+In-Reply-To: <20231222033021.20649-4-xuanzhuo@linux.alibaba.com>
 
-On Thu, Dec 28, 2023 at 11:24:17AM -0800, Alexey Makhalov wrote:
-> From: Alexey Makhalov <amakhalov@vmware.com>
+On Fri, Dec 22, 2023 at 11:30:18AM +0800, Xuan Zhuo wrote:
+> As the spec https://github.com/oasis-tcs/virtio-spec/commit/42f389989823039724f95bbbd243291ab0064f82
 > 
-> Introduce vmware_hypercall family of functions. It is a common
-> implementation to be used by the VMware guest code and virtual
-> device drivers in architecture independent manner.
+> Virtio-net supports to get the stats from the device by ethtool -S <eth0>.
 > 
-> The API consists of vmware_hypercallX and vmware_hypercall_hb_{out,in}
-> set of functions by analogy with KVM hypercall API. Architecture
-> specific implementation is hidden inside.
-> 
-> It will simplify future enhancements in VMware hypercalls such
-> as SEV-ES and TDX related changes without needs to modify a
-> caller in device drivers code.
-> 
-> Current implementation extends an idea from commit bac7b4e84323
-> ("x86/vmware: Update platform detection code for VMCALL/VMMCALL
-> hypercalls") to have a slow, but safe path in VMWARE_HYPERCALL
-> earlier during the boot when alternatives are not yet applied.
-> This logic was inherited from VMWARE_CMD from the commit mentioned
-> above. Default alternative code was optimized by size to reduce
-> excessive nop alignment once alternatives are applied. Total
-> default code size is 26 bytes, in worse case (3 bytes alternative)
-> remaining 23 bytes will be aligned by only 3 long NOP instructions.
-> 
-> Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
-> Reviewed-by: Nadav Amit <namit@vmware.com>
-> Reviewed-by: Jeff Sipek <jsipek@vmware.com>
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
-Hi Alexey,
+Hi Xuan Zhuo,
 
-I'd like to flag that this breaks gcc-13 x86_64 allmodconfig builds of the
-following files. And although this is resolved by the subsequent 3 patches
-in this series, it does still break bisection.
+some minor feedback from my side relating to Sparse warnings.
 
- drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
- drivers/input/mouse/vmmouse.c
- drivers/ptp/ptp_vmw.c
+...
+
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+
+...
+
+> +static int virtnet_get_hw_stats(struct virtnet_info *vi,
+> +				struct virtnet_stats_ctx *ctx)
+> +{
+> +	struct virtio_net_ctrl_queue_stats *req;
+> +	struct virtio_net_stats_reply_hdr *hdr;
+> +	struct scatterlist sgs_in, sgs_out;
+> +	u32 num_rx, num_tx, num_cq, offset;
+> +	int qnum, i, j,  qid, res_size;
+> +	struct virtnet_stats_map *m;
+> +	void *reply, *p;
+> +	u64 bitmap;
+> +	int ok;
+> +	u64 *v;
+
+...
+
+> +	for (p = reply; p - reply < res_size; p += virtio16_to_cpu(vi->vdev, hdr->size)) {
+
+The type of the second parameter of _virtio16_to_cpu() is __virtio16.
+But the type of the size field of virtio_net_stats_reply_hdr is __le16.
+This does not seem correct.
+
+> +		hdr = p;
+> +
+> +		qid = virtio16_to_cpu(vi->vdev, hdr->vq_index);
+
+Similarly, the vq_index field of virtio_net_stats_reply_hdr is also __le16.
+
+...
+
+> +		for (i = 0; i < ARRAY_SIZE(virtio_net_stats_map); ++i) {
+> +			m = &virtio_net_stats_map[i];
+> +
+> +			if (m->flag & bitmap)
+> +				offset += m->num;
+> +
+> +			if (hdr->type != m->type)
+> +				continue;
+> +
+> +			for (j = 0; j < m->num; ++j) {
+> +				v = p + m->desc[j].offset;
+> +				ctx->data[offset + j] = virtio64_to_cpu(vi->vdev, *v);
+
+Here the type of the second parameter of virtio64_to_cpu() is __virtio64.
+But the type of *v is u64.
+
+> +			}
+> +
+> +			break;
+> +		}
+> +	}
+> +
+> +	kfree(reply);
+> +	return 0;
+> +}
+> +
+
+...
+
+> @@ -3183,11 +3497,35 @@ static void virtnet_get_strings(struct net_device *dev, u32 stringset, u8 *data)
+>  static int virtnet_get_sset_count(struct net_device *dev, int sset)
+>  {
+>  	struct virtnet_info *vi = netdev_priv(dev);
+> +	struct virtnet_stats_ctx ctx = {0};
+> +	u32 pair_count;
+>  
+>  	switch (sset) {
+>  	case ETH_SS_STATS:
+> -		return vi->curr_queue_pairs * (VIRTNET_RQ_STATS_LEN +
+> -					       VIRTNET_SQ_STATS_LEN);
+> +		if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_DEVICE_STATS) &&
+> +		    !vi->device_stats_cap) {
+> +			struct scatterlist sg;
+> +
+> +			sg_init_one(&sg, &vi->ctrl->stats_cap, sizeof(vi->ctrl->stats_cap));
+> +
+> +			if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_STATS,
+> +						  VIRTIO_NET_CTRL_STATS_QUERY,
+> +						  NULL, &sg)) {
+> +				dev_warn(&dev->dev, "Fail to get stats capability\n");
+> +			} else {
+> +				__le64 v;
+> +
+> +				v = vi->ctrl->stats_cap.supported_stats_types[0];
+> +				vi->device_stats_cap = virtio64_to_cpu(vi->vdev, v);
+
+Similarly, the type of v is __le64.
+
+> +			}
+> +		}
+> +
+> +		virtnet_stats_ctx_init(vi, &ctx, NULL);
+> +
+> +		pair_count = VIRTNET_RQ_STATS_LEN + VIRTNET_SQ_STATS_LEN;
+> +		pair_count += ctx.num_rx + ctx.num_tx;
+> +
+> +		return ctx.num_cq + vi->curr_queue_pairs * pair_count;
+>  	default:
+>  		return -EOPNOTSUPP;
+>  	}
 
 ...
