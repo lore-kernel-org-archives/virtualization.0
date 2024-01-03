@@ -1,13 +1,13 @@
 Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id E7EAD182DF;
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id E7E6F182DD;
 	Wed,  3 Jan 2024 07:16:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
 Received: from loongson.cn (unknown [10.2.5.213])
-	by gateway (Coremail) with SMTP id _____8Dx++rACZVlv3IBAA--.5649S3;
-	Wed, 03 Jan 2024 15:16:16 +0800 (CST)
+	by gateway (Coremail) with SMTP id _____8BxmurBCZVlyXIBAA--.5061S3;
+	Wed, 03 Jan 2024 15:16:17 +0800 (CST)
 Received: from localhost.localdomain (unknown [10.2.5.213])
-	by localhost.localdomain (Coremail) with SMTP id AQAAf8Dxqb2_CZVlm1EYAA--.43800S4;
+	by localhost.localdomain (Coremail) with SMTP id AQAAf8Dxqb2_CZVlm1EYAA--.43800S6;
 	Wed, 03 Jan 2024 15:16:16 +0800 (CST)
 From: Bibo Mao <maobibo@loongson.cn>
 To: Huacai Chen <chenhuacai@kernel.org>,
@@ -17,9 +17,9 @@ Cc: loongarch@lists.linux.dev,
 	linux-kernel@vger.kernel.org,
 	virtualization@lists.linux.dev,
 	kvm@vger.kernel.org
-Subject: [PATCH 2/5] LoongArch: KVM: Add cpucfg area for kvm hypervisor
-Date: Wed,  3 Jan 2024 15:16:12 +0800
-Message-Id: <20240103071615.3422264-3-maobibo@loongson.cn>
+Subject: [PATCH 4/5] LoongArch: Add paravirt interface for guest kernel
+Date: Wed,  3 Jan 2024 15:16:14 +0800
+Message-Id: <20240103071615.3422264-5-maobibo@loongson.cn>
 X-Mailer: git-send-email 2.39.3
 In-Reply-To: <20240103071615.3422264-1-maobibo@loongson.cn>
 References: <20240103071615.3422264-1-maobibo@loongson.cn>
@@ -30,136 +30,201 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:AQAAf8Dxqb2_CZVlm1EYAA--.43800S4
+X-CM-TRANSID:AQAAf8Dxqb2_CZVlm1EYAA--.43800S6
 X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
-X-Coremail-Antispam: 1Uk129KBj93XoWxCw4rCw47Cr1kWw1rKFy5ZFc_yoW5tw4fpF
-	ZrZrn5Wr48GryfA3y7t3yUWrs8ZF4kGr12qFW3t3y8CF47XryUJr4vkrZFyFyDKws5Ca4I
-	qF15tr13XF4jyabCm3ZEXasCq-sJn29KB7ZKAUJUUUU5529EdanIXcx71UUUUU7KY7ZEXa
+X-Coremail-Antispam: 1Uk129KBj93XoW3JF1kZFyDur48Cr45CFWfJFc_yoW7Cw4xpa
+	4DAr4kWa18GF1fA39xKrW5ur15Jws7Cry29Fya934FyFsFqr1UXr1vgryqqFyDtaykJay0
+	gFyrGws0ga1UJabCm3ZEXasCq-sJn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7KY7ZEXa
 	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
-	0xBIdaVrnRJUUUkFb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
-	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1a6r1DM28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
-	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_JFI_Gr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
+	0xBIdaVrnRJUUUk2b4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
+	IYs7xG6rWj6s0DM7CIcVAFz4kK6r4j6s0DM28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
+	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Gr0_Xr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
 	0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVCY1x0267AK
 	xVW8Jr0_Cr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2x26I8E6xACxx
-	1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r126r1DMcIj6I8E87Iv
-	67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41l42xK82IYc2
+	1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1q6rW5McIj6I8E87Iv
+	67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41l42xK82IYc2
 	Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s02
 	6x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r126r1DMIIYrxkI7VAKI48JMIIF0x
-	vE2Ix0cI8IcVAFwI0_JFI_Gr1lIxAIcVC0I7IYx2IY6xkF7I0E14v26r1j6r4UMIIF0xvE
-	42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6x
-	kF7I0E14v26r1j6r4UYxBIdaVFxhVjvjDU0xZFpf9x07U6a0PUUUUU=
+	vE2Ix0cI8IcVAFwI0_Gr0_Xr1lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE
+	42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVW8JVWxJwCI42IY6I8E87Iv6x
+	kF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjxUoxR6UUUUU
 
-System will trap into hypervisor when executing cpucfg instruction.
-And now hardware only uses the area 0 - 20 for actual usage, here
-one specified area 0x10000000 -- 0x100000ff is used for KVM hypervisor,
-and the area can be extended for other hypervisors in future.
+The patch add paravirt interface for guest kernel, it checks whether
+system runs on VM mode. If it is, it will detect hypervisor type. And
+returns true it is KVM hypervisor, else return false. Currently only
+KVM hypervisor is supported, so there is only hypervisor detection
+for KVM type.
 
 Signed-off-by: Bibo Mao <maobibo@loongson.cn>
 ---
- arch/loongarch/include/asm/inst.h      |  1 +
- arch/loongarch/include/asm/loongarch.h |  9 +++++
- arch/loongarch/kvm/exit.c              | 46 +++++++++++++++++---------
- 3 files changed, 40 insertions(+), 16 deletions(-)
+ arch/loongarch/Kconfig                        |  8 ++++
+ arch/loongarch/include/asm/kvm_para.h         |  7 ++++
+ arch/loongarch/include/asm/paravirt.h         | 27 ++++++++++++
+ .../include/asm/paravirt_api_clock.h          |  1 +
+ arch/loongarch/kernel/Makefile                |  1 +
+ arch/loongarch/kernel/paravirt.c              | 41 +++++++++++++++++++
+ arch/loongarch/kernel/setup.c                 |  2 +
+ 7 files changed, 87 insertions(+)
+ create mode 100644 arch/loongarch/include/asm/paravirt.h
+ create mode 100644 arch/loongarch/include/asm/paravirt_api_clock.h
+ create mode 100644 arch/loongarch/kernel/paravirt.c
 
-diff --git a/arch/loongarch/include/asm/inst.h b/arch/loongarch/include/asm/inst.h
-index d8f637f9e400..ad120f924905 100644
---- a/arch/loongarch/include/asm/inst.h
-+++ b/arch/loongarch/include/asm/inst.h
-@@ -67,6 +67,7 @@ enum reg2_op {
- 	revhd_op	= 0x11,
- 	extwh_op	= 0x16,
- 	extwb_op	= 0x17,
-+	cpucfg_op	= 0x1b,
- 	iocsrrdb_op     = 0x19200,
- 	iocsrrdh_op     = 0x19201,
- 	iocsrrdw_op     = 0x19202,
-diff --git a/arch/loongarch/include/asm/loongarch.h b/arch/loongarch/include/asm/loongarch.h
-index 46366e783c84..a03b466555a1 100644
---- a/arch/loongarch/include/asm/loongarch.h
-+++ b/arch/loongarch/include/asm/loongarch.h
-@@ -158,6 +158,15 @@
- #define  CPUCFG48_VFPU_CG		BIT(2)
- #define  CPUCFG48_RAM_CG		BIT(3)
+diff --git a/arch/loongarch/Kconfig b/arch/loongarch/Kconfig
+index ee123820a476..940e5960d297 100644
+--- a/arch/loongarch/Kconfig
++++ b/arch/loongarch/Kconfig
+@@ -564,6 +564,14 @@ config CPU_HAS_PREFETCH
+ 	bool
+ 	default y
+ 
++config PARAVIRT
++	bool "Enable paravirtualization code"
++	help
++          This changes the kernel so it can modify itself when it is run
++	  under a hypervisor, potentially improving performance significantly
++	  over full virtualization.  However, when run without a hypervisor
++	  the kernel is theoretically slower and slightly larger.
++
+ config ARCH_SUPPORTS_KEXEC
+ 	def_bool y
+ 
+diff --git a/arch/loongarch/include/asm/kvm_para.h b/arch/loongarch/include/asm/kvm_para.h
+index 9425d3b7e486..41200e922a82 100644
+--- a/arch/loongarch/include/asm/kvm_para.h
++++ b/arch/loongarch/include/asm/kvm_para.h
+@@ -2,6 +2,13 @@
+ #ifndef _ASM_LOONGARCH_KVM_PARA_H
+ #define _ASM_LOONGARCH_KVM_PARA_H
  
 +/*
-+ * cpucfg index area: 0x10000000 -- 0x100000ff
-+ * SW emulation for KVM hypervirsor
++ * Hypcall code field
 + */
-+#define CPUCFG_KVM_BASE			0x10000000UL
-+#define CPUCFG_KVM_SIZE			0x100
-+#define CPUCFG_KVM_SIG			CPUCFG_KVM_BASE
-+#define  KVM_SIGNATURE			"KVM\0"
-+#define CPUCFG_KVM_FEATURE		(CPUCFG_KVM_BASE + 4)
- #ifndef __ASSEMBLY__
- 
- /* CSR */
-diff --git a/arch/loongarch/kvm/exit.c b/arch/loongarch/kvm/exit.c
-index 59e5fe221982..e233d7b3b76d 100644
---- a/arch/loongarch/kvm/exit.c
-+++ b/arch/loongarch/kvm/exit.c
-@@ -206,10 +206,37 @@ int kvm_emu_idle(struct kvm_vcpu *vcpu)
- 	return EMULATE_DONE;
- }
- 
--static int kvm_trap_handle_gspr(struct kvm_vcpu *vcpu)
-+static int kvm_emu_cpucfg(struct kvm_vcpu *vcpu, larch_inst inst)
- {
- 	int rd, rj;
- 	unsigned int index;
++#define HYPERVISOR_KVM			1
++#define HYPERVISOR_VENDOR_SHIFT		8
++#define HYPERCALL_CODE(vendor, code)	((vendor << HYPERVISOR_VENDOR_SHIFT) + code)
 +
-+	rd = inst.reg2_format.rd;
-+	rj = inst.reg2_format.rj;
-+	++vcpu->stat.cpucfg_exits;
-+	index = vcpu->arch.gprs[rj];
+ /*
+  * LoongArch hypcall return code
+  */
+diff --git a/arch/loongarch/include/asm/paravirt.h b/arch/loongarch/include/asm/paravirt.h
+new file mode 100644
+index 000000000000..b64813592ba0
+--- /dev/null
++++ b/arch/loongarch/include/asm/paravirt.h
+@@ -0,0 +1,27 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _ASM_LOONGARCH_PARAVIRT_H
++#define _ASM_LOONGARCH_PARAVIRT_H
 +
-+	/*
-+	 * By LoongArch Reference Manual 2.2.10.5
-+	 * Return value is 0 for undefined cpucfg index
-+	 */
-+	switch (index) {
-+	case 0 ... (KVM_MAX_CPUCFG_REGS - 1):
-+		vcpu->arch.gprs[rd] = vcpu->arch.cpucfg[index];
-+		break;
-+	case CPUCFG_KVM_SIG:
-+		vcpu->arch.gprs[rd] = *(unsigned int *)KVM_SIGNATURE;
-+		break;
-+	default:
-+		vcpu->arch.gprs[rd] = 0;
-+		break;
-+	}
++#ifdef CONFIG_PARAVIRT
++#include <linux/static_call_types.h>
++struct static_key;
++extern struct static_key paravirt_steal_enabled;
++extern struct static_key paravirt_steal_rq_enabled;
 +
-+	return EMULATE_DONE;
++u64 dummy_steal_clock(int cpu);
++DECLARE_STATIC_CALL(pv_steal_clock, dummy_steal_clock);
++
++static inline u64 paravirt_steal_clock(int cpu)
++{
++	return static_call(pv_steal_clock)(cpu);
 +}
 +
-+static int kvm_trap_handle_gspr(struct kvm_vcpu *vcpu)
++int pv_guest_init(void);
++#else
++static inline int pv_guest_init(void)
 +{
- 	unsigned long curr_pc;
- 	larch_inst inst;
- 	enum emulation_result er = EMULATE_DONE;
-@@ -224,21 +251,8 @@ static int kvm_trap_handle_gspr(struct kvm_vcpu *vcpu)
- 	er = EMULATE_FAIL;
- 	switch (((inst.word >> 24) & 0xff)) {
- 	case 0x0: /* CPUCFG GSPR */
--		if (inst.reg2_format.opcode == 0x1B) {
--			rd = inst.reg2_format.rd;
--			rj = inst.reg2_format.rj;
--			++vcpu->stat.cpucfg_exits;
--			index = vcpu->arch.gprs[rj];
--			er = EMULATE_DONE;
--			/*
--			 * By LoongArch Reference Manual 2.2.10.5
--			 * return value is 0 for undefined cpucfg index
--			 */
--			if (index < KVM_MAX_CPUCFG_REGS)
--				vcpu->arch.gprs[rd] = vcpu->arch.cpucfg[index];
--			else
--				vcpu->arch.gprs[rd] = 0;
--		}
-+		if (inst.reg2_format.opcode == cpucfg_op)
-+			er = kvm_emu_cpucfg(vcpu, inst);
- 		break;
- 	case 0x4: /* CSR{RD,WR,XCHG} GSPR */
- 		er = kvm_handle_csr(vcpu, inst);
++	return 0;
++}
++
++#endif // CONFIG_PARAVIRT
++#endif
+diff --git a/arch/loongarch/include/asm/paravirt_api_clock.h b/arch/loongarch/include/asm/paravirt_api_clock.h
+new file mode 100644
+index 000000000000..65ac7cee0dad
+--- /dev/null
++++ b/arch/loongarch/include/asm/paravirt_api_clock.h
+@@ -0,0 +1 @@
++#include <asm/paravirt.h>
+diff --git a/arch/loongarch/kernel/Makefile b/arch/loongarch/kernel/Makefile
+index 3c808c680370..662e6e9de12d 100644
+--- a/arch/loongarch/kernel/Makefile
++++ b/arch/loongarch/kernel/Makefile
+@@ -48,6 +48,7 @@ obj-$(CONFIG_MODULES)		+= module.o module-sections.o
+ obj-$(CONFIG_STACKTRACE)	+= stacktrace.o
+ 
+ obj-$(CONFIG_PROC_FS)		+= proc.o
++obj-$(CONFIG_PARAVIRT)		+= paravirt.o
+ 
+ obj-$(CONFIG_SMP)		+= smp.o
+ 
+diff --git a/arch/loongarch/kernel/paravirt.c b/arch/loongarch/kernel/paravirt.c
+new file mode 100644
+index 000000000000..21d01d05791a
+--- /dev/null
++++ b/arch/loongarch/kernel/paravirt.c
+@@ -0,0 +1,41 @@
++// SPDX-License-Identifier: GPL-2.0
++#include <linux/export.h>
++#include <linux/types.h>
++#include <linux/jump_label.h>
++#include <linux/kvm_para.h>
++#include <asm/paravirt.h>
++#include <linux/static_call.h>
++
++struct static_key paravirt_steal_enabled;
++struct static_key paravirt_steal_rq_enabled;
++
++static u64 native_steal_clock(int cpu)
++{
++	return 0;
++}
++
++DEFINE_STATIC_CALL(pv_steal_clock, native_steal_clock);
++
++static bool kvm_para_available(void)
++{
++	static int hypervisor_type;
++	int config;
++
++	if (!hypervisor_type) {
++		config = read_cpucfg(CPUCFG_KVM_SIG);
++		if (!memcmp(&config, KVM_SIGNATURE, 4))
++			hypervisor_type = HYPERVISOR_KVM;
++	}
++
++	return hypervisor_type == HYPERVISOR_KVM;
++}
++
++int __init pv_guest_init(void)
++{
++	if (!cpu_has_hypervisor)
++		return 0;
++	if (!kvm_para_available())
++		return 0;
++
++	return 1;
++}
+diff --git a/arch/loongarch/kernel/setup.c b/arch/loongarch/kernel/setup.c
+index d183a745fb85..fa680bdd0bd1 100644
+--- a/arch/loongarch/kernel/setup.c
++++ b/arch/loongarch/kernel/setup.c
+@@ -43,6 +43,7 @@
+ #include <asm/efi.h>
+ #include <asm/loongson.h>
+ #include <asm/numa.h>
++#include <asm/paravirt.h>
+ #include <asm/pgalloc.h>
+ #include <asm/sections.h>
+ #include <asm/setup.h>
+@@ -376,6 +377,7 @@ void __init platform_init(void)
+ 	pr_info("The BIOS Version: %s\n", b_info.bios_version);
+ 
+ 	efi_runtime_init();
++	pv_guest_init();
+ }
+ 
+ static void __init check_kernel_sections_mem(void)
 -- 
 2.39.3
 
