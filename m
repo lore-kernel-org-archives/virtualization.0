@@ -1,731 +1,222 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88F8524B20
-	for <virtualization@lists.linux.dev>; Thu,  4 Jan 2024 16:18:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9DC028E0D
+	for <virtualization@lists.linux.dev>; Thu,  4 Jan 2024 20:45:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="My+xvmqh"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="F+vgbC6E"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1704385105;
+	s=mimecast20190719; t=1704401140;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=m3XWp8QN3y4K7hN9DZUfoTwKMLNHnu7aTZe5uSFvYx4=;
-	b=My+xvmqh0ogB8YQP4Z2ax77aSaF0L7K/+tYa1MOmIVnV1SpxhUxEslDZK3spPV1zsZDnYF
-	N2282p0NBhXD4XyYivMe3xQm3YUhTSz925QTae+uQInKHsSd+i5WoB2707ZwnwQ4bq1mvt
-	nWoM667qioM4enDUjoSvfTyVn6MJalQ=
-Received: from mail-yw1-f197.google.com (mail-yw1-f197.google.com
- [209.85.128.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-499-kgYG3yK0PpmZVReajANr6Q-1; Thu, 04 Jan 2024 11:18:23 -0500
-X-MC-Unique: kgYG3yK0PpmZVReajANr6Q-1
-Received: by mail-yw1-f197.google.com with SMTP id 00721157ae682-5edbad6f4d6so9813867b3.1
-        for <virtualization@lists.linux.dev>; Thu, 04 Jan 2024 08:18:23 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1704385103; x=1704989903;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=m3XWp8QN3y4K7hN9DZUfoTwKMLNHnu7aTZe5uSFvYx4=;
-        b=HGgvgxxRwBnikJeB5Jaiji0r2o/D7cBwyUd+sDQMVPp/Lc443tkl1o3MTo3yMtKpEF
-         /OLGpOV2rR0zOusGG6Ocg6ODxGVgwkQzRoPdSsvZRzgnlPPTQGtGeDrF8hd7r21mScOg
-         o1zDu8uQnICNiJQQGkjbeM+m/6XdHVdW4c0HOLSugfayOiC10uMiOcCQhqq/dRyegGYi
-         PCh7GagMZLOH/R907hvSjMwjTgNpEeHBU7UVaOWoXEXTU8d9/XzeQab+MXmaepAn9iug
-         MjkrwRdkx12E2fWDbynxGSnLD6NGba/ATI85SaFsGXtsTSYGEj5n7JZL6IoAUoZ1sX1A
-         yX8Q==
-X-Gm-Message-State: AOJu0YzqgTXrUDGu/S0aicGQcaGEFpoB0JnecWya3ROuje449L2ReP86
-	ALIyDbeDkZEHyxigOIYQQ9GQ4zbJQFucmrlEH/+94VwJDD9WYEtignqHifR5ATGycUW2llsSCxg
-	lhdwyZuHz8FcaM+WbAiyERh/Nvo4g0g/4xtgEViHgEE+zA3LQdP8=
-X-Received: by 2002:a0d:c982:0:b0:5ed:25e4:c56 with SMTP id l124-20020a0dc982000000b005ed25e40c56mr760448ywd.8.1704385102905;
-        Thu, 04 Jan 2024 08:18:22 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFOWzTvWOZvyaQkSHdD1yAX5+O7d0o8RhRUzUypWHMXsO/kHfcX7GkiIzl31iG4JT/yvjOpXS4FoYPGsLTWe7M=
-X-Received: by 2002:a0d:c982:0:b0:5ed:25e4:c56 with SMTP id
- l124-20020a0dc982000000b005ed25e40c56mr760432ywd.8.1704385102550; Thu, 04 Jan
- 2024 08:18:22 -0800 (PST)
+	bh=JTU9XHak2ephYeTO61ZRd9/X4Vs2q0I/imNuUJpI0mI=;
+	b=F+vgbC6E6C7T80BwLXHlRUMesxCo5tbSY6JbhFKSrNETmB4jrPV8PtqyFoDF3fG6q1UM6i
+	P14G7j9wAr4JPXEkJnBPxoItM69ENka1Vv/qmurRyq39p8SZRMbHMaSYUZWpPdf1bRLiTV
+	MzSbu/Js1huxcSILL7dN3RMcLinUO00=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-348-PUDaQFKpPSqLFziw-JD2ZA-1; Thu,
+ 04 Jan 2024 15:45:33 -0500
+X-MC-Unique: PUDaQFKpPSqLFziw-JD2ZA-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 621A729AA3BB;
+	Thu,  4 Jan 2024 20:45:33 +0000 (UTC)
+Received: from localhost (unknown [10.39.192.16])
+	by smtp.corp.redhat.com (Postfix) with ESMTP id B12931C060AF;
+	Thu,  4 Jan 2024 20:45:32 +0000 (UTC)
+Date: Thu, 4 Jan 2024 15:45:31 -0500
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Alexander Potapenko <glider@google.com>
+Cc: syzbot <syzbot+d7521c1e3841ed075a42@syzkaller.appspotmail.com>,
+	jasowang@redhat.com, linux-kernel@vger.kernel.org,
+	syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev,
+	xuanzhuo@linux.alibaba.com, bonzini@redhat.com,
+	"Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [syzbot] [virtualization?] KMSAN: uninit-value in virtqueue_add
+ (4)
+Message-ID: <20240104204531.GB954424@fedora>
+References: <000000000000fd588e060de27ef4@google.com>
+ <20240102080315-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240103095650.25769-1-linyunsheng@huawei.com> <20240103095650.25769-7-linyunsheng@huawei.com>
-In-Reply-To: <20240103095650.25769-7-linyunsheng@huawei.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Thu, 4 Jan 2024 17:17:46 +0100
-Message-ID: <CAJaqyWfHLDRL4z9ooNS2w_yGE_jnHfi2spdYPP_=F0jgSj3mJQ@mail.gmail.com>
-Subject: Re: [PATCH net-next 6/6] tools: virtio: introduce vhost_net_test
-To: Yunsheng Lin <linyunsheng@huawei.com>
-Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="8gbDFBVP1Dpt5/+r"
+Content-Disposition: inline
+In-Reply-To: <20240102080315-mutt-send-email-mst@kernel.org>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.7
+
+
+--8gbDFBVP1Dpt5/+r
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jan 3, 2024 at 11:00=E2=80=AFAM Yunsheng Lin <linyunsheng@huawei.co=
-m> wrote:
->
-> introduce vhost_net_test basing on virtio_test to test
-> vhost_net changing in the kernel.
->
-> Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
-> ---
->  tools/virtio/Makefile         |   8 +-
->  tools/virtio/vhost_net_test.c | 574 ++++++++++++++++++++++++++++++++++
->  2 files changed, 579 insertions(+), 3 deletions(-)
->  create mode 100644 tools/virtio/vhost_net_test.c
->
-> diff --git a/tools/virtio/Makefile b/tools/virtio/Makefile
-> index d128925980e0..e25e99c1c3b7 100644
-> --- a/tools/virtio/Makefile
-> +++ b/tools/virtio/Makefile
-> @@ -1,8 +1,9 @@
->  # SPDX-License-Identifier: GPL-2.0
->  all: test mod
-> -test: virtio_test vringh_test
-> +test: virtio_test vringh_test vhost_net_test
->  virtio_test: virtio_ring.o virtio_test.o
->  vringh_test: vringh_test.o vringh.o virtio_ring.o
-> +vhost_net_test: virtio_ring.o vhost_net_test.o
->
->  try-run =3D $(shell set -e;              \
->         if ($(1)) >/dev/null 2>&1;      \
-> @@ -49,6 +50,7 @@ oot-clean: OOT_BUILD+=3Dclean
->
->  .PHONY: all test mod clean vhost oot oot-clean oot-build
->  clean:
-> -       ${RM} *.o vringh_test virtio_test vhost_test/*.o vhost_test/.*.cm=
-d \
-> -              vhost_test/Module.symvers vhost_test/modules.order *.d
-> +       ${RM} *.o vringh_test virtio_test vhost_net_test vhost_test/*.o \
-> +              vhost_test/.*.cmd vhost_test/Module.symvers \
-> +              vhost_test/modules.order *.d
->  -include *.d
-> diff --git a/tools/virtio/vhost_net_test.c b/tools/virtio/vhost_net_test.=
-c
-> new file mode 100644
-> index 000000000000..cfffcef53d94
-> --- /dev/null
-> +++ b/tools/virtio/vhost_net_test.c
-> @@ -0,0 +1,574 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +#define _GNU_SOURCE
-> +#include <getopt.h>
-> +#include <limits.h>
-> +#include <string.h>
-> +#include <poll.h>
-> +#include <sys/eventfd.h>
-> +#include <stdlib.h>
-> +#include <assert.h>
-> +#include <unistd.h>
-> +#include <sys/ioctl.h>
-> +#include <sys/stat.h>
-> +#include <sys/types.h>
-> +#include <fcntl.h>
-> +#include <stdbool.h>
-> +#include <linux/virtio_types.h>
-> +#include <linux/vhost.h>
-> +#include <linux/virtio.h>
-> +#include <linux/virtio_ring.h>
-> +#include <linux/if.h>
-> +#include <linux/if_tun.h>
-> +#include <linux/in.h>
-> +#include <linux/if_packet.h>
-> +#include <netinet/ether.h>
-> +
-> +#define RANDOM_BATCH   -1
-> +#define HDR_LEN                12
-> +#define TEST_BUF_LEN   256
-> +#define TEST_PTYPE     ETH_P_LOOPBACK
-> +
-> +/* Used by implementation of kmalloc() in tools/virtio/linux/kernel.h */
-> +void *__kmalloc_fake, *__kfree_ignore_start, *__kfree_ignore_end;
-> +
-> +struct vq_info {
-> +       int kick;
-> +       int call;
-> +       int idx;
-> +       long started;
-> +       long completed;
-> +       struct pollfd fds;
-> +       void *ring;
-> +       /* copy used for control */
-> +       struct vring vring;
-> +       struct virtqueue *vq;
-> +};
-> +
-> +struct vdev_info {
-> +       struct virtio_device vdev;
-> +       int control;
-> +       struct vq_info vqs[2];
-> +       int nvqs;
-> +       void *buf;
-> +       size_t buf_size;
-> +       char *test_buf;
-> +       char *res_buf;
-> +       struct vhost_memory *mem;
-> +       int sock;
-> +       int ifindex;
-> +       unsigned char mac[ETHER_ADDR_LEN];
-> +};
-> +
-> +static int tun_alloc(struct vdev_info *dev)
-> +{
-> +       struct ifreq ifr;
-> +       int len =3D HDR_LEN;
-> +       int fd, e;
-> +
-> +       fd =3D open("/dev/net/tun", O_RDWR);
-> +       if (fd < 0) {
-> +               perror("Cannot open /dev/net/tun");
-> +               return fd;
-> +       }
-> +
-> +       memset(&ifr, 0, sizeof(ifr));
-> +
-> +       ifr.ifr_flags =3D IFF_TAP | IFF_NO_PI | IFF_VNET_HDR;
-> +       snprintf(ifr.ifr_name, IFNAMSIZ, "tun_%d", getpid());
-> +
-> +       e =3D ioctl(fd, TUNSETIFF, &ifr);
-> +       if (e < 0) {
-> +               perror("ioctl[TUNSETIFF]");
-> +               close(fd);
-> +               return e;
-> +       }
-> +
-> +       e =3D ioctl(fd, TUNSETVNETHDRSZ, &len);
-> +       if (e < 0) {
-> +               perror("ioctl[TUNSETVNETHDRSZ]");
-> +               close(fd);
-> +               return e;
-> +       }
-> +
-> +       e =3D ioctl(fd, SIOCGIFHWADDR, &ifr);
-> +       if (e < 0) {
-> +               perror("ioctl[SIOCGIFHWADDR]");
-> +               close(fd);
-> +               return e;
-> +       }
-> +
-> +       memcpy(dev->mac, &ifr.ifr_hwaddr.sa_data, ETHER_ADDR_LEN);
-> +       return fd;
-> +}
-> +
-> +static void vdev_create_socket(struct vdev_info *dev)
-> +{
-> +       struct ifreq ifr;
-> +
-> +       dev->sock =3D socket(AF_PACKET, SOCK_RAW, htons(TEST_PTYPE));
-> +       assert(dev->sock !=3D -1);
-> +
-> +       snprintf(ifr.ifr_name, IFNAMSIZ, "tun_%d", getpid());
-> +       assert(ioctl(dev->sock, SIOCGIFINDEX, &ifr) >=3D 0);
-> +
-> +       dev->ifindex =3D ifr.ifr_ifindex;
-> +
-> +       /* Set the flags that bring the device up */
-> +       assert(ioctl(dev->sock, SIOCGIFFLAGS, &ifr) >=3D 0);
-> +       ifr.ifr_flags |=3D (IFF_UP | IFF_RUNNING);
-> +       assert(ioctl(dev->sock, SIOCSIFFLAGS, &ifr) >=3D 0);
-> +}
-> +
-> +static void vdev_send_packet(struct vdev_info *dev)
-> +{
-> +       char *sendbuf =3D dev->test_buf + HDR_LEN;
-> +       struct sockaddr_ll saddrll =3D {0};
-> +       int sockfd =3D dev->sock;
-> +       int ret;
-> +
-> +       memset(&saddrll, 0, sizeof(saddrll));
-> +       saddrll.sll_family =3D PF_PACKET;
-> +       saddrll.sll_ifindex =3D dev->ifindex;
-> +       saddrll.sll_halen =3D ETH_ALEN;
-> +       saddrll.sll_protocol =3D htons(TEST_PTYPE);
-> +
-> +       ret =3D sendto(sockfd, sendbuf, TEST_BUF_LEN, 0,
-> +                    (struct sockaddr *)&saddrll,
-> +                    sizeof(struct sockaddr_ll));
-> +       assert(ret >=3D 0);
-> +}
-> +
-> +static bool vq_notify(struct virtqueue *vq)
-> +{
-> +       struct vq_info *info =3D vq->priv;
-> +       unsigned long long v =3D 1;
-> +       int r;
-> +
-> +       r =3D write(info->kick, &v, sizeof(v));
-> +       assert(r =3D=3D sizeof(v));
-> +
-> +       return true;
-> +}
-> +
-> +static void vq_callback(struct virtqueue *vq)
-> +{
-> +}
-> +
-> +static void vhost_vq_setup(struct vdev_info *dev, struct vq_info *info)
-> +{
-> +       struct vhost_vring_addr addr =3D {
-> +               .index =3D info->idx,
-> +               .desc_user_addr =3D (uint64_t)(unsigned long)info->vring.=
-desc,
-> +               .avail_user_addr =3D (uint64_t)(unsigned long)info->vring=
-.avail,
-> +               .used_user_addr =3D (uint64_t)(unsigned long)info->vring.=
-used,
-> +       };
-> +       struct vhost_vring_state state =3D { .index =3D info->idx };
-> +       struct vhost_vring_file file =3D { .index =3D info->idx };
-> +       int r;
-> +
-> +       state.num =3D info->vring.num;
-> +       r =3D ioctl(dev->control, VHOST_SET_VRING_NUM, &state);
-> +       assert(r >=3D 0);
-> +
-> +       state.num =3D 0;
-> +       r =3D ioctl(dev->control, VHOST_SET_VRING_BASE, &state);
-> +       assert(r >=3D 0);
-> +
-> +       r =3D ioctl(dev->control, VHOST_SET_VRING_ADDR, &addr);
-> +       assert(r >=3D 0);
-> +
-> +       file.fd =3D info->kick;
-> +       r =3D ioctl(dev->control, VHOST_SET_VRING_KICK, &file);
-> +       assert(r >=3D 0);
-> +
-> +       file.fd =3D info->call;
-> +       r =3D ioctl(dev->control, VHOST_SET_VRING_CALL, &file);
-> +       assert(r >=3D 0);
-> +}
-> +
-> +static void vq_reset(struct vq_info *info, int num, struct virtio_device=
- *vdev)
-> +{
-> +       if (info->vq)
-> +               vring_del_virtqueue(info->vq);
-> +
-> +       memset(info->ring, 0, vring_size(num, 4096));
-> +       vring_init(&info->vring, num, info->ring, 4096);
-> +       info->vq =3D vring_new_virtqueue(info->idx, num, 4096, vdev, true=
-, false,
-> +                                      info->ring, vq_notify, vq_callback=
-, "test");
-> +       assert(info->vq);
-> +       info->vq->priv =3D info;
-> +}
-> +
-> +static void vq_info_add(struct vdev_info *dev, int idx, int num, int fd)
-> +{
-> +       struct vhost_vring_file backend =3D { .index =3D idx, .fd =3D fd =
-};
-> +       struct vq_info *info =3D &dev->vqs[idx];
-> +       int r;
-> +
-> +       info->idx =3D idx;
-> +       info->kick =3D eventfd(0, EFD_NONBLOCK);
-> +       info->call =3D eventfd(0, EFD_NONBLOCK);
-> +       r =3D posix_memalign(&info->ring, 4096, vring_size(num, 4096));
-> +       assert(r >=3D 0);
-> +       vq_reset(info, num, &dev->vdev);
-> +       vhost_vq_setup(dev, info);
-> +       info->fds.fd =3D info->call;
-> +       info->fds.events =3D POLLIN;
-> +
-> +       r =3D ioctl(dev->control, VHOST_NET_SET_BACKEND, &backend);
-> +       assert(!r);
-> +}
-> +
-> +static void vdev_info_init(struct vdev_info *dev, unsigned long long fea=
-tures)
-> +{
-> +       struct ether_header *eh;
-> +       int i, r;
-> +
-> +       dev->vdev.features =3D features;
-> +       INIT_LIST_HEAD(&dev->vdev.vqs);
-> +       spin_lock_init(&dev->vdev.vqs_list_lock);
-> +
-> +       dev->buf_size =3D (HDR_LEN + TEST_BUF_LEN) * 2;
-> +       dev->buf =3D malloc(dev->buf_size);
-> +       assert(dev->buf);
-> +       dev->test_buf =3D dev->buf;
-> +       dev->res_buf =3D dev->test_buf + HDR_LEN + TEST_BUF_LEN;
-> +
-> +       memset(dev->test_buf, 0, HDR_LEN + TEST_BUF_LEN);
-> +       eh =3D (struct ether_header *)(dev->test_buf + HDR_LEN);
-> +       eh->ether_type =3D htons(TEST_PTYPE);
-> +       memcpy(eh->ether_dhost, dev->mac, ETHER_ADDR_LEN);
-> +       memcpy(eh->ether_shost, dev->mac, ETHER_ADDR_LEN);
-> +
-> +       for (i =3D sizeof(*eh); i < TEST_BUF_LEN; i++)
-> +               dev->test_buf[i + HDR_LEN] =3D (char)i;
-> +
-> +       dev->control =3D open("/dev/vhost-net", O_RDWR);
-> +       assert(dev->control >=3D 0);
-> +
-> +       r =3D ioctl(dev->control, VHOST_SET_OWNER, NULL);
-> +       assert(r >=3D 0);
-> +
-> +       dev->mem =3D malloc(offsetof(struct vhost_memory, regions) +
-> +                         sizeof(dev->mem->regions[0]));
-> +       assert(dev->mem);
-> +       memset(dev->mem, 0, offsetof(struct vhost_memory, regions) +
-> +              sizeof(dev->mem->regions[0]));
-> +       dev->mem->nregions =3D 1;
-> +       dev->mem->regions[0].guest_phys_addr =3D (long)dev->buf;
-> +       dev->mem->regions[0].userspace_addr =3D (long)dev->buf;
-> +       dev->mem->regions[0].memory_size =3D dev->buf_size;
-> +
-> +       r =3D ioctl(dev->control, VHOST_SET_MEM_TABLE, dev->mem);
-> +       assert(r >=3D 0);
-> +
-> +       r =3D ioctl(dev->control, VHOST_SET_FEATURES, &features);
-> +       assert(r >=3D 0);
-> +
-> +       dev->nvqs =3D 2;
-> +}
-> +
-> +static void wait_for_interrupt(struct vq_info *vq)
-> +{
-> +       unsigned long long val;
-> +
-> +       poll(&vq->fds, 1, -1);
-> +
-> +       if (vq->fds.revents & POLLIN)
-> +               read(vq->fds.fd, &val, sizeof(val));
-> +}
-> +
-> +static void run_tx_test(struct vdev_info *dev, struct vq_info *vq,
-> +                       bool delayed, int batch, int bufs)
-> +{
-> +       const bool random_batch =3D batch =3D=3D RANDOM_BATCH;
-> +       long long spurious =3D 0;
-> +       struct scatterlist sl;
-> +       unsigned int len;
-> +       int r;
-> +
-> +       for (;;) {
-> +               long started_before =3D vq->started;
-> +               long completed_before =3D vq->completed;
-> +
-> +               virtqueue_disable_cb(vq->vq);
-> +               do {
-> +                       if (random_batch)
-> +                               batch =3D (random() % vq->vring.num) + 1;
-> +
-> +                       while (vq->started < bufs &&
-> +                              (vq->started - vq->completed) < batch) {
-> +                               sg_init_one(&sl, dev->test_buf, HDR_LEN +=
- TEST_BUF_LEN);
-> +                               r =3D virtqueue_add_outbuf(vq->vq, &sl, 1=
-,
-> +                                                        dev->test_buf + =
-vq->started,
-> +                                                        GFP_ATOMIC);
-> +                               if (unlikely(r !=3D 0)) {
-> +                                       if (r =3D=3D -ENOSPC &&
-> +                                           vq->started > started_before)
-> +                                               r =3D 0;
-> +                                       else
-> +                                               r =3D -1;
-> +                                       break;
-> +                               }
-> +
-> +                               ++vq->started;
-> +
-> +                               if (unlikely(!virtqueue_kick(vq->vq))) {
-> +                                       r =3D -1;
-> +                                       break;
-> +                               }
-> +                       }
-> +
-> +                       if (vq->started >=3D bufs)
-> +                               r =3D -1;
-> +
-> +                       /* Flush out completed bufs if any */
-> +                       while (virtqueue_get_buf(vq->vq, &len)) {
-> +                               int n, i;
-> +
-> +                               n =3D recvfrom(dev->sock, dev->res_buf, T=
-EST_BUF_LEN, 0, NULL, NULL);
-> +                               assert(n =3D=3D TEST_BUF_LEN);
-> +
-> +                               for (i =3D ETHER_HDR_LEN; i < n; i++)
-> +                                       assert(dev->res_buf[i] =3D=3D (ch=
-ar)i);
-> +
-> +                               ++vq->completed;
-> +                               r =3D 0;
-> +                       }
-> +               } while (r =3D=3D 0);
-> +
-> +               if (vq->completed =3D=3D completed_before && vq->started =
-=3D=3D started_before)
-> +                       ++spurious;
-> +
-> +               assert(vq->completed <=3D bufs);
-> +               assert(vq->started <=3D bufs);
-> +               if (vq->completed =3D=3D bufs)
-> +                       break;
-> +
-> +               if (delayed) {
-> +                       if (virtqueue_enable_cb_delayed(vq->vq))
-> +                               wait_for_interrupt(vq);
-> +               } else {
-> +                       if (virtqueue_enable_cb(vq->vq))
-> +                               wait_for_interrupt(vq);
-> +               }
-> +       }
-> +       printf("TX spurious wakeups: 0x%llx started=3D0x%lx completed=3D0=
-x%lx\n",
-> +              spurious, vq->started, vq->completed);
-> +}
-> +
-> +static void run_rx_test(struct vdev_info *dev, struct vq_info *vq,
-> +                       bool delayed, int batch, int bufs)
-> +{
-> +       const bool random_batch =3D batch =3D=3D RANDOM_BATCH;
-> +       long long spurious =3D 0;
-> +       struct scatterlist sl;
-> +       unsigned int len;
-> +       int r;
-> +
-> +       for (;;) {
-> +               long started_before =3D vq->started;
-> +               long completed_before =3D vq->completed;
-> +
-> +               do {
-> +                       if (random_batch)
-> +                               batch =3D (random() % vq->vring.num) + 1;
-> +
-> +                       while (vq->started < bufs &&
-> +                              (vq->started - vq->completed) < batch) {
-> +                               sg_init_one(&sl, dev->res_buf, HDR_LEN + =
-TEST_BUF_LEN);
-> +
-> +                               r =3D virtqueue_add_inbuf(vq->vq, &sl, 1,
-> +                                                       dev->res_buf + vq=
-->started,
-> +                                                       GFP_ATOMIC);
-> +                               if (unlikely(r !=3D 0)) {
-> +                                       if (r =3D=3D -ENOSPC &&
-> +                                           vq->started > started_before)
-> +                                               r =3D 0;
-> +                                       else
-> +                                               r =3D -1;
-> +                                       break;
-> +                               }
-> +
-> +                               ++vq->started;
-> +
-> +                               vdev_send_packet(dev);
-> +
-> +                               if (unlikely(!virtqueue_kick(vq->vq))) {
-> +                                       r =3D -1;
-> +                                       break;
-> +                               }
-> +                       }
-> +
-> +                       if (vq->started >=3D bufs)
-> +                               r =3D -1;
-> +
-> +                       /* Flush out completed bufs if any */
-> +                       while (virtqueue_get_buf(vq->vq, &len)) {
-> +                               struct ether_header *eh;
-> +                               int i;
-> +
-> +                               eh =3D (struct ether_header *)(dev->res_b=
-uf + HDR_LEN);
-> +
-> +                               /* tun netdev is up and running, ignore t=
-he
-> +                                * non-TEST_PTYPE packet.
-> +                                */
-> +                               if (eh->ether_type !=3D htons(TEST_PTYPE)=
-) {
-> +                                       ++vq->completed;
-> +                                       r =3D 0;
-> +                                       continue;
-> +                               }
-> +
-> +                               assert(len =3D=3D TEST_BUF_LEN + HDR_LEN)=
-;
-> +
-> +                               for (i =3D ETHER_HDR_LEN; i < TEST_BUF_LE=
-N; i++)
-> +                                       assert(dev->res_buf[i + HDR_LEN] =
-=3D=3D (char)i);
-> +
-> +                               ++vq->completed;
-> +                               r =3D 0;
-> +                       }
-> +               } while (r =3D=3D 0);
-> +               if (vq->completed =3D=3D completed_before && vq->started =
-=3D=3D started_before)
-> +                       ++spurious;
-> +
-> +               assert(vq->completed <=3D bufs);
-> +               assert(vq->started <=3D bufs);
-> +               if (vq->completed =3D=3D bufs)
-> +                       break;
-> +       }
-> +
-> +       printf("RX spurious wakeups: 0x%llx started=3D0x%lx completed=3D0=
-x%lx\n",
-> +              spurious, vq->started, vq->completed);
-> +}
+On Tue, Jan 02, 2024 at 08:03:46AM -0500, Michael S. Tsirkin wrote:
+> On Mon, Jan 01, 2024 at 05:38:24AM -0800, syzbot wrote:
+> > Hello,
+> >=20
+> > syzbot found the following issue on:
+> >=20
+> > HEAD commit:    fbafc3e621c3 Merge tag 'for_linus' of git://git.kernel.=
+org..
+> > git tree:       upstream
+> > console+strace: https://syzkaller.appspot.com/x/log.txt?x=3D173df3e9e80=
+000
+> > kernel config:  https://syzkaller.appspot.com/x/.config?x=3De0c7078a6b9=
+01aa3
+> > dashboard link: https://syzkaller.appspot.com/bug?extid=3Dd7521c1e3841e=
+d075a42
+> > compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for D=
+ebian) 2.40
+> > syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=3D1300b4a1e=
+80000
+> > C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=3D130b0379e80=
+000
+> >=20
+> > Downloadable assets:
+> > disk image: https://storage.googleapis.com/syzbot-assets/1520f7b6daa4/d=
+isk-fbafc3e6.raw.xz
+> > vmlinux: https://storage.googleapis.com/syzbot-assets/8b490af009d5/vmli=
+nux-fbafc3e6.xz
+> > kernel image: https://storage.googleapis.com/syzbot-assets/202ca200f4a4=
+/bzImage-fbafc3e6.xz
+> >=20
+> > IMPORTANT: if you fix the issue, please add the following tag to the co=
+mmit:
+> > Reported-by: syzbot+d7521c1e3841ed075a42@syzkaller.appspotmail.com
+> >=20
+> > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
 
-Hi!
+Hi Alexander,
+Please take a look at this KMSAN failure. The uninitialized memory was
+created for the purpose of writing a coredump. vring_map_one_sg() should
+have direction=3DDMA_TO_DEVICE.
 
-I think the tests are great! Maybe both run_rx_test and run_tx_test
-(and virtio_test.c:run_test) can be merged into a common function with
-some callbacks? Not sure if it will complicate the code more.
+I can't easily tell whether this is a genuine bug or an issue with
+commit 88938359e2df ("virtio: kmsan: check/unpoison scatterlist in
+vring_map_one_sg()"). Maybe coredump.c is writing out pages that KMSAN
+thinks are uninitialized?
 
-Thanks!
+Stefan
 
-> +
-> +static const char optstring[] =3D "h";
-> +static const struct option longopts[] =3D {
-> +       {
-> +               .name =3D "help",
-> +               .val =3D 'h',
-> +       },
-> +       {
-> +               .name =3D "event-idx",
-> +               .val =3D 'E',
-> +       },
-> +       {
-> +               .name =3D "no-event-idx",
-> +               .val =3D 'e',
-> +       },
-> +       {
-> +               .name =3D "indirect",
-> +               .val =3D 'I',
-> +       },
-> +       {
-> +               .name =3D "no-indirect",
-> +               .val =3D 'i',
-> +       },
-> +       {
-> +               .name =3D "virtio-1",
-> +               .val =3D '1',
-> +       },
-> +       {
-> +               .name =3D "no-virtio-1",
-> +               .val =3D '0',
-> +       },
-> +       {
-> +               .name =3D "delayed-interrupt",
-> +               .val =3D 'D',
-> +       },
-> +       {
-> +               .name =3D "no-delayed-interrupt",
-> +               .val =3D 'd',
-> +       },
-> +       {
-> +               .name =3D "buf-num",
-> +               .val =3D 'n',
-> +               .has_arg =3D required_argument,
-> +       },
-> +       {
-> +               .name =3D "batch",
-> +               .val =3D 'b',
-> +               .has_arg =3D required_argument,
-> +       },
-> +       {
-> +       }
-> +};
-> +
-> +static void help(int status)
-> +{
-> +       fprintf(stderr, "Usage: vhost_net_test [--help]"
-> +               " [--no-indirect]"
-> +               " [--no-event-idx]"
-> +               " [--no-virtio-1]"
-> +               " [--delayed-interrupt]"
-> +               " [--buf-num]"
-> +               " [--batch=3Drandom/N]"
-> +               "\n");
-> +
-> +       exit(status);
-> +}
-> +
-> +int main(int argc, char **argv)
-> +{
-> +       unsigned long long features =3D (1ULL << VIRTIO_RING_F_INDIRECT_D=
-ESC) |
-> +               (1ULL << VIRTIO_RING_F_EVENT_IDX) | (1ULL << VIRTIO_F_VER=
-SION_1);
-> +       long batch =3D 1, nbufs =3D 0x100000;
-> +       struct vdev_info dev;
-> +       bool delayed =3D false;
-> +       int o, fd;
-> +
-> +       for (;;) {
-> +               o =3D getopt_long(argc, argv, optstring, longopts, NULL);
-> +               switch (o) {
-> +               case -1:
-> +                       goto done;
-> +               case '?':
-> +                       help(2);
-> +               case 'e':
-> +                       features &=3D ~(1ULL << VIRTIO_RING_F_EVENT_IDX);
-> +                       break;
-> +               case 'h':
-> +                       help(0);
-> +               case 'i':
-> +                       features &=3D ~(1ULL << VIRTIO_RING_F_INDIRECT_DE=
-SC);
-> +                       break;
-> +               case '0':
-> +                       features &=3D ~(1ULL << VIRTIO_F_VERSION_1);
-> +                       break;
-> +               case 'D':
-> +                       delayed =3D true;
-> +                       break;
-> +               case 'b':
-> +                       if (!strcmp(optarg, "random")) {
-> +                               batch =3D RANDOM_BATCH;
-> +                       } else {
-> +                               batch =3D strtol(optarg, NULL, 10);
-> +                               assert(batch > 0);
-> +                               assert(batch < (long)INT_MAX + 1);
-> +                       }
-> +                       break;
-> +               case 'n':
-> +                       nbufs =3D strtol(optarg, NULL, 10);
-> +                       assert(nbufs > 0);
-> +                       break;
-> +               default:
-> +                       assert(0);
-> +                       break;
-> +               }
-> +       }
-> +
-> +done:
-> +       memset(&dev, 0, sizeof(dev));
-> +
-> +       fd =3D tun_alloc(&dev);
-> +       assert(fd >=3D 0);
-> +
-> +       vdev_info_init(&dev, features);
-> +       vq_info_add(&dev, 0, 256, fd);
-> +       vq_info_add(&dev, 1, 256, fd);
-> +       vdev_create_socket(&dev);
-> +
-> +       run_rx_test(&dev, &dev.vqs[0], delayed, batch, nbufs);
-> +       run_tx_test(&dev, &dev.vqs[1], delayed, batch, nbufs);
-> +
-> +       return 0;
-> +}
-> --
-> 2.33.0
->
->
+> > BUG: KMSAN: uninit-value in vring_map_one_sg drivers/virtio/virtio_ring=
+=2Ec:380 [inline]
+> > BUG: KMSAN: uninit-value in virtqueue_add_split drivers/virtio/virtio_r=
+ing.c:614 [inline]
+> > BUG: KMSAN: uninit-value in virtqueue_add+0x21c6/0x6530 drivers/virtio/=
+virtio_ring.c:2210
+> >  vring_map_one_sg drivers/virtio/virtio_ring.c:380 [inline]
+> >  virtqueue_add_split drivers/virtio/virtio_ring.c:614 [inline]
+> >  virtqueue_add+0x21c6/0x6530 drivers/virtio/virtio_ring.c:2210
+> >  virtqueue_add_sgs+0x186/0x1a0 drivers/virtio/virtio_ring.c:2244
+> >  __virtscsi_add_cmd drivers/scsi/virtio_scsi.c:467 [inline]
+> >  virtscsi_add_cmd+0x838/0xad0 drivers/scsi/virtio_scsi.c:501
+> >  virtscsi_queuecommand+0x896/0xa60 drivers/scsi/virtio_scsi.c:598
+> >  scsi_dispatch_cmd drivers/scsi/scsi_lib.c:1516 [inline]
+> >  scsi_queue_rq+0x4874/0x5790 drivers/scsi/scsi_lib.c:1758
+> >  blk_mq_dispatch_rq_list+0x13f8/0x3600 block/blk-mq.c:2049
+> >  __blk_mq_do_dispatch_sched block/blk-mq-sched.c:170 [inline]
+> >  blk_mq_do_dispatch_sched block/blk-mq-sched.c:184 [inline]
+> >  __blk_mq_sched_dispatch_requests+0x10af/0x2500 block/blk-mq-sched.c:309
+> >  blk_mq_sched_dispatch_requests+0x160/0x2d0 block/blk-mq-sched.c:333
+> >  blk_mq_run_work_fn+0xd0/0x280 block/blk-mq.c:2434
+> >  process_one_work kernel/workqueue.c:2627 [inline]
+> >  process_scheduled_works+0x104e/0x1e70 kernel/workqueue.c:2700
+> >  worker_thread+0xf45/0x1490 kernel/workqueue.c:2781
+> >  kthread+0x3ed/0x540 kernel/kthread.c:388
+> >  ret_from_fork+0x66/0x80 arch/x86/kernel/process.c:147
+> >  ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:242
+> >=20
+> > Uninit was created at:
+> >  __alloc_pages+0x9a4/0xe00 mm/page_alloc.c:4591
+> >  alloc_pages_mpol+0x62b/0x9d0 mm/mempolicy.c:2133
+> >  alloc_pages mm/mempolicy.c:2204 [inline]
+> >  folio_alloc+0x1da/0x380 mm/mempolicy.c:2211
+> >  filemap_alloc_folio+0xa5/0x430 mm/filemap.c:974
+> >  __filemap_get_folio+0xa5a/0x1760 mm/filemap.c:1918
+> >  ext4_da_write_begin+0x7f8/0xec0 fs/ext4/inode.c:2891
+> >  generic_perform_write+0x3f5/0xc40 mm/filemap.c:3918
+> >  ext4_buffered_write_iter+0x564/0xaa0 fs/ext4/file.c:299
+> >  ext4_file_write_iter+0x20f/0x3460
+> >  __kernel_write_iter+0x329/0x930 fs/read_write.c:517
+> >  dump_emit_page fs/coredump.c:888 [inline]
+> >  dump_user_range+0x593/0xcd0 fs/coredump.c:915
+> >  elf_core_dump+0x528d/0x5a40 fs/binfmt_elf.c:2077
+> >  do_coredump+0x32c9/0x4920 fs/coredump.c:764
+> >  get_signal+0x2185/0x2d10 kernel/signal.c:2890
+> >  arch_do_signal_or_restart+0x53/0xca0 arch/x86/kernel/signal.c:309
+> >  exit_to_user_mode_loop+0xe8/0x320 kernel/entry/common.c:168
+> >  exit_to_user_mode_prepare+0x163/0x220 kernel/entry/common.c:204
+> >  irqentry_exit_to_user_mode+0xd/0x30 kernel/entry/common.c:309
+> >  irqentry_exit+0x16/0x40 kernel/entry/common.c:412
+> >  exc_page_fault+0x246/0x6f0 arch/x86/mm/fault.c:1564
+> >  asm_exc_page_fault+0x2b/0x30 arch/x86/include/asm/idtentry.h:570
+> >=20
+> > Bytes 0-4095 of 4096 are uninitialized
+> > Memory access of size 4096 starts at ffff88812c79c000
+> >=20
+> > CPU: 0 PID: 997 Comm: kworker/0:1H Not tainted 6.7.0-rc7-syzkaller-0000=
+3-gfbafc3e621c3 #0
+> > Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS=
+ Google 11/17/2023
+> > Workqueue: kblockd blk_mq_run_work_fn
+> > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+> >=20
+> >=20
+> > ---
+> > This report is generated by a bot. It may contain errors.
+> > See https://goo.gl/tpsmEJ for more information about syzbot.
+> > syzbot engineers can be reached at syzkaller@googlegroups.com.
+> >=20
+> > syzbot will keep track of this issue. See:
+> > https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+> >=20
+> > If the report is already addressed, let syzbot know by replying with:
+> > #syz fix: exact-commit-title
+> >=20
+> > If you want syzbot to run the reproducer, reply with:
+> > #syz test: git://repo/address.git branch-or-commit-hash
+> > If you attach or paste a git patch, syzbot will apply it before testing.
+> >=20
+> > If you want to overwrite report's subsystems, reply with:
+> > #syz set subsystems: new-subsystem
+> > (See the list of subsystem names on the web dashboard)
+> >=20
+> > If the report is a duplicate of another one, reply with:
+> > #syz dup: exact-subject-of-another-report
+> >=20
+> > If you want to undo deduplication, reply with:
+> > #syz undup
+>=20
+
+--8gbDFBVP1Dpt5/+r
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmWXGOsACgkQnKSrs4Gr
+c8h//ggAykBGZ2OvGmuAvcSR+aFZJK1ce+2BUgvlfCbRz1rB2SuKASaH3gqoiet1
+6wNUTpJoGbcXGJi/Vzw1mv8NmYwasf+UwJAN5dtl2ZL34a+QzszKHUpFjExxAU6C
+TesfrMLBWTB4/chi1+ZKE36YOin6SeQZ8FqDnDFJ/DyGGR9A8LuebK2Y9UGM2shh
+u1M/Jmpty1gYMiAtCJcQTJYZb5q/ZgB/IofK5UAK0Tjk2pXSJD1RsGaJCoe8lZVC
+6o5IllaMgK9vVq7t1jmpsmV0mFbfA3hHpQ2LPp31O90lc4vXb9hueDybcsk5jx+m
+5tyc4eqtcUaT4R5CKFfI7/+7V08c8g==
+=mScI
+-----END PGP SIGNATURE-----
+
+--8gbDFBVP1Dpt5/+r--
 
