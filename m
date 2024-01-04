@@ -1,50 +1,69 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B176D111A7;
-	Thu,  4 Jan 2024 02:55:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C45318E01;
+	Thu,  4 Jan 2024 03:00:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="Kezb9ASk"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=d/ZyyrczRRAg41dHk676oMumSI1/RuUVWYEm5uVQf9A=; b=Kezb9ASk4oEH4XR0eJzJzv5hSZ
-	2MHZYHHVOAOZaIQfKvgIhS3/QnU4aNQEsIDTRmj54EIrDAmHV20po0OfqfITzTJQKpCieuHEPhNK3
-	pvc0SQS3rC+vet3misG0FmIeF+yrKih7FBICbQCluyM5i1UxaiosseLqexKaN2z6YZ8FMZJY4cjyN
-	9JhFnUMkr67PYeCvjQr0WJFl8ybL2qv6KCjqdj8D/7rwnpYrqfuBmLKQg2OzG6QdvA/Nut6u7n3eG
-	QfZVOv5fbYTurJvbys1v3Ydwmfc4chjHaMDVoIH1T5Hw/H/A9twSB4UdyTzZ7i6h58Frjw9vwExuN
-	k72lEOKA==;
-Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-	id 1rLDtW-00E7Ni-Bx; Thu, 04 Jan 2024 02:55:42 +0000
-Date: Thu, 4 Jan 2024 02:55:42 +0000
-From: Matthew Wilcox <willy@infradead.org>
-To: Hou Tao <houtao@huaweicloud.com>
-Cc: linux-fsdevel@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>,
-	Vivek Goyal <vgoyal@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>, linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev, houtao1@huawei.com
-Subject: Re: [PATCH] virtiofs: use GFP_NOFS when enqueuing request through
- kworker
-Message-ID: <ZZYeLn1l35pUSv6o@casper.infradead.org>
-References: <20240104015805.2103766-1-houtao@huaweicloud.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="sKteGbFf"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id E4F78C433CA;
+	Thu,  4 Jan 2024 03:00:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1704337227;
+	bh=1bPukBR0uyMDLPdvzFBfZjdpRwBpPfkRhMLqOlSGgeA=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=sKteGbFfbXblAprT3gKvzEsGLXUJp14XCjBSgkqugD14K96skA+I1dShHmwekf6Kl
+	 Sifml0duW4oXlzP2nvtXcc7lc+6fW7D0EQDEeshGGBsaGqWXKBjRY2hwI0PFhtSfeG
+	 Z0kTyyB82HcwvE79AoKr/zfUL22xS/7kwyjnA3tGqTYXU+ymugneGkS5GXtMpUkebK
+	 NfUaHY8gcjFE0+fmcjHKKtwSkIMed1ddH9iEXqG7ca1HUBEd5vsBYHeeJWLuwV+R/w
+	 qESb1O+u/6sx4uKq57RGRHeUfjPejTyeqLF7q1onoYdfGvG8VtNuJA9HrzdIq3TSO4
+	 cNpTjVEWdEYiQ==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id CC17DC43168;
+	Thu,  4 Jan 2024 03:00:26 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240104015805.2103766-1-houtao@huaweicloud.com>
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net-next v3] vsock/virtio: use skb_frag_*() helpers
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <170433722683.32402.12583350651179529381.git-patchwork-notify@kernel.org>
+Date: Thu, 04 Jan 2024 03:00:26 +0000
+References: <20240102205905.793738-1-almasrymina@google.com>
+In-Reply-To: <20240102205905.793738-1-almasrymina@google.com>
+To: Mina Almasry <almasrymina@google.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux.dev,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stefanha@redhat.com,
+ sgarzare@redhat.com, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com
 
-On Thu, Jan 04, 2024 at 09:58:05AM +0800, Hou Tao wrote:
->  static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
-> -				 struct fuse_req *req, bool in_flight);
-> +				 struct fuse_req *req, bool in_flight,
-> +				 bool in_atomic);
+Hello:
 
-Better to pass the gfp_t directly instead of a bool.
+This patch was applied to netdev/net-next.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
+
+On Tue,  2 Jan 2024 12:59:04 -0800 you wrote:
+> Minor fix for virtio: code wanting to access the fields inside an skb
+> frag should use the skb_frag_*() helpers, instead of accessing the
+> fields directly. This allows for extensions where the underlying
+> memory is not a page.
+> 
+> Acked-by: Stefano Garzarella <sgarzare@redhat.com>
+> Signed-off-by: Mina Almasry <almasrymina@google.com>
+> 
+> [...]
+
+Here is the summary with links:
+  - [net-next,v3] vsock/virtio: use skb_frag_*() helpers
+    https://git.kernel.org/netdev/net-next/c/06d9b446c4d4
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
