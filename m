@@ -1,195 +1,175 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C21BC18AF1
-	for <virtualization@lists.linux-foundation.org>; Thu,  4 Jan 2024 05:11:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 632D320B15
+	for <virtualization@lists.linux-foundation.org>; Thu,  4 Jan 2024 10:14:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WgCPoPf0"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Dhbugndx"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 4BA3060E32
-	for <virtualization@lists.linux-foundation.org>; Thu,  4 Jan 2024 05:11:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4BA3060E32
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=WgCPoPf0
+	by smtp4.osuosl.org (Postfix) with ESMTP id C491B41822
+	for <virtualization@lists.linux-foundation.org>; Thu,  4 Jan 2024 10:14:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C491B41822
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Dhbugndx
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id aNe72c8ZJ6lA
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id JkHd-SB8kMVb
 	for <virtualization@lists.linux-foundation.org>;
-	Thu,  4 Jan 2024 05:11:20 +0000 (UTC)
+	Thu,  4 Jan 2024 10:14:28 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 55FE260AA7
-	for <virtualization@lists.linux-foundation.org>; Thu,  4 Jan 2024 05:11:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 55FE260AA7
+	by smtp4.osuosl.org (Postfix) with ESMTPS id EB50A4185D
+	for <virtualization@lists.linux-foundation.org>; Thu,  4 Jan 2024 10:14:27 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org EB50A4185D
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1704345079;
+	s=mimecast20190719; t=1704363266;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=P1vihmddHtSZ99/zq0fZBdm+zeXPC115N0eCs1YPKg8=;
-	b=WgCPoPf0DHOTInW2th0z9/Eyfddgc6CAnHIgIYJ2tKdFStqtmF5x9UxXwIhCDSJBeySusM
-	02KOkagv9W8K+2qKVynDnZfEqx8vuqpLTXiZuz8ViLjd16NOZfMSU8sPSjpbWe3eVSC4Xa
-	ut93RR8DOONmywNDY7VjrafI9zVjTwg=
-Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com
- [209.85.215.200]) by relay.mimecast.com with ESMTP with STARTTLS
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=PWIZgkdEOSVSvpSxZ+udYcnfwuRlZRM5xhaqenz67Qg=;
+	b=DhbugndxdKMRR+6MzJd1ju6paXGI5R9sSYGkllM2DztgsXQ/4AOU4HhNruCQtQG+8GEY80
+	THyOi0LSdtouMV6GeGs/g99PcoB6H7VyovhfJCwIwYPM2CdOpKSmehGEo260AUOJmiimq4
+	7ixpjjJIt/YNRuecGd2xw3A2f39XZr4=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-30-o8UMvJCsMGqRNdEUTy10EQ-1; Thu, 04 Jan 2024 00:11:17 -0500
-X-MC-Unique: o8UMvJCsMGqRNdEUTy10EQ-1
-Received: by mail-pg1-f200.google.com with SMTP id 41be03b00d2f7-5ce63e72bc3so99908a12.0
-        for <virtualization@lists.linux-foundation.org>; Wed, 03 Jan 2024 21:11:17 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1704345076; x=1704949876;
-        h=content-transfer-encoding:content-disposition:mime-version
-         :references:in-reply-to:message-id:date:subject:cc:to:from
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=P1vihmddHtSZ99/zq0fZBdm+zeXPC115N0eCs1YPKg8=;
-        b=R9CB1M1/4FuPc13Negm/LRE4aG9E4nuI6mOOKJY7gGtdjUdMkEaXtS1dnCjZVZWGrl
-         Nq9z1RWNYRrSDbb9FPvN3S1u5Cj5xw+0QUsO+qB1tI29kQGrdfL3bV/J4VQlx8gqTtqc
-         tX5rwUwMpdwo6IiMNQjD7B/HVstxSuNdwl5CNoEhf/HCh2J7yvkzqdUv+iIyOosAOF13
-         92VH2HMbxkxWeXZxVD4w7DG1T9Ii4TbzkKRzZIMXtMSS8yFqB5U9/clYlql8JKLnOuvZ
-         cidic9tyuosO6tMgNL0AXoaDOOzwDMSjVEfbrj/x+2m7KjsbIN57jT1bpFne9meid8RM
-         GHUA==
-X-Gm-Message-State: AOJu0Yyd6BvcyHx8JYzsRLsKiYNy3XBnkZvXPbH9tHCh2k0xYW9ZYomM
-	9VPSFH3PtlJykE8QH8+k3yKsSzaEDb/5cSuzmG8oFu0k2+RT3Z47t0BeJ+QKt42B1WVXhw53qGH
-	bdho3awAQm86USRQmob9cmnPbOy9FCA5txqbfwLRRbKGYCn02KA==
-X-Received: by 2002:a17:902:da86:b0:1d4:d140:8171 with SMTP id j6-20020a170902da8600b001d4d1408171mr52089plx.41.1704345076615;
-        Wed, 03 Jan 2024 21:11:16 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGpSlvwWfbHMFG7wHdD03jmH2na3W8ssbNhKgAkQNbMSxmoAlh0aAjbmolGPOik5IenAoMbcg==
-X-Received: by 2002:a17:902:da86:b0:1d4:d140:8171 with SMTP id j6-20020a170902da8600b001d4d1408171mr52085plx.41.1704345076326;
-        Wed, 03 Jan 2024 21:11:16 -0800 (PST)
-Received: from LeoBras.redhat.com ([2804:431:c7ec:911:6911:ca60:846:eb46])
-        by smtp.gmail.com with ESMTPSA id u15-20020a17090341cf00b001d3ecbccb52sm24427284ple.213.2024.01.03.21.11.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Jan 2024 21:11:15 -0800 (PST)
-From: Leonardo Bras <leobras@redhat.com>
-To: guoren@kernel.org
-Cc: Leonardo Bras <leobras@redhat.com>,
-	paul.walmsley@sifive.com,
-	palmer@dabbelt.com,
-	panqinglin2020@iscas.ac.cn,
-	bjorn@rivosinc.com,
-	conor.dooley@microchip.com,
-	peterz@infradead.org,
-	anup@brainfault.org,
-	keescook@chromium.org,
-	wuwei2016@iscas.ac.cn,
-	xiaoguang.xing@sophgo.com,
-	chao.wei@sophgo.com,
-	unicorn_wang@outlook.com,
-	uwu@icenowy.me,
-	jszhang@kernel.org,
-	wefu@redhat.com,
-	atishp@atishpatra.org,
-	linux-riscv@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	kvm@vger.kernel.org,
-	virtualization@lists.linux-foundation.org,
-	Guo Ren <guoren@linux.alibaba.com>
-Subject: Re: [PATCH V12 08/14] riscv: qspinlock: Force virt_spin_lock for KVM guests
-Date: Thu,  4 Jan 2024 02:11:05 -0300
-Message-ID: <ZZY96U3CzvDhu3BL@LeoBras>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20231225125847.2778638-9-guoren@kernel.org>
-References: <20231225125847.2778638-1-guoren@kernel.org> <20231225125847.2778638-9-guoren@kernel.org>
+ us-mta-98-l3towWsLNQ2R-GPqFO4umA-1; Thu, 04 Jan 2024 05:14:23 -0500
+X-MC-Unique: l3towWsLNQ2R-GPqFO4umA-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 97A578350E1;
+	Thu,  4 Jan 2024 10:14:22 +0000 (UTC)
+Received: from [10.39.208.29] (unknown [10.39.208.29])
+	by smtp.corp.redhat.com (Postfix) with ESMTPS id D0C92492BC6;
+	Thu,  4 Jan 2024 10:14:18 +0000 (UTC)
+Message-ID: <89b2e124-a570-4bea-874b-d60e2d3cbf5a@redhat.com>
+Date: Thu, 4 Jan 2024 11:14:16 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v5 4/4] vduse: Add LSM hook to check Virtio device type
+Content-Language: en-US
+To: Stephen Smalley <stephen.smalley.work@gmail.com>,
+ Ondrej Mosnacek <omosnace@redhat.com>
+Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+ paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
+ xieyongji@bytedance.com, virtualization@lists.linux-foundation.org,
+ linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+ selinux@vger.kernel.org, david.marchand@redhat.com, lulu@redhat.com,
+ casey@schaufler-ca.com
+References: <20231212131712.1816324-1-maxime.coquelin@redhat.com>
+ <20231212131712.1816324-5-maxime.coquelin@redhat.com>
+ <CAEjxPJ6zMbM5jPkLC_wDHsXWXofWcDntHRDWQTS6hojECVJPTw@mail.gmail.com>
+ <CAEjxPJ77cdHUvxWqLzmYwjLqFiSJH4kwByx7vAvR7dLfqcLy0g@mail.gmail.com>
+From: Maxime Coquelin <maxime.coquelin@redhat.com>
+Autocrypt: addr=maxime.coquelin@redhat.com; keydata=
+ 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
+ Mwqu3GQ=
+In-Reply-To: <CAEjxPJ77cdHUvxWqLzmYwjLqFiSJH4kwByx7vAvR7dLfqcLy0g@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.9
 
-On Mon, Dec 25, 2023 at 07:58:41AM -0500, guoren@kernel.org wrote:
-> From: Guo Ren <guoren@linux.alibaba.com>
+
+
+On 12/18/23 18:33, Stephen Smalley wrote:
+> On Mon, Dec 18, 2023 at 12:21 PM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+>>
+>> On Tue, Dec 12, 2023 at 8:17 AM Maxime Coquelin
+>> <maxime.coquelin@redhat.com> wrote:
+>>>
+>>> This patch introduces a LSM hook for devices creation,
+>>> destruction (ioctl()) and opening (open()) operations,
+>>> checking the application is allowed to perform these
+>>> operations for the Virtio device type.
+>>
+>> Can you explain why the existing LSM hooks and SELinux implementation
+>> are not sufficient? We already control the ability to open device
+>> nodes via selinux_inode_permission() and selinux_file_open(), and can
+>> support fine-grained per-cmd ioctl checking via selinux_file_ioctl().
+>> And it should already be possible to label these nodes distinctly
+>> through existing mechanisms (file_contexts if udev-created/labeled,
+>> genfs_contexts if kernel-created). What exactly can't you do today
+>> that this hook enables?
 > 
-> Force to enable virt_spin_lock when KVM guest, because fair locks
-> have horrible lock 'holder' preemption issues.
+> (added Ondrej to the distribution; IMHO we should swap him into
+> MAINTAINERS in place of Eric Paris since Eric has long-since moved on
+> from SELinux and Ondrej serves in that capacity these days)
 > 
-> Suggested-by: Leonardo Bras <leobras@redhat.com>
-> Link: https://lkml.kernel.org/kvm/ZQK9-tn2MepXlY1u@redhat.com/
-> Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-> Signed-off-by: Guo Ren <guoren@kernel.org>
-> ---
->  arch/riscv/include/asm/sbi.h | 8 ++++++++
->  arch/riscv/kernel/sbi.c      | 2 +-
->  arch/riscv/kernel/setup.c    | 6 +++++-
->  3 files changed, 14 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/riscv/include/asm/sbi.h b/arch/riscv/include/asm/sbi.h
-> index 0892f4421bc4..8f748d9e1b85 100644
-> --- a/arch/riscv/include/asm/sbi.h
-> +++ b/arch/riscv/include/asm/sbi.h
-> @@ -51,6 +51,13 @@ enum sbi_ext_base_fid {
->  	SBI_EXT_BASE_GET_MIMPID,
->  };
->  
-> +enum sbi_ext_base_impl_id {
-> +	SBI_EXT_BASE_IMPL_ID_BBL = 0,
-> +	SBI_EXT_BASE_IMPL_ID_OPENSBI,
-> +	SBI_EXT_BASE_IMPL_ID_XVISOR,
-> +	SBI_EXT_BASE_IMPL_ID_KVM,
-> +};
-> +
->  enum sbi_ext_time_fid {
->  	SBI_EXT_TIME_SET_TIMER = 0,
->  };
-> @@ -276,6 +283,7 @@ int sbi_console_getchar(void);
->  long sbi_get_mvendorid(void);
->  long sbi_get_marchid(void);
->  long sbi_get_mimpid(void);
-> +long sbi_get_firmware_id(void);
->  void sbi_set_timer(uint64_t stime_value);
->  void sbi_shutdown(void);
->  void sbi_send_ipi(unsigned int cpu);
-> diff --git a/arch/riscv/kernel/sbi.c b/arch/riscv/kernel/sbi.c
-> index 5a62ed1da453..4330aedf65fd 100644
-> --- a/arch/riscv/kernel/sbi.c
-> +++ b/arch/riscv/kernel/sbi.c
-> @@ -543,7 +543,7 @@ static inline long sbi_get_spec_version(void)
->  	return __sbi_base_ecall(SBI_EXT_BASE_GET_SPEC_VERSION);
->  }
->  
-> -static inline long sbi_get_firmware_id(void)
-> +long sbi_get_firmware_id(void)
->  {
->  	return __sbi_base_ecall(SBI_EXT_BASE_GET_IMP_ID);
->  }
-> diff --git a/arch/riscv/kernel/setup.c b/arch/riscv/kernel/setup.c
-> index 0bafb9fd6ea3..e33430e9d97e 100644
-> --- a/arch/riscv/kernel/setup.c
-> +++ b/arch/riscv/kernel/setup.c
-> @@ -281,6 +281,9 @@ DEFINE_STATIC_KEY_TRUE(virt_spin_lock_key);
->  
->  static void __init virt_spin_lock_init(void)
->  {
-> +	if (sbi_get_firmware_id() != SBI_EXT_BASE_IMPL_ID_KVM)
-> +		no_virt_spin = true;
-> +
->  	if (no_virt_spin)
->  		static_branch_disable(&virt_spin_lock_key);
->  	else
-> @@ -290,7 +293,8 @@ static void __init virt_spin_lock_init(void)
->  
->  static void __init riscv_spinlock_init(void)
->  {
-> -	if (!enable_qspinlock) {
-> +	if ((!enable_qspinlock) &&
-> +	    (sbi_get_firmware_id() != SBI_EXT_BASE_IMPL_ID_KVM)) {
->  		static_branch_disable(&combo_qspinlock_key);
->  		pr_info("Ticket spinlock: enabled\n");
->  	} else {
-> -- 
-> 2.40.1
+> Other items to consider:
+> - If vduse devices are created using anonymous inodes, then SELinux
+> grew a general facility for labeling and controlling the creation of
+> those via selinux_inode_init_security_anon().
+> - You can encode information about the device into its SELinux type
+> that then allows you to distinguish things like net vs block based on
+> the device's SELinux security context rather than encoding that in the
+> permission bits.
+
+Got it, that seems indeed more appropriate than using persmission bits
+for the device type.
+
+> - If you truly need new LSM hooks (which you need to prove first),
+> then you should pass some usable information about the object in
+> question to allow SELinux to find a security context for it. Like an
+> inode associated with the device, for example.
+
+Ok.
+
 > 
 
-LGTM:
-Reviewed-by: Leonardo Bras <leobras@redhat.com>
+Thanks for the insights, I'll try and see if I can follow your
+recommendations in a dedicated series.
+
+Maxime
 
