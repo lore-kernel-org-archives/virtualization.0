@@ -1,157 +1,128 @@
-Received: from dggsgout12.his.huawei.com (dggsgout12.his.huawei.com [45.249.212.56])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F5C11DDEE
-	for <virtualization@lists.linux.dev>; Thu,  4 Jan 2024 01:57:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=huaweicloud.com
-Received: from mail.maildlp.com (unknown [172.19.93.142])
-	by dggsgout12.his.huawei.com (SkyGuard) with ESMTP id 4T58pk23zbz4f3jHs
-	for <virtualization@lists.linux.dev>; Thu,  4 Jan 2024 09:57:02 +0800 (CST)
-Received: from mail02.huawei.com (unknown [10.116.40.112])
-	by mail.maildlp.com (Postfix) with ESMTP id 91A3C1A076F
-	for <virtualization@lists.linux.dev>; Thu,  4 Jan 2024 09:57:05 +0800 (CST)
-Received: from huaweicloud.com (unknown [10.175.124.27])
-	by APP1 (Coremail) with SMTP id cCh0CgAneA5vEJZlOVnbFQ--.23128S4;
-	Thu, 04 Jan 2024 09:57:05 +0800 (CST)
-From: Hou Tao <houtao@huaweicloud.com>
-To: linux-fsdevel@vger.kernel.org
-Cc: Miklos Szeredi <miklos@szeredi.hu>,
-	Vivek Goyal <vgoyal@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	linux-kernel@vger.kernel.org,
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B6224C90
+	for <virtualization@lists.linux.dev>; Thu,  4 Jan 2024 02:14:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="QoIGj18S"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1704334475; x=1735870475;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=0U5UmR6PMwHkZDuBSqUu2+6F+st05wpiTCuJCM/VSpw=;
+  b=QoIGj18S3HvMFxgR2nL2/FavoinqeB4o/E3pL8b5RNSeStvKvCcH999X
+   qlRqjvyNEWSk/2B7Hmts8F6hOVyNoi+/z5knBjk7VBKg8RyvmTsAbmy9G
+   ruVRHkNIcstTot707waMvYjydJRCUbwQYsUDa5vX9nhDR1+DskClN/I7t
+   l6DlHv/ouvWB8OHCWCwIYZjlmuGwZwLwqtRAUUorF3OtBJkTCWMSreImd
+   RSe7V6N9dlZFq/XIZ8xHB7uc9aTxJHYwGuFU19KZA7i6WaLV4jxY0xnp1
+   CkzCbtSnqjwtmBKPU/1qLFtFNzRKxbnrfhoq7wbwOnKPvkmAp4i/ue2qT
+   A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10942"; a="4184423"
+X-IronPort-AV: E=Sophos;i="6.04,329,1695711600"; 
+   d="scan'208";a="4184423"
+Received: from orviesa001.jf.intel.com ([10.64.159.141])
+  by orvoesa105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Jan 2024 18:14:34 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.04,329,1695711600"; 
+   d="scan'208";a="28592886"
+Received: from unknown (HELO intel-71.bj.intel.com) ([10.238.154.71])
+  by orviesa001.jf.intel.com with ESMTP; 03 Jan 2024 18:14:31 -0800
+From: Zhu Yanjun <yanjun.zhu@intel.com>
+To: mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
 	virtualization@lists.linux.dev,
-	houtao1@huawei.com
-Subject: [PATCH] virtiofs: use GFP_NOFS when enqueuing request through kworker
-Date: Thu,  4 Jan 2024 09:58:05 +0800
-Message-Id: <20240104015805.2103766-1-houtao@huaweicloud.com>
-X-Mailer: git-send-email 2.29.2
+	netdev@vger.kernel.org
+Cc: Zhu Yanjun <yanjun.zhu@linux.dev>
+Subject: [PATCH v3 1/1] =?UTF-8?q?virtio=5Fnet:=20Fix=20"=E2=80=98%d?= =?UTF-8?q?=E2=80=99=20directive=20writing=20between=201=20and=2011=20byte?= =?UTF-8?q?s=20into=20a=20region=20of=20size=2010"=20warnings?=
+Date: Thu,  4 Jan 2024 10:09:02 +0800
+Message-Id: <20240104020902.2753599-1-yanjun.zhu@intel.com>
+X-Mailer: git-send-email 2.27.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:cCh0CgAneA5vEJZlOVnbFQ--.23128S4
-X-Coremail-Antispam: 1UD129KBjvJXoWxGF4kXryDZr4rCw1DXF45GFg_yoWrGr15pr
-	WUta15GFZ5JFW2gF95JF4UCw1Yk3sakFW7Ga4fWa4akr15Xw47uFy8ZFy0qrsavrykCF1x
-	Jr4FqF4DuF47uaUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUgKb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k2
-	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
-	vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7Cj
-	xVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x
-	0267AKxVW0oVCq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG
-	6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFV
-	Cjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JMxAIw28IcxkI7VAKI48JMxC20s026xCaFVCj
-	c4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4
-	CE17CEb7AF67AKxVWUAVWUtwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1x
-	MIIF0xvE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCI42IY6xAIw20EY4v20xvaj40_WFyUJV
-	Cq3wCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r1j6r4UYxBI
-	daVFxhVjvjDU0xZFpf9x07UWE__UUUUU=
-X-CM-SenderInfo: xkrx3t3r6k3tpzhluzxrxghudrp/
 
-From: Hou Tao <houtao1@huawei.com>
+From: Zhu Yanjun <yanjun.zhu@linux.dev>
 
-When invoking virtio_fs_enqueue_req() through kworker, both the
-allocation of the sg array and the bounce buffer still use GFP_ATOMIC.
-Considering the size of both the sg array and the bounce buffer may be
-greater than PAGE_SIZE, use GFP_NOFS instead of GFP_ATOMIC to lower the
-possibility of memory allocation failure.
+Fix the warnings when building virtio_net driver.
 
-Signed-off-by: Hou Tao <houtao1@huawei.com>
+"
+drivers/net/virtio_net.c: In function ‘init_vqs’:
+drivers/net/virtio_net.c:4551:48: warning: ‘%d’ directive writing between 1 and 11 bytes into a region of size 10 [-Wformat-overflow=]
+ 4551 |                 sprintf(vi->rq[i].name, "input.%d", i);
+      |                                                ^~
+In function ‘virtnet_find_vqs’,
+    inlined from ‘init_vqs’ at drivers/net/virtio_net.c:4645:8:
+drivers/net/virtio_net.c:4551:41: note: directive argument in the range [-2147483643, 65534]
+ 4551 |                 sprintf(vi->rq[i].name, "input.%d", i);
+      |                                         ^~~~~~~~~~
+drivers/net/virtio_net.c:4551:17: note: ‘sprintf’ output between 8 and 18 bytes into a destination of size 16
+ 4551 |                 sprintf(vi->rq[i].name, "input.%d", i);
+      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+drivers/net/virtio_net.c: In function ‘init_vqs’:
+drivers/net/virtio_net.c:4552:49: warning: ‘%d’ directive writing between 1 and 11 bytes into a region of size 9 [-Wformat-overflow=]
+ 4552 |                 sprintf(vi->sq[i].name, "output.%d", i);
+      |                                                 ^~
+In function ‘virtnet_find_vqs’,
+    inlined from ‘init_vqs’ at drivers/net/virtio_net.c:4645:8:
+drivers/net/virtio_net.c:4552:41: note: directive argument in the range [-2147483643, 65534]
+ 4552 |                 sprintf(vi->sq[i].name, "output.%d", i);
+      |                                         ^~~~~~~~~~~
+drivers/net/virtio_net.c:4552:17: note: ‘sprintf’ output between 9 and 19 bytes into a destination of size 16
+ 4552 |                 sprintf(vi->sq[i].name, "output.%d", i);
+
+"
+
+Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Signed-off-by: Zhu Yanjun <yanjun.zhu@linux.dev>
 ---
- fs/fuse/virtio_fs.c | 21 ++++++++++++---------
- 1 file changed, 12 insertions(+), 9 deletions(-)
+v2 -> v3: Follow Jakub Kicinski's advice, repost it
+v1 -> v2: Add commit logs. Format string is changed.
+---
+ drivers/net/virtio_net.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-index 3aac31d45198..ec4d0d81a5e2 100644
---- a/fs/fuse/virtio_fs.c
-+++ b/fs/fuse/virtio_fs.c
-@@ -87,7 +87,8 @@ struct virtio_fs_req_work {
- };
- 
- static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
--				 struct fuse_req *req, bool in_flight);
-+				 struct fuse_req *req, bool in_flight,
-+				 bool in_atomic);
- 
- static const struct constant_table dax_param_enums[] = {
- 	{"always",	FUSE_DAX_ALWAYS },
-@@ -383,7 +384,7 @@ static void virtio_fs_request_dispatch_work(struct work_struct *work)
- 		list_del_init(&req->list);
- 		spin_unlock(&fsvq->lock);
- 
--		ret = virtio_fs_enqueue_req(fsvq, req, true);
-+		ret = virtio_fs_enqueue_req(fsvq, req, true, false);
- 		if (ret < 0) {
- 			if (ret == -ENOMEM || ret == -ENOSPC) {
- 				spin_lock(&fsvq->lock);
-@@ -488,7 +489,7 @@ static void virtio_fs_hiprio_dispatch_work(struct work_struct *work)
- }
- 
- /* Allocate and copy args into req->argbuf */
--static int copy_args_to_argbuf(struct fuse_req *req)
-+static int copy_args_to_argbuf(struct fuse_req *req, gfp_t gfp)
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index d16f592c2061..89a15cc81396 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -4096,10 +4096,11 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
  {
- 	struct fuse_args *args = req->args;
- 	unsigned int offset = 0;
-@@ -502,7 +503,7 @@ static int copy_args_to_argbuf(struct fuse_req *req)
- 	len = fuse_len_args(num_in, (struct fuse_arg *) args->in_args) +
- 	      fuse_len_args(num_out, args->out_args);
+ 	vq_callback_t **callbacks;
+ 	struct virtqueue **vqs;
+-	int ret = -ENOMEM;
+-	int i, total_vqs;
+ 	const char **names;
++	int ret = -ENOMEM;
++	int total_vqs;
+ 	bool *ctx;
++	u16 i;
  
--	req->argbuf = kmalloc(len, GFP_ATOMIC);
-+	req->argbuf = kmalloc(len, gfp);
- 	if (!req->argbuf)
- 		return -ENOMEM;
- 
-@@ -1119,7 +1120,8 @@ static unsigned int sg_init_fuse_args(struct scatterlist *sg,
- 
- /* Add a request to a virtqueue and kick the device */
- static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
--				 struct fuse_req *req, bool in_flight)
-+				 struct fuse_req *req, bool in_flight,
-+				 bool in_atomic)
- {
- 	/* requests need at least 4 elements */
- 	struct scatterlist *stack_sgs[6];
-@@ -1128,6 +1130,7 @@ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
- 	struct scatterlist *sg = stack_sg;
- 	struct virtqueue *vq;
- 	struct fuse_args *args = req->args;
-+	gfp_t gfp = in_atomic ? GFP_ATOMIC : GFP_NOFS;
- 	unsigned int argbuf_used = 0;
- 	unsigned int out_sgs = 0;
- 	unsigned int in_sgs = 0;
-@@ -1140,8 +1143,8 @@ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
- 	/* Does the sglist fit on the stack? */
- 	total_sgs = sg_count_fuse_req(req);
- 	if (total_sgs > ARRAY_SIZE(stack_sgs)) {
--		sgs = kmalloc_array(total_sgs, sizeof(sgs[0]), GFP_ATOMIC);
--		sg = kmalloc_array(total_sgs, sizeof(sg[0]), GFP_ATOMIC);
-+		sgs = kmalloc_array(total_sgs, sizeof(sgs[0]), gfp);
-+		sg = kmalloc_array(total_sgs, sizeof(sg[0]), gfp);
- 		if (!sgs || !sg) {
- 			ret = -ENOMEM;
- 			goto out;
-@@ -1149,7 +1152,7 @@ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
- 	}
- 
- 	/* Use a bounce buffer since stack args cannot be mapped */
--	ret = copy_args_to_argbuf(req);
-+	ret = copy_args_to_argbuf(req, gfp);
- 	if (ret < 0)
- 		goto out;
- 
-@@ -1245,7 +1248,7 @@ __releases(fiq->lock)
- 		 fuse_len_args(req->args->out_numargs, req->args->out_args));
- 
- 	fsvq = &fs->vqs[queue_id];
--	ret = virtio_fs_enqueue_req(fsvq, req, false);
-+	ret = virtio_fs_enqueue_req(fsvq, req, false, true);
- 	if (ret < 0) {
- 		if (ret == -ENOMEM || ret == -ENOSPC) {
- 			/*
+ 	/* We expect 1 RX virtqueue followed by 1 TX virtqueue, followed by
+ 	 * possible N-1 RX/TX queue pairs used in multiqueue mode, followed by
+@@ -4136,8 +4137,8 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+ 	for (i = 0; i < vi->max_queue_pairs; i++) {
+ 		callbacks[rxq2vq(i)] = skb_recv_done;
+ 		callbacks[txq2vq(i)] = skb_xmit_done;
+-		sprintf(vi->rq[i].name, "input.%d", i);
+-		sprintf(vi->sq[i].name, "output.%d", i);
++		sprintf(vi->rq[i].name, "input.%u", i);
++		sprintf(vi->sq[i].name, "output.%u", i);
+ 		names[rxq2vq(i)] = vi->rq[i].name;
+ 		names[txq2vq(i)] = vi->sq[i].name;
+ 		if (ctx)
 -- 
-2.29.2
+2.27.0
 
