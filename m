@@ -1,129 +1,157 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.10])
+Received: from dggsgout12.his.huawei.com (dggsgout12.his.huawei.com [45.249.212.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 068731FB4;
-	Thu,  4 Jan 2024 01:52:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="bXKA+i41"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1704333140; x=1735869140;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=x87hXyg1vD9hfcAbz58oRkGr1NdcwNmNwpY5ZaL9VpU=;
-  b=bXKA+i41l9Tpdnr/oA9Nrqly+Czuh7rXBBJ0AZ8p6b6HFcKKu8mEVSzY
-   1Hbd155UrxHF/HP+u0NS3osxT+x7R4YjiVXT9IyClWe0MFP8QxcouELF7
-   lCN9dSN1569uAYgbdZtxOzPTl/CbzBZrsU4jzJDZ3B98oI07N8iO9Qzrq
-   su9o/TWKDyTzFJSvm4aNOtF/S3qrBehkCMvYKz5SbXoxNybjhqZTnswEL
-   qUZQvdh79GWAPhLn5tmSZsnyGgpNQ3CmBjFcVl3wWGbTrR29FkyMK12iD
-   8Tdyj/UHHOovjUikHtM3vkHmU7ZE2wjpRyillHvfM+xmjcQMBmxGsclNL
-   Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10942"; a="4443208"
-X-IronPort-AV: E=Sophos;i="6.04,329,1695711600"; 
-   d="scan'208";a="4443208"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmvoesa104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Jan 2024 17:52:18 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10942"; a="783692444"
-X-IronPort-AV: E=Sophos;i="6.04,329,1695711600"; 
-   d="scan'208";a="783692444"
-Received: from lkp-server02.sh.intel.com (HELO b07ab15da5fe) ([10.239.97.151])
-  by fmsmga007.fm.intel.com with ESMTP; 03 Jan 2024 17:52:15 -0800
-Received: from kbuild by b07ab15da5fe with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1rLCu5-000MmM-0C;
-	Thu, 04 Jan 2024 01:52:13 +0000
-Date: Thu, 4 Jan 2024 09:51:30 +0800
-From: kernel test robot <lkp@intel.com>
-To: Bibo Mao <maobibo@loongson.cn>, Huacai Chen <chenhuacai@kernel.org>,
-	Tianrui Zhao <zhaotianrui@loongson.cn>,
-	Juergen Gross <jgross@suse.com>
-Cc: oe-kbuild-all@lists.linux.dev, loongarch@lists.linux.dev,
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-	kvm@vger.kernel.org
-Subject: Re: [PATCH 3/5] LoongArch/smp: Refine ipi ops on LoongArch platform
-Message-ID: <202401040952.1JdPfC85-lkp@intel.com>
-References: <20240103071615.3422264-4-maobibo@loongson.cn>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F5C11DDEE
+	for <virtualization@lists.linux.dev>; Thu,  4 Jan 2024 01:57:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=huaweicloud.com
+Received: from mail.maildlp.com (unknown [172.19.93.142])
+	by dggsgout12.his.huawei.com (SkyGuard) with ESMTP id 4T58pk23zbz4f3jHs
+	for <virtualization@lists.linux.dev>; Thu,  4 Jan 2024 09:57:02 +0800 (CST)
+Received: from mail02.huawei.com (unknown [10.116.40.112])
+	by mail.maildlp.com (Postfix) with ESMTP id 91A3C1A076F
+	for <virtualization@lists.linux.dev>; Thu,  4 Jan 2024 09:57:05 +0800 (CST)
+Received: from huaweicloud.com (unknown [10.175.124.27])
+	by APP1 (Coremail) with SMTP id cCh0CgAneA5vEJZlOVnbFQ--.23128S4;
+	Thu, 04 Jan 2024 09:57:05 +0800 (CST)
+From: Hou Tao <houtao@huaweicloud.com>
+To: linux-fsdevel@vger.kernel.org
+Cc: Miklos Szeredi <miklos@szeredi.hu>,
+	Vivek Goyal <vgoyal@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	houtao1@huawei.com
+Subject: [PATCH] virtiofs: use GFP_NOFS when enqueuing request through kworker
+Date: Thu,  4 Jan 2024 09:58:05 +0800
+Message-Id: <20240104015805.2103766-1-houtao@huaweicloud.com>
+X-Mailer: git-send-email 2.29.2
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240103071615.3422264-4-maobibo@loongson.cn>
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:cCh0CgAneA5vEJZlOVnbFQ--.23128S4
+X-Coremail-Antispam: 1UD129KBjvJXoWxGF4kXryDZr4rCw1DXF45GFg_yoWrGr15pr
+	WUta15GFZ5JFW2gF95JF4UCw1Yk3sakFW7Ga4fWa4akr15Xw47uFy8ZFy0qrsavrykCF1x
+	Jr4FqF4DuF47uaUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUgKb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k2
+	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+	vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7Cj
+	xVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x
+	0267AKxVW0oVCq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG
+	6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFV
+	Cjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JMxAIw28IcxkI7VAKI48JMxC20s026xCaFVCj
+	c4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4
+	CE17CEb7AF67AKxVWUAVWUtwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1x
+	MIIF0xvE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCI42IY6xAIw20EY4v20xvaj40_WFyUJV
+	Cq3wCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r1j6r4UYxBI
+	daVFxhVjvjDU0xZFpf9x07UWE__UUUUU=
+X-CM-SenderInfo: xkrx3t3r6k3tpzhluzxrxghudrp/
 
-Hi Bibo,
+From: Hou Tao <houtao1@huawei.com>
 
-kernel test robot noticed the following build warnings:
+When invoking virtio_fs_enqueue_req() through kworker, both the
+allocation of the sg array and the bounce buffer still use GFP_ATOMIC.
+Considering the size of both the sg array and the bounce buffer may be
+greater than PAGE_SIZE, use GFP_NOFS instead of GFP_ATOMIC to lower the
+possibility of memory allocation failure.
 
-[auto build test WARNING on 610a9b8f49fbcf1100716370d3b5f6f884a2835a]
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+---
+ fs/fuse/virtio_fs.c | 21 ++++++++++++---------
+ 1 file changed, 12 insertions(+), 9 deletions(-)
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Bibo-Mao/LoongArch-KVM-Add-hypercall-instruction-emulation-support/20240103-151946
-base:   610a9b8f49fbcf1100716370d3b5f6f884a2835a
-patch link:    https://lore.kernel.org/r/20240103071615.3422264-4-maobibo%40loongson.cn
-patch subject: [PATCH 3/5] LoongArch/smp: Refine ipi ops on LoongArch platform
-config: loongarch-randconfig-r131-20240103 (https://download.01.org/0day-ci/archive/20240104/202401040952.1JdPfC85-lkp@intel.com/config)
-compiler: loongarch64-linux-gcc (GCC) 13.2.0
-reproduce: (https://download.01.org/0day-ci/archive/20240104/202401040952.1JdPfC85-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202401040952.1JdPfC85-lkp@intel.com/
-
-sparse warnings: (new ones prefixed by >>)
->> arch/loongarch/kernel/smp.c:192:73: sparse: sparse: incorrect type in argument 4 (different address spaces) @@     expected void [noderef] __percpu *percpu_dev_id @@     got int * @@
-   arch/loongarch/kernel/smp.c:192:73: sparse:     expected void [noderef] __percpu *percpu_dev_id
-   arch/loongarch/kernel/smp.c:192:73: sparse:     got int *
-   arch/loongarch/kernel/smp.c: note: in included file (through arch/loongarch/include/asm/loongarch.h, arch/loongarch/include/asm/cpu-info.h, ...):
-   ../lib/gcc/loongarch64-linux/13.2.0/include/larchintrin.h:332:3: sparse: sparse: undefined identifier '__builtin_loongarch_iocsrwr_d'
-   ../lib/gcc/loongarch64-linux/13.2.0/include/larchintrin.h:284:25: sparse: sparse: undefined identifier '__builtin_loongarch_iocsrrd_w'
-   ../lib/gcc/loongarch64-linux/13.2.0/include/larchintrin.h:284:11: sparse: sparse: cast from unknown type
-   ../lib/gcc/loongarch64-linux/13.2.0/include/larchintrin.h:322:3: sparse: sparse: undefined identifier '__builtin_loongarch_iocsrwr_w'
-   arch/loongarch/kernel/smp.c: note: in included file (through arch/loongarch/include/asm/cpu-info.h, arch/loongarch/include/asm/processor.h, ...):
-   arch/loongarch/include/asm/loongarch.h:1260:1: sparse: sparse: undefined identifier '__builtin_loongarch_csrrd_w'
-   arch/loongarch/include/asm/loongarch.h:1260:1: sparse: sparse: cast from unknown type
-   arch/loongarch/include/asm/loongarch.h:1260:1: sparse: sparse: undefined identifier '__builtin_loongarch_csrwr_w'
-   arch/loongarch/include/asm/loongarch.h:1260:1: sparse: sparse: cast from unknown type
-   arch/loongarch/include/asm/loongarch.h:1260:1: sparse: sparse: undefined identifier '__builtin_loongarch_csrrd_w'
-   arch/loongarch/include/asm/loongarch.h:1260:1: sparse: sparse: cast from unknown type
-   arch/loongarch/include/asm/loongarch.h:1260:1: sparse: sparse: undefined identifier '__builtin_loongarch_csrwr_w'
-   arch/loongarch/include/asm/loongarch.h:1260:1: sparse: sparse: cast from unknown type
-   arch/loongarch/include/asm/loongarch.h:1260:1: sparse: sparse: undefined identifier '__builtin_loongarch_csrrd_w'
-   arch/loongarch/include/asm/loongarch.h:1260:1: sparse: sparse: cast from unknown type
-   arch/loongarch/include/asm/loongarch.h:1260:1: sparse: sparse: undefined identifier '__builtin_loongarch_csrwr_w'
-   arch/loongarch/include/asm/loongarch.h:1260:1: sparse: sparse: cast from unknown type
-   arch/loongarch/kernel/smp.c: note: in included file (through arch/loongarch/include/asm/loongarch.h, arch/loongarch/include/asm/cpu-info.h, ...):
-   ../lib/gcc/loongarch64-linux/13.2.0/include/larchintrin.h:294:30: sparse: sparse: undefined identifier '__builtin_loongarch_iocsrrd_d'
-   ../lib/gcc/loongarch64-linux/13.2.0/include/larchintrin.h:294:11: sparse: sparse: cast from unknown type
-   arch/loongarch/kernel/smp.c: note: in included file (through include/linux/irqflags.h, include/linux/spinlock.h, include/linux/mmzone.h, ...):
-   arch/loongarch/include/asm/percpu.h:30:9: sparse: sparse: undefined identifier '__builtin_loongarch_csrwr_d'
-   arch/loongarch/include/asm/percpu.h:30:9: sparse: sparse: cast from unknown type
-   arch/loongarch/include/asm/percpu.h:30:9: sparse: sparse: cast from unknown type
-
-vim +192 arch/loongarch/kernel/smp.c
-
-   181	
-   182	static void loongson_ipi_init(void)
-   183	{
-   184		int r, ipi_irq;
-   185		static int ipi_dummy_dev;
-   186	
-   187		ipi_irq = get_percpu_irq(INT_IPI);
-   188		if (ipi_irq < 0)
-   189			panic("IPI IRQ mapping failed\n");
-   190	
-   191		irq_set_percpu_devid(ipi_irq);
- > 192		r = request_percpu_irq(ipi_irq, loongson_ipi_interrupt, "IPI", &ipi_dummy_dev);
-   193		if (r < 0)
-   194			panic("IPI IRQ request failed\n");
-   195	}
-   196	
-
+diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+index 3aac31d45198..ec4d0d81a5e2 100644
+--- a/fs/fuse/virtio_fs.c
++++ b/fs/fuse/virtio_fs.c
+@@ -87,7 +87,8 @@ struct virtio_fs_req_work {
+ };
+ 
+ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
+-				 struct fuse_req *req, bool in_flight);
++				 struct fuse_req *req, bool in_flight,
++				 bool in_atomic);
+ 
+ static const struct constant_table dax_param_enums[] = {
+ 	{"always",	FUSE_DAX_ALWAYS },
+@@ -383,7 +384,7 @@ static void virtio_fs_request_dispatch_work(struct work_struct *work)
+ 		list_del_init(&req->list);
+ 		spin_unlock(&fsvq->lock);
+ 
+-		ret = virtio_fs_enqueue_req(fsvq, req, true);
++		ret = virtio_fs_enqueue_req(fsvq, req, true, false);
+ 		if (ret < 0) {
+ 			if (ret == -ENOMEM || ret == -ENOSPC) {
+ 				spin_lock(&fsvq->lock);
+@@ -488,7 +489,7 @@ static void virtio_fs_hiprio_dispatch_work(struct work_struct *work)
+ }
+ 
+ /* Allocate and copy args into req->argbuf */
+-static int copy_args_to_argbuf(struct fuse_req *req)
++static int copy_args_to_argbuf(struct fuse_req *req, gfp_t gfp)
+ {
+ 	struct fuse_args *args = req->args;
+ 	unsigned int offset = 0;
+@@ -502,7 +503,7 @@ static int copy_args_to_argbuf(struct fuse_req *req)
+ 	len = fuse_len_args(num_in, (struct fuse_arg *) args->in_args) +
+ 	      fuse_len_args(num_out, args->out_args);
+ 
+-	req->argbuf = kmalloc(len, GFP_ATOMIC);
++	req->argbuf = kmalloc(len, gfp);
+ 	if (!req->argbuf)
+ 		return -ENOMEM;
+ 
+@@ -1119,7 +1120,8 @@ static unsigned int sg_init_fuse_args(struct scatterlist *sg,
+ 
+ /* Add a request to a virtqueue and kick the device */
+ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
+-				 struct fuse_req *req, bool in_flight)
++				 struct fuse_req *req, bool in_flight,
++				 bool in_atomic)
+ {
+ 	/* requests need at least 4 elements */
+ 	struct scatterlist *stack_sgs[6];
+@@ -1128,6 +1130,7 @@ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
+ 	struct scatterlist *sg = stack_sg;
+ 	struct virtqueue *vq;
+ 	struct fuse_args *args = req->args;
++	gfp_t gfp = in_atomic ? GFP_ATOMIC : GFP_NOFS;
+ 	unsigned int argbuf_used = 0;
+ 	unsigned int out_sgs = 0;
+ 	unsigned int in_sgs = 0;
+@@ -1140,8 +1143,8 @@ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
+ 	/* Does the sglist fit on the stack? */
+ 	total_sgs = sg_count_fuse_req(req);
+ 	if (total_sgs > ARRAY_SIZE(stack_sgs)) {
+-		sgs = kmalloc_array(total_sgs, sizeof(sgs[0]), GFP_ATOMIC);
+-		sg = kmalloc_array(total_sgs, sizeof(sg[0]), GFP_ATOMIC);
++		sgs = kmalloc_array(total_sgs, sizeof(sgs[0]), gfp);
++		sg = kmalloc_array(total_sgs, sizeof(sg[0]), gfp);
+ 		if (!sgs || !sg) {
+ 			ret = -ENOMEM;
+ 			goto out;
+@@ -1149,7 +1152,7 @@ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
+ 	}
+ 
+ 	/* Use a bounce buffer since stack args cannot be mapped */
+-	ret = copy_args_to_argbuf(req);
++	ret = copy_args_to_argbuf(req, gfp);
+ 	if (ret < 0)
+ 		goto out;
+ 
+@@ -1245,7 +1248,7 @@ __releases(fiq->lock)
+ 		 fuse_len_args(req->args->out_numargs, req->args->out_args));
+ 
+ 	fsvq = &fs->vqs[queue_id];
+-	ret = virtio_fs_enqueue_req(fsvq, req, false);
++	ret = virtio_fs_enqueue_req(fsvq, req, false, true);
+ 	if (ret < 0) {
+ 		if (ret == -ENOMEM || ret == -ENOSPC) {
+ 			/*
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+2.29.2
+
