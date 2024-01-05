@@ -1,46 +1,46 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 465D7364AE
-	for <virtualization@lists.linux-foundation.org>; Fri,  5 Jan 2024 18:46:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11B8336AED
+	for <virtualization@lists.linux-foundation.org>; Fri,  5 Jan 2024 18:46:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="YnhMsXv5"
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="AWeQh8Ef"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id E872E42089
-	for <virtualization@lists.linux-foundation.org>; Fri,  5 Jan 2024 18:46:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E872E42089
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=YnhMsXv5
+	by smtp1.osuosl.org (Postfix) with ESMTP id 9A61B84002
+	for <virtualization@lists.linux-foundation.org>; Fri,  5 Jan 2024 18:46:56 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9A61B84002
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=AWeQh8Ef
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.1
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id q_X0iIrKStqR
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id V6YBQbZBjVqR
 	for <virtualization@lists.linux-foundation.org>;
-	Fri,  5 Jan 2024 18:46:52 +0000 (UTC)
+	Fri,  5 Jan 2024 18:46:56 +0000 (UTC)
 Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [IPv6:2a00:1098:ed:100::25])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 4386242087
-	for <virtualization@lists.linux-foundation.org>; Fri,  5 Jan 2024 18:46:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4386242087
+	by smtp1.osuosl.org (Postfix) with ESMTPS id C833C83FF4
+	for <virtualization@lists.linux-foundation.org>; Fri,  5 Jan 2024 18:46:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C833C83FF4
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1704480410;
-	bh=01fH19b8J9wtDDA6iBO9zaLoR7Wzs0NAYl9Q5D2c8ho=;
+	s=mail; t=1704480414;
+	bh=ogKb7d41PScFLzJ54iuk6ZS0vpsAlBKn+e0Ym6lcvII=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=YnhMsXv5TJeDFRC/oLw3JsL3PEYPPglSA7jhtK5aD/8Zq8VmJpj+HXKGDDX3ecWNH
-	 kaYgoHg1eTriN5B4Ju/IXn1EuZiSmztfHmyVgpkDm/bVYN8X0XdsVDBIfKLIdaTyWo
-	 fdUU3pb5ba0LXz34PTGVubzq/x4eug+t3/zfdtqFARDmWGQWxhYBZqLdjw3Dqo8yvK
-	 zVb6z37Wzn6jJ7y1crDq1WgoF9hyofYghIcAsvbcB+PZYdBSVYwhF5yusAjhReViJX
-	 sX5d5la315nfSblsSIRUqgMkAGE9HKcoIEwIp9nUUXHnp2hnuAZLSl4SXlr5wbA1k4
-	 fGH9fzWYkO94w==
+	b=AWeQh8EfRh3NwZ17ZU18fulJX9TFyKsccd1mq/XyYbmkMluipimpxzcn7DicPPTwf
+	 iCH66lPnhUorGMqu7uJIBWLlt9uL1JZqC+vVwQTuW+CRhhQ5MvjK6Eq3x9HGtEi2+X
+	 CvPdXzYkpy+9ZGFL2OEZsmbniaaULZpZHc0o9vPhhYj1icOZYOqmkD9JjeVc15QyDM
+	 avj1W+ipJQuYGqVOWbBCgmU5lWW+nBH8bQIlNqAOj70et0O7QmoS1SLvkcO0n7tQpG
+	 12oiP0cPZ1baqzMsn/Io3ocw+5KNbv3Gw0T6mYmb58qiPpQ6gVJ3CA3rpmymk9tXRy
+	 4plg+ejoTBT5A==
 Received: from workpc.. (cola.collaboradmins.com [195.201.22.229])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
 	(Authenticated sender: dmitry.osipenko)
-	by madrid.collaboradmins.com (Postfix) with ESMTPSA id 6E73F378203F;
-	Fri,  5 Jan 2024 18:46:49 +0000 (UTC)
+	by madrid.collaboradmins.com (Postfix) with ESMTPSA id E692E3782041;
+	Fri,  5 Jan 2024 18:46:52 +0000 (UTC)
 From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 To: David Airlie <airlied@gmail.com>,
 	Gerd Hoffmann <kraxel@redhat.com>,
@@ -60,9 +60,9 @@ Cc: dri-devel@lists.freedesktop.org,
 	linux-kernel@vger.kernel.org,
 	kernel@collabora.com,
 	virtualization@lists.linux-foundation.org
-Subject: [PATCH v19 04/30] drm/shmem-helper: Make all exported symbols GPL
-Date: Fri,  5 Jan 2024 21:45:58 +0300
-Message-ID: <20240105184624.508603-5-dmitry.osipenko@collabora.com>
+Subject: [PATCH v19 06/30] drm/shmem-helper: Remove obsoleted is_iomem test
+Date: Fri,  5 Jan 2024 21:46:00 +0300
+Message-ID: <20240105184624.508603-7-dmitry.osipenko@collabora.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20240105184624.508603-1-dmitry.osipenko@collabora.com>
 References: <20240105184624.508603-1-dmitry.osipenko@collabora.com>
@@ -74,92 +74,36 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Make all drm-shmem exported symbols GPL to make them consistent with
-the rest of drm-shmem symbols.
+Everything that uses the mapped buffer should be agnostic to is_iomem.
+The only reason for the is_iomem test is that we're setting shmem->vaddr
+to the returned map->vaddr. Now that the shmem->vaddr code is gone, remove
+the obsoleted is_iomem test to clean up the code.
 
 Acked-by: Maxime Ripard <mripard@kernel.org>
+Suggested-by: Thomas Zimmermann <tzimmermann@suse.de>
 Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
 Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 ---
- drivers/gpu/drm/drm_gem_shmem_helper.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/drm_gem_shmem_helper.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
 diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
-index e435f986cd13..0d61f2b3e213 100644
+index 043e8e3b129c..1f0a66386415 100644
 --- a/drivers/gpu/drm/drm_gem_shmem_helper.c
 +++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
-@@ -226,7 +226,7 @@ void drm_gem_shmem_put_pages(struct drm_gem_shmem_object *shmem)
- 			  shmem->pages_mark_accessed_on_put);
- 	shmem->pages = NULL;
- }
--EXPORT_SYMBOL(drm_gem_shmem_put_pages);
-+EXPORT_SYMBOL_GPL(drm_gem_shmem_put_pages);
+@@ -315,12 +315,6 @@ int drm_gem_shmem_vmap_locked(struct drm_gem_shmem_object *shmem,
  
- static int drm_gem_shmem_pin_locked(struct drm_gem_shmem_object *shmem)
- {
-@@ -271,7 +271,7 @@ int drm_gem_shmem_pin(struct drm_gem_shmem_object *shmem)
+ 	if (obj->import_attach) {
+ 		ret = dma_buf_vmap(obj->import_attach->dmabuf, map);
+-		if (!ret) {
+-			if (drm_WARN_ON(obj->dev, map->is_iomem)) {
+-				dma_buf_vunmap(obj->import_attach->dmabuf, map);
+-				return -EIO;
+-			}
+-		}
+ 	} else {
+ 		pgprot_t prot = PAGE_KERNEL;
  
- 	return ret;
- }
--EXPORT_SYMBOL(drm_gem_shmem_pin);
-+EXPORT_SYMBOL_GPL(drm_gem_shmem_pin);
- 
- /**
-  * drm_gem_shmem_unpin - Unpin backing pages for a shmem GEM object
-@@ -290,7 +290,7 @@ void drm_gem_shmem_unpin(struct drm_gem_shmem_object *shmem)
- 	drm_gem_shmem_unpin_locked(shmem);
- 	dma_resv_unlock(shmem->base.resv);
- }
--EXPORT_SYMBOL(drm_gem_shmem_unpin);
-+EXPORT_SYMBOL_GPL(drm_gem_shmem_unpin);
- 
- /*
-  * drm_gem_shmem_vmap - Create a virtual mapping for a shmem GEM object
-@@ -360,7 +360,7 @@ int drm_gem_shmem_vmap(struct drm_gem_shmem_object *shmem,
- 
- 	return ret;
- }
--EXPORT_SYMBOL(drm_gem_shmem_vmap);
-+EXPORT_SYMBOL_GPL(drm_gem_shmem_vmap);
- 
- /*
-  * drm_gem_shmem_vunmap - Unmap a virtual mapping for a shmem GEM object
-@@ -396,7 +396,7 @@ void drm_gem_shmem_vunmap(struct drm_gem_shmem_object *shmem,
- 
- 	shmem->vaddr = NULL;
- }
--EXPORT_SYMBOL(drm_gem_shmem_vunmap);
-+EXPORT_SYMBOL_GPL(drm_gem_shmem_vunmap);
- 
- static int
- drm_gem_shmem_create_with_handle(struct drm_file *file_priv,
-@@ -435,7 +435,7 @@ int drm_gem_shmem_madvise(struct drm_gem_shmem_object *shmem, int madv)
- 
- 	return (madv >= 0);
- }
--EXPORT_SYMBOL(drm_gem_shmem_madvise);
-+EXPORT_SYMBOL_GPL(drm_gem_shmem_madvise);
- 
- void drm_gem_shmem_purge(struct drm_gem_shmem_object *shmem)
- {
-@@ -467,7 +467,7 @@ void drm_gem_shmem_purge(struct drm_gem_shmem_object *shmem)
- 
- 	invalidate_mapping_pages(file_inode(obj->filp)->i_mapping, 0, (loff_t)-1);
- }
--EXPORT_SYMBOL(drm_gem_shmem_purge);
-+EXPORT_SYMBOL_GPL(drm_gem_shmem_purge);
- 
- /**
-  * drm_gem_shmem_dumb_create - Create a dumb shmem buffer object
-@@ -642,7 +642,7 @@ void drm_gem_shmem_print_info(const struct drm_gem_shmem_object *shmem,
- 	drm_printf_indent(p, indent, "vmap_use_count=%u\n", shmem->vmap_use_count);
- 	drm_printf_indent(p, indent, "vaddr=%p\n", shmem->vaddr);
- }
--EXPORT_SYMBOL(drm_gem_shmem_print_info);
-+EXPORT_SYMBOL_GPL(drm_gem_shmem_print_info);
- 
- /**
-  * drm_gem_shmem_get_sg_table - Provide a scatter/gather table of pinned
 -- 
 2.43.0
 
