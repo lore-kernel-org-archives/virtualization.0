@@ -1,154 +1,248 @@
-Received: from mail-ed1-f41.google.com (mail-ed1-f41.google.com [209.85.208.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from szxga07-in.huawei.com (szxga07-in.huawei.com [45.249.212.35])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C63BB2C857
-	for <virtualization@lists.linux.dev>; Thu,  4 Jan 2024 22:16:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="LE8VCVzr"
-Received: by mail-ed1-f41.google.com with SMTP id 4fb4d7f45d1cf-552d39ac3ccso62016a12.0
-        for <virtualization@lists.linux.dev>; Thu, 04 Jan 2024 14:16:08 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1704406567; x=1705011367; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=YmEwJraJ4e4jT15EacqQbPjlb9M9wODOsTgFHucU8Ww=;
-        b=LE8VCVzraY2Pq5uYyc684BX1LnforYBbTw8escBWtX9yW5MU0gyGRB1rY1qc1ltp/Y
-         xPWVamYzBIJYG/Rb+nZ8eZPLiCpoZEp2PHNcvnJ1wXOMUR5Uc0a+Vcdo0zOsudfvQRmC
-         WxgeVWFnW4ZTBN/mF58v9DQ6tf27iD7ufELxju06l3T5kg7xhUOTT8mD+M8fMsKXqSmi
-         SqtBRzw3eXF8a+OzBmBomDGgg7EYZWm3l7G0g52jO7T2wVfALY6GqLvohn1lIXVbwYKy
-         Fki9O6bd+MqeM7HM3ob19ZdOOtaMRmq7vz9T0CLulR/DOnpw0ba8ATfZoGlJRyksA3Of
-         1G+A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1704406567; x=1705011367;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=YmEwJraJ4e4jT15EacqQbPjlb9M9wODOsTgFHucU8Ww=;
-        b=reEdhMyLWgSRKMzNXpUu3WmAs5UJ5SHc2b19FC4f9T3mZlkA3LS/xoJ9yA7nenG877
-         AmpjKIZ9VZFGgB2EgkxV9d/sfPeDB93oyHClMYw3kGAplLy370dtXXNLpiuFGbBPXtcZ
-         hkLtLDSArwmOy+F7l0J/artQKmUgqG+bQbRCPlWIWYAK7q2T/w8kBPx1XT65scxhcUzS
-         wqt86VNGUiHDuzC7g2VN8g/EfrRi0Gi/iaAuIrDZLqEm+ALAi+UY5PgTWJb4vyiJJpLn
-         vYeAGglpFutfjHNIFPu33/69cqZ1ms/fsDKMesvoyvPXk8ETpGPn+E3UpjKyGXNVCGO0
-         c0YQ==
-X-Gm-Message-State: AOJu0Yx+x7aaLoLsX0YhPR/daPrK/KgG+S3+94XZEEj6jsJD/+d070zZ
-	YhGO4altN2XPh2+uUP2ANj1hO+kqqw3WXn3HcKG08Hy+XQyy
-X-Google-Smtp-Source: AGHT+IFfrgRIWtZ9HrhyGAn143escpZpbafix8BFd16G8Qgpz+Ecbc714kdUSCPtt9+phrmGkm20SOlyqPkHmz1c25U=
-X-Received: by 2002:a17:906:d154:b0:a28:6621:5801 with SMTP id
- br20-20020a170906d15400b00a2866215801mr1226462ejb.19.1704406566797; Thu, 04
- Jan 2024 14:16:06 -0800 (PST)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDBFB1FBE
+	for <virtualization@lists.linux.dev>; Fri,  5 Jan 2024 02:09:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.163.44])
+	by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4T5n0r5MPZz1Q7Vm;
+	Fri,  5 Jan 2024 10:07:56 +0800 (CST)
+Received: from dggpemm500005.china.huawei.com (unknown [7.185.36.74])
+	by mail.maildlp.com (Postfix) with ESMTPS id 59286140631;
+	Fri,  5 Jan 2024 10:09:24 +0800 (CST)
+Received: from [10.69.30.204] (10.69.30.204) by dggpemm500005.china.huawei.com
+ (7.185.36.74) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.35; Fri, 5 Jan
+ 2024 10:09:24 +0800
+Subject: Re: [PATCH net-next 6/6] tools: virtio: introduce vhost_net_test
+To: Eugenio Perez Martin <eperezma@redhat.com>
+CC: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>,
+	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, "Michael S.
+ Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
+	<xuanzhuo@linux.alibaba.com>, <virtualization@lists.linux.dev>
+References: <20240103095650.25769-1-linyunsheng@huawei.com>
+ <20240103095650.25769-7-linyunsheng@huawei.com>
+ <CAJaqyWfHLDRL4z9ooNS2w_yGE_jnHfi2spdYPP_=F0jgSj3mJQ@mail.gmail.com>
+From: Yunsheng Lin <linyunsheng@huawei.com>
+Message-ID: <4417b8ff-144d-374b-2188-38e30567a5ba@huawei.com>
+Date: Fri, 5 Jan 2024 10:09:23 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:52.0) Gecko/20100101
+ Thunderbird/52.2.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20231220214505.2303297-1-almasrymina@google.com>
- <20231220214505.2303297-3-almasrymina@google.com> <20231221232343.qogdsoavt7z45dfc@google.com>
- <CAHS8izOp_m9SyPjNth-iYBXH2qQQpc9PuZaHbpUL=H0W=CVHgQ@mail.gmail.com> <20240104134424.399fee0a@kernel.org>
-In-Reply-To: <20240104134424.399fee0a@kernel.org>
-From: Mina Almasry <almasrymina@google.com>
-Date: Thu, 4 Jan 2024 14:15:52 -0800
-Message-ID: <CAHS8izPMCNxnk7wnq6-T8e4GHmkgQbZTSEowU5Vw5fB+8y7amg@mail.gmail.com>
-Subject: Re: [PATCH net-next v3 2/3] net: introduce abstraction for network memory
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: Shakeel Butt <shakeelb@google.com>, linux-kernel@vger.kernel.org, 
-	netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Paolo Abeni <pabeni@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
-	Stefano Garzarella <sgarzare@redhat.com>, David Howells <dhowells@redhat.com>, 
-	Jason Gunthorpe <jgg@nvidia.com>, =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
-	Yunsheng Lin <linyunsheng@huawei.com>, Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <CAJaqyWfHLDRL4z9ooNS2w_yGE_jnHfi2spdYPP_=F0jgSj3mJQ@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
+ dggpemm500005.china.huawei.com (7.185.36.74)
 
-On Thu, Jan 4, 2024 at 1:44=E2=80=AFPM Jakub Kicinski <kuba@kernel.org> wro=
-te:
->
-> On Thu, 21 Dec 2023 15:44:22 -0800 Mina Almasry wrote:
-> > The warning is like so:
-> >
-> > ./include/net/page_pool/helpers.h: In function =E2=80=98page_pool_alloc=
-=E2=80=99:
-> > ./include/linux/stddef.h:8:14: warning: returning =E2=80=98void *=E2=80=
-=99 from a
-> > function with return type =E2=80=98netmem_ref=E2=80=99 {aka =E2=80=98lo=
-ng unsigned int=E2=80=99} makes
-> > integer from pointer without a cast [-Wint-conversion]
-> >     8 | #define NULL ((void *)0)
-> >       |              ^
-> > ./include/net/page_pool/helpers.h:132:24: note: in expansion of macro
-> > =E2=80=98NULL=E2=80=99
-> >   132 |                 return NULL;
-> >       |                        ^~~~
-> >
-> > And happens in all the code where:
-> >
-> > netmem_ref func()
-> > {
-> >     return NULL;
-> > }
-> >
-> > It's fixable by changing the return to `return (netmem_ref NULL);` or
-> > `return 0;`, but I feel like netmem_ref should be some type which
-> > allows a cast from NULL implicitly.
->
-> Why do you think we should be able to cast NULL implicitly?
-> netmem_ref is a handle, it could possibly be some form of
-> an ID in the future, rather than a pointer. Or have more low
-> bits stolen for specific use cases.
->
-> unsigned long, and returning 0 as "no handle" makes perfect sense to me.
->
-> Note that 0 is a special case, bitwise types are allowed to convert
-> to 0/bool and 0 is implicitly allowed to become a bitwise type.
-> This will pass without a warning:
->
-> typedef unsigned long __bitwise netmem_ref;
->
-> netmem_ref some_code(netmem_ref ref)
-> {
->         // direct test is fine
->         if (!ref)
->                 // 0 "upgrades" without casts
->                 return 0;
->         // 1 does not, we need __force
->         return (__force netmem_ref)1 | ref;
-> }
->
-> The __bitwise annotation will make catching people trying
-> to cast to struct page * trivial.
->
-> You seem to be trying hard to make struct netmem a thing.
-> Perhaps you have a reason I'm not getting?
+On 2024/1/5 0:17, Eugenio Perez Martin wrote:
+> On Wed, Jan 3, 2024 at 11:00 AM Yunsheng Lin <linyunsheng@huawei.com> wrote:
 
-There are a number of functions that return struct page* today that I
-convert to return struct netmem* later in the child devmem series, one
-example is something like:
+...
 
-struct page *page_pool_alloc(...); // returns NULL on failure.
+>> +
+>> +static void run_tx_test(struct vdev_info *dev, struct vq_info *vq,
+>> +                       bool delayed, int batch, int bufs)
+>> +{
+>> +       const bool random_batch = batch == RANDOM_BATCH;
+>> +       long long spurious = 0;
+>> +       struct scatterlist sl;
+>> +       unsigned int len;
+>> +       int r;
+>> +
+>> +       for (;;) {
+>> +               long started_before = vq->started;
+>> +               long completed_before = vq->completed;
+>> +
+>> +               virtqueue_disable_cb(vq->vq);
+>> +               do {
+>> +                       if (random_batch)
+>> +                               batch = (random() % vq->vring.num) + 1;
+>> +
+>> +                       while (vq->started < bufs &&
+>> +                              (vq->started - vq->completed) < batch) {
+>> +                               sg_init_one(&sl, dev->test_buf, HDR_LEN + TEST_BUF_LEN);
+>> +                               r = virtqueue_add_outbuf(vq->vq, &sl, 1,
+>> +                                                        dev->test_buf + vq->started,
+>> +                                                        GFP_ATOMIC);
+>> +                               if (unlikely(r != 0)) {
+>> +                                       if (r == -ENOSPC &&
+>> +                                           vq->started > started_before)
+>> +                                               r = 0;
+>> +                                       else
+>> +                                               r = -1;
+>> +                                       break;
+>> +                               }
+>> +
+>> +                               ++vq->started;
+>> +
+>> +                               if (unlikely(!virtqueue_kick(vq->vq))) {
+>> +                                       r = -1;
+>> +                                       break;
+>> +                               }
+>> +                       }
+>> +
+>> +                       if (vq->started >= bufs)
+>> +                               r = -1;
+>> +
+>> +                       /* Flush out completed bufs if any */
+>> +                       while (virtqueue_get_buf(vq->vq, &len)) {
+>> +                               int n, i;
+>> +
+>> +                               n = recvfrom(dev->sock, dev->res_buf, TEST_BUF_LEN, 0, NULL, NULL);
+>> +                               assert(n == TEST_BUF_LEN);
+>> +
+>> +                               for (i = ETHER_HDR_LEN; i < n; i++)
+>> +                                       assert(dev->res_buf[i] == (char)i);
+>> +
+>> +                               ++vq->completed;
+>> +                               r = 0;
+>> +                       }
+>> +               } while (r == 0);
+>> +
+>> +               if (vq->completed == completed_before && vq->started == started_before)
+>> +                       ++spurious;
+>> +
+>> +               assert(vq->completed <= bufs);
+>> +               assert(vq->started <= bufs);
+>> +               if (vq->completed == bufs)
+>> +                       break;
+>> +
+>> +               if (delayed) {
+>> +                       if (virtqueue_enable_cb_delayed(vq->vq))
+>> +                               wait_for_interrupt(vq);
+>> +               } else {
+>> +                       if (virtqueue_enable_cb(vq->vq))
+>> +                               wait_for_interrupt(vq);
+>> +               }
+>> +       }
+>> +       printf("TX spurious wakeups: 0x%llx started=0x%lx completed=0x%lx\n",
+>> +              spurious, vq->started, vq->completed);
+>> +}
+>> +
+>> +static void run_rx_test(struct vdev_info *dev, struct vq_info *vq,
+>> +                       bool delayed, int batch, int bufs)
+>> +{
+>> +       const bool random_batch = batch == RANDOM_BATCH;
+>> +       long long spurious = 0;
+>> +       struct scatterlist sl;
+>> +       unsigned int len;
+>> +       int r;
+>> +
+>> +       for (;;) {
+>> +               long started_before = vq->started;
+>> +               long completed_before = vq->completed;
+>> +
+>> +               do {
+>> +                       if (random_batch)
+>> +                               batch = (random() % vq->vring.num) + 1;
+>> +
+>> +                       while (vq->started < bufs &&
+>> +                              (vq->started - vq->completed) < batch) {
+>> +                               sg_init_one(&sl, dev->res_buf, HDR_LEN + TEST_BUF_LEN);
+>> +
+>> +                               r = virtqueue_add_inbuf(vq->vq, &sl, 1,
+>> +                                                       dev->res_buf + vq->started,
+>> +                                                       GFP_ATOMIC);
+>> +                               if (unlikely(r != 0)) {
+>> +                                       if (r == -ENOSPC &&
+>> +                                           vq->started > started_before)
+>> +                                               r = 0;
+>> +                                       else
+>> +                                               r = -1;
+>> +                                       break;
+>> +                               }
+>> +
+>> +                               ++vq->started;
+>> +
+>> +                               vdev_send_packet(dev);
+>> +
+>> +                               if (unlikely(!virtqueue_kick(vq->vq))) {
+>> +                                       r = -1;
+>> +                                       break;
+>> +                               }
+>> +                       }
+>> +
+>> +                       if (vq->started >= bufs)
+>> +                               r = -1;
+>> +
+>> +                       /* Flush out completed bufs if any */
+>> +                       while (virtqueue_get_buf(vq->vq, &len)) {
+>> +                               struct ether_header *eh;
+>> +                               int i;
+>> +
+>> +                               eh = (struct ether_header *)(dev->res_buf + HDR_LEN);
+>> +
+>> +                               /* tun netdev is up and running, ignore the
+>> +                                * non-TEST_PTYPE packet.
+>> +                                */
+>> +                               if (eh->ether_type != htons(TEST_PTYPE)) {
+>> +                                       ++vq->completed;
+>> +                                       r = 0;
+>> +                                       continue;
+>> +                               }
+>> +
+>> +                               assert(len == TEST_BUF_LEN + HDR_LEN);
+>> +
+>> +                               for (i = ETHER_HDR_LEN; i < TEST_BUF_LEN; i++)
+>> +                                       assert(dev->res_buf[i + HDR_LEN] == (char)i);
+>> +
+>> +                               ++vq->completed;
+>> +                               r = 0;
+>> +                       }
+>> +               } while (r == 0);
+>> +               if (vq->completed == completed_before && vq->started == started_before)
+>> +                       ++spurious;
+>> +
+>> +               assert(vq->completed <= bufs);
+>> +               assert(vq->started <= bufs);
+>> +               if (vq->completed == bufs)
+>> +                       break;
+>> +       }
+>> +
+>> +       printf("RX spurious wakeups: 0x%llx started=0x%lx completed=0x%lx\n",
+>> +              spurious, vq->started, vq->completed);
+>> +}
+> 
+> Hi!
+> 
+> I think the tests are great! Maybe both run_rx_test and run_tx_test
+> (and virtio_test.c:run_test) can be merged into a common function with
+> some callbacks? Not sure if it will complicate the code more.
 
-becomes:
+I looked at it more closely, it seems using callback just make the code
+more complicated without obvious benefit, as the main steps is different
+for tx and rx.
 
-struct netmem *page_pool_alloc(...); // also returns NULL on failure.
+For tx:
+1. Prepare a out buf
+2. Kick the vhost_net to do tx processing
+3. Do the receiving in the tun side
+4. verify the data received by tun is correct
 
-rather than,
+For rx:
+1. Prepare a in buf
+2. Do the sending in the tun side
+3. Kick the vhost_net to do rx processing
+4. verify the data received by vhost_net is correct
 
-netmem_ref page_pool_alloc(...); // returns 0 on failure.
+I could refactor out a common function to do the data verifying for step 4
+of both tx and rx.
 
-I guess in my mind having NULL be castable to the new type makes it so
-that I can avoid the additional code churn of converting a bunch of
-`return NULL;` to `return 0;`, and maybe the transition from page
-pointers to netmem pointers can be more easily done if they're both
-compatible pointer types.
+For virtio_test.c:run_test, it does not seems to be using the vhost_net directly,
+it uses shim vhost_test.ko module, and it seems to only have step 1 & 3 of
+vhost_net_test' rx testing. The new vhost_net_test should be able to replace the
+virtio_test, I thought about deleting the virtio_test after adding the vhost_net_test,
+but I am not familiar enough with virtio to do the judgement yet.
 
-But that is not any huge blocker or critical point in my mind, I just
-thought this approach is preferred. If conversion to unsigned long
-makes more sense to you, I'll respin this like that and do the `NULL
--> 0` conversion everywhere as needed.
+> 
+> Thanks!
+> 
 
---=20
-Thanks,
-Mina
