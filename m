@@ -1,241 +1,156 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from dggsgout11.his.huawei.com (unknown [45.249.212.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BD322DF98
-	for <virtualization@lists.linux-foundation.org>; Fri,  5 Jan 2024 10:14:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CBcsBnmJ"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 4565B420F4
-	for <virtualization@lists.linux-foundation.org>; Fri,  5 Jan 2024 10:14:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4565B420F4
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=CBcsBnmJ
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id nCn1Y7eNbXnV
-	for <virtualization@lists.linux-foundation.org>;
-	Fri,  5 Jan 2024 10:14:08 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 4555B420E8
-	for <virtualization@lists.linux-foundation.org>; Fri,  5 Jan 2024 10:14:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4555B420E8
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1704449646;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=cc52LaptPrYh6Z5cf7eSO+K3bI2pANK5fWlsASyxWFY=;
-	b=CBcsBnmJaq6rHpDEVGSRRmEMRJ5Qwi43/EatENg8lAKwh97LVGtjB17v5un9qWhZViAdiH
-	LE4IR1BhfjDSsb7gaLoPd1dedTjfxjvHDEBj1bQhlhf+3ZDn2dnP6Q/Hn+zYghnHq2xqlU
-	XhnDxL/XE45gSQqSU1Jvt4+wLVL+OWQ=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-118-h4Y868EaNuqojFgIKxBzFQ-1; Fri, 05 Jan 2024 05:14:05 -0500
-X-MC-Unique: h4Y868EaNuqojFgIKxBzFQ-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 27C4C86F122;
-	Fri,  5 Jan 2024 10:14:05 +0000 (UTC)
-Received: from [10.39.208.29] (unknown [10.39.208.29])
-	by smtp.corp.redhat.com (Postfix) with ESMTPS id E1CBD51D5;
-	Fri,  5 Jan 2024 10:14:02 +0000 (UTC)
-Message-ID: <0322ee9e-f6db-45ed-855f-9ebcdfca30a9@redhat.com>
-Date: Fri, 5 Jan 2024 11:14:01 +0100
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8B9A286B9
+	for <virtualization@lists.linux.dev>; Fri,  5 Jan 2024 10:52:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=huaweicloud.com
+Received: from mail.maildlp.com (unknown [172.19.93.142])
+	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4T60dZ5CVvz4f3jq5
+	for <virtualization@lists.linux.dev>; Fri,  5 Jan 2024 18:52:02 +0800 (CST)
+Received: from mail02.huawei.com (unknown [10.116.40.112])
+	by mail.maildlp.com (Postfix) with ESMTP id 86BFA1A01CA
+	for <virtualization@lists.linux.dev>; Fri,  5 Jan 2024 18:52:04 +0800 (CST)
+Received: from huaweicloud.com (unknown [10.175.124.27])
+	by APP1 (Coremail) with SMTP id cCh0CgDnNQxT35dl6D1fFg--.48717S4;
+	Fri, 05 Jan 2024 18:52:04 +0800 (CST)
+From: Hou Tao <houtao@huaweicloud.com>
+To: linux-fsdevel@vger.kernel.org
+Cc: Miklos Szeredi <miklos@szeredi.hu>,
+	Vivek Goyal <vgoyal@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Matthew Wilcox <willy@infradead.org>,
+	linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	houtao1@huawei.com
+Subject: [PATCH v2] virtiofs: use GFP_NOFS when enqueuing request through kworker
+Date: Fri,  5 Jan 2024 18:53:05 +0800
+Message-Id: <20240105105305.4052672-1-houtao@huaweicloud.com>
+X-Mailer: git-send-email 2.29.2
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 2/3] vduse: Temporarily fail if control queue features
- requested
-Content-Language: en-US
-To: Eugenio Perez Martin <eperezma@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>, mst@redhat.com,
- xuanzhuo@linux.alibaba.com, xieyongji@bytedance.com,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
- david.marchand@redhat.com, lulu@redhat.com
-References: <20240104153753.2931026-1-maxime.coquelin@redhat.com>
- <20240104153753.2931026-3-maxime.coquelin@redhat.com>
- <CACGkMEtmTY0ux8pw8VQ8SAdgGty=rM1VRkh6c-qBVSaqhYuURw@mail.gmail.com>
- <888255d7-e45b-44db-8561-5e9f386603c3@redhat.com>
- <CAJaqyWfrO3c9GD2k+aX=fA8OQLg2aQPHHb4WyTbE09KkmoOesA@mail.gmail.com>
-From: Maxime Coquelin <maxime.coquelin@redhat.com>
-Autocrypt: addr=maxime.coquelin@redhat.com; keydata=
- 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
- Mwqu3GQ=
-In-Reply-To: <CAJaqyWfrO3c9GD2k+aX=fA8OQLg2aQPHHb4WyTbE09KkmoOesA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.5
+X-CM-TRANSID:cCh0CgDnNQxT35dl6D1fFg--.48717S4
+X-Coremail-Antispam: 1UD129KBjvJXoWxGF4kXrWrJFyfuF4UWF43Awb_yoWrJr45pr
+	Wqya15GFWrJrW2gF95JF4UCw1YkwnakFW7Ga4rXa4akFW7Xw17uFy8ZFy0qrsavrykCF1x
+	Ar4FqF4q9F47Zw7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUgEb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k2
+	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+	vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7Cj
+	xVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x
+	0267AKxVW0oVCq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG
+	6I80ewAv7VC0I7IYx2IY67AKxVWUGVWUXwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFV
+	Cjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JMxAIw28IcxkI7VAKI48JMxC20s026xCaFVCj
+	c4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4
+	CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1x
+	MIIF0xvE2Ix0cI8IcVCY1x0267AKxVWxJVW8Jr1lIxAIcVCF04k26cxKx2IYs7xG6Fyj6r
+	WUJwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIY
+	CTnIWIevJa73UjIFyTuYvjxUOyCJDUUUU
+X-CM-SenderInfo: xkrx3t3r6k3tpzhluzxrxghudrp/
 
+From: Hou Tao <houtao1@huawei.com>
 
+When invoking virtio_fs_enqueue_req() through kworker, both the
+allocation of the sg array and the bounce buffer still use GFP_ATOMIC.
+Considering the size of both the sg array and the bounce buffer may be
+greater than PAGE_SIZE, use GFP_NOFS instead of GFP_ATOMIC to lower the
+possibility of memory allocation failure.
 
-On 1/5/24 10:59, Eugenio Perez Martin wrote:
-> On Fri, Jan 5, 2024 at 9:12 AM Maxime Coquelin
-> <maxime.coquelin@redhat.com> wrote:
->>
->>
->>
->> On 1/5/24 03:45, Jason Wang wrote:
->>> On Thu, Jan 4, 2024 at 11:38 PM Maxime Coquelin
->>> <maxime.coquelin@redhat.com> wrote:
->>>>
->>>> Virtio-net driver control queue implementation is not safe
->>>> when used with VDUSE. If the VDUSE application does not
->>>> reply to control queue messages, it currently ends up
->>>> hanging the kernel thread sending this command.
->>>>
->>>> Some work is on-going to make the control queue
->>>> implementation robust with VDUSE. Until it is completed,
->>>> let's fail features check if any control-queue related
->>>> feature is requested.
->>>>
->>>> Signed-off-by: Maxime Coquelin <maxime.coquelin@redhat.com>
->>>> ---
->>>>    drivers/vdpa/vdpa_user/vduse_dev.c | 13 +++++++++++++
->>>>    1 file changed, 13 insertions(+)
->>>>
->>>> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
->>>> index 0486ff672408..94f54ea2eb06 100644
->>>> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
->>>> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
->>>> @@ -28,6 +28,7 @@
->>>>    #include <uapi/linux/virtio_config.h>
->>>>    #include <uapi/linux/virtio_ids.h>
->>>>    #include <uapi/linux/virtio_blk.h>
->>>> +#include <uapi/linux/virtio_ring.h>
->>>>    #include <linux/mod_devicetable.h>
->>>>
->>>>    #include "iova_domain.h"
->>>> @@ -46,6 +47,15 @@
->>>>
->>>>    #define IRQ_UNBOUND -1
->>>>
->>>> +#define VDUSE_NET_INVALID_FEATURES_MASK         \
->>>> +       (BIT_ULL(VIRTIO_NET_F_CTRL_VQ) |        \
->>>> +        BIT_ULL(VIRTIO_NET_F_CTRL_RX)   |      \
->>>> +        BIT_ULL(VIRTIO_NET_F_CTRL_VLAN) |      \
->>>> +        BIT_ULL(VIRTIO_NET_F_GUEST_ANNOUNCE) | \
->>>> +        BIT_ULL(VIRTIO_NET_F_MQ) |             \
->>>> +        BIT_ULL(VIRTIO_NET_F_CTRL_MAC_ADDR) |  \
->>>> +        BIT_ULL(VIRTIO_NET_F_RSS))
->>>
->>> We need to make this as well:
->>>
->>> VIRTIO_NET_F_CTRL_GUEST_OFFLOADS
->>
->> I missed it, and see others have been added in the Virtio spec
->> repository (BTW, I see this specific one is missing in the dependency
->> list [0], I will submit a patch).
->>
->> I wonder if it is not just simpler to just check for
->> VIRTIO_NET_F_CTRL_VQ is requested. As we fail instead of masking out,
->> the VDUSE driver won't be the one violating the spec so it should be
->> good?
->>
->> It will avoid having to update the mask if new features depending on it
->> are added (or forgetting to update it).
->>
->> WDYT?
->>
-> 
-> I think it is safer to work with a whitelist, instead of a blacklist.
-> As any new feature might require code changes in QEMU. Is that
-> possible?
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+---
+Change log:
+v2:
+  * pass gfp_t instead of bool to virtio_fs_enqueue_req() (Suggested by Matthew)
 
-Well, that's how it was done in previous revision. :)
+v1: https://lore.kernel.org/linux-fsdevel/20240104015805.2103766-1-houtao@huaweicloud.com
 
-I changed to a blacklist for consistency with block device's WCE feature
-check after Jason's comment.
+ fs/fuse/virtio_fs.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
-I'm not sure moving back to a whitelist brings much advantages when
-compared to the effort of keeping it up to date. Just blacklisting
-VIRTIO_NET_F_CTRL_VQ is enough in my opinion.
-
-Thanks,
-Maxime
-
->> Thanks,
->> Maxime
->>
->> [0]:
->> https://github.com/oasis-tcs/virtio-spec/blob/5fc35a7efb903fc352da81a6d2be5c01810b68d3/device-types/net/description.tex#L129
->>> Other than this,
->>>
->>> Acked-by: Jason Wang <jasowang@redhat.com>
->>>
->>> Thanks
->>>
->>>> +
->>>>    struct vduse_virtqueue {
->>>>           u16 index;
->>>>           u16 num_max;
->>>> @@ -1680,6 +1690,9 @@ static bool features_is_valid(struct vduse_dev_config *config)
->>>>           if ((config->device_id == VIRTIO_ID_BLOCK) &&
->>>>                           (config->features & (1ULL << VIRTIO_BLK_F_CONFIG_WCE)))
->>>>                   return false;
->>>> +       else if ((config->device_id == VIRTIO_ID_NET) &&
->>>> +                       (config->features & VDUSE_NET_INVALID_FEATURES_MASK))
->>>> +               return false;
->>>>
->>>>           return true;
->>>>    }
->>>> --
->>>> 2.43.0
->>>>
->>>
->>
->>
-> 
+diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+index 3aac31d451985..8cf518624ce9e 100644
+--- a/fs/fuse/virtio_fs.c
++++ b/fs/fuse/virtio_fs.c
+@@ -87,7 +87,8 @@ struct virtio_fs_req_work {
+ };
+ 
+ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
+-				 struct fuse_req *req, bool in_flight);
++				 struct fuse_req *req, bool in_flight,
++				 gfp_t gfp);
+ 
+ static const struct constant_table dax_param_enums[] = {
+ 	{"always",	FUSE_DAX_ALWAYS },
+@@ -383,7 +384,7 @@ static void virtio_fs_request_dispatch_work(struct work_struct *work)
+ 		list_del_init(&req->list);
+ 		spin_unlock(&fsvq->lock);
+ 
+-		ret = virtio_fs_enqueue_req(fsvq, req, true);
++		ret = virtio_fs_enqueue_req(fsvq, req, true, GFP_NOFS);
+ 		if (ret < 0) {
+ 			if (ret == -ENOMEM || ret == -ENOSPC) {
+ 				spin_lock(&fsvq->lock);
+@@ -488,7 +489,7 @@ static void virtio_fs_hiprio_dispatch_work(struct work_struct *work)
+ }
+ 
+ /* Allocate and copy args into req->argbuf */
+-static int copy_args_to_argbuf(struct fuse_req *req)
++static int copy_args_to_argbuf(struct fuse_req *req, gfp_t gfp)
+ {
+ 	struct fuse_args *args = req->args;
+ 	unsigned int offset = 0;
+@@ -502,7 +503,7 @@ static int copy_args_to_argbuf(struct fuse_req *req)
+ 	len = fuse_len_args(num_in, (struct fuse_arg *) args->in_args) +
+ 	      fuse_len_args(num_out, args->out_args);
+ 
+-	req->argbuf = kmalloc(len, GFP_ATOMIC);
++	req->argbuf = kmalloc(len, gfp);
+ 	if (!req->argbuf)
+ 		return -ENOMEM;
+ 
+@@ -1119,7 +1120,8 @@ static unsigned int sg_init_fuse_args(struct scatterlist *sg,
+ 
+ /* Add a request to a virtqueue and kick the device */
+ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
+-				 struct fuse_req *req, bool in_flight)
++				 struct fuse_req *req, bool in_flight,
++				 gfp_t gfp)
+ {
+ 	/* requests need at least 4 elements */
+ 	struct scatterlist *stack_sgs[6];
+@@ -1140,8 +1142,8 @@ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
+ 	/* Does the sglist fit on the stack? */
+ 	total_sgs = sg_count_fuse_req(req);
+ 	if (total_sgs > ARRAY_SIZE(stack_sgs)) {
+-		sgs = kmalloc_array(total_sgs, sizeof(sgs[0]), GFP_ATOMIC);
+-		sg = kmalloc_array(total_sgs, sizeof(sg[0]), GFP_ATOMIC);
++		sgs = kmalloc_array(total_sgs, sizeof(sgs[0]), gfp);
++		sg = kmalloc_array(total_sgs, sizeof(sg[0]), gfp);
+ 		if (!sgs || !sg) {
+ 			ret = -ENOMEM;
+ 			goto out;
+@@ -1149,7 +1151,7 @@ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
+ 	}
+ 
+ 	/* Use a bounce buffer since stack args cannot be mapped */
+-	ret = copy_args_to_argbuf(req);
++	ret = copy_args_to_argbuf(req, gfp);
+ 	if (ret < 0)
+ 		goto out;
+ 
+@@ -1245,7 +1247,7 @@ __releases(fiq->lock)
+ 		 fuse_len_args(req->args->out_numargs, req->args->out_args));
+ 
+ 	fsvq = &fs->vqs[queue_id];
+-	ret = virtio_fs_enqueue_req(fsvq, req, false);
++	ret = virtio_fs_enqueue_req(fsvq, req, false, GFP_ATOMIC);
+ 	if (ret < 0) {
+ 		if (ret == -ENOMEM || ret == -ENOSPC) {
+ 			/*
+-- 
+2.29.2
 
