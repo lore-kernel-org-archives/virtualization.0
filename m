@@ -1,277 +1,349 @@
-Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 210D52E822
-	for <virtualization@lists.linux.dev>; Fri,  5 Jan 2024 16:06:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39A2E35EF1
+	for <virtualization@lists.linux-foundation.org>; Fri,  5 Jan 2024 18:46:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DDHEDgwO"
-Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-1d3ef33e68dso5116825ad.1
-        for <virtualization@lists.linux.dev>; Fri, 05 Jan 2024 08:06:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1704470793; x=1705075593; darn=lists.linux.dev;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=V4sL4eVhA4uzhcU12JGTBN6o5Vi9zu5IXlvUCuaFH2U=;
-        b=DDHEDgwO/Hxjs/yIL7WfYgP7loWe8hcIGX50sh6mRygx5XOXVcAMSgEoj/F2bnTMtk
-         KFFs2iESWASufmpQtqL1C5TqizNeqxDGZt0/D/e3JZZglNr8SlQl4W2nJOFeLKSqu+a5
-         /AFf24Zm3e2tcfbG6Pnjc5fW0V129lB8Qi3apeIBRDcBMxDrWvJ7xlUuj6kc0VTJwcpo
-         THf/FnFkhAbqc5+TXbFs52RfWBg7wQ6OMYWF9Cg26i+ttxadjZPraVm8R9U7esWTyMQd
-         ZO0cSxxG/s/xA+zTMR9qUrJVWgYl3yxYLUpOL4rG/hQHt27psZTBECuevZ9x9DSCQ3NN
-         tIxw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1704470793; x=1705075593;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=V4sL4eVhA4uzhcU12JGTBN6o5Vi9zu5IXlvUCuaFH2U=;
-        b=t0RLXFtIp3H190U7QMGQYl7431hIP5+kFvF7ZzwteLNPJL++OmmGzb2/CvIizJ0ZwG
-         Oc3aE5SQ2sbd5nyDil7UvntEKo42rWSdCAv6BY5j6rK6n2s4vVVEo7TZoguBtVv9JOry
-         nFKbjEa8F9ROYd1hI2fr1LktyHS2Xxwzc85PDSMH9BWf3DEZtjueOgQg+y3XayipajYS
-         oKWOyGjiVHqAQPKgSIYMj/7Rl4xaUKVnWEXl/TexAn9vyDpXDJf+WGg50obRYIhwsGXi
-         kKsOLDKtT3fCcAAfzFa0Z25oLlaAff9usgUtA4eliUtNvskbcNSq3dD4JGfDEHcB9H5n
-         ENrg==
-X-Gm-Message-State: AOJu0Yx3NnttWdNWmy25xilyRH/fKx/Rka2xJCVj2Scq2VO358vILnSs
-	sG46FK9vlfVg+bf1hFSHfO8=
-X-Google-Smtp-Source: AGHT+IFId1NQA5s8Q24G3jnvjMhSA6FtovxGHk+nOJVjnxKKfOUra8OceLYKtNzdfMDhrRvyMbCuxg==
-X-Received: by 2002:a17:903:2347:b0:1d4:8ea3:8de3 with SMTP id c7-20020a170903234700b001d48ea38de3mr3378224plh.7.1704470793318;
-        Fri, 05 Jan 2024 08:06:33 -0800 (PST)
-Received: from ?IPv6:2605:59c8:448:b800:82ee:73ff:fe41:9a02? ([2605:59c8:448:b800:82ee:73ff:fe41:9a02])
-        by smtp.googlemail.com with ESMTPSA id h3-20020a170902704300b001d3e9937d92sm1568337plt.51.2024.01.05.08.06.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 05 Jan 2024 08:06:32 -0800 (PST)
-Message-ID: <1a66f99173de36e1ae639569582feaf76202361d.camel@gmail.com>
-Subject: Re: [PATCH net-next 4/6] vhost/net: remove
- vhost_net_page_frag_refill()
-From: Alexander H Duyck <alexander.duyck@gmail.com>
-To: Yunsheng Lin <linyunsheng@huawei.com>, davem@davemloft.net,
- kuba@kernel.org,  pabeni@redhat.com
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Jason Wang
- <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Alexei
- Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend
- <john.fastabend@gmail.com>,  kvm@vger.kernel.org,
- virtualization@lists.linux.dev, bpf@vger.kernel.org
-Date: Fri, 05 Jan 2024 08:06:31 -0800
-In-Reply-To: <20240103095650.25769-5-linyunsheng@huawei.com>
-References: <20240103095650.25769-1-linyunsheng@huawei.com>
-	 <20240103095650.25769-5-linyunsheng@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="YB23RsRK"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id D385F6143C
+	for <virtualization@lists.linux-foundation.org>; Fri,  5 Jan 2024 18:46:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D385F6143C
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=YB23RsRK
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id zZvSNiVtJ9Da
+	for <virtualization@lists.linux-foundation.org>;
+	Fri,  5 Jan 2024 18:46:48 +0000 (UTC)
+Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [IPv6:2a00:1098:ed:100::25])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id D770360888
+	for <virtualization@lists.linux-foundation.org>; Fri,  5 Jan 2024 18:46:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D770360888
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1704480406;
+	bh=OG70x+yKpFBifTPcolgUaIEqHd7d1WD6+RZ9Tl5wOes=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=YB23RsRKxR+1RkjmVm35UNkXQU6pfoJndLpD35nBY7f5vAM4IMZIp654E4gONbOg1
+	 /gXaTpfUeYZrNoU3JcsRQEKRyPzTrljW5AjjV2pblA9YyMoSkkLJlHR+OoqIRxfSCx
+	 MW2Mg/koFz1V8K/spUHGu3IAoEhOvnTASWeK6dfNlFJlxvt/2g3FSfur1MPldvPLgX
+	 GMdwjgU4uk0n34InwkEUHXYFXvhJZB5agoOe6wqIIrAi9zUSibA4nFHmLnlrbU2FUh
+	 h0tr58nwCh8Wco8tyKqUZncCWgfvataTMjNCSDg6OkU1V/laeNEiRCths6OkIM4xFA
+	 YEbhBt+xb4XHg==
+Received: from workpc.. (cola.collaboradmins.com [195.201.22.229])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: dmitry.osipenko)
+	by madrid.collaboradmins.com (Postfix) with ESMTPSA id A626C3782039;
+	Fri,  5 Jan 2024 18:46:44 +0000 (UTC)
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+To: David Airlie <airlied@gmail.com>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	Daniel Vetter <daniel@ffwll.ch>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	=?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+	Qiang Yu <yuq825@gmail.com>,
+	Steven Price <steven.price@arm.com>,
+	Boris Brezillon <boris.brezillon@collabora.com>,
+	Emma Anholt <emma@anholt.net>,
+	Melissa Wen <mwen@igalia.com>
+Cc: dri-devel@lists.freedesktop.org,
+	linux-kernel@vger.kernel.org,
+	kernel@collabora.com,
+	virtualization@lists.linux-foundation.org
+Subject: [PATCH v19 01/30] drm/gem: Change locked/unlocked postfix of drm_gem_v/unmap() function names
+Date: Fri,  5 Jan 2024 21:45:55 +0300
+Message-ID: <20240105184624.508603-2-dmitry.osipenko@collabora.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20240105184624.508603-1-dmitry.osipenko@collabora.com>
+References: <20240105184624.508603-1-dmitry.osipenko@collabora.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-On Wed, 2024-01-03 at 17:56 +0800, Yunsheng Lin wrote:
-> The page frag in vhost_net_page_frag_refill() uses the
-> 'struct page_frag' from skb_page_frag_refill(), but it's
-> implementation is similar to page_frag_alloc_align() now.
->=20
-> This patch removes vhost_net_page_frag_refill() by using
-> 'struct page_frag_cache' instead of 'struct page_frag',
-> and allocating frag using page_frag_alloc_align().
->=20
-> The added benefit is that not only unifying the page frag
-> implementation a little, but also having about 0.5% performance
-> boost testing by using the vhost_net_test introduced in the
-> last patch.
->=20
-> Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
-> Acked-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/vhost/net.c | 93 ++++++++++++++-------------------------------
->  1 file changed, 29 insertions(+), 64 deletions(-)
->=20
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index e574e21cc0ca..805e11d598e4 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -141,10 +141,8 @@ struct vhost_net {
->  	unsigned tx_zcopy_err;
->  	/* Flush in progress. Protected by tx vq lock. */
->  	bool tx_flush;
-> -	/* Private page frag */
-> -	struct page_frag page_frag;
-> -	/* Refcount bias of page frag */
-> -	int refcnt_bias;
-> +	/* Private page frag cache */
-> +	struct page_frag_cache pf_cache;
->  };
-> =20
->  static unsigned vhost_net_zcopy_mask __read_mostly;
-> @@ -655,41 +653,6 @@ static bool tx_can_batch(struct vhost_virtqueue *vq,=
- size_t total_len)
->  	       !vhost_vq_avail_empty(vq->dev, vq);
->  }
-> =20
-> -static bool vhost_net_page_frag_refill(struct vhost_net *net, unsigned i=
-nt sz,
-> -				       struct page_frag *pfrag, gfp_t gfp)
-> -{
-> -	if (pfrag->page) {
-> -		if (pfrag->offset + sz <=3D pfrag->size)
-> -			return true;
-> -		__page_frag_cache_drain(pfrag->page, net->refcnt_bias);
-> -	}
-> -
-> -	pfrag->offset =3D 0;
-> -	net->refcnt_bias =3D 0;
-> -	if (SKB_FRAG_PAGE_ORDER) {
-> -		/* Avoid direct reclaim but allow kswapd to wake */
-> -		pfrag->page =3D alloc_pages((gfp & ~__GFP_DIRECT_RECLAIM) |
-> -					  __GFP_COMP | __GFP_NOWARN |
-> -					  __GFP_NORETRY | __GFP_NOMEMALLOC,
-> -					  SKB_FRAG_PAGE_ORDER);
-> -		if (likely(pfrag->page)) {
-> -			pfrag->size =3D PAGE_SIZE << SKB_FRAG_PAGE_ORDER;
-> -			goto done;
-> -		}
-> -	}
-> -	pfrag->page =3D alloc_page(gfp);
-> -	if (likely(pfrag->page)) {
-> -		pfrag->size =3D PAGE_SIZE;
-> -		goto done;
-> -	}
-> -	return false;
-> -
-> -done:
-> -	net->refcnt_bias =3D USHRT_MAX;
-> -	page_ref_add(pfrag->page, USHRT_MAX - 1);
-> -	return true;
-> -}
-> -
->  #define VHOST_NET_RX_PAD (NET_IP_ALIGN + NET_SKB_PAD)
-> =20
->  static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
-> @@ -699,7 +662,6 @@ static int vhost_net_build_xdp(struct vhost_net_virtq=
-ueue *nvq,
->  	struct vhost_net *net =3D container_of(vq->dev, struct vhost_net,
->  					     dev);
->  	struct socket *sock =3D vhost_vq_get_backend(vq);
-> -	struct page_frag *alloc_frag =3D &net->page_frag;
->  	struct virtio_net_hdr *gso;
->  	struct xdp_buff *xdp =3D &nvq->xdp[nvq->batched_xdp];
->  	struct tun_xdp_hdr *hdr;
-> @@ -710,6 +672,7 @@ static int vhost_net_build_xdp(struct vhost_net_virtq=
-ueue *nvq,
->  	int sock_hlen =3D nvq->sock_hlen;
->  	void *buf;
->  	int copied;
-> +	int ret;
-> =20
->  	if (unlikely(len < nvq->sock_hlen))
->  		return -EFAULT;
-> @@ -719,18 +682,17 @@ static int vhost_net_build_xdp(struct vhost_net_vir=
-tqueue *nvq,
->  		return -ENOSPC;
-> =20
->  	buflen +=3D SKB_DATA_ALIGN(len + pad);
-> -	alloc_frag->offset =3D ALIGN((u64)alloc_frag->offset, SMP_CACHE_BYTES);
-> -	if (unlikely(!vhost_net_page_frag_refill(net, buflen,
-> -						 alloc_frag, GFP_KERNEL)))
-> +	buf =3D page_frag_alloc_align(&net->pf_cache, buflen, GFP_KERNEL,
-> +				    SMP_CACHE_BYTES);
+Make drm/gem API function names consistent by having locked function
+use the _locked postfix in the name, while the unlocked variants don't
+use the _unlocked postfix. Rename drm_gem_v/unmap() function names to
+make them consistent with the rest of the API functions.
 
-If your changes from patch 1 are just to make it fit into this layout
-might I suggest just splitting up page_frag_alloc_align into an inline
-that accepts the arguments you have here, and adding
-__page_frag_alloc_align which is passed the mask the original function
-expected. By doing that you should be able to maintain the same level
-of performance and still get most of the code cleanup.
+Acked-by: Maxime Ripard <mripard@kernel.org>
+Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+Suggested-by: Boris Brezillon <boris.brezillon@collabora.com>
+Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+---
+ drivers/gpu/drm/drm_client.c                 |  6 +++---
+ drivers/gpu/drm/drm_gem.c                    | 20 ++++++++++----------
+ drivers/gpu/drm/drm_gem_framebuffer_helper.c |  6 +++---
+ drivers/gpu/drm/drm_internal.h               |  4 ++--
+ drivers/gpu/drm/drm_prime.c                  |  4 ++--
+ drivers/gpu/drm/lima/lima_sched.c            |  4 ++--
+ drivers/gpu/drm/panfrost/panfrost_dump.c     |  4 ++--
+ drivers/gpu/drm/panfrost/panfrost_perfcnt.c  |  6 +++---
+ include/drm/drm_gem.h                        |  4 ++--
+ 9 files changed, 29 insertions(+), 29 deletions(-)
 
-> +	if (unlikely(!buf))
->  		return -ENOMEM;
-> =20
-> -	buf =3D (char *)page_address(alloc_frag->page) + alloc_frag->offset;
-> -	copied =3D copy_page_from_iter(alloc_frag->page,
-> -				     alloc_frag->offset +
-> -				     offsetof(struct tun_xdp_hdr, gso),
-> -				     sock_hlen, from);
-> -	if (copied !=3D sock_hlen)
-> -		return -EFAULT;
-> +	copied =3D copy_from_iter(buf + offsetof(struct tun_xdp_hdr, gso),
-> +				sock_hlen, from);
-> +	if (copied !=3D sock_hlen) {
-> +		ret =3D -EFAULT;
-> +		goto err;
-> +	}
-> =20
->  	hdr =3D buf;
->  	gso =3D &hdr->gso;
-> @@ -743,27 +705,30 @@ static int vhost_net_build_xdp(struct vhost_net_vir=
-tqueue *nvq,
->  			       vhost16_to_cpu(vq, gso->csum_start) +
->  			       vhost16_to_cpu(vq, gso->csum_offset) + 2);
-> =20
-> -		if (vhost16_to_cpu(vq, gso->hdr_len) > len)
-> -			return -EINVAL;
-> +		if (vhost16_to_cpu(vq, gso->hdr_len) > len) {
-> +			ret =3D -EINVAL;
-> +			goto err;
-> +		}
->  	}
-> =20
->  	len -=3D sock_hlen;
-> -	copied =3D copy_page_from_iter(alloc_frag->page,
-> -				     alloc_frag->offset + pad,
-> -				     len, from);
-> -	if (copied !=3D len)
-> -		return -EFAULT;
-> +	copied =3D copy_from_iter(buf + pad, len, from);
-> +	if (copied !=3D len) {
-> +		ret =3D -EFAULT;
-> +		goto err;
-> +	}
-> =20
->  	xdp_init_buff(xdp, buflen, NULL);
->  	xdp_prepare_buff(xdp, buf, pad, len, true);
->  	hdr->buflen =3D buflen;
-> =20
-> -	--net->refcnt_bias;
-> -	alloc_frag->offset +=3D buflen;
-> -
->  	++nvq->batched_xdp;
-> =20
->  	return 0;
-> +
-> +err:
-> +	page_frag_free(buf);
-> +	return ret;
->  }
-> =20
->  static void handle_tx_copy(struct vhost_net *net, struct socket *sock)
-> @@ -1353,8 +1318,7 @@ static int vhost_net_open(struct inode *inode, stru=
-ct file *f)
->  			vqs[VHOST_NET_VQ_RX]);
-> =20
->  	f->private_data =3D n;
-> -	n->page_frag.page =3D NULL;
-> -	n->refcnt_bias =3D 0;
-> +	n->pf_cache.va =3D NULL;
-> =20
->  	return 0;
->  }
-> @@ -1422,8 +1386,9 @@ static int vhost_net_release(struct inode *inode, s=
-truct file *f)
->  	kfree(n->vqs[VHOST_NET_VQ_RX].rxq.queue);
->  	kfree(n->vqs[VHOST_NET_VQ_TX].xdp);
->  	kfree(n->dev.vqs);
-> -	if (n->page_frag.page)
-> -		__page_frag_cache_drain(n->page_frag.page, n->refcnt_bias);
-> +	if (n->pf_cache.va)
-> +		__page_frag_cache_drain(virt_to_head_page(n->pf_cache.va),
-> +					n->pf_cache.pagecnt_bias);
->  	kvfree(n);
->  	return 0;
->  }
+diff --git a/drivers/gpu/drm/drm_client.c b/drivers/gpu/drm/drm_client.c
+index 9403b3f576f7..7ee9baf46eaa 100644
+--- a/drivers/gpu/drm/drm_client.c
++++ b/drivers/gpu/drm/drm_client.c
+@@ -255,7 +255,7 @@ void drm_client_dev_restore(struct drm_device *dev)
+ static void drm_client_buffer_delete(struct drm_client_buffer *buffer)
+ {
+ 	if (buffer->gem) {
+-		drm_gem_vunmap_unlocked(buffer->gem, &buffer->map);
++		drm_gem_vunmap(buffer->gem, &buffer->map);
+ 		drm_gem_object_put(buffer->gem);
+ 	}
+ 
+@@ -339,7 +339,7 @@ drm_client_buffer_vmap(struct drm_client_buffer *buffer,
+ 	 * fd_install step out of the driver backend hooks, to make that
+ 	 * final step optional for internal users.
+ 	 */
+-	ret = drm_gem_vmap_unlocked(buffer->gem, map);
++	ret = drm_gem_vmap(buffer->gem, map);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -361,7 +361,7 @@ void drm_client_buffer_vunmap(struct drm_client_buffer *buffer)
+ {
+ 	struct iosys_map *map = &buffer->map;
+ 
+-	drm_gem_vunmap_unlocked(buffer->gem, map);
++	drm_gem_vunmap(buffer->gem, map);
+ }
+ EXPORT_SYMBOL(drm_client_buffer_vunmap);
+ 
+diff --git a/drivers/gpu/drm/drm_gem.c b/drivers/gpu/drm/drm_gem.c
+index 44a948b80ee1..95327b003692 100644
+--- a/drivers/gpu/drm/drm_gem.c
++++ b/drivers/gpu/drm/drm_gem.c
+@@ -1175,7 +1175,7 @@ void drm_gem_unpin(struct drm_gem_object *obj)
+ 		obj->funcs->unpin(obj);
+ }
+ 
+-int drm_gem_vmap(struct drm_gem_object *obj, struct iosys_map *map)
++int drm_gem_vmap_locked(struct drm_gem_object *obj, struct iosys_map *map)
+ {
+ 	int ret;
+ 
+@@ -1192,9 +1192,9 @@ int drm_gem_vmap(struct drm_gem_object *obj, struct iosys_map *map)
+ 
+ 	return 0;
+ }
+-EXPORT_SYMBOL(drm_gem_vmap);
++EXPORT_SYMBOL(drm_gem_vmap_locked);
+ 
+-void drm_gem_vunmap(struct drm_gem_object *obj, struct iosys_map *map)
++void drm_gem_vunmap_locked(struct drm_gem_object *obj, struct iosys_map *map)
+ {
+ 	dma_resv_assert_held(obj->resv);
+ 
+@@ -1207,27 +1207,27 @@ void drm_gem_vunmap(struct drm_gem_object *obj, struct iosys_map *map)
+ 	/* Always set the mapping to NULL. Callers may rely on this. */
+ 	iosys_map_clear(map);
+ }
+-EXPORT_SYMBOL(drm_gem_vunmap);
++EXPORT_SYMBOL(drm_gem_vunmap_locked);
+ 
+-int drm_gem_vmap_unlocked(struct drm_gem_object *obj, struct iosys_map *map)
++int drm_gem_vmap(struct drm_gem_object *obj, struct iosys_map *map)
+ {
+ 	int ret;
+ 
+ 	dma_resv_lock(obj->resv, NULL);
+-	ret = drm_gem_vmap(obj, map);
++	ret = drm_gem_vmap_locked(obj, map);
+ 	dma_resv_unlock(obj->resv);
+ 
+ 	return ret;
+ }
+-EXPORT_SYMBOL(drm_gem_vmap_unlocked);
++EXPORT_SYMBOL(drm_gem_vmap);
+ 
+-void drm_gem_vunmap_unlocked(struct drm_gem_object *obj, struct iosys_map *map)
++void drm_gem_vunmap(struct drm_gem_object *obj, struct iosys_map *map)
+ {
+ 	dma_resv_lock(obj->resv, NULL);
+-	drm_gem_vunmap(obj, map);
++	drm_gem_vunmap_locked(obj, map);
+ 	dma_resv_unlock(obj->resv);
+ }
+-EXPORT_SYMBOL(drm_gem_vunmap_unlocked);
++EXPORT_SYMBOL(drm_gem_vunmap);
+ 
+ /**
+  * drm_gem_lock_reservations - Sets up the ww context and acquires
+diff --git a/drivers/gpu/drm/drm_gem_framebuffer_helper.c b/drivers/gpu/drm/drm_gem_framebuffer_helper.c
+index 3bdb6ba37ff4..3808f47310bf 100644
+--- a/drivers/gpu/drm/drm_gem_framebuffer_helper.c
++++ b/drivers/gpu/drm/drm_gem_framebuffer_helper.c
+@@ -362,7 +362,7 @@ int drm_gem_fb_vmap(struct drm_framebuffer *fb, struct iosys_map *map,
+ 			ret = -EINVAL;
+ 			goto err_drm_gem_vunmap;
+ 		}
+-		ret = drm_gem_vmap_unlocked(obj, &map[i]);
++		ret = drm_gem_vmap(obj, &map[i]);
+ 		if (ret)
+ 			goto err_drm_gem_vunmap;
+ 	}
+@@ -384,7 +384,7 @@ int drm_gem_fb_vmap(struct drm_framebuffer *fb, struct iosys_map *map,
+ 		obj = drm_gem_fb_get_obj(fb, i);
+ 		if (!obj)
+ 			continue;
+-		drm_gem_vunmap_unlocked(obj, &map[i]);
++		drm_gem_vunmap(obj, &map[i]);
+ 	}
+ 	return ret;
+ }
+@@ -411,7 +411,7 @@ void drm_gem_fb_vunmap(struct drm_framebuffer *fb, struct iosys_map *map)
+ 			continue;
+ 		if (iosys_map_is_null(&map[i]))
+ 			continue;
+-		drm_gem_vunmap_unlocked(obj, &map[i]);
++		drm_gem_vunmap(obj, &map[i]);
+ 	}
+ }
+ EXPORT_SYMBOL(drm_gem_fb_vunmap);
+diff --git a/drivers/gpu/drm/drm_internal.h b/drivers/gpu/drm/drm_internal.h
+index 8e4faf0a28e6..227f58e5b232 100644
+--- a/drivers/gpu/drm/drm_internal.h
++++ b/drivers/gpu/drm/drm_internal.h
+@@ -172,8 +172,8 @@ void drm_gem_print_info(struct drm_printer *p, unsigned int indent,
+ 
+ int drm_gem_pin(struct drm_gem_object *obj);
+ void drm_gem_unpin(struct drm_gem_object *obj);
+-int drm_gem_vmap(struct drm_gem_object *obj, struct iosys_map *map);
+-void drm_gem_vunmap(struct drm_gem_object *obj, struct iosys_map *map);
++int drm_gem_vmap_locked(struct drm_gem_object *obj, struct iosys_map *map);
++void drm_gem_vunmap_locked(struct drm_gem_object *obj, struct iosys_map *map);
+ 
+ /* drm_debugfs.c drm_debugfs_crc.c */
+ #if defined(CONFIG_DEBUG_FS)
+diff --git a/drivers/gpu/drm/drm_prime.c b/drivers/gpu/drm/drm_prime.c
+index 834a5e28abbe..4a5935a400ec 100644
+--- a/drivers/gpu/drm/drm_prime.c
++++ b/drivers/gpu/drm/drm_prime.c
+@@ -684,7 +684,7 @@ int drm_gem_dmabuf_vmap(struct dma_buf *dma_buf, struct iosys_map *map)
+ {
+ 	struct drm_gem_object *obj = dma_buf->priv;
+ 
+-	return drm_gem_vmap(obj, map);
++	return drm_gem_vmap_locked(obj, map);
+ }
+ EXPORT_SYMBOL(drm_gem_dmabuf_vmap);
+ 
+@@ -700,7 +700,7 @@ void drm_gem_dmabuf_vunmap(struct dma_buf *dma_buf, struct iosys_map *map)
+ {
+ 	struct drm_gem_object *obj = dma_buf->priv;
+ 
+-	drm_gem_vunmap(obj, map);
++	drm_gem_vunmap_locked(obj, map);
+ }
+ EXPORT_SYMBOL(drm_gem_dmabuf_vunmap);
+ 
+diff --git a/drivers/gpu/drm/lima/lima_sched.c b/drivers/gpu/drm/lima/lima_sched.c
+index c3bf8cda8498..3813f30480ba 100644
+--- a/drivers/gpu/drm/lima/lima_sched.c
++++ b/drivers/gpu/drm/lima/lima_sched.c
+@@ -371,7 +371,7 @@ static void lima_sched_build_error_task_list(struct lima_sched_task *task)
+ 		} else {
+ 			buffer_chunk->size = lima_bo_size(bo);
+ 
+-			ret = drm_gem_vmap_unlocked(&bo->base.base, &map);
++			ret = drm_gem_vmap(&bo->base.base, &map);
+ 			if (ret) {
+ 				kvfree(et);
+ 				goto out;
+@@ -379,7 +379,7 @@ static void lima_sched_build_error_task_list(struct lima_sched_task *task)
+ 
+ 			memcpy(buffer_chunk + 1, map.vaddr, buffer_chunk->size);
+ 
+-			drm_gem_vunmap_unlocked(&bo->base.base, &map);
++			drm_gem_vunmap(&bo->base.base, &map);
+ 		}
+ 
+ 		buffer_chunk = (void *)(buffer_chunk + 1) + buffer_chunk->size;
+diff --git a/drivers/gpu/drm/panfrost/panfrost_dump.c b/drivers/gpu/drm/panfrost/panfrost_dump.c
+index 47751302f1bc..4042afe2fbf4 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_dump.c
++++ b/drivers/gpu/drm/panfrost/panfrost_dump.c
+@@ -209,7 +209,7 @@ void panfrost_core_dump(struct panfrost_job *job)
+ 			goto dump_header;
+ 		}
+ 
+-		ret = drm_gem_vmap_unlocked(&bo->base.base, &map);
++		ret = drm_gem_vmap(&bo->base.base, &map);
+ 		if (ret) {
+ 			dev_err(pfdev->dev, "Panfrost Dump: couldn't map Buffer Object\n");
+ 			iter.hdr->bomap.valid = 0;
+@@ -228,7 +228,7 @@ void panfrost_core_dump(struct panfrost_job *job)
+ 		vaddr = map.vaddr;
+ 		memcpy(iter.data, vaddr, bo->base.base.size);
+ 
+-		drm_gem_vunmap_unlocked(&bo->base.base, &map);
++		drm_gem_vunmap(&bo->base.base, &map);
+ 
+ 		iter.hdr->bomap.valid = 1;
+ 
+diff --git a/drivers/gpu/drm/panfrost/panfrost_perfcnt.c b/drivers/gpu/drm/panfrost/panfrost_perfcnt.c
+index ba9b6e2b2636..52befead08c6 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_perfcnt.c
++++ b/drivers/gpu/drm/panfrost/panfrost_perfcnt.c
+@@ -106,7 +106,7 @@ static int panfrost_perfcnt_enable_locked(struct panfrost_device *pfdev,
+ 		goto err_close_bo;
+ 	}
+ 
+-	ret = drm_gem_vmap_unlocked(&bo->base, &map);
++	ret = drm_gem_vmap(&bo->base, &map);
+ 	if (ret)
+ 		goto err_put_mapping;
+ 	perfcnt->buf = map.vaddr;
+@@ -165,7 +165,7 @@ static int panfrost_perfcnt_enable_locked(struct panfrost_device *pfdev,
+ 	return 0;
+ 
+ err_vunmap:
+-	drm_gem_vunmap_unlocked(&bo->base, &map);
++	drm_gem_vunmap(&bo->base, &map);
+ err_put_mapping:
+ 	panfrost_gem_mapping_put(perfcnt->mapping);
+ err_close_bo:
+@@ -195,7 +195,7 @@ static int panfrost_perfcnt_disable_locked(struct panfrost_device *pfdev,
+ 		  GPU_PERFCNT_CFG_MODE(GPU_PERFCNT_CFG_MODE_OFF));
+ 
+ 	perfcnt->user = NULL;
+-	drm_gem_vunmap_unlocked(&perfcnt->mapping->obj->base.base, &map);
++	drm_gem_vunmap(&perfcnt->mapping->obj->base.base, &map);
+ 	perfcnt->buf = NULL;
+ 	panfrost_gem_close(&perfcnt->mapping->obj->base.base, file_priv);
+ 	panfrost_mmu_as_put(pfdev, perfcnt->mapping->mmu);
+diff --git a/include/drm/drm_gem.h b/include/drm/drm_gem.h
+index 369505447acd..decb19ffb2c8 100644
+--- a/include/drm/drm_gem.h
++++ b/include/drm/drm_gem.h
+@@ -527,8 +527,8 @@ struct page **drm_gem_get_pages(struct drm_gem_object *obj);
+ void drm_gem_put_pages(struct drm_gem_object *obj, struct page **pages,
+ 		bool dirty, bool accessed);
+ 
+-int drm_gem_vmap_unlocked(struct drm_gem_object *obj, struct iosys_map *map);
+-void drm_gem_vunmap_unlocked(struct drm_gem_object *obj, struct iosys_map *map);
++int drm_gem_vmap(struct drm_gem_object *obj, struct iosys_map *map);
++void drm_gem_vunmap(struct drm_gem_object *obj, struct iosys_map *map);
+ 
+ int drm_gem_objects_lookup(struct drm_file *filp, void __user *bo_handles,
+ 			   int count, struct drm_gem_object ***objs_out);
+-- 
+2.43.0
 
-I would recommend reordering this patch with patch 5. Then you could
-remove the block that is setting "n->pf_cache.va =3D NULL" above and just
-make use of page_frag_cache_drain in the lower block which would also
-return the va to NULL.
