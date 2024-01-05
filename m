@@ -1,46 +1,46 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1873C3B7AC
-	for <virtualization@lists.linux-foundation.org>; Fri,  5 Jan 2024 18:47:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53F013C064
+	for <virtualization@lists.linux-foundation.org>; Fri,  5 Jan 2024 18:47:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="bC32xTjF"
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="cNGAEogZ"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 156D6436BC
-	for <virtualization@lists.linux-foundation.org>; Fri,  5 Jan 2024 18:47:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 156D6436BC
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=bC32xTjF
+	by smtp3.osuosl.org (Postfix) with ESMTP id 60A546143C
+	for <virtualization@lists.linux-foundation.org>; Fri,  5 Jan 2024 18:47:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 60A546143C
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=cNGAEogZ
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.1
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9c-9Unno2UAn
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 2hPPWDzD_Bzg
 	for <virtualization@lists.linux-foundation.org>;
-	Fri,  5 Jan 2024 18:47:26 +0000 (UTC)
+	Fri,  5 Jan 2024 18:47:29 +0000 (UTC)
 Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [46.235.227.194])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 310CD436A4
-	for <virtualization@lists.linux-foundation.org>; Fri,  5 Jan 2024 18:47:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 310CD436A4
+	by smtp3.osuosl.org (Postfix) with ESMTPS id A7F4660888
+	for <virtualization@lists.linux-foundation.org>; Fri,  5 Jan 2024 18:47:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A7F4660888
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1704480444;
-	bh=fLJxMhHQEYSpt8Bqc4/bJy7tBd8v7hDnk2PHVorE3qc=;
+	s=mail; t=1704480448;
+	bh=hLZrw2uyBORbZqEow6e5Z9wt3wafG02YrAXZMmshnO8=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=bC32xTjF4i+0BoGAcr5FknxLJTdvHfAZsGZ7CI25/elJxlKVuE3vR6OrI4/hvmfCa
-	 ThiwAnjeHHzZDCJRTuX2A8OwgkO2x+1+kcDl/KxfVobeazReMlnDhpm9QhLTtOfFdo
-	 R5RnbvFX6znHhPkHoEv7fDKAfzt7Psl7QnWxYeWNUbj/ZxJxmxwUNaL6hOMbZfK0jp
-	 hXiZblVuJ9mVWrTR4w/GzjJS1IAQ2qHE5F3R7ZxexU6Zsvz0qub7pSxo3zrJsxvCs7
-	 zVn+JG5PlHelFoc2HMTKOnOfQ1QldimrwoTjebvnpk/OtRQZK7lNR7tTn+X37ZbwTz
-	 dujX/5z5C4kCA==
+	b=cNGAEogZcRVb+dzqTWonn6PmYnXTX/FYV6PGxzbt6f7gVux5+fwoN2dMxpElgOFUS
+	 +33gPf13ydlPZmcFiQTEO0+P5pqkPzdqGlyjAxqtd7FpXlOaQ65gl2/ndIE4C0mMt+
+	 8xHKpqYWRDi4C35UEpLbVnJYos06xo0pZuVKz0NNx3y2Xs7AbpqylorRj/8+X+u83u
+	 w0/28yBpFqXZ2J8n7urums5aDltS79D3CrOamytc5tdJcglGEl9gCPuFZjbk2a1G/u
+	 JI2WrP99ehgJFQLyAQrYZhBGs+HZl3Ow4xHiUZb2nPJV/yaI9fr42/OlV7F9uE/zH3
+	 nYGaYi3xmoiXw==
 Received: from workpc.. (cola.collaboradmins.com [195.201.22.229])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
 	(Authenticated sender: dmitry.osipenko)
-	by madrid.collaboradmins.com (Postfix) with ESMTPSA id 50EDA3782046;
-	Fri,  5 Jan 2024 18:47:23 +0000 (UTC)
+	by madrid.collaboradmins.com (Postfix) with ESMTPSA id 6FB813782058;
+	Fri,  5 Jan 2024 18:47:26 +0000 (UTC)
 From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 To: David Airlie <airlied@gmail.com>,
 	Gerd Hoffmann <kraxel@redhat.com>,
@@ -60,9 +60,9 @@ Cc: dri-devel@lists.freedesktop.org,
 	linux-kernel@vger.kernel.org,
 	kernel@collabora.com,
 	virtualization@lists.linux-foundation.org
-Subject: [PATCH v19 25/30] drm/shmem-helper: Don't free refcounted GEM
-Date: Fri,  5 Jan 2024 21:46:19 +0300
-Message-ID: <20240105184624.508603-26-dmitry.osipenko@collabora.com>
+Subject: [PATCH v19 27/30] drm/virtio: Pin display framebuffer BO
+Date: Fri,  5 Jan 2024 21:46:21 +0300
+Message-ID: <20240105184624.508603-28-dmitry.osipenko@collabora.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20240105184624.508603-1-dmitry.osipenko@collabora.com>
 References: <20240105184624.508603-1-dmitry.osipenko@collabora.com>
@@ -74,39 +74,115 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Don't free shmem object if it has pages that are in use at the time of
-the GEM's freeing if DRM driver doesn't manage GEM/pages lifetime properly.
-This prevents memory corruption due to the use-after-free bug in exchange
-to leaking GEM.
+Prepare to addition of memory shrinker support by pinning display
+framebuffer BO pages in memory while they are in use by display on host.
+Shrinker is free to relocate framebuffer BO pages if it doesn't know that
+pages are in use, thus pin the pages to disallow shrinker to move them.
 
+Acked-by: Gerd Hoffmann <kraxel@redhat.com>
 Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 ---
- drivers/gpu/drm/drm_gem_shmem_helper.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_drv.h   |  2 ++
+ drivers/gpu/drm/virtio/virtgpu_gem.c   | 19 +++++++++++++++++++
+ drivers/gpu/drm/virtio/virtgpu_plane.c | 17 +++++++++++++++--
+ 3 files changed, 36 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
-index e6e6e693ab95..0d95d723b90d 100644
---- a/drivers/gpu/drm/drm_gem_shmem_helper.c
-+++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
-@@ -205,9 +205,15 @@ void drm_gem_shmem_free(struct drm_gem_shmem_object *shmem)
- 	if (obj->import_attach)
- 		drm_prime_gem_destroy(obj, shmem->sgt);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index bb7d86a0c6a1..83d1e4622292 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -318,6 +318,8 @@ void virtio_gpu_array_put_free(struct virtio_gpu_object_array *objs);
+ void virtio_gpu_array_put_free_delayed(struct virtio_gpu_device *vgdev,
+ 				       struct virtio_gpu_object_array *objs);
+ void virtio_gpu_array_put_free_work(struct work_struct *work);
++int virtio_gpu_gem_pin(struct virtio_gpu_object *bo);
++void virtio_gpu_gem_unpin(struct virtio_gpu_object *bo);
  
--	drm_WARN_ON(obj->dev, refcount_read(&shmem->vmap_use_count));
--	drm_WARN_ON(obj->dev, refcount_read(&shmem->pages_use_count));
--	drm_WARN_ON(obj->dev, refcount_read(&shmem->pages_pin_count));
-+	/*
-+	 * Prevent memory corruption caused by the use-after-free bug in a
-+	 * case where shmem user erroneously holds reference to pages while
-+	 * GEM is freed by leaking the GEM.
-+	 */
-+	if (drm_WARN_ON(obj->dev, refcount_read(&shmem->vmap_use_count)) ||
-+	    drm_WARN_ON(obj->dev, refcount_read(&shmem->pages_use_count)) ||
-+	    drm_WARN_ON(obj->dev, refcount_read(&shmem->pages_pin_count)))
-+		return;
+ /* virtgpu_vq.c */
+ int virtio_gpu_alloc_vbufs(struct virtio_gpu_device *vgdev);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
+index 7db48d17ee3a..625c05d625bf 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_gem.c
++++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
+@@ -294,3 +294,22 @@ void virtio_gpu_array_put_free_work(struct work_struct *work)
+ 	}
+ 	spin_unlock(&vgdev->obj_free_lock);
+ }
++
++int virtio_gpu_gem_pin(struct virtio_gpu_object *bo)
++{
++	int err;
++
++	if (virtio_gpu_is_shmem(bo)) {
++		err = drm_gem_shmem_pin(&bo->base);
++		if (err)
++			return err;
++	}
++
++	return 0;
++}
++
++void virtio_gpu_gem_unpin(struct virtio_gpu_object *bo)
++{
++	if (virtio_gpu_is_shmem(bo))
++		drm_gem_shmem_unpin(&bo->base);
++}
+diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+index a72a2dbda031..162fb8a44d71 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_plane.c
++++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+@@ -248,20 +248,28 @@ static int virtio_gpu_plane_prepare_fb(struct drm_plane *plane,
+ 	struct virtio_gpu_device *vgdev = dev->dev_private;
+ 	struct virtio_gpu_framebuffer *vgfb;
+ 	struct virtio_gpu_object *bo;
++	int err;
  
- 	drm_gem_object_release(obj);
- 	kfree(shmem);
+ 	if (!new_state->fb)
+ 		return 0;
+ 
+ 	vgfb = to_virtio_gpu_framebuffer(new_state->fb);
+ 	bo = gem_to_virtio_gpu_obj(vgfb->base.obj[0]);
+-	if (!bo || (plane->type == DRM_PLANE_TYPE_PRIMARY && !bo->guest_blob))
++
++	err = virtio_gpu_gem_pin(bo);
++	if (err)
++		return err;
++
++	if (plane->type == DRM_PLANE_TYPE_PRIMARY && !bo->guest_blob)
+ 		return 0;
+ 
+ 	if (bo->dumb && (plane->state->fb != new_state->fb)) {
+ 		vgfb->fence = virtio_gpu_fence_alloc(vgdev, vgdev->fence_drv.context,
+ 						     0);
+-		if (!vgfb->fence)
++		if (!vgfb->fence) {
++			virtio_gpu_gem_unpin(bo);
+ 			return -ENOMEM;
++		}
+ 	}
+ 
+ 	return 0;
+@@ -271,15 +279,20 @@ static void virtio_gpu_plane_cleanup_fb(struct drm_plane *plane,
+ 					struct drm_plane_state *state)
+ {
+ 	struct virtio_gpu_framebuffer *vgfb;
++	struct virtio_gpu_object *bo;
+ 
+ 	if (!state->fb)
+ 		return;
+ 
+ 	vgfb = to_virtio_gpu_framebuffer(state->fb);
++	bo = gem_to_virtio_gpu_obj(vgfb->base.obj[0]);
++
+ 	if (vgfb->fence) {
+ 		dma_fence_put(&vgfb->fence->f);
+ 		vgfb->fence = NULL;
+ 	}
++
++	virtio_gpu_gem_unpin(bo);
+ }
+ 
+ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
 -- 
 2.43.0
 
