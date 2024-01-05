@@ -1,36 +1,50 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C669836093;
-	Fri,  5 Jan 2024 20:21:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3D0035EF7
+	for <virtualization@lists.linux.dev>; Fri,  5 Jan 2024 20:41:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="nBEhS1X6"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=GH2fUIxY3jgbl3dQw34A+7ZL3ZN4Y5y8qZthX19vE/I=; b=nBEhS1X6OjPHGFrcdFWKaXU2uc
-	C/HyQD9hBggzIqKhTy1YwhypPjHB7wzqgdQnrZ3YXLX1S8gLkE8VwdmjCFsl1DJrdJRZk67hVbJ6O
-	h/jvKKuolffwxQxmk/g6O6NnxaHP204q4GxCoX9u33CJzOh2G1JxSb67Op6YDEwjuTsqjLoPYixEl
-	2E2uVQC0SrTTvYUpzPQfpL4Ah5+xwfyQOAXKqP6lSuXpEwQGd2mEfNGNTrFF2cVmfsMlZ6SzX7qIB
-	VUTA7n96aXJPmJN0T+SJLj1MlWjHh/jKm0BAEX3Hgr6wkHqtOG7n3/tLchQ3hwvZ25JZVbiKkpHAT
-	ZmGBHcoQ==;
-Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-	id 1rLqge-0017Fs-P6; Fri, 05 Jan 2024 20:21:00 +0000
-Date: Fri, 5 Jan 2024 20:21:00 +0000
-From: Matthew Wilcox <willy@infradead.org>
-To: Vivek Goyal <vgoyal@redhat.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dvuPWlMC"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1704487314;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=IXoAVCkoEpEA5h3FLI3eSkWAzRef2kLAyGV2xcy6gn4=;
+	b=dvuPWlMCZmfhefyK6nih29HQ8bGA2Moc83p+xI/TOrWw5mXL4QfnFAXg471dW+9Z/XC4Xm
+	V6AM4hFDJU2539q4+jfo9lhvtLI3cWf7s+19Tk5+tvpVyD/GS0PrS8NheH9fHnCluukZW0
+	9V8c0/L2lCtXBkdryrZRPtzmB3TZ6wA=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-131-4KEFV3L1NWaTJfcbAeu1bw-1; Fri, 05 Jan 2024 15:41:50 -0500
+X-MC-Unique: 4KEFV3L1NWaTJfcbAeu1bw-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 86F16845DC3;
+	Fri,  5 Jan 2024 20:41:49 +0000 (UTC)
+Received: from fedora.redhat.com (unknown [10.22.8.247])
+	by smtp.corp.redhat.com (Postfix) with ESMTPS id 52B8BC15A0C;
+	Fri,  5 Jan 2024 20:41:49 +0000 (UTC)
+Received: by fedora.redhat.com (Postfix, from userid 1000)
+	id 9D37728EBDA; Fri,  5 Jan 2024 15:41:48 -0500 (EST)
+Date: Fri, 5 Jan 2024 15:41:48 -0500
+From: Vivek Goyal <vgoyal@redhat.com>
+To: Matthew Wilcox <willy@infradead.org>
 Cc: Hou Tao <houtao@huaweicloud.com>, linux-fsdevel@vger.kernel.org,
 	Miklos Szeredi <miklos@szeredi.hu>,
 	Stefan Hajnoczi <stefanha@redhat.com>, linux-kernel@vger.kernel.org,
 	virtualization@lists.linux.dev, houtao1@huawei.com
 Subject: Re: [PATCH v2] virtiofs: use GFP_NOFS when enqueuing request through
  kworker
-Message-ID: <ZZhkrOdbau2O/B59@casper.infradead.org>
+Message-ID: <ZZhpjEwDwMS_mq-u@redhat.com>
 References: <20240105105305.4052672-1-houtao@huaweicloud.com>
  <ZZhjzwnQUEJhNJiq@redhat.com>
+ <ZZhkrOdbau2O/B59@casper.infradead.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -39,21 +53,36 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ZZhjzwnQUEJhNJiq@redhat.com>
+In-Reply-To: <ZZhkrOdbau2O/B59@casper.infradead.org>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.8
 
-On Fri, Jan 05, 2024 at 03:17:19PM -0500, Vivek Goyal wrote:
-> On Fri, Jan 05, 2024 at 06:53:05PM +0800, Hou Tao wrote:
-> > From: Hou Tao <houtao1@huawei.com>
+On Fri, Jan 05, 2024 at 08:21:00PM +0000, Matthew Wilcox wrote:
+> On Fri, Jan 05, 2024 at 03:17:19PM -0500, Vivek Goyal wrote:
+> > On Fri, Jan 05, 2024 at 06:53:05PM +0800, Hou Tao wrote:
+> > > From: Hou Tao <houtao1@huawei.com>
+> > > 
+> > > When invoking virtio_fs_enqueue_req() through kworker, both the
+> > > allocation of the sg array and the bounce buffer still use GFP_ATOMIC.
+> > > Considering the size of both the sg array and the bounce buffer may be
+> > > greater than PAGE_SIZE, use GFP_NOFS instead of GFP_ATOMIC to lower the
+> > > possibility of memory allocation failure.
+> > > 
 > > 
-> > When invoking virtio_fs_enqueue_req() through kworker, both the
-> > allocation of the sg array and the bounce buffer still use GFP_ATOMIC.
-> > Considering the size of both the sg array and the bounce buffer may be
-> > greater than PAGE_SIZE, use GFP_NOFS instead of GFP_ATOMIC to lower the
-> > possibility of memory allocation failure.
-> > 
+> > What's the practical benefit of this patch. Looks like if memory
+> > allocation fails, we keep retrying at interval of 1ms and don't
+> > return error to user space.
 > 
-> What's the practical benefit of this patch. Looks like if memory
-> allocation fails, we keep retrying at interval of 1ms and don't
-> return error to user space.
+> You don't deplete the atomic reserves unnecessarily?
 
-You don't deplete the atomic reserves unnecessarily?
+Sounds reasonable. 
+
+With GFP_NOFS specificed, can we still get -ENOMEM? Or this will block
+indefinitely till memory can be allocated. 
+
+I am trying to figure out with GFP_NOFS, do we still need to check for
+-ENOMEM while requeuing the req and asking worker thread to retry after
+1ms. 
+
+Thanks
+Vivek
+
