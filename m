@@ -1,156 +1,148 @@
-Received: from dggsgout11.his.huawei.com (unknown [45.249.212.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8B9A286B9
-	for <virtualization@lists.linux.dev>; Fri,  5 Jan 2024 10:52:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=huaweicloud.com
-Received: from mail.maildlp.com (unknown [172.19.93.142])
-	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4T60dZ5CVvz4f3jq5
-	for <virtualization@lists.linux.dev>; Fri,  5 Jan 2024 18:52:02 +0800 (CST)
-Received: from mail02.huawei.com (unknown [10.116.40.112])
-	by mail.maildlp.com (Postfix) with ESMTP id 86BFA1A01CA
-	for <virtualization@lists.linux.dev>; Fri,  5 Jan 2024 18:52:04 +0800 (CST)
-Received: from huaweicloud.com (unknown [10.175.124.27])
-	by APP1 (Coremail) with SMTP id cCh0CgDnNQxT35dl6D1fFg--.48717S4;
-	Fri, 05 Jan 2024 18:52:04 +0800 (CST)
-From: Hou Tao <houtao@huaweicloud.com>
-To: linux-fsdevel@vger.kernel.org
-Cc: Miklos Szeredi <miklos@szeredi.hu>,
-	Vivek Goyal <vgoyal@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Matthew Wilcox <willy@infradead.org>,
-	linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	houtao1@huawei.com
-Subject: [PATCH v2] virtiofs: use GFP_NOFS when enqueuing request through kworker
-Date: Fri,  5 Jan 2024 18:53:05 +0800
-Message-Id: <20240105105305.4052672-1-houtao@huaweicloud.com>
-X-Mailer: git-send-email 2.29.2
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4667D2D634
+	for <virtualization@lists.linux.dev>; Fri,  5 Jan 2024 15:35:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CJslTtRz"
+Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-6d9a795cffbso492010b3a.0
+        for <virtualization@lists.linux.dev>; Fri, 05 Jan 2024 07:35:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1704468936; x=1705073736; darn=lists.linux.dev;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=LuFOrc8jZyA8aQFwg5Wcmjhl91YFITaxwbTd5b7XYqA=;
+        b=CJslTtRzD+09by4y3Wh4IXL+FsdUJogRdAlx0/NOmXB4xLXjpsBhg2Tyqht0fJ3OeW
+         hX0BFz/jOOQHHEPsp7r4ZLk0wHJ6zlr7/Tr7wz8J//5Uz0kNUtqmKzMvTq3niEqkE2y1
+         g0BdlbIp7Iyzwg6itExHR6liyrmF3p7LYRA9MaQ0vbxcrzf5eA82eoQXZDrEKHzsLH4A
+         MV/uQRmAyBXOEDJ2iA5xO6DfQYV0YEEf5p0a0Nh1ypirycK3TlOAPfYJaqoTKNi2CZuA
+         4jw7wg84Y8J8ayYkkcwavgdprzYFWuEwa3rHPdE0PXkkVAOG/25ErTMlmNe69UIGyUOu
+         5pVw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1704468936; x=1705073736;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=LuFOrc8jZyA8aQFwg5Wcmjhl91YFITaxwbTd5b7XYqA=;
+        b=iimnn3Yr2SVaH853CSH4uh7vGxZyg4xftfLKJLCrqHwto97UjrLrD95kg+A3IPT01Q
+         MkLf78HrQ2S4kBYe/J1+Ebwvt/MuEWCqBNc9dAgagRtlQpB+4IBTCF0IhS16Vr1PCNZy
+         UMLDbGRKeJWeOzCLwXU0YQcO02HU1zJSP3hQyM0RqlIgo5PzNWq2quEKsVm1CNHfAdS0
+         e2T8qqzwQ2OkCIy2ISHYQcM0WRQpapl6G6O7FFZ4fyF2H7RWEMHOGQcXVixQIhfmye1D
+         r9LquS8H/+8+FFsssrbzIAWlQnRYT5+RTkx4IVFvtb34uVn61G4DMUnushi+W7Uvchu+
+         wVQQ==
+X-Gm-Message-State: AOJu0YzIMDIxRNU6jQDK6BmyE9saaoKRnzQzkBkzEDaiE2qhaPIA4NuT
+	/r0cpuqobX9YqXl8dcUBnVk=
+X-Google-Smtp-Source: AGHT+IFf2OUiRiGgAY55SA0vjlNzy0JLVutkSWgDpb2/cc/7tt9nx67tojGCFEf8ku5WoiKMgNtQWw==
+X-Received: by 2002:a62:5346:0:b0:6d9:b8fe:eee7 with SMTP id h67-20020a625346000000b006d9b8feeee7mr2864351pfb.8.1704468936510;
+        Fri, 05 Jan 2024 07:35:36 -0800 (PST)
+Received: from ?IPv6:2605:59c8:448:b800:82ee:73ff:fe41:9a02? ([2605:59c8:448:b800:82ee:73ff:fe41:9a02])
+        by smtp.googlemail.com with ESMTPSA id l3-20020a62be03000000b006da13e27904sm1530638pff.44.2024.01.05.07.35.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 05 Jan 2024 07:35:35 -0800 (PST)
+Message-ID: <d4947ef05bca8525d04f9943e92b4e43ec82c583.camel@gmail.com>
+Subject: Re: [PATCH net-next 2/6] page_frag: unify gfp bits for order 3 page
+ allocation
+From: Alexander H Duyck <alexander.duyck@gmail.com>
+To: Yunsheng Lin <linyunsheng@huawei.com>, davem@davemloft.net,
+ kuba@kernel.org,  pabeni@redhat.com
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, "Michael S.
+ Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Andrew Morton
+ <akpm@linux-foundation.org>, Eric Dumazet <edumazet@google.com>, 
+ kvm@vger.kernel.org, virtualization@lists.linux.dev, linux-mm@kvack.org
+Date: Fri, 05 Jan 2024 07:35:34 -0800
+In-Reply-To: <20240103095650.25769-3-linyunsheng@huawei.com>
+References: <20240103095650.25769-1-linyunsheng@huawei.com>
+	 <20240103095650.25769-3-linyunsheng@huawei.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:cCh0CgDnNQxT35dl6D1fFg--.48717S4
-X-Coremail-Antispam: 1UD129KBjvJXoWxGF4kXrWrJFyfuF4UWF43Awb_yoWrJr45pr
-	Wqya15GFWrJrW2gF95JF4UCw1YkwnakFW7Ga4rXa4akFW7Xw17uFy8ZFy0qrsavrykCF1x
-	Ar4FqF4q9F47Zw7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUgEb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k2
-	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
-	vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7Cj
-	xVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x
-	0267AKxVW0oVCq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG
-	6I80ewAv7VC0I7IYx2IY67AKxVWUGVWUXwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFV
-	Cjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JMxAIw28IcxkI7VAKI48JMxC20s026xCaFVCj
-	c4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4
-	CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1x
-	MIIF0xvE2Ix0cI8IcVCY1x0267AKxVWxJVW8Jr1lIxAIcVCF04k26cxKx2IYs7xG6Fyj6r
-	WUJwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIY
-	CTnIWIevJa73UjIFyTuYvjxUOyCJDUUUU
-X-CM-SenderInfo: xkrx3t3r6k3tpzhluzxrxghudrp/
 
-From: Hou Tao <houtao1@huawei.com>
+On Wed, 2024-01-03 at 17:56 +0800, Yunsheng Lin wrote:
+> Currently there seems to be three page frag implementions
+> which all try to allocate order 3 page, if that fails, it
+> then fail back to allocate order 0 page, and each of them
+> all allow order 3 page allocation to fail under certain
+> condition by using specific gfp bits.
+>=20
+> The gfp bits for order 3 page allocation are different
+> between different implementation, __GFP_NOMEMALLOC is
+> or'd to forbid access to emergency reserves memory for
+> __page_frag_cache_refill(), but it is not or'd in other
+> implementions, __GFP_DIRECT_RECLAIM is masked off to avoid
+> direct reclaim in skb_page_frag_refill(), but it is not
+> masked off in __page_frag_cache_refill().
+>=20
+> This patch unifies the gfp bits used between different
+> implementions by or'ing __GFP_NOMEMALLOC and masking off
+> __GFP_DIRECT_RECLAIM for order 3 page allocation to avoid
+> possible pressure for mm.
+>=20
+> Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+> CC: Alexander Duyck <alexander.duyck@gmail.com>
+> ---
+>  drivers/vhost/net.c | 2 +-
+>  mm/page_alloc.c     | 4 ++--
+>  net/core/sock.c     | 2 +-
+>  3 files changed, 4 insertions(+), 4 deletions(-)
+>=20
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index f2ed7167c848..e574e21cc0ca 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -670,7 +670,7 @@ static bool vhost_net_page_frag_refill(struct vhost_n=
+et *net, unsigned int sz,
+>  		/* Avoid direct reclaim but allow kswapd to wake */
+>  		pfrag->page =3D alloc_pages((gfp & ~__GFP_DIRECT_RECLAIM) |
+>  					  __GFP_COMP | __GFP_NOWARN |
+> -					  __GFP_NORETRY,
+> +					  __GFP_NORETRY | __GFP_NOMEMALLOC,
+>  					  SKB_FRAG_PAGE_ORDER);
+>  		if (likely(pfrag->page)) {
+>  			pfrag->size =3D PAGE_SIZE << SKB_FRAG_PAGE_ORDER;
+> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> index 9a16305cf985..1f0b36dd81b5 100644
+> --- a/mm/page_alloc.c
+> +++ b/mm/page_alloc.c
+> @@ -4693,8 +4693,8 @@ static struct page *__page_frag_cache_refill(struct=
+ page_frag_cache *nc,
+>  	gfp_t gfp =3D gfp_mask;
+> =20
+>  #if (PAGE_SIZE < PAGE_FRAG_CACHE_MAX_SIZE)
+> -	gfp_mask |=3D __GFP_COMP | __GFP_NOWARN | __GFP_NORETRY |
+> -		    __GFP_NOMEMALLOC;
+> +	gfp_mask =3D (gfp_mask & ~__GFP_DIRECT_RECLAIM) |  __GFP_COMP |
+> +		   __GFP_NOWARN | __GFP_NORETRY | __GFP_NOMEMALLOC;
+>  	page =3D alloc_pages_node(NUMA_NO_NODE, gfp_mask,
+>  				PAGE_FRAG_CACHE_MAX_ORDER);
+>  	nc->size =3D page ? PAGE_FRAG_CACHE_MAX_SIZE : PAGE_SIZE;
+> diff --git a/net/core/sock.c b/net/core/sock.c
+> index 446e945f736b..d643332c3ee5 100644
+> --- a/net/core/sock.c
+> +++ b/net/core/sock.c
+> @@ -2900,7 +2900,7 @@ bool skb_page_frag_refill(unsigned int sz, struct p=
+age_frag *pfrag, gfp_t gfp)
+>  		/* Avoid direct reclaim but allow kswapd to wake */
+>  		pfrag->page =3D alloc_pages((gfp & ~__GFP_DIRECT_RECLAIM) |
+>  					  __GFP_COMP | __GFP_NOWARN |
+> -					  __GFP_NORETRY,
+> +					  __GFP_NORETRY | __GFP_NOMEMALLOC,
+>  					  SKB_FRAG_PAGE_ORDER);
+>  		if (likely(pfrag->page)) {
+>  			pfrag->size =3D PAGE_SIZE << SKB_FRAG_PAGE_ORDER;
 
-When invoking virtio_fs_enqueue_req() through kworker, both the
-allocation of the sg array and the bounce buffer still use GFP_ATOMIC.
-Considering the size of both the sg array and the bounce buffer may be
-greater than PAGE_SIZE, use GFP_NOFS instead of GFP_ATOMIC to lower the
-possibility of memory allocation failure.
+Looks fine to me.
 
-Signed-off-by: Hou Tao <houtao1@huawei.com>
----
-Change log:
-v2:
-  * pass gfp_t instead of bool to virtio_fs_enqueue_req() (Suggested by Matthew)
+One thing you may want to consider would be to place this all in an
+inline function that could just consolidate all the code.
 
-v1: https://lore.kernel.org/linux-fsdevel/20240104015805.2103766-1-houtao@huaweicloud.com
-
- fs/fuse/virtio_fs.c | 20 +++++++++++---------
- 1 file changed, 11 insertions(+), 9 deletions(-)
-
-diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-index 3aac31d451985..8cf518624ce9e 100644
---- a/fs/fuse/virtio_fs.c
-+++ b/fs/fuse/virtio_fs.c
-@@ -87,7 +87,8 @@ struct virtio_fs_req_work {
- };
- 
- static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
--				 struct fuse_req *req, bool in_flight);
-+				 struct fuse_req *req, bool in_flight,
-+				 gfp_t gfp);
- 
- static const struct constant_table dax_param_enums[] = {
- 	{"always",	FUSE_DAX_ALWAYS },
-@@ -383,7 +384,7 @@ static void virtio_fs_request_dispatch_work(struct work_struct *work)
- 		list_del_init(&req->list);
- 		spin_unlock(&fsvq->lock);
- 
--		ret = virtio_fs_enqueue_req(fsvq, req, true);
-+		ret = virtio_fs_enqueue_req(fsvq, req, true, GFP_NOFS);
- 		if (ret < 0) {
- 			if (ret == -ENOMEM || ret == -ENOSPC) {
- 				spin_lock(&fsvq->lock);
-@@ -488,7 +489,7 @@ static void virtio_fs_hiprio_dispatch_work(struct work_struct *work)
- }
- 
- /* Allocate and copy args into req->argbuf */
--static int copy_args_to_argbuf(struct fuse_req *req)
-+static int copy_args_to_argbuf(struct fuse_req *req, gfp_t gfp)
- {
- 	struct fuse_args *args = req->args;
- 	unsigned int offset = 0;
-@@ -502,7 +503,7 @@ static int copy_args_to_argbuf(struct fuse_req *req)
- 	len = fuse_len_args(num_in, (struct fuse_arg *) args->in_args) +
- 	      fuse_len_args(num_out, args->out_args);
- 
--	req->argbuf = kmalloc(len, GFP_ATOMIC);
-+	req->argbuf = kmalloc(len, gfp);
- 	if (!req->argbuf)
- 		return -ENOMEM;
- 
-@@ -1119,7 +1120,8 @@ static unsigned int sg_init_fuse_args(struct scatterlist *sg,
- 
- /* Add a request to a virtqueue and kick the device */
- static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
--				 struct fuse_req *req, bool in_flight)
-+				 struct fuse_req *req, bool in_flight,
-+				 gfp_t gfp)
- {
- 	/* requests need at least 4 elements */
- 	struct scatterlist *stack_sgs[6];
-@@ -1140,8 +1142,8 @@ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
- 	/* Does the sglist fit on the stack? */
- 	total_sgs = sg_count_fuse_req(req);
- 	if (total_sgs > ARRAY_SIZE(stack_sgs)) {
--		sgs = kmalloc_array(total_sgs, sizeof(sgs[0]), GFP_ATOMIC);
--		sg = kmalloc_array(total_sgs, sizeof(sg[0]), GFP_ATOMIC);
-+		sgs = kmalloc_array(total_sgs, sizeof(sgs[0]), gfp);
-+		sg = kmalloc_array(total_sgs, sizeof(sg[0]), gfp);
- 		if (!sgs || !sg) {
- 			ret = -ENOMEM;
- 			goto out;
-@@ -1149,7 +1151,7 @@ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
- 	}
- 
- 	/* Use a bounce buffer since stack args cannot be mapped */
--	ret = copy_args_to_argbuf(req);
-+	ret = copy_args_to_argbuf(req, gfp);
- 	if (ret < 0)
- 		goto out;
- 
-@@ -1245,7 +1247,7 @@ __releases(fiq->lock)
- 		 fuse_len_args(req->args->out_numargs, req->args->out_args));
- 
- 	fsvq = &fs->vqs[queue_id];
--	ret = virtio_fs_enqueue_req(fsvq, req, false);
-+	ret = virtio_fs_enqueue_req(fsvq, req, false, GFP_ATOMIC);
- 	if (ret < 0) {
- 		if (ret == -ENOMEM || ret == -ENOSPC) {
- 			/*
--- 
-2.29.2
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
 
