@@ -1,106 +1,78 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from dggsgout11.his.huawei.com (unknown [45.249.212.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30B533608A
-	for <virtualization@lists.linux.dev>; Fri,  5 Jan 2024 21:27:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FiWiFloU"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1704490033;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=nvKoTY7AaklNgqFAKz7HE/SEnOyTG3mvRlAEYCQEh+w=;
-	b=FiWiFloUHwdm73p7K+MsVdz0Uxcz+QNeH/l8cKh+i9nOhe5329hKbVxakYkFQ6DITW+u3b
-	s5/bItlM4qPFaq6IbBVpFr/3M/xQSZIydSliq4IK/YItqyHBkQV79lf+f3g4J74HYOK+2w
-	jDZZ3ghIYMYCBKGz7jz8KwmHy4Ulqgw=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-211-KlLuGbKbM9yD6Qvgmfd9VQ-1; Fri, 05 Jan 2024 16:27:10 -0500
-X-MC-Unique: KlLuGbKbM9yD6Qvgmfd9VQ-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 19578837184;
-	Fri,  5 Jan 2024 21:27:10 +0000 (UTC)
-Received: from fedora.redhat.com (unknown [10.22.8.247])
-	by smtp.corp.redhat.com (Postfix) with ESMTPS id A668D1121306;
-	Fri,  5 Jan 2024 21:27:09 +0000 (UTC)
-Received: by fedora.redhat.com (Postfix, from userid 1000)
-	id 0137E28EBE7; Fri,  5 Jan 2024 16:27:08 -0500 (EST)
-Date: Fri, 5 Jan 2024 16:27:08 -0500
-From: Vivek Goyal <vgoyal@redhat.com>
-To: Matthew Wilcox <willy@infradead.org>
-Cc: Hou Tao <houtao@huaweicloud.com>, linux-fsdevel@vger.kernel.org,
-	Miklos Szeredi <miklos@szeredi.hu>,
-	Stefan Hajnoczi <stefanha@redhat.com>, linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev, houtao1@huawei.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 668D933DA
+	for <virtualization@lists.linux.dev>; Sat,  6 Jan 2024 02:48:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=huaweicloud.com
+Received: from mail.maildlp.com (unknown [172.19.93.142])
+	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4T6PsH5KYCz4f3lWD
+	for <virtualization@lists.linux.dev>; Sat,  6 Jan 2024 10:48:35 +0800 (CST)
+Received: from mail02.huawei.com (unknown [10.116.40.112])
+	by mail.maildlp.com (Postfix) with ESMTP id 7F9371A01CA
+	for <virtualization@lists.linux.dev>; Sat,  6 Jan 2024 10:48:41 +0800 (CST)
+Received: from [10.174.176.117] (unknown [10.174.176.117])
+	by APP1 (Coremail) with SMTP id cCh0CgC3BAuFv5hlkomfFg--.12268S2;
+	Sat, 06 Jan 2024 10:48:41 +0800 (CST)
 Subject: Re: [PATCH v2] virtiofs: use GFP_NOFS when enqueuing request through
  kworker
-Message-ID: <ZZh0LKpkrVdoU0tH@redhat.com>
+To: Matthew Wilcox <willy@infradead.org>, Vivek Goyal <vgoyal@redhat.com>
+Cc: linux-fsdevel@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>,
+ Stefan Hajnoczi <stefanha@redhat.com>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev, houtao1@huawei.com
 References: <20240105105305.4052672-1-houtao@huaweicloud.com>
- <ZZhjzwnQUEJhNJiq@redhat.com>
- <ZZhkrOdbau2O/B59@casper.infradead.org>
- <ZZhpjEwDwMS_mq-u@redhat.com>
- <ZZhtU0IxUycpLGJe@casper.infradead.org>
+ <ZZhjzwnQUEJhNJiq@redhat.com> <ZZhkrOdbau2O/B59@casper.infradead.org>
+From: Hou Tao <houtao@huaweicloud.com>
+Message-ID: <1e4b0ed0-8879-9044-75b6-d8371ddc50fc@huaweicloud.com>
+Date: Sat, 6 Jan 2024 10:48:37 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZZhtU0IxUycpLGJe@casper.infradead.org>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.3
+In-Reply-To: <ZZhkrOdbau2O/B59@casper.infradead.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-CM-TRANSID:cCh0CgC3BAuFv5hlkomfFg--.12268S2
+X-Coremail-Antispam: 1UD129KBjvdXoWrKFWkZw47Cw43WrW3uF1fCrg_yoWfZwb_Wr
+	4q9F17Cw18JF1UW3Z7Jr4F9FZFya18Wr4jqFZ8XrW7Z3WYqa93GrnY9r4Sv347G3ySyrWr
+	uFWSvasIv3WSkjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+	9fnUUIcSsGvfJTRUUUb7xYFVCjjxCrM7AC8VAFwI0_Gr0_Xr1l1xkIjI8I6I8E6xAIw20E
+	Y4v20xvaj40_Wr0E3s1l1IIY67AEw4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwV
+	A0rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVW7JVWDJwA2z4x0Y4vE2Ix0cI8IcVCY1x02
+	67AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I
+	0E14v26rxl6s0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
+	x7xfMcIj6xIIjxv20xvE14v26r106r15McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
+	0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lc7I2V7IY0VAS07AlzVAYIcxG8wCF04k20xvY0x0E
+	wIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E74
+	80Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVC0
+	I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lIxAIcVCF04
+	k26cxKx2IYs7xG6rWUJVWrZr1UMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
+	c7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07UQzVbUUUUU=
+X-CM-SenderInfo: xkrx3t3r6k3tpzhluzxrxghudrp/
 
-On Fri, Jan 05, 2024 at 08:57:55PM +0000, Matthew Wilcox wrote:
-> On Fri, Jan 05, 2024 at 03:41:48PM -0500, Vivek Goyal wrote:
-> > On Fri, Jan 05, 2024 at 08:21:00PM +0000, Matthew Wilcox wrote:
-> > > On Fri, Jan 05, 2024 at 03:17:19PM -0500, Vivek Goyal wrote:
-> > > > On Fri, Jan 05, 2024 at 06:53:05PM +0800, Hou Tao wrote:
-> > > > > From: Hou Tao <houtao1@huawei.com>
-> > > > > 
-> > > > > When invoking virtio_fs_enqueue_req() through kworker, both the
-> > > > > allocation of the sg array and the bounce buffer still use GFP_ATOMIC.
-> > > > > Considering the size of both the sg array and the bounce buffer may be
-> > > > > greater than PAGE_SIZE, use GFP_NOFS instead of GFP_ATOMIC to lower the
-> > > > > possibility of memory allocation failure.
-> > > > > 
-> > > > 
-> > > > What's the practical benefit of this patch. Looks like if memory
-> > > > allocation fails, we keep retrying at interval of 1ms and don't
-> > > > return error to user space.
-> > > 
-> > > You don't deplete the atomic reserves unnecessarily?
-> > 
-> > Sounds reasonable. 
-> > 
-> > With GFP_NOFS specificed, can we still get -ENOMEM? Or this will block
-> > indefinitely till memory can be allocated. 
-> 
-> If you need the "loop indefinitely" behaviour, that's
-> GFP_NOFS | __GFP_NOFAIL.  If you're actually doing something yourself
-> which can free up memory, this is a bad choice.  If you're just sleeping
-> and retrying, you might as well have the MM do that for you.
 
-I probably don't want to wait indefinitely. There might be some cases
-where I might want to return error to user space. For example, if
-virtiofs device has been hot-unplugged, then there is no point in
-waiting indefinitely for memory allocation. Even if memory was allocated,
-soon we will return error to user space with -ENOTCONN. 
 
-We are currently not doing that check after memory allocation failure but
-we probably could as an optimization.
-
-So this patch looks good to me as it is. Thanks Hou Tao.
-
-Reviewed-by: Vivek Goyal <vgoyal@redhat.com>
-
-Thanks
-Vivek
+On 1/6/2024 4:21 AM, Matthew Wilcox wrote:
+> On Fri, Jan 05, 2024 at 03:17:19PM -0500, Vivek Goyal wrote:
+>> On Fri, Jan 05, 2024 at 06:53:05PM +0800, Hou Tao wrote:
+>>> From: Hou Tao <houtao1@huawei.com>
+>>>
+>>> When invoking virtio_fs_enqueue_req() through kworker, both the
+>>> allocation of the sg array and the bounce buffer still use GFP_ATOMIC.
+>>> Considering the size of both the sg array and the bounce buffer may be
+>>> greater than PAGE_SIZE, use GFP_NOFS instead of GFP_ATOMIC to lower the
+>>> possibility of memory allocation failure.
+>>>
+>> What's the practical benefit of this patch. Looks like if memory
+>> allocation fails, we keep retrying at interval of 1ms and don't
+>> return error to user space.
+> You don't deplete the atomic reserves unnecessarily?
+Beside that, I think the proposed GFP_NOFS may reduce unnecessary
+retries. I Should mention that in the commit message. Should I post a v3
+to do that ?
 
