@@ -1,121 +1,71 @@
-Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B4F151C29
-	for <virtualization@lists.linux.dev>; Mon,  8 Jan 2024 15:46:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFC5B5101B
+	for <virtualization@lists.linux.dev>; Mon,  8 Jan 2024 15:48:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CVFU+WVp"
-Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-28d0052beb0so1095662a91.0
-        for <virtualization@lists.linux.dev>; Mon, 08 Jan 2024 07:46:17 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1704728777; x=1705333577; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=6ABIEatGvpONoYLEnM8zujVINLyFvWCQbpURBZGHqyc=;
-        b=CVFU+WVpMV4WWOFWkLVmYayBgv0ovt/5OIPO8WwUZu3AH2L9JXgvGEm7h63Y/M0TkO
-         tTKqfhWz3vHx5BfbLmGDr06NojqAlpC8HUv21Z9KDdX324yTr2Ak5ghfVlUF3HOf0tPR
-         XyobnuB2vhVFePfPrsZUvXwXGS1e2Q+mr4UYAO+z/wGq+oDZ8zH0XaEY9Z/X/ZB6uRAm
-         03+igHNpXOjvaO616zTL7Noh7aNfCMKJq6FTFdfrW03J3R8WysOjU4GNFi8m8t9DAcSG
-         1a5+QZQjy26+LzBz7Kl+3dcoYjHNFaduWgNiWyfS4oYpoOvYC8eu2r8Sm6YWWI9qfOPN
-         jsug==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1704728777; x=1705333577;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=6ABIEatGvpONoYLEnM8zujVINLyFvWCQbpURBZGHqyc=;
-        b=daZFtAI/IgzFZQSoQ7Dz6BBeIvodIx6ZBXNm5CSQ1k1aiNvxnrvCz2w62YV5wt++Kc
-         MRX4fXAa2g7dehDv4SQNkGvyvV6nL1vBO8/tZHJjdPRJTJq9VNdlgDpaY0f+As8ZNpwD
-         sTfS3dk8KuF0HbI841g/wdhrerNvFyX5qBJMIEaOH5rfV5Uu0J20F8Pqyac7X3XHZbfe
-         VrtxS2Xos+8Q+14vsmG8E9tCfqkXJVjWYFIf0QD54leQgzJ3S59jDoGrGge8k3NbOON8
-         rtWS1V+iE0ZRKsTSakArrQt9nl1VLel2xGI5FbxJRsZfN0e4MKFYqrxfd45Usi/oMZmw
-         kk3Q==
-X-Gm-Message-State: AOJu0YzBc60yPqOzqRdkLOVQt4fQaSkNFCejr2InUA0lyXUcNtlKQz4s
-	ftshqV7+XJLNNXl/m9lWeARYo/KYqoCAlAp4A8s=
-X-Google-Smtp-Source: AGHT+IHZJe1ZY74k1Lg4LUidpgawMu0QAPQhvu8GZrpY+cE2pAX9oNfGVAG8ljK3e18QPKlpOElMC5jvPt+GMAfHuo0=
-X-Received: by 2002:a17:90a:d315:b0:28c:d85:9807 with SMTP id
- p21-20020a17090ad31500b0028c0d859807mr1131248pju.78.1704728776801; Mon, 08
- Jan 2024 07:46:16 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BlEXf0Lz"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1704728912;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=LXzSdb2GMelu2RY7M9wBwnEHadZ8ZB5xT40HRRNlufA=;
+	b=BlEXf0LzaAMEcE3v0eC2B3rOeICuaZppp00Wm7gRP/OSCysPt+sF8W5YMVk0VAjMB1fDAB
+	0QseWpwP+OPlQl1CDtSXG7dZMzr0r9hfzd5seCjLBi/SG94uRWIfT75wBixnMWSTT2Lopv
+	XwavG1rr96zsqhta+yD1LvZiC3tqna4=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-82-5TVjKgI4NYCMEu1t82eQcQ-1; Mon,
+ 08 Jan 2024 10:48:28 -0500
+X-MC-Unique: 5TVjKgI4NYCMEu1t82eQcQ-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id DEDDD3C025AC;
+	Mon,  8 Jan 2024 15:48:27 +0000 (UTC)
+Received: from [100.85.132.103] (ovpn-0-5.rdu2.redhat.com [10.22.0.5])
+	by smtp.corp.redhat.com (Postfix) with ESMTPS id C07A8492BC7;
+	Mon,  8 Jan 2024 15:48:25 +0000 (UTC)
+From: Benjamin Coddington <bcodding@redhat.com>
+To: Hou Tao <houtao@huaweicloud.com>
+Cc: linux-fsdevel@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>,
+ Vivek Goyal <vgoyal@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
+ Matthew Wilcox <willy@infradead.org>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev, houtao1@huawei.com
+Subject: Re: [PATCH v2] virtiofs: use GFP_NOFS when enqueuing request through
+ kworker
+Date: Mon, 08 Jan 2024 10:48:24 -0500
+Message-ID: <A7DF37C3-9C00-4C3C-BFD3-12BE0DE699B3@redhat.com>
+In-Reply-To: <20240105105305.4052672-1-houtao@huaweicloud.com>
+References: <20240105105305.4052672-1-houtao@huaweicloud.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240103095650.25769-1-linyunsheng@huawei.com>
- <20240103095650.25769-5-linyunsheng@huawei.com> <1a66f99173de36e1ae639569582feaf76202361d.camel@gmail.com>
- <705e59c2-6f46-5d39-b8da-8e2310904d71@huawei.com>
-In-Reply-To: <705e59c2-6f46-5d39-b8da-8e2310904d71@huawei.com>
-From: Alexander Duyck <alexander.duyck@gmail.com>
-Date: Mon, 8 Jan 2024 07:45:40 -0800
-Message-ID: <CAKgT0UdLA820trYGWkgNR8KFX=QbFbiR_AcrWXwFwrmQzaVmKA@mail.gmail.com>
-Subject: Re: [PATCH net-next 4/6] vhost/net: remove vhost_net_page_frag_refill()
-To: Yunsheng Lin <linyunsheng@huawei.com>
-Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
-	Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend <john.fastabend@gmail.com>, kvm@vger.kernel.org, 
-	virtualization@lists.linux.dev, bpf@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.9
 
-On Mon, Jan 8, 2024 at 1:06=E2=80=AFAM Yunsheng Lin <linyunsheng@huawei.com=
-> wrote:
->
-> On 2024/1/6 0:06, Alexander H Duyck wrote:
-> >>
-> >>  static void handle_tx_copy(struct vhost_net *net, struct socket *sock=
-)
-> >> @@ -1353,8 +1318,7 @@ static int vhost_net_open(struct inode *inode, s=
-truct file *f)
-> >>                      vqs[VHOST_NET_VQ_RX]);
-> >>
-> >>      f->private_data =3D n;
-> >> -    n->page_frag.page =3D NULL;
-> >> -    n->refcnt_bias =3D 0;
-> >> +    n->pf_cache.va =3D NULL;
-> >>
-> >>      return 0;
-> >>  }
-> >> @@ -1422,8 +1386,9 @@ static int vhost_net_release(struct inode *inode=
-, struct file *f)
-> >>      kfree(n->vqs[VHOST_NET_VQ_RX].rxq.queue);
-> >>      kfree(n->vqs[VHOST_NET_VQ_TX].xdp);
-> >>      kfree(n->dev.vqs);
-> >> -    if (n->page_frag.page)
-> >> -            __page_frag_cache_drain(n->page_frag.page, n->refcnt_bias=
-);
-> >> +    if (n->pf_cache.va)
-> >> +            __page_frag_cache_drain(virt_to_head_page(n->pf_cache.va)=
-,
-> >> +                                    n->pf_cache.pagecnt_bias);
-> >>      kvfree(n);
-> >>      return 0;
-> >>  }
-> >
-> > I would recommend reordering this patch with patch 5. Then you could
-> > remove the block that is setting "n->pf_cache.va =3D NULL" above and ju=
-st
-> > make use of page_frag_cache_drain in the lower block which would also
-> > return the va to NULL.
->
-> I am not sure if we can as there is no zeroing for 'struct vhost_net' in
-> vhost_net_open().
->
-> If we don't have "n->pf_cache.va =3D NULL", don't we use the uninitialize=
-d data
-> when calling page_frag_alloc_align() for the first time?
+On 5 Jan 2024, at 5:53, Hou Tao wrote:
 
-I see. So kvmalloc is used instead of kvzalloc when allocating the
-structure. That might be an opportunity to clean things up a bit by
-making that change to reduce the risk of some piece of memory
-initialization being missed.
+> From: Hou Tao <houtao1@huawei.com>
+>
+> When invoking virtio_fs_enqueue_req() through kworker, both the
+> allocation of the sg array and the bounce buffer still use GFP_ATOMIC.
+> Considering the size of both the sg array and the bounce buffer may be
+> greater than PAGE_SIZE, use GFP_NOFS instead of GFP_ATOMIC to lower the
+> possibility of memory allocation failure.
 
-That said, I still think reordering the two patches might be useful as
-it would help to make it so that the change you make to vhost_net is
-encapsulated in one patch to fully enable the use of the new page pool
-API.
+Perhaps not appropriate for this case, but are you aware of
+memalloc_nofs_save/restore?  NFS has been converting over and cleaning out
+our GFP_NOFS usage:
+
+Documentation/core-api/gfp_mask-from-fs-io.rst
+
+Ben
+
