@@ -1,223 +1,146 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DAFC6FDC
-	for <virtualization@lists.linux-foundation.org>; Mon,  8 Jan 2024 03:44:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iydP7PZD"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 0DCA740414
-	for <virtualization@lists.linux-foundation.org>; Mon,  8 Jan 2024 03:44:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0DCA740414
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=iydP7PZD
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -0.599
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id L2GJL6ZvLvwK
-	for <virtualization@lists.linux-foundation.org>;
-	Mon,  8 Jan 2024 03:44:44 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 5C7A6400F1
-	for <virtualization@lists.linux-foundation.org>; Mon,  8 Jan 2024 03:44:44 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5C7A6400F1
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1704685482;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=9cnx9iyNScW+fjHqQwJKBaz57iJJ39RPOEEB/TE5TIg=;
-	b=iydP7PZDgexwwTfhgytGwQtdtQqJ8dguStWLmQRPAsL89GQNHH3db8B5rYF7Gmy6uLxM+3
-	wQrIwi66PVcHumWbb7VWcd+gIJ/w+wRhEGMLhDEk3761oEy2n8R7BgzyVLXj8L4PkbM8Nd
-	tQNgHmPbhVZrWUSW8LAJvZmSeO8E+fE=
-Received: from mail-pf1-f199.google.com (mail-pf1-f199.google.com
- [209.85.210.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-32-wSKle5TSMx2VN9UOmIxFWQ-1; Sun, 07 Jan 2024 22:44:39 -0500
-X-MC-Unique: wSKle5TSMx2VN9UOmIxFWQ-1
-Received: by mail-pf1-f199.google.com with SMTP id d2e1a72fcca58-6da0d1d6674so1623386b3a.1
-        for <virtualization@lists.linux-foundation.org>; Sun, 07 Jan 2024 19:44:39 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1704685478; x=1705290278;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=9cnx9iyNScW+fjHqQwJKBaz57iJJ39RPOEEB/TE5TIg=;
-        b=JxPqraOhLSlzvl0pqupwrazHP+25OMu03aXQrhSCbIk2ECSFfPjPBG8Z5ZC50w6IY1
-         DGIQcpZLct3t05s/4mj2iv26KW1Pi6YRjquuedxSR5vRCM9QL/zgZW2cspHDxC4X8feX
-         h1a+Q4dKTQXc9UcxdG1nnrSgOwq8mKyRGPM/ioE8rfG9vJh/EV9o7OwN+dR2dHUJf8bP
-         d1Ti0oRtKK1Q5sD7NnCg2id6yoftwVHBK7Y2jpxr6Oz1CHiATYgaWcLWXGNjC6j+z6Rw
-         bf54J6LgGxg2qB8WT/NoT8+sJpAAnGzBDd7n/XV3NWlwIqCCVDUkdHV/K9YFlsT3WoG3
-         0HVQ==
-X-Gm-Message-State: AOJu0YwH1K3MSu8Jl/iwRkfR2KcpCywiupsoPnvBhHXPqzjaYPh+AdZC
-	BwUyTBlnt5YT5bto5i8FJ/YOdouRI0VZgTbGYBZX8UQM/9b3MgAhRb3fpytKCrkg3wscLRLnh1g
-	hRigCOOrHIwaV6yiUo4m6FhWL4FJp3OFsn2WZqf4hKi+u7Lt6OA5wCJ2Q5knk0vgZfw==
-X-Received: by 2002:a05:6a20:3a9f:b0:199:b900:3e96 with SMTP id d31-20020a056a203a9f00b00199b9003e96mr803205pzh.100.1704685478161;
-        Sun, 07 Jan 2024 19:44:38 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHyADji7nM1guDP1OIGckPwbqKom2hyq0owGLObmppK/N9lq+t6uPQupJq54MYiyvdWCLr/vj63iT4ZdtJeU18=
-X-Received: by 2002:a05:6a20:3a9f:b0:199:b900:3e96 with SMTP id
- d31-20020a056a203a9f00b00199b9003e96mr803193pzh.100.1704685477869; Sun, 07
- Jan 2024 19:44:37 -0800 (PST)
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 95C9779EE;
+	Mon,  8 Jan 2024 06:41:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.2.5.213])
+	by gateway (Coremail) with SMTP id _____8CxrOj6mJtl8wsDAA--.1678S3;
+	Mon, 08 Jan 2024 14:40:58 +0800 (CST)
+Received: from localhost.localdomain (unknown [10.2.5.213])
+	by localhost.localdomain (Coremail) with SMTP id AQAAf8CxfNz4mJtlNRoHAA--.18591S3;
+	Mon, 08 Jan 2024 14:40:58 +0800 (CST)
+From: Bibo Mao <maobibo@loongson.cn>
+To: Huacai Chen <chenhuacai@kernel.org>,
+	Tianrui Zhao <zhaotianrui@loongson.cn>,
+	Juergen Gross <jgross@suse.com>
+Cc: loongarch@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	kvm@vger.kernel.org
+Subject: [PATCH v2 1/6] LoongArch: KVM: Add hypercall instruction emulation support
+Date: Mon,  8 Jan 2024 14:40:51 +0800
+Message-Id: <20240108064056.232546-2-maobibo@loongson.cn>
+X-Mailer: git-send-email 2.39.3
+In-Reply-To: <20240108064056.232546-1-maobibo@loongson.cn>
+References: <20240108064056.232546-1-maobibo@loongson.cn>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240104153753.2931026-1-maxime.coquelin@redhat.com>
- <20240104153753.2931026-3-maxime.coquelin@redhat.com> <CACGkMEtmTY0ux8pw8VQ8SAdgGty=rM1VRkh6c-qBVSaqhYuURw@mail.gmail.com>
- <888255d7-e45b-44db-8561-5e9f386603c3@redhat.com> <CAJaqyWfrO3c9GD2k+aX=fA8OQLg2aQPHHb4WyTbE09KkmoOesA@mail.gmail.com>
- <0322ee9e-f6db-45ed-855f-9ebcdfca30a9@redhat.com>
-In-Reply-To: <0322ee9e-f6db-45ed-855f-9ebcdfca30a9@redhat.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 8 Jan 2024 11:44:26 +0800
-Message-ID: <CACGkMEuYVw0QvbmNCQ-43bn1nhVH4OS7tTpf0a-mvmOmvXaPkQ@mail.gmail.com>
-Subject: Re: [PATCH v6 2/3] vduse: Temporarily fail if control queue features requested
-To: Maxime Coquelin <maxime.coquelin@redhat.com>
-Cc: Eugenio Perez Martin <eperezma@redhat.com>, mst@redhat.com, xuanzhuo@linux.alibaba.com, 
-	xieyongji@bytedance.com, virtualization@lists.linux-foundation.org, 
-	linux-kernel@vger.kernel.org, david.marchand@redhat.com, lulu@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:AQAAf8CxfNz4mJtlNRoHAA--.18591S3
+X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
+X-Coremail-Antispam: 1Uk129KBj93XoWxXr1DuFW7XF17Gw1DKF47ZFc_yoW5Zr1xpF
+	93Cr1kGr4rGryfCFy3twn8Wr13ArZ7Kw12gFy2k3yUAF12qF1Fyr4kKryDZFy5Jw4rXF1S
+	gFWftw1Y9F4UtacCm3ZEXasCq-sJn29KB7ZKAUJUUUU5529EdanIXcx71UUUUU7KY7ZEXa
+	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
+	0xBIdaVrnRJUUUkFb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
+	IYs7xG6rWj6s0DM7CIcVAFz4kK6r126r13M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
+	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_JFI_Gr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
+	0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVCY1x0267AK
+	xVW8Jr0_Cr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2x26I8E6xACxx
+	1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r126r1DMcIj6I8E87Iv
+	67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41l42xK82IYc2
+	Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s02
+	6x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r126r1DMIIYrxkI7VAKI48JMIIF0x
+	vE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r1j6r4UMIIF0xvE
+	42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6x
+	kF7I0E14v26r1j6r4UYxBIdaVFxhVjvjDU0xZFpf9x07jjpB-UUUUU=
 
-On Fri, Jan 5, 2024 at 6:14=E2=80=AFPM Maxime Coquelin
-<maxime.coquelin@redhat.com> wrote:
->
->
->
-> On 1/5/24 10:59, Eugenio Perez Martin wrote:
-> > On Fri, Jan 5, 2024 at 9:12=E2=80=AFAM Maxime Coquelin
-> > <maxime.coquelin@redhat.com> wrote:
-> >>
-> >>
-> >>
-> >> On 1/5/24 03:45, Jason Wang wrote:
-> >>> On Thu, Jan 4, 2024 at 11:38=E2=80=AFPM Maxime Coquelin
-> >>> <maxime.coquelin@redhat.com> wrote:
-> >>>>
-> >>>> Virtio-net driver control queue implementation is not safe
-> >>>> when used with VDUSE. If the VDUSE application does not
-> >>>> reply to control queue messages, it currently ends up
-> >>>> hanging the kernel thread sending this command.
-> >>>>
-> >>>> Some work is on-going to make the control queue
-> >>>> implementation robust with VDUSE. Until it is completed,
-> >>>> let's fail features check if any control-queue related
-> >>>> feature is requested.
-> >>>>
-> >>>> Signed-off-by: Maxime Coquelin <maxime.coquelin@redhat.com>
-> >>>> ---
-> >>>>    drivers/vdpa/vdpa_user/vduse_dev.c | 13 +++++++++++++
-> >>>>    1 file changed, 13 insertions(+)
-> >>>>
-> >>>> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_=
-user/vduse_dev.c
-> >>>> index 0486ff672408..94f54ea2eb06 100644
-> >>>> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> >>>> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> >>>> @@ -28,6 +28,7 @@
-> >>>>    #include <uapi/linux/virtio_config.h>
-> >>>>    #include <uapi/linux/virtio_ids.h>
-> >>>>    #include <uapi/linux/virtio_blk.h>
-> >>>> +#include <uapi/linux/virtio_ring.h>
-> >>>>    #include <linux/mod_devicetable.h>
-> >>>>
-> >>>>    #include "iova_domain.h"
-> >>>> @@ -46,6 +47,15 @@
-> >>>>
-> >>>>    #define IRQ_UNBOUND -1
-> >>>>
-> >>>> +#define VDUSE_NET_INVALID_FEATURES_MASK         \
-> >>>> +       (BIT_ULL(VIRTIO_NET_F_CTRL_VQ) |        \
-> >>>> +        BIT_ULL(VIRTIO_NET_F_CTRL_RX)   |      \
-> >>>> +        BIT_ULL(VIRTIO_NET_F_CTRL_VLAN) |      \
-> >>>> +        BIT_ULL(VIRTIO_NET_F_GUEST_ANNOUNCE) | \
-> >>>> +        BIT_ULL(VIRTIO_NET_F_MQ) |             \
-> >>>> +        BIT_ULL(VIRTIO_NET_F_CTRL_MAC_ADDR) |  \
-> >>>> +        BIT_ULL(VIRTIO_NET_F_RSS))
-> >>>
-> >>> We need to make this as well:
-> >>>
-> >>> VIRTIO_NET_F_CTRL_GUEST_OFFLOADS
-> >>
-> >> I missed it, and see others have been added in the Virtio spec
-> >> repository (BTW, I see this specific one is missing in the dependency
-> >> list [0], I will submit a patch).
-> >>
-> >> I wonder if it is not just simpler to just check for
-> >> VIRTIO_NET_F_CTRL_VQ is requested. As we fail instead of masking out,
-> >> the VDUSE driver won't be the one violating the spec so it should be
-> >> good?
-> >>
-> >> It will avoid having to update the mask if new features depending on i=
-t
-> >> are added (or forgetting to update it).
-> >>
-> >> WDYT?
-> >>
-> >
-> > I think it is safer to work with a whitelist, instead of a blacklist.
-> > As any new feature might require code changes in QEMU. Is that
-> > possible?
->
-> Well, that's how it was done in previous revision. :)
->
-> I changed to a blacklist for consistency with block device's WCE feature
-> check after Jason's comment.
->
-> I'm not sure moving back to a whitelist brings much advantages when
-> compared to the effort of keeping it up to date. Just blacklisting
-> VIRTIO_NET_F_CTRL_VQ is enough in my opinion.
+On LoongArch system, hypercall instruction is supported when system
+runs on VM mode. This patch adds dummy function with hypercall
+instruction emulation, rather than inject EXCCODE_INE invalid
+instruction exception.
 
-I think this makes sense.
+Signed-off-by: Bibo Mao <maobibo@loongson.cn>
+---
+ arch/loongarch/include/asm/Kbuild      |  1 -
+ arch/loongarch/include/asm/kvm_para.h  | 26 ++++++++++++++++++++++++++
+ arch/loongarch/include/uapi/asm/Kbuild |  2 --
+ arch/loongarch/kvm/exit.c              | 10 ++++++++++
+ 4 files changed, 36 insertions(+), 3 deletions(-)
+ create mode 100644 arch/loongarch/include/asm/kvm_para.h
+ delete mode 100644 arch/loongarch/include/uapi/asm/Kbuild
 
-Thanks
-
->
-> Thanks,
-> Maxime
->
-> >> Thanks,
-> >> Maxime
-> >>
-> >> [0]:
-> >> https://github.com/oasis-tcs/virtio-spec/blob/5fc35a7efb903fc352da81a6=
-d2be5c01810b68d3/device-types/net/description.tex#L129
-> >>> Other than this,
-> >>>
-> >>> Acked-by: Jason Wang <jasowang@redhat.com>
-> >>>
-> >>> Thanks
-> >>>
-> >>>> +
-> >>>>    struct vduse_virtqueue {
-> >>>>           u16 index;
-> >>>>           u16 num_max;
-> >>>> @@ -1680,6 +1690,9 @@ static bool features_is_valid(struct vduse_dev=
-_config *config)
-> >>>>           if ((config->device_id =3D=3D VIRTIO_ID_BLOCK) &&
-> >>>>                           (config->features & (1ULL << VIRTIO_BLK_F_=
-CONFIG_WCE)))
-> >>>>                   return false;
-> >>>> +       else if ((config->device_id =3D=3D VIRTIO_ID_NET) &&
-> >>>> +                       (config->features & VDUSE_NET_INVALID_FEATUR=
-ES_MASK))
-> >>>> +               return false;
-> >>>>
-> >>>>           return true;
-> >>>>    }
-> >>>> --
-> >>>> 2.43.0
-> >>>>
-> >>>
-> >>
-> >>
-> >
->
+diff --git a/arch/loongarch/include/asm/Kbuild b/arch/loongarch/include/asm/Kbuild
+index 93783fa24f6e..22991a6f0e2b 100644
+--- a/arch/loongarch/include/asm/Kbuild
++++ b/arch/loongarch/include/asm/Kbuild
+@@ -23,4 +23,3 @@ generic-y += poll.h
+ generic-y += param.h
+ generic-y += posix_types.h
+ generic-y += resource.h
+-generic-y += kvm_para.h
+diff --git a/arch/loongarch/include/asm/kvm_para.h b/arch/loongarch/include/asm/kvm_para.h
+new file mode 100644
+index 000000000000..9425d3b7e486
+--- /dev/null
++++ b/arch/loongarch/include/asm/kvm_para.h
+@@ -0,0 +1,26 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _ASM_LOONGARCH_KVM_PARA_H
++#define _ASM_LOONGARCH_KVM_PARA_H
++
++/*
++ * LoongArch hypcall return code
++ */
++#define KVM_HC_STATUS_SUCCESS		0
++#define KVM_HC_INVALID_CODE		-1UL
++#define KVM_HC_INVALID_PARAMETER	-2UL
++
++static inline unsigned int kvm_arch_para_features(void)
++{
++	return 0;
++}
++
++static inline unsigned int kvm_arch_para_hints(void)
++{
++	return 0;
++}
++
++static inline bool kvm_check_and_clear_guest_paused(void)
++{
++	return false;
++}
++#endif /* _ASM_LOONGARCH_KVM_PARA_H */
+diff --git a/arch/loongarch/include/uapi/asm/Kbuild b/arch/loongarch/include/uapi/asm/Kbuild
+deleted file mode 100644
+index 4aa680ca2e5f..000000000000
+--- a/arch/loongarch/include/uapi/asm/Kbuild
++++ /dev/null
+@@ -1,2 +0,0 @@
+-# SPDX-License-Identifier: GPL-2.0
+-generic-y += kvm_para.h
+diff --git a/arch/loongarch/kvm/exit.c b/arch/loongarch/kvm/exit.c
+index e708a1786d6b..59e5fe221982 100644
+--- a/arch/loongarch/kvm/exit.c
++++ b/arch/loongarch/kvm/exit.c
+@@ -650,6 +650,15 @@ static int kvm_handle_fpu_disabled(struct kvm_vcpu *vcpu)
+ 	return RESUME_GUEST;
+ }
+ 
++static int kvm_handle_hypcall(struct kvm_vcpu *vcpu)
++{
++	update_pc(&vcpu->arch);
++
++	/* Treat it as noop intruction, only set return value */
++	vcpu->arch.gprs[LOONGARCH_GPR_A0] = KVM_HC_INVALID_CODE;
++	return RESUME_GUEST;
++}
++
+ /*
+  * LoongArch KVM callback handling for unimplemented guest exiting
+  */
+@@ -679,6 +688,7 @@ static exit_handle_fn kvm_fault_tables[EXCCODE_INT_START] = {
+ 	[EXCCODE_TLBM]			= kvm_handle_write_fault,
+ 	[EXCCODE_FPDIS]			= kvm_handle_fpu_disabled,
+ 	[EXCCODE_GSPR]			= kvm_handle_gspr,
++	[EXCCODE_HVC]			= kvm_handle_hypcall,
+ };
+ 
+ int kvm_handle_fault(struct kvm_vcpu *vcpu, int fault)
+-- 
+2.39.3
 
