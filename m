@@ -1,87 +1,122 @@
-Received: from szxga07-in.huawei.com (szxga07-in.huawei.com [45.249.212.35])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78932101DE
-	for <virtualization@lists.linux.dev>; Mon,  8 Jan 2024 09:06:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.163.17])
-	by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4T7p6R3dCJz1Q7tL;
-	Mon,  8 Jan 2024 17:04:47 +0800 (CST)
-Received: from dggpemm500005.china.huawei.com (unknown [7.185.36.74])
-	by mail.maildlp.com (Postfix) with ESMTPS id 0212E1A0172;
-	Mon,  8 Jan 2024 17:06:18 +0800 (CST)
-Received: from [10.69.30.204] (10.69.30.204) by dggpemm500005.china.huawei.com
- (7.185.36.74) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.35; Mon, 8 Jan
- 2024 17:06:17 +0800
-Subject: Re: [PATCH net-next 4/6] vhost/net: remove
- vhost_net_page_frag_refill()
-To: Alexander H Duyck <alexander.duyck@gmail.com>, <davem@davemloft.net>,
-	<kuba@kernel.org>, <pabeni@redhat.com>
-CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Jason Wang
-	<jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Alexei
- Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Jesper
- Dangaard Brouer <hawk@kernel.org>, John Fastabend <john.fastabend@gmail.com>,
-	<kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
-	<bpf@vger.kernel.org>
-References: <20240103095650.25769-1-linyunsheng@huawei.com>
- <20240103095650.25769-5-linyunsheng@huawei.com>
- <1a66f99173de36e1ae639569582feaf76202361d.camel@gmail.com>
-From: Yunsheng Lin <linyunsheng@huawei.com>
-Message-ID: <705e59c2-6f46-5d39-b8da-8e2310904d71@huawei.com>
-Date: Mon, 8 Jan 2024 17:06:17 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:52.0) Gecko/20100101
- Thunderbird/52.2.0
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7F0D405C2;
+	Mon,  8 Jan 2024 12:27:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UPsGJcl1"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44F53C433C7;
+	Mon,  8 Jan 2024 12:27:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1704716869;
+	bh=XT1YEEoBYL9YDiIX/x8rgxCuvHmV/PTauF415QqPIFQ=;
+	h=From:To:Cc:Subject:Date:From;
+	b=UPsGJcl1g9EiAthi4CpNsl0yNSWFFCHkd2ZUbk6CPMt34BMDzCtyhQ+yca1YMlyBY
+	 Cql7306y2Q7Nn85Nuz1FCd0JTfdsdsmOvi+V4YV+fFxy119KClUTIlxh1NT+KFeoKY
+	 MZpaB7OGQETIMSHaflY6/9l4S07nJqm9h+39n1NQ6aOsqa3uDyWEoUod0N46iLPlhi
+	 RPnolo36oi829R/GkUy7NdzRIIwkMV/ZnE9kQ0pNJXQDc5nEv1QUcsgDlUmVgSpFNq
+	 TXD9HiTkn3unCs6nevPT3VmvnbCyYnaQNWJ7Sm+o2QutC34hu+g0hb9g3xiyQpWTkN
+	 /ZukCNaH92M/w==
+From: Sasha Levin <sashal@kernel.org>
+To: linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Cc: Stefan Hajnoczi <stefanha@redhat.com>,
+	Suwan Kim <suwan.kim027@gmail.com>,
+	kernel test robot <lkp@intel.com>,
+	"Michael S . Tsirkin" <mst@redhat.com>,
+	Sasha Levin <sashal@kernel.org>,
+	jasowang@redhat.com,
+	axboe@kernel.dk,
+	virtualization@lists.linux.dev,
+	linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.6 1/8] virtio_blk: fix snprintf truncation compiler warning
+Date: Mon,  8 Jan 2024 07:27:17 -0500
+Message-ID: <20240108122745.2090122-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <1a66f99173de36e1ae639569582feaf76202361d.camel@gmail.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- dggpemm500005.china.huawei.com (7.185.36.74)
+Content-Type: text/plain; charset=UTF-8
+X-stable: review
+X-Patchwork-Hint: Ignore
+X-stable-base: Linux 6.6.10
+Content-Transfer-Encoding: 8bit
 
-On 2024/1/6 0:06, Alexander H Duyck wrote:
->>  
->>  static void handle_tx_copy(struct vhost_net *net, struct socket *sock)
->> @@ -1353,8 +1318,7 @@ static int vhost_net_open(struct inode *inode, struct file *f)
->>  			vqs[VHOST_NET_VQ_RX]);
->>  
->>  	f->private_data = n;
->> -	n->page_frag.page = NULL;
->> -	n->refcnt_bias = 0;
->> +	n->pf_cache.va = NULL;
->>  
->>  	return 0;
->>  }
->> @@ -1422,8 +1386,9 @@ static int vhost_net_release(struct inode *inode, struct file *f)
->>  	kfree(n->vqs[VHOST_NET_VQ_RX].rxq.queue);
->>  	kfree(n->vqs[VHOST_NET_VQ_TX].xdp);
->>  	kfree(n->dev.vqs);
->> -	if (n->page_frag.page)
->> -		__page_frag_cache_drain(n->page_frag.page, n->refcnt_bias);
->> +	if (n->pf_cache.va)
->> +		__page_frag_cache_drain(virt_to_head_page(n->pf_cache.va),
->> +					n->pf_cache.pagecnt_bias);
->>  	kvfree(n);
->>  	return 0;
->>  }
-> 
-> I would recommend reordering this patch with patch 5. Then you could
-> remove the block that is setting "n->pf_cache.va = NULL" above and just
-> make use of page_frag_cache_drain in the lower block which would also
-> return the va to NULL.
+From: Stefan Hajnoczi <stefanha@redhat.com>
 
-I am not sure if we can as there is no zeroing for 'struct vhost_net' in
-vhost_net_open().
+[ Upstream commit b8e0792449928943c15d1af9f63816911d139267 ]
 
-If we don't have "n->pf_cache.va = NULL", don't we use the uninitialized data
-when calling page_frag_alloc_align() for the first time?
+Commit 4e0400525691 ("virtio-blk: support polling I/O") triggers the
+following gcc 13 W=1 warnings:
 
-> .
-> 
+drivers/block/virtio_blk.c: In function ‘init_vq’:
+drivers/block/virtio_blk.c:1077:68: warning: ‘%d’ directive output may be truncated writing between 1 and 11 bytes into a region of size 7 [-Wformat-truncation=]
+ 1077 |                 snprintf(vblk->vqs[i].name, VQ_NAME_LEN, "req_poll.%d", i);
+      |                                                                    ^~
+drivers/block/virtio_blk.c:1077:58: note: directive argument in the range [-2147483648, 65534]
+ 1077 |                 snprintf(vblk->vqs[i].name, VQ_NAME_LEN, "req_poll.%d", i);
+      |                                                          ^~~~~~~~~~~~~
+drivers/block/virtio_blk.c:1077:17: note: ‘snprintf’ output between 11 and 21 bytes into a destination of size 16
+ 1077 |                 snprintf(vblk->vqs[i].name, VQ_NAME_LEN, "req_poll.%d", i);
+      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This is a false positive because the lower bound -2147483648 is
+incorrect. The true range of i is [0, num_vqs - 1] where 0 < num_vqs <
+65536.
+
+The code mixes int, unsigned short, and unsigned int types in addition
+to using "%d" for an unsigned value. Use unsigned short and "%u"
+consistently to solve the compiler warning.
+
+Cc: Suwan Kim <suwan.kim027@gmail.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Closes: https://lore.kernel.org/oe-kbuild-all/202312041509.DIyvEt9h-lkp@intel.com/
+Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+Message-Id: <20231204140743.1487843-1-stefanha@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/block/virtio_blk.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 4a4b9bad551e8..225c86c74d4e9 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -1021,12 +1021,12 @@ static void virtblk_config_changed(struct virtio_device *vdev)
+ static int init_vq(struct virtio_blk *vblk)
+ {
+ 	int err;
+-	int i;
++	unsigned short i;
+ 	vq_callback_t **callbacks;
+ 	const char **names;
+ 	struct virtqueue **vqs;
+ 	unsigned short num_vqs;
+-	unsigned int num_poll_vqs;
++	unsigned short num_poll_vqs;
+ 	struct virtio_device *vdev = vblk->vdev;
+ 	struct irq_affinity desc = { 0, };
+ 
+@@ -1070,13 +1070,13 @@ static int init_vq(struct virtio_blk *vblk)
+ 
+ 	for (i = 0; i < num_vqs - num_poll_vqs; i++) {
+ 		callbacks[i] = virtblk_done;
+-		snprintf(vblk->vqs[i].name, VQ_NAME_LEN, "req.%d", i);
++		snprintf(vblk->vqs[i].name, VQ_NAME_LEN, "req.%u", i);
+ 		names[i] = vblk->vqs[i].name;
+ 	}
+ 
+ 	for (; i < num_vqs; i++) {
+ 		callbacks[i] = NULL;
+-		snprintf(vblk->vqs[i].name, VQ_NAME_LEN, "req_poll.%d", i);
++		snprintf(vblk->vqs[i].name, VQ_NAME_LEN, "req_poll.%u", i);
+ 		names[i] = vblk->vqs[i].name;
+ 	}
+ 
+-- 
+2.43.0
+
