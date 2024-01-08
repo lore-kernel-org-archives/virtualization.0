@@ -1,34 +1,36 @@
-Received: from szxga05-in.huawei.com (szxga05-in.huawei.com [45.249.212.191])
+Received: from szxga07-in.huawei.com (szxga07-in.huawei.com [45.249.212.35])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB85EC13C
-	for <virtualization@lists.linux.dev>; Mon,  8 Jan 2024 08:25:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78932101DE
+	for <virtualization@lists.linux.dev>; Mon,  8 Jan 2024 09:06:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.88.234])
-	by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4T7nCc0ZBmz1gx9K;
-	Mon,  8 Jan 2024 16:24:12 +0800 (CST)
+Received: from mail.maildlp.com (unknown [172.19.163.17])
+	by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4T7p6R3dCJz1Q7tL;
+	Mon,  8 Jan 2024 17:04:47 +0800 (CST)
 Received: from dggpemm500005.china.huawei.com (unknown [7.185.36.74])
-	by mail.maildlp.com (Postfix) with ESMTPS id 07150140384;
-	Mon,  8 Jan 2024 16:25:42 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTPS id 0212E1A0172;
+	Mon,  8 Jan 2024 17:06:18 +0800 (CST)
 Received: from [10.69.30.204] (10.69.30.204) by dggpemm500005.china.huawei.com
  (7.185.36.74) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.35; Mon, 8 Jan
- 2024 16:25:41 +0800
-Subject: Re: [PATCH net-next 2/6] page_frag: unify gfp bits for order 3 page
- allocation
+ 2024 17:06:17 +0800
+Subject: Re: [PATCH net-next 4/6] vhost/net: remove
+ vhost_net_page_frag_refill()
 To: Alexander H Duyck <alexander.duyck@gmail.com>, <davem@davemloft.net>,
 	<kuba@kernel.org>, <pabeni@redhat.com>
-CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, "Michael S.
- Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Andrew Morton
-	<akpm@linux-foundation.org>, Eric Dumazet <edumazet@google.com>,
-	<kvm@vger.kernel.org>, <virtualization@lists.linux.dev>, <linux-mm@kvack.org>
+CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Jason Wang
+	<jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Alexei
+ Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Jesper
+ Dangaard Brouer <hawk@kernel.org>, John Fastabend <john.fastabend@gmail.com>,
+	<kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
+	<bpf@vger.kernel.org>
 References: <20240103095650.25769-1-linyunsheng@huawei.com>
- <20240103095650.25769-3-linyunsheng@huawei.com>
- <d4947ef05bca8525d04f9943e92b4e43ec82c583.camel@gmail.com>
+ <20240103095650.25769-5-linyunsheng@huawei.com>
+ <1a66f99173de36e1ae639569582feaf76202361d.camel@gmail.com>
 From: Yunsheng Lin <linyunsheng@huawei.com>
-Message-ID: <1d40427d-78e3-ef40-a63f-206c0697bda2@huawei.com>
-Date: Mon, 8 Jan 2024 16:25:41 +0800
+Message-ID: <705e59c2-6f46-5d39-b8da-8e2310904d71@huawei.com>
+Date: Mon, 8 Jan 2024 17:06:17 +0800
 User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:52.0) Gecko/20100101
  Thunderbird/52.2.0
 Precedence: bulk
@@ -37,95 +39,49 @@ List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <d4947ef05bca8525d04f9943e92b4e43ec82c583.camel@gmail.com>
+In-Reply-To: <1a66f99173de36e1ae639569582feaf76202361d.camel@gmail.com>
 Content-Type: text/plain; charset="utf-8"
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
  dggpemm500005.china.huawei.com (7.185.36.74)
 
-On 2024/1/5 23:35, Alexander H Duyck wrote:
-> On Wed, 2024-01-03 at 17:56 +0800, Yunsheng Lin wrote:
->> Currently there seems to be three page frag implementions
->> which all try to allocate order 3 page, if that fails, it
->> then fail back to allocate order 0 page, and each of them
->> all allow order 3 page allocation to fail under certain
->> condition by using specific gfp bits.
->>
->> The gfp bits for order 3 page allocation are different
->> between different implementation, __GFP_NOMEMALLOC is
->> or'd to forbid access to emergency reserves memory for
->> __page_frag_cache_refill(), but it is not or'd in other
->> implementions, __GFP_DIRECT_RECLAIM is masked off to avoid
->> direct reclaim in skb_page_frag_refill(), but it is not
->> masked off in __page_frag_cache_refill().
->>
->> This patch unifies the gfp bits used between different
->> implementions by or'ing __GFP_NOMEMALLOC and masking off
->> __GFP_DIRECT_RECLAIM for order 3 page allocation to avoid
->> possible pressure for mm.
->>
->> Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
->> CC: Alexander Duyck <alexander.duyck@gmail.com>
->> ---
->>  drivers/vhost/net.c | 2 +-
->>  mm/page_alloc.c     | 4 ++--
->>  net/core/sock.c     | 2 +-
->>  3 files changed, 4 insertions(+), 4 deletions(-)
->>
->> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
->> index f2ed7167c848..e574e21cc0ca 100644
->> --- a/drivers/vhost/net.c
->> +++ b/drivers/vhost/net.c
->> @@ -670,7 +670,7 @@ static bool vhost_net_page_frag_refill(struct vhost_net *net, unsigned int sz,
->>  		/* Avoid direct reclaim but allow kswapd to wake */
->>  		pfrag->page = alloc_pages((gfp & ~__GFP_DIRECT_RECLAIM) |
->>  					  __GFP_COMP | __GFP_NOWARN |
->> -					  __GFP_NORETRY,
->> +					  __GFP_NORETRY | __GFP_NOMEMALLOC,
->>  					  SKB_FRAG_PAGE_ORDER);
->>  		if (likely(pfrag->page)) {
->>  			pfrag->size = PAGE_SIZE << SKB_FRAG_PAGE_ORDER;
->> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
->> index 9a16305cf985..1f0b36dd81b5 100644
->> --- a/mm/page_alloc.c
->> +++ b/mm/page_alloc.c
->> @@ -4693,8 +4693,8 @@ static struct page *__page_frag_cache_refill(struct page_frag_cache *nc,
->>  	gfp_t gfp = gfp_mask;
+On 2024/1/6 0:06, Alexander H Duyck wrote:
 >>  
->>  #if (PAGE_SIZE < PAGE_FRAG_CACHE_MAX_SIZE)
->> -	gfp_mask |= __GFP_COMP | __GFP_NOWARN | __GFP_NORETRY |
->> -		    __GFP_NOMEMALLOC;
->> +	gfp_mask = (gfp_mask & ~__GFP_DIRECT_RECLAIM) |  __GFP_COMP |
->> +		   __GFP_NOWARN | __GFP_NORETRY | __GFP_NOMEMALLOC;
->>  	page = alloc_pages_node(NUMA_NO_NODE, gfp_mask,
->>  				PAGE_FRAG_CACHE_MAX_ORDER);
->>  	nc->size = page ? PAGE_FRAG_CACHE_MAX_SIZE : PAGE_SIZE;
->> diff --git a/net/core/sock.c b/net/core/sock.c
->> index 446e945f736b..d643332c3ee5 100644
->> --- a/net/core/sock.c
->> +++ b/net/core/sock.c
->> @@ -2900,7 +2900,7 @@ bool skb_page_frag_refill(unsigned int sz, struct page_frag *pfrag, gfp_t gfp)
->>  		/* Avoid direct reclaim but allow kswapd to wake */
->>  		pfrag->page = alloc_pages((gfp & ~__GFP_DIRECT_RECLAIM) |
->>  					  __GFP_COMP | __GFP_NOWARN |
->> -					  __GFP_NORETRY,
->> +					  __GFP_NORETRY | __GFP_NOMEMALLOC,
->>  					  SKB_FRAG_PAGE_ORDER);
->>  		if (likely(pfrag->page)) {
->>  			pfrag->size = PAGE_SIZE << SKB_FRAG_PAGE_ORDER;
+>>  static void handle_tx_copy(struct vhost_net *net, struct socket *sock)
+>> @@ -1353,8 +1318,7 @@ static int vhost_net_open(struct inode *inode, struct file *f)
+>>  			vqs[VHOST_NET_VQ_RX]);
+>>  
+>>  	f->private_data = n;
+>> -	n->page_frag.page = NULL;
+>> -	n->refcnt_bias = 0;
+>> +	n->pf_cache.va = NULL;
+>>  
+>>  	return 0;
+>>  }
+>> @@ -1422,8 +1386,9 @@ static int vhost_net_release(struct inode *inode, struct file *f)
+>>  	kfree(n->vqs[VHOST_NET_VQ_RX].rxq.queue);
+>>  	kfree(n->vqs[VHOST_NET_VQ_TX].xdp);
+>>  	kfree(n->dev.vqs);
+>> -	if (n->page_frag.page)
+>> -		__page_frag_cache_drain(n->page_frag.page, n->refcnt_bias);
+>> +	if (n->pf_cache.va)
+>> +		__page_frag_cache_drain(virt_to_head_page(n->pf_cache.va),
+>> +					n->pf_cache.pagecnt_bias);
+>>  	kvfree(n);
+>>  	return 0;
+>>  }
 > 
-> Looks fine to me.
-> 
-> One thing you may want to consider would be to place this all in an
-> inline function that could just consolidate all the code.
+> I would recommend reordering this patch with patch 5. Then you could
+> remove the block that is setting "n->pf_cache.va = NULL" above and just
+> make use of page_frag_cache_drain in the lower block which would also
+> return the va to NULL.
 
-Do you think it is possible to further unify the implementations of the
-'struct page_frag_cache' and 'struct page_frag', so adding a inline
-function for above is unnecessary?
+I am not sure if we can as there is no zeroing for 'struct vhost_net' in
+vhost_net_open().
 
-> 
-> Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
-> 
+If we don't have "n->pf_cache.va = NULL", don't we use the uninitialized data
+when calling page_frag_alloc_align() for the first time?
+
 > .
 > 
