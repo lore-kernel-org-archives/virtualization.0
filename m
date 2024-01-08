@@ -1,140 +1,121 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A156E4174D;
-	Mon,  8 Jan 2024 13:13:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B4F151C29
+	for <virtualization@lists.linux.dev>; Mon,  8 Jan 2024 15:46:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OAoSGY28"
-Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 408ClkX7008664;
-	Mon, 8 Jan 2024 13:13:31 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=TUkqyDZU2w0pJe2IADGbbappcrOnCPRNodexsVKjT+8=;
- b=OAoSGY28pCKHNAjzJrlgLXmSe/AsB4iZf8ugjpTFG0OxcsC9b2DjyRTdaMr24WBfiREm
- 4hoGrP1gWHyMMPP7SCH1NIqBCGpRlNp2TsgvICA4c111As3MRU+oCMKQl0OlJvj1IDJS
- zotNXl+5uON9ss4zf/lxkZq6niHLf876crLFvBM2CYHSp55tKW0Pwyr2/eKPi336uqcb
- vENdCWRGiHzXxgr7Do/B98PTdcVUeca4jYTm5Z4dw3UX2t5E/znGqTRtKiQmZD8Go+L3
- tYamG7a3JEwQW/j9j5unqnQRcN9O3pfSvVJDa5rMkFsjrCxAyDo7roMwHO/m/72/SRQj qg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vghc3gnh3-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 08 Jan 2024 13:13:30 +0000
-Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 408Cm39u009852;
-	Mon, 8 Jan 2024 13:13:30 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vghc3gngk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 08 Jan 2024 13:13:30 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 408B6lwk027006;
-	Mon, 8 Jan 2024 13:13:29 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vfkw1qjnm-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 08 Jan 2024 13:13:29 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 408DDRDV40501792
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 8 Jan 2024 13:13:27 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8327920049;
-	Mon,  8 Jan 2024 13:13:27 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 56CFD20040;
-	Mon,  8 Jan 2024 13:13:27 +0000 (GMT)
-Received: from DESKTOP-2CCOB1S. (unknown [9.171.166.51])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon,  8 Jan 2024 13:13:27 +0000 (GMT)
-Date: Mon, 8 Jan 2024 14:13:25 +0100
-From: Tobias Huschle <huschle@linux.ibm.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>, Abel Wu <wuyun.abel@bytedance.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Linux Kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
-        virtualization@lists.linux.dev, netdev@vger.kernel.org
-Subject: Re: Re: Re: EEVDF/vhost regression (bisected to 86bfbb7ce4f6
- sched/fair: Add lag based placement)
-Message-ID: <ZZv09bLJvA5M/kc7@DESKTOP-2CCOB1S.>
-References: <20231209053443-mutt-send-email-mst@kernel.org>
- <CACGkMEuSGT-e-i-8U7hum-N_xEnsEKL+_07Mipf6gMLFFhj2Aw@mail.gmail.com>
- <20231211115329-mutt-send-email-mst@kernel.org>
- <CACGkMEudZnF7hUajgt0wtNPCxH8j6A3L1DgJj2ayJWhv9Bh1WA@mail.gmail.com>
- <20231212111433-mutt-send-email-mst@kernel.org>
- <42870.123121305373200110@us-mta-641.us.mimecast.lan>
- <20231213061719-mutt-send-email-mst@kernel.org>
- <25485.123121307454100283@us-mta-18.us.mimecast.lan>
- <20231213094854-mutt-send-email-mst@kernel.org>
- <20231214021328-mutt-send-email-mst@kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CVFU+WVp"
+Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-28d0052beb0so1095662a91.0
+        for <virtualization@lists.linux.dev>; Mon, 08 Jan 2024 07:46:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1704728777; x=1705333577; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=6ABIEatGvpONoYLEnM8zujVINLyFvWCQbpURBZGHqyc=;
+        b=CVFU+WVpMV4WWOFWkLVmYayBgv0ovt/5OIPO8WwUZu3AH2L9JXgvGEm7h63Y/M0TkO
+         tTKqfhWz3vHx5BfbLmGDr06NojqAlpC8HUv21Z9KDdX324yTr2Ak5ghfVlUF3HOf0tPR
+         XyobnuB2vhVFePfPrsZUvXwXGS1e2Q+mr4UYAO+z/wGq+oDZ8zH0XaEY9Z/X/ZB6uRAm
+         03+igHNpXOjvaO616zTL7Noh7aNfCMKJq6FTFdfrW03J3R8WysOjU4GNFi8m8t9DAcSG
+         1a5+QZQjy26+LzBz7Kl+3dcoYjHNFaduWgNiWyfS4oYpoOvYC8eu2r8Sm6YWWI9qfOPN
+         jsug==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1704728777; x=1705333577;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=6ABIEatGvpONoYLEnM8zujVINLyFvWCQbpURBZGHqyc=;
+        b=daZFtAI/IgzFZQSoQ7Dz6BBeIvodIx6ZBXNm5CSQ1k1aiNvxnrvCz2w62YV5wt++Kc
+         MRX4fXAa2g7dehDv4SQNkGvyvV6nL1vBO8/tZHJjdPRJTJq9VNdlgDpaY0f+As8ZNpwD
+         sTfS3dk8KuF0HbI841g/wdhrerNvFyX5qBJMIEaOH5rfV5Uu0J20F8Pqyac7X3XHZbfe
+         VrtxS2Xos+8Q+14vsmG8E9tCfqkXJVjWYFIf0QD54leQgzJ3S59jDoGrGge8k3NbOON8
+         rtWS1V+iE0ZRKsTSakArrQt9nl1VLel2xGI5FbxJRsZfN0e4MKFYqrxfd45Usi/oMZmw
+         kk3Q==
+X-Gm-Message-State: AOJu0YzBc60yPqOzqRdkLOVQt4fQaSkNFCejr2InUA0lyXUcNtlKQz4s
+	ftshqV7+XJLNNXl/m9lWeARYo/KYqoCAlAp4A8s=
+X-Google-Smtp-Source: AGHT+IHZJe1ZY74k1Lg4LUidpgawMu0QAPQhvu8GZrpY+cE2pAX9oNfGVAG8ljK3e18QPKlpOElMC5jvPt+GMAfHuo0=
+X-Received: by 2002:a17:90a:d315:b0:28c:d85:9807 with SMTP id
+ p21-20020a17090ad31500b0028c0d859807mr1131248pju.78.1704728776801; Mon, 08
+ Jan 2024 07:46:16 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20231214021328-mutt-send-email-mst@kernel.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: ECAMvZcC_h-gkpU_Pbp9Ecir0gWIPvvz
-X-Proofpoint-GUID: uFGhddQc-GSToOejEHlZ_c_bFqoRBb5C
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-01-08_04,2024-01-08_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
- priorityscore=1501 suspectscore=0 bulkscore=0 mlxlogscore=825 phishscore=0
- clxscore=1011 adultscore=0 spamscore=0 lowpriorityscore=0 impostorscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
- definitions=main-2401080113
+References: <20240103095650.25769-1-linyunsheng@huawei.com>
+ <20240103095650.25769-5-linyunsheng@huawei.com> <1a66f99173de36e1ae639569582feaf76202361d.camel@gmail.com>
+ <705e59c2-6f46-5d39-b8da-8e2310904d71@huawei.com>
+In-Reply-To: <705e59c2-6f46-5d39-b8da-8e2310904d71@huawei.com>
+From: Alexander Duyck <alexander.duyck@gmail.com>
+Date: Mon, 8 Jan 2024 07:45:40 -0800
+Message-ID: <CAKgT0UdLA820trYGWkgNR8KFX=QbFbiR_AcrWXwFwrmQzaVmKA@mail.gmail.com>
+Subject: Re: [PATCH net-next 4/6] vhost/net: remove vhost_net_page_frag_refill()
+To: Yunsheng Lin <linyunsheng@huawei.com>
+Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+	Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend <john.fastabend@gmail.com>, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev, bpf@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Dec 14, 2023 at 02:14:59AM -0500, Michael S. Tsirkin wrote:
-> 
-> Peter, would appreciate feedback on this. When is cond_resched()
-> insufficient to give up the CPU? Should Documentation/kernel-hacking/hacking.rst
-> be updated to require schedule() instead?
-> 
+On Mon, Jan 8, 2024 at 1:06=E2=80=AFAM Yunsheng Lin <linyunsheng@huawei.com=
+> wrote:
+>
+> On 2024/1/6 0:06, Alexander H Duyck wrote:
+> >>
+> >>  static void handle_tx_copy(struct vhost_net *net, struct socket *sock=
+)
+> >> @@ -1353,8 +1318,7 @@ static int vhost_net_open(struct inode *inode, s=
+truct file *f)
+> >>                      vqs[VHOST_NET_VQ_RX]);
+> >>
+> >>      f->private_data =3D n;
+> >> -    n->page_frag.page =3D NULL;
+> >> -    n->refcnt_bias =3D 0;
+> >> +    n->pf_cache.va =3D NULL;
+> >>
+> >>      return 0;
+> >>  }
+> >> @@ -1422,8 +1386,9 @@ static int vhost_net_release(struct inode *inode=
+, struct file *f)
+> >>      kfree(n->vqs[VHOST_NET_VQ_RX].rxq.queue);
+> >>      kfree(n->vqs[VHOST_NET_VQ_TX].xdp);
+> >>      kfree(n->dev.vqs);
+> >> -    if (n->page_frag.page)
+> >> -            __page_frag_cache_drain(n->page_frag.page, n->refcnt_bias=
+);
+> >> +    if (n->pf_cache.va)
+> >> +            __page_frag_cache_drain(virt_to_head_page(n->pf_cache.va)=
+,
+> >> +                                    n->pf_cache.pagecnt_bias);
+> >>      kvfree(n);
+> >>      return 0;
+> >>  }
+> >
+> > I would recommend reordering this patch with patch 5. Then you could
+> > remove the block that is setting "n->pf_cache.va =3D NULL" above and ju=
+st
+> > make use of page_frag_cache_drain in the lower block which would also
+> > return the va to NULL.
+>
+> I am not sure if we can as there is no zeroing for 'struct vhost_net' in
+> vhost_net_open().
+>
+> If we don't have "n->pf_cache.va =3D NULL", don't we use the uninitialize=
+d data
+> when calling page_frag_alloc_align() for the first time?
 
-Happy new year everybody!
+I see. So kvmalloc is used instead of kvzalloc when allocating the
+structure. That might be an opportunity to clean things up a bit by
+making that change to reduce the risk of some piece of memory
+initialization being missed.
 
-I'd like to bring this thread back to life. To reiterate:
-
-- The introduction of the EEVDF scheduler revealed a performance
-  regression in a uperf testcase of ~50%.
-- Tracing the scheduler showed that it takes decisions which are
-  in line with its design.
-- The traces showed as well, that a vhost instance might run
-  excessively long on its CPU in some circumstance. Those cause
-  the performance regression as they cause delay times of 100+ms
-  for a kworker which drives the actual network processing.
-- Before EEVDF, the vhost would always be scheduled off its CPU
-  in favor of the kworker, as the kworker was being woken up and
-  the former scheduler was giving more priority to the woken up
-  task. With EEVDF, the kworker, as a long running process, is
-  able to accumulate negative lag, which causes EEVDF to not
-  prefer it on its wake up, leaving the vhost running.
-- If the kworker is not scheduled when being woken up, the vhost
-  continues looping until it is migrated off the CPU.
-- The vhost offers to be scheduled off the CPU by calling 
-  cond_resched(), but, the the need_resched flag is not set,
-  therefore cond_resched() does nothing.
-
-To solve this, I see the following options 
-  (might not be a complete nor a correct list)
-- Along with the wakeup of the kworker, need_resched needs to
-  be set, such that cond_resched() triggers a reschedule.
-- The vhost calls schedule() instead of cond_resched() to give up
-  the CPU. This would of course be a significantly stricter
-  approach and might limit the performance of vhost in other cases.
-- Preventing the kworker from accumulating negative lag as it is
-  mostly not runnable and if it runs, it only runs for a very short
-  time frame. This might clash with the overall concept of EEVDF.
-- On cond_resched(), verify if the consumed runtime of the caller
-  is outweighing the negative lag of another process (e.g. the 
-  kworker) and schedule the other process. Introduces overhead
-  to cond_resched.
-
-I would be curious on feedback on those ideas and interested in
-alternative approaches.
+That said, I still think reordering the two patches might be useful as
+it would help to make it so that the change you make to vhost_net is
+encapsulated in one patch to fully enable the use of the new page pool
+API.
