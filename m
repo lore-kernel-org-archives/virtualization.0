@@ -1,217 +1,163 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-il1-f170.google.com (mail-il1-f170.google.com [209.85.166.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAB5E3E46D
-	for <virtualization@lists.linux.dev>; Tue,  9 Jan 2024 23:19:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E2653F8CA
+	for <virtualization@lists.linux.dev>; Tue,  9 Jan 2024 23:42:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eiCe4Lvt"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1704842364;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=wHVmMNIg/DVwx+LrG/fqarxhc21tkCGhrWRbquNsn9U=;
-	b=eiCe4Lvt82zCtqZz0FhAdn0ukMoFW2pJAqc6IWNLKNepM5yE5pCWM8tRU0cZiFNWnefZTx
-	XU8Y9IhuMVlOJv8zcao1IWRvvsz4mSePjqEuhMy6fMMP1jt69PWg3ovZAR+SYjcdGrVMtP
-	00HnlM6fYHw9y7cW6cDzeDZjx5sOucw=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-63-tB92S31tPl-A3qJZtZr-yQ-1; Tue, 09 Jan 2024 18:19:22 -0500
-X-MC-Unique: tB92S31tPl-A3qJZtZr-yQ-1
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-40d6e7334cfso32597125e9.0
-        for <virtualization@lists.linux.dev>; Tue, 09 Jan 2024 15:19:22 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="rM+ah8zr"
+Received: by mail-il1-f170.google.com with SMTP id e9e14a558f8ab-3606f507efeso17177025ab.3
+        for <virtualization@lists.linux.dev>; Tue, 09 Jan 2024 15:42:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1704843764; x=1705448564; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=QIcPXVK1fYFTemMdjpiQGc+AOvdzW3M34c5/yKhDtd4=;
+        b=rM+ah8zr75xWxp7XGAdheDFg6D+01b9XVSwo0+BWSmyyAncwl1SXVepsbbRFUHjQFe
+         vTRnvdOk7Rv64ZUsOdLJTzP/rU1islva1IAn0psKGGVS7iQeRSRTv/r9aKp35RVMjqOl
+         PB9/ZfwEardsVDfNROJ531PVcJb0Vy1gelTFnAttbNUHnvOF4p6ksNbeVokNtCosbHRS
+         7cU7uv1Is5ASYkOk/HVOd+KZfgon4SyaR+UaTUHJEk4dl5+nisufyWg8kipsBFnrybVo
+         qJmjbJ7SNnQMiGJHpErz+ekzVNMLCA8YCwmjFjkvmn+Uc57NKnBnaen/e4NZ2prRGSMQ
+         j7vg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1704842362; x=1705447162;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=wHVmMNIg/DVwx+LrG/fqarxhc21tkCGhrWRbquNsn9U=;
-        b=eK3abHgPRC1eE/TzBsFVrxzYOhr9Ldrs0zy5WTb26L9BzU5zC9T83ZviunWHbewIuc
-         9A53sj+2WyWrYuLdq4JDdvmK2vRljhLVQrZbSLKdBjUzvq5/HR9F3vKIa0v6fL2cPAbn
-         lEskRE3JZ2BBKkEdSf5lZlhFGvd5XaIX9geSiXSgfQxAOJwxot7aWLqrRdwWgwxs/gXa
-         TQXMtW2SpEuI6yIoQ76fzpC3Yzgo/MClwNS1FCxu9lr1163EPGEIds5bupTKb3Xln/hO
-         Vgs2cSCPEqLmQmSJaGKuGSpr8GJvTxTeZJo0lpQPSEb2uLadZetGBkVi3YvRhEHJLe17
-         8Vnw==
-X-Gm-Message-State: AOJu0Ywno9ButIWxfqA8WrG35tRG5/acpGoQey7Jcx6GfOuJLhZIL3d8
-	YRTBD0tDy3oMKPpbHQ7B/83gCu0fNrhmCgEEavx5RWJLJZvKNcwmlcq1CJ2/WrxINNbzjhQfweJ
-	d6gAT/nRKGEHb5+Vl3KYJJSFQDbYjF+dAN9U=
-X-Received: by 2002:a05:600c:a4c:b0:40e:545b:80e6 with SMTP id c12-20020a05600c0a4c00b0040e545b80e6mr30952wmq.158.1704842361814;
-        Tue, 09 Jan 2024 15:19:21 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHar4XTexIgvBATKUPtUP4fvkCodLwjEIqa21khgBEAmJpVpxCFabBi/+JKYxxEDSZ4iCKRvA==
-X-Received: by 2002:a05:600c:a4c:b0:40e:545b:80e6 with SMTP id c12-20020a05600c0a4c00b0040e545b80e6mr30947wmq.158.1704842361435;
-        Tue, 09 Jan 2024 15:19:21 -0800 (PST)
-Received: from redhat.com ([2.52.133.193])
-        by smtp.gmail.com with ESMTPSA id bi6-20020a05600c3d8600b0040e3960f46asm76614wmb.14.2024.01.09.15.19.19
+        d=1e100.net; s=20230601; t=1704843764; x=1705448564;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=QIcPXVK1fYFTemMdjpiQGc+AOvdzW3M34c5/yKhDtd4=;
+        b=Sm16YTmY2VfH8G0rXH0NMR7BB4b0C6juzBufAirGBHc/lPAs6YLIdqW/YuR8lVNiFU
+         z/FRdO/u4lJikD6nBHq1kS8yULBGxIC6w9Bho2VubuJy/v8p8JLq3Ps3NhUU++nexDhx
+         7JHI/FPBQkwrp/JoWkuDzBOLAAZ19NLb2bqrxXF2zywuT1bNHMLH2EKMglTlGfcO5CKp
+         F1F1Hl4+cgVuVXml8fR+etB+cLSqsodOzNVZDArqJAsOcb9BlwWSn9MKQe7ScaLG18J5
+         Y9PEFllowqaXGkzai7WzbJaQnXdp9+EoA4iRxBw7jEW7BpNQ0udj9ps+W4j+a0Ei0YZg
+         lR6w==
+X-Gm-Message-State: AOJu0YytFrNMs0t5IqWjhTNKHRekoQUATIeAaN/n11Dmu0hq5y1Ouy57
+	vEaAQLmiP7uNjbdVtFV7l/M6F5zYkxLy
+X-Google-Smtp-Source: AGHT+IFcCSzwyXxCeIeRPodhTFSjdMhuIXovQrmFwVT7Gt7z1oM7wbSewwsMzzo7BrlWgSVFYS5jcw==
+X-Received: by 2002:a05:6e02:3208:b0:360:5cd9:a73e with SMTP id cd8-20020a056e02320800b003605cd9a73emr300419ilb.6.1704843764645;
+        Tue, 09 Jan 2024 15:42:44 -0800 (PST)
+Received: from google.com (194.225.68.34.bc.googleusercontent.com. [34.68.225.194])
+        by smtp.gmail.com with ESMTPSA id em17-20020a0566384db100b0046ceccc798asm954664jab.6.2024.01.09.15.42.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Jan 2024 15:19:20 -0800 (PST)
-Date: Tue, 9 Jan 2024 18:19:17 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: David Stevens <stevensd@chromium.org>
-Cc: Theodore Ts'o <tytso@mit.edu>, David Hildenbrand <david@redhat.com>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: REGRESSION: lockdep warning triggered by 15b9ce7ecd:
- virtio_balloon: stay awake while adjusting balloon
-Message-ID: <20240109181620-mutt-send-email-mst@kernel.org>
-References: <20240108215015.GA599905@mit.edu>
- <CAD=HUj4dVm_5yTJG_Ly28-x9mCM5zxg8gb7EGz6ZUoDqV8StsA@mail.gmail.com>
+        Tue, 09 Jan 2024 15:42:44 -0800 (PST)
+Date: Tue, 9 Jan 2024 23:42:41 +0000
+From: Justin Stitt <justinstitt@google.com>
+To: Markus Elfring <Markus.Elfring@web.de>
+Cc: kernel test robot <lkp@intel.com>, virtualization@lists.linux.dev,
+	linux-crypto@vger.kernel.org, kernel-janitors@vger.kernel.org,
+	"David S. Miller" <davem@davemloft.net>,
+	Gonglei <arei.gonglei@huawei.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	Jason Wang <jasowang@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, llvm@lists.linux.dev,
+	oe-kbuild-all@lists.linux.dev, netdev@vger.kernel.org,
+	LKML <linux-kernel@vger.kernel.org>, cocci@inria.fr
+Subject: Re: [PATCH v2] crypto: virtio - Less function calls in
+ __virtio_crypto_akcipher_do_req() after error detection
+Message-ID: <20240109234241.4q3ueqdjz5o54oan@google.com>
+References: <2413f22f-f0c3-45e0-9f6b-a551bdf0f54c@web.de>
+ <202312260852.0ge5O8IL-lkp@intel.com>
+ <7bf9a4fa-1675-45a6-88dd-82549ae2c6e0@web.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CAD=HUj4dVm_5yTJG_Ly28-x9mCM5zxg8gb7EGz6ZUoDqV8StsA@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <7bf9a4fa-1675-45a6-88dd-82549ae2c6e0@web.de>
 
-On Tue, Jan 09, 2024 at 02:50:20PM +0900, David Stevens wrote:
-> On Tue, Jan 9, 2024 at 6:50 AM Theodore Ts'o <tytso@mit.edu> wrote:
-> >
-> > Hi, while doing final testing before sending a pull request, I merged
-> > in linux-next, and commit 5b9ce7ecd7: virtio_balloon: stay awake while
-> > adjusting balloon seems to be causing a lockdep warning (see attached)
-> > when running gce-xfstests on a Google Compute Engine e2 VM.  I was not
-> > able to trigger it using kvm-xfstests, but the following command:
-> > "gce-xfstests -C 10 ext4/4k generic/476) was sufficient to triger the
-> > problem.   For more information please see [1] and [2].
-> >
-> > [1] https://github.com/tytso/xfstests-bld/blob/master/Documentation/gce-xfstests.md
-> > [2] https://thunk.org/gce-xfstests
-> >
-> > I found it by looking at the git logs, and this commit aroused my
-> > suspicions, and I further testing showed that the lockdep warning was
-> > reproducible with this commit, but not when testing with the
-> > immediately preceeding commit (15b9ce7ecd^).
-> >
-> > Cheers,
-> >
-> >                                                 - Ted
-> >
-> >
-> > root: ext4/4k run xfstest generic/476
-> > systemd[1]: Started fstests-generic-476.scope - /usr/bin/bash -c test -w /proc/self/oom_score_adj && echo 250 > /proc/self/oom_score_adj; exec ./tests/generic/476.
-> > kernel: [  399.361181] EXT4-fs (dm-1): mounted filesystem 840e25bd-f650-4819-8562-7eded85ef370 r/w with ordered data mode. Quota mode: none.
-> > systemd[1]: fstests-generic-476.scope: Deactivated successfully.
-> > systemd[1]: fstests-generic-476.scope: Consumed 3min 1.966s CPU time.
-> > systemd[1]: xt\x2dvdb.mount: Deactivated successfully.
-> > kernel: [  537.085404] EXT4-fs (dm-0): unmounting filesystem d3d7a675-f7b6-4384-abec-2e60d885b6da.
-> > systemd[1]: xt\x2dvdc.mount: Deactivated successfully.
-> > kernel: [  540.565870]
-> > kernel: [  540.567523] ================================
-> > kernel: [  540.572007] WARNING: inconsistent lock state
-> > kernel: [  540.576407] 6.7.0-rc3-xfstests-lockdep-00012-g5b9ce7ecd715 #318 Not tainted
-> > kernel: [  540.583532] --------------------------------
-> > kernel: [  540.587928] inconsistent {IN-HARDIRQ-W} -> {HARDIRQ-ON-W} usage.
-> > kernel: [  540.594326] kworker/0:3/329 [HC0[0]:SC0[0]:HE1:SE1] takes:
-> > kernel: [  540.599955] ffff90b280a548c0 (&vb->adjustment_lock){?...}-{2:2}, at: update_balloon_size_func+0x33/0x190
-> > kernel: [  540.609926] {IN-HARDIRQ-W} state was registered at:
-> > kernel: [  540.614935]   __lock_acquire+0x3f2/0xb30
-> > kernel: [  540.618992]   lock_acquire+0xbf/0x2b0
-> > kernel: [  540.622786]   _raw_spin_lock_irqsave+0x43/0x90
-> > kernel: [  540.627366]   virtballoon_changed+0x51/0xd0
-> > kernel: [  540.631947]   virtio_config_changed+0x5a/0x70
-> > kernel: [  540.636437]   vp_config_changed+0x11/0x20
-> > kernel: [  540.640576]   __handle_irq_event_percpu+0x88/0x230
-> > kernel: [  540.645500]   handle_irq_event+0x38/0x80
-> > kernel: [  540.649558]   handle_edge_irq+0x8f/0x1f0
-> > kernel: [  540.653791]   __common_interrupt+0x47/0xf0
-> > kernel: [  540.658106]   common_interrupt+0x79/0xa0
-> > kernel: [  540.661672] EXT4-fs (dm-1): unmounting filesystem 840e25bd-f650-4819-8562-7eded85ef370.
-> > kernel: [  540.663183]   asm_common_interrupt+0x26/0x40
-> > kernel: [  540.663190]   acpi_safe_halt+0x1b/0x30
-> > kernel: [  540.663196]   acpi_idle_enter+0x7b/0xd0
-> > kernel: [  540.663199]   cpuidle_enter_state+0x90/0x4f0
-> > kernel: [  540.688723]   cpuidle_enter+0x2d/0x40
-> > kernel: [  540.692516]   cpuidle_idle_call+0xe4/0x120
-> > kernel: [  540.697036]   do_idle+0x84/0xd0
-> > kernel: [  540.700393]   cpu_startup_entry+0x2a/0x30
-> > kernel: [  540.704588]   rest_init+0xe9/0x180
-> > kernel: [  540.708118]   arch_call_rest_init+0xe/0x30
-> > kernel: [  540.712426]   start_kernel+0x41c/0x4b0
-> > kernel: [  540.716310]   x86_64_start_reservations+0x18/0x30
-> > kernel: [  540.721164]   x86_64_start_kernel+0x8c/0x90
-> > kernel: [  540.725737]   secondary_startup_64_no_verify+0x178/0x17b
-> > kernel: [  540.731432] irq event stamp: 22681
-> > kernel: [  540.734956] hardirqs last  enabled at (22681): [<ffffffff8b4b5158>] _raw_spin_unlock_irq+0x28/0x50
-> > kernel: [  540.744564] hardirqs last disabled at (22680): [<ffffffff8b4b4ded>] _raw_spin_lock_irq+0x5d/0x90
-> > kernel: [  540.753475] softirqs last  enabled at (22076): [<ffffffff8a58cfa1>] srcu_invoke_callbacks+0x101/0x1c0
-> > kernel: [  540.762904] softirqs last disabled at (22072): [<ffffffff8a58cfa1>] srcu_invoke_callbacks+0x101/0x1c0
-> > kernel: [  540.773298]
-> > kernel: [  540.773298] other info that might help us debug this:
-> > kernel: [  540.780207]  Possible unsafe locking scenario:
-> > kernel: [  540.780207]
-> > kernel: [  540.786438]        CPU0
-> > kernel: [  540.789007]        ----
-> > kernel: [  540.791766]   lock(&vb->adjustment_lock);
-> > kernel: [  540.796014]   <Interrupt>
-> > kernel: [  540.798778]     lock(&vb->adjustment_lock);
-> > kernel: [  540.803605]
-> 
-> Oh, that's embarrassing, I completely whiffed on interactions with
-> interrupts. The following patch fixes it, and I've locally repro'ed
-> the issue and verified the fix. What's the process for getting this
-> fix merged? Does it get merged as a seperatch patch, or squashed into
-> the original commit?
-> 
-> >From a99a1efa6a2b470a98ea2c87e58bebe90ce329a1 Mon Sep 17 00:00:00 2001
-> From: David Stevens <stevensd@chromium.org>
-> Date: Tue, 9 Jan 2024 14:41:21 +0900
-> Subject: [PATCH] virtio_balloon: Fix interrupt context deadlock
-> 
-> Use _irq spinlock functions with the adjustment_lock, since
-> start_update_balloon_size needs to acquire it in an interrupt context.
-> 
-> Fixes: 5b9ce7ecd715 ("virtio_balloon: stay awake while adjusting balloon")
-> Reported-by: Theodore Ts'o <tytso@mit.edu>
-> Signed-off-by: David Stevens <stevensd@chromium.org>
+Hi,
+
+On Tue, Dec 26, 2023 at 11:12:23AM +0100, Markus Elfring wrote:
+> From: Markus Elfring <elfring@users.sourceforge.net>
+> Date: Tue, 26 Dec 2023 11:00:20 +0100
+>
+> The kfree() function was called in up to two cases by the
+> __virtio_crypto_akcipher_do_req() function during error handling
+> even if the passed variable contained a null pointer.
+> This issue was detected by using the Coccinelle software.
+
+If the script is short and simple would you mind, in the future,
+including it below the fold -- this may help others do similar work down
+the line -- Or you could also link to a git-managed version like what
+Kees has been doing with his __counted_by patches [1].
+
+>
+> * Adjust jump targets.
+>
+> * Delete two initialisations which became unnecessary
+>   with this refactoring.
+>
+> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 > ---
->  drivers/virtio/virtio_balloon.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index aa6a1a649ad6..1f5b3dd31fcf 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -459,12 +459,12 @@ static void start_update_balloon_size(struct
-> virtio_balloon *vb)
-> 
->  static void end_update_balloon_size(struct virtio_balloon *vb)
->  {
-> -       spin_lock(&vb->adjustment_lock);
-> +       spin_lock_irq(&vb->adjustment_lock);
->         if (!vb->adjustment_signal_pending && vb->adjustment_in_progress) {
->                 vb->adjustment_in_progress = false;
->                 pm_relax(vb->vdev->dev.parent);
->         }
-> -       spin_unlock(&vb->adjustment_lock);
-> +       spin_unlock_irq(&vb->adjustment_lock);
+
+Nonetheless,
+
+Reviewed-by: Justin Stitt <justinstitt@google.com>
+>
+> v2:
+> A typo was fixed for the delimiter of a label.
+>
+>  drivers/crypto/virtio/virtio_crypto_akcipher_algs.c | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
+>
+> diff --git a/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c b/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
+> index 2621ff8a9376..057da5bd8d30 100644
+> --- a/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
+> +++ b/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
+> @@ -224,11 +224,11 @@ static int __virtio_crypto_akcipher_do_req(struct virtio_crypto_akcipher_request
+>  	struct virtio_crypto *vcrypto = ctx->vcrypto;
+>  	struct virtio_crypto_op_data_req *req_data = vc_req->req_data;
+>  	struct scatterlist *sgs[4], outhdr_sg, inhdr_sg, srcdata_sg, dstdata_sg;
+> -	void *src_buf = NULL, *dst_buf = NULL;
+> +	void *src_buf, *dst_buf = NULL;
+>  	unsigned int num_out = 0, num_in = 0;
+>  	int node = dev_to_node(&vcrypto->vdev->dev);
+>  	unsigned long flags;
+> -	int ret = -ENOMEM;
+> +	int ret;
+>  	bool verify = vc_akcipher_req->opcode == VIRTIO_CRYPTO_AKCIPHER_VERIFY;
+>  	unsigned int src_len = verify ? req->src_len + req->dst_len : req->src_len;
+>
+> @@ -239,7 +239,7 @@ static int __virtio_crypto_akcipher_do_req(struct virtio_crypto_akcipher_request
+>  	/* src data */
+>  	src_buf = kcalloc_node(src_len, 1, GFP_KERNEL, node);
+>  	if (!src_buf)
+> -		goto err;
+> +		return -ENOMEM;
+>
+>  	if (verify) {
+>  		/* for verify operation, both src and dst data work as OUT direction */
+> @@ -254,7 +254,7 @@ static int __virtio_crypto_akcipher_do_req(struct virtio_crypto_akcipher_request
+>  		/* dst data */
+>  		dst_buf = kcalloc_node(req->dst_len, 1, GFP_KERNEL, node);
+>  		if (!dst_buf)
+> -			goto err;
+> +			goto free_src;
+>
+>  		sg_init_one(&dstdata_sg, dst_buf, req->dst_len);
+>  		sgs[num_out + num_in++] = &dstdata_sg;
+> @@ -277,9 +277,9 @@ static int __virtio_crypto_akcipher_do_req(struct virtio_crypto_akcipher_request
+>  	return 0;
+>
+>  err:
+> -	kfree(src_buf);
+>  	kfree(dst_buf);
+> -
+> +free_src:
+> +	kfree(src_buf);
+>  	return -ENOMEM;
 >  }
-> 
->  static void virtballoon_changed(struct virtio_device *vdev)
-> @@ -506,9 +506,9 @@ static void update_balloon_size_func(struct
-> work_struct *work)
->         vb = container_of(work, struct virtio_balloon,
->                           update_balloon_size_work);
-> 
-> -       spin_lock(&vb->adjustment_lock);
-> +       spin_lock_irq(&vb->adjustment_lock);
->         vb->adjustment_signal_pending = false;
-> -       spin_unlock(&vb->adjustment_lock);
-> +       spin_unlock_irq(&vb->adjustment_lock);
-> 
->         diff = towards_target(vb);
+>
+> --
+> 2.43.0
+>
 
+[1]: https://lore.kernel.org/all/20230922175023.work.239-kees@kernel.org/
 
-Your patch is damaged (lines wrapped, sha info is wrong). Please post a
-new version of the original one I will replace it with the new one.
-
--- 
-MST
-
+Thanks
+Justin
