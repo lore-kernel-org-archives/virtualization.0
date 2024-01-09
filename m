@@ -1,56 +1,64 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from wout1-smtp.messagingengine.com (wout1-smtp.messagingengine.com [64.147.123.24])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DB88381A5
-	for <virtualization@lists.linux.dev>; Tue,  9 Jan 2024 12:04:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F3DB38DD8
+	for <virtualization@lists.linux.dev>; Tue,  9 Jan 2024 13:12:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fastmail.fm
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fastmail.fm
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YTbJQbIL"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1704801862;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=X16qIqVOF8g1fUqkHEl3n+iD5dBuN0/dflLEFP0Dxw4=;
-	b=YTbJQbILK1DZSvBHLoUqe6dfjCTI6sWgwEZHJBWvk4WDSMQIwpF3wMSizj3Z7HFdDcWWQg
-	NPbbfmL3pLQd0zEqF/7uDj7gWCICyzchgDgHDxirdC2nblUOPKMnVf2EJR3BQePUpxhJTC
-	ywS3HZ0jIynBLExuv+KbVJ3p1HMk3HA=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-157-v2Yc2USuM121qhxbvSmGZA-1; Tue, 09 Jan 2024 07:04:09 -0500
-X-MC-Unique: v2Yc2USuM121qhxbvSmGZA-1
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-40d62d3ae0cso26065185e9.2
-        for <virtualization@lists.linux.dev>; Tue, 09 Jan 2024 04:04:09 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1704801848; x=1705406648;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
-         :references:cc:to:content-language:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=X16qIqVOF8g1fUqkHEl3n+iD5dBuN0/dflLEFP0Dxw4=;
-        b=DITUp0g4SiBu3YXSbTwrC225Cyuq6b1kvauwGET1VGf71HIJ3WxMfJUW08DpHK8TVN
-         kgdbZ4FLavUJZm/laIrdk7lTuxKnMev8WFLDLgGWzpQ4h1tvPqjumlHilJODCm4md4rF
-         alZmwcB3IPbIoDTq5ckx5aMA4br8ZTCqw6rJzGUMZz1HSherzOf0BnL0M7U2cw200uRV
-         wmeSOgK6mmWwrG84I6rXEBjafoccQfCKwbuO8i/pxL1XKVFAMOk4UF7zBbc2JB+fIMuj
-         vxAOKxtLroj94ImGjNC6CiivXl7dI1HHMv0yGs+v1U7srwNYdic2/oMRvmiafMJc9ytt
-         8Wow==
-X-Gm-Message-State: AOJu0YyRGahP2aui/DNVkVReo3C/EdjzqdzcvwscoiVu8C715GGV4slU
-	3fWxKi8kFf2rI2BVvTlusQNfF4WIvmeBfJOrxcEML4GjLnDJQfHrEGxZwMHfSOQbAT1nLRjzFqe
-	8m5hgbDowFcSRFeTzdW0xMB90X15hG8/QUAVdGLSMWM0=
-X-Received: by 2002:a05:600c:3144:b0:40e:4156:6182 with SMTP id h4-20020a05600c314400b0040e41566182mr2629563wmo.34.1704801848673;
-        Tue, 09 Jan 2024 04:04:08 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFI0fFOextLeJo5edIxzFrQjmpLd5/dEE7vsvxPaflMKIOS1FvK8Ixzy9h2LEmyUyirYgHrdg==
-X-Received: by 2002:a05:600c:3144:b0:40e:4156:6182 with SMTP id h4-20020a05600c314400b0040e41566182mr2629547wmo.34.1704801848238;
-        Tue, 09 Jan 2024 04:04:08 -0800 (PST)
-Received: from ?IPV6:2003:cb:c735:9800:9ff6:a15:cd3e:2d4? (p200300cbc73598009ff60a15cd3e02d4.dip0.t-ipconnect.de. [2003:cb:c735:9800:9ff6:a15:cd3e:2d4])
-        by smtp.gmail.com with ESMTPSA id p3-20020a05600c358300b0040d91930f93sm3297483wmq.11.2024.01.09.04.04.07
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 09 Jan 2024 04:04:07 -0800 (PST)
-Message-ID: <9eb1edde-fedc-4859-a7ca-bc8d3b968737@redhat.com>
-Date: Tue, 9 Jan 2024 13:04:06 +0100
+	dkim=pass (2048-bit key) header.d=fastmail.fm header.i=@fastmail.fm header.b="X8Vb15PX";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="5CO2jxrk"
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+	by mailout.west.internal (Postfix) with ESMTP id EF8C432004AE;
+	Tue,  9 Jan 2024 08:12:02 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute5.internal (MEProxy); Tue, 09 Jan 2024 08:12:03 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fastmail.fm; h=
+	cc:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1704805922;
+	 x=1704892322; bh=VM2pbmFsilZIz7Bfq/RLLHqcIAJ63YE0r1M21zIz0TM=; b=
+	X8Vb15PX9N14+iATt/OvCwUce1t+nhTx0uzQI+TFHYusnerwYAvsSGY3RPOLD178
+	BGYLVADvWxaUYXuzxrjeK/gxfPezoqQuzWMhwAs2TyVczp9eHeGfebL95DCi0ZZK
+	1A8XSGkhYNOBkcvAeCXIR0aJla7RWdWeYeDcjtAgW24wkq1Ts5R4aIC0TRSs9MkC
+	9jfWkxOWaorytRuHUUG5X9OFY4X6HqQjyOxIQs0b2EZ8BIQ7UATh81WxMBWIO+A/
+	8r4VxCuwwpwpCWebbhB/I6JzC51CVL+I3z7+YFRLWEIQ6s0uNlJkiPh2jyVIhyZ4
+	o6MdxOHfbT88UMRuzMuRzA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1704805922; x=
+	1704892322; bh=VM2pbmFsilZIz7Bfq/RLLHqcIAJ63YE0r1M21zIz0TM=; b=5
+	CO2jxrkqAg+1kUcS2nD9qP1xi+OqxwP6fHcGxfN3SowlKABdcErAdlcz9XnL6NHR
+	pBN82LNv8o/3d8DYtDATbZjdZ9G7Y0SHtFG/W84hj7HzJlNCjhLWWXn0Lw8jig37
+	DVDsGW4PPRlzZou88G43F6yMyWSolP1PYu9wIEJzYw5i1sH4G6yv020mkq1PwTOS
+	emKTPMOxsNL4rzuax9i1PJlWX5h2KHRyWQRnq9FkIH1a4o5JIs3UorahbH1EsEIR
+	l0WWpN7qGnd8V1PHztjKXq3iZ2lA9Nzm+7vIiSUMCUhElf95J5XL6AlqyqbAStL3
+	Wti3KxZmRCwlLqDT/Gpzw==
+X-ME-Sender: <xms:IUadZaCAdX4_NH-JgO1zxn-C0uIAvZFe8s1yZ9rAmLibOkaBuLtjhw>
+    <xme:IUadZUigDQWkEJgSq4nNkRgBuY4jji9R0K9r1rTF9o70gviyT6ZcN3B9QfHtPHjYz
+    8zOeLXcyE7rfryN>
+X-ME-Received: <xmr:IUadZdlGjo7r2AVy56i2C-4OEYSuPpEAQchJV-qoujoaF3bmDwgWq7CpVC05V5NAPoRB4q03rLr8YN5NaTrXP8Z4rjpxOnOP5gydUUbbfFpeyu-Uqgaa>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvkedrvdehledggeekucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepkfffgggfuffvvehfhfgjtgfgsehtjeertddtvdejnecuhfhrohhmpeeuvghr
+    nhguucfutghhuhgsvghrthcuoegsvghrnhgurdhstghhuhgsvghrthesfhgrshhtmhgrih
+    hlrdhfmheqnecuggftrfgrthhtvghrnhepvefhgfdvledtudfgtdfggeelfedvheefieev
+    jeeifeevieetgefggffgueelgfejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrg
+    hmpehmrghilhhfrhhomhepsggvrhhnugdrshgthhhusggvrhhtsehfrghsthhmrghilhdr
+    fhhm
+X-ME-Proxy: <xmx:IUadZYyMKklQkpyB_9EIAc1hwVf0Z67LgiBCyZkXwyAaZ6eGExQ61g>
+    <xmx:IUadZfRjt5ZX2CKZfDatacJvZWaJN2LG5VhjHtIMfZVWejD5Fu2-sA>
+    <xmx:IUadZTZjuS3HA1xdLqoOdkC2dmJUA2FwJrQ_Z509gTQkZKueYsmNcg>
+    <xmx:IkadZYTMv_ZoB13zo4Tc7gOTZE5l3CkwTNZxMcDObjXdM1HLsFZqWw>
+Feedback-ID: id8a24192:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
+ 9 Jan 2024 08:12:00 -0500 (EST)
+Message-ID: <b6c0d521-bba8-447f-b114-0a679ca89e4b@fastmail.fm>
+Date: Tue, 9 Jan 2024 14:11:58 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -58,214 +66,179 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: REGRESSION: lockdep warning triggered by 15b9ce7ecd:
- virtio_balloon: stay awake while adjusting balloon
-To: David Stevens <stevensd@chromium.org>, Theodore Ts'o <tytso@mit.edu>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org
-References: <20240108215015.GA599905@mit.edu>
- <CAD=HUj4dVm_5yTJG_Ly28-x9mCM5zxg8gb7EGz6ZUoDqV8StsA@mail.gmail.com>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <CAD=HUj4dVm_5yTJG_Ly28-x9mCM5zxg8gb7EGz6ZUoDqV8StsA@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
+Subject: Re: [PATCH] virtiofs: limit the length of ITER_KVEC dio by
+ max_nopage_rw
+To: Hou Tao <houtao@huaweicloud.com>, linux-fsdevel@vger.kernel.org
+Cc: Miklos Szeredi <miklos@szeredi.hu>, Vivek Goyal <vgoyal@redhat.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>, "Michael S . Tsirkin"
+ <mst@redhat.com>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev, houtao1@huawei.com
+References: <20240103105929.1902658-1-houtao@huaweicloud.com>
+Content-Language: en-US, de-DE, fr
+From: Bernd Schubert <bernd.schubert@fastmail.fm>
+In-Reply-To: <20240103105929.1902658-1-houtao@huaweicloud.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
-On 09.01.24 06:50, David Stevens wrote:
-> On Tue, Jan 9, 2024 at 6:50 AM Theodore Ts'o <tytso@mit.edu> wrote:
->>
->> Hi, while doing final testing before sending a pull request, I merged
->> in linux-next, and commit 5b9ce7ecd7: virtio_balloon: stay awake while
->> adjusting balloon seems to be causing a lockdep warning (see attached)
->> when running gce-xfstests on a Google Compute Engine e2 VM.  I was not
->> able to trigger it using kvm-xfstests, but the following command:
->> "gce-xfstests -C 10 ext4/4k generic/476) was sufficient to triger the
->> problem.   For more information please see [1] and [2].
->>
->> [1] https://github.com/tytso/xfstests-bld/blob/master/Documentation/gce-xfstests.md
->> [2] https://thunk.org/gce-xfstests
->>
->> I found it by looking at the git logs, and this commit aroused my
->> suspicions, and I further testing showed that the lockdep warning was
->> reproducible with this commit, but not when testing with the
->> immediately preceeding commit (15b9ce7ecd^).
->>
->> Cheers,
->>
->>                                                  - Ted
->>
->>
->> root: ext4/4k run xfstest generic/476
->> systemd[1]: Started fstests-generic-476.scope - /usr/bin/bash -c test -w /proc/self/oom_score_adj && echo 250 > /proc/self/oom_score_adj; exec ./tests/generic/476.
->> kernel: [  399.361181] EXT4-fs (dm-1): mounted filesystem 840e25bd-f650-4819-8562-7eded85ef370 r/w with ordered data mode. Quota mode: none.
->> systemd[1]: fstests-generic-476.scope: Deactivated successfully.
->> systemd[1]: fstests-generic-476.scope: Consumed 3min 1.966s CPU time.
->> systemd[1]: xt\x2dvdb.mount: Deactivated successfully.
->> kernel: [  537.085404] EXT4-fs (dm-0): unmounting filesystem d3d7a675-f7b6-4384-abec-2e60d885b6da.
->> systemd[1]: xt\x2dvdc.mount: Deactivated successfully.
->> kernel: [  540.565870]
->> kernel: [  540.567523] ================================
->> kernel: [  540.572007] WARNING: inconsistent lock state
->> kernel: [  540.576407] 6.7.0-rc3-xfstests-lockdep-00012-g5b9ce7ecd715 #318 Not tainted
->> kernel: [  540.583532] --------------------------------
->> kernel: [  540.587928] inconsistent {IN-HARDIRQ-W} -> {HARDIRQ-ON-W} usage.
->> kernel: [  540.594326] kworker/0:3/329 [HC0[0]:SC0[0]:HE1:SE1] takes:
->> kernel: [  540.599955] ffff90b280a548c0 (&vb->adjustment_lock){?...}-{2:2}, at: update_balloon_size_func+0x33/0x190
->> kernel: [  540.609926] {IN-HARDIRQ-W} state was registered at:
->> kernel: [  540.614935]   __lock_acquire+0x3f2/0xb30
->> kernel: [  540.618992]   lock_acquire+0xbf/0x2b0
->> kernel: [  540.622786]   _raw_spin_lock_irqsave+0x43/0x90
->> kernel: [  540.627366]   virtballoon_changed+0x51/0xd0
->> kernel: [  540.631947]   virtio_config_changed+0x5a/0x70
->> kernel: [  540.636437]   vp_config_changed+0x11/0x20
->> kernel: [  540.640576]   __handle_irq_event_percpu+0x88/0x230
->> kernel: [  540.645500]   handle_irq_event+0x38/0x80
->> kernel: [  540.649558]   handle_edge_irq+0x8f/0x1f0
->> kernel: [  540.653791]   __common_interrupt+0x47/0xf0
->> kernel: [  540.658106]   common_interrupt+0x79/0xa0
->> kernel: [  540.661672] EXT4-fs (dm-1): unmounting filesystem 840e25bd-f650-4819-8562-7eded85ef370.
->> kernel: [  540.663183]   asm_common_interrupt+0x26/0x40
->> kernel: [  540.663190]   acpi_safe_halt+0x1b/0x30
->> kernel: [  540.663196]   acpi_idle_enter+0x7b/0xd0
->> kernel: [  540.663199]   cpuidle_enter_state+0x90/0x4f0
->> kernel: [  540.688723]   cpuidle_enter+0x2d/0x40
->> kernel: [  540.692516]   cpuidle_idle_call+0xe4/0x120
->> kernel: [  540.697036]   do_idle+0x84/0xd0
->> kernel: [  540.700393]   cpu_startup_entry+0x2a/0x30
->> kernel: [  540.704588]   rest_init+0xe9/0x180
->> kernel: [  540.708118]   arch_call_rest_init+0xe/0x30
->> kernel: [  540.712426]   start_kernel+0x41c/0x4b0
->> kernel: [  540.716310]   x86_64_start_reservations+0x18/0x30
->> kernel: [  540.721164]   x86_64_start_kernel+0x8c/0x90
->> kernel: [  540.725737]   secondary_startup_64_no_verify+0x178/0x17b
->> kernel: [  540.731432] irq event stamp: 22681
->> kernel: [  540.734956] hardirqs last  enabled at (22681): [<ffffffff8b4b5158>] _raw_spin_unlock_irq+0x28/0x50
->> kernel: [  540.744564] hardirqs last disabled at (22680): [<ffffffff8b4b4ded>] _raw_spin_lock_irq+0x5d/0x90
->> kernel: [  540.753475] softirqs last  enabled at (22076): [<ffffffff8a58cfa1>] srcu_invoke_callbacks+0x101/0x1c0
->> kernel: [  540.762904] softirqs last disabled at (22072): [<ffffffff8a58cfa1>] srcu_invoke_callbacks+0x101/0x1c0
->> kernel: [  540.773298]
->> kernel: [  540.773298] other info that might help us debug this:
->> kernel: [  540.780207]  Possible unsafe locking scenario:
->> kernel: [  540.780207]
->> kernel: [  540.786438]        CPU0
->> kernel: [  540.789007]        ----
->> kernel: [  540.791766]   lock(&vb->adjustment_lock);
->> kernel: [  540.796014]   <Interrupt>
->> kernel: [  540.798778]     lock(&vb->adjustment_lock);
->> kernel: [  540.803605]
-> 
-> Oh, that's embarrassing, I completely whiffed on interactions with
-> interrupts. The following patch fixes it, and I've locally repro'ed
-> the issue and verified the fix. What's the process for getting this
-> fix merged? Does it get merged as a seperatch patch, or squashed into
-> the original commit?
 
-Depends on who queued it. Likely MST, so it can be squashed.
 
-If it would be sitting in Andrews stable trees, we wouldn't be able to 
-squash it anymore.
+On 1/3/24 11:59, Hou Tao wrote:
+> From: Hou Tao <houtao1@huawei.com>
+> 
+> When trying to insert a 10MB kernel module kept in a virtiofs with cache
+> disabled, the following warning was reported:
+> 
+>    ------------[ cut here ]------------
+>    WARNING: CPU: 2 PID: 439 at mm/page_alloc.c:4544 ......
+>    Modules linked in:
+>    CPU: 2 PID: 439 Comm: insmod Not tainted 6.7.0-rc7+ #33
+>    Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), ......
+>    RIP: 0010:__alloc_pages+0x2c4/0x360
+>    ......
+>    Call Trace:
+>     <TASK>
+>     ? __warn+0x8f/0x150
+>     ? __alloc_pages+0x2c4/0x360
+>     __kmalloc_large_node+0x86/0x160
+>     __kmalloc+0xcd/0x140
+>     virtio_fs_enqueue_req+0x240/0x6d0
+>     virtio_fs_wake_pending_and_unlock+0x7f/0x190
+>     queue_request_and_unlock+0x58/0x70
+>     fuse_simple_request+0x18b/0x2e0
+>     fuse_direct_io+0x58a/0x850
+>     fuse_file_read_iter+0xdb/0x130
+>     __kernel_read+0xf3/0x260
+>     kernel_read+0x45/0x60
+>     kernel_read_file+0x1ad/0x2b0
+>     init_module_from_file+0x6a/0xe0
+>     idempotent_init_module+0x179/0x230
+>     __x64_sys_finit_module+0x5d/0xb0
+>     do_syscall_64+0x36/0xb0
+>     entry_SYSCALL_64_after_hwframe+0x6e/0x76
+>     ......
+>     </TASK>
+>    ---[ end trace 0000000000000000 ]---
+> 
+> The warning happened as follow. In copy_args_to_argbuf(), virtiofs uses
+> kmalloc-ed memory as bound buffer for fuse args, but
+> fuse_get_user_pages() only limits the length of fuse arg by max_read or
+> max_write for IOV_KVEC io (e.g., kernel_read_file from finit_module()).
+> For virtiofs, max_read is UINT_MAX, so a big read request which is about
 
+
+I find this part of the explanation a bit confusing. I guess you wanted 
+to write something like
+
+fuse_direct_io() -> fuse_get_user_pages() is limited by 
+fc->max_write/fc->max_read and fc->max_pages. For virtiofs max_pages 
+does not apply as ITER_KVEC is used. As virtiofs sets fc->max_read to 
+UINT_MAX basically no limit is applied at all.
+
+I also wonder if it wouldn't it make sense to set a sensible limit in
+virtio_fs_ctx_set_defaults() instead of introducing a new variable?
+
+Also, I guess the issue is kmalloc_array() in virtio_fs_enqueue_req? 
+Wouldn't it make sense to use kvm_alloc_array/kvfree in that function?
+
+
+Thanks,
+Bernd
+
+
+> 10MB is passed to copy_args_to_argbuf(), kmalloc() is called in turn
+> with len=10MB, and triggers the warning in __alloc_pages():
+> WARN_ON_ONCE_GFP(order > MAX_ORDER, gfp)).
 > 
->  From a99a1efa6a2b470a98ea2c87e58bebe90ce329a1 Mon Sep 17 00:00:00 2001
-> From: David Stevens <stevensd@chromium.org>
-> Date: Tue, 9 Jan 2024 14:41:21 +0900
-> Subject: [PATCH] virtio_balloon: Fix interrupt context deadlock
+> A feasible solution is to limit the value of max_read for virtiofs, so
+> the length passed to kmalloc() will be limited. However it will affects
+> the max read size for ITER_IOVEC io and the value of max_write also needs
+> limitation. So instead of limiting the values of max_read and max_write,
+> introducing max_nopage_rw to cap both the values of max_read and
+> max_write when the fuse dio read/write request is initiated from kernel.
 > 
-> Use _irq spinlock functions with the adjustment_lock, since
-> start_update_balloon_size needs to acquire it in an interrupt context.
+> Considering that fuse read/write request from kernel is uncommon and to
+> decrease the demand for large contiguous pages, set max_nopage_rw as
+> 256KB instead of KMALLOC_MAX_SIZE - 4096 or similar.
 > 
-> Fixes: 5b9ce7ecd715 ("virtio_balloon: stay awake while adjusting balloon")
-> Reported-by: Theodore Ts'o <tytso@mit.edu>
-> Signed-off-by: David Stevens <stevensd@chromium.org>
+> Fixes: a62a8ef9d97d ("virtio-fs: add virtiofs filesystem")
+> Signed-off-by: Hou Tao <houtao1@huawei.com>
 > ---
->   drivers/virtio/virtio_balloon.c | 8 ++++----
->   1 file changed, 4 insertions(+), 4 deletions(-)
+>   fs/fuse/file.c      | 12 +++++++++++-
+>   fs/fuse/fuse_i.h    |  3 +++
+>   fs/fuse/inode.c     |  1 +
+>   fs/fuse/virtio_fs.c |  6 ++++++
+>   4 files changed, 21 insertions(+), 1 deletion(-)
 > 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index aa6a1a649ad6..1f5b3dd31fcf 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -459,12 +459,12 @@ static void start_update_balloon_size(struct
-> virtio_balloon *vb)
-> 
->   static void end_update_balloon_size(struct virtio_balloon *vb)
->   {
-> -       spin_lock(&vb->adjustment_lock);
-> +       spin_lock_irq(&vb->adjustment_lock);
->          if (!vb->adjustment_signal_pending && vb->adjustment_in_progress) {
->                  vb->adjustment_in_progress = false;
->                  pm_relax(vb->vdev->dev.parent);
->          }
-> -       spin_unlock(&vb->adjustment_lock);
-> +       spin_unlock_irq(&vb->adjustment_lock);
+> diff --git a/fs/fuse/file.c b/fs/fuse/file.c
+> index a660f1f21540..f1beb7c0b782 100644
+> --- a/fs/fuse/file.c
+> +++ b/fs/fuse/file.c
+> @@ -1422,6 +1422,16 @@ static int fuse_get_user_pages(struct fuse_args_pages *ap, struct iov_iter *ii,
+>   	return ret < 0 ? ret : 0;
 >   }
-> 
->   static void virtballoon_changed(struct virtio_device *vdev)
-> @@ -506,9 +506,9 @@ static void update_balloon_size_func(struct
-> work_struct *work)
->          vb = container_of(work, struct virtio_balloon,
->                            update_balloon_size_work);
-> 
-> -       spin_lock(&vb->adjustment_lock);
-> +       spin_lock_irq(&vb->adjustment_lock);
->          vb->adjustment_signal_pending = false;
-> -       spin_unlock(&vb->adjustment_lock);
-> +       spin_unlock_irq(&vb->adjustment_lock);
-> 
->          diff = towards_target(vb);
-> 
-
-Acked-by: David Hildenbrand <david@redhat.com>
-
--- 
-Cheers,
-
-David / dhildenb
-
+>   
+> +static size_t fuse_max_dio_rw_size(const struct fuse_conn *fc,
+> +				   const struct iov_iter *iter, int write)
+> +{
+> +	unsigned int nmax = write ? fc->max_write : fc->max_read;
+> +
+> +	if (iov_iter_is_kvec(iter))
+> +		nmax = min(nmax, fc->max_nopage_rw);
+> +	return nmax;
+> +}
+> +
+>   ssize_t fuse_direct_io(struct fuse_io_priv *io, struct iov_iter *iter,
+>   		       loff_t *ppos, int flags)
+>   {
+> @@ -1432,7 +1442,7 @@ ssize_t fuse_direct_io(struct fuse_io_priv *io, struct iov_iter *iter,
+>   	struct inode *inode = mapping->host;
+>   	struct fuse_file *ff = file->private_data;
+>   	struct fuse_conn *fc = ff->fm->fc;
+> -	size_t nmax = write ? fc->max_write : fc->max_read;
+> +	size_t nmax = fuse_max_dio_rw_size(fc, iter, write);
+>   	loff_t pos = *ppos;
+>   	size_t count = iov_iter_count(iter);
+>   	pgoff_t idx_from = pos >> PAGE_SHIFT;
+> diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
+> index 1df83eebda92..fc753cd34211 100644
+> --- a/fs/fuse/fuse_i.h
+> +++ b/fs/fuse/fuse_i.h
+> @@ -594,6 +594,9 @@ struct fuse_conn {
+>   	/** Constrain ->max_pages to this value during feature negotiation */
+>   	unsigned int max_pages_limit;
+>   
+> +	/** Maximum read/write size when there is no page in request */
+> +	unsigned int max_nopage_rw;
+> +
+>   	/** Input queue */
+>   	struct fuse_iqueue iq;
+>   
+> diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
+> index 2a6d44f91729..4cbbcb4a4b71 100644
+> --- a/fs/fuse/inode.c
+> +++ b/fs/fuse/inode.c
+> @@ -923,6 +923,7 @@ void fuse_conn_init(struct fuse_conn *fc, struct fuse_mount *fm,
+>   	fc->user_ns = get_user_ns(user_ns);
+>   	fc->max_pages = FUSE_DEFAULT_MAX_PAGES_PER_REQ;
+>   	fc->max_pages_limit = FUSE_MAX_MAX_PAGES;
+> +	fc->max_nopage_rw = UINT_MAX;
+>   
+>   	INIT_LIST_HEAD(&fc->mounts);
+>   	list_add(&fm->fc_entry, &fc->mounts);
+> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+> index 5f1be1da92ce..3aac31d45198 100644
+> --- a/fs/fuse/virtio_fs.c
+> +++ b/fs/fuse/virtio_fs.c
+> @@ -1452,6 +1452,12 @@ static int virtio_fs_get_tree(struct fs_context *fsc)
+>   	/* Tell FUSE to split requests that exceed the virtqueue's size */
+>   	fc->max_pages_limit = min_t(unsigned int, fc->max_pages_limit,
+>   				    virtqueue_size - FUSE_HEADER_OVERHEAD);
+> +	/* copy_args_to_argbuf() uses kmalloc-ed memory as bounce buffer
+> +	 * for fuse args, so limit the total size of these args to prevent
+> +	 * the warning in __alloc_pages() and decrease the demand for large
+> +	 * contiguous pages.
+> +	 */
+> +	fc->max_nopage_rw = min(fc->max_nopage_rw, 256U << 10);
+>   
+>   	fsc->s_fs_info = fm;
+>   	sb = sget_fc(fsc, virtio_fs_test_super, set_anon_super_fc);
