@@ -1,147 +1,218 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4E4336B1B
-	for <virtualization@lists.linux-foundation.org>; Tue,  9 Jan 2024 11:38:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC01C381AD
+	for <virtualization@lists.linux.dev>; Tue,  9 Jan 2024 12:01:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PDsOpJZU"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 601C5409E7
-	for <virtualization@lists.linux-foundation.org>; Tue,  9 Jan 2024 11:38:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 601C5409E7
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PDsOpJZU
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ZeSmU8NnUKx1
-	for <virtualization@lists.linux-foundation.org>;
-	Tue,  9 Jan 2024 11:38:54 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id AE7CF409E6
-	for <virtualization@lists.linux-foundation.org>; Tue,  9 Jan 2024 11:38:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AE7CF409E6
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LmVhhYCn"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1704800333;
+	s=mimecast20190719; t=1704801678;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=L2KHtwWJsxpW21yW1HeRr38zmDlSiokTXP6mx3ysxiI=;
-	b=PDsOpJZUWfQ1c+TbjJiQKqrch9UNWOmBFuURiXq6XYSVCtEAI9xKIfcdd6ClbtzibEVuxN
-	v4hUA3DiUSuLIwOEOid0iHcN9PFWJQLNF2qrdxdy4wVbn2za70C30ml8rmGsEI8KhTJq8m
-	GlhPSxmikrwX5ge3bBOAPoRvkSryNyw=
-Received: from mail-yw1-f197.google.com (mail-yw1-f197.google.com
- [209.85.128.197]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=dEeODo/3WkaZKAKSZyL7V1i37f7B61KJOxjO/Qj4MAs=;
+	b=LmVhhYCnZsyudjIiGZ67aKynpltAQrGdMvzJ05RFruvwCkJs4jrGmJ+7O/5r4KhfPMIdUs
+	CJTQxkUplSOR/WQR9kg+LRcUjLnESkJfnp925bH28RYdXrTtdLgc8sU9iocta8cw8uMOYC
+	K+G3+Up9LcguyPbqh6q2VldIJsZUTRk=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-145-_arGNXHyPxuyfId9imIkyA-1; Tue, 09 Jan 2024 06:38:52 -0500
-X-MC-Unique: _arGNXHyPxuyfId9imIkyA-1
-Received: by mail-yw1-f197.google.com with SMTP id 00721157ae682-5f69158f32eso37011717b3.2
-        for <virtualization@lists.linux-foundation.org>; Tue, 09 Jan 2024 03:38:52 -0800 (PST)
+ us-mta-83-4XSIXUWiNpSjjQorpPVXkQ-1; Tue, 09 Jan 2024 07:01:11 -0500
+X-MC-Unique: 4XSIXUWiNpSjjQorpPVXkQ-1
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-336953e0fe7so1925487f8f.1
+        for <virtualization@lists.linux.dev>; Tue, 09 Jan 2024 04:01:11 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1704800332; x=1705405132;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=L2KHtwWJsxpW21yW1HeRr38zmDlSiokTXP6mx3ysxiI=;
-        b=MfOGP9V3ipctDfZkoZEpCVwgFbbadjGrDUpk1Y88GAAwoLS5BBj4JGizWWzWfPWIDL
-         LhDyI4EbhFGlTh5eCeRdS8ZnLSN5naSwtkF3RRwZScBcqdYfqE/qmNQpiC2L+euulz44
-         H3+U/E16ApfDyFmkG4KUZlKfon1vwRGmtS8eKPtd/nPoictc8Iwy32K8U4l7Ixl5kB0z
-         KPIHUvHGjO/bFRcoLlToT0OBAjmQG6gcJgAZF0CaoPydiDXLTu30jtWW0tlTgmcifwhi
-         O1QcAfiZ1GcOku+5LYDswYxjtmtXZy4d/yt9ukd5G1xWCilq6/vrZfh+RHKFrOV3ZsNO
-         3FZg==
-X-Gm-Message-State: AOJu0YztWaonSCTYDLLuDNK1ZBtW8ZGRz07d1axS2RdgAwLtufetl6G6
-	nJkSnpZE0Db/d5QuC8u9mqvGCmcBFZHVHcqB+5jPfVwvzrEhm/a9EgPaEYbJkmObI7cHbilha5L
-	ZSEi2jhmbnV+FUc9iwFQ8NEqQC5hz1uhBdcZUzrnZMIdB9jSenS2/mADOguIK6dhsSA==
-X-Received: by 2002:a81:7b07:0:b0:5f9:2256:5ad8 with SMTP id w7-20020a817b07000000b005f922565ad8mr1283428ywc.90.1704800331761;
-        Tue, 09 Jan 2024 03:38:51 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGrPfFI6jj8BO9UxzydSFzI12LofZZDf1mXLgqZA0eJByqMfyMiFqsUTjau9HOuPkP/s3h5jokc5K+rlk7t/sw=
-X-Received: by 2002:a81:7b07:0:b0:5f9:2256:5ad8 with SMTP id
- w7-20020a817b07000000b005f922565ad8mr1283419ywc.90.1704800331475; Tue, 09 Jan
- 2024 03:38:51 -0800 (PST)
+        d=1e100.net; s=20230601; t=1704801671; x=1705406471;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=dEeODo/3WkaZKAKSZyL7V1i37f7B61KJOxjO/Qj4MAs=;
+        b=g7wejmEcdpXPSD/WfRaVlBQ3ameo4UYrIY3QJUsv5BOi9Ko5+bAu2N2GldunKStEQo
+         LtDinNl7V2oM5nbhT+nxeSNEdxhULeH1FvbDq2OKmR/jwGhMfRLCY6p3P/oxEub+V3ra
+         +yNnOvzKrSmcLFyhKz+n/zflF0rHQWy59s0l7MIrYtK6vPMt/guD+7+HHQRTwoC2Qof4
+         lJzNKrPHPn5F74xoUCcw/r+JeRNRGrSo3rdZgl4PvWqefqDdsLxxeVO8wvB+pbr//Jtb
+         p7jccQy2XU1t5pTkZsnWJTAB/0GAcdi2M7+u6noIDtNUiYl2irGKFGRWQ9xizSQnE5BT
+         Fvew==
+X-Gm-Message-State: AOJu0YwfIridLGMtVBN9ASly/eV3Ym4jZJMhogd+uVqr9eNPkBl43705
+	a801sXQXHjq7aruWQSF5TBXIFhqWJ49FePfdpv5St3bJQfncQy6sk/9+WPxTJtgfsw8Lgfo7mMn
+	sIJ/vmczJO84oQX8aVezDdG4J5OukabXsHbo=
+X-Received: by 2002:adf:fc8d:0:b0:336:8ae3:5269 with SMTP id g13-20020adffc8d000000b003368ae35269mr456373wrr.48.1704801670662;
+        Tue, 09 Jan 2024 04:01:10 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IE7LdAdyh1cKBiDUzbMDe2ZYxxOAJv6hLjHpT9cHluzoVBNMs2gUQlFBe9d+P1S6D5rMjI/hg==
+X-Received: by 2002:adf:fc8d:0:b0:336:8ae3:5269 with SMTP id g13-20020adffc8d000000b003368ae35269mr456358wrr.48.1704801670061;
+        Tue, 09 Jan 2024 04:01:10 -0800 (PST)
+Received: from redhat.com ([2.52.133.193])
+        by smtp.gmail.com with ESMTPSA id t11-20020a5d690b000000b003375009accesm2230101wru.50.2024.01.09.04.01.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 09 Jan 2024 04:01:09 -0800 (PST)
+Date: Tue, 9 Jan 2024 07:01:05 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Hou Tao <houtao@huaweicloud.com>
+Cc: linux-fsdevel@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>,
+	Vivek Goyal <vgoyal@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>, linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev, houtao1@huawei.com
+Subject: Re: [PATCH] virtiofs: limit the length of ITER_KVEC dio by
+ max_nopage_rw
+Message-ID: <20240109065948-mutt-send-email-mst@kernel.org>
+References: <20240103105929.1902658-1-houtao@huaweicloud.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240109111025.1320976-1-maxime.coquelin@redhat.com> <20240109111025.1320976-3-maxime.coquelin@redhat.com>
-In-Reply-To: <20240109111025.1320976-3-maxime.coquelin@redhat.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Tue, 9 Jan 2024 12:38:15 +0100
-Message-ID: <CAJaqyWd9OYHqshDgYmP4X2pyvuAkQXuvttjKuAeMpvBira3FqQ@mail.gmail.com>
-Subject: Re: [PATCH v7 2/3] vduse: Temporarily fail if control queue feature requested
-To: Maxime Coquelin <maxime.coquelin@redhat.com>
-Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com, 
-	xieyongji@bytedance.com, virtualization@lists.linux-foundation.org, 
-	linux-kernel@vger.kernel.org, david.marchand@redhat.com, lulu@redhat.com
+In-Reply-To: <20240103105929.1902658-1-houtao@huaweicloud.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Tue, Jan 9, 2024 at 12:11=E2=80=AFPM Maxime Coquelin
-<maxime.coquelin@redhat.com> wrote:
->
-> Virtio-net driver control queue implementation is not safe
-> when used with VDUSE. If the VDUSE application does not
-> reply to control queue messages, it currently ends up
-> hanging the kernel thread sending this command.
->
-> Some work is on-going to make the control queue
-> implementation robust with VDUSE. Until it is completed,
-> let's fail features check if control-queue feature is
-> requested.
->
-> Signed-off-by: Maxime Coquelin <maxime.coquelin@redhat.com>
+On Wed, Jan 03, 2024 at 06:59:29PM +0800, Hou Tao wrote:
+> From: Hou Tao <houtao1@huawei.com>
+> 
+> When trying to insert a 10MB kernel module kept in a virtiofs with cache
+> disabled, the following warning was reported:
+> 
+>   ------------[ cut here ]------------
+>   WARNING: CPU: 2 PID: 439 at mm/page_alloc.c:4544 ......
+>   Modules linked in:
+>   CPU: 2 PID: 439 Comm: insmod Not tainted 6.7.0-rc7+ #33
+>   Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), ......
+>   RIP: 0010:__alloc_pages+0x2c4/0x360
+>   ......
+>   Call Trace:
+>    <TASK>
+>    ? __warn+0x8f/0x150
+>    ? __alloc_pages+0x2c4/0x360
+>    __kmalloc_large_node+0x86/0x160
+>    __kmalloc+0xcd/0x140
+>    virtio_fs_enqueue_req+0x240/0x6d0
+>    virtio_fs_wake_pending_and_unlock+0x7f/0x190
+>    queue_request_and_unlock+0x58/0x70
+>    fuse_simple_request+0x18b/0x2e0
+>    fuse_direct_io+0x58a/0x850
+>    fuse_file_read_iter+0xdb/0x130
+>    __kernel_read+0xf3/0x260
+>    kernel_read+0x45/0x60
+>    kernel_read_file+0x1ad/0x2b0
+>    init_module_from_file+0x6a/0xe0
+>    idempotent_init_module+0x179/0x230
+>    __x64_sys_finit_module+0x5d/0xb0
+>    do_syscall_64+0x36/0xb0
+>    entry_SYSCALL_64_after_hwframe+0x6e/0x76
+>    ......
+>    </TASK>
+>   ---[ end trace 0000000000000000 ]---
+> 
+> The warning happened as follow. In copy_args_to_argbuf(), virtiofs uses
+> kmalloc-ed memory as bound buffer for fuse args, but
+> fuse_get_user_pages() only limits the length of fuse arg by max_read or
+> max_write for IOV_KVEC io (e.g., kernel_read_file from finit_module()).
+> For virtiofs, max_read is UINT_MAX, so a big read request which is about
+> 10MB is passed to copy_args_to_argbuf(), kmalloc() is called in turn
+> with len=10MB, and triggers the warning in __alloc_pages():
+> WARN_ON_ONCE_GFP(order > MAX_ORDER, gfp)).
+> 
+> A feasible solution is to limit the value of max_read for virtiofs, so
+> the length passed to kmalloc() will be limited. However it will affects
+> the max read size for ITER_IOVEC io and the value of max_write also needs
+> limitation. So instead of limiting the values of max_read and max_write,
+> introducing max_nopage_rw to cap both the values of max_read and
+> max_write when the fuse dio read/write request is initiated from kernel.
+> 
+> Considering that fuse read/write request from kernel is uncommon and to
+> decrease the demand for large contiguous pages, set max_nopage_rw as
+> 256KB instead of KMALLOC_MAX_SIZE - 4096 or similar.
+> 
+> Fixes: a62a8ef9d97d ("virtio-fs: add virtiofs filesystem")
+> Signed-off-by: Hou Tao <houtao1@huawei.com>
 
-Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+Could this get some acks from virtio fs maintainers pls?
 
-Thanks!
 
 > ---
->  drivers/vdpa/vdpa_user/vduse_dev.c | 5 +++++
->  1 file changed, 5 insertions(+)
->
-> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/=
-vduse_dev.c
-> index a5af6d4077b8..00f3f562ab5d 100644
-> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> @@ -8,6 +8,7 @@
->   *
->   */
->
-> +#include "linux/virtio_net.h"
->  #include <linux/init.h>
->  #include <linux/module.h>
->  #include <linux/cdev.h>
-> @@ -28,6 +29,7 @@
->  #include <uapi/linux/virtio_config.h>
->  #include <uapi/linux/virtio_ids.h>
->  #include <uapi/linux/virtio_blk.h>
-> +#include <uapi/linux/virtio_ring.h>
->  #include <linux/mod_devicetable.h>
->
->  #include "iova_domain.h"
-> @@ -1680,6 +1682,9 @@ static bool features_is_valid(struct vduse_dev_conf=
-ig *config)
->         if ((config->device_id =3D=3D VIRTIO_ID_BLOCK) &&
->                         (config->features & BIT_ULL(VIRTIO_BLK_F_CONFIG_W=
-CE)))
->                 return false;
-> +       else if ((config->device_id =3D=3D VIRTIO_ID_NET) &&
-> +                       (config->features & BIT_ULL(VIRTIO_NET_F_CTRL_VQ)=
-))
-> +               return false;
->
->         return true;
+>  fs/fuse/file.c      | 12 +++++++++++-
+>  fs/fuse/fuse_i.h    |  3 +++
+>  fs/fuse/inode.c     |  1 +
+>  fs/fuse/virtio_fs.c |  6 ++++++
+>  4 files changed, 21 insertions(+), 1 deletion(-)
+> 
+> diff --git a/fs/fuse/file.c b/fs/fuse/file.c
+> index a660f1f21540..f1beb7c0b782 100644
+> --- a/fs/fuse/file.c
+> +++ b/fs/fuse/file.c
+> @@ -1422,6 +1422,16 @@ static int fuse_get_user_pages(struct fuse_args_pages *ap, struct iov_iter *ii,
+>  	return ret < 0 ? ret : 0;
 >  }
-> --
-> 2.43.0
->
->
+>  
+> +static size_t fuse_max_dio_rw_size(const struct fuse_conn *fc,
+> +				   const struct iov_iter *iter, int write)
+> +{
+> +	unsigned int nmax = write ? fc->max_write : fc->max_read;
+> +
+> +	if (iov_iter_is_kvec(iter))
+> +		nmax = min(nmax, fc->max_nopage_rw);
+> +	return nmax;
+> +}
+> +
+>  ssize_t fuse_direct_io(struct fuse_io_priv *io, struct iov_iter *iter,
+>  		       loff_t *ppos, int flags)
+>  {
+> @@ -1432,7 +1442,7 @@ ssize_t fuse_direct_io(struct fuse_io_priv *io, struct iov_iter *iter,
+>  	struct inode *inode = mapping->host;
+>  	struct fuse_file *ff = file->private_data;
+>  	struct fuse_conn *fc = ff->fm->fc;
+> -	size_t nmax = write ? fc->max_write : fc->max_read;
+> +	size_t nmax = fuse_max_dio_rw_size(fc, iter, write);
+>  	loff_t pos = *ppos;
+>  	size_t count = iov_iter_count(iter);
+>  	pgoff_t idx_from = pos >> PAGE_SHIFT;
+> diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
+> index 1df83eebda92..fc753cd34211 100644
+> --- a/fs/fuse/fuse_i.h
+> +++ b/fs/fuse/fuse_i.h
+> @@ -594,6 +594,9 @@ struct fuse_conn {
+>  	/** Constrain ->max_pages to this value during feature negotiation */
+>  	unsigned int max_pages_limit;
+>  
+> +	/** Maximum read/write size when there is no page in request */
+> +	unsigned int max_nopage_rw;
+> +
+>  	/** Input queue */
+>  	struct fuse_iqueue iq;
+>  
+> diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
+> index 2a6d44f91729..4cbbcb4a4b71 100644
+> --- a/fs/fuse/inode.c
+> +++ b/fs/fuse/inode.c
+> @@ -923,6 +923,7 @@ void fuse_conn_init(struct fuse_conn *fc, struct fuse_mount *fm,
+>  	fc->user_ns = get_user_ns(user_ns);
+>  	fc->max_pages = FUSE_DEFAULT_MAX_PAGES_PER_REQ;
+>  	fc->max_pages_limit = FUSE_MAX_MAX_PAGES;
+> +	fc->max_nopage_rw = UINT_MAX;
+>  
+>  	INIT_LIST_HEAD(&fc->mounts);
+>  	list_add(&fm->fc_entry, &fc->mounts);
+> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+> index 5f1be1da92ce..3aac31d45198 100644
+> --- a/fs/fuse/virtio_fs.c
+> +++ b/fs/fuse/virtio_fs.c
+> @@ -1452,6 +1452,12 @@ static int virtio_fs_get_tree(struct fs_context *fsc)
+>  	/* Tell FUSE to split requests that exceed the virtqueue's size */
+>  	fc->max_pages_limit = min_t(unsigned int, fc->max_pages_limit,
+>  				    virtqueue_size - FUSE_HEADER_OVERHEAD);
+> +	/* copy_args_to_argbuf() uses kmalloc-ed memory as bounce buffer
+> +	 * for fuse args, so limit the total size of these args to prevent
+> +	 * the warning in __alloc_pages() and decrease the demand for large
+> +	 * contiguous pages.
+> +	 */
+> +	fc->max_nopage_rw = min(fc->max_nopage_rw, 256U << 10);
+>  
+>  	fsc->s_fs_info = fm;
+>  	sb = sget_fc(fsc, virtio_fs_test_super, set_anon_super_fc);
+> -- 
+> 2.29.2
 
