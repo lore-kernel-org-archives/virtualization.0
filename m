@@ -1,283 +1,210 @@
-Received: from mail-oo1-f41.google.com (mail-oo1-f41.google.com [209.85.161.41])
+Received: from mail-lj1-f176.google.com (mail-lj1-f176.google.com [209.85.208.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6A452D62A
-	for <virtualization@lists.linux.dev>; Tue,  9 Jan 2024 05:10:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2996515A4
+	for <virtualization@lists.linux.dev>; Tue,  9 Jan 2024 05:50:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="YDDQuyW9"
-Received: by mail-oo1-f41.google.com with SMTP id 006d021491bc7-595aa5b1fe0so1736481eaf.2
-        for <virtualization@lists.linux.dev>; Mon, 08 Jan 2024 21:10:45 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="RauSxg6E"
+Received: by mail-lj1-f176.google.com with SMTP id 38308e7fff4ca-2ccea11b6bbso24207951fa.0
+        for <virtualization@lists.linux.dev>; Mon, 08 Jan 2024 21:50:33 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1704777045; x=1705381845; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=chromium.org; s=google; t=1704779432; x=1705384232; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=CGRfQUiM/fdf5MTqUfvRqPOsMdxX5ZwLkxAWRV+5GSE=;
-        b=YDDQuyW9328H+5GrhQHrhpuIbqfZDjav3FOFxU0NorI8qIn+T9YQJL+Bp+6Z/ZUH4D
-         761dPnLPUrwqvT1vA/8AK9LFtwJlPZHGcifex8iFHGdbTlAFd5XDbJRR4uuFhP6tfv6i
-         P9rJvJEzCHzHja8szkfGORgA1CkMGn0nwMy/8=
+        bh=CGJUumn5e9EgyBouM3IjzNL5qdFiXwNXmE4BHIp4QOg=;
+        b=RauSxg6EgijYinmqjdLPL97TeYIFNQrRZ0iwXVhzs9OYt6uuw5Mmtlvt7Nr1+G/sN6
+         N9offfSE1pk0kt6YFlYhIW7h7qVJW5+XpmObSRkUlqd8u6tXLMUuKdn+7m/QfvXtYfSn
+         wTNb+DS39NWdS9hSOnSBnpeBFw/Wwc54l18UI=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1704777045; x=1705381845;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1704779432; x=1705384232;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=CGRfQUiM/fdf5MTqUfvRqPOsMdxX5ZwLkxAWRV+5GSE=;
-        b=RZc4YdEyf6uPBNPmZXZZWKNZoh0OV72el2kSZerkYF/cYxw56H3C9/phHMLnDXajHH
-         x7JNFHWk8hw8jW8YTq5W1rmz3g3ydjUHak9+Ho+v6ucUSzap44xPvxqDkT+kxNDkwkQU
-         o6lVmU2YaC9hx0b6UAHA7uuuON2x1jTwnh2GXjc/utCd8HGhYWeOawjcUelww+H9FPfI
-         kr3cB74FXbSnUDw/eWWBeRZVNR9gOZjaKFkjccRbFebD0xyhDDDLsJPBl1BKuzp9+Qiz
-         oHK5BIyQ7ybt2z7CYd+i9d708CcNDUvtyN5zlmyNa61UJfSO2iihVNjIBbxj7uK8nTAP
-         jFIg==
-X-Gm-Message-State: AOJu0YwcZXe11KhMGiDWwwkNxTLauOUFFhwuVyqCHXL6k0kSBCMjxL8l
-	KoRE4g5dBsUq8gAbMw/iaSMN736nMtJ+
-X-Google-Smtp-Source: AGHT+IGJP05Xi+0QqvovPu2XVmdCYQG37hRBcV8sePn3U2VZlQTiEyJSAwNa82EL1lw2e/hyb+52sg==
-X-Received: by 2002:a05:6358:2910:b0:175:4d29:ac23 with SMTP id y16-20020a056358291000b001754d29ac23mr5422653rwb.26.1704777044782;
-        Mon, 08 Jan 2024 21:10:44 -0800 (PST)
-Received: from amakhalov-build-vm.eng.vmware.com ([128.177.82.146])
-        by smtp.gmail.com with ESMTPSA id u12-20020a17090ac88c00b0028aecd6b29fsm7344115pjt.3.2024.01.08.21.10.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Jan 2024 21:10:44 -0800 (PST)
-From: Alexey Makhalov <alexey.makhalov@broadcom.com>
-X-Google-Original-From: Alexey Makhalov <amakhalov@vmware.com>
-To: linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	bp@alien8.de,
-	hpa@zytor.com,
-	dave.hansen@linux.intel.com,
-	mingo@redhat.com,
-	tglx@linutronix.de
-Cc: x86@kernel.org,
-	netdev@vger.kernel.org,
-	richardcochran@gmail.com,
-	linux-input@vger.kernel.org,
-	dmitry.torokhov@gmail.com,
-	zackr@vmware.com,
-	linux-graphics-maintainer@vmware.com,
-	pv-drivers@vmware.com,
-	namit@vmware.com,
-	timothym@vmware.com,
-	akaher@vmware.com,
-	jsipek@vmware.com,
-	dri-devel@lists.freedesktop.org,
-	daniel@ffwll.ch,
-	airlied@gmail.com,
-	tzimmermann@suse.de,
-	mripard@kernel.org,
-	maarten.lankhorst@linux.intel.com,
-	horms@kernel.org,
-	kirill.shutemov@linux.intel.com
-Subject: [PATCH v5 7/7] x86/vmware: Add TDX hypercall support
-Date: Mon,  8 Jan 2024 21:10:17 -0800
-Message-Id: <20240109051017.58167-8-amakhalov@vmware.com>
-X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20240109051017.58167-1-amakhalov@vmware.com>
-References: <20240109051017.58167-1-amakhalov@vmware.com>
+        bh=CGJUumn5e9EgyBouM3IjzNL5qdFiXwNXmE4BHIp4QOg=;
+        b=SMngXF/RUdlUBP4MvA7mRq/9hXkjjNwNnfIU+VZfF68e9yQ5f6B/cU7V2XRQf64V0s
+         rZ5rFulbFXOHa73ZcatZGePqALtRjleTy7Fnhg0DCgl2C7rrxnshSNWJTuIGa0SvAmaK
+         XcfvXYcSKvGIWL8uVKAq39w0E3kr1ZOyofpOq92aZi1lH2wHo78aYYp0jdtsacOGURd8
+         lg7+qCWjsRo6UPqzoNaUrUfKM+sqFTeU10/7qjeo6p9yjfP+qSQ4HY1/119Izr7shhV8
+         ml6hYfPkwszDiWMxcVxb1JdwiPsZTNiiXouTrQ078hExAE7t/BfAQbqGfses6WQKP9MU
+         1oGg==
+X-Gm-Message-State: AOJu0YyOkuurlTF6kqMYf/9sgptZzoThgERn7vv/llKY5rKL5txBXbpq
+	b1RBJKmuj0RDYj6xz69RXt9Jl2atsgEsUruanupMwP8lvYO0
+X-Google-Smtp-Source: AGHT+IGL9aa2lU/1FwFoX3ZMJT0fnWIsuBFL4J7jJAwxdczBG00+Nd0t62Dy2KjqHP4de/kMxry3fkIP8ywraemqXMo=
+X-Received: by 2002:a05:651c:516:b0:2cc:dea3:23b with SMTP id
+ o22-20020a05651c051600b002ccdea3023bmr137342ljp.3.1704779431677; Mon, 08 Jan
+ 2024 21:50:31 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20240108215015.GA599905@mit.edu>
+In-Reply-To: <20240108215015.GA599905@mit.edu>
+From: David Stevens <stevensd@chromium.org>
+Date: Tue, 9 Jan 2024 14:50:20 +0900
+Message-ID: <CAD=HUj4dVm_5yTJG_Ly28-x9mCM5zxg8gb7EGz6ZUoDqV8StsA@mail.gmail.com>
+Subject: Re: REGRESSION: lockdep warning triggered by 15b9ce7ecd:
+ virtio_balloon: stay awake while adjusting balloon
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, David Hildenbrand <david@redhat.com>, virtualization@lists.linux.dev, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-VMware hypercalls use I/O port, VMCALL or VMMCALL instructions.
-Add __tdx_hypercall path to support TDX guests.
+On Tue, Jan 9, 2024 at 6:50=E2=80=AFAM Theodore Ts'o <tytso@mit.edu> wrote:
+>
+> Hi, while doing final testing before sending a pull request, I merged
+> in linux-next, and commit 5b9ce7ecd7: virtio_balloon: stay awake while
+> adjusting balloon seems to be causing a lockdep warning (see attached)
+> when running gce-xfstests on a Google Compute Engine e2 VM.  I was not
+> able to trigger it using kvm-xfstests, but the following command:
+> "gce-xfstests -C 10 ext4/4k generic/476) was sufficient to triger the
+> problem.   For more information please see [1] and [2].
+>
+> [1] https://github.com/tytso/xfstests-bld/blob/master/Documentation/gce-x=
+fstests.md
+> [2] https://thunk.org/gce-xfstests
+>
+> I found it by looking at the git logs, and this commit aroused my
+> suspicions, and I further testing showed that the lockdep warning was
+> reproducible with this commit, but not when testing with the
+> immediately preceeding commit (15b9ce7ecd^).
+>
+> Cheers,
+>
+>                                                 - Ted
+>
+>
+> root: ext4/4k run xfstest generic/476
+> systemd[1]: Started fstests-generic-476.scope - /usr/bin/bash -c test -w =
+/proc/self/oom_score_adj && echo 250 > /proc/self/oom_score_adj; exec ./tes=
+ts/generic/476.
+> kernel: [  399.361181] EXT4-fs (dm-1): mounted filesystem 840e25bd-f650-4=
+819-8562-7eded85ef370 r/w with ordered data mode. Quota mode: none.
+> systemd[1]: fstests-generic-476.scope: Deactivated successfully.
+> systemd[1]: fstests-generic-476.scope: Consumed 3min 1.966s CPU time.
+> systemd[1]: xt\x2dvdb.mount: Deactivated successfully.
+> kernel: [  537.085404] EXT4-fs (dm-0): unmounting filesystem d3d7a675-f7b=
+6-4384-abec-2e60d885b6da.
+> systemd[1]: xt\x2dvdc.mount: Deactivated successfully.
+> kernel: [  540.565870]
+> kernel: [  540.567523] =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> kernel: [  540.572007] WARNING: inconsistent lock state
+> kernel: [  540.576407] 6.7.0-rc3-xfstests-lockdep-00012-g5b9ce7ecd715 #31=
+8 Not tainted
+> kernel: [  540.583532] --------------------------------
+> kernel: [  540.587928] inconsistent {IN-HARDIRQ-W} -> {HARDIRQ-ON-W} usag=
+e.
+> kernel: [  540.594326] kworker/0:3/329 [HC0[0]:SC0[0]:HE1:SE1] takes:
+> kernel: [  540.599955] ffff90b280a548c0 (&vb->adjustment_lock){?...}-{2:2=
+}, at: update_balloon_size_func+0x33/0x190
+> kernel: [  540.609926] {IN-HARDIRQ-W} state was registered at:
+> kernel: [  540.614935]   __lock_acquire+0x3f2/0xb30
+> kernel: [  540.618992]   lock_acquire+0xbf/0x2b0
+> kernel: [  540.622786]   _raw_spin_lock_irqsave+0x43/0x90
+> kernel: [  540.627366]   virtballoon_changed+0x51/0xd0
+> kernel: [  540.631947]   virtio_config_changed+0x5a/0x70
+> kernel: [  540.636437]   vp_config_changed+0x11/0x20
+> kernel: [  540.640576]   __handle_irq_event_percpu+0x88/0x230
+> kernel: [  540.645500]   handle_irq_event+0x38/0x80
+> kernel: [  540.649558]   handle_edge_irq+0x8f/0x1f0
+> kernel: [  540.653791]   __common_interrupt+0x47/0xf0
+> kernel: [  540.658106]   common_interrupt+0x79/0xa0
+> kernel: [  540.661672] EXT4-fs (dm-1): unmounting filesystem 840e25bd-f65=
+0-4819-8562-7eded85ef370.
+> kernel: [  540.663183]   asm_common_interrupt+0x26/0x40
+> kernel: [  540.663190]   acpi_safe_halt+0x1b/0x30
+> kernel: [  540.663196]   acpi_idle_enter+0x7b/0xd0
+> kernel: [  540.663199]   cpuidle_enter_state+0x90/0x4f0
+> kernel: [  540.688723]   cpuidle_enter+0x2d/0x40
+> kernel: [  540.692516]   cpuidle_idle_call+0xe4/0x120
+> kernel: [  540.697036]   do_idle+0x84/0xd0
+> kernel: [  540.700393]   cpu_startup_entry+0x2a/0x30
+> kernel: [  540.704588]   rest_init+0xe9/0x180
+> kernel: [  540.708118]   arch_call_rest_init+0xe/0x30
+> kernel: [  540.712426]   start_kernel+0x41c/0x4b0
+> kernel: [  540.716310]   x86_64_start_reservations+0x18/0x30
+> kernel: [  540.721164]   x86_64_start_kernel+0x8c/0x90
+> kernel: [  540.725737]   secondary_startup_64_no_verify+0x178/0x17b
+> kernel: [  540.731432] irq event stamp: 22681
+> kernel: [  540.734956] hardirqs last  enabled at (22681): [<ffffffff8b4b5=
+158>] _raw_spin_unlock_irq+0x28/0x50
+> kernel: [  540.744564] hardirqs last disabled at (22680): [<ffffffff8b4b4=
+ded>] _raw_spin_lock_irq+0x5d/0x90
+> kernel: [  540.753475] softirqs last  enabled at (22076): [<ffffffff8a58c=
+fa1>] srcu_invoke_callbacks+0x101/0x1c0
+> kernel: [  540.762904] softirqs last disabled at (22072): [<ffffffff8a58c=
+fa1>] srcu_invoke_callbacks+0x101/0x1c0
+> kernel: [  540.773298]
+> kernel: [  540.773298] other info that might help us debug this:
+> kernel: [  540.780207]  Possible unsafe locking scenario:
+> kernel: [  540.780207]
+> kernel: [  540.786438]        CPU0
+> kernel: [  540.789007]        ----
+> kernel: [  540.791766]   lock(&vb->adjustment_lock);
+> kernel: [  540.796014]   <Interrupt>
+> kernel: [  540.798778]     lock(&vb->adjustment_lock);
+> kernel: [  540.803605]
 
-No change in high bandwidth hypercalls, as only low bandwidth
-ones are supported for TDX guests.
+Oh, that's embarrassing, I completely whiffed on interactions with
+interrupts. The following patch fixes it, and I've locally repro'ed
+the issue and verified the fix. What's the process for getting this
+fix merged? Does it get merged as a seperatch patch, or squashed into
+the original commit?
 
-Co-developed-by: Tim Merrifield <timothym@vmware.com>
-Signed-off-by: Tim Merrifield <timothym@vmware.com>
-Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
-Reviewed-by: Nadav Amit <namit@vmware.com>
+From a99a1efa6a2b470a98ea2c87e58bebe90ce329a1 Mon Sep 17 00:00:00 2001
+From: David Stevens <stevensd@chromium.org>
+Date: Tue, 9 Jan 2024 14:41:21 +0900
+Subject: [PATCH] virtio_balloon: Fix interrupt context deadlock
+
+Use _irq spinlock functions with the adjustment_lock, since
+start_update_balloon_size needs to acquire it in an interrupt context.
+
+Fixes: 5b9ce7ecd715 ("virtio_balloon: stay awake while adjusting balloon")
+Reported-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: David Stevens <stevensd@chromium.org>
 ---
- arch/x86/include/asm/vmware.h | 79 +++++++++++++++++++++++++++++++++++
- arch/x86/kernel/cpu/vmware.c  | 25 +++++++++++
- 2 files changed, 104 insertions(+)
+ drivers/virtio/virtio_balloon.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/include/asm/vmware.h b/arch/x86/include/asm/vmware.h
-index 84a31f579a30..3bd593c6591d 100644
---- a/arch/x86/include/asm/vmware.h
-+++ b/arch/x86/include/asm/vmware.h
-@@ -18,6 +18,12 @@
-  * arg2 - Hypercall command
-  * arg3 bits [15:0] - Port number, LB and direction flags
-  *
-+ * - Low bandwidth TDX hypercalls (x86_64 only) are similar to LB
-+ * hypercalls. They also have up to 6 input and 6 output on registers
-+ * arguments, with different argument to register mapping:
-+ * %r12 (arg0), %rbx (arg1), %r13 (arg2), %rdx (arg3),
-+ * %rsi (arg4), %rdi (arg5).
-+ *
-  * - High bandwidth (HB) hypercalls are I/O port based only. They have
-  * up to 7 input and 7 output arguments passed and returned using
-  * registers: %eax (arg0), %ebx (arg1), %ecx (arg2), %edx (arg3),
-@@ -54,12 +60,61 @@
- #define VMWARE_CMD_GETHZ		45
- #define VMWARE_CMD_GETVCPU_INFO		68
- #define VMWARE_CMD_STEALCLOCK		91
-+/*
-+ * Hypercall command mask:
-+ *   bits [6:0] command, range [0, 127]
-+ *   bits [19:16] sub-command, range [0, 15]
-+ */
-+#define VMWARE_CMD_MASK			0xf007fU
- 
- #define CPUID_VMWARE_FEATURES_ECX_VMMCALL	BIT(0)
- #define CPUID_VMWARE_FEATURES_ECX_VMCALL	BIT(1)
- 
- extern u8 vmware_hypercall_mode;
- 
-+#define VMWARE_TDX_VENDOR_LEAF 0x1af7e4909ULL
-+#define VMWARE_TDX_HCALL_FUNC  1
-+
-+extern unsigned long vmware_tdx_hypercall(unsigned long cmd,
-+					  struct tdx_module_args *args);
-+
-+/*
-+ * TDCALL[TDG.VP.VMCALL] uses %rax (arg0) and %rcx (arg2). Therefore,
-+ * we remap those registers to %r12 and %r13, respectively.
-+ */
-+static inline
-+unsigned long vmware_tdx_hypercall_args(unsigned long cmd, unsigned long in1,
-+					unsigned long in3, unsigned long in4,
-+					unsigned long in5,
-+					uint32_t *out1, uint32_t *out2,
-+					uint32_t *out3, uint32_t *out4,
-+					uint32_t *out5)
-+{
-+	unsigned long ret;
-+
-+	struct tdx_module_args args = {
-+		.rbx = in1,
-+		.rdx = in3,
-+		.rsi = in4,
-+		.rdi = in5,
-+	};
-+
-+	ret = vmware_tdx_hypercall(cmd, &args);
-+
-+	if (out1)
-+		*out1 = args.rbx;
-+	if (out2)
-+		*out2 = args.r13;
-+	if (out3)
-+		*out3 = args.rdx;
-+	if (out4)
-+		*out4 = args.rsi;
-+	if (out5)
-+		*out5 = args.rdi;
-+
-+	return ret;
-+}
-+
- /*
-  * The low bandwidth call. The low word of %edx is presumed to have OUT bit
-  * set. The high word of %edx may contain input data from the caller.
-@@ -87,6 +142,10 @@ unsigned long vmware_hypercall1(unsigned long cmd, unsigned long in1)
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloo=
+n.c
+index aa6a1a649ad6..1f5b3dd31fcf 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -459,12 +459,12 @@ static void start_update_balloon_size(struct
+virtio_balloon *vb)
+
+ static void end_update_balloon_size(struct virtio_balloon *vb)
  {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall_args(cmd, in1, 0, 0, 0,
-+						 NULL, NULL, NULL, NULL, NULL);
-+
- 	asm_inline volatile (VMWARE_HYPERCALL
- 		: "=a" (out0)
- 		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-@@ -105,6 +164,10 @@ unsigned long vmware_hypercall3(unsigned long cmd, unsigned long in1,
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall_args(cmd, in1, 0, 0, 0,
-+						 out1, out2, NULL, NULL, NULL);
-+
- 	asm_inline volatile (VMWARE_HYPERCALL
- 		: "=a" (out0), "=b" (*out1), "=c" (*out2)
- 		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-@@ -124,6 +187,10 @@ unsigned long vmware_hypercall4(unsigned long cmd, unsigned long in1,
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall_args(cmd, in1, 0, 0, 0,
-+						 out1, out2, out3, NULL, NULL);
-+
- 	asm_inline volatile (VMWARE_HYPERCALL
- 		: "=a" (out0), "=b" (*out1), "=c" (*out2), "=d" (*out3)
- 		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-@@ -143,6 +210,10 @@ unsigned long vmware_hypercall5(unsigned long cmd, unsigned long in1,
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall_args(cmd, in1, in3, in4, in5,
-+						 NULL, out2, NULL, NULL, NULL);
-+
- 	asm_inline volatile (VMWARE_HYPERCALL
- 		: "=a" (out0), "=c" (*out2)
- 		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-@@ -165,6 +236,10 @@ unsigned long vmware_hypercall6(unsigned long cmd, unsigned long in1,
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall_args(cmd, in1, in3, 0, 0,
-+						 NULL, out2, out3, out4, out5);
-+
- 	asm_inline volatile (VMWARE_HYPERCALL
- 		: "=a" (out0), "=c" (*out2), "=d" (*out3), "=S" (*out4),
- 		  "=D" (*out5)
-@@ -186,6 +261,10 @@ unsigned long vmware_hypercall7(unsigned long cmd, unsigned long in1,
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall_args(cmd, in1, in3, in4, in5,
-+						 out1, out2, out3, NULL, NULL);
-+
- 	asm_inline volatile (VMWARE_HYPERCALL
- 		: "=a" (out0), "=b" (*out1), "=c" (*out2), "=d" (*out3)
- 		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index 3aa1adaed18f..84caa67d4820 100644
---- a/arch/x86/kernel/cpu/vmware.c
-+++ b/arch/x86/kernel/cpu/vmware.c
-@@ -428,6 +428,31 @@ static bool __init vmware_legacy_x2apic_available(void)
- 		(eax & BIT(VCPU_LEGACY_X2APIC));
+-       spin_lock(&vb->adjustment_lock);
++       spin_lock_irq(&vb->adjustment_lock);
+        if (!vb->adjustment_signal_pending && vb->adjustment_in_progress) {
+                vb->adjustment_in_progress =3D false;
+                pm_relax(vb->vdev->dev.parent);
+        }
+-       spin_unlock(&vb->adjustment_lock);
++       spin_unlock_irq(&vb->adjustment_lock);
  }
- 
-+#ifdef CONFIG_INTEL_TDX_GUEST
-+unsigned long vmware_tdx_hypercall(unsigned long cmd,
-+				   struct tdx_module_args *args)
-+{
-+	if (!hypervisor_is_type(X86_HYPER_VMWARE))
-+		return ULONG_MAX;
-+
-+	if (cmd & ~VMWARE_CMD_MASK) {
-+		pr_warn_once("Out of range command %lx\n", cmd);
-+		return ULONG_MAX;
-+	}
-+
-+	args->r10 = VMWARE_TDX_VENDOR_LEAF;
-+	args->r11 = VMWARE_TDX_HCALL_FUNC;
-+	args->r12 = VMWARE_HYPERVISOR_MAGIC;
-+	args->r13 = cmd;
-+	args->r15 = 0; /* CPL */
-+
-+	__tdx_hypercall(args);
-+
-+	return args->r12;
-+}
-+EXPORT_SYMBOL_GPL(vmware_tdx_hypercall);
-+#endif
-+
- #ifdef CONFIG_AMD_MEM_ENCRYPT
- static void vmware_sev_es_hcall_prepare(struct ghcb *ghcb,
- 					struct pt_regs *regs)
--- 
-2.39.0
 
+ static void virtballoon_changed(struct virtio_device *vdev)
+@@ -506,9 +506,9 @@ static void update_balloon_size_func(struct
+work_struct *work)
+        vb =3D container_of(work, struct virtio_balloon,
+                          update_balloon_size_work);
+
+-       spin_lock(&vb->adjustment_lock);
++       spin_lock_irq(&vb->adjustment_lock);
+        vb->adjustment_signal_pending =3D false;
+-       spin_unlock(&vb->adjustment_lock);
++       spin_unlock_irq(&vb->adjustment_lock);
+
+        diff =3D towards_target(vb);
+
+--=20
+2.43.0.472.g3155946c3a-goog
