@@ -1,134 +1,104 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7192A9455;
-	Tue,  9 Jan 2024 06:01:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C422D2E842
+	for <virtualization@lists.linux-foundation.org>; Tue,  9 Jan 2024 07:57:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="QpS8pW3B"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1704780089; x=1736316089;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=sA9jOFAl/Yz2nJon6qcwL0ATsst7m3Ms+tSbOB128dU=;
-  b=QpS8pW3BA+BsIT2qERHYr+RDKrHvmf1Qm/r2WLWWbG33FEYclLKrg1Q4
-   YOHiV3VZkiGBKojFGwvLEbwsFNyn0M5DTOQF+yYfBgSxvW6UJsxd7+Hj9
-   Q7ipt+v1rwfsAKaXkSGIoeP6gp0/Yj2eOHuV+GvadqoO+6G7DrvWUmngJ
-   kiaMGmzxZcZlO+YumebcppRGTnTgBRt9S5Y2JvsOFHCmlRZ8klKt44/5W
-   ts1wBAYGWM/SG+rRlH0wOr3ka4sxQMMo88Y7HtLUXGxFz4iAx4vxi4zGA
-   yTtxMJaQm/NLnuW5EDjiaSISMim1/0RVME3iDpepIbbZFSu2HsA10k/y3
-   g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10947"; a="4840340"
-X-IronPort-AV: E=Sophos;i="6.04,181,1695711600"; 
-   d="scan'208";a="4840340"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Jan 2024 22:01:27 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10947"; a="900635538"
-X-IronPort-AV: E=Sophos;i="6.04,181,1695711600"; 
-   d="scan'208";a="900635538"
-Received: from lkp-server02.sh.intel.com (HELO b07ab15da5fe) ([10.239.97.151])
-  by fmsmga002.fm.intel.com with ESMTP; 08 Jan 2024 22:01:19 -0800
-Received: from kbuild by b07ab15da5fe with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1rN5Ap-0005WA-1K;
-	Tue, 09 Jan 2024 06:01:15 +0000
-Date: Tue, 9 Jan 2024 14:00:24 +0800
-From: kernel test robot <lkp@intel.com>
-To: Bibo Mao <maobibo@loongson.cn>, Huacai Chen <chenhuacai@kernel.org>,
-	Tianrui Zhao <zhaotianrui@loongson.cn>,
-	Juergen Gross <jgross@suse.com>
-Cc: oe-kbuild-all@lists.linux.dev, loongarch@lists.linux.dev,
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-	kvm@vger.kernel.org
-Subject: Re: [PATCH 5/5] LoongArch: Add pv ipi support on LoongArch system
-Message-ID: <202401091354.GtBERgQJ-lkp@intel.com>
-References: <20240103071615.3422264-6-maobibo@loongson.cn>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Me4pfJh6"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 3C2AA418AD
+	for <virtualization@lists.linux-foundation.org>; Tue,  9 Jan 2024 07:57:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3C2AA418AD
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=Me4pfJh6
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -4.401
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 9gf9FtJKrn_Y
+	for <virtualization@lists.linux-foundation.org>;
+	Tue,  9 Jan 2024 07:57:41 +0000 (UTC)
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 7E4DB4085B
+	for <virtualization@lists.linux-foundation.org>; Tue,  9 Jan 2024 07:57:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7E4DB4085B
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by sin.source.kernel.org (Postfix) with ESMTP id 46FFBCE1774;
+	Tue,  9 Jan 2024 07:57:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DBCAC433C7;
+	Tue,  9 Jan 2024 07:57:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1704787056;
+	bh=VLDneZLA6cAnWxtoG7KbCxm8KweXPrrQ2Mn6Ofb6MR8=;
+	h=From:To:Cc:Subject:Date:From;
+	b=Me4pfJh6dlkcobjt6Eefwwv0CZqzwIrWh7igIV5Wxk1VrgKQ0L3y2cd3e2iJibOky
+	 w9bIh2oR9cNnIfumWNhOf5GgJyXoFI7NpSALoLeM24wc9ZAAqpPNUMceKug/BANQEO
+	 QY+E+Up/zXp11/IStSHvYzSDlaNCI9aX2TQXo/KsiF6UgM1tlBzqYjFMVNMjaq9w8a
+	 XOFazkm9TgNWSD06qM5FsLAvm2iCG76aS0fG01Gs82wWG7K0GiiDbmEAvmWgwJgsz4
+	 yhbOC2FDCE6Ch8UrSIaOWGbB8Au5fQcsineQXjTsrjz3txvMELmdrK6b6n1lMurQ0L
+	 vgx248eNSPm+w==
+From: Arnd Bergmann <arnd@kernel.org>
+To: Yishai Hadas <yishaih@nvidia.com>,
+	Alex Williamson <alex.williamson@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Kevin Tian <kevin.tian@intel.com>,
+	Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
+	kvm@vger.kernel.org,
+	virtualization@lists.linux-foundation.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] vfio: fix virtio-pci dependency
+Date: Tue,  9 Jan 2024 08:57:19 +0100
+Message-Id: <20240109075731.2726731-1-arnd@kernel.org>
+X-Mailer: git-send-email 2.39.2
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240103071615.3422264-6-maobibo@loongson.cn>
+Content-Transfer-Encoding: 8bit
 
-Hi Bibo,
+From: Arnd Bergmann <arnd@arndb.de>
 
-kernel test robot noticed the following build warnings:
+The new vfio-virtio driver already has a dependency on VIRTIO_PCI_ADMIN_LEGACY,
+but that is a bool symbol and allows vfio-virtio to be built-in even if
+virtio-pci itself is a loadable module. This leads to a link failure:
 
-[auto build test WARNING on 610a9b8f49fbcf1100716370d3b5f6f884a2835a]
+aarch64-linux-ld: drivers/vfio/pci/virtio/main.o: in function `virtiovf_pci_probe':
+main.c:(.text+0xec): undefined reference to `virtio_pci_admin_has_legacy_io'
+aarch64-linux-ld: drivers/vfio/pci/virtio/main.o: in function `virtiovf_pci_init_device':
+main.c:(.text+0x260): undefined reference to `virtio_pci_admin_legacy_io_notify_info'
+aarch64-linux-ld: drivers/vfio/pci/virtio/main.o: in function `virtiovf_pci_bar0_rw':
+main.c:(.text+0x6ec): undefined reference to `virtio_pci_admin_legacy_common_io_read'
+aarch64-linux-ld: main.c:(.text+0x6f4): undefined reference to `virtio_pci_admin_legacy_device_io_read'
+aarch64-linux-ld: main.c:(.text+0x7f0): undefined reference to `virtio_pci_admin_legacy_common_io_write'
+aarch64-linux-ld: main.c:(.text+0x7f8): undefined reference to `virtio_pci_admin_legacy_device_io_write'
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Bibo-Mao/LoongArch-KVM-Add-hypercall-instruction-emulation-support/20240103-151946
-base:   610a9b8f49fbcf1100716370d3b5f6f884a2835a
-patch link:    https://lore.kernel.org/r/20240103071615.3422264-6-maobibo%40loongson.cn
-patch subject: [PATCH 5/5] LoongArch: Add pv ipi support on LoongArch system
-config: loongarch-randconfig-r061-20240109 (https://download.01.org/0day-ci/archive/20240109/202401091354.GtBERgQJ-lkp@intel.com/config)
-compiler: loongarch64-linux-gcc (GCC) 13.2.0
+Add another explicit dependency on the tristate symbol.
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202401091354.GtBERgQJ-lkp@intel.com/
+Fixes: eb61eca0e8c3 ("vfio/virtio: Introduce a vfio driver over virtio devices")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ drivers/vfio/pci/virtio/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-cocci warnings: (new ones prefixed by >>)
->> arch/loongarch/kvm/exit.c:681:5-8: Unneeded variable: "ret". Return "  0" on line 701
---
->> arch/loongarch/kvm/exit.c:720:2-3: Unneeded semicolon
-
-vim +681 arch/loongarch/kvm/exit.c
-
-   678	
-   679	static int kvm_pv_send_ipi(struct kvm_vcpu *vcpu, int sgi)
-   680	{
- > 681		int ret = 0;
-   682		u64 ipi_bitmap;
-   683		unsigned int min, cpu;
-   684		struct kvm_vcpu *dest;
-   685	
-   686		ipi_bitmap = vcpu->arch.gprs[LOONGARCH_GPR_A1];
-   687		min = vcpu->arch.gprs[LOONGARCH_GPR_A2];
-   688	
-   689		if (ipi_bitmap) {
-   690			cpu = find_first_bit((void *)&ipi_bitmap, BITS_PER_LONG);
-   691			while (cpu < BITS_PER_LONG) {
-   692				if ((cpu + min) < KVM_MAX_VCPUS) {
-   693					dest = kvm_get_vcpu_by_id(vcpu->kvm, cpu + min);
-   694					kvm_queue_irq(dest, sgi);
-   695					kvm_vcpu_kick(dest);
-   696				}
-   697				cpu = find_next_bit((void *)&ipi_bitmap, BITS_PER_LONG, cpu + 1);
-   698			}
-   699		}
-   700	
- > 701		return ret;
-   702	}
-   703	
-   704	/*
-   705	 * hypcall emulation always return to guest, Caller should check retval.
-   706	 */
-   707	static void kvm_handle_pv_hcall(struct kvm_vcpu *vcpu)
-   708	{
-   709		unsigned long func = vcpu->arch.gprs[LOONGARCH_GPR_A0];
-   710		long ret;
-   711	
-   712		switch (func) {
-   713		case KVM_HC_FUNC_IPI:
-   714			kvm_pv_send_ipi(vcpu, INT_SWI0);
-   715			ret = KVM_HC_STATUS_SUCCESS;
-   716			break;
-   717		default:
-   718			ret = KVM_HC_INVALID_CODE;
-   719			break;
- > 720		};
-   721	
-   722		vcpu->arch.gprs[LOONGARCH_GPR_A0] = ret;
-   723	}
-   724	
-
+diff --git a/drivers/vfio/pci/virtio/Kconfig b/drivers/vfio/pci/virtio/Kconfig
+index fc3a0be9d8d4..bd80eca4a196 100644
+--- a/drivers/vfio/pci/virtio/Kconfig
++++ b/drivers/vfio/pci/virtio/Kconfig
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ config VIRTIO_VFIO_PCI
+         tristate "VFIO support for VIRTIO NET PCI devices"
+-        depends on VIRTIO_PCI_ADMIN_LEGACY
++        depends on VIRTIO_PCI && VIRTIO_PCI_ADMIN_LEGACY
+         select VFIO_PCI_CORE
+         help
+           This provides support for exposing VIRTIO NET VF devices which support
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+2.39.2
+
