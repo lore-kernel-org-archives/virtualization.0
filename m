@@ -1,139 +1,217 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 630993EA9E
-	for <virtualization@lists.linux.dev>; Tue,  9 Jan 2024 23:07:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAB5E3E46D
+	for <virtualization@lists.linux.dev>; Tue,  9 Jan 2024 23:19:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZBWsZRWD"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eiCe4Lvt"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1704841671;
+	s=mimecast20190719; t=1704842364;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=PmsOSA8e0agbmpKIvz+4i4zAbpgfLcQxgusd1VNG7pQ=;
-	b=ZBWsZRWDTNR/wBRr4o2rHmqFNKezg1MqGrLVRPBzIMgUcS7NuXArTcm///GWwhkYY4f8jK
-	1ixen/TGqVs3TqVnIcOLx/0cF8t3SCZ4ROYzXNnMXiiJkFDQBuG2RUuVa6n/DLS/UN0sCr
-	m7E2uRIFJPif8dY7revvW1g6pS11UP0=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=wHVmMNIg/DVwx+LrG/fqarxhc21tkCGhrWRbquNsn9U=;
+	b=eiCe4Lvt82zCtqZz0FhAdn0ukMoFW2pJAqc6IWNLKNepM5yE5pCWM8tRU0cZiFNWnefZTx
+	XU8Y9IhuMVlOJv8zcao1IWRvvsz4mSePjqEuhMy6fMMP1jt69PWg3ovZAR+SYjcdGrVMtP
+	00HnlM6fYHw9y7cW6cDzeDZjx5sOucw=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-120-uPZbjHeRMaqBUEgeaOobDw-1; Tue, 09 Jan 2024 18:07:49 -0500
-X-MC-Unique: uPZbjHeRMaqBUEgeaOobDw-1
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-40d5aa2f118so31186855e9.3
-        for <virtualization@lists.linux.dev>; Tue, 09 Jan 2024 15:07:49 -0800 (PST)
+ us-mta-63-tB92S31tPl-A3qJZtZr-yQ-1; Tue, 09 Jan 2024 18:19:22 -0500
+X-MC-Unique: tB92S31tPl-A3qJZtZr-yQ-1
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-40d6e7334cfso32597125e9.0
+        for <virtualization@lists.linux.dev>; Tue, 09 Jan 2024 15:19:22 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1704841669; x=1705446469;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=PmsOSA8e0agbmpKIvz+4i4zAbpgfLcQxgusd1VNG7pQ=;
-        b=nZj3DtdOH+tbFkqXmzpCtqloPblsNkD3ARLgVEmS7vX7MiDCJVE9j+JuqL2mh8Did0
-         B6zevtZgMPylNRHxRqTrYsYiOwPe2WxOBrMKQd8AZUMgaVG+J29h0N6VpLQ93QSstHwi
-         4MJF4IFB2iJjhIGpdgETdddyhTlW+GYeFORMHWgs5SylxzqWgXN3e1KEgVC4ec8/EbCH
-         Ea8YdshCEnGHI4zrZEAFt5dRJhfGPnwt0M1iOFquRLWNOECIrWMclvPOGYHHcZt1NHia
-         KurzFf6bsMHEDnnwTCta9vnLxqssqkChRt59Tnn3C9ZvbgbHjF1OdjLyJsV5RyTCJgeP
-         YOug==
-X-Gm-Message-State: AOJu0YwLohrXk/a6xSf+pOpkwucC79I/XeRNDbdX7BG7WwVAnlxUPC5f
-	BpxxmhvyflX+UcY/0lcSHcjKuP0d/tflyXDtukJBW4eK1yYcLZYQhSKhtZ/u1xESxgT8jDkoaa/
-	QHqxI6EDf2KL1udoTkWZuWaOMAcq/g7kv/wc=
-X-Received: by 2002:a05:600c:1603:b0:40e:4800:c91f with SMTP id m3-20020a05600c160300b0040e4800c91fmr31975wmn.9.1704841668809;
-        Tue, 09 Jan 2024 15:07:48 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEO3FEhMXyQFhkdwPMbAGnlA5UDqENRCt3LgtBWXNMza5r2kTWnZqKT5YT16xPNccXd/SHk6A==
-X-Received: by 2002:a05:600c:1603:b0:40e:4800:c91f with SMTP id m3-20020a05600c160300b0040e4800c91fmr31970wmn.9.1704841668528;
-        Tue, 09 Jan 2024 15:07:48 -0800 (PST)
+        d=1e100.net; s=20230601; t=1704842362; x=1705447162;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=wHVmMNIg/DVwx+LrG/fqarxhc21tkCGhrWRbquNsn9U=;
+        b=eK3abHgPRC1eE/TzBsFVrxzYOhr9Ldrs0zy5WTb26L9BzU5zC9T83ZviunWHbewIuc
+         9A53sj+2WyWrYuLdq4JDdvmK2vRljhLVQrZbSLKdBjUzvq5/HR9F3vKIa0v6fL2cPAbn
+         lEskRE3JZ2BBKkEdSf5lZlhFGvd5XaIX9geSiXSgfQxAOJwxot7aWLqrRdwWgwxs/gXa
+         TQXMtW2SpEuI6yIoQ76fzpC3Yzgo/MClwNS1FCxu9lr1163EPGEIds5bupTKb3Xln/hO
+         Vgs2cSCPEqLmQmSJaGKuGSpr8GJvTxTeZJo0lpQPSEb2uLadZetGBkVi3YvRhEHJLe17
+         8Vnw==
+X-Gm-Message-State: AOJu0Ywno9ButIWxfqA8WrG35tRG5/acpGoQey7Jcx6GfOuJLhZIL3d8
+	YRTBD0tDy3oMKPpbHQ7B/83gCu0fNrhmCgEEavx5RWJLJZvKNcwmlcq1CJ2/WrxINNbzjhQfweJ
+	d6gAT/nRKGEHb5+Vl3KYJJSFQDbYjF+dAN9U=
+X-Received: by 2002:a05:600c:a4c:b0:40e:545b:80e6 with SMTP id c12-20020a05600c0a4c00b0040e545b80e6mr30952wmq.158.1704842361814;
+        Tue, 09 Jan 2024 15:19:21 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHar4XTexIgvBATKUPtUP4fvkCodLwjEIqa21khgBEAmJpVpxCFabBi/+JKYxxEDSZ4iCKRvA==
+X-Received: by 2002:a05:600c:a4c:b0:40e:545b:80e6 with SMTP id c12-20020a05600c0a4c00b0040e545b80e6mr30947wmq.158.1704842361435;
+        Tue, 09 Jan 2024 15:19:21 -0800 (PST)
 Received: from redhat.com ([2.52.133.193])
-        by smtp.gmail.com with ESMTPSA id h5-20020a05600c314500b0040d7c3d5454sm59173wmo.3.2024.01.09.15.07.46
+        by smtp.gmail.com with ESMTPSA id bi6-20020a05600c3d8600b0040e3960f46asm76614wmb.14.2024.01.09.15.19.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Jan 2024 15:07:47 -0800 (PST)
-Date: Tue, 9 Jan 2024 18:07:44 -0500
+        Tue, 09 Jan 2024 15:19:20 -0800 (PST)
+Date: Tue, 9 Jan 2024 18:19:17 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Tobias Huschle <huschle@linux.ibm.com>
-Cc: Jason Wang <jasowang@redhat.com>, Abel Wu <wuyun.abel@bytedance.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org
-Subject: Re: Re: Re: EEVDF/vhost regression (bisected to 86bfbb7ce4f6
- sched/fair: Add lag based placement)
-Message-ID: <20240109180706-mutt-send-email-mst@kernel.org>
-References: <CACGkMEuSGT-e-i-8U7hum-N_xEnsEKL+_07Mipf6gMLFFhj2Aw@mail.gmail.com>
- <20231211115329-mutt-send-email-mst@kernel.org>
- <CACGkMEudZnF7hUajgt0wtNPCxH8j6A3L1DgJj2ayJWhv9Bh1WA@mail.gmail.com>
- <20231212111433-mutt-send-email-mst@kernel.org>
- <42870.123121305373200110@us-mta-641.us.mimecast.lan>
- <20231213061719-mutt-send-email-mst@kernel.org>
- <25485.123121307454100283@us-mta-18.us.mimecast.lan>
- <20231213094854-mutt-send-email-mst@kernel.org>
- <20231214021328-mutt-send-email-mst@kernel.org>
- <92916.124010808133201076@us-mta-622.us.mimecast.lan>
+To: David Stevens <stevensd@chromium.org>
+Cc: Theodore Ts'o <tytso@mit.edu>, David Hildenbrand <david@redhat.com>,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: REGRESSION: lockdep warning triggered by 15b9ce7ecd:
+ virtio_balloon: stay awake while adjusting balloon
+Message-ID: <20240109181620-mutt-send-email-mst@kernel.org>
+References: <20240108215015.GA599905@mit.edu>
+ <CAD=HUj4dVm_5yTJG_Ly28-x9mCM5zxg8gb7EGz6ZUoDqV8StsA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <92916.124010808133201076@us-mta-622.us.mimecast.lan>
+In-Reply-To: <CAD=HUj4dVm_5yTJG_Ly28-x9mCM5zxg8gb7EGz6ZUoDqV8StsA@mail.gmail.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Mon, Jan 08, 2024 at 02:13:25PM +0100, Tobias Huschle wrote:
-> On Thu, Dec 14, 2023 at 02:14:59AM -0500, Michael S. Tsirkin wrote:
-> > 
-> > Peter, would appreciate feedback on this. When is cond_resched()
-> > insufficient to give up the CPU? Should Documentation/kernel-hacking/hacking.rst
-> > be updated to require schedule() instead?
-> > 
+On Tue, Jan 09, 2024 at 02:50:20PM +0900, David Stevens wrote:
+> On Tue, Jan 9, 2024 at 6:50 AM Theodore Ts'o <tytso@mit.edu> wrote:
+> >
+> > Hi, while doing final testing before sending a pull request, I merged
+> > in linux-next, and commit 5b9ce7ecd7: virtio_balloon: stay awake while
+> > adjusting balloon seems to be causing a lockdep warning (see attached)
+> > when running gce-xfstests on a Google Compute Engine e2 VM.  I was not
+> > able to trigger it using kvm-xfstests, but the following command:
+> > "gce-xfstests -C 10 ext4/4k generic/476) was sufficient to triger the
+> > problem.   For more information please see [1] and [2].
+> >
+> > [1] https://github.com/tytso/xfstests-bld/blob/master/Documentation/gce-xfstests.md
+> > [2] https://thunk.org/gce-xfstests
+> >
+> > I found it by looking at the git logs, and this commit aroused my
+> > suspicions, and I further testing showed that the lockdep warning was
+> > reproducible with this commit, but not when testing with the
+> > immediately preceeding commit (15b9ce7ecd^).
+> >
+> > Cheers,
+> >
+> >                                                 - Ted
+> >
+> >
+> > root: ext4/4k run xfstest generic/476
+> > systemd[1]: Started fstests-generic-476.scope - /usr/bin/bash -c test -w /proc/self/oom_score_adj && echo 250 > /proc/self/oom_score_adj; exec ./tests/generic/476.
+> > kernel: [  399.361181] EXT4-fs (dm-1): mounted filesystem 840e25bd-f650-4819-8562-7eded85ef370 r/w with ordered data mode. Quota mode: none.
+> > systemd[1]: fstests-generic-476.scope: Deactivated successfully.
+> > systemd[1]: fstests-generic-476.scope: Consumed 3min 1.966s CPU time.
+> > systemd[1]: xt\x2dvdb.mount: Deactivated successfully.
+> > kernel: [  537.085404] EXT4-fs (dm-0): unmounting filesystem d3d7a675-f7b6-4384-abec-2e60d885b6da.
+> > systemd[1]: xt\x2dvdc.mount: Deactivated successfully.
+> > kernel: [  540.565870]
+> > kernel: [  540.567523] ================================
+> > kernel: [  540.572007] WARNING: inconsistent lock state
+> > kernel: [  540.576407] 6.7.0-rc3-xfstests-lockdep-00012-g5b9ce7ecd715 #318 Not tainted
+> > kernel: [  540.583532] --------------------------------
+> > kernel: [  540.587928] inconsistent {IN-HARDIRQ-W} -> {HARDIRQ-ON-W} usage.
+> > kernel: [  540.594326] kworker/0:3/329 [HC0[0]:SC0[0]:HE1:SE1] takes:
+> > kernel: [  540.599955] ffff90b280a548c0 (&vb->adjustment_lock){?...}-{2:2}, at: update_balloon_size_func+0x33/0x190
+> > kernel: [  540.609926] {IN-HARDIRQ-W} state was registered at:
+> > kernel: [  540.614935]   __lock_acquire+0x3f2/0xb30
+> > kernel: [  540.618992]   lock_acquire+0xbf/0x2b0
+> > kernel: [  540.622786]   _raw_spin_lock_irqsave+0x43/0x90
+> > kernel: [  540.627366]   virtballoon_changed+0x51/0xd0
+> > kernel: [  540.631947]   virtio_config_changed+0x5a/0x70
+> > kernel: [  540.636437]   vp_config_changed+0x11/0x20
+> > kernel: [  540.640576]   __handle_irq_event_percpu+0x88/0x230
+> > kernel: [  540.645500]   handle_irq_event+0x38/0x80
+> > kernel: [  540.649558]   handle_edge_irq+0x8f/0x1f0
+> > kernel: [  540.653791]   __common_interrupt+0x47/0xf0
+> > kernel: [  540.658106]   common_interrupt+0x79/0xa0
+> > kernel: [  540.661672] EXT4-fs (dm-1): unmounting filesystem 840e25bd-f650-4819-8562-7eded85ef370.
+> > kernel: [  540.663183]   asm_common_interrupt+0x26/0x40
+> > kernel: [  540.663190]   acpi_safe_halt+0x1b/0x30
+> > kernel: [  540.663196]   acpi_idle_enter+0x7b/0xd0
+> > kernel: [  540.663199]   cpuidle_enter_state+0x90/0x4f0
+> > kernel: [  540.688723]   cpuidle_enter+0x2d/0x40
+> > kernel: [  540.692516]   cpuidle_idle_call+0xe4/0x120
+> > kernel: [  540.697036]   do_idle+0x84/0xd0
+> > kernel: [  540.700393]   cpu_startup_entry+0x2a/0x30
+> > kernel: [  540.704588]   rest_init+0xe9/0x180
+> > kernel: [  540.708118]   arch_call_rest_init+0xe/0x30
+> > kernel: [  540.712426]   start_kernel+0x41c/0x4b0
+> > kernel: [  540.716310]   x86_64_start_reservations+0x18/0x30
+> > kernel: [  540.721164]   x86_64_start_kernel+0x8c/0x90
+> > kernel: [  540.725737]   secondary_startup_64_no_verify+0x178/0x17b
+> > kernel: [  540.731432] irq event stamp: 22681
+> > kernel: [  540.734956] hardirqs last  enabled at (22681): [<ffffffff8b4b5158>] _raw_spin_unlock_irq+0x28/0x50
+> > kernel: [  540.744564] hardirqs last disabled at (22680): [<ffffffff8b4b4ded>] _raw_spin_lock_irq+0x5d/0x90
+> > kernel: [  540.753475] softirqs last  enabled at (22076): [<ffffffff8a58cfa1>] srcu_invoke_callbacks+0x101/0x1c0
+> > kernel: [  540.762904] softirqs last disabled at (22072): [<ffffffff8a58cfa1>] srcu_invoke_callbacks+0x101/0x1c0
+> > kernel: [  540.773298]
+> > kernel: [  540.773298] other info that might help us debug this:
+> > kernel: [  540.780207]  Possible unsafe locking scenario:
+> > kernel: [  540.780207]
+> > kernel: [  540.786438]        CPU0
+> > kernel: [  540.789007]        ----
+> > kernel: [  540.791766]   lock(&vb->adjustment_lock);
+> > kernel: [  540.796014]   <Interrupt>
+> > kernel: [  540.798778]     lock(&vb->adjustment_lock);
+> > kernel: [  540.803605]
 > 
-> Happy new year everybody!
+> Oh, that's embarrassing, I completely whiffed on interactions with
+> interrupts. The following patch fixes it, and I've locally repro'ed
+> the issue and verified the fix. What's the process for getting this
+> fix merged? Does it get merged as a seperatch patch, or squashed into
+> the original commit?
 > 
-> I'd like to bring this thread back to life. To reiterate:
+> >From a99a1efa6a2b470a98ea2c87e58bebe90ce329a1 Mon Sep 17 00:00:00 2001
+> From: David Stevens <stevensd@chromium.org>
+> Date: Tue, 9 Jan 2024 14:41:21 +0900
+> Subject: [PATCH] virtio_balloon: Fix interrupt context deadlock
 > 
-> - The introduction of the EEVDF scheduler revealed a performance
->   regression in a uperf testcase of ~50%.
-> - Tracing the scheduler showed that it takes decisions which are
->   in line with its design.
-> - The traces showed as well, that a vhost instance might run
->   excessively long on its CPU in some circumstance. Those cause
->   the performance regression as they cause delay times of 100+ms
->   for a kworker which drives the actual network processing.
-> - Before EEVDF, the vhost would always be scheduled off its CPU
->   in favor of the kworker, as the kworker was being woken up and
->   the former scheduler was giving more priority to the woken up
->   task. With EEVDF, the kworker, as a long running process, is
->   able to accumulate negative lag, which causes EEVDF to not
->   prefer it on its wake up, leaving the vhost running.
-> - If the kworker is not scheduled when being woken up, the vhost
->   continues looping until it is migrated off the CPU.
-> - The vhost offers to be scheduled off the CPU by calling 
->   cond_resched(), but, the the need_resched flag is not set,
->   therefore cond_resched() does nothing.
+> Use _irq spinlock functions with the adjustment_lock, since
+> start_update_balloon_size needs to acquire it in an interrupt context.
 > 
-> To solve this, I see the following options 
->   (might not be a complete nor a correct list)
-> - Along with the wakeup of the kworker, need_resched needs to
->   be set, such that cond_resched() triggers a reschedule.
-> - The vhost calls schedule() instead of cond_resched() to give up
->   the CPU. This would of course be a significantly stricter
->   approach and might limit the performance of vhost in other cases.
+> Fixes: 5b9ce7ecd715 ("virtio_balloon: stay awake while adjusting balloon")
+> Reported-by: Theodore Ts'o <tytso@mit.edu>
+> Signed-off-by: David Stevens <stevensd@chromium.org>
+> ---
+>  drivers/virtio/virtio_balloon.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index aa6a1a649ad6..1f5b3dd31fcf 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -459,12 +459,12 @@ static void start_update_balloon_size(struct
+> virtio_balloon *vb)
+> 
+>  static void end_update_balloon_size(struct virtio_balloon *vb)
+>  {
+> -       spin_lock(&vb->adjustment_lock);
+> +       spin_lock_irq(&vb->adjustment_lock);
+>         if (!vb->adjustment_signal_pending && vb->adjustment_in_progress) {
+>                 vb->adjustment_in_progress = false;
+>                 pm_relax(vb->vdev->dev.parent);
+>         }
+> -       spin_unlock(&vb->adjustment_lock);
+> +       spin_unlock_irq(&vb->adjustment_lock);
+>  }
+> 
+>  static void virtballoon_changed(struct virtio_device *vdev)
+> @@ -506,9 +506,9 @@ static void update_balloon_size_func(struct
+> work_struct *work)
+>         vb = container_of(work, struct virtio_balloon,
+>                           update_balloon_size_work);
+> 
+> -       spin_lock(&vb->adjustment_lock);
+> +       spin_lock_irq(&vb->adjustment_lock);
+>         vb->adjustment_signal_pending = false;
+> -       spin_unlock(&vb->adjustment_lock);
+> +       spin_unlock_irq(&vb->adjustment_lock);
+> 
+>         diff = towards_target(vb);
 
-And on these two, I asked:
-	Would appreciate feedback on this. When is cond_resched()
-	insufficient to give up the CPU? Should Documentation/kernel-hacking/hacking.rst
-	be updated to require schedule() instead?
 
+Your patch is damaged (lines wrapped, sha info is wrong). Please post a
+new version of the original one I will replace it with the new one.
 
-> - Preventing the kworker from accumulating negative lag as it is
->   mostly not runnable and if it runs, it only runs for a very short
->   time frame. This might clash with the overall concept of EEVDF.
-> - On cond_resched(), verify if the consumed runtime of the caller
->   is outweighing the negative lag of another process (e.g. the 
->   kworker) and schedule the other process. Introduces overhead
->   to cond_resched.
-> 
-> I would be curious on feedback on those ideas and interested in
-> alternative approaches.
-
+-- 
+MST
 
