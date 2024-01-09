@@ -1,43 +1,44 @@
-Received: from mail-pg1-f173.google.com (mail-pg1-f173.google.com [209.85.215.173])
+Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com [209.85.216.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8AA79EA8
-	for <virtualization@lists.linux.dev>; Tue,  9 Jan 2024 08:41:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9FB735EFC
+	for <virtualization@lists.linux.dev>; Tue,  9 Jan 2024 08:41:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="Qb2+G5PT"
-Received: by mail-pg1-f173.google.com with SMTP id 41be03b00d2f7-5ce942efda5so1997485a12.2
-        for <virtualization@lists.linux.dev>; Tue, 09 Jan 2024 00:41:01 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="SEREHgSR"
+Received: by mail-pj1-f49.google.com with SMTP id 98e67ed59e1d1-28cc07d8876so1504154a91.1
+        for <virtualization@lists.linux.dev>; Tue, 09 Jan 2024 00:41:03 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1704789661; x=1705394461; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=9wYpp3OYvmWsAtzJnbqql3qjVLEUjHL49vz1VsGi0Ho=;
-        b=Qb2+G5PTu/ezAo+yjB30u5YPluC6s0OtomGjKE+4mO19MHxlE56tnedcn+jggJl7Sx
-         0hfkayxRzT+SR7SK56NlQwt0OiDHMYJtrYjCTerSAX3iLzTWck+f1YEnh5W7EJSMmWIp
-         HlqHyfU0GUGD7axpbpu5kI9vGNxFYglS09+7o=
+        d=broadcom.com; s=google; t=1704789663; x=1705394463; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=yGIzhL7QiBJFkwlC84l4JtgAxPW7nCL9ZrpZ+JYeVUM=;
+        b=SEREHgSRcVesOVabTYHAOxtK8bQFZGBHR5U3iE1ShsQglEYezKQZ36/MO97S/8rTi8
+         FBFPkH00Fwfvk+HeXzxQpplJ61tkOWBGPOU2NEUy4sNGntbWjVgD4V4UMji43LBVuS9u
+         Rxx6C4GzeM3PCllYY2TI5alf8D9yxwpPuO7Dw=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1704789661; x=1705394461;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=9wYpp3OYvmWsAtzJnbqql3qjVLEUjHL49vz1VsGi0Ho=;
-        b=VaaiZwlSuVqDcMfIGg0/ORw0jk8wTJExXhqVtOc7/qvDnWS/GJ0DVHnp6hHYMlr8OD
-         xgbUCYmZ4yuIfY/anZwiQ0KsWwhftxpSKKdx9uM2u1Yui4OKJ0wi2GoD1bQiXBU8zttV
-         4CDRi8nFwR5fXVoVIfvD7GKh3TbMN3XeoDS319KMx4Qlmqdlxiy7RKI0Pr//nVz58a4E
-         f10IwYt1E9D2x5ZRh6euNdY3JBmk8DsrxAthYOKxXImeqbBHMW8H3yuZgKy+g5287SSU
-         YdVyNzwgJwrXVnj20teu1nkQ+hBRHyTRhwYc7lgsSOqP8n0ZdBgVRfSiguTp+i3bfmHa
-         FxPA==
-X-Gm-Message-State: AOJu0YythVVQmA0VEx4ozSXIjtRGbq7pn8sOx8FiKnzXa2KzY4cjouJ9
-	Q8D9NoKFvCJwCd8ovTHU6tuoF8wL0f1T
-X-Google-Smtp-Source: AGHT+IGDNGili/eLI8MrSuIhgm8F/yz/d9X4r6v9ZFf88z3SxEXpihXxyC9q87KVaZRg+wy02GCoCA==
-X-Received: by 2002:a05:6a20:1446:b0:199:c5b5:8f18 with SMTP id a6-20020a056a20144600b00199c5b58f18mr2129019pzi.14.1704789660801;
-        Tue, 09 Jan 2024 00:41:00 -0800 (PST)
+        d=1e100.net; s=20230601; t=1704789663; x=1705394463;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=yGIzhL7QiBJFkwlC84l4JtgAxPW7nCL9ZrpZ+JYeVUM=;
+        b=PrLyRDx/aRLDnbaVc3JDPMFJHwyVUgzyhMJfpAOfAvdKMvGqbSov9/aRdWQ88YLFYR
+         odhH6JzxOBx/koL1C9rgbtt0iRyztR+fXxon3XR8UwN+8KuheeL00No+ZtNdtyyqdps3
+         UWZr/Fxmw73nfxypFyZZWnDtTUeC6UWXGiE6Zn4NChm+XVZ1p6rmFstiKS/NisQNoK4T
+         A1ZxQL19/OpW7hCvogAD6WGDXaZyzcmqyF3nVpVdbnTMRWCKpc1FAXz/lK4TVmZ4/8wA
+         l+xAvjSK0jRp/94r8twi99fg3VqhfBBVhJrVCLAGg+sqQwg2yLR0XfWUEy8ab8MLV10L
+         X8ag==
+X-Gm-Message-State: AOJu0YzEVUzUxcmAl428yMgxNI5Ce3yZjzjCsLdAXk8qxP+T9HpIT3RG
+	MdIttw8K9SETzUwCjBuO7mTkfsGXY1sx
+X-Google-Smtp-Source: AGHT+IFwhg0QPgY1zieo2mYaER5J++Hqqx/FALBiHvj1m0CoJbfRm3Oju7tMnr9qpw3bVSOjNCfmzg==
+X-Received: by 2002:a17:90b:4d8e:b0:28c:be1d:71b with SMTP id oj14-20020a17090b4d8e00b0028cbe1d071bmr2072134pjb.24.1704789663221;
+        Tue, 09 Jan 2024 00:41:03 -0800 (PST)
 Received: from amakhalov-build-vm.eng.vmware.com ([128.177.82.146])
-        by smtp.gmail.com with ESMTPSA id sf15-20020a17090b51cf00b0028d435cc2cbsm4772293pjb.15.2024.01.09.00.40.58
+        by smtp.gmail.com with ESMTPSA id sf15-20020a17090b51cf00b0028d435cc2cbsm4772293pjb.15.2024.01.09.00.41.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Jan 2024 00:41:00 -0800 (PST)
+        Tue, 09 Jan 2024 00:41:02 -0800 (PST)
 From: Alexey Makhalov <alexey.makhalov@broadcom.com>
 X-Google-Original-From: Alexey Makhalov <amakhalov@vmware.com>
 To: linux-kernel@vger.kernel.org,
@@ -67,10 +68,12 @@ Cc: x86@kernel.org,
 	maarten.lankhorst@linux.intel.com,
 	horms@kernel.org,
 	kirill.shutemov@linux.intel.com
-Subject: [PATCH v6 0/7] VMware hypercalls enhancements
-Date: Tue,  9 Jan 2024 00:40:45 -0800
-Message-Id: <20240109084052.58661-1-amakhalov@vmware.com>
+Subject: [PATCH v6 1/7] x86/vmware: Move common macros to vmware.h
+Date: Tue,  9 Jan 2024 00:40:46 -0800
+Message-Id: <20240109084052.58661-2-amakhalov@vmware.com>
 X-Mailer: git-send-email 2.39.0
+In-Reply-To: <20240109084052.58661-1-amakhalov@vmware.com>
+References: <20240109084052.58661-1-amakhalov@vmware.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -79,81 +82,200 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-VMware hypercalls invocations were all spread out across the kernel
-implementing same ABI as in-place asm-inline. With encrypted memory
-and confidential computing it became harder to maintain every changes
-in these hypercall implementations.
+Move VMware hypercall macros to vmware.h. This is a prerequisite for
+the introduction of vmware_hypercall API. No functional changes besides
+exporting vmware_hypercall_mode symbol.
 
-Intention of this patchset is to introduce arch independent VMware
-hypercall API layer other subsystems such as device drivers can call
-to, while hiding architecture specific implementation behind.
+Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
+Reviewed-by: Nadav Amit <namit@vmware.com>
+---
+ arch/x86/include/asm/vmware.h | 72 +++++++++++++++++++++++++++++------
+ arch/x86/kernel/cpu/vmware.c  | 57 +++------------------------
+ 2 files changed, 66 insertions(+), 63 deletions(-)
 
-Second patch introduces the vmware_hypercall low and high bandwidth
-families of functions, with little enhancements there.
-Sixth patch adds tdx hypercall support
-
-arm64 implementation of vmware_hypercalls is in drivers/gpu/drm/
-vmwgfx/vmwgfx_msg_arm64.h and going to be moved to arch/arm64 with
-a separate patchset with the introduction of VMware Linux guest
-support for arm64.
-
-No functional changes in drivers/input/mouse/vmmouse.c and
-drivers/ptp/ptp_vmw.c
-
-v5->v6 change:
-- Added ack by Kirill A. Shutemov in patch 7. 
-
-v4->v5 changes:
-  [patch 2]:
-- Fixed the problem reported by Simon Horman where build fails after
-  patch 2 application. Do not undefine VMWARE_HYPERCALL for now, and
-  update vmwgfx, vmmouse and ptp_vmw code for new VMWARE_HYPERCALL macro.
-- Introduce new patch 6 to undefine VMWARE_HYPERCALL, which is safe to do
-  after patches 3 to 5.
-- [patch 7 (former patch 6)]: Add missing r15 (CPL) initialization.
-
-v3->v4 changes: (no functional changes in patches 1-5)
-  [patch 2]:
-- Added the comment with VMware hypercall ABI description.
-  [patch 6]:
-- vmware_tdx_hypercall_args remove in6/out6 arguments as excessive.
-- vmware_tdx_hypercall return ULONG_MAX on error to mimic bad hypercall
-  command error from the hypervisor.
-- Replaced pr_warn by pr_warn_once as pointed by Kirill Shutemov.
-- Fixed the warning reported by Intel's kernel test robot.
-- Added the comment describing VMware TDX hypercall ABI.
-
-v2->v3 changes: (no functional changes in patches 1-5)
-- Improved commit message in patches 1, 2 and 5 as was suggested by
-  Borislav Petkov.
-- To address Dave Hansen's concern, patch 6 was reorganized to avoid
-  exporting bare __tdx_hypercall and to make exported vmware_tdx_hypercall
-  VMWare guest specific.
-
-v1->v2 changes (no functional changes):
-- Improved commit message in patches 2 and 5.
-- Added Reviewed-by for all patches.
-- Added Ack from Dmitry Torokhov in patch 4. No fixes regarding reported
-  by Simon Horman gcc error in this patch.
-
-Alexey Makhalov (7):
-  x86/vmware: Move common macros to vmware.h
-  x86/vmware: Introduce VMware hypercall API
-  ptp/vmware: Use VMware hypercall API
-  input/vmmouse: Use VMware hypercall API
-  drm/vmwgfx: Use VMware hypercall API
-  x86/vmware: Undefine VMWARE_HYPERCALL
-  x86/vmware: Add TDX hypercall support
-
- arch/x86/include/asm/vmware.h             | 364 ++++++++++++++++++++--
- arch/x86/kernel/cpu/vmware.c              | 117 +++----
- drivers/gpu/drm/vmwgfx/vmwgfx_msg.c       | 173 ++++------
- drivers/gpu/drm/vmwgfx/vmwgfx_msg_arm64.h | 197 ++++++++----
- drivers/gpu/drm/vmwgfx/vmwgfx_msg_x86.h   | 185 -----------
- drivers/input/mouse/vmmouse.c             |  76 ++---
- drivers/ptp/ptp_vmw.c                     |  12 +-
- 7 files changed, 599 insertions(+), 525 deletions(-)
-
+diff --git a/arch/x86/include/asm/vmware.h b/arch/x86/include/asm/vmware.h
+index ac9fc51e2b18..de2533337611 100644
+--- a/arch/x86/include/asm/vmware.h
++++ b/arch/x86/include/asm/vmware.h
+@@ -8,25 +8,34 @@
+ 
+ /*
+  * The hypercall definitions differ in the low word of the %edx argument
+- * in the following way: the old port base interface uses the port
+- * number to distinguish between high- and low bandwidth versions.
++ * in the following way: the old I/O port based interface uses the port
++ * number to distinguish between high- and low bandwidth versions, and
++ * uses IN/OUT instructions to define transfer direction.
+  *
+  * The new vmcall interface instead uses a set of flags to select
+  * bandwidth mode and transfer direction. The flags should be loaded
+  * into %dx by any user and are automatically replaced by the port
+- * number if the VMWARE_HYPERVISOR_PORT method is used.
+- *
+- * In short, new driver code should strictly use the new definition of
+- * %dx content.
++ * number if the I/O port method is used.
+  */
+ 
+-/* Old port-based version */
+-#define VMWARE_HYPERVISOR_PORT    0x5658
+-#define VMWARE_HYPERVISOR_PORT_HB 0x5659
++#define VMWARE_HYPERVISOR_HB		BIT(0)
++#define VMWARE_HYPERVISOR_OUT		BIT(1)
++
++#define VMWARE_HYPERVISOR_PORT		0x5658
++#define VMWARE_HYPERVISOR_PORT_HB	(VMWARE_HYPERVISOR_PORT | \
++					 VMWARE_HYPERVISOR_HB)
++
++#define VMWARE_HYPERVISOR_MAGIC		0x564d5868U
++
++#define VMWARE_CMD_GETVERSION		10
++#define VMWARE_CMD_GETHZ		45
++#define VMWARE_CMD_GETVCPU_INFO		68
++#define VMWARE_CMD_STEALCLOCK		91
++
++#define CPUID_VMWARE_FEATURES_ECX_VMMCALL	BIT(0)
++#define CPUID_VMWARE_FEATURES_ECX_VMCALL	BIT(1)
+ 
+-/* Current vmcall / vmmcall version */
+-#define VMWARE_HYPERVISOR_HB   BIT(0)
+-#define VMWARE_HYPERVISOR_OUT  BIT(1)
++extern u8 vmware_hypercall_mode;
+ 
+ /* The low bandwidth call. The low word of edx is presumed clear. */
+ #define VMWARE_HYPERCALL						\
+@@ -54,4 +63,43 @@
+ 		      "rep insb",					\
+ 		      "vmcall", X86_FEATURE_VMCALL,			\
+ 		      "vmmcall", X86_FEATURE_VMW_VMMCALL)
++
++#define VMWARE_PORT(cmd, eax, ebx, ecx, edx)				\
++	__asm__("inl (%%dx), %%eax" :					\
++		"=a"(eax), "=c"(ecx), "=d"(edx), "=b"(ebx) :		\
++		"a"(VMWARE_HYPERVISOR_MAGIC),				\
++		"c"(VMWARE_CMD_##cmd),					\
++		"d"(VMWARE_HYPERVISOR_PORT), "b"(UINT_MAX) :		\
++		"memory")
++
++#define VMWARE_VMCALL(cmd, eax, ebx, ecx, edx)				\
++	__asm__("vmcall" :						\
++		"=a"(eax), "=c"(ecx), "=d"(edx), "=b"(ebx) :		\
++		"a"(VMWARE_HYPERVISOR_MAGIC),				\
++		"c"(VMWARE_CMD_##cmd),					\
++		"d"(0), "b"(UINT_MAX) :					\
++		"memory")
++
++#define VMWARE_VMMCALL(cmd, eax, ebx, ecx, edx)				\
++	__asm__("vmmcall" :						\
++		"=a"(eax), "=c"(ecx), "=d"(edx), "=b"(ebx) :		\
++		"a"(VMWARE_HYPERVISOR_MAGIC),				\
++		"c"(VMWARE_CMD_##cmd),					\
++		"d"(0), "b"(UINT_MAX) :					\
++		"memory")
++
++#define VMWARE_CMD(cmd, eax, ebx, ecx, edx) do {		\
++	switch (vmware_hypercall_mode) {			\
++	case CPUID_VMWARE_FEATURES_ECX_VMCALL:			\
++		VMWARE_VMCALL(cmd, eax, ebx, ecx, edx);		\
++		break;						\
++	case CPUID_VMWARE_FEATURES_ECX_VMMCALL:			\
++		VMWARE_VMMCALL(cmd, eax, ebx, ecx, edx);	\
++		break;						\
++	default:						\
++		VMWARE_PORT(cmd, eax, ebx, ecx, edx);		\
++		break;						\
++	}							\
++	} while (0)
++
+ #endif
+diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
+index 11f83d07925e..4db8e1daa4a1 100644
+--- a/arch/x86/kernel/cpu/vmware.c
++++ b/arch/x86/kernel/cpu/vmware.c
+@@ -41,60 +41,14 @@
+ 
+ #define CPUID_VMWARE_INFO_LEAF               0x40000000
+ #define CPUID_VMWARE_FEATURES_LEAF           0x40000010
+-#define CPUID_VMWARE_FEATURES_ECX_VMMCALL    BIT(0)
+-#define CPUID_VMWARE_FEATURES_ECX_VMCALL     BIT(1)
+ 
+-#define VMWARE_HYPERVISOR_MAGIC	0x564D5868
+-
+-#define VMWARE_CMD_GETVERSION    10
+-#define VMWARE_CMD_GETHZ         45
+-#define VMWARE_CMD_GETVCPU_INFO  68
+-#define VMWARE_CMD_LEGACY_X2APIC  3
+-#define VMWARE_CMD_VCPU_RESERVED 31
+-#define VMWARE_CMD_STEALCLOCK    91
++#define VCPU_LEGACY_X2APIC	3
++#define VCPU_RESERVED		31
+ 
+ #define STEALCLOCK_NOT_AVAILABLE (-1)
+ #define STEALCLOCK_DISABLED        0
+ #define STEALCLOCK_ENABLED         1
+ 
+-#define VMWARE_PORT(cmd, eax, ebx, ecx, edx)				\
+-	__asm__("inl (%%dx), %%eax" :					\
+-		"=a"(eax), "=c"(ecx), "=d"(edx), "=b"(ebx) :		\
+-		"a"(VMWARE_HYPERVISOR_MAGIC),				\
+-		"c"(VMWARE_CMD_##cmd),					\
+-		"d"(VMWARE_HYPERVISOR_PORT), "b"(UINT_MAX) :		\
+-		"memory")
+-
+-#define VMWARE_VMCALL(cmd, eax, ebx, ecx, edx)				\
+-	__asm__("vmcall" :						\
+-		"=a"(eax), "=c"(ecx), "=d"(edx), "=b"(ebx) :		\
+-		"a"(VMWARE_HYPERVISOR_MAGIC),				\
+-		"c"(VMWARE_CMD_##cmd),					\
+-		"d"(0), "b"(UINT_MAX) :					\
+-		"memory")
+-
+-#define VMWARE_VMMCALL(cmd, eax, ebx, ecx, edx)                         \
+-	__asm__("vmmcall" :						\
+-		"=a"(eax), "=c"(ecx), "=d"(edx), "=b"(ebx) :		\
+-		"a"(VMWARE_HYPERVISOR_MAGIC),				\
+-		"c"(VMWARE_CMD_##cmd),					\
+-		"d"(0), "b"(UINT_MAX) :					\
+-		"memory")
+-
+-#define VMWARE_CMD(cmd, eax, ebx, ecx, edx) do {		\
+-	switch (vmware_hypercall_mode) {			\
+-	case CPUID_VMWARE_FEATURES_ECX_VMCALL:			\
+-		VMWARE_VMCALL(cmd, eax, ebx, ecx, edx);		\
+-		break;						\
+-	case CPUID_VMWARE_FEATURES_ECX_VMMCALL:			\
+-		VMWARE_VMMCALL(cmd, eax, ebx, ecx, edx);	\
+-		break;						\
+-	default:						\
+-		VMWARE_PORT(cmd, eax, ebx, ecx, edx);		\
+-		break;						\
+-	}							\
+-	} while (0)
+-
+ struct vmware_steal_time {
+ 	union {
+ 		uint64_t clock;	/* stolen time counter in units of vtsc */
+@@ -108,7 +62,8 @@ struct vmware_steal_time {
+ };
+ 
+ static unsigned long vmware_tsc_khz __ro_after_init;
+-static u8 vmware_hypercall_mode     __ro_after_init;
++u8 vmware_hypercall_mode __ro_after_init;
++EXPORT_SYMBOL_GPL(vmware_hypercall_mode);
+ 
+ static inline int __vmware_platform(void)
+ {
+@@ -476,8 +431,8 @@ static bool __init vmware_legacy_x2apic_available(void)
+ {
+ 	uint32_t eax, ebx, ecx, edx;
+ 	VMWARE_CMD(GETVCPU_INFO, eax, ebx, ecx, edx);
+-	return !(eax & BIT(VMWARE_CMD_VCPU_RESERVED)) &&
+-		(eax & BIT(VMWARE_CMD_LEGACY_X2APIC));
++	return !(eax & BIT(VCPU_RESERVED)) &&
++		(eax & BIT(VCPU_LEGACY_X2APIC));
+ }
+ 
+ #ifdef CONFIG_AMD_MEM_ENCRYPT
 -- 
 2.39.0
 
