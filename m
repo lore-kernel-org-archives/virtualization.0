@@ -1,246 +1,206 @@
-Received: from dggsgout11.his.huawei.com (unknown [45.249.212.51])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 211F52A1D3
-	for <virtualization@lists.linux.dev>; Wed, 10 Jan 2024 01:16:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=huaweicloud.com
-Received: from mail.maildlp.com (unknown [172.19.163.216])
-	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4T8qdb2ZChz4f3jLr
-	for <virtualization@lists.linux.dev>; Wed, 10 Jan 2024 09:16:51 +0800 (CST)
-Received: from mail02.huawei.com (unknown [10.116.40.112])
-	by mail.maildlp.com (Postfix) with ESMTP id 4D56B1A01E9
-	for <virtualization@lists.linux.dev>; Wed, 10 Jan 2024 09:16:53 +0800 (CST)
-Received: from [10.174.176.117] (unknown [10.174.176.117])
-	by APP1 (Coremail) with SMTP id cCh0CgC3hxAB8J1lBYp_AQ--.55646S2;
-	Wed, 10 Jan 2024 09:16:53 +0800 (CST)
-Subject: Re: [PATCH] virtiofs: limit the length of ITER_KVEC dio by
- max_nopage_rw
-To: Bernd Schubert <bernd.schubert@fastmail.fm>, linux-fsdevel@vger.kernel.org
-Cc: Miklos Szeredi <miklos@szeredi.hu>, Vivek Goyal <vgoyal@redhat.com>,
- Stefan Hajnoczi <stefanha@redhat.com>, "Michael S . Tsirkin"
- <mst@redhat.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev, houtao1@huawei.com
-References: <20240103105929.1902658-1-houtao@huaweicloud.com>
- <b6c0d521-bba8-447f-b114-0a679ca89e4b@fastmail.fm>
-From: Hou Tao <houtao@huaweicloud.com>
-Message-ID: <c71c80af-2813-dee5-a8e5-3782b34e9eb9@huaweicloud.com>
-Date: Wed, 10 Jan 2024 09:16:49 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.0
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A64B20E8
+	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 02:19:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="haLiI+wq"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id AB1CA435F3
+	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 02:19:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AB1CA435F3
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=haLiI+wq
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.101
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 2E_N7hhSOL9v
+	for <virtualization@lists.linux-foundation.org>;
+	Wed, 10 Jan 2024 02:19:38 +0000 (UTC)
+Received: from mail-oi1-x236.google.com (mail-oi1-x236.google.com [IPv6:2607:f8b0:4864:20::236])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 67461402F4
+	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 02:19:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 67461402F4
+Received: by mail-oi1-x236.google.com with SMTP id 5614622812f47-3bbd6f87959so2935446b6e.1
+        for <virtualization@lists.linux-foundation.org>; Tue, 09 Jan 2024 18:19:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1704853177; x=1705457977; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=BDxSSelDpoPAQNyNUVcKc0KClc7DkRzMA025xPQnKWc=;
+        b=haLiI+wquA73br+2abhyzwgq9R0tLaY1NSjB0RTBADVeo5zBLj9nsSQ5dran05cqtp
+         lN5rs3n2+uh6GrtYIemL2sM5eL0TNp575m75xF0GeGSQOD32sTZMfik1wvDTwKUeozLM
+         N0jryjL8WF6rYd5C3v8m/Cy4bGUDJIlfPe8fc=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1704853177; x=1705457977;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=BDxSSelDpoPAQNyNUVcKc0KClc7DkRzMA025xPQnKWc=;
+        b=lo521ZHvoFv/1Z/HpoosOdtSv7pYiDJuT1m7hf9nq+nKWIHQMBBeHqXv3s5dwzTIN0
+         NnGWByl6A4vPtLoJor7p19I3rOHEKHjyZKvxk3x4KYqesD4JyzF9Yw/nJiFUt++8p0rA
+         PGiAi3rE7x3Gvyi6XzG3TLTrvEZ+WsEvh3lLyUfqLcWrFBMK8DQ1UPENTWA2j0kiwNUT
+         BdvN3gqi6NRIak9TgWuDvbllS7e7UeLO/Y6anxI5k6LQ/REw7s1QbYcB4yJR8aD+pjxX
+         lfV3ijhMiDgSDUxvoaZR2Rhx6TTAAvl0BtqcZ4j8dqZB7nsQCUm/1sPdBxWRLlGpIC7i
+         zYtQ==
+X-Gm-Message-State: AOJu0Yzqr5Pv/Vp/QYquNA448s8J8G9w4XLiBvL2oLXJDz6IuGdrcaMh
+	oX7ch3iCKHLrQtU8saOPR8TVkiRVauHP
+X-Google-Smtp-Source: AGHT+IFKHS5gDIO09q4/OhKTSjfjm+tc4wEqOP2FsjkQaw+kuulPuiBk57t/oQBggGgZgoQQef8G/A==
+X-Received: by 2002:a05:6808:1289:b0:3bc:316b:e5a8 with SMTP id a9-20020a056808128900b003bc316be5a8mr394036oiw.54.1704853177387;
+        Tue, 09 Jan 2024 18:19:37 -0800 (PST)
+Received: from localhost ([2401:fa00:8f:203:9106:7b1d:78f7:d925])
+        by smtp.gmail.com with UTF8SMTPSA id y13-20020aa7854d000000b006d9bb4400f0sm2337199pfn.88.2024.01.09.18.19.35
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 09 Jan 2024 18:19:36 -0800 (PST)
+From: David Stevens <stevensd@chromium.org>
+X-Google-Original-From: David Stevens <stevensd@google.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>,
+	David Hildenbrand <david@redhat.com>
+Cc: virtualization@lists.linux-foundation.org,
+	linux-kernel@vger.kernel.org,
+	David Stevens <stevensd@chromium.org>
+Subject: [PATCH v3] virtio_balloon: stay awake while adjusting balloon
+Date: Wed, 10 Jan 2024 11:19:25 +0900
+Message-ID: <20240110021925.1137333-1-stevensd@google.com>
+X-Mailer: git-send-email 2.43.0.472.g3155946c3a-goog
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <b6c0d521-bba8-447f-b114-0a679ca89e4b@fastmail.fm>
-Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-CM-TRANSID:cCh0CgC3hxAB8J1lBYp_AQ--.55646S2
-X-Coremail-Antispam: 1UD129KBjvJXoW3ArW7Cw1rWw1ruFykZr1xGrg_yoW3uFyxpr
-	s3tFW5ZrWfJF1kCr17JF1UZryrAw18Ganrtr1rXasavr47Ar9F9F4UXFyjgFy7ArW8Jr1I
-	qr4qqry7Zrs0vaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUyEb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k2
-	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
-	vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7Cj
-	xVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x
-	0267AKxVW0oVCq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG
-	6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFV
-	Cjc4AY6r1j6r4UM4x0Y48IcVAKI48JMxk0xIA0c2IEe2xFo4CEbIxvr21l42xK82IYc2Ij
-	64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
-	8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE
-	2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r1j6r4UMIIF0xvE42
-	xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
-	c7CjxVAFwI0_Jr0_GrUvcSsGvfC2KfnxnUUI43ZEXa7IU1zuWJUUUUU==
-X-CM-SenderInfo: xkrx3t3r6k3tpzhluzxrxghudrp/
 
-Hi,
+From: David Stevens <stevensd@chromium.org>
 
-On 1/9/2024 9:11 PM, Bernd Schubert wrote:
->
->
-> On 1/3/24 11:59, Hou Tao wrote:
->> From: Hou Tao <houtao1@huawei.com>
->>
->> When trying to insert a 10MB kernel module kept in a virtiofs with cache
->> disabled, the following warning was reported:
->>
->>    ------------[ cut here ]------------
->>    WARNING: CPU: 2 PID: 439 at mm/page_alloc.c:4544 ......
->>    Modules linked in:
->>    CPU: 2 PID: 439 Comm: insmod Not tainted 6.7.0-rc7+ #33
->>    Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), ......
->>    RIP: 0010:__alloc_pages+0x2c4/0x360
->>    ......
->>    Call Trace:
->>     <TASK>
->>     ? __warn+0x8f/0x150
->>     ? __alloc_pages+0x2c4/0x360
->>     __kmalloc_large_node+0x86/0x160
->>     __kmalloc+0xcd/0x140
->>     virtio_fs_enqueue_req+0x240/0x6d0
->>     virtio_fs_wake_pending_and_unlock+0x7f/0x190
->>     queue_request_and_unlock+0x58/0x70
->>     fuse_simple_request+0x18b/0x2e0
->>     fuse_direct_io+0x58a/0x850
->>     fuse_file_read_iter+0xdb/0x130
->>     __kernel_read+0xf3/0x260
->>     kernel_read+0x45/0x60
->>     kernel_read_file+0x1ad/0x2b0
->>     init_module_from_file+0x6a/0xe0
->>     idempotent_init_module+0x179/0x230
->>     __x64_sys_finit_module+0x5d/0xb0
->>     do_syscall_64+0x36/0xb0
->>     entry_SYSCALL_64_after_hwframe+0x6e/0x76
->>     ......
->>     </TASK>
->>    ---[ end trace 0000000000000000 ]---
->>
->> The warning happened as follow. In copy_args_to_argbuf(), virtiofs uses
->> kmalloc-ed memory as bound buffer for fuse args, but
->> fuse_get_user_pages() only limits the length of fuse arg by max_read or
->> max_write for IOV_KVEC io (e.g., kernel_read_file from finit_module()).
->> For virtiofs, max_read is UINT_MAX, so a big read request which is about
->
->
-> I find this part of the explanation a bit confusing. I guess you
-> wanted to write something like
->
-> fuse_direct_io() -> fuse_get_user_pages() is limited by
-> fc->max_write/fc->max_read and fc->max_pages. For virtiofs max_pages
-> does not apply as ITER_KVEC is used. As virtiofs sets fc->max_read to
-> UINT_MAX basically no limit is applied at all.
+A virtio_balloon's parent device may be configured so that a
+configuration change interrupt is a wakeup event. Extend the processing
+of such a wakeup event until the balloon finishes inflating or deflating
+by calling pm_stay_awake/pm_relax in the virtio_balloon driver. Note
+that these calls are no-ops if the parent device doesn't support wakeup
+events or if the wakeup events are not enabled.
 
-Yes, what you said is just as expected but it is not the root cause of
-the warning. The culprit of the warning is kmalloc() in
-copy_args_to_argbuf() just as said in commit message. vmalloc() is also
-not acceptable, because the physical memory needs to be contiguous. For
-the problem, because there is no page involved, so there will be extra
-sg available, maybe we can use these sg to break the big read/write
-request into page.
->
-> I also wonder if it wouldn't it make sense to set a sensible limit in
-> virtio_fs_ctx_set_defaults() instead of introducing a new variable?
+This change allows the guest to use system power states such as s2idle
+without running the risk the virtio_balloon's cooperative memory
+management becoming unresponsive to the host's requests.
 
-As said in the commit message:
+Signed-off-by: David Stevens <stevensd@chromium.org>
+---
+v2->v3:
+ - Use _irq spinlock functions with adjustment_lock in workqueue, since
+   the lock is accessed in an interrupt context.
+v1 -> v2:
+ - Use adjustment_signal_pending flag instead of a sequence number
+ - Call pm_stay_awake/pm_relax on parent device instead of adding a wake
+   event to the virtio balloon device
 
-A feasible solution is to limit the value of max_read for virtiofs, so
-the length passed to kmalloc() will be limited. However it will affects
-the max read size for ITER_IOVEC io and the value of max_write also needs
-limitation.
+ drivers/virtio/virtio_balloon.c | 57 +++++++++++++++++++++++++++------
+ 1 file changed, 47 insertions(+), 10 deletions(-)
 
-It is a bit hard to set a reasonable value for both max_read and
-max_write to handle both normal ITER_IOVEC io and ITER_KVEC io. And
-considering ITER_KVEC io + dio case is uncommon, I think using a new
-limitation is more reasonable.
->
-> Also, I guess the issue is kmalloc_array() in virtio_fs_enqueue_req?
-> Wouldn't it make sense to use kvm_alloc_array/kvfree in that function?
->
->
-> Thanks,
-> Bernd
->
->
->> 10MB is passed to copy_args_to_argbuf(), kmalloc() is called in turn
->> with len=10MB, and triggers the warning in __alloc_pages():
->> WARN_ON_ONCE_GFP(order > MAX_ORDER, gfp)).
->>
->> A feasible solution is to limit the value of max_read for virtiofs, so
->> the length passed to kmalloc() will be limited. However it will affects
->> the max read size for ITER_IOVEC io and the value of max_write also
->> needs
->> limitation. So instead of limiting the values of max_read and max_write,
->> introducing max_nopage_rw to cap both the values of max_read and
->> max_write when the fuse dio read/write request is initiated from kernel.
->>
->> Considering that fuse read/write request from kernel is uncommon and to
->> decrease the demand for large contiguous pages, set max_nopage_rw as
->> 256KB instead of KMALLOC_MAX_SIZE - 4096 or similar.
->>
->> Fixes: a62a8ef9d97d ("virtio-fs: add virtiofs filesystem")
->> Signed-off-by: Hou Tao <houtao1@huawei.com>
->> ---
->>   fs/fuse/file.c      | 12 +++++++++++-
->>   fs/fuse/fuse_i.h    |  3 +++
->>   fs/fuse/inode.c     |  1 +
->>   fs/fuse/virtio_fs.c |  6 ++++++
->>   4 files changed, 21 insertions(+), 1 deletion(-)
->>
->> diff --git a/fs/fuse/file.c b/fs/fuse/file.c
->> index a660f1f21540..f1beb7c0b782 100644
->> --- a/fs/fuse/file.c
->> +++ b/fs/fuse/file.c
->> @@ -1422,6 +1422,16 @@ static int fuse_get_user_pages(struct
->> fuse_args_pages *ap, struct iov_iter *ii,
->>       return ret < 0 ? ret : 0;
->>   }
->>   +static size_t fuse_max_dio_rw_size(const struct fuse_conn *fc,
->> +                   const struct iov_iter *iter, int write)
->> +{
->> +    unsigned int nmax = write ? fc->max_write : fc->max_read;
->> +
->> +    if (iov_iter_is_kvec(iter))
->> +        nmax = min(nmax, fc->max_nopage_rw);
->> +    return nmax;
->> +}
->> +
->>   ssize_t fuse_direct_io(struct fuse_io_priv *io, struct iov_iter *iter,
->>                  loff_t *ppos, int flags)
->>   {
->> @@ -1432,7 +1442,7 @@ ssize_t fuse_direct_io(struct fuse_io_priv *io,
->> struct iov_iter *iter,
->>       struct inode *inode = mapping->host;
->>       struct fuse_file *ff = file->private_data;
->>       struct fuse_conn *fc = ff->fm->fc;
->> -    size_t nmax = write ? fc->max_write : fc->max_read;
->> +    size_t nmax = fuse_max_dio_rw_size(fc, iter, write);
->>       loff_t pos = *ppos;
->>       size_t count = iov_iter_count(iter);
->>       pgoff_t idx_from = pos >> PAGE_SHIFT;
->> diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
->> index 1df83eebda92..fc753cd34211 100644
->> --- a/fs/fuse/fuse_i.h
->> +++ b/fs/fuse/fuse_i.h
->> @@ -594,6 +594,9 @@ struct fuse_conn {
->>       /** Constrain ->max_pages to this value during feature
->> negotiation */
->>       unsigned int max_pages_limit;
->>   +    /** Maximum read/write size when there is no page in request */
->> +    unsigned int max_nopage_rw;
->> +
->>       /** Input queue */
->>       struct fuse_iqueue iq;
->>   diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
->> index 2a6d44f91729..4cbbcb4a4b71 100644
->> --- a/fs/fuse/inode.c
->> +++ b/fs/fuse/inode.c
->> @@ -923,6 +923,7 @@ void fuse_conn_init(struct fuse_conn *fc, struct
->> fuse_mount *fm,
->>       fc->user_ns = get_user_ns(user_ns);
->>       fc->max_pages = FUSE_DEFAULT_MAX_PAGES_PER_REQ;
->>       fc->max_pages_limit = FUSE_MAX_MAX_PAGES;
->> +    fc->max_nopage_rw = UINT_MAX;
->>         INIT_LIST_HEAD(&fc->mounts);
->>       list_add(&fm->fc_entry, &fc->mounts);
->> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
->> index 5f1be1da92ce..3aac31d45198 100644
->> --- a/fs/fuse/virtio_fs.c
->> +++ b/fs/fuse/virtio_fs.c
->> @@ -1452,6 +1452,12 @@ static int virtio_fs_get_tree(struct
->> fs_context *fsc)
->>       /* Tell FUSE to split requests that exceed the virtqueue's size */
->>       fc->max_pages_limit = min_t(unsigned int, fc->max_pages_limit,
->>                       virtqueue_size - FUSE_HEADER_OVERHEAD);
->> +    /* copy_args_to_argbuf() uses kmalloc-ed memory as bounce buffer
->> +     * for fuse args, so limit the total size of these args to prevent
->> +     * the warning in __alloc_pages() and decrease the demand for large
->> +     * contiguous pages.
->> +     */
->> +    fc->max_nopage_rw = min(fc->max_nopage_rw, 256U << 10);
->>         fsc->s_fs_info = fm;
->>       sb = sget_fc(fsc, virtio_fs_test_super, set_anon_super_fc);
-> .
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 1fe93e93f5bc..fa710e6c505a 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -119,6 +119,11 @@ struct virtio_balloon {
+ 	/* Free page reporting device */
+ 	struct virtqueue *reporting_vq;
+ 	struct page_reporting_dev_info pr_dev_info;
++
++	/* State for keeping the wakeup_source active while adjusting the balloon */
++	spinlock_t adjustment_lock;
++	bool adjustment_signal_pending;
++	bool adjustment_in_progress;
+ };
+ 
+ static const struct virtio_device_id id_table[] = {
+@@ -437,6 +442,31 @@ static void virtio_balloon_queue_free_page_work(struct virtio_balloon *vb)
+ 	queue_work(vb->balloon_wq, &vb->report_free_page_work);
+ }
+ 
++static void start_update_balloon_size(struct virtio_balloon *vb)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&vb->adjustment_lock, flags);
++	vb->adjustment_signal_pending = true;
++	if (!vb->adjustment_in_progress) {
++		vb->adjustment_in_progress = true;
++		pm_stay_awake(vb->vdev->dev.parent);
++	}
++	spin_unlock_irqrestore(&vb->adjustment_lock, flags);
++
++	queue_work(system_freezable_wq, &vb->update_balloon_size_work);
++}
++
++static void end_update_balloon_size(struct virtio_balloon *vb)
++{
++	spin_lock_irq(&vb->adjustment_lock);
++	if (!vb->adjustment_signal_pending && vb->adjustment_in_progress) {
++		vb->adjustment_in_progress = false;
++		pm_relax(vb->vdev->dev.parent);
++	}
++	spin_unlock_irq(&vb->adjustment_lock);
++}
++
+ static void virtballoon_changed(struct virtio_device *vdev)
+ {
+ 	struct virtio_balloon *vb = vdev->priv;
+@@ -444,8 +474,7 @@ static void virtballoon_changed(struct virtio_device *vdev)
+ 
+ 	spin_lock_irqsave(&vb->stop_update_lock, flags);
+ 	if (!vb->stop_update) {
+-		queue_work(system_freezable_wq,
+-			   &vb->update_balloon_size_work);
++		start_update_balloon_size(vb);
+ 		virtio_balloon_queue_free_page_work(vb);
+ 	}
+ 	spin_unlock_irqrestore(&vb->stop_update_lock, flags);
+@@ -476,19 +505,25 @@ static void update_balloon_size_func(struct work_struct *work)
+ 
+ 	vb = container_of(work, struct virtio_balloon,
+ 			  update_balloon_size_work);
+-	diff = towards_target(vb);
+ 
+-	if (!diff)
+-		return;
++	spin_lock_irq(&vb->adjustment_lock);
++	vb->adjustment_signal_pending = false;
++	spin_unlock_irq(&vb->adjustment_lock);
+ 
+-	if (diff > 0)
+-		diff -= fill_balloon(vb, diff);
+-	else
+-		diff += leak_balloon(vb, -diff);
+-	update_balloon_size(vb);
++	diff = towards_target(vb);
++
++	if (diff) {
++		if (diff > 0)
++			diff -= fill_balloon(vb, diff);
++		else
++			diff += leak_balloon(vb, -diff);
++		update_balloon_size(vb);
++	}
+ 
+ 	if (diff)
+ 		queue_work(system_freezable_wq, work);
++	else
++		end_update_balloon_size(vb);
+ }
+ 
+ static int init_vqs(struct virtio_balloon *vb)
+@@ -992,6 +1027,8 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ 			goto out_unregister_oom;
+ 	}
+ 
++	spin_lock_init(&vb->adjustment_lock);
++
+ 	virtio_device_ready(vdev);
+ 
+ 	if (towards_target(vb))
+-- 
+2.43.0.472.g3155946c3a-goog
 
