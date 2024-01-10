@@ -1,190 +1,199 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D52043A1CF
-	for <virtualization@lists.linux.dev>; Wed, 10 Jan 2024 08:01:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 991C2364B4
+	for <virtualization@lists.linux.dev>; Wed, 10 Jan 2024 08:11:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="b5NJQf9V"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GQ2qlt4z"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1704873714;
+	s=mimecast20190719; t=1704874269;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=vhS5A7tl/uywNAVxzqgUdgpEvRWCxnpPFs8rrAowgR0=;
-	b=b5NJQf9VKvqmdifcWdwl5O6wrlRuZiM4eM1Hv+G9dQqGWF0ZliCiq0tlxvJ8B8OLxPw0yu
-	4ZMrnHYsRLl5gmn5wVY8+GKXIw/ZRjkfpUff7JyD9vlLMjzzxFfhmRZdDvmkNnXbcpbNsS
-	Zs09kB1g7bpl4yiw5OlzD0KPLkMlgQU=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=BRhqVo2UG9ic38CL0B49IBcbUPAEZo2WecBFR7xi49o=;
+	b=GQ2qlt4z7rDsmEXlo/iWD9p8oYM7nlOOqihGEjfJVIkmkxkmgGzw+fEyvZjfcqC5thHe9i
+	uhv9oP0cPqymkyLgRA85NnFKR9+2WRIo8pZWZdtHqDxAk3oD85jF3k1xj2TI6n63K5BIXe
+	yOfOITy4ew2y4nsErObCmxJxH1vjWik=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-526-kmwzD-DZPVmo-zmSNIMANA-1; Wed, 10 Jan 2024 03:01:53 -0500
-X-MC-Unique: kmwzD-DZPVmo-zmSNIMANA-1
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-40e40126031so32638825e9.0
-        for <virtualization@lists.linux.dev>; Wed, 10 Jan 2024 00:01:53 -0800 (PST)
+ us-mta-272-i9o6gTTQNTCDnXBm3tHMnA-1; Wed, 10 Jan 2024 03:11:07 -0500
+X-MC-Unique: i9o6gTTQNTCDnXBm3tHMnA-1
+Received: by mail-lf1-f71.google.com with SMTP id 2adb3069b0e04-50eb710ee18so3394316e87.2
+        for <virtualization@lists.linux.dev>; Wed, 10 Jan 2024 00:11:07 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1704873712; x=1705478512;
+        d=1e100.net; s=20230601; t=1704874266; x=1705479066;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=vhS5A7tl/uywNAVxzqgUdgpEvRWCxnpPFs8rrAowgR0=;
-        b=lSVJGxVmVsy+XOZ/TGVxzD8JOIfuNHuXWWzcea2p70q0ksp3ei/9NXOxW3Ko0gT7tZ
-         D8FglZmUHXCkojRy7shhLlLffix5svvc4pLl2YccpSE2C7PHaWsNszxVb03t0fb3o6pj
-         Nayft5Nm7X4HCubbUG2C/Hexv8dSXrFVg+YDYQPf9uKSb74x2uUgN+4xdllTOzp0HILr
-         ixFoij+1yy5akGdAEIStALgLI6YAaYY8IX933udsp1YQ/qOObo0yEj7XNGen0EtsE/2F
-         xyf7AcAPBEbrcAFH93k2MfU4MxaW3ZP3zitDT681+mg6F1DrgEwiL+142+s59Y9Bc6Vg
-         KC/A==
-X-Gm-Message-State: AOJu0Yzn7fOhpW/KAq6yJPzPBNbSUhyv6B1Cvtb0qOXiIe96wf5Bua7u
-	1pfkDYvaJgiTDq8lO4a25O2WlG8dT07FkYZAjAOfUJ72Zh6YeIiLV70bkuXJ/GHSwu016Po7yV2
-	bOzRyB32Xx8vHmtXrixPUA8pkcOIe2/rAIg0=
-X-Received: by 2002:a7b:ca45:0:b0:40e:4df9:8996 with SMTP id m5-20020a7bca45000000b0040e4df98996mr345318wml.23.1704873712315;
-        Wed, 10 Jan 2024 00:01:52 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEkekCxMK/uJAHDEhg7TzPrNHweUGTbl7o5uzeSclp37gm5JnIkTH1E+AKAqyk8FrSpNN6axg==
-X-Received: by 2002:a7b:ca45:0:b0:40e:4df9:8996 with SMTP id m5-20020a7bca45000000b0040e4df98996mr345304wml.23.1704873711915;
-        Wed, 10 Jan 2024 00:01:51 -0800 (PST)
+        bh=BRhqVo2UG9ic38CL0B49IBcbUPAEZo2WecBFR7xi49o=;
+        b=ALY1jEdt5HFnorZf2XOOG/vsbRqr16+jIF1IDXOs3U0zaqUdpENRagRj7MzYMuJm55
+         vppTyRk0yzGdt1ueCVLb9kVqbXe2obT2enJm/pf8WOtzHuXvqsVBOaMw+7t0GxZdf2/V
+         FuovcjBAEwRsVLJLiAOMeuzVg3nadKo5gnlHrI1tF2scnbqWb+e3Oe1ajZsgBVmorWta
+         eOcYg5kIlquJjrNSg7VotNcw7cdQJwdpxFeK7Q6kafQHrI8iJMHRtkoMKyDELZ4m4h4u
+         fBwJ8pk3xKQoK2BbpFHZHlaENGvlqGExpUI1Cxu3lE01menE2IxP/te0bFgHRzlxsmI2
+         zyaA==
+X-Gm-Message-State: AOJu0Yz3vAEV8dIBHwXnIgHFMDt7O+tR+aMtc+gDen7fuOzApDdw97K2
+	SdmfAJZYrr0M/6/ABAyxBZihfhLODJSjhD7DwHDvUM0dTu4F5MOwoUUos0gL54OxJ2OY/0sj7yw
+	gPVjRnz4QSBGQXM5qL2Jp0u6r8/30cLR1ju0=
+X-Received: by 2002:ac2:5dc9:0:b0:50e:7a9e:4846 with SMTP id x9-20020ac25dc9000000b0050e7a9e4846mr184065lfq.70.1704874266043;
+        Wed, 10 Jan 2024 00:11:06 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEYpjMplv0WST/nDNwfTquDtdYgCf9QnvDqIrB6EXh2tN7HOItbJi3hhE0w4mwL3IUDeKjbwA==
+X-Received: by 2002:ac2:5dc9:0:b0:50e:7a9e:4846 with SMTP id x9-20020ac25dc9000000b0050e7a9e4846mr184057lfq.70.1704874265610;
+        Wed, 10 Jan 2024 00:11:05 -0800 (PST)
 Received: from redhat.com ([2.52.133.193])
-        by smtp.gmail.com with ESMTPSA id s7-20020a05600c45c700b0040d8ff79fd8sm1229542wmo.7.2024.01.10.00.01.50
+        by smtp.gmail.com with ESMTPSA id w37-20020a0565120b2500b0050ec7a26420sm594115lfu.204.2024.01.10.00.11.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jan 2024 00:01:51 -0800 (PST)
-Date: Wed, 10 Jan 2024 03:01:48 -0500
+        Wed, 10 Jan 2024 00:11:04 -0800 (PST)
+Date: Wed, 10 Jan 2024 03:11:01 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Zheyun Shen <szy0127@sjtu.edu.cn>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-	david <david@redhat.com>, jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com
-Subject: Re: [PATCH] driver/virtio: Add Memory Balloon Support for SEV/SEV-ES
-Message-ID: <20240110025544-mutt-send-email-mst@kernel.org>
-References: <2035137075.1083380.1704867762955.JavaMail.zimbra@sjtu.edu.cn>
+To: Theodore Ts'o <tytso@mit.edu>
+Cc: David Stevens <stevensd@chromium.org>,
+	David Hildenbrand <david@redhat.com>,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: REGRESSION: lockdep warning triggered by 15b9ce7ecd:
+ virtio_balloon: stay awake while adjusting balloon
+Message-ID: <20240110030913-mutt-send-email-mst@kernel.org>
+References: <20240108215015.GA599905@mit.edu>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <2035137075.1083380.1704867762955.JavaMail.zimbra@sjtu.edu.cn>
+In-Reply-To: <20240108215015.GA599905@mit.edu>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Wed, Jan 10, 2024 at 02:22:42PM +0800, Zheyun Shen wrote:
-> For now, SEV pins guest's memory to avoid swapping or
-> moving ciphertext, but leading to the inhibition of
-> Memory Ballooning.
+On Mon, Jan 08, 2024 at 04:50:15PM -0500, Theodore Ts'o wrote:
+> Hi, while doing final testing before sending a pull request, I merged
+> in linux-next, and commit 5b9ce7ecd7: virtio_balloon: stay awake while
+> adjusting balloon seems to be causing a lockdep warning (see attached)
+> when running gce-xfstests on a Google Compute Engine e2 VM.  I was not
+> able to trigger it using kvm-xfstests, but the following command:
+> "gce-xfstests -C 10 ext4/4k generic/476) was sufficient to triger the
+> problem.   For more information please see [1] and [2].
 > 
-> In Memory Ballooning, only guest's free pages will be relocated
-> in balloon inflation and deflation, so the difference of plaintext
-> doesn't matter to guest.
+> [1] https://github.com/tytso/xfstests-bld/blob/master/Documentation/gce-xfstests.md
+> [2] https://thunk.org/gce-xfstests
 > 
-> Memory Ballooning is a nice memory overcommitment technology can
-> be used in CVM based on SEV and SEV-ES, so userspace tools can
-> provide an option to allow SEV not to pin memory and enable 
-> Memory Ballooning. Guest kernel may not inhibit Balloon and 
-> should set shared memory for Balloon decrypted.
+> I found it by looking at the git logs, and this commit aroused my
+> suspicions, and I further testing showed that the lockdep warning was
+> reproducible with this commit, but not when testing with the
+> immediately preceeding commit (15b9ce7ecd^).
 > 
-> Signed-off-by: Zheyun Shen <szy0127@sjtu.edu.cn>
-
-Sorry I don't get what you are saying at all.
-Please format the commit log along the following lines:
-
-Currently .....
-This is bad because ...
-To fix ...
-As a result ...
+> Cheers,
 
 
-> ---
->  drivers/virtio/virtio_balloon.c | 18 ++++++++++++++++++
->  drivers/virtio/virtio_ring.c    |  7 +++++++
->  2 files changed, 25 insertions(+)
+Thanks a lot for the report!
+I pushed a fixed patch out (tree rebased).
+Would be great if you can confirm it's allright now.
+
+> 						- Ted
 > 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 1fe93e93f..aca4c8a58 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -18,6 +18,9 @@
->  #include <linux/wait.h>
->  #include <linux/mm.h>
->  #include <linux/page_reporting.h>
-> +#ifdef CONFIG_AMD_MEM_ENCRYPT
-> +#include <linux/set_memory.h>
-> +#endif
->  
->  /*
->   * Balloon device works in 4K page units.  So each page is pointed to by
-> @@ -870,6 +873,9 @@ static int virtio_balloon_register_shrinker(struct virtio_balloon *vb)
->  static int virtballoon_probe(struct virtio_device *vdev)
->  {
->          struct virtio_balloon *vb;
-> +#ifdef CONFIG_AMD_MEM_ENCRYPT
-> +        size_t vb_size = PAGE_ALIGN(sizeof(*vb));
-> +#endif
->          int err;
->  
->          if (!vdev->config->get) {
-> @@ -878,11 +884,19 @@ static int virtballoon_probe(struct virtio_device *vdev)
->                  return -EINVAL;
->          }
->  
-> +#ifdef CONFIG_AMD_MEM_ENCRYPT
-> +        vdev->priv = vb = kzalloc(vb_size, GFP_KERNEL);
-> +#else
->          vdev->priv = vb = kzalloc(sizeof(*vb), GFP_KERNEL);
-> +#endif
->          if (!vb) {
->                  err = -ENOMEM;
->                  goto out;
->          }
-> +#ifdef CONFIG_AMD_MEM_ENCRYPT
-> +        set_memory_decrypted((unsigned long)vb, vb_size / PAGE_SIZE);
-> +        memset(vb, 0, vb_size);
-> +#endif
->  
->          INIT_WORK(&vb->update_balloon_stats_work, update_balloon_stats_func);
->          INIT_WORK(&vb->update_balloon_size_work, update_balloon_size_func);
-> @@ -1101,7 +1115,11 @@ static int virtballoon_validate(struct virtio_device *vdev)
->          else if (!virtio_has_feature(vdev, VIRTIO_BALLOON_F_PAGE_POISON))
->                  __virtio_clear_bit(vdev, VIRTIO_BALLOON_F_REPORTING);
->  
-> +#ifdef CONFIG_AMD_MEM_ENCRYPT
-> +        __virtio_set_bit(vdev, VIRTIO_F_ACCESS_PLATFORM);
-> +#else
->          __virtio_clear_bit(vdev, VIRTIO_F_ACCESS_PLATFORM);
-> +#endif
->          return 0;
->  }
->  
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 49299b1f9..875612a2e 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -14,6 +14,9 @@
->  #include <linux/kmsan.h>
->  #include <linux/spinlock.h>
->  #include <xen/xen.h>
-> +#ifdef CONFIG_AMD_MEM_ENCRYPT
-> +#include <linux/set_memory.h>
-> +#endif
->  
->  #ifdef DEBUG
->  /* For development, we want to crash whenever the ring is screwed. */
-> @@ -321,6 +324,10 @@ static void *vring_alloc_queue(struct virtio_device *vdev, size_t size,
->                  if (queue) {
->                          phys_addr_t phys_addr = virt_to_phys(queue);
->                          *dma_handle = (dma_addr_t)phys_addr;
-> +#ifdef CONFIG_AMD_MEM_ENCRYPT
-> +                        set_memory_decrypted((unsigned long)queue, PAGE_ALIGN(size) / PAGE_SIZE);
-> +                        memset(queue, 0, PAGE_ALIGN(size));
-> +#endif
->  
->                          /*
->                           * Sanity check: make sure we dind't truncate
-
-No way I am going to spead CONFIG_AMD_MEM_ENCRYPT all over the place
-like this.
-
-
-> --
-> 2.34.1
+> 
+> root: ext4/4k run xfstest generic/476
+> systemd[1]: Started fstests-generic-476.scope - /usr/bin/bash -c test -w /proc/self/oom_score_adj && echo 250 > /proc/self/oom_score_adj; exec ./tests/generic/476.
+> kernel: [  399.361181] EXT4-fs (dm-1): mounted filesystem 840e25bd-f650-4819-8562-7eded85ef370 r/w with ordered data mode. Quota mode: none.
+> systemd[1]: fstests-generic-476.scope: Deactivated successfully.
+> systemd[1]: fstests-generic-476.scope: Consumed 3min 1.966s CPU time.
+> systemd[1]: xt\x2dvdb.mount: Deactivated successfully.
+> kernel: [  537.085404] EXT4-fs (dm-0): unmounting filesystem d3d7a675-f7b6-4384-abec-2e60d885b6da.
+> systemd[1]: xt\x2dvdc.mount: Deactivated successfully.
+> kernel: [  540.565870] 
+> kernel: [  540.567523] ================================
+> kernel: [  540.572007] WARNING: inconsistent lock state
+> kernel: [  540.576407] 6.7.0-rc3-xfstests-lockdep-00012-g5b9ce7ecd715 #318 Not tainted
+> kernel: [  540.583532] --------------------------------
+> kernel: [  540.587928] inconsistent {IN-HARDIRQ-W} -> {HARDIRQ-ON-W} usage.
+> kernel: [  540.594326] kworker/0:3/329 [HC0[0]:SC0[0]:HE1:SE1] takes:
+> kernel: [  540.599955] ffff90b280a548c0 (&vb->adjustment_lock){?...}-{2:2}, at: update_balloon_size_func+0x33/0x190
+> kernel: [  540.609926] {IN-HARDIRQ-W} state was registered at:
+> kernel: [  540.614935]   __lock_acquire+0x3f2/0xb30
+> kernel: [  540.618992]   lock_acquire+0xbf/0x2b0
+> kernel: [  540.622786]   _raw_spin_lock_irqsave+0x43/0x90
+> kernel: [  540.627366]   virtballoon_changed+0x51/0xd0
+> kernel: [  540.631947]   virtio_config_changed+0x5a/0x70
+> kernel: [  540.636437]   vp_config_changed+0x11/0x20
+> kernel: [  540.640576]   __handle_irq_event_percpu+0x88/0x230
+> kernel: [  540.645500]   handle_irq_event+0x38/0x80
+> kernel: [  540.649558]   handle_edge_irq+0x8f/0x1f0
+> kernel: [  540.653791]   __common_interrupt+0x47/0xf0
+> kernel: [  540.658106]   common_interrupt+0x79/0xa0
+> kernel: [  540.661672] EXT4-fs (dm-1): unmounting filesystem 840e25bd-f650-4819-8562-7eded85ef370.
+> kernel: [  540.663183]   asm_common_interrupt+0x26/0x40
+> kernel: [  540.663190]   acpi_safe_halt+0x1b/0x30
+> kernel: [  540.663196]   acpi_idle_enter+0x7b/0xd0
+> kernel: [  540.663199]   cpuidle_enter_state+0x90/0x4f0
+> kernel: [  540.688723]   cpuidle_enter+0x2d/0x40
+> kernel: [  540.692516]   cpuidle_idle_call+0xe4/0x120
+> kernel: [  540.697036]   do_idle+0x84/0xd0
+> kernel: [  540.700393]   cpu_startup_entry+0x2a/0x30
+> kernel: [  540.704588]   rest_init+0xe9/0x180
+> kernel: [  540.708118]   arch_call_rest_init+0xe/0x30
+> kernel: [  540.712426]   start_kernel+0x41c/0x4b0
+> kernel: [  540.716310]   x86_64_start_reservations+0x18/0x30
+> kernel: [  540.721164]   x86_64_start_kernel+0x8c/0x90
+> kernel: [  540.725737]   secondary_startup_64_no_verify+0x178/0x17b
+> kernel: [  540.731432] irq event stamp: 22681
+> kernel: [  540.734956] hardirqs last  enabled at (22681): [<ffffffff8b4b5158>] _raw_spin_unlock_irq+0x28/0x50
+> kernel: [  540.744564] hardirqs last disabled at (22680): [<ffffffff8b4b4ded>] _raw_spin_lock_irq+0x5d/0x90
+> kernel: [  540.753475] softirqs last  enabled at (22076): [<ffffffff8a58cfa1>] srcu_invoke_callbacks+0x101/0x1c0
+> kernel: [  540.762904] softirqs last disabled at (22072): [<ffffffff8a58cfa1>] srcu_invoke_callbacks+0x101/0x1c0
+> kernel: [  540.773298] 
+> kernel: [  540.773298] other info that might help us debug this:
+> kernel: [  540.780207]  Possible unsafe locking scenario:
+> kernel: [  540.780207] 
+> kernel: [  540.786438]        CPU0
+> kernel: [  540.789007]        ----
+> kernel: [  540.791766]   lock(&vb->adjustment_lock);
+> kernel: [  540.796014]   <Interrupt>
+> kernel: [  540.798778]     lock(&vb->adjustment_lock);
+> kernel: [  540.803605] 
+> kernel: [  540.803605]  *** DEADLOCK ***
+> kernel: [  540.803605] 
+> kernel: [  540.809840] 2 locks held by kworker/0:3/329:
+> kernel: [  540.814259]  #0: ffff90b280079148 ((wq_completion)events_freezable){+.+.}-{0:0}, at: process_one_work+0x1a6/0x500
+> kernel: [  540.824952]  #1: ffff9e3b40d1fe50 ((work_completion)(&vb->update_balloon_size_work)){+.+.}-{0:0}, at: process_one_work+0x1a6/0x500
+> kernel: [  540.837088] 
+> kernel: [  540.837088] stack backtrace:
+> kernel: [  540.841584] CPU: 0 PID: 329 Comm: kworker/0:3 Not tainted 6.7.0-rc3-xfstests-lockdep-00012-g5b9ce7ecd715 #318
+> kernel: [  540.851632] Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 11/17/2023
+> kernel: [  540.861148] Workqueue: events_freezable update_balloon_size_func
+> kernel: [  540.867306] Call Trace:
+> kernel: [  540.869914]  <TASK>
+> kernel: [  540.872136]  dump_stack_lvl+0x4a/0x80
+> kernel: [  540.876012]  mark_lock_irq+0x3a5/0x5a0
+> kernel: [  540.879973]  ? stack_trace_save+0x55/0x80
+> kernel: [  540.884105]  ? save_trace+0x66/0x200
+> kernel: [  540.887894]  mark_lock+0x1f3/0x3f0
+> kernel: [  540.891417]  mark_usage+0xe1/0x140
+> kernel: [  540.895060]  __lock_acquire+0x3f2/0xb30
+> kernel: [  540.899020]  lock_acquire+0xbf/0x2b0
+> kernel: [  540.902722]  ? update_balloon_size_func+0x33/0x190
+> kernel: [  540.908073]  ? lock_acquire+0xbf/0x2b0
+> kernel: [  540.912059]  ? process_one_work+0x1a6/0x500
+> kernel: [  540.916388]  ? process_one_work+0x1a6/0x500
+> kernel: [  540.920808]  _raw_spin_lock+0x34/0x80
+> kernel: [  540.924646]  ? update_balloon_size_func+0x33/0x190
+> kernel: [  540.929677]  update_balloon_size_func+0x33/0x190
+> kernel: [  540.934510]  ? process_one_work+0x1a6/0x500
+> kernel: [  540.939000]  process_one_work+0x20f/0x500
+> kernel: [  540.943383]  worker_thread+0x1e1/0x3d0
+> kernel: [  540.947391]  ? __pfx_worker_thread+0x10/0x10
+> kernel: [  540.952103]  kthread+0xf5/0x130
+> kernel: [  540.955392]  ? __pfx_kthread+0x10/0x10
+> kernel: [  540.959290]  ret_from_fork+0x31/0x50
+> kernel: [  540.963193]  ? __pfx_kthread+0x10/0x10
+> kernel: [  540.967157]  ret_from_fork_asm+0x1b/0x30
+> kernel: [  540.971205]  </TASK>
+> kernel: [  550.008710] EXT4-fs (dm-1): mounted filesystem 840e25bd-f650-4819-8562-7eded85ef370 r/w with ordered data mode. Quota mode: none.
+> systemd[1]: xt\x2dvdc.mount: Deactivated successfully.
+> kernel: [  550.033770] EXT4-fs (dm-1): unmounting filesystem 840e25bd-f650-4819-8562-7eded85ef370.
+> root: gce-xfstests: checking for hook post-xfstests
+> root: gce-xfstests: checking for hook pre-xfstests
 
