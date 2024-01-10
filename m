@@ -1,135 +1,91 @@
-Received: from smtp238.sjtu.edu.cn (smtp238.sjtu.edu.cn [202.120.2.238])
+Received: from mout.web.de (mout.web.de [212.227.17.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E52532C71
-	for <virtualization@lists.linux.dev>; Wed, 10 Jan 2024 06:22:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sjtu.edu.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sjtu.edu.cn
-Received: from mta90.sjtu.edu.cn (unknown [10.118.0.90])
-	by smtp238.sjtu.edu.cn (Postfix) with ESMTPS id 96E9AFD3;
-	Wed, 10 Jan 2024 14:22:43 +0800 (CST)
-Received: from mstore135.sjtu.edu.cn (unknown [10.118.0.135])
-	by mta90.sjtu.edu.cn (Postfix) with ESMTP id 1B5C537C878;
-	Wed, 10 Jan 2024 14:22:43 +0800 (CST)
-Date: Wed, 10 Jan 2024 14:22:42 +0800 (CST)
-From: Zheyun Shen <szy0127@sjtu.edu.cn>
-To: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev
-Cc: mst <mst@redhat.com>, david <david@redhat.com>, jasowang@redhat.com, 
-	xuanzhuo@linux.alibaba.com
-Message-ID: <2035137075.1083380.1704867762955.JavaMail.zimbra@sjtu.edu.cn>
-Subject: [PATCH] driver/virtio: Add Memory Balloon Support for SEV/SEV-ES
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7CA533981;
+	Wed, 10 Jan 2024 07:47:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="RDDlycAb"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de; s=s29768273;
+	t=1704872802; x=1705477602; i=markus.elfring@web.de;
+	bh=hhPaJcyeSBxTfwuEoDUTo5lm2LbnDI4Sufrw3CS2k2s=;
+	h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:
+	 In-Reply-To;
+	b=RDDlycAbIBjqIBZhciOaoMzfl8tat1ml5+qzKdoiHfMJreRpIHAbWIXRnPKwlnhr
+	 w0vse/ZAZ3cCwQ7mccrHYN9VDuoVlfWNQ8uIZoL8s+3TUf5O7ga+mecRtASez08rI
+	 07w8aaKfxzw/exDThF6Fkwkrpnv/ZCpWbCcynR7vWOWhUdijv5Jjt3cQq8mcyTSJI
+	 RT4OMizwoUpYzSXNWSPBgXIEHsEDQQyf5YMDWTPeDR7HY/BXT9aPGL5XZp7AaYCwy
+	 ZrYY/gILsaXbNsNlUzLE3Ss51DRCGO3dBL1NNgDiVupzBTuhoQdAYuR6EDnClKaee
+	 2l1JfThVel14fi8LUQ==
+X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
+Received: from [192.168.178.21] ([94.31.86.95]) by smtp.web.de (mrweb106
+ [213.165.67.124]) with ESMTPSA (Nemesis) id 1MC0LH-1rTH7H11Th-00CKiQ; Wed, 10
+ Jan 2024 08:46:42 +0100
+Message-ID: <0d7a06f0-7a0e-47c8-b89e-c3122b46d93e@web.de>
+Date: Wed, 10 Jan 2024 08:46:21 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=GB2312
-Content-Transfer-Encoding: 7bit
-X-Mailer: Zimbra 10.0.5_GA_4574 (ZimbraWebClient - GC120 (Win)/10.0.5_GA_4574)
-Thread-Index: nRAlPVyQalrgrDDzaMwssMGu/GR6fw==
-Thread-Topic: driver/virtio: Add Memory Balloon Support for SEV/SEV-ES
+User-Agent: Mozilla Thunderbird
+Subject: Re: crypto: virtio - Less function calls in
+ __virtio_crypto_akcipher_do_req() after error detection
+To: Justin Stitt <justinstitt@google.com>, virtualization@lists.linux.dev,
+ linux-crypto@vger.kernel.org, kernel-janitors@vger.kernel.org,
+ netdev@vger.kernel.org, cocci@inria.fr
+Cc: kernel test robot <lkp@intel.com>, "David S. Miller"
+ <davem@davemloft.net>, Gonglei <arei.gonglei@huawei.com>,
+ Herbert Xu <herbert@gondor.apana.org.au>, Jason Wang <jasowang@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>, llvm@lists.linux.dev,
+ oe-kbuild-all@lists.linux.dev, LKML <linux-kernel@vger.kernel.org>
+References: <2413f22f-f0c3-45e0-9f6b-a551bdf0f54c@web.de>
+ <202312260852.0ge5O8IL-lkp@intel.com>
+ <7bf9a4fa-1675-45a6-88dd-82549ae2c6e0@web.de>
+ <20240109234241.4q3ueqdjz5o54oan@google.com>
+Content-Language: en-GB
+From: Markus Elfring <Markus.Elfring@web.de>
+In-Reply-To: <20240109234241.4q3ueqdjz5o54oan@google.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:uYjo0zmC9Bv8IGNYZK4OcE5zWAU90y0/cZTEhqTTR+46QfZcrke
+ tgvURLyjA9lTvet4ThfCVXnv8xkFz5vm5k/faG0SI34wHLmSeb4+ISwwXtzGVUNyei+sko3
+ imEXpQg0tfMnY2jPBNEQpi1Nej6dOCS3XWYf+0+cvT6Tzo9nqafppm62vyx/roH5eUamaVt
+ V+cwMMwdBpWwOAkMutt1A==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:S0h3qRtm9JU=;wWqjC0b120yckKxNsgoQLwgkgBW
+ TANfswLwhLmaw2f/tPyZEWPKAcRWd062YgXcSl/MJ2qJRU1QKDsfT2ThjEWt9E72pzH0XbipK
+ ek+fzGIiWGzIJsPlXIujThtScJKp1023bSnfHXoawQA9pX+pihbfTuFGFlAUTWqVRcAWqrqli
+ 0nCKkRvwtVBpgQQHcOkSiZz2JlCRwk57Shx+Gvg6y5bk4L3PH3AlWQ8tO6Xp3nleW9MR0s7si
+ MSvzw7RCAFeB6LwjIZwmlOEOjjPLPbYUs521VFEI/yO6FjCahBvoh12NcXhyV06gTwrZxYSeE
+ b8pBwfLUgR/Esz4UAIkpBHYPrX/bWsRwmcnQHgEEK4xgOgGDjqsiyPzEp2Y2Efcn2/R/EF712
+ VQk246045auIbeX9HAJOCho2yLaMsyEH1f6EHNTxHg0+SqFqDWpwoGio4SkvRb3I8VuZ3pxn4
+ pKeUq4c1gFEumr07bBhEG4mi/NUQgnLyhdgW6BwDdFk4VwWYt4+ogSIr5ka7LK0XE9enEulDt
+ FYzDmGriybFkbMm6TBpDciJx5Sh6BnEUu+Et3jr/Wo5juVLgYVUD68PVkhXYCB9kXCZBCdsVV
+ ugIrdZ0ILSXTq7qyQMj80Xqu7K02gBTP9d/ghsEIPcwB8ADu4LuJO6tT7jydAQmru2Q2FVJk1
+ ivWlGskt+2ukhVot4diVbYzhRSU40RAEtZ+czNRSy7ThyCDOja3gPdwSQvyCuhQFKR8wgwG9b
+ XrqtDCFIWRfjgOes6u/gzPr5TaEA4NNxHUyub1v+1OAf9I203fen86ea5RIg7ATId3YwnrbNF
+ CPYepQfCHStuUHXi9ghJSc64B7/bq4g0XeNcJeCEkljhWyB2+P2eOjuzJeW/QqYtSYA6LzvEr
+ oZ4SBkMQ7rrO/7shvLlLjbwtqb6JDHUcnuYj1+D6YDz0o8p6Hfvl/T+rJqJzOzUkuEamvmJ98
+ B+3jVJr1HhEYCoxIDT4FjRo5reo=
 
-For now, SEV pins guest's memory to avoid swapping or
-moving ciphertext, but leading to the inhibition of
-Memory Ballooning.
+>> The kfree() function was called in up to two cases by the
+>> __virtio_crypto_akcipher_do_req() function during error handling
+>> even if the passed variable contained a null pointer.
+>> This issue was detected by using the Coccinelle software.
+>
+> If the script is short and simple would you mind, in the future,
+> including it below the fold -- this may help others do similar work down
+> the line -- Or =E2=80=A6
 
-In Memory Ballooning, only guest's free pages will be relocated
-in balloon inflation and deflation, so the difference of plaintext
-doesn't matter to guest.
+Would you like to take another look at the clarification approach
+=E2=80=9CReconsidering kfree() calls for null pointers (with SmPL)=E2=80=
+=9D?
+https://lore.kernel.org/cocci/6cbcf640-55e5-2f11-4a09-716fe681c0d2@web.de/
+https://sympa.inria.fr/sympa/arc/cocci/2023-03/msg00096.html
 
-Memory Ballooning is a nice memory overcommitment technology can
-be used in CVM based on SEV and SEV-ES, so userspace tools can
-provide an option to allow SEV not to pin memory and enable 
-Memory Ballooning. Guest kernel may not inhibit Balloon and 
-should set shared memory for Balloon decrypted.
-
-Signed-off-by: Zheyun Shen <szy0127@sjtu.edu.cn>
----
- drivers/virtio/virtio_balloon.c | 18 ++++++++++++++++++
- drivers/virtio/virtio_ring.c    |  7 +++++++
- 2 files changed, 25 insertions(+)
-
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 1fe93e93f..aca4c8a58 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -18,6 +18,9 @@
- #include <linux/wait.h>
- #include <linux/mm.h>
- #include <linux/page_reporting.h>
-+#ifdef CONFIG_AMD_MEM_ENCRYPT
-+#include <linux/set_memory.h>
-+#endif
- 
- /*
-  * Balloon device works in 4K page units.  So each page is pointed to by
-@@ -870,6 +873,9 @@ static int virtio_balloon_register_shrinker(struct virtio_balloon *vb)
- static int virtballoon_probe(struct virtio_device *vdev)
- {
-         struct virtio_balloon *vb;
-+#ifdef CONFIG_AMD_MEM_ENCRYPT
-+        size_t vb_size = PAGE_ALIGN(sizeof(*vb));
-+#endif
-         int err;
- 
-         if (!vdev->config->get) {
-@@ -878,11 +884,19 @@ static int virtballoon_probe(struct virtio_device *vdev)
-                 return -EINVAL;
-         }
- 
-+#ifdef CONFIG_AMD_MEM_ENCRYPT
-+        vdev->priv = vb = kzalloc(vb_size, GFP_KERNEL);
-+#else
-         vdev->priv = vb = kzalloc(sizeof(*vb), GFP_KERNEL);
-+#endif
-         if (!vb) {
-                 err = -ENOMEM;
-                 goto out;
-         }
-+#ifdef CONFIG_AMD_MEM_ENCRYPT
-+        set_memory_decrypted((unsigned long)vb, vb_size / PAGE_SIZE);
-+        memset(vb, 0, vb_size);
-+#endif
- 
-         INIT_WORK(&vb->update_balloon_stats_work, update_balloon_stats_func);
-         INIT_WORK(&vb->update_balloon_size_work, update_balloon_size_func);
-@@ -1101,7 +1115,11 @@ static int virtballoon_validate(struct virtio_device *vdev)
-         else if (!virtio_has_feature(vdev, VIRTIO_BALLOON_F_PAGE_POISON))
-                 __virtio_clear_bit(vdev, VIRTIO_BALLOON_F_REPORTING);
- 
-+#ifdef CONFIG_AMD_MEM_ENCRYPT
-+        __virtio_set_bit(vdev, VIRTIO_F_ACCESS_PLATFORM);
-+#else
-         __virtio_clear_bit(vdev, VIRTIO_F_ACCESS_PLATFORM);
-+#endif
-         return 0;
- }
- 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 49299b1f9..875612a2e 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -14,6 +14,9 @@
- #include <linux/kmsan.h>
- #include <linux/spinlock.h>
- #include <xen/xen.h>
-+#ifdef CONFIG_AMD_MEM_ENCRYPT
-+#include <linux/set_memory.h>
-+#endif
- 
- #ifdef DEBUG
- /* For development, we want to crash whenever the ring is screwed. */
-@@ -321,6 +324,10 @@ static void *vring_alloc_queue(struct virtio_device *vdev, size_t size,
-                 if (queue) {
-                         phys_addr_t phys_addr = virt_to_phys(queue);
-                         *dma_handle = (dma_addr_t)phys_addr;
-+#ifdef CONFIG_AMD_MEM_ENCRYPT
-+                        set_memory_decrypted((unsigned long)queue, PAGE_ALIGN(size) / PAGE_SIZE);
-+                        memset(queue, 0, PAGE_ALIGN(size));
-+#endif
- 
-                         /*
-                          * Sanity check: make sure we dind't truncate
---
-2.34.1
+Regards,
+Markus
