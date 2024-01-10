@@ -1,199 +1,135 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 426123EA7A
-	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 09:41:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAF393FE31
+	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 09:56:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="X0kR892T"
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="5Ec0NjNi"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id C3E0C80BD0
-	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 09:41:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C3E0C80BD0
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=X0kR892T
+	by smtp3.osuosl.org (Postfix) with ESMTP id 7D07660E71
+	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 09:56:59 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7D07660E71
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=5Ec0NjNi
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.103
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id DgS5kygSKyhr
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id h48ZW2vbKIp5
 	for <virtualization@lists.linux-foundation.org>;
-	Wed, 10 Jan 2024 09:41:03 +0000 (UTC)
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on20601.outbound.protection.outlook.com [IPv6:2a01:111:f403:2009::601])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 9F3A881B0A
-	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 09:41:02 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9F3A881B0A
+	Wed, 10 Jan 2024 09:56:58 +0000 (UTC)
+Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on20622.outbound.protection.outlook.com [IPv6:2a01:111:f400:7e88::622])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id B283A613D3
+	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 09:56:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B283A613D3
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Slc9NDuZZMCdq9Vtw1xvWYZRr2fEOHbrEm2cz6cpP1WXD/4vcUMixhoiPcEw5ZTTmcaKzOSQH7C3redzus5wxf9NR8iRzDE8jzfas+gArIKbScr4uXgDUomhTnWI6vHzBO8EsNO3PG0AefRihlYy3adwas2BX17LxURy1FI406/HrIkYALRV2dA4fW8p3KHRkRa43FP7lUlsxn2p9VW4T2xlDmo/Iedf+Q3Rzl84/mJE09PSmn2hFQVsLrMEgi8q+964WytqiQeRrS7t/OmAcJ4Dk5YN5cefssiv4L5fiwP1JSUqVFO4DkqrTDr5Q6E0JBnLyZxdr7Y18FTV/u6h/Q==
+ b=StNIPGDYUoZtB3dBQ9rKrxT14/pyd2QruX6d6NO+hmDsCUoiAXhMqxYcRHLVLy+K9DbPStW/WmlAZQU1QsbodloLdylerttmxNWOVnR6kTFpEN5bWRIq19KiI0exgUYcVP77TQwYJy0csgMh7GOUgvcfNpceH83tXdBVzweEZWay56WDB2CSuN8TRUdbNAuFzegy9Qj3BmsWU3wwPtZ5dcf5H0S2E5ii3GV4Qm9s+OP0A6jqvXagrrkXKVP7zKrj1bW8il8GZBvhFaVto6D5C3icBNUl7f4Hvje3qszwTGaXyWp2+ko6ZYN8LbnfCvgYHh8YsDoKWj2nurHPUjshcA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=K9AISwOA2FCWlsY3oj6A1VNUOazNHpsPsVmCAFvh0sY=;
- b=Ul9yj8YZS2xTHXzLrHwMbtpU2QEw9G/C2DlzyK1HJi5U8Vp1pDQR743ykvhtGMORGXtWM08paML6vzNt/hJQL0gIhqtGsdHc44hjnZmW9NkpDgT0oBpm8Lgd7XGSirxjL1+luCh5FPEtk4vohM2CFnTAu0gXv5JR+b2pO2j28mcd+Of0pytGkqRa//t/vslSaeMnQJ1L9ywHGUok99eNuRk4ew20xO/mzkF+dfSwcWJdCEoyXabXmNoUQxpX3z3yXd6zGJ2s+VKcxj38V1bDNX1LHfJFjhKXK+fPjB+MH8OjsCqom7Zz7hCjPjclnF2wNnUUwKuGjoNpfHvDosmJxQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
+ bh=b/cfS3KQMQVpEL831Ezu1yw2BuuTIvLrxvn2VFTtMTU=;
+ b=kz+1p77eI5PYX7H+UWf6khkf9aesEh4avb7izYQiCkYVo1z7boSaz2j66FunBkD8Q0PuhqIBRaRdPTSga47MybPIq73mr6Lo+mmQ18kAtnBZ+V49W3SmKOrUptPwL3AIMcEF1n9POLlQ0KS2FeiflfAyluEQp+SdN24VagEGZeaoGHZnukdAHK2fIVTFsGomC1W7sHDYYYzCVw0mzjt14pIVKGbq7R6WvsC8p58oCiOlW7KXoXIoEKbbwRU4R2CGRICTFugMXT5b4FP5CAvraN998MxfifY5g8rsyWNHEXfMYoxeWTWPtxScs2739HWN6Z9AZ8oBVIJruhk129Shfg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=chromium.org smtp.mailfrom=amd.com;
+ dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
+ header.from=amd.com; dkim=none (message not signed); arc=none (0)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=K9AISwOA2FCWlsY3oj6A1VNUOazNHpsPsVmCAFvh0sY=;
- b=X0kR892TSgiJXDvvbWRiMl5HOPoYZYEBC4wlBcUGhakYJ++afrsVILT6DsTdyjF1/rTbztExV/t+e/RfY13PCRD9vNwExz5/8fD/w2g2AqZv373LtVImrFb9glAXCBt4taVXJ5gJT774bM1SVGJnWToVSvNs0YT8TlIH3lggAnY=
-Received: from IA1PR12MB6532.namprd12.prod.outlook.com (2603:10b6:208:3a3::12)
- by DM4PR12MB7718.namprd12.prod.outlook.com (2603:10b6:8:102::14) with
+ bh=b/cfS3KQMQVpEL831Ezu1yw2BuuTIvLrxvn2VFTtMTU=;
+ b=5Ec0NjNiU5hzcISj7ZGCRWS3qGZKKOpJmZkZIEL6z6nVcRyWXemlUjhhyxW8jBIUE3ouNYB91yKcaMkT6ZDRHTJYf64fjgc0UJQxGacQTBr5/kLxkjVgHxLrlY3jBmsD4gGfaxhMRSioOfu2trtw+IEuWBYS3mG0FN4aQvPqA2k=
+Received: from MW4PR04CA0295.namprd04.prod.outlook.com (2603:10b6:303:89::30)
+ by BL3PR12MB6403.namprd12.prod.outlook.com (2603:10b6:208:3b3::11) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7159.23; Wed, 10 Jan
- 2024 09:40:55 +0000
-Received: from IA1PR12MB6532.namprd12.prod.outlook.com
- ([fe80::660a:3ae2:f8e:a372]) by IA1PR12MB6532.namprd12.prod.outlook.com
- ([fe80::660a:3ae2:f8e:a372%7]) with mapi id 15.20.7159.020; Wed, 10 Jan 2024
- 09:40:53 +0000
-From: "Zhang, Julia" <Julia.Zhang@amd.com>
-To: Gurchetan Singh <gurchetansingh@chromium.org>, "Zhang, Julia"
-	<Julia.Zhang@amd.com>
-CC: Chia-I Wu <olvaffe@gmail.com>, David Airlie <airlied@redhat.com>, Gerd
- Hoffmann <kraxel@redhat.com>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "dri-devel@lists.freedesktop.org"
-	<dri-devel@lists.freedesktop.org>, "amd-gfx@lists.freedesktop.org"
-	<amd-gfx@lists.freedesktop.org>, "virtualization@lists.linux-foundation.org"
-	<virtualization@lists.linux-foundation.org>, "Deucher, Alexander"
-	<Alexander.Deucher@amd.com>, "Koenig, Christian" <Christian.Koenig@amd.com>,
-	Daniel Vetter <daniel@ffwll.ch>, David Airlie <airlied@gmail.com>, Erik
- Faye-Lund <kusmabite@gmail.com>, "Olsak, Marek" <Marek.Olsak@amd.com>,
-	"Pelloux-Prayer, Pierre-Eric" <Pierre-eric.Pelloux-prayer@amd.com>, "Huang,
- Honglei1" <Honglei1.Huang@amd.com>, "Chen, Jiqian" <Jiqian.Chen@amd.com>,
-	"Huang, Ray" <Ray.Huang@amd.com>
-Subject: Re: [PATCH v2 0/1] Implementation of resource_query_layout
-Thread-Topic: [PATCH v2 0/1] Implementation of resource_query_layout
-Thread-Index: AQHaOGQzWQVLcFat0EGw/ib7OOa7O7DTZzeA
-Date: Wed, 10 Jan 2024 09:40:53 +0000
-Message-ID:
- <IA1PR12MB6532F4DDB5BA825922A85E70F2692@IA1PR12MB6532.namprd12.prod.outlook.com>
-References: <20231221100016.4022353-1-julia.zhang@amd.com>
- <CAAfnVBm+oo=dnDuqp1hYVj+OrQHHp5NPUHh2oxmEVjNrsDDUTQ@mail.gmail.com>
-In-Reply-To:
- <CAAfnVBm+oo=dnDuqp1hYVj+OrQHHp5NPUHh2oxmEVjNrsDDUTQ@mail.gmail.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-x-ms-exchange-imapappendstamp: BL1PR12MB5350.namprd12.prod.outlook.com
- (15.20.7181.004)
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-x-ms-exchange-messagesentrepresentingtype: 1
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: IA1PR12MB6532:EE_|DM4PR12MB7718:EE_
-x-ms-office365-filtering-correlation-id: f720e060-5f15-48f9-c09d-08dc11c03d44
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info:
- dPwU+2uZ89jpWqLsnIB/Kp6EeqzYyZUvrWNu39OjyjdvjVpmy/cgCRNVmP2bsbw7WB+JEJ4oTdkv3tUTVgMuEnJ4p0UflX9cfDI35Sa6NNsv0PNnI+Y0NFjL6jbYNNG96n2TZSex55xAdGuf7IaBNSPO5pAUPu+8dP7ia1pRiD+91chOGJzLqbW6KtK8k/UZaT469DBfy3yO+MNb5FQgd8TKig/7I1MwP8B+g6FyGSrkOgWvNxlTJtM8Oi9Mq1TcR843zEV/jJYR8Ahcvt9CuIIW1dagcm/2UowXmj1OIwY0as81v/+IjJiJML2gm3s19nkvx7BYlOjeykXdW+6AyEViEhBDklwkD2/Q5cFhWX6vsPYNdGb46ToHeFPAket7dsPaKePOmAJheBFe9mxb8kRKud3TOPftGmwe4PSDNxRj9GuPunhfkP0fhFHuaEgueNl0zFtCstfI3OuPto4fe+huBPU4/qrUNtE7V+zIYmPQf7l5F3a5K1f90LSOpcS1OFhfIuytlGZLXSIEwqLhecHzgLBjyvjKiRse4Jtl+bu1nBEZNQ5V/oUi+tN+MBHKfb4ww+2kMorz5vi+9fGapCpp1tthhTWFvFMY8YX7mr0=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA1PR12MB6532.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(366004)(346002)(376002)(136003)(396003)(39860400002)(230922051799003)(1800799012)(451199024)(186009)(64100799003)(83380400001)(26005)(9686003)(6506007)(53546011)(7696005)(122000001)(5660300002)(71200400001)(7416002)(4326008)(52536014)(41300700001)(2906002)(478600001)(54906003)(316002)(66556008)(64756008)(8676002)(110136005)(66476007)(6636002)(8936002)(76116006)(66446008)(66946007)(966005)(33656002)(38100700002)(38070700009)(55016003);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?utf-8?B?dFU4Q1dMcXd1VXlRemF5Ui80UmMyV0JmYys5MjlSZkJ5UXZGOTEzWHozK2Ry?=
- =?utf-8?B?eVFsUFArd1ZJNkFWQWswMVF1NnliOWd0ZzBDTytZQlZtdEhpaFg0aFhhMXJR?=
- =?utf-8?B?Uk5SOXp0bTU0THpjcVBNdGdmRExVSWtUcTlmNTNtREgwTXhDeGk4c09palpw?=
- =?utf-8?B?dlZxRjZiaUprV1pRMWhaaGtTbEdYUnRvMWVsb016bGREdThHWDhzR2dydVd3?=
- =?utf-8?B?UVBlblZKV2h1UWxodGFwM0d0T1Jma0l6TGZ0QmNMTEV4bGRoc0hqOXY4N1Ir?=
- =?utf-8?B?V0xjeHRtZmJQWDBnTkV1T0Jhb0o5Zys3Y1cwMm94dzBUQWpaRFBLbGY3d2s5?=
- =?utf-8?B?RnlyMTNLc2pWdzE0UWpQcXBvZ3lxcjhWMGJXak9lV0VzNjBiZmhLWTFvZ1J6?=
- =?utf-8?B?Mk1xVjF4ZEZuWjZjeDRvN05zZW9SZm81Nyt3UGZJcVAzNVZyUUFSd1lGYVhh?=
- =?utf-8?B?VzJsUStHWWFXbE5RYUpJaHhtOEJON1hqc0tuOVc1NGFMVi9QWnRiWjVpdDZm?=
- =?utf-8?B?V1l0eUZsYmxSYTlRelgzN1hURGlVK0orNnM5UkRDWHNxVVJtcmJzczJUekFC?=
- =?utf-8?B?QzNXWmtYOTdQQVFqdnNtdGNWck1tM1ZWZjRQNmNpTitEdUxEaUtRNyt2REVM?=
- =?utf-8?B?Zldqc3k2ampIcjF6a2VJS05wQ2J2OTFKZWVDTHZheW56QTBjL2FDZVVrY0l4?=
- =?utf-8?B?cjJoLzZRNFY4OXdyeFgzM1kzWDJ5UEQ5Y0kzcG55NXZFUTM0Q2s4SE8yVmpC?=
- =?utf-8?B?OXdZMk1qMWFVdGpEN28vY0tKV0NEaXJuaGhlMUZZYVY0UTlGRlIyVE4rMWMv?=
- =?utf-8?B?cVNMdzcxVE5uaFkvWFN4M2QrZytwci8yWmxPSHk5OHdMNEI1Q0hUK3ZFd0s1?=
- =?utf-8?B?UkxNVzZPR2plOGMrWWwwNFJHR0Y3V2FxaURGNE11bnZlc0VFcUR2TmdPZWFY?=
- =?utf-8?B?c1NaVjlIdHZWVFpVSStsRFZJRnVONlZ3RmpIcWswakZXOEJlNFFGRmlsNXFj?=
- =?utf-8?B?eWdUdU5GbjczVGQydWd5cTJwMGV4VGU3U3puZmZ3eVZlMmtxZUJ2NEtaVThZ?=
- =?utf-8?B?N3FQcndVU09tekVXNDE2VkxEbUlYQ3dqRXJya3hnRHZnYlp1UjdaMnMyNkJa?=
- =?utf-8?B?a0VaZWJGTHBJdktFbUVpZHc3YXRxU0JGV1hwTWl4YkxESzNoN3VIV3NDa2hD?=
- =?utf-8?B?Q0tWY09lTC95U0EzRjZoOGZYUkdkd0RJbU1QUkZPS1JCd3FNemFQY1lIVEhk?=
- =?utf-8?B?Z1dsejRmeStHSndOdHhORW1yVlBKZmhsUGdPeStObXo1NlE0eDl3dldZRHZW?=
- =?utf-8?B?WlAraklwZzJFSzJjcmdmcnZGSld4YXVjY2NTMDhTWS9oQ0huVHBWN3Y5OWNx?=
- =?utf-8?B?cU1MSmxKUktHaURyZ2hURGx3U3QrL29Ya2pQT1BHUWhHalpRaHhrMzgzM1dy?=
- =?utf-8?B?akpUMEl4WnVtR1pWSWExN1U4NTM4QjZxVW45Q1BWRzYyQjJVaXVVVExveXNs?=
- =?utf-8?B?YllES29JekkwcVR1UFhtaHZQM3JIdWxwdnFxWWEzQ1YrSm9nekd4UlgrQ0I3?=
- =?utf-8?B?VmxscGhmMDBWVzJlblcrVnpJc0pYNlFKdWdoL3JERkJ3aWN0RXIyR0s3cGYx?=
- =?utf-8?B?bXFVc0ZHMURvQk53MDJBWDRTQmVGb2dSUGZ5N2VGcmZVdkJmRElmay9OR3FZ?=
- =?utf-8?B?TlkwaWsvWVFRRFk2TzVMV1VkenpUdTZZWGViSDZMRFN0VEVHWDhZYjZzZTRp?=
- =?utf-8?B?NFBGWTE5NjlxWllGQXN5U3pKbmM5WEhLdUZieU40aWlKbUJtUVh3YVNjMkdL?=
- =?utf-8?B?dHpQOVd5YXFWUDZwUlB3ZzcrYTRxVCs5VEtCOHZOVm1UN1FwWVZjTDVxYjVa?=
- =?utf-8?B?UlhxY0xKRzE2dDArb2gzQWVuWG02U0pWUExuem9GNXFGaHpjcEtxc2J4Ykd2?=
- =?utf-8?B?eU81anVZZ29MVEFGWDZPekhLaCtjSlkwV2RaK3g5MXJVeUNxWDl5Wm16ZWFh?=
- =?utf-8?B?aXZUb24rM1I3TGRaUG1acCt2RjY4VDl2dXd0NXh0aEJNN0diQWpmNWxMUEpy?=
- =?utf-8?B?YWQ2SGpQeHJlR2YwSFJGcWxrcXdhOHZqQm5kUE8rRlhibUhpb2lHS3IydjVj?=
- =?utf-8?Q?sIss=3D?=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <79C495E88B4D6C418B6C3059F4130CF9@amdcloud.onmicrosoft.com>
-Content-Transfer-Encoding: base64
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7159.16; Wed, 10 Jan
+ 2024 09:56:55 +0000
+Received: from MWH0EPF000971E9.namprd02.prod.outlook.com
+ (2603:10b6:303:89:cafe::3b) by MW4PR04CA0295.outlook.office365.com
+ (2603:10b6:303:89::30) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7159.23 via Frontend
+ Transport; Wed, 10 Jan 2024 09:56:54 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
+Received: from SATLEXMB04.amd.com (165.204.84.17) by
+ MWH0EPF000971E9.mail.protection.outlook.com (10.167.243.71) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.7181.14 via Frontend Transport; Wed, 10 Jan 2024 09:56:54 +0000
+Received: from jenkins-julia.amd.com (10.180.168.240) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.34; Wed, 10 Jan
+ 2024 03:56:49 -0600
+From: Julia Zhang <julia.zhang@amd.com>
+To: Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+	<olvaffe@gmail.com>, David Airlie <airlied@redhat.com>, Gerd Hoffmann
+	<kraxel@redhat.com>, <linux-kernel@vger.kernel.org>,
+	<dri-devel@lists.freedesktop.org>, <amd-gfx@lists.freedesktop.org>,
+	<virtualization@lists.linux-foundation.org>
+CC: Alex Deucher <alexander.deucher@amd.com>,
+	=?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>, Daniel Vetter
+	<daniel@ffwll.ch>, David Airlie <airlied@gmail.com>, Erik Faye-Lund
+	<kusmabite@gmail.com>, =?UTF-8?q?Marek=20Ol=C5=A1=C3=A1k?=
+	<marek.olsak@amd.com>, Pierre-Eric Pelloux-Prayer
+	<pierre-eric.pelloux-prayer@amd.com>, Honglei Huang <honglei1.huang@amd.com>,
+	Chen Jiqian <Jiqian.Chen@amd.com>, Huang Rui <ray.huang@amd.com>, Julia Zhang
+	<julia.zhang@amd.com>
+Subject: [PATCH 0/1] Implement device_attach for virtio gpu
+Date: Wed, 10 Jan 2024 17:56:26 +0800
+Message-ID: <20240110095627.227454-1-julia.zhang@amd.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: SATLEXMB04.amd.com (10.181.40.145) To SATLEXMB04.amd.com
+ (10.181.40.145)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: MWH0EPF000971E9:EE_|BL3PR12MB6403:EE_
+X-MS-Office365-Filtering-Correlation-Id: 744cff6d-0c5b-47ef-16f0-08dc11c279ff
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	OK0+8rkRbCvYMmM77eV+mdBBsvw4NpIUNV/V2yeyd7uBQWOIEym7CduLsbEWZ0HN45Ggn3o0uXIcs5fBziZHQDXf185rXhhJaSpUd/GLBHTAj8eB1ICXUlWKwYLj2YRx/RhA/wJ2o6pmHHq41rzuA5uiPSXHkaVI87L5WsNmKVcqMn4PuL7drr7r0oe0tc5n5BfKbS5oSlP4kiR/t8VxSFZbLpgxWh8lDMQc5kjVhDPclUdDh8uTn7ZbJrLdGImBOYzbjWacBPFoC2QpPpJ8G/Qt4B2W3K94spGRBLydTs3mNE19+tWGae0x43cdgefaCYYAFuQqmEvlSQgBtSjU5g2xzdB0z86MOLwZl722S0QETY4Wsqx5HxSXohrZ3XbCF18e0N/8e/ydn8hUuSeCEWAC/pICaxqkrm6KqOD2HOU7b2kP7R8ekfMqwtaa0h9d5SiCzJfzMS99gsxuELvEOCsKFcOZZF8jA2nFadolsPXYlj66P2MQOniVwhX0uC/jXvelsCi88je9+tpaLLhXPoPIiaJJ6Dom3hPyfj31IH2vWXSFmh4LSpg7VM1hsIvJ4H2Jft2vdfodEoHOXMwk9tkDZhYoMsFWl0ALnTDEeZ5YTSrfic+LFrQI5npf/JrVC6eDdejgoglyYo0m0HuSsF2ci1NYKakEui9eui1m2dUsi4BtZoV33fRkSurztAlVfyruGMp8HuUNcflvrgRvlL+ZYXg7bfaU8AYp07CRjSrEz2p62b0OgglNm0TCHR5AZ2voupF++ztEfZfSrfBD1A==
+X-Forefront-Antispam-Report:
+	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230031)(4636009)(376002)(346002)(39860400002)(396003)(136003)(230922051799003)(186009)(451199024)(1800799012)(64100799003)(82310400011)(36840700001)(46966006)(40470700004)(16526019)(36756003)(83380400001)(2616005)(5660300002)(426003)(336012)(26005)(1076003)(47076005)(2906002)(8676002)(478600001)(4744005)(4326008)(7416002)(54906003)(6666004)(7696005)(8936002)(316002)(36860700001)(44832011)(110136005)(70206006)(70586007)(356005)(41300700001)(82740400003)(81166007)(86362001)(40480700001)(40460700003)(36900700001);DIR:OUT;SFP:1101;
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: IA1PR12MB6532.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: f720e060-5f15-48f9-c09d-08dc11c03d44
-X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Jan 2024 09:40:53.9055
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Jan 2024 09:56:54.6293
  (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 2vjF35eWFr+tC79kQ55aTBqvBBxtgKDBy65MxdXAjY6qjMrQdXop6uUyNz1L8Cr2lP7bXYKIq5PTJVfJTradng==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB7718
+X-MS-Exchange-CrossTenant-Network-Message-Id: 744cff6d-0c5b-47ef-16f0-08dc11c279ff
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	MWH0EPF000971E9.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL3PR12MB6403
 
-SSBzZWUsIEkgd2lsbCBpbXBsZW1lbnQgdGhpcy4gVGhhbmsgeW91IHZlcnkgbXVjaC4NCg0KT24g
-MjAyMy8xMi8yNyAwOToyOSwgR3VyY2hldGFuIFNpbmdoIHdyb3RlOg0KPiANCj4gDQo+IE9uIFRo
-dSwgRGVjIDIxLCAyMDIzIGF0IDI6MDHigK9BTSBKdWxpYSBaaGFuZyA8anVsaWEuemhhbmdAYW1k
-LmNvbSA8bWFpbHRvOmp1bGlhLnpoYW5nQGFtZC5jb20+PiB3cm90ZToNCj4gDQo+ICAgICBIaSBh
-bGwsDQo+IA0KPiAgICAgU29ycnkgdG8gbGF0ZSByZXBseS4gVGhpcyBpcyB2MiBvZiB0aGUgaW1w
-bGVtZW50YXRpb24gb2YNCj4gICAgIHJlc291cmNlX3F1ZXJ5X2xheW91dC4gVGhpcyBhZGRzIGEg
-bmV3IGlvY3RsIHRvIGxldCBndWVzdCBxdWVyeSBpbmZvcm1hdGlvbg0KPiAgICAgb2YgaG9zdCBy
-ZXNvdXJjZSwgd2hpY2ggaXMgb3JpZ2luYWxseSBmcm9tIERhbmllbCBTdG9uZS4gV2UgYWRkIHNv
-bWUNCj4gICAgIGNoYW5nZXMgdG8gc3VwcG9ydCBxdWVyeSB0aGUgY29ycmVjdCBzdHJpZGUgb2Yg
-aG9zdCByZXNvdXJjZSBiZWZvcmUgaXQncw0KPiAgICAgY3JlYXRlZCwgd2hpY2ggaXMgdG8gc3Vw
-cG9ydCB0byBibGl0IGRhdGEgZnJvbSBkR1BVIHRvIHZpcnRpbyBpR1BVIGZvciBkR1BVDQo+ICAg
-ICBwcmltZSBmZWF0dXJlLg0KPiANCj4gICAgIENoYW5nZXMgZnJvbSB2MSB0byB2MjoNCj4gICAg
-IC1TcXVhc2ggdHdvIHBhdGNoZXMgdG8gYSBzaW5nbGUgcGF0Y2guDQo+ICAgICAtQSBzbWFsbCBt
-b2RpZmljYXRpb24gb2YgVklSVElPX0dQVV9GX1JFU09VUkNFX1FVRVJZX0xBWU9VVA0KPiANCj4g
-DQo+ICAgICBCZWxvdyBpcyBkZXNjcmlwdGlvbiBvZiB2MToNCj4gICAgIFRoaXMgYWRkIGltcGxl
-bWVudGF0aW9uIG9mIHJlc291cmNlX3F1ZXJ5X2xheW91dCB0byBnZXQgdGhlIGluZm9ybWF0aW9u
-IG9mDQo+ICAgICBob3cgdGhlIGhvc3QgaGFzIGFjdHVhbGx5IGFsbG9jYXRlZCB0aGUgYnVmZmVy
-LiBUaGlzIGZ1bmN0aW9uIGlzIG5vdyB1c2VkDQo+ICAgICB0byBxdWVyeSB0aGUgc3RyaWRlIGZv
-ciBndWVzdCBsaW5lYXIgcmVzb3VyY2UgZm9yIGRHUFUgcHJpbWUgb24gZ3Vlc3QgVk1zLg0KPiAN
-Cj4gDQo+IFlvdSBjYW4gdXNlIGEgY29udGV4dCBzcGVjaWZpYyBwcm90b2NvbCBvciBldmVuIHRo
-ZSB2aXJnbCBjYXBhYmlsaXRpZXPCoFtmb3IgYSBsaW5lYXIgc3RyaWRlZCByZXNvdXJjZV0uwqAg
-Rm9yIGV4YW1wbGUsIFNvbW1lbGllciBkb2VzIHRoZSBmb2xsb3dpbmc6DQo+IA0KPiBodHRwczov
-L2Nocm9taXVtLmdvb2dsZXNvdXJjZS5jb20vY2hyb21pdW1vcy9wbGF0Zm9ybTIvKy9IRUFEL3Zt
-X3Rvb2xzL3NvbW1lbGllci92aXJ0dWFsaXphdGlvbi92aXJ0Z3B1X2NoYW5uZWwuY2MjNTQ5IDxo
-dHRwczovL2Nocm9taXVtLmdvb2dsZXNvdXJjZS5jb20vY2hyb21pdW1vcy9wbGF0Zm9ybTIvKy9I
-RUFEL3ZtX3Rvb2xzL3NvbW1lbGllci92aXJ0dWFsaXphdGlvbi92aXJ0Z3B1X2NoYW5uZWwuY2Mj
-NTQ5Pg0KPiANCj4gaS5lLCB5b3Ugc2hvdWxkIGJlIGFibGUgdG8gYXZvaWQgZXh0cmEgaW9jdGzC
-oCsgaHlwZXJjYWxsLg0KPiDCoA0KPiANCj4gDQo+ICAgICB2MSBvZiBrZXJuZWwgc2lkZToNCj4g
-ICAgIMKgaHR0cHM6DQo+ICAgICAvL2xvcmUua2VybmVsLm9yZy94ZW4tZGV2ZWwvMjAyMzExMTAw
-NzQwMjcuMjQ4NjItMS1qdWxpYS56aGFuZ0BhbWQuY29tL1QvI3QgPGh0dHA6Ly9sb3JlLmtlcm5l
-bC5vcmcveGVuLWRldmVsLzIwMjMxMTEwMDc0MDI3LjI0ODYyLTEtanVsaWEuemhhbmdAYW1kLmNv
-bS9ULyN0Pg0KPiANCj4gICAgIHYxIG9mIHFlbXUgc2lkZToNCj4gICAgIGh0dHBzOg0KPiAgICAg
-Ly9sb3JlLmtlcm5lbC5vcmcvcWVtdS1kZXZlbC8yMDIzMTExMDA3NDAyNy4yNDg2Mi0xLWp1bGlh
-LnpoYW5nQGFtZC5jb20vVC8jdCA8aHR0cDovL2xvcmUua2VybmVsLm9yZy9xZW11LWRldmVsLzIw
-MjMxMTEwMDc0MDI3LjI0ODYyLTEtanVsaWEuemhhbmdAYW1kLmNvbS9ULyN0Pg0KPiANCj4gICAg
-IERhbmllbCBTdG9uZSAoMSk6DQo+ICAgICDCoCBkcm0vdmlydGlvOiBJbXBsZW1lbnQgUkVTT1VS
-Q0VfR0VUX0xBWU9VVCBpb2N0bA0KPiANCj4gICAgIMKgZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92
-aXJ0Z3B1X2Rydi5jwqAgwqB8wqAgMSArDQo+ICAgICDCoGRyaXZlcnMvZ3B1L2RybS92aXJ0aW8v
-dmlydGdwdV9kcnYuaMKgIMKgfCAyMiArKysrKysrKy0NCj4gICAgIMKgZHJpdmVycy9ncHUvZHJt
-L3ZpcnRpby92aXJ0Z3B1X2lvY3RsLmMgfCA2NiArKysrKysrKysrKysrKysrKysrKysrKysrKw0K
-PiAgICAgwqBkcml2ZXJzL2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfa21zLmPCoCDCoHzCoCA4ICsr
-Ky0NCj4gICAgIMKgZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1X3ZxLmPCoCDCoCB8IDYz
-ICsrKysrKysrKysrKysrKysrKysrKysrKw0KPiAgICAgwqBpbmNsdWRlL3VhcGkvZHJtL3ZpcnRn
-cHVfZHJtLmjCoCDCoCDCoCDCoCDCoHwgMjEgKysrKysrKysNCj4gICAgIMKgaW5jbHVkZS91YXBp
-L2xpbnV4L3ZpcnRpb19ncHUuaMKgIMKgIMKgIMKgIHwgMzAgKysrKysrKysrKysrDQo+ICAgICDC
-oDcgZmlsZXMgY2hhbmdlZCwgMjA4IGluc2VydGlvbnMoKyksIDMgZGVsZXRpb25zKC0pDQo+IA0K
-PiAgICAgLS0gDQo+ICAgICAyLjM0LjENCj4gDQo=
+To realize dGPU prime feature for virtio gpu, we are trying let dGPU import
+vram object of virtio gpu. But this feature would finally call function
+virtio_dma_buf_ops.device_attach(), which was set as drm_gem_map_attach().
+drm_gem_map_attach() requires drm_gem_object_funcs.get_sg_table to be
+implemented, or else return ENOSYS. But virtio gpu driver has not
+implemented it for vram object and actually vram object does not require
+it. So this add a new implementation of device_attach() to call
+drm_gem_map_attach() for shmem object and return 0 for vram object as it
+actually did before the requirement was added.
+
+Julia Zhang (1):
+  drm/virtio: Implement device_attach
+
+ drivers/gpu/drm/virtio/virtgpu_prime.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
+
+-- 
+2.34.1
+
