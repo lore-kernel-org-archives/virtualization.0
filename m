@@ -1,57 +1,57 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBB174EB34
-	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 20:40:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53E0A4F1F6
+	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 20:40:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="Sf5ruoHq"
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="YwjuYn2S"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id D22E4436E5
-	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 20:40:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D22E4436E5
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-11-20 header.b=Sf5ruoHq
+	by smtp4.osuosl.org (Postfix) with ESMTP id DAFE542214
+	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 20:40:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DAFE542214
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-11-20 header.b=YwjuYn2S
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id EXtafPDIhXIh
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id w2ji1oVhw2Vr
 	for <virtualization@lists.linux-foundation.org>;
-	Wed, 10 Jan 2024 20:40:31 +0000 (UTC)
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id BBAFD400C1
-	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 20:40:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BBAFD400C1
-Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40AIEHMj031366;
-	Wed, 10 Jan 2024 20:40:21 GMT
+	Wed, 10 Jan 2024 20:40:34 +0000 (UTC)
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 461E1421F9
+	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 20:40:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 461E1421F9
+Received: from pps.filterd (m0246627.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40AJfmVP028156;
+	Wed, 10 Jan 2024 20:40:24 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
  subject : date : message-id : in-reply-to : references; s=corp-2023-11-20;
- bh=p6iyspjvKTXuB4yF6u/9MqWV7tzJix+S8H6uFyg3zco=;
- b=Sf5ruoHqoaMYwd+pyQ8JlItRsJpxnnSA2o3p5B6VlB+6TyiXyyhmzHiKzLDZ0o48L/AP
- a2X8Qq2DBq8rZimMIZSttTNn0+ApZB2yBRyssQfVpKhelQYGFA/p9vtGHpzL8TyhZiTc
- 7iWv8xtX9c1kumKCRCh4kV1nwhUOzSOyRZYczAX/+FxHd3SoRi69VktCrFf6HJqTIk8Y
- fagmNpgOGB5T1wEUJnjvjkaMgIkTMRr/Z7W5DGdZb57NA5kQiu5mkNLatcB9563Xb/hV
- Ato41YqNtT3bgHMGZVLVrDbpe+29smUMEyTlAKgLTYucFd+v/gJKvQKRu68mtZmFyREx XA== 
+ bh=h71dZ5JIuyeY4E0yCnqZDDaeoo7HDhGRC726pRtjHQU=;
+ b=YwjuYn2SLz0xe5VkayBFoZr9EXJ73Hw0soGv/rlO9PHqsfT3ZC+/skZTteKsregCnTxc
+ pXDKZbWiYARJJqsupF57xGDZfzizVwMKpbGN4HK/yWYcaFqa9wwJQbH5wJKrVn+4qDiU
+ 60uAAh6JkJIhixK8bByD7rNJvApXoYSsU0QRMVO92GbNnERG9tHNT4SWEl6gLrEuyMxQ
+ 7X+i01WvTBCU0vsEZNVBYLrxO51fZFk2R2REBs6A+xbvKgJk+XwPVOpi6Bhs00YEaTe8
+ e9Pqsw04MDdpHCBpfIGuadZGUtXarz9CNigcIyN0A4DjsrsAuFqB/zyi/NwM7BWjg249 ow== 
 Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3vhx8q0mpr-1
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3vj1m404a9-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 10 Jan 2024 20:40:20 +0000
+	Wed, 10 Jan 2024 20:40:24 +0000
 Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 40AJCi37030209;
-	Wed, 10 Jan 2024 20:40:20 GMT
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 40AKdD5K030150;
+	Wed, 10 Jan 2024 20:40:23 GMT
 Received: from pps.reinject (localhost [127.0.0.1])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3vfutp5x84-1
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3vfutp5xay-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 10 Jan 2024 20:40:19 +0000
+	Wed, 10 Jan 2024 20:40:23 +0000
 Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 40AKeGrV005067;
-	Wed, 10 Jan 2024 20:40:19 GMT
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 40AKeGrf005067;
+	Wed, 10 Jan 2024 20:40:23 GMT
 Received: from ca-dev63.us.oracle.com (ca-dev63.us.oracle.com [10.211.8.221])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTP id 3vfutp5x5e-4;
-	Wed, 10 Jan 2024 20:40:19 +0000
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTP id 3vfutp5x5e-9;
+	Wed, 10 Jan 2024 20:40:23 +0000
 From: Steve Sistare <steven.sistare@oracle.com>
 To: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
@@ -61,9 +61,9 @@ Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
         Dragos Tatulea <dtatulea@nvidia.com>, Eli Cohen <elic@nvidia.com>,
         Xie Yongji <xieyongji@bytedance.com>,
         Steve Sistare <steven.sistare@oracle.com>
-Subject: [RFC V1 03/13] vhost-vdpa: VHOST_NEW_OWNER
-Date: Wed, 10 Jan 2024 12:40:05 -0800
-Message-Id: <1704919215-91319-4-git-send-email-steven.sistare@oracle.com>
+Subject: [RFC V1 08/13] vduse: flush workers on suspend
+Date: Wed, 10 Jan 2024 12:40:10 -0800
+Message-Id: <1704919215-91319-9-git-send-email-steven.sistare@oracle.com>
 X-Mailer: git-send-email 1.8.3.1
 In-Reply-To: <1704919215-91319-1-git-send-email-steven.sistare@oracle.com>
 References: <1704919215-91319-1-git-send-email-steven.sistare@oracle.com>
@@ -74,139 +74,74 @@ X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 bulks
  phishscore=0 malwarescore=0 mlxlogscore=999 suspectscore=0 mlxscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
  definitions=main-2401100163
-X-Proofpoint-GUID: 6HP6DkR9nx9-HSrTDL3w2q_xJtSn1aEZ
-X-Proofpoint-ORIG-GUID: 6HP6DkR9nx9-HSrTDL3w2q_xJtSn1aEZ
+X-Proofpoint-ORIG-GUID: 8NpbJVwE_0qX_hcElGpqR-L_JVyvHOtf
+X-Proofpoint-GUID: 8NpbJVwE_0qX_hcElGpqR-L_JVyvHOtf
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-Add an ioctl to transfer file descriptor ownership and pinned memory
-accounting from one process to another.
+To pass ownership of a live vdpa device to a new process, the user
+suspends the device, calls VHOST_NEW_OWNER to change the mm, and calls
+VHOST_IOTLB_REMAP to change the user virtual addresses to match the new
+mm.  Flush workers in suspend to guarantee that no worker sees the new
+mm and old VA in between.
 
 Signed-off-by: Steve Sistare <steven.sistare@oracle.com>
 ---
- drivers/vhost/vdpa.c       | 37 +++++++++++++++++++++++++++++++++++++
- drivers/vhost/vhost.c      | 15 +++++++++++++++
- drivers/vhost/vhost.h      |  1 +
- include/uapi/linux/vhost.h | 10 ++++++++++
- 4 files changed, 63 insertions(+)
+ drivers/vdpa/vdpa_user/vduse_dev.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-index 2269988d6d33..eb3a95e703b0 100644
---- a/drivers/vhost/vdpa.c
-+++ b/drivers/vhost/vdpa.c
-@@ -613,6 +613,40 @@ static long vhost_vdpa_resume(struct vhost_vdpa *v)
- 	return ops->resume(vdpa);
+diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
+index 0ddd4b8abecb..6b25457a037d 100644
+--- a/drivers/vdpa/vdpa_user/vduse_dev.c
++++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+@@ -472,6 +472,18 @@ static void vduse_dev_reset(struct vduse_dev *dev)
+ 	up_write(&dev->rwsem);
  }
  
-+static long vhost_vdpa_new_owner(struct vhost_vdpa *v)
++static void vduse_flush_work(struct vduse_dev *dev)
 +{
-+	int r;
-+	struct vhost_dev *vdev = &v->vdev;
-+	struct mm_struct *mm_old = vdev->mm;
-+	struct mm_struct *mm_new = current->mm;
-+	long pinned_vm = v->pinned_vm;
-+	unsigned long lock_limit = PFN_DOWN(rlimit(RLIMIT_MEMLOCK));
++	flush_work(&dev->inject);
 +
-+	if (!mm_old)
-+		return -EINVAL;
++	for (int i = 0; i < dev->vq_num; i++) {
++		struct vduse_virtqueue *vq = dev->vqs[i];
 +
-+	if (!v->vdpa->use_va &&
-+	    pinned_vm + atomic64_read(&mm_new->pinned_vm) > lock_limit)
-+		return -ENOMEM;
-+
-+	r = vhost_vdpa_bind_mm(v, mm_new);
-+	if (r)
-+		return r;
-+
-+	r = vhost_dev_new_owner(vdev);
-+	if (r) {
-+		vhost_vdpa_bind_mm(v, mm_old);
-+		return r;
++		flush_work(&vq->inject);
++		flush_work(&vq->kick);
 +	}
-+
-+	if (!v->vdpa->use_va) {
-+		atomic64_sub(pinned_vm, &mm_old->pinned_vm);
-+		atomic64_add(pinned_vm, &mm_new->pinned_vm);
-+	}
-+
-+	return r;
 +}
 +
- static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
- 				   void __user *argp)
- {
-@@ -843,6 +877,9 @@ static long vhost_vdpa_unlocked_ioctl(struct file *filep,
- 	case VHOST_VDPA_RESUME:
- 		r = vhost_vdpa_resume(v);
- 		break;
-+	case VHOST_NEW_OWNER:
-+		r = vhost_vdpa_new_owner(v);
-+		break;
- 	default:
- 		r = vhost_dev_ioctl(&v->vdev, cmd, argp);
- 		if (r == -ENOIOCTLCMD)
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index e0c181ad17e3..0ce7ee9834f4 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -907,6 +907,21 @@ long vhost_dev_set_owner(struct vhost_dev *dev)
+ static int vduse_vdpa_set_vq_address(struct vdpa_device *vdpa, u16 idx,
+ 				u64 desc_area, u64 driver_area,
+ 				u64 device_area)
+@@ -713,6 +725,17 @@ static int vduse_vdpa_reset(struct vdpa_device *vdpa)
+ 	return ret;
  }
- EXPORT_SYMBOL_GPL(vhost_dev_set_owner);
  
-+/* Caller should have device mutex */
-+long vhost_dev_new_owner(struct vhost_dev *dev)
++static int vduse_vdpa_suspend(struct vdpa_device *vdpa)
 +{
-+	if (dev->mm == current->mm)
-+		return -EBUSY;
++	struct vduse_dev *dev = vdpa_to_vduse(vdpa);
 +
-+	if (!vhost_dev_has_owner(dev))
-+		return -EINVAL;
++	down_write(&dev->rwsem);
++	vduse_flush_work(dev);
++	up_write(&dev->rwsem);
 +
-+	vhost_detach_mm(dev);
-+	vhost_attach_mm(dev);
 +	return 0;
 +}
-+EXPORT_SYMBOL_GPL(vhost_dev_new_owner);
 +
- static struct vhost_iotlb *iotlb_alloc(void)
+ static u32 vduse_vdpa_get_generation(struct vdpa_device *vdpa)
  {
- 	return vhost_iotlb_alloc(max_iotlb_entries,
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index f60d5f7bef94..cd0dab21d99e 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -185,6 +185,7 @@ void vhost_dev_init(struct vhost_dev *, struct vhost_virtqueue **vqs,
- 		    int (*msg_handler)(struct vhost_dev *dev, u32 asid,
- 				       struct vhost_iotlb_msg *msg));
- long vhost_dev_set_owner(struct vhost_dev *dev);
-+long vhost_dev_new_owner(struct vhost_dev *dev);
- bool vhost_dev_has_owner(struct vhost_dev *dev);
- long vhost_dev_check_owner(struct vhost_dev *);
- struct vhost_iotlb *vhost_dev_reset_owner_prepare(void);
-diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-index 649560c685f1..5e3cdce4c0cf 100644
---- a/include/uapi/linux/vhost.h
-+++ b/include/uapi/linux/vhost.h
-@@ -123,6 +123,16 @@
- #define VHOST_SET_BACKEND_FEATURES _IOW(VHOST_VIRTIO, 0x25, __u64)
- #define VHOST_GET_BACKEND_FEATURES _IOR(VHOST_VIRTIO, 0x26, __u64)
- 
-+/* Set current process as the new owner of this file descriptor.  The fd must
-+ * already be owned, via a prior call to VHOST_SET_OWNER.  The pinned memory
-+ * count is transferred from the previous to the new owner.
-+ * Errors:
-+ *   EINVAL: not owned
-+ *   EBUSY:  caller is already the owner
-+ *   ENOMEM: RLIMIT_MEMLOCK exceeded
-+ */
-+#define VHOST_NEW_OWNER _IO(VHOST_VIRTIO, 0x27)
-+
- /* VHOST_NET specific defines */
- 
- /* Attach virtio net ring to a raw socket, or tap device.
+ 	struct vduse_dev *dev = vdpa_to_vduse(vdpa);
+@@ -794,6 +817,7 @@ static const struct vdpa_config_ops vduse_vdpa_config_ops = {
+ 	.set_vq_affinity	= vduse_vdpa_set_vq_affinity,
+ 	.get_vq_affinity	= vduse_vdpa_get_vq_affinity,
+ 	.reset			= vduse_vdpa_reset,
++	.suspend		= vduse_vdpa_suspend,
+ 	.set_map		= vduse_vdpa_set_map,
+ 	.free			= vduse_vdpa_free,
+ };
 -- 
 2.39.3
 
