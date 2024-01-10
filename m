@@ -1,130 +1,297 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from out5-smtp.messagingengine.com (out5-smtp.messagingengine.com [66.111.4.29])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9040C4F89F
-	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 22:25:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E527B4F886
+	for <virtualization@lists.linux.dev>; Wed, 10 Jan 2024 22:34:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fastmail.fm
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fastmail.fm
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eCO2jIRI"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 0E2E54046B
-	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 22:25:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0E2E54046B
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=eCO2jIRI
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Re-Ah12AYIAH
-	for <virtualization@lists.linux-foundation.org>;
-	Wed, 10 Jan 2024 22:25:27 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id A0A7B40143
-	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 22:25:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A0A7B40143
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1704925525;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=LbvHor4sr0xWUt5flKWQxxo/1Tbqrvytr+t1oavL/pw=;
-	b=eCO2jIRIut2UlVaoH93BzJg5itwQbnNx4ZvLhZ4JCIVk2pQjaOy9CV1TnapkYAg1mnZxIX
-	kfXhxokPUz/svHSIBheEwFy0naDBrRGL/MrtbMGtDyIFsBmkHNCoX4GGQUQtngD8mGBJpP
-	6Zg1p2uIoDFVFXaX0cUnUeLrS2zHL6I=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-518-3P8CkIJhNkqfoUdkpsJGeA-1; Wed, 10 Jan 2024 17:25:23 -0500
-X-MC-Unique: 3P8CkIJhNkqfoUdkpsJGeA-1
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-3371263463fso2592741f8f.0
-        for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 14:25:23 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1704925522; x=1705530322;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=LbvHor4sr0xWUt5flKWQxxo/1Tbqrvytr+t1oavL/pw=;
-        b=aU3+LZmUUkadY3V0sfeY0bbI1gYHW6tj0x9pGkTpVzmkt8MzS3bX9s33pPDyM9us5R
-         fE6B0fyXyWI6Oo10ZCv6TsF+QG9GqippPqjxC98wsds85TunK2/nuTHT/0k6CiG4L1ja
-         TK87/LdK16twOsWGIVLCjLQVBAA6/1gmzPHf4w2LfmFG21XXwEP6Th4ArwJsxlKHZDgY
-         mkRyr6qdvAm9B+YhZCtXBcjB905/btps9G8r5mfnJ4sqF9yuHd/dXP/qaFN19twVmZyM
-         0iYQmoEgDC9DemWAYWXYxz4am72+UMEAOa+a1D5MPkqYG8K57c27nYFPlJYXo3jarARt
-         LvSA==
-X-Gm-Message-State: AOJu0Yy/UDMP5mT4OYzTVc3HR5rgc2U6NlysGpHjkoh6TUyHnwGb2C02
-	hqmAKffUAKMKKiOpU4z3Q4PYlwZMNXcE683YIj9Gnz0uGDWYjAT95CVKcVTCQpAZH6P0OfViy3t
-	wBG0e1qIyDcSPgKidVoxxieLOk7c1a1NiU1r551eQMhANiejNgQ==
-X-Received: by 2002:a05:6000:18d1:b0:336:6c01:4a92 with SMTP id w17-20020a05600018d100b003366c014a92mr75182wrq.1.1704925522582;
-        Wed, 10 Jan 2024 14:25:22 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IG4bG5HIN2EOROQjKy4ly5IS5OGPCjThp6MgjKpTRQ9pvJ7CGd8hXcoyJdZJ1RPWE28zwrdpA==
-X-Received: by 2002:a05:6000:18d1:b0:336:6c01:4a92 with SMTP id w17-20020a05600018d100b003366c014a92mr75179wrq.1.1704925522280;
-        Wed, 10 Jan 2024 14:25:22 -0800 (PST)
-Received: from redhat.com ([2a06:c701:73ef:4100:2cf6:9475:f85:181e])
-        by smtp.gmail.com with ESMTPSA id b9-20020a5d4b89000000b003366aad3564sm5807985wrt.30.2024.01.10.14.25.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jan 2024 14:25:21 -0800 (PST)
-Date: Wed, 10 Jan 2024 17:25:19 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Cindy Lu <lulu@redhat.com>
-Cc: jasowang@redhat.com, yi.l.liu@intel.com, jgg@nvidia.com,
-	linux-kernel@vger.kernel.org,
-	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
-Subject: Re: [RFC v1 0/8] vhost-vdpa: add support for iommufd
-Message-ID: <20240110172459-mutt-send-email-mst@kernel.org>
-References: <20231103171641.1703146-1-lulu@redhat.com>
+	dkim=pass (2048-bit key) header.d=fastmail.fm header.i=@fastmail.fm header.b="n5ociDYi";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="MJJWzZbG"
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.47])
+	by mailout.nyi.internal (Postfix) with ESMTP id 095D25C016D;
+	Wed, 10 Jan 2024 17:34:21 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Wed, 10 Jan 2024 17:34:21 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fastmail.fm; h=
+	cc:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1704926061;
+	 x=1705012461; bh=UnVUbz9SQXayg60OJLWAme7bYrBOjB6TLqClz8YLU18=; b=
+	n5ociDYiPw4LafeAUZGIls2h1LmMgnhVS22kTCVjZva0NRl22lXX88Nfr8KoSKwP
+	TjSx5W2OozAuNiFI4nf3eSOBfGd7I7cMm4q0Hn+AdujPx2kV5qYl6WEr7XQ68Wmo
+	5w+xC0mFE29uqAIDQ1EZOgnEFlbZx8TQKzY3ICbN+KWmd8hLkmrsll46I2dP//Hy
+	EGFvPwRm+wfXK3YjDjfvpyJ9ZxYacAICgIalR0piAICnKnGyABh/Q9obRnIX70xB
+	wXKJsjvkb6YdLuzFniwsdNqZM7D3u4Q7fp2gS3grHIBpWZjC/PmVINzDnMGp0Sbf
+	LyX5+q3pb8X2P6kb+a1wGA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1704926061; x=
+	1705012461; bh=UnVUbz9SQXayg60OJLWAme7bYrBOjB6TLqClz8YLU18=; b=M
+	JJWzZbGKXCbc7ludf4of73BPkMwMFlc2flsA7wJxg6tJ69i/TlFSjNfJ8wr2n6bD
+	9y02R2D4bvgAPZHuS2VkeVDfF0+lC3o2iCYf8l7IegRSDtr5dxe9q6vI/Pe50ec3
+	gg7icc8Cx18tYdQ2M0Q7kMQwmFMJk0hWBlRBYesrC+sMUTicx91Y1OzEXejSfsRm
+	0ZLbpJW5wnzDwcyuTjz2ppHtFSP1+zmSYIX20nXZVprCFksWxbQ5R9FE7qS6q7QF
+	zZP0Bc4MMcZL/PDVtvdKQnjdzXkGjJZYwBm2Nlt2C/XWrKytID2vC+3upHZxNqXF
+	lfVAJZyKj/xO+2ls1mjYA==
+X-ME-Sender: <xms:axufZXeMyE6Lj5S2c0gbyvsujRY_b44dZ4W4yjmifuhO2DGFSBkGsg>
+    <xme:axufZdPUQLH1RprjyBwSr0Q7TFT6ODH9w9bFoNZMwIo2mhoB3OXo3E7bOuUnMpFb-
+    cqGLyMXYvfoteaM>
+X-ME-Received: <xmr:axufZQiItNsp8GLf5odKDX4cehUH3b5GWm9Q-r2AdpA-cmsxL5rsYzusX2xS-oe0Ih3hbPudh83yumerEcxS8vgY3qA4kurOOLcDKe_F24-n2y6TeGaK>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvkedrvdeiuddgudeitdcutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpefkffggfgfuvfevfhfhjggtgfesthekredttddvjeenucfhrhhomhepuegv
+    rhhnugcuufgthhhusggvrhhtuceosggvrhhnugdrshgthhhusggvrhhtsehfrghsthhmrg
+    hilhdrfhhmqeenucggtffrrghtthgvrhhnpeduleefvdduveduveelgeelffffkedukeeg
+    veelgfekleeuvdehkeehheehkefhfeenucevlhhushhtvghrufhiiigvpedtnecurfgrrh
+    grmhepmhgrihhlfhhrohhmpegsvghrnhgurdhstghhuhgsvghrthesfhgrshhtmhgrihhl
+    rdhfmh
+X-ME-Proxy: <xmx:bBufZY-HWFo9EYIUqMqmNBxPMZqptW5qrJRr2xFAQWidYvT0_EajdA>
+    <xmx:bBufZTv2kzfWM1Tv0mJWkjRpRsN9g3F1G9polhhgc2oCGb7plcCl9w>
+    <xmx:bBufZXF1g0KuarOnIxF9nQ7Warxg1PsBKryC2NiLu3ZOwHTIXBhvCw>
+    <xmx:bRufZc85JQXAnYIzHfR62-QGw78qWo8OOYRaJebi9MGDkcaeLCRC5g>
+Feedback-ID: id8a24192:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 10 Jan 2024 17:34:18 -0500 (EST)
+Message-ID: <e6b866f1-4102-44aa-85cd-274d2ae0ab7e@fastmail.fm>
+Date: Wed, 10 Jan 2024 23:34:17 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20231103171641.1703146-1-lulu@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] virtiofs: limit the length of ITER_KVEC dio by
+ max_nopage_rw
+To: Hou Tao <houtao@huaweicloud.com>, linux-fsdevel@vger.kernel.org
+Cc: Miklos Szeredi <miklos@szeredi.hu>, Vivek Goyal <vgoyal@redhat.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>, "Michael S . Tsirkin"
+ <mst@redhat.com>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev, houtao1@huawei.com
+References: <20240103105929.1902658-1-houtao@huaweicloud.com>
+ <b6c0d521-bba8-447f-b114-0a679ca89e4b@fastmail.fm>
+ <c71c80af-2813-dee5-a8e5-3782b34e9eb9@huaweicloud.com>
+Content-Language: en-US, de-DE, fr
+From: Bernd Schubert <bernd.schubert@fastmail.fm>
+In-Reply-To: <c71c80af-2813-dee5-a8e5-3782b34e9eb9@huaweicloud.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Sat, Nov 04, 2023 at 01:16:33AM +0800, Cindy Lu wrote:
-> 
-> Hi All
-> This code provides the iommufd support for vdpa device
-> This code fixes the bugs from the last version and also add the asid support. rebase on kernel
-> v6,6-rc3
-> Test passed in the physical device (vp_vdpa), but  there are still some problems in the emulated device (vdpa_sim_net), 
-> I will continue working on it
-> 
-> The kernel code is
-> https://gitlab.com/lulu6/vhost/-/tree/iommufdRFC_v1
-> 
-> Signed-off-by: Cindy Lu <lulu@redhat.com>
 
-Was this abandoned?
 
+On 1/10/24 02:16, Hou Tao wrote:
+> Hi,
 > 
-> Cindy Lu (8):
->   vhost/iommufd: Add the functions support iommufd
->   Kconfig: Add the new file vhost/iommufd
->   vhost: Add 3 new uapi to support iommufd
->   vdpa: Add new vdpa_config_ops to support iommufd
->   vdpa_sim :Add support for iommufd
->   vdpa: change the map/unmap process to support iommufd
->   vp_vdpa::Add support for iommufd
->   iommu: expose the function iommu_device_use_default_domain
+> On 1/9/2024 9:11 PM, Bernd Schubert wrote:
+>>
+>>
+>> On 1/3/24 11:59, Hou Tao wrote:
+>>> From: Hou Tao <houtao1@huawei.com>
+>>>
+>>> When trying to insert a 10MB kernel module kept in a virtiofs with cache
+>>> disabled, the following warning was reported:
+>>>
+>>>     ------------[ cut here ]------------
+>>>     WARNING: CPU: 2 PID: 439 at mm/page_alloc.c:4544 ......
+>>>     Modules linked in:
+>>>     CPU: 2 PID: 439 Comm: insmod Not tainted 6.7.0-rc7+ #33
+>>>     Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), ......
+>>>     RIP: 0010:__alloc_pages+0x2c4/0x360
+>>>     ......
+>>>     Call Trace:
+>>>      <TASK>
+>>>      ? __warn+0x8f/0x150
+>>>      ? __alloc_pages+0x2c4/0x360
+>>>      __kmalloc_large_node+0x86/0x160
+>>>      __kmalloc+0xcd/0x140
+>>>      virtio_fs_enqueue_req+0x240/0x6d0
+>>>      virtio_fs_wake_pending_and_unlock+0x7f/0x190
+>>>      queue_request_and_unlock+0x58/0x70
+>>>      fuse_simple_request+0x18b/0x2e0
+>>>      fuse_direct_io+0x58a/0x850
+>>>      fuse_file_read_iter+0xdb/0x130
+>>>      __kernel_read+0xf3/0x260
+>>>      kernel_read+0x45/0x60
+>>>      kernel_read_file+0x1ad/0x2b0
+>>>      init_module_from_file+0x6a/0xe0
+>>>      idempotent_init_module+0x179/0x230
+>>>      __x64_sys_finit_module+0x5d/0xb0
+>>>      do_syscall_64+0x36/0xb0
+>>>      entry_SYSCALL_64_after_hwframe+0x6e/0x76
+>>>      ......
+>>>      </TASK>
+>>>     ---[ end trace 0000000000000000 ]---
+>>>
+>>> The warning happened as follow. In copy_args_to_argbuf(), virtiofs uses
+>>> kmalloc-ed memory as bound buffer for fuse args, but
+>>> fuse_get_user_pages() only limits the length of fuse arg by max_read or
+>>> max_write for IOV_KVEC io (e.g., kernel_read_file from finit_module()).
+>>> For virtiofs, max_read is UINT_MAX, so a big read request which is about
+>>
+>>
+>> I find this part of the explanation a bit confusing. I guess you
+>> wanted to write something like
+>>
+>> fuse_direct_io() -> fuse_get_user_pages() is limited by
+>> fc->max_write/fc->max_read and fc->max_pages. For virtiofs max_pages
+>> does not apply as ITER_KVEC is used. As virtiofs sets fc->max_read to
+>> UINT_MAX basically no limit is applied at all.
 > 
->  drivers/iommu/iommu.c             |   2 +
->  drivers/vdpa/vdpa_sim/vdpa_sim.c  |   8 ++
->  drivers/vdpa/virtio_pci/vp_vdpa.c |   4 +
->  drivers/vhost/Kconfig             |   1 +
->  drivers/vhost/Makefile            |   1 +
->  drivers/vhost/iommufd.c           | 178 +++++++++++++++++++++++++
->  drivers/vhost/vdpa.c              | 210 +++++++++++++++++++++++++++++-
->  drivers/vhost/vhost.h             |  21 +++
->  include/linux/vdpa.h              |  38 +++++-
->  include/uapi/linux/vhost.h        |  66 ++++++++++
->  10 files changed, 525 insertions(+), 4 deletions(-)
->  create mode 100644 drivers/vhost/iommufd.c
-> 
-> -- 
-> 2.34.3
+> Yes, what you said is just as expected but it is not the root cause of
+> the warning. The culprit of the warning is kmalloc() in
+> copy_args_to_argbuf() just as said in commit message. vmalloc() is also
+> not acceptable, because the physical memory needs to be contiguous. For
+> the problem, because there is no page involved, so there will be extra
+> sg available, maybe we can use these sg to break the big read/write
+> request into page.
 
+Hmm ok, I was hoping that contiguous memory is not needed.
+I see that ENOMEM is handled, but how that that perform (or even 
+complete) on a really badly fragmented system? I guess splitting into 
+smaller pages or at least adding some reserve kmem_cache (or even 
+mempool) would make sense?
+
+>>
+>> I also wonder if it wouldn't it make sense to set a sensible limit in
+>> virtio_fs_ctx_set_defaults() instead of introducing a new variable?
+> 
+> As said in the commit message:
+> 
+> A feasible solution is to limit the value of max_read for virtiofs, so
+> the length passed to kmalloc() will be limited. However it will affects
+> the max read size for ITER_IOVEC io and the value of max_write also needs
+> limitation.
+> 
+> It is a bit hard to set a reasonable value for both max_read and
+> max_write to handle both normal ITER_IOVEC io and ITER_KVEC io. And
+> considering ITER_KVEC io + dio case is uncommon, I think using a new
+> limitation is more reasonable.
+
+For ITER_IOVEC max_pages applies - which is limited to 
+FUSE_MAX_MAX_PAGES - why can't this be used in virtio_fs_ctx_set_defaults?
+
+@Miklos, is there a reason why there is no upper fc->max_{read,write} 
+limit in process_init_reply()? Shouldn't both be limited to
+(FUSE_MAX_MAX_PAGES * PAGE_SIZE). Or any other reasonable limit?
+
+
+Thanks,
+Bernd
+
+
+
+>>
+>> Also, I guess the issue is kmalloc_array() in virtio_fs_enqueue_req?
+>> Wouldn't it make sense to use kvm_alloc_array/kvfree in that function?
+>>
+>>
+>> Thanks,
+>> Bernd
+>>
+>>
+>>> 10MB is passed to copy_args_to_argbuf(), kmalloc() is called in turn
+>>> with len=10MB, and triggers the warning in __alloc_pages():
+>>> WARN_ON_ONCE_GFP(order > MAX_ORDER, gfp)).
+>>>
+>>> A feasible solution is to limit the value of max_read for virtiofs, so
+>>> the length passed to kmalloc() will be limited. However it will affects
+>>> the max read size for ITER_IOVEC io and the value of max_write also
+>>> needs
+>>> limitation. So instead of limiting the values of max_read and max_write,
+>>> introducing max_nopage_rw to cap both the values of max_read and
+>>> max_write when the fuse dio read/write request is initiated from kernel.
+>>>
+>>> Considering that fuse read/write request from kernel is uncommon and to
+>>> decrease the demand for large contiguous pages, set max_nopage_rw as
+>>> 256KB instead of KMALLOC_MAX_SIZE - 4096 or similar.
+>>>
+>>> Fixes: a62a8ef9d97d ("virtio-fs: add virtiofs filesystem")
+>>> Signed-off-by: Hou Tao <houtao1@huawei.com>
+>>> ---
+>>>    fs/fuse/file.c      | 12 +++++++++++-
+>>>    fs/fuse/fuse_i.h    |  3 +++
+>>>    fs/fuse/inode.c     |  1 +
+>>>    fs/fuse/virtio_fs.c |  6 ++++++
+>>>    4 files changed, 21 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/fs/fuse/file.c b/fs/fuse/file.c
+>>> index a660f1f21540..f1beb7c0b782 100644
+>>> --- a/fs/fuse/file.c
+>>> +++ b/fs/fuse/file.c
+>>> @@ -1422,6 +1422,16 @@ static int fuse_get_user_pages(struct
+>>> fuse_args_pages *ap, struct iov_iter *ii,
+>>>        return ret < 0 ? ret : 0;
+>>>    }
+>>>    +static size_t fuse_max_dio_rw_size(const struct fuse_conn *fc,
+>>> +                   const struct iov_iter *iter, int write)
+>>> +{
+>>> +    unsigned int nmax = write ? fc->max_write : fc->max_read;
+>>> +
+>>> +    if (iov_iter_is_kvec(iter))
+>>> +        nmax = min(nmax, fc->max_nopage_rw);
+>>> +    return nmax;
+>>> +}
+>>> +
+>>>    ssize_t fuse_direct_io(struct fuse_io_priv *io, struct iov_iter *iter,
+>>>                   loff_t *ppos, int flags)
+>>>    {
+>>> @@ -1432,7 +1442,7 @@ ssize_t fuse_direct_io(struct fuse_io_priv *io,
+>>> struct iov_iter *iter,
+>>>        struct inode *inode = mapping->host;
+>>>        struct fuse_file *ff = file->private_data;
+>>>        struct fuse_conn *fc = ff->fm->fc;
+>>> -    size_t nmax = write ? fc->max_write : fc->max_read;
+>>> +    size_t nmax = fuse_max_dio_rw_size(fc, iter, write);
+>>>        loff_t pos = *ppos;
+>>>        size_t count = iov_iter_count(iter);
+>>>        pgoff_t idx_from = pos >> PAGE_SHIFT;
+>>> diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
+>>> index 1df83eebda92..fc753cd34211 100644
+>>> --- a/fs/fuse/fuse_i.h
+>>> +++ b/fs/fuse/fuse_i.h
+>>> @@ -594,6 +594,9 @@ struct fuse_conn {
+>>>        /** Constrain ->max_pages to this value during feature
+>>> negotiation */
+>>>        unsigned int max_pages_limit;
+>>>    +    /** Maximum read/write size when there is no page in request */
+>>> +    unsigned int max_nopage_rw;
+>>> +
+>>>        /** Input queue */
+>>>        struct fuse_iqueue iq;
+>>>    diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
+>>> index 2a6d44f91729..4cbbcb4a4b71 100644
+>>> --- a/fs/fuse/inode.c
+>>> +++ b/fs/fuse/inode.c
+>>> @@ -923,6 +923,7 @@ void fuse_conn_init(struct fuse_conn *fc, struct
+>>> fuse_mount *fm,
+>>>        fc->user_ns = get_user_ns(user_ns);
+>>>        fc->max_pages = FUSE_DEFAULT_MAX_PAGES_PER_REQ;
+>>>        fc->max_pages_limit = FUSE_MAX_MAX_PAGES;
+>>> +    fc->max_nopage_rw = UINT_MAX;
+>>>          INIT_LIST_HEAD(&fc->mounts);
+>>>        list_add(&fm->fc_entry, &fc->mounts);
+>>> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+>>> index 5f1be1da92ce..3aac31d45198 100644
+>>> --- a/fs/fuse/virtio_fs.c
+>>> +++ b/fs/fuse/virtio_fs.c
+>>> @@ -1452,6 +1452,12 @@ static int virtio_fs_get_tree(struct
+>>> fs_context *fsc)
+>>>        /* Tell FUSE to split requests that exceed the virtqueue's size */
+>>>        fc->max_pages_limit = min_t(unsigned int, fc->max_pages_limit,
+>>>                        virtqueue_size - FUSE_HEADER_OVERHEAD);
+>>> +    /* copy_args_to_argbuf() uses kmalloc-ed memory as bounce buffer
+>>> +     * for fuse args, so limit the total size of these args to prevent
+>>> +     * the warning in __alloc_pages() and decrease the demand for large
+>>> +     * contiguous pages.
+>>> +     */
+>>> +    fc->max_nopage_rw = min(fc->max_nopage_rw, 256U << 10);
+>>>          fsc->s_fs_info = fm;
+>>>        sb = sget_fc(fsc, virtio_fs_test_super, set_anon_super_fc);
+>> .
+> 
+> 
