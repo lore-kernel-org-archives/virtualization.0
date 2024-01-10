@@ -1,80 +1,127 @@
-Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BC554D103
-	for <virtualization@lists.linux.dev>; Wed, 10 Jan 2024 17:50:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A23244EB34
+	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 20:40:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="m/s7wvlw"
-Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-1d3ea8d0f9dso158355ad.1
-        for <virtualization@lists.linux.dev>; Wed, 10 Jan 2024 09:50:21 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1704909021; x=1705513821; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ziX4iAyQd6HuMoejvtTa4o/24+LLm+GeIG6etI51RFw=;
-        b=m/s7wvlwp1jNT0NtXXgiISVYE06BgDu8gdvSlh2kLw/2/XObuURNUc7/xZ35ELrocT
-         MGX41o6rzr4kt50BxE+upyaehU5J18bmZB/RYHiGHJPaMDw8E0aZPoeA2BLy7pQByKpQ
-         LnAyOh4nz0kaaImK5tfFQm6ru1iHRYlzu5Si0hX153LiEH4zU+wIlpSlCxiWZ7YnQlMH
-         vwG98ZUweku7E+ya7dyycB2W337bWhXX/KlTglI3OgFQ+eS2rguxGhIcswsjXZXnj9Bj
-         Bjy+w4/htUWIQ58EM2WPXPkJ68+zXPTuf8TiKQhUN60zV8M7zbVgQnSjUOrK1N9WXLhp
-         6uJA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1704909021; x=1705513821;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ziX4iAyQd6HuMoejvtTa4o/24+LLm+GeIG6etI51RFw=;
-        b=QDwU0/CW+jg4pPPMI4k+WooCCSpTD6rOutvpIuZK2VFsS42UNi+8GVhx+zt+isDGFX
-         I262NQrhcmpgd2LyxWBbG2TEyfamawVaRGa/hope4J+k9WRDogIBXNswaebAYvvIRhcu
-         xq7YDqYdIXfDNz0mzrvwNoKmRKwO6aqz9gRhkLjGnPHcirQ/8BQrumFkrQWJ3aK2rB6u
-         vqb5snrrouHA/Y05qyUguEkyD2IilZ6q5k2KTuFdVF2n/2LiL9EIJ1N7LOsXMf3WNA2p
-         WWY19G0B7T0njrY4UO2bU5AReQi+8/alpAf4VYdSfjxWaqTII9nOCaQaeQnlc1d9Dur/
-         DS1w==
-X-Gm-Message-State: AOJu0Yw8UTMYjpbD+Kd/D3Y7B3e8UR8M/FCGoCNIPurKtIM/EP1Qg1hj
-	9L+lN3sElthGY27pWWa1CT+mqSyKHOGYh91ptnqc+eLaMJKISGD0T+S0Y4uI1/DYBtfvN8SrgJN
-	BRStdMAsW8rAZXuZ20n9WbJAzwcj76uWIUsRW
-X-Google-Smtp-Source: AGHT+IEJ1kVbKPySZnD2kKeOBfKyCBhNXAuJLGSkzYysePXX7J9uu7bfnYGIqnXlWDnqA8f4ASaYZl73K0Ijv1kIfTA=
-X-Received: by 2002:a17:902:da8c:b0:1d4:c2bd:eff1 with SMTP id
- j12-20020a170902da8c00b001d4c2bdeff1mr7544plx.8.1704909020628; Wed, 10 Jan
- 2024 09:50:20 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="gCI+N7HB"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 2775283DAB
+	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 20:40:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2775283DAB
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-11-20 header.b=gCI+N7HB
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Bz5NYXZjWJT8
+	for <virtualization@lists.linux-foundation.org>;
+	Wed, 10 Jan 2024 20:40:30 +0000 (UTC)
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 3F1C983DA5
+	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 20:40:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3F1C983DA5
+Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40AIEK96001454;
+	Wed, 10 Jan 2024 20:40:19 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references; s=corp-2023-11-20;
+ bh=942sXqvaN/YRz+5JZ7VDvcQeVeKMBRPm66kgeJtsQ+o=;
+ b=gCI+N7HB3jkpEu0c/s6uCDQ75z+yo382dhvlRZrT5FmVjpxye0UkkQZ6GkWmJCeYFUW8
+ R2Ua0vSSzXXu+RLwBAvC80fTLUurym+q9pENZG8oPGAT0Q+DOy6in3hIsCMK8fyQCmYf
+ A+R0DLmB1ohxf7TGxMXAaGILQCJgqj3lXZRcEt1S/MUmlcINlk2rfTGO2gq351y8pUhJ
+ YuDgmyIgN/ZygHNrYK3AzkYM/WQ21b3tvZPlJ9tG3J+HHU3eJl57ZyaJZnVP9YBHFfUN
+ 2pzBRNAw9kbnnU0PmYMcu1FUFz/tNCm7Iys0cNoW1LmUNkAhrrnsXUvvFBuhGZrdyYJ4 zw== 
+Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3vhvgm8x67-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 10 Jan 2024 20:40:19 +0000
+Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 40AJGHj8030139;
+	Wed, 10 Jan 2024 20:40:18 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3vfutp5x74-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 10 Jan 2024 20:40:18 +0000
+Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 40AKeGrR005067;
+	Wed, 10 Jan 2024 20:40:18 GMT
+Received: from ca-dev63.us.oracle.com (ca-dev63.us.oracle.com [10.211.8.221])
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTP id 3vfutp5x5e-2;
+	Wed, 10 Jan 2024 20:40:17 +0000
+From: Steve Sistare <steven.sistare@oracle.com>
+To: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+        Si-Wei Liu <si-wei.liu@oracle.com>,
+        Eugenio Perez Martin <eperezma@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Dragos Tatulea <dtatulea@nvidia.com>, Eli Cohen <elic@nvidia.com>,
+        Xie Yongji <xieyongji@bytedance.com>,
+        Steve Sistare <steven.sistare@oracle.com>
+Subject: [RFC V1 01/13] vhost-vdpa: count pinned memory
+Date: Wed, 10 Jan 2024 12:40:03 -0800
+Message-Id: <1704919215-91319-2-git-send-email-steven.sistare@oracle.com>
+X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1704919215-91319-1-git-send-email-steven.sistare@oracle.com>
+References: <1704919215-91319-1-git-send-email-steven.sistare@oracle.com>
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-01-10_10,2024-01-10_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 bulkscore=0 adultscore=0
+ phishscore=0 malwarescore=0 mlxlogscore=985 suspectscore=0 mlxscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
+ definitions=main-2401100163
+X-Proofpoint-GUID: MBKjZoLFFMSDreR2dbLPd74JjlZNwlV9
+X-Proofpoint-ORIG-GUID: MBKjZoLFFMSDreR2dbLPd74JjlZNwlV9
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-References: <20231220214505.2303297-1-almasrymina@google.com>
- <20231220214505.2303297-3-almasrymina@google.com> <20231221232343.qogdsoavt7z45dfc@google.com>
- <CAHS8izOp_m9SyPjNth-iYBXH2qQQpc9PuZaHbpUL=H0W=CVHgQ@mail.gmail.com> <20240104134424.399fee0a@kernel.org>
-In-Reply-To: <20240104134424.399fee0a@kernel.org>
-From: Shakeel Butt <shakeelb@google.com>
-Date: Wed, 10 Jan 2024 09:50:08 -0800
-Message-ID: <CALvZod4xbQr0gZdfXYNTaS11d2T2hHpXxi5Lfyt=y+TcDseOhg@mail.gmail.com>
-Subject: Re: [PATCH net-next v3 2/3] net: introduce abstraction for network memory
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: Mina Almasry <almasrymina@google.com>, linux-kernel@vger.kernel.org, 
-	netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Paolo Abeni <pabeni@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
-	Stefano Garzarella <sgarzare@redhat.com>, David Howells <dhowells@redhat.com>, 
-	Jason Gunthorpe <jgg@nvidia.com>, =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
-	Yunsheng Lin <linyunsheng@huawei.com>, Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jan 4, 2024 at 1:44=E2=80=AFPM Jakub Kicinski <kuba@kernel.org> wro=
-te:
->
-[...]
->
-> You seem to be trying hard to make struct netmem a thing.
-> Perhaps you have a reason I'm not getting?
+Remember the count of pinned memory for the device.
 
-Mina already went with your suggestion and that is fine. To me, struct
-netmem is more aesthetically aligned with the existing struct
-encoded_page approach, but I don't have a strong opinion one way or
-the other. However it seems like you have a stronger preference for
-__bitwise approach. Is there a technical reason or just aesthetic?
+Signed-off-by: Steve Sistare <steven.sistare@oracle.com>
+---
+ drivers/vhost/vdpa.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index da7ec77cdaff..10fb95bcca1a 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -59,6 +59,7 @@ struct vhost_vdpa {
+ 	int in_batch;
+ 	struct vdpa_iova_range range;
+ 	u32 batch_asid;
++	long pinned_vm;
+ };
+ 
+ static DEFINE_IDA(vhost_vdpa_ida);
+@@ -893,6 +894,7 @@ static void vhost_vdpa_pa_unmap(struct vhost_vdpa *v, struct vhost_iotlb *iotlb,
+ 			unpin_user_page(page);
+ 		}
+ 		atomic64_sub(PFN_DOWN(map->size), &dev->mm->pinned_vm);
++		v->pinned_vm -= PFN_DOWN(map->size);
+ 		vhost_vdpa_general_unmap(v, map, asid);
+ 		vhost_iotlb_map_free(iotlb, map);
+ 	}
+@@ -975,9 +977,10 @@ static int vhost_vdpa_map(struct vhost_vdpa *v, struct vhost_iotlb *iotlb,
+ 		return r;
+ 	}
+ 
+-	if (!vdpa->use_va)
++	if (!vdpa->use_va) {
+ 		atomic64_add(PFN_DOWN(size), &dev->mm->pinned_vm);
+-
++		v->pinned_vm += PFN_DOWN(size);
++	}
+ 	return 0;
+ }
+ 
+-- 
+2.39.3
+
