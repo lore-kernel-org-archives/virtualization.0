@@ -1,91 +1,190 @@
-Received: from mout.web.de (mout.web.de [212.227.17.12])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7CA533981;
-	Wed, 10 Jan 2024 07:47:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D52043A1CF
+	for <virtualization@lists.linux.dev>; Wed, 10 Jan 2024 08:01:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="RDDlycAb"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de; s=s29768273;
-	t=1704872802; x=1705477602; i=markus.elfring@web.de;
-	bh=hhPaJcyeSBxTfwuEoDUTo5lm2LbnDI4Sufrw3CS2k2s=;
-	h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:
-	 In-Reply-To;
-	b=RDDlycAbIBjqIBZhciOaoMzfl8tat1ml5+qzKdoiHfMJreRpIHAbWIXRnPKwlnhr
-	 w0vse/ZAZ3cCwQ7mccrHYN9VDuoVlfWNQ8uIZoL8s+3TUf5O7ga+mecRtASez08rI
-	 07w8aaKfxzw/exDThF6Fkwkrpnv/ZCpWbCcynR7vWOWhUdijv5Jjt3cQq8mcyTSJI
-	 RT4OMizwoUpYzSXNWSPBgXIEHsEDQQyf5YMDWTPeDR7HY/BXT9aPGL5XZp7AaYCwy
-	 ZrYY/gILsaXbNsNlUzLE3Ss51DRCGO3dBL1NNgDiVupzBTuhoQdAYuR6EDnClKaee
-	 2l1JfThVel14fi8LUQ==
-X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
-Received: from [192.168.178.21] ([94.31.86.95]) by smtp.web.de (mrweb106
- [213.165.67.124]) with ESMTPSA (Nemesis) id 1MC0LH-1rTH7H11Th-00CKiQ; Wed, 10
- Jan 2024 08:46:42 +0100
-Message-ID: <0d7a06f0-7a0e-47c8-b89e-c3122b46d93e@web.de>
-Date: Wed, 10 Jan 2024 08:46:21 +0100
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="b5NJQf9V"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1704873714;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=vhS5A7tl/uywNAVxzqgUdgpEvRWCxnpPFs8rrAowgR0=;
+	b=b5NJQf9VKvqmdifcWdwl5O6wrlRuZiM4eM1Hv+G9dQqGWF0ZliCiq0tlxvJ8B8OLxPw0yu
+	4ZMrnHYsRLl5gmn5wVY8+GKXIw/ZRjkfpUff7JyD9vlLMjzzxFfhmRZdDvmkNnXbcpbNsS
+	Zs09kB1g7bpl4yiw5OlzD0KPLkMlgQU=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-526-kmwzD-DZPVmo-zmSNIMANA-1; Wed, 10 Jan 2024 03:01:53 -0500
+X-MC-Unique: kmwzD-DZPVmo-zmSNIMANA-1
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-40e40126031so32638825e9.0
+        for <virtualization@lists.linux.dev>; Wed, 10 Jan 2024 00:01:53 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1704873712; x=1705478512;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=vhS5A7tl/uywNAVxzqgUdgpEvRWCxnpPFs8rrAowgR0=;
+        b=lSVJGxVmVsy+XOZ/TGVxzD8JOIfuNHuXWWzcea2p70q0ksp3ei/9NXOxW3Ko0gT7tZ
+         D8FglZmUHXCkojRy7shhLlLffix5svvc4pLl2YccpSE2C7PHaWsNszxVb03t0fb3o6pj
+         Nayft5Nm7X4HCubbUG2C/Hexv8dSXrFVg+YDYQPf9uKSb74x2uUgN+4xdllTOzp0HILr
+         ixFoij+1yy5akGdAEIStALgLI6YAaYY8IX933udsp1YQ/qOObo0yEj7XNGen0EtsE/2F
+         xyf7AcAPBEbrcAFH93k2MfU4MxaW3ZP3zitDT681+mg6F1DrgEwiL+142+s59Y9Bc6Vg
+         KC/A==
+X-Gm-Message-State: AOJu0Yzn7fOhpW/KAq6yJPzPBNbSUhyv6B1Cvtb0qOXiIe96wf5Bua7u
+	1pfkDYvaJgiTDq8lO4a25O2WlG8dT07FkYZAjAOfUJ72Zh6YeIiLV70bkuXJ/GHSwu016Po7yV2
+	bOzRyB32Xx8vHmtXrixPUA8pkcOIe2/rAIg0=
+X-Received: by 2002:a7b:ca45:0:b0:40e:4df9:8996 with SMTP id m5-20020a7bca45000000b0040e4df98996mr345318wml.23.1704873712315;
+        Wed, 10 Jan 2024 00:01:52 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEkekCxMK/uJAHDEhg7TzPrNHweUGTbl7o5uzeSclp37gm5JnIkTH1E+AKAqyk8FrSpNN6axg==
+X-Received: by 2002:a7b:ca45:0:b0:40e:4df9:8996 with SMTP id m5-20020a7bca45000000b0040e4df98996mr345304wml.23.1704873711915;
+        Wed, 10 Jan 2024 00:01:51 -0800 (PST)
+Received: from redhat.com ([2.52.133.193])
+        by smtp.gmail.com with ESMTPSA id s7-20020a05600c45c700b0040d8ff79fd8sm1229542wmo.7.2024.01.10.00.01.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 10 Jan 2024 00:01:51 -0800 (PST)
+Date: Wed, 10 Jan 2024 03:01:48 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Zheyun Shen <szy0127@sjtu.edu.cn>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+	david <david@redhat.com>, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com
+Subject: Re: [PATCH] driver/virtio: Add Memory Balloon Support for SEV/SEV-ES
+Message-ID: <20240110025544-mutt-send-email-mst@kernel.org>
+References: <2035137075.1083380.1704867762955.JavaMail.zimbra@sjtu.edu.cn>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: crypto: virtio - Less function calls in
- __virtio_crypto_akcipher_do_req() after error detection
-To: Justin Stitt <justinstitt@google.com>, virtualization@lists.linux.dev,
- linux-crypto@vger.kernel.org, kernel-janitors@vger.kernel.org,
- netdev@vger.kernel.org, cocci@inria.fr
-Cc: kernel test robot <lkp@intel.com>, "David S. Miller"
- <davem@davemloft.net>, Gonglei <arei.gonglei@huawei.com>,
- Herbert Xu <herbert@gondor.apana.org.au>, Jason Wang <jasowang@redhat.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo
- <xuanzhuo@linux.alibaba.com>, llvm@lists.linux.dev,
- oe-kbuild-all@lists.linux.dev, LKML <linux-kernel@vger.kernel.org>
-References: <2413f22f-f0c3-45e0-9f6b-a551bdf0f54c@web.de>
- <202312260852.0ge5O8IL-lkp@intel.com>
- <7bf9a4fa-1675-45a6-88dd-82549ae2c6e0@web.de>
- <20240109234241.4q3ueqdjz5o54oan@google.com>
-Content-Language: en-GB
-From: Markus Elfring <Markus.Elfring@web.de>
-In-Reply-To: <20240109234241.4q3ueqdjz5o54oan@google.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:uYjo0zmC9Bv8IGNYZK4OcE5zWAU90y0/cZTEhqTTR+46QfZcrke
- tgvURLyjA9lTvet4ThfCVXnv8xkFz5vm5k/faG0SI34wHLmSeb4+ISwwXtzGVUNyei+sko3
- imEXpQg0tfMnY2jPBNEQpi1Nej6dOCS3XWYf+0+cvT6Tzo9nqafppm62vyx/roH5eUamaVt
- V+cwMMwdBpWwOAkMutt1A==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:S0h3qRtm9JU=;wWqjC0b120yckKxNsgoQLwgkgBW
- TANfswLwhLmaw2f/tPyZEWPKAcRWd062YgXcSl/MJ2qJRU1QKDsfT2ThjEWt9E72pzH0XbipK
- ek+fzGIiWGzIJsPlXIujThtScJKp1023bSnfHXoawQA9pX+pihbfTuFGFlAUTWqVRcAWqrqli
- 0nCKkRvwtVBpgQQHcOkSiZz2JlCRwk57Shx+Gvg6y5bk4L3PH3AlWQ8tO6Xp3nleW9MR0s7si
- MSvzw7RCAFeB6LwjIZwmlOEOjjPLPbYUs521VFEI/yO6FjCahBvoh12NcXhyV06gTwrZxYSeE
- b8pBwfLUgR/Esz4UAIkpBHYPrX/bWsRwmcnQHgEEK4xgOgGDjqsiyPzEp2Y2Efcn2/R/EF712
- VQk246045auIbeX9HAJOCho2yLaMsyEH1f6EHNTxHg0+SqFqDWpwoGio4SkvRb3I8VuZ3pxn4
- pKeUq4c1gFEumr07bBhEG4mi/NUQgnLyhdgW6BwDdFk4VwWYt4+ogSIr5ka7LK0XE9enEulDt
- FYzDmGriybFkbMm6TBpDciJx5Sh6BnEUu+Et3jr/Wo5juVLgYVUD68PVkhXYCB9kXCZBCdsVV
- ugIrdZ0ILSXTq7qyQMj80Xqu7K02gBTP9d/ghsEIPcwB8ADu4LuJO6tT7jydAQmru2Q2FVJk1
- ivWlGskt+2ukhVot4diVbYzhRSU40RAEtZ+czNRSy7ThyCDOja3gPdwSQvyCuhQFKR8wgwG9b
- XrqtDCFIWRfjgOes6u/gzPr5TaEA4NNxHUyub1v+1OAf9I203fen86ea5RIg7ATId3YwnrbNF
- CPYepQfCHStuUHXi9ghJSc64B7/bq4g0XeNcJeCEkljhWyB2+P2eOjuzJeW/QqYtSYA6LzvEr
- oZ4SBkMQ7rrO/7shvLlLjbwtqb6JDHUcnuYj1+D6YDz0o8p6Hfvl/T+rJqJzOzUkuEamvmJ98
- B+3jVJr1HhEYCoxIDT4FjRo5reo=
+In-Reply-To: <2035137075.1083380.1704867762955.JavaMail.zimbra@sjtu.edu.cn>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
->> The kfree() function was called in up to two cases by the
->> __virtio_crypto_akcipher_do_req() function during error handling
->> even if the passed variable contained a null pointer.
->> This issue was detected by using the Coccinelle software.
->
-> If the script is short and simple would you mind, in the future,
-> including it below the fold -- this may help others do similar work down
-> the line -- Or =E2=80=A6
+On Wed, Jan 10, 2024 at 02:22:42PM +0800, Zheyun Shen wrote:
+> For now, SEV pins guest's memory to avoid swapping or
+> moving ciphertext, but leading to the inhibition of
+> Memory Ballooning.
+> 
+> In Memory Ballooning, only guest's free pages will be relocated
+> in balloon inflation and deflation, so the difference of plaintext
+> doesn't matter to guest.
+> 
+> Memory Ballooning is a nice memory overcommitment technology can
+> be used in CVM based on SEV and SEV-ES, so userspace tools can
+> provide an option to allow SEV not to pin memory and enable 
+> Memory Ballooning. Guest kernel may not inhibit Balloon and 
+> should set shared memory for Balloon decrypted.
+> 
+> Signed-off-by: Zheyun Shen <szy0127@sjtu.edu.cn>
 
-Would you like to take another look at the clarification approach
-=E2=80=9CReconsidering kfree() calls for null pointers (with SmPL)=E2=80=
-=9D?
-https://lore.kernel.org/cocci/6cbcf640-55e5-2f11-4a09-716fe681c0d2@web.de/
-https://sympa.inria.fr/sympa/arc/cocci/2023-03/msg00096.html
+Sorry I don't get what you are saying at all.
+Please format the commit log along the following lines:
 
-Regards,
-Markus
+Currently .....
+This is bad because ...
+To fix ...
+As a result ...
+
+
+> ---
+>  drivers/virtio/virtio_balloon.c | 18 ++++++++++++++++++
+>  drivers/virtio/virtio_ring.c    |  7 +++++++
+>  2 files changed, 25 insertions(+)
+> 
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index 1fe93e93f..aca4c8a58 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -18,6 +18,9 @@
+>  #include <linux/wait.h>
+>  #include <linux/mm.h>
+>  #include <linux/page_reporting.h>
+> +#ifdef CONFIG_AMD_MEM_ENCRYPT
+> +#include <linux/set_memory.h>
+> +#endif
+>  
+>  /*
+>   * Balloon device works in 4K page units.  So each page is pointed to by
+> @@ -870,6 +873,9 @@ static int virtio_balloon_register_shrinker(struct virtio_balloon *vb)
+>  static int virtballoon_probe(struct virtio_device *vdev)
+>  {
+>          struct virtio_balloon *vb;
+> +#ifdef CONFIG_AMD_MEM_ENCRYPT
+> +        size_t vb_size = PAGE_ALIGN(sizeof(*vb));
+> +#endif
+>          int err;
+>  
+>          if (!vdev->config->get) {
+> @@ -878,11 +884,19 @@ static int virtballoon_probe(struct virtio_device *vdev)
+>                  return -EINVAL;
+>          }
+>  
+> +#ifdef CONFIG_AMD_MEM_ENCRYPT
+> +        vdev->priv = vb = kzalloc(vb_size, GFP_KERNEL);
+> +#else
+>          vdev->priv = vb = kzalloc(sizeof(*vb), GFP_KERNEL);
+> +#endif
+>          if (!vb) {
+>                  err = -ENOMEM;
+>                  goto out;
+>          }
+> +#ifdef CONFIG_AMD_MEM_ENCRYPT
+> +        set_memory_decrypted((unsigned long)vb, vb_size / PAGE_SIZE);
+> +        memset(vb, 0, vb_size);
+> +#endif
+>  
+>          INIT_WORK(&vb->update_balloon_stats_work, update_balloon_stats_func);
+>          INIT_WORK(&vb->update_balloon_size_work, update_balloon_size_func);
+> @@ -1101,7 +1115,11 @@ static int virtballoon_validate(struct virtio_device *vdev)
+>          else if (!virtio_has_feature(vdev, VIRTIO_BALLOON_F_PAGE_POISON))
+>                  __virtio_clear_bit(vdev, VIRTIO_BALLOON_F_REPORTING);
+>  
+> +#ifdef CONFIG_AMD_MEM_ENCRYPT
+> +        __virtio_set_bit(vdev, VIRTIO_F_ACCESS_PLATFORM);
+> +#else
+>          __virtio_clear_bit(vdev, VIRTIO_F_ACCESS_PLATFORM);
+> +#endif
+>          return 0;
+>  }
+>  
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index 49299b1f9..875612a2e 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -14,6 +14,9 @@
+>  #include <linux/kmsan.h>
+>  #include <linux/spinlock.h>
+>  #include <xen/xen.h>
+> +#ifdef CONFIG_AMD_MEM_ENCRYPT
+> +#include <linux/set_memory.h>
+> +#endif
+>  
+>  #ifdef DEBUG
+>  /* For development, we want to crash whenever the ring is screwed. */
+> @@ -321,6 +324,10 @@ static void *vring_alloc_queue(struct virtio_device *vdev, size_t size,
+>                  if (queue) {
+>                          phys_addr_t phys_addr = virt_to_phys(queue);
+>                          *dma_handle = (dma_addr_t)phys_addr;
+> +#ifdef CONFIG_AMD_MEM_ENCRYPT
+> +                        set_memory_decrypted((unsigned long)queue, PAGE_ALIGN(size) / PAGE_SIZE);
+> +                        memset(queue, 0, PAGE_ALIGN(size));
+> +#endif
+>  
+>                          /*
+>                           * Sanity check: make sure we dind't truncate
+
+No way I am going to spead CONFIG_AMD_MEM_ENCRYPT all over the place
+like this.
+
+
+> --
+> 2.34.1
+
