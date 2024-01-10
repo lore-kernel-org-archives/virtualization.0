@@ -1,215 +1,525 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D73440C0F
-	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 10:46:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AB88482DC
+	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 10:48:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="uMi0c6yg"
+	dkim=pass (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.b="kBrrlUie"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id D06AA81F01
-	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 10:46:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D06AA81F01
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=uMi0c6yg
+	by smtp2.osuosl.org (Postfix) with ESMTP id DFCAB43553
+	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 10:48:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DFCAB43553
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.a=rsa-sha256 header.s=google header.b=kBrrlUie
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.103
+X-Spam-Score: -2.098
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id wd1ZoXYrOIZP
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id gKvWl4yxJ_2S
 	for <virtualization@lists.linux-foundation.org>;
-	Wed, 10 Jan 2024 10:46:46 +0000 (UTC)
-Received: from NAM02-DM3-obe.outbound.protection.outlook.com (mail-dm3nam02on20600.outbound.protection.outlook.com [IPv6:2a01:111:f400:7e83::600])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 345B181A65
-	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 10:46:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 345B181A65
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=itvEVsnlF+fX2mRQ/HfMJ9fS47oA/H87uugIGpy9tofmmi9YAWsCIJEeAi3I6u+U2kyohtkt5u5iHyItN1/jbm+1oExgU6kf8IhWSJfWRlGOcIW8PGCeAqb9xTlNOEyIoSuumdDkTSHeukKvH0Mm593y9ZYKIOqoYbqFUTtbh91y6fOMJ5kWrV47b6id6pxqEctgY8cdOs7nHozT74x58eXG05SEXmAiZIm1nlvBzaU6LKvMwaeT3qSPk2p9TvYmMC+YQIoid1I79nRadsR/l2xnlv8zvD/t6cVk7osnH/f3n8D7Kl51EFk9024wKHTFjEY2U6YXCFFN9QyWZ0fnaQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=1CEqOqGioKW/WkwZAZjCbplCVGJOgF9UX1vSHK3zn34=;
- b=mBe3lisYbjDHTEiRvnKs/DPtrgbgvCGbNFNZ6xNEYbWzGWgsQEOUdjzSuWuISrRJmS9yBZUqSj9u7j+VMAPJHOMpOGB6hokvwUzGUavWEbL5TrSAsG4K6fI2qetjV9VdDjfd7D7TvKob4/N/I3UHynZhDVEzrD69nM6qqI9TMe7eHC1DsjfusMRrC1GktrWa/Y+k2iy4mZDwiKDMJjBmk/ySS5RrBOLQ75AF/LxXJW02FhCcE15GkDnNwBI0vRGyfaZUUEq+m3lK0dI8p1rK0qu3QpXo6Qz+j3kZa9kdvj0Bb/UHjqKyjLReCMs58WO8vqwrc5dQBo27+Yt/UDXbXg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=1CEqOqGioKW/WkwZAZjCbplCVGJOgF9UX1vSHK3zn34=;
- b=uMi0c6ygQuKpmF7hAxpNBhZUgayEkxGIZgEbsf/uHB0d25LHNQM3rKMPfr6TeDmFbhsQ4C63NMVSXR1HffhwClJwuDUk38sFpMjtSbnWGtc8nyoAvPQV/CspOf5rHlqA7ehGMb8JykJ6KoJFsnxV93eJZ1C8D1N1NstrQw9a3co=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from PH7PR12MB5685.namprd12.prod.outlook.com (2603:10b6:510:13c::22)
- by BN9PR12MB5228.namprd12.prod.outlook.com (2603:10b6:408:101::7) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7181.18; Wed, 10 Jan
- 2024 10:46:42 +0000
-Received: from PH7PR12MB5685.namprd12.prod.outlook.com
- ([fe80::e1fb:4123:48b1:653]) by PH7PR12MB5685.namprd12.prod.outlook.com
- ([fe80::e1fb:4123:48b1:653%4]) with mapi id 15.20.7159.020; Wed, 10 Jan 2024
- 10:46:42 +0000
-Message-ID: <12505066-eb42-4ddf-9c6d-29eca6eefdbc@amd.com>
-Date: Wed, 10 Jan 2024 11:46:35 +0100
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/1] drm/virtio: Implement device_attach
-Content-Language: en-US
-To: Julia Zhang <julia.zhang@amd.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, David Airlie <airlied@redhat.com>,
- Gerd Hoffmann <kraxel@redhat.com>, linux-kernel@vger.kernel.org,
- dri-devel@lists.freedesktop.org, amd-gfx@lists.freedesktop.org,
- virtualization@lists.linux-foundation.org,
- Alex Deucher <alexander.deucher@amd.com>, David Airlie <airlied@gmail.com>,
- Erik Faye-Lund <kusmabite@gmail.com>, =?UTF-8?B?TWFyZWsgT2zFocOhaw==?=
- <marek.olsak@amd.com>,
- Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>,
- Honglei Huang <honglei1.huang@amd.com>, Chen Jiqian <Jiqian.Chen@amd.com>,
- Huang Rui <ray.huang@amd.com>
-References: <20240110095627.227454-1-julia.zhang@amd.com>
- <20240110095627.227454-2-julia.zhang@amd.com>
- <8ce0d90d-c751-4250-8656-fcab27aec6c2@amd.com>
- <ZZ5v7Fm-Iccw7nJR@phenom.ffwll.local>
-From: =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
-In-Reply-To: <ZZ5v7Fm-Iccw7nJR@phenom.ffwll.local>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: FR3P281CA0014.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:1d::7) To PH7PR12MB5685.namprd12.prod.outlook.com
- (2603:10b6:510:13c::22)
+	Wed, 10 Jan 2024 10:48:02 +0000 (UTC)
+Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id D131A4014E
+	for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 10:48:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D131A4014E
+Received: by mail-ej1-x634.google.com with SMTP id a640c23a62f3a-a28af5d7531so111370466b.1
+        for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 02:48:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ffwll.ch; s=google; t=1704883680; x=1705488480; darn=lists.linux-foundation.org;
+        h=in-reply-to:content-disposition:mime-version:references
+         :mail-followup-to:message-id:subject:cc:to:from:date:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=C+qZeuaWTWVR2GNELf3bh21gU+G+3ouJJGGegnUo4u8=;
+        b=kBrrlUieQkDCVIi2ym84LxUJSu5BVGezzu5nbMnWSFRMQ2c6sPMWWebilGk+277SAq
+         i21XPJUlN0gCKBVvT4nTX66J6L6IBc4QKI8L1Qa+YMh+fekt4agZcLwH7Mu54G6ZN6xy
+         QXCa+StfT2oVRg784y3l4abEKXFM4OcTyLa7I=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1704883680; x=1705488480;
+        h=in-reply-to:content-disposition:mime-version:references
+         :mail-followup-to:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=C+qZeuaWTWVR2GNELf3bh21gU+G+3ouJJGGegnUo4u8=;
+        b=JttAkTK1b2XjdAxTPSkIGCsxnpef7fOcgf1ejr3BTVRfxb8JUj2bqzanAMpun1Kl3k
+         jYFBQMlp2H1sN81qYu1c2cTEgrHDNDKIP79NyMluxxyDvzCCNoJ6En08A63/fDypp+uD
+         QGyGXUs/ElxDfQO3K4vRC1z2x5LDlpN+rx69AVniLMANxntiWmSoUU/kMzA/hvvCGuL/
+         pH7e//F29iqmewluUDXgi2hncLx1T9961qlXYR/4uJmSZlI+CUgl72qXD9mnUywujSoL
+         e1fqls1MbQ0Y2NgYkbbmv/K+HJhS67GkgJRqJm8Dp3nsIp88kUPTmwXwRNqaJdLxNJXk
+         KMng==
+X-Gm-Message-State: AOJu0YxVUgho5GWPYT5sz7MZiBqMAZd8bHDUV24fW8E4uy3ujzYFzGbC
+	aQ7bmL9xPuZfq0aG1utqnZLxH99wyHQW7w==
+X-Google-Smtp-Source: AGHT+IFDoMaM95651axDNn2Xefy+pLPUZ6pL+i//Un1SRlqb8vlxbpTLkrNSFBNOJKJOoWtzzSZwDg==
+X-Received: by 2002:a17:907:2597:b0:a27:4531:719f with SMTP id ad23-20020a170907259700b00a274531719fmr873908ejc.2.1704883679938;
+        Wed, 10 Jan 2024 02:47:59 -0800 (PST)
+Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
+        by smtp.gmail.com with ESMTPSA id v27-20020a170906181b00b00a2ae0aa9002sm1963891eje.40.2024.01.10.02.47.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 10 Jan 2024 02:47:59 -0800 (PST)
+Date: Wed, 10 Jan 2024 11:47:57 +0100
+From: Daniel Vetter <daniel@ffwll.ch>
+To: Julia Zhang <julia.zhang@amd.com>
+Cc: Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>, David Airlie <airlied@redhat.com>,
+	Gerd Hoffmann <kraxel@redhat.com>, linux-kernel@vger.kernel.org,
+	dri-devel@lists.freedesktop.org, amd-gfx@lists.freedesktop.org,
+	virtualization@lists.linux-foundation.org,
+	Alex Deucher <alexander.deucher@amd.com>,
+	Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
+	Daniel Vetter <daniel@ffwll.ch>, David Airlie <airlied@gmail.com>,
+	Erik Faye-Lund <kusmabite@gmail.com>,
+	Marek =?utf-8?B?T2zFocOhaw==?= <marek.olsak@amd.com>,
+	Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>,
+	Honglei Huang <honglei1.huang@amd.com>,
+	Chen Jiqian <Jiqian.Chen@amd.com>, Huang Rui <ray.huang@amd.com>,
+	Daniel Stone <daniels@collabora.com>
+Subject: Re: [PATCH 1/1] drm/virtio: Implement RESOURCE_GET_LAYOUT ioctl
+Message-ID: <ZZ513SSvYSElj1D2@phenom.ffwll.local>
+Mail-Followup-To: Julia Zhang <julia.zhang@amd.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>, David Airlie <airlied@redhat.com>,
+	Gerd Hoffmann <kraxel@redhat.com>, linux-kernel@vger.kernel.org,
+	dri-devel@lists.freedesktop.org, amd-gfx@lists.freedesktop.org,
+	virtualization@lists.linux-foundation.org,
+	Alex Deucher <alexander.deucher@amd.com>,
+	Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
+	David Airlie <airlied@gmail.com>,
+	Erik Faye-Lund <kusmabite@gmail.com>,
+	Marek =?utf-8?B?T2zFocOhaw==?= <marek.olsak@amd.com>,
+	Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>,
+	Honglei Huang <honglei1.huang@amd.com>,
+	Chen Jiqian <Jiqian.Chen@amd.com>, Huang Rui <ray.huang@amd.com>,
+	Daniel Stone <daniels@collabora.com>
+References: <20231221100016.4022353-1-julia.zhang@amd.com>
+ <20231221100016.4022353-2-julia.zhang@amd.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH7PR12MB5685:EE_|BN9PR12MB5228:EE_
-X-MS-Office365-Filtering-Correlation-Id: d0097fbe-c177-4b0a-8953-08dc11c96e92
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info:
-	KdV/Jqfj5Ap2vtkx2BDaZ8mk1UTYGmzLRWe8x5k07nesFKCkQ9mTad0HoqNr/op6hVhRx7tteYwk/IeeGlGKK/19j95Wl06VdP1pKe5re9qqWXdnf0eCK/eCkletvEKouAPco/4PSgvUGkNuYK6fnmeKgkaixcrnx9ktHWnN3M3XcViB9nxXZ8mqPcaTr5ZiNFqBRqDHXTKqBrHhJRNS6JEIVPcUTU7A2HmRm5nGP1R0crCBHmLvRThi9ZCPPIegyWzUITe+dHJT313mH2TtYgG91lQnoc94EXN/m2Ud6N3gio20hISQk7fZoaXa7alFXDFhmcCeJiziRHBTylClqWZsRUQB21HlZbCvEbK+8V10XFdRD5qCp1i72t5kY6IqdHEdgrTJ+/38uY/RTN6fWxvw+AFj2JPTF5O90Uj53/rRb6dNr/mFzToQzRhSF2eKQiH9cDNMzqCOxR8jhrNrtSQyLH7DJkN29/KYlkMA4YWb1hethjfu6gk6TSUwk5fIBmBoh2gpoH59KY2dr+3G6O5eP/mqUKI+4HdCkJx5bhJ967xIF5gJh8tV0s1E0tWuUfVLSIfm/c/nuc/dT0NXNrly/6DGhhJs3n5p56SSmvs9vW9OSTlT2WeIhxchBn+/5/KOYZYme4sRefz+Bap+fOMfMVkO4GlMduPDFG2t938=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH7PR12MB5685.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(366004)(136003)(39860400002)(376002)(346002)(396003)(230922051799003)(1800799012)(64100799003)(186009)(451199024)(5660300002)(41300700001)(7416002)(2906002)(38100700002)(8936002)(8676002)(36756003)(31696002)(86362001)(83380400001)(478600001)(6486002)(66574015)(6512007)(2616005)(6506007)(6666004)(26005)(66476007)(316002)(6636002)(110136005)(66946007)(66556008)(921011)(31686004)(43740500002)(45980500001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?L2RPbTJTNzFJaFBKZjlHcHJaU2JXNk5KeUw3RkFQNUJpVGgrVll3ME1DRWt3?=
- =?utf-8?B?RjZsUmNQSE8xMTRKZEloSkJOQzh0QjlPSFNrTnVqZUFESmFKdjRjYktKZGxM?=
- =?utf-8?B?QTBHckczR3VnaDlPalV0VGhBRHBKc3Z2R1N1NFh2ZE5YSVM5Sm9EUmVFRVJx?=
- =?utf-8?B?K1pDTlJXU3NyL3RFcnR2MzgyVkZKVVVBMFpZeXJmek13VDgvOXlaaTJMVjZN?=
- =?utf-8?B?NmYzNUdzWkVxNk5ZOXluVk51ams4c0ovWTdaRFNzK0MyOU1TUFlLYTJCUDQ4?=
- =?utf-8?B?V2MzampFSWN4Q09OSC9LZ1BlbCtJcVZHTFdoaWZ4RzE3K0orNUIyMzVxU3lB?=
- =?utf-8?B?V3lGOFJwbS9TdUZHcm9tUDNKZlVmUXZJM2FRNnk4dTBOQXFHK2wrZVhQaEd6?=
- =?utf-8?B?M05SL093c0dkbVBzdFY0eUVXdHkrdXJsOFBpN05MaEF4Tk8xR3U4ZVFVMHVq?=
- =?utf-8?B?OW4vQWRHdkxCZVg1T0xWaWEvN2tXM09oU3Y1SEd1Z2kxYy9ycHZYdVBSczRh?=
- =?utf-8?B?OGRDV3dsdXNSWFEwQjdUSzBYbzJrZjNQdlY1VWRFdkRoamZoeHMyeVI5bWYw?=
- =?utf-8?B?TWtqR3Zla3JkckdDdm43akNhUFJtWlJmNElIT1dtU3hFN3RoZHp1bkFmS3BU?=
- =?utf-8?B?elI0azZHSlI4a0p5RWY1Q3c3M2ZiSEpEYTJsclBQdmZxdXN6MzZ3aWNKV0tS?=
- =?utf-8?B?eVFvcmwyQlErZlZoQ2djTEVxZGc0WTdabktaYkorUVBZRE5JdElyU2xsSmhh?=
- =?utf-8?B?dk1VeTRqU3ZHeVR1UlZ5VkRrdkorU2thak5xYTFaNFdmcWVnTDFIQTJyM1lQ?=
- =?utf-8?B?VEgzcmIwZ0tSQjkzUnFjaWoxOFdLMG5xT0dVQlNyY1JUQk9WeVZyNnBCQ0p1?=
- =?utf-8?B?MDBnSHY4QXdLSGRTTjZrZFVOOHZmOGI5S1ZPUjU4RXIwYnU2eXkza21MSTN6?=
- =?utf-8?B?bTc1YlRWRGU3WU1hYXNzTENIbEZkeks2cGZEWUJHM012eGdxb3k2SVNTOXVN?=
- =?utf-8?B?cWJlbThoaDllS3F1eHN0RTMzYk9LbWhTVTRuOW53Z0VRdEZHNGJCL0hmMnJI?=
- =?utf-8?B?bnJHL2F4eXJjRlA2ZlpoS3BxbVlycXo2TjdSWlQzRk54Y3pzaG43bFJySlZ0?=
- =?utf-8?B?amJJQjV2bHp6RjFzS0tSSHBSamNPOUp5TEZmYjZzbnlmbEplTDUzN0dLWXBq?=
- =?utf-8?B?cVI0S1BFR0ZXYzNGelBTUVBHOVN4WWo2bTdHSldTWDVaaDhlRUZPZmVKRVJQ?=
- =?utf-8?B?VnZBbitGTElSNkRleWF3K1JsWktzU243M2ZIaWJpbzd3YkZ3ZWtWd1hEdXFT?=
- =?utf-8?B?Q3FEaVZHWE1EZ2RyY29ZZUY1SmN0S1p3azlidk12MDFQUWdkUFd1TkR5TzNU?=
- =?utf-8?B?OWg0VVE0bjRXYTZhbFJDNDlyclprRmIvTTRVUTNSWFE3M0VSbkJYNmFueTFu?=
- =?utf-8?B?N0JSanF5ZVgyb3RQVmpITk1aRjljMnpaVzNXdzJmOVpKbWxycmVwallHQTBP?=
- =?utf-8?B?OTVkdmpRemg5R01pYldDWWlZVVBVdHphcEhscUdxd3dBZlVBT2F2bXhCZGla?=
- =?utf-8?B?OW9CMWJZb3BxbGxqVHFhcTcwck00KzFBdjNGSGFiSE8rMERueHlhdzVhTkg1?=
- =?utf-8?B?RitidU9LWDQwaHgyUC9hTGgzTUtXK2N4TWVLemw2d3ZOblVMVkxPdFRndFNV?=
- =?utf-8?B?cmlESzlzdEczbksxYVoyYnZMOXZWanpxZ2R1MVhyUDhHM2ROYS9iRXB5TVgy?=
- =?utf-8?B?OGY3dFJGdVVwYlB3K2JGZ1ZXemtKWHhDZ0NHcDk3SjI0bzk1cjJmc0ZEVkpE?=
- =?utf-8?B?RUVaVzJVSlM0U0grUW1BRHdpOU5xTE1OM3RvaXNjU1VLZVpPdmlRSjhQUGlP?=
- =?utf-8?B?QVRlM0l5TVZseDVwem1lMnlZZVhnZGo2MHZEWFlZcG5aZ21DbHRzNW1wdVJC?=
- =?utf-8?B?VERWQm1OcFJuVllwUlQybFVzK3VXazAwdklQWVBDOThMQzE0Z2ZnTVdrT2Vj?=
- =?utf-8?B?Y1V3TndValEzWk9GRFFrd1VEbkFncEhHcXpDbitlWjNRcVdzUnYyUGRTTkZZ?=
- =?utf-8?B?TGwzekwwNlRzMlpHd1JQNDRiOXpVMkFkREVkVXFQcGhpMnlhQjk1bk1KZUR5?=
- =?utf-8?Q?xNg7093WFXl5x8ijwR1Mqa1a6?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d0097fbe-c177-4b0a-8953-08dc11c96e92
-X-MS-Exchange-CrossTenant-AuthSource: PH7PR12MB5685.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Jan 2024 10:46:42.3757
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: J7rr9lxjO5TgksCcbmHoms1Qs+QOhVeAVlFTlv1wQqzkg3EYC9Dy1MnFJCN99iE9
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN9PR12MB5228
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20231221100016.4022353-2-julia.zhang@amd.com>
+X-Operating-System: Linux phenom 6.5.0-4-amd64 
 
-Am 10.01.24 um 11:22 schrieb Daniel Vetter:
-> On Wed, Jan 10, 2024 at 11:19:37AM +0100, Christian König wrote:
->> Am 10.01.24 um 10:56 schrieb Julia Zhang:
->>> drm_gem_map_attach() requires drm_gem_object_funcs.get_sg_table to be
->>> implemented, or else return ENOSYS. Virtio has no get_sg_table
->>> implemented for vram object. To fix this, add a new device_attach to
->>> call drm_gem_map_attach() for shmem object and return 0 for vram object
->>> instead of calling drm_gem_map_attach for both of these two kinds of
->>> object.
->> Well as far as I can see this is nonsense from the DMA-buf side of things.
->>
->> SG tables are always needed as long as you don't re-import the same object
->> into your driver and then you shouldn't end up in this function in the first
->> place.
->>
->> So that drm_gem_map_attach() requires get_sg_table to be implemented is
->> intentional and should never be overridden like this.
-> See my reply, tldr; you're allowed to reject ->attach with -EBUSY to
-> handle exactly this case of non-shareable buffer types. But definitely
-> don't silently fail, that's a "we'll oops on map_attachment" kind of bug
-> :-)
+On Thu, Dec 21, 2023 at 06:00:16PM +0800, Julia Zhang wrote:
+> From: Daniel Stone <daniels@collabora.com>
+> 
+> Add a new ioctl to allow the guest VM to discover how the guest
+> actually allocated the underlying buffer, which allows buffers to
+> be used for GL<->Vulkan interop and through standard window systems.
+> It's also a step towards properly supporting modifiers in the guest.
+> 
+> Signed-off-by: Daniel Stone <daniels@collabora.com>
+> Co-developed-by: Julia Zhang <julia.zhang@amd.com> # support query
+> stride before it's created
+> Signed-off-by: Julia Zhang <julia.zhang@amd.com>
+> ---
+>  drivers/gpu/drm/virtio/virtgpu_drv.c   |  1 +
+>  drivers/gpu/drm/virtio/virtgpu_drv.h   | 22 ++++++++-
+>  drivers/gpu/drm/virtio/virtgpu_ioctl.c | 66 ++++++++++++++++++++++++++
+>  drivers/gpu/drm/virtio/virtgpu_kms.c   |  8 +++-
+>  drivers/gpu/drm/virtio/virtgpu_vq.c    | 63 ++++++++++++++++++++++++
+>  include/uapi/drm/virtgpu_drm.h         | 21 ++++++++
+>  include/uapi/linux/virtio_gpu.h        | 30 ++++++++++++
+>  7 files changed, 208 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> index 4334c7608408..98061b714b98 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> @@ -148,6 +148,7 @@ static unsigned int features[] = {
+>  	VIRTIO_GPU_F_RESOURCE_UUID,
+>  	VIRTIO_GPU_F_RESOURCE_BLOB,
+>  	VIRTIO_GPU_F_CONTEXT_INIT,
+> +	VIRTIO_GPU_F_RESOURCE_QUERY_LAYOUT,
+>  };
+>  static struct virtio_driver virtio_gpu_driver = {
+>  	.feature_table = features,
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+> index 96365a772f77..bb5edcfeda54 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
+> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+> @@ -214,6 +214,16 @@ struct virtio_gpu_drv_cap_cache {
+>  	atomic_t is_valid;
+>  };
+>  
+> +struct virtio_gpu_query_info {
+> +	uint32_t num_planes;
+> +	uint64_t modifier;
+> +	struct {
+> +		uint64_t offset;
+> +		uint32_t stride;
+> +	} planes[VIRTIO_GPU_MAX_RESOURCE_PLANES];
+> +	atomic_t is_valid;
+> +};
+> +
+>  struct virtio_gpu_device {
+>  	struct drm_device *ddev;
+>  
+> @@ -246,6 +256,7 @@ struct virtio_gpu_device {
+>  	bool has_resource_blob;
+>  	bool has_host_visible;
+>  	bool has_context_init;
+> +	bool has_resource_query_layout;
+>  	struct virtio_shm_region host_visible_region;
+>  	struct drm_mm host_visible_mm;
+>  
+> @@ -277,7 +288,7 @@ struct virtio_gpu_fpriv {
+>  };
+>  
+>  /* virtgpu_ioctl.c */
+> -#define DRM_VIRTIO_NUM_IOCTLS 12
+> +#define DRM_VIRTIO_NUM_IOCTLS 13
+>  extern struct drm_ioctl_desc virtio_gpu_ioctls[DRM_VIRTIO_NUM_IOCTLS];
+>  void virtio_gpu_create_context(struct drm_device *dev, struct drm_file *file);
+>  
+> @@ -420,6 +431,15 @@ virtio_gpu_cmd_set_scanout_blob(struct virtio_gpu_device *vgdev,
+>  				uint32_t width, uint32_t height,
+>  				uint32_t x, uint32_t y);
+>  
+> +int
+> +virtio_gpu_cmd_get_resource_layout(struct virtio_gpu_device *vgdev,
+> +				   struct virtio_gpu_query_info *bo_info,
+> +				   uint32_t width,
+> +				   uint32_t height,
+> +				   uint32_t format,
+> +				   uint32_t bind,
+> +				   uint32_t hw_res_handle);
+> +
+>  /* virtgpu_display.c */
+>  int virtio_gpu_modeset_init(struct virtio_gpu_device *vgdev);
+>  void virtio_gpu_modeset_fini(struct virtio_gpu_device *vgdev);
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+> index b24b11f25197..216c04314177 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+> @@ -107,6 +107,9 @@ static int virtio_gpu_getparam_ioctl(struct drm_device *dev, void *data,
+>  	case VIRTGPU_PARAM_SUPPORTED_CAPSET_IDs:
+>  		value = vgdev->capset_id_mask;
+>  		break;
+> +	case VIRTGPU_PARAM_RESOURCE_QUERY_LAYOUT:
+> +		value = vgdev->has_resource_query_layout ? 1 : 0;
+> +		break;
+>  	default:
+>  		return -EINVAL;
+>  	}
+> @@ -668,6 +671,65 @@ static int virtio_gpu_context_init_ioctl(struct drm_device *dev,
+>  	return ret;
+>  }
+>  
+> +static int virtio_gpu_resource_query_layout_ioctl(struct drm_device *dev,
+> +						  void *data,
+> +						  struct drm_file *file)
+> +{
+> +	struct drm_virtgpu_resource_query_layout *args = data;
+> +	struct virtio_gpu_device *vgdev = dev->dev_private;
+> +	struct drm_gem_object *obj = NULL;
+> +	struct virtio_gpu_object *bo = NULL;
+> +	struct virtio_gpu_query_info bo_info = {0};
+> +	int ret = 0;
+> +	int i;
+> +
+> +	if (!vgdev->has_resource_query_layout) {
+> +		DRM_ERROR("failing: no RQL on host\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	if (args->handle > 0) {
+> +		obj = drm_gem_object_lookup(file, args->handle);
+> +		if (obj == NULL) {
+> +			DRM_ERROR("invalid handle 0x%x\n", args->handle);
+> +			return -ENOENT;
+> +		}
+> +		bo = gem_to_virtio_gpu_obj(obj);
+> +	}
+> +
+> +	ret = virtio_gpu_cmd_get_resource_layout(vgdev, &bo_info, args->width,
+> +						 args->height, args->format,
+> +						 args->bind, bo ? bo->hw_res_handle : 0);
+> +	if (ret)
+> +		goto out;
+> +
+> +	ret = wait_event_timeout(vgdev->resp_wq,
+> +				 atomic_read(&bo_info.is_valid),
+> +				 5 * HZ);
+> +	if (!ret)
+> +		goto out;
+> +
+> +valid:
+> +	smp_rmb();
 
-Ah, yes that makes much more sense!
+Please, please no hand-rolling of coherency/synchronization primitives
+without writing an entire paper about why this is correct.
 
-So basically just the "return 0;" needs to be "return -EBUSY;".
+I've done a full-length talk about this:
 
-Regards,
-Christian.
+https://blog.ffwll.ch/2023/07/eoss-prague-locking-engineering.html
 
-> -Sima
->
->> Regards,
->> Christian.
->>
->>> Signed-off-by: Julia Zhang <julia.zhang@amd.com>
->>> ---
->>>    drivers/gpu/drm/virtio/virtgpu_prime.c | 14 +++++++++++++-
->>>    1 file changed, 13 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/gpu/drm/virtio/virtgpu_prime.c b/drivers/gpu/drm/virtio/virtgpu_prime.c
->>> index 44425f20d91a..f0b0ff6f3813 100644
->>> --- a/drivers/gpu/drm/virtio/virtgpu_prime.c
->>> +++ b/drivers/gpu/drm/virtio/virtgpu_prime.c
->>> @@ -71,6 +71,18 @@ static void virtgpu_gem_unmap_dma_buf(struct dma_buf_attachment *attach,
->>>    	drm_gem_unmap_dma_buf(attach, sgt, dir);
->>>    }
->>> +static int virtgpu_gem_device_attach(struct dma_buf *dma_buf,
->>> +				     struct dma_buf_attachment *attach)
->>> +{
->>> +	struct drm_gem_object *obj = attach->dmabuf->priv;
->>> +	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
->>> +
->>> +	if (virtio_gpu_is_vram(bo))
->>> +		return 0;
->>> +
->>> +	return drm_gem_map_attach(dma_buf, attach);
->>> +}
->>> +
->>>    static const struct virtio_dma_buf_ops virtgpu_dmabuf_ops =  {
->>>    	.ops = {
->>>    		.cache_sgt_mapping = true,
->>> @@ -83,7 +95,7 @@ static const struct virtio_dma_buf_ops virtgpu_dmabuf_ops =  {
->>>    		.vmap = drm_gem_dmabuf_vmap,
->>>    		.vunmap = drm_gem_dmabuf_vunmap,
->>>    	},
->>> -	.device_attach = drm_gem_map_attach,
->>> +	.device_attach = virtgpu_gem_device_attach,
->>>    	.get_uuid = virtgpu_virtio_get_uuid,
->>>    };
+See the "Level 3: Lockless Tricks" section here:
 
+https://blog.ffwll.ch/2022/08/locking-hierarchy.html
+
+To fix this please just use a struct completion, which is practically what
+you hand-roll here.
+
+Since I looked, on the patch itself: It would be good to add a lot more
+context to this, like the userspace work and why exactly the kernel has to
+be in the business of knowing all this stuff. Because generally it really
+should not, ever: Userspace allocates buffers, userspace better knows how
+it allocated its buffers and should share that through userspace protocol
+(like wayland linux-dmabuf or x11 dri2/3). Why virtio breaks this needs a
+big explainer imo.
+
+Thanks, Sima
+
+> +	WARN_ON(atomic_read(&bo_info.is_valid));
+> +	args->num_planes = bo_info.num_planes;
+> +	args->modifier = bo_info.modifier;
+> +	for (i = 0; i < args->num_planes; i++) {
+> +		args->planes[i].offset = bo_info.planes[i].offset;
+> +		args->planes[i].stride = bo_info.planes[i].stride;
+> +	}
+> +	for (; i < VIRTIO_GPU_MAX_RESOURCE_PLANES; i++) {
+> +		args->planes[i].offset = 0;
+> +		args->planes[i].stride = 0;
+> +	}
+> +	ret = 0;
+> +
+> +out:
+> +	if (obj)
+> +		drm_gem_object_put(obj);
+> +	return ret;
+> +}
+> +
+>  struct drm_ioctl_desc virtio_gpu_ioctls[DRM_VIRTIO_NUM_IOCTLS] = {
+>  	DRM_IOCTL_DEF_DRV(VIRTGPU_MAP, virtio_gpu_map_ioctl,
+>  			  DRM_RENDER_ALLOW),
+> @@ -707,4 +769,8 @@ struct drm_ioctl_desc virtio_gpu_ioctls[DRM_VIRTIO_NUM_IOCTLS] = {
+>  
+>  	DRM_IOCTL_DEF_DRV(VIRTGPU_CONTEXT_INIT, virtio_gpu_context_init_ioctl,
+>  			  DRM_RENDER_ALLOW),
+> +
+> +	DRM_IOCTL_DEF_DRV(VIRTGPU_RESOURCE_QUERY_LAYOUT,
+> +			  virtio_gpu_resource_query_layout_ioctl,
+> +			  DRM_RENDER_ALLOW),
+>  };
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+> index 5a3b5aaed1f3..4f34f4145910 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_kms.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+> @@ -175,6 +175,9 @@ int virtio_gpu_init(struct virtio_device *vdev, struct drm_device *dev)
+>  	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_RESOURCE_BLOB)) {
+>  		vgdev->has_resource_blob = true;
+>  	}
+> +	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_RESOURCE_QUERY_LAYOUT)) {
+> +		vgdev->has_resource_query_layout = true;
+> +	}
+>  	if (virtio_get_shm_region(vgdev->vdev, &vgdev->host_visible_region,
+>  				  VIRTIO_GPU_SHM_ID_HOST_VISIBLE)) {
+>  		if (!devm_request_mem_region(&vgdev->vdev->dev,
+> @@ -204,8 +207,9 @@ int virtio_gpu_init(struct virtio_device *vdev, struct drm_device *dev)
+>  		 vgdev->has_resource_blob ? '+' : '-',
+>  		 vgdev->has_host_visible ? '+' : '-');
+>  
+> -	DRM_INFO("features: %ccontext_init\n",
+> -		 vgdev->has_context_init ? '+' : '-');
+> +	DRM_INFO("features: %ccontext_init %cresource_query_layout\n",
+> +		 vgdev->has_context_init ? '+' : '-',
+> +		 vgdev->has_resource_query_layout ? '+' : '-');
+>  
+>  	ret = virtio_find_vqs(vgdev->vdev, 2, vqs, callbacks, names, NULL);
+>  	if (ret) {
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+> index b1a00c0c25a7..26998a3ac4c2 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+> @@ -1302,3 +1302,66 @@ void virtio_gpu_cmd_set_scanout_blob(struct virtio_gpu_device *vgdev,
+>  
+>  	virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
+>  }
+> +
+> +static void virtio_gpu_cmd_get_resource_layout_cb(struct virtio_gpu_device *vgdev,
+> +						  struct virtio_gpu_vbuffer *vbuf)
+> +{
+> +	struct virtio_gpu_resp_resource_layout *resp =
+> +		(struct virtio_gpu_resp_resource_layout *)vbuf->resp_buf;
+> +	struct virtio_gpu_query_info *bo_info = vbuf->resp_cb_data;
+> +	int i;
+> +
+> +	vbuf->resp_cb_data = NULL;
+> +
+> +	if (resp->hdr.type != VIRTIO_GPU_RESP_OK_RESOURCE_LAYOUT) {
+> +		atomic_set(&bo_info->is_valid, 0);
+> +		goto out;
+> +	}
+> +
+> +	bo_info->modifier = le64_to_cpu(resp->modifier);
+> +	bo_info->num_planes = le32_to_cpu(resp->num_planes);
+> +	for (i = 0; i < bo_info->num_planes; i++) {
+> +		bo_info->planes[i].stride = le32_to_cpu(resp->planes[i].stride);
+> +		bo_info->planes[i].offset = le32_to_cpu(resp->planes[i].offset);
+> +	}
+> +	smp_wmb();
+> +	atomic_set(&bo_info->is_valid, 1);
+> +
+> +out:
+> +	wake_up_all(&vgdev->resp_wq);
+> +}
+> +
+> +int virtio_gpu_cmd_get_resource_layout(struct virtio_gpu_device *vgdev,
+> +				       struct virtio_gpu_query_info *bo_info,
+> +				       uint32_t width,
+> +				       uint32_t height,
+> +				       uint32_t format,
+> +				       uint32_t bind,
+> +				       uint32_t hw_res_handle)
+> +{
+> +	struct virtio_gpu_resource_query_layout *cmd_p;
+> +	struct virtio_gpu_vbuffer *vbuf;
+> +	void *resp_buf;
+> +
+> +	resp_buf = kzalloc(sizeof(struct virtio_gpu_resp_resource_layout),
+> +			   GFP_KERNEL);
+> +	if (!resp_buf)
+> +		return -ENOMEM;
+> +
+> +	cmd_p = virtio_gpu_alloc_cmd_resp
+> +		(vgdev, &virtio_gpu_cmd_get_resource_layout_cb, &vbuf,
+> +		 sizeof(*cmd_p), sizeof(struct virtio_gpu_resp_resource_layout),
+> +		 resp_buf);
+> +	memset(cmd_p, 0, sizeof(*cmd_p));
+> +
+> +	cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_RESOURCE_QUERY_LAYOUT);
+> +	cmd_p->resource_id = cpu_to_le32(hw_res_handle);
+> +	cmd_p->width = cpu_to_le32(width);
+> +	cmd_p->height = cpu_to_le32(height);
+> +	cmd_p->format = cpu_to_le32(format);
+> +	cmd_p->bind = cpu_to_le32(bind);
+> +	vbuf->resp_cb_data = bo_info;
+> +
+> +	virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
+> +	return 0;
+> +}
+> diff --git a/include/uapi/drm/virtgpu_drm.h b/include/uapi/drm/virtgpu_drm.h
+> index b1d0e56565bc..66f7c0fa1d4d 100644
+> --- a/include/uapi/drm/virtgpu_drm.h
+> +++ b/include/uapi/drm/virtgpu_drm.h
+> @@ -48,6 +48,7 @@ extern "C" {
+>  #define DRM_VIRTGPU_GET_CAPS  0x09
+>  #define DRM_VIRTGPU_RESOURCE_CREATE_BLOB 0x0a
+>  #define DRM_VIRTGPU_CONTEXT_INIT 0x0b
+> +#define DRM_VIRTGPU_RESOURCE_QUERY_LAYOUT 0x0c
+>  
+>  #define VIRTGPU_EXECBUF_FENCE_FD_IN	0x01
+>  #define VIRTGPU_EXECBUF_FENCE_FD_OUT	0x02
+> @@ -97,6 +98,7 @@ struct drm_virtgpu_execbuffer {
+>  #define VIRTGPU_PARAM_CROSS_DEVICE 5 /* Cross virtio-device resource sharing  */
+>  #define VIRTGPU_PARAM_CONTEXT_INIT 6 /* DRM_VIRTGPU_CONTEXT_INIT */
+>  #define VIRTGPU_PARAM_SUPPORTED_CAPSET_IDs 7 /* Bitmask of supported capability set ids */
+> +#define VIRTGPU_PARAM_RESOURCE_QUERY_LAYOUT 8 /* DRM_VIRTGPU_RESOURCE_QUERY_LAYOUT (also needs cap) */
+>  
+>  struct drm_virtgpu_getparam {
+>  	__u64 param;
+> @@ -211,6 +213,21 @@ struct drm_virtgpu_context_init {
+>  	__u64 ctx_set_params;
+>  };
+>  
+> +#define VIRTIO_GPU_MAX_RESOURCE_PLANES 4
+> +struct drm_virtgpu_resource_query_layout {
+> +	__u32 handle;
+> +	__u32 width;
+> +	__u32 height;
+> +	__u32 format;
+> +	__u32 bind;
+> +	__u32 num_planes;
+> +	__u64 modifier;
+> +	struct {
+> +		__u64 offset;
+> +		__u32 stride;
+> +	} planes[VIRTIO_GPU_MAX_RESOURCE_PLANES];
+> +};
+> +
+>  /*
+>   * Event code that's given when VIRTGPU_CONTEXT_PARAM_POLL_RINGS_MASK is in
+>   * effect.  The event size is sizeof(drm_event), since there is no additional
+> @@ -261,6 +278,10 @@ struct drm_virtgpu_context_init {
+>  	DRM_IOWR(DRM_COMMAND_BASE + DRM_VIRTGPU_CONTEXT_INIT,		\
+>  		struct drm_virtgpu_context_init)
+>  
+> +#define DRM_IOCTL_VIRTGPU_RESOURCE_QUERY_LAYOUT				\
+> +	DRM_IOWR(DRM_COMMAND_BASE + DRM_VIRTGPU_RESOURCE_QUERY_LAYOUT,	\
+> +		struct drm_virtgpu_resource_query_layout)
+> +
+>  #if defined(__cplusplus)
+>  }
+>  #endif
+> diff --git a/include/uapi/linux/virtio_gpu.h b/include/uapi/linux/virtio_gpu.h
+> index f556fde07b76..547575232376 100644
+> --- a/include/uapi/linux/virtio_gpu.h
+> +++ b/include/uapi/linux/virtio_gpu.h
+> @@ -65,6 +65,11 @@
+>   */
+>  #define VIRTIO_GPU_F_CONTEXT_INIT        4
+>  
+> +/*
+> + * VIRTIO_GPU_CMD_RESOURCE_QUERY_LAYOUT
+> + */
+> +#define VIRTIO_GPU_F_RESOURCE_QUERY_LAYOUT 5
+> +
+>  enum virtio_gpu_ctrl_type {
+>  	VIRTIO_GPU_UNDEFINED = 0,
+>  
+> @@ -95,6 +100,7 @@ enum virtio_gpu_ctrl_type {
+>  	VIRTIO_GPU_CMD_SUBMIT_3D,
+>  	VIRTIO_GPU_CMD_RESOURCE_MAP_BLOB,
+>  	VIRTIO_GPU_CMD_RESOURCE_UNMAP_BLOB,
+> +	VIRTIO_GPU_CMD_RESOURCE_QUERY_LAYOUT,
+>  
+>  	/* cursor commands */
+>  	VIRTIO_GPU_CMD_UPDATE_CURSOR = 0x0300,
+> @@ -108,6 +114,7 @@ enum virtio_gpu_ctrl_type {
+>  	VIRTIO_GPU_RESP_OK_EDID,
+>  	VIRTIO_GPU_RESP_OK_RESOURCE_UUID,
+>  	VIRTIO_GPU_RESP_OK_MAP_INFO,
+> +	VIRTIO_GPU_RESP_OK_RESOURCE_LAYOUT,
+>  
+>  	/* error responses */
+>  	VIRTIO_GPU_RESP_ERR_UNSPEC = 0x1200,
+> @@ -453,4 +460,27 @@ struct virtio_gpu_resource_unmap_blob {
+>  	__le32 padding;
+>  };
+>  
+> +/* VIRTIO_GPU_CMD_RESOURCE_QUERY_LAYOUT */
+> +struct virtio_gpu_resource_query_layout {
+> +	struct virtio_gpu_ctrl_hdr hdr;
+> +	__le32 resource_id;
+> +	__le32 width;
+> +	__le32 height;
+> +	__le32 format;
+> +	__le32 bind;
+> +};
+> +
+> +
+> +/* VIRTIO_GPU_RESP_OK_RESOURCE_LAYOUT */
+> +#define VIRTIO_GPU_RES_MAX_PLANES 4
+> +struct virtio_gpu_resp_resource_layout {
+> +	struct virtio_gpu_ctrl_hdr hdr;
+> +	__le64 modifier;
+> +	__le32 num_planes;
+> +	struct virtio_gpu_resource_plane {
+> +		__le64 offset;
+> +		__le32 stride;
+> +	} planes[VIRTIO_GPU_RES_MAX_PLANES];
+> +};
+> +
+>  #endif
+> -- 
+> 2.34.1
+> 
+
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
