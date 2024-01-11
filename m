@@ -1,103 +1,146 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A28123CA
-	for <virtualization@lists.linux-foundation.org>; Thu, 11 Jan 2024 03:09:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC7EC17C6
+	for <virtualization@lists.linux-foundation.org>; Thu, 11 Jan 2024 03:11:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LbcbfX5h"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LCf7xr0O"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 0DB8561420
-	for <virtualization@lists.linux-foundation.org>; Thu, 11 Jan 2024 03:09:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0DB8561420
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=LbcbfX5h
+	by smtp2.osuosl.org (Postfix) with ESMTP id 5597B43791
+	for <virtualization@lists.linux-foundation.org>; Thu, 11 Jan 2024 03:11:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5597B43791
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=LCf7xr0O
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.099
+X-Spam-Score: -0.599
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id E_2TYdBEZQuL
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id hjHyJF-2sSXG
 	for <virtualization@lists.linux-foundation.org>;
-	Thu, 11 Jan 2024 03:09:49 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 5BCEA611CE
-	for <virtualization@lists.linux-foundation.org>; Thu, 11 Jan 2024 03:09:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5BCEA611CE
+	Thu, 11 Jan 2024 03:11:10 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 5A4E343666
+	for <virtualization@lists.linux-foundation.org>; Thu, 11 Jan 2024 03:11:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5A4E343666
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1704942588;
+	s=mimecast20190719; t=1704942669;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=cNYNKmM7NDZMIJrSd8d1C6clX1k5LUGTMeNK3m1Ci2g=;
-	b=LbcbfX5h8hcQSsVE+gQJ3fsZfLEe4b9LL5KZ5Lvnk+XGSzTVJn4Y0Y8QucX58Vmk39q1F6
-	WKJ3rLbCaj8YqySQ68xW12qXfTGzwQXadnz5rbBzVg4W+boUlkPhNcMbWpns9IBeaOPe7H
-	3BEg1PdbIOZjms9w68FsSrKR7zBploU=
-Received: from mail-oi1-f198.google.com (mail-oi1-f198.google.com
- [209.85.167.198]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=PVa1KzmyYYorAZDdtVUttYweORkac6xnCaVp9EWXlys=;
+	b=LCf7xr0ObBWj/b57CIK7lkilrjr9ki0jYMmnDNVoBk342nXg0x99O8OFmTM9ajiZmmXNm7
+	HPb4WcBNX7Ug6hJT5HT7olGbQd+Hcdj9VCUNarHiw6PiKGg+CjV14E67M36OlS5Vqx2pBg
+	w+3Ac1bQ/9jF6nvhqsiPLner2LDlihM=
+Received: from mail-ot1-f71.google.com (mail-ot1-f71.google.com
+ [209.85.210.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-553-A3RLqq9aPSqLP0LV-4FlVQ-1; Wed, 10 Jan 2024 22:09:46 -0500
-X-MC-Unique: A3RLqq9aPSqLP0LV-4FlVQ-1
-Received: by mail-oi1-f198.google.com with SMTP id 5614622812f47-3bd393ae026so4179084b6e.0
-        for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 19:09:46 -0800 (PST)
+ us-mta-492-KnSfJ2PyNmit0EFubhFbiQ-1; Wed, 10 Jan 2024 22:11:08 -0500
+X-MC-Unique: KnSfJ2PyNmit0EFubhFbiQ-1
+Received: by mail-ot1-f71.google.com with SMTP id 46e09a7af769-6ddec7b52e7so2107400a34.1
+        for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 19:11:08 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1704942586; x=1705547386;
+        d=1e100.net; s=20230601; t=1704942667; x=1705547467;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=cNYNKmM7NDZMIJrSd8d1C6clX1k5LUGTMeNK3m1Ci2g=;
-        b=RsC3fob2XD+Q3s96Bc5TrHYZcJ45vU5hU5GpBGoxGR3Osj18ZWoeN6zqvs1lr0GhBB
-         zyPTIMwddosztdTfKICbKxxMZTqTiGiYfvTgPuuAGlwblU0QVJNKpficco1db1a/v/60
-         8XnC00Zn05x5ty9OLKSKnJlaNo4hIQ1SSMq7Cp5XPSIOYXiOE1fcMMXVrlxL1MDl63NW
-         ZrUrMY+qCc0kxwIPLzANOb8wIcXpFb1B/KMu44vVJmTGpGsYPFdlF5OhCs91M9Wi3riC
-         tcy7WHBLMmclUPKSBjPk0JgfbfxCje4cTcT9IyBVI9AN6IeQHrueYeXUgeRuf9gCl+Xp
-         B+AQ==
-X-Gm-Message-State: AOJu0Yxd4dBtjplA9JkFZ1dOb2uL8iAENeEshoK1uJMdIWstfxMFlFqg
-	mqd1I7IDqlsQJ93h/DBYuyJiklM+13zTyg7UMezOdj0nX0RxIFsilJoGEnwC5kcGXNFOhg3Ixry
-	GjRbRplIkQBnEFBA9gSEESlvMKHYvWMyvnF+bUQYkaSCQY8SRs7STy2BMUxLDe+A5Kw==
-X-Received: by 2002:a05:6808:1306:b0:3bb:ce08:87ce with SMTP id y6-20020a056808130600b003bbce0887cemr739595oiv.9.1704942586288;
-        Wed, 10 Jan 2024 19:09:46 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFkSF42Bz+C27pa2iZq0sSb7fraKOPPdGWFH35GMBpvyJ2sxt5wIurZ6XGTr4QXgYffbuynq56k0KjbEL/yrxw=
-X-Received: by 2002:a05:6808:1306:b0:3bb:ce08:87ce with SMTP id
- y6-20020a056808130600b003bbce0887cemr739588oiv.9.1704942586089; Wed, 10 Jan
- 2024 19:09:46 -0800 (PST)
+        bh=PVa1KzmyYYorAZDdtVUttYweORkac6xnCaVp9EWXlys=;
+        b=fS61/ytAGOUjoW1hEHPkjIo2ZmuBAdVYl0cSi7Y6pOFUzY7K6EQjGbaUwsgNzvuhk2
+         9wP/nYgfY5hf569FDUr+af+e3aWdzutnCg8HBGI4yHCtLfudcw0mc0K0KrvkW2VhspOr
+         6h+7DLZDx+RtZWTcGiAPI4eXzbu/8ZEPIb/X0N2/giJgTH054W0JeeaMe2sAYXQq39K4
+         X4s4JOG2FxniU8RbFQQsPuT4J8FosCbp06lR7euu4x925tOumRuQ4WCHxy6hDwbbZ5Oj
+         8M/PLZr1s4aJChsDWoMKL/XR/6ZNB8YmJFjsAIYDWWx2A1ORI0qfcRuuOd/I6Rqpu/Qq
+         K9Jg==
+X-Gm-Message-State: AOJu0YwqBkbZIpjpKo4T/9lMJTSeA5Xe0Hjf7G9YVs8sIB3ZvB0GMmlH
+	AhJuJVku8Lrr3prtX3fQtPg3aMb2aVE2qcx/aYpggTd/6BzQpsKeUlPlNm5h+aZOZDVo3dW3Zui
+	Myn2rT404HQj/ynFogvQwjAbRb08IFf3FqtLJ7XRjROWDhK0MS0Si1i9Y/2omhTEyLQ==
+X-Received: by 2002:a9d:5e04:0:b0:6dc:4f4:f4e0 with SMTP id d4-20020a9d5e04000000b006dc04f4f4e0mr513030oti.45.1704942667359;
+        Wed, 10 Jan 2024 19:11:07 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IE3wjIYR0PBvhYK3NGeTYrBLBnxAsEX+Am38TXiw81014PUC3WFBBHfaa4wMD9BO+8kt2Y+dPM3b702gUqtdwI=
+X-Received: by 2002:a9d:5e04:0:b0:6dc:4f4:f4e0 with SMTP id
+ d4-20020a9d5e04000000b006dc04f4f4e0mr513017oti.45.1704942667121; Wed, 10 Jan
+ 2024 19:11:07 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <1704919215-91319-1-git-send-email-steven.sistare@oracle.com> <1704919215-91319-9-git-send-email-steven.sistare@oracle.com>
-In-Reply-To: <1704919215-91319-9-git-send-email-steven.sistare@oracle.com>
+References: <20240109111025.1320976-1-maxime.coquelin@redhat.com> <20240109111025.1320976-3-maxime.coquelin@redhat.com>
+In-Reply-To: <20240109111025.1320976-3-maxime.coquelin@redhat.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 11 Jan 2024 11:09:35 +0800
-Message-ID: <CACGkMEuJ4yf4reW2SzDqgNZGBWo5Rcqeg+cFS=N7pa_gQmmDXg@mail.gmail.com>
-Subject: Re: [RFC V1 08/13] vduse: flush workers on suspend
-To: Steve Sistare <steven.sistare@oracle.com>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Si-Wei Liu <si-wei.liu@oracle.com>, 
-	Eugenio Perez Martin <eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Dragos Tatulea <dtatulea@nvidia.com>, Eli Cohen <elic@nvidia.com>, 
-	Xie Yongji <xieyongji@bytedance.com>
+Date: Thu, 11 Jan 2024 11:10:56 +0800
+Message-ID: <CACGkMEuOCAKwn-4dC4pd8qbBP+0sYCBa4-TpVabN238-WOFUBw@mail.gmail.com>
+Subject: Re: [PATCH v7 2/3] vduse: Temporarily fail if control queue feature requested
+To: Maxime Coquelin <maxime.coquelin@redhat.com>
+Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, xieyongji@bytedance.com, 
+	virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, 
+	david.marchand@redhat.com, lulu@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jan 11, 2024 at 4:40=E2=80=AFAM Steve Sistare <steven.sistare@oracl=
-e.com> wrote:
+On Tue, Jan 9, 2024 at 7:10=E2=80=AFPM Maxime Coquelin
+<maxime.coquelin@redhat.com> wrote:
 >
-> To pass ownership of a live vdpa device to a new process, the user
-> suspends the device, calls VHOST_NEW_OWNER to change the mm, and calls
-> VHOST_IOTLB_REMAP to change the user virtual addresses to match the new
-> mm.  Flush workers in suspend to guarantee that no worker sees the new
-> mm and old VA in between.
+> Virtio-net driver control queue implementation is not safe
+> when used with VDUSE. If the VDUSE application does not
+> reply to control queue messages, it currently ends up
+> hanging the kernel thread sending this command.
 >
-> Signed-off-by: Steve Sistare <steven.sistare@oracle.com>
+> Some work is on-going to make the control queue
+> implementation robust with VDUSE. Until it is completed,
+> let's fail features check if control-queue feature is
+> requested.
+>
+> Signed-off-by: Maxime Coquelin <maxime.coquelin@redhat.com>
 
-It seems we need a better title, probably "suspend support for vduse"?
-And it looks better to be an separate patch.
+Acked-by: Jason Wang <jasowang@redhat.com>
 
 Thanks
+
+> ---
+>  drivers/vdpa/vdpa_user/vduse_dev.c | 5 +++++
+>  1 file changed, 5 insertions(+)
+>
+> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/=
+vduse_dev.c
+> index a5af6d4077b8..00f3f562ab5d 100644
+> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> @@ -8,6 +8,7 @@
+>   *
+>   */
+>
+> +#include "linux/virtio_net.h"
+>  #include <linux/init.h>
+>  #include <linux/module.h>
+>  #include <linux/cdev.h>
+> @@ -28,6 +29,7 @@
+>  #include <uapi/linux/virtio_config.h>
+>  #include <uapi/linux/virtio_ids.h>
+>  #include <uapi/linux/virtio_blk.h>
+> +#include <uapi/linux/virtio_ring.h>
+>  #include <linux/mod_devicetable.h>
+>
+>  #include "iova_domain.h"
+> @@ -1680,6 +1682,9 @@ static bool features_is_valid(struct vduse_dev_conf=
+ig *config)
+>         if ((config->device_id =3D=3D VIRTIO_ID_BLOCK) &&
+>                         (config->features & BIT_ULL(VIRTIO_BLK_F_CONFIG_W=
+CE)))
+>                 return false;
+> +       else if ((config->device_id =3D=3D VIRTIO_ID_NET) &&
+> +                       (config->features & BIT_ULL(VIRTIO_NET_F_CTRL_VQ)=
+))
+> +               return false;
+>
+>         return true;
+>  }
+> --
+> 2.43.0
+>
 
