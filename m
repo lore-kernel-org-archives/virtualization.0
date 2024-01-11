@@ -1,71 +1,137 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from baidu.com (mx21.baidu.com [220.181.3.85])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 443E4156C9
-	for <virtualization@lists.linux-foundation.org>; Thu, 11 Jan 2024 10:45:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="Y0rVHaaj"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id A853E60B32
-	for <virtualization@lists.linux-foundation.org>; Thu, 11 Jan 2024 10:45:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A853E60B32
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=Y0rVHaaj
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -4.401
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ichlVfeAY7gL
-	for <virtualization@lists.linux-foundation.org>;
-	Thu, 11 Jan 2024 10:45:14 +0000 (UTC)
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 4BFC260B2E
-	for <virtualization@lists.linux-foundation.org>; Thu, 11 Jan 2024 10:45:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4BFC260B2E
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by ams.source.kernel.org (Postfix) with ESMTP id 239DDB81B7D;
-	Thu, 11 Jan 2024 10:45:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B788C433C7;
-	Thu, 11 Jan 2024 10:45:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1704969910;
-	bh=otTxhAPvsRjqSlgmiFFIM6ilyM8UWcJKCMTo+H92XN8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=Y0rVHaajgApriNuaWA17WZi171hNoFM5LJcggluyOYRxi/n6Mk5oWxp2Y4rUT2RaW
-	 MAIwYGBIfjcz4bqyOqGeblCTavgPjPW4ARnQoL8Ssx4XdJgcUrnBQt0V6P11asRKxZ
-	 n9qCPIYLSo0orM8T2OJVZNv2HykFEpud7NwhxR0s=
-Date: Thu, 11 Jan 2024 11:45:07 +0100
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: Fedor Pchelkin <pchelkin@ispras.ru>
-Cc: stable@vger.kernel.org, Wander Lairson Costa <wander@redhat.com>,
-	Dave Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
-	Daniel Vetter <daniel@ffwll.ch>,
-	virtualization@lists.linux-foundation.org,
-	spice-devel@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-	linux-kernel@vger.kernel.org,
-	Alexey Khoroshilov <khoroshilov@ispras.ru>,
-	lvc-project@linuxtesting.org
-Subject: Re: [PATCH 5.10 1/1] drm/qxl: fix UAF on handle creation
-Message-ID: <2024011100-marsupial-outshine-e7f5@gregkh>
-References: <20240109110827.9458-1-pchelkin@ispras.ru>
- <20240109110827.9458-2-pchelkin@ispras.ru>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5857156C1
+	for <virtualization@lists.linux.dev>; Thu, 11 Jan 2024 11:48:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=baidu.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baidu.com
+From: "Li,Rongqing" <lirongqing@baidu.com>
+To: Parav Pandit <parav@nvidia.com>, "mst@redhat.com" <mst@redhat.com>,
+	"jasowang@redhat.com" <jasowang@redhat.com>, "xuanzhuo@linux.alibaba.com"
+	<xuanzhuo@linux.alibaba.com>, "virtualization@lists.linux.dev"
+	<virtualization@lists.linux.dev>
+CC: songyang23 <songyang23@baidu.com>, liubokai <liubokai@baidu.com>,
+	"Song,Zhan" <songzhan@baidu.com>
+Subject: RE: [RFC] Revert "virtio_pci: Support surprise removal of virtio pci
+Thread-Topic: [RFC] Revert "virtio_pci: Support surprise removal of virtio pci
+Thread-Index: AdpEbQ0W9HGTHF1qSr6UzsNmXQK48wACc8LwAALG6zA=
+Date: Thu, 11 Jan 2024 11:47:57 +0000
+Message-ID: <a26b34bcb1fb4b5d9f64f0f277b8e85d@baidu.com>
+References: <c45dd68698cd47238c55fb73ca9b4741@baidu.com>
+ <PH0PR12MB54813F1133C29AC8FF0097E6DC682@PH0PR12MB5481.namprd12.prod.outlook.com>
+In-Reply-To: <PH0PR12MB54813F1133C29AC8FF0097E6DC682@PH0PR12MB5481.namprd12.prod.outlook.com>
+Accept-Language: zh-CN, en-US
+Content-Language: zh-CN
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240109110827.9458-2-pchelkin@ispras.ru>
+X-FEAS-Client-IP: 10.127.64.12
+X-FE-Last-Public-Client-IP: 100.100.100.38
+X-FE-Policy-ID: 15:10:21:SYSTEM
 
-On Tue, Jan 09, 2024 at 02:08:25PM +0300, Fedor Pchelkin wrote:
-> From: Wander Lairson Costa <wander@redhat.com>
-> 
-> commit c611589b4259ed63b9b77be6872b1ce07ec0ac16 upstream.
 
-Now queued up, thanks.
 
-greg k-h
+> -----Original Message-----
+> From: Parav Pandit <parav@nvidia.com>
+> Sent: Thursday, January 11, 2024 6:18 PM
+> To: Li,Rongqing <lirongqing@baidu.com>; mst@redhat.com;
+> jasowang@redhat.com; xuanzhuo@linux.alibaba.com;
+> virtualization@lists.linux.dev
+> Cc: songyang23 <songyang23@baidu.com>; liubokai <liubokai@baidu.com>;
+> Song,Zhan <songzhan@baidu.com>
+> Subject: RE: [RFC] Revert "virtio_pci: Support surprise removal of virtio=
+ pci
+>=20
+>=20
+> > From: Li,Rongqing <lirongqing@baidu.com>
+> > Sent: Thursday, January 11, 2024 2:45 PM
+> >
+> > Revert "virtio_pci: Support surprise removal of virtio pci device"
+> >
+> > This reverts commit 43bb40c5b92659966bdf4bfe584fde0a3575a049.
+> >
+> > Marking the device as broken will cause the uncompleted IO request on
+> > virtio-blk since virtblk_done will not continue when it find the
+> > broken virtqueu at last it will cause the failure of removal of
+> > virtio-blk device because of uncompleted IO request
+> >
+> > The correct fix for the issue that commit 43bb40c5b9 ("virtio_pci:
+> > Support surprise removal of virtio pci device") tried to fix is that
+> > virtio backend always complete the IO request as soon as possible
+> >
+> This can never be guaranteed by a device and by pci spec given it is surp=
+rise
+> removal by definition.
+>=20
+> For Linux virtio blk is not the only block device which has surprised rem=
+oval.
+> Nvme blk driver has supported surprise removal for several years now.
+> I am sure nbd and others would have too given its network.
+>=20
+> I am not familiar with the blk driver stack.
+> So please explore with blk community of how to complete an aborted/never
+> completed io which never completed by the device.
+> Since the blk driver knows exactly that the device is removed, it can 100=
+%
+> complete the io to upper layer with the error in deterministic way.
+>=20
+
+
+Without the commit 43bb40c5b92("virtio_pci: Support surprise removal of vir=
+tio pci device"),=20
+My virtio-blk device can be removed successfully, with this commit, and if =
+we use fio to send io
+requests the virtio-blk, The removal always failed.
+
+
+Once virt queue is marked as broken, io request can not be finished since l=
+ots of virtio functions
+will check If the vq is broken, if broken, exit directly, like virtqueue_ge=
+t_buf_ctx_packed
+
+static void *virtqueue_get_buf_ctx_packed(struct virtqueue *_vq,
+                      unsigned int *len,
+                      void **ctx)
+{
+    struct vring_virtqueue *vq =3D to_vvq(_vq);
+    u16 last_used, id, last_used_idx;
+    bool used_wrap_counter;
+    void *ret;
+
+    START_USE(vq);
+
+    if (unlikely(vq->broken)) {
+        END_USE(vq);
+        return NULL;
+    }=20
+
+Nvme is different from virtio, it can ensure that all requests are flushed =
+to completion, like below patch:
+
+commit 1d39e6928cbd0eb737c51545210b5186d5551ba1
+Author: Keith Busch <keith.busch@intel.com>
+Date:   Wed Jun 6 08:13:08 2018 -0600
+
+    nvme-pci: unquiesce dead controller queues
+
+    This patch ensures the nvme namsepace request queues are not quiesced
+    on a surprise removal. It's possible the queues were previously killed
+    in a failed reset, so the queues need to be unquiesced to ensure all
+    requests are flushed to completion.
+
+    Signed-off-by: Keith Busch <keith.busch@intel.com>
+    Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+    Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
+    Signed-off-by: Christoph Hellwig <hch@lst.de>
+    Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+
+-Li
+
