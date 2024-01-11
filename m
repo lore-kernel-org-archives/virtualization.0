@@ -1,79 +1,79 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 203B1ED2
-	for <virtualization@lists.linux-foundation.org>; Thu, 11 Jan 2024 03:08:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B1721C29
+	for <virtualization@lists.linux-foundation.org>; Thu, 11 Jan 2024 03:09:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="isEuYf0+"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="J65KTxUr"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 982D7613DF
-	for <virtualization@lists.linux-foundation.org>; Thu, 11 Jan 2024 03:08:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 982D7613DF
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=isEuYf0+
+	by smtp2.osuosl.org (Postfix) with ESMTP id 09F0343791
+	for <virtualization@lists.linux-foundation.org>; Thu, 11 Jan 2024 03:09:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 09F0343791
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=J65KTxUr
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.099
+X-Spam-Score: -0.599
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 5hQE66RiR-8G
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id shxZ9Cqy934T
 	for <virtualization@lists.linux-foundation.org>;
-	Thu, 11 Jan 2024 03:08:52 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 6B4D0611CE
-	for <virtualization@lists.linux-foundation.org>; Thu, 11 Jan 2024 03:08:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6B4D0611CE
+	Thu, 11 Jan 2024 03:09:37 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 0A88C43666
+	for <virtualization@lists.linux-foundation.org>; Thu, 11 Jan 2024 03:09:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0A88C43666
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1704942531;
+	s=mimecast20190719; t=1704942575;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=6SQz5L0hBsYm6eMr2X57tR6Yc9zmeLUcvOiWFM8AnJ8=;
-	b=isEuYf0+trHhjXZPgAmxgRK9AaLjPMeGqztx2uFwx2qdnHw7M97BrASk5W97nCC4ju5B/S
-	IZ/LeVJeGR81fbw7o3DbAKIM7FuDsmmvCoXSbG0adNnOVubYvmRJY7Y/9N/iu5qXLQtYCg
-	2uFJ0/AX8Zn/7+C8VxdJwzvcvfANSTI=
-Received: from mail-oi1-f198.google.com (mail-oi1-f198.google.com
- [209.85.167.198]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=sC5e9WRB2cisP0/PxP21NqudRB4e9ferLpZ3ANHXECg=;
+	b=J65KTxUrnIDeApy2MKucoyjaQYXQigoihm0jsPvHRrg8phIgf6xLcvgDHFoNr0Hv4DLeNm
+	R7At/iULwHdVCLRLmdvy2fwyc/+v3B0arcqbZT8sv/RNj11YHJQtL3FCKxoSAwuLi6fSO8
+	Xk1iLBMFt277qsAaDGTOZyDhEPmieo8=
+Received: from mail-ot1-f71.google.com (mail-ot1-f71.google.com
+ [209.85.210.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-113-HJGNyc2eP22VELSIkspVWw-1; Wed, 10 Jan 2024 22:08:50 -0500
-X-MC-Unique: HJGNyc2eP22VELSIkspVWw-1
-Received: by mail-oi1-f198.google.com with SMTP id 5614622812f47-3bd3af050ddso4424318b6e.2
-        for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 19:08:50 -0800 (PST)
+ us-mta-114-7Zj_f7PgOFaACR3mHXSNKA-1; Wed, 10 Jan 2024 22:09:32 -0500
+X-MC-Unique: 7Zj_f7PgOFaACR3mHXSNKA-1
+Received: by mail-ot1-f71.google.com with SMTP id 46e09a7af769-6dde701a6ccso2543320a34.3
+        for <virtualization@lists.linux-foundation.org>; Wed, 10 Jan 2024 19:09:32 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1704942527; x=1705547327;
+        d=1e100.net; s=20230601; t=1704942571; x=1705547371;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=6SQz5L0hBsYm6eMr2X57tR6Yc9zmeLUcvOiWFM8AnJ8=;
-        b=XEV5+bydxDSwaB7nNAA0N1McZQ5ANi+wfNKisYPU9aJsvFIFlBwmupylr9oBlIsqtA
-         9dzHANNUUruTOLi9rmvuuV1LBuWBTmFA9klz//EtS6R9A4HP8//QE6m8aLVccIy/kOfT
-         xVRXVkAfIH0qNTveLczBoD2WV6X/eS1SGvQW4XqqYsfMpJ7tHGrJbJRHgtQJ5i7yMMwx
-         cKcgSa3LM+ZVpaEjMsPmGwLQFHhGbd759gGs3lm3esypTWhNOwDHAjv3ZSru+shXlytJ
-         siZ8jsPZrQElMZA4x02oTWYOeAlYPVzuxPJxA1jNaxW7RLss/g2mXgXmY38V95fay7B5
-         iQcw==
-X-Gm-Message-State: AOJu0YwkWB+QBU4GayzjHGsQ/UPcCo9YCynz44+jzXi7Tkp5yDF5m9o2
-	OyVZOCWiRs+JdFfsmnie9R5jta7x0Hupqdyn/SyyunQvIrnzzHGB3QITg1CxTQCOCUfxtbL9HkW
-	Vs2nPQkiiKmcZBv3tmmetgEDPMhzxnUilDn2dRFd6QlSwrLOsdoj8VpiH+7KyX30/Zw==
-X-Received: by 2002:a05:6808:1784:b0:3bb:cdd5:17c4 with SMTP id bg4-20020a056808178400b003bbcdd517c4mr718541oib.83.1704942526983;
-        Wed, 10 Jan 2024 19:08:46 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFpuMzRUZs27bDbP+rps109ftXK1ZxLxm8s+N95dPDRP9BhlcuVF9fN6qNHuDTppiRor9al5Z+v20N82dcY1Kg=
-X-Received: by 2002:a05:6808:1784:b0:3bb:cdd5:17c4 with SMTP id
- bg4-20020a056808178400b003bbcdd517c4mr718523oib.83.1704942526738; Wed, 10 Jan
- 2024 19:08:46 -0800 (PST)
+        bh=sC5e9WRB2cisP0/PxP21NqudRB4e9ferLpZ3ANHXECg=;
+        b=DaQzb7tdxshiDzMKlOQ0N/R07JuqShsu/NVgpvhcQqewY5Jf9iyByuPrwTc5y6L02N
+         7oBkRncr/8ldFjHz0WiQorTSeoNxOuMrk30imREhcjLpHA2dPTAcbVPYKOps8JvTqtNH
+         pHwoGJz2CyXyBz9bAquYU/HCdd4lLfNBe86hD66nV9WbZJ1age1Ag2klAYtrJvc2cazV
+         1zZDynUlFNEkuxxUzhomYk/8AIODY/XsoEJvyB+ywuPCS6xTf7K4Da9rmvuYZ+bS9sNH
+         kWMPHkUQ4RuBltPV/qIcLBpJR84KLOMzTlHSoZg7hty9+0jjQAO6XIuU9hiL1tAH/sIr
+         1N/w==
+X-Gm-Message-State: AOJu0YxTrITKlIKhDuJvs58ePDgd6CRuUShBNjL1IaHRBjPmZY63jGjR
+	jry9wW18PWwu9bIpD9NzxA3cMc8nYPXECigLPCZ9pGCVoMnR7ybq1cRy34ZJTDL/J1aMaeRss/H
+	sk8Uqr2DYKNz+tdDeL+jb7a2Q2+edHoWGiNTIdxcyTMNaw6/ilaC702Wc8gV5gqpYPA==
+X-Received: by 2002:a9d:7f82:0:b0:6df:2c26:c5e with SMTP id t2-20020a9d7f82000000b006df2c260c5emr179203otp.31.1704942571527;
+        Wed, 10 Jan 2024 19:09:31 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGFrnXhh1+r1aWEfuOYbZcJQnI9BifUyc1+kAgcYl0a9OJPFVe8flUkKOSFk4S22VkfZnW1C8f7ecuVkPK1LjM=
+X-Received: by 2002:a9d:7f82:0:b0:6df:2c26:c5e with SMTP id
+ t2-20020a9d7f82000000b006df2c260c5emr179189otp.31.1704942571315; Wed, 10 Jan
+ 2024 19:09:31 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <1704919215-91319-1-git-send-email-steven.sistare@oracle.com> <1704919215-91319-6-git-send-email-steven.sistare@oracle.com>
-In-Reply-To: <1704919215-91319-6-git-send-email-steven.sistare@oracle.com>
+References: <1704919215-91319-1-git-send-email-steven.sistare@oracle.com> <1704919215-91319-8-git-send-email-steven.sistare@oracle.com>
+In-Reply-To: <1704919215-91319-8-git-send-email-steven.sistare@oracle.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 11 Jan 2024 11:08:35 +0800
-Message-ID: <CACGkMEsCzLNdRXu25tzhrnTVatM6pHwVXVUn7kE=3erVWQUL4g@mail.gmail.com>
-Subject: Re: [RFC V1 05/13] vhost-vdpa: VHOST_IOTLB_REMAP
+Date: Thu, 11 Jan 2024 11:09:20 +0800
+Message-ID: <CACGkMEv8TXXTrCW=hf1sJ+V2a0eD3w1b1Yub4FnGZ0=Du-RbtQ@mail.gmail.com>
+Subject: Re: [RFC V1 07/13] vhost-vdpa: flush workers on suspend
 To: Steve Sistare <steven.sistare@oracle.com>
 Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, 
 	"Michael S. Tsirkin" <mst@redhat.com>, Si-Wei Liu <si-wei.liu@oracle.com>, 
@@ -88,116 +88,42 @@ Content-Transfer-Encoding: quoted-printable
 On Thu, Jan 11, 2024 at 4:40=E2=80=AFAM Steve Sistare <steven.sistare@oracl=
 e.com> wrote:
 >
-> When device ownership is passed to a new process via VHOST_NEW_OWNER,
-> some devices need to know the new userland addresses of the dma mappings.
-> Define the new iotlb message type VHOST_IOTLB_REMAP to update the uaddr
-> of a mapping.  The new uaddr must address the same memory object as
-> originally mapped.
->
-> The user must suspend the device before the old address is invalidated,
-> and cannot resume it until after VHOST_IOTLB_REMAP is called, but this
-> requirement is not enforced by the API.
+> To pass ownership of a live vdpa device to a new process, the user
+> suspends the device, calls VHOST_NEW_OWNER to change the mm, and calls
+> VHOST_IOTLB_REMAP to change the user virtual addresses to match the new
+> mm.  Flush workers in suspend to guarantee that no worker sees the new
+> mm and old VA in between.
 >
 > Signed-off-by: Steve Sistare <steven.sistare@oracle.com>
 > ---
->  drivers/vhost/vdpa.c             | 34 ++++++++++++++++++++++++++++++++
->  include/uapi/linux/vhost_types.h | 11 ++++++++++-
->  2 files changed, 44 insertions(+), 1 deletion(-)
+>  drivers/vhost/vdpa.c | 4 ++++
+>  1 file changed, 4 insertions(+)
 >
 > diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> index faed6471934a..ec5ca20bd47d 100644
+> index 8fe1562d24af..9673e8e20d11 100644
 > --- a/drivers/vhost/vdpa.c
 > +++ b/drivers/vhost/vdpa.c
-> @@ -1219,6 +1219,37 @@ static int vhost_vdpa_pa_map(struct vhost_vdpa *v,
+> @@ -591,10 +591,14 @@ static long vhost_vdpa_suspend(struct vhost_vdpa *v=
+)
+>  {
+>         struct vdpa_device *vdpa =3D v->vdpa;
+>         const struct vdpa_config_ops *ops =3D vdpa->config;
+> +       struct vhost_dev *vdev =3D &v->vdev;
 >
->  }
+>         if (!ops->suspend)
+>                 return -EOPNOTSUPP;
 >
-> +static int vhost_vdpa_process_iotlb_remap(struct vhost_vdpa *v,
-> +                                         struct vhost_iotlb *iotlb,
-> +                                         struct vhost_iotlb_msg *msg)
-> +{
-> +       struct vdpa_device *vdpa =3D v->vdpa;
-> +       const struct vdpa_config_ops *ops =3D vdpa->config;
-> +       u32 asid =3D iotlb_to_asid(iotlb);
-> +       u64 start =3D msg->iova;
-> +       u64 last =3D start + msg->size - 1;
-> +       struct vhost_iotlb_map *map;
-> +       int r =3D 0;
-> +
-> +       if (msg->perm || !msg->size)
-> +               return -EINVAL;
-> +
-> +       map =3D vhost_iotlb_itree_first(iotlb, start, last);
-> +       if (!map)
-> +               return -ENOENT;
-> +
-> +       if (map->start !=3D start || map->last !=3D last)
-> +               return -EINVAL;
-> +
-> +       /* batch will finish with remap.  non-batch must do it now. */
-> +       if (!v->in_batch)
-> +               r =3D ops->set_map(vdpa, asid, iotlb);
-> +       if (!r)
-> +               map->addr =3D msg->uaddr;
+> +       if (vdev->use_worker)
+> +               vhost_dev_flush(vdev);
 
-I may miss something, for example for PA mapping,
-
-1) need to convert uaddr into phys addr
-2) need to check whether the uaddr is backed by the same page or not?
+It looks to me like it's better to check use_woker in vhost_dev_flush.
 
 Thanks
 
+
 > +
-> +       return r;
-> +}
-> +
->  static int vhost_vdpa_process_iotlb_update(struct vhost_vdpa *v,
->                                            struct vhost_iotlb *iotlb,
->                                            struct vhost_iotlb_msg *msg)
-> @@ -1298,6 +1329,9 @@ static int vhost_vdpa_process_iotlb_msg(struct vhos=
-t_dev *dev, u32 asid,
->                         ops->set_map(vdpa, asid, iotlb);
->                 v->in_batch =3D false;
->                 break;
-> +       case VHOST_IOTLB_REMAP:
-> +               r =3D vhost_vdpa_process_iotlb_remap(v, iotlb, msg);
-> +               break;
->         default:
->                 r =3D -EINVAL;
->                 break;
-> diff --git a/include/uapi/linux/vhost_types.h b/include/uapi/linux/vhost_=
-types.h
-> index 9177843951e9..35908315ff55 100644
-> --- a/include/uapi/linux/vhost_types.h
-> +++ b/include/uapi/linux/vhost_types.h
-> @@ -79,7 +79,7 @@ struct vhost_iotlb_msg {
->  /*
->   * VHOST_IOTLB_BATCH_BEGIN and VHOST_IOTLB_BATCH_END allow modifying
->   * multiple mappings in one go: beginning with
-> - * VHOST_IOTLB_BATCH_BEGIN, followed by any number of
-> + * VHOST_IOTLB_BATCH_BEGIN, followed by any number of VHOST_IOTLB_REMAP =
-or
->   * VHOST_IOTLB_UPDATE messages, and ending with VHOST_IOTLB_BATCH_END.
->   * When one of these two values is used as the message type, the rest
->   * of the fields in the message are ignored. There's no guarantee that
-> @@ -87,6 +87,15 @@ struct vhost_iotlb_msg {
->   */
->  #define VHOST_IOTLB_BATCH_BEGIN    5
->  #define VHOST_IOTLB_BATCH_END      6
-> +
-> +/*
-> + * VHOST_IOTLB_REMAP registers a new uaddr for the existing mapping at i=
-ova.
-> + * The new uaddr must address the same memory object as originally mappe=
-d.
-> + * Failure to do so will result in user memory corruption and/or device
-> + * misbehavior.  iova and size must match the arguments used to create t=
-he
-> + * an existing mapping.  Protection is not changed, and perm must be 0.
-> + */
-> +#define VHOST_IOTLB_REMAP          7
->         __u8 type;
->  };
+>         return ops->suspend(vdpa);
+>  }
 >
 > --
 > 2.39.3
