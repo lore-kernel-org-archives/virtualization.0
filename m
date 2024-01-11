@@ -1,75 +1,71 @@
-Received: from smtp238.sjtu.edu.cn (smtp238.sjtu.edu.cn [202.120.2.238])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99B32E544
-	for <virtualization@lists.linux.dev>; Thu, 11 Jan 2024 06:35:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sjtu.edu.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sjtu.edu.cn
-Received: from mta90.sjtu.edu.cn (unknown [10.118.0.90])
-	by smtp238.sjtu.edu.cn (Postfix) with ESMTPS id 3C6959CB3;
-	Thu, 11 Jan 2024 14:35:09 +0800 (CST)
-Received: from mstore135.sjtu.edu.cn (unknown [10.118.0.135])
-	by mta90.sjtu.edu.cn (Postfix) with ESMTP id 0173437C87C;
-	Thu, 11 Jan 2024 14:35:08 +0800 (CST)
-Date: Thu, 11 Jan 2024 14:35:08 +0800 (CST)
-From: Zheyun Shen <szy0127@sjtu.edu.cn>
-To: Jason Wang <jasowang@redhat.com>, mst <mst@redhat.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, 
-	virtualization <virtualization@lists.linux.dev>, 
-	david <david@redhat.com>, xuanzhuo <xuanzhuo@linux.alibaba.com>
-Message-ID: <1824181559.1228150.1704954908335.JavaMail.zimbra@sjtu.edu.cn>
-Subject: Re: [PATCH] driver/virtio: Add Memory Balloon Support for
- SEV/SEV-ES
+Received: from m16.mail.163.com (m15.mail.163.com [45.254.50.220])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 3A93ED27D
+	for <virtualization@lists.linux.dev>; Thu, 11 Jan 2024 07:10:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="alv8AIjE"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:Subject:Date:Message-Id; bh=WlG3u4VI90oQ5dQx7O
+	3zDbT6BFxAUYMaGnbgXPVYfkc=; b=alv8AIjEI43QFMds5jF3YyTT8y3DIYGr+S
+	CGXx/to9Lo0plMkEIdflmsBQLtAtmL4rbnQquKrJgVm5YJuZVVzBmCNJ2Zj1iTfh
+	NK4yMvZBR+g8cJoKaa+PjHwyT5OYcGCypkMu3GxRmLppZAA05E25WKHQE/LShN6R
+	KlhNbKgPI=
+Received: from localhost.localdomain (unknown [182.148.14.173])
+	by gzga-smtp-mta-g0-3 (Coremail) with SMTP id _____wD3v0cylJ9l+gSRAA--.56957S2;
+	Thu, 11 Jan 2024 15:09:38 +0800 (CST)
+From: GuoHua Chen <chenguohua_716@163.com>
+To: daniel@ffwll.ch,
+	mripard@kernel.org,
+	tzimmermann@suse.de,
+	airlied@gmail.com,
+	kraxel@redhat.com,
+	maarten.lankhorst@linux.intel.com,
+	airlied@redhat.com
+Cc: virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	dri-devel@lists.freedesktop.org,
+	spice-devel@lists.freedesktop.org,
+	GuoHua Chen <chenguohua_716@163.com>
+Subject: [PATCH] dma-buf: Clean up errors in qxl_release.h
+Date: Thu, 11 Jan 2024 07:09:36 +0000
+Message-Id: <20240111070936.9693-1-chenguohua_716@163.com>
+X-Mailer: git-send-email 2.17.1
+X-CM-TRANSID:_____wD3v0cylJ9l+gSRAA--.56957S2
+X-Coremail-Antispam: 1Uf129KBjvdXoWrur13Ww1fXFyUZr48AF4Utwb_yoW3Gwb_WF
+	4UXrnrWrsrCF1DC3W7A3y5ZrZIvF98uFWku3Z8tFy3Jry7Ar4UX34qkrZxZ348ZFZrCFsx
+	Aa1kXrsxArn3ujkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+	9fnUUvcSsGvfC2KfnxnUUI43ZEXa7IUjjQ6tUUUUU==
+X-CM-SenderInfo: xfkh0w5xrk3tbbxrlqqrwthudrp/1tbiqBNi1mVOBk7AagAAsG
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Mailer: Zimbra 10.0.5_GA_4574 (ZimbraWebClient - GC120 (Win)/10.0.5_GA_4574)
-Thread-Index: l+gZfqyZiAOpiygeFB9+OsBBxO8d6Q==
-Thread-Topic: driver/virtio: Add Memory Balloon Support for SEV/SEV-ES
 
-On Wed, Jan 10, 2024 at 4:01=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
- wrote:
-> Sorry I don't get what you are saying at all.
-> Please format the commit log along the following lines:
+Fix the following errors reported by checkpatch:
 
-> Currently .....
-> This is bad because ...
-> To fix ...
-> As a result ...
+ERROR: else should follow close brace '}'
 
-> No way I am going to spead CONFIG_AMD_MEM_ENCRYPT all over the place=20
-> like this.
+Signed-off-by: GuoHua Chen <chenguohua_716@163.com>
+---
+ drivers/gpu/drm/qxl/qxl_release.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-I will try to find out a solution with fewer macros and send patch V2
-with a more perspicuous commit log.
+diff --git a/drivers/gpu/drm/qxl/qxl_release.c b/drivers/gpu/drm/qxl/qxl_release.c
+index 368d26da0d6a..7f7aa7a62629 100644
+--- a/drivers/gpu/drm/qxl/qxl_release.c
++++ b/drivers/gpu/drm/qxl/qxl_release.c
+@@ -299,8 +299,7 @@ int qxl_alloc_release_reserved(struct qxl_device *qdev, unsigned long size,
+ 	} else if (type == QXL_RELEASE_CURSOR_CMD) {
+ 		cur_idx = 2;
+ 		priority = 1;
+-	}
+-	else {
++	} else {
+ 		DRM_ERROR("got illegal type: %d\n", type);
+ 		return -EINVAL;
+ 	}
+-- 
+2.17.1
 
-
-
-On Thur, Jan 11, 2024 at 11:20=E2=80=AFAM Jason Wang <jasowang@redhat.com> =
-wrote:
-
-> > For now, SEV pins guest's memory to avoid swapping or
-> > moving ciphertext, but leading to the inhibition of
-> > Memory Ballooning.
-> >
-> > In Memory Ballooning, only guest's free pages will be relocated
-> > in balloon inflation and deflation, so the difference of plaintext
-> > doesn't matter to guest.
-
-> This seems only true if the page is zeroed, is this true here?
-
-Sorry, I cannot figure out why the pages should be zeroed. I think
-both host kernel and guest kernel assume that the pages are not=20
-zeroed and will use kzalloc or manually zero them in real applications,
-which is same as non-SEV environments.=20
-
-I have tested in SEV-ES, reclaiming memory by balloon inflation and reuse=
-=20
-them after balloon deflation both works well with the patch. Hypervisor=20
-can normally give the reclaimed memory from one CVM to another, or give=20
-back to the origin CVM.
