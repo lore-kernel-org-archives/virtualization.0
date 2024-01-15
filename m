@@ -1,75 +1,199 @@
-Received: from mail-pf1-f172.google.com (mail-pf1-f172.google.com [209.85.210.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADB1517730
-	for <virtualization@lists.linux.dev>; Mon, 15 Jan 2024 16:34:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F41E517BD5
+	for <virtualization@lists.linux-foundation.org>; Mon, 15 Jan 2024 16:47:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="20JcHDQK"
-Received: by mail-pf1-f172.google.com with SMTP id d2e1a72fcca58-6db1bbfe67cso508391b3a.1
-        for <virtualization@lists.linux.dev>; Mon, 15 Jan 2024 08:34:15 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="Z0MxmH2P"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 67B5041835
+	for <virtualization@lists.linux-foundation.org>; Mon, 15 Jan 2024 16:47:27 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 67B5041835
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=Z0MxmH2P
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Otn2az6oJI2P
+	for <virtualization@lists.linux-foundation.org>;
+	Mon, 15 Jan 2024 16:47:26 +0000 (UTC)
+Received: from mail-qt1-x836.google.com (mail-qt1-x836.google.com [IPv6:2607:f8b0:4864:20::836])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id D434640252
+	for <virtualization@lists.linux-foundation.org>; Mon, 15 Jan 2024 16:47:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D434640252
+Received: by mail-qt1-x836.google.com with SMTP id d75a77b69052e-4298e866cd6so55295161cf.0
+        for <virtualization@lists.linux-foundation.org>; Mon, 15 Jan 2024 08:47:25 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1705336455; x=1705941255; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:references:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=j6THmBHKwr126QpcBLJNhEIM800qyv4bqH84HI2YM/E=;
-        b=20JcHDQKpP5r/G0JvR9g4Ud9QDar9hKHgSMvFADGULLzpGHNaZJkOycwQG/7DvPKch
-         nFRMnlpF3k43qudKNPUq3VNJWoK1jEi77hP2B8UwvRu3eqttn6iuNi3spW9cUBFjf+7N
-         ZDeT+p8720tBItCQ3dbzY/5OSfCE1isYEvHI9fZ8MbSBiR5zsuXECB82Xa6Ct9u8ceA7
-         zycl5cpK6QMt9murIAlag25As+iS1GME41o0RPYBN0Hd6yMceDlZE8asDZtvnkFQRmuw
-         p6d/MJJxPsqBgdckjWPn57usoEtCkJzRftJR8+SPF99Wg24GuI6SRYDYqQ6RiAyOb0rR
-         w8mA==
+        d=ziepe.ca; s=google; t=1705337244; x=1705942044; darn=lists.linux-foundation.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=2crKgiTXcC8UeiyKNQE9cMBlk/o9KLy3IDkuGS6sULY=;
+        b=Z0MxmH2PpdpihkMmwb9b8TQC9ENG+63NUqSO20Xq2UDYvW4XHvfKmRsUGJA1VyBzD8
+         86gvZEKKDNS1It4Z0uBbVHw1BvMHuDWlLBP+QaiylaFaUOwgqXieVq9ZhvMhk4A5u++R
+         GuatNBTrv4o9krwzBlgYEbt14T6eQ5plMuozkwAfBXS4ZPISebJfCC+0mqsyvs9dfnk3
+         6ShsyR4NNbm+3KsXJ0wPy/tCmRTHl63qxBKKjqvVZC8f4f5FfktCkd0PUpI8EvuUekaJ
+         AlYQqmrNFm/QzjTzskNkOSYp9DPkpDwwGu+P++vh3r2Ub8BSxNnGzct/VVBb+wqSapbw
+         6Yrw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1705336455; x=1705941255;
-        h=content-transfer-encoding:in-reply-to:from:references:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=j6THmBHKwr126QpcBLJNhEIM800qyv4bqH84HI2YM/E=;
-        b=Ww3wGX1IRSoHIIgxzUXUeCL/qNTyR585wtGHAI3F+3FF6lemX9WUrDxGKHwGWvcwhf
-         AuTripm6URn9mxOtlFv+BZasDWwH9gGZHDLa8DCJt3aMQ83GnT3A5w+oNT9P/zufJuSA
-         a/T4DE3qU1fHqNF9Hudx088bmjUC5UnVzWXBSX4wudzxxw6WADFfSKQtKKvA4LKPmbHW
-         aMO6N959tw9W2ztYfT2+F1bXfjloUPyw1wN+MHSnz+VIiuPMK9tSo5sPIcmUFcrg/BgP
-         H3y0sna5T/oJxmUFY6Ly59Vadl1QDH59SUfHvSNQ0PjmUj4Li9J+kqejQCqS79K015zz
-         ZWAQ==
-X-Gm-Message-State: AOJu0Yzs1tAmd64Y9SMo20mF9NLm2OOhLBi/vaZ1U6ovysmAviId/EVH
-	XjmIcYxqhZHniCoXsKIiuT5eIDS5roO+MQ==
-X-Google-Smtp-Source: AGHT+IHeq3Qnc8h9xWosZ889FmAVEveTjcqj9NBtjDjHjQCTYmQVZo+EQfiakYqaI5/nv0/MnetTPg==
-X-Received: by 2002:a05:6a00:4b45:b0:6d7:e74b:a517 with SMTP id kr5-20020a056a004b4500b006d7e74ba517mr12945631pfb.3.1705336455055;
-        Mon, 15 Jan 2024 08:34:15 -0800 (PST)
-Received: from [192.168.1.150] ([198.8.77.194])
-        by smtp.gmail.com with ESMTPSA id q26-20020a62ae1a000000b006d98ae070c3sm7752343pff.135.2024.01.15.08.34.13
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 15 Jan 2024 08:34:14 -0800 (PST)
-Message-ID: <76ce2a94-5c55-45f4-b554-bd58ad10a2a7@kernel.dk>
-Date: Mon, 15 Jan 2024 09:34:13 -0700
+        d=1e100.net; s=20230601; t=1705337244; x=1705942044;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=2crKgiTXcC8UeiyKNQE9cMBlk/o9KLy3IDkuGS6sULY=;
+        b=k5m/Vp/WovNMce381ejc4bYa7pudyLJreWYWdlmkpPgu6vaglJvAMuVWyr48QAjWOc
+         P37R0ZWWUTgq+/uQcB/kYbjEETA6U+0tkFgVtQIK9arSPWnAQbiZMeNCnL6SILwHHzHa
+         oUAOOeLMCdrmcV818PYsl+QSJEFvXGtOs5g7qhN1nlf5NM4z15D9dA09sR4ceDoNChi3
+         JpCaR9XNjscakjOJvXfxAPC031+egNGOVgEPr3CGMUG71lBAcZOoGqxCq4lvk/gKXhJN
+         c+J6Rgwda+fLwac67y1Kg1iS0BO9akEltbKH2OmalHszLIO1c3hUTaA29F3Ir02W03cE
+         NRlQ==
+X-Gm-Message-State: AOJu0YyC9xk+A0Fd2zjapZhgQZAj4RQVZPf2tVHNwdKB3zdMmtXKX0QD
+	DqPczSgPFlcxFdBdgGi/V4ISxLHVi54c+Q==
+X-Google-Smtp-Source: AGHT+IHytem9ZiSpp/IMZZ23Px9ow/WDIS5U8JgImTeFhW9KwLcIg20JNrAqcGdlqr/VIaHDsAnzDg==
+X-Received: by 2002:a05:622a:11ca:b0:429:ffda:679c with SMTP id n10-20020a05622a11ca00b00429ffda679cmr139180qtk.25.1705337244703;
+        Mon, 15 Jan 2024 08:47:24 -0800 (PST)
+Received: from ziepe.ca (hlfxns017vw-142-68-80-239.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.80.239])
+        by smtp.gmail.com with ESMTPSA id eh18-20020a05622a579200b00425b3fd33f2sm4023338qtb.90.2024.01.15.08.47.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 15 Jan 2024 08:47:24 -0800 (PST)
+Received: from jgg by wakko with local (Exim 4.95)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1rPQ7P-003tM0-9N;
+	Mon, 15 Jan 2024 12:47:23 -0400
+Date: Mon, 15 Jan 2024 12:47:23 -0400
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Shameerali Kolothum Thodi <shameerali.kolothum.thodi@huawei.com>
+Cc: Lu Baolu <baolu.lu@linux.intel.com>, Kevin Tian <kevin.tian@intel.com>,
+	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Jean-Philippe Brucker <jean-philippe@linaro.org>,
+	Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
+	Jacob Pan <jacob.jun.pan@linux.intel.com>,
+	"iommu@lists.linux.dev" <iommu@lists.linux.dev>,
+	"linux-kselftest@vger.kernel.org" <linux-kselftest@vger.kernel.org>,
+	"virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v2 4/6] iommufd: Deliver fault messages to user space
+Message-ID: <20240115164723.GB50608@ziepe.ca>
+References: <20231026024930.382898-1-baolu.lu@linux.intel.com>
+ <20231026024930.382898-5-baolu.lu@linux.intel.com>
+ <b822096cc3b441309d99832c587be25a@huawei.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] virtio_blk: remove duplicate check if queue is broken in
- virtblk_done
-Content-Language: en-US
-To: Li RongQing <lirongqing@baidu.com>, virtualization@lists.linux.dev,
- mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
- pbonzini@redhat.com, stefanha@redhat.com
-References: <20240113040947.47354-1-lirongqing@baidu.com>
-From: Jens Axboe <axboe@kernel.dk>
-In-Reply-To: <20240113040947.47354-1-lirongqing@baidu.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b822096cc3b441309d99832c587be25a@huawei.com>
 
-On 1/12/24 9:09 PM, Li RongQing wrote:
-> virtqueue_enable_cb() will call virtqueue_poll() which will check if
-> queue is broken at beginning, so remove the virtqueue_is_broken() call
+On Fri, Jan 12, 2024 at 05:46:13PM +0000, Shameerali Kolothum Thodi wrote:
+> 
+> 
+> > -----Original Message-----
+> > From: Lu Baolu <baolu.lu@linux.intel.com>
+> > Sent: Thursday, October 26, 2023 3:49 AM
+> > To: Jason Gunthorpe <jgg@ziepe.ca>; Kevin Tian <kevin.tian@intel.com>; Joerg
+> > Roedel <joro@8bytes.org>; Will Deacon <will@kernel.org>; Robin Murphy
+> > <robin.murphy@arm.com>; Jean-Philippe Brucker <jean-philippe@linaro.org>;
+> > Nicolin Chen <nicolinc@nvidia.com>; Yi Liu <yi.l.liu@intel.com>; Jacob Pan
+> > <jacob.jun.pan@linux.intel.com>
+> > Cc: iommu@lists.linux.dev; linux-kselftest@vger.kernel.org;
+> > virtualization@lists.linux-foundation.org; linux-kernel@vger.kernel.org; Lu
+> > Baolu <baolu.lu@linux.intel.com>
+> > Subject: [PATCH v2 4/6] iommufd: Deliver fault messages to user space
+> > 
+> [...]
+> 
+> Hi,
+> 
+> > +static ssize_t hwpt_fault_fops_write(struct file *filep,
+> > +				     const char __user *buf,
+> > +				     size_t count, loff_t *ppos)
+> > +{
+> > +	size_t response_size = sizeof(struct iommu_hwpt_page_response);
+> > +	struct hw_pgtable_fault *fault = filep->private_data;
+> > +	struct iommu_hwpt_page_response response;
+> > +	struct iommufd_hw_pagetable *hwpt;
+> > +	struct iopf_group *iter, *group;
+> > +	struct iommufd_device *idev;
+> > +	size_t done = 0;
+> > +	int rc = 0;
+> > +
+> > +	if (*ppos || count % response_size)
+> > +		return -ESPIPE;
+> > +
+> > +	mutex_lock(&fault->mutex);
+> > +	while (!list_empty(&fault->response) && count > done) {
+> > +		rc = copy_from_user(&response, buf + done, response_size);
+> > +		if (rc)
+> > +			break;
+> > +
+> > +		/* Get the device that this response targets at. */
+> > +		idev = container_of(iommufd_get_object(fault->ictx,
+> > +						       response.dev_id,
+> > +						       IOMMUFD_OBJ_DEVICE),
+> > +				    struct iommufd_device, obj);
+> > +		if (IS_ERR(idev)) {
+> > +			rc = PTR_ERR(idev);
+> > +			break;
+> > +		}
+> > +
+> > +		/*
+> > +		 * Get the hw page table that this response was generated for.
+> > +		 * It must match the one stored in the fault data.
+> > +		 */
+> > +		hwpt = container_of(iommufd_get_object(fault->ictx,
+> > +						       response.hwpt_id,
+> > +
+> > IOMMUFD_OBJ_HW_PAGETABLE),
+> > +				    struct iommufd_hw_pagetable, obj);
+> > +		if (IS_ERR(hwpt)) {
+> > +			iommufd_put_object(&idev->obj);
+> > +			rc = PTR_ERR(hwpt);
+> > +			break;
+> > +		}
+> > +
+> > +		if (hwpt != fault->hwpt) {
+> > +			rc = -EINVAL;
+> > +			goto put_obj;
+> > +		}
+> > +
+> > +		group = NULL;
+> > +		list_for_each_entry(iter, &fault->response, node) {
+> > +			if (response.grpid != iter->last_fault.fault.prm.grpid)
+> > +				continue;
+> > +
+> > +			if (idev->dev != iter->dev)
+> > +				continue;
+> > +
+> > +			if ((iter->last_fault.fault.prm.flags &
+> > +			     IOMMU_FAULT_PAGE_REQUEST_PASID_VALID) &&
+> > +			    response.pasid != iter->last_fault.fault.prm.pasid)
+> > +				continue;
+> 
+> I am trying to get vSVA working with this series and got hit by the above check.
+> On ARM platforms, page responses to stall events(CMD_RESUME) do not have
+> an associated pasid.  I think, either we need to check here using
+> IOMMU_FAULT_PAGE_RESPONSE_NEEDS_PASID or remove the check 
+> as it will be eventually done in iommu_page_response(). 
 
-Applied, thanks.
+That doesn't sound right..
 
--- 
-Jens Axboe
+The PASID is the only information we have for userspace to identify
+the domain that is being faulted. It cannot be optional on the request
+side.
 
+If it is valid when userspace does read() then it should be valid when
+userspace does write() too.
 
+It is the only way the kernel can actually match request and response
+here.
+
+So, I think you have a userspace issue to not provide the right
+pasid??
+
+Jason
