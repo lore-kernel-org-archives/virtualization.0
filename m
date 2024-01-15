@@ -1,85 +1,101 @@
-Received: from smtp.smtpout.orange.fr (smtp-23.smtpout.orange.fr [80.12.242.23])
+Received: from mail-lf1-f45.google.com (mail-lf1-f45.google.com [209.85.167.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFAC818645
-	for <virtualization@lists.linux.dev>; Mon, 15 Jan 2024 20:36:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=wanadoo.fr
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wanadoo.fr
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DAC631B292
+	for <virtualization@lists.linux.dev>; Mon, 15 Jan 2024 21:44:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=daynix.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wanadoo.fr header.i=@wanadoo.fr header.b="crIDZxkV"
-Received: from fedora.home ([92.140.202.140])
-	by smtp.orange.fr with ESMTPA
-	id PTgYrIbDj9TFdPTgYrCsdD; Mon, 15 Jan 2024 21:35:58 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=wanadoo.fr;
-	s=t20230301; t=1705350958;
-	bh=RzPoGp/tpKwUV6J2m7F/ChKKY33YyoyaYVUsLe/NOrA=;
-	h=From:To:Cc:Subject:Date;
-	b=crIDZxkVsvRRgoM4QE6wFLEjnsbeL4mCoTxXi0nzroXsopuYsC9MuN7/SMLzMDMl+
-	 +ONLtm6NaS1G2zYyR4T8yHq83QNwAkOV1dcTCWdhiFXWMXM71PUkmTuk0xsublfOXR
-	 CQF3Xer8zFOUn7MxW+CP3/g5wu4tRDlAN4eczas4tkT+4eYvi1/+7xmoTZj+SfFJt9
-	 eD4UUstx3So1LO55nB2mSnMA/wRuie20L3w7RuJzmjLlU6Qjkq7Ssun78WiSz0rXGS
-	 NDEq98gNbu3W4UjnZ5yBSutr7Vh+/jqXULenRmKLdaNSt73dIDwkefstUFPHEeQeAy
-	 agWlTIKpET0lQ==
-X-ME-Helo: fedora.home
-X-ME-Auth: Y2hyaXN0b3BoZS5qYWlsbGV0QHdhbmFkb28uZnI=
-X-ME-Date: Mon, 15 Jan 2024 21:35:58 +0100
-X-ME-IP: 92.140.202.140
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-To: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>
-Cc: linux-kernel@vger.kernel.org,
-	kernel-janitors@vger.kernel.org,
-	Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-	kvm@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org
-Subject: [PATCH] vhost-vdpa: Remove usage of the deprecated ida_simple_xx() API
-Date: Mon, 15 Jan 2024 21:35:50 +0100
-Message-ID: <bd27d4066f7749997a75cf4111fbf51e11d5898d.1705350942.git.christophe.jaillet@wanadoo.fr>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="yKFYQgVO"
+Received: by mail-lf1-f45.google.com with SMTP id 2adb3069b0e04-50eabd1c701so11180582e87.3
+        for <virtualization@lists.linux.dev>; Mon, 15 Jan 2024 13:44:46 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1705355085; x=1705959885; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=2dKtPTrWnoc6fMe3lLbkoCZ1Tu8sXcss1oKD1gcrdh4=;
+        b=yKFYQgVOUBJgmCssXAcUEFUMC2H7INjGJAIN2wgF5T9kuJ3K9Ichi9aX7pPcsYGGuq
+         wR7Qf82m/9fSbnDajkxNIPvPIsZBpJqTNy750eTuwLs9lSRxq0E9KMp4rzCPB37GH4p9
+         VGvO6dDF44xsBQcZaEjq/EyOQvmF1bxUibNPCPJxnZpSHAufhj1/ifeAH1wcwhkIKrKS
+         e0V2eX6xKXKC9ZRssXN93erQaGRTyfVZepGmu3tA6JEw1aQ4iqI6U6CckXpG1fJ1UI+p
+         h63W5jMgqkZhfufNL2ZkBS8NSVjdQdV89pbVvT1El/W+tbAoA7nMHxNHSxRRvFgAl+vK
+         ANfg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1705355085; x=1705959885;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=2dKtPTrWnoc6fMe3lLbkoCZ1Tu8sXcss1oKD1gcrdh4=;
+        b=ed2hS1mDIcELzYzmYOJRtqfp222ImNCyHE05r1hxhiPjqDCDZzLj6DHRa9ESNMnUh5
+         V3nCvqG811vLi9YsNm/VjLpQpXuOcZWe1Ej6X+0CCAeU5Hl12d1wYYoR2eipNeNZL7QK
+         5jK4Eqp2J3YiRzlWmJzxvTPai7iaEcirHR+LHk1QKl//o5lzH1TpZvuWDV9wbc+b/lAR
+         tzZ/YOfb7NxerubQ2hE3SegyHvQtQxxkbKZWwJeFkEDKsMtUkayVTlDGJ/tsU8yCDa4A
+         Yk7sU41y0Jkyye7SsSEkWYc02Hki1qvmjXCJIkQipD1bgrPNSWGuzdRSFhmfpxxK0wUU
+         0huw==
+X-Gm-Message-State: AOJu0YxXfaNuLcAE2MU7gN3VBYvkSZB+y4mqebiguiljXUtUmMqBrKL2
+	g7fJweGwKLuSQFcZpDu617SwEy2xin5DT+0aLL/dzhypOqXd9Q==
+X-Google-Smtp-Source: AGHT+IHKiK8prqPQNKjM0sjGqQfOTCEmNaayIspi6IUCYFWmkjH19fSrGZkx3kzlTUFqZaeipvcci4afBS1SYzofu+c=
+X-Received: by 2002:a05:6512:1284:b0:50e:7b2c:6818 with SMTP id
+ u4-20020a056512128400b0050e7b2c6818mr3603951lfs.26.1705355084857; Mon, 15 Jan
+ 2024 13:44:44 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20240115194840.1183077-1-andrew@daynix.com>
+In-Reply-To: <20240115194840.1183077-1-andrew@daynix.com>
+From: Yuri Benditovich <yuri.benditovich@daynix.com>
+Date: Mon, 15 Jan 2024 23:44:32 +0200
+Message-ID: <CAOEp5Ofk5NrKujDApLXT6RL=hD6b4NFxv9GZ-NSvkbJvRYtG8Q@mail.gmail.com>
+Subject: Re: [PATCH 1/1] vhost: Added pad cleanup if vnet_hdr is not present.
+To: linux-kernel@vger.kernel.org
+Cc: mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, yan@daynix.com, 
+	Andrew Melnychenko <andrew@daynix.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-ida_alloc() and ida_free() should be preferred to the deprecated
-ida_simple_get() and ida_simple_remove().
+See also https://issues.redhat.com/browse/RHEL-1303
 
-Note that the upper limit of ida_simple_get() is exclusive, buInputt the one of
-ida_alloc_max() is inclusive. So a -1 has been added when needed.
 
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
----
- drivers/vhost/vdpa.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-index bc4a51e4638b..849b9d2dd51f 100644
---- a/drivers/vhost/vdpa.c
-+++ b/drivers/vhost/vdpa.c
-@@ -1534,7 +1534,7 @@ static void vhost_vdpa_release_dev(struct device *device)
- 	struct vhost_vdpa *v =
- 	       container_of(device, struct vhost_vdpa, dev);
- 
--	ida_simple_remove(&vhost_vdpa_ida, v->minor);
-+	ida_free(&vhost_vdpa_ida, v->minor);
- 	kfree(v->vqs);
- 	kfree(v);
- }
-@@ -1557,8 +1557,8 @@ static int vhost_vdpa_probe(struct vdpa_device *vdpa)
- 	if (!v)
- 		return -ENOMEM;
- 
--	minor = ida_simple_get(&vhost_vdpa_ida, 0,
--			       VHOST_VDPA_DEV_MAX, GFP_KERNEL);
-+	minor = ida_alloc_max(&vhost_vdpa_ida, VHOST_VDPA_DEV_MAX - 1,
-+			      GFP_KERNEL);
- 	if (minor < 0) {
- 		kfree(v);
- 		return minor;
--- 
-2.43.0
-
+On Mon, Jan 15, 2024 at 9:48=E2=80=AFPM Andrew Melnychenko <andrew@daynix.c=
+om> wrote:
+>
+> When the Qemu launched with vhost but without tap vnet_hdr,
+> vhost tries to copy vnet_hdr from socket iter with size 0
+> to the page that may contain some trash.
+> That trash can be interpreted as unpredictable values for
+> vnet_hdr.
+> That leads to dropping some packets and in some cases to
+> stalling vhost routine when the vhost_net tries to process
+> packets and fails in a loop.
+>
+> Qemu options:
+>   -netdev tap,vhost=3Don,vnet_hdr=3Doff,...
+>
+> Signed-off-by: Andrew Melnychenko <andrew@daynix.com>
+> ---
+>  drivers/vhost/net.c | 3 +++
+>  1 file changed, 3 insertions(+)
+>
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index f2ed7167c848..57411ac2d08b 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -735,6 +735,9 @@ static int vhost_net_build_xdp(struct vhost_net_virtq=
+ueue *nvq,
+>         hdr =3D buf;
+>         gso =3D &hdr->gso;
+>
+> +       if (!sock_hlen)
+> +               memset(buf, 0, pad);
+> +
+>         if ((gso->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) &&
+>             vhost16_to_cpu(vq, gso->csum_start) +
+>             vhost16_to_cpu(vq, gso->csum_offset) + 2 >
+> --
+> 2.43.0
+>
