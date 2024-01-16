@@ -1,52 +1,71 @@
-Received: from njjs-sys-mailin01.njjs.baidu.com (mx312.baidu.com [180.101.52.108])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 0C16C10A1F
-	for <virtualization@lists.linux.dev>; Tue, 16 Jan 2024 04:58:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=baidu.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baidu.com
-Received: from localhost (bjhw-sys-rpm015653cc5.bjhw.baidu.com [10.227.53.39])
-	by njjs-sys-mailin01.njjs.baidu.com (Postfix) with ESMTP id D5DAE7F00045;
-	Tue, 16 Jan 2024 12:58:41 +0800 (CST)
-From: Li RongQing <lirongqing@baidu.com>
-To: mst@redhat.com,
-	jasowang@redhat.com,
-	pbonzini@redhat.com,
-	stefanha@redhat.com,
-	jejb@linux.ibm.com,
-	martin.petersen@oracle.com,
-	virtualization@lists.linux.dev,
-	linux-scsi@vger.kernel.org
-Cc: Li RongQing <lirongqing@baidu.com>
-Subject: [PATCH] virtio_scsi: remove duplicate check if queue is broken
-Date: Tue, 16 Jan 2024 12:58:36 +0800
-Message-Id: <20240116045836.12475-1-lirongqing@baidu.com>
-X-Mailer: git-send-email 2.9.4
+Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD17C882E
+	for <virtualization@lists.linux.dev>; Tue, 16 Jan 2024 05:56:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0W-l-dkk_1705384600;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W-l-dkk_1705384600)
+          by smtp.aliyun-inc.com;
+          Tue, 16 Jan 2024 13:56:41 +0800
+Message-ID: <1705384540.169184-2-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next v1 0/6] virtio-net: support device stats
+Date: Tue, 16 Jan 2024 13:55:40 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>,
+ virtualization@lists.linux.dev,
+ Zhu Yanjun <yanjun.zhu@linux.dev>,
+ netdev@vger.kernel.org
+References: <20231226073103.116153-1-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20231226073103.116153-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-virtqueue_enable_cb() will call virtqueue_poll() which will check if
-queue is broken at beginning, so remove the virtqueue_is_broken() call
+On Tue, 26 Dec 2023 15:30:57 +0800, Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
+> As the spec:
+>
+> https://github.com/oasis-tcs/virtio-spec/commit/42f389989823039724f95bbbd243291ab0064f82
+>
+> The virtio net supports to get device stats.
 
-Signed-off-by: Li RongQing <lirongqing@baidu.com>
----
- drivers/scsi/virtio_scsi.c | 2 --
- 1 file changed, 2 deletions(-)
+Hi Jason,
 
-diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
-index 9d1bdcd..e15b380 100644
---- a/drivers/scsi/virtio_scsi.c
-+++ b/drivers/scsi/virtio_scsi.c
-@@ -182,8 +182,6 @@ static void virtscsi_vq_done(struct virtio_scsi *vscsi,
- 		while ((buf = virtqueue_get_buf(vq, &len)) != NULL)
- 			fn(vscsi, buf);
- 
--		if (unlikely(virtqueue_is_broken(vq)))
--			break;
- 	} while (!virtqueue_enable_cb(vq));
- 	spin_unlock_irqrestore(&virtscsi_vq->vq_lock, flags);
- }
--- 
-2.9.4
+Any comments for this?
 
+Thanks
+
+
+
+>
+> Please review.
+>
+> Thanks.
+>
+> v1:
+>     1. fix some definitions of the marco and the struct
+>
+>
+> Xuan Zhuo (6):
+>   virtio_net: introduce device stats feature and structures
+>   virtio_net: virtnet_send_command supports command-specific-result
+>   virtio_net: support device stats
+>   virtio_net: stats map include driver stats
+>   virtio_net: add the total stats field
+>   virtio_net: rename stat tx_timeout to timeout
+>
+>  drivers/net/virtio_net.c        | 533 ++++++++++++++++++++++++++++----
+>  include/uapi/linux/virtio_net.h | 137 ++++++++
+>  2 files changed, 610 insertions(+), 60 deletions(-)
+>
+> --
+> 2.32.0.3.g01195cf9f
+>
