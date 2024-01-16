@@ -1,68 +1,68 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37E2B1BC23
-	for <virtualization@lists.linux.dev>; Tue, 16 Jan 2024 12:32:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C35D1B972
+	for <virtualization@lists.linux.dev>; Tue, 16 Jan 2024 12:37:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hugGADZJ"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="btRg2ggv"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1705408374;
+	s=mimecast20190719; t=1705408661;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=zWcN56lFeQR5uIyCT1FUB+7UBosQUWUowPP8oiY/NHI=;
-	b=hugGADZJAwe+oKC7t2Qr+xkV7EpaI/ZjLKuxfH6MpXhrulbAf7deFSnvQ79a9GL4D2MkvW
-	dFgw+MeB7s/KLVHSv4ggE+89q2on4p07wY+BV9f9QqYh7jyGfthDozUg2iWkCpDyJD0Aml
-	ItuJ1ca01/h7IUXCVEwZJoE3cQRyKvQ=
-Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
- [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=53w7LonEBZKCeh61gp68ScXBNGyFCvN7H8ZoXu/fyRc=;
+	b=btRg2ggvvHQU3SvgiuAj0sm2VEHGek55vsL+g1Th4chhnvE83Lc+6HqfkTrGTYCafplMY3
+	IFTfqQN4t2BR9yxr8yBWxilTHE0tNtymekKZjhLCBpLYv6b2mhTLbqmoX1IlU4qGsb06Xv
+	u/dy1xPCq+xliScOeNQPuE83H0PTe/8=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-47-J5ErH2x5NrC5721AgZcWTw-1; Tue, 16 Jan 2024 07:32:47 -0500
-X-MC-Unique: J5ErH2x5NrC5721AgZcWTw-1
-Received: by mail-lf1-f71.google.com with SMTP id 2adb3069b0e04-50ec9137314so664306e87.0
-        for <virtualization@lists.linux.dev>; Tue, 16 Jan 2024 04:32:47 -0800 (PST)
+ us-mta-621-GO33goGUPSqo8rGJ1L5pUw-1; Tue, 16 Jan 2024 07:37:35 -0500
+X-MC-Unique: GO33goGUPSqo8rGJ1L5pUw-1
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-33764587bccso1391549f8f.1
+        for <virtualization@lists.linux.dev>; Tue, 16 Jan 2024 04:37:34 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1705408365; x=1706013165;
+        d=1e100.net; s=20230601; t=1705408653; x=1706013453;
         h=mime-version:user-agent:content-transfer-encoding:autocrypt
          :references:in-reply-to:date:cc:to:from:subject:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=zWcN56lFeQR5uIyCT1FUB+7UBosQUWUowPP8oiY/NHI=;
-        b=qw0Yu6N6UtQTVXrgDLU79SEdRW5feRT177mqU0JcmWiplse0RI83iStnZ3PYFJ8fc+
-         BGC6DENuVyQ/Xu26QhfRMtAvYTU6OyHd+tbzFGn0DQDo2FQYh+HIsh4Edc5oFY0/moRN
-         Z+pUlIAh6DnuA/12R8fOfrlcfYunWxYlnzBkO5HYzqYSsg6oAKjp/u8x8QpsZUsPCivj
-         FVq532OzgEiZI0ez+z6of3uAYcv1JSca4IXLq1baPwoezo9cuFLdLLCATe7/rwcXxJks
-         GbniABwGT618oYbMjz8QgdoiP35UpU/2endaQkQusevB/GYHZV1e95mWy5NpIIubbjQD
-         9nHA==
-X-Gm-Message-State: AOJu0Yyp1osP3M4Y1tQVCDD9hQVX0cPGlDKZU4UxpHGcg2BX2xaAZUt8
-	dXmIQM5dAEtrnhz57C58uz7boHwJ5xSd23w9RF5vAPs54LgUuVNUrj1S8MGw8lGfZ+CF9fx3gVw
-	Et4VaMVPwDCo5HDWAVWLZsO8dRNxZbdzMtMg=
-X-Received: by 2002:ac2:4dab:0:b0:50e:77b1:91ce with SMTP id h11-20020ac24dab000000b0050e77b191cemr6683454lfe.2.1705408365642;
-        Tue, 16 Jan 2024 04:32:45 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGd7lzSPTmt1TJ3yyJnsuooFHATo2hgX0dBwp4gxZGBguHOFLgMeVSRjAZ1lpDn7AUU0inTdw==
-X-Received: by 2002:ac2:4dab:0:b0:50e:77b1:91ce with SMTP id h11-20020ac24dab000000b0050e77b191cemr6683433lfe.2.1705408365266;
-        Tue, 16 Jan 2024 04:32:45 -0800 (PST)
+        bh=53w7LonEBZKCeh61gp68ScXBNGyFCvN7H8ZoXu/fyRc=;
+        b=oYuzxKQ9rvfR+hvt/v5pqdHqRgED6bWBqffTy6b4Flv/2iE2/957UqpdPOzy5f81Eu
+         GVbFuOlQfM7iq38jGu0Fa5domnM+5t/Go7JphmVJmXVqhblqWEsF8sLoLEDmUIFxsSob
+         +EFiNxfkadaqq1hJI6MO8GXSn5k36JqMyIAKDvEuCSG1wdZUN7mYXZJhIsNQdKm3B7q2
+         7qR4xBscW3FYh8jiJsBYZCGHstQLVFymvKJXq1GISB99oGhwJVX+vePiyvpppkP/V34j
+         SlAGd+l7GGIMc/NdQ3X51YpnH+//kAedWLRSjUbcNbjfFuAlftJRoGce1WCgZ6iMKo1Z
+         J1Fw==
+X-Gm-Message-State: AOJu0YyJqHX/GPmxTg+ewAgxehU4hJJIYU3cMzjxuVqdjJnYc5fH6h0B
+	r7ray14ik5RxLTgFC+41NpEzuQZDZjFrlDlIBuHjMBDpM30BMfeykTRfG6tD91hEWffd4Y26LtI
+	jiw22ZTJEZXPAgtnksUubSGyoKwNo6U2EXso=
+X-Received: by 2002:adf:e345:0:b0:337:7598:87ae with SMTP id n5-20020adfe345000000b00337759887aemr8273868wrj.2.1705408652874;
+        Tue, 16 Jan 2024 04:37:32 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGoa1zeFDc96CwhJfIDnJO/5o1tiBKoN+j3yrUF25TSg8aaWyDolK6TAqWNY7cKtH1x7/zxxQ==
+X-Received: by 2002:adf:e345:0:b0:337:7598:87ae with SMTP id n5-20020adfe345000000b00337759887aemr8273840wrj.2.1705408652527;
+        Tue, 16 Jan 2024 04:37:32 -0800 (PST)
 Received: from gerbillo.redhat.com (146-241-241-126.dyn.eolo.it. [146.241.241.126])
-        by smtp.gmail.com with ESMTPSA id iw7-20020a05600c54c700b0040d604dea3bsm18834459wmb.4.2024.01.16.04.32.44
+        by smtp.gmail.com with ESMTPSA id u6-20020adff886000000b00337bdd43e35sm976963wrp.39.2024.01.16.04.37.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Jan 2024 04:32:44 -0800 (PST)
-Message-ID: <f5a8953f8c281b918e19f69e77b7dc6352485928.camel@redhat.com>
-Subject: Re: [PATCH net-next 0/5] virtio-net: make the virtio-net has
- independent directory
+        Tue, 16 Jan 2024 04:37:32 -0800 (PST)
+Message-ID: <e19024b42c8f72e2b09c819ff1a4118f4b73da78.camel@redhat.com>
+Subject: Re: [PATCH net-next 00/17] virtio-net: support AF_XDP zero copy
+ (3/3)
 From: Paolo Abeni <pabeni@redhat.com>
 To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, netdev@vger.kernel.org
-Cc: "David S. Miller" <davem@davemloft.net>, Eric Dumazet
- <edumazet@google.com>,  Jakub Kicinski <kuba@kernel.org>, "Michael S.
- Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Alexei
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+  "David S. Miller" <davem@davemloft.net>, Eric Dumazet
+ <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,  Alexei
  Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
  Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend
- <john.fastabend@gmail.com>, virtualization@lists.linux.dev,
+ <john.fastabend@gmail.com>,  virtualization@lists.linux.dev,
  bpf@vger.kernel.org
-Date: Tue, 16 Jan 2024 13:32:43 +0100
-In-Reply-To: <20240116062842.67874-1-xuanzhuo@linux.alibaba.com>
-References: <20240116062842.67874-1-xuanzhuo@linux.alibaba.com>
+Date: Tue, 16 Jan 2024 13:37:30 +0100
+In-Reply-To: <20240116094313.119939-1-xuanzhuo@linux.alibaba.com>
+References: <20240116094313.119939-1-xuanzhuo@linux.alibaba.com>
 Autocrypt: addr=pabeni@redhat.com; prefer-encrypt=mutual; keydata=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
@@ -79,19 +79,12 @@ X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, 2024-01-16 at 14:28 +0800, Xuan Zhuo wrote:
-> This is first part of virtio-net support AF_XDP zero copy.
-
-For future submissions, unless explcitly requested otherwise, please
-wait for a series being processed before posting the follow-ups.
-Otherwise any change requested to earlier patches could possibly/likely
-need changing  (and reposting) all the following.
-
+          On Tue, 2024-01-16 at 17:42 +0800, Xuan Zhuo wrote:
+> This is the third part of virtio-net support AF_XDP zero copy.
 >=20
 > The whole patch set
 > http://lore.kernel.org/all/20231229073108.57778-1-xuanzhuo@linux.alibaba.=
 com
->=20
 >=20
 > ## AF_XDP
 >=20
@@ -180,6 +173,9 @@ port in
 > Please review.
 >=20
 > Thanks.
+
+For future submission it would be better if you split this series in
+smaller chunks: the maximum size allowed is 15 patches.
 
 ## Form letter - net-next-closed
 
