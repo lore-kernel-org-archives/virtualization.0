@@ -1,71 +1,103 @@
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD17C882E
-	for <virtualization@lists.linux.dev>; Tue, 16 Jan 2024 05:56:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D24A101EB
+	for <virtualization@lists.linux.dev>; Tue, 16 Jan 2024 06:28:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0W-l-dkk_1705384600;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W-l-dkk_1705384600)
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R861e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W-l5T4w_1705386523;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W-l5T4w_1705386523)
           by smtp.aliyun-inc.com;
-          Tue, 16 Jan 2024 13:56:41 +0800
-Message-ID: <1705384540.169184-2-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next v1 0/6] virtio-net: support device stats
-Date: Tue, 16 Jan 2024 13:55:40 +0800
+          Tue, 16 Jan 2024 14:28:44 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- virtualization@lists.linux.dev,
- Zhu Yanjun <yanjun.zhu@linux.dev>,
- netdev@vger.kernel.org
-References: <20231226073103.116153-1-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <20231226073103.116153-1-xuanzhuo@linux.alibaba.com>
+To: netdev@vger.kernel.org
+Cc: "David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	virtualization@lists.linux.dev,
+	bpf@vger.kernel.org
+Subject: [PATCH net-next 1/5] virtio_net: rename free_old_xmit_skbs to free_old_xmit
+Date: Tue, 16 Jan 2024 14:28:38 +0800
+Message-Id: <20240116062842.67874-2-xuanzhuo@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+In-Reply-To: <20240116062842.67874-1-xuanzhuo@linux.alibaba.com>
+References: <20240116062842.67874-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+X-Git-Hash: aa067ad3645b
+Content-Transfer-Encoding: 8bit
 
-On Tue, 26 Dec 2023 15:30:57 +0800, Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
-> As the spec:
->
-> https://github.com/oasis-tcs/virtio-spec/commit/42f389989823039724f95bbbd243291ab0064f82
->
-> The virtio net supports to get device stats.
+Since free_old_xmit_skbs not only deals with skb, but also xdp frame and
+subsequent added xsk, so change the name of this function to
+free_old_xmit.
 
-Hi Jason,
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/net/virtio_net.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-Any comments for this?
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index d7ce4a1011ea..378a8a932a72 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -776,7 +776,7 @@ static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *buf)
+ 	virtnet_rq_free_buf(vi, rq, buf);
+ }
+ 
+-static void free_old_xmit_skbs(struct send_queue *sq, bool in_napi)
++static void free_old_xmit(struct send_queue *sq, bool in_napi)
+ {
+ 	unsigned int len;
+ 	unsigned int packets = 0;
+@@ -848,7 +848,7 @@ static void check_sq_full_and_disable(struct virtnet_info *vi,
+ 				virtqueue_napi_schedule(&sq->napi, sq->vq);
+ 		} else if (unlikely(!virtqueue_enable_cb_delayed(sq->vq))) {
+ 			/* More just got used, free them then recheck. */
+-			free_old_xmit_skbs(sq, false);
++			free_old_xmit(sq, false);
+ 			if (sq->vq->num_free >= 2+MAX_SKB_FRAGS) {
+ 				netif_start_subqueue(dev, qnum);
+ 				virtqueue_disable_cb(sq->vq);
+@@ -2160,7 +2160,7 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
+ 
+ 		do {
+ 			virtqueue_disable_cb(sq->vq);
+-			free_old_xmit_skbs(sq, true);
++			free_old_xmit(sq, true);
+ 		} while (unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
+ 
+ 		if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
+@@ -2308,7 +2308,7 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
+ 	txq = netdev_get_tx_queue(vi->dev, index);
+ 	__netif_tx_lock(txq, raw_smp_processor_id());
+ 	virtqueue_disable_cb(sq->vq);
+-	free_old_xmit_skbs(sq, true);
++	free_old_xmit(sq, true);
+ 
+ 	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
+ 		netif_tx_wake_queue(txq);
+@@ -2398,7 +2398,7 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 		if (use_napi)
+ 			virtqueue_disable_cb(sq->vq);
+ 
+-		free_old_xmit_skbs(sq, false);
++		free_old_xmit(sq, false);
+ 
+ 	} while (use_napi && kick &&
+ 	       unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
+-- 
+2.32.0.3.g01195cf9f
 
-Thanks
-
-
-
->
-> Please review.
->
-> Thanks.
->
-> v1:
->     1. fix some definitions of the marco and the struct
->
->
-> Xuan Zhuo (6):
->   virtio_net: introduce device stats feature and structures
->   virtio_net: virtnet_send_command supports command-specific-result
->   virtio_net: support device stats
->   virtio_net: stats map include driver stats
->   virtio_net: add the total stats field
->   virtio_net: rename stat tx_timeout to timeout
->
->  drivers/net/virtio_net.c        | 533 ++++++++++++++++++++++++++++----
->  include/uapi/linux/virtio_net.h | 137 ++++++++
->  2 files changed, 610 insertions(+), 60 deletions(-)
->
-> --
-> 2.32.0.3.g01195cf9f
->
