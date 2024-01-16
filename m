@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B6E122F03;
-	Tue, 16 Jan 2024 19:49:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F038E1474C4;
+	Tue, 16 Jan 2024 19:56:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705434557; cv=none; b=YH7BjzOLQYuazT6X4oWrd8U3clES7+br9y0W/F03rzoZ2JHja4TmlbN6Nl62SC9OtaW74lndkvc9JEhEI/jUEBQnhFRsfoRkmCZDR6P1n0uCjv0hepzsc3fjpVmY3bm7SFhKe7TklrgErTIlIlZMBQPVggyhjk/qG7gY/sHD8LM=
+	t=1705435012; cv=none; b=dJMK0MV8S1cpc4C5qf6b9izeBK0UC5DIFHjTur6qJH5s/jpGffycjzP6N81oZY2xOfExizBavwnQwg3kiPMAznK101A+GoDK7nJlKAyQkZ2uuwewapvNuUP/jkrvyz+Q89sxpVOYAda6eNNTOeeZ4vziVATptHwh2RsA+E9BoeE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705434557; c=relaxed/simple;
-	bh=UlR1vzAunUYAVA7h0+hGXquiBWPvzaB/M+M2k4Oo93Y=;
+	s=arc-20240116; t=1705435012; c=relaxed/simple;
+	bh=y4eTy0OYL3qe1YUIm7vwjJt/28mMWOkdOb6hBk3Qpyo=;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:
-	 In-Reply-To; b=QshZe+jzmPrT/I7DHwOz//IVuKtpcM855tl4z3w7SH24E3HotoEQJNZ9tiIQFf4N/2Jf986Eayg5PTVbDmFpCGb4wKi5C/NZq90l87EDGPOUo7smp2Opo7Ohhgm29O57grSm2y8XNLK5/6HJLrzLvUmJ23xPNxyzYpIN8UUPqdw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SplWXPA6; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To; b=jgxBf+PATc1yvJghKLVhNcDkPDYNSDRX7uoHEzWV6OwH3dV/IX3d9Tc56ut/xAeo+BqdAwFxI3QVBsPQ9gUKb5qF6NHq2w0+BdPbTWFWm9N7OUUtakD/Gr62+TuSaXwiWt/ciEKqkfCrfQaSOyjjy6QVOi7x0je8pdDtnY9Zm4U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YmWa/MAq; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SplWXPA6"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3AA1C433C7;
-	Tue, 16 Jan 2024 19:49:14 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YmWa/MAq"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F217C433C7;
+	Tue, 16 Jan 2024 19:56:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1705434557;
-	bh=UlR1vzAunUYAVA7h0+hGXquiBWPvzaB/M+M2k4Oo93Y=;
+	s=k20201202; t=1705435011;
+	bh=y4eTy0OYL3qe1YUIm7vwjJt/28mMWOkdOb6hBk3Qpyo=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=SplWXPA6IGc3JIiEWpBLpIBZ/IkVf1GiZDX7uK07GZqVFCZ1CikouJjhZQLNqjiJE
-	 4Ewxv5BnctuxPUXi91HkCBo8Z9GzYr3f/i6cuhswv95RYDock3JPwsa0AX//8bEI/0
-	 NpP+Udx6kTEhAxVG4SdjQpgYI6i2UrcyP4LKCx44RwFVKpjuBpp5M9y3AtgvP/PXR+
-	 em1uXYIYHoiSPS1B1rgnt2nDKvrRbaEXI3bycENqtcmND0vVnflqQaGGGDUSVcCIt/
-	 iyOI/TOlCKTe13OASuKFV9q1Z8CbNmriRJ1wEvToCgWMOkTYEMOYyqBK3msdcpa2h6
-	 oDJgbvKetgvzw==
-Date: Tue, 16 Jan 2024 19:49:12 +0000
+	b=YmWa/MAqMeTXtxBaEfWJov7N5/pwhRtiiBzKryCv0P4OzT3imln9bX7Ltv/WwURIs
+	 1vQNSHYzny51Kymb5TNuurB7ByV05gkZqzAVrIpKbe04rV3vf3kTTdkWjrMiutty6L
+	 CL+lED9FEeDh5URDXVygIuILLLTp6d7a2nz2SMV+GFRUf78nLQWlomYa+UUeb0/jHd
+	 gY0zugl+NIyysd0Yr8Y934H0ooN4ScNv1Xh8PyVL+0StwH3Nlb2/nkWTff0kaam/xg
+	 B5O2mDTuKo38H4krkmtroxyhX39zrLftqoe/a4QDUm+5bSzRnfWPHef17a5i3z5u7l
+	 vdZCSs7tAPcRw==
+Date: Tue, 16 Jan 2024 19:56:46 +0000
 From: Simon Horman <horms@kernel.org>
 To: Heng Qi <hengqi@linux.alibaba.com>
 Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
@@ -37,10 +37,11 @@ Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
 	Eric Dumazet <edumazet@google.com>,
 	"David S. Miller" <davem@davemloft.net>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next 2/3] virtio-net: batch dim request
-Message-ID: <20240116194912.GE588419@kernel.org>
+Subject: Re: [PATCH net-next 3/3] virtio-net: reduce the CPU consumption of
+ dim worker
+Message-ID: <20240116195646.GF588419@kernel.org>
 References: <1705410693-118895-1-git-send-email-hengqi@linux.alibaba.com>
- <1705410693-118895-3-git-send-email-hengqi@linux.alibaba.com>
+ <1705410693-118895-4-git-send-email-hengqi@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -49,82 +50,75 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1705410693-118895-3-git-send-email-hengqi@linux.alibaba.com>
+In-Reply-To: <1705410693-118895-4-git-send-email-hengqi@linux.alibaba.com>
 
-On Tue, Jan 16, 2024 at 09:11:32PM +0800, Heng Qi wrote:
-> Currently, when each time the driver attempts to update the coalescing
-> parameters for a vq, it needs to kick the device.
-> The following path is observed:
->   1. Driver kicks the device;
->   2. After the device receives the kick, CPU scheduling occurs and DMA
->      multiple buffers multiple times;
->   3. The device completes processing and replies with a response.
+On Tue, Jan 16, 2024 at 09:11:33PM +0800, Heng Qi wrote:
+> Accumulate multiple request commands to kick the device once,
+> and obtain the processing results of the corresponding commands
+> asynchronously. The batch command method is used to optimize the
+> CPU overhead of the DIM worker caused by the guest being busy
+> waiting for the command response result.
 > 
-> When large-queue devices issue multiple requests and kick the device
-> frequently, this often interrupt the work of the device-side CPU.
-> In addition, each vq request is processed separately, causing more
-> delays for the CPU to wait for the DMA request to complete.
+> On an 8-queue device, without this patch, the guest cpu overhead
+> due to waiting for cvq could be 10+% and above. With this patch,
+> the corresponding overhead is basically invisible.
 > 
-> These interruptions and overhead will strain the CPU responsible for
-> controlling the path of the DPU, especially in multi-device and
-> large-queue scenarios.
-> 
-> To solve the above problems, we internally tried batch request,
-> which merges requests from multiple queues and sends them at once.
-> We conservatively tested 8 queue commands and sent them together.
-> The DPU processing efficiency can be improved by 8 times, which
-> greatly eases the DPU's support for multi-device and multi-queue DIM.
-> 
-> Suggested-by: Xiaoming Zhao <zxm377917@alibaba-inc.com>
 > Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
 
 ...
 
-> @@ -3546,16 +3552,32 @@ static void virtnet_rx_dim_work(struct work_struct *work)
->  		update_moder = net_dim_get_rx_moderation(dim->mode, dim->profile_ix);
->  		if (update_moder.usec != rq->intr_coal.max_usecs ||
->  		    update_moder.pkts != rq->intr_coal.max_packets) {
-> -			err = virtnet_send_rx_ctrl_coal_vq_cmd(vi, qnum,
-> -							       update_moder.usec,
-> -							       update_moder.pkts);
-> -			if (err)
-> -				pr_debug("%s: Failed to send dim parameters on rxq%d\n",
-> -					 dev->name, qnum);
-> -			dim->state = DIM_START_MEASURE;
-> +			coal->coal_vqs[j].vqn = cpu_to_le16(rxq2vq(i));
-> +			coal->coal_vqs[j].coal.max_usecs = cpu_to_le32(update_moder.usec);
-> +			coal->coal_vqs[j].coal.max_packets = cpu_to_le32(update_moder.pkts);
-> +			rq->intr_coal.max_usecs = update_moder.usec;
-> +			rq->intr_coal.max_packets = update_moder.pkts;
-> +			j++;
->  		}
->  	}
+> @@ -3520,22 +3568,99 @@ static int virtnet_send_notf_coal_vq_cmds(struct virtnet_info *vi,
+>  	return 0;
+>  }
 >  
-> +	if (!j)
-> +		goto ret;
+> +static bool virtnet_add_dim_command(struct virtnet_info *vi,
+> +				    struct virtnet_batch_coal *ctrl)
+> +{
+> +	struct scatterlist *sgs[4], hdr, stat, out;
+> +	unsigned out_num = 0;
+> +	int ret;
 > +
-> +	coal->num_entries = cpu_to_le32(j);
-> +	sg_init_one(&sgs, coal, sizeof(struct virtnet_batch_coal) +
-> +		    j * sizeof(struct virtio_net_ctrl_coal_vq));
-> +	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_NOTF_COAL,
-> +				  VIRTIO_NET_CTRL_NOTF_COAL_VQS_SET,
-> +				  &sgs))
-> +		dev_warn(&vi->vdev->dev, "Failed to add dim command\n.");
+> +	/* Caller should know better */
+> +	BUG_ON(!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ));
 > +
-> +	for (i = 0; i < j; i++) {
-> +		rq = &vi->rq[(coal->coal_vqs[i].vqn) / 2];
+> +	ctrl->hdr.class = VIRTIO_NET_CTRL_NOTF_COAL;
+> +	ctrl->hdr.cmd = VIRTIO_NET_CTRL_NOTF_COAL_VQS_SET;
+> +
+> +	/* Add header */
+> +	sg_init_one(&hdr, &ctrl->hdr, sizeof(ctrl->hdr));
+> +	sgs[out_num++] = &hdr;
+> +
+> +	/* Add body */
+> +	sg_init_one(&out, &ctrl->num_entries, sizeof(ctrl->num_entries) +
+> +		    ctrl->num_entries * sizeof(struct virtnet_coal_entry));
 
 Hi Heng Qi,
 
-The type of .vqn is __le16, but here it is used as an
-integer in host byte order. Perhaps this should be (completely untested!):
+I am a bit confused.
+With this series applied on top of net-next
+struct virtnet_coal_entry doesn't seem to exist.
 
-		rq = &vi->rq[le16_to_cpu(coal->coal_vqs[i].vqn) / 2];
 
-> +		rq->dim.state = DIM_START_MEASURE;
+> +	sgs[out_num++] = &out;
+> +
+> +	/* Add return status. */
+> +	ctrl->status = VIRTIO_NET_OK;
+> +	sg_init_one(&stat, &ctrl->status, sizeof(ctrl->status));
+> +	sgs[out_num] = &stat;
+> +
+> +	BUG_ON(out_num + 1 > ARRAY_SIZE(sgs));
+> +	ret = virtqueue_add_sgs(vi->cvq, sgs, out_num, 1, ctrl, GFP_ATOMIC);
+> +	if (ret < 0) {
+> +		dev_warn(&vi->vdev->dev, "Failed to add sgs for command vq: %d\n.", ret);
+> +		return false;
 > +	}
 > +
-> +ret:
->  	rtnl_unlock();
->  }
->  
+> +	virtqueue_kick(vi->cvq);
+> +
+> +	ctrl->usable = false;
+> +	vi->cvq_cmd_nums++;
+> +
+> +	return true;
+> +}
+
+...
