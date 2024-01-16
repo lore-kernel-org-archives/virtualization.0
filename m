@@ -1,162 +1,223 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81D061C6AB
-	for <virtualization@lists.linux-foundation.org>; Tue, 16 Jan 2024 16:28:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC8A71CF80
+	for <virtualization@lists.linux-foundation.org>; Tue, 16 Jan 2024 18:15:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1705428910; cv=none; b=RGa/kp3WVqzAbxFkfF1AOT8kjkbO676CQDdMaBg0oy2E8R3qmA8gCQhQoAdpA0i/rF9R77PiK65G+34Ql6MO3PaQ8w+KksXtcJ9nRvk5EDRHQXMFcg1AfIk4Qft+V63S4fOE6PD5X94SxDaLZlmTwq2aaoqxf7fP4t8mE/OyPAA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1705428910; c=relaxed/simple;
+	bh=3zlBGl5VpWKn0Q0H4wPH6FO7Ud1zlBJ5F2g6/4S4edA=;
+	h=Received:DKIM-Filter:X-Virus-Scanned:X-Spam-Flag:X-Spam-Score:
+	 X-Spam-Level:X-Spam-Status:Received:Received:DKIM-Filter:
+	 DKIM-Signature:Received:X-MC-Unique:Received:
+	 X-Google-DKIM-Signature:X-Gm-Message-State:X-Received:
+	 X-Google-Smtp-Source:X-Received:MIME-Version:References:
+	 In-Reply-To:From:Date:Message-ID:Subject:To:Cc:
+	 X-Mimecast-Spam-Score:X-Mimecast-Originator:Content-Type:
+	 Content-Transfer-Encoding; b=k04iya1B53JPpx1c3cpX+vorKf2n7h7jeG1+8GFrZtxtUveEqxyVRcKI4302uNGJ8x0BPGSz5B5YAb4FsT66Cf56RmRxpsWB5vOb78pFBQY5q8uJjNSMhzgTaZGtX4yazWUOsH6lyOgYjjMQXZ3IDsH4hXPddG+lrpp5HjbN5ic=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AS/Fkmcm; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AFshD34x"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AS/Fkmcm"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id D84A56112B
-	for <virtualization@lists.linux-foundation.org>; Tue, 16 Jan 2024 16:28:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D84A56112B
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=AFshD34x
+	by smtp2.osuosl.org (Postfix) with ESMTP id 6A65A42EF9
+	for <virtualization@lists.linux-foundation.org>; Tue, 16 Jan 2024 18:15:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6A65A42EF9
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=AS/Fkmcm
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 8JMEGOOGy1oh
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id T98hJByzrGdp
 	for <virtualization@lists.linux-foundation.org>;
-	Tue, 16 Jan 2024 16:28:37 +0000 (UTC)
+	Tue, 16 Jan 2024 18:15:07 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id D824B61039
-	for <virtualization@lists.linux-foundation.org>; Tue, 16 Jan 2024 16:28:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D824B61039
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 32E9B40614
+	for <virtualization@lists.linux-foundation.org>; Tue, 16 Jan 2024 18:15:07 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 32E9B40614
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1705422515;
+	s=mimecast20190719; t=1705428906;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-	bh=OF/f9SqDfQjcSElQnS0yY6s/dBYlZKzDcj9s0+Wh2f8=;
-	b=AFshD34x282Vr2XmVuuol3SNpEAG6rMqPLhY8aAXX/LlXI8gfsXuMOHjA3525reUltdZzN
-	HypDg1CmjjPSN/eso24bvkIXSex0LpHfCQNjpL/SqBEHlYhPeUAn74QGRZw9OKZX0kdo9e
-	scVvruX6mK1zQAkbBJVDABMYsWtEhYM=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=0WbXw4cXFD9BqB4vMNoNua9qjVvWa2/XOALDuoMj2c0=;
+	b=AS/Fkmcm7s7DrtVpzmj/VqbRAlIZW4rq8iPq8fTUj9iDm0zVrhBj9SEqi+L45Pu3LWz2Xy
+	BqXf6eZ2t7bNL8/l6/fVVz6+5hscsndIwrqlPCUlg75nWlRSyLhAdAOxIX3GVOtWaHHQ31
+	Jn/RAVo+Rsi/a4S9yssWNyk6mpiZsKU=
+Received: from mail-yw1-f197.google.com (mail-yw1-f197.google.com
+ [209.85.128.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-621-zHqw-oHiOdWak2xEpCMK_Q-1; Tue, 16 Jan 2024 11:28:33 -0500
-X-MC-Unique: zHqw-oHiOdWak2xEpCMK_Q-1
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-40e74771019so18313465e9.3
-        for <virtualization@lists.linux-foundation.org>; Tue, 16 Jan 2024 08:28:33 -0800 (PST)
+ us-mta-651-Ba8B5Zp7NbuzGck7WC9J-A-1; Tue, 16 Jan 2024 13:15:04 -0500
+X-MC-Unique: Ba8B5Zp7NbuzGck7WC9J-A-1
+Received: by mail-yw1-f197.google.com with SMTP id 00721157ae682-5ff481be48cso27258717b3.1
+        for <virtualization@lists.linux-foundation.org>; Tue, 16 Jan 2024 10:15:04 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1705422512; x=1706027312;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=OF/f9SqDfQjcSElQnS0yY6s/dBYlZKzDcj9s0+Wh2f8=;
-        b=UDx2h2Cy/wa6qLk6Ku/ct8Pk9NpeAiZFruLXkY3gCMUEQ46jY9Q51T7KhgRWaz2EVK
-         ntr/rUZkwr7Ecm3TqNpbhku5mExLEF24KbVTv3Hov87VL6DQyYSkhzkmq/1fRgymnNyE
-         fhYixtEXRFSzmPNXMT9jzNqx5FwWYjHz4WP5Brigo8mMzdO/xnxV3TaCJ4BkMFEqG6Mo
-         231eSUsvxEDKedKatAwLZtjHQbblRuy5ME3DLUsKUouzuIDo/upWp5qNcagrrwSRoPRA
-         qaCS8UpwOlgPFbbi5IOS6A55htEDKucO04XF09l4zLu5rKUCnLFxXjs/MEwg/gh8j+xY
-         k/fg==
-X-Gm-Message-State: AOJu0YxaXPhsuaJZ8VtOuVF4nLhCmplQKAYTQxOF9UH2QdCZGq9mfroE
-	AgCGSYYQ2NBQvSFTvlzte0shrHzpyUaxqOh6HHGpdLbAu3A5fNgT31ZHJTKW3mJpIhiTzZ4oVjM
-	o9OLXOa3zrN0XwFfSXA4GjUbw6AHOfzBEcwPoHTsiFVu2+gJTpQ==
-X-Received: by 2002:a05:600c:257:b0:40e:7e40:10c6 with SMTP id 23-20020a05600c025700b0040e7e4010c6mr739611wmj.182.1705422512777;
-        Tue, 16 Jan 2024 08:28:32 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IG4EwY4rnvc1dXkvUnzrtlQb0sW9f8GFlzYKtabODe5zsH9sA7U7cGUZRKyhXjVGQXqLCiWCQ==
-X-Received: by 2002:a05:600c:257:b0:40e:7e40:10c6 with SMTP id 23-20020a05600c025700b0040e7e4010c6mr739594wmj.182.1705422512444;
-        Tue, 16 Jan 2024 08:28:32 -0800 (PST)
-Received: from redhat.com ([2.52.29.192])
-        by smtp.gmail.com with ESMTPSA id bg42-20020a05600c3caa00b0040e3733a32bsm23560519wmb.41.2024.01.16.08.28.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Jan 2024 08:28:31 -0800 (PST)
-Date: Tue, 16 Jan 2024 11:28:28 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-	changyuanl@google.com, christophe.jaillet@wanadoo.fr,
-	dtatulea@nvidia.com, eperezma@redhat.com, jasowang@redhat.com,
-	michael.christie@oracle.com, mst@redhat.com,
-	pasha.tatashin@soleen.com, rientjes@google.com,
-	stevensd@chromium.org, tytso@mit.edu, xuanzhuo@linux.alibaba.com
-Subject: [GIT PULL] virtio: features, fixes
-Message-ID: <20240116112828-mutt-send-email-mst@kernel.org>
+        d=1e100.net; s=20230601; t=1705428904; x=1706033704;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=0WbXw4cXFD9BqB4vMNoNua9qjVvWa2/XOALDuoMj2c0=;
+        b=iI2QfZS6CD2AwUYLyGGQBTTZiP2+EO2CTiDlQ6+XDoSYvoS0IzQYoxsrwDC0/HKWt+
+         1NuAOcLgLzdOdTO27VW66xIklkV/8aR9ubXOq0yoSftBU1RqbMn8ihQaKMCFtAdTy/vV
+         jGz/y82x6Gj6VJLo0WHLjoK056ifo6vLhjUsdZZKvLe5jlgwhnAwT55XXfsbP8uvEoGj
+         KB/lxp7JuBOrgT1uM245M8hmjJpjs+izxb4VKVa7S+NQCdkb0B62CpSU5y5CbZrfAPov
+         OOrcyZcZcnyqs+teoJFXtUw4rTbtWDqMWrYvTdBnSfybCEI5/Z9tDtCggJNd7cl5N6XF
+         cqfw==
+X-Gm-Message-State: AOJu0YxqkH9VKFIM3WBiRlmfoJKAKgHHWrlTKr37ilIW29BY3da3ga3J
+	ZrxWTCNw9sZx1YpwukebYYFKql2IuR2OgzAM7i+03WPajPs03bkBvIDlHP3GeMsU3LuBMcnp/xd
+	VOhoD+xbEUhWXw4Gb4ReXklatI9yezEqFiq6Z+gM9AgQRZPkhQ8XaPiUEE825SzBMAQ==
+X-Received: by 2002:a25:8a01:0:b0:dbd:d617:7f14 with SMTP id g1-20020a258a01000000b00dbdd6177f14mr3940596ybl.10.1705428903838;
+        Tue, 16 Jan 2024 10:15:03 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFjjSfieogeLmsO2hkJG2Ph0p7ONMonI8rw73F9+m+gs8kSmgBZf3/0NFA73MJK+nfFRY6rQ9rqfgEIhZUhCjc=
+X-Received: by 2002:a25:8a01:0:b0:dbd:d617:7f14 with SMTP id
+ g1-20020a258a01000000b00dbdd6177f14mr3940587ybl.10.1705428903474; Tue, 16 Jan
+ 2024 10:15:03 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mutt-Fcc: =sent
+References: <1704919215-91319-1-git-send-email-steven.sistare@oracle.com> <1704919215-91319-6-git-send-email-steven.sistare@oracle.com>
+In-Reply-To: <1704919215-91319-6-git-send-email-steven.sistare@oracle.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Tue, 16 Jan 2024 19:14:27 +0100
+Message-ID: <CAJaqyWc+nSMPv7248x2QWOgAPOjwZ2BJ52LrOhKUu51t+3QViw@mail.gmail.com>
+Subject: Re: [RFC V1 05/13] vhost-vdpa: VHOST_IOTLB_REMAP
+To: Steve Sistare <steven.sistare@oracle.com>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Si-Wei Liu <si-wei.liu@oracle.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Dragos Tatulea <dtatulea@nvidia.com>, 
+	Eli Cohen <elic@nvidia.com>, Xie Yongji <xieyongji@bytedance.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-The following changes since commit b8e0792449928943c15d1af9f63816911d139267:
+On Wed, Jan 10, 2024 at 9:40=E2=80=AFPM Steve Sistare <steven.sistare@oracl=
+e.com> wrote:
+>
+> When device ownership is passed to a new process via VHOST_NEW_OWNER,
+> some devices need to know the new userland addresses of the dma mappings.
+> Define the new iotlb message type VHOST_IOTLB_REMAP to update the uaddr
+> of a mapping.  The new uaddr must address the same memory object as
+> originally mapped.
+>
 
-  virtio_blk: fix snprintf truncation compiler warning (2023-12-04 09:43:53 -0500)
+I think this new ioctl is very interesting, and can be used to
+optimize some parts of live migration with shadow virtqueue if it
+allows to actually replace the uaddr. Would you be interested in that
+capability?
 
-are available in the Git repository at:
+> The user must suspend the device before the old address is invalidated,
+> and cannot resume it until after VHOST_IOTLB_REMAP is called, but this
+> requirement is not enforced by the API.
+>
+> Signed-off-by: Steve Sistare <steven.sistare@oracle.com>
+> ---
+>  drivers/vhost/vdpa.c             | 34 ++++++++++++++++++++++++++++++++
+>  include/uapi/linux/vhost_types.h | 11 ++++++++++-
+>  2 files changed, 44 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+> index faed6471934a..ec5ca20bd47d 100644
+> --- a/drivers/vhost/vdpa.c
+> +++ b/drivers/vhost/vdpa.c
+> @@ -1219,6 +1219,37 @@ static int vhost_vdpa_pa_map(struct vhost_vdpa *v,
+>
+>  }
+>
+> +static int vhost_vdpa_process_iotlb_remap(struct vhost_vdpa *v,
+> +                                         struct vhost_iotlb *iotlb,
+> +                                         struct vhost_iotlb_msg *msg)
+> +{
+> +       struct vdpa_device *vdpa =3D v->vdpa;
+> +       const struct vdpa_config_ops *ops =3D vdpa->config;
+> +       u32 asid =3D iotlb_to_asid(iotlb);
+> +       u64 start =3D msg->iova;
+> +       u64 last =3D start + msg->size - 1;
+> +       struct vhost_iotlb_map *map;
+> +       int r =3D 0;
+> +
+> +       if (msg->perm || !msg->size)
+> +               return -EINVAL;
+> +
+> +       map =3D vhost_iotlb_itree_first(iotlb, start, last);
+> +       if (!map)
+> +               return -ENOENT;
+> +
+> +       if (map->start !=3D start || map->last !=3D last)
+> +               return -EINVAL;
+> +
+> +       /* batch will finish with remap.  non-batch must do it now. */
+> +       if (!v->in_batch)
+> +               r =3D ops->set_map(vdpa, asid, iotlb);
 
-  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+I'm missing how these cases are handled:
+* The device does not expose set_map but dma_map / dma_unmap (you can
+check this case with the simulator)
+* The device uses platform iommu (!set_map && !dma_unmap vdpa_ops).
 
-for you to fetch changes up to f16d65124380ac6de8055c4a8e5373a1043bb09b:
-
-  vdpa/mlx5: Add mkey leak detection (2024-01-10 13:01:38 -0500)
-
-----------------------------------------------------------------
-virtio: features, fixes
-
-vdpa/mlx5: support for resumable vqs
-virtio_scsi: mq_poll support
-3virtio_pmem: support SHMEM_REGION
-virtio_balloon: stay awake while adjusting balloon
-virtio: support for no-reset virtio PCI PM
-
-Fixes, cleanups.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Changyuan Lyu (1):
-      virtio_pmem: support feature SHMEM_REGION
-
-Christophe JAILLET (2):
-      vdpa: Fix an error handling path in eni_vdpa_probe()
-      vdpa: Remove usage of the deprecated ida_simple_xx() API
-
-David Stevens (2):
-      virtio: Add support for no-reset virtio PCI PM
-      virtio_balloon: stay awake while adjusting balloon
-
-Dragos Tatulea (10):
-      vdpa: Track device suspended state
-      vdpa: Block vq property changes in DRIVER_OK
-      vdpa/mlx5: Expose resumable vq capability
-      vdpa/mlx5: Allow modifying multiple vq fields in one modify command
-      vdpa/mlx5: Introduce per vq and device resume
-      vdpa/mlx5: Mark vq addrs for modification in hw vq
-      vdpa/mlx5: Mark vq state for modification in hw vq
-      vdpa/mlx5: Use vq suspend/resume during .set_map
-      vdpa/mlx5: Introduce reference counting to mrs
-      vdpa/mlx5: Add mkey leak detection
-
-Mike Christie (1):
-      scsi: virtio_scsi: Add mq_poll support
-
-Pasha Tatashin (1):
-      vhost-vdpa: account iommu allocations
-
-Xuan Zhuo (1):
-      virtio_net: fix missing dma unmap for resize
-
- drivers/net/virtio_net.c           |  60 +++++------
- drivers/nvdimm/virtio_pmem.c       |  36 ++++++-
- drivers/scsi/virtio_scsi.c         |  78 +++++++++++++-
- drivers/vdpa/alibaba/eni_vdpa.c    |   6 +-
- drivers/vdpa/mlx5/core/mlx5_vdpa.h |  10 +-
- drivers/vdpa/mlx5/core/mr.c        |  73 ++++++++++---
- drivers/vdpa/mlx5/net/mlx5_vnet.c  | 209 +++++++++++++++++++++++++++++++++----
- drivers/vdpa/vdpa.c                |   4 +-
- drivers/vhost/vdpa.c               |  26 ++++-
- drivers/virtio/virtio_balloon.c    |  57 ++++++++--
- drivers/virtio/virtio_pci_common.c |  34 +++++-
- include/linux/mlx5/mlx5_ifc.h      |   3 +-
- include/linux/mlx5/mlx5_ifc_vdpa.h |   4 +
- include/uapi/linux/virtio_pmem.h   |   7 ++
- 14 files changed, 510 insertions(+), 97 deletions(-)
+> +       if (!r)
+> +               map->addr =3D msg->uaddr;
+> +
+> +       return r;
+> +}
+> +
+>  static int vhost_vdpa_process_iotlb_update(struct vhost_vdpa *v,
+>                                            struct vhost_iotlb *iotlb,
+>                                            struct vhost_iotlb_msg *msg)
+> @@ -1298,6 +1329,9 @@ static int vhost_vdpa_process_iotlb_msg(struct vhos=
+t_dev *dev, u32 asid,
+>                         ops->set_map(vdpa, asid, iotlb);
+>                 v->in_batch =3D false;
+>                 break;
+> +       case VHOST_IOTLB_REMAP:
+> +               r =3D vhost_vdpa_process_iotlb_remap(v, iotlb, msg);
+> +               break;
+>         default:
+>                 r =3D -EINVAL;
+>                 break;
+> diff --git a/include/uapi/linux/vhost_types.h b/include/uapi/linux/vhost_=
+types.h
+> index 9177843951e9..35908315ff55 100644
+> --- a/include/uapi/linux/vhost_types.h
+> +++ b/include/uapi/linux/vhost_types.h
+> @@ -79,7 +79,7 @@ struct vhost_iotlb_msg {
+>  /*
+>   * VHOST_IOTLB_BATCH_BEGIN and VHOST_IOTLB_BATCH_END allow modifying
+>   * multiple mappings in one go: beginning with
+> - * VHOST_IOTLB_BATCH_BEGIN, followed by any number of
+> + * VHOST_IOTLB_BATCH_BEGIN, followed by any number of VHOST_IOTLB_REMAP =
+or
+>   * VHOST_IOTLB_UPDATE messages, and ending with VHOST_IOTLB_BATCH_END.
+>   * When one of these two values is used as the message type, the rest
+>   * of the fields in the message are ignored. There's no guarantee that
+> @@ -87,6 +87,15 @@ struct vhost_iotlb_msg {
+>   */
+>  #define VHOST_IOTLB_BATCH_BEGIN    5
+>  #define VHOST_IOTLB_BATCH_END      6
+> +
+> +/*
+> + * VHOST_IOTLB_REMAP registers a new uaddr for the existing mapping at i=
+ova.
+> + * The new uaddr must address the same memory object as originally mappe=
+d.
+> + * Failure to do so will result in user memory corruption and/or device
+> + * misbehavior.  iova and size must match the arguments used to create t=
+he
+> + * an existing mapping.  Protection is not changed, and perm must be 0.
+> + */
+> +#define VHOST_IOTLB_REMAP          7
+>         __u8 type;
+>  };
+>
+> --
+> 2.39.3
+>
 
