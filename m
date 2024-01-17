@@ -1,124 +1,68 @@
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8B7D4416
-	for <virtualization@lists.linux.dev>; Wed, 17 Jan 2024 03:41:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9674679C2
+	for <virtualization@lists.linux.dev>; Wed, 17 Jan 2024 05:55:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705462878; cv=none; b=Nq3aHezen/IxXewxHNYX7vN+6OXMJrsJUthFDYM2KonzwKTKWiOoEMQANVwjEYKI5XHH7aJ/wODl88h7Mpb1Gvkvby0j9oHBsxMVMDNZRnS00FdPyu/9582Tra2zbHij7kzWqqBqiPCyy2sh0seCbXL7WIFOwaExqlF8RdaIPvg=
+	t=1705470927; cv=none; b=YBWTiMHAOThaSOtWbzd5pv9mIgV3NYLP4O2/2LAsysShUDQT+vJtDIEqf3XrLEAH0UPTs1al4P8kVbLsRRvHFzR8eAwbZ/c1ZDA9SgQ7GX4jnso9MhMC2gMiJQiXP2D+mXA+E+yFx/3o56y9/44F/LpY52XLjQvhq7see2wksMo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705462878; c=relaxed/simple;
-	bh=jnrIu1IKLPUHmtPpgR5WK4Kf5gOVXyIkmqS0l51MIxE=;
-	h=X-Alimail-AntiSpam:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:From:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding; b=Navn5pn33sZLOQoGhzLtjxAbqhBsjcqIZQkt8RWC0koBXWDvz5zgA7jqG3zAKd3nAOjln24/3phZdsc9lwjrY49oXsj67HB/JkpJB2eAbpDxZhNwsK8Lo6Emv6RbTVfN5F99aXjTYnUgP1OKZdRSbV46Rxlh1fS55XzxC+IFxAU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; arc=none smtp.client-ip=115.124.30.111
+	s=arc-20240116; t=1705470927; c=relaxed/simple;
+	bh=aakhbWhnRWgzK/sjdw+/ZIoiU7KjVwjzSws1JZD46Zg=;
+	h=X-Alimail-AntiSpam:Received:Message-ID:Subject:Date:From:To:Cc:
+	 References:In-Reply-To; b=dXinM2WkQGc6/lqCAsKfSHd25OvIKEDkhASsjYc+7fvO18bdIEUE1xfEsgJOzamS3+ailWBpjHhJtrLjAku3qGd6ZuSPEOukUZymcqaLvJOALbaFNwEGT+/DAzp9zO/M7hc4OH8jx2vOuKofJIAOwyIEXSen/AZL5ocxBgmv6jA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; arc=none smtp.client-ip=115.124.30.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R941e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0W-o1spg_1705462865;
-Received: from 30.221.149.120(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W-o1spg_1705462865)
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R481e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0W-oMYkq_1705470921;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W-oMYkq_1705470921)
           by smtp.aliyun-inc.com;
-          Wed, 17 Jan 2024 11:41:06 +0800
-Message-ID: <120c62f5-f1ae-4269-9933-a3ce62220af4@linux.alibaba.com>
-Date: Wed, 17 Jan 2024 11:41:04 +0800
+          Wed, 17 Jan 2024 13:55:22 +0800
+Message-ID: <1705470800.285488-2-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next 00/17] virtio-net: support AF_XDP zero copy (3/3)
+Date: Wed, 17 Jan 2024 13:53:20 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Paolo Abeni <pabeni@redhat.com>,
+ netdev@vger.kernel.org,
+ Jason Wang <jasowang@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Alexei Starovoitov <ast@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>,
+ virtualization@lists.linux.dev,
+ bpf@vger.kernel.org,
+ Jakub Kicinski <kuba@kernel.org>
+References: <20240116094313.119939-1-xuanzhuo@linux.alibaba.com>
+ <e19024b42c8f72e2b09c819ff1a4118f4b73da78.camel@redhat.com>
+ <20240116070705.1cbfc042@kernel.org>
+ <20240116154405-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20240116154405-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next 3/3] virtio-net: reduce the CPU consumption of
- dim worker
-To: Simon Horman <horms@kernel.org>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
- Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Paolo Abeni <pabeni@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
- Eric Dumazet <edumazet@google.com>, "David S. Miller" <davem@davemloft.net>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-References: <1705410693-118895-1-git-send-email-hengqi@linux.alibaba.com>
- <1705410693-118895-4-git-send-email-hengqi@linux.alibaba.com>
- <20240116195646.GF588419@kernel.org>
-From: Heng Qi <hengqi@linux.alibaba.com>
-In-Reply-To: <20240116195646.GF588419@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
 
-
-
-在 2024/1/17 上午3:56, Simon Horman 写道:
-> On Tue, Jan 16, 2024 at 09:11:33PM +0800, Heng Qi wrote:
->> Accumulate multiple request commands to kick the device once,
->> and obtain the processing results of the corresponding commands
->> asynchronously. The batch command method is used to optimize the
->> CPU overhead of the DIM worker caused by the guest being busy
->> waiting for the command response result.
->>
->> On an 8-queue device, without this patch, the guest cpu overhead
->> due to waiting for cvq could be 10+% and above. With this patch,
->> the corresponding overhead is basically invisible.
->>
->> Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
-> ...
+On Tue, 16 Jan 2024 15:46:00 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Tue, Jan 16, 2024 at 07:07:05AM -0800, Jakub Kicinski wrote:
+> > On Tue, 16 Jan 2024 13:37:30 +0100 Paolo Abeni wrote:
+> > > For future submission it would be better if you split this series in
+> > > smaller chunks: the maximum size allowed is 15 patches.
+> >
+> > Which does not mean you can split it up and post them all at the same
+> > time, FWIW.
 >
->> @@ -3520,22 +3568,99 @@ static int virtnet_send_notf_coal_vq_cmds(struct virtnet_info *vi,
->>   	return 0;
->>   }
->>   
->> +static bool virtnet_add_dim_command(struct virtnet_info *vi,
->> +				    struct virtnet_batch_coal *ctrl)
->> +{
->> +	struct scatterlist *sgs[4], hdr, stat, out;
->> +	unsigned out_num = 0;
->> +	int ret;
->> +
->> +	/* Caller should know better */
->> +	BUG_ON(!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ));
->> +
->> +	ctrl->hdr.class = VIRTIO_NET_CTRL_NOTF_COAL;
->> +	ctrl->hdr.cmd = VIRTIO_NET_CTRL_NOTF_COAL_VQS_SET;
->> +
->> +	/* Add header */
->> +	sg_init_one(&hdr, &ctrl->hdr, sizeof(ctrl->hdr));
->> +	sgs[out_num++] = &hdr;
->> +
->> +	/* Add body */
->> +	sg_init_one(&out, &ctrl->num_entries, sizeof(ctrl->num_entries) +
->> +		    ctrl->num_entries * sizeof(struct virtnet_coal_entry));
-> Hi Heng Qi,
 >
-> I am a bit confused.
-> With this series applied on top of net-next
-> struct virtnet_coal_entry doesn't seem to exist.
+> Really it's just 17 I don't think it matters. Some patches could be
+> squashed easily but I think that would be artificial.
 
-Hi Simon,
-
-It should be struct virtio_net_ctrl_coal_vq.
+Yes. About this patch set I think a lot. This is the core code for the function.
+I think we should not split it. And some commits are simply.
 
 Thanks.
 
->
->
->> +	sgs[out_num++] = &out;
->> +
->> +	/* Add return status. */
->> +	ctrl->status = VIRTIO_NET_OK;
->> +	sg_init_one(&stat, &ctrl->status, sizeof(ctrl->status));
->> +	sgs[out_num] = &stat;
->> +
->> +	BUG_ON(out_num + 1 > ARRAY_SIZE(sgs));
->> +	ret = virtqueue_add_sgs(vi->cvq, sgs, out_num, 1, ctrl, GFP_ATOMIC);
->> +	if (ret < 0) {
->> +		dev_warn(&vi->vdev->dev, "Failed to add sgs for command vq: %d\n.", ret);
->> +		return false;
->> +	}
->> +
->> +	virtqueue_kick(vi->cvq);
->> +
->> +	ctrl->usable = false;
->> +	vi->cvq_cmd_nums++;
->> +
->> +	return true;
->> +}
-> ...
 
+>
