@@ -1,14 +1,14 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29B9A25636
-	for <virtualization@lists.linux-foundation.org>; Wed, 17 Jan 2024 20:31:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0BEA25573
+	for <virtualization@lists.linux-foundation.org>; Wed, 17 Jan 2024 20:31:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.138
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705523509; cv=fail; b=PZEyjxu+/r9aKZ2bCPIc/Gs+s0skCNWfRhLP9Z2xP9GP5Yl30wjetJnGZlI07vHKiA3033xMMwvfyTyFOFPPQormDklI8W7zle8QAf4wy7QhHs/mcSzjtsN524LxlLWOfKJ6WJ+xVjwrLwXGNjZhG4Tsaql/fHdPF7AOqQ6CGKI=
+	t=1705523513; cv=fail; b=db3tTkvX1ioxYVufR1hmNrAJlTmP+j2cyrKyhq+h4UAQKGG4Ga0ReHkyoG7CL23VA+U1B0Q5bIZJWJPKJAb0wEUH0w22qtqJynngly1G10SinmR+CEGS2piTh7qOOLTuCJFWp88ROQ1s92BJTx6L/OkHa405Tq5YJfr9PTJ81pU=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705523509; c=relaxed/simple;
-	bh=kP6ynY/2c4k8TxkLwfBz/BpkEGAJO5AEZDU0YOcABMM=;
+	s=arc-20240116; t=1705523513; c=relaxed/simple;
+	bh=zXtCwN1qJhKtrChi/YmCj2j9EBhtWQVc6xqNKrye+F8=;
 	h=Received:DKIM-Filter:X-Virus-Scanned:X-Spam-Flag:X-Spam-Score:
 	 X-Spam-Level:X-Spam-Status:Received:Received:DKIM-Filter:Received:
 	 DKIM-Signature:Received:Received:Received:ARC-Message-Signature:
@@ -34,82 +34,82 @@ ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
 	 X-MS-Exchange-CrossTenant-UserPrincipalName:
 	 X-MS-Exchange-Transport-CrossTenantHeadersStamped:
 	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details:
-	 X-Proofpoint-GUID:X-Proofpoint-ORIG-GUID; b=Fi91eRG0AlS8o29UcGWTqvqTSbpDzNG935ynUxiLsqZ5KdQ0VzZEeIOYAHMvIjpQV3FUu+jT4GeMf0AOr885twiXHaeoGLKakoOSRUj7O7RWKMOiksRE2p1U98XtAN/EPJqqDkz2LvriXz75pqXB5uVLOLKaeInkJRkatYQbQQk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=YYrXUhg3; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=nrra2rpK; arc=fail smtp.client-ip=140.211.166.137
+	 X-Proofpoint-ORIG-GUID:X-Proofpoint-GUID; b=urIfcvSJIalHxZQpdyQ7bhMIWKPQ4OLAZhCztqYCRxMHUwcx0PZklI9bElTLvbp4Z9ybk8edwdslePY4HoDJqAMuEgI843i0ujoBsYsbGpue8FhayQM9U7oY0GfswVRsfH+9lx0TH19FY/RmxORRnzrHAfHlwU5EOvJFS3IrJbw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=CQlyyJ9e; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=ta50+T3z; arc=fail smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="YYrXUhg3";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="nrra2rpK"
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="CQlyyJ9e";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="ta50+T3z"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 9655542084
-	for <virtualization@lists.linux-foundation.org>; Wed, 17 Jan 2024 20:31:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9655542084
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-11-20 header.b=YYrXUhg3;
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=nrra2rpK
+	by smtp1.osuosl.org (Postfix) with ESMTP id 5D94583E66
+	for <virtualization@lists.linux-foundation.org>; Wed, 17 Jan 2024 20:31:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5D94583E66
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-11-20 header.b=CQlyyJ9e;
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=ta50+T3z
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.098
+X-Spam-Score: -2.798
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6BDfous4-ep8
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id R1VEy9s0wqr3
 	for <virtualization@lists.linux-foundation.org>;
-	Wed, 17 Jan 2024 20:31:46 +0000 (UTC)
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id CAD6442078
-	for <virtualization@lists.linux-foundation.org>; Wed, 17 Jan 2024 20:31:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CAD6442078
-Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40HJdKJd023672;
-	Wed, 17 Jan 2024 20:31:36 GMT
+	Wed, 17 Jan 2024 20:31:51 +0000 (UTC)
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 9264583E65
+	for <virtualization@lists.linux-foundation.org>; Wed, 17 Jan 2024 20:31:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9264583E65
+Received: from pps.filterd (m0333520.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40HJcnM2021406;
+	Wed, 17 Jan 2024 20:31:41 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=message-id : date :
  subject : to : cc : references : from : in-reply-to : content-type :
  content-transfer-encoding : mime-version; s=corp-2023-11-20;
- bh=hw6mkFrlYDrwrCKBBHWlgkFBCuHlwxfnZTyFpQCKCEc=;
- b=YYrXUhg3vVSwAU8xM2shKS1bjLYIAWCz6+oDrt/meklJ50OR8QbgJ5PIg2euuk7iXAx/
- D18JKHvwbCn5JcUxL3I543DI4DCDUiov74fcr8UFDf83vECzLht8l2/aAg4F+zOvQxXS
- BNG+q5CBVOLSjMlZUtFhbXIYd0P/Io2DoWLJcXOcGgWfmctVhqrKuu8wMm2a4MBEhpiu
- HPe7jRbYk+Sz4X7gW8PMGtsfwaq2EoSO+LeAFhMzTZXTZfZTqNI7srJAWYu5SG3zRK54
- IBobeVwgrwbiLPy9/o6kCbE18FF9vPh9fKGyIrzonP4VPwUGU0QNfsEp2jOcf6D4LHAL 8w== 
-Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3vkq3h0p03-1
+ bh=zCxQmWY8kDghf5vUA0giKBaqEo4kFDOo0MW03UqPd/M=;
+ b=CQlyyJ9eyJAo0TE/rUexrxxhurMwuc71DZHTRGItDzXcl+rA7UllCFYBE+jbccVaGGFp
+ oPwZSZ/hcmQHIiAYkJ32xLPusHKEe+5cM4x2SvUbwwcLjwfrq6IJuw2kIDx7ISV7wf+n
+ 6e1nYXhJVvKgxvc5wXI99xotBBjMAykwAogMdsUz2JZa95o64neX2aaWYHXlyT8iDM8z
+ 2J+NMV7wwxK157a85NLA1uivo8VmfCb0iUh2+LCNv63CPwZ1KrUAWHXpCzdUlgf7LmgI
+ ES8DO32pmTumoPRjHGBb+RFayydQnjDaz2YUGILIaZA7395A4iVgtzN/RhzMgUM3C6qv Gg== 
+Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3vkjjegxwd-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 17 Jan 2024 20:31:36 +0000
-Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 40HJeWUe009544;
-	Wed, 17 Jan 2024 20:31:35 GMT
-Received: from nam11-bn8-obe.outbound.protection.outlook.com (mail-bn8nam11lp2168.outbound.protection.outlook.com [104.47.58.168])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3vkgyb2dxn-1
+	Wed, 17 Jan 2024 20:31:41 +0000
+Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 40HJdBC9005109;
+	Wed, 17 Jan 2024 20:31:40 GMT
+Received: from nam02-bn1-obe.outbound.protection.outlook.com (mail-bn1nam02lp2040.outbound.protection.outlook.com [104.47.51.40])
+	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3vkgyh3fmd-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 17 Jan 2024 20:31:35 +0000
+	Wed, 17 Jan 2024 20:31:40 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ECtZUiHsi8VaUtLFX7rzlZtCMNNfY66gQXoybS1fJ4bzFrqh63/L3N6LSA53ZtjW85sChnwdmLlta+4seMJnqKa2rKCurWOGS/ZpweyR5oWq124sbgsKOJ1nv29kVN5JGJu27oRaZZLe0aN8ow1/5s65X3lEK1xTNx8ue7d0dqM3CuMjNC+VbgbB2maVU+4lpW/nS1BN4hl+EKxVAlohsRxb94qPgFKohPfcInCEqjkmv50TxopoTUh80XlUqEHyGsnKKyPcrmozxpRDB1tIkLPVFhkh8AEIzsMB82Ko/wu6SSU+y9ksVGTVQVkj6RzBDieR1aHWP+hOpZmng2XNQw==
+ b=MjDhAPwqzSDQQ34T2DxZMUZz7g+7YPXOGe6K4VgAfkfLFixyk9OKbE/Ld9o1YQsTZm1ZI6pIiBZ6vrv0uB5D7geBRXzxfHkPj2amloqR9DmcDbu9fRELbcB7Y5OBK2oXyv+bfeJNWqltRjNsGH0mDFY2WLpTop49abtKfRpMAcIpdLSvkiiwefdGWXYWbbhsU3bLiZigIqZRw+YJfRGK72lqUaIyff3M5pGeMLDQjtEpSzf3NRzi/qHQw/PoJ/NwE7sstG2CLnBYQHpKRlhVVAlEoW6Xl/Qk83TdpLZ8tfG0SXwbZtSprbEHls1ckpICygZSdoqXYyE2ouolut+eTw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=hw6mkFrlYDrwrCKBBHWlgkFBCuHlwxfnZTyFpQCKCEc=;
- b=ib82QIu4WIXqnOSo9Jl/WzeuChnKzAffgrV2rLE1zi44CzpAiUAoncefCKahHVGgonPGLeeHvNZSxM6PvWW8XH6SODeuPFO0jun0NMfTuAN6kvN+xvumR2cd2G3wBYdgjCVzcVbRixXUZZ2lY7zF0KmHMZPJMEqPBREYemA5XVwmALqj5V11XJCjm/kfcyYEj0jbMsvRyywEYXHJBL5rwGVew4xswy0weIRZB8moiBz67pVzIo+qyhB+y6Y8DmYNqR9TD3smTkxE4EQZVsRE+CLDS3cL9/P0eaRFpK99hwdblvaDHvZ8i8O4h53P23IRHsYQfI9XpnewlOO/h8KNKw==
+ bh=zCxQmWY8kDghf5vUA0giKBaqEo4kFDOo0MW03UqPd/M=;
+ b=IPO6Dm1d0UXJk+EGCfu7sS1DV/YTJz2RzbTgCwJtfNxl0DFntEpB/JFrxtTiNiI8Q5oCzT88rErKt0d6XFdx8Vx5i/Hiv80kWchbbniiWSfoz2l1M8dsy0L7PH084obA3KjFirAPrQ070iq2pNPGu4uelfp0ujHOA0RPIjBvz7uavacqE1tybl1utv8u4SbXwYTgyPlsCOlLskv1v6frktGv7WpK8Tiyam0YlfnW5tp+EOT7nHFcrlG9VXf1zkB9B5dYwc1JXicfbY6Uk4plWTSldNA62hlUpj+WyyXB3kKJ9mrD3fyPHQ5DdlAKEOURoyxNsdDyKFYzfgDt6dUyrQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=hw6mkFrlYDrwrCKBBHWlgkFBCuHlwxfnZTyFpQCKCEc=;
- b=nrra2rpK9vFK8YOhehxrP/5bpv18p2WC3qQisXJ7sbwwgdRgsLazXavtrUbt4BeQ5tJNoPfPm2RID94zTDvCLb8u4jXLwnhIOpYR75SPJuN176PxVwyuW7tR0mVcYKBN1tgKlKW3D3XXNDCwbTh7EOk1k10SuNCsXF/cVBhbKNE=
+ bh=zCxQmWY8kDghf5vUA0giKBaqEo4kFDOo0MW03UqPd/M=;
+ b=ta50+T3zsoaYEvHKa/YTwj5P8lawyS1WPKZsYA15EpeOHtJQVzOMO62Ignb3WwLDvmVjH6VqoDgBf+xhYjBgJFTP/KyAt3LcQJJSwB38VC4mrTU8JsPbCw6ngtW0BYQN+5trHztCNtA4LT9HCRd01q7aeh7KUt9mhWhc77KX+/A=
 Received: from SA2PR10MB4684.namprd10.prod.outlook.com (2603:10b6:806:119::14)
  by DM4PR10MB5942.namprd10.prod.outlook.com (2603:10b6:8:a0::10) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7181.23; Wed, 17 Jan
- 2024 20:31:32 +0000
+ 2024 20:31:38 +0000
 Received: from SA2PR10MB4684.namprd10.prod.outlook.com
  ([fe80::c3ce:7c28:7db1:656b]) by SA2PR10MB4684.namprd10.prod.outlook.com
  ([fe80::c3ce:7c28:7db1:656b%6]) with mapi id 15.20.7181.026; Wed, 17 Jan 2024
- 20:31:30 +0000
-Message-ID: <700fc2e5-445d-46c4-bdde-0dd29bcdb2bc@oracle.com>
-Date: Wed, 17 Jan 2024 15:31:27 -0500
+ 20:31:38 +0000
+Message-ID: <aea1681c-e04d-4678-b161-6dbd2b13b82e@oracle.com>
+Date: Wed, 17 Jan 2024 15:31:36 -0500
 User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC V1 05/13] vhost-vdpa: VHOST_IOTLB_REMAP
+Subject: Re: [RFC V1 00/13] vdpa live update
 Content-Language: en-US
 To: Jason Wang <jasowang@redhat.com>
 Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
@@ -121,11 +121,10 @@ Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
  <dtatulea@nvidia.com>, Eli Cohen <elic@nvidia.com>,
         Xie Yongji <xieyongji@bytedance.com>
 References: <1704919215-91319-1-git-send-email-steven.sistare@oracle.com>
- <1704919215-91319-6-git-send-email-steven.sistare@oracle.com>
- <CACGkMEsCzLNdRXu25tzhrnTVatM6pHwVXVUn7kE=3erVWQUL4g@mail.gmail.com>
+ <CACGkMEuFTRBYU+z3ZSWzMMv2650PQ=kduGxcGXaf0T5222Bh4g@mail.gmail.com>
 From: Steven Sistare <steven.sistare@oracle.com>
 Organization: Oracle Corporation
-In-Reply-To: <CACGkMEsCzLNdRXu25tzhrnTVatM6pHwVXVUn7kE=3erVWQUL4g@mail.gmail.com>
+In-Reply-To: <CACGkMEuFTRBYU+z3ZSWzMMv2650PQ=kduGxcGXaf0T5222Bh4g@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-ClientProxiedBy: SJ0PR03CA0269.namprd03.prod.outlook.com
@@ -139,197 +138,146 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
 X-MS-TrafficTypeDiagnostic: SA2PR10MB4684:EE_|DM4PR10MB5942:EE_
-X-MS-Office365-Filtering-Correlation-Id: b9460590-e483-4a3f-063f-08dc179b498c
+X-MS-Office365-Filtering-Correlation-Id: dc9e63cd-8e1a-41ec-67dc-08dc179b4e9f
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
 X-Microsoft-Antispam-Message-Info: 
-	X0yee7sFURF/wQhJGd/eul1DB7SWw+wX/Lqq8cHuM3Gj6uCh3Hcv4TfAqFhPkO2e4WUddUKgs4cTmz2phZuig4F71TM8gyH8Pwc9Zk65DrW0O71SywBnlAuxBVHkfuL/tBPOR7TZKYbROvNei1W+AzEkrk+oPlmBe/QeHEYlR5kXwfbPNCbuX/wZIENlY2m+h4xN/wzf5GLdhomX+dO1ctpJxFbG8bIicPnnHx7u/TSbH2DhQCjfaXhk01edcJMykvbqaP5g31cWoAl0kz7E1sAqw/IjUkLTFetbZAfhClyWLhynlkMvv0638lNpUunP5qXXg0ZmGVCXppakIozp/rrEge+8TunJh19syRrVHSqhAdOUKZG/dB2Y8/uyqdWS7ixyKYce2kij2U1DJiHla0QdYqrohHxRCCT7o/kgPwqXlRZoBu/zgsDvkUp9I4yadZecimWp/AkN674DlKaH20tMvoF9Hog0b9q4Jelo26KEXTEMPI3D4VlXq1f/oZhPuNZrsVXyGQfCwZecOeN59srOwEeWq8KBcAF3wWYZGuwvS5Cc7KBwj1pDb18ndMkcQnDc07hh1q9OyJtctZVtI8bwy+VFpt3eeVj6+1YP8zK+ITcU4G+wfb7EiBSlvNdveuU6381durwh+2hmXjk0mg==
+	lN+dAd6EM4p16dfUzU3Uey1pS1rBiX6JgFJor6eVDwLMAKf32pthJMlKEKsGg5ooIULgwotkDINApg1O+xDhrwAcrqJ1AqsgqXhvyP3dHS8xKHatUgvwAjrVUoTEYljOqpHdUCHPzwP78IrJHIdlsGH0edgUoPR/uLR1PAULWFfa1CMyNkCAXf5QNoAXDPyzo04UzKZsrvbQi5LWrcsGsTNgLOEfHf/BCpsDGJjIpir6eiMVEDIRW9qyEn5s2ypGI2m276puMaesgK83JpIchKEY/3TLjz45oCtnpm2cQm81f2gSYOlG87AWbZUf/Bj52R4iKluYIsbmwrdNh1juB8BJNk/RZEgTjDEvLELcwOi8SLVTMmmdoNCtO1Y8AdmYqyiteOMZ454n+s1JK5G382CKsBvYBrzTywFcOq/h68mPm1ObgpV09DAoOPnbuDIXI0nckj2GZ/vIxbaveEd+Jb57e0Y69QW/Gt7jSg7xLmVLdmEMx1Mvo6GhJpz91UBcH6N/8KEwGNlhloz+ORRtiqjDKWHkqQyp6agkAmA/OhE8TBNbp3Gx6fQJaGUwrcUfT/8+vOFDOSbvKwAOzXepA8JBwroYlnf0/oLe7wSiqw0tz5mHazkJ2nU3WVkzIdTW+0ywbnMDxyo1W8RL1Y85yQ==
 X-Forefront-Antispam-Report: 
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA2PR10MB4684.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(396003)(366004)(376002)(39860400002)(346002)(136003)(230922051799003)(186009)(451199024)(1800799012)(64100799003)(44832011)(8936002)(4326008)(31696002)(5660300002)(8676002)(316002)(6916009)(86362001)(6486002)(66946007)(66476007)(66556008)(36756003)(478600001)(26005)(6666004)(53546011)(6512007)(54906003)(2906002)(36916002)(2616005)(6506007)(83380400001)(38100700002)(41300700001)(31686004)(45980500001)(43740500002);DIR:OUT;SFP:1101;
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA2PR10MB4684.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(396003)(366004)(376002)(39860400002)(346002)(136003)(230922051799003)(186009)(451199024)(1800799012)(64100799003)(44832011)(8936002)(4326008)(31696002)(5660300002)(15650500001)(8676002)(316002)(6916009)(86362001)(6486002)(66946007)(66476007)(66556008)(36756003)(478600001)(26005)(53546011)(6512007)(54906003)(2906002)(36916002)(2616005)(6506007)(83380400001)(38100700002)(41300700001)(31686004)(45980500001)(43740500002);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0: 
-	=?utf-8?B?SW9nWjB1RHhneWNoWlRpc1ZheHYxSzJsT2FxTmtia0dvRVFPbU9jUnlESnZB?=
- =?utf-8?B?cUs2TXI3NGRvd09SajYyM2txV1ZldzNKY1dvSDF6RW00eTZ2ZjJiTEt2V21I?=
- =?utf-8?B?a0dzeHp3OUVkbHAreWlQNUo3OCtpajh2SE5GWnRyNkFZeTdGVHVXR1g0Z2I4?=
- =?utf-8?B?emw3dE1PNFhZYlJXSjFUQzZnaDZzaitZUENiUFlIS2Rnam5xaGc0ZmVIak9z?=
- =?utf-8?B?KzZGOFl1d1ZoNWYzdjBwZWhaQlVvaTN4d25wNHNUT1pZVUxXU0xpdEI2NDlp?=
- =?utf-8?B?OStES1l0MVQ4eDZUYlJkekpyUGgwenVDa1AwKzBXVjE0L0ZxbTFDWnV0OTA4?=
- =?utf-8?B?bDUxN05Gb0dEbklUK1dGTFlBdjJBTkwzbldwditNdXI3UW95Y2pRSHZDL3p0?=
- =?utf-8?B?MEpVZGs2dEJNdlNhZGVPUlFFWDdONVRkNEtLNitjTnJuT1hHT1ptbkxNRFJj?=
- =?utf-8?B?NFJRTGVGU1FJSGhCNnVKYkp2Misvbk8wK3ZpY2NXRDgvS0hRWUpyeC83ZU9r?=
- =?utf-8?B?eGdlUDZYRmhMT3lpMVRZaDVCK0hvNi9nbEtuQzI2SHZVSjRIN3ZDb042Zyty?=
- =?utf-8?B?bjJ2clo0NTJURjJqWlQwWUZqd3FhaFlLYWlrN3FKYVVJTmEzVUN1YkJUbzVD?=
- =?utf-8?B?Y3pudkJWTGprcU5KYUNQaG55ZnhzUFFCVmYvcnlEQVRkNkcrRkdsaW5wQXV2?=
- =?utf-8?B?eVdzcS9rbENiem1hT1pPTklxcy9Va3p0R1BOaXZXZlp6aWd5OUR4NUdFa1lq?=
- =?utf-8?B?a2FRaWh3UFdkb0syOFZrajIyMGhDSFRLOHhwYzVPcGdzUi9id2g1TG9qN3BJ?=
- =?utf-8?B?ajIzVFZ5cjkxTGpnWHlvWUhCMm5FMFArME9uTWd0K3oxbm96c1hOWHlvZ0VB?=
- =?utf-8?B?V3pIQmRRQzZDS1VHWk03Yk9ONGN5cXMwMzh4RURHY09wUFpyNXdob3YvS0h5?=
- =?utf-8?B?aFEvTGJKRVZrNmVhRXhya1JZbGxzUkYvZzBKYmFGb0MrNXl1N3l1eC9CVWVy?=
- =?utf-8?B?Ty9EY0pHMjAxeW9KeWV6T2VCcXlPM3RnZXNVRVhEZm4rYk5CVTdURWlqUHMv?=
- =?utf-8?B?NGthTHVyTDl2NXF0NEhoMyt1azkvYkUzeE14eGhlVkxJd3dZSjB2RVhlNlJi?=
- =?utf-8?B?Tk1XOGRVQzRUUDhiUkNpa0EwbklyZ3lkQnp5RGF6QTBmSVE0SU9BeEFZcE1F?=
- =?utf-8?B?V3kwWUYwcmNxdHlydTJHUmVrTUJDZVlvUlhyZlROZTd3UzJkU0lBdDdBaWZZ?=
- =?utf-8?B?NzVkZW5TZSs2bHNwLzRlakZIbFl2RVZqYlpVbG9rNmNZTzB6emlBY0dBK0s5?=
- =?utf-8?B?Y2I4Z3UzR1dBZEtRQ2Zzb2dBY01kNmJaZldaZ1orVVNtbTl2SS9vZ2o3VHZj?=
- =?utf-8?B?MXlkYk1CZjM1SERZRFhDdDEzckdRYzJYbGpWQnZ1TFNEdzlXYWpRcGJ3Nmtk?=
- =?utf-8?B?TkZUc3pMa3RrM3Z3ZkpOM1ZvV3IwZE1vR2JTbUdLSGp6cnpVeldkcFRCSE4v?=
- =?utf-8?B?d1RTcjBZQkM2ajk5STh5VGpYV2FMeHd3bzYrK3FVM20rdzJTQmNUSHczbEVq?=
- =?utf-8?B?YlJtTkZYUzhsdE9OSzZTbklEOVQ0KzFsNzJTMVlPaSs1T0owR2N3cThaS2lM?=
- =?utf-8?B?djZZZzYxQld0ekxpNnNLWUpUWEtiaHVjT2o0bmh3OC9NZm5xQWFFYzV5Tkdu?=
- =?utf-8?B?SWQ0WVBtSWdTQ1pQYllLMVJKdnBiVFJLYk9JYjN6bDBoQ1M4ZnFKSTdiTkxK?=
- =?utf-8?B?bllROG5MTzZEOTc1ZTBUcVl3LzRDYzhEWlF1UldsdGNNamY0Q0FnT1k4NmFa?=
- =?utf-8?B?SUxOUmh6cmZiT2JJZTNZcjJTRDBid3dzc254WTRmOWFkaG10WXdoL1g5TW40?=
- =?utf-8?B?cnVBKzJxUnBCVG5yd2FnNlByMzEyam5WaURKSHJDS2pFVjBhYS9uUmYvZHJa?=
- =?utf-8?B?c3liNG9hMnd5Znl6bXdQeUw4R2VLZHB5WUpPUlA3ZjFaOE9mcHlubmlRcHJZ?=
- =?utf-8?B?WStzcXJxSGc4bGtEUEZCN1VKSEdBMEt3TlZDKzFHZ0tRV2JleUlablNQYkJG?=
- =?utf-8?B?ZHV3MFFyeWpjMzhyemUvVldjQnNjSU5TWGFuKzBhMlo2Vk1DdTBpZS9Qcktk?=
- =?utf-8?B?cE5xdEpocXMwQUxSa3UwNklXUUxxSXVRWXQrS0x5aStMclJzNE5za2szVm1V?=
- =?utf-8?B?alE9PQ==?=
+	=?utf-8?B?MnJKT09XQmhBYkF0ZkpraXA0YTVqbW9NU3BOMEdJaXMyS0xiU2VTUWdheHRL?=
+ =?utf-8?B?eVRuUkZpam9ZQXFPSUhjalNXQlZqRmZSY2pVL2xzZTNFbzBadlN6eUtUZEsw?=
+ =?utf-8?B?SXp0TXBkYmFEUjY1UnU4aFNENVJYL2piUUpzWThqVnJvRjFzMXFVeVo0Sndi?=
+ =?utf-8?B?N0I3dnlWeUZCSWJ6MldWRy9aS0UzRDMyNlU3dGgwK2prc0MvclladU1jZXF3?=
+ =?utf-8?B?Tk81Wm5xT2pVMG0wbVdvUVlVWjNxMXVnLythMjFseUJXM0xySGF3aDBqdHgy?=
+ =?utf-8?B?S3cyR2FIWVE0TDB4T0VGbGdsS1dSb29BTGxtbnBvOXZzNEVlVnNEVFNZY2lD?=
+ =?utf-8?B?d3hmaEF2b1ZKRy9vdFpjbXJlRzZidW9qUFRFV3dibFdmcVJoa1p0NklKV05v?=
+ =?utf-8?B?YnYrUWhyZUlpTHNucWplSDNxbVVwV3dnUUxtSThEbHRERElUUTZMNlB4QU1n?=
+ =?utf-8?B?bUpySmVKRlY5cTdJQ3p0b2tud2wxdzd5OWZ5V3ZpQmovTUhSMitWSUxwMTlT?=
+ =?utf-8?B?RHhXa0RVdTlTcGNCOHZlc2dTaUtvZWxuOVh1cGppT3JraGZiRnVBcU1WcDcv?=
+ =?utf-8?B?T2hEeGMzd1VMUkNqclYvVzRhRDU0alA0M3llMDdnbWVMaElQZEJGbFVvbkxY?=
+ =?utf-8?B?aDlqZ0VDNlJrY2YzbTFEQVVaUUFLQVA4ajQvOWlkRXp0WWJKSXdNamNGSXlB?=
+ =?utf-8?B?S3QwZjFVYTM4cVp3WnRWdU01Qk9lN280REUxV1lvMUZNZWtHZUpQYlpPU0NK?=
+ =?utf-8?B?c09tTW8wSEpmY3prVVVLcHF5d0t1UXNyakhzbjdOb01PbEdvOTl5MU9zSkQw?=
+ =?utf-8?B?V3hsVzZTdzJRNElvUWUyQkk0M1ZhL1JVWW5EVzFnK0dFcDFKNDFIRGM4L1NJ?=
+ =?utf-8?B?amJuSHM2R1VmRzFyR1hGYTdxNWtRUmtJR0l5bllZSFFtais3ZGwzdlNqUGhX?=
+ =?utf-8?B?cTVMVlNWOXNXVnZEc0RtdFQ0bXpDTlg2L2NuT3RTOEQ3ZVZMck9nZGZJQkQ4?=
+ =?utf-8?B?MDNwV1FJMkdONit0WEJ2SlFyYmNCSjlWMWF5YlFQMjhWUS9BenUzZHJVVEQ2?=
+ =?utf-8?B?WTFTdDFxVFBuak5aY2duSkxWbXp6WFM5Mk9ISXUxaFM0dHdRZFJ2OHdCU2pl?=
+ =?utf-8?B?dXBUSnV2ZzZ6VENpWDdVWnE1aWRqTVZCcG1QZ0o3RldoZGxTaXZManNNSE5y?=
+ =?utf-8?B?d095OGo0a3hRUG9WYXZwWjNnd2VEOUp5VnYvVWw5K3ZXWThOZ25SSTFIamJy?=
+ =?utf-8?B?MzAwaEdzSExoU1BzQTZrRU96ODRCeFB3WWhqeXY5dnMzTVBHRjVoS1NkYTZE?=
+ =?utf-8?B?bStzdjk3R1V4Q25pT1dVdUhtaDhBWG8reS80WFJ4RW5KeFhXaG04NklXRmtC?=
+ =?utf-8?B?cW84Qnhzb0pybkJDUncxYW16YTlzNVNIVU1PTCt0R0ZRV2ExbkJ6TW9iZmxz?=
+ =?utf-8?B?dmZlazJPVmpyTjVKcDc0ZStycXlSaDF2UkE5T3VUNFkrV0dRVVY5czZ0VzBI?=
+ =?utf-8?B?Z2FIMzRneHFSMG9hWDUxUjZuTFJvUUVPUHM1WjNZSTlkV2hEVVBIQS9acEZo?=
+ =?utf-8?B?Znc0SXR5NU1NZTZhQmZ3ZWRCYTZQeVVVcE5kZ0hSVzRnb2dYTGJ4YVJwUExY?=
+ =?utf-8?B?UlM0RlpESUJNYTh6VXVSTWFGdGgzMmpPeFRYOGRqUDZuR1VhbWJ5Zmg2SnNx?=
+ =?utf-8?B?VkNqUUNNVDYvblpNc01DWUcxa3YzTzVJNWhVRU5ndXNjajZQUjJuYjdlVThN?=
+ =?utf-8?B?WHA1VFlydmRJMGZaQVpVcTdNS3VkZkZhcldUcWNqQUxBRU9mL090K1RaKy8r?=
+ =?utf-8?B?cUxqdkI2eG44Z21JUmlxbVpvZVVPeGphaGgySDMzUENIdGpENkFIeVZiY1J5?=
+ =?utf-8?B?cFpoNmFpSDFoenRscWprV0ZiUUZIYTA5WGQ2R0s5NTlpSlNpaTkxMFErMndn?=
+ =?utf-8?B?ckNBc09qWmhVQVZFQzJEU3p5U1BVK3M0S2IrYzVZcXdoQTFONkEzajIvUjZx?=
+ =?utf-8?B?NHEzOEo1SVpESWlYN0lraStMY3NlSnduTzJBZ0cwZFQwQnRKcnNMb1ZXVE5i?=
+ =?utf-8?B?UGpjU0t1ZkJOVHF2ZTlCTGpoWEp2MXBuYk9KMkhaSi9XM3ZpZjNJSzVpMEdl?=
+ =?utf-8?B?M0YvNGZvbDE3MXVnZ1lET3UrQUVGbEE0Vm1ydmdqYy9TaWQ0NkM1NDdOdWZO?=
+ =?utf-8?B?bWc9PQ==?=
 X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: 
-	n4pEOXEifLiLzyAQV3DAFNDhr4wd3pE0FXkPrWsfzLqGfvKwsaKlZMFxQSyg7DkpBojNZ7QeKBt0Mszn0TMOgca1YvjiXeYpvDYPw4X2V9UX8bGeUmpO2B2TPrw2wtabvK6eFY6KwrrKgpdnQGIdfMWMaXY7lwO6lJ7KIHMwTLwbmZptPtPUzfsnPLU/np9xn6LlHUw8qK2t8y11zOwpa+XTndGobR87EgZfluVx9kEMnFBm7lhJr6n1w0H7IhNxoM4lt50vRS/koAkqJanEbNp5gyTE3264a5TD6rqhnkp0EgjT6ASTAtMjQvXYhHE4A5Utf3pWtcDQb13g+VOH79qzTFr5SYUElfKiq76ATGvdJ7YmbvhNkgopkeS20EuSm7uRof5d9SEwHyu1FRLWRjM8h/PGmykJBM06HrBiHKnzKTyXPtKa17O593zrHSR85FdEbgdKnhbLnZ8A6ytQF5NpFX4rq+2/trSocFtCIaJ2YmbgvBxHwEQWXMJeCC/L6neucD8xmBrJsbLmpXXY4vs9bhzhhnXPSo/t6YyplsKErQQSJBlPsFBz4a4VtVJy97a1FkTDc3uRt3+yTxwqAL3tq6RhwbG+ZyNG2vJrn+A=
+	UkMDgqvZK6C6zAlTCbvBH2ultJrV6VEG4JILAOyCF0JLwpa0cVAqUNfRpvrMyLzmX5ZUWl61uoE6Yj1mgu+vVQaWJNk2OCEQSgtEc0FGAyOVH1abDgLM6N5HTklV3uI2pzY+sDPHpAkS/GijiDOpSaF0xBhMA9GzjQfFAd1tkM8NGnHYR8QyzPaNCgIsKfvBI+5q6vzrFId0HxkBstlGn+VHZ8XDWZ5oAYfsLnxLHzEOKijkLOlbblyytGOwcMkhzDHQa6OufJbE38lnBp105rL8bQ5a4SHoq8IZ1N3vlQGga4HHr5eQrllvXIiYE7gxgDzYjdIq1zB9iHNM1XHlz4Br9p960xfosaJI5FImpGDCsGt0SVW0kZcVby7Vd7TcBEEodpSSlfMVegz28Jnl9fifXnlgvIEwHZsWadEISmh4H0gmYya+FnO9EQWxFHl8gQSj/H0ZNCplnGzRcgYLLA3Rnir1dgoQ5FINAb8eJgNFnTlxF40YyVYkFIZJsldrUB++ppASADIrocn+QTalv/fNZx2iEtylE6UNLTM9kLpyG3MKT/NBqqZbUX21W8eMl3eqAHN9NbT1R6RpRZlGBWO5RPtekij8F2sA0aOz47Y=
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b9460590-e483-4a3f-063f-08dc179b498c
+X-MS-Exchange-CrossTenant-Network-Message-Id: dc9e63cd-8e1a-41ec-67dc-08dc179b4e9f
 X-MS-Exchange-CrossTenant-AuthSource: SA2PR10MB4684.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Jan 2024 20:31:30.2152
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Jan 2024 20:31:38.7266
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: kd/CABBRf0fR9ah4DeEkF9BMnLPbAUn8RpUracBOI5PEogGDpnmhRyrS9nUtx3r/aOOlm1iAJy5n1hLvz0S0eUhuVn7RPaCOnRBG3Kgsnvs=
+X-MS-Exchange-CrossTenant-UserPrincipalName: fCQQhn9GmZ+FBCXtR8o5/NscMx4FED+ourJP1463QVOdxLj7FhzOt2L4mDwesCjLYl1cnOAMPgCswRMe3Ws27hlBjXzPypSn7jRTDc2ySZs=
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR10MB5942
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2024-01-17_12,2024-01-17_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 phishscore=0
- malwarescore=0 adultscore=0 mlxscore=0 bulkscore=0 mlxlogscore=999
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2401170150
-X-Proofpoint-GUID: bEEYHprD-IlZaPn3vq3boXnEvlyONS5F
-X-Proofpoint-ORIG-GUID: bEEYHprD-IlZaPn3vq3boXnEvlyONS5F
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 adultscore=0 phishscore=0
+ suspectscore=0 malwarescore=0 spamscore=0 mlxlogscore=999 mlxscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
+ definitions=main-2401170150
+X-Proofpoint-ORIG-GUID: CvoQpOU2Y3gHV1diVh6ewQDnPubACy_7
+X-Proofpoint-GUID: CvoQpOU2Y3gHV1diVh6ewQDnPubACy_7
 
-On 1/10/2024 10:08 PM, Jason Wang wrote:
+On 1/10/2024 9:55 PM, Jason Wang wrote:
 > On Thu, Jan 11, 2024 at 4:40 AM Steve Sistare <steven.sistare@oracle.com> wrote:
 >>
->> When device ownership is passed to a new process via VHOST_NEW_OWNER,
->> some devices need to know the new userland addresses of the dma mappings.
->> Define the new iotlb message type VHOST_IOTLB_REMAP to update the uaddr
->> of a mapping.  The new uaddr must address the same memory object as
->> originally mapped.
+>> Live update is a technique wherein an application saves its state, exec's
+>> to an updated version of itself, and restores its state.  Clients of the
+>> application experience a brief suspension of service, on the order of
+>> 100's of milliseconds, but are otherwise unaffected.
 >>
->> The user must suspend the device before the old address is invalidated,
->> and cannot resume it until after VHOST_IOTLB_REMAP is called, but this
->> requirement is not enforced by the API.
+>> Define and implement interfaces that allow vdpa devices to be preserved
+>> across fork or exec, to support live update for applications such as qemu.
+>> The device must be suspended during the update, but its dma mappings are
+>> preserved, so the suspension is brief.
 >>
->> Signed-off-by: Steve Sistare <steven.sistare@oracle.com>
->> ---
->>  drivers/vhost/vdpa.c             | 34 ++++++++++++++++++++++++++++++++
->>  include/uapi/linux/vhost_types.h | 11 ++++++++++-
->>  2 files changed, 44 insertions(+), 1 deletion(-)
+>> The VHOST_NEW_OWNER ioctl transfers device ownership and pinned memory
+>> accounting from one process to another.
 >>
->> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
->> index faed6471934a..ec5ca20bd47d 100644
->> --- a/drivers/vhost/vdpa.c
->> +++ b/drivers/vhost/vdpa.c
->> @@ -1219,6 +1219,37 @@ static int vhost_vdpa_pa_map(struct vhost_vdpa *v,
+>> The VHOST_BACKEND_F_NEW_OWNER backend capability indicates that
+>> VHOST_NEW_OWNER is supported.
 >>
->>  }
+>> The VHOST_IOTLB_REMAP message type updates a dma mapping with its userland
+>> address in the new process.
 >>
->> +static int vhost_vdpa_process_iotlb_remap(struct vhost_vdpa *v,
->> +                                         struct vhost_iotlb *iotlb,
->> +                                         struct vhost_iotlb_msg *msg)
->> +{
->> +       struct vdpa_device *vdpa = v->vdpa;
->> +       const struct vdpa_config_ops *ops = vdpa->config;
->> +       u32 asid = iotlb_to_asid(iotlb);
->> +       u64 start = msg->iova;
->> +       u64 last = start + msg->size - 1;
->> +       struct vhost_iotlb_map *map;
->> +       int r = 0;
->> +
->> +       if (msg->perm || !msg->size)
->> +               return -EINVAL;
->> +
->> +       map = vhost_iotlb_itree_first(iotlb, start, last);
->> +       if (!map)
->> +               return -ENOENT;
->> +
->> +       if (map->start != start || map->last != last)
->> +               return -EINVAL;
->> +
->> +       /* batch will finish with remap.  non-batch must do it now. */
->> +       if (!v->in_batch)
->> +               r = ops->set_map(vdpa, asid, iotlb);
->> +       if (!r)
->> +               map->addr = msg->uaddr;
+>> The VHOST_BACKEND_F_IOTLB_REMAP backend capability indicates that
+>> VHOST_IOTLB_REMAP is supported and required.  Some devices do not
+>> require it, because the userland address of each dma mapping is discarded
+>> after being translated to a physical address.
+>>
+>> Here is a pseudo-code sequence for performing live update, based on
+>> suspend + reset because resume is not yet available.  The vdpa device
+>> descriptor, fd, remains open across the exec.
+>>
+>>   ioctl(fd, VHOST_VDPA_SUSPEND)
+>>   ioctl(fd, VHOST_VDPA_SET_STATUS, 0)
+>>   exec
 > 
-> I may miss something, for example for PA mapping,
+> Is there a userspace implementation as a reference?
+
+I have working patches for qemu that use these ioctl's, but they depend on other 
+qemu cpr patches that are a work in progress, and not posted yet.  I'm working on
+that.
+
+>>   ioctl(fd, VHOST_NEW_OWNER)
+>>
+>>   issue ioctls to re-create vrings
+>>
+>>   if VHOST_BACKEND_F_IOTLB_REMAP
+>>       foreach dma mapping
+>>           write(fd, {VHOST_IOTLB_REMAP, new_addr})
 > 
-> 1) need to convert uaddr into phys addr
-> 2) need to check whether the uaddr is backed by the same page or not?
+> I think I need to understand the advantages of this approach. For
+> example, why it is better than
+> 
+> ioctl(VHOST_RESET_OWNER)
+> exec
+> 
+> ioctl(VHOST_SET_OWNER)
+> 
+> for each dma mapping
+>      ioctl(VHOST_IOTLB_UPDATE)
 
-This code does not verify that the new size@uaddr points to the same physical
-pages as the old size@uaddr.  If the app screws up and they differ, then the app
-may corrupt its own memory, but no-one else's.
+That is slower.  VHOST_RESET_OWNER unbinds physical pages, and VHOST_IOTLB_UPDATE
+rebinds them.  It costs multiple seconds for large memories, and is incurred during the
+virtual machine's pause time during live update.  For comparison, the total pause time
+for live update with vfio interfaces is ~100 millis.
 
-It would be expensive for large memories to verify page by page, O(npages), and such
-verification lies on the critical path for virtual machine downtime during live update.
-I could compare the properties of the vma(s) for the old size@uaddr vs the vma for the 
-new, but that is more complicated and would be a maintenance headache.  When I submitted
-such code to Alex W when writing the equivalent patches for vfio, he said don't check,
-correctness is the user's responsibility.
+However, the interaction with userland is so similar that the same code paths can be used.
+In my qemu prototype, after cpr exec's new qemu:
+  - vhost_vdpa_set_owner() calls VHOST_NEW_OWNER instead of VHOST_SET_OWNER
+  - vhost_vdpa_dma_map() sets type VHOST_IOTLB_REMAP instead of VHOST_IOTLB_UPDATE
 
 - Steve
 
->> +
->> +       return r;
->> +}
->> +
->>  static int vhost_vdpa_process_iotlb_update(struct vhost_vdpa *v,
->>                                            struct vhost_iotlb *iotlb,
->>                                            struct vhost_iotlb_msg *msg)
->> @@ -1298,6 +1329,9 @@ static int vhost_vdpa_process_iotlb_msg(struct vhost_dev *dev, u32 asid,
->>                         ops->set_map(vdpa, asid, iotlb);
->>                 v->in_batch = false;
->>                 break;
->> +       case VHOST_IOTLB_REMAP:
->> +               r = vhost_vdpa_process_iotlb_remap(v, iotlb, msg);
->> +               break;
->>         default:
->>                 r = -EINVAL;
->>                 break;
->> diff --git a/include/uapi/linux/vhost_types.h b/include/uapi/linux/vhost_types.h
->> index 9177843951e9..35908315ff55 100644
->> --- a/include/uapi/linux/vhost_types.h
->> +++ b/include/uapi/linux/vhost_types.h
->> @@ -79,7 +79,7 @@ struct vhost_iotlb_msg {
->>  /*
->>   * VHOST_IOTLB_BATCH_BEGIN and VHOST_IOTLB_BATCH_END allow modifying
->>   * multiple mappings in one go: beginning with
->> - * VHOST_IOTLB_BATCH_BEGIN, followed by any number of
->> + * VHOST_IOTLB_BATCH_BEGIN, followed by any number of VHOST_IOTLB_REMAP or
->>   * VHOST_IOTLB_UPDATE messages, and ending with VHOST_IOTLB_BATCH_END.
->>   * When one of these two values is used as the message type, the rest
->>   * of the fields in the message are ignored. There's no guarantee that
->> @@ -87,6 +87,15 @@ struct vhost_iotlb_msg {
->>   */
->>  #define VHOST_IOTLB_BATCH_BEGIN    5
->>  #define VHOST_IOTLB_BATCH_END      6
->> +
->> +/*
->> + * VHOST_IOTLB_REMAP registers a new uaddr for the existing mapping at iova.
->> + * The new uaddr must address the same memory object as originally mapped.
->> + * Failure to do so will result in user memory corruption and/or device
->> + * misbehavior.  iova and size must match the arguments used to create the
->> + * an existing mapping.  Protection is not changed, and perm must be 0.
->> + */
->> +#define VHOST_IOTLB_REMAP          7
->>         __u8 type;
->>  };
->>
->> --
->> 2.39.3
->>
-> 
