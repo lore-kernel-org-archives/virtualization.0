@@ -1,26 +1,26 @@
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0A9B5247
-	for <virtualization@lists.linux.dev>; Wed, 17 Jan 2024 03:38:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8B7D4416
+	for <virtualization@lists.linux.dev>; Wed, 17 Jan 2024 03:41:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705462730; cv=none; b=smGjdUlzK4rAAzh1zTo45w7dOq7YXJ95EthvLjhztA6I8Oqh9mWeTrXI8t2shPxx8QxOqNvkABD2ZNSH9lp4110hE4zaeEjexOmdgIvMyxW4hqeLy55xpXvq2qcJAXidp0tA4iBrm9eu2Tp4XDT7Soe/+8QIdYrKH11P5wdX4yY=
+	t=1705462878; cv=none; b=Nq3aHezen/IxXewxHNYX7vN+6OXMJrsJUthFDYM2KonzwKTKWiOoEMQANVwjEYKI5XHH7aJ/wODl88h7Mpb1Gvkvby0j9oHBsxMVMDNZRnS00FdPyu/9582Tra2zbHij7kzWqqBqiPCyy2sh0seCbXL7WIFOwaExqlF8RdaIPvg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705462730; c=relaxed/simple;
-	bh=KC4+acKhrL/06D2tmhrp7SHPW1FrF+ACnsOa9gzD2CM=;
+	s=arc-20240116; t=1705462878; c=relaxed/simple;
+	bh=jnrIu1IKLPUHmtPpgR5WK4Kf5gOVXyIkmqS0l51MIxE=;
 	h=X-Alimail-AntiSpam:Received:Message-ID:Date:MIME-Version:
 	 User-Agent:Subject:To:Cc:References:From:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding; b=g1aFr6c2jCjOfXC1zGQL0I0VE4DR0jhUEIeGDip1j98IuA7JREriJvFcjP7T3xNKhy+HBJoCSMDryubXOxtPiRmaU55YnZkPxktpxIL99t0UTm/QCChL2NvlxCABedq9+dBb9osSTzOVLNNJKKb6yeHlU6v3kqBZ5Llxzb1ovIg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; arc=none smtp.client-ip=115.124.30.133
+	 Content-Transfer-Encoding; b=Navn5pn33sZLOQoGhzLtjxAbqhBsjcqIZQkt8RWC0koBXWDvz5zgA7jqG3zAKd3nAOjln24/3phZdsc9lwjrY49oXsj67HB/JkpJB2eAbpDxZhNwsK8Lo6Emv6RbTVfN5F99aXjTYnUgP1OKZdRSbV46Rxlh1fS55XzxC+IFxAU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; arc=none smtp.client-ip=115.124.30.111
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0W-o17h9_1705462724;
-Received: from 30.221.149.120(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W-o17h9_1705462724)
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R941e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0W-o1spg_1705462865;
+Received: from 30.221.149.120(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W-o1spg_1705462865)
           by smtp.aliyun-inc.com;
-          Wed, 17 Jan 2024 11:38:45 +0800
-Message-ID: <1f73d1b6-d240-422f-b071-358ed5902747@linux.alibaba.com>
-Date: Wed, 17 Jan 2024 11:38:44 +0800
+          Wed, 17 Jan 2024 11:41:06 +0800
+Message-ID: <120c62f5-f1ae-4269-9933-a3ce62220af4@linux.alibaba.com>
+Date: Wed, 17 Jan 2024 11:41:04 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -28,7 +28,8 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next 2/3] virtio-net: batch dim request
+Subject: Re: [PATCH net-next 3/3] virtio-net: reduce the CPU consumption of
+ dim worker
 To: Simon Horman <horms@kernel.org>
 Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
  Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
@@ -36,94 +37,88 @@ Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
  Eric Dumazet <edumazet@google.com>, "David S. Miller" <davem@davemloft.net>,
  Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 References: <1705410693-118895-1-git-send-email-hengqi@linux.alibaba.com>
- <1705410693-118895-3-git-send-email-hengqi@linux.alibaba.com>
- <20240116194912.GE588419@kernel.org>
+ <1705410693-118895-4-git-send-email-hengqi@linux.alibaba.com>
+ <20240116195646.GF588419@kernel.org>
 From: Heng Qi <hengqi@linux.alibaba.com>
-In-Reply-To: <20240116194912.GE588419@kernel.org>
+In-Reply-To: <20240116195646.GF588419@kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
 
 
-在 2024/1/17 上午3:49, Simon Horman 写道:
-> On Tue, Jan 16, 2024 at 09:11:32PM +0800, Heng Qi wrote:
->> Currently, when each time the driver attempts to update the coalescing
->> parameters for a vq, it needs to kick the device.
->> The following path is observed:
->>    1. Driver kicks the device;
->>    2. After the device receives the kick, CPU scheduling occurs and DMA
->>       multiple buffers multiple times;
->>    3. The device completes processing and replies with a response.
+在 2024/1/17 上午3:56, Simon Horman 写道:
+> On Tue, Jan 16, 2024 at 09:11:33PM +0800, Heng Qi wrote:
+>> Accumulate multiple request commands to kick the device once,
+>> and obtain the processing results of the corresponding commands
+>> asynchronously. The batch command method is used to optimize the
+>> CPU overhead of the DIM worker caused by the guest being busy
+>> waiting for the command response result.
 >>
->> When large-queue devices issue multiple requests and kick the device
->> frequently, this often interrupt the work of the device-side CPU.
->> In addition, each vq request is processed separately, causing more
->> delays for the CPU to wait for the DMA request to complete.
+>> On an 8-queue device, without this patch, the guest cpu overhead
+>> due to waiting for cvq could be 10+% and above. With this patch,
+>> the corresponding overhead is basically invisible.
 >>
->> These interruptions and overhead will strain the CPU responsible for
->> controlling the path of the DPU, especially in multi-device and
->> large-queue scenarios.
->>
->> To solve the above problems, we internally tried batch request,
->> which merges requests from multiple queues and sends them at once.
->> We conservatively tested 8 queue commands and sent them together.
->> The DPU processing efficiency can be improved by 8 times, which
->> greatly eases the DPU's support for multi-device and multi-queue DIM.
->>
->> Suggested-by: Xiaoming Zhao <zxm377917@alibaba-inc.com>
 >> Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
 > ...
 >
->> @@ -3546,16 +3552,32 @@ static void virtnet_rx_dim_work(struct work_struct *work)
->>   		update_moder = net_dim_get_rx_moderation(dim->mode, dim->profile_ix);
->>   		if (update_moder.usec != rq->intr_coal.max_usecs ||
->>   		    update_moder.pkts != rq->intr_coal.max_packets) {
->> -			err = virtnet_send_rx_ctrl_coal_vq_cmd(vi, qnum,
->> -							       update_moder.usec,
->> -							       update_moder.pkts);
->> -			if (err)
->> -				pr_debug("%s: Failed to send dim parameters on rxq%d\n",
->> -					 dev->name, qnum);
->> -			dim->state = DIM_START_MEASURE;
->> +			coal->coal_vqs[j].vqn = cpu_to_le16(rxq2vq(i));
->> +			coal->coal_vqs[j].coal.max_usecs = cpu_to_le32(update_moder.usec);
->> +			coal->coal_vqs[j].coal.max_packets = cpu_to_le32(update_moder.pkts);
->> +			rq->intr_coal.max_usecs = update_moder.usec;
->> +			rq->intr_coal.max_packets = update_moder.pkts;
->> +			j++;
->>   		}
->>   	}
+>> @@ -3520,22 +3568,99 @@ static int virtnet_send_notf_coal_vq_cmds(struct virtnet_info *vi,
+>>   	return 0;
+>>   }
 >>   
->> +	if (!j)
->> +		goto ret;
+>> +static bool virtnet_add_dim_command(struct virtnet_info *vi,
+>> +				    struct virtnet_batch_coal *ctrl)
+>> +{
+>> +	struct scatterlist *sgs[4], hdr, stat, out;
+>> +	unsigned out_num = 0;
+>> +	int ret;
 >> +
->> +	coal->num_entries = cpu_to_le32(j);
->> +	sg_init_one(&sgs, coal, sizeof(struct virtnet_batch_coal) +
->> +		    j * sizeof(struct virtio_net_ctrl_coal_vq));
->> +	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_NOTF_COAL,
->> +				  VIRTIO_NET_CTRL_NOTF_COAL_VQS_SET,
->> +				  &sgs))
->> +		dev_warn(&vi->vdev->dev, "Failed to add dim command\n.");
+>> +	/* Caller should know better */
+>> +	BUG_ON(!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ));
 >> +
->> +	for (i = 0; i < j; i++) {
->> +		rq = &vi->rq[(coal->coal_vqs[i].vqn) / 2];
+>> +	ctrl->hdr.class = VIRTIO_NET_CTRL_NOTF_COAL;
+>> +	ctrl->hdr.cmd = VIRTIO_NET_CTRL_NOTF_COAL_VQS_SET;
+>> +
+>> +	/* Add header */
+>> +	sg_init_one(&hdr, &ctrl->hdr, sizeof(ctrl->hdr));
+>> +	sgs[out_num++] = &hdr;
+>> +
+>> +	/* Add body */
+>> +	sg_init_one(&out, &ctrl->num_entries, sizeof(ctrl->num_entries) +
+>> +		    ctrl->num_entries * sizeof(struct virtnet_coal_entry));
 > Hi Heng Qi,
 >
-> The type of .vqn is __le16, but here it is used as an
-> integer in host byte order. Perhaps this should be (completely untested!):
->
-> 		rq = &vi->rq[le16_to_cpu(coal->coal_vqs[i].vqn) / 2];
+> I am a bit confused.
+> With this series applied on top of net-next
+> struct virtnet_coal_entry doesn't seem to exist.
 
 Hi Simon,
 
-Thanks for the catch, I will check this out.
+It should be struct virtio_net_ctrl_coal_vq.
+
+Thanks.
 
 >
->> +		rq->dim.state = DIM_START_MEASURE;
+>
+>> +	sgs[out_num++] = &out;
+>> +
+>> +	/* Add return status. */
+>> +	ctrl->status = VIRTIO_NET_OK;
+>> +	sg_init_one(&stat, &ctrl->status, sizeof(ctrl->status));
+>> +	sgs[out_num] = &stat;
+>> +
+>> +	BUG_ON(out_num + 1 > ARRAY_SIZE(sgs));
+>> +	ret = virtqueue_add_sgs(vi->cvq, sgs, out_num, 1, ctrl, GFP_ATOMIC);
+>> +	if (ret < 0) {
+>> +		dev_warn(&vi->vdev->dev, "Failed to add sgs for command vq: %d\n.", ret);
+>> +		return false;
 >> +	}
 >> +
->> +ret:
->>   	rtnl_unlock();
->>   }
->>   
+>> +	virtqueue_kick(vi->cvq);
+>> +
+>> +	ctrl->usable = false;
+>> +	vi->cvq_cmd_nums++;
+>> +
+>> +	return true;
+>> +}
+> ...
 
