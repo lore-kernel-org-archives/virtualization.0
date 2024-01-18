@@ -1,264 +1,182 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from out-182.mta1.migadu.com (out-182.mta1.migadu.com [95.215.58.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF6E1250E8
-	for <virtualization@lists.linux-foundation.org>; Wed, 17 Jan 2024 20:35:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.137
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705523701; cv=fail; b=W6DN6kpgh0Aoc6ZsC7L4t1BJSmPgVejkT3tlqTRbL63xrXjrnaHbgPlg/RZVZgPcGUhSzbAf6VW9OTZvhsJKlx3S1trERbKE2dDAf7fkQVCSEkyZySmMQR/AoVfeMr99uM6sEJZRquhL3QzlqwGawHiyG5xorigrgLHuJIhXMOs=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705523701; c=relaxed/simple;
-	bh=QdjFUpOUFYeROeV0EflJqbN/U0ul1Q3y3lY6Z2wGMVQ=;
-	h=Received:DKIM-Filter:X-Virus-Scanned:X-Spam-Flag:X-Spam-Score:
-	 X-Spam-Level:X-Spam-Status:Received:Received:DKIM-Filter:Received:
-	 DKIM-Signature:Received:Received:Received:ARC-Message-Signature:
-	 ARC-Authentication-Results:DKIM-Signature:Received:Received:
-	 Message-ID:Date:User-Agent:Subject:Content-Language:To:Cc:
-	 References:From:Organization:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding:X-ClientProxiedBy:MIME-Version:
-	 X-MS-PublicTrafficType:X-MS-TrafficTypeDiagnostic:
-	 X-MS-Office365-Filtering-Correlation-Id:
-	 X-MS-Exchange-SenderADCheck:X-MS-Exchange-AntiSpam-Relay:
-	 X-Microsoft-Antispam:X-Microsoft-Antispam-Message-Info:
-	 X-Forefront-Antispam-Report:
-	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
-	 X-MS-Exchange-AntiSpam-MessageData-0:
-	 X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount:
-	 X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:X-OriginatorOrg:
-	 X-MS-Exchange-CrossTenant-Network-Message-Id:
-	 X-MS-Exchange-CrossTenant-AuthSource:
-	 X-MS-Exchange-CrossTenant-AuthAs:
-	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
-	 X-MS-Exchange-CrossTenant-FromEntityHeader:
-	 X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
-	 X-MS-Exchange-CrossTenant-UserPrincipalName:
-	 X-MS-Exchange-Transport-CrossTenantHeadersStamped:
-	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details:
-	 X-Proofpoint-GUID:X-Proofpoint-ORIG-GUID; b=XQgneC9rmRQUwdj0agbni2JQ97gZGkjpm1EPzclPSXYvQkoTT0T7bvv479L0w8rPow6DtaOKnzMn/00UFvkSwnMvA+tLSr0SFXd8sfgKQpvkG9C8ob61qDsA82ZID4YelzgdQELCMsf5YIR4sY2sKieo2nd5TFW62y484+JCQsk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=aQYy7951; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=TYVszq57; arc=fail smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC07721A12
+	for <virtualization@lists.linux.dev>; Thu, 18 Jan 2024 12:02:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.182
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1705579334; cv=none; b=QHGlhLzWKeB9j0qr8qn+HobrlpMFryD8UVECVmJX89/HT8xUqFr0VS8QG3LprDWqgRC0VucGdNmMyqzzBamM4ai9dfkw2s2s60j//xRY9Kfs8kHqFwQd7mdWL+Zf7sbO5R4efZZB9fivGHX7SD81kAsQyy/JDlBz3zJ1Hxk3tdQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1705579334; c=relaxed/simple;
+	bh=JG3dOnWveDgBbMtq6e+xgfnvd2S0woGLZ5oF0CTrYUI=;
+	h=Message-ID:DKIM-Signature:Date:MIME-Version:Subject:To:References:
+	 X-Report-Abuse:From:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding:X-Migadu-Flow; b=swWYgRLbgU52w4mV0Q9Hr4D4ULfPJGRkYR497Lj1RAF/XEWnUx+y/u82UhGZcxMkClRissSs4SXob3xmnAys3DSVl+7AjBg+knLC6V+U5ZOT8iiT5l1TV3NN/dEbApllvXbYCBgHXXtXneaw4bJ3KYHFPXmwwrHtP/XK+Wj3phk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=e0E1eTpK; arc=none smtp.client-ip=95.215.58.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="aQYy7951";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="TYVszq57"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 7F7FE42084
-	for <virtualization@lists.linux-foundation.org>; Wed, 17 Jan 2024 20:35:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7F7FE42084
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-11-20 header.b=aQYy7951;
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=TYVszq57
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.098
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id A2N0uTcpdIq9
-	for <virtualization@lists.linux-foundation.org>;
-	Wed, 17 Jan 2024 20:34:59 +0000 (UTC)
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id BB78842078
-	for <virtualization@lists.linux-foundation.org>; Wed, 17 Jan 2024 20:34:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BB78842078
-Received: from pps.filterd (m0246627.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40HJco1j031346;
-	Wed, 17 Jan 2024 20:34:50 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2023-11-20;
- bh=UxmA2vKAE26tqXfUmAMi0Xy7X3bjF/MZON4bjEtgpnE=;
- b=aQYy7951mJjpHR0g3GFQjfKBin+8W9FoxAIXv/VRPYMMVv4y3BgsCQtW5Jqzd61n7XDr
- Thephn9yxZ89CDk8eKLepen5j7CXPqN1dnXl3X1znUps7x3kTy5y/5Vvfhinybw5yCEA
- 3/9dARFt4VKbZkv76pWQBgkE/bRDzNJYE7YrGPuRjgHtxkC+Gx8PzT9/QwcWCi3ZK+U2
- yf5bMx4yyvk28ELEDl6x0K4xN4ONKODitavXggm668O/PNSnUvtDV3dBSD9JiTj27hJf
- B/lAROK0pO3ZZhAXn8pmW88i/3nKaTKviuttDJBvIZFk4z32tvlt/PA2xqBx+HvLjRGa TQ== 
-Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3vkjba10hu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 17 Jan 2024 20:34:49 +0000
-Received: from pps.filterd (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 40HKT49w035855;
-	Wed, 17 Jan 2024 20:34:48 GMT
-Received: from nam12-dm6-obe.outbound.protection.outlook.com (mail-dm6nam12lp2169.outbound.protection.outlook.com [104.47.59.169])
-	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3vkgyb3gpr-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 17 Jan 2024 20:34:48 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=heXwVFHp51nmW93aD5OdzNUfXmYsGANNfn2fWZ7Aq+u0iT8gmgl+J6yfOkZdnf9BguEqF6UcIxAYEOEkUTG8snjSoflBQ5ue0IXLUYfDW+Uw0Mr79719VHoCeN9Btz4KT3PjYKc2vmuYCwXGbD8HMazgdJMcsIb2qQkTPQd69Q+LXmOTg1GwbtxYNx3ZpluEC1UgXLIVKh3QEt7HccCZyryJ2YsLWkj6YlyMGQGt+2V21qV8040KuP7fMOQ8hT4hbq1wS861XsTqe6PXAol9ifobbLEYjOpTko8dl9+QGMy72HH/9AvMCKfAg6B4qFI/O4cE8Y5Y2pLUJtdawaYQrw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=UxmA2vKAE26tqXfUmAMi0Xy7X3bjF/MZON4bjEtgpnE=;
- b=nVJWMXe0ppIirxAcvX92tkjyjSGlDOFTXLSeYACPZtIsZoF/zMdbz46tB0yC0ZA3F6tjcKceHxXPOoSjChPy5NXJKWIHQ0Dy2AubZ//EkBN1u/X4Ld421e2ZY+7k82TDJ4kMCSDnIuU9BKZECbij6wrbdla6z/PR9d0NYBiN5v4CoIJJxnOX5CGuqbOUDLvySn8Is5EgNs87yUAHISqgksa/H6ZicmmWiGbOtmFk7/ax1HlsVjO+XzVg4oqyjA1KdsHmCcMH++85vhMaKsSxfuiXkou55H96EGeBlQi8BO+Mn/ppTYT0cEREo8g7oLgBJXwe/ruN2Jpvv1Cspw5giA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=UxmA2vKAE26tqXfUmAMi0Xy7X3bjF/MZON4bjEtgpnE=;
- b=TYVszq57/qDfQ9dCSz+fyEAkny5ZDR2nUW3lL67WxblvVwQDTXZFcqUfwIhwGiTdT9ph8W+8DVlcqHqRRr1deTwjrbvIw01HQIMlKxhR6i05xQIC37adJWq28CPlnZY0f36aeU+T44YvOIMZ0QaRgli7IEyP2xgTxgV6VFGOLJE=
-Received: from SA2PR10MB4684.namprd10.prod.outlook.com (2603:10b6:806:119::14)
- by CO1PR10MB4451.namprd10.prod.outlook.com (2603:10b6:303:96::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7202.23; Wed, 17 Jan
- 2024 20:34:46 +0000
-Received: from SA2PR10MB4684.namprd10.prod.outlook.com
- ([fe80::c3ce:7c28:7db1:656b]) by SA2PR10MB4684.namprd10.prod.outlook.com
- ([fe80::c3ce:7c28:7db1:656b%6]) with mapi id 15.20.7181.026; Wed, 17 Jan 2024
- 20:34:46 +0000
-Message-ID: <3324a580-8436-424b-bff1-5d7df046b938@oracle.com>
-Date: Wed, 17 Jan 2024 15:34:43 -0500
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC V1 01/13] vhost-vdpa: count pinned memory
-Content-Language: en-US
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
-        Jason Wang <jasowang@redhat.com>, Si-Wei Liu <si-wei.liu@oracle.com>,
-        Eugenio Perez Martin <eperezma@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Dragos Tatulea
- <dtatulea@nvidia.com>, Eli Cohen <elic@nvidia.com>,
-        Xie Yongji <xieyongji@bytedance.com>
-References: <1704919215-91319-1-git-send-email-steven.sistare@oracle.com>
- <1704919215-91319-2-git-send-email-steven.sistare@oracle.com>
- <20240110172306-mutt-send-email-mst@kernel.org>
-From: Steven Sistare <steven.sistare@oracle.com>
-Organization: Oracle Corporation
-In-Reply-To: <20240110172306-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: MN2PR06CA0010.namprd06.prod.outlook.com
- (2603:10b6:208:23d::15) To SA2PR10MB4684.namprd10.prod.outlook.com
- (2603:10b6:806:119::14)
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="e0E1eTpK"
+Message-ID: <667a9520-a53f-40a2-810a-6c1e45146589@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1705579327;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=C6tihjWp7j+qQC5z+FL5Mbj6abTGxgN8o1VWm9O3rTk=;
+	b=e0E1eTpKc2UyxMvfQBviMIlUGVFOzDMzOD7z0sxwO1I2FCqxe1ZA1W2fbt2bj8Y41aTJG4
+	FrC+ucuYIbnEzH4ledmGgj+0SZgbEwTasCz60RsuIndyGRrXeQlDvZAEpie1RCZ7K/s7OM
+	mSbs5Ibl0DuDQwoXsaOP++Go4ONQgdg=
+Date: Thu, 18 Jan 2024 20:01:58 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SA2PR10MB4684:EE_|CO1PR10MB4451:EE_
-X-MS-Office365-Filtering-Correlation-Id: dbd43cfb-6a4c-470e-cadc-08dc179bbe49
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 
-	dnq854PXt6JoVRX31phKiLKGH6xGZDTwB4Uup1+OrBs1h/lhjaYHjtov4g+48fImi+tVrOej8XQE19bqnW5J2gxTdGOUXz/2yYCFJD7TczJVjFcNeSjDGSxjRcv1UO7WQLBIyAAIFZn+FexLaoE/pVhrEsT0MrSyMAnceuDdNrnfpjVzQsXg4EJstUYkieD24hf5mVEWv105TTSIbZTo/OupC2mqFPWCYaRkK2R1r1sVzdQIM2BhudFo1PlMtr6FTXQOSF9ApkETeQ/232QBO4X8zPAJ6qmqgAZXOu0vQDMzOIXTAUbD4UQffXTHP29fY9NHWrsN586CW8XFXoQMSr9N6NeQXLRPwP9lOPkYD18Rad7FK+ZQyR1Bdj3dfgWTAoZ2+XuJGQK/Ypq26NtT1kYVBtM9A4H/TXO4b71A5Y4pmcxKgb3GAFjPoPub4Gt2pY9b3aAmKu82Axh4Mb/EFhUhqB0R002JqhXW7WaEspCTwsie+FlVyswyz3U82BMHwnkMSQLu93+hUznDMfnuPZmOZTS6s8zDZ4mxoewuhKtUXx4f/wx6ETw2N8GmKq7H94Dy+P3YvT60SJesx3goy4zfBO2ztoFSFiu/MP1K8Wrw0iLlggF7cHBR27oloDeP5cYxVjaVp4kRdWJ0FRCVkQ==
-X-Forefront-Antispam-Report: 
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA2PR10MB4684.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(396003)(39860400002)(346002)(366004)(376002)(136003)(230922051799003)(1800799012)(186009)(451199024)(64100799003)(31686004)(36916002)(66556008)(6506007)(83380400001)(44832011)(54906003)(6512007)(66476007)(6486002)(316002)(6916009)(478600001)(6666004)(2616005)(66946007)(26005)(53546011)(4326008)(8936002)(8676002)(5660300002)(2906002)(36756003)(86362001)(31696002)(38100700002)(41300700001)(43740500002)(45980500001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: 
-	=?utf-8?B?UFhWUUxCYk9hNVVnR1JEdFc4RG9mWXV2ODJVQW5MNmtxd3dwY2tpckhCUlpm?=
- =?utf-8?B?NnBWRWhMTTM5UjJTanU4OTVEZUlQaVh4S0RkQzhEM1FLeVNucEIrTHByTDdB?=
- =?utf-8?B?bGwyMGcrazF4NmRrcklrMkhxcW5HVjFLZGhDcHUzT095dUZBNmo5d0JXeXRB?=
- =?utf-8?B?TlhtMmNhUnB2dVNLd0JIUjJ0YnBiK1drbTNXU0hzc3NlZFZqaG1XRWJmN0Nn?=
- =?utf-8?B?aFM4TUE0b1BYSWE0OWtSTnZXeUxVaTAyWlJmaXFJbGZMbTRtUW44NnVlOERJ?=
- =?utf-8?B?QnlpVStxeXRwNDZjOTVMd3pQUkI4bis4SkJkR2xHQXA2Z2IwUGJjYTF0V3gr?=
- =?utf-8?B?NUhwMXN0OHV1d29sa3NLbUhZRTB4T3NnWXRCWlFwaUdKNFZDQm1UOVlVMXpp?=
- =?utf-8?B?QWgxZEhaODdPOUUvOFBjaEFGaHFKMjN4TU4zaHFQelRwek9ueTVTaC9CK2dT?=
- =?utf-8?B?SlJ4SnkwTHZWREZwampja2ZSR3kwQ1FVZVJCVFZJa1FWNFhDTGJnRVQ5elBB?=
- =?utf-8?B?OURSeDdqblBDMnNYd1Y5SklCQWZRSWxUWHo0aDhteTZtYXFiWitodHdTVFVy?=
- =?utf-8?B?UWNHajdUN2dVNEgxMmxlak9DTGZHa2xwdHQ0dzV2Mm5FS2tJcTU0bko4ZU5B?=
- =?utf-8?B?Z0drdVN4bmlpQnZOVDhpTStPL2RCeGJJYTkveEMvN3ZrNWNrL3VZYjczV0sz?=
- =?utf-8?B?ZkJyZTdjSjFuYnAxWHVReVFnMVFoRUNKTWtrNnFvcFNZQlRvc20zVE9iWFNU?=
- =?utf-8?B?SDRualFSYTFFZ3B2MnE4Y1d6U1VhWHdoVk9NbSswSERpK0ZCazllK1VlZlVr?=
- =?utf-8?B?QllQQnAyZUhML0lldFNWWjZGTG9md1YwK2I3V1I5Nzd3ZmY2TG15eEFFRnBu?=
- =?utf-8?B?K0gyQy96Q0NWek1acVNOQzk0SFZDelhGRG5XNEtUdjc1ZHVHaFdJMGVuc1Ax?=
- =?utf-8?B?MWt3RGVwczAyNzZ4b2JLVDFmOEZXY1IwcTFuRW1HeVFWdWtnd1h5WGFVN3pl?=
- =?utf-8?B?bE9mbi8zU0dwQjdPVFk0NzBLQnZQK2N1bWxjRmV4VEtPdmpTenp6Q3pmR2hD?=
- =?utf-8?B?c2hwZkRGWkhkMFN4ekUwRXBxWkFSSjBhbWQwWFJsQnR4eEJ3U1ZUdEk0a1Nq?=
- =?utf-8?B?TFNmQVhwQ2xmTGNUUnJqcUkvK3BLdzA0VldDaTU5RldMb29iTmw5a21JWC9J?=
- =?utf-8?B?WWNDVlFRUDRVZWVmaHExN1IwNVU2aWkrNUd0QUMxYVduTCs0TDE0VkxTcUx6?=
- =?utf-8?B?UEg3Q1lZTTJTVkdFVUszVXNtYktNY1JvdmRQRnRFRHFjMmVoNjFIT3NqaVVp?=
- =?utf-8?B?dEhhWUxIMTEwUU1SSHh0dmREYlJTT2p6eSs0aW5lSzBVN1hNVkZ2VFhyOU9J?=
- =?utf-8?B?VVpaemdUQzJkdmY3Vnc5b29KMDFRaUg0ZGUvRENjWXZiT1NFYStibndWbVJi?=
- =?utf-8?B?Y2tCK1BmNm5iZSswYU8yL254b3d2Z2QrSWZSWmw0K2JJdVgxV0UwY3U4U0pP?=
- =?utf-8?B?cHdpSnVJa1BuRkpRci9JKzAyK0tFVVIwZkN4cncwRnNOUFlVclpOZWN0NnpV?=
- =?utf-8?B?QUpNbkhHMGlwc1d4R3MxY0t5VVJLZ2NRSXFZMTlLMm1ackEwYnVYalMzV1ZL?=
- =?utf-8?B?aE9nc3QvTURJVnR2R2FhWTM0Rm44dE15TmN5Z216eERZU09ZVUF0aWJZSWZG?=
- =?utf-8?B?UHF5Y3NuMkFaV0VaaGdKL1d2SUVGWFJWZm1IVGRMVEVoTFRiUERBMVhySGVO?=
- =?utf-8?B?R0lLVGJoYkViREtwWkNKeDNmQVE1d2xFVFBVNTZZSmhwOTNIemMvY0daU1U0?=
- =?utf-8?B?eVhzWWtOb2tUaE9PQk5ZOXpJRE5sWWRvU1VPdlhYVTRlYy9HZ0pTN2lhZGxw?=
- =?utf-8?B?VmZtVTlINm9qNGhoRGloQkZHOWVpeDYwdlA5djlab1lkTlpmQU82NkpFbnBj?=
- =?utf-8?B?RzlXYktMZVlLVElvaHE4ZUVWSWV1d05YcmVjdjFDZTNEZEF3YTcvUTdSN2JN?=
- =?utf-8?B?MGZycFNiTEcrRldXdzd0R3NMT1NEaUFqZTA0ZnVXQ25OZ01ybk4rMGNGTmF6?=
- =?utf-8?B?KzVqQmNxZEpEUzlndGJjK3dwTGt3Q0pub3lSWlk2UzExOWcrT3Z1aWJ2NVR1?=
- =?utf-8?B?UGJnUlNaZmpWa0l3Z0dIaE9VV3R3SURoTDRSOHJtcWJNeXlhQVdXM3pJZGRJ?=
- =?utf-8?B?UEE9PQ==?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: 
-	CtPIadeqvIxXmheylrjPxwUuQ3G8FSt0x8OMdg2qQVi+T3knwugS3MkLcevZBw5z44hv+J7D0HlpQHZeuxB3fwYzFxWfJKXIpd9Se9CfDw6o4K2g/JmpuCmgcNQiOU8s91w1+5WA1Jinn9vqr7+vRGRsxA90klsOb2rv1j5merTUoirbQL1WoE1vN/XMItX5kXrn9Xzcs/NwocuBVoj5Zxtx6SARMDV8Z3Fi2QgAfIRI1LbkcYYD0sXyTdhgG4HW+ALphcAPNn4FZ9Hop+fgiT8WoJdy+XUdwjHR34KcKIw81d6WyueUOHiAkFp9hRfzpgip4tzH8qQ7JhV0G9LQG9J7JfQBKR4DjmzW6GtnTEGo6td86YwEKRRaV3pkdeo45NXNP51/bFg7UsWNYnUrTZ8wGXuwoSUkCtSnDTJ8i5s+mD1mrc87cnxIHOMiftuJoQa8jzGI5bBDhGVaf0authu6Pa19qlxWnABhGPkQPbwZWAQSy8JnrMWe64STJ9AUjr3c12EI2Pzh80xgkHkDAFiOUDVjG1X83lb/sQ7qCOal8rkj1y3ty7Qz9ayeSm9TVTj/pNFJLzddisKkQGp2CJKZFXUMKJtX4Fr8PXRCUWY=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: dbd43cfb-6a4c-470e-cadc-08dc179bbe49
-X-MS-Exchange-CrossTenant-AuthSource: SA2PR10MB4684.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Jan 2024 20:34:46.0902
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: LyUOEI7Ls8DJou2vcVI7J6EognB+AAFkeNG1xRL6BkVSjSnwEiBxFZyc22l+jJ7LOqyf+38HXSAIwb4cGnXvAathZKNDU3c1xfnZVdIMWVI=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO1PR10MB4451
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-01-17_12,2024-01-17_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 adultscore=0 phishscore=0
- mlxlogscore=958 suspectscore=0 bulkscore=0 mlxscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
- definitions=main-2401170150
-X-Proofpoint-GUID: _lNCiHDzVYJaL26jm_RFg9uQJWLYb0Dw
-X-Proofpoint-ORIG-GUID: _lNCiHDzVYJaL26jm_RFg9uQJWLYb0Dw
+Subject: Re: [PATCH 1/1] virtio_net: Add timeout handler to avoid kernel hang
+To: Paolo Abeni <pabeni@redhat.com>, Zhu Yanjun <yanjun.zhu@intel.com>,
+ mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+ virtualization@lists.linux.dev, netdev@vger.kernel.org
+References: <20240115012918.3081203-1-yanjun.zhu@intel.com>
+ <ea230712e27af2c8d2d77d1087e45ecfa86abb31.camel@redhat.com>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Zhu Yanjun <yanjun.zhu@linux.dev>
+In-Reply-To: <ea230712e27af2c8d2d77d1087e45ecfa86abb31.camel@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-On 1/10/2024 5:24 PM, Michael S. Tsirkin wrote:
-> On Wed, Jan 10, 2024 at 12:40:03PM -0800, Steve Sistare wrote:
->> Remember the count of pinned memory for the device.
+
+在 2024/1/16 20:04, Paolo Abeni 写道:
+> On Mon, 2024-01-15 at 09:29 +0800, Zhu Yanjun wrote:
+>> From: Zhu Yanjun <yanjun.zhu@linux.dev>
 >>
->> Signed-off-by: Steve Sistare <steven.sistare@oracle.com>
-> 
-> Can we have iommufd support in vdpa so we do not keep extending these hacks?
-
-I assume this is rhetorical and not aimed specifically at me, but live update
-interfaces for iommufd are on my todo list.
-
-- Steve
-
+>> Some devices emulate the virtio_net hardwares. When virtio_net
+>> driver sends commands to the emulated hardware, normally the
+>> hardware needs time to response. Sometimes the time is very
+>> long. Thus, the following will appear. Then the whole system
+>> will hang.
+>> The similar problems also occur in Intel NICs and Mellanox NICs.
+>> As such, the similar solution is borrowed from them. A timeout
+>> value is added and the timeout value as large as possible is set
+>> to ensure that the driver gets the maximum possible response from
+>> the hardware.
+>>
+>> "
+>> [  213.795860] watchdog: BUG: soft lockup - CPU#108 stuck for 26s! [(udev-worker):3157]
+>> [  213.796114] Modules linked in: virtio_net(+) net_failover failover qrtr rfkill sunrpc intel_rapl_msr intel_rapl_common intel_uncore_frequency intel_uncore_frequency_common intel_ifs i10nm_edac nfit libnvdimm x86_pkg_temp_thermal intel_powerclamp coretemp iTCO_wdt rapl intel_pmc_bxt dax_hmem iTCO_vendor_support vfat cxl_acpi intel_cstate pmt_telemetry pmt_class intel_sdsi joydev intel_uncore cxl_core fat pcspkr mei_me isst_if_mbox_pci isst_if_mmio idxd i2c_i801 isst_if_common mei intel_vsec idxd_bus i2c_smbus i2c_ismt ipmi_ssif acpi_ipmi ipmi_si ipmi_devintf ipmi_msghandler acpi_pad acpi_power_meter pfr_telemetry pfr_update fuse loop zram xfs crct10dif_pclmul crc32_pclmul crc32c_intel polyval_clmulni polyval_generic ghash_clmulni_intel sha512_ssse3 bnxt_en sha256_ssse3 sha1_ssse3 nvme ast nvme_core i2c_algo_bit wmi pinctrl_emmitsburg scsi_dh_rdac scsi_dh_emc scsi_dh_alua dm_multipath
+>> [  213.796194] irq event stamp: 67740
+>> [  213.796195] hardirqs last  enabled at (67739): [<ffffffff8c2015ca>] asm_sysvec_apic_timer_interrupt+0x1a/0x20
+>> [  213.796203] hardirqs last disabled at (67740): [<ffffffff8c14108e>] sysvec_apic_timer_interrupt+0xe/0x90
+>> [  213.796208] softirqs last  enabled at (67686): [<ffffffff8b12115e>] __irq_exit_rcu+0xbe/0xe0
+>> [  213.796214] softirqs last disabled at (67681): [<ffffffff8b12115e>] __irq_exit_rcu+0xbe/0xe0
+>> [  213.796217] CPU: 108 PID: 3157 Comm: (udev-worker) Kdump: loaded Not tainted 6.7.0+ #9
+>> [  213.796220] Hardware name: Intel Corporation M50FCP2SBSTD/M50FCP2SBSTD, BIOS SE5C741.86B.01.01.0001.2211140926 11/14/2022
+>> [  213.796221] RIP: 0010:virtqueue_get_buf_ctx_split+0x8d/0x110
+>> [  213.796228] Code: 89 df e8 26 fe ff ff 0f b7 43 50 83 c0 01 66 89 43 50 f6 43 78 01 75 12 80 7b 42 00 48 8b 4b 68 8b 53 58 74 0f 66 87 44 51 04 <48> 89 e8 5b 5d c3 cc cc cc cc 66 89 44 51 04 0f ae f0 48 89 e8 5b
+>> [  213.796230] RSP: 0018:ff4bbb362306f9b0 EFLAGS: 00000246
+>> [  213.796233] RAX: 0000000000000000 RBX: ff2f15095896f000 RCX: 0000000000000001
+>> [  213.796235] RDX: 0000000000000000 RSI: ff4bbb362306f9cc RDI: ff2f15095896f000
+>> [  213.796236] RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
+>> [  213.796237] R10: 0000000000000003 R11: ff2f15095893cc40 R12: 0000000000000002
+>> [  213.796239] R13: 0000000000000004 R14: 0000000000000000 R15: ff2f1509534f3000
+>> [  213.796240] FS:  00007f775847d0c0(0000) GS:ff2f1528bac00000(0000) knlGS:0000000000000000
+>> [  213.796242] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>> [  213.796243] CR2: 0000557f987b6e70 CR3: 0000002098602006 CR4: 0000000000f71ef0
+>> [  213.796245] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+>> [  213.796246] DR3: 0000000000000000 DR6: 00000000fffe07f0 DR7: 0000000000000400
+>> [  213.796247] PKRU: 55555554
+>> [  213.796249] Call Trace:
+>> [  213.796250]  <IRQ>
+>> [  213.796252]  ? watchdog_timer_fn+0x1c0/0x220
+>> [  213.796258]  ? __pfx_watchdog_timer_fn+0x10/0x10
+>> [  213.796261]  ? __hrtimer_run_queues+0x1af/0x380
+>> [  213.796269]  ? hrtimer_interrupt+0xf8/0x230
+>> [  213.796274]  ? __sysvec_apic_timer_interrupt+0x64/0x1a0
+>> [  213.796279]  ? sysvec_apic_timer_interrupt+0x6d/0x90
+>> [  213.796282]  </IRQ>
+>> [  213.796284]  <TASK>
+>> [  213.796285]  ? asm_sysvec_apic_timer_interrupt+0x1a/0x20
+>> [  213.796293]  ? virtqueue_get_buf_ctx_split+0x8d/0x110
+>> [  213.796297]  virtnet_send_command+0x18a/0x1f0 [virtio_net]
+>> [  213.796310]  _virtnet_set_queues+0xc6/0x120 [virtio_net]
+>> [  213.796319]  virtnet_probe+0xa06/0xd50 [virtio_net]
+>> [  213.796328]  virtio_dev_probe+0x195/0x230
+>> [  213.796333]  really_probe+0x19f/0x400
+>> [  213.796338]  ? __pfx___driver_attach+0x10/0x10
+>> [  213.796340]  __driver_probe_device+0x78/0x160
+>> [  213.796343]  driver_probe_device+0x1f/0x90
+>> [  213.796346]  __driver_attach+0xd6/0x1d0
+>> [  213.796349]  bus_for_each_dev+0x8c/0xe0
+>> [  213.796355]  bus_add_driver+0x119/0x220
+>> [  213.796359]  driver_register+0x59/0x100
+>> [  213.796362]  ? __pfx_virtio_net_driver_init+0x10/0x10 [virtio_net]
+>> [  213.796369]  virtio_net_driver_init+0x8e/0xff0 [virtio_net]
+>> [  213.796375]  do_one_initcall+0x6f/0x380
+>> [  213.796384]  do_init_module+0x60/0x240
+>> [  213.796388]  init_module_from_file+0x86/0xc0
+>> [  213.796396]  idempotent_init_module+0x129/0x2c0
+>> [  213.796406]  __x64_sys_finit_module+0x5e/0xb0
+>> [  213.796409]  do_syscall_64+0x60/0xe0
+>> [  213.796415]  ? do_syscall_64+0x6f/0xe0
+>> [  213.796418]  ? lockdep_hardirqs_on_prepare+0xe4/0x1a0
+>> [  213.796424]  ? do_syscall_64+0x6f/0xe0
+>> [  213.796427]  ? do_syscall_64+0x6f/0xe0
+>> [  213.796431]  entry_SYSCALL_64_after_hwframe+0x6e/0x76
+>> [  213.796435] RIP: 0033:0x7f7758f279cd
+>> [  213.796465] Code: 5d c3 66 2e 0f 1f 84 00 00 00 00 00 90 f3 0f 1e fa 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 33 e4 0c 00 f7 d8 64 89 01 48
+>> [  213.796467] RSP: 002b:00007ffe2cad8738 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
+>> [  213.796469] RAX: ffffffffffffffda RBX: 0000557f987a8180 RCX: 00007f7758f279cd
+>> [  213.796471] RDX: 0000000000000000 RSI: 00007f77593e5453 RDI: 000000000000000f
+>> [  213.796472] RBP: 00007f77593e5453 R08: 0000000000000000 R09: 00007ffe2cad8860
+>> [  213.796473] R10: 000000000000000f R11: 0000000000000246 R12: 0000000000020000
+>> [  213.796475] R13: 0000557f9879f8e0 R14: 0000000000000000 R15: 0000557f98783aa0
+>> [  213.796482]  </TASK>
+>> "
+>>
+>> Signed-off-by: Zhu Yanjun <yanjun.zhu@linux.dev>
 >> ---
->>  drivers/vhost/vdpa.c | 7 +++++--
->>  1 file changed, 5 insertions(+), 2 deletions(-)
+>>   drivers/net/virtio_net.c | 10 ++++++++--
+>>   1 file changed, 8 insertions(+), 2 deletions(-)
 >>
->> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
->> index da7ec77cdaff..10fb95bcca1a 100644
->> --- a/drivers/vhost/vdpa.c
->> +++ b/drivers/vhost/vdpa.c
->> @@ -59,6 +59,7 @@ struct vhost_vdpa {
->>  	int in_batch;
->>  	struct vdpa_iova_range range;
->>  	u32 batch_asid;
->> +	long pinned_vm;
->>  };
->>  
->>  static DEFINE_IDA(vhost_vdpa_ida);
->> @@ -893,6 +894,7 @@ static void vhost_vdpa_pa_unmap(struct vhost_vdpa *v, struct vhost_iotlb *iotlb,
->>  			unpin_user_page(page);
->>  		}
->>  		atomic64_sub(PFN_DOWN(map->size), &dev->mm->pinned_vm);
->> +		v->pinned_vm -= PFN_DOWN(map->size);
->>  		vhost_vdpa_general_unmap(v, map, asid);
->>  		vhost_iotlb_map_free(iotlb, map);
->>  	}
->> @@ -975,9 +977,10 @@ static int vhost_vdpa_map(struct vhost_vdpa *v, struct vhost_iotlb *iotlb,
->>  		return r;
->>  	}
->>  
->> -	if (!vdpa->use_va)
->> +	if (!vdpa->use_va) {
->>  		atomic64_add(PFN_DOWN(size), &dev->mm->pinned_vm);
->> -
->> +		v->pinned_vm += PFN_DOWN(size);
->> +	}
->>  	return 0;
->>  }
->>  
->> -- 
->> 2.39.3
-> 
+>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>> index 51b1868d2f22..28b7dd917a43 100644
+>> --- a/drivers/net/virtio_net.c
+>> +++ b/drivers/net/virtio_net.c
+>> @@ -2468,7 +2468,7 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
+>>   {
+>>   	struct scatterlist *sgs[4], hdr, stat;
+>>   	unsigned out_num = 0, tmp;
+>> -	int ret;
+>> +	int ret, timeout = 200;
+>>   
+>>   	/* Caller should know better */
+>>   	BUG_ON(!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ));
+>> @@ -2502,8 +2502,14 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
+>>   	 * into the hypervisor, so the request should be handled immediately.
+>>   	 */
+>>   	while (!virtqueue_get_buf(vi->cvq, &tmp) &&
+>> -	       !virtqueue_is_broken(vi->cvq))
+>> +	       !virtqueue_is_broken(vi->cvq)) {
+>> +		if (timeout)
+>> +			timeout--;
+> This is not really a timeout, just a loop counter. 200 iterations could
+> be a very short time on reasonable H/W. I guess this avoid the soft
+> lockup, but possibly (likely?) breaks the functionality when we need to
+> loop for some non negligible time.
+>
+> I fear we need a more complex solution, as mentioned by Micheal in the
+> thread you quoted.
+
+Got it. I also look forward to the more complex solution to this problem.
+
+Zhu Yanjun
+
+>
+> Cheers,
+>
+> Paolo
+>
