@@ -1,191 +1,167 @@
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 449E9ECF
-	for <virtualization@lists.linux.dev>; Fri, 19 Jan 2024 01:44:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F1D4481C7;
+	Fri, 19 Jan 2024 10:31:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705628697; cv=none; b=o7apznqV3AR1xyWlgu0tH3OFSD313FD28gRY+DpqG6BU41i2o9Yze49vsyaVIFzuyG4GYnogt8++rSadvYhMne4vi2X+ARq4Ggi5b/KfIgiTPZWMQLmOBaZalZDrhql+hNyOndYDdAXD6nt5IjgGdlWJX/bvhmehSEyPrOnm0AA=
+	t=1705660321; cv=none; b=DzpSrm+HY3F/cUDc9iTrZl65UwBWN+3wDqeRlU9CpeSbA7GeXeJZqo9sdnwZSOHIZUUfe3u24QK+DBxYhoxq0JZID0KauEmXStySnQAuYtl+yOf4jmlhczSQl5AC5GWlXKORNy7/PCFOBSYM/zAByUyurjSPSmuwToS5Oa08OXI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705628697; c=relaxed/simple;
-	bh=hS26116bKjUjjwrMbz7A3jnqWzYCbfPyMJOxrYessy0=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=fQD3KbKFk25yt7onWz2weWtYeUXC5YtssX2z/thaHdaXbXdrrgeVqHJWaX3NoqPDq4ab0QR45xetn8VRchom3RZCLrdPU0rt4R1Y77JiFkmOWFS8P32zXEyYDZVUvPcw4Enzs+uBbl3iN76Eh36mLFr8aNX3GpGYpf7Mcz16RtA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; arc=none smtp.client-ip=115.124.30.132
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0W-u4dJG_1705628688;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W-u4dJG_1705628688)
-          by smtp.aliyun-inc.com;
-          Fri, 19 Jan 2024 09:44:49 +0800
-Message-ID: <1705628521.415594-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH 1/1] virtio_net: Add timeout handler to avoid kernel hang
-Date: Fri, 19 Jan 2024 09:42:01 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Zhu Yanjun <yanjun.zhu@intel.com>,
- jasowang@redhat.com,
- davem@davemloft.net,
- edumazet@google.com,
- kuba@kernel.org,
- virtualization@lists.linux.dev,
- netdev@vger.kernel.org,
- Zhu Yanjun <yanjun.zhu@linux.dev>,
- Paolo Abeni <pabeni@redhat.com>,
- "Heng Qi" <hengqi@linux.alibaba.com>
-References: <20240115012918.3081203-1-yanjun.zhu@intel.com>
- <ea230712e27af2c8d2d77d1087e45ecfa86abb31.camel@redhat.com>
- <20240118081253-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20240118081253-mutt-send-email-mst@kernel.org>
+	s=arc-20240116; t=1705660321; c=relaxed/simple;
+	bh=ugbG3rsqUiWrBnnSNz7P6Oi4cdnkEG1z83KyGg6hLZc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ovCanD6HlFmoPflPJ76cwNWZGDN4ujOjXGIvvrvDIZ+BeG+HgK2wSJ36Lc6NakABfMeP4th5RYkDoORzfCRmcyvQ5UDfROmfMBO3msABxL3s3ezfEmF1y+KkFLnM4xwWYzUX894P9nsPdlyRYkcuhlfXoN+gSrnz6WYdfmu5RP0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=oEPE5F0t; arc=none smtp.client-ip=198.175.65.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="oEPE5F0t"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1705660319; x=1737196319;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=ugbG3rsqUiWrBnnSNz7P6Oi4cdnkEG1z83KyGg6hLZc=;
+  b=oEPE5F0tEsD7eRbWX0FPlPlbLqM2LTpk5/GIZKzzudxFgY020rwDqsQz
+   uRocyM7EFVUjDEbwPHrbuwXNpKO0CNHZCQON8Rx4BoeXxOkG/hXjL7WJn
+   OJwwdX7VFuVHUGvFMxMCndTuHOcHNYnS2ekALEcHyzMsdH0yZdZVLGja4
+   uCxzDBeFcoQZnqrsHkJ9yFC6fq62Egt77HuFRJgFTWjI1Ws02EQu1PKx3
+   /HFT8tjhWz4XLlTaTeekcSyQ1Atqmz2pWQh+F7BBlBVI3TzTxzrNJLjbT
+   zqpyFN2QjMIbUKxiMVULCoR8BS6j2EAl8z8BZbGAFmT85YPOsLb7U4JQq
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10956"; a="7407069"
+X-IronPort-AV: E=Sophos;i="6.05,204,1701158400"; 
+   d="scan'208";a="7407069"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jan 2024 02:31:59 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10956"; a="908295072"
+X-IronPort-AV: E=Sophos;i="6.05,204,1701158400"; 
+   d="scan'208";a="908295072"
+Received: from lkp-server01.sh.intel.com (HELO 961aaaa5b03c) ([10.239.97.150])
+  by orsmga004.jf.intel.com with ESMTP; 19 Jan 2024 02:31:55 -0800
+Received: from kbuild by 961aaaa5b03c with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1rQmAC-0003uy-37;
+	Fri, 19 Jan 2024 10:31:52 +0000
+Date: Fri, 19 Jan 2024 18:31:18 +0800
+From: kernel test robot <lkp@intel.com>
+To: Heng Qi <hengqi@linux.alibaba.com>, netdev@vger.kernel.org,
+	virtualization@lists.linux.dev
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	Jason Wang <jasowang@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Paolo Abeni <pabeni@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
+	Eric Dumazet <edumazet@google.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next 3/3] virtio-net: reduce the CPU consumption of
+ dim worker
+Message-ID: <202401191807.RIhMHJ4U-lkp@intel.com>
+References: <1705410693-118895-4-git-send-email-hengqi@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1705410693-118895-4-git-send-email-hengqi@linux.alibaba.com>
 
-On Thu, 18 Jan 2024 08:14:21 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Tue, Jan 16, 2024 at 01:04:49PM +0100, Paolo Abeni wrote:
-> > On Mon, 2024-01-15 at 09:29 +0800, Zhu Yanjun wrote:
-> > > From: Zhu Yanjun <yanjun.zhu@linux.dev>
-> > >
-> > > Some devices emulate the virtio_net hardwares. When virtio_net
-> > > driver sends commands to the emulated hardware, normally the
-> > > hardware needs time to response. Sometimes the time is very
-> > > long. Thus, the following will appear. Then the whole system
-> > > will hang.
-> > > The similar problems also occur in Intel NICs and Mellanox NICs.
-> > > As such, the similar solution is borrowed from them. A timeout
-> > > value is added and the timeout value as large as possible is set
-> > > to ensure that the driver gets the maximum possible response from
-> > > the hardware.
-> > >
-> > > "
-> > > [  213.795860] watchdog: BUG: soft lockup - CPU#108 stuck for 26s! [(udev-worker):3157]
-> > > [  213.796114] Modules linked in: virtio_net(+) net_failover failover qrtr rfkill sunrpc intel_rapl_msr intel_rapl_common intel_uncore_frequency intel_uncore_frequency_common intel_ifs i10nm_edac nfit libnvdimm x86_pkg_temp_thermal intel_powerclamp coretemp iTCO_wdt rapl intel_pmc_bxt dax_hmem iTCO_vendor_support vfat cxl_acpi intel_cstate pmt_telemetry pmt_class intel_sdsi joydev intel_uncore cxl_core fat pcspkr mei_me isst_if_mbox_pci isst_if_mmio idxd i2c_i801 isst_if_common mei intel_vsec idxd_bus i2c_smbus i2c_ismt ipmi_ssif acpi_ipmi ipmi_si ipmi_devintf ipmi_msghandler acpi_pad acpi_power_meter pfr_telemetry pfr_update fuse loop zram xfs crct10dif_pclmul crc32_pclmul crc32c_intel polyval_clmulni polyval_generic ghash_clmulni_intel sha512_ssse3 bnxt_en sha256_ssse3 sha1_ssse3 nvme ast nvme_core i2c_algo_bit wmi pinctrl_emmitsburg scsi_dh_rdac scsi_dh_emc scsi_dh_alua dm_multipath
-> > > [  213.796194] irq event stamp: 67740
-> > > [  213.796195] hardirqs last  enabled at (67739): [<ffffffff8c2015ca>] asm_sysvec_apic_timer_interrupt+0x1a/0x20
-> > > [  213.796203] hardirqs last disabled at (67740): [<ffffffff8c14108e>] sysvec_apic_timer_interrupt+0xe/0x90
-> > > [  213.796208] softirqs last  enabled at (67686): [<ffffffff8b12115e>] __irq_exit_rcu+0xbe/0xe0
-> > > [  213.796214] softirqs last disabled at (67681): [<ffffffff8b12115e>] __irq_exit_rcu+0xbe/0xe0
-> > > [  213.796217] CPU: 108 PID: 3157 Comm: (udev-worker) Kdump: loaded Not tainted 6.7.0+ #9
-> > > [  213.796220] Hardware name: Intel Corporation M50FCP2SBSTD/M50FCP2SBSTD, BIOS SE5C741.86B.01.01.0001.2211140926 11/14/2022
-> > > [  213.796221] RIP: 0010:virtqueue_get_buf_ctx_split+0x8d/0x110
-> > > [  213.796228] Code: 89 df e8 26 fe ff ff 0f b7 43 50 83 c0 01 66 89 43 50 f6 43 78 01 75 12 80 7b 42 00 48 8b 4b 68 8b 53 58 74 0f 66 87 44 51 04 <48> 89 e8 5b 5d c3 cc cc cc cc 66 89 44 51 04 0f ae f0 48 89 e8 5b
-> > > [  213.796230] RSP: 0018:ff4bbb362306f9b0 EFLAGS: 00000246
-> > > [  213.796233] RAX: 0000000000000000 RBX: ff2f15095896f000 RCX: 0000000000000001
-> > > [  213.796235] RDX: 0000000000000000 RSI: ff4bbb362306f9cc RDI: ff2f15095896f000
-> > > [  213.796236] RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
-> > > [  213.796237] R10: 0000000000000003 R11: ff2f15095893cc40 R12: 0000000000000002
-> > > [  213.796239] R13: 0000000000000004 R14: 0000000000000000 R15: ff2f1509534f3000
-> > > [  213.796240] FS:  00007f775847d0c0(0000) GS:ff2f1528bac00000(0000) knlGS:0000000000000000
-> > > [  213.796242] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> > > [  213.796243] CR2: 0000557f987b6e70 CR3: 0000002098602006 CR4: 0000000000f71ef0
-> > > [  213.796245] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> > > [  213.796246] DR3: 0000000000000000 DR6: 00000000fffe07f0 DR7: 0000000000000400
-> > > [  213.796247] PKRU: 55555554
-> > > [  213.796249] Call Trace:
-> > > [  213.796250]  <IRQ>
-> > > [  213.796252]  ? watchdog_timer_fn+0x1c0/0x220
-> > > [  213.796258]  ? __pfx_watchdog_timer_fn+0x10/0x10
-> > > [  213.796261]  ? __hrtimer_run_queues+0x1af/0x380
-> > > [  213.796269]  ? hrtimer_interrupt+0xf8/0x230
-> > > [  213.796274]  ? __sysvec_apic_timer_interrupt+0x64/0x1a0
-> > > [  213.796279]  ? sysvec_apic_timer_interrupt+0x6d/0x90
-> > > [  213.796282]  </IRQ>
-> > > [  213.796284]  <TASK>
-> > > [  213.796285]  ? asm_sysvec_apic_timer_interrupt+0x1a/0x20
-> > > [  213.796293]  ? virtqueue_get_buf_ctx_split+0x8d/0x110
-> > > [  213.796297]  virtnet_send_command+0x18a/0x1f0 [virtio_net]
-> > > [  213.796310]  _virtnet_set_queues+0xc6/0x120 [virtio_net]
-> > > [  213.796319]  virtnet_probe+0xa06/0xd50 [virtio_net]
-> > > [  213.796328]  virtio_dev_probe+0x195/0x230
-> > > [  213.796333]  really_probe+0x19f/0x400
-> > > [  213.796338]  ? __pfx___driver_attach+0x10/0x10
-> > > [  213.796340]  __driver_probe_device+0x78/0x160
-> > > [  213.796343]  driver_probe_device+0x1f/0x90
-> > > [  213.796346]  __driver_attach+0xd6/0x1d0
-> > > [  213.796349]  bus_for_each_dev+0x8c/0xe0
-> > > [  213.796355]  bus_add_driver+0x119/0x220
-> > > [  213.796359]  driver_register+0x59/0x100
-> > > [  213.796362]  ? __pfx_virtio_net_driver_init+0x10/0x10 [virtio_net]
-> > > [  213.796369]  virtio_net_driver_init+0x8e/0xff0 [virtio_net]
-> > > [  213.796375]  do_one_initcall+0x6f/0x380
-> > > [  213.796384]  do_init_module+0x60/0x240
-> > > [  213.796388]  init_module_from_file+0x86/0xc0
-> > > [  213.796396]  idempotent_init_module+0x129/0x2c0
-> > > [  213.796406]  __x64_sys_finit_module+0x5e/0xb0
-> > > [  213.796409]  do_syscall_64+0x60/0xe0
-> > > [  213.796415]  ? do_syscall_64+0x6f/0xe0
-> > > [  213.796418]  ? lockdep_hardirqs_on_prepare+0xe4/0x1a0
-> > > [  213.796424]  ? do_syscall_64+0x6f/0xe0
-> > > [  213.796427]  ? do_syscall_64+0x6f/0xe0
-> > > [  213.796431]  entry_SYSCALL_64_after_hwframe+0x6e/0x76
-> > > [  213.796435] RIP: 0033:0x7f7758f279cd
-> > > [  213.796465] Code: 5d c3 66 2e 0f 1f 84 00 00 00 00 00 90 f3 0f 1e fa 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 33 e4 0c 00 f7 d8 64 89 01 48
-> > > [  213.796467] RSP: 002b:00007ffe2cad8738 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
-> > > [  213.796469] RAX: ffffffffffffffda RBX: 0000557f987a8180 RCX: 00007f7758f279cd
-> > > [  213.796471] RDX: 0000000000000000 RSI: 00007f77593e5453 RDI: 000000000000000f
-> > > [  213.796472] RBP: 00007f77593e5453 R08: 0000000000000000 R09: 00007ffe2cad8860
-> > > [  213.796473] R10: 000000000000000f R11: 0000000000000246 R12: 0000000000020000
-> > > [  213.796475] R13: 0000557f9879f8e0 R14: 0000000000000000 R15: 0000557f98783aa0
-> > > [  213.796482]  </TASK>
-> > > "
-> > >
-> > > Signed-off-by: Zhu Yanjun <yanjun.zhu@linux.dev>
-> > > ---
-> > >  drivers/net/virtio_net.c | 10 ++++++++--
-> > >  1 file changed, 8 insertions(+), 2 deletions(-)
-> > >
-> > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > index 51b1868d2f22..28b7dd917a43 100644
-> > > --- a/drivers/net/virtio_net.c
-> > > +++ b/drivers/net/virtio_net.c
-> > > @@ -2468,7 +2468,7 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
-> > >  {
-> > >  	struct scatterlist *sgs[4], hdr, stat;
-> > >  	unsigned out_num = 0, tmp;
-> > > -	int ret;
-> > > +	int ret, timeout = 200;
-> > >
-> > >  	/* Caller should know better */
-> > >  	BUG_ON(!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ));
-> > > @@ -2502,8 +2502,14 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
-> > >  	 * into the hypervisor, so the request should be handled immediately.
-> > >  	 */
-> > >  	while (!virtqueue_get_buf(vi->cvq, &tmp) &&
-> > > -	       !virtqueue_is_broken(vi->cvq))
-> > > +	       !virtqueue_is_broken(vi->cvq)) {
-> > > +		if (timeout)
-> > > +			timeout--;
-> >
-> > This is not really a timeout, just a loop counter. 200 iterations could
-> > be a very short time on reasonable H/W. I guess this avoid the soft
-> > lockup, but possibly (likely?) breaks the functionality when we need to
-> > loop for some non negligible time.
-> >
-> > I fear we need a more complex solution, as mentioned by Micheal in the
-> > thread you quoted.
-> >
-> > Cheers,
-> >
-> > Paolo
->
-> So a bunch of devices just queue a rquest on a workqueue. Problem is,
-> errors are not reported then. I really feel this is something netdev
-> core should support better: return a "deferred" status and have
-> netdev core wait outside a lock on a waitqueue.
+Hi Heng,
 
-And on the other side, more and more requests will be post to the cvq,
-we should refactor this to async mode.
+kernel test robot noticed the following build errors:
 
-Now the netdim has this request.
+[auto build test ERROR on net-next/main]
 
-@Heng Qi
+url:    https://github.com/intel-lab-lkp/linux/commits/Heng-Qi/virtio-net-fix-possible-dim-status-unrecoverable/20240116-211306
+base:   net-next/main
+patch link:    https://lore.kernel.org/r/1705410693-118895-4-git-send-email-hengqi%40linux.alibaba.com
+patch subject: [PATCH net-next 3/3] virtio-net: reduce the CPU consumption of dim worker
+config: i386-randconfig-012-20240119 (https://download.01.org/0day-ci/archive/20240119/202401191807.RIhMHJ4U-lkp@intel.com/config)
+compiler: ClangBuiltLinux clang version 17.0.6 (https://github.com/llvm/llvm-project 6009708b4367171ccdbf4b5905cb6a803753fe18)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240119/202401191807.RIhMHJ4U-lkp@intel.com/reproduce)
 
-Thanks.
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202401191807.RIhMHJ4U-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+>> drivers/net/virtio_net.c:3590:27: error: invalid application of 'sizeof' to an incomplete type 'struct virtnet_coal_entry'
+    3590 |                     ctrl->num_entries * sizeof(struct virtnet_coal_entry));
+         |                                         ^     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   drivers/net/virtio_net.c:3590:41: note: forward declaration of 'struct virtnet_coal_entry'
+    3590 |                     ctrl->num_entries * sizeof(struct virtnet_coal_entry));
+         |                                                       ^
+   drivers/net/virtio_net.c:3658:27: error: invalid application of 'sizeof' to an incomplete type 'struct virtnet_coal_entry'
+    3658 |                                 vi->max_queue_pairs * sizeof(struct virtnet_coal_entry));
+         |                                                       ^     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   drivers/net/virtio_net.c:3658:41: note: forward declaration of 'struct virtnet_coal_entry'
+    3658 |                                 vi->max_queue_pairs * sizeof(struct virtnet_coal_entry));
+         |                                                                     ^
+   drivers/net/virtio_net.c:4544:31: error: invalid application of 'sizeof' to an incomplete type 'struct virtnet_coal_entry'
+    4544 |                       vi->max_queue_pairs * sizeof(struct virtnet_coal_entry)), GFP_KERNEL);
+         |                                             ^     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   drivers/net/virtio_net.c:4544:45: note: forward declaration of 'struct virtnet_coal_entry'
+    4544 |                       vi->max_queue_pairs * sizeof(struct virtnet_coal_entry)), GFP_KERNEL);
+         |                                                           ^
+   drivers/net/virtio_net.c:4551:27: error: invalid application of 'sizeof' to an incomplete type 'struct virtnet_coal_entry'
+    4551 |                                 vi->max_queue_pairs * sizeof(struct virtnet_coal_entry));
+         |                                                       ^     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   drivers/net/virtio_net.c:4544:45: note: forward declaration of 'struct virtnet_coal_entry'
+    4544 |                       vi->max_queue_pairs * sizeof(struct virtnet_coal_entry)), GFP_KERNEL);
+         |                                                           ^
+   4 errors generated.
 
 
->
->
-> --
-> MST
->
+vim +3590 drivers/net/virtio_net.c
+
+  3570	
+  3571	static bool virtnet_add_dim_command(struct virtnet_info *vi,
+  3572					    struct virtnet_batch_coal *ctrl)
+  3573	{
+  3574		struct scatterlist *sgs[4], hdr, stat, out;
+  3575		unsigned out_num = 0;
+  3576		int ret;
+  3577	
+  3578		/* Caller should know better */
+  3579		BUG_ON(!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ));
+  3580	
+  3581		ctrl->hdr.class = VIRTIO_NET_CTRL_NOTF_COAL;
+  3582		ctrl->hdr.cmd = VIRTIO_NET_CTRL_NOTF_COAL_VQS_SET;
+  3583	
+  3584		/* Add header */
+  3585		sg_init_one(&hdr, &ctrl->hdr, sizeof(ctrl->hdr));
+  3586		sgs[out_num++] = &hdr;
+  3587	
+  3588		/* Add body */
+  3589		sg_init_one(&out, &ctrl->num_entries, sizeof(ctrl->num_entries) +
+> 3590			    ctrl->num_entries * sizeof(struct virtnet_coal_entry));
+  3591		sgs[out_num++] = &out;
+  3592	
+  3593		/* Add return status. */
+  3594		ctrl->status = VIRTIO_NET_OK;
+  3595		sg_init_one(&stat, &ctrl->status, sizeof(ctrl->status));
+  3596		sgs[out_num] = &stat;
+  3597	
+  3598		BUG_ON(out_num + 1 > ARRAY_SIZE(sgs));
+  3599		ret = virtqueue_add_sgs(vi->cvq, sgs, out_num, 1, ctrl, GFP_ATOMIC);
+  3600		if (ret < 0) {
+  3601			dev_warn(&vi->vdev->dev, "Failed to add sgs for command vq: %d\n.", ret);
+  3602			return false;
+  3603		}
+  3604	
+  3605		virtqueue_kick(vi->cvq);
+  3606	
+  3607		ctrl->usable = false;
+  3608		vi->cvq_cmd_nums++;
+  3609	
+  3610		return true;
+  3611	}
+  3612	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
