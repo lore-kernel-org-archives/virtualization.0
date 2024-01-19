@@ -1,167 +1,105 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F1D4481C7;
-	Fri, 19 Jan 2024 10:31:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 382B64F1F7
+	for <virtualization@lists.linux.dev>; Fri, 19 Jan 2024 12:28:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705660321; cv=none; b=DzpSrm+HY3F/cUDc9iTrZl65UwBWN+3wDqeRlU9CpeSbA7GeXeJZqo9sdnwZSOHIZUUfe3u24QK+DBxYhoxq0JZID0KauEmXStySnQAuYtl+yOf4jmlhczSQl5AC5GWlXKORNy7/PCFOBSYM/zAByUyurjSPSmuwToS5Oa08OXI=
+	t=1705667301; cv=none; b=u1fe+5lKzGAY6WOg06HEDMrVwlWihzOhUVhTZxGN+T7ORNrKOI04DjZj8v3ZFk5lsDeEZ/Q6klhslJGTEM3oeISZ/yVxwauUeFLIiM5eQtlkt1NKTeKEZ+eycFb68Q22uMr3yVOawOpdC9+xCfoTAaW7UMi1gc26OqopjrMGDqA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705660321; c=relaxed/simple;
-	bh=ugbG3rsqUiWrBnnSNz7P6Oi4cdnkEG1z83KyGg6hLZc=;
+	s=arc-20240116; t=1705667301; c=relaxed/simple;
+	bh=1yd3vuegWAMTRKs3hhq9NTSKrABM16eTj4S5eR2+1EY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ovCanD6HlFmoPflPJ76cwNWZGDN4ujOjXGIvvrvDIZ+BeG+HgK2wSJ36Lc6NakABfMeP4th5RYkDoORzfCRmcyvQ5UDfROmfMBO3msABxL3s3ezfEmF1y+KkFLnM4xwWYzUX894P9nsPdlyRYkcuhlfXoN+gSrnz6WYdfmu5RP0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=oEPE5F0t; arc=none smtp.client-ip=198.175.65.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	 In-Reply-To:Content-Type:Content-Disposition; b=KiIxJgB4XRm2nC8OFJYuz0VOpaVHyUsNLBoAgcMzlY3RbS6qZ72GWCN3qTo6qpk7a4Vftlo5BiFkePxquvH/Fx+nAZuVkcgHTIquAGGvKbs3V9KjIWhYJ7mWci6vS+zvuTITVNupU/XR2Z2kohY8J/9Kow15duAMeBE8cjAAIvo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=R/7yjW6O; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="oEPE5F0t"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1705660319; x=1737196319;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=ugbG3rsqUiWrBnnSNz7P6Oi4cdnkEG1z83KyGg6hLZc=;
-  b=oEPE5F0tEsD7eRbWX0FPlPlbLqM2LTpk5/GIZKzzudxFgY020rwDqsQz
-   uRocyM7EFVUjDEbwPHrbuwXNpKO0CNHZCQON8Rx4BoeXxOkG/hXjL7WJn
-   OJwwdX7VFuVHUGvFMxMCndTuHOcHNYnS2ekALEcHyzMsdH0yZdZVLGja4
-   uCxzDBeFcoQZnqrsHkJ9yFC6fq62Egt77HuFRJgFTWjI1Ws02EQu1PKx3
-   /HFT8tjhWz4XLlTaTeekcSyQ1Atqmz2pWQh+F7BBlBVI3TzTxzrNJLjbT
-   zqpyFN2QjMIbUKxiMVULCoR8BS6j2EAl8z8BZbGAFmT85YPOsLb7U4JQq
-   Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10956"; a="7407069"
-X-IronPort-AV: E=Sophos;i="6.05,204,1701158400"; 
-   d="scan'208";a="7407069"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jan 2024 02:31:59 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10956"; a="908295072"
-X-IronPort-AV: E=Sophos;i="6.05,204,1701158400"; 
-   d="scan'208";a="908295072"
-Received: from lkp-server01.sh.intel.com (HELO 961aaaa5b03c) ([10.239.97.150])
-  by orsmga004.jf.intel.com with ESMTP; 19 Jan 2024 02:31:55 -0800
-Received: from kbuild by 961aaaa5b03c with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1rQmAC-0003uy-37;
-	Fri, 19 Jan 2024 10:31:52 +0000
-Date: Fri, 19 Jan 2024 18:31:18 +0800
-From: kernel test robot <lkp@intel.com>
-To: Heng Qi <hengqi@linux.alibaba.com>, netdev@vger.kernel.org,
-	virtualization@lists.linux.dev
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	Jason Wang <jasowang@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Paolo Abeni <pabeni@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="R/7yjW6O"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1705667298;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Lu6PAuD3ioFybCYQzDmdkPHOFHjBT1D9Zj6epg1rV18=;
+	b=R/7yjW6OS7Y5B1TxZ0xCJc4NZUfov0iHtAaQh5mLyC9YnFmtogVSBWLdK3LXaHrBS7PeGB
+	qGEmcY4KH87TfyNo+8YdpD0NXM7n9+KfLGYmW/5gggKubtaYbw8+yEQhUnSCq3YExpajTu
+	fvWvd9Up4giCB/ji3iL9iQGh5irxQGE=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-664-CqkfJLUHNyGmnhPyNsVEWA-1; Fri, 19 Jan 2024 07:28:17 -0500
+X-MC-Unique: CqkfJLUHNyGmnhPyNsVEWA-1
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-40e5317c7a5so4564655e9.0
+        for <virtualization@lists.linux.dev>; Fri, 19 Jan 2024 04:28:16 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1705667296; x=1706272096;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Lu6PAuD3ioFybCYQzDmdkPHOFHjBT1D9Zj6epg1rV18=;
+        b=Th8ofab92lmrDg88mDPbhRb4nl56H/zMjeDJ8HV/00jKIqqCch7k7P/Kk/AlFId128
+         m57HN6MK6ooofHd9N7KP0ifZHDFKJa4ywHz1xxsnrU/d4vel4IdFiQTp7nUAXWXM9+rN
+         Z9exmk0FSbAgGXNK+JDyd3UlisDCevJpTn9CQ94drnOyLNaeEnR3p9oJY+ElfTdCYa6R
+         k9+6VhtQuBwPNVqlkACbLWDsHhI47Zx3Mgfcy5/KMZfHcDhW31+e5Buh2fN7iaWx1Zmg
+         lapcFBRDNcoqvU58ERz6dZE3aAxChzPjkRCceQfGzqSF/6duzCpjrZPmUhduHJ+pTwLt
+         wh1A==
+X-Gm-Message-State: AOJu0Yx+910/8pl3pQmIjRrG0xH8rrH2fZl6k1QVMnxdrUUF15vdEpYy
+	PHiVyHHE838y3o6MQgV5bM7efqAVmQuBgVAE/qHXestDIujzWNBb3SxsDM1BMmx+QbhI7PACpph
+	/W/Xw8b/17w9yteFxkC1SvJXAP+Vjz3L1Hu45+7dvvphLep5od0KoC859G2qdhu/k
+X-Received: by 2002:a7b:cb4e:0:b0:40e:5c0e:7dc0 with SMTP id v14-20020a7bcb4e000000b0040e5c0e7dc0mr1379246wmj.108.1705667296102;
+        Fri, 19 Jan 2024 04:28:16 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGRQ7q2eviABxb53dq9k0UI+qYO9BINyvJ+P81JZeeN70Ba5s+vjtIaNcbP8LhhKGkob4YTzg==
+X-Received: by 2002:a7b:cb4e:0:b0:40e:5c0e:7dc0 with SMTP id v14-20020a7bcb4e000000b0040e5c0e7dc0mr1379237wmj.108.1705667295747;
+        Fri, 19 Jan 2024 04:28:15 -0800 (PST)
+Received: from redhat.com ([2a02:14f:175:4aad:e256:6d9f:7a0b:7f5b])
+        by smtp.gmail.com with ESMTPSA id iw7-20020a05600c54c700b0040d604dea3bsm28406255wmb.4.2024.01.19.04.28.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 19 Jan 2024 04:28:15 -0800 (PST)
+Date: Fri, 19 Jan 2024 07:28:10 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Heng Qi <hengqi@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
+	Jason Wang <jasowang@redhat.com>, Paolo Abeni <pabeni@redhat.com>,
+	Jakub Kicinski <kuba@kernel.org>,
 	Eric Dumazet <edumazet@google.com>,
+	"David S. Miller" <davem@davemloft.net>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next 3/3] virtio-net: reduce the CPU consumption of
- dim worker
-Message-ID: <202401191807.RIhMHJ4U-lkp@intel.com>
-References: <1705410693-118895-4-git-send-email-hengqi@linux.alibaba.com>
+Subject: Re: [PATCH net-next 0/3] virtio-net: a fix and some updates for
+ virtio dim
+Message-ID: <20240119072743-mutt-send-email-mst@kernel.org>
+References: <1705410693-118895-1-git-send-email-hengqi@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <1705410693-118895-1-git-send-email-hengqi@linux.alibaba.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1705410693-118895-4-git-send-email-hengqi@linux.alibaba.com>
 
-Hi Heng,
-
-kernel test robot noticed the following build errors:
-
-[auto build test ERROR on net-next/main]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Heng-Qi/virtio-net-fix-possible-dim-status-unrecoverable/20240116-211306
-base:   net-next/main
-patch link:    https://lore.kernel.org/r/1705410693-118895-4-git-send-email-hengqi%40linux.alibaba.com
-patch subject: [PATCH net-next 3/3] virtio-net: reduce the CPU consumption of dim worker
-config: i386-randconfig-012-20240119 (https://download.01.org/0day-ci/archive/20240119/202401191807.RIhMHJ4U-lkp@intel.com/config)
-compiler: ClangBuiltLinux clang version 17.0.6 (https://github.com/llvm/llvm-project 6009708b4367171ccdbf4b5905cb6a803753fe18)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240119/202401191807.RIhMHJ4U-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202401191807.RIhMHJ4U-lkp@intel.com/
-
-All errors (new ones prefixed by >>):
-
->> drivers/net/virtio_net.c:3590:27: error: invalid application of 'sizeof' to an incomplete type 'struct virtnet_coal_entry'
-    3590 |                     ctrl->num_entries * sizeof(struct virtnet_coal_entry));
-         |                                         ^     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   drivers/net/virtio_net.c:3590:41: note: forward declaration of 'struct virtnet_coal_entry'
-    3590 |                     ctrl->num_entries * sizeof(struct virtnet_coal_entry));
-         |                                                       ^
-   drivers/net/virtio_net.c:3658:27: error: invalid application of 'sizeof' to an incomplete type 'struct virtnet_coal_entry'
-    3658 |                                 vi->max_queue_pairs * sizeof(struct virtnet_coal_entry));
-         |                                                       ^     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   drivers/net/virtio_net.c:3658:41: note: forward declaration of 'struct virtnet_coal_entry'
-    3658 |                                 vi->max_queue_pairs * sizeof(struct virtnet_coal_entry));
-         |                                                                     ^
-   drivers/net/virtio_net.c:4544:31: error: invalid application of 'sizeof' to an incomplete type 'struct virtnet_coal_entry'
-    4544 |                       vi->max_queue_pairs * sizeof(struct virtnet_coal_entry)), GFP_KERNEL);
-         |                                             ^     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   drivers/net/virtio_net.c:4544:45: note: forward declaration of 'struct virtnet_coal_entry'
-    4544 |                       vi->max_queue_pairs * sizeof(struct virtnet_coal_entry)), GFP_KERNEL);
-         |                                                           ^
-   drivers/net/virtio_net.c:4551:27: error: invalid application of 'sizeof' to an incomplete type 'struct virtnet_coal_entry'
-    4551 |                                 vi->max_queue_pairs * sizeof(struct virtnet_coal_entry));
-         |                                                       ^     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   drivers/net/virtio_net.c:4544:45: note: forward declaration of 'struct virtnet_coal_entry'
-    4544 |                       vi->max_queue_pairs * sizeof(struct virtnet_coal_entry)), GFP_KERNEL);
-         |                                                           ^
-   4 errors generated.
+On Tue, Jan 16, 2024 at 09:11:30PM +0800, Heng Qi wrote:
+> Patch 1 fixes an existing bug. Belongs to the net branch.
+> Patch 2 requires updating the virtio spec.
+> Patch 3 only attempts to modify the sending of dim cmd to an asynchronous way,
+> and does not affect the synchronization way of ethtool cmd.
 
 
-vim +3590 drivers/net/virtio_net.c
+Given this doesn't build, please document how was each patch tested.
+Thanks!
 
-  3570	
-  3571	static bool virtnet_add_dim_command(struct virtnet_info *vi,
-  3572					    struct virtnet_batch_coal *ctrl)
-  3573	{
-  3574		struct scatterlist *sgs[4], hdr, stat, out;
-  3575		unsigned out_num = 0;
-  3576		int ret;
-  3577	
-  3578		/* Caller should know better */
-  3579		BUG_ON(!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ));
-  3580	
-  3581		ctrl->hdr.class = VIRTIO_NET_CTRL_NOTF_COAL;
-  3582		ctrl->hdr.cmd = VIRTIO_NET_CTRL_NOTF_COAL_VQS_SET;
-  3583	
-  3584		/* Add header */
-  3585		sg_init_one(&hdr, &ctrl->hdr, sizeof(ctrl->hdr));
-  3586		sgs[out_num++] = &hdr;
-  3587	
-  3588		/* Add body */
-  3589		sg_init_one(&out, &ctrl->num_entries, sizeof(ctrl->num_entries) +
-> 3590			    ctrl->num_entries * sizeof(struct virtnet_coal_entry));
-  3591		sgs[out_num++] = &out;
-  3592	
-  3593		/* Add return status. */
-  3594		ctrl->status = VIRTIO_NET_OK;
-  3595		sg_init_one(&stat, &ctrl->status, sizeof(ctrl->status));
-  3596		sgs[out_num] = &stat;
-  3597	
-  3598		BUG_ON(out_num + 1 > ARRAY_SIZE(sgs));
-  3599		ret = virtqueue_add_sgs(vi->cvq, sgs, out_num, 1, ctrl, GFP_ATOMIC);
-  3600		if (ret < 0) {
-  3601			dev_warn(&vi->vdev->dev, "Failed to add sgs for command vq: %d\n.", ret);
-  3602			return false;
-  3603		}
-  3604	
-  3605		virtqueue_kick(vi->cvq);
-  3606	
-  3607		ctrl->usable = false;
-  3608		vi->cvq_cmd_nums++;
-  3609	
-  3610		return true;
-  3611	}
-  3612	
+> Heng Qi (3):
+>   virtio-net: fix possible dim status unrecoverable
+>   virtio-net: batch dim request
+>   virtio-net: reduce the CPU consumption of dim worker
+> 
+>  drivers/net/virtio_net.c        | 197 ++++++++++++++++++++++++++++++++++++----
+>  include/uapi/linux/virtio_net.h |   1 +
+>  2 files changed, 182 insertions(+), 16 deletions(-)
+> 
+> -- 
+> 1.8.3.1
 
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
