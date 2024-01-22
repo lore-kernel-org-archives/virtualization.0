@@ -1,111 +1,175 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48B5B5227
-	for <virtualization@lists.linux-foundation.org>; Mon, 22 Jan 2024 04:13:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE549139E
+	for <virtualization@lists.linux.dev>; Mon, 22 Jan 2024 04:16:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705896792; cv=none; b=YuPzZIsvbfARqms85447F8dafNEy+89/EUbXmRshNI1I9m717rf1PEv3XhLBxTHD5C/62+oro+NkSHMXKrHsiBjHi8pL+dYETSGfHyiG8/NfTv6+WU5Qxj8IEf7QZhRWvaZOSArJk1k/70vsacNjCpFOdjv3s0vjse32gnw9dZg=
+	t=1705897004; cv=none; b=RF+O2GIp9EhQ9Hqr95TyJLWJu4/Sn2qJeFPozgMHTCOh1/yxF9oAeGiJKsrr5fZIJxoNV59N6zKb+pFuevk/erRMJLHpEZVs+tQXGYrlas3VfqYbPvZqfjZ1UtXG1vSZNhBVRg0IACfdpFhSntCrKCN5djnMT7bueZCGovR9WnA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705896792; c=relaxed/simple;
-	bh=od+8DOkUnVAgYBK9LoM9tr2QwuVYSslesQSRWHme8E8=;
+	s=arc-20240116; t=1705897004; c=relaxed/simple;
+	bh=o0x5h+EZcHHtSi0Rep8lXojTkt6ouTC2kgcK48szp7A=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=kNxbNVpNAE6RsyEbNlhAuDPqqfkDvTwRjKaXow/nxs6pMRwquBgvy66TKm1QcfBAGEOyFpfyuEJoiY+lr5c2KFGMbXbEClEENqJADYMYOePImI6zfXAws8LRo/ZXDd9TCPC486imiLWsJQePFyuLNP/CElddtPG+rjWh+wAD7KA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ealvJ81/; arc=none smtp.client-ip=140.211.166.138
+	 To:Cc:Content-Type; b=e1rXmzdai80NtXY1dmlqQWO76Y+Je5bknTkLK17PE5vouXufgLoUHT1dYwnEMRD1VStGyFyAX8i4MkmSh0RsqX47Wa6NJTN/On+WdKog9m1X9vl/1S+jhQtJTzraUgns/eIUpTnXsljsFfFbsWyHZBLv+u61bGpNc/L3VZsPPVI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ejoweurk; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ealvJ81/"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id B7A9882046
-	for <virtualization@lists.linux-foundation.org>; Mon, 22 Jan 2024 04:13:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B7A9882046
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ealvJ81/
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id OI3T9MF3r58H
-	for <virtualization@lists.linux-foundation.org>;
-	Mon, 22 Jan 2024 04:13:09 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 6A19D82034
-	for <virtualization@lists.linux-foundation.org>; Mon, 22 Jan 2024 04:13:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6A19D82034
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ejoweurk"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1705896788;
+	s=mimecast20190719; t=1705897001;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=BFYZB1OK0jELPTabxPuV0ZEWUgH0u/k7Ra6Xc9f/czc=;
-	b=ealvJ81/IM6XUWpBAyPaEP/E25aRvREZad+Ewghap7ghZrj/8/KmrH0h8IBhmnqsysFBZp
-	s3sSif/8eBfbOGwQkEuNvb/lW/OzTqzwtZ4FUxruIhVlBjDMI61/0FcBcvjLdIAdRDDRYq
-	3Qp8NYbK1s8swqo24Pnm/c+kOnywlOc=
-Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
- [209.85.210.198]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=O3crGAohu+7BwIzyRFrlv6M4BXYDfV4ImBlP2pM4YuE=;
+	b=EjoweurkpVua+gHg3l0Mt/6jB2Vuzb7P7+tJW8U2BcktWuUkSOK+Hr/VJEj4AenuM2NkY2
+	0m8fDFtBEuUuyC2P2keKpAk0aWmdFBagUfe7vojiMydlmgI3Zb/SRwGM6WDrtipiNoJ1zI
+	GGrEsmuLjBBj5fGF1cO/glxuIQgvXYw=
+Received: from mail-pf1-f199.google.com (mail-pf1-f199.google.com
+ [209.85.210.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-64-J3yrWP3JN3GNeFx5v0iBRQ-1; Sun, 21 Jan 2024 23:13:06 -0500
-X-MC-Unique: J3yrWP3JN3GNeFx5v0iBRQ-1
-Received: by mail-pf1-f198.google.com with SMTP id d2e1a72fcca58-6d9b6701404so3006302b3a.2
-        for <virtualization@lists.linux-foundation.org>; Sun, 21 Jan 2024 20:13:06 -0800 (PST)
+ us-mta-52-IBfZQMCLMDmEK2QvSK7X3Q-1; Sun, 21 Jan 2024 23:16:39 -0500
+X-MC-Unique: IBfZQMCLMDmEK2QvSK7X3Q-1
+Received: by mail-pf1-f199.google.com with SMTP id d2e1a72fcca58-6db7730a3e4so3518109b3a.2
+        for <virtualization@lists.linux.dev>; Sun, 21 Jan 2024 20:16:39 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1705896785; x=1706501585;
+        d=1e100.net; s=20230601; t=1705896998; x=1706501798;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=BFYZB1OK0jELPTabxPuV0ZEWUgH0u/k7Ra6Xc9f/czc=;
-        b=gCYOJpOpAoRYf37nuspXny3FDxogAQrvVfn/QgMC1kgmryGkRAL031am4l+GVQaKdy
-         RPcBFOUY9McwVBWHmkAhdXgruEm/8cZ7DMCcwQ+PDVNtBQWAaxExZoynsCBTBmvyzKxq
-         K2fvN+vA92uAvjR1L1P5ZYrGrlg9KePZgSTcXZrk0RH14r6z6YB9RVqOhSIumd1cmmMc
-         o8FBJq+X8ItowfYUeAimNi7B55/ZWT96t+2D8+7IA25XQM/PSaJ2Cl7rRJncqvMGJ24f
-         2kycKkbH3ssFo/b/KuCl5wh/+qiTVtnWuyJ8R0X6a7h7tdK8eJgUWg9VaAo0IicZNdzZ
-         CE3g==
-X-Gm-Message-State: AOJu0YxNSHqU4aQ0JTNxYd2IYBUsuqG89HhN213UG0MIp9RQ7jwgou3X
-	H5L2g8+LAcK8pc+U44IBd29QMWdHTOaqBbyn/Ei9LQCPLqMlljzxcYphjHpoiki0uUKoaDpSUzJ
-	2u9w7aBihjSWjd6lmkxRhO8d14omF8PAm1B5I8pkHrEor+yDSpegTj3dM4q/gmqAhm5KT+BzZi5
-	x7BwkLSSOJpExRNw+jBeAd5Ooqk2nRboET81WL0HOWEvoCUEfw4JrJ3Q==
-X-Received: by 2002:a05:6a00:cca:b0:6db:dd0e:8d6c with SMTP id b10-20020a056a000cca00b006dbdd0e8d6cmr2338377pfv.50.1705896785539;
-        Sun, 21 Jan 2024 20:13:05 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHw6L7G8t4oEO9wMWCBYZqdoa5n5KMgma3CQ7su1LP6qvgNWE1mvqDtNGJ2VEeIUfZzPuoLjHMkocgktDrNNwA=
-X-Received: by 2002:a05:6a00:cca:b0:6db:dd0e:8d6c with SMTP id
- b10-20020a056a000cca00b006dbdd0e8d6cmr2338366pfv.50.1705896785313; Sun, 21
- Jan 2024 20:13:05 -0800 (PST)
+        bh=O3crGAohu+7BwIzyRFrlv6M4BXYDfV4ImBlP2pM4YuE=;
+        b=V7N8ZVf/aqK5lem3QXcEVYJ0uDEFaZIddK4qUEJqGbhCa04ahYmrhOrTMxyWpNKBoT
+         OEJhbFcpyRkvftcktUc0NicBgewG29OgSgDDNXoqiaJLWkzTDppBCckt6MbsQc9O4zQw
+         H/gMfAfJNTXEnKXftivkTKxLs60HZfVmzK9uzJzp3t+ddRFVmgR5vflMpo8x25S4gSbV
+         CT9Kb57/cdziTSnDkYs8mpDsTtLnaciOHGlWdJsooRdIIGYHmwJ/mMfFecukYLq386FV
+         pJrqerMkprHfXF+e1XvLXFhgRZQvrZqyhJpN/8hs6MEIEn/ribhiwZh4BNVURP0SJIGN
+         hYOg==
+X-Gm-Message-State: AOJu0Yw6ndI/oobE7SsAQTHkxXzsWsQzRiKTsVwcgYYfonJ8DyeV9XnP
+	iPtg/6LtaJ0OtAkI7hDXj17SLwhQTMyLYu/Oi0ofcxUibIpVAaciKfk1JCfr2h0IGirwFHxeBNH
+	N9Bx7kCOqYnXW88Lw+v7mPBylOvkPm0OF8K6LA834PIHbl71gaK0nn5ycrOROivUEO1KoCwZHy7
+	4qybUYSMNmBKX587wEIttvYsi1KSEcO+mG6qdzSiU=
+X-Received: by 2002:a05:6a20:72ab:b0:19b:1d49:e005 with SMTP id o43-20020a056a2072ab00b0019b1d49e005mr5458152pzk.19.1705896998789;
+        Sun, 21 Jan 2024 20:16:38 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IH3TCK5fXtq2Iiecmr18J5qitwAabNt/hIQQRE5SugYxQ60rn0z7tf+QsTxW6u9/J00CMbZqmQeuGdN7rOzgtE=
+X-Received: by 2002:a05:6a20:72ab:b0:19b:1d49:e005 with SMTP id
+ o43-20020a056a2072ab00b0019b1d49e005mr5458150pzk.19.1705896998521; Sun, 21
+ Jan 2024 20:16:38 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <1705519403-255169-1-git-send-email-steven.sistare@oracle.com>
-In-Reply-To: <1705519403-255169-1-git-send-email-steven.sistare@oracle.com>
+References: <20240115012918.3081203-1-yanjun.zhu@intel.com>
+ <ea230712e27af2c8d2d77d1087e45ecfa86abb31.camel@redhat.com>
+ <667a9520-a53f-40a2-810a-6c1e45146589@linux.dev> <7dd89fc0-f31e-4f83-9c02-58ee67c2d436@linux.alibaba.com>
+ <430b899c-aed4-419d-8ae8-544bb9bec5d9@lunn.ch> <64270652-8e0c-4db7-b245-b970d9588918@linux.dev>
+ <CACGkMEs18hjxiZRDT5-+PMDHkLbEyiviafGiCWsAE6CGBrj+9g@mail.gmail.com> <1705895881.6990144-1-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1705895881.6990144-1-xuanzhuo@linux.alibaba.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 22 Jan 2024 12:12:54 +0800
-Message-ID: <CACGkMEsSjtkYk3++aqmPxrivrDzyGxNumiancRxAfY=7D3SsiA@mail.gmail.com>
-Subject: Re: [PATCH V1] vdpa_sim: reset must not run
-To: Steve Sistare <steven.sistare@oracle.com>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Eugenio Perez Martin <eperezma@redhat.com>, Si-Wei Liu <si-wei.liu@oracle.com>, 
-	Stefano Garzarella <sgarzare@redhat.com>
+Date: Mon, 22 Jan 2024 12:16:27 +0800
+Message-ID: <CACGkMEvvn76w+BZArOWK-c1gsqNNx6bH8HPoqPAqpJG_7EYntA@mail.gmail.com>
+Subject: Re: [PATCH 1/1] virtio_net: Add timeout handler to avoid kernel hang
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: Andrew Lunn <andrew@lunn.ch>, Heng Qi <hengqi@linux.alibaba.com>, 
+	Paolo Abeni <pabeni@redhat.com>, Zhu Yanjun <yanjun.zhu@intel.com>, mst@redhat.com, 
+	davem@davemloft.net, edumazet@google.com, kuba@kernel.org, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	Zhu Yanjun <yanjun.zhu@linux.dev>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jan 18, 2024 at 3:23=E2=80=AFAM Steve Sistare <steven.sistare@oracl=
-e.com> wrote:
+On Mon, Jan 22, 2024 at 12:00=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.=
+com> wrote:
 >
-> vdpasim_do_reset sets running to true, which is wrong, as it allows
-> vdpasim_kick_vq to post work requests before the device has been
-> configured.  To fix, do not set running until VIRTIO_CONFIG_S_FEATURES_OK
-> is set.
+> On Mon, 22 Jan 2024 11:14:30 +0800, Jason Wang <jasowang@redhat.com> wrot=
+e:
+> > On Mon, Jan 22, 2024 at 10:12=E2=80=AFAM Zhu Yanjun <yanjun.zhu@linux.d=
+ev> wrote:
+> > >
+> > >
+> > > =E5=9C=A8 2024/1/20 1:29, Andrew Lunn =E5=86=99=E9=81=93:
+> > > >>>>>        while (!virtqueue_get_buf(vi->cvq, &tmp) &&
+> > > >>>>> -           !virtqueue_is_broken(vi->cvq))
+> > > >>>>> +           !virtqueue_is_broken(vi->cvq)) {
+> > > >>>>> +        if (timeout)
+> > > >>>>> +            timeout--;
+> > > >>>> This is not really a timeout, just a loop counter. 200 iteration=
+s could
+> > > >>>> be a very short time on reasonable H/W. I guess this avoid the s=
+oft
+> > > >>>> lockup, but possibly (likely?) breaks the functionality when we =
+need to
+> > > >>>> loop for some non negligible time.
+> > > >>>>
+> > > >>>> I fear we need a more complex solution, as mentioned by Micheal =
+in the
+> > > >>>> thread you quoted.
+> > > >>> Got it. I also look forward to the more complex solution to this =
+problem.
+> > > >> Can we add a device capability (new feature bit) such as ctrq_wait=
+_timeout
+> > > >> to get a reasonable timeout=EF=BC=9F
+> > > > The usual solution to this is include/linux/iopoll.h. If you can sl=
+eep
+> > > > read_poll_timeout() otherwise read_poll_timeout_atomic().
+> > >
+> > > I read carefully the functions read_poll_timeout() and
+> > > read_poll_timeout_atomic(). The timeout is set by the caller of the 2
+> > > functions.
+> >
+> > FYI, in order to avoid a swtich of atomic or not, we need convert rx
+> > mode setting to workqueue first:
+> >
+> > https://www.mail-archive.com/virtualization@lists.linux-foundation.org/=
+msg60298.html
+> >
+> > >
+> > > As such, can we add a module parameter to customize this timeout valu=
+e
+> > > by the user?
+> >
+> > Who is the "user" here, or how can the "user" know the value?
+> >
+> > >
+> > > Or this timeout value is stored in device register, virtio_net driver
+> > > will read this timeout value at initialization?
+> >
+> > See another thread. The design needs to be general, or you can post a R=
+FC.
+> >
+> > In another thought, we've already had a tx watchdog, maybe we can have
+> > something similar to cvq and use timeout + reset in that case.
 >
-> Fixes: 0c89e2a3a9d0 ("vdpa_sim: Implement suspend vdpa op")
-> Signed-off-by: Steve Sistare <steven.sistare@oracle.com>
-> Reviewed-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> But we may block by the reset ^_^ if the device is broken?
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+I mean vq reset here.
+
+It looks like we have multiple goals here
+
+1) avoid lockups, using workqueue + cond_resched() seems to be
+sufficient, it has issue but nothing new
+2) recover from the unresponsive device, the issue for timeout is that
+it needs to deal with false positives
 
 Thanks
+
+>
+> Thanks.
+>
+>
+> >
+> > Thans
+> >
+> > >
+> > > Zhu Yanjun
+> > >
+> > > >
+> > > >       Andrew
+> > >
+> >
+>
 
