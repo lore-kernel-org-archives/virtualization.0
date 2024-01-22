@@ -1,372 +1,343 @@
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5A0716416
-	for <virtualization@lists.linux.dev>; Mon, 22 Jan 2024 07:50:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EDEBB374ED
+	for <virtualization@lists.linux.dev>; Mon, 22 Jan 2024 07:57:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705909811; cv=none; b=ssN5zyhU1gcIO6j80p8owyX3JwC7OF0qwhLSQob0Vg7tCL6yaKp/oQjP0ytGjumNqqqZ2Ku3MN5djzA0omWYtcbE4iPErdfYeo3G8KkO9W3A1uPwCB2UUD8AexZVMwds+Ry6vWsKqUkir5ngU/P38J3HTzUWkcMADljDRKynKtY=
+	t=1705910246; cv=none; b=igmk9LTxwPnYdEOk5cdtBS1+VU500Oz5l4pDD0ZDZb6U2S+PVke/2x4Pst9TDh0ENxKXuBnTCa/d+wActSuAqIGb865nz7Jsk97dHR/locU1M+q2t7zd/ty9Gka0tFWjuwateZQQ/zzGa0It3NkfYMvFy9EZpztcIMCKZ/eaRKU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705909811; c=relaxed/simple;
-	bh=gavQG+2p3iMLHLENGCPnZBXZNuLyM4huH221HOhdVSY=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=gngoo9zgltgUjM4B9Ga0WbgmBqjpNT9WAc+z/YS+4Rg/Tx5q6hqJmQs2uPkOHWrQ0j6RXgpG6l9IZjmxjyHfID4wObRig3l0K9ZZQPur2i91QESh/0WF28g7EU2hBl3OcpAd4IniwS+zNwZ59d1FYmjkoqx/yvyUIhepsE0avx0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; arc=none smtp.client-ip=115.124.30.110
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0W.49dnl_1705909804;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W.49dnl_1705909804)
-          by smtp.aliyun-inc.com;
-          Mon, 22 Jan 2024 15:50:04 +0800
-Message-ID: <1705909320.9590936-8-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next 3/3] virtio-net: reduce the CPU consumption of dim worker
-Date: Mon, 22 Jan 2024 15:42:00 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Heng Qi <hengqi@linux.alibaba.com>
-Cc: Jason Wang <jasowang@redhat.com>,
- "Michael S. Tsirkin" <mst@redhat.com>,
- Paolo Abeni <pabeni@redhat.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Eric Dumazet <edumazet@google.com>,
- "David S. Miller" <davem@davemloft.net>,
- netdev@vger.kernel.org,
- virtualization@lists.linux.dev
-References: <1705410693-118895-1-git-send-email-hengqi@linux.alibaba.com>
- <1705410693-118895-4-git-send-email-hengqi@linux.alibaba.com>
-In-Reply-To: <1705410693-118895-4-git-send-email-hengqi@linux.alibaba.com>
+	s=arc-20240116; t=1705910246; c=relaxed/simple;
+	bh=8/D8aMjhRKPSV1/ngJ5OSp6Ih/06N83ZJrJW1yvTrEY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=lbLzC+0CCIElTinYri2mC24xaZ9JXRdk6iwBHtovtFazJbVcimDhkJzBWTg7/0ruQfGPvtyX3XEkAX5DRY0UnL/Bl99QOEYjGI8cKYmnK8jaWA6C/OSNh3Xq+LWQXi5kdBuGi2urvW7Sqzfr1t0Cn27xLnIXdXFbGMzmwmDUtUw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=W9nN/IH/; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="W9nN/IH/"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1705910243;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=vcjJhXadeqF54swuXOqN0DiEs6FdnKgQxq8VgnzlUIY=;
+	b=W9nN/IH/zxfkoa2LEvuL5A4s049ntluoMEWvnHlW/npqTHLmwxmf2HK7wvKK5Nha/5NK74
+	XJu1QyB4aaQlVlSLn5U/4l2EVLVL7LUfyvvk+DVwv/Fp3EJotxXKZGymd/0qp4+hjTWVzl
+	pgsKDDOTCLG7r5I0qWqOJ4ZlpBNRIbY=
+Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
+ [209.85.210.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-499-yY2r5FPsNEOHwny51qcu9g-1; Mon, 22 Jan 2024 02:57:22 -0500
+X-MC-Unique: yY2r5FPsNEOHwny51qcu9g-1
+Received: by mail-pf1-f198.google.com with SMTP id d2e1a72fcca58-6dbcf62f38aso655303b3a.2
+        for <virtualization@lists.linux.dev>; Sun, 21 Jan 2024 23:57:22 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1705910241; x=1706515041;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=vcjJhXadeqF54swuXOqN0DiEs6FdnKgQxq8VgnzlUIY=;
+        b=sNjUuy+QNK1xOymTSph7H1/EfNKNZ3Vvdq3uNhkaH4K4Bvinnuq91VZdxblgAFuJWa
+         /U9LzL9/10dlT9zwWcmqE7b0BEJmuu/Kg5bGi6MwGcestEzD9kL0Izyv60XbmPVgktzD
+         uh7We8uTbzoXU/I/A9ySOOJMxFACZErMd+fHADunr2Tf/AVf0AiKW4vBZZCXP/LDI1Fk
+         WTVOJRFz7Gy51xDDYLC0LF5fGvmU09wMI9ajMfhyd9lIxfRvfIZdotPD92lRmRn7gBQs
+         gUtAzwdd0ZN5fyLiYbOLTDt0QeD6isP4Rfu5RRw1wr9/U5FBJ0DL0ZvacwemkQBSzMWC
+         5kHQ==
+X-Gm-Message-State: AOJu0YzPY0SCZqNNd+Utw1Kr4DX+S3SlC2n1tZ2vK5sG2TjyuY9jm/HO
+	eklPmbrSTPVSmNlawRpXwyaESu64qVFSf+W9ckdVXNBvflzGQ2+F9uwBPzXOf6s9TIyJAi6acTe
+	GR1UvOikn2aDFybZPXdqjkkuUPyrqh1YEaVMpId0eXK6YtR1WEK0PRI966VaHT+4GBlzA2tFv4a
+	FnjJtgryxdEBiRVUA6XFg1ke2bRhrjd9fmRBh8BOw=
+X-Received: by 2002:aa7:930c:0:b0:6db:cade:b92 with SMTP id cz12-20020aa7930c000000b006dbcade0b92mr1426601pfb.32.1705910241325;
+        Sun, 21 Jan 2024 23:57:21 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFNnN2g54ReIVGG+knzMh6IZCuuvqs6WaseAc0H/OQAqAWfr/UZZ30+mTt3EjAbXPMBVV+XJp/go8S/nPthdlU=
+X-Received: by 2002:aa7:930c:0:b0:6db:cade:b92 with SMTP id
+ cz12-20020aa7930c000000b006dbcade0b92mr1426588pfb.32.1705910240975; Sun, 21
+ Jan 2024 23:57:20 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+References: <20240115012918.3081203-1-yanjun.zhu@intel.com>
+ <ea230712e27af2c8d2d77d1087e45ecfa86abb31.camel@redhat.com>
+ <667a9520-a53f-40a2-810a-6c1e45146589@linux.dev> <7dd89fc0-f31e-4f83-9c02-58ee67c2d436@linux.alibaba.com>
+ <430b899c-aed4-419d-8ae8-544bb9bec5d9@lunn.ch> <64270652-8e0c-4db7-b245-b970d9588918@linux.dev>
+ <CACGkMEs18hjxiZRDT5-+PMDHkLbEyiviafGiCWsAE6CGBrj+9g@mail.gmail.com>
+ <1705895881.6990144-1-xuanzhuo@linux.alibaba.com> <CACGkMEvvn76w+BZArOWK-c1gsqNNx6bH8HPoqPAqpJG_7EYntA@mail.gmail.com>
+ <1705904164.7020166-3-xuanzhuo@linux.alibaba.com> <CACGkMEsTT7hrm2QWZq-NasfVAJHsUoZq5hijvLE_jY+2YyKytg@mail.gmail.com>
+ <CACGkMEt4zyESemjPwZtD5d4d00jtorY0qR5vM9y96NZzKkdj8A@mail.gmail.com>
+ <1705906930.2143333-5-xuanzhuo@linux.alibaba.com> <CACGkMEuO2wO-kwMWdR9hFSCJwLUN5jwKxCCaAmxJOB8sm5bfoA@mail.gmail.com>
+ <1705908305.1535513-7-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1705908305.1535513-7-xuanzhuo@linux.alibaba.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 22 Jan 2024 15:57:08 +0800
+Message-ID: <CACGkMEvRQfSN0S0r4nXNHS1A2LzjhSfL4-1bFrYx4y0yM9yOag@mail.gmail.com>
+Subject: Re: [PATCH 1/1] virtio_net: Add timeout handler to avoid kernel hang
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: Andrew Lunn <andrew@lunn.ch>, Heng Qi <hengqi@linux.alibaba.com>, 
+	Paolo Abeni <pabeni@redhat.com>, Zhu Yanjun <yanjun.zhu@intel.com>, mst@redhat.com, 
+	davem@davemloft.net, edumazet@google.com, kuba@kernel.org, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	Zhu Yanjun <yanjun.zhu@linux.dev>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, 16 Jan 2024 21:11:33 +0800, Heng Qi <hengqi@linux.alibaba.com> wrote:
-> Accumulate multiple request commands to kick the device once,
-> and obtain the processing results of the corresponding commands
-> asynchronously. The batch command method is used to optimize the
-> CPU overhead of the DIM worker caused by the guest being busy
-> waiting for the command response result.
+On Mon, Jan 22, 2024 at 3:36=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
+om> wrote:
 >
-> On an 8-queue device, without this patch, the guest cpu overhead
-> due to waiting for cvq could be 10+% and above. With this patch,
-> the corresponding overhead is basically invisible.
+> On Mon, 22 Jan 2024 15:19:12 +0800, Jason Wang <jasowang@redhat.com> wrot=
+e:
+> > On Mon, Jan 22, 2024 at 3:07=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.aliba=
+ba.com> wrote:
+> > >
+> > > On Mon, 22 Jan 2024 14:58:09 +0800, Jason Wang <jasowang@redhat.com> =
+wrote:
+> > > > On Mon, Jan 22, 2024 at 2:55=E2=80=AFPM Jason Wang <jasowang@redhat=
+.com> wrote:
+> > > > >
+> > > > > On Mon, Jan 22, 2024 at 2:20=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux=
+.alibaba.com> wrote:
+> > > > > >
+> > > > > > On Mon, 22 Jan 2024 12:16:27 +0800, Jason Wang <jasowang@redhat=
+.com> wrote:
+> > > > > > > On Mon, Jan 22, 2024 at 12:00=E2=80=AFPM Xuan Zhuo <xuanzhuo@=
+linux.alibaba.com> wrote:
+> > > > > > > >
+> > > > > > > > On Mon, 22 Jan 2024 11:14:30 +0800, Jason Wang <jasowang@re=
+dhat.com> wrote:
+> > > > > > > > > On Mon, Jan 22, 2024 at 10:12=E2=80=AFAM Zhu Yanjun <yanj=
+un.zhu@linux.dev> wrote:
+> > > > > > > > > >
+> > > > > > > > > >
+> > > > > > > > > > =E5=9C=A8 2024/1/20 1:29, Andrew Lunn =E5=86=99=E9=81=
+=93:
+> > > > > > > > > > >>>>>        while (!virtqueue_get_buf(vi->cvq, &tmp) &=
+&
+> > > > > > > > > > >>>>> -           !virtqueue_is_broken(vi->cvq))
+> > > > > > > > > > >>>>> +           !virtqueue_is_broken(vi->cvq)) {
+> > > > > > > > > > >>>>> +        if (timeout)
+> > > > > > > > > > >>>>> +            timeout--;
+> > > > > > > > > > >>>> This is not really a timeout, just a loop counter.=
+ 200 iterations could
+> > > > > > > > > > >>>> be a very short time on reasonable H/W. I guess th=
+is avoid the soft
+> > > > > > > > > > >>>> lockup, but possibly (likely?) breaks the function=
+ality when we need to
+> > > > > > > > > > >>>> loop for some non negligible time.
+> > > > > > > > > > >>>>
+> > > > > > > > > > >>>> I fear we need a more complex solution, as mention=
+ed by Micheal in the
+> > > > > > > > > > >>>> thread you quoted.
+> > > > > > > > > > >>> Got it. I also look forward to the more complex sol=
+ution to this problem.
+> > > > > > > > > > >> Can we add a device capability (new feature bit) suc=
+h as ctrq_wait_timeout
+> > > > > > > > > > >> to get a reasonable timeout=EF=BC=9F
+> > > > > > > > > > > The usual solution to this is include/linux/iopoll.h.=
+ If you can sleep
+> > > > > > > > > > > read_poll_timeout() otherwise read_poll_timeout_atomi=
+c().
+> > > > > > > > > >
+> > > > > > > > > > I read carefully the functions read_poll_timeout() and
+> > > > > > > > > > read_poll_timeout_atomic(). The timeout is set by the c=
+aller of the 2
+> > > > > > > > > > functions.
+> > > > > > > > >
+> > > > > > > > > FYI, in order to avoid a swtich of atomic or not, we need=
+ convert rx
+> > > > > > > > > mode setting to workqueue first:
+> > > > > > > > >
+> > > > > > > > > https://www.mail-archive.com/virtualization@lists.linux-f=
+oundation.org/msg60298.html
+> > > > > > > > >
+> > > > > > > > > >
+> > > > > > > > > > As such, can we add a module parameter to customize thi=
+s timeout value
+> > > > > > > > > > by the user?
+> > > > > > > > >
+> > > > > > > > > Who is the "user" here, or how can the "user" know the va=
+lue?
+> > > > > > > > >
+> > > > > > > > > >
+> > > > > > > > > > Or this timeout value is stored in device register, vir=
+tio_net driver
+> > > > > > > > > > will read this timeout value at initialization?
+> > > > > > > > >
+> > > > > > > > > See another thread. The design needs to be general, or yo=
+u can post a RFC.
+> > > > > > > > >
+> > > > > > > > > In another thought, we've already had a tx watchdog, mayb=
+e we can have
+> > > > > > > > > something similar to cvq and use timeout + reset in that =
+case.
+> > > > > > > >
+> > > > > > > > But we may block by the reset ^_^ if the device is broken?
+> > > > > > >
+> > > > > > > I mean vq reset here.
+> > > > > >
+> > > > > > I see.
+> > > > > >
+> > > > > > I mean when the deivce is broken, the vq reset also many be blo=
+cked.
+> > > > > >
+> > > > > >         void vp_modern_set_queue_reset(struct virtio_pci_modern=
+_device *mdev, u16 index)
+> > > > > >         {
+> > > > > >                 struct virtio_pci_modern_common_cfg __iomem *cf=
+g;
+> > > > > >
+> > > > > >                 cfg =3D (struct virtio_pci_modern_common_cfg __=
+iomem *)mdev->common;
+> > > > > >
+> > > > > >                 vp_iowrite16(index, &cfg->cfg.queue_select);
+> > > > > >                 vp_iowrite16(1, &cfg->queue_reset);
+> > > > > >
+> > > > > >                 while (vp_ioread16(&cfg->queue_reset))
+> > > > > >                         msleep(1);
+> > > > > >
+> > > > > >                 while (vp_ioread16(&cfg->cfg.queue_enable))
+> > > > > >                         msleep(1);
+> > > > > >         }
+> > > > > >         EXPORT_SYMBOL_GPL(vp_modern_set_queue_reset);
+> > > > > >
+> > > > > > In this function, for the broken device, we can not expect some=
+thing.
+> > > > >
+> > > > > Yes, it's best effort, there's no guarantee then. But it doesn't =
+harm to try.
+> > > > >
+> > > > > Thanks
+> > > > >
+> > > > > >
+> > > > > >
+> > > > > > >
+> > > > > > > It looks like we have multiple goals here
+> > > > > > >
+> > > > > > > 1) avoid lockups, using workqueue + cond_resched() seems to b=
+e
+> > > > > > > sufficient, it has issue but nothing new
+> > > > > > > 2) recover from the unresponsive device, the issue for timeou=
+t is that
+> > > > > > > it needs to deal with false positives
+> > > > > >
+> > > > > >
+> > > > > > I agree.
+> > > > > >
+> > > > > > But I want to add a new goal, cvq async. In the netdim, we will
+> > > > > > send many requests via the cvq, so the cvq async will be nice.
+> > > >
+> > > > Then you need an interrupt for cvq.
+> > > >
+> > > > FYI, I've posted a series that use interrupt for cvq in the past:
+> > > >
+> > > > https://lore.kernel.org/lkml/6026e801-6fda-fee9-a69b-d06a80368621@r=
+edhat.com/t/
+> > >
+> > > I know this. But the interrupt maybe not a good solution without new =
+space.
+> >
+> > What do you mean by "new space"?
 >
-> Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
-> ---
->  drivers/net/virtio_net.c | 185 ++++++++++++++++++++++++++++++++++++++++-------
->  1 file changed, 158 insertions(+), 27 deletions(-)
->
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index e4305ad..9f22c85 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -33,6 +33,8 @@
->  module_param(gso, bool, 0444);
->  module_param(napi_tx, bool, 0644);
->
-> +#define BATCH_CMD 25
-> +
->  /* FIXME: MTU in config. */
->  #define GOOD_PACKET_LEN (ETH_HLEN + VLAN_HLEN + ETH_DATA_LEN)
->  #define GOOD_COPY_LEN	128
-> @@ -134,6 +136,9 @@ struct virtnet_interrupt_coalesce {
->  };
->
->  struct virtnet_batch_coal {
-> +	struct virtio_net_ctrl_hdr hdr;
-> +	virtio_net_ctrl_ack status;
-> +	__u8 usable;
->  	__le32 num_entries;
->  	struct virtio_net_ctrl_coal_vq coal_vqs[];
->  };
-> @@ -299,6 +304,7 @@ struct virtnet_info {
->
->  	/* Work struct for delayed refilling if we run low on memory. */
->  	struct delayed_work refill;
-> +	struct delayed_work get_cvq;
->
->  	/* Is delayed refill enabled? */
->  	bool refill_enabled;
-> @@ -326,6 +332,7 @@ struct virtnet_info {
->  	bool rx_dim_enabled;
->
->  	/* Interrupt coalescing settings */
-> +	int cvq_cmd_nums;
->  	struct virtnet_batch_coal *batch_coal;
->  	struct virtnet_interrupt_coalesce intr_coal_tx;
->  	struct virtnet_interrupt_coalesce intr_coal_rx;
-> @@ -2512,6 +2519,46 @@ static int virtnet_tx_resize(struct virtnet_info *vi,
->  	return err;
->  }
->
-> +static bool virtnet_process_dim_cmd(struct virtnet_info *vi, void *res)
-> +{
-> +	struct virtnet_batch_coal *batch_coal;
-> +	u16 queue;
-> +	int i;
-> +
-> +	if (res != ((void *)vi)) {
-> +		batch_coal = (struct virtnet_batch_coal *)res;
-> +		batch_coal->usable = true;
-> +		vi->cvq_cmd_nums--;
-> +		for (i = 0; i < batch_coal->num_entries; i++) {
-> +			queue = batch_coal->coal_vqs[i].vqn / 2;
-> +			vi->rq[queue].dim.state = DIM_START_MEASURE;
-> +		}
-> +	} else {
-> +		return true;
-> +	}
-> +
-> +	return false;
-> +}
-> +
-> +static bool virtnet_cvq_response(struct virtnet_info *vi, bool poll)
-> +{
-> +	unsigned tmp;
-> +	void *res;
-> +
-> +	if (!poll) {
-> +		while ((res = virtqueue_get_buf(vi->cvq, &tmp)) &&
-> +		       !virtqueue_is_broken(vi->cvq))
-> +			virtnet_process_dim_cmd(vi, res);
-> +		return 0;
-> +	}
-> +
-> +	while (!(res = virtqueue_get_buf(vi->cvq, &tmp)) &&
-> +	       !virtqueue_is_broken(vi->cvq))
-> +		cpu_relax();
-> +
-> +	return virtnet_process_dim_cmd(vi, res);
-> +}
-> +
->  /*
->   * Send command via the control virtqueue and check status.  Commands
->   * supported by the hypervisor, as indicated by feature bits, should
-> @@ -2521,7 +2568,7 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
->  				 struct scatterlist *out)
->  {
->  	struct scatterlist *sgs[4], hdr, stat;
-> -	unsigned out_num = 0, tmp;
-> +	unsigned out_num = 0;
->  	int ret;
->
->  	/* Caller should know better */
-> @@ -2555,9 +2602,9 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
->  	/* Spin for a response, the kick causes an ioport write, trapping
->  	 * into the hypervisor, so the request should be handled immediately.
->  	 */
-> -	while (!virtqueue_get_buf(vi->cvq, &tmp) &&
-> -	       !virtqueue_is_broken(vi->cvq))
-> -		cpu_relax();
-> +	while (true)
-> +		if (virtnet_cvq_response(vi, true))
-> +			break;
->
->  	return vi->ctrl->status == VIRTIO_NET_OK;
->  }
-> @@ -2709,6 +2756,7 @@ static int virtnet_close(struct net_device *dev)
->  		cancel_work_sync(&vi->rq[i].dim.work);
->  	}
->
-> +	cancel_delayed_work_sync(&vi->get_cvq);
->  	return 0;
->  }
->
-> @@ -3520,22 +3568,99 @@ static int virtnet_send_notf_coal_vq_cmds(struct virtnet_info *vi,
->  	return 0;
->  }
->
-> +static bool virtnet_add_dim_command(struct virtnet_info *vi,
-> +				    struct virtnet_batch_coal *ctrl)
-> +{
-> +	struct scatterlist *sgs[4], hdr, stat, out;
-> +	unsigned out_num = 0;
-> +	int ret;
-> +
-> +	/* Caller should know better */
-> +	BUG_ON(!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ));
-> +
-> +	ctrl->hdr.class = VIRTIO_NET_CTRL_NOTF_COAL;
-> +	ctrl->hdr.cmd = VIRTIO_NET_CTRL_NOTF_COAL_VQS_SET;
-> +
-> +	/* Add header */
-> +	sg_init_one(&hdr, &ctrl->hdr, sizeof(ctrl->hdr));
-> +	sgs[out_num++] = &hdr;
-> +
-> +	/* Add body */
-> +	sg_init_one(&out, &ctrl->num_entries, sizeof(ctrl->num_entries) +
-> +		    ctrl->num_entries * sizeof(struct virtnet_coal_entry));
-> +	sgs[out_num++] = &out;
-> +
-> +	/* Add return status. */
-> +	ctrl->status = VIRTIO_NET_OK;
-> +	sg_init_one(&stat, &ctrl->status, sizeof(ctrl->status));
-> +	sgs[out_num] = &stat;
-> +
-> +	BUG_ON(out_num + 1 > ARRAY_SIZE(sgs));
-> +	ret = virtqueue_add_sgs(vi->cvq, sgs, out_num, 1, ctrl, GFP_ATOMIC);
-> +	if (ret < 0) {
-> +		dev_warn(&vi->vdev->dev, "Failed to add sgs for command vq: %d\n.", ret);
-> +		return false;
-> +	}
-> +
-> +	virtqueue_kick(vi->cvq);
-> +
-> +	ctrl->usable = false;
-> +	vi->cvq_cmd_nums++;
-> +
-> +	return true;
-> +}
+> Yes, I know, the cvq can work with interrupt by the virtio spec.
+> But as I know, many hypervisors implement the cvq without supporting inte=
+rrupt.
 
+It's a bug of the hypervisor that needs to be fix. Interrupt is
+provided by transport not the virtio itself.
 
-We should merge this to the function virtnet_send_command.
+Otherwise it can only support for Linux but not other OSes.
 
+> If we let the cvq work with interrupt without negotiation then
+> many hypervisors will hang on the new kernel.
+>
+> >
+> > We can introduce something like enable_cb_delayed(), then you will
+> > only get notified after several requests.
+> >
+> > >
+> > > >
+> > > > Haven't found time in working on this anymore, maybe we can start f=
+rom
+> > > > this or not.
+> > >
+> > >
+> > > I said async, but my aim is to put many requests to the cvq before ge=
+tting the
+> > > response.
+> >
+> > It doesn't differ from TX/RX in this case.
+> >
+> > >
+> > > Heng Qi posted this https://lore.kernel.org/all/1705410693-118895-4-g=
+it-send-email-hengqi@linux.alibaba.com/
+> > >
+> >
+> > This seems like a hack, if interrupt is used, you can simply do that
+> > in the callback.
+>
+> YES.
+>
+> I also want to change the code, I just want to say the async is a goal.
+>
+> For the rx mode, we have introduce a work queue, I want to move the
+> sending command job to the work queue. The caller just wakeup
+> the work queue.
+>
+> If the caller want to got the result sync, then the caller can wait for i=
+t.
+> If not, the caller can register an function to the work queue.
+>
+> And I think it will be easy to implement the timeout inside the workqueue=
+.
 
-> +
-> +static void get_cvq_work(struct work_struct *work)
-> +{
-> +	struct virtnet_info *vi =
-> +		container_of(work, struct virtnet_info, get_cvq.work);
-> +
-> +	if (!rtnl_trylock()) {
-> +		schedule_delayed_work(&vi->get_cvq, 5);
-> +		return;
-> +	}
-> +
-> +	if (!vi->cvq_cmd_nums)
-> +		goto ret;
-> +
-> +	virtnet_cvq_response(vi, false);
-> +
-> +	if (vi->cvq_cmd_nums)
-> +		schedule_delayed_work(&vi->get_cvq, 5);
-> +
-> +ret:
-> +	rtnl_unlock();
-> +}
-> +
->  static void virtnet_rx_dim_work(struct work_struct *work)
->  {
->  	struct dim *dim = container_of(work, struct dim, work);
->  	struct receive_queue *rq = container_of(dim,
->  			struct receive_queue, dim);
->  	struct virtnet_info *vi = rq->vq->vdev->priv;
-> +	struct virtnet_batch_coal *avail_coal;
->  	struct dim_cq_moder update_moder;
-> -	struct virtnet_batch_coal *coal = vi->batch_coal;
-> -	struct scatterlist sgs;
-> -	int i, j = 0;
-> +	int i, j = 0, position;
-> +	u8 *buf;
->
->  	if (!rtnl_trylock()) {
->  		schedule_work(&dim->work);
->  		return;
->  	}
->
-> +	if (vi->cvq_cmd_nums == BATCH_CMD || vi->cvq->num_free < 3 ||
-> +	    vi->cvq->num_free <= (virtqueue_get_vring_size(vi->cvq) / 3))
-> +		virtnet_cvq_response(vi, true);
-> +
-> +	for (i = 0; i < BATCH_CMD; i++) {
-> +		buf = (u8 *)vi->batch_coal;
-> +		position = i * (sizeof(struct virtnet_batch_coal) +
-> +				vi->max_queue_pairs * sizeof(struct virtnet_coal_entry));
-> +		avail_coal = (struct virtnet_batch_coal *)(&buf[position]);
-> +		if (avail_coal->usable)
-> +			break;
+Looks much more complicated than a simple interrupt + timer/watchdog etc.
 
+Thanks
 
-list or kmalloc here are all better way.
+>
+> Thanks.
+>
+>
+> >
+> > Thanks
+> >
+> > > Thanks.
+> > >
+> > >
+> > > >
+> > > > Thanks
+> > > >
+> > > > > >
+> > > > > > Thanks.
+> > > > > >
+> > > > > >
+> > > > > > >
+> > > > > > > Thanks
+> > > > > > >
+> > > > > > > >
+> > > > > > > > Thanks.
+> > > > > > > >
+> > > > > > > >
+> > > > > > > > >
+> > > > > > > > > Thans
+> > > > > > > > >
+> > > > > > > > > >
+> > > > > > > > > > Zhu Yanjun
+> > > > > > > > > >
+> > > > > > > > > > >
+> > > > > > > > > > >       Andrew
+> > > > > > > > > >
+> > > > > > > > >
+> > > > > > > >
+> > > > > > >
+> > > > > >
+> > > >
+> > >
+> >
+>
 
-
-> +	}
-> +
->  	/* Each rxq's work is queued by "net_dim()->schedule_work()"
->  	 * in response to NAPI traffic changes. Note that dim->profile_ix
->  	 * for each rxq is updated prior to the queuing action.
-> @@ -3552,30 +3677,26 @@ static void virtnet_rx_dim_work(struct work_struct *work)
->  		update_moder = net_dim_get_rx_moderation(dim->mode, dim->profile_ix);
->  		if (update_moder.usec != rq->intr_coal.max_usecs ||
->  		    update_moder.pkts != rq->intr_coal.max_packets) {
-> -			coal->coal_vqs[j].vqn = cpu_to_le16(rxq2vq(i));
-> -			coal->coal_vqs[j].coal.max_usecs = cpu_to_le32(update_moder.usec);
-> -			coal->coal_vqs[j].coal.max_packets = cpu_to_le32(update_moder.pkts);
-> +			avail_coal->coal_vqs[j].vqn = cpu_to_le16(rxq2vq(i));
-> +			avail_coal->coal_vqs[j].coal.max_usecs = cpu_to_le32(update_moder.usec);
-> +			avail_coal->coal_vqs[j].coal.max_packets = cpu_to_le32(update_moder.pkts);
->  			rq->intr_coal.max_usecs = update_moder.usec;
->  			rq->intr_coal.max_packets = update_moder.pkts;
->  			j++;
-> -		}
-> +		} else if (dim->state == DIM_APPLY_NEW_PROFILE)
-> +			dim->state = DIM_START_MEASURE;
->  	}
->
->  	if (!j)
->  		goto ret;
->
-> -	coal->num_entries = cpu_to_le32(j);
-> -	sg_init_one(&sgs, coal, sizeof(struct virtnet_batch_coal) +
-> -		    j * sizeof(struct virtio_net_ctrl_coal_vq));
-> -	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_NOTF_COAL,
-> -				  VIRTIO_NET_CTRL_NOTF_COAL_VQS_SET,
-> -				  &sgs))
-> -		dev_warn(&vi->vdev->dev, "Failed to add dim command\n.");
-> +	avail_coal->num_entries = cpu_to_le32(j);
-> +	if (!virtnet_add_dim_command(vi, avail_coal))
-> +		goto ret;
->
-> -	for (i = 0; i < j; i++) {
-> -		rq = &vi->rq[(coal->coal_vqs[i].vqn) / 2];
-> -		rq->dim.state = DIM_START_MEASURE;
-> -	}
-> +	virtnet_cvq_response(vi, false);
-
-Is this usable?
-
-
-> +	if (vi->cvq_cmd_nums)
-> +		schedule_delayed_work(&vi->get_cvq, 1);
->
->  ret:
->  	rtnl_unlock();
-> @@ -4402,7 +4523,9 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
->
->  static int virtnet_alloc_queues(struct virtnet_info *vi)
->  {
-> -	int i, len;
-> +	struct virtnet_batch_coal *batch_coal;
-> +	int i, position;
-> +	u8 *buf;
->
->  	if (vi->has_cvq) {
->  		vi->ctrl = kzalloc(sizeof(*vi->ctrl), GFP_KERNEL);
-> @@ -4418,13 +4541,21 @@ static int virtnet_alloc_queues(struct virtnet_info *vi)
->  	if (!vi->rq)
->  		goto err_rq;
->
-> -	len = sizeof(struct virtnet_batch_coal) +
-> -	      vi->max_queue_pairs * sizeof(struct virtio_net_ctrl_coal_vq);
-> -	vi->batch_coal = kzalloc(len, GFP_KERNEL);
-> -	if (!vi->batch_coal)
-> +	buf = kzalloc(BATCH_CMD * (sizeof(struct virtnet_batch_coal) +
-> +		      vi->max_queue_pairs * sizeof(struct virtnet_coal_entry)), GFP_KERNEL);
-> +	if (!buf)
->  		goto err_coal;
->
-> +	vi->batch_coal = (struct virtnet_batch_coal *)buf;
-> +	for (i = 0; i < BATCH_CMD; i++) {
-> +		position = i * (sizeof(struct virtnet_batch_coal) +
-> +				vi->max_queue_pairs * sizeof(struct virtnet_coal_entry));
-> +		batch_coal = (struct virtnet_batch_coal *)(&buf[position]);
-> +		batch_coal->usable = true;
-> +	}
-> +
->  	INIT_DELAYED_WORK(&vi->refill, refill_work);
-> +	INIT_DELAYED_WORK(&vi->get_cvq, get_cvq_work);
->  	for (i = 0; i < vi->max_queue_pairs; i++) {
->  		vi->rq[i].pages = NULL;
->  		netif_napi_add_weight(vi->dev, &vi->rq[i].napi, virtnet_poll,
-> --
-> 1.8.3.1
->
