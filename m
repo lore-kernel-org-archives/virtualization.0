@@ -1,95 +1,156 @@
-Received: from SHSQR01.spreadtrum.com (mx1.unisoc.com [222.66.158.135])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F09B03D0C0
-	for <virtualization@lists.linux.dev>; Mon, 22 Jan 2024 11:07:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=222.66.158.135
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4A7A748A
+	for <virtualization@lists.linux-foundation.org>; Mon, 22 Jan 2024 11:10:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705921672; cv=none; b=fBJ66JRswDr73dcaVbGoVfUB+UYMu4V0mJCKVlbFwjjLtDhosU6PKeEjvlMrRN3TgWHZHybtlGg1luUF2GPBwizvJqdjEpsbJimhhGB/mn7/7YO+FGFIRVKqwKNIqtesByRcWD9HEk0R/c4yCa+MPz6zpeD44Tb5v6v4kfAuvo4=
+	t=1705921848; cv=none; b=sBApn1MnlLNSXCQqcZ30V59PiGQ372Kg8FUMxXBYYIuUCJMa2MMclZVnBSOg+fsbZNZybuHhy6452Dges8LsJg+9VSgt2L97+vCrqbJSoDdtUdeKXAZpgivekVTj4HKVquq3wfbP9xP7VbVeXQG2mQ9TdYCY/vtGIvDvbRUK1AA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705921672; c=relaxed/simple;
-	bh=tEBM8ROgFnpAjPpGkQqFn+5G7qisAii32clsfbRevhI=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=eeTTwTYh1aNvwQ2gek6dXg0oiaOkrcdgV4NVjVtmSl9c5GZkrpA3j8QpriURlXpXYImHUTaLs9MOlr1j6AI4AGA3x4L+b5aTiFQd+EOs3JUjsKfxd5qlTSBKmdw67byBclV869/17vMVqcbfA5IWyukA0muaQq2wtSa5cI9o2EM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=unisoc.com; spf=pass smtp.mailfrom=unisoc.com; arc=none smtp.client-ip=222.66.158.135
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=unisoc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=unisoc.com
-Received: from dlp.unisoc.com ([10.29.3.86])
-	by SHSQR01.spreadtrum.com with ESMTP id 40MB7TmP062317;
-	Mon, 22 Jan 2024 19:07:29 +0800 (+08)
-	(envelope-from Yi.Sun@unisoc.com)
-Received: from SHDLP.spreadtrum.com (bjmbx01.spreadtrum.com [10.0.64.7])
-	by dlp.unisoc.com (SkyGuard) with ESMTPS id 4TJS153t0qz2RcY8P;
-	Mon, 22 Jan 2024 19:00:09 +0800 (CST)
-Received: from tj10379pcu.spreadtrum.com (10.5.32.15) by
- BJMBX01.spreadtrum.com (10.0.64.7) with Microsoft SMTP Server (TLS) id
- 15.0.1497.23; Mon, 22 Jan 2024 19:07:27 +0800
-From: Yi Sun <yi.sun@unisoc.com>
-To: <axboe@kernel.dk>, <mst@redhat.com>, <jasowang@redhat.com>
-CC: <xuanzhuo@linux.alibaba.com>, <pbonzini@redhat.com>, <stefanha@redhat.com>,
-        <virtualization@lists.linux.dev>, <linux-block@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <yi.sun@unisoc.com>,
-        <zhiguo.niu@unisoc.com>, <hongyu.jin@unisoc.com>,
-        <sunyibuaa@gmail.com>
-Subject: [PATCH 2/2] virtio-blk: Ensure no requests in virtqueues before deleting vqs.
-Date: Mon, 22 Jan 2024 19:07:22 +0800
-Message-ID: <20240122110722.690223-3-yi.sun@unisoc.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20240122110722.690223-1-yi.sun@unisoc.com>
-References: <20240122110722.690223-1-yi.sun@unisoc.com>
+	s=arc-20240116; t=1705921848; c=relaxed/simple;
+	bh=cuK6dlsAqqCyuHKmfg4fbsKC82Budl4OWQwU5QWb5N8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=PJtbz9A5QTUM1+n4/5nnki/fVWNiOeVeiJgrOlNQ3FzthoddtLz4ay1AIiljqN256WwVZGYUFdWbxQTrXsE8xA3iY4cG0QIyqKdYEMEahXhBd7CcEpFftP7kJFIN3+1r+ScvilFJzkFZOFoMyGXpgZGJS2LGxTqAHm9u43fpCdU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 396C982540
+	for <virtualization@lists.linux-foundation.org>; Mon, 22 Jan 2024 11:10:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 396C982540
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -9.899
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id KMV_qhhAbQjL
+	for <virtualization@lists.linux-foundation.org>;
+	Mon, 22 Jan 2024 11:10:45 +0000 (UTC)
+Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 9F16182538
+	for <virtualization@lists.linux-foundation.org>; Mon, 22 Jan 2024 11:10:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9F16182538
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0W.7NcCV_1705921837;
+Received: from 30.221.149.111(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W.7NcCV_1705921837)
+          by smtp.aliyun-inc.com;
+          Mon, 22 Jan 2024 19:10:38 +0800
+Message-ID: <4ada64aa-87ec-4340-9892-be52c1f27a97@linux.alibaba.com>
+Date: Mon, 22 Jan 2024 19:10:36 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] virtio_net: Support RX hash XDP hint
+To: Liang Chen <liangchen.linux@gmail.com>, mst@redhat.com,
+ jasowang@redhat.com
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+References: <20240122102256.261374-1-liangchen.linux@gmail.com>
+From: Heng Qi <hengqi@linux.alibaba.com>
+In-Reply-To: <20240122102256.261374-1-liangchen.linux@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: SHCAS03.spreadtrum.com (10.0.1.207) To
- BJMBX01.spreadtrum.com (10.0.64.7)
-X-MAIL:SHSQR01.spreadtrum.com 40MB7TmP062317
 
-Ensure no remaining requests in virtqueues before resetting vdev and
-deleting virtqueues. Otherwise these requests will never be completed.
-It may cause the system to become unresponsive. So it is better to place
-blk_mq_quiesce_queue() in front of virtio_reset_device().
+Hi Liang Chen,
 
-Function blk_mq_quiesce_queue() can ensure that requests have become
-in_flight status, but it cannot guarantee that requests have been
-processed by the device. Virtqueues should never be deleted before
-all requests become complete status.
+在 2024/1/22 下午6:22, Liang Chen 写道:
+> The RSS hash report is a feature that's part of the virtio specification.
+> Currently, virtio backends like qemu, vdpa (mlx5), and potentially vhost
+> (still a work in progress as per [1]) support this feature. While the
+> capability to obtain the RSS hash has been enabled in the normal path,
+> it's currently missing in the XDP path. Therefore, we are introducing XDP
+> hints through kfuncs to allow XDP programs to access the RSS hash.
+>
+> Signed-off-by: Liang Chen <liangchen.linux@gmail.com>
+> ---
+>   drivers/net/virtio_net.c | 56 ++++++++++++++++++++++++++++++++++++++++
+>   1 file changed, 56 insertions(+)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index d7ce4a1011ea..1463a4709e3c 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -4579,6 +4579,60 @@ static void virtnet_set_big_packets(struct virtnet_info *vi, const int mtu)
+>   	}
+>   }
+>   
+> +static int virtnet_xdp_rx_hash(const struct xdp_md *_ctx, u32 *hash,
+> +			   enum xdp_rss_hash_type *rss_type)
+> +{
+> +	const struct xdp_buff *xdp = (void *)_ctx;
+> +	struct virtio_net_hdr_v1_hash *hdr_hash;
+> +	struct virtnet_info *vi;
+> +
+> +	if (!(xdp->rxq->dev->features & NETIF_F_RXHASH))
 
-New function blk_mq_tagset_wait_request_completed() ensure that all
-requests in virtqueues become complete status.
+I think 'vi->has_rss_hash_report' should be used here.
+NETIF_F_RXHASH cannot guarantee that the hash report feature is negotiated,
+and accessing hash_report and hash_value is unsafe at this time.
 
-Signed-off-by: Yi Sun <yi.sun@unisoc.com>
----
- drivers/block/virtio_blk.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+> +		return -ENODATA;
+> +
+> +	vi = netdev_priv(xdp->rxq->dev);
+> +	hdr_hash = (struct virtio_net_hdr_v1_hash *)(xdp->data - vi->hdr_len);
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 3b6b9abb8ce1..380f009953dd 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -1595,14 +1595,16 @@ static int virtblk_freeze(struct virtio_device *vdev)
- {
- 	struct virtio_blk *vblk = vdev->priv;
- 
-+	/* Ensure no requests in virtqueues before deleting vqs. */
-+	blk_mq_quiesce_queue(vblk->disk->queue);
-+	blk_mq_tagset_wait_request_completed(vblk->disk->queue->tag_set);
-+
- 	/* Ensure we don't receive any more interrupts */
- 	virtio_reset_device(vdev);
- 
- 	/* Make sure no work handler is accessing the device. */
- 	flush_work(&vblk->config_work);
- 
--	blk_mq_quiesce_queue(vblk->disk->queue);
--
- 	vdev->config->del_vqs(vdev);
- 	kfree(vblk->vqs);
- 
--- 
-2.25.1
+If the virtio-net-hdr is overrided by the XDP prog, how can this be done 
+correctly and as expected?
+
+Thanks,
+Heng
+
+> +
+> +	switch (__le16_to_cpu(hdr_hash->hash_report)) {
+> +		case VIRTIO_NET_HASH_REPORT_TCPv4:
+> +			*rss_type = XDP_RSS_TYPE_L4_IPV4_TCP;
+> +			break;
+> +		case VIRTIO_NET_HASH_REPORT_UDPv4:
+> +			*rss_type = XDP_RSS_TYPE_L4_IPV4_UDP;
+> +			break;
+> +		case VIRTIO_NET_HASH_REPORT_TCPv6:
+> +			*rss_type = XDP_RSS_TYPE_L4_IPV6_TCP;
+> +			break;
+> +		case VIRTIO_NET_HASH_REPORT_UDPv6:
+> +			*rss_type = XDP_RSS_TYPE_L4_IPV6_UDP;
+> +			break;
+> +		case VIRTIO_NET_HASH_REPORT_TCPv6_EX:
+> +			*rss_type = XDP_RSS_TYPE_L4_IPV6_TCP_EX;
+> +			break;
+> +		case VIRTIO_NET_HASH_REPORT_UDPv6_EX:
+> +			*rss_type = XDP_RSS_TYPE_L4_IPV6_UDP_EX;
+> +			break;
+> +		case VIRTIO_NET_HASH_REPORT_IPv4:
+> +			*rss_type = XDP_RSS_TYPE_L3_IPV4;
+> +			break;
+> +		case VIRTIO_NET_HASH_REPORT_IPv6:
+> +			*rss_type = XDP_RSS_TYPE_L3_IPV6;
+> +			break;
+> +		case VIRTIO_NET_HASH_REPORT_IPv6_EX:
+> +			*rss_type = XDP_RSS_TYPE_L3_IPV6_EX;
+> +			break;
+> +		case VIRTIO_NET_HASH_REPORT_NONE:
+> +		default:
+> +			*rss_type = XDP_RSS_TYPE_NONE;
+> +	}
+> +
+> +	*hash = __le32_to_cpu(hdr_hash->hash_value);
+> +	return 0;
+> +}
+> +
+> +static const struct xdp_metadata_ops virtnet_xdp_metadata_ops = {
+> +	.xmo_rx_hash			= virtnet_xdp_rx_hash,
+> +};
+> +
+>   static int virtnet_probe(struct virtio_device *vdev)
+>   {
+>   	int i, err = -ENOMEM;
+> @@ -4613,6 +4667,8 @@ static int virtnet_probe(struct virtio_device *vdev)
+>   	dev->ethtool_ops = &virtnet_ethtool_ops;
+>   	SET_NETDEV_DEV(dev, &vdev->dev);
+>   
+> +	dev->xdp_metadata_ops = &virtnet_xdp_metadata_ops;
+> +
+>   	/* Do we support "hardware" checksums? */
+>   	if (virtio_has_feature(vdev, VIRTIO_NET_F_CSUM)) {
+>   		/* This opens up the world of extra features. */
 
