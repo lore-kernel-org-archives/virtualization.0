@@ -1,92 +1,60 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31E17D304
-	for <virtualization@lists.linux.dev>; Mon, 22 Jan 2024 06:58:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9496D304
+	for <virtualization@lists.linux.dev>; Mon, 22 Jan 2024 07:02:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705906717; cv=none; b=PDtmiGoVnKzlXZ3XUe4FJwia1eAUCTBKw8XepZQNKBehjBYhUkEgNfRjd6SjDS7fwZakgI896eBU4i/qUlsKpyjCoa8KB755d7isosfrQFfnyJd6H1t4cSX4O0um2A6KtguwGgc+CgbbvodnInyeMMmmyLrL5MGOi+aJNnnbV0E=
+	t=1705906927; cv=none; b=Xl0GHQwveK7AYtX8SBiUHvqx8KCRFqVEYHqeD6ApVNJBXG4NMo3hzm+OdsqzpE8JnwVZ7o4+Nnhy9M3Lvo4d/ZX5t8F/WT9AM/AFAGXZwjr6BFBq4emoFqLa8WPIIA6EaMqKZCJjvGpr8EKZh7a5BSvnzJ70/LJPTPG9v/4nLMA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705906717; c=relaxed/simple;
-	bh=4mwx/K/ZKYPr5h01zijQABIEvpyfPKmLpduw4ljxofU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=HUaWCzK55tqoTXNH7lj8lIU7U1iJ3flK6ROtFa/nJkS9Ib6++rJ2/GZW8MwXHZk/ubn1cShVCw9OUZB5TaVgquTBGcyJOlHV4C4SkkNEhrCLNXi8SHSAaBDLzSiAYypQkZHUNgMF7nNMp3l12wCMtRTw/ueYDj6Z79yCUxuN2CM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Q7UidyCb; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Q7UidyCb"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1705906715;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=02j9dw3Lf+4L5Y31Zl3/fTa1QTJheCfhM5Fidj3FaLw=;
-	b=Q7UidyCbqPSy9bHNPv43qVITtsxCVbR0S6cBacC/NeneTsyobmwmP5VS1/Pi4qhnUD6Xur
-	7WgPGPgzW9YHTPSd00+DoByE+S/DkwwDJURexdiAfcZxDjsaZzvDMtz40aPfD3XCeOGDvx
-	4UhDwmwgtwxkXogSyIJSg2HKzSne094=
-Received: from mail-pf1-f199.google.com (mail-pf1-f199.google.com
- [209.85.210.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-527-w9GW51eANDqI7hAKS2yHdQ-1; Mon, 22 Jan 2024 01:58:31 -0500
-X-MC-Unique: w9GW51eANDqI7hAKS2yHdQ-1
-Received: by mail-pf1-f199.google.com with SMTP id d2e1a72fcca58-6dbd32d93f1so1947718b3a.3
-        for <virtualization@lists.linux.dev>; Sun, 21 Jan 2024 22:58:31 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1705906710; x=1706511510;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=02j9dw3Lf+4L5Y31Zl3/fTa1QTJheCfhM5Fidj3FaLw=;
-        b=LJR6cQ+9dAjBpOQpjeA+qwwxkhAhzjwLa8IS1GGMZ0VogtTjsivS2hoVdidfx6FvxS
-         dz4GZnXELsGndlcTXexbTcIeBFDkwQzyprt7gR2l/KrhZmuj1q78IqYj5NAsCBR63U/y
-         1JQY6r0A2pbWhdE+amD1i74+owAREeKzMoo2yvSSRNfkvILlP/g5K/Es0E4W5TSunHuw
-         lvf6ARsfGdrlDx33Aqhb06eIqZLxSddb+ZElSp+b/oMI8MChJyNR0IJUaT5hzW4QvNqX
-         ZQn7gh1GGz5NfR64pQaE75UUSqAXC+MhHvgZVkRIY6vw8fWUOMvwqYQMyBBFWFsyWnip
-         pUMA==
-X-Gm-Message-State: AOJu0Yx8XZi76DH7HkKOgt4R/rep15DvOAzg1GTiYGGcM1uSg4dBDk/R
-	7q8XAsS64tVTicJ1vkqhazHJAWIPElwcmInvbwbwBMarhiF7WnWylUrZ5cRSynGn2TeIxTXebgu
-	QbI1gc+EX0+poMIO+kKkirH+uvVc3llHv7JJgEkZjp6Ku84ehmosKjS6w3WS1yIjelATtcnSUUy
-	OXUxvTaSYXkmTcWTadwpxgqsoUWOYjM5z/LoEmt1c=
-X-Received: by 2002:a05:6a00:1a8c:b0:6db:4b64:481c with SMTP id e12-20020a056a001a8c00b006db4b64481cmr5485345pfv.24.1705906710433;
-        Sun, 21 Jan 2024 22:58:30 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEneNIqkylOjOgaqm62vgcmyRwD94cAwueI+HK359j9SOu6AGP9kK+Oypz+0b7e03uyqn5da+lS1sp8jMGlivc=
-X-Received: by 2002:a05:6a00:1a8c:b0:6db:4b64:481c with SMTP id
- e12-20020a056a001a8c00b006db4b64481cmr5485340pfv.24.1705906710148; Sun, 21
- Jan 2024 22:58:30 -0800 (PST)
+	s=arc-20240116; t=1705906927; c=relaxed/simple;
+	bh=EHZFfnCP8bmEiNsmIA6ASjyR/aRe4jAAjNlj2SVPG40=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
+	 Content-Type; b=F4lF1UpgT9QvV5TruaAVjaIsFlZorcZ9h/n7esLQcvAsFg/UlqB8Yi6vGy9yXjkg6K7ybpA06iRpkWI+gs74PoXOGxFbMP58wjvrVUog0WBci7eRWKzqxXfDMeX9AmL3imWO2sjiI9I49ebluu+raXEwhDpb7aOMYlRGFxZmMoc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; arc=none smtp.client-ip=115.124.30.99
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R721e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0W.2qF.6_1705906918;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W.2qF.6_1705906918)
+          by smtp.aliyun-inc.com;
+          Mon, 22 Jan 2024 15:01:59 +0800
+Message-ID: <1705906902.333611-4-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH 1/1] virtio_net: Add timeout handler to avoid kernel hang
+Date: Mon, 22 Jan 2024 15:01:42 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: Andrew Lunn <andrew@lunn.ch>,
+ Heng Qi <hengqi@linux.alibaba.com>,
+ Paolo Abeni <pabeni@redhat.com>,
+ Zhu Yanjun <yanjun.zhu@intel.com>,
+ mst@redhat.com,
+ davem@davemloft.net,
+ edumazet@google.com,
+ kuba@kernel.org,
+ virtualization@lists.linux.dev,
+ netdev@vger.kernel.org,
+ Zhu Yanjun <yanjun.zhu@linux.dev>
+References: <20240115012918.3081203-1-yanjun.zhu@intel.com>
+ <ea230712e27af2c8d2d77d1087e45ecfa86abb31.camel@redhat.com>
+ <667a9520-a53f-40a2-810a-6c1e45146589@linux.dev>
+ <7dd89fc0-f31e-4f83-9c02-58ee67c2d436@linux.alibaba.com>
+ <430b899c-aed4-419d-8ae8-544bb9bec5d9@lunn.ch>
+ <64270652-8e0c-4db7-b245-b970d9588918@linux.dev>
+ <CACGkMEs18hjxiZRDT5-+PMDHkLbEyiviafGiCWsAE6CGBrj+9g@mail.gmail.com>
+ <1705895881.6990144-1-xuanzhuo@linux.alibaba.com>
+ <CACGkMEvvn76w+BZArOWK-c1gsqNNx6bH8HPoqPAqpJG_7EYntA@mail.gmail.com>
+ <1705904164.7020166-3-xuanzhuo@linux.alibaba.com>
+ <CACGkMEsTT7hrm2QWZq-NasfVAJHsUoZq5hijvLE_jY+2YyKytg@mail.gmail.com>
+In-Reply-To: <CACGkMEsTT7hrm2QWZq-NasfVAJHsUoZq5hijvLE_jY+2YyKytg@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-References: <20240115012918.3081203-1-yanjun.zhu@intel.com>
- <ea230712e27af2c8d2d77d1087e45ecfa86abb31.camel@redhat.com>
- <667a9520-a53f-40a2-810a-6c1e45146589@linux.dev> <7dd89fc0-f31e-4f83-9c02-58ee67c2d436@linux.alibaba.com>
- <430b899c-aed4-419d-8ae8-544bb9bec5d9@lunn.ch> <64270652-8e0c-4db7-b245-b970d9588918@linux.dev>
- <CACGkMEs18hjxiZRDT5-+PMDHkLbEyiviafGiCWsAE6CGBrj+9g@mail.gmail.com>
- <1705895881.6990144-1-xuanzhuo@linux.alibaba.com> <CACGkMEvvn76w+BZArOWK-c1gsqNNx6bH8HPoqPAqpJG_7EYntA@mail.gmail.com>
- <1705904164.7020166-3-xuanzhuo@linux.alibaba.com> <CACGkMEsTT7hrm2QWZq-NasfVAJHsUoZq5hijvLE_jY+2YyKytg@mail.gmail.com>
-In-Reply-To: <CACGkMEsTT7hrm2QWZq-NasfVAJHsUoZq5hijvLE_jY+2YyKytg@mail.gmail.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 22 Jan 2024 14:58:09 +0800
-Message-ID: <CACGkMEt4zyESemjPwZtD5d4d00jtorY0qR5vM9y96NZzKkdj8A@mail.gmail.com>
-Subject: Re: [PATCH 1/1] virtio_net: Add timeout handler to avoid kernel hang
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, Heng Qi <hengqi@linux.alibaba.com>, 
-	Paolo Abeni <pabeni@redhat.com>, Zhu Yanjun <yanjun.zhu@intel.com>, mst@redhat.com, 
-	davem@davemloft.net, edumazet@google.com, kuba@kernel.org, 
-	virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	Zhu Yanjun <yanjun.zhu@linux.dev>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jan 22, 2024 at 2:55=E2=80=AFPM Jason Wang <jasowang@redhat.com> wr=
-ote:
->
+On Mon, 22 Jan 2024 14:55:46 +0800, Jason Wang <jasowang@redhat.com> wrote:
 > On Mon, Jan 22, 2024 at 2:20=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba=
 .com> wrote:
 > >
@@ -190,6 +158,12 @@ mdev->common;
 > Yes, it's best effort, there's no guarantee then. But it doesn't harm to =
 try.
 >
+
+YES. I agree.
+
+Thanks.
+
+
 > Thanks
 >
 > >
@@ -199,8 +173,7 @@ try.
 > > >
 > > > 1) avoid lockups, using workqueue + cond_resched() seems to be
 > > > sufficient, it has issue but nothing new
-> > > 2) recover from the unresponsive device, the issue for timeout is tha=
-t
+> > > 2) recover from the unresponsive device, the issue for timeout is that
 > > > it needs to deal with false positives
 > >
 > >
@@ -208,19 +181,6 @@ t
 > >
 > > But I want to add a new goal, cvq async. In the netdim, we will
 > > send many requests via the cvq, so the cvq async will be nice.
-
-Then you need an interrupt for cvq.
-
-FYI, I've posted a series that use interrupt for cvq in the past:
-
-https://lore.kernel.org/lkml/6026e801-6fda-fee9-a69b-d06a80368621@redhat.co=
-m/t/
-
-Haven't found time in working on this anymore, maybe we can start from
-this or not.
-
-Thanks
-
 > >
 > > Thanks.
 > >
@@ -245,4 +205,4 @@ Thanks
 > > > >
 > > >
 > >
-
+>
