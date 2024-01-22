@@ -1,175 +1,166 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4B463A1DE
-	for <virtualization@lists.linux-foundation.org>; Mon, 22 Jan 2024 10:23:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4A453A1BE
+	for <virtualization@lists.linux-foundation.org>; Mon, 22 Jan 2024 10:48:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705918989; cv=none; b=hFAFWQGJT5lSxXDEirzSgA7gwNOBJuJDfYvWKS9u1b8FWnyMsaEPHCGw57trY8QgwNHvX04zqrd3Xb/g+z0rW4RTYWPElXASISGyRz44RA6XVtclDhz2S7duIJC7SKqMytlrswBu6H83krlzpgSlvZDqFoHka9ZNo4I6x+RJghQ=
+	t=1705920484; cv=none; b=ZTeg6A7N6Eh/c6CKOYOLCqygRbcfcAkncltiwTBngAsGv500mqUwsvYat9b2+bm+N/s1MJYZn9icYC2t07PTxzMuMKGSG/S8GxgNT5NddAwjLuq69eRVz92gC3PW9AHRNa7chdrISyBkQdJ7ga7ll4AxaMsFI8nndqFf4qa6fuY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705918989; c=relaxed/simple;
-	bh=Ock7B69XdGIXdbkP3Pl3P871KHNB5YiSNiJc9wfXg6A=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=tIoTqovJu+FCASPUxEibUS4rob6OL8N+BudP3z7BwcG0NV/X2jS/6zgRepPiO88TuRXYtY5rwAy1Z1qcfE45Q5dTOv16AsSCJkGs0nWgHxl+KpxuSTDZcwtH1EwfoIbaLCwJQ6HDWdpUu5QKR/kwhwoh0z99DdEwL0Kzrn81QiY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GxWX7smB; arc=none smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1705920484; c=relaxed/simple;
+	bh=UMEPrzsFfMwcLb6gpEQxDtl8Y3dVJdxWPuxxS76bS/E=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=KdeDdfUq5TUnMYl3WAVqZlZstuX/lbnqbF3KZRyssHk5nNH1XhuWJKJoIbGcK2CtF/tnLsn3ZEffxHHJIusDAwLgcrDbHcaam9PSwT7JXrxTGa+fMcUxfPQ1wmJ1Sg/KTR6Z9XSV5NUGaDqTHzcn+vorKkp/ODbUcLyJAPkCYeE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=K3XRLw8Y; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GxWX7smB"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="K3XRLw8Y"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 7E5EC8237B
-	for <virtualization@lists.linux-foundation.org>; Mon, 22 Jan 2024 10:23:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7E5EC8237B
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=GxWX7smB
+	by smtp3.osuosl.org (Postfix) with ESMTP id 59F5660DFE
+	for <virtualization@lists.linux-foundation.org>; Mon, 22 Jan 2024 10:48:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 59F5660DFE
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=K3XRLw8Y
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id puPyRe5uNPxy
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id pvXSu1gKukO2
 	for <virtualization@lists.linux-foundation.org>;
-	Mon, 22 Jan 2024 10:23:07 +0000 (UTC)
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id E058982369
-	for <virtualization@lists.linux-foundation.org>; Mon, 22 Jan 2024 10:23:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E058982369
-Received: by mail-pj1-x102f.google.com with SMTP id 98e67ed59e1d1-290b1e19101so263903a91.0
-        for <virtualization@lists.linux-foundation.org>; Mon, 22 Jan 2024 02:23:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1705918986; x=1706523786; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=dcV0b9EAD7cikX7TBR9d3JnFTgh+L0e81zNYPrMvnxA=;
-        b=GxWX7smBaZR/538F3poSYMzYf/HnLBxOpV7PCpkcLEUCQFwrStM6SiTyziHvWZOg3l
-         HYzlc3V0IQDGjMsMEFWaf/keLJHS8OBWW+rc48KujjFxbTIeEpFsoxATqExocMl12SgJ
-         YZw0H6LXrdIC7ZU8x04RdHUBdOtFKiRIr+MnfZQ9uXkXdqtsVLgEYXVFHKbQ5qTJPD4B
-         fTNBc6NwZSxbnRZoHDBxxLFe6khgX+w5s22ViVwnyCq86eldG+1TzQgGuizgNSwvUcF3
-         wm+E99QwzK+i6F8Ye5FadulFTyYn957ZOdwza7LYj0Fl25WlGnW4eYOb3QNuJ70AZYFL
-         kSUg==
+	Mon, 22 Jan 2024 10:48:02 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 883536076C
+	for <virtualization@lists.linux-foundation.org>; Mon, 22 Jan 2024 10:48:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 883536076C
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1705920481;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=SAQacrX86fqUD9K4Yvf7W+7v6QcN6oGZap2bo4/kXUo=;
+	b=K3XRLw8YZNLLDxpHjZ0hPoTtI6u1PcTM1TjXlrmaarRrMWkF0ndVvgSEdy4iWrLSHdAAB7
+	QJvL5f1PNk72xQ1yh0JOWfT3SVM+Xbkm1kdGgaii6cb4muO2cRnmxZqTWZml4ct3JKQYgV
+	D7LB00FjwwnA9aiSQw1RwY4H7ZLAkQI=
+Received: from mail-yw1-f197.google.com (mail-yw1-f197.google.com
+ [209.85.128.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-151-EXr4Ar5gOyG4Wat4zUvoOg-1; Mon, 22 Jan 2024 05:47:59 -0500
+X-MC-Unique: EXr4Ar5gOyG4Wat4zUvoOg-1
+Received: by mail-yw1-f197.google.com with SMTP id 00721157ae682-5fface2c4afso17116877b3.0
+        for <virtualization@lists.linux-foundation.org>; Mon, 22 Jan 2024 02:47:59 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1705918986; x=1706523786;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=dcV0b9EAD7cikX7TBR9d3JnFTgh+L0e81zNYPrMvnxA=;
-        b=Ip3QKolwPSgIyrHkz97qEapj3NcIIpGiIBx4L91bK0m/jOX95h6BHJAJGeuSCu+ns7
-         L2Ex8+faXq7CpDpzhSnTStsGk84kkVQNu6r4f9hFNkZZJjYUkM5bi/1ghS0QB+zQ9dOT
-         0Z972BjJvqQCpIQ4ATsC6adREKLn/ASXTixaNskNjjKEtHwzu8XenW6za52+M/q1x5H0
-         +Cxj/7W3xKA3c2MfSk/AGlPgXaMzcXkT9Vi3xFKtdox15VG1+r5ux+oZmrch4o/2XNPW
-         ke68++tkvuZymnERty2+0Mv5Z3jEwlawRkT0Sr9BrbVlGlH2zxrqfy1pQGnpfGAzALVU
-         fLMw==
-X-Gm-Message-State: AOJu0YxRSvCpBA+3mZzlcDxuJD3J9nrTnguZzIgClXStpbx6BvKZ5dx6
-	1G3o/cccOygEhWULE4+XwDFrWy67zCZgWRCQPya4Cn15izRKrdLY
-X-Google-Smtp-Source: AGHT+IHVwosNjjzlFduyjv9cVRyks0refrlWsNmXZ/WWUafu5XgUkYbq7SH7UpuFcqAkCnZT5Hmizw==
-X-Received: by 2002:a17:90a:1041:b0:290:2405:aee7 with SMTP id y1-20020a17090a104100b002902405aee7mr6720307pjd.11.1705918986114;
-        Mon, 22 Jan 2024 02:23:06 -0800 (PST)
-Received: from dell.. ([111.192.196.252])
-        by smtp.googlemail.com with ESMTPSA id su7-20020a17090b534700b0028d29d837c7sm9099697pjb.36.2024.01.22.02.23.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Jan 2024 02:23:05 -0800 (PST)
-From: Liang Chen <liangchen.linux@gmail.com>
-To: mst@redhat.com,
-	jasowang@redhat.com
-Cc: virtualization@lists.linux-foundation.org,
-	linux-kernel@vger.kernel.org,
-	liangchen.linux@gmail.com
-Subject: [PATCH] virtio_net: Support RX hash XDP hint
-Date: Mon, 22 Jan 2024 18:22:56 +0800
-Message-Id: <20240122102256.261374-1-liangchen.linux@gmail.com>
-X-Mailer: git-send-email 2.40.1
+        d=1e100.net; s=20230601; t=1705920479; x=1706525279;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=SAQacrX86fqUD9K4Yvf7W+7v6QcN6oGZap2bo4/kXUo=;
+        b=YMOfhsZ2ac8f8syG7SzjOnDI/GGY9bBar3gaeOVekNXJCH7tOfqZe9VbFL0fc/8+6A
+         t4AyxmEX5Ymc4Awqw9kMlpFl2pNNWcrruf7HhR7N/VDdyS7GyAXp0AIUki+9tZuOXcQ4
+         lGDlldvnhdpNx2e77UZJwvZOIoY72i/BtTw+3qDlJecaj2uZB/4jFoQIl+vuEC0t9FAg
+         bj+BOxtbdjxVG3WSEudWu/hGJMeTnTRR3kMlvAg+GQrZj3O/RhS0qHboNQvf81QufE9Z
+         eTEmlt53Cp+rFGqvn6/azUL8T6i7CIg1AprKXG4ujd7d4rMv9QJ/JRtWGxlJ26UvOuOp
+         3S6g==
+X-Gm-Message-State: AOJu0YyU5cTA+1IMRlhBxh43TwECW8vNLDmH88Vld03FjBSaJQWRmeLB
+	P/ZB7IUNuz7FQEdF8GR7aF2dPyANvUbi7ZIQDF4ntWdKEH+6i1nby2TzTwi5iFYnewpl/EisR9B
+	2QNFVsWckt/I5iZ43eHKO9oPDI1CmMWLbH8YdrWNfT2uD/MChgDI2WztrK6iD1MyeotEy0LCjju
+	45sRgNeoo+qZQZLneAiQKY5GHxCSljcs2Z61cPrKxumQxhKMtj8wRlTA==
+X-Received: by 2002:a0d:dbd5:0:b0:5ff:956d:8b7f with SMTP id d204-20020a0ddbd5000000b005ff956d8b7fmr3052788ywe.10.1705920479009;
+        Mon, 22 Jan 2024 02:47:59 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEL9kWBkFrWysbj41gcH1s65ao+SK2QQzY/6YTjr57S5jDjOuIcHyA9BD2Aa+0IG0Ml8khImO/AtDyOFc4vg/0=
+X-Received: by 2002:a0d:dbd5:0:b0:5ff:956d:8b7f with SMTP id
+ d204-20020a0ddbd5000000b005ff956d8b7fmr3052778ywe.10.1705920478772; Mon, 22
+ Jan 2024 02:47:58 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <1705519403-255169-1-git-send-email-steven.sistare@oracle.com> <mhnsrwlvqjeftu5aa77iaowdk2wrq366yofjchbn5fwchgcbna@kcjtoj46fawi>
+In-Reply-To: <mhnsrwlvqjeftu5aa77iaowdk2wrq366yofjchbn5fwchgcbna@kcjtoj46fawi>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Mon, 22 Jan 2024 11:47:22 +0100
+Message-ID: <CAJaqyWcLj7Y0rm3_jdfP8KgS4gkE9ns286XJywBGE0iijMireQ@mail.gmail.com>
+Subject: Re: [PATCH V1] vdpa_sim: reset must not run
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: Steve Sistare <steven.sistare@oracle.com>, virtualization@lists.linux-foundation.org, 
+	linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Jason Wang <jasowang@redhat.com>, Si-Wei Liu <si-wei.liu@oracle.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-The RSS hash report is a feature that's part of the virtio specification.
-Currently, virtio backends like qemu, vdpa (mlx5), and potentially vhost
-(still a work in progress as per [1]) support this feature. While the
-capability to obtain the RSS hash has been enabled in the normal path,
-it's currently missing in the XDP path. Therefore, we are introducing XDP
-hints through kfuncs to allow XDP programs to access the RSS hash.
+On Mon, Jan 22, 2024 at 11:22=E2=80=AFAM Stefano Garzarella <sgarzare@redha=
+t.com> wrote:
+>
+> On Wed, Jan 17, 2024 at 11:23:23AM -0800, Steve Sistare wrote:
+> >vdpasim_do_reset sets running to true, which is wrong, as it allows
+> >vdpasim_kick_vq to post work requests before the device has been
+> >configured.  To fix, do not set running until VIRTIO_CONFIG_S_FEATURES_O=
+K
+> >is set.
+> >
+> >Fixes: 0c89e2a3a9d0 ("vdpa_sim: Implement suspend vdpa op")
+> >Signed-off-by: Steve Sistare <steven.sistare@oracle.com>
+> >Reviewed-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> >---
+> > drivers/vdpa/vdpa_sim/vdpa_sim.c | 3 ++-
+> > 1 file changed, 2 insertions(+), 1 deletion(-)
+> >
+> >diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vd=
+pa_sim.c
+> >index be2925d0d283..6304cb0b4770 100644
+> >--- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
+> >+++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+> >@@ -160,7 +160,7 @@ static void vdpasim_do_reset(struct vdpasim *vdpasim=
+, u32 flags)
+> >               }
+> >       }
+> >
+> >-      vdpasim->running =3D true;
+> >+      vdpasim->running =3D false;
+> >       spin_unlock(&vdpasim->iommu_lock);
+> >
+> >       vdpasim->features =3D 0;
+> >@@ -483,6 +483,7 @@ static void vdpasim_set_status(struct vdpa_device *v=
+dpa, u8 status)
+> >
+> >       mutex_lock(&vdpasim->mutex);
+> >       vdpasim->status =3D status;
+> >+      vdpasim->running =3D (status & VIRTIO_CONFIG_S_FEATURES_OK) !=3D =
+0;
+> >       mutex_unlock(&vdpasim->mutex);
+>
+> Should we do something similar also in vdpasim_resume() ?
+>
+> I mean something like this:
+>
+> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdp=
+a_sim.c
+> index be2925d0d283..55e4633d5442 100644
+> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
+> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+> @@ -520,7 +520,7 @@ static int vdpasim_resume(struct vdpa_device *vdpa)
+>          int i;
+>
+>          mutex_lock(&vdpasim->mutex);
+> -       vdpasim->running =3D true;
+> +       vdpasim->running =3D (vdpasim->status & VIRTIO_CONFIG_S_FEATURES_=
+OK) !=3D 0;
+>
+>          if (vdpasim->pending_kick) {
+>                  /* Process pending descriptors */
+>
+> Thanks,
+> Stefano
+>
 
-Signed-off-by: Liang Chen <liangchen.linux@gmail.com>
----
- drivers/net/virtio_net.c | 56 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 56 insertions(+)
+The suspend and resume operation should not be called before
+DRIVER_OK, so maybe we should add that protection at
+drivers/vhost/vdpa.c actually?
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index d7ce4a1011ea..1463a4709e3c 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -4579,6 +4579,60 @@ static void virtnet_set_big_packets(struct virtnet_info *vi, const int mtu)
- 	}
- }
- 
-+static int virtnet_xdp_rx_hash(const struct xdp_md *_ctx, u32 *hash,
-+			   enum xdp_rss_hash_type *rss_type)
-+{
-+	const struct xdp_buff *xdp = (void *)_ctx;
-+	struct virtio_net_hdr_v1_hash *hdr_hash;
-+	struct virtnet_info *vi;
-+
-+	if (!(xdp->rxq->dev->features & NETIF_F_RXHASH))
-+		return -ENODATA;
-+
-+	vi = netdev_priv(xdp->rxq->dev);
-+	hdr_hash = (struct virtio_net_hdr_v1_hash *)(xdp->data - vi->hdr_len);
-+
-+	switch (__le16_to_cpu(hdr_hash->hash_report)) {
-+		case VIRTIO_NET_HASH_REPORT_TCPv4:
-+			*rss_type = XDP_RSS_TYPE_L4_IPV4_TCP;
-+			break;
-+		case VIRTIO_NET_HASH_REPORT_UDPv4:
-+			*rss_type = XDP_RSS_TYPE_L4_IPV4_UDP;
-+			break;
-+		case VIRTIO_NET_HASH_REPORT_TCPv6:
-+			*rss_type = XDP_RSS_TYPE_L4_IPV6_TCP;
-+			break;
-+		case VIRTIO_NET_HASH_REPORT_UDPv6:
-+			*rss_type = XDP_RSS_TYPE_L4_IPV6_UDP;
-+			break;
-+		case VIRTIO_NET_HASH_REPORT_TCPv6_EX:
-+			*rss_type = XDP_RSS_TYPE_L4_IPV6_TCP_EX;
-+			break;
-+		case VIRTIO_NET_HASH_REPORT_UDPv6_EX:
-+			*rss_type = XDP_RSS_TYPE_L4_IPV6_UDP_EX;
-+			break;
-+		case VIRTIO_NET_HASH_REPORT_IPv4:
-+			*rss_type = XDP_RSS_TYPE_L3_IPV4;
-+			break;
-+		case VIRTIO_NET_HASH_REPORT_IPv6:
-+			*rss_type = XDP_RSS_TYPE_L3_IPV6;
-+			break;
-+		case VIRTIO_NET_HASH_REPORT_IPv6_EX:
-+			*rss_type = XDP_RSS_TYPE_L3_IPV6_EX;
-+			break;
-+		case VIRTIO_NET_HASH_REPORT_NONE:
-+		default:
-+			*rss_type = XDP_RSS_TYPE_NONE;
-+	}
-+
-+	*hash = __le32_to_cpu(hdr_hash->hash_value);
-+	return 0;
-+}
-+
-+static const struct xdp_metadata_ops virtnet_xdp_metadata_ops = {
-+	.xmo_rx_hash			= virtnet_xdp_rx_hash,
-+};
-+
- static int virtnet_probe(struct virtio_device *vdev)
- {
- 	int i, err = -ENOMEM;
-@@ -4613,6 +4667,8 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	dev->ethtool_ops = &virtnet_ethtool_ops;
- 	SET_NETDEV_DEV(dev, &vdev->dev);
- 
-+	dev->xdp_metadata_ops = &virtnet_xdp_metadata_ops;
-+
- 	/* Do we support "hardware" checksums? */
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_CSUM)) {
- 		/* This opens up the world of extra features. */
--- 
-2.40.1
+Thanks!
 
