@@ -1,264 +1,138 @@
-Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EB4E39850
-	for <virtualization@lists.linux.dev>; Mon, 22 Jan 2024 09:16:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 9A7E03A1B0;
+	Mon, 22 Jan 2024 10:03:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705915016; cv=none; b=FLzYsgGb7ETDOBXX8w/DNsC+9MMstIQh/HwOYMXJqPiFqrRsgQ0oLmZ8JpJOoKWsIgrzjeWpvkzhu4184NJZSvPF8APCYLrbxx/IdIpbWyD7jlUNg1owwwrivi38o4/y2BRmwwqOZrTl6NyNE119/LZyJTwravvzSI/N09iCOy4=
+	t=1705917798; cv=none; b=h0G+YAekCktahoI34pL+klOHtddv7yDzWaz4s9eTTAqmC21TmpPXJwtqS814whfLFN8cRSOoOQR7qlfvdHXFWkoRsuK3qTSv9ANh46IrTrTtqqLm1KM09Mg+nKlOpHecboj3E3kEnlZbJAEIKKHRXjsXaoVY9BAWE3c9WTXwF3w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705915016; c=relaxed/simple;
-	bh=HpNVXgyTdzt7tGWGUoRz7wtnHgt4ex5FhcPLj7FKQPs=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=mccX3gkRc8QJuKWKhd/BlyGBvIFRMW432ZVLhX4FSVfbj6CBQwfnnAVMGLSND9SxRNuCTZtXltfU83BIJEEFDsyeidksl6r7hKoX+JegOzNSPFz/hJkJn4+Xi1qb1Mt0aJ0v0HLCinxjS9XnZj3PXAi5rBz1Jrd/5Wz6GiLAfrM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; arc=none smtp.client-ip=115.124.30.98
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R661e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0W.5aV37_1705915003;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W.5aV37_1705915003)
-          by smtp.aliyun-inc.com;
-          Mon, 22 Jan 2024 17:16:43 +0800
-Message-ID: <1705914702.0358708-10-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH 1/1] virtio_net: Add timeout handler to avoid kernel hang
-Date: Mon, 22 Jan 2024 17:11:42 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: Andrew Lunn <andrew@lunn.ch>,
- Heng Qi <hengqi@linux.alibaba.com>,
- Paolo Abeni <pabeni@redhat.com>,
- Zhu Yanjun <yanjun.zhu@intel.com>,
- mst@redhat.com,
- davem@davemloft.net,
- edumazet@google.com,
- kuba@kernel.org,
- virtualization@lists.linux.dev,
- netdev@vger.kernel.org,
- Zhu Yanjun <yanjun.zhu@linux.dev>
-References: <20240115012918.3081203-1-yanjun.zhu@intel.com>
- <ea230712e27af2c8d2d77d1087e45ecfa86abb31.camel@redhat.com>
- <667a9520-a53f-40a2-810a-6c1e45146589@linux.dev>
- <7dd89fc0-f31e-4f83-9c02-58ee67c2d436@linux.alibaba.com>
- <430b899c-aed4-419d-8ae8-544bb9bec5d9@lunn.ch>
- <64270652-8e0c-4db7-b245-b970d9588918@linux.dev>
- <CACGkMEs18hjxiZRDT5-+PMDHkLbEyiviafGiCWsAE6CGBrj+9g@mail.gmail.com>
- <1705895881.6990144-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEvvn76w+BZArOWK-c1gsqNNx6bH8HPoqPAqpJG_7EYntA@mail.gmail.com>
- <1705904164.7020166-3-xuanzhuo@linux.alibaba.com>
- <CACGkMEsTT7hrm2QWZq-NasfVAJHsUoZq5hijvLE_jY+2YyKytg@mail.gmail.com>
- <CACGkMEt4zyESemjPwZtD5d4d00jtorY0qR5vM9y96NZzKkdj8A@mail.gmail.com>
- <1705906930.2143333-5-xuanzhuo@linux.alibaba.com>
- <CACGkMEuO2wO-kwMWdR9hFSCJwLUN5jwKxCCaAmxJOB8sm5bfoA@mail.gmail.com>
- <1705908305.1535513-7-xuanzhuo@linux.alibaba.com>
- <CACGkMEvRQfSN0S0r4nXNHS1A2LzjhSfL4-1bFrYx4y0yM9yOag@mail.gmail.com>
- <1705910488.8207285-9-xuanzhuo@linux.alibaba.com>
- <CACGkMEu5bO_TeBuKGv0gyaUCnq=euq81y9xJ-MK=VBoCxhVe-Q@mail.gmail.com>
-In-Reply-To: <CACGkMEu5bO_TeBuKGv0gyaUCnq=euq81y9xJ-MK=VBoCxhVe-Q@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+	s=arc-20240116; t=1705917798; c=relaxed/simple;
+	bh=QaI3TybrSwMrvvtSXZ4vLNzCCTaXiUn84Mwme6n7XeI=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=pZsQ7nD4Xlmz/TnbGOoI4ygrAo/M1j9Z19t44mCLCiSp7X3L2xNa6aP9oQepp3TZuIvecjhAVL7yRKQxKvHVxFUqtcX5k2z6sR2qXBfN4kdkU15iMTv5ZXmpDdEvEQ/xsYFuMG2Kthhi/eYQXTqd+tXBUvdJRgWbUU0SN36RuaE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.2.5.213])
+	by gateway (Coremail) with SMTP id _____8DxWPBiPa5l7oMDAA--.14351S3;
+	Mon, 22 Jan 2024 18:03:14 +0800 (CST)
+Received: from localhost.localdomain (unknown [10.2.5.213])
+	by localhost.localdomain (Coremail) with SMTP id AQAAf8BxXs1hPa5l52oRAA--.11303S2;
+	Mon, 22 Jan 2024 18:03:13 +0800 (CST)
+From: Bibo Mao <maobibo@loongson.cn>
+To: Huacai Chen <chenhuacai@kernel.org>,
+	Tianrui Zhao <zhaotianrui@loongson.cn>,
+	Juergen Gross <jgross@suse.com>,
+	Paolo Bonzini <pbonzini@redhat.com>
+Cc: loongarch@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	kvm@vger.kernel.org
+Subject: [PATCH v3 0/6] LoongArch: Add pv ipi support on LoongArch VM
+Date: Mon, 22 Jan 2024 18:03:07 +0800
+Message-Id: <20240122100313.1589372-1-maobibo@loongson.cn>
+X-Mailer: git-send-email 2.39.3
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:AQAAf8BxXs1hPa5l52oRAA--.11303S2
+X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
+X-Coremail-Antispam: 1Uk129KBj93XoWxCw47WF1kWF1kKF1fAFWfCrX_yoW5KryDpF
+	Zrurn3Wr4rGr93Zwnxt3srurn8Jr1xGw1ag3WayrWUC3yaqFyUZr4kGryDZFykJa1rJrW0
+	qr1rGw1ag3WUAabCm3ZEXasCq-sJn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7KY7ZEXa
+	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
+	0xBIdaVrnRJUUUkFb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
+	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
+	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
+	0_Jr0_Gr1l84ACjcxK6I8E87Iv67AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVCY1x0267AK
+	xVW8Jr0_Cr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2x26I8E6xACxx
+	1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv
+	67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41l42xK82IYc2
+	Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s02
+	6x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0x
+	vE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r1j6r4UMIIF0xvE
+	42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6x
+	kF7I0E14v26r1j6r4UYxBIdaVFxhVjvjDU0xZFpf9x07j0FALUUUUU=
 
-On Mon, 22 Jan 2024 16:32:46 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Mon, Jan 22, 2024 at 4:04=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba=
-.com> wrote:
-> >
-> > On Mon, 22 Jan 2024 15:57:08 +0800, Jason Wang <jasowang@redhat.com> wr=
-ote:
-> > > On Mon, Jan 22, 2024 at 3:36=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.ali=
-baba.com> wrote:
-> > > >
-> > > > On Mon, 22 Jan 2024 15:19:12 +0800, Jason Wang <jasowang@redhat.com=
-> wrote:
-> > > > > On Mon, Jan 22, 2024 at 3:07=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux=
-.alibaba.com> wrote:
-> > > > > >
-> > > > > > On Mon, 22 Jan 2024 14:58:09 +0800, Jason Wang <jasowang@redhat=
-.com> wrote:
-> > > > > > > On Mon, Jan 22, 2024 at 2:55=E2=80=AFPM Jason Wang <jasowang@=
-redhat.com> wrote:
-> > > > > > > >
-> > > > > > > > On Mon, Jan 22, 2024 at 2:20=E2=80=AFPM Xuan Zhuo <xuanzhuo=
-@linux.alibaba.com> wrote:
-> > > > > > > > >
-> > > > > > > > > On Mon, 22 Jan 2024 12:16:27 +0800, Jason Wang <jasowang@=
-redhat.com> wrote:
-> > > > > > > > > > On Mon, Jan 22, 2024 at 12:00=E2=80=AFPM Xuan Zhuo <xua=
-nzhuo@linux.alibaba.com> wrote:
-> > > > > > > > > > >
-> > > > > > > > > > > On Mon, 22 Jan 2024 11:14:30 +0800, Jason Wang <jasow=
-ang@redhat.com> wrote:
-> > > > > > > > > > > > On Mon, Jan 22, 2024 at 10:12=E2=80=AFAM Zhu Yanjun=
- <yanjun.zhu@linux.dev> wrote:
-> > > > > > > > > > > > >
-> > > > > > > > > > > > >
-> > > > > > > > > > > > > =E5=9C=A8 2024/1/20 1:29, Andrew Lunn =E5=86=99=
-=E9=81=93:
-> > > > > > > > > > > > > >>>>>        while (!virtqueue_get_buf(vi->cvq, &=
-tmp) &&
-> > > > > > > > > > > > > >>>>> -           !virtqueue_is_broken(vi->cvq))
-> > > > > > > > > > > > > >>>>> +           !virtqueue_is_broken(vi->cvq)) {
-> > > > > > > > > > > > > >>>>> +        if (timeout)
-> > > > > > > > > > > > > >>>>> +            timeout--;
-> > > > > > > > > > > > > >>>> This is not really a timeout, just a loop co=
-unter. 200 iterations could
-> > > > > > > > > > > > > >>>> be a very short time on reasonable H/W. I gu=
-ess this avoid the soft
-> > > > > > > > > > > > > >>>> lockup, but possibly (likely?) breaks the fu=
-nctionality when we need to
-> > > > > > > > > > > > > >>>> loop for some non negligible time.
-> > > > > > > > > > > > > >>>>
-> > > > > > > > > > > > > >>>> I fear we need a more complex solution, as m=
-entioned by Micheal in the
-> > > > > > > > > > > > > >>>> thread you quoted.
-> > > > > > > > > > > > > >>> Got it. I also look forward to the more compl=
-ex solution to this problem.
-> > > > > > > > > > > > > >> Can we add a device capability (new feature bi=
-t) such as ctrq_wait_timeout
-> > > > > > > > > > > > > >> to get a reasonable timeout=EF=BC=9F
-> > > > > > > > > > > > > > The usual solution to this is include/linux/iop=
-oll.h. If you can sleep
-> > > > > > > > > > > > > > read_poll_timeout() otherwise read_poll_timeout=
-_atomic().
-> > > > > > > > > > > > >
-> > > > > > > > > > > > > I read carefully the functions read_poll_timeout(=
-) and
-> > > > > > > > > > > > > read_poll_timeout_atomic(). The timeout is set by=
- the caller of the 2
-> > > > > > > > > > > > > functions.
-> > > > > > > > > > > >
-> > > > > > > > > > > > FYI, in order to avoid a swtich of atomic or not, w=
-e need convert rx
-> > > > > > > > > > > > mode setting to workqueue first:
-> > > > > > > > > > > >
-> > > > > > > > > > > > https://www.mail-archive.com/virtualization@lists.l=
-inux-foundation.org/msg60298.html
-> > > > > > > > > > > >
-> > > > > > > > > > > > >
-> > > > > > > > > > > > > As such, can we add a module parameter to customi=
-ze this timeout value
-> > > > > > > > > > > > > by the user?
-> > > > > > > > > > > >
-> > > > > > > > > > > > Who is the "user" here, or how can the "user" know =
-the value?
-> > > > > > > > > > > >
-> > > > > > > > > > > > >
-> > > > > > > > > > > > > Or this timeout value is stored in device registe=
-r, virtio_net driver
-> > > > > > > > > > > > > will read this timeout value at initialization?
-> > > > > > > > > > > >
-> > > > > > > > > > > > See another thread. The design needs to be general,=
- or you can post a RFC.
-> > > > > > > > > > > >
-> > > > > > > > > > > > In another thought, we've already had a tx watchdog=
-, maybe we can have
-> > > > > > > > > > > > something similar to cvq and use timeout + reset in=
- that case.
-> > > > > > > > > > >
-> > > > > > > > > > > But we may block by the reset ^_^ if the device is br=
-oken?
-> > > > > > > > > >
-> > > > > > > > > > I mean vq reset here.
-> > > > > > > > >
-> > > > > > > > > I see.
-> > > > > > > > >
-> > > > > > > > > I mean when the deivce is broken, the vq reset also many =
-be blocked.
-> > > > > > > > >
-> > > > > > > > >         void vp_modern_set_queue_reset(struct virtio_pci_=
-modern_device *mdev, u16 index)
-> > > > > > > > >         {
-> > > > > > > > >                 struct virtio_pci_modern_common_cfg __iom=
-em *cfg;
-> > > > > > > > >
-> > > > > > > > >                 cfg =3D (struct virtio_pci_modern_common_=
-cfg __iomem *)mdev->common;
-> > > > > > > > >
-> > > > > > > > >                 vp_iowrite16(index, &cfg->cfg.queue_selec=
-t);
-> > > > > > > > >                 vp_iowrite16(1, &cfg->queue_reset);
-> > > > > > > > >
-> > > > > > > > >                 while (vp_ioread16(&cfg->queue_reset))
-> > > > > > > > >                         msleep(1);
-> > > > > > > > >
-> > > > > > > > >                 while (vp_ioread16(&cfg->cfg.queue_enable=
-))
-> > > > > > > > >                         msleep(1);
-> > > > > > > > >         }
-> > > > > > > > >         EXPORT_SYMBOL_GPL(vp_modern_set_queue_reset);
-> > > > > > > > >
-> > > > > > > > > In this function, for the broken device, we can not expec=
-t something.
-> > > > > > > >
-> > > > > > > > Yes, it's best effort, there's no guarantee then. But it do=
-esn't harm to try.
-> > > > > > > >
-> > > > > > > > Thanks
-> > > > > > > >
-> > > > > > > > >
-> > > > > > > > >
-> > > > > > > > > >
-> > > > > > > > > > It looks like we have multiple goals here
-> > > > > > > > > >
-> > > > > > > > > > 1) avoid lockups, using workqueue + cond_resched() seem=
-s to be
-> > > > > > > > > > sufficient, it has issue but nothing new
-> > > > > > > > > > 2) recover from the unresponsive device, the issue for =
-timeout is that
-> > > > > > > > > > it needs to deal with false positives
-> > > > > > > > >
-> > > > > > > > >
-> > > > > > > > > I agree.
-> > > > > > > > >
-> > > > > > > > > But I want to add a new goal, cvq async. In the netdim, w=
-e will
-> > > > > > > > > send many requests via the cvq, so the cvq async will be =
-nice.
-> > > > > > >
-> > > > > > > Then you need an interrupt for cvq.
-> > > > > > >
-> > > > > > > FYI, I've posted a series that use interrupt for cvq in the p=
-ast:
-> > > > > > >
-> > > > > > > https://lore.kernel.org/lkml/6026e801-6fda-fee9-a69b-d06a8036=
-8621@redhat.com/t/
-> > > > > >
-> > > > > > I know this. But the interrupt maybe not a good solution withou=
-t new space.
-> > > > >
-> > > > > What do you mean by "new space"?
-> > > >
-> > > > Yes, I know, the cvq can work with interrupt by the virtio spec.
-> > > > But as I know, many hypervisors implement the cvq without supportin=
-g interrupt.
-> > >
-> > > It's a bug of the hypervisor that needs to be fix. Interrupt is
-> > > provided by transport not the virtio itself.
-> >
-> > YES. I agree.
-> >
-> > But I still think we should not work with interrupt without any negotia=
-tion
-> > directly. I more like to introduce a new feature to enable this.
->
-> I can hardly believe we need to workaround the issue of specific
-> hypervisors like this...
+This patchset adds pv ipi support for VM. On physical machine, ipi HW
+uses IOCSR registers, however there is trap into hypervisor when vcpu
+accesses IOCSR registers if system is in VM mode. SWI is a interrupt
+mechanism like SGI on ARM, software can send interrupt to CPU, only that
+on LoongArch SWI can only be sent to local CPU now. So SWI can not used
+for IPI on real HW system, however it can be used on VM when combined with
+hypercall method. This patch uses SWI interrupt for IPI mechanism, SWI
+injection uses hypercall method. And there is one trap with IPI sending,
+however with SWI interrupt handler there is no trap.
 
-Maybe we should hear others.
+Here is the microbenchmarck data with perf bench futex wake case on 3C5000
+single-way machine, there are 16 cpus on 3C5000 single-way machine, VM
+has 16 vcpus also. The benchmark data is ms time unit to wakeup 16 threads,
+the performance is higher if data is smaller.
 
-We are ok for this. I just think for other hypervisors.
+perf bench futex wake, Wokeup 16 of 16 threads in ms
+--physical machine--   --VM original--   --VM with pv ipi patch--
+  0.0176 ms               0.1140 ms            0.0481 ms 
 
-Thanks.
+---
+Change in V3:
+  1. Add 128 vcpu ipi multicast support like x86
+  2. Change cpucfg base address from 0x10000000 to 0x40000000 which is
+used to dectect hypervisor type, in order to avoid confliction with future
+hw usage
+  3. Adjust patch order in this patchset, move patch 
+Refine-ipi-ops-on-LoongArch-platform to the first one.
+
+Change in V2:
+  1. Add hw cpuid map support since ipi routing uses hw cpuid
+  2. Refine changelog description
+  3. Add hypercall statistic support for vcpu
+  4. Set percpu pv ipi message buffer aligned with cacheline
+  5. Refine pv ipi send logic, do not send ipi message with if there is
+pending ipi message.
+---
+
+Bibo Mao (6):
+  LoongArch/smp: Refine ipi ops on LoongArch platform
+  LoongArch: KVM: Add hypercall instruction emulation support
+  LoongArch: KVM: Add cpucfg area for kvm hypervisor
+  LoongArch: Add paravirt interface for guest kernel
+  LoongArch: KVM: Add physical cpuid map support
+  LoongArch: Add pv ipi support on LoongArch system
+
+ arch/loongarch/Kconfig                        |   9 +
+ arch/loongarch/include/asm/Kbuild             |   1 -
+ arch/loongarch/include/asm/hardirq.h          |   5 +
+ arch/loongarch/include/asm/inst.h             |   1 +
+ arch/loongarch/include/asm/irq.h              |  10 +-
+ arch/loongarch/include/asm/kvm_host.h         |  27 +++
+ arch/loongarch/include/asm/kvm_para.h         | 157 ++++++++++++++++++
+ arch/loongarch/include/asm/kvm_vcpu.h         |   1 +
+ arch/loongarch/include/asm/loongarch.h        |  11 ++
+ arch/loongarch/include/asm/paravirt.h         |  27 +++
+ .../include/asm/paravirt_api_clock.h          |   1 +
+ arch/loongarch/include/asm/smp.h              |  31 ++--
+ arch/loongarch/include/uapi/asm/Kbuild        |   2 -
+ arch/loongarch/kernel/Makefile                |   1 +
+ arch/loongarch/kernel/irq.c                   |  24 +--
+ arch/loongarch/kernel/paravirt.c              | 154 +++++++++++++++++
+ arch/loongarch/kernel/perf_event.c            |  14 +-
+ arch/loongarch/kernel/setup.c                 |   2 +
+ arch/loongarch/kernel/smp.c                   |  60 ++++---
+ arch/loongarch/kernel/time.c                  |  12 +-
+ arch/loongarch/kvm/exit.c                     | 125 ++++++++++++--
+ arch/loongarch/kvm/vcpu.c                     |  94 ++++++++++-
+ arch/loongarch/kvm/vm.c                       |  11 ++
+ 23 files changed, 678 insertions(+), 102 deletions(-)
+ create mode 100644 arch/loongarch/include/asm/kvm_para.h
+ create mode 100644 arch/loongarch/include/asm/paravirt.h
+ create mode 100644 arch/loongarch/include/asm/paravirt_api_clock.h
+ delete mode 100644 arch/loongarch/include/uapi/asm/Kbuild
+ create mode 100644 arch/loongarch/kernel/paravirt.c
 
 
+base-commit: 7a396820222d6d4c02057f41658b162bdcdadd0e
+-- 
+2.39.3
 
->
-> Thanks
->
-> >
-> > Thanks.
-> >
-> >
->
