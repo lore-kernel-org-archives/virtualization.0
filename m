@@ -1,303 +1,372 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39C3338F9C
-	for <virtualization@lists.linux-foundation.org>; Mon, 22 Jan 2024 07:45:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5A0716416
+	for <virtualization@lists.linux.dev>; Mon, 22 Jan 2024 07:50:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705909509; cv=none; b=rP0HqUHlPMPhxhmPyHlq85ZxMfJIRchgCUA3D/zI8q6fp+rNYk8FPPhY3hD6bCoLwkE+GbpoSpbFUvEZV6ORJkk7Gt2HA1nkYjksjwMM+5hu183STErybUbjlv58sf6Q4Zm+0NsmJAVxenSvEJH8iUPAImw2JutGch/Ce0NcGf0=
+	t=1705909811; cv=none; b=ssN5zyhU1gcIO6j80p8owyX3JwC7OF0qwhLSQob0Vg7tCL6yaKp/oQjP0ytGjumNqqqZ2Ku3MN5djzA0omWYtcbE4iPErdfYeo3G8KkO9W3A1uPwCB2UUD8AexZVMwds+Ry6vWsKqUkir5ngU/P38J3HTzUWkcMADljDRKynKtY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705909509; c=relaxed/simple;
-	bh=KlmWnPAZToFQvPsiUfP6iSvCOZ56NoSZwovTmOBtG9g=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=Lmh9Q/C/i+dS7CD+xigrQ2zVVU1WnnVRAHRYlV/Ucz1Itbfn3sCCyUa6CO9kGZ/xP4PW+TqfAgL4LwjffGkv1p0VtzkLqfWKioohgfhikFol6jEaOxGxlO+e+HlaYnKVSTIU7t1dExoPA2ISdhwHJppH/uitzJ+Uigo/LNPNlCY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=QQ8PUQLY; arc=none smtp.client-ip=140.211.166.138
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="QQ8PUQLY"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 9DE1F82125
-	for <virtualization@lists.linux-foundation.org>; Mon, 22 Jan 2024 07:45:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9DE1F82125
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=QQ8PUQLY
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -1.999
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id a77ruW_8-NIW
-	for <virtualization@lists.linux-foundation.org>;
-	Mon, 22 Jan 2024 07:45:06 +0000 (UTC)
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id C4984820D6
-	for <virtualization@lists.linux-foundation.org>; Mon, 22 Jan 2024 07:45:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C4984820D6
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1705909506; x=1737445506;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=KlmWnPAZToFQvPsiUfP6iSvCOZ56NoSZwovTmOBtG9g=;
-  b=QQ8PUQLYLAsxCG1uQbS4OyaQhCIUQVwmEBVP8rx+Cm5z6vv12amsmsZz
-   uYuc1/bVsh3cGa7DfIu0B3VTvD2wJRu5uEFc0RXPL9hY2sN2eKXjZedc4
-   m0UbG8wS1OBQtWKWNMdnVWspOBqW7s5B91XYe/omSwz0f4Rwr0Nwr/UTf
-   jfgS2AqYnanB7sCQ0fE2qOOd+A0BgYp+kVmuvZvjXtrGQcejSAPcQFQaX
-   YPa05mkacqkJlgYw/5Cc3OLD4y+5+3SePMrO2Vru49Z/ChQCbSOmquuDP
-   dexq7Tv5od7Ootfmo7lYEU4NagPzeibYGWNfqVeKNhHl+vHdoV2N5LBc3
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10960"; a="22611707"
-X-IronPort-AV: E=Sophos;i="6.05,211,1701158400"; 
-   d="scan'208";a="22611707"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Jan 2024 23:45:06 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10960"; a="778505102"
-X-IronPort-AV: E=Sophos;i="6.05,211,1701158400"; 
-   d="scan'208";a="778505102"
-Received: from allen-box.sh.intel.com ([10.239.159.127])
-  by orsmga007.jf.intel.com with ESMTP; 21 Jan 2024 23:45:01 -0800
-From: Lu Baolu <baolu.lu@linux.intel.com>
-To: Jason Gunthorpe <jgg@ziepe.ca>,
-	Kevin Tian <kevin.tian@intel.com>,
-	Joerg Roedel <joro@8bytes.org>,
-	Will Deacon <will@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Jean-Philippe Brucker <jean-philippe@linaro.org>,
-	Nicolin Chen <nicolinc@nvidia.com>,
-	Yi Liu <yi.l.liu@intel.com>,
-	Jacob Pan <jacob.jun.pan@linux.intel.com>,
-	Joel Granados <j.granados@samsung.com>
-Cc: iommu@lists.linux.dev,
-	virtualization@lists.linux-foundation.org,
-	linux-kernel@vger.kernel.org,
-	Lu Baolu <baolu.lu@linux.intel.com>
-Subject: [PATCH v3 8/8] iommufd/selftest: Add coverage for IOPF test
-Date: Mon, 22 Jan 2024 15:39:03 +0800
-Message-Id: <20240122073903.24406-9-baolu.lu@linux.intel.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20240122073903.24406-1-baolu.lu@linux.intel.com>
-References: <20240122073903.24406-1-baolu.lu@linux.intel.com>
+	s=arc-20240116; t=1705909811; c=relaxed/simple;
+	bh=gavQG+2p3iMLHLENGCPnZBXZNuLyM4huH221HOhdVSY=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=gngoo9zgltgUjM4B9Ga0WbgmBqjpNT9WAc+z/YS+4Rg/Tx5q6hqJmQs2uPkOHWrQ0j6RXgpG6l9IZjmxjyHfID4wObRig3l0K9ZZQPur2i91QESh/0WF28g7EU2hBl3OcpAd4IniwS+zNwZ59d1FYmjkoqx/yvyUIhepsE0avx0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; arc=none smtp.client-ip=115.124.30.110
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0W.49dnl_1705909804;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W.49dnl_1705909804)
+          by smtp.aliyun-inc.com;
+          Mon, 22 Jan 2024 15:50:04 +0800
+Message-ID: <1705909320.9590936-8-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next 3/3] virtio-net: reduce the CPU consumption of dim worker
+Date: Mon, 22 Jan 2024 15:42:00 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Heng Qi <hengqi@linux.alibaba.com>
+Cc: Jason Wang <jasowang@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Paolo Abeni <pabeni@redhat.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Eric Dumazet <edumazet@google.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ netdev@vger.kernel.org,
+ virtualization@lists.linux.dev
+References: <1705410693-118895-1-git-send-email-hengqi@linux.alibaba.com>
+ <1705410693-118895-4-git-send-email-hengqi@linux.alibaba.com>
+In-Reply-To: <1705410693-118895-4-git-send-email-hengqi@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Extend the selftest tool to add coverage of testing IOPF handling. This
-would include the following tests:
+On Tue, 16 Jan 2024 21:11:33 +0800, Heng Qi <hengqi@linux.alibaba.com> wrote:
+> Accumulate multiple request commands to kick the device once,
+> and obtain the processing results of the corresponding commands
+> asynchronously. The batch command method is used to optimize the
+> CPU overhead of the DIM worker caused by the guest being busy
+> waiting for the command response result.
+>
+> On an 8-queue device, without this patch, the guest cpu overhead
+> due to waiting for cvq could be 10+% and above. With this patch,
+> the corresponding overhead is basically invisible.
+>
+> Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
+> ---
+>  drivers/net/virtio_net.c | 185 ++++++++++++++++++++++++++++++++++++++++-------
+>  1 file changed, 158 insertions(+), 27 deletions(-)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index e4305ad..9f22c85 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -33,6 +33,8 @@
+>  module_param(gso, bool, 0444);
+>  module_param(napi_tx, bool, 0644);
+>
+> +#define BATCH_CMD 25
+> +
+>  /* FIXME: MTU in config. */
+>  #define GOOD_PACKET_LEN (ETH_HLEN + VLAN_HLEN + ETH_DATA_LEN)
+>  #define GOOD_COPY_LEN	128
+> @@ -134,6 +136,9 @@ struct virtnet_interrupt_coalesce {
+>  };
+>
+>  struct virtnet_batch_coal {
+> +	struct virtio_net_ctrl_hdr hdr;
+> +	virtio_net_ctrl_ack status;
+> +	__u8 usable;
+>  	__le32 num_entries;
+>  	struct virtio_net_ctrl_coal_vq coal_vqs[];
+>  };
+> @@ -299,6 +304,7 @@ struct virtnet_info {
+>
+>  	/* Work struct for delayed refilling if we run low on memory. */
+>  	struct delayed_work refill;
+> +	struct delayed_work get_cvq;
+>
+>  	/* Is delayed refill enabled? */
+>  	bool refill_enabled;
+> @@ -326,6 +332,7 @@ struct virtnet_info {
+>  	bool rx_dim_enabled;
+>
+>  	/* Interrupt coalescing settings */
+> +	int cvq_cmd_nums;
+>  	struct virtnet_batch_coal *batch_coal;
+>  	struct virtnet_interrupt_coalesce intr_coal_tx;
+>  	struct virtnet_interrupt_coalesce intr_coal_rx;
+> @@ -2512,6 +2519,46 @@ static int virtnet_tx_resize(struct virtnet_info *vi,
+>  	return err;
+>  }
+>
+> +static bool virtnet_process_dim_cmd(struct virtnet_info *vi, void *res)
+> +{
+> +	struct virtnet_batch_coal *batch_coal;
+> +	u16 queue;
+> +	int i;
+> +
+> +	if (res != ((void *)vi)) {
+> +		batch_coal = (struct virtnet_batch_coal *)res;
+> +		batch_coal->usable = true;
+> +		vi->cvq_cmd_nums--;
+> +		for (i = 0; i < batch_coal->num_entries; i++) {
+> +			queue = batch_coal->coal_vqs[i].vqn / 2;
+> +			vi->rq[queue].dim.state = DIM_START_MEASURE;
+> +		}
+> +	} else {
+> +		return true;
+> +	}
+> +
+> +	return false;
+> +}
+> +
+> +static bool virtnet_cvq_response(struct virtnet_info *vi, bool poll)
+> +{
+> +	unsigned tmp;
+> +	void *res;
+> +
+> +	if (!poll) {
+> +		while ((res = virtqueue_get_buf(vi->cvq, &tmp)) &&
+> +		       !virtqueue_is_broken(vi->cvq))
+> +			virtnet_process_dim_cmd(vi, res);
+> +		return 0;
+> +	}
+> +
+> +	while (!(res = virtqueue_get_buf(vi->cvq, &tmp)) &&
+> +	       !virtqueue_is_broken(vi->cvq))
+> +		cpu_relax();
+> +
+> +	return virtnet_process_dim_cmd(vi, res);
+> +}
+> +
+>  /*
+>   * Send command via the control virtqueue and check status.  Commands
+>   * supported by the hypervisor, as indicated by feature bits, should
+> @@ -2521,7 +2568,7 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
+>  				 struct scatterlist *out)
+>  {
+>  	struct scatterlist *sgs[4], hdr, stat;
+> -	unsigned out_num = 0, tmp;
+> +	unsigned out_num = 0;
+>  	int ret;
+>
+>  	/* Caller should know better */
+> @@ -2555,9 +2602,9 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
+>  	/* Spin for a response, the kick causes an ioport write, trapping
+>  	 * into the hypervisor, so the request should be handled immediately.
+>  	 */
+> -	while (!virtqueue_get_buf(vi->cvq, &tmp) &&
+> -	       !virtqueue_is_broken(vi->cvq))
+> -		cpu_relax();
+> +	while (true)
+> +		if (virtnet_cvq_response(vi, true))
+> +			break;
+>
+>  	return vi->ctrl->status == VIRTIO_NET_OK;
+>  }
+> @@ -2709,6 +2756,7 @@ static int virtnet_close(struct net_device *dev)
+>  		cancel_work_sync(&vi->rq[i].dim.work);
+>  	}
+>
+> +	cancel_delayed_work_sync(&vi->get_cvq);
+>  	return 0;
+>  }
+>
+> @@ -3520,22 +3568,99 @@ static int virtnet_send_notf_coal_vq_cmds(struct virtnet_info *vi,
+>  	return 0;
+>  }
+>
+> +static bool virtnet_add_dim_command(struct virtnet_info *vi,
+> +				    struct virtnet_batch_coal *ctrl)
+> +{
+> +	struct scatterlist *sgs[4], hdr, stat, out;
+> +	unsigned out_num = 0;
+> +	int ret;
+> +
+> +	/* Caller should know better */
+> +	BUG_ON(!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ));
+> +
+> +	ctrl->hdr.class = VIRTIO_NET_CTRL_NOTF_COAL;
+> +	ctrl->hdr.cmd = VIRTIO_NET_CTRL_NOTF_COAL_VQS_SET;
+> +
+> +	/* Add header */
+> +	sg_init_one(&hdr, &ctrl->hdr, sizeof(ctrl->hdr));
+> +	sgs[out_num++] = &hdr;
+> +
+> +	/* Add body */
+> +	sg_init_one(&out, &ctrl->num_entries, sizeof(ctrl->num_entries) +
+> +		    ctrl->num_entries * sizeof(struct virtnet_coal_entry));
+> +	sgs[out_num++] = &out;
+> +
+> +	/* Add return status. */
+> +	ctrl->status = VIRTIO_NET_OK;
+> +	sg_init_one(&stat, &ctrl->status, sizeof(ctrl->status));
+> +	sgs[out_num] = &stat;
+> +
+> +	BUG_ON(out_num + 1 > ARRAY_SIZE(sgs));
+> +	ret = virtqueue_add_sgs(vi->cvq, sgs, out_num, 1, ctrl, GFP_ATOMIC);
+> +	if (ret < 0) {
+> +		dev_warn(&vi->vdev->dev, "Failed to add sgs for command vq: %d\n.", ret);
+> +		return false;
+> +	}
+> +
+> +	virtqueue_kick(vi->cvq);
+> +
+> +	ctrl->usable = false;
+> +	vi->cvq_cmd_nums++;
+> +
+> +	return true;
+> +}
 
-- Allocating and destorying an iommufd fault object.
-- Allocating and destroying an IOPF-capable HWPT.
-- Attaching/detaching/replacing an IOPF-capable HWPT on a device.
-- Triggering an IOPF on the mock device.
-- Retrieving and responding to the IOPF through the file interface.
 
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
----
- tools/testing/selftests/iommu/iommufd_utils.h | 83 +++++++++++++++++--
- tools/testing/selftests/iommu/iommufd.c       | 17 ++++
- .../selftests/iommu/iommufd_fail_nth.c        |  2 +-
- 3 files changed, 96 insertions(+), 6 deletions(-)
+We should merge this to the function virtnet_send_command.
 
-diff --git a/tools/testing/selftests/iommu/iommufd_utils.h b/tools/testing/selftests/iommu/iommufd_utils.h
-index c646264aa41f..bf6027f2a16d 100644
---- a/tools/testing/selftests/iommu/iommufd_utils.h
-+++ b/tools/testing/selftests/iommu/iommufd_utils.h
-@@ -153,7 +153,7 @@ static int _test_cmd_mock_domain_replace(int fd, __u32 stdev_id, __u32 pt_id,
- 	EXPECT_ERRNO(_errno, _test_cmd_mock_domain_replace(self->fd, stdev_id, \
- 							   pt_id, NULL))
- 
--static int _test_cmd_hwpt_alloc(int fd, __u32 device_id, __u32 pt_id,
-+static int _test_cmd_hwpt_alloc(int fd, __u32 device_id, __u32 pt_id, __u32 ft_id,
- 				__u32 flags, __u32 *hwpt_id, __u32 data_type,
- 				void *data, size_t data_len)
- {
-@@ -165,6 +165,7 @@ static int _test_cmd_hwpt_alloc(int fd, __u32 device_id, __u32 pt_id,
- 		.data_type = data_type,
- 		.data_len = data_len,
- 		.data_uptr = (uint64_t)data,
-+		.fault_id = ft_id,
- 	};
- 	int ret;
- 
-@@ -177,24 +178,30 @@ static int _test_cmd_hwpt_alloc(int fd, __u32 device_id, __u32 pt_id,
- }
- 
- #define test_cmd_hwpt_alloc(device_id, pt_id, flags, hwpt_id)                  \
--	ASSERT_EQ(0, _test_cmd_hwpt_alloc(self->fd, device_id, pt_id, flags,   \
-+	ASSERT_EQ(0, _test_cmd_hwpt_alloc(self->fd, device_id, pt_id, 0, flags,   \
- 					  hwpt_id, IOMMU_HWPT_DATA_NONE, NULL, \
- 					  0))
- #define test_err_hwpt_alloc(_errno, device_id, pt_id, flags, hwpt_id)   \
- 	EXPECT_ERRNO(_errno, _test_cmd_hwpt_alloc(                      \
--				     self->fd, device_id, pt_id, flags, \
-+				     self->fd, device_id, pt_id, 0, flags, \
- 				     hwpt_id, IOMMU_HWPT_DATA_NONE, NULL, 0))
- 
- #define test_cmd_hwpt_alloc_nested(device_id, pt_id, flags, hwpt_id,         \
- 				   data_type, data, data_len)                \
--	ASSERT_EQ(0, _test_cmd_hwpt_alloc(self->fd, device_id, pt_id, flags, \
-+	ASSERT_EQ(0, _test_cmd_hwpt_alloc(self->fd, device_id, pt_id, 0, flags, \
- 					  hwpt_id, data_type, data, data_len))
- #define test_err_hwpt_alloc_nested(_errno, device_id, pt_id, flags, hwpt_id, \
- 				   data_type, data, data_len)                \
- 	EXPECT_ERRNO(_errno,                                                 \
--		     _test_cmd_hwpt_alloc(self->fd, device_id, pt_id, flags, \
-+		     _test_cmd_hwpt_alloc(self->fd, device_id, pt_id, 0, flags, \
- 					  hwpt_id, data_type, data, data_len))
- 
-+#define test_cmd_hwpt_alloc_iopf(device_id, pt_id, fault_id, flags, hwpt_id,    \
-+				   data_type, data, data_len)                   \
-+	ASSERT_EQ(0, _test_cmd_hwpt_alloc(self->fd, device_id, pt_id, fault_id, \
-+					  flags, hwpt_id, data_type, data,      \
-+					  data_len))
-+
- #define test_cmd_hwpt_check_iotlb(hwpt_id, iotlb_id, expected)                 \
- 	({                                                                     \
- 		struct iommu_test_cmd test_cmd = {                             \
-@@ -673,3 +680,69 @@ static int _test_cmd_get_hw_info(int fd, __u32 device_id, void *data,
- 
- #define test_cmd_get_hw_capabilities(device_id, caps, mask) \
- 	ASSERT_EQ(0, _test_cmd_get_hw_info(self->fd, device_id, NULL, 0, &caps))
-+
-+static int _test_ioctl_fault_alloc(int fd, __u32 *fault_id, __u32 *fault_fd)
-+{
-+	struct iommu_fault_alloc cmd = {
-+		.size = sizeof(cmd),
-+	};
-+	int ret;
-+
-+	ret = ioctl(fd, IOMMU_FAULT_ALLOC, &cmd);
-+	if (ret)
-+		return ret;
-+	*fault_id = cmd.out_fault_id;
-+	*fault_fd = cmd.out_fault_fd;
-+	return 0;
-+}
-+
-+#define test_ioctl_fault_alloc(fault_id, fault_fd)                       \
-+	({                                                               \
-+		ASSERT_EQ(0, _test_ioctl_fault_alloc(self->fd, fault_id, \
-+						     fault_fd));         \
-+		ASSERT_NE(0, *(fault_id));                               \
-+		ASSERT_NE(0, *(fault_fd));                               \
-+	})
-+
-+static int _test_cmd_trigger_iopf(int fd, __u32 device_id, __u32 fault_fd)
-+{
-+	struct iommu_test_cmd trigger_iopf_cmd = {
-+		.size = sizeof(trigger_iopf_cmd),
-+		.op = IOMMU_TEST_OP_TRIGGER_IOPF,
-+		.trigger_iopf = {
-+			.dev_id = device_id,
-+			.pasid = 0x1,
-+			.grpid = 0x2,
-+			.perm = IOMMU_PGFAULT_PERM_READ | IOMMU_PGFAULT_PERM_WRITE,
-+			.addr = 0xdeadbeaf,
-+		},
-+	};
-+	struct iommu_hwpt_page_response response = {
-+		.size = sizeof(struct iommu_hwpt_page_response),
-+		.dev_id = device_id,
-+		.pasid = 0x1,
-+		.grpid = 0x2,
-+		.code = 0,
-+		.addr = 0xdeadbeaf,
-+	};
-+	struct iommu_hwpt_pgfault fault = {};
-+	ssize_t bytes;
-+	int ret;
-+
-+	ret = ioctl(fd, _IOMMU_TEST_CMD(IOMMU_TEST_OP_TRIGGER_IOPF), &trigger_iopf_cmd);
-+	if (ret)
-+		return ret;
-+
-+	bytes = read(fault_fd, &fault, sizeof(fault));
-+	if (bytes < 0)
-+		return bytes;
-+
-+	bytes = write(fault_fd, &response, sizeof(response));
-+	if (bytes < 0)
-+		return bytes;
-+
-+	return 0;
-+}
-+
-+#define test_cmd_trigger_iopf(device_id, fault_fd) \
-+	ASSERT_EQ(0, _test_cmd_trigger_iopf(self->fd, device_id, fault_fd))
-diff --git a/tools/testing/selftests/iommu/iommufd.c b/tools/testing/selftests/iommu/iommufd.c
-index 1a881e7a21d1..d7049df62ed2 100644
---- a/tools/testing/selftests/iommu/iommufd.c
-+++ b/tools/testing/selftests/iommu/iommufd.c
-@@ -278,6 +278,9 @@ TEST_F(iommufd_ioas, alloc_hwpt_nested)
- 	uint32_t parent_hwpt_id = 0;
- 	uint32_t parent_hwpt_id_not_work = 0;
- 	uint32_t test_hwpt_id = 0;
-+	uint32_t iopf_hwpt_id;
-+	uint32_t fault_id;
-+	uint32_t fault_fd;
- 
- 	if (self->device_id) {
- 		/* Negative tests */
-@@ -325,6 +328,7 @@ TEST_F(iommufd_ioas, alloc_hwpt_nested)
- 					   sizeof(data));
- 
- 		/* Allocate two nested hwpts sharing one common parent hwpt */
-+		test_ioctl_fault_alloc(&fault_id, &fault_fd);
- 		test_cmd_hwpt_alloc_nested(self->device_id, parent_hwpt_id, 0,
- 					   &nested_hwpt_id[0],
- 					   IOMMU_HWPT_DATA_SELFTEST, &data,
-@@ -333,6 +337,10 @@ TEST_F(iommufd_ioas, alloc_hwpt_nested)
- 					   &nested_hwpt_id[1],
- 					   IOMMU_HWPT_DATA_SELFTEST, &data,
- 					   sizeof(data));
-+		test_cmd_hwpt_alloc_iopf(self->device_id, parent_hwpt_id, fault_id,
-+					 IOMMU_HWPT_FAULT_ID_VALID, &iopf_hwpt_id,
-+					 IOMMU_HWPT_DATA_SELFTEST, &data,
-+					 sizeof(data));
- 		test_cmd_hwpt_check_iotlb_all(nested_hwpt_id[0],
- 					      IOMMU_TEST_IOTLB_DEFAULT);
- 		test_cmd_hwpt_check_iotlb_all(nested_hwpt_id[1],
-@@ -503,14 +511,23 @@ TEST_F(iommufd_ioas, alloc_hwpt_nested)
- 			     _test_ioctl_destroy(self->fd, nested_hwpt_id[1]));
- 		test_ioctl_destroy(nested_hwpt_id[0]);
- 
-+		/* Switch from nested_hwpt_id[1] to iopf_hwpt_id */
-+		test_cmd_mock_domain_replace(self->stdev_id, iopf_hwpt_id);
-+		EXPECT_ERRNO(EBUSY,
-+			     _test_ioctl_destroy(self->fd, iopf_hwpt_id));
-+		/* Trigger an IOPF on the device */
-+		test_cmd_trigger_iopf(self->device_id, fault_fd);
-+
- 		/* Detach from nested_hwpt_id[1] and destroy it */
- 		test_cmd_mock_domain_replace(self->stdev_id, parent_hwpt_id);
- 		test_ioctl_destroy(nested_hwpt_id[1]);
-+		test_ioctl_destroy(iopf_hwpt_id);
- 
- 		/* Detach from the parent hw_pagetable and destroy it */
- 		test_cmd_mock_domain_replace(self->stdev_id, self->ioas_id);
- 		test_ioctl_destroy(parent_hwpt_id);
- 		test_ioctl_destroy(parent_hwpt_id_not_work);
-+		test_ioctl_destroy(fault_id);
- 	} else {
- 		test_err_hwpt_alloc(ENOENT, self->device_id, self->ioas_id, 0,
- 				    &parent_hwpt_id);
-diff --git a/tools/testing/selftests/iommu/iommufd_fail_nth.c b/tools/testing/selftests/iommu/iommufd_fail_nth.c
-index f590417cd67a..c5d5e69452b0 100644
---- a/tools/testing/selftests/iommu/iommufd_fail_nth.c
-+++ b/tools/testing/selftests/iommu/iommufd_fail_nth.c
-@@ -615,7 +615,7 @@ TEST_FAIL_NTH(basic_fail_nth, device)
- 	if (_test_cmd_get_hw_info(self->fd, idev_id, &info, sizeof(info), NULL))
- 		return -1;
- 
--	if (_test_cmd_hwpt_alloc(self->fd, idev_id, ioas_id, 0, &hwpt_id,
-+	if (_test_cmd_hwpt_alloc(self->fd, idev_id, ioas_id, 0, 0, &hwpt_id,
- 				 IOMMU_HWPT_DATA_NONE, 0, 0))
- 		return -1;
- 
--- 
-2.34.1
 
+> +
+> +static void get_cvq_work(struct work_struct *work)
+> +{
+> +	struct virtnet_info *vi =
+> +		container_of(work, struct virtnet_info, get_cvq.work);
+> +
+> +	if (!rtnl_trylock()) {
+> +		schedule_delayed_work(&vi->get_cvq, 5);
+> +		return;
+> +	}
+> +
+> +	if (!vi->cvq_cmd_nums)
+> +		goto ret;
+> +
+> +	virtnet_cvq_response(vi, false);
+> +
+> +	if (vi->cvq_cmd_nums)
+> +		schedule_delayed_work(&vi->get_cvq, 5);
+> +
+> +ret:
+> +	rtnl_unlock();
+> +}
+> +
+>  static void virtnet_rx_dim_work(struct work_struct *work)
+>  {
+>  	struct dim *dim = container_of(work, struct dim, work);
+>  	struct receive_queue *rq = container_of(dim,
+>  			struct receive_queue, dim);
+>  	struct virtnet_info *vi = rq->vq->vdev->priv;
+> +	struct virtnet_batch_coal *avail_coal;
+>  	struct dim_cq_moder update_moder;
+> -	struct virtnet_batch_coal *coal = vi->batch_coal;
+> -	struct scatterlist sgs;
+> -	int i, j = 0;
+> +	int i, j = 0, position;
+> +	u8 *buf;
+>
+>  	if (!rtnl_trylock()) {
+>  		schedule_work(&dim->work);
+>  		return;
+>  	}
+>
+> +	if (vi->cvq_cmd_nums == BATCH_CMD || vi->cvq->num_free < 3 ||
+> +	    vi->cvq->num_free <= (virtqueue_get_vring_size(vi->cvq) / 3))
+> +		virtnet_cvq_response(vi, true);
+> +
+> +	for (i = 0; i < BATCH_CMD; i++) {
+> +		buf = (u8 *)vi->batch_coal;
+> +		position = i * (sizeof(struct virtnet_batch_coal) +
+> +				vi->max_queue_pairs * sizeof(struct virtnet_coal_entry));
+> +		avail_coal = (struct virtnet_batch_coal *)(&buf[position]);
+> +		if (avail_coal->usable)
+> +			break;
+
+
+list or kmalloc here are all better way.
+
+
+> +	}
+> +
+>  	/* Each rxq's work is queued by "net_dim()->schedule_work()"
+>  	 * in response to NAPI traffic changes. Note that dim->profile_ix
+>  	 * for each rxq is updated prior to the queuing action.
+> @@ -3552,30 +3677,26 @@ static void virtnet_rx_dim_work(struct work_struct *work)
+>  		update_moder = net_dim_get_rx_moderation(dim->mode, dim->profile_ix);
+>  		if (update_moder.usec != rq->intr_coal.max_usecs ||
+>  		    update_moder.pkts != rq->intr_coal.max_packets) {
+> -			coal->coal_vqs[j].vqn = cpu_to_le16(rxq2vq(i));
+> -			coal->coal_vqs[j].coal.max_usecs = cpu_to_le32(update_moder.usec);
+> -			coal->coal_vqs[j].coal.max_packets = cpu_to_le32(update_moder.pkts);
+> +			avail_coal->coal_vqs[j].vqn = cpu_to_le16(rxq2vq(i));
+> +			avail_coal->coal_vqs[j].coal.max_usecs = cpu_to_le32(update_moder.usec);
+> +			avail_coal->coal_vqs[j].coal.max_packets = cpu_to_le32(update_moder.pkts);
+>  			rq->intr_coal.max_usecs = update_moder.usec;
+>  			rq->intr_coal.max_packets = update_moder.pkts;
+>  			j++;
+> -		}
+> +		} else if (dim->state == DIM_APPLY_NEW_PROFILE)
+> +			dim->state = DIM_START_MEASURE;
+>  	}
+>
+>  	if (!j)
+>  		goto ret;
+>
+> -	coal->num_entries = cpu_to_le32(j);
+> -	sg_init_one(&sgs, coal, sizeof(struct virtnet_batch_coal) +
+> -		    j * sizeof(struct virtio_net_ctrl_coal_vq));
+> -	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_NOTF_COAL,
+> -				  VIRTIO_NET_CTRL_NOTF_COAL_VQS_SET,
+> -				  &sgs))
+> -		dev_warn(&vi->vdev->dev, "Failed to add dim command\n.");
+> +	avail_coal->num_entries = cpu_to_le32(j);
+> +	if (!virtnet_add_dim_command(vi, avail_coal))
+> +		goto ret;
+>
+> -	for (i = 0; i < j; i++) {
+> -		rq = &vi->rq[(coal->coal_vqs[i].vqn) / 2];
+> -		rq->dim.state = DIM_START_MEASURE;
+> -	}
+> +	virtnet_cvq_response(vi, false);
+
+Is this usable?
+
+
+> +	if (vi->cvq_cmd_nums)
+> +		schedule_delayed_work(&vi->get_cvq, 1);
+>
+>  ret:
+>  	rtnl_unlock();
+> @@ -4402,7 +4523,9 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+>
+>  static int virtnet_alloc_queues(struct virtnet_info *vi)
+>  {
+> -	int i, len;
+> +	struct virtnet_batch_coal *batch_coal;
+> +	int i, position;
+> +	u8 *buf;
+>
+>  	if (vi->has_cvq) {
+>  		vi->ctrl = kzalloc(sizeof(*vi->ctrl), GFP_KERNEL);
+> @@ -4418,13 +4541,21 @@ static int virtnet_alloc_queues(struct virtnet_info *vi)
+>  	if (!vi->rq)
+>  		goto err_rq;
+>
+> -	len = sizeof(struct virtnet_batch_coal) +
+> -	      vi->max_queue_pairs * sizeof(struct virtio_net_ctrl_coal_vq);
+> -	vi->batch_coal = kzalloc(len, GFP_KERNEL);
+> -	if (!vi->batch_coal)
+> +	buf = kzalloc(BATCH_CMD * (sizeof(struct virtnet_batch_coal) +
+> +		      vi->max_queue_pairs * sizeof(struct virtnet_coal_entry)), GFP_KERNEL);
+> +	if (!buf)
+>  		goto err_coal;
+>
+> +	vi->batch_coal = (struct virtnet_batch_coal *)buf;
+> +	for (i = 0; i < BATCH_CMD; i++) {
+> +		position = i * (sizeof(struct virtnet_batch_coal) +
+> +				vi->max_queue_pairs * sizeof(struct virtnet_coal_entry));
+> +		batch_coal = (struct virtnet_batch_coal *)(&buf[position]);
+> +		batch_coal->usable = true;
+> +	}
+> +
+>  	INIT_DELAYED_WORK(&vi->refill, refill_work);
+> +	INIT_DELAYED_WORK(&vi->get_cvq, get_cvq_work);
+>  	for (i = 0; i < vi->max_queue_pairs; i++) {
+>  		vi->rq[i].pages = NULL;
+>  		netif_napi_add_weight(vi->dev, &vi->rq[i].napi, virtnet_poll,
+> --
+> 1.8.3.1
+>
