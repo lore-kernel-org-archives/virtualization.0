@@ -1,144 +1,123 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.88])
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B41F6EB68
-	for <virtualization@lists.linux.dev>; Mon, 22 Jan 2024 16:32:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.55.52.88
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2A1B40BE3;
+	Mon, 22 Jan 2024 17:37:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705941158; cv=none; b=FpIbCJMkUqLZTufjhNHuqVoYNM/JuNZIFuMU0W2shkmfcplvfx9KA/yX4R+GD9dPEv6MHx6C/f6HfjpbytMjveOvG3NxBXKP/BA9ym29inIeyHH6o7eHJfkupB4E9oyDUHUrKMc8RQDDremPzHIjgsDzeFqdfGRXjsXs/2TyCp8=
+	t=1705945024; cv=none; b=ICpRHIqIDRa60NGfr+z8tvLTsSn977nm7NYzpD0HFmJZBDYhwjv8jLX78usTQ89rZck8sW/a2R+dpKYkDjv4m6s8rqb0kgdN86iTVKBYx61uhwivxtmzGArOnJjVqiGXX9APNFtfeMXmB9s6TLi8rw7RzZvziZCpPc4cQktuekk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705941158; c=relaxed/simple;
-	bh=q+mUZdd5s8JkPZLmLiPG2KxVKoVyZ0JMYzMnTmOTZpg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=EgqpqVT79PRhJGHgnCruJYMOd3GspbH7+7jYM10VQYAhuCzZkcbMF1g//VZZTpeOMZeDTWPa0ywB+428j3oHU5hUrjub/NDd34bus9qpGx3yVDUkCFe6q7lJNfvodw/rv2d4CVS5bl0cJOl6nHtlib+4JHeOInf7/BAQFDFtmhI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=K3Eb+61L; arc=none smtp.client-ip=192.55.52.88
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1705945024; c=relaxed/simple;
+	bh=fHROvt5OFKXveRtwm7nS7D7bWwlzshkrfW7uin0qYGo=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=paOJ/aUauzxfG2GTIP7yOTmk/7QBmg+6DKSryV0iuOd8TjHOBBRcl2ETtDcowqqAYmxfUKhFueTCO7GQNTwZq7U+ZfaFWvd8RmV2TaNl1SP+8uEybWWFhqyEdxZE2vOZyNylHZRpiVGxIlGqbCkOoEOxXvQKN03rPawca9bg4kY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=DTKAfP2U; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="K3Eb+61L"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1705941157; x=1737477157;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=q+mUZdd5s8JkPZLmLiPG2KxVKoVyZ0JMYzMnTmOTZpg=;
-  b=K3Eb+61LaZegyaW2uufEbcNjXf+CJUCN/5rUJupydkEC48/qOLVcVYTz
-   q0p6tcA4vChfRiK8T4rfCCs9in1CdHUNnZRna6QYljkA2V6EKGCvF1oro
-   p6oVMhaNTgMWHBEKeQTlvU2JamKuKk3Ny7hjKbKWhJEZCkH2CHt+Oz9YZ
-   +JP/Fpwd3e4cX3/bXBQwPnfJDD43w4zod6ygvbdju+BP6yZZAZD1QTPGO
-   yjTOVA2nz3TmCsH7XtpRZOLLfiSOAsPkUBB7T9k+otBGqPKiR3HyMj6l9
-   EE/ILmD9J3VMv3qEsSr53urcFl3P4yJDvxpqF+o/NYBia5nNR34qD9dmn
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10961"; a="432413276"
-X-IronPort-AV: E=Sophos;i="6.05,211,1701158400"; 
-   d="scan'208";a="432413276"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Jan 2024 08:32:24 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10961"; a="855989740"
-X-IronPort-AV: E=Sophos;i="6.05,211,1701158400"; 
-   d="scan'208";a="855989740"
-Received: from yongwool-mobl3.amr.corp.intel.com (HELO [10.209.52.151]) ([10.209.52.151])
-  by fmsmga004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Jan 2024 08:32:23 -0800
-Message-ID: <ff370e42-f48b-4c62-9b44-9d4031cd78b0@intel.com>
-Date: Mon, 22 Jan 2024 08:32:22 -0800
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="DTKAfP2U"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+	MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
+	:Reply-To:Content-Type:Content-ID:Content-Description;
+	bh=tkwWaCS229lrm8RVxOlCwAX2BdD4eXBnEUqUwp253oU=; b=DTKAfP2UJmCqETONB0o8+Voaj6
+	lXjhdhip72xAOqdWK7u3UbwUiI3jwoqt7NgpqHfTCXuzUBGF7Q1f9PZFnR66I8JFrL38MW0WEyZGB
+	gp1HHF/zl/Vnj+p/QPo0L03Fr3gdwCENSyHTDJBjK4GlQo55tj74Gg1pxLtGlKHRBFgFlZINCpak1
+	VZ0KGNPNpsW2upEb8xWtdTMh+3O4k3x0mffyv/PJT4+RRv53kD5tkH5kOyWikttwH4lE6ZgnSU+/J
+	wuTBGfwwIXYXs6RChRQNlr3IO7CtJJaTFbZyTvSHqUMIwZyvuHxpcXpMd1UMweyjMQ/VxeT5aOrgi
+	KtNh0gag==;
+Received: from [2001:4bb8:198:a22c:146a:86ef:5806:b115] (helo=localhost)
+	by bombadil.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
+	id 1rRyE7-00DGbT-18;
+	Mon, 22 Jan 2024 17:36:51 +0000
+From: Christoph Hellwig <hch@lst.de>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Damien Le Moal <dlemoal@kernel.org>,
+	Keith Busch <kbusch@kernel.org>,
+	Sagi Grimberg <sagi@grimberg.me>,
+	linux-block@vger.kernel.org,
+	linux-nvme@lists.infradead.org,
+	virtualization@lists.linux.dev
+Subject: [PATCH 01/15] block: move max_{open,active}_zones to struct queue_limits
+Date: Mon, 22 Jan 2024 18:36:31 +0100
+Message-Id: <20240122173645.1686078-2-hch@lst.de>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20240122173645.1686078-1-hch@lst.de>
+References: <20240122173645.1686078-1-hch@lst.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 7/7] x86/vmware: Add TDX hypercall support
-Content-Language: en-US
-To: Alexey Makhalov <alexey.makhalov@broadcom.com>,
- linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, bp@alien8.de,
- hpa@zytor.com, dave.hansen@linux.intel.com, mingo@redhat.com,
- tglx@linutronix.de
-Cc: x86@kernel.org, netdev@vger.kernel.org, richardcochran@gmail.com,
- linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, zackr@vmware.com,
- linux-graphics-maintainer@vmware.com, pv-drivers@vmware.com,
- namit@vmware.com, timothym@vmware.com, akaher@vmware.com, jsipek@vmware.com,
- dri-devel@lists.freedesktop.org, daniel@ffwll.ch, airlied@gmail.com,
- tzimmermann@suse.de, mripard@kernel.org, maarten.lankhorst@linux.intel.com,
- horms@kernel.org, kirill.shutemov@linux.intel.com
-References: <20240109084052.58661-1-amakhalov@vmware.com>
- <20240109084052.58661-8-amakhalov@vmware.com>
-From: Dave Hansen <dave.hansen@intel.com>
-Autocrypt: addr=dave.hansen@intel.com; keydata=
- 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
-In-Reply-To: <20240109084052.58661-8-amakhalov@vmware.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 
-On 1/9/24 00:40, Alexey Makhalov wrote:
-> +#ifdef CONFIG_INTEL_TDX_GUEST
-> +unsigned long vmware_tdx_hypercall(unsigned long cmd,
-> +				   struct tdx_module_args *args)
-> +{
-> +	if (!hypervisor_is_type(X86_HYPER_VMWARE))
-> +		return ULONG_MAX;
-> +
-> +	if (cmd & ~VMWARE_CMD_MASK) {
-> +		pr_warn_once("Out of range command %lx\n", cmd);
-> +		return ULONG_MAX;
-> +	}
-> +
-> +	args->r10 = VMWARE_TDX_VENDOR_LEAF;
-> +	args->r11 = VMWARE_TDX_HCALL_FUNC;
-> +	args->r12 = VMWARE_HYPERVISOR_MAGIC;
-> +	args->r13 = cmd;
-> +	args->r15 = 0; /* CPL */
-> +
-> +	__tdx_hypercall(args);
-> +
-> +	return args->r12;
-> +}
-> +EXPORT_SYMBOL_GPL(vmware_tdx_hypercall);
-> +#endif
+The maximum number of open and active zones is a limit on the queue
+and should be places there so that we can including it in the upcoming
+queue limits batch update API.
 
-This is the kind of wrapper that I was hoping for.  Thanks.
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ include/linux/blkdev.h | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
+diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
+index 99e4f5e722132c..4a2e82c7971c86 100644
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -189,8 +189,6 @@ struct gendisk {
+ 	 * blk_mq_unfreeze_queue().
+ 	 */
+ 	unsigned int		nr_zones;
+-	unsigned int		max_open_zones;
+-	unsigned int		max_active_zones;
+ 	unsigned long		*conv_zones_bitmap;
+ 	unsigned long		*seq_zones_wlock;
+ #endif /* CONFIG_BLK_DEV_ZONED */
+@@ -307,6 +305,8 @@ struct queue_limits {
+ 	unsigned char		discard_misaligned;
+ 	unsigned char		raid_partial_stripes_expensive;
+ 	bool			zoned;
++	unsigned int		max_open_zones;
++	unsigned int		max_active_zones;
+ 
+ 	/*
+ 	 * Drivers that set dma_alignment to less than 511 must be prepared to
+@@ -639,23 +639,23 @@ static inline bool disk_zone_is_seq(struct gendisk *disk, sector_t sector)
+ static inline void disk_set_max_open_zones(struct gendisk *disk,
+ 		unsigned int max_open_zones)
+ {
+-	disk->max_open_zones = max_open_zones;
++	disk->queue->limits.max_open_zones = max_open_zones;
+ }
+ 
+ static inline void disk_set_max_active_zones(struct gendisk *disk,
+ 		unsigned int max_active_zones)
+ {
+-	disk->max_active_zones = max_active_zones;
++	disk->queue->limits.max_active_zones = max_active_zones;
+ }
+ 
+ static inline unsigned int bdev_max_open_zones(struct block_device *bdev)
+ {
+-	return bdev->bd_disk->max_open_zones;
++	return bdev->bd_disk->queue->limits.max_open_zones;
+ }
+ 
+ static inline unsigned int bdev_max_active_zones(struct block_device *bdev)
+ {
+-	return bdev->bd_disk->max_active_zones;
++	return bdev->bd_disk->queue->limits.max_active_zones;
+ }
+ 
+ #else /* CONFIG_BLK_DEV_ZONED */
+-- 
+2.39.2
 
