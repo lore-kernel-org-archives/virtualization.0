@@ -1,53 +1,123 @@
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
+Received: from szxga04-in.huawei.com (szxga04-in.huawei.com [45.249.212.190])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C1F556B76
-	for <virtualization@lists.linux.dev>; Tue, 23 Jan 2024 08:45:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 620F844C8B
+	for <virtualization@lists.linux.dev>; Tue, 23 Jan 2024 10:44:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.190
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705999538; cv=none; b=ObWfT0eiE604YIPqGixTqNzKJk3dOGumrcA1ugphZ2ABc5gP77qPZ1BgDQ9OWJxvz6B3VnobzLPt8l8Zlypn0wcIyYcPkNTmgw7J/6f3P6pzU00VuwiFJeYOhHQ/+1a6T+W2On2on/i0yWwhg+37r3df+MyEqzd95weTcm3ppFs=
+	t=1706006650; cv=none; b=N2xG88YuKyvaxNyA7fti2MeUHCOfNuIaRxCmb7Kla7QWucsHn61EgXRzyhc4VOJkeF6s0eMrfjyApj7A2FJP9nG9YJBQhFUU7BO5aMnhMhzCIF/qmSHozfrIL4SNzJ+k+UqWo9p5OnheeBhgtYRiST+j6d/7++GXe8XtDTJZt+g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705999538; c=relaxed/simple;
-	bh=IGWxeDGvAVRpfu8Qw1CC/z/F0AIWBIGIgkCgkoEyemA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Q1BHQvLImWVRNb8y1QiEY21FVJINg4gB1k5lZMiUZdkpe7w0+TB9gGkS5hEUWS6KzVg/7rJsfxJj0YB9UFYiU4w0pxocDDgyu8gwD86fPOGTH30zSUEzljVAULPT4TlwhWTLPvQGNVKn7v66zNfdbavLsXXUL9oVNyrxH2SgJNk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
-Received: by verein.lst.de (Postfix, from userid 2407)
-	id 6DCCA68C4E; Tue, 23 Jan 2024 09:45:33 +0100 (CET)
-Date: Tue, 23 Jan 2024 09:45:32 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Damien Le Moal <dlemoal@kernel.org>
-Cc: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Keith Busch <kbusch@kernel.org>, Sagi Grimberg <sagi@grimberg.me>,
-	linux-block@vger.kernel.org, linux-nvme@lists.infradead.org,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH 06/15] nvme: remove the hack to not update the discard
- limits in nvme_config_discard
-Message-ID: <20240123084532.GC29041@lst.de>
-References: <20240122173645.1686078-1-hch@lst.de> <20240122173645.1686078-7-hch@lst.de> <c0738ba9-2eb8-4997-b357-af481da0a457@kernel.org>
+	s=arc-20240116; t=1706006650; c=relaxed/simple;
+	bh=FrFxf73uzHkT6S2ikGi0LCQhmYLQu2afl4OSVxrrdOM=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=GFoSmGhVMy2SjwtcDAcZri347/I8GNf2vkL04kelYM5x09NeKsQsW63KKhCQtZjige2bcwFEWMuZgqajNcwUlEgxEsNnop3iZrJPaR2fewYgFgN3xhHxc9+AiLrc8TyVJ3C0fPnpcUaRcvXlxobetWRU6L8W/oe0iAaD/CUytVk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.190
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.162.112])
+	by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4TK3Z422B9z29kHr;
+	Tue, 23 Jan 2024 18:42:20 +0800 (CST)
+Received: from dggpemm500005.china.huawei.com (unknown [7.185.36.74])
+	by mail.maildlp.com (Postfix) with ESMTPS id B05A8140153;
+	Tue, 23 Jan 2024 18:43:48 +0800 (CST)
+Received: from localhost.localdomain (10.69.192.56) by
+ dggpemm500005.china.huawei.com (7.185.36.74) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.35; Tue, 23 Jan 2024 18:43:35 +0800
+From: Yunsheng Lin <linyunsheng@huawei.com>
+To: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>
+CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Yunsheng Lin
+	<linyunsheng@huawei.com>, Alexander Duyck <alexanderduyck@fb.com>, Alexander
+ Duyck <alexander.duyck@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>, Andrew Morton <akpm@linux-foundation.org>,
+	Eric Dumazet <edumazet@google.com>, <kvm@vger.kernel.org>,
+	<virtualization@lists.linux.dev>, <linux-mm@kvack.org>
+Subject: [PATCH net-next v3 2/5] page_frag: unify gfp bits for order 3 page allocation
+Date: Tue, 23 Jan 2024 18:42:47 +0800
+Message-ID: <20240123104250.9103-3-linyunsheng@huawei.com>
+X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20240123104250.9103-1-linyunsheng@huawei.com>
+References: <20240123104250.9103-1-linyunsheng@huawei.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c0738ba9-2eb8-4997-b357-af481da0a457@kernel.org>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ dggpemm500005.china.huawei.com (7.185.36.74)
 
-On Tue, Jan 23, 2024 at 02:12:37PM +0900, Damien Le Moal wrote:
-> >  	blk_queue_max_discard_sectors(queue, max_discard_sectors);
-> 
-> This function references max_user_discard_sectors but that access is done
-> without holding the queue limits mutex. Is that safe ?
+Currently there seems to be three page frag implementions
+which all try to allocate order 3 page, if that fails, it
+then fail back to allocate order 0 page, and each of them
+all allow order 3 page allocation to fail under certain
+condition by using specific gfp bits.
 
-No.  But fixing nvme will be done in a follow series.
+The gfp bits for order 3 page allocation are different
+between different implementation, __GFP_NOMEMALLOC is
+or'd to forbid access to emergency reserves memory for
+__page_frag_cache_refill(), but it is not or'd in other
+implementions, __GFP_DIRECT_RECLAIM is masked off to avoid
+direct reclaim in skb_page_frag_refill(), but it is not
+masked off in __page_frag_cache_refill().
+
+This patch unifies the gfp bits used between different
+implementions by or'ing __GFP_NOMEMALLOC and masking off
+__GFP_DIRECT_RECLAIM for order 3 page allocation to avoid
+possible pressure for mm.
+
+Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+CC: Alexander Duyck <alexander.duyck@gmail.com>
+---
+ drivers/vhost/net.c | 2 +-
+ mm/page_alloc.c     | 4 ++--
+ net/core/sock.c     | 2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index f2ed7167c848..e574e21cc0ca 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -670,7 +670,7 @@ static bool vhost_net_page_frag_refill(struct vhost_net *net, unsigned int sz,
+ 		/* Avoid direct reclaim but allow kswapd to wake */
+ 		pfrag->page = alloc_pages((gfp & ~__GFP_DIRECT_RECLAIM) |
+ 					  __GFP_COMP | __GFP_NOWARN |
+-					  __GFP_NORETRY,
++					  __GFP_NORETRY | __GFP_NOMEMALLOC,
+ 					  SKB_FRAG_PAGE_ORDER);
+ 		if (likely(pfrag->page)) {
+ 			pfrag->size = PAGE_SIZE << SKB_FRAG_PAGE_ORDER;
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index c0f7e67c4250..636145c29f70 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -4685,8 +4685,8 @@ static struct page *__page_frag_cache_refill(struct page_frag_cache *nc,
+ 	gfp_t gfp = gfp_mask;
+ 
+ #if (PAGE_SIZE < PAGE_FRAG_CACHE_MAX_SIZE)
+-	gfp_mask |= __GFP_COMP | __GFP_NOWARN | __GFP_NORETRY |
+-		    __GFP_NOMEMALLOC;
++	gfp_mask = (gfp_mask & ~__GFP_DIRECT_RECLAIM) |  __GFP_COMP |
++		   __GFP_NOWARN | __GFP_NORETRY | __GFP_NOMEMALLOC;
+ 	page = alloc_pages_node(NUMA_NO_NODE, gfp_mask,
+ 				PAGE_FRAG_CACHE_MAX_ORDER);
+ 	nc->size = page ? PAGE_FRAG_CACHE_MAX_SIZE : PAGE_SIZE;
+diff --git a/net/core/sock.c b/net/core/sock.c
+index 158dbdebce6a..d4bc4269d7d7 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -2908,7 +2908,7 @@ bool skb_page_frag_refill(unsigned int sz, struct page_frag *pfrag, gfp_t gfp)
+ 		/* Avoid direct reclaim but allow kswapd to wake */
+ 		pfrag->page = alloc_pages((gfp & ~__GFP_DIRECT_RECLAIM) |
+ 					  __GFP_COMP | __GFP_NOWARN |
+-					  __GFP_NORETRY,
++					  __GFP_NORETRY | __GFP_NOMEMALLOC,
+ 					  SKB_FRAG_PAGE_ORDER);
+ 		if (likely(pfrag->page)) {
+ 			pfrag->size = PAGE_SIZE << SKB_FRAG_PAGE_ORDER;
+-- 
+2.33.0
+
