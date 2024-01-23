@@ -1,55 +1,185 @@
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4318654BF8
-	for <virtualization@lists.linux.dev>; Mon, 22 Jan 2024 18:39:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E27BE2109
+	for <virtualization@lists.linux.dev>; Tue, 23 Jan 2024 00:04:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705948744; cv=none; b=CTgxybP8+TLnANVHugd+auC9gKIeBIHCn4McZARU9/9/CCNObZGxwx9OW0sPV67UcWT8IfyFDszFmjLmA8new+0Wy9el5V4qvnaUTXMMqXzPgrBeR8JcgQBq9jrBRWpNxm7HwqQrZT5yc9AvHSFsp75gkgvVYfIUew00GukYt4U=
+	t=1705968279; cv=none; b=QCT9oV7Uym/m8Fd2am3ycOZUaRvic5RandktSe0MkIS/H7cv+vCpAerVbLs8UxdluZ+CTEJTu5J90N+B9aYyVR/3Ut/DyctVFz72KGNJxOcBDgg00g3AyE1ny+rook1fvTVR2wNxaqP7E+bW9GbG3e3DozDEruxlQwmYFNKCEhI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705948744; c=relaxed/simple;
-	bh=i/YDlbcyzr4Rzg3JKSSHWy5C1G7kD5upXX0RihVPkOE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=gsbTp8/qlePOTSypMsKvAadu/CML6bf1KU390N58Io0AWZheDbHA60xNZXx22cP3y0oZ2eY+eFQ+eAG2/dT7XpgMNOq6q3jwQny2Lw1qNC89HyNq0lUvHcFlsLkcQn+dF1TCYPhDtcJwlsF0w01qxRp3UqUG4RxbK8UIpj0UdFk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
-Received: by verein.lst.de (Postfix, from userid 2407)
-	id D3F4F68BEB; Mon, 22 Jan 2024 19:38:57 +0100 (CET)
-Date: Mon, 22 Jan 2024 19:38:57 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Keith Busch <kbusch@kernel.org>
-Cc: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Damien Le Moal <dlemoal@kernel.org>,
-	Sagi Grimberg <sagi@grimberg.me>, linux-block@vger.kernel.org,
-	linux-nvme@lists.infradead.org, virtualization@lists.linux.dev
-Subject: Re: [PATCH 05/15] block: add a max_user_discard_sectors queue limit
-Message-ID: <20240122183857.GA7029@lst.de>
-References: <20240122173645.1686078-1-hch@lst.de> <20240122173645.1686078-6-hch@lst.de> <Za6zg-pA8IJkIb_b@kbusch-mbp.dhcp.thefacebook.com>
+	s=arc-20240116; t=1705968279; c=relaxed/simple;
+	bh=8Z+ULs/q4uaFuzdQu2SajzdOoT1NsPPNsx1Mfe0md28=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=D7kC592hAlxAVoXSWhCV3dqFtyYpQF4txpiUzwlMQRT3lbixxAAEWZnx99QD5yB8dx2PzlKhDe4hW7sylt3cwpnuEViaexQ/f6TpqRrcOJYYieFGpHFCUlp7ZWC0m8yC0cJpR9RPKzVHtmODyWDHhY/8kHOiEK/OzEf/knuYSwo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=L4aOJvDy; arc=none smtp.client-ip=209.85.214.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="L4aOJvDy"
+Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-1d7610c5f4aso7353735ad.3
+        for <virtualization@lists.linux.dev>; Mon, 22 Jan 2024 16:04:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google; t=1705968277; x=1706573077; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=xgfmCkmz6VqNVg7hccbLpNYur17IGmTm4uzzQPE4EUY=;
+        b=L4aOJvDyi7Si9PNWAbDDAOsMQI5rAYveKC4FgjgHwJBJ3ryLRQnTW3VYr5qmX126fR
+         OCPL2/pwDD5u2BTla3UOKpQuLWEiGUSDCxib5RF4KeO5/zoMEV0/UGMZIWUdBGswNHDU
+         tKwG4AjzwoAcx+nMkFpmn4sq9JafNSelhYzKs=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1705968277; x=1706573077;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=xgfmCkmz6VqNVg7hccbLpNYur17IGmTm4uzzQPE4EUY=;
+        b=Ee02amd6kw94EzLc7fBkfLZCSxHT3HpATJ1D+j8NFZmlStrKNamcPJzOSCApGgmj+L
+         s2p9oo+T++2huSKmMp3xS894yfT1eRfx1Nh4zFvlMBc/MJ+MiRns2Cmj4481XRv+aMtA
+         akOyroAk2/TdLmGZtI6+caVE9ZD4Wx9DqhfC4pT+mtuFT5tCB9q7OhUiRdLwi3/oOP8Q
+         qnma31w0Upk3+Kf6MZRulWTsyHfA7tHFnb78k+XbpxWSIJSEb3HF2n1x8KiRHzXbVjrm
+         nbI1J1fQRpb8lzB3OPS8TH853jv5y3E0vB/auPC8Z4xnpqiNFFyvTJS2utwMhxGk6H40
+         VqtA==
+X-Gm-Message-State: AOJu0YxSwvflrKD+lI4LNc8//VGVAORcpbAvZ55rHEKgoBR1FdMcfbjN
+	Hy72JrxOuWJJRQ91Je6twdXKScGLfe77YMQWCydmAolUqMQYSMROVvQFaGVqgQ==
+X-Google-Smtp-Source: AGHT+IF5yKC8hKNBRzCwOfVpSH7KZaK0Y2BiM8IVrQK6Ra+ueNGnouj9WLbWFBvo3F8qwKPNnXzqHw==
+X-Received: by 2002:a17:903:2487:b0:1d7:6a42:616a with SMTP id p7-20020a170903248700b001d76a42616amr606317plw.114.1705968277246;
+        Mon, 22 Jan 2024 16:04:37 -0800 (PST)
+Received: from [10.62.13.168] ([128.177.82.146])
+        by smtp.gmail.com with ESMTPSA id u7-20020a170902b28700b001d751b1b241sm2359500plr.26.2024.01.22.16.04.34
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 22 Jan 2024 16:04:36 -0800 (PST)
+Message-ID: <c01cecef-db06-49d8-aa2e-548908c65861@broadcom.com>
+Date: Mon, 22 Jan 2024 16:04:33 -0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Za6zg-pA8IJkIb_b@kbusch-mbp.dhcp.thefacebook.com>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v6 7/7] x86/vmware: Add TDX hypercall support
+To: "H. Peter Anvin" <hpa@zytor.com>, Dave Hansen <dave.hansen@intel.com>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, bp@alien8.de,
+ dave.hansen@linux.intel.com, mingo@redhat.com, tglx@linutronix.de
+Cc: x86@kernel.org, netdev@vger.kernel.org, richardcochran@gmail.com,
+ linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, zackr@vmware.com,
+ linux-graphics-maintainer@vmware.com, pv-drivers@vmware.com,
+ namit@vmware.com, timothym@vmware.com, akaher@vmware.com, jsipek@vmware.com,
+ dri-devel@lists.freedesktop.org, daniel@ffwll.ch, airlied@gmail.com,
+ tzimmermann@suse.de, mripard@kernel.org, maarten.lankhorst@linux.intel.com,
+ horms@kernel.org, kirill.shutemov@linux.intel.com
+References: <20240109084052.58661-1-amakhalov@vmware.com>
+ <20240109084052.58661-8-amakhalov@vmware.com>
+ <ff370e42-f48b-4c62-9b44-9d4031cd78b0@intel.com>
+ <4CF87BC4-E8C8-4584-A275-5A985D5A18A1@zytor.com>
+Content-Language: en-US
+From: Alexey Makhalov <alexey.makhalov@broadcom.com>
+Autocrypt: addr=alexey.makhalov@broadcom.com; keydata=
+ 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 EuY0
+In-Reply-To: <4CF87BC4-E8C8-4584-A275-5A985D5A18A1@zytor.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Mon, Jan 22, 2024 at 11:27:15AM -0700, Keith Busch wrote:
-> > +	q->limits.max_user_discard_sectors = max_discard_bytes >> SECTOR_SHIFT;
-> > +	q->limits.max_discard_sectors =
-> > +		min_not_zero(q->limits.max_hw_discard_sectors,
-> > +			     q->limits.max_user_discard_sectors);
+
+
+On 1/22/24 10:28 AM, H. Peter Anvin wrote:
+> On January 22, 2024 8:32:22 AM PST, Dave Hansen <dave.hansen@intel.com> wrote:
+>> On 1/9/24 00:40, Alexey Makhalov wrote:
+>>> +#ifdef CONFIG_INTEL_TDX_GUEST
+>>> +unsigned long vmware_tdx_hypercall(unsigned long cmd,
+>>> +				   struct tdx_module_args *args)
+>>> +{
+>>> +	if (!hypervisor_is_type(X86_HYPER_VMWARE))
+>>> +		return ULONG_MAX;
+>>> +
+>>> +	if (cmd & ~VMWARE_CMD_MASK) {
+>>> +		pr_warn_once("Out of range command %lx\n", cmd);
+>>> +		return ULONG_MAX;
+>>> +	}
+>>> +
+>>> +	args->r10 = VMWARE_TDX_VENDOR_LEAF;
+>>> +	args->r11 = VMWARE_TDX_HCALL_FUNC;
+>>> +	args->r12 = VMWARE_HYPERVISOR_MAGIC;
+>>> +	args->r13 = cmd;
+>>> +	args->r15 = 0; /* CPL */
+>>> +
+>>> +	__tdx_hypercall(args);
+>>> +
+>>> +	return args->r12;
+>>> +}
+>>> +EXPORT_SYMBOL_GPL(vmware_tdx_hypercall);
+>>> +#endif
+>>
+>> This is the kind of wrapper that I was hoping for.  Thanks.
+>>
+>> Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
+>>
 > 
-> Shouldn't writing 0 disable discards?
+> I'm slightly confused by this TBH.
+> 
+> Why are the arguments passed in as a structure, which is modified by the wrapper to boot? This is analogous to a system call interface.
+> 
+> Furthermore, this is an out-of-line function; it should never be called with !X86_HYPER_VMWARE or you are introducing overhead for other hypervisors; I believe a pr_warn_once() is in order at least, just as you have for the out-of-range test.
+> 
 
-I mirror the max_user_sectors behavior here, where 0 disables the
-user limiting.  But yes, that would be a behavior change.
+This patch series introduces vmware_hypercall family of functions 
+similar to kvm_hypercall. Similarity: both vmware and kvm 
+implementations are static inline functions and both of them use 
+__tdx_hypercall (global not exported symbol). Difference: kvm_hypercall 
+functions are used _only_ within the kernel, but vmware_hypercall are 
+also used by modules.
+Exporting __tdx_hypercall function is an original Dave's concern.
+So we ended up with exporting wrapper, not generic, but VMware specific 
+with added checks against arbitrary use.
+vmware_tdx_hypercall is not designed for !X86_HYPER_VMWARE callers. But 
+such a calls are not forbidden.
+Arguments in a structure is an API for __tdx_hypercall(). Input and 
+output argument handling are done by vmware_hypercall callers, while 
+VMware specific dress up is inside the wrapper.
+
+Peter, do you think code comments are required to make it clear for the 
+reader?
+
+
