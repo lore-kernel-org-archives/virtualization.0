@@ -1,185 +1,132 @@
-Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E27BE2109
-	for <virtualization@lists.linux.dev>; Tue, 23 Jan 2024 00:04:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C8F414AD2B
+	for <virtualization@lists.linux.dev>; Tue, 23 Jan 2024 00:20:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705968279; cv=none; b=QCT9oV7Uym/m8Fd2am3ycOZUaRvic5RandktSe0MkIS/H7cv+vCpAerVbLs8UxdluZ+CTEJTu5J90N+B9aYyVR/3Ut/DyctVFz72KGNJxOcBDgg00g3AyE1ny+rook1fvTVR2wNxaqP7E+bW9GbG3e3DozDEruxlQwmYFNKCEhI=
+	t=1705969260; cv=none; b=E9WskrMc3qHRM6jFTNRpPswE9TMiy0l85RMOzeVLDKIHghuNd0aDYgI9+7XSf6or196PWsGfKz5g5CKENLj1zzX+kXZ1kCDZbxrJzJMV7wqBkslzD7iBUXuw06aB2AE1LU0bMABK6Knj74As62kfrP1LTRtWYAOuAe/6KCHA5KM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705968279; c=relaxed/simple;
-	bh=8Z+ULs/q4uaFuzdQu2SajzdOoT1NsPPNsx1Mfe0md28=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=D7kC592hAlxAVoXSWhCV3dqFtyYpQF4txpiUzwlMQRT3lbixxAAEWZnx99QD5yB8dx2PzlKhDe4hW7sylt3cwpnuEViaexQ/f6TpqRrcOJYYieFGpHFCUlp7ZWC0m8yC0cJpR9RPKzVHtmODyWDHhY/8kHOiEK/OzEf/knuYSwo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=L4aOJvDy; arc=none smtp.client-ip=209.85.214.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
+	s=arc-20240116; t=1705969260; c=relaxed/simple;
+	bh=m55lPpC+NBSE/XcmCcD0E6mFq9o/I9MNWdauqqDofbk=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
+	 MIME-Version:Content-Type; b=q4hvndL/HUMRPk0XnYX4rvj6Qr8L+UCK/w/rffUHOUPwOrZckDvlDNal6A5NYmq13JOnWj3IsT6HwuoCVrUZEqEWptqwfGxn8BesmmBml5iszpLm2DInteeqeeBVM9H7Qh4GWZzHzw96yPDcYwG2FKzLpAkW//nvOI/26f6/YK0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=NR/AlsA7; arc=none smtp.client-ip=198.137.202.136
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="L4aOJvDy"
-Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-1d7610c5f4aso7353735ad.3
-        for <virtualization@lists.linux.dev>; Mon, 22 Jan 2024 16:04:37 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1705968277; x=1706573077; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=xgfmCkmz6VqNVg7hccbLpNYur17IGmTm4uzzQPE4EUY=;
-        b=L4aOJvDyi7Si9PNWAbDDAOsMQI5rAYveKC4FgjgHwJBJ3ryLRQnTW3VYr5qmX126fR
-         OCPL2/pwDD5u2BTla3UOKpQuLWEiGUSDCxib5RF4KeO5/zoMEV0/UGMZIWUdBGswNHDU
-         tKwG4AjzwoAcx+nMkFpmn4sq9JafNSelhYzKs=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1705968277; x=1706573077;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=xgfmCkmz6VqNVg7hccbLpNYur17IGmTm4uzzQPE4EUY=;
-        b=Ee02amd6kw94EzLc7fBkfLZCSxHT3HpATJ1D+j8NFZmlStrKNamcPJzOSCApGgmj+L
-         s2p9oo+T++2huSKmMp3xS894yfT1eRfx1Nh4zFvlMBc/MJ+MiRns2Cmj4481XRv+aMtA
-         akOyroAk2/TdLmGZtI6+caVE9ZD4Wx9DqhfC4pT+mtuFT5tCB9q7OhUiRdLwi3/oOP8Q
-         qnma31w0Upk3+Kf6MZRulWTsyHfA7tHFnb78k+XbpxWSIJSEb3HF2n1x8KiRHzXbVjrm
-         nbI1J1fQRpb8lzB3OPS8TH853jv5y3E0vB/auPC8Z4xnpqiNFFyvTJS2utwMhxGk6H40
-         VqtA==
-X-Gm-Message-State: AOJu0YxSwvflrKD+lI4LNc8//VGVAORcpbAvZ55rHEKgoBR1FdMcfbjN
-	Hy72JrxOuWJJRQ91Je6twdXKScGLfe77YMQWCydmAolUqMQYSMROVvQFaGVqgQ==
-X-Google-Smtp-Source: AGHT+IF5yKC8hKNBRzCwOfVpSH7KZaK0Y2BiM8IVrQK6Ra+ueNGnouj9WLbWFBvo3F8qwKPNnXzqHw==
-X-Received: by 2002:a17:903:2487:b0:1d7:6a42:616a with SMTP id p7-20020a170903248700b001d76a42616amr606317plw.114.1705968277246;
-        Mon, 22 Jan 2024 16:04:37 -0800 (PST)
-Received: from [10.62.13.168] ([128.177.82.146])
-        by smtp.gmail.com with ESMTPSA id u7-20020a170902b28700b001d751b1b241sm2359500plr.26.2024.01.22.16.04.34
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 22 Jan 2024 16:04:36 -0800 (PST)
-Message-ID: <c01cecef-db06-49d8-aa2e-548908c65861@broadcom.com>
-Date: Mon, 22 Jan 2024 16:04:33 -0800
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="NR/AlsA7"
+Received: from [127.0.0.1] ([76.133.66.138])
+	(authenticated bits=0)
+	by mail.zytor.com (8.17.2/8.17.1) with ESMTPSA id 40N0HoLc2798528
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
+	Mon, 22 Jan 2024 16:17:50 -0800
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 40N0HoLc2798528
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
+	s=2024011201; t=1705969072;
+	bh=naevb4PslKTi+uWE0rIwkjLfQkOH3+GqKQddGwCKH50=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
+	b=NR/AlsA7je5VAyZlNPTZHvXBBzujylBLOIxmnxF4bzZa+iaBvnN8bscZ+p5JkQaJH
+	 ktK2PFVspY/AnvBR1rDjgiy5C0pQbhgGOCSnz2c+7QoE2VKG/r5QNRvd9rUsX6u926
+	 B18RybD5ChPM2oeC+/dkh75st/RyLCw4gBhEDZ/8NXV1GEGVVBn5HwNKITtSiD+b6B
+	 RNxHsmhbX42aaKRVUIOUymXOHS/xUCX8Nxf7gg67sU9XnG8TdgCwPUGRJ89WxOxQA0
+	 OHPPuDDGIkVBhGIrtxVa5Ur7uJX/H/QbZqQXpUttoMMbAuhTGzmigvLcbNcDG5iX8f
+	 xhMr6LuORnThg==
+Date: Mon, 22 Jan 2024 16:17:48 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+To: Alexey Makhalov <alexey.makhalov@broadcom.com>,
+        Dave Hansen <dave.hansen@intel.com>, linux-kernel@vger.kernel.org,
+        virtualization@lists.linux.dev, bp@alien8.de,
+        dave.hansen@linux.intel.com, mingo@redhat.com, tglx@linutronix.de
+CC: x86@kernel.org, netdev@vger.kernel.org, richardcochran@gmail.com,
+        linux-input@vger.kernel.org, dmitry.torokhov@gmail.com,
+        zackr@vmware.com, linux-graphics-maintainer@vmware.com,
+        pv-drivers@vmware.com, namit@vmware.com, timothym@vmware.com,
+        akaher@vmware.com, jsipek@vmware.com, dri-devel@lists.freedesktop.org,
+        daniel@ffwll.ch, airlied@gmail.com, tzimmermann@suse.de,
+        mripard@kernel.org, maarten.lankhorst@linux.intel.com,
+        horms@kernel.org, kirill.shutemov@linux.intel.com
+Subject: Re: [PATCH v6 7/7] x86/vmware: Add TDX hypercall support
+User-Agent: K-9 Mail for Android
+In-Reply-To: <c01cecef-db06-49d8-aa2e-548908c65861@broadcom.com>
+References: <20240109084052.58661-1-amakhalov@vmware.com> <20240109084052.58661-8-amakhalov@vmware.com> <ff370e42-f48b-4c62-9b44-9d4031cd78b0@intel.com> <4CF87BC4-E8C8-4584-A275-5A985D5A18A1@zytor.com> <c01cecef-db06-49d8-aa2e-548908c65861@broadcom.com>
+Message-ID: <351B1153-9CBE-4774-9FAF-770F9F36856E@zytor.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 7/7] x86/vmware: Add TDX hypercall support
-To: "H. Peter Anvin" <hpa@zytor.com>, Dave Hansen <dave.hansen@intel.com>,
- linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, bp@alien8.de,
- dave.hansen@linux.intel.com, mingo@redhat.com, tglx@linutronix.de
-Cc: x86@kernel.org, netdev@vger.kernel.org, richardcochran@gmail.com,
- linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, zackr@vmware.com,
- linux-graphics-maintainer@vmware.com, pv-drivers@vmware.com,
- namit@vmware.com, timothym@vmware.com, akaher@vmware.com, jsipek@vmware.com,
- dri-devel@lists.freedesktop.org, daniel@ffwll.ch, airlied@gmail.com,
- tzimmermann@suse.de, mripard@kernel.org, maarten.lankhorst@linux.intel.com,
- horms@kernel.org, kirill.shutemov@linux.intel.com
-References: <20240109084052.58661-1-amakhalov@vmware.com>
- <20240109084052.58661-8-amakhalov@vmware.com>
- <ff370e42-f48b-4c62-9b44-9d4031cd78b0@intel.com>
- <4CF87BC4-E8C8-4584-A275-5A985D5A18A1@zytor.com>
-Content-Language: en-US
-From: Alexey Makhalov <alexey.makhalov@broadcom.com>
-Autocrypt: addr=alexey.makhalov@broadcom.com; keydata=
- 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 EuY0
-In-Reply-To: <4CF87BC4-E8C8-4584-A275-5A985D5A18A1@zytor.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
+On January 22, 2024 4:04:33 PM PST, Alexey Makhalov <alexey=2Emakhalov@broa=
+dcom=2Ecom> wrote:
+>
+>
+>On 1/22/24 10:28 AM, H=2E Peter Anvin wrote:
+>> On January 22, 2024 8:32:22 AM PST, Dave Hansen <dave=2Ehansen@intel=2E=
+com> wrote:
+>>> On 1/9/24 00:40, Alexey Makhalov wrote:
+>>>> +#ifdef CONFIG_INTEL_TDX_GUEST
+>>>> +unsigned long vmware_tdx_hypercall(unsigned long cmd,
+>>>> +				   struct tdx_module_args *args)
+>>>> +{
+>>>> +	if (!hypervisor_is_type(X86_HYPER_VMWARE))
+>>>> +		return ULONG_MAX;
+>>>> +
+>>>> +	if (cmd & ~VMWARE_CMD_MASK) {
+>>>> +		pr_warn_once("Out of range command %lx\n", cmd);
+>>>> +		return ULONG_MAX;
+>>>> +	}
+>>>> +
+>>>> +	args->r10 =3D VMWARE_TDX_VENDOR_LEAF;
+>>>> +	args->r11 =3D VMWARE_TDX_HCALL_FUNC;
+>>>> +	args->r12 =3D VMWARE_HYPERVISOR_MAGIC;
+>>>> +	args->r13 =3D cmd;
+>>>> +	args->r15 =3D 0; /* CPL */
+>>>> +
+>>>> +	__tdx_hypercall(args);
+>>>> +
+>>>> +	return args->r12;
+>>>> +}
+>>>> +EXPORT_SYMBOL_GPL(vmware_tdx_hypercall);
+>>>> +#endif
+>>>=20
+>>> This is the kind of wrapper that I was hoping for=2E  Thanks=2E
+>>>=20
+>>> Acked-by: Dave Hansen <dave=2Ehansen@linux=2Eintel=2Ecom>
+>>>=20
+>>=20
+>> I'm slightly confused by this TBH=2E
+>>=20
+>> Why are the arguments passed in as a structure, which is modified by th=
+e wrapper to boot? This is analogous to a system call interface=2E
+>>=20
+>> Furthermore, this is an out-of-line function; it should never be called=
+ with !X86_HYPER_VMWARE or you are introducing overhead for other hyperviso=
+rs; I believe a pr_warn_once() is in order at least, just as you have for t=
+he out-of-range test=2E
+>>=20
+>
+>This patch series introduces vmware_hypercall family of functions similar=
+ to kvm_hypercall=2E Similarity: both vmware and kvm implementations are st=
+atic inline functions and both of them use __tdx_hypercall (global not expo=
+rted symbol)=2E Difference: kvm_hypercall functions are used _only_ within =
+the kernel, but vmware_hypercall are also used by modules=2E
+>Exporting __tdx_hypercall function is an original Dave's concern=2E
+>So we ended up with exporting wrapper, not generic, but VMware specific w=
+ith added checks against arbitrary use=2E
+>vmware_tdx_hypercall is not designed for !X86_HYPER_VMWARE callers=2E But=
+ such a calls are not forbidden=2E
+>Arguments in a structure is an API for __tdx_hypercall()=2E Input and out=
+put argument handling are done by vmware_hypercall callers, while VMware sp=
+ecific dress up is inside the wrapper=2E
+>
+>Peter, do you think code comments are required to make it clear for the r=
+eader?
+>
+>
 
-
-On 1/22/24 10:28 AM, H. Peter Anvin wrote:
-> On January 22, 2024 8:32:22 AM PST, Dave Hansen <dave.hansen@intel.com> wrote:
->> On 1/9/24 00:40, Alexey Makhalov wrote:
->>> +#ifdef CONFIG_INTEL_TDX_GUEST
->>> +unsigned long vmware_tdx_hypercall(unsigned long cmd,
->>> +				   struct tdx_module_args *args)
->>> +{
->>> +	if (!hypervisor_is_type(X86_HYPER_VMWARE))
->>> +		return ULONG_MAX;
->>> +
->>> +	if (cmd & ~VMWARE_CMD_MASK) {
->>> +		pr_warn_once("Out of range command %lx\n", cmd);
->>> +		return ULONG_MAX;
->>> +	}
->>> +
->>> +	args->r10 = VMWARE_TDX_VENDOR_LEAF;
->>> +	args->r11 = VMWARE_TDX_HCALL_FUNC;
->>> +	args->r12 = VMWARE_HYPERVISOR_MAGIC;
->>> +	args->r13 = cmd;
->>> +	args->r15 = 0; /* CPL */
->>> +
->>> +	__tdx_hypercall(args);
->>> +
->>> +	return args->r12;
->>> +}
->>> +EXPORT_SYMBOL_GPL(vmware_tdx_hypercall);
->>> +#endif
->>
->> This is the kind of wrapper that I was hoping for.  Thanks.
->>
->> Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
->>
-> 
-> I'm slightly confused by this TBH.
-> 
-> Why are the arguments passed in as a structure, which is modified by the wrapper to boot? This is analogous to a system call interface.
-> 
-> Furthermore, this is an out-of-line function; it should never be called with !X86_HYPER_VMWARE or you are introducing overhead for other hypervisors; I believe a pr_warn_once() is in order at least, just as you have for the out-of-range test.
-> 
-
-This patch series introduces vmware_hypercall family of functions 
-similar to kvm_hypercall. Similarity: both vmware and kvm 
-implementations are static inline functions and both of them use 
-__tdx_hypercall (global not exported symbol). Difference: kvm_hypercall 
-functions are used _only_ within the kernel, but vmware_hypercall are 
-also used by modules.
-Exporting __tdx_hypercall function is an original Dave's concern.
-So we ended up with exporting wrapper, not generic, but VMware specific 
-with added checks against arbitrary use.
-vmware_tdx_hypercall is not designed for !X86_HYPER_VMWARE callers. But 
-such a calls are not forbidden.
-Arguments in a structure is an API for __tdx_hypercall(). Input and 
-output argument handling are done by vmware_hypercall callers, while 
-VMware specific dress up is inside the wrapper.
-
-Peter, do you think code comments are required to make it clear for the 
-reader?
-
-
+TBH that explanation didn't make much sense to me=2E=2E=2E
