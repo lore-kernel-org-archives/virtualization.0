@@ -1,163 +1,152 @@
-Received: from mail-ot1-f41.google.com (mail-ot1-f41.google.com [209.85.210.41])
+Received: from mail-lf1-f41.google.com (mail-lf1-f41.google.com [209.85.167.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F13F612DF
-	for <virtualization@lists.linux.dev>; Tue, 23 Jan 2024 00:45:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C162D10F1
+	for <virtualization@lists.linux.dev>; Tue, 23 Jan 2024 03:28:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705970757; cv=none; b=jSBOV2GhsgUU0pkt+jLYCykH83bD6lTskeeAkciy3lJJG56btnOHM4xMCJP0Itz0/ZOEesq7XfHzr0eQ4n4A4xevwObCVBWIEIc6tykkV1TPDTSH3d15XL3CU6KPhwzy2PUkYC7g7Csljttv7Qcpbi1MnRH5cIClv8jQ27qQyFg=
+	t=1705980500; cv=none; b=jh5DGKtwq1AI8wyKn1HdzpGRWDK0OJsj1WSNIL0+3EshVI2Kd9b8jvnKBDh0rsBWQOV4cdwlQnbvTTwDaUcau27xGSzx8vdrgnK0dZLAqaE2aSpg5/5vn7gAIgrqbowze9+tvcoYjkm5ayXvgv6xLMtEoaRZcWFl3VPB2yRNP14=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705970757; c=relaxed/simple;
-	bh=wEJz6ncP+qRtXKX7k2D+joSrafVF4O5OSdQFr3cojK4=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=oLBLCXQDu/zxeKe11MnT+LmuI/1qiIHdDRr+z7KqwQ4n3V87KpZ2Y5m1HA48ZIVHiUlAONILUR99LpE9MxeWYDkScDailtBXmOxLiBlrzV2oNbwYTGETN03maGGL00AV2Xar0iXN27FTL3XLieGiQvf1p+QE4uqLtIy5OLfJ1hE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=hIhsQRd8; arc=none smtp.client-ip=209.85.210.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1705980500; c=relaxed/simple;
+	bh=WYhT1KSTjcRFHQZ0dFY+HaX12W5Ope1cBkdGfWhmFm0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=pErhr9R7MUFLuevn3EIOOD9fi/Am54ZEJScUPiWIDHsP+mcEuUhj6/+B/KPcYkhsJO2rdlgaiqW35dAoFUzXE9+Ob0zUjekUrNt/7qJQsH30pFEj8RuThqMOk+Wl2kVaOvG6EbyM2rfcD+7pGV4rsQ6WoQD6aY1YnPRQjpt0ql0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SduxInfO; arc=none smtp.client-ip=209.85.167.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="hIhsQRd8"
-Received: by mail-ot1-f41.google.com with SMTP id 46e09a7af769-6e0ed26cc5eso1075708a34.3
-        for <virtualization@lists.linux.dev>; Mon, 22 Jan 2024 16:45:55 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SduxInfO"
+Received: by mail-lf1-f41.google.com with SMTP id 2adb3069b0e04-50e6ee8e911so5164792e87.1
+        for <virtualization@lists.linux.dev>; Mon, 22 Jan 2024 19:28:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1705970755; x=1706575555; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1705980497; x=1706585297; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=dOtaS8Q/PpRJgiodelWT3IFfX/962bDrzicKtXvnvo8=;
-        b=hIhsQRd8mG05PAwup7xHg2BcRAtHfg+W91CqWBd9+XCh68I2L7kpZ3dw5ViHrOyQ3I
-         zgKyWf3furufuQ+NMXmX7NXD8r4LASrEsz2/J6h457GOmBzvBlxg3HfvgCMdUNhkoPW9
-         f22+laGqjb2ANWly81cGUuff/AzryOTofMZX4=
+        bh=YBJbKQX0OEBxeprRN+v16JluNv16fHJFSLP63KZqjwQ=;
+        b=SduxInfOnpsefJKvyWn0Sci9jfK/EXK/z/SjpXWXKlnP0WwvM/1g3JHo/4AWDbdITj
+         ANJmKjCPK5F5qvPcnyG4UmNCsF86O9zxYEzEPNgPGf3WBGVEBr86LMz7y2imFGgyj+68
+         2oLcrzq0oVy5QDyWV4ocMXfDxOOO2II9OWmjvCD937/mqb++iOUUrUIsvEffWVXTLfev
+         vMrDL8Tq0TCEqJxjoPjJ5mi62MLUcK8VZmTLa2r+2gabwNFNtgIK3FjRielrmJnhc/0l
+         QHPu7kzq9NeCLvok3d/6eI1zJP4pnKSCCbuRL5a53JUyliQC3uSWgEMSbk07Bth1xnlX
+         Kwew==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1705970755; x=1706575555;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1705980497; x=1706585297;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=dOtaS8Q/PpRJgiodelWT3IFfX/962bDrzicKtXvnvo8=;
-        b=ZN374+BK2fzClgZDcLBMsHXyS+0HYWtCpzMVMzrg77EP4V7/yOivZj6BF4jTvo1463
-         J0ldM2FBe6DosdQF/i3gTWf5RTvRDWaqDeXdcqEWegvWvKsC9YMyR2mkDBhGDUkYMJcu
-         mMAhbeggi5dhChi1gMcTPhUo0DKUyfejlQ1cn4WSJDS+LXJcHTd/z04E9iTuCK/MSttM
-         IVj3zYRKseHFa8Pmyp3u2+jysblb641paqwdiHeRuyFcWDbocPfUOZr9NQwOKJvLF0Y7
-         V0+Qj7HBbCedi1r0AIeXt7FOnZ+7CMC02Ih7NtkZH+xUkmIiCCQ5jVhINTd1PNW3/G68
-         Hhyw==
-X-Gm-Message-State: AOJu0YxwjGL7qmib0tTpn0nDCvVMCzizRT69bVV1fFfGn22UaflIrOyy
-	6AulVFcLPu1dYAMIQUGsbV2Y/XX/djMVsjwnUAGyn5rbaZg4zh9JfcsXo5QaLQ==
-X-Google-Smtp-Source: AGHT+IGQwShADBm43GhljCU0u40cOaLZ1q4WsuoH3YKek1HoSlz9pHA07/Hox4IaetxxaQSRrpFeCQ==
-X-Received: by 2002:a05:6358:99a0:b0:176:3e0d:9910 with SMTP id j32-20020a05635899a000b001763e0d9910mr4500624rwb.0.1705970755199;
-        Mon, 22 Jan 2024 16:45:55 -0800 (PST)
-Received: from www.outflux.net ([198.0.35.241])
-        by smtp.gmail.com with ESMTPSA id g4-20020aa78744000000b006d9bb4400f0sm10234582pfo.88.2024.01.22.16.45.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Jan 2024 16:45:54 -0800 (PST)
-From: Kees Cook <keescook@chromium.org>
-To: linux-hardening@vger.kernel.org
-Cc: Kees Cook <keescook@chromium.org>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	kvm@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
-	"Gustavo A. R. Silva" <gustavoars@kernel.org>,
-	Bill Wendling <morbo@google.com>,
-	Justin Stitt <justinstitt@google.com>,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 32/82] vringh: Refactor intentional wrap-around calculation
-Date: Mon, 22 Jan 2024 16:27:07 -0800
-Message-Id: <20240123002814.1396804-32-keescook@chromium.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20240122235208.work.748-kees@kernel.org>
-References: <20240122235208.work.748-kees@kernel.org>
+        bh=YBJbKQX0OEBxeprRN+v16JluNv16fHJFSLP63KZqjwQ=;
+        b=eieyIzH/uorm7AN6f/xGjsJMGthlftnx2Qg5jSFKRcD0VMHmGvuSPVPAl3pklPUNuN
+         4W+sYobNf9yYAFGkMiRPJ+lBBNWn1aixc83VvwOqVWQhl2MMKdhfu3BEEbrKDP9KzSpZ
+         KLZDZe9nAmcKAsAyIa4xJbYZr9nmL1DpxugZwzvz/Udw2tmvijK0IkF7T/jsVtjviRP8
+         k6P4y8eWen9kwYLU7WRInpL63OQOA6ijjWgfILa4sslBOjoSVeOSnsDuvUOqtcN7Njh2
+         nDuGWNMtGEur0MpeAgvM/YQAUUVwNMFoEwsUNm66GyfTAUN8RxLTOyl0tNRbDeiXeOIH
+         j/qw==
+X-Gm-Message-State: AOJu0Yxi+T2usbzVp7/MY1cpvc3chI/Igw4P7Wkm8pOoVgQbEl6k5dYq
+	Z98N3F6FcIpr0OXjHK7F9zEZlCiZ3RlAqbud+VPi/ykE1t0W9XB++lSBid+UDb9jLJ20WthXwEw
+	DWyMLZgr33A3dWuliJHAQ45ns7MI=
+X-Google-Smtp-Source: AGHT+IHzrHeX6AxgLJC298KaOYuxpbO5DUKstT5SH6IZswiIFSfK1NEzNpCYLrou/eJ6ElOxb9uC6K879m4tnEDH8H8=
+X-Received: by 2002:a05:6512:6d3:b0:50e:e0af:4efb with SMTP id
+ u19-20020a05651206d300b0050ee0af4efbmr2673823lff.104.1705980496515; Mon, 22
+ Jan 2024 19:28:16 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2682; i=keescook@chromium.org;
- h=from:subject; bh=wEJz6ncP+qRtXKX7k2D+joSrafVF4O5OSdQFr3cojK4=;
- b=owEBbQKS/ZANAwAKAYly9N/cbcAmAcsmYgBlrwgHD0u3YhpYy/8Dc5chh0+01JehokeF1vpzI
- BT65uKVfgWJAjMEAAEKAB0WIQSlw/aPIp3WD3I+bhOJcvTf3G3AJgUCZa8IBwAKCRCJcvTf3G3A
- JpFyEACdChSCT4Y0X47ea6T+PsrgS42Vou9eXn9FDMWCPIbD1kW1gHAFP1FAqkYnEij+0625LYZ
- 2RtZVv0zZFrtRaGdtFZFQFDJTSr6QNj3uxivVtsmwb1pLXXDnFTFWikADuH5v60qkgSrb2bTZMY
- knyNpBo6L+ItzkaxgMhFX1rtdBM2iTj2HOYKmNkYIwvxCNExT4h+7TKnDNipWpdd5EwB3nV3F2p
- 1pExl5eEqmY2Ma6oIf7cypf/bIKRIjUW1Ilre5bbCngLzeYZMqOG35bUlr3WC3w88nu6tYBXolx
- Erl0eGsiamN+wyuoxNKoT/h+WyXer3JpoxEq/sl38I39B23XaYVff/d+6Suvc+F3tV6jNdbyaem
- JxwjjNG4ksbLc5PdSetTuaRGyP3xwIiVRJmS3tlng0ghnRbKVS/FFw+qU64g1HMXFJ/qj6Ldypv
- ORamulyXPJU2FWA/g8/Ld+OnSQn41XCT6619haypc24tpwo9TMSlKhckwkeIgqTxMWBfiha0co8
- ANuXzPXBosDOYCZNhGhwsT9JNpMKS9otU4fcb4uoJ2RtASuAmGm82JgroIBM/MhrLeYmlZOwIk4
- jIzar8S+YFZz03aIUIiOxVH9cIhd+DZLz1UZb5Pc9SBnZc4u8HlyhSQOPf8eOZtvyR3Q+n8534w TxS3x9dEXm4+h9g==
-X-Developer-Key: i=keescook@chromium.org; a=openpgp; fpr=A5C3F68F229DD60F723E6E138972F4DFDC6DC026
-Content-Transfer-Encoding: 8bit
+References: <20240122110722.690223-1-yi.sun@unisoc.com> <20240122110722.690223-3-yi.sun@unisoc.com>
+ <20240122154255.GA389442@fedora>
+In-Reply-To: <20240122154255.GA389442@fedora>
+From: yi sun <sunyibuaa@gmail.com>
+Date: Tue, 23 Jan 2024 11:27:40 +0800
+Message-ID: <CALpufv0h-sQ4Qfp-Sxd7wME4onMNAMop_gi-np6Dk2R96sba0Q@mail.gmail.com>
+Subject: Re: [PATCH 2/2] virtio-blk: Ensure no requests in virtqueues before
+ deleting vqs.
+To: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: Yi Sun <yi.sun@unisoc.com>, axboe@kernel.dk, mst@redhat.com, jasowang@redhat.com, 
+	xuanzhuo@linux.alibaba.com, pbonzini@redhat.com, 
+	virtualization@lists.linux.dev, linux-block@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, zhiguo.niu@unisoc.com, hongyu.jin@unisoc.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-In an effort to separate intentional arithmetic wrap-around from
-unexpected wrap-around, we need to refactor places that depend on this
-kind of math. One of the most common code patterns of this is:
+On Mon, Jan 22, 2024 at 11:43=E2=80=AFPM Stefan Hajnoczi <stefanha@redhat.c=
+om> wrote:
+>
+> On Mon, Jan 22, 2024 at 07:07:22PM +0800, Yi Sun wrote:
+> > Ensure no remaining requests in virtqueues before resetting vdev and
+> > deleting virtqueues. Otherwise these requests will never be completed.
+> > It may cause the system to become unresponsive. So it is better to plac=
+e
+> > blk_mq_quiesce_queue() in front of virtio_reset_device().
+>
+> QEMU's virtio-blk device implementation completes all requests during
+> device reset. Most device implementations have to do the same to avoid
+> leaving dangling requests in flight across device reset.
+>
+> Which device implementation are you using and why is it safe for the
+> device is simply drop requests across device reset?
+>
+> Stefan
 
-	VAR + value < VAR
+Virtio-blk device implementation completes all requests during device reset=
+, but
+this can only ensure that the device has finished using virtqueue. We shoul=
+d
+also consider the driver's use of virtqueue.
 
-Notably, this is considered "undefined behavior" for signed and pointer
-types, which the kernel works around by using the -fno-strict-overflow
-option in the build[1] (which used to just be -fwrapv). Regardless, we
-want to get the kernel source to the position where we can meaningfully
-instrument arithmetic wrap-around conditions and catch them when they
-are unexpected, regardless of whether they are signed[2], unsigned[3],
-or pointer[4] types.
+I caught such an example. Before del_vqs, the request had been processed by
+the device, but it had not been processed by the driver. Although I am
+using kernel5.4,
+I think this problem may also occur with the latest version of kernel.
 
-Refactor open-coded unsigned wrap-around addition test to use
-check_add_overflow(), retaining the result for later usage (which removes
-the redundant open-coded addition). This paves the way to enabling the
-unsigned wrap-around sanitizer[2] in the future.
+The debug code I added is as follows:
+virtblk_freeze()
+{
+        vdev reset();
+        quiesce queue();
+        if (virtqueue->num_free !=3D 1024) //1024 is the init value.
+                BUG_ON(1);
+        vdev del_vqs();
+}
 
-Link: https://git.kernel.org/linus/68df3755e383e6fecf2354a67b08f92f18536594 [1]
-Link: https://github.com/KSPP/linux/issues/26 [2]
-Link: https://github.com/KSPP/linux/issues/27 [3]
-Link: https://github.com/KSPP/linux/issues/344 [4]
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org
-Cc: virtualization@lists.linux.dev
-Cc: netdev@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
----
- drivers/vhost/vringh.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+BUG_ON triggered the dump, the analysis is as follows:
 
-diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
-index 7b8fd977f71c..07442f0a52bd 100644
---- a/drivers/vhost/vringh.c
-+++ b/drivers/vhost/vringh.c
-@@ -145,6 +145,8 @@ static inline bool range_check(struct vringh *vrh, u64 addr, size_t *len,
- 			       bool (*getrange)(struct vringh *,
- 						u64, struct vringh_range *))
- {
-+	u64 sum;
-+
- 	if (addr < range->start || addr > range->end_incl) {
- 		if (!getrange(vrh, addr, range))
- 			return false;
-@@ -152,20 +154,20 @@ static inline bool range_check(struct vringh *vrh, u64 addr, size_t *len,
- 	BUG_ON(addr < range->start || addr > range->end_incl);
- 
- 	/* To end of memory? */
--	if (unlikely(addr + *len == 0)) {
-+	if (unlikely(U64_MAX - addr == *len)) {
- 		if (range->end_incl == -1ULL)
- 			return true;
- 		goto truncate;
- 	}
- 
- 	/* Otherwise, don't wrap. */
--	if (addr + *len < addr) {
-+	if (check_add_overflow(addr, *len, &sum)) {
- 		vringh_bad("Wrapping descriptor %zu@0x%llx",
- 			   *len, (unsigned long long)addr);
- 		return false;
- 	}
- 
--	if (unlikely(addr + *len - 1 > range->end_incl))
-+	if (unlikely(sum - 1 > range->end_incl))
- 		goto truncate;
- 	return true;
- 
--- 
-2.34.1
+There is one request left in request_queue.
+crash_arm64> struct request ffffff81f0560000 | grep -e state -e __data_len
+  __data_len =3D 20480,
+  state =3D MQ_RQ_IN_FLIGHT,
 
+crash_arm64> vring_virtqueue.packed,last_used_idx,broken,vq 0xffffff8086f92=
+900 |
+grep -e num -e used_wrap_counter -e last_used_idx -e broken -e
+num_free -e desc_state -e "desc =3D"
+        num =3D 1024,
+        desc =3D 0xffffff8085ff8000,
+      used_wrap_counter =3D false,
+      desc_state =3D 0xffffff8085610000,
+  last_used_idx =3D 487,
+  broken =3D false,
+    num_free =3D 1017,
+
+Find desc based on last_used_idx. Through flags, we can know that the reque=
+st
+has been processed by the device, but it is still in flight state
+because it has not
+had time to run virtblk_done().
+crash_arm> vring_packed_desc ffffff8085ff9e70
+struct vring_packed_desc {
+  addr =3D 10474619192,
+  len =3D 20481,
+  id =3D 667,
+  flags =3D 2
+}
+
+I'm using a closed source virtual machine, so I can't see the source
+code for it,
+but I'm guessing it's similar to qemu.
+
+After the device completes the request, we must also ensure that the driver=
+ can
+complete the request in virtblk_done().
