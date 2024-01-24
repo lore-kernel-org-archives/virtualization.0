@@ -1,143 +1,211 @@
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2048.outbound.protection.outlook.com [40.107.94.48])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17C2885C63
-	for <virtualization@lists.linux.dev>; Tue, 23 Jan 2024 20:23:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.94.48
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706041405; cv=fail; b=YBFZV6Yq2BPdg+eZOOOd/x1+jsWUrrlmeyfMc91cyB7UPfgOIGcylKBqbhquJLdgpN2jFKr0p5py9lDisph245GkMond74dHwAlIHW6TFiv3aY/grr/IZ1933uBKXwjR63UAn6bJxNHmlZ10rKwe4kCyx0Mw2fIeezPrhPMfLMY=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706041405; c=relaxed/simple;
-	bh=UsNYe2ugoddsQzFUMvRamYSm4Y+/7j/nDLWji/RPdGE=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=qquy/icNxCZLAReZhcpGlDnbeerpOv7tDjdErQSggSZkmeTxe09n/5ktwjkUlKRGkpi5Ao4JdgaxhjbcmKHRQOsfzxP7G52CN0+SCD3fMq8kmRq9/Gf4A+OduUQ2ON0Vf1aA00kRjbapoaKKgDWQITCB2kIEuLqiQU6Hcn3ZgQE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=lYL67KFW; arc=fail smtp.client-ip=40.107.94.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2909817CD
+	for <virtualization@lists.linux-foundation.org>; Wed, 24 Jan 2024 02:05:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1706061908; cv=none; b=TU9WLik/pUVLPVsQPrVBT6tpmd1YKnd35jHNsMyucfOkZzaAFjEZtoguZe70wuOMjofi4cVrkvgtpsbi8DEB+HI25ooEKiFDPztI7tINk6UXftRXAbOlG+XZh0pqUWC21iZuzG6UeAc1IYHtJMh4stdCyG/Ax02gvCbxBwoz1GY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1706061908; c=relaxed/simple;
+	bh=r1PJI/1kQSGO0bzUHL8vHtByzkwdMZSWVNQZCiZTVgg=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=YcbKGxrP9/sLk+rFt1bvWBtikO8kvGlKNhNdxZ1nxc1F8xvv+RYjxANeOm/V7JNf9LRzJnwQPZ29P7BvXAybinakNBlz7rOXGLWdb1zOv6vyRvszv8REUiBm9Ul6d3aSn/5Pkxd+JFTXlZfdEaxWOVSI7IPzjz4rkWF/xW2hd4A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bjq9/1C0; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="lYL67KFW"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ChLfaVrKbJSKSujULcVIgvv+NRvGExP6mYd5U6SCjPhXVQrdGHl+disTjw+LVTbdiN3pYC+/J2WdTm67GCOL1kd9I+LFCqrjZ+t8A01mYHdtuBlfvpj7IcdMNeMR2Z+nyDZUu0cbEhOqVRIpZQRnxNfc4STw6wBAZ0soxw5+clZq9rIr7tzcM6LTi56A8cNbMGog1r5LhORhzNnhywxA54h7E9jIrSH0AhbvXrHniVOSySy7nQHaETQ/tIxxKL4m7QqCMZtalu4IdslAsf+6Z+qCKhBXDulOJDswahzb6yGz8a2EGKNBmKcdRAhB2GabHykiW/sHDF8ONQF8c68j7w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=UsNYe2ugoddsQzFUMvRamYSm4Y+/7j/nDLWji/RPdGE=;
- b=LPg4q44Y03WByWJOOF6U0NDm12tL0eGrmGGEwESQO8GbOkudf8pP8s3qF6pEiC+0OPNxfoCIAa4ZSxsNGaI848UeK0h5k078yfOo5Rix7Fvfm3XWK5BzkYZu28krizjlIDrGHTy6JeE0SP3d5dRUgDDdhPyXvDvsDqgvBrtZT/YX7YJ5Z1/EujsMcIp7KxmEqNnZmj3WWZdWSALDqDwtOvTZX850Kz5SNU81kEqMgU9OmHDaZt0XDEGPUX7z+3V/TGWBRmRZl+yJw8SJ/hCMg/HqhKmFpamAIiDhUeNAvwkOJs826fH3hbkvUL2oQnfxTQ878JjvrsQbM4ORFXEFIw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=UsNYe2ugoddsQzFUMvRamYSm4Y+/7j/nDLWji/RPdGE=;
- b=lYL67KFWqEVo1s8hXkQqVKCf0lJ/ZGuC0jGoYtt6yiD0+y9gbnstA/nhh3SjbAPAFyCuR7bT4lkXUV782kci9N0SDmrzt58sli9MiWDcaA6Rs0ZzrwwKLom0kWnL8nhlEnCLrgv1iWwuLaJiPR8Bvl+x2LI4CtsJYRH67RqFg0FzVEzUvOtyWvz8YcMAYbXk2iPkyGP4ara2hNf9h+iNSSW+b5QkUyPTCpm8BhQjEg29Lohml00u78imMfAHjnQ2g4hIH1PCn5mCqWQCfCqliTTX4wzqJeam5wVpV9TwHvRZI2+UFCQjhiWuEuwWxcBds5fHdAwC92UN+rN6azERzQ==
-Received: from LV3PR12MB9404.namprd12.prod.outlook.com (2603:10b6:408:219::9)
- by DS7PR12MB6006.namprd12.prod.outlook.com (2603:10b6:8:7d::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7202.37; Tue, 23 Jan
- 2024 20:23:21 +0000
-Received: from LV3PR12MB9404.namprd12.prod.outlook.com
- ([fe80::ffce:bbde:c1ca:39ed]) by LV3PR12MB9404.namprd12.prod.outlook.com
- ([fe80::ffce:bbde:c1ca:39ed%4]) with mapi id 15.20.7228.022; Tue, 23 Jan 2024
- 20:23:21 +0000
-From: Chaitanya Kulkarni <chaitanyak@nvidia.com>
-To: Christoph Hellwig <hch@lst.de>
-CC: "Michael S. Tsirkin" <mst@redhat.com>, Jens Axboe <axboe@kernel.dk>, Jason
- Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Paolo
- Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, "Martin
- K. Petersen" <martin.petersen@oracle.com>, Damien Le Moal
-	<dlemoal@kernel.org>, Keith Busch <kbusch@kernel.org>, Sagi Grimberg
-	<sagi@grimberg.me>, "linux-block@vger.kernel.org"
-	<linux-block@vger.kernel.org>, "linux-nvme@lists.infradead.org"
-	<linux-nvme@lists.infradead.org>, "virtualization@lists.linux.dev"
-	<virtualization@lists.linux.dev>
-Subject: Re: [PATCH 11/15] virtio_blk: split virtblk_probe
-Thread-Topic: [PATCH 11/15] virtio_blk: split virtblk_probe
-Thread-Index: AQHaTVm1CdUUOPKyO02zeqNP0ROyobDn2VEA
-Date: Tue, 23 Jan 2024 20:23:21 +0000
-Message-ID: <e61434b8-3d28-4a9e-be19-f0d728fa4a7f@nvidia.com>
-References: <20240122173645.1686078-1-hch@lst.de>
- <20240122173645.1686078-12-hch@lst.de>
-In-Reply-To: <20240122173645.1686078-12-hch@lst.de>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-user-agent: Mozilla Thunderbird
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: LV3PR12MB9404:EE_|DS7PR12MB6006:EE_
-x-ms-office365-filtering-correlation-id: 692151f8-c4b2-4822-909b-08dc1c5124b6
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info:
- 274Lu4iK16mHTjPTTLd+yjR5lFpI7gfqBAgk6kEZStzuYojBVWhb2wbKYgtyxaj4gsQMANJGO0HtLCByECg9CUJcmQNKdaf874ZUtPdBjhiK1RVt0knmzF2Ss/HGhHbYZuFN05+jz4YLXlIe2uqJWxs3alMqGV7MSjHG/QeLV8Sa4Gr/Kb37i7zPABSbjxkoPVWvsw5odqQ+fsmvPW2aui/cxQzuxClknVXfeaSyTGk31uIEjRuW+fqnY64sSS4ztmQVvx3u+D1a4+JRhmDA6CNXZSDMQfwnzIp9gwKfERptbnGPBi/5WSnnIdFbofCu7HIQF46QPLgx15ABk01h4rxwOpiYNr+wUR3UUCdhvTgW/fWQfYKaQMUqm8o+2Gx0RW7312vTGPtt4fBv+xClaOfMGorNnr8HTSYtXY7SeOB0F4VgQCYPqQdi6qDqQ2TO1VINF3Bt/hzWqe8lGWCKl5Cy0ylmmbRW7c+HxyCZ6f7yCokmH5Agejuw8O13m5U2KLaq+pAAnV/cNuY3UO1BA18J9yGBtPyIojhuNyow91MyD6/m/kZV+dk5vM6Tvm2j6nRQ8nfln02v5I038r2SakY2MLJ8ZnkTcF1DCJG30OgaINd2sFbSBlWXdVLixUMSlhC09FdBd1PfGE3i8RUyMR3jcqYb9YSyppEr7hJdnDWglQpqQU4jVGECI+x6axPu
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV3PR12MB9404.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(366004)(39860400002)(396003)(136003)(376002)(346002)(230922051799003)(64100799003)(186009)(451199024)(1800799012)(38070700009)(64756008)(91956017)(76116006)(66476007)(66556008)(66446008)(6916009)(66946007)(8936002)(8676002)(316002)(31686004)(54906003)(122000001)(7416002)(5660300002)(4326008)(38100700002)(2616005)(6506007)(71200400001)(53546011)(26005)(6512007)(478600001)(83380400001)(31696002)(86362001)(41300700001)(36756003)(6486002)(558084003)(2906002)(43740500002)(45980500001);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?utf-8?B?dlVIbUdrZVl5OUtjeE0wazBTUjc3NmhIdjRnbEhDODhSYThiOGw2aTNKWU40?=
- =?utf-8?B?S2huQW1jVytXTFo0Zk5vd04zQXljVEtwVDRzVUc1R0hVTlNMb3l0TW0vdWRa?=
- =?utf-8?B?ZkJCR0ljNmNiWVhMek9weENEaEdXbkttSHF1aUlVNUZTMHN0N0w0dlBaTUlu?=
- =?utf-8?B?NEZnQjN0eThnWDB0YXNRT2RkRVMweTZvZWdxR3pLa3BSOWF2QkZWRUFvcVlV?=
- =?utf-8?B?d3hkOVNHNDZZbDhHNzQxY21nUFhkMVdDM1Brd1dmSWF3ZUo5S3RsV2szRGU0?=
- =?utf-8?B?SXhEaCtYMmhHT3JkamU1OFJCTFArMFFmYjVZb1l4NSthclRNdTRQS0xhTWlU?=
- =?utf-8?B?WEhPOGZFNWNXZzJHY2JUVjBMWFpGYTVyUC9oeEwzRnAwTkFDRTBsUHhCUUJF?=
- =?utf-8?B?TEtGNzlncTk4THJBU0xQbXM3WnF6WG8yeHNLVWJueHJHWW1qaXhqbHI4VVF4?=
- =?utf-8?B?V1FlNlJDUFdJNEwybXZwdEsyVHVBcWZCTVRwUld1TkQ1QXhEaFFINlh1ZlUz?=
- =?utf-8?B?cnlWeEl5UnVBTmZGN1lmVG16V3FhQ1puY1B1dmRwKzhuYjNtSnQraTEzbWVl?=
- =?utf-8?B?ZDA1NVRWc3FkU2duM0ZZQURXdktnbGNMTllvM2xpUDFRK3FkbnZjNm1BUmN2?=
- =?utf-8?B?d2lrRGF6RHJVbEZvNzJrOEd1eHlmamVKOG55ZUJ6M3Mrd0xQWDZmdEYvdDZz?=
- =?utf-8?B?M1lvb3hic05Sdk1sWmJnVEFqWlpMQ1JTYTlGU21RRTI2aEZ2bDMxYjhUTDBv?=
- =?utf-8?B?d1dtYXN3TFZzYk9icTZQQXhUQ2RWY1RsTG0wbXk5MzR2VHdyd2hQWVo2TXE4?=
- =?utf-8?B?MUJUWWVGWEQ5ekJPdjhTQk10V1ZNOXRtQnlCS2tKcTE1bVJTY0tpemd3bXlj?=
- =?utf-8?B?UmMvdW02T2gxZ085Qkl5TCt6T2g2WWIrbnJmb2FXY2pHNHFNTmxHU1BUT05L?=
- =?utf-8?B?Tms1N0JubDJsdlVtZk1GMEdCQUZsMllxUkJvd2pJQXlRRXYyYWR4TG8zRTI2?=
- =?utf-8?B?d1NFTzN4Si9pUEpwVzZqWGF1VThZZnpKeVBiTlR4cTByQlBvd0hkeWcwYmd4?=
- =?utf-8?B?QnZ6OU1OT21kUWZxU1FuNXZNb3JTR1dTTWNUTW90OHg3TjdIdFNoRUR0SEFp?=
- =?utf-8?B?RjFDUDVtM3Z0MlJPUTJJYjhnNW9xR3lpUVZ4Nm0xN0VqSVFadEdvSUl6V3lv?=
- =?utf-8?B?eTd2d0tqSHFaUWxWY2w1NUc4MXVpam4zNUQ5STFySnp6UHhnaWsvYkpBUnE1?=
- =?utf-8?B?Q2pOU29WOTJRNDA1KzYvZldkQ1U0SjJSeE94S3lTZHlVUHNta0NpTlVlL0d1?=
- =?utf-8?B?WGFDZDVIbzVydFR4K3cyR3JRRXMzQ0NnWFY4NUtMUTdCV0NudXd1UU9CRmU2?=
- =?utf-8?B?aEE2K1RjR1A0V3FWanQ5dit0MjJ5NEtHaW5SODF5TjRLb0ZPTUhVSU9kcUdx?=
- =?utf-8?B?SzRhdzNHYW41Um16cXdKYlAwUFVCRlp4MDIyT0FqNlVJNGxmN1c1N2M2d1Bq?=
- =?utf-8?B?NEcyU3laQnNoMU9sVXFDQy94cWFaT3Z3aEt1U3l1aTBRZUNEVXVURmpjQkFM?=
- =?utf-8?B?YUQya25ub2F6Q2VXUXhrUG4weHl2WTA0ajRoZUU3Z0ZQbUErSEJMVzJzaXBx?=
- =?utf-8?B?bGIrYjFkREhjQzlPbExKUHN2NmprYXRrWjc2RjgxdFZJNDQ1bFdlNWxuRFhi?=
- =?utf-8?B?MkRyOTZ1Z1ByWEhWRjl4NnAwc3I0ekRYdGhuVVl6TGpwNktZaDFyYXpHaVVY?=
- =?utf-8?B?VlpNQnV4aGptL0ZreHR4K1Y3NE1iTHdEQlBQVFR2UWtndmZHY3UxT2k0MnZH?=
- =?utf-8?B?ditjbkNmMml6TnJjK21LR28xZTdHS1p1VUZUVHdkODFBMkg0cjZ1Q0RVZGZO?=
- =?utf-8?B?ckpvZmxWK0RwcVd3cVFzYlJvZURLdytZNmlLekpCblNnVHhiaFJBVWFPUlVN?=
- =?utf-8?B?Wi9uZklIdWwyZ3NGb3I5eER6RFJEWTh3SHRQam9adm9kK09QZE9mZDN0VXoz?=
- =?utf-8?B?RUdLUHQvWVFNeThjMVB6NUdXM0E5clBSaHpEbUgzOUhvd3Z6UjhHVVBwakYr?=
- =?utf-8?B?VUo4ZXZ5bC9YSzVoY1pRMUdQeWxNb3IyNTBKajgxTmdCV3hSSy9razVaakVH?=
- =?utf-8?Q?ibSfjL7TJQw1rFZxlkMafrdK9?=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <6C8166E92A5AB644A864EF2B3034ABCB@namprd12.prod.outlook.com>
-Content-Transfer-Encoding: base64
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bjq9/1C0"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 984C260FA4
+	for <virtualization@lists.linux-foundation.org>; Wed, 24 Jan 2024 02:05:06 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 984C260FA4
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=bjq9/1C0
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id yK4IVBN9Xf6W
+	for <virtualization@lists.linux-foundation.org>;
+	Wed, 24 Jan 2024 02:05:06 +0000 (UTC)
+Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id ABE6C614D1
+	for <virtualization@lists.linux-foundation.org>; Wed, 24 Jan 2024 02:05:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org ABE6C614D1
+Received: by mail-ed1-x533.google.com with SMTP id 4fb4d7f45d1cf-55a5e7fa471so4368295a12.1
+        for <virtualization@lists.linux-foundation.org>; Tue, 23 Jan 2024 18:05:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1706061903; x=1706666703; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Mz18PLpP6eIAAHQsjlKzV2SEMfvKNheWYiqzzwRjC/4=;
+        b=bjq9/1C0ghqDZ2WKTwdvbfEQkcsx7BqLBuVLONJ2tRVqjm6HvwpjXhOLvTmyxAjhXg
+         ewRMugtrXrjMLH2Y0WZ/+Yl0bcVgp09dapyuRQgt1n6MSgsEzrOE3iTnUJkOM/5qHobM
+         zlvVrwknDnlU1REodzpfPMGVHVaeuDRb2F7d3JOpBvfN51PEhJrxl+zV0zqZQpisCCmk
+         gpAMg4CG1McqO71GotDP/c1tjWuY/2/TZEG4aqyz9L4YzFtYf9ZMCJY204R0RQYBE1xA
+         dYzYiWKDNASzqhQK2V6c9Wol+pvhmztQJJKmM9ACEnp7YQmnLj2UD3e0I8lSUUUYsDDu
+         twOQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1706061903; x=1706666703;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Mz18PLpP6eIAAHQsjlKzV2SEMfvKNheWYiqzzwRjC/4=;
+        b=aCI9PlErQIOdag7/TyNeFtncCem6CSHaKmi5IpDCcUpzBvcEZvB/IfW0ddupvvyUm/
+         EERhi9QENYVVEThuIq0lQbsk4VNhKfMd++ghWWmy0/GetlD1l6raq44JW5i6mV4NOmUB
+         tB/KZzgrmbNJyrPQr1QvkXuwFiYAijwxQJfM07ue96QZbOCAQY2KYFv44YBWtsQ1xtn8
+         V2uZ7hb3pQKoq/ePzbculZWTfCf4OA5teG1a/oVHhC5tyTO3cV+tvAnsiiZITg6X5AUI
+         R/gz6c2kmb+mx9UPFzA18HHGDrqot4ydF6HHs8BVTvZ1y5SvLFTb1k2/PB9mp48U/okL
+         M1xg==
+X-Gm-Message-State: AOJu0Yw0eJ1xOtZ7Yam5/eOCax/5K6NzKVI5OiOqw4G9TeEWiwJqOGwa
+	gWz0ob7knb3jUgZ2TckAvyDazvKX1tVcET5rpNDWLHAvVbgj9VYGQeA0vRxkZl31MygplIbel7h
+	Stx4t6+GYU3oaAMOiLutkckcW2YI=
+X-Google-Smtp-Source: AGHT+IEC/iEHtF88l+XDyVk0+7TQNGzjDlH8ORcmDLo/Kp6VakT3Mpq6n1fu1GQ233zIm6C5vEBrmGtEYeUcZmiRLBw=
+X-Received: by 2002:a17:906:c182:b0:a30:d64c:b718 with SMTP id
+ g2-20020a170906c18200b00a30d64cb718mr366577ejz.12.1706061903232; Tue, 23 Jan
+ 2024 18:05:03 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: LV3PR12MB9404.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 692151f8-c4b2-4822-909b-08dc1c5124b6
-X-MS-Exchange-CrossTenant-originalarrivaltime: 23 Jan 2024 20:23:21.3297
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 36HRvuH3YSYTjvjDenu71XN3QyVN92tXFVQ5VElTwmyCyO11l+tzznPp5Azs2/4RZ+5EUP2R7l50FIPO4SbUPg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR12MB6006
+References: <20240122102256.261374-1-liangchen.linux@gmail.com> <4ada64aa-87ec-4340-9892-be52c1f27a97@linux.alibaba.com>
+In-Reply-To: <4ada64aa-87ec-4340-9892-be52c1f27a97@linux.alibaba.com>
+From: Liang Chen <liangchen.linux@gmail.com>
+Date: Wed, 24 Jan 2024 10:04:51 +0800
+Message-ID: <CAKhg4t+ayD-MPK8FwZFURZyX32d8gk26GdytwRiRjJBwBbaR6w@mail.gmail.com>
+Subject: Re: [PATCH] virtio_net: Support RX hash XDP hint
+To: Heng Qi <hengqi@linux.alibaba.com>
+Cc: mst@redhat.com, jasowang@redhat.com, 
+	virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-T24gMS8yMi8yMDI0IDk6MzYgQU0sIENocmlzdG9waCBIZWxsd2lnIHdyb3RlOg0KPiBTcGxpdCBv
-dXQgYSB2aXJ0YmxrX3JlYWRfbGltaXRzIGhlbHBlciB0aGF0IGp1c3QgcmVhZHMgdGhlIHZhcmlv
-dXMNCj4gcXVldWUgbGltaXRzIHRvIHNlcGFyYXRlIGl0IGZyb20gdGhlIGhpZ2hlciBsZXZlbCBw
-cm9iaW5nIGxvZ2ljLg0KPiANCj4gU2lnbmVkLW9mZi1ieTogQ2hyaXN0b3BoIEhlbGx3aWcgPGhj
-aEBsc3QuZGU+DQo+IC0tLQ0KDQpUaGFua3MgZm9yIGRvaW5nIHRoaXMuDQoNClJldmlld2VkLWJ5
-OiBDaGFpdGFueWEgS3Vsa2FybmkgPGtjaEBudmlkaWEuY29tPg0KDQotY2sNCg0KDQo=
+On Mon, Jan 22, 2024 at 7:10=E2=80=AFPM Heng Qi <hengqi@linux.alibaba.com> =
+wrote:
+>
+> Hi Liang Chen,
+>
+> =E5=9C=A8 2024/1/22 =E4=B8=8B=E5=8D=886:22, Liang Chen =E5=86=99=E9=81=93=
+:
+> > The RSS hash report is a feature that's part of the virtio specificatio=
+n.
+> > Currently, virtio backends like qemu, vdpa (mlx5), and potentially vhos=
+t
+> > (still a work in progress as per [1]) support this feature. While the
+> > capability to obtain the RSS hash has been enabled in the normal path,
+> > it's currently missing in the XDP path. Therefore, we are introducing X=
+DP
+> > hints through kfuncs to allow XDP programs to access the RSS hash.
+> >
+> > Signed-off-by: Liang Chen <liangchen.linux@gmail.com>
+> > ---
+> >   drivers/net/virtio_net.c | 56 +++++++++++++++++++++++++++++++++++++++=
++
+> >   1 file changed, 56 insertions(+)
+> >
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index d7ce4a1011ea..1463a4709e3c 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -4579,6 +4579,60 @@ static void virtnet_set_big_packets(struct virtn=
+et_info *vi, const int mtu)
+> >       }
+> >   }
+> >
+> > +static int virtnet_xdp_rx_hash(const struct xdp_md *_ctx, u32 *hash,
+> > +                        enum xdp_rss_hash_type *rss_type)
+> > +{
+> > +     const struct xdp_buff *xdp =3D (void *)_ctx;
+> > +     struct virtio_net_hdr_v1_hash *hdr_hash;
+> > +     struct virtnet_info *vi;
+> > +
+> > +     if (!(xdp->rxq->dev->features & NETIF_F_RXHASH))
+>
+> I think 'vi->has_rss_hash_report' should be used here.
+> NETIF_F_RXHASH cannot guarantee that the hash report feature is negotiate=
+d,
+> and accessing hash_report and hash_value is unsafe at this time.
+>
+
+My understanding is that rxhash in dev->features is turned on only if
+the corresponding hw feature is set. We will double check on this.
+
+> > +             return -ENODATA;
+> > +
+> > +     vi =3D netdev_priv(xdp->rxq->dev);
+> > +     hdr_hash =3D (struct virtio_net_hdr_v1_hash *)(xdp->data - vi->hd=
+r_len);
+>
+> If the virtio-net-hdr is overrided by the XDP prog, how can this be done
+> correctly and as expected?
+>
+
+Yeah, thanks for bringing up this concern. We are actively working on
+a fix of this issue(possibly with a wrapper structure of xdp_buff).
+
+Thanks,
+Liang
+
+> Thanks,
+> Heng
+>
+> > +
+> > +     switch (__le16_to_cpu(hdr_hash->hash_report)) {
+> > +             case VIRTIO_NET_HASH_REPORT_TCPv4:
+> > +                     *rss_type =3D XDP_RSS_TYPE_L4_IPV4_TCP;
+> > +                     break;
+> > +             case VIRTIO_NET_HASH_REPORT_UDPv4:
+> > +                     *rss_type =3D XDP_RSS_TYPE_L4_IPV4_UDP;
+> > +                     break;
+> > +             case VIRTIO_NET_HASH_REPORT_TCPv6:
+> > +                     *rss_type =3D XDP_RSS_TYPE_L4_IPV6_TCP;
+> > +                     break;
+> > +             case VIRTIO_NET_HASH_REPORT_UDPv6:
+> > +                     *rss_type =3D XDP_RSS_TYPE_L4_IPV6_UDP;
+> > +                     break;
+> > +             case VIRTIO_NET_HASH_REPORT_TCPv6_EX:
+> > +                     *rss_type =3D XDP_RSS_TYPE_L4_IPV6_TCP_EX;
+> > +                     break;
+> > +             case VIRTIO_NET_HASH_REPORT_UDPv6_EX:
+> > +                     *rss_type =3D XDP_RSS_TYPE_L4_IPV6_UDP_EX;
+> > +                     break;
+> > +             case VIRTIO_NET_HASH_REPORT_IPv4:
+> > +                     *rss_type =3D XDP_RSS_TYPE_L3_IPV4;
+> > +                     break;
+> > +             case VIRTIO_NET_HASH_REPORT_IPv6:
+> > +                     *rss_type =3D XDP_RSS_TYPE_L3_IPV6;
+> > +                     break;
+> > +             case VIRTIO_NET_HASH_REPORT_IPv6_EX:
+> > +                     *rss_type =3D XDP_RSS_TYPE_L3_IPV6_EX;
+> > +                     break;
+> > +             case VIRTIO_NET_HASH_REPORT_NONE:
+> > +             default:
+> > +                     *rss_type =3D XDP_RSS_TYPE_NONE;
+> > +     }
+> > +
+> > +     *hash =3D __le32_to_cpu(hdr_hash->hash_value);
+> > +     return 0;
+> > +}
+> > +
+> > +static const struct xdp_metadata_ops virtnet_xdp_metadata_ops =3D {
+> > +     .xmo_rx_hash                    =3D virtnet_xdp_rx_hash,
+> > +};
+> > +
+> >   static int virtnet_probe(struct virtio_device *vdev)
+> >   {
+> >       int i, err =3D -ENOMEM;
+> > @@ -4613,6 +4667,8 @@ static int virtnet_probe(struct virtio_device *vd=
+ev)
+> >       dev->ethtool_ops =3D &virtnet_ethtool_ops;
+> >       SET_NETDEV_DEV(dev, &vdev->dev);
+> >
+> > +     dev->xdp_metadata_ops =3D &virtnet_xdp_metadata_ops;
+> > +
+> >       /* Do we support "hardware" checksums? */
+> >       if (virtio_has_feature(vdev, VIRTIO_NET_F_CSUM)) {
+> >               /* This opens up the world of extra features. */
+>
