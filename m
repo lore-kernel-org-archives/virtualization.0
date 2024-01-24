@@ -1,69 +1,79 @@
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
+Received: from szxga05-in.huawei.com (szxga05-in.huawei.com [45.249.212.191])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 663B41B5AC
-	for <virtualization@lists.linux.dev>; Wed, 24 Jan 2024 09:21:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEAC417C64
+	for <virtualization@lists.linux.dev>; Wed, 24 Jan 2024 09:37:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.191
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706088114; cv=none; b=rJkyA/jejzSJxYgoUVJI/GvSmSZnlCgUDjI9sGdrxkkYn6egZi/xwb58Vf2bKnXq/oUFqbKQDXF+i6UXg2Xuj3K38DIq80TxVdomnlfFT546EGN5wKrTo7v+wy378NjXtRtXyPs0jaSPZvjx1P6XrVx5sKCg8PgYmyAjl67ALCk=
+	t=1706089050; cv=none; b=DmwnVbKRopcva6TIEWcqGWGOZbR9OvhQ4y2Q89woqf1z/J2/lfJlkX7dglaqArqo+OfK0L5Y/p14UKzz3DvsDH+5nhxKC0RMojIbnWK1s8Qwy5pTcog56E4xro2S5nE3ppyUJKNT45ZdojHfpoU8rf29qqJ3x0VAt3DRXwtd3+4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706088114; c=relaxed/simple;
-	bh=Q0kfJGwfJNRpe/Ml0n5ViX31n5MiHcRCZGahnNtHrwQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=e7m3fgRpey3bhYpfslokdHTcOVFZBJmrsL/KpaphtbSfyDa/j0w0pyH3IAPZl33GMvGguXEhRU2by6c6TyfTJ2pA0eGyTjuIIGc+R66apRYFCR2ElhTc/+QWnXXK9BvPQUQ8Lm8hWXU00LTtlJ7OZwX6io9vPsU8kJg2vkbbfSo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
-Received: by verein.lst.de (Postfix, from userid 2407)
-	id 0EC1B68AFE; Wed, 24 Jan 2024 10:21:49 +0100 (CET)
-Date: Wed, 24 Jan 2024 10:21:48 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Hannes Reinecke <hare@suse.de>
-Cc: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Damien Le Moal <dlemoal@kernel.org>,
-	Keith Busch <kbusch@kernel.org>, Sagi Grimberg <sagi@grimberg.me>,
-	linux-block@vger.kernel.org, linux-nvme@lists.infradead.org,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH 03/15] block: add an API to atomically update queue
- limits
-Message-ID: <20240124092148.GA28770@lst.de>
-References: <20240122173645.1686078-1-hch@lst.de> <20240122173645.1686078-4-hch@lst.de> <de3cd926-c78c-4e68-bee0-2f571ccdaf8d@suse.de>
+	s=arc-20240116; t=1706089050; c=relaxed/simple;
+	bh=i+ZM0hNIhVIqVlp2Bod0gvVtrEZ+RF/w+9JYxHJo0Rk=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=pKn0vaR6MJ7R+1nTOPONxn1UK+ewaHW5Tx+qggJIXD2O+ofEoTVel0mfSUBF+CHIloigUk8TZQiCdVxu1nyzjUHoP8NcuTm1pGZcNxKRHo/JDs98NiLP7acufT224knNwSjaaQYGkq7khQX+EnSJ9ADZmY4+22GcP9198J/Nduc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.191
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.88.234])
+	by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4TKf2k2yDlz1gxyB;
+	Wed, 24 Jan 2024 17:35:42 +0800 (CST)
+Received: from dggpemm500008.china.huawei.com (unknown [7.185.36.136])
+	by mail.maildlp.com (Postfix) with ESMTPS id 75F99140155;
+	Wed, 24 Jan 2024 17:37:26 +0800 (CST)
+Received: from localhost (10.174.242.157) by dggpemm500008.china.huawei.com
+ (7.185.36.136) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.35; Wed, 24 Jan
+ 2024 17:37:26 +0800
+From: Yunjian Wang <wangyunjian@huawei.com>
+To: <mst@redhat.com>, <willemdebruijn.kernel@gmail.com>,
+	<jasowang@redhat.com>, <kuba@kernel.org>, <davem@davemloft.net>,
+	<magnus.karlsson@intel.com>
+CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
+	<xudingke@huawei.com>, Yunjian Wang <wangyunjian@huawei.com>
+Subject: [PATCH net-next 0/2] tun: AF_XDP Rx zero-copy support
+Date: Wed, 24 Jan 2024 17:37:24 +0800
+Message-ID: <1706089044-28932-1-git-send-email-wangyunjian@huawei.com>
+X-Mailer: git-send-email 1.9.5.msysgit.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <de3cd926-c78c-4e68-bee0-2f571ccdaf8d@suse.de>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+Content-Type: text/plain
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ dggpemm500008.china.huawei.com (7.185.36.136)
 
-On Wed, Jan 24, 2024 at 07:08:58AM +0100, Hannes Reinecke wrote:
->> + * that there is outstanding I/O by other means.
->> + */
->> +static inline struct queue_limits
->> +queue_limits_start_update(struct request_queue *q)
->> +	__acquires(q->limits_lock)
->> +{
->> +	mutex_lock(&q->limits_lock);
->> +	return q->limits;
->> +}
->
-> I'm slightly confused about the lifetime of the returned structure.
-> By my understanding, the returned 'struct queue_limit' is allocated
-> on the stack of the caller, right?
-> Shouldn't we note this somewhere such that people don't start passing
-> the structure around, or, worse, calling 'kfree()' on it?
+Now, some drivers support the zero-copy feature of AF_XDP sockets,
+which can significantly reduce CPU utilization for XDP programs.
 
-queue_limits_start_update returns the structure by value.  So the
-lifetime is that of whatever variable you assign it to, which better
-be on the stack.  Tryign to kfree a non-pointer type will get the
-compiler complain, as does passing a reference to it outside the
-function these days.
+This patch set enables tun to also support the AF_XDP Rx zero-copy
+feature, with the following changes:
+1. The unnecessary 'dma_page' check has been removed when binding
+the AF_XDP socket to the device, as it is not needed for the vNIC.
+2. A check has been added when consuming the buffer in
+vhost_net_buf_produce(), as the vq's rx_array may be empty after
+AF_XDP Rx zero-copy is enabled.
+3. The peek_len function is now used to consume a xsk->desc and
+retrieve its length.
+4. AF_XDP Rx zero-copy support has been added for tun.
+
+This patchset is based on Linux 6.4.0+(openEuler 23.09) and has
+successfully passed Netperf and Netserver stress testing with
+multiple streams between VM A and VM B, using AF_XDP and OVS.
+
+With this patch applied, the system CPU usage for OVS' PMD has
+decreased from 59.8% to 8.8% while forwarding 700000pps. 
+
+Yunjian Wang (2):
+  xsk: Remove non-zero 'dma_page' check in xp_assign_dev
+  tun: AF_XDP Rx zero-copy support
+
+ drivers/net/tun.c       | 165 +++++++++++++++++++++++++++++++++++++++-
+ drivers/vhost/net.c     |  18 +++--
+ net/xdp/xsk_buff_pool.c |   7 --
+ 3 files changed, 176 insertions(+), 14 deletions(-)
+
+-- 
+2.33.0
+
