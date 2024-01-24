@@ -1,242 +1,138 @@
-Received: from mail-io1-f72.google.com (mail-io1-f72.google.com [209.85.166.72])
+Received: from mail-qv1-f41.google.com (mail-qv1-f41.google.com [209.85.219.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B80918635
-	for <virtualization@lists.linux.dev>; Wed, 24 Jan 2024 10:15:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.72
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F7071A27E
+	for <virtualization@lists.linux.dev>; Wed, 24 Jan 2024 10:48:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706091324; cv=none; b=H6Au7T3sX773EiAgilVA1dO0sw0N0r2ApaKSUJhJ1h6YhbMbunax4RuOlXcuRXyd1VzkYcQLPeopK/1OhcSiCHgcXaLq1qHPBJTUx6y4HKAI+u1fApCD3UuGN1jq7qMApsmJ8LQFyXF6g37mB75o8Hul/DxnG5uD/tDVEEj0bXQ=
+	t=1706093295; cv=none; b=GrRnTNg+MOMeWv+WMol9ceWfW7glYeJ/EllyJbhW7o7ZKgTc2e+EJJrH5A54qVD4Xc79kJNAJHd9GiHwxPWH9ltBDziKx/4Q6VHE69TM/1L3QDHLqns5p5GhUOL632MyAo/1yMv5t3QGXC5vCeo3nfqDZCgF07/aDhVNSQy8chk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706091324; c=relaxed/simple;
-	bh=57WA9fNqerSLzHYhUxsx4lQGGww5BteLIaHRRtEVzI4=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=n+AECeEDL1XudIQYsJVmCLLzqlCnTRmDxBL7cIZMy6xiP0yHt7Wj3/UDwSUiuGKcAkIeu6Xm0H6ZEWw07jFuZGinsVyP7vxYJIxg/eQV+IzKADCH2M/VHaCBSw9Nkox2FgHyQGfDQEGRF7GwNVrV4QaTs00ju1M5PNd6gwrw/yM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.72
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-io1-f72.google.com with SMTP id ca18e2360f4ac-7bf81e2e5d4so477801239f.2
-        for <virtualization@lists.linux.dev>; Wed, 24 Jan 2024 02:15:22 -0800 (PST)
+	s=arc-20240116; t=1706093295; c=relaxed/simple;
+	bh=vUYNgyEiiBGTAOVgJfsG/RvhaXLEgRGTV9YrpqQM93E=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=SLUZ/ZL7pdGi8pNRwEqdzXh7EYhf0IaOW/J2zPnd1hvQdlDicDynH7IZR7Je6PcfBUSRN9xSr0HDn4pmJbSO0toMPJiV1ciix2wHp9INKSce1/QKsuJ8xv8Z2WVOMg6KQ+udH6bNWs6Rwv+IrJ+NSaQcQa3gzvJ3OGIdwH48LxY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=zzyYaPQV; arc=none smtp.client-ip=209.85.219.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="zzyYaPQV"
+Received: by mail-qv1-f41.google.com with SMTP id 6a1803df08f44-68687ff4038so21911036d6.1
+        for <virtualization@lists.linux.dev>; Wed, 24 Jan 2024 02:48:13 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1706093292; x=1706698092; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=X39Ts6MX+MiqoaGcJ6Oz7csIP4OtBMZYPm9qrUenbDM=;
+        b=zzyYaPQV3SZauja284sgj5s9t3xHPHFBLpUVi3IXc2edcoDKvo1EZYy9efW/DR4GHv
+         FKeHJmODAvuvAKojNE3YmaGGQRg5vUmdhg1UxixrLttRoX6/C4C3TUopzoQtMxHk5+En
+         SlcPYe1aQT70RJlfFz7RDKRhsj1GYQtqR6mTyXferrRjYws7ICIVu9ei9foT7C2S6cY3
+         pIl3oN2GiMfZI+xTQmFWwXCUq41HRt6hKjIXbxjjtoCypzdf3RNKYEdxkKw7x3gVZ0xP
+         FJYaNN7m5Px6oeulqy8SVDpY+1KVNTmW2T+r8OK73UTTHbLzZj7s0xCVdsN6fW5eSSlY
+         aVhg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706091321; x=1706696121;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=z4M4vmM9pvCcaRrLe69ucq2F6ji5XFhw/m2nTXW150E=;
-        b=exLXYFwSFeVkoPOuRlik2dCB1kJiH4lNpUxKPmcCfT7tUN4EgTs5EvDPMcT4uNrKeB
-         KEwAE7+CyAw5QUrtr+B0LKCGfkpwM0Jt13xf6e78+ukcQLxPuoin1s3Qw87+w9ucSgy8
-         +VSQtl/3wOUGzyk/8tjnWYBHI7AwDyHDVwMmlEWC1xRgmdW2ZDxlQMS6E49y7lbBq+yS
-         fUD+EneWRhoV8XQMW1beM/LMu3QSxHw1xza1e4CqLcP7n5rtsW7GbmZxFcyIGKaJAE7j
-         huqkwX0XtmkcTT2UFW4ZfQR/XAvj5p8XWvuTcOxKUP+7JnjHFj+8bbbiOaMhc9ou4eyR
-         iBTA==
-X-Gm-Message-State: AOJu0YymxSmwrLp9ddKH/VG1v8tAkfITuzvdxz8IeAUnZd+UljZb1t+x
-	w2jc3J5STPMctum/WVOmL3/EGGtFbn7ZxqMFCBjNJPmmtUTnn1giH1wntMzMXyeXaH4hrsrAuh0
-	qubldMO5Z8ijp9+oBDgjA+UxVi6C1LmNbalzHxAiu21bzkd4FmMZ4EO8=
-X-Google-Smtp-Source: AGHT+IHiReyDw5aTlGo9JXuE1enyDoSoBk77Oc1Y9t6KuKuKmbSJada/HC/2hGX8yebxT+nQobFJjKXzobWaWrRn/Se3a+qNGkXS
+        d=1e100.net; s=20230601; t=1706093292; x=1706698092;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=X39Ts6MX+MiqoaGcJ6Oz7csIP4OtBMZYPm9qrUenbDM=;
+        b=NotcuD+AI+UEm8ebYNCDdAsHRDe0f0X80Tes3g7R4wSO8OrFGsPFlySuRm4bx2w5Px
+         dN8NgVGCSPaisGE1x2zuIJ3Ofk6Ww6o75Mj26MBUYUcWXp+awgHIuA9iy6C8JRdJZbeV
+         YyPwMXU5hgNtbameMkNFjmSdahAJ9WEYtfW/1acjDIKTNHTko02CF85+GMqNZuPliaOc
+         ymEslc+L7/B1v6Pbgu6PoCt7eGqUm4L3AwwzkuiPmpag//WEDukAJxbjaZaIdNIUo3g/
+         IiC1q5rbx6HzzhjFWIenu1gLlyHmywXXKB8wTa4otvprsolRAtH6e0G5EKA0zWhEYxY8
+         YVxA==
+X-Gm-Message-State: AOJu0YxejQ44LsUKjAwlgD4Tc97PM2hrVUXlyYXJ5fwpS2Zwo6+VOwXp
+	C0m23bOWKdxdnaejHs0Rw1OYT8HJewCEzRJ1+DZbI0xdm55zqJuqJ8lxSGZfuLYKwtJKTVvdy6S
+	zp1EhnxgJ5Nfh98GaXNtEN9ETxNzJb0QBzE/5
+X-Google-Smtp-Source: AGHT+IG/GIxnoyhhLGaRwHzJnw2CsYDhw/Wa9qcMoyzCYt60ApWQxGfmvif7M11I8JdtLap1q9TWl31q5SAh8dAPA98=
+X-Received: by 2002:a05:6214:1d04:b0:682:85f5:f009 with SMTP id
+ e4-20020a0562141d0400b0068285f5f009mr3313074qvd.130.1706093292445; Wed, 24
+ Jan 2024 02:48:12 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6638:22c8:b0:46e:eec9:9b32 with SMTP id
- j8-20020a05663822c800b0046eeec99b32mr132757jat.4.1706091321751; Wed, 24 Jan
- 2024 02:15:21 -0800 (PST)
-Date: Wed, 24 Jan 2024 02:15:21 -0800
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <0000000000002fff4a060fae5751@google.com>
-Subject: [syzbot] [dri?] [virtualization?] upstream boot error: INFO: task
- hung in virtio_gpu_queue_fenced_ctrl_buffer
-From: syzbot <syzbot+22e2c28c99235275f109@syzkaller.appspotmail.com>
-To: airlied@redhat.com, daniel@ffwll.ch, dri-devel@lists.freedesktop.org, 
-	gurchetansingh@chromium.org, kraxel@redhat.com, linux-kernel@vger.kernel.org, 
-	maarten.lankhorst@linux.intel.com, mripard@kernel.org, olvaffe@gmail.com, 
-	syzkaller-bugs@googlegroups.com, tzimmermann@suse.de, 
-	virtualization@lists.linux.dev
+References: <000000000000fd588e060de27ef4@google.com> <20240102080315-mutt-send-email-mst@kernel.org>
+ <20240104204531.GB954424@fedora>
+In-Reply-To: <20240104204531.GB954424@fedora>
+From: Alexander Potapenko <glider@google.com>
+Date: Wed, 24 Jan 2024 11:47:32 +0100
+Message-ID: <CAG_fn=XmxeUePHFth5asQvHvo3=QSL4tB4yS5_3UVHWYJ=VRnw@mail.gmail.com>
+Subject: Re: [syzbot] [virtualization?] KMSAN: uninit-value in virtqueue_add (4)
+To: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: syzbot <syzbot+d7521c1e3841ed075a42@syzkaller.appspotmail.com>, 
+	jasowang@redhat.com, linux-kernel@vger.kernel.org, 
+	syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev, 
+	xuanzhuo@linux.alibaba.com, bonzini@redhat.com, 
+	"Michael S. Tsirkin" <mst@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hello,
+On Thu, Jan 4, 2024 at 9:45=E2=80=AFPM Stefan Hajnoczi <stefanha@redhat.com=
+> wrote:
+>
+> On Tue, Jan 02, 2024 at 08:03:46AM -0500, Michael S. Tsirkin wrote:
+> > On Mon, Jan 01, 2024 at 05:38:24AM -0800, syzbot wrote:
+> > > Hello,
+> > >
+> > > syzbot found the following issue on:
+> > >
+> > > HEAD commit:    fbafc3e621c3 Merge tag 'for_linus' of git://git.kerne=
+l.org..
+> > > git tree:       upstream
+> > > console+strace: https://syzkaller.appspot.com/x/log.txt?x=3D173df3e9e=
+80000
+> > > kernel config:  https://syzkaller.appspot.com/x/.config?x=3De0c7078a6=
+b901aa3
+> > > dashboard link: https://syzkaller.appspot.com/bug?extid=3Dd7521c1e384=
+1ed075a42
+> > > compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for=
+ Debian) 2.40
+> > > syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=3D1300b4a=
+1e80000
+> > > C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=3D130b0379e=
+80000
+> > >
+> > > Downloadable assets:
+> > > disk image: https://storage.googleapis.com/syzbot-assets/1520f7b6daa4=
+/disk-fbafc3e6.raw.xz
+> > > vmlinux: https://storage.googleapis.com/syzbot-assets/8b490af009d5/vm=
+linux-fbafc3e6.xz
+> > > kernel image: https://storage.googleapis.com/syzbot-assets/202ca200f4=
+a4/bzImage-fbafc3e6.xz
+> > >
+> > > IMPORTANT: if you fix the issue, please add the following tag to the =
+commit:
+> > > Reported-by: syzbot+d7521c1e3841ed075a42@syzkaller.appspotmail.com
+> > >
+> > > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+>
+> Hi Alexander,
+> Please take a look at this KMSAN failure. The uninitialized memory was
+> created for the purpose of writing a coredump. vring_map_one_sg() should
+> have direction=3DDMA_TO_DEVICE.
+>
+Hi Stefan,
 
-syzbot found the following issue on:
+I took a closer look, and am pretty confident this is a false positive.
+I tried adding memset(..., 0xab, PAGE_SIZE << order) to alloc_pages()
+and never saw
+the 0xab pattern in the buffers for which KMSAN reported an error.
 
-HEAD commit:    615d30064886 Merge tag 'trace-v6.8-rc1' of git://git.kerne..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=167456f7e80000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=e6c3b3d5f71246cb
-dashboard link: https://syzkaller.appspot.com/bug?extid=22e2c28c99235275f109
-compiler:       gcc (Debian 12.2.0-14) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40
+This probably isn't an error in 88938359e2df ("virtio: kmsan:
+check/unpoison scatterlist in
+vring_map_one_sg()"), which by itself should be doing a sane thing:
+report an error if an
+uninitialized buffer is passed to it. It is more likely that we're
+missing some initialization that
+happens in coredump.c
 
-Downloadable assets:
-disk image (non-bootable): https://storage.googleapis.com/syzbot-assets/7bc7510fe41f/non_bootable_disk-615d3006.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/4bf0b27acaa4/vmlinux-615d3006.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/3133809ff35d/bzImage-615d3006.xz
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+22e2c28c99235275f109@syzkaller.appspotmail.com
-
-INFO: task swapper/0:1 blocked for more than 143 seconds.
-      Not tainted 6.8.0-rc1-syzkaller-00029-g615d30064886 #0
-"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-task:swapper/0       state:D stack:22288 pid:1     tgid:1     ppid:0      flags:0x00004000
-Call Trace:
- <TASK>
- context_switch kernel/sched/core.c:5400 [inline]
- __schedule+0xf12/0x5c00 kernel/sched/core.c:6727
- __schedule_loop kernel/sched/core.c:6802 [inline]
- schedule+0xe9/0x270 kernel/sched/core.c:6817
- virtio_gpu_queue_ctrl_sgs drivers/gpu/drm/virtio/virtgpu_vq.c:341 [inline]
- virtio_gpu_queue_fenced_ctrl_buffer+0x497/0xff0 drivers/gpu/drm/virtio/virtgpu_vq.c:415
- virtio_gpu_resource_flush drivers/gpu/drm/virtio/virtgpu_plane.c:162 [inline]
- virtio_gpu_primary_plane_update+0x1059/0x1590 drivers/gpu/drm/virtio/virtgpu_plane.c:237
- drm_atomic_helper_commit_planes+0x92f/0xfe0 drivers/gpu/drm/drm_atomic_helper.c:2800
- drm_atomic_helper_commit_tail+0x69/0xf0 drivers/gpu/drm/drm_atomic_helper.c:1749
- commit_tail+0x353/0x410 drivers/gpu/drm/drm_atomic_helper.c:1834
- drm_atomic_helper_commit+0x2f9/0x380 drivers/gpu/drm/drm_atomic_helper.c:2072
- drm_atomic_commit+0x20b/0x2d0 drivers/gpu/drm/drm_atomic.c:1514
- drm_client_modeset_commit_atomic+0x6c2/0x810 drivers/gpu/drm/drm_client_modeset.c:1051
- drm_client_modeset_commit_locked+0x14d/0x580 drivers/gpu/drm/drm_client_modeset.c:1154
- pan_display_atomic drivers/gpu/drm/drm_fb_helper.c:1370 [inline]
- drm_fb_helper_pan_display+0x2a5/0x990 drivers/gpu/drm/drm_fb_helper.c:1430
- fb_pan_display+0x477/0x7c0 drivers/video/fbdev/core/fbmem.c:191
- bit_update_start+0x49/0x1f0 drivers/video/fbdev/core/bitblit.c:390
- fbcon_switch+0xbb3/0x12e0 drivers/video/fbdev/core/fbcon.c:2170
- redraw_screen+0x2bd/0x750 drivers/tty/vt/vt.c:969
- fbcon_prepare_logo+0x9f8/0xc80 drivers/video/fbdev/core/fbcon.c:616
- con2fb_init_display drivers/video/fbdev/core/fbcon.c:803 [inline]
- set_con2fb_map+0xcea/0x1050 drivers/video/fbdev/core/fbcon.c:867
- do_fb_registered drivers/video/fbdev/core/fbcon.c:3007 [inline]
- fbcon_fb_registered+0x21d/0x660 drivers/video/fbdev/core/fbcon.c:3023
- do_register_framebuffer drivers/video/fbdev/core/fbmem.c:449 [inline]
- register_framebuffer+0x4b2/0x860 drivers/video/fbdev/core/fbmem.c:515
- __drm_fb_helper_initial_config_and_unlock+0xd7c/0x1650 drivers/gpu/drm/drm_fb_helper.c:1871
- drm_fb_helper_initial_config drivers/gpu/drm/drm_fb_helper.c:1936 [inline]
- drm_fb_helper_initial_config+0x44/0x60 drivers/gpu/drm/drm_fb_helper.c:1928
- drm_fbdev_generic_client_hotplug+0x19e/0x270 drivers/gpu/drm/drm_fbdev_generic.c:279
- drm_client_register+0x195/0x280 drivers/gpu/drm/drm_client.c:141
- drm_fbdev_generic_setup+0x184/0x340 drivers/gpu/drm/drm_fbdev_generic.c:341
- virtio_gpu_probe+0x1be/0x3c0 drivers/gpu/drm/virtio/virtgpu_drv.c:105
- virtio_dev_probe+0x5e4/0x980 drivers/virtio/virtio.c:311
- call_driver_probe drivers/base/dd.c:579 [inline]
- really_probe+0x234/0xc90 drivers/base/dd.c:658
- __driver_probe_device+0x1de/0x4b0 drivers/base/dd.c:800
- driver_probe_device+0x4c/0x1a0 drivers/base/dd.c:830
- __driver_attach+0x274/0x570 drivers/base/dd.c:1216
- bus_for_each_dev+0x13c/0x1d0 drivers/base/bus.c:368
- bus_add_driver+0x2e9/0x630 drivers/base/bus.c:673
- driver_register+0x15c/0x4a0 drivers/base/driver.c:246
- do_one_initcall+0x11c/0x650 init/main.c:1236
- do_initcall_level init/main.c:1298 [inline]
- do_initcalls init/main.c:1314 [inline]
- do_basic_setup init/main.c:1333 [inline]
- kernel_init_freeable+0x687/0xc10 init/main.c:1551
- kernel_init+0x1c/0x2a0 init/main.c:1441
- ret_from_fork+0x45/0x80 arch/x86/kernel/process.c:147
- ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:242
- </TASK>
-INFO: task kworker/0:0:8 blocked for more than 143 seconds.
-      Not tainted 6.8.0-rc1-syzkaller-00029-g615d30064886 #0
-"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-task:kworker/0:0     state:D stack:28208 pid:8     tgid:8     ppid:2      flags:0x00004000
-Workqueue: events virtio_gpu_dequeue_ctrl_func
-Call Trace:
- <TASK>
- context_switch kernel/sched/core.c:5400 [inline]
- __schedule+0xf12/0x5c00 kernel/sched/core.c:6727
- __schedule_loop kernel/sched/core.c:6802 [inline]
- schedule+0xe9/0x270 kernel/sched/core.c:6817
- schedule_preempt_disabled+0x13/0x20 kernel/sched/core.c:6874
- __mutex_lock_common kernel/locking/mutex.c:684 [inline]
- __mutex_lock+0x5b9/0x9d0 kernel/locking/mutex.c:752
- drm_client_dev_hotplug drivers/gpu/drm/drm_client.c:217 [inline]
- drm_client_dev_hotplug+0x169/0x3c0 drivers/gpu/drm/drm_client.c:204
- virtio_gpu_cmd_get_display_info_cb+0x3e1/0x550 drivers/gpu/drm/virtio/virtgpu_vq.c:674
- virtio_gpu_dequeue_ctrl_func+0x21b/0x9a0 drivers/gpu/drm/virtio/virtgpu_vq.c:235
- process_one_work+0x886/0x15d0 kernel/workqueue.c:2633
- process_scheduled_works kernel/workqueue.c:2706 [inline]
- worker_thread+0x8b9/0x1290 kernel/workqueue.c:2787
- kthread+0x2c6/0x3a0 kernel/kthread.c:388
- ret_from_fork+0x45/0x80 arch/x86/kernel/process.c:147
- ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:242
- </TASK>
-INFO: task kworker/1:1:55 blocked for more than 143 seconds.
-      Not tainted 6.8.0-rc1-syzkaller-00029-g615d30064886 #0
-"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-task:kworker/1:1     state:D stack:27648 pid:55    tgid:55    ppid:2      flags:0x00004000
-Workqueue: events drm_fb_helper_damage_work
-Call Trace:
- <TASK>
- context_switch kernel/sched/core.c:5400 [inline]
- __schedule+0xf12/0x5c00 kernel/sched/core.c:6727
- __schedule_loop kernel/sched/core.c:6802 [inline]
- schedule+0xe9/0x270 kernel/sched/core.c:6817
- schedule_preempt_disabled+0x13/0x20 kernel/sched/core.c:6874
- __mutex_lock_common kernel/locking/mutex.c:684 [inline]
- __mutex_lock+0x5b9/0x9d0 kernel/locking/mutex.c:752
- drm_fbdev_generic_damage_blit drivers/gpu/drm/drm_fbdev_generic.c:198 [inline]
- drm_fbdev_generic_helper_fb_dirty+0x255/0xbb0 drivers/gpu/drm/drm_fbdev_generic.c:225
- drm_fb_helper_fb_dirty drivers/gpu/drm/drm_fb_helper.c:390 [inline]
- drm_fb_helper_damage_work+0x283/0x5e0 drivers/gpu/drm/drm_fb_helper.c:413
- process_one_work+0x886/0x15d0 kernel/workqueue.c:2633
- process_scheduled_works kernel/workqueue.c:2706 [inline]
- worker_thread+0x8b9/0x1290 kernel/workqueue.c:2787
- kthread+0x2c6/0x3a0 kernel/kthread.c:388
- ret_from_fork+0x45/0x80 arch/x86/kernel/process.c:147
- ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:242
- </TASK>
-
-Showing all locks held in the system:
-10 locks held by swapper/0/1:
- #0: ffff88801bcf8170 (&dev->mutex){....}-{3:3}, at: device_lock include/linux/device.h:990 [inline]
- #0: ffff88801bcf8170 (&dev->mutex){....}-{3:3}, at: __device_driver_lock drivers/base/dd.c:1095 [inline]
- #0: ffff88801bcf8170 (&dev->mutex){....}-{3:3}, at: __driver_attach+0x269/0x570 drivers/base/dd.c:1215
- #1: ffff88801d7b42f8 (&dev->clientlist_mutex){+.+.}-{3:3}, at: drm_client_register+0x54/0x280 drivers/gpu/drm/drm_client.c:127
- #2: ffffffff8dcbfe88 (registration_lock){+.+.}-{3:3}, at: register_framebuffer+0x7a/0x860 drivers/video/fbdev/core/fbmem.c:514
- #3: ffffffff8d196720 (console_lock){+.+.}-{0:0}, at: fbcon_fb_registered+0x3c/0x660 drivers/video/fbdev/core/fbcon.c:3019
- #4: ffff8880198f4280 (&helper->lock){+.+.}-{3:3}, at: drm_fb_helper_pan_display+0xd5/0x990 drivers/gpu/drm/drm_fb_helper.c:1423
- #5: ffff88801d7b41b0 (&dev->master_mutex){+.+.}-{3:3}, at: drm_master_internal_acquire+0x21/0x70 drivers/gpu/drm/drm_auth.c:452
- #6: ffff8880198f4098 (&client->modeset_mutex){+.+.}-{3:3}, at: drm_client_modeset_commit_locked+0x4c/0x580 drivers/gpu/drm/drm_client_modeset.c:1152
- #7: ffffc90000047278 (crtc_ww_class_acquire){+.+.}-{0:0}, at: drm_client_modeset_commit_atomic+0xd0/0x810 drivers/gpu/drm/drm_client_modeset.c:990
- #8: ffff88801d9cb0b0 (crtc_ww_class_mutex){+.+.}-{3:3}, at: modeset_lock+0x484/0x6c0 drivers/gpu/drm/drm_modeset_lock.c:314
- #9: ffffffff8ddf96d0 (drm_unplug_srcu){.+.+}-{0:0}, at: srcu_lock_acquire include/linux/srcu.h:116 [inline]
- #9: ffffffff8ddf96d0 (drm_unplug_srcu){.+.+}-{0:0}, at: srcu_read_lock include/linux/srcu.h:215 [inline]
- #9: ffffffff8ddf96d0 (drm_unplug_srcu){.+.+}-{0:0}, at: drm_dev_enter+0x49/0x160 drivers/gpu/drm/drm_drv.c:449
-3 locks held by kworker/0:0/8:
- #0: ffff888013088d38 ((wq_completion)events){+.+.}-{0:0}, at: process_one_work+0x789/0x15d0 kernel/workqueue.c:2608
- #1: ffffc900000b7d80 ((work_completion)(&vgvq->dequeue_work)){+.+.}-{0:0}, at: process_one_work+0x7eb/0x15d0 kernel/workqueue.c:2609
- #2: ffff88801d7b42f8 (&dev->clientlist_mutex){+.+.}-{3:3}, at: drm_client_dev_hotplug drivers/gpu/drm/drm_client.c:217 [inline]
- #2: ffff88801d7b42f8 (&dev->clientlist_mutex){+.+.}-{3:3}, at: drm_client_dev_hotplug+0x169/0x3c0 drivers/gpu/drm/drm_client.c:204
-2 locks held by kworker/u16:0/11:
- #0: ffff888013089938 ((wq_completion)events_unbound){+.+.}-{0:0}, at: process_one_work+0x789/0x15d0 kernel/workqueue.c:2608
- #1: ffffc900000e7d80 ((work_completion)(&(&kfence_timer)->work)){+.+.}-{0:0}, at: process_one_work+0x7eb/0x15d0 kernel/workqueue.c:2609
-1 lock held by khungtaskd/39:
- #0: ffffffff8d1a9120 (rcu_read_lock){....}-{1:2}, at: rcu_lock_acquire include/linux/rcupdate.h:298 [inline]
- #0: ffffffff8d1a9120 (rcu_read_lock){....}-{1:2}, at: rcu_read_lock include/linux/rcupdate.h:750 [inline]
- #0: ffffffff8d1a9120 (rcu_read_lock){....}-{1:2}, at: debug_show_all_locks+0x75/0x340 kernel/locking/lockdep.c:6614
-3 locks held by kworker/1:1/55:
- #0: ffff888013088d38 ((wq_completion)events){+.+.}-{0:0}, at: process_one_work+0x789/0x15d0 kernel/workqueue.c:2608
- #1: ffffc90000a77d80 ((work_completion)(&helper->damage_work)){+.+.}-{0:0}, at: process_one_work+0x7eb/0x15d0 kernel/workqueue.c:2609
- #2: ffff8880198f4280 (&helper->lock){+.+.}-{3:3}, at: drm_fbdev_generic_damage_blit drivers/gpu/drm/drm_fbdev_generic.c:198 [inline]
- #2: ffff8880198f4280 (&helper->lock){+.+.}-{3:3}, at: drm_fbdev_generic_helper_fb_dirty+0x255/0xbb0 drivers/gpu/drm/drm_fbdev_generic.c:225
-
-=============================================
-
-
-
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
-
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
-
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
-
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
-
-If you want to undo deduplication, reply with:
-#syz undup
+Does anyone have an idea where coredump.c is supposed to be
+initializing these pages?
+Maybe there are some inline assembly functions involved in copying the data=
+?
