@@ -1,153 +1,191 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8A95F9C2
-	for <virtualization@lists.linux.dev>; Wed, 24 Jan 2024 06:01:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E3A163A8
+	for <virtualization@lists.linux-foundation.org>; Wed, 24 Jan 2024 06:06:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706076114; cv=none; b=TnHvYDTgz5xdUBLgI4P0jmApnyKKfYZ6paco/cJu9MEQ7kx29HHYPhtmKVl5rk0uwxuWtqbCUpC0oPsB+c3mDk8ISGR9nr4SMqc0YvXsTPuDV/xczh4FMX9mPuUrStbcHz9/cH+q2rP0DapkKzf0gJOMPnLrWx2yP6munKb9Vog=
+	t=1706076369; cv=none; b=tMMGHuRraw7xRpHCquq0X80gnRxA1MkW5jMhUPED6Z8/O6f/0OQgQYonxz4hUHOLW/3Nxy4ARnwLgtgPXD/eOj4T06NsmKcNPNceJW52THOhiNdma7FghotDzWnUrpNyAfvXi4xWsy+Vs6Dy39sTrvhP64NfafvcdUnTEP5IWI4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706076114; c=relaxed/simple;
-	bh=bmBmr/XyAWlAMhN4RFN33Gt1wCKiIJHpjrCLbp0ynVU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=BHj3Ppo+6F/T8gi0lw6+Ut8MjjTBe0ff87B7fYKLYOxHPm8hd/BH2jkkUb8yDH4gAFKsbDJZpZX6TJ0LX1iCzwK3rSz0/JYrXO7KHRGkH9Kw6ZbB6H40oHA1eTp9/DTpK1gHzt6BtBGoUGoCIwQs/YRvz6M0fQldPoepTfpa5FY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=dKampBC0; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=bD3rOGIY; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=dKampBC0; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=bD3rOGIY; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="dKampBC0";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="bD3rOGIY";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="dKampBC0";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="bD3rOGIY"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 091D01FCFA;
-	Wed, 24 Jan 2024 06:01:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1706076111; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=W7DpqATfF8GeEARjoMG9rG4cWtrbgy15BGCKTb02l7E=;
-	b=dKampBC0DkeZFufjxPiTR5N1shGgfL2A5YJrupfRKh/dlfZUxas+MnIgHDEhyXF8M41z09
-	kYmpQSJA28klWYnCX+NpNMNEU1foGEb0Zji6XF5xGutzWdk5zDMpD4xQwluaTtyAvuFqqL
-	T+n2lb54OtBBKsx3Y04C5iSo2jpxqpY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1706076111;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=W7DpqATfF8GeEARjoMG9rG4cWtrbgy15BGCKTb02l7E=;
-	b=bD3rOGIYa+Yzq/xYXcI+y5wNI2Nar+91HPanrJ4MkVFID9pQmyj4xlHMk/ziyUdAUdZn36
-	Z5a4I6KoUSjSCkAg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1706076111; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=W7DpqATfF8GeEARjoMG9rG4cWtrbgy15BGCKTb02l7E=;
-	b=dKampBC0DkeZFufjxPiTR5N1shGgfL2A5YJrupfRKh/dlfZUxas+MnIgHDEhyXF8M41z09
-	kYmpQSJA28klWYnCX+NpNMNEU1foGEb0Zji6XF5xGutzWdk5zDMpD4xQwluaTtyAvuFqqL
-	T+n2lb54OtBBKsx3Y04C5iSo2jpxqpY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1706076111;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=W7DpqATfF8GeEARjoMG9rG4cWtrbgy15BGCKTb02l7E=;
-	b=bD3rOGIYa+Yzq/xYXcI+y5wNI2Nar+91HPanrJ4MkVFID9pQmyj4xlHMk/ziyUdAUdZn36
-	Z5a4I6KoUSjSCkAg==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 6D0841333E;
-	Wed, 24 Jan 2024 06:01:50 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([10.150.64.162])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id YOr5Fc6nsGXkRQAAD6G6ig
-	(envelope-from <hare@suse.de>); Wed, 24 Jan 2024 06:01:50 +0000
-Message-ID: <fb3c48b3-9d31-475b-a05b-b8cc6f7b7207@suse.de>
-Date: Wed, 24 Jan 2024 07:01:50 +0100
+	s=arc-20240116; t=1706076369; c=relaxed/simple;
+	bh=yVInM+tXrY5OJzT0NyfKM7ozZ8TrMZhVwmPsJ7bUilI=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
+	 Content-Type; b=REzg6+qw/o3J6b34INKjkeTHof9RkzzdjT/q34IyNvNzHEnltMq10IElNWRGWjb+cIL+H3HgvNgyr16HHbOo2o+hJQEpBIqvSAFDvn5IV1SgJfaU1Y1ZBFSUiGbmRHWYMvdN6qX8U7cjXkBUIRCJSY0S2/dXfRTrcs1iTsvU4mY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id C8DEB613B0
+	for <virtualization@lists.linux-foundation.org>; Wed, 24 Jan 2024 06:06:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C8DEB613B0
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -9.899
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ZY1YUJX9T64d
+	for <virtualization@lists.linux-foundation.org>;
+	Wed, 24 Jan 2024 06:06:04 +0000 (UTC)
+Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 12C2F61194
+	for <virtualization@lists.linux-foundation.org>; Wed, 24 Jan 2024 06:06:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 12C2F61194
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R541e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0W.FDuvi_1706076358;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W.FDuvi_1706076358)
+          by smtp.aliyun-inc.com;
+          Wed, 24 Jan 2024 14:05:58 +0800
+Message-ID: <1706076301.4647658-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH] virtio_net: Support RX hash XDP hint
+Date: Wed, 24 Jan 2024 14:05:01 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Liang Chen <liangchen.linux@gmail.com>
+Cc: mst@redhat.com,
+ jasowang@redhat.com,
+ virtualization@lists.linux-foundation.org,
+ linux-kernel@vger.kernel.org,
+ Heng Qi <hengqi@linux.alibaba.com>
+References: <20240122102256.261374-1-liangchen.linux@gmail.com>
+ <4ada64aa-87ec-4340-9892-be52c1f27a97@linux.alibaba.com>
+ <CAKhg4t+ayD-MPK8FwZFURZyX32d8gk26GdytwRiRjJBwBbaR6w@mail.gmail.com>
+In-Reply-To: <CAKhg4t+ayD-MPK8FwZFURZyX32d8gk26GdytwRiRjJBwBbaR6w@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 02/15] block: refactor disk_update_readahead
-Content-Language: en-US
-To: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Paolo Bonzini <pbonzini@redhat.com>,
- Stefan Hajnoczi <stefanha@redhat.com>,
- "Martin K. Petersen" <martin.petersen@oracle.com>,
- Damien Le Moal <dlemoal@kernel.org>, Keith Busch <kbusch@kernel.org>,
- Sagi Grimberg <sagi@grimberg.me>, linux-block@vger.kernel.org,
- linux-nvme@lists.infradead.org, virtualization@lists.linux.dev
-References: <20240122173645.1686078-1-hch@lst.de>
- <20240122173645.1686078-3-hch@lst.de>
-From: Hannes Reinecke <hare@suse.de>
-In-Reply-To: <20240122173645.1686078-3-hch@lst.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Level: 
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=dKampBC0;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=bD3rOGIY
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Spamd-Result: default: False [-4.54 / 50.00];
-	 ARC_NA(0.00)[];
-	 RCVD_VIA_SMTP_AUTH(0.00)[];
-	 R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	 XM_UA_NO_VERSION(0.01)[];
-	 FROM_HAS_DN(0.00)[];
-	 TO_DN_SOME(0.00)[];
-	 TO_MATCH_ENVRCPT_ALL(0.00)[];
-	 BAYES_HAM(-1.54)[92.01%];
-	 MIME_GOOD(-0.10)[text/plain];
-	 RCVD_DKIM_ARC_DNSWL_HI(-1.00)[];
-	 NEURAL_HAM_LONG(-1.00)[-1.000];
-	 RCVD_COUNT_THREE(0.00)[3];
-	 DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	 DKIM_TRACE(0.00)[suse.de:+];
-	 MX_GOOD(-0.01)[];
-	 RCPT_COUNT_TWELVE(0.00)[14];
-	 DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,suse.de:email];
-	 FUZZY_BLOCKED(0.00)[rspamd.com];
-	 FROM_EQ_ENVFROM(0.00)[];
-	 MIME_TRACE(0.00)[0:+];
-	 NEURAL_HAM_SHORT(-0.20)[-1.000];
-	 RCVD_IN_DNSWL_HI(-0.50)[2a07:de40:b281:104:10:150:64:97:from];
-	 RCVD_TLS_ALL(0.00)[];
-	 MID_RHS_MATCH_FROM(0.00)[]
-X-Spam-Score: -4.54
-X-Rspamd-Queue-Id: 091D01FCFA
-X-Spam-Flag: NO
 
-On 1/22/24 18:36, Christoph Hellwig wrote:
-> Factor out a blk_apply_bdi_limits limits helper that can be used with
-> an explicit queue_limits argument, which will be useful later.
-> 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->   block/blk-settings.c | 21 ++++++++++++---------
->   1 file changed, 12 insertions(+), 9 deletions(-)
-> 
-Reviewed-by: Hannes Reinecke <hare@suse.de>
+On Wed, 24 Jan 2024 10:04:51 +0800, Liang Chen <liangchen.linux@gmail.com> =
+wrote:
+> On Mon, Jan 22, 2024 at 7:10=E2=80=AFPM Heng Qi <hengqi@linux.alibaba.com=
+> wrote:
+> >
+> > Hi Liang Chen,
+> >
+> > =E5=9C=A8 2024/1/22 =E4=B8=8B=E5=8D=886:22, Liang Chen =E5=86=99=E9=81=
+=93:
+> > > The RSS hash report is a feature that's part of the virtio specificat=
+ion.
+> > > Currently, virtio backends like qemu, vdpa (mlx5), and potentially vh=
+ost
+> > > (still a work in progress as per [1]) support this feature. While the
+> > > capability to obtain the RSS hash has been enabled in the normal path,
+> > > it's currently missing in the XDP path. Therefore, we are introducing=
+ XDP
+> > > hints through kfuncs to allow XDP programs to access the RSS hash.
+> > >
+> > > Signed-off-by: Liang Chen <liangchen.linux@gmail.com>
+> > > ---
+> > >   drivers/net/virtio_net.c | 56 +++++++++++++++++++++++++++++++++++++=
++++
+> > >   1 file changed, 56 insertions(+)
+> > >
+> > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > > index d7ce4a1011ea..1463a4709e3c 100644
+> > > --- a/drivers/net/virtio_net.c
+> > > +++ b/drivers/net/virtio_net.c
+> > > @@ -4579,6 +4579,60 @@ static void virtnet_set_big_packets(struct vir=
+tnet_info *vi, const int mtu)
+> > >       }
+> > >   }
+> > >
+> > > +static int virtnet_xdp_rx_hash(const struct xdp_md *_ctx, u32 *hash,
+> > > +                        enum xdp_rss_hash_type *rss_type)
+> > > +{
+> > > +     const struct xdp_buff *xdp =3D (void *)_ctx;
+> > > +     struct virtio_net_hdr_v1_hash *hdr_hash;
+> > > +     struct virtnet_info *vi;
+> > > +
+> > > +     if (!(xdp->rxq->dev->features & NETIF_F_RXHASH))
+> >
+> > I think 'vi->has_rss_hash_report' should be used here.
+> > NETIF_F_RXHASH cannot guarantee that the hash report feature is negotia=
+ted,
+> > and accessing hash_report and hash_value is unsafe at this time.
+> >
+>
+> My understanding is that rxhash in dev->features is turned on only if
+> the corresponding hw feature is set. We will double check on this.
+>
+> > > +             return -ENODATA;
+> > > +
+> > > +     vi =3D netdev_priv(xdp->rxq->dev);
+> > > +     hdr_hash =3D (struct virtio_net_hdr_v1_hash *)(xdp->data - vi->=
+hdr_len);
+> >
+> > If the virtio-net-hdr is overrided by the XDP prog, how can this be done
+> > correctly and as expected?
+> >
+>
+> Yeah, thanks for bringing up this concern. We are actively working on
+> a fix of this issue(possibly with a wrapper structure of xdp_buff).
 
-Cheers,
+Are there some places to save the hash before run xdp?
 
-Hannes
--- 
-Dr. Hannes Reinecke                Kernel Storage Architect
-hare@suse.de                              +49 911 74053 688
-SUSE Software Solutions GmbH, Maxfeldstr. 5, 90409 Nürnberg
-HRB 36809 (AG Nürnberg), GF: Ivo Totev, Andrew McDonald,
-Werner Knoblich
+Thanks.
 
+
+>
+> Thanks,
+> Liang
+>
+> > Thanks,
+> > Heng
+> >
+> > > +
+> > > +     switch (__le16_to_cpu(hdr_hash->hash_report)) {
+> > > +             case VIRTIO_NET_HASH_REPORT_TCPv4:
+> > > +                     *rss_type =3D XDP_RSS_TYPE_L4_IPV4_TCP;
+> > > +                     break;
+> > > +             case VIRTIO_NET_HASH_REPORT_UDPv4:
+> > > +                     *rss_type =3D XDP_RSS_TYPE_L4_IPV4_UDP;
+> > > +                     break;
+> > > +             case VIRTIO_NET_HASH_REPORT_TCPv6:
+> > > +                     *rss_type =3D XDP_RSS_TYPE_L4_IPV6_TCP;
+> > > +                     break;
+> > > +             case VIRTIO_NET_HASH_REPORT_UDPv6:
+> > > +                     *rss_type =3D XDP_RSS_TYPE_L4_IPV6_UDP;
+> > > +                     break;
+> > > +             case VIRTIO_NET_HASH_REPORT_TCPv6_EX:
+> > > +                     *rss_type =3D XDP_RSS_TYPE_L4_IPV6_TCP_EX;
+> > > +                     break;
+> > > +             case VIRTIO_NET_HASH_REPORT_UDPv6_EX:
+> > > +                     *rss_type =3D XDP_RSS_TYPE_L4_IPV6_UDP_EX;
+> > > +                     break;
+> > > +             case VIRTIO_NET_HASH_REPORT_IPv4:
+> > > +                     *rss_type =3D XDP_RSS_TYPE_L3_IPV4;
+> > > +                     break;
+> > > +             case VIRTIO_NET_HASH_REPORT_IPv6:
+> > > +                     *rss_type =3D XDP_RSS_TYPE_L3_IPV6;
+> > > +                     break;
+> > > +             case VIRTIO_NET_HASH_REPORT_IPv6_EX:
+> > > +                     *rss_type =3D XDP_RSS_TYPE_L3_IPV6_EX;
+> > > +                     break;
+> > > +             case VIRTIO_NET_HASH_REPORT_NONE:
+> > > +             default:
+> > > +                     *rss_type =3D XDP_RSS_TYPE_NONE;
+> > > +     }
+> > > +
+> > > +     *hash =3D __le32_to_cpu(hdr_hash->hash_value);
+> > > +     return 0;
+> > > +}
+> > > +
+> > > +static const struct xdp_metadata_ops virtnet_xdp_metadata_ops =3D {
+> > > +     .xmo_rx_hash                    =3D virtnet_xdp_rx_hash,
+> > > +};
+> > > +
+> > >   static int virtnet_probe(struct virtio_device *vdev)
+> > >   {
+> > >       int i, err =3D -ENOMEM;
+> > > @@ -4613,6 +4667,8 @@ static int virtnet_probe(struct virtio_device *=
+vdev)
+> > >       dev->ethtool_ops =3D &virtnet_ethtool_ops;
+> > >       SET_NETDEV_DEV(dev, &vdev->dev);
+> > >
+> > > +     dev->xdp_metadata_ops =3D &virtnet_xdp_metadata_ops;
+> > > +
+> > >       /* Do we support "hardware" checksums? */
+> > >       if (virtio_has_feature(vdev, VIRTIO_NET_F_CSUM)) {
+> > >               /* This opens up the world of extra features. */
+> >
+>
