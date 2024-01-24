@@ -1,387 +1,242 @@
-Received: from szxga04-in.huawei.com (szxga04-in.huawei.com [45.249.212.190])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-io1-f72.google.com (mail-io1-f72.google.com [209.85.166.72])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3012C18021
-	for <virtualization@lists.linux.dev>; Wed, 24 Jan 2024 09:38:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.190
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B80918635
+	for <virtualization@lists.linux.dev>; Wed, 24 Jan 2024 10:15:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.72
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706089110; cv=none; b=lm0ArZ4hZiCNTkLNTj+pREeDOcS5SHz7uXCQ2XbJYZdCXO1dBR8t24p/A4PjsNZSVnWJ3AZAjPnqa72/Da9Uf5L7efPnPNhrYZ7UezcNfKlWNtc+ht1wBD8pJXdvHgKa8SALc4WXKgtGf1IcKlB3hPDs6aURjItDZjBi0zjNTm4=
+	t=1706091324; cv=none; b=H6Au7T3sX773EiAgilVA1dO0sw0N0r2ApaKSUJhJ1h6YhbMbunax4RuOlXcuRXyd1VzkYcQLPeopK/1OhcSiCHgcXaLq1qHPBJTUx6y4HKAI+u1fApCD3UuGN1jq7qMApsmJ8LQFyXF6g37mB75o8Hul/DxnG5uD/tDVEEj0bXQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706089110; c=relaxed/simple;
-	bh=T5ayTAfouFBwjrJF6QUSu4ZMjvzqmBUY0gCa9PlsZ8M=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=t/IixgreSoWt61bOdsJvj+Qss4uk3QDkdnes3/VfgxzeGpLdrvbbIwWVi/ymPKujxVqEFPiI66edLCYkPdvJfQCEMAAp8wEM7NAtpps5DEs1EfT/QAlCsCphR4ATXCpxpE0cUgrrfN9gkKz+tHPTJkYyIvaRbTB4HUHXg0gLsxc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.190
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.88.214])
-	by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4TKf4s273Mz1xmgG;
-	Wed, 24 Jan 2024 17:37:33 +0800 (CST)
-Received: from dggpemm500008.china.huawei.com (unknown [7.185.36.136])
-	by mail.maildlp.com (Postfix) with ESMTPS id AD6DC1A016F;
-	Wed, 24 Jan 2024 17:38:10 +0800 (CST)
-Received: from localhost (10.174.242.157) by dggpemm500008.china.huawei.com
- (7.185.36.136) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.35; Wed, 24 Jan
- 2024 17:37:57 +0800
-From: Yunjian Wang <wangyunjian@huawei.com>
-To: <mst@redhat.com>, <willemdebruijn.kernel@gmail.com>,
-	<jasowang@redhat.com>, <kuba@kernel.org>, <davem@davemloft.net>,
-	<magnus.karlsson@intel.com>
-CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
-	<xudingke@huawei.com>, Yunjian Wang <wangyunjian@huawei.com>
-Subject: [PATCH net-next 2/2] tun: AF_XDP Rx zero-copy support
-Date: Wed, 24 Jan 2024 17:37:55 +0800
-Message-ID: <1706089075-16084-1-git-send-email-wangyunjian@huawei.com>
-X-Mailer: git-send-email 1.9.5.msysgit.1
+	s=arc-20240116; t=1706091324; c=relaxed/simple;
+	bh=57WA9fNqerSLzHYhUxsx4lQGGww5BteLIaHRRtEVzI4=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=n+AECeEDL1XudIQYsJVmCLLzqlCnTRmDxBL7cIZMy6xiP0yHt7Wj3/UDwSUiuGKcAkIeu6Xm0H6ZEWw07jFuZGinsVyP7vxYJIxg/eQV+IzKADCH2M/VHaCBSw9Nkox2FgHyQGfDQEGRF7GwNVrV4QaTs00ju1M5PNd6gwrw/yM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.72
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-io1-f72.google.com with SMTP id ca18e2360f4ac-7bf81e2e5d4so477801239f.2
+        for <virtualization@lists.linux.dev>; Wed, 24 Jan 2024 02:15:22 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1706091321; x=1706696121;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=z4M4vmM9pvCcaRrLe69ucq2F6ji5XFhw/m2nTXW150E=;
+        b=exLXYFwSFeVkoPOuRlik2dCB1kJiH4lNpUxKPmcCfT7tUN4EgTs5EvDPMcT4uNrKeB
+         KEwAE7+CyAw5QUrtr+B0LKCGfkpwM0Jt13xf6e78+ukcQLxPuoin1s3Qw87+w9ucSgy8
+         +VSQtl/3wOUGzyk/8tjnWYBHI7AwDyHDVwMmlEWC1xRgmdW2ZDxlQMS6E49y7lbBq+yS
+         fUD+EneWRhoV8XQMW1beM/LMu3QSxHw1xza1e4CqLcP7n5rtsW7GbmZxFcyIGKaJAE7j
+         huqkwX0XtmkcTT2UFW4ZfQR/XAvj5p8XWvuTcOxKUP+7JnjHFj+8bbbiOaMhc9ou4eyR
+         iBTA==
+X-Gm-Message-State: AOJu0YymxSmwrLp9ddKH/VG1v8tAkfITuzvdxz8IeAUnZd+UljZb1t+x
+	w2jc3J5STPMctum/WVOmL3/EGGtFbn7ZxqMFCBjNJPmmtUTnn1giH1wntMzMXyeXaH4hrsrAuh0
+	qubldMO5Z8ijp9+oBDgjA+UxVi6C1LmNbalzHxAiu21bzkd4FmMZ4EO8=
+X-Google-Smtp-Source: AGHT+IHiReyDw5aTlGo9JXuE1enyDoSoBk77Oc1Y9t6KuKuKmbSJada/HC/2hGX8yebxT+nQobFJjKXzobWaWrRn/Se3a+qNGkXS
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
- dggpemm500008.china.huawei.com (7.185.36.136)
+X-Received: by 2002:a05:6638:22c8:b0:46e:eec9:9b32 with SMTP id
+ j8-20020a05663822c800b0046eeec99b32mr132757jat.4.1706091321751; Wed, 24 Jan
+ 2024 02:15:21 -0800 (PST)
+Date: Wed, 24 Jan 2024 02:15:21 -0800
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <0000000000002fff4a060fae5751@google.com>
+Subject: [syzbot] [dri?] [virtualization?] upstream boot error: INFO: task
+ hung in virtio_gpu_queue_fenced_ctrl_buffer
+From: syzbot <syzbot+22e2c28c99235275f109@syzkaller.appspotmail.com>
+To: airlied@redhat.com, daniel@ffwll.ch, dri-devel@lists.freedesktop.org, 
+	gurchetansingh@chromium.org, kraxel@redhat.com, linux-kernel@vger.kernel.org, 
+	maarten.lankhorst@linux.intel.com, mripard@kernel.org, olvaffe@gmail.com, 
+	syzkaller-bugs@googlegroups.com, tzimmermann@suse.de, 
+	virtualization@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
 
-Now the zero-copy feature of AF_XDP socket is supported by some
-drivers, which can reduce CPU utilization on the xdp program.
-This patch set allows tun to support AF_XDP Rx zero-copy feature.
+Hello,
 
-This patch tries to address this by:
-- Use peek_len to consume a xsk->desc and get xsk->desc length.
-- When the tun support AF_XDP Rx zero-copy, the vq's array maybe empty.
-So add a check for empty vq's array in vhost_net_buf_produce().
-- add XDP_SETUP_XSK_POOL and ndo_xsk_wakeup callback support
-- add tun_put_user_desc function to copy the Rx data to VM
+syzbot found the following issue on:
 
-Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
+HEAD commit:    615d30064886 Merge tag 'trace-v6.8-rc1' of git://git.kerne..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=167456f7e80000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=e6c3b3d5f71246cb
+dashboard link: https://syzkaller.appspot.com/bug?extid=22e2c28c99235275f109
+compiler:       gcc (Debian 12.2.0-14) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40
+
+Downloadable assets:
+disk image (non-bootable): https://storage.googleapis.com/syzbot-assets/7bc7510fe41f/non_bootable_disk-615d3006.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/4bf0b27acaa4/vmlinux-615d3006.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/3133809ff35d/bzImage-615d3006.xz
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+22e2c28c99235275f109@syzkaller.appspotmail.com
+
+INFO: task swapper/0:1 blocked for more than 143 seconds.
+      Not tainted 6.8.0-rc1-syzkaller-00029-g615d30064886 #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:swapper/0       state:D stack:22288 pid:1     tgid:1     ppid:0      flags:0x00004000
+Call Trace:
+ <TASK>
+ context_switch kernel/sched/core.c:5400 [inline]
+ __schedule+0xf12/0x5c00 kernel/sched/core.c:6727
+ __schedule_loop kernel/sched/core.c:6802 [inline]
+ schedule+0xe9/0x270 kernel/sched/core.c:6817
+ virtio_gpu_queue_ctrl_sgs drivers/gpu/drm/virtio/virtgpu_vq.c:341 [inline]
+ virtio_gpu_queue_fenced_ctrl_buffer+0x497/0xff0 drivers/gpu/drm/virtio/virtgpu_vq.c:415
+ virtio_gpu_resource_flush drivers/gpu/drm/virtio/virtgpu_plane.c:162 [inline]
+ virtio_gpu_primary_plane_update+0x1059/0x1590 drivers/gpu/drm/virtio/virtgpu_plane.c:237
+ drm_atomic_helper_commit_planes+0x92f/0xfe0 drivers/gpu/drm/drm_atomic_helper.c:2800
+ drm_atomic_helper_commit_tail+0x69/0xf0 drivers/gpu/drm/drm_atomic_helper.c:1749
+ commit_tail+0x353/0x410 drivers/gpu/drm/drm_atomic_helper.c:1834
+ drm_atomic_helper_commit+0x2f9/0x380 drivers/gpu/drm/drm_atomic_helper.c:2072
+ drm_atomic_commit+0x20b/0x2d0 drivers/gpu/drm/drm_atomic.c:1514
+ drm_client_modeset_commit_atomic+0x6c2/0x810 drivers/gpu/drm/drm_client_modeset.c:1051
+ drm_client_modeset_commit_locked+0x14d/0x580 drivers/gpu/drm/drm_client_modeset.c:1154
+ pan_display_atomic drivers/gpu/drm/drm_fb_helper.c:1370 [inline]
+ drm_fb_helper_pan_display+0x2a5/0x990 drivers/gpu/drm/drm_fb_helper.c:1430
+ fb_pan_display+0x477/0x7c0 drivers/video/fbdev/core/fbmem.c:191
+ bit_update_start+0x49/0x1f0 drivers/video/fbdev/core/bitblit.c:390
+ fbcon_switch+0xbb3/0x12e0 drivers/video/fbdev/core/fbcon.c:2170
+ redraw_screen+0x2bd/0x750 drivers/tty/vt/vt.c:969
+ fbcon_prepare_logo+0x9f8/0xc80 drivers/video/fbdev/core/fbcon.c:616
+ con2fb_init_display drivers/video/fbdev/core/fbcon.c:803 [inline]
+ set_con2fb_map+0xcea/0x1050 drivers/video/fbdev/core/fbcon.c:867
+ do_fb_registered drivers/video/fbdev/core/fbcon.c:3007 [inline]
+ fbcon_fb_registered+0x21d/0x660 drivers/video/fbdev/core/fbcon.c:3023
+ do_register_framebuffer drivers/video/fbdev/core/fbmem.c:449 [inline]
+ register_framebuffer+0x4b2/0x860 drivers/video/fbdev/core/fbmem.c:515
+ __drm_fb_helper_initial_config_and_unlock+0xd7c/0x1650 drivers/gpu/drm/drm_fb_helper.c:1871
+ drm_fb_helper_initial_config drivers/gpu/drm/drm_fb_helper.c:1936 [inline]
+ drm_fb_helper_initial_config+0x44/0x60 drivers/gpu/drm/drm_fb_helper.c:1928
+ drm_fbdev_generic_client_hotplug+0x19e/0x270 drivers/gpu/drm/drm_fbdev_generic.c:279
+ drm_client_register+0x195/0x280 drivers/gpu/drm/drm_client.c:141
+ drm_fbdev_generic_setup+0x184/0x340 drivers/gpu/drm/drm_fbdev_generic.c:341
+ virtio_gpu_probe+0x1be/0x3c0 drivers/gpu/drm/virtio/virtgpu_drv.c:105
+ virtio_dev_probe+0x5e4/0x980 drivers/virtio/virtio.c:311
+ call_driver_probe drivers/base/dd.c:579 [inline]
+ really_probe+0x234/0xc90 drivers/base/dd.c:658
+ __driver_probe_device+0x1de/0x4b0 drivers/base/dd.c:800
+ driver_probe_device+0x4c/0x1a0 drivers/base/dd.c:830
+ __driver_attach+0x274/0x570 drivers/base/dd.c:1216
+ bus_for_each_dev+0x13c/0x1d0 drivers/base/bus.c:368
+ bus_add_driver+0x2e9/0x630 drivers/base/bus.c:673
+ driver_register+0x15c/0x4a0 drivers/base/driver.c:246
+ do_one_initcall+0x11c/0x650 init/main.c:1236
+ do_initcall_level init/main.c:1298 [inline]
+ do_initcalls init/main.c:1314 [inline]
+ do_basic_setup init/main.c:1333 [inline]
+ kernel_init_freeable+0x687/0xc10 init/main.c:1551
+ kernel_init+0x1c/0x2a0 init/main.c:1441
+ ret_from_fork+0x45/0x80 arch/x86/kernel/process.c:147
+ ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:242
+ </TASK>
+INFO: task kworker/0:0:8 blocked for more than 143 seconds.
+      Not tainted 6.8.0-rc1-syzkaller-00029-g615d30064886 #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:kworker/0:0     state:D stack:28208 pid:8     tgid:8     ppid:2      flags:0x00004000
+Workqueue: events virtio_gpu_dequeue_ctrl_func
+Call Trace:
+ <TASK>
+ context_switch kernel/sched/core.c:5400 [inline]
+ __schedule+0xf12/0x5c00 kernel/sched/core.c:6727
+ __schedule_loop kernel/sched/core.c:6802 [inline]
+ schedule+0xe9/0x270 kernel/sched/core.c:6817
+ schedule_preempt_disabled+0x13/0x20 kernel/sched/core.c:6874
+ __mutex_lock_common kernel/locking/mutex.c:684 [inline]
+ __mutex_lock+0x5b9/0x9d0 kernel/locking/mutex.c:752
+ drm_client_dev_hotplug drivers/gpu/drm/drm_client.c:217 [inline]
+ drm_client_dev_hotplug+0x169/0x3c0 drivers/gpu/drm/drm_client.c:204
+ virtio_gpu_cmd_get_display_info_cb+0x3e1/0x550 drivers/gpu/drm/virtio/virtgpu_vq.c:674
+ virtio_gpu_dequeue_ctrl_func+0x21b/0x9a0 drivers/gpu/drm/virtio/virtgpu_vq.c:235
+ process_one_work+0x886/0x15d0 kernel/workqueue.c:2633
+ process_scheduled_works kernel/workqueue.c:2706 [inline]
+ worker_thread+0x8b9/0x1290 kernel/workqueue.c:2787
+ kthread+0x2c6/0x3a0 kernel/kthread.c:388
+ ret_from_fork+0x45/0x80 arch/x86/kernel/process.c:147
+ ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:242
+ </TASK>
+INFO: task kworker/1:1:55 blocked for more than 143 seconds.
+      Not tainted 6.8.0-rc1-syzkaller-00029-g615d30064886 #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:kworker/1:1     state:D stack:27648 pid:55    tgid:55    ppid:2      flags:0x00004000
+Workqueue: events drm_fb_helper_damage_work
+Call Trace:
+ <TASK>
+ context_switch kernel/sched/core.c:5400 [inline]
+ __schedule+0xf12/0x5c00 kernel/sched/core.c:6727
+ __schedule_loop kernel/sched/core.c:6802 [inline]
+ schedule+0xe9/0x270 kernel/sched/core.c:6817
+ schedule_preempt_disabled+0x13/0x20 kernel/sched/core.c:6874
+ __mutex_lock_common kernel/locking/mutex.c:684 [inline]
+ __mutex_lock+0x5b9/0x9d0 kernel/locking/mutex.c:752
+ drm_fbdev_generic_damage_blit drivers/gpu/drm/drm_fbdev_generic.c:198 [inline]
+ drm_fbdev_generic_helper_fb_dirty+0x255/0xbb0 drivers/gpu/drm/drm_fbdev_generic.c:225
+ drm_fb_helper_fb_dirty drivers/gpu/drm/drm_fb_helper.c:390 [inline]
+ drm_fb_helper_damage_work+0x283/0x5e0 drivers/gpu/drm/drm_fb_helper.c:413
+ process_one_work+0x886/0x15d0 kernel/workqueue.c:2633
+ process_scheduled_works kernel/workqueue.c:2706 [inline]
+ worker_thread+0x8b9/0x1290 kernel/workqueue.c:2787
+ kthread+0x2c6/0x3a0 kernel/kthread.c:388
+ ret_from_fork+0x45/0x80 arch/x86/kernel/process.c:147
+ ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:242
+ </TASK>
+
+Showing all locks held in the system:
+10 locks held by swapper/0/1:
+ #0: ffff88801bcf8170 (&dev->mutex){....}-{3:3}, at: device_lock include/linux/device.h:990 [inline]
+ #0: ffff88801bcf8170 (&dev->mutex){....}-{3:3}, at: __device_driver_lock drivers/base/dd.c:1095 [inline]
+ #0: ffff88801bcf8170 (&dev->mutex){....}-{3:3}, at: __driver_attach+0x269/0x570 drivers/base/dd.c:1215
+ #1: ffff88801d7b42f8 (&dev->clientlist_mutex){+.+.}-{3:3}, at: drm_client_register+0x54/0x280 drivers/gpu/drm/drm_client.c:127
+ #2: ffffffff8dcbfe88 (registration_lock){+.+.}-{3:3}, at: register_framebuffer+0x7a/0x860 drivers/video/fbdev/core/fbmem.c:514
+ #3: ffffffff8d196720 (console_lock){+.+.}-{0:0}, at: fbcon_fb_registered+0x3c/0x660 drivers/video/fbdev/core/fbcon.c:3019
+ #4: ffff8880198f4280 (&helper->lock){+.+.}-{3:3}, at: drm_fb_helper_pan_display+0xd5/0x990 drivers/gpu/drm/drm_fb_helper.c:1423
+ #5: ffff88801d7b41b0 (&dev->master_mutex){+.+.}-{3:3}, at: drm_master_internal_acquire+0x21/0x70 drivers/gpu/drm/drm_auth.c:452
+ #6: ffff8880198f4098 (&client->modeset_mutex){+.+.}-{3:3}, at: drm_client_modeset_commit_locked+0x4c/0x580 drivers/gpu/drm/drm_client_modeset.c:1152
+ #7: ffffc90000047278 (crtc_ww_class_acquire){+.+.}-{0:0}, at: drm_client_modeset_commit_atomic+0xd0/0x810 drivers/gpu/drm/drm_client_modeset.c:990
+ #8: ffff88801d9cb0b0 (crtc_ww_class_mutex){+.+.}-{3:3}, at: modeset_lock+0x484/0x6c0 drivers/gpu/drm/drm_modeset_lock.c:314
+ #9: ffffffff8ddf96d0 (drm_unplug_srcu){.+.+}-{0:0}, at: srcu_lock_acquire include/linux/srcu.h:116 [inline]
+ #9: ffffffff8ddf96d0 (drm_unplug_srcu){.+.+}-{0:0}, at: srcu_read_lock include/linux/srcu.h:215 [inline]
+ #9: ffffffff8ddf96d0 (drm_unplug_srcu){.+.+}-{0:0}, at: drm_dev_enter+0x49/0x160 drivers/gpu/drm/drm_drv.c:449
+3 locks held by kworker/0:0/8:
+ #0: ffff888013088d38 ((wq_completion)events){+.+.}-{0:0}, at: process_one_work+0x789/0x15d0 kernel/workqueue.c:2608
+ #1: ffffc900000b7d80 ((work_completion)(&vgvq->dequeue_work)){+.+.}-{0:0}, at: process_one_work+0x7eb/0x15d0 kernel/workqueue.c:2609
+ #2: ffff88801d7b42f8 (&dev->clientlist_mutex){+.+.}-{3:3}, at: drm_client_dev_hotplug drivers/gpu/drm/drm_client.c:217 [inline]
+ #2: ffff88801d7b42f8 (&dev->clientlist_mutex){+.+.}-{3:3}, at: drm_client_dev_hotplug+0x169/0x3c0 drivers/gpu/drm/drm_client.c:204
+2 locks held by kworker/u16:0/11:
+ #0: ffff888013089938 ((wq_completion)events_unbound){+.+.}-{0:0}, at: process_one_work+0x789/0x15d0 kernel/workqueue.c:2608
+ #1: ffffc900000e7d80 ((work_completion)(&(&kfence_timer)->work)){+.+.}-{0:0}, at: process_one_work+0x7eb/0x15d0 kernel/workqueue.c:2609
+1 lock held by khungtaskd/39:
+ #0: ffffffff8d1a9120 (rcu_read_lock){....}-{1:2}, at: rcu_lock_acquire include/linux/rcupdate.h:298 [inline]
+ #0: ffffffff8d1a9120 (rcu_read_lock){....}-{1:2}, at: rcu_read_lock include/linux/rcupdate.h:750 [inline]
+ #0: ffffffff8d1a9120 (rcu_read_lock){....}-{1:2}, at: debug_show_all_locks+0x75/0x340 kernel/locking/lockdep.c:6614
+3 locks held by kworker/1:1/55:
+ #0: ffff888013088d38 ((wq_completion)events){+.+.}-{0:0}, at: process_one_work+0x789/0x15d0 kernel/workqueue.c:2608
+ #1: ffffc90000a77d80 ((work_completion)(&helper->damage_work)){+.+.}-{0:0}, at: process_one_work+0x7eb/0x15d0 kernel/workqueue.c:2609
+ #2: ffff8880198f4280 (&helper->lock){+.+.}-{3:3}, at: drm_fbdev_generic_damage_blit drivers/gpu/drm/drm_fbdev_generic.c:198 [inline]
+ #2: ffff8880198f4280 (&helper->lock){+.+.}-{3:3}, at: drm_fbdev_generic_helper_fb_dirty+0x255/0xbb0 drivers/gpu/drm/drm_fbdev_generic.c:225
+
+=============================================
+
+
+
 ---
- drivers/net/tun.c   | 165 +++++++++++++++++++++++++++++++++++++++++++-
- drivers/vhost/net.c |  18 +++--
- 2 files changed, 176 insertions(+), 7 deletions(-)
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index afa5497f7c35..248b0f8e07d1 100644
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -77,6 +77,7 @@
- #include <net/ax25.h>
- #include <net/rose.h>
- #include <net/6lowpan.h>
-+#include <net/xdp_sock_drv.h>
- 
- #include <linux/uaccess.h>
- #include <linux/proc_fs.h>
-@@ -145,6 +146,10 @@ struct tun_file {
- 	struct tun_struct *detached;
- 	struct ptr_ring tx_ring;
- 	struct xdp_rxq_info xdp_rxq;
-+	struct xdp_desc desc;
-+	/* protects xsk pool */
-+	spinlock_t pool_lock;
-+	struct xsk_buff_pool *pool;
- };
- 
- struct tun_page {
-@@ -208,6 +213,8 @@ struct tun_struct {
- 	struct bpf_prog __rcu *xdp_prog;
- 	struct tun_prog __rcu *steering_prog;
- 	struct tun_prog __rcu *filter_prog;
-+	/* tracks AF_XDP ZC enabled queues */
-+	unsigned long *af_xdp_zc_qps;
- 	struct ethtool_link_ksettings link_ksettings;
- 	/* init args */
- 	struct file *file;
-@@ -795,6 +802,8 @@ static int tun_attach(struct tun_struct *tun, struct file *file,
- 
- 	tfile->queue_index = tun->numqueues;
- 	tfile->socket.sk->sk_shutdown &= ~RCV_SHUTDOWN;
-+	tfile->desc.len = 0;
-+	tfile->pool = NULL;
- 
- 	if (tfile->detached) {
- 		/* Re-attach detached tfile, updating XDP queue_index */
-@@ -989,6 +998,13 @@ static int tun_net_init(struct net_device *dev)
- 		return err;
- 	}
- 
-+	tun->af_xdp_zc_qps = bitmap_zalloc(MAX_TAP_QUEUES, GFP_KERNEL);
-+	if (!tun->af_xdp_zc_qps) {
-+		security_tun_dev_free_security(tun->security);
-+		free_percpu(dev->tstats);
-+		return -ENOMEM;
-+	}
-+
- 	tun_flow_init(tun);
- 
- 	dev->hw_features = NETIF_F_SG | NETIF_F_FRAGLIST |
-@@ -1009,6 +1025,7 @@ static int tun_net_init(struct net_device *dev)
- 		tun_flow_uninit(tun);
- 		security_tun_dev_free_security(tun->security);
- 		free_percpu(dev->tstats);
-+		bitmap_free(tun->af_xdp_zc_qps);
- 		return err;
- 	}
- 	return 0;
-@@ -1222,11 +1239,77 @@ static int tun_xdp_set(struct net_device *dev, struct bpf_prog *prog,
- 	return 0;
- }
- 
-+static int tun_xsk_pool_enable(struct net_device *netdev,
-+			       struct xsk_buff_pool *pool,
-+			       u16 qid)
-+{
-+	struct tun_struct *tun = netdev_priv(netdev);
-+	struct tun_file *tfile;
-+	unsigned long flags;
-+
-+	rcu_read_lock();
-+	tfile = rtnl_dereference(tun->tfiles[qid]);
-+	if (!tfile) {
-+		rcu_read_unlock();
-+		return -ENODEV;
-+	}
-+
-+	spin_lock_irqsave(&tfile->pool_lock, flags);
-+	xsk_pool_set_rxq_info(pool, &tfile->xdp_rxq);
-+	tfile->pool = pool;
-+	spin_unlock_irqrestore(&tfile->pool_lock, flags);
-+
-+	rcu_read_unlock();
-+	set_bit(qid, tun->af_xdp_zc_qps);
-+
-+	return 0;
-+}
-+
-+static int tun_xsk_pool_disable(struct net_device *netdev, u16 qid)
-+{
-+	struct tun_struct *tun = netdev_priv(netdev);
-+	struct tun_file *tfile;
-+	unsigned long flags;
-+
-+	if (!test_bit(qid, tun->af_xdp_zc_qps))
-+		return 0;
-+
-+	clear_bit(qid, tun->af_xdp_zc_qps);
-+
-+	rcu_read_lock();
-+	tfile = rtnl_dereference(tun->tfiles[qid]);
-+	if (!tfile) {
-+		rcu_read_unlock();
-+		return 0;
-+	}
-+
-+	spin_lock_irqsave(&tfile->pool_lock, flags);
-+	if (tfile->desc.len) {
-+		xsk_tx_completed(tfile->pool, 1);
-+		tfile->desc.len = 0;
-+	}
-+	tfile->pool = NULL;
-+	spin_unlock_irqrestore(&tfile->pool_lock, flags);
-+
-+	rcu_read_unlock();
-+	return 0;
-+}
-+
-+int tun_xsk_pool_setup(struct net_device *dev, struct xsk_buff_pool *pool,
-+		       u16 qid)
-+{
-+	return pool ? tun_xsk_pool_enable(dev, pool, qid) :
-+		tun_xsk_pool_disable(dev, qid);
-+}
-+
- static int tun_xdp(struct net_device *dev, struct netdev_bpf *xdp)
- {
- 	switch (xdp->command) {
- 	case XDP_SETUP_PROG:
- 		return tun_xdp_set(dev, xdp->prog, xdp->extack);
-+	case XDP_SETUP_XSK_POOL:
-+		return tun_xsk_pool_setup(dev, xdp->xsk.pool,
-+					   xdp->xsk.queue_id);
- 	default:
- 		return -EINVAL;
- 	}
-@@ -1331,6 +1414,19 @@ static int tun_xdp_tx(struct net_device *dev, struct xdp_buff *xdp)
- 	return nxmit;
- }
- 
-+static int tun_xsk_wakeup(struct net_device *dev, u32 qid, u32 flags)
-+{
-+	struct tun_struct *tun = netdev_priv(dev);
-+	struct tun_file *tfile;
-+
-+	rcu_read_lock();
-+	tfile = rcu_dereference(tun->tfiles[qid]);
-+	if (tfile)
-+		__tun_xdp_flush_tfile(tfile);
-+	rcu_read_unlock();
-+	return 0;
-+}
-+
- static const struct net_device_ops tap_netdev_ops = {
- 	.ndo_init		= tun_net_init,
- 	.ndo_uninit		= tun_net_uninit,
-@@ -1347,6 +1443,7 @@ static const struct net_device_ops tap_netdev_ops = {
- 	.ndo_get_stats64	= dev_get_tstats64,
- 	.ndo_bpf		= tun_xdp,
- 	.ndo_xdp_xmit		= tun_xdp_xmit,
-+	.ndo_xsk_wakeup		= tun_xsk_wakeup,
- 	.ndo_change_carrier	= tun_net_change_carrier,
- };
- 
-@@ -1404,7 +1501,8 @@ static void tun_net_initialize(struct net_device *dev)
- 		/* Currently tun does not support XDP, only tap does. */
- 		dev->xdp_features = NETDEV_XDP_ACT_BASIC |
- 				    NETDEV_XDP_ACT_REDIRECT |
--				    NETDEV_XDP_ACT_NDO_XMIT;
-+				    NETDEV_XDP_ACT_NDO_XMIT |
-+				    NETDEV_XDP_ACT_XSK_ZEROCOPY;
- 
- 		break;
- 	}
-@@ -2213,6 +2311,37 @@ static void *tun_ring_recv(struct tun_file *tfile, int noblock, int *err)
- 	return ptr;
- }
- 
-+static ssize_t tun_put_user_desc(struct tun_struct *tun,
-+				 struct tun_file *tfile,
-+				 struct xdp_desc *desc,
-+				 struct iov_iter *iter)
-+{
-+	size_t size = desc->len;
-+	int vnet_hdr_sz = 0;
-+	size_t ret;
-+
-+	if (tun->flags & IFF_VNET_HDR) {
-+		struct virtio_net_hdr_mrg_rxbuf gso = { 0 };
-+
-+		vnet_hdr_sz = READ_ONCE(tun->vnet_hdr_sz);
-+		if (unlikely(iov_iter_count(iter) < vnet_hdr_sz))
-+			return -EINVAL;
-+		if (unlikely(copy_to_iter(&gso, sizeof(gso), iter) !=
-+			     sizeof(gso)))
-+			return -EFAULT;
-+		iov_iter_advance(iter, vnet_hdr_sz - sizeof(gso));
-+	}
-+
-+	ret = copy_to_iter(xsk_buff_raw_get_data(tfile->pool, desc->addr),
-+			   size, iter) + vnet_hdr_sz;
-+
-+	preempt_disable();
-+	dev_sw_netstats_tx_add(tun->dev, 1, ret);
-+	preempt_enable();
-+
-+	return ret;
-+}
-+
- static ssize_t tun_do_read(struct tun_struct *tun, struct tun_file *tfile,
- 			   struct iov_iter *to,
- 			   int noblock, void *ptr)
-@@ -2226,6 +2355,22 @@ static ssize_t tun_do_read(struct tun_struct *tun, struct tun_file *tfile,
- 	}
- 
- 	if (!ptr) {
-+		/* Read frames from xsk's desc */
-+		if (test_bit(tfile->queue_index, tun->af_xdp_zc_qps)) {
-+			spin_lock(&tfile->pool_lock);
-+			if (tfile->pool) {
-+				ret = tun_put_user_desc(tun, tfile, &tfile->desc, to);
-+				xsk_tx_completed(tfile->pool, 1);
-+				if (xsk_uses_need_wakeup(tfile->pool))
-+					xsk_set_tx_need_wakeup(tfile->pool);
-+				tfile->desc.len = 0;
-+			} else {
-+				ret = -EBADFD;
-+			}
-+			spin_unlock(&tfile->pool_lock);
-+			return ret;
-+		}
-+
- 		/* Read frames from ring */
- 		ptr = tun_ring_recv(tfile, noblock, &err);
- 		if (!ptr)
-@@ -2311,6 +2456,7 @@ static void tun_free_netdev(struct net_device *dev)
- 
- 	BUG_ON(!(list_empty(&tun->disabled)));
- 
-+	bitmap_free(tun->af_xdp_zc_qps);
- 	free_percpu(dev->tstats);
- 	tun_flow_uninit(tun);
- 	security_tun_dev_free_security(tun->security);
-@@ -2666,7 +2812,19 @@ static int tun_peek_len(struct socket *sock)
- 	if (!tun)
- 		return 0;
- 
--	ret = PTR_RING_PEEK_CALL(&tfile->tx_ring, tun_ptr_peek_len);
-+	if (test_bit(tfile->queue_index, tun->af_xdp_zc_qps)) {
-+		spin_lock(&tfile->pool_lock);
-+		if (tfile->pool && xsk_tx_peek_desc(tfile->pool, &tfile->desc)) {
-+			xsk_tx_release(tfile->pool);
-+			ret = tfile->desc.len;
-+			/* The length of desc must be greater than 0 */
-+			if (!ret)
-+				xsk_tx_completed(tfile->pool, 1);
-+		}
-+		spin_unlock(&tfile->pool_lock);
-+	} else {
-+		ret = PTR_RING_PEEK_CALL(&tfile->tx_ring, tun_ptr_peek_len);
-+	}
- 	tun_put(tun);
- 
- 	return ret;
-@@ -3469,8 +3627,11 @@ static int tun_chr_open(struct inode *inode, struct file * file)
- 
- 	mutex_init(&tfile->napi_mutex);
- 	RCU_INIT_POINTER(tfile->tun, NULL);
-+	spin_lock_init(&tfile->pool_lock);
- 	tfile->flags = 0;
- 	tfile->ifindex = 0;
-+	tfile->pool = NULL;
-+	tfile->desc.len = 0;
- 
- 	init_waitqueue_head(&tfile->socket.wq.wait);
- 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index f2ed7167c848..a1f143ad2341 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -169,9 +169,10 @@ static int vhost_net_buf_is_empty(struct vhost_net_buf *rxq)
- 
- static void *vhost_net_buf_consume(struct vhost_net_buf *rxq)
- {
--	void *ret = vhost_net_buf_get_ptr(rxq);
--	++rxq->head;
--	return ret;
-+	if (rxq->tail == rxq->head)
-+		return NULL;
-+
-+	return rxq->queue[rxq->head++];
- }
- 
- static int vhost_net_buf_produce(struct vhost_net_virtqueue *nvq)
-@@ -993,12 +994,19 @@ static void handle_tx(struct vhost_net *net)
- 
- static int peek_head_len(struct vhost_net_virtqueue *rvq, struct sock *sk)
- {
-+	struct socket *sock = sk->sk_socket;
- 	struct sk_buff *head;
- 	int len = 0;
- 	unsigned long flags;
- 
--	if (rvq->rx_ring)
--		return vhost_net_buf_peek(rvq);
-+	if (rvq->rx_ring) {
-+		len = vhost_net_buf_peek(rvq);
-+		if (likely(len))
-+			return len;
-+	}
-+
-+	if (sock->ops->peek_len)
-+		return sock->ops->peek_len(sock);
- 
- 	spin_lock_irqsave(&sk->sk_receive_queue.lock, flags);
- 	head = skb_peek(&sk->sk_receive_queue);
--- 
-2.33.0
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
 
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
+
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup
