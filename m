@@ -1,101 +1,69 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from verein.lst.de (verein.lst.de [213.95.11.211])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B56A18035
-	for <virtualization@lists.linux-foundation.org>; Wed, 24 Jan 2024 09:16:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 663B41B5AC
+	for <virtualization@lists.linux.dev>; Wed, 24 Jan 2024 09:21:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706087803; cv=none; b=Rm/WfwoErTtEfJxAKgiw0wAvZxwqrQTx5abJw3GWjQrEb5VLJgwMX2/C/U+5aic9V1+Q4juz3j0gHB0LBw3g/AcX31ZpJsoYYWpx8KLUDl9E2teBjJfkdbQZ/RllNrfQSDFk6pOJDyC/tEsxuk18UUFdq4vdjrMVcJaCVhOroT0=
+	t=1706088114; cv=none; b=rJkyA/jejzSJxYgoUVJI/GvSmSZnlCgUDjI9sGdrxkkYn6egZi/xwb58Vf2bKnXq/oUFqbKQDXF+i6UXg2Xuj3K38DIq80TxVdomnlfFT546EGN5wKrTo7v+wy378NjXtRtXyPs0jaSPZvjx1P6XrVx5sKCg8PgYmyAjl67ALCk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706087803; c=relaxed/simple;
-	bh=Gw027f+IjQyyQbAt7FOQ+4RHmj+3PaRU6TIsxKZu6kY=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=cdYEmpHBcbsbwtuYhhfHEq1yDbxBYDpSkct68mm8IogSiAaafzpVElEewjzAroaVILSM2oBnTQBfR79dhMmf1fcKJEcF2XGRR269qsyFKVJCAXNh7y0NSoWptS/ZHj9BvlQ3diWcZYuhDdW15NNguOPdCezBHNmgLgQ2dkhcIe4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id AF8E1844B1
-	for <virtualization@lists.linux-foundation.org>; Wed, 24 Jan 2024 09:16:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AF8E1844B1
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -9.899
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id xU_S35y6K3Zq
-	for <virtualization@lists.linux-foundation.org>;
-	Wed, 24 Jan 2024 09:16:39 +0000 (UTC)
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 414BB8442B
-	for <virtualization@lists.linux-foundation.org>; Wed, 24 Jan 2024 09:16:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 414BB8442B
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R831e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0W.G52BL_1706087790;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W.G52BL_1706087790)
-          by smtp.aliyun-inc.com;
-          Wed, 24 Jan 2024 17:16:31 +0800
-Message-ID: <1706087654.2583706-2-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH v2 2/3] virtio_net: Add missing virtio header in skb for XDP_PASS
-Date: Wed, 24 Jan 2024 17:14:14 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Liang Chen <liangchen.linux@gmail.com>
-Cc: virtualization@lists.linux-foundation.org,
- linux-kernel@vger.kernel.org,
- liangchen.linux@gmail.com,
- mst@redhat.com,
- jasowang@redhat.com,
- hengqi@linux.alibaba.com
-References: <20240124085721.54442-1-liangchen.linux@gmail.com>
- <20240124085721.54442-3-liangchen.linux@gmail.com>
-In-Reply-To: <20240124085721.54442-3-liangchen.linux@gmail.com>
+	s=arc-20240116; t=1706088114; c=relaxed/simple;
+	bh=Q0kfJGwfJNRpe/Ml0n5ViX31n5MiHcRCZGahnNtHrwQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=e7m3fgRpey3bhYpfslokdHTcOVFZBJmrsL/KpaphtbSfyDa/j0w0pyH3IAPZl33GMvGguXEhRU2by6c6TyfTJ2pA0eGyTjuIIGc+R66apRYFCR2ElhTc/+QWnXXK9BvPQUQ8Lm8hWXU00LTtlJ7OZwX6io9vPsU8kJg2vkbbfSo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
+Received: by verein.lst.de (Postfix, from userid 2407)
+	id 0EC1B68AFE; Wed, 24 Jan 2024 10:21:49 +0100 (CET)
+Date: Wed, 24 Jan 2024 10:21:48 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: Hannes Reinecke <hare@suse.de>
+Cc: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Damien Le Moal <dlemoal@kernel.org>,
+	Keith Busch <kbusch@kernel.org>, Sagi Grimberg <sagi@grimberg.me>,
+	linux-block@vger.kernel.org, linux-nvme@lists.infradead.org,
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH 03/15] block: add an API to atomically update queue
+ limits
+Message-ID: <20240124092148.GA28770@lst.de>
+References: <20240122173645.1686078-1-hch@lst.de> <20240122173645.1686078-4-hch@lst.de> <de3cd926-c78c-4e68-bee0-2f571ccdaf8d@suse.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <de3cd926-c78c-4e68-bee0-2f571ccdaf8d@suse.de>
+User-Agent: Mutt/1.5.17 (2007-11-01)
 
-On Wed, 24 Jan 2024 16:57:20 +0800, Liang Chen <liangchen.linux@gmail.com> wrote:
-> For the XDP_PASS scenario of the XDP path, the skb constructed with
-> xdp_buff does not include the virtio header. Adding the virtio header
-> information back when creating the skb.
+On Wed, Jan 24, 2024 at 07:08:58AM +0100, Hannes Reinecke wrote:
+>> + * that there is outstanding I/O by other means.
+>> + */
+>> +static inline struct queue_limits
+>> +queue_limits_start_update(struct request_queue *q)
+>> +	__acquires(q->limits_lock)
+>> +{
+>> +	mutex_lock(&q->limits_lock);
+>> +	return q->limits;
+>> +}
 >
-> Signed-off-by: Liang Chen <liangchen.linux@gmail.com>
-> ---
->  drivers/net/virtio_net.c | 6 ++++++
->  1 file changed, 6 insertions(+)
->
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index b56828804e5f..2de46eb4c661 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -1270,6 +1270,9 @@ static struct sk_buff *receive_small_xdp(struct net_device *dev,
->  	if (unlikely(!skb))
->  		goto err;
->
-> +	/* Store the original virtio header for subsequent use by the driver. */
-> +	memcpy(skb_vnet_common_hdr(skb), &virtnet_xdp.hdr, vi->hdr_len);
+> I'm slightly confused about the lifetime of the returned structure.
+> By my understanding, the returned 'struct queue_limit' is allocated
+> on the stack of the caller, right?
+> Shouldn't we note this somewhere such that people don't start passing
+> the structure around, or, worse, calling 'kfree()' on it?
 
-About this, a spec is waiting for voting.
-
-This may change the logic of the csum offset and so on.
-
-Please not do this.
-
-Thanks.
-
-
-> +
->  	if (metasize)
->  		skb_metadata_set(skb, metasize);
->
-> @@ -1635,6 +1638,9 @@ static struct sk_buff *receive_mergeable_xdp(struct net_device *dev,
->  		head_skb = build_skb_from_xdp_buff(dev, vi, xdp, xdp_frags_truesz);
->  		if (unlikely(!head_skb))
->  			break;
-> +		/* Store the original virtio header for subsequent use by the driver. */
-> +		memcpy(skb_vnet_common_hdr(head_skb), &virtnet_xdp.hdr, vi->hdr_len);
-> +
->  		return head_skb;
->
->  	case XDP_TX:
-> --
-> 2.40.1
->
+queue_limits_start_update returns the structure by value.  So the
+lifetime is that of whatever variable you assign it to, which better
+be on the stack.  Tryign to kfree a non-pointer type will get the
+compiler complain, as does passing a reference to it outside the
+function these days.
