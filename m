@@ -1,56 +1,56 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D083B1BC26
-	for <virtualization@lists.linux-foundation.org>; Thu, 25 Jan 2024 09:09:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 755701CFB6
+	for <virtualization@lists.linux-foundation.org>; Thu, 25 Jan 2024 09:29:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706173800; cv=none; b=UoX20YW4zPhXnxjRCJQIL7Ol66SDXzuOx+vOLa4L4OKdw0ITlUHlcs7thDbV01AZHLhxw0Y+O5pXhoysWMSRUnCZSoTInXs1UOowWJYi5QArnxtcLxAf7uB0B+YnWALj1yOf8pqJCK4knzkpR8nBROyAeRvh3mfLStOU2NPh0bA=
+	t=1706174946; cv=none; b=CilrFWKVSxsRjgozVrlzQPoqXYXTjwafyCJqRYv7ekHnPvHOgPec3mn4IYujFx5Ms7vmNwXIWu5qcZo4E8RqICzWUMHY1L5TxPcIakKQFnJBqoJN9TOvOH+nYynqeZYsHQDWj6Pa5YNMSmXWG/Aph68l8umgyW69at5zpyXutU8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706173800; c=relaxed/simple;
-	bh=NHDMTimolpsRG953VM4h8IMbAP81NqnGQx5H5gz6gU4=;
+	s=arc-20240116; t=1706174946; c=relaxed/simple;
+	bh=MuHOFFDvhunWa09yCKieBQeofTJm5hUil4z2V5RP7/c=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=qc6brChNaF7Hrkd4dxTyPgr42qocg0371pD4d0KC8FS8HZTybp9bm4KSbKdU0QtWn7/ItPCz4Abb+B0WnQwSV7WYtESwnZH+0fNmucdkacrIl7d8Q/dPDvdMuH/9FQYuLS9QZevBkEbg6H6sT4Cc/YNqoRggIL85Ow8eMhSxgUY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=K0ZTZHJe; arc=none smtp.client-ip=140.211.166.138
+	 MIME-Version:Content-Type; b=iukdC+ECIxia2lI3KLJvQsz+uYzCb2ulEA2eMeYVGS7cQCAkGAu5vK/Ck50gnkKpV5teHtJeHhNry7ffA3k+MNar/iZCUG00Jpa1hzHrUAVr7q0lHJMmcMKub5Wow7rmDzf8Gz2a8VyvGJTpo4Ix7TKb77ael/K8EFpUsgYq9FA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=NrDb1FaB; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="K0ZTZHJe"
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="NrDb1FaB"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 4E0FE81E49
-	for <virtualization@lists.linux-foundation.org>; Thu, 25 Jan 2024 09:09:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4E0FE81E49
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=K0ZTZHJe
+	by smtp2.osuosl.org (Postfix) with ESMTP id D935E43545
+	for <virtualization@lists.linux-foundation.org>; Thu, 25 Jan 2024 09:29:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D935E43545
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=NrDb1FaB
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.1
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9Tz8x3PcQfJk
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id QvvYIofHeFs6
 	for <virtualization@lists.linux-foundation.org>;
-	Thu, 25 Jan 2024 09:09:57 +0000 (UTC)
+	Thu, 25 Jan 2024 09:29:04 +0000 (UTC)
 Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [46.235.227.194])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 8445081E35
-	for <virtualization@lists.linux-foundation.org>; Thu, 25 Jan 2024 09:09:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8445081E35
+	by smtp2.osuosl.org (Postfix) with ESMTPS id C379A42F4E
+	for <virtualization@lists.linux-foundation.org>; Thu, 25 Jan 2024 09:29:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C379A42F4E
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1706173795;
-	bh=NHDMTimolpsRG953VM4h8IMbAP81NqnGQx5H5gz6gU4=;
+	s=mail; t=1706174941;
+	bh=MuHOFFDvhunWa09yCKieBQeofTJm5hUil4z2V5RP7/c=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=K0ZTZHJe5DZ9eZa4kY8kwa5c00th4E7Z2PjeeRbHuwJy+8xK/N6CC4lfGXky/r0OS
-	 Ihti4C3jApFsg/nNsItAAgnCZVanT3LBCNg2G1sFAy51jNUrvge1o6Uwk5w6/oiK/z
-	 x1YmGTJBGb7WpMkpwXmLkQtfGeMHxptiY+aPjYksvCVR5E9zFb9OZd13mHYsvnXwrF
-	 gXt0zN7eYiCnXuUPVM3ZFmPRITxlhSAaclIA0JKi7W8W3qi6YSYvWwXufIkmmDQdj+
-	 PUuRzQeWW1/1mxvg7r9NOM34GUFf7XYV2PARmb4wSE72XJpZhIXWU0JMvNviujWGvL
-	 SOBFRw/I5nb8Q==
+	b=NrDb1FaBaq13ye++Lhg9rKsUJUXv0CRes27oB17iSRjJI+f260kZqghxxIZiHPzKF
+	 yG6w09yncfIcrwFhoeCGYZ/UGRPOvZj+BlKCoxh0Kbrzd/cMl51zO7QWS4loE7xDkx
+	 R8JmJ/OZjwElQbafLdkoQovcnyaDjPRBNW5oDS+E7/hS0AKI10hMKA1rvqLulArOiC
+	 /gg8mIL23r6i4JVwuVbbfG5bPGMGvlO5PRxPX3vXd/g/7vPtHw838An9VQnD8DfxH8
+	 vXnkf3u1PESFA9piBvV8wC2PNTy0r3VVjSEBCViVMZWseP6/oklRc8Ydq8iLOdBE1v
+	 tbEsIRBp4/X9w==
 Received: from localhost (cola.collaboradmins.com [195.201.22.229])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
 	(Authenticated sender: bbrezillon)
-	by madrid.collaboradmins.com (Postfix) with ESMTPSA id A788237813C4;
-	Thu, 25 Jan 2024 09:09:54 +0000 (UTC)
-Date: Thu, 25 Jan 2024 10:09:53 +0100
+	by madrid.collaboradmins.com (Postfix) with ESMTPSA id E09AB378000B;
+	Thu, 25 Jan 2024 09:29:00 +0000 (UTC)
+Date: Thu, 25 Jan 2024 10:28:59 +0100
 From: Boris Brezillon <boris.brezillon@collabora.com>
 To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 Cc: David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
@@ -63,12 +63,12 @@ Cc: David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
  <mwen@igalia.com>, dri-devel@lists.freedesktop.org,
  linux-kernel@vger.kernel.org, kernel@collabora.com,
  virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH v19 23/30] drm/shmem-helper: Export
- drm_gem_shmem_get_pages_sgt_locked()
-Message-ID: <20240125100953.34340d4f@collabora.com>
-In-Reply-To: <20240105184624.508603-24-dmitry.osipenko@collabora.com>
+Subject: Re: [PATCH v19 24/30] drm/shmem-helper: Optimize unlocked
+ get_pages_sgt()
+Message-ID: <20240125102859.6d8a864f@collabora.com>
+In-Reply-To: <20240105184624.508603-25-dmitry.osipenko@collabora.com>
 References: <20240105184624.508603-1-dmitry.osipenko@collabora.com>
-	<20240105184624.508603-24-dmitry.osipenko@collabora.com>
+	<20240105184624.508603-25-dmitry.osipenko@collabora.com>
 Organization: Collabora
 X-Mailer: Claws Mail 4.2.0 (GTK 3.24.38; x86_64-redhat-linux-gnu)
 Precedence: bulk
@@ -80,81 +80,45 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On Fri,  5 Jan 2024 21:46:17 +0300
+On Fri,  5 Jan 2024 21:46:18 +0300
 Dmitry Osipenko <dmitry.osipenko@collabora.com> wrote:
 
-> Export drm_gem_shmem_get_pages_sgt_locked() that will be used by virtio-gpu
-> shrinker during GEM swap-in operation done under the held reservation lock.
+> SGT isn't refcounted. Once SGT pointer has been obtained, it remains the
+> same for both locked and unlocked get_pages_sgt(). Return cached SGT
+> directly without taking a potentially expensive lock.
 > 
-
-Nit: I'd move that patch before "drm/shmem-helper: Add common memory
-shrinker", because you'll need to call
-drm_gem_shmem_get_pages_locked() and
-drm_gem_shmem_get_pages_sgt_locked() if you want to repopulate the MMU
-page table after when an eviction happened (see my comment on patch 22).
-
-> Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
 > Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+
+Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+
+but I'm wondering if we should have made this change directly in
+'drm/shmem-helper: Change sgt allocation policy'.
+
 > ---
->  drivers/gpu/drm/drm_gem_shmem_helper.c | 22 +++++++++++++++++++++-
->  include/drm/drm_gem_shmem_helper.h     |  1 +
->  2 files changed, 22 insertions(+), 1 deletion(-)
+>  drivers/gpu/drm/drm_gem_shmem_helper.c | 12 ++++++++++++
+>  1 file changed, 12 insertions(+)
 > 
 > diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
-> index 59cebd1e35af..8fd7851c088b 100644
+> index 8fd7851c088b..e6e6e693ab95 100644
 > --- a/drivers/gpu/drm/drm_gem_shmem_helper.c
 > +++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
-> @@ -875,12 +875,31 @@ struct sg_table *drm_gem_shmem_get_sg_table(struct drm_gem_shmem_object *shmem)
->  }
->  EXPORT_SYMBOL_GPL(drm_gem_shmem_get_sg_table);
+> @@ -962,6 +962,18 @@ struct sg_table *drm_gem_shmem_get_pages_sgt(struct drm_gem_shmem_object *shmem)
+>  	    drm_WARN_ON(obj->dev, drm_gem_shmem_is_purgeable(shmem)))
+>  		return ERR_PTR(-EBUSY);
 >  
-> -static struct sg_table *drm_gem_shmem_get_pages_sgt_locked(struct drm_gem_shmem_object *shmem)
-> +/**
-> + * drm_gem_shmem_get_pages_sgt_locked - Provide a scatter/gather table of pinned
-> + *                                      pages for a shmem GEM object
-> + * @shmem: shmem GEM object
-> + *
-> + * This is a locked version of @drm_gem_shmem_get_sg_table that exports a
-> + * scatter/gather table suitable for PRIME usage by calling the standard
-> + * DMA mapping API.
-> + *
-> + * Drivers must hold GEM's reservation lock when using this function.
-> + *
-> + * Drivers who need to acquire an scatter/gather table for objects need to call
-> + * drm_gem_shmem_get_pages_sgt() instead.
-> + *
-> + * Returns:
-> + * A pointer to the scatter/gather table of pinned pages or error pointer on failure.
-> + */
-> +struct sg_table *drm_gem_shmem_get_pages_sgt_locked(struct drm_gem_shmem_object *shmem)
->  {
->  	struct drm_gem_object *obj = &shmem->base;
->  	int ret;
->  	struct sg_table *sgt;
->  
-> +	dma_resv_assert_held(shmem->base.resv);
+> +	/*
+> +	 * Drivers that use shrinker should take into account that shrinker
+> +	 * may relocate BO, thus invalidating the returned SGT pointer.
+> +	 * Such drivers should pin GEM while they use SGT.
+> +	 *
+> +	 * Drivers that don't use shrinker should take into account that
+> +	 * SGT is released together with the GEM pages. Pages should be kept
+> +	 * alive while SGT is used.
+> +	 */
+> +	if (shmem->sgt)
+> +		return shmem->sgt;
 > +
->  	if (shmem->sgt)
->  		return shmem->sgt;
->  
-> @@ -904,6 +923,7 @@ static struct sg_table *drm_gem_shmem_get_pages_sgt_locked(struct drm_gem_shmem_
->  	kfree(sgt);
->  	return ERR_PTR(ret);
->  }
-> +EXPORT_SYMBOL_GPL(drm_gem_shmem_get_pages_sgt_locked);
->  
->  /**
->   * drm_gem_shmem_get_pages_sgt - Pin pages, dma map them, and return a
-> diff --git a/include/drm/drm_gem_shmem_helper.h b/include/drm/drm_gem_shmem_helper.h
-> index df97c11fc99a..167f00f089de 100644
-> --- a/include/drm/drm_gem_shmem_helper.h
-> +++ b/include/drm/drm_gem_shmem_helper.h
-> @@ -149,6 +149,7 @@ void drm_gem_shmem_purge_locked(struct drm_gem_shmem_object *shmem);
->  
->  struct sg_table *drm_gem_shmem_get_sg_table(struct drm_gem_shmem_object *shmem);
->  struct sg_table *drm_gem_shmem_get_pages_sgt(struct drm_gem_shmem_object *shmem);
-> +struct sg_table *drm_gem_shmem_get_pages_sgt_locked(struct drm_gem_shmem_object *shmem);
->  
->  void drm_gem_shmem_print_info(const struct drm_gem_shmem_object *shmem,
->  			      struct drm_printer *p, unsigned int indent);
+>  	ret = dma_resv_lock_interruptible(shmem->base.resv, NULL);
+>  	if (ret)
+>  		return ERR_PTR(ret);
 
