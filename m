@@ -1,464 +1,229 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mail114-240.sinamail.sina.com.cn (mail114-240.sinamail.sina.com.cn [218.30.114.240])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F27E77489
-	for <virtualization@lists.linux.dev>; Thu, 25 Jan 2024 04:48:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26DCB79E2
+	for <virtualization@lists.linux.dev>; Thu, 25 Jan 2024 05:00:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=218.30.114.240
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706158135; cv=none; b=Azd5L30xKqhXhl68siXn1FI3ngg3b7XUrV7o0rcIi7US8s02XUIdZPnOqWQ8RN03AYGRrsvcKtDqVOpd8FvRzfYTsDTYP6zO+KFy3B9a4pjeOSf/182GHOCTxYvbsnjOCLOkR8cteE/AzL08A/nFZtAteZGPWazLmuMjTwgr8Hs=
+	t=1706158857; cv=none; b=cxTMf8kF43yX5LDJWZQ4laGf+owcc1xis7IU7U4ccWtIV6XvyUAXaghhZt6R96hgBsI/toW5QslhnEqdxnV98CFHgciH7woruQQkpYHTUG9xht3hxW7VJrDYu8AT4dJLU+NU7ElHwwBlYRRrjr7A3OlCkuY0WO91jdJRKKALSGk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706158135; c=relaxed/simple;
-	bh=6DdzQ2E9OeQMD4Ll7S27cDySmDqNA/T9HcWDxZD1J/8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=tNWmJI70NdmxwV/3RH1J1j64dZBJL532/hJhAR7yUTWAnFRKVW48au74AP3ZZyRYllGOkDPQ6fUraQriJUAq/wffujnbQvQW8Bec3iDI+p5DaCWvfa/Rj8Ucx5PPcCI+obZc7/KwCGM4HSQHQPU1EDPwOmC75H1Aya/Cb770Bkg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OASFinJx; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OASFinJx"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1706158132;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=5DnZRXqjQvdY1jAfdan5L6v5dW2MXXnZETrlS+Qv9f4=;
-	b=OASFinJxy5slDW+734OELiQe0oFe8Ejwb0P++M9/wUgfbwmwN6LezGKetsdegcQlbpaW1I
-	M0Lj+phNfqiLwKg4kLoChksQFhK53bpNzbjsrtu4o3A2MHz1SlWzJKBOpoGFiKpqle7W+F
-	hQHRFfb5WFwsa0+ki0yCDGD9qWLPgQI=
-Received: from mail-oo1-f71.google.com (mail-oo1-f71.google.com
- [209.85.161.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-86-27Mv1xGSNmm1oMmXWjuZzQ-1; Wed, 24 Jan 2024 23:48:51 -0500
-X-MC-Unique: 27Mv1xGSNmm1oMmXWjuZzQ-1
-Received: by mail-oo1-f71.google.com with SMTP id 006d021491bc7-5993598d215so5839054eaf.1
-        for <virtualization@lists.linux.dev>; Wed, 24 Jan 2024 20:48:51 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706158130; x=1706762930;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=5DnZRXqjQvdY1jAfdan5L6v5dW2MXXnZETrlS+Qv9f4=;
-        b=fLxjpXCorQT8adwJB8/JWiTeaOrVJrImC3PuoWArsHQ1Jizy/Zx/SQCpT7aGgNT+sg
-         uTZu92Njgwy/4Fj+GGEZX7AtKYsbOJ8372aYlHJk/LO83DC/t/GWyNI8sPc1UJzWk6UJ
-         m93Ma6GjnqSwv1hMJxqodKlyg7qARCOBHpNpXLOhPEW0OwAjeo/Ll8EffeZ/Yl2mPVmx
-         EWoC6kX8Y7/RWDwHEbCi2qZYJvxIkyVcnsF8cXlc+OPZQZsE1yrGk+rNIQGGtfR09XX0
-         Pr/JDLU/Pzt9m9EwDmOJGAVWAynfsrSs0z4vKI27UFlhUB1Uq+dwFGG8h/bitV96FIbw
-         74tw==
-X-Gm-Message-State: AOJu0Yzywzy8FWN0Azm7ofhRMAutn8l96AA2Ern1ZSEloAJHdVxaaGmP
-	tPXbPdmb9jM2b4AcMt/kg1zFZw0P45AQYLFY+GLMhEYz6TfwZfQ+iL3MqTEBFrlPV0BZy2+xtzp
-	vn2pqodyGSFqU5CK3sJ4KnE5tnxjUL5MQC+eKZBevjpYkjnvHLK+QOVK99A/Y+YOKjF6vYUNp5m
-	dIYgjj/yoQmmpHPgv4cNCANxNvPT8RqNR3G6wJhV4=
-X-Received: by 2002:a05:6358:880a:b0:176:7d13:d70e with SMTP id hv10-20020a056358880a00b001767d13d70emr611997rwb.16.1706158130351;
-        Wed, 24 Jan 2024 20:48:50 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFddJIzi0ITLTVUmZVAdoejjTy2B/LClBNQ5q3+0akCp/DD67U3ZDcor5HcvQgQAKcj2DPfjkq9KQFUSYNFNKM=
-X-Received: by 2002:a05:6358:880a:b0:176:7d13:d70e with SMTP id
- hv10-20020a056358880a00b001767d13d70emr611981rwb.16.1706158129995; Wed, 24
- Jan 2024 20:48:49 -0800 (PST)
+	s=arc-20240116; t=1706158857; c=relaxed/simple;
+	bh=+ox98ynols6V0gN52o/Ljq2gCOBLTPuOcuyFnIKId1M=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=c6ZHn1Q3CGOFbYJcVVivsVn6JCc82ggUYlmGgabirUKylDJcx6ZWE4j1seS4NMqclfksidt+JA58ze28hO3Nc+PiFNkzRdIokVc0xo5q4GRlaKdwuogsNdZdPe4iU61++I/MTjeoswc2azQwaiEZ1GR4nE1BPXLixTz9X7oANFw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sina.com; spf=pass smtp.mailfrom=sina.com; arc=none smtp.client-ip=218.30.114.240
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sina.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sina.com
+X-SMAIL-HELO: localhost.localdomain
+Received: from unknown (HELO localhost.localdomain)([113.118.66.48])
+	by sina.com (172.16.235.24) with ESMTP
+	id 65B1EA6C00003FA1; Thu, 25 Jan 2024 12:58:23 +0800 (CST)
+X-Sender: hdanton@sina.com
+X-Auth-ID: hdanton@sina.com
+Authentication-Results: sina.com;
+	 spf=none smtp.mailfrom=hdanton@sina.com;
+	 dkim=none header.i=none;
+	 dmarc=none action=none header.from=hdanton@sina.com
+X-SMAIL-MID: 43463945089360
+X-SMAIL-UIID: 0DDC04B7824E45D88F8B3AF93CBD6B6B-20240125-125823-1
+From: Hillf Danton <hdanton@sina.com>
+To: syzbot <syzbot+22e2c28c99235275f109@syzkaller.appspotmail.com>
+Cc: airlied@redhat.com,
+	daniel@ffwll.ch,
+	dri-devel@lists.freedesktop.org,
+	Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+	Linus Torvalds <torvalds@linux-foundation.org>,
+	linux-kernel@vger.kernel.org,
+	syzkaller-bugs@googlegroups.com,
+	virtualization@lists.linux.dev
+Subject: Re: [syzbot] [dri?] [virtualization?] upstream boot error: INFO: task hung in virtio_gpu_queue_fenced_ctrl_buffer
+Date: Thu, 25 Jan 2024 12:58:13 +0800
+Message-Id: <20240125045813.1564-1-hdanton@sina.com>
+In-Reply-To: <0000000000002fff4a060fae5751@google.com>
+References: <0000000000002fff4a060fae5751@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <1706089075-16084-1-git-send-email-wangyunjian@huawei.com>
-In-Reply-To: <1706089075-16084-1-git-send-email-wangyunjian@huawei.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 25 Jan 2024 12:48:38 +0800
-Message-ID: <CACGkMEu5PaBgh37X4KysoF9YB8qy6jM5W4G6sm+8fjrnK36KXA@mail.gmail.com>
-Subject: Re: [PATCH net-next 2/2] tun: AF_XDP Rx zero-copy support
-To: Yunjian Wang <wangyunjian@huawei.com>
-Cc: mst@redhat.com, willemdebruijn.kernel@gmail.com, kuba@kernel.org, 
-	davem@davemloft.net, magnus.karlsson@intel.com, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
-	virtualization@lists.linux.dev, xudingke@huawei.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Wed, Jan 24, 2024 at 5:38=E2=80=AFPM Yunjian Wang <wangyunjian@huawei.co=
-m> wrote:
->
-> Now the zero-copy feature of AF_XDP socket is supported by some
-> drivers, which can reduce CPU utilization on the xdp program.
-> This patch set allows tun to support AF_XDP Rx zero-copy feature.
->
-> This patch tries to address this by:
-> - Use peek_len to consume a xsk->desc and get xsk->desc length.
-> - When the tun support AF_XDP Rx zero-copy, the vq's array maybe empty.
-> So add a check for empty vq's array in vhost_net_buf_produce().
-> - add XDP_SETUP_XSK_POOL and ndo_xsk_wakeup callback support
-> - add tun_put_user_desc function to copy the Rx data to VM
-
-Code explains themselves, let's explain why you need to do this.
-
-1) why you want to use peek_len
-2) for "vq's array", what does it mean?
-3) from the view of TUN/TAP tun_put_user_desc() is the TX path, so I
-guess you meant TX zerocopy instead of RX (as I don't see codes for
-RX?)
-
-A big question is how could you handle GSO packets from userspace/guests?
-
->
-> Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
-> ---
->  drivers/net/tun.c   | 165 +++++++++++++++++++++++++++++++++++++++++++-
->  drivers/vhost/net.c |  18 +++--
->  2 files changed, 176 insertions(+), 7 deletions(-)
->
-> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-> index afa5497f7c35..248b0f8e07d1 100644
-> --- a/drivers/net/tun.c
-> +++ b/drivers/net/tun.c
-> @@ -77,6 +77,7 @@
->  #include <net/ax25.h>
->  #include <net/rose.h>
->  #include <net/6lowpan.h>
-> +#include <net/xdp_sock_drv.h>
->
->  #include <linux/uaccess.h>
->  #include <linux/proc_fs.h>
-> @@ -145,6 +146,10 @@ struct tun_file {
->         struct tun_struct *detached;
->         struct ptr_ring tx_ring;
->         struct xdp_rxq_info xdp_rxq;
-> +       struct xdp_desc desc;
-> +       /* protects xsk pool */
-> +       spinlock_t pool_lock;
-> +       struct xsk_buff_pool *pool;
->  };
->
->  struct tun_page {
-> @@ -208,6 +213,8 @@ struct tun_struct {
->         struct bpf_prog __rcu *xdp_prog;
->         struct tun_prog __rcu *steering_prog;
->         struct tun_prog __rcu *filter_prog;
-> +       /* tracks AF_XDP ZC enabled queues */
-> +       unsigned long *af_xdp_zc_qps;
->         struct ethtool_link_ksettings link_ksettings;
->         /* init args */
->         struct file *file;
-> @@ -795,6 +802,8 @@ static int tun_attach(struct tun_struct *tun, struct =
-file *file,
->
->         tfile->queue_index =3D tun->numqueues;
->         tfile->socket.sk->sk_shutdown &=3D ~RCV_SHUTDOWN;
-> +       tfile->desc.len =3D 0;
-> +       tfile->pool =3D NULL;
->
->         if (tfile->detached) {
->                 /* Re-attach detached tfile, updating XDP queue_index */
-> @@ -989,6 +998,13 @@ static int tun_net_init(struct net_device *dev)
->                 return err;
->         }
->
-> +       tun->af_xdp_zc_qps =3D bitmap_zalloc(MAX_TAP_QUEUES, GFP_KERNEL);
-> +       if (!tun->af_xdp_zc_qps) {
-> +               security_tun_dev_free_security(tun->security);
-> +               free_percpu(dev->tstats);
-> +               return -ENOMEM;
-> +       }
-> +
->         tun_flow_init(tun);
->
->         dev->hw_features =3D NETIF_F_SG | NETIF_F_FRAGLIST |
-> @@ -1009,6 +1025,7 @@ static int tun_net_init(struct net_device *dev)
->                 tun_flow_uninit(tun);
->                 security_tun_dev_free_security(tun->security);
->                 free_percpu(dev->tstats);
-> +               bitmap_free(tun->af_xdp_zc_qps);
->                 return err;
->         }
->         return 0;
-> @@ -1222,11 +1239,77 @@ static int tun_xdp_set(struct net_device *dev, st=
-ruct bpf_prog *prog,
->         return 0;
->  }
->
-> +static int tun_xsk_pool_enable(struct net_device *netdev,
-> +                              struct xsk_buff_pool *pool,
-> +                              u16 qid)
-> +{
-> +       struct tun_struct *tun =3D netdev_priv(netdev);
-> +       struct tun_file *tfile;
-> +       unsigned long flags;
-> +
-> +       rcu_read_lock();
-> +       tfile =3D rtnl_dereference(tun->tfiles[qid]);
-> +       if (!tfile) {
-> +               rcu_read_unlock();
-> +               return -ENODEV;
-> +       }
-> +
-> +       spin_lock_irqsave(&tfile->pool_lock, flags);
-> +       xsk_pool_set_rxq_info(pool, &tfile->xdp_rxq);
-> +       tfile->pool =3D pool;
-> +       spin_unlock_irqrestore(&tfile->pool_lock, flags);
-> +
-> +       rcu_read_unlock();
-> +       set_bit(qid, tun->af_xdp_zc_qps);
-> +
-> +       return 0;
-> +}
-> +
-> +static int tun_xsk_pool_disable(struct net_device *netdev, u16 qid)
-> +{
-> +       struct tun_struct *tun =3D netdev_priv(netdev);
-> +       struct tun_file *tfile;
-> +       unsigned long flags;
-> +
-> +       if (!test_bit(qid, tun->af_xdp_zc_qps))
-> +               return 0;
-> +
-> +       clear_bit(qid, tun->af_xdp_zc_qps);
-> +
-> +       rcu_read_lock();
-> +       tfile =3D rtnl_dereference(tun->tfiles[qid]);
-> +       if (!tfile) {
-> +               rcu_read_unlock();
-> +               return 0;
-> +       }
-> +
-> +       spin_lock_irqsave(&tfile->pool_lock, flags);
-> +       if (tfile->desc.len) {
-> +               xsk_tx_completed(tfile->pool, 1);
-> +               tfile->desc.len =3D 0;
-> +       }
-> +       tfile->pool =3D NULL;
-> +       spin_unlock_irqrestore(&tfile->pool_lock, flags);
-> +
-> +       rcu_read_unlock();
-> +       return 0;
-> +}
-> +
-> +int tun_xsk_pool_setup(struct net_device *dev, struct xsk_buff_pool *poo=
-l,
-> +                      u16 qid)
-> +{
-> +       return pool ? tun_xsk_pool_enable(dev, pool, qid) :
-> +               tun_xsk_pool_disable(dev, qid);
-> +}
-> +
->  static int tun_xdp(struct net_device *dev, struct netdev_bpf *xdp)
->  {
->         switch (xdp->command) {
->         case XDP_SETUP_PROG:
->                 return tun_xdp_set(dev, xdp->prog, xdp->extack);
-> +       case XDP_SETUP_XSK_POOL:
-> +               return tun_xsk_pool_setup(dev, xdp->xsk.pool,
-> +                                          xdp->xsk.queue_id);
->         default:
->                 return -EINVAL;
->         }
-> @@ -1331,6 +1414,19 @@ static int tun_xdp_tx(struct net_device *dev, stru=
-ct xdp_buff *xdp)
->         return nxmit;
->  }
->
-> +static int tun_xsk_wakeup(struct net_device *dev, u32 qid, u32 flags)
-> +{
-> +       struct tun_struct *tun =3D netdev_priv(dev);
-> +       struct tun_file *tfile;
-> +
-> +       rcu_read_lock();
-> +       tfile =3D rcu_dereference(tun->tfiles[qid]);
-> +       if (tfile)
-> +               __tun_xdp_flush_tfile(tfile);
-> +       rcu_read_unlock();
-> +       return 0;
-> +}
-> +
->  static const struct net_device_ops tap_netdev_ops =3D {
->         .ndo_init               =3D tun_net_init,
->         .ndo_uninit             =3D tun_net_uninit,
-> @@ -1347,6 +1443,7 @@ static const struct net_device_ops tap_netdev_ops =
-=3D {
->         .ndo_get_stats64        =3D dev_get_tstats64,
->         .ndo_bpf                =3D tun_xdp,
->         .ndo_xdp_xmit           =3D tun_xdp_xmit,
-> +       .ndo_xsk_wakeup         =3D tun_xsk_wakeup,
->         .ndo_change_carrier     =3D tun_net_change_carrier,
->  };
->
-> @@ -1404,7 +1501,8 @@ static void tun_net_initialize(struct net_device *d=
-ev)
->                 /* Currently tun does not support XDP, only tap does. */
->                 dev->xdp_features =3D NETDEV_XDP_ACT_BASIC |
->                                     NETDEV_XDP_ACT_REDIRECT |
-> -                                   NETDEV_XDP_ACT_NDO_XMIT;
-> +                                   NETDEV_XDP_ACT_NDO_XMIT |
-> +                                   NETDEV_XDP_ACT_XSK_ZEROCOPY;
->
->                 break;
->         }
-> @@ -2213,6 +2311,37 @@ static void *tun_ring_recv(struct tun_file *tfile,=
- int noblock, int *err)
->         return ptr;
->  }
->
-> +static ssize_t tun_put_user_desc(struct tun_struct *tun,
-> +                                struct tun_file *tfile,
-> +                                struct xdp_desc *desc,
-> +                                struct iov_iter *iter)
-> +{
-> +       size_t size =3D desc->len;
-> +       int vnet_hdr_sz =3D 0;
-> +       size_t ret;
-> +
-> +       if (tun->flags & IFF_VNET_HDR) {
-> +               struct virtio_net_hdr_mrg_rxbuf gso =3D { 0 };
-> +
-> +               vnet_hdr_sz =3D READ_ONCE(tun->vnet_hdr_sz);
-> +               if (unlikely(iov_iter_count(iter) < vnet_hdr_sz))
-> +                       return -EINVAL;
-> +               if (unlikely(copy_to_iter(&gso, sizeof(gso), iter) !=3D
-> +                            sizeof(gso)))
-> +                       return -EFAULT;
-> +               iov_iter_advance(iter, vnet_hdr_sz - sizeof(gso));
-> +       }
-> +
-> +       ret =3D copy_to_iter(xsk_buff_raw_get_data(tfile->pool, desc->add=
-r),
-> +                          size, iter) + vnet_hdr_sz;
-> +
-> +       preempt_disable();
-> +       dev_sw_netstats_tx_add(tun->dev, 1, ret);
-> +       preempt_enable();
-> +
-> +       return ret;
-> +}
-> +
->  static ssize_t tun_do_read(struct tun_struct *tun, struct tun_file *tfil=
-e,
->                            struct iov_iter *to,
->                            int noblock, void *ptr)
-> @@ -2226,6 +2355,22 @@ static ssize_t tun_do_read(struct tun_struct *tun,=
- struct tun_file *tfile,
->         }
->
->         if (!ptr) {
-> +               /* Read frames from xsk's desc */
-> +               if (test_bit(tfile->queue_index, tun->af_xdp_zc_qps)) {
-> +                       spin_lock(&tfile->pool_lock);
-> +                       if (tfile->pool) {
-> +                               ret =3D tun_put_user_desc(tun, tfile, &tf=
-ile->desc, to);
-> +                               xsk_tx_completed(tfile->pool, 1);
-> +                               if (xsk_uses_need_wakeup(tfile->pool))
-> +                                       xsk_set_tx_need_wakeup(tfile->poo=
-l);
-> +                               tfile->desc.len =3D 0;
-> +                       } else {
-> +                               ret =3D -EBADFD;
-> +                       }
-> +                       spin_unlock(&tfile->pool_lock);
-> +                       return ret;
-> +               }
-> +
->                 /* Read frames from ring */
->                 ptr =3D tun_ring_recv(tfile, noblock, &err);
->                 if (!ptr)
-> @@ -2311,6 +2456,7 @@ static void tun_free_netdev(struct net_device *dev)
->
->         BUG_ON(!(list_empty(&tun->disabled)));
->
-> +       bitmap_free(tun->af_xdp_zc_qps);
->         free_percpu(dev->tstats);
->         tun_flow_uninit(tun);
->         security_tun_dev_free_security(tun->security);
-> @@ -2666,7 +2812,19 @@ static int tun_peek_len(struct socket *sock)
->         if (!tun)
->                 return 0;
->
-> -       ret =3D PTR_RING_PEEK_CALL(&tfile->tx_ring, tun_ptr_peek_len);
-> +       if (test_bit(tfile->queue_index, tun->af_xdp_zc_qps)) {
-> +               spin_lock(&tfile->pool_lock);
-> +               if (tfile->pool && xsk_tx_peek_desc(tfile->pool, &tfile->=
-desc)) {
-
-Does it mean if userspace doesn't peek, we can't read anything?
-
-We need to make sure syscall read works as well as vhost_net.
-
-> +                       xsk_tx_release(tfile->pool);
-> +                       ret =3D tfile->desc.len;
-> +                       /* The length of desc must be greater than 0 */
-> +                       if (!ret)
-> +                               xsk_tx_completed(tfile->pool, 1);
-> +               }
-> +               spin_unlock(&tfile->pool_lock);
-> +       } else {
-> +               ret =3D PTR_RING_PEEK_CALL(&tfile->tx_ring, tun_ptr_peek_=
-len);
-> +       }
->         tun_put(tun);
->
->         return ret;
-> @@ -3469,8 +3627,11 @@ static int tun_chr_open(struct inode *inode, struc=
-t file * file)
->
->         mutex_init(&tfile->napi_mutex);
->         RCU_INIT_POINTER(tfile->tun, NULL);
-> +       spin_lock_init(&tfile->pool_lock);
->         tfile->flags =3D 0;
->         tfile->ifindex =3D 0;
-> +       tfile->pool =3D NULL;
-> +       tfile->desc.len =3D 0;
->
->         init_waitqueue_head(&tfile->socket.wq.wait);
->
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index f2ed7167c848..a1f143ad2341 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -169,9 +169,10 @@ static int vhost_net_buf_is_empty(struct vhost_net_b=
-uf *rxq)
->
->  static void *vhost_net_buf_consume(struct vhost_net_buf *rxq)
->  {
-> -       void *ret =3D vhost_net_buf_get_ptr(rxq);
-> -       ++rxq->head;
-> -       return ret;
-> +       if (rxq->tail =3D=3D rxq->head)
-> +               return NULL;
-> +
-> +       return rxq->queue[rxq->head++];
->  }
->
->  static int vhost_net_buf_produce(struct vhost_net_virtqueue *nvq)
-> @@ -993,12 +994,19 @@ static void handle_tx(struct vhost_net *net)
->
->  static int peek_head_len(struct vhost_net_virtqueue *rvq, struct sock *s=
-k)
->  {
-> +       struct socket *sock =3D sk->sk_socket;
->         struct sk_buff *head;
->         int len =3D 0;
->         unsigned long flags;
->
-> -       if (rvq->rx_ring)
-> -               return vhost_net_buf_peek(rvq);
-> +       if (rvq->rx_ring) {
-> +               len =3D vhost_net_buf_peek(rvq);
-> +               if (likely(len))
-> +                       return len;
-> +       }
-> +
-> +       if (sock->ops->peek_len)
-> +               return sock->ops->peek_len(sock);
-
-What prevents you from reusing the ptr_ring here? Then you don't need
-the above tricks.
-
-Thanks
+On Wed, 24 Jan 2024 02:15:21 -0800
+> Hello,
+> 
+> syzbot found the following issue on:
+> 
+> HEAD commit:    615d30064886 Merge tag 'trace-v6.8-rc1' of git://git.kerne..
+> git tree:       upstream
+> console output: https://syzkaller.appspot.com/x/log.txt?x=167456f7e80000
+> kernel config:  https://syzkaller.appspot.com/x/.config?x=e6c3b3d5f71246cb
+> dashboard link: https://syzkaller.appspot.com/bug?extid=22e2c28c99235275f109
+> compiler:       gcc (Debian 12.2.0-14) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40
+> 
+> Downloadable assets:
+> disk image (non-bootable): https://storage.googleapis.com/syzbot-assets/7bc7510fe41f/non_bootable_disk-615d3006.raw.xz
+> vmlinux: https://storage.googleapis.com/syzbot-assets/4bf0b27acaa4/vmlinux-615d3006.xz
+> kernel image: https://storage.googleapis.com/syzbot-assets/3133809ff35d/bzImage-615d3006.xz
+> 
+> IMPORTANT: if you fix the issue, please add the following tag to the commit:
+> Reported-by: syzbot+22e2c28c99235275f109@syzkaller.appspotmail.com
+> 
+> INFO: task swapper/0:1 blocked for more than 143 seconds.
+>       Not tainted 6.8.0-rc1-syzkaller-00029-g615d30064886 #0
+> "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+> task:swapper/0       state:D stack:22288 pid:1     tgid:1     ppid:0      flags:0x00004000
+> Call Trace:
+>  <TASK>
+>  context_switch kernel/sched/core.c:5400 [inline]
+>  __schedule+0xf12/0x5c00 kernel/sched/core.c:6727
+>  __schedule_loop kernel/sched/core.c:6802 [inline]
+>  schedule+0xe9/0x270 kernel/sched/core.c:6817
+>  virtio_gpu_queue_ctrl_sgs drivers/gpu/drm/virtio/virtgpu_vq.c:341 [inline]
+>  virtio_gpu_queue_fenced_ctrl_buffer+0x497/0xff0 drivers/gpu/drm/virtio/virtgpu_vq.c:415
+>  virtio_gpu_resource_flush drivers/gpu/drm/virtio/virtgpu_plane.c:162 [inline]
+>  virtio_gpu_primary_plane_update+0x1059/0x1590 drivers/gpu/drm/virtio/virtgpu_plane.c:237
+>  drm_atomic_helper_commit_planes+0x92f/0xfe0 drivers/gpu/drm/drm_atomic_helper.c:2800
+>  drm_atomic_helper_commit_tail+0x69/0xf0 drivers/gpu/drm/drm_atomic_helper.c:1749
+>  commit_tail+0x353/0x410 drivers/gpu/drm/drm_atomic_helper.c:1834
+>  drm_atomic_helper_commit+0x2f9/0x380 drivers/gpu/drm/drm_atomic_helper.c:2072
+>  drm_atomic_commit+0x20b/0x2d0 drivers/gpu/drm/drm_atomic.c:1514
+>  drm_client_modeset_commit_atomic+0x6c2/0x810 drivers/gpu/drm/drm_client_modeset.c:1051
+>  drm_client_modeset_commit_locked+0x14d/0x580 drivers/gpu/drm/drm_client_modeset.c:1154
+>  pan_display_atomic drivers/gpu/drm/drm_fb_helper.c:1370 [inline]
+>  drm_fb_helper_pan_display+0x2a5/0x990 drivers/gpu/drm/drm_fb_helper.c:1430
+>  fb_pan_display+0x477/0x7c0 drivers/video/fbdev/core/fbmem.c:191
+>  bit_update_start+0x49/0x1f0 drivers/video/fbdev/core/bitblit.c:390
+>  fbcon_switch+0xbb3/0x12e0 drivers/video/fbdev/core/fbcon.c:2170
+>  redraw_screen+0x2bd/0x750 drivers/tty/vt/vt.c:969
+>  fbcon_prepare_logo+0x9f8/0xc80 drivers/video/fbdev/core/fbcon.c:616
+>  con2fb_init_display drivers/video/fbdev/core/fbcon.c:803 [inline]
+>  set_con2fb_map+0xcea/0x1050 drivers/video/fbdev/core/fbcon.c:867
+>  do_fb_registered drivers/video/fbdev/core/fbcon.c:3007 [inline]
+>  fbcon_fb_registered+0x21d/0x660 drivers/video/fbdev/core/fbcon.c:3023
+>  do_register_framebuffer drivers/video/fbdev/core/fbmem.c:449 [inline]
+>  register_framebuffer+0x4b2/0x860 drivers/video/fbdev/core/fbmem.c:515
+>  __drm_fb_helper_initial_config_and_unlock+0xd7c/0x1650 drivers/gpu/drm/drm_fb_helper.c:1871
+>  drm_fb_helper_initial_config drivers/gpu/drm/drm_fb_helper.c:1936 [inline]
+>  drm_fb_helper_initial_config+0x44/0x60 drivers/gpu/drm/drm_fb_helper.c:1928
+>  drm_fbdev_generic_client_hotplug+0x19e/0x270 drivers/gpu/drm/drm_fbdev_generic.c:279
+>  drm_client_register+0x195/0x280 drivers/gpu/drm/drm_client.c:141
+>  drm_fbdev_generic_setup+0x184/0x340 drivers/gpu/drm/drm_fbdev_generic.c:341
+>  virtio_gpu_probe+0x1be/0x3c0 drivers/gpu/drm/virtio/virtgpu_drv.c:105
+>  virtio_dev_probe+0x5e4/0x980 drivers/virtio/virtio.c:311
+>  call_driver_probe drivers/base/dd.c:579 [inline]
+>  really_probe+0x234/0xc90 drivers/base/dd.c:658
+>  __driver_probe_device+0x1de/0x4b0 drivers/base/dd.c:800
+>  driver_probe_device+0x4c/0x1a0 drivers/base/dd.c:830
+>  __driver_attach+0x274/0x570 drivers/base/dd.c:1216
+>  bus_for_each_dev+0x13c/0x1d0 drivers/base/bus.c:368
+>  bus_add_driver+0x2e9/0x630 drivers/base/bus.c:673
+>  driver_register+0x15c/0x4a0 drivers/base/driver.c:246
+>  do_one_initcall+0x11c/0x650 init/main.c:1236
+>  do_initcall_level init/main.c:1298 [inline]
+>  do_initcalls init/main.c:1314 [inline]
+>  do_basic_setup init/main.c:1333 [inline]
+>  kernel_init_freeable+0x687/0xc10 init/main.c:1551
+>  kernel_init+0x1c/0x2a0 init/main.c:1441
+>  ret_from_fork+0x45/0x80 arch/x86/kernel/process.c:147
+>  ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:242
+>  </TASK>
+> INFO: task kworker/0:0:8 blocked for more than 143 seconds.
+>       Not tainted 6.8.0-rc1-syzkaller-00029-g615d30064886 #0
+> "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+> task:kworker/0:0     state:D stack:28208 pid:8     tgid:8     ppid:2      flags:0x00004000
+> Workqueue: events virtio_gpu_dequeue_ctrl_func
+> Call Trace:
+>  <TASK>
+>  context_switch kernel/sched/core.c:5400 [inline]
+>  __schedule+0xf12/0x5c00 kernel/sched/core.c:6727
+>  __schedule_loop kernel/sched/core.c:6802 [inline]
+>  schedule+0xe9/0x270 kernel/sched/core.c:6817
+>  schedule_preempt_disabled+0x13/0x20 kernel/sched/core.c:6874
+>  __mutex_lock_common kernel/locking/mutex.c:684 [inline]
+>  __mutex_lock+0x5b9/0x9d0 kernel/locking/mutex.c:752
+>  drm_client_dev_hotplug drivers/gpu/drm/drm_client.c:217 [inline]
+>  drm_client_dev_hotplug+0x169/0x3c0 drivers/gpu/drm/drm_client.c:204
+>  virtio_gpu_cmd_get_display_info_cb+0x3e1/0x550 drivers/gpu/drm/virtio/virtgpu_vq.c:674
+>  virtio_gpu_dequeue_ctrl_func+0x21b/0x9a0 drivers/gpu/drm/virtio/virtgpu_vq.c:235
+>  process_one_work+0x886/0x15d0 kernel/workqueue.c:2633
+>  process_scheduled_works kernel/workqueue.c:2706 [inline]
+>  worker_thread+0x8b9/0x1290 kernel/workqueue.c:2787
+>  kthread+0x2c6/0x3a0 kernel/kthread.c:388
+>  ret_from_fork+0x45/0x80 arch/x86/kernel/process.c:147
+>  ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:242
+>  </TASK>
+> INFO: task kworker/1:1:55 blocked for more than 143 seconds.
+>       Not tainted 6.8.0-rc1-syzkaller-00029-g615d30064886 #0
+> "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+> task:kworker/1:1     state:D stack:27648 pid:55    tgid:55    ppid:2      flags:0x00004000
+> Workqueue: events drm_fb_helper_damage_work
+> Call Trace:
+>  <TASK>
+>  context_switch kernel/sched/core.c:5400 [inline]
+>  __schedule+0xf12/0x5c00 kernel/sched/core.c:6727
+>  __schedule_loop kernel/sched/core.c:6802 [inline]
+>  schedule+0xe9/0x270 kernel/sched/core.c:6817
+>  schedule_preempt_disabled+0x13/0x20 kernel/sched/core.c:6874
+>  __mutex_lock_common kernel/locking/mutex.c:684 [inline]
+>  __mutex_lock+0x5b9/0x9d0 kernel/locking/mutex.c:752
+>  drm_fbdev_generic_damage_blit drivers/gpu/drm/drm_fbdev_generic.c:198 [inline]
+>  drm_fbdev_generic_helper_fb_dirty+0x255/0xbb0 drivers/gpu/drm/drm_fbdev_generic.c:225
+>  drm_fb_helper_fb_dirty drivers/gpu/drm/drm_fb_helper.c:390 [inline]
+>  drm_fb_helper_damage_work+0x283/0x5e0 drivers/gpu/drm/drm_fb_helper.c:413
+>  process_one_work+0x886/0x15d0 kernel/workqueue.c:2633
+>  process_scheduled_works kernel/workqueue.c:2706 [inline]
+>  worker_thread+0x8b9/0x1290 kernel/workqueue.c:2787
+>  kthread+0x2c6/0x3a0 kernel/kthread.c:388
+>  ret_from_fork+0x45/0x80 arch/x86/kernel/process.c:147
+>  ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:242
+>  </TASK>
+> 
+> Showing all locks held in the system:
+> 10 locks held by swapper/0/1:
+>  #0: ffff88801bcf8170 (&dev->mutex){....}-{3:3}, at: device_lock include/linux/device.h:990 [inline]
+>  #0: ffff88801bcf8170 (&dev->mutex){....}-{3:3}, at: __device_driver_lock drivers/base/dd.c:1095 [inline]
+>  #0: ffff88801bcf8170 (&dev->mutex){....}-{3:3}, at: __driver_attach+0x269/0x570 drivers/base/dd.c:1215
+>  #1: ffff88801d7b42f8 (&dev->clientlist_mutex){+.+.}-{3:3}, at: drm_client_register+0x54/0x280 drivers/gpu/drm/drm_client.c:127
+>  #2: ffffffff8dcbfe88 (registration_lock){+.+.}-{3:3}, at: register_framebuffer+0x7a/0x860 drivers/video/fbdev/core/fbmem.c:514
+>  #3: ffffffff8d196720 (console_lock){+.+.}-{0:0}, at: fbcon_fb_registered+0x3c/0x660 drivers/video/fbdev/core/fbcon.c:3019
+>  #4: ffff8880198f4280 (&helper->lock){+.+.}-{3:3}, at: drm_fb_helper_pan_display+0xd5/0x990 drivers/gpu/drm/drm_fb_helper.c:1423
+>  #5: ffff88801d7b41b0 (&dev->master_mutex){+.+.}-{3:3}, at: drm_master_internal_acquire+0x21/0x70 drivers/gpu/drm/drm_auth.c:452
+>  #6: ffff8880198f4098 (&client->modeset_mutex){+.+.}-{3:3}, at: drm_client_modeset_commit_locked+0x4c/0x580 drivers/gpu/drm/drm_client_modeset.c:1152
+>  #7: ffffc90000047278 (crtc_ww_class_acquire){+.+.}-{0:0}, at: drm_client_modeset_commit_atomic+0xd0/0x810 drivers/gpu/drm/drm_client_modeset.c:990
+>  #8: ffff88801d9cb0b0 (crtc_ww_class_mutex){+.+.}-{3:3}, at: modeset_lock+0x484/0x6c0 drivers/gpu/drm/drm_modeset_lock.c:314
+>  #9: ffffffff8ddf96d0 (drm_unplug_srcu){.+.+}-{0:0}, at: srcu_lock_acquire include/linux/srcu.h:116 [inline]
+>  #9: ffffffff8ddf96d0 (drm_unplug_srcu){.+.+}-{0:0}, at: srcu_read_lock include/linux/srcu.h:215 [inline]
+>  #9: ffffffff8ddf96d0 (drm_unplug_srcu){.+.+}-{0:0}, at: drm_dev_enter+0x49/0x160 drivers/gpu/drm/drm_drv.c:449
+> 3 locks held by kworker/0:0/8:
+>  #0: ffff888013088d38 ((wq_completion)events){+.+.}-{0:0}, at: process_one_work+0x789/0x15d0 kernel/workqueue.c:2608
+>  #1: ffffc900000b7d80 ((work_completion)(&vgvq->dequeue_work)){+.+.}-{0:0}, at: process_one_work+0x7eb/0x15d0 kernel/workqueue.c:2609
+>  #2: ffff88801d7b42f8 (&dev->clientlist_mutex){+.+.}-{3:3}, at: drm_client_dev_hotplug drivers/gpu/drm/drm_client.c:217 [inline]
+>  #2: ffff88801d7b42f8 (&dev->clientlist_mutex){+.+.}-{3:3}, at: drm_client_dev_hotplug+0x169/0x3c0 drivers/gpu/drm/drm_client.c:204
 
 
->
->         spin_lock_irqsave(&sk->sk_receive_queue.lock, flags);
->         head =3D skb_peek(&sk->sk_receive_queue);
-> --
-> 2.33.0
->
+	swapper/0/1			kworker/0:0/8
+	===				===
+	lock &dev->clientlist_mutex
+	wait_event(vgdev->ctrlq.ack_queue, vq->num_free >= elemcnt);
 
+					lock   &dev->clientlist_mutex
+					unlock &dev->clientlist_mutex
+					wake_up(&vgdev->ctrlq.ack_queue);
+	deadlock
+
+> 2 locks held by kworker/u16:0/11:
+>  #0: ffff888013089938 ((wq_completion)events_unbound){+.+.}-{0:0}, at: process_one_work+0x789/0x15d0 kernel/workqueue.c:2608
+>  #1: ffffc900000e7d80 ((work_completion)(&(&kfence_timer)->work)){+.+.}-{0:0}, at: process_one_work+0x7eb/0x15d0 kernel/workqueue.c:2609
+> 1 lock held by khungtaskd/39:
+>  #0: ffffffff8d1a9120 (rcu_read_lock){....}-{1:2}, at: rcu_lock_acquire include/linux/rcupdate.h:298 [inline]
+>  #0: ffffffff8d1a9120 (rcu_read_lock){....}-{1:2}, at: rcu_read_lock include/linux/rcupdate.h:750 [inline]
+>  #0: ffffffff8d1a9120 (rcu_read_lock){....}-{1:2}, at: debug_show_all_locks+0x75/0x340 kernel/locking/lockdep.c:6614
+> 3 locks held by kworker/1:1/55:
+>  #0: ffff888013088d38 ((wq_completion)events){+.+.}-{0:0}, at: process_one_work+0x789/0x15d0 kernel/workqueue.c:2608
+>  #1: ffffc90000a77d80 ((work_completion)(&helper->damage_work)){+.+.}-{0:0}, at: process_one_work+0x7eb/0x15d0 kernel/workqueue.c:2609
+>  #2: ffff8880198f4280 (&helper->lock){+.+.}-{3:3}, at: drm_fbdev_generic_damage_blit drivers/gpu/drm/drm_fbdev_generic.c:198 [inline]
+>  #2: ffff8880198f4280 (&helper->lock){+.+.}-{3:3}, at: drm_fbdev_generic_helper_fb_dirty+0x255/0xbb0 drivers/gpu/drm/drm_fbdev_generic.c:225
+> 
+> =============================================
+> 
