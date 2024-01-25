@@ -1,219 +1,175 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19AA01386AD
-	for <virtualization@lists.linux-foundation.org>; Thu, 25 Jan 2024 16:47:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3961F130E2E
+	for <virtualization@lists.linux-foundation.org>; Thu, 25 Jan 2024 17:24:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706201251; cv=none; b=mrRJj/7nOaI3POmz6QRtYvBC5n39FzdRCX9kKfXUhKPmUDM9NOfSywMuBeTIwTyHPYtEYIakcfnmpy6JIwf8zlBQUeZIOA6EnZA+DiBmHvK77AHsO2kU4PB/zov1WnFylPywbApyfkzozb9iVy1eaiC9nVYKsxIpqECeRKXIyxY=
+	t=1706203452; cv=none; b=J410XXQLSsrm/0sEyQKaXvzxlF/S/Qn9xNUy2Tq7mMfoGWXb/w7n5iWtEcMRNQCP5UiqtBDRDvDWTwI6TVyufxE4O+dYA3maE9q0WI+e0ufrFOFgBFPU9nSQ5grzQkyCv83+ET38fqUDQ59IGvLsR9oxbI4wiyL0W2DCs7rbT5U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706201251; c=relaxed/simple;
-	bh=5Sz6nyOUKq3MXrhagkP0FYymhM11nOGQSTAzf9cZVGw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=uTHfgoXnT2jc2W0gYnGDoXQI/gwPViHTpagKcWCDTQKXVhoO9Zup7KvN+9PSiDFPkyDigWcrcuVxDkeV80ZfG+s8WJ4kMyZK7vaf5Z/5w4+yYtN59I5WaM5aKAf8pQT+xhWCagmpSsxQa6JXxMOYdZ7CImk8+rsiT8hVf1L1nys=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1706203452; c=relaxed/simple;
+	bh=pN+3JLvgZuxWpzfCdjXsvEeAJE25pFqQJfq6WIwGZes=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=sR0EC09Z3t3dbkhgSPl29JfWXLYLjJjgo2nKwTIcHXsAM8h4OP4J+j0+8F7cPcMB77secm7qCSwNT25TmvpgA4xXk2ExACxxlZatqlNlBxZa8jS+67RkU9bBvHNJpF9SQ3fACxrK0RyZrgugKJfHGHkxZbrpiopno1Nf7DgW+zc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.b=QYZQoZxR; arc=none smtp.client-ip=140.211.166.133
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.b="QYZQoZxR"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 5C5B041F27
-	for <virtualization@lists.linux-foundation.org>; Thu, 25 Jan 2024 16:47:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5C5B041F27
+	by smtp2.osuosl.org (Postfix) with ESMTP id 6AFAA42EE8
+	for <virtualization@lists.linux-foundation.org>; Thu, 25 Jan 2024 17:24:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6AFAA42EE8
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.a=rsa-sha256 header.s=google header.b=QYZQoZxR
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -4.2
+X-Spam-Score: -1.998
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id JPxxi9_z8izk
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id u1_fh30ryu4P
 	for <virtualization@lists.linux-foundation.org>;
-	Thu, 25 Jan 2024 16:47:28 +0000 (UTC)
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 5F8E541F25
-	for <virtualization@lists.linux-foundation.org>; Thu, 25 Jan 2024 16:47:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5F8E541F25
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 2E9401764;
-	Thu, 25 Jan 2024 08:48:12 -0800 (PST)
-Received: from [10.1.27.41] (e122027.cambridge.arm.com [10.1.27.41])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id AF2673F5A1;
-	Thu, 25 Jan 2024 08:47:24 -0800 (PST)
-Message-ID: <7144dd9b-62d1-4968-9b94-0313e2475f7e@arm.com>
-Date: Thu, 25 Jan 2024 16:47:24 +0000
+	Thu, 25 Jan 2024 17:24:09 +0000 (UTC)
+Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 00A8C401D8
+	for <virtualization@lists.linux-foundation.org>; Thu, 25 Jan 2024 17:24:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 00A8C401D8
+Received: by mail-ej1-x633.google.com with SMTP id a640c23a62f3a-a3169f46d73so29112166b.1
+        for <virtualization@lists.linux-foundation.org>; Thu, 25 Jan 2024 09:24:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ffwll.ch; s=google; t=1706203447; x=1706808247; darn=lists.linux-foundation.org;
+        h=in-reply-to:content-disposition:mime-version:references
+         :mail-followup-to:message-id:subject:cc:to:from:date:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=JYX/oCAVtAPg69GHLfdJ2n+S0oxX9mTXkx6MsR4rCD4=;
+        b=QYZQoZxRJlMvhFLBIEzK4MDadzZihItjCgRAQoB0yqPkWwXjDzjo+BcV3MPFxIQ3m2
+         e6dmz10HtPbLpW7ivyWhONIPMqHPUONMGL42LSXGybMH/8Sr3+Sz1lQ/2bTxsAtknzlL
+         B0bqrXX+SsA9wHZfiBqEY3kASSi2l7Sue+NN0=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1706203447; x=1706808247;
+        h=in-reply-to:content-disposition:mime-version:references
+         :mail-followup-to:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=JYX/oCAVtAPg69GHLfdJ2n+S0oxX9mTXkx6MsR4rCD4=;
+        b=WsO962e8DF1TtZbr0p4IJehKa7Q7k85toVFGYfKmhejzFcUrzVI8kUnp4IrGaM+KMF
+         oZp/9nVIUNTeu519bq0jdoUpR9xfmjFN6lUOVaG2zB7AygjBXQK1sNR6xUyAUEkIvazQ
+         yUgeCSwsi0mm3YoO1PMPBhBRliNNjewYjM5PseJT02COOlok/aJI+8Lzf31bhDHMfGFq
+         UyEeF5IhIdAL2HJ2N+fVuaYLJsRavW7Zj+Py9jEoLIFYv6QObs05t6x+njdDZlB0D/M6
+         5lliDlqAN0g9jpHOUckqr6zG/A4j76khdb+vMjp14zTZ5ZxDhXM1J+AEP9CbaBoUMTpG
+         z5tA==
+X-Gm-Message-State: AOJu0Yx/w3uL4xfEfBP2EaZ4bm+WEqF7dlChmki6u9RprlVHpBIGfgoz
+	MQ/dJnPKaihCNBgLzukHmeuEtljXR8+30RtdHJ88gknXGfGMWoP/99R3M4IQBiE=
+X-Google-Smtp-Source: AGHT+IF3318fNOR+ap3x+yUcMMLZkmzP+Galesm9kpVsUuEFWjctO0BMvGCKCtmYfQFhZl2XpoFOgg==
+X-Received: by 2002:a17:906:16c4:b0:a2a:6916:60de with SMTP id t4-20020a17090616c400b00a2a691660demr1634893ejd.4.1706203446668;
+        Thu, 25 Jan 2024 09:24:06 -0800 (PST)
+Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
+        by smtp.gmail.com with ESMTPSA id o10-20020a17090608ca00b00a2eb648cdc5sm1222102eje.156.2024.01.25.09.24.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 25 Jan 2024 09:24:06 -0800 (PST)
+Date: Thu, 25 Jan 2024 18:24:04 +0100
+From: Daniel Vetter <daniel@ffwll.ch>
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Cc: David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
+	Qiang Yu <yuq825@gmail.com>, Steven Price <steven.price@arm.com>,
+	Boris Brezillon <boris.brezillon@collabora.com>,
+	Emma Anholt <emma@anholt.net>, Melissa Wen <mwen@igalia.com>,
+	dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+	kernel@collabora.com, virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH v19 09/30] drm/shmem-helper: Add and use lockless
+ drm_gem_shmem_get_pages()
+Message-ID: <ZbKZNCbZoV4ovWTH@phenom.ffwll.local>
+Mail-Followup-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+	David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
+	Qiang Yu <yuq825@gmail.com>, Steven Price <steven.price@arm.com>,
+	Boris Brezillon <boris.brezillon@collabora.com>,
+	Emma Anholt <emma@anholt.net>, Melissa Wen <mwen@igalia.com>,
+	dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+	kernel@collabora.com, virtualization@lists.linux-foundation.org
+References: <20240105184624.508603-1-dmitry.osipenko@collabora.com>
+ <20240105184624.508603-10-dmitry.osipenko@collabora.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v19 18/30] drm/panfrost: Explicitly get and put drm-shmem
- pages
-Content-Language: en-GB
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
- David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
- Qiang Yu <yuq825@gmail.com>, Boris Brezillon
- <boris.brezillon@collabora.com>, Emma Anholt <emma@anholt.net>,
- Melissa Wen <mwen@igalia.com>
-Cc: dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
- kernel@collabora.com, virtualization@lists.linux-foundation.org
-References: <20240105184624.508603-1-dmitry.osipenko@collabora.com>
- <20240105184624.508603-19-dmitry.osipenko@collabora.com>
-From: Steven Price <steven.price@arm.com>
-In-Reply-To: <20240105184624.508603-19-dmitry.osipenko@collabora.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240105184624.508603-10-dmitry.osipenko@collabora.com>
+X-Operating-System: Linux phenom 6.6.11-amd64 
 
-On 05/01/2024 18:46, Dmitry Osipenko wrote:
-> To simplify the drm-shmem refcnt handling, we're moving away from
-> the implicit get_pages() that is used by get_pages_sgt(). From now on
-> drivers will have to pin pages while they use sgt. Panfrost's shrinker
-> doesn't support swapping out BOs, hence pages are pinned and sgt is valid
-> as long as pages' use-count > 0.
+On Fri, Jan 05, 2024 at 09:46:03PM +0300, Dmitry Osipenko wrote:
+> Add lockless drm_gem_shmem_get_pages() helper that skips taking reservation
+> lock if pages_use_count is non-zero, leveraging from atomicity of the
+> refcount_t. Make drm_gem_shmem_mmap() to utilize the new helper.
 > 
-> In Panfrost, panfrost_gem_mapping, which is the object representing a
-> GPU mapping of a BO, owns a pages ref. This guarantees that any BO being
-> mapped GPU side has its pages retained till the mapping is destroyed.
-> 
-> Since pages are no longer guaranteed to stay pinned for the BO lifetime,
-> and MADVISE(DONT_NEED) flagging remains after the GEM handle has been
-> destroyed, we need to add an extra 'is_purgeable' check in
-> panfrost_gem_purge(), to make sure we're not trying to purge a BO that
-> already had its pages released.
-> 
+> Acked-by: Maxime Ripard <mripard@kernel.org>
+> Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+> Suggested-by: Boris Brezillon <boris.brezillon@collabora.com>
 > Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-
-Reviewed-by: Steven Price <steven.price@arm.com>
-
-Although I don't like the condition in panfrost_gem_mapping_release()
-for drm_gem_shmem_put_pages() and assigning NULL to bo->sgts - it feels
-very fragile. See below.
-
 > ---
->  drivers/gpu/drm/panfrost/panfrost_gem.c       | 63 ++++++++++++++-----
->  .../gpu/drm/panfrost/panfrost_gem_shrinker.c  |  6 ++
->  2 files changed, 52 insertions(+), 17 deletions(-)
+>  drivers/gpu/drm/drm_gem_shmem_helper.c | 19 +++++++++++++++----
+>  1 file changed, 15 insertions(+), 4 deletions(-)
 > 
-> diff --git a/drivers/gpu/drm/panfrost/panfrost_gem.c b/drivers/gpu/drm/panfrost/panfrost_gem.c
-> index f268bd5c2884..7edfc12f7c1f 100644
-> --- a/drivers/gpu/drm/panfrost/panfrost_gem.c
-> +++ b/drivers/gpu/drm/panfrost/panfrost_gem.c
-> @@ -35,20 +35,6 @@ static void panfrost_gem_free_object(struct drm_gem_object *obj)
->  	 */
->  	WARN_ON_ONCE(!list_empty(&bo->mappings.list));
->  
-> -	if (bo->sgts) {
-> -		int i;
-> -		int n_sgt = bo->base.base.size / SZ_2M;
-> -
-> -		for (i = 0; i < n_sgt; i++) {
-> -			if (bo->sgts[i].sgl) {
-> -				dma_unmap_sgtable(pfdev->dev, &bo->sgts[i],
-> -						  DMA_BIDIRECTIONAL, 0);
-> -				sg_free_table(&bo->sgts[i]);
-> -			}
-> -		}
-> -		kvfree(bo->sgts);
-> -	}
-> -
->  	drm_gem_shmem_free(&bo->base);
+> diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
+> index cacf0f8c42e2..1c032513abf1 100644
+> --- a/drivers/gpu/drm/drm_gem_shmem_helper.c
+> +++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
+> @@ -226,6 +226,20 @@ void drm_gem_shmem_put_pages_locked(struct drm_gem_shmem_object *shmem)
 >  }
+>  EXPORT_SYMBOL_GPL(drm_gem_shmem_put_pages_locked);
 >  
-> @@ -85,11 +71,40 @@ panfrost_gem_teardown_mapping(struct panfrost_gem_mapping *mapping)
->  
->  static void panfrost_gem_mapping_release(struct kref *kref)
+> +static int drm_gem_shmem_get_pages(struct drm_gem_shmem_object *shmem)
+> +{
+> +	int ret;
+
+Just random drive-by comment: a might_lock annotation here might be good,
+or people could hit some really interesting bugs that are rather hard to
+reproduce ...
+-Sima
+
+> +
+> +	if (refcount_inc_not_zero(&shmem->pages_use_count))
+> +		return 0;
+> +
+> +	dma_resv_lock(shmem->base.resv, NULL);
+> +	ret = drm_gem_shmem_get_pages_locked(shmem);
+> +	dma_resv_unlock(shmem->base.resv);
+> +
+> +	return ret;
+> +}
+> +
+>  static int drm_gem_shmem_pin_locked(struct drm_gem_shmem_object *shmem)
 >  {
-> -	struct panfrost_gem_mapping *mapping;
+>  	int ret;
+> @@ -609,10 +623,7 @@ int drm_gem_shmem_mmap(struct drm_gem_shmem_object *shmem, struct vm_area_struct
+>  		return ret;
+>  	}
+>  
+> -	dma_resv_lock(shmem->base.resv, NULL);
+> -	ret = drm_gem_shmem_get_pages_locked(shmem);
+> -	dma_resv_unlock(shmem->base.resv);
 > -
-> -	mapping = container_of(kref, struct panfrost_gem_mapping, refcount);
-> +	struct panfrost_gem_mapping *mapping =
-> +		container_of(kref, struct panfrost_gem_mapping, refcount);
-> +	struct panfrost_gem_object *bo = mapping->obj;
-> +	struct panfrost_device *pfdev = bo->base.base.dev->dev_private;
+> +	ret = drm_gem_shmem_get_pages(shmem);
+>  	if (ret)
+>  		return ret;
 >  
->  	panfrost_gem_teardown_mapping(mapping);
-> +
-> +	/* On heap BOs, release the sgts created in the fault handler path. */
-> +	if (bo->sgts) {
-> +		int i, n_sgt = bo->base.base.size / SZ_2M;
-> +
-> +		for (i = 0; i < n_sgt; i++) {
-> +			if (bo->sgts[i].sgl) {
-> +				dma_unmap_sgtable(pfdev->dev, &bo->sgts[i],
-> +						  DMA_BIDIRECTIONAL, 0);
-> +				sg_free_table(&bo->sgts[i]);
-> +			}
-> +		}
-> +		kvfree(bo->sgts);
-> +	}
-> +
-> +	/* Pages ref is owned by the panfrost_gem_mapping object. We must
-> +	 * release our pages ref (if any), before releasing the object
-> +	 * ref.
-> +	 * Non-heap BOs acquired the pages at panfrost_gem_mapping creation
-> +	 * time, and heap BOs may have acquired pages if the fault handler
-> +	 * was called, in which case bo->sgts should be non-NULL.
-> +	 */
-> +	if (!bo->base.base.import_attach && (!bo->is_heap || bo->sgts) &&
-> +	    bo->base.madv >= 0) {
-> +		drm_gem_shmem_put_pages(&bo->base);
-> +		bo->sgts = NULL;
+> -- 
+> 2.43.0
+> 
 
-The assignment of NULL here really ought to be unconditional - it isn't
-a valid pointer because of the kvfree() above.
-
-I also feel that the big condition above suggests there's a need for a
-better state machine to keep track of what's going on.
-
-But having said that I do think this series as a whole is an
-improvement, it's nice to get the shrinker code generic. And sadly I
-don't have an immediate idea for cleaning this up, hence my R-b.
-
-Steve
-
-> +	}
-> +
->  	drm_gem_object_put(&mapping->obj->base.base);
->  	panfrost_mmu_ctx_put(mapping->mmu);
->  	kfree(mapping);
-> @@ -125,6 +140,20 @@ int panfrost_gem_open(struct drm_gem_object *obj, struct drm_file *file_priv)
->  	if (!mapping)
->  		return -ENOMEM;
->  
-> +	if (!bo->is_heap && !bo->base.base.import_attach) {
-> +		/* Pages ref is owned by the panfrost_gem_mapping object.
-> +		 * For non-heap BOs, we request pages at mapping creation
-> +		 * time, such that the panfrost_mmu_map() call, further down in
-> +		 * this function, is guaranteed to have pages_use_count > 0
-> +		 * when drm_gem_shmem_get_pages_sgt() is called.
-> +		 */
-> +		ret = drm_gem_shmem_get_pages(&bo->base);
-> +		if (ret) {
-> +			kfree(mapping);
-> +			return ret;
-> +		}
-> +	}
-> +
->  	INIT_LIST_HEAD(&mapping->node);
->  	kref_init(&mapping->refcount);
->  	drm_gem_object_get(obj);
-> diff --git a/drivers/gpu/drm/panfrost/panfrost_gem_shrinker.c b/drivers/gpu/drm/panfrost/panfrost_gem_shrinker.c
-> index 02b60ea1433a..d4fb0854cf2f 100644
-> --- a/drivers/gpu/drm/panfrost/panfrost_gem_shrinker.c
-> +++ b/drivers/gpu/drm/panfrost/panfrost_gem_shrinker.c
-> @@ -50,6 +50,12 @@ static bool panfrost_gem_purge(struct drm_gem_object *obj)
->  	if (!dma_resv_trylock(shmem->base.resv))
->  		goto unlock_mappings;
->  
-> +	/* BO might have become unpurgeable if the last pages_use_count ref
-> +	 * was dropped, but the BO hasn't been destroyed yet.
-> +	 */
-> +	if (!drm_gem_shmem_is_purgeable(shmem))
-> +		goto unlock_mappings;
-> +
->  	panfrost_gem_teardown_mappings_locked(bo);
->  	drm_gem_shmem_purge_locked(&bo->base);
->  	ret = true;
-
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
