@@ -1,117 +1,133 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7219C13B787
-	for <virtualization@lists.linux-foundation.org>; Thu, 25 Jan 2024 21:56:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A21F2125BB
+	for <virtualization@lists.linux-foundation.org>; Thu, 25 Jan 2024 22:49:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706219816; cv=none; b=bPXMf2dP+A252NJR9pr4C4/LPi5nam4ixXq/5riKNp/ZsDFEi1X4+k+2BdtzNcQTpqBrstyTAQSXp+LPnEzdo/IJLvjr0dHAfodhqcssDO3ZQczQ48dnMunxF2gDWu92864M3FuyvEsJK7cp/K3dW2atjL24+fDeJ0Qo+/Vezvc=
+	t=1706222945; cv=none; b=qE4alynYW7R6ovAYJyi78ThQQ9FPqvIUAcl6ipNRADm2QLaipO3Rf0xXnf2yHyvpWLlKhjf9xomFSlb/aKo/x+DSME1Bx/Wia0y2H6Ickamp3p1Q0BabR0jPsysk2xBRhjmXYhgp46FthoSjCc0OKcDMraWHxKN50MhuToxBTFw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706219816; c=relaxed/simple;
-	bh=a8hfMqHEGvH+hPCINRceKqJZjJJ3zaZm6oEEjXubXRo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=o0VxSV8vu/P3ajBdRQ2G5N+5EbCNL/ZmUqnq/ntyxeWrZ3tOAN2RluApFAhSrXmZMdfzgq6otdQUkyFdMacdOp5FW1HO/6yaQsBRjnaGDE2tjsDjMBNOYQDHmr3Tl28vr6eXOarrlQl5nLKbE0Y57gKnMCZcV/4+epsLDd45MrY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=39qnnPbd; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1706222945; c=relaxed/simple;
+	bh=CbmW/228GCi3mqE9tnHZSnzCJD3NGsjyla4RSnkrJ8c=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=opGs7ZaC9EzIEMt9IPQ+tGZYx7FBjIiDdQkCQjbkYqzBdWScdtfmrZt2Xtg68XS3Flf6CWryUF8ubGYPcQLXzcJuqMrelcKNa6N3P5RVSR6Xi0O1EqsBfQ8raxfkmPWjvAv0Pgy+TEd2VRnIF8g5eQMG9VPr1O8FOxvMk2+vxF4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=N5j5nBC6; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="39qnnPbd"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="N5j5nBC6"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id E264640A9F
-	for <virtualization@lists.linux-foundation.org>; Thu, 25 Jan 2024 21:56:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E264640A9F
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=39qnnPbd
+	by smtp3.osuosl.org (Postfix) with ESMTP id 096A36FB0F
+	for <virtualization@lists.linux-foundation.org>; Thu, 25 Jan 2024 22:49:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 096A36FB0F
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=N5j5nBC6
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.1
+X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id GhRB2bSRSHXP
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 5DPmWv05U0sE
 	for <virtualization@lists.linux-foundation.org>;
-	Thu, 25 Jan 2024 21:56:53 +0000 (UTC)
-Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [IPv6:2a00:1098:ed:100::25])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id A5AA5408D3
-	for <virtualization@lists.linux-foundation.org>; Thu, 25 Jan 2024 21:56:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A5AA5408D3
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1706219811;
-	bh=a8hfMqHEGvH+hPCINRceKqJZjJJ3zaZm6oEEjXubXRo=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=39qnnPbdvuaxnc0JNHB37AqfHZ2dDcwUCODaMGK3NDGhG3Z1pwywzkSb4/dk4w+RO
-	 oa2tf+XNJLuYgc+yPLAlmMzEyIupgjUqQGGLhAYl4pxNyXK2/+uVG8G+tjuRlSfjjs
-	 uar3dsg+Zi+i4HsOUXTDQoNS99T9wr/YXMH9g+jUxhHjrCzyr6SLyKcTY2HlvaL2pV
-	 RcC8tY53zLvW8a6WaYbhMc4y0aMSYDAk1X8IHSQT0G5sRdwSObfNvAJtvIpCrZcz0C
-	 0q+PBIp4FH4P4i+hpiD4Adr1/oVdXKBy1p5FEugk/ALABkPNqKqIB3kR14S2/DBpKY
-	 lpGTII6la0koQ==
-Received: from [100.109.49.129] (cola.collaboradmins.com [195.201.22.229])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: dmitry.osipenko)
-	by madrid.collaboradmins.com (Postfix) with ESMTPSA id 5803137813DA;
-	Thu, 25 Jan 2024 21:56:50 +0000 (UTC)
-Message-ID: <f4870543-e7f8-4ee6-924a-68ec7c25b293@collabora.com>
-Date: Fri, 26 Jan 2024 00:56:47 +0300
+	Thu, 25 Jan 2024 22:49:02 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id DD2776FA9D
+	for <virtualization@lists.linux-foundation.org>; Thu, 25 Jan 2024 22:49:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DD2776FA9D
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1706222940;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=q4Crka9/JgHcU0ey0pI+XUxXs9hF7aNw/5Jtdg8P4KE=;
+	b=N5j5nBC6PXcvXuW5fmoXcfVAqqydqTzu0WTZvC7GiKxX2bjjFRtv95BcPeErdgn9Xp42nK
+	0+Fey16/S+J+wwrcLklbVZL+Mewsru9eDEH9fh7IpLbxhRSoh7ngLcq8n7SHlK+fGA2hOc
+	6S3sQ9AeJPz7NPY+iCpQO2I/pepaGf4=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-347-tkE-MiQmOsCu8DVefd5wOA-1; Thu, 25 Jan 2024 17:48:59 -0500
+X-MC-Unique: tkE-MiQmOsCu8DVefd5wOA-1
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-337d6046399so3988369f8f.3
+        for <virtualization@lists.linux-foundation.org>; Thu, 25 Jan 2024 14:48:58 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1706222938; x=1706827738;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=q4Crka9/JgHcU0ey0pI+XUxXs9hF7aNw/5Jtdg8P4KE=;
+        b=xBHdQWyNLa2AByko4vvcuUism3rc3D5n2rsHOOx1SM2x6+Z7UbOj6s+cCFGM8YPabx
+         GBnIgQ3W2wg4trq8HgV7SIDVVL/rp0PAb1RY0Vbh8Iax6/fVM1PLd61Rn4Z32FQnYcQM
+         GL4pJIVoerjXwN7Xt/qFI02uX5MuXziIZo5gckeq426enO2NvCmqL+JTMehXcm5Hf5hK
+         g6lHU055g/NuEXrrNspXvtd3XoFvkhqRMbGsBaaRI7XuXxRV26s4lly5wMi+mtm5LMqC
+         BtX0yoed85d9ZP2PQ1TR+QrGcfbU/q6RofM9LQrt5FNjNcU4grvTSPHpx/7n+tM9ieBk
+         4mVg==
+X-Gm-Message-State: AOJu0YzxGK/FXfF4dEW8FIgV6HkBIItH1XRYbfHenaENXG8oHjeAVV3W
+	hxUWEuL8IfIFRLNBOcZrUbKmT/JD7qucCzicdpd/JiQ/tfZjggvADcRBtakKKCSnV2hqANTvre5
+	3pcoj/zuzdOB9PTtgpoguJanc1/3XPOxvPrvXHbznHhh9vl2dqdEwSYfp4T+m2i/A6l/tX6e5gS
+	7iBVU=
+X-Received: by 2002:a5d:456f:0:b0:337:bfd4:8c1b with SMTP id a15-20020a5d456f000000b00337bfd48c1bmr209623wrc.23.1706222938144;
+        Thu, 25 Jan 2024 14:48:58 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEYwVPAR3CAgbGUu1SF1zj6JUO3aXtfnw/UqEkEi86zKYeiQ92JA4m9kDpOpg8QaBLVc0gbMg==
+X-Received: by 2002:a5d:456f:0:b0:337:bfd4:8c1b with SMTP id a15-20020a5d456f000000b00337bfd48c1bmr209611wrc.23.1706222937744;
+        Thu, 25 Jan 2024 14:48:57 -0800 (PST)
+Received: from redhat.com ([2.52.130.36])
+        by smtp.gmail.com with ESMTPSA id x1-20020adff641000000b0033922db3f74sm15876156wrp.116.2024.01.25.14.48.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 25 Jan 2024 14:48:56 -0800 (PST)
+Date: Thu, 25 Jan 2024 17:48:52 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Arseniy Krasnov <avkrasnov@salutedevices.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org,
+	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, kernel@sberdevices.ru,
+	oxffffaa@gmail.com
+Subject: Re: [PATCH net-next v1] vsock/test: print type for SOCK_SEQPACKET
+Message-ID: <20240125174845-mutt-send-email-mst@kernel.org>
+References: <20240124193255.3417803-1-avkrasnov@salutedevices.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v19 22/30] drm/shmem-helper: Add common memory shrinker
-Content-Language: en-US
-To: Boris Brezillon <boris.brezillon@collabora.com>
-Cc: David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
- Qiang Yu <yuq825@gmail.com>, Steven Price <steven.price@arm.com>,
- Emma Anholt <emma@anholt.net>, Melissa Wen <mwen@igalia.com>,
- dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
- kernel@collabora.com, virtualization@lists.linux-foundation.org
-References: <20240105184624.508603-1-dmitry.osipenko@collabora.com>
- <20240105184624.508603-23-dmitry.osipenko@collabora.com>
- <20240125111946.797a1e1e@collabora.com>
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-In-Reply-To: <20240125111946.797a1e1e@collabora.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20240124193255.3417803-1-avkrasnov@salutedevices.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 1/25/24 13:19, Boris Brezillon wrote:
-> On Fri,  5 Jan 2024 21:46:16 +0300
-> Dmitry Osipenko <dmitry.osipenko@collabora.com> wrote:
+On Wed, Jan 24, 2024 at 10:32:55PM +0300, Arseniy Krasnov wrote:
+> SOCK_SEQPACKET is supported for virtio transport, so do not interpret
+> such type of socket as unknown.
 > 
->> +static bool drm_gem_shmem_is_evictable(struct drm_gem_shmem_object *shmem)
->> +{
->> +	return (shmem->madv >= 0) && shmem->base.funcs->evict &&
->> +		refcount_read(&shmem->pages_use_count) &&
->> +		!refcount_read(&shmem->pages_pin_count) &&
->> +		!shmem->base.dma_buf && !shmem->base.import_attach &&
->> +		!shmem->evicted;
-> 
-> Are we missing
-> 
->                 && dma_resv_test_signaled(shmem->base.resv,
-> 					  DMA_RESV_USAGE_BOOKKEEP)
-> 
-> to make sure the GPU is done using the BO?
-> The same applies to drm_gem_shmem_is_purgeable() BTW.
-> 
-> If you don't want to do this test here, we need a way to let drivers
-> provide a custom is_{evictable,purgeable}() test.
-> 
-> I guess we should also expose drm_gem_shmem_shrinker_update_lru_locked()
-> to let drivers move the GEMs that were used most recently (those
-> referenced by a GPU job) at the end of the evictable LRU.
+> Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
 
-We have the signaled-check in the common drm_gem_evict() helper:
 
-https://elixir.bootlin.com/linux/v6.8-rc1/source/drivers/gpu/drm/drm_gem.c#L1496
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
--- 
-Best regards,
-Dmitry
+> ---
+>  tools/testing/vsock/vsock_diag_test.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/tools/testing/vsock/vsock_diag_test.c b/tools/testing/vsock/vsock_diag_test.c
+> index 5e6049226b77..17aeba7cbd14 100644
+> --- a/tools/testing/vsock/vsock_diag_test.c
+> +++ b/tools/testing/vsock/vsock_diag_test.c
+> @@ -39,6 +39,8 @@ static const char *sock_type_str(int type)
+>  		return "DGRAM";
+>  	case SOCK_STREAM:
+>  		return "STREAM";
+> +	case SOCK_SEQPACKET:
+> +		return "SEQPACKET";
+>  	default:
+>  		return "INVALID TYPE";
+>  	}
+> -- 
+> 2.25.1
 
