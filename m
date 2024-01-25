@@ -1,162 +1,100 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD1A37460
-	for <virtualization@lists.linux-foundation.org>; Thu, 25 Jan 2024 03:48:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E02E11713
+	for <virtualization@lists.linux.dev>; Thu, 25 Jan 2024 04:23:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706154515; cv=none; b=WNSJP3Y1SK8c/U1V4qfQh83GsrBGn751EOydhJvesCuQmKfMLCQgTkSUv2n3EAKcDURp7JzGbqYqiYFXW1jxoEbLSNd7AZ4iMfU2fT/VYrL5LnIUFa7u1sE+6W2Njk+HFP/iE6kiGeN/3vTQ2Pca2oJbTvL1s7ZhCwaljJ/rWnA=
+	t=1706156639; cv=none; b=FgJYw093353PaXghOhv/uR5I5oLTDoFOD3zctsfxvKXl8NnoQ8WbBeYkvj1h+F6Gw47uriqQDCGqbE5rAt9qY8GqhAk7hWtTQSjLGng4sUPdmv6sOCZWhHhatrcORFgcDaTqVI6+R7FBPPV1JYUQDNqS71nTQkhSoq7AD5kCWNo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706154515; c=relaxed/simple;
-	bh=bBevjUjT1huD29t3h/NaxpM64oREcTWJc/SMjCAPABM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=U5Q0cY9pWIzI+PQzAog8Po2OhZtFXCgm2C18Y+n0ZF/hbp6UXJuvl3Ryi5v4XzUzgKLSd/poQekHHx2YTStWUSxs1GYRnHukT0ZJwy/uLmQN6lnadMX1zPc4L2ckUEvI+BOGxZuvYKkVX5et2PxYhdu5UEA2FSYurgvEWYhRhDA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CvlKQ91d; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1706156639; c=relaxed/simple;
+	bh=R5YXEwIcgCvtxuAhjzaTmoUKArEnnx1P3nMdeJdX9a8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=oEOl9iouacBF3aseNU/ao41NFgBWV2HVdMDCfh5VRFTnVYd83IfW0CO1qq8DN8qO2k6aFtrB8MEc6fkkgpiN58If59Yk/X8etAaxc6MEgM05qI27knVH8+CRtlZcyf5Qp9dtAhBmfBYSK7lFCWRlIx0elYgPaaHTBCK1kX3wfuY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Om+cfrMf; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CvlKQ91d"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 2ED6041772
-	for <virtualization@lists.linux-foundation.org>; Thu, 25 Jan 2024 03:48:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2ED6041772
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=CvlKQ91d
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -0.599
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id SRKp8vH0VeiY
-	for <virtualization@lists.linux-foundation.org>;
-	Thu, 25 Jan 2024 03:48:33 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 450FD416D4
-	for <virtualization@lists.linux-foundation.org>; Thu, 25 Jan 2024 03:48:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 450FD416D4
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Om+cfrMf"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1706154512;
+	s=mimecast20190719; t=1706156637;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=6Oex+9bxQoM5lZR85M4x8kxFVXC381LSPaJScy8SPKE=;
-	b=CvlKQ91dg+xdDrUYxIHUx7PALt5DONup7QkmdQRRTU2tQazgylVZmrjduY9xmIMC6q7Vfd
-	Kce5h6InrYPF5tsQI+zPm+kNm2WPxkJcO2sWmTSm96Vzzput+n7ApmF2Stq4AohZUTR3I/
-	WBCu6TFUZ+o3/uPMmc+yQCR2I+hYPgg=
-Received: from mail-oi1-f199.google.com (mail-oi1-f199.google.com
- [209.85.167.199]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=/Gfdw7K+9a69TgeX8sgmnQQKT35P/vA2QZmn4VjqvAI=;
+	b=Om+cfrMfUmcLMj/yzxGMuj2S3jXenculvTMLq5mly9Ufkcyvf/ZT3R0w17E9uP8fMbSglJ
+	+/BaM5zN5tZInNsDQ5Lb5RXQr3Y8XZh4ojs77YkKsnDE1eHlU7JKfSV7oV6lX39kmRS1Fz
+	XphyZJQ0VFXwu4NnQbObTleNrq5tCHk=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-183-Uh18hcSIPmyvc0ghgvSZ7g-1; Wed, 24 Jan 2024 22:48:30 -0500
-X-MC-Unique: Uh18hcSIPmyvc0ghgvSZ7g-1
-Received: by mail-oi1-f199.google.com with SMTP id 5614622812f47-3bd36b9fd9dso6303035b6e.2
-        for <virtualization@lists.linux-foundation.org>; Wed, 24 Jan 2024 19:48:29 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706154509; x=1706759309;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=6Oex+9bxQoM5lZR85M4x8kxFVXC381LSPaJScy8SPKE=;
-        b=O+Iy1/jRsO3ozwJP7uZXsvegurBRA84Aw6Wd989PvbvO/2TeO3X34jJBiAWKgU1EeU
-         SbHh+WmpUEjhdwRuUMmArVdqNPflCxJwcgUQ+T9qOjdIzbybUFUCvOrHdByz/yUcfDLU
-         xwtdwaaew+OsGRsNA/984oJejGwopOr5UvOtKbqFcXtALhKJkAxy3eaL8ldSFA5wF1Ol
-         QqLa/nHOues0oAow8M7gjledzEBO548MY1BK2l407jT5Ke24SUDrRVFeZW/mJ5AiSZ11
-         Ay4UeYL5Ct6EJRE7in7Hp9BcrP8cZFH7EkMbemSpixJ6fikscBx0vzXlbnUtOM0sqSB2
-         KIfw==
-X-Gm-Message-State: AOJu0YxcTAEt4Sw1LY298Iprf3Fo46qyD3c8t4lccpnxBuQ1QFLARGqY
-	PjMtJ0s2D8RaJFRcn0FkQdSnQ6oGSwFs6XFaaEWY/zsyYw+wuaNt4GQl1ePuoOeitIEjXjUOtxT
-	zuDi1vMl6aJOZygFIMDcUXoHIk9jFTDtgxrmpnWr0d3D34/EhEchvMNlZI1B8hfvfmNcX+Ligts
-	cXE1NEC/btUD1L8tK2RNdmoi2Q9auM5pYY35lpG4/Z6Udgvk/wYT2FcA==
-X-Received: by 2002:a05:6808:16a2:b0:3bd:dc70:fcad with SMTP id bb34-20020a05680816a200b003bddc70fcadmr27542oib.89.1706154509381;
-        Wed, 24 Jan 2024 19:48:29 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGa11YxvgPS1ZLgaOqg1jLfBIwlTSwrok1dhvTJIz3CcuRakx4fnPIlNVNtjTz6pDJlViAd3Xt/5f5zPCjrNDg=
-X-Received: by 2002:a05:6808:16a2:b0:3bd:dc70:fcad with SMTP id
- bb34-20020a05680816a200b003bddc70fcadmr27536oib.89.1706154509150; Wed, 24 Jan
- 2024 19:48:29 -0800 (PST)
+ us-mta-425-gs1EVHb9PH62IwHqZz6GnA-1; Wed, 24 Jan 2024 23:23:52 -0500
+X-MC-Unique: gs1EVHb9PH62IwHqZz6GnA-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id AB509881EA3;
+	Thu, 25 Jan 2024 04:23:51 +0000 (UTC)
+Received: from fedora (unknown [10.72.116.54])
+	by smtp.corp.redhat.com (Postfix) with ESMTPS id E0C9651D5;
+	Thu, 25 Jan 2024 04:23:48 +0000 (UTC)
+Date: Thu, 25 Jan 2024 12:23:44 +0800
+From: Ming Lei <ming.lei@redhat.com>
+To: Damien Le Moal <dlemoal@kernel.org>
+Cc: Keith Busch <kbusch@kernel.org>, linux-block@vger.kernel.org,
+	virtualization@lists.linux.dev, linux-nvme@lists.infradead.org
+Subject: Re: [Report] requests are submitted to hardware in reverse order
+ from nvme/virtio-blk queue_rqs()
+Message-ID: <ZbHiOs3R8SgGClvN@fedora>
+References: <ZbD7ups50ryrlJ/G@fedora>
+ <ZbEvstiLSMwtFb8m@kbusch-mbp.dhcp.thefacebook.com>
+ <772618f3-f4d3-470e-bf06-70d8ee66d7b0@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240124085721.54442-1-liangchen.linux@gmail.com>
- <20240124085721.54442-3-liangchen.linux@gmail.com> <1706087654.2583706-2-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <1706087654.2583706-2-xuanzhuo@linux.alibaba.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 25 Jan 2024 11:48:18 +0800
-Message-ID: <CACGkMEvQTXmyAeUeWxgxgMPJ3VQJWH1DRnt__Yb0ifnSyuZ7Cw@mail.gmail.com>
-Subject: Re: [PATCH v2 2/3] virtio_net: Add missing virtio header in skb for XDP_PASS
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: Liang Chen <liangchen.linux@gmail.com>, virtualization@lists.linux-foundation.org, 
-	linux-kernel@vger.kernel.org, mst@redhat.com, hengqi@linux.alibaba.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <772618f3-f4d3-470e-bf06-70d8ee66d7b0@kernel.org>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.5
 
-On Wed, Jan 24, 2024 at 5:16=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
-om> wrote:
->
-> On Wed, 24 Jan 2024 16:57:20 +0800, Liang Chen <liangchen.linux@gmail.com=
-> wrote:
-> > For the XDP_PASS scenario of the XDP path, the skb constructed with
-> > xdp_buff does not include the virtio header. Adding the virtio header
-> > information back when creating the skb.
-> >
-> > Signed-off-by: Liang Chen <liangchen.linux@gmail.com>
-> > ---
-> >  drivers/net/virtio_net.c | 6 ++++++
-> >  1 file changed, 6 insertions(+)
-> >
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index b56828804e5f..2de46eb4c661 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -1270,6 +1270,9 @@ static struct sk_buff *receive_small_xdp(struct n=
-et_device *dev,
-> >       if (unlikely(!skb))
-> >               goto err;
-> >
-> > +     /* Store the original virtio header for subsequent use by the dri=
-ver. */
-> > +     memcpy(skb_vnet_common_hdr(skb), &virtnet_xdp.hdr, vi->hdr_len);
->
-> About this, a spec is waiting for voting.
->
+On Thu, Jan 25, 2024 at 07:32:37AM +0900, Damien Le Moal wrote:
+> On 1/25/24 00:41, Keith Busch wrote:
+> > On Wed, Jan 24, 2024 at 07:59:54PM +0800, Ming Lei wrote:
+> >> Requests are added to plug list in reverse order, and both virtio-blk
+> >> and nvme retrieves request from plug list in order, so finally requests
+> >> are submitted to hardware in reverse order via nvme_queue_rqs() or
+> >> virtio_queue_rqs, see:
+> >>
+> >> 	io_uring       submit_bio  vdb      6302096     4096
+> >> 	io_uring       submit_bio  vdb     12235072     4096
+> >> 	io_uring       submit_bio  vdb      7682280     4096
+> >> 	io_uring       submit_bio  vdb     11912464     4096
+> >> 	io_uring virtio_queue_rqs  vdb     11912464     4096
+> >> 	io_uring virtio_queue_rqs  vdb      7682280     4096
+> >> 	io_uring virtio_queue_rqs  vdb     12235072     4096
+> >> 	io_uring virtio_queue_rqs  vdb      6302096     4096
+> >>
+> >>
+> >> May this reorder be one problem for virtio-blk and nvme-pci?
+> > 
+> > For nvme, it depends. Usually it's probably not a problem, though some
+> > pci ssd's have optimizations for sequential IO that might not work if
+> > these get reordered.
+> 
+> ZNS and zoned virtio-blk drives... Cannot use io_uring at the moment. But I do
+> not thing we reliably can anyway, unless the issuer is CPU/ring aware and always
+> issue writes to a zone using the same ring.
 
-A pointer?
+It isn't related with io_uring.
 
-> This may change the logic of the csum offset and so on.
+What matters is plug & none & queue_rqs(). If none is applied, any IOs
+in single batch will be added to plug list, then dispatched to hardware
+in reversed order via queue_rqs().
 
- Btw, doesn't it need a new feature bit?
-
-Thanks
-
->
-> Please not do this.
->
-> Thanks.
->
->
-> > +
-> >       if (metasize)
-> >               skb_metadata_set(skb, metasize);
-> >
-> > @@ -1635,6 +1638,9 @@ static struct sk_buff *receive_mergeable_xdp(stru=
-ct net_device *dev,
-> >               head_skb =3D build_skb_from_xdp_buff(dev, vi, xdp, xdp_fr=
-ags_truesz);
-> >               if (unlikely(!head_skb))
-> >                       break;
-> > +             /* Store the original virtio header for subsequent use by=
- the driver. */
-> > +             memcpy(skb_vnet_common_hdr(head_skb), &virtnet_xdp.hdr, v=
-i->hdr_len);
-> > +
-> >               return head_skb;
-> >
-> >       case XDP_TX:
-> > --
-> > 2.40.1
-> >
->
+Thanks,
+Ming
 
