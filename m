@@ -1,57 +1,56 @@
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 997B717552
-	for <virtualization@lists.linux-foundation.org>; Thu, 25 Jan 2024 08:01:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 762FB1AACD
+	for <virtualization@lists.linux-foundation.org>; Thu, 25 Jan 2024 08:02:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706169710; cv=none; b=r8gUAJ/hqMmYZHL2lesEtLsS00M1JCFPHJsVhCJP5UMlWGf5QgivA1uyoKriCisvSjhS8T7yej5BRfZJqjy7x9LGzAOauMTUrv1oIgAtxBZoPkeMDbUUcTpxENQ2RVWPxgoIx4B5JL6C5kApY78UCGuG1U7sg8Jc72QG/LLBGwQ=
+	t=1706169777; cv=none; b=u/sLlDbSPtEUK4t2TzPLAi+n/KTBzY/VVstbD5rP6AnT5Gcf7wG4n5zMCQ35HRD2CqQ3jjVfBYOEGGoX74GVQ9A7Kghh+eQf8KmfbEn8IPxIW5+1IjU9Bzm8Nhxic4zbAPCgz6le9Q6F2VLFeWV8rx5zTvidpMpYt60qlJ2wLII=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706169710; c=relaxed/simple;
-	bh=bgYrY710zE0n7NaiomkjGwNqYaJh8yofMt9szROI5qc=;
+	s=arc-20240116; t=1706169777; c=relaxed/simple;
+	bh=KjWB9RCuIPpmEs3LKhKafBGiLd5pPNJQhI+Vkrsfhqw=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=PTGVoZIdvyo7fMhUUTGQXsBiHSF/dpQlaLXCDNWFhR/9BAWwDXo6OCi1uo2fNava4dnBYbq78jamNXH6Y9rHU976CSeUdKidc6DF/c3O+MXfKm4ChB+kWBVI41b2168IhgUM4YUqTEnngRVuZlmn7UvNUqOoJIvQsB69FH+x84o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=CB11jswu; arc=none smtp.client-ip=140.211.166.137
+	 MIME-Version:Content-Type; b=pVgAX+gBhTezGLHYT2W20PfaekSURncAKGV2ou5NYmJurcb8w7sXVeTvurM0C8QDDu1TLy/9gDK6hvMJTe/wUNodcELzXcRQ5dwMZ509hoU4fq/kwI1ytocZkEej5cpJQ7abZILw01s4SfAyNBNcp/9tAM/1xGnF2YErkPYRls4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=SDYER/GQ; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="CB11jswu"
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="SDYER/GQ"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 05F8D41D86
-	for <virtualization@lists.linux-foundation.org>; Thu, 25 Jan 2024 08:01:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 05F8D41D86
+	by smtp4.osuosl.org (Postfix) with ESMTP id E774040328
+	for <virtualization@lists.linux-foundation.org>; Thu, 25 Jan 2024 08:02:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E774040328
 Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=CB11jswu
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=SDYER/GQ
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.1
 X-Spam-Level:
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 5qYHnROoKIwl
+	with ESMTP id EllhFvzQg_du
 	for <virtualization@lists.linux-foundation.org>;
-	Thu, 25 Jan 2024 08:01:48 +0000 (UTC)
-X-Greylist: delayed 400 seconds by postgrey-1.37 at util1.osuosl.org; Thu, 25 Jan 2024 08:01:48 UTC
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2368641D7C
+	Thu, 25 Jan 2024 08:02:55 +0000 (UTC)
 Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [IPv6:2a00:1098:ed:100::25])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 2368641D7C
-	for <virtualization@lists.linux-foundation.org>; Thu, 25 Jan 2024 08:01:48 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 2FD79402DE
+	for <virtualization@lists.linux-foundation.org>; Thu, 25 Jan 2024 08:02:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2FD79402DE
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1706169704;
-	bh=bgYrY710zE0n7NaiomkjGwNqYaJh8yofMt9szROI5qc=;
+	s=mail; t=1706169771;
+	bh=KjWB9RCuIPpmEs3LKhKafBGiLd5pPNJQhI+Vkrsfhqw=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=CB11jswucIzbhJbBtZc3wkQYu5HWz8rE9Xyc0rQ/HRP2PNlZHsY+nX68ekWlmzUFY
-	 zc4t07YHF7fB48DJjJSYcOJam38/InXT1Iea+YaN7+xkcVN8Yk58OBB5BTDS7bQg0C
-	 pYiHpSHj2ttYcbeWStbOV1R5iTSiqWamVARXGLbKxNkKhG40pKIMjoj1xqQ9bDKTDh
-	 4CiBLfA73FhEnPIRPAIel9cfOJtF7YV4cXaxYGBpV032AzeyyvS8zCu15fuH1Fg261
-	 Pjypmy1q5BGeshI4evFF0rKew5zzNLy2Io/BxOAYoFXc512VK8JcW3sdQ8V3AsT7Ft
-	 lLyQD9fjZ/2Cg==
+	b=SDYER/GQtO7GxHnYozVA17JhDttmQFnSL1vR+asI6U58wi16Yh10w0v0ecFTQCIvp
+	 nwAMz7eNLo+8tYXVeHr4JYp1Tc2JCqPIrunyrRd4lB7Kh9oVXtW2MfAf59g51J4qRJ
+	 Y1L4QgTNFxUu2+qjNglCzdN2fMqOHSaFZdeSRCM+O9T5zOydqF6eyedyPPg+tCnl5N
+	 Cn9i38v3IWQ3+NAgbfOuS2HqmLVEBe0BCGIfn+tDXqip/zPWTuECDXnJiFeWNO9ZPY
+	 PCygTJM7f9ewAlCXJdM9qLuabjB3g9oN9ALtq9a6S929QIhqXoiKIAIjrvHOs+nuhG
+	 kR0mWitbgaEjg==
 Received: from localhost (cola.collaboradmins.com [195.201.22.229])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
 	(Authenticated sender: bbrezillon)
-	by madrid.collaboradmins.com (Postfix) with ESMTPSA id 4CCB437820AF;
-	Thu, 25 Jan 2024 08:01:43 +0000 (UTC)
-Date: Thu, 25 Jan 2024 09:01:41 +0100
+	by madrid.collaboradmins.com (Postfix) with ESMTPSA id AEEC937820C2;
+	Thu, 25 Jan 2024 08:02:50 +0000 (UTC)
+Date: Thu, 25 Jan 2024 09:02:49 +0100
 From: Boris Brezillon <boris.brezillon@collabora.com>
 To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 Cc: David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
@@ -64,12 +63,12 @@ Cc: David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
  <mwen@igalia.com>, dri-devel@lists.freedesktop.org,
  linux-kernel@vger.kernel.org, kernel@collabora.com,
  virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH v19 12/30] drm/shmem-helper: Prepare
- drm_gem_shmem_free() to shrinker addition
-Message-ID: <20240125090141.4e193d19@collabora.com>
-In-Reply-To: <20240105184624.508603-13-dmitry.osipenko@collabora.com>
+Subject: Re: [PATCH v19 15/30] drm/shmem-helper: Avoid lockdep warning when
+ pages are released
+Message-ID: <20240125090249.5f05959d@collabora.com>
+In-Reply-To: <20240105184624.508603-16-dmitry.osipenko@collabora.com>
 References: <20240105184624.508603-1-dmitry.osipenko@collabora.com>
-	<20240105184624.508603-13-dmitry.osipenko@collabora.com>
+	<20240105184624.508603-16-dmitry.osipenko@collabora.com>
 Organization: Collabora
 X-Mailer: Claws Mail 4.2.0 (GTK 3.24.38; x86_64-redhat-linux-gnu)
 Precedence: bulk
@@ -81,99 +80,50 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On Fri,  5 Jan 2024 21:46:06 +0300
+On Fri,  5 Jan 2024 21:46:09 +0300
 Dmitry Osipenko <dmitry.osipenko@collabora.com> wrote:
 
-> Prepare drm_gem_shmem_free() to addition of memory shrinker support
-> to drm-shmem by adding and using variant of put_pages() that doesn't
-> touch reservation lock. Reservation shouldn't be touched because lockdep
-> will trigger a bogus warning about locking contention with fs_reclaim
-> code paths that can't happen during the time when GEM is freed and
-> lockdep doesn't know about that.
+> All drivers will be moved to get/put pages explicitly and then the last
+> put_pages() will be invoked during gem_free() time by some drivers.
+> We can't touch reservation lock when GEM is freed because that will cause
+> a spurious warning from lockdep when shrinker support will be added.
+> Lockdep doesn't know that fs_reclaim isn't functioning for a freed object,
+> and thus, can't deadlock. Release pages directly without taking reservation
+> lock if GEM is freed and its refcount is zero.
 > 
 > Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 
 Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
 
 > ---
->  drivers/gpu/drm/drm_gem_shmem_helper.c | 40 ++++++++++++++------------
->  1 file changed, 21 insertions(+), 19 deletions(-)
+>  drivers/gpu/drm/drm_gem_shmem_helper.c | 16 ++++++++++++++++
+>  1 file changed, 16 insertions(+)
 > 
 > diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
-> index 3403700780c3..799a3c5015ad 100644
+> index f5ed64f78648..c7357110ca76 100644
 > --- a/drivers/gpu/drm/drm_gem_shmem_helper.c
 > +++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
-> @@ -128,6 +128,22 @@ struct drm_gem_shmem_object *drm_gem_shmem_create(struct drm_device *dev, size_t
->  }
->  EXPORT_SYMBOL_GPL(drm_gem_shmem_create);
+> @@ -242,6 +242,22 @@ void drm_gem_shmem_put_pages(struct drm_gem_shmem_object *shmem)
+>  	if (refcount_dec_not_one(&shmem->pages_use_count))
+>  		return;
 >  
-> +static void
-> +drm_gem_shmem_free_pages(struct drm_gem_shmem_object *shmem)
-> +{
-> +	struct drm_gem_object *obj = &shmem->base;
-> +
-> +#ifdef CONFIG_X86
-> +	if (shmem->map_wc)
-> +		set_pages_array_wb(shmem->pages, obj->size >> PAGE_SHIFT);
-> +#endif
-> +
-> +	drm_gem_put_pages(obj, shmem->pages,
-> +			  shmem->pages_mark_dirty_on_put,
-> +			  shmem->pages_mark_accessed_on_put);
-> +	shmem->pages = NULL;
-> +}
-> +
->  /**
->   * drm_gem_shmem_free - Free resources associated with a shmem GEM object
->   * @shmem: shmem GEM object to free
-> @@ -142,8 +158,6 @@ void drm_gem_shmem_free(struct drm_gem_shmem_object *shmem)
->  	if (obj->import_attach) {
->  		drm_prime_gem_destroy(obj, shmem->sgt);
->  	} else {
-> -		dma_resv_lock(shmem->base.resv, NULL);
-> -
->  		drm_WARN_ON(obj->dev, refcount_read(&shmem->vmap_use_count));
->  
->  		if (shmem->sgt) {
-> @@ -152,13 +166,12 @@ void drm_gem_shmem_free(struct drm_gem_shmem_object *shmem)
->  			sg_free_table(shmem->sgt);
->  			kfree(shmem->sgt);
->  		}
-> -		if (shmem->pages)
-> -			drm_gem_shmem_put_pages_locked(shmem);
-> +		if (shmem->pages &&
-> +		    refcount_dec_and_test(&shmem->pages_use_count))
+> +	/*
+> +	 * Destroying the object is a special case because acquiring
+> +	 * the obj lock can cause a locking order inversion between
+> +	 * reservation_ww_class_mutex and fs_reclaim.
+> +	 *
+> +	 * This deadlock is not actually possible, because no one should
+> +	 * be already holding the lock when GEM is released.  Unfortunately
+> +	 * lockdep is not aware of this detail.  So when the refcount drops
+> +	 * to zero, we pretend it is already locked.
+> +	 */
+> +	if (!kref_read(&shmem->base.refcount)) {
+> +		if (refcount_dec_and_test(&shmem->pages_use_count))
 > +			drm_gem_shmem_free_pages(shmem);
->  
->  		drm_WARN_ON(obj->dev, refcount_read(&shmem->pages_use_count));
->  		drm_WARN_ON(obj->dev, refcount_read(&shmem->pages_pin_count));
-> -
-> -		dma_resv_unlock(shmem->base.resv);
->  	}
->  
->  	drm_gem_object_release(obj);
-> @@ -208,21 +221,10 @@ static int drm_gem_shmem_get_pages_locked(struct drm_gem_shmem_object *shmem)
->   */
->  void drm_gem_shmem_put_pages_locked(struct drm_gem_shmem_object *shmem)
->  {
-> -	struct drm_gem_object *obj = &shmem->base;
-> -
->  	dma_resv_assert_held(shmem->base.resv);
->  
-> -	if (refcount_dec_and_test(&shmem->pages_use_count)) {
-> -#ifdef CONFIG_X86
-> -		if (shmem->map_wc)
-> -			set_pages_array_wb(shmem->pages, obj->size >> PAGE_SHIFT);
-> -#endif
-> -
-> -		drm_gem_put_pages(obj, shmem->pages,
-> -				  shmem->pages_mark_dirty_on_put,
-> -				  shmem->pages_mark_accessed_on_put);
-> -		shmem->pages = NULL;
-> -	}
-> +	if (refcount_dec_and_test(&shmem->pages_use_count))
-> +		drm_gem_shmem_free_pages(shmem);
->  }
->  EXPORT_SYMBOL_GPL(drm_gem_shmem_put_pages_locked);
->  
+> +		return;
+> +	}
+> +
+>  	dma_resv_lock(shmem->base.resv, NULL);
+>  	drm_gem_shmem_put_pages_locked(shmem);
+>  	dma_resv_unlock(shmem->base.resv);
 
