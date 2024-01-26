@@ -1,57 +1,57 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8EA51D6BD
-	for <virtualization@lists.linux-foundation.org>; Fri, 26 Jan 2024 16:27:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D242F1DFC5
+	for <virtualization@lists.linux-foundation.org>; Fri, 26 Jan 2024 16:43:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706286480; cv=none; b=FPXa27xVH8BjgRSaZw2aa/W4Toez4003HH6FjF3pDxEqAA/cLbLXluZLIUJNszpAy4PStBUgN6gLzEKenlvXVqeu7OUnGCKzaBkrZZl/YbuqaUIV4E2QWjzXTOrHBbaoVubfFwYO2inezbenDiZAV91uwWtBiNsgOgfs/nadn4g=
+	t=1706287418; cv=none; b=SeBsxgFKBwesESnTw+KmPKqCB+Ea72Y579RPtmJYwedMKPQZYj6zNzd2evaAfOACV4SFmcAFWUQnr3NS4KgcnXrubj1DuLtfqqoezv+1KE7a0lmcVb/8nY0kSe0qyWVh5AEFCyvBNKKlxn8b5MLD9EA59OjrBIdI1YlnArQPao8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706286480; c=relaxed/simple;
-	bh=bfATvgFGy1C+UULaXubImPOXGtd8BvEu9bs2VEk+/Dw=;
+	s=arc-20240116; t=1706287418; c=relaxed/simple;
+	bh=U6u3xgf4R+utqvmtwCD7pg1WXxuAovEW7noxe87GDmw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=mr36+zqYDpBdt5CHHrIvhu6rxvk1mQGlYi+hYSC8AGrKdwgJ4U9sEB5YULLu4CL/SWhVPLzNYys2eWvkWkw+3c77B+jLBocx7hfCbcUQAK80xI7B237CX3wR1+ZXpwfyRwbxTvJcxjZyAERADr7q6ZexzBhcoR87Ab6LMOwRPXQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=sCBvO4UI; arc=none smtp.client-ip=140.211.166.136
+	 In-Reply-To:Content-Type; b=QfgwdFoXCU6qIHw39b+qKlDVuGjkNnOsPPAxP7jrhGTdTQ2KKzAtbQMnTPzWdVMT9nFaZ7qCXepzm245QXZ0gLT8LrjwYJAqAO9dHbqroaXZxLM6/U1Zl0y/PINGsYgNzs3JQ/i2loGNHpTTcqqrWi0J6CiYopuU7BWu+kJuVQY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=KeswJROh; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="sCBvO4UI"
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="KeswJROh"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 3EF5D614E1
-	for <virtualization@lists.linux-foundation.org>; Fri, 26 Jan 2024 16:27:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3EF5D614E1
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=sCBvO4UI
+	by smtp4.osuosl.org (Postfix) with ESMTP id 446704092A
+	for <virtualization@lists.linux-foundation.org>; Fri, 26 Jan 2024 16:43:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 446704092A
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=KeswJROh
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.1
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 8pxSkSPbNUOY
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id wj0aFtAi5pES
 	for <virtualization@lists.linux-foundation.org>;
-	Fri, 26 Jan 2024 16:27:56 +0000 (UTC)
+	Fri, 26 Jan 2024 16:43:35 +0000 (UTC)
 Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [IPv6:2a00:1098:ed:100::25])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 29F4660BAC
-	for <virtualization@lists.linux-foundation.org>; Fri, 26 Jan 2024 16:27:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 29F4660BAC
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 69DC640929
+	for <virtualization@lists.linux-foundation.org>; Fri, 26 Jan 2024 16:43:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 69DC640929
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1706286473;
-	bh=bfATvgFGy1C+UULaXubImPOXGtd8BvEu9bs2VEk+/Dw=;
+	s=mail; t=1706287413;
+	bh=U6u3xgf4R+utqvmtwCD7pg1WXxuAovEW7noxe87GDmw=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=sCBvO4UIouCEmJXzxqhm0SshcENzhxQdzX0Ocvo34m24MIWT1NPDpdD8VvY6p0fy0
-	 hX9gcK9H2vZArf3s2YTSQDD35NhF3W+dJJX66Jr4xNCsb2yyHujIzRw+8u1iMqHydj
-	 MYXEo3txYBnr2zSxMgLextGneTBTMta24DazKJLef/lU05FoJ3FGXEsU1K9I9kRwrb
-	 UE7DOoB/eP3bW6+HrZgT6rVfw9Uj/sMVVhXIMemG7R2sKwrg+G4RC9bpoLOOzkUjc8
-	 r/eppjQtRE0/C3od/3tcmkeiNkjDwNLut4TejaqdnPhosvebrZH50F69DQA+EVnGMa
-	 vQzB+px0U5RVA==
+	b=KeswJROhwGGRCE5tdZ1RC8zLadqOPmPE3UK2Yj5P5hgbG7FBPfNCxYkwMYNE+SKwd
+	 DX6GBQiHWaaIhiby6QrQjjW1qb01imlJGar0H58w0ZXPj4Ig74w7iN/dBhp+rCJMfp
+	 U1x8qHsm+S8XWiZe2bhGxGBqyOwVSlqtEjRf6THeYOgu8ceW/2h9FNH4SNQSYPgC2Q
+	 vCcyVSZzLEGNQ9Kz0Z1aRA19OxbfqZAcasBM+kXiB2wYcSGMwQcTvSXkvwS+pTKH1R
+	 Iove7Or8j6Dtwzb+a5PJc70/zZs8HnXriVfNq36SpeachhYK8w6V4KaLxjrNApzXXy
+	 7oqzT/l5MaLNA==
 Received: from [100.109.49.129] (cola.collaboradmins.com [195.201.22.229])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
 	(Authenticated sender: dmitry.osipenko)
-	by madrid.collaboradmins.com (Postfix) with ESMTPSA id 2322A378107C;
-	Fri, 26 Jan 2024 16:27:52 +0000 (UTC)
-Message-ID: <fab38fed-635c-4dbe-aa13-dcdf8f267988@collabora.com>
-Date: Fri, 26 Jan 2024 19:27:49 +0300
+	by madrid.collaboradmins.com (Postfix) with ESMTPSA id 0146F378201D;
+	Fri, 26 Jan 2024 16:43:31 +0000 (UTC)
+Message-ID: <d467e5a4-6b61-4cad-8e38-c4495836a0d6@collabora.com>
+Date: Fri, 26 Jan 2024 19:43:29 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -59,13 +59,14 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v19 22/30] drm/shmem-helper: Add common memory shrinker
+Subject: Re: [PATCH v19 09/30] drm/shmem-helper: Add and use lockless
+ drm_gem_shmem_get_pages()
 Content-Language: en-US
-To: Boris Brezillon <boris.brezillon@collabora.com>
+To: Boris Brezillon <boris.brezillon@collabora.com>,
+ Daniel Vetter <daniel@ffwll.ch>
 Cc: David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
  Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
  Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
  =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
  Qiang Yu <yuq825@gmail.com>, Steven Price <steven.price@arm.com>,
@@ -73,66 +74,61 @@ Cc: David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
  dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
  kernel@collabora.com, virtualization@lists.linux-foundation.org
 References: <20240105184624.508603-1-dmitry.osipenko@collabora.com>
- <20240105184624.508603-23-dmitry.osipenko@collabora.com>
- <20240125111946.797a1e1e@collabora.com>
- <f4870543-e7f8-4ee6-924a-68ec7c25b293@collabora.com>
- <20240126105537.67b1613e@collabora.com>
+ <20240105184624.508603-10-dmitry.osipenko@collabora.com>
+ <ZbKZNCbZoV4ovWTH@phenom.ffwll.local> <20240126111827.70f8726c@collabora.com>
 From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-In-Reply-To: <20240126105537.67b1613e@collabora.com>
+In-Reply-To: <20240126111827.70f8726c@collabora.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 1/26/24 12:55, Boris Brezillon wrote:
-> On Fri, 26 Jan 2024 00:56:47 +0300
-> Dmitry Osipenko <dmitry.osipenko@collabora.com> wrote:
+On 1/26/24 13:18, Boris Brezillon wrote:
+> On Thu, 25 Jan 2024 18:24:04 +0100
+> Daniel Vetter <daniel@ffwll.ch> wrote:
 > 
->> On 1/25/24 13:19, Boris Brezillon wrote:
->>> On Fri,  5 Jan 2024 21:46:16 +0300
->>> Dmitry Osipenko <dmitry.osipenko@collabora.com> wrote:
->>>   
->>>> +static bool drm_gem_shmem_is_evictable(struct drm_gem_shmem_object *shmem)
->>>> +{
->>>> +	return (shmem->madv >= 0) && shmem->base.funcs->evict &&
->>>> +		refcount_read(&shmem->pages_use_count) &&
->>>> +		!refcount_read(&shmem->pages_pin_count) &&
->>>> +		!shmem->base.dma_buf && !shmem->base.import_attach &&
->>>> +		!shmem->evicted;  
+>> On Fri, Jan 05, 2024 at 09:46:03PM +0300, Dmitry Osipenko wrote:
+>>> Add lockless drm_gem_shmem_get_pages() helper that skips taking reservation
+>>> lock if pages_use_count is non-zero, leveraging from atomicity of the
+>>> refcount_t. Make drm_gem_shmem_mmap() to utilize the new helper.
 >>>
->>> Are we missing
+>>> Acked-by: Maxime Ripard <mripard@kernel.org>
+>>> Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+>>> Suggested-by: Boris Brezillon <boris.brezillon@collabora.com>
+>>> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+>>> ---
+>>>  drivers/gpu/drm/drm_gem_shmem_helper.c | 19 +++++++++++++++----
+>>>  1 file changed, 15 insertions(+), 4 deletions(-)
 >>>
->>>                 && dma_resv_test_signaled(shmem->base.resv,
->>> 					  DMA_RESV_USAGE_BOOKKEEP)
->>>
->>> to make sure the GPU is done using the BO?
->>> The same applies to drm_gem_shmem_is_purgeable() BTW.
->>>
->>> If you don't want to do this test here, we need a way to let drivers
->>> provide a custom is_{evictable,purgeable}() test.
->>>
->>> I guess we should also expose drm_gem_shmem_shrinker_update_lru_locked()
->>> to let drivers move the GEMs that were used most recently (those
->>> referenced by a GPU job) at the end of the evictable LRU.  
+>>> diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
+>>> index cacf0f8c42e2..1c032513abf1 100644
+>>> --- a/drivers/gpu/drm/drm_gem_shmem_helper.c
+>>> +++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
+>>> @@ -226,6 +226,20 @@ void drm_gem_shmem_put_pages_locked(struct drm_gem_shmem_object *shmem)
+>>>  }
+>>>  EXPORT_SYMBOL_GPL(drm_gem_shmem_put_pages_locked);
+>>>  
+>>> +static int drm_gem_shmem_get_pages(struct drm_gem_shmem_object *shmem)
+>>> +{
+>>> +	int ret;  
 >>
->> We have the signaled-check in the common drm_gem_evict() helper:
->>
->> https://elixir.bootlin.com/linux/v6.8-rc1/source/drivers/gpu/drm/drm_gem.c#L1496
+>> Just random drive-by comment: a might_lock annotation here might be good,
+>> or people could hit some really interesting bugs that are rather hard to
+>> reproduce ...
 > 
-> Ah, indeed. I'll need DMA_RESV_USAGE_BOOKKEEP instead of
-> DMA_RESV_USAGE_READ in panthor, but I can add it in the driver specific
-> ->evict() hook (though that means calling dma_resv_test_signaled()
-> twice, which is not great, oh well).
+> Actually, being able to acquire a ref in a dma-signalling path on an
+> object we know for sure already has refcount >= 1 (because we previously
+> acquired a ref in a path where dma_resv_lock() was allowed), was the
+> primary reason I suggested moving to this atomic-refcount approach.
+> 
+> In the meantime, drm_gpuvm has evolved in a way that allows me to not
+> take the ref in the dma-signalling path (the gpuvm_bo object now holds
+> the ref, and it's acquired/released outside the dma-signalling path).
+> 
+> Not saying we shouldn't add this might_lock(), but others might have
+> good reasons to have this function called in a path where locking
+> is not allowed.
 
-Maybe we should change drm_gem_evict() to use BOOKKEEP. The
-test_signaled(BOOKKEEP) should be a "stronger" check than
-test_signaled(READ)?
-
-> The problem about the evictable LRU remains though: we need a way to let
-> drivers put their BOs at the end of the list when the BO has been used
-> by the GPU, don't we?
-
-If BO is use, then it won't be evicted, while idling BOs will be
-evicted. Hence, the used BOs will be naturally moved down the LRU list
-each time shrinker is invoked.
+For Panthor the might_lock indeed won't be a appropriate, thanks for
+reminding about it. I'll add explanatory comment to the code.
 
 -- 
 Best regards,
