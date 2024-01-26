@@ -1,102 +1,257 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 751EA67A07
-	for <virtualization@lists.linux-foundation.org>; Fri, 26 Jan 2024 09:15:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 244746DCFA
+	for <virtualization@lists.linux-foundation.org>; Fri, 26 Jan 2024 09:39:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706260525; cv=none; b=K9+fWHvJnQpxS3j4gtJ7pTUHxVPAFdrbTUK5RXg4BnlD5x5eMasWJ3KoEWr191YGyAdkpu2ejRew6jylobXEjxAlKDHeU2ftQP7nN8JWywQqA867LIBagH1D2CTTeLeXM6ER76RKZfTNzLuWl1f7tzDVHhhKqwxTdnb+kLsITyU=
+	t=1706261971; cv=none; b=qXF2tu1dpwTyYUZUJ+IbHdwGv0mchB1nyzKW0PysI67DEC3C+I76rjxanC6RdXQPopets4uGXwDXW0gB/S1NfJ4OdRvLQ9yoPrcvmnt+SGdd9DcA4J5Ph1NZyJypapIG8CY0i04dh9vikEEZc9+kh8CxyaZBt2a8s2dI72Br/0c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706260525; c=relaxed/simple;
-	bh=A4Bu9DBeMohqV6ojHawhAsegNEGOWtq+rjrBZb62rOc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Pf+gGXYZ/pj8MVuaO2W3ZnsGbAtLyZLG54vLjRszTIvu8jP4PzZZLXG2FJ1E7WG8fgt74tEmJeyk+23jlK9h4XI2g5ESk6IoHH6+ewEC6wTLGXLf1UBPvEJQ5b3LtbAS9R++M9eQSx4vbxiHOZLRk5y0bFMbrDWMHna+ikVMNYo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=XFtnuKH/; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1706261971; c=relaxed/simple;
+	bh=mkKkTn8HeP2jwBPJMJTveMlWhWvZYGQGUTsak9+e22w=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=YfjTGdmwbErM/0dkLZRgAqvqitszEetC95BGCZCxdEatDXoIWhGUlkqAy31fVn7I2pAbF1kWgQVGk2e6DdwvD7pYucIH5xUEqXNTFlQjT2WYTr9/XxD+hKbiPxKxZB/mIQH0NdJTSW9PkuWRRlP4W2QQClTRPqEZFB2v3gXaDLw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=35It5HBR; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="XFtnuKH/"
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="35It5HBR"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id E0B39402B1
-	for <virtualization@lists.linux-foundation.org>; Fri, 26 Jan 2024 09:15:23 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E0B39402B1
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=XFtnuKH/
+	by smtp1.osuosl.org (Postfix) with ESMTP id AE99D8439B
+	for <virtualization@lists.linux-foundation.org>; Fri, 26 Jan 2024 09:39:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AE99D8439B
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=35It5HBR
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.1
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id X-MGAAiOptoU
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 85_M4w_q8b2Q
 	for <virtualization@lists.linux-foundation.org>;
-	Fri, 26 Jan 2024 09:15:23 +0000 (UTC)
-X-Greylist: delayed 437 seconds by postgrey-1.37 at util1.osuosl.org; Fri, 26 Jan 2024 09:15:22 UTC
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D73FE40292
-Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [IPv6:2a00:1098:ed:100::25])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id D73FE40292
-	for <virtualization@lists.linux-foundation.org>; Fri, 26 Jan 2024 09:15:22 +0000 (UTC)
+	Fri, 26 Jan 2024 09:39:28 +0000 (UTC)
+Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [46.235.227.194])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id A99F48439A
+	for <virtualization@lists.linux-foundation.org>; Fri, 26 Jan 2024 09:39:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A99F48439A
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1706260083;
-	bh=A4Bu9DBeMohqV6ojHawhAsegNEGOWtq+rjrBZb62rOc=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=XFtnuKH/yy0vN6U0GKaSbQxuJRJwi85TPpZapfqm0zNj09H+H4pLbdif9YOjKAnbT
-	 CgizO/+3tdmOPxrRavCPLOlJCFuGYEYYdptJv8nPKIFrr3z0z7v+89JZT9IHRdi8Aq
-	 EmUYTkVdUZB2KLS79O3RoZYS1SGtwUPbL/pUH78Oi8TFkqRnybZAUw1HWvhIIh4Ek0
-	 24FuFvw6t9ZVSpLk45qkCVubxoy/KPHvtndztHwN3YawPuWFt9dIJ9H/lfrE4nsNHH
-	 K0c5aH13HPg7sBHJYyPExioM128Qnu694FvZmbY3aH2oKWH27f++Im5eIIz55bie+7
-	 2D8kWg8FKzGxA==
-Received: from [100.113.186.2] (cola.collaboradmins.com [195.201.22.229])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	s=mail; t=1706261966;
+	bh=mkKkTn8HeP2jwBPJMJTveMlWhWvZYGQGUTsak9+e22w=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=35It5HBRGOfts9ASxjKYkZBPvV0OCBWvhrB4HYPJlen3KaNV31bPqygxxzrzboIbO
+	 jBy+Aicbtdl0Wu23RCehvrMC0FFEgrEpAax3QaZRcnkhC0tFbU2fluOUTJASD1HuGx
+	 ztohMbJJXu6laNZ5ntMGYO17nnuN1Mre70XXMRdB6Cysl2+t8TwCqcVh66Uxta7VqG
+	 TlJSWFVRy1oEgqKlMYXi152pUfLxONC/c22mDewaHsM33JjWv/c6Uh0ZEfrk2ugqTU
+	 T3Bp1BNDPJpGWw9zOLY/Ti5OQvnXzeuZd5q7eiJAyX6HJX1j8xeKVcqM3+wKsc70ov
+	 ff3uDPw2rlHRA==
+Received: from localhost (cola.collaboradmins.com [195.201.22.229])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	(Authenticated sender: kholk11)
-	by madrid.collaboradmins.com (Postfix) with ESMTPSA id 25188378107C;
-	Fri, 26 Jan 2024 09:08:02 +0000 (UTC)
-Message-ID: <cda2af2e-15d5-4e60-af5c-dcb5f4e87f14@collabora.com>
-Date: Fri, 26 Jan 2024 10:08:01 +0100
+	(Authenticated sender: bbrezillon)
+	by madrid.collaboradmins.com (Postfix) with ESMTPSA id 966433782033;
+	Fri, 26 Jan 2024 09:39:25 +0000 (UTC)
+Date: Fri, 26 Jan 2024 10:39:24 +0100
+From: Boris Brezillon <boris.brezillon@collabora.com>
+To: Steven Price <steven.price@arm.com>
+Cc: Dmitry Osipenko <dmitry.osipenko@collabora.com>, David Airlie
+ <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>, Gurchetan Singh
+ <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, Daniel Vetter
+ <daniel@ffwll.ch>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann
+ <tzimmermann@suse.de>, Christian =?UTF-8?B?S8O2bmln?=
+ <christian.koenig@amd.com>, Qiang Yu <yuq825@gmail.com>, Emma Anholt
+ <emma@anholt.net>, Melissa Wen <mwen@igalia.com>,
+ dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+ kernel@collabora.com, virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH v19 18/30] drm/panfrost: Explicitly get and put
+ drm-shmem pages
+Message-ID: <20240126103924.0b911a4f@collabora.com>
+In-Reply-To: <7144dd9b-62d1-4968-9b94-0313e2475f7e@arm.com>
+References: <20240105184624.508603-1-dmitry.osipenko@collabora.com>
+	<20240105184624.508603-19-dmitry.osipenko@collabora.com>
+	<7144dd9b-62d1-4968-9b94-0313e2475f7e@arm.com>
+Organization: Collabora
+X-Mailer: Claws Mail 4.2.0 (GTK 3.24.38; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v19 17/30] drm/panfrost: Fix the error path in
- panfrost_mmu_map_fault_addr()
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
- David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
- Qiang Yu <yuq825@gmail.com>, Steven Price <steven.price@arm.com>,
- Boris Brezillon <boris.brezillon@collabora.com>,
- Emma Anholt <emma@anholt.net>, Melissa Wen <mwen@igalia.com>
-Cc: dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
- kernel@collabora.com, virtualization@lists.linux-foundation.org
-References: <20240105184624.508603-1-dmitry.osipenko@collabora.com>
- <20240105184624.508603-18-dmitry.osipenko@collabora.com>
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Content-Language: en-US
-In-Reply-To: <20240105184624.508603-18-dmitry.osipenko@collabora.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-Il 05/01/24 19:46, Dmitry Osipenko ha scritto:
-> From: Boris Brezillon <boris.brezillon@collabora.com>
-> 
-> If some the pages or sgt allocation failed, we shouldn't release the
-> pages ref we got earlier, otherwise we will end up with unbalanced
-> get/put_pages() calls. We should instead leave everything in place
-> and let the BO release function deal with extra cleanup when the object
-> is destroyed, or let the fault handler try again next time it's called.
-> 
-> Fixes: 187d2929206e ("drm/panfrost: Add support for GPU heap allocations")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
-> Co-developed-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+On Thu, 25 Jan 2024 16:47:24 +0000
+Steven Price <steven.price@arm.com> wrote:
 
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+> On 05/01/2024 18:46, Dmitry Osipenko wrote:
+> > To simplify the drm-shmem refcnt handling, we're moving away from
+> > the implicit get_pages() that is used by get_pages_sgt(). From now on
+> > drivers will have to pin pages while they use sgt. Panfrost's shrinker
+> > doesn't support swapping out BOs, hence pages are pinned and sgt is valid
+> > as long as pages' use-count > 0.
+> > 
+> > In Panfrost, panfrost_gem_mapping, which is the object representing a
+> > GPU mapping of a BO, owns a pages ref. This guarantees that any BO being
+> > mapped GPU side has its pages retained till the mapping is destroyed.
+> > 
+> > Since pages are no longer guaranteed to stay pinned for the BO lifetime,
+> > and MADVISE(DONT_NEED) flagging remains after the GEM handle has been
+> > destroyed, we need to add an extra 'is_purgeable' check in
+> > panfrost_gem_purge(), to make sure we're not trying to purge a BO that
+> > already had its pages released.
+> > 
+> > Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>  
+> 
+> Reviewed-by: Steven Price <steven.price@arm.com>
+> 
+> Although I don't like the condition in panfrost_gem_mapping_release()
+> for drm_gem_shmem_put_pages() and assigning NULL to bo->sgts - it feels
+> very fragile. See below.
+> 
+> > ---
+> >  drivers/gpu/drm/panfrost/panfrost_gem.c       | 63 ++++++++++++++-----
+> >  .../gpu/drm/panfrost/panfrost_gem_shrinker.c  |  6 ++
+> >  2 files changed, 52 insertions(+), 17 deletions(-)
+> > 
+> > diff --git a/drivers/gpu/drm/panfrost/panfrost_gem.c b/drivers/gpu/drm/panfrost/panfrost_gem.c
+> > index f268bd5c2884..7edfc12f7c1f 100644
+> > --- a/drivers/gpu/drm/panfrost/panfrost_gem.c
+> > +++ b/drivers/gpu/drm/panfrost/panfrost_gem.c
+> > @@ -35,20 +35,6 @@ static void panfrost_gem_free_object(struct drm_gem_object *obj)
+> >  	 */
+> >  	WARN_ON_ONCE(!list_empty(&bo->mappings.list));
+> >  
+> > -	if (bo->sgts) {
+> > -		int i;
+> > -		int n_sgt = bo->base.base.size / SZ_2M;
+> > -
+> > -		for (i = 0; i < n_sgt; i++) {
+> > -			if (bo->sgts[i].sgl) {
+> > -				dma_unmap_sgtable(pfdev->dev, &bo->sgts[i],
+> > -						  DMA_BIDIRECTIONAL, 0);
+> > -				sg_free_table(&bo->sgts[i]);
+> > -			}
+> > -		}
+> > -		kvfree(bo->sgts);
+> > -	}
+> > -
+> >  	drm_gem_shmem_free(&bo->base);
+> >  }
+> >  
+> > @@ -85,11 +71,40 @@ panfrost_gem_teardown_mapping(struct panfrost_gem_mapping *mapping)
+> >  
+> >  static void panfrost_gem_mapping_release(struct kref *kref)
+> >  {
+> > -	struct panfrost_gem_mapping *mapping;
+> > -
+> > -	mapping = container_of(kref, struct panfrost_gem_mapping, refcount);
+> > +	struct panfrost_gem_mapping *mapping =
+> > +		container_of(kref, struct panfrost_gem_mapping, refcount);
+> > +	struct panfrost_gem_object *bo = mapping->obj;
+> > +	struct panfrost_device *pfdev = bo->base.base.dev->dev_private;
+> >  
+> >  	panfrost_gem_teardown_mapping(mapping);
+> > +
+> > +	/* On heap BOs, release the sgts created in the fault handler path. */
+> > +	if (bo->sgts) {
+> > +		int i, n_sgt = bo->base.base.size / SZ_2M;
+> > +
+> > +		for (i = 0; i < n_sgt; i++) {
+> > +			if (bo->sgts[i].sgl) {
+> > +				dma_unmap_sgtable(pfdev->dev, &bo->sgts[i],
+> > +						  DMA_BIDIRECTIONAL, 0);
+> > +				sg_free_table(&bo->sgts[i]);
+> > +			}
+> > +		}
+> > +		kvfree(bo->sgts);
+> > +	}
+> > +
+> > +	/* Pages ref is owned by the panfrost_gem_mapping object. We must
+> > +	 * release our pages ref (if any), before releasing the object
+> > +	 * ref.
+> > +	 * Non-heap BOs acquired the pages at panfrost_gem_mapping creation
+> > +	 * time, and heap BOs may have acquired pages if the fault handler
+> > +	 * was called, in which case bo->sgts should be non-NULL.
+> > +	 */
+> > +	if (!bo->base.base.import_attach && (!bo->is_heap || bo->sgts) &&
+> > +	    bo->base.madv >= 0) {
+> > +		drm_gem_shmem_put_pages(&bo->base);
+> > +		bo->sgts = NULL;  
+> 
+> The assignment of NULL here really ought to be unconditional - it isn't
+> a valid pointer because of the kvfree() above.
 
+Fair enough. How about we drop the '|| bo->sgts' and add an
+drm_gem_shmem_put_pages() to the above if (bo->sgts) block, where we'll
+also assign bo->sgts to NULL?
+
+> 
+> I also feel that the big condition above suggests there's a need for a
+> better state machine to keep track of what's going on.
+
+I'm planning to extend drm_gem_shmem to support the alloc-on-fault use
+case that all Mali GPUs seem to rely on (lima, panfrost and soon
+panthor would use those helpers). The idea is to:
+
+- make the allocation non-blocking, so we can kill the blocking
+  allocation in the dma signalling path (basically what intel does)
+- allow dynamic extension of the pages array using an xarray instead of
+  a plain array
+
+Hopefully this makes the state tracking a lot easier, and we can also
+get rid of the hack we have in panfrost/lima where we manipulate
+drm_gem_shmem_object refcounts directly.
+
+> 
+> But having said that I do think this series as a whole is an
+> improvement, it's nice to get the shrinker code generic. And sadly I
+> don't have an immediate idea for cleaning this up, hence my R-b.
+> 
+> Steve
+> 
+> > +	}
+> > +
+> >  	drm_gem_object_put(&mapping->obj->base.base);
+> >  	panfrost_mmu_ctx_put(mapping->mmu);
+> >  	kfree(mapping);
+> > @@ -125,6 +140,20 @@ int panfrost_gem_open(struct drm_gem_object *obj, struct drm_file *file_priv)
+> >  	if (!mapping)
+> >  		return -ENOMEM;
+> >  
+> > +	if (!bo->is_heap && !bo->base.base.import_attach) {
+> > +		/* Pages ref is owned by the panfrost_gem_mapping object.
+> > +		 * For non-heap BOs, we request pages at mapping creation
+> > +		 * time, such that the panfrost_mmu_map() call, further down in
+> > +		 * this function, is guaranteed to have pages_use_count > 0
+> > +		 * when drm_gem_shmem_get_pages_sgt() is called.
+> > +		 */
+> > +		ret = drm_gem_shmem_get_pages(&bo->base);
+> > +		if (ret) {
+> > +			kfree(mapping);
+> > +			return ret;
+> > +		}
+> > +	}
+> > +
+> >  	INIT_LIST_HEAD(&mapping->node);
+> >  	kref_init(&mapping->refcount);
+> >  	drm_gem_object_get(obj);
+> > diff --git a/drivers/gpu/drm/panfrost/panfrost_gem_shrinker.c b/drivers/gpu/drm/panfrost/panfrost_gem_shrinker.c
+> > index 02b60ea1433a..d4fb0854cf2f 100644
+> > --- a/drivers/gpu/drm/panfrost/panfrost_gem_shrinker.c
+> > +++ b/drivers/gpu/drm/panfrost/panfrost_gem_shrinker.c
+> > @@ -50,6 +50,12 @@ static bool panfrost_gem_purge(struct drm_gem_object *obj)
+> >  	if (!dma_resv_trylock(shmem->base.resv))
+> >  		goto unlock_mappings;
+> >  
+> > +	/* BO might have become unpurgeable if the last pages_use_count ref
+> > +	 * was dropped, but the BO hasn't been destroyed yet.
+> > +	 */
+> > +	if (!drm_gem_shmem_is_purgeable(shmem))
+> > +		goto unlock_mappings;
+> > +
+> >  	panfrost_gem_teardown_mappings_locked(bo);
+> >  	drm_gem_shmem_purge_locked(&bo->base);
+> >  	ret = true;  
+> 
 
