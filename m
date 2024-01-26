@@ -1,83 +1,83 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22710224E3
-	for <virtualization@lists.linux.dev>; Fri, 26 Jan 2024 19:31:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B66722F04
+	for <virtualization@lists.linux.dev>; Fri, 26 Jan 2024 19:34:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706297507; cv=none; b=C2s3j32LrTl7Mwl8FMKcgKsnBYLvmTfqwQfDJMJzx3cLd0QPEg8nTTF4mAouji6pRhyIFD5JW/UZNDiEB4/JNldxfS3Xbek4wmOznmyQyLkHAJySPv+8C4Mbf9ivfuUpoVGJx2aRqWbgwoeYYPcIPfibpnHABaet3SHDU4Mb0N0=
+	t=1706297679; cv=none; b=XSwVbniaBMB5LHulYCs7NtdRg5DBPa1uojrLJFzoc/zB16vpPSuEE6+9TGDsCDFiC7N/6MpB7hWoaIkdtEjmq0DjucPhQ+W2jf788Y9ns9L85tKNOqeynukOE8oO/6GF340uIVGhzF32d2HIVYZq+XcknPE5pEqh3TEOBZE3GBw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706297507; c=relaxed/simple;
-	bh=QJ9CAa5A/yNS1CZvD8wdvEiJQuGv9F0gPuW/DiBsYxo=;
+	s=arc-20240116; t=1706297679; c=relaxed/simple;
+	bh=tfOxMtx5Cfr4/2BBa6e/Z93lwhl+XzA2Fe1CjCbRPH4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=GViuhEoEceRK7H9fCoQnGn7JlEX7H3uYCfnC8PtrhwEbpw/1+o0aKzXnKcRj/eVXfSafKhlLB453FhFf5S6Nr8lkT8pULe0CO7AM7qTny4SLvHWgwzrHCX6JJMPkEm6uovlQF0zXlvU9ZrxwbX3IoquVw12eDo1PKzb0I8umxek=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TT9BWieN; arc=none smtp.client-ip=170.10.129.124
+	 To:Cc:Content-Type; b=WOO/gnWK3O89lf6E7aWDB0VBLTft4A6MA7XKcfVDaOtM8QPSoUbmiQW4M7mDyoHuptCfCD0wru1jivcp+xGPiWiR948xw98nazpbsnpS9I0i04fVTab+YVEhCfZ6+vuBJrSdoO1sY2qIWTWLgsxGMZBpMTYMIwDQDKokQ9Tl6+I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=K82lLFVG; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TT9BWieN"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="K82lLFVG"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1706297503;
+	s=mimecast20190719; t=1706297676;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=8O4KZiKHB/hwZHbW9Vu9NJR3ZSgU5Japxu+5xbR0p5w=;
-	b=TT9BWieNHRXN2ezqmV+/toEUjF5FC60yUOHwjIvblQlx8HIp2LFkgo3KlGjsqDDetCf4P7
-	heh3zTc+ZQyMZZbbO4PRIQil0PhPyCBhIrYXUF+RPXR0SEsg/kygPuHuX8rFA/wqpG2ZHA
-	J0a5T2GB9Nl1Q/4q9QjzJEeOOjuzJrw=
-Received: from mail-yw1-f200.google.com (mail-yw1-f200.google.com
- [209.85.128.200]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=BKFOw84eQkBctyl11Kq4eHftlIIXeML4uIYWCERUDJQ=;
+	b=K82lLFVGSkOUV4fX7QOG3uRvzVpI0UJfDEtYJfh5zz+fTP9009pawvHgGsuR7Qh9zqYnod
+	nQIjhLI3+TtyVJMJIKtW316/ANkavF3XFznPbXylWVX7mP0uPUtV1JWTOOcvPDGZTo+p13
+	z/5X7wNwtoWnT+qtx0bA8BO5lriLbnw=
+Received: from mail-yb1-f197.google.com (mail-yb1-f197.google.com
+ [209.85.219.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-195-X3zJ2qXxPGGaTI-XwZg9uA-1; Fri, 26 Jan 2024 14:31:41 -0500
-X-MC-Unique: X3zJ2qXxPGGaTI-XwZg9uA-1
-Received: by mail-yw1-f200.google.com with SMTP id 00721157ae682-5fffb2798bfso11057197b3.2
-        for <virtualization@lists.linux.dev>; Fri, 26 Jan 2024 11:31:41 -0800 (PST)
+ us-mta-114-1SJCPNX4Mb60WL5BHieE8g-1; Fri, 26 Jan 2024 14:34:34 -0500
+X-MC-Unique: 1SJCPNX4Mb60WL5BHieE8g-1
+Received: by mail-yb1-f197.google.com with SMTP id 3f1490d57ef6-dc223d528cfso1541073276.0
+        for <virtualization@lists.linux.dev>; Fri, 26 Jan 2024 11:34:33 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706297501; x=1706902301;
+        d=1e100.net; s=20230601; t=1706297673; x=1706902473;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=8O4KZiKHB/hwZHbW9Vu9NJR3ZSgU5Japxu+5xbR0p5w=;
-        b=dXsOUeRotpt4bOouKUEsSKb9CRvS58q8QK17lOIFdMjjS5pQKr6V3q3FCaKi+DpCF6
-         faoa/Mm1wk7FHRrQ9Hg5c4aU5nXkUzh5CkdKBcfOgWFETQYfyGmZGAvXykIY3/hIXpLF
-         ekPHf+lFOnGGDCfLd3Rl+KLqUUK/ALBHygS/9GcVhC3ur1AgW0qZtPO5prxfEfmPZtGr
-         b9IFCcXECmd+hahKX6auoVk95UXpC2bc54SXXdMZ7t02CWl7LQ0mUgU3/NIcxsoWhYsr
-         hFd7+h3VZB8DTBoho1yc9Phr+2fMCkLp1sNJgqfBFj6ROUMMEZujlbZ+IkST3wcSwxer
-         u5cg==
-X-Gm-Message-State: AOJu0YyqFUy+aWsd8X0qYWOplr+83GdvGqaPEtPaknBTPQcXDxhiwzAF
-	z0nOPbF2ywMTHSe5ZOWHiw2SPJp0H7EG06ovx3hVBf/uCuDx8g/zIiNPF4QWu9fTzWRHxdzjRFj
-	mgsQ4r3qc/NW3Qpw4sjgXSdVph5lRWguqjIEckH2QMdMNv/DKwlN4oh6Esa3UVbBqeO9JwR5JD/
-	7UBqT394OZSdMATwCNhTR6nRxUBa9LUsFLMjsYAgU=
-X-Received: by 2002:a81:4cce:0:b0:602:c7e7:4721 with SMTP id z197-20020a814cce000000b00602c7e74721mr291690ywa.98.1706297501189;
-        Fri, 26 Jan 2024 11:31:41 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IE0RByXyJ/rysgPkfpq/s7XLE5JytXnsA6kZpBjPROqnD6sbZsuB+j2dxLKBC6MlOZRhXkfdAdA9aE4HMKjgVA=
-X-Received: by 2002:a81:4cce:0:b0:602:c7e7:4721 with SMTP id
- z197-20020a814cce000000b00602c7e74721mr291681ywa.98.1706297500954; Fri, 26
- Jan 2024 11:31:40 -0800 (PST)
+        bh=BKFOw84eQkBctyl11Kq4eHftlIIXeML4uIYWCERUDJQ=;
+        b=R8ii2Dz87w1lI4FsIwLWIJWXpsbn+efvj5dyg18IfJ4619QAv4rMZkpR2760e2DsMk
+         F+/eNhaXdrVUtvn8YuksIG1w4Qy5J9Nqi6U3aXiZrI9sZesSoTNuN0817Pkc9gacSqhL
+         NYyLHT4R4bUOMhwaXrwIFVQln5lk51KHj9PI16SfXpWBcb5Oo1SxlSLMiXcQUgqxRh4G
+         lzm2kLORGLnBe1GxmgEvUb0RlmashVtpGHt68U1/jsQPFvu4ASbvojRMCXwJ/Uo4PHsO
+         1ksvehGSDdARTSfkueZARvGPWmHEch017qZS5uo33LNXgHfjC1Nf1S9PyGvE0Xnx/k4g
+         FoIA==
+X-Gm-Message-State: AOJu0YzwMygIQ4w0fpd7cDSmhboYj45qqW6d+/1B8ZwuyQl480UM9qAY
+	+sUe0b/pksWV+ppQd/ZGSjqEWVJBdqhVQ23DLzrgUhKZu1UKDzeqxKLC3Nl5J7BXTQqXTPQsThF
+	i3mkHCI9KYHKuqucvCSYr7CtpDep11N/Nw7l8i4uayDJq52tOxEyUiNjNquCVxfh64imkGOTk2g
+	ZUqNpSg2FSdD33Y4tgTXJpjMwQv9saA3KVU4kG9UQ=
+X-Received: by 2002:a05:6902:2182:b0:dc6:3610:c344 with SMTP id dl2-20020a056902218200b00dc63610c344mr455185ybb.13.1706297673552;
+        Fri, 26 Jan 2024 11:34:33 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGbvimdorHrnYxIhWjG3RD7+nAROM2OJYWCfaHXU515HbHyysUsM5k27p6T4zCgikDysUxTZ1zNtXpWJETBmdc=
+X-Received: by 2002:a05:6902:2182:b0:dc6:3610:c344 with SMTP id
+ dl2-20020a056902218200b00dc63610c344mr455153ybb.13.1706297672554; Fri, 26 Jan
+ 2024 11:34:32 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240122235208.work.748-kees@kernel.org> <20240123002814.1396804-32-keescook@chromium.org>
-In-Reply-To: <20240123002814.1396804-32-keescook@chromium.org>
+References: <20240122235208.work.748-kees@kernel.org> <20240123002814.1396804-77-keescook@chromium.org>
+In-Reply-To: <20240123002814.1396804-77-keescook@chromium.org>
 From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Fri, 26 Jan 2024 20:31:04 +0100
-Message-ID: <CAJaqyWdGAb088DxKq4ELBeir=PGrqkRuQ0FYkTBwKkfJa4SWbQ@mail.gmail.com>
-Subject: Re: [PATCH 32/82] vringh: Refactor intentional wrap-around calculation
+Date: Fri, 26 Jan 2024 20:33:56 +0100
+Message-ID: <CAJaqyWf0EbRWSj5r5P6POJA1PjQCp8LUn=VrMr82CzEyeHFJ2g@mail.gmail.com>
+Subject: Re: [PATCH 77/82] virtio: Refactor intentional wrap-around test
 To: Kees Cook <keescook@chromium.org>
 Cc: linux-hardening@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, "Gustavo A. R. Silva" <gustavoars@kernel.org>, 
+	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	virtualization@lists.linux.dev, "Gustavo A. R. Silva" <gustavoars@kernel.org>, 
 	Bill Wendling <morbo@google.com>, Justin Stitt <justinstitt@google.com>, linux-kernel@vger.kernel.org
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jan 23, 2024 at 2:42=E2=80=AFAM Kees Cook <keescook@chromium.org> w=
+On Tue, Jan 23, 2024 at 2:28=E2=80=AFAM Kees Cook <keescook@chromium.org> w=
 rote:
 >
 > In an effort to separate intentional arithmetic wrap-around from
@@ -94,10 +94,9 @@ rote:
 > are unexpected, regardless of whether they are signed[2], unsigned[3],
 > or pointer[4] types.
 >
-> Refactor open-coded unsigned wrap-around addition test to use
-> check_add_overflow(), retaining the result for later usage (which removes
-> the redundant open-coded addition). This paves the way to enabling the
-> unsigned wrap-around sanitizer[2] in the future.
+> Refactor open-coded wrap-around addition test to use add_would_overflow()=
+.
+> This paves the way to enabling the wrap-around sanitizers in the future.
 >
 > Link: https://git.kernel.org/linus/68df3755e383e6fecf2354a67b08f92f185365=
 94 [1]
@@ -106,61 +105,41 @@ rote:
 > Link: https://github.com/KSPP/linux/issues/344 [4]
 > Cc: "Michael S. Tsirkin" <mst@redhat.com>
 > Cc: Jason Wang <jasowang@redhat.com>
-> Cc: kvm@vger.kernel.org
+> Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 > Cc: virtualization@lists.linux.dev
-> Cc: netdev@vger.kernel.org
 > Signed-off-by: Kees Cook <keescook@chromium.org>
+
+Reviewed-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+
 > ---
->  drivers/vhost/vringh.c | 8 +++++---
->  1 file changed, 5 insertions(+), 3 deletions(-)
+>  drivers/virtio/virtio_pci_modern_dev.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 >
-> diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
-> index 7b8fd977f71c..07442f0a52bd 100644
-> --- a/drivers/vhost/vringh.c
-> +++ b/drivers/vhost/vringh.c
-> @@ -145,6 +145,8 @@ static inline bool range_check(struct vringh *vrh, u6=
-4 addr, size_t *len,
->                                bool (*getrange)(struct vringh *,
->                                                 u64, struct vringh_range =
-*))
->  {
-> +       u64 sum;
-
-I understand this is part of a bulk change so little time to think
-about names :). But what about "end" or similar?
-
-Either way,
-Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-
-> +
->         if (addr < range->start || addr > range->end_incl) {
->                 if (!getrange(vrh, addr, range))
->                         return false;
-> @@ -152,20 +154,20 @@ static inline bool range_check(struct vringh *vrh, =
-u64 addr, size_t *len,
->         BUG_ON(addr < range->start || addr > range->end_incl);
+> diff --git a/drivers/virtio/virtio_pci_modern_dev.c b/drivers/virtio/virt=
+io_pci_modern_dev.c
+> index 0d3dbfaf4b23..710d3bd45b4f 100644
+> --- a/drivers/virtio/virtio_pci_modern_dev.c
+> +++ b/drivers/virtio/virtio_pci_modern_dev.c
+> @@ -59,7 +59,7 @@ vp_modern_map_capability(struct virtio_pci_modern_devic=
+e *mdev, int off,
 >
->         /* To end of memory? */
-> -       if (unlikely(addr + *len =3D=3D 0)) {
-> +       if (unlikely(U64_MAX - addr =3D=3D *len)) {
->                 if (range->end_incl =3D=3D -1ULL)
->                         return true;
->                 goto truncate;
->         }
+>         length -=3D start;
 >
->         /* Otherwise, don't wrap. */
-> -       if (addr + *len < addr) {
-> +       if (check_add_overflow(addr, *len, &sum)) {
->                 vringh_bad("Wrapping descriptor %zu@0x%llx",
->                            *len, (unsigned long long)addr);
->                 return false;
->         }
+> -       if (start + offset < offset) {
+> +       if (add_would_overflow(offset, start)) {
+>                 dev_err(&dev->dev,
+>                         "virtio_pci: map wrap-around %u+%u\n",
+>                         start, offset);
+> @@ -81,7 +81,7 @@ vp_modern_map_capability(struct virtio_pci_modern_devic=
+e *mdev, int off,
+>         if (len)
+>                 *len =3D length;
 >
-> -       if (unlikely(addr + *len - 1 > range->end_incl))
-> +       if (unlikely(sum - 1 > range->end_incl))
->                 goto truncate;
->         return true;
->
+> -       if (minlen + offset < minlen ||
+> +       if (add_would_overflow(minlen, offset) ||
+>             minlen + offset > pci_resource_len(dev, bar)) {
+>                 dev_err(&dev->dev,
+>                         "virtio_pci: map virtio %zu@%u "
 > --
 > 2.34.1
 >
