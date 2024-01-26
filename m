@@ -1,199 +1,254 @@
-Received: from out-180.mta1.migadu.com (out-180.mta1.migadu.com [95.215.58.180])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FA5AAD59
-	for <virtualization@lists.linux.dev>; Fri, 26 Jan 2024 03:13:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 879361CD3F
+	for <virtualization@lists.linux.dev>; Fri, 26 Jan 2024 08:51:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706238841; cv=none; b=umwLrqQHT8gqMin0NznVOct5vlSjagutLPkPRWYsNY4hiNRooYw3oYhRXSJfOt/Bm8Eipwpu9+2IdV6Clen5nXcQCbezZtvBaWBc+pIyGusnYXYmX4BMWFjh88d8OttJp7/SGMw/mUxdvrunvkNNmovrf9xhOREyNDNgMwchGWk=
+	t=1706259093; cv=none; b=LVXQ7uKY0ncI7Baa1jpdq32r1DS9PtNBaq3Bkja50d4qm6sYGBqsxZAsS6zbLx0aqyWLqFDJyhDOt6Hh0A82pP0VCNbKaZx1RKWzdllvBQwNwqF23I2+5QkSkZLV56pYtDPwClKiNxxA1lJ6XpVSvg7CEyJ+ovPjcZPoYmzw1mw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706238841; c=relaxed/simple;
-	bh=XtiKU91260sTE9LXDpOYClr9EsKTlZQRf4Ge1zxEBHc=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=GEksxQ4tgIHZLMKm5tQNp3XEvknqGqdQd5/C0l0v+X6wsmyUlnaDLEv58XN8klGQBrh2hb+qxGeQZCyaILMSzomvU3HA1EziQSozYyG1OwP6arGfnf56fpac7Izn3/fX5B07NuzK2HNPDyy9F8Fqr5J9g+gX+lTxt75MYkrCGp8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=UY6cAI2n; arc=none smtp.client-ip=95.215.58.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1706259093; c=relaxed/simple;
+	bh=pprwQeE7XcdoVLzqAGFTtrwLSXJiUSUwBVQMMXGwiaA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=MMluEjXOT3EXhO+ZtCAp61JWBAyca4XKdnL0UeD9XYWUa9ezuz+wJ51LRIjb50VxmJUmf84jpDjrDyuYT3M1t7MxTOAC55NJdQcgKj4qeULf81JnWPdfJGQMxe42TMR0xy7pCSAkrgAm6h5/eNrp77A8/TE16MSuNax3dYLA5x0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=f3FZBtAf; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="UY6cAI2n"
-Message-ID: <68ebd92e-cf7a-43af-af71-386495606d90@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1706238837;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="f3FZBtAf"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1706259090;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=7Gy15I7xMvKA2vgK/nMLjkz4GT3dS1zeHc8GorjJvwo=;
-	b=UY6cAI2nBiqHEBjBnC2JefTmHnvMgdN15vUQzrK3goo8IRfT+XLfDCOO0yNT4+9oGPFX/G
-	CFLdpEMsGB0Ner2EoviVGo4i4RKKR8sime1AJF8hqbzHk6/ZUMpVVeftfKvagpUjKxZRMP
-	xG+hS6yR5etzqwI3m1Nx4arcfY08Kuw=
-Date: Fri, 26 Jan 2024 11:13:48 +0800
+	bh=5KKf6EWmgBy5sHid0BIM6PUxOBJIEnPe2IydxsmIfcw=;
+	b=f3FZBtAfyGFONONQd0BfzDRlSa210DHa3ctZ5W2NaxOa9/drVgTcztrrfZCDfM66EudexA
+	SJ08tHkjKJAss98XrYFRHA4jVEuEvb4HEeAIov1zKl7Ysj+nqSkfhfBI+49A35bLhuKLiF
+	VmI2wYV3PMlxQylgOmQiRgKn3T+wztY=
+Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
+ [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-589-UDr6IK4pO_GWOeNmW9GD9w-1; Fri, 26 Jan 2024 03:51:28 -0500
+X-MC-Unique: UDr6IK4pO_GWOeNmW9GD9w-1
+Received: by mail-ej1-f69.google.com with SMTP id a640c23a62f3a-a26f2da3c7bso14900266b.0
+        for <virtualization@lists.linux.dev>; Fri, 26 Jan 2024 00:51:28 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1706259087; x=1706863887;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=5KKf6EWmgBy5sHid0BIM6PUxOBJIEnPe2IydxsmIfcw=;
+        b=rX6V+WujtYIsC/7vTpYfqNuY+FpI26F7Cfj7bMyaB30EgFbbGzTDDCPJH+72/EnQ7G
+         Z1muG+Rhv7sq4paXd9j6mRUE1I/BPjIrfdXKdAI6waGxSkinLfb2nwQKoaWOEz+e6jCl
+         lYSaUyMOVwT2GGbQVapi9fg4ynrQtlz0rbnrwTYqWkcdVRQV5WsS7Tj1H0x4B6hrDV5N
+         hMlzwSUxzCup2DR3KZuzCtd41O4KjnPsZ+xkdTlAuGuTorVavMgUaEWa682/S4YCDYXF
+         SOxANyJwxPogS27Z+qhvb8fzLf4zJS11tEZaPBd3OOe5Oogj98pf9RxwpofYVReqbehf
+         03pA==
+X-Gm-Message-State: AOJu0Yxr0KQ68dVlNMt14Z0Oj2bxcZE6VqD0evWxa6+qewVMVtls7BLw
+	k4ZtBJCoa0IIeKIhKWHi3IoSVsdIzUhFO6867Oboqn4cc8yCIJOKJQlbcLIiUxiAVsJbd46sDQF
+	Rw2sLQYKqGc8z+G7+GTiFRzEkIFRHyq5P/lrqtVyZy6ywqv2DjBrNstobY7a7iiJnSSp20etqA5
+	F/egqa3axnRx94uo3L5BI3T4/JEx42Z6phXMyM5W4=
+X-Received: by 2002:a17:906:d7ac:b0:a2f:1575:c80c with SMTP id pk12-20020a170906d7ac00b00a2f1575c80cmr490109ejb.7.1706259087566;
+        Fri, 26 Jan 2024 00:51:27 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IG9oo/LCRdvPJXxxBEwEoCRvH/zKsQWc51yiYv/+/06+IKO9WHrS3EsnECmxKCM2YJvHB/svoV5vEpSf8kt7aU=
+X-Received: by 2002:a17:906:d7ac:b0:a2f:1575:c80c with SMTP id
+ pk12-20020a170906d7ac00b00a2f1575c80cmr490099ejb.7.1706259087196; Fri, 26 Jan
+ 2024 00:51:27 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Subject: Re: [PATCH 1/1] virtio_net: Add timeout handler to avoid kernel hang
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Zhu Yanjun <yanjun.zhu@linux.dev>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Jason Wang <jasowang@redhat.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, Heng Qi <hengqi@linux.alibaba.com>,
- Paolo Abeni <pabeni@redhat.com>, Zhu Yanjun <yanjun.zhu@intel.com>,
- mst@redhat.com, davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
- virtualization@lists.linux.dev, netdev@vger.kernel.org
-References: <20240115012918.3081203-1-yanjun.zhu@intel.com>
- <ea230712e27af2c8d2d77d1087e45ecfa86abb31.camel@redhat.com>
- <667a9520-a53f-40a2-810a-6c1e45146589@linux.dev>
- <7dd89fc0-f31e-4f83-9c02-58ee67c2d436@linux.alibaba.com>
- <430b899c-aed4-419d-8ae8-544bb9bec5d9@lunn.ch>
- <64270652-8e0c-4db7-b245-b970d9588918@linux.dev>
- <CACGkMEs18hjxiZRDT5-+PMDHkLbEyiviafGiCWsAE6CGBrj+9g@mail.gmail.com>
- <1705895881.6990144-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEvvn76w+BZArOWK-c1gsqNNx6bH8HPoqPAqpJG_7EYntA@mail.gmail.com>
- <1705904164.7020166-3-xuanzhuo@linux.alibaba.com>
- <CACGkMEsTT7hrm2QWZq-NasfVAJHsUoZq5hijvLE_jY+2YyKytg@mail.gmail.com>
- <CACGkMEt4zyESemjPwZtD5d4d00jtorY0qR5vM9y96NZzKkdj8A@mail.gmail.com>
- <1705906930.2143333-5-xuanzhuo@linux.alibaba.com>
- <e46d04d7-4eb7-4fcd-821a-d558c07531b7@linux.dev>
-In-Reply-To: <e46d04d7-4eb7-4fcd-821a-d558c07531b7@linux.dev>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
+References: <7258a4cc-da16-5c34-a042-2a23ee396d56@redhat.com> <IA0PR11MB7185B400DD4A4FD65FD51437F87B2@IA0PR11MB7185.namprd11.prod.outlook.com>
+In-Reply-To: <IA0PR11MB7185B400DD4A4FD65FD51437F87B2@IA0PR11MB7185.namprd11.prod.outlook.com>
+From: Zhenyu Zhang <zhenyzha@redhat.com>
+Date: Fri, 26 Jan 2024 16:50:50 +0800
+Message-ID: <CAJFLiBJ5K_WbiNmrgaKD9_UAs4HQRv_xGyQcwBy6a9XusUTeew@mail.gmail.com>
+Subject: Re: [PATCH RESEND] drm/virtio: set segment size for virtio_gpu device
+To: Sebastian Ott <seott@redhat.com>
+Cc: "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, 
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, David Airlie <airlied@redhat.com>, 
+	Gerd Hoffmann <kraxel@redhat.com>, Daniel Vetter <daniel@ffwll.ch>, 
+	"Kasireddy, Vivek" <vivek.kasireddy@intel.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+[PATCH RESEND] drm/virtio: set segment size for virtio_gpu device
 
-在 2024/1/26 11:11, Zhu Yanjun 写道:
+Test on 64k basic page size aarch64(6.8.0-rc1-zhenyzha+)
+During the boot process, the call trace no longer appears.
+The test results are as expected.
+
+Tested-by: Zhenyu Zhang <zhenyzha@redhat.com>
+
+On Thu, Jan 25, 2024 at 5:24=E2=80=AFAM Kasireddy, Vivek
+<vivek.kasireddy@intel.com> wrote:
+>
+> > Hej,
+> >
+> > debug dma code is not happy with virtio gpu (arm64 VM):
+> >
+> > [  305.881733] ------------[ cut here ]------------
+> > [  305.883117] DMA-API: virtio-pci 0000:07:00.0: mapping sg segment lon=
+ger
+> > than device claims to support [len=3D262144] [max=3D65536]
+> > [  305.885976] WARNING: CPU: 8 PID: 2002 at kernel/dma/debug.c:1177
+> > check_sg_segment+0x2d0/0x420
+> > [  305.888038] Modules linked in: crct10dif_ce(+) polyval_ce polyval_ge=
+neric
+> > ghash_ce virtio_gpu(+) virtio_net net_failover virtio_blk(+) virtio_dma=
+_buf
+> > virtio_console failover virtio_mmio scsi_dh_r dac scsi_dh_emc scsi_dh_a=
+lua
+> > dm_multipath qemu_fw_cfg
+> > [  305.893496] CPU: 8 PID: 2002 Comm: (udev-worker) Not tainted 6.7.0 #=
+1
+> > [  305.895070] Hardware name: QEMU KVM Virtual Machine, BIOS edk2-
+> > 20230524-3.fc37 05/24/2023
+> > [  305.897112] pstate: 60400005 (nZCv daif +PAN -UAO -TCO -DIT -SSBS
+> > BTYPE=3D--)
+> > [  305.897129] pc : check_sg_segment+0x2d0/0x420
+> > [  305.897139] lr : check_sg_segment+0x2d0/0x420
+> > [  305.897145] sp : ffff80008ffc69d0
+> > [  305.897149] x29: ffff80008ffc69d0 x28: dfff800000000000 x27:
+> > ffffb0232879e578
+> > [  305.897167] x26: ffffffff00000000 x25: ffffb0232778c060 x24:
+> > ffff19ee9b2060c0
+> > [  305.897181] x23: 00000000ffffffff x22: ffffb0232ab9ce10 x21:
+> > ffff19eece5c64ac
+> > [  305.906942] x20: 0000000000010000 x19: ffff19eece5c64a0 x18:
+> > ffff19eec36fc304
+> > [  305.908633] x17: 6e61687420726567 x16: 6e6f6c20746e656d x15:
+> > 6765732067732067
+> > [  305.910352] x14: 00000000f1f1f1f1 x13: 0000000000000001 x12:
+> > ffff700011ff8cc3
+> > [  305.912044] x11: 1ffff00011ff8cc2 x10: ffff700011ff8cc2 x9 :
+> > ffffb02324a70e54
+> > [  305.913751] x8 : 00008fffee00733e x7 : ffff80008ffc6617 x6 :
+> > 0000000000000001
+> > [  305.915451] x5 : ffff80008ffc6610 x4 : 1fffe33e70564622 x3 :
+> > dfff800000000000
+> > [  305.917158] x2 : 0000000000000000 x1 : 0000000000000000 x0 :
+> > ffff19f382b23100
+> > [  305.918864] Call trace:
+> > [  305.919474]  check_sg_segment+0x2d0/0x420
+> > [  305.920443]  debug_dma_map_sg+0x2a0/0x428
+> > [  305.921402]  __dma_map_sg_attrs+0xf4/0x1a8
+> > [  305.922388]  dma_map_sgtable+0x7c/0x100
+> > [  305.923318]  drm_gem_shmem_get_pages_sgt+0x15c/0x328
+> > [  305.924500]
+> > virtio_gpu_object_shmem_init.constprop.0.isra.0+0x50/0x628 [virtio_gpu]
+> > [  305.926390]  virtio_gpu_object_create+0x198/0x478 [virtio_gpu]
+> > [  305.927802]  virtio_gpu_mode_dumb_create+0x2a0/0x4c8 [virtio_gpu]
+> > [  305.929272]  drm_mode_create_dumb+0x1c0/0x280
+> > [  305.930327]  drm_client_framebuffer_create+0x140/0x328
+> > [  305.931555]  drm_fbdev_generic_helper_fb_probe+0x1bc/0x5c0
+> > [  305.932871]  __drm_fb_helper_initial_config_and_unlock+0x1e0/0x630
+> > [  305.934372]  drm_fb_helper_initial_config+0x50/0x68
+> > [  305.935540]  drm_fbdev_generic_client_hotplug+0x148/0x200
+> > [  305.936819]  drm_client_register+0x130/0x200
+> > [  305.937856]  drm_fbdev_generic_setup+0xe8/0x320
+> > [  305.938932]  virtio_gpu_probe+0x13c/0x2d0 [virtio_gpu]
+> > [  305.940190]  virtio_dev_probe+0x38c/0x600
+> > [  305.941153]  really_probe+0x334/0x9c8
+> > [  305.942047]  __driver_probe_device+0x164/0x3d8
+> > [  305.943102]  driver_probe_device+0x64/0x180
+> > [  305.944094]  __driver_attach+0x1d4/0x488
+> > [  305.945045]  bus_for_each_dev+0x104/0x198
+> > [  305.946008]  driver_attach+0x44/0x68
+> > [  305.946892]  bus_add_driver+0x23c/0x4a8
+> > [  305.947838]  driver_register+0xf8/0x3d0
+> > [  305.948770]  register_virtio_driver+0x74/0xc8
+> > [  305.949836]  virtio_gpu_driver_init+0x20/0xff8 [virtio_gpu]
+> > [  305.951237]  do_one_initcall+0x17c/0x8c0
+> > [  305.952182]  do_init_module+0x1dc/0x630
+> > [  305.953106]  load_module+0x10c0/0x1638
+> > [  305.954012]  init_module_from_file+0xe0/0x140
+> > [  305.955058]  idempotent_init_module+0x2c0/0x590
+> > [  305.956174]  __arm64_sys_finit_module+0xb4/0x140
+> > [  305.957282]  invoke_syscall+0xd8/0x258
+> > [  305.958187]  el0_svc_common.constprop.0+0x16c/0x240
+> > [  305.959526]  do_el0_svc+0x48/0x68
+> > [  305.960456]  el0_svc+0x58/0x118
+> > [  305.961310]  el0t_64_sync_handler+0x120/0x130
+> > [  305.962510]  el0t_64_sync+0x194/0x198
+> > [  305.963509] irq event stamp: 37944
+> > [  305.964412] hardirqs last  enabled at (37943): [<ffffb02324a7439c>]
+> > console_unlock+0x1a4/0x1c8
+> > [  305.966602] hardirqs last disabled at (37944): [<ffffb023276724e4>]
+> > el1_dbg+0x24/0xa0
+> > [  305.968535] softirqs last  enabled at (37930): [<ffffb0232475114c>]
+> > __do_softirq+0x8e4/0xe1c
+> > [  305.970781] softirqs last disabled at (37925): [<ffffb0232475a9b0>]
+> > ____do_softirq+0x18/0x30
+> > [  305.972937] ---[ end trace 0000000000000000 ]---
+> >
+> > The 64K max_segment size of the device seems to be inherited by PCIs
+> > default.
+> > The sg list is crated via this drm helper:
+> >
+> > struct sg_table *drm_prime_pages_to_sg(struct drm_device *dev,
+> >                                      struct page **pages, unsigned int
+> > nr_pages)
+> > {
+> > ...
+> >       if (dev)
+> >               max_segment =3D dma_max_mapping_size(dev->dev);
+> >       if (max_segment =3D=3D 0)
+> >               max_segment =3D UINT_MAX;
+> >       err =3D sg_alloc_table_from_pages_segment(sg, pages, nr_pages, 0,
+> >                                               nr_pages << PAGE_SHIFT,
+> >                                               max_segment, GFP_KERNEL);
+> > ...
+> > }
+> >
+> > I'm a bit puzzled why this uses dma_max_mapping_size() and not
+> > dma_get_max_seg_size(). But since this is used by a lot of drivers
+> > I'm not really keen to touch this code that works like this for ages.
+> >
+> > So let's just make debug dma code aware of the actual segment size
+> > that's used by the device:
+> >
+> > --->8
+> > drm/virtio: set segment size for virtio_gpu device
+> >
+> > Set the segment size of the virtio_gpu device to the value
+> > used by the drm helpers when allocating sg lists to fix the
+> > following complaint from DMA_API debug code:
+> > DMA-API: virtio-pci 0000:07:00.0: mapping sg segment longer than device
+> > claims to support [len=3D262144] [max=3D65536]
+> >
+> > Signed-off-by: Sebastian Ott <sebott@redhat.com>
+> > ---
+> >    drivers/gpu/drm/virtio/virtgpu_drv.c | 1 +
+> >    1 file changed, 1 insertion(+)
+> >
+> > diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c
+> > b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> > index 4334c7608408..74b2cb3295af 100644
+> > --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
+> > +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> > @@ -94,6 +94,7 @@ static int virtio_gpu_probe(struct virtio_device *vde=
+v)
+> >                       goto err_free;
+> >       }
+> >
+> > +     dma_set_max_seg_size(dev->dev, dma_max_mapping_size(dev-
+> > >dev) ? : UINT_MAX);
+> Acked-by: Vivek Kasireddy <vivek.kasireddy@intel.com>
+>
+> >       ret =3D virtio_gpu_init(vdev, dev);
+> >       if (ret)
+> >               goto err_free;
+> > --
+> > 2.43.0
+> >
+> >
 >
 >
-> 在 2024/1/22 15:02, Xuan Zhuo 写道:
->> On Mon, 22 Jan 2024 14:58:09 +0800, Jason Wang<jasowang@redhat.com>  wrote:
->>> On Mon, Jan 22, 2024 at 2:55 PM Jason Wang<jasowang@redhat.com>  wrote:
->>>> On Mon, Jan 22, 2024 at 2:20 PM Xuan Zhuo<xuanzhuo@linux.alibaba.com>  wrote:
->>>>> On Mon, 22 Jan 2024 12:16:27 +0800, Jason Wang<jasowang@redhat.com>  wrote:
->>>>>> On Mon, Jan 22, 2024 at 12:00 PM Xuan Zhuo<xuanzhuo@linux.alibaba.com>  wrote:
->>>>>>> On Mon, 22 Jan 2024 11:14:30 +0800, Jason Wang<jasowang@redhat.com>  wrote:
->>>>>>>> On Mon, Jan 22, 2024 at 10:12 AM Zhu Yanjun<yanjun.zhu@linux.dev>  wrote:
->>>>>>>>> 在 2024/1/20 1:29, Andrew Lunn 写道:
->>>>>>>>>>>>>>         while (!virtqueue_get_buf(vi->cvq, &tmp) &&
->>>>>>>>>>>>>> -           !virtqueue_is_broken(vi->cvq))
->>>>>>>>>>>>>> +           !virtqueue_is_broken(vi->cvq)) {
->>>>>>>>>>>>>> +        if (timeout)
->>>>>>>>>>>>>> +            timeout--;
->>>>>>>>>>>>> This is not really a timeout, just a loop counter. 200 iterations could
->>>>>>>>>>>>> be a very short time on reasonable H/W. I guess this avoid the soft
->>>>>>>>>>>>> lockup, but possibly (likely?) breaks the functionality when we need to
->>>>>>>>>>>>> loop for some non negligible time.
->>>>>>>>>>>>>
->>>>>>>>>>>>> I fear we need a more complex solution, as mentioned by Micheal in the
->>>>>>>>>>>>> thread you quoted.
->>>>>>>>>>>> Got it. I also look forward to the more complex solution to this problem.
->>>>>>>>>>> Can we add a device capability (new feature bit) such as ctrq_wait_timeout
->>>>>>>>>>> to get a reasonable timeout？
->>>>>>>>>> The usual solution to this is include/linux/iopoll.h. If you can sleep
->>>>>>>>>> read_poll_timeout() otherwise read_poll_timeout_atomic().
->>>>>>>>> I read carefully the functions read_poll_timeout() and
->>>>>>>>> read_poll_timeout_atomic(). The timeout is set by the caller of the 2
->>>>>>>>> functions.
->>>>>>>> FYI, in order to avoid a swtich of atomic or not, we need convert rx
->>>>>>>> mode setting to workqueue first:
->>>>>>>>
->>>>>>>> https://www.mail-archive.com/virtualization@lists.linux-foundation.org/msg60298.html
->>>>>>>>
->>>>>>>>> As such, can we add a module parameter to customize this timeout value
->>>>>>>>> by the user?
->>>>>>>> Who is the "user" here, or how can the "user" know the value?
->>>>>>>>
->>>>>>>>> Or this timeout value is stored in device register, virtio_net driver
->>>>>>>>> will read this timeout value at initialization?
->>>>>>>> See another thread. The design needs to be general, or you can post a RFC.
->>>>>>>>
->>>>>>>> In another thought, we've already had a tx watchdog, maybe we can have
->>>>>>>> something similar to cvq and use timeout + reset in that case.
->>>>>>> But we may block by the reset ^_^ if the device is broken?
->>>>>> I mean vq reset here.
->>>>> I see.
->>>>>
->>>>> I mean when the deivce is broken, the vq reset also many be blocked.
->>>>>
->>>>>          void vp_modern_set_queue_reset(struct virtio_pci_modern_device *mdev, u16 index)
->>>>>          {
->>>>>                  struct virtio_pci_modern_common_cfg __iomem *cfg;
->>>>>
->>>>>                  cfg = (struct virtio_pci_modern_common_cfg __iomem *)mdev->common;
->>>>>
->>>>>                  vp_iowrite16(index, &cfg->cfg.queue_select);
->>>>>                  vp_iowrite16(1, &cfg->queue_reset);
->>>>>
->>>>>                  while (vp_ioread16(&cfg->queue_reset))
->>>>>                          msleep(1);
->>>>>
->>>>>                  while (vp_ioread16(&cfg->cfg.queue_enable))
->>>>>                          msleep(1);
->>>>>          }
->>>>>          EXPORT_SYMBOL_GPL(vp_modern_set_queue_reset);
->>>>>
->>>>> In this function, for the broken device, we can not expect something.
->>>> Yes, it's best effort, there's no guarantee then. But it doesn't harm to try.
->>>>
->>>> Thanks
->>>>
->>>>>> It looks like we have multiple goals here
->>>>>>
->>>>>> 1) avoid lockups, using workqueue + cond_resched() seems to be
->>>>>> sufficient, it has issue but nothing new
->>>>>> 2) recover from the unresponsive device, the issue for timeout is that
->>>>>> it needs to deal with false positives
->>>>> I agree.
->>>>>
->>>>> But I want to add a new goal, cvq async. In the netdim, we will
->>>>> send many requests via the cvq, so the cvq async will be nice.
->>> Then you need an interrupt for cvq.
->>>
->>> FYI, I've posted a series that use interrupt for cvq in the past:
->>>
->>> https://lore.kernel.org/lkml/6026e801-6fda-fee9-a69b-d06a80368621@redhat.com/t/
->> I know this. But the interrupt maybe not a good solution without new space.
->>
->>> Haven't found time in working on this anymore, maybe we can start from
->>> this or not.
->> I said async, but my aim is to put many requests to the cvq before getting the
->> response.
->>
->> Heng Qi posted thishttps://lore.kernel.org/all/1705410693-118895-4-git-send-email-hengqi@linux.alibaba.com/
 
-Sorry. This mail is rejected by netdev maillist. So I have to resend it.
-
-
-Thanks a lot. I read Heng Qi's commits carefully. This patch series are 
-similiar with the NIC feature xmit_more.
-
-But if cvq command is urgent, can we let this urgent cvq command be 
-passed ASAP?
-
-I mean, can we set a flag similar to xmit_more? if cvq command is not 
-urgent, it can be queued. If it is urgent,
-
-this cvq command is passed ASAP.
-
-Zhu Yanjun
-
-> Zhu Yanjun
->
->> Thanks.
->>
->>
->>> Thanks
->>>
->>>>> Thanks.
->>>>>
->>>>>
->>>>>> Thanks
->>>>>>
->>>>>>> Thanks.
->>>>>>>
->>>>>>>
->>>>>>>> Thans
->>>>>>>>
->>>>>>>>> Zhu Yanjun
->>>>>>>>>
->>>>>>>>>>        Andrew
