@@ -1,127 +1,255 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59AB01E536
-	for <virtualization@lists.linux-foundation.org>; Fri, 26 Jan 2024 10:18:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC85213FE4
+	for <virtualization@lists.linux-foundation.org>; Fri, 26 Jan 2024 11:26:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706264315; cv=none; b=srGkblzWpzvCViCAysHt/vY7Mjyvn9A7T1SHDNeXBeWLBZrLHgBlzr2ofk2kP1QmZSkM9JIIXMZoK9oKe4Q9dz6aKIwOYY3itpUZ92W64CkUwWZxRXWWKe6QlcG7GEWW4STUQlweXDIVFz6A9w7XS753ZPXbsI3f0S+CpsEv8g8=
+	t=1706268404; cv=none; b=GoUPp1zg3RzlXRZ8QvKzl9yRpVOet6aBjRbTmQFnZXkB5eaQ3SMyNvtRnc2VsMO0Z7GHSx5GgHR3d8OxgBrkoTKLWnAMY529sQaOi6C6M0aUV6gTSw2C5Nb1myqWxSZ9N9ImjQ8T/6JkL4RP4ZaqrwmfL6YFnBn8EYwHxZRuFC8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706264315; c=relaxed/simple;
-	bh=hqYTK0EsC3o/io3T1zeWVHK+9pLIv8eop9reCP1H12I=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ExWa2ZpeU98QR8YYyM6fqMTDDfJxmGwSuIbjQZQj/JBdpLoFXm2rg/Olck1kRFgp9paqlDnImKexccveAf1sp/BjsBgtYR9RmsEsZL6zVfZvAAM8ZyBt3xIFQVygpEJus791JnIKUjmCkX44PYyGy5lS8FW4zHYr1PHS24uzGds=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=ionVzzYU; arc=none smtp.client-ip=140.211.166.138
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="ionVzzYU"
+	s=arc-20240116; t=1706268404; c=relaxed/simple;
+	bh=gu0PhGkylvtrDWf8V2mRv6VBhqsE4IZZB78F3hEY5lA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=kQpo0g9u+OoJ3qKFGipb3goBK4SNv+oJc7cTfXaXWjSptQAg9IEDzwRSxRQ23cLgswh0UKhwDCr56toQd6LJdzw4ysA3CMpT6AcLxb/9UqiW2Ri0tU1ZZDCgwwx+b2FByM+jjb/nONWEPH4M7vrchagzAVKeoJ+wKPkaikiB64s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id C1E3284482
-	for <virtualization@lists.linux-foundation.org>; Fri, 26 Jan 2024 10:18:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C1E3284482
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=ionVzzYU
+	by smtp4.osuosl.org (Postfix) with ESMTP id 393C441F89
+	for <virtualization@lists.linux-foundation.org>; Fri, 26 Jan 2024 11:26:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 393C441F89
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.1
+X-Spam-Score: -4.2
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id cp2oNGtk4-9n
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 3xOogi7dSCFg
 	for <virtualization@lists.linux-foundation.org>;
-	Fri, 26 Jan 2024 10:18:33 +0000 (UTC)
-Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [46.235.227.194])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 037B983E7E
-	for <virtualization@lists.linux-foundation.org>; Fri, 26 Jan 2024 10:18:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 037B983E7E
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1706264310;
-	bh=hqYTK0EsC3o/io3T1zeWVHK+9pLIv8eop9reCP1H12I=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=ionVzzYUVohq/prvhL2Jplfp6RkWMX6N92pnga5WmXEKfX3WWE3wisdops+KV3ifp
-	 Uy5+PNmkF5un43C8farXeu6d+mw/XXMFTa98cPOyEm3NUm+NQKX+R0usEfm+yjMQH7
-	 khbw3xEeIDeVPaZKmrCynwWqSZpQ8Oc02kg3PrHM1X2oQ8dpeIENT27v27zWpVX2i/
-	 WQroAxJl0yGuCyjeLxf+oFMJh6VulBj4FrURTI1vV2T8AWII+/P76KkX9I5zEaC6P4
-	 zYwV4SGEyo23NTgEBHBcWqv359YkS3edA2waZUh4Gg+h+o2W0wxJH43MTurEDDpU2u
-	 SOvR1OO9/OPJw==
-Received: from localhost (cola.collaboradmins.com [195.201.22.229])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: bbrezillon)
-	by madrid.collaboradmins.com (Postfix) with ESMTPSA id 420D63782072;
-	Fri, 26 Jan 2024 10:18:29 +0000 (UTC)
-Date: Fri, 26 Jan 2024 11:18:27 +0100
-From: Boris Brezillon <boris.brezillon@collabora.com>
-To: Daniel Vetter <daniel@ffwll.ch>
-Cc: Dmitry Osipenko <dmitry.osipenko@collabora.com>, David Airlie
- <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>, Gurchetan Singh
- <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, Maarten
- Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard
- <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, Christian
- =?UTF-8?B?S8O2bmln?= <christian.koenig@amd.com>, Qiang Yu
- <yuq825@gmail.com>, Steven Price <steven.price@arm.com>, Emma Anholt
- <emma@anholt.net>, Melissa Wen <mwen@igalia.com>,
- dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
- kernel@collabora.com, virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH v19 09/30] drm/shmem-helper: Add and use lockless
- drm_gem_shmem_get_pages()
-Message-ID: <20240126111827.70f8726c@collabora.com>
-In-Reply-To: <ZbKZNCbZoV4ovWTH@phenom.ffwll.local>
-References: <20240105184624.508603-1-dmitry.osipenko@collabora.com>
- <20240105184624.508603-10-dmitry.osipenko@collabora.com>
- <ZbKZNCbZoV4ovWTH@phenom.ffwll.local>
-Organization: Collabora
-X-Mailer: Claws Mail 4.2.0 (GTK 3.24.38; x86_64-redhat-linux-gnu)
+	Fri, 26 Jan 2024 11:26:41 +0000 (UTC)
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp4.osuosl.org (Postfix) with ESMTP id D174F41F85
+	for <virtualization@lists.linux-foundation.org>; Fri, 26 Jan 2024 11:26:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D174F41F85
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 463E21FB;
+	Fri, 26 Jan 2024 03:27:24 -0800 (PST)
+Received: from [10.1.196.86] (unknown [10.1.196.86])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 7BAFD3F762;
+	Fri, 26 Jan 2024 03:26:37 -0800 (PST)
+Message-ID: <b3124b28-5c94-44c4-8f9a-1bd9e46a4cab@arm.com>
+Date: Fri, 26 Jan 2024 11:26:36 +0000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v19 18/30] drm/panfrost: Explicitly get and put drm-shmem
+ pages
+To: Boris Brezillon <boris.brezillon@collabora.com>
+Cc: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
+ Qiang Yu <yuq825@gmail.com>, Emma Anholt <emma@anholt.net>,
+ Melissa Wen <mwen@igalia.com>, dri-devel@lists.freedesktop.org,
+ linux-kernel@vger.kernel.org, kernel@collabora.com,
+ virtualization@lists.linux-foundation.org
+References: <20240105184624.508603-1-dmitry.osipenko@collabora.com>
+ <20240105184624.508603-19-dmitry.osipenko@collabora.com>
+ <7144dd9b-62d1-4968-9b94-0313e2475f7e@arm.com>
+ <20240126103924.0b911a4f@collabora.com>
+Content-Language: en-GB
+From: Steven Price <steven.price@arm.com>
+In-Reply-To: <20240126103924.0b911a4f@collabora.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On Thu, 25 Jan 2024 18:24:04 +0100
-Daniel Vetter <daniel@ffwll.ch> wrote:
-
-> On Fri, Jan 05, 2024 at 09:46:03PM +0300, Dmitry Osipenko wrote:
-> > Add lockless drm_gem_shmem_get_pages() helper that skips taking reservation
-> > lock if pages_use_count is non-zero, leveraging from atomicity of the
-> > refcount_t. Make drm_gem_shmem_mmap() to utilize the new helper.
-> > 
-> > Acked-by: Maxime Ripard <mripard@kernel.org>
-> > Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-> > Suggested-by: Boris Brezillon <boris.brezillon@collabora.com>
-> > Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-> > ---
-> >  drivers/gpu/drm/drm_gem_shmem_helper.c | 19 +++++++++++++++----
-> >  1 file changed, 15 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
-> > index cacf0f8c42e2..1c032513abf1 100644
-> > --- a/drivers/gpu/drm/drm_gem_shmem_helper.c
-> > +++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
-> > @@ -226,6 +226,20 @@ void drm_gem_shmem_put_pages_locked(struct drm_gem_shmem_object *shmem)
-> >  }
-> >  EXPORT_SYMBOL_GPL(drm_gem_shmem_put_pages_locked);
-> >  
-> > +static int drm_gem_shmem_get_pages(struct drm_gem_shmem_object *shmem)
-> > +{
-> > +	int ret;  
+On 26/01/2024 09:39, Boris Brezillon wrote:
+> On Thu, 25 Jan 2024 16:47:24 +0000
+> Steven Price <steven.price@arm.com> wrote:
 > 
-> Just random drive-by comment: a might_lock annotation here might be good,
-> or people could hit some really interesting bugs that are rather hard to
-> reproduce ...
+>> On 05/01/2024 18:46, Dmitry Osipenko wrote:
+>>> To simplify the drm-shmem refcnt handling, we're moving away from
+>>> the implicit get_pages() that is used by get_pages_sgt(). From now on
+>>> drivers will have to pin pages while they use sgt. Panfrost's shrinker
+>>> doesn't support swapping out BOs, hence pages are pinned and sgt is valid
+>>> as long as pages' use-count > 0.
+>>>
+>>> In Panfrost, panfrost_gem_mapping, which is the object representing a
+>>> GPU mapping of a BO, owns a pages ref. This guarantees that any BO being
+>>> mapped GPU side has its pages retained till the mapping is destroyed.
+>>>
+>>> Since pages are no longer guaranteed to stay pinned for the BO lifetime,
+>>> and MADVISE(DONT_NEED) flagging remains after the GEM handle has been
+>>> destroyed, we need to add an extra 'is_purgeable' check in
+>>> panfrost_gem_purge(), to make sure we're not trying to purge a BO that
+>>> already had its pages released.
+>>>
+>>> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>  
+>>
+>> Reviewed-by: Steven Price <steven.price@arm.com>
+>>
+>> Although I don't like the condition in panfrost_gem_mapping_release()
+>> for drm_gem_shmem_put_pages() and assigning NULL to bo->sgts - it feels
+>> very fragile. See below.
+>>
+>>> ---
+>>>  drivers/gpu/drm/panfrost/panfrost_gem.c       | 63 ++++++++++++++-----
+>>>  .../gpu/drm/panfrost/panfrost_gem_shrinker.c  |  6 ++
+>>>  2 files changed, 52 insertions(+), 17 deletions(-)
+>>>
+>>> diff --git a/drivers/gpu/drm/panfrost/panfrost_gem.c b/drivers/gpu/drm/panfrost/panfrost_gem.c
+>>> index f268bd5c2884..7edfc12f7c1f 100644
+>>> --- a/drivers/gpu/drm/panfrost/panfrost_gem.c
+>>> +++ b/drivers/gpu/drm/panfrost/panfrost_gem.c
+>>> @@ -35,20 +35,6 @@ static void panfrost_gem_free_object(struct drm_gem_object *obj)
+>>>  	 */
+>>>  	WARN_ON_ONCE(!list_empty(&bo->mappings.list));
+>>>  
+>>> -	if (bo->sgts) {
+>>> -		int i;
+>>> -		int n_sgt = bo->base.base.size / SZ_2M;
+>>> -
+>>> -		for (i = 0; i < n_sgt; i++) {
+>>> -			if (bo->sgts[i].sgl) {
+>>> -				dma_unmap_sgtable(pfdev->dev, &bo->sgts[i],
+>>> -						  DMA_BIDIRECTIONAL, 0);
+>>> -				sg_free_table(&bo->sgts[i]);
+>>> -			}
+>>> -		}
+>>> -		kvfree(bo->sgts);
+>>> -	}
+>>> -
+>>>  	drm_gem_shmem_free(&bo->base);
+>>>  }
+>>>  
+>>> @@ -85,11 +71,40 @@ panfrost_gem_teardown_mapping(struct panfrost_gem_mapping *mapping)
+>>>  
+>>>  static void panfrost_gem_mapping_release(struct kref *kref)
+>>>  {
+>>> -	struct panfrost_gem_mapping *mapping;
+>>> -
+>>> -	mapping = container_of(kref, struct panfrost_gem_mapping, refcount);
+>>> +	struct panfrost_gem_mapping *mapping =
+>>> +		container_of(kref, struct panfrost_gem_mapping, refcount);
+>>> +	struct panfrost_gem_object *bo = mapping->obj;
+>>> +	struct panfrost_device *pfdev = bo->base.base.dev->dev_private;
+>>>  
+>>>  	panfrost_gem_teardown_mapping(mapping);
+>>> +
+>>> +	/* On heap BOs, release the sgts created in the fault handler path. */
+>>> +	if (bo->sgts) {
+>>> +		int i, n_sgt = bo->base.base.size / SZ_2M;
+>>> +
+>>> +		for (i = 0; i < n_sgt; i++) {
+>>> +			if (bo->sgts[i].sgl) {
+>>> +				dma_unmap_sgtable(pfdev->dev, &bo->sgts[i],
+>>> +						  DMA_BIDIRECTIONAL, 0);
+>>> +				sg_free_table(&bo->sgts[i]);
+>>> +			}
+>>> +		}
+>>> +		kvfree(bo->sgts);
+>>> +	}
+>>> +
+>>> +	/* Pages ref is owned by the panfrost_gem_mapping object. We must
+>>> +	 * release our pages ref (if any), before releasing the object
+>>> +	 * ref.
+>>> +	 * Non-heap BOs acquired the pages at panfrost_gem_mapping creation
+>>> +	 * time, and heap BOs may have acquired pages if the fault handler
+>>> +	 * was called, in which case bo->sgts should be non-NULL.
+>>> +	 */
+>>> +	if (!bo->base.base.import_attach && (!bo->is_heap || bo->sgts) &&
+>>> +	    bo->base.madv >= 0) {
+>>> +		drm_gem_shmem_put_pages(&bo->base);
+>>> +		bo->sgts = NULL;  
+>>
+>> The assignment of NULL here really ought to be unconditional - it isn't
+>> a valid pointer because of the kvfree() above.
+> 
+> Fair enough. How about we drop the '|| bo->sgts' and add an
+> drm_gem_shmem_put_pages() to the above if (bo->sgts) block, where we'll
+> also assign bo->sgts to NULL?
 
-Actually, being able to acquire a ref in a dma-signalling path on an
-object we know for sure already has refcount >= 1 (because we previously
-acquired a ref in a path where dma_resv_lock() was allowed), was the
-primary reason I suggested moving to this atomic-refcount approach.
+Yes that would be good.
 
-In the meantime, drm_gpuvm has evolved in a way that allows me to not
-take the ref in the dma-signalling path (the gpuvm_bo object now holds
-the ref, and it's acquired/released outside the dma-signalling path).
+>>
+>> I also feel that the big condition above suggests there's a need for a
+>> better state machine to keep track of what's going on.
+> 
+> I'm planning to extend drm_gem_shmem to support the alloc-on-fault use
+> case that all Mali GPUs seem to rely on (lima, panfrost and soon
+> panthor would use those helpers). The idea is to:
+> 
+> - make the allocation non-blocking, so we can kill the blocking
+>   allocation in the dma signalling path (basically what intel does)
+> - allow dynamic extension of the pages array using an xarray instead of
+>   a plain array
+> 
+> Hopefully this makes the state tracking a lot easier, and we can also
+> get rid of the hack we have in panfrost/lima where we manipulate
+> drm_gem_shmem_object refcounts directly.
 
-Not saying we shouldn't add this might_lock(), but others might have
-good reasons to have this function called in a path where locking
-is not allowed.
+That sounds great - it would definitely be good to get rid of the
+refcount hack, it confuses me everytime ;)
+
+Thanks,
+
+Steve
+
+>>
+>> But having said that I do think this series as a whole is an
+>> improvement, it's nice to get the shrinker code generic. And sadly I
+>> don't have an immediate idea for cleaning this up, hence my R-b.
+>>
+>> Steve
+>>
+>>> +	}
+>>> +
+>>>  	drm_gem_object_put(&mapping->obj->base.base);
+>>>  	panfrost_mmu_ctx_put(mapping->mmu);
+>>>  	kfree(mapping);
+>>> @@ -125,6 +140,20 @@ int panfrost_gem_open(struct drm_gem_object *obj, struct drm_file *file_priv)
+>>>  	if (!mapping)
+>>>  		return -ENOMEM;
+>>>  
+>>> +	if (!bo->is_heap && !bo->base.base.import_attach) {
+>>> +		/* Pages ref is owned by the panfrost_gem_mapping object.
+>>> +		 * For non-heap BOs, we request pages at mapping creation
+>>> +		 * time, such that the panfrost_mmu_map() call, further down in
+>>> +		 * this function, is guaranteed to have pages_use_count > 0
+>>> +		 * when drm_gem_shmem_get_pages_sgt() is called.
+>>> +		 */
+>>> +		ret = drm_gem_shmem_get_pages(&bo->base);
+>>> +		if (ret) {
+>>> +			kfree(mapping);
+>>> +			return ret;
+>>> +		}
+>>> +	}
+>>> +
+>>>  	INIT_LIST_HEAD(&mapping->node);
+>>>  	kref_init(&mapping->refcount);
+>>>  	drm_gem_object_get(obj);
+>>> diff --git a/drivers/gpu/drm/panfrost/panfrost_gem_shrinker.c b/drivers/gpu/drm/panfrost/panfrost_gem_shrinker.c
+>>> index 02b60ea1433a..d4fb0854cf2f 100644
+>>> --- a/drivers/gpu/drm/panfrost/panfrost_gem_shrinker.c
+>>> +++ b/drivers/gpu/drm/panfrost/panfrost_gem_shrinker.c
+>>> @@ -50,6 +50,12 @@ static bool panfrost_gem_purge(struct drm_gem_object *obj)
+>>>  	if (!dma_resv_trylock(shmem->base.resv))
+>>>  		goto unlock_mappings;
+>>>  
+>>> +	/* BO might have become unpurgeable if the last pages_use_count ref
+>>> +	 * was dropped, but the BO hasn't been destroyed yet.
+>>> +	 */
+>>> +	if (!drm_gem_shmem_is_purgeable(shmem))
+>>> +		goto unlock_mappings;
+>>> +
+>>>  	panfrost_gem_teardown_mappings_locked(bo);
+>>>  	drm_gem_shmem_purge_locked(&bo->base);
+>>>  	ret = true;  
+>>
+> 
+
