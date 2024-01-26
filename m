@@ -1,75 +1,102 @@
-Received: from abb.hmeau.com (abb.hmeau.com [144.6.53.87])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 639592263C;
-	Fri, 26 Jan 2024 08:55:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.6.53.87
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 751EA67A07
+	for <virtualization@lists.linux-foundation.org>; Fri, 26 Jan 2024 09:15:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706259341; cv=none; b=HWYW6Z+5ozEzh2gOcXlDWjxjVjU7K93XCGfPylDsui5Pd9O6TYBbos8r1JAAwXQB9ptRC/oXM6IV5q0GGP1vWcQ6FVjpvRc+cHIXmV8y5R6p4UDX+3lhXO39DSxKdScbGnzGjfuxz8rsL9u2ZHgyCwx6J/0LGoYeRruMdR5UnZ0=
+	t=1706260525; cv=none; b=K9+fWHvJnQpxS3j4gtJ7pTUHxVPAFdrbTUK5RXg4BnlD5x5eMasWJ3KoEWr191YGyAdkpu2ejRew6jylobXEjxAlKDHeU2ftQP7nN8JWywQqA867LIBagH1D2CTTeLeXM6ER76RKZfTNzLuWl1f7tzDVHhhKqwxTdnb+kLsITyU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706259341; c=relaxed/simple;
-	bh=YWuyFj1LWoUEo8gZuJhqmKZRCyglpZ4AVYuFv8OugUI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NTvnk74zF0yT3Q59xjW7DIv45RrDqFiJNLfuX1E7THS7JV8c/fa6eJNFIniGlEmBYfF0zlq0uva+uUbW1gQAE2vTvh1n14KdcmJRbN4mSGAvMc/eFWssyi2k6qPAFxJN61lDnIFeqrpyHNKK0EsrcQfc+9c5OYWMAdhXswwPc5k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; arc=none smtp.client-ip=144.6.53.87
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gondor.apana.org.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-	by formenos.hmeau.com with smtp (Exim 4.94.2 #2 (Debian))
-	id 1rTHzV-006ETz-47; Fri, 26 Jan 2024 16:55:14 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Fri, 26 Jan 2024 16:55:25 +0800
-Date: Fri, 26 Jan 2024 16:55:25 +0800
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Markus Elfring <Markus.Elfring@web.de>
-Cc: kernel test robot <lkp@intel.com>, virtualization@lists.linux.dev,
-	linux-crypto@vger.kernel.org, kernel-janitors@vger.kernel.org,
-	"David S. Miller" <davem@davemloft.net>,
-	Gonglei <arei.gonglei@huawei.com>, Jason Wang <jasowang@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, llvm@lists.linux.dev,
-	oe-kbuild-all@lists.linux.dev, netdev@vger.kernel.org,
-	LKML <linux-kernel@vger.kernel.org>, cocci@inria.fr
-Subject: Re: [PATCH v2] crypto: virtio - Less function calls in
- __virtio_crypto_akcipher_do_req() after error detection
-Message-ID: <ZbNzfR5wzrKarP4h@gondor.apana.org.au>
-References: <2413f22f-f0c3-45e0-9f6b-a551bdf0f54c@web.de>
- <202312260852.0ge5O8IL-lkp@intel.com>
- <7bf9a4fa-1675-45a6-88dd-82549ae2c6e0@web.de>
+	s=arc-20240116; t=1706260525; c=relaxed/simple;
+	bh=A4Bu9DBeMohqV6ojHawhAsegNEGOWtq+rjrBZb62rOc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Pf+gGXYZ/pj8MVuaO2W3ZnsGbAtLyZLG54vLjRszTIvu8jP4PzZZLXG2FJ1E7WG8fgt74tEmJeyk+23jlK9h4XI2g5ESk6IoHH6+ewEC6wTLGXLf1UBPvEJQ5b3LtbAS9R++M9eQSx4vbxiHOZLRk5y0bFMbrDWMHna+ikVMNYo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=XFtnuKH/; arc=none smtp.client-ip=140.211.166.133
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="XFtnuKH/"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id E0B39402B1
+	for <virtualization@lists.linux-foundation.org>; Fri, 26 Jan 2024 09:15:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E0B39402B1
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=XFtnuKH/
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id X-MGAAiOptoU
+	for <virtualization@lists.linux-foundation.org>;
+	Fri, 26 Jan 2024 09:15:23 +0000 (UTC)
+X-Greylist: delayed 437 seconds by postgrey-1.37 at util1.osuosl.org; Fri, 26 Jan 2024 09:15:22 UTC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D73FE40292
+Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [IPv6:2a00:1098:ed:100::25])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id D73FE40292
+	for <virtualization@lists.linux-foundation.org>; Fri, 26 Jan 2024 09:15:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1706260083;
+	bh=A4Bu9DBeMohqV6ojHawhAsegNEGOWtq+rjrBZb62rOc=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=XFtnuKH/yy0vN6U0GKaSbQxuJRJwi85TPpZapfqm0zNj09H+H4pLbdif9YOjKAnbT
+	 CgizO/+3tdmOPxrRavCPLOlJCFuGYEYYdptJv8nPKIFrr3z0z7v+89JZT9IHRdi8Aq
+	 EmUYTkVdUZB2KLS79O3RoZYS1SGtwUPbL/pUH78Oi8TFkqRnybZAUw1HWvhIIh4Ek0
+	 24FuFvw6t9ZVSpLk45qkCVubxoy/KPHvtndztHwN3YawPuWFt9dIJ9H/lfrE4nsNHH
+	 K0c5aH13HPg7sBHJYyPExioM128Qnu694FvZmbY3aH2oKWH27f++Im5eIIz55bie+7
+	 2D8kWg8FKzGxA==
+Received: from [100.113.186.2] (cola.collaboradmins.com [195.201.22.229])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: kholk11)
+	by madrid.collaboradmins.com (Postfix) with ESMTPSA id 25188378107C;
+	Fri, 26 Jan 2024 09:08:02 +0000 (UTC)
+Message-ID: <cda2af2e-15d5-4e60-af5c-dcb5f4e87f14@collabora.com>
+Date: Fri, 26 Jan 2024 10:08:01 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7bf9a4fa-1675-45a6-88dd-82549ae2c6e0@web.de>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v19 17/30] drm/panfrost: Fix the error path in
+ panfrost_mmu_map_fault_addr()
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
+ Qiang Yu <yuq825@gmail.com>, Steven Price <steven.price@arm.com>,
+ Boris Brezillon <boris.brezillon@collabora.com>,
+ Emma Anholt <emma@anholt.net>, Melissa Wen <mwen@igalia.com>
+Cc: dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+ kernel@collabora.com, virtualization@lists.linux-foundation.org
+References: <20240105184624.508603-1-dmitry.osipenko@collabora.com>
+ <20240105184624.508603-18-dmitry.osipenko@collabora.com>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Content-Language: en-US
+In-Reply-To: <20240105184624.508603-18-dmitry.osipenko@collabora.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Tue, Dec 26, 2023 at 11:12:23AM +0100, Markus Elfring wrote:
-> From: Markus Elfring <elfring@users.sourceforge.net>
-> Date: Tue, 26 Dec 2023 11:00:20 +0100
+Il 05/01/24 19:46, Dmitry Osipenko ha scritto:
+> From: Boris Brezillon <boris.brezillon@collabora.com>
 > 
-> The kfree() function was called in up to two cases by the
-> __virtio_crypto_akcipher_do_req() function during error handling
-> even if the passed variable contained a null pointer.
-> This issue was detected by using the Coccinelle software.
+> If some the pages or sgt allocation failed, we shouldn't release the
+> pages ref we got earlier, otherwise we will end up with unbalanced
+> get/put_pages() calls. We should instead leave everything in place
+> and let the BO release function deal with extra cleanup when the object
+> is destroyed, or let the fault handler try again next time it's called.
 > 
-> * Adjust jump targets.
-> 
-> * Delete two initialisations which became unnecessary
->   with this refactoring.
-> 
-> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
-> ---
-> 
-> v2:
-> A typo was fixed for the delimiter of a label.
-> 
->  drivers/crypto/virtio/virtio_crypto_akcipher_algs.c | 12 ++++++------
->  1 file changed, 6 insertions(+), 6 deletions(-)
+> Fixes: 187d2929206e ("drm/panfrost: Add support for GPU heap allocations")
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+> Co-developed-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 
-Patch applied.  Thanks.
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+
+
