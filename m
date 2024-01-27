@@ -1,55 +1,55 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 193C81F610
-	for <virtualization@lists.linux-foundation.org>; Sat, 27 Jan 2024 22:55:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7FBA1F615
+	for <virtualization@lists.linux-foundation.org>; Sat, 27 Jan 2024 22:55:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706396105; cv=none; b=QmVQUgKQG8RNEv4AMXV2kz7TunKG9ZkiMqg7xuDyNCIYg3KwmjlD9IfPORpej2kvvdIYsY/984qvy0l6KFoFNB2qMe9KgSbhHhjodEWZ/FcAPMlUcINj+Z4HA2h6mTw9l82u2m7QNLm6Go/XWWXhOQLXP3voplM3aP9SdvpIWDw=
+	t=1706396141; cv=none; b=B5KPMrWZ7NnXfDJVAewv/0fZ6JnCJxuQ99boA2gvCHZ92Ptha2tb0vBSo0zdh9NdE3GubDdeZ7Vgmy4JPfsYmHoQK2kr605yxswE5lBnsyiB4aOFOxAax1zTGW/a1O4Zvntmj9duuTIdb3TWRIInqZ31cFVNpBjdY7OdhU4hGZ8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706396105; c=relaxed/simple;
-	bh=vLZCdNFQJnOQTttc+EZzhjcVTLGWZOHDENswMgg+bgQ=;
-	h=Subject:To:Cc:From:Date:Message-ID:MIME-Version:Content-Type; b=RKO4EarL4wGcVrRjEsQ9dVq9wXApwDQyYPRc4tl897ZHEWgE2+VubPabNe9u//+oKT6zVF+50G6SKDWzNEuxAUcREK4hhHZ+cuJjPyg6e0sbmu1gyuy9NUUhfT37iOTZey6wjA5lfI3pDWT39v8HbbfkDAHn79jgZ3Baz0TQnEA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=sO4kskzv; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1706396141; c=relaxed/simple;
+	bh=BAyzAtWHbxxSXGrtBKhMIkIHp0OhS8g69+hwB2nxb8k=;
+	h=Subject:To:Cc:From:Date:Message-ID:MIME-Version:Content-Type; b=ru7fUUdkq0p16DuXzLKsTLl00MjmDCAF3RfjV2kC2Zwi6xCpLppOZ5h+zJJjmQaIC9bY3Kg6h2j9V/MlDms+UXhfkNSy+uunV0x2qTA6PKs/0nNNnVdjaHmro8Jhfm0QzJzAynWyTHH8iyvssUIdrHr4lQNdTviqbZDeBY1y1hE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=c+Kr77bT; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="sO4kskzv"
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="c+Kr77bT"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 8E5F84176D
-	for <virtualization@lists.linux-foundation.org>; Sat, 27 Jan 2024 22:55:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8E5F84176D
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=sO4kskzv
+	by smtp3.osuosl.org (Postfix) with ESMTP id 6A5C160804
+	for <virtualization@lists.linux-foundation.org>; Sat, 27 Jan 2024 22:55:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6A5C160804
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=c+Kr77bT
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -7.101
+X-Spam-Score: -4.401
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id tPm8Wru79nyq
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 0awUH7sS9q7J
 	for <virtualization@lists.linux-foundation.org>;
-	Sat, 27 Jan 2024 22:55:02 +0000 (UTC)
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 3EC754176A
-	for <virtualization@lists.linux-foundation.org>; Sat, 27 Jan 2024 22:55:02 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3EC754176A
+	Sat, 27 Jan 2024 22:55:38 +0000 (UTC)
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 0849860803
+	for <virtualization@lists.linux-foundation.org>; Sat, 27 Jan 2024 22:55:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0849860803
 Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by dfw.source.kernel.org (Postfix) with ESMTP id EBCF561383;
-	Sat, 27 Jan 2024 22:55:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 896C0C433F1;
-	Sat, 27 Jan 2024 22:55:00 +0000 (UTC)
+	by sin.source.kernel.org (Postfix) with ESMTP id 69DCDCE37FE;
+	Sat, 27 Jan 2024 22:55:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 970BEC43394;
+	Sat, 27 Jan 2024 22:55:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1706396100;
-	bh=vLZCdNFQJnOQTttc+EZzhjcVTLGWZOHDENswMgg+bgQ=;
+	s=korg; t=1706396132;
+	bh=BAyzAtWHbxxSXGrtBKhMIkIHp0OhS8g69+hwB2nxb8k=;
 	h=Subject:To:Cc:From:Date:From;
-	b=sO4kskzv1mbyCuTmdwwQvT3+wL/0d0/JHr0fcnbFKBgBk/tnGp5zSXbbgyaJEuyo7
-	 6Xnp6viu1c6FqBsq7Cej8SdgpSsNSvaZq2RY09nLAgR16zfvq3ckIBSCjey2pDRDJF
-	 QczIsLSK+eazbSJfeitmrdyOX30kgId6rVyMfwF8=
-Subject: Patch "drm: Disable the cursor plane on atomic contexts with virtualized drivers" has been added to the 6.6-stable tree
+	b=c+Kr77bTQzdn5wf8pd1ZpjYW54rJFPLCzgaBAz2P7LrKH7NM7/rsALI2Oz5rPDl93
+	 rkb1TL7pMwwcze6gyAMeBUuzQvnjM9ijHMNRBC+QdfP2KyuvnmPfuNhhZlrysue/q7
+	 BAcva+0bNuXO1EQGmwKJHUYHQ+xwZtpWaNwKPixw=
+Subject: Patch "drm: Disable the cursor plane on atomic contexts with virtualized drivers" has been added to the 6.7-stable tree
 To: airlied@linux.ie,airlied@redhat.com,contact@emersion.fr,daniel@ffwll.ch,dri-devel@lists.freedesktop.org,gregkh@linuxfoundation.org,gurchetansingh@chromium.org,hdegoede@redhat.com,javierm@redhat.com,kraxel@redhat.com,maarten.lankhorst@linux.intel.com,mripard@kernel.org,olvaffe@gmail.com,pekka.paalanen@collabora.com,spice-devel@lists.freedesktop.org,tzimmermann@suse.de,virtualization@lists.linux-foundation.org,zackr@vmware.com
 Cc: <stable-commits@vger.kernel.org>
 From: <gregkh@linuxfoundation.org>
-Date: Sat, 27 Jan 2024 14:54:58 -0800
-Message-ID: <2024012758-blend-luminous-46d4@gregkh>
+Date: Sat, 27 Jan 2024 14:55:31 -0800
+Message-ID: <2024012730-spectator-elderly-60cb@gregkh>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -66,12 +66,12 @@ This is a note to let you know that I've just added the patch titled
 
     drm: Disable the cursor plane on atomic contexts with virtualized drivers
 
-to the 6.6-stable tree which can be found at:
+to the 6.7-stable tree which can be found at:
     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
 
 The filename of the patch is:
      drm-disable-the-cursor-plane-on-atomic-contexts-with-virtualized-drivers.patch
-and it can be found in the queue-6.6 subdirectory.
+and it can be found in the queue-6.7 subdirectory.
 
 If you, or anyone else, feels it should not be added to the stable tree,
 please let <stable@vger.kernel.org> know about it.
@@ -159,7 +159,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			    put_user(plane->base.id, plane_ptr + count))
 --- a/drivers/gpu/drm/qxl/qxl_drv.c
 +++ b/drivers/gpu/drm/qxl/qxl_drv.c
-@@ -283,7 +283,7 @@ static const struct drm_ioctl_desc qxl_i
+@@ -285,7 +285,7 @@ static const struct drm_ioctl_desc qxl_i
  };
  
  static struct drm_driver qxl_driver = {
@@ -221,7 +221,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
 --- a/include/drm/drm_file.h
 +++ b/include/drm/drm_file.h
-@@ -229,6 +229,18 @@ struct drm_file {
+@@ -227,6 +227,18 @@ struct drm_file {
  	bool is_master;
  
  	/**
@@ -244,6 +244,6 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 Patches currently in stable-queue which might be from zackr@vmware.com are
 
-queue-6.6/drm-disable-the-cursor-plane-on-atomic-contexts-with-virtualized-drivers.patch
-queue-6.6/drm-allow-drivers-to-indicate-the-damage-helpers-to-ignore-damage-clips.patch
-queue-6.6/drm-virtio-disable-damage-clipping-if-fb-changed-since-last-page-flip.patch
+queue-6.7/drm-disable-the-cursor-plane-on-atomic-contexts-with-virtualized-drivers.patch
+queue-6.7/drm-allow-drivers-to-indicate-the-damage-helpers-to-ignore-damage-clips.patch
+queue-6.7/drm-virtio-disable-damage-clipping-if-fb-changed-since-last-page-flip.patch
