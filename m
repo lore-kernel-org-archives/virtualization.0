@@ -1,249 +1,107 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7FBA1F615
-	for <virtualization@lists.linux-foundation.org>; Sat, 27 Jan 2024 22:55:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5432EDDCB;
+	Sun, 28 Jan 2024 09:06:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706396141; cv=none; b=B5KPMrWZ7NnXfDJVAewv/0fZ6JnCJxuQ99boA2gvCHZ92Ptha2tb0vBSo0zdh9NdE3GubDdeZ7Vgmy4JPfsYmHoQK2kr605yxswE5lBnsyiB4aOFOxAax1zTGW/a1O4Zvntmj9duuTIdb3TWRIInqZ31cFVNpBjdY7OdhU4hGZ8=
+	t=1706432788; cv=none; b=rhtDs29gqZB31MmnwU1BDxzjR8eiDf+CpiFm/hCV+kAIVf0UXxUUAjvS2dKWhiaoU0L0o7dKlurbNOIXVYsa6KglvFxarD6OdEsSVkAa4tPo2ksT18rBwi5ziT5OyCU+i7vHLh7UO0YRsBHapE/6tZDwel+LgE92UJqJfmQPC7k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706396141; c=relaxed/simple;
-	bh=BAyzAtWHbxxSXGrtBKhMIkIHp0OhS8g69+hwB2nxb8k=;
-	h=Subject:To:Cc:From:Date:Message-ID:MIME-Version:Content-Type; b=ru7fUUdkq0p16DuXzLKsTLl00MjmDCAF3RfjV2kC2Zwi6xCpLppOZ5h+zJJjmQaIC9bY3Kg6h2j9V/MlDms+UXhfkNSy+uunV0x2qTA6PKs/0nNNnVdjaHmro8Jhfm0QzJzAynWyTHH8iyvssUIdrHr4lQNdTviqbZDeBY1y1hE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=c+Kr77bT; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1706432788; c=relaxed/simple;
+	bh=YAWRcL+76J78dm5IBZqJe3yaGnvEhoK8TSf93uvaj/A=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=N43hBWKWi1ap+qDTK4gUxTkVOOTLMMlOeq0baYxgURen/s0sIRrMsq9WkZdn4naQURyOHLo4bRrKQFxuBqLSgSN284ZbE/LNfFQv0JjBin3zuRakFoUqa0+0Y17gHIlGjEhPEpsnhLXBl1hVwPDU13n4u78N2EGFzkTVwLFGj4c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=AkcVwVM1; arc=none smtp.client-ip=192.198.163.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="c+Kr77bT"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 6A5C160804
-	for <virtualization@lists.linux-foundation.org>; Sat, 27 Jan 2024 22:55:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6A5C160804
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=c+Kr77bT
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -4.401
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 0awUH7sS9q7J
-	for <virtualization@lists.linux-foundation.org>;
-	Sat, 27 Jan 2024 22:55:38 +0000 (UTC)
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 0849860803
-	for <virtualization@lists.linux-foundation.org>; Sat, 27 Jan 2024 22:55:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0849860803
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sin.source.kernel.org (Postfix) with ESMTP id 69DCDCE37FE;
-	Sat, 27 Jan 2024 22:55:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 970BEC43394;
-	Sat, 27 Jan 2024 22:55:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1706396132;
-	bh=BAyzAtWHbxxSXGrtBKhMIkIHp0OhS8g69+hwB2nxb8k=;
-	h=Subject:To:Cc:From:Date:From;
-	b=c+Kr77bTQzdn5wf8pd1ZpjYW54rJFPLCzgaBAz2P7LrKH7NM7/rsALI2Oz5rPDl93
-	 rkb1TL7pMwwcze6gyAMeBUuzQvnjM9ijHMNRBC+QdfP2KyuvnmPfuNhhZlrysue/q7
-	 BAcva+0bNuXO1EQGmwKJHUYHQ+xwZtpWaNwKPixw=
-Subject: Patch "drm: Disable the cursor plane on atomic contexts with virtualized drivers" has been added to the 6.7-stable tree
-To: airlied@linux.ie,airlied@redhat.com,contact@emersion.fr,daniel@ffwll.ch,dri-devel@lists.freedesktop.org,gregkh@linuxfoundation.org,gurchetansingh@chromium.org,hdegoede@redhat.com,javierm@redhat.com,kraxel@redhat.com,maarten.lankhorst@linux.intel.com,mripard@kernel.org,olvaffe@gmail.com,pekka.paalanen@collabora.com,spice-devel@lists.freedesktop.org,tzimmermann@suse.de,virtualization@lists.linux-foundation.org,zackr@vmware.com
-Cc: <stable-commits@vger.kernel.org>
-From: <gregkh@linuxfoundation.org>
-Date: Sat, 27 Jan 2024 14:55:31 -0800
-Message-ID: <2024012730-spectator-elderly-60cb@gregkh>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="AkcVwVM1"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1706432787; x=1737968787;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=YAWRcL+76J78dm5IBZqJe3yaGnvEhoK8TSf93uvaj/A=;
+  b=AkcVwVM1IYf3lI5/vc76QUXOtxGOjEAURemyEqjZEKgtBkBowosAVzqG
+   +tV41u6q8VowpPpl2LC2G+kDJeETBqm/i4Bzi/eNf1dI/lTu6hpF4z3dq
+   lfDdh/hCF0U+ZgbtrSkJvNS4Dw0guDW1Oh+kdeEVey4cD2H+ewTL3gQBq
+   /vLOnoKNFFD1fkvO6BWeIUnlPEOQoxh+PY/SBMFvoDMIJW5O0ZBBuzpFp
+   6wD4kLDq0WracxC9UcqINq1/bDhiEYFkhoJ3GoqZ6fhByf34JTvkVDmT8
+   pVGxa1TpuH6BOBH+JLhCE45Bi3vOjYY4wrxgtVqSuKsnoUaGosUXb88TP
+   A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10966"; a="10139149"
+X-IronPort-AV: E=Sophos;i="6.05,220,1701158400"; 
+   d="scan'208";a="10139149"
+Received: from fmviesa005.fm.intel.com ([10.60.135.145])
+  by fmvoesa104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jan 2024 01:06:25 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.05,220,1701158400"; 
+   d="scan'208";a="3016775"
+Received: from lkp-server01.sh.intel.com (HELO 370188f8dc87) ([10.239.97.150])
+  by fmviesa005.fm.intel.com with ESMTP; 28 Jan 2024 01:06:22 -0800
+Received: from kbuild by 370188f8dc87 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1rU17L-0003GS-1R;
+	Sun, 28 Jan 2024 09:06:19 +0000
+Date: Sun, 28 Jan 2024 17:05:26 +0800
+From: kernel test robot <lkp@intel.com>
+To: Yunjian Wang <wangyunjian@huawei.com>, mst@redhat.com,
+	willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
+	kuba@kernel.org, davem@davemloft.net, magnus.karlsson@intel.com
+Cc: oe-kbuild-all@lists.linux.dev, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev, xudingke@huawei.com,
+	Yunjian Wang <wangyunjian@huawei.com>
+Subject: Re: [PATCH net-next 2/2] tun: AF_XDP Rx zero-copy support
+Message-ID: <202401281639.yBaJZ4Sh-lkp@intel.com>
+References: <1706089075-16084-1-git-send-email-wangyunjian@huawei.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-stable: commit
-X-Patchwork-Hint: ignore
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1706089075-16084-1-git-send-email-wangyunjian@huawei.com>
+
+Hi Yunjian,
+
+kernel test robot noticed the following build warnings:
+
+[auto build test WARNING on net-next/main]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Yunjian-Wang/xsk-Remove-non-zero-dma_page-check-in-xp_assign_dev/20240124-174011
+base:   net-next/main
+patch link:    https://lore.kernel.org/r/1706089075-16084-1-git-send-email-wangyunjian%40huawei.com
+patch subject: [PATCH net-next 2/2] tun: AF_XDP Rx zero-copy support
+config: s390-defconfig (https://download.01.org/0day-ci/archive/20240128/202401281639.yBaJZ4Sh-lkp@intel.com/config)
+compiler: s390-linux-gcc (GCC) 13.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240128/202401281639.yBaJZ4Sh-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202401281639.yBaJZ4Sh-lkp@intel.com/
+
+All warnings (new ones prefixed by >>):
+
+>> drivers/net/tun.c:1298:5: warning: no previous prototype for 'tun_xsk_pool_setup' [-Wmissing-prototypes]
+    1298 | int tun_xsk_pool_setup(struct net_device *dev, struct xsk_buff_pool *pool,
+         |     ^~~~~~~~~~~~~~~~~~
 
 
-This is a note to let you know that I've just added the patch titled
+vim +/tun_xsk_pool_setup +1298 drivers/net/tun.c
 
-    drm: Disable the cursor plane on atomic contexts with virtualized drivers
+  1297	
+> 1298	int tun_xsk_pool_setup(struct net_device *dev, struct xsk_buff_pool *pool,
+  1299			       u16 qid)
+  1300	{
+  1301		return pool ? tun_xsk_pool_enable(dev, pool, qid) :
+  1302			tun_xsk_pool_disable(dev, qid);
+  1303	}
+  1304	
 
-to the 6.7-stable tree which can be found at:
-    http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-
-The filename of the patch is:
-     drm-disable-the-cursor-plane-on-atomic-contexts-with-virtualized-drivers.patch
-and it can be found in the queue-6.7 subdirectory.
-
-If you, or anyone else, feels it should not be added to the stable tree,
-please let <stable@vger.kernel.org> know about it.
-
-
-From 4e3b70da64a53784683cfcbac2deda5d6e540407 Mon Sep 17 00:00:00 2001
-From: Zack Rusin <zackr@vmware.com>
-Date: Mon, 23 Oct 2023 09:46:05 +0200
-Subject: drm: Disable the cursor plane on atomic contexts with virtualized drivers
-
-From: Zack Rusin <zackr@vmware.com>
-
-commit 4e3b70da64a53784683cfcbac2deda5d6e540407 upstream.
-
-Cursor planes on virtualized drivers have special meaning and require
-that the clients handle them in specific ways, e.g. the cursor plane
-should react to the mouse movement the way a mouse cursor would be
-expected to and the client is required to set hotspot properties on it
-in order for the mouse events to be routed correctly.
-
-This breaks the contract as specified by the "universal planes". Fix it
-by disabling the cursor planes on virtualized drivers while adding
-a foundation on top of which it's possible to special case mouse cursor
-planes for clients that want it.
-
-Disabling the cursor planes makes some kms compositors which were broken,
-e.g. Weston, fallback to software cursor which works fine or at least
-better than currently while having no effect on others, e.g. gnome-shell
-or kwin, which put virtualized drivers on a deny-list when running in
-atomic context to make them fallback to legacy kms and avoid this issue.
-
-Signed-off-by: Zack Rusin <zackr@vmware.com>
-Fixes: 681e7ec73044 ("drm: Allow userspace to ask for universal plane list (v2)")
-Cc: <stable@vger.kernel.org> # v5.4+
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Maxime Ripard <mripard@kernel.org>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: Dave Airlie <airlied@redhat.com>
-Cc: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Hans de Goede <hdegoede@redhat.com>
-Cc: Gurchetan Singh <gurchetansingh@chromium.org>
-Cc: Chia-I Wu <olvaffe@gmail.com>
-Cc: dri-devel@lists.freedesktop.org
-Cc: virtualization@lists.linux-foundation.org
-Cc: spice-devel@lists.freedesktop.org
-Acked-by: Pekka Paalanen <pekka.paalanen@collabora.com>
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-Acked-by: Simon Ser <contact@emersion.fr>
-Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20231023074613.41327-2-aesteve@redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/gpu/drm/drm_plane.c          |   13 +++++++++++++
- drivers/gpu/drm/qxl/qxl_drv.c        |    2 +-
- drivers/gpu/drm/vboxvideo/vbox_drv.c |    2 +-
- drivers/gpu/drm/virtio/virtgpu_drv.c |    2 +-
- drivers/gpu/drm/vmwgfx/vmwgfx_drv.c  |    2 +-
- include/drm/drm_drv.h                |    9 +++++++++
- include/drm/drm_file.h               |   12 ++++++++++++
- 7 files changed, 38 insertions(+), 4 deletions(-)
-
---- a/drivers/gpu/drm/drm_plane.c
-+++ b/drivers/gpu/drm/drm_plane.c
-@@ -678,6 +678,19 @@ int drm_mode_getplane_res(struct drm_dev
- 		    !file_priv->universal_planes)
- 			continue;
- 
-+		/*
-+		 * If we're running on a virtualized driver then,
-+		 * unless userspace advertizes support for the
-+		 * virtualized cursor plane, disable cursor planes
-+		 * because they'll be broken due to missing cursor
-+		 * hotspot info.
-+		 */
-+		if (plane->type == DRM_PLANE_TYPE_CURSOR &&
-+		    drm_core_check_feature(dev, DRIVER_CURSOR_HOTSPOT) &&
-+		    file_priv->atomic &&
-+		    !file_priv->supports_virtualized_cursor_plane)
-+			continue;
-+
- 		if (drm_lease_held(file_priv, plane->base.id)) {
- 			if (count < plane_resp->count_planes &&
- 			    put_user(plane->base.id, plane_ptr + count))
---- a/drivers/gpu/drm/qxl/qxl_drv.c
-+++ b/drivers/gpu/drm/qxl/qxl_drv.c
-@@ -285,7 +285,7 @@ static const struct drm_ioctl_desc qxl_i
- };
- 
- static struct drm_driver qxl_driver = {
--	.driver_features = DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
-+	.driver_features = DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC | DRIVER_CURSOR_HOTSPOT,
- 
- 	.dumb_create = qxl_mode_dumb_create,
- 	.dumb_map_offset = drm_gem_ttm_dumb_map_offset,
---- a/drivers/gpu/drm/vboxvideo/vbox_drv.c
-+++ b/drivers/gpu/drm/vboxvideo/vbox_drv.c
-@@ -182,7 +182,7 @@ DEFINE_DRM_GEM_FOPS(vbox_fops);
- 
- static const struct drm_driver driver = {
- 	.driver_features =
--	    DRIVER_MODESET | DRIVER_GEM | DRIVER_ATOMIC,
-+	    DRIVER_MODESET | DRIVER_GEM | DRIVER_ATOMIC | DRIVER_CURSOR_HOTSPOT,
- 
- 	.fops = &vbox_fops,
- 	.name = DRIVER_NAME,
---- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-@@ -177,7 +177,7 @@ static const struct drm_driver driver =
- 	 * out via drm_device::driver_features:
- 	 */
- 	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_RENDER | DRIVER_ATOMIC |
--			   DRIVER_SYNCOBJ | DRIVER_SYNCOBJ_TIMELINE,
-+			   DRIVER_SYNCOBJ | DRIVER_SYNCOBJ_TIMELINE | DRIVER_CURSOR_HOTSPOT,
- 	.open = virtio_gpu_driver_open,
- 	.postclose = virtio_gpu_driver_postclose,
- 
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
-@@ -1611,7 +1611,7 @@ static const struct file_operations vmwg
- 
- static const struct drm_driver driver = {
- 	.driver_features =
--	DRIVER_MODESET | DRIVER_RENDER | DRIVER_ATOMIC | DRIVER_GEM,
-+	DRIVER_MODESET | DRIVER_RENDER | DRIVER_ATOMIC | DRIVER_GEM | DRIVER_CURSOR_HOTSPOT,
- 	.ioctls = vmw_ioctls,
- 	.num_ioctls = ARRAY_SIZE(vmw_ioctls),
- 	.master_set = vmw_master_set,
---- a/include/drm/drm_drv.h
-+++ b/include/drm/drm_drv.h
-@@ -110,6 +110,15 @@ enum drm_driver_feature {
- 	 * Driver supports user defined GPU VA bindings for GEM objects.
- 	 */
- 	DRIVER_GEM_GPUVA		= BIT(8),
-+	/**
-+	 * @DRIVER_CURSOR_HOTSPOT:
-+	 *
-+	 * Driver supports and requires cursor hotspot information in the
-+	 * cursor plane (e.g. cursor plane has to actually track the mouse
-+	 * cursor and the clients are required to set hotspot in order for
-+	 * the cursor planes to work correctly).
-+	 */
-+	DRIVER_CURSOR_HOTSPOT           = BIT(9),
- 
- 	/* IMPORTANT: Below are all the legacy flags, add new ones above. */
- 
---- a/include/drm/drm_file.h
-+++ b/include/drm/drm_file.h
-@@ -227,6 +227,18 @@ struct drm_file {
- 	bool is_master;
- 
- 	/**
-+	 * @supports_virtualized_cursor_plane:
-+	 *
-+	 * This client is capable of handling the cursor plane with the
-+	 * restrictions imposed on it by the virtualized drivers.
-+	 *
-+	 * This implies that the cursor plane has to behave like a cursor
-+	 * i.e. track cursor movement. It also requires setting of the
-+	 * hotspot properties by the client on the cursor plane.
-+	 */
-+	bool supports_virtualized_cursor_plane;
-+
-+	/**
- 	 * @master:
- 	 *
- 	 * Master this node is currently associated with. Protected by struct
-
-
-Patches currently in stable-queue which might be from zackr@vmware.com are
-
-queue-6.7/drm-disable-the-cursor-plane-on-atomic-contexts-with-virtualized-drivers.patch
-queue-6.7/drm-allow-drivers-to-indicate-the-damage-helpers-to-ignore-damage-clips.patch
-queue-6.7/drm-virtio-disable-damage-clipping-if-fb-changed-since-last-page-flip.patch
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
