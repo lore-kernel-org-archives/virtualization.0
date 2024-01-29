@@ -1,380 +1,289 @@
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D4B34C602
-	for <virtualization@lists.linux.dev>; Mon, 29 Jan 2024 06:28:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1C1354BDB
+	for <virtualization@lists.linux.dev>; Mon, 29 Jan 2024 08:47:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706509720; cv=none; b=q5P1VbQelh3d829q5lkkuT6ZGJLj4tHYy/Gg2oxyEj5460raYV2rEHpcm0T3u7ExRo/JnsojAwzQDOsNsZklI6TaEFhqUcX2dPZOw7CusIxevuneu1iw+goOpkX7ugtcoP/JWoH2MqMlV98Pxex56Z7JPoP3H7PTAFjzZK9wzvc=
+	t=1706518027; cv=none; b=qgRRdbzI1RjEU8jMqWfy1fqHM01uqQ7SSnPxPo/3b/zTz9XYN5bIz9K0rkldtKjhiOr/zsCvgUnxkzmz8l/IL2e5/eumo/7tDjXlbT8lqYVVzZ79MhmwqCx9KhNKdAWuZfNDbOLhSHw6lecVO+Jv8MwqqBgAUiMrxY3XooLn+MY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706509720; c=relaxed/simple;
-	bh=SV7fufg+aCJ8k+hCP96MGeqcBmHyzQuyce956n+q15Q=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=LiIjriKssC/fcB9rzkdBKt9d2C5ys7GX1RTeM6iVMDdQGToScSKx0IG3sdJ5PS7E+GeWAu1PYybuO6aTr6P6eW6kse/axXDhgsA4eEYcdW3z/eAyWulETwtHf3XD3d+p03U+H559WlWurdr/M6TxfMHZrjTC0FgYlMH7Dg1ENJQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=pDtG/Uh1; arc=none smtp.client-ip=115.124.30.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1706518027; c=relaxed/simple;
+	bh=wan+/40Gb1SyAcbTJJKFngUv3lxpedgrk4APeSN8y8k=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=uqX0gZPLk9PfePzfgmEFNEx4KdQTmXOBKqd3dbLjC4UyhMhsoC1mC1VDYymRu4S8I6dZA/UU5RqNz1oQnzRs+0jZ+kACh+Q6rvCSArFlBAOO1fdRpURlU0STNbr2LcBv9oBDmNdBgIeRFMtM9nuTknKYZlMgZiHT/FbOro/SeqA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VHztNHNv; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="pDtG/Uh1"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1706509714; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=vyaSgaa0SFOLYmzyrw6gXo9xIhbB550cRSClo4SXHCA=;
-	b=pDtG/Uh11B+dhRHnxKxEOz394KFksKbsltLV/PnCXbxAx+MfhXxIhRj4QrHWCToPV8mPRJc6MW0Eepgfj78A7otWgg53x3mUdGJm1giE60RI4ZZUIaGGnJ1YVwjjtgET8+pO6E8ZXQmkyQV5dEF1xGOmf9na8U7QTefnyZ9hNXU=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W.VqCu3_1706509713;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W.VqCu3_1706509713)
-          by smtp.aliyun-inc.com;
-          Mon, 29 Jan 2024 14:28:34 +0800
-Message-ID: <1706509439.850925-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next 0/5] virtio-net: sq support premapped mode
-Date: Mon, 29 Jan 2024 14:23:59 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: netdev@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- virtualization@lists.linux.dev,
- bpf@vger.kernel.org,
- Jason Wang <jasowang@redhat.com>
-References: <20240116075924.42798-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEuvubWfg8Wc+=eNqg1rHR+PD6jsH7_QEJV6=S+DUVdThQ@mail.gmail.com>
- <1706161325.4430635-1-xuanzhuo@linux.alibaba.com>
- <1706161768.900584-2-xuanzhuo@linux.alibaba.com>
- <CACGkMEug-=C+VQhkMYSgUKMC==04m7-uem_yC21bgGkKZh845w@mail.gmail.com>
- <1706163935.2439404-5-xuanzhuo@linux.alibaba.com>
- <CACGkMEvq0No8QGC46U4mGsMtuD44fD_cfLcPaVmJ3rHYqRZxYg@mail.gmail.com>
- <1706499476.9318902-3-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <1706499476.9318902-3-xuanzhuo@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VHztNHNv"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1706518024;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=mHx98I53Z/x+UcJL2CQPXiS0oxn65PZb6tI9zRyZW1E=;
+	b=VHztNHNvMkLMYkcuFV86dCtR6/d1QvXXMvhTHQryPyZv3fuvMN+zq5UkIYUTplQCAbPjnb
+	q5XX4c6nKEqK5Z3XltyD2MsbpmeRswl7F+0UZrC6HnC2K6InVXpJXgR7BL3hi2PgT6O8NI
+	nhYLGmSjdP0ZqpGwmQQCSAdrXsy9aY8=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-557-sW1Ri5DINYe-qKsFKT-DJg-1; Mon, 29 Jan 2024 03:47:01 -0500
+X-MC-Unique: sW1Ri5DINYe-qKsFKT-DJg-1
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-33ae7482b2dso531370f8f.0
+        for <virtualization@lists.linux.dev>; Mon, 29 Jan 2024 00:47:01 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1706518020; x=1707122820;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=mHx98I53Z/x+UcJL2CQPXiS0oxn65PZb6tI9zRyZW1E=;
+        b=B8VwjiXkzdwo+61vCsA0RVVG03Q2zIVL4crbUkrFfmK5T2ThWs7D3o/mNcE0Lj9NOL
+         tStHSP6s6ydlGu5YehyDliRekMvOjhsppCte2Mjfba0fgIALs8+aYojgMuKaigKrnH7r
+         RpYyEGzSQajb16vndl7ccW5g8i7tsRbzr0fkoI3ykxI2OPvvuErLj/+tjLhOYXnts5Cs
+         Owb/DXDQuBoAo06yPm0pYkciCKzSgS2GNFmg74j/WDeWsIqEnppHH5NJLtjra0loV/1B
+         TNk5KjmS8PrCqNVqu23ro4tN6/n8KfVzEVW3Th4i+GlhLUdaOGh320Y3L0xHfRYPCJro
+         VB1Q==
+X-Gm-Message-State: AOJu0YxRApKEftQCQHeCIlL063BKIkdsUV7Ygg6+zZB39TT6ghJCaRCN
+	WwBqlMbDFBFydi9JQpNVwUdNX6ZsRhwaxfQ0yXqNVJcF3GetHvn79xvg4KAV0GXAjlapEsqXnC3
+	6upO5o3d+TbOnNZsvNLklzDFfn4+qZYD1+oIFmKFbGMPNDnAhSP0rX5WQyOn3j/nR
+X-Received: by 2002:a05:6000:710:b0:33a:f399:5de3 with SMTP id bs16-20020a056000071000b0033af3995de3mr576173wrb.39.1706518020237;
+        Mon, 29 Jan 2024 00:47:00 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEwh3LLMODSTkeFeUAQPUxU73Kw1Df+2FZWQ7IIt52Rgmjhp3f7mup1S9zJyIE8dHYQ33LIqQ==
+X-Received: by 2002:a05:6000:710:b0:33a:f399:5de3 with SMTP id bs16-20020a056000071000b0033af3995de3mr576145wrb.39.1706518019789;
+        Mon, 29 Jan 2024 00:46:59 -0800 (PST)
+Received: from redhat.com ([2.52.129.159])
+        by smtp.gmail.com with ESMTPSA id bp19-20020a5d5a93000000b003394495566dsm7571525wrb.22.2024.01.29.00.46.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 29 Jan 2024 00:46:59 -0800 (PST)
+Date: Mon, 29 Jan 2024 03:46:55 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Nathan Chancellor <nathan@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	stable@vger.kernel.org, patches@lists.linux.dev,
+	linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+	llvm@lists.linux.dev, keescook@chromium.org,
+	arei.gonglei@huawei.com, jasowang@redhat.com,
+	virtualization@lists.linux.dev, linux-crypto@vger.kernel.org,
+	zhenwei pi <pizhenwei@bytedance.com>
+Subject: Re: [PATCH 5.10 000/286] 5.10.209-rc1 review
+Message-ID: <20240129034304-mutt-send-email-mst@kernel.org>
+References: <20240122235732.009174833@linuxfoundation.org>
+ <6b563537-b62f-428e-96d1-2a228da99077@roeck-us.net>
+ <2024012636-clubbed-radial-1997@gregkh>
+ <2f342268-8517-4c06-8785-96a588d20c63@roeck-us.net>
+ <20240126203436.GA913905@dev-arch.thelio-3990X>
+ <0a194a79-e3a3-45e7-be98-83abd3e1cb7e@roeck-us.net>
+ <20240126223554.GA1320833@dev-arch.thelio-3990X>
+ <bef7737e-4b8e-4a89-b538-cd8e75874fd2@roeck-us.net>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+In-Reply-To: <bef7737e-4b8e-4a89-b538-cd8e75874fd2@roeck-us.net>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Mon, 29 Jan 2024 11:37:56 +0800, Xuan Zhuo <xuanzhuo@linux.alibaba.com> =
-wrote:
-> On Mon, 29 Jan 2024 11:14:43 +0800, Jason Wang <jasowang@redhat.com> wrot=
-e:
-> > On Thu, Jan 25, 2024 at 2:33=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.aliba=
-ba.com> wrote:
-> > >
-> > > On Thu, 25 Jan 2024 14:14:58 +0800, Jason Wang <jasowang@redhat.com> =
-wrote:
-> > > > On Thu, Jan 25, 2024 at 1:52=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.a=
-libaba.com> wrote:
-> > > > >
-> > > > > On Thu, 25 Jan 2024 13:42:05 +0800, Xuan Zhuo <xuanzhuo@linux.ali=
-baba.com> wrote:
-> > > > > > On Thu, 25 Jan 2024 11:39:28 +0800, Jason Wang <jasowang@redhat=
-.com> wrote:
-> > > > > > > On Tue, Jan 16, 2024 at 3:59=E2=80=AFPM Xuan Zhuo <xuanzhuo@l=
-inux.alibaba.com> wrote:
-> > > > > > > >
-> > > > > > > > This is the second part of virtio-net support AF_XDP zero c=
-opy.
-> > > > > > > >
-> > > > > > > > The whole patch set
-> > > > > > > > http://lore.kernel.org/all/20231229073108.57778-1-xuanzhuo@=
-linux.alibaba.com
-> > > > > > > >
-> > > > > > > > ## About the branch
-> > > > > > > >
-> > > > > > > > This patch set is pushed to the net-next branch, but some p=
-atches are about
-> > > > > > > > virtio core. Because the entire patch set for virtio-net to=
- support AF_XDP
-> > > > > > > > should be pushed to net-next, I hope these patches will be =
-merged into net-next
-> > > > > > > > with the virtio core maintains's Acked-by.
-> > > > > > > >
-> > > > > > > > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D
-> > > > > > > >
-> > > > > > > > ## AF_XDP
-> > > > > > > >
-> > > > > > > > XDP socket(AF_XDP) is an excellent bypass kernel network fr=
-amework. The zero
-> > > > > > > > copy feature of xsk (XDP socket) needs to be supported by t=
-he driver. The
-> > > > > > > > performance of zero copy is very good. mlx5 and intel ixgbe=
- already support
-> > > > > > > > this feature, This patch set allows virtio-net to support x=
-sk's zerocopy xmit
-> > > > > > > > feature.
-> > > > > > > >
-> > > > > > > > At present, we have completed some preparation:
-> > > > > > > >
-> > > > > > > > 1. vq-reset (virtio spec and kernel code)
-> > > > > > > > 2. virtio-core premapped dma
-> > > > > > > > 3. virtio-net xdp refactor
-> > > > > > > >
-> > > > > > > > So it is time for Virtio-Net to complete the support for th=
-e XDP Socket
-> > > > > > > > Zerocopy.
-> > > > > > > >
-> > > > > > > > Virtio-net can not increase the queue num at will, so xsk s=
-hares the queue with
-> > > > > > > > kernel.
-> > > > > > > >
-> > > > > > > > On the other hand, Virtio-Net does not support generate int=
-errupt from driver
-> > > > > > > > manually, so when we wakeup tx xmit, we used some tips. If =
-the CPU run by TX
-> > > > > > > > NAPI last time is other CPUs, use IPI to wake up NAPI on th=
-e remote CPU. If it
-> > > > > > > > is also the local CPU, then we wake up napi directly.
-> > > > > > > >
-> > > > > > > > This patch set includes some refactor to the virtio-net to =
-let that to support
-> > > > > > > > AF_XDP.
-> > > > > > > >
-> > > > > > > > ## performance
-> > > > > > > >
-> > > > > > > > ENV: Qemu with vhost-user(polling mode).
-> > > > > > > > Host CPU: Intel(R) Xeon(R) Platinum 8163 CPU @ 2.50GHz
-> > > > > > > >
-> > > > > > > > ### virtio PMD in guest with testpmd
-> > > > > > > >
-> > > > > > > > testpmd> show port stats all
-> > > > > > > >
-> > > > > > > >  ######################## NIC statistics for port 0 #######=
-#################
-> > > > > > > >  RX-packets: 19531092064 RX-missed: 0     RX-bytes: 1093741=
-155584
-> > > > > > > >  RX-errors: 0
-> > > > > > > >  RX-nombuf: 0
-> > > > > > > >  TX-packets: 5959955552 TX-errors: 0     TX-bytes: 37103064=
-5664
-> > > > > > > >
-> > > > > > > >
-> > > > > > > >  Throughput (since last show)
-> > > > > > > >  Rx-pps:   8861574     Rx-bps:  3969985208
-> > > > > > > >  Tx-pps:   8861493     Tx-bps:  3969962736
-> > > > > > > >  ##########################################################=
-##################
-> > > > > > > >
-> > > > > > > > ### AF_XDP PMD in guest with testpmd
-> > > > > > > >
-> > > > > > > > testpmd> show port stats all
-> > > > > > > >
-> > > > > > > >   ######################## NIC statistics for port 0  #####=
-###################
-> > > > > > > >   RX-packets: 68152727   RX-missed: 0          RX-bytes:  3=
-816552712
-> > > > > > > >   RX-errors: 0
-> > > > > > > >   RX-nombuf:  0
-> > > > > > > >   TX-packets: 68114967   TX-errors: 33216      TX-bytes:  3=
-814438152
-> > > > > > > >
-> > > > > > > >   Throughput (since last show)
-> > > > > > > >   Rx-pps:      6333196          Rx-bps:   2837272088
-> > > > > > > >   Tx-pps:      6333227          Tx-bps:   2837285936
-> > > > > > > >   #########################################################=
-###################
-> > > > > > > >
-> > > > > > > > But AF_XDP consumes more CPU for tx and rx napi(100% and 86=
-%).
-> > > > > > > >
-> > > > > > > > ## maintain
-> > > > > > > >
-> > > > > > > > I am currently a reviewer for virtio-net. I commit to maint=
-ain AF_XDP support in
-> > > > > > > > virtio-net.
-> > > > > > > >
-> > > > > > > > Please review.
-> > > > > > > >
-> > > > > > >
-> > > > > > > Rethink of the whole design, I have one question:
-> > > > > > >
-> > > > > > > The reason we need to store DMA information is to harden the =
-virtqueue
-> > > > > > > to make sure the DMA unmap is safe. This seems redundant when=
- the
-> > > > > > > buffer were premapped by the driver, for example:
-> > > > > > >
-> > > > > > > Receive queue maintains DMA information, so it doesn't need d=
-esc_extra to work.
-> > > > > > >
-> > > > > > > So can we simply
-> > > > > > >
-> > > > > > > 1) when premapping is enabled, store DMA information by drive=
-r itself
-> > > > > >
-> > > > > > YES. this is simpler. And this is more convenience.
-> > > > > > But the driver must allocate memory to store the dma info.
-> > > >
-> > > > Right, and this looks like the common practice for most of the NIC =
-drivers.
-> > > >
-> > > > > >
-> > > > > > > 2) don't store DMA information in desc_extra
-> > > > > >
-> > > > > > YES. But the desc_extra memory is wasted. The "next" item is us=
-ed.
-> > > > > > Do you think should we free the desc_extra when the vq is prema=
-pped mode?
-> > > > >
-> > > > >
-> > > > > struct vring_desc_extra {
-> > > > >         dma_addr_t addr;                /* Descriptor DMA addr. */
-> > > > >         u32 len;                        /* Descriptor length. */
-> > > > >         u16 flags;                      /* Descriptor flags. */
-> > > > >         u16 next;                       /* The next desc state in=
- a list. */
-> > > > > };
-> > > > >
-> > > > >
-> > > > > The flags and the next are used whatever premapped or not.
-> > > > >
-> > > > > So I think we can add a new array to store the addr and len.
-> > > >
-> > > > Yes.
-> > > >
-> > > > > If the vq is premappd, the memory can be freed.
-> > > >
-> > > > Then we need to make sure the premapped is set before find_vqs() et=
-c.
-> > >
-> > >
-> > > Yes. We can start from the parameters of the find_vqs().
-> > >
-> > > But actually we can free the dma array when the driver sets premapped=
- mode.
-> >
-> > Probably, but that's kind of odd.
-> >
-> > init()
-> >     alloc()
-> >
-> > set_premapped()
-> >     free()
->
-> If so, the premapped option will be a find_vqs parameter,
-> the api virtqueue_set_dma_premapped will be removed.
-> And we can put the buffer_is_premapped to the struct virtqueue,
-> The use can access it on the fly. (You asked on #4)
+On Fri, Jan 26, 2024 at 03:55:02PM -0800, Guenter Roeck wrote:
+> On 1/26/24 14:35, Nathan Chancellor wrote:
+> > (slimming up the CC list, I don't think this is too relevant to the
+> > wider stable community)
+> > 
+> > On Fri, Jan 26, 2024 at 01:01:15PM -0800, Guenter Roeck wrote:
+> > > On 1/26/24 12:34, Nathan Chancellor wrote:
+> > > > On Fri, Jan 26, 2024 at 10:17:23AM -0800, Guenter Roeck wrote:
+> > > > > On 1/26/24 09:51, Greg Kroah-Hartman wrote:
+> > > > > > On Fri, Jan 26, 2024 at 08:46:42AM -0800, Guenter Roeck wrote:
+> > > > > > > On 1/22/24 15:55, Greg Kroah-Hartman wrote:
+> > > > > > > > This is the start of the stable review cycle for the 5.10.209 release.
+> > > > > > > > There are 286 patches in this series, all will be posted as a response
+> > > > > > > > to this one.  If anyone has any issues with these being applied, please
+> > > > > > > > let me know.
+> > > > > > > > 
+> > > > > > > > Responses should be made by Wed, 24 Jan 2024 23:56:49 +0000.
+> > > > > > > > Anything received after that time might be too late.
+> > > > > > > > 
+> > > > > > > [ ... ]
+> > > > > > > 
+> > > > > > > > zhenwei pi <pizhenwei@bytedance.com>
+> > > > > > > >         virtio-crypto: implement RSA algorithm
+> > > > > > > > 
+> > > > > > > 
+> > > > > > > Curious: Why was this (and its subsequent fixes) backported to v5.10.y ?
+> > > > > > > It is quite beyond a bug fix. Also, unless I am really missing something,
+> > > > > > > the series (or at least this patch) was not applied to v5.15.y, so we now
+> > > > > > > have functionality in v5.10.y which is not in v5.15.y.
+> > > > > > 
+> > > > > > See the commit text, it was a dependency of a later fix and documented
+> > > > > > as such.
+> > > > > > 
+> > > > > > Having it in 5.10 and not 5.15 is a bit odd, I agree, so patches are
+> > > > > > gladly accepted :)
+> > > > > > 
+> > > > > 
+> > > > > We reverted the entire series from the merge because it results in a build
+> > > > > failure for us.
+> > > > > 
+> > > > > In file included from /home/groeck/src/linux-chromeos/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c:10:
+> > > > > In file included from /home/groeck/src/linux-chromeos/include/linux/mpi.h:21:
+> > > > > In file included from /home/groeck/src/linux-chromeos/include/linux/scatterlist.h:5:
+> > > > > In file included from /home/groeck/src/linux-chromeos/include/linux/string.h:293:
+> > > > > /home/groeck/src/linux-chromeos/include/linux/fortify-string.h:512:4: error: call to __read_overflow2_field declared with 'warning' attribute: detected read beyond size of field (2nd parameter); maybe use struct_group()? [-Werror,-Wattribute-warning]
+> > > > >                           __read_overflow2_field(q_size_field, size);
+> > > > 
+> > > > For what it's worth, this is likely self inflicted for chromeos-5.10,
+> > > > which carries a revert of commit eaafc590053b ("fortify: Explicitly
+> > > > disable Clang support") as commit c19861d34c003 ("CHROMIUM: Revert
+> > > > "fortify: Explicitly disable Clang support""). I don't see the series
+> > > > that added proper support for clang to fortify in 5.18 that ended with
+> > > > commit 281d0c962752 ("fortify: Add Clang support") in that ChromeOS
+> > > > branch, so this seems somewhat expected.
+> > > > 
+> > > 
+> > > That explains that ;-). I don't mind if the patches stay in v5.10.y,
+> > > we have them reverted anyway.
+> > > 
+> > > The revert was a pure process issue, as you may see when looking into
+> > > commit c19861d34c003, so, yes, I agree that it is self-inflicted damage.
+> > > Still, that doesn't explain why the problem exists in 5.18+.
+> > > 
+> > > > > I also see that upstream (starting with 6.1) when trying to build it with clang,
+> > > > > so I guess it is one of those bug-for-bug compatibility things. I really have
+> > > > > no idea what causes it, or why we don't see the problem when building
+> > > > > chromeos-6.1 or chromeos-6.6, but (so far) only with chromeos-5.10 after
+> > > > > merging 5.10.209 into it. Making things worse, the problem isn't _always_
+> > > > > seen. Sometimes I can compile the file in 6.1.y without error, sometimes not.
+> > > > > I have no idea what triggers the problem.
+> > > > 
+> > > > Have a .config that reproduces it on upstream? I have not personally
+> > > > seen this warning in my build matrix nor has our continuous-integration
+> > > > matrix (I don't see it in the warning output at the bottom but that
+> > > > could have missed something for some reason) in 6.1:
+> > > > 
+> > > 
+> > > The following command sequence reproduces the problem for me with all stable
+> > > branches starting with 5.18.y (plus mainline).
+> > > 
+> > > rm -rf /tmp/crypto-build
+> > > mkdir /tmp/crypto-build
+> > > make -j CC=clang-15 mrproper >/dev/null 2>&1
+> > > make -j O=/tmp/crypto-build CC=clang-15 allmodconfig >/dev/null 2>&1
+> > > make -j O=/tmp/crypto-build W=1 CC=clang-15 drivers/crypto/virtio/virtio_crypto_akcipher_algs.o
+> > > 
+> > > I tried clang versions 14, 15, and 16. This is with my home system running
+> > > Ubuntu 22.04, no ChromeOS or Google specifics/internals involved. For clang-15,
+> > > the version is
+> > > 
+> > > Ubuntu clang version 15.0.7
+> > > Target: x86_64-pc-linux-gnu
+> > > Thread model: posix
+> > > InstalledDir: /usr/bin
+> > 
+> > Okay interesting, this warning is hidden behind W=1, which our CI does
+> > not test with. Looks like it has been that way since the introduction of
+> > these checks in f68f2ff91512 ("fortify: Detect struct member overflows
+> > in memcpy() at compile-time").
+> > 
+> 
+> Interestingly the warning is seen in chromeos-5.10, without this patch,
+> and without W=1. I guess that must have to do with the revert which is
+> finally biting us.
+> 
+> > I think this is a legitimate warning though. It is complaining about the
+> > second memcpy() in virtio_crypto_alg_akcipher_init_session():
+> > 
+> >    memcpy(&ctrl->u, para, sizeof(ctrl->u));
+> > 
+> > where ctrl is:
+> > 
+> >    struct virtio_crypto_op_ctrl_req {
+> >            struct virtio_crypto_ctrl_header header;         /*     0    16 */
+> >            union {
+> >                    struct virtio_crypto_sym_create_session_req sym_create_session; /*    16    56 */
+> >                    struct virtio_crypto_hash_create_session_req hash_create_session; /*    16    56 */
+> >                    struct virtio_crypto_mac_create_session_req mac_create_session; /*    16    56 */
+> >                    struct virtio_crypto_aead_create_session_req aead_create_session; /*    16    56 */
+> >                    struct virtio_crypto_akcipher_create_session_req akcipher_create_session; /*    16    56 */
+> >                    struct virtio_crypto_destroy_session_req destroy_session; /*    16    56 */
+> >                    __u8               padding[56];          /*    16    56 */
+> >            } u;                                             /*    16    56 */
+> >            union {
+> >                    struct virtio_crypto_sym_create_session_req sym_create_session; /*     0    56 */
+> >                    struct virtio_crypto_hash_create_session_req hash_create_session; /*     0    56 */
+> >                    struct virtio_crypto_mac_create_session_req mac_create_session; /*     0    56 */
+> >                    struct virtio_crypto_aead_create_session_req aead_create_session; /*     0    56 */
+> >                    struct virtio_crypto_akcipher_create_session_req akcipher_create_session; /*     0    56 */
+> >                    struct virtio_crypto_destroy_session_req destroy_session; /*     0    56 */
+> >                    __u8                       padding[56];          /*     0    56 */
+> >            };
+> > 
+> > 
+> >            /* size: 72, cachelines: 2, members: 2 */
+> >            /* last cacheline: 8 bytes */
+> >    };
+> > 
+> > (so size and p_size_field should be 56) and the type of the para
+> > parameter in virtio_crypto_alg_akcipher_init_session() is 'void *' but
+> > the para passed by reference to
+> > virtio_crypto_alg_akcipher_init_session() in virtio_crypto_rsa_set_key()
+> > has a type of 'struct virtio_crypto_akcipher_session_para':
+> > 
+> >    struct virtio_crypto_akcipher_session_para {
+> >            __le32                     algo;                 /*     0     4 */
+> >            __le32                     keytype;              /*     4     4 */
+> >            __le32                     keylen;               /*     8     4 */
+> >            union {
+> >                    struct virtio_crypto_rsa_session_para rsa; /*    12     8 */
+> >                    struct virtio_crypto_ecdsa_session_para ecdsa; /*    12     8 */
+> >            } u;                                             /*    12     8 */
+> >            union {
+> >                    struct virtio_crypto_rsa_session_para rsa;       /*     0     8 */
+> >                    struct virtio_crypto_ecdsa_session_para ecdsa;   /*     0     8 */
+> >            };
+> > 
+> > 
+> >            /* size: 20, cachelines: 1, members: 4 */
+> >            /* last cacheline: 20 bytes */
+> >    };
+> > 
+> > (so q_size_field would be 20 if clang were able to do inlining to see
+> > through the 'void *'...?), which would result in the
+> > 
+> >    __compiletime_lessthan(q_size_field, size)
+> > 
+> > check succeeding and triggering the warning because 20 < 56, so it does
+> > seem like there is an overread of the source buffer here? Adding the
+> 
+> Looks like it; I think either the passed 'para' should be of type
+> virtio_crypto_akcipher_create_session_req() or it should only copy
+> sizeof(struct virtio_crypto_akcipher_session_para) bytes.
+> 
+> Anyway, how did you find that ? Is there a magic trick to find the
+> actual code causing the warning ? I am asking because we had seen
+> similar warnings before, and it would help to know how to find the
+> problematic code.
+> 
+> Thanks,
+> Guenter
 
 
-I try to pass the option to find_vqs.
 
-You know, the find_vqs has too many parameters.
-And everytime we try to add new parameter is a difficult work.
-Many places need to be changed.
+Cc: zhenwei pi <pizhenwei@bytedance.com>
+
+Zhenwei I think you wrote most of the code here.
+Can you take a look please?
+Stack overflows are plus plus ungood.
 
 
-	int (*find_vqs)(struct virtio_device *, unsigned nvqs,
-			struct virtqueue *vqs[], vq_callback_t *callbacks[],
-			const char * const names[], const bool *ctx,
-			const bool *premapped,
-			struct irq_affinity *desc);
 
-Do you have any preference if I try to refactor this to pass a struct?
 
-Thanks.
+> > maintainers of the driver and subsystem in question.
+> > 
+> > Cheers,
+> > Nathan
 
->
->
-> >
-> > >
-> > > >
-> > > > >
-> > > > > struct vring_desc_extra {
-> > > > >         u16 flags;                      /* Descriptor flags. */
-> > > > >         u16 next;                       /* The next desc state in=
- a list. */
-> > > > > };
-> > > > >
-> > > > > struct vring_desc_dma {
-> > > > >         dma_addr_t addr;                /* Descriptor DMA addr. */
-> > > > >         u32 len;                        /* Descriptor length. */
-> > > > > };
-> > > > >
-> > > > > Thanks.
-> > >
-> > > As we discussed, you may wait my next patch set of the new design.
-> > >
-> > > Could you review the first patch set of this serial.
-> > > http://lore.kernel.org/all/20240116062842.67874-1-xuanzhuo@linux.alib=
-aba.com
-> > >
-> > > I work on top of this.
-> >
-> > Actually, I'm a little confused about the dependencies.
-> >
-> > We have three:
-> >
-> > 1) move the virtio-net to a dedicated directory
-> > 2) premapped mode
-> > 3) AF_XDP
-> >
-> > It looks to me the current series is posted in that dependency.
-> >
-> > Then I have questions:
-> >
-> > 1) do we agree with moving to a directory (I don't have a preference)?
-> > 2) if 3) depends on 2), I'd suggest to make sure 2) is finalized
-> > before posting 3), this is because we have gone through several rounds
-> > of AF_XDP and most concerns were for the API that is introduced in 2)
-> >
-> > Does this make sense?
->
-> YES. this make sense.
->
-> I do this because I can reduce the work of rebasing the code again.
->
-> But you are right, this is the right order.
->
->
-> >
-> > >
-> > > PS.
-> > >
-> > > There is another patch set "device stats". I hope that is in your lis=
-t.
-> > >
-> > > http://lore.kernel.org/all/20231226073103.116153-1-xuanzhuo@linux.ali=
-baba.com
-> >
-> > Yes, it is. (If it doesn't depend on the moving of the source).
->
-> It does not depend on that.
->
-> Thanks.
->
->
-> >
-> > Thanks
-> >
-> > >
-> > > Thanks.
-> > >
-> > >
-> > > >
-> > > > Thanks
-> > > >
-> > > > >
-> > > > > >
-> > > > > > Thanks.
-> > > > > >
-> > > > > >
-> > > > > > >
-> > > > > > > Would this be simpler?
-> > > > > > >
-> > > > > > > Thanks
-> > > > > > >
-> > > > >
-> > > >
-> > >
-> >
->
