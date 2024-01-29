@@ -1,308 +1,245 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 138F36280D;
-	Mon, 29 Jan 2024 13:11:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706533913; cv=none; b=EuJiyc38NpkKirk+xyJXookKgkCgiZFBYC19LF3Xu4dN0GnXuG9NhSc/xcQOjqDSAakXhXJ6cpNGMjCpPXubQ0ESlqrwM6PVGw4E5ZF68W4QOoJ36TSRIjA3gh9DHkQKSTm2c2u49LOc4oxHaxjG+a6Z9f6EW4SkQzBBiNbi1fY=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706533913; c=relaxed/simple;
-	bh=ZnTukG0ry6mY3S68K6+Bb7CU4b4XhqHBZ2rqk7MM7uk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=S+Vagg3FUNofxWUB9mSjAk9H8z7AfDulr3kEvMbi3R6uVY1UNxfSDiMfDZvY2YmVrdVQDXnV/Fbmrp40BxtLnZJ0OHHP1FZxjYw7r1yLMGmoMWMXTX4ivd+77ci6n2MbYO8lBZS4oKpCo+bnIkJ2/6N6S67trcddt4jxAW3YTvQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OKjxsM/J; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A192663135
+	for <virtualization@lists.linux-foundation.org>; Mon, 29 Jan 2024 13:12:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.133
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1706533956; cv=fail; b=aVxaT5JjPfwXcquFDXIPz/+FHgdZA4VmpbVOBkB5ckyQ1yBYdJ0xHUK/h/PNipMEik+Wr7MGsHxEvHLyvsz3LgVt+0GSaQbiNsZMxBrDEsR32NhZqO0sGkLyCNfUtbbcvDfuS0HNUNAqWkygRtv1brLCZg3bwDah8lKqmIWrT+M=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1706533956; c=relaxed/simple;
+	bh=gx1/1X+kcRrverq7wRoK/5Fl96H9Ss4G5BaGhLhQ65c=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=EYcwicnRp6rYOLKZGUxgXHpMx7azzFOoaeKovpBB4k+K2ji9+sZsaeSMkpQaV791yH8mfcRUvqRxWDsQEl+iL+0PnSljvdgBY3CHpNZ61mtuYdH7Z9ZlOoGRFCnTkXhCkLePiF5VQ74Lx7XJoWpvAMU/ua0e9Ogh/tele2EwFzY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=GXG6mdVM; arc=fail smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OKjxsM/J"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A10D6C433C7;
-	Mon, 29 Jan 2024 13:11:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1706533912;
-	bh=ZnTukG0ry6mY3S68K6+Bb7CU4b4XhqHBZ2rqk7MM7uk=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=OKjxsM/JqzCOSUwLADpWgrNEZS88Om80y6gqueEU4TasftSyLcTVaIMr6iR8hlcKN
-	 NY4rYvx2qwWcp5286XdMkG0srhX1ar4BFlNOKXKgCG8MjyWeSe8EsfXDEJWjRkQMkG
-	 ABb30mF6c6eTuP9YwOetPm0B4FFoLznUzcm4Xt3hVsVZP75RtKzrRAloG0UcqdMhzq
-	 KM0hryVSodNKQlByH8lWfw9Dym5zoWrf7+PYwDicP34ERJl9SrZ2i03s7sUFDRmdo/
-	 qBuM92InOKhTei6K9Qwczcosc10h7sQTxh2S4eQrsagtCUBv5ztG9ullfILH+jAE4N
-	 3+/aQkXsE+S+Q==
-Received: by mail-ed1-f54.google.com with SMTP id 4fb4d7f45d1cf-55f13b682d4so821510a12.1;
-        Mon, 29 Jan 2024 05:11:52 -0800 (PST)
-X-Gm-Message-State: AOJu0YwFnCvLWAHV2wxajMzsHdB6YAH/FwK8UlOE3GJ6VHdGDWJb3PYp
-	YEm9DPk6cEpiSQoJlyYf3ZIqKXlqRWm1DS/ijVqAs60G2+rWr9GDKkZ4yCJKwV3oSmkzDigFsUJ
-	9siI3b/zuRveVHut3XzeGKO1ERII=
-X-Google-Smtp-Source: AGHT+IFQnhgfnpp+VE5IQCX1aYZC0mg2RyViiRDUgWm/V/YSKftwQ7xS3+Lvsojh4UebgJU9yOs6uZ0X/z3KAqgiqWU=
-X-Received: by 2002:a05:6402:35c2:b0:55d:2447:844f with SMTP id
- z2-20020a05640235c200b0055d2447844fmr5704057edc.26.1706533910974; Mon, 29 Jan
- 2024 05:11:50 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="GXG6mdVM"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 86DA5404F9
+	for <virtualization@lists.linux-foundation.org>; Mon, 29 Jan 2024 13:12:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 86DA5404F9
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=GXG6mdVM
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.103
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 2FKH7aQLProi
+	for <virtualization@lists.linux-foundation.org>;
+	Mon, 29 Jan 2024 13:12:30 +0000 (UTC)
+Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on20600.outbound.protection.outlook.com [IPv6:2a01:111:f403:2412::600])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 62D5640169
+	for <virtualization@lists.linux-foundation.org>; Mon, 29 Jan 2024 13:12:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 62D5640169
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=aVe5dLHiVnjB9KQqbN2DIFGhlsRcLMc98p52x2Y+RitaIAcDxOmD3DTPizqCS9iL0/0RpDrmAVbdfwU17yoph9YicDc4RLbKPl02DNhtN3Mv3y0M/tB/Md/YqQv7RpzgPujlWCPv8lnZuUkNIgvUvssRP6WFZ1r700kY+srawar6a4lbAT/IsftfiRwmTt8vrces2bIrQGnSQ3fmN+UKqavERs/1ViPb94g4goa3nD1bWDsBdfRIBDiv0x6+6VzB5XbAfJO8KKbMQhc3RBW5uZ6AjBMuGm6APpin7UAuFYwJiyMj/NXkOK5twIDOH1HNrbm9g9tV5ucqQd2+6W8qwg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=UmDyXjbguPWVgkpuOIK9GWY6kWLBJ3Q1m2gCbNuLb1k=;
+ b=UrYEM/G3/ZsQuATyPyMeMHyBFEgbtSg0b61wcg7Ga45OEhfp3sksc1FCQGSmMfw4nksLt1V9eweh+VxDeMueFfrS5Pc5CJNAhVl8yRV2GpY/zQI+RgjkrbBP9MchVEU9rQVXjEi7bwiQ5k9xHpGwT9H7wZq1U9WiTagGBN4r+k2AW/CPBpaiuoTp2gDquJbFR6eWxtS4gt9g8f+G698EIh03/hdx9YPoFh7bPv/0C5Rg/erUpi/cbmDLMJIPFVRMUQLtwnOrX9nv9vbf6txqN5TzX460wabzULWcdrsDP0tYdtenNYo8eiV5yXuVuqXnds9ioOe0XRzKK0rk6AS29Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=UmDyXjbguPWVgkpuOIK9GWY6kWLBJ3Q1m2gCbNuLb1k=;
+ b=GXG6mdVMbAFWWKn+MiMY/0nFJE4fnHXLfkoeAHlPjwnzRrS5TpRwEKlf1G9c71xQWgtv3Qynwte/xTbGFBV0F+GoVgrzc8CiuUTreG1Ij0iSGvrRxCpTeynMFDbTu+H9ot2trDec1YDc5+6heSpkSr5NNFlUldQxTp+C29axzEU=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from PH7PR12MB5685.namprd12.prod.outlook.com (2603:10b6:510:13c::22)
+ by PH0PR12MB5434.namprd12.prod.outlook.com (2603:10b6:510:d5::8) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7228.32; Mon, 29 Jan
+ 2024 13:12:27 +0000
+Received: from PH7PR12MB5685.namprd12.prod.outlook.com
+ ([fe80::e1fb:4123:48b1:653]) by PH7PR12MB5685.namprd12.prod.outlook.com
+ ([fe80::e1fb:4123:48b1:653%4]) with mapi id 15.20.7228.029; Mon, 29 Jan 2024
+ 13:12:27 +0000
+Message-ID: <cab2246a-5ed8-4651-999f-260c1c4275ad@amd.com>
+Date: Mon, 29 Jan 2024 14:12:19 +0100
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 1/1] drm/virtio: Implement device_attach
+Content-Language: en-US
+To: Julia Zhang <julia.zhang@amd.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, David Airlie <airlied@redhat.com>,
+ Gerd Hoffmann <kraxel@redhat.com>, linux-kernel@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, amd-gfx@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org
+Cc: Alex Deucher <alexander.deucher@amd.com>, Daniel Vetter
+ <daniel@ffwll.ch>, David Airlie <airlied@gmail.com>,
+ Erik Faye-Lund <kusmabite@gmail.com>, =?UTF-8?B?TWFyZWsgT2zFocOhaw==?=
+ <marek.olsak@amd.com>,
+ Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>,
+ Honglei Huang <honglei1.huang@amd.com>, Chen Jiqian <Jiqian.Chen@amd.com>,
+ Huang Rui <ray.huang@amd.com>
+References: <20240129103118.3258781-1-julia.zhang@amd.com>
+From: =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
+In-Reply-To: <20240129103118.3258781-1-julia.zhang@amd.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: FR3P281CA0124.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:94::15) To PH7PR12MB5685.namprd12.prod.outlook.com
+ (2603:10b6:510:13c::22)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240122100313.1589372-1-maobibo@loongson.cn> <20240122100313.1589372-6-maobibo@loongson.cn>
-In-Reply-To: <20240122100313.1589372-6-maobibo@loongson.cn>
-From: Huacai Chen <chenhuacai@kernel.org>
-Date: Mon, 29 Jan 2024 21:11:42 +0800
-X-Gmail-Original-Message-ID: <CAAhV-H78HiRRsdsVHxYBYOEWew9FKDSF++bK_=g=UbBKc46d2Q@mail.gmail.com>
-Message-ID: <CAAhV-H78HiRRsdsVHxYBYOEWew9FKDSF++bK_=g=UbBKc46d2Q@mail.gmail.com>
-Subject: Re: [PATCH v3 5/6] LoongArch: KVM: Add physical cpuid map support
-To: Bibo Mao <maobibo@loongson.cn>
-Cc: Tianrui Zhao <zhaotianrui@loongson.cn>, Juergen Gross <jgross@suse.com>, 
-	Paolo Bonzini <pbonzini@redhat.com>, loongarch@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
-	kvm@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PH7PR12MB5685:EE_|PH0PR12MB5434:EE_
+X-MS-Office365-Filtering-Correlation-Id: 392fd4b7-5b73-40f1-62a9-08dc20cbf0ef
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	ogDy/xhbMfT4ythnYapmm213yKGNZrwna3BH3yhqiDUFQ9iaJ+aXMHdqiVWE118jK4XPTnL+KpoR6lTLZV55+UPvIsES3sc2IvsfyIzF/KUVFlsrXAKxt5KyqpaBD3meR16hjGu2eovKMMqlQRf8WYM52ZEiu1/v9jhUDQpGrD2jTzBevr7qW32Hj2eRkzclBk7kEE/24HhkGGTUkzvmkgRI49tvfVSLVLMlYXWk7SSZxxnyAexaVdI+RN0W8sliTHdYTQMSIrkPLctRaiURHvi0kLTzgDT2d7Oq8/4d3y4fzGuKg0iLXBCMLeZ/xk4FqDi4g84Mxt/NDvOVJU2T2pVtRCslacnZriF1ikeNFvvP79N3hMN/KqRJDPUTYyXooo1BdBAV/+rESVJ3OnYw9daiGrDTign084+nhS07LFJyyswHqBoKJPp37Q6m8ddeKS7E8Qr7OPGUfPrVx+PZhcuSKo8bjhis+yjc/WTBiWLCwm4/lj3pfybemr3X9qte0Q4GRCzO3hgsxLnVr4iKwQdPCZ+fTjt17b5KMYYjPAMOCiMnt6qC2xQg8Aff05DgzlYhRgVHjhCmFR7HM+54rOPh7RdwyoUmDQGPFNDf5EjvKd67BDNJDPCWtSB1dvWDdwIYW6ZFWOyRW0RNBO86TA==
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH7PR12MB5685.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(376002)(396003)(136003)(366004)(346002)(39860400002)(230922051799003)(1800799012)(451199024)(186009)(64100799003)(26005)(83380400001)(6666004)(6512007)(6506007)(2616005)(38100700002)(5660300002)(7416002)(4326008)(8936002)(8676002)(41300700001)(66946007)(316002)(478600001)(6486002)(2906002)(66476007)(54906003)(110136005)(66556008)(86362001)(36756003)(31696002)(31686004)(43740500002)(45980500001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?NVNFai9FdE1GNWpTdW1KZFA1U2wwaXFFbUpLa2tiYnEzWDFBVThBbkJubjQy?=
+ =?utf-8?B?UDJPMlQxbis2aEIzM2M2K2UrYzUybE4yeVBUVXkzTUh0cU1rL2ZGUkUrVE5I?=
+ =?utf-8?B?VGpUK3JvWlNYY1BJMU5TL01mQWl3WkdRbzdWRGg4L0NyU3RwSEdFZUlSeGdn?=
+ =?utf-8?B?eTJ5ZzZrTkJmZlVvWlBacVVEbnN1Yi9wY3VCcnNJZ0tpc2NFMmJCeTFvZkJM?=
+ =?utf-8?B?UUMyS0RHa2RKMG16cFBndE1FdDdwS3krYW1EVEV6VVdLM3VBZ1hOTDRNWS9h?=
+ =?utf-8?B?Rk40ZVRQb0JHdFg2MjRmd0tXRUgxaXdnZmhJcW0wQWVFRVZBem9FYXRZRERI?=
+ =?utf-8?B?bGwwSjdBeExDbHNZa2w3eGFvS0M2REZ6RVZWVlBweWNFcHdFVWplLytrbmRn?=
+ =?utf-8?B?OFhxTGJWOGR2UkpGS3d6RXRYckFWK2pMWkRiZUpLa2xzRTVrS1gzemdBYW02?=
+ =?utf-8?B?WWs0Y01Zd3pPN1lDcDlmUkV2Sys0Z3hyVUcwelJ1djRvQWxyOXNGVkdjUE5D?=
+ =?utf-8?B?UERKV1NpMHluc0U3UHJlOEJGcXIwbW1BNnhVUjExY1FTMlBkTW9kSE1SRFZM?=
+ =?utf-8?B?MG1EVjUyTlBhbURUcjJLWS9hSWMxOGYwOVY2M2syM2RZeElxNEUxeWxuVFk2?=
+ =?utf-8?B?cTFOWk9RUndlcE1jVkwzZldYN1JsNG95Q1V2eUMwSjgzTWhGOFdYWTFrS2R6?=
+ =?utf-8?B?RU5MTWtUS24rTXBrc20zcUZFYnlBQnFlUGEvUmpXUDJCV0tCZGdDcHhrZWM5?=
+ =?utf-8?B?cDBMUW00NWZhOXgwQklKQUZDM2prcUREbGtBNUExQ0lYY0ZaUUdvU3ZZcmZz?=
+ =?utf-8?B?TDNVbDFzWUM0YXJicWVvTktmZDVoUFhkQU9KRHhBR2gwK2tBQTJYRXdVU1hE?=
+ =?utf-8?B?R1FUSG1WSmVUdzNoSEJLbE05byt1M3FodkdKSE5aSE5zZVNsdzJ6OGV4cWcy?=
+ =?utf-8?B?b1VOSDhRZFFCZmo2dFo5a0JxdE5nd3F1aWs3VVR5N2hSTjVWNjRuTk5jK0V5?=
+ =?utf-8?B?VkZLbmxUbWlNSEoxRXJqR0t4VXpHamJ2SkIrNHlKUnRNV1JCTW9zUFFlcUlq?=
+ =?utf-8?B?bFNEYzZrZXVmWStJWGg3UTJLRmhlYWtPaUxOcUFwd2J3UWN4NDBrVnJEUTIw?=
+ =?utf-8?B?bWptL08yOGdoWGdBWjFKWE9LNXhRMzVtYW9vckE1UFJaamtUZTBJSDA3SkFl?=
+ =?utf-8?B?dTA2WldNbDZHdFIrSmIxUXdHRzdBaFo1eUxibTMrWGlpeU1WYWxaSGpIOSt0?=
+ =?utf-8?B?Z0JDOHJpZG1rRGJIbHZVaTI4LzJIT0QvaDlnMjgzR21yd1Q0TmlhWlFCYks4?=
+ =?utf-8?B?NjlzQUNkODhjampJckV5bUtadFA4NU0wNzR5STdQUVdwVkpRZm54bnBGWGJP?=
+ =?utf-8?B?R2l3UVlwYUhRb0VxWTJ5MEdZM0daZ3UwSXhUOXpTZllvK0N4c281TnhDVmNj?=
+ =?utf-8?B?RG50RWo4eEd1RElsUjVtSGdIb1RvNHY5TnoxR3lMeFhROTQzbmV2MjZWd0pE?=
+ =?utf-8?B?NndFMktuNklwV0o5VmFZSW9Nb01sSk1NMVd2V2dseTBqOEFrSloxeGlaamZJ?=
+ =?utf-8?B?cUJENWE1L1IyZ09naHJwaU1ncEg2Q2RnbzhMUi9DbEhHZlVqQzYzV2NuSC81?=
+ =?utf-8?B?U0ZyWEVWejFFaDloUlpqOE5zQ3ZnR2NPclNKWUtZRkN0RTdTak9vaURPOWpa?=
+ =?utf-8?B?VmR3WEh0UWFtZXZWOUJkWSt0VDBVemp5ZTlWZlZOenBMdjFWcHJteWZZMTBn?=
+ =?utf-8?B?T1BrSGhoZUhoS1FMRHZUMXdpRDJ2ZmJRRmticFB6WmtjMVVOVWxSZE1ucjcy?=
+ =?utf-8?B?Um1kMHNDRTRKY2xJN01nVVNZeExhZXVZeUpseGcveCtISVROSGRrYzNQWFNP?=
+ =?utf-8?B?VTBKVDNmcFlJV2hqTTlaMWpSMFVOcCtXTFNIUFExbXd1SXV3bmlrcVFPMGJj?=
+ =?utf-8?B?bytKWkpiZHpaWUpmcnNWRzljeFZhZWQvQmxLRU5IMThrNlNKU3c1L3JHcGhm?=
+ =?utf-8?B?RmwzWlRKSzFwTTRhYW14bGFRY2FaYTdsQ3p0MlFMSW9VSFNuZHNXUEpzRVNF?=
+ =?utf-8?B?TEtPZitGSnlFOWl6NlhSYVA2N3IvcTcyZ0E2TW1kaXpvcnh5dkR2YTZsa01s?=
+ =?utf-8?Q?6+W+1iJRyM6GUmXVHURNDrn+1?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 392fd4b7-5b73-40f1-62a9-08dc20cbf0ef
+X-MS-Exchange-CrossTenant-AuthSource: PH7PR12MB5685.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Jan 2024 13:12:27.4961
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: aLDDj74CSMEKjgnrg8sfpEbGoYi1bHS4+R5anCwno6YJGEbVIc7DprFdK+Z0ph5z
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR12MB5434
 
-Hi, Bibo,
-
-Without this patch I can also create a SMP VM, so what problem does
-this patch want to solve?
-
-Huacai
-
-On Mon, Jan 22, 2024 at 6:03=E2=80=AFPM Bibo Mao <maobibo@loongson.cn> wrot=
-e:
+Am 29.01.24 um 11:31 schrieb Julia Zhang:
+> As vram objects don't have backing pages and thus can't implement
+> drm_gem_object_funcs.get_sg_table callback. This removes drm dma-buf
+> callbacks in virtgpu_gem_map_dma_buf()/virtgpu_gem_unmap_dma_buf()
+> and implement virtgpu specific map/unmap/attach callbacks to support
+> both of shmem objects and vram objects.
 >
-> Physical cpuid is used to irq routing for irqchips such as ipi/msi/
-> extioi interrupt controller. And physical cpuid is stored at CSR
-> register LOONGARCH_CSR_CPUID, it can not be changed once vcpu is
-> created. Since different irqchips have different size definition
-> about physical cpuid, KVM uses the smallest cpuid from extioi, and
-> the max cpuid size is defines as 256.
->
-> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
+> Signed-off-by: Julia Zhang <julia.zhang@amd.com>
+
+I need to find more time to look into the code, but of hand I would say 
+that this is the correct solution.
+
+Regards,
+Christian.
+
 > ---
->  arch/loongarch/include/asm/kvm_host.h | 26 ++++++++
->  arch/loongarch/include/asm/kvm_vcpu.h |  1 +
->  arch/loongarch/kvm/vcpu.c             | 93 ++++++++++++++++++++++++++-
->  arch/loongarch/kvm/vm.c               | 11 ++++
->  4 files changed, 130 insertions(+), 1 deletion(-)
+>   drivers/gpu/drm/virtio/virtgpu_prime.c | 40 +++++++++++++++++++++++---
+>   1 file changed, 36 insertions(+), 4 deletions(-)
 >
-> diff --git a/arch/loongarch/include/asm/kvm_host.h b/arch/loongarch/inclu=
-de/asm/kvm_host.h
-> index 2d62f7b0d377..57399d7cf8b7 100644
-> --- a/arch/loongarch/include/asm/kvm_host.h
-> +++ b/arch/loongarch/include/asm/kvm_host.h
-> @@ -64,6 +64,30 @@ struct kvm_world_switch {
->
->  #define MAX_PGTABLE_LEVELS     4
->
-> +/*
-> + * Physical cpu id is used for interrupt routing, there are different
-> + * definitions about physical cpuid on different hardwares.
-> + *  For LOONGARCH_CSR_CPUID register, max cpuid size if 512
-> + *  For IPI HW, max dest CPUID size 1024
-> + *  For extioi interrupt controller, max dest CPUID size is 256
-> + *  For MSI interrupt controller, max supported CPUID size is 65536
-> + *
-> + * Currently max CPUID is defined as 256 for KVM hypervisor, in future
-> + * it will be expanded to 4096, including 16 packages at most. And every
-> + * package supports at most 256 vcpus
-> + */
-> +#define KVM_MAX_PHYID          256
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_prime.c b/drivers/gpu/drm/virtio/virtgpu_prime.c
+> index 44425f20d91a..b490a5343b06 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_prime.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_prime.c
+> @@ -49,11 +49,26 @@ virtgpu_gem_map_dma_buf(struct dma_buf_attachment *attach,
+>   {
+>   	struct drm_gem_object *obj = attach->dmabuf->priv;
+>   	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
+> +	struct sg_table *sgt;
+> +	int ret;
+>   
+>   	if (virtio_gpu_is_vram(bo))
+>   		return virtio_gpu_vram_map_dma_buf(bo, attach->dev, dir);
+>   
+> -	return drm_gem_map_dma_buf(attach, dir);
+> +	sgt = drm_prime_pages_to_sg(obj->dev,
+> +				    to_drm_gem_shmem_obj(obj)->pages,
+> +				    obj->size >> PAGE_SHIFT);
+> +	if (IS_ERR(sgt))
+> +		return sgt;
 > +
-> +struct kvm_phyid_info {
-> +       struct kvm_vcpu *vcpu;
-> +       bool            enabled;
-> +};
+> +	ret = dma_map_sgtable(attach->dev, sgt, dir, DMA_ATTR_SKIP_CPU_SYNC);
+> +	if (ret) {
+> +		sg_free_table(sgt);
+> +		kfree(sgt);
+> +		return ERR_PTR(ret);
+> +	}
 > +
-> +struct kvm_phyid_map {
-> +       int max_phyid;
-> +       struct kvm_phyid_info phys_map[KVM_MAX_PHYID];
-> +};
+> +	return sgt;
+>   }
+>   
+>   static void virtgpu_gem_unmap_dma_buf(struct dma_buf_attachment *attach,
+> @@ -63,12 +78,29 @@ static void virtgpu_gem_unmap_dma_buf(struct dma_buf_attachment *attach,
+>   	struct drm_gem_object *obj = attach->dmabuf->priv;
+>   	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
+>   
+> +	if (!sgt)
+> +		return;
 > +
->  struct kvm_arch {
->         /* Guest physical mm */
->         kvm_pte_t *pgd;
-> @@ -71,6 +95,8 @@ struct kvm_arch {
->         unsigned long invalid_ptes[MAX_PGTABLE_LEVELS];
->         unsigned int  pte_shifts[MAX_PGTABLE_LEVELS];
->         unsigned int  root_level;
-> +       struct mutex  phyid_map_lock;
-> +       struct kvm_phyid_map  *phyid_map;
->
->         s64 time_offset;
->         struct kvm_context __percpu *vmcs;
-> diff --git a/arch/loongarch/include/asm/kvm_vcpu.h b/arch/loongarch/inclu=
-de/asm/kvm_vcpu.h
-> index e71ceb88f29e..2402129ee955 100644
-> --- a/arch/loongarch/include/asm/kvm_vcpu.h
-> +++ b/arch/loongarch/include/asm/kvm_vcpu.h
-> @@ -81,6 +81,7 @@ void kvm_save_timer(struct kvm_vcpu *vcpu);
->  void kvm_restore_timer(struct kvm_vcpu *vcpu);
->
->  int kvm_vcpu_ioctl_interrupt(struct kvm_vcpu *vcpu, struct kvm_interrupt=
- *irq);
-> +struct kvm_vcpu *kvm_get_vcpu_by_cpuid(struct kvm *kvm, int cpuid);
->
->  /*
->   * Loongarch KVM guest interrupt handling
-> diff --git a/arch/loongarch/kvm/vcpu.c b/arch/loongarch/kvm/vcpu.c
-> index 27701991886d..97ca9c7160e6 100644
-> --- a/arch/loongarch/kvm/vcpu.c
-> +++ b/arch/loongarch/kvm/vcpu.c
-> @@ -274,6 +274,95 @@ static int _kvm_getcsr(struct kvm_vcpu *vcpu, unsign=
-ed int id, u64 *val)
->         return 0;
->  }
->
-> +static inline int kvm_set_cpuid(struct kvm_vcpu *vcpu, u64 val)
-> +{
-> +       int cpuid;
-> +       struct loongarch_csrs *csr =3D vcpu->arch.csr;
-> +       struct kvm_phyid_map  *map;
-> +
-> +       if (val >=3D KVM_MAX_PHYID)
-> +               return -EINVAL;
-> +
-> +       cpuid =3D kvm_read_sw_gcsr(csr, LOONGARCH_CSR_ESTAT);
-> +       map =3D vcpu->kvm->arch.phyid_map;
-> +       mutex_lock(&vcpu->kvm->arch.phyid_map_lock);
-> +       if (map->phys_map[cpuid].enabled) {
-> +               /*
-> +                * Cpuid is already set before
-> +                * Forbid changing different cpuid at runtime
-> +                */
-> +               if (cpuid !=3D val) {
-> +                       /*
-> +                        * Cpuid 0 is initial value for vcpu, maybe inval=
-id
-> +                        * unset value for vcpu
-> +                        */
-> +                       if (cpuid) {
-> +                               mutex_unlock(&vcpu->kvm->arch.phyid_map_l=
-ock);
-> +                               return -EINVAL;
-> +                       }
-> +               } else {
-> +                        /* Discard duplicated cpuid set */
-> +                       mutex_unlock(&vcpu->kvm->arch.phyid_map_lock);
-> +                       return 0;
-> +               }
-> +       }
-> +
-> +       if (map->phys_map[val].enabled) {
-> +               /*
-> +                * New cpuid is already set with other vcpu
-> +                * Forbid sharing the same cpuid between different vcpus
-> +                */
-> +               if (map->phys_map[val].vcpu !=3D vcpu) {
-> +                       mutex_unlock(&vcpu->kvm->arch.phyid_map_lock);
-> +                       return -EINVAL;
-> +               }
-> +
-> +               /* Discard duplicated cpuid set operation*/
-> +               mutex_unlock(&vcpu->kvm->arch.phyid_map_lock);
-> +               return 0;
-> +       }
-> +
-> +       kvm_write_sw_gcsr(csr, LOONGARCH_CSR_CPUID, val);
-> +       map->phys_map[val].enabled      =3D true;
-> +       map->phys_map[val].vcpu         =3D vcpu;
-> +       if (map->max_phyid < val)
-> +               map->max_phyid =3D val;
-> +       mutex_unlock(&vcpu->kvm->arch.phyid_map_lock);
-> +       return 0;
+>   	if (virtio_gpu_is_vram(bo)) {
+>   		virtio_gpu_vram_unmap_dma_buf(attach->dev, sgt, dir);
+> -		return;
+> +	} else {
+> +		dma_unmap_sgtable(attach->dev, sgt, dir, DMA_ATTR_SKIP_CPU_SYNC);
+> +		sg_free_table(sgt);
+> +		kfree(sgt);
+>   	}
 > +}
 > +
-> +struct kvm_vcpu *kvm_get_vcpu_by_cpuid(struct kvm *kvm, int cpuid)
+> +static int virtgpu_gem_device_attach(struct dma_buf *dma_buf,
+> +				     struct dma_buf_attachment *attach)
 > +{
-> +       struct kvm_phyid_map  *map;
+> +	struct drm_gem_object *obj = attach->dmabuf->priv;
+> +	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
+> +	int ret = 0;
 > +
-> +       if (cpuid >=3D KVM_MAX_PHYID)
-> +               return NULL;
-> +
-> +       map =3D kvm->arch.phyid_map;
-> +       if (map->phys_map[cpuid].enabled)
-> +               return map->phys_map[cpuid].vcpu;
-> +
-> +       return NULL;
-> +}
-> +
-> +static inline void kvm_drop_cpuid(struct kvm_vcpu *vcpu)
-> +{
-> +       int cpuid;
-> +       struct loongarch_csrs *csr =3D vcpu->arch.csr;
-> +       struct kvm_phyid_map  *map;
-> +
-> +       map =3D vcpu->kvm->arch.phyid_map;
-> +       cpuid =3D kvm_read_sw_gcsr(csr, LOONGARCH_CSR_ESTAT);
-> +       if (cpuid >=3D KVM_MAX_PHYID)
-> +               return;
-> +
-> +       if (map->phys_map[cpuid].enabled) {
-> +               map->phys_map[cpuid].vcpu =3D NULL;
-> +               map->phys_map[cpuid].enabled =3D false;
-> +               kvm_write_sw_gcsr(csr, LOONGARCH_CSR_CPUID, 0);
-> +       }
-> +}
-> +
->  static int _kvm_setcsr(struct kvm_vcpu *vcpu, unsigned int id, u64 val)
->  {
->         int ret =3D 0, gintc;
-> @@ -291,7 +380,8 @@ static int _kvm_setcsr(struct kvm_vcpu *vcpu, unsigne=
-d int id, u64 val)
->                 kvm_set_sw_gcsr(csr, LOONGARCH_CSR_ESTAT, gintc);
->
->                 return ret;
-> -       }
-> +       } else if (id =3D=3D LOONGARCH_CSR_CPUID)
-> +               return kvm_set_cpuid(vcpu, val);
->
->         kvm_write_sw_gcsr(csr, id, val);
->
-> @@ -925,6 +1015,7 @@ void kvm_arch_vcpu_destroy(struct kvm_vcpu *vcpu)
->         hrtimer_cancel(&vcpu->arch.swtimer);
->         kvm_mmu_free_memory_cache(&vcpu->arch.mmu_page_cache);
->         kfree(vcpu->arch.csr);
-> +       kvm_drop_cpuid(vcpu);
->
->         /*
->          * If the vCPU is freed and reused as another vCPU, we don't want=
- the
-> diff --git a/arch/loongarch/kvm/vm.c b/arch/loongarch/kvm/vm.c
-> index 0a37f6fa8f2d..6fd5916ebef3 100644
-> --- a/arch/loongarch/kvm/vm.c
-> +++ b/arch/loongarch/kvm/vm.c
-> @@ -30,6 +30,14 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long ty=
-pe)
->         if (!kvm->arch.pgd)
->                 return -ENOMEM;
->
-> +       kvm->arch.phyid_map =3D kvzalloc(sizeof(struct kvm_phyid_map),
-> +                               GFP_KERNEL_ACCOUNT);
-> +       if (!kvm->arch.phyid_map) {
-> +               free_page((unsigned long)kvm->arch.pgd);
-> +               kvm->arch.pgd =3D NULL;
-> +               return -ENOMEM;
-> +       }
-> +
->         kvm_init_vmcs(kvm);
->         kvm->arch.gpa_size =3D BIT(cpu_vabits - 1);
->         kvm->arch.root_level =3D CONFIG_PGTABLE_LEVELS - 1;
-> @@ -44,6 +52,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long typ=
-e)
->         for (i =3D 0; i <=3D kvm->arch.root_level; i++)
->                 kvm->arch.pte_shifts[i] =3D PAGE_SHIFT + i * (PAGE_SHIFT =
-- 3);
->
-> +       mutex_init(&kvm->arch.phyid_map_lock);
->         return 0;
->  }
->
-> @@ -51,7 +60,9 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
->  {
->         kvm_destroy_vcpus(kvm);
->         free_page((unsigned long)kvm->arch.pgd);
-> +       kvfree(kvm->arch.phyid_map);
->         kvm->arch.pgd =3D NULL;
-> +       kvm->arch.phyid_map =3D NULL;
->  }
->
->  int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
-> --
-> 2.39.3
->
+> +	if (!virtio_gpu_is_vram(bo) && obj->funcs->pin)
+> +		ret = obj->funcs->pin(obj);
+>   
+> -	drm_gem_unmap_dma_buf(attach, sgt, dir);
+> +	return ret;
+>   }
+>   
+>   static const struct virtio_dma_buf_ops virtgpu_dmabuf_ops =  {
+> @@ -83,7 +115,7 @@ static const struct virtio_dma_buf_ops virtgpu_dmabuf_ops =  {
+>   		.vmap = drm_gem_dmabuf_vmap,
+>   		.vunmap = drm_gem_dmabuf_vunmap,
+>   	},
+> -	.device_attach = drm_gem_map_attach,
+> +	.device_attach = virtgpu_gem_device_attach,
+>   	.get_uuid = virtgpu_virtio_get_uuid,
+>   };
+>   
+
