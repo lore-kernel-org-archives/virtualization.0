@@ -1,296 +1,145 @@
-Received: from mail-pg1-f176.google.com (mail-pg1-f176.google.com [209.85.215.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C0715644D
-	for <virtualization@lists.linux.dev>; Mon, 29 Jan 2024 09:58:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.176
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706522296; cv=none; b=fZy5Lsakr19ndndoGqGy8ECWw3ZSTBKSUj16AHcqD9AMFCmZWD9JwD0BjAfAkDKTxCgNtFDskIWYC0/jbcE9bre/oNMGQhI+ZpLv4o1MbBUawL/YDFbl6/m6tNfiaarlmEUGJOMYNS16AjFszOnAk7ojoEnHFV8j9WRVBQfBkfQ=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706522296; c=relaxed/simple;
-	bh=0nRlWJibNBWrP/2+ulbYIt6Yw5St4sDPPbMGqESeuNc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=aERLLInfLypFKOacq3qz3vkbFW8sWPI5dwcLcoY+jVdy8uFA330QQT2QmFX4WHHTs5DJKmS4WWCbGtYGZ6FsdUFJKofqQS9iVPgJaIj3dzGJv/SrLppZghS4QuuMzB9HLAppu4wB0EPk8HmIgYocv0iJJjA5r7kTlfDSdCsDNUI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=E+FBiU2E; arc=none smtp.client-ip=209.85.215.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 388A355E79
+	for <virtualization@lists.linux-foundation.org>; Mon, 29 Jan 2024 10:14:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.137
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1706523290; cv=fail; b=M+uXr+FqDGk02DHVRK1cfqybRO2HOjc4HeLp8GDpla2ghnrXE1xJOsZg9lgff9FfygSLjFQlMRFfsj4gyWh450ofNv9CLcrP3It7CM77mnnv7/Ak+R+BobFjY5A6p8jOF3mTP4cYpGpoxo0XXfgIl1VqX+f849vDS2t3KWLNsnA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1706523290; c=relaxed/simple;
+	bh=sDsa2rrz1C9gAis2A2KB5XriCh0e4eWEsIv0+7a9zyE=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=JCXCNt4olHtQZ18UIbYRTaxPr8KjHITdRhacr4dAwqFppITnwswpGjIX87REcYdaqfoT/H7ttxqMHW4iLOq6gF3hyMC8vPC8P/F7uMksJNh6awarG/Kal6ewoLLXTEWTym4mT6OxR8Wt14diB05a9xY8EEqW/AjLDu6jb0erJcU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=VVG/Z89y; arc=fail smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="E+FBiU2E"
-Received: by mail-pg1-f176.google.com with SMTP id 41be03b00d2f7-5ce942efda5so1863887a12.2
-        for <virtualization@lists.linux.dev>; Mon, 29 Jan 2024 01:58:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1706522293; x=1707127093; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=Y/yj2cF4QFPTINMOJ5Odb3ijjKjStQFfbkPQ+E8TM9k=;
-        b=E+FBiU2E8ZV6t/KAPMwqUsbwaHNYTk/gYiI4yTHLftrGEHrlDHjRP6KpQ5M0d1xlMU
-         BzvIlyLtqkF0DXslUV8t3NBV/2AmfKP0we88j5pza0qk9t8MEsnQhSQ09+zJlD1L/ywI
-         j6xnEL3xvJUg4tdVSDuKgzxOQ9gy+naGN8sX+JskcV5sFE3S/q7PTCzN2pYc+4z/Vncs
-         Z2YEn7eX/QHpIelWKxH63/lSqUG2Zw/f5GAiSr8AHVcFEffRB+AbMxL28HwdYm3O6GgW
-         B91s/PuO2I7lH41fxGkWhMM1cPxpCtqMCMwtRgB2D0uyUi0krCSSEdawc+pjG9q8BD7G
-         34Rg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706522293; x=1707127093;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Y/yj2cF4QFPTINMOJ5Odb3ijjKjStQFfbkPQ+E8TM9k=;
-        b=fqLIYicicIGBCV9Uvy/8+XgwLq0f0swT/mpeUo85F/BOnDF2Fw6vEqeGvd9kCRhN31
-         qY5XbPsA5gixJotdx/anil994v6Rp0PxedNGumTJbzs+SchQNBNXchVt49SbbRybfEuI
-         EdhKup8HN5c8uX5N3QKT/3llGrXDls5KgIX6ZN4K0iY+xm1blfjx/NF0SQDX7oGH27KK
-         FN7u+nL4CyYYb/7xbrmM9jC0DouBLKeTRSrH1LDeuHuaVYB1usogBmcX4FCekvZsLzaD
-         n8uWr/stwcIUNmaD4JH5tVeHZpMDp+lVLIPFpvasbeb6hfvOdtfhSxzQCKQJo/bl6X9W
-         Cw7g==
-X-Gm-Message-State: AOJu0Yx2Yhsfg081m/Gd38e+SrNBdfSVvMwzltwvtvlz3A+GjXvKuPVo
-	T07VTEyKcVBRhCHEaLMoO4/85g3gLsMJNPT0LLwJEfTcqi02ok6N4V5R+lTaKG4=
-X-Google-Smtp-Source: AGHT+IGLLoxO4r2cecG2riTmnlc0oiwaiM2/Qa304+OOrXxvULSm26H9zFdDAUUlmZA6ogAFjHFqxA==
-X-Received: by 2002:a05:6a20:9591:b0:19c:b4ef:3fa5 with SMTP id iu17-20020a056a20959100b0019cb4ef3fa5mr241147pzb.29.1706522293506;
-        Mon, 29 Jan 2024 01:58:13 -0800 (PST)
-Received: from [10.255.192.107] ([139.177.225.255])
-        by smtp.gmail.com with ESMTPSA id ju11-20020a170903428b00b001d8ead3d805sm1027576plb.58.2024.01.29.01.58.07
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 29 Jan 2024 01:58:12 -0800 (PST)
-Message-ID: <d900f0fd-a586-404d-8568-0d2511908067@bytedance.com>
-Date: Mon, 29 Jan 2024 17:58:05 +0800
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="VVG/Z89y"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 6F438417A5
+	for <virtualization@lists.linux-foundation.org>; Mon, 29 Jan 2024 10:14:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6F438417A5
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=VVG/Z89y
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.103
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id mkO18E-tlRy7
+	for <virtualization@lists.linux-foundation.org>;
+	Mon, 29 Jan 2024 10:14:47 +0000 (UTC)
+Received: from NAM02-DM3-obe.outbound.protection.outlook.com (mail-dm3nam02on20600.outbound.protection.outlook.com [IPv6:2a01:111:f403:2405::600])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 9CB5F41780
+	for <virtualization@lists.linux-foundation.org>; Mon, 29 Jan 2024 10:14:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9CB5F41780
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=i/bsnUl/3Fim3B8Sd3d0Qp6vVMQprk3bjsouBwT57BHRsXXo+nMdDapzM6KzQWc9VbOgMjHOY9IbpLnyn6x4wv+DIQ+VXvxvq/jlbFz6gOKaG3D97W3H0yhmC9u/TWgdzVL45xJw2JYeLlQyJNqgQpfrUpTABODCcSB184TNKupzD5WmOLk7/4my/B2DXvqp+8ckCCV5jmxlxMVQsM9M5B/xCS1Y85zb3mmTCwufPvoZuMAg10PsGCDrzdraBM8aY1dGrkc45xC/ZcEXWRFJgH7JoHQiJX592NkmmLOHR6LsRNCyWn2eM6QfspY2SmoJdjVbfjld7UxlyjAClxxZbA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=mXz8U5sHL14QZqUyWbb3DSTiT0B8Egw2qRU0QM00mkY=;
+ b=GuKmocaWYbc5Y5km1vodzH8Jjw3eqLdxVpKHCazqlhOwhXG1SDy1S7KWsRKNGCLmBn2dwdgZjsfyKGulZ7SUkf77Xg/PgjGJbR8+3ARJsmsI9sD102u1fck0wla7G+YKDVPjhqgT+96d5JoURdBVvhOWq9fB0oRIkRw9gnHt365CRMhsBMHxtYCiQD37PwHFMbvL71PkHm4v1W8mQKI5qVAMwkKLkbMkI/+263IMi3Ax/3ENZbOvlNIxQdffYKTrmxjjRq/7gq6hx5T4kT4S90rFaKwqqnTUnT6nGZvJHwhesIIHLdS0uD8PXEl/7TXVRKB+25hQLm8pY412xw4UWQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=chromium.org smtp.mailfrom=amd.com;
+ dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
+ header.from=amd.com; dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=mXz8U5sHL14QZqUyWbb3DSTiT0B8Egw2qRU0QM00mkY=;
+ b=VVG/Z89yTSWY2AgwHNYkzS4AL+Sh8zedeEiZ6D9sc8pigm1P5ESFY+q4cs+rBBsxaOvLYYPEBUMopKuluCqOaU4OWIYrjVCI6ChsP12THVBEtzHSihJHTGnizozCGPUkOyWGsmWxeGoYsH+bhR5KSxiZDgNTtIbKfFXwRLHgvik=
+Received: from BN6PR17CA0026.namprd17.prod.outlook.com (2603:10b6:405:75::15)
+ by SJ2PR12MB9239.namprd12.prod.outlook.com (2603:10b6:a03:55e::8) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7228.32; Mon, 29 Jan
+ 2024 10:14:44 +0000
+Received: from BN1PEPF00004682.namprd03.prod.outlook.com
+ (2603:10b6:405:75:cafe::d8) by BN6PR17CA0026.outlook.office365.com
+ (2603:10b6:405:75::15) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7228.34 via Frontend
+ Transport; Mon, 29 Jan 2024 10:14:44 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
+Received: from SATLEXMB04.amd.com (165.204.84.17) by
+ BN1PEPF00004682.mail.protection.outlook.com (10.167.243.88) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.7249.19 via Frontend Transport; Mon, 29 Jan 2024 10:14:44 +0000
+Received: from jenkins-julia.amd.com (10.180.168.240) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.34; Mon, 29 Jan
+ 2024 04:14:39 -0600
+From: Julia Zhang <julia.zhang@amd.com>
+To: Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+	<olvaffe@gmail.com>, David Airlie <airlied@redhat.com>, Gerd Hoffmann
+	<kraxel@redhat.com>, <linux-kernel@vger.kernel.org>,
+	<dri-devel@lists.freedesktop.org>, <amd-gfx@lists.freedesktop.org>,
+	<virtualization@lists.linux-foundation.org>
+CC: Alex Deucher <alexander.deucher@amd.com>,
+	=?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>, Daniel Vetter
+	<daniel@ffwll.ch>, David Airlie <airlied@gmail.com>, Erik Faye-Lund
+	<kusmabite@gmail.com>, =?UTF-8?q?Marek=20Ol=C5=A1=C3=A1k?=
+	<marek.olsak@amd.com>, Pierre-Eric Pelloux-Prayer
+	<pierre-eric.pelloux-prayer@amd.com>, Honglei Huang <honglei1.huang@amd.com>,
+	Chen Jiqian <Jiqian.Chen@amd.com>, Huang Rui <ray.huang@amd.com>, Julia Zhang
+	<julia.zhang@amd.com>
+Subject: [PATCH v2 0/1] Implement device_attach for virtio gpu
+Date: Mon, 29 Jan 2024 18:12:50 +0800
+Message-ID: <20240129101250.3258049-1-julia.zhang@amd.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: Re: [PATCH 5.10 000/286] 5.10.209-rc1 review
-To: "Michael S. Tsirkin" <mst@redhat.com>, Guenter Roeck <linux@roeck-us.net>
-Cc: Nathan Chancellor <nathan@kernel.org>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org,
- patches@lists.linux.dev, linux-kernel@vger.kernel.org,
- torvalds@linux-foundation.org, llvm@lists.linux.dev, keescook@chromium.org,
- arei.gonglei@huawei.com, jasowang@redhat.com,
- virtualization@lists.linux.dev, linux-crypto@vger.kernel.org
-References: <20240122235732.009174833@linuxfoundation.org>
- <6b563537-b62f-428e-96d1-2a228da99077@roeck-us.net>
- <2024012636-clubbed-radial-1997@gregkh>
- <2f342268-8517-4c06-8785-96a588d20c63@roeck-us.net>
- <20240126203436.GA913905@dev-arch.thelio-3990X>
- <0a194a79-e3a3-45e7-be98-83abd3e1cb7e@roeck-us.net>
- <20240126223554.GA1320833@dev-arch.thelio-3990X>
- <bef7737e-4b8e-4a89-b538-cd8e75874fd2@roeck-us.net>
- <20240129034304-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-From: zhenwei pi <pizhenwei@bytedance.com>
-In-Reply-To: <20240129034304-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
+ (10.181.40.145)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BN1PEPF00004682:EE_|SJ2PR12MB9239:EE_
+X-MS-Office365-Filtering-Correlation-Id: 99948683-2562-4498-ad97-08dc20b31d48
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	MgkGA6IdpLqfVHUHQeMwWS2mvLen/yyQLYvmN8/SMtEGKOtE2M11FC6yy6MaFxJMld6NvonwZWEXCPD+WbGEw+JEfFB7oc9c/WV3hD6uLxgryZ8LBpT+G/Bre61hFOwjNuThiv6C0TzAYS9vWujdhlz1MYkgFnvNh0txM42jiFSEhJBR7ruqsipADmwDcKMAlLMFXzfEFPxJIlgeho7rtTB4Nex9ZLKKmRXgmRwdpQb379iVDkVqwjhUbENJUTBD8kDS/Kgm6OwB08/z2lRqs5D+gOXvPvUDakmk+VdqAdfpVRK7ANRYh9VxUHom5HIiisTiZ7dfY5nV2U+SBQSEPtUWsEGDQZI3vX1fqv6T9TGOKnaKbHC6ZqgH6DjBwGsq8EAjzCBuRpomuxkWCIBSkiuR5J9NM8hJd6VCcg9Tp48hOxs3EwIIGhGWM1ZAGitRIrQmq4jJaqhMlMNeIJqyhOPEv2k5VeopnCjycgfHLAkS3v0yzlxWekIQ5dBq29htWUBLo7q3o/qzjT26vxspb/IuG9q/28moAJeqGKxFNhxKKqtNQvddPALKZeIE9/AFrBT66KskGUY6rYnJun4pkHTIwb1wwFaI8XUTvZV3FISTbHxAOyZPu4ToHmhlaz6b5ghXtZGen0Vvam2Aar2odqBvP34u+I0RXBI+Gt2t2f9Jh02Q/nM39faTtPygVhHUJuJw86wCwv7jlQUiFSioOW9pbIA/mwOeBqVsxu7wpytnWgC3wz6wJeUuZ6kG0mpzwL9JDJUx5UqeZh2gsQslPA==
+X-Forefront-Antispam-Report:
+	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230031)(4636009)(39860400002)(346002)(396003)(376002)(136003)(230922051799003)(82310400011)(186009)(64100799003)(1800799012)(451199024)(46966006)(40470700004)(36840700001)(40480700001)(40460700003)(26005)(16526019)(1076003)(83380400001)(426003)(336012)(6666004)(7696005)(36756003)(86362001)(81166007)(82740400003)(356005)(5660300002)(44832011)(7416002)(41300700001)(4326008)(8936002)(8676002)(36860700001)(2616005)(47076005)(70586007)(70206006)(110136005)(54906003)(2906002)(4744005)(316002)(478600001)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Jan 2024 10:14:44.1367
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 99948683-2562-4498-ad97-08dc20b31d48
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	BN1PEPF00004682.namprd03.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ2PR12MB9239
 
-On 1/29/24 16:46, Michael S. Tsirkin wrote:
-> On Fri, Jan 26, 2024 at 03:55:02PM -0800, Guenter Roeck wrote:
->> On 1/26/24 14:35, Nathan Chancellor wrote:
->>> (slimming up the CC list, I don't think this is too relevant to the
->>> wider stable community)
->>>
->>> On Fri, Jan 26, 2024 at 01:01:15PM -0800, Guenter Roeck wrote:
->>>> On 1/26/24 12:34, Nathan Chancellor wrote:
->>>>> On Fri, Jan 26, 2024 at 10:17:23AM -0800, Guenter Roeck wrote:
->>>>>> On 1/26/24 09:51, Greg Kroah-Hartman wrote:
->>>>>>> On Fri, Jan 26, 2024 at 08:46:42AM -0800, Guenter Roeck wrote:
->>>>>>>> On 1/22/24 15:55, Greg Kroah-Hartman wrote:
->>>>>>>>> This is the start of the stable review cycle for the 5.10.209 release.
->>>>>>>>> There are 286 patches in this series, all will be posted as a response
->>>>>>>>> to this one.  If anyone has any issues with these being applied, please
->>>>>>>>> let me know.
->>>>>>>>>
->>>>>>>>> Responses should be made by Wed, 24 Jan 2024 23:56:49 +0000.
->>>>>>>>> Anything received after that time might be too late.
->>>>>>>>>
->>>>>>>> [ ... ]
->>>>>>>>
->>>>>>>>> zhenwei pi <pizhenwei@bytedance.com>
->>>>>>>>>          virtio-crypto: implement RSA algorithm
->>>>>>>>>
->>>>>>>>
->>>>>>>> Curious: Why was this (and its subsequent fixes) backported to v5.10.y ?
->>>>>>>> It is quite beyond a bug fix. Also, unless I am really missing something,
->>>>>>>> the series (or at least this patch) was not applied to v5.15.y, so we now
->>>>>>>> have functionality in v5.10.y which is not in v5.15.y.
->>>>>>>
->>>>>>> See the commit text, it was a dependency of a later fix and documented
->>>>>>> as such.
->>>>>>>
->>>>>>> Having it in 5.10 and not 5.15 is a bit odd, I agree, so patches are
->>>>>>> gladly accepted :)
->>>>>>>
->>>>>>
->>>>>> We reverted the entire series from the merge because it results in a build
->>>>>> failure for us.
->>>>>>
->>>>>> In file included from /home/groeck/src/linux-chromeos/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c:10:
->>>>>> In file included from /home/groeck/src/linux-chromeos/include/linux/mpi.h:21:
->>>>>> In file included from /home/groeck/src/linux-chromeos/include/linux/scatterlist.h:5:
->>>>>> In file included from /home/groeck/src/linux-chromeos/include/linux/string.h:293:
->>>>>> /home/groeck/src/linux-chromeos/include/linux/fortify-string.h:512:4: error: call to __read_overflow2_field declared with 'warning' attribute: detected read beyond size of field (2nd parameter); maybe use struct_group()? [-Werror,-Wattribute-warning]
->>>>>>                            __read_overflow2_field(q_size_field, size);
->>>>>
->>>>> For what it's worth, this is likely self inflicted for chromeos-5.10,
->>>>> which carries a revert of commit eaafc590053b ("fortify: Explicitly
->>>>> disable Clang support") as commit c19861d34c003 ("CHROMIUM: Revert
->>>>> "fortify: Explicitly disable Clang support""). I don't see the series
->>>>> that added proper support for clang to fortify in 5.18 that ended with
->>>>> commit 281d0c962752 ("fortify: Add Clang support") in that ChromeOS
->>>>> branch, so this seems somewhat expected.
->>>>>
->>>>
->>>> That explains that ;-). I don't mind if the patches stay in v5.10.y,
->>>> we have them reverted anyway.
->>>>
->>>> The revert was a pure process issue, as you may see when looking into
->>>> commit c19861d34c003, so, yes, I agree that it is self-inflicted damage.
->>>> Still, that doesn't explain why the problem exists in 5.18+.
->>>>
->>>>>> I also see that upstream (starting with 6.1) when trying to build it with clang,
->>>>>> so I guess it is one of those bug-for-bug compatibility things. I really have
->>>>>> no idea what causes it, or why we don't see the problem when building
->>>>>> chromeos-6.1 or chromeos-6.6, but (so far) only with chromeos-5.10 after
->>>>>> merging 5.10.209 into it. Making things worse, the problem isn't _always_
->>>>>> seen. Sometimes I can compile the file in 6.1.y without error, sometimes not.
->>>>>> I have no idea what triggers the problem.
->>>>>
->>>>> Have a .config that reproduces it on upstream? I have not personally
->>>>> seen this warning in my build matrix nor has our continuous-integration
->>>>> matrix (I don't see it in the warning output at the bottom but that
->>>>> could have missed something for some reason) in 6.1:
->>>>>
->>>>
->>>> The following command sequence reproduces the problem for me with all stable
->>>> branches starting with 5.18.y (plus mainline).
->>>>
->>>> rm -rf /tmp/crypto-build
->>>> mkdir /tmp/crypto-build
->>>> make -j CC=clang-15 mrproper >/dev/null 2>&1
->>>> make -j O=/tmp/crypto-build CC=clang-15 allmodconfig >/dev/null 2>&1
->>>> make -j O=/tmp/crypto-build W=1 CC=clang-15 drivers/crypto/virtio/virtio_crypto_akcipher_algs.o
->>>>
->>>> I tried clang versions 14, 15, and 16. This is with my home system running
->>>> Ubuntu 22.04, no ChromeOS or Google specifics/internals involved. For clang-15,
->>>> the version is
->>>>
->>>> Ubuntu clang version 15.0.7
->>>> Target: x86_64-pc-linux-gnu
->>>> Thread model: posix
->>>> InstalledDir: /usr/bin
->>>
->>> Okay interesting, this warning is hidden behind W=1, which our CI does
->>> not test with. Looks like it has been that way since the introduction of
->>> these checks in f68f2ff91512 ("fortify: Detect struct member overflows
->>> in memcpy() at compile-time").
->>>
->>
->> Interestingly the warning is seen in chromeos-5.10, without this patch,
->> and without W=1. I guess that must have to do with the revert which is
->> finally biting us.
->>
->>> I think this is a legitimate warning though. It is complaining about the
->>> second memcpy() in virtio_crypto_alg_akcipher_init_session():
->>>
->>>     memcpy(&ctrl->u, para, sizeof(ctrl->u));
->>>
->>> where ctrl is:
->>>
->>>     struct virtio_crypto_op_ctrl_req {
->>>             struct virtio_crypto_ctrl_header header;         /*     0    16 */
->>>             union {
->>>                     struct virtio_crypto_sym_create_session_req sym_create_session; /*    16    56 */
->>>                     struct virtio_crypto_hash_create_session_req hash_create_session; /*    16    56 */
->>>                     struct virtio_crypto_mac_create_session_req mac_create_session; /*    16    56 */
->>>                     struct virtio_crypto_aead_create_session_req aead_create_session; /*    16    56 */
->>>                     struct virtio_crypto_akcipher_create_session_req akcipher_create_session; /*    16    56 */
->>>                     struct virtio_crypto_destroy_session_req destroy_session; /*    16    56 */
->>>                     __u8               padding[56];          /*    16    56 */
->>>             } u;                                             /*    16    56 */
->>>             union {
->>>                     struct virtio_crypto_sym_create_session_req sym_create_session; /*     0    56 */
->>>                     struct virtio_crypto_hash_create_session_req hash_create_session; /*     0    56 */
->>>                     struct virtio_crypto_mac_create_session_req mac_create_session; /*     0    56 */
->>>                     struct virtio_crypto_aead_create_session_req aead_create_session; /*     0    56 */
->>>                     struct virtio_crypto_akcipher_create_session_req akcipher_create_session; /*     0    56 */
->>>                     struct virtio_crypto_destroy_session_req destroy_session; /*     0    56 */
->>>                     __u8                       padding[56];          /*     0    56 */
->>>             };
->>>
->>>
->>>             /* size: 72, cachelines: 2, members: 2 */
->>>             /* last cacheline: 8 bytes */
->>>     };
->>>
->>> (so size and p_size_field should be 56) and the type of the para
->>> parameter in virtio_crypto_alg_akcipher_init_session() is 'void *' but
->>> the para passed by reference to
->>> virtio_crypto_alg_akcipher_init_session() in virtio_crypto_rsa_set_key()
->>> has a type of 'struct virtio_crypto_akcipher_session_para':
->>>
->>>     struct virtio_crypto_akcipher_session_para {
->>>             __le32                     algo;                 /*     0     4 */
->>>             __le32                     keytype;              /*     4     4 */
->>>             __le32                     keylen;               /*     8     4 */
->>>             union {
->>>                     struct virtio_crypto_rsa_session_para rsa; /*    12     8 */
->>>                     struct virtio_crypto_ecdsa_session_para ecdsa; /*    12     8 */
->>>             } u;                                             /*    12     8 */
->>>             union {
->>>                     struct virtio_crypto_rsa_session_para rsa;       /*     0     8 */
->>>                     struct virtio_crypto_ecdsa_session_para ecdsa;   /*     0     8 */
->>>             };
->>>
->>>
->>>             /* size: 20, cachelines: 1, members: 4 */
->>>             /* last cacheline: 20 bytes */
->>>     };
->>>
->>> (so q_size_field would be 20 if clang were able to do inlining to see
->>> through the 'void *'...?), which would result in the
->>>
->>>     __compiletime_lessthan(q_size_field, size)
->>>
->>> check succeeding and triggering the warning because 20 < 56, so it does
->>> seem like there is an overread of the source buffer here? Adding the
->>
->> Looks like it; I think either the passed 'para' should be of type
->> virtio_crypto_akcipher_create_session_req() or it should only copy
->> sizeof(struct virtio_crypto_akcipher_session_para) bytes.
->>
->> Anyway, how did you find that ? Is there a magic trick to find the
->> actual code causing the warning ? I am asking because we had seen
->> similar warnings before, and it would help to know how to find the
->> problematic code.
->>
->> Thanks,
->> Guenter
-> 
-> 
-> 
-> Cc: zhenwei pi <pizhenwei@bytedance.com>
-> 
-> Zhenwei I think you wrote most of the code here.
-> Can you take a look please?
-> Stack overflows are plus plus ungood.
-> 
-> 
-> 
-> 
->>> maintainers of the driver and subsystem in question.
->>>
->>> Cheers,
->>> Nathan
-> 
+To realize dGPU prime feature for virtio gpu, we are trying to let dGPU
+import vram object of virtio gpu. As vram objects don't have backing pages
+and thus can't implement the drm_gem_object_funcs.get_sg_table callback,
+this removes calling drm_gem_map_dma_buf in virtgpu_gem_map_dma_buf and
+implement virtgpu specific map/unmap/attach callbacks to support both of
+shmem objects and vram objects.
+ 
+Changes from v1 to v2:
+-Reimplement virtgpu_gem_device_attach() 
+-Remove calling drm dma-buf funcs in virtgpu callbacks and reimplement virtgpu
+specific dma-buf callbacks.
 
-I can also reproduce this warning by commands on ubuntu-2204:
-make -j CC=clang-14 mrproper >/dev/null 2>&1
-make -j O=/tmp/crypto-build CC=clang-14 allmodconfig >/dev/null 2>&1
-make -j O=/tmp/crypto-build W=1 CC=clang-14 
-drivers/crypto/virtio/virtio_crypto_akcipher_algs.o
+Julia Zhang (1):
+  drm/virtio: Implement device_attach
 
-so sorry on this issue, I think Guenter's suggestion is right(also test 
-by these commands), I'll send a fix later.
+ drivers/gpu/drm/virtio/virtgpu_prime.c | 40 +++++++++++++++++++++++---
+ 1 file changed, 36 insertions(+), 4 deletions(-)
 
 -- 
-zhenwei pi
+2.34.1
+
