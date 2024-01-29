@@ -1,50 +1,50 @@
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58026158D64
-	for <virtualization@lists.linux-foundation.org>; Mon, 29 Jan 2024 17:10:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A25D07561D
+	for <virtualization@lists.linux-foundation.org>; Mon, 29 Jan 2024 17:16:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706548232; cv=none; b=AbufvpV6pOR8Qy2QYKbEINNZ6d2gFRk6tMmgWT+ONSGcvLo92wyDIgMKv8NvfThZCNuRv/51xP3xyjZjVo7jitWA1imi0TtocaFSDXjt6FmsMIFMlNDHXOcUeNekk/yZODnZhIR61v4czUboh1EmEZF2vb1aa2u/duIU/7bJH30=
+	t=1706548603; cv=none; b=DQRUgdFuDZAFIK07zYRjki4qszR4wTGCsYunSh+3pRzjuTWNDiB+dFgt87mr5Z619lQTdCKZPD0xjcV657dyRGu8OaLMqseN1WO/wOcwuP3VCJVa32A1tU2PBZLbt+c32NMlcXmZXO5nM2T0WBlEmyZqlhlagdL2W+ud9ZL5PaY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706548232; c=relaxed/simple;
-	bh=qA8iGN3XKJOBwwOYBy9X7jMTB+6ug6Rfjp5pHQPjwNc=;
+	s=arc-20240116; t=1706548603; c=relaxed/simple;
+	bh=Bp1dyDO7354wIAEdTjNf7v9p8l29FKqGzHZCwkKLMYY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=S0Q+qGM8bonLppJTz0fWB3TryCpmnNH49PkZnAEThie12Ene96MOrBjlgQY/mz7ukqelLGTaaJt1myh3s+X2GRpOhBjNNOtN4257eTcZRT5MmQoCfVAnosvBjcOsZrmwDBN2aksktUXpAeQsBgjW0MhuxbE3X6kOQuS/p4zjGyQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=qfL2Adpl; arc=none smtp.client-ip=140.211.166.138
+	 MIME-Version; b=WzELqMKZfx795GFAVDuU7y/KAgMqV0DaaVyBvGOwhVrHTTtYjeIJAgrHfGhM2ipoRowhi12Tf5fX1excbyjo66Vazy9QzoPn7/B7dnfvvZbmNm4MhGLeyk72LcYFNeP8+PibXq/GlVZ4IBNJg9fsZnD7QH9HIh7B7f+ns/PYn5k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=2kP+o9go; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="qfL2Adpl"
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="2kP+o9go"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 4740E8229E
-	for <virtualization@lists.linux-foundation.org>; Mon, 29 Jan 2024 17:10:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4740E8229E
+	by smtp1.osuosl.org (Postfix) with ESMTP id 30F7E827C6
+	for <virtualization@lists.linux-foundation.org>; Mon, 29 Jan 2024 17:16:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 30F7E827C6
 Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=qfL2Adpl
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=2kP+o9go
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -4.401
 X-Spam-Level:
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id jUrO9ELDO8uZ
+	with ESMTP id OaYjx3uZkyXC
 	for <virtualization@lists.linux-foundation.org>;
-	Mon, 29 Jan 2024 17:10:28 +0000 (UTC)
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 7F3E682274
-	for <virtualization@lists.linux-foundation.org>; Mon, 29 Jan 2024 17:10:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7F3E682274
+	Mon, 29 Jan 2024 17:16:40 +0000 (UTC)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id D06F982798
+	for <virtualization@lists.linux-foundation.org>; Mon, 29 Jan 2024 17:16:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D06F982798
 Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sin.source.kernel.org (Postfix) with ESMTP id 58C03CE10F9;
-	Mon, 29 Jan 2024 17:10:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D6C1C433F1;
-	Mon, 29 Jan 2024 17:10:23 +0000 (UTC)
+	by dfw.source.kernel.org (Postfix) with ESMTP id 8D568623BF;
+	Mon, 29 Jan 2024 17:16:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 252FAC433C7;
+	Mon, 29 Jan 2024 17:16:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1706548223;
-	bh=qA8iGN3XKJOBwwOYBy9X7jMTB+6ug6Rfjp5pHQPjwNc=;
+	s=korg; t=1706548598;
+	bh=Bp1dyDO7354wIAEdTjNf7v9p8l29FKqGzHZCwkKLMYY=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=qfL2AdplyiBLlQef2gy7+y2wQcrEB3phyhIPLs0yDrxLkdspAkNksyTzcRj7z8C1C
-	 NBJn421ZfCBpMcMSQ6wKJggfmbhEnTokMgj9/wu9+xKfgpKZ3qXLnU1ZPUskvRW4YV
-	 wMjhh9qKIBK5Q2YbDELrMW8yO5TSfFacNCQJ6f54=
+	b=2kP+o9gonsw3e0+TmGRXRkDfl/YEtbwaZK2mAvUYtPmIh61MCRvztMMz7tiveK9Gk
+	 JfxRl2wHXjBG7HLK7SnlbevJIGDq1eLh01fJlfbmDxqKKrILefZthBTI8/Fp3u2DEo
+	 rqF+yFH03BAAhcIcVescE36o6AZDvhNm+4a3MUq0=
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To: stable@vger.kernel.org
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -66,12 +66,12 @@ Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	Pekka Paalanen <pekka.paalanen@collabora.com>,
 	Javier Martinez Canillas <javierm@redhat.com>,
 	Simon Ser <contact@emersion.fr>
-Subject: [PATCH 6.7 253/346] drm: Disable the cursor plane on atomic contexts with virtualized drivers
-Date: Mon, 29 Jan 2024 09:04:44 -0800
-Message-ID: <20240129170023.851641380@linuxfoundation.org>
+Subject: [PATCH 6.6 259/331] drm: Disable the cursor plane on atomic contexts with virtualized drivers
+Date: Mon, 29 Jan 2024 09:05:23 -0800
+Message-ID: <20240129170022.458985226@linuxfoundation.org>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240129170016.356158639@linuxfoundation.org>
-References: <20240129170016.356158639@linuxfoundation.org>
+In-Reply-To: <20240129170014.969142961@linuxfoundation.org>
+References: <20240129170014.969142961@linuxfoundation.org>
 User-Agent: quilt/0.67
 X-stable: review
 X-Patchwork-Hint: ignore
@@ -83,7 +83,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-6.7-stable review patch.  If anyone has any objections, please let me know.
+6.6-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
@@ -164,7 +164,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			    put_user(plane->base.id, plane_ptr + count))
 --- a/drivers/gpu/drm/qxl/qxl_drv.c
 +++ b/drivers/gpu/drm/qxl/qxl_drv.c
-@@ -285,7 +285,7 @@ static const struct drm_ioctl_desc qxl_i
+@@ -283,7 +283,7 @@ static const struct drm_ioctl_desc qxl_i
  };
  
  static struct drm_driver qxl_driver = {
@@ -226,7 +226,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
 --- a/include/drm/drm_file.h
 +++ b/include/drm/drm_file.h
-@@ -227,6 +227,18 @@ struct drm_file {
+@@ -229,6 +229,18 @@ struct drm_file {
  	bool is_master;
  
  	/**
