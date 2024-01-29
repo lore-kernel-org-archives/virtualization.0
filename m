@@ -1,44 +1,44 @@
 Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAB6D446C6
-	for <virtualization@lists.linux.dev>; Sun, 28 Jan 2024 23:32:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A126FBEB
+	for <virtualization@lists.linux.dev>; Mon, 29 Jan 2024 02:59:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706484762; cv=none; b=Qdc4tDxN8OKQ6aPtq02h5JBmhToRV/uTI/yywpzHtQHX7qLRa5r4Rcls6y1OG/A8ruvCTpP3lYFHLBhjqQBVkVF9rcjke958nMhP5PAYf1hP57/3+DZsYkYK7RVZ+6JXzB5PnSr3dSz06vrpQhxxpWmgaTiSbX7KzoGvEG6HTL8=
+	t=1706497176; cv=none; b=TTYx1u90OUmInRpvWPGV5/ZHHceVywGztm7DipciIlwhf+MyTIvb75l1tm8SGt5UbhU3mY3Xhc4i5LQ9ss5EKkyTeXHLXPTIyjFHPWYoSU66fRHyQngjpNaf8f/aW2JKuBB/7SXm6DBVCWJGMzRpZ2+BY+UWgpd8jDqIDVvq6eg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706484762; c=relaxed/simple;
-	bh=AzrwOZBkmI/cktwWlukqz0apiIuAlJnEaEkX+/5rYw4=;
+	s=arc-20240116; t=1706497176; c=relaxed/simple;
+	bh=DZUg1XoT8wokjq4uWFSKm1U2glAHD2r08GSBb58s88Q=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=XWBmy4Dd1RZpqFELrfiPmEf0gi+X46azNkDDzHWl0H2zBuxw5SnG4YnOw7jf6mxmpoYWAeA8VgA8c1XeuGPBMSPo92YDoVZRL92KZkVh2zE/kZ84bv79bCxIHZ6xV5823UGQFoLlycFro9xMT5nE3IxLxNVlyS88N/EG4EaVS/M=
+	 In-Reply-To:Content-Type; b=gwbAP0JfkFomMOoXdBuaGFor5ar+DtgiJhf3cSayH8dTG1k9o0OhsCzfMW0fj6MHU1ybFe9uG2h79VSW0yDD685VHQM3c4b9CSI08iRzTtBkztCFMNA6NZyjbPuVIbj+xIH4fh103F/hmzfpqdGDbLDvO8Y8QEJ0hU0SYTHvEgA=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=acm.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.214.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=acm.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-1d8d747a3bcso2500785ad.0
-        for <virtualization@lists.linux.dev>; Sun, 28 Jan 2024 15:32:37 -0800 (PST)
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-1d8ef972451so368675ad.2
+        for <virtualization@lists.linux.dev>; Sun, 28 Jan 2024 18:59:35 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706484756; x=1707089556;
+        d=1e100.net; s=20230601; t=1706497174; x=1707101974;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=CCpOX+eVqL1Q4NSGNGjhENwjH4eu1N22wi+8Wiglz6U=;
-        b=sLaB6plSzEl3b3+gMhmYbkAa+9ryrkUkn+B3qpvokviHZTI0FpB5zydfYIuOTl1eBh
-         T3PxCWo5ZTfTrd5xqbEXtwSqYH56XC3mwG0i1UN0LIP0kJpVFj1vtCisZaQkzQ/1nSIw
-         WS3EbOpbsQXbU1MBl3KJgiNoEE35IKsH+jG5pMTX3x81z4L2L2qQchMU5aQq+6w6P/8a
-         ZEEDaEupjf32Mqpg8PxLXY67UvzOfF1CJ7TPDxSqMhQjekgmkd8bqKZ+YhBKCyBeIaD8
-         LqOf5XL42xpC9xEFTu4kqv+oqHFwhRRD9UwkpeEcHe16JXZovg3R3OfoZcjw2x6QHPcu
-         tfTw==
-X-Gm-Message-State: AOJu0YwM+5TLgFxZDZ7zm6YVVHlp+hyPMmfL6Bkhvxqe9gUfeSCRHoFB
-	uG9ZyzfDgTXJ0ECIx0sGpDE0Wk9wEGEkY1YshWzCB7qeQnwS+9EO
-X-Google-Smtp-Source: AGHT+IFJ3QolskO8gZmMl8WqCUtF2qXopukrScYYsgKVaoX4rF5d94P45b/pYv2WAynpqKyF/TT5uA==
-X-Received: by 2002:a17:902:8206:b0:1d7:7277:8adf with SMTP id x6-20020a170902820600b001d772778adfmr4844562pln.22.1706484755837;
-        Sun, 28 Jan 2024 15:32:35 -0800 (PST)
+        bh=g2srdy/gEkxZEQX8yqvPWjPa+KiI9RaTtwGAFirYHPc=;
+        b=F+KjAGQEO49f0WiLH0uqgcXyGJCwIxAnPSL4J4oC+Bqkp0nX8ZCsz/ZsbbTNs9kJsn
+         31I4FN4BG8dMB3v++vh4+b04C1nSI1lXa7l9Nv3qWJ1oBVB41n0Wc/T9pnICP59DgBK1
+         eWMvWRXY5d0wc8ElpF2kC9X4uYHZYi8TYH/Z5aTa9g8JLByJrVFnkwxx9gCdPYPtKtBV
+         ED1JDcd+VZkfzSiK96d9Me2PnOeqKhRC8RslMWiIssT1WjMcFbN/Ajv1F4ThAFvjr09G
+         d3cFlii4LwlHOoC08Idp7ZRTcEavB618uuAc4VlnPQDkhRTeG8Av7UDAdTw8fBUBdiD8
+         olxg==
+X-Gm-Message-State: AOJu0Yx3Y8BBpBDaUfD5XlAaj9os7tyaszlcRcGClJwuEda55U3aJp7V
+	eW6fIdomdAFzl0XfTWLPKlkM/+snnOqOaFVKYNLuxHBC6xdVtJJQ
+X-Google-Smtp-Source: AGHT+IHLzWKpOpr3cILvZHyHMjuA82VdDmKya3ofyHQ2fh7NkcXPc/ZbcxRl9w9fzz4kk68FVx7Wdw==
+X-Received: by 2002:a17:903:246:b0:1d7:147d:6a1d with SMTP id j6-20020a170903024600b001d7147d6a1dmr2077904plh.55.1706497174501;
+        Sun, 28 Jan 2024 18:59:34 -0800 (PST)
 Received: from [192.168.51.14] (c-73-231-117-72.hsd1.ca.comcast.net. [73.231.117.72])
-        by smtp.gmail.com with ESMTPSA id r11-20020a170903014b00b001d8dedeb0casm744723plc.180.2024.01.28.15.32.33
+        by smtp.gmail.com with ESMTPSA id z2-20020a170902708200b001d89ed2d651sm4239317plk.102.2024.01.28.18.59.32
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 28 Jan 2024 15:32:35 -0800 (PST)
-Message-ID: <a0d499e7-ec2d-44f8-9b13-b1ef857e4c14@acm.org>
-Date: Sun, 28 Jan 2024 15:32:32 -0800
+        Sun, 28 Jan 2024 18:59:34 -0800 (PST)
+Message-ID: <df263948-07e0-4aab-a645-ea401d4d413b@acm.org>
+Date: Sun, 28 Jan 2024 18:59:31 -0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -46,8 +46,7 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 01/14] block: move max_{open,active}_zones to struct
- queue_limits
+Subject: Re: [PATCH 02/14] block: refactor disk_update_readahead
 Content-Language: en-US
 To: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
 Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
@@ -59,39 +58,26 @@ Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
  linux-nvme@lists.infradead.org, virtualization@lists.linux.dev,
  Hannes Reinecke <hare@suse.de>
 References: <20240128165813.3213508-1-hch@lst.de>
- <20240128165813.3213508-2-hch@lst.de>
+ <20240128165813.3213508-3-hch@lst.de>
 From: Bart Van Assche <bvanassche@acm.org>
-In-Reply-To: <20240128165813.3213508-2-hch@lst.de>
+In-Reply-To: <20240128165813.3213508-3-hch@lst.de>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 1/28/24 08:58, Christoph Hellwig wrote:
-> diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-> index 99e4f5e722132c..4a2e82c7971c86 100644
-> --- a/include/linux/blkdev.h
-> +++ b/include/linux/blkdev.h
-> @@ -189,8 +189,6 @@ struct gendisk {
->   	 * blk_mq_unfreeze_queue().
->   	 */
->   	unsigned int		nr_zones;
-> -	unsigned int		max_open_zones;
-> -	unsigned int		max_active_zones;
->   	unsigned long		*conv_zones_bitmap;
->   	unsigned long		*seq_zones_wlock;
->   #endif /* CONFIG_BLK_DEV_ZONED */
-> @@ -307,6 +305,8 @@ struct queue_limits {
->   	unsigned char		discard_misaligned;
->   	unsigned char		raid_partial_stripes_expensive;
->   	bool			zoned;
-> +	unsigned int		max_open_zones;
-> +	unsigned int		max_active_zones;
+> +static void blk_apply_bdi_limits(struct backing_dev_info *bdi,
+> +		struct queue_limits *lim)
+> +{
+> +	/*
+> +	 * For read-ahead of large files to be effective, we need to read ahead
+> +	 * at least twice the optimal I/O size.
+> +	 */
+> +	bdi->ra_pages = max(lim->io_opt * 2 / PAGE_SIZE, VM_READAHEAD_PAGES);
+> +	bdi->io_pages = lim->max_sectors >> (PAGE_SHIFT - 9);
+> +}
 
-Not all struct queue_limits instances are associated with a gendisk. Do we need
-a way to separate the limits that apply to all request queues from the limits
-that only apply to disks in struct queue_limits, e.g. a comment that separates
-the two?
+Would this be a good opportunity to change (PAGE_SHIFT - 9) into PAGE_SECTORS_SHIFT?
 
 Thanks,
 
 Bart.
-
