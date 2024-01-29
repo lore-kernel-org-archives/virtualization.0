@@ -1,200 +1,92 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [46.235.227.194])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A02254F91
-	for <virtualization@lists.linux-foundation.org>; Mon, 29 Jan 2024 09:06:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3AD254BED
+	for <virtualization@lists.linux.dev>; Mon, 29 Jan 2024 09:09:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.235.227.194
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706519205; cv=none; b=RBiVHi+pbWhgMiEwj+BIIWnItfLUgQ6WrZyn9Ma2qBJO7QWm59DVzQN+eyj164SYA6KF4suVS8na+6+eWFc7SUH1EmjwRkSMgxgxhauZ7eXTcEphp5ryfV+mBhz2CgWZtADF9wRrqotm+O/2CW7zEsAIpHdsn6WtnxfVBnSRdbE=
+	t=1706519352; cv=none; b=RsLb/O467Ht8iE4S327YWRYZ5jJVMAhF+71XttzG7AEOXFqKDc1fF0NUEeoBydRlqeRSgmExYOWAQJij9soHy7wPyDoqK8cuA/K2lOykmi1sTAKMMj8l1bgw2bpqEOksyLQtIX4rmw8j42HxuUW9jvg08d3DFT7TJUkiaCbH+Lw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706519205; c=relaxed/simple;
-	bh=74fi5DcNKOULYLggR4R0E2v10kwPg+UKrSWj0U7folA=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=RwzZA3GPNrFSeC1Nql28Eft+5I35+BH3kAGeY34cD3brKpDvzFdgUV0qu0TKvYPoW3c5NU9O9/T/E/qOK8xBazsTY2W0hK+BveZrhyEfNt0oenZirWQRF/AyP/Aur2SKw32HlbwrJSFxgiGghKpxtJu1E5PTE+c1zYEos4+tGpk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=yOpAupQY; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1706519352; c=relaxed/simple;
+	bh=3eVGnHQarUvvYEP93Efg52JEWCK+33R/xQvbNmpvJBY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=QitWS3qHwMiGjtHYVOBkP7ccjaz4nNVfxIMZOkvxkf7nbg6zs5ncEL4A74xaBACWiycgV6aEmWj9zrjxZGitCn8L9rE393jfP4ITsiP2TSp4YpVVJlqLIN4VMVD3C/FUAzE6y1HpYhG4XxpQRlxhvS7Mzx+48E8yxBepKETVlGQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=tMLn71OD; arc=none smtp.client-ip=46.235.227.194
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="yOpAupQY"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id EC47240AA3
-	for <virtualization@lists.linux-foundation.org>; Mon, 29 Jan 2024 09:06:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EC47240AA3
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=yOpAupQY
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.1
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id qQjeHstsH7aW
-	for <virtualization@lists.linux-foundation.org>;
-	Mon, 29 Jan 2024 09:06:42 +0000 (UTC)
-Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [IPv6:2a00:1098:ed:100::25])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 6357940A74
-	for <virtualization@lists.linux-foundation.org>; Mon, 29 Jan 2024 09:06:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6357940A74
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="tMLn71OD"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1706519200;
-	bh=74fi5DcNKOULYLggR4R0E2v10kwPg+UKrSWj0U7folA=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=yOpAupQYg7zJqIWP1yTDmNlzdFztr+NuKUBdtYcQwRJdgXtWJfVN+KJlrRzsD7EU/
-	 B8U/lgx9dbSxRQDliF+V4aknaivxgPtlgSDLGsWqAoDNdtW05+xDFVkylsoH6xZ2GW
-	 WNP8/4h9xNGLnM25VYxjGB3tjb91NWgyY+VIaARIE1JYh5SJJ1v9cYiWl/F4kApTth
-	 aZDkWeijXsbY0oBCWgF2Mr8myNMZlUPhtm9amIk/UuVnJ76+FnzMEak8xn84cBTW21
-	 Gwl3forDQ+rRIyxfXnA/79SCOLC8ROh8LAwFG90KpaNhv7qknkpCgTvARtYSX2ia+H
-	 9mz3xzS97xqxQ==
-Received: from localhost (cola.collaboradmins.com [195.201.22.229])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	s=mail; t=1706519349;
+	bh=3eVGnHQarUvvYEP93Efg52JEWCK+33R/xQvbNmpvJBY=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=tMLn71ODKx6DF+vSa8/KkoIvMDRiO6FIg+NwQjJDxf4wBpUl+EchCZYCM4DeLemAq
+	 xZ+yncKFM0IqFGN43pSSOGBQpz0DDzQJYdVwnv93RSgQISVR+cpvh/wLapwQ6zXDde
+	 8DjxsK1mdT9CztY4apxWZugMfum2F1dPagdplBPYyPb6Ir1DdtDfsWIO9tlIuDlr99
+	 B6zywy/V/MhPGItatLHPzi5/lbF86zr/PW4fuobLrebAv9HO0c8HZ+SgoLnOJn5LEf
+	 DV+l5hZ7+0eS05Hxr3bNuELW043fqkei8ypbnzmr9R+b/mz4s41C8LO/iLyvdubSmN
+	 O9mubjbsLTzHw==
+Received: from [100.109.49.129] (cola.collaboradmins.com [195.201.22.229])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	(Authenticated sender: bbrezillon)
-	by madrid.collaboradmins.com (Postfix) with ESMTPSA id 52C5737814A4;
-	Mon, 29 Jan 2024 09:06:39 +0000 (UTC)
-Date: Mon, 29 Jan 2024 10:06:38 +0100
-From: Boris Brezillon <boris.brezillon@collabora.com>
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Cc: David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>, Maarten Lankhorst
- <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>,
- Thomas Zimmermann <tzimmermann@suse.de>, Christian =?UTF-8?B?S8O2bmln?=
- <christian.koenig@amd.com>, Qiang Yu <yuq825@gmail.com>, Steven Price
- <steven.price@arm.com>, Emma Anholt <emma@anholt.net>, Melissa Wen
- <mwen@igalia.com>, dri-devel@lists.freedesktop.org,
- linux-kernel@vger.kernel.org, kernel@collabora.com,
- virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH v19 22/30] drm/shmem-helper: Add common memory shrinker
-Message-ID: <20240129100638.7d61c996@collabora.com>
-In-Reply-To: <20240129095511.31f8a2af@collabora.com>
-References: <20240105184624.508603-1-dmitry.osipenko@collabora.com>
-	<20240105184624.508603-23-dmitry.osipenko@collabora.com>
-	<20240125111946.797a1e1e@collabora.com>
-	<f4870543-e7f8-4ee6-924a-68ec7c25b293@collabora.com>
-	<20240126105537.67b1613e@collabora.com>
-	<fab38fed-635c-4dbe-aa13-dcdf8f267988@collabora.com>
-	<20240126191230.0ee6f99f@collabora.com>
-	<ea74a26d-d97f-4d09-bc24-67484ee45b76@collabora.com>
-	<20240129095511.31f8a2af@collabora.com>
-Organization: Collabora
-X-Mailer: Claws Mail 4.2.0 (GTK 3.24.38; x86_64-redhat-linux-gnu)
+	(Authenticated sender: dmitry.osipenko)
+	by madrid.collaboradmins.com (Postfix) with ESMTPSA id 97BA437814A4;
+	Mon, 29 Jan 2024 09:09:08 +0000 (UTC)
+Message-ID: <9eea9580-744a-4b04-97a1-11e86565b895@collabora.com>
+Date: Mon, 29 Jan 2024 12:09:05 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RESEND] drm/virtio: set segment size for virtio_gpu device
+Content-Language: en-US
+To: Sebastian Ott <sebott@redhat.com>, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Cc: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Daniel Vetter <daniel@ffwll.ch>
+References: <7258a4cc-da16-5c34-a042-2a23ee396d56@redhat.com>
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <7258a4cc-da16-5c34-a042-2a23ee396d56@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Mon, 29 Jan 2024 09:55:11 +0100
-Boris Brezillon <boris.brezillon@collabora.com> wrote:
-
-> On Mon, 29 Jan 2024 09:16:04 +0300
-> Dmitry Osipenko <dmitry.osipenko@collabora.com> wrote:
+On 1/23/24 21:14, Sebastian Ott wrote:
+> drm/virtio: set segment size for virtio_gpu device
 > 
-> > On 1/26/24 21:12, Boris Brezillon wrote:  
-> > > On Fri, 26 Jan 2024 19:27:49 +0300
-> > > Dmitry Osipenko <dmitry.osipenko@collabora.com> wrote:
-> > >     
-> > >> On 1/26/24 12:55, Boris Brezillon wrote:    
-> > >>> On Fri, 26 Jan 2024 00:56:47 +0300
-> > >>> Dmitry Osipenko <dmitry.osipenko@collabora.com> wrote:
-> > >>>       
-> > >>>> On 1/25/24 13:19, Boris Brezillon wrote:      
-> > >>>>> On Fri,  5 Jan 2024 21:46:16 +0300
-> > >>>>> Dmitry Osipenko <dmitry.osipenko@collabora.com> wrote:
-> > >>>>>         
-> > >>>>>> +static bool drm_gem_shmem_is_evictable(struct drm_gem_shmem_object *shmem)
-> > >>>>>> +{
-> > >>>>>> +	return (shmem->madv >= 0) && shmem->base.funcs->evict &&
-> > >>>>>> +		refcount_read(&shmem->pages_use_count) &&
-> > >>>>>> +		!refcount_read(&shmem->pages_pin_count) &&
-> > >>>>>> +		!shmem->base.dma_buf && !shmem->base.import_attach &&
-> > >>>>>> +		!shmem->evicted;        
-> > >>>>>
-> > >>>>> Are we missing
-> > >>>>>
-> > >>>>>                 && dma_resv_test_signaled(shmem->base.resv,
-> > >>>>> 					  DMA_RESV_USAGE_BOOKKEEP)
-> > >>>>>
-> > >>>>> to make sure the GPU is done using the BO?
-> > >>>>> The same applies to drm_gem_shmem_is_purgeable() BTW.
-> > >>>>>
-> > >>>>> If you don't want to do this test here, we need a way to let drivers
-> > >>>>> provide a custom is_{evictable,purgeable}() test.
-> > >>>>>
-> > >>>>> I guess we should also expose drm_gem_shmem_shrinker_update_lru_locked()
-> > >>>>> to let drivers move the GEMs that were used most recently (those
-> > >>>>> referenced by a GPU job) at the end of the evictable LRU.        
-> > >>>>
-> > >>>> We have the signaled-check in the common drm_gem_evict() helper:
-> > >>>>
-> > >>>> https://elixir.bootlin.com/linux/v6.8-rc1/source/drivers/gpu/drm/drm_gem.c#L1496      
-> > >>>
-> > >>> Ah, indeed. I'll need DMA_RESV_USAGE_BOOKKEEP instead of
-> > >>> DMA_RESV_USAGE_READ in panthor, but I can add it in the driver specific      
-> > >>> ->evict() hook (though that means calling dma_resv_test_signaled()      
-> > >>> twice, which is not great, oh well).      
-> > >>
-> > >> Maybe we should change drm_gem_evict() to use BOOKKEEP. The
-> > >> test_signaled(BOOKKEEP) should be a "stronger" check than
-> > >> test_signaled(READ)?    
-> > > 
-> > > It is, just wondering if some users have a good reason to want
-> > > READ here.
-> > >     
-> > >>    
-> > >>> The problem about the evictable LRU remains though: we need a way to let
-> > >>> drivers put their BOs at the end of the list when the BO has been used
-> > >>> by the GPU, don't we?      
-> > >>
-> > >> If BO is use, then it won't be evicted, while idling BOs will be
-> > >> evicted. Hence, the used BOs will be naturally moved down the LRU list
-> > >> each time shrinker is invoked.
-> > >>    
-> > > 
-> > > That only do the trick if the BOs being used most often are busy when
-> > > the shrinker kicks in though. Let's take this scenario:
-> > > 
-> > > 
-> > > BO 1					BO 2					shinker
-> > > 
-> > > 					busy
-> > > 					idle (first-pos-in-evictable-LRU)
-> > > 
-> > > busy
-> > > idle (second-pos-in-evictable-LRU)
-> > > 
-> > > 					busy
-> > > 					idle
-> > > 
-> > > 					busy
-> > > 					idle
-> > > 
-> > > 					busy
-> > > 					idle
-> > > 
-> > > 										find a BO to evict
-> > > 										pick BO 2
-> > > 
-> > > 					busy (swapin)
-> > > 					idle
-> > > 
-> > > If the LRU had been updated at each busy event, BO 1 should have
-> > > been picked for eviction. But we evicted the BO that was first
-> > > recorded idle instead of the one that was least recently
-> > > recorded busy.    
-> > 
-> > You have to swapin(BO) every time BO goes to busy state, and swapin does drm_gem_lru_move_tail(BO). Hence, each time BO goes idle->busy, it's moved down the LRU list.  
+> Set the segment size of the virtio_gpu device to the value
+> used by the drm helpers when allocating sg lists to fix the
+> following complaint from DMA_API debug code:
+> DMA-API: virtio-pci 0000:07:00.0: mapping sg segment longer than device
+> claims to support [len=262144] [max=65536]
 > 
-> Ah, that's the bit I was missing. It makes sense now. I guess that's
-> good enough for now, we can sort out the BOOKKEEP vs READ in a
-> follow-up series.
-
-On second look, it seems drm_gem_shmem_shrinker_update_lru_locked()
-doesn't call drm_gem_shmem_shrinker_update_lru_locked() if the BO was
-already resident? Is there something else I'm overlooking here?
-
+> Signed-off-by: Sebastian Ott <sebott@redhat.com>
+> ---
+>   drivers/gpu/drm/virtio/virtgpu_drv.c | 1 +
+>   1 file changed, 1 insertion(+)
 > 
-> Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c
+> b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> index 4334c7608408..74b2cb3295af 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> @@ -94,6 +94,7 @@ static int virtio_gpu_probe(struct virtio_device *vdev)
+>               goto err_free;
+>       }
+> 
+> +    dma_set_max_seg_size(dev->dev, dma_max_mapping_size(dev->dev) ? :
+> UINT_MAX);
+>       ret = virtio_gpu_init(vdev, dev);
+>       if (ret)
+>           goto err_free;
+
+Added stable tag and applied to misc-fixes. Please use `git send-email`
+next time. Thanks
+
+-- 
+Best regards,
+Dmitry
 
