@@ -1,40 +1,57 @@
-Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [46.235.227.194])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3AD254BED
-	for <virtualization@lists.linux.dev>; Mon, 29 Jan 2024 09:09:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.235.227.194
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B6DA55E50
+	for <virtualization@lists.linux-foundation.org>; Mon, 29 Jan 2024 09:25:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706519352; cv=none; b=RsLb/O467Ht8iE4S327YWRYZ5jJVMAhF+71XttzG7AEOXFqKDc1fF0NUEeoBydRlqeRSgmExYOWAQJij9soHy7wPyDoqK8cuA/K2lOykmi1sTAKMMj8l1bgw2bpqEOksyLQtIX4rmw8j42HxuUW9jvg08d3DFT7TJUkiaCbH+Lw=
+	t=1706520334; cv=none; b=EjDmuxt7PLp3CPfgwiJ+sVlY0+AWj0ZatOQeSxo49bYhiMvKK03P0uIBNq7OKO4OpfilHEkwIwvYoKXnwBb/wMFmNpt93IeSa1d7cwP88njhfDeycr8N2WV1QKqAHvb+BNJKJFTwOvsTjXlTq0+2TeY7ZbxiLDJ2MIwOrGpq6qw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706519352; c=relaxed/simple;
-	bh=3eVGnHQarUvvYEP93Efg52JEWCK+33R/xQvbNmpvJBY=;
+	s=arc-20240116; t=1706520334; c=relaxed/simple;
+	bh=ZeASRK9OQU0zk9iDytgg8kPkaNP8KWri+NPgrypJ/KY=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=QitWS3qHwMiGjtHYVOBkP7ccjaz4nNVfxIMZOkvxkf7nbg6zs5ncEL4A74xaBACWiycgV6aEmWj9zrjxZGitCn8L9rE393jfP4ITsiP2TSp4YpVVJlqLIN4VMVD3C/FUAzE6y1HpYhG4XxpQRlxhvS7Mzx+48E8yxBepKETVlGQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=tMLn71OD; arc=none smtp.client-ip=46.235.227.194
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	 In-Reply-To:Content-Type; b=tBcndXBst+o6qbxQdoRp5jhNur3AsLMoLG2kgt6UQN0pZcNJKgbyFXN1SLYDRS4vlJmov30bWEoMlprdyw7EN6NhCToPCXLBQsTUvGfrxiVUmjecJtL+gsyMZ/loOLI0IZkzijEXh3w9hJLFR41v14FabDtbo0HlsY3ireoW5M4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=3dWWHEru; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="tMLn71OD"
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="3dWWHEru"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id DB39641692
+	for <virtualization@lists.linux-foundation.org>; Mon, 29 Jan 2024 09:25:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DB39641692
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=3dWWHEru
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id vKSTTBf_rapZ
+	for <virtualization@lists.linux-foundation.org>;
+	Mon, 29 Jan 2024 09:25:32 +0000 (UTC)
+Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [IPv6:2a00:1098:ed:100::25])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 24D3841691
+	for <virtualization@lists.linux-foundation.org>; Mon, 29 Jan 2024 09:25:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 24D3841691
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1706519349;
-	bh=3eVGnHQarUvvYEP93Efg52JEWCK+33R/xQvbNmpvJBY=;
+	s=mail; t=1706520330;
+	bh=ZeASRK9OQU0zk9iDytgg8kPkaNP8KWri+NPgrypJ/KY=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=tMLn71ODKx6DF+vSa8/KkoIvMDRiO6FIg+NwQjJDxf4wBpUl+EchCZYCM4DeLemAq
-	 xZ+yncKFM0IqFGN43pSSOGBQpz0DDzQJYdVwnv93RSgQISVR+cpvh/wLapwQ6zXDde
-	 8DjxsK1mdT9CztY4apxWZugMfum2F1dPagdplBPYyPb6Ir1DdtDfsWIO9tlIuDlr99
-	 B6zywy/V/MhPGItatLHPzi5/lbF86zr/PW4fuobLrebAv9HO0c8HZ+SgoLnOJn5LEf
-	 DV+l5hZ7+0eS05Hxr3bNuELW043fqkei8ypbnzmr9R+b/mz4s41C8LO/iLyvdubSmN
-	 O9mubjbsLTzHw==
+	b=3dWWHEruMWT62ux6ztq3I+1FA3TnZsmeUjbKb2HiRI0njatR9x1yAbwn/KxQWFt7k
+	 /AeGxYmbZrVqoJiIe1vjWJsqLE/JlGMVOFYf/OSHvPss28vYYzXZnZolLhO9FvOcMB
+	 KBXvUakaOBVZrsKRDNOwnEdLuparFW0i/sY/VunFzjieWBUS2yYeCo+uJRDH+wDi1l
+	 FiK5M/UfeAPPF9xxbZSbdLfzq8Lh8PcePRQzUA52HHrpyxOGlmj/0eB09+0IDod8tl
+	 bY0hZJ11+DMmefPVR1vuuh/iBfz6iFtvkUrGDUx2u8gdJBrYl+e8dK9zK2upo24F+P
+	 yUJ5U4Oll2QOA==
 Received: from [100.109.49.129] (cola.collaboradmins.com [195.201.22.229])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
 	(Authenticated sender: dmitry.osipenko)
-	by madrid.collaboradmins.com (Postfix) with ESMTPSA id 97BA437814A4;
-	Mon, 29 Jan 2024 09:09:08 +0000 (UTC)
-Message-ID: <9eea9580-744a-4b04-97a1-11e86565b895@collabora.com>
-Date: Mon, 29 Jan 2024 12:09:05 +0300
+	by madrid.collaboradmins.com (Postfix) with ESMTPSA id C647F37814B0;
+	Mon, 29 Jan 2024 09:25:28 +0000 (UTC)
+Message-ID: <e062b0dc-6630-42f9-b3ca-ac4bc0597190@collabora.com>
+Date: Mon, 29 Jan 2024 12:25:26 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -42,49 +59,56 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RESEND] drm/virtio: set segment size for virtio_gpu device
+Subject: Re: [PATCH v19 22/30] drm/shmem-helper: Add common memory shrinker
 Content-Language: en-US
-To: Sebastian Ott <sebott@redhat.com>, dri-devel@lists.freedesktop.org,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Cc: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Daniel Vetter <daniel@ffwll.ch>
-References: <7258a4cc-da16-5c34-a042-2a23ee396d56@redhat.com>
+To: Boris Brezillon <boris.brezillon@collabora.com>
+Cc: David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
+ Qiang Yu <yuq825@gmail.com>, Steven Price <steven.price@arm.com>,
+ Emma Anholt <emma@anholt.net>, Melissa Wen <mwen@igalia.com>,
+ dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+ kernel@collabora.com, virtualization@lists.linux-foundation.org
+References: <20240105184624.508603-1-dmitry.osipenko@collabora.com>
+ <20240105184624.508603-23-dmitry.osipenko@collabora.com>
+ <20240129100112.35c73f18@collabora.com>
 From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-In-Reply-To: <7258a4cc-da16-5c34-a042-2a23ee396d56@redhat.com>
+In-Reply-To: <20240129100112.35c73f18@collabora.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
-On 1/23/24 21:14, Sebastian Ott wrote:
-> drm/virtio: set segment size for virtio_gpu device
+On 1/29/24 12:01, Boris Brezillon wrote:
+> On Fri,  5 Jan 2024 21:46:16 +0300
+> Dmitry Osipenko <dmitry.osipenko@collabora.com> wrote:
 > 
-> Set the segment size of the virtio_gpu device to the value
-> used by the drm helpers when allocating sg lists to fix the
-> following complaint from DMA_API debug code:
-> DMA-API: virtio-pci 0000:07:00.0: mapping sg segment longer than device
-> claims to support [len=262144] [max=65536]
+>> +/**
+>> + * drm_gem_shmem_swapin_locked() - Moves shmem GEM back to memory and enables
+>> + *                                 hardware access to the memory.
+>> + * @shmem: shmem GEM object
+>> + *
+>> + * This function moves shmem GEM back to memory if it was previously evicted
+>> + * by the memory shrinker. The GEM is ready to use on success.
+>> + *
+>> + * Returns:
+>> + * 0 on success or a negative error code on failure.
+>> + */
+>> +int drm_gem_shmem_swapin_locked(struct drm_gem_shmem_object *shmem)
+>> +{
+>> +	int err;
+>> +
+>> +	dma_resv_assert_held(shmem->base.resv);
+>> +
+>> +	if (!shmem->evicted)
+>> +		return 0;
 > 
-> Signed-off-by: Sebastian Ott <sebott@redhat.com>
-> ---
->   drivers/gpu/drm/virtio/virtgpu_drv.c | 1 +
->   1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c
-> b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> index 4334c7608408..74b2cb3295af 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> @@ -94,6 +94,7 @@ static int virtio_gpu_probe(struct virtio_device *vdev)
->               goto err_free;
->       }
-> 
-> +    dma_set_max_seg_size(dev->dev, dma_max_mapping_size(dev->dev) ? :
-> UINT_MAX);
->       ret = virtio_gpu_init(vdev, dev);
->       if (ret)
->           goto err_free;
+> Shouldn't we have a drm_gem_shmem_shrinker_update_lru_locked() even if
+> the object wasn't evicted, such that idle->busy transition moves the BO
+> to the list tail?
 
-Added stable tag and applied to misc-fixes. Please use `git send-email`
-next time. Thanks
+Seems so, good catch. I'll double-check and remove it in the next version.
 
 -- 
 Best regards,
