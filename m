@@ -1,30 +1,30 @@
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32D6C679EE
-	for <virtualization@lists.linux.dev>; Tue, 30 Jan 2024 11:42:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E28AE6D1DB
+	for <virtualization@lists.linux.dev>; Tue, 30 Jan 2024 11:42:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706614961; cv=none; b=YgGLU+svscCxaSIQR/LYN1CHuu8wXxSD2EvguhLr01LP+TWIvK9TIWCVHMrYeuol8Dsts8UjYdYMI/6A2A9CXroyWpSIAmBVVuNUjXCXjQt2TyZRo44rhS/dFBf4dertz/74T24LtOppcpxztZHvckW3sGUVEZKp2mjsk6gF90k=
+	t=1706614962; cv=none; b=bThpPH6sY6X/Z39Hv4lJ+xSa+9hSBZPMwDzYEQ2u8tJt0rrkr+DAOl5wjyncKJrpnDB+/mErM/syDluBqjbW4cOrAbhOuc/Cs/BdjWPfu5DxkFXqjck/KiKFqsLUyegnDLg3Uk/Z2sL9+aaEziSa6w6oIXyEKWGLCW40nyxjM4w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706614961; c=relaxed/simple;
-	bh=sioBitvVODKWFEi3It7y9hTCuYhRhlwoPb8vZ+NKaXo=;
+	s=arc-20240116; t=1706614962; c=relaxed/simple;
+	bh=wtKZ3JnkbyRol+1QUCI3g+aTLGcAE86kgna4ZI/a4ik=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=spni9l8crUSUik536h+FHg2NyOLWFf0dERtT6O7Q1RLgiYgGEekekvNgpLbfJ61oNRN3COGg8dq/KRvnjOKJjN5RK2X8wB7HOgOT4BXlqAk783OZayV7am8x+ntYsnKyB26O7LnMyUqrh8ALLazyZIKKj0+j0QVnJYM5bC2Cy2w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=CVbHDMgH; arc=none smtp.client-ip=115.124.30.119
+	 MIME-Version; b=gayM/9uheTirMAOZN/n9kVhfITFtxeK3+7+x4TupaIPRLeuDdO8sKlTlagG/J8pF2cNNb6kUeGTI1uykfn4nB8IrExI13L1J/HxdMSqgdQ+bOcMgmPuZkpNUrTdLsJdsd3Ks91zc74LkhsictMaGqJC68o+QwgkJGC5RMKWLW2E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=aK0KOkyc; arc=none smtp.client-ip=115.124.30.111
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="CVbHDMgH"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="aK0KOkyc"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1706614957; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=aJW45Loje2yp/4dQUt3QyiyDsaI3FGnc4OA+IXxlF9E=;
-	b=CVbHDMgHaW4A62oq6v1Ah4DOoynnKqtaE2dCjMGrrBqAQ1QVsewT3wDyTnVx7nwwqdrH1OdlXaMwlMjm7au6ppvwKFMr7PiOYEMJ1rW067J/zBlSdot9k+IN4baTRWh967e5Gu8uXAOc2jawrfUP7wVj+w3305jJOWyzbVizLLw=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R751e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0W.g4wNH_1706614954;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W.g4wNH_1706614954)
+	t=1706614952; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=PHE2stYM55HtJOlk3lTfdUsq+qQbKVYlz5rHB+a8ViQ=;
+	b=aK0KOkycAoTJo38hKqjOSPez0YTyD8lQFs5a18FcOzYhGOaeBjGdZ3dWUlVGcwVmsJc5/IukHEESRuO0qQLaAtrBnVdzPHa+04K4MjYEL4pQQFYp5yiDRv7vzVYupgzrAjengyiy2ZW37EUFNw9sVuBNsp5rSfxTVwf5VXB/eIc=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0W.g61Rq_1706614949;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W.g61Rq_1706614949)
           by smtp.aliyun-inc.com;
-          Tue, 30 Jan 2024 19:42:35 +0800
+          Tue, 30 Jan 2024 19:42:30 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: virtualization@lists.linux.dev
 Cc: Richard Weinberger <richard@nod.at>,
@@ -63,9 +63,9 @@ Cc: Richard Weinberger <richard@nod.at>,
 	linux-s390@vger.kernel.org,
 	kvm@vger.kernel.org,
 	bpf@vger.kernel.org
-Subject: [PATCH vhost 06/17] virtio_ring: no store dma info when unmap is not needed
-Date: Tue, 30 Jan 2024 19:42:13 +0800
-Message-Id: <20240130114224.86536-7-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH vhost 03/17] virtio_ring: packed: structure the indirect desc table
+Date: Tue, 30 Jan 2024 19:42:10 +0800
+Message-Id: <20240130114224.86536-4-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20240130114224.86536-1-xuanzhuo@linux.alibaba.com>
 References: <20240130114224.86536-1-xuanzhuo@linux.alibaba.com>
@@ -78,307 +78,178 @@ MIME-Version: 1.0
 X-Git-Hash: 239d1d475be4
 Content-Transfer-Encoding: 8bit
 
-As discussed:
-http://lore.kernel.org/all/CACGkMEug-=C+VQhkMYSgUKMC==04m7-uem_yC21bgGkKZh845w@mail.gmail.com
+This commit structure the indirect desc table.
+Then we can get the desc num directly when doing unmap.
 
-When the vq is premapped mode, the driver manages the dma
-info is a good way.
-
-So this commit make the virtio core not to store the dma
-info and release the memory which is used to store the dma
-info.
-
-If the use_dma_api is false, the memory is also not allocated.
+And save the dma info to the struct, then the indirect
+will not use the dma fields of the desc_extra. The subsequent
+commits will make the dma fields are optional. But for
+the indirect case, we must record the dma info.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- drivers/virtio/virtio_ring.c | 89 ++++++++++++++++++++++++++++--------
- 1 file changed, 70 insertions(+), 19 deletions(-)
+ drivers/virtio/virtio_ring.c | 63 ++++++++++++++++++++----------------
+ 1 file changed, 35 insertions(+), 28 deletions(-)
 
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 831667a57429..5bea25167259 100644
+index 7280a1706cca..dd03bc5a81fe 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -94,12 +94,15 @@ struct vring_desc_state_packed {
+@@ -72,9 +72,16 @@ struct vring_desc_state_split {
+ 	struct vring_desc *indir_desc;	/* Indirect descriptor, if any. */
  };
  
- struct vring_desc_extra {
--	dma_addr_t addr;		/* Descriptor DMA addr. */
--	u32 len;			/* Descriptor length. */
- 	u16 flags;			/* Descriptor flags. */
- 	u16 next;			/* The next desc state in a list. */
- };
- 
-+struct vring_desc_dma {
-+	dma_addr_t addr;		/* Descriptor DMA addr. */
-+	u32 len;			/* Descriptor length. */
++struct vring_packed_desc_indir {
++	dma_addr_t addr;		/* Descriptor Array DMA addr. */
++	u32 len;			/* Descriptor Array length. */
++	u32 num;
++	struct vring_packed_desc desc[];
 +};
 +
- struct vring_virtqueue_split {
- 	/* Actual memory layout for this queue. */
- 	struct vring vring;
-@@ -116,6 +119,7 @@ struct vring_virtqueue_split {
- 	/* Per-descriptor state. */
- 	struct vring_desc_state_split *desc_state;
- 	struct vring_desc_extra *desc_extra;
-+	struct vring_desc_dma *desc_dma;
- 
- 	/* DMA address and size information */
- 	dma_addr_t queue_dma_addr;
-@@ -156,6 +160,7 @@ struct vring_virtqueue_packed {
- 	/* Per-descriptor state. */
- 	struct vring_desc_state_packed *desc_state;
- 	struct vring_desc_extra *desc_extra;
-+	struct vring_desc_dma *desc_dma;
- 
- 	/* DMA address and size information */
- 	dma_addr_t ring_dma_addr;
-@@ -472,13 +477,14 @@ static unsigned int vring_unmap_one_split(const struct vring_virtqueue *vq,
- 					  unsigned int i)
- {
- 	struct vring_desc_extra *extra = vq->split.desc_extra;
-+	struct vring_desc_dma *dma = vq->split.desc_dma;
- 	u16 flags;
- 
- 	flags = extra[i].flags;
- 
- 	dma_unmap_page(vring_dma_dev(vq),
--		       extra[i].addr,
--		       extra[i].len,
-+		       dma[i].addr,
-+		       dma[i].len,
- 		       (flags & VRING_DESC_F_WRITE) ?
- 		       DMA_FROM_DEVICE : DMA_TO_DEVICE);
- 
-@@ -535,8 +541,11 @@ static inline unsigned int virtqueue_add_desc_split(struct virtqueue *vq,
- 		next = extra[i].next;
- 		desc[i].next = cpu_to_virtio16(vq->vdev, next);
- 
--		extra[i].addr = addr;
--		extra[i].len = len;
-+		if (vring->split.desc_dma) {
-+			vring->split.desc_dma[i].addr = addr;
-+			vring->split.desc_dma[i].len = len;
-+		}
-+
- 		extra[i].flags = flags;
- 	} else
- 		next = virtio16_to_cpu(vq->vdev, desc[i].next);
-@@ -1072,16 +1081,26 @@ static void virtqueue_vring_attach_split(struct vring_virtqueue *vq,
- 	vq->free_head = 0;
- }
- 
--static int vring_alloc_state_extra_split(struct vring_virtqueue_split *vring_split)
-+static int vring_alloc_state_extra_split(struct vring_virtqueue_split *vring_split,
-+					 bool need_unmap)
- {
- 	struct vring_desc_state_split *state;
- 	struct vring_desc_extra *extra;
-+	struct vring_desc_dma *dma;
- 	u32 num = vring_split->vring.num;
- 
- 	state = kmalloc_array(num, sizeof(struct vring_desc_state_split), GFP_KERNEL);
- 	if (!state)
- 		goto err_state;
- 
-+	if (need_unmap) {
-+		dma = kmalloc_array(num, sizeof(struct vring_desc_dma), GFP_KERNEL);
-+		if (!dma)
-+			goto err_dma;
-+	} else {
-+		dma = NULL;
-+	}
-+
- 	extra = vring_alloc_desc_extra(num);
- 	if (!extra)
- 		goto err_extra;
-@@ -1090,9 +1109,12 @@ static int vring_alloc_state_extra_split(struct vring_virtqueue_split *vring_spl
- 
- 	vring_split->desc_state = state;
- 	vring_split->desc_extra = extra;
-+	vring_split->desc_dma = dma;
- 	return 0;
- 
- err_extra:
-+	kfree(dma);
-+err_dma:
- 	kfree(state);
- err_state:
- 	return -ENOMEM;
-@@ -1108,6 +1130,7 @@ static void vring_free_split(struct vring_virtqueue_split *vring_split,
- 
- 	kfree(vring_split->desc_state);
- 	kfree(vring_split->desc_extra);
-+	kfree(vring_split->desc_dma);
- }
- 
- static int vring_alloc_queue_split(struct vring_virtqueue_split *vring_split,
-@@ -1209,7 +1232,8 @@ static int virtqueue_resize_split(struct virtqueue *_vq, u32 num)
- 	if (err)
- 		goto err;
- 
--	err = vring_alloc_state_extra_split(&vring_split);
-+	err = vring_alloc_state_extra_split(&vring_split,
-+					    vring_need_unmap_buffer(vq));
- 	if (err)
- 		goto err_state_extra;
- 
-@@ -1245,14 +1269,16 @@ static u16 packed_last_used(u16 last_used_idx)
- 
- /* caller must check vring_need_unmap_buffer() */
- static void vring_unmap_extra_packed(const struct vring_virtqueue *vq,
--				     const struct vring_desc_extra *extra)
-+				     unsigned int i)
- {
-+	const struct vring_desc_extra *extra = &vq->packed.desc_extra[i];
-+	const struct vring_desc_dma *dma = &vq->packed.desc_dma[i];
- 	u16 flags;
- 
- 	flags = extra->flags;
- 
- 	dma_unmap_page(vring_dma_dev(vq),
--		       extra->addr, extra->len,
-+		       dma->addr, dma->len,
- 		       (flags & VRING_DESC_F_WRITE) ?
+ struct vring_desc_state_packed {
+ 	void *data;			/* Data for callback. */
+-	struct vring_packed_desc *indir_desc; /* Indirect descriptor, if any. */
++	struct vring_packed_desc_indir *indir_desc; /* Indirect descriptor, if any. */
+ 	u16 num;			/* Descriptor list length. */
+ 	u16 last;			/* The last desc state in a list. */
+ };
+@@ -1249,10 +1256,13 @@ static void vring_unmap_desc_packed(const struct vring_virtqueue *vq,
  		       DMA_FROM_DEVICE : DMA_TO_DEVICE);
  }
-@@ -1499,8 +1525,8 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
- 			desc[i].id = cpu_to_le16(id);
  
- 			if (unlikely(vring_need_unmap_buffer(vq))) {
--				vq->packed.desc_extra[curr].addr = addr;
--				vq->packed.desc_extra[curr].len = sg->length;
-+				vq->packed.desc_dma[curr].addr = addr;
-+				vq->packed.desc_dma[curr].len = sg->length;
- 			}
- 
- 			vq->packed.desc_extra[curr].flags = le16_to_cpu(flags);
-@@ -1559,7 +1585,7 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
- 	for (n = 0; n < total_sg; n++) {
- 		if (i == err_idx)
- 			break;
--		vring_unmap_extra_packed(vq, &vq->packed.desc_extra[curr]);
-+		vring_unmap_extra_packed(vq, curr);
- 		curr = vq->packed.desc_extra[curr].next;
- 		i++;
- 		if (i >= vq->packed.vring.num)
-@@ -1640,8 +1666,7 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
- 		if (vring_need_unmap_buffer(vq)) {
- 			curr = id;
- 			for (i = 0; i < state->num; i++) {
--				vring_unmap_extra_packed(vq,
--							 &vq->packed.desc_extra[curr]);
-+				vring_unmap_extra_packed(vq, curr);
- 				curr = vq->packed.desc_extra[curr].next;
- 			}
- 		}
-@@ -1955,6 +1980,7 @@ static void vring_free_packed(struct vring_virtqueue_packed *vring_packed,
- 
- 	kfree(vring_packed->desc_state);
- 	kfree(vring_packed->desc_extra);
-+	kfree(vring_packed->desc_dma);
- }
- 
- static int vring_alloc_queue_packed(struct vring_virtqueue_packed *vring_packed,
-@@ -2011,10 +2037,12 @@ static int vring_alloc_queue_packed(struct vring_virtqueue_packed *vring_packed,
- 	return -ENOMEM;
- }
- 
--static int vring_alloc_state_extra_packed(struct vring_virtqueue_packed *vring_packed)
-+static int vring_alloc_state_extra_packed(struct vring_virtqueue_packed *vring_packed,
-+					  bool need_unmap)
+-static struct vring_packed_desc *alloc_indirect_packed(unsigned int total_sg,
++static struct vring_packed_desc_indir *alloc_indirect_packed(unsigned int total_sg,
+ 						       gfp_t gfp)
  {
- 	struct vring_desc_state_packed *state;
- 	struct vring_desc_extra *extra;
-+	struct vring_desc_dma *dma;
- 	u32 num = vring_packed->vring.num;
- 
- 	state = kmalloc_array(num, sizeof(struct vring_desc_state_packed), GFP_KERNEL);
-@@ -2023,6 +2051,14 @@ static int vring_alloc_state_extra_packed(struct vring_virtqueue_packed *vring_p
- 
- 	memset(state, 0, num * sizeof(struct vring_desc_state_packed));
- 
-+	if (need_unmap) {
-+		dma = kmalloc_array(num, sizeof(struct vring_desc_dma), GFP_KERNEL);
-+		if (!dma)
-+			goto err_desc_dma;
-+	} else {
-+		dma = NULL;
-+	}
+-	struct vring_packed_desc *desc;
++	struct vring_packed_desc_indir *in_desc;
++	u32 size;
 +
- 	extra = vring_alloc_desc_extra(num);
- 	if (!extra)
- 		goto err_desc_extra;
-@@ -2033,6 +2069,8 @@ static int vring_alloc_state_extra_packed(struct vring_virtqueue_packed *vring_p
- 	return 0;
++	size = struct_size(in_desc, desc, total_sg);
  
- err_desc_extra:
-+	kfree(dma);
-+err_desc_dma:
- 	kfree(state);
- err_desc_state:
- 	return -ENOMEM;
-@@ -2124,7 +2162,8 @@ static struct virtqueue *vring_create_virtqueue_packed(
- 	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
- 		vq->weak_barriers = false;
+ 	/*
+ 	 * We require lowmem mappings for the descriptors because
+@@ -1261,9 +1271,10 @@ static struct vring_packed_desc *alloc_indirect_packed(unsigned int total_sg,
+ 	 */
+ 	gfp &= ~__GFP_HIGHMEM;
  
--	err = vring_alloc_state_extra_packed(&vring_packed);
-+	err = vring_alloc_state_extra_packed(&vring_packed,
-+					     vring_need_unmap_buffer(vq));
- 	if (err)
- 		goto err_state_extra;
+-	desc = kmalloc_array(total_sg, sizeof(struct vring_packed_desc), gfp);
  
-@@ -2156,7 +2195,8 @@ static int virtqueue_resize_packed(struct virtqueue *_vq, u32 num)
- 	if (vring_alloc_queue_packed(&vring_packed, vdev, num, vring_dma_dev(vq)))
- 		goto err_ring;
- 
--	err = vring_alloc_state_extra_packed(&vring_packed);
-+	err = vring_alloc_state_extra_packed(&vring_packed,
-+					     vring_need_unmap_buffer(vq));
- 	if (err)
- 		goto err_state_extra;
- 
-@@ -2668,7 +2708,8 @@ static struct virtqueue *__vring_new_virtqueue(unsigned int index,
- 	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
- 		vq->weak_barriers = false;
- 
--	err = vring_alloc_state_extra_split(vring_split);
-+	err = vring_alloc_state_extra_split(vring_split,
-+					    vring_need_unmap_buffer(vq));
- 	if (err) {
- 		kfree(vq);
- 		return NULL;
-@@ -2828,6 +2869,14 @@ int virtqueue_set_dma_premapped(struct virtqueue *_vq)
- 
- 	vq->premapped = true;
- 
-+	if (vq->packed_ring) {
-+		kfree(vq->packed.desc_dma);
-+		vq->packed.desc_dma = NULL;
-+	} else {
-+		kfree(vq->split.desc_dma);
-+		vq->split.desc_dma = NULL;
-+	}
+-	return desc;
++	in_desc = kmalloc(size, gfp);
 +
++	return in_desc;
+ }
+ 
+ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
+@@ -1274,6 +1285,7 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
+ 					 void *data,
+ 					 gfp_t gfp)
+ {
++	struct vring_packed_desc_indir *in_desc;
+ 	struct vring_packed_desc *desc;
+ 	struct scatterlist *sg;
+ 	unsigned int i, n, err_idx;
+@@ -1281,10 +1293,12 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
+ 	dma_addr_t addr;
+ 
+ 	head = vq->packed.next_avail_idx;
+-	desc = alloc_indirect_packed(total_sg, gfp);
+-	if (!desc)
++	in_desc = alloc_indirect_packed(total_sg, gfp);
++	if (!in_desc)
+ 		return -ENOMEM;
+ 
++	desc = in_desc->desc;
++
+ 	if (unlikely(vq->vq.num_free < 1)) {
+ 		pr_debug("Can't add buf len 1 - avail = 0\n");
+ 		kfree(desc);
+@@ -1321,17 +1335,15 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
+ 		goto unmap_release;
+ 	}
+ 
++	in_desc->num = i;
++	in_desc->addr = addr;
++	in_desc->len = total_sg * sizeof(struct vring_packed_desc);
++
+ 	vq->packed.vring.desc[head].addr = cpu_to_le64(addr);
+ 	vq->packed.vring.desc[head].len = cpu_to_le32(total_sg *
+ 				sizeof(struct vring_packed_desc));
+ 	vq->packed.vring.desc[head].id = cpu_to_le16(id);
+ 
+-	if (vring_need_unmap_buffer(vq)) {
+-		vq->packed.desc_extra[id].addr = addr;
+-		vq->packed.desc_extra[id].len = total_sg *
+-				sizeof(struct vring_packed_desc);
+-	}
+-
+ 	vq->packed.desc_extra[id].flags = VRING_DESC_F_INDIRECT |
+ 		vq->packed.avail_used_flags;
+ 
+@@ -1362,7 +1374,7 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
+ 	/* Store token and indirect buffer state. */
+ 	vq->packed.desc_state[id].num = 1;
+ 	vq->packed.desc_state[id].data = data;
+-	vq->packed.desc_state[id].indir_desc = desc;
++	vq->packed.desc_state[id].indir_desc = in_desc;
+ 	vq->packed.desc_state[id].last = id;
+ 
+ 	vq->num_added += 1;
+@@ -1381,7 +1393,7 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
+ 		vring_unmap_desc_packed(vq, &desc[i]);
+ 
+ free_desc:
+-	kfree(desc);
++	kfree(in_desc);
+ 
  	END_USE(vq);
+ 	return -ENOMEM;
+@@ -1595,7 +1607,6 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
+ 			      unsigned int id, void **ctx)
+ {
+ 	struct vring_desc_state_packed *state = NULL;
+-	struct vring_packed_desc *desc;
+ 	unsigned int i, curr;
+ 	u16 flags;
  
- 	return 0;
-@@ -2917,6 +2966,7 @@ static void vring_free(struct virtqueue *_vq)
+@@ -1621,28 +1632,24 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
  
- 			kfree(vq->packed.desc_state);
- 			kfree(vq->packed.desc_extra);
-+			kfree(vq->packed.desc_dma);
- 		} else {
- 			vring_free_queue(vq->vq.vdev,
- 					 vq->split.queue_size_in_bytes,
-@@ -2928,6 +2978,7 @@ static void vring_free(struct virtqueue *_vq)
- 	if (!vq->packed_ring) {
- 		kfree(vq->split.desc_state);
- 		kfree(vq->split.desc_extra);
-+		kfree(vq->split.desc_dma);
+ 		if (ctx)
+ 			*ctx = state->indir_desc;
++
+ 	} else {
+-		const struct vring_desc_extra *extra;
+-		u32 len;
++		struct vring_packed_desc_indir *in_desc;
++
++		in_desc = state->indir_desc;
+ 
+ 		if (vq->use_dma_api) {
+-			extra = &vq->packed.desc_extra[id];
+ 			dma_unmap_single(vring_dma_dev(vq),
+-					 extra->addr, extra->len,
++					 in_desc->addr, in_desc->len,
+ 					 (flags & VRING_DESC_F_WRITE) ?
+ 					 DMA_FROM_DEVICE : DMA_TO_DEVICE);
+ 		}
+ 
+-		/* Free the indirect table, if any, now that it's unmapped. */
+-		desc = state->indir_desc;
+-
+ 		if (vring_need_unmap_buffer(vq)) {
+-			len = vq->packed.desc_extra[id].len;
+-			for (i = 0; i < len / sizeof(struct vring_packed_desc);
+-					i++)
+-				vring_unmap_desc_packed(vq, &desc[i]);
++			for (i = 0; i < in_desc->num; i++)
++				vring_unmap_desc_packed(vq, &in_desc->desc[i]);
+ 		}
+-		kfree(desc);
++		kfree(in_desc);
+ 		state->indir_desc = NULL;
  	}
  }
- 
 -- 
 2.32.0.3.g01195cf9f
 
