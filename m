@@ -1,70 +1,43 @@
-Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from szxga07-in.huawei.com (szxga07-in.huawei.com [45.249.212.35])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A692D66B2A
-	for <virtualization@lists.linux.dev>; Tue, 30 Jan 2024 11:27:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05DDB67730
+	for <virtualization@lists.linux.dev>; Tue, 30 Jan 2024 11:38:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.35
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706614078; cv=none; b=Kzn0UxGLiavoVfhr61LqnBArAdzELFsTLnhHVo3lRwUuOUNoBiMy1ucm4l2yjfn5m5niC4efTmcidm5ptKnuGanGM5iegL+jj/5mr8jUOH67FrmgmQGmlX+YZw30dVVN5pvrerxxoBRt79yDmjS7wVt14mPiNiDHpRadMqAKKfo=
+	t=1706614685; cv=none; b=ZyJxfagfvnPmb5IS+TMtX/Nm6lH05mCtls+YSJpTcrnYfa4yvGeGZCzwpDZV/FmVqA1Xa3zgEc0UF4DQvq7vE3mGs3CsG0A2dymZstLuefxpBwMoYIQePI9/NBnVTPq+Wf4yex3JFjXu0gnTUF90ujrES9KTwSGwAovUCvBYCyQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706614078; c=relaxed/simple;
-	bh=VJ3WxFyUH1QX/R2FezaIZrc9SHd0VxU+WMrUCCCzWbA=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=Miy1b7Ehw9OeqMWfa9IIpLpa1TDboLyfFLnZ4GSuhFWYlpX6n5BUMNICH8Q9/WRNuHeXG+XX8KiW27fPLaj9IuFQg82z1OGWhdeAqF7h2fSTEDtke9EjiVtf6be7CliL8BchV+G6WK6pVN8zPUnfY1gqjqQO+tm0duLDfFranfk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=eBO5Ag6T; arc=none smtp.client-ip=209.85.214.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="eBO5Ag6T"
-Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-1d91397bd22so1767775ad.0
-        for <virtualization@lists.linux.dev>; Tue, 30 Jan 2024 03:27:56 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1706614076; x=1707218876; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=NFz/ioS5pMtmsywy9UOLGQH2uroA4Qw/qVk4L7fINX0=;
-        b=eBO5Ag6ThDbIGmlN/6Fito94abk7/aHH44xbjM0uZm0IuYXvbDVBYLZU7U+nSKao9l
-         I9JrzZSD9uWUcBSV5SvBYZsjadDyB/s37V3wIBRktxvuZI7t2K3yxat3Nt/4aBEaAJ4C
-         xUMXXW7zpxXQntbLxEuas4PHMWD4Rq2FcUmanzKf2wytGhdn9ukiVTlL5I1TFuZWEu1t
-         PC0MCo85WRkKmTn0/EL+X6JoDrqmwa4u3KNZQxyfJwBaV2xUsMYRvl3HiTuhFpnFLt2X
-         oiFyM5eYJ3QIKG/VteJcjZTER+q4lapWQaMBHGHZGTUf2N1jZR6P5okxnAwao2Af5sSk
-         DiJQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706614076; x=1707218876;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=NFz/ioS5pMtmsywy9UOLGQH2uroA4Qw/qVk4L7fINX0=;
-        b=rM3SQxcrDrwclf0ZLlJCc/pIdZH/Bo6GLjYK4rWR00z+9rq7VUn3mbsqK2WiEfkgjB
-         y1A5NcGbRBDDXLB+QlG93KETiY2KWwAWag1NQ2PIqupL9uEAHtN16M/4XqN2SPt4r9ru
-         uQh/3eMqQCJIdKHSeKE0lqQuyHV1Bl453MaWjyYoLeISgM4n08YFHFZ/7o0fU2eMm9E4
-         UiwN5/DSlaFpOjIgX6GCo/8mlfUbaJLPdCpsjioPB2nA7uHfqA3Lcgj+aZKdvKZIc5DJ
-         gPwJNT2C2EWcth7jY22LqDT5pFSUMZL/yPIWwBuTA680+cdVwUO9yjfmb6kunzdvE3IV
-         2U/g==
-X-Gm-Message-State: AOJu0Yz5lfMAlVw4vd0H16VsyPZbnBuXBIjEdoc0lGAwpdQuhTOBzw68
-	xYFcJ+I0NNEaF1Z6bBBHzlZpH7Cj/ba60I54P5ANtPA7xWr8sw0trYz+9wMm5Uo=
-X-Google-Smtp-Source: AGHT+IFxYQYsZlp0TH8j7NTAhzYbg+/UE/MPq1RYMFL1zOTZBo9xa9ES0Z1wEP85nypj79LLuQ20dw==
-X-Received: by 2002:a17:903:2692:b0:1d4:4e13:6b59 with SMTP id jf18-20020a170903269200b001d44e136b59mr4044993plb.45.1706614075892;
-        Tue, 30 Jan 2024 03:27:55 -0800 (PST)
-Received: from always-x1.bytedance.net ([139.177.225.226])
-        by smtp.gmail.com with ESMTPSA id jz6-20020a170903430600b001d74502d261sm7002041plb.115.2024.01.30.03.27.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Jan 2024 03:27:55 -0800 (PST)
-From: zhenwei pi <pizhenwei@bytedance.com>
-To: arei.gonglei@huawei.com,
-	mst@redhat.com,
-	jasowang@redhat.com,
-	herbert@gondor.apana.org.au
-Cc: xuanzhuo@linux.alibaba.com,
-	virtualization@lists.linux.dev,
-	nathan@kernel.org,
-	linux-crypto@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	davem@davemloft.net,
-	zhenwei pi <pizhenwei@bytedance.com>
-Subject: [PATCH] crypto: virtio/akcipher - Fix stack overflow on memcpy
-Date: Tue, 30 Jan 2024 19:27:40 +0800
-Message-Id: <20240130112740.882183-1-pizhenwei@bytedance.com>
-X-Mailer: git-send-email 2.34.1
+	s=arc-20240116; t=1706614685; c=relaxed/simple;
+	bh=iIw9m8E+34rmyeAQdxJf1gG5mn3NGG9OKYzHsTrTvN4=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Xo2Q3SAiB+uB3k0hj/Gs7EJw/36JCzoMV8jAwGiiqcLobSTGfpFtc0/7/nvxa6NXRBOPp7HWifWm8CK0+BlRRC3aB389LCzxiY4dNcxfe0N1i+gwNzs1rx4v6QXZEj9hX4vGuhFm2CKvqo9zXTtXzjC9r04nkVUUynn3azFw23Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.35
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.88.214])
+	by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4TPNQz0vJ8z1Q8H5;
+	Tue, 30 Jan 2024 19:36:11 +0800 (CST)
+Received: from dggpemm500005.china.huawei.com (unknown [7.185.36.74])
+	by mail.maildlp.com (Postfix) with ESMTPS id 1039C1A016B;
+	Tue, 30 Jan 2024 19:38:01 +0800 (CST)
+Received: from localhost.localdomain (10.69.192.56) by
+ dggpemm500005.china.huawei.com (7.185.36.74) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.35; Tue, 30 Jan 2024 19:38:00 +0800
+From: Yunsheng Lin <linyunsheng@huawei.com>
+To: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>
+CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Yunsheng Lin
+	<linyunsheng@huawei.com>, Alexander Duyck <alexanderduyck@fb.com>, Alexander
+ Duyck <alexander.duyck@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>, Andrew Morton <akpm@linux-foundation.org>,
+	Eric Dumazet <edumazet@google.com>, <kvm@vger.kernel.org>,
+	<virtualization@lists.linux.dev>, <linux-mm@kvack.org>
+Subject: [PATCH net-next v4 2/5] page_frag: unify gfp bits for order 3 page allocation
+Date: Tue, 30 Jan 2024 19:37:07 +0800
+Message-ID: <20240130113710.34511-3-linyunsheng@huawei.com>
+X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20240130113710.34511-1-linyunsheng@huawei.com>
+References: <20240130113710.34511-1-linyunsheng@huawei.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -72,46 +45,79 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
+ dggpemm500005.china.huawei.com (7.185.36.74)
 
-sizeof(struct virtio_crypto_akcipher_session_para) is less than
-sizeof(struct virtio_crypto_op_ctrl_req::u), copying more bytes from
-stack variable leads stack overflow. Clang reports this issue by
-commands:
-make -j CC=clang-14 mrproper >/dev/null 2>&1
-make -j O=/tmp/crypto-build CC=clang-14 allmodconfig >/dev/null 2>&1
-make -j O=/tmp/crypto-build W=1 CC=clang-14 drivers/crypto/virtio/
-  virtio_crypto_akcipher_algs.o
+Currently there seems to be three page frag implementions
+which all try to allocate order 3 page, if that fails, it
+then fail back to allocate order 0 page, and each of them
+all allow order 3 page allocation to fail under certain
+condition by using specific gfp bits.
 
-Fixes: 59ca6c93387d ("virtio-crypto: implement RSA algorithm")
-Link: https://lore.kernel.org/all/0a194a79-e3a3-45e7-be98-83abd3e1cb7e@roeck-us.net/
-Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
+The gfp bits for order 3 page allocation are different
+between different implementation, __GFP_NOMEMALLOC is
+or'd to forbid access to emergency reserves memory for
+__page_frag_cache_refill(), but it is not or'd in other
+implementions, __GFP_DIRECT_RECLAIM is masked off to avoid
+direct reclaim in skb_page_frag_refill(), but it is not
+masked off in __page_frag_cache_refill().
+
+This patch unifies the gfp bits used between different
+implementions by or'ing __GFP_NOMEMALLOC and masking off
+__GFP_DIRECT_RECLAIM for order 3 page allocation to avoid
+possible pressure for mm.
+
+Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+CC: Alexander Duyck <alexander.duyck@gmail.com>
 ---
- drivers/crypto/virtio/virtio_crypto_akcipher_algs.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/vhost/net.c | 2 +-
+ mm/page_alloc.c     | 4 ++--
+ net/core/sock.c     | 2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c b/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
-index 2621ff8a9376..de53eddf6796 100644
---- a/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
-+++ b/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
-@@ -104,7 +104,8 @@ static void virtio_crypto_dataq_akcipher_callback(struct virtio_crypto_request *
- }
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index f2ed7167c848..e574e21cc0ca 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -670,7 +670,7 @@ static bool vhost_net_page_frag_refill(struct vhost_net *net, unsigned int sz,
+ 		/* Avoid direct reclaim but allow kswapd to wake */
+ 		pfrag->page = alloc_pages((gfp & ~__GFP_DIRECT_RECLAIM) |
+ 					  __GFP_COMP | __GFP_NOWARN |
+-					  __GFP_NORETRY,
++					  __GFP_NORETRY | __GFP_NOMEMALLOC,
+ 					  SKB_FRAG_PAGE_ORDER);
+ 		if (likely(pfrag->page)) {
+ 			pfrag->size = PAGE_SIZE << SKB_FRAG_PAGE_ORDER;
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index c0f7e67c4250..636145c29f70 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -4685,8 +4685,8 @@ static struct page *__page_frag_cache_refill(struct page_frag_cache *nc,
+ 	gfp_t gfp = gfp_mask;
  
- static int virtio_crypto_alg_akcipher_init_session(struct virtio_crypto_akcipher_ctx *ctx,
--		struct virtio_crypto_ctrl_header *header, void *para,
-+		struct virtio_crypto_ctrl_header *header,
-+		struct virtio_crypto_akcipher_session_para *para,
- 		const uint8_t *key, unsigned int keylen)
- {
- 	struct scatterlist outhdr_sg, key_sg, inhdr_sg, *sgs[3];
-@@ -128,7 +129,7 @@ static int virtio_crypto_alg_akcipher_init_session(struct virtio_crypto_akcipher
- 
- 	ctrl = &vc_ctrl_req->ctrl;
- 	memcpy(&ctrl->header, header, sizeof(ctrl->header));
--	memcpy(&ctrl->u, para, sizeof(ctrl->u));
-+	memcpy(&ctrl->u.akcipher_create_session.para, para, sizeof(*para));
- 	input = &vc_ctrl_req->input;
- 	input->status = cpu_to_le32(VIRTIO_CRYPTO_ERR);
- 
+ #if (PAGE_SIZE < PAGE_FRAG_CACHE_MAX_SIZE)
+-	gfp_mask |= __GFP_COMP | __GFP_NOWARN | __GFP_NORETRY |
+-		    __GFP_NOMEMALLOC;
++	gfp_mask = (gfp_mask & ~__GFP_DIRECT_RECLAIM) |  __GFP_COMP |
++		   __GFP_NOWARN | __GFP_NORETRY | __GFP_NOMEMALLOC;
+ 	page = alloc_pages_node(NUMA_NO_NODE, gfp_mask,
+ 				PAGE_FRAG_CACHE_MAX_ORDER);
+ 	nc->size = page ? PAGE_FRAG_CACHE_MAX_SIZE : PAGE_SIZE;
+diff --git a/net/core/sock.c b/net/core/sock.c
+index 88bf810394a5..8289a3d8c375 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -2919,7 +2919,7 @@ bool skb_page_frag_refill(unsigned int sz, struct page_frag *pfrag, gfp_t gfp)
+ 		/* Avoid direct reclaim but allow kswapd to wake */
+ 		pfrag->page = alloc_pages((gfp & ~__GFP_DIRECT_RECLAIM) |
+ 					  __GFP_COMP | __GFP_NOWARN |
+-					  __GFP_NORETRY,
++					  __GFP_NORETRY | __GFP_NOMEMALLOC,
+ 					  SKB_FRAG_PAGE_ORDER);
+ 		if (likely(pfrag->page)) {
+ 			pfrag->size = PAGE_SIZE << SKB_FRAG_PAGE_ORDER;
 -- 
-2.34.1
+2.33.0
 
