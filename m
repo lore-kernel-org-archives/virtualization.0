@@ -1,249 +1,464 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A25D07561D
-	for <virtualization@lists.linux-foundation.org>; Mon, 29 Jan 2024 17:16:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 8BCB836102;
+	Tue, 30 Jan 2024 02:42:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706548603; cv=none; b=DQRUgdFuDZAFIK07zYRjki4qszR4wTGCsYunSh+3pRzjuTWNDiB+dFgt87mr5Z619lQTdCKZPD0xjcV657dyRGu8OaLMqseN1WO/wOcwuP3VCJVa32A1tU2PBZLbt+c32NMlcXmZXO5nM2T0WBlEmyZqlhlagdL2W+ud9ZL5PaY=
+	t=1706582569; cv=none; b=LlVVn3nQ7p9tfQU/rvRrfhQrkeIkDj60b5I53nCJeJ64cjw+hUaODrBuFiOCbH8Y21ol006M3sP3J/8gHa1tb2vaf0ocBQZMltDBDJnZQtyYWV6+e6DE8+CXrxCtxjKn6ze4fc/zDumUAaSLWG0uhIxAqYU81h9n+Bz21PN5duo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706548603; c=relaxed/simple;
-	bh=Bp1dyDO7354wIAEdTjNf7v9p8l29FKqGzHZCwkKLMYY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=WzELqMKZfx795GFAVDuU7y/KAgMqV0DaaVyBvGOwhVrHTTtYjeIJAgrHfGhM2ipoRowhi12Tf5fX1excbyjo66Vazy9QzoPn7/B7dnfvvZbmNm4MhGLeyk72LcYFNeP8+PibXq/GlVZ4IBNJg9fsZnD7QH9HIh7B7f+ns/PYn5k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=2kP+o9go; arc=none smtp.client-ip=140.211.166.138
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="2kP+o9go"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 30F7E827C6
-	for <virtualization@lists.linux-foundation.org>; Mon, 29 Jan 2024 17:16:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 30F7E827C6
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=2kP+o9go
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -4.401
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id OaYjx3uZkyXC
-	for <virtualization@lists.linux-foundation.org>;
-	Mon, 29 Jan 2024 17:16:40 +0000 (UTC)
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id D06F982798
-	for <virtualization@lists.linux-foundation.org>; Mon, 29 Jan 2024 17:16:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D06F982798
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by dfw.source.kernel.org (Postfix) with ESMTP id 8D568623BF;
-	Mon, 29 Jan 2024 17:16:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 252FAC433C7;
-	Mon, 29 Jan 2024 17:16:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1706548598;
-	bh=Bp1dyDO7354wIAEdTjNf7v9p8l29FKqGzHZCwkKLMYY=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=2kP+o9gonsw3e0+TmGRXRkDfl/YEtbwaZK2mAvUYtPmIh61MCRvztMMz7tiveK9Gk
-	 JfxRl2wHXjBG7HLK7SnlbevJIGDq1eLh01fJlfbmDxqKKrILefZthBTI8/Fp3u2DEo
-	 rqF+yFH03BAAhcIcVescE36o6AZDvhNm+4a3MUq0=
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: stable@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	patches@lists.linux.dev,
-	Zack Rusin <zackr@vmware.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	David Airlie <airlied@linux.ie>,
-	Daniel Vetter <daniel@ffwll.ch>,
-	Dave Airlie <airlied@redhat.com>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Hans de Goede <hdegoede@redhat.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	dri-devel@lists.freedesktop.org,
-	virtualization@lists.linux-foundation.org,
-	spice-devel@lists.freedesktop.org,
-	Pekka Paalanen <pekka.paalanen@collabora.com>,
-	Javier Martinez Canillas <javierm@redhat.com>,
-	Simon Ser <contact@emersion.fr>
-Subject: [PATCH 6.6 259/331] drm: Disable the cursor plane on atomic contexts with virtualized drivers
-Date: Mon, 29 Jan 2024 09:05:23 -0800
-Message-ID: <20240129170022.458985226@linuxfoundation.org>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240129170014.969142961@linuxfoundation.org>
-References: <20240129170014.969142961@linuxfoundation.org>
-User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
+	s=arc-20240116; t=1706582569; c=relaxed/simple;
+	bh=6/T/Ou9yv3PagUmCXfnGDxOLz73qUMFIagYLf1f7zsQ=;
+	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=L3TdrIqNBwArOAFJiA5nNlbfIX16umqiMBHwI8lDjHRp4Nyc8QFxPsszXOeW8LGsaUTqbHFOls9pZOYz0lOfH4d6lvRbz1xCriFiB//nah+qmEGlkw/S2YazpYuYfSdB2IIUGdLBWoRNMgNZtpasSCe7veeaIHV3LYcqW7M/9mA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.20.42.173])
+	by gateway (Coremail) with SMTP id _____8Ax++geYrhlwiYIAA--.5629S3;
+	Tue, 30 Jan 2024 10:42:38 +0800 (CST)
+Received: from [10.20.42.173] (unknown [10.20.42.173])
+	by localhost.localdomain (Coremail) with SMTP id AQAAf8Ax3c4bYrhl+C0nAA--.22525S3;
+	Tue, 30 Jan 2024 10:42:38 +0800 (CST)
+Subject: Re: [PATCH v3 1/6] LoongArch/smp: Refine ipi ops on LoongArch
+ platform
+To: Huacai Chen <chenhuacai@kernel.org>
+Cc: Tianrui Zhao <zhaotianrui@loongson.cn>, Juergen Gross <jgross@suse.com>,
+ Paolo Bonzini <pbonzini@redhat.com>, loongarch@lists.linux.dev,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+ kvm@vger.kernel.org
+References: <20240122100313.1589372-1-maobibo@loongson.cn>
+ <20240122100313.1589372-2-maobibo@loongson.cn>
+ <CAAhV-H6JnfdD1D0rMgDAk7gBWeYZn3ngFsE07_76Sk0Rv7Tksg@mail.gmail.com>
+From: maobibo <maobibo@loongson.cn>
+Message-ID: <34f2dce8-0cfe-7e62-bd63-6a634d1fbf31@loongson.cn>
+Date: Tue, 30 Jan 2024 10:42:35 +0800
+User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <CAAhV-H6JnfdD1D0rMgDAk7gBWeYZn3ngFsE07_76Sk0Rv7Tksg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:AQAAf8Ax3c4bYrhl+C0nAA--.22525S3
+X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
+X-Coremail-Antispam: 1Uk129KBj9fXoW3ZF47urW8tr13tF15JF48Zrc_yoW8GrW3Co
+	WftF1xtw48Wry3KF90q3ZaqryUX3Wjg340kas7Ar43CF1jy34qgryxKw1Yva9rGFs5GFsx
+	Ga4Sgr40k3y7XFnxl-sFpf9Il3svdjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8wcxFpf
+	9Il3svdxBIdaVrn0xqx4xG64xvF2IEw4CE5I8CrVC2j2Jv73VFW2AGmfu7bjvjm3AaLaJ3
+	UjIYCTnIWjp_UUUYx7kC6x804xWl14x267AKxVWUJVW8JwAFc2x0x2IEx4CE42xK8VAvwI
+	8IcIk0rVWrJVCq3wAFIxvE14AKwVWUXVWUAwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xG
+	Y2AK021l84ACjcxK6xIIjxv20xvE14v26r1j6r1xM28EF7xvwVC0I7IYx2IY6xkF7I0E14
+	v26r1j6r4UM28EF7xvwVC2z280aVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIEc7CjxVAF
+	wI0_Gr1j6F4UJwAS0I0E0xvYzxvE52x082IY62kv0487Mc804VCY07AIYIkI8VC2zVCFFI
+	0UMc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUGVWUXwAv7VC2z280
+	aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI48JMxk0xIA0c2IEe2
+	xFo4CEbIxvr21l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAq
+	x4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r
+	43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF
+	7I0E14v26r1j6r4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxV
+	WUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r1j6r4UYxBIdaVFxhVjvjDU0xZFpf9x07jU
+	sqXUUUUU=
 
-6.6-stable review patch.  If anyone has any objections, please let me know.
 
-------------------
 
-From: Zack Rusin <zackr@vmware.com>
+On 2024/1/29 下午8:38, Huacai Chen wrote:
+> Hi, Bibo,
+> 
+> On Mon, Jan 22, 2024 at 6:03 PM Bibo Mao <maobibo@loongson.cn> wrote:
+>>
+>> This patch refines ipi handling on LoongArch platform, there are
+>> three changes with this patch.
+>> 1. Add generic get_percpu_irq api, replace some percpu irq function
+>> such as get_ipi_irq/get_pmc_irq/get_timer_irq with get_percpu_irq.
+>>
+>> 2. Change parameter action definition with function
+>> loongson_send_ipi_single and loongson_send_ipi_mask. Code encoding is used
+>> here rather than bitmap encoding for ipi action, ipi hw sender uses action
+>> code, and ipi receiver will get action bitmap encoding, the ipi hw will
+>> convert it into bitmap in ipi message buffer.
+>>
+>> 3. Add smp_ops on LoongArch platform so that pv ipi can be used later.
+>>
+>> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
+>> ---
+>>   arch/loongarch/include/asm/hardirq.h |  4 ++
+>>   arch/loongarch/include/asm/irq.h     | 10 ++++-
+>>   arch/loongarch/include/asm/smp.h     | 31 +++++++--------
+>>   arch/loongarch/kernel/irq.c          | 22 +----------
+>>   arch/loongarch/kernel/perf_event.c   | 14 +------
+>>   arch/loongarch/kernel/smp.c          | 58 +++++++++++++++++++---------
+>>   arch/loongarch/kernel/time.c         | 12 +-----
+>>   7 files changed, 71 insertions(+), 80 deletions(-)
+>>
+>> diff --git a/arch/loongarch/include/asm/hardirq.h b/arch/loongarch/include/asm/hardirq.h
+>> index 0ef3b18f8980..9f0038e19c7f 100644
+>> --- a/arch/loongarch/include/asm/hardirq.h
+>> +++ b/arch/loongarch/include/asm/hardirq.h
+>> @@ -12,6 +12,10 @@
+>>   extern void ack_bad_irq(unsigned int irq);
+>>   #define ack_bad_irq ack_bad_irq
+>>
+>> +enum ipi_msg_type {
+>> +       IPI_RESCHEDULE,
+>> +       IPI_CALL_FUNCTION,
+>> +};
+>>   #define NR_IPI 2
+>>
+>>   typedef struct {
+>> diff --git a/arch/loongarch/include/asm/irq.h b/arch/loongarch/include/asm/irq.h
+>> index 218b4da0ea90..00101b6d601e 100644
+>> --- a/arch/loongarch/include/asm/irq.h
+>> +++ b/arch/loongarch/include/asm/irq.h
+>> @@ -117,8 +117,16 @@ extern struct fwnode_handle *liointc_handle;
+>>   extern struct fwnode_handle *pch_lpc_handle;
+>>   extern struct fwnode_handle *pch_pic_handle[MAX_IO_PICS];
+>>
+>> -extern irqreturn_t loongson_ipi_interrupt(int irq, void *dev);
+>> +static inline int get_percpu_irq(int vector)
+>> +{
+>> +       struct irq_domain *d;
+>> +
+>> +       d = irq_find_matching_fwnode(cpuintc_handle, DOMAIN_BUS_ANY);
+>> +       if (d)
+>> +               return irq_create_mapping(d, vector);
+>>
+>> +       return -EINVAL;
+>> +}
+>>   #include <asm-generic/irq.h>
+>>
+>>   #endif /* _ASM_IRQ_H */
+>> diff --git a/arch/loongarch/include/asm/smp.h b/arch/loongarch/include/asm/smp.h
+>> index f81e5f01d619..330f1cb3741c 100644
+>> --- a/arch/loongarch/include/asm/smp.h
+>> +++ b/arch/loongarch/include/asm/smp.h
+>> @@ -12,6 +12,13 @@
+>>   #include <linux/threads.h>
+>>   #include <linux/cpumask.h>
+>>
+>> +struct smp_ops {
+>> +       void (*call_func_ipi)(const struct cpumask *mask, unsigned int action);
+>> +       void (*call_func_single_ipi)(int cpu, unsigned int action);
+> To keep consistency, it is better to use call_func_ipi_single and
+> call_func_ipi_mask.
+yes, how about using send_ipi_single/send_ipi_mask here? since both 
+function arch_smp_send_reschedule() and 
+arch_send_call_function_single_ipi use smp_ops.
 
-commit 4e3b70da64a53784683cfcbac2deda5d6e540407 upstream.
+> 
+>> +       void (*ipi_init)(void);
+>> +};
+>> +
+>> +extern struct smp_ops smp_ops;
+>>   extern int smp_num_siblings;
+>>   extern int num_processors;
+>>   extern int disabled_cpus;
+>> @@ -24,8 +31,6 @@ void loongson_prepare_cpus(unsigned int max_cpus);
+>>   void loongson_boot_secondary(int cpu, struct task_struct *idle);
+>>   void loongson_init_secondary(void);
+>>   void loongson_smp_finish(void);
+>> -void loongson_send_ipi_single(int cpu, unsigned int action);
+>> -void loongson_send_ipi_mask(const struct cpumask *mask, unsigned int action);
+>>   #ifdef CONFIG_HOTPLUG_CPU
+>>   int loongson_cpu_disable(void);
+>>   void loongson_cpu_die(unsigned int cpu);
+>> @@ -59,9 +64,12 @@ extern int __cpu_logical_map[NR_CPUS];
+>>
+>>   #define cpu_physical_id(cpu)   cpu_logical_map(cpu)
+>>
+>> -#define SMP_BOOT_CPU           0x1
+>> -#define SMP_RESCHEDULE         0x2
+>> -#define SMP_CALL_FUNCTION      0x4
+>> +#define ACTTION_BOOT_CPU       0
+>> +#define ACTTION_RESCHEDULE     1
+>> +#define ACTTION_CALL_FUNCTION  2
+>> +#define SMP_BOOT_CPU           BIT(ACTTION_BOOT_CPU)
+>> +#define SMP_RESCHEDULE         BIT(ACTTION_RESCHEDULE)
+>> +#define SMP_CALL_FUNCTION      BIT(ACTTION_CALL_FUNCTION)
+>>
+>>   struct secondary_data {
+>>          unsigned long stack;
+>> @@ -71,7 +79,8 @@ extern struct secondary_data cpuboot_data;
+>>
+>>   extern asmlinkage void smpboot_entry(void);
+>>   extern asmlinkage void start_secondary(void);
+>> -
+>> +extern void arch_send_call_function_single_ipi(int cpu);
+>> +extern void arch_send_call_function_ipi_mask(const struct cpumask *mask);
+> Similarly, to keep consistency, it is better to use
+> arch_send_function_ipi_single and arch_send_function_ipi_mask.
+These two functions are used by all architectures and called in commcon 
+code send_call_function_single_ipi(). It is the same with removed static 
+inline function as follows:
 
-Cursor planes on virtualized drivers have special meaning and require
-that the clients handle them in specific ways, e.g. the cursor plane
-should react to the mouse movement the way a mouse cursor would be
-expected to and the client is required to set hotspot properties on it
-in order for the mouse events to be routed correctly.
+  -static inline void arch_send_call_function_single_ipi(int cpu)
+  -{
+  -       loongson_send_ipi_single(cpu, SMP_CALL_FUNCTION);
+  -}
+  -
+  -static inline void arch_send_call_function_ipi_mask(const struct 
+cpumask *mask)
+  -{
+  -       loongson_send_ipi_mask(mask, SMP_CALL_FUNCTION);
+  -}
+  -
 
-This breaks the contract as specified by the "universal planes". Fix it
-by disabling the cursor planes on virtualized drivers while adding
-a foundation on top of which it's possible to special case mouse cursor
-planes for clients that want it.
+Regards
+Bibo Mao
 
-Disabling the cursor planes makes some kms compositors which were broken,
-e.g. Weston, fallback to software cursor which works fine or at least
-better than currently while having no effect on others, e.g. gnome-shell
-or kwin, which put virtualized drivers on a deny-list when running in
-atomic context to make them fallback to legacy kms and avoid this issue.
-
-Signed-off-by: Zack Rusin <zackr@vmware.com>
-Fixes: 681e7ec73044 ("drm: Allow userspace to ask for universal plane list (v2)")
-Cc: <stable@vger.kernel.org> # v5.4+
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Maxime Ripard <mripard@kernel.org>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: Dave Airlie <airlied@redhat.com>
-Cc: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Hans de Goede <hdegoede@redhat.com>
-Cc: Gurchetan Singh <gurchetansingh@chromium.org>
-Cc: Chia-I Wu <olvaffe@gmail.com>
-Cc: dri-devel@lists.freedesktop.org
-Cc: virtualization@lists.linux-foundation.org
-Cc: spice-devel@lists.freedesktop.org
-Acked-by: Pekka Paalanen <pekka.paalanen@collabora.com>
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-Acked-by: Simon Ser <contact@emersion.fr>
-Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20231023074613.41327-2-aesteve@redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/gpu/drm/drm_plane.c          |   13 +++++++++++++
- drivers/gpu/drm/qxl/qxl_drv.c        |    2 +-
- drivers/gpu/drm/vboxvideo/vbox_drv.c |    2 +-
- drivers/gpu/drm/virtio/virtgpu_drv.c |    2 +-
- drivers/gpu/drm/vmwgfx/vmwgfx_drv.c  |    2 +-
- include/drm/drm_drv.h                |    9 +++++++++
- include/drm/drm_file.h               |   12 ++++++++++++
- 7 files changed, 38 insertions(+), 4 deletions(-)
-
---- a/drivers/gpu/drm/drm_plane.c
-+++ b/drivers/gpu/drm/drm_plane.c
-@@ -678,6 +678,19 @@ int drm_mode_getplane_res(struct drm_dev
- 		    !file_priv->universal_planes)
- 			continue;
- 
-+		/*
-+		 * If we're running on a virtualized driver then,
-+		 * unless userspace advertizes support for the
-+		 * virtualized cursor plane, disable cursor planes
-+		 * because they'll be broken due to missing cursor
-+		 * hotspot info.
-+		 */
-+		if (plane->type == DRM_PLANE_TYPE_CURSOR &&
-+		    drm_core_check_feature(dev, DRIVER_CURSOR_HOTSPOT) &&
-+		    file_priv->atomic &&
-+		    !file_priv->supports_virtualized_cursor_plane)
-+			continue;
-+
- 		if (drm_lease_held(file_priv, plane->base.id)) {
- 			if (count < plane_resp->count_planes &&
- 			    put_user(plane->base.id, plane_ptr + count))
---- a/drivers/gpu/drm/qxl/qxl_drv.c
-+++ b/drivers/gpu/drm/qxl/qxl_drv.c
-@@ -283,7 +283,7 @@ static const struct drm_ioctl_desc qxl_i
- };
- 
- static struct drm_driver qxl_driver = {
--	.driver_features = DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
-+	.driver_features = DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC | DRIVER_CURSOR_HOTSPOT,
- 
- 	.dumb_create = qxl_mode_dumb_create,
- 	.dumb_map_offset = drm_gem_ttm_dumb_map_offset,
---- a/drivers/gpu/drm/vboxvideo/vbox_drv.c
-+++ b/drivers/gpu/drm/vboxvideo/vbox_drv.c
-@@ -182,7 +182,7 @@ DEFINE_DRM_GEM_FOPS(vbox_fops);
- 
- static const struct drm_driver driver = {
- 	.driver_features =
--	    DRIVER_MODESET | DRIVER_GEM | DRIVER_ATOMIC,
-+	    DRIVER_MODESET | DRIVER_GEM | DRIVER_ATOMIC | DRIVER_CURSOR_HOTSPOT,
- 
- 	.fops = &vbox_fops,
- 	.name = DRIVER_NAME,
---- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-@@ -177,7 +177,7 @@ static const struct drm_driver driver =
- 	 * out via drm_device::driver_features:
- 	 */
- 	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_RENDER | DRIVER_ATOMIC |
--			   DRIVER_SYNCOBJ | DRIVER_SYNCOBJ_TIMELINE,
-+			   DRIVER_SYNCOBJ | DRIVER_SYNCOBJ_TIMELINE | DRIVER_CURSOR_HOTSPOT,
- 	.open = virtio_gpu_driver_open,
- 	.postclose = virtio_gpu_driver_postclose,
- 
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
-@@ -1611,7 +1611,7 @@ static const struct file_operations vmwg
- 
- static const struct drm_driver driver = {
- 	.driver_features =
--	DRIVER_MODESET | DRIVER_RENDER | DRIVER_ATOMIC | DRIVER_GEM,
-+	DRIVER_MODESET | DRIVER_RENDER | DRIVER_ATOMIC | DRIVER_GEM | DRIVER_CURSOR_HOTSPOT,
- 	.ioctls = vmw_ioctls,
- 	.num_ioctls = ARRAY_SIZE(vmw_ioctls),
- 	.master_set = vmw_master_set,
---- a/include/drm/drm_drv.h
-+++ b/include/drm/drm_drv.h
-@@ -110,6 +110,15 @@ enum drm_driver_feature {
- 	 * Driver supports user defined GPU VA bindings for GEM objects.
- 	 */
- 	DRIVER_GEM_GPUVA		= BIT(8),
-+	/**
-+	 * @DRIVER_CURSOR_HOTSPOT:
-+	 *
-+	 * Driver supports and requires cursor hotspot information in the
-+	 * cursor plane (e.g. cursor plane has to actually track the mouse
-+	 * cursor and the clients are required to set hotspot in order for
-+	 * the cursor planes to work correctly).
-+	 */
-+	DRIVER_CURSOR_HOTSPOT           = BIT(9),
- 
- 	/* IMPORTANT: Below are all the legacy flags, add new ones above. */
- 
---- a/include/drm/drm_file.h
-+++ b/include/drm/drm_file.h
-@@ -229,6 +229,18 @@ struct drm_file {
- 	bool is_master;
- 
- 	/**
-+	 * @supports_virtualized_cursor_plane:
-+	 *
-+	 * This client is capable of handling the cursor plane with the
-+	 * restrictions imposed on it by the virtualized drivers.
-+	 *
-+	 * This implies that the cursor plane has to behave like a cursor
-+	 * i.e. track cursor movement. It also requires setting of the
-+	 * hotspot properties by the client on the cursor plane.
-+	 */
-+	bool supports_virtualized_cursor_plane;
-+
-+	/**
- 	 * @master:
- 	 *
- 	 * Master this node is currently associated with. Protected by struct
-
+> 
+> Huacai
+> 
+>>   extern void calculate_cpu_foreign_map(void);
+>>
+>>   /*
+>> @@ -79,16 +88,6 @@ extern void calculate_cpu_foreign_map(void);
+>>    */
+>>   extern void show_ipi_list(struct seq_file *p, int prec);
+>>
+>> -static inline void arch_send_call_function_single_ipi(int cpu)
+>> -{
+>> -       loongson_send_ipi_single(cpu, SMP_CALL_FUNCTION);
+>> -}
+>> -
+>> -static inline void arch_send_call_function_ipi_mask(const struct cpumask *mask)
+>> -{
+>> -       loongson_send_ipi_mask(mask, SMP_CALL_FUNCTION);
+>> -}
+>> -
+>>   #ifdef CONFIG_HOTPLUG_CPU
+>>   static inline int __cpu_disable(void)
+>>   {
+>> diff --git a/arch/loongarch/kernel/irq.c b/arch/loongarch/kernel/irq.c
+>> index 883e5066ae44..1b58f7c3eed9 100644
+>> --- a/arch/loongarch/kernel/irq.c
+>> +++ b/arch/loongarch/kernel/irq.c
+>> @@ -87,23 +87,9 @@ static void __init init_vec_parent_group(void)
+>>          acpi_table_parse(ACPI_SIG_MCFG, early_pci_mcfg_parse);
+>>   }
+>>
+>> -static int __init get_ipi_irq(void)
+>> -{
+>> -       struct irq_domain *d = irq_find_matching_fwnode(cpuintc_handle, DOMAIN_BUS_ANY);
+>> -
+>> -       if (d)
+>> -               return irq_create_mapping(d, INT_IPI);
+>> -
+>> -       return -EINVAL;
+>> -}
+>> -
+>>   void __init init_IRQ(void)
+>>   {
+>>          int i;
+>> -#ifdef CONFIG_SMP
+>> -       int r, ipi_irq;
+>> -       static int ipi_dummy_dev;
+>> -#endif
+>>          unsigned int order = get_order(IRQ_STACK_SIZE);
+>>          struct page *page;
+>>
+>> @@ -113,13 +99,7 @@ void __init init_IRQ(void)
+>>          init_vec_parent_group();
+>>          irqchip_init();
+>>   #ifdef CONFIG_SMP
+>> -       ipi_irq = get_ipi_irq();
+>> -       if (ipi_irq < 0)
+>> -               panic("IPI IRQ mapping failed\n");
+>> -       irq_set_percpu_devid(ipi_irq);
+>> -       r = request_percpu_irq(ipi_irq, loongson_ipi_interrupt, "IPI", &ipi_dummy_dev);
+>> -       if (r < 0)
+>> -               panic("IPI IRQ request failed\n");
+>> +       smp_ops.ipi_init();
+>>   #endif
+>>
+>>          for (i = 0; i < NR_IRQS; i++)
+>> diff --git a/arch/loongarch/kernel/perf_event.c b/arch/loongarch/kernel/perf_event.c
+>> index 0491bf453cd4..3265c8f33223 100644
+>> --- a/arch/loongarch/kernel/perf_event.c
+>> +++ b/arch/loongarch/kernel/perf_event.c
+>> @@ -456,16 +456,6 @@ static void loongarch_pmu_disable(struct pmu *pmu)
+>>   static DEFINE_MUTEX(pmu_reserve_mutex);
+>>   static atomic_t active_events = ATOMIC_INIT(0);
+>>
+>> -static int get_pmc_irq(void)
+>> -{
+>> -       struct irq_domain *d = irq_find_matching_fwnode(cpuintc_handle, DOMAIN_BUS_ANY);
+>> -
+>> -       if (d)
+>> -               return irq_create_mapping(d, INT_PCOV);
+>> -
+>> -       return -EINVAL;
+>> -}
+>> -
+>>   static void reset_counters(void *arg);
+>>   static int __hw_perf_event_init(struct perf_event *event);
+>>
+>> @@ -473,7 +463,7 @@ static void hw_perf_event_destroy(struct perf_event *event)
+>>   {
+>>          if (atomic_dec_and_mutex_lock(&active_events, &pmu_reserve_mutex)) {
+>>                  on_each_cpu(reset_counters, NULL, 1);
+>> -               free_irq(get_pmc_irq(), &loongarch_pmu);
+>> +               free_irq(get_percpu_irq(INT_PCOV), &loongarch_pmu);
+>>                  mutex_unlock(&pmu_reserve_mutex);
+>>          }
+>>   }
+>> @@ -562,7 +552,7 @@ static int loongarch_pmu_event_init(struct perf_event *event)
+>>          if (event->cpu >= 0 && !cpu_online(event->cpu))
+>>                  return -ENODEV;
+>>
+>> -       irq = get_pmc_irq();
+>> +       irq = get_percpu_irq(INT_PCOV);
+>>          flags = IRQF_PERCPU | IRQF_NOBALANCING | IRQF_NO_THREAD | IRQF_NO_SUSPEND | IRQF_SHARED;
+>>          if (!atomic_inc_not_zero(&active_events)) {
+>>                  mutex_lock(&pmu_reserve_mutex);
+>> diff --git a/arch/loongarch/kernel/smp.c b/arch/loongarch/kernel/smp.c
+>> index a16e3dbe9f09..46735ba49815 100644
+>> --- a/arch/loongarch/kernel/smp.c
+>> +++ b/arch/loongarch/kernel/smp.c
+>> @@ -66,11 +66,6 @@ static cpumask_t cpu_core_setup_map;
+>>   struct secondary_data cpuboot_data;
+>>   static DEFINE_PER_CPU(int, cpu_state);
+>>
+>> -enum ipi_msg_type {
+>> -       IPI_RESCHEDULE,
+>> -       IPI_CALL_FUNCTION,
+>> -};
+>> -
+>>   static const char *ipi_types[NR_IPI] __tracepoint_string = {
+>>          [IPI_RESCHEDULE] = "Rescheduling interrupts",
+>>          [IPI_CALL_FUNCTION] = "Function call interrupts",
+>> @@ -123,24 +118,19 @@ static u32 ipi_read_clear(int cpu)
+>>
+>>   static void ipi_write_action(int cpu, u32 action)
+>>   {
+>> -       unsigned int irq = 0;
+>> -
+>> -       while ((irq = ffs(action))) {
+>> -               uint32_t val = IOCSR_IPI_SEND_BLOCKING;
+>> +       uint32_t val;
+>>
+>> -               val |= (irq - 1);
+>> -               val |= (cpu << IOCSR_IPI_SEND_CPU_SHIFT);
+>> -               iocsr_write32(val, LOONGARCH_IOCSR_IPI_SEND);
+>> -               action &= ~BIT(irq - 1);
+>> -       }
+>> +       val = IOCSR_IPI_SEND_BLOCKING | action;
+>> +       val |= (cpu << IOCSR_IPI_SEND_CPU_SHIFT);
+>> +       iocsr_write32(val, LOONGARCH_IOCSR_IPI_SEND);
+>>   }
+>>
+>> -void loongson_send_ipi_single(int cpu, unsigned int action)
+>> +static void loongson_send_ipi_single(int cpu, unsigned int action)
+>>   {
+>>          ipi_write_action(cpu_logical_map(cpu), (u32)action);
+>>   }
+>>
+>> -void loongson_send_ipi_mask(const struct cpumask *mask, unsigned int action)
+>> +static void loongson_send_ipi_mask(const struct cpumask *mask, unsigned int action)
+>>   {
+>>          unsigned int i;
+>>
+>> @@ -148,6 +138,16 @@ void loongson_send_ipi_mask(const struct cpumask *mask, unsigned int action)
+>>                  ipi_write_action(cpu_logical_map(i), (u32)action);
+>>   }
+>>
+>> +void arch_send_call_function_single_ipi(int cpu)
+>> +{
+>> +       smp_ops.call_func_single_ipi(cpu, ACTTION_CALL_FUNCTION);
+>> +}
+>> +
+>> +void arch_send_call_function_ipi_mask(const struct cpumask *mask)
+>> +{
+>> +       smp_ops.call_func_ipi(mask, ACTTION_CALL_FUNCTION);
+>> +}
+>> +
+>>   /*
+>>    * This function sends a 'reschedule' IPI to another CPU.
+>>    * it goes straight through and wastes no time serializing
+>> @@ -155,11 +155,11 @@ void loongson_send_ipi_mask(const struct cpumask *mask, unsigned int action)
+>>    */
+>>   void arch_smp_send_reschedule(int cpu)
+>>   {
+>> -       loongson_send_ipi_single(cpu, SMP_RESCHEDULE);
+>> +       smp_ops.call_func_single_ipi(cpu, ACTTION_RESCHEDULE);
+>>   }
+>>   EXPORT_SYMBOL_GPL(arch_smp_send_reschedule);
+>>
+>> -irqreturn_t loongson_ipi_interrupt(int irq, void *dev)
+>> +static irqreturn_t loongson_ipi_interrupt(int irq, void *dev)
+>>   {
+>>          unsigned int action;
+>>          unsigned int cpu = smp_processor_id();
+>> @@ -179,6 +179,26 @@ irqreturn_t loongson_ipi_interrupt(int irq, void *dev)
+>>          return IRQ_HANDLED;
+>>   }
+>>
+>> +static void loongson_ipi_init(void)
+>> +{
+>> +       int r, ipi_irq;
+>> +
+>> +       ipi_irq = get_percpu_irq(INT_IPI);
+>> +       if (ipi_irq < 0)
+>> +               panic("IPI IRQ mapping failed\n");
+>> +
+>> +       irq_set_percpu_devid(ipi_irq);
+>> +       r = request_percpu_irq(ipi_irq, loongson_ipi_interrupt, "IPI", &irq_stat);
+>> +       if (r < 0)
+>> +               panic("IPI IRQ request failed\n");
+>> +}
+>> +
+>> +struct smp_ops smp_ops = {
+>> +       .call_func_single_ipi   = loongson_send_ipi_single,
+>> +       .call_func_ipi          = loongson_send_ipi_mask,
+>> +       .ipi_init               = loongson_ipi_init,
+>> +};
+>> +
+>>   static void __init fdt_smp_setup(void)
+>>   {
+>>   #ifdef CONFIG_OF
+>> @@ -256,7 +276,7 @@ void loongson_boot_secondary(int cpu, struct task_struct *idle)
+>>
+>>          csr_mail_send(entry, cpu_logical_map(cpu), 0);
+>>
+>> -       loongson_send_ipi_single(cpu, SMP_BOOT_CPU);
+>> +       loongson_send_ipi_single(cpu, ACTTION_BOOT_CPU);
+>>   }
+>>
+>>   /*
+>> diff --git a/arch/loongarch/kernel/time.c b/arch/loongarch/kernel/time.c
+>> index e7015f7b70e3..fd5354f9be7c 100644
+>> --- a/arch/loongarch/kernel/time.c
+>> +++ b/arch/loongarch/kernel/time.c
+>> @@ -123,16 +123,6 @@ void sync_counter(void)
+>>          csr_write64(init_offset, LOONGARCH_CSR_CNTC);
+>>   }
+>>
+>> -static int get_timer_irq(void)
+>> -{
+>> -       struct irq_domain *d = irq_find_matching_fwnode(cpuintc_handle, DOMAIN_BUS_ANY);
+>> -
+>> -       if (d)
+>> -               return irq_create_mapping(d, INT_TI);
+>> -
+>> -       return -EINVAL;
+>> -}
+>> -
+>>   int constant_clockevent_init(void)
+>>   {
+>>          unsigned int cpu = smp_processor_id();
+>> @@ -142,7 +132,7 @@ int constant_clockevent_init(void)
+>>          static int irq = 0, timer_irq_installed = 0;
+>>
+>>          if (!timer_irq_installed) {
+>> -               irq = get_timer_irq();
+>> +               irq = get_percpu_irq(INT_TI);
+>>                  if (irq < 0)
+>>                          pr_err("Failed to map irq %d (timer)\n", irq);
+>>          }
+>> --
+>> 2.39.3
+>>
 
