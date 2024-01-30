@@ -1,22 +1,22 @@
 Received: from verein.lst.de (verein.lst.de [213.95.11.211])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFA737C0A9
-	for <virtualization@lists.linux.dev>; Tue, 30 Jan 2024 14:41:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F140846B
+	for <virtualization@lists.linux.dev>; Tue, 30 Jan 2024 14:43:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706625711; cv=none; b=g2ii88+zFIZEvP4WbjpQ8Kapdi2mfDTB3P883REHn2Bhq1xL0p3yHwwpbuPnom4evyJ++01FxabKG7kl6T6vTRszzXawZqIRvB/GpBAHqnL3UU5Za7cgFNNrMP1R3DBf3qIv810UyCF19gPVXI+bSIofRbFp2Lw7YEt5f4Wuu3E=
+	t=1706625798; cv=none; b=I9yaCWUftF08SYHDUFv4jPPy3++9d1+Js8To34/EXh/BxPweO/eA0LnAFrgFiOHVmaXpjbCApw+DCDiCLg0w9m/C3v+E8XJNa611LV601n0Tc+IMDOcD2W2SQY8ktKHBC3ppUOo2aoG2GoRyPF3SYqE32wyAkpNQFxV3VZTvUzk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706625711; c=relaxed/simple;
-	bh=iydZ0rk2gIoR4xHHBuhY2l4GOCJB9/obAaUcMY7Flhc=;
+	s=arc-20240116; t=1706625798; c=relaxed/simple;
+	bh=wd5wbUO1Mr6CE5hhSJmP+7cRaMTw0eDCGjrDb+eS/Gk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=h3JjMRaqG3u5hYEaKf4bCYRNDPxvK5nmV0VOEBSh9Yfqk6hpZHGdrcGU1GARE3eVRdkFeRoKcCyekOqMoRXgVxTLYxsvmNHROb/Z9zt9e6m7gcsMZ9OW90lE64lWVBmavvCu3tSJUr3A6SOuqjWbjwJwbUGQ2j+0mxgiSfLFWEE=
+	 Content-Type:Content-Disposition:In-Reply-To; b=Sh1cwYsUr4KguU6HcsRAKhTScm7a72Z3Jd5tZv7dI4Jb+DD43hMLz42EzM5TJl5v4m3aglj56UIWiXKB9Rh6HRNyeyBOB/o3P8FFCZj0ZrN6mIOzvjK0LWUnF2epsmVI5NMxdDDjfvj9OaSu/WAMQ3JIw7UzvzlSQEL90xOGxtM=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
 Received: by verein.lst.de (Postfix, from userid 2407)
-	id EE095227A87; Tue, 30 Jan 2024 15:41:44 +0100 (CET)
-Date: Tue, 30 Jan 2024 15:41:44 +0100
+	id 112CA68B05; Tue, 30 Jan 2024 15:43:14 +0100 (CET)
+Date: Tue, 30 Jan 2024 15:43:13 +0100
 From: Christoph Hellwig <hch@lst.de>
 To: John Garry <john.g.garry@oracle.com>
 Cc: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
@@ -29,11 +29,11 @@ Cc: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
 	Damien Le Moal <dlemoal@kernel.org>,
 	Keith Busch <kbusch@kernel.org>, Sagi Grimberg <sagi@grimberg.me>,
 	linux-block@vger.kernel.org, linux-nvme@lists.infradead.org,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH 03/14] block: add an API to atomically update queue
- limits
-Message-ID: <20240130144144.GA32125@lst.de>
-References: <20240128165813.3213508-1-hch@lst.de> <20240128165813.3213508-4-hch@lst.de> <c489e14c-aea7-4d76-88cd-f60026477c68@oracle.com>
+	virtualization@lists.linux.dev, Hannes Reinecke <hare@suse.de>
+Subject: Re: [PATCH 04/14] block: use queue_limits_commit_update in
+ queue_max_sectors_store
+Message-ID: <20240130144313.GB32125@lst.de>
+References: <20240128165813.3213508-1-hch@lst.de> <20240128165813.3213508-5-hch@lst.de> <e65301d3-7274-45fa-a64c-5039257aa333@oracle.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -42,61 +42,23 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <c489e14c-aea7-4d76-88cd-f60026477c68@oracle.com>
+In-Reply-To: <e65301d3-7274-45fa-a64c-5039257aa333@oracle.com>
 User-Agent: Mutt/1.5.17 (2007-11-01)
 
-On Tue, Jan 30, 2024 at 11:46:24AM +0000, John Garry wrote:
->> +{
->> +	if (!lim->zoned) {
->> +		if (WARN_ON_ONCE(lim->max_open_zones) ||
->> +		    WARN_ON_ONCE(lim->max_active_zones) ||
->> +		    WARN_ON_ONCE(lim->zone_write_granularity) ||
->> +		    WARN_ON_ONCE(lim->max_zone_append_sectors))
+On Tue, Jan 30, 2024 at 12:14:32PM +0000, John Garry wrote:
+> On 28/01/2024 16:58, Christoph Hellwig wrote:
+>> Convert queue_max_sectors_store to use queue_limits_commit_update to
+>> check and update the max_sectors limit and freeze the queue before
+>> doing so to ensure we don't have requests in flight while changing
+>> the limits.
+>>
+>> Note that this removes the previously held queue_lock that doesn't
+>> protect against any other reader or writer.
 >
-> nit: some - like me - prefer {} for multi-line if statements, but that's 
-> personal taste
->
->> +			return -EINVAL;
+> I don't really get why we specifically locked that code segment in 
+> queue_max_sectors_store() previously. Was it to ensure max_sectors and 
+> q->disk->bdi->io_pages are always atomically updated?
 
-That would be really weird and contrary to the normal Linux style.
-
->> +	if (!lim->logical_block_size)
->> +		lim->logical_block_size = SECTOR_SIZE;
->> +	if (lim->physical_block_size < lim->logical_block_size)
->> +		lim->physical_block_size = lim->physical_block_size;
->
-> I guess that should really be:
-> lim->physical_block_size = lim->logical_block_size;
-
-Thanks, that does need fixing.
-
->> +	lim->max_hw_sectors = round_down(lim->max_hw_sectors,
->> +			lim->logical_block_size >> SECTOR_SHIFT);
->> +
->> +	/*
->> +	 * The actual max_sectors value is a complex beast and also takes the
->> +	 * max_dev_sectors value (set by SCSI ULPs) and a user configurable
->> +	 * value into account.  The ->max_sectors value is always calculated
->> +	 * from these, so directly setting it won't have any effect.
->> +	 */
->> +	max_hw_sectors = min_not_zero(lim->max_hw_sectors,
->> +				lim->max_dev_sectors);
->
-> nit: maybe we should use a different variable for this for sake of clarity
-
-What variable name would work better for you?
-
->> +	/*
->> +	 * We require drivers to at least do logical block aligned I/O, but
->> +	 * historically could not check for that due to the separate calls
->> +	 * to set the limits.  Once the transition is finished the check
->> +	 * below should be narrowed down to check the logical block size.
->> +	 */
->> +	if (!lim->dma_alignment)
->> +		lim->dma_alignment = SECTOR_SIZE - 1;
->
-> It would be also nice to update blk_set_default_limits to use this (and not 
-> '511') or also any other instances of hard-coding SECTOR_SIZE for 512
-
-That would be nice, but defintively not in scope for this patch.
+It's been there basically forever.  Back in the day before blk-mq
+and lock splitting it might actually have protected something.
 
