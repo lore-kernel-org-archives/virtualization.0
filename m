@@ -1,30 +1,30 @@
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42877374D2
-	for <virtualization@lists.linux.dev>; Tue, 30 Jan 2024 03:06:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FD40374FC
+	for <virtualization@lists.linux.dev>; Tue, 30 Jan 2024 03:06:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706583991; cv=none; b=DHGibWebEQcg2xiSyZgJfeLBE5kkRkYER30yvtjHYm5FeFMnRCpaX5gacArSi8XN0rnE1GcsgKZJCFSPJ1XBURdmfoDMfvixnNAGvNS3o+XF+Sz79hHEzhbwMZB9TfOsLmeuW0S4Ep57XBNiM9FuXv88Lvi0UJATJyW03ef4KpY=
+	t=1706583997; cv=none; b=Iw+i+7oVGwxqYgicvWAbuSLIUVFF3RNz3dowFjJGcINAjVci0t5ktyNRr0ce2q0tRXaIp0wnkB+iI3HBwdXIMMxVZi8LqzFG0xQHW57ck1ZRQcNF0wmzMa/oUVTzgrz6/d61NyZ3uonbYib0DXz8MtheDY/yR+Qe3IyqYjdIV5M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706583991; c=relaxed/simple;
-	bh=WqRon/t36axLWnC2m31FaAfXbOKepA9MEJ60/dbxVng=;
+	s=arc-20240116; t=1706583997; c=relaxed/simple;
+	bh=WrNUrVkKsRBGMAcCLsS54ceMN+IjqBq6LF2Ggr3xROw=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=HwWOhZwWDwwZzQF3kisdho2S6NXboXNBMGFiwt80Ft7Ax7edUfFYxu3sULqvo5SwMrFKwrMcfdf88W7oZJ5Idi0ckBlSasB0TziGsjgw2RiKZ16uqbGSNDDdprrYe10AhfrUx4c8n3bl4dQZsXekX24E+vsNSt8gvGrTG90J0yk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=FIM9MhTL; arc=none smtp.client-ip=115.124.30.133
+	 MIME-Version; b=TgdMj31Kw/zxw8L61GpW3bJPSpVPorGro5qwrL6iEoRdCybB7Bj7dScad9taJENpLJYpLv3APOfmfcX7yTnhZEZeI7LV/rGhBPTNg5NPGGlV1q267QHZTbEFD+iu4LZ9QBjB8azyDTbX7ZKc786YI6tNWzYs4QypY1zW68EG/GY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=UOlWV3MD; arc=none smtp.client-ip=115.124.30.110
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="FIM9MhTL"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="UOlWV3MD"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1706583987; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=zoyfNHAJCmyTBAcX034M6esKyxN0JDrAC5N4EOL9MWs=;
-	b=FIM9MhTLCX0ci5s9qL7Dga/6zkISe+Ipf1Yc6tAs/WQ4jzoap457SJ29JNl9dRF0K3pPB2VnxcgeI3qxwXFw8X87LS00t/mUbCGFKZLNrNsosfmdg8i0sppb1MBRdkwv2x37nn7n13niekBBJfxoZV8fM+2ViJauHVWv8pidCqM=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0W.efIX0_1706583984;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W.efIX0_1706583984)
+	t=1706583988; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=In+uheSTb8yqlBUteGC87q6ZU8VjjfZZMdZdMrF6NfA=;
+	b=UOlWV3MDco3yheBv1fDfb8PJjpkS/s4sPIm9NoB8txCJG7mGdbhiukP05hTrhiymJXkf5AMxq1D2IVlKey3s4EM/P5z5jrOfOpcHT4Cc+iEGyGMX9e4pU4uWDiHRJngkGNkAfGvPIRTtoOF6ssVg2EVyE18oXwWL6HPjRirDVoY=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R291e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0W.eeCGK_1706583985;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W.eeCGK_1706583985)
           by smtp.aliyun-inc.com;
-          Tue, 30 Jan 2024 11:06:25 +0800
+          Tue, 30 Jan 2024 11:06:26 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: virtualization@lists.linux.dev
 Cc: Richard Weinberger <richard@nod.at>,
@@ -63,9 +63,9 @@ Cc: Richard Weinberger <richard@nod.at>,
 	linux-s390@vger.kernel.org,
 	kvm@vger.kernel.org,
 	bpf@vger.kernel.org
-Subject: [PATCH 12/14] virtio_net: unify the code for recycling the xmit ptr
-Date: Tue, 30 Jan 2024 11:06:02 +0800
-Message-Id: <20240130030604.108463-13-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH 13/14] virtio_net: rename free_old_xmit_skbs to free_old_xmit
+Date: Tue, 30 Jan 2024 11:06:03 +0800
+Message-Id: <20240130030604.108463-14-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20240130030604.108463-1-xuanzhuo@linux.alibaba.com>
 References: <20240130030604.108463-1-xuanzhuo@linux.alibaba.com>
@@ -78,120 +78,65 @@ MIME-Version: 1.0
 X-Git-Hash: ce068f9b825d
 Content-Transfer-Encoding: 8bit
 
-There are two completely similar and independent implementations. This
-is inconvenient for the subsequent addition of new types. So extract a
-function from this piece of code and call this function uniformly to
-recover old xmit ptr.
+Since free_old_xmit_skbs not only deals with skb, but also xdp frame and
+subsequent added xsk, so change the name of this function to
+free_old_xmit.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/net/virtio_net.c | 66 +++++++++++++++++-----------------------
- 1 file changed, 28 insertions(+), 38 deletions(-)
+ drivers/net/virtio_net.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 660459b4c3e3..b56f8617700f 100644
+index b56f8617700f..1118aa0ebc53 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -348,6 +348,30 @@ static struct xdp_frame *ptr_to_xdp(void *ptr)
- 	return (struct xdp_frame *)((unsigned long)ptr & ~VIRTIO_XDP_FLAG);
+@@ -762,7 +762,7 @@ static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *buf)
+ 	virtnet_rq_free_buf(vi, rq, buf);
  }
  
-+static void __free_old_xmit(struct send_queue *sq, bool in_napi,
-+			    u64 *bytes, u64 *packets)
-+{
-+	unsigned int len;
-+	void *ptr;
-+
-+	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
-+		if (!is_xdp_frame(ptr)) {
-+			struct sk_buff *skb = ptr;
-+
-+			pr_debug("Sent skb %p\n", skb);
-+
-+			*bytes += skb->len;
-+			napi_consume_skb(skb, in_napi);
-+		} else {
-+			struct xdp_frame *frame = ptr_to_xdp(ptr);
-+
-+			*bytes += xdp_get_frame_len(frame);
-+			xdp_return_frame(frame);
-+		}
-+		(*packets)++;
-+	}
-+}
-+
- /* Converting between virtqueue no. and kernel tx/rx queue no.
-  * 0:rx0 1:tx0 2:rx1 3:tx1 ... 2N:rxN 2N+1:txN 2N+2:cvq
-  */
-@@ -740,27 +764,9 @@ static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *buf)
- 
- static void free_old_xmit_skbs(struct send_queue *sq, bool in_napi)
+-static void free_old_xmit_skbs(struct send_queue *sq, bool in_napi)
++static void free_old_xmit(struct send_queue *sq, bool in_napi)
  {
--	unsigned int len;
--	unsigned int packets = 0;
--	unsigned int bytes = 0;
--	void *ptr;
--
--	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
--		if (likely(!is_xdp_frame(ptr))) {
--			struct sk_buff *skb = ptr;
--
--			pr_debug("Sent skb %p\n", skb);
-+	u64 bytes = 0, packets = 0;
+ 	u64 bytes = 0, packets = 0;
  
--			bytes += skb->len;
--			napi_consume_skb(skb, in_napi);
--		} else {
--			struct xdp_frame *frame = ptr_to_xdp(ptr);
--
--			bytes += xdp_get_frame_len(frame);
--			xdp_return_frame(frame);
--		}
--		packets++;
--	}
-+	__free_old_xmit(sq, in_napi, &bytes, &packets);
+@@ -816,7 +816,7 @@ static void check_sq_full_and_disable(struct virtnet_info *vi,
+ 				virtqueue_napi_schedule(&sq->napi, sq->vq);
+ 		} else if (unlikely(!virtqueue_enable_cb_delayed(sq->vq))) {
+ 			/* More just got used, free them then recheck. */
+-			free_old_xmit_skbs(sq, false);
++			free_old_xmit(sq, false);
+ 			if (sq->vq->num_free >= 2+MAX_SKB_FRAGS) {
+ 				netif_start_subqueue(dev, qnum);
+ 				virtqueue_disable_cb(sq->vq);
+@@ -2111,7 +2111,7 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
  
- 	/* Avoid overhead when no packets have been processed
- 	 * happens when called speculatively from start_xmit.
-@@ -910,14 +916,11 @@ static int virtnet_xdp_xmit(struct net_device *dev,
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
- 	struct receive_queue *rq = vi->rq;
-+	u64 bytes = 0, packets = 0;
- 	struct bpf_prog *xdp_prog;
- 	struct send_queue *sq;
--	unsigned int len;
--	int packets = 0;
--	int bytes = 0;
- 	int nxmit = 0;
- 	int kicks = 0;
--	void *ptr;
- 	int ret;
- 	int i;
+ 		do {
+ 			virtqueue_disable_cb(sq->vq);
+-			free_old_xmit_skbs(sq, true);
++			free_old_xmit(sq, true);
+ 		} while (unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
  
-@@ -936,20 +939,7 @@ static int virtnet_xdp_xmit(struct net_device *dev,
- 	}
+ 		if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
+@@ -2233,7 +2233,7 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
+ 	txq = netdev_get_tx_queue(vi->dev, index);
+ 	__netif_tx_lock(txq, raw_smp_processor_id());
+ 	virtqueue_disable_cb(sq->vq);
+-	free_old_xmit_skbs(sq, true);
++	free_old_xmit(sq, true);
  
- 	/* Free up any pending old buffers before queueing new ones. */
--	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
--		if (likely(is_xdp_frame(ptr))) {
--			struct xdp_frame *frame = ptr_to_xdp(ptr);
--
--			bytes += xdp_get_frame_len(frame);
--			xdp_return_frame(frame);
--		} else {
--			struct sk_buff *skb = ptr;
--
--			bytes += skb->len;
--			napi_consume_skb(skb, false);
--		}
--		packets++;
--	}
-+	__free_old_xmit(sq, false, &bytes, &packets);
+ 	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
+ 		netif_tx_wake_queue(txq);
+@@ -2323,7 +2323,7 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 		if (use_napi)
+ 			virtqueue_disable_cb(sq->vq);
  
- 	for (i = 0; i < n; i++) {
- 		struct xdp_frame *xdpf = frames[i];
+-		free_old_xmit_skbs(sq, false);
++		free_old_xmit(sq, false);
+ 
+ 	} while (use_napi && kick &&
+ 	       unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
 -- 
 2.32.0.3.g01195cf9f
 
