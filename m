@@ -1,301 +1,199 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2078.outbound.protection.outlook.com [40.107.92.78])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FBC86DD06
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jan 2024 14:23:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D86E6DD02
+	for <virtualization@lists.linux.dev>; Tue, 30 Jan 2024 14:25:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.92.78
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706624624; cv=fail; b=sr5m78j2re9cQA9BwcBTsHEZ+0RDHfGWqZNoDZeh2okqFEw6O3Cm/YYpMf9LOP2pAh5VyId9AoUdcrWBA2XwW53nJpEgX7XwHhP4nsMBwbfKhasSTOz0fpLDwfeAxso5KObxmyxVE2dbYNfsYFQI+f6PGpQW01MeWn1nj3pqLww=
+	t=1706624759; cv=fail; b=RISWSRyg0OJp45aO5NufsCnyg4Tl80XCEEBT49nRGhFOyxvBHxiW4e0Fut6q7aDdSYoI+eVfTPg0FRjCTxK6swwfZ0oO2Y4dHedAjLIMUTc4PFF7xl6dzKoB8nsA0j1Njq9bZ/ppcnOGgKc5GcRB66kzbuFq846ZkDAJfAo+yNs=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706624624; c=relaxed/simple;
-	bh=F02z6gWWk1mu9f+KjWvzGOLChzg3kczGyo7GBOqMRJw=;
-	h=Message-ID:Date:Subject:To:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=bcf9r1ATttXwYTZJIH7fRn7wPR0iUD+tBp91VQGTfgKGhzeCru8xgmR9+Ifm/OoEyCJ3/Ve5FdobGQX2/4cGiZC9EkdX8ksVTUxfkHunExlZadJq/NdO2cOjslVNBoTHGsV9PKv/JlMWe30IH7/kWxnu1+teXGC5YQVFn0XAt70=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=lCJJiGOK; arc=fail smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1706624759; c=relaxed/simple;
+	bh=1u6LOpmJKlmTDivE48WVaGENNLCN9fgRqXeidUlhfgI=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=LDdrIpZ2KM2/XdogOoe/I14EItdeOrHADI1yZ0fldwZYrPEXd01owYutEwyfp1d6f7cjKfh66XojQqWuvOeLEM8MKxxVAu6x+Z4X/lHM212Q1Lg+SqqkWMwzAgy9XFKrJuAc0WdyimYp7QYyUbPmRIVVmmiBw2EI8qVz8O838h0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=M/dCIhSR; arc=fail smtp.client-ip=40.107.92.78
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="lCJJiGOK"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id A9ABA817A4
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jan 2024 14:23:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A9ABA817A4
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=lCJJiGOK
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.003
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id xR2kdbtjqCau
-	for <virtualization@lists.linux-foundation.org>;
-	Tue, 30 Jan 2024 14:23:41 +0000 (UTC)
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on20600.outbound.protection.outlook.com [IPv6:2a01:111:f403:2412::600])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 4C90B81770
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jan 2024 14:23:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4C90B81770
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="M/dCIhSR"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=YvQ391GeCclD+7kbAbGT9OhI3iKw58DT2K/h8nLFplnR0c1/i7fKe3k6UdkuVjPFahurOafcfkkW/hea4rI2D+ruLpXjuhCwPW4pwiEnfMpZpy1RnmPYbfCFZBenpQaSIW2kPliUAJ1qQ8ujhmzR+PTZdC/T7NSFDYV0imA7livbPbchO7zWW0HtFi/YSpYuq3V0lcsyGNxaJP30Z/E/ee8AExxJv69VjDENOptMsTIDGmehw1fHk+EHzIYalW/KTKdhtEnqE4pjV3QgrWhVr2DU2YV+H+CX2p0l+7KJ0Hrrq8svOEodvRnD7ROb0oOVoEmJ3ovwfBK659zsO6z3Iw==
+ b=dicjHa/eAQwOeWqIyRqivIsGgCnzE6CKvJvpL7QlJFBbj/0htNq5pfTq7StQWKfeqTfuYc05GucNIYvNbs2eEbrWq3QiUp6AquuT9GIQiWuP3AsoZLMe+aPPHjkQFOx929QkYq0AwT0V50mpBI9EwucZoldzA7MvB1H6dc92Wp8V4KK9ZMcC6AptBqQZD9MJigSCVlwvyjyEaO9r0hZfq2IujRHmbFkn4fkJ++UPfH7RThihV6scOOEIKqoycL4mgs4rSF7KEHZmkGJnDe1VesgQDZeTMM8F2ztvEnnU1RIFOLkxtVyXa7T4AMzN945qvDibn/n4ceXQXgiWvgjX2A==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=E2rCcywr7dw/yC/vDiH7ocw6cJBpdN7ePTafQfOVw5Y=;
- b=agaXHdDHg4Jub2XSzc9UJ5+0KGeA+zedtvKY6s3dQ1pDoKJyA7arJljFC64QeHQAc0CQjvkOwEGlqGGwPv6v26Cp37/xXsWbna4FR1A1bjBPUHbLUnFd/S/nhcdpeIUTdQ/m0znMPT8ov+zqt9GZ0L7nMDiClEScYY1GcpSB6d40kJDrUwDJMqzbq2UiUG0Ar05esZT5sLypkiTSDDftOe2H8PmcCchfZV3o8ke0W84IV3I+dtvYwM/e6aKLA9B3UYbsaeazONKkk46R9taja3y60dmrV2WLrGulzcT1J+TZQM7syLJt+nhSQp96IP+M73dZ4BkPzm302lWrJs8Vlg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ bh=rwwCKQuJYo6pP4pISbf4oL/RvnmjEO6frmkZlczx2dw=;
+ b=hOGFx6eMSE6edTMmJAec5ifWZ4FzuGMe2Glj5dkNizX3rR5a7m1iJxpkxlxnZcQSfzSMl0kMJibegS0Fd8bhoCC2t3X7ZyWorclUtv4AUoLnXW62bHYeB8nDIby9/fmiBFrUyQ7vnUEMPfvJN6CS5/meIEnJUJVwDoQfxpbVsZ0/BCdO5wC1OlgvWxP6sWUQ0+CBXhOnvafKINpVUvZ5vdCVBj3K7abJpElOCWYxnCLgl0HF1+Y5Wm1lJ5R7HuTCXnEbBgDclrJxEpTN3Y6OKnWeydgVCVfDibfHQGVAD0lkYxWVnO//b4Jfog/tS7mYoB5RCQhtlnwy+iq8yCqs4Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.160) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=E2rCcywr7dw/yC/vDiH7ocw6cJBpdN7ePTafQfOVw5Y=;
- b=lCJJiGOKPXEA4PoJtWnzDWEifZo6Qys8qmW8MfD8iuGw5hUEXRwjN/cNWQv87ILwq+IlkMwJ6IrTZiH7dRXXIbLlO+OLb/SxCAuWQG12bKePmxGULaeqnKPQJq5+Sf39j9ZORHDBjkVltHlLLibHw5RrKq8mjEF/Le+ycVhHI5I=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from PH7PR12MB5685.namprd12.prod.outlook.com (2603:10b6:510:13c::22)
- by BL0PR12MB4993.namprd12.prod.outlook.com (2603:10b6:208:17e::8) with
+ bh=rwwCKQuJYo6pP4pISbf4oL/RvnmjEO6frmkZlczx2dw=;
+ b=M/dCIhSREfqMOt+FwtV4hrjAXBfX8+q7Ph48Sp8V1YZHprcB+foC3UB/ioP6uXvQjf1ord1kO8OeGChzbk7n0li/73RKLTwiBMy30SjcaUHgYPT7L3cKL9BUsP7szfH4UxNo/V8kUzaFMzSs2zPujZtLzZCgTnhI8rhTp13C0HzdZcRgyFZojVrBGmT16pdbvA2I+7E5JVn9YQ2Y6kdNBnIIjZzqzQk2LPBr53dcJATB0w4kfnaFNrnKEq37iKSx/qyxLJnshtYoaduDUT4q0dwH73gxbw7glPnFFvMB8JSxwPMx1KA53ZXoK8LuqARz48C1X4zuzLspW63EX+Ku2g==
+Received: from BN0PR02CA0004.namprd02.prod.outlook.com (2603:10b6:408:e4::9)
+ by DS0PR12MB7632.namprd12.prod.outlook.com (2603:10b6:8:11f::11) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7228.34; Tue, 30 Jan
- 2024 14:23:38 +0000
-Received: from PH7PR12MB5685.namprd12.prod.outlook.com
- ([fe80::e1fb:4123:48b1:653]) by PH7PR12MB5685.namprd12.prod.outlook.com
- ([fe80::e1fb:4123:48b1:653%4]) with mapi id 15.20.7228.029; Tue, 30 Jan 2024
- 14:23:38 +0000
-Message-ID: <97c50e01-ee33-4ac8-975c-f645c2ed49c6@amd.com>
-Date: Tue, 30 Jan 2024 15:23:30 +0100
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 1/1] drm/virtio: Implement device_attach
-Content-Language: en-US
-To: Julia Zhang <julia.zhang@amd.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, David Airlie <airlied@redhat.com>,
- Gerd Hoffmann <kraxel@redhat.com>, linux-kernel@vger.kernel.org,
- dri-devel@lists.freedesktop.org, amd-gfx@lists.freedesktop.org,
- virtualization@lists.linux-foundation.org,
- Alex Deucher <alexander.deucher@amd.com>, David Airlie <airlied@gmail.com>,
- Erik Faye-Lund <kusmabite@gmail.com>, =?UTF-8?B?TWFyZWsgT2zFocOhaw==?=
- <marek.olsak@amd.com>,
- Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>,
- Honglei Huang <honglei1.huang@amd.com>, Chen Jiqian <Jiqian.Chen@amd.com>,
- Huang Rui <ray.huang@amd.com>, David Stevens <stevensd@chromium.org>
-References: <20240129103118.3258781-1-julia.zhang@amd.com>
- <ZbjZJ3qQzdOksnb2@phenom.ffwll.local> <ZbjaebswTCxmlwu0@phenom.ffwll.local>
-From: =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
-In-Reply-To: <ZbjaebswTCxmlwu0@phenom.ffwll.local>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: FR5P281CA0031.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:f3::7) To PH7PR12MB5685.namprd12.prod.outlook.com
- (2603:10b6:510:13c::22)
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7228.32; Tue, 30 Jan
+ 2024 14:25:49 +0000
+Received: from BN3PEPF0000B077.namprd04.prod.outlook.com
+ (2603:10b6:408:e4:cafe::2c) by BN0PR02CA0004.outlook.office365.com
+ (2603:10b6:408:e4::9) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7249.22 via Frontend
+ Transport; Tue, 30 Jan 2024 14:25:49 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.160) by
+ BN3PEPF0000B077.mail.protection.outlook.com (10.167.243.122) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.7249.19 via Frontend Transport; Tue, 30 Jan 2024 14:25:49 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
+ (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Tue, 30 Jan
+ 2024 06:25:33 -0800
+Received: from rnnvmail204.nvidia.com (10.129.68.6) by rnnvmail201.nvidia.com
+ (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Tue, 30 Jan
+ 2024 06:25:33 -0800
+Received: from vdi.nvidia.com (10.127.8.13) by mail.nvidia.com (10.129.68.6)
+ with Microsoft SMTP Server id 15.2.986.41 via Frontend Transport; Tue, 30 Jan
+ 2024 06:25:32 -0800
+From: Daniel Jurgens <danielj@nvidia.com>
+To: <netdev@vger.kernel.org>
+CC: <mst@redhat.com>, <jasowang@redhat.com>, <xuanzhuo@linux.alibaba.com>,
+	<virtualization@lists.linux.dev>, <davem@davemloft.net>,
+	<edumazet@google.com>, <kuba@kernel.org>, <abeni@redhat.com>, Daniel Jurgens
+	<danielj@nvidia.com>, Parav Pandit <parav@nvidia.com>
+Subject: [PATCH net-next] virtio_net: Add TX stop and wake counters
+Date: Tue, 30 Jan 2024 08:25:21 -0600
+Message-ID: <20240130142521.18593-1-danielj@nvidia.com>
+X-Mailer: git-send-email 2.42.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH7PR12MB5685:EE_|BL0PR12MB4993:EE_
-X-MS-Office365-Filtering-Correlation-Id: 7a28ce12-3304-42d0-14ff-08dc219f0ce3
+X-MS-TrafficTypeDiagnostic: BN3PEPF0000B077:EE_|DS0PR12MB7632:EE_
+X-MS-Office365-Filtering-Correlation-Id: 2e2a1877-e509-4cd1-30c3-08dc219f5b31
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
 X-Microsoft-Antispam-Message-Info:
-	lnEwszdm2nhs6g5Fr9nY4aMvILpcvbq1JPH7eE4LR/67SE2N01nAyGVaz5iP+Y8uHzkysWBJljgYl/e/NKXZFl+yaDGU1xYQsF8r3HVW2+IY+2g28w4x4L+hMNeFG0UQsXauDYhZ+BSWZxFCWIkI/IpmMPlNc00ii3mwz/M15lJswvVi5OHgkAKO6kzny2EJ1uwmaENk1+CxKCJj/m3/u+dj+Goi4jXeoBUrtsd9R9IhonVeNz2cNphSFzHHKTyFuN9JKzerFnnLiwHohYAipbxYUvmjJWJK9HlgFl6LGCTeGmo0bMxQeNWqTCntg8iz7U18q+0bO1wo8quKqDRExte88ZZkj8e09tJlGfza07BTnKgMZf9XKn/9e07kdEPcwHl5oTpErTXWLH3gEtXtYtA1HBH2GWUL1qcb9jxH6j7HP2pEr94uWCgB2dEpsEYdKBDMYwq7VAubyqa0QLrWjLr5SKyaFCc6AnQlIlkMnB0M3FABWq7O0XIWXg+QPzvtrLKj5MLIOth6MQyBqiBBeuayjSCs9Fht8fhkh+jodU0wpcH7P0Qc5pcIwTIrNKewnX5jI+1gKtkwVTFZ2gE9yaV6SlqVX8ANEQn1kpwVqftXjEFgErMUsIUXZ3xeFtcuTFPihH5W+L5gpMICoYJ+wdd28eAsthlQ8WHiwTav2eo=
+	iXIMhUfAHTz6YLPvalFGL+h/wuIKlf0HMZYLJU5gZUXk12jXXBHYTqfkSH2/HwCwf3+ZkjeqURRG0HndKyhr32mVt5duU93dDQTK2EcLzp1xr+oYIvVwXoDzGHsfhWmWPaC38NQsdGuLvoZWJ+OtS4vm1J1BdRyhkfDAQBVfUsiTUDWeQV9GkzyyDgn7CQxl5gXH2Qh89eLv5lGEU3J+np/20gxvDjJKSSzyAtM40ybvZpkC3HNOLzZaTpZ1KwpTi4IEt+wtYkFgisAXu7qjMaIgUiqz9o+8eBYs8cWv2JjkXQo2W0OZmbkPAKdpjpm8DE11tobwi56uCRjluMi8gdlmRd9zVvOKxYl2BGZlKPxuscBQ45ZdXfQRfYjW+h6ZCY/EGwNwF5XVCfu7HRL4xMagOR5ERJGQLDiA3BCnBZwDQH+BRC09Yrs7FFDbeE3r7uiEEvZspMzoRvDB5zj0q5LNnWMiV/Wc6FEAc7+a6wXORQ/X8Uks8qk13VGy5sIxUeRMgb7u4++5LzJGofeg/F/42xsenZj4r3Yn7dUtM1GgeFTYrnDs0uZB4qP4xXQJbXVd91bvCqNgzS4EYfz11/7TwuJP4yN+lVPrT0N+KF311ztwFNtcURiZv5hmq2bSOqomFZeIUJY+TW7IN9ARfKdhbF0WSXl6RfZW8aDTQ+iBtw83YFgQBa/8nnTcGGpek/yA1Yq54+2cZge4fKsfmB9okJheIFmwhyWMQUIbB0Q=
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH7PR12MB5685.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(39860400002)(346002)(396003)(366004)(136003)(376002)(230922051799003)(451199024)(1800799012)(186009)(64100799003)(83380400001)(2616005)(7416002)(6512007)(26005)(38100700002)(5660300002)(8936002)(2906002)(6506007)(8676002)(478600001)(966005)(41300700001)(6486002)(66556008)(110136005)(66476007)(6666004)(66946007)(316002)(31696002)(86362001)(921011)(36756003)(31686004)(66899024)(43740500002)(45980500001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?YUN5amFyelo1Z0JKazFZTU1rcGs1TUtIelBvZkR0eURUZzQ4c3E4djVzRUtH?=
- =?utf-8?B?QkdNR3NIUWl2dVdMUWV2UThSU0VqTjhXVTJ3N0M2cngxdHpaQTFQMDBxRFZv?=
- =?utf-8?B?T005WDVtOFQ4RVdJaHU3SGdWVFdPWEY4ZGtIS1VmWmtjT2hZelVRU1VCeXB4?=
- =?utf-8?B?WERJOUJDZjdjWmk1V2kzME8wVlVLZElWMHIrcnpxVlV2WHJHMUlmTUFVckI3?=
- =?utf-8?B?OU5qTW8xSDkzbHg1NFpubjVsZnpjRDVGVkhXMTk3ZlIyc3NJLzFNZEpRMm9N?=
- =?utf-8?B?Ni8vTm9KRnJUY0Y1Vk9ycyt0d3pIV3lVK0tEcWx4SUU1ZHBMWEs3bGh3VDZV?=
- =?utf-8?B?T2NhaDJTUzQxcFp4QnNTU0FIWFFnREhNckpoa1pQdHBUaXJ0QTA5Nnk4NjJP?=
- =?utf-8?B?eWZoc1cxeGRhWCtzVTdyS1dZRXVIbjR0ZDhOVElBNXF4MXVrK1VDSmFxU0gx?=
- =?utf-8?B?dFZiSUFWd0paTVIwanhvRWN6c1RmVzdselVNY1VzeGN0am0xQ3RnN3M1TEhQ?=
- =?utf-8?B?RmRWVkVuQTh5R2VxMjI2WW5SQ1B0cVd0V2F4V1Rkd2pvb1F4YnZuL2R3VVBV?=
- =?utf-8?B?MmgzUGhTUHlQUCtxVjliY1NEMmVyS29oMW9TSGY0NE1JSjZySm1Ua1RKK0ty?=
- =?utf-8?B?a1FZR2xoSmNpSU9qeTQyUTVmSDhmZTgyVW1CY0I5eUJGVk9taFQ2RllHT2lY?=
- =?utf-8?B?T2VqMk5iUm9Oc0lJVm16WEtwUzloZnNnZFo1UktwSG53eGJHaWp6YkdhWFVM?=
- =?utf-8?B?dkpBS3ZLbmx1SE1Mc3ArZndsd3Y3ODV1aTlNQlJtNWhaSDRPYmZKR0ZHUVcz?=
- =?utf-8?B?Z3FzTTQ4TE1WcUdJbUJGSEpFdXpCRkRBSzlDUldHQ3dGZHhWM1BqSFM1dThP?=
- =?utf-8?B?bnhXTXRQMTNwRTR3MHVnVDBRb1NSMHBwWW5TNHhZNFZaZkM4REZ6OG9HRUc5?=
- =?utf-8?B?K3NFRUhHbER4RUZORUJ0TGtYanBDQmpkUWJ5U1NUbGV6Tzl4NDhTYWFUVjl5?=
- =?utf-8?B?NEJqSDA3NktXZEJocU83NG9HRGlMNTVVQTQrempuTUo5NGhXTk1XbklXNkpD?=
- =?utf-8?B?UDhyMFUxVE9sZStSTkRxdkpYMGRlbXVRZnNtY0RRbTdOeHE1a1E1aDdvVzlx?=
- =?utf-8?B?eEF4Z29oMHROeWxVKzJlLy81aGhhbGkvdGFiaXFnYkV6cDhvZjQ5UUZXbnc0?=
- =?utf-8?B?eUI5NXhWVUNIOUxqaE5QUWJ6VWlJTmVJV2htRXRXMkwzekNyZmIvUnkvckhQ?=
- =?utf-8?B?bWc0R0RMMGEzbWdGQlNLc1lWL1gxWnUwczdpcThkWVN2UDdjSWFhWUxVUTNI?=
- =?utf-8?B?Q1dSZk9ZbWFjR3JPOVE4UmlDbFNac0RLNmVnN0FKRzBzVVZaM0w5ajNFcHNz?=
- =?utf-8?B?VC84Vk5qVHVORWFzaXNMek1JM0hSWXl2SVdJZTVvUG01U3hnMFA3bkV5L2Zt?=
- =?utf-8?B?YWdGL3V3dE10WHF6T0ptZURncVdYTk92Zk1IbE56SzM1WGREWE1qSkpZOUxU?=
- =?utf-8?B?bTRiVEZPTEducE94ODZjRnRzaW5TMjFtU3A3MDhiZ3ZZZ2hLQjlxS3JSM3Bi?=
- =?utf-8?B?aWh6Mk1aamZhMzF3a1JlT21DZERWb0Q3dUF4YkJubjdYZTE1ZHNpZGhyUzFD?=
- =?utf-8?B?ZGNMSGFnK3liQXJjc2QwNWRBUzZHKzVmbjFVN0JwNnE3blRQNE9mNzJ5ZUdn?=
- =?utf-8?B?UHlGZWZDOXhoTkFkZnVOK2xYdWZhMHloejlWR0lSQkJNWU5ZTnJ5eHltZmpP?=
- =?utf-8?B?TU9OOEY1S0JmMHBwOFc0N3BhUUozMmN3SFhOOUp6L2ViVzZhaTMxNlNqb2pp?=
- =?utf-8?B?cWltVkNtcHlFRFBhN1JPdjdNd3M1dzFobHVHUHltYm9aWmRGemFHOVFoWDVv?=
- =?utf-8?B?MjBSUi9QQisxdHdLQU1tdFc4S25GZkVJNWoveFZTcnVDZzVUNSt2REEvQ2Iv?=
- =?utf-8?B?QTVEaFNnQ0xFTmxHd2hPUXc5cmd0RWRGTjAyajZpMm54OXY2YTFxbnJjSHF0?=
- =?utf-8?B?WG5MQ2s0UnpRcUl1NnBqc2ladkp1Nkd0M2t0MSthK3BDZFJLWThjdHEzd0Js?=
- =?utf-8?B?ZWJqUm5Pc28xWHJueFQ4cTl3SnZKUzlGamVBUGIvcmVuU0ZLajQrelFUd0tt?=
- =?utf-8?Q?/0Kxllksrr6U3Qb4Z5x5yrq7D?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7a28ce12-3304-42d0-14ff-08dc219f0ce3
-X-MS-Exchange-CrossTenant-AuthSource: PH7PR12MB5685.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Jan 2024 14:23:38.0988
+	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230031)(4636009)(39860400002)(376002)(396003)(346002)(136003)(230922051799003)(82310400011)(186009)(451199024)(1800799012)(64100799003)(40470700004)(36840700001)(46966006)(36860700001)(47076005)(316002)(83380400001)(36756003)(70586007)(6916009)(54906003)(7696005)(70206006)(86362001)(8936002)(8676002)(26005)(478600001)(107886003)(4326008)(6666004)(1076003)(2906002)(336012)(426003)(5660300002)(2616005)(41300700001)(40480700001)(40460700003)(82740400003)(7636003)(356005);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Jan 2024 14:25:49.1359
  (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 9BlaZ5zjhSUllO4p/bu5IOLJT89t2qqcCUbT8FR4A5tUiJlUW/NuxeBK5cMpEnVX
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR12MB4993
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2e2a1877-e509-4cd1-30c3-08dc219f5b31
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	BN3PEPF0000B077.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB7632
 
-Am 30.01.24 um 12:16 schrieb Daniel Vetter:
-> On Tue, Jan 30, 2024 at 12:10:31PM +0100, Daniel Vetter wrote:
->> On Mon, Jan 29, 2024 at 06:31:19PM +0800, Julia Zhang wrote:
->>> As vram objects don't have backing pages and thus can't implement
->>> drm_gem_object_funcs.get_sg_table callback. This removes drm dma-buf
->>> callbacks in virtgpu_gem_map_dma_buf()/virtgpu_gem_unmap_dma_buf()
->>> and implement virtgpu specific map/unmap/attach callbacks to support
->>> both of shmem objects and vram objects.
->>>
->>> Signed-off-by: Julia Zhang <julia.zhang@amd.com>
->>> ---
->>>   drivers/gpu/drm/virtio/virtgpu_prime.c | 40 +++++++++++++++++++++++---
->>>   1 file changed, 36 insertions(+), 4 deletions(-)
->>>
->>> diff --git a/drivers/gpu/drm/virtio/virtgpu_prime.c b/drivers/gpu/drm/virtio/virtgpu_prime.c
->>> index 44425f20d91a..b490a5343b06 100644
->>> --- a/drivers/gpu/drm/virtio/virtgpu_prime.c
->>> +++ b/drivers/gpu/drm/virtio/virtgpu_prime.c
->>> @@ -49,11 +49,26 @@ virtgpu_gem_map_dma_buf(struct dma_buf_attachment *attach,
->>>   {
->>>   	struct drm_gem_object *obj = attach->dmabuf->priv;
->>>   	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
->>> +	struct sg_table *sgt;
->>> +	int ret;
->>>   
->>>   	if (virtio_gpu_is_vram(bo))
->>>   		return virtio_gpu_vram_map_dma_buf(bo, attach->dev, dir);
->>>   
->>> -	return drm_gem_map_dma_buf(attach, dir);
->>> +	sgt = drm_prime_pages_to_sg(obj->dev,
->>> +				    to_drm_gem_shmem_obj(obj)->pages,
->>> +				    obj->size >> PAGE_SHIFT);
->>> +	if (IS_ERR(sgt))
->>> +		return sgt;
->>> +
->>> +	ret = dma_map_sgtable(attach->dev, sgt, dir, DMA_ATTR_SKIP_CPU_SYNC);
->>> +	if (ret) {
->>> +		sg_free_table(sgt);
->>> +		kfree(sgt);
->>> +		return ERR_PTR(ret);
->>> +	}
->>> +
->>> +	return sgt;
->>>   }
->>>   
->>>   static void virtgpu_gem_unmap_dma_buf(struct dma_buf_attachment *attach,
->>> @@ -63,12 +78,29 @@ static void virtgpu_gem_unmap_dma_buf(struct dma_buf_attachment *attach,
->>>   	struct drm_gem_object *obj = attach->dmabuf->priv;
->>>   	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
->>>   
->>> +	if (!sgt)
->>> +		return;
->>> +
->>>   	if (virtio_gpu_is_vram(bo)) {
->>>   		virtio_gpu_vram_unmap_dma_buf(attach->dev, sgt, dir);
->>> -		return;
->>> +	} else {
->>> +		dma_unmap_sgtable(attach->dev, sgt, dir, DMA_ATTR_SKIP_CPU_SYNC);
->>> +		sg_free_table(sgt);
->>> +		kfree(sgt);
->>>   	}
->>> +}
->>> +
->>> +static int virtgpu_gem_device_attach(struct dma_buf *dma_buf,
->>> +				     struct dma_buf_attachment *attach)
->>> +{
->>> +	struct drm_gem_object *obj = attach->dmabuf->priv;
->>> +	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
->>> +	int ret = 0;
->>> +
->>> +	if (!virtio_gpu_is_vram(bo) && obj->funcs->pin)
->>> +		ret = obj->funcs->pin(obj);
->>>   
->>> -	drm_gem_unmap_dma_buf(attach, sgt, dir);
->>> +	return ret;
->> This doesn't look like what I've expected. There should be no need to
->> change the map/unmap functions, especially not for the usual gem bo case.
->> We should definitely keep using the exact same code for that. Instead all
->> I expected is roughly
->>
->> virtgpu_gem_device_attach()
->> {
->> 	if (virtio_gpu_is_vram(bo)) {
->> 		if (can_access_virtio_vram_directly(attach->dev)
->> 			return 0;
->> 		else
->> 			return -EBUSY;
->> 	} else {
->> 		return drm_gem_map_attach();
->> 	}
->> }
->>
->> Note that I think can_access_virtio_vram_directly() needs to be
->> implemented first. I'm not even sure it's possible, might be that all the
->> importers need to set the attachment->peer2peer flag. Which is why this
->> thing exists really. But that's a pile more work to do.
+Add a tx queue stop and wake counters, they are useful for debugging.
 
-Yeah, that is really just speculative. All importers need to set the 
-peer2peer flag just in case.
+	$ ethtool -S ens5f2 | grep 'tx_stop\|tx_wake'
+	...
+	tx_queue_1_tx_stop: 16726
+	tx_queue_1_tx_wake: 16726
+	...
+	tx_queue_8_tx_stop: 1500110
+	tx_queue_8_tx_wake: 1500110
 
-What happens under the hood is that IOMMU redirects the "VRAM" memory 
-access to whatever address the DMA-buf on the host is pointing to 
-(system, VRAM, doorbell, IOMMU, whatever).
+Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
+Reviewed-by: Parav Pandit <parav@nvidia.com>
+---
+ drivers/net/virtio_net.c | 26 ++++++++++++++++++++++++--
+ 1 file changed, 24 insertions(+), 2 deletions(-)
 
-I'm also not 100% sure if all the cache snooping is done correctly in 
-all cases, but for now it seems to work.
-
->>
->> Frankly the more I look at the original patch that added vram export
->> support the more this just looks like a "pls revert, this is just too
->> broken".
-> The commit I mean is this one: ea5ea3d8a117 ("drm/virtio: support mapping
-> exported vram"). The commit message definitely needs to cite that one, and
-> also needs a cc: stable because not rejecting invalid imports is a pretty
-> big deal.
-
-Yeah, I've pointed out that commit in an internal discussion as well. I 
-was just not aware that it's that severely broken.
-
-Regards,
-Christian.
-
->
-> Also adding David.
-> -Sima
->
->> We should definitely not open-code any functions for the gem_bo export
->> case, which your patch seems to do? Or maybe I'm just extremely confused.
->> -Sima
->>
->>>   
->>>   static const struct virtio_dma_buf_ops virtgpu_dmabuf_ops =  {
->>> @@ -83,7 +115,7 @@ static const struct virtio_dma_buf_ops virtgpu_dmabuf_ops =  {
->>>   		.vmap = drm_gem_dmabuf_vmap,
->>>   		.vunmap = drm_gem_dmabuf_vunmap,
->>>   	},
->>> -	.device_attach = drm_gem_map_attach,
->>> +	.device_attach = virtgpu_gem_device_attach,
->>>   	.get_uuid = virtgpu_virtio_get_uuid,
->>>   };
->>>   
->>> -- 
->>> 2.34.1
->>>
->> -- 
->> Daniel Vetter
->> Software Engineer, Intel Corporation
->> http://blog.ffwll.ch
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 3cb8aa193884..7e3c31ceaf7e 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -88,6 +88,8 @@ struct virtnet_sq_stats {
+ 	u64_stats_t xdp_tx_drops;
+ 	u64_stats_t kicks;
+ 	u64_stats_t tx_timeouts;
++	u64_stats_t tx_stop;
++	u64_stats_t tx_wake;
+ };
+ 
+ struct virtnet_rq_stats {
+@@ -112,6 +114,8 @@ static const struct virtnet_stat_desc virtnet_sq_stats_desc[] = {
+ 	{ "xdp_tx_drops",	VIRTNET_SQ_STAT(xdp_tx_drops) },
+ 	{ "kicks",		VIRTNET_SQ_STAT(kicks) },
+ 	{ "tx_timeouts",	VIRTNET_SQ_STAT(tx_timeouts) },
++	{ "tx_stop",		VIRTNET_SQ_STAT(tx_stop) },
++	{ "tx_wake",		VIRTNET_SQ_STAT(tx_wake) },
+ };
+ 
+ static const struct virtnet_stat_desc virtnet_rq_stats_desc[] = {
+@@ -843,6 +847,9 @@ static void check_sq_full_and_disable(struct virtnet_info *vi,
+ 	 */
+ 	if (sq->vq->num_free < 2+MAX_SKB_FRAGS) {
+ 		netif_stop_subqueue(dev, qnum);
++		u64_stats_update_begin(&sq->stats.syncp);
++		u64_stats_inc(&sq->stats.tx_stop);
++		u64_stats_update_end(&sq->stats.syncp);
+ 		if (use_napi) {
+ 			if (unlikely(!virtqueue_enable_cb_delayed(sq->vq)))
+ 				virtqueue_napi_schedule(&sq->napi, sq->vq);
+@@ -851,6 +858,9 @@ static void check_sq_full_and_disable(struct virtnet_info *vi,
+ 			free_old_xmit_skbs(sq, false);
+ 			if (sq->vq->num_free >= 2+MAX_SKB_FRAGS) {
+ 				netif_start_subqueue(dev, qnum);
++				u64_stats_update_begin(&sq->stats.syncp);
++				u64_stats_inc(&sq->stats.tx_wake);
++				u64_stats_update_end(&sq->stats.syncp);
+ 				virtqueue_disable_cb(sq->vq);
+ 			}
+ 		}
+@@ -2163,8 +2173,14 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
+ 			free_old_xmit_skbs(sq, true);
+ 		} while (unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
+ 
+-		if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
++		if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS) {
++			if (netif_tx_queue_stopped(txq)) {
++				u64_stats_update_begin(&sq->stats.syncp);
++				u64_stats_inc(&sq->stats.tx_wake);
++				u64_stats_update_end(&sq->stats.syncp);
++			}
+ 			netif_tx_wake_queue(txq);
++		}
+ 
+ 		__netif_tx_unlock(txq);
+ 	}
+@@ -2310,8 +2326,14 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
+ 	virtqueue_disable_cb(sq->vq);
+ 	free_old_xmit_skbs(sq, true);
+ 
+-	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
++	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS) {
++		if (netif_tx_queue_stopped(txq)) {
++			u64_stats_update_begin(&sq->stats.syncp);
++			u64_stats_inc(&sq->stats.tx_wake);
++			u64_stats_update_end(&sq->stats.syncp);
++		}
+ 		netif_tx_wake_queue(txq);
++	}
+ 
+ 	opaque = virtqueue_enable_cb_prepare(sq->vq);
+ 
+-- 
+2.42.0
 
