@@ -1,30 +1,30 @@
-Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A26F67E8B
-	for <virtualization@lists.linux.dev>; Tue, 30 Jan 2024 11:42:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F479679F4
+	for <virtualization@lists.linux.dev>; Tue, 30 Jan 2024 11:42:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706614954; cv=none; b=euW5nYcgv6FzXH0iRX1JIzw3tjik3zlYruUtErbM5vOJoeKh7VrTpW8h5c4HU+/oD5oexvVW5JR+lfCIjX9u5i+mwUyd+c4+iJcVKC52DalayEPdHRRpf5YZSjzVyNUHdDjwLI4JuBv2u4l6EP/5TUMEpRHJ+3uWOWDJsTAx+OQ=
+	t=1706614959; cv=none; b=VlwuBCh9YhoreLxS3dCk2IKxQPI0HU8P7CVzCSeEV6bZeEWgoTCvjjJvynt1gGEmgervsluT3tmm+R4gpSIGhlsQoUfr9BfJ2vm4qq0JyAWVIVceZnuwjTDhPZwswQetOg+FNr5sIqhFeNuGrK/BXWsI21CXHgTDYt3yXZr6WTk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706614954; c=relaxed/simple;
-	bh=w7D3FAxacz1cRePcp5nH/LN7vWiwihTU58oyIbIbYOM=;
+	s=arc-20240116; t=1706614959; c=relaxed/simple;
+	bh=csVqBjWHLd0wx8pt5oq5iqtKVwsT+VuwzwY4U+gqvHU=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=tePJOQSJVmsGhavTGu59tETbmp+9zFqlOaEoLvjqVG1w6ulk4CkOQMqX9ageHSrn8g+hodQRCggFz9h0fgP8I79i5veEfxcP1sCV9BZqyHXw5gi+EWlPU6UlOiAWg36rHJA22mnOpFg78aI8ecG/OxuIQHzEMIFRf39BHhltFeo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=l/ZB2OuE; arc=none smtp.client-ip=115.124.30.112
+	 MIME-Version; b=V/Dw9SAtdM9hKB8AOvCku12ZflzQ5SNhsFxFULgoOxhjeY5wI73HOEM7QjtdZ1S81Z/jIJZcil034z8611Ia2Ws5WCfU/DakHEjB0zVvEBWyeN0fK1FgyI2zLZuj339hikJwfH7+as+NIeLqDWhDmFPJcwP8Kny2k4g0qeiNWhQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=waRqZJAk; arc=none smtp.client-ip=115.124.30.98
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="l/ZB2OuE"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="waRqZJAk"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1706614949; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=HjElYrqlM2BjB7Xez3T79umxevfUAwxmJHZN/Z/xJIo=;
-	b=l/ZB2OuEGYgssJk5UWUBF7Ogqdf5cVjbhQwlPdM1+UGWfEiJkjWZsYRK4YMJWmmL39kJsw9lSGl87n9hOeAfw6NI3Hk3K6Y3c3BZHd+e670/HOsDXIbuAlRMi/RKya4UkULU6sPTs56sBtNeroi3ET9nhNr+CFWYtXtacxT3a+w=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R311e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0W.g4wLD_1706614946;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W.g4wLD_1706614946)
+	t=1706614955; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=HrZuvU9yrR6T2DolteXZPfHuA2cDqF8W4GegYsiFG0w=;
+	b=waRqZJAkw3076ORbKqLCTX2YECbIgj8gAfoXoZQIKnVsTMNdDhw9c09kTEnnsV4zZpoUt1vMpLFLNtYgeaR2sPp7XkO8ERG14xWe61ATi1qJVrEvM7PqdoGcV+VMFYVN/OYnpJ7A6omBBJ6RCzid71QpdwFM2J4/ftXa/JNW9iA=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0W.g4wMQ_1706614951;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W.g4wMQ_1706614951)
           by smtp.aliyun-inc.com;
-          Tue, 30 Jan 2024 19:42:27 +0800
+          Tue, 30 Jan 2024 19:42:32 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: virtualization@lists.linux.dev
 Cc: Richard Weinberger <richard@nod.at>,
@@ -63,9 +63,9 @@ Cc: Richard Weinberger <richard@nod.at>,
 	linux-s390@vger.kernel.org,
 	kvm@vger.kernel.org,
 	bpf@vger.kernel.org
-Subject: [PATCH vhost 01/17] virtio_ring: introduce vring_need_unmap_buffer
-Date: Tue, 30 Jan 2024 19:42:08 +0800
-Message-Id: <20240130114224.86536-2-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH vhost 04/17] virtio_ring: split: remove double check of the unmap ops
+Date: Tue, 30 Jan 2024 19:42:11 +0800
+Message-Id: <20240130114224.86536-5-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20240130114224.86536-1-xuanzhuo@linux.alibaba.com>
 References: <20240130114224.86536-1-xuanzhuo@linux.alibaba.com>
@@ -78,161 +78,170 @@ MIME-Version: 1.0
 X-Git-Hash: 239d1d475be4
 Content-Transfer-Encoding: 8bit
 
-To make the code readable, introduce vring_need_unmap_buffer() to
-replace do_unmap.
+In the functions vring_unmap_one_split and
+vring_unmap_one_split_indirect,
+multiple checks are made whether unmap is performed and whether it is
+INDIRECT.
 
-   use_dma_api premapped -> vring_need_unmap_buffer()
-1. false       false        false
-2. true        false        true
-3. true        true         false
+These two functions are usually called in a loop, and we should put the
+check outside the loop.
+
+And we unmap the descs with VRING_DESC_F_INDIRECT on the same path with
+other descs, that make the thing more complex. If we distinguish the
+descs with VRING_DESC_F_INDIRECT before unmap, thing will be clearer.
+
+1. only one desc of the desc table is used, we do not need the loop
+2. the called unmap api is difference from the other desc
+3. the vq->premapped is not needed to check
+4. the vq->indirect is not needed to check
+5. the state->indir_desc must not be null
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- drivers/virtio/virtio_ring.c | 33 +++++++++++++++------------------
- 1 file changed, 15 insertions(+), 18 deletions(-)
+ drivers/virtio/virtio_ring.c | 80 ++++++++++++++++++------------------
+ 1 file changed, 39 insertions(+), 41 deletions(-)
 
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 49299b1f9ec7..4677831e6c26 100644
+index dd03bc5a81fe..2b41fdbce975 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -175,11 +175,6 @@ struct vring_virtqueue {
- 	/* Do DMA mapping by driver */
- 	bool premapped;
+@@ -452,9 +452,6 @@ static void vring_unmap_one_split_indirect(const struct vring_virtqueue *vq,
+ {
+ 	u16 flags;
  
--	/* Do unmap or not for desc. Just when premapped is False and
--	 * use_dma_api is true, this is true.
--	 */
--	bool do_unmap;
+-	if (!vring_need_unmap_buffer(vq))
+-		return;
 -
- 	/* Head of free buffer list. */
- 	unsigned int free_head;
- 	/* Number we've added since last sync. */
-@@ -297,6 +292,11 @@ static bool vring_use_dma_api(const struct virtio_device *vdev)
- 	return false;
+ 	flags = virtio16_to_cpu(vq->vq.vdev, desc->flags);
+ 
+ 	dma_unmap_page(vring_dma_dev(vq),
+@@ -472,27 +469,12 @@ static unsigned int vring_unmap_one_split(const struct vring_virtqueue *vq,
+ 
+ 	flags = extra[i].flags;
+ 
+-	if (flags & VRING_DESC_F_INDIRECT) {
+-		if (!vq->use_dma_api)
+-			goto out;
+-
+-		dma_unmap_single(vring_dma_dev(vq),
+-				 extra[i].addr,
+-				 extra[i].len,
+-				 (flags & VRING_DESC_F_WRITE) ?
+-				 DMA_FROM_DEVICE : DMA_TO_DEVICE);
+-	} else {
+-		if (!vring_need_unmap_buffer(vq))
+-			goto out;
+-
+-		dma_unmap_page(vring_dma_dev(vq),
+-			       extra[i].addr,
+-			       extra[i].len,
+-			       (flags & VRING_DESC_F_WRITE) ?
+-			       DMA_FROM_DEVICE : DMA_TO_DEVICE);
+-	}
++	dma_unmap_page(vring_dma_dev(vq),
++		       extra[i].addr,
++		       extra[i].len,
++		       (flags & VRING_DESC_F_WRITE) ?
++		       DMA_FROM_DEVICE : DMA_TO_DEVICE);
+ 
+-out:
+ 	return extra[i].next;
  }
  
-+static bool vring_need_unmap_buffer(const struct vring_virtqueue *vring)
-+{
-+	return vring->use_dma_api && !vring->premapped;
-+}
+@@ -660,7 +642,7 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+ 			vq, desc, total_sg * sizeof(struct vring_desc),
+ 			DMA_TO_DEVICE);
+ 		if (vring_mapping_error(vq, addr)) {
+-			if (vq->premapped)
++			if (!vring_need_unmap_buffer(vq))
+ 				goto free_indirect;
+ 
+ 			goto unmap_release;
+@@ -713,6 +695,9 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+ 	return 0;
+ 
+ unmap_release:
 +
- size_t virtio_max_dma_size(const struct virtio_device *vdev)
++	WARN_ON(!vring_need_unmap_buffer(vq));
++
+ 	err_idx = i;
+ 
+ 	if (indirect)
+@@ -774,34 +759,42 @@ static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
  {
- 	size_t max_segment_size = SIZE_MAX;
-@@ -445,7 +445,7 @@ static void vring_unmap_one_split_indirect(const struct vring_virtqueue *vq,
- {
- 	u16 flags;
+ 	unsigned int i, j;
+ 	__virtio16 nextflag = cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_NEXT);
++	u16 flags;
  
--	if (!vq->do_unmap)
-+	if (!vring_need_unmap_buffer(vq))
- 		return;
+ 	/* Clear data ptr. */
+ 	vq->split.desc_state[head].data = NULL;
++	flags = vq->split.desc_extra[head].flags;
  
- 	flags = virtio16_to_cpu(vq->vq.vdev, desc->flags);
-@@ -475,7 +475,7 @@ static unsigned int vring_unmap_one_split(const struct vring_virtqueue *vq,
- 				 (flags & VRING_DESC_F_WRITE) ?
- 				 DMA_FROM_DEVICE : DMA_TO_DEVICE);
- 	} else {
--		if (!vq->do_unmap)
-+		if (!vring_need_unmap_buffer(vq))
- 			goto out;
+ 	/* Put back on free list: unmap first-level descriptors and find end */
+ 	i = head;
  
- 		dma_unmap_page(vring_dma_dev(vq),
-@@ -643,7 +643,7 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+-	while (vq->split.vring.desc[i].flags & nextflag) {
+-		vring_unmap_one_split(vq, i);
+-		i = vq->split.desc_extra[i].next;
+-		vq->vq.num_free++;
+-	}
+-
+-	vring_unmap_one_split(vq, i);
+-	vq->split.desc_extra[i].next = vq->free_head;
+-	vq->free_head = head;
++	if (!(flags & VRING_DESC_F_INDIRECT)) {
++		while (vq->split.vring.desc[i].flags & nextflag) {
++			if (vring_need_unmap_buffer(vq))
++				vring_unmap_one_split(vq, i);
++			i = vq->split.desc_extra[i].next;
++			vq->vq.num_free++;
++		}
+ 
+-	/* Plus final descriptor */
+-	vq->vq.num_free++;
++		if (vring_need_unmap_buffer(vq))
++			vring_unmap_one_split(vq, i);
+ 
+-	if (vq->indirect) {
++		if (ctx)
++			*ctx = vq->split.desc_state[head].indir_desc;
++	} else {
+ 		struct vring_desc *indir_desc =
+ 				vq->split.desc_state[head].indir_desc;
+ 		u32 len;
+ 
+-		/* Free the indirect table, if any, now that it's unmapped. */
+-		if (!indir_desc)
+-			return;
++		if (vq->use_dma_api) {
++			struct vring_desc_extra *extra = vq->split.desc_extra;
++
++			dma_unmap_single(vring_dma_dev(vq),
++					 extra[i].addr,
++					 extra[i].len,
++					 (flags & VRING_DESC_F_WRITE) ?
++					 DMA_FROM_DEVICE : DMA_TO_DEVICE);
++		}
+ 
+ 		len = vq->split.desc_extra[head].len;
+ 
+@@ -816,9 +809,14 @@ static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
+ 
+ 		kfree(indir_desc);
+ 		vq->split.desc_state[head].indir_desc = NULL;
+-	} else if (ctx) {
+-		*ctx = vq->split.desc_state[head].indir_desc;
++
  	}
- 	/* Last one doesn't continue. */
- 	desc[prev].flags &= cpu_to_virtio16(_vq->vdev, ~VRING_DESC_F_NEXT);
--	if (!indirect && vq->do_unmap)
-+	if (!indirect && vring_need_unmap_buffer(vq))
- 		vq->split.desc_extra[prev & (vq->split.vring.num - 1)].flags &=
- 			~VRING_DESC_F_NEXT;
++
++	vq->split.desc_extra[i].next = vq->free_head;
++	vq->free_head = head;
++
++	/* Plus final descriptor */
++	vq->vq.num_free++;
+ }
  
-@@ -802,7 +802,7 @@ static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
- 				VRING_DESC_F_INDIRECT));
- 		BUG_ON(len == 0 || len % sizeof(struct vring_desc));
- 
--		if (vq->do_unmap) {
-+		if (vring_need_unmap_buffer(vq)) {
- 			for (j = 0; j < len / sizeof(struct vring_desc); j++)
- 				vring_unmap_one_split_indirect(vq, &indir_desc[j]);
- 		}
-@@ -1236,7 +1236,7 @@ static void vring_unmap_extra_packed(const struct vring_virtqueue *vq,
- 				 (flags & VRING_DESC_F_WRITE) ?
- 				 DMA_FROM_DEVICE : DMA_TO_DEVICE);
- 	} else {
--		if (!vq->do_unmap)
-+		if (!vring_need_unmap_buffer(vq))
- 			return;
- 
- 		dma_unmap_page(vring_dma_dev(vq),
-@@ -1251,7 +1251,7 @@ static void vring_unmap_desc_packed(const struct vring_virtqueue *vq,
- {
- 	u16 flags;
- 
--	if (!vq->do_unmap)
-+	if (!vring_need_unmap_buffer(vq))
- 		return;
- 
- 	flags = le16_to_cpu(desc->flags);
-@@ -1340,7 +1340,7 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
- 				sizeof(struct vring_packed_desc));
- 	vq->packed.vring.desc[head].id = cpu_to_le16(id);
- 
--	if (vq->do_unmap) {
-+	if (vring_need_unmap_buffer(vq)) {
- 		vq->packed.desc_extra[id].addr = addr;
- 		vq->packed.desc_extra[id].len = total_sg *
- 				sizeof(struct vring_packed_desc);
-@@ -1481,7 +1481,7 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
- 			desc[i].len = cpu_to_le32(sg->length);
- 			desc[i].id = cpu_to_le16(id);
- 
--			if (unlikely(vq->do_unmap)) {
-+			if (unlikely(vring_need_unmap_buffer(vq))) {
- 				vq->packed.desc_extra[curr].addr = addr;
- 				vq->packed.desc_extra[curr].len = sg->length;
- 				vq->packed.desc_extra[curr].flags =
-@@ -1615,7 +1615,7 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
- 	vq->free_head = id;
- 	vq->vq.num_free += state->num;
- 
--	if (unlikely(vq->do_unmap)) {
-+	if (unlikely(vring_need_unmap_buffer(vq))) {
- 		curr = id;
- 		for (i = 0; i < state->num; i++) {
- 			vring_unmap_extra_packed(vq,
-@@ -1632,7 +1632,7 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
- 		if (!desc)
- 			return;
- 
--		if (vq->do_unmap) {
-+		if (vring_need_unmap_buffer(vq)) {
- 			len = vq->packed.desc_extra[id].len;
- 			for (i = 0; i < len / sizeof(struct vring_packed_desc);
- 					i++)
-@@ -2091,7 +2091,6 @@ static struct virtqueue *vring_create_virtqueue_packed(
- 	vq->dma_dev = dma_dev;
- 	vq->use_dma_api = vring_use_dma_api(vdev);
- 	vq->premapped = false;
--	vq->do_unmap = vq->use_dma_api;
- 
- 	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
- 		!context;
-@@ -2636,7 +2635,6 @@ static struct virtqueue *__vring_new_virtqueue(unsigned int index,
- 	vq->dma_dev = dma_dev;
- 	vq->use_dma_api = vring_use_dma_api(vdev);
- 	vq->premapped = false;
--	vq->do_unmap = vq->use_dma_api;
- 
- 	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
- 		!context;
-@@ -2804,7 +2802,6 @@ int virtqueue_set_dma_premapped(struct virtqueue *_vq)
- 	}
- 
- 	vq->premapped = true;
--	vq->do_unmap = false;
- 
- 	END_USE(vq);
- 
+ static bool more_used_split(const struct vring_virtqueue *vq)
 -- 
 2.32.0.3.g01195cf9f
 
