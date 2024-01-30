@@ -1,281 +1,191 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17D0367E79
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jan 2024 11:53:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706615602; cv=none; b=tOAgoZH/r4Zvw4BchYVXX3/Q2tgDj6utnJeOG5snyT2w8ff7h4Qd8Grn9gYj2DM/q5Kdjvo4Nhmsqrg4g625y+q6mZQEL/NzqlT2L67MUw3idayfVpbsid02pVunA2jP8EvwB/OueZsmv3LPm35G1QexQ0eNfc9X+9fsMqN96fw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706615602; c=relaxed/simple;
-	bh=JztyLydpOvMohc+UwTatWh0c53pEslI4RUN5TBcmW2Q=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=M2lyIGEenbtee0NcGWvg0pUgNUryy/4Ztkl9NaTFxPlxas032FHEDVL81HWWVz0dDUp4xcuMMKMO2t6sqkJZrLKw4VHcG44EKRMmaQkkln1G7Zo/y8p49y2lQZft6eJECu36lhoq7sG96ceLOqNB2uobmso2mm3ga9a6uP3IeeU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=jYQXXq+I; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17D096775E
+	for <virtualization@lists.linux.dev>; Tue, 30 Jan 2024 12:15:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.177.32
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1706616911; cv=fail; b=lqkb8zRGzat0nwamP2oLzgITDAe5Q+moBbz914fKkfxk8+cIU92M8VBTpzES52cIppccsq3fShu1ABAb3bc33ca/ESkCXT9su/5DtL2msHrQRm1Am0KNnEfJ24xYvrzL+8RWy52T/JBLPufI5LSR2omAjJmTZFEYOidQ+qc6RTA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1706616911; c=relaxed/simple;
+	bh=sp+uLO8sFPU2f/IbOsuN7k/jA5VGhglRfKf4RSh2wro=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=py2na9V/StwgbdF/NUzsr5yT6L1pImgDrRPWvx+YV1lrBJAflJeisDFZlxFdyW11M4m2LQ+eKFdw67plWnFjlq2SOdGIEEnoFYJyxZ2NNBiD7rreJ6BsyQXERquoYv7Mstm4JXS+3s9PIkQQf9vicPbCwA3jU85mgk4UL1i75Sg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=DjOY1DxF; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=XdXCyFBb; arc=fail smtp.client-ip=205.220.177.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="jYQXXq+I"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id A49934152D
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jan 2024 11:53:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A49934152D
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=jYQXXq+I
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -17.5
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id iYCpt1ub1Vu3
-	for <virtualization@lists.linux-foundation.org>;
-	Tue, 30 Jan 2024 11:53:18 +0000 (UTC)
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 6DB42414E2
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jan 2024 11:53:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6DB42414E2
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1706615593; h=Message-ID:Subject:Date:From:To;
-	bh=q2JRxgqAQrdi04QI4nuksa65Pz4ECDDuDGAQKGPG6hQ=;
-	b=jYQXXq+IHve6JxgEzbsUxa3PuYIMcfe28BwT9vJgwXqNm8pHSPOqgjko9mkE8Xr1QLvbvkRgTR32MV1MwEaFiPZuaIP5DulQvcLrKR1KEzGbuK6Roi8GsOO7xft3sZP9OirDHmnd0Md3fhNybap8kcmQnq+orbbjksjuLB5gb58=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R321e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0W.g5LPL_1706615590;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W.g5LPL_1706615590)
-          by smtp.aliyun-inc.com;
-          Tue, 30 Jan 2024 19:53:11 +0800
-Message-ID: <1706615528.9879212-2-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH v3] virtio_net: Support RX hash XDP hint
-Date: Tue, 30 Jan 2024 19:52:08 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Liang Chen <liangchen.linux@gmail.com>
-Cc: virtualization@lists.linux-foundation.org,
- linux-kernel@vger.kernel.org,
- liangchen.linux@gmail.com,
- mst@redhat.com,
- jasowang@redhat.com,
- hengqi@linux.alibaba.com
-References: <20240125101912.60346-1-liangchen.linux@gmail.com>
-In-Reply-To: <20240125101912.60346-1-liangchen.linux@gmail.com>
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="DjOY1DxF";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="XdXCyFBb"
+Received: from pps.filterd (m0333520.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40UC9xQY006576;
+	Tue, 30 Jan 2024 12:14:48 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=corp-2023-11-20;
+ bh=kgpFdSZRiKGy2F3j5c8cDmtgkXg/2ZHylmFMGYs6ClA=;
+ b=DjOY1DxF8Int4pVN+cur9t5mSsBNGbfFl7PIwQrHTHPldAmmVKmdtrHpMyI2aBwQIr2g
+ XBdnfcnQN1m9n6BEBMYyWYhxdKbm8ZhMnAtvOxlqa9TTSnFF0FCbdeaap0wUcumPy1Eg
+ Cba0Bh1laoGF6EcGLioC/50ZDxT0odSHU4t2WEiXSQtclhtm/P//StvkqKjhvZ98wlFE
+ feTYkG1h7AcCOKgO/Q5JTybaoS3wCdn3lym4P11MyK0DAq9c6OJScJnvcf2gLO1Ao44S
+ 48evVYATTRffPRx1tfFSj2CWOUL6VskWglqoeItqRv/YLn2Xz6Z7g7s3jiQrcwlL/s11 UQ== 
+Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3vvsvdpjv6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 30 Jan 2024 12:14:48 +0000
+Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 40UC9CZV014551;
+	Tue, 30 Jan 2024 12:14:47 GMT
+Received: from nam12-mw2-obe.outbound.protection.outlook.com (mail-mw2nam12lp2041.outbound.protection.outlook.com [104.47.66.41])
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3vvr971nv9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 30 Jan 2024 12:14:47 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=hTEJk7adc86kJqcHf/40Vny2CCIjspkAWIIOrambFamJiUCm9vMHQUl37GM+9uU4n+SO8QvfM1UDBLk1QWENXnF/cVXU2OVexu5gmTjQaYzYdvV6IaeRaJWeBheZ0Zy/0XfyvfU5NPfgbMS7s/q7BBQG7SRLG266yB/FeDCtkX881Kkd4rucdWUNBRSTyn113L1DSDpGx2AxfThazciuRGTrFC/rKQGBb2ygibZh59rYskE1kZr/YWQzt0fnZrBEmA0zpMnsXRbWcolaP79K2COP5b+dUbqsvM6lujDLAY+h3RUZ+BU0LUkA5GokCBfxghMBqQ5dn256Cw7domIW6g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=kgpFdSZRiKGy2F3j5c8cDmtgkXg/2ZHylmFMGYs6ClA=;
+ b=FB1NzTVcUaerLDbtdl2U/80Ja4x4vP6EvypQdSh6q+LdH/8GOlx2g6qfcztq/vEKYb+13sBbnVGEa2pKzvI6Rilvp6c5Yf2m5b5J9sMmCeIF2xwurZfxr+ppn1FZhEpzRhUq6wrYYPOKq15Yej9rAqXgVWXPEttFE5BwWLTHLXCbOvJgUC7m+aAMn/ntx9Dtq1nbZx6Li0I+KryXkYsv6nfZda1Ah/4Jqiz8Y+0MBMlx4zo/KF/gGmYdh+TiJlspetFs2etfPV8FiTQgF9PJ4kQnPn3Kx0gOrFZ4IBo8EM1Hdv4HKgI3dAIu0eLQf3GiKroNTvRoGdQWaib2e+tChA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=kgpFdSZRiKGy2F3j5c8cDmtgkXg/2ZHylmFMGYs6ClA=;
+ b=XdXCyFBbcTyCuVvrkscyYBJF/4BdIQcAffE8JnhWkjI6HBakhHqpNaCH5w2cwy2iDZznz9eaV7qAPNrD846ws/gAJHLMGx5TG7VGcnbFX2edkArqKqvy2fEcR9u8XyWFJzF3yrKrTN9TXKl4TO6brOdwRGK/3zAr1dswDO+LfOk=
+Received: from DM6PR10MB4313.namprd10.prod.outlook.com (2603:10b6:5:212::20)
+ by DS7PR10MB5975.namprd10.prod.outlook.com (2603:10b6:8:9d::7) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.7228.32; Tue, 30 Jan 2024 12:14:44 +0000
+Received: from DM6PR10MB4313.namprd10.prod.outlook.com
+ ([fe80::f11:7303:66e7:286c]) by DM6PR10MB4313.namprd10.prod.outlook.com
+ ([fe80::f11:7303:66e7:286c%5]) with mapi id 15.20.7228.029; Tue, 30 Jan 2024
+ 12:14:44 +0000
+Message-ID: <e65301d3-7274-45fa-a64c-5039257aa333@oracle.com>
+Date: Tue, 30 Jan 2024 12:14:32 +0000
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 04/14] block: use queue_limits_commit_update in
+ queue_max_sectors_store
+Content-Language: en-US
+To: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Damien Le Moal <dlemoal@kernel.org>, Keith Busch <kbusch@kernel.org>,
+        Sagi Grimberg <sagi@grimberg.me>, linux-block@vger.kernel.org,
+        linux-nvme@lists.infradead.org, virtualization@lists.linux.dev,
+        Hannes Reinecke <hare@suse.de>
+References: <20240128165813.3213508-1-hch@lst.de>
+ <20240128165813.3213508-5-hch@lst.de>
+From: John Garry <john.g.garry@oracle.com>
+Organization: Oracle Corporation
+In-Reply-To: <20240128165813.3213508-5-hch@lst.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: SGAP274CA0003.SGPP274.PROD.OUTLOOK.COM (2603:1096:4:b6::15)
+ To DM6PR10MB4313.namprd10.prod.outlook.com (2603:10b6:5:212::20)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DM6PR10MB4313:EE_|DS7PR10MB5975:EE_
+X-MS-Office365-Filtering-Correlation-Id: 482b2c17-3191-47d0-0702-08dc218d0b5a
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 
+	U2r3RG6UDhvKRaoowesoZWCtnDcQ09AEXvFUkV75frEc4/vxgdkk6YZ4o0Mov8w41B7BlwT6Bo6wE7gD4xLC1Xdb6T7nL3uZcQHUqqCf2uqOCFyZHXqZy7FhvRf1tPvoBAoUeptiMKOrR09rqC4wnQDGZG3SvzzyIm/eVDOHH2RYoXFoC4XkpACXqIEJuHTA74YJ8WjhNjcYjVv83Y5CTUja6TtFkDmFcsXdZvED8ug64yudAEfIovADPC+TZ02EXLkZTpB+rK1dXpBOLV3HJ4kdwaYqU3AwFvadtlD1js0Jj90BRxNHXznlyH27VDFqu4tdqHk0I/C9zpbIE+8TXlYsq8XDon+9zy/6q34MS0uDahTwc6Ot84i8izUnUYT0DMRzWkXfWOQdSt/WnzrZjmoH+escLFAJXExDOLERDHqVgAHIpXvP/y9Cie2HEx+axkpyupaOLHARg8otPTgMcwwSTdTwSON2wsAhCH99mhK1auGH8Dbs4DuBaMubx9sBWhJgZtHmgxIa8ULMANgfFFNiAMJxh7Q2OEQTTqAtfe34xrcG6khTYxya/vo9EZ3pN9qRuO5pp2FUcdIaGTP/VPujduOE0oNNstl41EnLw9W/lcUAO2zCXv8jRDVLUG0WosQoZotXyxSlwLb1iVz2dA==
+X-Forefront-Antispam-Report: 
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR10MB4313.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(366004)(396003)(346002)(376002)(39860400002)(136003)(230922051799003)(186009)(64100799003)(451199024)(1800799012)(26005)(31686004)(6512007)(36916002)(6506007)(6666004)(53546011)(83380400001)(36756003)(31696002)(86362001)(4744005)(8936002)(5660300002)(4326008)(41300700001)(38100700002)(66946007)(478600001)(2616005)(316002)(110136005)(6486002)(54906003)(66556008)(2906002)(7416002)(8676002)(66476007)(45980500001)(43740500002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: 
+	=?utf-8?B?UEtLSFlRV25KMm9FWUNPZEJ1S1RVYVIvQVgzR1N3ZjBLdHhRVHhIVEIwc055?=
+ =?utf-8?B?YWx5QkhHRGVoem5PRHlMdmFjUE9qekZ5RE9nRk1Udml6UEpXWk1LUUFoTWNa?=
+ =?utf-8?B?ODh2ZmtjSURqR2kvSCszcXN3aFVvTmFHTE9EOTBHOGE4V0U1Znc1alFvcmFP?=
+ =?utf-8?B?OVljRkNVOU1yN29laGlrTWxBbVlyOVQ4NHVpQjVrbEJTUitoL1VVeWZ2RUlZ?=
+ =?utf-8?B?VC9hc05pd2FlQVE2K3FVSEU0RDBIbFJBaXgrWDRLcjlvRXk5SjRrYmdVMWFz?=
+ =?utf-8?B?T25pRGVWYnlBRC8wTGx2UWhraWRDaDRJZk0wT0VqK1NvdGxKYnE3c1RJZGM4?=
+ =?utf-8?B?cHlmMjduSXVDRy9wdUFiTlRiN3J0ZGp5ZWUxVnk4b2ZHcEs4VWxBR1NtNUti?=
+ =?utf-8?B?eVJkYkxldllrTS81VFAxMDVGZnkzbG9hZlRmRzBFQkE3OVFvZUpGSzdxR0xF?=
+ =?utf-8?B?QkczTkFDV2JVMXE1VEZHZTRTdXNxVFU2TmowSnlweGJsNUF4NVFxRURGSnBO?=
+ =?utf-8?B?L25rS2R0SkYycWRUSE5qMUt0NDhBOVYvbXZmRlFaWkh0S0ZOeTlGWWZmVUxt?=
+ =?utf-8?B?by8rbmtPWGF0cjk1TDlNd1I3bDZSakVjN2plenJmNEg5NHAxaFg5MitBMk9i?=
+ =?utf-8?B?L2RuS2h0K3BnYzRvK29ERExjT2p0MS83V3NlUDlFZm1TQ0txZE1zT1d6UkJl?=
+ =?utf-8?B?R2lnZE5PNWl4YjVrSXhLT0VUbVJwbGszcEJTZ0lGekU5TVAzeW5CWnBldDds?=
+ =?utf-8?B?SGNDMWIxZVNDQ0tqZDM4cHF0UzgwQnJVcy9XZWFOY0NvKzlGMVRndUZ1dk1i?=
+ =?utf-8?B?UWNhbjBaRmN3b01ETlRKaWhIcHp5U01lMFNyZVFSSXFhOXFRQ1Myd2NiZGRi?=
+ =?utf-8?B?ZVJiWTRzOWx5c3c1U3U0R2RVT0FyK1llU1I0MUJxL3c3M3REUjZVYkRiWTFW?=
+ =?utf-8?B?VnBlL1Q4YklidFVEejJuRWQ4RW5UVlU5dFUzWlpXNFZVUHV0VDZ0UGxRRUdz?=
+ =?utf-8?B?MWV0TkdIYXVVMWN4R1ZWTmpxcDJsclZUNnI2MHZwd2dIdmV3ZkcwSTRtU3BM?=
+ =?utf-8?B?cC9JcHpXUHVrOG1VRWRIR0doeFNWT1d0Rld3SGRRcjFnMmxHVGgyS3RHcWFL?=
+ =?utf-8?B?MWVDZUZEY1g2VWN0MTBjbHRCVGZERnZSWk1OWG9MQnJreEs4LzMwUVlPb2Vh?=
+ =?utf-8?B?dFJBcC9MOGdyTW5ZdEFUUzhoZEJ3YzhDUm94NlFZQWNHRm5TUWs5TDllUTgv?=
+ =?utf-8?B?RXdJRnVCaFhyNUJhcDdBd0NDZ2NLTEpvYXErT0xpSzY2aUIxd3RkOFlKQ0t4?=
+ =?utf-8?B?R0E1UnJidnV0VkdjSU5PK05ZS29IazBMbmwzbGw4dllnaHY0eWRlRVpJZGJY?=
+ =?utf-8?B?WFBnVEdqZVgwYW1uaUFMMHZnaWFjeUhDU0hnOUlweWdxRTJDajR6cWZtMTBD?=
+ =?utf-8?B?bVdacDNrNVdPMCtkTjVXR2NoL0p4WFYzd0VmV0thd3podWdIZVBxVnBwc1VG?=
+ =?utf-8?B?enJtQ2QyaDJrTGJxWStlTTZKV2xWajgwRUJUOEg1WlJRd3NaUjl1SG40OVlq?=
+ =?utf-8?B?Z0hzRXRUMStScEY3NXQ2OFNqSDlsSFJnVnhkbGxvM0hXVVZNVGdlVWFodVdI?=
+ =?utf-8?B?dDNRakZvbjdlb3djV1VFZmVieUFoOW4xUDBzNDV5bzg1RUdOeFpQU3A5aHgy?=
+ =?utf-8?B?MzFzQ2thenBMSkRKcXZTaHpDY1hITUZZMkFPMnRaa3pIcUlpRjZFVGdNdVd6?=
+ =?utf-8?B?Y0lZNE4reWVocnZhNFVvdldQR0VsRVVSSElDbkt5eGQ0OU5SRVZqSUJjUTd1?=
+ =?utf-8?B?dnErK2haMnRFSnczTGJkbEZGYkNMVVBJS240c0cwTFAzaWhnNVMwa1YxcGV3?=
+ =?utf-8?B?ellRclF2bjFDZUJRYVZ1d1JsbVcxQ3d5bjF6eG9rbDhXcUNkNmJMc0VrSTRH?=
+ =?utf-8?B?RUFGdHd3TmNyVDUyTWFHTVJKZy9HQnhQeUhnWVMrT0FacXhtNVZKc3NxRmZi?=
+ =?utf-8?B?ODVmUWhiY0VMZkszNjdZT2hiM25FRlBIcmFKVjZ3SnM3YVZUZDBHaUZWVmxt?=
+ =?utf-8?B?eDFxbXh3VkJreTNSaXRQbGhGem41STJTR3NFemx6cXc4R3U4WU5HV2g3OVpE?=
+ =?utf-8?Q?KKg2GM5m8ZywC47ev+3DKaMtJ?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: 
+	Om58Uqa5lfFOYyeYpGGOLIKtU9qDubbtorzp9jS1/N2NXwhrEeQh7ah/8yUpLkuGnh0QsKMy6SkozOVD1QRbtHhtX3WzUTz4rnPLxVA2ThPY0NDBc1RWClr42hQP8qnre7yayl+q0NrJ8x2dhJIzbMcKQUGW0qhtlZ1XtYTCK8R6+CoWDGkcM6tKkA7tAsQt912FeKq6p2xyqIXOxHxBZ0i/lGmi+x0VM9NROqQVqe5bISksWsGUw3IIii3RSbEUIf0kTtH6EPyaHM4C1P+D8DqrxCw5L7Ezk1DP6VeO37NE+D+rfNVS+BtYhOV0qtOuhcrq1FOd5Xyn5hPBgmPEN3C3lPcVdHb1a0KgcMd2EEaIxopSD8uR08/xMFVqnzvg1T+Q6nlOWQBfPm3q5vmX2Rjjhu2FnYmG4dwHAKl4rBbMS1KtZm7WujAdUSUYf7kMWDmu69limWl7B+NOizKJ67rLQdECxVN5mY+ajDYSz4dpUcvlZYi0BeULbSHptdqP32lUO1O3P1hwBNZRViu5xwgzvf/srM0EtoH+e+rtifKghLbXickUKg36ozx2hnQDl/whPslaZvn3H1fxdEIAxB+tP7wvukrN0O1NSnpoFAI=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 482b2c17-3191-47d0-0702-08dc218d0b5a
+X-MS-Exchange-CrossTenant-AuthSource: DM6PR10MB4313.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Jan 2024 12:14:44.7197
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: tnDWB+EJAAqEweL4Otdy0huFq8swgefdR9bXba7BQwwPhk3nx04+lLXSD1mpXhFuFekX6C7XX7eFbtJpi+fIoQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR10MB5975
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-01-30_05,2024-01-30_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 bulkscore=0 malwarescore=0
+ suspectscore=0 phishscore=0 mlxscore=0 mlxlogscore=999 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
+ definitions=main-2401300089
+X-Proofpoint-ORIG-GUID: D5HMiYtoMR6rGxEK2Y_9jweHzChSsrnf
+X-Proofpoint-GUID: D5HMiYtoMR6rGxEK2Y_9jweHzChSsrnf
 
-On Thu, 25 Jan 2024 18:19:12 +0800, Liang Chen <liangchen.linux@gmail.com> wrote:
-> The RSS hash report is a feature that's part of the virtio specification.
-> Currently, virtio backends like qemu, vdpa (mlx5), and potentially vhost
-> (still a work in progress as per [1]) support this feature. While the
-> capability to obtain the RSS hash has been enabled in the normal path,
-> it's currently missing in the XDP path. Therefore, we are introducing
-> XDP hints through kfuncs to allow XDP programs to access the RSS hash.
->
-> 1.
-> https://lore.kernel.org/all/20231015141644.260646-1-akihiko.odaki@daynix.com/#r
->
-> Signed-off-by: Liang Chen <liangchen.linux@gmail.com>
-> ---
->  drivers/net/virtio_net.c | 98 +++++++++++++++++++++++++++++++++++-----
->  1 file changed, 86 insertions(+), 12 deletions(-)
->
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index d7ce4a1011ea..0c845f2223da 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -349,6 +349,12 @@ struct virtio_net_common_hdr {
->  	};
->  };
->
-> +struct virtnet_xdp_buff {
-> +	struct xdp_buff xdp;
-> +	u32 hash_value;
-> +	u16 hash_report;
-> +};
-> +
->  static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf);
->
->  static bool is_xdp_frame(void *ptr)
-> @@ -1033,6 +1039,16 @@ static void put_xdp_frags(struct xdp_buff *xdp)
->  	}
->  }
->
-> +static void virtnet_xdp_save_rx_hash(struct virtnet_xdp_buff *virtnet_xdp,
-> +				     struct net_device *dev,
-> +				     struct virtio_net_hdr_v1_hash *hdr_hash)
-> +{
-> +	if (dev->features & NETIF_F_RXHASH) {
-> +		virtnet_xdp->hash_value = __le32_to_cpu(hdr_hash->hash_value);
-> +		virtnet_xdp->hash_report = __le16_to_cpu(hdr_hash->hash_report);
+On 28/01/2024 16:58, Christoph Hellwig wrote:
+> Convert queue_max_sectors_store to use queue_limits_commit_update to
+> check and update the max_sectors limit and freeze the queue before
+> doing so to ensure we don't have requests in flight while changing
+> the limits.
+> 
+> Note that this removes the previously held queue_lock that doesn't
+> protect against any other reader or writer.
 
-Could we put the __leXX_to_cpu to virtnet_xdp_rx_hash?
-
-Other looks good to me.
-
-Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-
-Thanks.
+I don't really get why we specifically locked that code segment in 
+queue_max_sectors_store() previously. Was it to ensure max_sectors and 
+q->disk->bdi->io_pages are always atomically updated?
 
 
-> +	}
-> +}
-> +
->  static int virtnet_xdp_handler(struct bpf_prog *xdp_prog, struct xdp_buff *xdp,
->  			       struct net_device *dev,
->  			       unsigned int *xdp_xmit,
-> @@ -1199,9 +1215,10 @@ static struct sk_buff *receive_small_xdp(struct net_device *dev,
->  	unsigned int headroom = vi->hdr_len + header_offset;
->  	struct virtio_net_hdr_mrg_rxbuf *hdr = buf + header_offset;
->  	struct page *page = virt_to_head_page(buf);
-> +	struct virtnet_xdp_buff virtnet_xdp;
->  	struct page *xdp_page;
-> +	struct xdp_buff *xdp;
->  	unsigned int buflen;
-> -	struct xdp_buff xdp;
->  	struct sk_buff *skb;
->  	unsigned int metasize = 0;
->  	u32 act;
-> @@ -1233,17 +1250,20 @@ static struct sk_buff *receive_small_xdp(struct net_device *dev,
->  		page = xdp_page;
->  	}
->
-> -	xdp_init_buff(&xdp, buflen, &rq->xdp_rxq);
-> -	xdp_prepare_buff(&xdp, buf + VIRTNET_RX_PAD + vi->hdr_len,
-> +	xdp = &virtnet_xdp.xdp;
-> +	xdp_init_buff(xdp, buflen, &rq->xdp_rxq);
-> +	xdp_prepare_buff(xdp, buf + VIRTNET_RX_PAD + vi->hdr_len,
->  			 xdp_headroom, len, true);
->
-> -	act = virtnet_xdp_handler(xdp_prog, &xdp, dev, xdp_xmit, stats);
-> +	virtnet_xdp_save_rx_hash(&virtnet_xdp, dev, (void *)hdr);
-> +
-> +	act = virtnet_xdp_handler(xdp_prog, xdp, dev, xdp_xmit, stats);
->
->  	switch (act) {
->  	case XDP_PASS:
->  		/* Recalculate length in case bpf program changed it */
-> -		len = xdp.data_end - xdp.data;
-> -		metasize = xdp.data - xdp.data_meta;
-> +		len = xdp->data_end - xdp->data;
-> +		metasize = xdp->data - xdp->data_meta;
->  		break;
->
->  	case XDP_TX:
-> @@ -1254,7 +1274,7 @@ static struct sk_buff *receive_small_xdp(struct net_device *dev,
->  		goto err_xdp;
->  	}
->
-> -	skb = virtnet_build_skb(buf, buflen, xdp.data - buf, len);
-> +	skb = virtnet_build_skb(buf, buflen, xdp->data - buf, len);
->  	if (unlikely(!skb))
->  		goto err;
->
-> @@ -1591,10 +1611,11 @@ static struct sk_buff *receive_mergeable_xdp(struct net_device *dev,
->  	int num_buf = virtio16_to_cpu(vi->vdev, hdr->num_buffers);
->  	struct page *page = virt_to_head_page(buf);
->  	int offset = buf - page_address(page);
-> +	struct virtnet_xdp_buff virtnet_xdp;
->  	unsigned int xdp_frags_truesz = 0;
->  	struct sk_buff *head_skb;
->  	unsigned int frame_sz;
-> -	struct xdp_buff xdp;
-> +	struct xdp_buff *xdp;
->  	void *data;
->  	u32 act;
->  	int err;
-> @@ -1604,16 +1625,19 @@ static struct sk_buff *receive_mergeable_xdp(struct net_device *dev,
->  	if (unlikely(!data))
->  		goto err_xdp;
->
-> -	err = virtnet_build_xdp_buff_mrg(dev, vi, rq, &xdp, data, len, frame_sz,
-> +	xdp = &virtnet_xdp.xdp;
-> +	err = virtnet_build_xdp_buff_mrg(dev, vi, rq, xdp, data, len, frame_sz,
->  					 &num_buf, &xdp_frags_truesz, stats);
->  	if (unlikely(err))
->  		goto err_xdp;
->
-> -	act = virtnet_xdp_handler(xdp_prog, &xdp, dev, xdp_xmit, stats);
-> +	virtnet_xdp_save_rx_hash(&virtnet_xdp, dev, (void *)hdr);
-> +
-> +	act = virtnet_xdp_handler(xdp_prog, xdp, dev, xdp_xmit, stats);
->
->  	switch (act) {
->  	case XDP_PASS:
-> -		head_skb = build_skb_from_xdp_buff(dev, vi, &xdp, xdp_frags_truesz);
-> +		head_skb = build_skb_from_xdp_buff(dev, vi, xdp, xdp_frags_truesz);
->  		if (unlikely(!head_skb))
->  			break;
->  		return head_skb;
-> @@ -1626,7 +1650,7 @@ static struct sk_buff *receive_mergeable_xdp(struct net_device *dev,
->  		break;
->  	}
->
-> -	put_xdp_frags(&xdp);
-> +	put_xdp_frags(xdp);
->
->  err_xdp:
->  	put_page(page);
-> @@ -4579,6 +4603,55 @@ static void virtnet_set_big_packets(struct virtnet_info *vi, const int mtu)
->  	}
->  }
->
-> +static int virtnet_xdp_rx_hash(const struct xdp_md *_ctx, u32 *hash,
-> +			       enum xdp_rss_hash_type *rss_type)
-> +{
-> +	const struct virtnet_xdp_buff *virtnet_xdp = (void *)_ctx;
-> +
-> +	if (!(virtnet_xdp->xdp.rxq->dev->features & NETIF_F_RXHASH))
-> +		return -ENODATA;
-> +
-> +	switch (virtnet_xdp->hash_report) {
-> +	case VIRTIO_NET_HASH_REPORT_TCPv4:
-> +		*rss_type = XDP_RSS_TYPE_L4_IPV4_TCP;
-> +		break;
-> +	case VIRTIO_NET_HASH_REPORT_UDPv4:
-> +		*rss_type = XDP_RSS_TYPE_L4_IPV4_UDP;
-> +		break;
-> +	case VIRTIO_NET_HASH_REPORT_TCPv6:
-> +		*rss_type = XDP_RSS_TYPE_L4_IPV6_TCP;
-> +		break;
-> +	case VIRTIO_NET_HASH_REPORT_UDPv6:
-> +		*rss_type = XDP_RSS_TYPE_L4_IPV6_UDP;
-> +		break;
-> +	case VIRTIO_NET_HASH_REPORT_TCPv6_EX:
-> +		*rss_type = XDP_RSS_TYPE_L4_IPV6_TCP_EX;
-> +		break;
-> +	case VIRTIO_NET_HASH_REPORT_UDPv6_EX:
-> +		*rss_type = XDP_RSS_TYPE_L4_IPV6_UDP_EX;
-> +		break;
-> +	case VIRTIO_NET_HASH_REPORT_IPv4:
-> +		*rss_type = XDP_RSS_TYPE_L3_IPV4;
-> +		break;
-> +	case VIRTIO_NET_HASH_REPORT_IPv6:
-> +		*rss_type = XDP_RSS_TYPE_L3_IPV6;
-> +		break;
-> +	case VIRTIO_NET_HASH_REPORT_IPv6_EX:
-> +		*rss_type = XDP_RSS_TYPE_L3_IPV6_EX;
-> +		break;
-> +	case VIRTIO_NET_HASH_REPORT_NONE:
-> +	default:
-> +		*rss_type = XDP_RSS_TYPE_NONE;
-> +	}
-> +
-> +	*hash = virtnet_xdp->hash_value;
-> +	return 0;
-> +}
-> +
-> +static const struct xdp_metadata_ops virtnet_xdp_metadata_ops = {
-> +	.xmo_rx_hash			= virtnet_xdp_rx_hash,
-> +};
-> +
->  static int virtnet_probe(struct virtio_device *vdev)
->  {
->  	int i, err = -ENOMEM;
-> @@ -4704,6 +4777,7 @@ static int virtnet_probe(struct virtio_device *vdev)
->  				  VIRTIO_NET_RSS_HASH_TYPE_UDP_EX);
->
->  		dev->hw_features |= NETIF_F_RXHASH;
-> +		dev->xdp_metadata_ops = &virtnet_xdp_metadata_ops;
->  	}
->
->  	if (vi->has_rss_hash_report)
-> --
-> 2.40.1
->
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> Reviewed-by: Damien Le Moal <dlemoal@kernel.org>
+> Reviewed-by: Hannes Reinecke <hare@suse.de>
+
+Feel free to add:
+Reviewed-by: John Garry <john.g.garry@oracle.com>
+
+
