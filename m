@@ -1,197 +1,87 @@
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD3456A02B
-	for <virtualization@lists.linux.dev>; Tue, 30 Jan 2024 11:42:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C726466B47
+	for <virtualization@lists.linux.dev>; Tue, 30 Jan 2024 11:45:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706614981; cv=none; b=g9KhVpl8OOwroaTqmTpYhuGgCfTk6GGVk0SQXGfOF2DS+DJM57kfqqQ9VHJZmAD9rACQQJZ7KH7kmHzOnSce8VPSa+JqpO51CGqSnjZtLSgl/2C0hAriJGEOmkZ5/U85VPOG+GiGMsB0izXcW0VSV7n+pFqfGFTPqBn40DpC6CQ=
+	t=1706615158; cv=none; b=ps8Pus+kQm0GWrf86TR8O+Y6gc/ntviX82fup3In7Szt2a+wK3IfrYG0gOWz0wiUZOIym1kOgcYJBaFHGxYPkYWR6qKOUsG/QGillNFcPvJ9CCV3ZibuKnozfOYLdUxGngz6Cli0Ve0XBKj4MCL9Vu3bVo8RNTAJIL6pdFDErCM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706614981; c=relaxed/simple;
-	bh=P1EuAKIYKR8oUbIq4ooX+jiHttt0zxADPIYwqeGcDq8=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=M+zs2tj6T3GfJ7iRohG53gblkXBc0kcTxjUzyZDbiyAp9jUzR7/NTPYjZKs0YBnuKALafjMk8mgAw1KEcSUYsMd130HrHk9fKH9E576yIWRLyCn10B7ReqOT+o9ds9LGnESg3mHKgXRXUEJXrHCAjCpAhOPBgu34bh+iIfTa8Ws=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=UxV7wlQg; arc=none smtp.client-ip=115.124.30.101
+	s=arc-20240116; t=1706615158; c=relaxed/simple;
+	bh=v6u8urb/t5RppsI2712r4PdAFGHfelN/27Q36RQ/1/M=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=p4SXKGJG9KJZsc/8hdObtZ4DHocain35IdteC/xWXL5OIwJiPraFFq1I0OjXs2oUxGLCnlsimlc9V9CGl+D/mfbYs9EJE7V3SsQvvmiohH+LnnEiGx5D+ADSiN8fWE6YvYfjxCAcm3GD0rL7IPCEjXkEkvYYEFOMR8AWPwRAUw4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=i/Xdb4g1; arc=none smtp.client-ip=115.124.30.98
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="UxV7wlQg"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="i/Xdb4g1"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1706614972; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=MJPPX0Mbe/Fi3ODIrg/IdS8p5bwqdjZiSVg8RtlcgFY=;
-	b=UxV7wlQgNIh+vm/tQQlwScYA1m9mJII++x6WmO33NicPtK//uxXBkiwjdytqUkx7wr6ltewe/+fQFtdFdiWdOcZTp4PwTN4W69FO4lgznm8tOIB54Ld7zM+foOKN4d/YAviGyAdvwEzbf88Yn4LuW4ttoJgcLa6zM28WoRDVNSg=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0W.g5I9y_1706614969;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W.g5I9y_1706614969)
+	t=1706615155; h=Message-ID:Subject:Date:From:To;
+	bh=68WGLYeT5XGxdBIWX7j3qvfnpmvTuS0nYBOOJmACvE8=;
+	b=i/Xdb4g1cubmxx+x9Crfw1Fw3ENsH+wvPtI9vo9hRERrfZyU4lsiWIgzIE5OQAOahC+AO86BNZTmsCeJcBCiedjWPGriadC1cVJxCumrd0sxyNlGPDxJYetl5vJ5exPd913Vor17xtsvkiTlTB0a+ZClDYzGPKekC9xpO4WY0gI=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R771e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0W.g5hEv_1706615152;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W.g5hEv_1706615152)
           by smtp.aliyun-inc.com;
-          Tue, 30 Jan 2024 19:42:50 +0800
+          Tue, 30 Jan 2024 19:45:53 +0800
+Message-ID: <1706615031.7414055-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH vhost 00/14] virtio remove dma info for premapped mode
+Date: Tue, 30 Jan 2024 19:43:51 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: virtualization@lists.linux.dev
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Cc: Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Hans de Goede <hdegoede@redhat.com>,
-	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	Vadim Pasternak <vadimp@nvidia.com>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Mathieu Poirier <mathieu.poirier@linaro.org>,
-	Cornelia Huck <cohuck@redhat.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	Eric Farman <farman@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>,
-	Benjamin Berg <benjamin.berg@intel.com>,
-	Yang Li <yang.lee@linux.alibaba.com>,
-	linux-um@lists.infradead.org,
-	netdev@vger.kernel.org,
-	platform-driver-x86@vger.kernel.org,
-	linux-remoteproc@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	kvm@vger.kernel.org,
-	bpf@vger.kernel.org
-Subject: [PATCH vhost 15/17] virtio_net: unify the code for recycling the xmit ptr
-Date: Tue, 30 Jan 2024 19:42:22 +0800
-Message-Id: <20240130114224.86536-16-xuanzhuo@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20240130114224.86536-1-xuanzhuo@linux.alibaba.com>
-References: <20240130114224.86536-1-xuanzhuo@linux.alibaba.com>
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Johannes Berg <johannes@sipsolutions.net>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>,
+ Hans de Goede <hdegoede@redhat.com>,
+ =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+ Vadim Pasternak <vadimp@nvidia.com>,
+ Bjorn Andersson <andersson@kernel.org>,
+ Mathieu Poirier <mathieu.poirier@linaro.org>,
+ Cornelia Huck <cohuck@redhat.com>,
+ Halil Pasic <pasic@linux.ibm.com>,
+ Eric Farman <farman@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Alexei Starovoitov <ast@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>,
+ Benjamin Berg <benjamin.berg@intel.com>,
+ Yang Li <yang.lee@linux.alibaba.com>,
+ linux-um@lists.infradead.org,
+ netdev@vger.kernel.org,
+ platform-driver-x86@vger.kernel.org,
+ linux-remoteproc@vger.kernel.org,
+ linux-s390@vger.kernel.org,
+ kvm@vger.kernel.org,
+ bpf@vger.kernel.org,
+ virtualization@lists.linux.dev
+References: <20240130030604.108463-1-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20240130030604.108463-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-X-Git-Hash: 239d1d475be4
-Content-Transfer-Encoding: 8bit
 
-There are two completely similar and independent implementations. This
-is inconvenient for the subsequent addition of new types. So extract a
-function from this piece of code and call this function uniformly to
-recover old xmit ptr.
 
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
----
- drivers/net/virtio_net.c | 66 +++++++++++++++++-----------------------
- 1 file changed, 28 insertions(+), 38 deletions(-)
+Please ignore this.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 12961fc0879e..c7409344dda1 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -348,6 +348,30 @@ static struct xdp_frame *ptr_to_xdp(void *ptr)
- 	return (struct xdp_frame *)((unsigned long)ptr & ~VIRTIO_XDP_FLAG);
- }
- 
-+static void __free_old_xmit(struct send_queue *sq, bool in_napi,
-+			    u64 *bytes, u64 *packets)
-+{
-+	unsigned int len;
-+	void *ptr;
-+
-+	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
-+		if (!is_xdp_frame(ptr)) {
-+			struct sk_buff *skb = ptr;
-+
-+			pr_debug("Sent skb %p\n", skb);
-+
-+			*bytes += skb->len;
-+			napi_consume_skb(skb, in_napi);
-+		} else {
-+			struct xdp_frame *frame = ptr_to_xdp(ptr);
-+
-+			*bytes += xdp_get_frame_len(frame);
-+			xdp_return_frame(frame);
-+		}
-+		(*packets)++;
-+	}
-+}
-+
- /* Converting between virtqueue no. and kernel tx/rx queue no.
-  * 0:rx0 1:tx0 2:rx1 3:tx1 ... 2N:rxN 2N+1:txN 2N+2:cvq
-  */
-@@ -740,27 +764,9 @@ static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *buf)
- 
- static void free_old_xmit_skbs(struct send_queue *sq, bool in_napi)
- {
--	unsigned int len;
--	unsigned int packets = 0;
--	unsigned int bytes = 0;
--	void *ptr;
--
--	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
--		if (likely(!is_xdp_frame(ptr))) {
--			struct sk_buff *skb = ptr;
--
--			pr_debug("Sent skb %p\n", skb);
-+	u64 bytes = 0, packets = 0;
- 
--			bytes += skb->len;
--			napi_consume_skb(skb, in_napi);
--		} else {
--			struct xdp_frame *frame = ptr_to_xdp(ptr);
--
--			bytes += xdp_get_frame_len(frame);
--			xdp_return_frame(frame);
--		}
--		packets++;
--	}
-+	__free_old_xmit(sq, in_napi, &bytes, &packets);
- 
- 	/* Avoid overhead when no packets have been processed
- 	 * happens when called speculatively from start_xmit.
-@@ -910,14 +916,11 @@ static int virtnet_xdp_xmit(struct net_device *dev,
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
- 	struct receive_queue *rq = vi->rq;
-+	u64 bytes = 0, packets = 0;
- 	struct bpf_prog *xdp_prog;
- 	struct send_queue *sq;
--	unsigned int len;
--	int packets = 0;
--	int bytes = 0;
- 	int nxmit = 0;
- 	int kicks = 0;
--	void *ptr;
- 	int ret;
- 	int i;
- 
-@@ -936,20 +939,7 @@ static int virtnet_xdp_xmit(struct net_device *dev,
- 	}
- 
- 	/* Free up any pending old buffers before queueing new ones. */
--	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
--		if (likely(is_xdp_frame(ptr))) {
--			struct xdp_frame *frame = ptr_to_xdp(ptr);
--
--			bytes += xdp_get_frame_len(frame);
--			xdp_return_frame(frame);
--		} else {
--			struct sk_buff *skb = ptr;
--
--			bytes += skb->len;
--			napi_consume_skb(skb, false);
--		}
--		packets++;
--	}
-+	__free_old_xmit(sq, false, &bytes, &packets);
- 
- 	for (i = 0; i < n; i++) {
- 		struct xdp_frame *xdpf = frames[i];
--- 
-2.32.0.3.g01195cf9f
+The new thread is sent.
 
+	[PATCH vhost 00/17] virtio: drivers maintain dma info for premapped vq
+
+	http://lore.kernel.org/all/20240130114224.86536-1-xuanzhuo@linux.alibaba.com
+
+That includes the refactor of find_vqs().
+
+Thanks.
