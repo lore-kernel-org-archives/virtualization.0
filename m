@@ -1,118 +1,136 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99A3379DB6
-	for <virtualization@lists.linux.dev>; Wed, 31 Jan 2024 11:03:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E6247AE76;
+	Wed, 31 Jan 2024 13:04:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706699001; cv=none; b=JtyT6Ug5sdt+B0i9PrVMEUxZAsj4LQtKsLWcQFG4gIyZ11RVF2GgBHYyUaHa3GADLDFNUivn17EP9l/LO0nYBPLsOZBB97iTjnFb9lBbm041i9QwOXgTyaBR6Y5mBBpfnLjHD7zMYR9TYOcXsuvS+oR0IR+1/hWZsxhSs/oBGAM=
+	t=1706706254; cv=none; b=DuLAiFhf7tnigUaDoj7AXj1gCLCOfX1ezmELOmJ60WQqibPbqnpIRqir2L4YbGSzDHu5/Fe/jWJ527/Xh/fWloOEbucVFnNzm674asLDWx6JArKsSL6vcH+MLSoGI6o6AUAhwJFgZe8/tMf7jO2fxilIg0XOi6HNFz5moEqlsMs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706699001; c=relaxed/simple;
-	bh=w5tD2hF6VL4scoYvTlWDh0fos6f759HiGvpQ7AYLjAI=;
-	h=From:Date:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=LXB2YG4gtWYrpN5fX2dnPPX3va06A6+fwaiGM1Fo0dt65KmOR/dI8mP/wt/kdwmkWggVvTnsAUVPkc5L3pKBDeh3c0Xs6TN96JVH1vKrtVKhXqbhuFT7IjRXXUk5UKO4aeVKO2YjsHOk42NVCzvtqb5Lq61rZ8fyyimUbwmD9pM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=eM5jKjqd; arc=none smtp.client-ip=198.175.65.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1706706254; c=relaxed/simple;
+	bh=Ll2Td4IgQBba2L0Zlod4SXULVSrjv2YntSlJYNy106k=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=EgJMWDb9oJAJoRDtCWMZIWwhRkmb3eBXFw0DXkInSfl/oDhsJj6Oy/U5CCKmdlAJSErHpIOupRSm3lizWpuaIxh5LAAw+Xz1d9mPmH5jMIdh6fdkRXBFLDYlbc37TCLGXNPh+rF0Uoxg/QBWwEgSeClMCSROcxPVRfpow8zoD/s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=0XAY+RpQ; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="eM5jKjqd"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1706699000; x=1738235000;
-  h=from:date:to:cc:subject:in-reply-to:message-id:
-   references:mime-version;
-  bh=w5tD2hF6VL4scoYvTlWDh0fos6f759HiGvpQ7AYLjAI=;
-  b=eM5jKjqdQm8sQ40LKnBKeQGaM5Ae/8GYvptf9z6/jB8xM3mdIlpd3lUr
-   pR+lBo3dnPRjRVNvTRCt5HuT4GTlTlSstMjWxMqaTLwjKTyvL+qNqN8uR
-   k8uvfQczEXlmyigYwLoWDqEkTuJP/LotRaMuWiJOg+jNtmcDGmL1nCVtS
-   FNJ+xQudFGmJCruBAMYBRnBjaGDCcl9PmO1mAZR5qp/zOfaLKZdHqqGXr
-   TviAAz/0wj08411W7IwKN9QyQ3yEGhtC1xO2GTYk/kjyS+IwxGNQPom8W
-   7kaX+pS5O8PLVT17eziH3pGM1G74k59noIa0eobQ9x2onOAVWW7aYHD1J
-   Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10969"; a="16947156"
-X-IronPort-AV: E=Sophos;i="6.05,231,1701158400"; 
-   d="scan'208";a="16947156"
-Received: from fmviesa001.fm.intel.com ([10.60.135.141])
-  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Jan 2024 03:03:19 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.05,231,1701158400"; 
-   d="scan'208";a="30460973"
-Received: from ijarvine-desk1.ger.corp.intel.com (HELO localhost) ([10.246.35.167])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Jan 2024 03:03:08 -0800
-From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Date: Wed, 31 Jan 2024 13:03:04 +0200 (EET)
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>, 
-    Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
-    Johannes Berg <johannes@sipsolutions.net>, 
-    "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-    "David S. Miller" <davem@davemloft.net>, 
-    Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-    Paolo Abeni <pabeni@redhat.com>, Hans de Goede <hdegoede@redhat.com>, 
-    =?ISO-8859-15?Q?Ilpo_J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
-    Vadim Pasternak <vadimp@nvidia.com>, 
-    Bjorn Andersson <andersson@kernel.org>, 
-    Mathieu Poirier <mathieu.poirier@linaro.org>, 
-    Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, 
-    Eric Farman <farman@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
-    Vasily Gorbik <gor@linux.ibm.com>, 
-    Alexander Gordeev <agordeev@linux.ibm.com>, 
-    Christian Borntraeger <borntraeger@linux.ibm.com>, 
-    Sven Schnelle <svens@linux.ibm.com>, Alexei Starovoitov <ast@kernel.org>, 
-    Daniel Borkmann <daniel@iogearbox.net>, 
-    Jesper Dangaard Brouer <hawk@kernel.org>, 
-    John Fastabend <john.fastabend@gmail.com>, 
-    Benjamin Berg <benjamin.berg@intel.com>, 
-    Yang Li <yang.lee@linux.alibaba.com>, linux-um@lists.infradead.org, 
-    Netdev <netdev@vger.kernel.org>, platform-driver-x86@vger.kernel.org, 
-    linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org, 
-    kvm@vger.kernel.org, bpf@vger.kernel.org
-Subject: Re: [PATCH vhost 08/17] virtio: vring_new_virtqueue(): pass struct
- instead of multi parameters
-In-Reply-To: <20240130114224.86536-9-xuanzhuo@linux.alibaba.com>
-Message-ID: <bcd0e35e-e9a3-48b5-fc0a-117ba997439a@linux.intel.com>
-References: <20240130114224.86536-1-xuanzhuo@linux.alibaba.com> <20240130114224.86536-9-xuanzhuo@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="0XAY+RpQ"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+	MIME-Version:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
+	Content-ID:Content-Description:In-Reply-To:References;
+	bh=N4sYla1a0QtG7XOpUQix+TE2gZLQu9Wmvb54FRTzyAU=; b=0XAY+RpQ2+S8apPVCX+PoMU6Hu
+	4d/+G8nJGV5SmNxdXO0iVjDjpSWUoE3TBwc3rsxC2VJTnKlMjiRTBOVYLJzourq6yWEZUMrvO0UwH
+	i+JG815HoF6MyZ0FqnfxGRnWZVdwQ012buEy45d5+YaG/n+dahgFa/FIpPgNQ70/ocKmKc++LbGcP
+	Av2qmZJIRZfrO6TFiqA0x1GKCgPFjbtFHz4hFk24iTPg2n2IDXN6sX4yVkF/ez8Rcbq3JpLxTI6Rg
+	wvQ7HWrj1GyAE5Fx22xx116xxCDWtQq9ZERVnW7yKzJgDso8DTnWpzrknjbsVz0yOM/zzimEutsp3
+	yYalyRHQ==;
+Received: from 2a02-8389-2341-5b80-39d3-4735-9a3c-88d8.cable.dynamic.v6.surfer.at ([2a02:8389:2341:5b80:39d3:4735:9a3c:88d8] helo=localhost)
+	by bombadil.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1rVAG5-00000003V0b-2xvn;
+	Wed, 31 Jan 2024 13:04:06 +0000
+From: Christoph Hellwig <hch@lst.de>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Damien Le Moal <dlemoal@kernel.org>,
+	Keith Busch <kbusch@kernel.org>,
+	Sagi Grimberg <sagi@grimberg.me>,
+	linux-block@vger.kernel.org,
+	linux-nvme@lists.infradead.org,
+	virtualization@lists.linux.dev
+Subject: atomic queue limits updates v3
+Date: Wed, 31 Jan 2024 14:03:46 +0100
+Message-Id: <20240131130400.625836-1-hch@lst.de>
+X-Mailer: git-send-email 2.39.2
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 
-On Tue, 30 Jan 2024, Xuan Zhuo wrote:
+Hi Jens,
 
-> Just like find_vqs(), it is time to refactor the
-> vring_new_virtqueue(). We pass the similar struct to
-> vring_new_virtqueue.
-> 
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> ---
+currently queue limits updates are a mess in that they are updated one
+limit at a time, which makes both cross-checking them against other
+limits hard, and also makes it hard to provide atomicy.
 
-> diff --git a/tools/virtio/vringh_test.c b/tools/virtio/vringh_test.c
-> index 98ff808d6f0c..37f8c5d34285 100644
-> --- a/tools/virtio/vringh_test.c
-> +++ b/tools/virtio/vringh_test.c
+This series tries to change this by updating the whole set of queue
+limits atomically.   This in done in two ways:
 
-> @@ -391,7 +391,7 @@ static int parallel_test(u64 features,
->  				/* Swallow all notifies at once. */
->  				if (read(to_guest[0], buf, sizeof(buf)) < 1)
->  					break;
-> -				
-> +
->  				receives++;
->  				virtqueue_disable_cb(vq);
->  				continue;
-> @@ -424,7 +424,7 @@ static int parallel_test(u64 features,
->  				continue;
->  			if (read(to_guest[0], buf, sizeof(buf)) < 1)
->  				break;
-> -				
-> +
+ - for the initial setup the queue_limits structure is simply passed to
+   the queue/disk allocation helpers and applies there after validation.
+ - for the (relatively few) cases that update limits at runtime a pair
+   of helpers to take a snapshot of the current limits and to commit it
+   after picking up the callers changes are provided.
 
-Two unrelated space changes. Please remove them from this patch.
+As the series is big enough it only converts two drivers - virtio_blk as
+a heavily used driver in virtualized setups, and loop as one that actually
+does runtime updates while being fairly simple.  I plan to update most
+drivers for this merge window, although SCSI will probably have to wait
+for the next one given that it will need extensive API changes in the
+LLDD and ULD interfaces.
 
+Chances since v2:
+ - fix the physical block size default
+ - use PAGE_SECTORS_SHIFT more 
 
--- 
- i.
+Chances since v1:
+ - remove a spurious NULL return in blk_alloc_queue
+ - keep the existing max_discard_sectors == 0 behavior
+ - drop the patch nvme discard limit update hack - it will go into
+   the series updating nvme instead
+ - drop a chunk_sector check
+ - use PAGE_SECTORS in a few places
+ - document the checks and defaults in blk_validate_limits
+ - various spelling fixes
 
+Diffstat:
+ arch/um/drivers/ubd_kern.c          |    2 
+ block/blk-core.c                    |   31 ++-
+ block/blk-mq.c                      |   26 +--
+ block/blk-settings.c                |  213 ++++++++++++++++++++++++-
+ block/blk-sysfs.c                   |   59 +++----
+ block/blk.h                         |    3 
+ block/bsg-lib.c                     |    2 
+ block/genhd.c                       |    4 
+ drivers/block/amiflop.c             |    2 
+ drivers/block/aoe/aoeblk.c          |    2 
+ drivers/block/ataflop.c             |    2 
+ drivers/block/floppy.c              |    2 
+ drivers/block/loop.c                |   75 ++++-----
+ drivers/block/mtip32xx/mtip32xx.c   |    2 
+ drivers/block/nbd.c                 |    2 
+ drivers/block/null_blk/main.c       |    2 
+ drivers/block/ps3disk.c             |    2 
+ drivers/block/rbd.c                 |    2 
+ drivers/block/rnbd/rnbd-clt.c       |    2 
+ drivers/block/sunvdc.c              |    2 
+ drivers/block/swim.c                |    2 
+ drivers/block/swim3.c               |    2 
+ drivers/block/ublk_drv.c            |    2 
+ drivers/block/virtio_blk.c          |  299 ++++++++++++++++++------------------
+ drivers/block/xen-blkfront.c        |    2 
+ drivers/block/z2ram.c               |    2 
+ drivers/cdrom/gdrom.c               |    2 
+ drivers/memstick/core/ms_block.c    |    2 
+ drivers/memstick/core/mspro_block.c |    2 
+ drivers/mmc/core/queue.c            |    2 
+ drivers/mtd/mtd_blkdevs.c           |    2 
+ drivers/mtd/ubi/block.c             |    2 
+ drivers/nvme/host/apple.c           |    2 
+ drivers/nvme/host/core.c            |    8 
+ drivers/s390/block/dasd_genhd.c     |    2 
+ drivers/s390/block/scm_blk.c        |    2 
+ drivers/scsi/scsi_scan.c            |    2 
+ drivers/ufs/core/ufshcd.c           |    2 
+ include/linux/blk-mq.h              |   10 -
+ include/linux/blkdev.h              |   36 +++-
+ 40 files changed, 526 insertions(+), 296 deletions(-)
