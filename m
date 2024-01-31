@@ -1,73 +1,73 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6696F60885
-	for <virtualization@lists.linux.dev>; Wed, 31 Jan 2024 09:13:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9553079DBF
+	for <virtualization@lists.linux.dev>; Wed, 31 Jan 2024 09:13:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706692395; cv=none; b=KsC6U9D+3wl+9xwES4GUV80VSDchFdIoVvRmM0STgg9X64eivcbXISUZRm1P6tmtfjU9Yb2Ka1B/vbf6+2nIpl77GHBEqrqxRtqNJ6Xeoj2bdWzuRwNEN8wO2OB1qGGXpzdZ4O+xoKI20lDabfHkICBjI8fPa4XD+mrjNAf6dRE=
+	t=1706692400; cv=none; b=ZuRGl2/k8f4EULIMVOtpp2FQtpiMmUf8mrbt9EGqDQ5XVDV/U6ANGEQPtQjpsAjJgAkVGml0wVemsWNF3v1jDeKyjZwW2KG/++jNxjCWTeVoZBMZj9PHxxdKJ6sMejlXSVndxwhuxguP7OTSYL5UuSbOyLZpcWsT+bvBYN37eTg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706692395; c=relaxed/simple;
-	bh=GFZDXlK/s4D6vSBTxs5Uj6beZ7wLcQBUCOrs3aA1zrk=;
+	s=arc-20240116; t=1706692400; c=relaxed/simple;
+	bh=ONLOpdhFVTK1PKOUo0h7113+HYlDSSoXMBK7/7cDZ1Q=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ooaQgTR/T+NONygmPmn1/HqHisOsDxeJro/X4/7mHYfZ//URbfbO0SPDY2J9ajD1by1dssDCJQRnrbdeP3fo99Zv30H8yeN6c7oHBYIyIeuNUPJIlyFwGxriXWFweR6RhK6gry1oG0MSiVdBH3oXrJNtGEAwfhbm5BODCa9FEUQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YwV2fmEB; arc=none smtp.client-ip=170.10.129.124
+	 To:Cc:Content-Type; b=h7v7uJ7xTOUbjJCj0tFBfTasMwBbl2ziB+RZ34pcaRu+w5XJYHlCmUXOH1pfGvTl97YIEnihB98OPNdHmvujPM+qn6+5UGobQhigJkJg6jQVUAnyGHuutudklm/XTPMChNsmFHAIlkTnHWwz5Oo/Ix8oZ24r2d7TGNmothTd5Ck=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MhGM0+Rf; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YwV2fmEB"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MhGM0+Rf"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1706692393;
+	s=mimecast20190719; t=1706692397;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=GFZDXlK/s4D6vSBTxs5Uj6beZ7wLcQBUCOrs3aA1zrk=;
-	b=YwV2fmEBLg9RLNldLFTYZ1yePFMkNLWCZBydgPdsrXSoiqjEe/Pd98twu9NeUQrEh9eauO
-	2tca5msH4wcay3WutxfldJY8/y73tBtNIipLAzFiQLczfjfsQ7H7BqTZOIHW02qbnJlUeU
-	pzUHXJB7U5jgr4SIWJU81zYNLHokF4k=
-Received: from mail-vs1-f72.google.com (mail-vs1-f72.google.com
- [209.85.217.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=ONLOpdhFVTK1PKOUo0h7113+HYlDSSoXMBK7/7cDZ1Q=;
+	b=MhGM0+RfbT5EBrWmE0hy7AOz2cCFwSsUhrkUAOe3NNRHRFUjeiBm9RbUQLDaWqxaFnbSTW
+	g++aA3Y65jgz/cYW+IhN0gBJyYROG4Qj4o5trDyBGdNXrGN2R6Cxh95Y3CnQ/++g6HW7Ek
+	Cx7HkqNxTA/+lqOoIFdJPFttTyQzJ1k=
+Received: from mail-vs1-f71.google.com (mail-vs1-f71.google.com
+ [209.85.217.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-681-TjAwtJrvMKuNZtaSawxBxQ-1; Wed, 31 Jan 2024 04:13:12 -0500
-X-MC-Unique: TjAwtJrvMKuNZtaSawxBxQ-1
-Received: by mail-vs1-f72.google.com with SMTP id ada2fe7eead31-46b32362dbbso1279325137.2
-        for <virtualization@lists.linux.dev>; Wed, 31 Jan 2024 01:13:12 -0800 (PST)
+ us-mta-353-AWtHpHl3NEmhcJ1hsnu5Cg-1; Wed, 31 Jan 2024 04:13:16 -0500
+X-MC-Unique: AWtHpHl3NEmhcJ1hsnu5Cg-1
+Received: by mail-vs1-f71.google.com with SMTP id ada2fe7eead31-46b1aeeea7cso1277339137.1
+        for <virtualization@lists.linux.dev>; Wed, 31 Jan 2024 01:13:16 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706692392; x=1707297192;
+        d=1e100.net; s=20230601; t=1706692395; x=1707297195;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=GFZDXlK/s4D6vSBTxs5Uj6beZ7wLcQBUCOrs3aA1zrk=;
-        b=U9oufhdg+Ux/z4WACPsyEBQBnAQVE9nEFGcMERxBiLzCPDs9z5TGFes4GHGUfBlDaA
-         QpWa+zu5qG6rm7lhSoxJ7hNtEjGxRympSMJ5saE5fl6roIOU10o0c7GBa1H8dBeDmhfo
-         vb3cEaGmDtUue5IbDZdTya0apkIVjvV3nUzwgH7VUdk7kWxWDAYagl9/B7bvQwBcPnMH
-         lgbWlHRYPIUEUi175yysaWg57P38OVBOXz6vEJYbaf+mHVW0jq/OlVnfmXjF1xPMs/Dq
-         otF5wXeKFZ8BvQ4+k5tVKd18cKMB8C01F2EndorPkMD3vxH+y3jKZihyIynP6qCGLpMQ
-         qdgA==
-X-Gm-Message-State: AOJu0Yx2fEUw5+1XgwasVfL2uueYS1kMCQubO4ylk3yCg2s/hpUTGISI
-	M4jG1MVhQ3tHoMAlCFbQAbNAtfHT2Ok6oVl/7oDRoCUdzUnABbOsF4SoByiC8zRasRokuYgkEbD
-	X1eJzU4T5aavbg4G7swQ633mH9JgvxfBqhtpho6Pwltll1ZXTeaA/30uK34UdC1sM2n5CXABmLm
-	JfgcrkirXX4qQmK9Ll9q1xU6bM/YwMQP+seoQASVI=
-X-Received: by 2002:a67:ec18:0:b0:469:96dd:4a93 with SMTP id d24-20020a67ec18000000b0046996dd4a93mr924039vso.10.1706692391852;
-        Wed, 31 Jan 2024 01:13:11 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IH/cR50d4YHDD+w1IZRT3VXxyAnkVgoZf6Jvq1cGXaHp7Wnd5AI92yFzXhl3he/qD1ctU9FKOVMa+BK0TXujPo=
-X-Received: by 2002:a67:ec18:0:b0:469:96dd:4a93 with SMTP id
- d24-20020a67ec18000000b0046996dd4a93mr924015vso.10.1706692391631; Wed, 31 Jan
- 2024 01:13:11 -0800 (PST)
+        bh=ONLOpdhFVTK1PKOUo0h7113+HYlDSSoXMBK7/7cDZ1Q=;
+        b=bi6bmwxsSJ6FhKX1ycoCKCEmvw0ztHrkSPxa41TTVoBxaCX4bJOQ7yYmf9ffFZuMli
+         q6QzRQIx54lUBi6WeSmIyrpA9eq1o0Gcjl4gChuXFELdVoi+fFSAgzoNyq7J3z5W/FgO
+         GyNMNqQVZfewFigoOaLfuvw/b3jYwXyQKZa9kCntGeBwcejfrFBUouHUTc1yKKLu6KK3
+         XUSfQoIbQFRa5KjFnizI7rBbEZ2vJorfnTzu5UxkoXa/MW1Ghy64MpEfQbJTM2RjbRiv
+         yJqAXQSSI3UgjS3bByOLiX8cx9PKZeGUVzSu4DzE9pSe8aqHPiJ6rVISgX/36+2NXgeX
+         PPnQ==
+X-Gm-Message-State: AOJu0YwJ4j/Gp1bhyuZD0WbL8AV+STuA0BO7n8aTDIXkGQuDcSjHeEXV
+	yzTEnPCrKNrT7Wrt2unfJx8Czf2XSeLxmQQi+IA3ZnQYQIKksv/g0fMSHvSxsNTJ6s32XIMipuP
+	ZG9u9o3rAdtZjhCkTM3FKWI5rf7KtJE0ZB6jRYoR2b27NuBB1BAi5fRGP16nUL5keLOA9IYMDHh
+	g9Dzsm3pMfSaFRpptR+gdMJvQQ7YXK4bxIMJg4ieI=
+X-Received: by 2002:a05:6102:2753:b0:468:90e:2c88 with SMTP id p19-20020a056102275300b00468090e2c88mr691996vsu.35.1706692395781;
+        Wed, 31 Jan 2024 01:13:15 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGlqIGzGC6WJa2cNQxkOvPsG3lWuLc6yY/NsL+Ul0eahHSt+TTWHH5K0CdWrrzXTYNRodEQ2LjsVmuQ6Q+WlRc=
+X-Received: by 2002:a05:6102:2753:b0:468:90e:2c88 with SMTP id
+ p19-20020a056102275300b00468090e2c88mr691962vsu.35.1706692395533; Wed, 31 Jan
+ 2024 01:13:15 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240130114224.86536-1-xuanzhuo@linux.alibaba.com> <20240130114224.86536-9-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <20240130114224.86536-9-xuanzhuo@linux.alibaba.com>
+References: <20240130114224.86536-1-xuanzhuo@linux.alibaba.com> <20240130114224.86536-12-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20240130114224.86536-12-xuanzhuo@linux.alibaba.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 31 Jan 2024 17:12:38 +0800
-Message-ID: <CACGkMEsOR-Sz6tZC_Lm-Qxdh4Ugjyn4APsX28rkL6nA87oa_Yg@mail.gmail.com>
-Subject: Re: [PATCH vhost 08/17] virtio: vring_new_virtqueue(): pass struct
- instead of multi parameters
+Date: Wed, 31 Jan 2024 17:12:43 +0800
+Message-ID: <CACGkMEtWt1ROwJCeEa5FbQfxV2eqo0xRqHQZMsq-Q2TcQBur9g@mail.gmail.com>
+Subject: Re: [PATCH vhost 11/17] virtio_ring: export premapped to driver by
+ struct virtqueue
 To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>, 
 	Anton Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg <johannes@sipsolutions.net>, 
@@ -91,18 +91,14 @@ X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jan 30, 2024 at 7:42=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
+On Tue, Jan 30, 2024 at 7:43=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
 om> wrote:
 >
-> Just like find_vqs(), it is time to refactor the
-> vring_new_virtqueue(). We pass the similar struct to
-> vring_new_virtqueue.
->
+> Export the premapped to drivers, then drivers can check
+> the vq premapped mode after the find_vqs().
 
-Well, the vring_create_virtqueue() is converted with a structure.
-
-We need to be consistent. And it seems better to use a separate patch
-for vring_create_virtqueue() as well.
+This looks odd, it's the charge of the driver to set premapped, so it
+should know it?
 
 Thanks
 
