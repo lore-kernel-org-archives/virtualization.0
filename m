@@ -1,72 +1,73 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09AA569D16
-	for <virtualization@lists.linux.dev>; Wed, 31 Jan 2024 09:13:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6696F60885
+	for <virtualization@lists.linux.dev>; Wed, 31 Jan 2024 09:13:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706692390; cv=none; b=j2wgy8b2T0w48f0OhF/K+B/GrGMDUIip1sdvsK5LolOp+AfNI7O8PPe3Jdlk5cTAjVcMg4sUFQ2BLyHXTKg8hG2QXHBZePtgu0pNWOLE9MmZR/dMQPAqgk+twjD45WPlEucJGElXpTxpRpISOu7JEmBozR/ViASKR7Q//78NMSA=
+	t=1706692395; cv=none; b=KsC6U9D+3wl+9xwES4GUV80VSDchFdIoVvRmM0STgg9X64eivcbXISUZRm1P6tmtfjU9Yb2Ka1B/vbf6+2nIpl77GHBEqrqxRtqNJ6Xeoj2bdWzuRwNEN8wO2OB1qGGXpzdZ4O+xoKI20lDabfHkICBjI8fPa4XD+mrjNAf6dRE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706692390; c=relaxed/simple;
-	bh=kgV9w/3r2N+l2XD1xKQ4N3OKQGrm1FtckgzvTrOPwHY=;
+	s=arc-20240116; t=1706692395; c=relaxed/simple;
+	bh=GFZDXlK/s4D6vSBTxs5Uj6beZ7wLcQBUCOrs3aA1zrk=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Bol98tJIUCQXitUL5Bow5w0CpW61TPlZ7kIe/oBIjix2EIk1Xd8ifC+g+eJT1Nff/6+xhzlb4+xIl6DtfNf7tt+QbC7obg6Cp/XxWdM2LqDXdt3MN4fTaI1V9frfPwn7MytkDoDWVO15rJnGqal0lo2edZ+bESpKQyZJQhUemLk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=baBlRvHB; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=ooaQgTR/T+NONygmPmn1/HqHisOsDxeJro/X4/7mHYfZ//URbfbO0SPDY2J9ajD1by1dssDCJQRnrbdeP3fo99Zv30H8yeN6c7oHBYIyIeuNUPJIlyFwGxriXWFweR6RhK6gry1oG0MSiVdBH3oXrJNtGEAwfhbm5BODCa9FEUQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YwV2fmEB; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="baBlRvHB"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YwV2fmEB"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1706692387;
+	s=mimecast20190719; t=1706692393;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=60OE93oZxMpAy5PTfrRWb+NgmfRgxzqKxIV3hKWBwnk=;
-	b=baBlRvHB9m6n6049YYfFMTCFp2F95gj+THb4UyU/FHKQcn992c+55F9Hkf/ncWtgBqw2pE
-	zK6W4e92BozoT6VYNZW4Nr219vBNSdmG/X71nyZdClov+9a/uHQTsiA2lxbo4RhP3h4Pjk
-	BizRITv8lcHqhvWLz9EKzByFG18m8n8=
-Received: from mail-ua1-f70.google.com (mail-ua1-f70.google.com
- [209.85.222.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=GFZDXlK/s4D6vSBTxs5Uj6beZ7wLcQBUCOrs3aA1zrk=;
+	b=YwV2fmEBLg9RLNldLFTYZ1yePFMkNLWCZBydgPdsrXSoiqjEe/Pd98twu9NeUQrEh9eauO
+	2tca5msH4wcay3WutxfldJY8/y73tBtNIipLAzFiQLczfjfsQ7H7BqTZOIHW02qbnJlUeU
+	pzUHXJB7U5jgr4SIWJU81zYNLHokF4k=
+Received: from mail-vs1-f72.google.com (mail-vs1-f72.google.com
+ [209.85.217.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-558-6zStugG5PuS-ZSzO57qkKw-1; Wed, 31 Jan 2024 04:13:05 -0500
-X-MC-Unique: 6zStugG5PuS-ZSzO57qkKw-1
-Received: by mail-ua1-f70.google.com with SMTP id a1e0cc1a2514c-7d5bbf0b3e3so1791202241.0
-        for <virtualization@lists.linux.dev>; Wed, 31 Jan 2024 01:13:05 -0800 (PST)
+ us-mta-681-TjAwtJrvMKuNZtaSawxBxQ-1; Wed, 31 Jan 2024 04:13:12 -0500
+X-MC-Unique: TjAwtJrvMKuNZtaSawxBxQ-1
+Received: by mail-vs1-f72.google.com with SMTP id ada2fe7eead31-46b32362dbbso1279325137.2
+        for <virtualization@lists.linux.dev>; Wed, 31 Jan 2024 01:13:12 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706692385; x=1707297185;
+        d=1e100.net; s=20230601; t=1706692392; x=1707297192;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=60OE93oZxMpAy5PTfrRWb+NgmfRgxzqKxIV3hKWBwnk=;
-        b=JBNZ2i80Sot991UCfvg8sAJF1sfelL66x+hnDumtWnB7ln7Oo7DimjT4MWlUCfw8F3
-         g4zB8qLo1JrEJyFHC0MUa7mGe10Ax6nFt40AKBE3BjBa1ehiLNdoqqwCXcDmfl7+Omyq
-         6D8hkyq3aV2A5+sMaPsmD0dgMGUvi/fpnbDuu4Lf15mh86rkNZOwCuNjI1NA+20W9cFb
-         +XTBCrSYDoxS09NK5D4beXtexElrmC4sTIhfho7GDI+1MxzUjPTYPCF3Kpvr0UdiH5qB
-         EeNyUuNh1eIRQoFeKNWt1hR0ukA8jNw8p5KNLhK1omRKHWq+Ps4MdsRVs/684RQw8THn
-         cxzw==
-X-Gm-Message-State: AOJu0YxqRG6XgxQVs/dCgJnGCblMi3lsyeQ1Dl8r2cJwNfbH7bCXsXbR
-	zZIXjGkvi4VT4cDW26P+ybImvLCZgVgAax47xhjrKfqwr5QuysWbR+uvxokvlVO0m4p+zp+Xbmk
-	Elu2Lb0tJnT5kra8V3ajndHw4jUQeafcshOH+PlyChtyJOhNce5GCPwt2QeoJP7hITZvp+EVTbi
-	g3bRYHlabQFnPHRHP0HWfrwU7llXbpgzhu1MuM1sQ=
-X-Received: by 2002:a05:6102:3a72:b0:46b:3515:e946 with SMTP id bf18-20020a0561023a7200b0046b3515e946mr689876vsb.26.1706692384883;
-        Wed, 31 Jan 2024 01:13:04 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEgfhT0+kNvJvRq3b0MROwRjSrfE5RBznl53uEMT/GjL79yJlQ2dVHq4B1TZ1jfZQ3KLNrl4yziYblN9FfKH0U=
-X-Received: by 2002:a05:6102:3a72:b0:46b:3515:e946 with SMTP id
- bf18-20020a0561023a7200b0046b3515e946mr689871vsb.26.1706692384618; Wed, 31
- Jan 2024 01:13:04 -0800 (PST)
+        bh=GFZDXlK/s4D6vSBTxs5Uj6beZ7wLcQBUCOrs3aA1zrk=;
+        b=U9oufhdg+Ux/z4WACPsyEBQBnAQVE9nEFGcMERxBiLzCPDs9z5TGFes4GHGUfBlDaA
+         QpWa+zu5qG6rm7lhSoxJ7hNtEjGxRympSMJ5saE5fl6roIOU10o0c7GBa1H8dBeDmhfo
+         vb3cEaGmDtUue5IbDZdTya0apkIVjvV3nUzwgH7VUdk7kWxWDAYagl9/B7bvQwBcPnMH
+         lgbWlHRYPIUEUi175yysaWg57P38OVBOXz6vEJYbaf+mHVW0jq/OlVnfmXjF1xPMs/Dq
+         otF5wXeKFZ8BvQ4+k5tVKd18cKMB8C01F2EndorPkMD3vxH+y3jKZihyIynP6qCGLpMQ
+         qdgA==
+X-Gm-Message-State: AOJu0Yx2fEUw5+1XgwasVfL2uueYS1kMCQubO4ylk3yCg2s/hpUTGISI
+	M4jG1MVhQ3tHoMAlCFbQAbNAtfHT2Ok6oVl/7oDRoCUdzUnABbOsF4SoByiC8zRasRokuYgkEbD
+	X1eJzU4T5aavbg4G7swQ633mH9JgvxfBqhtpho6Pwltll1ZXTeaA/30uK34UdC1sM2n5CXABmLm
+	JfgcrkirXX4qQmK9Ll9q1xU6bM/YwMQP+seoQASVI=
+X-Received: by 2002:a67:ec18:0:b0:469:96dd:4a93 with SMTP id d24-20020a67ec18000000b0046996dd4a93mr924039vso.10.1706692391852;
+        Wed, 31 Jan 2024 01:13:11 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IH/cR50d4YHDD+w1IZRT3VXxyAnkVgoZf6Jvq1cGXaHp7Wnd5AI92yFzXhl3he/qD1ctU9FKOVMa+BK0TXujPo=
+X-Received: by 2002:a67:ec18:0:b0:469:96dd:4a93 with SMTP id
+ d24-20020a67ec18000000b0046996dd4a93mr924015vso.10.1706692391631; Wed, 31 Jan
+ 2024 01:13:11 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240130114224.86536-1-xuanzhuo@linux.alibaba.com> <20240130114224.86536-18-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <20240130114224.86536-18-xuanzhuo@linux.alibaba.com>
+References: <20240130114224.86536-1-xuanzhuo@linux.alibaba.com> <20240130114224.86536-9-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20240130114224.86536-9-xuanzhuo@linux.alibaba.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 31 Jan 2024 17:12:47 +0800
-Message-ID: <CACGkMEv2cyuesaTx899hwZt7uDdqwmAwXJ8fZDv00W9FbVbTpw@mail.gmail.com>
-Subject: Re: [PATCH vhost 17/17] virtio_net: sq support premapped mode
+Date: Wed, 31 Jan 2024 17:12:38 +0800
+Message-ID: <CACGkMEsOR-Sz6tZC_Lm-Qxdh4Ugjyn4APsX28rkL6nA87oa_Yg@mail.gmail.com>
+Subject: Re: [PATCH vhost 08/17] virtio: vring_new_virtqueue(): pass struct
+ instead of multi parameters
 To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>, 
 	Anton Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg <johannes@sipsolutions.net>, 
@@ -90,187 +91,18 @@ X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jan 30, 2024 at 7:43=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
+On Tue, Jan 30, 2024 at 7:42=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
 om> wrote:
 >
-> If the xsk is enabling, the xsk tx will share the send queue.
-> But the xsk requires that the send queue use the premapped mode.
-> So the send queue must support premapped mode.
+> Just like find_vqs(), it is time to refactor the
+> vring_new_virtqueue(). We pass the similar struct to
+> vring_new_virtqueue.
 >
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> ---
->  drivers/net/virtio_net.c | 167 ++++++++++++++++++++++++++++++++++++++-
->  1 file changed, 163 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 226ab830870e..cf0c67380b07 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -46,6 +46,7 @@ module_param(napi_tx, bool, 0644);
->  #define VIRTIO_XDP_REDIR       BIT(1)
->
->  #define VIRTIO_XDP_FLAG        BIT(0)
-> +#define VIRTIO_DMA_FLAG        BIT(1)
->
->  /* RX packet size EWMA. The average packet size is used to determine the=
- packet
->   * buffer size when refilling RX rings. As the entire RX ring may be ref=
-illed
-> @@ -140,6 +141,21 @@ struct virtnet_rq_dma {
->         u16 need_sync;
->  };
->
-> +struct virtnet_sq_dma {
-> +       union {
-> +               struct virtnet_sq_dma *next;
-> +               void *data;
-> +       };
-> +       dma_addr_t addr;
-> +       u32 len;
-> +       bool is_tail;
-> +};
-> +
-> +struct virtnet_sq_dma_head {
-> +       struct virtnet_sq_dma *free;
-> +       struct virtnet_sq_dma *head;
 
-Any reason the head must be a pointer instead of a simple index?
+Well, the vring_create_virtqueue() is converted with a structure.
 
-> +};
-> +
->  /* Internal representation of a send virtqueue */
->  struct send_queue {
->         /* Virtqueue associated with this send _queue */
-> @@ -159,6 +175,8 @@ struct send_queue {
->
->         /* Record whether sq is in reset state. */
->         bool reset;
-> +
-> +       struct virtnet_sq_dma_head dmainfo;
->  };
->
->  /* Internal representation of a receive virtqueue */
-> @@ -348,6 +366,131 @@ static struct xdp_frame *ptr_to_xdp(void *ptr)
->         return (struct xdp_frame *)((unsigned long)ptr & ~VIRTIO_XDP_FLAG=
-);
->  }
->
-> +static inline void *virtnet_sq_unmap(struct send_queue *sq, void *data)
-> +{
-> +       struct virtnet_sq_dma *head, *tail;
-> +
-> +       if (!((unsigned long)data & VIRTIO_DMA_FLAG))
-> +               return data;
-> +
-> +       head =3D (void *)((unsigned long)data & ~VIRTIO_DMA_FLAG);
-> +
-> +       tail =3D head;
-> +
-> +       while (true) {
-> +               virtqueue_dma_unmap_page_attrs(sq->vq, tail->addr, tail->=
-len,
-> +                                              DMA_TO_DEVICE, 0);
-> +
-> +               if (tail->is_tail)
-> +                       break;
-> +
-> +               tail =3D tail->next;
-> +       }
-> +
-> +       data =3D tail->data;
-> +       tail->is_tail =3D false;
-> +
-> +       tail->next =3D sq->dmainfo.free;
-> +       sq->dmainfo.free =3D head;
-> +
-> +       return data;
-> +}
-> +
-> +static void *virtnet_sq_dma_splice(struct send_queue *sq,
-> +                                  struct virtnet_sq_dma *head,
-> +                                  struct virtnet_sq_dma *tail,
-> +                                  void *data)
-> +{
-> +       sq->dmainfo.free =3D tail->next;
-> +
-> +       tail->is_tail =3D true;
-> +       tail->data =3D data;
-> +
-> +       head =3D (void *)((unsigned long)head | VIRTIO_DMA_FLAG);
-> +
-> +       return head;
-> +}
-> +
-> +static struct virtnet_sq_dma *virtnet_sq_map_sg(struct send_queue *sq, i=
-nt nents, void *data)
-> +{
-> +       struct virtnet_sq_dma *head, *tail, *p;
-> +       struct scatterlist *sg;
-> +       dma_addr_t addr;
-> +       int i;
-> +
-> +       head =3D sq->dmainfo.free;
-> +       p =3D head;
-> +
-> +       tail =3D NULL;
-> +
-> +       for_each_sg(sq->sg, sg, nents, i) {
-> +               addr =3D virtqueue_dma_map_page_attrs(sq->vq, sg_page(sg)=
-,
-> +                                                   sg->offset, sg->lengt=
-h,
-> +                                                   DMA_TO_DEVICE, 0);
-> +               if (virtqueue_dma_mapping_error(sq->vq, addr))
-> +                       goto err;
-> +
-> +               sg->dma_address =3D addr;
-> +
-> +               tail =3D p;
-> +               tail->addr =3D sg->dma_address;
-> +               tail->len =3D sg->length;
-> +
-> +               p =3D p->next;
-> +       }
-> +
-> +       return virtnet_sq_dma_splice(sq, head, tail, data);
-> +
-> +err:
-> +       if (tail)
-> +               virtnet_sq_unmap(sq, virtnet_sq_dma_splice(sq, head, tail=
-, data));
-> +
-> +       return NULL;
-> +}
-> +
-> +static int virtnet_add_outbuf(struct send_queue *sq, u32 num, void *data=
-)
-> +{
-> +       int ret;
-> +
-> +       if (sq->vq->premapped) {
-> +               data =3D virtnet_sq_map_sg(sq, num, data);
-> +               if (!data)
-> +                       return -ENOMEM;
-> +       }
-> +
-> +       ret =3D virtqueue_add_outbuf(sq->vq, sq->sg, num, data, GFP_ATOMI=
-C);
-> +       if (ret && sq->vq->premapped)
-> +               virtnet_sq_unmap(sq, data);
-> +
-> +       return ret;
-> +}
-> +
-> +static int virtnet_sq_init_dma_mate(struct send_queue *sq)
-> +{
-> +       struct virtnet_sq_dma *d;
-> +       int size, i;
-> +
-> +       size =3D virtqueue_get_vring_size(sq->vq);
-> +
-> +       size +=3D MAX_SKB_FRAGS + 2;
-
-Is this enough for the case where an indirect descriptor is used?
+We need to be consistent. And it seems better to use a separate patch
+for vring_create_virtqueue() as well.
 
 Thanks
 
