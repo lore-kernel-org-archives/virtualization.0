@@ -1,297 +1,168 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2066.outbound.protection.outlook.com [40.107.220.66])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32A3914A9E
-	for <virtualization@lists.linux-foundation.org>; Wed, 31 Jan 2024 03:55:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706673350; cv=none; b=URzfg0A4MkwqX4hw3tThHcyXnKgrTcCh1K8supHGmJkGrFkh2jr2fozlWcK9X2sMOQJACJqLBsFa9dOUEbPa4kIb7HDNv5c73r73NSu0BiKqAkJEmCx9cz4BqZl6g20OgHdCZVYDHedkDZuZldyIIMcd8F/Pj/JUPJretQNbGBw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706673350; c=relaxed/simple;
-	bh=3eYmQ3dJsBvcxiCOUDPVxQ8QBgs7NpCaIY0MsgBedKg=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=rDYRLgz1P2OB++dmw+JVEFQkYu7O11jPThL4mhEqQn8x1Rr/iM2cFxCx8hBXoV3v5B1EB7LcE84yAArVfafcVcS69iECsWogbr8PCAvC+6jNHoHAf0zHYW4Ky9HCod0MYcz6a+AAc9Ksqt1qUVnQlQS7FBrYk827/+U+LlYBfQA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aCDZ4g08; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13A623C493
+	for <virtualization@lists.linux.dev>; Wed, 31 Jan 2024 07:00:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.220.66
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1706684447; cv=fail; b=I2lvUdzG2yYSNCEKsJ1A+kUEqaOGj4ZErm6oFNQO/5RSHX+0PNsWVW6jWZ50n/CMegwNFE1z0uc11ITbbQ2+fIVnV+FEtsjtSKP/+7gfjmL6brw7o6MUa5qIfDr/xvR+lqyoTCtDGSdxGmoVFUFo1gQbp+idWqiIKIxwYEmboDs=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1706684447; c=relaxed/simple;
+	bh=2EkSga+57dihpqSGwcBv3Ve/01RnV65Y7FEboIuatRc=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=dNpA3PnFOMjXHscCcrP3Dl86xCwTyIewGqASbYeD+xGNGl40nQ1NpPZ3jI1YSTN+det6KTJMviDzQjAhKAppszujTJdWD1t7vSc/zpD4AG3jUGDD4QlUibxMEeWkhdosTSi96FrfQL2tllW96OW949XCEq7EpSdh+EdBjC3WdY8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=Akf2M78w; arc=fail smtp.client-ip=40.107.220.66
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aCDZ4g08"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id A78DE40182
-	for <virtualization@lists.linux-foundation.org>; Wed, 31 Jan 2024 03:55:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A78DE40182
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=aCDZ4g08
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id dX9x1MbfjjQ3
-	for <virtualization@lists.linux-foundation.org>;
-	Wed, 31 Jan 2024 03:55:47 +0000 (UTC)
-Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 5194440151
-	for <virtualization@lists.linux-foundation.org>; Wed, 31 Jan 2024 03:55:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5194440151
-Received: by mail-pf1-x435.google.com with SMTP id d2e1a72fcca58-6dddc5e34e2so391432b3a.0
-        for <virtualization@lists.linux-foundation.org>; Tue, 30 Jan 2024 19:55:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1706673347; x=1707278147; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=i0RiB2J9TsGrKN0zmH0Y/9LtHAwiNldnnpE0kXLBAF4=;
-        b=aCDZ4g085TKm2w1gfV8WlY1EvhLpkUQZ9irS9AelPeWdtXqKZ9Ex1Wlh6UBoJhFG+6
-         4gkzat333cR83I9/jyCCwN2EBgaLUc50xqQTnD/+AL3XidkM8ES4Xx+g99lAg8D0qrux
-         VcLXOt6gZkJZbMwZ6/9TQvhVZbKCyU7Ppt+6JMc+zU/A4LCh7WMxcHag6s5BRCRd2QLf
-         mil51MoLM/diM9v/RRrRJO1JE/3AVCDimZBP/AqLj85ZwjG39HGsIl49085MyNuUOsFA
-         vaAZDi2KEprBDOK/mKpLvjCrhMOV1bsWh1Q1AvrbS0Vjx7Y49UFyZVloh0B8gCfd7UB4
-         MYPA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706673347; x=1707278147;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=i0RiB2J9TsGrKN0zmH0Y/9LtHAwiNldnnpE0kXLBAF4=;
-        b=eDn6k+QEt6lAPYQrVrhsIKjkoVBjP38egrNNPKVl8D1K2r6L9D/EuKuJSyQCewNFOA
-         IDNZ3YcmBprvDYtwrVfR2bsKo253RFdiWEJwb6GacK7j23e1V283qRTAHvkMET0CxYzm
-         MGUY8L2wlU22pZseDkpBz8N+YOZJGaPXUvLuZj1pUW8x113j/OW2Wlu8QOU3RFsETBqm
-         ZOV+n9ylckWCMVUNQN4SqwAv6XHY1Siz6fbOPD2aOcoIMOH/1uH4KnPupFqdT5/JeHZm
-         SOeERVCB11+GjJs6OM6DFybfAeQNNFsjUaxeFaNjWqxzCI/JUX3Hcj11Vg6luj0SModA
-         8H6A==
-X-Gm-Message-State: AOJu0YwAeCQD1IYq9nwhMuNT7bs8CxcflZvnJDBmQ3SbsknwpYARo7VG
-	kRBsrLKbk/pm5VTda+0ujTRsvSmInpqRMkaHo6+R3L5gMYLoOsFV
-X-Google-Smtp-Source: AGHT+IHAHWpfSaKyH8nbEySVvrjEY4tH5GSlSxBkHYdxI86U3rTdtKh2lP8QDwzl47bD1g8DVf3OWQ==
-X-Received: by 2002:a05:6a00:995:b0:6de:2470:92e1 with SMTP id u21-20020a056a00099500b006de247092e1mr627835pfg.15.1706673346505;
-        Tue, 30 Jan 2024 19:55:46 -0800 (PST)
-Received: from localhost.localdomain ([111.199.1.183])
-        by smtp.googlemail.com with ESMTPSA id j8-20020a056a00234800b006d6b91c6eb6sm8988344pfj.13.2024.01.30.19.55.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Jan 2024 19:55:45 -0800 (PST)
-From: Liang Chen <liangchen.linux@gmail.com>
-To: mst@redhat.com,
-	jasowang@redhat.com,
-	hengqi@linux.alibaba.com,
-	xuanzhuo@linux.alibaba.com
-Cc: virtualization@lists.linux-foundation.org,
-	linux-kernel@vger.kernel.org,
-	liangchen.linux@gmail.com
-Subject: [PATCH v4] virtio_net: Support RX hash XDP hint
-Date: Wed, 31 Jan 2024 11:55:35 +0800
-Message-Id: <20240131035535.22258-1-liangchen.linux@gmail.com>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="Akf2M78w"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=BVcRJRlLARnRmTPHRia2Cbwm0UbmrDyGctvrSdrBg96NR5EMYnWz/9JBNqDsc10vQGPDNzhNyRQnO6K6FcP27algZwT963gRk2iivBL+86T5j/3Zg9Z8nvYA1znWUmlgcBncwZ3QNxlr+pcUp95HNo+HHot6v1m80/AhUulBsqzfyw9O9VOTYR81LvdNl8FqBA5wv7nFnRdT7JkRjlINsRAl5bUPfqLIB+2cv/Z4HIb8oTPRdh2hgm35bRU1yohr7Gj+Yk1sO5n9KfBnx5nYUTY0Zmy1K++aMYav8X+tZxiZw/DGkhSoXSYintI/grIGyOC3OHHT5kkQXTs3SpSJ0Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=2EkSga+57dihpqSGwcBv3Ve/01RnV65Y7FEboIuatRc=;
+ b=hLhk92dcOnsVS470rrZhC33Bjt5smo4VxQVfox4H8fN+MpPSyb1Bu9Xth1HXWJOGReW7jEzkuHORqXrYFTmT54qBi9qg8pLcajFcrVejoo9/gnbZi/Xj18yHvBcF+e4VYS2KjclX+upcMR+03WJzec4Rdg6aIcH7keQ/RaARBXbLQEkR0y/ll8dZFmR0GLWxFaLGx/cNg3c0HlTa4coiI/fb0FQORMSudr34U+VY3DZbqXbJHWKzO2LMGEPh5qH+guvkLtobZ0gjxkt2sgThblM1agkiXC9VbULVrTvfwaKBqmDalEnIryFFF2cFFObc/hvVFpGC4U6eD7rQm2AfFg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=2EkSga+57dihpqSGwcBv3Ve/01RnV65Y7FEboIuatRc=;
+ b=Akf2M78wAEYbOhYWcrXgr+43ophsBhXBs5iL4vg4Z+zu50vTQW0fINa42S6pczlmGV45I09s7R5Io2edY4h7ogFn7HL3ixXOKrUsnvVnLniwFRDuDfGOmznkYHKmKLd0VHCoH0J16ekhvuNdUNg+7jbw6xJlRrmOmxXNo7gysFSXu1OVbEzsssqEFYA1y/xYBBpr/uemNvvh4Cn84XTrRpH4s2ddXnQpHBsJqTjmK32CejZrHSxwg6b0Nh/JEKQk425BgU9XzRMCy5bABzERyhjnRs/zipi0RKpkUt+cQUXlq1uOx6uXkFnIX09meku+BIM8GWuTB043CpXYpOzvug==
+Received: from LV3PR12MB9404.namprd12.prod.outlook.com (2603:10b6:408:219::9)
+ by BY5PR12MB4966.namprd12.prod.outlook.com (2603:10b6:a03:1da::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7249.22; Wed, 31 Jan
+ 2024 07:00:42 +0000
+Received: from LV3PR12MB9404.namprd12.prod.outlook.com
+ ([fe80::ffce:bbde:c1ca:39ed]) by LV3PR12MB9404.namprd12.prod.outlook.com
+ ([fe80::ffce:bbde:c1ca:39ed%4]) with mapi id 15.20.7228.029; Wed, 31 Jan 2024
+ 07:00:42 +0000
+From: Chaitanya Kulkarni <chaitanyak@nvidia.com>
+To: Stefan Hajnoczi <stefanha@gmail.com>
+CC: Stefan Hajnoczi <stefanha@redhat.com>, "virtualization@lists.linux.dev"
+	<virtualization@lists.linux.dev>, "linux-block@vger.kernel.org"
+	<linux-block@vger.kernel.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>,
+	"hch@lst.de" <hch@lst.de>, "jasowang@redhat.com" <jasowang@redhat.com>,
+	"pbonzini@redhat.com" <pbonzini@redhat.com>, "xuanzhuo@linux.alibaba.com"
+	<xuanzhuo@linux.alibaba.com>, "axboe@kernel.dk" <axboe@kernel.dk>, Ming Lei
+	<ming.lei@redhat.com>
+Subject: Re: [RFC PATCH 1/1] virtio-blk: process block layer timedout request
+Thread-Topic: [RFC PATCH 1/1] virtio-blk: process block layer timedout request
+Thread-Index: AQHaI1shzp//y36X6UaYv9pqCqj82LCTo7mAgD1uyACAFVzmgIANcEsA
+Date: Wed, 31 Jan 2024 07:00:42 +0000
+Message-ID: <13d6be3f-d6a8-4ccf-8e14-15647b2eae5b@nvidia.com>
+References: <20231130070133.8059-1-kch@nvidia.com>
+ <20231130070133.8059-2-kch@nvidia.com> <20231201012507.GA1209828@fedora>
+ <f4c17344-33be-4832-9045-fb6b40a478b6@nvidia.com>
+ <CAJSP0QX7H5F=rzz=STeWWYZbTxog0S-MARXgoHkR=u04qTD+_w@mail.gmail.com>
+In-Reply-To:
+ <CAJSP0QX7H5F=rzz=STeWWYZbTxog0S-MARXgoHkR=u04qTD+_w@mail.gmail.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+user-agent: Mozilla Thunderbird
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: LV3PR12MB9404:EE_|BY5PR12MB4966:EE_
+x-ms-office365-filtering-correlation-id: 41e4ca96-0bdc-443e-a84e-08dc222a573c
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info:
+ jNJHWsSWzPsHSlIERZwPuXeuzxKBqqRvvOT0m9+we4wBAP05wnMW515xv4Vpe5x+Ixjo4MbHSNMkV0lhxij2Dx9+73k7c/Sw2lr03Po6pS0ej2iZwtCFM8eNp3XP4hUzcLf9mqgMEw6IUOiJo+J/BAIw+HJJKwB6SlFg2GotSTtydX5QFKCW2PeXbqriWfUi91bXK4+xN30FB/6vD4cq+sOCMInX9JNcx8zNsxWG6kPUB+P60qqAOLpGO4+ZNlJa81JQZcw7efUyC++UUbaceozSxSP0+PhtILuKBCvlNdftjexz+caCE/niKs3SKO/G6j2Hn+t54U6ZoZpqPDKqPLoqATcGnx0WnIFMZ6fW0vktgojXKY7mB8iSlV6m3uticDW4suTOZw1FhSpPTn0Xg/+hkhQTOElVwRKFpF4G95qns4XSOCYa3C0mI7nDFNkFaMWkyCtAzCvPNwERiha+EsQrN5N1zlT55gEZu/GnA7xPszRWBdct/D09YDzB/ljWJUQI4Gp79ag9/Uzr9a/NWBFAijQ35CJamnA+nAEgJO+A+Bxn5fTuXPi5SdGgQ31zDCa848cCRT1ybx5iPci4Psa58wip6rws4wzxlU/LnlESLNjJw/Kfd6mjiFGRUIeQfdhF54VNfuCzFZEGLUYjY5sQ/c9hz7ZUbGXlD+fH0W2qzoRTtcBI5o150/R1dXAF
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV3PR12MB9404.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(396003)(376002)(136003)(346002)(366004)(39860400002)(230922051799003)(64100799003)(451199024)(1800799012)(186009)(41300700001)(83380400001)(6512007)(2616005)(38100700002)(122000001)(5660300002)(4326008)(8676002)(8936002)(7416002)(478600001)(2906002)(53546011)(6486002)(6506007)(54906003)(64756008)(66446008)(66476007)(66556008)(71200400001)(6916009)(76116006)(91956017)(316002)(66946007)(38070700009)(31696002)(86362001)(36756003)(31686004)(43740500002)(45980500001);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?utf-8?B?ZWJ4eE8zWFc4ZG4zL3BNOG9VREhJckxFY2V4VGJXNmhNUW1XMkM1UE5IWmVH?=
+ =?utf-8?B?c2tSQWFrUDdUbHVDMUVtdzJ3enBZMGlEMVRqbmZ3b2pmcThMQTNRd21DbHRB?=
+ =?utf-8?B?RTRnVXFVdlRRekN6Q2pOK3ROVFFuSjhKV1ZIM1BuZ2xBUzlMSFlGaXVFc2pY?=
+ =?utf-8?B?cTFReC9PeGp4RnFYUXQwZm5UNkxBQ0x5KytPMnlFdkNQVy8wK2FXcmdTNkVn?=
+ =?utf-8?B?NWNlR3FRR1ZqWWdBc3N3NXFkbUw1ZnEvS2FzTEZJeE5zMjA2a1hTUVZUOXJN?=
+ =?utf-8?B?Yld0Vi9qbWZreVJLM3BsZ3c5a3BiVlJUcE1IRkIyYmczVS9oeU90RDlBZGJW?=
+ =?utf-8?B?aDZOcE44WXJrcHRQY2sxcU5Ubk1pbFRNbU1aSUh6cGU2cHNrQjlzUElsOFZQ?=
+ =?utf-8?B?eHc0ZE0yU0xCQ2YvMVhIMzkxQVQ3elpha2Fld1BycWhQUDZiZWxMLzJYYTNQ?=
+ =?utf-8?B?QjNzWWVoWVgwSjdjaUxRTGVWUEZxZEFZWW9CRW9BaUlYQ2lIMnV0QVZscW9E?=
+ =?utf-8?B?R09yRWM5NFpveG1jUDlIN0lvZGphVzh5dGp3REhNT0NCZjQzVWxqQ3FmWmVi?=
+ =?utf-8?B?M3NtUXB4V2ZXekZMLzNud2w1NHZhVFdoQkxrWk9KY0Jibk9sUC9tZFhzZlRu?=
+ =?utf-8?B?bEJnd2Y1Wnhuc1NHU0hEWTdCSXlibWVBZTF1bXpxWHAxNUJnOVBGazRaVTVO?=
+ =?utf-8?B?YmxwdFNMRTVWek5SQkh6a2ZxdHdReEVOakJKS2dSeVZNc29IYnJMaGh1VjBB?=
+ =?utf-8?B?dk1wU0FFR00vSG8zZ2hoMU9EUTI1VlVNeDkrQXlLcjFFZXV0dEtjMzExdGFy?=
+ =?utf-8?B?UzdFa0ZTWlZxc1JVVENxeXV1SXp6TS9BZGpldktWdWo1NU1PUHlTcDlkSGdH?=
+ =?utf-8?B?QjQwS0FRZ0dXZWRnc1NEVjFoQmxUV3BWU0dIQVZEZmpxSnFtQkNnRytIakhx?=
+ =?utf-8?B?NUtiMWhUaTJ5MTRGbnhVdC9YMWdoTlRqQ0p0bVl6VFdWeU5jRHRENDRSVFNL?=
+ =?utf-8?B?Vzh2dDBNZ0dNWXI4d2JQVGhoQ0w0Q1JpMHdkUjBIeVpLck0walhMMkNyTkY1?=
+ =?utf-8?B?dmdlQ3BhdExRcEs1TmVjQzZpanQyeXlNK0NvWVNqT2hFUVdrTlFYY0toV3lo?=
+ =?utf-8?B?NTNiSkF3OTNlNTIvZk8rV2VFbTdRbWdwWjRwUTZ3dktucml1NjFSZEZlcXhh?=
+ =?utf-8?B?MWpYNHQ3eVRKR0R5UnR6TEV2dFpmWndpOXVXWEN6STEvT1ZHMnd0TDVsVG5p?=
+ =?utf-8?B?bnQyRmdmWEsxUWVML3FKSHIxS0xiUndVZ2dlVER0aSs0TlNlUllMdUtNbW5h?=
+ =?utf-8?B?UlF4R3pJQnlpQzM1NmxWS1p4YlFZTGpua1pvamJlTzhSaVl5MEN0NWhBUkJY?=
+ =?utf-8?B?WmZTQ0FIUUVBY21VRjBoWllBK2szQnFid2dDRWVEWndLRVFVVGpOQ0VOdzd0?=
+ =?utf-8?B?eUczOHhnN1RwaXRPZnBTc0IrMkc1QU5hbXBKMU54RXdZZFdzSmhSMzJTdEpD?=
+ =?utf-8?B?dU1mREQzKzAxQ2xWT1BTVXNCV00zVTd1aThwWTFBQkYwbkJUZ29aK01TNzNo?=
+ =?utf-8?B?TVNVL01aQmdwTElFeXFucEJzM1AraVZoZ2c3VndNcVREVFJXMlIrajdFSVd3?=
+ =?utf-8?B?c0I2UkJoTW92TXpEZm94VDVCZTgwbklQZmRrd0h0NkltaC9Tb0lweXhmZXRr?=
+ =?utf-8?B?MEtuNFZEUWZWTWZHOGtGa1l0Mkt0UndBeTBvc1hha0VKSXcweE9BeFN6c1J1?=
+ =?utf-8?B?blFFNXREQ09NT2p0VGtnMlpvN3ZiMjZrSUttaVAvYlBudmJjTHdpVDJMbHpi?=
+ =?utf-8?B?emhoT2lTN09Ga3B0TWxvYis2ZmNPc0tocjdiNzRFemgzZXc4cUVpVmx0a3Y2?=
+ =?utf-8?B?SjMyTDZJUWpEQVlPUmM0ZlprYmdETUdTbk4rcjE3TWh0Yk5jNWJ2d3hQWCtr?=
+ =?utf-8?B?czUrMG5XWWpxdUNuVHdtbmdLWkZkem1WUm1GRHpwNzdBVDVUN2tFUk5aTFlq?=
+ =?utf-8?B?TzZldVZpKzl0WDdtU3hkVzNGdFQ1RFdMMFBoM09hUU1Zc3JDZU9TdW1Ra3pG?=
+ =?utf-8?B?Yk5sQ3BnOTdwRXNTMjFRWk5TRWVvZ3hHajMrK0ZPWmxuM0liQ2ZScGM0b2Rn?=
+ =?utf-8?B?TW1tc0x5NmNrUEFGUEhjWHNiNDhucUtpV05uckxHT2s2RlFRc0tXN1IzdmVN?=
+ =?utf-8?Q?mqK8gUWDgYXAqRNX82QWR2yO09XLaY4izFOV2aFdTKuL?=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <783C81A9A17BC54090C629337411B21E@namprd12.prod.outlook.com>
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: LV3PR12MB9404.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 41e4ca96-0bdc-443e-a84e-08dc222a573c
+X-MS-Exchange-CrossTenant-originalarrivaltime: 31 Jan 2024 07:00:42.7009
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 71JqpTPpuw4vf+OYe2U9SFugPqux4bPQ1J4mtXlyWpQIi6qlAwoLLQ0HUgs5pEyOWjmFYM/m+xAfxJwH5FyogA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR12MB4966
 
-The RSS hash report is a feature that's part of the virtio specification.
-Currently, virtio backends like qemu, vdpa (mlx5), and potentially vhost
-(still a work in progress as per [1]) support this feature. While the
-capability to obtain the RSS hash has been enabled in the normal path,
-it's currently missing in the XDP path. Therefore, we are introducing
-XDP hints through kfuncs to allow XDP programs to access the RSS hash.
-
-1.
-https://lore.kernel.org/all/20231015141644.260646-1-akihiko.odaki@daynix.com/#r
-
-Signed-off-by: Liang Chen <liangchen.linux@gmail.com>
-Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
----
- drivers/net/virtio_net.c | 98 +++++++++++++++++++++++++++++++++++-----
- 1 file changed, 86 insertions(+), 12 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index d7ce4a1011ea..7ce666c86ee0 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -349,6 +349,12 @@ struct virtio_net_common_hdr {
- 	};
- };
- 
-+struct virtnet_xdp_buff {
-+	struct xdp_buff xdp;
-+	__le32 hash_value;
-+	__le16 hash_report;
-+};
-+
- static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf);
- 
- static bool is_xdp_frame(void *ptr)
-@@ -1033,6 +1039,16 @@ static void put_xdp_frags(struct xdp_buff *xdp)
- 	}
- }
- 
-+static void virtnet_xdp_save_rx_hash(struct virtnet_xdp_buff *virtnet_xdp,
-+				     struct net_device *dev,
-+				     struct virtio_net_hdr_v1_hash *hdr_hash)
-+{
-+	if (dev->features & NETIF_F_RXHASH) {
-+		virtnet_xdp->hash_value = hdr_hash->hash_value;
-+		virtnet_xdp->hash_report = hdr_hash->hash_report;
-+	}
-+}
-+
- static int virtnet_xdp_handler(struct bpf_prog *xdp_prog, struct xdp_buff *xdp,
- 			       struct net_device *dev,
- 			       unsigned int *xdp_xmit,
-@@ -1199,9 +1215,10 @@ static struct sk_buff *receive_small_xdp(struct net_device *dev,
- 	unsigned int headroom = vi->hdr_len + header_offset;
- 	struct virtio_net_hdr_mrg_rxbuf *hdr = buf + header_offset;
- 	struct page *page = virt_to_head_page(buf);
-+	struct virtnet_xdp_buff virtnet_xdp;
- 	struct page *xdp_page;
-+	struct xdp_buff *xdp;
- 	unsigned int buflen;
--	struct xdp_buff xdp;
- 	struct sk_buff *skb;
- 	unsigned int metasize = 0;
- 	u32 act;
-@@ -1233,17 +1250,20 @@ static struct sk_buff *receive_small_xdp(struct net_device *dev,
- 		page = xdp_page;
- 	}
- 
--	xdp_init_buff(&xdp, buflen, &rq->xdp_rxq);
--	xdp_prepare_buff(&xdp, buf + VIRTNET_RX_PAD + vi->hdr_len,
-+	xdp = &virtnet_xdp.xdp;
-+	xdp_init_buff(xdp, buflen, &rq->xdp_rxq);
-+	xdp_prepare_buff(xdp, buf + VIRTNET_RX_PAD + vi->hdr_len,
- 			 xdp_headroom, len, true);
- 
--	act = virtnet_xdp_handler(xdp_prog, &xdp, dev, xdp_xmit, stats);
-+	virtnet_xdp_save_rx_hash(&virtnet_xdp, dev, (void *)hdr);
-+
-+	act = virtnet_xdp_handler(xdp_prog, xdp, dev, xdp_xmit, stats);
- 
- 	switch (act) {
- 	case XDP_PASS:
- 		/* Recalculate length in case bpf program changed it */
--		len = xdp.data_end - xdp.data;
--		metasize = xdp.data - xdp.data_meta;
-+		len = xdp->data_end - xdp->data;
-+		metasize = xdp->data - xdp->data_meta;
- 		break;
- 
- 	case XDP_TX:
-@@ -1254,7 +1274,7 @@ static struct sk_buff *receive_small_xdp(struct net_device *dev,
- 		goto err_xdp;
- 	}
- 
--	skb = virtnet_build_skb(buf, buflen, xdp.data - buf, len);
-+	skb = virtnet_build_skb(buf, buflen, xdp->data - buf, len);
- 	if (unlikely(!skb))
- 		goto err;
- 
-@@ -1591,10 +1611,11 @@ static struct sk_buff *receive_mergeable_xdp(struct net_device *dev,
- 	int num_buf = virtio16_to_cpu(vi->vdev, hdr->num_buffers);
- 	struct page *page = virt_to_head_page(buf);
- 	int offset = buf - page_address(page);
-+	struct virtnet_xdp_buff virtnet_xdp;
- 	unsigned int xdp_frags_truesz = 0;
- 	struct sk_buff *head_skb;
- 	unsigned int frame_sz;
--	struct xdp_buff xdp;
-+	struct xdp_buff *xdp;
- 	void *data;
- 	u32 act;
- 	int err;
-@@ -1604,16 +1625,19 @@ static struct sk_buff *receive_mergeable_xdp(struct net_device *dev,
- 	if (unlikely(!data))
- 		goto err_xdp;
- 
--	err = virtnet_build_xdp_buff_mrg(dev, vi, rq, &xdp, data, len, frame_sz,
-+	xdp = &virtnet_xdp.xdp;
-+	err = virtnet_build_xdp_buff_mrg(dev, vi, rq, xdp, data, len, frame_sz,
- 					 &num_buf, &xdp_frags_truesz, stats);
- 	if (unlikely(err))
- 		goto err_xdp;
- 
--	act = virtnet_xdp_handler(xdp_prog, &xdp, dev, xdp_xmit, stats);
-+	virtnet_xdp_save_rx_hash(&virtnet_xdp, dev, (void *)hdr);
-+
-+	act = virtnet_xdp_handler(xdp_prog, xdp, dev, xdp_xmit, stats);
- 
- 	switch (act) {
- 	case XDP_PASS:
--		head_skb = build_skb_from_xdp_buff(dev, vi, &xdp, xdp_frags_truesz);
-+		head_skb = build_skb_from_xdp_buff(dev, vi, xdp, xdp_frags_truesz);
- 		if (unlikely(!head_skb))
- 			break;
- 		return head_skb;
-@@ -1626,7 +1650,7 @@ static struct sk_buff *receive_mergeable_xdp(struct net_device *dev,
- 		break;
- 	}
- 
--	put_xdp_frags(&xdp);
-+	put_xdp_frags(xdp);
- 
- err_xdp:
- 	put_page(page);
-@@ -4579,6 +4603,55 @@ static void virtnet_set_big_packets(struct virtnet_info *vi, const int mtu)
- 	}
- }
- 
-+static int virtnet_xdp_rx_hash(const struct xdp_md *_ctx, u32 *hash,
-+			       enum xdp_rss_hash_type *rss_type)
-+{
-+	const struct virtnet_xdp_buff *virtnet_xdp = (void *)_ctx;
-+
-+	if (!(virtnet_xdp->xdp.rxq->dev->features & NETIF_F_RXHASH))
-+		return -ENODATA;
-+
-+	switch (__le16_to_cpu(virtnet_xdp->hash_report)) {
-+	case VIRTIO_NET_HASH_REPORT_TCPv4:
-+		*rss_type = XDP_RSS_TYPE_L4_IPV4_TCP;
-+		break;
-+	case VIRTIO_NET_HASH_REPORT_UDPv4:
-+		*rss_type = XDP_RSS_TYPE_L4_IPV4_UDP;
-+		break;
-+	case VIRTIO_NET_HASH_REPORT_TCPv6:
-+		*rss_type = XDP_RSS_TYPE_L4_IPV6_TCP;
-+		break;
-+	case VIRTIO_NET_HASH_REPORT_UDPv6:
-+		*rss_type = XDP_RSS_TYPE_L4_IPV6_UDP;
-+		break;
-+	case VIRTIO_NET_HASH_REPORT_TCPv6_EX:
-+		*rss_type = XDP_RSS_TYPE_L4_IPV6_TCP_EX;
-+		break;
-+	case VIRTIO_NET_HASH_REPORT_UDPv6_EX:
-+		*rss_type = XDP_RSS_TYPE_L4_IPV6_UDP_EX;
-+		break;
-+	case VIRTIO_NET_HASH_REPORT_IPv4:
-+		*rss_type = XDP_RSS_TYPE_L3_IPV4;
-+		break;
-+	case VIRTIO_NET_HASH_REPORT_IPv6:
-+		*rss_type = XDP_RSS_TYPE_L3_IPV6;
-+		break;
-+	case VIRTIO_NET_HASH_REPORT_IPv6_EX:
-+		*rss_type = XDP_RSS_TYPE_L3_IPV6_EX;
-+		break;
-+	case VIRTIO_NET_HASH_REPORT_NONE:
-+	default:
-+		*rss_type = XDP_RSS_TYPE_NONE;
-+	}
-+
-+	*hash = __le32_to_cpu(virtnet_xdp->hash_value);
-+	return 0;
-+}
-+
-+static const struct xdp_metadata_ops virtnet_xdp_metadata_ops = {
-+	.xmo_rx_hash			= virtnet_xdp_rx_hash,
-+};
-+
- static int virtnet_probe(struct virtio_device *vdev)
- {
- 	int i, err = -ENOMEM;
-@@ -4704,6 +4777,7 @@ static int virtnet_probe(struct virtio_device *vdev)
- 				  VIRTIO_NET_RSS_HASH_TYPE_UDP_EX);
- 
- 		dev->hw_features |= NETIF_F_RXHASH;
-+		dev->xdp_metadata_ops = &virtnet_xdp_metadata_ops;
- 	}
- 
- 	if (vi->has_rss_hash_report)
--- 
-2.42.0
-
+T24gMS8yMi8yNCAwOTo0NywgU3RlZmFuIEhham5vY3ppIHdyb3RlOg0KPiBPbiBNb24sIDggSmFu
+IDIwMjQgYXQgMjI6MzMsIENoYWl0YW55YSBLdWxrYXJuaSA8Y2hhaXRhbnlha0BudmlkaWEuY29t
+PiB3cm90ZToNCj4+IE9uIDExLzMwLzIzIDE3OjI1LCBTdGVmYW4gSGFqbm9jemkgd3JvdGU6DQo+
+Pj4gT24gV2VkLCBOb3YgMjksIDIwMjMgYXQgMTE6MDE6MzNQTSAtMDgwMCwgQ2hhaXRhbnlhIEt1
+bGthcm5pIHdyb3RlOg0KPj4+PiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRp
+b19ibGsuaCBiL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fYmxrLmgNCj4+Pj4gaW5kZXggMzc0
+NGU0ZGExYjJhLi5lZDg2NDE5NWFiMjYgMTAwNjQ0DQo+Pj4+IC0tLSBhL2luY2x1ZGUvdWFwaS9s
+aW51eC92aXJ0aW9fYmxrLmgNCj4+Pj4gKysrIGIvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19i
+bGsuaA0KPj4+PiBAQCAtMzE3LDYgKzMxNyw3IEBAIHN0cnVjdCB2aXJ0aW9fc2NzaV9pbmhkciB7
+DQo+Pj4+ICAgICNkZWZpbmUgVklSVElPX0JMS19TX09LICAgICAgICAgICAgMA0KPj4+PiAgICAj
+ZGVmaW5lIFZJUlRJT19CTEtfU19JT0VSUiAxDQo+Pj4+ICAgICNkZWZpbmUgVklSVElPX0JMS19T
+X1VOU1VQUCAgICAgICAgMg0KPj4+PiArI2RlZmluZSBWSVJUSU9fQkxLX1NfVElNRU9VVCAgICAg
+ICAgMw0KPj4+IFRoZSBzdHJ1Y3RzIGFuZCBjb25zdGFudHMgaW4gdGhpcyBoZWFkZXIgZmlsZSBj
+b21lIGZyb20gdGhlIFZJUlRJTw0KPj4+IHNwZWNpZmljYXRpb24uIEFueXRoaW5nIGNoYW5nZWQg
+aW4gdGhpcyBmaWxlIG11c3QgZmlyc3QgYmUgYWNjZXB0ZWQgaW50bw0KPj4+IHRoZSBWSVJUSU8g
+c3BlYyBiZWNhdXNlIHRoaXMgaXMgdGhlIGhhcmR3YXJlIGludGVyZmFjZSBkZWZpbml0aW9uLg0K
+Pj4+DQo+Pj4gVklSVElPX0JMS19TX1RJTUVPVVQgc2VlbXMgdG8gYmUgc3ludGhldGljIHZhbHVl
+IHRoYXQgaXMgcHVyZWx5IHVzZWQgYnkNCj4+PiBzb2Z0d2FyZSwgbm90IHRoZSBkZXZpY2UuIE1h
+eWJlIHRoZXJlIGlzIG5vIG5lZWQgdG8gdXBkYXRlIHRoZSBzcGVjLg0KPj4+IEp1c3QgYXZvaWQg
+dXNpbmcgaW5faGRyLnN0YXR1cyB0byBzaWduYWwgdGltZW91dHMgYW5kIHVzZSBhIHNlcGFyYXRl
+DQo+Pj4gZmxhZy9maWVsZCBpbnN0ZWFkIGluIGEgYmxvY2sgbGF5ZXIgb3IgdmlydGlvX2JsayBk
+cml2ZXIgcmVxdWVzdCBzdHJ1Y3QuDQo+PiBJdCBpcyBhIHNwZWNpZmljIGVycm9yIGhlbmNlIEkn
+dmUgYWRkZWQgdGhhdCBvbiB0aGUgc2ltaWxhciBsaW5lcywNCj4+IGRvIHlvdSBoYXZlIGEgc3Bl
+Y2lmaWMgZmllbGQgaW4gbWluZCB0aGF0IHlvdSB3b3VsZCBwcmVmZXIgPw0KPiBJIGRpZG4ndCBo
+YXZlIGEgc3BlY2lmaWMgZmxhZyBvciBmaWVsZCBpbiBtaW5kLCBidXQgaXQncyBwcm9iYWJseSBu
+bw0KPiBsb25nZXIgbmVjZXNzYXJ5IGluIHYyIGJlY2F1c2UgdGhlIGNvZGUgbmVlZHMgdG8gd2Fp
+dCBmb3IgdGhlIGRldmljZQ0KPiB0byBjb21wbGV0ZSB0aGUgcmVxdWVzdCBhbnl3YXkuDQo+DQo+
+IFN0ZWZhbg0KDQp3aWxsIHNlbmQgdGhlIFYyIHNvb24sIHRoYW5rcyAuLi4NCg0KLWNrDQoNCg0K
