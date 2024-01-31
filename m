@@ -1,40 +1,71 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 210233715E;
-	Wed, 31 Jan 2024 19:10:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3685E39AF6
+	for <virtualization@lists.linux.dev>; Wed, 31 Jan 2024 22:37:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706728214; cv=none; b=TvlH+fsSQDcg08Hb/fUDjcLMN0AxEN7UeB8MZnuXXv1GGzTm7IbSJzyTnFGvxfTZAiB9d51Ntvzdo0utEq6YIgxMvAob4hgSWUuxAUzkEgat1EUIo3PVDV7povMB8o3oU6R88B6ERaXgfoPExeEymA/TjIbLbPspxt8b10bzzZA=
+	t=1706740623; cv=none; b=eYQN1Hq5lDi8ph/wz93jtd55IREhhe43HKrXvsdMoOVq23XtZC8yZKbC5/MxhWEYSWBrwGA5z+Xod6ppLb5Fd5sZ9Ie4Mx/KmQr1qMgvImulaZw6oHMGIR1BBq8hKXVi00YH32G58ClYidDJBDKThTv8kzajNMCNc6NUAgYeSSo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706728214; c=relaxed/simple;
-	bh=YuGBlaaDD6uC/KXsWtFTjEBqEGYGFxartz53V+KSBQU=;
+	s=arc-20240116; t=1706740623; c=relaxed/simple;
+	bh=Iu+8D8k16qGF05cFe22hv0MQBwz9+bj5LdTjBKDOWeo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=aOfo0pcl0fbKhtoCRdH8e+HZCURH6LMIz/VwJkm5myrVnI2sT+shwNYO0JIL7EhvRzcA8u5FtMEjd1CHchtc52lr7zvteooki0qjKpqbvv9MI1VkQbqTafRb/XsEq1EewXRoBLECkSEi6Wllwb4Y5tDT02vyjx6vwbHc1yFcj28=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WZN8QliN; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type:Content-Disposition; b=XOceOWYnEv3klO76Uo0jgAdhfTgY6kgmkZ88UQJ61SrGiFlT89y9WAUtcMMhNDzviQDDi6/V/PlVMSkr4dqTtZ8YqQ9YOkh1bN12B7FHPTKPiZX5jFQbmC5FKC6V6/dLJcog01SGLEXnODU65BNCIeig82rMuP0OqALKH6H6RgA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Uj5vFBI/; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WZN8QliN"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE521C433F1;
-	Wed, 31 Jan 2024 19:10:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1706728213;
-	bh=YuGBlaaDD6uC/KXsWtFTjEBqEGYGFxartz53V+KSBQU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=WZN8QliNA2knu33YvywVNAsuKerSk0V11V6U2pfWg1KSPUQq0x3NY8psX+IU6uQw2
-	 7uHgK95gmRPhnEgKK1DymD2ss8Su/LxCV98VMotPQz8LtS1/VjIthbdFRbuqShAH3z
-	 ZeoiXhxlmeB8NU4KKrCqmeUO5kO+cCe476SZ6Ux29lc9M9Nzx7ob1/q3bzVfoh3X5F
-	 Bt5smSIC7nCg13w+SRXqRa7MxZoTUwTlOIDuNSSz7n9cB6IKWlTRw/oPcjVw1n6MuF
-	 MxHR6UMVHG1JP273RiNj/Gvoyo1fH76JluEr+4e2WsBufIaUdYC4Qv1Rhu2HwMsE5O
-	 grkcvAk+7yk2A==
-Date: Wed, 31 Jan 2024 12:10:11 -0700
-From: Nathan Chancellor <nathan@kernel.org>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Uj5vFBI/"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1706740620;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=pCoZH7HUiSU0yflw5IfG5DX6qgN8kXKIe4+R5MH+S1U=;
+	b=Uj5vFBI/Fh1jzsdMhm0nBKLjDh2wNxLPvgQSW4rfV3+TJscq5O990i6jg+4Kf4A3MNg0++
+	TuFrAZICK5zJjXIcnKexNXyQ4MsOwSZFGqY3udjfAx43Q93iOfLVOYssGQJbB/gXEd1fNt
+	ZWZEAmczrgP/3gZS5uNQyrECcPbLUrA=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-385-ED4cLUfVNUyNN5X0vceCRA-1; Wed, 31 Jan 2024 17:36:56 -0500
+X-MC-Unique: ED4cLUfVNUyNN5X0vceCRA-1
+Received: by mail-lf1-f71.google.com with SMTP id 2adb3069b0e04-50e9e5c8f49so231956e87.3
+        for <virtualization@lists.linux.dev>; Wed, 31 Jan 2024 14:36:56 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1706740615; x=1707345415;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=pCoZH7HUiSU0yflw5IfG5DX6qgN8kXKIe4+R5MH+S1U=;
+        b=NaM1KzgcB/cavZmruLzw4WwFmD2GLXOLsFejm83CvNgPeUAZLRmpBIEy6bbYmsFey7
+         8c0ilwKwyvFPKjAAW0po+ndDS0+kgblPALvKRXpOnlZGR899F3SwwI9HpOsFzQ3HcQsB
+         X8bfMRJ0y6g6qUzeUe07rZO4ri7P4P/Ta14Fe6AuAGDO8Y++XWQ1T3AKi2O3vNx2rsKg
+         a0APrFcDFgEi2qPerfLCmAaJ+JxzdD4LwBOsEt+JUCqa5u5Ql8pJ5mkcFjGCphyymMoT
+         nNNMJaGuGef0eNdhgrx5FjLPJtG6k2tQPUE/Ijpd5fFc4vC5j10p9KjT16GVO/+lLyON
+         668A==
+X-Gm-Message-State: AOJu0Yz2oEp8afTbrPZI7x4bijhX++M6HV4ARKOuBjjDjEEDzkPoqmwp
+	gKt1culiOB19J/V3MFoW0mQAFvQb6OtNrD7O14QAh04g8sDjBPFFyld93FI3DEJr3iugCNPcS4b
+	FUDYMsG6+pCrAuIHts45Jpai1/pl7/i7J4WtxMYsyemHk360IHGXU42AN5osHunRM
+X-Received: by 2002:a19:4f42:0:b0:510:11f4:6741 with SMTP id a2-20020a194f42000000b0051011f46741mr368289lfk.17.1706740615145;
+        Wed, 31 Jan 2024 14:36:55 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFdYe2Nb5HfdKCFeTwFRTgm6BrtfqRQRuKBw02G2lHJDzsRV/wKxyLsFBX60j2fd+FOCZ/FZQ==
+X-Received: by 2002:a19:4f42:0:b0:510:11f4:6741 with SMTP id a2-20020a194f42000000b0051011f46741mr368273lfk.17.1706740614525;
+        Wed, 31 Jan 2024 14:36:54 -0800 (PST)
+Received: from redhat.com ([2a02:14f:177:15f2:27d8:8291:1cb6:8df6])
+        by smtp.gmail.com with ESMTPSA id fx20-20020a170906b75400b00a34b15c5cedsm6703708ejb.170.2024.01.31.14.36.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 31 Jan 2024 14:36:53 -0800 (PST)
+Date: Wed, 31 Jan 2024 17:36:45 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
 To: zhenwei pi <pizhenwei@bytedance.com>
-Cc: arei.gonglei@huawei.com, mst@redhat.com, jasowang@redhat.com,
+Cc: arei.gonglei@huawei.com, jasowang@redhat.com,
 	herbert@gondor.apana.org.au, xuanzhuo@linux.alibaba.com,
-	virtualization@lists.linux.dev, linux-crypto@vger.kernel.org,
-	linux-kernel@vger.kernel.org, davem@davemloft.net
+	virtualization@lists.linux.dev, nathan@kernel.org,
+	linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org,
+	davem@davemloft.net
 Subject: Re: [PATCH] crypto: virtio/akcipher - Fix stack overflow on memcpy
-Message-ID: <20240131191011.GA679548@dev-arch.thelio-3990X>
+Message-ID: <20240131173615-mutt-send-email-mst@kernel.org>
 References: <20240130112740.882183-1-pizhenwei@bytedance.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -42,9 +73,11 @@ List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <20240130112740.882183-1-pizhenwei@bytedance.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240130112740.882183-1-pizhenwei@bytedance.com>
 
 On Tue, Jan 30, 2024 at 07:27:40PM +0800, zhenwei pi wrote:
 > sizeof(struct virtio_crypto_akcipher_session_para) is less than
@@ -60,15 +93,10 @@ On Tue, Jan 30, 2024 at 07:27:40PM +0800, zhenwei pi wrote:
 > Link: https://lore.kernel.org/all/0a194a79-e3a3-45e7-be98-83abd3e1cb7e@roeck-us.net/
 > Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
 
-I can confirm this resolves the warning for me as well.
+Cc: stable@vger.kernel.org
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-Tested-by: Nathan Chancellor <nathan@kernel.org> # build
 
-I suspect Guenter should have a formal Reported-by tag. Should this be
-CC'd for stable@ as well?
-
-Cheers,
-Nathan
 
 > ---
 >  drivers/crypto/virtio/virtio_crypto_akcipher_algs.c | 5 +++--
@@ -99,4 +127,4 @@ Nathan
 >  
 > -- 
 > 2.34.1
-> 
+
