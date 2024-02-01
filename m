@@ -1,100 +1,422 @@
-Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AC1E3A1D9
-	for <virtualization@lists.linux.dev>; Thu,  1 Feb 2024 03:19:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id A09C23B282;
+	Thu,  1 Feb 2024 03:19:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706757590; cv=none; b=jglWGovUlPtEWCuk8UDAGx820mSdCyCM5tD+E25Lu9B00/AD6kZ3CmF6fjkuHzVAuJNw8GL1BtzzQf63bbEBH0BVcEL7w2kac78rq/723hm6Ppa2ap7sxhz15m429iHXu6CTULLfEfxTj03AwNexQxkn0usdVcppbdUqp9zLhLM=
+	t=1706757596; cv=none; b=urXr98146FKkdHH2T63VU+nX58e/pDtxmtz5P76FL2moGCtQNOv06CgI/8ZMTQTBW4cD9OyTwQegca8STbzw2R3AEXRVVtl+nRqJYpGawNyKDIjDfsDWy+g320JUpTCiN491wsF1ESZ25+QJw56tVkWon/ufXnqC00NQB0ZhROU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706757590; c=relaxed/simple;
-	bh=PLhFLSirN3zIM/Dl1SY9Z1UcGt6Zg3JBMDy6mgyyODA=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=eMcdrG7H72MZ+cbGmtnKiZ8pUwaH3NxdN8t0pvu3Cx3FB7EX+WlJ5UQAC/+woFfCXaE0fp50RjrlJE9O2riKe9cEULzs9motQ0ZIkOFDvx4SXAKG85Dp+TCyzPaLkhn93xDvfoomGtWUAr4D7DyIdPZpzztdXtoxzV18g6cSjLY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=bO+msRE7; arc=none smtp.client-ip=115.124.30.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="bO+msRE7"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1706757585; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=PLhFLSirN3zIM/Dl1SY9Z1UcGt6Zg3JBMDy6mgyyODA=;
-	b=bO+msRE7cnGpsoweN6yZmJdWuWiosg+E1bUhQFlSV4rCF9PnuhHdr6w+pkZ1qpx2SVhqWcPuuzEFpQWbHr8jyvstZR9JZB8P8IzyRcHVpc+wrD7hg/x8Df1e+gR05YMvSC2WEg9wS9ZvAm0uQN5omuCN4Os2xEJ9GXIDvJ4fi+Q=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=36;SR=0;TI=SMTPD_---0W.mW7Yb_1706757582;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W.mW7Yb_1706757582)
-          by smtp.aliyun-inc.com;
-          Thu, 01 Feb 2024 11:19:43 +0800
-Message-ID: <1706757435.040749-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost 11/17] virtio_ring: export premapped to driver by struct virtqueue
-Date: Thu, 1 Feb 2024 11:17:15 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux.dev,
- Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- "Michael S. Tsirkin" <mst@redhat.com>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- Hans de Goede <hdegoede@redhat.com>,
- =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- Vadim Pasternak <vadimp@nvidia.com>,
- Bjorn Andersson <andersson@kernel.org>,
- Mathieu Poirier <mathieu.poirier@linaro.org>,
- Cornelia Huck <cohuck@redhat.com>,
- Halil Pasic <pasic@linux.ibm.com>,
- Eric Farman <farman@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- Benjamin Berg <benjamin.berg@intel.com>,
- Yang Li <yang.lee@linux.alibaba.com>,
- linux-um@lists.infradead.org,
- netdev@vger.kernel.org,
- platform-driver-x86@vger.kernel.org,
- linux-remoteproc@vger.kernel.org,
- linux-s390@vger.kernel.org,
- kvm@vger.kernel.org,
- bpf@vger.kernel.org
-References: <20240130114224.86536-1-xuanzhuo@linux.alibaba.com>
- <20240130114224.86536-12-xuanzhuo@linux.alibaba.com>
- <CACGkMEtWt1ROwJCeEa5FbQfxV2eqo0xRqHQZMsq-Q2TcQBur9g@mail.gmail.com>
-In-Reply-To: <CACGkMEtWt1ROwJCeEa5FbQfxV2eqo0xRqHQZMsq-Q2TcQBur9g@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+	s=arc-20240116; t=1706757596; c=relaxed/simple;
+	bh=XtfDaojH6r62otarE6N5h6lD5xFHPE5d3TsQsAN2tGE=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=ZcYXfTXmkpdsIzyMSDHLgszGeVJsF++4miUKTEf/6pnM3uq+RQvq/JCGNmhqSz7oQWBnXhWPbfTM7VJ91pZluhK5bZgpSLv0iBEV4+2XbZNUYJbbTkWe4yEDcTs8LuyfAsSCUcksIguAy/c+kJzzGApJkWfD8aungo7qLM0f5Sk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.2.5.213])
+	by gateway (Coremail) with SMTP id _____8AxqvDXDbtlLlQJAA--.27800S3;
+	Thu, 01 Feb 2024 11:19:51 +0800 (CST)
+Received: from localhost.localdomain (unknown [10.2.5.213])
+	by localhost.localdomain (Coremail) with SMTP id AQAAf8DxfRPWDbtltkIrAA--.3273S3;
+	Thu, 01 Feb 2024 11:19:51 +0800 (CST)
+From: Bibo Mao <maobibo@loongson.cn>
+To: Huacai Chen <chenhuacai@kernel.org>,
+	Tianrui Zhao <zhaotianrui@loongson.cn>,
+	Juergen Gross <jgross@suse.com>,
+	Paolo Bonzini <pbonzini@redhat.com>
+Cc: loongarch@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	kvm@vger.kernel.org
+Subject: [PATCH v4 1/6] LoongArch/smp: Refine ipi ops on LoongArch platform
+Date: Thu,  1 Feb 2024 11:19:45 +0800
+Message-Id: <20240201031950.3225626-2-maobibo@loongson.cn>
+X-Mailer: git-send-email 2.39.3
+In-Reply-To: <20240201031950.3225626-1-maobibo@loongson.cn>
+References: <20240201031950.3225626-1-maobibo@loongson.cn>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:AQAAf8DxfRPWDbtltkIrAA--.3273S3
+X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
+X-Coremail-Antispam: 1Uk129KBj93XoW3KryfCFWrGry3Gw47Xw1kZwc_yoWktr4kpF
+	y3Zw4DKr4rWFnYv3s0ya98Zr15AFnagwsFqa17KayxAF12q3s8XF4kJF9FvF10k3yrua40
+	vFZ5Gr4IgF1UAacCm3ZEXasCq-sJn29KB7ZKAUJUUUU5529EdanIXcx71UUUUU7KY7ZEXa
+	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
+	0xBIdaVrnRJUUUkYb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
+	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
+	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Gr0_Xr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
+	0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVWxJVW8Jr1l84ACjcxK6I8E87Iv6xkF7I0E14v2
+	6r4UJVWxJr1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqjxCEc2xF0cIa020Ex4CE44I27w
+	Aqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_JF0_Jw1lYx0Ex4A2jsIE
+	14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwIxGrwCF04k20xvY0x
+	0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E
+	7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcV
+	C0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr1lIxAIcVCF
+	04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7
+	CjxVAFwI0_Jr0_GrUvcSsGvfC2KfnxnUUI43ZEXa7IU82g43UUUUU==
 
-On Wed, 31 Jan 2024 17:12:43 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Tue, Jan 30, 2024 at 7:43=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba=
-.com> wrote:
-> >
-> > Export the premapped to drivers, then drivers can check
-> > the vq premapped mode after the find_vqs().
->=20
-> This looks odd, it's the charge of the driver to set premapped, so it
-> should know it?
+This patch refines ipi handling on LoongArch platform, there are
+three changes with this patch.
+1. Add generic get_percpu_irq() api, replace some percpu irq functions
+such as get_ipi_irq()/get_pmc_irq()/get_timer_irq() with get_percpu_irq().
 
-If the use_dma_api is false, we can not enable the premapped mode.
-Though we wrapped dma apis, but the AF_XDP use the default dma api directly.
-As we discussed, we just work in premapped mode when the use_dma_api is tru=
-e.
+2. Change parameter action definition with function
+loongson_send_ipi_single() and loongson_send_ipi_mask(). Normal decimal
+encoding is used rather than binary bitmap encoding for ipi action, ipi
+hw sender uses devimal action code, and ipi receiver will get binary bitmap
+encoding, the ipi hw will convert it into bitmap in ipi message buffer.
 
-Thanks.
+3. Add structure smp_ops on LoongArch platform so that pv ipi can be used
+later.
 
+Signed-off-by: Bibo Mao <maobibo@loongson.cn>
+---
+ arch/loongarch/include/asm/hardirq.h |  4 ++
+ arch/loongarch/include/asm/irq.h     | 10 ++++-
+ arch/loongarch/include/asm/smp.h     | 31 +++++++--------
+ arch/loongarch/kernel/irq.c          | 22 +----------
+ arch/loongarch/kernel/perf_event.c   | 14 +------
+ arch/loongarch/kernel/smp.c          | 58 +++++++++++++++++++---------
+ arch/loongarch/kernel/time.c         | 12 +-----
+ 7 files changed, 71 insertions(+), 80 deletions(-)
 
->=20
-> Thanks
->=20
+diff --git a/arch/loongarch/include/asm/hardirq.h b/arch/loongarch/include/asm/hardirq.h
+index 0ef3b18f8980..9f0038e19c7f 100644
+--- a/arch/loongarch/include/asm/hardirq.h
++++ b/arch/loongarch/include/asm/hardirq.h
+@@ -12,6 +12,10 @@
+ extern void ack_bad_irq(unsigned int irq);
+ #define ack_bad_irq ack_bad_irq
+ 
++enum ipi_msg_type {
++	IPI_RESCHEDULE,
++	IPI_CALL_FUNCTION,
++};
+ #define NR_IPI	2
+ 
+ typedef struct {
+diff --git a/arch/loongarch/include/asm/irq.h b/arch/loongarch/include/asm/irq.h
+index 218b4da0ea90..00101b6d601e 100644
+--- a/arch/loongarch/include/asm/irq.h
++++ b/arch/loongarch/include/asm/irq.h
+@@ -117,8 +117,16 @@ extern struct fwnode_handle *liointc_handle;
+ extern struct fwnode_handle *pch_lpc_handle;
+ extern struct fwnode_handle *pch_pic_handle[MAX_IO_PICS];
+ 
+-extern irqreturn_t loongson_ipi_interrupt(int irq, void *dev);
++static inline int get_percpu_irq(int vector)
++{
++	struct irq_domain *d;
++
++	d = irq_find_matching_fwnode(cpuintc_handle, DOMAIN_BUS_ANY);
++	if (d)
++		return irq_create_mapping(d, vector);
+ 
++	return -EINVAL;
++}
+ #include <asm-generic/irq.h>
+ 
+ #endif /* _ASM_IRQ_H */
+diff --git a/arch/loongarch/include/asm/smp.h b/arch/loongarch/include/asm/smp.h
+index f81e5f01d619..8a42632b038a 100644
+--- a/arch/loongarch/include/asm/smp.h
++++ b/arch/loongarch/include/asm/smp.h
+@@ -12,6 +12,13 @@
+ #include <linux/threads.h>
+ #include <linux/cpumask.h>
+ 
++struct smp_ops {
++	void (*init_ipi)(void);
++	void (*send_ipi_mask)(const struct cpumask *mask, unsigned int action);
++	void (*send_ipi_single)(int cpu, unsigned int action);
++};
++
++extern struct smp_ops smp_ops;
+ extern int smp_num_siblings;
+ extern int num_processors;
+ extern int disabled_cpus;
+@@ -24,8 +31,6 @@ void loongson_prepare_cpus(unsigned int max_cpus);
+ void loongson_boot_secondary(int cpu, struct task_struct *idle);
+ void loongson_init_secondary(void);
+ void loongson_smp_finish(void);
+-void loongson_send_ipi_single(int cpu, unsigned int action);
+-void loongson_send_ipi_mask(const struct cpumask *mask, unsigned int action);
+ #ifdef CONFIG_HOTPLUG_CPU
+ int loongson_cpu_disable(void);
+ void loongson_cpu_die(unsigned int cpu);
+@@ -59,9 +64,12 @@ extern int __cpu_logical_map[NR_CPUS];
+ 
+ #define cpu_physical_id(cpu)	cpu_logical_map(cpu)
+ 
+-#define SMP_BOOT_CPU		0x1
+-#define SMP_RESCHEDULE		0x2
+-#define SMP_CALL_FUNCTION	0x4
++#define ACTTION_BOOT_CPU	0
++#define ACTTION_RESCHEDULE	1
++#define ACTTION_CALL_FUNCTION	2
++#define SMP_BOOT_CPU		BIT(ACTTION_BOOT_CPU)
++#define SMP_RESCHEDULE		BIT(ACTTION_RESCHEDULE)
++#define SMP_CALL_FUNCTION	BIT(ACTTION_CALL_FUNCTION)
+ 
+ struct secondary_data {
+ 	unsigned long stack;
+@@ -71,7 +79,8 @@ extern struct secondary_data cpuboot_data;
+ 
+ extern asmlinkage void smpboot_entry(void);
+ extern asmlinkage void start_secondary(void);
+-
++extern void arch_send_call_function_single_ipi(int cpu);
++extern void arch_send_call_function_ipi_mask(const struct cpumask *mask);
+ extern void calculate_cpu_foreign_map(void);
+ 
+ /*
+@@ -79,16 +88,6 @@ extern void calculate_cpu_foreign_map(void);
+  */
+ extern void show_ipi_list(struct seq_file *p, int prec);
+ 
+-static inline void arch_send_call_function_single_ipi(int cpu)
+-{
+-	loongson_send_ipi_single(cpu, SMP_CALL_FUNCTION);
+-}
+-
+-static inline void arch_send_call_function_ipi_mask(const struct cpumask *mask)
+-{
+-	loongson_send_ipi_mask(mask, SMP_CALL_FUNCTION);
+-}
+-
+ #ifdef CONFIG_HOTPLUG_CPU
+ static inline int __cpu_disable(void)
+ {
+diff --git a/arch/loongarch/kernel/irq.c b/arch/loongarch/kernel/irq.c
+index 883e5066ae44..ce36897d1e5a 100644
+--- a/arch/loongarch/kernel/irq.c
++++ b/arch/loongarch/kernel/irq.c
+@@ -87,23 +87,9 @@ static void __init init_vec_parent_group(void)
+ 	acpi_table_parse(ACPI_SIG_MCFG, early_pci_mcfg_parse);
+ }
+ 
+-static int __init get_ipi_irq(void)
+-{
+-	struct irq_domain *d = irq_find_matching_fwnode(cpuintc_handle, DOMAIN_BUS_ANY);
+-
+-	if (d)
+-		return irq_create_mapping(d, INT_IPI);
+-
+-	return -EINVAL;
+-}
+-
+ void __init init_IRQ(void)
+ {
+ 	int i;
+-#ifdef CONFIG_SMP
+-	int r, ipi_irq;
+-	static int ipi_dummy_dev;
+-#endif
+ 	unsigned int order = get_order(IRQ_STACK_SIZE);
+ 	struct page *page;
+ 
+@@ -113,13 +99,7 @@ void __init init_IRQ(void)
+ 	init_vec_parent_group();
+ 	irqchip_init();
+ #ifdef CONFIG_SMP
+-	ipi_irq = get_ipi_irq();
+-	if (ipi_irq < 0)
+-		panic("IPI IRQ mapping failed\n");
+-	irq_set_percpu_devid(ipi_irq);
+-	r = request_percpu_irq(ipi_irq, loongson_ipi_interrupt, "IPI", &ipi_dummy_dev);
+-	if (r < 0)
+-		panic("IPI IRQ request failed\n");
++	smp_ops.init_ipi();
+ #endif
+ 
+ 	for (i = 0; i < NR_IRQS; i++)
+diff --git a/arch/loongarch/kernel/perf_event.c b/arch/loongarch/kernel/perf_event.c
+index 0491bf453cd4..3265c8f33223 100644
+--- a/arch/loongarch/kernel/perf_event.c
++++ b/arch/loongarch/kernel/perf_event.c
+@@ -456,16 +456,6 @@ static void loongarch_pmu_disable(struct pmu *pmu)
+ static DEFINE_MUTEX(pmu_reserve_mutex);
+ static atomic_t active_events = ATOMIC_INIT(0);
+ 
+-static int get_pmc_irq(void)
+-{
+-	struct irq_domain *d = irq_find_matching_fwnode(cpuintc_handle, DOMAIN_BUS_ANY);
+-
+-	if (d)
+-		return irq_create_mapping(d, INT_PCOV);
+-
+-	return -EINVAL;
+-}
+-
+ static void reset_counters(void *arg);
+ static int __hw_perf_event_init(struct perf_event *event);
+ 
+@@ -473,7 +463,7 @@ static void hw_perf_event_destroy(struct perf_event *event)
+ {
+ 	if (atomic_dec_and_mutex_lock(&active_events, &pmu_reserve_mutex)) {
+ 		on_each_cpu(reset_counters, NULL, 1);
+-		free_irq(get_pmc_irq(), &loongarch_pmu);
++		free_irq(get_percpu_irq(INT_PCOV), &loongarch_pmu);
+ 		mutex_unlock(&pmu_reserve_mutex);
+ 	}
+ }
+@@ -562,7 +552,7 @@ static int loongarch_pmu_event_init(struct perf_event *event)
+ 	if (event->cpu >= 0 && !cpu_online(event->cpu))
+ 		return -ENODEV;
+ 
+-	irq = get_pmc_irq();
++	irq = get_percpu_irq(INT_PCOV);
+ 	flags = IRQF_PERCPU | IRQF_NOBALANCING | IRQF_NO_THREAD | IRQF_NO_SUSPEND | IRQF_SHARED;
+ 	if (!atomic_inc_not_zero(&active_events)) {
+ 		mutex_lock(&pmu_reserve_mutex);
+diff --git a/arch/loongarch/kernel/smp.c b/arch/loongarch/kernel/smp.c
+index 2b49d30eb7c0..3d3ec07d1ec4 100644
+--- a/arch/loongarch/kernel/smp.c
++++ b/arch/loongarch/kernel/smp.c
+@@ -66,11 +66,6 @@ static cpumask_t cpu_core_setup_map;
+ struct secondary_data cpuboot_data;
+ static DEFINE_PER_CPU(int, cpu_state);
+ 
+-enum ipi_msg_type {
+-	IPI_RESCHEDULE,
+-	IPI_CALL_FUNCTION,
+-};
+-
+ static const char *ipi_types[NR_IPI] __tracepoint_string = {
+ 	[IPI_RESCHEDULE] = "Rescheduling interrupts",
+ 	[IPI_CALL_FUNCTION] = "Function call interrupts",
+@@ -123,24 +118,19 @@ static u32 ipi_read_clear(int cpu)
+ 
+ static void ipi_write_action(int cpu, u32 action)
+ {
+-	unsigned int irq = 0;
+-
+-	while ((irq = ffs(action))) {
+-		uint32_t val = IOCSR_IPI_SEND_BLOCKING;
++	uint32_t val;
+ 
+-		val |= (irq - 1);
+-		val |= (cpu << IOCSR_IPI_SEND_CPU_SHIFT);
+-		iocsr_write32(val, LOONGARCH_IOCSR_IPI_SEND);
+-		action &= ~BIT(irq - 1);
+-	}
++	val = IOCSR_IPI_SEND_BLOCKING | action;
++	val |= (cpu << IOCSR_IPI_SEND_CPU_SHIFT);
++	iocsr_write32(val, LOONGARCH_IOCSR_IPI_SEND);
+ }
+ 
+-void loongson_send_ipi_single(int cpu, unsigned int action)
++static void loongson_send_ipi_single(int cpu, unsigned int action)
+ {
+ 	ipi_write_action(cpu_logical_map(cpu), (u32)action);
+ }
+ 
+-void loongson_send_ipi_mask(const struct cpumask *mask, unsigned int action)
++static void loongson_send_ipi_mask(const struct cpumask *mask, unsigned int action)
+ {
+ 	unsigned int i;
+ 
+@@ -148,6 +138,16 @@ void loongson_send_ipi_mask(const struct cpumask *mask, unsigned int action)
+ 		ipi_write_action(cpu_logical_map(i), (u32)action);
+ }
+ 
++void arch_send_call_function_single_ipi(int cpu)
++{
++	smp_ops.send_ipi_single(cpu, ACTTION_CALL_FUNCTION);
++}
++
++void arch_send_call_function_ipi_mask(const struct cpumask *mask)
++{
++	smp_ops.send_ipi_mask(mask, ACTTION_CALL_FUNCTION);
++}
++
+ /*
+  * This function sends a 'reschedule' IPI to another CPU.
+  * it goes straight through and wastes no time serializing
+@@ -155,11 +155,11 @@ void loongson_send_ipi_mask(const struct cpumask *mask, unsigned int action)
+  */
+ void arch_smp_send_reschedule(int cpu)
+ {
+-	loongson_send_ipi_single(cpu, SMP_RESCHEDULE);
++	smp_ops.send_ipi_single(cpu, ACTTION_RESCHEDULE);
+ }
+ EXPORT_SYMBOL_GPL(arch_smp_send_reschedule);
+ 
+-irqreturn_t loongson_ipi_interrupt(int irq, void *dev)
++static irqreturn_t loongson_ipi_interrupt(int irq, void *dev)
+ {
+ 	unsigned int action;
+ 	unsigned int cpu = smp_processor_id();
+@@ -179,6 +179,26 @@ irqreturn_t loongson_ipi_interrupt(int irq, void *dev)
+ 	return IRQ_HANDLED;
+ }
+ 
++static void loongson_init_ipi(void)
++{
++	int r, ipi_irq;
++
++	ipi_irq = get_percpu_irq(INT_IPI);
++	if (ipi_irq < 0)
++		panic("IPI IRQ mapping failed\n");
++
++	irq_set_percpu_devid(ipi_irq);
++	r = request_percpu_irq(ipi_irq, loongson_ipi_interrupt, "IPI", &irq_stat);
++	if (r < 0)
++		panic("IPI IRQ request failed\n");
++}
++
++struct smp_ops smp_ops = {
++	.init_ipi		= loongson_init_ipi,
++	.send_ipi_single	= loongson_send_ipi_single,
++	.send_ipi_mask		= loongson_send_ipi_mask,
++};
++
+ static void __init fdt_smp_setup(void)
+ {
+ #ifdef CONFIG_OF
+@@ -256,7 +276,7 @@ void loongson_boot_secondary(int cpu, struct task_struct *idle)
+ 
+ 	csr_mail_send(entry, cpu_logical_map(cpu), 0);
+ 
+-	loongson_send_ipi_single(cpu, SMP_BOOT_CPU);
++	loongson_send_ipi_single(cpu, ACTTION_BOOT_CPU);
+ }
+ 
+ /*
+diff --git a/arch/loongarch/kernel/time.c b/arch/loongarch/kernel/time.c
+index e7015f7b70e3..fd5354f9be7c 100644
+--- a/arch/loongarch/kernel/time.c
++++ b/arch/loongarch/kernel/time.c
+@@ -123,16 +123,6 @@ void sync_counter(void)
+ 	csr_write64(init_offset, LOONGARCH_CSR_CNTC);
+ }
+ 
+-static int get_timer_irq(void)
+-{
+-	struct irq_domain *d = irq_find_matching_fwnode(cpuintc_handle, DOMAIN_BUS_ANY);
+-
+-	if (d)
+-		return irq_create_mapping(d, INT_TI);
+-
+-	return -EINVAL;
+-}
+-
+ int constant_clockevent_init(void)
+ {
+ 	unsigned int cpu = smp_processor_id();
+@@ -142,7 +132,7 @@ int constant_clockevent_init(void)
+ 	static int irq = 0, timer_irq_installed = 0;
+ 
+ 	if (!timer_irq_installed) {
+-		irq = get_timer_irq();
++		irq = get_percpu_irq(INT_TI);
+ 		if (irq < 0)
+ 			pr_err("Failed to map irq %d (timer)\n", irq);
+ 	}
+-- 
+2.39.3
+
