@@ -1,112 +1,184 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59D4C1E896
-	for <virtualization@lists.linux.dev>; Thu,  1 Feb 2024 03:24:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA85A3A8C5
+	for <virtualization@lists.linux.dev>; Thu,  1 Feb 2024 03:28:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706757868; cv=none; b=a3OwSZkVKqdkwfiIJFwjqUw8eTT56t2iOlV+oBhw5046vYe2H4GagWTPeOmSWpoSSY6+/rkqeq4G80RsAquwEKlS+5RuHKP4j9nm3CBA2xBYN9+Dq6QlS/G33ysnJx5XLgixD1y24WKn7n2bYdpKhH01/nDl9tus9WGKGufdpO8=
+	t=1706758110; cv=none; b=o6mPD2+/wGq334i/gjqN0tiZJb0ZF9vyD7cKMKC0fR8BcBGvcaSexHZdqp4QRnRWEQm+6lzrIfeVaZjKmbtONseskbZ1QFTHUsfuonThABpvw5vwAhg22qlYtqgFXQNfWRJXrEP8yhwCDWnBRPut8eR0LP6pQHfkgD9tTULK0AY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706757868; c=relaxed/simple;
-	bh=eXSMJMy46jUt3d1vais7cKlWCKwnstKYl7qJV37b4iQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=sCI1W3ttGkUtYnnO8BEF1AeEAg7B/Ak04KjPMhWqNohrgwAdoXNa9CajCQxMOugi3dbUPQ7ezmQtAF/KWU+xtLCM5x18C4M7z53JMEOdsKemTZS30w1++aRW6X70nv8scpKHcG1MkoGhD0clmSuWaTef+04KH46MxBXho3ckH/g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JEWAAuOs; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1706758110; c=relaxed/simple;
+	bh=19F4hBJvqDWepo7c7foZ8C/PBfer0yZOd17lJx6Vgmo=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
+	 Content-Type; b=aYgsPUrS9Pwwf0Z7rBJPhpGLlD0ybYkXkAPkqX3dpv0/KKQ1TrLE98S2ipzH5Y/Ds9jifZ0Pe1MkWo8uXTV31aZy+UB1S0QiYmBDuOe2dAHdU6SdZpSwbGNt8ooT6zGrZA+yICqjGg2v5+M6xJhZKgoS05dO87IDOTuo1ckxg8c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=WU+IEHii; arc=none smtp.client-ip=115.124.30.101
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JEWAAuOs"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1706757865;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=3h5b05tR228P/1DdbjST3N+v0o21dfIjKISktnR6r58=;
-	b=JEWAAuOsQ1TE5JEOEURCwCJCGe9HscB0+iNpVy4QnBY6sY4+rt4nO3Jqne0jq2ZzUjP3lo
-	cuTAV5BzcHvLXbNdpVgDvBNv15ptER7IIs5qu4EiRCeBsEeLmlFLQCpl+tNuOQ4sE+/I8E
-	QUhppP4DyxtUCVSBwO6GmZME5ZZimRY=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-368-hNOuQwU4MwO5XVe8YFip3g-1; Wed, 31 Jan 2024 22:24:20 -0500
-X-MC-Unique: hNOuQwU4MwO5XVe8YFip3g-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 52615845E61;
-	Thu,  1 Feb 2024 03:24:19 +0000 (UTC)
-Received: from fedora (unknown [10.72.116.107])
-	by smtp.corp.redhat.com (Postfix) with ESMTPS id 4AAA53C2E;
-	Thu,  1 Feb 2024 03:24:10 +0000 (UTC)
-Date: Thu, 1 Feb 2024 11:24:07 +0800
-From: Ming Lei <ming.lei@redhat.com>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Jens Axboe <axboe@kernel.dk>, "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Damien Le Moal <dlemoal@kernel.org>,
-	Keith Busch <kbusch@kernel.org>, Sagi Grimberg <sagi@grimberg.me>,
-	linux-block@vger.kernel.org, linux-nvme@lists.infradead.org,
-	virtualization@lists.linux.dev
-Subject: Re: atomic queue limits updates v3
-Message-ID: <ZbsO1wOD03NVD/9S@fedora>
-References: <20240131130400.625836-1-hch@lst.de>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="WU+IEHii"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1706758103; h=Message-ID:Subject:Date:From:To:Content-Type;
+	bh=Rizqv7gNwAJ86f3D7E8G85LNpNZ3ICAQbtSLpFYlUOE=;
+	b=WU+IEHiiAFUCLsBebmcrJSCOGQ6IajD+c5xEXBLEp9ImB67PkBLDWYJVazDBqc3yFJYWUslxPznItrjr6J9oZJqRHSrKBgzNONMsM27DIi5RUhScaFp+W480Vd2PzdGmm0wJC2XTTuYq/Kut3UOOwbYnId6QW0D2iidbujOpBxE=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R801e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=36;SR=0;TI=SMTPD_---0W.lzK49_1706758100;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W.lzK49_1706758100)
+          by smtp.aliyun-inc.com;
+          Thu, 01 Feb 2024 11:28:21 +0800
+Message-ID: <1706757660.3554723-2-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH vhost 17/17] virtio_net: sq support premapped mode
+Date: Thu, 1 Feb 2024 11:21:00 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: virtualization@lists.linux.dev,
+ Richard Weinberger <richard@nod.at>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Johannes Berg <johannes@sipsolutions.net>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>,
+ Hans de Goede <hdegoede@redhat.com>,
+ =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+ Vadim Pasternak <vadimp@nvidia.com>,
+ Bjorn Andersson <andersson@kernel.org>,
+ Mathieu Poirier <mathieu.poirier@linaro.org>,
+ Cornelia Huck <cohuck@redhat.com>,
+ Halil Pasic <pasic@linux.ibm.com>,
+ Eric Farman <farman@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Alexei Starovoitov <ast@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>,
+ Benjamin Berg <benjamin.berg@intel.com>,
+ Yang Li <yang.lee@linux.alibaba.com>,
+ linux-um@lists.infradead.org,
+ netdev@vger.kernel.org,
+ platform-driver-x86@vger.kernel.org,
+ linux-remoteproc@vger.kernel.org,
+ linux-s390@vger.kernel.org,
+ kvm@vger.kernel.org,
+ bpf@vger.kernel.org
+References: <20240130114224.86536-1-xuanzhuo@linux.alibaba.com>
+ <20240130114224.86536-18-xuanzhuo@linux.alibaba.com>
+ <CACGkMEv2cyuesaTx899hwZt7uDdqwmAwXJ8fZDv00W9FbVbTpw@mail.gmail.com>
+In-Reply-To: <CACGkMEv2cyuesaTx899hwZt7uDdqwmAwXJ8fZDv00W9FbVbTpw@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240131130400.625836-1-hch@lst.de>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.1
 
-On Wed, Jan 31, 2024 at 02:03:46PM +0100, Christoph Hellwig wrote:
-> Hi Jens,
-> 
-> currently queue limits updates are a mess in that they are updated one
-> limit at a time, which makes both cross-checking them against other
-> limits hard, and also makes it hard to provide atomicy.
-> 
-> This series tries to change this by updating the whole set of queue
-> limits atomically.   This in done in two ways:
-> 
->  - for the initial setup the queue_limits structure is simply passed to
->    the queue/disk allocation helpers and applies there after validation.
->  - for the (relatively few) cases that update limits at runtime a pair
->    of helpers to take a snapshot of the current limits and to commit it
->    after picking up the callers changes are provided.
-> 
-> As the series is big enough it only converts two drivers - virtio_blk as
-> a heavily used driver in virtualized setups, and loop as one that actually
-> does runtime updates while being fairly simple.  I plan to update most
-> drivers for this merge window, although SCSI will probably have to wait
-> for the next one given that it will need extensive API changes in the
-> LLDD and ULD interfaces.
-> 
-> Chances since v2:
->  - fix the physical block size default
->  - use PAGE_SECTORS_SHIFT more 
-> 
-> Chances since v1:
->  - remove a spurious NULL return in blk_alloc_queue
->  - keep the existing max_discard_sectors == 0 behavior
->  - drop the patch nvme discard limit update hack - it will go into
->    the series updating nvme instead
->  - drop a chunk_sector check
->  - use PAGE_SECTORS in a few places
->  - document the checks and defaults in blk_validate_limits
->  - various spelling fixes
+On Wed, 31 Jan 2024 17:12:47 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> On Tue, Jan 30, 2024 at 7:43=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba=
+.com> wrote:
+> >
+> > If the xsk is enabling, the xsk tx will share the send queue.
+> > But the xsk requires that the send queue use the premapped mode.
+> > So the send queue must support premapped mode.
+> >
+> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > ---
+> >  drivers/net/virtio_net.c | 167 ++++++++++++++++++++++++++++++++++++++-
+> >  1 file changed, 163 insertions(+), 4 deletions(-)
+> >
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index 226ab830870e..cf0c67380b07 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -46,6 +46,7 @@ module_param(napi_tx, bool, 0644);
+> >  #define VIRTIO_XDP_REDIR       BIT(1)
+> >
+> >  #define VIRTIO_XDP_FLAG        BIT(0)
+> > +#define VIRTIO_DMA_FLAG        BIT(1)
+> >
+> >  /* RX packet size EWMA. The average packet size is used to determine t=
+he packet
+> >   * buffer size when refilling RX rings. As the entire RX ring may be r=
+efilled
+> > @@ -140,6 +141,21 @@ struct virtnet_rq_dma {
+> >         u16 need_sync;
+> >  };
+> >
+> > +struct virtnet_sq_dma {
+> > +       union {
+> > +               struct virtnet_sq_dma *next;
+> > +               void *data;
+> > +       };
+> > +       dma_addr_t addr;
+> > +       u32 len;
+> > +       bool is_tail;
+> > +};
+> > +
+> > +struct virtnet_sq_dma_head {
+> > +       struct virtnet_sq_dma *free;
+> > +       struct virtnet_sq_dma *head;
+>=20
+> Any reason the head must be a pointer instead of a simple index?
 
-For the whole series:
 
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
+The head is used for kfree.
+Maybe I need to rename it.
 
-Thanks,
-Ming
+About the index(next) of the virtnet_sq_dma.
+If we use the index, the struct will be:
 
+struct virtnet_sq_dma {
+       dma_addr_t addr;
+       u32 len;
+
+       u32 next;
+       void *data
+};
+
+The size of virtnet_sq_dma is same.=20
+
+
+>=20
+> > +};
+> > +
+> >  /* Internal representation of a send virtqueue */
+> >  struct send_queue {
+> >         /* Virtqueue associated with this send _queue */
+> > @@ -159,6 +175,8 @@ struct send_queue {
+> >
+> >         /* Record whether sq is in reset state. */
+> >         bool reset;
+> > +
+> > +       struct virtnet_sq_dma_head dmainfo;
+> >  };
+> >
+
+....
+
+> > +
+> > +static int virtnet_sq_init_dma_mate(struct send_queue *sq)
+> > +{
+> > +       struct virtnet_sq_dma *d;
+> > +       int size, i;
+> > +
+> > +       size =3D virtqueue_get_vring_size(sq->vq);
+> > +
+> > +       size +=3D MAX_SKB_FRAGS + 2;
+>=20
+> Is this enough for the case where an indirect descriptor is used?
+
+
+This is for the case, when the ring is full, the xmit_skb is called.
+
+I will add comment.
+
+Thanks.
+
+
+>=20
+> Thanks
+>=20
