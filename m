@@ -1,172 +1,188 @@
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52A824DA19
-	for <virtualization@lists.linux.dev>; Thu,  1 Feb 2024 09:57:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 343D015A4A1;
+	Thu,  1 Feb 2024 11:47:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706781475; cv=none; b=odcxZZhP2iRLQYiua2ZSzGBOLHFhP32RkITtQYE8jbJzN0ha+U3iyHzY0bh/E/4oIwAY3X4odzOHiTien/ATsGdVcaoAROhUfnlcNpx8HggM9jEsxqKAU89TxoT03tc+B5wyLVrKEdDQ/0jGgwMqjtIriYWjXDMisGs+AAZGxw8=
+	t=1706788077; cv=none; b=f+0c0M5AYFpkKupIKqM9oiCcKqHQsb1YeC6Xi7bHk286vJcKq9mTZN9swgyJ1lly1YkykBONZj7RdcQtlUul69SX8NcxJdQLKroQuAXaEmy40Fb3EOJqKjSsDB1kMUBG6+T+GOXozoTsWlln411cZCEufmjOVukZx9zpIZ61QZM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706781475; c=relaxed/simple;
-	bh=wXHv1FvFttD+/4Ykt/AOCzKeEg28Zvwn1bnpohIfpYQ=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=qsx3jeFoF/wstIVeYTjXhKk3Mo/dayEARmDkAk6SpJrbcaRcVv7xoBA4zkrQH5DDKhS44XvQoTQfvz7iZ7N+lV+kKD312jLbSLujkfSArKXbcfT7x5PN/ifbyM3QF5E59kOtaCIJhQZ41gx56E4IHYi9xaSZ6fHsc6zfhls95vo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=yCHRXKIz; arc=none smtp.client-ip=115.124.30.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1706788077; c=relaxed/simple;
+	bh=3YSBqGWCBu/wTnV/QgZRt0jfyeNGR91detHn2DZNthA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=OF7phgTg/3TZx77yi0iH3X3z0YLcVd+1C3f6HHat+J+/1Kr0qrZtpwG4+Bv/jcMZ+9pvpC78ZcSY4eGDVqXCieu7NGKQWWrFU9hLLriyWGHuBV5hN2VsRBH8cIfYVnZlPfq1PFcm2Z+4Ae30H5PZFYMnZNgYsGFCzIoAPpys9kA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=r2kqjF9A; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="yCHRXKIz"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1706781471; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=90to8cwBJMQb8442ZR8q4xiN29UaF6MDG11lxdXfYpM=;
-	b=yCHRXKIzH2vyssrt6aC07nP9lBW+5Swf9CNg2qdnlaBRV5llBTS4flRkIFlemcMG7eEAIA03dtPZQVlLZaBM97K1CKQoJKEEY4i8cJScDPsHCw1mTdeDaJ+bayuuceZGtfQteswLCuglrZ4ELoo/kiZILwe9/fkacawB3CRk8kU=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0W.tM-xH_1706781468;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W.tM-xH_1706781468)
-          by smtp.aliyun-inc.com;
-          Thu, 01 Feb 2024 17:57:49 +0800
-Message-ID: <1706781420.4036775-6-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost 00/17] virtio: drivers maintain dma info for premapped vq
-Date: Thu, 1 Feb 2024 17:57:00 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Zhu Yanjun <yanjun.zhu@linux.dev>
-Cc: Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- Hans de Goede <hdegoede@redhat.com>,
- =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- Vadim Pasternak <vadimp@nvidia.com>,
- Bjorn Andersson <andersson@kernel.org>,
- Mathieu Poirier <mathieu.poirier@linaro.org>,
- Cornelia Huck <cohuck@redhat.com>,
- Halil Pasic <pasic@linux.ibm.com>,
- Eric Farman <farman@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- Benjamin Berg <benjamin.berg@intel.com>,
- Yang Li <yang.lee@linux.alibaba.com>,
- linux-um@lists.infradead.org,
- netdev@vger.kernel.org,
- platform-driver-x86@vger.kernel.org,
- linux-remoteproc@vger.kernel.org,
- linux-s390@vger.kernel.org,
- kvm@vger.kernel.org,
- bpf@vger.kernel.org,
- virtualization@lists.linux.dev
-References: <20240130114224.86536-1-xuanzhuo@linux.alibaba.com>
- <fdc2da16-5680-44cf-bc18-b3e8c0f565fa@linux.dev>
-In-Reply-To: <fdc2da16-5680-44cf-bc18-b3e8c0f565fa@linux.dev>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="r2kqjF9A"
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 411B1A55000664;
+	Thu, 1 Feb 2024 11:47:44 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=jnFwnh2wR+EDN18Xur/JCsm2mfiUClnfyYdp83qB8YE=;
+ b=r2kqjF9AOSElQFzyDTYdZd0ghDyQflRx0k2iTaUV1xjJAV0020RKB5c6JcOSOOvFT8pj
+ BlFlF4fPGAGIUxKq1vR5+EFUOMiQLbCq1pGcBbh7XvVgwaWGuj1UtXp/y5P/xd2PKJLH
+ HgCiclc/uLeR+RrYFIEg9H8lvXDruLM8nfdbMJizMT5zomy9arPPLPGqgXzsadTTwa7N
+ lWvgDuW8Mr+sYNuVBCZHJbUDk4TYO7PJ1SWlyVD26TtwgIUANnXwcY0UdIagZUkPufrE
+ 3pYPqSZXhb2/nQvUY3bpU8Av7brLwEiwotdtS88BMma/X+q+HfttbG/TiGn9OE10T4Uf Sg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w07t4mm3p-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 01 Feb 2024 11:47:43 +0000
+Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 411B1EZ6001560;
+	Thu, 1 Feb 2024 11:47:43 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w07t4mm3a-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 01 Feb 2024 11:47:43 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 4119512X002195;
+	Thu, 1 Feb 2024 11:47:42 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vwc5tm3vw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 01 Feb 2024 11:47:42 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 411Bleqh21168692
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 1 Feb 2024 11:47:40 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 97BF02004B;
+	Thu,  1 Feb 2024 11:47:40 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6B61420043;
+	Thu,  1 Feb 2024 11:47:40 +0000 (GMT)
+Received: from DESKTOP-2CCOB1S. (unknown [9.171.218.73])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu,  1 Feb 2024 11:47:40 +0000 (GMT)
+Date: Thu, 1 Feb 2024 12:47:39 +0100
+From: Tobias Huschle <huschle@linux.ibm.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>, Abel Wu <wuyun.abel@bytedance.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Linux Kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
+        virtualization@lists.linux.dev, netdev@vger.kernel.org
+Subject: Re: Re: Re: EEVDF/vhost regression (bisected to 86bfbb7ce4f6
+ sched/fair: Add lag based placement)
+Message-ID: <ZbuE23ia3lhyzItm@DESKTOP-2CCOB1S.>
+References: <20231212111433-mutt-send-email-mst@kernel.org>
+ <42870.123121305373200110@us-mta-641.us.mimecast.lan>
+ <20231213061719-mutt-send-email-mst@kernel.org>
+ <25485.123121307454100283@us-mta-18.us.mimecast.lan>
+ <20231213094854-mutt-send-email-mst@kernel.org>
+ <20231214021328-mutt-send-email-mst@kernel.org>
+ <92916.124010808133201076@us-mta-622.us.mimecast.lan>
+ <20240121134311-mutt-send-email-mst@kernel.org>
+ <07974.124020102385100135@us-mta-501.us.mimecast.lan>
+ <20240201030341-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240201030341-mutt-send-email-mst@kernel.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Rvv6tM4E0SppOFo22qhAnxGudVTCSWAz
+X-Proofpoint-GUID: 3L7n8JoQg6udY9-L0Fq692DCstTudRMc
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-01-31_10,2024-01-31_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ priorityscore=1501 impostorscore=0 lowpriorityscore=0 mlxlogscore=811
+ phishscore=0 suspectscore=0 clxscore=1015 mlxscore=0 adultscore=0
+ bulkscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2402010095
 
-On Thu, 1 Feb 2024 15:43:51 +0800, Zhu Yanjun <yanjun.zhu@linux.dev> wrote:
-> =E5=9C=A8 2024/1/30 19:42, Xuan Zhuo =E5=86=99=E9=81=93:
-> > As discussed:
-> > http://lore.kernel.org/all/CACGkMEvq0No8QGC46U4mGsMtuD44fD_cfLcPaVmJ3rH=
-YqRZxYg@mail.gmail.com
-> >
-> > If the virtio is premapped mode, the driver should manage the dma info =
-by self.
-> > So the virtio core should not store the dma info.
-> > So we can release the memory used to store the dma info.
-> >
-> > But if the desc_extra has not dma info, we face a new question,
-> > it is hard to get the dma info of the desc with indirect flag.
-> > For split mode, that is easy from desc, but for the packed mode,
-> > it is hard to get the dma info from the desc. And for hardening
-> > the dma unmap is saft, we should store the dma info of indirect
-> > descs.
-> >
-> > So I introduce the "structure the indirect desc table" to
-> > allocate space to store dma info with the desc table.
-> >
-> > On the other side, we mix the descs with indirect flag
-> > with other descs together to share the unmap api. That
-> > is complex. I found if we we distinguish the descs with
-> > VRING_DESC_F_INDIRECT before unmap, thing will be clearer.
-> >
-> > Because of the dma array is allocated in the find_vqs(),
-> > so I introduce a new parameter to find_vqs().
-> >
-> > Please review.
-> >
-> > Thanks
-> >
-> > Xuan Zhuo (17):
-> >    virtio_ring: introduce vring_need_unmap_buffer
-> >    virtio_ring: packed: remove double check of the unmap ops
-> >    virtio_ring: packed: structure the indirect desc table
-> >    virtio_ring: split: remove double check of the unmap ops
-> >    virtio_ring: split: structure the indirect desc table
-> >    virtio_ring: no store dma info when unmap is not needed
-> >    virtio: find_vqs: pass struct instead of multi parameters
-> >    virtio: vring_new_virtqueue(): pass struct instead of multi paramete=
-rs
-> >    virtio_ring: reuse the parameter struct of find_vqs()
-> >    virtio: find_vqs: add new parameter premapped
-> >    virtio_ring: export premapped to driver by struct virtqueue
-> >    virtio_net: set premapped mode by find_vqs()
-> >    virtio_ring: remove api of setting vq premapped
-> >    virtio_ring: introduce dma map api for page
-> >    virtio_net: unify the code for recycling the xmit ptr
-> >    virtio_net: rename free_old_xmit_skbs to free_old_xmit
-> >    virtio_net: sq support premapped mode
->
-> The above can not be cleanly merged into kernel 6.8-rc2.
->
-> Perhaps a base-commit is needed. About base-commit, please see the link
-> https://people.kernel.org/monsieuricon/all-patches-must-include-base-comm=
-it-info
+On Thu, Feb 01, 2024 at 03:08:07AM -0500, Michael S. Tsirkin wrote:
+> On Thu, Feb 01, 2024 at 08:38:43AM +0100, Tobias Huschle wrote:
+> > On Sun, Jan 21, 2024 at 01:44:32PM -0500, Michael S. Tsirkin wrote:
+> > > On Mon, Jan 08, 2024 at 02:13:25PM +0100, Tobias Huschle wrote:
+> > > > On Thu, Dec 14, 2023 at 02:14:59AM -0500, Michael S. Tsirkin wrote:
+> > 
+> > -------- Summary --------
+> > 
+> > In my (non-vhost experience) opinion the way to go would be either
+> > replacing the cond_resched with a hard schedule or setting the
+> > need_resched flag within vhost if the a data transfer was successfully
+> > initiated. It will be necessary to check if this causes problems with
+> > other workloads/benchmarks.
+> 
+> Yes but conceptually I am still in the dark on whether the fact that
+> periodically invoking cond_resched is no longer sufficient to be nice to
+> others is a bug, or intentional.  So you feel it is intentional?
 
-The target branch is Michael's vhost.
+I would assume that cond_resched is still a valid concept.
+But, in this particular scenario we have the following problem:
 
-https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git/log/?h=3Dlinu=
-x-next
+So far (with CFS) we had:
+1. vhost initiates data transfer
+2. kworker is woken up
+3. CFS gives priority to woken up task and schedules it
+4. kworker runs
 
-Thanks.
+Now (with EEVDF) we have:
+0. In some cases, kworker has accumulated negative lag 
+1. vhost initiates data transfer
+2. kworker is woken up
+-3a. EEVDF does not schedule kworker if it has negative lag
+-4a. vhost continues running, kworker on same CPU starves
+--
+-3b. EEVDF schedules kworker if it has positive or no lag
+-4b. kworker runs
 
->
-> Zhu Yanjun
->
-> >
-> >   arch/um/drivers/virtio_uml.c             |  29 +-
-> >   drivers/net/virtio_net.c                 | 298 +++++++---
-> >   drivers/platform/mellanox/mlxbf-tmfifo.c |  24 +-
-> >   drivers/remoteproc/remoteproc_virtio.c   |  31 +-
-> >   drivers/s390/virtio/virtio_ccw.c         |  33 +-
-> >   drivers/virtio/virtio_mmio.c             |  30 +-
-> >   drivers/virtio/virtio_pci_common.c       |  59 +-
-> >   drivers/virtio/virtio_pci_common.h       |   9 +-
-> >   drivers/virtio/virtio_pci_legacy.c       |  16 +-
-> >   drivers/virtio/virtio_pci_modern.c       |  24 +-
-> >   drivers/virtio/virtio_ring.c             | 660 ++++++++++++-----------
-> >   drivers/virtio/virtio_vdpa.c             |  33 +-
-> >   include/linux/virtio.h                   |  10 +-
-> >   include/linux/virtio_config.h            |  48 +-
-> >   include/linux/virtio_ring.h              |  82 +--
-> >   tools/virtio/virtio_test.c               |   4 +-
-> >   tools/virtio/vringh_test.c               |  32 +-
-> >   17 files changed, 812 insertions(+), 610 deletions(-)
-> >
-> > --
-> > 2.32.0.3.g01195cf9f
-> >
->
+In the 3a/4a case, the kworker is given no chance to set the
+necessary flag. The flag can only be set by another CPU now.
+The schedule of the kworker was not caused by cond_resched, but
+rather by the wakeup path of the scheduler.
+
+cond_resched works successfully once the load balancer (I suppose) 
+decides to migrate the vhost off to another CPU. In that case, the
+load balancer on another CPU sets that flag and we are good.
+That then eventually allows the scheduler to pick kworker, but very
+late.
+
+> I propose a two patch series then:
+> 
+> patch 1: in this text in Documentation/kernel-hacking/hacking.rst
+> 
+> If you're doing longer computations: first think userspace. If you
+> **really** want to do it in kernel you should regularly check if you need
+> to give up the CPU (remember there is cooperative multitasking per CPU).
+> Idiom::
+> 
+>     cond_resched(); /* Will sleep */
+> 
+> 
+> replace cond_resched -> schedule
+> 
+> 
+> Since apparently cond_resched is no longer sufficient to
+> make the scheduler check whether you need to give up the CPU.
+> 
+> patch 2: make this change for vhost.
+> 
+> WDYT?
+
+For patch 1, I would like to see some feedback from Peter (or someone else
+from the scheduler maintainers).
+For patch 2, I would prefer to do some more testing first if this might have
+an negative effect on other benchmarks.
+
+I also stumbled upon something in the scheduler code that I want to verify.
+Maybe a cgroup thing, will check that out again.
+
+I'll do some more testing with the cond_resched->schedule fix, check the
+cgroup thing and wait for Peter then.
+Will get back if any of the above yields some results.
+
+> 
+> -- 
+> MST
+> 
+> 
