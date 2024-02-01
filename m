@@ -1,273 +1,54 @@
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+Received: from verein.lst.de (verein.lst.de [213.95.11.211])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DB671586D3
-	for <virtualization@lists.linux.dev>; Thu,  1 Feb 2024 06:48:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEB26157E89
+	for <virtualization@lists.linux.dev>; Thu,  1 Feb 2024 07:04:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.11.211
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706770103; cv=none; b=YBMprUPFrC2h2sil2iYt6AHqOE16l02qKF2Y/C+USS1gwnaQJ0a199cy+KyIEDd1BfFMfm+WBqirZZN5ScNjwo3QfkEHXeNamib4X9YUdH1IXEnyxyLpIg+1TD5gceBnm1v1eXzTF+RyCka3HFmxpX7Co9G3iLe+xuFe8wBeXO4=
+	t=1706771051; cv=none; b=gZ+nKy10D8wEdR0B7YwHTawtzg094D8//lDu13uYKzY1rVOIdoJV/CL35Yim2MC2bJKVUGpRT/4V7qG//XRPpCrG++XrBkGjja5JdE3EQD+Ia71dhFYxStCU8XJsIvo0Mdran08MzMwcR4DKINBG8ovB3XtXX28H7Pn3llqiNkI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706770103; c=relaxed/simple;
-	bh=/IVd0rrF2KtB3FVvceo+CBZZI6gkOZlP17o00V0cGH0=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=u85/E6+FUm7BNC/yb865ZKtvdrjxwMi0Ukn2UHu8uWXBKckmD9Hb1t+vP0d8ZXphzRgX4AbwLfRNd/2F/3u9pT5Ogj+UqH6AdEKObzqY2H7MNWpVaYkrPQJtyZbR7NrR6ceTXViZJujoe7L8cIkHvGbZxXiJk5Jf4h7ihylB0WY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=RpNvQwqg; arc=none smtp.client-ip=115.124.30.111
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="RpNvQwqg"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1706770092; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=TWr1CQEd6xDFjrk3l/xQeYg2YrwKV9kMpWG3h49S4As=;
-	b=RpNvQwqgUfd72kbGTTKiD7twUlcwT+90WNVJuZqk9kV6hNiZwQglR/iDryXfWiX47nsLiHXtabYqu8LXpD6WKaVPbk/9sV5fscoFkqZM6blJKhAkvP3EfoXWeGQePnq01X4kt8r3P+vGpjvfEBMvD0HaawNFfqTOh9Z6KJNgM/Y=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=36;SR=0;TI=SMTPD_---0W.pYjzd_1706770089;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W.pYjzd_1706770089)
-          by smtp.aliyun-inc.com;
-          Thu, 01 Feb 2024 14:48:10 +0800
-Message-ID: <1706769826.0586398-4-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost 04/17] virtio_ring: split: remove double check of the unmap ops
-Date: Thu, 1 Feb 2024 14:43:46 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux.dev,
- Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- "Michael S. Tsirkin" <mst@redhat.com>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- Hans de Goede <hdegoede@redhat.com>,
- =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- Vadim Pasternak <vadimp@nvidia.com>,
- Bjorn Andersson <andersson@kernel.org>,
- Mathieu Poirier <mathieu.poirier@linaro.org>,
- Cornelia Huck <cohuck@redhat.com>,
- Halil Pasic <pasic@linux.ibm.com>,
- Eric Farman <farman@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- Benjamin Berg <benjamin.berg@intel.com>,
- Yang Li <yang.lee@linux.alibaba.com>,
- linux-um@lists.infradead.org,
- netdev@vger.kernel.org,
- platform-driver-x86@vger.kernel.org,
- linux-remoteproc@vger.kernel.org,
- linux-s390@vger.kernel.org,
- kvm@vger.kernel.org,
- bpf@vger.kernel.org
-References: <20240130114224.86536-1-xuanzhuo@linux.alibaba.com>
- <20240130114224.86536-5-xuanzhuo@linux.alibaba.com>
- <CACGkMEs-wUa_z_tGYEwBf7EVJAtuJdkX4HAdjqMXHEM1ys-gKQ@mail.gmail.com>
-In-Reply-To: <CACGkMEs-wUa_z_tGYEwBf7EVJAtuJdkX4HAdjqMXHEM1ys-gKQ@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+	s=arc-20240116; t=1706771051; c=relaxed/simple;
+	bh=NReHrCxnEObsR8kjXt1VLycYyw5s1+VRYfIlVlsRyt8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=l7dd1ex73KF812YirqXAAStJjRa5ieP1o+GQCVYDVCfLU6Wz+TzEkVXFJl0tRKJnD0iiSMLAAIxkSiUQfVyomPk+RTt92Zg23ZONL7VKlQvFtdtay0Wg1GzkHSWD/pxQ3ExGwaM1HN/HGC2G/7tjUo2TMeyqymbR0/D/Xg0rwbQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=pass smtp.mailfrom=lst.de; arc=none smtp.client-ip=213.95.11.211
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lst.de
+Received: by verein.lst.de (Postfix, from userid 2407)
+	id 9E0C168AFE; Thu,  1 Feb 2024 08:04:03 +0100 (CET)
+Date: Thu, 1 Feb 2024 08:04:02 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Damien Le Moal <dlemoal@kernel.org>,
+	Keith Busch <kbusch@kernel.org>, Sagi Grimberg <sagi@grimberg.me>,
+	linux-block@vger.kernel.org, linux-nvme@lists.infradead.org,
+	virtualization@lists.linux.dev
+Subject: Re: atomic queue limits updates v3
+Message-ID: <20240201070402.GA17262@lst.de>
+References: <20240131130400.625836-1-hch@lst.de> <yq1o7d1qeax.fsf@ca-mkp.ca.oracle.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <yq1o7d1qeax.fsf@ca-mkp.ca.oracle.com>
+User-Agent: Mutt/1.5.17 (2007-11-01)
 
-On Wed, 31 Jan 2024 17:12:22 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Tue, Jan 30, 2024 at 7:42=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba=
-.com> wrote:
-> >
-> > In the functions vring_unmap_one_split and
-> > vring_unmap_one_split_indirect,
-> > multiple checks are made whether unmap is performed and whether it is
-> > INDIRECT.
-> >
-> > These two functions are usually called in a loop, and we should put the
-> > check outside the loop.
-> >
-> > And we unmap the descs with VRING_DESC_F_INDIRECT on the same path with
-> > other descs, that make the thing more complex. If we distinguish the
-> > descs with VRING_DESC_F_INDIRECT before unmap, thing will be clearer.
-> >
-> > 1. only one desc of the desc table is used, we do not need the loop
-> > 2. the called unmap api is difference from the other desc
-> > 3. the vq->premapped is not needed to check
-> > 4. the vq->indirect is not needed to check
-> > 5. the state->indir_desc must not be null
-> >
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > ---
-> >  drivers/virtio/virtio_ring.c | 80 ++++++++++++++++++------------------
-> >  1 file changed, 39 insertions(+), 41 deletions(-)
-> >
-> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > index dd03bc5a81fe..2b41fdbce975 100644
-> > --- a/drivers/virtio/virtio_ring.c
-> > +++ b/drivers/virtio/virtio_ring.c
-> > @@ -452,9 +452,6 @@ static void vring_unmap_one_split_indirect(const st=
-ruct vring_virtqueue *vq,
-> >  {
-> >         u16 flags;
-> >
-> > -       if (!vring_need_unmap_buffer(vq))
-> > -               return;
-> > -
-> >         flags =3D virtio16_to_cpu(vq->vq.vdev, desc->flags);
-> >
-> >         dma_unmap_page(vring_dma_dev(vq),
-> > @@ -472,27 +469,12 @@ static unsigned int vring_unmap_one_split(const s=
-truct vring_virtqueue *vq,
-> >
-> >         flags =3D extra[i].flags;
-> >
-> > -       if (flags & VRING_DESC_F_INDIRECT) {
-> > -               if (!vq->use_dma_api)
-> > -                       goto out;
-> > -
-> > -               dma_unmap_single(vring_dma_dev(vq),
-> > -                                extra[i].addr,
-> > -                                extra[i].len,
-> > -                                (flags & VRING_DESC_F_WRITE) ?
-> > -                                DMA_FROM_DEVICE : DMA_TO_DEVICE);
-> > -       } else {
-> > -               if (!vring_need_unmap_buffer(vq))
-> > -                       goto out;
-> > -
-> > -               dma_unmap_page(vring_dma_dev(vq),
-> > -                              extra[i].addr,
-> > -                              extra[i].len,
-> > -                              (flags & VRING_DESC_F_WRITE) ?
-> > -                              DMA_FROM_DEVICE : DMA_TO_DEVICE);
-> > -       }
-> > +       dma_unmap_page(vring_dma_dev(vq),
-> > +                      extra[i].addr,
-> > +                      extra[i].len,
-> > +                      (flags & VRING_DESC_F_WRITE) ?
-> > +                      DMA_FROM_DEVICE : DMA_TO_DEVICE);
-> >
-> > -out:
-> >         return extra[i].next;
-> >  }
-> >
-> > @@ -660,7 +642,7 @@ static inline int virtqueue_add_split(struct virtqu=
-eue *_vq,
-> >                         vq, desc, total_sg * sizeof(struct vring_desc),
-> >                         DMA_TO_DEVICE);
-> >                 if (vring_mapping_error(vq, addr)) {
-> > -                       if (vq->premapped)
-> > +                       if (!vring_need_unmap_buffer(vq))
-> >                                 goto free_indirect;
-> >
-> >                         goto unmap_release;
-> > @@ -713,6 +695,9 @@ static inline int virtqueue_add_split(struct virtqu=
-eue *_vq,
-> >         return 0;
-> >
-> >  unmap_release:
-> > +
-> > +       WARN_ON(!vring_need_unmap_buffer(vq));
-> > +
-> >         err_idx =3D i;
-> >
-> >         if (indirect)
-> > @@ -774,34 +759,42 @@ static void detach_buf_split(struct vring_virtque=
-ue *vq, unsigned int head,
-> >  {
-> >         unsigned int i, j;
-> >         __virtio16 nextflag =3D cpu_to_virtio16(vq->vq.vdev, VRING_DESC=
-_F_NEXT);
-> > +       u16 flags;
-> >
-> >         /* Clear data ptr. */
-> >         vq->split.desc_state[head].data =3D NULL;
-> > +       flags =3D vq->split.desc_extra[head].flags;
-> >
-> >         /* Put back on free list: unmap first-level descriptors and fin=
-d end */
-> >         i =3D head;
-> >
-> > -       while (vq->split.vring.desc[i].flags & nextflag) {
-> > -               vring_unmap_one_split(vq, i);
-> > -               i =3D vq->split.desc_extra[i].next;
-> > -               vq->vq.num_free++;
-> > -       }
-> > -
-> > -       vring_unmap_one_split(vq, i);
-> > -       vq->split.desc_extra[i].next =3D vq->free_head;
-> > -       vq->free_head =3D head;
-> > +       if (!(flags & VRING_DESC_F_INDIRECT)) {
->
-> So during add we do:
->
->         if (!indirect && vring_need_unmap_buffer(vq))
->                 vq->split.desc_extra[prev & (vq->split.vring.num - 1)].fl=
-ags &=3D
->                         ~VRING_DESC_F_NEXT;
+On Wed, Jan 31, 2024 at 06:26:49PM -0500, Martin K. Petersen wrote:
+> Looks nice in general and avoids the annoyances I had with my discovery
+> series wrt. discard. I'm in the process of rebasing that series to fit
+> on top of your changes and things get cleaned up nicely. We'll probably
+> have to coordinate the sd changes a bit.
 
+FYI, I haven't really started on SCSI for a bit of protoyping, and it
+will take a while to get to it.
 
-This does not affect this patch.
-
-1. this just considers the VRING_DESC_F_NEXT of desc_extra.flags
-2. the desc_extra.flags is updated by virtqueue_add_desc_split()
-
-So for desc_extra.flags & VRING_DESC_F_INDIRECT, that is right.
-
-Thanks.
-
-
->
-> Then using flags here unconditionally seems not reliable.
->
-> I post a patch to store flags unconditionally at:
->
-> https://lore.kernel.org/all/20220224122655-mutt-send-email-mst@kernel.org/
->
-> > +               while (vq->split.vring.desc[i].flags & nextflag) {
-> > +                       if (vring_need_unmap_buffer(vq))
-> > +                               vring_unmap_one_split(vq, i);
-> > +                       i =3D vq->split.desc_extra[i].next;
-> > +                       vq->vq.num_free++;
-> > +               }
-> >
-> > -       /* Plus final descriptor */
-> > -       vq->vq.num_free++;
-> > +               if (vring_need_unmap_buffer(vq))
-> > +                       vring_unmap_one_split(vq, i);
-> >
-> > -       if (vq->indirect) {
-> > +               if (ctx)
-> > +                       *ctx =3D vq->split.desc_state[head].indir_desc;
-> > +       } else {
-> >                 struct vring_desc *indir_desc =3D
-> >                                 vq->split.desc_state[head].indir_desc;
-> >                 u32 len;
-> >
-> > -               /* Free the indirect table, if any, now that it's unmap=
-ped. */
-> > -               if (!indir_desc)
-> > -                       return;
-> > +               if (vq->use_dma_api) {
-> > +                       struct vring_desc_extra *extra =3D vq->split.de=
-sc_extra;
-> > +
-> > +                       dma_unmap_single(vring_dma_dev(vq),
-> > +                                        extra[i].addr,
-> > +                                        extra[i].len,
-> > +                                        (flags & VRING_DESC_F_WRITE) ?
-> > +                                        DMA_FROM_DEVICE : DMA_TO_DEVIC=
-E);
-> > +               }
->
-> Note that there's a following
->
-> BUG_ON(!(vq->split.desc_extra[head].flags &
->                                 VRING_DESC_F_INDIRECT));
->
-> Which I think we can remove.
->
-> Thanks
->
