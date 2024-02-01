@@ -1,115 +1,116 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52AEC612C6
-	for <virtualization@lists.linux-foundation.org>; Thu,  1 Feb 2024 05:38:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD2586A320
+	for <virtualization@lists.linux.dev>; Thu,  1 Feb 2024 05:47:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706765882; cv=none; b=uoD1YSRIYl2ObMDVjY+htKybsw85W8Au/6JlNT1yGiEu0gfwrJYJBlKhn3aGXAV+GQyQQR9Ra4IKxcCaAeIfAt34HJ/l8Alh9f76duU0gb76b76I3Pl/HlQTZ3da2nQywNlMPSUoJiLajRXqYp/AWk6gDGHYTI+aOoam4N4mKTw=
+	t=1706766455; cv=none; b=Fs1USYyanyta8yadAnx/CsqJslok1V18MAIjBCT2Fk1rEnDZUgofd/nCPF/W4En39YD26jy6dGQVVg6F+pZt+Y+Lug7bLxZxdxoc1TZzxfyE/UkYA+MsV3OMkB8gS9K8P9ZpsanJmw/tQ4KyKko0emXoBsQJwFm1TEKwJBSu6jY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706765882; c=relaxed/simple;
-	bh=FbYPWBWSx4JTQEcSOXlxcmIuQLcFq8DTiKoSLKe1dkw=;
+	s=arc-20240116; t=1706766455; c=relaxed/simple;
+	bh=CBg4S8QmOTSeweCbha4veMntFYrtd8iVVLl9ekfIfl8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=RYHG7YlByE/bZ4amg4yjiSZDw1aK5EP2XQgnWo1Dks7SlIX2ACEw8zk1roiXMPNZcddt2+K9KPK39MqMa7EmXQuHS/4SMbgCazRQkDVkKFPNh68wmOmc0Czn0dSRQTQ8J53mXGg9cxNVeXgrIsW6cacBrRSWHgYMJuD/apCxp+M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ptkej54j; arc=none smtp.client-ip=140.211.166.136
+	 To:Cc:Content-Type; b=maJmXbpQrFBeFzkOR01mirzMRRx8m3a3DnOTt2uABLR5ytzCYeor7xCgKqu2tY1xukNvdSL0MWg3vqieKzvma3hazW+YNdW2XzR0vsmv9DiGuQky+OViD8xLXuQme16GheXVZwlEza1rBzh7gie3eYwstUJhwRe9Zuxj/kJkv3M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gdzxbxNI; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ptkej54j"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id C529B60B35
-	for <virtualization@lists.linux-foundation.org>; Thu,  1 Feb 2024 05:38:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C529B60B35
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Ptkej54j
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id BfElXrN4iQRr
-	for <virtualization@lists.linux-foundation.org>;
-	Thu,  1 Feb 2024 05:38:00 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id CB08160B2B
-	for <virtualization@lists.linux-foundation.org>; Thu,  1 Feb 2024 05:37:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CB08160B2B
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gdzxbxNI"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1706765878;
+	s=mimecast20190719; t=1706766452;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=FbYPWBWSx4JTQEcSOXlxcmIuQLcFq8DTiKoSLKe1dkw=;
-	b=Ptkej54jXcqU83dncA+MPiBLTUInQR6ZtlXXqSXBURtZ/XRiPnhOuT0U5doNVwhCgy395F
-	t8cDK63tjCkyAqeMdWPTWT0hRFf73KwKBnEKt8PY2X6UroDdYUzjdnrpJQ3vmVRm9EYwtV
-	zA2RLYprEN9Jj7NEAGi8v3Ck4Jtx2vQ=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=CBg4S8QmOTSeweCbha4veMntFYrtd8iVVLl9ekfIfl8=;
+	b=gdzxbxNI7YXA5dDFK/Gzd8uKcmrh//zZOuwZrxFyyM09/Fc+kuKbSgI34yVYjxE7hX+ybx
+	t5m1NkyxTUsni4+j3WuD2qScwiaQROS9SrWZ5Jk7jWceYSpHTly/nTvet23FkvfQyrEM6K
+	pgPDvAVRQX7izSdlYgoDCg/o9zU4ItE=
+Received: from mail-oo1-f72.google.com (mail-oo1-f72.google.com
+ [209.85.161.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-448-MOu5i4yaO2GvgMbdbAXr4w-1; Thu, 01 Feb 2024 00:37:54 -0500
-X-MC-Unique: MOu5i4yaO2GvgMbdbAXr4w-1
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-292bc8b6b7cso501963a91.2
-        for <virtualization@lists.linux-foundation.org>; Wed, 31 Jan 2024 21:37:54 -0800 (PST)
+ us-mta-15-A1WIvcDYMvWh3vfJ7NbciA-1; Thu, 01 Feb 2024 00:47:31 -0500
+X-MC-Unique: A1WIvcDYMvWh3vfJ7NbciA-1
+Received: by mail-oo1-f72.google.com with SMTP id 006d021491bc7-59874c4b5ceso599114eaf.0
+        for <virtualization@lists.linux.dev>; Wed, 31 Jan 2024 21:47:31 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706765873; x=1707370673;
+        d=1e100.net; s=20230601; t=1706766451; x=1707371251;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=FbYPWBWSx4JTQEcSOXlxcmIuQLcFq8DTiKoSLKe1dkw=;
-        b=VaIDOh23DwVNNxBqaq5CYAzqIoYpoJIc/tGxIA9BvhGUE2Phyp+U99UIpG+BTPHKbG
-         vOuv2prjMXX1AKOQEbm1jKDHuVPhcjp8cCP1J4dmjlr/lNaY3lFoUZp3sfIZI7IDy5Tz
-         iin7Z1Z3kHTELktVg+gDsWMi6dGqBvUwsJ6/n/Ih0D/Q3LxDwf7Zg/PdximYQZT4kz+r
-         F0LO8VBcsoZKrJ2CnI5pRQJPJi/719knaQDG3KiVzWMRnzaXrvBoVXReT6w9AMYEnPuf
-         l6SA59wLmcxA9EwUM4Cx5bWDwgRdIoWCCdo0r2PvbOrgqQOgDeLKprdlithNDKmSYZaL
-         dfjg==
-X-Gm-Message-State: AOJu0Yys1kOgJQKLesSQ8xCrlgN4V8tq8XpxWeoEXTBav6CB+Iu3TqNy
-	OUYy6O3P/iJPzsJ76Skpd/Ebu9oPrrOt2CfCWPtwZ6sFapdTxyFxHr9GnjDJZCtblopyI6Nj7ge
-	/+KL/1IN/MmEO1130CnSopbyIO3wtihDT2n75MRTKH1cIxFhcQlJBEjSOdlfLMfplWtn481DeGQ
-	GkMqfZHWTq+76S3nhNaSzJ1QzC1wg4IylHk8F8b6ZIcy9lkjgzW4zhRA==
-X-Received: by 2002:a17:90a:1189:b0:295:cca3:73d4 with SMTP id e9-20020a17090a118900b00295cca373d4mr3873876pja.4.1706765873814;
-        Wed, 31 Jan 2024 21:37:53 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGhjcbJELHa6M870aBPEiK+ULPeq/Cay0m3VpUBudp/caBPr4O0l9QR82oXMQV39Dl/Tgu2DgMKZZqxBtd7b1M=
-X-Received: by 2002:a17:90a:1189:b0:295:cca3:73d4 with SMTP id
- e9-20020a17090a118900b00295cca373d4mr3873869pja.4.1706765873535; Wed, 31 Jan
- 2024 21:37:53 -0800 (PST)
+        bh=CBg4S8QmOTSeweCbha4veMntFYrtd8iVVLl9ekfIfl8=;
+        b=VU4IUGsmvVV/ZmzIms21hoKX9btrDhrmJgkcoiQQemHb4FW17qgOJCkq/x07ii4m2W
+         F7N0sni+qHn0z/wt1gzV4X98xxeUVMlvNRoDEcOJKRIbVZlOSlSBcJ494urd6PtCjndQ
+         PskBzT3JEq1KqBICzxKrVSDJhi/csdpgkRJiqe8itUub3dx1sNIhV1jA80Lsz7jTF+zT
+         ysXlzlGxhaSclldsLTZLDkQyn6sq8KNFqVcnQ2Zkebn3yJbF0u0WXPe3aU2xcngicLAm
+         aCmYtxE2FXfpQf+yX1FECJWFmX0trHcI+rzoP87+bEwpJQGin76Wluwb2OPQrfe/316M
+         DpXw==
+X-Gm-Message-State: AOJu0YxrRy2Ca3yKySbQgSOLkTC49OXLzCRNLfV1GHYIPnXIKfOsXh2x
+	9UJxv3uRjAIdIf7eYt85d5G7rI7ZRarw7qRBjZkcoywrNSVxL8Zi2eLZT5RmVLV3GAK8B329SGk
+	TpZt/nPrFYCCVlsFFy/FTwwyF8ef8N9LZ/uF9orwj6f+WyhoOWwxjugqE3b5KQlgm43QJE4ET1+
+	wqFMLzWxInv3atetXsnVTukelRm5ApFkU5Lj0bpmk=
+X-Received: by 2002:a05:6358:d39c:b0:176:8f0a:be with SMTP id mp28-20020a056358d39c00b001768f0a00bemr4016584rwb.13.1706766450815;
+        Wed, 31 Jan 2024 21:47:30 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IF3An1AT31hO5hdkkjtXW6+RRmDXc3skwLBvXnf7TlMSMjKRjtJlegau4gTcU4VNwvLpLMGyNjYJHuT0DVlBR8=
+X-Received: by 2002:a05:6358:d39c:b0:176:8f0a:be with SMTP id
+ mp28-20020a056358d39c00b001768f0a00bemr4016580rwb.13.1706766450596; Wed, 31
+ Jan 2024 21:47:30 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240131035535.22258-1-liangchen.linux@gmail.com>
-In-Reply-To: <20240131035535.22258-1-liangchen.linux@gmail.com>
+References: <20240130114224.86536-1-xuanzhuo@linux.alibaba.com>
+ <20240130114224.86536-5-xuanzhuo@linux.alibaba.com> <CACGkMEs-wUa_z_tGYEwBf7EVJAtuJdkX4HAdjqMXHEM1ys-gKQ@mail.gmail.com>
+ <20240131044244-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20240131044244-mutt-send-email-mst@kernel.org>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 1 Feb 2024 13:37:42 +0800
-Message-ID: <CACGkMEuaGiH4H3pvjTK5rUh0DmL9ZMsLRaVQ3+5GOfnrj8OxPA@mail.gmail.com>
-Subject: Re: [PATCH v4] virtio_net: Support RX hash XDP hint
-To: Liang Chen <liangchen.linux@gmail.com>
-Cc: mst@redhat.com, hengqi@linux.alibaba.com, xuanzhuo@linux.alibaba.com, 
-	virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Date: Thu, 1 Feb 2024 13:47:19 +0800
+Message-ID: <CACGkMEskm6O0q86LOJGndiCmaTCnoqKYWVct_g-0fwV3c+_1fw@mail.gmail.com>
+Subject: Re: [PATCH vhost 04/17] virtio_ring: split: remove double check of
+ the unmap ops
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev, 
+	Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
+	Johannes Berg <johannes@sipsolutions.net>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Hans de Goede <hdegoede@redhat.com>, =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
+	Vadim Pasternak <vadimp@nvidia.com>, Bjorn Andersson <andersson@kernel.org>, 
+	Mathieu Poirier <mathieu.poirier@linaro.org>, Cornelia Huck <cohuck@redhat.com>, 
+	Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Alexei Starovoitov <ast@kernel.org>, 
+	Daniel Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>, 
+	John Fastabend <john.fastabend@gmail.com>, Benjamin Berg <benjamin.berg@intel.com>, 
+	Yang Li <yang.lee@linux.alibaba.com>, linux-um@lists.infradead.org, 
+	netdev@vger.kernel.org, platform-driver-x86@vger.kernel.org, 
+	linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org, 
+	kvm@vger.kernel.org, bpf@vger.kernel.org
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jan 31, 2024 at 11:55=E2=80=AFAM Liang Chen <liangchen.linux@gmail.=
-com> wrote:
+On Wed, Jan 31, 2024 at 5:43=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
+ wrote:
 >
-> The RSS hash report is a feature that's part of the virtio specification.
-> Currently, virtio backends like qemu, vdpa (mlx5), and potentially vhost
-> (still a work in progress as per [1]) support this feature. While the
-> capability to obtain the RSS hash has been enabled in the normal path,
-> it's currently missing in the XDP path. Therefore, we are introducing
-> XDP hints through kfuncs to allow XDP programs to access the RSS hash.
+> On Wed, Jan 31, 2024 at 05:12:22PM +0800, Jason Wang wrote:
+> > I post a patch to store flags unconditionally at:
+> >
+> > https://lore.kernel.org/all/20220224122655-mutt-send-email-mst@kernel.o=
+rg/
 >
-> 1.
-> https://lore.kernel.org/all/20231015141644.260646-1-akihiko.odaki@daynix.=
-com/#r
->
-> Signed-off-by: Liang Chen <liangchen.linux@gmail.com>
-> Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> what happened to it btw?
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+Haven't got time for a benchmark. We can evaluate whether we still
+need it here and do the benchmark if yes.
 
 Thanks
+
+>
+> --
+> MST
+>
 
