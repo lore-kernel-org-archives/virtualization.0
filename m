@@ -1,193 +1,178 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B10715A4B7
-	for <virtualization@lists.linux.dev>; Thu,  1 Feb 2024 08:08:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 698D742067
+	for <virtualization@lists.linux-foundation.org>; Thu,  1 Feb 2024 08:34:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706774910; cv=none; b=B4ChnqQUO1wo4XUoJkaBCMWOysus/OIKRDipILzW5T+NJZMaGhoLU7FI6PMp8TDpjBIn2BoweY2+30cXVkqwlNehUtuUZpmEo7VVbVR2e/OU4zhG+VpuHI5iwEJoYEMbijpwbOYDCQ675LdEGqvUNvTBOxF4I7sYFM/+poEVJ+k=
+	t=1706776464; cv=none; b=uYHlyvza/ZTBUHgYpPQLakeGGq24JC9YKc/3lLtGjBI+0QHVPbNOvbF5bjWrobE1X/SjgnhKNYNlocadOgNt8MdVt0sP1u7xs36HW4sfY9jQEtYHDetxtWy01rUYmYEuzQ+m0GyTaguh+BOvkYt4E8i0lTJp4TT6uMcHD8y6a7c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706774910; c=relaxed/simple;
-	bh=yRW+zk6ipQx+/UeKBycRl86N7OpB8VApca3JZVyt31I=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=JAnFnj0AcR5Nt3qvx8kVzjiYGGpmklPyhBPa/TIt6uEH+EQc7cHWXup9y6lJL9gzHUEN2v/wV5aYD5n9t8ZIM+HsM8JG6rl6DEBL4t3Mwr9xNlMV/zKxW2+EVp1Ve0ps70WDlNtFFx1GjcpbFlY2EpG25NPNPpHNEn+b2iS3qSU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KUf9fVqL; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1706776464; c=relaxed/simple;
+	bh=4rWQ7FoMnBf1oqOMRT8cZn4yVaN12qcq7ju/q36konc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:Cc:From:
+	 In-Reply-To:Content-Type; b=cpVlSRcaNPxk+h65BrCEOCshCJZVfxnbq2+he4M1Vk4/44X/gJwBGKrRaWgaDDZwjkIYr+TTDrOTAmDbs1dmGuV+oOMnKhBT52a00pDpSVdjsNomQyLWQw+wi4w0HxGoR/SSgG92N+1RkUrmfFNSPFY5F43dedKlJnkXdL8+jlw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YBwvgSaJ; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KUf9fVqL"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YBwvgSaJ"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id D750840176
+	for <virtualization@lists.linux-foundation.org>; Thu,  1 Feb 2024 08:34:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D750840176
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=YBwvgSaJ
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id afedVUEbD24S
+	for <virtualization@lists.linux-foundation.org>;
+	Thu,  1 Feb 2024 08:34:22 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id C31054025D
+	for <virtualization@lists.linux-foundation.org>; Thu,  1 Feb 2024 08:34:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C31054025D
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1706774896;
+	s=mimecast20190719; t=1706776460;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=iy0to9gJNsnChVp/GnNaL86E7YakxrA6m3SgledDRmM=;
-	b=KUf9fVqL2VNKyOK/W4u2vJjGcoR0ZzK0JfOARQOruN+EmAIoApqVfkDNm5N83wlLezXF8z
-	hgy9yuQeD7uiATwZR6OojRBpzEExLxt2NxnP/Hjq5LVtdSxNveoDBgC4d7FB3DdrFTiUB9
-	v5cQ0Y3GDeZx20dShwcSQBJ6rjWjrcY=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=OYK8S+LjMCgdqhWYpWjOljaHLoXUwlbTdfPhsWuw+so=;
+	b=YBwvgSaJx0QBF+JTP/Im2Eum4DnOSJV87JPJuXXlXhCo/chHfgd9nVBSqSLWY9sOpNytyA
+	lFZQqKjfA7pLY+8n2a6URPZfTC1l2We/rqMm5ovuE9cxVyMLfGhFcXW/4dMFcHwlkHQxJR
+	Pgc2iilA5k4Th3g703J0bAy6grCz5cM=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-166-3zmznkYGPN62BqVOfp_fNw-1; Thu, 01 Feb 2024 03:08:14 -0500
-X-MC-Unique: 3zmznkYGPN62BqVOfp_fNw-1
-Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-a2fba67ec20so38712066b.3
-        for <virtualization@lists.linux.dev>; Thu, 01 Feb 2024 00:08:14 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706774893; x=1707379693;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=iy0to9gJNsnChVp/GnNaL86E7YakxrA6m3SgledDRmM=;
-        b=oAiI8oLjkbcXiquAorNiZYc3eXx3AC2l8fJN+gLtAv0vqGtXkutOMUYHsvz8lM2CAg
-         k91c5s9y4R5LDG/2ey4KkmCZddJdOzL0qtWLHRshqfyOj40173uI6fV8dLVSBaETMpfT
-         NrLya9aFjhuEvbrcKadv9XEONhpd+BPuOSEiMwNPwDsCdLBXQHcMYxnCjd4JmqckgGFH
-         ELeQTwb9ZZ3ogFy2dg8vVAmLJGv13qm4gZLuEozqV/Cb24aZA5yONRK43n/9LI1LKuRp
-         IaQ5Bn+RNcho7UUMx8CyPlvv3s6k9x/kiYQTs6Ly7auuDalMrk/1UKOUHAV6uXUZBTjY
-         +KAg==
-X-Gm-Message-State: AOJu0YzJPAx0LlRIzUbCcYjcFZX6SIeLnEga9ijJhz+49jpTunKWti/+
-	2oxlSp7v8rxSpqHAgWnhimbnfpCMWtHYkdWBFJcShynfJ20wO75q+7IX/OTlJzNfmJc9MqutBRw
-	Z5HxjkDRTNbAbhZGKkxBUapyp+TiRCeI2AIYFxZLpX/Xt3DNiPA6mDALC8GXycmfB
-X-Received: by 2002:a17:907:994a:b0:a36:6198:3505 with SMTP id kl10-20020a170907994a00b00a3661983505mr2891738ejc.25.1706774893767;
-        Thu, 01 Feb 2024 00:08:13 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGR6sQz2gxBGtwqzlmOhuYoQMalz//Dwvh7p+uyOALTuWEkXwrce4iZxrh7C6Z3DpndGvJclg==
-X-Received: by 2002:a17:907:994a:b0:a36:6198:3505 with SMTP id kl10-20020a170907994a00b00a3661983505mr2891712ejc.25.1706774893374;
-        Thu, 01 Feb 2024 00:08:13 -0800 (PST)
-X-Forwarded-Encrypted: i=0; AJvYcCUPikGwlmK61HBD824LPki9FCPfzBqA8DOG1qFKTu86qM6TT3O5V9/CvItrJ98+QzfcVoEyp+96Zr1Nn2L+BvS4DqHAaoL3vKwZ6lp6Isco+Twi35RKwnoZUuMkraXf3k7IhNqwNPtWxXU0q5hpZ3dtYMws/l0G/WLT2JxU+Az61Ph3wfFwo0rWQrE9KpQ7vopZeP4GRY7hV6XC5TPZ8jR/tHxE8mlGsfTD2vqlwVDFVHk3t88eeqmNpQtAeXcq4Z1TDE9naso78eI=
-Received: from redhat.com ([2a02:14f:179:3a6d:f252:c632:3893:a2ef])
-        by smtp.gmail.com with ESMTPSA id m1-20020a1709062b8100b00a363e8be473sm2143643ejg.143.2024.02.01.00.08.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 01 Feb 2024 00:08:12 -0800 (PST)
-Date: Thu, 1 Feb 2024 03:08:07 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Tobias Huschle <huschle@linux.ibm.com>
-Cc: Jason Wang <jasowang@redhat.com>, Abel Wu <wuyun.abel@bytedance.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org
-Subject: Re: Re: Re: EEVDF/vhost regression (bisected to 86bfbb7ce4f6
- sched/fair: Add lag based placement)
-Message-ID: <20240201030341-mutt-send-email-mst@kernel.org>
-References: <CACGkMEudZnF7hUajgt0wtNPCxH8j6A3L1DgJj2ayJWhv9Bh1WA@mail.gmail.com>
- <20231212111433-mutt-send-email-mst@kernel.org>
- <42870.123121305373200110@us-mta-641.us.mimecast.lan>
- <20231213061719-mutt-send-email-mst@kernel.org>
- <25485.123121307454100283@us-mta-18.us.mimecast.lan>
- <20231213094854-mutt-send-email-mst@kernel.org>
- <20231214021328-mutt-send-email-mst@kernel.org>
- <92916.124010808133201076@us-mta-622.us.mimecast.lan>
- <20240121134311-mutt-send-email-mst@kernel.org>
- <07974.124020102385100135@us-mta-501.us.mimecast.lan>
+ us-mta-684-CTlGdymGNxayEsunjBsfjw-1; Thu, 01 Feb 2024 03:34:19 -0500
+X-MC-Unique: CTlGdymGNxayEsunjBsfjw-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id A0ED8185A785;
+	Thu,  1 Feb 2024 08:34:18 +0000 (UTC)
+Received: from [10.39.208.27] (unknown [10.39.208.27])
+	by smtp.corp.redhat.com (Postfix) with ESMTPS id C72872166B33;
+	Thu,  1 Feb 2024 08:34:16 +0000 (UTC)
+Message-ID: <f25f3c31-c793-4743-a587-0e2063dc2d65@redhat.com>
+Date: Thu, 1 Feb 2024 09:34:11 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <07974.124020102385100135@us-mta-501.us.mimecast.lan>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v7 0/3] vduse: add support for networking devices
+Content-Language: en-US
+To: jasowang@redhat.com
+References: <20240109111025.1320976-1-maxime.coquelin@redhat.com>
+Cc: xuanzhuo@linux.alibaba.com, xieyongji@bytedance.com,
+ virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
+ david.marchand@redhat.com, lulu@redhat.com, mst@redhat.com
+From: Maxime Coquelin <maxime.coquelin@redhat.com>
+Autocrypt: addr=maxime.coquelin@redhat.com; keydata=
+ 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
+ Mwqu3GQ=
+In-Reply-To: <20240109111025.1320976-1-maxime.coquelin@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.6
 
-On Thu, Feb 01, 2024 at 08:38:43AM +0100, Tobias Huschle wrote:
-> On Sun, Jan 21, 2024 at 01:44:32PM -0500, Michael S. Tsirkin wrote:
-> > On Mon, Jan 08, 2024 at 02:13:25PM +0100, Tobias Huschle wrote:
-> > > On Thu, Dec 14, 2023 at 02:14:59AM -0500, Michael S. Tsirkin wrote:
-> > > - Along with the wakeup of the kworker, need_resched needs to
-> > >   be set, such that cond_resched() triggers a reschedule.
-> > 
-> > Let's try this? Does not look like discussing vhost itself will
-> > draw attention from scheduler guys but posting a scheduling
-> > patch probably will? Can you post a patch?
-> 
-> As a baseline, I verified that the following two options fix
-> the regression:
-> 
-> - replacing the cond_resched in the vhost_worker function with a hard
->   schedule 
-> - setting the need_resched flag using set_tsk_need_resched(current)
->   right before calling cond_resched
-> 
-> I then tried to find a better spot to put the set_tsk_need_resched
-> call. 
-> 
-> One approach I found to be working is setting the need_resched flag 
-> at the end of handle_tx and hande_rx.
-> This would be after data has been actually passed to the socket, so 
-> the originally blocked kworker has something to do and will profit
-> from the reschedule. 
-> It might be possible to go deeper and place the set_tsk_need_resched
-> call to the location right after actually passing the data, but this
-> might leave us with sprinkling that call in multiple places and
-> might be too intrusive.
-> Furthermore, it might be possible to check if an error occured when
-> preparing the transmission and then skip the setting of the flag.
-> 
-> This would require a conceptual decision on the vhost side.
-> This solution would not touch the scheduler, only incentivise it to
-> do the right thing for this particular regression.
-> 
-> Another idea could be to find the counterpart that initiates the
-> actual data transfer, which I assume wakes up the kworker. From
-> what I gather it seems to be an eventfd notification that ends up
-> somewhere in the qemu code. Not sure if that context would allow
-> to set the need_resched flag, nor whether this would be a good idea.
-> 
-> > 
-> > > - On cond_resched(), verify if the consumed runtime of the caller
-> > >   is outweighing the negative lag of another process (e.g. the 
-> > >   kworker) and schedule the other process. Introduces overhead
-> > >   to cond_resched.
-> > 
-> > Or this last one.
-> 
-> On cond_resched itself, this will probably only be possible in a very 
-> very hacky way. That is because currently, there is no immidiate access
-> to the necessary data available, which would make it necessary to 
-> bloat up the cond_resched function quite a bit, with a probably 
-> non-negligible amount of overhead.
-> 
-> Changing other aspects in the scheduler might get us in trouble as
-> they all would probably resolve back to the question "What is the magic
-> value that determines whether a small task not being scheduled justifies
-> setting the need_resched flag for a currently running task or adjusting 
-> its lag?". As this would then also have to work for all non-vhost related
-> cases, this looks like a dangerous path to me on second thought.
-> 
-> 
-> -------- Summary --------
-> 
-> In my (non-vhost experience) opinion the way to go would be either
-> replacing the cond_resched with a hard schedule or setting the
-> need_resched flag within vhost if the a data transfer was successfully
-> initiated. It will be necessary to check if this causes problems with
-> other workloads/benchmarks.
+Hi Jason,
 
-Yes but conceptually I am still in the dark on whether the fact that
-periodically invoking cond_resched is no longer sufficient to be nice to
-others is a bug, or intentional.  So you feel it is intentional?
-I propose a two patch series then:
+It looks like all patches got acked by you.
+Any blocker to queue the series for next release?
 
-patch 1: in this text in Documentation/kernel-hacking/hacking.rst
+Thanks,
+Maxime
 
-If you're doing longer computations: first think userspace. If you
-**really** want to do it in kernel you should regularly check if you need
-to give up the CPU (remember there is cooperative multitasking per CPU).
-Idiom::
-
-    cond_resched(); /* Will sleep */
-
-
-replace cond_resched -> schedule
-
-
-Since apparently cond_resched is no longer sufficient to
-make the scheduler check whether you need to give up the CPU.
-
-patch 2: make this change for vhost.
-
-WDYT?
-
--- 
-MST
+On 1/9/24 12:10, Maxime Coquelin wrote:
+> This small series enables virtio-net device type in VDUSE.
+> With it, basic operation have been tested, both with
+> virtio-vdpa and vhost-vdpa using DPDK Vhost library series
+> adding VDUSE support using split rings layout (merged in
+> DPDK v23.07-rc1).
+> 
+> Control queue support (and so multiqueue) has also been
+> tested, but requires a Kernel series from Jason Wang
+> relaxing control queue polling [1] to function reliably,
+> so while Jason rework is done, a patch is added to fail init
+> if control queue feature is requested.(tested also with DPDK
+> v23.11).
+> 
+> 
+> Changes in v7:
+> ==============
+> - Fail init only if VIRTIO_NET_F_CTRL_VQ is requested.
+> - Convert to use BIT_ULL() macro
+> - Rebased
+> 
+> Changes in v6:
+> ==============
+> - Remove SELinux support from the series, will be handled
+>    in a dedicated one.
+> - Require CAP_NET_ADMIN for Net devices creation (Jason).
+> - Fail init if control queue features are requested for
+>    Net device type (Jason).
+> - Rebased on latest master.
+> 
+> Changes in v5:
+> ==============
+> - Move control queue disablement patch before Net
+>    devices enablement (Jason).
+> - Unify operations LSM hooks into a single hook.
+> - Rebase on latest master.
+> 
+> Maxime Coquelin (3):
+>    vduse: validate block features only with block devices
+>    vduse: Temporarily fail if control queue feature requested
+>    vduse: enable Virtio-net device type
+> 
+>   drivers/vdpa/vdpa_user/vduse_dev.c | 24 ++++++++++++++++++++----
+>   1 file changed, 20 insertions(+), 4 deletions(-)
+> 
 
