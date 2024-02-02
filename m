@@ -1,52 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23694F4E7;
-	Fri,  2 Feb 2024 04:21:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A6E6FBEC;
+	Fri,  2 Feb 2024 04:57:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706847671; cv=none; b=M2ATB4HJdsYkVydWR8BHt5Xc58Ja95ko7mLxibhysI8bgZR1BV+ga6snChnm50PBceKzSYHcSWytKXpy7olzDDQNJE1sVMagAn75mf38IfPzgwSfbK6Dhp+vGQdfvj6DXzu5SVW4pj5vf8IeIExUpXVzBRCJS0omDA9OvX1oS7U=
+	t=1706849877; cv=none; b=jYP7WUWMbLK0MGYno8QVZlAXzdY6R/RegdXkyEYeZj4dZx+TcsqQvfi2DMDzVj6P0ccdNs4OXe4CIg9Cf1oevI9Rtq5ENrL8Q0QLx8rLOpea0u4A4hqi4skG460oVQAW14VyB9Q8SaSLDldQ1bSKrri6Idsqd+THg+IhyErjQEc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706847671; c=relaxed/simple;
-	bh=0RrbYZlil+2Rq7txKyM/dpb1QYDaxYKi6nYOwsf2hc8=;
+	s=arc-20240116; t=1706849877; c=relaxed/simple;
+	bh=YK19vv0kLC+3vktuBU7Tn7nxWcO08QeCoGshwjMZ2l0=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=pnAzsIQuAkBqX7ugWGitx3GpKOI6FdUyiO5GQ9FFHJr1wOPJgglbm34XRw6zfckDpEPNMY8GauSpU4H8nfRK0GkcgHdNedtmq795NhhKztB9eNtTQkViZuha0i97ORdUACOrp5Bmg6U/TPWQb3YuFwYsQht+/PnCJN/r/beGjAE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QbNdoAo1; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=cYFuPVI6IPCsB0DO7+CmwkOUPblwMCd+LjBcJitwiDeLnI3EW3x4q89rjPK6s6SfmTo68c9vphJisebJLfRGb57B6jGImrRajleVIGUD4zST5kAL0+hSCnFkum+6Qchwj+f8N/LCutST1sXFZ7K9S9LoM1AVCrbq+43GNJ1xPxA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WxoOnVr8; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QbNdoAo1"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E1C3C433C7;
-	Fri,  2 Feb 2024 04:21:08 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WxoOnVr8"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00200C433F1;
+	Fri,  2 Feb 2024 04:57:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1706847670;
-	bh=0RrbYZlil+2Rq7txKyM/dpb1QYDaxYKi6nYOwsf2hc8=;
+	s=k20201202; t=1706849876;
+	bh=YK19vv0kLC+3vktuBU7Tn7nxWcO08QeCoGshwjMZ2l0=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=QbNdoAo1Q3F0oGU/Fs/Wr3L5DnLagcedj5uEk1+E6ns5J6f65eGd+9DbO8rWbLmub
-	 WW0xVzvwnEYcW1/re71n+muAyJZL9/jzFiYNzf7fT8Q2qVjF2n3CGMK225lmRP70Sa
-	 aCfRIBQvyXPid/ngFBzZvvH0Ati5vvkWPVQTRDhPpMCM/8HdFC6LQ3gg4v1a580ayR
-	 V1Oq3MSTNR5W7CFMTpoXUE5EENjc9s1OridNPIPaf+mMGfNiGQaTF9HFEdzlC1phsm
-	 J9qxmumfxiqjrEOAPYsgIU2BZZOk14shtIOdgYHv5B0WckgjNJB+WHQ8toUFxOOMXX
-	 SGc3cdiga11GQ==
-Date: Thu, 1 Feb 2024 20:21:06 -0800
+	b=WxoOnVr8jRjR9kPv8ux72qd9XR9xQGbE/XR41BLJIJawku3A00uJ6LWRF5JHEYK2S
+	 53KG8wFNXkBdrVwOYD9kn5pRdRWgfHlN3HiRAuvNZX5DlcnzuEPgiUOXQimQBq8SMX
+	 gPkwCMfgVsGnTIj1pIbbkIcrqCZVX+yPmAQINhvBL3sKvfrSM+RCRG4R+lkhqKZ6ev
+	 envzBfwcQOhVoiVa53Q9ykDLzixqYMQ3Cg4TSCiZ4vBapwd/QcSD4g/wTDCLXfQ2Sa
+	 2/BAuWZR+rv7zHq7MyH0GJpfyLjdCq9nBrkICcY1U/89KVG4V8C82MjeDGnBuh8eeH
+	 db6nui9xaL6KA==
+Date: Thu, 1 Feb 2024 20:57:52 -0800
 From: Jakub Kicinski <kuba@kernel.org>
-To: Jason Xing <kerneljasonxing@gmail.com>
-Cc: Daniel Jurgens <danielj@nvidia.com>, "Michael S. Tsirkin"
- <mst@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- "jasowang@redhat.com" <jasowang@redhat.com>, "xuanzhuo@linux.alibaba.com"
- <xuanzhuo@linux.alibaba.com>, "virtualization@lists.linux.dev"
- <virtualization@lists.linux.dev>, "davem@davemloft.net"
- <davem@davemloft.net>, "edumazet@google.com" <edumazet@google.com>,
- "abeni@redhat.com" <abeni@redhat.com>, Parav Pandit <parav@nvidia.com>
-Subject: Re: [PATCH net-next] virtio_net: Add TX stop and wake counters
-Message-ID: <20240201202106.25d6dc93@kernel.org>
-In-Reply-To: <CAL+tcoCsT6UJ=2zxL-=0n7sQ2vPC5ybnQk9bGhF6PexZN=-29Q@mail.gmail.com>
-References: <20240130142521.18593-1-danielj@nvidia.com>
-	<20240130095645-mutt-send-email-mst@kernel.org>
-	<CH0PR12MB85809CB7678CADCC892B2259C97D2@CH0PR12MB8580.namprd12.prod.outlook.com>
-	<20240130104107-mutt-send-email-mst@kernel.org>
-	<CH0PR12MB8580CCF10308B9935810C21DC97D2@CH0PR12MB8580.namprd12.prod.outlook.com>
-	<20240130105246-mutt-send-email-mst@kernel.org>
-	<CH0PR12MB858067B9DB6BCEE10519F957C97D2@CH0PR12MB8580.namprd12.prod.outlook.com>
-	<CAL+tcoCsT6UJ=2zxL-=0n7sQ2vPC5ybnQk9bGhF6PexZN=-29Q@mail.gmail.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Jason
+ Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric
+ Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
+ virtualization@lists.linux.dev, Zhu Yanjun <yanjun.zhu@linux.dev>, Simon
+ Horman <horms@kernel.org>
+Subject: Re: [PATCH net-next v2 0/6] virtio-net: support device stats
+Message-ID: <20240201205752.2ed0535f@kernel.org>
+In-Reply-To: <20240131024559.63572-1-xuanzhuo@linux.alibaba.com>
+References: <20240131024559.63572-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -56,16 +47,11 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On Wed, 31 Jan 2024 10:54:33 +0800 Jason Xing wrote:
-> > [danielj@sw-mtx-051 upstream]$ ethtool -S ens2f1np1 | grep 'stop\|wake'
-> >      tx_queue_stopped: 0
-> >      tx_queue_wake: 0
-> >      tx0_stopped: 0
-> >      tx0_wake: 0
-> >      ....  
+On Wed, 31 Jan 2024 10:45:53 +0800 Xuan Zhuo wrote:
+> As the spec:
 > 
-> Yes, that's it! What I know is that only mlx drivers have those two
-> counters, but they are very useful when debugging some issues or
-> tracking some historical changes if we want to.
+> https://github.com/oasis-tcs/virtio-spec/commit/42f389989823039724f95bbbd243291ab0064f82
+> 
+> The virtio net supports to get device stats.
 
-Can you say more? I'm curious what's your use case.
+Does not apply to net-next, could you rebase?
