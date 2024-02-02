@@ -1,94 +1,271 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AC84149007;
-	Fri,  2 Feb 2024 16:01:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FF9A145B07;
+	Fri,  2 Feb 2024 16:20:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706889688; cv=none; b=cjpFB4mCUqIU3vptIJpdw5ChFxmUB0TrEGirGwLoG7P+40ekMgdix9QRT8BsluuX/FlyRRiu64PHAmaPgiMNhvqBGc5q10vnFAmspluhJCz2PicaSNxODXopBtDwVIQZz0h8ZPo6disqBc2vSznKif7TqKivVRda/ixAz28InDM=
+	t=1706890802; cv=none; b=M0fKKrk+0VlAZaxcdy/hTtxZFXn++n26hPJutAInDsfltMnpP1jDvWUo24PO9MuuCgruNbDgxOGJ/8qv0ifJ5Qsz8EXdC+bIfVElYB3HUgIn4rI3kz8gUUqKZRrQziu6QjlM+6uKgVOeqaXA/OKcPbFSPdVsjPl8tDkAM7/VEHQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706889688; c=relaxed/simple;
-	bh=eoBN1Wb1GGsJI8q71EDc3lzyPtxim3bTNPH5cqQ7Kmo=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=nYXqqrBVOMJXbmtXyaNUY+7Whm5ztU841f9OZp4xl3vP/CLttzcp9hKLv1MnvBnbGSPFey9LyxdxKCnxWbhNW72yK1w5swOlQRNrhZ8QVdHSbh5wYsMlifRntKZd9HnaFaSJ67fjQzDgoOryoKHggsryLZgz58mTZjlGRBTkcoQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bpLXpxDw; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1706890802; c=relaxed/simple;
+	bh=09S8wVn66zHG3dl7N/0ch+SY16b9ZyM41FyxhbeQ7R0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Qm8x3WJpigQjp+O5rSVkGQmvsDooyJ6u9VV8w2rDHwABc/uewwdmUMPy+Sre4kb7wzy5ys5itJ2XTpZCy7DW8Xqr/QHZCVQUUF89HYtmoXSDuOahp0LiJ3vEqefYjpG1zVkQ4I7SBTGuEp1y3Lj/VRoeCwuHGh230dRKOEfb0/M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CokDGYnF; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bpLXpxDw"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F731C433F1;
-	Fri,  2 Feb 2024 16:01:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CokDGYnF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBAF5C433C7;
+	Fri,  2 Feb 2024 16:19:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1706889687;
-	bh=eoBN1Wb1GGsJI8q71EDc3lzyPtxim3bTNPH5cqQ7Kmo=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=bpLXpxDwW5hYNz7LABf+rzr7A4J1YM78JAx7+QG5qQZauGWSoYqz6/mYyznNatHwV
-	 q2WdIR5oCqIT+fpytq5X4WIIJ83L7oJVdVjALoVAN9P0n/onuPRK5an+t9+vR5Tfao
-	 1RPGRX16HCChd+cDKh1KZqwBtQRQXGExG97nLQLsiS43wVfLT4u2fI+v3I1nciqGbE
-	 Y+rD1gEUA7AnuGpu2onoCnv9N3DmpeyXo8VdE3EbnmuZKcWHU04MB1iV2kzeNxM8RH
-	 YeYgokNLO9DuzgMqXj5D+KIp0BnovXofiVo/h84yoHEPh5FxHV3SbymkYhNX4E2AXw
-	 It0bpCwV/1Caw==
-Date: Fri, 2 Feb 2024 08:01:26 -0800
-From: Jakub Kicinski <kuba@kernel.org>
-To: Jason Xing <kerneljasonxing@gmail.com>, Daniel Jurgens
- <danielj@nvidia.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, "netdev@vger.kernel.org"
- <netdev@vger.kernel.org>, "jasowang@redhat.com" <jasowang@redhat.com>,
- "xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
- "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
- "davem@davemloft.net" <davem@davemloft.net>, "edumazet@google.com"
- <edumazet@google.com>, "abeni@redhat.com" <abeni@redhat.com>, Parav Pandit
- <parav@nvidia.com>
-Subject: Re: [PATCH net-next] virtio_net: Add TX stop and wake counters
-Message-ID: <20240202080126.72598eef@kernel.org>
-In-Reply-To: <CAL+tcoCs6x7=rBj50g2cMjwLjLOKs9xy1ZZBwSQs8bLfzm=B7Q@mail.gmail.com>
-References: <20240130142521.18593-1-danielj@nvidia.com>
-	<20240130095645-mutt-send-email-mst@kernel.org>
-	<CH0PR12MB85809CB7678CADCC892B2259C97D2@CH0PR12MB8580.namprd12.prod.outlook.com>
-	<20240130104107-mutt-send-email-mst@kernel.org>
-	<CH0PR12MB8580CCF10308B9935810C21DC97D2@CH0PR12MB8580.namprd12.prod.outlook.com>
-	<20240130105246-mutt-send-email-mst@kernel.org>
-	<CH0PR12MB858067B9DB6BCEE10519F957C97D2@CH0PR12MB8580.namprd12.prod.outlook.com>
-	<CAL+tcoCsT6UJ=2zxL-=0n7sQ2vPC5ybnQk9bGhF6PexZN=-29Q@mail.gmail.com>
-	<20240201202106.25d6dc93@kernel.org>
-	<CAL+tcoCs6x7=rBj50g2cMjwLjLOKs9xy1ZZBwSQs8bLfzm=B7Q@mail.gmail.com>
+	s=k20201202; t=1706890801;
+	bh=09S8wVn66zHG3dl7N/0ch+SY16b9ZyM41FyxhbeQ7R0=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=CokDGYnFq/Z1i4dEL5f32q5+omtz1oW0U77EN0EaVqk3Pz1uctporEPG3h4xcM5lj
+	 mvGglHzgrNwnzr81qzB7LAUREehxAwQLwIFc7o1Irvgm3/+A9f7WPkC6mC2qOmMMV6
+	 lgBxQS/ZXjd1ko34KXV7VwNpwvf1fUoMKaX412ubTT8g6ZVyCuY3eocid+LE/ydRgA
+	 0BeVlHlIzks1cZok8UolOlOc+qIkP5dsJqwljP/VHMBHjtsIsQQmEbldOiMt59taTq
+	 q8q8OoZrmq9xVbIdYAUMNGXKpR3ZdP2fr3RcNWAWOQBkVmGosakgWD+2jiSoaVSjLn
+	 dt5MTu+QSAQYw==
+Message-ID: <c8d59e75-d0bb-4a03-9ef4-d6de65fa9356@kernel.org>
+Date: Fri, 2 Feb 2024 17:19:57 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v5] virtio_net: Support RX hash XDP hint
+Content-Language: en-US
+To: Liang Chen <liangchen.linux@gmail.com>, mst@redhat.com,
+ jasowang@redhat.com, xuanzhuo@linux.alibaba.com, hengqi@linux.alibaba.com,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, bpf@vger.kernel.org, john.fastabend@gmail.com,
+ daniel@iogearbox.net, ast@kernel.org
+References: <20240202121151.65710-1-liangchen.linux@gmail.com>
+From: Jesper Dangaard Brouer <hawk@kernel.org>
+In-Reply-To: <20240202121151.65710-1-liangchen.linux@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On Fri, 2 Feb 2024 14:52:59 +0800 Jason Xing wrote:
-> > Can you say more? I'm curious what's your use case.  
+
+
+On 02/02/2024 13.11, Liang Chen wrote:
+> The RSS hash report is a feature that's part of the virtio specification.
+> Currently, virtio backends like qemu, vdpa (mlx5), and potentially vhost
+> (still a work in progress as per [1]) support this feature. While the
+> capability to obtain the RSS hash has been enabled in the normal path,
+> it's currently missing in the XDP path. Therefore, we are introducing
+> XDP hints through kfuncs to allow XDP programs to access the RSS hash.
 > 
-> I'm not working at Nvidia, so my point of view may differ from theirs.
-> From what I can tell is that those two counters help me narrow down
-> the range if I have to diagnose/debug some issues.
-
-right, i'm asking to collect useful debugging tricks, nothing against
-the patch itself :)
-
-> 1) I sometimes notice that if some irq is held too long (say, one
-> simple case: output of printk printed to the console), those two
-> counters can reflect the issue.
-> 2) Similarly in virtio net, recently I traced such counters the
-> current kernel does not have and it turned out that one of the output
-> queues in the backend behaves badly.
-> ...
+> 1.
+> https://lore.kernel.org/all/20231015141644.260646-1-akihiko.odaki@daynix.com/#r
 > 
-> Stop/wake queue counters may not show directly the root cause of the
-> issue, but help us 'guess' to some extent.
+> Signed-off-by: Liang Chen <liangchen.linux@gmail.com>
+> Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> Acked-by: Jason Wang <jasowang@redhat.com>
+> ---
+>    Changes from v4:
+> - cc complete list of maintainers
+> ---
+>   drivers/net/virtio_net.c | 98 +++++++++++++++++++++++++++++++++++-----
+>   1 file changed, 86 insertions(+), 12 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index d7ce4a1011ea..7ce666c86ee0 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -349,6 +349,12 @@ struct virtio_net_common_hdr {
+>   	};
+>   };
+>   
+> +struct virtnet_xdp_buff {
+> +	struct xdp_buff xdp;
+> +	__le32 hash_value;
+> +	__le16 hash_report;
+> +};
+> +
+>   static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf);
+>   
+>   static bool is_xdp_frame(void *ptr)
+> @@ -1033,6 +1039,16 @@ static void put_xdp_frags(struct xdp_buff *xdp)
+>   	}
+>   }
+>   
+> +static void virtnet_xdp_save_rx_hash(struct virtnet_xdp_buff *virtnet_xdp,
+> +				     struct net_device *dev,
+> +				     struct virtio_net_hdr_v1_hash *hdr_hash)
+> +{
+> +	if (dev->features & NETIF_F_RXHASH) {
+> +		virtnet_xdp->hash_value = hdr_hash->hash_value;
+> +		virtnet_xdp->hash_report = hdr_hash->hash_report;
+> +	}
+> +}
+> +
 
-I'm surprised you say you can detect stall-related issues with this.
-I guess virtio doesn't have BQL support, which makes it special.
-Normal HW drivers with BQL almost never stop the queue by themselves.
-I mean - if they do, and BQL is active, then the system is probably
-misconfigured (queue is too short). This is what we use at Meta to
-detect stalls in drivers with BQL:
+Would it be possible to store a pointer to hdr_hash in virtnet_xdp_buff,
+with the purpose of delaying extracting this, until and only if XDP
+bpf_prog calls the kfunc?
 
-https://lore.kernel.org/all/20240131102150.728960-3-leitao@debian.org/
 
-Daniel, I think this may be a good enough excuse to add per-queue stats
-to the netdev genl family, if you're up for that. LMK if you want more
-info, otherwise I guess ethtool -S is fine for now.
+
+>   static int virtnet_xdp_handler(struct bpf_prog *xdp_prog, struct xdp_buff *xdp,
+>   			       struct net_device *dev,
+>   			       unsigned int *xdp_xmit,
+> @@ -1199,9 +1215,10 @@ static struct sk_buff *receive_small_xdp(struct net_device *dev,
+>   	unsigned int headroom = vi->hdr_len + header_offset;
+>   	struct virtio_net_hdr_mrg_rxbuf *hdr = buf + header_offset;
+>   	struct page *page = virt_to_head_page(buf);
+> +	struct virtnet_xdp_buff virtnet_xdp;
+>   	struct page *xdp_page;
+> +	struct xdp_buff *xdp;
+>   	unsigned int buflen;
+> -	struct xdp_buff xdp;
+>   	struct sk_buff *skb;
+>   	unsigned int metasize = 0;
+>   	u32 act;
+> @@ -1233,17 +1250,20 @@ static struct sk_buff *receive_small_xdp(struct net_device *dev,
+>   		page = xdp_page;
+>   	}
+>   
+> -	xdp_init_buff(&xdp, buflen, &rq->xdp_rxq);
+> -	xdp_prepare_buff(&xdp, buf + VIRTNET_RX_PAD + vi->hdr_len,
+> +	xdp = &virtnet_xdp.xdp;
+> +	xdp_init_buff(xdp, buflen, &rq->xdp_rxq);
+> +	xdp_prepare_buff(xdp, buf + VIRTNET_RX_PAD + vi->hdr_len,
+>   			 xdp_headroom, len, true);
+>   
+> -	act = virtnet_xdp_handler(xdp_prog, &xdp, dev, xdp_xmit, stats);
+> +	virtnet_xdp_save_rx_hash(&virtnet_xdp, dev, (void *)hdr);
+> +
+> +	act = virtnet_xdp_handler(xdp_prog, xdp, dev, xdp_xmit, stats);
+>   
+>   	switch (act) {
+>   	case XDP_PASS:
+>   		/* Recalculate length in case bpf program changed it */
+> -		len = xdp.data_end - xdp.data;
+> -		metasize = xdp.data - xdp.data_meta;
+> +		len = xdp->data_end - xdp->data;
+> +		metasize = xdp->data - xdp->data_meta;
+>   		break;
+>   
+>   	case XDP_TX:
+> @@ -1254,7 +1274,7 @@ static struct sk_buff *receive_small_xdp(struct net_device *dev,
+>   		goto err_xdp;
+>   	}
+>   
+> -	skb = virtnet_build_skb(buf, buflen, xdp.data - buf, len);
+> +	skb = virtnet_build_skb(buf, buflen, xdp->data - buf, len);
+>   	if (unlikely(!skb))
+>   		goto err;
+>   
+> @@ -1591,10 +1611,11 @@ static struct sk_buff *receive_mergeable_xdp(struct net_device *dev,
+>   	int num_buf = virtio16_to_cpu(vi->vdev, hdr->num_buffers);
+>   	struct page *page = virt_to_head_page(buf);
+>   	int offset = buf - page_address(page);
+> +	struct virtnet_xdp_buff virtnet_xdp;
+>   	unsigned int xdp_frags_truesz = 0;
+>   	struct sk_buff *head_skb;
+>   	unsigned int frame_sz;
+> -	struct xdp_buff xdp;
+> +	struct xdp_buff *xdp;
+>   	void *data;
+>   	u32 act;
+>   	int err;
+> @@ -1604,16 +1625,19 @@ static struct sk_buff *receive_mergeable_xdp(struct net_device *dev,
+>   	if (unlikely(!data))
+>   		goto err_xdp;
+>   
+> -	err = virtnet_build_xdp_buff_mrg(dev, vi, rq, &xdp, data, len, frame_sz,
+> +	xdp = &virtnet_xdp.xdp;
+> +	err = virtnet_build_xdp_buff_mrg(dev, vi, rq, xdp, data, len, frame_sz,
+>   					 &num_buf, &xdp_frags_truesz, stats);
+>   	if (unlikely(err))
+>   		goto err_xdp;
+>   
+> -	act = virtnet_xdp_handler(xdp_prog, &xdp, dev, xdp_xmit, stats);
+> +	virtnet_xdp_save_rx_hash(&virtnet_xdp, dev, (void *)hdr);
+> +
+> +	act = virtnet_xdp_handler(xdp_prog, xdp, dev, xdp_xmit, stats);
+>   
+>   	switch (act) {
+>   	case XDP_PASS:
+> -		head_skb = build_skb_from_xdp_buff(dev, vi, &xdp, xdp_frags_truesz);
+> +		head_skb = build_skb_from_xdp_buff(dev, vi, xdp, xdp_frags_truesz);
+>   		if (unlikely(!head_skb))
+>   			break;
+>   		return head_skb;
+> @@ -1626,7 +1650,7 @@ static struct sk_buff *receive_mergeable_xdp(struct net_device *dev,
+>   		break;
+>   	}
+>   
+> -	put_xdp_frags(&xdp);
+> +	put_xdp_frags(xdp);
+>   
+>   err_xdp:
+>   	put_page(page);
+> @@ -4579,6 +4603,55 @@ static void virtnet_set_big_packets(struct virtnet_info *vi, const int mtu)
+>   	}
+>   }
+>   
+> +static int virtnet_xdp_rx_hash(const struct xdp_md *_ctx, u32 *hash,
+> +			       enum xdp_rss_hash_type *rss_type)
+> +{
+> +	const struct virtnet_xdp_buff *virtnet_xdp = (void *)_ctx;
+> +
+> +	if (!(virtnet_xdp->xdp.rxq->dev->features & NETIF_F_RXHASH))
+> +		return -ENODATA;
+> +
+> +	switch (__le16_to_cpu(virtnet_xdp->hash_report)) {
+> +	case VIRTIO_NET_HASH_REPORT_TCPv4:
+> +		*rss_type = XDP_RSS_TYPE_L4_IPV4_TCP;
+> +		break;
+> +	case VIRTIO_NET_HASH_REPORT_UDPv4:
+> +		*rss_type = XDP_RSS_TYPE_L4_IPV4_UDP;
+> +		break;
+> +	case VIRTIO_NET_HASH_REPORT_TCPv6:
+> +		*rss_type = XDP_RSS_TYPE_L4_IPV6_TCP;
+> +		break;
+> +	case VIRTIO_NET_HASH_REPORT_UDPv6:
+> +		*rss_type = XDP_RSS_TYPE_L4_IPV6_UDP;
+> +		break;
+> +	case VIRTIO_NET_HASH_REPORT_TCPv6_EX:
+> +		*rss_type = XDP_RSS_TYPE_L4_IPV6_TCP_EX;
+> +		break;
+> +	case VIRTIO_NET_HASH_REPORT_UDPv6_EX:
+> +		*rss_type = XDP_RSS_TYPE_L4_IPV6_UDP_EX;
+> +		break;
+> +	case VIRTIO_NET_HASH_REPORT_IPv4:
+> +		*rss_type = XDP_RSS_TYPE_L3_IPV4;
+> +		break;
+> +	case VIRTIO_NET_HASH_REPORT_IPv6:
+> +		*rss_type = XDP_RSS_TYPE_L3_IPV6;
+> +		break;
+> +	case VIRTIO_NET_HASH_REPORT_IPv6_EX:
+> +		*rss_type = XDP_RSS_TYPE_L3_IPV6_EX;
+> +		break;
+> +	case VIRTIO_NET_HASH_REPORT_NONE:
+> +	default:
+> +		*rss_type = XDP_RSS_TYPE_NONE;
+> +	}
+> +
+> +	*hash = __le32_to_cpu(virtnet_xdp->hash_value);
+> +	return 0;
+> +}
+> +
+> +static const struct xdp_metadata_ops virtnet_xdp_metadata_ops = {
+> +	.xmo_rx_hash			= virtnet_xdp_rx_hash,
+> +};
+> +
+>   static int virtnet_probe(struct virtio_device *vdev)
+>   {
+>   	int i, err = -ENOMEM;
+> @@ -4704,6 +4777,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+>   				  VIRTIO_NET_RSS_HASH_TYPE_UDP_EX);
+>   
+>   		dev->hw_features |= NETIF_F_RXHASH;
+> +		dev->xdp_metadata_ops = &virtnet_xdp_metadata_ops;
+>   	}
+>   
+>   	if (vi->has_rss_hash_report)
