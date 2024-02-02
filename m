@@ -1,271 +1,181 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2088.outbound.protection.outlook.com [40.107.237.88])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FF9A145B07;
-	Fri,  2 Feb 2024 16:20:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706890802; cv=none; b=M0fKKrk+0VlAZaxcdy/hTtxZFXn++n26hPJutAInDsfltMnpP1jDvWUo24PO9MuuCgruNbDgxOGJ/8qv0ifJ5Qsz8EXdC+bIfVElYB3HUgIn4rI3kz8gUUqKZRrQziu6QjlM+6uKgVOeqaXA/OKcPbFSPdVsjPl8tDkAM7/VEHQ=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706890802; c=relaxed/simple;
-	bh=09S8wVn66zHG3dl7N/0ch+SY16b9ZyM41FyxhbeQ7R0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Qm8x3WJpigQjp+O5rSVkGQmvsDooyJ6u9VV8w2rDHwABc/uewwdmUMPy+Sre4kb7wzy5ys5itJ2XTpZCy7DW8Xqr/QHZCVQUUF89HYtmoXSDuOahp0LiJ3vEqefYjpG1zVkQ4I7SBTGuEp1y3Lj/VRoeCwuHGh230dRKOEfb0/M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CokDGYnF; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CC27148315
+	for <virtualization@lists.linux.dev>; Fri,  2 Feb 2024 16:46:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.237.88
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1706892394; cv=fail; b=py5pWorWqNdH+uPwHY4YSWIiq3qLap+DqH+IpuFvBdo8+RdpQb3aF/QBa2RDmNbCWvfwG3SNpqT1vhTdVaDmzeBOmkYyvhgMPrETETQMiqNj889o3nGz+LQh0gwEYkXfkfeVIS8X+uqDaFpdonNrtOto+26lnaTl4MbMtHRNeiM=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1706892394; c=relaxed/simple;
+	bh=jOL+ShOkv+moD/pmhOmmGmIewyJgKwl4lqGLC+LD6XM=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=J88iC8kZuAZAnS/3MXR1yUa3uFbWhD9Y32oqkuPxGsfXVkM8fFTedQjhLPq6ZRUyfPBTr2mxouR23ceoLwzKDSLuAec4fh5oQ+h0a9bUL2D7Bv6kBNhDPl9azDvobEj6Hw7HCVMLGF0GGSpA4Gj4i0p4u4Y6b5nbNwKUaYrIUQs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=Qwj9mfXV; arc=fail smtp.client-ip=40.107.237.88
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CokDGYnF"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBAF5C433C7;
-	Fri,  2 Feb 2024 16:19:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1706890801;
-	bh=09S8wVn66zHG3dl7N/0ch+SY16b9ZyM41FyxhbeQ7R0=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=CokDGYnFq/Z1i4dEL5f32q5+omtz1oW0U77EN0EaVqk3Pz1uctporEPG3h4xcM5lj
-	 mvGglHzgrNwnzr81qzB7LAUREehxAwQLwIFc7o1Irvgm3/+A9f7WPkC6mC2qOmMMV6
-	 lgBxQS/ZXjd1ko34KXV7VwNpwvf1fUoMKaX412ubTT8g6ZVyCuY3eocid+LE/ydRgA
-	 0BeVlHlIzks1cZok8UolOlOc+qIkP5dsJqwljP/VHMBHjtsIsQQmEbldOiMt59taTq
-	 q8q8OoZrmq9xVbIdYAUMNGXKpR3ZdP2fr3RcNWAWOQBkVmGosakgWD+2jiSoaVSjLn
-	 dt5MTu+QSAQYw==
-Message-ID: <c8d59e75-d0bb-4a03-9ef4-d6de65fa9356@kernel.org>
-Date: Fri, 2 Feb 2024 17:19:57 +0100
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="Qwj9mfXV"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=kH+sx+PWjESUrHKIMlpaLSNnnqEXCxjb/nX7KTUHz8VsCJyoDGc06bV76waChXe5FgtnAMoeFdwBDG057mNTc7sBKmdjrl8o7Q5GHJUy4bJA2DNh3OonXdTG62al5DlF8GBKFD28padJHf6Pn6ZurpfrDMLPPfwGGGRCnRXZEXwB1xIjhJMIzU4Rm7eObHbwZNBe+YnVsUlpc7hsvErUYG7VXi3Ifh9zjKrhC5MLbmTA3OoZm0ySXVNyASREZBsiILUbHERyo4s7WrUmxjyZNSEd6ZRXgGG+YVesFsY66Y4WANlRX5w2sSw1RZtwHT3L55DLF1AlKoFB6GErR+OAIw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=jOL+ShOkv+moD/pmhOmmGmIewyJgKwl4lqGLC+LD6XM=;
+ b=QyTbWNvJhgSQyIDsaHur845Y6ok8hP7Xm0E4HSpaWS6Lq4329zAyEk/DxIQM74xtxuFVhMwjD0YlCGwmiDBzEm1erlhhYB780161e8Xy6cNsU6Able/rcgpgPXrd3PcncZbLaUe4GzeTO+enxSbtYSD4UvdMZpUn7/ZUK9v9LaGQAebFA1HsOrMZNKgdzUIn/ULaSMqRDfwLPevrU2jEzmfNg5k0itxT8LD10MTJW8u59KWFNfje1mbYE1wq4Lkdeqwot7srwyaLpCieWiZLwzTy5asGzOKVv3xbW/pxdjyVvMuKyGouIuL4dfBqHOwQmUAtO6wOFAcDf51fwFIh4g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=jOL+ShOkv+moD/pmhOmmGmIewyJgKwl4lqGLC+LD6XM=;
+ b=Qwj9mfXVTxEaz+3Etrk17JePOe9AzdJyxHENFIkb6M1PQSe/8dcmUB6Q/q0bt7qwwepUo2wm9kRNmxIkSfcwZaPU4iv9BbtSbVdDEbUGe1ahBkhwnTWXWQHDGeIpTNCY6ND2a7Yu89DLH0ROwX9qNyyaQ3O4z+Cewu9HM+QehPv879SAkJiPyEEtEl+RFYBdmloX0nQWOUjVY+wsLGHc14JfYC9RtpsjnA8k93j430DVSaYpEbO4VCKSOieJVPcsh/NDnzFDXh1/qBl+gqxRPqdjsF1rZOVeDXTR0YuHERbjXC1lLN8SrZuxf1R2qPQfGc4RRtZ+K9vWsoJVKOfoFg==
+Received: from CH0PR12MB8580.namprd12.prod.outlook.com (2603:10b6:610:192::6)
+ by CH2PR12MB4134.namprd12.prod.outlook.com (2603:10b6:610:a7::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7270.14; Fri, 2 Feb
+ 2024 16:46:28 +0000
+Received: from CH0PR12MB8580.namprd12.prod.outlook.com
+ ([fe80::8825:1827:3273:bbbf]) by CH0PR12MB8580.namprd12.prod.outlook.com
+ ([fe80::8825:1827:3273:bbbf%3]) with mapi id 15.20.7270.010; Fri, 2 Feb 2024
+ 16:46:28 +0000
+From: Daniel Jurgens <danielj@nvidia.com>
+To: Jakub Kicinski <kuba@kernel.org>, Jason Xing <kerneljasonxing@gmail.com>
+CC: "Michael S. Tsirkin" <mst@redhat.com>, "netdev@vger.kernel.org"
+	<netdev@vger.kernel.org>, "jasowang@redhat.com" <jasowang@redhat.com>,
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"davem@davemloft.net" <davem@davemloft.net>, "edumazet@google.com"
+	<edumazet@google.com>, "abeni@redhat.com" <abeni@redhat.com>, Parav Pandit
+	<parav@nvidia.com>
+Subject: RE: [PATCH net-next] virtio_net: Add TX stop and wake counters
+Thread-Topic: [PATCH net-next] virtio_net: Add TX stop and wake counters
+Thread-Index:
+ AQHaU4g6jvRyzH1tPUCIs6q7Q9im2rDycmwAgAAGRTCAAAXXAIAAAcJwgAABlYCAABui0IAAnRGAgAM82ACAACpvgIAAmT0AgAAG2fA=
+Date: Fri, 2 Feb 2024 16:46:28 +0000
+Message-ID:
+ <CH0PR12MB858044D0E5AB3AC651AE0987C9422@CH0PR12MB8580.namprd12.prod.outlook.com>
+References: <20240130142521.18593-1-danielj@nvidia.com>
+	<20240130095645-mutt-send-email-mst@kernel.org>
+	<CH0PR12MB85809CB7678CADCC892B2259C97D2@CH0PR12MB8580.namprd12.prod.outlook.com>
+	<20240130104107-mutt-send-email-mst@kernel.org>
+	<CH0PR12MB8580CCF10308B9935810C21DC97D2@CH0PR12MB8580.namprd12.prod.outlook.com>
+	<20240130105246-mutt-send-email-mst@kernel.org>
+	<CH0PR12MB858067B9DB6BCEE10519F957C97D2@CH0PR12MB8580.namprd12.prod.outlook.com>
+	<CAL+tcoCsT6UJ=2zxL-=0n7sQ2vPC5ybnQk9bGhF6PexZN=-29Q@mail.gmail.com>
+	<20240201202106.25d6dc93@kernel.org>
+	<CAL+tcoCs6x7=rBj50g2cMjwLjLOKs9xy1ZZBwSQs8bLfzm=B7Q@mail.gmail.com>
+ <20240202080126.72598eef@kernel.org>
+In-Reply-To: <20240202080126.72598eef@kernel.org>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: CH0PR12MB8580:EE_|CH2PR12MB4134:EE_
+x-ms-office365-filtering-correlation-id: 9b44a4aa-9cf5-4dba-b069-08dc240e8081
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info:
+ K91WuVZaCMB3TK8dld34aV3ZfRwagZkFt7A7COPoxkoPdkqX9Hv32B8dbzsmAqwon51Uf3/eYl9jyyl/LTPWcEmaMgIGAX3oqQkz73EUcZ99YCncPEQoxLP+LXDcCAMUOJuU5Igobf3ny4KdcM9Kpmzoo1GHAN5RQC3GbqNUXiz+QJ7So8CvVwJDqlL1Q50Emqa/h63C9VpbElXKftUfk7/EY5iXYCnF0fmcuP2IJc3en+688PhOT5+043/YdP8+a/5Gcuw6IjfD1zpRHwkYBfyWnYCD7V2qltEN9iz4u7YO3hLyOej1K6WIRmYA5MnFPukqjPRFTVgES/ZJQUtmJCBDt8+GjtoudTTctmrPNoVjJk6CPXMFD4GqLm5ILOkMb06KjPf0Vdy2DCsfqYLnvr5mxP/7MeYmes8idZDC3RnUmaI5lDKyN0/+GRlFTMWwcokYxBViJoGStlHVgACkAx5E3lbyK6g5kghRneQ1kyYXU6PgnOw84dM95KLBnQASXpjOHsFU1VnUF42wpPg8I+Y6Elkkz7h8dwxd2bI3MiSOPWwR8Z39nNBMmTu8c98Qz3oNgROVkPM5z7EDyo/SJrU6oqNXWDDr0jONzTBd3/HtjY54l7fXq+Xk1pnPRKh3ZEdjHHeKrtfWlh5sqp/rc2c+3P/AXMGXlxU/mIGZ7jg=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH0PR12MB8580.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(136003)(376002)(366004)(396003)(346002)(39860400002)(230922051799003)(64100799003)(451199024)(186009)(1800799012)(38100700002)(7696005)(6506007)(83380400001)(122000001)(55016003)(4326008)(9686003)(7416002)(2906002)(54906003)(33656002)(38070700009)(86362001)(5660300002)(316002)(8676002)(8936002)(52536014)(71200400001)(110136005)(76116006)(66946007)(66556008)(66476007)(66446008)(64756008)(107886003)(966005)(53546011)(26005)(41300700001)(478600001);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?fUtyIz4yhCJp3V91dYHM+uRAwYxuEOZX7s218Fs+LyZ8mSxGAcIDev7VjuHH?=
+ =?us-ascii?Q?DEDbYbS6WmdeP/Tq4PGZk37rnQmv7VhzdRl1ROR73SyaDEtRMGmvsXHZdsZs?=
+ =?us-ascii?Q?7c8ZOTavaqnmpMnFcu6AZod6Hfxh2Rno0HpW97pRL8iPkbfWcKmmQR+PuQ2L?=
+ =?us-ascii?Q?vf17+X9lutqYe0Shxt5sHygSaNrBOEMSTG31kuAwzJzYQetApFHLlRBQV93t?=
+ =?us-ascii?Q?cEWxo0h/5mAHib/lV9Rb4GNfX5Ukkcj0toehzBcMwsyIQV+UekXEaQKcClm9?=
+ =?us-ascii?Q?aaP2s/N9L0JHrnMo2VvQfPP7DVvWM/KPJOusx/9T6JbA58tAbONbKbOUZ8ab?=
+ =?us-ascii?Q?IMTDjQ3EX7AIEkGNlDGHqU7uwnSiYh33aUCMcxqDdt93Xpg4eGeJ/JupwQn+?=
+ =?us-ascii?Q?6OxrD8RPuh5Pa7TLFCVRUss4B4wbJE8NvkU1XJ63A3iLOsHVavfEn5mKtnG5?=
+ =?us-ascii?Q?HaiZX/BTuEkyr1Su2cAaiLLeNg7295oum7J36w0NwJdHueBMJSEZwdjCjyBR?=
+ =?us-ascii?Q?WruLhz8JNLOec/cFWJSUlvw1LaHYhxB3LO+R1SokCDH+8pg2EetOa0vBlfmE?=
+ =?us-ascii?Q?vUWH9OJwRFfkBqr1oGZF9VbHOtsKByVc+D/wPxjB8GGW5CMwWFaW1MeEZj0S?=
+ =?us-ascii?Q?BzeuH0usvLrL81XYAeYIiHxTUjS26jAslHGpUikuNUw9c6ozAkUTfeqzIA01?=
+ =?us-ascii?Q?gR0PJHclYjm2XOYqd9Lf4CSy/kDU+u+rbqBRmGw1D5DoUKVShbuux4bvQhnO?=
+ =?us-ascii?Q?W24gCGWtjPDy4kJOuPDYxLNhsqG0th3Z92KdIaesvrtbZrG5Xuqf3Qp4NB2i?=
+ =?us-ascii?Q?2jto77bLEfhXv4baoA/awsqcd9St1sEOR3bdxe2AhBGHbdVvqbvX7zIEZBb2?=
+ =?us-ascii?Q?tkF33LvMucjhRmCadSFrjHxncr7tLr2KYo6drn2U3Aypm17Ot5Cz0fEAwrvj?=
+ =?us-ascii?Q?mfeEN7gsn05j5VPWFED7y+Xp91dVn2NTQA8ZeYh3VRUdvQ8DHSvKhgMuvTGf?=
+ =?us-ascii?Q?+jH3iUdSZkxWKnVEFxOagSh6VWzPoVZbTs2LD8V9AJCUmFtFP3mza+qPrkBD?=
+ =?us-ascii?Q?44kSwvSoMLvP4IKRHluhRcSGvqwWCdfAmVkXPZU35oz9Oips5sO7nPz2NVQs?=
+ =?us-ascii?Q?oZ0J5A10jC260ISXPrdG+YkLLQsi2C6uDJqWP3WJ8787H8JW5pSzoqlRJiF8?=
+ =?us-ascii?Q?nSZp3MeucYj+Cf/UcREQh0mD7TNdCw1y+prFJcqFzxmCt5vq5W8psqOieun9?=
+ =?us-ascii?Q?ROMrGy4T/mfvKHzVUR6NnFAqdV9wEwUNhL/Ns49holYViPMYicl2o41kmxXz?=
+ =?us-ascii?Q?1OEa5DVTczeQAlQcHPFn/BcA2rwv6ZzzDHsv6HXSivPY5tgxqGPWKaPC2BXF?=
+ =?us-ascii?Q?FEXhPwUiWMNu3oJWbuujSHnotzJv3+t9chky2H56RZsHIEniU7phA1aQ+Q5u?=
+ =?us-ascii?Q?VJSQaxRzvD2hzR2jR6hLhczPZ9zB+b80ZH+VrGT4pGMCPH04thw1AiA6Cd7h?=
+ =?us-ascii?Q?XfoPngUj0GX4gq9tiHr/gAyJqg+liQhiGMXEWSrb5HnzZSrVuYEGm3xmYrHu?=
+ =?us-ascii?Q?FtD4h3P+Pt/NYqK1CGw=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v5] virtio_net: Support RX hash XDP hint
-Content-Language: en-US
-To: Liang Chen <liangchen.linux@gmail.com>, mst@redhat.com,
- jasowang@redhat.com, xuanzhuo@linux.alibaba.com, hengqi@linux.alibaba.com,
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
-Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, bpf@vger.kernel.org, john.fastabend@gmail.com,
- daniel@iogearbox.net, ast@kernel.org
-References: <20240202121151.65710-1-liangchen.linux@gmail.com>
-From: Jesper Dangaard Brouer <hawk@kernel.org>
-In-Reply-To: <20240202121151.65710-1-liangchen.linux@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: CH0PR12MB8580.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9b44a4aa-9cf5-4dba-b069-08dc240e8081
+X-MS-Exchange-CrossTenant-originalarrivaltime: 02 Feb 2024 16:46:28.3855
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: greqeg7VII2M6DIl/hPYWzI+nJE5SrSlKG884uTVbjpmuqzqz1dKVsleU5J8zRV58oHAx/5weIvKeJABJ7mhlw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR12MB4134
+
+> From: Jakub Kicinski <kuba@kernel.org>
+> Sent: Friday, February 2, 2024 10:01 AM
+> Subject: Re: [PATCH net-next] virtio_net: Add TX stop and wake counters
+>=20
+> On Fri, 2 Feb 2024 14:52:59 +0800 Jason Xing wrote:
+> > > Can you say more? I'm curious what's your use case.
+> >
+> > I'm not working at Nvidia, so my point of view may differ from theirs.
+> > From what I can tell is that those two counters help me narrow down
+> > the range if I have to diagnose/debug some issues.
+>=20
+> right, i'm asking to collect useful debugging tricks, nothing against the=
+ patch
+> itself :)
+>=20
+> > 1) I sometimes notice that if some irq is held too long (say, one
+> > simple case: output of printk printed to the console), those two
+> > counters can reflect the issue.
+> > 2) Similarly in virtio net, recently I traced such counters the
+> > current kernel does not have and it turned out that one of the output
+> > queues in the backend behaves badly.
+> > ...
+> >
+> > Stop/wake queue counters may not show directly the root cause of the
+> > issue, but help us 'guess' to some extent.
+>=20
+> I'm surprised you say you can detect stall-related issues with this.
+> I guess virtio doesn't have BQL support, which makes it special.
+> Normal HW drivers with BQL almost never stop the queue by themselves.
+> I mean - if they do, and BQL is active, then the system is probably
+> misconfigured (queue is too short). This is what we use at Meta to detect
+> stalls in drivers with BQL:
+>=20
+> https://lore.kernel.org/all/20240131102150.728960-3-leitao@debian.org/
+>=20
+> Daniel, I think this may be a good enough excuse to add per-queue stats t=
+o
+> the netdev genl family, if you're up for that. LMK if you want more info,
+> otherwise I guess ethtool -S is fine for now.
+
+For now, I would like to go with ethtool -S. But I can take on the netdev l=
+evel as a background task. Are you suggesting adding them to rtnl_link_stat=
+s64?
 
 
 
-On 02/02/2024 13.11, Liang Chen wrote:
-> The RSS hash report is a feature that's part of the virtio specification.
-> Currently, virtio backends like qemu, vdpa (mlx5), and potentially vhost
-> (still a work in progress as per [1]) support this feature. While the
-> capability to obtain the RSS hash has been enabled in the normal path,
-> it's currently missing in the XDP path. Therefore, we are introducing
-> XDP hints through kfuncs to allow XDP programs to access the RSS hash.
-> 
-> 1.
-> https://lore.kernel.org/all/20231015141644.260646-1-akihiko.odaki@daynix.com/#r
-> 
-> Signed-off-by: Liang Chen <liangchen.linux@gmail.com>
-> Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> Acked-by: Jason Wang <jasowang@redhat.com>
-> ---
->    Changes from v4:
-> - cc complete list of maintainers
-> ---
->   drivers/net/virtio_net.c | 98 +++++++++++++++++++++++++++++++++++-----
->   1 file changed, 86 insertions(+), 12 deletions(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index d7ce4a1011ea..7ce666c86ee0 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -349,6 +349,12 @@ struct virtio_net_common_hdr {
->   	};
->   };
->   
-> +struct virtnet_xdp_buff {
-> +	struct xdp_buff xdp;
-> +	__le32 hash_value;
-> +	__le16 hash_report;
-> +};
-> +
->   static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf);
->   
->   static bool is_xdp_frame(void *ptr)
-> @@ -1033,6 +1039,16 @@ static void put_xdp_frags(struct xdp_buff *xdp)
->   	}
->   }
->   
-> +static void virtnet_xdp_save_rx_hash(struct virtnet_xdp_buff *virtnet_xdp,
-> +				     struct net_device *dev,
-> +				     struct virtio_net_hdr_v1_hash *hdr_hash)
-> +{
-> +	if (dev->features & NETIF_F_RXHASH) {
-> +		virtnet_xdp->hash_value = hdr_hash->hash_value;
-> +		virtnet_xdp->hash_report = hdr_hash->hash_report;
-> +	}
-> +}
-> +
-
-Would it be possible to store a pointer to hdr_hash in virtnet_xdp_buff,
-with the purpose of delaying extracting this, until and only if XDP
-bpf_prog calls the kfunc?
-
-
-
->   static int virtnet_xdp_handler(struct bpf_prog *xdp_prog, struct xdp_buff *xdp,
->   			       struct net_device *dev,
->   			       unsigned int *xdp_xmit,
-> @@ -1199,9 +1215,10 @@ static struct sk_buff *receive_small_xdp(struct net_device *dev,
->   	unsigned int headroom = vi->hdr_len + header_offset;
->   	struct virtio_net_hdr_mrg_rxbuf *hdr = buf + header_offset;
->   	struct page *page = virt_to_head_page(buf);
-> +	struct virtnet_xdp_buff virtnet_xdp;
->   	struct page *xdp_page;
-> +	struct xdp_buff *xdp;
->   	unsigned int buflen;
-> -	struct xdp_buff xdp;
->   	struct sk_buff *skb;
->   	unsigned int metasize = 0;
->   	u32 act;
-> @@ -1233,17 +1250,20 @@ static struct sk_buff *receive_small_xdp(struct net_device *dev,
->   		page = xdp_page;
->   	}
->   
-> -	xdp_init_buff(&xdp, buflen, &rq->xdp_rxq);
-> -	xdp_prepare_buff(&xdp, buf + VIRTNET_RX_PAD + vi->hdr_len,
-> +	xdp = &virtnet_xdp.xdp;
-> +	xdp_init_buff(xdp, buflen, &rq->xdp_rxq);
-> +	xdp_prepare_buff(xdp, buf + VIRTNET_RX_PAD + vi->hdr_len,
->   			 xdp_headroom, len, true);
->   
-> -	act = virtnet_xdp_handler(xdp_prog, &xdp, dev, xdp_xmit, stats);
-> +	virtnet_xdp_save_rx_hash(&virtnet_xdp, dev, (void *)hdr);
-> +
-> +	act = virtnet_xdp_handler(xdp_prog, xdp, dev, xdp_xmit, stats);
->   
->   	switch (act) {
->   	case XDP_PASS:
->   		/* Recalculate length in case bpf program changed it */
-> -		len = xdp.data_end - xdp.data;
-> -		metasize = xdp.data - xdp.data_meta;
-> +		len = xdp->data_end - xdp->data;
-> +		metasize = xdp->data - xdp->data_meta;
->   		break;
->   
->   	case XDP_TX:
-> @@ -1254,7 +1274,7 @@ static struct sk_buff *receive_small_xdp(struct net_device *dev,
->   		goto err_xdp;
->   	}
->   
-> -	skb = virtnet_build_skb(buf, buflen, xdp.data - buf, len);
-> +	skb = virtnet_build_skb(buf, buflen, xdp->data - buf, len);
->   	if (unlikely(!skb))
->   		goto err;
->   
-> @@ -1591,10 +1611,11 @@ static struct sk_buff *receive_mergeable_xdp(struct net_device *dev,
->   	int num_buf = virtio16_to_cpu(vi->vdev, hdr->num_buffers);
->   	struct page *page = virt_to_head_page(buf);
->   	int offset = buf - page_address(page);
-> +	struct virtnet_xdp_buff virtnet_xdp;
->   	unsigned int xdp_frags_truesz = 0;
->   	struct sk_buff *head_skb;
->   	unsigned int frame_sz;
-> -	struct xdp_buff xdp;
-> +	struct xdp_buff *xdp;
->   	void *data;
->   	u32 act;
->   	int err;
-> @@ -1604,16 +1625,19 @@ static struct sk_buff *receive_mergeable_xdp(struct net_device *dev,
->   	if (unlikely(!data))
->   		goto err_xdp;
->   
-> -	err = virtnet_build_xdp_buff_mrg(dev, vi, rq, &xdp, data, len, frame_sz,
-> +	xdp = &virtnet_xdp.xdp;
-> +	err = virtnet_build_xdp_buff_mrg(dev, vi, rq, xdp, data, len, frame_sz,
->   					 &num_buf, &xdp_frags_truesz, stats);
->   	if (unlikely(err))
->   		goto err_xdp;
->   
-> -	act = virtnet_xdp_handler(xdp_prog, &xdp, dev, xdp_xmit, stats);
-> +	virtnet_xdp_save_rx_hash(&virtnet_xdp, dev, (void *)hdr);
-> +
-> +	act = virtnet_xdp_handler(xdp_prog, xdp, dev, xdp_xmit, stats);
->   
->   	switch (act) {
->   	case XDP_PASS:
-> -		head_skb = build_skb_from_xdp_buff(dev, vi, &xdp, xdp_frags_truesz);
-> +		head_skb = build_skb_from_xdp_buff(dev, vi, xdp, xdp_frags_truesz);
->   		if (unlikely(!head_skb))
->   			break;
->   		return head_skb;
-> @@ -1626,7 +1650,7 @@ static struct sk_buff *receive_mergeable_xdp(struct net_device *dev,
->   		break;
->   	}
->   
-> -	put_xdp_frags(&xdp);
-> +	put_xdp_frags(xdp);
->   
->   err_xdp:
->   	put_page(page);
-> @@ -4579,6 +4603,55 @@ static void virtnet_set_big_packets(struct virtnet_info *vi, const int mtu)
->   	}
->   }
->   
-> +static int virtnet_xdp_rx_hash(const struct xdp_md *_ctx, u32 *hash,
-> +			       enum xdp_rss_hash_type *rss_type)
-> +{
-> +	const struct virtnet_xdp_buff *virtnet_xdp = (void *)_ctx;
-> +
-> +	if (!(virtnet_xdp->xdp.rxq->dev->features & NETIF_F_RXHASH))
-> +		return -ENODATA;
-> +
-> +	switch (__le16_to_cpu(virtnet_xdp->hash_report)) {
-> +	case VIRTIO_NET_HASH_REPORT_TCPv4:
-> +		*rss_type = XDP_RSS_TYPE_L4_IPV4_TCP;
-> +		break;
-> +	case VIRTIO_NET_HASH_REPORT_UDPv4:
-> +		*rss_type = XDP_RSS_TYPE_L4_IPV4_UDP;
-> +		break;
-> +	case VIRTIO_NET_HASH_REPORT_TCPv6:
-> +		*rss_type = XDP_RSS_TYPE_L4_IPV6_TCP;
-> +		break;
-> +	case VIRTIO_NET_HASH_REPORT_UDPv6:
-> +		*rss_type = XDP_RSS_TYPE_L4_IPV6_UDP;
-> +		break;
-> +	case VIRTIO_NET_HASH_REPORT_TCPv6_EX:
-> +		*rss_type = XDP_RSS_TYPE_L4_IPV6_TCP_EX;
-> +		break;
-> +	case VIRTIO_NET_HASH_REPORT_UDPv6_EX:
-> +		*rss_type = XDP_RSS_TYPE_L4_IPV6_UDP_EX;
-> +		break;
-> +	case VIRTIO_NET_HASH_REPORT_IPv4:
-> +		*rss_type = XDP_RSS_TYPE_L3_IPV4;
-> +		break;
-> +	case VIRTIO_NET_HASH_REPORT_IPv6:
-> +		*rss_type = XDP_RSS_TYPE_L3_IPV6;
-> +		break;
-> +	case VIRTIO_NET_HASH_REPORT_IPv6_EX:
-> +		*rss_type = XDP_RSS_TYPE_L3_IPV6_EX;
-> +		break;
-> +	case VIRTIO_NET_HASH_REPORT_NONE:
-> +	default:
-> +		*rss_type = XDP_RSS_TYPE_NONE;
-> +	}
-> +
-> +	*hash = __le32_to_cpu(virtnet_xdp->hash_value);
-> +	return 0;
-> +}
-> +
-> +static const struct xdp_metadata_ops virtnet_xdp_metadata_ops = {
-> +	.xmo_rx_hash			= virtnet_xdp_rx_hash,
-> +};
-> +
->   static int virtnet_probe(struct virtio_device *vdev)
->   {
->   	int i, err = -ENOMEM;
-> @@ -4704,6 +4777,7 @@ static int virtnet_probe(struct virtio_device *vdev)
->   				  VIRTIO_NET_RSS_HASH_TYPE_UDP_EX);
->   
->   		dev->hw_features |= NETIF_F_RXHASH;
-> +		dev->xdp_metadata_ops = &virtnet_xdp_metadata_ops;
->   	}
->   
->   	if (vi->has_rss_hash_report)
