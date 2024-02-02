@@ -1,29 +1,30 @@
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A28877F2F
-	for <virtualization@lists.linux.dev>; Fri,  2 Feb 2024 09:39:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19D8C78B6D
+	for <virtualization@lists.linux.dev>; Fri,  2 Feb 2024 09:40:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706866798; cv=none; b=NOUWNXvS0/kXm5f4fmwhPxwgpPJj1Cg4yuqCiXjZqhLtkGh+LmcB3LveLMhliNojOMhikOpyvsGJBpbVCrbgQkHzqDEhZSYCbfB4HC5WUQLSqOOMlmEkWAwo36n0sDFGvQOmgvXg9jHsDjr+ioycO3FN/XN+RcveDXYoC2Kes3M=
+	t=1706866803; cv=none; b=qSlUq0lBhLLG6sKBmUuMrE4SN4GFOBda6Cf4x9guqCHBn1A5x1Cpm4SUmMCOG5JPo+wPh7VSAsX5eTExBoy2aOhJbSVfG7veaGemqEsFBK6BVWPRQuHu88RYUz8YH1vg/FvKwphZY5HuoEDyhpNzYB8NfcUtXvUYqs86Ruh7CZ8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706866798; c=relaxed/simple;
-	bh=oNm9Qw7hwiq6aJIott3Cohv2DrbIJbpdeI2rTKx8nhQ=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=SN3vBdrdXTWCJVOxDrSX/9ZgWcfST9x5Pa94d886CpImLs40pMMUhhXkeAHpAKJe/7cpcQuWqSTzdPAg8NOvW4A2JK+kucMVtB6EzCQig6QbnGKhl+9qABo2/mCNEjDspbDMXYentMfpppjLhnl2BlcAEek9pPbUFTxEazymvCA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=YcGIdsch; arc=none smtp.client-ip=115.124.30.131
+	s=arc-20240116; t=1706866803; c=relaxed/simple;
+	bh=wBr2CSy30sFMF/7Ygn+0rdFmjhbm85cRrjJiCrzg89w=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=DMe+WfqUVqA5LYvneZgieOyKiZuofwCopVA3q5RE8C0GYK+PIMX/ZfeLA1YXdZOUa0QXoKU0HdMSC+hPsiwsjuOTJf+fNz8KEYQcH63AkMt0Q39VPWda9BT6xzBgkB7bKvRsOVVyR2TdhUxEcKLe8xuTY+Q9ycedYwaJS16/Vjo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=IcrVBW3p; arc=none smtp.client-ip=115.124.30.118
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="YcGIdsch"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="IcrVBW3p"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1706866794; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=peR8A4izAqgzsimxR/4ieXlIWtvCe7qrSUa+LFRRffU=;
-	b=YcGIdschgRCM3PRajhnA5CwMhce1rXTi44w+vkk4EqXYOKrWCXadPvkHhlRgnGIDFSPqjIxRkrktIkmvdKUu2uvkVLmUKl2hqrn+PZ+aSamm8MyDg2ucJDn914ppPcHLw4qH5734cP8jIcqvY5lhb598FE10vTtcc2K4M9hvUhQ=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=36;SR=0;TI=SMTPD_---0W.wc6kr_1706866791;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W.wc6kr_1706866791)
+	t=1706866799; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=eOF0PVSBypaNHSt/tNL9UWuPnReKcAkoxKsxSB3MKjI=;
+	b=IcrVBW3pjGjuQgNKLYk1cSgvGiHBlsjJt/HJUellrUEytSxoepzgY4yrtbmx/csYyYiaisxxempJpJNwWBGgRmx46+piaiScW9IBkdcOxNAC8FNMbHWiZcjQN1epABboFOPldPicw83fEhB2WJCfIsyveeVWjKXe9n0RVptiFxQ=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R541e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=36;SR=0;TI=SMTPD_---0W.wbN8j_1706866796;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W.wbN8j_1706866796)
           by smtp.aliyun-inc.com;
-          Fri, 02 Feb 2024 17:39:52 +0800
+          Fri, 02 Feb 2024 17:39:57 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: virtualization@lists.linux.dev
 Cc: Richard Weinberger <richard@nod.at>,
@@ -61,10 +62,12 @@ Cc: Richard Weinberger <richard@nod.at>,
 	linux-s390@vger.kernel.org,
 	kvm@vger.kernel.org,
 	bpf@vger.kernel.org
-Subject: [PATCH vhost v1 00/19] virtio: drivers maintain dma info for premapped vq
-Date: Fri,  2 Feb 2024 17:39:32 +0800
-Message-Id: <20240202093951.120283-1-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH vhost v1 03/19] virtio_ring: packed: structure the indirect desc table
+Date: Fri,  2 Feb 2024 17:39:35 +0800
+Message-Id: <20240202093951.120283-4-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+In-Reply-To: <20240202093951.120283-1-xuanzhuo@linux.alibaba.com>
+References: <20240202093951.120283-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -74,82 +77,180 @@ MIME-Version: 1.0
 X-Git-Hash: 4c7bacd05cb8
 Content-Transfer-Encoding: 8bit
 
-As discussed:
-http://lore.kernel.org/all/CACGkMEvq0No8QGC46U4mGsMtuD44fD_cfLcPaVmJ3rHYqRZxYg@mail.gmail.com
+This commit structure the indirect desc table.
+Then we can get the desc num directly when doing unmap.
 
-If the virtio is premapped mode, the driver should manage the dma info by self.
-So the virtio core should not store the dma info.
-So we can release the memory used to store the dma info.
+And save the dma info to the struct, then the indirect
+will not use the dma fields of the desc_extra. The subsequent
+commits will make the dma fields are optional. But for
+the indirect case, we must record the dma info.
 
-But if the desc_extra has not dma info, we face a new question,
-it is hard to get the dma info of the desc with indirect flag.
-For split mode, that is easy from desc, but for the packed mode,
-it is hard to get the dma info from the desc. And for hardening
-the dma unmap is saft, we should store the dma info of indirect
-descs.
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+---
+ drivers/virtio/virtio_ring.c | 66 +++++++++++++++++++++---------------
+ 1 file changed, 38 insertions(+), 28 deletions(-)
 
-So I introduce the "structure the indirect desc table" to
-allocate space to store dma info with the desc table.
-
-On the other side, we mix the descs with indirect flag
-with other descs together to share the unmap api. That
-is complex. I found if we we distinguish the descs with
-VRING_DESC_F_INDIRECT before unmap, thing will be clearer.
-
-Because of the dma array is allocated in the find_vqs(),
-so I introduce a new parameter to find_vqs().
-
-Please review.
-
-Thanks
-
-v1:
-    1. rename transport_vq_config to vq_transport_config
-    2. virtio-net set dma meta number to (ring-size + 1)(MAX_SKB_FRGAS +2)
-    3. introduce virtqueue_dma_map_sg_attrs
-    4. separate vring_create_virtqueue to an independent commit
-
-Xuan Zhuo (19):
-  virtio_ring: introduce vring_need_unmap_buffer
-  virtio_ring: packed: remove double check of the unmap ops
-  virtio_ring: packed: structure the indirect desc table
-  virtio_ring: split: remove double check of the unmap ops
-  virtio_ring: split: structure the indirect desc table
-  virtio_ring: no store dma info when unmap is not needed
-  virtio: find_vqs: pass struct instead of multi parameters
-  virtio: vring_create_virtqueue: pass struct instead of multi
-    parameters
-  virtio: vring_new_virtqueue(): pass struct instead of multi parameters
-  virtio_ring: reuse the parameter struct of find_vqs()
-  virtio: find_vqs: add new parameter premapped
-  virtio_ring: export premapped to driver by struct virtqueue
-  virtio_net: set premapped mode by find_vqs()
-  virtio_ring: remove api of setting vq premapped
-  virtio_ring: introduce dma map api for page
-  virtio_ring: introduce virtqueue_dma_map_sg_attrs
-  virtio_net: unify the code for recycling the xmit ptr
-  virtio_net: rename free_old_xmit_skbs to free_old_xmit
-  virtio_net: sq support premapped mode
-
- arch/um/drivers/virtio_uml.c             |  31 +-
- drivers/net/virtio_net.c                 | 291 +++++++---
- drivers/platform/mellanox/mlxbf-tmfifo.c |  24 +-
- drivers/remoteproc/remoteproc_virtio.c   |  31 +-
- drivers/s390/virtio/virtio_ccw.c         |  33 +-
- drivers/virtio/virtio_mmio.c             |  30 +-
- drivers/virtio/virtio_pci_common.c       |  59 +-
- drivers/virtio/virtio_pci_common.h       |   9 +-
- drivers/virtio/virtio_pci_legacy.c       |  16 +-
- drivers/virtio/virtio_pci_modern.c       |  24 +-
- drivers/virtio/virtio_ring.c             | 698 ++++++++++++-----------
- drivers/virtio/virtio_vdpa.c             |  45 +-
- include/linux/virtio.h                   |  13 +-
- include/linux/virtio_config.h            |  48 +-
- include/linux/virtio_ring.h              |  82 +--
- tools/virtio/virtio_test.c               |   4 +-
- tools/virtio/vringh_test.c               |  28 +-
- 17 files changed, 848 insertions(+), 618 deletions(-)
-
---
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 7280a1706cca..95896fe462c1 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -72,9 +72,16 @@ struct vring_desc_state_split {
+ 	struct vring_desc *indir_desc;	/* Indirect descriptor, if any. */
+ };
+ 
++struct vring_packed_desc_indir {
++	dma_addr_t addr;		/* Descriptor Array DMA addr. */
++	u32 len;			/* Descriptor Array length. */
++	u32 num;
++	struct vring_packed_desc desc[];
++};
++
+ struct vring_desc_state_packed {
+ 	void *data;			/* Data for callback. */
+-	struct vring_packed_desc *indir_desc; /* Indirect descriptor, if any. */
++	struct vring_packed_desc_indir *indir_desc; /* Indirect descriptor, if any. */
+ 	u16 num;			/* Descriptor list length. */
+ 	u16 last;			/* The last desc state in a list. */
+ };
+@@ -1249,10 +1256,13 @@ static void vring_unmap_desc_packed(const struct vring_virtqueue *vq,
+ 		       DMA_FROM_DEVICE : DMA_TO_DEVICE);
+ }
+ 
+-static struct vring_packed_desc *alloc_indirect_packed(unsigned int total_sg,
++static struct vring_packed_desc_indir *alloc_indirect_packed(unsigned int total_sg,
+ 						       gfp_t gfp)
+ {
+-	struct vring_packed_desc *desc;
++	struct vring_packed_desc_indir *in_desc;
++	u32 size;
++
++	size = struct_size(in_desc, desc, total_sg);
+ 
+ 	/*
+ 	 * We require lowmem mappings for the descriptors because
+@@ -1261,9 +1271,10 @@ static struct vring_packed_desc *alloc_indirect_packed(unsigned int total_sg,
+ 	 */
+ 	gfp &= ~__GFP_HIGHMEM;
+ 
+-	desc = kmalloc_array(total_sg, sizeof(struct vring_packed_desc), gfp);
+ 
+-	return desc;
++	in_desc = kmalloc(size, gfp);
++
++	return in_desc;
+ }
+ 
+ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
+@@ -1274,6 +1285,7 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
+ 					 void *data,
+ 					 gfp_t gfp)
+ {
++	struct vring_packed_desc_indir *in_desc;
+ 	struct vring_packed_desc *desc;
+ 	struct scatterlist *sg;
+ 	unsigned int i, n, err_idx;
+@@ -1281,10 +1293,12 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
+ 	dma_addr_t addr;
+ 
+ 	head = vq->packed.next_avail_idx;
+-	desc = alloc_indirect_packed(total_sg, gfp);
+-	if (!desc)
++	in_desc = alloc_indirect_packed(total_sg, gfp);
++	if (!in_desc)
+ 		return -ENOMEM;
+ 
++	desc = in_desc->desc;
++
+ 	if (unlikely(vq->vq.num_free < 1)) {
+ 		pr_debug("Can't add buf len 1 - avail = 0\n");
+ 		kfree(desc);
+@@ -1321,17 +1335,19 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
+ 		goto unmap_release;
+ 	}
+ 
++	if (vring_need_unmap_buffer(vq))
++		in_desc->num = i;
++
++	if (vq->use_dma_api) {
++		in_desc->addr = addr;
++		in_desc->len = total_sg * sizeof(struct vring_packed_desc);
++	}
++
+ 	vq->packed.vring.desc[head].addr = cpu_to_le64(addr);
+ 	vq->packed.vring.desc[head].len = cpu_to_le32(total_sg *
+ 				sizeof(struct vring_packed_desc));
+ 	vq->packed.vring.desc[head].id = cpu_to_le16(id);
+ 
+-	if (vring_need_unmap_buffer(vq)) {
+-		vq->packed.desc_extra[id].addr = addr;
+-		vq->packed.desc_extra[id].len = total_sg *
+-				sizeof(struct vring_packed_desc);
+-	}
+-
+ 	vq->packed.desc_extra[id].flags = VRING_DESC_F_INDIRECT |
+ 		vq->packed.avail_used_flags;
+ 
+@@ -1362,7 +1378,7 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
+ 	/* Store token and indirect buffer state. */
+ 	vq->packed.desc_state[id].num = 1;
+ 	vq->packed.desc_state[id].data = data;
+-	vq->packed.desc_state[id].indir_desc = desc;
++	vq->packed.desc_state[id].indir_desc = in_desc;
+ 	vq->packed.desc_state[id].last = id;
+ 
+ 	vq->num_added += 1;
+@@ -1381,7 +1397,7 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
+ 		vring_unmap_desc_packed(vq, &desc[i]);
+ 
+ free_desc:
+-	kfree(desc);
++	kfree(in_desc);
+ 
+ 	END_USE(vq);
+ 	return -ENOMEM;
+@@ -1595,7 +1611,6 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
+ 			      unsigned int id, void **ctx)
+ {
+ 	struct vring_desc_state_packed *state = NULL;
+-	struct vring_packed_desc *desc;
+ 	unsigned int i, curr;
+ 	u16 flags;
+ 
+@@ -1622,27 +1637,22 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
+ 		if (ctx)
+ 			*ctx = state->indir_desc;
+ 	} else {
+-		const struct vring_desc_extra *extra;
+-		u32 len;
++		struct vring_packed_desc_indir *in_desc;
++
++		in_desc = state->indir_desc;
+ 
+ 		if (vq->use_dma_api) {
+-			extra = &vq->packed.desc_extra[id];
+ 			dma_unmap_single(vring_dma_dev(vq),
+-					 extra->addr, extra->len,
++					 in_desc->addr, in_desc->len,
+ 					 (flags & VRING_DESC_F_WRITE) ?
+ 					 DMA_FROM_DEVICE : DMA_TO_DEVICE);
+ 		}
+ 
+-		/* Free the indirect table, if any, now that it's unmapped. */
+-		desc = state->indir_desc;
+-
+ 		if (vring_need_unmap_buffer(vq)) {
+-			len = vq->packed.desc_extra[id].len;
+-			for (i = 0; i < len / sizeof(struct vring_packed_desc);
+-					i++)
+-				vring_unmap_desc_packed(vq, &desc[i]);
++			for (i = 0; i < in_desc->num; i++)
++				vring_unmap_desc_packed(vq, &in_desc->desc[i]);
+ 		}
+-		kfree(desc);
++		kfree(in_desc);
+ 		state->indir_desc = NULL;
+ 	}
+ }
+-- 
 2.32.0.3.g01195cf9f
 
