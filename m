@@ -1,147 +1,124 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com [209.85.215.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DF94224E6
-	for <virtualization@lists.linux.dev>; Sun,  4 Feb 2024 12:39:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E43E925565
+	for <virtualization@lists.linux.dev>; Sun,  4 Feb 2024 20:50:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707050388; cv=none; b=E1DtGaAmI7Qh4MVS2LS+atNLxYirjt9Um8rD2iKPANLjYK3gbe8l6WaiJsYTxXNquFHkhddKy3A19LYwyfyoGqDPejnM2vqxS3bLwEoXdO4eztFprG1M26dtFQsbN6VPh18JPLNn1+u/IE2Xsq65zRS79AQc66iM8TLK/4qAA4w=
+	t=1707079819; cv=none; b=oQ87saalqiX2XulBa0Vtcs4tErh3+PpxL6AZKNOkRPEhhZ6YI90WUcwPVqWhif7qLCbIC2g/Qhws8EZtIK6t8lc/oAF1o0yVC+lErl4KGrjlZ6xbVGWSr+Bm2Pn9GVxxHdgFItrzRn0eToj5yP3eYwqwQBLDDPKF8M/T3tN8RBA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707050388; c=relaxed/simple;
-	bh=pirbvKlskhOYKnsrXru1Jdv54NG7AYPCCSfDpkXGdDA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=UJN86uhfRlpTJw6Jkv2T0BuQ+5xN4plAKUrBLp1EoaAvSK1cvZosGAVWfrieJ6Wgu8puBEswsyMrIzms04wJwEOTco7CjHVI2HpshW9Ut8nEMGCHuFIJrmfn958hN7kk5CPHhs4ViCj3Vsqs3xoHwDtt6bFDExk49EiS213E+PY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=EvaA47kS; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1707079819; c=relaxed/simple;
+	bh=1lhg0N2Gi8e7QR494sY3Bu1CxQqmtpmbTRWwdhi/iXk=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=d66vd8QUWOa1Kh810pIIpcPZvWo1Y0s9pOrBBgz1/J0PxBomtEelPVAim0rpLR5oLXNckHYssAHzXdg2082nFOmq+7n/HFOL8HRtGIcqDji537oyyBJEJsud3Bd8vNAtGnUx8joS/guyXFUdRvjsaQO970e/g6Jp7YflIKDKqmQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=marliere.net; spf=pass smtp.mailfrom=gmail.com; dkim=fail (0-bit key) header.d=marliere.net header.i=@marliere.net header.b=Ap0GftvT reason="key not found in DNS"; arc=none smtp.client-ip=209.85.215.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=marliere.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EvaA47kS"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1707050384;
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=marliere.net header.i=@marliere.net header.b="Ap0GftvT"
+Received: by mail-pg1-f181.google.com with SMTP id 41be03b00d2f7-5d42e7ab8a9so2856589a12.3
+        for <virtualization@lists.linux.dev>; Sun, 04 Feb 2024 12:50:17 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1707079817; x=1707684617;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:dkim-signature:from:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Fytadz0HTFoWf6wt3XGkZ/DfN+V7jmo50MJNI2n11Xc=;
+        b=whNQ3EXrLfguTuPb2lM+S3j/2YEMfmlC/pftDTSvAO5LN3VudhDcA9iDQX3Jh1AW06
+         YFKPCpPtNBKsC9SLGajXCbuC4CxzhBTglPnW05//SlmXbM4sDWmYX7pouJGjhenOgLD5
+         h3fNfnAzsaW5dfmNFi+hr+I+hueqstZ1dJKAhVdFamGk4ckGxZ/1xYLfpLRqzSm69Acf
+         LATuwfo5f7jC/BrVy/pubcuSrDntTcDl9A1m49MxX8SV/E1zUFMhuosv/l1VhdtVaoRa
+         kv4Vuc9f4pCi3IgCjsoroOwzl2NkOMZPfusfQKX3WcRKKCaWAXCD6Am/3KQxdVPp2jYu
+         gQVA==
+X-Gm-Message-State: AOJu0Yz8Th4mrOsBKy2c0DUyVG2RzgogMWsgx82T6MVvFBl0UjkPfHli
+	YnSnGXJi81yp2aRLVowZhx8h7DpsFCz+DqfBq4vpFLLV83wTDmrg
+X-Google-Smtp-Source: AGHT+IHWHmMvoGxNS7Vqp8v0zNqpws7zwcQUBO1/7apiK4TDRR8E09od/4k9ioTgeq3+6Zy1aRv3Ew==
+X-Received: by 2002:a05:6a20:36a5:b0:19b:fdbd:66e4 with SMTP id s37-20020a056a2036a500b0019bfdbd66e4mr10712175pze.38.1707079817062;
+        Sun, 04 Feb 2024 12:50:17 -0800 (PST)
+X-Forwarded-Encrypted: i=0; AJvYcCXTA0aYsM9Ql7A2eobzafnrFph9peJaDPDfNJ463bt6gZ6e+IhnlaKx03KtLnSgcxVQOWhBQ5xxWtDnMJuvkv2d/s+vgFDcZuWUb7Y/JMUgrmxUg8Wq+3+1vxO+xBMlnRZNl5DtKCq5Y2CUYjeppPC26lUvBfQMIj6slrsPQ5RU61NxgBQFBs4RbkWY10zM9bs++7QBxIf7BSI=
+Received: from mail.marliere.net ([24.199.118.162])
+        by smtp.gmail.com with ESMTPSA id k23-20020aa792d7000000b006dde1781800sm5315179pfa.94.2024.02.04.12.50.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 04 Feb 2024 12:50:16 -0800 (PST)
+From: "Ricardo B. Marliere" <ricardo@marliere.net>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marliere.net;
+	s=2023; t=1707079815;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=BcLLFPKvLJzuF/XcWyGsAawP3WU5em03/73vyC7KdFw=;
-	b=EvaA47kSuWQVm2uyQ/OjG9+SrU4knUZkuPbJV7fBeeh3R87Z8p158+QG+3+ccbgviRQXMp
-	yhhe1NFna+vEcCgjn6Ai+oea8rq8lMyhOetNAeQopxAz2OhBV1KSJzA6YiIjLbDj8xrAUf
-	co0HeyDMo4jSJ5usTNqcslVJdidMLwQ=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-141-huB6RpUFNfSGfQFTBwKtxg-1; Sun, 04 Feb 2024 07:39:43 -0500
-X-MC-Unique: huB6RpUFNfSGfQFTBwKtxg-1
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-40fca312e15so10802515e9.0
-        for <virtualization@lists.linux.dev>; Sun, 04 Feb 2024 04:39:43 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1707050382; x=1707655182;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=BcLLFPKvLJzuF/XcWyGsAawP3WU5em03/73vyC7KdFw=;
-        b=vJ/SpfBH+413U1iZOGkRyOcke9L3zhJ78Dd1U6mohN1qfDBFAVp9+lxKb5+sqLgMXG
-         7FwZT9REmF7PG0Yl70/qKo4cy6Ywg3vQqgFvlStORdA2k3nmmFxB7aYypuxUPMnabAZz
-         qTdPmUZlkpKec8ZT63NgCEBk/A6HTz2VUqnTk+LqAbzPTTV5ZfqPa9EtxGhYpPHYWcKH
-         7pPHzEjE+hWC5KDXfwstRDXW5uiGmgS9ulZkv2Bffv9CdM68X+ZJxzx9Gf8xBeICckRp
-         Q+kTWiEl2tBq0xoYMXs3is9+qJFVBwDMMqzX32R79PgJVX8myT22qYJ+YvWW8X7Z8Dqy
-         +h6Q==
-X-Gm-Message-State: AOJu0YzALhvqD/XEproLDIaM8/0tEQWTSRNTeomyGQ2AqmaiPDMC0poI
-	R31S4wx+WdOIQ3wlDyHlRtLuY8tuoDU5PDqzelnjpCir5hZVOqxA7XL0GoujjF5msBHRmJzSuLv
-	u0ol2trcTYyj54gXM8v/qAPxMiehPFpAh/AqeJLdYHiG5P/G8Nco2sk+iQPmvSWAN
-X-Received: by 2002:a05:600c:4313:b0:40f:b456:6877 with SMTP id p19-20020a05600c431300b0040fb4566877mr2860426wme.18.1707050382068;
-        Sun, 04 Feb 2024 04:39:42 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEDo+6QiXrDDE5utbx0ixAeLLZSJP8HUbsdHLXIc5kzw9Hhb3WeIxVAQbmt2ZnZofmRtUckEA==
-X-Received: by 2002:a05:600c:4313:b0:40f:b456:6877 with SMTP id p19-20020a05600c431300b0040fb4566877mr2860413wme.18.1707050381731;
-        Sun, 04 Feb 2024 04:39:41 -0800 (PST)
-X-Forwarded-Encrypted: i=0; AJvYcCWCyApH338V9ULgsryYbgIsb37kvdSTBTeZ1yPqqzLH4rEXNamoFW7UPrn3uuZ4xdXRJIY0JfsP0M5H2WDNIZaCX/TbJDImdNW5uMZsczUWxFshlvC4+Fci3r6ReF0YarGSIeZ1pAeEYmS50DkiE+6zDyApCX2xVwXUP1FYnbvoOfowrADTT+xdu0kg/p3m3+31YNe3TBUKTS9bYFy1VZNC1fPnI4Y7Y2E77rhqx0hQGWg4LHASzDLmaFQDn/N4Wdvpg4vGUYHrh96cNVOnEORuYs8OuP89KLBzHtrHopB1mOEn18cCiAsoDplNR4Y4oNV2V+DBVu2TpRWewlJaMyw=
-Received: from redhat.com ([2.52.129.159])
-        by smtp.gmail.com with ESMTPSA id k2-20020a05600c1c8200b0040fafd84095sm5584660wms.41.2024.02.04.04.39.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 04 Feb 2024 04:39:40 -0800 (PST)
-Date: Sun, 4 Feb 2024 07:39:36 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: Jakub Kicinski <kuba@kernel.org>,
-	Jason Xing <kerneljasonxing@gmail.com>,
-	Daniel Jurgens <danielj@nvidia.com>,
-	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"davem@davemloft.net" <davem@davemloft.net>,
-	"edumazet@google.com" <edumazet@google.com>,
-	"abeni@redhat.com" <abeni@redhat.com>,
-	Parav Pandit <parav@nvidia.com>
-Subject: Re: [PATCH net-next] virtio_net: Add TX stop and wake counters
-Message-ID: <20240204070920-mutt-send-email-mst@kernel.org>
-References: <CH0PR12MB85809CB7678CADCC892B2259C97D2@CH0PR12MB8580.namprd12.prod.outlook.com>
- <20240130104107-mutt-send-email-mst@kernel.org>
- <CH0PR12MB8580CCF10308B9935810C21DC97D2@CH0PR12MB8580.namprd12.prod.outlook.com>
- <20240130105246-mutt-send-email-mst@kernel.org>
- <CH0PR12MB858067B9DB6BCEE10519F957C97D2@CH0PR12MB8580.namprd12.prod.outlook.com>
- <CAL+tcoCsT6UJ=2zxL-=0n7sQ2vPC5ybnQk9bGhF6PexZN=-29Q@mail.gmail.com>
- <20240201202106.25d6dc93@kernel.org>
- <CAL+tcoCs6x7=rBj50g2cMjwLjLOKs9xy1ZZBwSQs8bLfzm=B7Q@mail.gmail.com>
- <20240202080126.72598eef@kernel.org>
- <CACGkMEu0x9zr09DChJtnTP4R-Tot=5gAYb3Tx2V1EMbEk3oEGw@mail.gmail.com>
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=Fytadz0HTFoWf6wt3XGkZ/DfN+V7jmo50MJNI2n11Xc=;
+	b=Ap0GftvTG4KxfXmIAffUKVFUfQzhHeCo8iVvwjX0nE8OV0k3UjwyC/HWz3W3KNP6Y4Vrgx
+	kAW2u+hWEeqfVQueGW5Vy9gc2n43h0uECwSRvz9Gr8k7gtjfRkQNwVtuWlDSeWJHqO/2q7
+	UYpnUp/Jgi8Oz3Af3rf7jVKaRAh4tjBAs9k0c3U9LVm4xfx9iiSbp3fqveWp5foGXU4gQc
+	hgvahFjJrEtccUBVhoylzUzU1a4l4KhanvsdzHZ4+z4ebKfZkC2C30nVYIevAa3Ktm/lnP
+	cBWueZOHqZY8WBbt1hUMEBBmMG0XCVOfP18z0uNIoeIrvcnjTczDeumYwbJlVw==
+Authentication-Results: ORIGINATING;
+	auth=pass smtp.auth=ricardo@marliere.net smtp.mailfrom=ricardo@marliere.net
+Date: Sun, 04 Feb 2024 17:50:45 -0300
+Subject: [PATCH] vdpa: make vdpa_bus const
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEu0x9zr09DChJtnTP4R-Tot=5gAYb3Tx2V1EMbEk3oEGw@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20240204-bus_cleanup-vdpa-v1-1-1745eccb0a5c@marliere.net>
+X-B4-Tracking: v=1; b=H4sIAKT4v2UC/x3MQQqAIBBA0avErBPUJLKrRITWVANhoiSBePek5
+ Vv8nyFiIIwwNhkCJop0uwrRNrCexh3IaKsGyaXikitmn7isFxr3eJY2b9iAQtuh76Tee6iZD7j
+ T+y+nuZQPCAQW92IAAAA=
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+ "Ricardo B. Marliere" <ricardo@marliere.net>
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1079; i=ricardo@marliere.net;
+ h=from:subject:message-id; bh=1lhg0N2Gi8e7QR494sY3Bu1CxQqmtpmbTRWwdhi/iXk=;
+ b=owEBbQKS/ZANAwAKAckLinxjhlimAcsmYgBlv/immH0AiDOuYoylWvA1eHHcBbs75g6tpUx7U
+ zkiACFqX3+JAjMEAAEKAB0WIQQDCo6eQk7jwGVXh+HJC4p8Y4ZYpgUCZb/4pgAKCRDJC4p8Y4ZY
+ pvfVEACcW3xpwIKP/RBDINjyXeg6yVkVkqsnWtlfRrWubFZUmgyj/0SuU9jT7lJ4ACvO1DNnafG
+ zN5mJctyoVAkKzPzyKxc4aDzCjMvWabeEXFxE/Cpbw35L2RiHsf2kXP+akmCbbloxlvKN/EgKeh
+ f6PWxPFUzZJYqsEQbLts81d+wk/ocdACaBgFT2JQWcJ9DMlTFneRbp9hTy+DO/RXzEkb2LQGQ7l
+ nN4m0GQM3m8BCHWkXdKGqqgwQ/h5BK5JY/STOgn/PFDevagXJubBLGoEsFmDMdvZOW/zwhEzYwP
+ 4/ZmPuKmV4+Vm0nl0f9IQh1v5y9tUDFiIOHORHvfURt46zeur/48jf6tc0tdEYdMaoMZO35IptR
+ 447CZ/Ei2NCMbTFGFKQl9ahrT0Jkya7bgCA5UZDGTikaev4lr//KNic9+pL/a+rhoVbxT5UCIgB
+ Tbl1PlsxQuIRX354qD+9DW+NNmA/MPYQLWH+865+V/NWmdzxFhTH3bs5Ba579xVl+s7696cM0Xt
+ luqTtNPxA9V6XNr+dTQpZGGADG2xzMLz1hkjOIJ/Nh0o+4gHHi0sS6SMXRJJo1E1zfLg9NF1H1P
+ zW0Ag7O6IFi7M06pSlJ51vOHoWbPfr7pOT5KFu5Hl3FDxikYJmDIdmio9eR+2VDyFE97roGr29s
+ YTPBUFNr9rbT8wA==
+X-Developer-Key: i=ricardo@marliere.net; a=openpgp;
+ fpr=030A8E9E424EE3C0655787E1C90B8A7C638658A6
 
-On Sun, Feb 04, 2024 at 09:20:18AM +0800, Jason Wang wrote:
-> On Sat, Feb 3, 2024 at 12:01 AM Jakub Kicinski <kuba@kernel.org> wrote:
-> >
-> > On Fri, 2 Feb 2024 14:52:59 +0800 Jason Xing wrote:
-> > > > Can you say more? I'm curious what's your use case.
-> > >
-> > > I'm not working at Nvidia, so my point of view may differ from theirs.
-> > > From what I can tell is that those two counters help me narrow down
-> > > the range if I have to diagnose/debug some issues.
-> >
-> > right, i'm asking to collect useful debugging tricks, nothing against
-> > the patch itself :)
-> >
-> > > 1) I sometimes notice that if some irq is held too long (say, one
-> > > simple case: output of printk printed to the console), those two
-> > > counters can reflect the issue.
-> > > 2) Similarly in virtio net, recently I traced such counters the
-> > > current kernel does not have and it turned out that one of the output
-> > > queues in the backend behaves badly.
-> > > ...
-> > >
-> > > Stop/wake queue counters may not show directly the root cause of the
-> > > issue, but help us 'guess' to some extent.
-> >
-> > I'm surprised you say you can detect stall-related issues with this.
-> > I guess virtio doesn't have BQL support, which makes it special.
-> 
-> Yes, virtio-net has a legacy orphan mode, this is something that needs
-> to be dropped in the future. This would make BQL much more easier to
-> be implemented.
+Now that the driver core can properly handle constant struct bus_type,
+move the vdpa_bus variable to be a constant structure as well,
+placing it into read-only memory which can not be modified at runtime.
 
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Suggested-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Ricardo B. Marliere <ricardo@marliere.net>
+---
+ drivers/vdpa/vdpa.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-It's not that we can't implement BQL, it's that it does not seem to
-be benefitial - has been discussed many times.
+diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+index d0695680b282..c73c06102e7e 100644
+--- a/drivers/vdpa/vdpa.c
++++ b/drivers/vdpa/vdpa.c
+@@ -115,7 +115,7 @@ static const struct attribute_group vdpa_dev_group = {
+ };
+ __ATTRIBUTE_GROUPS(vdpa_dev);
+ 
+-static struct bus_type vdpa_bus = {
++static const struct bus_type vdpa_bus = {
+ 	.name  = "vdpa",
+ 	.dev_groups = vdpa_dev_groups,
+ 	.match = vdpa_dev_match,
 
-> > Normal HW drivers with BQL almost never stop the queue by themselves.
-> > I mean - if they do, and BQL is active, then the system is probably
-> > misconfigured (queue is too short). This is what we use at Meta to
-> > detect stalls in drivers with BQL:
-> >
-> > https://lore.kernel.org/all/20240131102150.728960-3-leitao@debian.org/
-> >
-> > Daniel, I think this may be a good enough excuse to add per-queue stats
-> > to the netdev genl family, if you're up for that. LMK if you want more
-> > info, otherwise I guess ethtool -S is fine for now.
-> >
-> 
-> Thanks
+---
+base-commit: 41b9fb381a486360b2daaec0c7480f8e3ff72bc7
+change-id: 20240204-bus_cleanup-vdpa-8e19b86329f6
+
+Best regards,
+-- 
+Ricardo B. Marliere <ricardo@marliere.net>
 
