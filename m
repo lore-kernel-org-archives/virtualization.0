@@ -1,219 +1,147 @@
-Received: from szxga04-in.huawei.com (szxga04-in.huawei.com [45.249.212.190])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 710E56FC5
-	for <virtualization@lists.linux.dev>; Sun,  4 Feb 2024 03:50:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.190
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DF94224E6
+	for <virtualization@lists.linux.dev>; Sun,  4 Feb 2024 12:39:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707018639; cv=none; b=MvQx/EJP9ijg7rLQ0a4iUdLWto9Ogev763FgjIphWkJre0Z99mof01W8k2/PcAPiHtd0tI/wzFV8eOAz28pe+H7qcoweSckA4SybixMK9FT5N54d/9fOYkh0ngTJ2yA/jFwxpBZB9iAfcUu7L+e8W9JroEYn0aCWmx3YKtCcG90=
+	t=1707050388; cv=none; b=E1DtGaAmI7Qh4MVS2LS+atNLxYirjt9Um8rD2iKPANLjYK3gbe8l6WaiJsYTxXNquFHkhddKy3A19LYwyfyoGqDPejnM2vqxS3bLwEoXdO4eztFprG1M26dtFQsbN6VPh18JPLNn1+u/IE2Xsq65zRS79AQc66iM8TLK/4qAA4w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707018639; c=relaxed/simple;
-	bh=XJqqCkQY6hDhXX2alQOZaD95C4OOCP5Ii2WSEKcnwxs=;
-	h=Subject:To:CC:References:From:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=DdxFRKK6sr2SmZrTDzBnQUu11eA1ssO2VZGlEtaREIkq45PbXkF0k3jWmpri1hTdZrxjtQgYckSwNgwiyPTcBdarI1u3sv5VAe5KSxbyBdUft2f1iuMgdLswBIIUceK/MDrjj1kJCNmxMgWo+eRKR7xs0nY5HhALuquuWeazAtU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.190
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.88.214])
-	by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4TSFrB6Wp1z1xn8j;
-	Sun,  4 Feb 2024 11:49:30 +0800 (CST)
-Received: from dggpemm500005.china.huawei.com (unknown [7.185.36.74])
-	by mail.maildlp.com (Postfix) with ESMTPS id DD3041A016B;
-	Sun,  4 Feb 2024 11:50:34 +0800 (CST)
-Received: from [10.69.30.204] (10.69.30.204) by dggpemm500005.china.huawei.com
- (7.185.36.74) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.35; Sun, 4 Feb
- 2024 11:50:34 +0800
-Subject: Re: [PATCH net-next v4 5/5] tools: virtio: introduce vhost_net_test
+	s=arc-20240116; t=1707050388; c=relaxed/simple;
+	bh=pirbvKlskhOYKnsrXru1Jdv54NG7AYPCCSfDpkXGdDA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=UJN86uhfRlpTJw6Jkv2T0BuQ+5xN4plAKUrBLp1EoaAvSK1cvZosGAVWfrieJ6Wgu8puBEswsyMrIzms04wJwEOTco7CjHVI2HpshW9Ut8nEMGCHuFIJrmfn958hN7kk5CPHhs4ViCj3Vsqs3xoHwDtt6bFDExk49EiS213E+PY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=EvaA47kS; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EvaA47kS"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1707050384;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=BcLLFPKvLJzuF/XcWyGsAawP3WU5em03/73vyC7KdFw=;
+	b=EvaA47kSuWQVm2uyQ/OjG9+SrU4knUZkuPbJV7fBeeh3R87Z8p158+QG+3+ccbgviRQXMp
+	yhhe1NFna+vEcCgjn6Ai+oea8rq8lMyhOetNAeQopxAz2OhBV1KSJzA6YiIjLbDj8xrAUf
+	co0HeyDMo4jSJ5usTNqcslVJdidMLwQ=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-141-huB6RpUFNfSGfQFTBwKtxg-1; Sun, 04 Feb 2024 07:39:43 -0500
+X-MC-Unique: huB6RpUFNfSGfQFTBwKtxg-1
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-40fca312e15so10802515e9.0
+        for <virtualization@lists.linux.dev>; Sun, 04 Feb 2024 04:39:43 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1707050382; x=1707655182;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=BcLLFPKvLJzuF/XcWyGsAawP3WU5em03/73vyC7KdFw=;
+        b=vJ/SpfBH+413U1iZOGkRyOcke9L3zhJ78Dd1U6mohN1qfDBFAVp9+lxKb5+sqLgMXG
+         7FwZT9REmF7PG0Yl70/qKo4cy6Ywg3vQqgFvlStORdA2k3nmmFxB7aYypuxUPMnabAZz
+         qTdPmUZlkpKec8ZT63NgCEBk/A6HTz2VUqnTk+LqAbzPTTV5ZfqPa9EtxGhYpPHYWcKH
+         7pPHzEjE+hWC5KDXfwstRDXW5uiGmgS9ulZkv2Bffv9CdM68X+ZJxzx9Gf8xBeICckRp
+         Q+kTWiEl2tBq0xoYMXs3is9+qJFVBwDMMqzX32R79PgJVX8myT22qYJ+YvWW8X7Z8Dqy
+         +h6Q==
+X-Gm-Message-State: AOJu0YzALhvqD/XEproLDIaM8/0tEQWTSRNTeomyGQ2AqmaiPDMC0poI
+	R31S4wx+WdOIQ3wlDyHlRtLuY8tuoDU5PDqzelnjpCir5hZVOqxA7XL0GoujjF5msBHRmJzSuLv
+	u0ol2trcTYyj54gXM8v/qAPxMiehPFpAh/AqeJLdYHiG5P/G8Nco2sk+iQPmvSWAN
+X-Received: by 2002:a05:600c:4313:b0:40f:b456:6877 with SMTP id p19-20020a05600c431300b0040fb4566877mr2860426wme.18.1707050382068;
+        Sun, 04 Feb 2024 04:39:42 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEDo+6QiXrDDE5utbx0ixAeLLZSJP8HUbsdHLXIc5kzw9Hhb3WeIxVAQbmt2ZnZofmRtUckEA==
+X-Received: by 2002:a05:600c:4313:b0:40f:b456:6877 with SMTP id p19-20020a05600c431300b0040fb4566877mr2860413wme.18.1707050381731;
+        Sun, 04 Feb 2024 04:39:41 -0800 (PST)
+X-Forwarded-Encrypted: i=0; AJvYcCWCyApH338V9ULgsryYbgIsb37kvdSTBTeZ1yPqqzLH4rEXNamoFW7UPrn3uuZ4xdXRJIY0JfsP0M5H2WDNIZaCX/TbJDImdNW5uMZsczUWxFshlvC4+Fci3r6ReF0YarGSIeZ1pAeEYmS50DkiE+6zDyApCX2xVwXUP1FYnbvoOfowrADTT+xdu0kg/p3m3+31YNe3TBUKTS9bYFy1VZNC1fPnI4Y7Y2E77rhqx0hQGWg4LHASzDLmaFQDn/N4Wdvpg4vGUYHrh96cNVOnEORuYs8OuP89KLBzHtrHopB1mOEn18cCiAsoDplNR4Y4oNV2V+DBVu2TpRWewlJaMyw=
+Received: from redhat.com ([2.52.129.159])
+        by smtp.gmail.com with ESMTPSA id k2-20020a05600c1c8200b0040fafd84095sm5584660wms.41.2024.02.04.04.39.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 04 Feb 2024 04:39:40 -0800 (PST)
+Date: Sun, 4 Feb 2024 07:39:36 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Jason Wang <jasowang@redhat.com>
-CC: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>,
-	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, "Michael S.
- Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	<virtualization@lists.linux.dev>
-References: <20240130113710.34511-1-linyunsheng@huawei.com>
- <20240130113710.34511-6-linyunsheng@huawei.com>
- <CACGkMEsJq1Fg6T+9YLPzE16027sBHRZodk2+b1ySa9MeMcGjMA@mail.gmail.com>
- <dfc3dcb0-511c-945b-6099-c4d7ccbf3253@huawei.com>
- <CACGkMEsHLis66LntKTG01Eg7cMv-S7u05B3W6CizKRahJ5gDOw@mail.gmail.com>
-From: Yunsheng Lin <linyunsheng@huawei.com>
-Message-ID: <16dd5732-06d1-8dd9-85b4-8de7686bd73e@huawei.com>
-Date: Sun, 4 Feb 2024 11:50:34 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:52.0) Gecko/20100101
- Thunderbird/52.2.0
+Cc: Jakub Kicinski <kuba@kernel.org>,
+	Jason Xing <kerneljasonxing@gmail.com>,
+	Daniel Jurgens <danielj@nvidia.com>,
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"davem@davemloft.net" <davem@davemloft.net>,
+	"edumazet@google.com" <edumazet@google.com>,
+	"abeni@redhat.com" <abeni@redhat.com>,
+	Parav Pandit <parav@nvidia.com>
+Subject: Re: [PATCH net-next] virtio_net: Add TX stop and wake counters
+Message-ID: <20240204070920-mutt-send-email-mst@kernel.org>
+References: <CH0PR12MB85809CB7678CADCC892B2259C97D2@CH0PR12MB8580.namprd12.prod.outlook.com>
+ <20240130104107-mutt-send-email-mst@kernel.org>
+ <CH0PR12MB8580CCF10308B9935810C21DC97D2@CH0PR12MB8580.namprd12.prod.outlook.com>
+ <20240130105246-mutt-send-email-mst@kernel.org>
+ <CH0PR12MB858067B9DB6BCEE10519F957C97D2@CH0PR12MB8580.namprd12.prod.outlook.com>
+ <CAL+tcoCsT6UJ=2zxL-=0n7sQ2vPC5ybnQk9bGhF6PexZN=-29Q@mail.gmail.com>
+ <20240201202106.25d6dc93@kernel.org>
+ <CAL+tcoCs6x7=rBj50g2cMjwLjLOKs9xy1ZZBwSQs8bLfzm=B7Q@mail.gmail.com>
+ <20240202080126.72598eef@kernel.org>
+ <CACGkMEu0x9zr09DChJtnTP4R-Tot=5gAYb3Tx2V1EMbEk3oEGw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEsHLis66LntKTG01Eg7cMv-S7u05B3W6CizKRahJ5gDOw@mail.gmail.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
+In-Reply-To: <CACGkMEu0x9zr09DChJtnTP4R-Tot=5gAYb3Tx2V1EMbEk3oEGw@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- dggpemm500005.china.huawei.com (7.185.36.74)
 
-On 2024/2/4 9:30, Jason Wang wrote:
-> On Fri, Feb 2, 2024 at 8:24 PM Yunsheng Lin <linyunsheng@huawei.com> wrote:
->>
->> On 2024/2/2 12:05, Jason Wang wrote:
->>> On Tue, Jan 30, 2024 at 7:38 PM Yunsheng Lin <linyunsheng@huawei.com> wrote:
->>>>
->>>> introduce vhost_net_test basing on virtio_test to test
->>>> vhost_net changing in the kernel.
->>>
->>> Let's describe what kind of test is being done and how it is done here.
->>
->> How about something like below:
->>
->> This patch introduces testing for both vhost_net tx and rx.
->> Steps for vhost_net tx testing:
->> 1. Prepare a out buf
->> 2. Kick the vhost_net to do tx processing
->> 3. Do the receiving in the tun side
->> 4. verify the data received by tun is correct
->>
->> Steps for vhost_net rx testing::
->> 1. Prepare a in buf
->> 2. Do the sending in the tun side
->> 3. Kick the vhost_net to do rx processing
->> 4. verify the data received by vhost_net is correct
+On Sun, Feb 04, 2024 at 09:20:18AM +0800, Jason Wang wrote:
+> On Sat, Feb 3, 2024 at 12:01 AM Jakub Kicinski <kuba@kernel.org> wrote:
+> >
+> > On Fri, 2 Feb 2024 14:52:59 +0800 Jason Xing wrote:
+> > > > Can you say more? I'm curious what's your use case.
+> > >
+> > > I'm not working at Nvidia, so my point of view may differ from theirs.
+> > > From what I can tell is that those two counters help me narrow down
+> > > the range if I have to diagnose/debug some issues.
+> >
+> > right, i'm asking to collect useful debugging tricks, nothing against
+> > the patch itself :)
+> >
+> > > 1) I sometimes notice that if some irq is held too long (say, one
+> > > simple case: output of printk printed to the console), those two
+> > > counters can reflect the issue.
+> > > 2) Similarly in virtio net, recently I traced such counters the
+> > > current kernel does not have and it turned out that one of the output
+> > > queues in the backend behaves badly.
+> > > ...
+> > >
+> > > Stop/wake queue counters may not show directly the root cause of the
+> > > issue, but help us 'guess' to some extent.
+> >
+> > I'm surprised you say you can detect stall-related issues with this.
+> > I guess virtio doesn't have BQL support, which makes it special.
 > 
-> It looks like some important details were lost, e.g the logic for batching etc.
+> Yes, virtio-net has a legacy orphan mode, this is something that needs
+> to be dropped in the future. This would make BQL much more easier to
+> be implemented.
 
-I am supposeing you are referring to the virtio desc batch handling，
-right?
 
-It was a copy & paste code of virtio_test.c, I was thinking about removing
-the virtio desc batch handling for now, as this patchset does not require
-that to do the testing, it mainly depend on the "sock->sk->sk_sndbuf" to
-be INT_MAX to call vhost_net_build_xdp(), which seems to be the default
-case for vhost_net.
+It's not that we can't implement BQL, it's that it does not seem to
+be benefitial - has been discussed many times.
 
-> 
->>
-
-...
-
->>>> +static void vdev_create_socket(struct vdev_info *dev)
->>>> +{
->>>> +       struct ifreq ifr;
->>>> +
->>>> +       dev->sock = socket(AF_PACKET, SOCK_RAW, htons(TEST_PTYPE));
->>>> +       assert(dev->sock != -1);
->>>> +
->>>> +       snprintf(ifr.ifr_name, IFNAMSIZ, "tun_%d", getpid());
->>>
->>> Nit: it might be better to accept the device name instead of repeating
->>> the snprintf trick here, this would facilitate the future changes.
->>
->> I am not sure I understand what did you mean by "accept the device name"
->> here.
->>
->> The above is used to get ifindex of the tun netdevice created in
->> tun_alloc(), so that we can use it in vdev_send_packet() to send
->> a packet using the tun netdevice created in tun_alloc(). Is there
->> anything obvious I missed here?
-> 
-> I meant a const char *ifname for this function and let the caller to
-> pass the name.
-
-Sure.
-
-> 
->>
-
->>>> +
->>>> +static void run_rx_test(struct vdev_info *dev, struct vq_info *vq,
->>>> +                       bool delayed, int batch, int bufs)
->>>> +{
->>>> +       const bool random_batch = batch == RANDOM_BATCH;
->>>> +       long long spurious = 0;
->>>> +       struct scatterlist sl;
->>>> +       unsigned int len;
->>>> +       int r;
->>>> +
->>>> +       for (;;) {
->>>> +               long started_before = vq->started;
->>>> +               long completed_before = vq->completed;
->>>> +
->>>> +               do {
->>>> +                       if (random_batch)
->>>> +                               batch = (random() % vq->vring.num) + 1;
->>>> +
->>>> +                       while (vq->started < bufs &&
->>>> +                              (vq->started - vq->completed) < batch) {
->>>> +                               sg_init_one(&sl, dev->res_buf, HDR_LEN + TEST_BUF_LEN);
->>>> +
->>>> +                               r = virtqueue_add_inbuf(vq->vq, &sl, 1,
->>>> +                                                       dev->res_buf + vq->started,
->>>> +                                                       GFP_ATOMIC);
->>>> +                               if (unlikely(r != 0)) {
->>>> +                                       if (r == -ENOSPC &&
->>>
->>> Drivers usually maintain a #free_slots, this can help to avoid the
->>> trick for checking ENOSPC?
->>
->> The above "(vq->started - vq->completed) < batch" seems to ensure that
->> the 'r' can't be '-ENOSPC'?
-> 
-> Well, if this is true any reason we still check ENOSPEC here?
-
-As mentioned above, It was a copy & paste code of virtio_test.c.
-Will remove 'r == -ENOSPC' checking.
-
-> 
->> We just need to ensure the batch <= desc_num,
->> and the 'r == -ENOSPC' checking seems to be unnecessary.
->>
->>>
->>>> +                                           vq->started > started_before)
->>>> +                                               r = 0;
->>>> +                                       else
->>>> +                                               r = -1;
->>>> +                                       break;
->>>> +                               }
->>>> +
->>>> +                               ++vq->started;
->>>> +
->>>> +                               vdev_send_packet(dev);
->>>> +
->>>> +                               if (unlikely(!virtqueue_kick(vq->vq))) {
->>>> +                                       r = -1;
->>>> +                                       break;
->>>> +                               }
->>>> +                       }
->>>> +
->>>> +                       if (vq->started >= bufs)
->>>> +                               r = -1;
->>>> +
->>>> +                       /* Flush out completed bufs if any */
->>>> +                       while (virtqueue_get_buf(vq->vq, &len)) {
->>>> +                               struct ether_header *eh;
->>>> +
->>>> +                               eh = (struct ether_header *)(dev->res_buf + HDR_LEN);
->>>> +
->>>> +                               /* tun netdev is up and running, ignore the
->>>> +                                * non-TEST_PTYPE packet.
->>>> +                                */
->>>
->>> I wonder if it's better to set up some kind of qdisc to avoid the
->>> unexpected packet here, or is it too complicated?
->>
->> Yes, at least I don't know to do that yet.
-> 
-> For example, the blackhole qdisc?
-
-It seems the blackhole_enqueue() just drop everything, which includes
-the packet sent using the raw socket in vdev_send_packet()?
-
-We may bypass qdisc for the raw socket in vdev_send_packet()，but it
-means other caller may bypass qdisc, and even cook up a packet with
-ethertype being ETH_P_LOOPBACK, there is part of the reason I added a
-simple payload verification in verify_res_buf().
-
+> > Normal HW drivers with BQL almost never stop the queue by themselves.
+> > I mean - if they do, and BQL is active, then the system is probably
+> > misconfigured (queue is too short). This is what we use at Meta to
+> > detect stalls in drivers with BQL:
+> >
+> > https://lore.kernel.org/all/20240131102150.728960-3-leitao@debian.org/
+> >
+> > Daniel, I think this may be a good enough excuse to add per-queue stats
+> > to the netdev genl family, if you're up for that. LMK if you want more
+> > info, otherwise I guess ethtool -S is fine for now.
+> >
 > 
 > Thanks
-> 
-> .
-> 
+
