@@ -1,60 +1,60 @@
-Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com [209.85.215.181])
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E43E925565
-	for <virtualization@lists.linux.dev>; Sun,  4 Feb 2024 20:50:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70B96286A6
+	for <virtualization@lists.linux.dev>; Sun,  4 Feb 2024 20:52:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707079819; cv=none; b=oQ87saalqiX2XulBa0Vtcs4tErh3+PpxL6AZKNOkRPEhhZ6YI90WUcwPVqWhif7qLCbIC2g/Qhws8EZtIK6t8lc/oAF1o0yVC+lErl4KGrjlZ6xbVGWSr+Bm2Pn9GVxxHdgFItrzRn0eToj5yP3eYwqwQBLDDPKF8M/T3tN8RBA=
+	t=1707079947; cv=none; b=PmHRdsHMUSbHxZRjW03LiMJ61xN6FkbSbSN+c6GpdJ4j4ARsyIdokRSu5Qh7hDVOO4Yn7qRA6wD/dj5SJobloN1u3xnLOEaR7fdYTPuhXh29B1BvTFO/ed6m4ehYoBT6SHywJ5rVmnzsaF+0FUevA67/LFEL3LqsiBaJ7BMYt6Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707079819; c=relaxed/simple;
-	bh=1lhg0N2Gi8e7QR494sY3Bu1CxQqmtpmbTRWwdhi/iXk=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=d66vd8QUWOa1Kh810pIIpcPZvWo1Y0s9pOrBBgz1/J0PxBomtEelPVAim0rpLR5oLXNckHYssAHzXdg2082nFOmq+7n/HFOL8HRtGIcqDji537oyyBJEJsud3Bd8vNAtGnUx8joS/guyXFUdRvjsaQO970e/g6Jp7YflIKDKqmQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=marliere.net; spf=pass smtp.mailfrom=gmail.com; dkim=fail (0-bit key) header.d=marliere.net header.i=@marliere.net header.b=Ap0GftvT reason="key not found in DNS"; arc=none smtp.client-ip=209.85.215.181
+	s=arc-20240116; t=1707079947; c=relaxed/simple;
+	bh=sbDgyhLemt9WBM8/41UER9Vp4nTwIRVkedKPpoL3NUQ=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=u7AIIstKn0IxZVNx4CBGO8AVJatfu52n0EF6NycDPDukvRD/A4bcm+4iHNvGdsGNvqrSyX9t+dvwSQwc1RvDrY0wD3ZMUNeV6aheBDbgAXjunhF70ZKXiUYxbsQN5tCf8l2SPjdtopIIzLRx/a0XFnJTydETBMfwXiM/Vt37DgQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=marliere.net; spf=pass smtp.mailfrom=gmail.com; dkim=fail (0-bit key) header.d=marliere.net header.i=@marliere.net header.b=K4DOjjmC reason="key not found in DNS"; arc=none smtp.client-ip=209.85.216.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=marliere.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=marliere.net header.i=@marliere.net header.b="Ap0GftvT"
-Received: by mail-pg1-f181.google.com with SMTP id 41be03b00d2f7-5d42e7ab8a9so2856589a12.3
-        for <virtualization@lists.linux.dev>; Sun, 04 Feb 2024 12:50:17 -0800 (PST)
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=marliere.net header.i=@marliere.net header.b="K4DOjjmC"
+Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-29080973530so3067525a91.1
+        for <virtualization@lists.linux.dev>; Sun, 04 Feb 2024 12:52:24 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1707079817; x=1707684617;
+        d=1e100.net; s=20230601; t=1707079943; x=1707684743;
         h=cc:to:message-id:content-transfer-encoding:mime-version:subject
          :date:dkim-signature:from:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Fytadz0HTFoWf6wt3XGkZ/DfN+V7jmo50MJNI2n11Xc=;
-        b=whNQ3EXrLfguTuPb2lM+S3j/2YEMfmlC/pftDTSvAO5LN3VudhDcA9iDQX3Jh1AW06
-         YFKPCpPtNBKsC9SLGajXCbuC4CxzhBTglPnW05//SlmXbM4sDWmYX7pouJGjhenOgLD5
-         h3fNfnAzsaW5dfmNFi+hr+I+hueqstZ1dJKAhVdFamGk4ckGxZ/1xYLfpLRqzSm69Acf
-         LATuwfo5f7jC/BrVy/pubcuSrDntTcDl9A1m49MxX8SV/E1zUFMhuosv/l1VhdtVaoRa
-         kv4Vuc9f4pCi3IgCjsoroOwzl2NkOMZPfusfQKX3WcRKKCaWAXCD6Am/3KQxdVPp2jYu
-         gQVA==
-X-Gm-Message-State: AOJu0Yz8Th4mrOsBKy2c0DUyVG2RzgogMWsgx82T6MVvFBl0UjkPfHli
-	YnSnGXJi81yp2aRLVowZhx8h7DpsFCz+DqfBq4vpFLLV83wTDmrg
-X-Google-Smtp-Source: AGHT+IHWHmMvoGxNS7Vqp8v0zNqpws7zwcQUBO1/7apiK4TDRR8E09od/4k9ioTgeq3+6Zy1aRv3Ew==
-X-Received: by 2002:a05:6a20:36a5:b0:19b:fdbd:66e4 with SMTP id s37-20020a056a2036a500b0019bfdbd66e4mr10712175pze.38.1707079817062;
-        Sun, 04 Feb 2024 12:50:17 -0800 (PST)
-X-Forwarded-Encrypted: i=0; AJvYcCXTA0aYsM9Ql7A2eobzafnrFph9peJaDPDfNJ463bt6gZ6e+IhnlaKx03KtLnSgcxVQOWhBQ5xxWtDnMJuvkv2d/s+vgFDcZuWUb7Y/JMUgrmxUg8Wq+3+1vxO+xBMlnRZNl5DtKCq5Y2CUYjeppPC26lUvBfQMIj6slrsPQ5RU61NxgBQFBs4RbkWY10zM9bs++7QBxIf7BSI=
+        bh=ClGn8ecbU90TEqn2u6KZZZz4O47dZbbXURgIbg3kG2k=;
+        b=Hxg5zy5hr8pjugPfXjrlRuuHjiw7DAMNmMBwAm5vmxIGO8kLYJu6apLVaPhDHrdWRA
+         ghYLrZm1DwuH81VOoOS+Zdq7jyDbcu70ciINeitmLyPuYcp3ZUlU2csso5SrvgFLGd7x
+         JxMy04yjLMAwHbLiSArKZ8bpfz5TI2pSFfiedqw2O9omQN/XscjmXqr+cH6EhuCQY8tG
+         KXeQuS+1yGALrWom9AzfHezVnputZlVGiju9N8GzPK1NOKyL2fA1dm7a1PPo5H3DRwfu
+         JrRgAngFMflM7dvLG1NXJb8ziNVk0nXfUcEU/9VsR158zPoS4cGmNh8294seE7k0VSCT
+         hFew==
+X-Gm-Message-State: AOJu0Yyr6C4frtAcvqAv14LvtZJT0C48AOg5LKOFb+Pw2Ryx45brZ1T7
+	DjgxnmEMBtjKRRncG7R4opeJZrGkZLYS/La4zhpObyTlFC+oVOiQ
+X-Google-Smtp-Source: AGHT+IGwI+tmMj1Hb+S7XDaQ6Osr7BoUGeig7QhjNWvkOD5fdQf33VJmNq/7osImTH9HJ7rzv3UrHA==
+X-Received: by 2002:a17:90a:d70f:b0:296:1bf4:e797 with SMTP id y15-20020a17090ad70f00b002961bf4e797mr7396926pju.39.1707079943581;
+        Sun, 04 Feb 2024 12:52:23 -0800 (PST)
+X-Forwarded-Encrypted: i=0; AJvYcCXZptgEgoAqPO/fTbxR4ln9UrXnO4Z/I65NwR863eqa8UnQwb55H/HmRC+gbiPdkYQo+ERurQuxcPVnLToxA1a78RFgjLXkD8uJdvh9SGW0yLgxztRw/XPWSFrLZ9u909Z4zH2qjlespfmZerVw5m2Ubfpu8C57bQ7ZVDjKvI/eEuA/Et+PM6MBSdK7OgICbJP9hvYmUfAXZ7c=
 Received: from mail.marliere.net ([24.199.118.162])
-        by smtp.gmail.com with ESMTPSA id k23-20020aa792d7000000b006dde1781800sm5315179pfa.94.2024.02.04.12.50.16
+        by smtp.gmail.com with ESMTPSA id se13-20020a17090b518d00b0028d8fa0171asm3697044pjb.35.2024.02.04.12.52.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 04 Feb 2024 12:50:16 -0800 (PST)
+        Sun, 04 Feb 2024 12:52:23 -0800 (PST)
 From: "Ricardo B. Marliere" <ricardo@marliere.net>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marliere.net;
-	s=2023; t=1707079815;
+	s=2023; t=1707079942;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding;
-	bh=Fytadz0HTFoWf6wt3XGkZ/DfN+V7jmo50MJNI2n11Xc=;
-	b=Ap0GftvTG4KxfXmIAffUKVFUfQzhHeCo8iVvwjX0nE8OV0k3UjwyC/HWz3W3KNP6Y4Vrgx
-	kAW2u+hWEeqfVQueGW5Vy9gc2n43h0uECwSRvz9Gr8k7gtjfRkQNwVtuWlDSeWJHqO/2q7
-	UYpnUp/Jgi8Oz3Af3rf7jVKaRAh4tjBAs9k0c3U9LVm4xfx9iiSbp3fqveWp5foGXU4gQc
-	hgvahFjJrEtccUBVhoylzUzU1a4l4KhanvsdzHZ4+z4ebKfZkC2C30nVYIevAa3Ktm/lnP
-	cBWueZOHqZY8WBbt1hUMEBBmMG0XCVOfP18z0uNIoeIrvcnjTczDeumYwbJlVw==
+	bh=ClGn8ecbU90TEqn2u6KZZZz4O47dZbbXURgIbg3kG2k=;
+	b=K4DOjjmC2N94iaAG09XzaTmx6ylEsNVITmdO1FSvxeS6zhOM9x9vVpd1JoI27a7zk06/+2
+	XjHVQxVYAmQCSeJuxRizYm4TiDjgYu9eMiarzPPgykvSY4mkAzTdjszsobhq1K9vqUZEk6
+	cQLyAK0qfKZ2acuMqocOLGMRp1Wt3g4xORUmZw39jB9jabwQ+oycAPAMpFq/pPV+GRJenx
+	nyIBxubFVPOluzPeSj8Fu4VTg7xAAC3T50QuuOBxFn/hT2wQ4hHOfiLfSLrBcmOf+kMnCU
+	/ao19X2G/pIzFhQst3UguCD7crgNBDkmNgXcQCWbhwfvbDq9/CeQNS0/IRG4rw==
 Authentication-Results: ORIGINATING;
 	auth=pass smtp.auth=ricardo@marliere.net smtp.mailfrom=ricardo@marliere.net
-Date: Sun, 04 Feb 2024 17:50:45 -0300
-Subject: [PATCH] vdpa: make vdpa_bus const
+Date: Sun, 04 Feb 2024 17:52:51 -0300
+Subject: [PATCH] virtio: make virtio_bus const
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -63,60 +63,60 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20240204-bus_cleanup-vdpa-v1-1-1745eccb0a5c@marliere.net>
-X-B4-Tracking: v=1; b=H4sIAKT4v2UC/x3MQQqAIBBA0avErBPUJLKrRITWVANhoiSBePek5
- Vv8nyFiIIwwNhkCJop0uwrRNrCexh3IaKsGyaXikitmn7isFxr3eJY2b9iAQtuh76Tee6iZD7j
- T+y+nuZQPCAQW92IAAAA=
+Message-Id: <20240204-bus_cleanup-virtio-v1-1-3bcb2212aaa0@marliere.net>
+X-B4-Tracking: v=1; b=H4sIACL5v2UC/x3MTQqAIBBA4avErBMmk/6uEhFpYw2EhVYE0t2Tl
+ t/ivQiBPFOALovg6ebAu0so8gzMOrmFBM/JIFEqlKiEvsJoNprcdYib/cm7aC3WlSmNxqqBFB6
+ eLD//tB/e9wPxXdFUZAAAAA==
 To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
  Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
  Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
  "Ricardo B. Marliere" <ricardo@marliere.net>
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1079; i=ricardo@marliere.net;
- h=from:subject:message-id; bh=1lhg0N2Gi8e7QR494sY3Bu1CxQqmtpmbTRWwdhi/iXk=;
- b=owEBbQKS/ZANAwAKAckLinxjhlimAcsmYgBlv/immH0AiDOuYoylWvA1eHHcBbs75g6tpUx7U
- zkiACFqX3+JAjMEAAEKAB0WIQQDCo6eQk7jwGVXh+HJC4p8Y4ZYpgUCZb/4pgAKCRDJC4p8Y4ZY
- pvfVEACcW3xpwIKP/RBDINjyXeg6yVkVkqsnWtlfRrWubFZUmgyj/0SuU9jT7lJ4ACvO1DNnafG
- zN5mJctyoVAkKzPzyKxc4aDzCjMvWabeEXFxE/Cpbw35L2RiHsf2kXP+akmCbbloxlvKN/EgKeh
- f6PWxPFUzZJYqsEQbLts81d+wk/ocdACaBgFT2JQWcJ9DMlTFneRbp9hTy+DO/RXzEkb2LQGQ7l
- nN4m0GQM3m8BCHWkXdKGqqgwQ/h5BK5JY/STOgn/PFDevagXJubBLGoEsFmDMdvZOW/zwhEzYwP
- 4/ZmPuKmV4+Vm0nl0f9IQh1v5y9tUDFiIOHORHvfURt46zeur/48jf6tc0tdEYdMaoMZO35IptR
- 447CZ/Ei2NCMbTFGFKQl9ahrT0Jkya7bgCA5UZDGTikaev4lr//KNic9+pL/a+rhoVbxT5UCIgB
- Tbl1PlsxQuIRX354qD+9DW+NNmA/MPYQLWH+865+V/NWmdzxFhTH3bs5Ba579xVl+s7696cM0Xt
- luqTtNPxA9V6XNr+dTQpZGGADG2xzMLz1hkjOIJ/Nh0o+4gHHi0sS6SMXRJJo1E1zfLg9NF1H1P
- zW0Ag7O6IFi7M06pSlJ51vOHoWbPfr7pOT5KFu5Hl3FDxikYJmDIdmio9eR+2VDyFE97roGr29s
- YTPBUFNr9rbT8wA==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1108; i=ricardo@marliere.net;
+ h=from:subject:message-id; bh=sbDgyhLemt9WBM8/41UER9Vp4nTwIRVkedKPpoL3NUQ=;
+ b=owEBbQKS/ZANAwAKAckLinxjhlimAcsmYgBlv/kke1/UbX16S1OwqSFTauQH9I5P+fSdkKA8e
+ VF6yGm5+jyJAjMEAAEKAB0WIQQDCo6eQk7jwGVXh+HJC4p8Y4ZYpgUCZb/5JAAKCRDJC4p8Y4ZY
+ pscUD/49sG93DuRWQirQHxFOKP5JYeZvBKitNbaw1hjWE1YXjwlNU1541CqegIAAaJGup9Wc3eZ
+ u3Ia3zlN+DJN4sXY4AaKRiGPcYvKaXik343Srgo9diDhep00X5sSKUQWUMPET3STdNSI1XCTLi2
+ PA59oyxD9tpOlrCdOpF9pWENfM2WPd0kfIl99ejXJQ2qc1VUK0b+4xsvN/KtF2dkCVVM0qDgbT8
+ qnWJP0tVWPKacoNpr+kd4VcsGgGMks7iJtwEUUYMGHpaGWFIVY+c+QO3nWWMLs60kxQ3Jl/FcWa
+ MYyk8NqiIXeuUYmTjDm7z1ZAtvbvXLg4YYbP1ZEqLBL61ij+jz2rp7gKAX8Vs2jOp8a0vjX/z4R
+ GGFFKL5gqebTjNqNFOsRu9duN4sF3A7QL238R68eeqEfKcI3+mZ2Ffr5aoXp7g7xPfZM281sILZ
+ EAT+K4O8dT+sTe/HdImQ/dtisX7+zmbGDUuCtaDl6ClfxMT79YrSM92Hra1xSmSbnCHQ9NIdCJa
+ 1tWDKnWsBTbFBS/Gevd4FpYjYwMh8ahiUPmNW5MUQmxTAaiqzY4PBvVvQ2yMHEjtKqiKuXU6jgw
+ wkhmVWkfOLKYIua9gyZQ/JaBIKReOsSMdkrr5fIaFpscWyAHnzq5gfYzuWk1EOBRHVkOWBUzKEv
+ thYsbSkh8c6/qtg==
 X-Developer-Key: i=ricardo@marliere.net; a=openpgp;
  fpr=030A8E9E424EE3C0655787E1C90B8A7C638658A6
 
 Now that the driver core can properly handle constant struct bus_type,
-move the vdpa_bus variable to be a constant structure as well,
+move the virtio_bus variable to be a constant structure as well,
 placing it into read-only memory which can not be modified at runtime.
 
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Suggested-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Ricardo B. Marliere <ricardo@marliere.net>
 ---
- drivers/vdpa/vdpa.c | 2 +-
+ drivers/virtio/virtio.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
-index d0695680b282..c73c06102e7e 100644
---- a/drivers/vdpa/vdpa.c
-+++ b/drivers/vdpa/vdpa.c
-@@ -115,7 +115,7 @@ static const struct attribute_group vdpa_dev_group = {
- };
- __ATTRIBUTE_GROUPS(vdpa_dev);
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index f4080692b351..a68e6556f71b 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -353,7 +353,7 @@ static void virtio_dev_remove(struct device *_d)
+ 	of_node_put(dev->dev.of_node);
+ }
  
--static struct bus_type vdpa_bus = {
-+static const struct bus_type vdpa_bus = {
- 	.name  = "vdpa",
- 	.dev_groups = vdpa_dev_groups,
- 	.match = vdpa_dev_match,
+-static struct bus_type virtio_bus = {
++static const struct bus_type virtio_bus = {
+ 	.name  = "virtio",
+ 	.match = virtio_dev_match,
+ 	.dev_groups = virtio_dev_groups,
 
 ---
 base-commit: 41b9fb381a486360b2daaec0c7480f8e3ff72bc7
-change-id: 20240204-bus_cleanup-vdpa-8e19b86329f6
+change-id: 20240204-bus_cleanup-virtio-9f076c3cb068
 
 Best regards,
 -- 
