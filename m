@@ -1,41 +1,111 @@
-Received: from out199-24.us.a.mail.aliyun.com (out199-24.us.a.mail.aliyun.com [47.90.199.24])
+Received: from szxga06-in.huawei.com (szxga06-in.huawei.com [45.249.212.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48073B660
-	for <virtualization+bounces-2471-xuanzhuo=linux.alibaba.com@lists.linux.dev>; Mon,  5 Feb 2024 05:20:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=47.90.199.24
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 148581CA91
+	for <virtualization@lists.linux.dev>; Mon,  5 Feb 2024 12:46:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.32
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707110439; cv=none; b=HpTqdTz4lz6ls0/2Crz0ozDqdj4/BO5FW8Bz/gB5Y7yn/JbQoI68gzitUucuXVh+HudZn3b460Jwe5TZskBaKpmR6f36O/V4RvhTuZJw74Jw70DXFgT3rCpguvEq5uHmm/78IX9IqTXfPen0vw80XzB9Qi01oqvkhNSPYWJL2Sw=
+	t=1707137164; cv=none; b=g1qwUCh8OnuU8E1fmT8hKWwUyLgn8OqXVmjrYlBs2Uu26yXSQQeI5HrI8jGdq3PwAgukH7GKU6XnZX8XxbYrLyvvOhimqjkLSSwwqA9IXGyhoC70TIkQc7QE05YQCyuMxwgagVJnW81hwhLWwiQvHyDcEj8NU6rjiMtIuW3/SCA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707110439; c=relaxed/simple;
-	bh=a+BuHGTS9P2uQPIBTFfFeLBBud0i07Omu7OakIuFqGU=;
-	h=date:from:subject:to:message-id:MIME-Version:Content-Type; b=fLloMPDr/nhAWMhFm6U6/1oyFrdOBeDAbHqjqrPk1UiPtQ8XiRBkY2lMWgRFR5+8P0BNvhzMmkae8gWS/Q+tRB+PEwkNj0QMfizcsLGTPZuAOmKU5JvYoK6W9Yi270hBieDww/UTf98t5lpRyDdnRkXbouf/3ceac0Dnc2VSFHc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=dAYF6DQg; arc=none smtp.client-ip=47.90.199.24
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="dAYF6DQg"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1707110424; h=date:from:subject:to:message-id:MIME-Version:Content-Type;
-	bh=a+BuHGTS9P2uQPIBTFfFeLBBud0i07Omu7OakIuFqGU=;
-	b=dAYF6DQgUNYwRQ8Fd6B8cpPJFIdQDzjtdyHuMR3+A89b38Sw51f8D6xBVVKpYvsjBWXeKrQCaW+1ZCb/PegruxMZ3NappeIMAXKsTWKdiTU4+cGUwKlZVvNEeVTp3yu6+y8snIuluv0oxCKaGVAQx3+9KTqhHRRQbuPdld2EhPg=
-auto-submitted:auto-replied
-date:Mon, 05 Feb 2024 13:20:24 +0800
-from: <xuanzhuo@linux.alibaba.com>
-subject:=?UTF-8?B?UmU6W1BBVENIIHY2LjEueS12NC4xOS55XSB2aG9zdDogdXNlIGt6YWxsb2MoKSBpbnN0ZWFkIG9mIGttYWxsb2MoKSBmb2xsb3dlZCBieSBtZW1zZXQoKQ==?=
-to:virtualization@lists.linux.dev
-message-id: 588b9c2b-7909-4434-9cf8-ae37b9dae5fc
+	s=arc-20240116; t=1707137164; c=relaxed/simple;
+	bh=nN0hXC2rCPqcNLu07ELbr6FXn/yhkJ6KwF/VMli0qYo=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=FpavDykORWJ+MNkUX4pHluBi8CcKJ4mqOPxtZBzVudhb8aXIf1X8UhYIEkHMzmBDsv/mgYxuA7n1e8vbMDvTrO6FAqiLEzS1LKJTg+lLIqIuTs7u0ZL/kG33ByFfEd3EJX+QicPkQy8NZ98208WS/QEdp1A8DyPRWHZ0wZkxmHc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.163.17])
+	by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4TT5hD3kdwz1vtDM;
+	Mon,  5 Feb 2024 20:45:32 +0800 (CST)
+Received: from dggpemm500005.china.huawei.com (unknown [7.185.36.74])
+	by mail.maildlp.com (Postfix) with ESMTPS id CB9001A0172;
+	Mon,  5 Feb 2024 20:45:59 +0800 (CST)
+Received: from localhost.localdomain (10.69.192.56) by
+ dggpemm500005.china.huawei.com (7.185.36.74) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.35; Mon, 5 Feb 2024 20:45:59 +0800
+From: Yunsheng Lin <linyunsheng@huawei.com>
+To: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>
+CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Yunsheng Lin
+	<linyunsheng@huawei.com>, Alexander Duyck <alexanderduyck@fb.com>, Alexander
+ Duyck <alexander.duyck@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>, Andrew Morton <akpm@linux-foundation.org>,
+	<kvm@vger.kernel.org>, <virtualization@lists.linux.dev>, <linux-mm@kvack.org>
+Subject: [PATCH net-next v5 2/5] page_frag: unify gfp bits for order 3 page allocation
+Date: Mon, 5 Feb 2024 20:45:02 +0800
+Message-ID: <20240205124506.57670-3-linyunsheng@huawei.com>
+X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20240205124506.57670-1-linyunsheng@huawei.com>
+References: <20240205124506.57670-1-linyunsheng@huawei.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version:1.0
-Content-Type:text/plain;
-	charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+ dggpemm500005.china.huawei.com (7.185.36.74)
 
-Hi, I'm on vacation. I'll get back to you when I'm done with this vacation.
-I'll be back on 2.18.
+Currently there seems to be three page frag implementations
+which all try to allocate order 3 page, if that fails, it
+then fail back to allocate order 0 page, and each of them
+all allow order 3 page allocation to fail under certain
+condition by using specific gfp bits.
 
-Thanks.
+The gfp bits for order 3 page allocation are different
+between different implementation, __GFP_NOMEMALLOC is
+or'd to forbid access to emergency reserves memory for
+__page_frag_cache_refill(), but it is not or'd in other
+implementions, __GFP_DIRECT_RECLAIM is masked off to avoid
+direct reclaim in vhost_net_page_frag_refill(), but it is
+not masked off in __page_frag_cache_refill().
+
+This patch unifies the gfp bits used between different
+implementions by or'ing __GFP_NOMEMALLOC and masking off
+__GFP_DIRECT_RECLAIM for order 3 page allocation to avoid
+possible pressure for mm.
+
+Leave the gfp unifying for page frag implementation in sock.c
+for now as suggested by Paolo Abeni.
+
+Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+CC: Alexander Duyck <alexander.duyck@gmail.com>
+---
+ drivers/vhost/net.c | 2 +-
+ mm/page_alloc.c     | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index f2ed7167c848..e574e21cc0ca 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -670,7 +670,7 @@ static bool vhost_net_page_frag_refill(struct vhost_net *net, unsigned int sz,
+ 		/* Avoid direct reclaim but allow kswapd to wake */
+ 		pfrag->page = alloc_pages((gfp & ~__GFP_DIRECT_RECLAIM) |
+ 					  __GFP_COMP | __GFP_NOWARN |
+-					  __GFP_NORETRY,
++					  __GFP_NORETRY | __GFP_NOMEMALLOC,
+ 					  SKB_FRAG_PAGE_ORDER);
+ 		if (likely(pfrag->page)) {
+ 			pfrag->size = PAGE_SIZE << SKB_FRAG_PAGE_ORDER;
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index c0f7e67c4250..636145c29f70 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -4685,8 +4685,8 @@ static struct page *__page_frag_cache_refill(struct page_frag_cache *nc,
+ 	gfp_t gfp = gfp_mask;
+ 
+ #if (PAGE_SIZE < PAGE_FRAG_CACHE_MAX_SIZE)
+-	gfp_mask |= __GFP_COMP | __GFP_NOWARN | __GFP_NORETRY |
+-		    __GFP_NOMEMALLOC;
++	gfp_mask = (gfp_mask & ~__GFP_DIRECT_RECLAIM) |  __GFP_COMP |
++		   __GFP_NOWARN | __GFP_NORETRY | __GFP_NOMEMALLOC;
+ 	page = alloc_pages_node(NUMA_NO_NODE, gfp_mask,
+ 				PAGE_FRAG_CACHE_MAX_ORDER);
+ 	nc->size = page ? PAGE_FRAG_CACHE_MAX_SIZE : PAGE_SIZE;
+-- 
+2.33.0
+
