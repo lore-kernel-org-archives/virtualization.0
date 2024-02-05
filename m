@@ -1,124 +1,291 @@
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70B96286A6
-	for <virtualization@lists.linux.dev>; Sun,  4 Feb 2024 20:52:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89FDA79D8
+	for <virtualization@lists.linux.dev>; Mon,  5 Feb 2024 01:43:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707079947; cv=none; b=PmHRdsHMUSbHxZRjW03LiMJ61xN6FkbSbSN+c6GpdJ4j4ARsyIdokRSu5Qh7hDVOO4Yn7qRA6wD/dj5SJobloN1u3xnLOEaR7fdYTPuhXh29B1BvTFO/ed6m4ehYoBT6SHywJ5rVmnzsaF+0FUevA67/LFEL3LqsiBaJ7BMYt6Y=
+	t=1707097435; cv=none; b=DWMZyRmMEsGHD6MTDqDi25blURoLLZHtBaEt2z+psigOUjBmyFc2LrRhojuZIzMDi3K+BZHhOL434pzpIyvNyvl3d1sg6bfZcuF9NNR6FFffGiXwqSb1jxshMCG84S06JGcc44HK3WhpOhbWyQEW1R2lW5CfRAlVSRGAB6EhqTU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707079947; c=relaxed/simple;
-	bh=sbDgyhLemt9WBM8/41UER9Vp4nTwIRVkedKPpoL3NUQ=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=u7AIIstKn0IxZVNx4CBGO8AVJatfu52n0EF6NycDPDukvRD/A4bcm+4iHNvGdsGNvqrSyX9t+dvwSQwc1RvDrY0wD3ZMUNeV6aheBDbgAXjunhF70ZKXiUYxbsQN5tCf8l2SPjdtopIIzLRx/a0XFnJTydETBMfwXiM/Vt37DgQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=marliere.net; spf=pass smtp.mailfrom=gmail.com; dkim=fail (0-bit key) header.d=marliere.net header.i=@marliere.net header.b=K4DOjjmC reason="key not found in DNS"; arc=none smtp.client-ip=209.85.216.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=marliere.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1707097435; c=relaxed/simple;
+	bh=TpTIDnll6tdByqEXHboN61Gc8GS6K3HPiJf4ebys5Ns=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ljuRqAoofnPWYvhiyW70se25ti5HOGRuothkI/qvORJ0vykgQ7G/dz8I56nGBgdJ2ro7kt2TVd5u5Mi6pN+P2lxCUEgpnTyDUQyvUz2WxOWdIba7C88ho1iOLrldFMXIyTdL6p6uhYH+wfD5MNS9h5AC6wtXQrjoayOWuRnicxU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GtkI5+Md; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=marliere.net header.i=@marliere.net header.b="K4DOjjmC"
-Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-29080973530so3067525a91.1
-        for <virtualization@lists.linux.dev>; Sun, 04 Feb 2024 12:52:24 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1707079943; x=1707684743;
-        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
-         :date:dkim-signature:from:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ClGn8ecbU90TEqn2u6KZZZz4O47dZbbXURgIbg3kG2k=;
-        b=Hxg5zy5hr8pjugPfXjrlRuuHjiw7DAMNmMBwAm5vmxIGO8kLYJu6apLVaPhDHrdWRA
-         ghYLrZm1DwuH81VOoOS+Zdq7jyDbcu70ciINeitmLyPuYcp3ZUlU2csso5SrvgFLGd7x
-         JxMy04yjLMAwHbLiSArKZ8bpfz5TI2pSFfiedqw2O9omQN/XscjmXqr+cH6EhuCQY8tG
-         KXeQuS+1yGALrWom9AzfHezVnputZlVGiju9N8GzPK1NOKyL2fA1dm7a1PPo5H3DRwfu
-         JrRgAngFMflM7dvLG1NXJb8ziNVk0nXfUcEU/9VsR158zPoS4cGmNh8294seE7k0VSCT
-         hFew==
-X-Gm-Message-State: AOJu0Yyr6C4frtAcvqAv14LvtZJT0C48AOg5LKOFb+Pw2Ryx45brZ1T7
-	DjgxnmEMBtjKRRncG7R4opeJZrGkZLYS/La4zhpObyTlFC+oVOiQ
-X-Google-Smtp-Source: AGHT+IGwI+tmMj1Hb+S7XDaQ6Osr7BoUGeig7QhjNWvkOD5fdQf33VJmNq/7osImTH9HJ7rzv3UrHA==
-X-Received: by 2002:a17:90a:d70f:b0:296:1bf4:e797 with SMTP id y15-20020a17090ad70f00b002961bf4e797mr7396926pju.39.1707079943581;
-        Sun, 04 Feb 2024 12:52:23 -0800 (PST)
-X-Forwarded-Encrypted: i=0; AJvYcCXZptgEgoAqPO/fTbxR4ln9UrXnO4Z/I65NwR863eqa8UnQwb55H/HmRC+gbiPdkYQo+ERurQuxcPVnLToxA1a78RFgjLXkD8uJdvh9SGW0yLgxztRw/XPWSFrLZ9u909Z4zH2qjlespfmZerVw5m2Ubfpu8C57bQ7ZVDjKvI/eEuA/Et+PM6MBSdK7OgICbJP9hvYmUfAXZ7c=
-Received: from mail.marliere.net ([24.199.118.162])
-        by smtp.gmail.com with ESMTPSA id se13-20020a17090b518d00b0028d8fa0171asm3697044pjb.35.2024.02.04.12.52.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 04 Feb 2024 12:52:23 -0800 (PST)
-From: "Ricardo B. Marliere" <ricardo@marliere.net>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marliere.net;
-	s=2023; t=1707079942;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GtkI5+Md"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1707097432;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=ClGn8ecbU90TEqn2u6KZZZz4O47dZbbXURgIbg3kG2k=;
-	b=K4DOjjmC2N94iaAG09XzaTmx6ylEsNVITmdO1FSvxeS6zhOM9x9vVpd1JoI27a7zk06/+2
-	XjHVQxVYAmQCSeJuxRizYm4TiDjgYu9eMiarzPPgykvSY4mkAzTdjszsobhq1K9vqUZEk6
-	cQLyAK0qfKZ2acuMqocOLGMRp1Wt3g4xORUmZw39jB9jabwQ+oycAPAMpFq/pPV+GRJenx
-	nyIBxubFVPOluzPeSj8Fu4VTg7xAAC3T50QuuOBxFn/hT2wQ4hHOfiLfSLrBcmOf+kMnCU
-	/ao19X2G/pIzFhQst3UguCD7crgNBDkmNgXcQCWbhwfvbDq9/CeQNS0/IRG4rw==
-Authentication-Results: ORIGINATING;
-	auth=pass smtp.auth=ricardo@marliere.net smtp.mailfrom=ricardo@marliere.net
-Date: Sun, 04 Feb 2024 17:52:51 -0300
-Subject: [PATCH] virtio: make virtio_bus const
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=cHOd+nEP3GmgSqnri0VDaG6rnDLyGN4eH7q1Djh7XH0=;
+	b=GtkI5+MdXnbdHTLRSZreLpVVgKQKOhpcgUHSP7tCYi/5JJQYvgy9xQHIJy3nOBsrCU7wQk
+	6oHLBFwlwzSxi5evOGw7Je486sLsnwxtV6Hwd6sc0Ff+LxiURJksptUwCKg92rqyIC8jyW
+	6tMsxqZjvOPiSjQBRKI5qKqvGBhCFT0=
+Received: from mail-oa1-f71.google.com (mail-oa1-f71.google.com
+ [209.85.160.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-58-hSR_P974P-aCaNU576UG4w-1; Sun, 04 Feb 2024 20:43:51 -0500
+X-MC-Unique: hSR_P974P-aCaNU576UG4w-1
+Received: by mail-oa1-f71.google.com with SMTP id 586e51a60fabf-214969a3a91so4223278fac.0
+        for <virtualization@lists.linux.dev>; Sun, 04 Feb 2024 17:43:50 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1707097430; x=1707702230;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=cHOd+nEP3GmgSqnri0VDaG6rnDLyGN4eH7q1Djh7XH0=;
+        b=O0CDGC7kDVDtGdw2PHDUmC60m76h64okB+h+QplglZysN4n51e/KuD0Zv1rd+2ho3J
+         Tl8OuckedjceAbrNDkjOKyttH6l75hTQT1AilCJrLq1mt3hPDZg3bk7UTJ5YTkG4Vpd/
+         tOoOS2AU3DNORrufWwXkmIEeLf1jS+CrUhLVC2OX2zfsw4xsSu+B1tM4b2nR+luwcNlN
+         cxxsZ9vHVKEo9TNVZGViOGVH8Ks/PHTgNpAvqZaA/CCei4t1xkzb7ZagZfRszSti3xPt
+         6cCazdVGfM3OiuTlfzOOlq0Gu5SsixpgEakC0j6EeNjuKGAC7cHrmcSGIxBLGaWf2pEj
+         mtIg==
+X-Gm-Message-State: AOJu0YyAPdPBf6dXTl1aARlcKhH/1EkK4PN66jUYF/4pvQaXpqLT5b+4
+	tKmyKmFHPF7nMvtq0ePfkEaWwT9rflby6WIYA7IRVgJRZvmShPq/mbX1bzXDRyo4tuJ0FMvwysZ
+	mKbcsTd+6oA3vuaXxcbXS0+kAVfoD+JmoQxDy2ofD1BJaMQFGQWwMKKRvf2y/DcHFyJHDaD8Uit
+	lHawlkYJu0qZeZt1h0SImZe0whKqxmjFdrRv6gjjQ=
+X-Received: by 2002:a05:6358:9999:b0:178:799f:bcea with SMTP id j25-20020a056358999900b00178799fbceamr9403427rwb.7.1707097430016;
+        Sun, 04 Feb 2024 17:43:50 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IH9Vz1FHSJ+HwAjB1OKAdZhH85+pv5eX79VhB3fYiUAmxA+k9vX0OL9nX+EEu9G1NjsATgzF4AVtKEiGWssNBU=
+X-Received: by 2002:a05:6358:9999:b0:178:799f:bcea with SMTP id
+ j25-20020a056358999900b00178799fbceamr9403410rwb.7.1707097429737; Sun, 04 Feb
+ 2024 17:43:49 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20240204-bus_cleanup-virtio-v1-1-3bcb2212aaa0@marliere.net>
-X-B4-Tracking: v=1; b=H4sIACL5v2UC/x3MTQqAIBBA4avErBMmk/6uEhFpYw2EhVYE0t2Tl
- t/ivQiBPFOALovg6ebAu0so8gzMOrmFBM/JIFEqlKiEvsJoNprcdYib/cm7aC3WlSmNxqqBFB6
- eLD//tB/e9wPxXdFUZAAAAA==
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
- "Ricardo B. Marliere" <ricardo@marliere.net>
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1108; i=ricardo@marliere.net;
- h=from:subject:message-id; bh=sbDgyhLemt9WBM8/41UER9Vp4nTwIRVkedKPpoL3NUQ=;
- b=owEBbQKS/ZANAwAKAckLinxjhlimAcsmYgBlv/kke1/UbX16S1OwqSFTauQH9I5P+fSdkKA8e
- VF6yGm5+jyJAjMEAAEKAB0WIQQDCo6eQk7jwGVXh+HJC4p8Y4ZYpgUCZb/5JAAKCRDJC4p8Y4ZY
- pscUD/49sG93DuRWQirQHxFOKP5JYeZvBKitNbaw1hjWE1YXjwlNU1541CqegIAAaJGup9Wc3eZ
- u3Ia3zlN+DJN4sXY4AaKRiGPcYvKaXik343Srgo9diDhep00X5sSKUQWUMPET3STdNSI1XCTLi2
- PA59oyxD9tpOlrCdOpF9pWENfM2WPd0kfIl99ejXJQ2qc1VUK0b+4xsvN/KtF2dkCVVM0qDgbT8
- qnWJP0tVWPKacoNpr+kd4VcsGgGMks7iJtwEUUYMGHpaGWFIVY+c+QO3nWWMLs60kxQ3Jl/FcWa
- MYyk8NqiIXeuUYmTjDm7z1ZAtvbvXLg4YYbP1ZEqLBL61ij+jz2rp7gKAX8Vs2jOp8a0vjX/z4R
- GGFFKL5gqebTjNqNFOsRu9duN4sF3A7QL238R68eeqEfKcI3+mZ2Ffr5aoXp7g7xPfZM281sILZ
- EAT+K4O8dT+sTe/HdImQ/dtisX7+zmbGDUuCtaDl6ClfxMT79YrSM92Hra1xSmSbnCHQ9NIdCJa
- 1tWDKnWsBTbFBS/Gevd4FpYjYwMh8ahiUPmNW5MUQmxTAaiqzY4PBvVvQ2yMHEjtKqiKuXU6jgw
- wkhmVWkfOLKYIua9gyZQ/JaBIKReOsSMdkrr5fIaFpscWyAHnzq5gfYzuWk1EOBRHVkOWBUzKEv
- thYsbSkh8c6/qtg==
-X-Developer-Key: i=ricardo@marliere.net; a=openpgp;
- fpr=030A8E9E424EE3C0655787E1C90B8A7C638658A6
+References: <20240130113710.34511-1-linyunsheng@huawei.com>
+ <20240130113710.34511-6-linyunsheng@huawei.com> <CACGkMEsJq1Fg6T+9YLPzE16027sBHRZodk2+b1ySa9MeMcGjMA@mail.gmail.com>
+ <dfc3dcb0-511c-945b-6099-c4d7ccbf3253@huawei.com> <CACGkMEsHLis66LntKTG01Eg7cMv-S7u05B3W6CizKRahJ5gDOw@mail.gmail.com>
+ <16dd5732-06d1-8dd9-85b4-8de7686bd73e@huawei.com>
+In-Reply-To: <16dd5732-06d1-8dd9-85b4-8de7686bd73e@huawei.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 5 Feb 2024 09:43:38 +0800
+Message-ID: <CACGkMEsK=eqPpe2cQCfUTwYkjjWSuJevf2MBy4BmvrNmXmX7PA@mail.gmail.com>
+Subject: Re: [PATCH net-next v4 5/5] tools: virtio: introduce vhost_net_test
+To: Yunsheng Lin <linyunsheng@huawei.com>
+Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	virtualization@lists.linux.dev
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Now that the driver core can properly handle constant struct bus_type,
-move the virtio_bus variable to be a constant structure as well,
-placing it into read-only memory which can not be modified at runtime.
+On Sun, Feb 4, 2024 at 11:50=E2=80=AFAM Yunsheng Lin <linyunsheng@huawei.co=
+m> wrote:
+>
+> On 2024/2/4 9:30, Jason Wang wrote:
+> > On Fri, Feb 2, 2024 at 8:24=E2=80=AFPM Yunsheng Lin <linyunsheng@huawei=
+.com> wrote:
+> >>
+> >> On 2024/2/2 12:05, Jason Wang wrote:
+> >>> On Tue, Jan 30, 2024 at 7:38=E2=80=AFPM Yunsheng Lin <linyunsheng@hua=
+wei.com> wrote:
+> >>>>
+> >>>> introduce vhost_net_test basing on virtio_test to test
+> >>>> vhost_net changing in the kernel.
+> >>>
+> >>> Let's describe what kind of test is being done and how it is done her=
+e.
+> >>
+> >> How about something like below:
+> >>
+> >> This patch introduces testing for both vhost_net tx and rx.
+> >> Steps for vhost_net tx testing:
+> >> 1. Prepare a out buf
+> >> 2. Kick the vhost_net to do tx processing
+> >> 3. Do the receiving in the tun side
+> >> 4. verify the data received by tun is correct
+> >>
+> >> Steps for vhost_net rx testing::
+> >> 1. Prepare a in buf
+> >> 2. Do the sending in the tun side
+> >> 3. Kick the vhost_net to do rx processing
+> >> 4. verify the data received by vhost_net is correct
+> >
+> > It looks like some important details were lost, e.g the logic for batch=
+ing etc.
+>
+> I am supposeing you are referring to the virtio desc batch handling=EF=BC=
+=8C
+> right?
 
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Suggested-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Ricardo B. Marliere <ricardo@marliere.net>
----
- drivers/virtio/virtio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Yes.
 
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index f4080692b351..a68e6556f71b 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -353,7 +353,7 @@ static void virtio_dev_remove(struct device *_d)
- 	of_node_put(dev->dev.of_node);
- }
- 
--static struct bus_type virtio_bus = {
-+static const struct bus_type virtio_bus = {
- 	.name  = "virtio",
- 	.match = virtio_dev_match,
- 	.dev_groups = virtio_dev_groups,
+>
+> It was a copy & paste code of virtio_test.c, I was thinking about removin=
+g
+> the virtio desc batch handling for now, as this patchset does not require
+> that to do the testing, it mainly depend on the "sock->sk->sk_sndbuf" to
+> be INT_MAX to call vhost_net_build_xdp(), which seems to be the default
+> case for vhost_net.
 
----
-base-commit: 41b9fb381a486360b2daaec0c7480f8e3ff72bc7
-change-id: 20240204-bus_cleanup-virtio-9f076c3cb068
+Ok.
 
-Best regards,
--- 
-Ricardo B. Marliere <ricardo@marliere.net>
+>
+> >
+> >>
+>
+> ...
+>
+> >>>> +static void vdev_create_socket(struct vdev_info *dev)
+> >>>> +{
+> >>>> +       struct ifreq ifr;
+> >>>> +
+> >>>> +       dev->sock =3D socket(AF_PACKET, SOCK_RAW, htons(TEST_PTYPE))=
+;
+> >>>> +       assert(dev->sock !=3D -1);
+> >>>> +
+> >>>> +       snprintf(ifr.ifr_name, IFNAMSIZ, "tun_%d", getpid());
+> >>>
+> >>> Nit: it might be better to accept the device name instead of repeatin=
+g
+> >>> the snprintf trick here, this would facilitate the future changes.
+> >>
+> >> I am not sure I understand what did you mean by "accept the device nam=
+e"
+> >> here.
+> >>
+> >> The above is used to get ifindex of the tun netdevice created in
+> >> tun_alloc(), so that we can use it in vdev_send_packet() to send
+> >> a packet using the tun netdevice created in tun_alloc(). Is there
+> >> anything obvious I missed here?
+> >
+> > I meant a const char *ifname for this function and let the caller to
+> > pass the name.
+>
+> Sure.
+>
+> >
+> >>
+>
+> >>>> +
+> >>>> +static void run_rx_test(struct vdev_info *dev, struct vq_info *vq,
+> >>>> +                       bool delayed, int batch, int bufs)
+> >>>> +{
+> >>>> +       const bool random_batch =3D batch =3D=3D RANDOM_BATCH;
+> >>>> +       long long spurious =3D 0;
+> >>>> +       struct scatterlist sl;
+> >>>> +       unsigned int len;
+> >>>> +       int r;
+> >>>> +
+> >>>> +       for (;;) {
+> >>>> +               long started_before =3D vq->started;
+> >>>> +               long completed_before =3D vq->completed;
+> >>>> +
+> >>>> +               do {
+> >>>> +                       if (random_batch)
+> >>>> +                               batch =3D (random() % vq->vring.num)=
+ + 1;
+> >>>> +
+> >>>> +                       while (vq->started < bufs &&
+> >>>> +                              (vq->started - vq->completed) < batch=
+) {
+> >>>> +                               sg_init_one(&sl, dev->res_buf, HDR_L=
+EN + TEST_BUF_LEN);
+> >>>> +
+> >>>> +                               r =3D virtqueue_add_inbuf(vq->vq, &s=
+l, 1,
+> >>>> +                                                       dev->res_buf=
+ + vq->started,
+> >>>> +                                                       GFP_ATOMIC);
+> >>>> +                               if (unlikely(r !=3D 0)) {
+> >>>> +                                       if (r =3D=3D -ENOSPC &&
+> >>>
+> >>> Drivers usually maintain a #free_slots, this can help to avoid the
+> >>> trick for checking ENOSPC?
+> >>
+> >> The above "(vq->started - vq->completed) < batch" seems to ensure that
+> >> the 'r' can't be '-ENOSPC'?
+> >
+> > Well, if this is true any reason we still check ENOSPEC here?
+>
+> As mentioned above, It was a copy & paste code of virtio_test.c.
+> Will remove 'r =3D=3D -ENOSPC' checking.
+
+I see.
+
+>
+> >
+> >> We just need to ensure the batch <=3D desc_num,
+> >> and the 'r =3D=3D -ENOSPC' checking seems to be unnecessary.
+> >>
+> >>>
+> >>>> +                                           vq->started > started_be=
+fore)
+> >>>> +                                               r =3D 0;
+> >>>> +                                       else
+> >>>> +                                               r =3D -1;
+> >>>> +                                       break;
+> >>>> +                               }
+> >>>> +
+> >>>> +                               ++vq->started;
+> >>>> +
+> >>>> +                               vdev_send_packet(dev);
+> >>>> +
+> >>>> +                               if (unlikely(!virtqueue_kick(vq->vq)=
+)) {
+> >>>> +                                       r =3D -1;
+> >>>> +                                       break;
+> >>>> +                               }
+> >>>> +                       }
+> >>>> +
+> >>>> +                       if (vq->started >=3D bufs)
+> >>>> +                               r =3D -1;
+> >>>> +
+> >>>> +                       /* Flush out completed bufs if any */
+> >>>> +                       while (virtqueue_get_buf(vq->vq, &len)) {
+> >>>> +                               struct ether_header *eh;
+> >>>> +
+> >>>> +                               eh =3D (struct ether_header *)(dev->=
+res_buf + HDR_LEN);
+> >>>> +
+> >>>> +                               /* tun netdev is up and running, ign=
+ore the
+> >>>> +                                * non-TEST_PTYPE packet.
+> >>>> +                                */
+> >>>
+> >>> I wonder if it's better to set up some kind of qdisc to avoid the
+> >>> unexpected packet here, or is it too complicated?
+> >>
+> >> Yes, at least I don't know to do that yet.
+> >
+> > For example, the blackhole qdisc?
+>
+> It seems the blackhole_enqueue() just drop everything, which includes
+> the packet sent using the raw socket in vdev_send_packet()?
+
+I vaguely remember there's a mode that af_packet will bypass the qdisc
+but I might be wrong.
+
+But rethink of this, though it facilitates the code but it introduces
+unnecessary dependencies like black hole which seems to be suboptimal.
+
+>
+> We may bypass qdisc for the raw socket in vdev_send_packet()=EF=BC=8Cbut =
+it
+> means other caller may bypass qdisc, and even cook up a packet with
+> ethertype being ETH_P_LOOPBACK, there is part of the reason I added a
+> simple payload verification in verify_res_buf().
+
+Fine.
+
+Thanks
+
+>
+> >
+> > Thanks
+> >
+> > .
+> >
+>
 
