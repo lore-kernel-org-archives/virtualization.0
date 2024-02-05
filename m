@@ -1,37 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D90534D106;
-	Mon,  5 Feb 2024 19:02:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87E0E5674A;
+	Mon,  5 Feb 2024 19:03:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707159779; cv=none; b=IkU1+g9j89tgf2/evcMpgvVz5Na/42/+op7Ok34AjsDCq8QobDAvvjqWvXoz7kPYK5uWf3VzrbsPajlDedwqRi/Fyvb33L30rAiKMAytjThLLVgI2UANLZCF73AerwELLxzNsUAjWKEPAjsWOujpV7nY/K+XKahIOI7xJJ5kHSw=
+	t=1707159782; cv=none; b=CKWbVtxCMCb0m6I2yvONROjTI+8GrntrMbqPU+1o6S0K6Wl5NowT8XO6JFjDQ+dujVGTp6DAkzMweWnjuAP+L/WoXLm5d3Wvt+nYDkCDpbrfXHuwVlnfynCSy2BpAZtShhCSjyMnptPnfssn5OEM9foFphpZapmN2G+UgWvyhqU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707159779; c=relaxed/simple;
-	bh=G6nL+TpgdXW2ESXHKmN0991j/T+6gE1AmmqfjsDN1V4=;
+	s=arc-20240116; t=1707159782; c=relaxed/simple;
+	bh=znOHAaa3DwDxM9WxEYLeSLhTNRtK/ileI0+EFf25BJg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=UXtqNj+J1cyN+SHnhXop5lyOUkw7hqLEmvQdC0mB4FzK8mAHDJk6B8XSsOtPXpy88yfnugUJS89bwms119JdGqM3pEqKZ9qRXx1P4VAw7ZVi5KVAQNefCjjsl3FY8b/1U1HRIe6trL9PIFyXXC4v6QbFO3lGeq1HH7NG9aPUs28=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=xX9ooG6k; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=j0U/fleXI+tkN0fxBeIiQYjZKTPDFU+oiGXnOSEAyneYf4zf72QPdc/Qw7CsmE3gFOyIQMKJN4wo4AE3oc0pgJsJMb5cmbvSxN1+ewv1N/uO24lxNqRh3mnvzCKApN6huylXxp9x4E0Jte3L5eax5eIwOF1gqOn59Yuq57xDWr8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=CK6gDeWz; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="xX9ooG6k"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A2EDC43390;
-	Mon,  5 Feb 2024 19:02:58 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="CK6gDeWz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1AA5C433F1;
+	Mon,  5 Feb 2024 19:03:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1707159779;
-	bh=G6nL+TpgdXW2ESXHKmN0991j/T+6gE1AmmqfjsDN1V4=;
+	s=korg; t=1707159782;
+	bh=znOHAaa3DwDxM9WxEYLeSLhTNRtK/ileI0+EFf25BJg=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=xX9ooG6k59BVHRB16Y8diFIgAqXBPqkfRy/pd5y0oolnixXCvyduzY0LQ0uEcjakx
-	 CU5KVHp6+X41K+RtaHLMbqiRVLZXYAm13hD1HAVeREfsvVBa40Zc06Nl8KM7d1kKvf
-	 hmeIoCLlEWv9HhXf3gbKjym1ibffZg1mdbKJb2BI=
-Date: Mon, 5 Feb 2024 04:46:21 -0800
+	b=CK6gDeWzryYBIhmvc3sZdBDLF8IHTQ7MRUDiWNIphDXcET3zwxhgLhzsVrZgnlqmL
+	 r6XF/i16wo5e3R2TXfadszu0HWFuFFkpz/67eMR+s2yOj5+3i/Y/MrtrAhS/zgS+WC
+	 NfmYPJPAJLefxJr7HiafmXt3fcT2nKO0xwX/3SzY=
+Date: Mon, 5 Feb 2024 04:46:32 -0800
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To: "Ricardo B. Marliere" <ricardo@marliere.net>
 Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
 	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] virtio: make virtio_bus const
-Message-ID: <2024020512-landlord-manhunt-25b2@gregkh>
-References: <20240204-bus_cleanup-virtio-v1-1-3bcb2212aaa0@marliere.net>
+Subject: Re: [PATCH] vdpa: make vdpa_bus const
+Message-ID: <2024020528-armrest-disinfect-2c84@gregkh>
+References: <20240204-bus_cleanup-vdpa-v1-1-1745eccb0a5c@marliere.net>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -40,11 +40,11 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240204-bus_cleanup-virtio-v1-1-3bcb2212aaa0@marliere.net>
+In-Reply-To: <20240204-bus_cleanup-vdpa-v1-1-1745eccb0a5c@marliere.net>
 
-On Sun, Feb 04, 2024 at 05:52:51PM -0300, Ricardo B. Marliere wrote:
+On Sun, Feb 04, 2024 at 05:50:45PM -0300, Ricardo B. Marliere wrote:
 > Now that the driver core can properly handle constant struct bus_type,
-> move the virtio_bus variable to be a constant structure as well,
+> move the vdpa_bus variable to be a constant structure as well,
 > placing it into read-only memory which can not be modified at runtime.
 > 
 > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
