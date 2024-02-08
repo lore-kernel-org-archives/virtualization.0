@@ -1,196 +1,202 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D013C6E2C9
-	for <virtualization@lists.linux-foundation.org>; Thu,  8 Feb 2024 11:13:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.137
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707390832; cv=fail; b=py3GZd4zMwhMzViOCylSNd9yBCi14isy0JhHK0FTqhrlhEtCAxmn8KXCFIe8sUJrspMAl9O6UJcp6C4YzuVw5BaKOHFpCVZlLnUcGbwnS2UWdEdq/h8iFb02VxOtgQh1QiUGt2cLxpgjroMSfFvV3B3bkTaOB85fFwtTdW1Zuy8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707390832; c=relaxed/simple;
-	bh=dHObtsaVeZR81v3QfzgEjxtPBZ7oU/M33DAdUz7DfQY=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=PR696s8ROHeBYJT2IdDVoj1O0c5tQi5U0lxzHa+giSyTtHLxzA9/pXdcQZWJR6j9bxTHi1BeoGoS8ykfmpiaGblvynQ07Zx3fJHhV0D2lFvYwHlAZYHI1QaqbcLqI9o8mL+A3ihYADZe1ypWy2JPZAcKqS5NcZPjdV8l50WLyLE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=mu8dI+P0; arc=fail smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CA8D7994A
+	for <virtualization@lists.linux-foundation.org>; Thu,  8 Feb 2024 16:09:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1707408601; cv=none; b=Zbf5CUvKBQ3lLcdmd9Y4IRLFWOKf/zSXFe5xAQCm4fa5Ff20VBu3oGzwVNRrQKgVGjzmLyYME5N8ixpr5UP6d6TQPZrXhMJPJYlskYpluT8+lPv7tF0ndX6VriTFfhb8ktinzFoWF4Swkf3jCP69PEESwG0jfF3XuAeD0/hN/gU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1707408601; c=relaxed/simple;
+	bh=JU1VAwk1BmIMf3JiWpXmisgyFet+CBW0j+X1K86M8mU=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=VOAOSLGEObUrOcOfuLIhoG+pvHEIDOuuIKzQdKUKEXKSa3BB60VriltJ6LZYfTcOVfaLC73sme8bz1jOkEKKssia31I2EZThXokCQaqs+gEqfuzVgWwYO/2H5IbNr8QxwsaCNnIqIKBkUOXwl8Wukko9SCLPpCJMPsbSRRQFS5s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MC4yj61S; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="mu8dI+P0"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MC4yj61S"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 5BD2E42C9E
-	for <virtualization@lists.linux-foundation.org>; Thu,  8 Feb 2024 11:13:50 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id A7A2684EF9
+	for <virtualization@lists.linux-foundation.org>; Thu,  8 Feb 2024 16:09:59 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.103
+X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 8kwxtjUgEPOS
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id iLmIDX5Iuo8a
 	for <virtualization@lists.linux-foundation.org>;
-	Thu,  8 Feb 2024 11:13:49 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2412::601; helo=nam10-mw2-obe.outbound.protection.outlook.com; envelope-from=ankita@nvidia.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 88FA542C88
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 88FA542C88
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=mu8dI+P0
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on20601.outbound.protection.outlook.com [IPv6:2a01:111:f403:2412::601])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 88FA542C88
-	for <virtualization@lists.linux-foundation.org>; Thu,  8 Feb 2024 11:13:49 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=frRmZ2AbbgRcRbGUeEPnrzd1wZdaiWfyHXH4/1pREDpE2sC4AzIgrBMRuQqqctLk7A1lNl5+4L+/r89/to9Pb4M5CaaSCdinlVGKqWAzCPvGaQXJ5WiyiMiMHp3OZ3yD4ZlFnVDvPELXbZJJjVhnRF3mVBIQeibgLxfVy6d57wrs7ljM2fxU6BBy+84vSqFdxRxvSmV+xeEnBi3Uq8aLhHxtTzX4urxR3DzIjRTe6J8PWETR3JL7EmLWxiNsN/fW0LrtZV+EhSOvqiwFbE7bE2RF94hNvgk9zWo1y+CpEH8JmEMkiNSQj5JPD1dbjDC5zl2DRIYdxS2JzNRQ4gSUuA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=dHObtsaVeZR81v3QfzgEjxtPBZ7oU/M33DAdUz7DfQY=;
- b=G43xqHCa6QpFSgJt7+WPn2YaXIuMO0GwZegRrkq72VoqQX2Z9r9FHCcJMDT9vGxS8i/nM8KLoKXBTJQxLiyP9/f3pm0fNPRxe4CZ3M+hyu01SqneTrn5L15j+eIOnHQX537C4O3LxEsQaDS5ArlPyZgWTGTj28Vj/5u+aH2soxP10ajamPncDexoflNnd9AUIVe4U0csTcgum+QAHIWA9zmi3vYsMFw7lV/88yM9DjY195aQIltNjrQRM0LrHh9gZ06zKEnXCnhSXZRjCtYkaojPptmECV89rCriU9JG7TDnaTrVFpBnwE2ZjzX9ZWRCC1adW35owgb3yFbSra4CAg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=dHObtsaVeZR81v3QfzgEjxtPBZ7oU/M33DAdUz7DfQY=;
- b=mu8dI+P0E0/zs6EWwZp4zjusRyHn4zQ9tLWTjhEvouHLSqpg218gcomEsCkFkkWnNt1D1IIJ1CCNsIET+WFn6+EyPe+GpsSwlYzTdn3Vl8Le+N+SjE0B7+R7GqUpVFTWV2D1InGuct901n3LiSYkf2LGCQ7E67FLGJKyAK3MmXd/hgIJJaqULPdoA+pDpq170vgALEKddxBf479/Yd5QJOl+6S+eRY9ZH/4Wiojk4rmPiAF/aoY2eOBQA6pvaLLbuXHNqz3SEVpHN1pPXbu+Mnr8WT2iSCEiKbMuMKJTFT/YeMa/yIhQa6LgAxsRxyX4DzzVyNbC+e4hGODlNuK0eA==
-Received: from SA1PR12MB7199.namprd12.prod.outlook.com (2603:10b6:806:2bc::21)
- by DM6PR12MB4943.namprd12.prod.outlook.com (2603:10b6:5:1bc::21) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7270.16; Thu, 8 Feb
- 2024 11:13:45 +0000
-Received: from SA1PR12MB7199.namprd12.prod.outlook.com
- ([fe80::444d:2f33:a61b:3225]) by SA1PR12MB7199.namprd12.prod.outlook.com
- ([fe80::444d:2f33:a61b:3225%3]) with mapi id 15.20.7270.016; Thu, 8 Feb 2024
- 11:13:45 +0000
-From: Ankit Agrawal <ankita@nvidia.com>
-To: "Tian, Kevin" <kevin.tian@intel.com>, Alex Williamson
-	<alex.williamson@redhat.com>, Zhi Wang <zhi.wang.linux@gmail.com>
-CC: Jason Gunthorpe <jgg@nvidia.com>, Yishai Hadas <yishaih@nvidia.com>,
-	"mst@redhat.com" <mst@redhat.com>, "shameerali.kolothum.thodi@huawei.com"
-	<shameerali.kolothum.thodi@huawei.com>, "clg@redhat.com" <clg@redhat.com>,
-	"oleksandr@natalenko.name" <oleksandr@natalenko.name>, "K V P, Satyanarayana"
-	<satyanarayana.k.v.p@intel.com>, "eric.auger@redhat.com"
-	<eric.auger@redhat.com>, "brett.creeley@amd.com" <brett.creeley@amd.com>,
-	"horms@kernel.org" <horms@kernel.org>, Rahul Rameshbabu
-	<rrameshbabu@nvidia.com>, Aniket Agashe <aniketa@nvidia.com>, Neo Jia
-	<cjia@nvidia.com>, Kirti Wankhede <kwankhede@nvidia.com>, "Tarun Gupta
- (SW-GPU)" <targupta@nvidia.com>, Vikram Sethi <vsethi@nvidia.com>, Andy
- Currid <acurrid@nvidia.com>, Alistair Popple <apopple@nvidia.com>, John
- Hubbard <jhubbard@nvidia.com>, Dan Williams <danw@nvidia.com>, "Anuj Aggarwal
- (SW-GPU)" <anuaggarwal@nvidia.com>, Matt Ochs <mochs@nvidia.com>,
-	"kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org"
-	<virtualization@lists.linux-foundation.org>
-Subject: Re: [PATCH v17 3/3] vfio/nvgrace-gpu: Add vfio pci variant module for
- grace hopper
-Thread-Topic: [PATCH v17 3/3] vfio/nvgrace-gpu: Add vfio pci variant module
+	Thu,  8 Feb 2024 16:09:59 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=alex.williamson@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org D4B3884EEE
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D4B3884EEE
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=MC4yj61S
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id D4B3884EEE
+	for <virtualization@lists.linux-foundation.org>; Thu,  8 Feb 2024 16:09:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1707408597;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=UXb0g0n22xWaCRuXAtr4Rw6tEk4jiXm05gNILz+hSXY=;
+	b=MC4yj61SkF183eiq0MCWpdb9zF6LhMyZ43pPa+M1T4tPtmf76D2hFQgDR8V7fmhdTgf46Z
+	3Fuq+4pKNEc2SQ1DfP5c2CmoUPe8OwiMsIPEFSZr1U1M3UAymd3z/CDyQQxIye1ecv0sq9
+	wc0G63DMMdleKGhiqfWA9JmOFa2Jh6M=
+Received: from mail-il1-f198.google.com (mail-il1-f198.google.com
+ [209.85.166.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-468-QFd0LCdgNz6cwOBetIpBuA-1; Thu, 08 Feb 2024 11:09:56 -0500
+X-MC-Unique: QFd0LCdgNz6cwOBetIpBuA-1
+Received: by mail-il1-f198.google.com with SMTP id e9e14a558f8ab-363cff2c5ccso15910815ab.0
+        for <virtualization@lists.linux-foundation.org>; Thu, 08 Feb 2024 08:09:55 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1707408595; x=1708013395;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=zDmR4tHnXMzdgyQmi3H+OCa7thhQCaZGsxtXTelmwuA=;
+        b=Y6f9/SEEwWWO+V7rlHEyuegQkGDHIwwQMsWjqofJ3UnjuK4X0uWJ9q2kjOb1Er4DuN
+         qwm3mJG3b6+Ux2g60seLPcTUcFj1vQp+wEhXsPbtzv00HAoJPqcHm3ZWzn7xbXgyroaJ
+         FOAAjpDhiijW1m/I0rbighPRNYA22SQdk8+75EUsuZ5fGkv9TNtwlnmoVThWbmyLvbDf
+         fRkYnESWscKfsZ7MhtAl8a963/c1kkIl9Czb4TAA6vh+BI5nTDrjFmWg7Dn7XVpWXb6b
+         2TkQ7YD7DHRvA79VZxVJMnr4oAjf6jXwZ8HU5C3n8l+CfDXNgzYJHqgivtQ7EXyMBLaV
+         TrVA==
+X-Forwarded-Encrypted: i=1; AJvYcCUJZH6uLQH8zCBaclybbyVnt1gFT8AOJ92KmvcCVSxe8vZ0AQ6fqw0R+0K8FGB4a2q8bAj3iVV8cp8boXMB0mgLbT7BxZkh2bel2VvPaTOhK62QkGjrEL4NBg==
+X-Gm-Message-State: AOJu0YwP99aHtbvwsoy6AZRN3DLuswaaJuC6yLmiq8KOECy4rhSLECjK
+	lnfzQoagzOVo+9AbfNg71ID1FcPvxgtw1GFQx/RiIee4Na3eB5II+t/gcJAl9BZsC2A0CmQNsPT
+	3GDoHMxY/TOcqWD4ADiouzN9MF4NlGLmeE+iKpySV7hJrt92Kq6eF+wzTURJDCqdtCExRqQSkWE
+	fZbCA=
+X-Received: by 2002:a92:603:0:b0:363:c919:2713 with SMTP id x3-20020a920603000000b00363c9192713mr8586155ilg.22.1707408595321;
+        Thu, 08 Feb 2024 08:09:55 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEpIxBR8eMWhkHq5KoRpU8/4mjUiBShDenZIpFCN7Unh14JXNhOvvFTsgG1RPRhQA12D8cNCg==
+X-Received: by 2002:a92:603:0:b0:363:c919:2713 with SMTP id x3-20020a920603000000b00363c9192713mr8586101ilg.22.1707408594914;
+        Thu, 08 Feb 2024 08:09:54 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCUZJoqj5Isq+p556FX3b/py3/DV7OopvrH+GGYskZGGSMob/9P2Mu2LHPFEL52ws78iXNOl6RUPlrkzhAAn/aFSZL6OmE8L3pLVvSD+oAR/KOaLiHISuyPHnOItQU/cbdoR+jk/hK8apYxgEjxusDUcYpVkKwd57wUuN9S9io4ySpzkWjZjpjxhRIrEtgZrU33QoX6EV/wzXc9am3aim8QeWmGMu/jtgd38jobbIrWOyARM0N7vgNi4skcAy/grRUGUh1hjewjYobq1FCDI1vxJNto8CyP/xmrw5i1Mc2HZ53PsGZLWM0an+QFpksmOzI8hd/Ud7dOG0r0kRdVW+HYDsHvYN6sqn+9NUQBvqacYSbDjHu1O22h5+GENH7XAR6BSvxNU7LPR5ibcT9RDmeC96QmZK4Acr9WrFp+ygfZh9+L5PolCRXdW4USfDz7oOCpgArcwinknJsqtkEf4z9U+Cvz3f2BCi7UDG4jARAkmq3zZ0QJNCg1BUHChIdrcSdZznQqf23m87Yn7q0GtllT9HJWd0AGWiGHSZgGdpMtr/0fSy5XkRApAZYFF09+bzbGR2BciXlZkiGR0kG15v0raYfioSxCsGbsYjaEa/klalbbLGyfgE2HKdA0XVMe29PXhk1M6TLPRqRS/pkOILG5L08g6VeuNWVibeEhsiWmr9bhPaLnF90fABk0E4rmW1IOgJvbktWLXxXFMcm0JS1LFi8LU8lOnlK6Vl4+8kGnoWdJ4aPFPUl9AQejjIyhX+dio2kt0K98ww3hn7GosuVLjN07ZEU75fUglFRMo8xkOQxvbitARxcQU3wa++3M4EF2T2k5o5TSDtxk9x3s=
+Received: from redhat.com ([38.15.36.11])
+        by smtp.gmail.com with ESMTPSA id s5-20020a92cc05000000b00363c8e5a1a1sm1077348ilp.44.2024.02.08.08.09.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 08 Feb 2024 08:09:50 -0800 (PST)
+Date: Thu, 8 Feb 2024 09:09:47 -0700
+From: Alex Williamson <alex.williamson@redhat.com>
+To: "Tian, Kevin" <kevin.tian@intel.com>
+Cc: Ankit Agrawal <ankita@nvidia.com>, Zhi Wang <zhi.wang.linux@gmail.com>,
+ Jason Gunthorpe <jgg@nvidia.com>, Yishai Hadas <yishaih@nvidia.com>,
+ "mst@redhat.com" <mst@redhat.com>, "shameerali.kolothum.thodi@huawei.com"
+ <shameerali.kolothum.thodi@huawei.com>, "clg@redhat.com" <clg@redhat.com>,
+ "oleksandr@natalenko.name" <oleksandr@natalenko.name>, "K V P,
+ Satyanarayana" <satyanarayana.k.v.p@intel.com>, "eric.auger@redhat.com"
+ <eric.auger@redhat.com>, "brett.creeley@amd.com" <brett.creeley@amd.com>,
+ "horms@kernel.org" <horms@kernel.org>, Rahul Rameshbabu
+ <rrameshbabu@nvidia.com>, Aniket Agashe <aniketa@nvidia.com>, Neo Jia
+ <cjia@nvidia.com>, Kirti Wankhede <kwankhede@nvidia.com>, "Tarun Gupta
+ (SW-GPU)" <targupta@nvidia.com>, Vikram Sethi <vsethi@nvidia.com>, "Currid,
+ Andy" <acurrid@nvidia.com>, Alistair Popple <apopple@nvidia.com>, "John
+ Hubbard" <jhubbard@nvidia.com>, Dan Williams <danw@nvidia.com>, "Anuj
+ Aggarwal (SW-GPU)" <anuaggarwal@nvidia.com>, Matt Ochs <mochs@nvidia.com>,
+ "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-kernel@vger.kernel.org"
+ <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>
+Subject: Re: [PATCH v17 3/3] vfio/nvgrace-gpu: Add vfio pci variant module
  for grace hopper
-Thread-Index: AQHaWIdUHF93rAkYa0SGXKd0AMy8rLD/eesAgAAPggCAAHxaWIAACBUAgABAhJ8=
-Date: Thu, 8 Feb 2024 11:13:45 +0000
-Message-ID:
- <SA1PR12MB7199F11211952B27803D7194B0442@SA1PR12MB7199.namprd12.prod.outlook.com>
+Message-ID: <20240208090947.1254e72c.alex.williamson@redhat.com>
+In-Reply-To: <BN9PR11MB527640ADE99D92210977E7CA8C442@BN9PR11MB5276.namprd11.prod.outlook.com>
 References: <20240205230123.18981-1-ankita@nvidia.com>
 	<20240205230123.18981-4-ankita@nvidia.com>
 	<20240208003210.000078ba.zhi.wang.linux@gmail.com>
- <20240207162740.1d713cf0.alex.williamson@redhat.com>
- <SA1PR12MB7199A9470EC2562C5BCC2FAFB0442@SA1PR12MB7199.namprd12.prod.outlook.com>
- <BN9PR11MB527640ADE99D92210977E7CA8C442@BN9PR11MB5276.namprd11.prod.outlook.com>
-In-Reply-To:
- <BN9PR11MB527640ADE99D92210977E7CA8C442@BN9PR11MB5276.namprd11.prod.outlook.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-msip_labels:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: SA1PR12MB7199:EE_|DM6PR12MB4943:EE_
-x-ms-office365-filtering-correlation-id: fcb854af-e06d-4a06-0195-08dc289703f0
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info:
- mvOAPqfDqAYx+2sp7e6XB5PLUjGYJQkHMTODuf5Hgu7WJWameHGPIy1AlzTYssxo80bYgdIj8ignwWK7vYG/v9MIABqCLr80YLdzMq3+QLP74a3JmmOxouijn/vp7RmErzSEBYOvEmZtECc7N2UshBHnckBM9TWMvNQAuKXV158z6brfP/oeyh0pOcDREFIPuyna0qWvLeWsyeTK7vhUBV6rBai+f5lYYY8LZyBFPSRkKOShSSgoeEN2ETIgXYPloodG7WkAvKERVnRWaz007ALEW5RNWUnaMg3BTW7EQXnLKINMo76SEJLekgfOP70zfaEJ/9k+uqKahM7AhGsto+Snkzx5DEmb5hL3X5ifp7N77f+LVxV+cPXsOB59AKOe1+E0kG1IVh2RJrWBx+Hy5d8uYRYwXuEwcXsKPgPfSBgAyjGBBNSoiFboMCuKugCzK/gv9cRtTFYHb+XMVaxq58hpabDnPaEFr1yXhIYt0zlohYDv+BC2A5mBYibTSrp3RUA9xlNgvNy4xlJv+s8QzDZFQg11Iv7v1D5yfiVsyAlo+Fw+F1jqMzVDg320GGR7xTfNI8+N6zKgoIinUK9k8rnvPhBduUHcRVLHeTQsixc=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA1PR12MB7199.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(346002)(376002)(136003)(39860400002)(366004)(396003)(230922051799003)(1800799012)(186009)(451199024)(64100799003)(71200400001)(26005)(41300700001)(55016003)(54906003)(38100700002)(38070700009)(316002)(7696005)(9686003)(122000001)(478600001)(6506007)(8936002)(64756008)(91956017)(7416002)(2906002)(33656002)(5660300002)(66476007)(66556008)(66946007)(86362001)(110136005)(8676002)(76116006)(4326008)(4744005)(52536014)(66446008);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?iso-8859-1?Q?uzoB5o/jGIcfQymgz67pxQVh7/WBmDU3KixdxvFtjS9XGyhhAtbac2UrTc?=
- =?iso-8859-1?Q?laa2rJqaZRpTfumEg5hminmUZAllK5P3LruDdruzvXu/6ldbX7/dQ7XPBj?=
- =?iso-8859-1?Q?gQ2aEGWEQA+HuqHrXAwGVF6HnEFbDK0ZAr6J4r8krTTuLVEOtK56y2ljG/?=
- =?iso-8859-1?Q?GbaQJcVoxR8AXlM2DIeA5qnhdloOvFT6nIgoCSPi/p/ly1TzZ8VC9u22b+?=
- =?iso-8859-1?Q?bHZODGv0V9weqT+Z+IZKtlV81MwZjP7dC98zzdMplfJa0z91BjP3ZCBzHA?=
- =?iso-8859-1?Q?6oypmudBJzpMVfxA+eMQy67oqcAWb6zK7JEKXVjxuzFaBX6IisVJPJfyC4?=
- =?iso-8859-1?Q?+jly1+IHp5H2qZZ6LdGZh1XjHRujSB1TjoznAoToSRDKPra0SnncnqFf3A?=
- =?iso-8859-1?Q?/p8TJHFBZwpoq2PcEDQWGEfsd7DgvrgNpydoSA9Fue9t148uMm2KNVcn76?=
- =?iso-8859-1?Q?lWluzIykIS+T+ErwKa3IU0zyrqIDyEQOV6nbYufZX0rIqC2FmPl85VGP9Z?=
- =?iso-8859-1?Q?CaXDH/7ymACYSIPr3vZe6eGmmp31BhnXwq/+24hCg+220/LskYHMwdKzyh?=
- =?iso-8859-1?Q?W2QRY4RFg+a3VRW/QxMqHgADwMwm0RVKLqhZRVifUJuiU7g+infw4l4Xr+?=
- =?iso-8859-1?Q?3Yu2SfksndneLhLNl18FNQYqnDjQxjp0VrgtAmeaD7Bf3J/sGR4MZjnJUV?=
- =?iso-8859-1?Q?2wWTkCMqM6gHxIpPjLfC8dsNxO+txFxqweJ/hQYjV1Sg8IbABPfXzSN6/H?=
- =?iso-8859-1?Q?VnX5/gHxIn642X8kWJKs9wMFZ6k+3RaonzNY1sI9ETgqmwpCzfFb8i5BCF?=
- =?iso-8859-1?Q?xg7EHrfEjyBXrNJz5cI606XEotAi+zWLWIxFLpevEoylaFh4Wlu1FRHFHk?=
- =?iso-8859-1?Q?D2mEI311ob5nV/+mdby4nAcWp9njrJR/QdGD+RU6kYpy279iaa8lQ3BLoK?=
- =?iso-8859-1?Q?R6U5H4tDDLaGC6Xr5TzBPjnI1lIHjx3pfFPexQvSlsJsq0HNqnC1q5kX7W?=
- =?iso-8859-1?Q?3LysyJEHolRKod5jOuJzjmWOb/DfkviZLcsd5dmm4zxz0CiHkEreqkwONQ?=
- =?iso-8859-1?Q?YAqH6ALA1HJQSHnv4tfezUuitaoWsCesNswVcK4OoXcWu1MWymsOgcu1r8?=
- =?iso-8859-1?Q?N0Px+dInr+KWkEVgR0o/pQeVB8XsACcpgVXtlwOFB3JlutWhZpYI22VMy/?=
- =?iso-8859-1?Q?NYLsi7LbikJHYsMybJ6LwkIbLpJjmdKUJbpBvNUAE4BE87T6EGlFdfhdEv?=
- =?iso-8859-1?Q?OwmHQG+43ZHr0aD/zLb64XQE1ZwsV0JEttCtQ+GHpcuoAFnvHNznUwrx93?=
- =?iso-8859-1?Q?ldiMMcER+8lWlzphUaRhkRIX++B44dpPPSuu0IH5IyrtQTr0slzwfExHvj?=
- =?iso-8859-1?Q?80djjtntdQbwvkIbLAxY6/H5L5lhhPN5QLsmkDELCiGALWCuJY5mLOzXvu?=
- =?iso-8859-1?Q?guxFKFV023VAjJFiBPBQ1zNY9axKFqd5cdLJIe787nu9UtU4cyZB02VvFX?=
- =?iso-8859-1?Q?v55xuwt0PegBUy7cf/rElBHuXEDPWhM9kTRAnFbUXENt9ZSB48PgTgmgwa?=
- =?iso-8859-1?Q?dppoUcMlzhHW+HsjWZHh25qNmr7aizbQPL8UB+wXpXA8Q/HHnkSDlXRJaf?=
- =?iso-8859-1?Q?m1qwQnBR1gpZs=3D?=
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+	<20240207162740.1d713cf0.alex.williamson@redhat.com>
+	<SA1PR12MB7199A9470EC2562C5BCC2FAFB0442@SA1PR12MB7199.namprd12.prod.outlook.com>
+	<BN9PR11MB527640ADE99D92210977E7CA8C442@BN9PR11MB5276.namprd11.prod.outlook.com>
+X-Mailer: Claws Mail 4.2.0 (GTK 3.24.38; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: SA1PR12MB7199.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: fcb854af-e06d-4a06-0195-08dc289703f0
-X-MS-Exchange-CrossTenant-originalarrivaltime: 08 Feb 2024 11:13:45.0875
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: ehHnZDppmdrBhHCxCBCa5AtwaJLkNh0YLm+d1oTkOq2JShaNDl0gF16F57FPe2yXXkiClTRC4VkXeEeOqvRJOw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4943
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
->> >>=0A=
->> >> If mem_count =3D=3D 0, going through nvgrace_gpu_map_and_read() is no=
-t=0A=
->> >> necessary.=0A=
->> >=0A=
->> > Harmless, other than the possibly unnecessary call through to=0A=
->> > nvgrace_gpu_map_device_mem().=A0 Maybe both=0A=
->> nvgrace_gpu_map_and_read()=0A=
->> > and nvgrace_gpu_map_and_write() could conditionally return 0 as their=
-=0A=
->> > first operation when !mem_count.=A0 Thanks,=0A=
->> >=0A=
->> >Alex=0A=
->>=0A=
->> IMO, this seems like adding too much code to reduce the call length for =
-a=0A=
->> very specific case. If there aren't any strong opinion on this, I'm plan=
-ning to=0A=
->> leave this code as it is.=0A=
->=0A=
-> a slight difference. if mem_count=3D=3D0 the result should always succeed=
-=0A=
-> no matter nvgrace_gpu_map_device_mem() succeeds or not. Of course=0A=
+On Thu, 8 Feb 2024 07:21:40 +0000
+"Tian, Kevin" <kevin.tian@intel.com> wrote:
+
+> > From: Ankit Agrawal <ankita@nvidia.com>
+> > Sent: Thursday, February 8, 2024 3:13 PM =20
+> > >> > +=C2=A0=C2=A0=C2=A0 * Determine how many bytes to be actually read=
+ from the
+> > >> > device memory.
+> > >> > +=C2=A0=C2=A0=C2=A0 * Read request beyond the actual device memory=
+ size is
+> > >> > filled with ~0,
+> > >> > +=C2=A0=C2=A0=C2=A0 * while those beyond the actual reported size =
+is skipped.
+> > >> > +=C2=A0=C2=A0=C2=A0 */
+> > >> > +=C2=A0=C2=A0 if (offset >=3D memregion->memlength)
+> > >> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 mem_=
+count =3D 0; =20
+> > >>
+> > >> If mem_count =3D=3D 0, going through nvgrace_gpu_map_and_read() is n=
+ot
+> > >> necessary. =20
+> > >
+> > > Harmless, other than the possibly unnecessary call through to
+> > > nvgrace_gpu_map_device_mem().=C2=A0 Maybe both =20
+> > nvgrace_gpu_map_and_read() =20
+> > > and nvgrace_gpu_map_and_write() could conditionally return 0 as their
+> > > first operation when !mem_count.=C2=A0 Thanks,
+> > >
+> > >Alex =20
+> >=20
+> > IMO, this seems like adding too much code to reduce the call length for=
+ a
+> > very specific case. If there aren't any strong opinion on this, I'm pla=
+nning to
+> > leave this code as it is. =20
+>=20
+> a slight difference. if mem_count=3D=3D0 the result should always succeed
+> no matter nvgrace_gpu_map_device_mem() succeeds or not. Of course
 > if it fails it's already a big problem probably nobody cares about the su=
-btle=0A=
-> difference when reading non-exist range.=0A=
->=0A=
-> but regarding to readability it's still clearer:=0A=
->=0A=
-> if (mem_count)=0A=
->=A0=A0=A0=A0=A0=A0=A0 nvgrace_gpu_map_and_read();=0A=
-=0A=
-Makes sense. I'll change it.=
+btle
+> difference when reading non-exist range.
+>=20
+> but regarding to readability it's still clearer:
+>=20
+> if (mem_count)
+> =09nvgrace_gpu_map_and_read();
+>=20
+
+The below has better flow imo vs conditionalizing the call to
+map_and_read/write and subsequent error handling, but I don't think
+either adds too much code.  Thanks,
+
+Alex
+
+--- a/drivers/vfio/pci/nvgrace-gpu/main.c
++++ b/drivers/vfio/pci/nvgrace-gpu/main.c
+@@ -429,6 +429,9 @@ nvgrace_gpu_map_and_read(struct nvgrace_gpu_vfio_pci_co=
+re_device *nvdev,
+        u64 offset =3D *ppos & VFIO_PCI_OFFSET_MASK;
+        int ret;
+=20
++       if (!mem_count)
++               return 0;
++
+        /*
+         * Handle read on the BAR regions. Map to the target device memory
+         * physical address and copy to the request read buffer.
+@@ -547,6 +550,9 @@ nvgrace_gpu_map_and_write(struct nvgrace_gpu_vfio_pci_c=
+ore_device *nvdev,
+        loff_t pos =3D *ppos & VFIO_PCI_OFFSET_MASK;
+        int ret;
+=20
++       if (!mem_count)
++               return 0;
++
+        ret =3D nvgrace_gpu_map_device_mem(index, nvdev);
+        if (ret)
+                return ret;
+
