@@ -1,96 +1,102 @@
-Received: from mail-io1-f46.google.com (mail-io1-f46.google.com [209.85.166.46])
+Received: from mail-io1-f43.google.com (mail-io1-f43.google.com [209.85.166.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89EF685C7E
-	for <virtualization@lists.linux.dev>; Thu,  8 Feb 2024 18:29:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E8AF1CF91
+	for <virtualization@lists.linux.dev>; Thu,  8 Feb 2024 18:32:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707416947; cv=none; b=eJALGOVBFQV8ZidTXqg3dRAobgHObpkeViBhZeZPkOvTC7nx0pMfyC0J6TVDSR2cXKSPQA96I2D021TxAnnrCCfwozzLlVNCBP9ZzYTUMLJxx3+EKxuiRxApsoH4bnppUAeeYp+efx79zTGwUhQ7YZIKfQq7WMMYIz+xO8vZpdc=
+	t=1707417170; cv=none; b=E4/Ro1Qw/x4Uz7kGvRuSH6gn7RzL1vjyp8DoxLIL88MtanQ8uODQ9MiAfJHWJe6PCPaS6jG2kZwPuS7JGKAjCLyxqA096KAbZat3+/HZdtRHRpdCXN9xf+i9oTAB0S2eq1d8Fmefqain9YITqvWd1ce3R0z5fya7xNFsTYGSRi0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707416947; c=relaxed/simple;
-	bh=X312NcRqGDzo3a+hjPanu7AG/bF3zerZBP7qLRfu54Y=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=kt30mOd8P4tGz1Zfd9S0f8y+VHAalz+b4yytbyV/yaQ6nWR8LY2paIxiEz5P2z3FVls+A6zGMWci/eNBC5mf4/9DqdA/BYEzI3tCibkfEgqnOIUUwt2aahHrn4GCrd9iTUfzflnJGdR0V96gRl686s/S9NHONCouRweMih2fScQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=H0ky7bCI; arc=none smtp.client-ip=209.85.166.46
+	s=arc-20240116; t=1707417170; c=relaxed/simple;
+	bh=wHrLFJRfnNXUeGVogN8+9OPpwE8Sci1mCOxtvg4QYxM=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
+	 MIME-Version:Content-Type; b=tWDUYl+m56OgOvETNgW93SzGR0L53ydb7Ho9P+lhP0D0ixsyz6iK4WPVt4Q7QKFpxBSmYZbPpBgho31Svp80whNeiB+XH/lmt4xukEQBJzejZKxbyeFTS0SvUU48xW4va0++V1EXFFut7mTQ5GOCggQrwdgUEnp0ljnnO4PPtcI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=r6cRdLbQ; arc=none smtp.client-ip=209.85.166.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="H0ky7bCI"
-Received: by mail-io1-f46.google.com with SMTP id ca18e2360f4ac-7c3e06c8608so528539f.1
-        for <virtualization@lists.linux.dev>; Thu, 08 Feb 2024 10:29:05 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="r6cRdLbQ"
+Received: by mail-io1-f43.google.com with SMTP id ca18e2360f4ac-7c427cba7a0so906239f.0
+        for <virtualization@lists.linux.dev>; Thu, 08 Feb 2024 10:32:48 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1707416944; x=1708021744; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=sdH/0G2IBsoyHFVG72lmJAQbtMWReZVvbZcO5tSlp90=;
-        b=H0ky7bCIekLp3orNZZ1s9furE1jfDyhVPnVKdTBZLfiAvFic62t99m0WYJZkpVgaw5
-         j1BDg2DdeQG8iDbKJGgjHRlKwvB0vCfq59eSrTJMAanrevopaWOL4UGe4oADyQK2MTiC
-         ArevtCi/q57s8aLUSCPcxROQmxh6NiERDWec8MQj7OjE1iN7FS90TVcnxj4Zv4HWFZlK
-         w7lCTF8XlfLHJD2mZIB8lUtskKZqh8tdddrtU+LPMV62t62d/iPjXwxBNjPbZVKmGOaa
-         NZMU0QhGHx/EBY4gJ2M0K+Ei9BYbJRuBtfQBoszN3EUUD1x4c7dJIHxHEsH7/9Cb1m0X
-         2QyQ==
+        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1707417168; x=1708021968; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=mOhSHI8k2xKwemaGiMogUyPw3fznz8Z4LeXfby4qFPk=;
+        b=r6cRdLbQtS/WOFCOghipzmgtQxLtqQ2xwUuW2Bn3o4mh8U1W0f/8oryXCNcUsNUFit
+         bCjrOwP4aSEcUiGOv9Wjl0haq1oKPUF51f6IGDWn2QIEQfr54QnBt237mXufzs6hhekB
+         35V4OEiJSBMDSgPPDY4W848/rsiuOWz6ZGg8QhhyDrpXzysQkGzw8aZAizTdAYPWBF2Y
+         v8NtyBZCIJy4asyp3KaYbEL1ydjO1h9WGhxhN7ly21H+2kPXFhXaNCrL4iOCArP0VsnE
+         oe4Mxbnt2M5Obq425hvGSf2M4oLNksCuDCPOv2UcZtmU137Er9Nnx4gCenROv8Hq0bu8
+         thPQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1707416944; x=1708021744;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=sdH/0G2IBsoyHFVG72lmJAQbtMWReZVvbZcO5tSlp90=;
-        b=n0vi+tTiJCd7ZRYXpT8AkIVyhDm66VwhQ73zJ2kSsgeCyzrBqR8aUI6mKeaQqcRlXQ
-         apcvB7NUB8QcUrGrPGXtkIpygzBmvOK1F80CAPMTEPXIt9n3xGUWExg48afI1dE+NjDA
-         ZU6Pc4K37u49sYfluNiqK+l29zvbVZN8wPNkaHx8JYkJSsbFFPDE+eGQNN0tKLFPthwF
-         /G7NZdozkXoiogrBD5FHG7+vBW+TnSFPbXmZ8j4026spGVX87vzMZoHmxJqiGUWhCgu2
-         kwII476UnmrkdYNfBCaxfI80U/9iBF78EaVQwS8Hz50yd9cyHuvdreX/zlUP4E+o9xe8
-         KVzg==
-X-Gm-Message-State: AOJu0YyOfbtV4olDU4hA0O5EME0v1BnAj2fn84XcG70xBdZrNCuikIwp
-	izCuYrdIyfopvPmJYfAVL6+jILXQT4s+aBa7CbJ+SfuPayyBL38dGtwHcGvXgiw=
-X-Google-Smtp-Source: AGHT+IFqbHKf7cPgN0X5em6Y1kLI0jRdWM7LS6AskmauYhPDzg044dyEHURNZu9F1Y7+7Tm9RVMQGw==
-X-Received: by 2002:a05:6e02:1aaa:b0:363:c82e:57d9 with SMTP id l10-20020a056e021aaa00b00363c82e57d9mr400409ilv.3.1707416944662;
-        Thu, 08 Feb 2024 10:29:04 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCXzAEdoSY3xPHBtUIFtqk0AMLZNS/0tU/vP7IrLxCoF2IMjRgUWH/yFmcDfQni+nFr/eFuIU5THZwqUdU7TgRKXHPa4agxcOCe6OHMu59HSHyYotixnXTGtVSyzooAQ9IiwBWwiFHMbNIcanB7wUtREgCoWJMROdq9FILPpwnHa7fGaNPx1OXx/kq6YZq+GaWSGBtEQUzZGigGp04JxFy0bFpsKi26UEnYqW8wXAZwBozpiDMVNxBliRd+yXDODJ6kFTcvhS/MGL+UVXejhIwaxv7g/K3jsqBoB0GP/D4B47BcvoY5qOpwc3dMopGaIN3AAjWftPuDgVJYjCauTwR+NKRxy9glzYFl05LYoDNqycUoJAfbfP/uNpwRfv1vz/rT8rEzT8ijbJeWC3IbFBA1xc+nBLyGqwmKdWvg=
-Received: from [192.168.1.116] ([96.43.243.2])
-        by smtp.gmail.com with ESMTPSA id c7-20020a02a607000000b004712aee5509sm976989jam.134.2024.02.08.10.29.03
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 08 Feb 2024 10:29:04 -0800 (PST)
-Message-ID: <78eae4a6-cec6-43e9-ae91-4bcce3831cbf@kernel.dk>
-Date: Thu, 8 Feb 2024 11:29:02 -0700
+        d=1e100.net; s=20230601; t=1707417168; x=1708021968;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=mOhSHI8k2xKwemaGiMogUyPw3fznz8Z4LeXfby4qFPk=;
+        b=tTnvUIcI6InZf16OB+yz20f2G3d4H9P+IrWdvpdzSzlICJa6rSsKBLPgpiNjpO92FE
+         7ATX568mlMJtWw43jiRXEEZLfZtBNUT/bCakqmnZt2vZb6grIu/s0ahFt9abRBBJo2Pu
+         e42a9LuKWyvYH4Ov/Q7VJgA8ReHdhlT7GKELtf4R0EXqQixy478y0+q5QWicq4rKfiXh
+         EGWSBOLbBefx+LKCFQ//ds+OZc2rf4ijp0LiC7G9c8v74Dle4xkaYdhtuO32g7NsUG3o
+         H3mdguiF2/ouQTQZHoxxICoBSCuIMpOvc2WyxbqodCKmZJhSTdGEn47ThLQ+1x+3gMgN
+         KMeQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUonqiGsUjfPEp47gpar1I90HDZ5xwbloIWPp06JhnyROlH/Q1iwvocT5cWrxOmFjgDVFUMbIja5jnfQG7mN6oMA6GEYunnTAIRoFsOgCc=
+X-Gm-Message-State: AOJu0YwFHttImzkd1A0Uwr21ZbiMtz4IY2/PyNZzIBrRHLOeMNosMOj9
+	tuZTlJ+AGhJsxLRhvSIpU3G4ztXndSOAtLQeq3Nu+nZMIfb6AGUORUAXLCnCZ8o=
+X-Google-Smtp-Source: AGHT+IFUz3Bw6ISDd3GciQ1PkFFh8jMes3QifdbnhSrBnemaIeE1jkbp9UgMWYTHjwPHgVAExcNiZg==
+X-Received: by 2002:a5e:c00f:0:b0:7c3:f2c1:e8aa with SMTP id u15-20020a5ec00f000000b007c3f2c1e8aamr525375iol.0.1707417167749;
+        Thu, 08 Feb 2024 10:32:47 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCUFN35oyK3P1Kl19g4DVSeOHdJqd7hNO/fEF+Zn4banyLzmAsUB9dGTmHJlmPGk8rbasaMLmyBct6zafrB+IPmSrFNfMSJmIjvgqC6BIW/sXung/TkbPIraqxtSnUKoxgCzcR1eTIU2rXeLNPkRpe+cBazdeEfW3xUzPh50tskx/g83+xSWNhgagQt8yuHn0rXntnK3Hom2LBu+VnXBS1N6c9T8kjDFqLuqg0OPZQtOqUj4jiLTWT2sLAdc7ngzJBCXRJoTClL/ugYT05us0HGmMECzo0pJ6mIeZnRw6bKwhdGg7yG7Qu64tHQhCjlYr8CdWDwNWF5cl8j0vwggM4B50jjH0wskBEp31CDh/xkNOz6MhRJ0GX6rk+Dv+jWMWPU=
+Received: from [127.0.0.1] ([96.43.243.2])
+        by smtp.gmail.com with ESMTPSA id t13-20020a6bdb0d000000b007c3fbe781f2sm50823ioc.5.2024.02.08.10.32.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 08 Feb 2024 10:32:47 -0800 (PST)
+From: Jens Axboe <axboe@kernel.dk>
+To: stefanha@redhat.com, mst@redhat.com, jasowang@redhat.com, 
+ Yi Sun <yi.sun@unisoc.com>
+Cc: sunyibuaa@gmail.com, hongyu.jin@unisoc.com, zhiguo.niu@unisoc.com, 
+ xuanzhuo@linux.alibaba.com, pbonzini@redhat.com, 
+ virtualization@lists.linux.dev, linux-block@vger.kernel.org, 
+ linux-kernel@vger.kernel.org
+In-Reply-To: <20240129085250.1550594-1-yi.sun@unisoc.com>
+References: <20240129085250.1550594-1-yi.sun@unisoc.com>
+Subject: Re: [PATCH V2] virtio-blk: Ensure no requests in virtqueues before
+ deleting vqs.
+Message-Id: <170741716688.1391883.2946265788968193577.b4-ty@kernel.dk>
+Date: Thu, 08 Feb 2024 11:32:46 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: atomic queue limits updates v3
-Content-Language: en-US
-To: Christoph Hellwig <hch@lst.de>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Paolo Bonzini <pbonzini@redhat.com>,
- Stefan Hajnoczi <stefanha@redhat.com>,
- "Martin K. Petersen" <martin.petersen@oracle.com>,
- Damien Le Moal <dlemoal@kernel.org>, Keith Busch <kbusch@kernel.org>,
- Sagi Grimberg <sagi@grimberg.me>, linux-block@vger.kernel.org,
- linux-nvme@lists.infradead.org, virtualization@lists.linux.dev
-References: <20240131130400.625836-1-hch@lst.de>
- <20240201071027.GA17571@lst.de>
-From: Jens Axboe <axboe@kernel.dk>
-In-Reply-To: <20240201071027.GA17571@lst.de>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+X-Mailer: b4 0.12.5-dev-2aabd
 
-On 2/1/24 12:10 AM, Christoph Hellwig wrote:
-> I don't want to spam the list with a full resend again, but I've
-> updated the branch here:
-> 
->    git://git.infradead.org/users/hch/block.git blk-limits-base
-> 
->    http://git.infradead.org/?p=users/hch/block.git;a=shortlog;h=refs/heads/blk-limits-base
-> 
-> with the bisection hazard found by Keith and the various review tags.
 
-Can you send a v4 so we can get it applied?
+On Mon, 29 Jan 2024 16:52:50 +0800, Yi Sun wrote:
+> Ensure no remaining requests in virtqueues before resetting vdev and
+> deleting virtqueues. Otherwise these requests will never be completed.
+> It may cause the system to become unresponsive.
+> 
+> Function blk_mq_quiesce_queue() can ensure that requests have become
+> in_flight status, but it cannot guarantee that requests have been
+> processed by the device. Virtqueues should never be deleted before
+> all requests become complete status.
+> 
+> [...]
 
+Applied, thanks!
+
+[1/1] virtio-blk: Ensure no requests in virtqueues before deleting vqs.
+      (no commit info)
+
+Best regards,
 -- 
 Jens Axboe
+
 
 
