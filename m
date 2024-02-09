@@ -1,205 +1,167 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73B5133CC2
-	for <virtualization@lists.linux.dev>; Fri,  9 Feb 2024 12:57:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F6023612A
+	for <virtualization@lists.linux-foundation.org>; Fri,  9 Feb 2024 13:10:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707483453; cv=none; b=at1+r2j0zYiwxj1JLykfpC9Emr9O71CPM7ZkBiScYdpoqBq/VTo+6x7GP26hm4sB1HyJW461UmHu4PW63Mw6HfP02e2lax0kJZesngGr+7nVV9faLVfkxOTbWvDZU3P6E4R9TdIbFExOTNdkY3lDeoHBM7hWtDql7Yu9JpygxI0=
+	t=1707484203; cv=none; b=jCmnTGtYTqHyIekil19zoYG41tAEaVOgAWGWk4KtMee4mi3UDo90UlCxmE+bOusn2jiTjwefMQMN2euk6APR4tAbXzy1qIFx98CxAU/ftUN8E2L7rvtpFKaYVDBtn9OfghLol9wGHPUx2By2nopAqq0B2tzxQQxHF2hArY1gyVo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707483453; c=relaxed/simple;
-	bh=kw30KAnxzMTS7QahoenLIh/ATo5v/rxGqhZo4U7lHpo=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=q/hkCyrRNQRnojCuDOYWMbCo1PqcWiPQVuWsDnbWw9oSigh2+Dzc3Y/p7bTpk6ta3mkxFVUzL/KNsL4bXjndIiCrD1pCDg63m5lZ/aqS5UiwRU6Q2iqK/5DFTwFfhUA6djVs6Kuy82lVbfXL52yHMTCG/BShm6PTE0kp17O5+to=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MCLuVX9+; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1707484203; c=relaxed/simple;
+	bh=uk+kzoCASqZmZnqekuxPV+sUaNOX7ZH8i3a3pm1Ynl4=;
+	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=mHBNmWUNGJnAMpOc7uI4GiS47UZK1y0eoOs4Lv1kZiw2dZ6OKnuTdlbF6tlUVFSOwvBsANpG82N7StkhDmxG9nOSM+/epykCiYjUIvzKa/cufluFHaZrBVSsoAsB3LStW0mo+bjkzKFrmF+H1UfMo6obBFx830UreHlDWeBjTfM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=EHaT4ps2; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=k6O7++Wk; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=EHaT4ps2; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=k6O7++Wk; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MCLuVX9+"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1707483450;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=nIOUyXxSODcrgDjv47Zc1StfAXnOUNkL/xlSTZT0jao=;
-	b=MCLuVX9+cK9qCQjjXQJd0T/zhJL+Nu/OvQgnhqSoeKP4WpPL+/Ip0ftGDRH4H9sBU1PM0n
-	qEqHRH/y468IIOhntcb2Z4a3r0arg95SyBR8US0EyDm5E2lyuT4BV17/RBzUd5fMBWwe2M
-	vGX854R1ildv8KgRCvY2/IxvaAdihOA=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-678-yFGlQ88hPwy9bj1flLFqJg-1; Fri, 09 Feb 2024 07:57:29 -0500
-X-MC-Unique: yFGlQ88hPwy9bj1flLFqJg-1
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-40e354aaf56so2186755e9.1
-        for <virtualization@lists.linux.dev>; Fri, 09 Feb 2024 04:57:28 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1707483448; x=1708088248;
-        h=mime-version:user-agent:content-transfer-encoding:autocrypt
-         :references:in-reply-to:date:cc:to:from:subject:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=nIOUyXxSODcrgDjv47Zc1StfAXnOUNkL/xlSTZT0jao=;
-        b=ewmA9GWCrWg2ZSerUT9++ggH60ZUNGLAHGZMoPngRSa3RVsqxu+363oyhemTogKqGZ
-         0rQbUpsD4ikjpEIK94GRXrLFTFHXOYH7Yb0hHsxvGDs0LtYhFAb++etsXLG1u3KhN6lZ
-         BW6uFEgyFG+615l/DROX8hBsC9oDvff+pET5IPH3kP7hl5HcgOflohLajeLdoyatZTcw
-         EYPwnQuXNwbjuEp7bb4F65qhWrQb23JGTi3NTQIJLKtiBD/UE8Ma35vqVMR+spUNaKri
-         33Fhxthl+nOC4nYlrA4iWyG5W23FcbcULvc8+pMnBwWEiFQokfUS8UXjtFidb/xCa6kx
-         kO4Q==
-X-Forwarded-Encrypted: i=1; AJvYcCVpucvLWh2rNjFMTfEMHb/cadcYqxRBgWmVUAUleBfXh1UAdMvyGucpASUBYKYfRD0VQULAl79GEqObjMJ/pXH73U6t15ph5KnrI7Wlnig=
-X-Gm-Message-State: AOJu0YzGQwWI4aS12EkwPUIzYt7SEt4XijuSa8tGPjeB5uPDa80hxOxM
-	K/uo9CWOuwjFmZh3XmIeIgysTNwbYimewPcVwx4Hb5hjtmR6NoLAGNcpUEttzn4P/QIantE74y8
-	ln85vxudrvYFfZc8Z8y42ZQl4iFWEShWytrFT61SmxyG5RyRk2UlXUw5spII9tEPM
-X-Received: by 2002:a05:600c:4f8e:b0:40f:b8d6:7586 with SMTP id n14-20020a05600c4f8e00b0040fb8d67586mr1145871wmq.2.1707483447911;
-        Fri, 09 Feb 2024 04:57:27 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHJC3gROe4D9aMh2qYlAGe00wKHL14AEpyMapfVvYFA5O2qJq+KnLDGijY/xtwJgBQvp/0n3g==
-X-Received: by 2002:a05:600c:4f8e:b0:40f:b8d6:7586 with SMTP id n14-20020a05600c4f8e00b0040fb8d67586mr1145850wmq.2.1707483447511;
-        Fri, 09 Feb 2024 04:57:27 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCX2pWU7bUzAhibG/bBZ4JZy0qitjU5N//2KrLlhui0dTaAZtuov8dpW+LGj7pFUa/6s0uMYiBOgWUpExhLPjgA0ewCyoq7rSr6GG9kM6YxTCAqTQ7gJrYqZR6TfIB/8ckPGDSrBBAP6jWsiABN+uh12miXlV7s0OFJJCKzV7/OxWH3rMr1YPft5//RezXOsaaHIQXEbq257KtkD1XKEqZ5Ml2J/GOOuy2zVRyYsz+hNmG2NNICzXM7AExr9eG4saHjoAcC5+w5vEUzmYWwVCPtw6L4BeBOs+kd0kz3093FWTAnSUvm+nkrmBVsEu27kqNi1FRJVyB8AlNiQ+WNJ1qE6eNo5YZ9Ku01K8rKSyBWGq1PpX8bJ2nJHpscT3wCRQ883l3e5Z/sv6cdv36X0lnVvEVfF4ZoCcdSO2q+BDhSKTBTFaNOa77vP92Q6DwLlqRkJ+NyuMC2wRlN44CEa9YiKr3/3YnW0wL7+K116C92W
-Received: from gerbillo.redhat.com (146-241-228-88.dyn.eolo.it. [146.241.228.88])
-        by smtp.gmail.com with ESMTPSA id e26-20020a05600c219a00b004107ab91f96sm579578wme.8.2024.02.09.04.57.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 09 Feb 2024 04:57:26 -0800 (PST)
-Message-ID: <1b2d471a5d06ecadcb75e3d9155b6d566afb2767.camel@redhat.com>
-Subject: Re: [PATCH net-next v5] virtio_net: Support RX hash XDP hint
-From: Paolo Abeni <pabeni@redhat.com>
-To: Liang Chen <liangchen.linux@gmail.com>
-Cc: Jesper Dangaard Brouer <hawk@kernel.org>, mst@redhat.com, 
- jasowang@redhat.com, xuanzhuo@linux.alibaba.com, hengqi@linux.alibaba.com, 
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
- netdev@vger.kernel.org,  virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org,  bpf@vger.kernel.org,
- john.fastabend@gmail.com, daniel@iogearbox.net,  ast@kernel.org
-Date: Fri, 09 Feb 2024 13:57:25 +0100
-In-Reply-To: <CAKhg4tJPjcShkw4-FHFkKOcgzHK27A5pMu9FP7OWj4qJUX1ApA@mail.gmail.com>
-References: <20240202121151.65710-1-liangchen.linux@gmail.com>
-	 <c8d59e75-d0bb-4a03-9ef4-d6de65fa9356@kernel.org>
-	 <CAKhg4tJFpG5nUNdeEbXFLonKkFUP0QCh8A9CpwU5OvtnBuz4Sw@mail.gmail.com>
-	 <5297dad6499f6d00f7229e8cf2c08e0eacb67e0c.camel@redhat.com>
-	 <CAKhg4tLbF8SfYD4dU9U9Nhii4FY2dftjPKYz-Emrn-CRwo10mg@mail.gmail.com>
-	 <73c242b43513bde04eebb4eb581deb189443c26b.camel@redhat.com>
-	 <CAKhg4tJPjcShkw4-FHFkKOcgzHK27A5pMu9FP7OWj4qJUX1ApA@mail.gmail.com>
-Autocrypt: addr=pabeni@redhat.com; prefer-encrypt=mutual; keydata=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
-User-Agent: Evolution 3.50.3 (3.50.3-1.fc39)
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="EHaT4ps2";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="k6O7++Wk";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="EHaT4ps2";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="k6O7++Wk"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 932A960723
+	for <virtualization@lists.linux-foundation.org>; Fri,  9 Feb 2024 13:10:01 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -4.4
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id UrfL-wufd3YH
+	for <virtualization@lists.linux-foundation.org>;
+	Fri,  9 Feb 2024 13:10:00 +0000 (UTC)
+X-Greylist: delayed 480 seconds by postgrey-1.37 at util1.osuosl.org; Fri, 09 Feb 2024 13:10:00 UTC
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 8FEE36071D
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=suse.de
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8FEE36071D
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=EHaT4ps2;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=k6O7++Wk;
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=EHaT4ps2;
+	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=k6O7++Wk
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a07:de40:b251:101:10:150:64:2; helo=smtp-out2.suse.de; envelope-from=tiwai@suse.de; receiver=<UNKNOWN> 
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2a07:de40:b251:101:10:150:64:2])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 8FEE36071D
+	for <virtualization@lists.linux-foundation.org>; Fri,  9 Feb 2024 13:10:00 +0000 (UTC)
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 9F02C1FD40;
+	Fri,  9 Feb 2024 13:01:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1707483717; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=4y8iC/kwLc3EVquXaBjRInwt4CwoNth/+iK0Wr9bVro=;
+	b=EHaT4ps2bfpx1hA7NW0CjjJNjkF5/gt2qgNiYwAUWM4u1GN6nu4WYvzx48rn+PnC5Cods8
+	wscVgB3U2Wcx+2RwDEEHNnJm2DxMNPFP9sL144Oo1zfk95nFFObfdvCr3diyVvKrlfdW1X
+	pirv5kpUXBHz4OeK2r1vgB2dg+V8xt8=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1707483717;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=4y8iC/kwLc3EVquXaBjRInwt4CwoNth/+iK0Wr9bVro=;
+	b=k6O7++WksDAnfAqyU4ldkaMrHp4IV186RM0LQhBHcndxZnsOLi48imfcD667AXtBhh1f3S
+	ZwgOYUcYKhTBsBAw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1707483717; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=4y8iC/kwLc3EVquXaBjRInwt4CwoNth/+iK0Wr9bVro=;
+	b=EHaT4ps2bfpx1hA7NW0CjjJNjkF5/gt2qgNiYwAUWM4u1GN6nu4WYvzx48rn+PnC5Cods8
+	wscVgB3U2Wcx+2RwDEEHNnJm2DxMNPFP9sL144Oo1zfk95nFFObfdvCr3diyVvKrlfdW1X
+	pirv5kpUXBHz4OeK2r1vgB2dg+V8xt8=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1707483717;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=4y8iC/kwLc3EVquXaBjRInwt4CwoNth/+iK0Wr9bVro=;
+	b=k6O7++WksDAnfAqyU4ldkaMrHp4IV186RM0LQhBHcndxZnsOLi48imfcD667AXtBhh1f3S
+	ZwgOYUcYKhTBsBAw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 491D71326D;
+	Fri,  9 Feb 2024 13:01:57 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([10.150.64.162])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id ZkR2EEUixmVgVQAAD6G6ig
+	(envelope-from <tiwai@suse.de>); Fri, 09 Feb 2024 13:01:57 +0000
+Date: Fri, 09 Feb 2024 14:01:56 +0100
+Message-ID: <877cjd23ln.wl-tiwai@suse.de>
+From: Takashi Iwai <tiwai@suse.de>
+To: Aiswarya Cyriac <aiswarya.cyriac@opensynergy.com>
+Cc: mst@redhat.com,
+	jasowang@redhat.com,
+	perex@perex.cz,
+	tiwai@suse.com,
+	linux-kernel@vger.kernel.org,
+	alsa-devel@alsa-project.org,
+	virtualization@lists.linux-foundation.org,
+	virtio-dev@lists.oasis-open.org,
+	Anton Yakovlev <anton.yakovlev@opensynergy.com>
+Subject: Re: [v2 PATCH 0/1] ALSA: virtio: add support for audio controls
+In-Reply-To: <20240115133654.576068-1-aiswarya.cyriac@opensynergy.com>
+References: <20240115133654.576068-1-aiswarya.cyriac@opensynergy.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) Emacs/27.2 Mule/6.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=ISO-2022-JP
+Authentication-Results: smtp-out2.suse.de;
+	none
+X-Spamd-Result: default: False [-0.30 / 50.00];
+	 ARC_NA(0.00)[];
+	 RCVD_VIA_SMTP_AUTH(0.00)[];
+	 FROM_HAS_DN(0.00)[];
+	 TO_DN_SOME(0.00)[];
+	 TO_MATCH_ENVRCPT_ALL(0.00)[];
+	 NEURAL_HAM_LONG(-1.00)[-1.000];
+	 MIME_GOOD(-0.10)[text/plain];
+	 RCVD_COUNT_THREE(0.00)[3];
+	 DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	 NEURAL_HAM_SHORT(-0.20)[-1.000];
+	 RCPT_COUNT_SEVEN(0.00)[10];
+	 MID_CONTAINS_FROM(1.00)[];
+	 FUZZY_BLOCKED(0.00)[rspamd.com];
+	 FROM_EQ_ENVFROM(0.00)[];
+	 MIME_TRACE(0.00)[0:+];
+	 RCVD_TLS_ALL(0.00)[];
+	 BAYES_HAM(-0.00)[44.43%]
 
-On Fri, 2024-02-09 at 18:39 +0800, Liang Chen wrote:
-> On Wed, Feb 7, 2024 at 10:27=E2=80=AFPM Paolo Abeni <pabeni@redhat.com> w=
-rote:
-> >=20
-> > On Wed, 2024-02-07 at 10:54 +0800, Liang Chen wrote:
-> > > On Tue, Feb 6, 2024 at 6:44=E2=80=AFPM Paolo Abeni <pabeni@redhat.com=
-> wrote:
-> > > >=20
-> > > > On Sat, 2024-02-03 at 10:56 +0800, Liang Chen wrote:
-> > > > > On Sat, Feb 3, 2024 at 12:20=E2=80=AFAM Jesper Dangaard Brouer <h=
-awk@kernel.org> wrote:
-> > > > > > On 02/02/2024 13.11, Liang Chen wrote:
-> > > > [...]
-> > > > > > > @@ -1033,6 +1039,16 @@ static void put_xdp_frags(struct xdp_b=
-uff *xdp)
-> > > > > > >       }
-> > > > > > >   }
-> > > > > > >=20
-> > > > > > > +static void virtnet_xdp_save_rx_hash(struct virtnet_xdp_buff=
- *virtnet_xdp,
-> > > > > > > +                                  struct net_device *dev,
-> > > > > > > +                                  struct virtio_net_hdr_v1_h=
-ash *hdr_hash)
-> > > > > > > +{
-> > > > > > > +     if (dev->features & NETIF_F_RXHASH) {
-> > > > > > > +             virtnet_xdp->hash_value =3D hdr_hash->hash_valu=
-e;
-> > > > > > > +             virtnet_xdp->hash_report =3D hdr_hash->hash_rep=
-ort;
-> > > > > > > +     }
-> > > > > > > +}
-> > > > > > > +
-> > > > > >=20
-> > > > > > Would it be possible to store a pointer to hdr_hash in virtnet_=
-xdp_buff,
-> > > > > > with the purpose of delaying extracting this, until and only if=
- XDP
-> > > > > > bpf_prog calls the kfunc?
-> > > > > >=20
-> > > > >=20
-> > > > > That seems to be the way v1 works,
-> > > > > https://lore.kernel.org/all/20240122102256.261374-1-liangchen.lin=
-ux@gmail.com/
-> > > > > . But it was pointed out that the inline header may be overwritte=
-n by
-> > > > > the xdp prog, so the hash is copied out to maintain its integrity=
-.
-> > > >=20
-> > > > Why? isn't XDP supposed to get write access only to the pkt
-> > > > contents/buffer?
-> > > >=20
-> > >=20
-> > > Normally, an XDP program accesses only the packet data. However,
-> > > there's also an XDP RX Metadata area, referenced by the data_meta
-> > > pointer. This pointer can be adjusted with bpf_xdp_adjust_meta to
-> > > point somewhere ahead of the data buffer, thereby granting the XDP
-> > > program access to the virtio header located immediately before the
-> >=20
-> > AFAICS bpf_xdp_adjust_meta() does not allow moving the meta_data before
-> > xdp->data_hard_start:
-> >=20
-> > https://elixir.bootlin.com/linux/latest/source/net/core/filter.c#L4210
-> >=20
-> > and virtio net set such field after the virtio_net_hdr:
-> >=20
-> > https://elixir.bootlin.com/linux/latest/source/drivers/net/virtio_net.c=
-#L1218
-> > https://elixir.bootlin.com/linux/latest/source/drivers/net/virtio_net.c=
-#L1420
-> >=20
-> > I don't see how the virtio hdr could be touched? Possibly even more
-> > important: if such thing is possible, I think is should be somewhat
-> > denied (for the same reason an H/W nic should prevent XDP from
-> > modifying its own buffer descriptor).
->=20
-> Thank you for highlighting this concern. The header layout differs
-> slightly between small and mergeable mode. Taking 'mergeable mode' as
-> an example, after calling xdp_prepare_buff the layout of xdp_buff
-> would be as depicted in the diagram below,
->=20
->                       buf
->                        |
->                        v
->         +--------------+--------------+-------------+
->         | xdp headroom | virtio header| packet      |
->         | (256 bytes)  | (20 bytes)   | content     |
->         +--------------+--------------+-------------+
->         ^                             ^
->         |                             |
->  data_hard_start                    data
->                                   data_meta
->=20
-> If 'bpf_xdp_adjust_meta' repositions the 'data_meta' pointer a little
-> towards 'data_hard_start', it would point to the inline header, thus
-> potentially allowing the XDP program to access the inline header.
+On Mon, 15 Jan 2024 14:36:53 +0100,
+Aiswarya Cyriac wrote:
+> 
+> From: Anton Yakovlev <anton.yakovlev@opensynergy.com>
+> 
+> Changes in v2
+> - Fix reporting of incorrect number of items for ENUMERATED controls
+> 
+> Implementation of support for audio controls in accordance with the
+> extension of the virtio sound device specification[1] planned for
+> virtio-v1.3-cs01.
+> 
+> Design　of virtual audio controls is based on and derived from ALSA
+> audio controls. It allows the driver to perform all standard operations,
+> such as reading and writing audio control value, as well as working with
+> metadata (represented in the TLV form).
+> 
+> The driver part was tested on top of the Linux 5.10 kernel.
+> 
+> As a device part was used OpenSynergy proprietary implementation.
+> 
+> [1] https://lists.oasis-open.org/archives/virtio-comment/202104/msg00013.html
+> 
+> Anton Yakovlev (1):
+>   ALSA: virtio: add support for audio controls
 
-I see. That layout was completely unexpected to me.
+Applied now.  Thanks.
 
-AFAICS the virtio_net driver tries to avoid accessing/using the
-virtio_net_hdr after the XDP program execution, so nothing tragic
-should happen.
 
-@Michael, @Jason, I guess the above is like that by design? Isn't it a
-bit fragile?
-
-Thanks!
-
-Paolo
-
+Takashi
