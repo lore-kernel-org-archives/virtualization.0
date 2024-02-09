@@ -1,170 +1,172 @@
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2A477604D
-	for <virtualization@lists.linux-foundation.org>; Fri,  9 Feb 2024 15:55:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707494147; cv=none; b=cHgtLv4yoM1b4Qm55zN5t88y/TY4lBBc0f25mzmEJWtyC5fEhNbo9mCtt60cptKXmb7stXBKsRYp1sOjPrhhbO0qECDF23l5EvgE3cS4gB+hYxI1HGin4xwgjbVVAZWyLdUOUxtt2l4iRVMaAh6Kzbag0LlNGpe1X0GGXKYKlUU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707494147; c=relaxed/simple;
-	bh=auNKb8QiR0FC/OPip6F8+NaNY7g5b1FisUqmCjFFaNY=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=MEZRh84eoqmlfSL519BLiCQL7h2zBhoqa++jKEG+smzI/1dpG4UwWBbM1695TaykR25CBBncLXrpAFxLk/a5igTMWTsQmUYxYN4TZe7VFfHshjaFcw+tiO+xydGEt/xw959aXNHOjtc0OWnRwhq3D3bToVvb2s4+serC4BDf2+0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MqFgCjKK; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 949B47BB06
+	for <virtualization@lists.linux-foundation.org>; Fri,  9 Feb 2024 17:19:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.136
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1707499151; cv=fail; b=lvaWAVWPDcdd9WYa54dq4H5SkKcsHLrXVf/W69eLsb1MyUTsJ1pCB/0vbmDzeJkXNFU1q5gpbFIL5DnUfGega93x1M2ZpM005EdKOstsqo2tSLvGsEgpYBHXU9eOLiwDmltkk2ZDLmE61Knuq5EDFgQ40SC0auTT566q8jLgRSY=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1707499151; c=relaxed/simple;
+	bh=Y0bTLoiYZv1wCbTQ0nIYW7NvxTjwYhRbe6sCe2qJx+M=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=h08ltg7JifKzl3Kl8dzb9/VEFLIH0NQaDS4pEDG2KPCIZ3GsB8CJZDXc9vtjWc+UHbJRYyE9Sx/g1USX5sEDxzu5syRcQdF4i2m/cZ762e2k6qkZdFpHpVPwOkXSZJUhPZ1hiZC63F44X3+nxouT9Mhsoi7Cv+PoYvaTaBmQ600=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=ZhoHGRbi; arc=fail smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MqFgCjKK"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="ZhoHGRbi"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 5DD96607A9
-	for <virtualization@lists.linux-foundation.org>; Fri,  9 Feb 2024 15:55:46 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 290E86079F
+	for <virtualization@lists.linux-foundation.org>; Fri,  9 Feb 2024 17:19:10 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.102
+X-Spam-Score: -2.103
 X-Spam-Level:
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9gi82MrBy86z
+	with ESMTP id A2RmE15J3mkw
 	for <virtualization@lists.linux-foundation.org>;
-	Fri,  9 Feb 2024 15:55:45 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=alex.williamson@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 9FE816078C
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9FE816078C
+	Fri,  9 Feb 2024 17:19:09 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2414::600; helo=nam11-bn8-obe.outbound.protection.outlook.com; envelope-from=jgg@nvidia.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 4DB956077C
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4DB956077C
 Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=MqFgCjKK
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 9FE816078C
-	for <virtualization@lists.linux-foundation.org>; Fri,  9 Feb 2024 15:55:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1707494143;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=fLAke4enBWD9cShjIdQ04k0ebmXM4X5P2eL0xWUYSe4=;
-	b=MqFgCjKKTHCyaBqLuAXHHZkFoAMEpPzTYDw4TsAEj7h6BgavHE2D31MUL6849EencxGllE
-	zKbVdHX9XdzAws6z5vth79WW0dobx1SpPmnRhKAexdRJqpVtv4I/6Wa7zzAU7Hfir6Ldiu
-	NxRPL4kI1m9EyR0R9Y80kP9P443vgOg=
-Received: from mail-io1-f70.google.com (mail-io1-f70.google.com
- [209.85.166.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-179-LSaEjb7MMvCBXY4875FPew-1; Fri, 09 Feb 2024 10:55:40 -0500
-X-MC-Unique: LSaEjb7MMvCBXY4875FPew-1
-Received: by mail-io1-f70.google.com with SMTP id ca18e2360f4ac-7bedddd00d5so106554339f.3
-        for <virtualization@lists.linux-foundation.org>; Fri, 09 Feb 2024 07:55:39 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1707494139; x=1708098939;
-        h=content-transfer-encoding:mime-version:organization:references
-         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=fLAke4enBWD9cShjIdQ04k0ebmXM4X5P2eL0xWUYSe4=;
-        b=OxkCRWpFXAS5BT39gCR9sI7xwtJxvKIO4kB4JFXnWCk2817/n6n5vieMhf87dLjAs5
-         LzUryut3JyvecRQii4rByNxPB9y4sTJjXZ1eGofR+B86cfkcK3wxc1rN5Eu5rzgcFqz/
-         D76wiCooVqwEwtj/rl6OpTWWsB7wq1Ng9ihq6GAY5E0jRj+2yCJ4dA1kX4MD7XF8baCX
-         7G7oZgM3sNn2lVXFR3TqjWm8hKeq4SVdPi5P8qyU1DfOoPWQnSwb9CUyBFe88O1qh49d
-         bZ/TivkYktTJ4MW/gSSw9S+yOQyEngD3iGB4h/NBdXKJSodbZbVHr+cELz2h6Dc9WJqR
-         2V2w==
-X-Forwarded-Encrypted: i=1; AJvYcCV9iq+Cb3UkXJajdxOa9xEvPshCkUOY2kIpGuI5mdoRpMuo8vMTzUr2Gu1x7nUI2LTrIJpTsVrjrfRkOw5J/y7vhfiSHG9v+ZZEdg4tv1XSGdtxD4UyFJtPlA==
-X-Gm-Message-State: AOJu0YyRR4iSI8iQkafJbIq+ds7/go1UCiOvSzAWLY1n0gPiAg7bAMVf
-	UCR1BKjUiKElcq9CXeLNEp+Zbi8+bUxnCkkqp2JEdoMqytvzrr3P6NOWxLunqAbZFJhaiWt/1A5
-	ojpaVT0FzvynbSBpNT69+qCY/8lPMFAzSPzPx8Xx1hRCUmCcmTeKVMaiCcFDC/QJPcJVFuu9h3h
-	ZPp8o=
-X-Received: by 2002:a6b:5009:0:b0:7c3:f37b:f9d1 with SMTP id e9-20020a6b5009000000b007c3f37bf9d1mr2581413iob.19.1707494139197;
-        Fri, 09 Feb 2024 07:55:39 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEuKtDGKA2w8SA1rf3RiG7basQBgawwUIswn0ZL+C23tTlQM8nYLb615AN9TOxLy08OqXKASw==
-X-Received: by 2002:a6b:5009:0:b0:7c3:f37b:f9d1 with SMTP id e9-20020a6b5009000000b007c3f37bf9d1mr2581389iob.19.1707494138899;
-        Fri, 09 Feb 2024 07:55:38 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCVYNsFpnn69MaPwPnU4wCvtfxiu0gkTlYRqlU98kNLpCHBAeUilHtpwkORaC1un1ZYcW6/RfFH8q0j5jwe3Ly8/itj0snpLB/a7S6o1/6FgorPsmCWh1D5ZHF2kdF3Gg5UrgV48nCI0DvwGNXnj5vCH9M78Zonb/AKFYBcFEEt9j5Fe76UFQSwxi4/Lnpry8pOPPP+asd6JE7iAmwzNrDYX5hsxVV6CB33Oa62OGIVlN7FkSjqx+RuhLexgankQpvPSrTkeCYPUcgeUO4P58oS4x2jwEyfaW+xFgKeRR/XKVo8tgAINCy6b0YrYm9EnWbWSPHE8XJkZq3r+kVFBUsnPP0LKWmIE9F+xMRIoYDrb42BXXOrf5YRj9wExgD4tk+AMmwE3qkYN7TpHAgNJl4nKNV5XXlZsWEv/HqpNM+On6S79tcxZF+32r2crD4lwpSuET6gHj74CrKvKbikZ/hO7Vb4rnr5zcUx15NDGG7W6egOjvB4ZELWz9aiGT2AOHF/r9pS+6bgVO3z6EJhzalo+7wBhR+9EsF1kqnrSvg3o+hbWI71zUgL7CpMZIdhgF1cSVKunhTzaI2xY0Yc0r8Ra+PBML2vGXdfUlGB0ef++A2bBKKMechdNjTZIaeWiJPF+uM/dP71a2rWGCUIYBgaxodVJfzaI5WazHORJwVon5ZkX41ekBcW1Ywx/mxGDASqIqc11YPmKRogs/6DpPwwcWqDsDfaUA3hCsvgBaEyl7aAvdxwypjOrkMIHc94zgAiFQ/srltINL3rsIaC86nalan7WTu13u9VVt/Pllkfb4YWi
-Received: from redhat.com ([38.15.36.11])
-        by smtp.gmail.com with ESMTPSA id f8-20020a056602070800b007c447471187sm193809iox.11.2024.02.09.07.55.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 09 Feb 2024 07:55:35 -0800 (PST)
-Date: Fri, 9 Feb 2024 08:55:31 -0700
-From: Alex Williamson <alex.williamson@redhat.com>
-To: Ankit Agrawal <ankita@nvidia.com>
-Cc: "Tian, Kevin" <kevin.tian@intel.com>, Jason Gunthorpe <jgg@nvidia.com>,
- Yishai Hadas <yishaih@nvidia.com>, "mst@redhat.com" <mst@redhat.com>,
- "shameerali.kolothum.thodi@huawei.com"
- <shameerali.kolothum.thodi@huawei.com>, "clg@redhat.com" <clg@redhat.com>,
- "oleksandr@natalenko.name" <oleksandr@natalenko.name>, "K V P,
- Satyanarayana" <satyanarayana.k.v.p@intel.com>, "eric.auger@redhat.com"
- <eric.auger@redhat.com>, "brett.creeley@amd.com" <brett.creeley@amd.com>,
- "horms@kernel.org" <horms@kernel.org>, Rahul Rameshbabu
- <rrameshbabu@nvidia.com>, Aniket Agashe <aniketa@nvidia.com>, Neo Jia
- <cjia@nvidia.com>, Kirti Wankhede <kwankhede@nvidia.com>, "Tarun Gupta
- (SW-GPU)" <targupta@nvidia.com>, Vikram Sethi <vsethi@nvidia.com>, Andy
- Currid <acurrid@nvidia.com>, Alistair Popple <apopple@nvidia.com>, John
- Hubbard <jhubbard@nvidia.com>, Dan Williams <danw@nvidia.com>, "Anuj
- Aggarwal (SW-GPU)" <anuaggarwal@nvidia.com>, Matt Ochs <mochs@nvidia.com>,
- "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-kernel@vger.kernel.org"
- <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=ZhoHGRbi
+Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on20600.outbound.protection.outlook.com [IPv6:2a01:111:f403:2414::600])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 4DB956077C
+	for <virtualization@lists.linux-foundation.org>; Fri,  9 Feb 2024 17:19:09 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=h7j5BXq0BOIPpzrOAPGQuqo5rVQzLpuY5LOK/frKWyEelEOKilj4HR3oQDciNWkJNSZj50CVOynSYOweGCk/stmj0SU6/fgxce3YLb9+PBJXUIqmMH+oCUUd0Erob7s9mha/QN8RWrk8K+UVPrbs+dXbNTV/j056lW34x7mvcu0fnJwO3hhVpnUy3lcv/Dp/dt9wjavv3kq4RCWVY470kMWCwPjaYvKCodCvJ013hUzs3q7pSQgEYYohegQp90nqPP2ylLX54KWfu8k353qd4brsNdMlPhym9gPm7jt8h5a1UqPgoYng7RKzWvELCrNxTMK7ElfjEFoVYT1zZsPe9g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=SSenxutTBV5MrDfXDKXXpAiEXcZzCXbjBtSHKKxT56A=;
+ b=j91h01pBAzTt49y7UIZKSjGzUvapnTXO2K54F2oDwQktfeHehUm32w+YDHLyjb7v7+WplwpEUx1wKoHXMbiKmrElb14CCullvatxDRAMG9L+dvd7qLhb0qng3KTk8oN+EA0ueXJKYKzpKWFL0RfL2yCvWSilkH+Obg1NWz7XjI1DyKO/QRYMIE0pSIVEMg2s6EUWHqYuX2S8lY11saxjzOKcDEih43T2EO7MY9UTQyRIH8OYXwE0s7nr0oazaonG8zjK92BeijXFcsxcvyHSiD19AZbCwraY1z1fa8+hampAZLhT0duv02qAtxfW21++khVYeenNxfA9p6MMfeH5Rg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=SSenxutTBV5MrDfXDKXXpAiEXcZzCXbjBtSHKKxT56A=;
+ b=ZhoHGRbiIbgOfbicZ+Gei7XmGC8D8GO6pFh9z8/eS6us7yxcSq0dd5a2VV/Ersgr+TzpufU0WFy6OpZTGswt2OUrBS3mfBFMCllBi2q17WdLK9Ko7/pXAKbAlnstChyIin3vV1b02s8WEnClc4Gi1hyEQ4kCNWRZS61iSgh1waplYdEJIIh84uFFYT4PTMoSxr2wrrdyLCZUZGAwFARPtRCpBoorR7aJYt8mU7M6r811oN276N0lNeGHYzPULoRQmABqIMZ2jsQWNikDb7lYx3NF2r7ZzT9yciafYmHj7E0HzML+New29ATVLJnQz/v36AyG9soKhiO5xDsfU3C0GQ==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by CH0PR12MB5331.namprd12.prod.outlook.com (2603:10b6:610:d6::20) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7292.10; Fri, 9 Feb
+ 2024 17:19:05 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::96dd:1160:6472:9873]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::96dd:1160:6472:9873%6]) with mapi id 15.20.7270.012; Fri, 9 Feb 2024
+ 17:19:05 +0000
+Date: Fri, 9 Feb 2024 13:19:03 -0400
+From: Jason Gunthorpe <jgg@nvidia.com>
+To: Alex Williamson <alex.williamson@redhat.com>
+Cc: Ankit Agrawal <ankita@nvidia.com>, "Tian, Kevin" <kevin.tian@intel.com>,
+	Yishai Hadas <yishaih@nvidia.com>,
+	"mst@redhat.com" <mst@redhat.com>,
+	"shameerali.kolothum.thodi@huawei.com" <shameerali.kolothum.thodi@huawei.com>,
+	"clg@redhat.com" <clg@redhat.com>,
+	"oleksandr@natalenko.name" <oleksandr@natalenko.name>,
+	"K V P, Satyanarayana" <satyanarayana.k.v.p@intel.com>,
+	"eric.auger@redhat.com" <eric.auger@redhat.com>,
+	"brett.creeley@amd.com" <brett.creeley@amd.com>,
+	"horms@kernel.org" <horms@kernel.org>,
+	Rahul Rameshbabu <rrameshbabu@nvidia.com>,
+	Aniket Agashe <aniketa@nvidia.com>, Neo Jia <cjia@nvidia.com>,
+	Kirti Wankhede <kwankhede@nvidia.com>,
+	"Tarun Gupta (SW-GPU)" <targupta@nvidia.com>,
+	Vikram Sethi <vsethi@nvidia.com>, Andy Currid <acurrid@nvidia.com>,
+	Alistair Popple <apopple@nvidia.com>,
+	John Hubbard <jhubbard@nvidia.com>, Dan Williams <danw@nvidia.com>,
+	"Anuj Aggarwal (SW-GPU)" <anuaggarwal@nvidia.com>,
+	Matt Ochs <mochs@nvidia.com>,
+	"kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 Subject: Re: [PATCH v17 3/3] vfio/nvgrace-gpu: Add vfio pci variant module
  for grace hopper
-Message-ID: <20240209085531.73f25a98.alex.williamson@redhat.com>
-In-Reply-To: <SA1PR12MB71996EBCA4142458E8BEE367B04B2@SA1PR12MB7199.namprd12.prod.outlook.com>
+Message-ID: <20240209171903.GQ10476@nvidia.com>
 References: <20240205230123.18981-1-ankita@nvidia.com>
-	<20240205230123.18981-4-ankita@nvidia.com>
-	<BN9PR11MB527666B48A975B7F4304837C8C442@BN9PR11MB5276.namprd11.prod.outlook.com>
-	<SA1PR12MB71996EBCA4142458E8BEE367B04B2@SA1PR12MB7199.namprd12.prod.outlook.com>
-Organization: Red Hat
+ <20240205230123.18981-4-ankita@nvidia.com>
+ <BN9PR11MB527666B48A975B7F4304837C8C442@BN9PR11MB5276.namprd11.prod.outlook.com>
+ <SA1PR12MB71996EBCA4142458E8BEE367B04B2@SA1PR12MB7199.namprd12.prod.outlook.com>
+ <20240209085531.73f25a98.alex.williamson@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240209085531.73f25a98.alex.williamson@redhat.com>
+X-ClientProxiedBy: DM6PR10CA0013.namprd10.prod.outlook.com
+ (2603:10b6:5:60::26) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|CH0PR12MB5331:EE_
+X-MS-Office365-Filtering-Correlation-Id: 07436d66-d670-4953-d83f-08dc299337a5
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	zkwlKR9iPnN4Tz3jNY+mfq5eTjuy6znrCuYutlKdog6Jk9slxqwWkaXsL7xOTbOTwwRycJFWmrGajpwbZTYGRIQGBXE+u52IxlN5sdE6H8WRVydqzF7f3mCt74HhM69JUTX3jfALi5y1lcHEYioTxM3bNaa1hYaoglfAcUSVL7C5abUx38abbFWc4r4J6H8MFn30gqmX+414eH7eXmeuCpUmjIPLDyMXN7CsHms5x2i3IXP/nrzND6m828AceuzeE8V1lFv9TUtMnqX1BRHKEWrXhB5EdgEANvUn5pVX42RM3IdkRCYPpZhAYUDvlw4zxEKHf35FqGeBoA5xG4tclaxRhe0TVekyK33WaF4QV5brsM4hAl1zxxpYtu9gCtlu+AjiGQodvTMJKdVQv4mhhlbo3K/rHRnlpH9mE+1GVKkvQ5KNP/3Ifilj9slmwbdmQCfR8oRh94lcR5Z2bAdbtYr2PSMjqx0N1MCXqmsocfOuaqf4zTp440V7/92qf22X+RYInYyy4JF7pIJIKpptHoHB5S89xvgvFAY4r3OgaD4oYKdtMK5u9aFJBWP6RGa2
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(376002)(136003)(39860400002)(366004)(396003)(346002)(230922051799003)(1800799012)(451199024)(64100799003)(186009)(41300700001)(478600001)(6486002)(6506007)(2616005)(36756003)(6512007)(66476007)(7416002)(66556008)(5660300002)(26005)(1076003)(2906002)(33656002)(66946007)(4744005)(83380400001)(6916009)(8936002)(54906003)(316002)(8676002)(4326008)(38100700002)(86362001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?nzzoFfUJf5OuSkYef1L/foYzZ8QCRRzDn53mDnhrOg9AFg+3mZvTZCYE1W6O?=
+ =?us-ascii?Q?s4Zt38IYILoSlG0vOy/HRxjbmOParNS6rUnz/V4D1vRB5OVhM+jsNKmfWZ2p?=
+ =?us-ascii?Q?Kt2Z0LOH72cf7Wo4puinUzLIdx0OrxYoNCWagCVqT5PXhTlYEBvx2w4hQPH3?=
+ =?us-ascii?Q?sO9CicWASSDRDWjZwolGyBKgfaLkbGPFhj/2q4+lWVhCjApaxYJMmh12e5e/?=
+ =?us-ascii?Q?Iyi4f0mZA9cv5BBaib3yY8TGbLjKWETZURgBHn1dVOTcvoQ7YX1dXD+FF8QL?=
+ =?us-ascii?Q?jOkpyLdMoeZ6dfsWzHX0hrso+fW+JitBWpVuxPyUIKibikMaO0vMGyXfY7Rg?=
+ =?us-ascii?Q?5nebI1v3MXZBtOGWBH58+4fbHpxdFwtNgry4YGaNkSTtMd85wZCsOYoTqkDa?=
+ =?us-ascii?Q?vzfzwIxYlhXQ4zQOOYrnA4yoUiOPJWkgN46AuxKx1lSz4kboU0Xl4rI7QZKU?=
+ =?us-ascii?Q?bKBi9SUWJnIxEp1nI7HU3BcKaUXzKiHmmDRLXWX7HJJgrGI3xPf7Pfdtw+tV?=
+ =?us-ascii?Q?tC5dHTT+ozjj/HJS+u75lpv364mopLNWdoZnLkZxHJ328JGz2if2bClOEjff?=
+ =?us-ascii?Q?z25Q5IOPEb28ge6n+TN3kGqzMpfqS4ha1/6EalY5qlkP1KruoRmo3a8A8DyR?=
+ =?us-ascii?Q?al4kWFxZeLyrsrr7P3VdgHcKBOf07nu4KmfJOq+suLwiju1qlMCYc4V93bQP?=
+ =?us-ascii?Q?O64RUaru86yDmrUKdLUlOGyxqp4Zpl4JAZXAkh38/wOzAdSh/wZGmz3pR2xj?=
+ =?us-ascii?Q?oTITeCIn9lv+/TbTO+wCN498rG8Badu2B9AIhnvly9CeAR9G/cuSQSE/lvSf?=
+ =?us-ascii?Q?MujNPxpmEX6wBUSguWY6cEBPYRYgFugZ6aBl0xXNWNCI4oFAyavqVGYYqg/n?=
+ =?us-ascii?Q?v7tTAeC8yAyPU2bSNAIFlLlXEupX5QGRe2OzCVWj1IZwBH0o4QcgaRgnZMxS?=
+ =?us-ascii?Q?SQigSE0pMyR6FwUNJUrWdOg57QZSo19MnhZihZAiPLBVl0WNOcyUvJPEzrou?=
+ =?us-ascii?Q?ut3acVPTA8AalXdKlQWkfuxIflnriPEkF28rwRkxtyTPTEbkpkr97GxX0Cbk?=
+ =?us-ascii?Q?LBg9t6MJ9pSGIjXN8X4Ln6xRjgnJlS08f4QNWrWLS7zZak4bcNoQB91e3Qvw?=
+ =?us-ascii?Q?S4EYqdktecEBv6RuzZGDl74Y566i8qViQY5UURwjMpTXj8feGq0qwEpMqGmJ?=
+ =?us-ascii?Q?MHfDdn4C4mATkevFnzyiQZxPZ80tj0vLldKsr3ZdkGMbkYVZ6aHKFRpvXncX?=
+ =?us-ascii?Q?P2JXDm8/wU8jeGKhKc7tlShwyNEEL0M4UG06W/+XBjBnve1pRIxkaXJRRYlm?=
+ =?us-ascii?Q?f1jHyJTcXydc6+NxKwAcWrh49/+4Qrhd0ojTvHx5AeSA4eVn4WnEAfCEPQ8K?=
+ =?us-ascii?Q?wZxLblhntC7m+7WyMjii1NStSZcYt7U46vYmROgQaHGl3d39xFKuFK+fYAqS?=
+ =?us-ascii?Q?EKOjhx4ymRYO9n5x3aXOgF7t/ALs7kZjAV8+gXFftMmZ32rcl/Zl9vHZc+KM?=
+ =?us-ascii?Q?0wTjgXrlkusKKVCH6zgeJYiGwS2vbUcMAtJ8GZsIXeDrEwrnGnTHe11z63fz?=
+ =?us-ascii?Q?pZ3K7WN6GY57+itFzv92FHR/If1F7H6G7EBUaPak?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 07436d66-d670-4953-d83f-08dc299337a5
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Feb 2024 17:19:05.1551
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 0jklR9EDdA6rQoZvlvwEiWZ67QTeUEXzN3V1NVLNXx1sa2b0xAWeiheyT+3Z/oHD
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH0PR12MB5331
 
-On Fri, 9 Feb 2024 09:20:22 +0000
-Ankit Agrawal <ankita@nvidia.com> wrote:
+On Fri, Feb 09, 2024 at 08:55:31AM -0700, Alex Williamson wrote:
+> I think Kevin's point is also relative to this latter scenario, in the
+> L1 instance of the nvgrace-gpu driver the mmap of the usemem BAR is
+> cachable, but in the L2 instance of the driver where we only use the
+> vfio-pci-core ops nothing maintains that cachable mapping.  Is that a
+> problem?  An uncached mapping on top of a cachable mapping is often
+> prone to problems.  
 
-> Thanks Kevin for the review. Comments inline.
-> 
-> >>
-> >> Note that the usemem memory is added by the VM Nvidia device driver [5]
-> >> to the VM kernel as memblocks. Hence make the usable memory size
-> >> memblock
-> >> aligned.  
-> >
-> > Is memblock size defined in spec or purely a guest implementation choice?  
-> 
-> The MEMBLOCK value is a hardwired and a constant ABI value between the GPU
-> FW and VFIO driver.
-> 
-> >>
-> >> If the bare metal properties are not present, the driver registers the
-> >> vfio-pci-core function pointers.  
-> >
-> > so if qemu doesn't generate such property the variant driver running
-> > inside guest will always go to use core functions and guest vfio userspace
-> > will observe both resmem and usemem bars. But then there is nothing
-> > in field to prohibit mapping resmem bar as cacheable.
-> >
-> > should this driver check the presence of either ACPI property or
-> > resmem/usemem bars to enable variant function pointers?  
-> 
-> Maybe I am missing something here; but if the ACPI property is absent,
-> the real physical BARs present on the device will be exposed by the
-> vfio-pci-core functions to the VM. So I think if the variant driver is ran
-> within the VM, it should not see the fake usemem and resmem BARs.
+On these CPUs the ARM architecture won't permit it, the L0 level
+blocks uncachable using FWB and page table attributes. The VM, no
+matter what it does, cannot make the cachable memory uncachable.
 
-There are two possibilities here, either we're assigning the pure
-physical device from a host that does not have the ACPI properties or
-we're performing a nested assignment.  In the former case we're simply
-passing along the unmodified physical BARs.  In the latter case we're
-actually passing through the fake BARs, the virtualization of the
-device has already happened in the level 1 assignment.
-
-I think Kevin's point is also relative to this latter scenario, in the
-L1 instance of the nvgrace-gpu driver the mmap of the usemem BAR is
-cachable, but in the L2 instance of the driver where we only use the
-vfio-pci-core ops nothing maintains that cachable mapping.  Is that a
-problem?  An uncached mapping on top of a cachable mapping is often
-prone to problems.  Thanks,
-
-Alex
-
+Jason
