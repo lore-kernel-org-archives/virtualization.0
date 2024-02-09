@@ -1,102 +1,62 @@
-Received: from mail-io1-f43.google.com (mail-io1-f43.google.com [209.85.166.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from abb.hmeau.com (abb.hmeau.com [144.6.53.87])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E8AF1CF91
-	for <virtualization@lists.linux.dev>; Thu,  8 Feb 2024 18:32:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C55E53813;
+	Fri,  9 Feb 2024 05:00:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.6.53.87
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707417170; cv=none; b=E4/Ro1Qw/x4Uz7kGvRuSH6gn7RzL1vjyp8DoxLIL88MtanQ8uODQ9MiAfJHWJe6PCPaS6jG2kZwPuS7JGKAjCLyxqA096KAbZat3+/HZdtRHRpdCXN9xf+i9oTAB0S2eq1d8Fmefqain9YITqvWd1ce3R0z5fya7xNFsTYGSRi0=
+	t=1707454857; cv=none; b=UMGxzIN4OD35wbV3Ot3aRYQwyVjGXSkpLqVxmFvU7642wIn8p3f17pjBrGauo7rBP/q8poBxRdkEvMX8cpzZfmM6pVJpHdP+cKUjE2/DtfhKUqJHGiJaIQKvLmFTWjE6E9Vl/Ekkn9F39Cr+VtfmpluZrB6sBPGRHo2BVRKMrgA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707417170; c=relaxed/simple;
-	bh=wHrLFJRfnNXUeGVogN8+9OPpwE8Sci1mCOxtvg4QYxM=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=tWDUYl+m56OgOvETNgW93SzGR0L53ydb7Ho9P+lhP0D0ixsyz6iK4WPVt4Q7QKFpxBSmYZbPpBgho31Svp80whNeiB+XH/lmt4xukEQBJzejZKxbyeFTS0SvUU48xW4va0++V1EXFFut7mTQ5GOCggQrwdgUEnp0ljnnO4PPtcI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=r6cRdLbQ; arc=none smtp.client-ip=209.85.166.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="r6cRdLbQ"
-Received: by mail-io1-f43.google.com with SMTP id ca18e2360f4ac-7c427cba7a0so906239f.0
-        for <virtualization@lists.linux.dev>; Thu, 08 Feb 2024 10:32:48 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1707417168; x=1708021968; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=mOhSHI8k2xKwemaGiMogUyPw3fznz8Z4LeXfby4qFPk=;
-        b=r6cRdLbQtS/WOFCOghipzmgtQxLtqQ2xwUuW2Bn3o4mh8U1W0f/8oryXCNcUsNUFit
-         bCjrOwP4aSEcUiGOv9Wjl0haq1oKPUF51f6IGDWn2QIEQfr54QnBt237mXufzs6hhekB
-         35V4OEiJSBMDSgPPDY4W848/rsiuOWz6ZGg8QhhyDrpXzysQkGzw8aZAizTdAYPWBF2Y
-         v8NtyBZCIJy4asyp3KaYbEL1ydjO1h9WGhxhN7ly21H+2kPXFhXaNCrL4iOCArP0VsnE
-         oe4Mxbnt2M5Obq425hvGSf2M4oLNksCuDCPOv2UcZtmU137Er9Nnx4gCenROv8Hq0bu8
-         thPQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1707417168; x=1708021968;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=mOhSHI8k2xKwemaGiMogUyPw3fznz8Z4LeXfby4qFPk=;
-        b=tTnvUIcI6InZf16OB+yz20f2G3d4H9P+IrWdvpdzSzlICJa6rSsKBLPgpiNjpO92FE
-         7ATX568mlMJtWw43jiRXEEZLfZtBNUT/bCakqmnZt2vZb6grIu/s0ahFt9abRBBJo2Pu
-         e42a9LuKWyvYH4Ov/Q7VJgA8ReHdhlT7GKELtf4R0EXqQixy478y0+q5QWicq4rKfiXh
-         EGWSBOLbBefx+LKCFQ//ds+OZc2rf4ijp0LiC7G9c8v74Dle4xkaYdhtuO32g7NsUG3o
-         H3mdguiF2/ouQTQZHoxxICoBSCuIMpOvc2WyxbqodCKmZJhSTdGEn47ThLQ+1x+3gMgN
-         KMeQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUonqiGsUjfPEp47gpar1I90HDZ5xwbloIWPp06JhnyROlH/Q1iwvocT5cWrxOmFjgDVFUMbIja5jnfQG7mN6oMA6GEYunnTAIRoFsOgCc=
-X-Gm-Message-State: AOJu0YwFHttImzkd1A0Uwr21ZbiMtz4IY2/PyNZzIBrRHLOeMNosMOj9
-	tuZTlJ+AGhJsxLRhvSIpU3G4ztXndSOAtLQeq3Nu+nZMIfb6AGUORUAXLCnCZ8o=
-X-Google-Smtp-Source: AGHT+IFUz3Bw6ISDd3GciQ1PkFFh8jMes3QifdbnhSrBnemaIeE1jkbp9UgMWYTHjwPHgVAExcNiZg==
-X-Received: by 2002:a5e:c00f:0:b0:7c3:f2c1:e8aa with SMTP id u15-20020a5ec00f000000b007c3f2c1e8aamr525375iol.0.1707417167749;
-        Thu, 08 Feb 2024 10:32:47 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCUFN35oyK3P1Kl19g4DVSeOHdJqd7hNO/fEF+Zn4banyLzmAsUB9dGTmHJlmPGk8rbasaMLmyBct6zafrB+IPmSrFNfMSJmIjvgqC6BIW/sXung/TkbPIraqxtSnUKoxgCzcR1eTIU2rXeLNPkRpe+cBazdeEfW3xUzPh50tskx/g83+xSWNhgagQt8yuHn0rXntnK3Hom2LBu+VnXBS1N6c9T8kjDFqLuqg0OPZQtOqUj4jiLTWT2sLAdc7ngzJBCXRJoTClL/ugYT05us0HGmMECzo0pJ6mIeZnRw6bKwhdGg7yG7Qu64tHQhCjlYr8CdWDwNWF5cl8j0vwggM4B50jjH0wskBEp31CDh/xkNOz6MhRJ0GX6rk+Dv+jWMWPU=
-Received: from [127.0.0.1] ([96.43.243.2])
-        by smtp.gmail.com with ESMTPSA id t13-20020a6bdb0d000000b007c3fbe781f2sm50823ioc.5.2024.02.08.10.32.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 08 Feb 2024 10:32:47 -0800 (PST)
-From: Jens Axboe <axboe@kernel.dk>
-To: stefanha@redhat.com, mst@redhat.com, jasowang@redhat.com, 
- Yi Sun <yi.sun@unisoc.com>
-Cc: sunyibuaa@gmail.com, hongyu.jin@unisoc.com, zhiguo.niu@unisoc.com, 
- xuanzhuo@linux.alibaba.com, pbonzini@redhat.com, 
- virtualization@lists.linux.dev, linux-block@vger.kernel.org, 
- linux-kernel@vger.kernel.org
-In-Reply-To: <20240129085250.1550594-1-yi.sun@unisoc.com>
-References: <20240129085250.1550594-1-yi.sun@unisoc.com>
-Subject: Re: [PATCH V2] virtio-blk: Ensure no requests in virtqueues before
- deleting vqs.
-Message-Id: <170741716688.1391883.2946265788968193577.b4-ty@kernel.dk>
-Date: Thu, 08 Feb 2024 11:32:46 -0700
+	s=arc-20240116; t=1707454857; c=relaxed/simple;
+	bh=zObVotpymnKKnFxHAN7EY6F1gWS/OkIVec0U3+tUSfY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=qQLLd2lWVjAGwLpdc2UGibpeVunJUbiZM+KwEgaPBLmvc5oAxhksHFlCXBZZYFm8pBM/4VD4/bd9dBWHgpJQdNYZZ2y8Ski7CxsZ2bUWzrSIlscbqCI18po8e2Hd6GvU6gITSOppJJWVT8LKPPPNkl6+piKQ52pO4zE+0mMiL60=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; arc=none smtp.client-ip=144.6.53.87
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=gondor.apana.org.au
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
+Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
+	by formenos.hmeau.com with smtp (Exim 4.94.2 #2 (Debian))
+	id 1rYJ03-00BhgQ-HO; Fri, 09 Feb 2024 13:00:32 +0800
+Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Fri, 09 Feb 2024 13:00:45 +0800
+Date: Fri, 9 Feb 2024 13:00:45 +0800
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: zhenwei pi <pizhenwei@bytedance.com>
+Cc: arei.gonglei@huawei.com, mst@redhat.com, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev,
+	nathan@kernel.org, linux-crypto@vger.kernel.org,
+	linux-kernel@vger.kernel.org, davem@davemloft.net
+Subject: Re: [PATCH] crypto: virtio/akcipher - Fix stack overflow on memcpy
+Message-ID: <ZcWxfRvhF002qLb/@gondor.apana.org.au>
+References: <20240130112740.882183-1-pizhenwei@bytedance.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.12.5-dev-2aabd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240130112740.882183-1-pizhenwei@bytedance.com>
 
-
-On Mon, 29 Jan 2024 16:52:50 +0800, Yi Sun wrote:
-> Ensure no remaining requests in virtqueues before resetting vdev and
-> deleting virtqueues. Otherwise these requests will never be completed.
-> It may cause the system to become unresponsive.
+On Tue, Jan 30, 2024 at 07:27:40PM +0800, zhenwei pi wrote:
+> sizeof(struct virtio_crypto_akcipher_session_para) is less than
+> sizeof(struct virtio_crypto_op_ctrl_req::u), copying more bytes from
+> stack variable leads stack overflow. Clang reports this issue by
+> commands:
+> make -j CC=clang-14 mrproper >/dev/null 2>&1
+> make -j O=/tmp/crypto-build CC=clang-14 allmodconfig >/dev/null 2>&1
+> make -j O=/tmp/crypto-build W=1 CC=clang-14 drivers/crypto/virtio/
+>   virtio_crypto_akcipher_algs.o
 > 
-> Function blk_mq_quiesce_queue() can ensure that requests have become
-> in_flight status, but it cannot guarantee that requests have been
-> processed by the device. Virtqueues should never be deleted before
-> all requests become complete status.
-> 
-> [...]
+> Fixes: 59ca6c93387d ("virtio-crypto: implement RSA algorithm")
+> Link: https://lore.kernel.org/all/0a194a79-e3a3-45e7-be98-83abd3e1cb7e@roeck-us.net/
+> Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
+> ---
+>  drivers/crypto/virtio/virtio_crypto_akcipher_algs.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
 
-Applied, thanks!
-
-[1/1] virtio-blk: Ensure no requests in virtqueues before deleting vqs.
-      (no commit info)
-
-Best regards,
+Patch applied.  Thanks.
 -- 
-Jens Axboe
-
-
-
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
