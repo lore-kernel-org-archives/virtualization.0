@@ -1,151 +1,136 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B593C8E1
-	for <virtualization@lists.linux-foundation.org>; Mon, 12 Feb 2024 08:19:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB68528389
+	for <virtualization@lists.linux-foundation.org>; Mon, 12 Feb 2024 14:41:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707725990; cv=none; b=qDSqGfoSv2QIE9AJt26AKxcbua80eWDLK+ZUtph5vt4Ed3DGg32C4EOwWYLACegS//1Nz/2vpPiuYaSLvJhIb9ovarjAkw5ZkVh8fbqyWys8kmPsT8D37l45KLgrBzm+no+MjeuARNb7asF6zirbWfA2nkOhhu//TWoLSqKTLZQ=
+	t=1707748889; cv=none; b=pqHNbYUAK2AlRtZR6LLdCHvhCxyPpWNzR349i52ryMwot0KxSSim++GWItyDK3mBF9EEBHAjUo7PsRN/BPtn4TV0WcwGNNatpYxQ/SF//KMlIULfjagQadiIXFXAvUdkqN/mJIDoH3RRQ0/m398ByX1BfpLZhJgYKbChfPEkbFA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707725990; c=relaxed/simple;
-	bh=I4E9R0xwA/wiWRCLjRonNM/vS7VQXnp85joW0SqBSrA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=LV0DlYSR0+txDrmMtb7CJbxrnj0Yo9YyJgvquBD0Y6HbYLnVK6FVuMvmBumakbIV9qAHdvx2DCV1cB1cnq0w6Nojt5ubw6G4zk4SrlVJgOl2d6AUne7RKnP7S8b7LgHez1Gk1pvac2ORvvgbuKEFukyfw9qObpWXMEslBeVvIoA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MZQ6L9py; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1707748889; c=relaxed/simple;
+	bh=dk4SMg4Eyo+17IaC+TfkVNmtO/97IFXCvEuxfoZbaMk=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=QJJtSSy0kNDmkbN9OTOW3IOiQ5PCsuR5AFx6Cyn95lynM04R4FndPcrs4MKze+oVArC0pqx/xXRKeLtxRU9wQ0/2HS4MdetDYPc6SLrBUC+mJH0rBFPP56kRiyuGBKvg2+AV6Zj15ves1kLIlRZknOWRbEeLoll/oprQEobHv+o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=vt-edu.20230601.gappssmtp.com header.i=@vt-edu.20230601.gappssmtp.com header.b=xgRtd0E2; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MZQ6L9py"
+	dkim=pass (2048-bit key) header.d=vt-edu.20230601.gappssmtp.com header.i=@vt-edu.20230601.gappssmtp.com header.b="xgRtd0E2"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id D786F40981
-	for <virtualization@lists.linux-foundation.org>; Mon, 12 Feb 2024 08:19:48 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 75B02410EA
+	for <virtualization@lists.linux-foundation.org>; Mon, 12 Feb 2024 14:41:27 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.102
+X-Spam-Score: -1.9
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id U5CfUfIFmmAF
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id LLtVbTIPIlZJ
 	for <virtualization@lists.linux-foundation.org>;
-	Mon, 12 Feb 2024 08:19:48 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org BACAC40144
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BACAC40144
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=MZQ6L9py
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id BACAC40144
-	for <virtualization@lists.linux-foundation.org>; Mon, 12 Feb 2024 08:19:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1707725986;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=lQjqAVriqfV/RO3Ugjr/Wkmdgl2+6OB2j7bRQwASar0=;
-	b=MZQ6L9pyWcV4PWVV07kyLGxGMVyneSplJQ/Ncs4ZQzyDXUUEtApnxG2uSgeOu+Y72GRQuH
-	aT0BQ1T5FWo08Tnlx0QcfNmKRHgR8umC8UePVRISSfeSuSaAC6s81N03KnNBQK4da0JBiI
-	cahSHPSIuEEwcZEGCUhqr3MWU2gAA1w=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-649-cNdbGXlkMYS92UgYETRxxw-1; Mon, 12 Feb 2024 03:19:45 -0500
-X-MC-Unique: cNdbGXlkMYS92UgYETRxxw-1
-Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-a2b6c2a5fddso198847266b.1
-        for <virtualization@lists.linux-foundation.org>; Mon, 12 Feb 2024 00:19:45 -0800 (PST)
+	Mon, 12 Feb 2024 14:41:26 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::92a; helo=mail-ua1-x92a.google.com; envelope-from=ali@vt.edu; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org DCC42410C4
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=vt.edu
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DCC42410C4
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=vt-edu.20230601.gappssmtp.com header.i=@vt-edu.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=xgRtd0E2
+Received: from mail-ua1-x92a.google.com (mail-ua1-x92a.google.com [IPv6:2607:f8b0:4864:20::92a])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id DCC42410C4
+	for <virtualization@lists.linux-foundation.org>; Mon, 12 Feb 2024 14:41:25 +0000 (UTC)
+Received: by mail-ua1-x92a.google.com with SMTP id a1e0cc1a2514c-7d5bfdd2366so1067004241.3
+        for <virtualization@lists.linux-foundation.org>; Mon, 12 Feb 2024 06:41:25 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=vt-edu.20230601.gappssmtp.com; s=20230601; t=1707748884; x=1708353684; darn=lists.linux-foundation.org;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=dk4SMg4Eyo+17IaC+TfkVNmtO/97IFXCvEuxfoZbaMk=;
+        b=xgRtd0E2Yme3/Ru1zHXR91oyZm9N9C0tY4Kk4GkTINpHdXVNMBIwo5a5d/gJsh5F2V
+         qyDvjHtqdJ0R50C55w0SvKDxjAikGzuSqX6q4Yd3vA8NC89rwZJlGktilhmyRJS69Gfm
+         voG2MR8j/0jOnIR2h140X4+9dVC/4Oiq3dXw0VhVP03kAXNGy3+44XSvuLcnh7WQ0Lp3
+         puswPm2/pn1sNHfZTC4T5zKu50WLAbtvN+AcYEXOcIHEptjfDh0eUwh3RcevCTS94WR6
+         V2Fom95Q0GlsWgVq6z4s6oz1LUSlTzQWNm9tP6nB1Y3SptyG9d60Fw8BQ00CUUurz75w
+         wLBw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1707725984; x=1708330784;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=lQjqAVriqfV/RO3Ugjr/Wkmdgl2+6OB2j7bRQwASar0=;
-        b=FhuG3jV40Pgel8iJXMSFUAkQxdWDWL+dVZarUqDZ1mC6awj/Mq4/kdEOJbQ0IQhVo6
-         8jHhu/YeS9hfDgY1NK9ILeCDpMRuPB4uMxuplBX3agdoBtIaVstow2jjl7ufHVHVkEsX
-         S+dCazeUfN0RDEJS5jYZKAgakmOXiIBvoGlfEktVt/JujQ4cx2UP3xvvVdKJZvCsIQpQ
-         13B6Awr1q/7Zr3cfmJA4h0wL2V+S1PQqlv06GCRmoL9gPtCmsHAz01BQt6YUWdCspSSx
-         1dYNzyrs0855J9VPAR5ZQ7xot8LccjtByzrTOjQaRAl9ThQ3aCQZhmp2T+JgaHzpRawm
-         0QJQ==
-X-Gm-Message-State: AOJu0Ywn6B4UM7U9MDhrupb6DLb+onV1PwYS6P4B9C6Q6yta82NmFJMr
-	ZGmqxZXP4RfoOAJC5zs26wXLtcg6ZETfPUuVBOqpT4bt8m8ayV4Tdi+W5l46pZry+71U3pOsBjo
-	slhwVfHw6YLs4YHJwBesgce6IBMYAVKk5Ewbd2/iaL+mVl8N+XzORC9ndpkjwCGplBx1dFUPbVT
-	Seyd8=
-X-Received: by 2002:a17:907:1188:b0:a3c:36ae:6c96 with SMTP id uz8-20020a170907118800b00a3c36ae6c96mr3303305ejb.42.1707725984258;
-        Mon, 12 Feb 2024 00:19:44 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGuv2yXO2qRvX72QX7GYrSJyaiawng8PNwVNQmwh/vWxNOis0v/WxumMQoGvxk2ldmRs+05Kg==
-X-Received: by 2002:a17:907:1188:b0:a3c:36ae:6c96 with SMTP id uz8-20020a170907118800b00a3c36ae6c96mr3303297ejb.42.1707725983920;
-        Mon, 12 Feb 2024 00:19:43 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCUx1DVn3NtyWCcg88vdkQVJynYFJL4yJLZYzIxf6wNZXAsNys5kG0KJHxdzXLkiKNTY0c2SkMtdIsPrNg5Ty0wJyO55poMERFAy91zEcqq/4anzHwO6D9+BXIUUK9sJN+4t0VefznK0qgTkrbDJ0KOvJThNmaXOYnXoxy3LyOyET/LiRBizbFyueBlM8R0Mq5Cla7/c0xqHNLY28w5cU3VgHC4=
-Received: from redhat.com ([2.52.146.238])
-        by smtp.gmail.com with ESMTPSA id z22-20020a170906715600b00a34c07816e3sm3610793ejj.73.2024.02.12.00.19.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Feb 2024 00:19:43 -0800 (PST)
-Date: Mon, 12 Feb 2024 03:19:39 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Steve Sistare <steven.sistare@oracle.com>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
-	Jason Wang <jasowang@redhat.com>,
-	Si-Wei Liu <si-wei.liu@oracle.com>,
-	Eugenio Perez Martin <eperezma@redhat.com>,
-	Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH V1] vdpa: suspend and resume require DRIVER_OK
-Message-ID: <20240212031722-mutt-send-email-mst@kernel.org>
-References: <1707517799-137286-1-git-send-email-steven.sistare@oracle.com>
+        d=1e100.net; s=20230601; t=1707748884; x=1708353684;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=dk4SMg4Eyo+17IaC+TfkVNmtO/97IFXCvEuxfoZbaMk=;
+        b=EAOIr3w1YCcu67HggmUBrw2Apd+6aCeEYO2raI/d0kAQvJE1Cnuoll+Lr8LnzsFrVG
+         7M74jWpToxesBjCXyIr1KBZCIGUq7nnP3/TlPKw5MG7f3yyB2FlBV58vaKiN1viit92m
+         f1dX9MY5nTSvl8DaeMRd9mcrVLEgDKGTPJ+1TDJs3+mjeTgnUkjkZ6Ot0tLRmo7ndHbx
+         /5hLq4pWLy3X7HzPeE7urGyIwPrQs2AzGMWVqSrSm+gWYx5psg7PxjSgZ/u7Ap1ChKYT
+         RZb71AqG/aYtFD1cNovgl/0AA9Jh92FxEiKSarciss/xAg9+jm+ckklM/auUczJ8i/7r
+         EBsg==
+X-Gm-Message-State: AOJu0Yxbf6NMiHtajeyU4Ew9DozLYSY2Kl3CZ5tZcEA09sIM93ww54K4
+	r+aBcSeqYfTlehHVzOxfaaXhEBNiONmkMpsXeSuGrRWoiNHGTtVa0DlcYhca6qzu6JmDNDDI11N
+	hm74h+oZI+iXrcTR/G6KenqL+6qa2GRww/HkM+w==
+X-Google-Smtp-Source: AGHT+IG+s1X222JCOQr8SZuk633tsmHimK5sFbJgj5pvuzFXCOdYe8n9TfIoOZrblTd06cc9Dc3IELJCpxF+e7SXMBg=
+X-Received: by 2002:a1f:db04:0:b0:4c0:292d:192a with SMTP id
+ s4-20020a1fdb04000000b004c0292d192amr3158691vkg.0.1707748884141; Mon, 12 Feb
+ 2024 06:41:24 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <1707517799-137286-1-git-send-email-steven.sistare@oracle.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+From: Ali Anwar <ali@vt.edu>
+Date: Mon, 12 Feb 2024 08:40:48 -0600
+Message-ID: <CA+Vr5csHyK9qtpQ_+iq9dPs2PPr4fc2J77p4erv4FGTG4UJidA@mail.gmail.com>
+Subject: HPDC 2024: PhD Symposium call for papers
+To: tci-announce@computer.org, tcde-announce@computer.org, 
+	tcpp-announce@computer.org, tcbis-announce@computer.org, 
+	"HPC-MEMBERS@listserv.acm.org" <HPC-MEMBERS@listserv.acm.org>, 
+	sc-workshop-attendee-cfp@group.supercomputing.org, 
+	hpc-india@mailman.serc.iisc.in, hipeac.publicity@lists.ugent.be, 
+	sigops-announce@listserv.acm.org, publicity@hipeac.net, 
+	htcondor-users@cs.wisc.edu, dbworld@cs.wisc.edu, 
+	virtualization@lists.linux-foundation.org, users@planet-lab.org, 
+	infodir_sigcomm@acm.org, sigplan-l@acm.uiuc.edu
+Content-Type: text/plain; charset="UTF-8"
 
-On Fri, Feb 09, 2024 at 02:29:59PM -0800, Steve Sistare wrote:
-> Calling suspend or resume requires VIRTIO_CONFIG_S_DRIVER_OK, for all
-> vdpa devices.
-> 
-> Suggested-by: Eugenio Perez Martin <eperezma@redhat.com>"
-> Signed-off-by: Steve Sistare <steven.sistare@oracle.com>
+************************************************
+HPDC 2024: PhD Symposium call for papers
+Date: 3-7 June 2024
+Location: Pisa, Italy
+Web: https://www.hpdc.org/2024/calls-phd.html
+Sponsored by SIGARCH
+In-cooperation with SIGHPC
+************************************************
 
-I don't think failing suspend or resume makes sense though -
-e.g. practically failing suspend will just prevent sleeping I think -
-why should guest not having driver loaded prevent
-system suspend?
+The ACM International Symposium on High-Performance Parallel and
+Distributed Computing (HPDC) is the premier annual conference for
+presenting the latest research on the design, implementation,
+evaluation, and use of parallel and distributed systems for high-end
+computing.
 
-there's also state such as features set which does need to be
-preserved.
+The PhD Symposium at HPDC 2024 is intended to offer the possibility to
+show advanced "work in progress" to PhD students working on the HPDC
+2024 conference relevant topics in the context of high-performance
+parallel and distributed computing.
 
-I think the thing to do is to skip invoking suspend/resume callback, and in
-fact checking suspend/resume altogether.
+The selected contributions will appear in a special section of the
+conference proceedings.
+HPDC 2024 programme will host sessions where authors of accepted
+contributions will present their work to the entire HPDC conference
+audience, thus offering to graduate students an opportunity to discuss
+their research with experts in academia and industry, and to make
+useful contacts regarding future career opportunities.
 
-> ---
->  drivers/vhost/vdpa.c | 6 ++++++
->  1 file changed, 6 insertions(+)
-> 
-> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> index bc4a51e4638b..ce1882acfc3b 100644
-> --- a/drivers/vhost/vdpa.c
-> +++ b/drivers/vhost/vdpa.c
-> @@ -598,6 +598,9 @@ static long vhost_vdpa_suspend(struct vhost_vdpa *v)
->  	if (!ops->suspend)
->  		return -EOPNOTSUPP;
->  
-> +	if (!(ops->get_status(vdpa) & VIRTIO_CONFIG_S_DRIVER_OK))
-> +		return -EINVAL;
-> +
->  	ret = ops->suspend(vdpa);
->  	if (!ret)
->  		v->suspended = true;
-> @@ -618,6 +621,9 @@ static long vhost_vdpa_resume(struct vhost_vdpa *v)
->  	if (!ops->resume)
->  		return -EOPNOTSUPP;
->  
-> +	if (!(ops->get_status(vdpa) & VIRTIO_CONFIG_S_DRIVER_OK))
-> +		return -EINVAL;
-> +
->  	ret = ops->resume(vdpa);
->  	if (!ret)
->  		v->suspended = false;
-> -- 
-> 2.39.3
+* Submission Guidelines
 
+Graduate students are invited to submit their paper of at most 4 pages
+in PDF format, including references.
+
+Papers should be formatted in the ACM Proceedings Style (double column
+format) and submitted via the submission website
+https://hpdc24-phd.hotcrp.com/
+
+* Important Dates
+
+- Abstract submission: February 19, 2024
+- Paper submission: March 1, 2024
+- Acceptance notification: March 25, 2024
+- Camera-ready version: April 18, 2024
+- Conference dates: June 3-7, 2024
+
+* PhD Symposium Chairs
+- Valeria Cardellini (Tor Vergata University of Rome)
+- Marco Danelutto (University of Pisa)
