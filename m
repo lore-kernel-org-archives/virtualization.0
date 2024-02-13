@@ -1,225 +1,129 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-io1-f52.google.com (mail-io1-f52.google.com [209.85.166.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E3425EE69
-	for <virtualization@lists.linux-foundation.org>; Tue, 13 Feb 2024 15:15:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.133
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707837359; cv=fail; b=kOZffFT3Dd/tiSrhbPrxCMIkPimtwaTQeI43RTXd3vwSsJ5rQ4n6kI8RjwSgy+AdbF0C79Vw1HIFuHBC89nc3qkzGuR36Focsg7VvbLAQzBz6KTO85ha8u9LEJ/3u6teMYJ5Q38mrEja0hZKc5cP9DxSqUVWVVkq0SnuSqSFeI0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707837359; c=relaxed/simple;
-	bh=twtJCZWFiKiXNgl+7X9Fe0XX/0t65vKiXUd4qKzTf+w=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=jOWu28GlmcETsSwPp0yAtkKJ6GjfYBOV73x8RGxWP13R2PZ99Bxz0G/ploLl0cPTbk/hwdAVbFnC5bqs4c+MSTbg6RAoLr/33T7vZcMfUTIRCEzkmaFbaytfnZa53Mjqn+2Jcpk+DqANrovADjD2oqVg+tWNA/39I2RadeGWm70=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=iNTL7Dok; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=T1BW/yoJ; arc=fail smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B79A85F476
+	for <virtualization@lists.linux.dev>; Tue, 13 Feb 2024 15:57:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.52
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1707839840; cv=none; b=EnGLngiEpWZrx1uZh8s+O3D19iNG/l0hQRJGGu9vChLbdfENaOOTGgXlJXzH5CRW1YGBsOjtR1BUIGDANrdKp4HJ6xb8TEgn+VancAsW8NBzJOPiw4I0SHJDi6PJXM8dKMkTHWY5t7QF3+5NfrVxqKOHDIX7vr5SnOs/DPnS9JU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1707839840; c=relaxed/simple;
+	bh=cVJY8fhAf4daZ0XaJxyBWXvq8m3QPKeCsnZdhumhh94=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
+	 MIME-Version:Content-Type; b=j6TvbQ29FbXowTtU5ln9teNzQQMhlFOmp5ge+gu3CHUMkPL8URKN7inmTIoTPNKrfPIce1IAhCJJQ8EQUeYwa/4Ht3hkGAXP1d7x8de1iCmkHKWfO7Rel9Cj5iEBl4YTTJ992+VOVdyoMxyzrwlfkJszoW7qLjbZIxxH0x3v+NA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=xnMUkN+A; arc=none smtp.client-ip=209.85.166.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="iNTL7Dok";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="T1BW/yoJ"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 23F25414E4
-	for <virtualization@lists.linux-foundation.org>; Tue, 13 Feb 2024 15:15:58 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.798
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id HWC3kf6zu8IF
-	for <virtualization@lists.linux-foundation.org>;
-	Tue, 13 Feb 2024 15:15:57 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=205.220.177.32; helo=mx0b-00069f02.pphosted.com; envelope-from=steven.sistare@oracle.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 1BADA414CE
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=oracle.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1BADA414CE
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-11-20 header.b=iNTL7Dok;
-	dkim=pass (1024-bit key, unprotected) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=T1BW/yoJ
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 1BADA414CE
-	for <virtualization@lists.linux-foundation.org>; Tue, 13 Feb 2024 15:15:56 +0000 (UTC)
-Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41DEEGAA012628;
-	Tue, 13 Feb 2024 15:15:55 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2023-11-20;
- bh=GTA4ElRV+cDFpnW3qcRGNA3lxSEilCcsvP5sqDOdwYI=;
- b=iNTL7Dok7EP3Hc0OfF2CNTgV7TFx9oXSUrOd8J61JUverqg/AlvVlZMcYNGCSqwok5u0
- DRmZKCXf8afcCH0Mh7x9xwPeqVxHuiPq8Bo/z7iFhn4uEIwm28FOmrPZ4us/POj5xkPe
- ILZpyuz1ubbi9PCxN9X/uCbJ1z36s91bmgqdy9C+jXyyNfD8P5ESRGmcSqazLOpEdxP/
- n8M7rigwexEwKS+Cg/QepBxaVfDZpme+yu2dqXG9PZxzS+y8kTA244kDg0+6ydTLvSEc
- F71kLLe99JiHGmArakDNFYa+wIg8dbz/wO8lW8LF1KsUFYhibjcLt4eVdSCf7HfjIMe2 sg== 
-Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3w8a0q86rj-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 13 Feb 2024 15:15:55 +0000
-Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 41DE33Ih000682;
-	Tue, 13 Feb 2024 15:15:54 GMT
-Received: from nam02-dm3-obe.outbound.protection.outlook.com (mail-dm3nam02lp2041.outbound.protection.outlook.com [104.47.56.41])
-	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3w5yk7g355-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 13 Feb 2024 15:15:54 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=RWkH26H0UiTfAu8vfyAJ7ylQs4riknoQILnTMuiHM/KxpPKD/N7jDuicn3JdOVvu4ZnX/6LdDPv5frDAkMi3rNSubkyqKGyMiYtPKWjfLkaLHC/yoxigjER6JyFZ5JDsePujivOPn5Qmq87xbuAVvvoh+nKhJjpQJ6W28gnbDlutiVZTLf9JFORzcEGmkCfQxbMaj2nAHVbCIenwSifg95EDECq9V3xI3d7Ir5fhy30xSiN/bBSX5gAOnodq2r1JT4EfSd4BGHH15Ueas22D0GAj7uTzaibpoOF6c0P48I5ljh5cbUo4srNU7s53TjXF/ECwInEd4bz8c1m8+K40JQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=GTA4ElRV+cDFpnW3qcRGNA3lxSEilCcsvP5sqDOdwYI=;
- b=hpcDp7j6mTsYP8sMio/xm2w2v948S6UZ8+fAWbzexYMDhGzXs/mbQVFskQIOZYXabrBu0kcxwUNTvxoLz2jxPfZN866o3s+280mNLaz+ZLm0fW1wjEGLKvlVFTAZUM7KXitMa3SDIkQ0gk+RbuhIOl3A4+mln0VtIlkIlIcWWyxhWUiic7iZDc38c02FsaxfCogHW3J0U/17uMmCxBXkwKCnuPHQ9WllSrBt/XCNHORa/07JyFBfH2JW1sQN7OTGUQPeV6qT2t8otdmwNxdvrU+RaTGUCt4dNYqUwJqBsVYKz1E9CLESPFczEQv/zREXA+rGf5134Dz9RBj5Q+oZow==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
+	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="xnMUkN+A"
+Received: by mail-io1-f52.google.com with SMTP id ca18e2360f4ac-7bbdd28a52aso86396039f.1
+        for <virtualization@lists.linux.dev>; Tue, 13 Feb 2024 07:57:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=GTA4ElRV+cDFpnW3qcRGNA3lxSEilCcsvP5sqDOdwYI=;
- b=T1BW/yoJQ/2RqEaHp/3A58oBFP9UYckmdMua+b1ao3aKeX4yuQPg5OXGR3pCZm0N6IHG1SeY/373aqloJ0IwCW+Vot824KXZhca4Ji5QSv4SZwo/ovM9ZZ0ynnQWJezrXo2/Nn+1ZtuGvEqq+h85emCC0CPDtf46hsoC6Rd5nv8=
-Received: from SA2PR10MB4684.namprd10.prod.outlook.com (2603:10b6:806:119::14)
- by IA0PR10MB6841.namprd10.prod.outlook.com (2603:10b6:208:437::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7270.38; Tue, 13 Feb
- 2024 15:15:51 +0000
-Received: from SA2PR10MB4684.namprd10.prod.outlook.com
- ([fe80::c3ce:7c28:7db1:656b]) by SA2PR10MB4684.namprd10.prod.outlook.com
- ([fe80::c3ce:7c28:7db1:656b%6]) with mapi id 15.20.7292.022; Tue, 13 Feb 2024
- 15:15:49 +0000
-Message-ID: <27cbed30-64e2-4843-a32b-0c0a5b1643a2@oracle.com>
-Date: Tue, 13 Feb 2024 10:15:45 -0500
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH V2] vdpa_sim: reset must not run
-Content-Language: en-US
-To: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-        Eugenio Perez Martin <eperezma@redhat.com>,
-        Si-Wei Liu <si-wei.liu@oracle.com>,
-        Stefano Garzarella <sgarzare@redhat.com>
-References: <1707517807-137331-1-git-send-email-steven.sistare@oracle.com>
-From: Steven Sistare <steven.sistare@oracle.com>
-Organization: Oracle Corporation
-In-Reply-To: <1707517807-137331-1-git-send-email-steven.sistare@oracle.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: PH0P220CA0022.NAMP220.PROD.OUTLOOK.COM
- (2603:10b6:510:d3::21) To SA2PR10MB4684.namprd10.prod.outlook.com
- (2603:10b6:806:119::14)
+        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1707839838; x=1708444638; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=vN5eKHGVSgawoTY3SWmxYK09q/xOBPXGRM+bDmNYIQY=;
+        b=xnMUkN+AIKvUbS7GFrY0k28Tns736LMWM3hLpcoRWcZQHBVcKL8avKWJ/tuSurY82h
+         An8oHVbO9QKep/sKw/Q/TPmsbo2bhx4tqoXMvlIS40T3Ls9nd6qnwQY63SnEnF1C1jjU
+         TX5tkzxauSi/4uo9f08MqnUdLkQsoQrg4vdPtbzEAEnDGtlsR3HIj7xVHjPeAz1R7qLQ
+         Hes4ffnwO9I5xxAVA94gAvqN2kWFh4z5ouvcz4ZDH3uAp0CzDbQBpqG/ahqg2yJv1VUP
+         /klpLmeHDaqoYAY595QIittKkLQJs+qUPp3GnfCb1xwYt1fWdcUKpT1VxGjb+3bonn8M
+         CGow==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1707839838; x=1708444638;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=vN5eKHGVSgawoTY3SWmxYK09q/xOBPXGRM+bDmNYIQY=;
+        b=gFP3D8p0spUaHd3XuIIbu+32aSedqjP1u/samOzteW1XFdyuIhG4AIJjGdCS9p/wJG
+         60uCK5uYfQ+ryPShWXcFmeJVDRSa8yuZIcU5SKSyc4gOpwcz44ckUwstLnri5+Oq7zui
+         RiIrenUTx2QV9I3smi5+4PQOkMPujnnaO5wXt+Nae5CYmveE4GYa5s9IPUQ+5nOCxiNK
+         MfHhSUu2XcoVvW4SM7gcgw0RF9+G8dPIbhEY7EdbniY3bHBOKL9acFM8rJs076A9M17m
+         U8WjYizXdwQAWDGFG2WcBIqbh6qMfUB9nCQX+TSz1qfq0LKuwyoS+eONU2pY5/ekvqa3
+         juGA==
+X-Forwarded-Encrypted: i=1; AJvYcCXul2nnziO7OERCLkWauHNxEqlApa8wXGwSSQvzIM9Ofo9sTzEGZ8UQTgYJCpHYzTjalH+nf8S8fOf3PzaaKl6TUf7gI5lj4XruS+ydjjc=
+X-Gm-Message-State: AOJu0YwsffSLCTrO/Np/TBqLLoxluZ++1s/1r56f75PaK/UptkRgmYvi
+	cs5AXnDBcjtdAjv0tJZyFDVfjXIILP1sNw3aYzcadbkMh5IFxhdzD6gHHUqLwIo=
+X-Google-Smtp-Source: AGHT+IGgMwma2C5QAYcywSLRlJgLRzpaImivZzVNozyBL2RlrEaVkWjg5keKGVmbB9X09MzWv2zgEA==
+X-Received: by 2002:a05:6602:52:b0:7c4:79cc:c4b3 with SMTP id z18-20020a056602005200b007c479ccc4b3mr127394ioz.0.1707839837914;
+        Tue, 13 Feb 2024 07:57:17 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCVfmmNxnzDR6X1L18NCRNq2bEgAFab+05bRr/w9KpA3kXL9soT+amXyQP3RtOxQFTjcpwkrsP5hxaEBcESTCxUXkgxNo+mwEDjeCINg8/IW8hzfWjxTIecrcTdIP/jWYynMzMGq4QcmTl/GD+cFORO59Btp/nkxnoIbZEJytUv28LYH/O1ETvUVankyKCLz9JepJfR72W8KOLt1nwtmlZT7Enbac4jgxo75p9MC/uZ5fUqpyjjV3dRbkZJKVGf6Cf1tBlZhzLq2E9xFowquc+SH4jqPlDsmskdivkImIm748XSEDcvafoeENngNiPqs4kY3lfUp/H5xvre2uTjwByD0yFEIKBX345RHHdL+1zOGp0iaVPNYW2hNywHjRqNTwMg8yLvhsgXEnEg59EKfpXO0pCczVOv8jRrR3ws=
+Received: from [127.0.0.1] ([96.43.243.2])
+        by smtp.gmail.com with ESMTPSA id da2-20020a0566384a4200b00472c62c7d74sm1983220jab.149.2024.02.13.07.57.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 13 Feb 2024 07:57:17 -0800 (PST)
+From: Jens Axboe <axboe@kernel.dk>
+To: Christoph Hellwig <hch@lst.de>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Paolo Bonzini <pbonzini@redhat.com>, 
+ Stefan Hajnoczi <stefanha@redhat.com>, 
+ "Martin K. Petersen" <martin.petersen@oracle.com>, 
+ Damien Le Moal <dlemoal@kernel.org>, Keith Busch <kbusch@kernel.org>, 
+ Sagi Grimberg <sagi@grimberg.me>, linux-block@vger.kernel.org, 
+ linux-nvme@lists.infradead.org, virtualization@lists.linux.dev
+In-Reply-To: <20240213073425.1621680-1-hch@lst.de>
+References: <20240213073425.1621680-1-hch@lst.de>
+Subject: Re: atomic queue limits updates v5
+Message-Id: <170783983686.2333153.11971285922494532518.b4-ty@kernel.dk>
+Date: Tue, 13 Feb 2024 08:57:16 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SA2PR10MB4684:EE_|IA0PR10MB6841:EE_
-X-MS-Office365-Filtering-Correlation-Id: aa3bbcc7-15db-4296-2150-08dc2ca6a8f8
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 
-	FoZhgCCVAWdf0suJYAjEnypD2XCgOsD4T9Udxgtvsj4R8xLCVRNK9+QzYkyFJG8KUZHdKdhWElO96JnyWHYDgrFAORSHHfGZOMwmOQz+Y9VYkdkL5d+sBEnZ61iYhvwd+8C3Jiojq5CXfpAXReS0b71cn2lVwnt2HI/DfzlqJY1rvyq+Tf4cVXDtTw3+4KYWIDxHjsSR4lwI1qMBFGuIlq1GbSf/6DKGzxmecGKk5/A+18acuD1ZYXzv1eFM35N3+yRAl9J/mmed+ts0XcfnF160T0TWJD9O/kRPJ0Gi4/9vV+QgX4w/TaaFQU5ilfWESHFY3tL9fPpfeif+3EpHgo63OTKRWN8n/g+0y9oQR7GLrOv39S8KQyNneDDKQvqVjrcYEMrLjyM2Os8Hc1Aic16KxZIEuqCEo+H6wm4Oc8JAHyIlaWcB/a0iibfHrGgm5NUhpgu8JUJRstENZPgFdNkePBNgZfXDW/HcS4QI18v1b2iSLYBjp2aWsRkJZQLIwx2Phe7zJkvcHYy6cmSdZwB1TvKNc9SF4O2OBkP/FewGibo1ThCt+I9fGfztEZK+
-X-Forefront-Antispam-Report: 
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA2PR10MB4684.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(366004)(346002)(376002)(136003)(39860400002)(396003)(230922051799003)(186009)(451199024)(1800799012)(64100799003)(5660300002)(66476007)(44832011)(8676002)(66556008)(66946007)(8936002)(2906002)(4326008)(66574015)(86362001)(36756003)(38100700002)(478600001)(316002)(83380400001)(6666004)(6486002)(6506007)(6512007)(36916002)(54906003)(53546011)(2616005)(26005)(41300700001)(31696002)(31686004);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: 
-	=?utf-8?B?WXZxOUpnUktZbDZReGZUczBOS1hIbmZWbk0yZXpYR3llcU1JRGcvRVdhSlNi?=
- =?utf-8?B?dUdvSnhsR3J6RTdPU2N3bmpxT2NaWisxOW9uN2tGRGJLQlBkSXY5N1dqNTJU?=
- =?utf-8?B?MHpKdUMxNEcvU1gxS2ZNQTF4ZzVsRk9JN3ZoSGV2TVA0QjdSRk5VMTdxeTEw?=
- =?utf-8?B?ZGlneGM1ZGN1RWVHUXMyMDA4elVIVE9kdDQxQWdlTzV1MG14blptNWlyUG1W?=
- =?utf-8?B?TG1kK2REOXVDNGlXL3hra0l2YzVyeGN0Qm4vNXNoNFRQbWtDQ3hjSGRJcE9Y?=
- =?utf-8?B?L2pNS3ptRUUyNjk1ZlcrdmllWGhpREQ2MzBEUldhL3VnQXo5MkIwdy9NcmRh?=
- =?utf-8?B?NnpMdjZPUlVtY0gvK2NXcGF6UHkwOS84Rk5sQ0JoZ1U4QVFIUnk3MnIzaEo3?=
- =?utf-8?B?SERFZnVtbHErdk9sRThEemlpQWVxbjcralpFY0Z1WjdTWFNIL0lYK2VMSDZE?=
- =?utf-8?B?TFhqRlBuZEFLbmVJbmsrMVdtREhXMGVvMmtDUHZ2SzRvcnhvcXloMWRBakg0?=
- =?utf-8?B?N2FmNkxxbkxjbURmRmxlek9iTjJuY0tHNkhxK1ZYdzZRMzZ2V2tINnVOeExX?=
- =?utf-8?B?YW1DK29UNlZhQ2lmSHovNlNVRW5RS21PYmQ4bkdzTW94SVFaSDJRcDArdkw1?=
- =?utf-8?B?WTg4M0xtdGtvUXVjTHh3RkVBcHdIakJld0s4Ry9ad2pQZXppTFJ6NGhCZStq?=
- =?utf-8?B?bFAvWGFud3lGVUFNMjVZNWFTVzBHVFZ0SHZxZm5kVnpLaWoyV3lGWmp3cUsx?=
- =?utf-8?B?UHRaSDVralRGQ1FiU0c5QnViWXJmT0xiMXRsTkhYcitMRW45UU9XeUs4SlJ2?=
- =?utf-8?B?emRCZ0ViTVgrb3JCNFBwOEF0UmlEZ3RqbWFpaHBjWGovRGY1NVlTOFNpRjYz?=
- =?utf-8?B?cElHdnpYNUc0VjBiTGRaazlGRGsyNDBZZ1A2K1p6eHFBd0toMXBMSTl4UkpF?=
- =?utf-8?B?Nm52amRKaHhMMUxyLzlWM2FEb2NxNFI3Ry8vTGdzeEMvRTllM28wQmluL3Fa?=
- =?utf-8?B?bTV0VGhQMFJneW0ydHo0NkxRcS9BSm1leHNQQk4wNzNIL205di9wRVlEM1Zp?=
- =?utf-8?B?c3NXcjBrdVVUNHc1c2NXQ0JObjQzRkZOTXVBTUFwMnNCemFaL3VRc1BCY05s?=
- =?utf-8?B?L2RiTG9FUS9pdDdYLzhQOUJ1TXhkYlIvLzRUZ2NQWFBqTUFxUGJJVk9DZmU5?=
- =?utf-8?B?MzBITlNldFpscEFzTlhlOTJJS0l0ZnkrNTZEaHowaUNtMU9JUnA1KzVmazNC?=
- =?utf-8?B?eXNKSGIySXQ2M1orSDZrN3dzbEFoa0pKWW5BeUR6ak5jN1QybmxNc0VBT1Iv?=
- =?utf-8?B?Y0JnVlpoUWhzSmtNa3hzc21MZHB4eExKaWtVSWJWdXhGUk5kQ0R2ek1Kb2RF?=
- =?utf-8?B?ZklTemRtRVV1NmZ1eVlXMHBOcVlNTWt6cDRNUkxUQ1FGZ1dSNFlRQXFpZGRK?=
- =?utf-8?B?UE1sWlRacjVmRjZLOTk0MnBpSXpYdnFHVG1qM2lGQ21OMGJOaWlUOHRmcFpr?=
- =?utf-8?B?UXBMRDRXcGtHdXZTS2hpVlNQb3h3dTZuYkxOZ2EzMEpCeVQ4aGhYMjd0RWZi?=
- =?utf-8?B?L0hmMldLdHhMVWtNNGZYVWJubkVuT2s3UHZocFN5YSt0dDJkcVErNktzYzJm?=
- =?utf-8?B?WlN6NG8wVjhMYXNHQ2hjOE9RMk04N0RYSjVBVDB4bE1YWER5YTF2eXA4KzhJ?=
- =?utf-8?B?ZHlhMUtsODkwVE9rRTNEQ1VkbWpFZGMrR3FudGxaNFZNd1gyUlAzdnZGNkt6?=
- =?utf-8?B?NC9IREZkWTVPdCt1TUhqTFRMOHFxOUxOMnI4MU1GUkhYOHNuRVNSS1VscFVT?=
- =?utf-8?B?U1BkL1NMOFRJelZRbUpVZHVNc2dVRlVRREc1NVFKR3ZabkhpdDladmFJS2FQ?=
- =?utf-8?B?UUVWOWRIMEJwajhnbnhFdHVubGxBV1BGcVhIUnl2Yk5iakpCK1JFR0JyZnFQ?=
- =?utf-8?B?OS8yVG0vWDAvL2J3OGZ6elh4NXpGamJwMXNEcSsyZWZ3UjYwSDJBVlZ0dnI5?=
- =?utf-8?B?NGdEQWl0cFUzMU5RVXpGcU56NUo5U2dTMEFRL3JNazFIMEhXbi9aSW5MaktW?=
- =?utf-8?B?dGxLT0dyNGh5WEdHRTZuazVsZjlDZ0FEVG16LzQvVU03cy9oMkxGcGphL3FO?=
- =?utf-8?B?cEt6RDlOUjFyZGk4OWNHdjVHKytBaFlhamhhV05OdUEwcHJpVThGd0JCMjNH?=
- =?utf-8?B?TXc9PQ==?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: 
-	MCZlMDhg0I291ej0d7jhpivFHfuGg/PzRV9z5tKKzqwZSLZ6xzdGDj9JKIStI7UGLRd9NqB7mriPprt+sLohM99Jd1M5AxJ8/Aia/pkjFSzEIeXnjzNUkgvdkyCG5cN3oWO+Xk1hrMZeGXSx3gB+MX7MRz6a5T8EoFaT1/HYRqJ7H3ENE58u8rgdI4SlDFh8qwfG9PW/0Qxf6N3WECzzHv3W1i1ZWr0ZWeHEpEMJxLel5rpWlDDSfZZnlSyXFbRVun+EKkjeErD/x/D+5YLTYiTzdRS8+QvRaS2lU7zCRCNkGeDG2lr+3BcobpXmS0MA4nhzSS3VTitK33DqQWU1veOSctI65uQHR9YU9zQUKgPQO9/lcTGjEKSDsChznDqkfrMP6g24kxqclXYykOhdtZPh6ZtLhUSjys5UNmv5NrJC4Ht+aDjWeDC47MRZ2H1J+3EsknpiGNFkQqao2i2s/GdhjJi++E8HzgdNx8SmljNFyHUz5CflT64NqcLsgIALlP8FfmbaGFWwH9eocy2cVHSgVnn3dKEIFivRcAlSCRVWNE6a69jW3YdM5h6E5u5QgqfYIfqfjiw2dY7vO4toDuSMaXB9wMN+c6Kv7MkZjRo=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: aa3bbcc7-15db-4296-2150-08dc2ca6a8f8
-X-MS-Exchange-CrossTenant-AuthSource: SA2PR10MB4684.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Feb 2024 15:15:49.1753
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: VerTxJm5igc2rTN3fcNDxvcucuyloE9wIUloRhKc9BOel5M1ASheFQR6rA+ghh7dLsz6Y711UmfJdWwyAGntZ8FAdKrjeibScCqpIs3FYpw=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA0PR10MB6841
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-02-13_08,2024-02-12_03,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 phishscore=0 mlxscore=0
- bulkscore=0 spamscore=0 malwarescore=0 adultscore=0 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
- definitions=main-2402130119
-X-Proofpoint-GUID: Lv-UpHciKDNbGwWWIKp3ZPOP1pQ1lpJ9
-X-Proofpoint-ORIG-GUID: Lv-UpHciKDNbGwWWIKp3ZPOP1pQ1lpJ9
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Mailer: b4 0.12.5-dev-2aabd
 
-Changes in V2:
-  - test DRIVER_OK instead of FEATURES_OK
-  - post singly, and add RB and acks
 
-- Steve
-
-On 2/9/2024 5:30 PM, Steve Sistare wrote:
-> vdpasim_do_reset sets running to true, which is wrong, as it allows
-> vdpasim_kick_vq to post work requests before the device has been
-> configured.  To fix, do not set running until VIRTIO_CONFIG_S_DRIVER_OK
-> is set.
+On Tue, 13 Feb 2024 08:34:10 +0100, Christoph Hellwig wrote:
+> currently queue limits updates are a mess in that they are updated one
+> limit at a time, which makes both cross-checking them against other
+> limits hard, and also makes it hard to provide atomicy.
 > 
-> Fixes: 0c89e2a3a9d0 ("vdpa_sim: Implement suspend vdpa op")
-> Signed-off-by: Steve Sistare <steven.sistare@oracle.com>
-> Reviewed-by: Eugenio Pérez <eperezma@redhat.com>
-> Acked-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/vdpa/vdpa_sim/vdpa_sim.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+> This series tries to change this by updating the whole set of queue
+> limits atomically.   This in done in two ways:
 > 
-> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> index be2925d0d283..18584ce70bf0 100644
-> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> @@ -160,7 +160,7 @@ static void vdpasim_do_reset(struct vdpasim *vdpasim, u32 flags)
->  		}
->  	}
->  
-> -	vdpasim->running = true;
-> +	vdpasim->running = false;
->  	spin_unlock(&vdpasim->iommu_lock);
->  
->  	vdpasim->features = 0;
-> @@ -483,6 +483,7 @@ static void vdpasim_set_status(struct vdpa_device *vdpa, u8 status)
->  
->  	mutex_lock(&vdpasim->mutex);
->  	vdpasim->status = status;
-> +	vdpasim->running = (status & VIRTIO_CONFIG_S_DRIVER_OK) != 0;
->  	mutex_unlock(&vdpasim->mutex);
->  }
->  
+> [...]
+
+Applied, thanks!
+
+[01/15] block: move max_{open,active}_zones to struct queue_limits
+        commit: 8c4955c069ea3b77dc63b55d13afa9341e894849
+[02/15] block: refactor disk_update_readahead
+        commit: b9947297d00b9c75b271db88165e39c0208bec2e
+[03/15] block: decouple blk_set_stacking_limits from blk_set_default_limits
+        commit: c490f226a0ea22639e81ac34edc884e238ea955a
+[04/15] block: add an API to atomically update queue limits
+        commit: d690cb8ae14bd377d422b7905b6959c7e7a45b95
+[05/15] block: use queue_limits_commit_update in queue_max_sectors_store
+        commit: 0327ca9d53bfbb0918867313049bba7046900f73
+[06/15] block: add a max_user_discard_sectors queue limit
+        commit: 4f563a64732dabb2677c7d1232a8f714a18b41b3
+[07/15] block: use queue_limits_commit_update in queue_discard_max_store
+        commit: ff956a3be95b45b2a823693a8c9db740939ca35e
+[08/15] block: pass a queue_limits argument to blk_alloc_queue
+        commit: ad751ba1f8d5d4f4f4b429b552a154e888524a93
+[09/15] block: pass a queue_limits argument to blk_mq_init_queue
+        commit: 9ac4dd8c47d533eb420af6a679e66ec74771125c
+[10/15] block: pass a queue_limits argument to blk_mq_alloc_disk
+        commit: 27e32cd23fed1ab88098897897dcb9ec2bdba4de
+[11/15] virtio_blk: split virtblk_probe
+        commit: 718628adfcfdc80466eb42cd9c615d1d5514f74c
+[12/15] virtio_blk: pass queue_limits to blk_mq_alloc_disk
+        commit: 8b837256560c783415b42748959900befcde2d00
+[13/15] loop: cleanup loop_config_discard
+        commit: 65bdd16f8c72bb2178f5e4db40305bef6c96b309
+[14/15] loop: pass queue_limits to blk_mq_alloc_disk
+        commit: 02aed4a1f2c355e41d82a8e9831031ca9e0eb45d
+[15/15] loop: use the atomic queue limits update API
+        commit: 473516b361936cbc27d7728df649a5b3094b6170
+
+Best regards,
+-- 
+Jens Axboe
+
+
+
