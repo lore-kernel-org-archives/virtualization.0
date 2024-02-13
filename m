@@ -1,115 +1,148 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C44912FF9F;
-	Tue, 13 Feb 2024 00:24:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 186751775F;
+	Tue, 13 Feb 2024 07:34:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707783874; cv=none; b=MMF1q11CdVHRzoeXCDwfx7T3lB3czQ3U3gnMv7pJftmOGlCqZlTb9j6sDkc/t8SOmiC2mKDDifWvAHCm/iDP79eDJAT7wdd+zePD+EK6+J2kiPYg0tyZhmd/SN8f+IyNxNKGpY7wXDnJ1xgCdRsIZtv/wbROEefg64QYTM34PKg=
+	t=1707809686; cv=none; b=cJgt706pLvhObOit6GS/BMyOFy86Kz+y1AFcR4LlhKASauzY5Zr7+15SEDrYOy4BaQc0grkJ0yrrA1alHQmY0aMPV50xbL2CdhsgLGEbUfzt/UBJWnskfBiPSMLWxSOI2H2t7E4M7HJaMq0zRFyhcI+bNb9vi6EB31pnDSdHlpY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707783874; c=relaxed/simple;
-	bh=rhuXYerQHZC6UdHTJf1qEji2BMPpaTsxTWmwvNQMbHk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=hSgAOhjizfoFQyZxkB42xLaul7KmaVDg0acqqPJCgpelLUywOYYep++Zho9fTaDgFWMy5zR0ofUcrqHwR5+w2yhvZOu0+3yxXGFjUeajPGFoDRfV1elVJBnkqXcF0z+FrsbIhKNEX0hwmqPRe956QNtHcz+T0xgtEuCgUhpx4Q0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=S1gUXy5l; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1707809686; c=relaxed/simple;
+	bh=GosNS6bS0QqmkIDibxBb2m45k6G2AKCuc1R4Bfk6WD8=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=ETXFZyaWSj/DIUxh7at33iPjxGZ4d4v8vcMjJ25TVz8g2blxrcCsQJvcIurOlRKZOHE27QYHlXKUqWEPaVcoElBXPawhy33QNzJqsvjIjrKX/Nn3ak+0mzqAzbonRwlm4BgJ3ezO9c6ahWasC/WsctyB5xJzAGA5L4zzgtjBlto=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=v/lsW1my; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="S1gUXy5l"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40C9BC43394;
-	Tue, 13 Feb 2024 00:24:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1707783873;
-	bh=rhuXYerQHZC6UdHTJf1qEji2BMPpaTsxTWmwvNQMbHk=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=S1gUXy5lOylZdSHvxcfIf2aVxOjtEx73dhjU2zGH1g9Lb9gtj0WWNQ6t7RHtgf4AL
-	 +E13ZpiikSKofvZBkhZOBtH35VWKwuEEsnG6J8GJBT6TsJhLOZ03KP5L6CvsBEVisS
-	 BoseR6CUlIXvGCSzihlNoRXgIAiZPrLHYtbjHi7WDtD05pfa6GDUKG/jMUihnuy/C+
-	 AA4wZgws/TQypi+KI/qiQMbK+ed27jw08si4762tYhtQn0TmqzZjIjhVKVNbjxWqSv
-	 NZWLnG5FqtmqcBmKdL+zFFMnWfrLocWp/JA3iPQCPJoYepfgtlA5UZMLww51SoBkZ0
-	 ui6DNZax7xf3Q==
-From: Sasha Levin <sashal@kernel.org>
-To: linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Cc: Yi Sun <yi.sun@unisoc.com>,
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="v/lsW1my"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+	MIME-Version:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
+	Content-ID:Content-Description:In-Reply-To:References;
+	bh=+iEKU64k/Wy9pGmHH/amHKNHnYWdcEjBLzza3jjQ5fI=; b=v/lsW1myAkxkKfuQ0vKxPP5hRG
+	aOzFyL09xxfKI0vUm5b5NmDZya6iqMd/ZDojJR+RWMGjz/fU2uxqEHki+ljHllSY9SfFaUwSqIj7+
+	JXgQiEEMgFVPZd8VD4UOdMO7R+L9i+7IrIxxqLtPqOn+uvd5vGENAyjLaylPVXN9IAxMHgtseNMrL
+	rSUQtQMR0eAQeEmokRhOu/7+v/TjaDRTYW0oPwy3V4mqhxL2ajCdLEbwvKQDJnRrzu1H1+BPWa3KB
+	gpwLGEoB1xFKShcHn+gNcuWjGcDoK0/P0FUGCjaxqOdju2DRtJDYYIBWa+9CaemK3tqGDITAwWizn
+	PPl3AWTw==;
+Received: from [2001:4bb8:190:6eab:b680:8f97:4b38:866d] (helo=localhost)
+	by bombadil.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1rZnJO-00000008G7g-07Zh;
+	Tue, 13 Feb 2024 07:34:38 +0000
+From: Christoph Hellwig <hch@lst.de>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
 	Stefan Hajnoczi <stefanha@redhat.com>,
-	Jens Axboe <axboe@kernel.dk>,
-	Sasha Levin <sashal@kernel.org>,
-	mst@redhat.com,
-	jasowang@redhat.com,
-	virtualization@lists.linux.dev,
-	linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 3/3] virtio-blk: Ensure no requests in virtqueues before deleting vqs.
-Date: Mon, 12 Feb 2024 19:24:27 -0500
-Message-ID: <20240213002428.673310-3-sashal@kernel.org>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240213002428.673310-1-sashal@kernel.org>
-References: <20240213002428.673310-1-sashal@kernel.org>
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Damien Le Moal <dlemoal@kernel.org>,
+	Keith Busch <kbusch@kernel.org>,
+	Sagi Grimberg <sagi@grimberg.me>,
+	linux-block@vger.kernel.org,
+	linux-nvme@lists.infradead.org,
+	virtualization@lists.linux.dev
+Subject: atomic queue limits updates v5
+Date: Tue, 13 Feb 2024 08:34:10 +0100
+Message-Id: <20240213073425.1621680-1-hch@lst.de>
+X-Mailer: git-send-email 2.39.2
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 4.19.306
 Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 
-From: Yi Sun <yi.sun@unisoc.com>
+Hi Jens,
 
-[ Upstream commit 4ce6e2db00de8103a0687fb0f65fd17124a51aaa ]
+currently queue limits updates are a mess in that they are updated one
+limit at a time, which makes both cross-checking them against other
+limits hard, and also makes it hard to provide atomicy.
 
-Ensure no remaining requests in virtqueues before resetting vdev and
-deleting virtqueues. Otherwise these requests will never be completed.
-It may cause the system to become unresponsive.
+This series tries to change this by updating the whole set of queue
+limits atomically.   This in done in two ways:
 
-Function blk_mq_quiesce_queue() can ensure that requests have become
-in_flight status, but it cannot guarantee that requests have been
-processed by the device. Virtqueues should never be deleted before
-all requests become complete status.
+ - for the initial setup the queue_limits structure is simply passed to
+   the queue/disk allocation helpers and applies there after validation.
+ - for the (relatively few) cases that update limits at runtime a pair
+   of helpers to take a snapshot of the current limits and to commit it
+   after picking up the callers changes are provided.
 
-Function blk_mq_freeze_queue() ensure that all requests in virtqueues
-become complete status. And no requests can enter in virtqueues.
+As the series is big enough it only converts two drivers - virtio_blk as
+a heavily used driver in virtualized setups, and loop as one that actually
+does runtime updates while being fairly simple.  I plan to update most
+drivers for this merge window, although SCSI will probably have to wait
+for the next one given that it will need extensive API changes in the
+LLDD and ULD interfaces.
 
-Signed-off-by: Yi Sun <yi.sun@unisoc.com>
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-Link: https://lore.kernel.org/r/20240129085250.1550594-1-yi.sun@unisoc.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/block/virtio_blk.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+Chances since v4:
+ - fix a newly added bisection hazard
+ - fix a comment
+ - moar SECTOR_SIZE
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 8b3bf11329ba..8e4c431efc6c 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -943,14 +943,15 @@ static int virtblk_freeze(struct virtio_device *vdev)
- {
- 	struct virtio_blk *vblk = vdev->priv;
- 
-+	/* Ensure no requests in virtqueues before deleting vqs. */
-+	blk_mq_freeze_queue(vblk->disk->queue);
-+
- 	/* Ensure we don't receive any more interrupts */
- 	vdev->config->reset(vdev);
- 
- 	/* Make sure no work handler is accessing the device. */
- 	flush_work(&vblk->config_work);
- 
--	blk_mq_quiesce_queue(vblk->disk->queue);
--
- 	vdev->config->del_vqs(vdev);
- 	kfree(vblk->vqs);
- 
-@@ -968,7 +969,7 @@ static int virtblk_restore(struct virtio_device *vdev)
- 
- 	virtio_device_ready(vdev);
- 
--	blk_mq_unquiesce_queue(vblk->disk->queue);
-+	blk_mq_unfreeze_queue(vblk->disk->queue);
- 	return 0;
- }
- #endif
--- 
-2.43.0
+Chances since v3:
+ - fix a max_user_discard_sectors bisection hazard
+ - fix the max_user_discard_sectors initialization for the new API.
+   This led to some major refactoring, so there is a new patch and
+   I've dropped the reviews for two existing ones that have major
+   modifications
 
+Chances since v2:
+ - fix the physical block size default
+ - use PAGE_SECTORS_SHIFT more 
+
+Chances since v1:
+ - remove a spurious NULL return in blk_alloc_queue
+ - keep the existing max_discard_sectors == 0 behavior
+ - drop the patch nvme discard limit update hack - it will go into
+   the series updating nvme instead
+ - drop a chunk_sector check
+ - use PAGE_SECTORS in a few places
+ - document the checks and defaults in blk_validate_limits
+ - various spelling fixes
+
+Diffstat:
+ arch/um/drivers/ubd_kern.c          |    2 
+ block/blk-core.c                    |   27 ++-
+ block/blk-mq.c                      |   27 +--
+ block/blk-settings.c                |  276 +++++++++++++++++++++++++++------
+ block/blk-sysfs.c                   |   59 +++----
+ block/blk.h                         |    4 
+ block/bsg-lib.c                     |    2 
+ block/genhd.c                       |    5 
+ drivers/block/amiflop.c             |    2 
+ drivers/block/aoe/aoeblk.c          |    2 
+ drivers/block/ataflop.c             |    2 
+ drivers/block/floppy.c              |    2 
+ drivers/block/loop.c                |   75 ++++-----
+ drivers/block/mtip32xx/mtip32xx.c   |    2 
+ drivers/block/nbd.c                 |    2 
+ drivers/block/null_blk/main.c       |    2 
+ drivers/block/ps3disk.c             |    2 
+ drivers/block/rbd.c                 |    2 
+ drivers/block/rnbd/rnbd-clt.c       |    2 
+ drivers/block/sunvdc.c              |    2 
+ drivers/block/swim.c                |    2 
+ drivers/block/swim3.c               |    2 
+ drivers/block/ublk_drv.c            |    2 
+ drivers/block/virtio_blk.c          |  299 ++++++++++++++++++------------------
+ drivers/block/xen-blkfront.c        |    2 
+ drivers/block/z2ram.c               |    2 
+ drivers/cdrom/gdrom.c               |    2 
+ drivers/memstick/core/ms_block.c    |    2 
+ drivers/memstick/core/mspro_block.c |    2 
+ drivers/mmc/core/queue.c            |    2 
+ drivers/mtd/mtd_blkdevs.c           |    2 
+ drivers/mtd/ubi/block.c             |    2 
+ drivers/nvme/host/apple.c           |    2 
+ drivers/nvme/host/core.c            |    8 
+ drivers/s390/block/dasd_genhd.c     |    2 
+ drivers/s390/block/scm_blk.c        |    2 
+ drivers/scsi/scsi_scan.c            |    2 
+ drivers/ufs/core/ufshcd.c           |    2 
+ include/linux/blk-mq.h              |   10 -
+ include/linux/blkdev.h              |   36 +++-
+ 40 files changed, 547 insertions(+), 337 deletions(-)
