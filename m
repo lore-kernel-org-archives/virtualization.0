@@ -1,175 +1,179 @@
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B4BA2137E;
-	Tue, 13 Feb 2024 07:36:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30FED179AE
+	for <virtualization@lists.linux-foundation.org>; Tue, 13 Feb 2024 07:50:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707809780; cv=none; b=nNouZmHdvdOUbUkDsON3IzA53x5jgLW6wXg6YddDO5G2NwFtQD5pJfg6FV79Wa1x3ZrEwQSDUmkLRijv1I66N6t54JkerwhpRZKxJxlo9P4DgZkNukUkLliQTjII3jP9jJ2fiNYOb6vcXG5OEzjs75r2M+8VDiNSjebFb8bLKh4=
+	t=1707810607; cv=none; b=eC0NIKg3njPkJ8rVIrLtxowcWPY4L8TFaXalY83zQCvCIQg9UFOr5EOvUlMUz87qmiFXA0JqtP2xLD9JqSr+8GIOeJHfWkK6nckH9GH8tJcAxbBPMvYRUWUuRwSFVV/TH8laN4BmkbdWhDMSqHhnSELtKML7XB+yVyw4XJ/ghuY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707809780; c=relaxed/simple;
-	bh=xdkwlvQpTV/CV6uqbotx5NJMzhUp+gdubnT+BphgbMI=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=PwlVEgE7/I0hiftOlsrSANDmyu8IyCEJJMUPBypgoTo1UUeL8DNUa5Nzbp6FF0EjiPxKU9raSXTSNXtTAl9lbCEXdkTB+VXRdefxVJDbSujPSipF7LET5FyU98dpbhaf0eMi56cC2oADviGSn8OaJKunz33kfm9ol2bR5QWJaE0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=NJhIcNs9; arc=none smtp.client-ip=198.137.202.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
+	s=arc-20240116; t=1707810607; c=relaxed/simple;
+	bh=IGlJct8UocHdJXhuIkJ7ySUjtintsyyQjIJPu0zBh04=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=srMVnxxi/jTXRVzdje/EEblRo7NIXknoUlzBnr0Rux2XCaYkWKZVEuyCV9yWBDgLmqRly4kASFtINLyc/3dJxL6AA8VdeYh+HoRt9BC48M24++gULAy/CMBwKre4zkh+idNTwgt/0ge416D3us/i8BeHf9T1PBwHYKey9rHYW+o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RFVSGaeL; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="NJhIcNs9"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-	MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
-	:Reply-To:Content-Type:Content-ID:Content-Description;
-	bh=pvR4YMlI58JJSNlUq2cwBYj9o0FsTZy6GKdNPIYVtlA=; b=NJhIcNs9uh7P36djKdd3Qtwq3S
-	9F/Vsfs2qO15KkbEIp3rXyafOSF28Zez/WObpqmjmH2mMYG5kjT38tB0cOMwbxEvzo05gprR/tqr9
-	Kdi3AYKoU8siU8fsVsqB+set9weM3J5wJ+rpf/1qjLxYm8HEx8ZQFoKZPT/62EIuoDmo8uVwVO48E
-	wM59vz2pk9VLcB37aFbXjJH67T3m5762n6Bjnq7UGIvtCEG/QER/UZPw2rw2TxG6/FwINT3nZKXxm
-	7p42jf5LjH/tkHrBOpeElUO6Lc+8x3VsVcyWPUGgkhjPrDqpk+2aCXc7ltn2EloihMl+zGtxTxNS0
-	nzR2R+VQ==;
-Received: from [2001:4bb8:190:6eab:b680:8f97:4b38:866d] (helo=localhost)
-	by bombadil.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1rZnKu-00000008HD2-390A;
-	Tue, 13 Feb 2024 07:36:14 +0000
-From: Christoph Hellwig <hch@lst.de>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Damien Le Moal <dlemoal@kernel.org>,
-	Keith Busch <kbusch@kernel.org>,
-	Sagi Grimberg <sagi@grimberg.me>,
-	linux-block@vger.kernel.org,
-	linux-nvme@lists.infradead.org,
-	virtualization@lists.linux.dev,
-	Chaitanya Kulkarni <kch@nvidia.com>,
-	Ming Lei <ming.lei@redhat.com>,
-	Hannes Reinecke <hare@suse.de>
-Subject: [PATCH 15/15] loop: use the atomic queue limits update API
-Date: Tue, 13 Feb 2024 08:34:25 +0100
-Message-Id: <20240213073425.1621680-16-hch@lst.de>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20240213073425.1621680-1-hch@lst.de>
-References: <20240213073425.1621680-1-hch@lst.de>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RFVSGaeL"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id CCAFF406D1
+	for <virtualization@lists.linux-foundation.org>; Tue, 13 Feb 2024 07:50:05 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.102
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id VXHpSrkt5l91
+	for <virtualization@lists.linux-foundation.org>;
+	Tue, 13 Feb 2024 07:50:03 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=eperezma@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org A61BA405F5
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A61BA405F5
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RFVSGaeL
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id A61BA405F5
+	for <virtualization@lists.linux-foundation.org>; Tue, 13 Feb 2024 07:50:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1707810602;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=WD8HyMi+KDRNtPWM+Apb/3cJueC+uBY6p5Bp0UVVdjU=;
+	b=RFVSGaeLzK9mKEHnhNWs52aLbULgFKpHTLxfIL4fis9x0K1v1Qty1PgbktLSzybCswQC1H
+	vwxb/Ml9noq5Zzg+Y2xYO5hT4aS3dtTTpX/S0Ar7oZjQ5IwFW3a2ysxjS0KNTeuIKMQcDH
+	4+0Hp7XVJ6jx5dOtvN6Z5qWO2Tu1cck=
+Received: from mail-yb1-f197.google.com (mail-yb1-f197.google.com
+ [209.85.219.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-435-27y6sv48OaGOxod8se-4ZQ-1; Tue, 13 Feb 2024 02:49:59 -0500
+X-MC-Unique: 27y6sv48OaGOxod8se-4ZQ-1
+Received: by mail-yb1-f197.google.com with SMTP id 3f1490d57ef6-dc647f65573so7254621276.2
+        for <virtualization@lists.linux-foundation.org>; Mon, 12 Feb 2024 23:49:58 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1707810598; x=1708415398;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=WD8HyMi+KDRNtPWM+Apb/3cJueC+uBY6p5Bp0UVVdjU=;
+        b=ONREC4YAcjTZzMBvfi0jujwCvlsREtWV22I4mKo7WkPwCH0IWiF3IH0nFOj8c634YA
+         0g5icQoikBqGUz4DTx2XfRpIQAkrGfQla4vfUBgMRHQbWg5kEc8kjUQH7eUB8kBwMO7U
+         TpKHwIv/qju6A/72mhIwh8hHDLOfnZgiBBR8MpgDNl8yc23JSvNzyqP74PSifivo5/Fu
+         O/K3YhMShKunSQYyn7d/CRm5V9sUAT23P+1fcWrCIyV3yqfhmhAdTbVSILJD34uCv6bn
+         WPSIYui+Gtd/x3Fx5njpvtMI6hMOvRN5jz6iJZc8SPbV6x9cxhg0iMjLzik6xGe9nlDI
+         jbow==
+X-Gm-Message-State: AOJu0YyyB7pqKJgMQvPMEifB/1D6fOV3vA2lV5qVYa9wdSiVlqlZSm1K
+	g6ZEQefasJOdAYF9i4s8vkFPt2nttV7MeEeN3bhoQZ5B7hU6DeNYNjfrunVwlFs6W1hYnpPi/Rs
+	t67rO+PQE1jwFWcJgZfdhkXMSLfh9O/CWvmwSkOgcmlULNpuEZdm7d4SE3rlJKj6s3FnLHaPHQw
+	Vf+7rJvPrhgnWhRGDGZ6B8YlyqooTnGYjmErgQzqhJoVazKgCdlhbKFUz+JGOhSxJZ
+X-Received: by 2002:a25:820d:0:b0:dbd:5bfa:9681 with SMTP id q13-20020a25820d000000b00dbd5bfa9681mr7462174ybk.37.1707810598327;
+        Mon, 12 Feb 2024 23:49:58 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEYSPexmJxuxFZYyjtjDwgf/rqjhXzefnrHu+jPWU4Rz8j5IBWPCVxEBALDrlrkPWF6ACDM/ejf9firzPkcRGw=
+X-Received: by 2002:a25:820d:0:b0:dbd:5bfa:9681 with SMTP id
+ q13-20020a25820d000000b00dbd5bfa9681mr7462164ybk.37.1707810598045; Mon, 12
+ Feb 2024 23:49:58 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+References: <1707517799-137286-1-git-send-email-steven.sistare@oracle.com> <20240212031722-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20240212031722-mutt-send-email-mst@kernel.org>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Tue, 13 Feb 2024 08:49:21 +0100
+Message-ID: <CAJaqyWcyoDCp6OVQQbU=Pd73tGki0dBQmb82=i5MmsLcZTZfyw@mail.gmail.com>
+Subject: Re: [PATCH V1] vdpa: suspend and resume require DRIVER_OK
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Steve Sistare <steven.sistare@oracle.com>, 
+	virtualization <virtualization@lists.linux-foundation.org>, 
+	linux-kernel <linux-kernel@vger.kernel.org>, Jason Wang <jasowang@redhat.com>, 
+	Si-Wei Liu <si-wei.liu@oracle.com>, Stefano Garzarella <sgarzare@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Pass the default limits to blk_mq_alloc_disk and then use the
-queue_limits_{start,commit}_update API to change the limits in an
-atomic way on existing loop gendisks.
+On Mon, Feb 12, 2024 at 9:20=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com>=
+ wrote:
+>
+> On Fri, Feb 09, 2024 at 02:29:59PM -0800, Steve Sistare wrote:
+> > Calling suspend or resume requires VIRTIO_CONFIG_S_DRIVER_OK, for all
+> > vdpa devices.
+> >
+> > Suggested-by: Eugenio Perez Martin <eperezma@redhat.com>"
+> > Signed-off-by: Steve Sistare <steven.sistare@oracle.com>
+>
+> I don't think failing suspend or resume makes sense though -
+> e.g. practically failing suspend will just prevent sleeping I think -
+> why should guest not having driver loaded prevent
+> system suspend?
+>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Damien Le Moal <dlemoal@kernel.org>
-Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
----
- drivers/block/loop.c | 41 +++++++++++++++++++++++++----------------
- 1 file changed, 25 insertions(+), 16 deletions(-)
+In the QEMU case the vhost device has not started, so QEMU should
+allow the system suspension.
 
-diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index 26c8ea79086798..28a95fd366fea5 100644
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -750,11 +750,11 @@ static void loop_sysfs_exit(struct loop_device *lo)
- 				   &loop_attribute_group);
- }
- 
--static void loop_config_discard(struct loop_device *lo)
-+static void loop_config_discard(struct loop_device *lo,
-+		struct queue_limits *lim)
- {
- 	struct file *file = lo->lo_backing_file;
- 	struct inode *inode = file->f_mapping->host;
--	struct request_queue *q = lo->lo_queue;
- 	u32 granularity = 0, max_discard_sectors = 0;
- 	struct kstatfs sbuf;
- 
-@@ -781,12 +781,12 @@ static void loop_config_discard(struct loop_device *lo)
- 		granularity = sbuf.f_bsize;
- 	}
- 
--	blk_queue_max_discard_sectors(q, max_discard_sectors);
--	blk_queue_max_write_zeroes_sectors(q, max_discard_sectors);
-+	lim->max_hw_discard_sectors = max_discard_sectors;
-+	lim->max_write_zeroes_sectors = max_discard_sectors;
- 	if (max_discard_sectors)
--		q->limits.discard_granularity = granularity;
-+		lim->discard_granularity = granularity;
- 	else
--		q->limits.discard_granularity = 0;
-+		lim->discard_granularity = 0;
- }
- 
- struct loop_worker {
-@@ -975,6 +975,20 @@ loop_set_status_from_info(struct loop_device *lo,
- 	return 0;
- }
- 
-+static int loop_reconfigure_limits(struct loop_device *lo, unsigned short bsize,
-+		bool update_discard_settings)
-+{
-+	struct queue_limits lim;
-+
-+	lim = queue_limits_start_update(lo->lo_queue);
-+	lim.logical_block_size = bsize;
-+	lim.physical_block_size = bsize;
-+	lim.io_min = bsize;
-+	if (update_discard_settings)
-+		loop_config_discard(lo, &lim);
-+	return queue_limits_commit_update(lo->lo_queue, &lim);
-+}
-+
- static int loop_configure(struct loop_device *lo, blk_mode_t mode,
- 			  struct block_device *bdev,
- 			  const struct loop_config *config)
-@@ -1072,11 +1086,10 @@ static int loop_configure(struct loop_device *lo, blk_mode_t mode,
- 	else
- 		bsize = 512;
- 
--	blk_queue_logical_block_size(lo->lo_queue, bsize);
--	blk_queue_physical_block_size(lo->lo_queue, bsize);
--	blk_queue_io_min(lo->lo_queue, bsize);
-+	error = loop_reconfigure_limits(lo, bsize, true);
-+	if (WARN_ON_ONCE(error))
-+		goto out_unlock;
- 
--	loop_config_discard(lo);
- 	loop_update_rotational(lo);
- 	loop_update_dio(lo);
- 	loop_sysfs_init(lo);
-@@ -1143,9 +1156,7 @@ static void __loop_clr_fd(struct loop_device *lo, bool release)
- 	lo->lo_offset = 0;
- 	lo->lo_sizelimit = 0;
- 	memset(lo->lo_file_name, 0, LO_NAME_SIZE);
--	blk_queue_logical_block_size(lo->lo_queue, 512);
--	blk_queue_physical_block_size(lo->lo_queue, 512);
--	blk_queue_io_min(lo->lo_queue, 512);
-+	loop_reconfigure_limits(lo, 512, false);
- 	invalidate_disk(lo->lo_disk);
- 	loop_sysfs_exit(lo);
- 	/* let user-space know about this change */
-@@ -1477,9 +1488,7 @@ static int loop_set_block_size(struct loop_device *lo, unsigned long arg)
- 	invalidate_bdev(lo->lo_device);
- 
- 	blk_mq_freeze_queue(lo->lo_queue);
--	blk_queue_logical_block_size(lo->lo_queue, arg);
--	blk_queue_physical_block_size(lo->lo_queue, arg);
--	blk_queue_io_min(lo->lo_queue, arg);
-+	err = loop_reconfigure_limits(lo, arg, false);
- 	loop_update_dio(lo);
- 	blk_mq_unfreeze_queue(lo->lo_queue);
- 
--- 
-2.39.2
+I haven't tested the QEMU behavior on suspend (not poweroff) with the
+guest driver loaded, but I think QEMU should indeed block the
+suspension, as there is no way to recover the device after that
+without the guest cooperation?
+
+> there's also state such as features set which does need to be
+> preserved.
+>
+
+That's true if the device does not support resuming. Well, in the
+particular case of features, maybe we need to keep it, as userspace
+could call VHOST_GET_FEATURES. But maybe we can clean some things,
+right.
+
+> I think the thing to do is to skip invoking suspend/resume callback, and =
+in
+> fact checking suspend/resume altogether.
+>
+
+I don't follow this. What should be done in this cases by QEMU?
+1) The device does not support suspend
+2) The device support suspend but not resume
+
+In my opinion 1) should be forbidden, as we don't support to resume
+the device properly, and 2) can be allowed by fetching all the state.
+
+Thanks!
+
+> > ---
+> >  drivers/vhost/vdpa.c | 6 ++++++
+> >  1 file changed, 6 insertions(+)
+> >
+> > diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+> > index bc4a51e4638b..ce1882acfc3b 100644
+> > --- a/drivers/vhost/vdpa.c
+> > +++ b/drivers/vhost/vdpa.c
+> > @@ -598,6 +598,9 @@ static long vhost_vdpa_suspend(struct vhost_vdpa *v=
+)
+> >       if (!ops->suspend)
+> >               return -EOPNOTSUPP;
+> >
+> > +     if (!(ops->get_status(vdpa) & VIRTIO_CONFIG_S_DRIVER_OK))
+> > +             return -EINVAL;
+> > +
+> >       ret =3D ops->suspend(vdpa);
+> >       if (!ret)
+> >               v->suspended =3D true;
+> > @@ -618,6 +621,9 @@ static long vhost_vdpa_resume(struct vhost_vdpa *v)
+> >       if (!ops->resume)
+> >               return -EOPNOTSUPP;
+> >
+> > +     if (!(ops->get_status(vdpa) & VIRTIO_CONFIG_S_DRIVER_OK))
+> > +             return -EINVAL;
+> > +
+> >       ret =3D ops->resume(vdpa);
+> >       if (!ret)
+> >               v->suspended =3D false;
+> > --
+> > 2.39.3
+>
+>
 
