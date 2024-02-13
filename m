@@ -1,152 +1,100 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 649C338380
-	for <virtualization@lists.linux.dev>; Tue, 13 Feb 2024 12:01:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1CAC56B6A
+	for <virtualization@lists.linux.dev>; Tue, 13 Feb 2024 13:54:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707825697; cv=none; b=AS4z4rFaf7AjevtyfWLjoaX0pjYtxD1v9cfupK0zjm8+1IsuqePFge5XwNpjMoOW4r5KfvZwd19s6sWauWLk6yxAwI5HdliNVTMROePIjG/+/0Amr+1wrSk5lY099wz6ugAqZB/H7tnzeoJHUKLc7FRwXOAf7KXypGrQf8cin+w=
+	t=1707832476; cv=none; b=YZqOMGqAzTGWA2Watf10amG3cAdPuOlU5mp0GfttN5oi5UX/oDheHmu+u4x4qKWn+b8lxngXRY4ci8qDNkF1f+tMosCoKnzGDtpx6XqL1eVl6g5RvKRiyA/bRhdDKshYZJwJAygAjMQFJ/BbPyeRUrbvGuQQVKnZLgR5F1dCtcs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707825697; c=relaxed/simple;
-	bh=pS22KLPRg8gjC5fdp9xTlewRYz0lMaWo19glV9vYFMg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Jw+562CtQL3odj4cZFX9IV6n09jO8Pp/HAdVUyI1WBHiHGZh1BIg4Ldpz3UKTp3S7y2oNc5EFaMe6RzOK7aVSyUMDbQ++XSCym+WuWXj7gkegh6Owy6hZZifaDxPJXQrxZh1iKYFKtZuuUfrpZNGRzh8BR9sI5P7GEZBSmdYEvk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=SzcpL8yj; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=VL9EBwwi; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=SzcpL8yj; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=VL9EBwwi; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1707832476; c=relaxed/simple;
+	bh=CdzJ7tlgmV7vHQNreg/mcFgOnHtMI4tMFptux7nMTkw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=UAEBeKn8kJCRylHDSwITwr5o05zJpUXzERHWSqsy0f4fsxafUt+cy4CYjkFPEItst2StenNVbqPB2TZubCZ6N6ZdhcdcGWklCKR6D3/Ur+DEmYl7/aj0U0ibpljtas1s+PYGd6xcdXNod9dnOlNJEWn20fDiGlgrxTaNlmowqnk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=g/4BvcJb; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="SzcpL8yj";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="VL9EBwwi";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="SzcpL8yj";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="VL9EBwwi"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="g/4BvcJb"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1707832473;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=qXAJ3RuPet5I6Ig8N3etuSJO6+znX1aFjcW0irspUQU=;
+	b=g/4BvcJbQNknWFTthjM4RoiJyEcZbLnOnrgdLVSpYArFZwwoYYs0sln/hENFOh76CwFisB
+	IcnOHo5nxY/AtNzU7dMrXaki/skNGE4bj/7w22iz6+iohElwL3VZLgyR3oOOFgjJbKJx73
+	K7dvIJbGCARU4hWtZbWY/qQOuBii1n8=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-262-E2zSnLL3O3GkQqq8v4X6Qw-1; Tue, 13 Feb 2024 08:54:29 -0500
+X-MC-Unique: E2zSnLL3O3GkQqq8v4X6Qw-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id A22D022203;
-	Tue, 13 Feb 2024 12:01:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1707825694; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=1m0zTcQVE87GlJP7/ISMt7U2bx0NFQf4k25N4z9hJGc=;
-	b=SzcpL8yjaEmzoorxZYybEkQHaCSAcTpSsnJBBG2UdZBzixjxGRranSsHoVlll+hPy6gjIS
-	K0Zs2H7Ts5EYujyPSr4Sqe9csuw5k4FUePWfpdg7F2AYJES+AJPW+BcH18BGB4cf/md2Gp
-	pvW3z7CXJmfsAFTHNkm7A9uV76JTfrA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1707825694;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=1m0zTcQVE87GlJP7/ISMt7U2bx0NFQf4k25N4z9hJGc=;
-	b=VL9EBwwiRInkQE6B45kxAJheNLyG1hPcmhTHDXhkPKzWTCUwvFs8d8O5QAKdalIUC+kJ3f
-	xdS+wh2vg/f8kICA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1707825694; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=1m0zTcQVE87GlJP7/ISMt7U2bx0NFQf4k25N4z9hJGc=;
-	b=SzcpL8yjaEmzoorxZYybEkQHaCSAcTpSsnJBBG2UdZBzixjxGRranSsHoVlll+hPy6gjIS
-	K0Zs2H7Ts5EYujyPSr4Sqe9csuw5k4FUePWfpdg7F2AYJES+AJPW+BcH18BGB4cf/md2Gp
-	pvW3z7CXJmfsAFTHNkm7A9uV76JTfrA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1707825694;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=1m0zTcQVE87GlJP7/ISMt7U2bx0NFQf4k25N4z9hJGc=;
-	b=VL9EBwwiRInkQE6B45kxAJheNLyG1hPcmhTHDXhkPKzWTCUwvFs8d8O5QAKdalIUC+kJ3f
-	xdS+wh2vg/f8kICA==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 2C48A1370C;
-	Tue, 13 Feb 2024 12:01:34 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([10.150.64.162])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 0HUdBh5ay2UaAgAAD6G6ig
-	(envelope-from <hare@suse.de>); Tue, 13 Feb 2024 12:01:34 +0000
-Message-ID: <83b5a7ec-da7a-4520-973c-bbc3131693a5@suse.de>
-Date: Tue, 13 Feb 2024 13:01:34 +0100
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 003F11064BFB;
+	Tue, 13 Feb 2024 13:54:29 +0000 (UTC)
+Received: from t14s.redhat.com (unknown [10.39.192.250])
+	by smtp.corp.redhat.com (Postfix) with ESMTP id 97C46112132A;
+	Tue, 13 Feb 2024 13:54:26 +0000 (UTC)
+From: David Hildenbrand <david@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux.dev,
+	David Hildenbrand <david@redhat.com>,
+	stable@kernel.org,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v1] virtio: reenable config if freezing device failed
+Date: Tue, 13 Feb 2024 14:54:25 +0100
+Message-ID: <20240213135425.795001-1-david@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 08/15] block: pass a queue_limits argument to
- blk_alloc_queue
-Content-Language: en-US
-To: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Paolo Bonzini <pbonzini@redhat.com>,
- Stefan Hajnoczi <stefanha@redhat.com>,
- "Martin K. Petersen" <martin.petersen@oracle.com>,
- Damien Le Moal <dlemoal@kernel.org>, Keith Busch <kbusch@kernel.org>,
- Sagi Grimberg <sagi@grimberg.me>, linux-block@vger.kernel.org,
- linux-nvme@lists.infradead.org, virtualization@lists.linux.dev
-References: <20240213073425.1621680-1-hch@lst.de>
- <20240213073425.1621680-9-hch@lst.de>
-From: Hannes Reinecke <hare@suse.de>
-In-Reply-To: <20240213073425.1621680-9-hch@lst.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=SzcpL8yj;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=VL9EBwwi
-X-Spamd-Result: default: False [-5.17 / 50.00];
-	 ARC_NA(0.00)[];
-	 RCVD_VIA_SMTP_AUTH(0.00)[];
-	 R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	 XM_UA_NO_VERSION(0.01)[];
-	 FROM_HAS_DN(0.00)[];
-	 TO_DN_SOME(0.00)[];
-	 TO_MATCH_ENVRCPT_ALL(0.00)[];
-	 BAYES_HAM(-2.87)[99.44%];
-	 MIME_GOOD(-0.10)[text/plain];
-	 SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	 DWL_DNSWL_MED(-2.00)[suse.de:dkim];
-	 RCVD_COUNT_THREE(0.00)[3];
-	 DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	 DKIM_TRACE(0.00)[suse.de:+];
-	 MX_GOOD(-0.01)[];
-	 RCPT_COUNT_TWELVE(0.00)[14];
-	 FUZZY_BLOCKED(0.00)[rspamd.com];
-	 FROM_EQ_ENVFROM(0.00)[];
-	 MIME_TRACE(0.00)[0:+];
-	 RCVD_TLS_ALL(0.00)[];
-	 MID_RHS_MATCH_FROM(0.00)[]
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Rspamd-Queue-Id: A22D022203
-X-Spam-Level: 
-X-Spam-Score: -5.17
-X-Spam-Flag: NO
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.3
 
-On 2/13/24 08:34, Christoph Hellwig wrote:
-> Pass a queue_limits to blk_alloc_queue and apply it after validating and
-> capping the values using blk_validate_limits.  This will allow allocating
-> queues with valid queue limits instead of setting the values one at a
-> time later.
-> 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> Reviewed-by: Damien Le Moal <dlemoal@kernel.org>
-> ---
->   block/blk-core.c | 26 ++++++++++++++++++--------
->   block/blk-mq.c   |  7 ++++---
->   block/blk.h      |  2 +-
->   block/genhd.c    |  5 +++--
->   4 files changed, 26 insertions(+), 14 deletions(-)
-> 
-Reviewed-by: Hannes Reinecke <hare@suse.de>
+Currently, we don't reenable the config if freezing the device failed.
 
-Cheers,
+For example, virtio-mem currently doesn't support suspend+resume, and
+trying to freeze the device will always fail. Afterwards, the device
+will no longer respond to resize requests, because it won't get notified
+about config changes.
 
-Hannes
+Let's fix this by re-enabling the config if freezing fails.
 
+Fixes: 22b7050a024d ("virtio: defer config changed notifications")
+Cc: <stable@kernel.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+ drivers/virtio/virtio.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index f4080692b351..f513ee21b1c1 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -510,8 +510,10 @@ int virtio_device_freeze(struct virtio_device *dev)
+ 
+ 	if (drv && drv->freeze) {
+ 		ret = drv->freeze(dev);
+-		if (ret)
++		if (ret) {
++			virtio_config_enable(dev);
+ 			return ret;
++		}
+ 	}
+ 
+ 	if (dev->config->destroy_avq)
+
+base-commit: c664e16bb1ba1c8cf1d7ecf3df5fd83bbb8ac15a
+-- 
+2.43.0
 
