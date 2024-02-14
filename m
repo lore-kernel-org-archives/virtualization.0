@@ -1,263 +1,199 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 003321339B6
-	for <virtualization@lists.linux-foundation.org>; Wed, 14 Feb 2024 19:52:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.138
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707940358; cv=fail; b=UyuOYpxoGWFdDeknfkvflLIR13r/04DVdJsgvBgKldMjJDKt91dWXpCChMJgPDGZoz9fPuvh5PwcvMGHmN9wUJ21RtnS7fCxtOuAlAmc8ZqzYCgZIyHfVfY3K2aQdCnFsIA/IQGbO2bj3IWN5t3C0FnLT2qBJdPLpNKqxPSY/ps=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707940358; c=relaxed/simple;
-	bh=2VBLjZmTKMWX4QYYQwOXOKcwG21HRi0TO18DVOllXTg=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=V0vfelObfSCcASLhzlMq8y6ZF3FAuIRuJZWDpvbeu1S6kvf7S2BeO7wzmLsX3c6mqdAYNNCdA+TG3AIxG2SjkG8/jAKD++qWjx6KhnHRfiZXyPgf8o3lPlD5CAImP5GmWhriLUn0uQm/caFXGTbLfKcVXSV7oALh94biYQO6oq4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=Huc0BueD; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=rvkRPMDb; arc=fail smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 979B613DBA1;
+	Wed, 14 Feb 2024 20:10:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1707941410; cv=none; b=M+CIqvJhZPwQkKLY3F1hG5i/fNSusAu1ijddcF1yCio3vU6ZA0fV4quwEritmTlrQHxB8trypME5PaAGAN2u55TSGu4JzTVQtYQgp692IyQxtJnYkNaQ6Fcyg8KvJ9obeYDLXzSCCt9TO3O3v7pzKaNniHwYLbjePqehgsPEmVg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1707941410; c=relaxed/simple;
+	bh=sJ2O1TysiYXzPmk/VbHIkh8RUm4JPVEySfwgSUfKEh0=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=lIBu3y3yd+euFe1r2SNcCsQhHn58gDBmGy0s99v+7f/SpZ2iNP8YtsrpL9m4kf7uje9FaYy4uSLizVgKjn1Gm3kwUGOThP8fNox72Fl2DfDeF+iMySnYUjenKFXPmh1DfjrE2lB/rgShDApH5lEtOT1l0L3/UjGMsfny2S9JJZo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=j7AHgBTX; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="Huc0BueD";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="rvkRPMDb"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 805A9826E7
-	for <virtualization@lists.linux-foundation.org>; Wed, 14 Feb 2024 19:52:36 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.098
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id rAn788VHAH7P
-	for <virtualization@lists.linux-foundation.org>;
-	Wed, 14 Feb 2024 19:52:35 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=205.220.165.32; helo=mx0a-00069f02.pphosted.com; envelope-from=steven.sistare@oracle.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org AE752826E5
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=oracle.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AE752826E5
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-11-20 header.b=Huc0BueD;
-	dkim=pass (1024-bit key, unprotected) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=rvkRPMDb
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id AE752826E5
-	for <virtualization@lists.linux-foundation.org>; Wed, 14 Feb 2024 19:52:35 +0000 (UTC)
-Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41EGsnwq004559;
-	Wed, 14 Feb 2024 19:52:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2023-11-20;
- bh=I5C/7/Qei6RQj7fhQtoOK6K1Vj5aGccQKHCKXrr4A5I=;
- b=Huc0BueDqnoAbbh+OZUFzo3Sp2ZZZfHVldnBXNlVCkRKdk2F2+xRYZoO0PInVL97UrVK
- HdUAmuKY+0rYc8Vp/+4Dt0uDgr7nP/qXj2gIjVxfHyoz5WHMuLmev58nzXyEDi4CYcpu
- yoAXPerH7AU/Jv3J6irVmho7hc2+sr49fCakW3jis+/OStWxNPgGo1tJXKnDOB986wDN
- llAPA3pstVtEVEBD2PxerILt5KYJQ2QNSKmFEzixTQGM1DcvvfqN+U3DQvIyTXPU/UNN
- HNeh85UEQCiINCOnCWUkEJmHdvBj93CmfW4IehUlEba6f4lfgSTAv+2w2pRENOu1+YTc 5A== 
-Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3w91f00feu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 14 Feb 2024 19:52:24 +0000
-Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 41EJ1G9U015037;
-	Wed, 14 Feb 2024 19:52:24 GMT
-Received: from nam10-bn7-obe.outbound.protection.outlook.com (mail-bn7nam10lp2101.outbound.protection.outlook.com [104.47.70.101])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3w5yk9eg4x-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 14 Feb 2024 19:52:24 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Np7E4eUdOrRDywvzZjM5Ne4rWLsxZuDcVENSAayZrab5k3eyfGB8/4q55zvDtRj9asYWAxWDaMccNfjWVtO9frTEIT37M/ExpAN+7bpJI+mKivswe55ehlG4uqBfMYcjTlTc1MG3LTXIuom7FkS3GdDZ/Qe3+IArAcdpcZ9askSKMq9ugp0n3ufKg6CoXEnSovy4/YkmNex3flu9p001lW7YmWsPHnSdpeYh4t1BNWo4A2E67XRCHDmqvlcpBbGEK/f9tFEE78RVr+hDoir1M38el4l0HLEl287U5lMZNVczSaYjZ856xXqVtSpq+IOGlwWn9maotqfMvThq5lF6Ww==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=I5C/7/Qei6RQj7fhQtoOK6K1Vj5aGccQKHCKXrr4A5I=;
- b=hgtqhgZ4H0npuqWrN2oRqh7F4GOB5DBxlmDT5x/8HDcy6EpH40QG/cZ3MX173/Ob/Zf/G1tOhC163nu55eRqjNRYmI2Pt3fxFtwdCEFIJMFLRpGxabOevvXb2dm8crloBIMNoP9bPH53IHjP68tM+YkzL2ukUc04WbwqPVLrZmQ3900nXbgSy/yAQUZyJLl7azKwjDXUJKSXDNnF8uwIzSsjDA0t0N2FgUr5q0wKhPjbtNwHM9xEuWPcsB/QmpJ+D8COsNNvUZKxyBxcwWcGkkXD1/al6sf87K3goV9NLcNmbBzhIx3TY7s1grLOB+VBxUfR/oPDCK5txihuWRsUog==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=I5C/7/Qei6RQj7fhQtoOK6K1Vj5aGccQKHCKXrr4A5I=;
- b=rvkRPMDb56qYIAKaSFrs1bNRmWTO4BfEO9NZ/QeebTzn4HJ14gW04GrG/tso6cVb55ftJlnsftsd1B5J3TR6wgBJyHLTuepDPj22TEYItmSuEpGMMgofX5ZpSKLDeXNiZJMuytbfpyxA4TG9IQ+N5MjmuAI9w2UaywNoNxFrgTQ=
-Received: from SA2PR10MB4684.namprd10.prod.outlook.com (2603:10b6:806:119::14)
- by DM4PR10MB7389.namprd10.prod.outlook.com (2603:10b6:8:10f::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7270.40; Wed, 14 Feb
- 2024 19:52:21 +0000
-Received: from SA2PR10MB4684.namprd10.prod.outlook.com
- ([fe80::c3ce:7c28:7db1:656b]) by SA2PR10MB4684.namprd10.prod.outlook.com
- ([fe80::c3ce:7c28:7db1:656b%6]) with mapi id 15.20.7292.022; Wed, 14 Feb 2024
- 19:52:21 +0000
-Message-ID: <996cfabf-c612-43c8-9e56-03fb58a1ebec@oracle.com>
-Date: Wed, 14 Feb 2024 14:52:17 -0500
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH V2 3/3] vdpa_sim: flush workers on suspend
-Content-Language: en-US
-To: Eugenio Perez Martin <eperezma@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>, Si-Wei Liu <si-wei.liu@oracle.com>,
-        Xie Yongji <xieyongji@bytedance.com>,
-        Stefano Garzarella <sgarzare@redhat.com>
-References: <1707758174-142161-1-git-send-email-steven.sistare@oracle.com>
- <1707758174-142161-4-git-send-email-steven.sistare@oracle.com>
- <CAJaqyWfYHqf2=8BMo5ReKEB137fxGZR4XEJ2d4imXOOXAX2wHQ@mail.gmail.com>
- <e1b80fee-30df-4733-9072-ce67e3edc72f@oracle.com>
- <CAJaqyWe1=eQ4eQyv+wOqbr3pfZst6gmss2SrDZSNkY_ZVXcf=Q@mail.gmail.com>
-From: Steven Sistare <steven.sistare@oracle.com>
-Organization: Oracle Corporation
-In-Reply-To: <CAJaqyWe1=eQ4eQyv+wOqbr3pfZst6gmss2SrDZSNkY_ZVXcf=Q@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: SJ0PR03CA0097.namprd03.prod.outlook.com
- (2603:10b6:a03:333::12) To SA2PR10MB4684.namprd10.prod.outlook.com
- (2603:10b6:806:119::14)
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="j7AHgBTX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A030EC433F1;
+	Wed, 14 Feb 2024 20:10:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1707941410;
+	bh=sJ2O1TysiYXzPmk/VbHIkh8RUm4JPVEySfwgSUfKEh0=;
+	h=From:Date:Subject:To:Cc:From;
+	b=j7AHgBTX0a6tWdO0KqlSsaN0z8fLxw5cZyRPqJz7cPtbbUE3qMx4FNf6jZlLsOTb4
+	 aWUnF4DEi3HFoIgwlQwlDUWIGIEJHUy3tZT4T8H7C8/fL+U5hSOJ/zBQy3urQLuN7p
+	 0dx5qw4w+wC4Lskk26kvmPxZ7teYnwQtJJdfHWxk=
+From: Konstantin Ryabitsev <konstantin@linuxfoundation.org>
+Date: Wed, 14 Feb 2024 15:09:53 -0500
+Subject: [PATCH] Documentation: update mailing list addresses
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SA2PR10MB4684:EE_|DM4PR10MB7389:EE_
-X-MS-Office365-Filtering-Correlation-Id: 9f3fc4e6-9403-4d28-c082-08dc2d967554
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 
-	PxkNf/n78gep1YrCMFcIGGKyqUwaEhD2dqMLXgMWi2ewNK+Ko8gMALHg7Npfrmh+FyWn8Vu92+1xABIy525WiJkPFtxTX+Sm/nymEefxIN6kVHIviA0RyOAZ45oTGahUF82nG+QVq9eaikANPvM2ue9QJDCRTMCrhSEnaosEBMKXZZAl+SmJeUXrV5pBNkqy4dGOGjfHcEuejuh0NcmQkywWDudkKMRa16SZ8wMaEfZJX2GRNAqYInD13RgeklTaFo+zBLhdLpNwHeyTRI+DwvJayHrXKJj5G9gicufqZVvIOUnK4D0E5G9c+WzXs6J0WYKdb2oBKt9vU8hxK3rsdH6fPeFkSH18ll266nUAd9Kt0B46SBSY05Ax4UyD8CmsTm5lwa67gWZ1ah8rXhr8j/H0ypCMj8Ex3KCWljsoXhtNpTiEI1UwY5UbBk0/ahz7M+nW3VtrdJsHpA+O1tmZjRAqgmJJ+xjPJ+45zfXklLV6FT31NNSDKKSg6ZXwJhWdChoOdCZokDPgnzmesn95lp/nv9Ba65LENX7s3B0pa9HHgnUJ012BbV0txwU6tel4
-X-Forefront-Antispam-Report: 
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA2PR10MB4684.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(39860400002)(396003)(136003)(346002)(376002)(366004)(230922051799003)(1800799012)(64100799003)(451199024)(186009)(54906003)(6916009)(316002)(41300700001)(31686004)(2906002)(4326008)(15650500001)(86362001)(66556008)(66946007)(8676002)(83380400001)(31696002)(5660300002)(44832011)(478600001)(36756003)(6512007)(53546011)(6666004)(6486002)(66476007)(36916002)(26005)(6506007)(2616005)(38100700002)(8936002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: 
-	=?utf-8?B?eVp6Vys4eWdtc3pkQ1VIUUxjTU4vMVg0cjk2cE5CSUVCb3Y2aHhwZXlXTTMy?=
- =?utf-8?B?dlB2Y3djNHVnNG11VGQ3OE8xamJZTG1Rd3ZiKzVYMWhHdk5YMXp4UVBsakp3?=
- =?utf-8?B?UkVtcjBXb05udCsvZjhSYnp0aVh0bkVWb0QyTTNFdGZEOGhMZGk0aHF6eXFa?=
- =?utf-8?B?OG01ZW1Zay9zL3BSbmMzbGYrTEVEU0hUVWxZYzA0dzhxRnNmUDB4K3JZS1N4?=
- =?utf-8?B?T2tKUjFNRWdxQ1JCMXJneGt6cWM3akYzUS9ZNlZjVVF0VXZVM2hCNHRIclZW?=
- =?utf-8?B?SzN5bVBxQU0xbHZuK1FoNEk0QlM0RjZvM0IrWmJtMWw5VVBSVW1tOWNKeFN3?=
- =?utf-8?B?TGdVcDNjMUh5ZWFrMkNwWnRNVmlXTDgvUUE4SmpzM1R6V2Nabyt0UkxZSnFo?=
- =?utf-8?B?YlFkdE10bThodEdvWWhNL09rSHVSNVRNZHFxWkdwZnAyUThOaFFQcjdkQ3ZB?=
- =?utf-8?B?SnQvRDh4Wi9sNGVkeDI3V0w2Q0JyT3d0OWxEYkNFRlI4WGUzTnlQK2IxNzVV?=
- =?utf-8?B?Sk5KVjRtZUg5SUhGelFheTRDOVpQK255bjE1MXFQVjkvL1NzcXlvYzEzN3JQ?=
- =?utf-8?B?TGw2SEtrM2ZocnRDN0Mvc1J1M1dzTHV6RzNrT3k4b2hLZ283eE5OZm1kQ0d6?=
- =?utf-8?B?VGhBZnJibVdxUktkSksrRmVoZkxFaFV4K0owRU1GcFg1RGpEbzBQY1RjNHE1?=
- =?utf-8?B?c2pPOEUzWFZEL1NwTExKdXZyOW9ONE5xbHBRUnNVUytVWWl1WWk1MENyT3l2?=
- =?utf-8?B?NGdEdW84K2hRcVRzNDkvTWJaZjhmOVZhb0RtT0lHc1VMRkUxcVpBeHMxcXpG?=
- =?utf-8?B?eks1UnhwTnBydjBPbWdsRlljamFYTzdJeDU5NkZrbWVwYTJTNHVzYmZ2emNP?=
- =?utf-8?B?NWNXV1hOMHZCVk8rYndTVE1wVTMxa2d3S25TOE1UMGNScmZyMTFBc2pzRXNF?=
- =?utf-8?B?TDM4YXg2bFdLNlBmdkl0WitQN0puN0w3TVNmQXYvL216ZTNIZTZjS1RaMVEw?=
- =?utf-8?B?YVJZeVZ0cExJeTVWTFZzUHJ3akJRb1BKK01FbG9va21VVVE4TmE2UWVIR3dS?=
- =?utf-8?B?QzdJM01hTEVzWUdjR05OcU52bnhaNFhXWldzMEdpRk1PUnh1cVcrRHd1WjFE?=
- =?utf-8?B?cHM0Vlg0bEpjREhWbnhnYWUreXFrR1hqQStUM2tMZ1N5enFLVkNiVTZxL2Jj?=
- =?utf-8?B?S0pTcDFuQk5Ga1BWVWVUQ1BHbUpnbjg4NHRwbFBQc0xYTUZSM2I4WlE5eDdF?=
- =?utf-8?B?TDlQbGRMdmFzZ0l4ZkRCMzFhMmF1LytZakJ1ejB3ZTk4cDVtTDZDMGgxNzVX?=
- =?utf-8?B?Rk1VNXVqSEVqTXpzcFhXNm5vS09WMlBmRVdETDQ5MFNPMkVSdUluQjJOMTZW?=
- =?utf-8?B?c3htZ1BUc2o2akp3d3hhRkxEZlBpNjdWdnVMTGs1S3ZEUkl4NVdJZmF0RmVF?=
- =?utf-8?B?Y2Zhd0hxOWZHc3VOd0FVbURFaTNsc3pIZFo5TUxtS2VIOHU0REZKdEJvMGF2?=
- =?utf-8?B?VVhmcFYxTkM4T0NmL3hGWnlZYkZvN1I4M2NpVmt5dXQrYmpKa1RBdEkzWExr?=
- =?utf-8?B?Mm1UMGJkVkRuV3pEcTU3VlhpeEhpd2FOTXhSSzlWTUZuWUlmcUZTcW05cVEy?=
- =?utf-8?B?aTlxcHo1amNIbk9kRXhRSEsvc3RlOHY1SXgzZ0Mza0VwSis2cWJrR1Q5WHkw?=
- =?utf-8?B?TzUwdzVIek9DcHJiOXdFbWZoM2J5ZWUrMlUva3djcVVjNmkyWFQ4NU51ZjBS?=
- =?utf-8?B?bXNWYVhPakJhNStBVGk2WlhIYlhUc09kMEpjck5NTytiOGpvRnZ6blpRZXVJ?=
- =?utf-8?B?MW1qZnJuaXdXc3RGVVRGUldwT21SeGRvcERwRWFST2RwaEl4RVVuWmFpV2Ey?=
- =?utf-8?B?ZDN1cXhlMnNUdXJVZnM3RjNSVmFadWJvbjJXbmJSREUvME9lYW9DamQyU2Zx?=
- =?utf-8?B?dnBMU2pvMG9wSVpaUE16dUM1Z3RENkc3QWlFZE4rQUEwOWxkVzdQa1lnaG1X?=
- =?utf-8?B?OU9lS1duNER6MGUrcXNMNGk0N3RTU2JJU3JMdXBvWkV2QWpreUFjNnhWVlR0?=
- =?utf-8?B?T2JYRXVKSkF1K0k5c1JTM0tyYUVoUE1FNE1hWEtXeVgxT3VaZ0djTXNiRnV0?=
- =?utf-8?B?Yk1STWZ3TzVHSHJWRm5TQkUwSDB4eUw4ZVF1RkprcmJJRWx4S2Y4UHZDelln?=
- =?utf-8?B?b3c9PQ==?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: 
-	R7Mi7naTI90njtzvt7Y7HE8egr9LZLezW3+m4D9QFDCTg82VNqFKDgXkz/Vc9DH3LGwur+dY8rLjd9SdlWeDmyPRLa7DGz7vR341hVoALh1+/38rRrOcKzpwChlzSPoZ6gwRE7DY5HHCqme12xLu0p2+foUyPgYBp49ojvRPVWXnpaZ98s+0Wt3hENB44lLlklMJjxjedv+Ox2qypztwPwdHgZ66HxzREQNOrnwODNaTPsfK++zDpxTw5MO7RUAN0C2WggjSRgkZNLjf35FMbRh39Nzd4uToTy/r+zaX0FkCQiATCChEyTo5fjOGgqbcN1uEhqEAxdKVqmYLh9Tf+dNecFD3XSczIers9EgEnc8SPdfNS4XBABuqax1oIFXqj1eEfuLcN14MAirB/qJeRkrTo5Qq/YzYduAhpNyfjRbQiQTj3/bkbKJvWsp0UVTytUUCkRFO6PQFNCBDv82HlOCYkhn6Hphf+QHa8nwJIjZyqhZnngmDPBmydF/9HyXEnqRMEQic5CwSIu8gSU5H+32vHMEf98d8l826jAZfPd7IZK64+IpuJJpmvBPppltL4ZAxvlNVqU7ZUkK6gtxHKUNOIRN7p1Iz0377Y1++npA=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 9f3fc4e6-9403-4d28-c082-08dc2d967554
-X-MS-Exchange-CrossTenant-AuthSource: SA2PR10MB4684.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Feb 2024 19:52:21.7984
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: cufAh9D5yDz/ojoU2P8jzCVM/1eeLaln1VjdtoUSihCn1kz8gjw3EJCyImtDujCgZFwmSoT++iW9o3sq9m2ULpJkDhfhk7vH3tUVX0jTRog=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR10MB7389
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-02-14_12,2024-02-14_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 bulkscore=0 suspectscore=0
- phishscore=0 adultscore=0 spamscore=0 mlxlogscore=999 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
- definitions=main-2402140155
-X-Proofpoint-ORIG-GUID: FHtyLBdd1A86l6-GCG337CDpejLZpFlN
-X-Proofpoint-GUID: FHtyLBdd1A86l6-GCG337CDpejLZpFlN
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20240214-lf-org-list-migration-v1-1-ef1eab4b1543@linuxfoundation.org>
+X-B4-Tracking: v=1; b=H4sIABAezWUC/x3MPQqAMAxA4atIZgNN66BeRRyKpjXgH6mIULy7x
+ fEN38uQWIUT9FUG5VuSHHsJqiuYFr9HRplLgzW2MZYaXAMeGnGVdOEmUf1VBJrQUqDOk3MOij2
+ Vgzz/dxjf9wN53vMhZwAAAA==
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Jonathan Corbet <corbet@lwn.net>, Theodore Ts'o <tytso@mit.edu>, 
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+ Carlos Bilbao <carlos.bilbao@amd.com>, Avadhut Naik <avadhut.naik@amd.com>
+Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+ netdev@vger.kernel.org, linux-doc@vger.kernel.org, 
+ tech-board-discuss@lists.linux.dev, workflows@vger.kernel.org, 
+ Konstantin Ryabitsev <konstantin@linuxfoundation.org>
+X-Mailer: b4 0.13-dev-b7ccd
+X-Developer-Signature: v=1; a=openpgp-sha256; l=6088;
+ i=konstantin@linuxfoundation.org; h=from:subject:message-id;
+ bh=sJ2O1TysiYXzPmk/VbHIkh8RUm4JPVEySfwgSUfKEh0=;
+ b=owGbwMvMwCW27YjM47CUmTmMp9WSGFLPyimUR0QaHSortdecm9mqZ9h3c++/w8zNOhtuSx5i8
+ 56jxcHSUcrCIMbFICumyFK2L3ZTUOFDD7n0HlOYOaxMIEMYuDgFYCIFDgz/DFWyTx47vfDkThVH
+ W8Olfzhmx6qu5Aq/sHLvg03O/z2TPRkZ/uzpKCwS+7r98cYj/Me5H0iveB3hXq90/72wYtSCAP9
+ jLAA=
+X-Developer-Key: i=konstantin@linuxfoundation.org; a=openpgp;
+ fpr=DE0E66E32F1FDD0902666B96E63EDCA9329DD07E
 
-On 2/14/2024 2:39 PM, Eugenio Perez Martin wrote:
-> On Wed, Feb 14, 2024 at 6:50 PM Steven Sistare
-> <steven.sistare@oracle.com> wrote:
->>
->> On 2/13/2024 11:10 AM, Eugenio Perez Martin wrote:
->>> On Mon, Feb 12, 2024 at 6:16 PM Steve Sistare <steven.sistare@oracle.com> wrote:
->>>>
->>>> Flush to guarantee no workers are running when suspend returns.
->>>>
->>>> Signed-off-by: Steve Sistare <steven.sistare@oracle.com>
->>>> ---
->>>>  drivers/vdpa/vdpa_sim/vdpa_sim.c | 13 +++++++++++++
->>>>  1 file changed, 13 insertions(+)
->>>>
->>>> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
->>>> index be2925d0d283..a662b90357c3 100644
->>>> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
->>>> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
->>>> @@ -74,6 +74,17 @@ static void vdpasim_worker_change_mm_sync(struct vdpasim *vdpasim,
->>>>         kthread_flush_work(work);
->>>>  }
->>>>
->>>> +static void flush_work_fn(struct kthread_work *work) {}
->>>> +
->>>> +static void vdpasim_flush_work(struct vdpasim *vdpasim)
->>>> +{
->>>> +       struct kthread_work work;
->>>> +
->>>> +       kthread_init_work(&work, flush_work_fn);
->>>
->>> If the work is already queued, doesn't it break the linked list
->>> because of the memset in kthread_init_work?
->>
->> work is a local variable.  It completes before vdpasim_flush_work returns,
->> thus is never already queued on entry to vdpasim_flush_work.
->> Am I missing your point?
-> 
-> No, sorry, I was the one missing that. Thanks for explaining it :)!
-> 
-> I'm not so used to the kthread queue, but why not calling
-> kthread_flush_work on vdpasim->work directly?
+The mailman2 server running on lists.linuxfoundation.org will be shut
+down in very imminent future. Update all instances of obsolete list
+addresses throughout the tree with their new destinations.
 
-vdpasim->work is not the only work posted to vdpasim->worker; see 
-vdpasim_worker_change_mm_sync.  Posting a new no-op work guarantees
-they are all flushed.
+Signed-off-by: Konstantin Ryabitsev <konstantin@linuxfoundation.org>
+---
+Jon, I am sending this primarily to linux-doc, since most of the changes
+are in Documentation/* and only a handful in MAINTAINERS. I think it
+makes most sense to bubble this up via the docs subsystem.
+---
+ Documentation/ABI/testing/sysfs-bus-vdpa                       | 10 +++++-----
+ Documentation/networking/bridge.rst                            |  2 +-
+ Documentation/process/researcher-guidelines.rst                |  2 +-
+ .../translations/sp_SP/process/researcher-guidelines.rst       |  2 +-
+ MAINTAINERS                                                    |  6 +++---
+ 5 files changed, 11 insertions(+), 11 deletions(-)
 
-- Steve
+diff --git a/Documentation/ABI/testing/sysfs-bus-vdpa b/Documentation/ABI/testing/sysfs-bus-vdpa
+index 4da53878bff6..2c833b5163f2 100644
+--- a/Documentation/ABI/testing/sysfs-bus-vdpa
++++ b/Documentation/ABI/testing/sysfs-bus-vdpa
+@@ -1,6 +1,6 @@
+ What:		/sys/bus/vdpa/drivers_autoprobe
+ Date:		March 2020
+-Contact:	virtualization@lists.linux-foundation.org
++Contact:	virtualization@lists.linux.dev
+ Description:
+ 		This file determines whether new devices are immediately bound
+ 		to a driver after the creation. It initially contains 1, which
+@@ -12,7 +12,7 @@ Description:
+ 
+ What:		/sys/bus/vdpa/driver_probe
+ Date:		March 2020
+-Contact:	virtualization@lists.linux-foundation.org
++Contact:	virtualization@lists.linux.dev
+ Description:
+ 		Writing a device name to this file will cause the kernel binds
+ 		devices to a compatible driver.
+@@ -22,7 +22,7 @@ Description:
+ 
+ What:		/sys/bus/vdpa/drivers/.../bind
+ Date:		March 2020
+-Contact:	virtualization@lists.linux-foundation.org
++Contact:	virtualization@lists.linux.dev
+ Description:
+ 		Writing a device name to this file will cause the driver to
+ 		attempt to bind to the device. This is useful for overriding
+@@ -30,7 +30,7 @@ Description:
+ 
+ What:		/sys/bus/vdpa/drivers/.../unbind
+ Date:		March 2020
+-Contact:	virtualization@lists.linux-foundation.org
++Contact:	virtualization@lists.linux.dev
+ Description:
+ 		Writing a device name to this file will cause the driver to
+ 		attempt to unbind from the device. This may be useful when
+@@ -38,7 +38,7 @@ Description:
+ 
+ What:		/sys/bus/vdpa/devices/.../driver_override
+ Date:		November 2021
+-Contact:	virtualization@lists.linux-foundation.org
++Contact:	virtualization@lists.linux.dev
+ Description:
+ 		This file allows the driver for a device to be specified.
+ 		When specified, only a driver with a name matching the value
+diff --git a/Documentation/networking/bridge.rst b/Documentation/networking/bridge.rst
+index ba14e7b07869..ef8b73e157b2 100644
+--- a/Documentation/networking/bridge.rst
++++ b/Documentation/networking/bridge.rst
+@@ -324,7 +324,7 @@ Contact Info
+ The code is currently maintained by Roopa Prabhu <roopa@nvidia.com> and
+ Nikolay Aleksandrov <razor@blackwall.org>. Bridge bugs and enhancements
+ are discussed on the linux-netdev mailing list netdev@vger.kernel.org and
+-bridge@lists.linux-foundation.org.
++bridge@lists.linux.dev.
+ 
+ The list is open to anyone interested: http://vger.kernel.org/vger-lists.html#netdev
+ 
+diff --git a/Documentation/process/researcher-guidelines.rst b/Documentation/process/researcher-guidelines.rst
+index d159cd4f5e5b..beb484c5965d 100644
+--- a/Documentation/process/researcher-guidelines.rst
++++ b/Documentation/process/researcher-guidelines.rst
+@@ -167,4 +167,4 @@ If no one can be found to internally review patches and you need
+ help finding such a person, or if you have any other questions
+ related to this document and the developer community's expectations,
+ please reach out to the private Technical Advisory Board mailing list:
+-<tech-board@lists.linux-foundation.org>.
++<tech-board@groups.linuxfoundation.org>.
+diff --git a/Documentation/translations/sp_SP/process/researcher-guidelines.rst b/Documentation/translations/sp_SP/process/researcher-guidelines.rst
+index 462b3290b7b8..deccc908a68d 100644
+--- a/Documentation/translations/sp_SP/process/researcher-guidelines.rst
++++ b/Documentation/translations/sp_SP/process/researcher-guidelines.rst
+@@ -147,4 +147,4 @@ Si no se puede encontrar a nadie para revisar internamente los parches y necesit
+ ayuda para encontrar a esa persona, o si tiene alguna otra pregunta relacionada
+ con este documento y las expectativas de la comunidad de desarrolladores, por
+ favor contacte con la lista de correo privada Technical Advisory Board:
+-<tech-board@lists.linux-foundation.org>.
++<tech-board@groups.linuxfoundation.org>.
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 73d898383e51..ffdfb311349f 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -14010,7 +14010,7 @@ F:	include/uapi/rdma/mlx5-abi.h
+ 
+ MELLANOX MLX5 VDPA DRIVER
+ M:	Dragos Tatulea <dtatulea@nvidia.com>
+-L:	virtualization@lists.linux-foundation.org
++L:	virtualization@lists.linux.dev
+ S:	Supported
+ F:	drivers/vdpa/mlx5/
+ 
+@@ -21519,7 +21519,7 @@ F:	tools/testing/selftests/drivers/net/team/
+ TECHNICAL ADVISORY BOARD PROCESS DOCS
+ M:	"Theodore Ts'o" <tytso@mit.edu>
+ M:	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+-L:	tech-board-discuss@lists.linux-foundation.org
++L:	tech-board-discuss@lists.linux.dev
+ S:	Maintained
+ F:	Documentation/process/contribution-maturity-model.rst
+ F:	Documentation/process/researcher-guidelines.rst
+@@ -23078,7 +23078,7 @@ F:	drivers/vfio/pci/mlx5/
+ VFIO VIRTIO PCI DRIVER
+ M:	Yishai Hadas <yishaih@nvidia.com>
+ L:	kvm@vger.kernel.org
+-L:	virtualization@lists.linux-foundation.org
++L:	virtualization@lists.linux.dev
+ S:	Maintained
+ F:	drivers/vfio/pci/virtio
+ 
 
->>>> +       kthread_queue_work(vdpasim->worker, &work);
->>>> +       kthread_flush_work(&work);
->>>> +}
->>>> +
->>>>  static struct vdpasim *vdpa_to_sim(struct vdpa_device *vdpa)
->>>>  {
->>>>         return container_of(vdpa, struct vdpasim, vdpa);
->>>> @@ -511,6 +522,8 @@ static int vdpasim_suspend(struct vdpa_device *vdpa)
->>>>         vdpasim->running = false;
->>>>         mutex_unlock(&vdpasim->mutex);
->>>>
->>>> +       vdpasim_flush_work(vdpasim);
->>>
->>> Do we need to protect the case where vdpasim_kick_vq and
->>> vdpasim_suspend are called "at the same time"? Correct userland should
->>> not be doing it but buggy or mailious could be. Just calling
->>> vdpasim_flush_work with the mutex acquired would solve the issue,
->>> doesn't it?
->>
->> Good catch.  I need to serialize access to vdpasim->running plus the worker queue
->> in these two functions.  vdpasim_kick_vq currently takes no locks. In case it is called
->> from non-task contexts, I should define a new spinlock to be acquired in both functions.
->>
->> - Steve
->>
-> 
+---
+base-commit: 7e90b5c295ec1e47c8ad865429f046970c549a66
+change-id: 20240214-lf-org-list-migration-0f81f19a1333
+
+Best regards,
+-- 
+Konstantin Ryabitsev <konstantin@linuxfoundation.org>
+
