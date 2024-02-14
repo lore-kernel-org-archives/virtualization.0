@@ -1,237 +1,280 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B8C912B9E
-	for <virtualization@lists.linux-foundation.org>; Wed, 14 Feb 2024 09:38:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.133
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707903512; cv=fail; b=MBbpy5HIopqdFY9PMrNthCuHVWbgT5zlPY178SHtnCpJk4PqGTKte33utQz8hbpwlFFyKU5Esu0wOsrR6yp8DiYj6p42rlh5IBwOOwB50goFp+QXtvUrRfM52fIADy4x9iTelSN7vYPtbTTm0T8x93uLs2pzQEIH3go0EzbmL38=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707903512; c=relaxed/simple;
-	bh=zi8TyyId7zdcTgy5ByebS2pkzrN6dVMCm0mEOv2I2lU=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=Bndrm84aSzKjnNQDmC11wL5ZoKn0n0i0LuV4KqGwimt+fb7PxJRGWNbm6iWy1uyb447wZOQlSanrXF5roptvFBDWieP/4HkWwwnwe63gkPAC9X49MAoaob5LGi1Y4yueun5wjMmHT2UnZ7XJpsq2fJXnEV8QMqk1+giW9KP5qm8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=opensynergy.com header.i=@opensynergy.com header.b=Twpw/uu9; arc=fail smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C21A0199B0
+	for <virtualization@lists.linux-foundation.org>; Wed, 14 Feb 2024 11:30:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1707910231; cv=none; b=MVj8H+8UwTEiwAN0dSpygX0lwD7TInSZ3sGzxDGqnspaqtQLniQhz6ZGhINAkdfVFoJi/1edxm9/lGQ4rRgQJqUSMYHYwJTKFfa3WNgbpQSWf7c8vN8S74+D947RSkWyHw/yvBK5QTnlH7eWBw3r5fTd8FspGp06YRwrc8KgHng=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1707910231; c=relaxed/simple;
+	bh=wA+l9FLOXe7DpldMydeqojyZQuQ0PE/xvA/Dhu62gk0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=oc6NeRuPdQ3a+zkHHZ8jA5Ru4VbW6Oo5IpMsaUU6GS0oKGM8cgXRmBWONktz1Q7gU7ku4pKa1tXFJeMV+DcrTtauuwpZ8YPxie0yg8h0wST/x+DHIgPwENSU9IvnbKVkIHIri8ldm9MEKWaQzA/oxQ75AYenTLinPVUsaXnS5FY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JnELTRJR; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=opensynergy.com header.i=@opensynergy.com header.b="Twpw/uu9"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JnELTRJR"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 97C9A416D9
-	for <virtualization@lists.linux-foundation.org>; Wed, 14 Feb 2024 09:38:30 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 50A5282339
+	for <virtualization@lists.linux-foundation.org>; Wed, 14 Feb 2024 11:30:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.8
+X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ldtvjJU4KQm6
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id hxQ70AYqkJxY
 	for <virtualization@lists.linux-foundation.org>;
-	Wed, 14 Feb 2024 09:38:29 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=18.185.115.26; helo=repost01.tmes.trendmicro.eu; envelope-from=aiswarya.cyriac@opensynergy.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 2F147404BC
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=reject dis=none) header.from=opensynergy.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2F147404BC
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=opensynergy.com header.i=@opensynergy.com header.a=rsa-sha256 header.s=TM-DKIM-20210503141657 header.b=Twpw/uu9
-Received: from repost01.tmes.trendmicro.eu (repost01.tmes.trendmicro.eu [18.185.115.26])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 2F147404BC
-	for <virtualization@lists.linux-foundation.org>; Wed, 14 Feb 2024 09:38:28 +0000 (UTC)
-Received: from 104.47.11.169_.trendmicro.com (unknown [172.21.199.136])
-	by repost01.tmes.trendmicro.eu (Postfix) with SMTP id 31A2610016AC1;
-	Wed, 14 Feb 2024 09:38:26 +0000 (UTC)
-X-TM-MAIL-RECEIVED-TIME: 1707903505.521000
-X-TM-MAIL-UUID: c6205d0d-b439-45c9-a48d-614fc24f8fb2
-Received: from DEU01-FR2-obe.outbound.protection.outlook.com (unknown [104.47.11.169])
-	by repre01.tmes.trendmicro.eu (Trend Micro Email Security) with ESMTPS id 7F66210001297;
-	Wed, 14 Feb 2024 09:38:25 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=hOG9gzdlunrpYR9eEG1VBOk+CH2B7ZAB8QbSpgiSNdE54UEzOwZPecF7VkwmpjD5TtX5EwGBkciFk+vsx+ZFAgW8xMUU5eWGJSkcQlAjVuDv1XjuS+5XF2z7FU8tyllBYGd/gY9VyqxyZhQ9RKedmarEJ2AvwYxAxMIueeQz2Asz9xaI6JiTGCdgeo7lYfU5LhcSp+BWTRgZZcwKArzHpRC9u+GN1q5XuDVCzpx81ForrL+/uNAzPF64Ao8U+hde8l9QcqZ+RnJoOr3wCGeBFYE0Z9gfecIOn1NCZXlXswwM5nXt5Hoq3GiJLGipLpQECFj0ot0W33JMtc4P1RuNYw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=/QRXNfD7h7qGAgiy2nS8fLn8dHSS7bhLFivdaFpFmqU=;
- b=ny8zaI0qnjEKLwLk3h5SKA71GzIqPbpAq/3Xz89VAA2xB8f6QU0gq3FrxXtRzAwtVqak1007fegMgoG5yuCLC4S1L/rcafhCR2Ouf9/cmbozVyYhOuRrK4oQU2f0UNIQhEOG9OeKob7/XKciYtWY6p/00fa6SGGtmDi//WU/8yLzp8yIVJ/a3QmoGKU2II8tMC39bHppxr5pQmpDTtcQ37voN+5N66UgOB+fdCKGb7P/PahJFcOlKY210mpoGDqak0FheeBBSAeN/BXF0auYTr/ge0Bpqoko4LI9lxre5bVc0WllYgY73Ro6DRsqfQFLAbNOABjTKcGfMaAxTc+mNg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 217.66.60.4) smtp.rcpttodomain=alsa-project.org
- smtp.mailfrom=opensynergy.com; dmarc=pass (p=reject sp=reject pct=100)
- action=none header.from=opensynergy.com; dkim=none (message not signed);
- arc=none (0)
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 217.66.60.4)
- smtp.mailfrom=opensynergy.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=opensynergy.com;
-Received-SPF: Pass (protection.outlook.com: domain of opensynergy.com
- designates 217.66.60.4 as permitted sender) receiver=protection.outlook.com;
- client-ip=217.66.60.4; helo=SR-MAIL-03.open-synergy.com; pr=C
-From: Aiswarya Cyriac <aiswarya.cyriac@opensynergy.com>
-To: mst@redhat.com,
-	jasowang@redhat.com,
-	perex@perex.cz,
-	tiwai@suse.com,
-	linux-kernel@vger.kernel.org,
-	alsa-devel@alsa-project.org,
-	virtualization@lists.linux-foundation.org,
-	virtio-dev@lists.oasis-open.org
-Cc: Aiswarya Cyriac <aiswarya.cyriac@opensynergy.com>,
-	Anton Yakovlev <anton.yakovlev@opensynergy.com>,
-	coverity-bot <keescook+coverity-bot@chromium.org>
-Subject: [v2 PATCH] ALSA: virtio: Fix "Coverity: virtsnd_kctl_tlv_op(): Uninitialized variables" warning.
-Date: Wed, 14 Feb 2024 10:38:13 +0100
-Message-Id: <20240214093813.578906-1-aiswarya.cyriac@opensynergy.com>
-X-Mailer: git-send-email 2.25.1
+	Wed, 14 Feb 2024 11:30:28 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 5154282335
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5154282335
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=JnELTRJR
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 5154282335
+	for <virtualization@lists.linux-foundation.org>; Wed, 14 Feb 2024 11:30:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1707910226;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=4+JlxetLqGfgXIuO+M860n27Ubw/CGDuUo/QeS89UmM=;
+	b=JnELTRJR7mzqN0jr2uDcOewR+vTV1ZtcwBd8DxJj8/bJg2c30OFCynEIB1DaNoiBedKACP
+	wIcNCmfK6ZZ4od0WrRJFKp6QWdCbCLzAyzkkqLhMsZ4HkN5kJpnc/QFdtmmZJKU5O9LFN1
+	Mo52ta9kY7XNX+ViSTS59yuvw5HOqlQ=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-288-YJkkSsZ_OGaPB7cPmYGP7g-1; Wed, 14 Feb 2024 06:30:25 -0500
+X-MC-Unique: YJkkSsZ_OGaPB7cPmYGP7g-1
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-33b2238ce45so2548784f8f.1
+        for <virtualization@lists.linux-foundation.org>; Wed, 14 Feb 2024 03:30:25 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1707910224; x=1708515024;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=4+JlxetLqGfgXIuO+M860n27Ubw/CGDuUo/QeS89UmM=;
+        b=ou8uB3FkEOUOsNwwOuuG9+cPafpI1cIaLg9v8ay4u2xz+qiaKvdmJhkNjvJEhXIsBr
+         rlgwG3Rq+i2e47bpAVvzTNkqnEUnPAtkkVZ4C/1TKWYER3jh2QL/ilD3IrK8dSRl2MpH
+         KMlW8fXzZG4Msdpiv5jWsn97pVuqa4IB1p9+Dr9s8GUYTdCPfcca1sML72Tbg53MzgKD
+         /QxbreEK4Fn1GFNWZEXWMEULayQ0c/fLe9lVAxkHs6WzdB6si3I2LrRzdthZwhlvhT6Y
+         eKy9LBBum/qS7SFI2tx8LdJAAvJXdv5cvCtKB9AVwus+DHQvu+pz7KMp5O2wh4cDpWxF
+         jPFw==
+X-Forwarded-Encrypted: i=1; AJvYcCVtrPL3+bUlJ9ZuWgxmopjaEN0fOgoZ8Ff5lUonuouDRJ29J8zStIhtMZiUXjVlm0WO/9Y3XkHBfCtzTUzeiW2n/nDapXDwVpL6LVbMWSwati6P8iik7DBM/w==
+X-Gm-Message-State: AOJu0YztznKeAq3DLDfbVqms4dDJFyIqV7ST5AKtn6ra99M1cFaHq51o
+	GUQd77AWMgGtHFWqe8XYJt2ykDqaXeeVBqcsB3M/Od8zsOjp1BubLp3RhbPFzX9DuGFx2TO6U8n
+	QxMW/JI+tUlVdn+jLCVu2xhaYeSjmcOsxp4wiJEdgMyP2A1ql7Ceyh6m9CfGzy7X20hVuTnokex
+	MAUYg=
+X-Received: by 2002:a5d:6ac3:0:b0:33c:e323:ce39 with SMTP id u3-20020a5d6ac3000000b0033ce323ce39mr1560148wrw.43.1707910224270;
+        Wed, 14 Feb 2024 03:30:24 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFn/7CRCNOkTTcJ4FiqDJfiAfmidzS77K5Cp7PsBHxs2ygLXQq31lQk0BgMb5mWCWD9xGG0qA==
+X-Received: by 2002:a5d:6ac3:0:b0:33c:e323:ce39 with SMTP id u3-20020a5d6ac3000000b0033ce323ce39mr1560128wrw.43.1707910223905;
+        Wed, 14 Feb 2024 03:30:23 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCWDnOrhIMIku8GYfeG5v1QLOIsqpsWLfcFAOxVRTDhWd4QHsJdvn9P/TrtDxxxBc5KEnbVU6j3LWFAgjhA1jUcxp0j32JICPff8+5mX7ke+dqKNjuPGzOi0r3t9rXz9ZrkKP3IOSMM73xsEmNcdk3Br2n7mU2CLbwbFwadQowLPHTmDYFMei2PBySartjQ7qVVffGVKBNNspJnDCQA33QhmhyfShe2Ov1Vfv94C3JkXVHYkJUoo5o6VbuKYmi1st5dmbWrMiZI7VJFotHgrnDIO7eG96f7NfrGTNgDZUjUaq49+bDKxHftvXzUS8hK+BGdysLHtSQcnr2WW9PKk4jyacZVONaQ1unbKeGlva3vCkh+/41CY9jyXysZ4BnkrMDIrW3pCazO+tOomCvo47s2hM6OVxxBFtFHMccATLCMXWLYN
+Received: from redhat.com ([2.52.26.67])
+        by smtp.gmail.com with ESMTPSA id g7-20020a5d5407000000b003392206c808sm12083778wrv.105.2024.02.14.03.30.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 14 Feb 2024 03:30:23 -0800 (PST)
+Date: Wed, 14 Feb 2024 06:30:19 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Aiswarya Cyriac <Aiswarya.Cyriac@opensynergy.com>
+Cc: "jasowang@redhat.com" <jasowang@redhat.com>,
+	"perex@perex.cz" <perex@perex.cz>,
+	"tiwai@suse.com" <tiwai@suse.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>,
+	"virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>,
+	"virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>,
+	Anton Yakovlev <Anton.Yakovlev@opensynergy.com>,
+	coverity-bot <keescook+coverity-bot@chromium.org>,
+	Mikhail Golubev-Ciuchea <Mikhail.Golubev-Ciuchea@opensynergy.com>
+Subject: Re: [PATCH] ALSA: virtio: Fix "Coverity: virtsnd_kctl_tlv_op():
+ Uninitialized variables" warning.
+Message-ID: <20240214062348-mutt-send-email-mst@kernel.org>
+References: <20240213085131.503569-1-aiswarya.cyriac@opensynergy.com>
+ <20240213035806-mutt-send-email-mst@kernel.org>
+ <FR3P281MB25272BA9CC886E270EEAE380E64E2@FR3P281MB2527.DEUP281.PROD.OUTLOOK.COM>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <FR3P281MB25272BA9CC886E270EEAE380E64E2@FR3P281MB2527.DEUP281.PROD.OUTLOOK.COM>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: AM4PEPF00027A6B:EE_|FR4P281MB3449:EE_
-Content-Type: text/plain
-X-MS-Office365-Filtering-Correlation-Id: 8fbcafdd-786c-41ee-aaa4-08dc2d40b070
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info:
-	pcIeJRBFcjfg/L8PRkdDOdtpd8HCmckomQY73Xjit2aKeeDBPMSz+J2X9v3v8PU1vWlLiCFiPOgrfYWSobHC7gaayVTb3KG8gDP70j2B38iYFvmqOMpJXZ3/2J5gub+WdwIiuH/zxsmM+pRXzqDqfP2YEiFch+H0fkxe9dc9bZwwcpwZ24coPq9jPRnshVP5ss65tif1qmmteLO3v16MVitbYvsmi8oWmewmgSh7UqXz4mopXMPx63dh7j0cyl8+ixHXr6r/MVYDASJsMOvp8nrOKEKOvG0Q36UAv0XnOWoGrI08tj+NvhE4QGOoz/S8adZCi+bCKVMmuG15qiQ5HI/aUbuENetWDPoaxS0wWU7HbP5Z2jGzHe09EMCbYLqgLVWDxHeCsghUir5yJ3MHg3zwTODsR+Nt14XWxtLy7le26PJtW/yyLFnXmhbiW/nDDDlqQEmGc4zyXQXho6g+I8piLWaOL09ij7nxr3d2cjcayzogHkLWBTbVAuDUZ+vM2IpnOzPE0wQwQdwgrLrgcO5YB0uxfexFM08fol9vVDduT3k3YMcYgVYtamvnfD1Dz17U+Mcavdy5M0+VYJAwbhkQ2jUXzS+E3VsAt/Bcsn8=
-X-Forefront-Antispam-Report:
-	CIP:217.66.60.4;CTRY:DE;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SR-MAIL-03.open-synergy.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230031)(346002)(39840400004)(376002)(396003)(136003)(230273577357003)(230922051799003)(1800799012)(451199024)(64100799003)(186009)(82310400011)(46966006)(36840700001)(44832011)(5660300002)(8936002)(8676002)(4326008)(70206006)(70586007)(2906002)(83380400001)(26005)(1076003)(336012)(81166007)(36756003)(86362001)(54906003)(42186006)(316002)(2616005)(41300700001)(478600001);DIR:OUT;SFP:1102;
-X-OriginatorOrg: opensynergy.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Feb 2024 09:38:24.0473
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8fbcafdd-786c-41ee-aaa4-08dc2d40b070
-X-MS-Exchange-CrossTenant-Id: 800fae25-9b1b-4edc-993d-c939c4e84a64
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=800fae25-9b1b-4edc-993d-c939c4e84a64;Ip=[217.66.60.4];Helo=[SR-MAIL-03.open-synergy.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	AM4PEPF00027A6B.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: FR4P281MB3449
-X-TM-AS-ERS: 104.47.11.169-0.0.0.0
-X-TMASE-Version: StarCloud-1.3-9.1.1015-28190.006
-X-TMASE-Result: 10--9.394100-4.000000
-X-TMASE-MatchedRID: IVNJzyZeXh4m6W0B8rdIY/bi+YTr2htSkUTOyGwQKEcG1bmUGNW4DRKy
-	wsos70CFgYfoPrmJSwc0MlZvaRoxGO5pF8IH54mMiu6u4shZ+fE304eoJbTN0Rw72DTAhdU77hX
-	WJUuROzeNk6CnOOT0tJ4u7onx25Mlk/dA6P3T5FsZD7bjq+6lMGzY00haS8QoYcKx85MjSJVz3h
-	/NOzc2C1aH2Ww5mg7njnZ7ULZGdtPt1Qm1UP4H3bo2KXQsvVZSR/Lj9ymbWRKLlRtHfK5Nk+k8T
-	n8qScCE31w1NnIhFDKV1h6ijsb1eK0AyU/iBF0WfHZ4iVAbWwx8LgjA4u/K5/+gZM0aHrd/IlQ2
-	Q2u3mv3f7qT3sazIOMmngP9RbA2Gek66q4St1YszG22WPtozUnVXYrS4nzkTUpD9C5CYK00=
-X-TMASE-XGENCLOUD: f047a65c-4aa9-44d1-be1d-7fd823ffc862-0-0-200-0
-X-TM-Deliver-Signature: 6EB0B460C135D74A72E9266240592764
-X-TM-Addin-Auth: FfV4VFjiqOvf0hL8p/v/tO6V8jFW4jCP9+rZ3hyRMz40U3AN4r457IWMJ2O
-	ri9JmRNNatUx5M0vYPLKoJIj1WVWiqx6nGMe7zG4BCxXNO6E7C7axk2MasSbqXvngicCoYIIxhp
-	YC8GpLPJO/w6Woboa43TGQLCHIeqqVzo9Z6KRIe/YlhiQG8FbbO3nN4A5s0q5HqIm9qfYhe2ZFp
-	FLspF98STfaKtr8gy9dwNvw7Cpb4ivmTN4nM77cehd2uxLJf2I5DueTcHZTDG3Ykp3Ie70lQ8wg
-	pRUdONOW95330CL/CVGVtf2qY2ToGgXzrXTN.xb0G/EvtBgUe++fJbqve6A7PeedsNJ2etGTmpN
-	/nqoK92NFu3hf82PY73MR9bFgh9G3pvd1dhgYPa2tSYbc0zzXdN5Hshk3vOXPLe7L/a31WuCbjE
-	v1u+9FaKRhuBkHTW7vHckOyBbtkoHhUSEYKc8D4jr+i9Fdh/FyP6jByVmxOxKjVSq5iuN8M4EaH
-	YSTYzNSSEfljqI7Q7D+NjXpK7QTr6Upwi1KTShDvvcU2iZSgauTfP3l6dmgC92myD/avk+PWJSi
-	piHhYss56Zbtt6LxEBv6p8qzssjBNdXpmrIyNGEJm602ExAd+NoteHBh5ME2bZJ2DxqkIyGlmaI
-	r0RA==
-X-TM-Addin-ProductCode: EMS
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=opensynergy.com;
-	s=TM-DKIM-20210503141657; t=1707903505;
-	bh=zi8TyyId7zdcTgy5ByebS2pkzrN6dVMCm0mEOv2I2lU=; l=2825;
-	h=From:To:Date;
-	b=Twpw/uu9unP9Kc/7e+nbOmeRyCVkdFe9dZlc+trzYpkBYFZ/qQc+5HnT4ihXrCfmz
-	 gsPWKZ/6QsY4nVocF64KRr8ts1vgUL3qdFC8cM3n5KkmmI5GyiZMP8DlZgmO6JjuZ4
-	 ijafDHlN9SrGAk4q2aRZDFTzOGFk7m7y1hycVnory5wRIQ8Sb/NCggeBoqXPG1WjPU
-	 BNPJYKyvuzlME0K4S3bT9TDJZYznzrwOQ9Gy2EQwSFuA0ucGPhgB7zCnyJHbMmpOe9
-	 +blIv+HZJEgKIxP55EyWLqYtG4lWwscLwpqRluds+8WXvqr7bfIwvNKARsf3mPlUGH
-	 uAyTdseUS2h9A==
 
-This commit fixes the following warning when building virtio_snd driver.
+On Wed, Feb 14, 2024 at 09:08:26AM +0000, Aiswarya Cyriac wrote:
+> Hi Michael,
+> 
+> Thank you for reviewing. I have updated my response inline
+> 
+> On Tue, Feb 13, 2024 at 09:51:30AM +0100, Aiswarya Cyriac wrote:
+> >> Fix the following warning when building virtio_snd driver.
+> >>
+> >> "
+> >> *** CID 1583619:  Uninitialized variables  (UNINIT)
+> >> sound/virtio/virtio_kctl.c:294 in virtsnd_kctl_tlv_op()
+> >> 288
+> >> 289         break;
+> >> 290       }
+> >> 291
+> >> 292       kfree(tlv);
+> >> 293
+> >> vvv     CID 1583619:  Uninitialized variables  (UNINIT)
+> >> vvv     Using uninitialized value "rc".
+> >> 294       return rc;
+> >> 295     }
+> >> 296
+> >> 297     /**
+> >> 298      * virtsnd_kctl_get_enum_items() - Query items for the ENUMERATED element type.
+> >> 299      * @snd: VirtIO sound device.
+> >> "
+> >>
+> >> Signed-off-by: Anton Yakovlev <anton.yakovlev@opensynergy.com>
+> >> Signed-off-by: Aiswarya Cyriac <aiswarya.cyriac@opensynergy.com>
+> >> Reported-by: coverity-bot <keescook+coverity-bot@chromium.org>
+> >> Addresses-Coverity-ID: 1583619 ("Uninitialized variables")
+> >> Fixes: d6568e3de42d ("ALSA: virtio: add support for audio controls")
+> 
+> >I don't know enough about ALSA to say whether the patch is correct.  But
+> >the commit log needs work: please, do not "fix warnings" - analyse the
+> >code and explain whether there is a real issue and if yes what is it
+> >and how it can trigger. Is an invalid op_flag ever passed?
+> >If it's just a coverity false positive it might be ok to
+> >work around that but document this.
+> 
+> This warning is caused by the absence of the "default" branch in the
+> switch-block, and is a false positive because the kernel calls
+> virtsnd_kctl_tlv_op() only with values for op_flag processed in
+> this block.
 
-"
-*** CID 1583619:  Uninitialized variables  (UNINIT)
-sound/virtio/virtio_kctl.c:294 in virtsnd_kctl_tlv_op()
-288
-289     		break;
-290     	}
-291
-292     	kfree(tlv);
-293
-vvv     CID 1583619:  Uninitialized variables  (UNINIT)
-vvv     Using uninitialized value "rc".
-294     	return rc;
-295     }
-296
-297     /**
-298      * virtsnd_kctl_get_enum_items() - Query items for the ENUMERATED element type.
-299      * @snd: VirtIO sound device.
-"
+Well we don't normally have functions validate inputs.
+In this case I am not really sure we should bother
+with adding dead code. If you really want to, add BUG_ON.
 
-This warning is caused by the absence of the "default" branch in the
-switch-block, and is a false positive because the kernel calls
-virtsnd_kctl_tlv_op() only with values for op_flag processed in
-this block.
 
-Also, this commit unifies the cleanup path for all possible control
-paths in the callback function.
 
-Signed-off-by: Anton Yakovlev <anton.yakovlev@opensynergy.com>
-Signed-off-by: Aiswarya Cyriac <aiswarya.cyriac@opensynergy.com>
-Reported-by: coverity-bot <keescook+coverity-bot@chromium.org>
-Addresses-Coverity-ID: 1583619 ("Uninitialized variables")
-Fixes: d6568e3de42d ("ALSA: virtio: add support for audio controls")
----
- sound/virtio/virtio_kctl.c | 24 ++++++++++++++++++++----
- 1 file changed, 20 insertions(+), 4 deletions(-)
-
-diff --git a/sound/virtio/virtio_kctl.c b/sound/virtio/virtio_kctl.c
-index 0c6ac74aca1e..89e29a496dbe 100644
---- a/sound/virtio/virtio_kctl.c
-+++ b/sound/virtio/virtio_kctl.c
-@@ -253,8 +253,8 @@ static int virtsnd_kctl_tlv_op(struct snd_kcontrol *kcontrol, int op_flag,
- 
- 	tlv = kzalloc(size, GFP_KERNEL);
- 	if (!tlv) {
--		virtsnd_ctl_msg_unref(msg);
--		return -ENOMEM;
-+		rc = -ENOMEM;
-+		goto on_cleanup;
- 	}
- 
- 	sg_init_one(&sg, tlv, size);
-@@ -266,6 +266,11 @@ static int virtsnd_kctl_tlv_op(struct snd_kcontrol *kcontrol, int op_flag,
- 	case SNDRV_CTL_TLV_OP_READ:
- 		hdr->hdr.code = cpu_to_le32(VIRTIO_SND_R_CTL_TLV_READ);
- 
-+		/* Since virtsnd_ctl_msg_send() drops the reference, we increase
-+		 * the counter to be consistent with the on_cleanup path.
-+		 */
-+		virtsnd_ctl_msg_ref(msg);
-+
- 		rc = virtsnd_ctl_msg_send(snd, msg, NULL, &sg, false);
- 		if (!rc) {
- 			if (copy_to_user(utlv, tlv, size))
-@@ -281,14 +286,25 @@ static int virtsnd_kctl_tlv_op(struct snd_kcontrol *kcontrol, int op_flag,
- 			hdr->hdr.code =
- 				cpu_to_le32(VIRTIO_SND_R_CTL_TLV_COMMAND);
- 
--		if (copy_from_user(tlv, utlv, size))
-+		if (copy_from_user(tlv, utlv, size)) {
- 			rc = -EFAULT;
--		else
-+		} else {
-+			/* Same as the comment above */
-+			virtsnd_ctl_msg_ref(msg);
-+
- 			rc = virtsnd_ctl_msg_send(snd, msg, &sg, NULL, false);
-+		}
-+
-+		break;
-+	default:
-+		rc = -EINVAL;
- 
- 		break;
- 	}
- 
-+on_cleanup:
-+	virtsnd_ctl_msg_unref(msg);
-+
- 	kfree(tlv);
- 
- 	return rc;
--- 
-2.43.0
+> I will update the fix and send a v2 patch
+> 
+> >> ---
+> >>  sound/virtio/virtio_kctl.c | 5 +++++
+> >>  1 file changed, 5 insertions(+)
+> >>
+> >> diff --git a/sound/virtio/virtio_kctl.c b/sound/virtio/virtio_kctl.c
+> >> index 0c6ac74aca1e..d7a160c5db03 100644
+> >> --- a/sound/virtio/virtio_kctl.c
+> >> +++ b/sound/virtio/virtio_kctl.c
+> >> @@ -286,6 +286,11 @@ static int virtsnd_kctl_tlv_op(struct snd_kcontrol *kcontrol, int op_flag,
+> >>                else
+> >>                        rc = virtsnd_ctl_msg_send(snd, msg, &sg, NULL, false);
+> >>
+> >> +             break;
+> >> +     default:
+> >> +             virtsnd_ctl_msg_unref(msg);
+> >> +             rc = -EINVAL;
+> >> +
+> 
+> >There's already virtsnd_ctl_msg_unref call above.
+> >Also don't we need virtsnd_ctl_msg_unref on other error paths
+> >such as EFAULT?
+> >Unify error handling to fix it all then?
+> 
+> This also need to be handled and virtsnd_ctl_msg_unref needed in case of EFAULT as well.
+> I will update the patch.
+> 
+> 
+> Thanks,
+> Aiswarya Cyriac
+> Software Engineer
+> ​
+> OpenSynergy GmbH
+> Rotherstr. 20, 10245 Berlin
+> 
+> EMail: aiswarya.cyriac@opensynergy.com
+> 
+> www.opensynergy.com
+> Handelsregister/Commercial Registry: Amtsgericht Charlottenburg, HRB 108616B
+> Geschäftsführer/Managing Director: Régis Adjamah
+> 
+> ________________________________________
+> From: Michael S. Tsirkin <mst@redhat.com>
+> Sent: Tuesday, February 13, 2024 10:06 AM
+> To: Aiswarya Cyriac
+> Cc: jasowang@redhat.com; perex@perex.cz; tiwai@suse.com; linux-kernel@vger.kernel.org; alsa-devel@alsa-project.org; virtualization@lists.linux-foundation.org; virtio-dev@lists.oasis-open.org; Anton Yakovlev; coverity-bot
+> Subject: Re: [PATCH] ALSA: virtio: Fix "Coverity: virtsnd_kctl_tlv_op(): Uninitialized variables" warning.
+> 
+> On Tue, Feb 13, 2024 at 09:51:30AM +0100, Aiswarya Cyriac wrote:
+> > Fix the following warning when building virtio_snd driver.
+> >
+> > "
+> > *** CID 1583619:  Uninitialized variables  (UNINIT)
+> > sound/virtio/virtio_kctl.c:294 in virtsnd_kctl_tlv_op()
+> > 288
+> > 289         break;
+> > 290       }
+> > 291
+> > 292       kfree(tlv);
+> > 293
+> > vvv     CID 1583619:  Uninitialized variables  (UNINIT)
+> > vvv     Using uninitialized value "rc".
+> > 294       return rc;
+> > 295     }
+> > 296
+> > 297     /**
+> > 298      * virtsnd_kctl_get_enum_items() - Query items for the ENUMERATED element type.
+> > 299      * @snd: VirtIO sound device.
+> > "
+> >
+> > Signed-off-by: Anton Yakovlev <anton.yakovlev@opensynergy.com>
+> > Signed-off-by: Aiswarya Cyriac <aiswarya.cyriac@opensynergy.com>
+> > Reported-by: coverity-bot <keescook+coverity-bot@chromium.org>
+> > Addresses-Coverity-ID: 1583619 ("Uninitialized variables")
+> > Fixes: d6568e3de42d ("ALSA: virtio: add support for audio controls")
+> 
+> I don't know enough about ALSA to say whether the patch is correct.  But
+> the commit log needs work: please, do not "fix warnings" - analyse the
+> code and explain whether there is a real issue and if yes what is it
+> and how it can trigger. Is an invalid op_flag ever passed?
+> If it's just a coverity false positive it might be ok to
+> work around that but document this.
+> 
+> 
+> > ---
+> >  sound/virtio/virtio_kctl.c | 5 +++++
+> >  1 file changed, 5 insertions(+)
+> >
+> > diff --git a/sound/virtio/virtio_kctl.c b/sound/virtio/virtio_kctl.c
+> > index 0c6ac74aca1e..d7a160c5db03 100644
+> > --- a/sound/virtio/virtio_kctl.c
+> > +++ b/sound/virtio/virtio_kctl.c
+> > @@ -286,6 +286,11 @@ static int virtsnd_kctl_tlv_op(struct snd_kcontrol *kcontrol, int op_flag,
+> >               else
+> >                       rc = virtsnd_ctl_msg_send(snd, msg, &sg, NULL, false);
+> >
+> > +             break;
+> > +     default:
+> > +             virtsnd_ctl_msg_unref(msg);
+> > +             rc = -EINVAL;
+> > +
+> 
+> There's already virtsnd_ctl_msg_unref call above.
+> Also don't we need virtsnd_ctl_msg_unref on other error paths
+> such as EFAULT?
+> Unify error handling to fix it all then?
+> 
+> >               break;
+> >       }
+> >
+> > --
+> > 2.43.0
+> 
+> 
 
