@@ -1,75 +1,76 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C13513667D
-	for <virtualization@lists.linux-foundation.org>; Thu, 15 Feb 2024 17:05:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 446B5137C2E
+	for <virtualization@lists.linux-foundation.org>; Thu, 15 Feb 2024 17:47:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708016742; cv=none; b=d4hy4XZwjBu/PohCOhSgne9qr4fJOAGGIdcf8Srf2FfsmepoPihChDAFZIp0bFYkrTPvN4cImY0gRJ9XZucAwu78TLo+Z4PzVOS1hPndgH56noBSQ44J1vKH3WGk+Pz9ekkVbIGbEpry+td3W8MctZfLQurAZrZIq98vM6orA0c=
+	t=1708019222; cv=none; b=WhqtXGgj3UMIs2u0SWrTRwLa9R9DfjGS4ZWsLnhg6bUZXWi3CVDClr0dku6zVkYXn2rCUppkzYZzBz0QIwCF0JUfvkdEY5Gt9X0zJERYDPsyjZ4SYDi+t3AudFCiFkgaIO7g4AU96Y/aZBWBsMvTSXaCWHIbDkXs7teSODHF9+Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708016742; c=relaxed/simple;
+	s=arc-20240116; t=1708019222; c=relaxed/simple;
 	bh=jHG9H8i9qhAeOn57Plf+Ex4DiuuEmdAlsRWhZjMgxes=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=HzwOELKDfU0ZaqY6gBMs8EkgLUP71/b7/KIZ6lPQu3jBXEDazVYfCnj34mN16JOe1Z6j5Whlcf/pGoK99uNkzbvs9fBigxWiB0A18QT8FYgyc5zWG/jUM6TpQfdOIvlPU3hb8rS5M38eaSsVPptL7u4+fSegcQeVKaLFq0MFmWU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=NkxVgyAC; arc=none smtp.client-ip=140.211.166.133
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=e95D0EpOHdWXZHqaS5SEglTkxTGnw9BlA8vQEwfFBT58WtXMnrY8mGn0Lh256TyXK07ZP1trGISgq7w9p8veB3Y1Yv8ysFHwUtIsOwlXH8aMudZBzX+w6+NaII/LxEIWzZboznlrJqhJQpSe1uk3JBSG8gyigo8e48bbobsA300=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=ak+LTUXk; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="NkxVgyAC"
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="ak+LTUXk"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id C5B7D40210
-	for <virtualization@lists.linux-foundation.org>; Thu, 15 Feb 2024 17:05:29 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id D276241E77
+	for <virtualization@lists.linux-foundation.org>; Thu, 15 Feb 2024 17:47:00 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.799
+X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id VijOF-DEUFzB
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id NmjR2domComN
 	for <virtualization@lists.linux-foundation.org>;
-	Thu, 15 Feb 2024 17:05:28 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=205.220.177.32; helo=mx0b-00069f02.pphosted.com; envelope-from=jonah.palmer@oracle.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 1674440163
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=oracle.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1674440163
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-11-20 header.b=NkxVgyAC
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 1674440163
-	for <virtualization@lists.linux-foundation.org>; Thu, 15 Feb 2024 17:05:27 +0000 (UTC)
-Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41FFT4t2022495;
-	Thu, 15 Feb 2024 17:05:26 GMT
+	Thu, 15 Feb 2024 17:47:00 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=205.220.165.32; helo=mx0a-00069f02.pphosted.com; envelope-from=jonah.palmer@oracle.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 3301D41953
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=oracle.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3301D41953
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-11-20 header.b=ak+LTUXk
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 3301D41953
+	for <virtualization@lists.linux-foundation.org>; Thu, 15 Feb 2024 17:46:59 +0000 (UTC)
+Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41FFTY34030192;
+	Thu, 15 Feb 2024 17:46:57 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
  subject : date : message-id : mime-version : content-transfer-encoding;
  s=corp-2023-11-20; bh=PJ/JEvX0jmjLAMAQh6ULKyKsJAdiUkLyj1BxUN+t8+0=;
- b=NkxVgyACq+1iT7M/+n09tmgGM/jHGjgFoKaNppR/dtWK6JxHs4JMIvFKbrgBBZxmzS2L
- iPZLpwUtxZ3fcnuNWbTr4Nuqc2tKqn5swrO1iMjsH+qENzeeNXbvCMDPldxeM/IW/uoN
- 0aXtrSbfqcNVDfMWkXWXbck9sIdxBAQC/fk0uUS+8nQDTKSnjwYW285xaikeM/NIDG4P
- E87jhU1CfpJ7h0nNo3HLrjZHo0J45CASSjPO+69bAkA/1U1lxYznuPNJFh1Xok/8ac1H
- n1wf4NRpLS6JMEGLRbE9IApE195ayvRrkZGmaPz1JRPkpHxLZ8LrtbBlU5/XJzdF6gqk nw== 
-Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta03.appoci.oracle.com [138.1.37.129])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3w92db2rmc-1
+ b=ak+LTUXktNYa0FN1G7vC/Ie/HMVe5lOgIe6W7EBrBtEy1cC6BVIKYLEp/vkwO+BQK1Po
+ i4yVzWDtq8cEIlNiWhdePrv0eDmmTGPqlPfA6JFjEDIZKmTEuNuY/4Bsb1b4+TyDgl26
+ 6vwecyGQqRhhXiklcplznEValSKBPl9M0v4Z/p07Vd06wBggxynhD+bElo83KE4ehbxR
+ A5vO8c/FIrS2Dfp0zK6VokmlB06fgT2iYjNjDsHmYSVVRZNpNRIScDAxOvILpelbKlYU
+ zSLeMyNfk2IyYAE7iy28b3viNOgptPRCtux1AW/ZQIAWSJA6WDzikXGxEOCLFCNDBneN fA== 
+Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta02.appoci.oracle.com [147.154.114.232])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3w91f033yp-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 15 Feb 2024 17:05:26 +0000
-Received: from pps.filterd (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 41FG5PWx013766;
-	Thu, 15 Feb 2024 17:05:25 GMT
+	Thu, 15 Feb 2024 17:46:56 +0000
+Received: from pps.filterd (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+	by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 41FGtsou014987;
+	Thu, 15 Feb 2024 17:46:55 GMT
 Received: from pps.reinject (localhost [127.0.0.1])
-	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3w6apdpuwm-1
+	by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3w5ykakd72-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 15 Feb 2024 17:05:25 +0000
-Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41FH28Gp005056;
-	Thu, 15 Feb 2024 17:05:24 GMT
+	Thu, 15 Feb 2024 17:46:55 +0000
+Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41FHfld4023373;
+	Thu, 15 Feb 2024 17:46:55 GMT
 Received: from jonah-ol8.us.oracle.com (dhcp-10-65-162-170.vpn.oracle.com [10.65.162.170])
-	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTP id 3w6apdpuv4-1;
-	Thu, 15 Feb 2024 17:05:24 +0000
+	by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTP id 3w5ykakd5w-1;
+	Thu, 15 Feb 2024 17:46:55 +0000
 From: Jonah Palmer <jonah.palmer@oracle.com>
-To: eperezma@redhat.com, si-wei.liu@oracle.com,
-        virtualization@lists.linux-foundation.org
-Cc: dtatulea@nvidia.com, jonah.palmer@oracle.com, boris.ostrovsky@oracle.com,
-        leiyang@redhat.com
-Subject: vdpa/mlx5: Allow CVQ size changes
-Date: Thu, 15 Feb 2024 12:05:07 -0500
-Message-Id: <20240215170507.3865986-1-jonah.palmer@oracle.com>
+To: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+        eperezma@redhat.com, si-wei.liu@oracle.com,
+        virtualization@lists.linux-foundation.org, dtatulea@nvidia.com
+Cc: jonah.palmer@oracle.com, boris.ostrovsky@oracle.com, leiyang@redhat.com,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH RESEND] vdpa/mlx5: Allow CVQ size changes
+Date: Thu, 15 Feb 2024 12:46:47 -0500
+Message-Id: <20240215174647.3885093-1-jonah.palmer@oracle.com>
 X-Mailer: git-send-email 2.39.3
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -81,12 +82,12 @@ Content-Transfer-Encoding: 8bit
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2024-02-15_16,2024-02-14_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 adultscore=0
- suspectscore=0 mlxscore=0 phishscore=0 bulkscore=0 malwarescore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2402150137
-X-Proofpoint-GUID: p19iuPOhisQgpcUR8rM3f5ySjTekpx77
-X-Proofpoint-ORIG-GUID: p19iuPOhisQgpcUR8rM3f5ySjTekpx77
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 spamscore=0
+ mlxlogscore=999 bulkscore=0 phishscore=0 mlxscore=0 suspectscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2402150143
+X-Proofpoint-ORIG-GUID: ZRaBVuTFXVW_8jdqLGv_AjIlXszMx3D6
+X-Proofpoint-GUID: ZRaBVuTFXVW_8jdqLGv_AjIlXszMx3D6
 
 The MLX driver was not updating its control virtqueue size at set_vq_num
 and instead always initialized to MLX5_CVQ_MAX_ENT (16) at
