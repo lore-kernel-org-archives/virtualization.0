@@ -1,67 +1,194 @@
-Received: from mailbox.box.xen0n.name (mail.xen0n.name [115.28.160.31])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48A0469951;
-	Thu, 15 Feb 2024 10:26:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.28.160.31
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32E9813247C
+	for <virtualization@lists.linux-foundation.org>; Thu, 15 Feb 2024 15:45:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707992767; cv=none; b=qGEPZpi7hyTkl3ssgJulGwkFty/b9tA7ufni1tF0HbJ0dTEDQT5dLNa5pYoDMPy5Fhap0shqFUleKm4bF9UKf5LoYolC/Sl5NGdnUdQHUCJSVM2KsekyV4HVqpmzY5YwMuzpo2crBcleOAwJenIRsatsl/IyYJJGs0X2WnizGmc=
+	t=1708011914; cv=none; b=uUvKO/YI5/aAEpE1PWg8PJrFRIYCvuzR1802Fkdi7Z4gB5Xkm2kwvOqtXpMDDW5/haAzwnn94nwFDBAJpX2udRtZv5mCO2UW/JsHAAjhdsKIDNPrgAU/ruJPisH+1SYJfnr3sn7k9AFqNFUUSm+zOciPkbGayCAPXcdq/hvJ5l4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707992767; c=relaxed/simple;
-	bh=y/P4R4hDfJZr0gCFtDW2pgobuhwlFJX18ctbuXp2Rto=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=UwoGoPG5PLKTaIOJ2zfsNH+rC7rVkvw/bl7yw0mXD8p8io/LHKs+EQ3fywYeczHB78CVyVU3/78WAmtDuHAQxcGv6iAp5AHp3ZQXXI7/9alw0JmEcyOPhEPSnlRWmoH91zr1WIhe3Ga6MePsq4BGCo0XhmqUttWiDQ5YxrsLEQ0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xen0n.name; spf=pass smtp.mailfrom=xen0n.name; dkim=pass (1024-bit key) header.d=xen0n.name header.i=@xen0n.name header.b=I0ProOXR; arc=none smtp.client-ip=115.28.160.31
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xen0n.name
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xen0n.name
+	s=arc-20240116; t=1708011914; c=relaxed/simple;
+	bh=jGrsuTrQ50aMOx/Q4bJMab8iuOMogw82FMKiSbI60CE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=G/4kDnm7c/utyO7X0mxBPZHbtfJiKdi+VvHKP3qXvkKPLnnAskHxINgL9VvWi7bSdFS8YBHVJ6vrHjdAU/mUVRdXi2YyXNticxCPq38uI0cV5h29NCS6azhIel50r2tyjSnkZcWvWT8LV0WcnHjlbezS4RG1A7AnWRZaABqlLiQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ATXPKSXU; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=xen0n.name header.i=@xen0n.name header.b="I0ProOXR"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=xen0n.name; s=mail;
-	t=1707992756; bh=y/P4R4hDfJZr0gCFtDW2pgobuhwlFJX18ctbuXp2Rto=;
-	h=Date:Subject:From:To:Cc:References:In-Reply-To:From;
-	b=I0ProOXReh5OzzHB5mQQtlUKAJkkwkTPoB4VNzi3fjdWqcnFutbS55EeKWyftZ431
-	 bi6OYPmYG24K6xbCHqPsYI6YEohYVfgje2cccptDFGLwn+ZjfkNBhMKNxqZkpI+YWV
-	 LfO/fq02Sf7d9uq6fwUIC/t2p3UqEqTWBSizl474=
-Received: from [28.0.0.1] (unknown [49.93.119.4])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
-	(No client certificate requested)
-	by mailbox.box.xen0n.name (Postfix) with ESMTPSA id 8FA0E60122;
-	Thu, 15 Feb 2024 18:25:55 +0800 (CST)
-Message-ID: <447f4279-aea9-4f35-b87e-a3fc8c6c20ac@xen0n.name>
-Date: Thu, 15 Feb 2024 18:25:54 +0800
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ATXPKSXU"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id C6C0883B88
+	for <virtualization@lists.linux-foundation.org>; Thu, 15 Feb 2024 15:45:12 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.102
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 3yLR5rzyLsW4
+	for <virtualization@lists.linux-foundation.org>;
+	Thu, 15 Feb 2024 15:45:11 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=eperezma@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 7AF3683C52
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7AF3683C52
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ATXPKSXU
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 7AF3683C52
+	for <virtualization@lists.linux-foundation.org>; Thu, 15 Feb 2024 15:45:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1708011910;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=zgRj/r6jJKBOT9E5bjhJrMIbJaqPHZG5ug6maI133dw=;
+	b=ATXPKSXUfTE16I3RJlsVWrpayfFr/38J8GeR88Vvi+xk7rhLQ5noM1+NPOQK98fz3rnGix
+	4vvWCB3rn6sypRAezpwYGz7BmWHyUyECMY97nLR5+yiwmG13pcns1XCxWYe5Kc72qOxNi5
+	9+7vBRzPOJ9NqpRgur6eqgu9xutOTv4=
+Received: from mail-yw1-f200.google.com (mail-yw1-f200.google.com
+ [209.85.128.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-151-y4wN4YpiPYOw6XXiGgC8uQ-1; Thu, 15 Feb 2024 10:45:08 -0500
+X-MC-Unique: y4wN4YpiPYOw6XXiGgC8uQ-1
+Received: by mail-yw1-f200.google.com with SMTP id 00721157ae682-5ee22efe5eeso19403057b3.3
+        for <virtualization@lists.linux-foundation.org>; Thu, 15 Feb 2024 07:45:08 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1708011908; x=1708616708;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=zgRj/r6jJKBOT9E5bjhJrMIbJaqPHZG5ug6maI133dw=;
+        b=h1XuRrQH8KZR7TZ14S90tLxuYBVUzDsFZ/GsCWNQYlKG+tmcamIE+p3A7giHtv/iE6
+         5eRf9eUck0ahlOIuCRObBmLW/X+G/KI6k/ClVx0KbiE3Cj8hHZBHYm6JOAyDkMoImeTw
+         hNgANsQpnq+y+Q7gT8FsdNsvm6y22QApavGPNGFSjqd3pT+tVaYI1pITJEznmf+s7DKA
+         2rBAIO6fYWRM126MVMcZh2T7PXxGW8cG0i/+qbGAky8sRvmfZEXJb6nWZyC6pdGpAwAv
+         9l7pze6BXsKTxi8LJMhucQf3Lvo1Igxx5S+Bzkm9MHJyirorf7EHQ6dV89T2Ou70ofNw
+         NTiw==
+X-Gm-Message-State: AOJu0Yyw2UA9zj23QY4Agil+iIenBiMzWcYPNB45yGO6KrIpwgyfcJbT
+	fWQZVxQ68GPX9KZb/hDvDLm7DUT2H0S0HRAIdppMahYvjIIbIA4VYHmui+CxZEVXSC28WLeXNqD
+	PBy028sqMNyX/1t4n1OcHwcqR6Nmbu4Vs3lddmrAWGuiZeedwBo+jvS0o/ATYGFsSaNdjoL5DG5
+	epZdJtj+FixyyMQYSRAh2jbF3oyvE3plO1OeJpHeZh7zo7G2sAKN9w4A==
+X-Received: by 2002:a0d:e2d6:0:b0:5ff:fdd5:d368 with SMTP id l205-20020a0de2d6000000b005fffdd5d368mr1990516ywe.44.1708011908406;
+        Thu, 15 Feb 2024 07:45:08 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IF7G3wF/llkvMZxRUqMJv2ohvPHXABLz4Ismq8yT+WDgcWzbT/FJJn6vSBV+U06iKvGRxaKLxllo++71kRJ/Jg=
+X-Received: by 2002:a0d:e2d6:0:b0:5ff:fdd5:d368 with SMTP id
+ l205-20020a0de2d6000000b005fffdd5d368mr1990454ywe.44.1708011907148; Thu, 15
+ Feb 2024 07:45:07 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 0/6] LoongArch: Add pv ipi support on LoongArch VM
-Content-Language: en-US
-From: WANG Xuerui <kernel@xen0n.name>
-To: Bibo Mao <maobibo@loongson.cn>, Huacai Chen <chenhuacai@kernel.org>,
- Tianrui Zhao <zhaotianrui@loongson.cn>, Juergen Gross <jgross@suse.com>,
- Paolo Bonzini <pbonzini@redhat.com>
-Cc: loongarch@lists.linux.dev, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev, kvm@vger.kernel.org
-References: <20240201031950.3225626-1-maobibo@loongson.cn>
- <0f4d83e2-bff9-49d9-8066-9f194ce96306@xen0n.name>
-In-Reply-To: <0f4d83e2-bff9-49d9-8066-9f194ce96306@xen0n.name>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <1707758174-142161-1-git-send-email-steven.sistare@oracle.com>
+ <1707758174-142161-4-git-send-email-steven.sistare@oracle.com>
+ <CAJaqyWfYHqf2=8BMo5ReKEB137fxGZR4XEJ2d4imXOOXAX2wHQ@mail.gmail.com>
+ <e1b80fee-30df-4733-9072-ce67e3edc72f@oracle.com> <CAJaqyWe1=eQ4eQyv+wOqbr3pfZst6gmss2SrDZSNkY_ZVXcf=Q@mail.gmail.com>
+ <996cfabf-c612-43c8-9e56-03fb58a1ebec@oracle.com>
+In-Reply-To: <996cfabf-c612-43c8-9e56-03fb58a1ebec@oracle.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Thu, 15 Feb 2024 16:44:30 +0100
+Message-ID: <CAJaqyWdKC6rLBOykSeWc87QtJ757LNXd78R59JRizUyAQCu+ig@mail.gmail.com>
+Subject: Re: [PATCH V2 3/3] vdpa_sim: flush workers on suspend
+To: Steven Sistare <steven.sistare@oracle.com>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Si-Wei Liu <si-wei.liu@oracle.com>, 
+	Xie Yongji <xieyongji@bytedance.com>, Stefano Garzarella <sgarzare@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 2/15/24 18:11, WANG Xuerui wrote:
-> Sorry for the late reply (and Happy Chinese New Year), and thanks for 
-> providing microbenchmark numbers! But it seems the more comprehensive 
-> CoreMark results were omitted (that's also absent in v3)? While the 
+On Wed, Feb 14, 2024 at 8:52=E2=80=AFPM Steven Sistare
+<steven.sistare@oracle.com> wrote:
+>
+> On 2/14/2024 2:39 PM, Eugenio Perez Martin wrote:
+> > On Wed, Feb 14, 2024 at 6:50=E2=80=AFPM Steven Sistare
+> > <steven.sistare@oracle.com> wrote:
+> >>
+> >> On 2/13/2024 11:10 AM, Eugenio Perez Martin wrote:
+> >>> On Mon, Feb 12, 2024 at 6:16=E2=80=AFPM Steve Sistare <steven.sistare=
+@oracle.com> wrote:
+> >>>>
+> >>>> Flush to guarantee no workers are running when suspend returns.
+> >>>>
+> >>>> Signed-off-by: Steve Sistare <steven.sistare@oracle.com>
+> >>>> ---
+> >>>>  drivers/vdpa/vdpa_sim/vdpa_sim.c | 13 +++++++++++++
+> >>>>  1 file changed, 13 insertions(+)
+> >>>>
+> >>>> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_si=
+m/vdpa_sim.c
+> >>>> index be2925d0d283..a662b90357c3 100644
+> >>>> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
+> >>>> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+> >>>> @@ -74,6 +74,17 @@ static void vdpasim_worker_change_mm_sync(struct =
+vdpasim *vdpasim,
+> >>>>         kthread_flush_work(work);
+> >>>>  }
+> >>>>
+> >>>> +static void flush_work_fn(struct kthread_work *work) {}
+> >>>> +
+> >>>> +static void vdpasim_flush_work(struct vdpasim *vdpasim)
+> >>>> +{
+> >>>> +       struct kthread_work work;
+> >>>> +
+> >>>> +       kthread_init_work(&work, flush_work_fn);
+> >>>
+> >>> If the work is already queued, doesn't it break the linked list
+> >>> because of the memset in kthread_init_work?
+> >>
+> >> work is a local variable.  It completes before vdpasim_flush_work retu=
+rns,
+> >> thus is never already queued on entry to vdpasim_flush_work.
+> >> Am I missing your point?
+> >
+> > No, sorry, I was the one missing that. Thanks for explaining it :)!
+> >
+> > I'm not so used to the kthread queue, but why not calling
+> > kthread_flush_work on vdpasim->work directly?
+>
+> vdpasim->work is not the only work posted to vdpasim->worker; see
+> vdpasim_worker_change_mm_sync.  Posting a new no-op work guarantees
+> they are all flushed.
+>
 
-Of course the benchmark suite should be UnixBench instead of CoreMark. 
-Lesson: don't multi-task code reviews, especially not after consuming 
-beer -- a cup of coffee won't fully cancel the influence. ;-)
+But it is ok to have concurrent mm updates, isn't it? Moreover, they
+can be enqueued immediately after the kthread_flush_work already, as
+there is no lock protecting it.
 
--- 
-WANG "xen0n" Xuerui
-
-Linux/LoongArch mailing list: https://lore.kernel.org/loongarch/
+> - Steve
+>
+> >>>> +       kthread_queue_work(vdpasim->worker, &work);
+> >>>> +       kthread_flush_work(&work);
+> >>>> +}
+> >>>> +
+> >>>>  static struct vdpasim *vdpa_to_sim(struct vdpa_device *vdpa)
+> >>>>  {
+> >>>>         return container_of(vdpa, struct vdpasim, vdpa);
+> >>>> @@ -511,6 +522,8 @@ static int vdpasim_suspend(struct vdpa_device *v=
+dpa)
+> >>>>         vdpasim->running =3D false;
+> >>>>         mutex_unlock(&vdpasim->mutex);
+> >>>>
+> >>>> +       vdpasim_flush_work(vdpasim);
+> >>>
+> >>> Do we need to protect the case where vdpasim_kick_vq and
+> >>> vdpasim_suspend are called "at the same time"? Correct userland shoul=
+d
+> >>> not be doing it but buggy or mailious could be. Just calling
+> >>> vdpasim_flush_work with the mutex acquired would solve the issue,
+> >>> doesn't it?
+> >>
+> >> Good catch.  I need to serialize access to vdpasim->running plus the w=
+orker queue
+> >> in these two functions.  vdpasim_kick_vq currently takes no locks. In =
+case it is called
+> >> from non-task contexts, I should define a new spinlock to be acquired =
+in both functions.
+> >>
+> >> - Steve
+> >>
+> >
+>
 
