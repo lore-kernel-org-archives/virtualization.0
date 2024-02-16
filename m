@@ -1,286 +1,159 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5043E12BF24
-	for <virtualization@lists.linux-foundation.org>; Fri, 16 Feb 2024 14:02:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D84D177F35
+	for <virtualization@lists.linux-foundation.org>; Fri, 16 Feb 2024 14:25:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708092132; cv=none; b=HQ/koyAXjP6jzYJejmZu4yBeimlnpLyiX1SOG5ZWgu/QLEzSxYffX20ZkHp8Y4t/eZrmJIGCimCWJB81wwLDwPQVg+HXERgzjYqvrQyG19nXrK0riSxDo+YdbciKJ4gd203LX+M3UbNDdGtS3Oj1odfM/rLq0k5N6JwwurgWu7g=
+	t=1708093516; cv=none; b=JkrOm/fn3nE+7+wFRo6amzTnfcF2fpo2gBIcRSftWjXD2s/ARBX7DjRFcITiY3oO0Qtltga3Ab6o3ZKMZYREkjDeVpdq/DF7wSVBQNMC3Jyci9VKeCTXWlgGH1fx+9g1YbJiuHo8GDcu9afFHrvgZS/Qg5o79WIZm2CYIolb3Dg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708092132; c=relaxed/simple;
-	bh=tv/orOiraGfFT/LCQPcSh2kGKvQA7D4GbtgfVaTK234=;
-	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=uzlE+qOO+a8jACNiYRsLvMdo9O/pUJKC3ZiJfFt2x0lGfBcHeEABtFF0ldEIRuSCchQvlyoebj9w53HrPre81YAl3npyhYOdROzx8HoKCwsYkahu9t2yCLZOEqz7RrlAtb/rNH3edc45oS2YoEvwOZ4T+OHolFiM2zQaUixwY34=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=jyDqzY0N; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=Lv0MGNUO; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=LxvnyCHL; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=t+ekt5pV; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1708093516; c=relaxed/simple;
+	bh=IT0RuO8hNrLvcTd49Cl9rAsXLcbRp/10UlV0SgfqJlc=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=lwuNhioLR1LurBLeuN0kyEq4tvT3iEIVz+OzA3v4LfqzdX9PQMHQM7u/SYoks056KvKr/NChFBjozPx1wFVYWiR8QLgWjOzV4qQA3Gy1fszVECjx4BUVFAQHpMA6MehTG8sCuD2YrZTojSiOPijgCSQuDa1zBiuGm30cohXfl5o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=HB6RXLxd; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="jyDqzY0N";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="Lv0MGNUO";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="LxvnyCHL";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="t+ekt5pV"
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="HB6RXLxd"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id D2D3541BE1
-	for <virtualization@lists.linux-foundation.org>; Fri, 16 Feb 2024 14:02:10 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 6136382786
+	for <virtualization@lists.linux-foundation.org>; Fri, 16 Feb 2024 14:25:14 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -4.4
+X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id k1fBW5kYcglS
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id I3KBPMiPSNVR
 	for <virtualization@lists.linux-foundation.org>;
-	Fri, 16 Feb 2024 14:02:09 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a07:de40:b251:101:10:150:64:1; helo=smtp-out1.suse.de; envelope-from=tiwai@suse.de; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 33F1F40AAD
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=suse.de
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 33F1F40AAD
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=jyDqzY0N;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=Lv0MGNUO;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=LxvnyCHL;
-	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=t+ekt5pV
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2a07:de40:b251:101:10:150:64:1])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 33F1F40AAD
-	for <virtualization@lists.linux-foundation.org>; Fri, 16 Feb 2024 14:02:09 +0000 (UTC)
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 001B0220B0;
-	Fri, 16 Feb 2024 14:02:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1708092126; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=DX6t6X+yIdGbLB39W9vftzQkoVtLDPdmu/GnvJ6LhTI=;
-	b=jyDqzY0NLFhPSBRgRykDHCm65D5PNw1PrSg60JuI6O4lXxFmBpMmA/ZJWQYlm72I0WGtAk
-	SjiVzn9KCW1/6DfyRJj2cBFhoWQxIha/P7fd8t0LXiJRE6+d4E0OvdtQUnem5B4a8kE5ZD
-	i9n1VnTMBOeJ+KZ1RDZItC7EfENuej0=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1708092126;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=DX6t6X+yIdGbLB39W9vftzQkoVtLDPdmu/GnvJ6LhTI=;
-	b=Lv0MGNUOHOm4qYvaIOrCMSdTts66FhSCpmhBiJpFrPQeHUDGCBaabNhg2TWWHlSrAwb3Ia
-	dSZ8yQyIY082kBAw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1708092124; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=DX6t6X+yIdGbLB39W9vftzQkoVtLDPdmu/GnvJ6LhTI=;
-	b=LxvnyCHLnF2BFGpigNMeVm3/+promMiSuC3Vbu/B12dQKN3T0g5Vz+GNKP1WUIjE9n1Vt7
-	OHxBgb4+DPsPG7dQIJa6Th7eD3YdtHpL8hI415UcvRVdEeS+ApkWF2H9TgM0ZucgZKApAw
-	Dm/3lvYBdWo5v49J3EYSDdLx3kgTeZY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1708092124;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=DX6t6X+yIdGbLB39W9vftzQkoVtLDPdmu/GnvJ6LhTI=;
-	b=t+ekt5pViC8fLjh59BuatpPUvUykK4qjQ+oVpsii7Ccrw3HxrO2k2JpGJW0Dqe16BIBx35
-	WfYno0nra2hbuaAg==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 9972F13A39;
-	Fri, 16 Feb 2024 14:02:03 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([10.150.64.162])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id k1L1I9tqz2VdLgAAD6G6ig
-	(envelope-from <tiwai@suse.de>); Fri, 16 Feb 2024 14:02:03 +0000
-Date: Fri, 16 Feb 2024 15:02:03 +0100
-Message-ID: <87a5o0ik2s.wl-tiwai@suse.de>
-From: Takashi Iwai <tiwai@suse.de>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Aiswarya Cyriac <aiswarya.cyriac@opensynergy.com>,
-	jasowang@redhat.com,
-	perex@perex.cz,
-	tiwai@suse.com,
-	linux-kernel@vger.kernel.org,
-	alsa-devel@alsa-project.org,
-	virtualization@lists.linux-foundation.org,
-	virtio-dev@lists.oasis-open.org,
-	Anton Yakovlev <anton.yakovlev@opensynergy.com>,
-	coverity-bot <keescook+coverity-bot@chromium.org>
-Subject: Re: [v4 PATCH] ALSA: virtio: Fix "Coverity: virtsnd_kctl_tlv_op(): Uninitialized variables" warning.
-In-Reply-To: <20240216084610-mutt-send-email-mst@kernel.org>
-References: <20240216100643.688590-1-aiswarya.cyriac@opensynergy.com>
-	<20240216062630-mutt-send-email-mst@kernel.org>
-	<87eddcikz6.wl-tiwai@suse.de>
-	<20240216084610-mutt-send-email-mst@kernel.org>
-User-Agent: Wanderlust/2.15.9 (Almost Unreal) Emacs/27.2 Mule/6.0
+	Fri, 16 Feb 2024 14:25:13 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=205.220.165.32; helo=mx0a-00069f02.pphosted.com; envelope-from=jonah.palmer@oracle.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 7B4AB81F36
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=oracle.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7B4AB81F36
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-11-20 header.b=HB6RXLxd
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 7B4AB81F36
+	for <virtualization@lists.linux-foundation.org>; Fri, 16 Feb 2024 14:25:12 +0000 (UTC)
+Received: from pps.filterd (m0246627.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41GCteU6016560;
+	Fri, 16 Feb 2024 14:25:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : mime-version : content-type :
+ content-transfer-encoding; s=corp-2023-11-20;
+ bh=uBxhZRwg4l5rEnPXjSwnK4GA/Up32KbHN12cZyql8BI=;
+ b=HB6RXLxdgdq6PUkoWW2L0HuZG2qbMhrKs/lGartoG0w8GsNZWva5x8msc3RUDxLLz5P+
+ 3jdzeiSt48EOBmpBuWmpV39WoKpjG7qP8VdS1KEtBN28ZmHXrLkmvXUnq2ZDzOUjZH+g
+ xJUUDbwVz5Lse+JvxC48DC48TwSsXYAVvcl/yYQ55kfsnVtxFb13UZT3jJnvzP6bQynO
+ QegLtZUC6sF3CEOFQiE4BDmQ0qBk+YK3+HX9ENMOBwkIq3462Xhhl5E1T1UzCb8UlUEw
+ fHm+QuWO+LpyZ2sdIl1zCo/jvlFFZlTS+kfPWbSZenaagL6bVRVyLZYzXmLRdUZlx/BA Aw== 
+Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta03.appoci.oracle.com [130.35.103.27])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3w92ppn76q-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 16 Feb 2024 14:25:07 +0000
+Received: from pps.filterd (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 41GE7SWU031500;
+	Fri, 16 Feb 2024 14:25:05 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+	by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3w5ykc6ggk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 16 Feb 2024 14:25:05 +0000
+Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41GEP58Q006406;
+	Fri, 16 Feb 2024 14:25:05 GMT
+Received: from jonah-ol8.us.oracle.com (dhcp-10-65-191-137.vpn.oracle.com [10.65.191.137])
+	by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTP id 3w5ykc6gfn-1;
+	Fri, 16 Feb 2024 14:25:05 +0000
+From: Jonah Palmer <jonah.palmer@oracle.com>
+To: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+        eperezma@redhat.com, si-wei.liu@oracle.com,
+        virtualization@lists.linux-foundation.org, dtatulea@nvidia.com
+Cc: jonah.palmer@oracle.com, boris.ostrovsky@oracle.com, leiyang@redhat.com,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v2] vdpa/mlx5: Allow CVQ size changes
+Date: Fri, 16 Feb 2024 09:25:02 -0500
+Message-Id: <20240216142502.78095-1-jonah.palmer@oracle.com>
+X-Mailer: git-send-email 2.39.3
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
-Content-Type: text/plain; charset=US-ASCII
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=LxvnyCHL;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=t+ekt5pV
-X-Spamd-Result: default: False [-0.81 / 50.00];
-	 ARC_NA(0.00)[];
-	 RCVD_VIA_SMTP_AUTH(0.00)[];
-	 R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	 SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	 FROM_HAS_DN(0.00)[];
-	 TO_DN_SOME(0.00)[];
-	 TO_MATCH_ENVRCPT_ALL(0.00)[];
-	 BAYES_HAM(-3.00)[100.00%];
-	 TAGGED_RCPT(0.00)[coverity-bot];
-	 MIME_GOOD(-0.10)[text/plain];
-	 RCVD_COUNT_THREE(0.00)[3];
-	 DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	 DKIM_TRACE(0.00)[suse.de:+];
-	 MX_GOOD(-0.01)[];
-	 RCPT_COUNT_SEVEN(0.00)[11];
-	 MID_CONTAINS_FROM(1.00)[];
-	 FUZZY_BLOCKED(0.00)[rspamd.com];
-	 FROM_EQ_ENVFROM(0.00)[];
-	 MIME_TRACE(0.00)[0:+];
-	 RCVD_TLS_ALL(0.00)[];
-	 SUSPICIOUS_RECIPS(1.50)[]
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Rspamd-Queue-Id: 001B0220B0
-X-Spamd-Bar: /
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-02-16_13,2024-02-16_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 mlxscore=0 spamscore=0
+ adultscore=0 phishscore=0 bulkscore=0 mlxlogscore=999 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
+ definitions=main-2402160115
+X-Proofpoint-ORIG-GUID: 1nyPEBMPUo5MAH0-NT3gFLXUoeJcDjB0
+X-Proofpoint-GUID: 1nyPEBMPUo5MAH0-NT3gFLXUoeJcDjB0
 
-On Fri, 16 Feb 2024 14:48:10 +0100,
-Michael S. Tsirkin wrote:
-> 
-> On Fri, Feb 16, 2024 at 02:42:37PM +0100, Takashi Iwai wrote:
-> > On Fri, 16 Feb 2024 12:27:48 +0100,
-> > Michael S. Tsirkin wrote:
-> > > 
-> > > On Fri, Feb 16, 2024 at 11:06:43AM +0100, Aiswarya Cyriac wrote:
-> > > > This commit fixes the following warning when building virtio_snd driver.
-> > > > 
-> > > > "
-> > > > *** CID 1583619:  Uninitialized variables  (UNINIT)
-> > > > sound/virtio/virtio_kctl.c:294 in virtsnd_kctl_tlv_op()
-> > > > 288
-> > > > 289     		break;
-> > > > 290     	}
-> > > > 291
-> > > > 292     	kfree(tlv);
-> > > > 293
-> > > > vvv     CID 1583619:  Uninitialized variables  (UNINIT)
-> > > > vvv     Using uninitialized value "rc".
-> > > > 294     	return rc;
-> > > > 295     }
-> > > > 296
-> > > > 297     /**
-> > > > 298      * virtsnd_kctl_get_enum_items() - Query items for the ENUMERATED element type.
-> > > > 299      * @snd: VirtIO sound device.
-> > > > "
-> > > > 
-> > > > This warning is caused by the absence of the "default" branch in the
-> > > > switch-block, and is a false positive because the kernel calls
-> > > > virtsnd_kctl_tlv_op() only with values for op_flag processed in
-> > > > this block.
-> > > > 
-> > > > Also, this commit unifies the cleanup path for all possible control
-> > > > paths in the callback function.
-> > > > 
-> > > > Signed-off-by: Anton Yakovlev <anton.yakovlev@opensynergy.com>
-> > > > Signed-off-by: Aiswarya Cyriac <aiswarya.cyriac@opensynergy.com>
-> > > > Reported-by: coverity-bot <keescook+coverity-bot@chromium.org>
-> > > > Addresses-Coverity-ID: 1583619 ("Uninitialized variables")
-> > > > Fixes: d6568e3de42d ("ALSA: virtio: add support for audio controls")
-> > > 
-> > > 
-> > > 
-> > > > ---
-> > > >  sound/virtio/virtio_kctl.c | 19 +++++++++++++++----
-> > > >  1 file changed, 15 insertions(+), 4 deletions(-)
-> > > > 
-> > > > diff --git a/sound/virtio/virtio_kctl.c b/sound/virtio/virtio_kctl.c
-> > > > index 0c6ac74aca1e..7aa79c05b464 100644
-> > > > --- a/sound/virtio/virtio_kctl.c
-> > > > +++ b/sound/virtio/virtio_kctl.c
-> > > > @@ -253,8 +253,8 @@ static int virtsnd_kctl_tlv_op(struct snd_kcontrol *kcontrol, int op_flag,
-> > > >  
-> > > >  	tlv = kzalloc(size, GFP_KERNEL);
-> > > >  	if (!tlv) {
-> > > > -		virtsnd_ctl_msg_unref(msg);
-> > > > -		return -ENOMEM;
-> > > > +		rc = -ENOMEM;
-> > > > +		goto on_msg_unref;
-> > > >  	}
-> > > >  
-> > > >  	sg_init_one(&sg, tlv, size);
-> > > > @@ -281,14 +281,25 @@ static int virtsnd_kctl_tlv_op(struct snd_kcontrol *kcontrol, int op_flag,
-> > > >  			hdr->hdr.code =
-> > > >  				cpu_to_le32(VIRTIO_SND_R_CTL_TLV_COMMAND);
-> > > >  
-> > > > -		if (copy_from_user(tlv, utlv, size))
-> > > > +		if (copy_from_user(tlv, utlv, size)) {
-> > > >  			rc = -EFAULT;
-> > > > -		else
-> > > > +			goto on_msg_unref;
-> > > > +		} else {
-> > > >  			rc = virtsnd_ctl_msg_send(snd, msg, &sg, NULL, false);
-> > > > +		}
-> > > >  
-> > > >  		break;
-> > > > +	default:
-> > > > +		rc = -EINVAL;
-> > > > +		/* We never get here - we listed all values for op_flag */
-> > > > +		WARN_ON(1);
-> > > > +		goto on_msg_unref;
-> > > >  	}
-> > > > +	kfree(tlv);
-> > > > +	return rc;
-> > > >  
-> > > > +on_msg_unref:
-> > > > +	virtsnd_ctl_msg_unref(msg);
-> > > >  	kfree(tlv);
-> > > >  
-> > > >  	return rc;
-> > > 
-> > > I don't really like adding code for a false-positive but ALSA
-> > > maintainers seem to like this. If yes, this seems like as good
-> > > a way as any to do it.
-> > 
-> > Err, no, you misunderstood the situation.
-> > 
-> > I took the v1 patch quickly because:
-> > - It was with Anton's SOB, who is another maintainer of the driver
-> > - I assumed you lost interest in this driver since you haven't reacted
-> >   to the previous patches for long time
-> > - The change there was small and simple enough
-> > 
-> > Now, it grows unnecessarily large, and yet you complained.  Why should
-> > I take it, then?
-> > 
-> > This is a subtle cosmetic issue that isn't worth for wasting too much
-> > time and energy.  If we want to shut up the compile warning, and this
-> > is a case where it can't happen, just put the "default:" to the
-> > existing case.  If you want to be user-friendly, put some comment.
-> > That's all.  It'll be a one-liner.
-> > 
-> > OTOH, if we do care and want to catch any potential logical mistake,
-> > you can put WARN().  But, this doesn't have to go out as an error.
-> > Simply putting WARN() for the default and going through would work,
-> > too.
-> > 
-> > Or we can keep this lengthy changes if we want, too.
-> > 
-> > So, I really don't mind which way to fix as long as it works correctly
-> > (and doesn't look too ugly).  Please make agreement among you guys,
-> > and resubmit if needed.
-> > 
-> > 
-> > thanks,
-> > 
-> > Takashi
-> 
-> OK sorry about too verbose.  I mean since Anton wants it, I ack this.
-> 
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+The MLX driver was not updating its control virtqueue size at set_vq_num
+and instead always initialized to MLX5_CVQ_MAX_ENT (16) at
+setup_cvq_vring.
 
-Alright, I applied this one.  Thanks!
+Qemu would try to set the size to 64 by default, however, because the
+CVQ size always was initialized to 16, an error would be thrown when
+sending >16 control messages (as used-ring entry 17 is initialized to 0).
+For example, starting a guest with x-svq=on and then executing the
+following command would produce the error below:
 
+ # for i in {1..20}; do ifconfig eth0 hw ether XX:xx:XX:xx:XX:XX; done
 
-Takashi
+ qemu-system-x86_64: Insufficient written data (0)
+ [  435.331223] virtio_net virtio0: Failed to set mac address by vq command.
+ SIOCSIFHWADDR: Invalid argument
+
+Acked-by: Dragos Tatulea <dtatulea@nvidia.com>
+Acked-by: Eugenio Pérez <eperezma@redhat.com>
+Signed-off-by: Jonah Palmer <jonah.palmer@oracle.com>
+---
+ drivers/vdpa/mlx5/net/mlx5_vnet.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+index 778821bab7d9..ecfc16151d61 100644
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -151,8 +151,6 @@ static void teardown_driver(struct mlx5_vdpa_net *ndev);
+ 
+ static bool mlx5_vdpa_debug;
+ 
+-#define MLX5_CVQ_MAX_ENT 16
+-
+ #define MLX5_LOG_VIO_FLAG(_feature)                                                                \
+ 	do {                                                                                       \
+ 		if (features & BIT_ULL(_feature))                                                  \
+@@ -2276,9 +2274,16 @@ static void mlx5_vdpa_set_vq_num(struct vdpa_device *vdev, u16 idx, u32 num)
+ 	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
+ 	struct mlx5_vdpa_virtqueue *mvq;
+ 
+-	if (!is_index_valid(mvdev, idx) || is_ctrl_vq_idx(mvdev, idx))
++	if (!is_index_valid(mvdev, idx))
+ 		return;
+ 
++        if (is_ctrl_vq_idx(mvdev, idx)) {
++                struct mlx5_control_vq *cvq = &mvdev->cvq;
++
++                cvq->vring.vring.num = num;
++                return;
++        }
++
+ 	mvq = &ndev->vqs[idx];
+ 	mvq->num_ent = num;
+ }
+@@ -2963,7 +2968,7 @@ static int setup_cvq_vring(struct mlx5_vdpa_dev *mvdev)
+ 		u16 idx = cvq->vring.last_avail_idx;
+ 
+ 		err = vringh_init_iotlb(&cvq->vring, mvdev->actual_features,
+-					MLX5_CVQ_MAX_ENT, false,
++					cvq->vring.vring.num, false,
+ 					(struct vring_desc *)(uintptr_t)cvq->desc_addr,
+ 					(struct vring_avail *)(uintptr_t)cvq->driver_addr,
+ 					(struct vring_used *)(uintptr_t)cvq->device_addr);
+-- 
+2.39.3
+
