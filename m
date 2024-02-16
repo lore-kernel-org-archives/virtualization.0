@@ -1,159 +1,153 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D84D177F35
-	for <virtualization@lists.linux-foundation.org>; Fri, 16 Feb 2024 14:25:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D220D12EBC6
+	for <virtualization@lists.linux.dev>; Fri, 16 Feb 2024 14:40:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708093516; cv=none; b=JkrOm/fn3nE+7+wFRo6amzTnfcF2fpo2gBIcRSftWjXD2s/ARBX7DjRFcITiY3oO0Qtltga3Ab6o3ZKMZYREkjDeVpdq/DF7wSVBQNMC3Jyci9VKeCTXWlgGH1fx+9g1YbJiuHo8GDcu9afFHrvgZS/Qg5o79WIZm2CYIolb3Dg=
+	t=1708094437; cv=none; b=KjzZK4OZtWHw6ZNjIjOih6TLYoDqg7jXA90m/ntgxY0VoUC5DEtf0WPt8lQL1yjYK4nH3tYWwe5lGAXlT/6hzw8l+3qAzNJDCBkmNQOcJcJz3lHPnT2Sg0IsjLGGU93gsV0nyoEsCaGiQgd7tf8bGyjp9NfXyWdKiXicVNERR6c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708093516; c=relaxed/simple;
-	bh=IT0RuO8hNrLvcTd49Cl9rAsXLcbRp/10UlV0SgfqJlc=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=lwuNhioLR1LurBLeuN0kyEq4tvT3iEIVz+OzA3v4LfqzdX9PQMHQM7u/SYoks056KvKr/NChFBjozPx1wFVYWiR8QLgWjOzV4qQA3Gy1fszVECjx4BUVFAQHpMA6MehTG8sCuD2YrZTojSiOPijgCSQuDa1zBiuGm30cohXfl5o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=HB6RXLxd; arc=none smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1708094437; c=relaxed/simple;
+	bh=VhhgxqgxNna3VDXzGb+u29de1zzuvgOHxd0eRr4Za/8=;
+	h=From:To:Subject:Date:Message-Id:MIME-Version; b=RH2BTxtofR0eC7Edldqlyo6onjByG6SpNK+gDiUlEysyQnN71mCRcCj47aat/lxZC/GIg6cdIQCiUORkfu2FJaXAcQ8n34iqzCgH0hl6aKUIL6ml8kZT2cnNpe1hyVNkbeAnSj1DNCHnQh63dqIsi3V3kisppZyAM9JTx3F8xdk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=sdYGt4Hn; arc=none smtp.client-ip=209.85.218.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="HB6RXLxd"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 6136382786
-	for <virtualization@lists.linux-foundation.org>; Fri, 16 Feb 2024 14:25:14 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id I3KBPMiPSNVR
-	for <virtualization@lists.linux-foundation.org>;
-	Fri, 16 Feb 2024 14:25:13 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=205.220.165.32; helo=mx0a-00069f02.pphosted.com; envelope-from=jonah.palmer@oracle.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 7B4AB81F36
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=oracle.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7B4AB81F36
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-11-20 header.b=HB6RXLxd
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 7B4AB81F36
-	for <virtualization@lists.linux-foundation.org>; Fri, 16 Feb 2024 14:25:12 +0000 (UTC)
-Received: from pps.filterd (m0246627.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41GCteU6016560;
-	Fri, 16 Feb 2024 14:25:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : mime-version : content-type :
- content-transfer-encoding; s=corp-2023-11-20;
- bh=uBxhZRwg4l5rEnPXjSwnK4GA/Up32KbHN12cZyql8BI=;
- b=HB6RXLxdgdq6PUkoWW2L0HuZG2qbMhrKs/lGartoG0w8GsNZWva5x8msc3RUDxLLz5P+
- 3jdzeiSt48EOBmpBuWmpV39WoKpjG7qP8VdS1KEtBN28ZmHXrLkmvXUnq2ZDzOUjZH+g
- xJUUDbwVz5Lse+JvxC48DC48TwSsXYAVvcl/yYQ55kfsnVtxFb13UZT3jJnvzP6bQynO
- QegLtZUC6sF3CEOFQiE4BDmQ0qBk+YK3+HX9ENMOBwkIq3462Xhhl5E1T1UzCb8UlUEw
- fHm+QuWO+LpyZ2sdIl1zCo/jvlFFZlTS+kfPWbSZenaagL6bVRVyLZYzXmLRdUZlx/BA Aw== 
-Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta03.appoci.oracle.com [130.35.103.27])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3w92ppn76q-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 16 Feb 2024 14:25:07 +0000
-Received: from pps.filterd (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-	by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 41GE7SWU031500;
-	Fri, 16 Feb 2024 14:25:05 GMT
-Received: from pps.reinject (localhost [127.0.0.1])
-	by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3w5ykc6ggk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 16 Feb 2024 14:25:05 +0000
-Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41GEP58Q006406;
-	Fri, 16 Feb 2024 14:25:05 GMT
-Received: from jonah-ol8.us.oracle.com (dhcp-10-65-191-137.vpn.oracle.com [10.65.191.137])
-	by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTP id 3w5ykc6gfn-1;
-	Fri, 16 Feb 2024 14:25:05 +0000
-From: Jonah Palmer <jonah.palmer@oracle.com>
-To: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
-        eperezma@redhat.com, si-wei.liu@oracle.com,
-        virtualization@lists.linux-foundation.org, dtatulea@nvidia.com
-Cc: jonah.palmer@oracle.com, boris.ostrovsky@oracle.com, leiyang@redhat.com,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v2] vdpa/mlx5: Allow CVQ size changes
-Date: Fri, 16 Feb 2024 09:25:02 -0500
-Message-Id: <20240216142502.78095-1-jonah.palmer@oracle.com>
-X-Mailer: git-send-email 2.39.3
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="sdYGt4Hn"
+Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-a2f79e79f0cso316920666b.2
+        for <virtualization@lists.linux.dev>; Fri, 16 Feb 2024 06:40:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1708094432; x=1708699232; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=ZRC42YbuNYRdIwcaj+US8j1sKLD+6CzDw3sU7mb37/4=;
+        b=sdYGt4Hnr0uzleQLmcDFGYuZ6+VzGgvm7vqhAToWmlyu5st6PHf35lwTj2xp9OKofl
+         IJgAEdwdMBJx83zDe78YTtAJ9ayPrk8qp/qBulav7jSddKDUN8T9cjfPVL29+LxvHsoO
+         xEZPYYOebsr5TOVPtsflOQuo+f2Ffzx+h/EmxWrM6HHClzGES1g/93X58LMhEQbhSX2K
+         WnkswxjdZPhA5u7DHw5rRbIxHKLn3Js6JvksHRxjAZjYrpTuH22Il8z92BQlAYYg+CvR
+         lxnbZOGYEkkyNTXFX3E/JHgHpbea/2EtI4KT/MYe/zF1OojQii9RCMxsCUZISWzwVxZk
+         1TrA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1708094432; x=1708699232;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ZRC42YbuNYRdIwcaj+US8j1sKLD+6CzDw3sU7mb37/4=;
+        b=bVDBsKKAnMlco9OpL8DHjwcejM+LTakZ24nYkvIkVYR7530NYKO07o4DK5zqSl5z1x
+         HFHsAJ0+roIvTfkuT2x9V86wibBXEk8TwdPCX3zfum72WKVKeTzFUksqQB/ZBapvMNQ4
+         vDZLaHaIEiGDjA5/heAQBenTeaxiB7AgHIs3Qu+JQi2Nn9Z8DaaDeHVkl1z2XwtnERRF
+         LNjCyjBHSJDL2NCusQnjJbjFhQxTuDyky4ePO/n75Dxzra7Wy1KFWqWm2nldaAG40URx
+         8USrpfn90ul32r/lcY+c5GHq3QZvG/VgV+DOA3wda64KCmSFNvhSAdRCbAWfahe5U9Z1
+         v8jQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVCbA4EsHXgdTkjRj1xq03EZaQvKCzoek6o2jXQTcD6IAjXVWx9gFoic04WHTbVn4dDB6RSLeZ0y9G7+HtpA9ZSZTJyKgc0WkU9h7j4HEU=
+X-Gm-Message-State: AOJu0Ywo08JuSPlxyGIOg++XMcwjINTSVTmZpkV7UV5Hmbn71KX8l/Me
+	k0jdwMRNmMkhkLUsUkoKtjm95udVmYUBolsMIrNEPK0kpVFyZVYZDfEMLntQg4M=
+X-Google-Smtp-Source: AGHT+IHf//9yt3eTnyw6VXgXdUG6tjNHVGPCN0at0VvNZn01LUmWCi7a4swsg2sOshpZkHrmmM9UNA==
+X-Received: by 2002:a17:906:185a:b0:a3d:994a:791d with SMTP id w26-20020a170906185a00b00a3d994a791dmr3667044eje.59.1708094432164;
+        Fri, 16 Feb 2024 06:40:32 -0800 (PST)
+Received: from krzk-bin.. ([78.10.207.130])
+        by smtp.gmail.com with ESMTPSA id a8-20020a170906670800b00a3ce3c5b2a4sm1592942ejp.195.2024.02.16.06.40.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 16 Feb 2024 06:40:31 -0800 (PST)
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+To: Hector Martin <marcan@marcan.st>,
+	Sven Peter <sven@svenpeter.dev>,
+	Alyssa Rosenzweig <alyssa@rosenzweig.io>,
+	Joerg Roedel <joro@8bytes.org>,
+	Will Deacon <will@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Rob Clark <robdclark@gmail.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+	Alim Akhtar <alim.akhtar@samsung.com>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Konrad Dybcio <konrad.dybcio@linaro.org>,
+	Yong Wu <yong.wu@mediatek.com>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Heiko Stuebner <heiko@sntech.de>,
+	Orson Zhai <orsonzhai@gmail.com>,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	Chunyan Zhang <zhang.lyra@gmail.com>,
+	Chen-Yu Tsai <wens@csie.org>,
+	Jernej Skrabec <jernej.skrabec@gmail.com>,
+	Samuel Holland <samuel@sholland.org>,
+	Thierry Reding <thierry.reding@gmail.com>,
+	Krishna Reddy <vdumpa@nvidia.com>,
+	Jonathan Hunter <jonathanh@nvidia.com>,
+	Jean-Philippe Brucker <jean-philippe@linaro.org>,
+	asahi@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	iommu@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org,
+	linux-samsung-soc@vger.kernel.org,
+	linux-mediatek@lists.infradead.org,
+	linux-rockchip@lists.infradead.org,
+	linux-sunxi@lists.linux.dev,
+	linux-tegra@vger.kernel.org,
+	virtualization@lists.linux.dev
+Subject: [PATCH 1/4] iommu: constify pointer to bus_type
+Date: Fri, 16 Feb 2024 15:40:24 +0100
+Message-Id: <20240216144027.185959-1-krzysztof.kozlowski@linaro.org>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-02-16_13,2024-02-16_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 mlxscore=0 spamscore=0
- adultscore=0 phishscore=0 bulkscore=0 mlxlogscore=999 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
- definitions=main-2402160115
-X-Proofpoint-ORIG-GUID: 1nyPEBMPUo5MAH0-NT3gFLXUoeJcDjB0
-X-Proofpoint-GUID: 1nyPEBMPUo5MAH0-NT3gFLXUoeJcDjB0
 
-The MLX driver was not updating its control virtqueue size at set_vq_num
-and instead always initialized to MLX5_CVQ_MAX_ENT (16) at
-setup_cvq_vring.
+Make pointer to bus_type a pointer to const for code safety.
 
-Qemu would try to set the size to 64 by default, however, because the
-CVQ size always was initialized to 16, an error would be thrown when
-sending >16 control messages (as used-ring entry 17 is initialized to 0).
-For example, starting a guest with x-svq=on and then executing the
-following command would produce the error below:
-
- # for i in {1..20}; do ifconfig eth0 hw ether XX:xx:XX:xx:XX:XX; done
-
- qemu-system-x86_64: Insufficient written data (0)
- [  435.331223] virtio_net virtio0: Failed to set mac address by vq command.
- SIOCSIFHWADDR: Invalid argument
-
-Acked-by: Dragos Tatulea <dtatulea@nvidia.com>
-Acked-by: Eugenio Pérez <eperezma@redhat.com>
-Signed-off-by: Jonah Palmer <jonah.palmer@oracle.com>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 ---
- drivers/vdpa/mlx5/net/mlx5_vnet.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/iommu/iommu-priv.h | 5 +++--
+ drivers/iommu/iommu.c      | 5 +++--
+ 2 files changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index 778821bab7d9..ecfc16151d61 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -151,8 +151,6 @@ static void teardown_driver(struct mlx5_vdpa_net *ndev);
+diff --git a/drivers/iommu/iommu-priv.h b/drivers/iommu/iommu-priv.h
+index 2024a2313348..5f731d994803 100644
+--- a/drivers/iommu/iommu-priv.h
++++ b/drivers/iommu/iommu-priv.h
+@@ -21,10 +21,11 @@ int iommu_group_replace_domain(struct iommu_group *group,
+ 			       struct iommu_domain *new_domain);
  
- static bool mlx5_vdpa_debug;
+ int iommu_device_register_bus(struct iommu_device *iommu,
+-			      const struct iommu_ops *ops, struct bus_type *bus,
++			      const struct iommu_ops *ops,
++			      const struct bus_type *bus,
+ 			      struct notifier_block *nb);
+ void iommu_device_unregister_bus(struct iommu_device *iommu,
+-				 struct bus_type *bus,
++				 const struct bus_type *bus,
+ 				 struct notifier_block *nb);
  
--#define MLX5_CVQ_MAX_ENT 16
--
- #define MLX5_LOG_VIO_FLAG(_feature)                                                                \
- 	do {                                                                                       \
- 		if (features & BIT_ULL(_feature))                                                  \
-@@ -2276,9 +2274,16 @@ static void mlx5_vdpa_set_vq_num(struct vdpa_device *vdev, u16 idx, u32 num)
- 	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
- 	struct mlx5_vdpa_virtqueue *mvq;
+ #endif /* __LINUX_IOMMU_PRIV_H */
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index d14413916f93..170329a085b8 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -291,7 +291,7 @@ EXPORT_SYMBOL_GPL(iommu_device_unregister);
  
--	if (!is_index_valid(mvdev, idx) || is_ctrl_vq_idx(mvdev, idx))
-+	if (!is_index_valid(mvdev, idx))
- 		return;
- 
-+        if (is_ctrl_vq_idx(mvdev, idx)) {
-+                struct mlx5_control_vq *cvq = &mvdev->cvq;
-+
-+                cvq->vring.vring.num = num;
-+                return;
-+        }
-+
- 	mvq = &ndev->vqs[idx];
- 	mvq->num_ent = num;
- }
-@@ -2963,7 +2968,7 @@ static int setup_cvq_vring(struct mlx5_vdpa_dev *mvdev)
- 		u16 idx = cvq->vring.last_avail_idx;
- 
- 		err = vringh_init_iotlb(&cvq->vring, mvdev->actual_features,
--					MLX5_CVQ_MAX_ENT, false,
-+					cvq->vring.vring.num, false,
- 					(struct vring_desc *)(uintptr_t)cvq->desc_addr,
- 					(struct vring_avail *)(uintptr_t)cvq->driver_addr,
- 					(struct vring_used *)(uintptr_t)cvq->device_addr);
+ #if IS_ENABLED(CONFIG_IOMMUFD_TEST)
+ void iommu_device_unregister_bus(struct iommu_device *iommu,
+-				 struct bus_type *bus,
++				 const struct bus_type *bus,
+ 				 struct notifier_block *nb)
+ {
+ 	bus_unregister_notifier(bus, nb);
+@@ -305,7 +305,8 @@ EXPORT_SYMBOL_GPL(iommu_device_unregister_bus);
+  * some memory to hold a notifier_block.
+  */
+ int iommu_device_register_bus(struct iommu_device *iommu,
+-			      const struct iommu_ops *ops, struct bus_type *bus,
++			      const struct iommu_ops *ops,
++			      const struct bus_type *bus,
+ 			      struct notifier_block *nb)
+ {
+ 	int err;
 -- 
-2.39.3
+2.34.1
 
