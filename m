@@ -1,131 +1,277 @@
-Received: from mail-ed1-f45.google.com (mail-ed1-f45.google.com [209.85.208.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 714D212F38E
-	for <virtualization@lists.linux.dev>; Fri, 16 Feb 2024 14:40:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.45
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708094442; cv=none; b=JXweGkBDtLer+XFa82THgvlHsZil8Vj/IZRRzvqhgkseH6yk2aXdvknH2ZlMJdpED98PQmhBQjrvzU4KSn0/0w4Uak008OClWUgyCA2508hJtvs2UqtGWNNNwawegoseM3Ktrj0cp/8OdvLskvHaJ/H6I9QcP45e9doLK/S/8gU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708094442; c=relaxed/simple;
-	bh=pD34V4Xis6XvSKzWyAyrm6YM5UjXrZYGLUr4MspUCqE=;
-	h=From:To:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=f9qOdr6kouWJCHuCSv2sJLhJ9r9vYJUItELeI1/erO9JWmAqfxays4y23+bkzeKjlNlE67Kp0ILDc11MoNyOBunkf+B9zjFCE5zGWeXwDpiGcjkqNV6hwK55hzRYjj5E3+qm00XJMTA5V39CcKw9Wfnejet46+lbv7e/UxpGr7Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=o0e704WZ; arc=none smtp.client-ip=209.85.208.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94E1312F58E
+	for <virtualization@lists.linux-foundation.org>; Fri, 16 Feb 2024 15:16:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.136
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1708096581; cv=fail; b=nrsxzxecIv3RBnQBM6l+pH6jLwN9/jeLfRj9u9absKY4ARRLfN2pq23+j46UvpYkXBiBchV7mJVs65XGUkC5QKfImlefFmfZ0gaK8hNGxt8T7ulh53Brd3KiuHYt2HTHXgqRwyfq6siQRRxUNLXNhpdhOge4/31WSSmLbiCuBZQ=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1708096581; c=relaxed/simple;
+	bh=4hkDTlmwv+nYGRloh4SQTe2bOtxqy6gq/BW4BYKmd7E=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=cIoKXEfyz+pUCaaFm9VNgSLalWUnw3sDgciDb1NxvcSKkZsCPWPl4Rl0nWQnevJBtuoVDSBZohCCLQGGnshQ+cgdvaAvEvNLOVIxLrNeFWEAIIjXWYebG60uy+NPs3I/0xwiJiztLA9MfXOl5iC/3/QpDnFqeXa8+MMFZv/MQDY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=EBo9delA; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=odqROqiq; arc=fail smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="o0e704WZ"
-Received: by mail-ed1-f45.google.com with SMTP id 4fb4d7f45d1cf-563fe793e1cso632210a12.3
-        for <virtualization@lists.linux.dev>; Fri, 16 Feb 2024 06:40:40 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="EBo9delA";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="odqROqiq"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 26DC06066C
+	for <virtualization@lists.linux-foundation.org>; Fri, 16 Feb 2024 15:16:19 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.098
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id W-S00VkXSXk5
+	for <virtualization@lists.linux-foundation.org>;
+	Fri, 16 Feb 2024 15:16:18 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=205.220.165.32; helo=mx0a-00069f02.pphosted.com; envelope-from=steven.sistare@oracle.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 541A460618
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=oracle.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 541A460618
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-11-20 header.b=EBo9delA;
+	dkim=pass (1024-bit key, unprotected) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=odqROqiq
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 541A460618
+	for <virtualization@lists.linux-foundation.org>; Fri, 16 Feb 2024 15:16:17 +0000 (UTC)
+Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41GCidwN020785;
+	Fri, 16 Feb 2024 15:16:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=corp-2023-11-20;
+ bh=c2cBIhFIX35Z5WPojgzlmrMqxOv5tzBqozoglGndGB0=;
+ b=EBo9delAtxhOjSj91+NjGG2CgaE+ztv0uDknkLlFZz8GQzhDc9dfBzayli+1cYYdwb2M
+ STHwdLHYItOptlrbQsBaAxv6eJj/viXneydz5SNIhPeawCLNteGS3s4kkNrSvzIWamtw
+ tD4cm2Rc6Bsmpz7wJILZ1z/JULtSUAT5eUBSjt4qipMobdaPBNk/DmJnmI6uxsYvwb7o
+ 5rY/mVxbemi364IQYs3gBNtvXZitTJHle5TIgYbKxp8f86Rd4hUUWv9NlZqDjgHtHJ1n
+ bBK3CzY4MOYNgyLqOFVb3xvitUMS1aOKR0ixymSYlrI+fgqmoCtB4QJ3/vbVwp0lUUoY qw== 
+Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3w92s75ab6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 16 Feb 2024 15:16:09 +0000
+Received: from pps.filterd (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 41GF9Kfq024722;
+	Fri, 16 Feb 2024 15:15:53 GMT
+Received: from nam10-dm6-obe.outbound.protection.outlook.com (mail-dm6nam10lp2101.outbound.protection.outlook.com [104.47.58.101])
+	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3w5ykjjdg8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 16 Feb 2024 15:15:53 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=jJn0JXkROiZ/R/HXnqPWhUGs5bihNdNRern5ECMy+he7gqiq/S+rPEiWKVZKPi92u9n6nFDfPWlmhztNwHXb6RHBDVYa7OMH5omwgqJTS+kX5dr30wYXD/3hq+K9H/f1b0GTbXYzRizISDwkXNlh9iVeEynqtjiJFJ/LPMZApKa4Y+TcWyTt2eEW/u+y7FYxygL43ur87dZnP08QzJTDmqUgZ8u0JOGi+P3R7+kA2CRSNT5JXcTpCOEH8POk5dZGHmJju1kFQalJQ9L9o6Vh7LQzjxFRSjfH/ItwxSPJguCgfaB+aVT2ul1vhKe+TP7ZHGhNd5Ed91C2YTZpvAoFEw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=c2cBIhFIX35Z5WPojgzlmrMqxOv5tzBqozoglGndGB0=;
+ b=FLbMXWeTZ4P0iBv2efWDQUi+ssTXtLRlk0dIbWlNYaQ5iqJb19Q6tolcDGr4MjgoZaHhdw64fL/pcs20L1zTB3L7PWe+d/Hp34qT8zCmyMgOGpoMotjULBNItQyYEdj30ACO96ucXqQ6sbJR3zIkY8oO1S1A0Zc9ypY292sPLfzlj7cXGnxJLwT7dOzQ6JY4eIqlzkh6uMoJ6GkTHi9TLzDuO/dziHSoQvzaBBwmTsH9Oh79CGgRiteqaYpvOE0UQKxIqapuL0iNmhOgE631WaxcIyVWcsAVzj28wXg7PRPO+4wsdjb9t6sQSVgzgh9J1jjvkp3EkftxJcpiszZDMg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1708094439; x=1708699239; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=ddHRp/a7ql2hO4wtU3P1Kr5z86y1yTWMkn8d+hM85z0=;
-        b=o0e704WZqBAoT7ZniIW6xFY6GPfc2/ZCGqVr+wF9ZF5A0SK0nNcHuYmtV+0hTTDB1D
-         Y6WEJcvuxxQLPbLQImofWPzH0WUQhubx4Yd5XenyZqFZFZw7UQhl7mJ+8muVuFAMmb/8
-         xKe/LqxNoRtsZC+acdjRTs1iHDjSwekOMJLfJcgFw0xa/94K6uHbwxCXf3OoAm3kUyEV
-         jJQnRWLZUzKFuoBVl/umlJke+b18vQU5AqjK/c79FaN7YmuUOnKXmJP4YPieskdO30Q3
-         YyMF8zFJVuV8RJiVbAA8a6q8BCK/txzZfCNcQUKc5gF5BstTudu4rQp6MLhs4kcHqD2p
-         mRfw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708094439; x=1708699239;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ddHRp/a7ql2hO4wtU3P1Kr5z86y1yTWMkn8d+hM85z0=;
-        b=wKcjQBBTCgSlx+2iKrRUdqG9gHk7MT6wVLgQc6TfJP8AQxCKRBY9Ir20QSE8Hq2nQ0
-         QV087KjRsAxxuQDP2HsPsYFGA6Ka81ABdHvzLlFbQnbZ1izbS1GUmN2XJoFOHTdM02aW
-         gffRycUzhBlSprmCRRtvJOSdprD0n/7+hQMSZFYPDBhJjQZW1TgtSr9h5jYrn8USYSsU
-         kh5BSO/vSAQmf/hlS/aLRejX8a7inbAbouLW+U4Va17cyJKh86BbzidTMleHwRLXRn3E
-         cxNkL7hMMrOUhCjKt/FN/g3F4zAwTCe1jDlDpj2z55xysb/qC1yiNu7ZbMT+Ay0Z+DGN
-         8QAw==
-X-Forwarded-Encrypted: i=1; AJvYcCXJNSe7t4UobSMaSMx10GuW3XkurOq7mqTANIvtWs7Kj6QxF1BOWd5SyaTH50MYODWM4+sWD6Iy159kgaE0U4FeLWRe056JLT+xeEFcVHs=
-X-Gm-Message-State: AOJu0YzhQENyIjngRrcHtQMnTVsczPe77/YVF/goLmtqa9W5hxlmIYVh
-	+Haz2+daedvS+ehe9HCDQAhNLienfmtvOJJBbYwCStV0eWTzcQNRCmMtECJWAnA=
-X-Google-Smtp-Source: AGHT+IFjUr0pwHx7I9NJd2MhgZLwiZF/Q3I4EAlN6VBXxRxf0gB7BEu6U93gT2kjFbtxE6rZ4t4ByQ==
-X-Received: by 2002:a17:906:d7bb:b0:a3d:704:d688 with SMTP id pk27-20020a170906d7bb00b00a3d0704d688mr3675983ejb.47.1708094438802;
-        Fri, 16 Feb 2024 06:40:38 -0800 (PST)
-Received: from krzk-bin.. ([78.10.207.130])
-        by smtp.gmail.com with ESMTPSA id a8-20020a170906670800b00a3ce3c5b2a4sm1592942ejp.195.2024.02.16.06.40.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 16 Feb 2024 06:40:38 -0800 (PST)
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-To: Hector Martin <marcan@marcan.st>,
-	Sven Peter <sven@svenpeter.dev>,
-	Alyssa Rosenzweig <alyssa@rosenzweig.io>,
-	Joerg Roedel <joro@8bytes.org>,
-	Will Deacon <will@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Rob Clark <robdclark@gmail.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-	Alim Akhtar <alim.akhtar@samsung.com>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Konrad Dybcio <konrad.dybcio@linaro.org>,
-	Yong Wu <yong.wu@mediatek.com>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Heiko Stuebner <heiko@sntech.de>,
-	Orson Zhai <orsonzhai@gmail.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Chunyan Zhang <zhang.lyra@gmail.com>,
-	Chen-Yu Tsai <wens@csie.org>,
-	Jernej Skrabec <jernej.skrabec@gmail.com>,
-	Samuel Holland <samuel@sholland.org>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	Krishna Reddy <vdumpa@nvidia.com>,
-	Jonathan Hunter <jonathanh@nvidia.com>,
-	Jean-Philippe Brucker <jean-philippe@linaro.org>,
-	asahi@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	iommu@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org,
-	linux-samsung-soc@vger.kernel.org,
-	linux-mediatek@lists.infradead.org,
-	linux-rockchip@lists.infradead.org,
-	linux-sunxi@lists.linux.dev,
-	linux-tegra@vger.kernel.org,
-	virtualization@lists.linux.dev
-Subject: [PATCH 4/4] iommu: re-use local fwnode variable in iommu_ops_from_fwnode()
-Date: Fri, 16 Feb 2024 15:40:27 +0100
-Message-Id: <20240216144027.185959-4-krzysztof.kozlowski@linaro.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20240216144027.185959-1-krzysztof.kozlowski@linaro.org>
-References: <20240216144027.185959-1-krzysztof.kozlowski@linaro.org>
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=c2cBIhFIX35Z5WPojgzlmrMqxOv5tzBqozoglGndGB0=;
+ b=odqROqiqV7y7rhmjfXnxRUIzE4/X0C94959zrGoRIHi5P5gnkY5c6LJ1X/HAs0tEpmXFVl6E0jwRAfcifyWEUqChT8GsqeB+iMK9SPiX6NoGGKApmNVlH+nY/7Kk2LH4UQA+SctBy6NG73yoXFEnZ8Xc/a9bTJrM6ua9t7jhd2k=
+Received: from SA2PR10MB4684.namprd10.prod.outlook.com (2603:10b6:806:119::14)
+ by SJ2PR10MB7618.namprd10.prod.outlook.com (2603:10b6:a03:548::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7292.27; Fri, 16 Feb
+ 2024 15:15:51 +0000
+Received: from SA2PR10MB4684.namprd10.prod.outlook.com
+ ([fe80::c3ce:7c28:7db1:656b]) by SA2PR10MB4684.namprd10.prod.outlook.com
+ ([fe80::c3ce:7c28:7db1:656b%6]) with mapi id 15.20.7292.029; Fri, 16 Feb 2024
+ 15:15:51 +0000
+Message-ID: <5ad9cc63-85db-4cb5-9013-828caf60020d@oracle.com>
+Date: Fri, 16 Feb 2024 10:15:45 -0500
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH V2 3/3] vdpa_sim: flush workers on suspend
+Content-Language: en-US
+To: Eugenio Perez Martin <eperezma@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>, Si-Wei Liu <si-wei.liu@oracle.com>,
+        Xie Yongji <xieyongji@bytedance.com>,
+        Stefano Garzarella <sgarzare@redhat.com>
+References: <1707758174-142161-1-git-send-email-steven.sistare@oracle.com>
+ <1707758174-142161-4-git-send-email-steven.sistare@oracle.com>
+ <CAJaqyWfYHqf2=8BMo5ReKEB137fxGZR4XEJ2d4imXOOXAX2wHQ@mail.gmail.com>
+ <e1b80fee-30df-4733-9072-ce67e3edc72f@oracle.com>
+ <CAJaqyWe1=eQ4eQyv+wOqbr3pfZst6gmss2SrDZSNkY_ZVXcf=Q@mail.gmail.com>
+ <996cfabf-c612-43c8-9e56-03fb58a1ebec@oracle.com>
+ <CAJaqyWdKC6rLBOykSeWc87QtJ757LNXd78R59JRizUyAQCu+ig@mail.gmail.com>
+From: Steven Sistare <steven.sistare@oracle.com>
+Organization: Oracle Corporation
+In-Reply-To: <CAJaqyWdKC6rLBOykSeWc87QtJ757LNXd78R59JRizUyAQCu+ig@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: BYAPR11CA0055.namprd11.prod.outlook.com
+ (2603:10b6:a03:80::32) To SA2PR10MB4684.namprd10.prod.outlook.com
+ (2603:10b6:806:119::14)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SA2PR10MB4684:EE_|SJ2PR10MB7618:EE_
+X-MS-Office365-Filtering-Correlation-Id: 9195c6d1-d98a-4589-97a1-08dc2f02295f
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 
+	tnFxM/hb6rU+YN+boJUfTuL5Ix9ZG+O+nwyfDjrpagcp4QVc/IIAlewYSh8HiCCHhxrnfuTDc9BVfkjc+YWvKoMQnQdQBKD0UDnf7/bryBqHqszzl6uCtgjPIZ5h+sHTxsGoeCDv4jNvIxIYvm4EGtGQFAPljM2klWQt+VmUHI8a0KEOs7MilqPZipCMghtaMR10dT43wvtkNZtweSkyXxBQVCKeqFurxSU1a74+J/gQph6ByikNbicTh6/QYA6Wc6xlMrDDVGzi/Gr3y6ydgwK29gTZbkWp1IGtqgl2LOFkedCLliQ06pxotIgYjQLaqIRHUwlt9Hgb9D2cV3fVBI9gyEP5dd/OfuJHfVq+bbpwMt1ejebA9KR2J2SCL8HTplkTsyi2y93Y2i4D84vUee9uum8T4pYy3xu6v/KkOhJFxArxmb+cFREFuPRxpNKF/ZWlAI6jala3kH12cXOf5g26pCJ4PjfhxN2SXY8u5vySHh/aLMm9kN0p+tI1Ch/7JtR1vOXQu21sh8uPenwQR/9L9mT8A0lMLmHrvUEg0tc8q6iDJLLuoMkFRasfjEDo
+X-Forefront-Antispam-Report: 
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA2PR10MB4684.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(346002)(136003)(366004)(396003)(376002)(39860400002)(230922051799003)(451199024)(64100799003)(186009)(1800799012)(31686004)(5660300002)(38100700002)(15650500001)(44832011)(2906002)(4326008)(2616005)(26005)(66476007)(316002)(6916009)(66556008)(6666004)(66946007)(8676002)(54906003)(8936002)(478600001)(6512007)(36916002)(6506007)(83380400001)(86362001)(31696002)(41300700001)(53546011)(36756003)(6486002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: 
+	=?utf-8?B?K2N1SUZ5cko4dEl5NjBqbjZlNW12MzNEckdBOWkvaWdxL1JWY3IyK3JoOVB1?=
+ =?utf-8?B?NlF3cXI5SmQxWWRRNU5YeDVrUDhUWHgwdG1DWHBaQjRYKzR4TkloT2VMaTRh?=
+ =?utf-8?B?b0RycGdRY08yMk93V3dPMVR1dWRYR05SczRaR2hNeWFtc2JwSXE1QktTSVRQ?=
+ =?utf-8?B?ckg3bjhSaWk5cjJuWWVmdHc5WU1KbE5NZmFJenh0dGIvb1ZOMXFFcjd5dk9u?=
+ =?utf-8?B?aU5PV05PbEFZM2xrWUxuRkVMb0RCRmlOcTFXY0c0dDVZY21TN0Nhb1c1TEx1?=
+ =?utf-8?B?R2oyMWVzVjYvZWZTNnZhVC91WWlQa0pPRXg5V2t5UzdhZmRiakdiRjQ0djJs?=
+ =?utf-8?B?SUNkYUlNYnlDa1ZLalNtTk9yTldVVzU2L3VLbEdXR3I0SFo4eHNTeVhCajJG?=
+ =?utf-8?B?Z21DK3h2TTU5MXF1VEtlYW5XcHllTzEyQzQ0dGhMRGY1ZlRRWE5FUGp1YmNw?=
+ =?utf-8?B?RnhRUVVYV3czc3phOFU4ZXVMK0JpdUVkWE9aOWUyTXFkRzZYUGo4alBicWNT?=
+ =?utf-8?B?MVdxeWtBbnhMS3RKdW52S0h0RDYzVS8rNG1PZHhLa24zS2dYcVd6VyszYmZQ?=
+ =?utf-8?B?WEdaVVNuTmNHR3BUQSt2YjE4ZHJqaWwyN3h5UUVSWmR1SDRHTzl1U25QdEFC?=
+ =?utf-8?B?ZW12TDJ5cjFpNnlVMDkwaUFyWXY1ZmVjdkF1TytpTmpIN3c0bWFWcTN2SEI0?=
+ =?utf-8?B?UVUxeGJyMEV5V3dCRmNEVjM3T05hZGlKM0xyQWRVTDVNZmdVemM5ZzJOZ0c3?=
+ =?utf-8?B?SHJFK3ZZbW9qQmZLMDZkNWV0R3BENGpHNWUwdzVBSHVOVVpKMFJwODcrMXRp?=
+ =?utf-8?B?cnVQNjJKak8yOFdDbWNIY3ROZ1loSU5UbUlZUDJoaHQ2aXVURUcyVlVZQ3I4?=
+ =?utf-8?B?VnNpd2ZvY0dPUm8yRFdYcWt6ZjlPZWRFUHNyRHA5NUZRNGY5UEV0cjdMRlNO?=
+ =?utf-8?B?WG53cythNEExYXB2N3ExTU5nU3VRWG4vWFF0VkxsbVBhdjlsM095YTZ2VHdX?=
+ =?utf-8?B?dkgwMEdrZ0ovZ0xGWldoTzBURnBsbEViWlJ2SDJhNnpxdFJBclhhZy83U2ZK?=
+ =?utf-8?B?VHIyNlZQT3FFMVBDSEdMYUpiOTdxYzNBU1hKVWNMNFBFeGZIZkZQY3poeWYy?=
+ =?utf-8?B?bk9uYk1RYzh6UVYwVEMyY3AwY3hJa0xWaXkrdVdsd1BWRjlvK0liTHF2ZENi?=
+ =?utf-8?B?eStucDJ0UU5xcGUyUlZxeFZVNkJHSWdGOWNINHBhVG0xb3FRRVR5SEJUZGdm?=
+ =?utf-8?B?MnpwaFV6ZndSd0lmdk55VXREakhRM1NzeFVhenVXQnoxZitsaUkzdHV1VkRP?=
+ =?utf-8?B?dmtoLzY2Y3NhdWNYYTU5ZjNqRFc5YzVmSWFnRjdkUURQV1VyeW4zRXFXUnN1?=
+ =?utf-8?B?YUFXOEVNalo5bEdvMG0yeEVsaEc2Y2hvaDZxK0lXeGl4dURybmJhNE5FZW5N?=
+ =?utf-8?B?SU1QWDZ4QThhU3hCNU5vSnA2eXYrMU9vSXI1YWtkQlVWK1JWOXhHQ3dMWUg2?=
+ =?utf-8?B?enFOSEFTakRoS011dHNpK2FDZXI5VWE1WlZPOS84WEVOWDR5dlBycnlEM1Zj?=
+ =?utf-8?B?U0JWTCttNXNFc3VMS3R1a0tWUXdXdlBkVHZja0ZXRFVLeUFNRVRNZ2JoUzlM?=
+ =?utf-8?B?dGJsenZJemhiMEUyYmIvTHZqcWs0WkdFU1ZEZ2xkYTJzNFhXVHZrckZtanV2?=
+ =?utf-8?B?V2FzaU5zazBGNlVUVXVCS25wWEVMeVo1c2d5WHBzZlpSaWJoL0pmTTF0bjV3?=
+ =?utf-8?B?WHlsWUhSam9NY2xEazRXdmlOL0MvbXhWL2xYUjhUUGtKZW5iN09acEZuQTcv?=
+ =?utf-8?B?UmlmKzFVbDJreEdITGVNWnE4VHR5eThTU2ovZkdWbFcrNWRVdUNnaEtWWE9U?=
+ =?utf-8?B?TXlaZW9zTGhEcjZNblpzSDFKTjdIZGU4Q3FHM1N0L2Q4d2U0MnFVTVZRUEsz?=
+ =?utf-8?B?cVdQcHVJcTFhNTNaWWF4Z0QvNm5ucVp6RmF2SlEvVDV4SHZmSFJVKzE5TDZC?=
+ =?utf-8?B?bzVrZGhBY05zK1d6NDgwNWg5QmMyc1U0OTFZaGVmU3hlaG1BUk92NlNPMlJT?=
+ =?utf-8?B?RGxEN2w0cFhCcDl3Wkx3M1BpVVJmMGd2LzlWMG5ZQXZ0VlRSRExVWEFJNTZv?=
+ =?utf-8?B?UWNva2lGTk4zem93ZlZtcEtjL0k1ajlWUG9neXh6SUZFN0w5REVCSi84R0Vt?=
+ =?utf-8?B?Vmc9PQ==?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: 
+	VuRWzYDHCOi49Fo/yeZDJdB2MT8g3TBMo+19Qm0C8dSPLAQLSiq1kiToNWBNIU/lRMT3LnUR8Ec6pOHpSx9otwyoSeMs+sG0EkgZfvlc1/bu4O29VTy9i/JIQfdWU+n1HZebNg5MzP5ycbm/ezeL3ehF291fphXG0NtzUtp1k0Cpy+OQDMrq7579/6JCbjJOXGAjzWQDy9lw/Nv18IBG/8Q6EqNv1f1zL3leT/1umI6qQF5LJNMo1TXPtzKnjNInjqRtN3BXrbMoILUpH+P5mkBH4jEpaouSQHWcC2lith0Hqk+tZFC5Zx/q0nWHoyTopJxD2xwdTTdyb7u7TlEQJ+R+0qykH8BSzPY7O/HAyrCHO5Aqfx7zI7eq3J4vomHA2K9y/Xv1M+ubOJ1zvvP7dgqw65tH8K4Q5kmYuH3eibPPkotaynRKVuaMl5x7RdrXonoOwKniF09w48M2fSdrq2Rx1AjrN6mAlzDkoZShtn6nHG+98Zt7HKRvT31awSRRSpHCtuCqt2qyGjD93oI1L3r3hPa7SpKLL24cvTQ/MNC0LRwTLita0riw9pMaEF6gGjWxBtoyITH+0slKnxbjNoULYI6F3uyUWxxgJIz0pBA=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9195c6d1-d98a-4589-97a1-08dc2f02295f
+X-MS-Exchange-CrossTenant-AuthSource: SA2PR10MB4684.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Feb 2024 15:15:51.1571
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: UaQUMd4OwzoiyLw8+y0XtBMMAX0aTgnwR4sLDAfdWsN/Ss3hQBH7r2w2KTYUiYXGvHhmDVYRtMGswoGCY20arTTYOfuDU1UMtOl11XXecFY=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ2PR10MB7618
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-02-16_15,2024-02-16_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 bulkscore=0
+ mlxlogscore=999 malwarescore=0 mlxscore=0 spamscore=0 suspectscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2402160122
+X-Proofpoint-GUID: 0UBq3bb51ln--4taJSY0Vx4eCCoLILO3
+X-Proofpoint-ORIG-GUID: 0UBq3bb51ln--4taJSY0Vx4eCCoLILO3
 
-iommu_ops_from_fwnode() stores &iommu_spec->np->fwnode in local
-variable, so use it to simplify the code (iommu_spec is not changed
-between these dereferences).
+On 2/15/2024 10:44 AM, Eugenio Perez Martin wrote:
+> On Wed, Feb 14, 2024 at 8:52 PM Steven Sistare
+> <steven.sistare@oracle.com> wrote:
+>>
+>> On 2/14/2024 2:39 PM, Eugenio Perez Martin wrote:
+>>> On Wed, Feb 14, 2024 at 6:50 PM Steven Sistare
+>>> <steven.sistare@oracle.com> wrote:
+>>>>
+>>>> On 2/13/2024 11:10 AM, Eugenio Perez Martin wrote:
+>>>>> On Mon, Feb 12, 2024 at 6:16 PM Steve Sistare <steven.sistare@oracle.com> wrote:
+>>>>>>
+>>>>>> Flush to guarantee no workers are running when suspend returns.
+>>>>>>
+>>>>>> Signed-off-by: Steve Sistare <steven.sistare@oracle.com>
+>>>>>> ---
+>>>>>>  drivers/vdpa/vdpa_sim/vdpa_sim.c | 13 +++++++++++++
+>>>>>>  1 file changed, 13 insertions(+)
+>>>>>>
+>>>>>> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+>>>>>> index be2925d0d283..a662b90357c3 100644
+>>>>>> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
+>>>>>> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+>>>>>> @@ -74,6 +74,17 @@ static void vdpasim_worker_change_mm_sync(struct vdpasim *vdpasim,
+>>>>>>         kthread_flush_work(work);
+>>>>>>  }
+>>>>>>
+>>>>>> +static void flush_work_fn(struct kthread_work *work) {}
+>>>>>> +
+>>>>>> +static void vdpasim_flush_work(struct vdpasim *vdpasim)
+>>>>>> +{
+>>>>>> +       struct kthread_work work;
+>>>>>> +
+>>>>>> +       kthread_init_work(&work, flush_work_fn);
+>>>>>
+>>>>> If the work is already queued, doesn't it break the linked list
+>>>>> because of the memset in kthread_init_work?
+>>>>
+>>>> work is a local variable.  It completes before vdpasim_flush_work returns,
+>>>> thus is never already queued on entry to vdpasim_flush_work.
+>>>> Am I missing your point?
+>>>
+>>> No, sorry, I was the one missing that. Thanks for explaining it :)!
+>>>
+>>> I'm not so used to the kthread queue, but why not calling
+>>> kthread_flush_work on vdpasim->work directly?
+>>
+>> vdpasim->work is not the only work posted to vdpasim->worker; see
+>> vdpasim_worker_change_mm_sync.  Posting a new no-op work guarantees
+>> they are all flushed.
+> 
+> But it is ok to have concurrent mm updates, isn't it? Moreover, they
+> can be enqueued immediately after the kthread_flush_work already, as
+> there is no lock protecting it.
 
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
----
- drivers/iommu/of_iommu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Agreed on both, thanks.  I will simplify and only flush vdpasim->work.
 
-diff --git a/drivers/iommu/of_iommu.c b/drivers/iommu/of_iommu.c
-index 719652b60840..3afe0b48a48d 100644
---- a/drivers/iommu/of_iommu.c
-+++ b/drivers/iommu/of_iommu.c
-@@ -29,7 +29,7 @@ static int of_iommu_xlate(struct device *dev,
- 	    !of_device_is_available(iommu_spec->np))
- 		return -ENODEV;
- 
--	ret = iommu_fwspec_init(dev, &iommu_spec->np->fwnode, ops);
-+	ret = iommu_fwspec_init(dev, fwnode, ops);
- 	if (ret)
- 		return ret;
- 	/*
--- 
-2.34.1
+- Steve
 
+>>>>>> +       kthread_queue_work(vdpasim->worker, &work);
+>>>>>> +       kthread_flush_work(&work);
+>>>>>> +}
+>>>>>> +
+>>>>>>  static struct vdpasim *vdpa_to_sim(struct vdpa_device *vdpa)
+>>>>>>  {
+>>>>>>         return container_of(vdpa, struct vdpasim, vdpa);
+>>>>>> @@ -511,6 +522,8 @@ static int vdpasim_suspend(struct vdpa_device *vdpa)
+>>>>>>         vdpasim->running = false;
+>>>>>>         mutex_unlock(&vdpasim->mutex);
+>>>>>>
+>>>>>> +       vdpasim_flush_work(vdpasim);
+>>>>>
+>>>>> Do we need to protect the case where vdpasim_kick_vq and
+>>>>> vdpasim_suspend are called "at the same time"? Correct userland should
+>>>>> not be doing it but buggy or mailious could be. Just calling
+>>>>> vdpasim_flush_work with the mutex acquired would solve the issue,
+>>>>> doesn't it?
+>>>>
+>>>> Good catch.  I need to serialize access to vdpasim->running plus the worker queue
+>>>> in these two functions.  vdpasim_kick_vq currently takes no locks. In case it is called
+>>>> from non-task contexts, I should define a new spinlock to be acquired in both functions.
+>>>>
+>>>> - Steve
+>>>>
+>>>
+>>
+> 
