@@ -1,57 +1,57 @@
-Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com [209.85.218.45])
+Received: from mail-ej1-f44.google.com (mail-ej1-f44.google.com [209.85.218.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A1FE12EBE8
-	for <virtualization@lists.linux.dev>; Fri, 16 Feb 2024 14:40:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 272BE12F36D
+	for <virtualization@lists.linux.dev>; Fri, 16 Feb 2024 14:40:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708094438; cv=none; b=CqY2Ka5txuD1JaHF5GqffEv5WDrxWueaQ5bj3YIf4xtkzs1clvL0OEl4NEj8kyi2qDM0F+Vx4XTdyW7rnw2jTL0mLIWp0wV7b0ddViLzAy/tm2LIPDG9H1Xjwg57NItvcaB4y8zuEn/qsImQwTHLdl2zCpAj7DIvCY/L21rEKKI=
+	t=1708094440; cv=none; b=eqHonkHhGtzT6X/DSOrVORnG+F4P+WmLIVzq05l6O5gHpubtmF1/mAf1ewRIf37DnU/MTbkmZM3IfCK3JnMMvQkOYegOSll0uHbXb5oC9/2S4yKj7YfjUGIPKkutydLZ2UALyjsesClkx8PDigHdARCDW6aZcYUO5ztKyEwJVk4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708094438; c=relaxed/simple;
-	bh=VNML90UaXktZKuCOd5A/cwVT7pPIGW6JzGtZcT2C/jA=;
+	s=arc-20240116; t=1708094440; c=relaxed/simple;
+	bh=JRNY0w7Ro2R0aulceus9kSJUlVFLy2lL65NJT4HL82U=;
 	h=From:To:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=YLMG6fu8XdZLD0nrIz/vriugd/tAHd76nrfP4KpLd61Pa6XT4/FG9C2T7YbyeqiUKROrYv3+am/IReI6J9rQssemkI8VdTTSEVI5/Nq8NqMFaX5bFmC9oWIKCwRzbfk60tIU07kXdOklVGioQ2xUm0+PnS7r0381RhlvbtDtwmc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=yw9RTXmO; arc=none smtp.client-ip=209.85.218.45
+	 MIME-Version; b=T8OS5xYrTUhXoHa3/+B2ymlu37hBz7cHC49Q/0naAAv6Lpebdt/vJJzyEuCUAwvLKwegbF7799qFmHQmH2zaO0CvqNAhwTmDI96xmKRRltsZ5ZC0o0RG8Gua9ae2Ewq+IT2ndxP3+qlmriKD8AodaaDVimlmzddUOoCyTPI3ExI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=oBB8b6Jz; arc=none smtp.client-ip=209.85.218.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="yw9RTXmO"
-Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-a2f79e79f0cso316929366b.2
-        for <virtualization@lists.linux.dev>; Fri, 16 Feb 2024 06:40:35 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="oBB8b6Jz"
+Received: by mail-ej1-f44.google.com with SMTP id a640c23a62f3a-a3d159220c7so118241766b.2
+        for <virtualization@lists.linux.dev>; Fri, 16 Feb 2024 06:40:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1708094434; x=1708699234; darn=lists.linux.dev;
+        d=linaro.org; s=google; t=1708094436; x=1708699236; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=WJiF2hWzkU3/F88EHjNDrbxkoRCZ4txRyg+xgBcF7fk=;
-        b=yw9RTXmOVb69/qP10MCTN51NUz/lqyQpnHL2r8By3HCyGX7V51wU0GxTdWzQf8kBHo
-         ENx5g98gw2YZD21l1UJIv4sRaQynX5EPf4HkZC4Zlk2eucNSGOp8tMfRdxAv7YXalK+F
-         9MIRR75i355Mz5SRosE/9TNBZqbpsVgOc14uCEVEKrK94Gxr8cJCHAIUZJlC/DXjuf0W
-         vJOkM9gBuwlfINnnhr9ZnRKrsaZp31pCPI7AJUcqC92NbkJnN7+0iPRUF3gYGdxq93xe
-         AsaZhBvVy5XkrfXELcL2e3DKlR2zpNSm2XYHhFN9QMWlN3nLmt9eWyswKgymtqq99vLd
-         6vJQ==
+        bh=asD3ev0Cb3OxFqrbvaOTmglMW6LCxeDZuldyNVrUzqM=;
+        b=oBB8b6JzWYpcTTvuw91G7DIQXR2Vm530KtGsZHjco4zAMAaSYAyvFPMumY0Es/a5Ex
+         63z3P0tHKczWgypfUcvVp4cygW8QKIgaZ8BHbo7QAmub5ru5VUTrsmnt/Gsg+P9pjNSh
+         qGQbxQ/WTHI/ciXKszJOAK8ngP/uQfkpMJBqWJ9FZNwRGMz5W6raGKHxaa3t0hI1xpqQ
+         56GutJwO/qDT73FbHjBxxaIgfCs0QPxNeOnGuoh88WD1LJXuErWIwYKcSRUrmtcoHRSX
+         +RI2wPabSyV7XXQKmu/lXyoQbYskw8lA0BVlp9psG9VptcGLvlcX3j8X1euNtYws9FCd
+         IhyA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708094434; x=1708699234;
+        d=1e100.net; s=20230601; t=1708094436; x=1708699236;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=WJiF2hWzkU3/F88EHjNDrbxkoRCZ4txRyg+xgBcF7fk=;
-        b=F952NfdkGZtR0GFzOAkfS5K3RU1c9CugGLzIhsWynfCxJ7GlpXFHwXciZFArwDfSvJ
-         gSskvFqExlfWvTn89a5xrZfKEzjYtDMXJYSvrZl0bIR20wnXGb8jusSBb1Pkrd+Sl7dw
-         pisp5Fikrf/lAXqNjLih/sBqSsB/nh9is0bAL7niFaShq7h2ueShnCMgcByjp7oZfxqr
-         A2boIo9dyMywA/Wl2Tgw7SIEllK5e5/OQSObCnp8uYFggsS5Vvlopvkgy1FS4vHT7NNe
-         op4ac4K8aUjLyDe6KyqCeJ2+C8a5PvYw7PDXAkL1lFxcI8YAzGgmrjS1EpvPydpCQtLJ
-         ERkg==
-X-Forwarded-Encrypted: i=1; AJvYcCX9daQgeELJvsFy0CcD7Gr5pZbhxcccEgvcQO5k/ARMMw6PEs4guyUTkC9bbC46AkIwE+W2ah8q5dKTC6BwDwWdFZnYjCMVPdgn7NmKDSA=
-X-Gm-Message-State: AOJu0Ywd68xqG5RB198IOstg6IvFqUdKXjm/B3UH4SHpBKTHUut1yl9L
-	JasmuGMQOODbz0lq04lB+62MiLJ96IlRva1xusIRI2AkffKKrpVNn7qHvSKjGu4=
-X-Google-Smtp-Source: AGHT+IFP5HHX1guzF/48MOqdlDZBBAfEIzlz2cxyflX0prrbUITF2QEfGuDa23nujSq4oJPlrwTGyw==
-X-Received: by 2002:a17:906:2c0c:b0:a3d:ab64:7525 with SMTP id e12-20020a1709062c0c00b00a3dab647525mr3120223ejh.11.1708094434431;
-        Fri, 16 Feb 2024 06:40:34 -0800 (PST)
+        bh=asD3ev0Cb3OxFqrbvaOTmglMW6LCxeDZuldyNVrUzqM=;
+        b=wlBuimIW1PBCxElvsFHmjO57Nbw/gYswlKeZ0OQ+2ykpE2G+wjbe5KdnYltUPMhg1J
+         RcyLrf2iagmBMjdTMe9Nza1YEnh6NIhOPHqSrRVy57nApYreXRbrH8XSns03GK32A7cv
+         RlC6WjG7BNGCPt8v6tHZWXnQv47lqf8/V+eYYcSuM8BLpDFpMIj5ifLaaxmykSi0UOfy
+         t+wxIrKCuHn1CyAL1WThYorAILwKAvBSl2QxEE8ZYRFjYwPv8Zfl+dzKCLOU3CSPRTQf
+         lW+Ytyr3VlKAMMPEMaYN1i0gEoKTCxfjyteYDb6Ik+ULy+vpYAl8Y5pzLaXG1OFTUos2
+         TpjQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXdbLyLL2vl+LkQWGRXjeOhEdkELxVT5nTZ4yjUdnS5RqSAheaHzRpBqP2xE1sWdETFFYyHDH7El4A+DMgMbw1b6zbQZMt/gS4OiPZaZEs=
+X-Gm-Message-State: AOJu0YxgRgOtgX809GstpIpnTW6JfwII3GNBmHwKrIGjRFvIxpeeCUYu
+	g/J5twTTv+Be8XRLVQrsQPPou1r9NxtU6k1oMENJbyJxq05Zn4Q0Ii8/1MO5Hh8=
+X-Google-Smtp-Source: AGHT+IGCyUGN+VLUaRlt1OZxHWuQFmwSgWLlGY6S3fHlEaQRS780PIZW2GJtYg2x+OIezg266xrJrQ==
+X-Received: by 2002:a17:906:7d86:b0:a3b:f054:92a2 with SMTP id v6-20020a1709067d8600b00a3bf05492a2mr3792983ejo.59.1708094436519;
+        Fri, 16 Feb 2024 06:40:36 -0800 (PST)
 Received: from krzk-bin.. ([78.10.207.130])
-        by smtp.gmail.com with ESMTPSA id a8-20020a170906670800b00a3ce3c5b2a4sm1592942ejp.195.2024.02.16.06.40.32
+        by smtp.gmail.com with ESMTPSA id a8-20020a170906670800b00a3ce3c5b2a4sm1592942ejp.195.2024.02.16.06.40.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 16 Feb 2024 06:40:33 -0800 (PST)
+        Fri, 16 Feb 2024 06:40:36 -0800 (PST)
 From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 To: Hector Martin <marcan@marcan.st>,
 	Sven Peter <sven@svenpeter.dev>,
@@ -90,9 +90,9 @@ To: Hector Martin <marcan@marcan.st>,
 	linux-sunxi@lists.linux.dev,
 	linux-tegra@vger.kernel.org,
 	virtualization@lists.linux.dev
-Subject: [PATCH 2/4] iommu: constify of_phandle_args in xlate
-Date: Fri, 16 Feb 2024 15:40:25 +0100
-Message-Id: <20240216144027.185959-2-krzysztof.kozlowski@linaro.org>
+Subject: [PATCH 3/4] iommu: constify fwnode in iommu_ops_from_fwnode()
+Date: Fri, 16 Feb 2024 15:40:26 +0100
+Message-Id: <20240216144027.185959-3-krzysztof.kozlowski@linaro.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20240216144027.185959-1-krzysztof.kozlowski@linaro.org>
 References: <20240216144027.185959-1-krzysztof.kozlowski@linaro.org>
@@ -104,282 +104,49 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The xlate callbacks are supposed to translate of_phandle_args to proper
-provider without modifying the of_phandle_args.  Make the argument
-pointer to const for code safety and readability.
+Make pointer to fwnode_handle a pointer to const for code safety.
 
 Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 ---
- drivers/iommu/apple-dart.c                  | 3 ++-
- drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c | 3 ++-
- drivers/iommu/arm/arm-smmu/arm-smmu.c       | 3 ++-
- drivers/iommu/arm/arm-smmu/qcom_iommu.c     | 3 ++-
- drivers/iommu/exynos-iommu.c                | 2 +-
- drivers/iommu/iommu.c                       | 2 +-
- drivers/iommu/ipmmu-vmsa.c                  | 4 ++--
- drivers/iommu/msm_iommu.c                   | 4 ++--
- drivers/iommu/mtk_iommu.c                   | 3 ++-
- drivers/iommu/mtk_iommu_v1.c                | 3 ++-
- drivers/iommu/rockchip-iommu.c              | 2 +-
- drivers/iommu/sprd-iommu.c                  | 3 ++-
- drivers/iommu/sun50i-iommu.c                | 2 +-
- drivers/iommu/tegra-smmu.c                  | 4 ++--
- drivers/iommu/virtio-iommu.c                | 3 ++-
- include/linux/iommu.h                       | 4 ++--
- 16 files changed, 28 insertions(+), 20 deletions(-)
+ drivers/iommu/iommu.c | 2 +-
+ include/linux/iommu.h | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iommu/apple-dart.c b/drivers/iommu/apple-dart.c
-index ef3ee95706da..eb1e62cd499a 100644
---- a/drivers/iommu/apple-dart.c
-+++ b/drivers/iommu/apple-dart.c
-@@ -779,7 +779,8 @@ static void apple_dart_domain_free(struct iommu_domain *domain)
- 	kfree(dart_domain);
- }
- 
--static int apple_dart_of_xlate(struct device *dev, struct of_phandle_args *args)
-+static int apple_dart_of_xlate(struct device *dev,
-+			       const struct of_phandle_args *args)
- {
- 	struct apple_dart_master_cfg *cfg = dev_iommu_priv_get(dev);
- 	struct platform_device *iommu_pdev = of_find_device_by_node(args->np);
-diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-index 0ffb1cf17e0b..4434d6a2fc2f 100644
---- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-+++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-@@ -2739,7 +2739,8 @@ static int arm_smmu_enable_nesting(struct iommu_domain *domain)
- 	return ret;
- }
- 
--static int arm_smmu_of_xlate(struct device *dev, struct of_phandle_args *args)
-+static int arm_smmu_of_xlate(struct device *dev,
-+			     const struct of_phandle_args *args)
- {
- 	return iommu_fwspec_add_ids(dev, args->args, 1);
- }
-diff --git a/drivers/iommu/arm/arm-smmu/arm-smmu.c b/drivers/iommu/arm/arm-smmu/arm-smmu.c
-index 68b6bc5e7c71..8e5e4ab5fad3 100644
---- a/drivers/iommu/arm/arm-smmu/arm-smmu.c
-+++ b/drivers/iommu/arm/arm-smmu/arm-smmu.c
-@@ -1551,7 +1551,8 @@ static int arm_smmu_set_pgtable_quirks(struct iommu_domain *domain,
- 	return ret;
- }
- 
--static int arm_smmu_of_xlate(struct device *dev, struct of_phandle_args *args)
-+static int arm_smmu_of_xlate(struct device *dev,
-+			     const struct of_phandle_args *args)
- {
- 	u32 mask, fwid = 0;
- 
-diff --git a/drivers/iommu/arm/arm-smmu/qcom_iommu.c b/drivers/iommu/arm/arm-smmu/qcom_iommu.c
-index 17a1c163fef6..e079bb7a993e 100644
---- a/drivers/iommu/arm/arm-smmu/qcom_iommu.c
-+++ b/drivers/iommu/arm/arm-smmu/qcom_iommu.c
-@@ -546,7 +546,8 @@ static struct iommu_device *qcom_iommu_probe_device(struct device *dev)
- 	return &qcom_iommu->iommu;
- }
- 
--static int qcom_iommu_of_xlate(struct device *dev, struct of_phandle_args *args)
-+static int qcom_iommu_of_xlate(struct device *dev,
-+			       const struct of_phandle_args *args)
- {
- 	struct qcom_iommu_dev *qcom_iommu;
- 	struct platform_device *iommu_pdev;
-diff --git a/drivers/iommu/exynos-iommu.c b/drivers/iommu/exynos-iommu.c
-index 2c6e9094f1e9..d98c9161948a 100644
---- a/drivers/iommu/exynos-iommu.c
-+++ b/drivers/iommu/exynos-iommu.c
-@@ -1431,7 +1431,7 @@ static void exynos_iommu_release_device(struct device *dev)
- }
- 
- static int exynos_iommu_of_xlate(struct device *dev,
--				 struct of_phandle_args *spec)
-+				 const struct of_phandle_args *spec)
- {
- 	struct platform_device *sysmmu = of_find_device_by_node(spec->np);
- 	struct exynos_iommu_owner *owner = dev_iommu_priv_get(dev);
 diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 170329a085b8..26a31ba4f72d 100644
+index 26a31ba4f72d..a1f9bb8fa041 100644
 --- a/drivers/iommu/iommu.c
 +++ b/drivers/iommu/iommu.c
-@@ -3038,7 +3038,7 @@ void iommu_fwspec_free(struct device *dev)
+@@ -2987,7 +2987,7 @@ bool iommu_default_passthrough(void)
  }
- EXPORT_SYMBOL_GPL(iommu_fwspec_free);
+ EXPORT_SYMBOL_GPL(iommu_default_passthrough);
  
--int iommu_fwspec_add_ids(struct device *dev, u32 *ids, int num_ids)
-+int iommu_fwspec_add_ids(struct device *dev, const u32 *ids, int num_ids)
+-const struct iommu_ops *iommu_ops_from_fwnode(struct fwnode_handle *fwnode)
++const struct iommu_ops *iommu_ops_from_fwnode(const struct fwnode_handle *fwnode)
  {
- 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
- 	int i, new_num;
-diff --git a/drivers/iommu/ipmmu-vmsa.c b/drivers/iommu/ipmmu-vmsa.c
-index ace1fc4bd34b..cd7219319c8b 100644
---- a/drivers/iommu/ipmmu-vmsa.c
-+++ b/drivers/iommu/ipmmu-vmsa.c
-@@ -709,7 +709,7 @@ static phys_addr_t ipmmu_iova_to_phys(struct iommu_domain *io_domain,
- }
- 
- static int ipmmu_init_platform_device(struct device *dev,
--				      struct of_phandle_args *args)
-+				      const struct of_phandle_args *args)
- {
- 	struct platform_device *ipmmu_pdev;
- 
-@@ -773,7 +773,7 @@ static bool ipmmu_device_is_allowed(struct device *dev)
- }
- 
- static int ipmmu_of_xlate(struct device *dev,
--			  struct of_phandle_args *spec)
-+			  const struct of_phandle_args *spec)
- {
- 	if (!ipmmu_device_is_allowed(dev))
- 		return -ENODEV;
-diff --git a/drivers/iommu/msm_iommu.c b/drivers/iommu/msm_iommu.c
-index 67124f4228b1..d4c0f2ad184b 100644
---- a/drivers/iommu/msm_iommu.c
-+++ b/drivers/iommu/msm_iommu.c
-@@ -588,7 +588,7 @@ static void print_ctx_regs(void __iomem *base, int ctx)
- 
- static int insert_iommu_master(struct device *dev,
- 				struct msm_iommu_dev **iommu,
--				struct of_phandle_args *spec)
-+				const struct of_phandle_args *spec)
- {
- 	struct msm_iommu_ctx_dev *master = dev_iommu_priv_get(dev);
- 	int sid;
-@@ -616,7 +616,7 @@ static int insert_iommu_master(struct device *dev,
- }
- 
- static int qcom_iommu_of_xlate(struct device *dev,
--			       struct of_phandle_args *spec)
-+			       const struct of_phandle_args *spec)
- {
- 	struct msm_iommu_dev *iommu = NULL, *iter;
- 	unsigned long flags;
-diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
-index 7abe9e85a570..955de8fb7732 100644
---- a/drivers/iommu/mtk_iommu.c
-+++ b/drivers/iommu/mtk_iommu.c
-@@ -957,7 +957,8 @@ static struct iommu_group *mtk_iommu_device_group(struct device *dev)
- 	return group;
- }
- 
--static int mtk_iommu_of_xlate(struct device *dev, struct of_phandle_args *args)
-+static int mtk_iommu_of_xlate(struct device *dev,
-+			      const struct of_phandle_args *args)
- {
- 	struct platform_device *m4updev;
- 
-diff --git a/drivers/iommu/mtk_iommu_v1.c b/drivers/iommu/mtk_iommu_v1.c
-index 25b41222abae..ae16d8238d84 100644
---- a/drivers/iommu/mtk_iommu_v1.c
-+++ b/drivers/iommu/mtk_iommu_v1.c
-@@ -398,7 +398,8 @@ static const struct iommu_ops mtk_iommu_v1_ops;
-  * MTK generation one iommu HW only support one iommu domain, and all the client
-  * sharing the same iova address space.
-  */
--static int mtk_iommu_v1_create_mapping(struct device *dev, struct of_phandle_args *args)
-+static int mtk_iommu_v1_create_mapping(struct device *dev,
-+				       const struct of_phandle_args *args)
- {
- 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
- 	struct mtk_iommu_v1_data *data;
-diff --git a/drivers/iommu/rockchip-iommu.c b/drivers/iommu/rockchip-iommu.c
-index 2685861c0a12..da79d9f4cf63 100644
---- a/drivers/iommu/rockchip-iommu.c
-+++ b/drivers/iommu/rockchip-iommu.c
-@@ -1140,7 +1140,7 @@ static void rk_iommu_release_device(struct device *dev)
- }
- 
- static int rk_iommu_of_xlate(struct device *dev,
--			     struct of_phandle_args *args)
-+			     const struct of_phandle_args *args)
- {
- 	struct platform_device *iommu_dev;
- 	struct rk_iommudata *data;
-diff --git a/drivers/iommu/sprd-iommu.c b/drivers/iommu/sprd-iommu.c
-index 537359f10997..ba53571a8239 100644
---- a/drivers/iommu/sprd-iommu.c
-+++ b/drivers/iommu/sprd-iommu.c
-@@ -390,7 +390,8 @@ static struct iommu_device *sprd_iommu_probe_device(struct device *dev)
- 	return &sdev->iommu;
- }
- 
--static int sprd_iommu_of_xlate(struct device *dev, struct of_phandle_args *args)
-+static int sprd_iommu_of_xlate(struct device *dev,
-+			       const struct of_phandle_args *args)
- {
- 	struct platform_device *pdev;
- 
-diff --git a/drivers/iommu/sun50i-iommu.c b/drivers/iommu/sun50i-iommu.c
-index 41484a5a399b..decd52cba998 100644
---- a/drivers/iommu/sun50i-iommu.c
-+++ b/drivers/iommu/sun50i-iommu.c
-@@ -819,7 +819,7 @@ static struct iommu_device *sun50i_iommu_probe_device(struct device *dev)
- }
- 
- static int sun50i_iommu_of_xlate(struct device *dev,
--				 struct of_phandle_args *args)
-+				 const struct of_phandle_args *args)
- {
- 	struct platform_device *iommu_pdev = of_find_device_by_node(args->np);
- 	unsigned id = args->args[0];
-diff --git a/drivers/iommu/tegra-smmu.c b/drivers/iommu/tegra-smmu.c
-index 310871728ab4..14e525bd0d9b 100644
---- a/drivers/iommu/tegra-smmu.c
-+++ b/drivers/iommu/tegra-smmu.c
-@@ -830,7 +830,7 @@ static struct tegra_smmu *tegra_smmu_find(struct device_node *np)
- }
- 
- static int tegra_smmu_configure(struct tegra_smmu *smmu, struct device *dev,
--				struct of_phandle_args *args)
-+				const struct of_phandle_args *args)
- {
- 	const struct iommu_ops *ops = smmu->iommu.ops;
- 	int err;
-@@ -959,7 +959,7 @@ static struct iommu_group *tegra_smmu_device_group(struct device *dev)
- }
- 
- static int tegra_smmu_of_xlate(struct device *dev,
--			       struct of_phandle_args *args)
-+			       const struct of_phandle_args *args)
- {
- 	struct platform_device *iommu_pdev = of_find_device_by_node(args->np);
- 	struct tegra_mc *mc = platform_get_drvdata(iommu_pdev);
-diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-index 34db37fd9675..04048f64a2c0 100644
---- a/drivers/iommu/virtio-iommu.c
-+++ b/drivers/iommu/virtio-iommu.c
-@@ -1051,7 +1051,8 @@ static struct iommu_group *viommu_device_group(struct device *dev)
- 		return generic_device_group(dev);
- }
- 
--static int viommu_of_xlate(struct device *dev, struct of_phandle_args *args)
-+static int viommu_of_xlate(struct device *dev,
-+			   const struct of_phandle_args *args)
- {
- 	return iommu_fwspec_add_ids(dev, args->args, 1);
- }
+ 	const struct iommu_ops *ops = NULL;
+ 	struct iommu_device *iommu;
 diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-index 1ea2a820e1eb..600fc6e6f308 100644
+index 600fc6e6f308..269ef0af7f20 100644
 --- a/include/linux/iommu.h
 +++ b/include/linux/iommu.h
-@@ -468,7 +468,7 @@ struct iommu_ops {
- 	/* Request/Free a list of reserved regions for a device */
- 	void (*get_resv_regions)(struct device *dev, struct list_head *list);
- 
--	int (*of_xlate)(struct device *dev, struct of_phandle_args *args);
-+	int (*of_xlate)(struct device *dev, const struct of_phandle_args *args);
- 	bool (*is_attach_deferred)(struct device *dev);
- 
- 	/* Per device IOMMU features */
-@@ -902,7 +902,7 @@ struct iommu_mm_data {
- int iommu_fwspec_init(struct device *dev, struct fwnode_handle *iommu_fwnode,
+@@ -903,7 +903,7 @@ int iommu_fwspec_init(struct device *dev, struct fwnode_handle *iommu_fwnode,
  		      const struct iommu_ops *ops);
  void iommu_fwspec_free(struct device *dev);
--int iommu_fwspec_add_ids(struct device *dev, u32 *ids, int num_ids);
-+int iommu_fwspec_add_ids(struct device *dev, const u32 *ids, int num_ids);
- const struct iommu_ops *iommu_ops_from_fwnode(struct fwnode_handle *fwnode);
+ int iommu_fwspec_add_ids(struct device *dev, const u32 *ids, int num_ids);
+-const struct iommu_ops *iommu_ops_from_fwnode(struct fwnode_handle *fwnode);
++const struct iommu_ops *iommu_ops_from_fwnode(const struct fwnode_handle *fwnode);
  
  static inline struct iommu_fwspec *dev_iommu_fwspec_get(struct device *dev)
+ {
+@@ -1253,7 +1253,7 @@ static inline int iommu_fwspec_add_ids(struct device *dev, u32 *ids,
+ }
+ 
+ static inline
+-const struct iommu_ops *iommu_ops_from_fwnode(struct fwnode_handle *fwnode)
++const struct iommu_ops *iommu_ops_from_fwnode(const struct fwnode_handle *fwnode)
+ {
+ 	return NULL;
+ }
 -- 
 2.34.1
 
