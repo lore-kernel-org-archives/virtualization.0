@@ -1,82 +1,207 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 885A65381;
-	Sat, 17 Feb 2024 03:15:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708139708; cv=none; b=Fh1Z9kqFb2DyZnWPyp8uGvkSuFWsAzUtVjF0IKy5wDaimB0l2g1m0T8Fm5OHsQKJqyFHBMmi8T/z8fHhfFf4gwXf9EtVdZX4YM+lBSZXjl0QRGe45wudGoBZDoUleL0PQK7vAr6TS9LFWHEtNXvB3o00ph++XpZ+xQMbBZw0KyY=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708139708; c=relaxed/simple;
-	bh=B4/7/MrEpWq6X2d3hcZTW3hwhCv2dGfQTMCg58XpiZs=;
-	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=mhQ/c7zLJbAhqu+1yxQT9WNH7TEGekWXdrfrADXckhKCHRkwu53HRznxxYvEUuZB06Qgi+TJhxRaGycbSt5C/aidvsrlIEmvBjweCQCUo5wfmN2t2CdpSSCIYdPV9JO6ILhmAHXcOU/w/lFmXobFxIlWUE91m+GjgS6vAbuGr6w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [10.20.42.173])
-	by gateway (Coremail) with SMTP id _____8DxmfC3JNBlaPENAA--.37911S3;
-	Sat, 17 Feb 2024 11:15:04 +0800 (CST)
-Received: from [10.20.42.173] (unknown [10.20.42.173])
-	by localhost.localdomain (Coremail) with SMTP id AQAAf8CxrhO1JNBlxt04AA--.23729S3;
-	Sat, 17 Feb 2024 11:15:03 +0800 (CST)
-Subject: Re: [PATCH v4 0/6] LoongArch: Add pv ipi support on LoongArch VM
-To: WANG Xuerui <kernel@xen0n.name>, Huacai Chen <chenhuacai@kernel.org>,
- Tianrui Zhao <zhaotianrui@loongson.cn>, Juergen Gross <jgross@suse.com>,
- Paolo Bonzini <pbonzini@redhat.com>
-Cc: loongarch@lists.linux.dev, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev, kvm@vger.kernel.org
-References: <20240201031950.3225626-1-maobibo@loongson.cn>
- <0f4d83e2-bff9-49d9-8066-9f194ce96306@xen0n.name>
- <447f4279-aea9-4f35-b87e-a3fc8c6c20ac@xen0n.name>
-From: maobibo <maobibo@loongson.cn>
-Message-ID: <4a6e25ec-cdb6-887a-2c64-3df12d30c89a@loongson.cn>
-Date: Sat, 17 Feb 2024 11:15:07 +0800
-User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2051.outbound.protection.outlook.com [40.107.92.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8372D7D3F6
+	for <virtualization@lists.linux.dev>; Sat, 17 Feb 2024 18:09:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.92.51
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1708193360; cv=fail; b=pgQA+lIVWrkbh322E7Pv7RQSC8XXuN2hr9HGEtMVWbe84hTZ/t5NcGVc3+pj3deBcqlbSxCFEVdG0MzczF/696un8IT/1TGqWC0mEta8/bLa1BfCbtGsmD1gVvUE1n6Fy00dTcgwNYwES2UOX6xryQxWOODdpNSELKaP81f06xA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1708193360; c=relaxed/simple;
+	bh=jQ57MvKgn3EfrhO6y2x0oOWiKRneF+/aAfFXyuSpeWo=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=GJy5cNMTH02DfyXk2NGrXHzuclDMcXYfNpxBGC09+Vw2/Bs+a9UEYf8WzCAfTPyTFJZWC/3Dmws4C3QUA9AkM9tPCHLS/ziofimVNLTlyvraezpYbPD2CuHNJ767BtBkurFbp4F0TzKZvk0NY1LF2AHGHN0Lovc/F6swHXF7YK8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=c4ZXX9j9; arc=fail smtp.client-ip=40.107.92.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="c4ZXX9j9"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=JVT9nU5H3/wA38t9AAd6LaAJ2j4jG2tFKJ1QDjQCelupPd59HD9PZmpwhXSKoPjv+2LapdklchOmHvkSEUR7WJ7cj2L+RYRNqZqqMqDy2mV1YMPy52Pyr5RURXlC/JEXQEEe+JWsVc6GDXeg5kyCfYjuZrxPgJcqp3gVNi+GjUuK5EEhUcEG41Rxu6g7SEItY4TcfkCLrJ43BK22TsDnR0i0wNs9dOrV5xOHfM6cuOr/THBBf3FKf0fx0JPnsAPj1s6tqytot4VRae3ZEhb/JS5rYW/xOKuYRewZ1+F4q14e3JSeaAjDnqz/IYXSt+GBuzNKQBOaB6c1o1PKC0WnTQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=BvvTxol+0w8JCtOQB8GD8ea8lYD23b9NgalUBwIFWro=;
+ b=X1abJez9oF4Wd1uUd+OD/s6Zm3cLwtApSKqTvKmoNkhXzKO6kcCjCsDFihJ4QwIJcbExQSQyQQ01mb4D5Q6/2hBdv6MEalFMjFn/KUlXmVk6ARaCXbHZVv8TeZyTJJL6Aq7ZNNLfyv59VpiWlzhXOUQsjOAaZWs70PQ93LGfclkNc3jcrYkxBI1O6yAw8WyjpunwuthCDToDYoSMbDoOWTXWTX8r3vjGPm6ubEAWa05u9VgFeaAScE4d3aB2fOt2SL3RotK54C1DSYTdqr1LSymbOFBzG0S2We678ANVllCZ7KL0G5B/I1KgcEk9WR1Q1vmeC5M976kLd0MqK+rRIA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.160) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=BvvTxol+0w8JCtOQB8GD8ea8lYD23b9NgalUBwIFWro=;
+ b=c4ZXX9j9rI7VJ+C4mUd3z9nvpeoejbugZEMB/7OH1BYt+u8L45696qqi5TnButpx/IhldA57hdxJROAdEwjpEEhqPeJQzrkCwtE0Hv0XRdjpEl/8m5ru5txvArH6nI+/v63kHYVyiwbRyOW1stLmo/5WPVgVVIGfLqWtcXQBqpsPY9d7u9ANi0cXtR10CymLaEGiMJj00MVKTAzgCXodolovV+cTXG0mzxu8NU14U015zfoZSuACu8OY+ewI+7hTUHkh7No+al/hEsY8dw5tEI6Et1kF244SsvHi0huc/x9RO4l0jZYv+uhUW7ontzZ3dDNlrAtBeeaKGZD0oauzDA==
+Received: from PH8PR07CA0011.namprd07.prod.outlook.com (2603:10b6:510:2cd::19)
+ by DS0PR12MB8070.namprd12.prod.outlook.com (2603:10b6:8:dc::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7316.15; Sat, 17 Feb
+ 2024 18:09:13 +0000
+Received: from SN1PEPF0002BA4B.namprd03.prod.outlook.com
+ (2603:10b6:510:2cd:cafe::79) by PH8PR07CA0011.outlook.office365.com
+ (2603:10b6:510:2cd::19) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7292.34 via Frontend
+ Transport; Sat, 17 Feb 2024 18:09:13 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.160) by
+ SN1PEPF0002BA4B.mail.protection.outlook.com (10.167.242.68) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.7292.25 via Frontend Transport; Sat, 17 Feb 2024 18:09:12 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
+ (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Sat, 17 Feb
+ 2024 10:09:02 -0800
+Received: from sw-mtx-036.mtx.labs.mlnx (10.126.231.35) by
+ rnnvmail201.nvidia.com (10.129.68.8) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1258.12; Sat, 17 Feb 2024 10:09:00 -0800
+From: Parav Pandit <parav@nvidia.com>
+To: <mst@redhat.com>, <jasowang@redhat.com>, <xuanzhuo@linux.alibaba.com>,
+	<pbonzini@redhat.com>, <stefanha@redhat.com>, <axboe@kernel.dk>,
+	<virtualization@lists.linux.dev>, <linux-block@vger.kernel.org>
+CC: Parav Pandit <parav@nvidia.com>, <stable@vger.kernel.org>,
+	<lirongqing@baidu.com>, Chaitanya Kulkarni <kch@nvidia.com>
+Subject: [PATCH] virtio_blk: Fix device surprise removal
+Date: Sat, 17 Feb 2024 20:08:48 +0200
+Message-ID: <20240217180848.241068-1-parav@nvidia.com>
+X-Mailer: git-send-email 2.26.2
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <447f4279-aea9-4f35-b87e-a3fc8c6c20ac@xen0n.name>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:AQAAf8CxrhO1JNBlxt04AA--.23729S3
-X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
-X-Coremail-Antispam: 1Uk129KBj9xXoWrXw4kKw4fKryUKF4kGryxCrX_yoWxXrg_WF
-	y0qr4DAwsrJrsrKw4fKrsYq3srGFWUtr90q3Z7Xw4FgryUXFZ8Ja4DJ393ZanIqF4xtF98
-	Kw1kCay5uF1ayosvyTuYvTs0mTUanT9S1TB71UUUUj7qnTZGkaVYY2UrUUUUj1kv1TuYvT
-	s0mT0YCTnIWjqI5I8CrVACY4xI64kE6c02F40Ex7xfYxn0WfASr-VFAUDa7-sFnT9fnUUI
-	cSsGvfJTRUUUbDAYFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1xkIjI8I6I8E6xAIw20EY4v20x
-	vaj40_Wr0E3s1l1IIY67AEw4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxS
-	w2x7M28EF7xvwVC0I7IYx2IY67AKxVWUCVW8JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxV
-	W8JVWxJwA2z4x0Y4vEx4A2jsIE14v26r4j6F4UM28EF7xvwVC2z280aVCY1x0267AKxVW8
-	JVW8Jr1ln4kS14v26r126r1DM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2
-	x26I8E6xACxx1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1q6rW5
-	McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lc7
-	I2V7IY0VAS07AlzVAYIcxG8wCY1x0262kKe7AKxVWUAVWUtwCF04k20xvY0x0EwIxGrwCF
-	x2IqxVCFs4IE7xkEbVWUJVW8JwCFI7km07C267AKxVWUAVWUtwC20s026c02F40E14v26r
-	1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij
-	64vIr41lIxAIcVC0I7IYx2IY67AKxVWUCVW8JwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr
-	0_Cr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF
-	0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07j5BMNUUUUU=
+Content-Type: text/plain
+X-ClientProxiedBy: rnnvmail201.nvidia.com (10.129.68.8) To
+ rnnvmail201.nvidia.com (10.129.68.8)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SN1PEPF0002BA4B:EE_|DS0PR12MB8070:EE_
+X-MS-Office365-Filtering-Correlation-Id: 8d8b95db-4fab-494a-2a5f-08dc2fe38be3
+X-LD-Processed: 43083d15-7273-40c1-b7db-39efd9ccc17a,ExtAddr
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	oJONh0CJ2+tg5K3bgCamvxNVEOD/7hRXnowm0VVX27RCyikGSL5+ikaZacbP+ZNiaKMoRIeX6E2CLW+q4zuw7iOaC2jOLQLl6Fw90F6Il2EC6Taq7pYkoXqG0GQ/Sz2Zup3PXdX0uP3T0akIFdUFSgE9lvYxUgh/X1/173Tz/HBUduogGj4FgPd3iYGpX60Ra+eI/rivUlqd8E9JkN7Dc9qivS4ZAocKJwJuiR0cttNhMplT0kSCcLQvhCgq1/o+z0RsL4Hg9966TyZO3CqQlGGMTo4CBJmgvnR0PqiaNRkzldLCgsIfx+5D4WxAUJfpApGzPni6tOY0sub4UbxPVK/r20G/VFPkQkjYjNl2hCdL2AJA9BR4FvVevMKDF1rSsXwxAvP3Jkvfddk5uaJcCZ77oIj8mWbLds2vAkM9uO56KHJVpK7/j3mcVRTNdG9BW4WJiwI9SAlh19lzyyddOoL3hWgcyQloMmfXUQiPnQN2IsdkgOalzlOCIGsbWZkxrFa2SkHAYZV3Ue2Gmxp+6osn7isfLSVygkCMlFsp3ZscRufK+R34Ka7a0FY0s1FMd5z6wm24x+TsHSEaeHHYZWA4x3AI2BjXDeSbBderibJ8dRhKp9+cflmNDHTbJd03VzsS9/aIjWP+ir9SO3tvN9smCvAQH3c3K9RbyqnNbMmnphG63qtitTqrikz2XTPf/ZOxyWglr4Mq+ehf/3Xx+A==
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230031)(4636009)(346002)(39860400002)(136003)(376002)(396003)(230922051799003)(36860700004)(64100799003)(1800799012)(451199024)(82310400011)(186009)(40470700004)(46966006)(86362001)(356005)(7636003)(966005)(82740400003)(2906002)(70206006)(5660300002)(8676002)(8936002)(4326008)(70586007)(316002)(6666004)(110136005)(54906003)(83380400001)(478600001)(26005)(41300700001)(2616005)(7416002)(36756003)(1076003)(336012)(107886003)(426003)(16526019);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Feb 2024 18:09:12.9363
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8d8b95db-4fab-494a-2a5f-08dc2fe38be3
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	SN1PEPF0002BA4B.namprd03.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB8070
 
+When the PCI device is surprise removed, requests won't complete from
+the device. These IOs are never completed and disk deletion hangs
+indefinitely.
 
+Fix it by aborting the IOs which the device will never complete
+when the VQ is broken.
 
-On 2024/2/15 下午6:25, WANG Xuerui wrote:
-> On 2/15/24 18:11, WANG Xuerui wrote:
->> Sorry for the late reply (and Happy Chinese New Year), and thanks for 
->> providing microbenchmark numbers! But it seems the more comprehensive 
->> CoreMark results were omitted (that's also absent in v3)? While the 
-> 
-> Of course the benchmark suite should be UnixBench instead of CoreMark. 
-> Lesson: don't multi-task code reviews, especially not after consuming 
-> beer -- a cup of coffee won't fully cancel the influence. ;-)
-> 
-Where is rule about benchmark choices like UnixBench/Coremark for ipi 
-improvement?
+With this fix now fio completes swiftly.
+An alternative of IO timeout has been considered, however
+when the driver knows about unresponsive block device, swiftly clearing
+them enables users and upper layers to react quickly.
 
-Regards
-Bibo Mao
+Verified with multiple device unplug cycles with pending IOs in virtio
+used ring and some pending with device.
+
+In future instead of VQ broken, a more elegant method can be used. At the
+moment the patch is kept to its minimal changes given its urgency to fix
+broken kernels.
+
+Fixes: 43bb40c5b926 ("virtio_pci: Support surprise removal of virtio pci device")
+Cc: stable@vger.kernel.org
+Reported-by: lirongqing@baidu.com
+Closes: https://lore.kernel.org/virtualization/c45dd68698cd47238c55fb73ca9b4741@baidu.com/
+Co-developed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Signed-off-by: Chaitanya Kulkarni <kch@nvidia.com>
+Signed-off-by: Parav Pandit <parav@nvidia.com>
+---
+ drivers/block/virtio_blk.c | 54 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 54 insertions(+)
+
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 2bf14a0e2815..59b49899b229 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -1562,10 +1562,64 @@ static int virtblk_probe(struct virtio_device *vdev)
+ 	return err;
+ }
+ 
++static bool virtblk_cancel_request(struct request *rq, void *data)
++{
++	struct virtblk_req *vbr = blk_mq_rq_to_pdu(rq);
++
++	vbr->in_hdr.status = VIRTIO_BLK_S_IOERR;
++	if (blk_mq_request_started(rq) && !blk_mq_request_completed(rq))
++		blk_mq_complete_request(rq);
++
++	return true;
++}
++
++static void virtblk_cleanup_reqs(struct virtio_blk *vblk)
++{
++	struct virtio_blk_vq *blk_vq;
++	struct request_queue *q;
++	struct virtqueue *vq;
++	unsigned long flags;
++	int i;
++
++	vq = vblk->vqs[0].vq;
++	if (!virtqueue_is_broken(vq))
++		return;
++
++	q = vblk->disk->queue;
++	/* Block upper layer to not get any new requests */
++	blk_mq_quiesce_queue(q);
++
++	for (i = 0; i < vblk->num_vqs; i++) {
++		blk_vq = &vblk->vqs[i];
++
++		/* Synchronize with any ongoing virtblk_poll() which may be
++		 * completing the requests to uppper layer which has already
++		 * crossed the broken vq check.
++		 */
++		spin_lock_irqsave(&blk_vq->lock, flags);
++		spin_unlock_irqrestore(&blk_vq->lock, flags);
++	}
++
++	blk_sync_queue(q);
++
++	/* Complete remaining pending requests with error */
++	blk_mq_tagset_busy_iter(&vblk->tag_set, virtblk_cancel_request, vblk);
++	blk_mq_tagset_wait_completed_request(&vblk->tag_set);
++
++	/*
++	 * Unblock any pending dispatch I/Os before we destroy device. From
++	 * del_gendisk() -> __blk_mark_disk_dead(disk) will set GD_DEAD flag,
++	 * that will make sure any new I/O from bio_queue_enter() to fail.
++	 */
++	blk_mq_unquiesce_queue(q);
++}
++
+ static void virtblk_remove(struct virtio_device *vdev)
+ {
+ 	struct virtio_blk *vblk = vdev->priv;
+ 
++	virtblk_cleanup_reqs(vblk);
++
+ 	/* Make sure no work handler is accessing the device. */
+ 	flush_work(&vblk->config_work);
+ 
+-- 
+2.34.1
 
