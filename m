@@ -1,307 +1,96 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A11F215CB
-	for <virtualization@lists.linux-foundation.org>; Sun, 18 Feb 2024 01:00:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.138
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708218032; cv=fail; b=hVwtfXUwM3bCiVz8PCz8S7VzYO0hBUMTyxamkR0RcziZMcmshomt/eGHxGfEIIgdSKhk3bGD3hF8s73pcZtYovOABir2AuiEg0pZ50mxoVqwI6z978ixECGkQNqdS3y6J1z0Ez+PedfFAKk2icudd7woGriP3+NA2Idf8EGZsaA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708218032; c=relaxed/simple;
-	bh=cx/nMuTWFl7InBd3LIhXtx3Yt69eNnlnnDTkrVgo2TQ=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=f4Mtb6Gg7B7AlTswMkMpYqcmblaiXLjnUQ/o5On9uur4E1O8pAofWQLv4E8uErEycXEBuDohbkdrv88oaBqlLgHkEoJO8Z5pciGz5d62MrZyfDmwHUAL1gucFgWPmk7LwqXTgzBijht83UlxAh8N1wrKXDfZwppOijlsQ3Nzhf8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=gWUSNnLx; arc=fail smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7532C12E7A;
+	Sun, 18 Feb 2024 09:31:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.19
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1708248680; cv=none; b=UX3GZcDwekrkLnCS2XBg0s1+0Eb2o4WuIIuZRnpP7auHVvrpe5e6bLrADxsu7hMyIIY3kV+N8uem2w4hqbT7eF1KQYKer1/pDbNSaLsgxtKwa3TyL7fL8eUY3HPDrOJy7uTmmjgWtMBvQ0xwrMZR8glafd4Cm0H3dajDG4ApbN0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1708248680; c=relaxed/simple;
+	bh=H/OSay05+csAHwBP0A3xim8Jfufbq4gn0ZbQ5TgLGOo=;
+	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=f6ydaiLITM8f4TlxaxObDob5/6C+2pqpKFqlm9sR68tXgR8JgpAqr4mYpchuCQirsp0pk0sWlcpEvaku8TVHfcopz4T06ahM3zyIFuVXWowclzroQegydSMIb5xF94Gzqwq9MN02TYuFuM1CjctwuNjX6DKHep99S/PYcgLEtmk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=JqLT55/j; arc=none smtp.client-ip=198.175.65.19
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="gWUSNnLx"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 4389C8238B
-	for <virtualization@lists.linux-foundation.org>; Sun, 18 Feb 2024 01:00:30 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.101
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id SRV3mhr0U2GK
-	for <virtualization@lists.linux-foundation.org>;
-	Sun, 18 Feb 2024 01:00:29 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=198.175.65.13; helo=mgamail.intel.com; envelope-from=kevin.tian@intel.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org BCE6582377
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=intel.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BCE6582377
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=gWUSNnLx
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.13])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id BCE6582377
-	for <virtualization@lists.linux-foundation.org>; Sun, 18 Feb 2024 01:00:28 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="JqLT55/j"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1708218029; x=1739754029;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=cx/nMuTWFl7InBd3LIhXtx3Yt69eNnlnnDTkrVgo2TQ=;
-  b=gWUSNnLxzkAGoGx4DtyMHlDLyKXM/jsjj9R+xIMeSSO4IOI3RNffJNZh
-   G+/pkqMkL93sVoNge2hhrJo+XfPhnhKVcN7Jg5zRBslvHuVmLsUOviFtP
-   3CQGBFTMpSy8QC54+bmb3UkdSXKedvzdY2V+dj6OsHvqfg756ZCKQKowz
-   Y9kLIyJtA4rs0gK8ujf5h8DKrMzfSQvFORtgX+kpFU9/UY4R5BD95RPDR
-   8ZHMe2u/rT3Yuw0j5d1TTfhLJAki+KGE+euOccIyt/46R5d7Cbzo56WHb
-   mTPkT5MbTJeCbfK5o7ieIj0u28cvWFL4ecGtmJ/MialdWU2SN9zqhD0Pm
-   g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10987"; a="13428536"
-X-IronPort-AV: E=Sophos;i="6.06,167,1705392000"; 
-   d="scan'208";a="13428536"
-Received: from orviesa005.jf.intel.com ([10.64.159.145])
-  by orvoesa105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Feb 2024 17:00:27 -0800
+  t=1708248679; x=1739784679;
+  h=message-id:date:mime-version:cc:subject:to:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=H/OSay05+csAHwBP0A3xim8Jfufbq4gn0ZbQ5TgLGOo=;
+  b=JqLT55/jGf/mUSf/KMB9jcH+qdN2G2FOxnvgQwGg+kLgaDuxDe8yXCRL
+   LAp/HjSkJw96zBbYKjq5gX02GSDGRGR+kxWc+2CjKlqm3zXnzGleF6mdH
+   JYOvAVBBAA0vDZ8XepE8C7UsoMnPhP/LelOO+rB3da/g1ttVI+Q3IRGat
+   jTzTU/wLexgSQM7R90612dhYoHZWDbovy3SizmHpLRz52mjxEYwEq6P2P
+   RhEdz15kphhFj8ukkG9i/JYNWQVY57Zhgpc83uQOr7QFWc5k5jl+Xd0Un
+   GnCfjzJ4boz62YSnNKMYefz0ZEtJComBoBPzKWhXXcJWkteizNEJdUhLr
+   A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10987"; a="2200296"
+X-IronPort-AV: E=Sophos;i="6.06,168,1705392000"; 
+   d="scan'208";a="2200296"
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Feb 2024 01:31:18 -0800
 X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.06,167,1705392000"; 
-   d="scan'208";a="8839482"
-Received: from fmsmsx601.amr.corp.intel.com ([10.18.126.81])
-  by orviesa005.jf.intel.com with ESMTP/TLS/AES256-GCM-SHA384; 17 Feb 2024 17:00:26 -0800
-Received: from fmsmsx610.amr.corp.intel.com (10.18.126.90) by
- fmsmsx601.amr.corp.intel.com (10.18.126.81) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.35; Sat, 17 Feb 2024 17:00:25 -0800
-Received: from FMSEDG603.ED.cps.intel.com (10.1.192.133) by
- fmsmsx610.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.35 via Frontend Transport; Sat, 17 Feb 2024 17:00:25 -0800
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (104.47.55.100)
- by edgegateway.intel.com (192.55.55.68) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.35; Sat, 17 Feb 2024 17:00:25 -0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Y0cLcAurUAbqACQGk4YpYVts34fyKLTq3KUrXg4QoS7ODGTmhZhMYgNRltfi9NmxgvVgvzJ6JX2gIrxaISehwRlTHTJ8+oyMUUURDmAHmVAlLOn/kBoOtDIxrK5FLFZuY3MI8IEgYhRwY3WWs4eQFpKAP0BGxw07uHAHhehFW0Sj6qqXXPLoxXADZ0j7Za9UZcmOBas26tq3Hc98V+jKE3dev0HbvUuzpIpFXclM+sf4s8rjYdmplVPl5ScTDuikbGSk7XiKBFPZxzsuDHdoU5bOP46SiYpO6Zw1zOHolQRCCgf+j3wuMeHhzJTP/i2OROt6jvqm1h/skHOX5DYr9g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=UvWqNqv9J2VyLTX+J8t6RF+YFRwkIH+eI3FZ9V/22CA=;
- b=NEuLu2Zs+1cGXL7NOBeg1qVbJscrVupCUt7OFThNmpr7P7Q/jAjDhpZllV4cQ7YDM7v+1JUXYfOQV/8R3m6cUvXf3V50DeY5aUqw2HdB287L93DyWawrEn7o4mZkHiLToYor2uPA4HozE4PZGGnE363AigxAHxew6oNlOYQCDuXNliVbjNhOH+73lqtPcFaW5NkSui/WWKcqAnM3jPNXQiio/L/HgDeyVcAsSf+Urrb4aurNVwxGMV3pboBtk3eaPpRM2z8Ipe+sRVRaaT7RUUAefWozXqt7lCDoE10PFgL9aFLitro6DqDaFhFPFv3EaYPMN+NcOZWiPUVEZTd0jQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
- by DM4PR11MB7375.namprd11.prod.outlook.com (2603:10b6:8:101::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7292.31; Sun, 18 Feb
- 2024 01:00:23 +0000
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::bc62:d78b:f7d4:3917]) by BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::bc62:d78b:f7d4:3917%5]) with mapi id 15.20.7292.033; Sun, 18 Feb 2024
- 01:00:23 +0000
-From: "Tian, Kevin" <kevin.tian@intel.com>
-To: "ankita@nvidia.com" <ankita@nvidia.com>, "jgg@nvidia.com"
-	<jgg@nvidia.com>, "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
-	"yishaih@nvidia.com" <yishaih@nvidia.com>,
-	"shameerali.kolothum.thodi@huawei.com"
-	<shameerali.kolothum.thodi@huawei.com>, "mst@redhat.com" <mst@redhat.com>,
-	"eric.auger@redhat.com" <eric.auger@redhat.com>, "jgg@ziepe.ca"
-	<jgg@ziepe.ca>, "oleksandr@natalenko.name" <oleksandr@natalenko.name>,
-	"clg@redhat.com" <clg@redhat.com>, "K V P, Satyanarayana"
-	<satyanarayana.k.v.p@intel.com>, "brett.creeley@amd.com"
-	<brett.creeley@amd.com>, "horms@kernel.org" <horms@kernel.org>,
-	"shannon.nelson@amd.com" <shannon.nelson@amd.com>
-CC: "aniketa@nvidia.com" <aniketa@nvidia.com>, "cjia@nvidia.com"
-	<cjia@nvidia.com>, "kwankhede@nvidia.com" <kwankhede@nvidia.com>,
-	"targupta@nvidia.com" <targupta@nvidia.com>, "vsethi@nvidia.com"
-	<vsethi@nvidia.com>, "Currid, Andy" <acurrid@nvidia.com>,
-	"apopple@nvidia.com" <apopple@nvidia.com>, "jhubbard@nvidia.com"
-	<jhubbard@nvidia.com>, "danw@nvidia.com" <danw@nvidia.com>,
-	"anuaggarwal@nvidia.com" <anuaggarwal@nvidia.com>, "mochs@nvidia.com"
-	<mochs@nvidia.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"virtualization@lists.linux-foundation.org"
-	<virtualization@lists.linux-foundation.org>
-Subject: RE: [PATCH v18 3/3] vfio/nvgrace-gpu: Add vfio pci variant module for
- grace hopper
-Thread-Topic: [PATCH v18 3/3] vfio/nvgrace-gpu: Add vfio pci variant module
- for grace hopper
-Thread-Index: AQHaYISYdCMnkFQa2kyZb3lTo7TENbEPSnAQ
-Date: Sun, 18 Feb 2024 01:00:23 +0000
-Message-ID: <BN9PR11MB5276CF18ADF0B687429118918C522@BN9PR11MB5276.namprd11.prod.outlook.com>
-References: <20240216030128.29154-1-ankita@nvidia.com>
- <20240216030128.29154-4-ankita@nvidia.com>
-In-Reply-To: <20240216030128.29154-4-ankita@nvidia.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: BN9PR11MB5276:EE_|DM4PR11MB7375:EE_
-x-ms-office365-filtering-correlation-id: af3834b1-590c-4bf5-0f58-08dc301cfca8
-x-ld-processed: 46c98d88-e344-4ed4-8496-4ed7712e255d,ExtAddr
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: rm4o5DCoGPzWav44kR5jnFYpDzLS3i4sqBosz7n64CYh+fos4jQKPpNxzRkzDp2SqkULOE8QuvkZWvNlldc3gmIS3sbo6UVJ2ME0a/rNOQjRql0glhLp5EcElH78/px7QjAwiArYe7m9oSZhgpQcmuBAZBXsl9cNzsDEmv8J5lbd/lHzoAE9gh3gwT06AzTW8s8N5NVRO9V0Bp13blC1awSWCUrIjsvfgcQiF/oem/2N04IfM5SZlRAvKFhfG9LdetwPRqjVohyYkdnax6y1KohMUTTl1PiQJl30Iheg4kyXTljR/5T4RbLZ8OaL2AOyKxklDEQgzb7CL0EXgrtadA3mBIl9g98Egh1v7NNTMajupkMvbFsII49p8QpjZvXzgM4D/+yEhUOScC8gGtqzAcM67uBqgZEOe+fqFwvs/9PfHQSHK2CJIXXeKnzvaWhcInGXRG+1BBUtRJwDmDu8sDD2en2Tnobo41SxCGhJvXXy2AR5lQUeaVp37L8+XgPbNJ+of+swtObCvmSn5G6rbTY1dW6gQ/KG2+Vj18SOpfUGroFIClrgbYlTuvvkQGnJejchXbdZ3ygFA40EU3eTHD+L1IqW5FvKHPej9VGhfW3BfuUTeHuRWyd2doEhHcHT
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(376002)(39860400002)(396003)(136003)(366004)(346002)(230922051799003)(64100799003)(186009)(1800799012)(451199024)(8676002)(66446008)(5660300002)(2906002)(52536014)(55016003)(66946007)(76116006)(7416002)(66556008)(8936002)(4326008)(66476007)(64756008)(86362001)(122000001)(82960400001)(33656002)(921011)(38070700009)(83380400001)(966005)(26005)(71200400001)(7696005)(316002)(54906003)(478600001)(41300700001)(110136005)(6506007)(9686003)(38100700002);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?37YT8FVPjEHewXhJ8fnlfenLvCVQHtyZgFodFeKoBjrxdHNvjZWpwGL9eDp/?=
- =?us-ascii?Q?x0DvBE7iztzMMo5Ilr6bG2oAQatyalJ/gr+9ZkU/WRDGsFUOQuBnnbXynGUh?=
- =?us-ascii?Q?BbgJYEvd5T4PWZ6ASYm4Hc2liDCaTfxOn1We7ZKOpQuHV064r3Cxomaxv5dF?=
- =?us-ascii?Q?Dt1xCs86PQ4X2Xzkv6I09KxUMJKYEa84kdr8xq/de5Csd52ezIEJXJAnhG/c?=
- =?us-ascii?Q?Q8MuESHRpt6+gBxItVsRPFY3NYP/VbqGRGZ5zo+dGMCaYyHvBlEscvsPQkdv?=
- =?us-ascii?Q?aVOX4FUuocguXhYacetHjk+sFdSG9z0QTdCAJe+70fmQhZfYigCZzpWov5tf?=
- =?us-ascii?Q?ZoYvC0Sqta/dhURRwCtLSgY/PAxclv/7257+4/bV/CKQmQbCxB4UuYJh8mcx?=
- =?us-ascii?Q?H3jcuGyXbpe/v6mwt0lCLE454sidmmtPyPg3wpDECrfaBR6UO/jxwyCUwf/X?=
- =?us-ascii?Q?23ar/2Clqq2BfFbE07yvfGn7RZWz9GfWPeP/4iWSWVI7shh0l43MNNUDx843?=
- =?us-ascii?Q?Ejb3C3Yv7aCu2FRm5oGDh2fI2da/RB6ItlzfZl4WISQ9llxwmmlqR4uyM3B1?=
- =?us-ascii?Q?1/kihEdo/6VvrfqzDLStgl6TehwtOS8KVR1VlyE2QFxnkNltobwHKHoVYdnB?=
- =?us-ascii?Q?hDhVocZ4hKf/+b2Nwp/hGOgS6VIEV20fNFVzVHZnxtgEyRAaIxvcS9brkw10?=
- =?us-ascii?Q?J9hwejb0OJ1uKzyfXs75CtyJSshWmzCCV0AxYNmedzVwXVty1iArWJxHDkpl?=
- =?us-ascii?Q?mnikh/lgEH9FaW1VgmYO8GUOnteYbZdhX2m9s9t1+lVku8rIk4vDIYlpuiV5?=
- =?us-ascii?Q?yDGvQOmwV7UYjo4Rq36O2YiQJBS8qJOvRdIeF20KosVH33Wkr33d549yuC/o?=
- =?us-ascii?Q?yRKSixTWmah6g418NaSs2F+EjGmVXmMbF9FVlAcvGKhmm1JIawFe97NkNjLl?=
- =?us-ascii?Q?hLvth50cI6lWKvGKoX4E4v76FDS6itH1IPPgxkHHMlMuE9513IvYwPKtkO6W?=
- =?us-ascii?Q?lAwuLcQD2TEYQi8RF8D2vE0aB3k/1gjWOKnvf+J4AAyAibmrgHBTbN/9hVUp?=
- =?us-ascii?Q?L2k/jfcnBJclhkymithtBHeouXre1AQRp4NojYi6Dn6tEHYD0pWCNaqWDQ6Z?=
- =?us-ascii?Q?u/iIqIOSI9VevMlXwYS/qbvoXImWVkgbm51TUZrP4O/LN5Pn5rEfepwiAtI2?=
- =?us-ascii?Q?NYRUItNXpCCZhFiYi7Dm24xIoeUJuFyvf44cid+Dz3NiATbApjakbZFNBrlZ?=
- =?us-ascii?Q?Gk0fXn2ICn7VQi61nYTdUkj/wFULNhYxHxoiPPsBlsZLFEanKXv1QPFQbZY2?=
- =?us-ascii?Q?LNOtzXHxzyUJ199WDI23HZd/rdWpNujw35bFPSv4hE8viJJHS8r6aeH2DkmJ?=
- =?us-ascii?Q?OK6A7iXaM0yXgON7nkhOq+LC5jH7X1RT4wzOwzuSWQj7qR+kJdtJPMIzVf1c?=
- =?us-ascii?Q?ODjQFrpRNQk3II3uTt3kfhXaUM53jPpHbsxOABFgjZagIZoTjoIklzqz+rAd?=
- =?us-ascii?Q?skE1rBTNIWFC8hqqkl6r/TYqRT81ZZGkMRdh0/LTs7oZjVwrCflarpsaN+/V?=
- =?us-ascii?Q?4bRa6FEXuQAh9u+WJ/+AJ03pDlwYpsC/OzXZDnn7?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+X-IronPort-AV: E=McAfee;i="6600,9927,10987"; a="912682691"
+X-IronPort-AV: E=Sophos;i="6.06,168,1705392000"; 
+   d="scan'208";a="912682691"
+Received: from blu2-mobl.ccr.corp.intel.com (HELO [10.254.209.212]) ([10.254.209.212])
+  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Feb 2024 01:31:09 -0800
+Message-ID: <7b18a339-d0e3-4347-a20b-8fca9bbc7eb4@linux.intel.com>
+Date: Sun, 18 Feb 2024 17:31:06 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: af3834b1-590c-4bf5-0f58-08dc301cfca8
-X-MS-Exchange-CrossTenant-originalarrivaltime: 18 Feb 2024 01:00:23.5742
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: IoCUCYzttpyPFYgFK8drNC7il30D/H8NebV40uH7UZXgK4Vs2k5J0CPDqC1mSRqDkYMOHF8C5EKjN2WD63kLAA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR11MB7375
-X-OriginatorOrg: intel.com
+User-Agent: Mozilla Thunderbird
+Cc: baolu.lu@linux.intel.com
+Subject: Re: [PATCH 1/4] iommu: constify pointer to bus_type
+Content-Language: en-US
+To: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+ Hector Martin <marcan@marcan.st>, Sven Peter <sven@svenpeter.dev>,
+ Alyssa Rosenzweig <alyssa@rosenzweig.io>, Joerg Roedel <joro@8bytes.org>,
+ Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
+ Rob Clark <robdclark@gmail.com>, Marek Szyprowski
+ <m.szyprowski@samsung.com>, Alim Akhtar <alim.akhtar@samsung.com>,
+ Bjorn Andersson <andersson@kernel.org>,
+ Konrad Dybcio <konrad.dybcio@linaro.org>, Yong Wu <yong.wu@mediatek.com>,
+ Matthias Brugger <matthias.bgg@gmail.com>,
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+ Heiko Stuebner <heiko@sntech.de>, Orson Zhai <orsonzhai@gmail.com>,
+ Baolin Wang <baolin.wang@linux.alibaba.com>,
+ Chunyan Zhang <zhang.lyra@gmail.com>, Chen-Yu Tsai <wens@csie.org>,
+ Jernej Skrabec <jernej.skrabec@gmail.com>,
+ Samuel Holland <samuel@sholland.org>,
+ Thierry Reding <thierry.reding@gmail.com>, Krishna Reddy
+ <vdumpa@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>,
+ Jean-Philippe Brucker <jean-philippe@linaro.org>, asahi@lists.linux.dev,
+ linux-arm-kernel@lists.infradead.org, iommu@lists.linux.dev,
+ linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+ linux-samsung-soc@vger.kernel.org, linux-mediatek@lists.infradead.org,
+ linux-rockchip@lists.infradead.org, linux-sunxi@lists.linux.dev,
+ linux-tegra@vger.kernel.org, virtualization@lists.linux.dev
+References: <20240216144027.185959-1-krzysztof.kozlowski@linaro.org>
+From: Baolu Lu <baolu.lu@linux.intel.com>
+In-Reply-To: <20240216144027.185959-1-krzysztof.kozlowski@linaro.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> From: ankita@nvidia.com <ankita@nvidia.com>
-> Sent: Friday, February 16, 2024 11:01 AM
->=20
-> From: Ankit Agrawal <ankita@nvidia.com>
->=20
-> NVIDIA's upcoming Grace Hopper Superchip provides a PCI-like device
-> for the on-chip GPU that is the logical OS representation of the
-> internal proprietary chip-to-chip cache coherent interconnect.
->=20
-> The device is peculiar compared to a real PCI device in that whilst
-> there is a real 64b PCI BAR1 (comprising region 2 & region 3) on the
-> device, it is not used to access device memory once the faster
-> chip-to-chip interconnect is initialized (occurs at the time of host
-> system boot). The device memory is accessed instead using the chip-to-chi=
-p
-> interconnect that is exposed as a contiguous physically addressable
-> region on the host. This device memory aperture can be obtained from host
-> ACPI table using device_property_read_u64(), according to the FW
-> specification. Since the device memory is cache coherent with the CPU,
-> it can be mmap into the user VMA with a cacheable mapping using
-> remap_pfn_range() and used like a regular RAM. The device memory
-> is not added to the host kernel, but mapped directly as this reduces
-> memory wastage due to struct pages.
->=20
-> There is also a requirement of a minimum reserved 1G uncached region
-> (termed as resmem) to support the Multi-Instance GPU (MIG) feature [1].
-> This is to work around a HW defect. Based on [2], the requisite propertie=
-s
-> (uncached, unaligned access) can be achieved through a VM mapping (S1)
-> of NORMAL_NC and host (S2) mapping with MemAttr[2:0]=3D0b101. To provide
-> a different non-cached property to the reserved 1G region, it needs to
-> be carved out from the device memory and mapped as a separate region
-> in Qemu VMA with pgprot_writecombine(). pgprot_writecombine() sets the
-> Qemu VMA page properties (pgprot) as NORMAL_NC.
->=20
-> Provide a VFIO PCI variant driver that adapts the unique device memory
-> representation into a more standard PCI representation facing userspace.
->=20
-> The variant driver exposes these two regions - the non-cached reserved
-> (resmem) and the cached rest of the device memory (termed as usemem) as
-> separate VFIO 64b BAR regions. This is divergent from the baremetal
-> approach, where the device memory is exposed as a device memory region.
-> The decision for a different approach was taken in view of the fact that
-> it would necessiate additional code in Qemu to discover and insert those
-> regions in the VM IPA, along with the additional VM ACPI DSDT changes to
-> communicate the device memory region IPA to the VM workloads. Moreover,
-> this behavior would have to be added to a variety of emulators (beyond
-> top of tree Qemu) out there desiring grace hopper support.
->=20
-> Since the device implements 64-bit BAR0, the VFIO PCI variant driver
-> maps the uncached carved out region to the next available PCI BAR (i.e.
-> comprising of region 2 and 3). The cached device memory aperture is
-> assigned BAR region 4 and 5. Qemu will then naturally generate a PCI
-> device in the VM with the uncached aperture reported as BAR2 region,
-> the cacheable as BAR4. The variant driver provides emulation for these
-> fake BARs' PCI config space offset registers.
->=20
-> The hardware ensures that the system does not crash when the memory
-> is accessed with the memory enable turned off. It synthesis ~0 reads
-> and dropped writes on such access. So there is no need to support the
-> disablement/enablement of BAR through PCI_COMMAND config space
-> register.
->=20
-> The memory layout on the host looks like the following:
->                devmem (memlength)
-> |--------------------------------------------------|
-> |-------------cached------------------------|--NC--|
-> |                                           |
-> usemem.memphys                              resmem.memphys
->=20
-> PCI BARs need to be aligned to the power-of-2, but the actual memory on t=
-he
-> device may not. A read or write access to the physical address from the
-> last device PFN up to the next power-of-2 aligned physical address
-> results in reading ~0 and dropped writes. Note that the GPU device
-> driver [6] is capable of knowing the exact device memory size through
-> separate means. The device memory size is primarily kept in the system
-> ACPI tables for use by the VFIO PCI variant module.
->=20
-> Note that the usemem memory is added by the VM Nvidia device driver [5]
-> to the VM kernel as memblocks. Hence make the usable memory size
-> memblock
-> (MEMBLK_SIZE) aligned. This is a hardwired ABI value between the GPU FW
-> and
-> VFIO driver. The VM device driver make use of the same value for its
-> calculation to determine USEMEM size.
->=20
-> Currently there is no provision in KVM for a S2 mapping with
-> MemAttr[2:0]=3D0b101, but there is an ongoing effort to provide the same =
-[3].
-> As previously mentioned, resmem is mapped pgprot_writecombine(), that
-> sets the Qemu VMA page properties (pgprot) as NORMAL_NC. Using the
-> proposed changes in [3] and [4], KVM marks the region with
-> MemAttr[2:0]=3D0b101 in S2.
->=20
-> If the device memory properties are not present, the driver registers the
-> vfio-pci-core function pointers. Since there are no ACPI memory propertie=
-s
-> generated for the VM, the variant driver inside the VM will only use
-> the vfio-pci-core ops and hence try to map the BARs as non cached. This
-> is not a problem as the CPUs have FWB enabled which blocks the VM
-> mapping's ability to override the cacheability set by the host mapping.
->=20
-> This goes along with a qemu series [6] to provides the necessary
-> implementation of the Grace Hopper Superchip firmware specification so
-> that the guest operating system can see the correct ACPI modeling for
-> the coherent GPU device. Verified with the CUDA workload in the VM.
->=20
-> [1] https://www.nvidia.com/en-in/technologies/multi-instance-gpu/
-> [2] section D8.5.5 of
-> https://developer.arm.com/documentation/ddi0487/latest/
-> [3] https://lore.kernel.org/all/20240211174705.31992-1-ankita@nvidia.com/
-> [4] https://lore.kernel.org/all/20230907181459.18145-2-ankita@nvidia.com/
-> [5] https://github.com/NVIDIA/open-gpu-kernel-modules
-> [6] https://lore.kernel.org/all/20231203060245.31593-1-ankita@nvidia.com/
->=20
-> Signed-off-by: Aniket Agashe <aniketa@nvidia.com>
-> Signed-off-by: Ankit Agrawal <ankita@nvidia.com>
+On 2024/2/16 22:40, Krzysztof Kozlowski wrote:
+> Make pointer to bus_type a pointer to const for code safety.
+> 
+> Signed-off-by: Krzysztof Kozlowski<krzysztof.kozlowski@linaro.org>
+> ---
+>   drivers/iommu/iommu-priv.h | 5 +++--
+>   drivers/iommu/iommu.c      | 5 +++--
+>   2 files changed, 6 insertions(+), 4 deletions(-)
 
-Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
+
+Best regards,
+baolu
