@@ -1,207 +1,307 @@
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2051.outbound.protection.outlook.com [40.107.92.51])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8372D7D3F6
-	for <virtualization@lists.linux.dev>; Sat, 17 Feb 2024 18:09:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.92.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A11F215CB
+	for <virtualization@lists.linux-foundation.org>; Sun, 18 Feb 2024 01:00:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.138
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708193360; cv=fail; b=pgQA+lIVWrkbh322E7Pv7RQSC8XXuN2hr9HGEtMVWbe84hTZ/t5NcGVc3+pj3deBcqlbSxCFEVdG0MzczF/696un8IT/1TGqWC0mEta8/bLa1BfCbtGsmD1gVvUE1n6Fy00dTcgwNYwES2UOX6xryQxWOODdpNSELKaP81f06xA=
+	t=1708218032; cv=fail; b=hVwtfXUwM3bCiVz8PCz8S7VzYO0hBUMTyxamkR0RcziZMcmshomt/eGHxGfEIIgdSKhk3bGD3hF8s73pcZtYovOABir2AuiEg0pZ50mxoVqwI6z978ixECGkQNqdS3y6J1z0Ez+PedfFAKk2icudd7woGriP3+NA2Idf8EGZsaA=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708193360; c=relaxed/simple;
-	bh=jQ57MvKgn3EfrhO6y2x0oOWiKRneF+/aAfFXyuSpeWo=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=GJy5cNMTH02DfyXk2NGrXHzuclDMcXYfNpxBGC09+Vw2/Bs+a9UEYf8WzCAfTPyTFJZWC/3Dmws4C3QUA9AkM9tPCHLS/ziofimVNLTlyvraezpYbPD2CuHNJ767BtBkurFbp4F0TzKZvk0NY1LF2AHGHN0Lovc/F6swHXF7YK8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=c4ZXX9j9; arc=fail smtp.client-ip=40.107.92.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	s=arc-20240116; t=1708218032; c=relaxed/simple;
+	bh=cx/nMuTWFl7InBd3LIhXtx3Yt69eNnlnnDTkrVgo2TQ=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=f4Mtb6Gg7B7AlTswMkMpYqcmblaiXLjnUQ/o5On9uur4E1O8pAofWQLv4E8uErEycXEBuDohbkdrv88oaBqlLgHkEoJO8Z5pciGz5d62MrZyfDmwHUAL1gucFgWPmk7LwqXTgzBijht83UlxAh8N1wrKXDfZwppOijlsQ3Nzhf8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=gWUSNnLx; arc=fail smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="c4ZXX9j9"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="gWUSNnLx"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 4389C8238B
+	for <virtualization@lists.linux-foundation.org>; Sun, 18 Feb 2024 01:00:30 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.101
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id SRV3mhr0U2GK
+	for <virtualization@lists.linux-foundation.org>;
+	Sun, 18 Feb 2024 01:00:29 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=198.175.65.13; helo=mgamail.intel.com; envelope-from=kevin.tian@intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org BCE6582377
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BCE6582377
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=gWUSNnLx
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.13])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id BCE6582377
+	for <virtualization@lists.linux-foundation.org>; Sun, 18 Feb 2024 01:00:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1708218029; x=1739754029;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=cx/nMuTWFl7InBd3LIhXtx3Yt69eNnlnnDTkrVgo2TQ=;
+  b=gWUSNnLxzkAGoGx4DtyMHlDLyKXM/jsjj9R+xIMeSSO4IOI3RNffJNZh
+   G+/pkqMkL93sVoNge2hhrJo+XfPhnhKVcN7Jg5zRBslvHuVmLsUOviFtP
+   3CQGBFTMpSy8QC54+bmb3UkdSXKedvzdY2V+dj6OsHvqfg756ZCKQKowz
+   Y9kLIyJtA4rs0gK8ujf5h8DKrMzfSQvFORtgX+kpFU9/UY4R5BD95RPDR
+   8ZHMe2u/rT3Yuw0j5d1TTfhLJAki+KGE+euOccIyt/46R5d7Cbzo56WHb
+   mTPkT5MbTJeCbfK5o7ieIj0u28cvWFL4ecGtmJ/MialdWU2SN9zqhD0Pm
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10987"; a="13428536"
+X-IronPort-AV: E=Sophos;i="6.06,167,1705392000"; 
+   d="scan'208";a="13428536"
+Received: from orviesa005.jf.intel.com ([10.64.159.145])
+  by orvoesa105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Feb 2024 17:00:27 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.06,167,1705392000"; 
+   d="scan'208";a="8839482"
+Received: from fmsmsx601.amr.corp.intel.com ([10.18.126.81])
+  by orviesa005.jf.intel.com with ESMTP/TLS/AES256-GCM-SHA384; 17 Feb 2024 17:00:26 -0800
+Received: from fmsmsx610.amr.corp.intel.com (10.18.126.90) by
+ fmsmsx601.amr.corp.intel.com (10.18.126.81) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.35; Sat, 17 Feb 2024 17:00:25 -0800
+Received: from FMSEDG603.ED.cps.intel.com (10.1.192.133) by
+ fmsmsx610.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.35 via Frontend Transport; Sat, 17 Feb 2024 17:00:25 -0800
+Received: from NAM10-MW2-obe.outbound.protection.outlook.com (104.47.55.100)
+ by edgegateway.intel.com (192.55.55.68) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.35; Sat, 17 Feb 2024 17:00:25 -0800
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=JVT9nU5H3/wA38t9AAd6LaAJ2j4jG2tFKJ1QDjQCelupPd59HD9PZmpwhXSKoPjv+2LapdklchOmHvkSEUR7WJ7cj2L+RYRNqZqqMqDy2mV1YMPy52Pyr5RURXlC/JEXQEEe+JWsVc6GDXeg5kyCfYjuZrxPgJcqp3gVNi+GjUuK5EEhUcEG41Rxu6g7SEItY4TcfkCLrJ43BK22TsDnR0i0wNs9dOrV5xOHfM6cuOr/THBBf3FKf0fx0JPnsAPj1s6tqytot4VRae3ZEhb/JS5rYW/xOKuYRewZ1+F4q14e3JSeaAjDnqz/IYXSt+GBuzNKQBOaB6c1o1PKC0WnTQ==
+ b=Y0cLcAurUAbqACQGk4YpYVts34fyKLTq3KUrXg4QoS7ODGTmhZhMYgNRltfi9NmxgvVgvzJ6JX2gIrxaISehwRlTHTJ8+oyMUUURDmAHmVAlLOn/kBoOtDIxrK5FLFZuY3MI8IEgYhRwY3WWs4eQFpKAP0BGxw07uHAHhehFW0Sj6qqXXPLoxXADZ0j7Za9UZcmOBas26tq3Hc98V+jKE3dev0HbvUuzpIpFXclM+sf4s8rjYdmplVPl5ScTDuikbGSk7XiKBFPZxzsuDHdoU5bOP46SiYpO6Zw1zOHolQRCCgf+j3wuMeHhzJTP/i2OROt6jvqm1h/skHOX5DYr9g==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=BvvTxol+0w8JCtOQB8GD8ea8lYD23b9NgalUBwIFWro=;
- b=X1abJez9oF4Wd1uUd+OD/s6Zm3cLwtApSKqTvKmoNkhXzKO6kcCjCsDFihJ4QwIJcbExQSQyQQ01mb4D5Q6/2hBdv6MEalFMjFn/KUlXmVk6ARaCXbHZVv8TeZyTJJL6Aq7ZNNLfyv59VpiWlzhXOUQsjOAaZWs70PQ93LGfclkNc3jcrYkxBI1O6yAw8WyjpunwuthCDToDYoSMbDoOWTXWTX8r3vjGPm6ubEAWa05u9VgFeaAScE4d3aB2fOt2SL3RotK54C1DSYTdqr1LSymbOFBzG0S2We678ANVllCZ7KL0G5B/I1KgcEk9WR1Q1vmeC5M976kLd0MqK+rRIA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.160) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=BvvTxol+0w8JCtOQB8GD8ea8lYD23b9NgalUBwIFWro=;
- b=c4ZXX9j9rI7VJ+C4mUd3z9nvpeoejbugZEMB/7OH1BYt+u8L45696qqi5TnButpx/IhldA57hdxJROAdEwjpEEhqPeJQzrkCwtE0Hv0XRdjpEl/8m5ru5txvArH6nI+/v63kHYVyiwbRyOW1stLmo/5WPVgVVIGfLqWtcXQBqpsPY9d7u9ANi0cXtR10CymLaEGiMJj00MVKTAzgCXodolovV+cTXG0mzxu8NU14U015zfoZSuACu8OY+ewI+7hTUHkh7No+al/hEsY8dw5tEI6Et1kF244SsvHi0huc/x9RO4l0jZYv+uhUW7ontzZ3dDNlrAtBeeaKGZD0oauzDA==
-Received: from PH8PR07CA0011.namprd07.prod.outlook.com (2603:10b6:510:2cd::19)
- by DS0PR12MB8070.namprd12.prod.outlook.com (2603:10b6:8:dc::15) with
+ bh=UvWqNqv9J2VyLTX+J8t6RF+YFRwkIH+eI3FZ9V/22CA=;
+ b=NEuLu2Zs+1cGXL7NOBeg1qVbJscrVupCUt7OFThNmpr7P7Q/jAjDhpZllV4cQ7YDM7v+1JUXYfOQV/8R3m6cUvXf3V50DeY5aUqw2HdB287L93DyWawrEn7o4mZkHiLToYor2uPA4HozE4PZGGnE363AigxAHxew6oNlOYQCDuXNliVbjNhOH+73lqtPcFaW5NkSui/WWKcqAnM3jPNXQiio/L/HgDeyVcAsSf+Urrb4aurNVwxGMV3pboBtk3eaPpRM2z8Ipe+sRVRaaT7RUUAefWozXqt7lCDoE10PFgL9aFLitro6DqDaFhFPFv3EaYPMN+NcOZWiPUVEZTd0jQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
+ by DM4PR11MB7375.namprd11.prod.outlook.com (2603:10b6:8:101::12) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7316.15; Sat, 17 Feb
- 2024 18:09:13 +0000
-Received: from SN1PEPF0002BA4B.namprd03.prod.outlook.com
- (2603:10b6:510:2cd:cafe::79) by PH8PR07CA0011.outlook.office365.com
- (2603:10b6:510:2cd::19) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7292.34 via Frontend
- Transport; Sat, 17 Feb 2024 18:09:13 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.160) by
- SN1PEPF0002BA4B.mail.protection.outlook.com (10.167.242.68) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.7292.25 via Frontend Transport; Sat, 17 Feb 2024 18:09:12 +0000
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
- (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Sat, 17 Feb
- 2024 10:09:02 -0800
-Received: from sw-mtx-036.mtx.labs.mlnx (10.126.231.35) by
- rnnvmail201.nvidia.com (10.129.68.8) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1258.12; Sat, 17 Feb 2024 10:09:00 -0800
-From: Parav Pandit <parav@nvidia.com>
-To: <mst@redhat.com>, <jasowang@redhat.com>, <xuanzhuo@linux.alibaba.com>,
-	<pbonzini@redhat.com>, <stefanha@redhat.com>, <axboe@kernel.dk>,
-	<virtualization@lists.linux.dev>, <linux-block@vger.kernel.org>
-CC: Parav Pandit <parav@nvidia.com>, <stable@vger.kernel.org>,
-	<lirongqing@baidu.com>, Chaitanya Kulkarni <kch@nvidia.com>
-Subject: [PATCH] virtio_blk: Fix device surprise removal
-Date: Sat, 17 Feb 2024 20:08:48 +0200
-Message-ID: <20240217180848.241068-1-parav@nvidia.com>
-X-Mailer: git-send-email 2.26.2
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7292.31; Sun, 18 Feb
+ 2024 01:00:23 +0000
+Received: from BN9PR11MB5276.namprd11.prod.outlook.com
+ ([fe80::bc62:d78b:f7d4:3917]) by BN9PR11MB5276.namprd11.prod.outlook.com
+ ([fe80::bc62:d78b:f7d4:3917%5]) with mapi id 15.20.7292.033; Sun, 18 Feb 2024
+ 01:00:23 +0000
+From: "Tian, Kevin" <kevin.tian@intel.com>
+To: "ankita@nvidia.com" <ankita@nvidia.com>, "jgg@nvidia.com"
+	<jgg@nvidia.com>, "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
+	"yishaih@nvidia.com" <yishaih@nvidia.com>,
+	"shameerali.kolothum.thodi@huawei.com"
+	<shameerali.kolothum.thodi@huawei.com>, "mst@redhat.com" <mst@redhat.com>,
+	"eric.auger@redhat.com" <eric.auger@redhat.com>, "jgg@ziepe.ca"
+	<jgg@ziepe.ca>, "oleksandr@natalenko.name" <oleksandr@natalenko.name>,
+	"clg@redhat.com" <clg@redhat.com>, "K V P, Satyanarayana"
+	<satyanarayana.k.v.p@intel.com>, "brett.creeley@amd.com"
+	<brett.creeley@amd.com>, "horms@kernel.org" <horms@kernel.org>,
+	"shannon.nelson@amd.com" <shannon.nelson@amd.com>
+CC: "aniketa@nvidia.com" <aniketa@nvidia.com>, "cjia@nvidia.com"
+	<cjia@nvidia.com>, "kwankhede@nvidia.com" <kwankhede@nvidia.com>,
+	"targupta@nvidia.com" <targupta@nvidia.com>, "vsethi@nvidia.com"
+	<vsethi@nvidia.com>, "Currid, Andy" <acurrid@nvidia.com>,
+	"apopple@nvidia.com" <apopple@nvidia.com>, "jhubbard@nvidia.com"
+	<jhubbard@nvidia.com>, "danw@nvidia.com" <danw@nvidia.com>,
+	"anuaggarwal@nvidia.com" <anuaggarwal@nvidia.com>, "mochs@nvidia.com"
+	<mochs@nvidia.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"virtualization@lists.linux-foundation.org"
+	<virtualization@lists.linux-foundation.org>
+Subject: RE: [PATCH v18 3/3] vfio/nvgrace-gpu: Add vfio pci variant module for
+ grace hopper
+Thread-Topic: [PATCH v18 3/3] vfio/nvgrace-gpu: Add vfio pci variant module
+ for grace hopper
+Thread-Index: AQHaYISYdCMnkFQa2kyZb3lTo7TENbEPSnAQ
+Date: Sun, 18 Feb 2024 01:00:23 +0000
+Message-ID: <BN9PR11MB5276CF18ADF0B687429118918C522@BN9PR11MB5276.namprd11.prod.outlook.com>
+References: <20240216030128.29154-1-ankita@nvidia.com>
+ <20240216030128.29154-4-ankita@nvidia.com>
+In-Reply-To: <20240216030128.29154-4-ankita@nvidia.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: BN9PR11MB5276:EE_|DM4PR11MB7375:EE_
+x-ms-office365-filtering-correlation-id: af3834b1-590c-4bf5-0f58-08dc301cfca8
+x-ld-processed: 46c98d88-e344-4ed4-8496-4ed7712e255d,ExtAddr
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: rm4o5DCoGPzWav44kR5jnFYpDzLS3i4sqBosz7n64CYh+fos4jQKPpNxzRkzDp2SqkULOE8QuvkZWvNlldc3gmIS3sbo6UVJ2ME0a/rNOQjRql0glhLp5EcElH78/px7QjAwiArYe7m9oSZhgpQcmuBAZBXsl9cNzsDEmv8J5lbd/lHzoAE9gh3gwT06AzTW8s8N5NVRO9V0Bp13blC1awSWCUrIjsvfgcQiF/oem/2N04IfM5SZlRAvKFhfG9LdetwPRqjVohyYkdnax6y1KohMUTTl1PiQJl30Iheg4kyXTljR/5T4RbLZ8OaL2AOyKxklDEQgzb7CL0EXgrtadA3mBIl9g98Egh1v7NNTMajupkMvbFsII49p8QpjZvXzgM4D/+yEhUOScC8gGtqzAcM67uBqgZEOe+fqFwvs/9PfHQSHK2CJIXXeKnzvaWhcInGXRG+1BBUtRJwDmDu8sDD2en2Tnobo41SxCGhJvXXy2AR5lQUeaVp37L8+XgPbNJ+of+swtObCvmSn5G6rbTY1dW6gQ/KG2+Vj18SOpfUGroFIClrgbYlTuvvkQGnJejchXbdZ3ygFA40EU3eTHD+L1IqW5FvKHPej9VGhfW3BfuUTeHuRWyd2doEhHcHT
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(376002)(39860400002)(396003)(136003)(366004)(346002)(230922051799003)(64100799003)(186009)(1800799012)(451199024)(8676002)(66446008)(5660300002)(2906002)(52536014)(55016003)(66946007)(76116006)(7416002)(66556008)(8936002)(4326008)(66476007)(64756008)(86362001)(122000001)(82960400001)(33656002)(921011)(38070700009)(83380400001)(966005)(26005)(71200400001)(7696005)(316002)(54906003)(478600001)(41300700001)(110136005)(6506007)(9686003)(38100700002);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?37YT8FVPjEHewXhJ8fnlfenLvCVQHtyZgFodFeKoBjrxdHNvjZWpwGL9eDp/?=
+ =?us-ascii?Q?x0DvBE7iztzMMo5Ilr6bG2oAQatyalJ/gr+9ZkU/WRDGsFUOQuBnnbXynGUh?=
+ =?us-ascii?Q?BbgJYEvd5T4PWZ6ASYm4Hc2liDCaTfxOn1We7ZKOpQuHV064r3Cxomaxv5dF?=
+ =?us-ascii?Q?Dt1xCs86PQ4X2Xzkv6I09KxUMJKYEa84kdr8xq/de5Csd52ezIEJXJAnhG/c?=
+ =?us-ascii?Q?Q8MuESHRpt6+gBxItVsRPFY3NYP/VbqGRGZ5zo+dGMCaYyHvBlEscvsPQkdv?=
+ =?us-ascii?Q?aVOX4FUuocguXhYacetHjk+sFdSG9z0QTdCAJe+70fmQhZfYigCZzpWov5tf?=
+ =?us-ascii?Q?ZoYvC0Sqta/dhURRwCtLSgY/PAxclv/7257+4/bV/CKQmQbCxB4UuYJh8mcx?=
+ =?us-ascii?Q?H3jcuGyXbpe/v6mwt0lCLE454sidmmtPyPg3wpDECrfaBR6UO/jxwyCUwf/X?=
+ =?us-ascii?Q?23ar/2Clqq2BfFbE07yvfGn7RZWz9GfWPeP/4iWSWVI7shh0l43MNNUDx843?=
+ =?us-ascii?Q?Ejb3C3Yv7aCu2FRm5oGDh2fI2da/RB6ItlzfZl4WISQ9llxwmmlqR4uyM3B1?=
+ =?us-ascii?Q?1/kihEdo/6VvrfqzDLStgl6TehwtOS8KVR1VlyE2QFxnkNltobwHKHoVYdnB?=
+ =?us-ascii?Q?hDhVocZ4hKf/+b2Nwp/hGOgS6VIEV20fNFVzVHZnxtgEyRAaIxvcS9brkw10?=
+ =?us-ascii?Q?J9hwejb0OJ1uKzyfXs75CtyJSshWmzCCV0AxYNmedzVwXVty1iArWJxHDkpl?=
+ =?us-ascii?Q?mnikh/lgEH9FaW1VgmYO8GUOnteYbZdhX2m9s9t1+lVku8rIk4vDIYlpuiV5?=
+ =?us-ascii?Q?yDGvQOmwV7UYjo4Rq36O2YiQJBS8qJOvRdIeF20KosVH33Wkr33d549yuC/o?=
+ =?us-ascii?Q?yRKSixTWmah6g418NaSs2F+EjGmVXmMbF9FVlAcvGKhmm1JIawFe97NkNjLl?=
+ =?us-ascii?Q?hLvth50cI6lWKvGKoX4E4v76FDS6itH1IPPgxkHHMlMuE9513IvYwPKtkO6W?=
+ =?us-ascii?Q?lAwuLcQD2TEYQi8RF8D2vE0aB3k/1gjWOKnvf+J4AAyAibmrgHBTbN/9hVUp?=
+ =?us-ascii?Q?L2k/jfcnBJclhkymithtBHeouXre1AQRp4NojYi6Dn6tEHYD0pWCNaqWDQ6Z?=
+ =?us-ascii?Q?u/iIqIOSI9VevMlXwYS/qbvoXImWVkgbm51TUZrP4O/LN5Pn5rEfepwiAtI2?=
+ =?us-ascii?Q?NYRUItNXpCCZhFiYi7Dm24xIoeUJuFyvf44cid+Dz3NiATbApjakbZFNBrlZ?=
+ =?us-ascii?Q?Gk0fXn2ICn7VQi61nYTdUkj/wFULNhYxHxoiPPsBlsZLFEanKXv1QPFQbZY2?=
+ =?us-ascii?Q?LNOtzXHxzyUJ199WDI23HZd/rdWpNujw35bFPSv4hE8viJJHS8r6aeH2DkmJ?=
+ =?us-ascii?Q?OK6A7iXaM0yXgON7nkhOq+LC5jH7X1RT4wzOwzuSWQj7qR+kJdtJPMIzVf1c?=
+ =?us-ascii?Q?ODjQFrpRNQk3II3uTt3kfhXaUM53jPpHbsxOABFgjZagIZoTjoIklzqz+rAd?=
+ =?us-ascii?Q?skE1rBTNIWFC8hqqkl6r/TYqRT81ZZGkMRdh0/LTs7oZjVwrCflarpsaN+/V?=
+ =?us-ascii?Q?4bRa6FEXuQAh9u+WJ/+AJ03pDlwYpsC/OzXZDnn7?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: rnnvmail201.nvidia.com (10.129.68.8) To
- rnnvmail201.nvidia.com (10.129.68.8)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SN1PEPF0002BA4B:EE_|DS0PR12MB8070:EE_
-X-MS-Office365-Filtering-Correlation-Id: 8d8b95db-4fab-494a-2a5f-08dc2fe38be3
-X-LD-Processed: 43083d15-7273-40c1-b7db-39efd9ccc17a,ExtAddr
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info:
-	oJONh0CJ2+tg5K3bgCamvxNVEOD/7hRXnowm0VVX27RCyikGSL5+ikaZacbP+ZNiaKMoRIeX6E2CLW+q4zuw7iOaC2jOLQLl6Fw90F6Il2EC6Taq7pYkoXqG0GQ/Sz2Zup3PXdX0uP3T0akIFdUFSgE9lvYxUgh/X1/173Tz/HBUduogGj4FgPd3iYGpX60Ra+eI/rivUlqd8E9JkN7Dc9qivS4ZAocKJwJuiR0cttNhMplT0kSCcLQvhCgq1/o+z0RsL4Hg9966TyZO3CqQlGGMTo4CBJmgvnR0PqiaNRkzldLCgsIfx+5D4WxAUJfpApGzPni6tOY0sub4UbxPVK/r20G/VFPkQkjYjNl2hCdL2AJA9BR4FvVevMKDF1rSsXwxAvP3Jkvfddk5uaJcCZ77oIj8mWbLds2vAkM9uO56KHJVpK7/j3mcVRTNdG9BW4WJiwI9SAlh19lzyyddOoL3hWgcyQloMmfXUQiPnQN2IsdkgOalzlOCIGsbWZkxrFa2SkHAYZV3Ue2Gmxp+6osn7isfLSVygkCMlFsp3ZscRufK+R34Ka7a0FY0s1FMd5z6wm24x+TsHSEaeHHYZWA4x3AI2BjXDeSbBderibJ8dRhKp9+cflmNDHTbJd03VzsS9/aIjWP+ir9SO3tvN9smCvAQH3c3K9RbyqnNbMmnphG63qtitTqrikz2XTPf/ZOxyWglr4Mq+ehf/3Xx+A==
-X-Forefront-Antispam-Report:
-	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230031)(4636009)(346002)(39860400002)(136003)(376002)(396003)(230922051799003)(36860700004)(64100799003)(1800799012)(451199024)(82310400011)(186009)(40470700004)(46966006)(86362001)(356005)(7636003)(966005)(82740400003)(2906002)(70206006)(5660300002)(8676002)(8936002)(4326008)(70586007)(316002)(6666004)(110136005)(54906003)(83380400001)(478600001)(26005)(41300700001)(2616005)(7416002)(36756003)(1076003)(336012)(107886003)(426003)(16526019);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Feb 2024 18:09:12.9363
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: af3834b1-590c-4bf5-0f58-08dc301cfca8
+X-MS-Exchange-CrossTenant-originalarrivaltime: 18 Feb 2024 01:00:23.5742
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8d8b95db-4fab-494a-2a5f-08dc2fe38be3
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	SN1PEPF0002BA4B.namprd03.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB8070
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: IoCUCYzttpyPFYgFK8drNC7il30D/H8NebV40uH7UZXgK4Vs2k5J0CPDqC1mSRqDkYMOHF8C5EKjN2WD63kLAA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR11MB7375
+X-OriginatorOrg: intel.com
 
-When the PCI device is surprise removed, requests won't complete from
-the device. These IOs are never completed and disk deletion hangs
-indefinitely.
+> From: ankita@nvidia.com <ankita@nvidia.com>
+> Sent: Friday, February 16, 2024 11:01 AM
+>=20
+> From: Ankit Agrawal <ankita@nvidia.com>
+>=20
+> NVIDIA's upcoming Grace Hopper Superchip provides a PCI-like device
+> for the on-chip GPU that is the logical OS representation of the
+> internal proprietary chip-to-chip cache coherent interconnect.
+>=20
+> The device is peculiar compared to a real PCI device in that whilst
+> there is a real 64b PCI BAR1 (comprising region 2 & region 3) on the
+> device, it is not used to access device memory once the faster
+> chip-to-chip interconnect is initialized (occurs at the time of host
+> system boot). The device memory is accessed instead using the chip-to-chi=
+p
+> interconnect that is exposed as a contiguous physically addressable
+> region on the host. This device memory aperture can be obtained from host
+> ACPI table using device_property_read_u64(), according to the FW
+> specification. Since the device memory is cache coherent with the CPU,
+> it can be mmap into the user VMA with a cacheable mapping using
+> remap_pfn_range() and used like a regular RAM. The device memory
+> is not added to the host kernel, but mapped directly as this reduces
+> memory wastage due to struct pages.
+>=20
+> There is also a requirement of a minimum reserved 1G uncached region
+> (termed as resmem) to support the Multi-Instance GPU (MIG) feature [1].
+> This is to work around a HW defect. Based on [2], the requisite propertie=
+s
+> (uncached, unaligned access) can be achieved through a VM mapping (S1)
+> of NORMAL_NC and host (S2) mapping with MemAttr[2:0]=3D0b101. To provide
+> a different non-cached property to the reserved 1G region, it needs to
+> be carved out from the device memory and mapped as a separate region
+> in Qemu VMA with pgprot_writecombine(). pgprot_writecombine() sets the
+> Qemu VMA page properties (pgprot) as NORMAL_NC.
+>=20
+> Provide a VFIO PCI variant driver that adapts the unique device memory
+> representation into a more standard PCI representation facing userspace.
+>=20
+> The variant driver exposes these two regions - the non-cached reserved
+> (resmem) and the cached rest of the device memory (termed as usemem) as
+> separate VFIO 64b BAR regions. This is divergent from the baremetal
+> approach, where the device memory is exposed as a device memory region.
+> The decision for a different approach was taken in view of the fact that
+> it would necessiate additional code in Qemu to discover and insert those
+> regions in the VM IPA, along with the additional VM ACPI DSDT changes to
+> communicate the device memory region IPA to the VM workloads. Moreover,
+> this behavior would have to be added to a variety of emulators (beyond
+> top of tree Qemu) out there desiring grace hopper support.
+>=20
+> Since the device implements 64-bit BAR0, the VFIO PCI variant driver
+> maps the uncached carved out region to the next available PCI BAR (i.e.
+> comprising of region 2 and 3). The cached device memory aperture is
+> assigned BAR region 4 and 5. Qemu will then naturally generate a PCI
+> device in the VM with the uncached aperture reported as BAR2 region,
+> the cacheable as BAR4. The variant driver provides emulation for these
+> fake BARs' PCI config space offset registers.
+>=20
+> The hardware ensures that the system does not crash when the memory
+> is accessed with the memory enable turned off. It synthesis ~0 reads
+> and dropped writes on such access. So there is no need to support the
+> disablement/enablement of BAR through PCI_COMMAND config space
+> register.
+>=20
+> The memory layout on the host looks like the following:
+>                devmem (memlength)
+> |--------------------------------------------------|
+> |-------------cached------------------------|--NC--|
+> |                                           |
+> usemem.memphys                              resmem.memphys
+>=20
+> PCI BARs need to be aligned to the power-of-2, but the actual memory on t=
+he
+> device may not. A read or write access to the physical address from the
+> last device PFN up to the next power-of-2 aligned physical address
+> results in reading ~0 and dropped writes. Note that the GPU device
+> driver [6] is capable of knowing the exact device memory size through
+> separate means. The device memory size is primarily kept in the system
+> ACPI tables for use by the VFIO PCI variant module.
+>=20
+> Note that the usemem memory is added by the VM Nvidia device driver [5]
+> to the VM kernel as memblocks. Hence make the usable memory size
+> memblock
+> (MEMBLK_SIZE) aligned. This is a hardwired ABI value between the GPU FW
+> and
+> VFIO driver. The VM device driver make use of the same value for its
+> calculation to determine USEMEM size.
+>=20
+> Currently there is no provision in KVM for a S2 mapping with
+> MemAttr[2:0]=3D0b101, but there is an ongoing effort to provide the same =
+[3].
+> As previously mentioned, resmem is mapped pgprot_writecombine(), that
+> sets the Qemu VMA page properties (pgprot) as NORMAL_NC. Using the
+> proposed changes in [3] and [4], KVM marks the region with
+> MemAttr[2:0]=3D0b101 in S2.
+>=20
+> If the device memory properties are not present, the driver registers the
+> vfio-pci-core function pointers. Since there are no ACPI memory propertie=
+s
+> generated for the VM, the variant driver inside the VM will only use
+> the vfio-pci-core ops and hence try to map the BARs as non cached. This
+> is not a problem as the CPUs have FWB enabled which blocks the VM
+> mapping's ability to override the cacheability set by the host mapping.
+>=20
+> This goes along with a qemu series [6] to provides the necessary
+> implementation of the Grace Hopper Superchip firmware specification so
+> that the guest operating system can see the correct ACPI modeling for
+> the coherent GPU device. Verified with the CUDA workload in the VM.
+>=20
+> [1] https://www.nvidia.com/en-in/technologies/multi-instance-gpu/
+> [2] section D8.5.5 of
+> https://developer.arm.com/documentation/ddi0487/latest/
+> [3] https://lore.kernel.org/all/20240211174705.31992-1-ankita@nvidia.com/
+> [4] https://lore.kernel.org/all/20230907181459.18145-2-ankita@nvidia.com/
+> [5] https://github.com/NVIDIA/open-gpu-kernel-modules
+> [6] https://lore.kernel.org/all/20231203060245.31593-1-ankita@nvidia.com/
+>=20
+> Signed-off-by: Aniket Agashe <aniketa@nvidia.com>
+> Signed-off-by: Ankit Agrawal <ankita@nvidia.com>
 
-Fix it by aborting the IOs which the device will never complete
-when the VQ is broken.
-
-With this fix now fio completes swiftly.
-An alternative of IO timeout has been considered, however
-when the driver knows about unresponsive block device, swiftly clearing
-them enables users and upper layers to react quickly.
-
-Verified with multiple device unplug cycles with pending IOs in virtio
-used ring and some pending with device.
-
-In future instead of VQ broken, a more elegant method can be used. At the
-moment the patch is kept to its minimal changes given its urgency to fix
-broken kernels.
-
-Fixes: 43bb40c5b926 ("virtio_pci: Support surprise removal of virtio pci device")
-Cc: stable@vger.kernel.org
-Reported-by: lirongqing@baidu.com
-Closes: https://lore.kernel.org/virtualization/c45dd68698cd47238c55fb73ca9b4741@baidu.com/
-Co-developed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Signed-off-by: Chaitanya Kulkarni <kch@nvidia.com>
-Signed-off-by: Parav Pandit <parav@nvidia.com>
----
- drivers/block/virtio_blk.c | 54 ++++++++++++++++++++++++++++++++++++++
- 1 file changed, 54 insertions(+)
-
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 2bf14a0e2815..59b49899b229 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -1562,10 +1562,64 @@ static int virtblk_probe(struct virtio_device *vdev)
- 	return err;
- }
- 
-+static bool virtblk_cancel_request(struct request *rq, void *data)
-+{
-+	struct virtblk_req *vbr = blk_mq_rq_to_pdu(rq);
-+
-+	vbr->in_hdr.status = VIRTIO_BLK_S_IOERR;
-+	if (blk_mq_request_started(rq) && !blk_mq_request_completed(rq))
-+		blk_mq_complete_request(rq);
-+
-+	return true;
-+}
-+
-+static void virtblk_cleanup_reqs(struct virtio_blk *vblk)
-+{
-+	struct virtio_blk_vq *blk_vq;
-+	struct request_queue *q;
-+	struct virtqueue *vq;
-+	unsigned long flags;
-+	int i;
-+
-+	vq = vblk->vqs[0].vq;
-+	if (!virtqueue_is_broken(vq))
-+		return;
-+
-+	q = vblk->disk->queue;
-+	/* Block upper layer to not get any new requests */
-+	blk_mq_quiesce_queue(q);
-+
-+	for (i = 0; i < vblk->num_vqs; i++) {
-+		blk_vq = &vblk->vqs[i];
-+
-+		/* Synchronize with any ongoing virtblk_poll() which may be
-+		 * completing the requests to uppper layer which has already
-+		 * crossed the broken vq check.
-+		 */
-+		spin_lock_irqsave(&blk_vq->lock, flags);
-+		spin_unlock_irqrestore(&blk_vq->lock, flags);
-+	}
-+
-+	blk_sync_queue(q);
-+
-+	/* Complete remaining pending requests with error */
-+	blk_mq_tagset_busy_iter(&vblk->tag_set, virtblk_cancel_request, vblk);
-+	blk_mq_tagset_wait_completed_request(&vblk->tag_set);
-+
-+	/*
-+	 * Unblock any pending dispatch I/Os before we destroy device. From
-+	 * del_gendisk() -> __blk_mark_disk_dead(disk) will set GD_DEAD flag,
-+	 * that will make sure any new I/O from bio_queue_enter() to fail.
-+	 */
-+	blk_mq_unquiesce_queue(q);
-+}
-+
- static void virtblk_remove(struct virtio_device *vdev)
- {
- 	struct virtio_blk *vblk = vdev->priv;
- 
-+	virtblk_cleanup_reqs(vblk);
-+
- 	/* Make sure no work handler is accessing the device. */
- 	flush_work(&vblk->config_work);
- 
--- 
-2.34.1
-
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
