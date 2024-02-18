@@ -1,96 +1,111 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7532C12E7A;
-	Sun, 18 Feb 2024 09:31:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19DBD4EB4D
+	for <virtualization@lists.linux.dev>; Sun, 18 Feb 2024 10:55:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.19
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708248680; cv=none; b=UX3GZcDwekrkLnCS2XBg0s1+0Eb2o4WuIIuZRnpP7auHVvrpe5e6bLrADxsu7hMyIIY3kV+N8uem2w4hqbT7eF1KQYKer1/pDbNSaLsgxtKwa3TyL7fL8eUY3HPDrOJy7uTmmjgWtMBvQ0xwrMZR8glafd4Cm0H3dajDG4ApbN0=
+	t=1708253742; cv=none; b=tf6aaveTTZkX64mpIykOaR57/2IKZPagTVWpwud9C7RlJ30B6+n2Mua0Jm7KOv+ZdLkaRTIiDVatY4QPwllHac3KgX0qLCKKdsmplutVIHX4qyChtI/ov3Lsq4GeJX0qel8lA+pOXAI+YoCR71zpgVwx8njchEUDpmUai7buc0s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708248680; c=relaxed/simple;
-	bh=H/OSay05+csAHwBP0A3xim8Jfufbq4gn0ZbQ5TgLGOo=;
-	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=f6ydaiLITM8f4TlxaxObDob5/6C+2pqpKFqlm9sR68tXgR8JgpAqr4mYpchuCQirsp0pk0sWlcpEvaku8TVHfcopz4T06ahM3zyIFuVXWowclzroQegydSMIb5xF94Gzqwq9MN02TYuFuM1CjctwuNjX6DKHep99S/PYcgLEtmk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=JqLT55/j; arc=none smtp.client-ip=198.175.65.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1708253742; c=relaxed/simple;
+	bh=jpcrsc9SkfM2EPPkNx/Zqf5nMdI1WP8A8hc6xnBjFLI=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=qo1JmvHnIXA9QehQa/QJTmQUou27qhwvxANt9I3DbW4p/pRRFtcad52No6bp7aWMP+/Lhtq+7Gd8J0DDqwgbPot67/g3X2Ihd7t4c84hWtMOGD5E/11ydKSR0//bLUkj6uLIHcK8gvyy+eZlpKjL0QB24Gx3Fawz1dggVSlT1nY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=FJiPauPG; arc=none smtp.client-ip=192.198.163.19
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="JqLT55/j"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="FJiPauPG"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1708248679; x=1739784679;
-  h=message-id:date:mime-version:cc:subject:to:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=H/OSay05+csAHwBP0A3xim8Jfufbq4gn0ZbQ5TgLGOo=;
-  b=JqLT55/jGf/mUSf/KMB9jcH+qdN2G2FOxnvgQwGg+kLgaDuxDe8yXCRL
-   LAp/HjSkJw96zBbYKjq5gX02GSDGRGR+kxWc+2CjKlqm3zXnzGleF6mdH
-   JYOvAVBBAA0vDZ8XepE8C7UsoMnPhP/LelOO+rB3da/g1ttVI+Q3IRGat
-   jTzTU/wLexgSQM7R90612dhYoHZWDbovy3SizmHpLRz52mjxEYwEq6P2P
-   RhEdz15kphhFj8ukkG9i/JYNWQVY57Zhgpc83uQOr7QFWc5k5jl+Xd0Un
-   GnCfjzJ4boz62YSnNKMYefz0ZEtJComBoBPzKWhXXcJWkteizNEJdUhLr
+  t=1708253740; x=1739789740;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=jpcrsc9SkfM2EPPkNx/Zqf5nMdI1WP8A8hc6xnBjFLI=;
+  b=FJiPauPGSAKbQ7y9dftPngtjiqZj7+DK8fd+MzcO0gMS1CTthnTHti5T
+   DUiQ2j+fBLi4A0SvFQyl2//cDDTMG8UdyF3fZHGNTJg4E57J+CLBFZ4Tv
+   3IoLKK7l9wCNgTgAo0f5c8+/xuh43g3xQBQr5M6/+iWsHqUzTTtAH5wJh
+   +ajioDV0oEd3uxzBQVsoxK8b8rs71Dko7ByYtA4RWkccazRqeCu8DEte3
+   DzKrmIUXEA9TgjUfMbD3oijp84JliUBaMUm37Ik/WQHt6LwCN1Y4OV1/P
+   GlT9KL7E1C6kDY+T4zYitsP3M/bFF+ZI1N0k6dCnfBTssbfbv4rMt7k6H
    A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10987"; a="2200296"
+X-IronPort-AV: E=McAfee;i="6600,9927,10987"; a="2204610"
 X-IronPort-AV: E=Sophos;i="6.06,168,1705392000"; 
-   d="scan'208";a="2200296"
+   d="scan'208";a="2204610"
 Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Feb 2024 01:31:18 -0800
+  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Feb 2024 02:55:39 -0800
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10987"; a="912682691"
+X-IronPort-AV: E=McAfee;i="6600,9927,10987"; a="912691611"
 X-IronPort-AV: E=Sophos;i="6.06,168,1705392000"; 
-   d="scan'208";a="912682691"
-Received: from blu2-mobl.ccr.corp.intel.com (HELO [10.254.209.212]) ([10.254.209.212])
-  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Feb 2024 01:31:09 -0800
-Message-ID: <7b18a339-d0e3-4347-a20b-8fca9bbc7eb4@linux.intel.com>
-Date: Sun, 18 Feb 2024 17:31:06 +0800
+   d="scan'208";a="912691611"
+Received: from lingshan-icx.bj.intel.com ([10.240.192.125])
+  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Feb 2024 02:55:37 -0800
+From: Zhu Lingshan <lingshan.zhu@intel.com>
+To: jasowang@redhat.com,
+	mst@redhat.com
+Cc: virtualization@lists.linux.dev,
+	Zhu Lingshan <lingshan.zhu@intel.com>
+Subject: [PATCH 00/10] vDPA: allow userspace query virito-block device
+Date: Mon, 19 Feb 2024 02:55:56 +0800
+Message-Id: <20240218185606.13509-1-lingshan.zhu@intel.com>
+X-Mailer: git-send-email 2.39.3
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Cc: baolu.lu@linux.intel.com
-Subject: Re: [PATCH 1/4] iommu: constify pointer to bus_type
-Content-Language: en-US
-To: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
- Hector Martin <marcan@marcan.st>, Sven Peter <sven@svenpeter.dev>,
- Alyssa Rosenzweig <alyssa@rosenzweig.io>, Joerg Roedel <joro@8bytes.org>,
- Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
- Rob Clark <robdclark@gmail.com>, Marek Szyprowski
- <m.szyprowski@samsung.com>, Alim Akhtar <alim.akhtar@samsung.com>,
- Bjorn Andersson <andersson@kernel.org>,
- Konrad Dybcio <konrad.dybcio@linaro.org>, Yong Wu <yong.wu@mediatek.com>,
- Matthias Brugger <matthias.bgg@gmail.com>,
- AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
- Heiko Stuebner <heiko@sntech.de>, Orson Zhai <orsonzhai@gmail.com>,
- Baolin Wang <baolin.wang@linux.alibaba.com>,
- Chunyan Zhang <zhang.lyra@gmail.com>, Chen-Yu Tsai <wens@csie.org>,
- Jernej Skrabec <jernej.skrabec@gmail.com>,
- Samuel Holland <samuel@sholland.org>,
- Thierry Reding <thierry.reding@gmail.com>, Krishna Reddy
- <vdumpa@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>,
- Jean-Philippe Brucker <jean-philippe@linaro.org>, asahi@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, iommu@lists.linux.dev,
- linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
- linux-samsung-soc@vger.kernel.org, linux-mediatek@lists.infradead.org,
- linux-rockchip@lists.infradead.org, linux-sunxi@lists.linux.dev,
- linux-tegra@vger.kernel.org, virtualization@lists.linux.dev
-References: <20240216144027.185959-1-krzysztof.kozlowski@linaro.org>
-From: Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <20240216144027.185959-1-krzysztof.kozlowski@linaro.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 2024/2/16 22:40, Krzysztof Kozlowski wrote:
-> Make pointer to bus_type a pointer to const for code safety.
-> 
-> Signed-off-by: Krzysztof Kozlowski<krzysztof.kozlowski@linaro.org>
-> ---
->   drivers/iommu/iommu-priv.h | 5 +++--
->   drivers/iommu/iommu.c      | 5 +++--
->   2 files changed, 6 insertions(+), 4 deletions(-)
+This series allows the user space applications query vDPA virtio-block
+device inforamtion.
 
-Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
+testing on vdpa_sim_blk, iproute2 output:
+sudo ./vdpa/vdpa dev config show -jp vdpa_blk0
+{
+    "config": {
+        "vdpa_blk0": {
+            "capacity": 262144,
+            "segment size": 4096,
+            "block size": 512,
+            "max segments in a request": 32,
+            "num of queues": 1,
+            "logical blocks per physical block (log2)": 0,
+            "offset of first aligned logical block": 0,
+            "minimum io size": 1,
+            "optimal io size": 1,
+            "maximum discard sectors for a segment": 4294967295,
+            "max discard segments in a command": 1,
+            "discard sector alignment": 512,
+            "max write zeros sectors in a segment": 4294967295,
+            "max write zero segments": 1,
+            "read only": false,
+            "flush command support": true
+        }
+    }
+}
 
-Best regards,
-baolu
+Please help review
+
+Thanks
+Zhu Lingshan
+
+Zhu Lingshan (10):
+  vDPA: report virtio-block capacity to user space
+  vDPA: report virtio-block max segment size to user space
+  vDPA: report virtio-block block-size to user space
+  vDPA: report virtio-block max segments in a request to user space
+  vDPA: report virtio-block MQ info to user space
+  vDPA: report virtio-block topology info to user space
+  vDPA: report virtio-block discarding configuration to user space
+  vDPA: report virtio-block write zeroes configuration to user space
+  vDPA: report virtio-block read-only info to user space
+  vDPA: report virtio-blk flush info to user space
+
+ drivers/vdpa/vdpa.c       | 212 ++++++++++++++++++++++++++++++++++++++
+ include/linux/vdpa.h      |   1 +
+ include/uapi/linux/vdpa.h |  17 +++
+ 3 files changed, 230 insertions(+)
+
+-- 
+2.39.3
+
