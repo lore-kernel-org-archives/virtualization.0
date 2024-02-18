@@ -1,117 +1,216 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6C535026C
-	for <virtualization@lists.linux.dev>; Sun, 18 Feb 2024 10:55:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.19
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708253759; cv=none; b=FdFhJ+rG2AUWWIwz6BqXBNLQbTB30WCZNIAilzJYQ4ayFfGfinkE6BWFeH81iB+jHSfaYCj1yc9rj+8/p6OSKpOxAuLZJXFIxAjF3D6MyWMALPXRj8wVFARnoiGvMytgCjJXj1Gceno5RTsXDSvwah28V05URGOpgxo6UZ9ylZQ=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708253759; c=relaxed/simple;
-	bh=Jrz409lPkTkkLUj3615VxVKyx5rilQs7BVI3Xby7SLU=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=enc7bLHTMgl8rgYsgeos2WYPX19kYfuxLMPTtWUcx4absmyOrR+OBoJSEAMd48J4H8Kxvsubtce1NcWZR8XWZFYL/AySCk7g2IhxCbVBSQLNoYHHf1scNmE3Ig22t0tBjYeillEd8jyZHaKwLwMrzpKEwQjigUsa9C5AYP8j+xA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Z3Q817J8; arc=none smtp.client-ip=192.198.163.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E7B86350F
+	for <virtualization@lists.linux-foundation.org>; Sun, 18 Feb 2024 11:58:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.133
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1708257483; cv=fail; b=pEOQ9Ut0anPI1OzmNFvwi41CXJ44O2DbywB1b0uKA+/j3ARxKfrGLplEVQ0HItsSvePGhbuulLfpr8z3eH4dIuIthdsq4ctTbHjJIGlwh9y7tFfSuZjVaZSlKW1XnjU20H37dGu9HX3E4y70f+BNCAdb8xG18o63W9+SBFSQfcE=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1708257483; c=relaxed/simple;
+	bh=59CAn5wXmap+szpOqOXeFHeEbKuafsT2IE2jSwR4QiQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=AKNtOA35V/iArWdE8DX1SiIlTyTecTeL9HBpthIG2B54QoA65lAvS8tHUn4LYNZPTJu1qGAz9HHzGBErr3wrNudk902o+jtnZXc3jzFL/nhLLxdXKzi3y56DwdbfX0MdFK3GqAGBLkttVCJCmeN0XYi8J1/Z62hi8JdKwsUQAws=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=QdqDK//K; arc=fail smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Z3Q817J8"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1708253758; x=1739789758;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=Jrz409lPkTkkLUj3615VxVKyx5rilQs7BVI3Xby7SLU=;
-  b=Z3Q817J86j4/62AumD873L678BQlk25lMzY4nkAzw9ra8U0bLz1YuuKt
-   Fgb7gB8MsoKBTxbql/qewog/BQxDe1ArPthvGcxxlIkB8Sx78nrpVZyHK
-   XJ4k4UTvCBFngyRfQlW483olcDE8UT9m8QXxbUFzbF7kXa+iTVfeDtfdM
-   +0Jz0/Rp1c6QZvXNHE3M3g/dic7hM3xUj4+d5pQrkrgCfZq8nV9IpHk4d
-   egLdtFXa8bQgL8kkwd4iaz+9EGbeQRE0njKjpjD6sdTyhFlA1bp0kE7HO
-   8RsjaGqI65WNFlnfBqZwhbfhWPAAzmnPcgqPd8VqvVga83AZSHReQwkkU
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10987"; a="2204678"
-X-IronPort-AV: E=Sophos;i="6.06,168,1705392000"; 
-   d="scan'208";a="2204678"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Feb 2024 02:55:57 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10987"; a="912691663"
-X-IronPort-AV: E=Sophos;i="6.06,168,1705392000"; 
-   d="scan'208";a="912691663"
-Received: from lingshan-icx.bj.intel.com ([10.240.192.125])
-  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Feb 2024 02:55:55 -0800
-From: Zhu Lingshan <lingshan.zhu@intel.com>
-To: jasowang@redhat.com,
-	mst@redhat.com
-Cc: virtualization@lists.linux.dev,
-	Zhu Lingshan <lingshan.zhu@intel.com>
-Subject: [PATCH 10/10] vDPA: report virtio-blk flush info to user space
-Date: Mon, 19 Feb 2024 02:56:06 +0800
-Message-Id: <20240218185606.13509-11-lingshan.zhu@intel.com>
-X-Mailer: git-send-email 2.39.3
-In-Reply-To: <20240218185606.13509-1-lingshan.zhu@intel.com>
-References: <20240218185606.13509-1-lingshan.zhu@intel.com>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="QdqDK//K"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id B00CE400FD
+	for <virtualization@lists.linux-foundation.org>; Sun, 18 Feb 2024 11:58:01 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.103
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id g0iRA9h2BjSz
+	for <virtualization@lists.linux-foundation.org>;
+	Sun, 18 Feb 2024 11:58:00 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2409::600; helo=nam04-dm6-obe.outbound.protection.outlook.com; envelope-from=yishaih@nvidia.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 44327400DC
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 44327400DC
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=QdqDK//K
+Received: from NAM04-DM6-obe.outbound.protection.outlook.com (mail-dm6nam04on20600.outbound.protection.outlook.com [IPv6:2a01:111:f403:2409::600])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 44327400DC
+	for <virtualization@lists.linux-foundation.org>; Sun, 18 Feb 2024 11:57:59 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=luoRPBY+KdYkVvz1P4s0kCOyAGZKKTsz1axcVHqiBurI7dfP5fbxQuHkztWM5gp+82vb8mkMI0M8cT7jS+Ii2M263jTVz4h0ZxvM4eGMyuFw56LCGkqRIexECWFf7QLnAEV8oDQnfZC9nE0Gvfxh2ZLoIavgoXDj913L6NuTx4URSYgLUUBiZIXdFzAHcmBwXGQR7NabsiXAg9aSwosZH4MskA8FVUUtt7QkyTh1Lgwi5DMsC3Cg8MRt+d8CTnNgqbKjvlZG0sU7bQRsUUehhCqge7tJRH05WjbAj9FaWEIz8z89NTx6wV1UOK5TZsyiibbfO6I+wUPZi/nseikuCw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=OhdozrAwlDh4/q0rWb8RZFMxx2ywrrLJev0rhxbmng4=;
+ b=A7FNvkVm/Fjrwn8BivQweyg/JDFt3Cb/3BPaozPkQIuGLpXAhosPdniBWhsPxkCHM2GjK5ipFSTCYJRVtRcaEWsUr4OsbdyQbLwuLCGHNc5LU8A7HfuobP+DQ6qxwuDR5KmcNODV5dMI8E88Pwo6a4ynJwt97o9BHrI+DF7gpLTCjwA834jMMLW1bVYWpbxhswLnrTpgUD/eJGh28Iqe5mVutqJ/v6Zg1/3DYP5yIeee1fsEoMPWzYNhbKt3aOdMTBhl/F+AjMoar6Pu9I/JrLrbVqo5c8bjrZhNE4V16oYFuQL/Ax9OaObkwtKzquRUf39dMTpPJ7ios8gxrNVVvw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.160) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=OhdozrAwlDh4/q0rWb8RZFMxx2ywrrLJev0rhxbmng4=;
+ b=QdqDK//KUOt6y07G93Mzxgzvdc6L9YKarv4p6T1NU5H5ZM14F4KmLzITnYWILdNdLmHz6BHU3YlocOv1zM21MjsKzqV1WroDgTfNAFlDHmDrddfPiaK8glSL38ShH5hkQGj4MHfD1lMi+zwVTVczkwhceSI3fuaxS/ucvrq4yXjn3mJ38+sFojZYB8pqzFgOvzfHKqFxxd4BDouolyeQcFQ3kymNiUMUIKkez1uw40zbwXspAoj6hb3BFt5HItBfSB+c72djuBgeQ7QmHoRJgT++kdDNuYABjv06EvCfELL/xZJhLRxb2o1i5yVjCxMiRue8FoFyEyhYZn3Gf50aVw==
+Received: from SN1PR12CA0087.namprd12.prod.outlook.com (2603:10b6:802:21::22)
+ by SN7PR12MB8027.namprd12.prod.outlook.com (2603:10b6:806:32a::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7316.17; Sun, 18 Feb
+ 2024 11:57:54 +0000
+Received: from SN1PEPF00026369.namprd02.prod.outlook.com
+ (2603:10b6:802:21:cafe::bc) by SN1PR12CA0087.outlook.office365.com
+ (2603:10b6:802:21::22) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7292.34 via Frontend
+ Transport; Sun, 18 Feb 2024 11:57:54 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.160) by
+ SN1PEPF00026369.mail.protection.outlook.com (10.167.241.134) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.7292.25 via Frontend Transport; Sun, 18 Feb 2024 11:57:54 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
+ (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Sun, 18 Feb
+ 2024 03:57:41 -0800
+Received: from [172.27.34.193] (10.126.231.35) by rnnvmail201.nvidia.com
+ (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1258.12; Sun, 18 Feb
+ 2024 03:57:34 -0800
+Message-ID: <c7690b8a-78db-46ba-91fe-a2186eaae8aa@nvidia.com>
+Date: Sun, 18 Feb 2024 13:57:32 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v18 1/3] vfio/pci: rename and export do_io_rw()
+To: <ankita@nvidia.com>, <jgg@nvidia.com>, <alex.williamson@redhat.com>,
+	<shameerali.kolothum.thodi@huawei.com>, <kevin.tian@intel.com>,
+	<mst@redhat.com>, <eric.auger@redhat.com>, <jgg@ziepe.ca>,
+	<oleksandr@natalenko.name>, <clg@redhat.com>,
+	<satyanarayana.k.v.p@intel.com>, <brett.creeley@amd.com>, <horms@kernel.org>,
+	<shannon.nelson@amd.com>
+CC: <aniketa@nvidia.com>, <cjia@nvidia.com>, <kwankhede@nvidia.com>,
+	<targupta@nvidia.com>, <vsethi@nvidia.com>, <acurrid@nvidia.com>,
+	<apopple@nvidia.com>, <jhubbard@nvidia.com>, <danw@nvidia.com>,
+	<anuaggarwal@nvidia.com>, <mochs@nvidia.com>, <kvm@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <virtualization@lists.linux-foundation.org>
+References: <20240216030128.29154-1-ankita@nvidia.com>
+ <20240216030128.29154-2-ankita@nvidia.com>
+Content-Language: en-US
+From: Yishai Hadas <yishaih@nvidia.com>
+In-Reply-To: <20240216030128.29154-2-ankita@nvidia.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: rnnvmail201.nvidia.com (10.129.68.8) To
+ rnnvmail201.nvidia.com (10.129.68.8)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SN1PEPF00026369:EE_|SN7PR12MB8027:EE_
+X-MS-Office365-Filtering-Correlation-Id: 3495ce6d-4cde-44bc-720b-08dc3078d778
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	nSuzu0FGcyOAWCVNjFLow/XBGauybMric9WWm6TLh3FVHHhwqzKVoOD8Er91OEGXtmKOEgwxdalVlJaI8fmSq9or4UhGOrkiahFamOaEy0oKVoXkpbA5LKg16LJ8mpMibc1w2XADJAHGjBTYKxVP9nWPu1ldqXxejkK9b9TjYG2M4deVZeyMo90Z0FePtl42+A7696g/8+g5yhJ9Zu6Xa/kD/GFtBQweZ09i0nOoFjekjUSF2zWMSxP+AktPt9ONaf8w7XD76yuJ671mz9EaWDvk2Rir4oBnW4D7uHLDZOhd/032mxUu+ZFTFyhD1tfadvhcktWTchw9RAW3c8SYEpLmm+EIFPvlloJFBSrR/ntpX7SpHQwuh5d5QYb2bS5bN04MGB50bvtZlqVB5U2AcogUO5G1QZRgJe+egb79by8LkbAMySRfn4JcwR5sSHIOWJTxXd6pLQ2cmYa9DxSYOfub6bUF+QX0UFIRlHsrlwSXId3o90ZSHLN0wPSl8KZboCg52RTU0AjXcNjxBFgkPcF1x4n6HAKutFv6BZf/AuvQ6TdAsNIcFouv67zc3kCNBGx17JQq7EQbKcMQ4Epu/CqlSUI+EnS6qWAHPAz4hKXTDSCjlQPZKJvn6HIA7ZLTRX++nYLtB9VbunTqBzE/Z/JtNw5OdxnxA1gEeU8bRo4=
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230031)(4636009)(396003)(346002)(39860400002)(136003)(376002)(230922051799003)(186009)(64100799003)(36860700004)(82310400011)(451199024)(1800799012)(46966006)(40470700004)(5660300002)(70206006)(70586007)(8936002)(8676002)(31686004)(4326008)(7416002)(2906002)(86362001)(31696002)(7636003)(36756003)(356005)(82740400003)(921011)(110136005)(54906003)(26005)(16526019)(336012)(426003)(83380400001)(2616005)(41300700001)(53546011)(16576012)(478600001)(316002);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Feb 2024 11:57:54.7565
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 3495ce6d-4cde-44bc-720b-08dc3078d778
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	SN1PEPF00026369.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB8027
 
-This commit reports whether a virtio-blk device
-support cache flush command to user space
+On 16/02/2024 5:01, ankita@nvidia.com wrote:
+> From: Ankit Agrawal <ankita@nvidia.com>
+> 
+> do_io_rw() is used to read/write to the device MMIO. The grace hopper
+> VFIO PCI variant driver require this functionality to read/write to
+> its memory.
+> 
+> Rename this as vfio_pci_core functions and export as GPL.
+> 
+> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+> Signed-off-by: Ankit Agrawal <ankita@nvidia.com>
+> ---
+>   drivers/vfio/pci/vfio_pci_rdwr.c | 16 +++++++++-------
+>   include/linux/vfio_pci_core.h    |  5 ++++-
+>   2 files changed, 13 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/vfio/pci/vfio_pci_rdwr.c b/drivers/vfio/pci/vfio_pci_rdwr.c
+> index 07fea08ea8a2..03b8f7ada1ac 100644
+> --- a/drivers/vfio/pci/vfio_pci_rdwr.c
+> +++ b/drivers/vfio/pci/vfio_pci_rdwr.c
+> @@ -96,10 +96,10 @@ VFIO_IOREAD(32)
+>    * reads with -1.  This is intended for handling MSI-X vector tables and
+>    * leftover space for ROM BARs.
+>    */
+> -static ssize_t do_io_rw(struct vfio_pci_core_device *vdev, bool test_mem,
+> -			void __iomem *io, char __user *buf,
+> -			loff_t off, size_t count, size_t x_start,
+> -			size_t x_end, bool iswrite)
+> +ssize_t vfio_pci_core_do_io_rw(struct vfio_pci_core_device *vdev, bool test_mem,
+> +			       void __iomem *io, char __user *buf,
+> +			       loff_t off, size_t count, size_t x_start,
+> +			       size_t x_end, bool iswrite)
+>   {
+>   	ssize_t done = 0;
+>   	int ret;
+> @@ -201,6 +201,7 @@ static ssize_t do_io_rw(struct vfio_pci_core_device *vdev, bool test_mem,
+>   
+>   	return done;
+>   }
+> +EXPORT_SYMBOL_GPL(vfio_pci_core_do_io_rw);
+>   
+>   int vfio_pci_core_setup_barmap(struct vfio_pci_core_device *vdev, int bar)
+>   {
+> @@ -279,8 +280,8 @@ ssize_t vfio_pci_bar_rw(struct vfio_pci_core_device *vdev, char __user *buf,
+>   		x_end = vdev->msix_offset + vdev->msix_size;
+>   	}
+>   
+> -	done = do_io_rw(vdev, res->flags & IORESOURCE_MEM, io, buf, pos,
+> -			count, x_start, x_end, iswrite);
+> +	done = vfio_pci_core_do_io_rw(vdev, res->flags & IORESOURCE_MEM, io, buf, pos,
+> +				      count, x_start, x_end, iswrite);
+>   
+>   	if (done >= 0)
+>   		*ppos += done;
+> @@ -348,7 +349,8 @@ ssize_t vfio_pci_vga_rw(struct vfio_pci_core_device *vdev, char __user *buf,
+>   	 * probing, so we don't currently worry about access in relation
+>   	 * to the memory enable bit in the command register.
+>   	 */
+> -	done = do_io_rw(vdev, false, iomem, buf, off, count, 0, 0, iswrite);
+> +	done = vfio_pci_core_do_io_rw(vdev, false, iomem, buf, off, count,
+> +				      0, 0, iswrite);
+>   
+>   	vga_put(vdev->pdev, rsrc);
+>   
+> diff --git a/include/linux/vfio_pci_core.h b/include/linux/vfio_pci_core.h
+> index 85e84b92751b..cf9480a31f3e 100644
+> --- a/include/linux/vfio_pci_core.h
+> +++ b/include/linux/vfio_pci_core.h
+> @@ -130,7 +130,10 @@ void vfio_pci_core_finish_enable(struct vfio_pci_core_device *vdev);
+>   int vfio_pci_core_setup_barmap(struct vfio_pci_core_device *vdev, int bar);
+>   pci_ers_result_t vfio_pci_core_aer_err_detected(struct pci_dev *pdev,
+>   						pci_channel_state_t state);
+> -
+> +ssize_t vfio_pci_core_do_io_rw(struct vfio_pci_core_device *vdev, bool test_mem,
+> +			       void __iomem *io, char __user *buf,
+> +			       loff_t off, size_t count, size_t x_start,
+> +			       size_t x_end, bool iswrite);
+>   #define VFIO_IOWRITE_DECLATION(size) \
+>   int vfio_pci_core_iowrite##size(struct vfio_pci_core_device *vdev,	\
+>   			bool test_mem, u##size val, void __iomem *io);
 
-Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
----
- drivers/vdpa/vdpa.c       | 14 ++++++++++++++
- include/uapi/linux/vdpa.h |  1 +
- 2 files changed, 15 insertions(+)
-
-diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
-index d6fd3cadc44f..95e1440dbfaa 100644
---- a/drivers/vdpa/vdpa.c
-+++ b/drivers/vdpa/vdpa.c
-@@ -1095,6 +1095,17 @@ static int vdpa_dev_blk_ro_config_fill(struct sk_buff *msg, u64 features)
- 	return 0;
- }
- 
-+static int vdpa_dev_blk_flush_config_fill(struct sk_buff *msg, u64 features)
-+{
-+	u8 flush;
-+
-+	flush = ((features & BIT_ULL(VIRTIO_BLK_F_FLUSH)) == 0) ? 0 : 1;
-+	if (nla_put_u8(msg, VDPA_ATTR_DEV_BLK_CFG_FLUSH, flush))
-+		return -EMSGSIZE;
-+
-+	return 0;
-+}
-+
- static int vdpa_dev_blk_config_fill(struct vdpa_device *vdev,
- 				    struct sk_buff *msg)
- {
-@@ -1136,6 +1147,9 @@ static int vdpa_dev_blk_config_fill(struct vdpa_device *vdev,
- 	if (vdpa_dev_blk_ro_config_fill(msg, features_device))
- 		return -EMSGSIZE;
- 
-+	if (vdpa_dev_blk_flush_config_fill(msg, features_device))
-+		return -EMSGSIZE;
-+
- 	return 0;
- }
- 
-diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
-index 4be8e3a15874..43c51698195c 100644
---- a/include/uapi/linux/vdpa.h
-+++ b/include/uapi/linux/vdpa.h
-@@ -71,6 +71,7 @@ enum vdpa_attr {
- 	VDPA_ATTR_DEV_BLK_CFG_MAX_WRITE_ZEROES_SEC,	/* u32 */
- 	VDPA_ATTR_DEV_BLK_CFG_MAX_WRITE_ZEROES_SEG,	/* u32 */
- 	VDPA_ATTR_DEV_BLK_CFG_READ_ONLY,		/* u8 */
-+	VDPA_ATTR_DEV_BLK_CFG_FLUSH,		/* u8 */
- 
- 	/* new attributes must be added above here */
- 	VDPA_ATTR_MAX,
--- 
-2.39.3
-
+Reviewed-by: Yishai Hadas <yishaih@nvidia.com>
