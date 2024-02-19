@@ -1,112 +1,145 @@
-Received: from NAM04-BN8-obe.outbound.protection.outlook.com (mail-bn8nam04on2062.outbound.protection.outlook.com [40.107.100.62])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 830552107
-	for <virtualization@lists.linux.dev>; Mon, 19 Feb 2024 03:14:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.100.62
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6ACA443F
+	for <virtualization@lists.linux-foundation.org>; Mon, 19 Feb 2024 03:48:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.138
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708312500; cv=fail; b=A2UKJv9ycO2wQmkKLSkqpgqXleVsNG8vQgAwZzCu1KHNAJb+AKKEOWpeGsbQ/yE6Z2b9FtzNAVl+IdlOJCsj3aPhfjiUtUWkexXC5AMf1V2TZB9KBUuRTLqXkDoYOLqe9V0BU+txa09MwnhTYbL/i5sVhQM7pBdKhwuT39KwnAc=
+	t=1708314487; cv=fail; b=o/R4ZaCxsaUIcmx46sQscmrpmlTwGJ1dVG+KADq6hEGHUPZLJfZv4mMfm/46gfySlqKWlIhRkc8MtDEyeuTF9bhohP8tbO1cfYnU7ruijiWDcjeo7bElbdEC2zJHD6VYCNhQaMdhYPG46wfC02MxblFZsM6O8P99B428hZpa32U=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708312500; c=relaxed/simple;
-	bh=EL13OiB+NYNU1ruf0QI+AGo34/fMOufoZxjalAWs7Ok=;
+	s=arc-20240116; t=1708314487; c=relaxed/simple;
+	bh=j1J247qFOokNqTIriD8wGKCjgRS0xJocMVEuwamfiGY=;
 	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=RkJPLCTtcdkhIiowBWQgMddDVFtYkh7+ehrGD8AyPV/y+SjcdsIjn8BpsMfAt4SJtfiYTaKyO923UnLVVIf3QcyIyMqIvxRMHH90zITl9ZAAoa6r+Z5dlkqWpyWFV5ARwR5lxoikydYGLgwH5pYSliqcsa8X9KZuDQOAo995I10=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=L43vAIZq; arc=fail smtp.client-ip=40.107.100.62
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	 Content-Type:MIME-Version; b=Xf21JYTuKtUPEQ1+KlFWHcxcwpnZalTa4aY05xekWkRiKsxQUiyeuswUgn/IMeAPvkk5MqEa71WtL3CYKcdeYwny4k8/fmpMn1ITibj7zQaBlizv3EbMVvcvYoZCkujF5AXOk4GuVI7Nk5R7OIzOJaiFrs2d+Ek3dNFv1R+E1pE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=paMZCARr; arc=fail smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="L43vAIZq"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="paMZCARr"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 6F58282017
+	for <virtualization@lists.linux-foundation.org>; Mon, 19 Feb 2024 03:48:05 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.103
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id T-3hAEL1GDkL
+	for <virtualization@lists.linux-foundation.org>;
+	Mon, 19 Feb 2024 03:48:04 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f400:7e88::62e; helo=nam10-dm6-obe.outbound.protection.outlook.com; envelope-from=ankita@nvidia.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 698258201E
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 698258201E
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=paMZCARr
+Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2062e.outbound.protection.outlook.com [IPv6:2a01:111:f400:7e88::62e])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 698258201E
+	for <virtualization@lists.linux-foundation.org>; Mon, 19 Feb 2024 03:48:04 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=M5rMQWr0iL7/8opKbx4ZRhxwwiWCybRRIPBg9G37kIS3TZRa5k7ZpdX1JJXlIjEyeCqPlU+PXF0iXIOHx288IM8H3hdDbCv+JYCm2SxCy5S+rw5Fbw2v/FkmsxvDRWRvIJArEXjVwdemiF81NQno5kROxIcS1jPDgZU9djUa6B5ezFfNoWPZCrJih8y+b2F67UJTbO/T1MH7A7KDpFv83bdGy6tMLn4VxBALyrOFLtvLDhnVk/g9+BxcNpdam6EcPgxbPE3uNZnH01xsLPzeO+Rk5pOlkexs+x/rpMXtX6lKD1Nv6U0YV/sOzTv/QiOD5Lj34cvyeoFEZf8nmbu7aQ==
+ b=Osgqe5AjCbL5wVfiyakI981j4WcF7j1YijEjPs9917lP46wB1wgChkK2Crl0bd9cnmClhYPEx+cNQm8pB/V2xjiZUdToN8dZwHmVHuBji5sJAehuS6e1pevlIbGQdkNKLIBbIBtQtR7Hdh5YUmDvEcxWwN6pUz1gyG727gwapzzlJr3efnjWldmMpRmKzcBsopNdU/edqrGf8XB44FHi8gTJWjDCJ8rpu3bZLIecqyg6A7sASekV+RP3ueewKK+Vt4dAEn95cKajdHmlwa5vgzQ+/qCtlzkk7Wl3MCWvn7du+h3NtAsoxq589EVU5BqRJPdiF6zgwc01yDtzmlUXBQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=I8H/CHWgq2Ah0vxvrBC/etkmeh63YuvGW3dh7CcHN7A=;
- b=NvR4M32k9ivCI9RfAsBodLFgua3zkGPeEk5Z7oCOG8YTM7PvL1K2xHoLFh3jIdUhoNjmEPWGLk8n9j+ZO1Q3tipPrPDQZwRl1UwkU3QZdgKmz3W5a3Zd7DtSLtN1Jh/XUGSCQAX9UivELWZQxjRfkLVMhWSZZIt5/1PgBwrrlwf+fEyt50VDrYi4xtxvTcYl4wqLsCZbp+0qSgHoX11/k8yCciBCIM4jNHumFAg1+D1zc1rOhH1VCXuU5S0d2UXWgDdy7eJU5sU3qA4AvSpGNVHItJ/vZUEPjOu1BObCa+I0JwkJNYQWAn4gy+p8C5+7SnvB4E3Az2EgFlhOy7Z/Zg==
+ bh=j1J247qFOokNqTIriD8wGKCjgRS0xJocMVEuwamfiGY=;
+ b=V1B6cpUOJ5DKeOSbB5nf+FzxH5ty+N8aHYV5adjAF0a9lWm7x90+yPm5APTmoVqg4EPUQM0g0B5O49UhMdtwQ2aEvykg98Q8p4odyYWmrcdQGctceGrdccWW70zUtqLqaDFK2Y/6l3f2Im6RNITM2UyQY9oT2E8tGR5UqEDt5aPUoo9Ta19rXhPGr/YmCxqd6n+Yf7DMObSpgb7rmnPMrWUFxWcM9JBofAP0F5uOcFzYnQrQh+l5m+zPtIG98+HfHM4P8UiYBN29+PaVlwlT3Lj5jnNLuHew2snegeKO4GP+DsagfWMK6WlEO9YiMYE3F/edefa8nwbwRwKtZu6hoQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
  dkim=pass header.d=nvidia.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=I8H/CHWgq2Ah0vxvrBC/etkmeh63YuvGW3dh7CcHN7A=;
- b=L43vAIZqX8871c/JdWReX9WlyyMDrYdcjwoYLDpRSnM9ZIm7z7xVgKYsiqBHzahbVt2Pi7vr3VpPeaEKzxC4yDcolWW5eEC7iH1RByo708UmnOVOLh1Mi6iDUZhBK/W6J1ughwwF3xz4iq7W+389iH+HgX0FlIdaYaexQFbPtrddDATffCZ4FCj6Hm/8iIaUF+tGhrCfVvQ50HlILkID/ZpjJljMA1mLkfVZB6xxQuM5Tq7qZebffxXzu84uxj4abvtTHmvXkLsicgK2o/0reaPsXQrMGdN96d88eCdZBwbnVEp3X0t1PNa309WUNyXx1YkuCtVdsgcTyLwA6gWtsw==
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
- by SA1PR12MB8161.namprd12.prod.outlook.com (2603:10b6:806:330::7) with
+ bh=j1J247qFOokNqTIriD8wGKCjgRS0xJocMVEuwamfiGY=;
+ b=paMZCARrd36Bqiq6lKuDwwLf0FjF9HuFxVKFufq2x6Kp4KV0efT6bH35IKhzAwqOrYT+YjHdfPdeGMwXROM83wUc99s2htwALwtCfwny/c35mTHfG8Zhr0fapCLPcEd2FVEHDTysGR3642H4iV25fMSwmn7z28gMwqLfYCCzJJuYN8wnnMb8C06c+NzNpC/uHPZFM7S7/ZBFAGS2CCEzf1IIXmrlk0wF9e191sYqEu7BnfGpwRr5D+1dbW2f8oezNFzKHsP8t6JYDN5T3PXtEojgmjd5g7yFJxiuOlh2isQkmExF+865mr9UN2bkMwdhVxWATb1hFfJ7Ws1MRmmK3A==
+Received: from SA1PR12MB7199.namprd12.prod.outlook.com (2603:10b6:806:2bc::21)
+ by DS0PR12MB8247.namprd12.prod.outlook.com (2603:10b6:8:f5::22) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7316.19; Mon, 19 Feb
- 2024 03:14:54 +0000
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::5b85:d575:fac1:71c0]) by PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::5b85:d575:fac1:71c0%4]) with mapi id 15.20.7316.016; Mon, 19 Feb 2024
- 03:14:54 +0000
-From: Parav Pandit <parav@nvidia.com>
-To: Ming Lei <ming.lei@redhat.com>
-CC: "mst@redhat.com" <mst@redhat.com>, "jasowang@redhat.com"
-	<jasowang@redhat.com>, "xuanzhuo@linux.alibaba.com"
-	<xuanzhuo@linux.alibaba.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>,
-	"stefanha@redhat.com" <stefanha@redhat.com>, "axboe@kernel.dk"
-	<axboe@kernel.dk>, "virtualization@lists.linux.dev"
-	<virtualization@lists.linux.dev>, "linux-block@vger.kernel.org"
-	<linux-block@vger.kernel.org>, "stable@vger.kernel.org"
-	<stable@vger.kernel.org>, "NBU-Contact-Li Rongqing (EXTERNAL)"
-	<lirongqing@baidu.com>, Chaitanya Kulkarni <chaitanyak@nvidia.com>
-Subject: RE: [PATCH] virtio_blk: Fix device surprise removal
-Thread-Topic: [PATCH] virtio_blk: Fix device surprise removal
-Thread-Index: AQHaYcxqVM2rFvg5t0SfQayLG6csArEQGLcAgADkkjA=
-Date: Mon, 19 Feb 2024 03:14:54 +0000
+ 2024 03:48:01 +0000
+Received: from SA1PR12MB7199.namprd12.prod.outlook.com
+ ([fe80::284c:211f:16dc:f7b2]) by SA1PR12MB7199.namprd12.prod.outlook.com
+ ([fe80::284c:211f:16dc:f7b2%5]) with mapi id 15.20.7316.016; Mon, 19 Feb 2024
+ 03:48:00 +0000
+From: Ankit Agrawal <ankita@nvidia.com>
+To: Yishai Hadas <yishaih@nvidia.com>, Jason Gunthorpe <jgg@nvidia.com>,
+	"alex.williamson@redhat.com" <alex.williamson@redhat.com>,
+	"shameerali.kolothum.thodi@huawei.com"
+	<shameerali.kolothum.thodi@huawei.com>, "kevin.tian@intel.com"
+	<kevin.tian@intel.com>, "mst@redhat.com" <mst@redhat.com>,
+	"eric.auger@redhat.com" <eric.auger@redhat.com>, "jgg@ziepe.ca"
+	<jgg@ziepe.ca>, "oleksandr@natalenko.name" <oleksandr@natalenko.name>,
+	"clg@redhat.com" <clg@redhat.com>, "satyanarayana.k.v.p@intel.com"
+	<satyanarayana.k.v.p@intel.com>, "brett.creeley@amd.com"
+	<brett.creeley@amd.com>, "horms@kernel.org" <horms@kernel.org>,
+	"shannon.nelson@amd.com" <shannon.nelson@amd.com>
+CC: Aniket Agashe <aniketa@nvidia.com>, Neo Jia <cjia@nvidia.com>, Kirti
+ Wankhede <kwankhede@nvidia.com>, "Tarun Gupta (SW-GPU)"
+	<targupta@nvidia.com>, Vikram Sethi <vsethi@nvidia.com>, Andy Currid
+	<acurrid@nvidia.com>, Alistair Popple <apopple@nvidia.com>, John Hubbard
+	<jhubbard@nvidia.com>, Dan Williams <danw@nvidia.com>, "Anuj Aggarwal
+ (SW-GPU)" <anuaggarwal@nvidia.com>, Matt Ochs <mochs@nvidia.com>,
+	"kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org"
+	<virtualization@lists.linux-foundation.org>
+Subject: Re: [PATCH v18 3/3] vfio/nvgrace-gpu: Add vfio pci variant module for
+ grace hopper
+Thread-Topic: [PATCH v18 3/3] vfio/nvgrace-gpu: Add vfio pci variant module
+ for grace hopper
+Thread-Index: AQHaYISKEq7ts7f4oEyo6sBByW/RK7EQEAQAgAD3SjQ=
+Date: Mon, 19 Feb 2024 03:48:00 +0000
 Message-ID:
- <PH0PR12MB5481DCCE8127FB12C24EF74DDC512@PH0PR12MB5481.namprd12.prod.outlook.com>
-References: <20240217180848.241068-1-parav@nvidia.com>
- <ZdIFpqa23YHwJACh@fedora>
-In-Reply-To: <ZdIFpqa23YHwJACh@fedora>
+ <SA1PR12MB719956FA6354BD78709D6836B0512@SA1PR12MB7199.namprd12.prod.outlook.com>
+References: <20240216030128.29154-1-ankita@nvidia.com>
+ <20240216030128.29154-4-ankita@nvidia.com>
+ <692a111c-f0a7-4e0a-af6a-2590d6a1ffa7@nvidia.com>
+In-Reply-To: <692a111c-f0a7-4e0a-af6a-2590d6a1ffa7@nvidia.com>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach:
 X-MS-TNEF-Correlator:
+msip_labels:
 authentication-results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=nvidia.com;
 x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: PH0PR12MB5481:EE_|SA1PR12MB8161:EE_
-x-ms-office365-filtering-correlation-id: 02ee078c-1bba-44c8-125d-08dc30f8f1d3
-x-ld-processed: 43083d15-7273-40c1-b7db-39efd9ccc17a,ExtAddr
+x-ms-traffictypediagnostic: SA1PR12MB7199:EE_|DS0PR12MB8247:EE_
+x-ms-office365-filtering-correlation-id: 2fcb7b49-006b-408a-2bbc-08dc30fd91b3
 x-ms-exchange-senderadcheck: 1
 x-ms-exchange-antispam-relay: 0
 x-microsoft-antispam: BCL:0;
 x-microsoft-antispam-message-info:
- 24VyClpD8+bTLb0cYU0/d7ftBEg5xLJTe6cgFvh2GH/X2x6i/Tnh2XChNYLac6NEIeB+bdPILpqQmnGmZxgnyaNmWN8EPQ0i4cKV6XKDsKj12F1FLgW4YbR1Y04BQJ1EadZvijNXkNS16ySPMeTEKU7OzXPm8oWnv1ntfUxoX3TUMFlgkDgRXHPOihJ1jsc7Yc3u4HDVcfYUYakeNSInchrXDZTtI2DIxYSzFpGVmEZGeGMXQVrsn2PmwLkbTu9sB6fzwS9M7uMyRyv9dwYesc/VXTFwpOVarqIaJR0pU4W9clcXBJ5PsdRvuEOCSrtAK0GIvOsirf0r03F1rmor7W+wAR1OBVTuyhWw8uvDUvwB1OXEKCvZBUmBnJNWLG4Qgc/I5253XnA1Klkr3j0w8yASGfpWKm8ariFGCcMiK21YFJ90pHLngHOD/lY8FPqZR4RcDtbN4+Yl1ezeofQKzM/qDaf5CNhe0vElosF+edo1tc55J/zr54hqhxEO/C7z3rFcOgnAcCCP8uUREA5/OWP98505vdigYgR1vczfwgdVBfc+/QXna60VYKg91gYIyEC+LYm4swUHAOrkps45/032grHkeCJ4ecstnJvxezCdzc//a23MvAzJfIsxJaXFMloI4wFwO6XUKZrnKeNaqZigjzSwj/90FnGo8LhWWK4=
+ ok8RPLtvBcwh7NyIXAwY1Urrf0vFGAnT/PHKOGg4eaJGi112PYOaIhgpTK1EamdaoE3SFw6NeyTCosy8YeZ5KyCODybTeX7MKVQXKIpx5SwvtoucwGKDUScTpka6qFuwOyPD+Shka1Si6T+9UciFX3BM5ST+TcFVVmKB/PI8LlE5HwY30UPPUu4d2Rwc/VS4Ay1qTSwFt5ZYkAxVJP5pUKdT4AsmWe0lABRLu4a39Pl4yg/Odl0QBxVmMrcbjAnCfexAO+p+MIl2fCWoDKSDRuE5dg51L7gEPOZyNh4YhNvmNgeWsJ9GqlEab4IH3Ym4pADFwt7pioQDuXoerg/JTsiSpQ+DVdaLU+9MjSvoHnY+MhkBElZWL6UIWc9eeNxiUTP04aySWPsgBJWqKDQmuSALDf1t0qYcots7m8sdaV9mw4JL8btu4GP4NjUtacR0IxRsUdPLsSFN+ZUmbgBkKHBqDB+DxT6OEhXTjjGdMifSkIjstVEQVEq8Q2JP2atHYkW3BENdKY6rMg0Wcegi0LIBKxyzVAzf8ea9NoCUfdCW8QmA7WlPIOjA/hUniMdoyxRwtcKpsK5NPqj1tj5htRwW9Xb8wBYfd8RK2WYgExnSVP9yiZkovQQQ1b/gj8kcMFxFP69Lg+lUj4b1cHZnEA==
 x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR12MB5481.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(376002)(396003)(366004)(136003)(346002)(39860400002)(230922051799003)(186009)(1800799012)(451199024)(64100799003)(122000001)(26005)(83380400001)(55016003)(8676002)(7416002)(66946007)(8936002)(76116006)(64756008)(66446008)(66476007)(66556008)(2906002)(4326008)(6916009)(52536014)(6506007)(9686003)(7696005)(316002)(966005)(478600001)(71200400001)(54906003)(33656002)(38070700009)(107886003)(41300700001)(5660300002)(38100700002)(86362001);DIR:OUT;SFP:1101;
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA1PR12MB7199.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(376002)(136003)(366004)(346002)(396003)(39860400002)(230922051799003)(186009)(64100799003)(1800799012)(451199024)(55016003)(5660300002)(8676002)(66476007)(91956017)(76116006)(66946007)(64756008)(8936002)(66446008)(52536014)(66556008)(2906002)(7416002)(4326008)(110136005)(71200400001)(54906003)(38070700009)(316002)(9686003)(6506007)(7696005)(478600001)(26005)(921011)(33656002)(86362001)(83380400001)(122000001)(38100700002)(41300700001);DIR:OUT;SFP:1101;
 x-ms-exchange-antispam-messagedata-chunkcount: 1
 x-ms-exchange-antispam-messagedata-0:
- =?us-ascii?Q?I/zsoDPnPjDmjuY6Jbsxf/UyIzYRmBqQeUz3kBDbwZa/YQL1hgv4hJiLEwSs?=
- =?us-ascii?Q?cyNSFOOtzhtkYH1XnhismxpWCX8ZQXBEx8Td0qw73ZIwQrLV43n23HHfvniV?=
- =?us-ascii?Q?pyyrMjhyGHklaOEty0mRmD/gSAUXiRqSeXbzLYgMeCNKYebzQFa3VBvRQNk7?=
- =?us-ascii?Q?wzALPCBwghVDW40gfDPUNZF9EF24hE+asK2As64ME9JVVuLCU1nyciIBM5hc?=
- =?us-ascii?Q?WjCSXEMCfG3/z2p4spRejUY50S7b4mAhCI2blp5W/uGuUZPJav8St4VaDgkx?=
- =?us-ascii?Q?fKyr6xwviDRFDjVdRTJZeN8NaID4r5nOxtIq0chX5WD2X6Ty54UH3Nv4y0HQ?=
- =?us-ascii?Q?m/ZURAFUWKrhda3uIQIyq8XpXmau5jkKsZuEKoffyLe+YJj83CDdBMwUHSNU?=
- =?us-ascii?Q?G3yEFc8DHJrafm7dNkhhNULSlRAPGJ8nYQU73Yv9LExLCxf0yp7eev0aftvi?=
- =?us-ascii?Q?UoMdglU1Ndl2QOWwbN3RR2bj8wyoACyBiunf4mlRYojJ9YPCtl4aJtp5nkXm?=
- =?us-ascii?Q?ALWzT1UGz36XsdafUfFVFD/ANhgDv6zW6F2kjgGEnnaGmnWASVvbNK189hdF?=
- =?us-ascii?Q?6L+l+QalHQXo2+l56Iy1ENshPzNO0V0Cu7iKsE46Lu1s4l1SzktL79JKL752?=
- =?us-ascii?Q?BNzepzqLlaLuSge/eZ6oO8eKKEaznmJPgeOblgnvqRCtbVTo1alMI6bhKpMd?=
- =?us-ascii?Q?3FHM89McpamVbo4M++hMekTZLcQxUuDWv0mtdKl68vVQTbf/gjnE5HY7PorA?=
- =?us-ascii?Q?ke5Mw2Mt7fDivFN/3TZVNKVUB9BgWDfpzUMuvp/GSSW3/HSs1J1zdwKKm7cm?=
- =?us-ascii?Q?wRemLANkCLo4L4CCnDNc+sCVlE+BSbpIJjrtgy/R3E3GjXrOTkmA50ExPUuP?=
- =?us-ascii?Q?iuaA5gcLVmZdyH8of+2kj6BipmWF1ANRl7u7AMzWzWyav/5nv+s6z4PpRu+b?=
- =?us-ascii?Q?7CdCoSAyCxynkYNg81JWHVYco4JN32VkNpz0x+UFkCpjEWaabY6gDKHU6ar/?=
- =?us-ascii?Q?7QAxHyYveXQZtXU46tRdj4KWEdAlz/n+LspOetxP/tOdF6bYqRStc+ZSE7Jd?=
- =?us-ascii?Q?4Oz5DOGD/RCcwKaccBMWrxu+eEeaS3wOIi8vgqYbGD4QlQ6eZIOy6rglutEK?=
- =?us-ascii?Q?q9jjVpSwnr6rfY/vTJRtbcGAnbj8RD6Q61RY3cHc0clmTPCECCvSnw2oV0Cy?=
- =?us-ascii?Q?kvCiM1jiH454lU2NzcrMu0M4E8eBylR6hvxS5VnO6O7yFN727ijTUwf9IxUN?=
- =?us-ascii?Q?oL7q94IygvySAqnakKM0ZdgUJSCBIesktY+9zq5r9TCmrJmZHwNtbBMvM9PR?=
- =?us-ascii?Q?zmCX/GPrjX4ARFW8NFeWO8XxNt3yXjN5hm/X5bXEop4oZE+1WyAlwcGQefmQ?=
- =?us-ascii?Q?ePnWYSJx/8AR1Z2e74CY0Z4xsYrP2Gyk5HwuNbANXmxkvTGt4fJmCroEaSPe?=
- =?us-ascii?Q?b/IXf1IZ5LdECuhnzUHjN6OnGCY4LWlBPH8uhj5gmNYb/vsDyFAFlTR5sFWj?=
- =?us-ascii?Q?W4it0Iu+GFTeY8QeNP7S9eU3J7GH1fmJDNP+hdBB1Iixw6xJzBQh1kC3xppD?=
- =?us-ascii?Q?fKX098DoY8darP9AYUU=3D?=
-Content-Type: text/plain; charset="us-ascii"
+ =?iso-8859-1?Q?eisAmHOKtpg0jclsg2iB2P2lF+fX3rgA91fr3Z4N6uwGxx40kiP4ayMBeZ?=
+ =?iso-8859-1?Q?DDtntd8xJEtbnahPRRQUKnNI6+shyplymneDGZTiKdh3/PFewYMVUzCtKy?=
+ =?iso-8859-1?Q?hMYg5G/p5/rPmArXQt8s8lVfOhCoBsS1vjIzblU5lWuQcdjkocj448+5ES?=
+ =?iso-8859-1?Q?6Y57fsRizJPtVCdh0+6B8njYbIMrT/Ee6j/FAF2z3lRFkiJ7bIhV18uzlr?=
+ =?iso-8859-1?Q?V9RU2u/4hvpf2ZgQerjBHMSefa5hSMVauMpn07QW4y7Lg69Q+LbgNRBatu?=
+ =?iso-8859-1?Q?gttfJt1gWvfIhOqh7NzjyG2Zf0e4bq/1NP8UK9AFB4+9nTrVf9XJ99qnSk?=
+ =?iso-8859-1?Q?qVU4EF01WTFAD/gWGOGsCsTfWD45V+itJ6eqAPbmY2QII5gQ+MAAcbyRYM?=
+ =?iso-8859-1?Q?hKp+ZuxEO2fNWc8ZPLgwJ3AhwQtsiBswp9DRncR8Hz77pcpZJTya2f90Pk?=
+ =?iso-8859-1?Q?sl/BF1L3Sswmz3QHVTQjneA9oHzR0woR4HYy7K2kHuPz5yqyJLgfmkfPuH?=
+ =?iso-8859-1?Q?+D/Rt5a8LQWi/N0iL6PJjLKrbiMoiUnAdolN6izKKA3I9cloggNWJdQ8cB?=
+ =?iso-8859-1?Q?0C4aDyP/wpfEPGoxClA3R6ohMEuAwfJOU7qFwGUOo/DwYYxcnf0k0+4x4Z?=
+ =?iso-8859-1?Q?zbY1j2AO4t/jDUD6V7qBV+/0ycCsIKpq1U51gNNGBEuuAv2vD4alHDy/vk?=
+ =?iso-8859-1?Q?WJoe/whqrTTSEjckOeLEjEqVBJ2HcIF3ALpR5iLsx8q5MvbWC2/jXOYBLR?=
+ =?iso-8859-1?Q?W/olJHmpzY3r7suH1JjwdBuhC98vZ/Tjp8as+DAVQNVBoHTqNcJge0hqoa?=
+ =?iso-8859-1?Q?7OV+vzw875QsIvVUIeAODOxjuyfF6Os7Tokp1QTDFkl6cjFe5btjuD6U74?=
+ =?iso-8859-1?Q?Q+zkFc3CRcAJeLYErJiU1Tg4WVv7VZIb8j+bVkN7SY2tTcUxpmMuuSIGdt?=
+ =?iso-8859-1?Q?9qHCwAd8MfOHmCPxppmIO4FWNouWj8+YGPqfCoLsTMrAkCmKBigLtvEOY1?=
+ =?iso-8859-1?Q?LFAUcEAHVoEB79rLSG8HLwE/MrOfhbSB4YLbcQOQ01sXhHovmmfnWEu4da?=
+ =?iso-8859-1?Q?z4s/KWwSYEtxNYWgK11CY+6saqewdqQMT2LohTEGpl9yDFCxx8rogijjN6?=
+ =?iso-8859-1?Q?rhMk4TGDjTzrwT7Kq/DAjMf1s6/aE1yF7PEtEgjkQ0OJfGRMwVmxoYOmDs?=
+ =?iso-8859-1?Q?Yr9u8nVY/vhr2QoWjk7lMzCTdiDrPjwtDZNeRGCjfX/srMd0yM0cGxuB9V?=
+ =?iso-8859-1?Q?KX/HxvDGrNt2YvPMxPpr33KpWZt4AF5HtxPZiMJPSz5gPOs1wHHnj9ZsaL?=
+ =?iso-8859-1?Q?7XgSKgnZzWIpJZ8URV/JcKgXComW0hVlXMoGUAsJGrWs9j8HLiYFC2mbIn?=
+ =?iso-8859-1?Q?b6udomPQQrm0fGA5S8T07QyoL11yTbMK+J/zigPit42xsQI6afuZW2kgFu?=
+ =?iso-8859-1?Q?2Bk/VdLqKhzA0EwqFvS8kt4Z9pSEFPy8uxpaefqbYv/5xJY47VYErt69rr?=
+ =?iso-8859-1?Q?Zspsp0/15oeTL3eJY6wie0amDuEcpzr5KY+XrDy3PZ+Le+hujEOZ40jSaI?=
+ =?iso-8859-1?Q?uaO3FMavKHkcIWED3TO+8dkSSIBxXHehkayJeFSLNVfqZWHCVBB80yv8i1?=
+ =?iso-8859-1?Q?hbPeRA2QXb/Ls=3D?=
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -116,114 +149,246 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-OriginatorOrg: Nvidia.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5481.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 02ee078c-1bba-44c8-125d-08dc30f8f1d3
-X-MS-Exchange-CrossTenant-originalarrivaltime: 19 Feb 2024 03:14:54.6693
+X-MS-Exchange-CrossTenant-AuthSource: SA1PR12MB7199.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2fcb7b49-006b-408a-2bbc-08dc30fd91b3
+X-MS-Exchange-CrossTenant-originalarrivaltime: 19 Feb 2024 03:48:00.8470
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: QD1KvY/j0UC6goqSISUHV/obpcVd6m4Qe82IGzdL5AdMvp3xORMjUWEuQoPT4jpkGt/SpUP64aw5d8DL04t4Rw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR12MB8161
+X-MS-Exchange-CrossTenant-userprincipalname: yz3bMQSqcYRL89gswnCAugQBR2RSg8bsK4wWt0nAJuFkMCymb2LV06QNKhBDLAKHTi9pPw5R3q3pcLwUiZfX8Q==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB8247
 
-Hi Ming,
-
-> From: Ming Lei <ming.lei@redhat.com>
-> Sent: Sunday, February 18, 2024 6:57 PM
->=20
-> On Sat, Feb 17, 2024 at 08:08:48PM +0200, Parav Pandit wrote:
-> > When the PCI device is surprise removed, requests won't complete from
-> > the device. These IOs are never completed and disk deletion hangs
-> > indefinitely.
-> >
-> > Fix it by aborting the IOs which the device will never complete when
-> > the VQ is broken.
-> >
-> > With this fix now fio completes swiftly.
-> > An alternative of IO timeout has been considered, however when the
-> > driver knows about unresponsive block device, swiftly clearing them
-> > enables users and upper layers to react quickly.
-> >
-> > Verified with multiple device unplug cycles with pending IOs in virtio
-> > used ring and some pending with device.
-> >
-> > In future instead of VQ broken, a more elegant method can be used. At
-> > the moment the patch is kept to its minimal changes given its urgency
-> > to fix broken kernels.
-> >
-> > Fixes: 43bb40c5b926 ("virtio_pci: Support surprise removal of virtio
-> > pci device")
-> > Cc: stable@vger.kernel.org
-> > Reported-by: lirongqing@baidu.com
-> > Closes:
-> > https://lore.kernel.org/virtualization/c45dd68698cd47238c55fb73ca9b474
-> > 1@baidu.com/
-> > Co-developed-by: Chaitanya Kulkarni <kch@nvidia.com>
-> > Signed-off-by: Chaitanya Kulkarni <kch@nvidia.com>
-> > Signed-off-by: Parav Pandit <parav@nvidia.com>
-> > ---
-> >  drivers/block/virtio_blk.c | 54
-> > ++++++++++++++++++++++++++++++++++++++
-> >  1 file changed, 54 insertions(+)
-> >
-> > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> > index 2bf14a0e2815..59b49899b229 100644
-> > --- a/drivers/block/virtio_blk.c
-> > +++ b/drivers/block/virtio_blk.c
-> > @@ -1562,10 +1562,64 @@ static int virtblk_probe(struct virtio_device
-> *vdev)
-> >  	return err;
-> >  }
-> >
-> > +static bool virtblk_cancel_request(struct request *rq, void *data) {
-> > +	struct virtblk_req *vbr =3D blk_mq_rq_to_pdu(rq);
-> > +
-> > +	vbr->in_hdr.status =3D VIRTIO_BLK_S_IOERR;
-> > +	if (blk_mq_request_started(rq) && !blk_mq_request_completed(rq))
-> > +		blk_mq_complete_request(rq);
-> > +
-> > +	return true;
-> > +}
-> > +
-> > +static void virtblk_cleanup_reqs(struct virtio_blk *vblk) {
-> > +	struct virtio_blk_vq *blk_vq;
-> > +	struct request_queue *q;
-> > +	struct virtqueue *vq;
-> > +	unsigned long flags;
-> > +	int i;
-> > +
-> > +	vq =3D vblk->vqs[0].vq;
-> > +	if (!virtqueue_is_broken(vq))
-> > +		return;
-> > +
->=20
-> What if the surprise happens after the above check?
->=20
->=20
-In that small timing window, the race still exists.
-
-I think, blk_mq_quiesce_queue(q); should move up before cleanup_reqs() rega=
-rdless of surprise case along with other below changes.
-
-Additionally, for non-surprise case, better to have a graceful timeout to c=
-omplete already queued requests.
-In absence of timeout scheme for this regression, shall we only complete th=
-e requests which the device has already completed (instead of waiting for t=
-he grace time)?
-There was past work from Chaitanaya, for the graceful timeout.
-
-The sequence for the fix I have in mind is:
-1. quiesce the queue
-2. complete all requests which has completed, with its status
-3. stop the transport (queues)
-4. complete remaining pending requests with error status
-
-This should work regardless of surprise case.
-An additional/optional graceful timeout on non-surprise case can be helpful=
- for #2.
-
-WDYT?
-
-> Thanks,
-> Ming
-
+Thanks Kevin and Yishai for the reviews. Comments inline.=0A=
+=0A=
+>> +static int nvgrace_gpu_mmap(struct vfio_device *core_vdev,=0A=
+>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0 struct vm_area_struct *vma)=0A=
+>> +{=0A=
+>> +=A0=A0=A0=A0 struct nvgrace_gpu_pci_core_device *nvdev =3D=0A=
+>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 container_of(core_vdev, struct nvg=
+race_gpu_pci_core_device,=0A=
+>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0 core_device.vdev);=0A=
+>=0A=
+> No need for a new line here.=0A=
+=0A=
+Ack.=0A=
+=0A=
+>> +static ssize_t=0A=
+>> +nvgrace_gpu_read_mem(struct nvgrace_gpu_pci_core_device *nvdev,=0A=
+>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 char __user *buf, s=
+ize_t count, loff_t *ppos)=0A=
+>> +{=0A=
+>> +=A0=A0=A0=A0 u64 offset =3D *ppos & VFIO_PCI_OFFSET_MASK;=0A=
+>> +=A0=A0=A0=A0 unsigned int index =3D VFIO_PCI_OFFSET_TO_INDEX(*ppos);=0A=
+>> +=A0=A0=A0=A0 struct mem_region *memregion;=0A=
+>> +=A0=A0=A0=A0 size_t mem_count, i;=0A=
+>> +=A0=A0=A0=A0 u8 val =3D 0xFF;=0A=
+>> +=A0=A0=A0=A0 int ret;=0A=
+>> +=0A=
+>> +=A0=A0=A0=A0 memregion =3D nvgrace_gpu_memregion(index, nvdev);=0A=
+>> +=A0=A0=A0=A0 if (!memregion)=0A=
+>=0A=
+> Can that happen ? it was just tested by the caller.=0A=
+=0A=
+Ok, I can remove it. Will put a comment instead that this has been checked.=
+=0A=
+=0A=
+>> +=A0=A0=A0=A0 /*=0A=
+>> +=A0=A0=A0=A0=A0 * Determine how many bytes to be actually read from the=
+ device memory.=0A=
+>> +=A0=A0=A0=A0=A0 * Read request beyond the actual device memory size is =
+filled with ~0,=0A=
+>> +=A0=A0=A0=A0=A0 * while those beyond the actual reported size is skippe=
+d.=0A=
+>> +=A0=A0=A0=A0=A0 */=0A=
+>> +=A0=A0=A0=A0 if (offset >=3D memregion->memlength)=0A=
+>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 mem_count =3D 0;=0A=
+>> +=A0=A0=A0=A0 else=0A=
+>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 mem_count =3D min(count, memregion=
+->memlength - (size_t)offset);=0A=
+>> +=0A=
+>> +=A0=A0=A0=A0 ret =3D nvgrace_gpu_map_and_read(nvdev, buf, mem_count, pp=
+os);=0A=
+>> +=A0=A0=A0=A0 if (ret)=0A=
+>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 return ret;=0A=
+>> +=0A=
+>> +=A0=A0=A0=A0 /*=0A=
+>> +=A0=A0=A0=A0=A0 * Only the device memory present on the hardware is map=
+ped, which may=0A=
+>> +=A0=A0=A0=A0=A0 * not be power-of-2 aligned. A read to an offset beyond=
+ the device memory=0A=
+>> +=A0=A0=A0=A0=A0 * size is filled with ~0.=0A=
+>> +=A0=A0=A0=A0=A0 */=0A=
+>> +=A0=A0=A0=A0 for (i =3D mem_count; i < count; i++)=0A=
+>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 put_user(val, (unsigned char __use=
+r *)(buf + i));=0A=
+>=0A=
+> Did you condier a failure here ?=0A=
+=0A=
+Yeah, that has to be checked here. Will make the change in the next post.=
+=0A=
+=0A=
+>> +/*=0A=
+>> + * Write count bytes to the device memory at a given offset. The actual=
+ device=0A=
+>> + * memory size (available) may not be a power-of-2. So the driver fakes=
+ the=0A=
+>> + * size to a power-of-2 (reported) when exposing to a user space driver=
+.=0A=
+>> + *=0A=
+>> + * Writes extending beyond the reported size are truncated; writes star=
+ting=0A=
+>> + * beyond the reported size generate -EINVAL.=0A=
+>> + */=0A=
+>> +static ssize_t=0A=
+>> +nvgrace_gpu_write_mem(struct nvgrace_gpu_pci_core_device *nvdev,=0A=
+>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 size_t count, lo=
+ff_t *ppos, const char __user *buf)=0A=
+>> +{=0A=
+>> +=A0=A0=A0=A0 unsigned int index =3D VFIO_PCI_OFFSET_TO_INDEX(*ppos);=0A=
+>> +=A0=A0=A0=A0 u64 offset =3D *ppos & VFIO_PCI_OFFSET_MASK;=0A=
+>> +=A0=A0=A0=A0 struct mem_region *memregion;=0A=
+>> +=A0=A0=A0=A0 size_t mem_count;=0A=
+>> +=A0=A0=A0=A0 int ret =3D 0;=0A=
+>> +=0A=
+>> +=A0=A0=A0=A0 memregion =3D nvgrace_gpu_memregion(index, nvdev);=0A=
+>> +=A0=A0=A0=A0 if (!memregion)=0A=
+>=0A=
+> Same as the above note in nvgrace_gpu_read_mem().=0A=
+=0A=
+Ack.=0A=
+=0A=
+>> +static const struct vfio_device_ops nvgrace_gpu_pci_ops =3D {=0A=
+>> +=A0=A0=A0=A0 .name=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 =3D "nvgrace-gpu-vfio-=
+pci",=0A=
+>> +=A0=A0=A0=A0 .init=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 =3D vfio_pci_core_init=
+_dev,=0A=
+>> +=A0=A0=A0=A0 .release=A0=A0=A0=A0=A0=A0=A0 =3D vfio_pci_core_release_de=
+v,=0A=
+>> +=A0=A0=A0=A0 .open_device=A0=A0=A0 =3D nvgrace_gpu_open_device,=0A=
+>> +=A0=A0=A0=A0 .close_device=A0=A0 =3D nvgrace_gpu_close_device,=0A=
+>> +=A0=A0=A0=A0 .ioctl=A0=A0=A0=A0=A0=A0=A0=A0=A0 =3D nvgrace_gpu_ioctl,=
+=0A=
+>> +=A0=A0=A0=A0 .read=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 =3D nvgrace_gpu_read,=
+=0A=
+>> +=A0=A0=A0=A0 .write=A0=A0=A0=A0=A0=A0=A0=A0=A0 =3D nvgrace_gpu_write,=
+=0A=
+>> +=A0=A0=A0=A0 .mmap=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 =3D nvgrace_gpu_mmap,=
+=0A=
+>> +=A0=A0=A0=A0 .request=A0=A0=A0=A0=A0=A0=A0 =3D vfio_pci_core_request,=
+=0A=
+>> +=A0=A0=A0=A0 .match=A0=A0=A0=A0=A0=A0=A0=A0=A0 =3D vfio_pci_core_match,=
+=0A=
+>> +=A0=A0=A0=A0 .bind_iommufd=A0=A0 =3D vfio_iommufd_physical_bind,=0A=
+>> +=A0=A0=A0=A0 .unbind_iommufd =3D vfio_iommufd_physical_unbind,=0A=
+>> +=A0=A0=A0=A0 .attach_ioas=A0=A0=A0 =3D vfio_iommufd_physical_attach_ioa=
+s,=0A=
+>> +=A0=A0=A0=A0 .detach_ioas=A0=A0=A0 =3D vfio_iommufd_physical_detach_ioa=
+s,=0A=
+>> +};=0A=
+>> +=0A=
+>> +static const struct vfio_device_ops nvgrace_gpu_pci_core_ops =3D {=0A=
+>> +=A0=A0=A0=A0 .name=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 =3D "nvgrace-gpu-vfio-=
+pci-core",=0A=
+>> +=A0=A0=A0=A0 .init=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 =3D vfio_pci_core_init=
+_dev,=0A=
+>> +=A0=A0=A0=A0 .release=A0=A0=A0=A0=A0=A0=A0 =3D vfio_pci_core_release_de=
+v,=0A=
+>> +=A0=A0=A0=A0 .open_device=A0=A0=A0 =3D nvgrace_gpu_open_device,=0A=
+>> +=A0=A0=A0=A0 .close_device=A0=A0 =3D vfio_pci_core_close_device,=0A=
+>> +=A0=A0=A0=A0 .ioctl=A0=A0=A0=A0=A0=A0=A0=A0=A0 =3D vfio_pci_core_ioctl,=
+=0A=
+>> +=A0=A0=A0=A0 .device_feature =3D vfio_pci_core_ioctl_feature,=0A=
+>=0A=
+> This entry is missing above as part of nvgrace_gpu_pci_ops.=0A=
+Yes. Will add.=0A=
+>> +=A0=A0=A0=A0 .read=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 =3D vfio_pci_core_read=
+,=0A=
+>> +=A0=A0=A0=A0 .write=A0=A0=A0=A0=A0=A0=A0=A0=A0 =3D vfio_pci_core_write,=
+=0A=
+>> +=A0=A0=A0=A0 .mmap=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 =3D vfio_pci_core_mmap=
+,=0A=
+>> +=A0=A0=A0=A0 .request=A0=A0=A0=A0=A0=A0=A0 =3D vfio_pci_core_request,=
+=0A=
+>> +=A0=A0=A0=A0 .match=A0=A0=A0=A0=A0=A0=A0=A0=A0 =3D vfio_pci_core_match,=
+=0A=
+>> +=A0=A0=A0=A0 .bind_iommufd=A0=A0 =3D vfio_iommufd_physical_bind,=0A=
+>> +=A0=A0=A0=A0 .unbind_iommufd =3D vfio_iommufd_physical_unbind,=0A=
+>> +=A0=A0=A0=A0 .attach_ioas=A0=A0=A0 =3D vfio_iommufd_physical_attach_ioa=
+s,=0A=
+>> +=A0=A0=A0=A0 .detach_ioas=A0=A0=A0 =3D vfio_iommufd_physical_detach_ioa=
+s,=0A=
+>> +};=0A=
+>> +=0A=
+>> +static struct=0A=
+>> +nvgrace_gpu_pci_core_device *nvgrace_gpu_drvdata(struct pci_dev *pdev)=
+=0A=
+>> +{=0A=
+>> +=A0=A0=A0=A0 struct vfio_pci_core_device *core_device =3D dev_get_drvda=
+ta(&pdev->dev);=0A=
+>> +=0A=
+>> +=A0=A0=A0=A0 return container_of(core_device, struct nvgrace_gpu_pci_co=
+re_device,=0A=
+>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0 core_device);=0A=
+>> +}=0A=
+>=0A=
+> The above function is called only once.=0A=
+> You could just inline its first line (i.e. struct vfio_pci_core_device=0A=
+> *core_device =3D dev_get_drvdata(&pdev->dev); and drop it.=0A=
+=0A=
+True, will fix.=0A=
+=0A=
+>> +=0A=
+>> +=A0=A0=A0=A0 /*=0A=
+>> +=A0=A0=A0=A0=A0 * The USEMEM part of the device memory has to be MEMBLK=
+_SIZE=0A=
+>> +=A0=A0=A0=A0=A0 * aligned. This is a hardwired ABI value between the GP=
+U FW and=0A=
+>> +=A0=A0=A0=A0=A0 * VFIO driver. The VM device driver is also aware of it=
+ and make=0A=
+>> +=A0=A0=A0=A0=A0 * use of the value for its calculation to determine USE=
+MEM size.=0A=
+>> +=A0=A0=A0=A0=A0 */=0A=
+>> +=A0=A0=A0=A0 nvdev->usemem.memlength =3D round_down(nvdev->usemem.memle=
+ngth,=0A=
+>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 MEMBLK_SIZE);=0A=
+>> +=A0=A0=A0=A0 if ((check_add_overflow(nvdev->usemem.memphys,=0A=
+>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0 nvdev->usemem.memlength,=0A=
+>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0 &nvdev->resmem.memphys)) ||=0A=
+>> +=A0=A0=A0=A0=A0=A0=A0=A0 (check_sub_overflow(memlength, nvdev->usemem.m=
+emlength,=0A=
+>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0 &nvdev->resmem.memlength))) {=0A=
+>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 ret =3D -EOVERFLOW;=0A=
+>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 goto done;=0A=
+>> +=A0=A0=A0=A0 }=0A=
+>> +=0A=
+>> +=A0=A0=A0=A0 if (nvdev->usemem.memlength =3D=3D 0) {=0A=
+>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 ret =3D -EINVAL;=0A=
+>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 goto done;=0A=
+>> +=A0=A0=A0=A0 }=0A=
+>> +=0A=
+>=0A=
+> Couldn't that check be done earlier in this function ?=0A=
+=0A=
+Yes, will move it.=0A=
+=0A=
+>> +=0A=
+>> +MODULE_LICENSE("GPL");=0A=
+>> +MODULE_AUTHOR("Ankit Agrawal <ankita@nvidia.com>");=0A=
+>> +MODULE_AUTHOR("Aniket Agashe <aniketa@nvidia.com>");=0A=
+>> +MODULE_DESCRIPTION("VFIO NVGRACE GPU PF - User Level driver for NVIDIA =
+devices with CPU coherently accessible device memory");=0A=
+>=0A=
+> I'm not in the full details here, however, the construction of the=0A=
+> variant driver looks OK, so:=0A=
+>=0A=
+> Reviewed-by: Yishai Hadas <yishaih@nvidia.com>=0A=
+=0A=
+Thanks.=
