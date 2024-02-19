@@ -1,132 +1,188 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79F2D6BB5E
-	for <virtualization@lists.linux.dev>; Sun, 18 Feb 2024 13:27:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FE91652
+	for <virtualization@lists.linux-foundation.org>; Mon, 19 Feb 2024 01:09:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708262842; cv=none; b=tLqoJchgx4atEj6HnXkCU1jLDRrWbKGMn99lC0v5zYeNnu7AyS8uxww6g1dj4KiG+dOzmuAqx4WbmRXmhunh3zi9EBQxr5vx8LQEHpcBB0aXNsmO9x/qRwRGMPPkKFJdShP52sl0GvMObjxKXgBQue2fZrkFIDDJhtyNfxrqUDU=
+	t=1708304972; cv=none; b=gC08E06DoFtTRMQDFOloASScWi4UZ483WC1jscvHQxD5HA3ciiKgv7NxYzT2bTGQm+I/LbeHdaaai5Nv2rjY2qZgo/GY7OzD8D5BPb4V8gaBPbecZfvKnkQHtPrLk44FX3uvu/O0rA2MTNbqRKcnmRdGk8U6PVPVAv2aC+P/A1c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708262842; c=relaxed/simple;
-	bh=f4Dx6hvqZVzIEqQf6wpvnSgfrPOvqhsMyQ1fiFTV+4k=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=rmjVRx1z7KkpCpB+H4OugCIcru36W747vFW951T/y2y8DcmiAo0OvU7lt82uu9puvSEbv9MboLxUJYxwNJsclDDzN8AFpxgmc+NtpZf29r+ez/RjXl55Z6LUywMHq3+2YQlJORFJsGOVoQ6CeSzpNaa9lnxmdaZnnD0/Z8m6Qsw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ia1yFTX9; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1708304972; c=relaxed/simple;
+	bh=kPxrv7W2yIJaZMQ1+gJwIp+HhCy5zI4R+ySZbaEIjB4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=SvRcX/QiFKAvytaF4lEbzA39n8C4OtgE3NRIa9luv2AUtpufV5QQin4Sc+/lQ3/EKe4NccIPtKYUfGI9W7ce/io+3uq+7GPOMW1qL5kL2EGclC0QrSeVRHpJlwEpPuISJloVMxkHb7+rEf+hkYJ3FiWAnlIPmhtGpWVRi0fCeUY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Z0D20dPv; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ia1yFTX9"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Z0D20dPv"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 7FD5880AF8
+	for <virtualization@lists.linux-foundation.org>; Mon, 19 Feb 2024 01:09:30 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id naDfr-mVyK92
+	for <virtualization@lists.linux-foundation.org>;
+	Mon, 19 Feb 2024 01:09:29 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=leiyang@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org ADB8680AF6
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org ADB8680AF6
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Z0D20dPv
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id ADB8680AF6
+	for <virtualization@lists.linux-foundation.org>; Mon, 19 Feb 2024 01:09:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1708262838;
+	s=mimecast20190719; t=1708304967;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=4zI+zR2XXQW/D9aVyc+pEnd2ISuA9VtHk+evsQZEFp4=;
-	b=ia1yFTX9HNerb/UkwDVwc2L2m/GLliASFIIXyqhlbq0Gl3BYLHiLehUpiOStqhK1u7ipGD
-	t4MROtfmil38ZsYD18e1MMQjhlPQFCyxxQUG5KXGA3IwvnLztjMzDlDFZObhDw5kS4sdoI
-	htAathujX5F0vJiGfAiycmNZFRz1s6I=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=8FH/IGXGIzL7Qe7et2w95vW7pDGEVjgey8bcDbORJ2E=;
+	b=Z0D20dPvPMD6yIoXLgC93DocAGWnJZllQMSVF8yBFGah2yi7s2kzW2aspt5bsqTCPb0w+O
+	qBgSNAd1tc3UGr2hH4Xtjk39hyRr83V8qE1aNF3qToJ3yBxY1CsV6qfJy4Ap42GSyd3N2n
+	XszVnPcICkAMuoqoS/jedJ3hwDE7Yw4=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-163--lTrF3NLMiec6SA7GiSFdQ-1; Sun, 18 Feb 2024 08:27:14 -0500
-X-MC-Unique: -lTrF3NLMiec6SA7GiSFdQ-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id CF9F9185A780;
-	Sun, 18 Feb 2024 13:27:13 +0000 (UTC)
-Received: from fedora (unknown [10.72.116.16])
-	by smtp.corp.redhat.com (Postfix) with ESMTPS id E38471C060AF;
-	Sun, 18 Feb 2024 13:27:06 +0000 (UTC)
-Date: Sun, 18 Feb 2024 21:27:02 +0800
-From: Ming Lei <ming.lei@redhat.com>
-To: Parav Pandit <parav@nvidia.com>
-Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
-	pbonzini@redhat.com, stefanha@redhat.com, axboe@kernel.dk,
-	virtualization@lists.linux.dev, linux-block@vger.kernel.org,
-	stable@vger.kernel.org, lirongqing@baidu.com,
-	Chaitanya Kulkarni <kch@nvidia.com>
-Subject: Re: [PATCH] virtio_blk: Fix device surprise removal
-Message-ID: <ZdIFpqa23YHwJACh@fedora>
-References: <20240217180848.241068-1-parav@nvidia.com>
+ us-mta-96-d8nB7cg8MQ68fV20rOobQg-1; Sun, 18 Feb 2024 20:09:25 -0500
+X-MC-Unique: d8nB7cg8MQ68fV20rOobQg-1
+Received: by mail-ed1-f69.google.com with SMTP id 4fb4d7f45d1cf-5647132e2aeso212420a12.1
+        for <virtualization@lists.linux-foundation.org>; Sun, 18 Feb 2024 17:09:25 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1708304964; x=1708909764;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=8FH/IGXGIzL7Qe7et2w95vW7pDGEVjgey8bcDbORJ2E=;
+        b=Ns9B2Q8Mqaddht9zdNINmgTkiJs3kqwR5rcwsXqN1PdccEpJNQ0w4WlRcRBdha23gH
+         Uymee6xDrUR9Fubj+grZ25a0WG+Qt1u7rHPCGsYVKvuRT4QgMQXh+zpTBwGVs4MR3fEa
+         54A+rZGK+WT2o+7CiVYcqPpWUr4d7jFKMqwmEIxmr7Ch4jhmoITvUPXWQFT+64HZPdjA
+         8e50DaARyaks9EHnoNQeGQRTq6EB0HLXwBAhhHblA+ETN4okEYXrRsyaaqn3kw1f1OG5
+         2bCO53/DneHF9mTIQha4dqtFOequUbjIMxdDHM1YzTCmYsKbUhgkosu4bFbqkqzj0XpW
+         cQ9A==
+X-Forwarded-Encrypted: i=1; AJvYcCUVmVn1xldInkkowUhqBfZjGBm76lflWsFJpkLvLQONbn+8uq9LvXQCKgrOtxvw4a2Fh/90Mo6bUT8fiKK0lX1eA5Qx/EqXf50WbVSMsVQzNCytyaolW8onng==
+X-Gm-Message-State: AOJu0YwW6Pon0uoh3iK1Hf1r+5DmTi8iqZAHzKvmaFyQYS5sLf4srH0g
+	kpXoH0+5lyv7FUNdmBk9v3XSo+k/V0KhXwb0IuHrBph4/Z5VVK6hSBaGi3XOrA7OjxwB5inqMrk
+	Dpi/xVsablXnplSZMpmembNO9Bj1HbfUj6a7U3dLLolZmlgPLOz39YfqxSaLxyXDMR52TiAyGLW
+	5Dle+JPoenzbSmxED9nZcn09bRB7/xL8Tobq7UbGdOj2tAySPBNIyRbQ==
+X-Received: by 2002:a17:906:b785:b0:a3d:6160:fcca with SMTP id dt5-20020a170906b78500b00a3d6160fccamr9138341ejb.69.1708304964560;
+        Sun, 18 Feb 2024 17:09:24 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IH2skZ0uE5cETDN0mtHmDLiYuDbMpFEFyh55kaJoE+fMvltoEYczRmuSuwF6ckMHLeGtM1ZbxIq+RQSU3/YY/M=
+X-Received: by 2002:a17:906:b785:b0:a3d:6160:fcca with SMTP id
+ dt5-20020a170906b78500b00a3d6160fccamr9138336ejb.69.1708304964285; Sun, 18
+ Feb 2024 17:09:24 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240217180848.241068-1-parav@nvidia.com>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.7
+References: <20240216142502.78095-1-jonah.palmer@oracle.com>
+In-Reply-To: <20240216142502.78095-1-jonah.palmer@oracle.com>
+From: Lei Yang <leiyang@redhat.com>
+Date: Mon, 19 Feb 2024 09:08:47 +0800
+Message-ID: <CAPpAL=zp+VxFUNw5W2jB0ENhYZ4Ts5+gAH7cQu-7LMhFnApqrA@mail.gmail.com>
+Subject: Re: [PATCH v2] vdpa/mlx5: Allow CVQ size changes
+To: Jonah Palmer <jonah.palmer@oracle.com>
+Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com, 
+	eperezma@redhat.com, si-wei.liu@oracle.com, 
+	virtualization@lists.linux-foundation.org, dtatulea@nvidia.com, 
+	boris.ostrovsky@oracle.com, linux-kernel@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Sat, Feb 17, 2024 at 08:08:48PM +0200, Parav Pandit wrote:
-> When the PCI device is surprise removed, requests won't complete from
-> the device. These IOs are never completed and disk deletion hangs
-> indefinitely.
-> 
-> Fix it by aborting the IOs which the device will never complete
-> when the VQ is broken.
-> 
-> With this fix now fio completes swiftly.
-> An alternative of IO timeout has been considered, however
-> when the driver knows about unresponsive block device, swiftly clearing
-> them enables users and upper layers to react quickly.
-> 
-> Verified with multiple device unplug cycles with pending IOs in virtio
-> used ring and some pending with device.
-> 
-> In future instead of VQ broken, a more elegant method can be used. At the
-> moment the patch is kept to its minimal changes given its urgency to fix
-> broken kernels.
-> 
-> Fixes: 43bb40c5b926 ("virtio_pci: Support surprise removal of virtio pci device")
-> Cc: stable@vger.kernel.org
-> Reported-by: lirongqing@baidu.com
-> Closes: https://lore.kernel.org/virtualization/c45dd68698cd47238c55fb73ca9b4741@baidu.com/
-> Co-developed-by: Chaitanya Kulkarni <kch@nvidia.com>
-> Signed-off-by: Chaitanya Kulkarni <kch@nvidia.com>
-> Signed-off-by: Parav Pandit <parav@nvidia.com>
+QE tested this patch's V2, qemu no longer print error messages
+"qemu-system-x86_64: Insufficient written data (0)" after
+enable/disable multi queues multi times inside guest. Both "x-svq=3Don
+'' and without it are all test pass.
+
+Tested-by: Lei Yang <leiyang@redhat.com>
+
+On Fri, Feb 16, 2024 at 10:25=E2=80=AFPM Jonah Palmer <jonah.palmer@oracle.=
+com> wrote:
+>
+> The MLX driver was not updating its control virtqueue size at set_vq_num
+> and instead always initialized to MLX5_CVQ_MAX_ENT (16) at
+> setup_cvq_vring.
+>
+> Qemu would try to set the size to 64 by default, however, because the
+> CVQ size always was initialized to 16, an error would be thrown when
+> sending >16 control messages (as used-ring entry 17 is initialized to 0).
+> For example, starting a guest with x-svq=3Don and then executing the
+> following command would produce the error below:
+>
+>  # for i in {1..20}; do ifconfig eth0 hw ether XX:xx:XX:xx:XX:XX; done
+>
+>  qemu-system-x86_64: Insufficient written data (0)
+>  [  435.331223] virtio_net virtio0: Failed to set mac address by vq comma=
+nd.
+>  SIOCSIFHWADDR: Invalid argument
+>
+> Acked-by: Dragos Tatulea <dtatulea@nvidia.com>
+> Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> Signed-off-by: Jonah Palmer <jonah.palmer@oracle.com>
 > ---
->  drivers/block/virtio_blk.c | 54 ++++++++++++++++++++++++++++++++++++++
->  1 file changed, 54 insertions(+)
-> 
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 2bf14a0e2815..59b49899b229 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -1562,10 +1562,64 @@ static int virtblk_probe(struct virtio_device *vdev)
->  	return err;
+>  drivers/vdpa/mlx5/net/mlx5_vnet.c | 13 +++++++++----
+>  1 file changed, 9 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/ml=
+x5_vnet.c
+> index 778821bab7d9..ecfc16151d61 100644
+> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> @@ -151,8 +151,6 @@ static void teardown_driver(struct mlx5_vdpa_net *nde=
+v);
+>
+>  static bool mlx5_vdpa_debug;
+>
+> -#define MLX5_CVQ_MAX_ENT 16
+> -
+>  #define MLX5_LOG_VIO_FLAG(_feature)                                     =
+                           \
+>         do {                                                             =
+                          \
+>                 if (features & BIT_ULL(_feature))                        =
+                          \
+> @@ -2276,9 +2274,16 @@ static void mlx5_vdpa_set_vq_num(struct vdpa_devic=
+e *vdev, u16 idx, u32 num)
+>         struct mlx5_vdpa_net *ndev =3D to_mlx5_vdpa_ndev(mvdev);
+>         struct mlx5_vdpa_virtqueue *mvq;
+>
+> -       if (!is_index_valid(mvdev, idx) || is_ctrl_vq_idx(mvdev, idx))
+> +       if (!is_index_valid(mvdev, idx))
+>                 return;
+>
+> +        if (is_ctrl_vq_idx(mvdev, idx)) {
+> +                struct mlx5_control_vq *cvq =3D &mvdev->cvq;
+> +
+> +                cvq->vring.vring.num =3D num;
+> +                return;
+> +        }
+> +
+>         mvq =3D &ndev->vqs[idx];
+>         mvq->num_ent =3D num;
 >  }
->  
-> +static bool virtblk_cancel_request(struct request *rq, void *data)
-> +{
-> +	struct virtblk_req *vbr = blk_mq_rq_to_pdu(rq);
-> +
-> +	vbr->in_hdr.status = VIRTIO_BLK_S_IOERR;
-> +	if (blk_mq_request_started(rq) && !blk_mq_request_completed(rq))
-> +		blk_mq_complete_request(rq);
-> +
-> +	return true;
-> +}
-> +
-> +static void virtblk_cleanup_reqs(struct virtio_blk *vblk)
-> +{
-> +	struct virtio_blk_vq *blk_vq;
-> +	struct request_queue *q;
-> +	struct virtqueue *vq;
-> +	unsigned long flags;
-> +	int i;
-> +
-> +	vq = vblk->vqs[0].vq;
-> +	if (!virtqueue_is_broken(vq))
-> +		return;
-> +
-
-What if the surprise happens after the above check?
-
-
-Thanks,
-Ming
+> @@ -2963,7 +2968,7 @@ static int setup_cvq_vring(struct mlx5_vdpa_dev *mv=
+dev)
+>                 u16 idx =3D cvq->vring.last_avail_idx;
+>
+>                 err =3D vringh_init_iotlb(&cvq->vring, mvdev->actual_feat=
+ures,
+> -                                       MLX5_CVQ_MAX_ENT, false,
+> +                                       cvq->vring.vring.num, false,
+>                                         (struct vring_desc *)(uintptr_t)c=
+vq->desc_addr,
+>                                         (struct vring_avail *)(uintptr_t)=
+cvq->driver_addr,
+>                                         (struct vring_used *)(uintptr_t)c=
+vq->device_addr);
+> --
+> 2.39.3
+>
 
