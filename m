@@ -1,435 +1,153 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43F5B6A358
-	for <virtualization@lists.linux-foundation.org>; Tue, 20 Feb 2024 14:03:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9ED476A8A5
+	for <virtualization@lists.linux.dev>; Tue, 20 Feb 2024 14:18:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708437840; cv=none; b=YCJCYuzS+lanXDwf9dgxljk3BC9CZXxIVBJLP8aQQjwUlU7aTyHakkCbaacyLYLcDdT52X+FyppVmSiQ5ChM4u/aYhVLrfIw0omad7wfFbTxI5vKAcyQGL7VD5Jx1QiJWA72RC1N8t7sAfZAqWgxUwsl+kurP/aHGJ/0vxK+nk8=
+	t=1708438734; cv=none; b=phofAHZMhzO5lR+8mi5XZd+abSFe0MG3dkULE46uSxZAxnUznWc3Yaf2PkvLLELDNmrWed1+CnpeuW2LUllvPuUWOIWYrrBh1UJf10JDlsFPAtWg4MfFQI6l3YsBzNb7AqHAqq7VTkge+Zi7NT0w+cz4wvYv4RUzDGCR6nm2fMI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708437840; c=relaxed/simple;
-	bh=SJvdo4uH0j32A067Z2YrvdwzldRIKb3RArVYhG1ZZUY=;
-	h=Date:From:To:CC:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:References; b=VMukWsNas38+Kaz66I2T6OyGyRZozIYxuMS7tIzmjU+IiX6ltU3pcq8hSmyvPWZDnyXZ/qw9Qd1rh8ikXzaTUPV1V1bCEOaY9w0SHcKobAGTDwQT20H/dQqyCQ/xBbDX6erpJ+NKwOBeqiuC8ajaW2Qm0RE1Wmkx4N4yTCglT+k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=iQqKYbty; arc=none smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1708438734; c=relaxed/simple;
+	bh=vCxLBF+LxDOqOl0qgvAauEYG2QYdT2TKN94lI0gRLw0=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=mEhUvGEtbcC+4IlKS10xUKzuzg2y2d+z4HJW41qxsxEi0ChRD4nztqfavGkonMXAQ4XwuIoPNikurBPg4sfqZ/wy6X3ECgc8ESOI3/h9XQOh74REMEy7K8dHPAnnXNUwTAgjUfFlN6tnl023Chiv4aLuRXLOummaMEK2knGW1Ew=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fIWmtA/o; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="iQqKYbty"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id C73D781EE6
-	for <virtualization@lists.linux-foundation.org>; Tue, 20 Feb 2024 14:03:57 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -7.101
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ATCC2qHGdjdA
-	for <virtualization@lists.linux-foundation.org>;
-	Tue, 20 Feb 2024 14:03:56 +0000 (UTC)
-X-Greylist: delayed 357 seconds by postgrey-1.37 at util1.osuosl.org; Tue, 20 Feb 2024 14:03:55 UTC
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 0B0BB81ECA
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0B0BB81ECA
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=iQqKYbty
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=210.118.77.12; helo=mailout2.w1.samsung.com; envelope-from=j.granados@samsung.com; receiver=<UNKNOWN> 
-Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com [210.118.77.12])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 0B0BB81ECA
-	for <virtualization@lists.linux-foundation.org>; Tue, 20 Feb 2024 14:03:55 +0000 (UTC)
-Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
-	by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20240220135755euoutp026288565cff2012447e457168a7a28885~1ltUphvaF2075220752euoutp02-;
-	Tue, 20 Feb 2024 13:57:55 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20240220135755euoutp026288565cff2012447e457168a7a28885~1ltUphvaF2075220752euoutp02-
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1708437475;
-	bh=ruE1PGIAtGZZCtsW3rOhV6jKQ5CNTyPaPxRrLuwk+AA=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
-	b=iQqKYbtyq4fUrdiJoFCQfFmu/aR/0qbBAZPnq0eMD0rS6er2lckkSdPMw59Y0GgIc
-	 hYkWjRvev9zDH4a1lnyox/vcOrEm7r8xW/+Beob6G3KUMq3Niao2SJa1HZN2l9tCTH
-	 rNztDT1/xIDWWJnNiv96R54tYUW5A/PoAswahGd0=
-Received: from eusmges2new.samsung.com (unknown [203.254.199.244]) by
-	eucas1p1.samsung.com (KnoxPortal) with ESMTP id
-	20240220135755eucas1p18c09fe41ba5522f0aaf66bef7105de54~1ltUdlDYO2867528675eucas1p1o;
-	Tue, 20 Feb 2024 13:57:55 +0000 (GMT)
-Received: from eucas1p1.samsung.com ( [182.198.249.206]) by
-	eusmges2new.samsung.com (EUCPMTA) with SMTP id 8E.A8.09814.3EFA4D56; Tue, 20
-	Feb 2024 13:57:55 +0000 (GMT)
-Received: from eusmtrp2.samsung.com (unknown [182.198.249.139]) by
-	eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
-	20240220135755eucas1p24e882cb5a735caed4bbfedb22a811442~1ltT3hP-e3082330823eucas1p2p;
-	Tue, 20 Feb 2024 13:57:55 +0000 (GMT)
-Received: from eusmgms2.samsung.com (unknown [182.198.249.180]) by
-	eusmtrp2.samsung.com (KnoxPortal) with ESMTP id
-	20240220135755eusmtrp2e7394551595e0525f9f62aefd0136f38~1ltT2v-lW0511105111eusmtrp2F;
-	Tue, 20 Feb 2024 13:57:55 +0000 (GMT)
-X-AuditID: cbfec7f4-711ff70000002656-cd-65d4afe37a19
-Received: from eusmtip2.samsung.com ( [203.254.199.222]) by
-	eusmgms2.samsung.com (EUCPMTA) with SMTP id C2.7B.10702.2EFA4D56; Tue, 20
-	Feb 2024 13:57:54 +0000 (GMT)
-Received: from CAMSVWEXC02.scsc.local (unknown [106.1.227.72]) by
-	eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
-	20240220135754eusmtip2b62f0c8a0dcb092685fdfb390f2a416b~1ltTplTEn1788517885eusmtip2g;
-	Tue, 20 Feb 2024 13:57:54 +0000 (GMT)
-Received: from localhost (106.210.248.172) by CAMSVWEXC02.scsc.local
-	(106.1.227.72) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Tue, 20 Feb
-	2024 13:57:54 +0000
-Date: Tue, 20 Feb 2024 14:57:52 +0100
-From: Joel Granados <j.granados@samsung.com>
-To: Lu Baolu <baolu.lu@linux.intel.com>
-CC: Jason Gunthorpe <jgg@ziepe.ca>, Kevin Tian <kevin.tian@intel.com>, Joerg
-	Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy
-	<robin.murphy@arm.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>,
-	Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>, Jacob Pan
-	<jacob.jun.pan@linux.intel.com>, <iommu@lists.linux.dev>,
-	<virtualization@lists.linux-foundation.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v3 6/8] iommufd: IOPF-capable hw page table
- attach/detach/replace
-Message-ID: <20240220135752.vksznb4rdj73ln6c@joelS2.panther.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fIWmtA/o"
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41KDV1Hw025709;
+	Tue, 20 Feb 2024 14:18:29 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=lwg89Fejrts84YeaKU8repsaV4y5Gi7gxXNcjrj4/H0=;
+ b=fIWmtA/onYq24esqtZ73ktfPBTnYIpYFXlJDPahdh2CVKpi2f3XFRbRdvVoo8/s/Twg4
+ Gugfrif7lC51GwCtxaDT6NUorELWUYRjE7k3f01QR8KyA49d9i2RKOk3orwiBV9xTmGe
+ n1KjfGR6Vwu/m7F3FIG8MVapwpw3o9F2pqXNyZB6fFK+9Ucl/+slsOSzeK9EHXBxwrrp
+ yQzHgzl7VvPWC9Xmjdfao7dHj0DO5L5WBUq6WDygLhepqV9ES4qXld+TKnxrYVcTs736
+ HluvRBPiyKhzCPHYdcGLiVOE3cQ+IRmrOk1PP/IpgW6tphlXdeciCY5IEAkFpStTIop4 pA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wcunmkqgd-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 20 Feb 2024 14:18:28 +0000
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41KE6dH7031572;
+	Tue, 20 Feb 2024 14:18:26 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wcunmkqfc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 20 Feb 2024 14:18:26 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41KDjTcI013492;
+	Tue, 20 Feb 2024 14:18:24 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3wb7h08ube-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 20 Feb 2024 14:18:24 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41KEIIx511535068
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 20 Feb 2024 14:18:21 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DC54F2006B;
+	Tue, 20 Feb 2024 14:18:18 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 789E22006A;
+	Tue, 20 Feb 2024 14:18:18 +0000 (GMT)
+Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.152.224.212])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 20 Feb 2024 14:18:18 +0000 (GMT)
+Date: Tue, 20 Feb 2024 15:18:15 +0100
+From: Halil Pasic <pasic@linux.ibm.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: Jason Wang <jasowang@redhat.com>, virtualization@lists.linux.dev,
+        Richard Weinberger <richard@nod.at>,
+        Anton Ivanov
+ <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg
+ <johannes@sipsolutions.net>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        "David
+ S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>, Jakub
+ Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Hans de Goede
+ <hdegoede@redhat.com>,
+        Ilpo =?UTF-8?B?SsOkcnZpbmVu?=
+ <ilpo.jarvinen@linux.intel.com>,
+        Vadim Pasternak <vadimp@nvidia.com>,
+        Bjorn
+ Andersson <andersson@kernel.org>,
+        Mathieu Poirier
+ <mathieu.poirier@linaro.org>,
+        Cornelia Huck <cohuck@redhat.com>, Eric
+ Farman <farman@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily
+ Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle
+ <svens@linux.ibm.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann
+ <daniel@iogearbox.net>,
+        Jesper Dangaard Brouer <hawk@kernel.org>,
+        John
+ Fastabend <john.fastabend@gmail.com>,
+        Benjamin Berg
+ <benjamin.berg@intel.com>,
+        Yang Li <yang.lee@linux.alibaba.com>, linux-um@lists.infradead.org,
+        netdev@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, bpf@vger.kernel.org,
+        Halil
+ Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH vhost 07/17] virtio: find_vqs: pass struct instead of
+ multi parameters
+Message-ID: <20240220151815.5c867cce.pasic@linux.ibm.com>
+In-Reply-To: <1706756442.5524123-1-xuanzhuo@linux.alibaba.com>
+References: <20240130114224.86536-1-xuanzhuo@linux.alibaba.com>
+	<20240130114224.86536-8-xuanzhuo@linux.alibaba.com>
+	<CACGkMEvb4N8kthr4qWXrLOh9v422OYhrYU6hQejusw-e5EacPw@mail.gmail.com>
+	<1706756442.5524123-1-xuanzhuo@linux.alibaba.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha512";
-	protocol="application/pgp-signature"; boundary="pf2tgjfb6gzecilc"
-Content-Disposition: inline
-In-Reply-To: <20240122073903.24406-7-baolu.lu@linux.intel.com>
-X-ClientProxiedBy: CAMSVWEXC01.scsc.local (106.1.227.71) To
-	CAMSVWEXC02.scsc.local (106.1.227.72)
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmpjk+LIzCtJLcpLzFFi42LZduznOd3H66+kGpx4KWexeeJWNotfXyws
-	lh5cz2LRsPoCq8XMGScYLTpnb2C3WPp2K7vF5V1z2Cz2Pn3MZnHwwxNWi+Vn57FZtNwxtZj7
-	8xqLA6/Hk4PzmDzWzFvD6LF4z0smj02rOtk87lzbw+Yx72Sgx+Qbyxk9XmyeyejR2/yOzePz
-	JjmPrZ9vswRwR3HZpKTmZJalFunbJXBlrNy1kaXgpk/Fg1t1DYyP7LsYOTkkBEwklj3oYe5i
-	5OIQEljBKPHk2jcmCOcLo8Srha+hnM+MEifudQE5HGAt6/7VQMSXM0r8+fqcEa5oQ98DhFm/
-	WiaxgSxhEVCVWP/2NAuIzSagI3H+zR1mkEkiAuoSz74EgNQzC2xnllh3pIMVpEZYIFzif28H
-	I4jNK+Ag0T/9FguELShxcuYTMJtZoEJi5u7dbCBzmAWkJZb/4wAJcwrYSRxbcZkd4jdliTmv
-	dzBD2MkSLX/+gn0jIfCOU2Ld1DNMEAkXibOL3rBC2MISr45vgWqWkfi/cz5Uw2RGif3/PrBD
-	OKsZJZY1foXqtpZoufIEqsNRYtHF06yQMOKTuPFWEOJQPolJ26YzQ4R5JTrahCCq1SRW33vD
-	MoFReRaS12YheW0WwmsQYR2JBbs/YQprSyxb+JoZwraVWLfuPcsCRvZVjOKppcW56anFRnmp
-	5XrFibnFpXnpesn5uZsYgcnz9L/jX3YwLn/1Ue8QIxMH4yFGFaDmRxtWX2CUYsnLz0tVEuFl
-	Kb+SKsSbklhZlVqUH19UmpNafIhRmoNFSZxXNUU+VUggPbEkNTs1tSC1CCbLxMEp1cBUdK7t
-	wcTOWfKW0ZW/wg0t97x8pHb54gnHUz9uh9rx9ObrifPUf378i823wd/jgsvbzqnvu7TKQ1Xl
-	uhQ8tl9V/1E84/zWuSkxvBuKN5Qc8/lYKpxTLTKvRSlc+t9Vdi97C7OXK+KfXI+7sFrqi9ia
-	mNozj8Qjg5Zfs5h9QOLPhYrJUx9o3uRrNDZVOiL9f53ezNrKD3w6irWxE/wUGAJKOI/+fJE+
-	1fONkyTj6kVnP2SYxKhqZrx7HXvQwJjVf7uHhr7LKWvXlxf3XFxQy/OzLv5dFNPttbcD6ySb
-	qmTPzG1dsS/BU37LVlutX/ZnNTYzfzlRudNtuc6DmaZ57jKHtUPNNkSu7BTtmSK/fo4SS3FG
-	oqEWc1FxIgCmtF8dGQQAAA==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFlrIKsWRmVeSWpSXmKPExsVy+t/xe7qP1l9JNbhz09pi88StbBa/vlhY
-	LD24nsWiYfUFVouZM04wWnTO3sBusfTtVnaLy7vmsFnsffqYzeLghyesFsvPzmOzaLljajH3
-	5zUWB16PJwfnMXmsmbeG0WPxnpdMHptWdbJ53Lm2h81j3slAj8k3ljN6vNg8k9Gjt/kdm8fn
-	TXIeWz/fZgngjtKzKcovLUlVyMgvLrFVija0MNIztLTQMzKx1DM0No+1MjJV0rezSUnNySxL
-	LdK3S9DL6Dvwi7Hguk/F46utLA2MD+y7GDk4JARMJNb9q+li5OIQEljKKLH/91/2LkZOoLiM
-	xMYvV1khbGGJP9e62CCKPjJKrHp0kQnCWcEosfPODLAqFgFVifVvT7OA2GwCOhLn39xhBtkg
-	IqAu8exLAEiYWWA7s8S7X9EgtrBAuMT/3g5GEJtXwEGif/otsFYhgUKJCT+Ps0PEBSVOznzC
-	AtFbJtE7+SUbyEhmAWmJ5f84QMKcAnYSx1ZchrpZWWLO6x3MEHayxKQ9vxgnMArPQjJpFpJJ
-	sxAmQYS1JG78e8mEIawtsWzha2YI21Zi3br3LAsY2VcxiqSWFuem5xYb6RUn5haX5qXrJefn
-	bmIEpo9tx35u2cG48tVHvUOMTByMhxhVgDofbVh9gVGKJS8/L1VJhJel/EqqEG9KYmVValF+
-	fFFpTmrxIUZTYBhOZJYSTc4HJra8knhDMwNTQxMzSwNTSzNjJXFez4KORCGB9MSS1OzU1ILU
-	Ipg+Jg5OqQamueJvrQ/pvbyoYibE9+mS6uX5Su5fVfzsHNana6mIbZhf6DPtoa3Gh66Nn9dO
-	UPJa/eHo5q+pW+s5j6r8cpXed+/7q1tTXf4xXPt9yfSnOIc/y5OfS39GBJY8eahetu736YWM
-	z+b8KnD1eSEs1vXq/qfZwU9v7F+2M/52zdlNqm8yyv8lzKgQtvlcujf4Mo/B9L1BwtOT/JkK
-	dauue16qO7KxQ3tl3JT2lMd1HQdsa/oPHZm4xHoVU9X1e30tvj/NHqZvdfRusuHXK2vz6f4T
-	K9rde3HPpjS3/33/rVZLrtOI26C18fabMytn77Vde6ZFLdem92eHkkj5hOcXF128s4R7e0J8
-	UpqjLTefglqbjhJLcUaioRZzUXEiAL2TYXy0AwAA
-X-CMS-MailID: 20240220135755eucas1p24e882cb5a735caed4bbfedb22a811442
-X-Msg-Generator: CA
-X-RootMTR: 20240220135755eucas1p24e882cb5a735caed4bbfedb22a811442
-X-EPHeader: CA
-CMS-TYPE: 201P
-X-CMS-RootMailID: 20240220135755eucas1p24e882cb5a735caed4bbfedb22a811442
-References: <20240122073903.24406-1-baolu.lu@linux.intel.com>
-	<20240122073903.24406-7-baolu.lu@linux.intel.com>
-	<CGME20240220135755eucas1p24e882cb5a735caed4bbfedb22a811442@eucas1p2.samsung.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: eUllX_-qgAsmHKd_JgBJQZtujh7cPJYr
+X-Proofpoint-ORIG-GUID: RtiekxNRFN2wBWltsYALkmwUnLKUTe6e
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-02-20_06,2024-02-20_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 clxscore=1011
+ lowpriorityscore=0 spamscore=0 phishscore=0 priorityscore=1501 mlxscore=0
+ malwarescore=0 mlxlogscore=809 adultscore=0 suspectscore=0 impostorscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
+ definitions=main-2402200103
 
---pf2tgjfb6gzecilc
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Thu, 1 Feb 2024 11:00:42 +0800
+Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
 
-On Mon, Jan 22, 2024 at 03:39:01PM +0800, Lu Baolu wrote:
-> The iopf-capable hw page table attach/detach/replace should use the iommu
-> iopf-specific interfaces. The pointer to iommufd_device is stored in the
-> private field of the attachment cookie, so that it can be easily retrieved
-> in the fault handling paths. The references to iommufd_device and
-> iommufd_hw_pagetable objects are held until the cookie is released, which
-> happens after the hw_pagetable is detached from the device and all
-> outstanding iopf's are responded to. This guarantees that both the device
-> and hw_pagetable are valid before domain detachment and outstanding faults
-> are handled.
->=20
-> The iopf-capable hw page tables can only be attached to devices that
-> support the IOMMU_DEV_FEAT_IOPF feature. On the first attachment of an
-> iopf-capable hw_pagetable to the device, the IOPF feature is enabled on
-> the device. Similarly, after the last iopf-capable hwpt is detached from
-> the device, the IOPF feature is disabled on the device.
->=20
-> The current implementation allows a replacement between iopf-capable and
-> non-iopf-capable hw page tables. This matches the nested translation use
-> case, where a parent domain is attached by default and can then be
-> replaced with a nested user domain with iopf support.
->=20
-> Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-> ---
->  drivers/iommu/iommufd/iommufd_private.h |   7 ++
->  drivers/iommu/iommufd/device.c          |  15 ++-
->  drivers/iommu/iommufd/fault.c           | 122 ++++++++++++++++++++++++
->  3 files changed, 141 insertions(+), 3 deletions(-)
->=20
-> diff --git a/drivers/iommu/iommufd/iommufd_private.h b/drivers/iommu/iomm=
-ufd/iommufd_private.h
-> index 2780bed0c6b1..9844a1289c01 100644
-> --- a/drivers/iommu/iommufd/iommufd_private.h
-> +++ b/drivers/iommu/iommufd/iommufd_private.h
-> @@ -398,6 +398,7 @@ struct iommufd_device {
->  	/* always the physical device */
->  	struct device *dev;
->  	bool enforce_cache_coherency;
-> +	bool iopf_enabled;
->  	/* outstanding faults awaiting response indexed by fault group id */
->  	struct xarray faults;
->  };
-> @@ -459,6 +460,12 @@ iommufd_get_fault(struct iommufd_ucmd *ucmd, u32 id)
->  int iommufd_fault_alloc(struct iommufd_ucmd *ucmd);
->  void iommufd_fault_destroy(struct iommufd_object *obj);
->  int iommufd_fault_iopf_handler(struct iopf_group *group);
-> +int iommufd_fault_domain_attach_dev(struct iommufd_hw_pagetable *hwpt,
-> +				    struct iommufd_device *idev);
-> +void iommufd_fault_domain_detach_dev(struct iommufd_hw_pagetable *hwpt,
-> +				     struct iommufd_device *idev);
-> +int iommufd_fault_domain_replace_dev(struct iommufd_hw_pagetable *hwpt,
-> +				     struct iommufd_device *idev);
-> =20
->  #ifdef CONFIG_IOMMUFD_TEST
->  int iommufd_test(struct iommufd_ucmd *ucmd);
-> diff --git a/drivers/iommu/iommufd/device.c b/drivers/iommu/iommufd/devic=
-e.c
-> index d70913ee8fdf..c4737e876ebc 100644
-> --- a/drivers/iommu/iommufd/device.c
-> +++ b/drivers/iommu/iommufd/device.c
-> @@ -377,7 +377,10 @@ int iommufd_hw_pagetable_attach(struct iommufd_hw_pa=
-getable *hwpt,
->  	 * attachment.
->  	 */
->  	if (list_empty(&idev->igroup->device_list)) {
-> -		rc =3D iommu_attach_group(hwpt->domain, idev->igroup->group);
-> +		if (hwpt->fault_capable)
-> +			rc =3D iommufd_fault_domain_attach_dev(hwpt, idev);
-> +		else
-> +			rc =3D iommu_attach_group(hwpt->domain, idev->igroup->group);
->  		if (rc)
->  			goto err_unresv;
->  		idev->igroup->hwpt =3D hwpt;
-> @@ -403,7 +406,10 @@ iommufd_hw_pagetable_detach(struct iommufd_device *i=
-dev)
->  	mutex_lock(&idev->igroup->lock);
->  	list_del(&idev->group_item);
->  	if (list_empty(&idev->igroup->device_list)) {
-> -		iommu_detach_group(hwpt->domain, idev->igroup->group);
-> +		if (hwpt->fault_capable)
-> +			iommufd_fault_domain_detach_dev(hwpt, idev);
-> +		else
-> +			iommu_detach_group(hwpt->domain, idev->igroup->group);
->  		idev->igroup->hwpt =3D NULL;
->  	}
->  	if (hwpt_is_paging(hwpt))
-> @@ -498,7 +504,10 @@ iommufd_device_do_replace(struct iommufd_device *ide=
-v,
->  			goto err_unlock;
->  	}
-> =20
-> -	rc =3D iommu_group_replace_domain(igroup->group, hwpt->domain);
-> +	if (old_hwpt->fault_capable || hwpt->fault_capable)
-> +		rc =3D iommufd_fault_domain_replace_dev(hwpt, idev);
-> +	else
-> +		rc =3D iommu_group_replace_domain(igroup->group, hwpt->domain);
->  	if (rc)
->  		goto err_unresv;
-> =20
-> diff --git a/drivers/iommu/iommufd/fault.c b/drivers/iommu/iommufd/fault.c
-> index e752d1c49dde..a4a49f3cd4c2 100644
-> --- a/drivers/iommu/iommufd/fault.c
-> +++ b/drivers/iommu/iommufd/fault.c
-> @@ -267,3 +267,125 @@ int iommufd_fault_iopf_handler(struct iopf_group *g=
-roup)
-> =20
->  	return 0;
->  }
-> +
-> +static void release_attach_cookie(struct iopf_attach_cookie *cookie)
-> +{
-> +	struct iommufd_hw_pagetable *hwpt =3D cookie->domain->fault_data;
-There is a possibility here of cookie->domain being NULL. When you call
-release_attach_cookie from iommufd_fault_domain_attach_dev if
-idev->iopf_enabled is false. In this case, you have not set the domain
-yet.
+> > > And squish the parameters from transport to a structure.  
+> > 
+> > The patch did more than what is described here, it also switch to use
+> > a structure for vring_create_virtqueue() etc.
+> > 
+> > Is it better to split?  
+> 
+> Sure.
 
-> +	struct iommufd_device *idev =3D cookie->private;
-> +
-> +	refcount_dec(&idev->obj.users);
-> +	refcount_dec(&hwpt->obj.users);
-You should decrease this ref count only if the cookie actually had a
-domain.
+I understand there will be a v2. From virtio-ccw perspective I have
+no objections.
 
-This function could be something like this:
-
-	static void release_attach_cookie(struct iopf_attach_cookie *cookie)
-	{
-		struct iommufd_hw_pagetable *hwpt;
-		struct iommufd_device *idev =3D cookie->private;
-
-		refcount_dec(&idev->obj.users);
-		if (cookie->domain) {
-			hwpt =3D cookie->domain->fault_data;
-			refcount_dec(&hwpt->obj.users);
-		}
-		kfree(cookie);
-	}
-
-
-> +	kfree(cookie);
-> +}
-> +
-> +static int iommufd_fault_iopf_enable(struct iommufd_device *idev)
-> +{
-> +	int ret;
-> +
-> +	if (idev->iopf_enabled)
-> +		return 0;
-> +
-> +	ret =3D iommu_dev_enable_feature(idev->dev, IOMMU_DEV_FEAT_IOPF);
-> +	if (ret)
-> +		return ret;
-> +
-> +	idev->iopf_enabled =3D true;
-> +
-> +	return 0;
-> +}
-> +
-> +static void iommufd_fault_iopf_disable(struct iommufd_device *idev)
-> +{
-> +	if (!idev->iopf_enabled)
-> +		return;
-> +
-> +	iommu_dev_disable_feature(idev->dev, IOMMU_DEV_FEAT_IOPF);
-> +	idev->iopf_enabled =3D false;
-> +}
-> +
-> +int iommufd_fault_domain_attach_dev(struct iommufd_hw_pagetable *hwpt,
-> +				    struct iommufd_device *idev)
-> +{
-> +	struct iopf_attach_cookie *cookie;
-> +	int ret;
-> +
-> +	cookie =3D kzalloc(sizeof(*cookie), GFP_KERNEL);
-> +	if (!cookie)
-> +		return -ENOMEM;
-> +
-> +	refcount_inc(&hwpt->obj.users);
-> +	refcount_inc(&idev->obj.users);
-> +	cookie->release =3D release_attach_cookie;
-> +	cookie->private =3D idev;
-> +
-> +	if (!idev->iopf_enabled) {
-> +		ret =3D iommufd_fault_iopf_enable(idev);
-> +		if (ret)
-> +			goto out_put_cookie;
-You have not set domain here and release_attach_cookie will try to
-access a null address.
-
-> +	}
-> +
-> +	ret =3D iopf_domain_attach(hwpt->domain, idev->dev, IOMMU_NO_PASID, coo=
-kie);
-> +	if (ret)
-> +		goto out_disable_iopf;
-> +
-> +	return 0;
-> +out_disable_iopf:
-> +	iommufd_fault_iopf_disable(idev);
-> +out_put_cookie:
-> +	release_attach_cookie(cookie);
-> +
-> +	return ret;
-> +}
-> +
-> +void iommufd_fault_domain_detach_dev(struct iommufd_hw_pagetable *hwpt,
-> +				     struct iommufd_device *idev)
-> +{
-> +	iopf_domain_detach(hwpt->domain, idev->dev, IOMMU_NO_PASID);
-> +	iommufd_fault_iopf_disable(idev);
-> +}
-> +
-> +int iommufd_fault_domain_replace_dev(struct iommufd_hw_pagetable *hwpt,
-> +				     struct iommufd_device *idev)
-> +{
-> +	bool iopf_enabled_originally =3D idev->iopf_enabled;
-> +	struct iopf_attach_cookie *cookie =3D NULL;
-> +	int ret;
-> +
-> +	if (hwpt->fault_capable) {
-> +		cookie =3D kzalloc(sizeof(*cookie), GFP_KERNEL);
-> +		if (!cookie)
-> +			return -ENOMEM;
-> +
-> +		refcount_inc(&hwpt->obj.users);
-> +		refcount_inc(&idev->obj.users);
-> +		cookie->release =3D release_attach_cookie;
-> +		cookie->private =3D idev;
-> +
-> +		if (!idev->iopf_enabled) {
-> +			ret =3D iommufd_fault_iopf_enable(idev);
-> +			if (ret) {
-> +				release_attach_cookie(cookie);
-> +				return ret;
-> +			}
-> +		}
-> +	}
-> +
-> +	ret =3D iopf_domain_replace(hwpt->domain, idev->dev, IOMMU_NO_PASID, co=
-okie);
-> +	if (ret) {
-> +		goto out_put_cookie;
-> +	}
-> +
-> +	if (iopf_enabled_originally && !hwpt->fault_capable)
-> +		iommufd_fault_iopf_disable(idev);
-> +
-> +	return 0;
-> +out_put_cookie:
-> +	if (hwpt->fault_capable)
-> +		release_attach_cookie(cookie);
-> +	if (iopf_enabled_originally && !idev->iopf_enabled)
-> +		iommufd_fault_iopf_enable(idev);
-> +	else if (!iopf_enabled_originally && idev->iopf_enabled)
-> +		iommufd_fault_iopf_disable(idev);
-> +
-> +	return ret;
-> +}
-> --=20
-> 2.34.1
->=20
-
---=20
-
-Joel Granados
-
---pf2tgjfb6gzecilc
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQGzBAABCgAdFiEErkcJVyXmMSXOyyeQupfNUreWQU8FAmXUr94ACgkQupfNUreW
-QU+ZOQv/Wip7KOIrGYyBLCBQ30IEYCwyj195c62gJ76/wxu+HvwnyJowrYzU0ub2
-LODfpdTmIcJusUFIiJFWMFmBYThJMgEE1UqjPhItqKXR0bZ4ALPxXZNrj3pLCB7V
-E1g0K1Sq0Mvf11nAm97b4pv4CSXIfNoNezBucK0B34cX3qGcTXRz1UNaEFDYs4ZH
-b+Ms9REbV3nlmZxssOycD+Q0pG13yGIzg5N3SEMSrCW70VK95kZZDUWSd1eGC7iY
-uX6DLWilTLYz97BbrBGaoXX0VQXUoO0bdI31ye9W76UE20Dn8BDQmOLFciCqNfWT
-MhyFihjGmMbJckIY1qPQq7dsucQ4D1VF6G5ckTgVGyI9xZjW61qz+0UhW2RIj1Nt
-TJrwGxL99zIkeg5VxObdHQxq7uxX5UNAi4LFNroiLc2VWuHvrB4dmghEZS4C0aPk
-2vtLYqDaPZzsRscRK5e7mF9VlcQlmmZyjr8vApF/mOkWiDYQCq6BKXW9g84tTsbm
-QL+ayV9j
-=mvOj
------END PGP SIGNATURE-----
-
---pf2tgjfb6gzecilc--
+Regards,
+Halil
