@@ -1,1224 +1,326 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2080.outbound.protection.outlook.com [40.107.94.80])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F76667C6A
-	for <virtualization@lists.linux-foundation.org>; Tue, 20 Feb 2024 11:51:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F180664D1
+	for <virtualization@lists.linux.dev>; Tue, 20 Feb 2024 12:03:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.94.80
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708429907; cv=fail; b=aVxuY/dq3FuUAh5UKAPn1arJGxT/8bA1+taKKUdUMRxvdGffni8NEZ9bToCLtO6NxcK3je1hgkR3++PTo+MNHXLyrQ6IAkQfueXxRdkGyKYJriFsuF65hEk2zCAwykVMZl7FGfkN3wIfG6+rzJ96QIYWthljj01x3+UXD3geaD4=
+	t=1708430601; cv=fail; b=jXoOP8TVX37HdRWXgQwq3cnftD6VLJi/dp+YxvqFJRzVGdD+npV3udjiOxuWMS7wJlsBMu/pBehH+tGkYsxXy3yPjzYlytBPAW3daacNeO/wTDY3DrKb5gAA0zaeekNsjo5iTNHroPbIu1th+e3Qrj7JPezbRVQF96T/2bDH6ts=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708429907; c=relaxed/simple;
-	bh=UP7UklKeUPF9hUJzixrpmhsrouzJJtNETsXQvQCMoyY=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=I821ov/2GcMNxPUsVY3EHuBTMaSBZvI/BFy76c1OvMvvJLGEN0UwwWplCx3cPO4LlZ+JbcUeyK0Dnxid6TNDp3asrT4yoY8ebIkq9hfMjPYByM5vP4xD6+IZJ6c597gHssTM3gFs5FAVU4bN9SAxeH7cxwQ6kE0ivJQRCryqZn4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=GPiY+4Ka; arc=fail smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1708430601; c=relaxed/simple;
+	bh=0DgLcNVHcoMvyEZXQlyVWCvYgbhMt+gLVxxXoJGAIsU=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=bs58SaiGBLoKGuno4bu+6jxRjZy9/VTuFri7R5CmCCl417Xn1/2qpMNUTkaNEiF/Kgl9zsV9rmgk9hs0AYiyoft6cVyfytRIOs0Zk9I7ArJmWWQMJoH7A8C8dhmJOzKq1LXPzqFjiIp0Qx/3kwllaSlW5oLbsWYpSUC8JKURN+Q=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=gHGjyTeP; arc=fail smtp.client-ip=40.107.94.80
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="GPiY+4Ka"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id D112D608A6
-	for <virtualization@lists.linux-foundation.org>; Tue, 20 Feb 2024 11:51:44 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.103
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id oekKREPy4pBO
-	for <virtualization@lists.linux-foundation.org>;
-	Tue, 20 Feb 2024 11:51:42 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2417::600; helo=nam12-dm6-obe.outbound.protection.outlook.com; envelope-from=ankita@nvidia.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 3D47D60830
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3D47D60830
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=GPiY+4Ka
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on20600.outbound.protection.outlook.com [IPv6:2a01:111:f403:2417::600])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 3D47D60830
-	for <virtualization@lists.linux-foundation.org>; Tue, 20 Feb 2024 11:51:41 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="gHGjyTeP"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=QGsVk1Uh7X+IHERfkwv0QF7QraxIc7/3aJZ1Os3pUoadj4LuMVKiLIBF4f/iQjKuzFzuqFfPYOhY1veHBooDkQP8r4uTkyNk9+0SEi4nHORO9raFFF/TJjMzDktlboJOHQU6AmIUw220zXcBBuVtLg1+RJuS4OpG9X/VGBw1uQPwkiQo1gqGQnwdQuxeW7XUf6GWIazTxNeN7DgG2G6f7uhgZzatK32kKYEYK/M2hl1EG2N/NOZ1fEIugFKTjiVPy6iO/ILAFLqk3mAWM1OEtAYOIfxZnyKxCgGBUgbvnV7VDQRg7C0Ob7wvB5WV+em9DXx6anv2SeOLW7w82u5uww==
+ b=HisYo2H8YAQjOnf+KV6lXKb0J2HmWP1pQvz7UVbQnREg/rP42SGCAeadzyFUnYCfQA8nGg2aD+pNsIglzEQIox6OB8en9IW8GU600Z8B71EBj2Vihr7tQwHKkOnyGN7qaMf1X/UlJBEFmyDAojRJX2qBBmMqcCbCZZFaPU7PWbE8Imx8dqwVohX8EScmsBmp5r9lGpO9359FRxJUb+QuU6a+V2f+18gDaff+3I73rKVQUJ/5YqGXkrbFbRMAYXcTvmJly/r/voYnDfg4OmV29v2KyVpVTR841p54kf5YmgRqvLLSWxZSZnqlR58NWBBJBiGl9V4mCERl1H3zZjb/Ew==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=GBlbVGVAardj87SRWPGohNOsaWGpExBO9+gPNtIR+Sc=;
- b=AAttkVZG2KuSh94ih42cX4f57vdqIl+OHaVka8FZuszs/uaGE0rR1BN+5YXovIBIxVleBwz95dRKrfLQ/J1XrH4DesWhy2ZH7YPJPccrhFCN6ytoSUd76Vi/opWa7IRQx3ItuupiMTkczxM1Hmx1h8JgtDGo/8v4PR51znZcVRWgIZMoylENOgZM1xTlFZi+PpbyCq14BquixW7ILWcMq5skGhmuS1h0hFYPKJ4PCeucmBUOLCNMYOfj7Sd0KrGBmcvi6/9xvSwmQboALms43R9eCkhZx0cy387D1d22rFhfoBrK5wyD0tSrrOl5LeEX5I/pBUIRbG12AL+TJHR+Fw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.118.232) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
+ bh=eu56ss5yMivT9ewOWGrGlt71aOBHJ9riqFkujHuST88=;
+ b=OD+35PAjNcfK9q9IMhTuWto+1I+Q6LRddzd9u12ygFK1LoC/N6Q9ZeajLwmpRjpEQ+aq+rK0II9FIOx3BVMnj8I9zRxBCInm3loT6LsGYQhyNgt7ejOC29kDy2882AdBe/G4+qSE3pUn1hrl8LF2VNK/4TXtzXtCrXLNsCDffHPDO8CQ1ALW+8h1s4zRuILrGf1AgKZBZsIIZqF4QCmhbDm6O4e3OMWmvrQFPZqS47SAU5NYEBnD7Bj45GidOGYcRConS2BJVLlyX+QQ8rELehFiUZ+Snbu+nC+X9cdMrARpeCwwT0p1rXA3+ozN+9qw0PsvYTJ8qJqYE0Utvf8elw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=GBlbVGVAardj87SRWPGohNOsaWGpExBO9+gPNtIR+Sc=;
- b=GPiY+4Kak3SrF1mYg6gOKtB2SmlgHNb9AmfUw3Fg7pdOcKSyiXNhNKADVSfLOzzGizkw/o81QRx0hrfckxVwdkyn3amZU0RO4bO9GWNZkI/4QuEdaWtGZd77EcS7fjVw8SOeBHEq8kanRnpToaV3oGlx6R8cR++ZzhUenat7Gtf68HUTteLE17ZlfCKwWWd7+2wdTAMYm1cypJ7X4STBPidWaYToqvAlH+JLrPBBiWmWHkTwJjKUZQvGiXlj1XbZdbt2zO4T7+cDNjU4ZSA7QKr94zo1IX8AvHJL/Uk8o3714xac4ULc8VnZ6YsFHXw+nrzpIWkEjv0dohyXNCwNmQ==
-Received: from BY5PR17CA0019.namprd17.prod.outlook.com (2603:10b6:a03:1b8::32)
- by MW4PR12MB7288.namprd12.prod.outlook.com (2603:10b6:303:223::15) with
+ bh=eu56ss5yMivT9ewOWGrGlt71aOBHJ9riqFkujHuST88=;
+ b=gHGjyTePkRexDMs4Ks/nY2yZYprhtMkfJxJMtXrJIJEguXIX7sK24aNC9zyy9cofuGe++NRwte8x+OpAZtcluQatqZZzhwtG5vXl+0f2VPUPUsZwumHI88gNUBeGS1FlEicSz5N82SbyapfxLKe7VbFM636x7o+oSlH5LPb2F4X9HxkNG15KS7c2SnHLZxvc77t/o3yPeG9ptWNj/3jVkyohpssPY1lDwLdCLjNzWMc6y4R3IRAbbDcLqRP78pd3ol1jOEUebLETbbALCj2cqXRNz1+VCSs0w0D0w5OeMEqa9XkSmxY8961TW7GnN96NZuZFyf84d8wM3IvpoAK5tA==
+Received: from PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
+ by DS0PR12MB7725.namprd12.prod.outlook.com (2603:10b6:8:136::6) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7316.20; Tue, 20 Feb
- 2024 11:51:36 +0000
-Received: from CO1PEPF000044F4.namprd05.prod.outlook.com
- (2603:10b6:a03:1b8:cafe::c5) by BY5PR17CA0019.outlook.office365.com
- (2603:10b6:a03:1b8::32) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7292.38 via Frontend
- Transport; Tue, 20 Feb 2024 11:51:36 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.232)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.118.232 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.118.232; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.118.232) by
- CO1PEPF000044F4.mail.protection.outlook.com (10.167.241.74) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.7292.25 via Frontend Transport; Tue, 20 Feb 2024 11:51:36 +0000
-Received: from drhqmail203.nvidia.com (10.126.190.182) by mail.nvidia.com
- (10.127.129.5) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Tue, 20 Feb
- 2024 03:51:30 -0800
-Received: from drhqmail201.nvidia.com (10.126.190.180) by
- drhqmail203.nvidia.com (10.126.190.182) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1258.12; Tue, 20 Feb 2024 03:51:29 -0800
-Received: from sgarnayak-dt.nvidia.com (10.127.8.9) by mail.nvidia.com
- (10.126.190.180) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1258.12 via Frontend
- Transport; Tue, 20 Feb 2024 03:51:21 -0800
-From: <ankita@nvidia.com>
-To: <ankita@nvidia.com>, <jgg@nvidia.com>, <alex.williamson@redhat.com>,
-	<yishaih@nvidia.com>, <shameerali.kolothum.thodi@huawei.com>,
-	<kevin.tian@intel.com>, <mst@redhat.com>, <eric.auger@redhat.com>,
-	<jgg@ziepe.ca>, <oleksandr@natalenko.name>, <clg@redhat.com>,
-	<satyanarayana.k.v.p@intel.com>, <brett.creeley@amd.com>, <horms@kernel.org>,
-	<shannon.nelson@amd.com>, <rrameshbabu@nvidia.com>, <zhiw@nvidia.com>
-CC: <aniketa@nvidia.com>, <cjia@nvidia.com>, <kwankhede@nvidia.com>,
-	<targupta@nvidia.com>, <vsethi@nvidia.com>, <acurrid@nvidia.com>,
-	<apopple@nvidia.com>, <jhubbard@nvidia.com>, <danw@nvidia.com>,
-	<anuaggarwal@nvidia.com>, <mochs@nvidia.com>, <kvm@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <virtualization@lists.linux-foundation.org>
-Subject: [PATCH v19 3/3] vfio/nvgrace-gpu: Add vfio pci variant module for grace hopper
-Date: Tue, 20 Feb 2024 17:20:55 +0530
-Message-ID: <20240220115055.23546-4-ankita@nvidia.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20240220115055.23546-1-ankita@nvidia.com>
-References: <20240220115055.23546-1-ankita@nvidia.com>
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7316.19; Tue, 20 Feb
+ 2024 12:03:15 +0000
+Received: from PH0PR12MB5481.namprd12.prod.outlook.com
+ ([fe80::5b85:d575:fac1:71c0]) by PH0PR12MB5481.namprd12.prod.outlook.com
+ ([fe80::5b85:d575:fac1:71c0%4]) with mapi id 15.20.7316.018; Tue, 20 Feb 2024
+ 12:03:15 +0000
+From: Parav Pandit <parav@nvidia.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+CC: Ming Lei <ming.lei@redhat.com>, "jasowang@redhat.com"
+	<jasowang@redhat.com>, "xuanzhuo@linux.alibaba.com"
+	<xuanzhuo@linux.alibaba.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>,
+	"stefanha@redhat.com" <stefanha@redhat.com>, "axboe@kernel.dk"
+	<axboe@kernel.dk>, "virtualization@lists.linux.dev"
+	<virtualization@lists.linux.dev>, "linux-block@vger.kernel.org"
+	<linux-block@vger.kernel.org>, "stable@vger.kernel.org"
+	<stable@vger.kernel.org>, "NBU-Contact-Li Rongqing (EXTERNAL)"
+	<lirongqing@baidu.com>, Chaitanya Kulkarni <chaitanyak@nvidia.com>
+Subject: RE: [PATCH] virtio_blk: Fix device surprise removal
+Thread-Topic: [PATCH] virtio_blk: Fix device surprise removal
+Thread-Index:
+ AQHaYcxqVM2rFvg5t0SfQayLG6csArEQGLcAgADkkjCAAFazAIAAJn9QgAAD6oCAAabewA==
+Date: Tue, 20 Feb 2024 12:03:15 +0000
+Message-ID:
+ <PH0PR12MB5481478D2F3EFEA552959DE1DC502@PH0PR12MB5481.namprd12.prod.outlook.com>
+References: <20240217180848.241068-1-parav@nvidia.com>
+ <ZdIFpqa23YHwJACh@fedora>
+ <PH0PR12MB5481DCCE8127FB12C24EF74DDC512@PH0PR12MB5481.namprd12.prod.outlook.com>
+ <20240219024301-mutt-send-email-mst@kernel.org>
+ <PH0PR12MB548151B646CDE618F71DDAFEDC512@PH0PR12MB5481.namprd12.prod.outlook.com>
+ <20240219054459-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20240219054459-mutt-send-email-mst@kernel.org>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: PH0PR12MB5481:EE_|DS0PR12MB7725:EE_
+x-ms-office365-filtering-correlation-id: 23fad759-7cbd-471c-d253-08dc320beb69
+x-ld-processed: 43083d15-7273-40c1-b7db-39efd9ccc17a,ExtAddr
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info:
+ 7WIjHCYu/5XsHvtqRH5vm48kRFQhq5PA++/bv48MhWiqNIn0/LbQomEXhXueCXiOqwKfz1mDRmO31p8wlvxyPo6HBigF8GpHogP2feSJngECis20gkFPGWB1cArNoUGgVO0D4ZCOtaBLwBbBwxdBYoNyJ7JtNii75Z+jP6ckORy+XeikKP8U+e34fVW9Q4LpMTyNpMUCzX4ZJroXe13VZ13TjlF2bLhpkymHQM/vg2tUca25Vcay1C+bu75lmviHkKAzKazut32AnbiH2cBIGIOYWctMrUjuFmr4oE3X68CmF3zXusLbwyoJL3SjKxA61Ddk+KUy5X/e7RUfr+YLdWvlx7TxIWYLZ4Y34iFXM40Bu/103pFoARs8gJTx6zl4/hh0YqeZWPvWnt3wHNU1Tivx8RzGb1TR4TFsWQpCvr8Dj89y0PMCIQDifGeRe8He60/wt9+EN+q8WP7R+tgUz/NxlBVt8HZ5Zk3mGSmXAtrJfqNt8D8L7fxZ0naecZGoTQ42fsmEdWKAPKbq59lITMSQY1K298if8ilSWBrW5lZ9K0KBdEHkIFkKG3m/RgsJ2wijQ/SaHYdbdmmOYcMGEO7w78o5U4hQiW+mj+iPt7Imx0RSpJ01IsWzr8uQRHSQszi7rVLiZ2mQiYaSMaG7H8554apDHH5xPymdhthxMgU=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR12MB5481.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(38070700009);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?233JT3hRXEYNlJZ8z4kajcbFhMh1IMRZBRTagmECnfWdH1w4lc8EmLmpxf3t?=
+ =?us-ascii?Q?V+JPllSiqlBwNnMiO5JsWbHp62XirJRgpdlNu2NMXx2bCBP3Z50v+n4j6D9I?=
+ =?us-ascii?Q?eBcZkrvG8cEfAgY2fHPJtiiBPhbB5vHLsJC9a04J5QWIlXCMpRebjwKhWA5G?=
+ =?us-ascii?Q?OgO5vqBQ+MjqPN7xrrlFcZbDnfTbfmTuQ1TseBXtLoDgrrDxQv2cWLdsY90c?=
+ =?us-ascii?Q?UVSytS6IqtpDY8M7ilx9s1P1BUM+WqkXf2zhC4mBZ090376tfyXp0JDQ/HLW?=
+ =?us-ascii?Q?tNkJc+FKaCHFWl7tWn5+3WsG/oAra72D2bNDhcTmFlLe/dlFGyFTtofjm0Di?=
+ =?us-ascii?Q?X8Z5tlY/sdzT0UR1ByJwQfjlCbW9ba/PJrusntul2fDTKYPlpced0U5w5wk8?=
+ =?us-ascii?Q?ZbjyxHlPMF2IaNNwebW+00K6DJmSiS3WYmTGtCQkSrDxEWKJQubshw6XVvdu?=
+ =?us-ascii?Q?62b8f2IpHqBN7DIcqA81l4W88Sh98Ea9yKfUCPLKYqRa6Ojz+rQOUHJbFkHp?=
+ =?us-ascii?Q?92izVFnyTZKbDuFwZ9jRyHb/FgO8J6wBOlOEiTyCv/kczw15IQ+95GDsXrD1?=
+ =?us-ascii?Q?nRbNf9Idpt+P0h2e84qXt9Xr67Q3OQBNnZpa13aItWxs8EtAdgZOeZD+fZgX?=
+ =?us-ascii?Q?hh51k5NSYimmDGIc6HiK6LuWd6gUJ300YZCb8EfcrZ/HZl5FH6pIHgL2SLw2?=
+ =?us-ascii?Q?yjd+mZj6OffmupzWDFffGGnpctUeLkz12FtH8NIYRAfZyDYFdeGslAoW9fid?=
+ =?us-ascii?Q?EVztKFEmVGVn7qFP7bnh0Qho5HMXQonxArHK2AMGSuu6DlcVFQ2T9b8bIKq6?=
+ =?us-ascii?Q?KoiaYkXarNQcvRZywnFKk0XxAuXQbB8ohROff23aR/FXVor6OGaFOFqj2Iy6?=
+ =?us-ascii?Q?DWawIud6285tA4tb1aAKi7qBdeskYLe3ILwpO2pbJVbGLGcoVTmsful0mrT0?=
+ =?us-ascii?Q?LSfpA1VQOOdKQOCvYTzmca4hwwGAPCM+iLPpIB4myv1pIzTQs7FtWCAeXMQi?=
+ =?us-ascii?Q?kPbH9CXfcW25T7i8wcaYfUlpjGPdWNxwKwUunUyxDWbkn8GJ5CZSXvLJctEc?=
+ =?us-ascii?Q?gNbl0Jn79KzwvVfOw4zJkA+flL4dehEkgb+zqQaSWX/19vUyXrdEkpZ7sa+7?=
+ =?us-ascii?Q?ekx70BjoKoyPOwETWG1Qosii/dKRIrFWsJUeZv8XB7KkJwPNIuukfK5XGAgY?=
+ =?us-ascii?Q?RM3WW/W13/ntGoVgzwQqvmXXLURI97O4XnIiciNK4u1uFsSqg2iE14e8AAmo?=
+ =?us-ascii?Q?5ZPJn95AaYgU7CbGHtL3UBcq6O0LW869aIgLVMF4h0Vf5YeuBADUJeI8fx3H?=
+ =?us-ascii?Q?JtSL1lNXwG4NNi3K+1bOnM3c3tIPKVwG76PkK+SvSp9/UP05iM4HpafUgp4w?=
+ =?us-ascii?Q?CSr2yFl0u5qweddZn3IGSDgMhOjlf/EGeOC61RV47TmWoso5tuVDD0FYW3F5?=
+ =?us-ascii?Q?EY95L3TCvGIDvLiJT0dUkKUG3gIIaCSbQzDA5riDkraWJ0N/YbMglZ37eBBL?=
+ =?us-ascii?Q?pXy2EjukDbLpsoq3pxcugMpbTu2zXqam8gvNMvNtAfluHzByHd1tphX8RsGv?=
+ =?us-ascii?Q?3OjEVpduWs5EK+s9yoMcjVBpXWAUiZyRjulg1JsajAr65UbvPGI6qIAC0mV+?=
+ =?us-ascii?Q?a1NoDGR41bj+g6BPfjQfI+D8dq0Qt1n2KHYcgDkVE5cE?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-NV-OnPremToCloud: ExternallySecured
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CO1PEPF000044F4:EE_|MW4PR12MB7288:EE_
-X-MS-Office365-Filtering-Correlation-Id: 41594521-d184-4307-a5d3-08dc320a4ac0
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info:
-	9xx8ftWNZKQDR0PqJoDtXnLv5b2C7NlKifieA8/Qpz0X38i95JSNgZoQC2+fquxt8pg02mRKukCuJjS483OfJjjE41bTMuU01i1q7/Q4hTD/xPnV8Bmlfg8cHKvnAPtdhR5qV6/L5kiLplEYEs+qEAYbRFhOJAn4zAInuMUd41TTkTgtquZfaZxjEQVzIRM2sh+zlIQfog8H96GXDS88F91CG83AilAbQlCtU/LcJ5+HcneAdEKWGqZmrJzZnfTFZenaCjvX8ZfkxdpO92Rsqm7LwAzdMzMT8dG4DyVmx1NjAn7L14apG2zesgkL5GpF/Ll5ocGHQ3ic6wVeyuZiD3p4AT9z0QU40mwRywidODlNp3IBGBaN0/0Y4TvFJk/IdnjbWZktAVS4HqL9Fo0dypta2XlPe7KT9X7mcCbkaOQ0gHzrhJVI41RPAhnCjoZ8j7Jgns3k/lehrgA9xoKAH2YZqFiiJABk7/p56lUNT030q1LM8cPNVUA4aoZn4liZpE0puNJvY/D3NQdBN6mBMGoJlLWDjAOfSGfPWCtES0/JIC+3bk9cXh17543BUl6w4A6th4ndUP+yNVGMMUxNk0jojOZUUwvJWps8vbsQH0qelwLlBlftxutmOg1qZx/xpoxqMqFjbjvBuOx8g5BICoy7lEzIokfhqC7zPomIfBVz8GsBa47yjhjPdBPqEZ9KGz32INMeCwGaSfZq1mo6Fg==
-X-Forefront-Antispam-Report:
-	CIP:216.228.118.232;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge1.nvidia.com;CAT:NONE;SFS:(13230031)(36860700004)(46966006)(40470700004)(921011);DIR:OUT;SFP:1101;
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Feb 2024 11:51:36.4031
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5481.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 23fad759-7cbd-471c-d253-08dc320beb69
+X-MS-Exchange-CrossTenant-originalarrivaltime: 20 Feb 2024 12:03:15.5108
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 41594521-d184-4307-a5d3-08dc320a4ac0
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.232];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	CO1PEPF000044F4.namprd05.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR12MB7288
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: LUYCcY1vlBgL6dqc67dPWFqwzsD1uC6nSOELqDGPoCBf5iMv1aLAZkTT5Pwhn+hSVBMjyBHTxfNYI5uRSC8zIw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB7725
 
-From: Ankit Agrawal <ankita@nvidia.com>
 
-NVIDIA's upcoming Grace Hopper Superchip provides a PCI-like device
-for the on-chip GPU that is the logical OS representation of the
-internal proprietary chip-to-chip cache coherent interconnect.
+> From: Michael S. Tsirkin <mst@redhat.com>
+> Sent: Monday, February 19, 2024 4:17 PM
+>=20
+> On Mon, Feb 19, 2024 at 10:39:36AM +0000, Parav Pandit wrote:
+> > > From: Michael S. Tsirkin <mst@redhat.com>
+> > > Sent: Monday, February 19, 2024 1:45 PM
+> > >
+> > > On Mon, Feb 19, 2024 at 03:14:54AM +0000, Parav Pandit wrote:
+> > > > Hi Ming,
+> > > >
+> > > > > From: Ming Lei <ming.lei@redhat.com>
+> > > > > Sent: Sunday, February 18, 2024 6:57 PM
+> > > > >
+> > > > > On Sat, Feb 17, 2024 at 08:08:48PM +0200, Parav Pandit wrote:
+> > > > > > When the PCI device is surprise removed, requests won't
+> > > > > > complete from the device. These IOs are never completed and
+> > > > > > disk deletion hangs indefinitely.
+> > > > > >
+> > > > > > Fix it by aborting the IOs which the device will never
+> > > > > > complete when the VQ is broken.
+> > > > > >
+> > > > > > With this fix now fio completes swiftly.
+> > > > > > An alternative of IO timeout has been considered, however when
+> > > > > > the driver knows about unresponsive block device, swiftly
+> > > > > > clearing them enables users and upper layers to react quickly.
+> > > > > >
+> > > > > > Verified with multiple device unplug cycles with pending IOs
+> > > > > > in virtio used ring and some pending with device.
+> > > > > >
+> > > > > > In future instead of VQ broken, a more elegant method can be us=
+ed.
+> > > > > > At the moment the patch is kept to its minimal changes given
+> > > > > > its urgency to fix broken kernels.
+> > > > > >
+> > > > > > Fixes: 43bb40c5b926 ("virtio_pci: Support surprise removal of
+> > > > > > virtio pci device")
+> > > > > > Cc: stable@vger.kernel.org
+> > > > > > Reported-by: lirongqing@baidu.com
+> > > > > > Closes:
+> > > > > > https://lore.kernel.org/virtualization/c45dd68698cd47238c55fb7
+> > > > > > 3ca9
+> > > > > > b474
+> > > > > > 1@baidu.com/
+> > > > > > Co-developed-by: Chaitanya Kulkarni <kch@nvidia.com>
+> > > > > > Signed-off-by: Chaitanya Kulkarni <kch@nvidia.com>
+> > > > > > Signed-off-by: Parav Pandit <parav@nvidia.com>
+> > > > > > ---
+> > > > > >  drivers/block/virtio_blk.c | 54
+> > > > > > ++++++++++++++++++++++++++++++++++++++
+> > > > > >  1 file changed, 54 insertions(+)
+> > > > > >
+> > > > > > diff --git a/drivers/block/virtio_blk.c
+> > > > > > b/drivers/block/virtio_blk.c index 2bf14a0e2815..59b49899b229
+> > > > > > 100644
+> > > > > > --- a/drivers/block/virtio_blk.c
+> > > > > > +++ b/drivers/block/virtio_blk.c
+> > > > > > @@ -1562,10 +1562,64 @@ static int virtblk_probe(struct
+> > > > > > virtio_device
+> > > > > *vdev)
+> > > > > >  	return err;
+> > > > > >  }
+> > > > > >
+> > > > > > +static bool virtblk_cancel_request(struct request *rq, void *d=
+ata) {
+> > > > > > +	struct virtblk_req *vbr =3D blk_mq_rq_to_pdu(rq);
+> > > > > > +
+> > > > > > +	vbr->in_hdr.status =3D VIRTIO_BLK_S_IOERR;
+> > > > > > +	if (blk_mq_request_started(rq) &&
+> !blk_mq_request_completed(rq))
+> > > > > > +		blk_mq_complete_request(rq);
+> > > > > > +
+> > > > > > +	return true;
+> > > > > > +}
+> > > > > > +
+> > > > > > +static void virtblk_cleanup_reqs(struct virtio_blk *vblk) {
+> > > > > > +	struct virtio_blk_vq *blk_vq;
+> > > > > > +	struct request_queue *q;
+> > > > > > +	struct virtqueue *vq;
+> > > > > > +	unsigned long flags;
+> > > > > > +	int i;
+> > > > > > +
+> > > > > > +	vq =3D vblk->vqs[0].vq;
+> > > > > > +	if (!virtqueue_is_broken(vq))
+> > > > > > +		return;
+> > > > > > +
+> > > > >
+> > > > > What if the surprise happens after the above check?
+> > > > >
+> > > > >
+> > > > In that small timing window, the race still exists.
+> > > >
+> > > > I think, blk_mq_quiesce_queue(q); should move up before
+> > > > cleanup_reqs()
+> > > regardless of surprise case along with other below changes.
+> > > >
+> > > > Additionally, for non-surprise case, better to have a graceful
+> > > > timeout to
+> > > complete already queued requests.
+> > > > In absence of timeout scheme for this regression, shall we only
+> > > > complete the
+> > > requests which the device has already completed (instead of waiting
+> > > for the grace time)?
+> > > > There was past work from Chaitanaya, for the graceful timeout.
+> > > >
+> > > > The sequence for the fix I have in mind is:
+> > > > 1. quiesce the queue
+> > > > 2. complete all requests which has completed, with its status 3.
+> > > > stop the transport (queues) 4. complete remaining pending requests
+> > > > with error status
+> > > >
+> > > > This should work regardless of surprise case.
+> > > > An additional/optional graceful timeout on non-surprise case can
+> > > > be helpful
+> > > for #2.
+> > > >
+> > > > WDYT?
+> > >
+> > > All this is unnecessarily hard for drivers... I am thinking maybe
+> > > after we set broken we should go ahead and invoke all callbacks.
+> >
+> > Yes, #2 is about invoking the callbacks.
+> >
+> > The issue is not with setting the flag broken. As Ming pointed, the iss=
+ue is :
+> we may miss setting the broken.
+>=20
+>=20
+> So if we did get callbacks, we'd be able to test broken flag in the callb=
+ack.
+>=20
+Yes, getting callbacks is fine.
+But when the device is surprise removed, we wont get the callbacks and comp=
+letions are missed.
 
-The device is peculiar compared to a real PCI device in that whilst
-there is a real 64b PCI BAR1 (comprising region 2 & region 3) on the
-device, it is not used to access device memory once the faster
-chip-to-chip interconnect is initialized (occurs at the time of host
-system boot). The device memory is accessed instead using the chip-to-chip
-interconnect that is exposed as a contiguous physically addressable
-region on the host. This device memory aperture can be obtained from host
-ACPI table using device_property_read_u64(), according to the FW
-specification. Since the device memory is cache coherent with the CPU,
-it can be mmap into the user VMA with a cacheable mapping using
-remap_pfn_range() and used like a regular RAM. The device memory
-is not added to the host kernel, but mapped directly as this reduces
-memory wastage due to struct pages.
+> > Without graceful time out it is straight forward code, just rearrangeme=
+nt of
+> APIs in this patch with existing code.
+> >
+> > The question is : it is really if we really care for that grace period =
+when the
+> device or driver is already on its exit path and VQ is not broken.
+> > If we don't wait for the request in progress, is it ok?
+> >
+>=20
+> If we are talking about physical hardware, it seems quite possible that r=
+emoval
+> triggers then user gets impatient and yanks the card out.
+>=20
+Yes, regardless of surprise or not, completing the remaining IOs is just go=
+od enough.
+Device is anyway on its exit path, so completing 10 commands vs 12, does no=
+t make a lot of difference with extra complexity of timeout.
 
-There is also a requirement of a minimum reserved 1G uncached region
-(termed as resmem) to support the Multi-Instance GPU (MIG) feature [1].
-This is to work around a HW defect. Based on [2], the requisite properties
-(uncached, unaligned access) can be achieved through a VM mapping (S1)
-of NORMAL_NC and host (S2) mapping with MemAttr[2:0]=0b101. To provide
-a different non-cached property to the reserved 1G region, it needs to
-be carved out from the device memory and mapped as a separate region
-in Qemu VMA with pgprot_writecombine(). pgprot_writecombine() sets the
-Qemu VMA page properties (pgprot) as NORMAL_NC.
+So better to not complicate the driver, at least not when adding Fixes tag =
+patch.
 
-Provide a VFIO PCI variant driver that adapts the unique device memory
-representation into a more standard PCI representation facing userspace.
-
-The variant driver exposes these two regions - the non-cached reserved
-(resmem) and the cached rest of the device memory (termed as usemem) as
-separate VFIO 64b BAR regions. This is divergent from the baremetal
-approach, where the device memory is exposed as a device memory region.
-The decision for a different approach was taken in view of the fact that
-it would necessiate additional code in Qemu to discover and insert those
-regions in the VM IPA, along with the additional VM ACPI DSDT changes to
-communicate the device memory region IPA to the VM workloads. Moreover,
-this behavior would have to be added to a variety of emulators (beyond
-top of tree Qemu) out there desiring grace hopper support.
-
-Since the device implements 64-bit BAR0, the VFIO PCI variant driver
-maps the uncached carved out region to the next available PCI BAR (i.e.
-comprising of region 2 and 3). The cached device memory aperture is
-assigned BAR region 4 and 5. Qemu will then naturally generate a PCI
-device in the VM with the uncached aperture reported as BAR2 region,
-the cacheable as BAR4. The variant driver provides emulation for these
-fake BARs' PCI config space offset registers.
-
-The hardware ensures that the system does not crash when the memory
-is accessed with the memory enable turned off. It synthesis ~0 reads
-and dropped writes on such access. So there is no need to support the
-disablement/enablement of BAR through PCI_COMMAND config space register.
-
-The memory layout on the host looks like the following:
-               devmem (memlength)
-|--------------------------------------------------|
-|-------------cached------------------------|--NC--|
-|                                           |
-usemem.memphys                              resmem.memphys
-
-PCI BARs need to be aligned to the power-of-2, but the actual memory on the
-device may not. A read or write access to the physical address from the
-last device PFN up to the next power-of-2 aligned physical address
-results in reading ~0 and dropped writes. Note that the GPU device
-driver [6] is capable of knowing the exact device memory size through
-separate means. The device memory size is primarily kept in the system
-ACPI tables for use by the VFIO PCI variant module.
-
-Note that the usemem memory is added by the VM Nvidia device driver [5]
-to the VM kernel as memblocks. Hence make the usable memory size memblock
-(MEMBLK_SIZE) aligned. This is a hardwired ABI value between the GPU FW and
-VFIO driver. The VM device driver make use of the same value for its
-calculation to determine USEMEM size.
-
-Currently there is no provision in KVM for a S2 mapping with
-MemAttr[2:0]=0b101, but there is an ongoing effort to provide the same [3].
-As previously mentioned, resmem is mapped pgprot_writecombine(), that
-sets the Qemu VMA page properties (pgprot) as NORMAL_NC. Using the
-proposed changes in [3] and [4], KVM marks the region with
-MemAttr[2:0]=0b101 in S2.
-
-If the device memory properties are not present, the driver registers the
-vfio-pci-core function pointers. Since there are no ACPI memory properties
-generated for the VM, the variant driver inside the VM will only use
-the vfio-pci-core ops and hence try to map the BARs as non cached. This
-is not a problem as the CPUs have FWB enabled which blocks the VM
-mapping's ability to override the cacheability set by the host mapping.
-
-This goes along with a qemu series [6] to provides the necessary
-implementation of the Grace Hopper Superchip firmware specification so
-that the guest operating system can see the correct ACPI modeling for
-the coherent GPU device. Verified with the CUDA workload in the VM.
-
-[1] https://www.nvidia.com/en-in/technologies/multi-instance-gpu/
-[2] section D8.5.5 of https://developer.arm.com/documentation/ddi0487/latest/
-[3] https://lore.kernel.org/all/20240211174705.31992-1-ankita@nvidia.com/
-[4] https://lore.kernel.org/all/20230907181459.18145-2-ankita@nvidia.com/
-[5] https://github.com/NVIDIA/open-gpu-kernel-modules
-[6] https://lore.kernel.org/all/20231203060245.31593-1-ankita@nvidia.com/
-
-Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-Reviewed-by: Yishai Hadas <yishaih@nvidia.com>
-Reviewed-by: Zhi Wang <zhi.wang.linux@gmail.com>
-Signed-off-by: Aniket Agashe <aniketa@nvidia.com>
-Signed-off-by: Ankit Agrawal <ankita@nvidia.com>
----
- MAINTAINERS                           |  16 +-
- drivers/vfio/pci/Kconfig              |   2 +
- drivers/vfio/pci/Makefile             |   2 +
- drivers/vfio/pci/nvgrace-gpu/Kconfig  |  10 +
- drivers/vfio/pci/nvgrace-gpu/Makefile |   3 +
- drivers/vfio/pci/nvgrace-gpu/main.c   | 879 ++++++++++++++++++++++++++
- 6 files changed, 907 insertions(+), 5 deletions(-)
- create mode 100644 drivers/vfio/pci/nvgrace-gpu/Kconfig
- create mode 100644 drivers/vfio/pci/nvgrace-gpu/Makefile
- create mode 100644 drivers/vfio/pci/nvgrace-gpu/main.c
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 9ed4d3868539..7625911ec2f1 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -23089,12 +23089,11 @@ L:	kvm@vger.kernel.org
- S:	Maintained
- F:	drivers/vfio/pci/mlx5/
- 
--VFIO VIRTIO PCI DRIVER
--M:	Yishai Hadas <yishaih@nvidia.com>
-+VFIO NVIDIA GRACE GPU DRIVER
-+M:	Ankit Agrawal <ankita@nvidia.com>
- L:	kvm@vger.kernel.org
--L:	virtualization@lists.linux-foundation.org
--S:	Maintained
--F:	drivers/vfio/pci/virtio
-+S:	Supported
-+F:	drivers/vfio/pci/nvgrace-gpu/
- 
- VFIO PCI DEVICE SPECIFIC DRIVERS
- R:	Jason Gunthorpe <jgg@nvidia.com>
-@@ -23119,6 +23118,13 @@ L:	kvm@vger.kernel.org
- S:	Maintained
- F:	drivers/vfio/platform/
- 
-+VFIO VIRTIO PCI DRIVER
-+M:	Yishai Hadas <yishaih@nvidia.com>
-+L:	kvm@vger.kernel.org
-+L:	virtualization@lists.linux-foundation.org
-+S:	Maintained
-+F:	drivers/vfio/pci/virtio
-+
- VGA_SWITCHEROO
- R:	Lukas Wunner <lukas@wunner.de>
- S:	Maintained
-diff --git a/drivers/vfio/pci/Kconfig b/drivers/vfio/pci/Kconfig
-index 18c397df566d..15821a2d77d2 100644
---- a/drivers/vfio/pci/Kconfig
-+++ b/drivers/vfio/pci/Kconfig
-@@ -67,4 +67,6 @@ source "drivers/vfio/pci/pds/Kconfig"
- 
- source "drivers/vfio/pci/virtio/Kconfig"
- 
-+source "drivers/vfio/pci/nvgrace-gpu/Kconfig"
-+
- endmenu
-diff --git a/drivers/vfio/pci/Makefile b/drivers/vfio/pci/Makefile
-index 046139a4eca5..ce7a61f1d912 100644
---- a/drivers/vfio/pci/Makefile
-+++ b/drivers/vfio/pci/Makefile
-@@ -15,3 +15,5 @@ obj-$(CONFIG_HISI_ACC_VFIO_PCI) += hisilicon/
- obj-$(CONFIG_PDS_VFIO_PCI) += pds/
- 
- obj-$(CONFIG_VIRTIO_VFIO_PCI) += virtio/
-+
-+obj-$(CONFIG_NVGRACE_GPU_VFIO_PCI) += nvgrace-gpu/
-diff --git a/drivers/vfio/pci/nvgrace-gpu/Kconfig b/drivers/vfio/pci/nvgrace-gpu/Kconfig
-new file mode 100644
-index 000000000000..a7f624b37e41
---- /dev/null
-+++ b/drivers/vfio/pci/nvgrace-gpu/Kconfig
-@@ -0,0 +1,10 @@
-+# SPDX-License-Identifier: GPL-2.0-only
-+config NVGRACE_GPU_VFIO_PCI
-+	tristate "VFIO support for the GPU in the NVIDIA Grace Hopper Superchip"
-+	depends on ARM64 || (COMPILE_TEST && 64BIT)
-+	select VFIO_PCI_CORE
-+	help
-+	  VFIO support for the GPU in the NVIDIA Grace Hopper Superchip is
-+	  required to assign the GPU device to userspace using KVM/qemu/etc.
-+
-+	  If you don't know what to do here, say N.
-diff --git a/drivers/vfio/pci/nvgrace-gpu/Makefile b/drivers/vfio/pci/nvgrace-gpu/Makefile
-new file mode 100644
-index 000000000000..3ca8c187897a
---- /dev/null
-+++ b/drivers/vfio/pci/nvgrace-gpu/Makefile
-@@ -0,0 +1,3 @@
-+# SPDX-License-Identifier: GPL-2.0-only
-+obj-$(CONFIG_NVGRACE_GPU_VFIO_PCI) += nvgrace-gpu-vfio-pci.o
-+nvgrace-gpu-vfio-pci-y := main.o
-diff --git a/drivers/vfio/pci/nvgrace-gpu/main.c b/drivers/vfio/pci/nvgrace-gpu/main.c
-new file mode 100644
-index 000000000000..25814006352d
---- /dev/null
-+++ b/drivers/vfio/pci/nvgrace-gpu/main.c
-@@ -0,0 +1,879 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * Copyright (c) 2024, NVIDIA CORPORATION & AFFILIATES. All rights reserved
-+ */
-+
-+#include <linux/sizes.h>
-+#include <linux/vfio_pci_core.h>
-+
-+/*
-+ * The device memory usable to the workloads running in the VM is cached
-+ * and showcased as a 64b device BAR (comprising of BAR4 and BAR5 region)
-+ * to the VM and is represented as usemem.
-+ * Moreover, the VM GPU device driver needs a non-cacheable region to
-+ * support the MIG feature. This region is also exposed as a 64b BAR
-+ * (comprising of BAR2 and BAR3 region) and represented as resmem.
-+ */
-+#define RESMEM_REGION_INDEX VFIO_PCI_BAR2_REGION_INDEX
-+#define USEMEM_REGION_INDEX VFIO_PCI_BAR4_REGION_INDEX
-+
-+/* Memory size expected as non cached and reserved by the VM driver */
-+#define RESMEM_SIZE SZ_1G
-+
-+/* A hardwired and constant ABI value between the GPU FW and VFIO driver. */
-+#define MEMBLK_SIZE SZ_512M
-+
-+/*
-+ * The state of the two device memory region - resmem and usemem - is
-+ * saved as struct mem_region.
-+ */
-+struct mem_region {
-+	phys_addr_t memphys;    /* Base physical address of the region */
-+	size_t memlength;       /* Region size */
-+	size_t bar_size;        /* Reported region BAR size */
-+	__le64 bar_val;         /* Emulated BAR offset registers */
-+	union {
-+		void *memaddr;
-+		void __iomem *ioaddr;
-+	};                      /* Base virtual address of the region */
-+};
-+
-+struct nvgrace_gpu_pci_core_device {
-+	struct vfio_pci_core_device core_device;
-+	/* Cached and usable memory for the VM. */
-+	struct mem_region usemem;
-+	/* Non cached memory carved out from the end of device memory */
-+	struct mem_region resmem;
-+	/* Lock to control device memory kernel mapping */
-+	struct mutex remap_lock;
-+};
-+
-+static void nvgrace_gpu_init_fake_bar_emu_regs(struct vfio_device *core_vdev)
-+{
-+	struct nvgrace_gpu_pci_core_device *nvdev =
-+		container_of(core_vdev, struct nvgrace_gpu_pci_core_device,
-+			     core_device.vdev);
-+
-+	nvdev->resmem.bar_val = 0;
-+	nvdev->usemem.bar_val = 0;
-+}
-+
-+/* Choose the structure corresponding to the fake BAR with a given index. */
-+static struct mem_region *
-+nvgrace_gpu_memregion(int index,
-+		      struct nvgrace_gpu_pci_core_device *nvdev)
-+{
-+	if (index == USEMEM_REGION_INDEX)
-+		return &nvdev->usemem;
-+
-+	if (index == RESMEM_REGION_INDEX)
-+		return &nvdev->resmem;
-+
-+	return NULL;
-+}
-+
-+static int nvgrace_gpu_open_device(struct vfio_device *core_vdev)
-+{
-+	struct vfio_pci_core_device *vdev =
-+		container_of(core_vdev, struct vfio_pci_core_device, vdev);
-+	struct nvgrace_gpu_pci_core_device *nvdev =
-+		container_of(core_vdev, struct nvgrace_gpu_pci_core_device,
-+			     core_device.vdev);
-+	int ret;
-+
-+	ret = vfio_pci_core_enable(vdev);
-+	if (ret)
-+		return ret;
-+
-+	if (nvdev->usemem.memlength) {
-+		nvgrace_gpu_init_fake_bar_emu_regs(core_vdev);
-+		mutex_init(&nvdev->remap_lock);
-+	}
-+
-+	vfio_pci_core_finish_enable(vdev);
-+
-+	return 0;
-+}
-+
-+static void nvgrace_gpu_close_device(struct vfio_device *core_vdev)
-+{
-+	struct nvgrace_gpu_pci_core_device *nvdev =
-+		container_of(core_vdev, struct nvgrace_gpu_pci_core_device,
-+			     core_device.vdev);
-+
-+	/* Unmap the mapping to the device memory cached region */
-+	if (nvdev->usemem.memaddr) {
-+		memunmap(nvdev->usemem.memaddr);
-+		nvdev->usemem.memaddr = NULL;
-+	}
-+
-+	/* Unmap the mapping to the device memory non-cached region */
-+	if (nvdev->resmem.ioaddr) {
-+		iounmap(nvdev->resmem.ioaddr);
-+		nvdev->resmem.ioaddr = NULL;
-+	}
-+
-+	mutex_destroy(&nvdev->remap_lock);
-+
-+	vfio_pci_core_close_device(core_vdev);
-+}
-+
-+static int nvgrace_gpu_mmap(struct vfio_device *core_vdev,
-+			    struct vm_area_struct *vma)
-+{
-+	struct nvgrace_gpu_pci_core_device *nvdev =
-+		container_of(core_vdev, struct nvgrace_gpu_pci_core_device,
-+			     core_device.vdev);
-+	struct mem_region *memregion;
-+	unsigned long start_pfn;
-+	u64 req_len, pgoff, end;
-+	unsigned int index;
-+	int ret = 0;
-+
-+	index = vma->vm_pgoff >> (VFIO_PCI_OFFSET_SHIFT - PAGE_SHIFT);
-+
-+	memregion = nvgrace_gpu_memregion(index, nvdev);
-+	if (!memregion)
-+		return vfio_pci_core_mmap(core_vdev, vma);
-+
-+	/*
-+	 * Request to mmap the BAR. Map to the CPU accessible memory on the
-+	 * GPU using the memory information gathered from the system ACPI
-+	 * tables.
-+	 */
-+	pgoff = vma->vm_pgoff &
-+		((1U << (VFIO_PCI_OFFSET_SHIFT - PAGE_SHIFT)) - 1);
-+
-+	if (check_sub_overflow(vma->vm_end, vma->vm_start, &req_len) ||
-+	    check_add_overflow(PHYS_PFN(memregion->memphys), pgoff, &start_pfn) ||
-+	    check_add_overflow(PFN_PHYS(pgoff), req_len, &end))
-+		return -EOVERFLOW;
-+
-+	/*
-+	 * Check that the mapping request does not go beyond available device
-+	 * memory size
-+	 */
-+	if (end > memregion->memlength)
-+		return -EINVAL;
-+
-+	/*
-+	 * The carved out region of the device memory needs the NORMAL_NC
-+	 * property. Communicate as such to the hypervisor.
-+	 */
-+	if (index == RESMEM_REGION_INDEX)
-+		vma->vm_page_prot = pgprot_writecombine(vma->vm_page_prot);
-+
-+	/*
-+	 * Perform a PFN map to the memory and back the device BAR by the
-+	 * GPU memory.
-+	 *
-+	 * The available GPU memory size may not be power-of-2 aligned. The
-+	 * remainder is only backed by vfio_device_ops read/write handlers.
-+	 *
-+	 * During device reset, the GPU is safely disconnected to the CPU
-+	 * and access to the BAR will be immediately returned preventing
-+	 * machine check.
-+	 */
-+	ret = remap_pfn_range(vma, vma->vm_start, start_pfn,
-+			      req_len, vma->vm_page_prot);
-+	if (ret)
-+		return ret;
-+
-+	vma->vm_pgoff = start_pfn;
-+
-+	return 0;
-+}
-+
-+static long
-+nvgrace_gpu_ioctl_get_region_info(struct vfio_device *core_vdev,
-+				  unsigned long arg)
-+{
-+	struct nvgrace_gpu_pci_core_device *nvdev =
-+		container_of(core_vdev, struct nvgrace_gpu_pci_core_device,
-+			     core_device.vdev);
-+	unsigned long minsz = offsetofend(struct vfio_region_info, offset);
-+	struct vfio_info_cap caps = { .buf = NULL, .size = 0 };
-+	struct vfio_region_info_cap_sparse_mmap *sparse;
-+	struct vfio_region_info info;
-+	struct mem_region *memregion;
-+	u32 size;
-+	int ret;
-+
-+	if (copy_from_user(&info, (void __user *)arg, minsz))
-+		return -EFAULT;
-+
-+	if (info.argsz < minsz)
-+		return -EINVAL;
-+
-+	/*
-+	 * Request to determine the BAR region information. Send the
-+	 * GPU memory information.
-+	 */
-+	memregion = nvgrace_gpu_memregion(info.index, nvdev);
-+	if (!memregion)
-+		return vfio_pci_core_ioctl(core_vdev,
-+					   VFIO_DEVICE_GET_REGION_INFO, arg);
-+
-+	size = struct_size(sparse, areas, 1);
-+
-+	/*
-+	 * Setup for sparse mapping for the device memory. Only the
-+	 * available device memory on the hardware is shown as a
-+	 * mappable region.
-+	 */
-+	sparse = kzalloc(size, GFP_KERNEL);
-+	if (!sparse)
-+		return -ENOMEM;
-+
-+	sparse->nr_areas = 1;
-+	sparse->areas[0].offset = 0;
-+	sparse->areas[0].size = memregion->memlength;
-+	sparse->header.id = VFIO_REGION_INFO_CAP_SPARSE_MMAP;
-+	sparse->header.version = 1;
-+
-+	ret = vfio_info_add_capability(&caps, &sparse->header, size);
-+	kfree(sparse);
-+	if (ret)
-+		return ret;
-+
-+	info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
-+	/*
-+	 * The region memory size may not be power-of-2 aligned.
-+	 * Given that the memory  as a BAR and may not be
-+	 * aligned, roundup to the next power-of-2.
-+	 */
-+	info.size = memregion->bar_size;
-+	info.flags = VFIO_REGION_INFO_FLAG_READ |
-+		     VFIO_REGION_INFO_FLAG_WRITE |
-+		     VFIO_REGION_INFO_FLAG_MMAP;
-+
-+	if (caps.size) {
-+		info.flags |= VFIO_REGION_INFO_FLAG_CAPS;
-+		if (info.argsz < sizeof(info) + caps.size) {
-+			info.argsz = sizeof(info) + caps.size;
-+			info.cap_offset = 0;
-+		} else {
-+			vfio_info_cap_shift(&caps, sizeof(info));
-+			if (copy_to_user((void __user *)arg +
-+					 sizeof(info), caps.buf,
-+					 caps.size)) {
-+				kfree(caps.buf);
-+				return -EFAULT;
-+			}
-+			info.cap_offset = sizeof(info);
-+		}
-+		kfree(caps.buf);
-+	}
-+	return copy_to_user((void __user *)arg, &info, minsz) ?
-+			    -EFAULT : 0;
-+}
-+
-+static long nvgrace_gpu_ioctl(struct vfio_device *core_vdev,
-+			      unsigned int cmd, unsigned long arg)
-+{
-+	switch (cmd) {
-+	case VFIO_DEVICE_GET_REGION_INFO:
-+		return nvgrace_gpu_ioctl_get_region_info(core_vdev, arg);
-+	case VFIO_DEVICE_IOEVENTFD:
-+		return -ENOTTY;
-+	case VFIO_DEVICE_RESET:
-+		nvgrace_gpu_init_fake_bar_emu_regs(core_vdev);
-+		fallthrough;
-+	default:
-+		return vfio_pci_core_ioctl(core_vdev, cmd, arg);
-+	}
-+}
-+
-+static __le64
-+nvgrace_gpu_get_read_value(size_t bar_size, u64 flags, __le64 val64)
-+{
-+	u64 tmp_val;
-+
-+	tmp_val = le64_to_cpu(val64);
-+	tmp_val &= ~(bar_size - 1);
-+	tmp_val |= flags;
-+
-+	return cpu_to_le64(tmp_val);
-+}
-+
-+/*
-+ * Both the usable (usemem) and the reserved (resmem) device memory region
-+ * are exposed as a 64b fake device BARs in the VM. These fake BARs must
-+ * respond to the accesses on their respective PCI config space offsets.
-+ *
-+ * resmem BAR owns PCI_BASE_ADDRESS_2 & PCI_BASE_ADDRESS_3.
-+ * usemem BAR owns PCI_BASE_ADDRESS_4 & PCI_BASE_ADDRESS_5.
-+ */
-+static ssize_t
-+nvgrace_gpu_read_config_emu(struct vfio_device *core_vdev,
-+			    char __user *buf, size_t count, loff_t *ppos)
-+{
-+	struct nvgrace_gpu_pci_core_device *nvdev =
-+		container_of(core_vdev, struct nvgrace_gpu_pci_core_device,
-+			     core_device.vdev);
-+	u64 pos = *ppos & VFIO_PCI_OFFSET_MASK;
-+	struct mem_region *memregion = NULL;
-+	__le64 val64;
-+	size_t register_offset;
-+	loff_t copy_offset;
-+	size_t copy_count;
-+	int ret;
-+
-+	ret = vfio_pci_core_read(core_vdev, buf, count, ppos);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (vfio_pci_core_range_intersect_range(pos, count, PCI_BASE_ADDRESS_2,
-+						sizeof(val64),
-+						&copy_offset, &copy_count,
-+						&register_offset))
-+		memregion = nvgrace_gpu_memregion(RESMEM_REGION_INDEX, nvdev);
-+	else if (vfio_pci_core_range_intersect_range(pos, count,
-+						     PCI_BASE_ADDRESS_4,
-+						     sizeof(val64),
-+						     &copy_offset, &copy_count,
-+						     &register_offset))
-+		memregion = nvgrace_gpu_memregion(USEMEM_REGION_INDEX, nvdev);
-+
-+	if (memregion) {
-+		val64 = nvgrace_gpu_get_read_value(memregion->bar_size,
-+						   PCI_BASE_ADDRESS_MEM_TYPE_64 |
-+						   PCI_BASE_ADDRESS_MEM_PREFETCH,
-+						   memregion->bar_val);
-+		if (copy_to_user(buf + copy_offset,
-+				 (void *)&val64 + register_offset, copy_count)) {
-+			/*
-+			 * The position has been incremented in
-+			 * vfio_pci_core_read. Reset the offset back to the
-+			 * starting position.
-+			 */
-+			*ppos -= count;
-+			return -EFAULT;
-+		}
-+	}
-+
-+	return count;
-+}
-+
-+static ssize_t
-+nvgrace_gpu_write_config_emu(struct vfio_device *core_vdev,
-+			     const char __user *buf, size_t count, loff_t *ppos)
-+{
-+	struct nvgrace_gpu_pci_core_device *nvdev =
-+		container_of(core_vdev, struct nvgrace_gpu_pci_core_device,
-+			     core_device.vdev);
-+	u64 pos = *ppos & VFIO_PCI_OFFSET_MASK;
-+	struct mem_region *memregion = NULL;
-+	size_t register_offset;
-+	loff_t copy_offset;
-+	size_t copy_count;
-+
-+	if (vfio_pci_core_range_intersect_range(pos, count, PCI_BASE_ADDRESS_2,
-+						sizeof(u64), &copy_offset,
-+						&copy_count, &register_offset))
-+		memregion = nvgrace_gpu_memregion(RESMEM_REGION_INDEX, nvdev);
-+	else if (vfio_pci_core_range_intersect_range(pos, count, PCI_BASE_ADDRESS_4,
-+						     sizeof(u64), &copy_offset,
-+						     &copy_count, &register_offset))
-+		memregion = nvgrace_gpu_memregion(USEMEM_REGION_INDEX, nvdev);
-+
-+	if (memregion) {
-+		if (copy_from_user((void *)&memregion->bar_val + register_offset,
-+				   buf + copy_offset, copy_count))
-+			return -EFAULT;
-+		*ppos += copy_count;
-+		return copy_count;
-+	}
-+
-+	return vfio_pci_core_write(core_vdev, buf, count, ppos);
-+}
-+
-+/*
-+ * Ad hoc map the device memory in the module kernel VA space. Primarily needed
-+ * as vfio does not require the userspace driver to only perform accesses through
-+ * mmaps of the vfio-pci BAR regions and such accesses should be supported using
-+ * vfio_device_ops read/write implementations.
-+ *
-+ * The usemem region is cacheable memory and hence is memremaped.
-+ * The resmem region is non-cached and is mapped using ioremap_wc (NORMAL_NC).
-+ */
-+static int
-+nvgrace_gpu_map_device_mem(int index,
-+			   struct nvgrace_gpu_pci_core_device *nvdev)
-+{
-+	struct mem_region *memregion;
-+	int ret = 0;
-+
-+	memregion = nvgrace_gpu_memregion(index, nvdev);
-+	if (!memregion)
-+		return -EINVAL;
-+
-+	mutex_lock(&nvdev->remap_lock);
-+
-+	if (memregion->memaddr)
-+		goto unlock;
-+
-+	if (index == USEMEM_REGION_INDEX)
-+		memregion->memaddr = memremap(memregion->memphys,
-+					      memregion->memlength,
-+					      MEMREMAP_WB);
-+	else
-+		memregion->ioaddr = ioremap_wc(memregion->memphys,
-+					       memregion->memlength);
-+
-+	if (!memregion->memaddr)
-+		ret = -ENOMEM;
-+
-+unlock:
-+	mutex_unlock(&nvdev->remap_lock);
-+
-+	return ret;
-+}
-+
-+/*
-+ * Read the data from the device memory (mapped either through ioremap
-+ * or memremap) into the user buffer.
-+ */
-+static int
-+nvgrace_gpu_map_and_read(struct nvgrace_gpu_pci_core_device *nvdev,
-+			 char __user *buf, size_t mem_count, loff_t *ppos)
-+{
-+	unsigned int index = VFIO_PCI_OFFSET_TO_INDEX(*ppos);
-+	u64 offset = *ppos & VFIO_PCI_OFFSET_MASK;
-+	int ret;
-+
-+	if (!mem_count)
-+		return 0;
-+
-+	/*
-+	 * Handle read on the BAR regions. Map to the target device memory
-+	 * physical address and copy to the request read buffer.
-+	 */
-+	ret = nvgrace_gpu_map_device_mem(index, nvdev);
-+	if (ret)
-+		return ret;
-+
-+	if (index == USEMEM_REGION_INDEX) {
-+		if (copy_to_user(buf,
-+				 (u8 *)nvdev->usemem.memaddr + offset,
-+				 mem_count))
-+			ret = -EFAULT;
-+	} else {
-+		/*
-+		 * The hardware ensures that the system does not crash when
-+		 * the device memory is accessed with the memory enable
-+		 * turned off. It synthesizes ~0 on such read. So there is
-+		 * no need to check or support the disablement/enablement of
-+		 * BAR through PCI_COMMAND config space register. Pass
-+		 * test_mem flag as false.
-+		 */
-+		ret = vfio_pci_core_do_io_rw(&nvdev->core_device, false,
-+					     nvdev->resmem.ioaddr,
-+					     buf, offset, mem_count,
-+					     0, 0, false);
-+	}
-+
-+	return ret;
-+}
-+
-+/*
-+ * Read count bytes from the device memory at an offset. The actual device
-+ * memory size (available) may not be a power-of-2. So the driver fakes
-+ * the size to a power-of-2 (reported) when exposing to a user space driver.
-+ *
-+ * Reads starting beyond the reported size generate -EINVAL; reads extending
-+ * beyond the actual device size is filled with ~0; reads extending beyond
-+ * the reported size are truncated.
-+ */
-+static ssize_t
-+nvgrace_gpu_read_mem(struct nvgrace_gpu_pci_core_device *nvdev,
-+		     char __user *buf, size_t count, loff_t *ppos)
-+{
-+	u64 offset = *ppos & VFIO_PCI_OFFSET_MASK;
-+	unsigned int index = VFIO_PCI_OFFSET_TO_INDEX(*ppos);
-+	struct mem_region *memregion;
-+	size_t mem_count, i;
-+	u8 val = 0xFF;
-+	int ret;
-+
-+	/* No need to do NULL check as caller does. */
-+	memregion = nvgrace_gpu_memregion(index, nvdev);
-+
-+	if (offset >= memregion->bar_size)
-+		return -EINVAL;
-+
-+	/* Clip short the read request beyond reported BAR size */
-+	count = min(count, memregion->bar_size - (size_t)offset);
-+
-+	/*
-+	 * Determine how many bytes to be actually read from the device memory.
-+	 * Read request beyond the actual device memory size is filled with ~0,
-+	 * while those beyond the actual reported size is skipped.
-+	 */
-+	if (offset >= memregion->memlength)
-+		mem_count = 0;
-+	else
-+		mem_count = min(count, memregion->memlength - (size_t)offset);
-+
-+	ret = nvgrace_gpu_map_and_read(nvdev, buf, mem_count, ppos);
-+	if (ret)
-+		return ret;
-+
-+	/*
-+	 * Only the device memory present on the hardware is mapped, which may
-+	 * not be power-of-2 aligned. A read to an offset beyond the device memory
-+	 * size is filled with ~0.
-+	 */
-+	for (i = mem_count; i < count; i++) {
-+		ret = put_user(val, (unsigned char __user *)(buf + i));
-+		if (ret)
-+			return ret;
-+	}
-+
-+	*ppos += count;
-+	return count;
-+}
-+
-+static ssize_t
-+nvgrace_gpu_read(struct vfio_device *core_vdev,
-+		 char __user *buf, size_t count, loff_t *ppos)
-+{
-+	unsigned int index = VFIO_PCI_OFFSET_TO_INDEX(*ppos);
-+	struct nvgrace_gpu_pci_core_device *nvdev =
-+		container_of(core_vdev, struct nvgrace_gpu_pci_core_device,
-+			     core_device.vdev);
-+
-+	if (nvgrace_gpu_memregion(index, nvdev))
-+		return nvgrace_gpu_read_mem(nvdev, buf, count, ppos);
-+
-+	if (index == VFIO_PCI_CONFIG_REGION_INDEX)
-+		return nvgrace_gpu_read_config_emu(core_vdev, buf, count, ppos);
-+
-+	return vfio_pci_core_read(core_vdev, buf, count, ppos);
-+}
-+
-+/*
-+ * Write the data to the device memory (mapped either through ioremap
-+ * or memremap) from the user buffer.
-+ */
-+static int
-+nvgrace_gpu_map_and_write(struct nvgrace_gpu_pci_core_device *nvdev,
-+			  const char __user *buf, size_t mem_count,
-+			  loff_t *ppos)
-+{
-+	unsigned int index = VFIO_PCI_OFFSET_TO_INDEX(*ppos);
-+	loff_t pos = *ppos & VFIO_PCI_OFFSET_MASK;
-+	int ret;
-+
-+	if (!mem_count)
-+		return 0;
-+
-+	ret = nvgrace_gpu_map_device_mem(index, nvdev);
-+	if (ret)
-+		return ret;
-+
-+	if (index == USEMEM_REGION_INDEX) {
-+		if (copy_from_user((u8 *)nvdev->usemem.memaddr + pos,
-+				   buf, mem_count))
-+			return -EFAULT;
-+	} else {
-+		/*
-+		 * The hardware ensures that the system does not crash when
-+		 * the device memory is accessed with the memory enable
-+		 * turned off. It drops such writes. So there is no need to
-+		 * check or support the disablement/enablement of BAR
-+		 * through PCI_COMMAND config space register. Pass test_mem
-+		 * flag as false.
-+		 */
-+		ret = vfio_pci_core_do_io_rw(&nvdev->core_device, false,
-+					     nvdev->resmem.ioaddr,
-+					     (char __user *)buf, pos, mem_count,
-+					     0, 0, true);
-+	}
-+
-+	return ret;
-+}
-+
-+/*
-+ * Write count bytes to the device memory at a given offset. The actual device
-+ * memory size (available) may not be a power-of-2. So the driver fakes the
-+ * size to a power-of-2 (reported) when exposing to a user space driver.
-+ *
-+ * Writes extending beyond the reported size are truncated; writes starting
-+ * beyond the reported size generate -EINVAL.
-+ */
-+static ssize_t
-+nvgrace_gpu_write_mem(struct nvgrace_gpu_pci_core_device *nvdev,
-+		      size_t count, loff_t *ppos, const char __user *buf)
-+{
-+	unsigned int index = VFIO_PCI_OFFSET_TO_INDEX(*ppos);
-+	u64 offset = *ppos & VFIO_PCI_OFFSET_MASK;
-+	struct mem_region *memregion;
-+	size_t mem_count;
-+	int ret = 0;
-+
-+	/* No need to do NULL check as caller does. */
-+	memregion = nvgrace_gpu_memregion(index, nvdev);
-+
-+	if (offset >= memregion->bar_size)
-+		return -EINVAL;
-+
-+	/* Clip short the write request beyond reported BAR size */
-+	count = min(count, memregion->bar_size - (size_t)offset);
-+
-+	/*
-+	 * Determine how many bytes to be actually written to the device memory.
-+	 * Do not write to the offset beyond available size.
-+	 */
-+	if (offset >= memregion->memlength)
-+		goto exitfn;
-+
-+	/*
-+	 * Only the device memory present on the hardware is mapped, which may
-+	 * not be power-of-2 aligned. Drop access outside the available device
-+	 * memory on the hardware.
-+	 */
-+	mem_count = min(count, memregion->memlength - (size_t)offset);
-+
-+	ret = nvgrace_gpu_map_and_write(nvdev, buf, mem_count, ppos);
-+	if (ret)
-+		return ret;
-+
-+exitfn:
-+	*ppos += count;
-+	return count;
-+}
-+
-+static ssize_t
-+nvgrace_gpu_write(struct vfio_device *core_vdev,
-+		  const char __user *buf, size_t count, loff_t *ppos)
-+{
-+	struct nvgrace_gpu_pci_core_device *nvdev =
-+		container_of(core_vdev, struct nvgrace_gpu_pci_core_device,
-+			     core_device.vdev);
-+	unsigned int index = VFIO_PCI_OFFSET_TO_INDEX(*ppos);
-+
-+	if (nvgrace_gpu_memregion(index, nvdev))
-+		return nvgrace_gpu_write_mem(nvdev, count, ppos, buf);
-+
-+	if (index == VFIO_PCI_CONFIG_REGION_INDEX)
-+		return nvgrace_gpu_write_config_emu(core_vdev, buf, count, ppos);
-+
-+	return vfio_pci_core_write(core_vdev, buf, count, ppos);
-+}
-+
-+static const struct vfio_device_ops nvgrace_gpu_pci_ops = {
-+	.name		= "nvgrace-gpu-vfio-pci",
-+	.init		= vfio_pci_core_init_dev,
-+	.release	= vfio_pci_core_release_dev,
-+	.open_device	= nvgrace_gpu_open_device,
-+	.close_device	= nvgrace_gpu_close_device,
-+	.ioctl		= nvgrace_gpu_ioctl,
-+	.device_feature	= vfio_pci_core_ioctl_feature,
-+	.read		= nvgrace_gpu_read,
-+	.write		= nvgrace_gpu_write,
-+	.mmap		= nvgrace_gpu_mmap,
-+	.request	= vfio_pci_core_request,
-+	.match		= vfio_pci_core_match,
-+	.bind_iommufd	= vfio_iommufd_physical_bind,
-+	.unbind_iommufd	= vfio_iommufd_physical_unbind,
-+	.attach_ioas	= vfio_iommufd_physical_attach_ioas,
-+	.detach_ioas	= vfio_iommufd_physical_detach_ioas,
-+};
-+
-+static const struct vfio_device_ops nvgrace_gpu_pci_core_ops = {
-+	.name		= "nvgrace-gpu-vfio-pci-core",
-+	.init		= vfio_pci_core_init_dev,
-+	.release	= vfio_pci_core_release_dev,
-+	.open_device	= nvgrace_gpu_open_device,
-+	.close_device	= vfio_pci_core_close_device,
-+	.ioctl		= vfio_pci_core_ioctl,
-+	.device_feature	= vfio_pci_core_ioctl_feature,
-+	.read		= vfio_pci_core_read,
-+	.write		= vfio_pci_core_write,
-+	.mmap		= vfio_pci_core_mmap,
-+	.request	= vfio_pci_core_request,
-+	.match		= vfio_pci_core_match,
-+	.bind_iommufd	= vfio_iommufd_physical_bind,
-+	.unbind_iommufd	= vfio_iommufd_physical_unbind,
-+	.attach_ioas	= vfio_iommufd_physical_attach_ioas,
-+	.detach_ioas	= vfio_iommufd_physical_detach_ioas,
-+};
-+
-+static int
-+nvgrace_gpu_fetch_memory_property(struct pci_dev *pdev,
-+				  u64 *pmemphys, u64 *pmemlength)
-+{
-+	int ret;
-+
-+	/*
-+	 * The memory information is present in the system ACPI tables as DSD
-+	 * properties nvidia,gpu-mem-base-pa and nvidia,gpu-mem-size.
-+	 */
-+	ret = device_property_read_u64(&pdev->dev, "nvidia,gpu-mem-base-pa",
-+				       pmemphys);
-+	if (ret)
-+		return ret;
-+
-+	if (*pmemphys > type_max(phys_addr_t))
-+		return -EOVERFLOW;
-+
-+	ret = device_property_read_u64(&pdev->dev, "nvidia,gpu-mem-size",
-+				       pmemlength);
-+	if (ret)
-+		return ret;
-+
-+	if (*pmemlength > type_max(size_t))
-+		return -EOVERFLOW;
-+
-+	/*
-+	 * If the C2C link is not up due to an error, the coherent device
-+	 * memory size is returned as 0. Fail in such case.
-+	 */
-+	if (*pmemlength == 0)
-+		return -ENOMEM;
-+
-+	return ret;
-+}
-+
-+static int
-+nvgrace_gpu_init_nvdev_struct(struct pci_dev *pdev,
-+			      struct nvgrace_gpu_pci_core_device *nvdev,
-+			      u64 memphys, u64 memlength)
-+{
-+	int ret = 0;
-+
-+	/*
-+	 * The VM GPU device driver needs a non-cacheable region to support
-+	 * the MIG feature. Since the device memory is mapped as NORMAL cached,
-+	 * carve out a region from the end with a different NORMAL_NC
-+	 * property (called as reserved memory and represented as resmem). This
-+	 * region then is exposed as a 64b BAR (region 2 and 3) to the VM, while
-+	 * exposing the rest (termed as usable memory and represented using usemem)
-+	 * as cacheable 64b BAR (region 4 and 5).
-+	 *
-+	 *               devmem (memlength)
-+	 * |-------------------------------------------------|
-+	 * |                                           |
-+	 * usemem.memphys                              resmem.memphys
-+	 */
-+	nvdev->usemem.memphys = memphys;
-+
-+	/*
-+	 * The device memory exposed to the VM is added to the kernel by the
-+	 * VM driver module in chunks of memory block size. Only the usable
-+	 * memory (usemem) is added to the kernel for usage by the VM
-+	 * workloads. Make the usable memory size memblock aligned.
-+	 */
-+	if (check_sub_overflow(memlength, RESMEM_SIZE,
-+			       &nvdev->usemem.memlength)) {
-+		ret = -EOVERFLOW;
-+		goto done;
-+	}
-+
-+	/*
-+	 * The USEMEM part of the device memory has to be MEMBLK_SIZE
-+	 * aligned. This is a hardwired ABI value between the GPU FW and
-+	 * VFIO driver. The VM device driver is also aware of it and make
-+	 * use of the value for its calculation to determine USEMEM size.
-+	 */
-+	nvdev->usemem.memlength = round_down(nvdev->usemem.memlength,
-+					     MEMBLK_SIZE);
-+	if (nvdev->usemem.memlength == 0) {
-+		ret = -EINVAL;
-+		goto done;
-+	}
-+
-+	if ((check_add_overflow(nvdev->usemem.memphys,
-+				nvdev->usemem.memlength,
-+				&nvdev->resmem.memphys)) ||
-+	    (check_sub_overflow(memlength, nvdev->usemem.memlength,
-+				&nvdev->resmem.memlength))) {
-+		ret = -EOVERFLOW;
-+		goto done;
-+	}
-+
-+	/*
-+	 * The memory regions are exposed as BARs. Calculate and save
-+	 * the BAR size for them.
-+	 */
-+	nvdev->usemem.bar_size = roundup_pow_of_two(nvdev->usemem.memlength);
-+	nvdev->resmem.bar_size = roundup_pow_of_two(nvdev->resmem.memlength);
-+done:
-+	return ret;
-+}
-+
-+static int nvgrace_gpu_probe(struct pci_dev *pdev,
-+			     const struct pci_device_id *id)
-+{
-+	const struct vfio_device_ops *ops = &nvgrace_gpu_pci_core_ops;
-+	struct nvgrace_gpu_pci_core_device *nvdev;
-+	u64 memphys, memlength;
-+	int ret;
-+
-+	ret = nvgrace_gpu_fetch_memory_property(pdev, &memphys, &memlength);
-+	if (!ret)
-+		ops = &nvgrace_gpu_pci_ops;
-+
-+	nvdev = vfio_alloc_device(nvgrace_gpu_pci_core_device, core_device.vdev,
-+				  &pdev->dev, ops);
-+	if (IS_ERR(nvdev))
-+		return PTR_ERR(nvdev);
-+
-+	dev_set_drvdata(&pdev->dev, &nvdev->core_device);
-+
-+	if (ops == &nvgrace_gpu_pci_ops) {
-+		/*
-+		 * Device memory properties are identified in the host ACPI
-+		 * table. Set the nvgrace_gpu_pci_core_device structure.
-+		 */
-+		ret = nvgrace_gpu_init_nvdev_struct(pdev, nvdev,
-+						    memphys, memlength);
-+		if (ret)
-+			goto out_put_vdev;
-+	}
-+
-+	ret = vfio_pci_core_register_device(&nvdev->core_device);
-+	if (ret)
-+		goto out_put_vdev;
-+
-+	return ret;
-+
-+out_put_vdev:
-+	vfio_put_device(&nvdev->core_device.vdev);
-+	return ret;
-+}
-+
-+static void nvgrace_gpu_remove(struct pci_dev *pdev)
-+{
-+	struct vfio_pci_core_device *core_device = dev_get_drvdata(&pdev->dev);
-+
-+	vfio_pci_core_unregister_device(core_device);
-+	vfio_put_device(&core_device->vdev);
-+}
-+
-+static const struct pci_device_id nvgrace_gpu_vfio_pci_table[] = {
-+	/* GH200 120GB */
-+	{ PCI_DRIVER_OVERRIDE_DEVICE_VFIO(PCI_VENDOR_ID_NVIDIA, 0x2342) },
-+	/* GH200 480GB */
-+	{ PCI_DRIVER_OVERRIDE_DEVICE_VFIO(PCI_VENDOR_ID_NVIDIA, 0x2345) },
-+	{}
-+};
-+
-+MODULE_DEVICE_TABLE(pci, nvgrace_gpu_vfio_pci_table);
-+
-+static struct pci_driver nvgrace_gpu_vfio_pci_driver = {
-+	.name = KBUILD_MODNAME,
-+	.id_table = nvgrace_gpu_vfio_pci_table,
-+	.probe = nvgrace_gpu_probe,
-+	.remove = nvgrace_gpu_remove,
-+	.err_handler = &vfio_pci_core_err_handlers,
-+	.driver_managed_dma = true,
-+};
-+
-+module_pci_driver(nvgrace_gpu_vfio_pci_driver);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Ankit Agrawal <ankita@nvidia.com>");
-+MODULE_AUTHOR("Aniket Agashe <aniketa@nvidia.com>");
-+MODULE_DESCRIPTION("VFIO NVGRACE GPU PF - User Level driver for NVIDIA devices with CPU coherently accessible device memory");
--- 
-2.34.1
+>=20
+> > > interrupt handling core is not making it easy for us - we must
+> > > disable real interrupts if we do, and in the past we failed to do it.
+> > > See e.g.
+> > >
+> > >
+> > > commit eb4cecb453a19b34d5454b49532e09e9cb0c1529
+> > > Author: Jason Wang <jasowang@redhat.com>
+> > > Date:   Wed Mar 23 11:15:24 2022 +0800
+> > >
+> > >     Revert "virtio_pci: harden MSI-X interrupts"
+> > >
+> > >     This reverts commit 9e35276a5344f74d4a3600fc4100b3dd251d5c56.
+> > > Issue
+> > >     were reported for the drivers that are using affinity managed IRQ
+> > >     where manually toggling IRQ status is not expected. And we forget=
+ to
+> > >     enable the interrupts in the restore path as well.
+> > >
+> > >     In the future, we will rework on the interrupt hardening.
+> > >
+> > >     Fixes: 9e35276a5344 ("virtio_pci: harden MSI-X interrupts")
+> > >
+> > >
+> > >
+> > > If someone can figure out a way to make toggling interrupt state
+> > > play nice with affinity managed interrupts, that would solve a host o=
+f
+> issues I feel.
+> > >
+> > >
+> > >
+> > > > > Thanks,
+> > > > > Ming
 
