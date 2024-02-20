@@ -1,111 +1,205 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3CC954F94;
-	Mon, 19 Feb 2024 23:22:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708384960; cv=none; b=QYmM1jNmTs+ZnZoxF6erwbjl1w69152O+VGs6EVXR6qAPUyrfF4SsGVEm5DFprsA2m70nvQ3c6HXwID0U1LvhzxHYqpc/twBcuw6fO/GL9/4VxpsWSBvAhig13vQ7pB1GVW2D3+mCPx6ho/Lb2LqCIKV0b4bAE9EkS0XB24/ol4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708384960; c=relaxed/simple;
-	bh=FWpOBCkODHabkJO/2Ou8aa2AzNh5BEcl7n0oV56Fg6I=;
-	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
-	 Mime-Version:Content-Type; b=HIVEvNOMnskm0UkSQZV/Gk2qfohFIQP3yClvo6OxDTJllozA/0MEvvnd9gfwbZSZADlLOTe3QL09ra2oynHLJTbIh1jZnFBgmJkIz+glTwsCJNkOJ2zoS5Wooj/VLsj/3RarNoLnQKXPXUMEdE3nTSX2RhrCPGeI4d9OoGyRnBk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=EaJ+0C/c; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55A441DFCF
+	for <virtualization@lists.linux-foundation.org>; Tue, 20 Feb 2024 01:11:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.137
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1708391496; cv=fail; b=GT2x5toeNdCw1HuuXg1kdMmFKqI/k7VRmzqWodQmzKDkY1lRTPRVySmGWkHbJQuWzLbrsyjhtYJxPszGQOb4lBnfzHLD6XEqpxXBOtZfkz4MBlOxI8N2Q38gwmX9w1gGrN2j9IclmF2cUs1UR1XicDfHi7bXgQZjBwKDW+6MvkA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1708391496; c=relaxed/simple;
+	bh=o31hsVk6dmlv4AR2nuzx+DFCKXXeDwYX8S+rkwko6A0=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=ftDwCQOz3Q+bmlnMjydB2sJ7xzkoqVbUuzRi2l7PrecFIKilYYAPy3KXsRCvQZi9kzCYqbUMwYS9FCYwGGm33YGxvX/30nn8XEh0n9GHhX5FV+mv8XWcLgmM0N30Y//irz5OUshhva3QMKXDMEhMEMkYtLnxrNOTMKqnBaG+L48=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=zVRw05m0; arc=fail smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="EaJ+0C/c"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA7CCC433F1;
-	Mon, 19 Feb 2024 23:22:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-	s=korg; t=1708384960;
-	bh=FWpOBCkODHabkJO/2Ou8aa2AzNh5BEcl7n0oV56Fg6I=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=EaJ+0C/cEo6UVze4RUQGwKFJgNpO8UmXvSGW6lbK+7OHYWMujxiCpHYry3kLZrm7R
-	 /qv5sNQdPs+ftbGleMvMDWz30WC8x5xjzyROERVRnVce32Sk1lEBFPcnhKg18tQmZt
-	 FU4nutJtr81rBgvMzuJ3pOv9yUmRjneixVpyBw0Y=
-Date: Mon, 19 Feb 2024 15:22:39 -0800
-From: Andrew Morton <akpm@linux-foundation.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: syzbot <syzbot+6f3c38e8a6a0297caa5a@syzkaller.appspotmail.com>,
- jasowang@redhat.com, linux-kernel@vger.kernel.org,
- linux-next@vger.kernel.org, sfr@canb.auug.org.au,
- syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev,
- xuanzhuo@linux.alibaba.com, linux-mm@kvack.org
-Subject: Re: [syzbot] [virtualization?] linux-next boot error: WARNING:
- refcount bug in __free_pages_ok
-Message-Id: <20240219152239.e281ca98f06cb71276db7791@linux-foundation.org>
-In-Reply-To: <20240219022853-mutt-send-email-mst@kernel.org>
-References: <000000000000d305050611b50d09@google.com>
-	<20240219022853-mutt-send-email-mst@kernel.org>
-X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="zVRw05m0"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id CCDEF407BA
+	for <virtualization@lists.linux-foundation.org>; Tue, 20 Feb 2024 01:11:34 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.103
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 5tR47DxW5z9U
+	for <virtualization@lists.linux-foundation.org>;
+	Tue, 20 Feb 2024 01:11:34 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2415::600; helo=nam11-dm6-obe.outbound.protection.outlook.com; envelope-from=shannon.nelson@amd.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org E369B407B9
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E369B407B9
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=zVRw05m0
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on20600.outbound.protection.outlook.com [IPv6:2a01:111:f403:2415::600])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id E369B407B9
+	for <virtualization@lists.linux-foundation.org>; Tue, 20 Feb 2024 01:11:33 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=LO0oXJ7/r6SEwOJrZNFwqJwrQzOwP3k5RyBvtmXPU1PUBuiSbMZFqaJn1DBEwFOwtDPkVcL46/b9e69uP0YAymVI3exqWjfzCzRXF3DNpoyJDZdZ7Ec1/BEtXrno3KdPwYEA4Hl9EuYE5seTZoii0zXF0aerQKcER0YWSAFfNXv94dgqZDRYM9fCIcEKtYWvxI2L4uNKcKJpgcp3jo6RYh8W2woebxoe8dk+alxHiiFsvvSzGZqOA1QxEwGr85jySqc3LkaO6R/cLR5LyTNy1bTTGnPMXiJzDLlInhRzrX6jKZ+qrY6ZAqxnTHYrnt+cMGrs4uX2cQPgGJ0nPIgckQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=qIXm4k9bgV1Q6kEbqdfEc1SM4NU53vN5vRQJzh5zpU4=;
+ b=nJcPH81a9Y0T8um5Lv3Oury+Dxfc2xRmVVlJKWX4BV7LFGR3zw0CeFP9StgRogWnKnUQsPFJ81C7b+7JImS+u/fCPPj/zmRFbTadRjtc1X3SgBU3fI/K1tr4hdX3wyoi/AUtYyKFFIPmaKe7gPU1PQOL3uE107ut1PDG9lS4sV90QOkhKYkgKqmYA8kD9nrsXih8tkkvOeYHCW09DceTB+DXV9bHUofvPwapA59ydwVPh2jWF3xwvfZ/K/Oimzm+0nY3/X7td1THKlOvpyPEbuuRmEk06SgdEMPxvidw1IeozB5JpEN0b+fXpfAhNmCbQ/Ff3ThKBT6UEBp/mW6OMw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=redhat.com smtp.mailfrom=amd.com; dmarc=pass
+ (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=qIXm4k9bgV1Q6kEbqdfEc1SM4NU53vN5vRQJzh5zpU4=;
+ b=zVRw05m0aMFb5bRX+D3IInQujg63uoZyvETa2/NnGDoaaYzeSBNtIM7p7zyfa0az1XyZZsWz49q8jZtfRGtZn9E5YIuez3cr4GcM24Yj6pWVouCSxw4OhZkfllRbvIKA0IJ6Etp1ZdEuogG3G9VuyjChCZJdofbFpgub2D6Ml4M=
+Received: from CY5PR17CA0011.namprd17.prod.outlook.com (2603:10b6:930:17::8)
+ by LV3PR12MB9259.namprd12.prod.outlook.com (2603:10b6:408:1b0::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7316.20; Tue, 20 Feb
+ 2024 01:11:27 +0000
+Received: from CY4PEPF0000EE3F.namprd03.prod.outlook.com
+ (2603:10b6:930:17:cafe::46) by CY5PR17CA0011.outlook.office365.com
+ (2603:10b6:930:17::8) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7292.39 via Frontend
+ Transport; Tue, 20 Feb 2024 01:11:26 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
+Received: from SATLEXMB04.amd.com (165.204.84.17) by
+ CY4PEPF0000EE3F.mail.protection.outlook.com (10.167.242.19) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.7249.19 via Frontend Transport; Tue, 20 Feb 2024 01:11:26 +0000
+Received: from driver-dev1.pensando.io (10.180.168.240) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.35; Mon, 19 Feb
+ 2024 19:11:24 -0600
+From: Shannon Nelson <shannon.nelson@amd.com>
+To: <jasowang@redhat.com>, <mst@redhat.com>, <xuanzhuo@linux.alibaba.com>,
+	<virtualization@lists.linux-foundation.org>
+CC: <brett.creeley@amd.com>, <drivers@pensando.io>, Shannon Nelson
+	<shannon.nelson@amd.com>
+Subject: [PATCH] vdpa/pds: fixes for VF vdpa flr-aer handling
+Date: Mon, 19 Feb 2024 17:10:50 -0800
+Message-ID: <20240220011050.30913-1-shannon.nelson@amd.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain
+X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
+ (10.181.40.145)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CY4PEPF0000EE3F:EE_|LV3PR12MB9259:EE_
+X-MS-Office365-Filtering-Correlation-Id: cb3b8972-169d-482f-efbd-08dc31b0dca5
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	z+8OIoqlD/utXLt8xAVCa82Seus/8RskrwWlMdH5tyxXAOOyPpKr/bO9MkDkQ5e3WOrY5k9CjrphO2k0MKbEeZST3o5OA1VrB8HZ+SEkL9o0yH2unhKeq2l4MnLxFdEli886WulSd3M9BYBFNejZ//GZnTF86oaCl6ReEn8gUgvsOIzU++9iRNiKkVmCN458kgjWYRxETt6Skuc/uuwBvYMMho6MOCK9+pTlnA1UoVHf0QkgDT+3ona7PHmocJxd2QGcMxpWM+any8Q91T3VkS2wt6E/lb8nOql5+ptiPOE2dL8IwitGMuogDFDg3g6cGKsbgxEd6eF39lF492FbZGYv9YQjthA/WD9Tao8XOrJVbhUzS4CiteaP6gutqOUdunpX6jGzYXmmOFach2DbZp4pFJyxAfLAHiwWO/+rO/ddz17fRhv3gXowuhHHD0hGPpYVIxTLRlOIFP0R18lKtqTAzIs4aGnIOWVQ1e1Q4AsbFF1EXsxx/lTcUN+XwAvIHNy3Pvv0t0P2YOFdP6OstBcSFTuWWEH4iIgKgDAMqgiQ/0fPbTtRapSgpUALxcSAuHLZcaHGiGJ0fhzTA3oMCWA7M2T+RJAQcOhmTSsvNAMvbheJTcewtsxyyR9jCQfoHqBxrEldTf0ZuVF7x2ZLCtY7RvSo14soLH490ARZ+cU=
+X-Forefront-Antispam-Report:
+	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230031)(36860700004)(40470700004)(46966006);DIR:OUT;SFP:1101;
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Feb 2024 01:11:26.3916
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: cb3b8972-169d-482f-efbd-08dc31b0dca5
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	CY4PEPF0000EE3F.namprd03.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV3PR12MB9259
 
-On Mon, 19 Feb 2024 02:35:20 -0500 "Michael S. Tsirkin" <mst@redhat.com> wrote:
+This addresses a couple of things found while testing the FLR and AER
+handling with the VFs.
+ - release irqs before calling vp_modern_remove()
+ - make sure we have a valid struct pointer before using it to release irqs
+ - make sure the FW is alive before trying to add a new device
 
-> On Sun, Feb 18, 2024 at 09:06:18PM -0800, syzbot wrote:
-> > Hello,
-> > 
-> > syzbot found the following issue on:
-> > 
-> > HEAD commit:    d37e1e4c52bc Add linux-next specific files for 20240216
-> > git tree:       linux-next
-> > console output: https://syzkaller.appspot.com/x/log.txt?x=171ca652180000
-> > kernel config:  https://syzkaller.appspot.com/x/.config?x=4bc446d42a7d56c0
-> > dashboard link: https://syzkaller.appspot.com/bug?extid=6f3c38e8a6a0297caa5a
-> > compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
-> > 
-> > Downloadable assets:
-> > disk image: https://storage.googleapis.com/syzbot-assets/14d0894504b9/disk-d37e1e4c.raw.xz
-> > vmlinux: https://storage.googleapis.com/syzbot-assets/6cda61e084ee/vmlinux-d37e1e4c.xz
-> > kernel image: https://storage.googleapis.com/syzbot-assets/720c85283c05/bzImage-d37e1e4c.xz
-> > 
-> > IMPORTANT: if you fix the issue, please add the following tag to the commit:
-> > Reported-by: syzbot+6f3c38e8a6a0297caa5a@syzkaller.appspotmail.com
-> > 
->
-> ...
->
-> > usbcore: registered new interface driver port100
-> > usbcore: registered new interface driver nfcmrvl
-> > Loading iSCSI transport class v2.0-870.
-> > virtio_scsi virtio0: 1/0/0 default/read/poll queues
-> > ------------[ cut here ]------------
-> > refcount_t: decrement hit 0; leaking memory.
-> > WARNING: CPU: 0 PID: 1 at lib/refcount.c:31 refcount_warn_saturate+0xfa/0x1d0 lib/refcount.c:31
-> > Modules linked in:
-> > CPU: 0 PID: 1 Comm: swapper/0 Not tainted 6.8.0-rc4-next-20240216-syzkaller #0
-> > Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/25/2024
-> > RIP: 0010:refcount_warn_saturate+0xfa/0x1d0 lib/refcount.c:31
-> > Code: b2 00 00 00 e8 b7 94 f0 fc 5b 5d c3 cc cc cc cc e8 ab 94 f0 fc c6 05 c6 16 ce 0a 01 90 48 c7 c7 a0 5a fe 8b e8 67 69 b4 fc 90 <0f> 0b 90 90 eb d9 e8 8b 94 f0 fc c6 05 a3 16 ce 0a 01 90 48 c7 c7
-> > RSP: 0000:ffffc90000066e10 EFLAGS: 00010246
-> > RAX: 15c2c224c9b50400 RBX: ffff888020827d2c RCX: ffff8880162d8000
-> > RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
-> > RBP: 0000000000000004 R08: ffffffff8157b942 R09: fffffbfff1bf95cc
-> > R10: dffffc0000000000 R11: fffffbfff1bf95cc R12: ffffea000502fdc0
-> > R13: ffffea000502fdc8 R14: 1ffffd4000a05fb9 R15: 0000000000000000
-> > FS:  0000000000000000(0000) GS:ffff8880b9400000(0000) knlGS:0000000000000000
-> > CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> > CR2: ffff88823ffff000 CR3: 000000000df32000 CR4: 00000000003506f0
-> > DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> > DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> > Call Trace:
-> >  <TASK>
-> >  reset_page_owner include/linux/page_owner.h:24 [inline]
-> >  free_pages_prepare mm/page_alloc.c:1140 [inline]
-> >  __free_pages_ok+0xc42/0xd70 mm/page_alloc.c:1269
-> >  make_alloc_exact+0xc4/0x140 mm/page_alloc.c:4847
-> >  vring_alloc_queue drivers/virtio/virtio_ring.c:319 [inline]
-> 
-> Wow this seems to be breakage deep in mm/ - all virtio does is
-> call alloc_pages_exact and that corrupts the refcounts?
-> 
+Signed-off-by: Shannon Nelson <shannon.nelson@amd.com>
+---
+ drivers/vdpa/pds/aux_drv.c  |  2 +-
+ drivers/vdpa/pds/vdpa_dev.c | 20 +++++++++++++++++---
+ drivers/vdpa/pds/vdpa_dev.h |  1 +
+ 3 files changed, 19 insertions(+), 4 deletions(-)
 
-Will the bot be performing a bisection?  If not, can one please be
-performed?
+diff --git a/drivers/vdpa/pds/aux_drv.c b/drivers/vdpa/pds/aux_drv.c
+index 186e9ee22eb1..f57330cf9024 100644
+--- a/drivers/vdpa/pds/aux_drv.c
++++ b/drivers/vdpa/pds/aux_drv.c
+@@ -93,8 +93,8 @@ static void pds_vdpa_remove(struct auxiliary_device *aux_dev)
+ 	struct device *dev = &aux_dev->dev;
+ 
+ 	vdpa_mgmtdev_unregister(&vdpa_aux->vdpa_mdev);
++	pds_vdpa_release_irqs(vdpa_aux->pdsv);
+ 	vp_modern_remove(&vdpa_aux->vd_mdev);
+-	pci_free_irq_vectors(vdpa_aux->padev->vf_pdev);
+ 
+ 	pds_vdpa_debugfs_del_vdpadev(vdpa_aux);
+ 	kfree(vdpa_aux);
+diff --git a/drivers/vdpa/pds/vdpa_dev.c b/drivers/vdpa/pds/vdpa_dev.c
+index 25c0fe5ec3d5..301d95e08596 100644
+--- a/drivers/vdpa/pds/vdpa_dev.c
++++ b/drivers/vdpa/pds/vdpa_dev.c
+@@ -426,12 +426,18 @@ static int pds_vdpa_request_irqs(struct pds_vdpa_device *pdsv)
+ 	return err;
+ }
+ 
+-static void pds_vdpa_release_irqs(struct pds_vdpa_device *pdsv)
++void pds_vdpa_release_irqs(struct pds_vdpa_device *pdsv)
+ {
+-	struct pci_dev *pdev = pdsv->vdpa_aux->padev->vf_pdev;
+-	struct pds_vdpa_aux *vdpa_aux = pdsv->vdpa_aux;
++	struct pds_vdpa_aux *vdpa_aux;
++	struct pci_dev *pdev;
+ 	int qid;
+ 
++	if (!pdsv)
++		return;
++
++	pdev = pdsv->vdpa_aux->padev->vf_pdev;
++	vdpa_aux = pdsv->vdpa_aux;
++
+ 	if (!vdpa_aux->nintrs)
+ 		return;
+ 
+@@ -612,6 +618,7 @@ static int pds_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
+ 	struct device *dma_dev;
+ 	struct pci_dev *pdev;
+ 	struct device *dev;
++	u8 status;
+ 	int err;
+ 	int i;
+ 
+@@ -638,6 +645,13 @@ static int pds_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
+ 	dma_dev = &pdev->dev;
+ 	pdsv->vdpa_dev.dma_dev = dma_dev;
+ 
++	status = pds_vdpa_get_status(&pdsv->vdpa_dev);
++	if (status == 0xff) {
++		dev_err(dev, "Broken PCI - status %#x\n", status);
++		err = -ENXIO;
++		goto err_unmap;
++	}
++
+ 	pdsv->supported_features = mgmt->supported_features;
+ 
+ 	if (add_config->mask & BIT_ULL(VDPA_ATTR_DEV_FEATURES)) {
+diff --git a/drivers/vdpa/pds/vdpa_dev.h b/drivers/vdpa/pds/vdpa_dev.h
+index d984ba24a7da..84bdb45871ff 100644
+--- a/drivers/vdpa/pds/vdpa_dev.h
++++ b/drivers/vdpa/pds/vdpa_dev.h
+@@ -46,5 +46,6 @@ struct pds_vdpa_device {
+ 
+ #define PDS_VDPA_PACKED_INVERT_IDX	0x8000
+ 
++void pds_vdpa_release_irqs(struct pds_vdpa_device *pdsv);
+ int pds_vdpa_get_mgmt_info(struct pds_vdpa_aux *vdpa_aux);
+ #endif /* _VDPA_DEV_H_ */
+-- 
+2.17.1
+
