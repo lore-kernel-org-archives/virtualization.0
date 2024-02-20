@@ -1,205 +1,198 @@
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55A441DFCF
-	for <virtualization@lists.linux-foundation.org>; Tue, 20 Feb 2024 01:11:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9052D535A6
+	for <virtualization@lists.linux-foundation.org>; Tue, 20 Feb 2024 01:54:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.137
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708391496; cv=fail; b=GT2x5toeNdCw1HuuXg1kdMmFKqI/k7VRmzqWodQmzKDkY1lRTPRVySmGWkHbJQuWzLbrsyjhtYJxPszGQOb4lBnfzHLD6XEqpxXBOtZfkz4MBlOxI8N2Q38gwmX9w1gGrN2j9IclmF2cUs1UR1XicDfHi7bXgQZjBwKDW+6MvkA=
+	t=1708394063; cv=fail; b=qWcsJ1/XMJ7A+8r9VzA6aDbDG3PfGe+PSkwaD2xC7JrxR2IxSWLByyiajIjhhuFzSZMySX3IugvTEgq7BX9RvKgHivcAAxQkT4kq8vETe3lsg3WwwUb3FNU4I/cmeOw7qdgM7b6qEL/vrZsPy5p0/jF0RcrJv+o26sSN7TjOWWo=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708391496; c=relaxed/simple;
-	bh=o31hsVk6dmlv4AR2nuzx+DFCKXXeDwYX8S+rkwko6A0=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=ftDwCQOz3Q+bmlnMjydB2sJ7xzkoqVbUuzRi2l7PrecFIKilYYAPy3KXsRCvQZi9kzCYqbUMwYS9FCYwGGm33YGxvX/30nn8XEh0n9GHhX5FV+mv8XWcLgmM0N30Y//irz5OUshhva3QMKXDMEhMEMkYtLnxrNOTMKqnBaG+L48=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=zVRw05m0; arc=fail smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1708394063; c=relaxed/simple;
+	bh=fFXRy7+SIkeWSo0/mSsnGrywuYYlxHAfRTikqCgxbCc=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=nJyc7wuKdJTH2c6odJHUETGYzykf3QD7iNq7vRAISbno2Pk5ota7Pakt5D5Y+VMOvXWK4/Hsows7+oBITmDqN0O7smAz8Sbtx1GxMFqmsnypFFD3NVPKK/dUTaUbYlsvvTEQvEQKwa3ZdqpJWm8CM2X7A7DXMTkaCEWhEGM+E38=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=opensynergy.com header.i=@opensynergy.com header.b=H0lCAQ6A; arc=fail smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="zVRw05m0"
+	dkim=pass (2048-bit key) header.d=opensynergy.com header.i=@opensynergy.com header.b="H0lCAQ6A"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id CCDEF407BA
-	for <virtualization@lists.linux-foundation.org>; Tue, 20 Feb 2024 01:11:34 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 28A0C406CD
+	for <virtualization@lists.linux-foundation.org>; Tue, 20 Feb 2024 01:54:22 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.103
+X-Spam-Score: -2.102
 X-Spam-Level:
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 5tR47DxW5z9U
+	with ESMTP id 1VKP_O5byVo4
 	for <virtualization@lists.linux-foundation.org>;
-	Tue, 20 Feb 2024 01:11:34 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2415::600; helo=nam11-dm6-obe.outbound.protection.outlook.com; envelope-from=shannon.nelson@amd.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org E369B407B9
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E369B407B9
+	Tue, 20 Feb 2024 01:54:20 +0000 (UTC)
+X-Greylist: delayed 979 seconds by postgrey-1.37 at util1.osuosl.org; Tue, 20 Feb 2024 01:54:19 UTC
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 4DFBE406C0
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=reject dis=none) header.from=opensynergy.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4DFBE406C0
 Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=zVRw05m0
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on20600.outbound.protection.outlook.com [IPv6:2a01:111:f403:2415::600])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id E369B407B9
-	for <virtualization@lists.linux-foundation.org>; Tue, 20 Feb 2024 01:11:33 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=opensynergy.com header.i=@opensynergy.com header.a=rsa-sha256 header.s=TM-DKIM-20210503141657 header.b=H0lCAQ6A
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=18.185.115.60; helo=refb02.tmes.trendmicro.eu; envelope-from=anton.yakovlev@opensynergy.com; receiver=<UNKNOWN> 
+Received: from refb02.tmes.trendmicro.eu (refb02.tmes.trendmicro.eu [18.185.115.60])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 4DFBE406C0
+	for <virtualization@lists.linux-foundation.org>; Tue, 20 Feb 2024 01:54:19 +0000 (UTC)
+Received: from 104.47.11.169_.trendmicro.com (unknown [172.21.9.158])
+	by refb02.tmes.trendmicro.eu (Postfix) with ESMTPS id 31F6110000568
+	for <virtualization@lists.linux-foundation.org>; Tue, 20 Feb 2024 01:38:04 +0000 (UTC)
+Received: from 104.47.11.169_.trendmicro.com (unknown [172.21.181.221])
+	by repost01.tmes.trendmicro.eu (Postfix) with SMTP id CB04710001325;
+	Tue, 20 Feb 2024 01:37:56 +0000 (UTC)
+X-TM-MAIL-RECEIVED-TIME: 1708393076.382000
+X-TM-MAIL-UUID: 4f07d80d-1248-413d-83a2-ca2a7537b5af
+Received: from DEU01-FR2-obe.outbound.protection.outlook.com (unknown [104.47.11.169])
+	by repre01.tmes.trendmicro.eu (Trend Micro Email Security) with ESMTPS id 5D5EC10000315;
+	Tue, 20 Feb 2024 01:37:56 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=LO0oXJ7/r6SEwOJrZNFwqJwrQzOwP3k5RyBvtmXPU1PUBuiSbMZFqaJn1DBEwFOwtDPkVcL46/b9e69uP0YAymVI3exqWjfzCzRXF3DNpoyJDZdZ7Ec1/BEtXrno3KdPwYEA4Hl9EuYE5seTZoii0zXF0aerQKcER0YWSAFfNXv94dgqZDRYM9fCIcEKtYWvxI2L4uNKcKJpgcp3jo6RYh8W2woebxoe8dk+alxHiiFsvvSzGZqOA1QxEwGr85jySqc3LkaO6R/cLR5LyTNy1bTTGnPMXiJzDLlInhRzrX6jKZ+qrY6ZAqxnTHYrnt+cMGrs4uX2cQPgGJ0nPIgckQ==
+ b=ekqnyTDBhpiyROM5ibPgGfSMUOQK7tZdaPSE/NycvDAd9xFTO4ODwWr5/9dhycJgltZosPI//lAoPnTz4PwVmZFlwzSF8Hv5gxKjMlmQUrVZW+G7BmjtsmhgXpUIHe5iXGW2Tq/1Hm3yA1UE9SeL3z7kJ8ZJH9RjMzNIweDSY/LeK7x4cRr9qMgqceNCM2cL8jDUbSWE7aB3AP91c+MmvX2AYB4JniUIvF8kKZI0Mzxv6Ai7fDQQ2sGwHg+VDy0KAl9dXrNRE9s+xKSWH6PchR8dMkCmoplRdbSOa5NDg8A97x81wWIv7a6cAdd6uX5EjDWLNQ5rEC9AjMfaO/Gv1Q==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=qIXm4k9bgV1Q6kEbqdfEc1SM4NU53vN5vRQJzh5zpU4=;
- b=nJcPH81a9Y0T8um5Lv3Oury+Dxfc2xRmVVlJKWX4BV7LFGR3zw0CeFP9StgRogWnKnUQsPFJ81C7b+7JImS+u/fCPPj/zmRFbTadRjtc1X3SgBU3fI/K1tr4hdX3wyoi/AUtYyKFFIPmaKe7gPU1PQOL3uE107ut1PDG9lS4sV90QOkhKYkgKqmYA8kD9nrsXih8tkkvOeYHCW09DceTB+DXV9bHUofvPwapA59ydwVPh2jWF3xwvfZ/K/Oimzm+0nY3/X7td1THKlOvpyPEbuuRmEk06SgdEMPxvidw1IeozB5JpEN0b+fXpfAhNmCbQ/Ff3ThKBT6UEBp/mW6OMw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=redhat.com smtp.mailfrom=amd.com; dmarc=pass
- (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=qIXm4k9bgV1Q6kEbqdfEc1SM4NU53vN5vRQJzh5zpU4=;
- b=zVRw05m0aMFb5bRX+D3IInQujg63uoZyvETa2/NnGDoaaYzeSBNtIM7p7zyfa0az1XyZZsWz49q8jZtfRGtZn9E5YIuez3cr4GcM24Yj6pWVouCSxw4OhZkfllRbvIKA0IJ6Etp1ZdEuogG3G9VuyjChCZJdofbFpgub2D6Ml4M=
-Received: from CY5PR17CA0011.namprd17.prod.outlook.com (2603:10b6:930:17::8)
- by LV3PR12MB9259.namprd12.prod.outlook.com (2603:10b6:408:1b0::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7316.20; Tue, 20 Feb
- 2024 01:11:27 +0000
-Received: from CY4PEPF0000EE3F.namprd03.prod.outlook.com
- (2603:10b6:930:17:cafe::46) by CY5PR17CA0011.outlook.office365.com
- (2603:10b6:930:17::8) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7292.39 via Frontend
- Transport; Tue, 20 Feb 2024 01:11:26 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
-Received: from SATLEXMB04.amd.com (165.204.84.17) by
- CY4PEPF0000EE3F.mail.protection.outlook.com (10.167.242.19) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.7249.19 via Frontend Transport; Tue, 20 Feb 2024 01:11:26 +0000
-Received: from driver-dev1.pensando.io (10.180.168.240) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.35; Mon, 19 Feb
- 2024 19:11:24 -0600
-From: Shannon Nelson <shannon.nelson@amd.com>
-To: <jasowang@redhat.com>, <mst@redhat.com>, <xuanzhuo@linux.alibaba.com>,
-	<virtualization@lists.linux-foundation.org>
-CC: <brett.creeley@amd.com>, <drivers@pensando.io>, Shannon Nelson
-	<shannon.nelson@amd.com>
-Subject: [PATCH] vdpa/pds: fixes for VF vdpa flr-aer handling
-Date: Mon, 19 Feb 2024 17:10:50 -0800
-Message-ID: <20240220011050.30913-1-shannon.nelson@amd.com>
-X-Mailer: git-send-email 2.17.1
+ bh=hsZg67DlrisXTVWPZYPDWOLYrZjVxQK2sdJHmEkyO6Q=;
+ b=EZkoHBsMRXBYZ/R2EutJnHbSE0mKfuF2X9nivNft5CuD6Y7MaRY//dOy7z8vBlTTu5LarJTnwm/BImbLwfT+fssBcISDTndju6ahpW3OeQ5ltC0Q2o/TIVmhRsu1LH1LuzG5No7JCuuOB1TGH/Tc1RNT0I2qlizt+fQtJmO6/DJvINxeE/IVyZfEkFluZa0M8pJjNe6yKokthztqeEq0BfGBbd6XW9x8s0WERQ8/InBo7zTFifNTEGDGoqmJd9/qDFays9sgVmBfgsFbnUCt8S4H3ucs2K+JvyDGrAT2LCpI0XodQcWcsjc2C2owS+MBuKD+oOamQpO6ao8fXm90gA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=opensynergy.com; dmarc=pass action=none
+ header.from=opensynergy.com; dkim=pass header.d=opensynergy.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=opensynergy.com;
+Message-ID: <d9a99397-4111-4677-b535-ee20c86018ad@opensynergy.com>
+Date: Tue, 20 Feb 2024 10:37:41 +0900
+Subject: Re: [v2 PATCH 0/1] ALSA: virtio: add support for audio controls
+To: Marcin Radomski <dextero@google.com>, aiswarya.cyriac@opensynergy.com
+Cc: vill@google.com, alsa-devel@alsa-project.org, jasowang@redhat.com,
+ linux-kernel@vger.kernel.org, mst@redhat.com, perex@perex.cz,
+ tiwai@suse.com, virtio-dev@lists.oasis-open.org,
+ virtualization@lists.linux-foundation.org
+References: <20240115133654.576068-2-aiswarya.cyriac@opensynergy.com>
+ <20240219172417.1383044-1-dextero@google.com>
+Content-Language: en-US
+From: Anton Yakovlev <anton.yakovlev@opensynergy.com>
+In-Reply-To: <20240219172417.1383044-1-dextero@google.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: TYXPR01CA0060.jpnprd01.prod.outlook.com
+ (2603:1096:403:a::30) To BEZP281MB2374.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:b10:5c::11)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
- (10.181.40.145)
-X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY4PEPF0000EE3F:EE_|LV3PR12MB9259:EE_
-X-MS-Office365-Filtering-Correlation-Id: cb3b8972-169d-482f-efbd-08dc31b0dca5
+X-MS-TrafficTypeDiagnostic: BEZP281MB2374:EE_|BE1P281MB3153:EE_
+X-MS-Office365-Filtering-Correlation-Id: a2d5f35e-3c33-4d37-4366-08dc31b48edb
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
 X-Microsoft-Antispam-Message-Info:
-	z+8OIoqlD/utXLt8xAVCa82Seus/8RskrwWlMdH5tyxXAOOyPpKr/bO9MkDkQ5e3WOrY5k9CjrphO2k0MKbEeZST3o5OA1VrB8HZ+SEkL9o0yH2unhKeq2l4MnLxFdEli886WulSd3M9BYBFNejZ//GZnTF86oaCl6ReEn8gUgvsOIzU++9iRNiKkVmCN458kgjWYRxETt6Skuc/uuwBvYMMho6MOCK9+pTlnA1UoVHf0QkgDT+3ona7PHmocJxd2QGcMxpWM+any8Q91T3VkS2wt6E/lb8nOql5+ptiPOE2dL8IwitGMuogDFDg3g6cGKsbgxEd6eF39lF492FbZGYv9YQjthA/WD9Tao8XOrJVbhUzS4CiteaP6gutqOUdunpX6jGzYXmmOFach2DbZp4pFJyxAfLAHiwWO/+rO/ddz17fRhv3gXowuhHHD0hGPpYVIxTLRlOIFP0R18lKtqTAzIs4aGnIOWVQ1e1Q4AsbFF1EXsxx/lTcUN+XwAvIHNy3Pvv0t0P2YOFdP6OstBcSFTuWWEH4iIgKgDAMqgiQ/0fPbTtRapSgpUALxcSAuHLZcaHGiGJ0fhzTA3oMCWA7M2T+RJAQcOhmTSsvNAMvbheJTcewtsxyyR9jCQfoHqBxrEldTf0ZuVF7x2ZLCtY7RvSo14soLH490ARZ+cU=
+	CAtjyAvPzVXC08vsIIKXdpgD9jmoEINqDIfnFx4UDaa4vETB1lxtshPH/Vx6RHvM1tsFYP/mYQhgGLl2Brz/+8ZRagKyUcUsTh1723+qSSsez/s+3evoRwzqWNrhgR66zncrmOP4/bd5tCsRTZwX8rw8nEj3FZ7+D8IXiObQIUyKK68x/dk3+Q1nJaFEmfVJw00lsCQ/stt9lHdHf5Yrsv3b0oGHmi2lxIGlV7tIUur+hq4H4XzoDVGOd2mROuvOZRXhdfraAfWbg622eZKAQdSVljvr4+PzkPNzT/NGSReOjAkNYVArPwtcnboQD8LmNGubqApXVVGR6zQvd8rb8Nosy8jzP4Sn+aYoriVcHritsWHgsizAZHen1IXfWkpTm8TpeHKfddGAjj0/loil+CLkt273huZLXkdoE4NMzPf9Hx5R61jVBxrOdg9eCTeQ2xF23AS38z4Pscu79/K2Ke5AWw7Cw9ZKUlaKS73cgETu9YvnV29sHsRrk0pplwTxsMC5ShLf6X+j4JPjPwVy4cBYar8JLLiD/aI3jLL9bX0=
 X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230031)(36860700004)(40470700004)(46966006);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Feb 2024 01:11:26.3916
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BEZP281MB2374.DEUP281.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230031);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?bVlwTUdUNGxjNXNlUm5EZjNTSUcyUUNQblFLTktaVzVBOVBoR1BVUlRBQ1pi?=
+ =?utf-8?B?dXZFWit3UlcwNFZkblQ2RW1KMzBMOXZoMklkWVhDWlE5R0l4SGZZbDZrcG5S?=
+ =?utf-8?B?SE02UUloeFJhdWZ1Ny9NQVQyY1ZqbVE2aEpsZ0Yzc2pRWnhoeWpOUW9QcWtW?=
+ =?utf-8?B?S2I4ZXltVkxGeERNYndKNHUzUEI4a3E2dHFpQSsyRkF1aVhMU09oem5uT2l0?=
+ =?utf-8?B?ZWhiS1BjZzFKV043dm5zZEs0T0k5Rm44UFI4bU5JaGh3aEYrWGxqeWRWaXdI?=
+ =?utf-8?B?R05WZTRITDJjdEk3c0ZkdXRMbXFHN0hUTnIrOWhHRmpYN2l5Y2J4eTFxaWlz?=
+ =?utf-8?B?UUNTR0l1OXRsNVJzcUQzb2VuS293bHFKbVZUejJHSlhCeTZLMHNVVUdTNkNl?=
+ =?utf-8?B?ZmdwV3c2amxwNU80UW92YzZGSWZicXdYN1VkNkpYcXoxVmpMUTgxOTYvQ3BG?=
+ =?utf-8?B?djhqdnBSQXcxNEd1b01JMU5yN2Q0VDVnbHZROURkbkJIMHRZSklCMmlTaEZp?=
+ =?utf-8?B?OUNhMzVzSk80QmozdFdQb0xwYmF4U0VVRHkveVl2bVR2Ny9ReGNiOWp3ZDB6?=
+ =?utf-8?B?aEJLVXo1dUJQTmNHRHJkTWRoY2dkN3d2RUFTamRJRnhKWHFVR1NuT2NRTndo?=
+ =?utf-8?B?Z2MxTU9pVjYvMlA5WTZGU2ZWeFhia1VuV1RFRktXTXpWOVVFaE9ibDJqVXlI?=
+ =?utf-8?B?d1lNL0UxbURuSjhFTyt0eHJtR1VJdDVLa0RzU2NBTTF3MVRDS1VqY3J4TlVP?=
+ =?utf-8?B?bnNGZFVId1ltTElnK1lQVlRDL3hadkdQRUZiUndCcHhNekh1QkhzN0ZMaW4v?=
+ =?utf-8?B?RERxQ1F2cU5jQVUvYkp0WkFpTUwrV2tBVWxJVDVyTWdiSzNzYUVNaTh5V1NC?=
+ =?utf-8?B?K2U2blpDdlNXZUp2dm1GRWN2VEZGN2REQmNRMVlhc2ZpbGk5cHVpYVRySE5t?=
+ =?utf-8?B?Qm94c2dVdzR6Q3NIbDFPQ3BtVW93d2Z5ZW9MdkpiQ1ZVTnBzc1VINzNvb0h4?=
+ =?utf-8?B?Tmx4aE9uNTFxaGpsR29za1psWmoySmwxVGQvR293dU9wZkxZRnk2aFZ2VGVh?=
+ =?utf-8?B?V3RIalQveGtyL0RIU1hpdDBWeTEwWEJ0b25wTmIwT2JJR1pEOU1ZUVJuRUY3?=
+ =?utf-8?B?Y2xJNy8yS3U4U1JOWThNRi9sUE9lSFV4OFYvbWw0OUxXUFNLanBWSEZsbS92?=
+ =?utf-8?B?TjhYakhvaHc3NWpzQTA3NFZLZHFDcjBCUmJVcXR6ODBaM2ZYdUxIRzZJN28v?=
+ =?utf-8?B?eVdUL0I0SWt4RFVEQUxOOEFPdFFIMmdHUzd0SW9INDUrc20xZGpHZ2RxLzBq?=
+ =?utf-8?B?WVRvSDJFcmhJbHZXdjhueEVWVFVVaTdGTmxhcUZEV0RQUDN4L1RSb2llYVRr?=
+ =?utf-8?B?Q25rbmx1RVBMM0ZyK25ScXp3WU1zbnZEanliZDZja2N5cjdMRlJISGZZdHVI?=
+ =?utf-8?B?bDJtUVZXaE5ySEtkZkthdHJGTGVaVE5ORnlXQ0haUHlOdkJJd1hnZzVyZTNt?=
+ =?utf-8?B?TEIrejhKQmdUMFk2ZHdOWW5FQysyVUFHOWRCQ0VxZjhpOXhFTXh4bzkya0tv?=
+ =?utf-8?B?VS8vNDR5WGtCYzdUdTJzYU5UNmMyNVVMTlRnakE5MlQvMkF4Q2hXa0F0SXpB?=
+ =?utf-8?B?ZU5JRllyc3VQYWhqaWo3YzNXOXQvb2JFMjcrMS9QS0hLd3NNa2pJKzVNT01z?=
+ =?utf-8?B?V0drWFlNU0hEMko1eWFnZ1dhUmJNaHlNOGhxcXEveXh6VlFpYzFoaGhXd2lG?=
+ =?utf-8?B?bUxBOStvK1VtNEMvWVpGWkk1bndNR2Q5R1dMQjhhV1FYbklRREJiV05VdGZx?=
+ =?utf-8?B?VTFlakE4cHgxeEdrcFNiTERMMVlDeFQyOEdiNHRHMDNDYlIvYUFmRERkSG1p?=
+ =?utf-8?B?R0hjMVB6M1JsV1dpYldpMmcrVEZvdE1ZL20yYTJYbW5SK25MajJDRkg5MHFK?=
+ =?utf-8?B?OThPYzkrdUNHbzFvL3RPVXVDa3JmRWk1TStuVGRGWmVBNG5mVnVDNWQzcUdR?=
+ =?utf-8?B?bWE0RVpZYlNYQWt4OXlDbGpoVlYwQW1HZXlUY0NtdnRpVFlCcFk3cFlpT1Zu?=
+ =?utf-8?B?d1g0citDZG4zbWpuSVdGekhBODhMOWZSOW5oNlZ1MHB6Y1RKMXFOWDJZNEdD?=
+ =?utf-8?B?K2pOYmtlWll2ZUVMRU10YW96dEVMeTgzSitYajRhcEJOYXl6Z1RxbkR0TGFm?=
+ =?utf-8?Q?48IUIzljOBbfL0q+YnPQOXKy6JDdpmJKLqzMz/O71fA9?=
+X-OriginatorOrg: opensynergy.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a2d5f35e-3c33-4d37-4366-08dc31b48edb
+X-MS-Exchange-CrossTenant-AuthSource: BEZP281MB2374.DEUP281.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Feb 2024 01:37:54.5266
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: cb3b8972-169d-482f-efbd-08dc31b0dca5
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	CY4PEPF0000EE3F.namprd03.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV3PR12MB9259
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 800fae25-9b1b-4edc-993d-c939c4e84a64
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 7Vp9htuiXW246cK3J9xbYXIaWr7LQc8f6OCAnzQsOvAWiBzMFDi+AV2mmpG2wW83N6CyU5qVEeh8l/WRaGa9AA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BE1P281MB3153
+X-TM-AS-ERS: 104.47.11.169-0.0.0.0
+X-TMASE-Version: StarCloud-1.3-9.1.1015-28202.004
+X-TMASE-Result: 10--11.951600-4.000000
+X-TMASE-MatchedRID: O/y65JfDwwv5ETspAEX/npGPSO6O5JCalR7tN56aWVW0sdSrJZyyxp0Q
+	FAkvwQa1x+4DBaCRcWVROHkKgWFqUmOOjE/261b4M6mKelUSkRFW1n4bHTHoQZXVwPqFeiBVT0B
+	RZNI+Ywa6miiB19Ur4l3jHUhSUqcUaIn7kYcazIMk+VN5SeE/CnM1+1Vqzfv2+SDH3HyigbT8XL
+	wN2+AeMDsAVzN+Ov/sOECyFyDVMckc9LpRfRZMDc2QAgAkkoe3EvSxyyaSskdOMWgY1PD+9A==
+X-TMASE-XGENCLOUD: 7f0722c9-a23d-488e-9bea-2fdc98ba01f1-0-0-200-0
+X-TM-Deliver-Signature: 2FB02D8C42C688081AC4470B2AC02FA2
+X-TM-Addin-Auth: bPQussCM3H8d2AQJ4f+AT7k0LR9t4SR6SLykmIdarNfTI6vg0ynJ7SZUfAX
+	RjhNDT8Ff/ejSqn0stzVmSqqZOGe5Zkg30XUQlrWr15xwJs3+85+G4BdieSvjdQYIe/cW950hg4
+	yGXincMcjW2BQm7GSef4awXLyAMyTD6dFMXmzQnzjDW8N4f7xn/IYtS2muOXsj3XbBRmLtX269d
+	qcH4Gg7VpyOuAeHm2mcKfOKT2evF/0l0tDw7q+M5NXk1ELCveAZYcGXDoxmcESnopm2dSFBwuF2
+	k0EjWXu6zabzz3g=.OO9U42TrfaEutwaF3eE9KK+NgSOh4T0hDPlFYy8nz3K04PCfrRRGOpg4Pt
+	BmAcqXE599Yai34hdoTQF49lXohZbN02dyQCKS8UOPkrXJnhg350rwsFEzPWBUdcKr5pfs/8kMr
+	92fQh9GLMfhaootf/ckDPP8kOMOf6phd2b367AzwPdsM9dSt3xhACtsYC7V6MK4D7wT7ZwT3ZMe
+	zzzNc/D1v/IqgT6fP9BfnAKEJyND888UVaSODdvFnEBHVuemFuLdop2oiCPEz++5VtB9L0DP1E6
+	qUqnqtG7XZPa+aTvQvrh6MGc0NXdp5GEY7PGaBqficqi29CG6NafbjvZsiQ==
+X-TM-Addin-ProductCode: EMS
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=opensynergy.com;
+	s=TM-DKIM-20210503141657; t=1708393076;
+	bh=fFXRy7+SIkeWSo0/mSsnGrywuYYlxHAfRTikqCgxbCc=; l=549;
+	h=Date:To:From;
+	b=H0lCAQ6AU8DT8Bo/3JKdtTk8NunvDaZVY+tcOUCf26ETcBwQnbEYYOBf4zQLgAey7
+	 djZ/spgHFhutY7O83Rok++/tBfIHFerUKxKLX34cgXA+BWwZ+olS2W/84v8Ibfs8Oi
+	 W0BtcYX58FDpgHYzq0K/YoxZsMZM4eTSgtF2vnaaOmCLNwYnzrUvCJeuu/0XHViTYr
+	 XF3fFAVoSZaIcpSbTVecnSyBdecp14i48Gw+1gAv2YfUFyjud+kKl7sk+By3/kLm6/
+	 xQJb1KOuELoZRh1w2/IYoyO7Mtfnu9y8J8RomBT/XaxqRhEmck//LbeSOr3Er8fWtX
+	 GrloGYYZxSvyg==
 
-This addresses a couple of things found while testing the FLR and AER
-handling with the VFs.
- - release irqs before calling vp_modern_remove()
- - make sure we have a valid struct pointer before using it to release irqs
- - make sure the FW is alive before trying to add a new device
+Hi Marcin,
 
-Signed-off-by: Shannon Nelson <shannon.nelson@amd.com>
----
- drivers/vdpa/pds/aux_drv.c  |  2 +-
- drivers/vdpa/pds/vdpa_dev.c | 20 +++++++++++++++++---
- drivers/vdpa/pds/vdpa_dev.h |  1 +
- 3 files changed, 19 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/vdpa/pds/aux_drv.c b/drivers/vdpa/pds/aux_drv.c
-index 186e9ee22eb1..f57330cf9024 100644
---- a/drivers/vdpa/pds/aux_drv.c
-+++ b/drivers/vdpa/pds/aux_drv.c
-@@ -93,8 +93,8 @@ static void pds_vdpa_remove(struct auxiliary_device *aux_dev)
- 	struct device *dev = &aux_dev->dev;
- 
- 	vdpa_mgmtdev_unregister(&vdpa_aux->vdpa_mdev);
-+	pds_vdpa_release_irqs(vdpa_aux->pdsv);
- 	vp_modern_remove(&vdpa_aux->vd_mdev);
--	pci_free_irq_vectors(vdpa_aux->padev->vf_pdev);
- 
- 	pds_vdpa_debugfs_del_vdpadev(vdpa_aux);
- 	kfree(vdpa_aux);
-diff --git a/drivers/vdpa/pds/vdpa_dev.c b/drivers/vdpa/pds/vdpa_dev.c
-index 25c0fe5ec3d5..301d95e08596 100644
---- a/drivers/vdpa/pds/vdpa_dev.c
-+++ b/drivers/vdpa/pds/vdpa_dev.c
-@@ -426,12 +426,18 @@ static int pds_vdpa_request_irqs(struct pds_vdpa_device *pdsv)
- 	return err;
- }
- 
--static void pds_vdpa_release_irqs(struct pds_vdpa_device *pdsv)
-+void pds_vdpa_release_irqs(struct pds_vdpa_device *pdsv)
- {
--	struct pci_dev *pdev = pdsv->vdpa_aux->padev->vf_pdev;
--	struct pds_vdpa_aux *vdpa_aux = pdsv->vdpa_aux;
-+	struct pds_vdpa_aux *vdpa_aux;
-+	struct pci_dev *pdev;
- 	int qid;
- 
-+	if (!pdsv)
-+		return;
-+
-+	pdev = pdsv->vdpa_aux->padev->vf_pdev;
-+	vdpa_aux = pdsv->vdpa_aux;
-+
- 	if (!vdpa_aux->nintrs)
- 		return;
- 
-@@ -612,6 +618,7 @@ static int pds_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
- 	struct device *dma_dev;
- 	struct pci_dev *pdev;
- 	struct device *dev;
-+	u8 status;
- 	int err;
- 	int i;
- 
-@@ -638,6 +645,13 @@ static int pds_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
- 	dma_dev = &pdev->dev;
- 	pdsv->vdpa_dev.dma_dev = dma_dev;
- 
-+	status = pds_vdpa_get_status(&pdsv->vdpa_dev);
-+	if (status == 0xff) {
-+		dev_err(dev, "Broken PCI - status %#x\n", status);
-+		err = -ENXIO;
-+		goto err_unmap;
-+	}
-+
- 	pdsv->supported_features = mgmt->supported_features;
- 
- 	if (add_config->mask & BIT_ULL(VDPA_ATTR_DEV_FEATURES)) {
-diff --git a/drivers/vdpa/pds/vdpa_dev.h b/drivers/vdpa/pds/vdpa_dev.h
-index d984ba24a7da..84bdb45871ff 100644
---- a/drivers/vdpa/pds/vdpa_dev.h
-+++ b/drivers/vdpa/pds/vdpa_dev.h
-@@ -46,5 +46,6 @@ struct pds_vdpa_device {
- 
- #define PDS_VDPA_PACKED_INVERT_IDX	0x8000
- 
-+void pds_vdpa_release_irqs(struct pds_vdpa_device *pdsv);
- int pds_vdpa_get_mgmt_info(struct pds_vdpa_aux *vdpa_aux);
- #endif /* _VDPA_DEV_H_ */
+Thanks for the help!
+
+
+
+On 20.02.2024 02:24, Marcin Radomski wrote:
+> Thanks Anton for the reupload.
+> 
+> I tested this series with a 6.1 kernel guest on a proprietary hypervisor. The
+> controls exposed by the host (BOOLEAN/INTEGER ones, as that was all I could
+> get) worked as expected when adjusted via ALSA APIs.
+> 
+> Reviewed-by: Marcin Radomski <dextero@google.com>
+> Tested-By: Marcin Radomski <dextero@google.com>
+
 -- 
-2.17.1
+Anton Yakovlev
+Senior Software Engineer
 
+OpenSynergy GmbH
+Rotherstr. 20, 10245 Berlin
