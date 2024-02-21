@@ -1,71 +1,108 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 660C414F9CE;
-	Tue, 20 Feb 2024 22:27:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D00DA6AAD
+	for <virtualization@lists.linux.dev>; Wed, 21 Feb 2024 02:04:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708468071; cv=none; b=llPYd2RXVskp8peJtg0bmdBg3bOPZeGyez2HFnF8FisahbKd+RKpO62+R3fpxOwyQkrhR7+TP62y8vLk+uF/17gacwmxwNrwO4mNtwxuSKkrIenLQBLC9yLzlvnw6eIoeHCvwwH2kydkHx+sRMiVuHSQWFHMSledJENpR/sMkzU=
+	t=1708481094; cv=none; b=fWOipRqGkKtGiQkcPmaJhvWSgUoogZ31vLqw9ixVjuCqzbulKWOBijww/VkpQILSBz51wn+Wl/ARQHI0GtqouKpWoG8h0ASQ6xurXws0s8QE8uqBpF+nu6uhfic/xl3d8cCdEnnEaEHr8aZfN3ZRDH45Ot6koV7QoXa/kMFHJMI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708468071; c=relaxed/simple;
-	bh=bq4xGo8TbQn2XGfX30aj57X4XFF9C7kBpD3L2Qy8HVE=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=hYGg2unzt9z4thSZLITw5zNPH4J3iLVZoCD5j31Np6ptZlI+JW32QlyQfrfVUbWWI+kToMrhL4Gopboq5KUCJ9HEnizL8snMmWL7ncRINGnH1Af07nendcIjdj3bMAVUph3B5W+w9IhDEh8i+QKYAQc4dbaFUnf/4laRHocwqAQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jJwFPGgc; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1708481094; c=relaxed/simple;
+	bh=ORbxc1aLPAjWIc3vkR5GtdqUtX005SNYWEsxv9OAOk8=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=I2WwqGHMgkKBchRCY5FkxBw66RzZcOvvW/W3M0WOgz/17siDBvNFQbc2xYMdGuxoFxCw7O37+QufNbYFw9WFiiechoEIDYLdn/l2LlO66Njero0F/k1oSszpSFkICQ5e0abrynF9DX0qAXKvvlJgKhitUlhcYBelBHDT5tT0jgs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=sbiMOEKn; arc=none smtp.client-ip=115.124.30.97
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jJwFPGgc"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A6CAC433C7;
-	Tue, 20 Feb 2024 22:27:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1708468070;
-	bh=bq4xGo8TbQn2XGfX30aj57X4XFF9C7kBpD3L2Qy8HVE=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=jJwFPGgc8VWQ2Wq/B6ok9kukaeZ+jPmtUYa5Q8Flb6IKqEzxDSv32mw4FPj1kda7e
-	 un0ZCy4UxV/LUtQDdVX3M0n2aDejCegWgzOH2QxTHdvmz+oqG3ZbP23RY9f1+3sZfc
-	 LkVhicNF3VwIJM8Ubq3ec/7vtVCp4XfPz/v1qyjMByWE0BSqDh7n1kRnXuFZfWeWdV
-	 q0SLl5cHsAiVHtlw78jAy2Ne04wFL8e7xT3CxfA1MNTI0qC8ppa0dKArTCMAjuiowZ
-	 hbUur05D9v636MtD2iE/CNgpcSTK0A6TxYXTp33JBxWSIVB2AftiQJN9HarXvHpoh8
-	 xZ4JirlQUNXLg==
-Date: Tue, 20 Feb 2024 14:27:49 -0800
-From: Jakub Kicinski <kuba@kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Dan Jurgens <danielj@nvidia.com>, Jason Wang <jasowang@redhat.com>,
- Jason Xing <kerneljasonxing@gmail.com>, "netdev@vger.kernel.org"
- <netdev@vger.kernel.org>, "xuanzhuo@linux.alibaba.com"
- <xuanzhuo@linux.alibaba.com>, "virtualization@lists.linux.dev"
- <virtualization@lists.linux.dev>, "davem@davemloft.net"
- <davem@davemloft.net>, "edumazet@google.com" <edumazet@google.com>,
- "abeni@redhat.com" <abeni@redhat.com>, Parav Pandit <parav@nvidia.com>
-Subject: Re: [PATCH net-next] virtio_net: Add TX stop and wake counters
-Message-ID: <20240220142749.42cabbac@kernel.org>
-In-Reply-To: <20240220130528-mutt-send-email-mst@kernel.org>
-References: <CAL+tcoCsT6UJ=2zxL-=0n7sQ2vPC5ybnQk9bGhF6PexZN=-29Q@mail.gmail.com>
-	<20240201202106.25d6dc93@kernel.org>
-	<CAL+tcoCs6x7=rBj50g2cMjwLjLOKs9xy1ZZBwSQs8bLfzm=B7Q@mail.gmail.com>
-	<20240202080126.72598eef@kernel.org>
-	<CACGkMEu0x9zr09DChJtnTP4R-Tot=5gAYb3Tx2V1EMbEk3oEGw@mail.gmail.com>
-	<20240204070920-mutt-send-email-mst@kernel.org>
-	<CH0PR12MB8580F1E450D06925BEB45D72C9452@CH0PR12MB8580.namprd12.prod.outlook.com>
-	<20240207151748-mutt-send-email-mst@kernel.org>
-	<CH0PR12MB8580846303702F68388E9713C9452@CH0PR12MB8580.namprd12.prod.outlook.com>
-	<CH0PR12MB85807A30B1F42A4E354516A1C9502@CH0PR12MB8580.namprd12.prod.outlook.com>
-	<20240220130528-mutt-send-email-mst@kernel.org>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="sbiMOEKn"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1708481089; h=Message-ID:Subject:Date:From:To;
+	bh=ORbxc1aLPAjWIc3vkR5GtdqUtX005SNYWEsxv9OAOk8=;
+	b=sbiMOEKn8YsHac7GFd2HpFkPp/HOfaG+QEE9BieQi/hhLVUhFJ7rmqrhU424MQvVrn0mxTjDTdk4MpsxcIzPFtU3cw3u/0GLit+rcLWYL1xhJZxH6osDXJHKl/q45G0sOC1B2Yb8vcCsOxJNeZQnoQCUxEIBetRhstw6k8N7NoE=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R921e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=36;SR=0;TI=SMTPD_---0W0yFyS._1708481086;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W0yFyS._1708481086)
+          by smtp.aliyun-inc.com;
+          Wed, 21 Feb 2024 10:04:47 +0800
+Message-ID: <1708481025.1893313-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH vhost 07/17] virtio: find_vqs: pass struct instead of multi parameters
+Date: Wed, 21 Feb 2024 10:03:45 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: Jason Wang <jasowang@redhat.com>,
+ virtualization@lists.linux.dev,
+ Richard Weinberger <richard@nod.at>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Johannes Berg <johannes@sipsolutions.net>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>,
+ Hans de Goede <hdegoede@redhat.com>,
+ =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+ Vadim Pasternak <vadimp@nvidia.com>,
+ Bjorn Andersson <andersson@kernel.org>,
+ Mathieu Poirier <mathieu.poirier@linaro.org>,
+ Cornelia Huck <cohuck@redhat.com>,
+ Eric Farman <farman@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Alexei Starovoitov <ast@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>,
+ Benjamin Berg <benjamin.berg@intel.com>,
+ Yang Li <yang.lee@linux.alibaba.com>,
+ linux-um@lists.infradead.org,
+ netdev@vger.kernel.org,
+ platform-driver-x86@vger.kernel.org,
+ linux-remoteproc@vger.kernel.org,
+ linux-s390@vger.kernel.org,
+ kvm@vger.kernel.org,
+ bpf@vger.kernel.org,
+ Halil Pasic <pasic@linux.ibm.com>
+References: <20240130114224.86536-1-xuanzhuo@linux.alibaba.com>
+ <20240130114224.86536-8-xuanzhuo@linux.alibaba.com>
+ <CACGkMEvb4N8kthr4qWXrLOh9v422OYhrYU6hQejusw-e5EacPw@mail.gmail.com>
+ <1706756442.5524123-1-xuanzhuo@linux.alibaba.com>
+ <20240220151815.5c867cce.pasic@linux.ibm.com>
+In-Reply-To: <20240220151815.5c867cce.pasic@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 
-On Tue, 20 Feb 2024 13:05:46 -0500 Michael S. Tsirkin wrote:
-> > Michael, are you a NACK on this? Jakub seemed OK with it, Jason
-> > also thinks it's useful, and it's low risk.   
-> 
-> Not too bad ... Jakub can you confirm though?
+On Tue, 20 Feb 2024 15:18:15 +0100, Halil Pasic <pasic@linux.ibm.com> wrote:
+> On Thu, 1 Feb 2024 11:00:42 +0800
+> Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
+>
+> > > > And squish the parameters from transport to a structure.
+> > >
+> > > The patch did more than what is described here, it also switch to use
+> > > a structure for vring_create_virtqueue() etc.
+> > >
+> > > Is it better to split?
+> >
+> > Sure.
+>
+> I understand there will be a v2. From virtio-ccw perspective I have
+> no objections.
 
-Ughhm. Let me implement the generic API myself. I should have a few
-hours tomorrow, knock wood. I guess the initial set of stats requires
-some "know what you're doing", and it will be smooth sailing from
-there..
+The next version is v1.
+
+That is posted.
+
+http://lore.kernel.org/all/20240202093951.120283-8-xuanzhuo@linux.alibaba.com
+http://lore.kernel.org/all/20240202093951.120283-9-xuanzhuo@linux.alibaba.com
+
+Thanks.
+
+
+>
+> Regards,
+> Halil
