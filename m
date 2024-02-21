@@ -1,139 +1,92 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B73303A28E
-	for <virtualization@lists.linux.dev>; Wed, 21 Feb 2024 08:47:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA7133D3A8
+	for <virtualization@lists.linux.dev>; Wed, 21 Feb 2024 09:53:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708505276; cv=none; b=sIWBlsM8FrkrJx95MJ98Q8NMyindYhXp/5wPL6K5GOH7WFZeEKEKPrM/0KsvG0jxkHYeOwAA7Iqyx2JxQvksDUkM9d6E4vRrySl43YTjuX41/5bvEtax0ncW5mftSCc1Zt4D2d8SaeqAlYPTwPP9ESsMwIb7E6PO6uMVhIz6UAk=
+	t=1708509237; cv=none; b=iWO7uMiZWU5nrGTnIqQ//payooX55HXPkyJluD3ZTVQI0r/u1kQlwHGT8/1BMG1UrsZ5/kQcqW4WAa2zfroC0wb7spOLk43E6YIQNUWuVqFdirMdqYCrBtwnWgCT6hyRTOPDRdKkJqx0izN9jR5/Wb6tnXq+npb/Ggi5q6H6HKQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708505276; c=relaxed/simple;
-	bh=84houcy4OXpPnj74pGNM1YYzjfNXhn1ObuocFwoW02w=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=BHIcz5kzGEK7wDdr15RKryaQoabl3vpejOnPqhHvj21la9rsh60y0CM9BIdPHDBW+ZinejKT4VwcTdVjAt3E9LwDEWwNAB25ORDkgnkOMQVHhAp0mzwSbY3Srd6wFB8DySC0Wah45tyZKwa20Vj9BOJ0oCnYO/54VsC5sNiBT7Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Xumrd1x6; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1708509237; c=relaxed/simple;
+	bh=9rQKbf/XB71bS0VjPXbpawybpWP+a4gMQOoTUb1QXKM=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=t/XVS6fwW4PoqJ5TgkaRxUI9XXfr/gMWNQE6LfnTRZ4VnCA31FCB8EeAkKT6qWWQxwPSXirzp9y9LC4nXKQBq4ixu/WdpsrKekwFUnyn8HVHeaMmplg1lpJgV0bbxg1gYunoFXmiFSprANzbgT1DzFhQRqc7bHmT5LRdzxzEHpo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=xO0JVH2K; arc=none smtp.client-ip=115.124.30.110
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Xumrd1x6"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1708505273;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=MKtbQFGi29nwrYk3QubhIue9JnNyRVyNIhYKnNLYWAc=;
-	b=Xumrd1x6XiUePrZcY8SZvR0fFdBJyb3bgjo92N4LYrtAx5PVgWUYHsMzmzlfBJ4NPHPWW2
-	kDkolezUdFoy8jwTQwtpRpaXqXwVPw80UvRnkF6q7f6uINhIS38WmDZOd3SgqsAidm66+J
-	xd/b8CA5skuujJg2Bv0r3mSm6mTa1SQ=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-648-gcrmhqhTNjqLrKNK9w29Iw-1; Wed, 21 Feb 2024 03:47:50 -0500
-X-MC-Unique: gcrmhqhTNjqLrKNK9w29Iw-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 8ED13185A785;
-	Wed, 21 Feb 2024 08:47:49 +0000 (UTC)
-Received: from [10.39.208.17] (unknown [10.39.208.17])
-	by smtp.corp.redhat.com (Postfix) with ESMTPS id 89D3E2592;
-	Wed, 21 Feb 2024 08:47:46 +0000 (UTC)
-Message-ID: <77a8b8d5-69c2-4386-bae5-871270aa110d@redhat.com>
-Date: Wed, 21 Feb 2024 09:47:44 +0100
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="xO0JVH2K"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1708509232; h=Message-ID:Subject:Date:From:To;
+	bh=iMfzMLI+K5kpzH+OCBW/f2plocUmWvxeNdyqymsPQs0=;
+	b=xO0JVH2Kv0VVpcjMm1VbGojf+LRK9g++MikJEOptw3wU4cGq9cE2HI6nqcT6rCTGISz6of0nWjDPgz/+KpKyMfmpJxBpzIfXQdEu6HOV4hpW6bmSjkKIu9B0rRFBI+4KW8qEsUkN7PFdZzTLmAnBsfSPe0ei43k5cGwE3oaSlOM=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0W0zZSyp_1708509229;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W0zZSyp_1708509229)
+          by smtp.aliyun-inc.com;
+          Wed, 21 Feb 2024 17:53:49 +0800
+Message-ID: <1708509152.9501102-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next 1/2] xsk: Remove non-zero 'dma_page' check in xp_assign_dev
+Date: Wed, 21 Feb 2024 17:52:32 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Yunjian Wang <wangyunjian@huawei.com>
+Cc: <netdev@vger.kernel.org>,
+ <linux-kernel@vger.kernel.org>,
+ <kvm@vger.kernel.org>,
+ <virtualization@lists.linux.dev>,
+ <xudingke@huawei.com>,
+ Yunjian Wang <wangyunjian@huawei.com>,
+ <mst@redhat.com>,
+ <willemdebruijn.kernel@gmail.com>,
+ <jasowang@redhat.com>,
+ <kuba@kernel.org>,
+ <davem@davemloft.net>,
+ <magnus.karlsson@intel.com>
+References: <1706089058-1364-1-git-send-email-wangyunjian@huawei.com>
+In-Reply-To: <1706089058-1364-1-git-send-email-wangyunjian@huawei.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] vduse: implement DMA sync callbacks
-To: Christoph Hellwig <hch@infradead.org>
-Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
- xieyongji@bytedance.com, axboe@kernel.dk, gregkh@linuxfoundation.org,
- brauner@kernel.org, lstoakes@gmail.com, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
- david.marchand@redhat.com
-References: <20240219170606.587290-1-maxime.coquelin@redhat.com>
- <ZdRqcIRmDD-70ap3@infradead.org>
-Content-Language: en-US
-From: Maxime Coquelin <maxime.coquelin@redhat.com>
-Autocrypt: addr=maxime.coquelin@redhat.com; keydata=
- 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
- Mwqu3GQ=
-In-Reply-To: <ZdRqcIRmDD-70ap3@infradead.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.1
 
-Hello Christoph,
+On Wed, 24 Jan 2024 17:37:38 +0800, Yunjian Wang <wangyunjian@huawei.com> wrote:
+> Now dma mappings are used by the physical NICs. However the vNIC
+> maybe do not need them. So remove non-zero 'dma_page' check in
+> xp_assign_dev.
 
-On 2/20/24 10:01, Christoph Hellwig wrote:
-> On Mon, Feb 19, 2024 at 06:06:06PM +0100, Maxime Coquelin wrote:
->> Since commit 295525e29a5b ("virtio_net: merge dma
->> operations when filling mergeable buffers"), VDUSE device
->> require support for DMA's .sync_single_for_cpu() operation
->> as the memory is non-coherent between the device and CPU
->> because of the use of a bounce buffer.
->>
->> This patch implements both .sync_single_for_cpu() and
->> sync_single_for_device() callbacks, and also skip bounce
->> buffer copies during DMA map and unmap operations if the
->> DMA_ATTR_SKIP_CPU_SYNC attribute is set to avoid extra
->> copies of the same buffer.
-> 
-> vduse really needs to get out of implementing fake DMA operations for
-> something that is not DMA.
-> 
+Could you tell me which one nic can work with AF_XDP without DMA?
 
-I wasn't involved when vduse was initially submitted, I don't know if
-any alternative was considered at that time.
+Thanks.
 
-Do you have something specific in mind we could do to have VDUSE not
-implementing DMA ops, knowing other vDPA devices rely on DMA?
 
-Thanks,
-Maxime
-
+>
+> Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
+> ---
+>  net/xdp/xsk_buff_pool.c | 7 -------
+>  1 file changed, 7 deletions(-)
+>
+> diff --git a/net/xdp/xsk_buff_pool.c b/net/xdp/xsk_buff_pool.c
+> index 28711cc44ced..939b6e7b59ff 100644
+> --- a/net/xdp/xsk_buff_pool.c
+> +++ b/net/xdp/xsk_buff_pool.c
+> @@ -219,16 +219,9 @@ int xp_assign_dev(struct xsk_buff_pool *pool,
+>  	if (err)
+>  		goto err_unreg_pool;
+>
+> -	if (!pool->dma_pages) {
+> -		WARN(1, "Driver did not DMA map zero-copy buffers");
+> -		err = -EINVAL;
+> -		goto err_unreg_xsk;
+> -	}
+>  	pool->umem->zc = true;
+>  	return 0;
+>
+> -err_unreg_xsk:
+> -	xp_disable_drv_zc(pool);
+>  err_unreg_pool:
+>  	if (!force_zc)
+>  		err = 0; /* fallback to copy mode */
+> --
+> 2.33.0
+>
+>
