@@ -1,108 +1,154 @@
-Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D00DA6AAD
-	for <virtualization@lists.linux.dev>; Wed, 21 Feb 2024 02:04:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7403D39FF2
+	for <virtualization@lists.linux-foundation.org>; Wed, 21 Feb 2024 05:52:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708481094; cv=none; b=fWOipRqGkKtGiQkcPmaJhvWSgUoogZ31vLqw9ixVjuCqzbulKWOBijww/VkpQILSBz51wn+Wl/ARQHI0GtqouKpWoG8h0ASQ6xurXws0s8QE8uqBpF+nu6uhfic/xl3d8cCdEnnEaEHr8aZfN3ZRDH45Ot6koV7QoXa/kMFHJMI=
+	t=1708494772; cv=none; b=WCUoNSyeP3HIyhxMwjCYNqbgu3yWY2UaILGe0gRVt+jcdsM6hQkm1XvN+7qKycucgvdfem7CqkTaEY9lfOkVRYJmMnHYpPMtCcS+lvc/SGooJsdnT5LfJEAZaDt+4+jzQQrkBf2RLQJmqPjqUBOKrjkOCls60gDDgGE3Sd8QGG0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708481094; c=relaxed/simple;
-	bh=ORbxc1aLPAjWIc3vkR5GtdqUtX005SNYWEsxv9OAOk8=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=I2WwqGHMgkKBchRCY5FkxBw66RzZcOvvW/W3M0WOgz/17siDBvNFQbc2xYMdGuxoFxCw7O37+QufNbYFw9WFiiechoEIDYLdn/l2LlO66Njero0F/k1oSszpSFkICQ5e0abrynF9DX0qAXKvvlJgKhitUlhcYBelBHDT5tT0jgs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=sbiMOEKn; arc=none smtp.client-ip=115.124.30.97
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1708494772; c=relaxed/simple;
+	bh=m9KXViBMIqK3eY0oESEJYXMAttcld2hKY0eqPgtVrzM=;
+	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=RqrF8HVkfQjEnnDTxeC4Dz55H37xVBHYiIYLpNNvUKIYrMrk2Pndfo5D3YtOeKjY5DnM6uyREGbnt4mnLtBJQAc0GNOZN85IOH+Z/SYngGMYpObvufQHBYKsfgAj3wBBbc6WXPLp8buJDBcJIhSoohM/qn6PLpmEdZq9k6Y9C1g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=eQfTzSDY; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="sbiMOEKn"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1708481089; h=Message-ID:Subject:Date:From:To;
-	bh=ORbxc1aLPAjWIc3vkR5GtdqUtX005SNYWEsxv9OAOk8=;
-	b=sbiMOEKn8YsHac7GFd2HpFkPp/HOfaG+QEE9BieQi/hhLVUhFJ7rmqrhU424MQvVrn0mxTjDTdk4MpsxcIzPFtU3cw3u/0GLit+rcLWYL1xhJZxH6osDXJHKl/q45G0sOC1B2Yb8vcCsOxJNeZQnoQCUxEIBetRhstw6k8N7NoE=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R921e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=36;SR=0;TI=SMTPD_---0W0yFyS._1708481086;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W0yFyS._1708481086)
-          by smtp.aliyun-inc.com;
-          Wed, 21 Feb 2024 10:04:47 +0800
-Message-ID: <1708481025.1893313-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost 07/17] virtio: find_vqs: pass struct instead of multi parameters
-Date: Wed, 21 Feb 2024 10:03:45 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Jason Wang <jasowang@redhat.com>,
- virtualization@lists.linux.dev,
- Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- "Michael S. Tsirkin" <mst@redhat.com>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- Hans de Goede <hdegoede@redhat.com>,
- =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- Vadim Pasternak <vadimp@nvidia.com>,
- Bjorn Andersson <andersson@kernel.org>,
- Mathieu Poirier <mathieu.poirier@linaro.org>,
- Cornelia Huck <cohuck@redhat.com>,
- Eric Farman <farman@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- Benjamin Berg <benjamin.berg@intel.com>,
- Yang Li <yang.lee@linux.alibaba.com>,
- linux-um@lists.infradead.org,
- netdev@vger.kernel.org,
- platform-driver-x86@vger.kernel.org,
- linux-remoteproc@vger.kernel.org,
- linux-s390@vger.kernel.org,
- kvm@vger.kernel.org,
- bpf@vger.kernel.org,
- Halil Pasic <pasic@linux.ibm.com>
-References: <20240130114224.86536-1-xuanzhuo@linux.alibaba.com>
- <20240130114224.86536-8-xuanzhuo@linux.alibaba.com>
- <CACGkMEvb4N8kthr4qWXrLOh9v422OYhrYU6hQejusw-e5EacPw@mail.gmail.com>
- <1706756442.5524123-1-xuanzhuo@linux.alibaba.com>
- <20240220151815.5c867cce.pasic@linux.ibm.com>
-In-Reply-To: <20240220151815.5c867cce.pasic@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="eQfTzSDY"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 561A8404F6
+	for <virtualization@lists.linux-foundation.org>; Wed, 21 Feb 2024 05:52:48 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -1.999
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Ia2PjPFatzH9
+	for <virtualization@lists.linux-foundation.org>;
+	Wed, 21 Feb 2024 05:52:47 +0000 (UTC)
+Received-SPF: None (mailfrom) identity=mailfrom; client-ip=192.198.163.13; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org D5D97403C7
+Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D5D97403C7
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=eQfTzSDY
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id D5D97403C7
+	for <virtualization@lists.linux-foundation.org>; Wed, 21 Feb 2024 05:52:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1708494767; x=1740030767;
+  h=message-id:date:mime-version:cc:subject:to:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=m9KXViBMIqK3eY0oESEJYXMAttcld2hKY0eqPgtVrzM=;
+  b=eQfTzSDYKoM9OThoBJj+i0rm8t4qgtSq7VQyHlxvEKmcrelsV6lq+bqN
+   dvBwyFOog/J1E6RYr6O6NV3tEQOnmIjeGkeF0sB3eFmSv8JefzEx9Q9li
+   OSnfqa+jgWXLJ8/q/lQfLziiJyzYaqn7PhSTpQENXy2m/1Du6k1E7Hals
+   Ax4ku1+DqtxZEbkSNzigDzGh34FEKkkRdJiubBHgo6ZovyIy0fTelFGG2
+   rwsTlfLSBhzEF4SvtgShQyjmClZd/h4n5owGMB+1WiwDsfXqO0fMKBRE5
+   iw+CzXbM52UYZWzxWtedA6rax+oM1aIdAVIDpIV74wzsxWUUaQeJVZjAr
+   A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10990"; a="5592743"
+X-IronPort-AV: E=Sophos;i="6.06,174,1705392000"; 
+   d="scan'208";a="5592743"
+Received: from fmviesa005.fm.intel.com ([10.60.135.145])
+  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Feb 2024 21:52:45 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.06,174,1705392000"; 
+   d="scan'208";a="9643953"
+Received: from blu2-mobl.ccr.corp.intel.com (HELO [10.249.171.203]) ([10.249.171.203])
+  by fmviesa005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Feb 2024 21:52:42 -0800
+Message-ID: <b0f5e418-8faa-45d1-b086-61f6c009c0cb@linux.intel.com>
+Date: Wed, 21 Feb 2024 13:52:39 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Cc: baolu.lu@linux.intel.com, "iommu@lists.linux.dev"
+ <iommu@lists.linux.dev>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v3 1/8] iommu: Add iopf domain attach/detach/replace
+ interface
+Content-Language: en-US
+To: "Tian, Kevin" <kevin.tian@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+ Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+ Robin Murphy <robin.murphy@arm.com>,
+ Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Nicolin Chen <nicolinc@nvidia.com>, "Liu, Yi L" <yi.l.liu@intel.com>,
+ Jacob Pan <jacob.jun.pan@linux.intel.com>,
+ Joel Granados <j.granados@samsung.com>
+References: <20240122073903.24406-1-baolu.lu@linux.intel.com>
+ <20240122073903.24406-2-baolu.lu@linux.intel.com>
+ <BN9PR11MB527629BF9A0E27E36D3925B18C452@BN9PR11MB5276.namprd11.prod.outlook.com>
+From: Baolu Lu <baolu.lu@linux.intel.com>
+In-Reply-To: <BN9PR11MB527629BF9A0E27E36D3925B18C452@BN9PR11MB5276.namprd11.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Tue, 20 Feb 2024 15:18:15 +0100, Halil Pasic <pasic@linux.ibm.com> wrote:
-> On Thu, 1 Feb 2024 11:00:42 +0800
-> Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
->
-> > > > And squish the parameters from transport to a structure.
-> > >
-> > > The patch did more than what is described here, it also switch to use
-> > > a structure for vring_create_virtqueue() etc.
-> > >
-> > > Is it better to split?
-> >
-> > Sure.
->
-> I understand there will be a v2. From virtio-ccw perspective I have
-> no objections.
+On 2024/2/7 16:11, Tian, Kevin wrote:
+>> From: Lu Baolu <baolu.lu@linux.intel.com>
+>> Sent: Monday, January 22, 2024 3:39 PM
+>>
+>> There is a slight difference between iopf domains and non-iopf domains.
+>> In the latter, references to domains occur between attach and detach;
+>> While in the former, due to the existence of asynchronous iopf handling
+>> paths, references to the domain may occur after detach, which leads to
+>> potential UAF issues.
+> 
+> Does UAF still exist if iommu driver follows the guidance you just added
+> to iopf_queue_remove_device()?
+> 
+> it clearly says that the driver needs to disable IOMMU PRI reception,
+> remove device from iopf queue and disable PRI on the device.
 
-The next version is v1.
+The iopf_queue_remove_device() function is only called after the last
+iopf-capable domain is detached from the device. It may not be called
+during domain replacement. Hence, there is no guarantee that
+iopf_queue_remove_device() will be called when a domain is detached from
+the device.
 
-That is posted.
+> 
+> presumably those are all about what needs to be done in the detach
+> operation. Then once detach completes there should be no more
+> reference to the domain from the iopf path?
 
-http://lore.kernel.org/all/20240202093951.120283-8-xuanzhuo@linux.alibaba.com
-http://lore.kernel.org/all/20240202093951.120283-9-xuanzhuo@linux.alibaba.com
+The domain pointer stored in the iopf_group structure is only released
+after the iopf response, possibly after the domain is detached from the
+device. Thus, the domain pointer can only be freed after the iopf
+response.
 
-Thanks.
+> 
+>>
+>> +struct iopf_attach_cookie {
+>> +	struct iommu_domain *domain;
+>> +	struct device *dev;
+>> +	unsigned int pasid;
+>> +	refcount_t users;
+>> +
+>> +	void *private;
+>> +	void (*release)(struct iopf_attach_cookie *cookie);
+>> +};
+> 
+> this cookie has nothing specific to iopf.
+> 
+> it may makes more sense to build a generic iommu_attach_device_cookie()
+> helper so the same object can be reused in future other usages too.
+> 
+> within iommu core it can check domain iopf handler and this generic cookie
+> to update iopf specific data e.g. the pasid_cookie xarray.
 
+This means attaching an iopf-capable domain follows two steps:
 
->
-> Regards,
-> Halil
+1) Attaching the domain to the device.
+2) Setting up the iopf data, necessary for handling iopf data.
+
+This creates a time window during which the iopf is enabled, but the
+software cannot handle it. Or not?
+
+Best regards,
+baolu
