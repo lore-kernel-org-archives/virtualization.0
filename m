@@ -1,230 +1,127 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 107093F9EC
-	for <virtualization@lists.linux.dev>; Thu, 22 Feb 2024 19:55:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 150815490D
+	for <virtualization@lists.linux.dev>; Thu, 22 Feb 2024 20:02:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708631706; cv=none; b=m9yJD9UDKPDYqtgcDMj8iCyCefxW3SXGLBuRJeOH19iEvg5oi4v28Uv1kaNWAQ6am6VPclbexmkntH6rDcOREb0LwpMu0nLwkFviI4Z715pJSrmjSGHkGiPPHdEvqXAsVElujDlTJWRaS6J1Ilg4Xqu6bkE/NhNc6fVEZEeoanw=
+	t=1708632172; cv=none; b=Ug2VZ01qInUDJG0dyXO18/LE/GGxSuTC/PXhnXZ6E2W9mxTREW6vfEH98nl4DPqbrZhVkTD8YfvdpeO5SoBboinzHTIgG1XDz6z8ymGcdk5RhLdljepDdTmO/RdWMWrHYH/YX0S8BCLJCJa5DZMdzd8+9w3P3qUiJKIp8vraCLQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708631706; c=relaxed/simple;
-	bh=2QLLW+IDkCr4cgd4k0ZnBRVRrE0Ty0HWRgBFwTeLP8Y=;
+	s=arc-20240116; t=1708632172; c=relaxed/simple;
+	bh=aknFNqqxJry03mMtGqJFoI/wKDCcG2OQaTtQxGeRRpc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=pUcN/1mVuz+QL3ve6cIXtf7S5kJKc6ywAIE/QqWWeu+vf+vTbc93QnFJ2MQH3qOwhDswhvA5FljBx8v7buQ0MiCpiuTfyBouMSZQm94RVmohkp0SvOiHPMDQIPgJl1AF8h9d4BrP2apLcr3TDoPKta6D6z8NRHm4EkN5sShCK0E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Je92gkPb; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=hHncKdrEKr0rFUeyke7+upSXGKFd1jGsmff9AosIZiRaWTuorej1fA6+2cA3X8PhRHMFoJp2jzhE4f+AVIzycbet7kbImawVLhNqJK3pboFweezKkb4mIdSyzaAZ7sVESsBK2pyRNpudWslwiOArvnUEuydLyaI1mus76XTN6e8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JkIc6wGO; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Je92gkPb"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JkIc6wGO"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1708631703;
+	s=mimecast20190719; t=1708632169;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=B14VSMvxVqAeXnQ2e0nLRDE3jOC6HbsDFeCY40Y6s2Y=;
-	b=Je92gkPb5U1w5EB7txWF+sixShREEd+JE5TE/igLTlYONVWFzHTYLMwd3GjF9lCOseu9K7
-	LCngIF/IhUIHHaIqub3slwJtb6dnBGTy+VjSI+Qa4KHtEzu0Y9pac8VIlr8PGzA0QD28Lv
-	Z6L/d+cRUBWfxz+Cj/bEHpsootQWPQ8=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=Ip/bb26cz2+ipekHalCr5lDscUM2updhLQwbQoyojpM=;
+	b=JkIc6wGOdNyvV00ujFj0cthtQh/iN5Agz5lEUFva0BE+e6EMpkNqtRC2Ep2lwBx15vJp7G
+	weSRGjLjsWF/XCvROCOtpzJ1+bQeUp++KgWKReyWAGhdPvHwBiBm72IkeHnUoK7Wa+fiXi
+	AHak35FxlvlFt4DvLQ+iFL0fjQG89Us=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-257-Bbd3rBFyPW6GPGq8WKFzjw-1; Thu, 22 Feb 2024 14:55:02 -0500
-X-MC-Unique: Bbd3rBFyPW6GPGq8WKFzjw-1
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-33d8d785b08so89514f8f.2
-        for <virtualization@lists.linux.dev>; Thu, 22 Feb 2024 11:55:02 -0800 (PST)
+ us-mta-689-K6Cpy4-bOkiX_SODqi1B-g-1; Thu, 22 Feb 2024 15:02:48 -0500
+X-MC-Unique: K6Cpy4-bOkiX_SODqi1B-g-1
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-411dca63c56so413615e9.1
+        for <virtualization@lists.linux.dev>; Thu, 22 Feb 2024 12:02:48 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708631390; x=1709236190;
+        d=1e100.net; s=20230601; t=1708632167; x=1709236967;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=B14VSMvxVqAeXnQ2e0nLRDE3jOC6HbsDFeCY40Y6s2Y=;
-        b=vWptAjZZGDby9Dcyg8ePAOk9JCpZU5vygm5IyQfpQZ1G7qosLCJlzkBZ8Q06k1gNDU
-         lcovbvGUg10zDU7acCb5ySKze0COGIWXLhHDscPoteKcMCpEqCyI7f/rtCaiJEmOwr/8
-         186X7TYCvuKMRufFvPEJCDubtRUpq72SajqUnO+MNdc+ZYl3izG92TVMpEK5tJkJp+5T
-         rXuDuDwnolvKw340bAa5w1sjeEnOSkS9SUYDMxacu6GduqnD7AohouEGkOfwVI+qEPpo
-         SjiAFmsc5fjd2WE340NZrdyipaA6zmPUZIMQUvllPxf4sTFBrjjL7evaFjbRSTx9AAVi
-         2IeQ==
-X-Forwarded-Encrypted: i=1; AJvYcCW43rySNoINlOj1kCaazWZHmopI2rFxND7cR4/QPmt40XxqaSf88gPHJ7sCpd6remRYD7PzbwWSEgxWkJV7Y5x6vf0B9GjvUKv0o/v9irQ=
-X-Gm-Message-State: AOJu0YzNwebfzyrenc+TOTnZcxPIMhOVRIiAKQL+3UY/pke2NuMU3BSt
-	4t2HJWGxi1+nNsIGRQ6Pb/F56DNDa/cI1U3hppreUGlCtKLZxY4oecXx37hXhTLgwOpXJ0FBSTK
-	ShUJ6GU94H/TUeKLVYzieV9MUBD5qAuLXrDrLMubMunl0i9IqliTVVGPpbPntTLw0
-X-Received: by 2002:a5d:6646:0:b0:33d:3b72:d2c8 with SMTP id f6-20020a5d6646000000b0033d3b72d2c8mr73537wrw.71.1708631390446;
-        Thu, 22 Feb 2024 11:49:50 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEaBVKisoMxO5nbkxyDQT6zkPbLiLcfVpJynqra2jIu5OlbddhLBDs8SyHa4SYsDXQIiITRGg==
-X-Received: by 2002:a5d:6646:0:b0:33d:3b72:d2c8 with SMTP id f6-20020a5d6646000000b0033d3b72d2c8mr73531wrw.71.1708631390042;
-        Thu, 22 Feb 2024 11:49:50 -0800 (PST)
+        bh=Ip/bb26cz2+ipekHalCr5lDscUM2updhLQwbQoyojpM=;
+        b=DgfvwbjHmhFchIAa8SgMcuURfBm5XDdduiXa+Hz7P3+vlBTE8uJK5sfPtN7nnkRDa6
+         2hHJy9d1WrMR9ciGRl3Nr//53hj3LanSP5imksWKmxqalG6LnBD3eHKOhX6BeAHLYLM6
+         zp6aKSAHPdPhQCGvQWethvspD86yHFbQTBh8ZKuGYQuWX6VSs+z3hlhE5M9chpzGtHN5
+         AUY5j/X1+IAMLIaVevkVUCikX2OyCSRFEfogUsLWc7syKVDgXgnpHIoNjrfN7xw2Wvl2
+         /VFNPhkbQxbRlQVtE3f5/WIME6s6niYqEmdc1nmewZfSr7Id45cs0+SBEC0Nnpa9sr4z
+         cpYQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXFVIyo8MnxMC5//HOp4ic/sb1KrQiU2X8kZHrv4MrekWl61twhBsL3E//W1eS3A+aD2xb24NIOeT+IwVbJ2V1DwrrPGS7AN2L5akr6Z68=
+X-Gm-Message-State: AOJu0YytzhdTkHBbTc0wizjlXOBog5slmEF0qYVm3mLn7Hlx1bD7PqXa
+	N+lNGuFDZ1Sjsp86Yxjm/izp5KDqhKCsTKnyAeJk0r3DPkQNq203+FlvyTL3FUbxcHZzLvYuwqS
+	zQddHkQOChChkJEy81xm3HcOUlbiIqWDHjxqJ7t0LKygeoJkpVUROqiJOyIX+8h1TPtmjbIeT1n
+	k=
+X-Received: by 2002:a5d:480d:0:b0:33d:9d4a:b28 with SMTP id l13-20020a5d480d000000b0033d9d4a0b28mr114021wrq.18.1708632167122;
+        Thu, 22 Feb 2024 12:02:47 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFGY5xEB+oirt/8WYolwR+t/b3r7Lw8iYBr645QsLpjupov8MKzMLmF73APkFMsTjyAiTEk6A==
+X-Received: by 2002:a5d:480d:0:b0:33d:9d4a:b28 with SMTP id l13-20020a5d480d000000b0033d9d4a0b28mr114007wrq.18.1708632166787;
+        Thu, 22 Feb 2024 12:02:46 -0800 (PST)
 Received: from redhat.com ([172.93.237.99])
-        by smtp.gmail.com with ESMTPSA id bs30-20020a056000071e00b0033d297c9118sm58957wrb.24.2024.02.22.11.49.46
+        by smtp.gmail.com with ESMTPSA id bi21-20020a05600c3d9500b004128808db91sm3049224wmb.23.2024.02.22.12.02.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Feb 2024 11:49:49 -0800 (PST)
-Date: Thu, 22 Feb 2024 14:49:41 -0500
+        Thu, 22 Feb 2024 12:02:46 -0800 (PST)
+Date: Thu, 22 Feb 2024 15:02:39 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Hou Tao <houtao@huaweicloud.com>
-Cc: linux-fsdevel@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>,
-	Vivek Goyal <vgoyal@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>, linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev, houtao1@huawei.com
-Subject: Re: [PATCH] virtiofs: limit the length of ITER_KVEC dio by
- max_nopage_rw
-Message-ID: <20240222144828-mutt-send-email-mst@kernel.org>
-References: <20240103105929.1902658-1-houtao@huaweicloud.com>
+To: Andrew Melnychenko <andrew@daynix.com>
+Cc: jasowang@redhat.com, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, yuri.benditovich@daynix.com,
+	yan@daynix.com
+Subject: Re: [PATCH 1/1] vhost: Added pad cleanup if vnet_hdr is not present.
+Message-ID: <20240222150212-mutt-send-email-mst@kernel.org>
+References: <20240115194840.1183077-1-andrew@daynix.com>
+ <20240115172837-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240103105929.1902658-1-houtao@huaweicloud.com>
+In-Reply-To: <20240115172837-mutt-send-email-mst@kernel.org>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Wed, Jan 03, 2024 at 06:59:29PM +0800, Hou Tao wrote:
-> From: Hou Tao <houtao1@huawei.com>
+On Mon, Jan 15, 2024 at 05:32:25PM -0500, Michael S. Tsirkin wrote:
+> On Mon, Jan 15, 2024 at 09:48:40PM +0200, Andrew Melnychenko wrote:
+> > When the Qemu launched with vhost but without tap vnet_hdr,
+> > vhost tries to copy vnet_hdr from socket iter with size 0
+> > to the page that may contain some trash.
+> > That trash can be interpreted as unpredictable values for
+> > vnet_hdr.
+> > That leads to dropping some packets and in some cases to
+> > stalling vhost routine when the vhost_net tries to process
+> > packets and fails in a loop.
+> > 
+> > Qemu options:
+> >   -netdev tap,vhost=on,vnet_hdr=off,...
+> > 
+> > Signed-off-by: Andrew Melnychenko <andrew@daynix.com>
+> > ---
+> >  drivers/vhost/net.c | 3 +++
+> >  1 file changed, 3 insertions(+)
+> > 
+> > diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> > index f2ed7167c848..57411ac2d08b 100644
+> > --- a/drivers/vhost/net.c
+> > +++ b/drivers/vhost/net.c
+> > @@ -735,6 +735,9 @@ static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
+> >  	hdr = buf;
+> >  	gso = &hdr->gso;
+> >  
+> > +	if (!sock_hlen)
+> > +		memset(buf, 0, pad);
+> > +
+> >  	if ((gso->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) &&
+> >  	    vhost16_to_cpu(vq, gso->csum_start) +
+> >  	    vhost16_to_cpu(vq, gso->csum_offset) + 2 >
 > 
-> When trying to insert a 10MB kernel module kept in a virtiofs with cache
-> disabled, the following warning was reported:
 > 
->   ------------[ cut here ]------------
->   WARNING: CPU: 2 PID: 439 at mm/page_alloc.c:4544 ......
->   Modules linked in:
->   CPU: 2 PID: 439 Comm: insmod Not tainted 6.7.0-rc7+ #33
->   Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), ......
->   RIP: 0010:__alloc_pages+0x2c4/0x360
->   ......
->   Call Trace:
->    <TASK>
->    ? __warn+0x8f/0x150
->    ? __alloc_pages+0x2c4/0x360
->    __kmalloc_large_node+0x86/0x160
->    __kmalloc+0xcd/0x140
->    virtio_fs_enqueue_req+0x240/0x6d0
->    virtio_fs_wake_pending_and_unlock+0x7f/0x190
->    queue_request_and_unlock+0x58/0x70
->    fuse_simple_request+0x18b/0x2e0
->    fuse_direct_io+0x58a/0x850
->    fuse_file_read_iter+0xdb/0x130
->    __kernel_read+0xf3/0x260
->    kernel_read+0x45/0x60
->    kernel_read_file+0x1ad/0x2b0
->    init_module_from_file+0x6a/0xe0
->    idempotent_init_module+0x179/0x230
->    __x64_sys_finit_module+0x5d/0xb0
->    do_syscall_64+0x36/0xb0
->    entry_SYSCALL_64_after_hwframe+0x6e/0x76
->    ......
->    </TASK>
->   ---[ end trace 0000000000000000 ]---
-> 
-> The warning happened as follow. In copy_args_to_argbuf(), virtiofs uses
-> kmalloc-ed memory as bound buffer for fuse args, but
-> fuse_get_user_pages() only limits the length of fuse arg by max_read or
-> max_write for IOV_KVEC io (e.g., kernel_read_file from finit_module()).
-> For virtiofs, max_read is UINT_MAX, so a big read request which is about
-> 10MB is passed to copy_args_to_argbuf(), kmalloc() is called in turn
-> with len=10MB, and triggers the warning in __alloc_pages():
-> WARN_ON_ONCE_GFP(order > MAX_ORDER, gfp)).
-> 
-> A feasible solution is to limit the value of max_read for virtiofs, so
-> the length passed to kmalloc() will be limited. However it will affects
-> the max read size for ITER_IOVEC io and the value of max_write also needs
-> limitation. So instead of limiting the values of max_read and max_write,
-> introducing max_nopage_rw to cap both the values of max_read and
-> max_write when the fuse dio read/write request is initiated from kernel.
-> 
-> Considering that fuse read/write request from kernel is uncommon and to
-> decrease the demand for large contiguous pages, set max_nopage_rw as
-> 256KB instead of KMALLOC_MAX_SIZE - 4096 or similar.
-> 
-> Fixes: a62a8ef9d97d ("virtio-fs: add virtiofs filesystem")
-> Signed-off-by: Hou Tao <houtao1@huawei.com>
+> Hmm need to analyse it to make sure there are no cases where we leak
+> some data to guest here in case where sock_hlen is set ...
 
 
-So what should I do with this patch? It includes fuse changes
-but of course I can merge too if no one wants to bother either way...
+Could you post this analysis pls?
 
-
-> ---
->  fs/fuse/file.c      | 12 +++++++++++-
->  fs/fuse/fuse_i.h    |  3 +++
->  fs/fuse/inode.c     |  1 +
->  fs/fuse/virtio_fs.c |  6 ++++++
->  4 files changed, 21 insertions(+), 1 deletion(-)
-> 
-> diff --git a/fs/fuse/file.c b/fs/fuse/file.c
-> index a660f1f21540..f1beb7c0b782 100644
-> --- a/fs/fuse/file.c
-> +++ b/fs/fuse/file.c
-> @@ -1422,6 +1422,16 @@ static int fuse_get_user_pages(struct fuse_args_pages *ap, struct iov_iter *ii,
->  	return ret < 0 ? ret : 0;
->  }
->  
-> +static size_t fuse_max_dio_rw_size(const struct fuse_conn *fc,
-> +				   const struct iov_iter *iter, int write)
-> +{
-> +	unsigned int nmax = write ? fc->max_write : fc->max_read;
-> +
-> +	if (iov_iter_is_kvec(iter))
-> +		nmax = min(nmax, fc->max_nopage_rw);
-> +	return nmax;
-> +}
-> +
->  ssize_t fuse_direct_io(struct fuse_io_priv *io, struct iov_iter *iter,
->  		       loff_t *ppos, int flags)
->  {
-> @@ -1432,7 +1442,7 @@ ssize_t fuse_direct_io(struct fuse_io_priv *io, struct iov_iter *iter,
->  	struct inode *inode = mapping->host;
->  	struct fuse_file *ff = file->private_data;
->  	struct fuse_conn *fc = ff->fm->fc;
-> -	size_t nmax = write ? fc->max_write : fc->max_read;
-> +	size_t nmax = fuse_max_dio_rw_size(fc, iter, write);
->  	loff_t pos = *ppos;
->  	size_t count = iov_iter_count(iter);
->  	pgoff_t idx_from = pos >> PAGE_SHIFT;
-> diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
-> index 1df83eebda92..fc753cd34211 100644
-> --- a/fs/fuse/fuse_i.h
-> +++ b/fs/fuse/fuse_i.h
-> @@ -594,6 +594,9 @@ struct fuse_conn {
->  	/** Constrain ->max_pages to this value during feature negotiation */
->  	unsigned int max_pages_limit;
->  
-> +	/** Maximum read/write size when there is no page in request */
-> +	unsigned int max_nopage_rw;
-> +
->  	/** Input queue */
->  	struct fuse_iqueue iq;
->  
-> diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
-> index 2a6d44f91729..4cbbcb4a4b71 100644
-> --- a/fs/fuse/inode.c
-> +++ b/fs/fuse/inode.c
-> @@ -923,6 +923,7 @@ void fuse_conn_init(struct fuse_conn *fc, struct fuse_mount *fm,
->  	fc->user_ns = get_user_ns(user_ns);
->  	fc->max_pages = FUSE_DEFAULT_MAX_PAGES_PER_REQ;
->  	fc->max_pages_limit = FUSE_MAX_MAX_PAGES;
-> +	fc->max_nopage_rw = UINT_MAX;
->  
->  	INIT_LIST_HEAD(&fc->mounts);
->  	list_add(&fm->fc_entry, &fc->mounts);
-> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-> index 5f1be1da92ce..3aac31d45198 100644
-> --- a/fs/fuse/virtio_fs.c
-> +++ b/fs/fuse/virtio_fs.c
-> @@ -1452,6 +1452,12 @@ static int virtio_fs_get_tree(struct fs_context *fsc)
->  	/* Tell FUSE to split requests that exceed the virtqueue's size */
->  	fc->max_pages_limit = min_t(unsigned int, fc->max_pages_limit,
->  				    virtqueue_size - FUSE_HEADER_OVERHEAD);
-> +	/* copy_args_to_argbuf() uses kmalloc-ed memory as bounce buffer
-> +	 * for fuse args, so limit the total size of these args to prevent
-> +	 * the warning in __alloc_pages() and decrease the demand for large
-> +	 * contiguous pages.
-> +	 */
-> +	fc->max_nopage_rw = min(fc->max_nopage_rw, 256U << 10);
->  
->  	fsc->s_fs_info = fm;
->  	sb = sget_fc(fsc, virtio_fs_test_super, set_anon_super_fc);
-> -- 
-> 2.29.2
+> > -- 
+> > 2.43.0
 
