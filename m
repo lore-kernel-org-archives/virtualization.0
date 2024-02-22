@@ -1,193 +1,111 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B8D36E5F5
-	for <virtualization@lists.linux.dev>; Thu, 22 Feb 2024 20:09:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53838405D8
+	for <virtualization@lists.linux.dev>; Thu, 22 Feb 2024 20:29:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708632588; cv=none; b=W//SBQV2cq7gDg2mSCOP42HcdD1r423zCk+/ZmjusbtSyUPjprJMeC0xxgt/1hpHvaD+Iw4mAnri31fJA3902YGZfkuaxQhEcvOAoR10IQl/1DgWclgKaWnAahNFBy9EaAC9OcLE1blewycctifvPlLN5eJMtwmFH2lijPIYz/E=
+	t=1708633763; cv=none; b=Gk35tY7ZG+oJteoGfrXgWwmr8iUgDDu6fRoBGTu4kLxTObagXjWa3okpN5pmVUpWDx1CRWmQvb5Zijgf2rCAl8ITPwFsNVVO1skNpdwA49pYaGXfVpvcEpfn9vBqQw2MYcwmFIzHNFxvyKEy9SD2mQd8aRppyxxuiPx/JCIMsHM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708632588; c=relaxed/simple;
-	bh=MUh8YfHrKxE6d0K57Aj/QEX++RrUQWnSkrgdmAMCmE8=;
+	s=arc-20240116; t=1708633763; c=relaxed/simple;
+	bh=EIRl5JmeNnsCCCvrzAJOkSjYNmO/xKRIFAlKwErah0Q=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=OSUHUsrVQw+e7wHbI7Lmv0X01za6OmTRPrIw2k1PVrJAfoKa9fmBdaZwnpS4zzVSMEjQOeJR+GqkPkgo+/K5zWKqv66gM1Wq+6pqYFR/nsWqzdsZfPIVQDmkt27M6YdJXH03H6v6+dIG7OpBvRNEBZw/C9ldM04pWNnXPITw240=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Bfb02DqC; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=tAX9xHXSY2T/ifRi0b/onBxGhaij6UwYVaAWHbqlg5YvvmcmQ3LClsexrX16TOxxgPP7ePTtxINFWJWOVnLvMs872m1vS6DdqGeIRLnrjDKzJV/TDwTJCyfYD5CrYO2cTs4b3qIS1I6Vm5Tsr1BG+/SF0R1AypTCX+GU9Eu8DhY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GnNp+y7l; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Bfb02DqC"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GnNp+y7l"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1708632585;
+	s=mimecast20190719; t=1708633761;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=sFX/VxquyBe6kZjKVY9YcvfWbrOo8BBreb/hc5PTjz8=;
-	b=Bfb02DqC1JSWTaY4UeSbYaMgApHnyK5A4WpB4QD1l0ha3ss5ts5NTVRvbOA4N6EtLIVPAc
-	j41PVj2lTmXpjqcnyioNzomKVzs0wgdK0tBZS2kgwy+mhhRkWojz+YIhqgyHK6/tdp/g7T
-	JLjpNA7kcYV/Qqq+ZSf78etyeuw8Lw4=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=g9U/SuU7EoZOYs84Oq+NGNW63wWSqGFV+44C2eP5B4o=;
+	b=GnNp+y7lj4fd3KSHBNXjRXfvxWZpSAun8XEqx+eF+sThOLU74VNzJq0Sc6z93c3hMKNkMb
+	q/Ib3fWMAE79AAIoHFoHm+L2298umJz3f1dVUPaAe17A4EWyf+UHaYB8p2pu9ZADKuWzVw
+	WUctRIWIYT2sV9jlJLxsg/MKxwjAblM=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-39-XyevLP5rOfWpssGu_s2bMA-1; Thu, 22 Feb 2024 15:09:44 -0500
-X-MC-Unique: XyevLP5rOfWpssGu_s2bMA-1
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-41082621642so557835e9.1
-        for <virtualization@lists.linux.dev>; Thu, 22 Feb 2024 12:09:41 -0800 (PST)
+ us-mta-160-NLzd-afhMtK5tP7ZRlFNyQ-1; Thu, 22 Feb 2024 15:29:20 -0500
+X-MC-Unique: NLzd-afhMtK5tP7ZRlFNyQ-1
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-33d73e15097so63954f8f.1
+        for <virtualization@lists.linux.dev>; Thu, 22 Feb 2024 12:29:19 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708632580; x=1709237380;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=sFX/VxquyBe6kZjKVY9YcvfWbrOo8BBreb/hc5PTjz8=;
-        b=EdazxTwhWCHXOKlp9hMWGx1Gjf++XC0wnzrMlp5qtvE7ImmpbCYG6d84+fhbjw2d2U
-         8CU8sgF8iGsM+jt/iate3Js9p7HdNW/HSu5Vy0tRfv7ZxQg4PrR00Qp98clLY4CkkzE7
-         AKrQUISJeET8y6QDEfmzC4V6e3ukj8eJZ+z/8YuxlLH2kar6IOqAqSofWgsOCKrcJkfU
-         1sv7LxbaNvhrbf5kfj/SE/U6UjdY15XfOMzOSPNpIpp5OEurgJthqd9tNbHEiCVKeO2f
-         akJiolu/umYxludkhnCZqoEJBGBFfLqxq5R5VIoxgcXtYCw+CggrhL6kASCqcK6LtPEk
-         3eIg==
-X-Forwarded-Encrypted: i=1; AJvYcCUXs2QoN58uFiTT8xs6P8jptSsPrZE4Uhn/2MoCyHs+eCIH5prvl/O+27Qsw2Ei6Uet+HlkpPsjEfpHT0fkJhN9QO73hJmJnhmfjW1ZKTo=
-X-Gm-Message-State: AOJu0YwnVgWNUq64jkquZR1fQzdFrdD466SPiIDbHdMtA2uuBG8oxA5V
-	SjWr+KFAk/TTLaRjNfB0Clgm52jXvFS8GfXM5hjBhrqNz2i9iBFqruf6P4EIrWMC/8cLuVKdtfc
-	WV2a/wvyaJZ5jfH6kwhqy5+HRDjKjpC6WqH3kDPA8AZRmx7xTcwcBg2U/wno7VzUb
-X-Received: by 2002:a05:600c:4ed1:b0:412:64ea:8f5a with SMTP id g17-20020a05600c4ed100b0041264ea8f5amr9544716wmq.34.1708632580361;
-        Thu, 22 Feb 2024 12:09:40 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IH9yY8JjO1FoyqvU2lpiTSUbR0Lk0HQjJedlMjs+5XSlzThoRsvA8lNTPP+zy0EkH73CKE3zA==
-X-Received: by 2002:a05:600c:4ed1:b0:412:64ea:8f5a with SMTP id g17-20020a05600c4ed100b0041264ea8f5amr9544703wmq.34.1708632579992;
-        Thu, 22 Feb 2024 12:09:39 -0800 (PST)
+        d=1e100.net; s=20230601; t=1708633759; x=1709238559;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=g9U/SuU7EoZOYs84Oq+NGNW63wWSqGFV+44C2eP5B4o=;
+        b=bq+26fe6Q3+zWnWl/GryOLpYpe0QM+qrvmQBmuYgZQKqWcxgXvZ7vOMCt0vKrPEJyF
+         XK+QW41yp76LQYenODdu9Km44n/L93uukYHdkgS3ty86yEqBRCByD9a/1CF0AVxdi8XJ
+         y6CdyZ3Mq3k0iQdtECcd+eMmoTGdlcToSr9Mfe2LadcErbUMNUWJ0zLlobaq9glMSlFv
+         PByJCcw/XXqOvvgKE8ma43H+yJcUJi2g+8828nGn/psH2fblgamiRSq883v8x4iX2DYi
+         ccAuZfmebNqk/dg7t1d1142i4cjXhaObxDKkN5z7or8J45LZvMqV9CeFu//RTeQx3mIo
+         c6bg==
+X-Forwarded-Encrypted: i=1; AJvYcCWuoCLIcOXZkC4z5Tqalu2Ipg1CGPPHya2UGeEPfZHnuITPzkircCfMUAoYgWTDhwBfbLLS2NwStUuirAbz2Gz55DFAyxK2IcZLydp21GQ=
+X-Gm-Message-State: AOJu0YyaYRF58wRcqSJv1LWyXak3q8hjjQW4Ai6e7OBxqrcymemZ6S4k
+	f/1ceaw2leQBaaBeo0ss0pm4mNY1B3w3oXZTJIPDUvibICE0WO74I186UIA1ib/SUGY8gdfAlbt
+	lP3aeziO8F5FORV5THyLxYlWtrpbz2Xg/2v99n93NCJJNuol8nIcVcxGX8KnM0hNO
+X-Received: by 2002:a5d:490b:0:b0:33d:513a:9248 with SMTP id x11-20020a5d490b000000b0033d513a9248mr3036123wrq.15.1708633758959;
+        Thu, 22 Feb 2024 12:29:18 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFmu72LYTYj8EKBymqMoqhVGv0sg4c6wtoeXMyJjoPERBEKhLX3cOJNp9rtBUbNB6tc0W/0bg==
+X-Received: by 2002:a5d:490b:0:b0:33d:513a:9248 with SMTP id x11-20020a5d490b000000b0033d513a9248mr3036108wrq.15.1708633758639;
+        Thu, 22 Feb 2024 12:29:18 -0800 (PST)
 Received: from redhat.com ([172.93.237.99])
-        by smtp.gmail.com with ESMTPSA id o33-20020a05600c512100b00410add3af79sm7550030wms.23.2024.02.22.12.09.33
+        by smtp.gmail.com with ESMTPSA id h15-20020a05600004cf00b0033b1c321070sm142852wri.31.2024.02.22.12.29.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Feb 2024 12:09:39 -0800 (PST)
-Date: Thu, 22 Feb 2024 15:09:30 -0500
+        Thu, 22 Feb 2024 12:29:18 -0800 (PST)
+Date: Thu, 22 Feb 2024 15:29:10 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Paolo Abeni <pabeni@redhat.com>
-Cc: Liang Chen <liangchen.linux@gmail.com>,
-	Jesper Dangaard Brouer <hawk@kernel.org>, jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com, hengqi@linux.alibaba.com,
-	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-	netdev@vger.kernel.org, virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org, bpf@vger.kernel.org,
-	john.fastabend@gmail.com, daniel@iogearbox.net, ast@kernel.org
-Subject: Re: [PATCH net-next v5] virtio_net: Support RX hash XDP hint
-Message-ID: <20240222150850-mutt-send-email-mst@kernel.org>
-References: <20240202121151.65710-1-liangchen.linux@gmail.com>
- <c8d59e75-d0bb-4a03-9ef4-d6de65fa9356@kernel.org>
- <CAKhg4tJFpG5nUNdeEbXFLonKkFUP0QCh8A9CpwU5OvtnBuz4Sw@mail.gmail.com>
- <5297dad6499f6d00f7229e8cf2c08e0eacb67e0c.camel@redhat.com>
- <CAKhg4tLbF8SfYD4dU9U9Nhii4FY2dftjPKYz-Emrn-CRwo10mg@mail.gmail.com>
- <73c242b43513bde04eebb4eb581deb189443c26b.camel@redhat.com>
- <CAKhg4tJPjcShkw4-FHFkKOcgzHK27A5pMu9FP7OWj4qJUX1ApA@mail.gmail.com>
- <1b2d471a5d06ecadcb75e3d9155b6d566afb2767.camel@redhat.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Maxime Coquelin <maxime.coquelin@redhat.com>, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com, xieyongji@bytedance.com,
+	axboe@kernel.dk, gregkh@linuxfoundation.org, brauner@kernel.org,
+	lstoakes@gmail.com, virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+	david.marchand@redhat.com
+Subject: Re: [PATCH] vduse: implement DMA sync callbacks
+Message-ID: <20240222152541-mutt-send-email-mst@kernel.org>
+References: <20240219170606.587290-1-maxime.coquelin@redhat.com>
+ <ZdRqcIRmDD-70ap3@infradead.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <1b2d471a5d06ecadcb75e3d9155b6d566afb2767.camel@redhat.com>
+In-Reply-To: <ZdRqcIRmDD-70ap3@infradead.org>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 
-On Fri, Feb 09, 2024 at 01:57:25PM +0100, Paolo Abeni wrote:
-> On Fri, 2024-02-09 at 18:39 +0800, Liang Chen wrote:
-> > On Wed, Feb 7, 2024 at 10:27 PM Paolo Abeni <pabeni@redhat.com> wrote:
-> > > 
-> > > On Wed, 2024-02-07 at 10:54 +0800, Liang Chen wrote:
-> > > > On Tue, Feb 6, 2024 at 6:44 PM Paolo Abeni <pabeni@redhat.com> wrote:
-> > > > > 
-> > > > > On Sat, 2024-02-03 at 10:56 +0800, Liang Chen wrote:
-> > > > > > On Sat, Feb 3, 2024 at 12:20 AM Jesper Dangaard Brouer <hawk@kernel.org> wrote:
-> > > > > > > On 02/02/2024 13.11, Liang Chen wrote:
-> > > > > [...]
-> > > > > > > > @@ -1033,6 +1039,16 @@ static void put_xdp_frags(struct xdp_buff *xdp)
-> > > > > > > >       }
-> > > > > > > >   }
-> > > > > > > > 
-> > > > > > > > +static void virtnet_xdp_save_rx_hash(struct virtnet_xdp_buff *virtnet_xdp,
-> > > > > > > > +                                  struct net_device *dev,
-> > > > > > > > +                                  struct virtio_net_hdr_v1_hash *hdr_hash)
-> > > > > > > > +{
-> > > > > > > > +     if (dev->features & NETIF_F_RXHASH) {
-> > > > > > > > +             virtnet_xdp->hash_value = hdr_hash->hash_value;
-> > > > > > > > +             virtnet_xdp->hash_report = hdr_hash->hash_report;
-> > > > > > > > +     }
-> > > > > > > > +}
-> > > > > > > > +
-> > > > > > > 
-> > > > > > > Would it be possible to store a pointer to hdr_hash in virtnet_xdp_buff,
-> > > > > > > with the purpose of delaying extracting this, until and only if XDP
-> > > > > > > bpf_prog calls the kfunc?
-> > > > > > > 
-> > > > > > 
-> > > > > > That seems to be the way v1 works,
-> > > > > > https://lore.kernel.org/all/20240122102256.261374-1-liangchen.linux@gmail.com/
-> > > > > > . But it was pointed out that the inline header may be overwritten by
-> > > > > > the xdp prog, so the hash is copied out to maintain its integrity.
-> > > > > 
-> > > > > Why? isn't XDP supposed to get write access only to the pkt
-> > > > > contents/buffer?
-> > > > > 
-> > > > 
-> > > > Normally, an XDP program accesses only the packet data. However,
-> > > > there's also an XDP RX Metadata area, referenced by the data_meta
-> > > > pointer. This pointer can be adjusted with bpf_xdp_adjust_meta to
-> > > > point somewhere ahead of the data buffer, thereby granting the XDP
-> > > > program access to the virtio header located immediately before the
-> > > 
-> > > AFAICS bpf_xdp_adjust_meta() does not allow moving the meta_data before
-> > > xdp->data_hard_start:
-> > > 
-> > > https://elixir.bootlin.com/linux/latest/source/net/core/filter.c#L4210
-> > > 
-> > > and virtio net set such field after the virtio_net_hdr:
-> > > 
-> > > https://elixir.bootlin.com/linux/latest/source/drivers/net/virtio_net.c#L1218
-> > > https://elixir.bootlin.com/linux/latest/source/drivers/net/virtio_net.c#L1420
-> > > 
-> > > I don't see how the virtio hdr could be touched? Possibly even more
-> > > important: if such thing is possible, I think is should be somewhat
-> > > denied (for the same reason an H/W nic should prevent XDP from
-> > > modifying its own buffer descriptor).
+On Tue, Feb 20, 2024 at 01:01:36AM -0800, Christoph Hellwig wrote:
+> On Mon, Feb 19, 2024 at 06:06:06PM +0100, Maxime Coquelin wrote:
+> > Since commit 295525e29a5b ("virtio_net: merge dma
+> > operations when filling mergeable buffers"), VDUSE device
+> > require support for DMA's .sync_single_for_cpu() operation
+> > as the memory is non-coherent between the device and CPU
+> > because of the use of a bounce buffer.
 > > 
-> > Thank you for highlighting this concern. The header layout differs
-> > slightly between small and mergeable mode. Taking 'mergeable mode' as
-> > an example, after calling xdp_prepare_buff the layout of xdp_buff
-> > would be as depicted in the diagram below,
-> > 
-> >                       buf
-> >                        |
-> >                        v
-> >         +--------------+--------------+-------------+
-> >         | xdp headroom | virtio header| packet      |
-> >         | (256 bytes)  | (20 bytes)   | content     |
-> >         +--------------+--------------+-------------+
-> >         ^                             ^
-> >         |                             |
-> >  data_hard_start                    data
-> >                                   data_meta
-> > 
-> > If 'bpf_xdp_adjust_meta' repositions the 'data_meta' pointer a little
-> > towards 'data_hard_start', it would point to the inline header, thus
-> > potentially allowing the XDP program to access the inline header.
+> > This patch implements both .sync_single_for_cpu() and
+> > sync_single_for_device() callbacks, and also skip bounce
+> > buffer copies during DMA map and unmap operations if the
+> > DMA_ATTR_SKIP_CPU_SYNC attribute is set to avoid extra
+> > copies of the same buffer.
 > 
-> I see. That layout was completely unexpected to me.
-> 
-> AFAICS the virtio_net driver tries to avoid accessing/using the
-> virtio_net_hdr after the XDP program execution, so nothing tragic
-> should happen.
-> 
-> @Michael, @Jason, I guess the above is like that by design? Isn't it a
-> bit fragile?
-> 
-> Thanks!
-> 
-> Paolo
+> vduse really needs to get out of implementing fake DMA operations for
+> something that is not DMA.
 
-I agree it is all a bit fragile, not sure how to do better without extra
-copies though ...
+In a sense ... but on the other hand, the "fake DMA" metaphor seems to
+work surprisingly well, like in this instance - internal bounce buffer
+looks a bit like non-coherent DMA.  A way to make this all prettier
+would I guess be to actually wrap all of DMA with virtio wrappers which
+would all go if () dma_... else vduse_...; or something to this end.  A
+lot of work for sure, and is it really worth it? if the only crazy
+driver is vduse I'd maybe rather keep the crazy hacks local there ...
 
 -- 
 MST
