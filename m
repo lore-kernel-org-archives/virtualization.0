@@ -1,23 +1,23 @@
 Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id BF8C5171A5;
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id EBBC0171AF;
 	Thu, 22 Feb 2024 03:28:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708572490; cv=none; b=JWWIFQ/lWxpFe5tlcgVfv+ZW4LijNtvHUf3heD91DMmvfLU+1WFB89rYNO/TTr90NDBMZK4HVxUd+zMiytQSHPZJRZiICwLRMCJNtS/lGrqsYSoF6fNy3KQKTyVRCA6h0m5EdJ/fkjZ6U9+7pAbMnXi3XV+6QflX8vNaTVMo+v4=
+	t=1708572491; cv=none; b=d+xIM2NOYSjBFmI6dRlUrXqFBr75ItZrqkjIRg5ZkqXu5CVwreqNeYCwM991hDLjNiyiinQ1/m0hPOgMWQ0teYChL5HGmoQrbEwnVkWNQvp4Xltyk30NUbMJ5uSC6o5o++zYxsis3nELkBiry+ZBTNdECqKHaSyTCcULm4sgz9Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708572490; c=relaxed/simple;
-	bh=AIgU3C1lGFAHJETtO9EJyAbpUdgl6hQx0pIjXkFE8XY=;
+	s=arc-20240116; t=1708572491; c=relaxed/simple;
+	bh=SAcM9fY/E3zA0R7+PHS0Z3hmSaLbgnUcRPKZ6FV4PGI=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=SFQiL2VscqVR6cUrn4xpnBDLwAWkXOb1zDI3Mos+g53Sb7m+K5J1MmayQ6szOcu9UEBFDTMT4KzlPA2AOb5INeg9NLclbUrZV6xNGPW/s1sj6OTAHw0wrKmvxoelDxOMqPmX7L69hGX+lD06FUBvOM79rPKx+w2ce8CsVEvphko=
+	 MIME-Version; b=BFKPRYxd5UdHLhJ+2fB8sTuavkiZ/kFTcHKdWqwYoOoL+5+wpGII52m6VSiAo6qHbignu8W9IV31uiEaPeJAfLOw64+1aubgskasRiT6IQxo5jmS4tfY6c0JZMHGtY4mH4gS/xZRjlEhhkRb8F7KSuaMvAiJPfwjLOKzO7fpGqw=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
 Received: from loongson.cn (unknown [10.2.5.213])
-	by gateway (Coremail) with SMTP id _____8BxOPBGv9ZlWgoQAA--.41947S3;
-	Thu, 22 Feb 2024 11:28:06 +0800 (CST)
+	by gateway (Coremail) with SMTP id _____8CxrutHv9ZlYAoQAA--.41465S3;
+	Thu, 22 Feb 2024 11:28:07 +0800 (CST)
 Received: from localhost.localdomain (unknown [10.2.5.213])
-	by localhost.localdomain (Coremail) with SMTP id AQAAf8CxrhNDv9Zl+nM+AA--.41033S4;
-	Thu, 22 Feb 2024 11:28:05 +0800 (CST)
+	by localhost.localdomain (Coremail) with SMTP id AQAAf8CxrhNDv9Zl+nM+AA--.41033S5;
+	Thu, 22 Feb 2024 11:28:06 +0800 (CST)
 From: Bibo Mao <maobibo@loongson.cn>
 To: Huacai Chen <chenhuacai@kernel.org>,
 	Tianrui Zhao <zhaotianrui@loongson.cn>,
@@ -27,9 +27,9 @@ Cc: loongarch@lists.linux.dev,
 	linux-kernel@vger.kernel.org,
 	virtualization@lists.linux.dev,
 	kvm@vger.kernel.org
-Subject: [PATCH v5 2/6] LoongArch: KVM: Add hypercall instruction emulation support
-Date: Thu, 22 Feb 2024 11:27:59 +0800
-Message-Id: <20240222032803.2177856-3-maobibo@loongson.cn>
+Subject: [PATCH v5 3/6] LoongArch: KVM: Add cpucfg area for kvm hypervisor
+Date: Thu, 22 Feb 2024 11:28:00 +0800
+Message-Id: <20240222032803.2177856-4-maobibo@loongson.cn>
 X-Mailer: git-send-email 2.39.3
 In-Reply-To: <20240222032803.2177856-1-maobibo@loongson.cn>
 References: <20240222032803.2177856-1-maobibo@loongson.cn>
@@ -40,11 +40,11 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:AQAAf8CxrhNDv9Zl+nM+AA--.41033S4
+X-CM-TRANSID:AQAAf8CxrhNDv9Zl+nM+AA--.41033S5
 X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
-X-Coremail-Antispam: 1Uk129KBj93XoWxWr1kWrWfuFyDGrW5tF1fGrX_yoW5tr47pF
-	93Crn5GF48GryfCFy3K34qgr13ArZ7Kw12gFWak3y5AF12qF1Fyr4kKryDZFy5Ja1rZF1S
-	gFs3tr1Y9F4UJ3XCm3ZEXasCq-sJn29KB7ZKAUJUUUU8529EdanIXcx71UUUUU7KY7ZEXa
+X-Coremail-Antispam: 1Uk129KBj93XoWxGr13ZF15ZryftrW5WF48uFX_yoWrJrW3pF
+	Z7Zr1kWr48GryfA39rt3y5Wrs8uF4kGr12qFW3t3yUCF42qryrZr4vkrZFyFyDKws5C3WI
+	qF15tr1aqF4DAabCm3ZEXasCq-sJn29KB7ZKAUJUUUU5529EdanIXcx71UUUUU7KY7ZEXa
 	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
 	0xBIdaVrnRJUUUkIb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
 	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
@@ -59,102 +59,121 @@ X-Coremail-Antispam: 1Uk129KBj93XoWxWr1kWrWfuFyDGrW5tF1fGrX_yoW5tr47pF
 	6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Gr0_Cr1lIxAIcVC2z280aV
 	CY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7IU84xRDUUUUU==
 
-On LoongArch system, there is hypercall instruction special for
-virtualization. When system executes this instruction on host side,
-there is illegal instruction exception reported, however it will
-trap into host when it is executed in VM mode.
-
-When hypercall is emulated, A0 register is set with value
-KVM_HCALL_INVALID_CODE, rather than inject EXCCODE_INE invalid
-instruction exception. So VM can continue to executing the next code.
+Instruction cpucfg can be used to get processor features. And there
+is trap exception when it is executed in VM mode, and also it is
+to provide cpu features to VM. On real hardware cpucfg area 0 - 20
+is used.  Here one specified area 0x40000000 -- 0x400000ff is used
+for KVM hypervisor to privide PV features, and the area can be extended
+for other hypervisors in future. This area will never be used for
+real HW, it is only used by software.
 
 Signed-off-by: Bibo Mao <maobibo@loongson.cn>
 ---
- arch/loongarch/include/asm/Kbuild      |  1 -
- arch/loongarch/include/asm/kvm_para.h  | 26 ++++++++++++++++++++++++++
- arch/loongarch/include/uapi/asm/Kbuild |  2 --
- arch/loongarch/kvm/exit.c              | 10 ++++++++++
- 4 files changed, 36 insertions(+), 3 deletions(-)
- create mode 100644 arch/loongarch/include/asm/kvm_para.h
- delete mode 100644 arch/loongarch/include/uapi/asm/Kbuild
+ arch/loongarch/include/asm/inst.h      |  1 +
+ arch/loongarch/include/asm/loongarch.h | 10 ++++++
+ arch/loongarch/kvm/exit.c              | 46 +++++++++++++++++---------
+ 3 files changed, 41 insertions(+), 16 deletions(-)
 
-diff --git a/arch/loongarch/include/asm/Kbuild b/arch/loongarch/include/asm/Kbuild
-index 93783fa24f6e..22991a6f0e2b 100644
---- a/arch/loongarch/include/asm/Kbuild
-+++ b/arch/loongarch/include/asm/Kbuild
-@@ -23,4 +23,3 @@ generic-y += poll.h
- generic-y += param.h
- generic-y += posix_types.h
- generic-y += resource.h
--generic-y += kvm_para.h
-diff --git a/arch/loongarch/include/asm/kvm_para.h b/arch/loongarch/include/asm/kvm_para.h
-new file mode 100644
-index 000000000000..d48f993ae206
---- /dev/null
-+++ b/arch/loongarch/include/asm/kvm_para.h
-@@ -0,0 +1,26 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _ASM_LOONGARCH_KVM_PARA_H
-+#define _ASM_LOONGARCH_KVM_PARA_H
-+
+diff --git a/arch/loongarch/include/asm/inst.h b/arch/loongarch/include/asm/inst.h
+index d8f637f9e400..ad120f924905 100644
+--- a/arch/loongarch/include/asm/inst.h
++++ b/arch/loongarch/include/asm/inst.h
+@@ -67,6 +67,7 @@ enum reg2_op {
+ 	revhd_op	= 0x11,
+ 	extwh_op	= 0x16,
+ 	extwb_op	= 0x17,
++	cpucfg_op	= 0x1b,
+ 	iocsrrdb_op     = 0x19200,
+ 	iocsrrdh_op     = 0x19201,
+ 	iocsrrdw_op     = 0x19202,
+diff --git a/arch/loongarch/include/asm/loongarch.h b/arch/loongarch/include/asm/loongarch.h
+index 46366e783c84..a1d22e8b6f94 100644
+--- a/arch/loongarch/include/asm/loongarch.h
++++ b/arch/loongarch/include/asm/loongarch.h
+@@ -158,6 +158,16 @@
+ #define  CPUCFG48_VFPU_CG		BIT(2)
+ #define  CPUCFG48_RAM_CG		BIT(3)
+ 
 +/*
-+ * LoongArch hypercall return code
++ * cpucfg index area: 0x40000000 -- 0x400000ff
++ * SW emulation for KVM hypervirsor
 + */
-+#define KVM_HCALL_STATUS_SUCCESS	0
-+#define KVM_HCALL_INVALID_CODE		-1UL
-+#define KVM_HCALL_INVALID_PARAMETER	-2UL
++#define CPUCFG_KVM_BASE			0x40000000UL
++#define CPUCFG_KVM_SIZE			0x100
++#define CPUCFG_KVM_SIG			CPUCFG_KVM_BASE
++#define  KVM_SIGNATURE			"KVM\0"
++#define CPUCFG_KVM_FEATURE		(CPUCFG_KVM_BASE + 4)
 +
-+static inline unsigned int kvm_arch_para_features(void)
-+{
-+	return 0;
-+}
-+
-+static inline unsigned int kvm_arch_para_hints(void)
-+{
-+	return 0;
-+}
-+
-+static inline bool kvm_check_and_clear_guest_paused(void)
-+{
-+	return false;
-+}
-+#endif /* _ASM_LOONGARCH_KVM_PARA_H */
-diff --git a/arch/loongarch/include/uapi/asm/Kbuild b/arch/loongarch/include/uapi/asm/Kbuild
-deleted file mode 100644
-index 4aa680ca2e5f..000000000000
---- a/arch/loongarch/include/uapi/asm/Kbuild
-+++ /dev/null
-@@ -1,2 +0,0 @@
--# SPDX-License-Identifier: GPL-2.0
--generic-y += kvm_para.h
+ #ifndef __ASSEMBLY__
+ 
+ /* CSR */
 diff --git a/arch/loongarch/kvm/exit.c b/arch/loongarch/kvm/exit.c
-index ed1d89d53e2e..923bbca9bd22 100644
+index 923bbca9bd22..6a38fd59d86d 100644
 --- a/arch/loongarch/kvm/exit.c
 +++ b/arch/loongarch/kvm/exit.c
-@@ -685,6 +685,15 @@ static int kvm_handle_lasx_disabled(struct kvm_vcpu *vcpu)
- 	return RESUME_GUEST;
+@@ -206,10 +206,37 @@ int kvm_emu_idle(struct kvm_vcpu *vcpu)
+ 	return EMULATE_DONE;
  }
  
-+static int kvm_handle_hypercall(struct kvm_vcpu *vcpu)
-+{
-+	update_pc(&vcpu->arch);
+-static int kvm_trap_handle_gspr(struct kvm_vcpu *vcpu)
++static int kvm_emu_cpucfg(struct kvm_vcpu *vcpu, larch_inst inst)
+ {
+ 	int rd, rj;
+ 	unsigned int index;
 +
-+	/* Treat it as noop intruction, only set return value */
-+	vcpu->arch.gprs[LOONGARCH_GPR_A0] = KVM_HCALL_INVALID_CODE;
-+	return RESUME_GUEST;
++	rd = inst.reg2_format.rd;
++	rj = inst.reg2_format.rj;
++	++vcpu->stat.cpucfg_exits;
++	index = vcpu->arch.gprs[rj];
++
++	/*
++	 * By LoongArch Reference Manual 2.2.10.5
++	 * Return value is 0 for undefined cpucfg index
++	 */
++	switch (index) {
++	case 0 ... (KVM_MAX_CPUCFG_REGS - 1):
++		vcpu->arch.gprs[rd] = vcpu->arch.cpucfg[index];
++		break;
++	case CPUCFG_KVM_SIG:
++		vcpu->arch.gprs[rd] = *(unsigned int *)KVM_SIGNATURE;
++		break;
++	default:
++		vcpu->arch.gprs[rd] = 0;
++		break;
++	}
++
++	return EMULATE_DONE;
 +}
 +
- /*
-  * LoongArch KVM callback handling for unimplemented guest exiting
-  */
-@@ -716,6 +725,7 @@ static exit_handle_fn kvm_fault_tables[EXCCODE_INT_START] = {
- 	[EXCCODE_LSXDIS]		= kvm_handle_lsx_disabled,
- 	[EXCCODE_LASXDIS]		= kvm_handle_lasx_disabled,
- 	[EXCCODE_GSPR]			= kvm_handle_gspr,
-+	[EXCCODE_HVC]			= kvm_handle_hypercall,
- };
- 
- int kvm_handle_fault(struct kvm_vcpu *vcpu, int fault)
++static int kvm_trap_handle_gspr(struct kvm_vcpu *vcpu)
++{
+ 	unsigned long curr_pc;
+ 	larch_inst inst;
+ 	enum emulation_result er = EMULATE_DONE;
+@@ -224,21 +251,8 @@ static int kvm_trap_handle_gspr(struct kvm_vcpu *vcpu)
+ 	er = EMULATE_FAIL;
+ 	switch (((inst.word >> 24) & 0xff)) {
+ 	case 0x0: /* CPUCFG GSPR */
+-		if (inst.reg2_format.opcode == 0x1B) {
+-			rd = inst.reg2_format.rd;
+-			rj = inst.reg2_format.rj;
+-			++vcpu->stat.cpucfg_exits;
+-			index = vcpu->arch.gprs[rj];
+-			er = EMULATE_DONE;
+-			/*
+-			 * By LoongArch Reference Manual 2.2.10.5
+-			 * return value is 0 for undefined cpucfg index
+-			 */
+-			if (index < KVM_MAX_CPUCFG_REGS)
+-				vcpu->arch.gprs[rd] = vcpu->arch.cpucfg[index];
+-			else
+-				vcpu->arch.gprs[rd] = 0;
+-		}
++		if (inst.reg2_format.opcode == cpucfg_op)
++			er = kvm_emu_cpucfg(vcpu, inst);
+ 		break;
+ 	case 0x4: /* CSR{RD,WR,XCHG} GSPR */
+ 		er = kvm_handle_csr(vcpu, inst);
 -- 
 2.39.3
 
