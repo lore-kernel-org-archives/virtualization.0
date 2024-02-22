@@ -1,127 +1,171 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 150815490D
-	for <virtualization@lists.linux.dev>; Thu, 22 Feb 2024 20:02:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C28DA548F8
+	for <virtualization@lists.linux.dev>; Thu, 22 Feb 2024 20:06:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708632172; cv=none; b=Ug2VZ01qInUDJG0dyXO18/LE/GGxSuTC/PXhnXZ6E2W9mxTREW6vfEH98nl4DPqbrZhVkTD8YfvdpeO5SoBboinzHTIgG1XDz6z8ymGcdk5RhLdljepDdTmO/RdWMWrHYH/YX0S8BCLJCJa5DZMdzd8+9w3P3qUiJKIp8vraCLQ=
+	t=1708632373; cv=none; b=GzyIfrxfsguQYPrysRPF92lM6xhgZ7BgIPir852Fg8amQPtAT0KBvAv2WKbZpieSu1NNUVGaTFDqcR6GtqdnLWIsrQPWgAJkUxItB97lbIHEsb5m4YCVGoNRD32p8y+nkmvt4bzqPwoTNjPubqrNQEyNqfAC1JNwgqqh/Ru7q/0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708632172; c=relaxed/simple;
-	bh=aknFNqqxJry03mMtGqJFoI/wKDCcG2OQaTtQxGeRRpc=;
+	s=arc-20240116; t=1708632373; c=relaxed/simple;
+	bh=FqL1rITe2ZjNtqUQ4KV/ItyrO8GoVdqKz/BblIhKCE0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=hHncKdrEKr0rFUeyke7+upSXGKFd1jGsmff9AosIZiRaWTuorej1fA6+2cA3X8PhRHMFoJp2jzhE4f+AVIzycbet7kbImawVLhNqJK3pboFweezKkb4mIdSyzaAZ7sVESsBK2pyRNpudWslwiOArvnUEuydLyaI1mus76XTN6e8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JkIc6wGO; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=qlw9wLqZdMkuM8M9FjM0hHNKe6uKY8pNErM3EPL5WryJCLB9dgrGg7syWKKIIVi6wwVIYGYaxzScF5wrFKM/1d2rB1GJoZ+qUbsOPpr4Ym7V08/UN2V4RlrCjJVeWBAfQDnvv4NHAlzf1Qv/C6bo428GtN/0SpUMCq0sx1wwJUs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Rnq3A3yt; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JkIc6wGO"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Rnq3A3yt"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1708632169;
+	s=mimecast20190719; t=1708632370;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Ip/bb26cz2+ipekHalCr5lDscUM2updhLQwbQoyojpM=;
-	b=JkIc6wGOdNyvV00ujFj0cthtQh/iN5Agz5lEUFva0BE+e6EMpkNqtRC2Ep2lwBx15vJp7G
-	weSRGjLjsWF/XCvROCOtpzJ1+bQeUp++KgWKReyWAGhdPvHwBiBm72IkeHnUoK7Wa+fiXi
-	AHak35FxlvlFt4DvLQ+iFL0fjQG89Us=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=AxuhoPQ/948+5NQNK9OuDcMwiyXE1lolJGAMQupFnLc=;
+	b=Rnq3A3ytlIewzpGM2TbpXMwJ3WLxUntSRCf2Q0X9nItHsPoKn4ECc7jbYcD+/C4cTL2Koz
+	Z/Gzhja8A4iMtcgQADOjsNVclQkx9T2I5RxwxqScMFXNQgCrXsaBbBKzdA1jRovsHsTzQ6
+	RNlevpuLSlHFbBMmGwbcz7mURo64QSY=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-689-K6Cpy4-bOkiX_SODqi1B-g-1; Thu, 22 Feb 2024 15:02:48 -0500
-X-MC-Unique: K6Cpy4-bOkiX_SODqi1B-g-1
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-411dca63c56so413615e9.1
-        for <virtualization@lists.linux.dev>; Thu, 22 Feb 2024 12:02:48 -0800 (PST)
+ us-mta-642-1OkM741xOLOG7DwRisaH6g-1; Thu, 22 Feb 2024 15:06:08 -0500
+X-MC-Unique: 1OkM741xOLOG7DwRisaH6g-1
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-33d7e755f52so43424f8f.1
+        for <virtualization@lists.linux.dev>; Thu, 22 Feb 2024 12:06:08 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708632167; x=1709236967;
+        d=1e100.net; s=20230601; t=1708632367; x=1709237167;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Ip/bb26cz2+ipekHalCr5lDscUM2updhLQwbQoyojpM=;
-        b=DgfvwbjHmhFchIAa8SgMcuURfBm5XDdduiXa+Hz7P3+vlBTE8uJK5sfPtN7nnkRDa6
-         2hHJy9d1WrMR9ciGRl3Nr//53hj3LanSP5imksWKmxqalG6LnBD3eHKOhX6BeAHLYLM6
-         zp6aKSAHPdPhQCGvQWethvspD86yHFbQTBh8ZKuGYQuWX6VSs+z3hlhE5M9chpzGtHN5
-         AUY5j/X1+IAMLIaVevkVUCikX2OyCSRFEfogUsLWc7syKVDgXgnpHIoNjrfN7xw2Wvl2
-         /VFNPhkbQxbRlQVtE3f5/WIME6s6niYqEmdc1nmewZfSr7Id45cs0+SBEC0Nnpa9sr4z
-         cpYQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXFVIyo8MnxMC5//HOp4ic/sb1KrQiU2X8kZHrv4MrekWl61twhBsL3E//W1eS3A+aD2xb24NIOeT+IwVbJ2V1DwrrPGS7AN2L5akr6Z68=
-X-Gm-Message-State: AOJu0YytzhdTkHBbTc0wizjlXOBog5slmEF0qYVm3mLn7Hlx1bD7PqXa
-	N+lNGuFDZ1Sjsp86Yxjm/izp5KDqhKCsTKnyAeJk0r3DPkQNq203+FlvyTL3FUbxcHZzLvYuwqS
-	zQddHkQOChChkJEy81xm3HcOUlbiIqWDHjxqJ7t0LKygeoJkpVUROqiJOyIX+8h1TPtmjbIeT1n
-	k=
-X-Received: by 2002:a5d:480d:0:b0:33d:9d4a:b28 with SMTP id l13-20020a5d480d000000b0033d9d4a0b28mr114021wrq.18.1708632167122;
-        Thu, 22 Feb 2024 12:02:47 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFGY5xEB+oirt/8WYolwR+t/b3r7Lw8iYBr645QsLpjupov8MKzMLmF73APkFMsTjyAiTEk6A==
-X-Received: by 2002:a5d:480d:0:b0:33d:9d4a:b28 with SMTP id l13-20020a5d480d000000b0033d9d4a0b28mr114007wrq.18.1708632166787;
-        Thu, 22 Feb 2024 12:02:46 -0800 (PST)
+        bh=AxuhoPQ/948+5NQNK9OuDcMwiyXE1lolJGAMQupFnLc=;
+        b=Z3Ab1XaTEPHAmbFLwdR0EfxqnYvhTRWiRfzAGkHltFSAzMlk1R6Az5S4VliSOS2Bvz
+         BUBdGwB24DulbnwysSWCyP/PjJDtSsbjoOZOeBbK7wbnwxsZ8Vih5umeN7p+H6JU3q0t
+         UENNCkxsGKxiKuIWC+3em7UUGq+fTTs6PZ1BepKE6CWGIQO5D58XFSGxcuWEOlwXWG6u
+         +64JqmaSRj82BW4nDNSS7EVCSjd+FyP8TMy8sXF6vj0ffXIV2iTobMEeqFlW7e3n0JTv
+         lor/NRM4QfidkYb0tRY+UNtUuzJBhfDdnTlMENQ8T0bnba8Hruer5Bx/ROcM2UtqZxju
+         3sng==
+X-Gm-Message-State: AOJu0YxCWZOYxg3EdXtDUEyqea4a03TGUy8c/1yWqy9rudSm0A1G7fbv
+	NjnxLqXP57y2XFvzfbUscRNnj/ZxyAcaWULlKBzuWrFPibv0XwDE26L1Mj9Uk7maJ3Gl461ac41
+	ZMgxHBemWgwdYn7nE9YnPEaYG58VTvEgWka0mEKwjp8p1kH2v83KIEXexL4e2draDs3q2Yr99rI
+	c=
+X-Received: by 2002:a5d:69ce:0:b0:33d:9c51:1776 with SMTP id s14-20020a5d69ce000000b0033d9c511776mr145706wrw.10.1708632367455;
+        Thu, 22 Feb 2024 12:06:07 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IH+NcN4VE0R7N3nlNoIQzlh4g4mjw8WUnS+BCYxBUqCzcrK0TCMMocf/EYhJUmZ9sz0lbCpXA==
+X-Received: by 2002:a5d:69ce:0:b0:33d:9c51:1776 with SMTP id s14-20020a5d69ce000000b0033d9c511776mr145694wrw.10.1708632367116;
+        Thu, 22 Feb 2024 12:06:07 -0800 (PST)
 Received: from redhat.com ([172.93.237.99])
-        by smtp.gmail.com with ESMTPSA id bi21-20020a05600c3d9500b004128808db91sm3049224wmb.23.2024.02.22.12.02.42
+        by smtp.gmail.com with ESMTPSA id i4-20020adff304000000b0033d87f61613sm89276wro.58.2024.02.22.12.06.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Feb 2024 12:02:46 -0800 (PST)
-Date: Thu, 22 Feb 2024 15:02:39 -0500
+        Thu, 22 Feb 2024 12:06:06 -0800 (PST)
+Date: Thu, 22 Feb 2024 15:06:01 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Andrew Melnychenko <andrew@daynix.com>
-Cc: jasowang@redhat.com, kvm@vger.kernel.org,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, yuri.benditovich@daynix.com,
-	yan@daynix.com
-Subject: Re: [PATCH 1/1] vhost: Added pad cleanup if vnet_hdr is not present.
-Message-ID: <20240222150212-mutt-send-email-mst@kernel.org>
-References: <20240115194840.1183077-1-andrew@daynix.com>
- <20240115172837-mutt-send-email-mst@kernel.org>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: virtualization@lists.linux.dev, Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] virtio: packed: fix unmap leak for indirect desc table
+Message-ID: <20240222150550-mutt-send-email-mst@kernel.org>
+References: <20240201095618.2288-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240115172837-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20240201095618.2288-1-xuanzhuo@linux.alibaba.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Mon, Jan 15, 2024 at 05:32:25PM -0500, Michael S. Tsirkin wrote:
-> On Mon, Jan 15, 2024 at 09:48:40PM +0200, Andrew Melnychenko wrote:
-> > When the Qemu launched with vhost but without tap vnet_hdr,
-> > vhost tries to copy vnet_hdr from socket iter with size 0
-> > to the page that may contain some trash.
-> > That trash can be interpreted as unpredictable values for
-> > vnet_hdr.
-> > That leads to dropping some packets and in some cases to
-> > stalling vhost routine when the vhost_net tries to process
-> > packets and fails in a loop.
-> > 
-> > Qemu options:
-> >   -netdev tap,vhost=on,vnet_hdr=off,...
-> > 
-> > Signed-off-by: Andrew Melnychenko <andrew@daynix.com>
-> > ---
-> >  drivers/vhost/net.c | 3 +++
-> >  1 file changed, 3 insertions(+)
-> > 
-> > diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> > index f2ed7167c848..57411ac2d08b 100644
-> > --- a/drivers/vhost/net.c
-> > +++ b/drivers/vhost/net.c
-> > @@ -735,6 +735,9 @@ static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
-> >  	hdr = buf;
-> >  	gso = &hdr->gso;
-> >  
-> > +	if (!sock_hlen)
-> > +		memset(buf, 0, pad);
-> > +
-> >  	if ((gso->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) &&
-> >  	    vhost16_to_cpu(vq, gso->csum_start) +
-> >  	    vhost16_to_cpu(vq, gso->csum_offset) + 2 >
+On Thu, Feb 01, 2024 at 05:56:18PM +0800, Xuan Zhuo wrote:
+> When use_dma_api and premapped are true, then the do_unmap is false.
 > 
+> Because the do_unmap is false, vring_unmap_extra_packed is not called by
+> detach_buf_packed.
 > 
-> Hmm need to analyse it to make sure there are no cases where we leak
-> some data to guest here in case where sock_hlen is set ...
+>  if (unlikely(vq->do_unmap)) {
+>                curr = id;
+>                for (i = 0; i < state->num; i++) {
+>                        vring_unmap_extra_packed(vq,
+>                                                 &vq->packed.desc_extra[curr]);
+>                        curr = vq->packed.desc_extra[curr].next;
+>                }
+>   }
+> 
+> So the indirect desc table is not unmapped. This causes the unmap leak.
+> 
+> On the other side, the dma addr and the flags is not updated. That
+> will be used by vring_unmap_extra_packed.
+> 
+> For safety in this patch, the flags of desc without indirect flag is
+> also updated.
+> 
+> This bug does not occur, because no driver use the premapped with
+> indirect.
+> 
+> Fixes: b319940f83c2 ("virtio_ring: skip unmap for premapped")
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
+were you going to post v2?
 
-Could you post this analysis pls?
-
-> > -- 
-> > 2.43.0
+> ---
+>  drivers/virtio/virtio_ring.c | 24 ++++++++++++------------
+>  1 file changed, 12 insertions(+), 12 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index 49299b1f9ec7..097258a10819 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -1340,14 +1340,15 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
+>  				sizeof(struct vring_packed_desc));
+>  	vq->packed.vring.desc[head].id = cpu_to_le16(id);
+>  
+> -	if (vq->do_unmap) {
+> +	if (vq->use_dma_api) {
+>  		vq->packed.desc_extra[id].addr = addr;
+>  		vq->packed.desc_extra[id].len = total_sg *
+>  				sizeof(struct vring_packed_desc);
+> -		vq->packed.desc_extra[id].flags = VRING_DESC_F_INDIRECT |
+> -						  vq->packed.avail_used_flags;
+>  	}
+>  
+> +	vq->packed.desc_extra[id].flags = VRING_DESC_F_INDIRECT |
+> +		vq->packed.avail_used_flags;
+> +
+>  	/*
+>  	 * A driver MUST NOT make the first descriptor in the list
+>  	 * available before all subsequent descriptors comprising
+> @@ -1484,9 +1485,10 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
+>  			if (unlikely(vq->do_unmap)) {
+>  				vq->packed.desc_extra[curr].addr = addr;
+>  				vq->packed.desc_extra[curr].len = sg->length;
+> -				vq->packed.desc_extra[curr].flags =
+> -					le16_to_cpu(flags);
+>  			}
+> +
+> +			vq->packed.desc_extra[curr].flags = le16_to_cpu(flags);
+> +
+>  			prev = curr;
+>  			curr = vq->packed.desc_extra[curr].next;
+>  
+> @@ -1615,13 +1617,11 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
+>  	vq->free_head = id;
+>  	vq->vq.num_free += state->num;
+>  
+> -	if (unlikely(vq->do_unmap)) {
+> -		curr = id;
+> -		for (i = 0; i < state->num; i++) {
+> -			vring_unmap_extra_packed(vq,
+> -						 &vq->packed.desc_extra[curr]);
+> -			curr = vq->packed.desc_extra[curr].next;
+> -		}
+> +	curr = id;
+> +	for (i = 0; i < state->num; i++) {
+> +		vring_unmap_extra_packed(vq,
+> +					 &vq->packed.desc_extra[curr]);
+> +		curr = vq->packed.desc_extra[curr].next;
+>  	}
+>  
+>  	if (vq->indirect) {
+> -- 
+> 2.32.0.3.g01195cf9f
 
