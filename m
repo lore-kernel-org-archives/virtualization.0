@@ -1,140 +1,120 @@
-Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f43.google.com (mail-ej1-f43.google.com [209.85.218.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A1A84D9FA
-	for <virtualization@lists.linux.dev>; Fri, 23 Feb 2024 08:28:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.113
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BF915C615
+	for <virtualization@lists.linux.dev>; Fri, 23 Feb 2024 09:42:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708676886; cv=none; b=DckKirR1RD1gOECOh+QT2l4zsUZ3eU6WoNNJ0m4NvXGLd+f4UZh6kLDSXTtoMHUNsK4wUo3RaNsedb2DH74S9U+MZ9d0h+6V8OG56fnn1qsceZ9xhmjtpP/rk0kAKeQrLTh8WAwFVEoSQO2lz3IlUw/MTg8uZAqTGX1OYRs2Wv4=
+	t=1708681374; cv=none; b=meW/Fg+FIdErD7JJhRveDyGGjkhbQu1RC9LGEWNgjtYMmKtbgnzkEv9behmnYRdyOnknYR/kwSl6ChV1A8S/Rn+Av5qzGFir0KbIJjYiYJeyAUIjApD/Se0tZnd+OdaEYC2B+ksYM4qhL4A67BA6jUDSeQxl6dTVtflfPmy/Dcc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708676886; c=relaxed/simple;
-	bh=0Gk9UztMGIIcRnEHpqYyAjKvdnBaolmfK4xirNAtcuc=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=EYhiGKjFxj3UxaxE6pJRiYpa969eNsi85rT2yKGWy2ZvY1TaeHEUGrWAXr0KPoY76aRCPmiiK1WHc7MGUaX+JyA85tqhpm4yC6/Hm1aFfQZ7OUTzLzHsbDDxuV5zfJSqOsHbNYBTxnuwjNfMYuORhZsyRKyn4KNWoJl+cT+gROI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=FD1/zJRh; arc=none smtp.client-ip=115.124.30.113
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1708681374; c=relaxed/simple;
+	bh=LfBvV5ftt5p5wwwqFBLDPSUdEXzAXS6aKdqDAKHrVSs=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=uEfz8jBACRwbirDTH8BpLSrEwgNFcbng/eVvOJoFtH7+bHczBGIbmvPd3XxR/kcB0K1P2ESMRn6xghvWO8icfWclhLeo3xHf0OigN2IA+QRLVTSQXRSTfvfsn/u0+rlfN0oneC65RL3czft+ehRxaXal653ot9Vn+fhO9KcCl8g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu; spf=pass smtp.mailfrom=szeredi.hu; dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b=PJvMefeL; arc=none smtp.client-ip=209.85.218.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=szeredi.hu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="FD1/zJRh"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1708676877; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=0bf+ondcixqn/GNrn6hzfTiAxwONS6eM86OVYrAkzbE=;
-	b=FD1/zJRhfUfXdU4ga8SOnivNQSKZn4eyL57EAP84mnkX4Y6y1oTBUCN6MkJTzXXtFj6khPBPq9LFZsy9X4ycu74CwlLqPaJQ/jFxgg1EHMM6tPKYO6KHtIznklUkfqoSzcCn0Xuh6IJABW2TffjkC+bbbv6ITXectGL7vs0k0nA=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=35;SR=0;TI=SMTPD_---0W13ndSM_1708676874;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W13ndSM_1708676874)
-          by smtp.aliyun-inc.com;
-          Fri, 23 Feb 2024 16:27:55 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: virtualization@lists.linux.dev
-Cc: Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Hans de Goede <hdegoede@redhat.com>,
-	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	Vadim Pasternak <vadimp@nvidia.com>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Mathieu Poirier <mathieu.poirier@linaro.org>,
-	Cornelia Huck <cohuck@redhat.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	Eric Farman <farman@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>,
-	linux-um@lists.infradead.org,
-	netdev@vger.kernel.org,
-	platform-driver-x86@vger.kernel.org,
-	linux-remoteproc@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	kvm@vger.kernel.org,
-	bpf@vger.kernel.org
-Subject: [PATCH vhost v2 18/19] virtio_net: rename free_old_xmit_skbs to free_old_xmit
-Date: Fri, 23 Feb 2024 16:27:25 +0800
-Message-Id: <20240223082726.52915-19-xuanzhuo@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20240223082726.52915-1-xuanzhuo@linux.alibaba.com>
-References: <20240223082726.52915-1-xuanzhuo@linux.alibaba.com>
+	dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b="PJvMefeL"
+Received: by mail-ej1-f43.google.com with SMTP id a640c23a62f3a-a36126ee41eso25094966b.2
+        for <virtualization@lists.linux.dev>; Fri, 23 Feb 2024 01:42:51 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=szeredi.hu; s=google; t=1708681369; x=1709286169; darn=lists.linux.dev;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=JeGMCdaCDD7BHdfywFTOPLnwnnbru3LEGQbmIcb6KjM=;
+        b=PJvMefeLzFsNV7kNiINBZXQnvHqprmzJ46Ru9ytjWxGDoJDCq77mt5tFQfYWUpOWDH
+         5TgeugwoHpHa615N3rAZ9n0YL4K9wP98QhxMV/TseWeMbwH3tdJHSLTV9Vj7W1JI2DUd
+         hbGCRRtHzKZkWm9WI8naslBmvGVOV+Q1YWSGw=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1708681369; x=1709286169;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=JeGMCdaCDD7BHdfywFTOPLnwnnbru3LEGQbmIcb6KjM=;
+        b=l508RH7rp74A/cHtU1C9/dbTEyOu2HazS1d0gSBARbmsRlHevMc5mjZc42V01lFI4e
+         st7JQ0hrk3cgId0y9Sz+y/RJe277BlRUcX6ivRXhn5D0JwxoYEMhQvkAK6JlYDQURdJ1
+         ZzR+z72HVdb4u11dsej8q3/VAgKe3igW399VB/NrS5m0CkWIoQcSFnwdSZrLhoVVBeOh
+         3c+LSeXpOdx/Rq/GJrikWzbipwDRc1k1uSI5zg0vS/d+eMtOSodjx/JYZ4TLVJDcFG4K
+         XFu70zwqUq2IdUzzu2ScPG+SO0GyiEcFy0y/ZVEOecLfy1ACe27pukL1vl2pktewTpBA
+         u3sg==
+X-Forwarded-Encrypted: i=1; AJvYcCXnhhQsYrD4zw1YqdKKZ4UQCAJzkCmavbCbAkkQr8ygEH56hztU4FoaZIhgNJ1zVqVVSToaGHynLW2NJlDwlTEJMWT/A+ni8mY/4FqKuI0=
+X-Gm-Message-State: AOJu0YzSfRdZhm/TUwp7y/Y0nzXpfAsEIVPWfU58aWz/w8BbsuUx9uzg
+	+SaH3zRkdDFSuc+98Boq6KrzLHn8LAG+7hjDWTGae2FOZUSGWog//7ZG5zXVf+tUIleAjZp4sUZ
+	tYA0dbDzR1JHHxvWc79cdEydw8A++YqiHqyYb8Q==
+X-Google-Smtp-Source: AGHT+IG7sHUBZkp5FIyZ3wKIve695rZrZC0DwB1Cw2bOizO+7Yv+Nfpx1UfnCXqAJF48GUxGUtu/0dlNY6sUXDf7XwM=
+X-Received: by 2002:a17:906:cb94:b0:a3e:c818:b7f with SMTP id
+ mf20-20020a170906cb9400b00a3ec8180b7fmr815276ejb.29.1708681369617; Fri, 23
+ Feb 2024 01:42:49 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Git-Hash: 510995f33855
-Content-Transfer-Encoding: 8bit
+References: <20240103105929.1902658-1-houtao@huaweicloud.com>
+In-Reply-To: <20240103105929.1902658-1-houtao@huaweicloud.com>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Fri, 23 Feb 2024 10:42:37 +0100
+Message-ID: <CAJfpegsM2ViQb1A2HNMJLsgVDs1UScd7p04MOLSkSMRNeshm0A@mail.gmail.com>
+Subject: Re: [PATCH] virtiofs: limit the length of ITER_KVEC dio by max_nopage_rw
+To: Hou Tao <houtao@huaweicloud.com>
+Cc: linux-fsdevel@vger.kernel.org, Vivek Goyal <vgoyal@redhat.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, "Michael S . Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, 
+	virtualization@lists.linux.dev, houtao1@huawei.com
+Content-Type: text/plain; charset="UTF-8"
 
-Since free_old_xmit_skbs not only deals with skb, but also xdp frame and
-subsequent added xsk, so change the name of this function to
-free_old_xmit.
+On Wed, 3 Jan 2024 at 11:58, Hou Tao <houtao@huaweicloud.com> wrote:
+>
+> From: Hou Tao <houtao1@huawei.com>
+>
+> When trying to insert a 10MB kernel module kept in a virtiofs with cache
+> disabled, the following warning was reported:
+>
+>   ------------[ cut here ]------------
+>   WARNING: CPU: 2 PID: 439 at mm/page_alloc.c:4544 ......
+>   Modules linked in:
+>   CPU: 2 PID: 439 Comm: insmod Not tainted 6.7.0-rc7+ #33
+>   Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), ......
+>   RIP: 0010:__alloc_pages+0x2c4/0x360
+>   ......
+>   Call Trace:
+>    <TASK>
+>    ? __warn+0x8f/0x150
+>    ? __alloc_pages+0x2c4/0x360
+>    __kmalloc_large_node+0x86/0x160
+>    __kmalloc+0xcd/0x140
+>    virtio_fs_enqueue_req+0x240/0x6d0
+>    virtio_fs_wake_pending_and_unlock+0x7f/0x190
+>    queue_request_and_unlock+0x58/0x70
+>    fuse_simple_request+0x18b/0x2e0
+>    fuse_direct_io+0x58a/0x850
+>    fuse_file_read_iter+0xdb/0x130
+>    __kernel_read+0xf3/0x260
+>    kernel_read+0x45/0x60
+>    kernel_read_file+0x1ad/0x2b0
+>    init_module_from_file+0x6a/0xe0
+>    idempotent_init_module+0x179/0x230
+>    __x64_sys_finit_module+0x5d/0xb0
+>    do_syscall_64+0x36/0xb0
+>    entry_SYSCALL_64_after_hwframe+0x6e/0x76
+>    ......
+>    </TASK>
+>   ---[ end trace 0000000000000000 ]---
+>
+> The warning happened as follow. In copy_args_to_argbuf(), virtiofs uses
+> kmalloc-ed memory as bound buffer for fuse args, but
 
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
----
- drivers/net/virtio_net.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+So this seems to be the special case in fuse_get_user_pages() when the
+read/write requests get a piece of kernel memory.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 62f65e2cacd5..7715bb7032ec 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -787,7 +787,7 @@ static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *buf)
- 	virtnet_rq_free_buf(vi, rq, buf);
- }
- 
--static void free_old_xmit_skbs(struct send_queue *sq, bool in_napi)
-+static void free_old_xmit(struct send_queue *sq, bool in_napi)
- {
- 	struct virtnet_sq_free_stats stats = {0};
- 
-@@ -841,7 +841,7 @@ static void check_sq_full_and_disable(struct virtnet_info *vi,
- 				virtqueue_napi_schedule(&sq->napi, sq->vq);
- 		} else if (unlikely(!virtqueue_enable_cb_delayed(sq->vq))) {
- 			/* More just got used, free them then recheck. */
--			free_old_xmit_skbs(sq, false);
-+			free_old_xmit(sq, false);
- 			if (sq->vq->num_free >= 2+MAX_SKB_FRAGS) {
- 				netif_start_subqueue(dev, qnum);
- 				virtqueue_disable_cb(sq->vq);
-@@ -2137,7 +2137,7 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
- 
- 		do {
- 			virtqueue_disable_cb(sq->vq);
--			free_old_xmit_skbs(sq, true);
-+			free_old_xmit(sq, true);
- 		} while (unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
- 
- 		if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
-@@ -2285,7 +2285,7 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
- 	txq = netdev_get_tx_queue(vi->dev, index);
- 	__netif_tx_lock(txq, raw_smp_processor_id());
- 	virtqueue_disable_cb(sq->vq);
--	free_old_xmit_skbs(sq, true);
-+	free_old_xmit(sq, true);
- 
- 	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
- 		netif_tx_wake_queue(txq);
-@@ -2375,7 +2375,7 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
- 		if (use_napi)
- 			virtqueue_disable_cb(sq->vq);
- 
--		free_old_xmit_skbs(sq, false);
-+		free_old_xmit(sq, false);
- 
- 	} while (use_napi && kick &&
- 	       unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
--- 
-2.32.0.3.g01195cf9f
+I don't really understand the comment in virtio_fs_enqueue_req():  /*
+Use a bounce buffer since stack args cannot be mapped */
 
+Stefan, can you explain?  What's special about the arg being on the stack?
+
+What if the arg is not on the stack (as is probably the case for big
+args like this)?   Do we need the bounce buffer in that case?
+
+Thanks,
+Miklos
