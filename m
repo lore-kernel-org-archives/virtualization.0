@@ -1,109 +1,72 @@
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BABB212E6F
-	for <virtualization@lists.linux.dev>; Fri, 23 Feb 2024 07:18:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FCD24414;
+	Fri, 23 Feb 2024 08:03:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708672720; cv=none; b=nK2qJlC7qTGhu/ZOXfoKy9F5jvABxQ+k+DkHtO+NFOwoYRXbJOSGmciSmU5ShhhrZYE+imETDDxvfu/xJq77vE+UJtGLK1B2gdVT6A2tp80/nGK9MSk0d89P+hMdEnEoS0H0BjT44r6iJzcGW5iHI/FiEj0eLeZ+JyuWvwBgg/w=
+	t=1708675420; cv=none; b=PwpelitrvtNkBB5TeEHb8f3Ys/K3YUcCxL4INrDUrNHw+PcaJaBOcF4BEAQw0YRJYtNyWXdhUwJc7mKZKB8uOrposY/ffScfLkAW8IAwnx/771ZcE3Rlwo9d5Lv214bqGfYLWl7rYr8W4ZwkfZbRqBYudd+c8cXq+fNSfrBOL/o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708672720; c=relaxed/simple;
-	bh=JPd+xcwedwSfoRtpExM+gs8JFu0JBxF/LszeUW1TisA=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=SfFVSuLuCD35uLj6lNZ4dunjrTIoDddVxcZA9Mzft5wOgLGwRiYL+eQ/5wD6DGGAZZeTE4R27mwAEt8+XNNgenMwEcCAQwocb1pSLOROuPJan6p29CSNg6RexgM2A38VscfGAZGiczoc+J0gZ7h1yzpjLxcNH4zLJAz1czzl/8k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=lmFrbnOh; arc=none smtp.client-ip=115.124.30.118
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1708675420; c=relaxed/simple;
+	bh=KrdAbu7vFuDAxh60xIAq4DCNIP7bmUzOzIQZIfJxERs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=k07VmA+56pLW/dKKnPlvW6gyzUsytBpGpwcS+tqjJbNYkwmyP4CJnpapLfXO9bXOuYCGEsetyNIYyRWrp7mE+K+L7P0yawdQwCYHhKqcIHALds5nHIvfHeD8Ym7mGtx5woGNjD3SZtmJwr2xUCSSJuQvRwdVX14ien+rXAy8bq0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=EFbTSIFQ; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="lmFrbnOh"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1708672715; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=4rcuD74AvS7fneRQTsL1nt/k9a5Kn0okRauJeobRvY4=;
-	b=lmFrbnOhwXgCBQb5cUQYe8rLrb76J/+O2kvH6/OUJy7RdfvbpIoKVrZH0dCy82zVhwHA4f97+YVBICrZ/fSHElF0F9Cu2QRDauUyzAj4XgEh79J0Omcy2e5R/WxWiK0SWliKN5HDUZK1V7xNiMnxYZjWbWWGb03+ZwqP6wvu8aE=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R631e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0W13I6gP_1708672714;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W13I6gP_1708672714)
-          by smtp.aliyun-inc.com;
-          Fri, 23 Feb 2024 15:18:34 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: virtualization@lists.linux.dev
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: [PATCH vhost v1] virtio: packed: fix unmap leak for indirect desc table
-Date: Fri, 23 Feb 2024 15:18:33 +0800
-Message-Id: <20240223071833.26095-1-xuanzhuo@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="EFbTSIFQ"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
+	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=fZw/7FWIZCP3rlrNit4Cu4sOKIBy8Icb2/Ch7C+m1dM=; b=EFbTSIFQQhE4pz/GyRHpok3GRo
+	n6sfnPliTKOzk23Rpg+/0osKCzLlzZu5Sgjzz9C5sj06/0QX83bIOZ7jM+iRvlCd6YaYVci2DBH/3
+	eSblmbW2ih9igDH4//EVBA8BAYoR9KvrswvA3gj+eDP5VldjQ9FRjpm6pFqYacKCfv6nhNabcr/rp
+	z6neL60IpJkoz8k0apRGsSUuaxWf+IhMqgHYfzpuGsitOnbBiegegIMeQhXBq98ECyRk9qW+u4gnb
+	aqDrGCpCmh1Vg0xaY1RVXxZEKpFUNLdBEFRqV91qVNtjjQoogNH2rtQ41EP31PMMTknBeJYd8Baut
+	NNTK0XbA==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1rdQWL-00000008OyF-3mql;
+	Fri, 23 Feb 2024 08:03:01 +0000
+Date: Fri, 23 Feb 2024 00:03:01 -0800
+From: Christoph Hellwig <hch@infradead.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+	Maxime Coquelin <maxime.coquelin@redhat.com>, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com, xieyongji@bytedance.com,
+	axboe@kernel.dk, gregkh@linuxfoundation.org, brauner@kernel.org,
+	lstoakes@gmail.com, virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+	david.marchand@redhat.com
+Subject: Re: [PATCH] vduse: implement DMA sync callbacks
+Message-ID: <ZdhRNeJRo1UaZt2F@infradead.org>
+References: <20240219170606.587290-1-maxime.coquelin@redhat.com>
+ <ZdRqcIRmDD-70ap3@infradead.org>
+ <20240222152541-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Git-Hash: 551bf7db48dd
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240222152541-mutt-send-email-mst@kernel.org>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 
-When use_dma_api and premapped are true, then the do_unmap is false.
+On Thu, Feb 22, 2024 at 03:29:10PM -0500, Michael S. Tsirkin wrote:
+> In a sense ... but on the other hand, the "fake DMA" metaphor seems to
+> work surprisingly well, like in this instance - internal bounce buffer
+> looks a bit like non-coherent DMA.  A way to make this all prettier
+> would I guess be to actually wrap all of DMA with virtio wrappers which
+> would all go if () dma_... else vduse_...; or something to this end.  A
+> lot of work for sure, and is it really worth it? if the only crazy
+> driver is vduse I'd maybe rather keep the crazy hacks local there ...
 
-Because the do_unmap is false, vring_unmap_extra_packed is not called by
-detach_buf_packed.
+Well, vduse is the only driver that does this hack - we had a few more
+and we got rid of it.  It basically is the only thing preventing us
+from doing direct calls into the iommu code and compile out dma_ops
+entirely for non-Xen builds on the common architectures.
 
-  if (unlikely(vq->do_unmap)) {
-                curr = id;
-                for (i = 0; i < state->num; i++) {
-                        vring_unmap_extra_packed(vq,
-                                                 &vq->packed.desc_extra[curr]);
-                        curr = vq->packed.desc_extra[curr].next;
-                }
-  }
-
-So the indirect desc table is not unmapped. This causes the unmap leak.
-
-So here, we check vq->use_dma_api instead. Synchronously, dma info is
-updated based on use_dma_api judgment
-
-This bug does not occur, because no driver use the premapped with
-indirect.
-
-Fixes: b319940f83c2 ("virtio_ring: skip unmap for premapped")
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
----
-
-v1: check use_dma_api to update dma info and unmap
-
- drivers/virtio/virtio_ring.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 49299b1f9ec7..6f7e5010a673 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -1340,7 +1340,7 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
- 				sizeof(struct vring_packed_desc));
- 	vq->packed.vring.desc[head].id = cpu_to_le16(id);
-
--	if (vq->do_unmap) {
-+	if (vq->use_dma_api) {
- 		vq->packed.desc_extra[id].addr = addr;
- 		vq->packed.desc_extra[id].len = total_sg *
- 				sizeof(struct vring_packed_desc);
-@@ -1481,7 +1481,7 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
- 			desc[i].len = cpu_to_le32(sg->length);
- 			desc[i].id = cpu_to_le16(id);
-
--			if (unlikely(vq->do_unmap)) {
-+			if (unlikely(vq->use_dma_api)) {
- 				vq->packed.desc_extra[curr].addr = addr;
- 				vq->packed.desc_extra[curr].len = sg->length;
- 				vq->packed.desc_extra[curr].flags =
-@@ -1615,7 +1615,7 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
- 	vq->free_head = id;
- 	vq->vq.num_free += state->num;
-
--	if (unlikely(vq->do_unmap)) {
-+	if (unlikely(vq->use_dma_api)) {
- 		curr = id;
- 		for (i = 0; i < state->num; i++) {
- 			vring_unmap_extra_packed(vq,
---
-2.32.0.3.g01195cf9f
-
+So yes, I'd really like to see it gone rather sooner than later.
