@@ -1,192 +1,201 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E064BE6B
-	for <virtualization@lists.linux-foundation.org>; Fri, 23 Feb 2024 02:51:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.138
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708656691; cv=fail; b=U+2mmLsnQPJOHjJD+WlapjHLTRbpb4GnDUxL1weT5MjqpUjd9FWMw7E8RvTc/AOfgJptZ0M/fuy55tgZZMMDFgbqfw8CtWN4w2HZmcSVAmdM+2YYhomBahr28Ql5cK6gNptjEjVq8ag5+d98B4nt07GtwasZYPH9IYTXIJSw1Kc=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708656691; c=relaxed/simple;
-	bh=jnwJDNfwx7HLqjw7CTBC083ygY7K2m9YyPqw/Hywlc8=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=CKQkJM8MkKu7LascxbL87qq+Zxq79HlY0pf2l/ZI+mZmN4lY4L0Rk/8uwmxhZM+lK8RmqEFwA9SyXs3CUB4BgbptDPs/kQpBGAX6XnM/uHqZqm6tY/REfqjHRZ/v36GBhK6gAMtMcbFQ8did5hq0nn6PmJpjJJyzUHkm2+2vJTE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=Mhhbh9+7; arc=fail smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C28A4125B1
+	for <virtualization@lists.linux.dev>; Fri, 23 Feb 2024 06:17:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1708669050; cv=none; b=I4b1npWB8aurQmOWWCGWX/VH37mzWv92sd8ooq01aAjwEBFU2iPl2fK/VyN+GW88FWtB5R5PDxERiAZhCBnlcGHTgsEl+FwFCn6ZfLRV69mb+gQaHuBbYQsHjQX5yN/xSEvrz0sOqLr27fJ4O2el2HY2/Ku41iiA+Yegd2mCpeY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1708669050; c=relaxed/simple;
+	bh=hCc9kfG3fizGgPgmdpClFKjoPRwjceJwvl8VPjdByMw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=lduXiXpkLsyuhdgnrvK3v/ftt8fApYab3nrYVoHs5dsU3LS7h26b7M0xGb3TDgLEZ7Qn289DfsPZBb0CtG9cFIU/pKweI2L4Ty9VsIwpeAGxL2aOU2XkjCz48TcZQx+8veA0EggG6OCq5RJxWNp0EABYmgIiqGkcud7l8MUVmJ4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=G3KiNF2+; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="Mhhbh9+7"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id D53F082CF1
-	for <virtualization@lists.linux-foundation.org>; Fri, 23 Feb 2024 02:51:29 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.103
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id tkc1xJsbOBOk
-	for <virtualization@lists.linux-foundation.org>;
-	Fri, 23 Feb 2024 02:51:29 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f400:7e88::609; helo=nam10-dm6-obe.outbound.protection.outlook.com; envelope-from=ankita@nvidia.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org D1D3482CD3
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D1D3482CD3
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=Mhhbh9+7
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on20609.outbound.protection.outlook.com [IPv6:2a01:111:f400:7e88::609])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id D1D3482CD3
-	for <virtualization@lists.linux-foundation.org>; Fri, 23 Feb 2024 02:51:28 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=bY7OozWsggbOp1MfapCSYQrRdz/z++hTs32HsxGhUOPUCyAY53kxDbYyLYMHrdVu1kboLo1h/kwfzgw6WcXHwa5oX8jneB1P96hUA246xAu8N/YZ/W71YBYS6PbIs4i9G8H7M1OhZy2Us7wis9NR7453LM4Kwsd1dNve+jHdXOd3LK0qZ9/UlTjUObW+1ltGigb7WmdMY21BJbpVHgmhtdJOqtfrigTX9C4VrFvFIEaKJnmabKkl7MSlrMecsIZ7bTpNlrG/nqumW7x+OCMF2YCDAz53s6XmnSrKO66noZ8N+65s6mojyZ2/Pnrz9PX1k21VvpxKgTpz5NcVxH/cXA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=jnwJDNfwx7HLqjw7CTBC083ygY7K2m9YyPqw/Hywlc8=;
- b=ImGkQuYL/U9BbTJamK3zMqU0s3STpL7Q+VSbRYwM9zcDw8iwsLl0gXSacWAMj8NfvGTK6usH4a+Lgfmognunx/FfN6FpimJGBeDhuaq3VzBhqnlwXuwZNedKFZL9J3NlP7zduXeuThY+26d7vwrI73aAzE45UKIlaZK5BvoogmLQXNSeTCINRTrN6qiEp2fu3Q1bGnjJNkHKxWPI53q/J2QEecOQdc8Mh954wXDKtHEqSc6ZK4EI9P6eozCJW/5P6kBr3gTcZN7XFq58+BUEoLevtySjU2bhGikfYPWvw/haILG1qCvJUxyMIXsldtuuou5MOYbIiZ1liSIhF63e1w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=jnwJDNfwx7HLqjw7CTBC083ygY7K2m9YyPqw/Hywlc8=;
- b=Mhhbh9+7p7nCG9mxlAPvV8ROyTjaCtwW6TTARJR9CNIvzx4q7l4AaWo/2D9CjiHFg1aDjklIHbXgRGuA8NJr2EeT29AMpIdVm7Hy2gU3FFIiOx+Xcry4qsTeu8ndDsoGri1FvpzqyTKVtLrb+XRSWTyjWF08e1z44wNNbrWz1YYXtuIz2ug5TVMp/jc0tgQqDDtbyxBlbR0DGoUI+RMJhPX3wtpuF5O/gq1x/LC7QV9urzJnOTmY6aUMe7mYHJxJfyj90SbCNdga1sOQ9hvhqGjC0ZvcB3VCT6ottcMBp5Gmc0rDaH3YkDyc2eo5DqTGXLpCNxftG2Sw+UO8Zs415w==
-Received: from SA1PR12MB7199.namprd12.prod.outlook.com (2603:10b6:806:2bc::21)
- by CO6PR12MB5489.namprd12.prod.outlook.com (2603:10b6:303:139::18) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7316.24; Fri, 23 Feb
- 2024 02:51:25 +0000
-Received: from SA1PR12MB7199.namprd12.prod.outlook.com
- ([fe80::284c:211f:16dc:f7b2]) by SA1PR12MB7199.namprd12.prod.outlook.com
- ([fe80::284c:211f:16dc:f7b2%5]) with mapi id 15.20.7316.018; Fri, 23 Feb 2024
- 02:51:24 +0000
-From: Ankit Agrawal <ankita@nvidia.com>
-To: Alex Williamson <alex.williamson@redhat.com>
-CC: Jason Gunthorpe <jgg@nvidia.com>, Yishai Hadas <yishaih@nvidia.com>,
-	"shameerali.kolothum.thodi@huawei.com"
-	<shameerali.kolothum.thodi@huawei.com>, "kevin.tian@intel.com"
-	<kevin.tian@intel.com>, "mst@redhat.com" <mst@redhat.com>,
-	"eric.auger@redhat.com" <eric.auger@redhat.com>, "jgg@ziepe.ca"
-	<jgg@ziepe.ca>, "oleksandr@natalenko.name" <oleksandr@natalenko.name>,
-	"clg@redhat.com" <clg@redhat.com>, "satyanarayana.k.v.p@intel.com"
-	<satyanarayana.k.v.p@intel.com>, "brett.creeley@amd.com"
-	<brett.creeley@amd.com>, "horms@kernel.org" <horms@kernel.org>,
-	"shannon.nelson@amd.com" <shannon.nelson@amd.com>, Rahul Rameshbabu
-	<rrameshbabu@nvidia.com>, Zhi Wang <zhiw@nvidia.com>, Aniket Agashe
-	<aniketa@nvidia.com>, Neo Jia <cjia@nvidia.com>, Kirti Wankhede
-	<kwankhede@nvidia.com>, "Tarun Gupta (SW-GPU)" <targupta@nvidia.com>, Vikram
- Sethi <vsethi@nvidia.com>, Andy Currid <acurrid@nvidia.com>, Alistair Popple
-	<apopple@nvidia.com>, John Hubbard <jhubbard@nvidia.com>, Dan Williams
-	<danw@nvidia.com>, "Anuj Aggarwal (SW-GPU)" <anuaggarwal@nvidia.com>, Matt
- Ochs <mochs@nvidia.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"virtualization@lists.linux-foundation.org"
-	<virtualization@lists.linux-foundation.org>
-Subject: Re: [PATCH v19 0/3] vfio/nvgrace-gpu: Add vfio pci variant module for
- grace hopper
-Thread-Topic: [PATCH v19 0/3] vfio/nvgrace-gpu: Add vfio pci variant module
- for grace hopper
-Thread-Index: AQHaY/Mekx2WvnlRDEKdWWLWleC5bbEW5psAgABXBe0=
-Date: Fri, 23 Feb 2024 02:51:24 +0000
-Message-ID:
- <SA1PR12MB71992D7E87AD9DA2C89669BAB0552@SA1PR12MB7199.namprd12.prod.outlook.com>
-References: <20240220115055.23546-1-ankita@nvidia.com>
- <20240222143654.0ed77f85.alex.williamson@redhat.com>
-In-Reply-To: <20240222143654.0ed77f85.alex.williamson@redhat.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-msip_labels:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: SA1PR12MB7199:EE_|CO6PR12MB5489:EE_
-x-ms-office365-filtering-correlation-id: 028bb4f1-47f5-4488-37a2-08dc341a5330
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info:
- ItwRBTbMHmtfT6jHr9pLqxCAlHm4TSp3HAfJLn+eFd8mTgnqe3MTi5GHvQ5/ptZ2idRws7CVMS3R7rhTAFCpRYiYvn39iMSY111t6WAwXH+reCRzUAXWqnBEc45Mdd7sYl1lt5Y/04gDtBkGbn+5Ruwid3cGLHHCOyHjk+ezqNvjDrP+ChRT1FVcw3qIjnsM2PFntyW3wNsw2jKQWyYiHTwKnsozmsQBTcxSkUduFOC6BkaZhBlPpirc+rY3FMkzuKCFd21BR4IFEuY/C0sfrOBJOWJr/4m3Xv+aPmgLjt+XIQ4coAaN41REXBH057LPzmsLwnvMKMlelSuiN34JSe85kIaQdxup7QwcvaAHw7LnR1sSsoOFdXOV/xsgwURPisDOwUAK6LTtUb15LzgYsBLqrzWKulLgLN7bcQg8Mz0mW+ZTiM7mdq8o9dF8T7Fr2hIYZFvoufTNIGml3mkpDL1Jn79QUYVXfmRkvM2BD2Xn7mYDVIdxySrCCZPbPpKX/o7DkXtONDcPlh9zRywnA6eTm1+YVr9SsH3dsEtVEwCsOxMDFoVFcsRvcg+65Fj5A7px4YQGm85m5qG6oj8fhRQwCmP3rA+RKWxlhJBT51xPnojI/f28rNH/Z886aPya
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA1PR12MB7199.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(38070700009);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?iso-8859-1?Q?jWIg48zdyQCOsy3FFrRq+3Ic7zk1Nq4QXgsxf0j+OjbzT3x7c/fhd5SpuH?=
- =?iso-8859-1?Q?odgtkbBo95vdpQcjvEd0kCYIIbsdH5D8z40LsQETky5jrOErLjMTrfVyqb?=
- =?iso-8859-1?Q?mTvQCfwuahSEYd28XVbqV2MM8Kcj4SSSt25ARfdigcz2OP452o7Z0G4WBJ?=
- =?iso-8859-1?Q?AzrsKqHtsaJ06Ltd0xsxNMr2bpfdRvyy/JMCIBsePghlPVOlLJJ43P/BLp?=
- =?iso-8859-1?Q?ySLRDDLqMmvZpKYtYdHDPC96b+4NBjLW+nOupAYsfl5dmo5XV1YA4Z5hvE?=
- =?iso-8859-1?Q?nCYNwKYNI4SheGyP/hrc2tETHEYHwW26h4vafF/pwhqSVzM8pqY0wr6UZo?=
- =?iso-8859-1?Q?YzPHcdbnHhwBcNUd/PloTWrnO5pR0UoimfFoC91OwzGEkAWagOcPuKt+u+?=
- =?iso-8859-1?Q?4hSf6qPf85JJLokL5uv0Yed1eF+6f2qHG+FamemNVUFbOO+tWJ8ljO4uqS?=
- =?iso-8859-1?Q?Cy/i2pwkuk0DNKSA+lGVp7g+hI2Ijz7tn+aPRziATxTARzxIAcQAAgk64e?=
- =?iso-8859-1?Q?iS8rNzjKzDR9XXcAUAygkRywDFc+QWTZ1u/oqnZJZE86q+Vtaew57tzaJB?=
- =?iso-8859-1?Q?ADD7Uv/e2Vk+HKAJMDaulImGbn/+OZhPcYez0SeV+DPx43z/F6Y7/xkz1g?=
- =?iso-8859-1?Q?9VG/T7n+F/mgZuZJknunqW89Ka2tbC8SQTvxL8ic9ZrCnDBcRDMoDt1Ojv?=
- =?iso-8859-1?Q?bphCJk3uLJYf/FysJmRU8Klgn/qomUaeQ7eWKH5duX9Q/9pVCVkWLqdYUj?=
- =?iso-8859-1?Q?M9P3hucwxusyAhmnmU4G5zRXbR+WD3rDhcsvM5rZFK7YeHZA+xDKozwYsz?=
- =?iso-8859-1?Q?90X7a0bQYi/SzH8DqhweTFx2YXlOS569FC49Z0C28VUmxyez3ZmfQlcHhH?=
- =?iso-8859-1?Q?IezUDVvTCpaR8qHQ/wTxp+T1ueDIfQdlgUoRsapar9Df4Klevs9LILPpCk?=
- =?iso-8859-1?Q?wWy3efhg5n+r0JTKB0UCJ/F63tIkweptIcwjXiCnoVOsdxcEfRS/shZ6tm?=
- =?iso-8859-1?Q?0lPGrsAkNIkW49cnI6ARUBtzS4rB5ylpDuKqeTpChGkMlCXXBLEyDbxzla?=
- =?iso-8859-1?Q?lVz+CUHhQ8mDi98tKQjQKp98XhZCpxG7SW+GWpSISWUjWNaeWII3Cxs6I2?=
- =?iso-8859-1?Q?Q5RPK0azZNeuLp4WBZ8ex9xKhT9TcengykLtSiE++aXZgQN5USDxeZytcL?=
- =?iso-8859-1?Q?YiaO6SLsYh6mVB1TK/PhlknoRlAx9IE3dcVNDvi0VlsobMsS63bYhRkWR+?=
- =?iso-8859-1?Q?8FN9GmU1ijekFLUY5tjPrAYWooJLbjQSz387ayFKnMnPu8eEp61N76WAhg?=
- =?iso-8859-1?Q?hASRnyTgwzfZffR7hrSjtRBGtCm/eENcyGQVIzqF8ACrdzJEaOhq0PURsT?=
- =?iso-8859-1?Q?XbIH9BhHbPe1quI18NLeN03FJozHPBRqGUjv+hIKqpWGalgarXRz52ycRy?=
- =?iso-8859-1?Q?e6BaZ7C2al4LXjt7haWn2O3vZ+8IWx2+Qhw2r23x1sGzdYI+d8+7le44R/?=
- =?iso-8859-1?Q?A/hLqLQR8r0ptBpTGpGG2EkY08OAbW0Umo0u/h/fkDdtwQ/jDVCVOkxSgi?=
- =?iso-8859-1?Q?rIBEcSCjvLSGxRRH3oNpoJ6N+y8trOdaoL3A+TjM/tTvZzw0cLDVqzH5U7?=
- =?iso-8859-1?Q?YnLbjhJgSFWIo=3D?=
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="G3KiNF2+"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1708669046;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=aBnxjcZte0s2OKjIGIRhh7IFZ830goa5+vVUZQ5r/JI=;
+	b=G3KiNF2+Hkr+NIQX+tUP1CRVOMDQuWJ/gVR0b0YPW2+bhYh/VECD6GelPBSUWelQ45V0YR
+	YGIdU+v/TFBf4p4Rhn/gF0PHFyIscskdEve/Qj5mUZ/aNXgz4d3MgKMF4qHcR0XKt4G+kR
+	kkdwFoAkbO7l979s5r17piUz5i9z7rM=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-463-7Y2-QOa-PqG5iV5F-6f3QA-1; Fri, 23 Feb 2024 01:17:25 -0500
+X-MC-Unique: 7Y2-QOa-PqG5iV5F-6f3QA-1
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-33d19ac07c5so258019f8f.0
+        for <virtualization@lists.linux.dev>; Thu, 22 Feb 2024 22:17:24 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1708669044; x=1709273844;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=aBnxjcZte0s2OKjIGIRhh7IFZ830goa5+vVUZQ5r/JI=;
+        b=GPhLuJOSzIEMOrLsm/7cYsm2PtMpKZNfVNwEaIcgJY0V/MC0oRJG4oMqbzmyUEy/hS
+         VW1hFCCPijqVgDxKfe1AE1HvExBD0bbp/CRNOMRo365IhZ5/mVo0O7v0RCu+Zi7Bw9pC
+         6fTt7SLXqZi6QO1o5o680pHr44ApWqJ/ySZ9fBwyraUDr2BRQXSuOlARjPRe1eLm9Yac
+         zlS+s/vypQiEMC41yJKEu67W0eLeFxZ12p5aAa641Hg6HEPwTRAEwYyoDhgFuscM3zhf
+         mwQL9BapRE4/Dyxprnk0bATkbCyZ1fev+EBZGptoQEPptEVfoE5RZAgkMF2Z0lkh17KP
+         dKXQ==
+X-Gm-Message-State: AOJu0YzIX5BhSNJGjMgR5FzJ/nxsepXzZA1evmJkomKuALWfheeFY9L4
+	tg5SVUe6menOohROSkL6/QoyMWKKdk17+N+oRLsMkoYqmud4Jkit0JqeKD68eDpTTiyAg6/IqJY
+	Szvp6CNxwWbmR98F5P90RjHcrfEibXl4QXKrZCT9HaVDww89CnyMfr+2Bf2CmwrnQ
+X-Received: by 2002:a5d:56c8:0:b0:33d:157d:a7ad with SMTP id m8-20020a5d56c8000000b0033d157da7admr777472wrw.40.1708669043848;
+        Thu, 22 Feb 2024 22:17:23 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGVKDZZEwUcJIP7Avgmc2vr49V1+/ON8riI60u8BDNJ0hulyyOwnRcCKT7Cy9K6Xle99vWjdw==
+X-Received: by 2002:a5d:56c8:0:b0:33d:157d:a7ad with SMTP id m8-20020a5d56c8000000b0033d157da7admr777452wrw.40.1708669043422;
+        Thu, 22 Feb 2024 22:17:23 -0800 (PST)
+Received: from redhat.com ([147.235.213.72])
+        by smtp.gmail.com with ESMTPSA id bo10-20020a056000068a00b0033cddadde6esm1494453wrb.80.2024.02.22.22.17.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 22 Feb 2024 22:17:22 -0800 (PST)
+Date: Fri, 23 Feb 2024 01:17:17 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Jason Wang <jasowang@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Hans de Goede <hdegoede@redhat.com>,
+	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	Vadim Pasternak <vadimp@nvidia.com>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Mathieu Poirier <mathieu.poirier@linaro.org>,
+	Cornelia Huck <cohuck@redhat.com>,
+	Halil Pasic <pasic@linux.ibm.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	Benjamin Berg <benjamin.berg@intel.com>,
+	linux-um@lists.infradead.org, netdev@vger.kernel.org,
+	platform-driver-x86@vger.kernel.org,
+	linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+	kvm@vger.kernel.org, bpf@vger.kernel.org
+Subject: Re: [PATCH vhost v1 00/19] virtio: drivers maintain dma info for
+ premapped vq
+Message-ID: <20240223011631-mutt-send-email-mst@kernel.org>
+References: <20240202093951.120283-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: SA1PR12MB7199.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 028bb4f1-47f5-4488-37a2-08dc341a5330
-X-MS-Exchange-CrossTenant-originalarrivaltime: 23 Feb 2024 02:51:24.8913
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 1QzOJ2FBkf7WuaJ0LLTHtDuHE+fOSD7uLZIbiygdCbBhstQcUiAcCfuyG/rjPNSrqZ7dpn0nR1LtwQqjPY5bRg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO6PR12MB5489
+In-Reply-To: <20240202093951.120283-1-xuanzhuo@linux.alibaba.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
->> Ankit Agrawal (3):=0A=
->>=A0=A0 vfio/pci: rename and export do_io_rw()=0A=
->>=A0=A0 vfio/pci: rename and export range_intersect_range=0A=
->>=A0=A0 vfio/nvgrace-gpu: Add vfio pci variant module for grace hopper=0A=
->>=0A=
->>=A0 MAINTAINERS=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0 |=A0 16 +-=0A=
->>=A0 drivers/vfio/pci/Kconfig=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 |=A0=
-=A0 2 +=0A=
->>=A0 drivers/vfio/pci/Makefile=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 |=A0=A0=
- 2 +=0A=
->>=A0 drivers/vfio/pci/nvgrace-gpu/Kconfig=A0 |=A0 10 +=0A=
->>=A0 drivers/vfio/pci/nvgrace-gpu/Makefile |=A0=A0 3 +=0A=
->>=A0 drivers/vfio/pci/nvgrace-gpu/main.c=A0=A0 | 879 +++++++++++++++++++++=
-+++++=0A=
->>=A0 drivers/vfio/pci/vfio_pci_config.c=A0=A0=A0 |=A0 42 ++=0A=
->>=A0 drivers/vfio/pci/vfio_pci_rdwr.c=A0=A0=A0=A0=A0 |=A0 16 +-=0A=
->>=A0 drivers/vfio/pci/virtio/main.c=A0=A0=A0=A0=A0=A0=A0 |=A0 72 +--=0A=
->>=A0 include/linux/vfio_pci_core.h=A0=A0=A0=A0=A0=A0=A0=A0 |=A0 10 +-=0A=
->>=A0 10 files changed, 993 insertions(+), 59 deletions(-)=0A=
->>=A0 create mode 100644 drivers/vfio/pci/nvgrace-gpu/Kconfig=0A=
->>=A0 create mode 100644 drivers/vfio/pci/nvgrace-gpu/Makefile=0A=
->>=A0 create mode 100644 drivers/vfio/pci/nvgrace-gpu/main.c=0A=
->>=0A=
->=0A=
-> Applied to vfio next branch for v6.9.=A0 Thanks,=0A=
->=0A=
-> Alex=0A=
-=0A=
-Thanks Alex! Appreciate this along with your guidance and help in the revie=
-ws.=
+On Fri, Feb 02, 2024 at 05:39:32PM +0800, Xuan Zhuo wrote:
+> As discussed:
+> http://lore.kernel.org/all/CACGkMEvq0No8QGC46U4mGsMtuD44fD_cfLcPaVmJ3rHYqRZxYg@mail.gmail.com
+> 
+> If the virtio is premapped mode, the driver should manage the dma info by self.
+> So the virtio core should not store the dma info.
+> So we can release the memory used to store the dma info.
+> 
+> But if the desc_extra has not dma info, we face a new question,
+> it is hard to get the dma info of the desc with indirect flag.
+> For split mode, that is easy from desc, but for the packed mode,
+> it is hard to get the dma info from the desc. And for hardening
+> the dma unmap is saft, we should store the dma info of indirect
+> descs.
+> 
+> So I introduce the "structure the indirect desc table" to
+> allocate space to store dma info with the desc table.
+> 
+> On the other side, we mix the descs with indirect flag
+> with other descs together to share the unmap api. That
+> is complex. I found if we we distinguish the descs with
+> VRING_DESC_F_INDIRECT before unmap, thing will be clearer.
+> 
+> Because of the dma array is allocated in the find_vqs(),
+> so I introduce a new parameter to find_vqs().
+> 
+> Please review.
+> 
+> Thanks
+
+this needs a rebase - conflicts with e.g.
+commit e3fe8d28c67bf6c291e920c6d04fa22afa14e6e4
+Author: Zhu Yanjun <yanjun.zhu@linux.dev>
+Date:   Thu Jan 4 10:09:02 2024 +0800
+
+    virtio_net: Fix "‘%d’ directive writing between 1 and 11 bytes into a region of size 10" warnings
+    
+    Fix the warnings when building virtio_net driver.
+    
+
+thanks!
+
+
+> v1:
+>     1. rename transport_vq_config to vq_transport_config
+>     2. virtio-net set dma meta number to (ring-size + 1)(MAX_SKB_FRGAS +2)
+>     3. introduce virtqueue_dma_map_sg_attrs
+>     4. separate vring_create_virtqueue to an independent commit
+> 
+> Xuan Zhuo (19):
+>   virtio_ring: introduce vring_need_unmap_buffer
+>   virtio_ring: packed: remove double check of the unmap ops
+>   virtio_ring: packed: structure the indirect desc table
+>   virtio_ring: split: remove double check of the unmap ops
+>   virtio_ring: split: structure the indirect desc table
+>   virtio_ring: no store dma info when unmap is not needed
+>   virtio: find_vqs: pass struct instead of multi parameters
+>   virtio: vring_create_virtqueue: pass struct instead of multi
+>     parameters
+>   virtio: vring_new_virtqueue(): pass struct instead of multi parameters
+>   virtio_ring: reuse the parameter struct of find_vqs()
+>   virtio: find_vqs: add new parameter premapped
+>   virtio_ring: export premapped to driver by struct virtqueue
+>   virtio_net: set premapped mode by find_vqs()
+>   virtio_ring: remove api of setting vq premapped
+>   virtio_ring: introduce dma map api for page
+>   virtio_ring: introduce virtqueue_dma_map_sg_attrs
+>   virtio_net: unify the code for recycling the xmit ptr
+>   virtio_net: rename free_old_xmit_skbs to free_old_xmit
+>   virtio_net: sq support premapped mode
+> 
+>  arch/um/drivers/virtio_uml.c             |  31 +-
+>  drivers/net/virtio_net.c                 | 291 +++++++---
+>  drivers/platform/mellanox/mlxbf-tmfifo.c |  24 +-
+>  drivers/remoteproc/remoteproc_virtio.c   |  31 +-
+>  drivers/s390/virtio/virtio_ccw.c         |  33 +-
+>  drivers/virtio/virtio_mmio.c             |  30 +-
+>  drivers/virtio/virtio_pci_common.c       |  59 +-
+>  drivers/virtio/virtio_pci_common.h       |   9 +-
+>  drivers/virtio/virtio_pci_legacy.c       |  16 +-
+>  drivers/virtio/virtio_pci_modern.c       |  24 +-
+>  drivers/virtio/virtio_ring.c             | 698 ++++++++++++-----------
+>  drivers/virtio/virtio_vdpa.c             |  45 +-
+>  include/linux/virtio.h                   |  13 +-
+>  include/linux/virtio_config.h            |  48 +-
+>  include/linux/virtio_ring.h              |  82 +--
+>  tools/virtio/virtio_test.c               |   4 +-
+>  tools/virtio/vringh_test.c               |  28 +-
+>  17 files changed, 848 insertions(+), 618 deletions(-)
+> 
+> --
+> 2.32.0.3.g01195cf9f
+
