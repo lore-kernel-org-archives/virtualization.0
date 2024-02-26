@@ -1,173 +1,228 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com [209.85.210.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06BA96027E
-	for <virtualization@lists.linux.dev>; Mon, 26 Feb 2024 12:12:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 602A412FB07
+	for <virtualization@lists.linux.dev>; Mon, 26 Feb 2024 14:39:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708949536; cv=none; b=uGKg6DFWGKCTbfltlvIHENcey83pX2CGS6TiEtCBMIbJrn+gZk8MRzL+oACtZtrLE1BLhCTkvAihCGMn6dJAP4pl0+hKg9EQbsKHLgkserh0VLDwDbl0CQehmeqtCQA2Fd42bEQDX9RfuNk2+nIZaFcqawO2Uh4h9AKTwshb59Y=
+	t=1708958367; cv=none; b=gzX4N4gOUdQd9U9XGq8NHwGfpCcCCFB8DoYR+6yGCMVawPDAK+4jIrouQKhu0CnsfgWJRNdMAGNOZm1zBycUw7rdolfmCIV1w0JApA++JYOuZwU6ElQeeiofTj7qAdTNalMMNtD7TokW2eMwGIG3lXnPHk7GiE1koDmpvEAO4E8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708949536; c=relaxed/simple;
-	bh=e0N6/2zQUM1QOqkgabnyahS6/9h1qmMEkf5qlHoAwkI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=U8lUgV/vXZSRMwtCT2Ti3FraNYKxRhq1L1eErsd6jVq9l+llKm8W4UqfjegTUhNpoEtaiVOGf4cs2XAv/P4qlLI/kINz62GhGuZotPBZz6SToXn8liNL7N+BG06F/JKySNS/H9hCmLVy3SSeq0j0Ivu8yjbrI7wDPkRJONyPW3c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=M8u1Hu/V; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1708958367; c=relaxed/simple;
+	bh=tzGizjCiHx7zVuGTWahlp4kf7Af8DRrnW2IXT6ESIME=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=Giwk1kF/6OGdSHWbf4+n6Nwc1DuDgpEapbuzFK0/i6Tity1HnaN9TGSPqnImxB1bqDUEfuexxw/tbrn+uOnZ3BWLGACt3HyLmDgp/x0CJdVEEzdbgxr9AoX04+1tqwhLJ0GSz52uknM+ai6hwpsRArh1Bzs2gHby+8I5U0TlAo8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=efduOanQ; arc=none smtp.client-ip=209.85.210.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="M8u1Hu/V"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1708949533;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=lVX2aIqulG7pb2ZKAY6wEN/hr8j5RuJ02O3KYwJHnAk=;
-	b=M8u1Hu/Vv/0vNE0i88WuFmuJtcQkSdxo0gFdDiwJL1VJdKPTUDl4GlufEU9pFgoZ3vSSpK
-	Sc3LWL6crIPduD0Ei3QfqimXpTSYVcmJdm09z+OxhF+jdZ6ztu+c8FQyoKMMt/xCWmI9FT
-	4gszghQ79VOV3VEwXcsT7rWVJlMevi8=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-673-lM3btRWIPzSfQdbMwPLWzQ-1; Mon, 26 Feb 2024 07:12:10 -0500
-X-MC-Unique: lM3btRWIPzSfQdbMwPLWzQ-1
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-33dc175ff8fso1225330f8f.0
-        for <virtualization@lists.linux.dev>; Mon, 26 Feb 2024 04:12:10 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708949529; x=1709554329;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="efduOanQ"
+Received: by mail-pf1-f181.google.com with SMTP id d2e1a72fcca58-6e508725b64so254305b3a.3
+        for <virtualization@lists.linux.dev>; Mon, 26 Feb 2024 06:39:26 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1708958365; x=1709563165; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=lVX2aIqulG7pb2ZKAY6wEN/hr8j5RuJ02O3KYwJHnAk=;
-        b=nAeI0UQYN7/B9d/BXwHaavOE/547LBjJmYovMnNJSwLLyR836W09VELeRg848KZtqB
-         OY8Zslm5id3fEdR6WmzJSOUuOnPVn+xkxkdGIG+PoVyiaypJ2R4O3dUnikD5+cs7DBA6
-         scUqFf7AoESRAuW2Nh1UuBt9HdZFOfswbTj0NLJ7e6kJ6z9GC9JKZn/BE+rNi6xgkwHQ
-         aeeCBak6hdUg6I4DRDJXMQWXxgy5nKa9mgCTfQUNP31AC6IAErhtn2fJ3zAO3E6nU9bw
-         oldHXoNNR7VcilOW4iSiCv/cxaYlvkFyFSgd3321gt/rudtrkO+eVLLBB2oy3gAIYs1m
-         YMVg==
-X-Gm-Message-State: AOJu0Yzsizo2Iv9vHHNTmjQazphQOfyA7MAXIoH8a+rcyBbV86gjBT41
-	kjsyV9JcuaRxRbDYEvSCL0Qz2uuGaguNUIprAm4OwjYJRrLj3DcC1/Edfl4w85k8KgrqHCGMBtU
-	fG+2jYBKWr2ZLerCSGp4oNHO6DMEZT8op9Zm8PUmZByY8hkzxVL+Azo8IPQz3VgS7
-X-Received: by 2002:a05:6000:1961:b0:33d:7ea3:5b90 with SMTP id da1-20020a056000196100b0033d7ea35b90mr5099362wrb.65.1708949529663;
-        Mon, 26 Feb 2024 04:12:09 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEf07k3zYsXuRGP5oY8KvF8nVh4PymH1C6S7+HQTQO4YjooNJ90xav4OKE27dfDSxc5oKl0bw==
-X-Received: by 2002:a05:6000:1961:b0:33d:7ea3:5b90 with SMTP id da1-20020a056000196100b0033d7ea35b90mr5099329wrb.65.1708949529347;
-        Mon, 26 Feb 2024 04:12:09 -0800 (PST)
-Received: from redhat.com ([109.253.193.52])
-        by smtp.gmail.com with ESMTPSA id t20-20020adfa2d4000000b0033de1e1bddcsm1414633wra.26.2024.02.26.04.12.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 26 Feb 2024 04:12:08 -0800 (PST)
-Date: Mon, 26 Feb 2024 07:12:01 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Jason Wang <jasowang@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Hans de Goede <hdegoede@redhat.com>,
-	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	Vadim Pasternak <vadimp@nvidia.com>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Mathieu Poirier <mathieu.poirier@linaro.org>,
-	Cornelia Huck <cohuck@redhat.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	Eric Farman <farman@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>,
-	linux-um@lists.infradead.org, netdev@vger.kernel.org,
-	platform-driver-x86@vger.kernel.org,
-	linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-	kvm@vger.kernel.org, bpf@vger.kernel.org,
-	Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH vhost v2 19/19] virtio_net: sq support premapped mode
-Message-ID: <20240226071010-mutt-send-email-mst@kernel.org>
-References: <20240223082726.52915-1-xuanzhuo@linux.alibaba.com>
- <20240223082726.52915-20-xuanzhuo@linux.alibaba.com>
- <20240225032330-mutt-send-email-mst@kernel.org>
- <1708946440.799724-1-xuanzhuo@linux.alibaba.com>
- <20240226063120-mutt-send-email-mst@kernel.org>
- <1708947209.1148863-1-xuanzhuo@linux.alibaba.com>
- <20240226063532-mutt-send-email-mst@kernel.org>
- <1708947549.7906592-2-xuanzhuo@linux.alibaba.com>
- <20240226065709-mutt-send-email-mst@kernel.org>
- <1708949183.5224328-4-xuanzhuo@linux.alibaba.com>
+        bh=3obabIc0frWAPcp78SCT093DaVOW3OCMmYlsqxV6Jrg=;
+        b=efduOanQmQMIJMMmYbbtrg7UHl8wZkx+8vfGH09S2zLXooe1rcBa5r1XAhCPx5Dzbb
+         JRW3T/I4/nhbJil27gM8ma/N6jwQ5CPOEi1rV4JtRcxt8eJVAmNI6ym8cgqjc58Xi0uJ
+         HGMgSjstHgS+qkfqfkM6cin3q8GQWtosOjUa/KLO8d1bUl/mF+1h6htqtOHnCz0XE/4I
+         N4+qGFD7R09Lcne0CW6nbaUUWSCFC12o9lQ0bINjg49PFwqo/QNtIm8WvcocEe2A0lk1
+         XM7tKbQJsZTnlH2rcy2iPsY7swZmFkhrscf/FcSBjRdZqJ3XHx1oqbNXLC/eQrm8OqNh
+         bD8Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1708958365; x=1709563165;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=3obabIc0frWAPcp78SCT093DaVOW3OCMmYlsqxV6Jrg=;
+        b=bDAGSQdfyW9ciwEPCwqMKOiDYKpDGEPK+aTegnDYYPk5Dscy+ee0WBNenQEf9YuVgp
+         DvAi8OotUYp0q9amSWjBaXxMWgXkRMuLUo0+qMcUGLUqjuxToT2p/E9PDD2CMQj+ypR+
+         xfF0jLPfhl81W40WmAMqXz5oD2625iqRanVKeWyu8z8c2ZNGXlVVHdCxKnOh84qeoRz2
+         cGNxl12cj5iMsWbeX8AEJo4it+wbIDZAh5GYKD0+7/LaaoeVYcoOTokmYLUqBwiS5yP1
+         ltXfL5CYAn6GTMSNolNhJrZmdFUDho4frtR3Vif7nVaf+HJ3vlwGlzpici6L+i81v+FD
+         7xsw==
+X-Forwarded-Encrypted: i=1; AJvYcCV+bnCtD6ncH/KKeXgG2tRCNn5f5R3HKzQwXpM51kEbDeVKuh7b3L6y5jb8w7TmfuUqH21yC37arOvP6ISt4XeH5XjuttTx76OMqRiIxRY=
+X-Gm-Message-State: AOJu0Yz6GqLypyaVfKJgK4l6DWRZT6SUAuJR0KCvLyxMOtfK8kimFSH3
+	/acJSAL8sNOHCZe6rXMW5O4qA3cpaqd4KoZSdRQlyKIy5kftsBbW
+X-Google-Smtp-Source: AGHT+IHxB1SRDNUAQcM9eSd8jCrvT5j7mxZc3ehl/sTVGmSJcJcMTqd/bRM8vjNK9o0eC3pRQdhkvg==
+X-Received: by 2002:a05:6a00:1817:b0:6e4:5a0f:b87a with SMTP id y23-20020a056a00181700b006e45a0fb87amr8639641pfa.12.1708958365514;
+        Mon, 26 Feb 2024 06:39:25 -0800 (PST)
+Received: from localhost ([47.254.32.37])
+        by smtp.gmail.com with ESMTPSA id l3-20020a62be03000000b006e04553a4c5sm4068362pff.52.2024.02.26.06.39.24
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 26 Feb 2024 06:39:25 -0800 (PST)
+From: Lai Jiangshan <jiangshanlai@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: Hou Wenlong <houwenlong.hwl@antgroup.com>,
+	Lai Jiangshan <jiangshan.ljs@antgroup.com>,
+	Linus Torvalds <torvalds@linux-foundation.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Sean Christopherson <seanjc@google.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Borislav Petkov <bp@alien8.de>,
+	Ingo Molnar <mingo@redhat.com>,
+	kvm@vger.kernel.org,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	x86@kernel.org,
+	Kees Cook <keescook@chromium.org>,
+	Juergen Gross <jgross@suse.com>,
+	Andy Lutomirski <luto@kernel.org>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Ajay Kaher <akaher@vmware.com>,
+	Alexey Makhalov <amakhalov@vmware.com>,
+	VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
+	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+	"Mike Rapoport (IBM)" <rppt@kernel.org>,
+	Daniel Sneddon <daniel.sneddon@linux.intel.com>,
+	Rick Edgecombe <rick.p.edgecombe@intel.com>,
+	Alexey Kardashevskiy <aik@amd.com>,
+	virtualization@lists.linux.dev,
+	xen-devel@lists.xenproject.org
+Subject: [RFC PATCH 66/73] x86/pvm: Use new cpu feature to describe XENPV and PVM
+Date: Mon, 26 Feb 2024 22:36:23 +0800
+Message-Id: <20240226143630.33643-67-jiangshanlai@gmail.com>
+X-Mailer: git-send-email 2.19.1.6.gb485710b
+In-Reply-To: <20240226143630.33643-1-jiangshanlai@gmail.com>
+References: <20240226143630.33643-1-jiangshanlai@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <1708949183.5224328-4-xuanzhuo@linux.alibaba.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Mon, Feb 26, 2024 at 08:06:23PM +0800, Xuan Zhuo wrote:
-> On Mon, 26 Feb 2024 06:57:17 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > On Mon, Feb 26, 2024 at 07:39:09PM +0800, Xuan Zhuo wrote:
-> > > On Mon, 26 Feb 2024 06:36:53 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > > On Mon, Feb 26, 2024 at 07:33:29PM +0800, Xuan Zhuo wrote:
-> > > > > > what is dma_map_direct? can't find it in the tree.
-> > > > >
-> > > > > YES.
-> > > > >
-> > > > >
-> > > > > diff --git a/kernel/dma/mapping.c b/kernel/dma/mapping.c
-> > > > > index 58db8fd70471..5a8f7a927aa1 100644
-> > > > > --- a/kernel/dma/mapping.c
-> > > > > +++ b/kernel/dma/mapping.c
-> > > > > @@ -144,6 +144,18 @@ static inline bool dma_map_direct(struct device *dev,
-> > > > >         return dma_go_direct(dev, *dev->dma_mask, ops);
-> > > > >  }
-> > > > >
-> > > > > +bool dma_is_direct(struct device *dev)
-> > > > > +{
-> > > > > +       if (!dma_map_direct(dev, ops))
-> > > > > +               return false;
-> > > > > +
-> > > > > +       if (is_swiotlb_force_bounce(dev))
-> > > > > +               return false;
-> > > > > +
-> > > > > +       return true;
-> > > > > +}
-> > > > > +EXPORT_SYMBOL(dma_unmap_page_attrs);
-> > > > > +
-> > > > >
-> > > > > Thanks.
-> > > >
-> > > >
-> > > > where is it? linux-next?
-> > >
-> > >
-> > > I see it in the vhost branch kernel/dma/mapping.c.
-> > >
-> > > Maybe you miss it.
-> > >
-> > > Thanks.
-> > >
-> >
-> > which hash?
-> 
-> fd0b29af02bb75acc94eb08c06e2c10cbce2ea67
+From: Hou Wenlong <houwenlong.hwl@antgroup.com>
 
+Some PVOPS are patched as the native version directly if the guest is
+not a XENPV guest. However, this approach will not work after
+introducing a PVM guest. To address this, use a new CPU feature to
+describe XENPV and PVM, and ensure that those PVOPS are patched only
+when it is not a paravirtual guest.
 
-Thanks. Now I see it donnu what was wrong with me.
+Signed-off-by: Hou Wenlong <houwenlong.hwl@antgroup.com>
+Signed-off-by: Lai Jiangshan <jiangshan.ljs@antgroup.com>
+---
+ arch/x86/entry/entry_64.S          |  5 ++---
+ arch/x86/include/asm/cpufeatures.h |  1 +
+ arch/x86/include/asm/paravirt.h    | 14 +++++++-------
+ arch/x86/kernel/pvm.c              |  1 +
+ arch/x86/xen/enlighten_pv.c        |  1 +
+ 5 files changed, 12 insertions(+), 10 deletions(-)
 
-
-> >
-> > > >
-> > > > --
-> > > > MST
-> > > >
-> >
+diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
+index fe12605b3c05..6b41a1837698 100644
+--- a/arch/x86/entry/entry_64.S
++++ b/arch/x86/entry/entry_64.S
+@@ -127,9 +127,8 @@ SYM_INNER_LABEL(entry_SYSCALL_64_after_hwframe, SYM_L_GLOBAL)
+ 	 * In the PVM guest case we must use eretu synthetic instruction.
+ 	 */
+ 
+-	ALTERNATIVE_2 "testb %al, %al; jz swapgs_restore_regs_and_return_to_usermode", \
+-		"jmp swapgs_restore_regs_and_return_to_usermode", X86_FEATURE_XENPV, \
+-		"jmp swapgs_restore_regs_and_return_to_usermode", X86_FEATURE_KVM_PVM_GUEST
++	ALTERNATIVE "testb %al, %al; jz swapgs_restore_regs_and_return_to_usermode", \
++		"jmp swapgs_restore_regs_and_return_to_usermode", X86_FEATURE_PV_GUEST
+ 
+ 	/*
+ 	 * We win! This label is here just for ease of understanding
+diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
+index e17e72f13423..72ef58a2db19 100644
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -238,6 +238,7 @@
+ #define X86_FEATURE_VCPUPREEMPT		( 8*32+21) /* "" PV vcpu_is_preempted function */
+ #define X86_FEATURE_TDX_GUEST		( 8*32+22) /* Intel Trust Domain Extensions Guest */
+ #define X86_FEATURE_KVM_PVM_GUEST	( 8*32+23) /* KVM Pagetable-based Virtual Machine guest */
++#define X86_FEATURE_PV_GUEST		( 8*32+24) /* "" Paravirtual guest */
+ 
+ /* Intel-defined CPU features, CPUID level 0x00000007:0 (EBX), word 9 */
+ #define X86_FEATURE_FSGSBASE		( 9*32+ 0) /* RDFSBASE, WRFSBASE, RDGSBASE, WRGSBASE instructions*/
+diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
+index deaee9ec575e..a864ee481ca2 100644
+--- a/arch/x86/include/asm/paravirt.h
++++ b/arch/x86/include/asm/paravirt.h
+@@ -143,7 +143,7 @@ static __always_inline unsigned long read_cr2(void)
+ {
+ 	return PVOP_ALT_CALLEE0(unsigned long, mmu.read_cr2,
+ 				"mov %%cr2, %%rax;",
+-				ALT_NOT(X86_FEATURE_XENPV));
++				ALT_NOT(X86_FEATURE_PV_GUEST));
+ }
+ 
+ static __always_inline void write_cr2(unsigned long x)
+@@ -154,13 +154,13 @@ static __always_inline void write_cr2(unsigned long x)
+ static inline unsigned long __read_cr3(void)
+ {
+ 	return PVOP_ALT_CALL0(unsigned long, mmu.read_cr3,
+-			      "mov %%cr3, %%rax;", ALT_NOT(X86_FEATURE_XENPV));
++			      "mov %%cr3, %%rax;", ALT_NOT(X86_FEATURE_PV_GUEST));
+ }
+ 
+ static inline void write_cr3(unsigned long x)
+ {
+ 	PVOP_ALT_VCALL1(mmu.write_cr3, x,
+-			"mov %%rdi, %%cr3", ALT_NOT(X86_FEATURE_XENPV));
++			"mov %%rdi, %%cr3", ALT_NOT(X86_FEATURE_PV_GUEST));
+ }
+ 
+ static inline void __write_cr4(unsigned long x)
+@@ -694,17 +694,17 @@ bool __raw_callee_save___native_vcpu_is_preempted(long cpu);
+ static __always_inline unsigned long arch_local_save_flags(void)
+ {
+ 	return PVOP_ALT_CALLEE0(unsigned long, irq.save_fl, "pushf; pop %%rax;",
+-				ALT_NOT(X86_FEATURE_XENPV));
++				ALT_NOT(X86_FEATURE_PV_GUEST));
+ }
+ 
+ static __always_inline void arch_local_irq_disable(void)
+ {
+-	PVOP_ALT_VCALLEE0(irq.irq_disable, "cli;", ALT_NOT(X86_FEATURE_XENPV));
++	PVOP_ALT_VCALLEE0(irq.irq_disable, "cli;", ALT_NOT(X86_FEATURE_PV_GUEST));
+ }
+ 
+ static __always_inline void arch_local_irq_enable(void)
+ {
+-	PVOP_ALT_VCALLEE0(irq.irq_enable, "sti;", ALT_NOT(X86_FEATURE_XENPV));
++	PVOP_ALT_VCALLEE0(irq.irq_enable, "sti;", ALT_NOT(X86_FEATURE_PV_GUEST));
+ }
+ 
+ static __always_inline unsigned long arch_local_irq_save(void)
+@@ -776,7 +776,7 @@ void native_pv_lock_init(void) __init;
+ .endm
+ 
+ #define SAVE_FLAGS	ALTERNATIVE "PARA_IRQ_save_fl;", "pushf; pop %rax;", \
+-				    ALT_NOT(X86_FEATURE_XENPV)
++				    ALT_NOT(X86_FEATURE_PV_GUEST)
+ #endif
+ #endif /* CONFIG_PARAVIRT_XXL */
+ #endif	/* CONFIG_X86_64 */
+diff --git a/arch/x86/kernel/pvm.c b/arch/x86/kernel/pvm.c
+index c38e46a96ad3..d39550a8159f 100644
+--- a/arch/x86/kernel/pvm.c
++++ b/arch/x86/kernel/pvm.c
+@@ -300,6 +300,7 @@ void __init pvm_early_setup(void)
+ 		return;
+ 
+ 	setup_force_cpu_cap(X86_FEATURE_KVM_PVM_GUEST);
++	setup_force_cpu_cap(X86_FEATURE_PV_GUEST);
+ 
+ 	wrmsrl(MSR_PVM_VCPU_STRUCT, __pa(this_cpu_ptr(&pvm_vcpu_struct)));
+ 	wrmsrl(MSR_PVM_EVENT_ENTRY, (unsigned long)(void *)pvm_early_kernel_event_entry - 256);
+diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
+index aeb33e0a3f76..c56483051528 100644
+--- a/arch/x86/xen/enlighten_pv.c
++++ b/arch/x86/xen/enlighten_pv.c
+@@ -335,6 +335,7 @@ static bool __init xen_check_xsave(void)
+ static void __init xen_init_capabilities(void)
+ {
+ 	setup_force_cpu_cap(X86_FEATURE_XENPV);
++	setup_force_cpu_cap(X86_FEATURE_PV_GUEST);
+ 	setup_clear_cpu_cap(X86_FEATURE_DCA);
+ 	setup_clear_cpu_cap(X86_FEATURE_APERFMPERF);
+ 	setup_clear_cpu_cap(X86_FEATURE_MTRR);
+-- 
+2.19.1.6.gb485710b
 
