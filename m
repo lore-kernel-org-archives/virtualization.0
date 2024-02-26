@@ -1,23 +1,23 @@
 Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id EEF273233;
-	Mon, 26 Feb 2024 02:04:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 574A6DF4D;
+	Mon, 26 Feb 2024 02:07:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708913074; cv=none; b=Tbdp9R+NdzkWUne6GmDX/Bsp4IXB1xmEbODA8uU4j+301WDfYoUW+7JH2uUh53ZSi9N1AXNMFfH5luV1O+bEtD6696/EVMiKLIzT25tsUoJYQLW7JzR5qqhocYAQs6nSmCcp2o33jArmqa9wasvYeNSAjEbRe5Knb9Ptdzz2LxY=
+	t=1708913281; cv=none; b=uzG861rJSbQqc2Zt/BXbMYrtEoNCzfbQt322aPv10TTBY7UjHU4t59Cj9ZbP7cnaN8D9C4o/LvpRb2P2mDh8TILH+KE/wREIw/9i/aFMgLp/9M0Wc76TwSwYho5FKQVnFaYM/40JeRNA6Dk1qdE+6r7TvktVe5/nLIeLvuymutk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708913074; c=relaxed/simple;
-	bh=y318UcE4MAk0MLYiDOQ/dMvM4XNo78p/1t5blVIvXXs=;
+	s=arc-20240116; t=1708913281; c=relaxed/simple;
+	bh=+m12NCYdeTJyVL7my1OrMmea+AsFYD4Qm8ZLRqy23b0=;
 	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=pjS5aQsK+lONe8ZN5kbJqun5TzyD3CXk0JdIF7Ftu6YlkIlG814Pn9RD5nv4oEBBLDbvKMfRmIAj5vIYC6Xcj1oNIAp9rcg7pZ8yAER2wAE9V8jiCCvg+BnJ7KPcLL2efL2xxj1ADO2p27IgqTwWDqXwTa/KxKW6i810d+OWeNI=
+	 In-Reply-To:Content-Type; b=G83xfhy1IetRnISxuGpEQEOt7bkFIPP80N1WmSfWbjAgZ6eMfqlUtiVMKgfiSv1qRwVJcqL6yxMkhIIQjhcS28glVad4yWpoyySBF62hgXct9toPoPT3wC34ovWS8C0a0fomkZhEn4zz7cGvHOksYyL3FwdGCd/dIXeikpX7E4s=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
 Received: from loongson.cn (unknown [10.20.42.173])
-	by gateway (Coremail) with SMTP id _____8Axeein8dtlDmcRAA--.25060S3;
-	Mon, 26 Feb 2024 10:04:23 +0800 (CST)
+	by gateway (Coremail) with SMTP id _____8Bx3+t78ttlS2cRAA--.44210S3;
+	Mon, 26 Feb 2024 10:07:55 +0800 (CST)
 Received: from [10.20.42.173] (unknown [10.20.42.173])
-	by localhost.localdomain (Coremail) with SMTP id AQAAf8AxX8+k8dtlPRlEAA--.47464S3;
-	Mon, 26 Feb 2024 10:04:22 +0800 (CST)
+	by localhost.localdomain (Coremail) with SMTP id AQAAf8BxnhN68ttlMRtEAA--.58956S3;
+	Mon, 26 Feb 2024 10:07:54 +0800 (CST)
 Subject: Re: [PATCH v5 3/6] LoongArch: KVM: Add cpucfg area for kvm hypervisor
 To: Huacai Chen <chenhuacai@kernel.org>
 Cc: Tianrui Zhao <zhaotianrui@loongson.cn>, Juergen Gross <jgross@suse.com>,
@@ -28,8 +28,8 @@ References: <20240222032803.2177856-1-maobibo@loongson.cn>
  <20240222032803.2177856-4-maobibo@loongson.cn>
  <CAAhV-H5eqXMqTYVb6cAVqOsDNcEDeP9HzaMKw69KFQeVaAYEdA@mail.gmail.com>
 From: maobibo <maobibo@loongson.cn>
-Message-ID: <d1a6c424-b710-74d6-29f6-e0d8e597e1fb@loongson.cn>
-Date: Mon, 26 Feb 2024 10:04:19 +0800
+Message-ID: <b6705098-1521-a892-9850-af84acd68674@loongson.cn>
+Date: Mon, 26 Feb 2024 10:07:40 +0800
 User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
  Thunderbird/68.7.0
 Precedence: bulk
@@ -42,25 +42,25 @@ In-Reply-To: <CAAhV-H5eqXMqTYVb6cAVqOsDNcEDeP9HzaMKw69KFQeVaAYEdA@mail.gmail.com
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:AQAAf8AxX8+k8dtlPRlEAA--.47464S3
+X-CM-TRANSID:AQAAf8BxnhN68ttlMRtEAA--.58956S3
 X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
-X-Coremail-Antispam: 1Uk129KBj93XoWxWw47urW5uw4kGw4kJryDXFc_yoWrKF4xpF
-	WxZFnYgr48GryIy3y2qw45WrsIqr4kKr129FyfJa4rCFWaqryfAr40krWqkFyDtws5CF1I
-	qF15tr13uF1qyagCm3ZEXasCq-sJn29KB7ZKAUJUUUU8529EdanIXcx71UUUUU7KY7ZEXa
+X-Coremail-Antispam: 1Uk129KBj93XoWxWw47urW5uw4kGw4kJryDXFc_yoWrurWrpF
+	W8ZFnYgF48GrySy3sFqa15WrnFqr4kGr129FyfJa48CF4aqryfJr10krZ0kFyDtws5CF1I
+	qF15tr1avF4qyagCm3ZEXasCq-sJn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7KY7ZEXa
 	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
-	0xBIdaVrnRJUUUv0b4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
-	IYs7xG6rWj6s0DM7CIcVAFz4kK6r106r15M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
+	0xBIdaVrnRJUUU9Fb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
+	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
 	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Gr0_Xr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
 	0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_
 	Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2x26I8E6xACxx1l5I
-	8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AK
+	8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r126r1DMcIj6I8E87Iv67AK
 	xVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lc7I2V7IY0VAS07AlzV
-	AYIcxG8wCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E
-	14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIx
-	kGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAF
-	wI0_Jr0_Gr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r
-	4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Jr0_GrUvcSsGvfC2KfnxnUUI43ZEXa7IU8czVUUU
-	UUU==
+	AYIcxG8wCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwCFI7km07C267AK
+	xVWUAVWUtwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67
+	AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUCVW8JwCI
+	42IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMI
+	IF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Jr0_GrUvcSsGvfC2
+	KfnxnUUI43ZEXa7IU1LiSJUUUUU==
 
 
 
@@ -80,17 +80,11 @@ On 2024/2/24 下午5:13, Huacai Chen wrote:
 > used in our productive kernel is better than this cpucfg method.
 > Because hypercall is more simple and straightforward, plus we don't
 > worry about conflicting with the real hardware.
-No, I do not think so. cpucfg is simper than hypercall, hypercall can
-be in effect when system runs in guest mode. In some scenario like TCG 
-mode, hypercall is illegal intruction, however cpucfg can work.
-
-Extioi virtualization extension will be added later, cpucfg can be used 
-to get extioi features. It is unlikely that extioi driver depends on 
-PARA_VIRT macro if hypercall is used to get features.
+About cpucfg area 0x40000000 -- 0x400000ff, I have negotiated with chip 
+designer. This area will never be used with real hardware.
 
 Regards
 Bibo Mao
-
 > 
 > Huacai
 > 
