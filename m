@@ -1,260 +1,204 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50C30FC18
-	for <virtualization@lists.linux-foundation.org>; Mon, 26 Feb 2024 05:08:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFDA51BDCB
+	for <virtualization@lists.linux-foundation.org>; Mon, 26 Feb 2024 05:20:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708924109; cv=none; b=EFfRvnFhU9TlNpfjni/VDnBb12ch1lJE/wcspuCBRdrkjQKWZL9Fz7j/12l7C9aElbat57hQTlRHuzjrh0ZbpWjmQPLereLb88Sy5VSg+KHBIOqVXmzaaHuIZL0dmBsyFYvM2vs5WdLCsY0tHzUhFBFJEWJ5lIbR7T/y7hPVDuc=
+	t=1708924814; cv=none; b=IRkGkeSwuuXC7kKDVI0rd8Q3YmPtSf6Gi/IxC3G44rtF0/Q4LRK5/AC6edW1TOw5ZVy/2wWcymbavRMBZXQ8xpbsJtXHO8AH7ZRT4roTlBaNqdzSBgIm9hZOhdumOgveV5j08KVbzuCAIrgbhy3EOmcdBsFOcloZSsBBqcat7rM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708924109; c=relaxed/simple;
-	bh=E88zUaazKWvIhjWloT5l/8WyHuvQl96BzJs4ChOIkvc=;
+	s=arc-20240116; t=1708924814; c=relaxed/simple;
+	bh=efRE82bmn2sSdUjgLdybc3a8cQET+NqpE4ZOzuHzZPI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=lle7VOtMd4/QwhtptsWwyizywkGmOotsucfeapYI8mrBwGRDBH80h4RUBd8TWuahX4Sk4M2sZu4g56UqCL52iRFOoD7FOZiRuMD/c2tX8pIQnzhvcHMAmfq2ewES4e/d0NHZBHMm3wLAAOG3RVzN4juodVRrN+CgkVbtUHawork=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UFHtWP0C; arc=none smtp.client-ip=140.211.166.137
+	 To:Cc:Content-Type; b=SRtfo1wCqSTaQQ4a4ijVix994Ub+cXdcwLGbkZZyGcxVvqKa3RrAyktYTWEjUeLu9P9RwVVMIQdjNfPF/JUgF5gb6Z5HfBunj/OlwO9qyHzO1GJFV586X+b4Rvvy8Zm1soF3cQchh7toEVKTzeHFldDrJgSq4yqILxlcEEvMz6Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Z/yZj+o7; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UFHtWP0C"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Z/yZj+o7"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id D9D2A402B7
-	for <virtualization@lists.linux-foundation.org>; Mon, 26 Feb 2024 05:08:27 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 7461E408C5
+	for <virtualization@lists.linux-foundation.org>; Mon, 26 Feb 2024 05:20:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id D2lf_vbj_ASi
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id hAlTepPp5rWk
 	for <virtualization@lists.linux-foundation.org>;
-	Mon, 26 Feb 2024 05:08:27 +0000 (UTC)
+	Mon, 26 Feb 2024 05:20:11 +0000 (UTC)
 Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org A980E402AF
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A980E402AF
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UFHtWP0C
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 27E9140133
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 27E9140133
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Z/yZj+o7
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id A980E402AF
-	for <virtualization@lists.linux-foundation.org>; Mon, 26 Feb 2024 05:08:26 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 27E9140133
+	for <virtualization@lists.linux-foundation.org>; Mon, 26 Feb 2024 05:20:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1708924104;
+	s=mimecast20190719; t=1708924810;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=d0IX1RHQfM6abvabBeCW943C4eGRN4zTgrwGo510uTA=;
-	b=UFHtWP0CaNfsTnNiweaEn1ZqHFIrrFqYTAvnEg5rYNonD/WIPOlDMA3i6kPULwUpKgkVvj
-	Y3fxUDINbUMvA3TJY1kjgsHoz2iM1+sUWljnwt1p10EojkPum/3zsUPDFGOk6gXpXMAJGG
-	2/Zipdh6WmETO7Z+u57q3xpaupJa/wI=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=WR7Q2zkYqSnX8F3oRCUhnjClUfm8h1EeNqtuMcww9ds=;
+	b=Z/yZj+o7g9ZSWykVWIedxus/RXjMYRYH/0Sy21Ap0NtdudYS1r6lOJA+EAfANuUiXj5mvm
+	Z6ww2NtZHWAEX9oR5zV4T4bOsnak6QyTvi3/KxYEWnmarIuEMvQ2NiHmijJrLUebI+yTty
+	tm+2uNMN1ZWSNbOORr5PgO2cNyEjbUQ=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-138-K_Nrbb4fOCeKjZPEhNM0ag-1; Mon, 26 Feb 2024 00:08:18 -0500
-X-MC-Unique: K_Nrbb4fOCeKjZPEhNM0ag-1
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-299662731f0so786909a91.2
-        for <virtualization@lists.linux-foundation.org>; Sun, 25 Feb 2024 21:08:18 -0800 (PST)
+ us-mta-332-cR-wHmVUNheCESFNvjKZAg-1; Mon, 26 Feb 2024 00:20:08 -0500
+X-MC-Unique: cR-wHmVUNheCESFNvjKZAg-1
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-2997a3f97fcso1567430a91.2
+        for <virtualization@lists.linux-foundation.org>; Sun, 25 Feb 2024 21:20:08 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708924097; x=1709528897;
+        d=1e100.net; s=20230601; t=1708924808; x=1709529608;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=d0IX1RHQfM6abvabBeCW943C4eGRN4zTgrwGo510uTA=;
-        b=D0t+Hrak3z1Y3yIAvtt36xnGRlqae2u0fUCa+exK54LXc0leCrfsd26PhezKQ0/zX8
-         TX0dSTl/MZTy74CfCSPkpyKh89cmOmK1tQty2ABy5WEqHRXiSJ/pun5qcBObx3/uW0BT
-         tNItfgTYsSyLEuTRBIhgJztMCNoXoTN2XobdezXjdGSzadqc5sZc1E9zZb9G7vcQiDDL
-         qxs3dpmjp2mrMbL049bdoD9u5B6uc6VRQAHveJOKlsJHKb0LddsynaRaB8Tpe8AxvHuq
-         oT5s9JUwvnzRQ7VJ6QWcJixwqae7RysG7tQpXTM9vzTHFbCeJDHgMDgi5L38rU5l7k/k
-         80qg==
-X-Forwarded-Encrypted: i=1; AJvYcCXLnkaBTd8P1SscbEbvUxVGb+JJJfPm/l6forWJAD/fWuQDKOOgZ7siKVLROOTJGYlyN3FoRfqal4GGc7+t2pUTWC7ZSqPv9Q75oHae7Jd32E9pcMWmuGSsIQ==
-X-Gm-Message-State: AOJu0Yy+lBBKt010aEiT8woAV2yCfcEJ4IVjiSz9vxWe4oi6OIbypbl3
-	Bz4MSfqFqO3JcK5M5Q/DSCdDsqawtUUIugK8qZsb6y3JwpgG6QiFYZqegY79ouL+CwmumYEJN/B
-	3eu0Opn4Pt0ckglLvzMAMrL8P11VtZaH16WOAjkqq4pbCw3oTpr3ZZdUH1hkbDymQ5OeBoV92ZY
-	he/N+bzZIFptHDlog6ZDlTv6/q/sKk7C8P2qQLQnlrbT49ChtMcS/iAg==
-X-Received: by 2002:a17:90a:f682:b0:29a:a3e1:7ab4 with SMTP id cl2-20020a17090af68200b0029aa3e17ab4mr2087476pjb.20.1708924097517;
-        Sun, 25 Feb 2024 21:08:17 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IF5E17zVQ3hcFLlFhYUZzlK76i0IGg7C5MCrl1bCx+cf+ujnpkNQXP7sOltv0GVqUnmUVqBMUDafOmfdRV/Ap8=
-X-Received: by 2002:a17:90a:f682:b0:29a:a3e1:7ab4 with SMTP id
- cl2-20020a17090af68200b0029aa3e17ab4mr2087458pjb.20.1708924097198; Sun, 25
- Feb 2024 21:08:17 -0800 (PST)
+        bh=WR7Q2zkYqSnX8F3oRCUhnjClUfm8h1EeNqtuMcww9ds=;
+        b=fCnRQ4MogL0Qb2YKQX7z9NyHNEN0mXKhrhxNr4NoII8yWpoVZeu908CZvUfPThCQDp
+         UJ7ebd65iApEcqdlL6VHE/nYNVHdtASGw6G1Q+tTW0VNxc5mJs77hF3QNf+kOwC7xd8p
+         UKeaetCle3Qe5/m53kBswDC610ZHYcQG/tag+eixmI7Zw60o1Pe4eKmRNGfVubcNv8bY
+         xxZzGGpkyGA57m8oe7ODvnTqXv/0I0XFXJwSE0j5YqnFW3DZtnHszMFyq8cZzxZL9nIa
+         ZVWXH98WL1Zntew4TV8d69f77cZ0BGoyfcQacKULBdjXdO3v7RFZevjVvwMGDE+u0b6p
+         9KLw==
+X-Forwarded-Encrypted: i=1; AJvYcCXkYzNyM+Co8IijISw0gNeNbetcv6m8gOcQ/UpKhZgj8YUuAzaEZw19csWkh0THLPVDOCYjCmCS/QkeJaUoX2+ZHksL7jMQAYU+9VOtvN3C0hcQaSG4OBlDyQ==
+X-Gm-Message-State: AOJu0YwgDQVVFlveQWPK+hZdo3RqaGS+OAT7ImUTrjmABxG4hQ78FJE4
+	5S3D3KtlYHZiqjxRcJrstH4AIM1HYPMP8nFm//1ktaJ8Sso7+EjntCN0UAtOsI9HnDOMddal0rJ
+	YNOa38DpSW75Rcjg3sTKJV1Tt+9UogxRvKgSVppATO6X42SRy08o1jDEe1NRIWMonK+aYJrZS46
+	Yv7DWa6s20DOnmj19goMTeDeHt7kBRkpqnq4yRRZNgMxv2sNrBoujaQg==
+X-Received: by 2002:a17:90a:bd09:b0:29a:8b1b:1f61 with SMTP id y9-20020a17090abd0900b0029a8b1b1f61mr2984047pjr.17.1708924807787;
+        Sun, 25 Feb 2024 21:20:07 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHR55k+CiiY4IChHH5uH5prMG2DYSKJzeu4TWGgPhzhmvsfhfsWai7RFTjtrg64PoJL6UP1qQVnbxXaB67SjkE=
+X-Received: by 2002:a17:90a:bd09:b0:29a:8b1b:1f61 with SMTP id
+ y9-20020a17090abd0900b0029a8b1b1f61mr2984033pjr.17.1708924807480; Sun, 25 Feb
+ 2024 21:20:07 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20230720170001-mutt-send-email-mst@kernel.org>
- <263a5ad7-1189-3be3-70de-c38a685bebe0@redhat.com> <20230721104445-mutt-send-email-mst@kernel.org>
- <6278a4aa-8901-b0e3-342f-5753a4bf32af@redhat.com> <20230721110925-mutt-send-email-mst@kernel.org>
- <e3490755-35ac-89b4-b0fa-b63720a9a5c9@redhat.com> <20230723053441-mutt-send-email-mst@kernel.org>
- <CACGkMEuPcOyjgHkKXrcnofdb5XhYYTrGQeuR3j6Oypr0KZxLMg@mail.gmail.com>
- <20230724031732-mutt-send-email-mst@kernel.org> <CACGkMEvNqJvLvVqQyrw-5jLDA2RvWkSPfb_RLVZbe_wsM=AK4g@mail.gmail.com>
- <20240222142056-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20240222142056-mutt-send-email-mst@kernel.org>
+References: <20240220011050.30913-1-shannon.nelson@amd.com>
+In-Reply-To: <20240220011050.30913-1-shannon.nelson@amd.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 26 Feb 2024 13:08:06 +0800
-Message-ID: <CACGkMEt=2pqc8rp1wHUhs4Kn_cG1EUKpdxB+STh+80Jw7uOTaA@mail.gmail.com>
-Subject: Re: [PATCH net-next v4 2/2] virtio-net: add cond_resched() to the
- command waiting loop
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Maxime Coquelin <maxime.coquelin@redhat.com>, Shannon Nelson <shannon.nelson@amd.com>, 
-	xuanzhuo@linux.alibaba.com, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, 
-	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
+Date: Mon, 26 Feb 2024 13:19:56 +0800
+Message-ID: <CACGkMEu5WskbWu3Qte7aXyYKG53D3u8exeQESBFzJvtUS9NZyw@mail.gmail.com>
+Subject: Re: [PATCH] vdpa/pds: fixes for VF vdpa flr-aer handling
+To: Shannon Nelson <shannon.nelson@amd.com>
+Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, 
+	virtualization@lists.linux-foundation.org, brett.creeley@amd.com, 
+	drivers@pensando.io
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Feb 23, 2024 at 3:22=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com>=
- wrote:
->
-> On Tue, Jul 25, 2023 at 11:03:11AM +0800, Jason Wang wrote:
-> > On Mon, Jul 24, 2023 at 3:18=E2=80=AFPM Michael S. Tsirkin <mst@redhat.=
+On Tue, Feb 20, 2024 at 9:11=E2=80=AFAM Shannon Nelson <shannon.nelson@amd.=
 com> wrote:
-> > >
-> > > On Mon, Jul 24, 2023 at 02:52:49PM +0800, Jason Wang wrote:
-> > > > On Mon, Jul 24, 2023 at 2:46=E2=80=AFPM Michael S. Tsirkin <mst@red=
-hat.com> wrote:
-> > > > >
-> > > > > On Fri, Jul 21, 2023 at 10:18:03PM +0200, Maxime Coquelin wrote:
-> > > > > >
-> > > > > >
-> > > > > > On 7/21/23 17:10, Michael S. Tsirkin wrote:
-> > > > > > > On Fri, Jul 21, 2023 at 04:58:04PM +0200, Maxime Coquelin wro=
-te:
-> > > > > > > >
-> > > > > > > >
-> > > > > > > > On 7/21/23 16:45, Michael S. Tsirkin wrote:
-> > > > > > > > > On Fri, Jul 21, 2023 at 04:37:00PM +0200, Maxime Coquelin=
- wrote:
-> > > > > > > > > >
-> > > > > > > > > >
-> > > > > > > > > > On 7/20/23 23:02, Michael S. Tsirkin wrote:
-> > > > > > > > > > > On Thu, Jul 20, 2023 at 01:26:20PM -0700, Shannon Nel=
-son wrote:
-> > > > > > > > > > > > On 7/20/23 1:38 AM, Jason Wang wrote:
-> > > > > > > > > > > > >
-> > > > > > > > > > > > > Adding cond_resched() to the command waiting loop=
- for a better
-> > > > > > > > > > > > > co-operation with the scheduler. This allows to g=
-ive CPU a breath to
-> > > > > > > > > > > > > run other task(workqueue) instead of busy looping=
- when preemption is
-> > > > > > > > > > > > > not allowed on a device whose CVQ might be slow.
-> > > > > > > > > > > > >
-> > > > > > > > > > > > > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > > > > > > > > > > >
-> > > > > > > > > > > > This still leaves hung processes, but at least it d=
-oesn't pin the CPU any
-> > > > > > > > > > > > more.  Thanks.
-> > > > > > > > > > > > Reviewed-by: Shannon Nelson <shannon.nelson@amd.com=
 >
-> > > > > > > > > > > >
-> > > > > > > > > > >
-> > > > > > > > > > > I'd like to see a full solution
-> > > > > > > > > > > 1- block until interrupt
-> > > > > > > > > >
-> > > > > > > > > > Would it make sense to also have a timeout?
-> > > > > > > > > > And when timeout expires, set FAILED bit in device stat=
-us?
-> > > > > > > > >
-> > > > > > > > > virtio spec does not set any limits on the timing of vq
-> > > > > > > > > processing.
-> > > > > > > >
-> > > > > > > > Indeed, but I thought the driver could decide it is too lon=
-g for it.
-> > > > > > > >
-> > > > > > > > The issue is we keep waiting with rtnl locked, it can quick=
-ly make the
-> > > > > > > > system unusable.
-> > > > > > >
-> > > > > > > if this is a problem we should find a way not to keep rtnl
-> > > > > > > locked indefinitely.
-> > > > > >
-> > > > > > From the tests I have done, I think it is. With OVS, a reconfig=
-uration is
-> > > > > > performed when the VDUSE device is added, and when a MLX5 devic=
-e is
-> > > > > > in the same bridge, it ends up doing an ioctl() that tries to t=
-ake the
-> > > > > > rtnl lock. In this configuration, it is not possible to kill OV=
-S because
-> > > > > > it is stuck trying to acquire rtnl lock for mlx5 that is held b=
-y virtio-
-> > > > > > net.
-> > > > >
-> > > > > So for sure, we can queue up the work and process it later.
-> > > > > The somewhat tricky part is limiting the memory consumption.
-> > > >
-> > > > And it needs to sync with rtnl somehow, e.g device unregistering wh=
-ich
-> > > > seems not easy.
-> > > >
-> > > > Thanks
-> > >
-> > > since when does device unregister need to send cvq commands?
-> >
-> > It doesn't do this now. But if we don't process the work under rtnl,
-> > we need to synchronize with device unregistering.
-> >
-> > Thanks
+> This addresses a couple of things found while testing the FLR and AER
+> handling with the VFs.
+>  - release irqs before calling vp_modern_remove()
+>  - make sure we have a valid struct pointer before using it to release ir=
+qs
+>  - make sure the FW is alive before trying to add a new device
 >
-> But what's not easy about it?
+> Signed-off-by: Shannon Nelson <shannon.nelson@amd.com>
+> ---
+>  drivers/vdpa/pds/aux_drv.c  |  2 +-
+>  drivers/vdpa/pds/vdpa_dev.c | 20 +++++++++++++++++---
+>  drivers/vdpa/pds/vdpa_dev.h |  1 +
+>  3 files changed, 19 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/vdpa/pds/aux_drv.c b/drivers/vdpa/pds/aux_drv.c
+> index 186e9ee22eb1..f57330cf9024 100644
+> --- a/drivers/vdpa/pds/aux_drv.c
+> +++ b/drivers/vdpa/pds/aux_drv.c
+> @@ -93,8 +93,8 @@ static void pds_vdpa_remove(struct auxiliary_device *au=
+x_dev)
+>         struct device *dev =3D &aux_dev->dev;
+>
+>         vdpa_mgmtdev_unregister(&vdpa_aux->vdpa_mdev);
+> +       pds_vdpa_release_irqs(vdpa_aux->pdsv);
+>         vp_modern_remove(&vdpa_aux->vd_mdev);
+> -       pci_free_irq_vectors(vdpa_aux->padev->vf_pdev);
+>
+>         pds_vdpa_debugfs_del_vdpadev(vdpa_aux);
+>         kfree(vdpa_aux);
+> diff --git a/drivers/vdpa/pds/vdpa_dev.c b/drivers/vdpa/pds/vdpa_dev.c
+> index 25c0fe5ec3d5..301d95e08596 100644
+> --- a/drivers/vdpa/pds/vdpa_dev.c
+> +++ b/drivers/vdpa/pds/vdpa_dev.c
+> @@ -426,12 +426,18 @@ static int pds_vdpa_request_irqs(struct pds_vdpa_de=
+vice *pdsv)
+>         return err;
+>  }
+>
+> -static void pds_vdpa_release_irqs(struct pds_vdpa_device *pdsv)
+> +void pds_vdpa_release_irqs(struct pds_vdpa_device *pdsv)
+>  {
+> -       struct pci_dev *pdev =3D pdsv->vdpa_aux->padev->vf_pdev;
+> -       struct pds_vdpa_aux *vdpa_aux =3D pdsv->vdpa_aux;
+> +       struct pds_vdpa_aux *vdpa_aux;
+> +       struct pci_dev *pdev;
+>         int qid;
+>
+> +       if (!pdsv)
+> +               return;
+> +
+> +       pdev =3D pdsv->vdpa_aux->padev->vf_pdev;
+> +       vdpa_aux =3D pdsv->vdpa_aux;
+> +
+>         if (!vdpa_aux->nintrs)
+>                 return;
+>
+> @@ -612,6 +618,7 @@ static int pds_vdpa_dev_add(struct vdpa_mgmt_dev *mde=
+v, const char *name,
+>         struct device *dma_dev;
+>         struct pci_dev *pdev;
+>         struct device *dev;
+> +       u8 status;
+>         int err;
+>         int i;
+>
+> @@ -638,6 +645,13 @@ static int pds_vdpa_dev_add(struct vdpa_mgmt_dev *md=
+ev, const char *name,
+>         dma_dev =3D &pdev->dev;
+>         pdsv->vdpa_dev.dma_dev =3D dma_dev;
+>
+> +       status =3D pds_vdpa_get_status(&pdsv->vdpa_dev);
+> +       if (status =3D=3D 0xff) {
+> +               dev_err(dev, "Broken PCI - status %#x\n", status);
+> +               err =3D -ENXIO;
+> +               goto err_unmap;
+> +       }
 
-Yes, so I'm wondering if we can simply have the cond_resched() merged
-as the first step.
+This seems a violation of the virtio spec.
 
-And leave the indefinite wait for future investigation?
+Note that spec has a DEVICE_NEEDS_RESET(64) or do we have a vendor
+specific way to detect this instead?
 
 Thanks
 
+> +
+>         pdsv->supported_features =3D mgmt->supported_features;
 >
-> > >
-> > > > >
-> > > > >
-> > > > > > >
-> > > > > > > > > > > 2- still handle surprise removal correctly by waking =
-in that case
-> > > > > > > > > > >
-> > > > > > > > > > >
-> > > > > > > > > > >
-> > > > > > > > > > > > > ---
-> > > > > > > > > > > > >      drivers/net/virtio_net.c | 4 +++-
-> > > > > > > > > > > > >      1 file changed, 3 insertions(+), 1 deletion(=
--)
-> > > > > > > > > > > > >
-> > > > > > > > > > > > > diff --git a/drivers/net/virtio_net.c b/drivers/n=
-et/virtio_net.c
-> > > > > > > > > > > > > index 9f3b1d6ac33d..e7533f29b219 100644
-> > > > > > > > > > > > > --- a/drivers/net/virtio_net.c
-> > > > > > > > > > > > > +++ b/drivers/net/virtio_net.c
-> > > > > > > > > > > > > @@ -2314,8 +2314,10 @@ static bool virtnet_send_c=
-ommand(struct virtnet_info *vi, u8 class, u8 cmd,
-> > > > > > > > > > > > >              * into the hypervisor, so the reques=
-t should be handled immediately.
-> > > > > > > > > > > > >              */
-> > > > > > > > > > > > >             while (!virtqueue_get_buf(vi->cvq, &t=
-mp) &&
-> > > > > > > > > > > > > -              !virtqueue_is_broken(vi->cvq))
-> > > > > > > > > > > > > +              !virtqueue_is_broken(vi->cvq)) {
-> > > > > > > > > > > > > +               cond_resched();
-> > > > > > > > > > > > >                     cpu_relax();
-> > > > > > > > > > > > > +       }
-> > > > > > > > > > > > >
-> > > > > > > > > > > > >             return vi->ctrl->status =3D=3D VIRTIO=
-_NET_OK;
-> > > > > > > > > > > > >      }
-> > > > > > > > > > > > > --
-> > > > > > > > > > > > > 2.39.3
-> > > > > > > > > > > > >
-> > > > > > > > > > > > > _______________________________________________
-> > > > > > > > > > > > > Virtualization mailing list
-> > > > > > > > > > > > > Virtualization@lists.linux-foundation.org
-> > > > > > > > > > > > > https://lists.linuxfoundation.org/mailman/listinf=
-o/virtualization
-> > > > > > > > > > >
-> > > > > > > > >
-> > > > > > >
-> > > > >
-> > >
+>         if (add_config->mask & BIT_ULL(VDPA_ATTR_DEV_FEATURES)) {
+> diff --git a/drivers/vdpa/pds/vdpa_dev.h b/drivers/vdpa/pds/vdpa_dev.h
+> index d984ba24a7da..84bdb45871ff 100644
+> --- a/drivers/vdpa/pds/vdpa_dev.h
+> +++ b/drivers/vdpa/pds/vdpa_dev.h
+> @@ -46,5 +46,6 @@ struct pds_vdpa_device {
+>
+>  #define PDS_VDPA_PACKED_INVERT_IDX     0x8000
+>
+> +void pds_vdpa_release_irqs(struct pds_vdpa_device *pdsv);
+>  int pds_vdpa_get_mgmt_info(struct pds_vdpa_aux *vdpa_aux);
+>  #endif /* _VDPA_DEV_H_ */
+> --
+> 2.17.1
 >
 
