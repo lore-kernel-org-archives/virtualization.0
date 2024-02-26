@@ -1,228 +1,258 @@
-Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com [209.85.210.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 602A412FB07
-	for <virtualization@lists.linux.dev>; Mon, 26 Feb 2024 14:39:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.181
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708958367; cv=none; b=gzX4N4gOUdQd9U9XGq8NHwGfpCcCCFB8DoYR+6yGCMVawPDAK+4jIrouQKhu0CnsfgWJRNdMAGNOZm1zBycUw7rdolfmCIV1w0JApA++JYOuZwU6ElQeeiofTj7qAdTNalMMNtD7TokW2eMwGIG3lXnPHk7GiE1koDmpvEAO4E8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708958367; c=relaxed/simple;
-	bh=tzGizjCiHx7zVuGTWahlp4kf7Af8DRrnW2IXT6ESIME=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=Giwk1kF/6OGdSHWbf4+n6Nwc1DuDgpEapbuzFK0/i6Tity1HnaN9TGSPqnImxB1bqDUEfuexxw/tbrn+uOnZ3BWLGACt3HyLmDgp/x0CJdVEEzdbgxr9AoX04+1tqwhLJ0GSz52uknM+ai6hwpsRArh1Bzs2gHby+8I5U0TlAo8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=efduOanQ; arc=none smtp.client-ip=209.85.210.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00FBDD26A
+	for <virtualization@lists.linux-foundation.org>; Mon, 26 Feb 2024 18:31:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.138
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1708972281; cv=fail; b=UcDuCT57D1N0QYM21a1QXOsiStDYuXFYiVtdyEuVyIvRnRH66gs+dvYJA9EPipoJ5Mudc9mi4bOQJxa8IxWU3iLbH+fXli5YudINpPTNif1HA9PKJcGYVy12ym3f1mra4r05DoklPZFYtDeoN4nn+5AG17ISSelST1uUISvCsdw=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1708972281; c=relaxed/simple;
+	bh=vSfMdBgzXW6w8uySPs4xc2j33lhkUJMc0HBk9qZtl5g=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=OCWdeYEFOI4LSiTm4l7zVhJoCcBi/FvCwjsbNUCvvty2IqPrk5zC9wZSCqcly1j/C2BbHvt66qKdpYXxdBPQKK59fimbELnHn2xZl+IMEC2npufGkwTbB4dkj0zxRMla1i7JkW+/1bQu7Hv2Us34+WtcpF3Zxozk5b0yYi0mHhE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=QhZFNulc; arc=fail smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="efduOanQ"
-Received: by mail-pf1-f181.google.com with SMTP id d2e1a72fcca58-6e508725b64so254305b3a.3
-        for <virtualization@lists.linux.dev>; Mon, 26 Feb 2024 06:39:26 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1708958365; x=1709563165; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=3obabIc0frWAPcp78SCT093DaVOW3OCMmYlsqxV6Jrg=;
-        b=efduOanQmQMIJMMmYbbtrg7UHl8wZkx+8vfGH09S2zLXooe1rcBa5r1XAhCPx5Dzbb
-         JRW3T/I4/nhbJil27gM8ma/N6jwQ5CPOEi1rV4JtRcxt8eJVAmNI6ym8cgqjc58Xi0uJ
-         HGMgSjstHgS+qkfqfkM6cin3q8GQWtosOjUa/KLO8d1bUl/mF+1h6htqtOHnCz0XE/4I
-         N4+qGFD7R09Lcne0CW6nbaUUWSCFC12o9lQ0bINjg49PFwqo/QNtIm8WvcocEe2A0lk1
-         XM7tKbQJsZTnlH2rcy2iPsY7swZmFkhrscf/FcSBjRdZqJ3XHx1oqbNXLC/eQrm8OqNh
-         bD8Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708958365; x=1709563165;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=3obabIc0frWAPcp78SCT093DaVOW3OCMmYlsqxV6Jrg=;
-        b=bDAGSQdfyW9ciwEPCwqMKOiDYKpDGEPK+aTegnDYYPk5Dscy+ee0WBNenQEf9YuVgp
-         DvAi8OotUYp0q9amSWjBaXxMWgXkRMuLUo0+qMcUGLUqjuxToT2p/E9PDD2CMQj+ypR+
-         xfF0jLPfhl81W40WmAMqXz5oD2625iqRanVKeWyu8z8c2ZNGXlVVHdCxKnOh84qeoRz2
-         cGNxl12cj5iMsWbeX8AEJo4it+wbIDZAh5GYKD0+7/LaaoeVYcoOTokmYLUqBwiS5yP1
-         ltXfL5CYAn6GTMSNolNhJrZmdFUDho4frtR3Vif7nVaf+HJ3vlwGlzpici6L+i81v+FD
-         7xsw==
-X-Forwarded-Encrypted: i=1; AJvYcCV+bnCtD6ncH/KKeXgG2tRCNn5f5R3HKzQwXpM51kEbDeVKuh7b3L6y5jb8w7TmfuUqH21yC37arOvP6ISt4XeH5XjuttTx76OMqRiIxRY=
-X-Gm-Message-State: AOJu0Yz6GqLypyaVfKJgK4l6DWRZT6SUAuJR0KCvLyxMOtfK8kimFSH3
-	/acJSAL8sNOHCZe6rXMW5O4qA3cpaqd4KoZSdRQlyKIy5kftsBbW
-X-Google-Smtp-Source: AGHT+IHxB1SRDNUAQcM9eSd8jCrvT5j7mxZc3ehl/sTVGmSJcJcMTqd/bRM8vjNK9o0eC3pRQdhkvg==
-X-Received: by 2002:a05:6a00:1817:b0:6e4:5a0f:b87a with SMTP id y23-20020a056a00181700b006e45a0fb87amr8639641pfa.12.1708958365514;
-        Mon, 26 Feb 2024 06:39:25 -0800 (PST)
-Received: from localhost ([47.254.32.37])
-        by smtp.gmail.com with ESMTPSA id l3-20020a62be03000000b006e04553a4c5sm4068362pff.52.2024.02.26.06.39.24
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 26 Feb 2024 06:39:25 -0800 (PST)
-From: Lai Jiangshan <jiangshanlai@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: Hou Wenlong <houwenlong.hwl@antgroup.com>,
-	Lai Jiangshan <jiangshan.ljs@antgroup.com>,
-	Linus Torvalds <torvalds@linux-foundation.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Sean Christopherson <seanjc@google.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Borislav Petkov <bp@alien8.de>,
-	Ingo Molnar <mingo@redhat.com>,
-	kvm@vger.kernel.org,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	x86@kernel.org,
-	Kees Cook <keescook@chromium.org>,
-	Juergen Gross <jgross@suse.com>,
-	Andy Lutomirski <luto@kernel.org>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Ajay Kaher <akaher@vmware.com>,
-	Alexey Makhalov <amakhalov@vmware.com>,
-	VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
-	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-	"Mike Rapoport (IBM)" <rppt@kernel.org>,
-	Daniel Sneddon <daniel.sneddon@linux.intel.com>,
-	Rick Edgecombe <rick.p.edgecombe@intel.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	virtualization@lists.linux.dev,
-	xen-devel@lists.xenproject.org
-Subject: [RFC PATCH 66/73] x86/pvm: Use new cpu feature to describe XENPV and PVM
-Date: Mon, 26 Feb 2024 22:36:23 +0800
-Message-Id: <20240226143630.33643-67-jiangshanlai@gmail.com>
-X-Mailer: git-send-email 2.19.1.6.gb485710b
-In-Reply-To: <20240226143630.33643-1-jiangshanlai@gmail.com>
-References: <20240226143630.33643-1-jiangshanlai@gmail.com>
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="QhZFNulc"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 8B86D814B5
+	for <virtualization@lists.linux-foundation.org>; Mon, 26 Feb 2024 18:31:19 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.103
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id QvzQEfNVnCLu
+	for <virtualization@lists.linux-foundation.org>;
+	Mon, 26 Feb 2024 18:31:18 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2415::601; helo=nam11-dm6-obe.outbound.protection.outlook.com; envelope-from=shannon.nelson@amd.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org D34568128D
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D34568128D
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=QhZFNulc
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on20601.outbound.protection.outlook.com [IPv6:2a01:111:f403:2415::601])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id D34568128D
+	for <virtualization@lists.linux-foundation.org>; Mon, 26 Feb 2024 18:31:17 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=BFAz0ZHOmvzicAmOVEE+FbeutaowyWqFAEWh8zkYgMnyqzt4R6RoUnMl0+dFe7QH7uKff4/rho2HlbR6tu4gxmuHzIIyc5CvR3NQ1eHr3IYzw564v2tQj9zUgdpBV9yW8XJ530deaQ9DeuvzEG9Gad8WsKnwS29Tz6vxh33BslalNIu90tqO2phfn2WKVLnJSOkdf6mv9gUUWGFfNdCaheItWR8IKe3dUZsFzNFh/toQ+9NfFx2Z7YhIP3K0E4LiguVkY7BYO/7sMTu9UEFmqP5YH6ANdonAFtkdi24My98bT00yRJ2z1W1qbxDod/WzzXNQ93kPqTi/oL2z9V/HLw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=wir98LTrEz7ZaVgvMVWf/9BvpXwIAVGYV6dCCQOoa0s=;
+ b=KQLvpUPIXCW82xRVibDzZ3uCdOvUFeaINDWIYkN1IvPUodA7yEZnmsnYCf6NMQBBlJxMnHhde0UvT44ij5RbjRi3Biaz4GME+eXFx4PWTFfcsttqy++vkJ8q9GOXp3oQ/qxXQA6Cy9XdTwAu/dxgD3Ugg9XuFJC50OGtgpOCjtCX8fJn06IsSyOKtC9GWCh6hp7RO0FSYnKspUN8haudfbFOuqIpK/y22DsI3SzFr48O+ifdgthRSTNjwhRCjSvaQfiVFs9kzfpObw/pObdTcmKaLCgi0fRVBFq4MaVvwq0vfHmp0hkBLJPoJQ7TCUgalqe1YqrEQbi5aW0829Eezw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=wir98LTrEz7ZaVgvMVWf/9BvpXwIAVGYV6dCCQOoa0s=;
+ b=QhZFNulcDjQgjjX68i1T6NhEt3cpVUIHgmJTpw8Zi7JWI6yy9jbPj6SYGDB+rcfSnqLVGcvxkJXYDsHfJg6WSjAnpThNXjWoQQBgaEgob7QrpzFCxAhzgNyV7ebM0/26Le7q+KCcCBTMWvsX50FDeiIqVVN3fqgai/JmMJRv/ZU=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from DS0PR12MB6583.namprd12.prod.outlook.com (2603:10b6:8:d1::12) by
+ DM4PR12MB6181.namprd12.prod.outlook.com (2603:10b6:8:a9::22) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.7316.34; Mon, 26 Feb 2024 18:31:12 +0000
+Received: from DS0PR12MB6583.namprd12.prod.outlook.com
+ ([fe80::e4b7:89f7:ca60:1b12]) by DS0PR12MB6583.namprd12.prod.outlook.com
+ ([fe80::e4b7:89f7:ca60:1b12%5]) with mapi id 15.20.7316.034; Mon, 26 Feb 2024
+ 18:31:12 +0000
+Message-ID: <b73c74b8-ce4f-4d95-960c-5be462cacf75@amd.com>
+Date: Mon, 26 Feb 2024 10:31:10 -0800
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] vdpa/pds: fixes for VF vdpa flr-aer handling
+To: Jason Wang <jasowang@redhat.com>
+Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com,
+ virtualization@lists.linux-foundation.org, brett.creeley@amd.com,
+ drivers@pensando.io
+References: <20240220011050.30913-1-shannon.nelson@amd.com>
+ <CACGkMEu5WskbWu3Qte7aXyYKG53D3u8exeQESBFzJvtUS9NZyw@mail.gmail.com>
+Content-Language: en-US
+From: "Nelson, Shannon" <shannon.nelson@amd.com>
+In-Reply-To: <CACGkMEu5WskbWu3Qte7aXyYKG53D3u8exeQESBFzJvtUS9NZyw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: BY5PR16CA0012.namprd16.prod.outlook.com
+ (2603:10b6:a03:1a0::25) To DS0PR12MB6583.namprd12.prod.outlook.com
+ (2603:10b6:8:d1::12)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DS0PR12MB6583:EE_|DM4PR12MB6181:EE_
+X-MS-Office365-Filtering-Correlation-Id: e71184b7-78c5-4e9b-63db-08dc36f91be6
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	AQvIfmVLsuUvkRQh7zKs7xOcj69rdKfJ33hEeOUAbVHhoD/nJAFN6oIz3UXEea3vcDPhWAmgSfVrJuJ4cEY3c0VLsLVrVi8b66oLjD1BzUWETuydGg6P14XEv1mR/zFnr2WDAcEQ7q0lBf7e4ek/P4y8P7PK6G6TycAU+EG5SpEpvYEWwb1MH+xbhkalNEozNx3Hm6f8siNdTrGlJ9Vn6FJnNhxbzaEaDmjj+1R326OeHEN3k2Kz9Y+jG99lHHQfJ+vUYsUD6883rrxQMkAeiUiUjr+ePgyU+Ui2pjxe0UO4806S7vnoFMIuRk5zOrb4seMeP17bQrMSVA+tO8Do7VocZD4hOuoT9Ih8HLzV+Re/9MRHHZWgSfoGq5fYVsIECi0HbYMQCe2MfMpBeHvKBjeFv5Fx2WMPXg8UWW3hyJG/qE6efUWaCCZWkcmbOvr1e+WAyqfH6A9i4RPfgs2gwtibx96nqT4ICXIVyVXuTpRVqqjqq0bIRUueXYNRl9cNsbeC084Fw1Tv/hexkuc1N51wNt3goTI/hAxim/00dzk5pZcXxrWz9eN9mXRkpA7OoEjGABWx493GNMzakAGbUpcIz0B4V1T4GBEjR1/nMNHvsHdTd3cGWgHUi/3ueTcgyRJv4Pj+7+OcKYvL2Y/DiQ==
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR12MB6583.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?ay96bk8vclUxMDdZVjArMDVrUlpCM2dGOTNYaFRoNWdaaytQeENFdW9uaVVy?=
+ =?utf-8?B?NzBuKzBwcUNxODNvL3cxV3dzMjRYdTZDRmQ1UEdFNDRaVWdtMzhuZHNuNFhT?=
+ =?utf-8?B?ZDJxUUpyK1lHR1FXRG16Q1BaZ1pTdEQ0NjNTUU5ONTRLRU9VbUROZTFkT01C?=
+ =?utf-8?B?cVRTR1R3YVNRdVErTEMyL1pCL2kvYkxvNmJQYzF3aUtrWVVlTnFxenpmWVdu?=
+ =?utf-8?B?YkZsOEhaUGxoTktNb1BYRFRIKzZGVitaUVNFSE11cDhSbXdsSlkrUlhVUWFR?=
+ =?utf-8?B?dXg2TktMT3liR1B2b3ppL1hkRE9WOTNsSHpzQnFCcUFnazVXOTFNcExtZzB3?=
+ =?utf-8?B?cTF6c3FxSDlUU1d5MlRXUWpoU3dLQVlRd2FEQmRuQjVwaDh1SUJMYUhka3Rx?=
+ =?utf-8?B?UlBsbFIwbmR1QTN6a3g3dTc3cWlnbzJFelh4YlpvUUg1cC82TmEyYzFjU1Vi?=
+ =?utf-8?B?TXRSTTM1UFBTWVY0Wll0Rno3dmRKT1plbGVvY1dTbldpM3p4VjYyYnJ2T1ph?=
+ =?utf-8?B?aE8reXRyOFpvcjB3aGFSZjYvYUV1OFc1OExLcE92TU9iVzNIK2RncGpIWUpl?=
+ =?utf-8?B?NU5vdFNOd0dzdWdleXdscnFIK3VTak9VWkhrelR4eXdIaEUzOU55dk9EMmR4?=
+ =?utf-8?B?Q0Y5dCtjUUg5Q0l2R2o5b2EzUExza2tueEwxS2MvMU5ob2dXM3NnN3MySis4?=
+ =?utf-8?B?ZU1KUmxvOGpiV2dGNW1Cd3p1TFRPalBEeUV1bnBpMGRWUnloTEcvUUlReTZk?=
+ =?utf-8?B?WlhMTkdiV0w3c1ZtdG13aU8zTWtMejdsaEdJMjFlVzdZRkU5RkUvb0kvMnRW?=
+ =?utf-8?B?cWZBRitIMXFSUVJiTHFOR3g4dFJoOFZTU2RwaUFzaSs1aU05a3VzdlJ0RmVT?=
+ =?utf-8?B?MTJxTW5FenJpU2JlcmgrdzJ0bVZ1b0dSaCt0U1ZqMG1EYUNsWm1LZ2wyRTB3?=
+ =?utf-8?B?Sm01UEMwNlNiMzFkaVZXNkM0QndORGFhTUpuU1k2cVo2UzdOS3c3ZVJZOUhE?=
+ =?utf-8?B?Q3l2dWR1SWV6K29DY1Nqbm14blBEcTRkYWxzczBRM1pnak82WmlLZVFCa1Ft?=
+ =?utf-8?B?TzQxUTc1Ykl1c1diTTBVclFuM0RJTUFPcng0cEh5emg5eTN3R2VEcVhZRnpB?=
+ =?utf-8?B?MXhrUmpUWlJPb1B4aDBvWWJEck1KYlFxakh2SVcxK2dzK212L1lsZjRWVUdU?=
+ =?utf-8?B?cUNLdHdTZXZETngxMzh2QkUxUjBIQkVHa04rK0RBOWltZElPMVlOOEYwaHRx?=
+ =?utf-8?B?REFNTlNSU3JqdFBpbEZmZWJzTTFoM3NjemZmcDdJWTZHZnZURTA3bkY0dk52?=
+ =?utf-8?B?bzBVNzUzWTFIU1RtVkt4VFp2Qkt4d2xLY2Y4VDNHTktzL0MrRVJYdG52cjlX?=
+ =?utf-8?B?Q015M3o0aWc5SlhnTGV0b0N6bE1CVGhIWXdPOTdVQTZWaHZidi93ZnhFdmww?=
+ =?utf-8?B?ZE5SWFZKeStWTU9XUS9qV2NvRy84RmE2ZVhpZ29UZUZWMGhOR0RXeTgyNVpZ?=
+ =?utf-8?B?VmovSmI4UUtraE55VE1SRmMraG9LRjluRVdFUnRxMXJ2ZGpQb1ljVk5mN0E1?=
+ =?utf-8?B?dmhndGxSbnF5NDJUcFJvb1JrcC9mcURteVhHZFcvZGJmYndVaDVkWGp3S0Jr?=
+ =?utf-8?B?NDcweWFYcE5qNmg0TVljYjhrVCt1SkY4eWNic3BPZHFMSUVjWXFuaHRML1Zs?=
+ =?utf-8?B?MmFIZjVEeWp0cGV1alYwMllqOHNNYkNTaXpQOVVZWUhzNUpKMTRPTy8xSFdW?=
+ =?utf-8?B?YktNVmM0ZGNZYjcvOXgwa3dBTU9Nbksrc1UyZnRNSEFBZjlXbXFQMmFZU2Ny?=
+ =?utf-8?B?ZUpnUm9jNGxHczA0WURwc3hYc1N4TEZoSXRLYWZtU1NSdm1VUGdPWC9XSk50?=
+ =?utf-8?B?NmZKZ2R3cmpkRS91WFgyU3ZFWmp0eElhUWtiRDlpWEY1VXRQM1FKbjFjdTcv?=
+ =?utf-8?B?R3hEekE4elNpbUExVlJiWFdIYWZhbVkrN1BxNVVHQk4wK0RKU3l0TktITk51?=
+ =?utf-8?B?dnc5SXBseGVsYURHbzc5Qy9oUkcxek5YQUNyOUN5Sk9Ea0lWVTVjYmhVTjFG?=
+ =?utf-8?B?WmpZSHFETjdsdG80QnVSbXRwcW1oWUZUSnVTWEhhcnM3Z1hlNlVVdzlRaGhT?=
+ =?utf-8?Q?naN6ItuUcUlLluRc6ZDumnlAY?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: e71184b7-78c5-4e9b-63db-08dc36f91be6
+X-MS-Exchange-CrossTenant-AuthSource: DS0PR12MB6583.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Feb 2024 18:31:12.4235
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: MvNUsMfDrgSRa6i5kPmyO22tDInUmm1dITr1VxN6nm5VHGm6/5ZyKjoRNeMhkNca6q3RCnfmmTzQKRScJZ2Qqw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB6181
 
-From: Hou Wenlong <houwenlong.hwl@antgroup.com>
+On 2/25/2024 9:19 PM, Jason Wang wrote:
+> On Tue, Feb 20, 2024 at 9:11 AM Shannon Nelson <shannon.nelson@amd.com> wrote:
+>>
+>> This addresses a couple of things found while testing the FLR and AER
+>> handling with the VFs.
+>>   - release irqs before calling vp_modern_remove()
+>>   - make sure we have a valid struct pointer before using it to release irqs
+>>   - make sure the FW is alive before trying to add a new device
+>>
+>> Signed-off-by: Shannon Nelson <shannon.nelson@amd.com>
+>> ---
+>>   drivers/vdpa/pds/aux_drv.c  |  2 +-
+>>   drivers/vdpa/pds/vdpa_dev.c | 20 +++++++++++++++++---
+>>   drivers/vdpa/pds/vdpa_dev.h |  1 +
+>>   3 files changed, 19 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/drivers/vdpa/pds/aux_drv.c b/drivers/vdpa/pds/aux_drv.c
+>> index 186e9ee22eb1..f57330cf9024 100644
+>> --- a/drivers/vdpa/pds/aux_drv.c
+>> +++ b/drivers/vdpa/pds/aux_drv.c
+>> @@ -93,8 +93,8 @@ static void pds_vdpa_remove(struct auxiliary_device *aux_dev)
+>>          struct device *dev = &aux_dev->dev;
+>>
+>>          vdpa_mgmtdev_unregister(&vdpa_aux->vdpa_mdev);
+>> +       pds_vdpa_release_irqs(vdpa_aux->pdsv);
+>>          vp_modern_remove(&vdpa_aux->vd_mdev);
+>> -       pci_free_irq_vectors(vdpa_aux->padev->vf_pdev);
+>>
+>>          pds_vdpa_debugfs_del_vdpadev(vdpa_aux);
+>>          kfree(vdpa_aux);
+>> diff --git a/drivers/vdpa/pds/vdpa_dev.c b/drivers/vdpa/pds/vdpa_dev.c
+>> index 25c0fe5ec3d5..301d95e08596 100644
+>> --- a/drivers/vdpa/pds/vdpa_dev.c
+>> +++ b/drivers/vdpa/pds/vdpa_dev.c
+>> @@ -426,12 +426,18 @@ static int pds_vdpa_request_irqs(struct pds_vdpa_device *pdsv)
+>>          return err;
+>>   }
+>>
+>> -static void pds_vdpa_release_irqs(struct pds_vdpa_device *pdsv)
+>> +void pds_vdpa_release_irqs(struct pds_vdpa_device *pdsv)
+>>   {
+>> -       struct pci_dev *pdev = pdsv->vdpa_aux->padev->vf_pdev;
+>> -       struct pds_vdpa_aux *vdpa_aux = pdsv->vdpa_aux;
+>> +       struct pds_vdpa_aux *vdpa_aux;
+>> +       struct pci_dev *pdev;
+>>          int qid;
+>>
+>> +       if (!pdsv)
+>> +               return;
+>> +
+>> +       pdev = pdsv->vdpa_aux->padev->vf_pdev;
+>> +       vdpa_aux = pdsv->vdpa_aux;
+>> +
+>>          if (!vdpa_aux->nintrs)
+>>                  return;
+>>
+>> @@ -612,6 +618,7 @@ static int pds_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
+>>          struct device *dma_dev;
+>>          struct pci_dev *pdev;
+>>          struct device *dev;
+>> +       u8 status;
+>>          int err;
+>>          int i;
+>>
+>> @@ -638,6 +645,13 @@ static int pds_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
+>>          dma_dev = &pdev->dev;
+>>          pdsv->vdpa_dev.dma_dev = dma_dev;
+>>
+>> +       status = pds_vdpa_get_status(&pdsv->vdpa_dev);
+>> +       if (status == 0xff) {
+>> +               dev_err(dev, "Broken PCI - status %#x\n", status);
+>> +               err = -ENXIO;
+>> +               goto err_unmap;
+>> +       }
+> 
+> This seems a violation of the virtio spec.
+> 
+> Note that spec has a DEVICE_NEEDS_RESET(64) or do we have a vendor
+> specific way to detect this instead?
+> 
+> Thanks
 
-Some PVOPS are patched as the native version directly if the guest is
-not a XENPV guest. However, this approach will not work after
-introducing a PVM guest. To address this, use a new CPU feature to
-describe XENPV and PVM, and ensure that those PVOPS are patched only
-when it is not a paravirtual guest.
+I think that we need a virtio device before we can say the device needs 
+a reset, but there's no device here yet.
 
-Signed-off-by: Hou Wenlong <houwenlong.hwl@antgroup.com>
-Signed-off-by: Lai Jiangshan <jiangshan.ljs@antgroup.com>
----
- arch/x86/entry/entry_64.S          |  5 ++---
- arch/x86/include/asm/cpufeatures.h |  1 +
- arch/x86/include/asm/paravirt.h    | 14 +++++++-------
- arch/x86/kernel/pvm.c              |  1 +
- arch/x86/xen/enlighten_pv.c        |  1 +
- 5 files changed, 12 insertions(+), 10 deletions(-)
+In this case, we haven't even been able to set up the device because, 
+for whatever reason, the PCI connection is broken and we can't talk to 
+the actual hardware that supports that device.  Here we are throwing an 
+error on the device creation before we can figure out any status for the 
+device itself and there's no place to set a DEVICE_NEEDS_RESET flag.
 
-diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
-index fe12605b3c05..6b41a1837698 100644
---- a/arch/x86/entry/entry_64.S
-+++ b/arch/x86/entry/entry_64.S
-@@ -127,9 +127,8 @@ SYM_INNER_LABEL(entry_SYSCALL_64_after_hwframe, SYM_L_GLOBAL)
- 	 * In the PVM guest case we must use eretu synthetic instruction.
- 	 */
- 
--	ALTERNATIVE_2 "testb %al, %al; jz swapgs_restore_regs_and_return_to_usermode", \
--		"jmp swapgs_restore_regs_and_return_to_usermode", X86_FEATURE_XENPV, \
--		"jmp swapgs_restore_regs_and_return_to_usermode", X86_FEATURE_KVM_PVM_GUEST
-+	ALTERNATIVE "testb %al, %al; jz swapgs_restore_regs_and_return_to_usermode", \
-+		"jmp swapgs_restore_regs_and_return_to_usermode", X86_FEATURE_PV_GUEST
- 
- 	/*
- 	 * We win! This label is here just for ease of understanding
-diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
-index e17e72f13423..72ef58a2db19 100644
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -238,6 +238,7 @@
- #define X86_FEATURE_VCPUPREEMPT		( 8*32+21) /* "" PV vcpu_is_preempted function */
- #define X86_FEATURE_TDX_GUEST		( 8*32+22) /* Intel Trust Domain Extensions Guest */
- #define X86_FEATURE_KVM_PVM_GUEST	( 8*32+23) /* KVM Pagetable-based Virtual Machine guest */
-+#define X86_FEATURE_PV_GUEST		( 8*32+24) /* "" Paravirtual guest */
- 
- /* Intel-defined CPU features, CPUID level 0x00000007:0 (EBX), word 9 */
- #define X86_FEATURE_FSGSBASE		( 9*32+ 0) /* RDFSBASE, WRFSBASE, RDGSBASE, WRGSBASE instructions*/
-diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index deaee9ec575e..a864ee481ca2 100644
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -143,7 +143,7 @@ static __always_inline unsigned long read_cr2(void)
- {
- 	return PVOP_ALT_CALLEE0(unsigned long, mmu.read_cr2,
- 				"mov %%cr2, %%rax;",
--				ALT_NOT(X86_FEATURE_XENPV));
-+				ALT_NOT(X86_FEATURE_PV_GUEST));
- }
- 
- static __always_inline void write_cr2(unsigned long x)
-@@ -154,13 +154,13 @@ static __always_inline void write_cr2(unsigned long x)
- static inline unsigned long __read_cr3(void)
- {
- 	return PVOP_ALT_CALL0(unsigned long, mmu.read_cr3,
--			      "mov %%cr3, %%rax;", ALT_NOT(X86_FEATURE_XENPV));
-+			      "mov %%cr3, %%rax;", ALT_NOT(X86_FEATURE_PV_GUEST));
- }
- 
- static inline void write_cr3(unsigned long x)
- {
- 	PVOP_ALT_VCALL1(mmu.write_cr3, x,
--			"mov %%rdi, %%cr3", ALT_NOT(X86_FEATURE_XENPV));
-+			"mov %%rdi, %%cr3", ALT_NOT(X86_FEATURE_PV_GUEST));
- }
- 
- static inline void __write_cr4(unsigned long x)
-@@ -694,17 +694,17 @@ bool __raw_callee_save___native_vcpu_is_preempted(long cpu);
- static __always_inline unsigned long arch_local_save_flags(void)
- {
- 	return PVOP_ALT_CALLEE0(unsigned long, irq.save_fl, "pushf; pop %%rax;",
--				ALT_NOT(X86_FEATURE_XENPV));
-+				ALT_NOT(X86_FEATURE_PV_GUEST));
- }
- 
- static __always_inline void arch_local_irq_disable(void)
- {
--	PVOP_ALT_VCALLEE0(irq.irq_disable, "cli;", ALT_NOT(X86_FEATURE_XENPV));
-+	PVOP_ALT_VCALLEE0(irq.irq_disable, "cli;", ALT_NOT(X86_FEATURE_PV_GUEST));
- }
- 
- static __always_inline void arch_local_irq_enable(void)
- {
--	PVOP_ALT_VCALLEE0(irq.irq_enable, "sti;", ALT_NOT(X86_FEATURE_XENPV));
-+	PVOP_ALT_VCALLEE0(irq.irq_enable, "sti;", ALT_NOT(X86_FEATURE_PV_GUEST));
- }
- 
- static __always_inline unsigned long arch_local_irq_save(void)
-@@ -776,7 +776,7 @@ void native_pv_lock_init(void) __init;
- .endm
- 
- #define SAVE_FLAGS	ALTERNATIVE "PARA_IRQ_save_fl;", "pushf; pop %rax;", \
--				    ALT_NOT(X86_FEATURE_XENPV)
-+				    ALT_NOT(X86_FEATURE_PV_GUEST)
- #endif
- #endif /* CONFIG_PARAVIRT_XXL */
- #endif	/* CONFIG_X86_64 */
-diff --git a/arch/x86/kernel/pvm.c b/arch/x86/kernel/pvm.c
-index c38e46a96ad3..d39550a8159f 100644
---- a/arch/x86/kernel/pvm.c
-+++ b/arch/x86/kernel/pvm.c
-@@ -300,6 +300,7 @@ void __init pvm_early_setup(void)
- 		return;
- 
- 	setup_force_cpu_cap(X86_FEATURE_KVM_PVM_GUEST);
-+	setup_force_cpu_cap(X86_FEATURE_PV_GUEST);
- 
- 	wrmsrl(MSR_PVM_VCPU_STRUCT, __pa(this_cpu_ptr(&pvm_vcpu_struct)));
- 	wrmsrl(MSR_PVM_EVENT_ENTRY, (unsigned long)(void *)pvm_early_kernel_event_entry - 256);
-diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
-index aeb33e0a3f76..c56483051528 100644
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -335,6 +335,7 @@ static bool __init xen_check_xsave(void)
- static void __init xen_init_capabilities(void)
- {
- 	setup_force_cpu_cap(X86_FEATURE_XENPV);
-+	setup_force_cpu_cap(X86_FEATURE_PV_GUEST);
- 	setup_clear_cpu_cap(X86_FEATURE_DCA);
- 	setup_clear_cpu_cap(X86_FEATURE_APERFMPERF);
- 	setup_clear_cpu_cap(X86_FEATURE_MTRR);
--- 
-2.19.1.6.gb485710b
+sln
 
+> 
+>> +
+>>          pdsv->supported_features = mgmt->supported_features;
+>>
+>>          if (add_config->mask & BIT_ULL(VDPA_ATTR_DEV_FEATURES)) {
+>> diff --git a/drivers/vdpa/pds/vdpa_dev.h b/drivers/vdpa/pds/vdpa_dev.h
+>> index d984ba24a7da..84bdb45871ff 100644
+>> --- a/drivers/vdpa/pds/vdpa_dev.h
+>> +++ b/drivers/vdpa/pds/vdpa_dev.h
+>> @@ -46,5 +46,6 @@ struct pds_vdpa_device {
+>>
+>>   #define PDS_VDPA_PACKED_INVERT_IDX     0x8000
+>>
+>> +void pds_vdpa_release_irqs(struct pds_vdpa_device *pdsv);
+>>   int pds_vdpa_get_mgmt_info(struct pds_vdpa_aux *vdpa_aux);
+>>   #endif /* _VDPA_DEV_H_ */
+>> --
+>> 2.17.1
+>>
+> 
