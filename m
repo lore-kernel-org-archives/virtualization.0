@@ -1,230 +1,260 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F1FB1B59D
-	for <virtualization@lists.linux.dev>; Mon, 26 Feb 2024 04:59:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50C30FC18
+	for <virtualization@lists.linux-foundation.org>; Mon, 26 Feb 2024 05:08:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708923584; cv=none; b=nATHDxpu+Ng+m/kD2wfK2Apc+k0iDOT4WB1sBTP2D4LeCdd63tR4SLhjfoG+i0UWf/36zIKCWoB5OeBH+XYSjHFTmQQiBiWwCwOrWIxcK3wuGi4sC7gAnEYNVIPpGTa/k3at2bucVIOBI764O8aQsoEjmFaoCMHt33ycGpUtbLQ=
+	t=1708924109; cv=none; b=EFfRvnFhU9TlNpfjni/VDnBb12ch1lJE/wcspuCBRdrkjQKWZL9Fz7j/12l7C9aElbat57hQTlRHuzjrh0ZbpWjmQPLereLb88Sy5VSg+KHBIOqVXmzaaHuIZL0dmBsyFYvM2vs5WdLCsY0tHzUhFBFJEWJ5lIbR7T/y7hPVDuc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708923584; c=relaxed/simple;
-	bh=AaJMamp2Nb+Yq5spo7QL5Q4FyDBAAXS9vg0TE+DBw+s=;
+	s=arc-20240116; t=1708924109; c=relaxed/simple;
+	bh=E88zUaazKWvIhjWloT5l/8WyHuvQl96BzJs4ChOIkvc=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=MUtheNLmxsXq4Ppgs1QronPUfy0fnUaWZ6bZyjUk3vtODn/TDmrQSni8Z7gQT+M/SDBoFrgykH7FzHHhZ8Lf1Cy2FQiCG0YWC5NyaEIHHJNPrSmfgTOpcOPcS3NiV7ekf/dHyOXxsVVvVbNEFA2W4i4g4pqVkcxLI0n4mjOeRxQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Peajf0G9; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 To:Cc:Content-Type; b=lle7VOtMd4/QwhtptsWwyizywkGmOotsucfeapYI8mrBwGRDBH80h4RUBd8TWuahX4Sk4M2sZu4g56UqCL52iRFOoD7FOZiRuMD/c2tX8pIQnzhvcHMAmfq2ewES4e/d0NHZBHMm3wLAAOG3RVzN4juodVRrN+CgkVbtUHawork=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UFHtWP0C; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Peajf0G9"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UFHtWP0C"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id D9D2A402B7
+	for <virtualization@lists.linux-foundation.org>; Mon, 26 Feb 2024 05:08:27 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id D2lf_vbj_ASi
+	for <virtualization@lists.linux-foundation.org>;
+	Mon, 26 Feb 2024 05:08:27 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org A980E402AF
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A980E402AF
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UFHtWP0C
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id A980E402AF
+	for <virtualization@lists.linux-foundation.org>; Mon, 26 Feb 2024 05:08:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1708923582;
+	s=mimecast20190719; t=1708924104;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=iso6K6DyWAnnF++t9+yhMMEiOuk3VKMqC/cJQai+WRQ=;
-	b=Peajf0G9+/v+KbF+DW/vDZQOAz/NlvsEn8mmGv7h+IgwaR7TDgXbPcCTdOc4ObO/EPrWu7
-	eaOV4hoG5/XIb16NUNt8JC16X19I3dGPpxwJjN9FE+65M8zQ7/UL7QmMOs7pAN4pWB4BJ9
-	V1a8g/Kkc5v/vtu8jBx+FSzViL+MOLs=
+	bh=d0IX1RHQfM6abvabBeCW943C4eGRN4zTgrwGo510uTA=;
+	b=UFHtWP0CaNfsTnNiweaEn1ZqHFIrrFqYTAvnEg5rYNonD/WIPOlDMA3i6kPULwUpKgkVvj
+	Y3fxUDINbUMvA3TJY1kjgsHoz2iM1+sUWljnwt1p10EojkPum/3zsUPDFGOk6gXpXMAJGG
+	2/Zipdh6WmETO7Z+u57q3xpaupJa/wI=
 Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
  [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-78-DpQcUPCnNZepYc_gvy6xsA-1; Sun, 25 Feb 2024 23:59:38 -0500
-X-MC-Unique: DpQcUPCnNZepYc_gvy6xsA-1
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-290a26e6482so2572131a91.0
-        for <virtualization@lists.linux.dev>; Sun, 25 Feb 2024 20:59:38 -0800 (PST)
+ us-mta-138-K_Nrbb4fOCeKjZPEhNM0ag-1; Mon, 26 Feb 2024 00:08:18 -0500
+X-MC-Unique: K_Nrbb4fOCeKjZPEhNM0ag-1
+Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-299662731f0so786909a91.2
+        for <virtualization@lists.linux-foundation.org>; Sun, 25 Feb 2024 21:08:18 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708923578; x=1709528378;
+        d=1e100.net; s=20230601; t=1708924097; x=1709528897;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=iso6K6DyWAnnF++t9+yhMMEiOuk3VKMqC/cJQai+WRQ=;
-        b=N218IPafbl0pfnuLRCUD9atugLodeKgDY+QcEaG6dLnW0jN00rXso9RB7iTe1qz/mK
-         RgM8C/VO58KVQLIgy152XVkM1V/tA60L36lfM9I/+ZibQjD6EZsUuZFh56cShcEWVbaz
-         V2VworbUkqvCwnJ7RcquV4mHwGZZ3uoTmoPJBSWF9qRPRZGDP31MpkAnr6hix1Z9nDrH
-         VhrAxNawaCdXspYVTmCfzNiQJt6jfdUamdDyY5MmDWCUCrGWz224pQ55Qtu9GFoC4phR
-         CTs9EAXvnfIrNfAl03kXJHuF4BymS4irHp+u2ARtk0KuSHH8hKWIOBCjYBZATb7nB7uf
-         rjwA==
-X-Forwarded-Encrypted: i=1; AJvYcCXOfxQ3VnSjbL7ot8LdZoqal7KEpT6CNnZiLjb7gyXm/eFBr2pLMBx0Q/p0hj0ODaXuMRFJvpX0IVFS1KPt4g7dV1bMlRe693zik4pfsG8=
-X-Gm-Message-State: AOJu0YyyU2P4c8wuCF6E8dXu+1UbetOyqCwW2RCGvmF0Ec/M9SxBtI+0
-	S/Ei6JQhwsB7JW3IGiiRneNVEswsNgcW09xc+FuS+geNdj8z6Ruygy3W/jHqdrgUjLh/+epKmI+
-	6f7X/GBm98TYAEQbKqlDBA8QjVfMWxp+RwN3G0VTIpyJIvzdAnQ//VTRFqI3fZnffeTxpuFs9ZY
-	sMpI6fnFdw6S4UWKac+C7FvnpTyRK4l3AXdR8FAhM=
-X-Received: by 2002:a17:90a:ad8a:b0:29a:a38c:8262 with SMTP id s10-20020a17090aad8a00b0029aa38c8262mr2919879pjq.48.1708923577743;
-        Sun, 25 Feb 2024 20:59:37 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFFTAN/Lw+RGzf9GeokVG5jtOCl25KGwF/7DbhV8aGSvRwum+aJwJ9WzPtrwumrWZ0Ki7ztusPHGEY87VqwktA=
-X-Received: by 2002:a17:90a:ad8a:b0:29a:a38c:8262 with SMTP id
- s10-20020a17090aad8a00b0029aa38c8262mr2919868pjq.48.1708923577403; Sun, 25
- Feb 2024 20:59:37 -0800 (PST)
+        bh=d0IX1RHQfM6abvabBeCW943C4eGRN4zTgrwGo510uTA=;
+        b=D0t+Hrak3z1Y3yIAvtt36xnGRlqae2u0fUCa+exK54LXc0leCrfsd26PhezKQ0/zX8
+         TX0dSTl/MZTy74CfCSPkpyKh89cmOmK1tQty2ABy5WEqHRXiSJ/pun5qcBObx3/uW0BT
+         tNItfgTYsSyLEuTRBIhgJztMCNoXoTN2XobdezXjdGSzadqc5sZc1E9zZb9G7vcQiDDL
+         qxs3dpmjp2mrMbL049bdoD9u5B6uc6VRQAHveJOKlsJHKb0LddsynaRaB8Tpe8AxvHuq
+         oT5s9JUwvnzRQ7VJ6QWcJixwqae7RysG7tQpXTM9vzTHFbCeJDHgMDgi5L38rU5l7k/k
+         80qg==
+X-Forwarded-Encrypted: i=1; AJvYcCXLnkaBTd8P1SscbEbvUxVGb+JJJfPm/l6forWJAD/fWuQDKOOgZ7siKVLROOTJGYlyN3FoRfqal4GGc7+t2pUTWC7ZSqPv9Q75oHae7Jd32E9pcMWmuGSsIQ==
+X-Gm-Message-State: AOJu0Yy+lBBKt010aEiT8woAV2yCfcEJ4IVjiSz9vxWe4oi6OIbypbl3
+	Bz4MSfqFqO3JcK5M5Q/DSCdDsqawtUUIugK8qZsb6y3JwpgG6QiFYZqegY79ouL+CwmumYEJN/B
+	3eu0Opn4Pt0ckglLvzMAMrL8P11VtZaH16WOAjkqq4pbCw3oTpr3ZZdUH1hkbDymQ5OeBoV92ZY
+	he/N+bzZIFptHDlog6ZDlTv6/q/sKk7C8P2qQLQnlrbT49ChtMcS/iAg==
+X-Received: by 2002:a17:90a:f682:b0:29a:a3e1:7ab4 with SMTP id cl2-20020a17090af68200b0029aa3e17ab4mr2087476pjb.20.1708924097517;
+        Sun, 25 Feb 2024 21:08:17 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IF5E17zVQ3hcFLlFhYUZzlK76i0IGg7C5MCrl1bCx+cf+ujnpkNQXP7sOltv0GVqUnmUVqBMUDafOmfdRV/Ap8=
+X-Received: by 2002:a17:90a:f682:b0:29a:a3e1:7ab4 with SMTP id
+ cl2-20020a17090af68200b0029aa3e17ab4mr2087458pjb.20.1708924097198; Sun, 25
+ Feb 2024 21:08:17 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240202121151.65710-1-liangchen.linux@gmail.com>
- <c8d59e75-d0bb-4a03-9ef4-d6de65fa9356@kernel.org> <CAKhg4tJFpG5nUNdeEbXFLonKkFUP0QCh8A9CpwU5OvtnBuz4Sw@mail.gmail.com>
- <5297dad6499f6d00f7229e8cf2c08e0eacb67e0c.camel@redhat.com>
- <CAKhg4tLbF8SfYD4dU9U9Nhii4FY2dftjPKYz-Emrn-CRwo10mg@mail.gmail.com>
- <73c242b43513bde04eebb4eb581deb189443c26b.camel@redhat.com>
- <CAKhg4tJPjcShkw4-FHFkKOcgzHK27A5pMu9FP7OWj4qJUX1ApA@mail.gmail.com>
- <1b2d471a5d06ecadcb75e3d9155b6d566afb2767.camel@redhat.com> <1708652254.1517398-1-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <1708652254.1517398-1-xuanzhuo@linux.alibaba.com>
+References: <20230720170001-mutt-send-email-mst@kernel.org>
+ <263a5ad7-1189-3be3-70de-c38a685bebe0@redhat.com> <20230721104445-mutt-send-email-mst@kernel.org>
+ <6278a4aa-8901-b0e3-342f-5753a4bf32af@redhat.com> <20230721110925-mutt-send-email-mst@kernel.org>
+ <e3490755-35ac-89b4-b0fa-b63720a9a5c9@redhat.com> <20230723053441-mutt-send-email-mst@kernel.org>
+ <CACGkMEuPcOyjgHkKXrcnofdb5XhYYTrGQeuR3j6Oypr0KZxLMg@mail.gmail.com>
+ <20230724031732-mutt-send-email-mst@kernel.org> <CACGkMEvNqJvLvVqQyrw-5jLDA2RvWkSPfb_RLVZbe_wsM=AK4g@mail.gmail.com>
+ <20240222142056-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20240222142056-mutt-send-email-mst@kernel.org>
 From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 26 Feb 2024 12:59:25 +0800
-Message-ID: <CACGkMEuUeQTJYpZDx8ggqwBWULQS1Fjd_DgPvVMLq-_cjYfm7g@mail.gmail.com>
-Subject: Re: [PATCH net-next v5] virtio_net: Support RX hash XDP hint
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: Paolo Abeni <pabeni@redhat.com>, Jesper Dangaard Brouer <hawk@kernel.org>, mst@redhat.com, 
-	hengqi@linux.alibaba.com, davem@davemloft.net, edumazet@google.com, 
-	kuba@kernel.org, netdev@vger.kernel.org, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, bpf@vger.kernel.org, john.fastabend@gmail.com, 
-	daniel@iogearbox.net, ast@kernel.org, Liang Chen <liangchen.linux@gmail.com>
+Date: Mon, 26 Feb 2024 13:08:06 +0800
+Message-ID: <CACGkMEt=2pqc8rp1wHUhs4Kn_cG1EUKpdxB+STh+80Jw7uOTaA@mail.gmail.com>
+Subject: Re: [PATCH net-next v4 2/2] virtio-net: add cond_resched() to the
+ command waiting loop
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Maxime Coquelin <maxime.coquelin@redhat.com>, Shannon Nelson <shannon.nelson@amd.com>, 
+	xuanzhuo@linux.alibaba.com, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Feb 23, 2024 at 9:42=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
-om> wrote:
+On Fri, Feb 23, 2024 at 3:22=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com>=
+ wrote:
 >
-> On Fri, 09 Feb 2024 13:57:25 +0100, Paolo Abeni <pabeni@redhat.com> wrote=
-:
-> > On Fri, 2024-02-09 at 18:39 +0800, Liang Chen wrote:
-> > > On Wed, Feb 7, 2024 at 10:27=E2=80=AFPM Paolo Abeni <pabeni@redhat.co=
-m> wrote:
-> > > >
-> > > > On Wed, 2024-02-07 at 10:54 +0800, Liang Chen wrote:
-> > > > > On Tue, Feb 6, 2024 at 6:44=E2=80=AFPM Paolo Abeni <pabeni@redhat=
-.com> wrote:
-> > > > > >
-> > > > > > On Sat, 2024-02-03 at 10:56 +0800, Liang Chen wrote:
-> > > > > > > On Sat, Feb 3, 2024 at 12:20=E2=80=AFAM Jesper Dangaard Broue=
-r <hawk@kernel.org> wrote:
-> > > > > > > > On 02/02/2024 13.11, Liang Chen wrote:
-> > > > > > [...]
-> > > > > > > > > @@ -1033,6 +1039,16 @@ static void put_xdp_frags(struct x=
-dp_buff *xdp)
-> > > > > > > > >       }
-> > > > > > > > >   }
-> > > > > > > > >
-> > > > > > > > > +static void virtnet_xdp_save_rx_hash(struct virtnet_xdp_=
-buff *virtnet_xdp,
-> > > > > > > > > +                                  struct net_device *dev=
-,
-> > > > > > > > > +                                  struct virtio_net_hdr_=
-v1_hash *hdr_hash)
-> > > > > > > > > +{
-> > > > > > > > > +     if (dev->features & NETIF_F_RXHASH) {
-> > > > > > > > > +             virtnet_xdp->hash_value =3D hdr_hash->hash_=
-value;
-> > > > > > > > > +             virtnet_xdp->hash_report =3D hdr_hash->hash=
-_report;
-> > > > > > > > > +     }
-> > > > > > > > > +}
-> > > > > > > > > +
-> > > > > > > >
-> > > > > > > > Would it be possible to store a pointer to hdr_hash in virt=
-net_xdp_buff,
-> > > > > > > > with the purpose of delaying extracting this, until and onl=
-y if XDP
-> > > > > > > > bpf_prog calls the kfunc?
-> > > > > > > >
-> > > > > > >
-> > > > > > > That seems to be the way v1 works,
-> > > > > > > https://lore.kernel.org/all/20240122102256.261374-1-liangchen=
-.linux@gmail.com/
-> > > > > > > . But it was pointed out that the inline header may be overwr=
-itten by
-> > > > > > > the xdp prog, so the hash is copied out to maintain its integ=
-rity.
-> > > > > >
-> > > > > > Why? isn't XDP supposed to get write access only to the pkt
-> > > > > > contents/buffer?
-> > > > > >
+> On Tue, Jul 25, 2023 at 11:03:11AM +0800, Jason Wang wrote:
+> > On Mon, Jul 24, 2023 at 3:18=E2=80=AFPM Michael S. Tsirkin <mst@redhat.=
+com> wrote:
+> > >
+> > > On Mon, Jul 24, 2023 at 02:52:49PM +0800, Jason Wang wrote:
+> > > > On Mon, Jul 24, 2023 at 2:46=E2=80=AFPM Michael S. Tsirkin <mst@red=
+hat.com> wrote:
 > > > > >
-> > > > > Normally, an XDP program accesses only the packet data. However,
-> > > > > there's also an XDP RX Metadata area, referenced by the data_meta
-> > > > > pointer. This pointer can be adjusted with bpf_xdp_adjust_meta to
-> > > > > point somewhere ahead of the data buffer, thereby granting the XD=
-P
-> > > > > program access to the virtio header located immediately before th=
-e
-> > > >
-> > > > AFAICS bpf_xdp_adjust_meta() does not allow moving the meta_data be=
-fore
-> > > > xdp->data_hard_start:
-> > > >
-> > > > https://elixir.bootlin.com/linux/latest/source/net/core/filter.c#L4=
-210
-> > > >
-> > > > and virtio net set such field after the virtio_net_hdr:
-> > > >
-> > > > https://elixir.bootlin.com/linux/latest/source/drivers/net/virtio_n=
-et.c#L1218
-> > > > https://elixir.bootlin.com/linux/latest/source/drivers/net/virtio_n=
-et.c#L1420
-> > > >
-> > > > I don't see how the virtio hdr could be touched? Possibly even more
-> > > > important: if such thing is possible, I think is should be somewhat
-> > > > denied (for the same reason an H/W nic should prevent XDP from
-> > > > modifying its own buffer descriptor).
-> > >
-> > > Thank you for highlighting this concern. The header layout differs
-> > > slightly between small and mergeable mode. Taking 'mergeable mode' as
-> > > an example, after calling xdp_prepare_buff the layout of xdp_buff
-> > > would be as depicted in the diagram below,
-> > >
-> > >                       buf
-> > >                        |
-> > >                        v
-> > >         +--------------+--------------+-------------+
-> > >         | xdp headroom | virtio header| packet      |
-> > >         | (256 bytes)  | (20 bytes)   | content     |
-> > >         +--------------+--------------+-------------+
-> > >         ^                             ^
-> > >         |                             |
-> > >  data_hard_start                    data
-> > >                                   data_meta
-> > >
-> > > If 'bpf_xdp_adjust_meta' repositions the 'data_meta' pointer a little
-> > > towards 'data_hard_start', it would point to the inline header, thus
-> > > potentially allowing the XDP program to access the inline header.
-> >
-> > I see. That layout was completely unexpected to me.
-> >
-> > AFAICS the virtio_net driver tries to avoid accessing/using the
-> > virtio_net_hdr after the XDP program execution, so nothing tragic
-> > should happen.
-> >
-> > @Michael, @Jason, I guess the above is like that by design? Isn't it a
-> > bit fragile?
-
-Yes.
-
+> > > > > On Fri, Jul 21, 2023 at 10:18:03PM +0200, Maxime Coquelin wrote:
+> > > > > >
+> > > > > >
+> > > > > > On 7/21/23 17:10, Michael S. Tsirkin wrote:
+> > > > > > > On Fri, Jul 21, 2023 at 04:58:04PM +0200, Maxime Coquelin wro=
+te:
+> > > > > > > >
+> > > > > > > >
+> > > > > > > > On 7/21/23 16:45, Michael S. Tsirkin wrote:
+> > > > > > > > > On Fri, Jul 21, 2023 at 04:37:00PM +0200, Maxime Coquelin=
+ wrote:
+> > > > > > > > > >
+> > > > > > > > > >
+> > > > > > > > > > On 7/20/23 23:02, Michael S. Tsirkin wrote:
+> > > > > > > > > > > On Thu, Jul 20, 2023 at 01:26:20PM -0700, Shannon Nel=
+son wrote:
+> > > > > > > > > > > > On 7/20/23 1:38 AM, Jason Wang wrote:
+> > > > > > > > > > > > >
+> > > > > > > > > > > > > Adding cond_resched() to the command waiting loop=
+ for a better
+> > > > > > > > > > > > > co-operation with the scheduler. This allows to g=
+ive CPU a breath to
+> > > > > > > > > > > > > run other task(workqueue) instead of busy looping=
+ when preemption is
+> > > > > > > > > > > > > not allowed on a device whose CVQ might be slow.
+> > > > > > > > > > > > >
+> > > > > > > > > > > > > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> > > > > > > > > > > >
+> > > > > > > > > > > > This still leaves hung processes, but at least it d=
+oesn't pin the CPU any
+> > > > > > > > > > > > more.  Thanks.
+> > > > > > > > > > > > Reviewed-by: Shannon Nelson <shannon.nelson@amd.com=
 >
-> YES. We process it carefully. That brings some troubles, we hope to put t=
-he
-> virtio-net header to the vring desc like other NICs. But that is a big pr=
-oject.
-
-Yes, and we still need to support the "legacy" layout.
-
+> > > > > > > > > > > >
+> > > > > > > > > > >
+> > > > > > > > > > > I'd like to see a full solution
+> > > > > > > > > > > 1- block until interrupt
+> > > > > > > > > >
+> > > > > > > > > > Would it make sense to also have a timeout?
+> > > > > > > > > > And when timeout expires, set FAILED bit in device stat=
+us?
+> > > > > > > > >
+> > > > > > > > > virtio spec does not set any limits on the timing of vq
+> > > > > > > > > processing.
+> > > > > > > >
+> > > > > > > > Indeed, but I thought the driver could decide it is too lon=
+g for it.
+> > > > > > > >
+> > > > > > > > The issue is we keep waiting with rtnl locked, it can quick=
+ly make the
+> > > > > > > > system unusable.
+> > > > > > >
+> > > > > > > if this is a problem we should find a way not to keep rtnl
+> > > > > > > locked indefinitely.
+> > > > > >
+> > > > > > From the tests I have done, I think it is. With OVS, a reconfig=
+uration is
+> > > > > > performed when the VDUSE device is added, and when a MLX5 devic=
+e is
+> > > > > > in the same bridge, it ends up doing an ioctl() that tries to t=
+ake the
+> > > > > > rtnl lock. In this configuration, it is not possible to kill OV=
+S because
+> > > > > > it is stuck trying to acquire rtnl lock for mlx5 that is held b=
+y virtio-
+> > > > > > net.
+> > > > >
+> > > > > So for sure, we can queue up the work and process it later.
+> > > > > The somewhat tricky part is limiting the memory consumption.
+> > > >
+> > > > And it needs to sync with rtnl somehow, e.g device unregistering wh=
+ich
+> > > > seems not easy.
+> > > >
+> > > > Thanks
+> > >
+> > > since when does device unregister need to send cvq commands?
+> >
+> > It doesn't do this now. But if we don't process the work under rtnl,
+> > we need to synchronize with device unregistering.
+> >
+> > Thanks
 >
-> I think this patch is ok, this can be merged to net-next firstly.
+> But what's not easy about it?
 
-+1
+Yes, so I'm wondering if we can simply have the cond_resched() merged
+as the first step.
+
+And leave the indefinite wait for future investigation?
 
 Thanks
 
 >
-> Thanks.
->
->
-> >
-> > Thanks!
-> >
-> > Paolo
-> >
+> > >
+> > > > >
+> > > > >
+> > > > > > >
+> > > > > > > > > > > 2- still handle surprise removal correctly by waking =
+in that case
+> > > > > > > > > > >
+> > > > > > > > > > >
+> > > > > > > > > > >
+> > > > > > > > > > > > > ---
+> > > > > > > > > > > > >      drivers/net/virtio_net.c | 4 +++-
+> > > > > > > > > > > > >      1 file changed, 3 insertions(+), 1 deletion(=
+-)
+> > > > > > > > > > > > >
+> > > > > > > > > > > > > diff --git a/drivers/net/virtio_net.c b/drivers/n=
+et/virtio_net.c
+> > > > > > > > > > > > > index 9f3b1d6ac33d..e7533f29b219 100644
+> > > > > > > > > > > > > --- a/drivers/net/virtio_net.c
+> > > > > > > > > > > > > +++ b/drivers/net/virtio_net.c
+> > > > > > > > > > > > > @@ -2314,8 +2314,10 @@ static bool virtnet_send_c=
+ommand(struct virtnet_info *vi, u8 class, u8 cmd,
+> > > > > > > > > > > > >              * into the hypervisor, so the reques=
+t should be handled immediately.
+> > > > > > > > > > > > >              */
+> > > > > > > > > > > > >             while (!virtqueue_get_buf(vi->cvq, &t=
+mp) &&
+> > > > > > > > > > > > > -              !virtqueue_is_broken(vi->cvq))
+> > > > > > > > > > > > > +              !virtqueue_is_broken(vi->cvq)) {
+> > > > > > > > > > > > > +               cond_resched();
+> > > > > > > > > > > > >                     cpu_relax();
+> > > > > > > > > > > > > +       }
+> > > > > > > > > > > > >
+> > > > > > > > > > > > >             return vi->ctrl->status =3D=3D VIRTIO=
+_NET_OK;
+> > > > > > > > > > > > >      }
+> > > > > > > > > > > > > --
+> > > > > > > > > > > > > 2.39.3
+> > > > > > > > > > > > >
+> > > > > > > > > > > > > _______________________________________________
+> > > > > > > > > > > > > Virtualization mailing list
+> > > > > > > > > > > > > Virtualization@lists.linux-foundation.org
+> > > > > > > > > > > > > https://lists.linuxfoundation.org/mailman/listinf=
+o/virtualization
+> > > > > > > > > > >
+> > > > > > > > >
+> > > > > > >
+> > > > >
+> > >
 >
 
