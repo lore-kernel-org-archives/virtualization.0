@@ -1,35 +1,35 @@
 Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 574A6DF4D;
-	Mon, 26 Feb 2024 02:07:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 25BCFD50F;
+	Mon, 26 Feb 2024 02:27:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708913281; cv=none; b=uzG861rJSbQqc2Zt/BXbMYrtEoNCzfbQt322aPv10TTBY7UjHU4t59Cj9ZbP7cnaN8D9C4o/LvpRb2P2mDh8TILH+KE/wREIw/9i/aFMgLp/9M0Wc76TwSwYho5FKQVnFaYM/40JeRNA6Dk1qdE+6r7TvktVe5/nLIeLvuymutk=
+	t=1708914467; cv=none; b=PwsVyFp0t8qaunluV8T+0OKc4Gkg81E5rVi3W/qUh0ZCnrozUqL3GPIPe93dCF6/odaj0qgHYBY+279Odl57+Fho2Z3S3TOzbGqLVONmKoHzxPAuaVuV/ieH55U21xL83ysVz5nkzEJt7krzeSecBOONmz0VdtPxVS/SkScWpkg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708913281; c=relaxed/simple;
-	bh=+m12NCYdeTJyVL7my1OrMmea+AsFYD4Qm8ZLRqy23b0=;
+	s=arc-20240116; t=1708914467; c=relaxed/simple;
+	bh=3BPVpZmd3r2/6e9QRzJoUxZLCVM8tqHO5vRHJrJNW7c=;
 	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=G83xfhy1IetRnISxuGpEQEOt7bkFIPP80N1WmSfWbjAgZ6eMfqlUtiVMKgfiSv1qRwVJcqL6yxMkhIIQjhcS28glVad4yWpoyySBF62hgXct9toPoPT3wC34ovWS8C0a0fomkZhEn4zz7cGvHOksYyL3FwdGCd/dIXeikpX7E4s=
+	 In-Reply-To:Content-Type; b=CmQYrs7AthHiEICpKogBWwa0is3h4jhMXPdVpjUmWA+RMzwkfAJWozPtAAxlAcKlCcZkIxhNYUDxdLRs9vwFvUHvIJitahNro6Vi8TPpck8SxiZSA/UD0+/2CIX6ctnBA1dwRKz3t5zN74FcxCQhFwXMYxSDUbp2g2cv2cj8DWE=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
 Received: from loongson.cn (unknown [10.20.42.173])
-	by gateway (Coremail) with SMTP id _____8Bx3+t78ttlS2cRAA--.44210S3;
-	Mon, 26 Feb 2024 10:07:55 +0800 (CST)
+	by gateway (Coremail) with SMTP id _____8Axuuge99tlemgRAA--.24671S3;
+	Mon, 26 Feb 2024 10:27:43 +0800 (CST)
 Received: from [10.20.42.173] (unknown [10.20.42.173])
-	by localhost.localdomain (Coremail) with SMTP id AQAAf8BxnhN68ttlMRtEAA--.58956S3;
-	Mon, 26 Feb 2024 10:07:54 +0800 (CST)
-Subject: Re: [PATCH v5 3/6] LoongArch: KVM: Add cpucfg area for kvm hypervisor
+	by localhost.localdomain (Coremail) with SMTP id AQAAf8AxRMwa99tlniVEAA--.39424S3;
+	Mon, 26 Feb 2024 10:27:40 +0800 (CST)
+Subject: Re: [PATCH v5 4/6] LoongArch: Add paravirt interface for guest kernel
 To: Huacai Chen <chenhuacai@kernel.org>
 Cc: Tianrui Zhao <zhaotianrui@loongson.cn>, Juergen Gross <jgross@suse.com>,
  Paolo Bonzini <pbonzini@redhat.com>, loongarch@lists.linux.dev,
  linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
  kvm@vger.kernel.org
 References: <20240222032803.2177856-1-maobibo@loongson.cn>
- <20240222032803.2177856-4-maobibo@loongson.cn>
- <CAAhV-H5eqXMqTYVb6cAVqOsDNcEDeP9HzaMKw69KFQeVaAYEdA@mail.gmail.com>
+ <20240222032803.2177856-5-maobibo@loongson.cn>
+ <CAAhV-H4FiP+msu4heG00Hw89Wy3oeJd5rJ7+twhwVqph_tO4Mw@mail.gmail.com>
 From: maobibo <maobibo@loongson.cn>
-Message-ID: <b6705098-1521-a892-9850-af84acd68674@loongson.cn>
-Date: Mon, 26 Feb 2024 10:07:40 +0800
+Message-ID: <6bf79c0f-daf3-9077-e83f-38bcfd7282e3@loongson.cn>
+Date: Mon, 26 Feb 2024 10:27:37 +0800
 User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
  Thunderbird/68.7.0
 Precedence: bulk
@@ -38,164 +38,221 @@ List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CAAhV-H5eqXMqTYVb6cAVqOsDNcEDeP9HzaMKw69KFQeVaAYEdA@mail.gmail.com>
+In-Reply-To: <CAAhV-H4FiP+msu4heG00Hw89Wy3oeJd5rJ7+twhwVqph_tO4Mw@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:AQAAf8BxnhN68ttlMRtEAA--.58956S3
+X-CM-TRANSID:AQAAf8AxRMwa99tlniVEAA--.39424S3
 X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
-X-Coremail-Antispam: 1Uk129KBj93XoWxWw47urW5uw4kGw4kJryDXFc_yoWrurWrpF
-	W8ZFnYgF48GrySy3sFqa15WrnFqr4kGr129FyfJa48CF4aqryfJr10krZ0kFyDtws5CF1I
-	qF15tr1avF4qyagCm3ZEXasCq-sJn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7KY7ZEXa
+X-Coremail-Antispam: 1Uk129KBj93XoWxKF15Gr13uF45Kr48Gw1kCrX_yoWxWr13pa
+	4DAF4kGa18GryxAr9IqrZxurn8J397Gr129Fy2va4FyFZFvr1UJr1vgryq9Fykta1kJ3W0
+	gFyrWw1a9a15tagCm3ZEXasCq-sJn29KB7ZKAUJUUUU5529EdanIXcx71UUUUU7KY7ZEXa
 	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
-	0xBIdaVrnRJUUU9Fb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
+	0xBIdaVrnRJUUUvFb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
 	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
-	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Gr0_Xr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
-	0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_
-	Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2x26I8E6xACxx1l5I
-	8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r126r1DMcIj6I8E87Iv67AK
-	xVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lc7I2V7IY0VAS07AlzV
-	AYIcxG8wCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwCFI7km07C267AK
-	xVWUAVWUtwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67
-	AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUCVW8JwCI
-	42IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMI
-	IF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Jr0_GrUvcSsGvfC2
-	KfnxnUUI43ZEXa7IU1LiSJUUUUU==
+	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_JFI_Gr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
+	0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVWxJVW8Jr1l84ACjcxK6I8E87Iv6xkF7I0E14v2
+	6r4j6r4UJwAS0I0E0xvYzxvE52x082IY62kv0487Mc804VCY07AIYIkI8VC2zVCFFI0UMc
+	02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUXVWUAwAv7VC2z280aVAF
+	wI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI48JMxk0xIA0c2IEe2xFo4
+	CEbIxvr21l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG
+	67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MI
+	IYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E
+	14v26r1j6r4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVW8JV
+	WxJwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjxU7pnQ
+	UUUUU
 
 
 
-On 2024/2/24 下午5:13, Huacai Chen wrote:
+On 2024/2/24 下午5:15, Huacai Chen wrote:
 > Hi, Bibo,
 > 
 > On Thu, Feb 22, 2024 at 11:28 AM Bibo Mao <maobibo@loongson.cn> wrote:
 >>
->> Instruction cpucfg can be used to get processor features. And there
->> is trap exception when it is executed in VM mode, and also it is
->> to provide cpu features to VM. On real hardware cpucfg area 0 - 20
->> is used.  Here one specified area 0x40000000 -- 0x400000ff is used
->> for KVM hypervisor to privide PV features, and the area can be extended
->> for other hypervisors in future. This area will never be used for
->> real HW, it is only used by software.
-> After reading and thinking, I find that the hypercall method which is
-> used in our productive kernel is better than this cpucfg method.
-> Because hypercall is more simple and straightforward, plus we don't
-> worry about conflicting with the real hardware.
-About cpucfg area 0x40000000 -- 0x400000ff, I have negotiated with chip 
-designer. This area will never be used with real hardware.
-
-Regards
-Bibo Mao
-> 
-> Huacai
-> 
+>> Paravirt interface pv_ipi_init() is added here for guest kernel, it
+>> firstly checks whether system runs on VM mode. If kernel runs on VM mode,
+>> it will call function kvm_para_available() to detect current VMM type.
+>> Now only KVM VMM type is detected,the paravirt function can work only if
+>> current VMM is KVM hypervisor, since there is only KVM hypervisor
+>> supported on LoongArch now.
+>>
+>> There is not effective with pv_ipi_init() now, it is dummy function.
 >>
 >> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
 >> ---
->>   arch/loongarch/include/asm/inst.h      |  1 +
->>   arch/loongarch/include/asm/loongarch.h | 10 ++++++
->>   arch/loongarch/kvm/exit.c              | 46 +++++++++++++++++---------
->>   3 files changed, 41 insertions(+), 16 deletions(-)
+>>   arch/loongarch/Kconfig                        |  9 ++++
+>>   arch/loongarch/include/asm/kvm_para.h         |  7 ++++
+>>   arch/loongarch/include/asm/paravirt.h         | 27 ++++++++++++
+>>   .../include/asm/paravirt_api_clock.h          |  1 +
+>>   arch/loongarch/kernel/Makefile                |  1 +
+>>   arch/loongarch/kernel/paravirt.c              | 41 +++++++++++++++++++
+>>   arch/loongarch/kernel/setup.c                 |  1 +
+>>   7 files changed, 87 insertions(+)
+>>   create mode 100644 arch/loongarch/include/asm/paravirt.h
+>>   create mode 100644 arch/loongarch/include/asm/paravirt_api_clock.h
+>>   create mode 100644 arch/loongarch/kernel/paravirt.c
 >>
->> diff --git a/arch/loongarch/include/asm/inst.h b/arch/loongarch/include/asm/inst.h
->> index d8f637f9e400..ad120f924905 100644
->> --- a/arch/loongarch/include/asm/inst.h
->> +++ b/arch/loongarch/include/asm/inst.h
->> @@ -67,6 +67,7 @@ enum reg2_op {
->>          revhd_op        = 0x11,
->>          extwh_op        = 0x16,
->>          extwb_op        = 0x17,
->> +       cpucfg_op       = 0x1b,
->>          iocsrrdb_op     = 0x19200,
->>          iocsrrdh_op     = 0x19201,
->>          iocsrrdw_op     = 0x19202,
->> diff --git a/arch/loongarch/include/asm/loongarch.h b/arch/loongarch/include/asm/loongarch.h
->> index 46366e783c84..a1d22e8b6f94 100644
->> --- a/arch/loongarch/include/asm/loongarch.h
->> +++ b/arch/loongarch/include/asm/loongarch.h
->> @@ -158,6 +158,16 @@
->>   #define  CPUCFG48_VFPU_CG              BIT(2)
->>   #define  CPUCFG48_RAM_CG               BIT(3)
+>> diff --git a/arch/loongarch/Kconfig b/arch/loongarch/Kconfig
+>> index 929f68926b34..fdaae9a0435c 100644
+>> --- a/arch/loongarch/Kconfig
+>> +++ b/arch/loongarch/Kconfig
+>> @@ -587,6 +587,15 @@ config CPU_HAS_PREFETCH
+>>          bool
+>>          default y
+>>
+>> +config PARAVIRT
+>> +       bool "Enable paravirtualization code"
+>> +       depends on AS_HAS_LVZ_EXTENSION
+>> +       help
+>> +          This changes the kernel so it can modify itself when it is run
+>> +         under a hypervisor, potentially improving performance significantly
+>> +         over full virtualization.  However, when run without a hypervisor
+>> +         the kernel is theoretically slower and slightly larger.
+>> +
+>>   config ARCH_SUPPORTS_KEXEC
+>>          def_bool y
+>>
+>> diff --git a/arch/loongarch/include/asm/kvm_para.h b/arch/loongarch/include/asm/kvm_para.h
+>> index d48f993ae206..af5d677a9052 100644
+>> --- a/arch/loongarch/include/asm/kvm_para.h
+>> +++ b/arch/loongarch/include/asm/kvm_para.h
+>> @@ -2,6 +2,13 @@
+>>   #ifndef _ASM_LOONGARCH_KVM_PARA_H
+>>   #define _ASM_LOONGARCH_KVM_PARA_H
 >>
 >> +/*
->> + * cpucfg index area: 0x40000000 -- 0x400000ff
->> + * SW emulation for KVM hypervirsor
+>> + * Hypercall code field
 >> + */
->> +#define CPUCFG_KVM_BASE                        0x40000000UL
->> +#define CPUCFG_KVM_SIZE                        0x100
->> +#define CPUCFG_KVM_SIG                 CPUCFG_KVM_BASE
->> +#define  KVM_SIGNATURE                 "KVM\0"
->> +#define CPUCFG_KVM_FEATURE             (CPUCFG_KVM_BASE + 4)
+>> +#define HYPERVISOR_KVM                 1
+>> +#define HYPERVISOR_VENDOR_SHIFT                8
+>> +#define HYPERCALL_CODE(vendor, code)   ((vendor << HYPERVISOR_VENDOR_SHIFT) + code)
 >> +
->>   #ifndef __ASSEMBLY__
->>
->>   /* CSR */
->> diff --git a/arch/loongarch/kvm/exit.c b/arch/loongarch/kvm/exit.c
->> index 923bbca9bd22..6a38fd59d86d 100644
->> --- a/arch/loongarch/kvm/exit.c
->> +++ b/arch/loongarch/kvm/exit.c
->> @@ -206,10 +206,37 @@ int kvm_emu_idle(struct kvm_vcpu *vcpu)
->>          return EMULATE_DONE;
->>   }
->>
->> -static int kvm_trap_handle_gspr(struct kvm_vcpu *vcpu)
->> +static int kvm_emu_cpucfg(struct kvm_vcpu *vcpu, larch_inst inst)
->>   {
->>          int rd, rj;
->>          unsigned int index;
+>>   /*
+>>    * LoongArch hypercall return code
+>>    */
+>> diff --git a/arch/loongarch/include/asm/paravirt.h b/arch/loongarch/include/asm/paravirt.h
+>> new file mode 100644
+>> index 000000000000..58f7b7b89f2c
+>> --- /dev/null
+>> +++ b/arch/loongarch/include/asm/paravirt.h
+>> @@ -0,0 +1,27 @@
+>> +/* SPDX-License-Identifier: GPL-2.0 */
+>> +#ifndef _ASM_LOONGARCH_PARAVIRT_H
+>> +#define _ASM_LOONGARCH_PARAVIRT_H
 >> +
->> +       rd = inst.reg2_format.rd;
->> +       rj = inst.reg2_format.rj;
->> +       ++vcpu->stat.cpucfg_exits;
->> +       index = vcpu->arch.gprs[rj];
+>> +#ifdef CONFIG_PARAVIRT
+>> +#include <linux/static_call_types.h>
+>> +struct static_key;
+>> +extern struct static_key paravirt_steal_enabled;
+>> +extern struct static_key paravirt_steal_rq_enabled;
 >> +
->> +       /*
->> +        * By LoongArch Reference Manual 2.2.10.5
->> +        * Return value is 0 for undefined cpucfg index
->> +        */
->> +       switch (index) {
->> +       case 0 ... (KVM_MAX_CPUCFG_REGS - 1):
->> +               vcpu->arch.gprs[rd] = vcpu->arch.cpucfg[index];
->> +               break;
->> +       case CPUCFG_KVM_SIG:
->> +               vcpu->arch.gprs[rd] = *(unsigned int *)KVM_SIGNATURE;
->> +               break;
->> +       default:
->> +               vcpu->arch.gprs[rd] = 0;
->> +               break;
->> +       }
+>> +u64 dummy_steal_clock(int cpu);
+>> +DECLARE_STATIC_CALL(pv_steal_clock, dummy_steal_clock);
 >> +
->> +       return EMULATE_DONE;
+>> +static inline u64 paravirt_steal_clock(int cpu)
+>> +{
+>> +       return static_call(pv_steal_clock)(cpu);
 >> +}
 >> +
->> +static int kvm_trap_handle_gspr(struct kvm_vcpu *vcpu)
+>> +int pv_ipi_init(void);
+>> +#else
+>> +static inline int pv_ipi_init(void)
 >> +{
->>          unsigned long curr_pc;
->>          larch_inst inst;
->>          enum emulation_result er = EMULATE_DONE;
->> @@ -224,21 +251,8 @@ static int kvm_trap_handle_gspr(struct kvm_vcpu *vcpu)
->>          er = EMULATE_FAIL;
->>          switch (((inst.word >> 24) & 0xff)) {
->>          case 0x0: /* CPUCFG GSPR */
->> -               if (inst.reg2_format.opcode == 0x1B) {
->> -                       rd = inst.reg2_format.rd;
->> -                       rj = inst.reg2_format.rj;
->> -                       ++vcpu->stat.cpucfg_exits;
->> -                       index = vcpu->arch.gprs[rj];
->> -                       er = EMULATE_DONE;
->> -                       /*
->> -                        * By LoongArch Reference Manual 2.2.10.5
->> -                        * return value is 0 for undefined cpucfg index
->> -                        */
->> -                       if (index < KVM_MAX_CPUCFG_REGS)
->> -                               vcpu->arch.gprs[rd] = vcpu->arch.cpucfg[index];
->> -                       else
->> -                               vcpu->arch.gprs[rd] = 0;
->> -               }
->> +               if (inst.reg2_format.opcode == cpucfg_op)
->> +                       er = kvm_emu_cpucfg(vcpu, inst);
->>                  break;
->>          case 0x4: /* CSR{RD,WR,XCHG} GSPR */
->>                  er = kvm_handle_csr(vcpu, inst);
+>> +       return 0;
+>> +}
+>> +
+>> +#endif // CONFIG_PARAVIRT
+>> +#endif
+>> diff --git a/arch/loongarch/include/asm/paravirt_api_clock.h b/arch/loongarch/include/asm/paravirt_api_clock.h
+>> new file mode 100644
+>> index 000000000000..65ac7cee0dad
+>> --- /dev/null
+>> +++ b/arch/loongarch/include/asm/paravirt_api_clock.h
+>> @@ -0,0 +1 @@
+>> +#include <asm/paravirt.h>
+>> diff --git a/arch/loongarch/kernel/Makefile b/arch/loongarch/kernel/Makefile
+>> index 3c808c680370..662e6e9de12d 100644
+>> --- a/arch/loongarch/kernel/Makefile
+>> +++ b/arch/loongarch/kernel/Makefile
+>> @@ -48,6 +48,7 @@ obj-$(CONFIG_MODULES)         += module.o module-sections.o
+>>   obj-$(CONFIG_STACKTRACE)       += stacktrace.o
+>>
+>>   obj-$(CONFIG_PROC_FS)          += proc.o
+>> +obj-$(CONFIG_PARAVIRT)         += paravirt.o
+>>
+>>   obj-$(CONFIG_SMP)              += smp.o
+>>
+>> diff --git a/arch/loongarch/kernel/paravirt.c b/arch/loongarch/kernel/paravirt.c
+>> new file mode 100644
+>> index 000000000000..5cf794e8490f
+>> --- /dev/null
+>> +++ b/arch/loongarch/kernel/paravirt.c
+>> @@ -0,0 +1,41 @@
+>> +// SPDX-License-Identifier: GPL-2.0
+>> +#include <linux/export.h>
+>> +#include <linux/types.h>
+>> +#include <linux/jump_label.h>
+>> +#include <linux/kvm_para.h>
+>> +#include <asm/paravirt.h>
+>> +#include <linux/static_call.h>
+>> +
+>> +struct static_key paravirt_steal_enabled;
+>> +struct static_key paravirt_steal_rq_enabled;
+>> +
+>> +static u64 native_steal_clock(int cpu)
+>> +{
+>> +       return 0;
+>> +}
+>> +
+>> +DEFINE_STATIC_CALL(pv_steal_clock, native_steal_clock);
+>> +
+>> +static bool kvm_para_available(void)
+>> +{
+>> +       static int hypervisor_type;
+>> +       int config;
+>> +
+>> +       if (!hypervisor_type) {
+>> +               config = read_cpucfg(CPUCFG_KVM_SIG);
+>> +               if (!memcmp(&config, KVM_SIGNATURE, 4))
+>> +                       hypervisor_type = HYPERVISOR_KVM;
+>> +       }
+>> +
+>> +       return hypervisor_type == HYPERVISOR_KVM;
+>> +}
+>> +
+>> +int __init pv_ipi_init(void)
+>> +{
+>> +       if (!cpu_has_hypervisor)
+>> +               return 0;
+>> +       if (!kvm_para_available())
+>> +               return 0;
+>> +
+>> +       return 1;
+>> +}
+> pv_ipi_init() and its declaration should also be moved to the last
+> patch. And if you think this patch is too small, you can squash the
+> whole patch to the last one.
+I can move the whole patch to the last one. I do not think that is is 
+reasonable to move function pv_ipi_init() to the last patch.
+
+Regards
+Bibo Mao
+
+> 
+> Huacai
+> 
+>> diff --git a/arch/loongarch/kernel/setup.c b/arch/loongarch/kernel/setup.c
+>> index edf2bba80130..b79a1244b56f 100644
+>> --- a/arch/loongarch/kernel/setup.c
+>> +++ b/arch/loongarch/kernel/setup.c
+>> @@ -43,6 +43,7 @@
+>>   #include <asm/efi.h>
+>>   #include <asm/loongson.h>
+>>   #include <asm/numa.h>
+>> +#include <asm/paravirt.h>
+>>   #include <asm/pgalloc.h>
+>>   #include <asm/sections.h>
+>>   #include <asm/setup.h>
 >> --
 >> 2.39.3
 >>
