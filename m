@@ -1,190 +1,125 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from mail-lj1-f173.google.com (mail-lj1-f173.google.com [209.85.208.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5906913959B
-	for <virtualization@lists.linux.dev>; Tue, 27 Feb 2024 11:39:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EBED13AA5D
+	for <virtualization@lists.linux.dev>; Tue, 27 Feb 2024 13:14:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709033949; cv=none; b=dCUMPZwfBcjWf2SNVHggiSSi+EC27wmufnXoxsHUxtsShNw3+rc8jC4SJ7StVsOUwys+j2mw8+kRbDI/ZZ9JiCHFRt14yM4ZC2XtTuwRxqfyCf9W5eleRI2o1vaNZHsevG/0CmW54uGPplVysjYYVLVhxIXzj0mfu+gm4UjNdOo=
+	t=1709039669; cv=none; b=RHpd+CHJS0vw0foPZXbax501PK+83z4Y6gH36M5xuaDhO+ja42uVVjMAa3p/5eEv7hySka6iohhQGeutBW488bq/NxqQX9VtzkzL0KvugfqAaYykmLLQzSOYZ7ZAcK9iHuMUdPyajnn1tDNtUbeoLNNt++lpoSk7jL9uIZz2Z5Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709033949; c=relaxed/simple;
-	bh=bDCk6aaVja4tIJ7Q8QjayXJLzGTsyOGfF51Ls8U7eMg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=pQ1Uq+EXLlRlTdC0q4rvHddXCSa2q1RkR/QPhQtpiemXwh4DP6vuBBQv8k33lGeqLpT57IbSUrXRszvpPYg8qXOwOQqoUhgntps54ClIe4nC0ow5fOPBXP/9HKnCMBPXQ4QIHWp3MFLi/pRn2FsyJBIhuwp7jXaEuaP5ra2pKLY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=OGYB/TFI; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=eeoPV/N2; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=OGYB/TFI; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=eeoPV/N2; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1709039669; c=relaxed/simple;
+	bh=ptRFBXO9Jpg8128ah9oHQMEu8XEuCDUQRkxKmyhlxas=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=IlWNCwWfrf85QiJf43ASjB2mbwHcc/N9V+9QM9J0U8eWbYdqX9BHhchq4/r8gQLBZ/Ed8zZQ1NJgit0gGnXS0GMR/vDU27vNNLdQjqNmw7v9h4WzA993rI8++wl6aDHUGzyEFNES6127jgn1koCaO9CRqAn0p0n3sd4V9dIzLxc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=RLCtMThW; arc=none smtp.client-ip=209.85.208.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="OGYB/TFI";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="eeoPV/N2";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="OGYB/TFI";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="eeoPV/N2"
-Received: from imap2.dmz-prg2.suse.org (imap2.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:98])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id AEB5D22758;
-	Tue, 27 Feb 2024 11:39:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1709033946; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=eAl6IL4nDxzJ3Bsr51G5/lRG9ArSaV55PQQnGIZK2fk=;
-	b=OGYB/TFID+1od+563ApTybS4aqZdMPpYo7wYXesoGjHAe1FtgzgmpRph4xVvPwFzNORFrU
-	8Hi/alaJ5oLGpxn0LaA7GXT2ZgWQv0UGKH28z9cYc00Rx45W7D8efa5MBS9/vtOgZOZ7XR
-	y6p/QUDjfrnogPtOgKtbONmBBJLtX68=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1709033946;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=eAl6IL4nDxzJ3Bsr51G5/lRG9ArSaV55PQQnGIZK2fk=;
-	b=eeoPV/N2wEQwzdVtVPmJ/33be/IhdaRvAtJdCDpgAFPTCxXXSUiI54ICLcugmnH4xu+dJs
-	CyKQoOjL0uCMZAAg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1709033946; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=eAl6IL4nDxzJ3Bsr51G5/lRG9ArSaV55PQQnGIZK2fk=;
-	b=OGYB/TFID+1od+563ApTybS4aqZdMPpYo7wYXesoGjHAe1FtgzgmpRph4xVvPwFzNORFrU
-	8Hi/alaJ5oLGpxn0LaA7GXT2ZgWQv0UGKH28z9cYc00Rx45W7D8efa5MBS9/vtOgZOZ7XR
-	y6p/QUDjfrnogPtOgKtbONmBBJLtX68=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1709033946;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=eAl6IL4nDxzJ3Bsr51G5/lRG9ArSaV55PQQnGIZK2fk=;
-	b=eeoPV/N2wEQwzdVtVPmJ/33be/IhdaRvAtJdCDpgAFPTCxXXSUiI54ICLcugmnH4xu+dJs
-	CyKQoOjL0uCMZAAg==
-Received: from imap2.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap2.dmz-prg2.suse.org (Postfix) with ESMTPS id E864313216;
-	Tue, 27 Feb 2024 11:39:05 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([10.150.64.162])
-	by imap2.dmz-prg2.suse.org with ESMTPSA
-	id KD9SN9nJ3WVMUQAAn2gu4w
-	(envelope-from <tzimmermann@suse.de>); Tue, 27 Feb 2024 11:39:05 +0000
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: daniel@ffwll.ch,
-	airlied@gmail.com,
-	mripard@kernel.org,
-	maarten.lankhorst@linux.intel.com,
-	christian.koenig@amd.com,
-	sumit.semwal@linaro.org,
-	dmitry.osipenko@collabora.com,
-	robdclark@gmail.com,
-	quic_abhinavk@quicinc.com,
-	dmitry.baryshkov@linaro.org,
-	sean@poorly.run,
-	marijn.suijten@somainline.org,
-	suijingfeng@loongson.cn,
-	kherbst@redhat.com,
-	lyude@redhat.com,
-	dakr@redhat.com,
-	airlied@redhat.com,
-	kraxel@redhat.com,
-	alexander.deucher@amd.com,
-	Xinhui.Pan@amd.com,
-	zack.rusin@broadcom.com,
-	bcm-kernel-feedback-list@broadcom.com
-Cc: dri-devel@lists.freedesktop.org,
-	linux-arm-msm@vger.kernel.org,
-	freedreno@lists.freedesktop.org,
-	nouveau@lists.freedesktop.org,
-	virtualization@lists.linux.dev,
-	spice-devel@lists.freedesktop.org,
-	amd-gfx@lists.freedesktop.org,
-	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 13/13] drm/qxl: Do not pin buffer objects for vmap
-Date: Tue, 27 Feb 2024 11:15:00 +0100
-Message-ID: <20240227113853.8464-14-tzimmermann@suse.de>
-X-Mailer: git-send-email 2.43.2
-In-Reply-To: <20240227113853.8464-1-tzimmermann@suse.de>
-References: <20240227113853.8464-1-tzimmermann@suse.de>
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="RLCtMThW"
+Received: by mail-lj1-f173.google.com with SMTP id 38308e7fff4ca-2d21cdbc85bso66558991fa.2
+        for <virtualization@lists.linux.dev>; Tue, 27 Feb 2024 05:14:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1709039666; x=1709644466; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=HaqJXVS/o9ZLjDcC3LExNS8YspO5mJ2Ato/Q0hLHtpM=;
+        b=RLCtMThWHC6eJCTl3h7X5DUonOrAED1PLrimRp1Sh68NfMWk5n1Z/sP581BAoiXssP
+         kHvjlpU3yDetILWH4sB3B5/qtCDn5iYr2zdhAzmUT7uptDXBYhFT7FVlIk9HTMNFPrRp
+         lPWHDWyD9hGSQjCZRM4V3TDU11wKG7VsMEsaswKD0W+OQwbW5faE2KGRcjy2CsrVCRGQ
+         4fXN6XOaIascwp1EULVY/wnfSM9lxGx3yBCumXlULiBmCr37Y+qXo3Ew+TiM1Yb3oHld
+         +Kq+3KjfDVxlmYNPRuXxE/CcRqKy+w+6qPGSW/z9/+VdsdD+ytyXWwg9uUIjUeq8vp8G
+         qu/A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1709039666; x=1709644466;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=HaqJXVS/o9ZLjDcC3LExNS8YspO5mJ2Ato/Q0hLHtpM=;
+        b=i1Adntuj+ur0G68hFlu1hUKL6jEnfahcap9XGY70Cp/yexQDgtpV3U0eNdMv8OflIN
+         JJQcFx9zMywrar/EyO6YqV8SpmbFEyOFG8/Sx2E7QYzuj8R6N3qf5dESH1pzk2LCjJzp
+         z8cPZeRlVtGqzJ7el3lhf5GFrtRcv/EzHZyInJd5AHOoiJKFlm0CmWQY2odaiKf+dnMB
+         dSgCBS6eIP4pBbv+eO4UxCemqAivi5vYmt7VZo1WToMPrES0NG42FEQGFjPBT7hoqqir
+         luhgWiOwyEmwOpLaAvbbbGE6q3hCyBGb+1d9VFHmyTV3Cb0SNHvs6a+F4SpE+KGMxTVC
+         Wmnw==
+X-Forwarded-Encrypted: i=1; AJvYcCWMBwn47Bk4aIEs+HuqTlbOSjGIEgk5w6Z072xkbnqOZiEY0CfoNoF7CEaY1UocdS1b4JBG4+YMz0hS3SUuW3ppbq4WDOylHgE+azFOnlE=
+X-Gm-Message-State: AOJu0Yxmt/sTbK1IsKnfJf6w+tlLUI2/pVzp53k2kbi3464yiMyLpJRz
+	l9hXGqWejLjbxf4rFcKk26q76oLXcc3AnMOd7HsLaBaUWoF0eaxvFMRxIeNBU40=
+X-Google-Smtp-Source: AGHT+IHpjC36J3Q+WJOGBOAur6xPab0p/dNZi1zN9BC2HwfKmlYBwHXsetNgRWncF7WsZpwUw5Ak4Q==
+X-Received: by 2002:a2e:9999:0:b0:2d2:65ff:3b78 with SMTP id w25-20020a2e9999000000b002d265ff3b78mr6030020lji.35.1709039666300;
+        Tue, 27 Feb 2024 05:14:26 -0800 (PST)
+Received: from localhost ([193.47.165.251])
+        by smtp.gmail.com with ESMTPSA id v5-20020a05600c470500b00412b0ef22basm52304wmo.10.2024.02.27.05.14.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 27 Feb 2024 05:14:25 -0800 (PST)
+Date: Tue, 27 Feb 2024 14:14:22 +0100
+From: Jiri Pirko <jiri@resnulli.us>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH net-next v3 0/6] virtio-net: support device stats
+Message-ID: <Zd3gLsIfhMlvm_0T@nanopsycho>
+References: <20240227080303.63894-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b="OGYB/TFI";
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b="eeoPV/N2"
-X-Spamd-Result: default: False [0.45 / 50.00];
-	 RCVD_VIA_SMTP_AUTH(0.00)[];
-	 SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:98:from];
-	 TO_DN_SOME(0.00)[];
-	 R_MISSING_CHARSET(2.50)[];
-	 BROKEN_CONTENT_TYPE(1.50)[];
-	 R_RATELIMIT(0.00)[to_ip_from(RLo3wgn6xaqcdyw4c639zmwwtu)];
-	 RCVD_COUNT_THREE(0.00)[3];
-	 DKIM_TRACE(0.00)[suse.de:+];
-	 MX_GOOD(-0.01)[];
-	 FREEMAIL_TO(0.00)[ffwll.ch,gmail.com,kernel.org,linux.intel.com,amd.com,linaro.org,collabora.com,quicinc.com,poorly.run,somainline.org,loongson.cn,redhat.com,broadcom.com];
-	 FROM_EQ_ENVFROM(0.00)[];
-	 MIME_TRACE(0.00)[0:+];
-	 BAYES_HAM(-2.24)[96.39%];
-	 ARC_NA(0.00)[];
-	 R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	 FROM_HAS_DN(0.00)[];
-	 DWL_DNSWL_MED(-2.00)[suse.de:dkim];
-	 FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	 TO_MATCH_ENVRCPT_ALL(0.00)[];
-	 MIME_GOOD(-0.10)[text/plain];
-	 DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	 RCPT_COUNT_TWELVE(0.00)[30];
-	 MID_CONTAINS_FROM(1.00)[];
-	 DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,suse.de:email];
-	 FUZZY_BLOCKED(0.00)[rspamd.com];
-	 RCVD_TLS_ALL(0.00)[]
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Spam-Score: 0.45
-X-Rspamd-Queue-Id: AEB5D22758
-X-Spam-Level: 
-X-Spam-Flag: NO
-X-Spamd-Bar: /
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240227080303.63894-1-xuanzhuo@linux.alibaba.com>
 
-Pin and vmap are distinct operations. Do not perform a pin as part
-of the vmap call. This used to be necessary to keep the fbdev buffer
-in place while it is being updated. Fbdev emulation has meanwhile
-been fixed to lock the buffer correctly. Same for vunmap.
+Tue, Feb 27, 2024 at 09:02:57AM CET, xuanzhuo@linux.alibaba.com wrote:
+>As the spec:
+>
+>https://github.com/oasis-tcs/virtio-spec/commit/42f389989823039724f95bbbd243291ab0064f82
+>
+>The virtio net supports to get device stats.
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
----
- drivers/gpu/drm/qxl/qxl_object.c | 5 -----
- 1 file changed, 5 deletions(-)
+Okay, you state what hw supports. It would be nice to throw in a
+sentence or two about this patchset (as the cover letter should do)
+what it actually does. Some details would be also nice, like example
+commands and their outputs to show what is the actual benefit
+for the user.
 
-diff --git a/drivers/gpu/drm/qxl/qxl_object.c b/drivers/gpu/drm/qxl/qxl_object.c
-index 39218e979a807..5893e27a7ae50 100644
---- a/drivers/gpu/drm/qxl/qxl_object.c
-+++ b/drivers/gpu/drm/qxl/qxl_object.c
-@@ -164,10 +164,6 @@ int qxl_bo_vmap_locked(struct qxl_bo *bo, struct iosys_map *map)
- 		goto out;
- 	}
- 
--	r = qxl_bo_pin_locked(bo);
--	if (r)
--		return r;
--
- 	r = ttm_bo_vmap(&bo->tbo, &bo->map);
- 	if (r) {
- 		qxl_bo_unpin_locked(bo);
-@@ -243,7 +239,6 @@ void qxl_bo_vunmap_locked(struct qxl_bo *bo)
- 		return;
- 	bo->kptr = NULL;
- 	ttm_bo_vunmap(&bo->tbo, &bo->map);
--	qxl_bo_unpin_locked(bo);
- }
- 
- int qxl_bo_vunmap(struct qxl_bo *bo)
--- 
-2.43.2
+pw-bot: cr
 
+
+>
+>Please review.
+>
+>Thanks.
+>
+>v3:
+>    1. rebase net-next
+>
+>v2:
+>    1. fix the usage of the leXX_to_cpu()
+>    2. add comment to the structure virtnet_stats_map
+>
+>v1:
+>    1. fix some definitions of the marco and the struct
+>
+>
+>
+>
+>Xuan Zhuo (6):
+>  virtio_net: introduce device stats feature and structures
+>  virtio_net: virtnet_send_command supports command-specific-result
+>  virtio_net: support device stats
+>  virtio_net: stats map include driver stats
+>  virtio_net: add the total stats field
+>  virtio_net: rename stat tx_timeout to timeout
+>
+> drivers/net/virtio_net.c        | 536 ++++++++++++++++++++++++++++----
+> include/uapi/linux/virtio_net.h | 137 ++++++++
+> 2 files changed, 613 insertions(+), 60 deletions(-)
+>
+>--
+>2.32.0.3.g01195cf9f
+>
+>
