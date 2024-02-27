@@ -1,111 +1,85 @@
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+Received: from xry111.site (xry111.site [89.208.246.23])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B999956763
-	for <virtualization@lists.linux.dev>; Tue, 27 Feb 2024 08:03:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7D9752F9D;
+	Tue, 27 Feb 2024 09:06:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=89.208.246.23
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709021000; cv=none; b=pPg+xLb/l25EAgLxGtEN8eUQGyP6Qw3XT568Il5BE/znukT5B4gxSwPAfwjbh0W4zq1KAmQCt8nOF5ZP9IAe3E1WN9RrZlIExKOBpbsqNyOzsQC+yNUIytO9mp5XNxq+2OLYFkyzZkGbDm2WqmKT4qyGSSB7dLVZWRkNwREdeuQ=
+	t=1709024772; cv=none; b=QOp70s7GBRmkNmrVF4rAKGuIosEIHk+TGXWUP24hZk+QDPwoLECcXQz8K4jx8Ffn6+sywi6kCVEUiMQtV4r9hIoCV2ZNGsDd07KJiCDN/2+orUjUZuoI1+61metPXwD6SvMvmfrXKdOR57q28RAg5maPRpxFvXGbWfamk6jDcDk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709021000; c=relaxed/simple;
-	bh=I05ORVcpyq4EqsF2TIo6Eqrl9ra0z83u5K8YrZ0H74s=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=vC6x6TSohpofPw82kQ2edoYJtWlW+vjLo0rbGPQzC7Dx/xT1u4xCOM1KEEsgzxIHZ96NeqoCpaF/jZBdca5STMXJCUJr7QteVurvBRGWpiPrPx+f28VOl1GUYqibYQgDBzpECagbuFxtXvtdQl4GLFZ1MjbZMvwfr9ypdZaxD18=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=EkE6F3Mu; arc=none smtp.client-ip=115.124.30.101
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1709024772; c=relaxed/simple;
+	bh=n4VE9YfSvDIgD5KVbQqRs4ZGP82u4xjDxIlsieejVz4=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=ij9pbTeMrzla55NEdro8t2qys/3eOI8Mcgiqt+WSHhSYqFf+VxSYnO37T2J1L2Ke61o4V7ju5pYe0Rp6WJNDfYhIBsI3eOhZrb5bIzHSbcwN8IriMFbSRcgG7hfR/CsxfP71MyVK6o4oWC0VenJESWpdyWB3SG4O6qnVVu5sxnE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=xry111.site; spf=pass smtp.mailfrom=xry111.site; dkim=pass (1024-bit key) header.d=xry111.site header.i=@xry111.site header.b=JqADrn89; arc=none smtp.client-ip=89.208.246.23
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=xry111.site
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xry111.site
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="EkE6F3Mu"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1709020991; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=VmtlNttH2hCP8SSaBmAxTigLi+f8Htbao7d6R3uMQLs=;
-	b=EkE6F3MuYde/3Rygcc6p2AXxO0b9sKY1eepkfCme6cN3T+7HYmqX6sJ+C4JS3EOBLZ86zRNdtXI5Csb4l2szazj09lKqD472R23Ebu7IG935ZH4Ty/i4fa+9fURTcXurJw2lIl48SH4wKDASPpwFTu/4gBK0nAtquqButcECsk0=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0W1LxoIA_1709020989;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W1LxoIA_1709020989)
-          by smtp.aliyun-inc.com;
-          Tue, 27 Feb 2024 16:03:10 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: netdev@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	virtualization@lists.linux.dev
-Subject: [PATCH net-next v3 6/6] virtio_net: rename stat tx_timeout to timeout
-Date: Tue, 27 Feb 2024 16:03:03 +0800
-Message-Id: <20240227080303.63894-7-xuanzhuo@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20240227080303.63894-1-xuanzhuo@linux.alibaba.com>
-References: <20240227080303.63894-1-xuanzhuo@linux.alibaba.com>
+	dkim=pass (1024-bit key) header.d=xry111.site header.i=@xry111.site header.b="JqADrn89"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=xry111.site;
+	s=default; t=1709024766;
+	bh=n4VE9YfSvDIgD5KVbQqRs4ZGP82u4xjDxIlsieejVz4=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+	b=JqADrn89IhcLGCkDQse9CAsivTzeTpWqNi0BkB12AARvNB9Y//2PvHkUkEAWj2zvy
+	 l9ycw/8QiO6Nz84Hgc7HfAAwxap21qsUy9++sygPatH60Gnd3nk4leC9xPvPgJi4gS
+	 El6VWagVC4pI98hDQ5D5gRxr7ouMvb07ydhRUby8=
+Received: from [192.168.124.4] (unknown [113.200.174.20])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (P-256) server-signature ECDSA (P-384) server-digest SHA384)
+	(Client did not present a certificate)
+	(Authenticated sender: xry111@xry111.site)
+	by xry111.site (Postfix) with ESMTPSA id 6A10A66AF5;
+	Tue, 27 Feb 2024 04:06:03 -0500 (EST)
+Message-ID: <f1ba53fd2a99949187ca392c6d4488d3d5aeaf88.camel@xry111.site>
+Subject: Re: [PATCH v5 3/6] LoongArch: KVM: Add cpucfg area for kvm
+ hypervisor
+From: Xi Ruoyao <xry111@xry111.site>
+To: maobibo <maobibo@loongson.cn>, Jiaxun Yang <jiaxun.yang@flygoat.com>, 
+	Huacai Chen <chenhuacai@kernel.org>
+Cc: Tianrui Zhao <zhaotianrui@loongson.cn>, Juergen Gross <jgross@suse.com>,
+  Paolo Bonzini <pbonzini@redhat.com>, loongarch@lists.linux.dev,
+ linux-kernel@vger.kernel.org,  virtualization@lists.linux.dev,
+ kvm@vger.kernel.org
+Date: Tue, 27 Feb 2024 17:05:59 +0800
+In-Reply-To: <fc05cf09-bf53-158a-3cc9-eff6f06a220a@loongson.cn>
+References: <20240222032803.2177856-1-maobibo@loongson.cn>
+	 <20240222032803.2177856-4-maobibo@loongson.cn>
+	 <CAAhV-H5eqXMqTYVb6cAVqOsDNcEDeP9HzaMKw69KFQeVaAYEdA@mail.gmail.com>
+	 <d1a6c424-b710-74d6-29f6-e0d8e597e1fb@loongson.cn>
+	 <CAAhV-H7p114hWUVrYRfKiBX3teG8sG7xmEW-Q-QT3i+xdLqDEA@mail.gmail.com>
+	 <06647e4a-0027-9c9f-f3bd-cd525d37b6d8@loongson.cn>
+	 <85781278-f3e9-4755-8715-3b9ff714fb20@app.fastmail.com>
+	 <0d428e30-07a8-5a91-a20c-c2469adbf613@loongson.cn>
+	 <09c5af9b-cc79-4cf2-84f7-276bb188754a@app.fastmail.com>
+	 <fc05cf09-bf53-158a-3cc9-eff6f06a220a@loongson.cn>
+Autocrypt: addr=xry111@xry111.site; prefer-encrypt=mutual;
+ keydata=mDMEYnkdPhYJKwYBBAHaRw8BAQdAsY+HvJs3EVKpwIu2gN89cQT/pnrbQtlvd6Yfq7egugi0HlhpIFJ1b3lhbyA8eHJ5MTExQHhyeTExMS5zaXRlPoiTBBMWCgA7FiEEkdD1djAfkk197dzorKrSDhnnEOMFAmJ5HT4CGwMFCwkIBwICIgIGFQoJCAsCBBYCAwECHgcCF4AACgkQrKrSDhnnEOPHFgD8D9vUToTd1MF5bng9uPJq5y3DfpcxDp+LD3joA3U2TmwA/jZtN9xLH7CGDHeClKZK/ZYELotWfJsqRcthOIGjsdAPuDgEYnkdPhIKKwYBBAGXVQEFAQEHQG+HnNiPZseiBkzYBHwq/nN638o0NPwgYwH70wlKMZhRAwEIB4h4BBgWCgAgFiEEkdD1djAfkk197dzorKrSDhnnEOMFAmJ5HT4CGwwACgkQrKrSDhnnEOPjXgD/euD64cxwqDIqckUaisT3VCst11RcnO5iRHm6meNIwj0BALLmWplyi7beKrOlqKfuZtCLbiAPywGfCNg8LOTt4iMD
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.50.4 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Git-Hash: cacd048f99e7
-Content-Transfer-Encoding: 8bit
 
-Now, we have this:
+On Tue, 2024-02-27 at 15:09 +0800, maobibo wrote:
 
-    tx_queue_0_tx_timeouts
+> It is difficult to find an area unused by HW for CSR method since the=20
+> small CSR ID range.
 
-This is used to record the tx schedule timeout.
-But this has two "tx". I think the below is enough.
+We may use IOCSR instead.  In kernel/cpu-probe.c there are already some
+IOCSR reads.
 
-    tx_queue_0_timeouts
+> It is difficult to find an area unused by HW for CSR method since the=20
+> small CSR ID range. However it is easy for cpucfg. Here I doubt whether=
+=20
+> you really know about LoongArch LVZ.
 
-So I rename this field.
+It's unfair to accuse the others for not knowing about LVZ considering
+the lack of public documentation.
 
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
----
- drivers/net/virtio_net.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 91838d75cff2..4312850fd770 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -87,7 +87,7 @@ struct virtnet_sq_stats {
- 	u64_stats_t xdp_tx;
- 	u64_stats_t xdp_tx_drops;
- 	u64_stats_t kicks;
--	u64_stats_t tx_timeouts;
-+	u64_stats_t timeouts;
- };
- 
- struct virtnet_rq_stats {
-@@ -111,7 +111,7 @@ static const struct virtnet_stat_desc virtnet_sq_stats_desc[] = {
- 	{ "xdp_tx",		VIRTNET_SQ_STAT(xdp_tx) },
- 	{ "xdp_tx_drops",	VIRTNET_SQ_STAT(xdp_tx_drops) },
- 	{ "kicks",		VIRTNET_SQ_STAT(kicks) },
--	{ "tx_timeouts",	VIRTNET_SQ_STAT(tx_timeouts) },
-+	{ "timeouts",		VIRTNET_SQ_STAT(timeouts) },
- };
- 
- static const struct virtnet_stat_desc virtnet_rq_stats_desc[] = {
-@@ -2760,7 +2760,7 @@ static void virtnet_stats(struct net_device *dev,
- 			start = u64_stats_fetch_begin(&sq->stats.syncp);
- 			tpackets = u64_stats_read(&sq->stats.packets);
- 			tbytes   = u64_stats_read(&sq->stats.bytes);
--			terrors  = u64_stats_read(&sq->stats.tx_timeouts);
-+			terrors  = u64_stats_read(&sq->stats.timeouts);
- 		} while (u64_stats_fetch_retry(&sq->stats.syncp, start));
- 
- 		do {
-@@ -4531,7 +4531,7 @@ static void virtnet_tx_timeout(struct net_device *dev, unsigned int txqueue)
- 	struct netdev_queue *txq = netdev_get_tx_queue(dev, txqueue);
- 
- 	u64_stats_update_begin(&sq->stats.syncp);
--	u64_stats_inc(&sq->stats.tx_timeouts);
-+	u64_stats_inc(&sq->stats.timeouts);
- 	u64_stats_update_end(&sq->stats.syncp);
- 
- 	netdev_err(dev, "TX timeout on queue: %u, sq: %s, vq: 0x%x, name: %s, %u usecs ago\n",
--- 
-2.32.0.3.g01195cf9f
-
+--=20
+Xi Ruoyao <xry111@xry111.site>
+School of Aerospace Science and Technology, Xidian University
