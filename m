@@ -1,224 +1,245 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B19101386AF
-	for <virtualization@lists.linux-foundation.org>; Tue, 27 Feb 2024 10:50:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7D67137C38
+	for <virtualization@lists.linux.dev>; Tue, 27 Feb 2024 11:38:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709031029; cv=none; b=XQGTiJr8ovSzFl/rfq12A/iKvBB3cc4xPUZ0V8FWV7zI5PeEdvmHC1ukhI05yp3zfyM48mPXC7wpGaoWrLxW38AM7O24OlUlNnQgaTLAjSQUVzXXDyA1Ou3XenhG9Qm5fDwIo6z25yuKKnWlCAd7eox82nFpGnbURx3cjdqVWB0=
+	t=1709033940; cv=none; b=MEEmXFzJEOA8rH9/iqcCkFcpOLVsWfMNYhb6KuwtT4qxkvvMyAkGEiEqsBMtTaqOmcjclZXFEVX7fcI9emuzy7FBIWRkt2JqnqscJcuDkeABABpda48QPb412wKlWzG2ptPG+EKHCSAM9txRh4+l7EAvoE/zEWuW2xvIofy3FCE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709031029; c=relaxed/simple;
-	bh=pFHY20CA+e9mEOAvOt8zJC8Qf6w27tcDfgr5WbY4wUw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=U7xugBN7RWnTWGG6g2vAbkhUT+9o0DLNbFpTNCQT2u1zqWKMPyUbDeXQOfbOjIiaK83LDbVMr99EF9unSty6ufmQhqX9VGsmmg78RJYLnmU4UX0zyzMLUMIGA1DQU6oCG42IQN0j07xu90SerkwJE6KyepGqH/XCO/3TUvMKCZw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OT7d0xdj; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1709033940; c=relaxed/simple;
+	bh=rX1rSBH7JtfTauCD0GoqW/VnbM4nfhibgqKFFIzMK0Y=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=ZtheUGdMAiDl8V/Ah1wdiDpehvCEfuFJ0ZVNu0Yihw/Ka9aWVCc2SfK+kcUC538ncxoRW5R6j1e1tgihsuR1Gj7nRKS7wr5C4GiXrpFKxDWkZTuqwOBqop95qitHJE0hBb/YcMAI6L+ZKuuGZAPOF2c+YlUQeLA9gZWDYyrMGXE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=YUxT1Hfe; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=uJQtrjdj; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=YUxT1Hfe; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=uJQtrjdj; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OT7d0xdj"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 486AD60680
-	for <virtualization@lists.linux-foundation.org>; Tue, 27 Feb 2024 10:50:27 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id RWoengcYUvu6
-	for <virtualization@lists.linux-foundation.org>;
-	Tue, 27 Feb 2024 10:50:26 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=eperezma@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 65EBE60633
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 65EBE60633
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=OT7d0xdj
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 65EBE60633
-	for <virtualization@lists.linux-foundation.org>; Tue, 27 Feb 2024 10:50:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1709031024;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="YUxT1Hfe";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="uJQtrjdj";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="YUxT1Hfe";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="uJQtrjdj"
+Received: from imap2.dmz-prg2.suse.org (imap2.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:98])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id F353F1FB92;
+	Tue, 27 Feb 2024 11:38:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1709033937; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=cN5XW9CUdGcYyNlH2Pi+8rFm+PkW6zNYvr9vLY8Pc/4=;
-	b=OT7d0xdj7e2D4BsVW4CnMxFrnZG7ioRUbSluHIqnNROJplsUd3ciXKIveF+46oxV8gnhSr
-	hMlYtsfOg0lIGwrcndtOyZlISIBLfds0j3bSU3OiOTZrGJbLpW5DprhVg6te87MqRfneeE
-	I5cfNzT2cktu1Q9jEksS2qKjOb7V+XI=
-Received: from mail-yb1-f197.google.com (mail-yb1-f197.google.com
- [209.85.219.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-104-LQf5GQ9sPbqSYCKepOfftw-1; Tue, 27 Feb 2024 05:50:23 -0500
-X-MC-Unique: LQf5GQ9sPbqSYCKepOfftw-1
-Received: by mail-yb1-f197.google.com with SMTP id 3f1490d57ef6-dc64b659a9cso6205125276.3
-        for <virtualization@lists.linux-foundation.org>; Tue, 27 Feb 2024 02:50:23 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1709031023; x=1709635823;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=cN5XW9CUdGcYyNlH2Pi+8rFm+PkW6zNYvr9vLY8Pc/4=;
-        b=YndsidpsJbPKwGWEVsi8eCraAFXMS2WV1qbn5WlkQBgnyfksQvx83x9/63BMW0uzrX
-         JY7Jq5CApmB+5o4e6DUJ5kIWXiqrnkwt0ehb7cUU0O2jPeknW5GqG/9QAkiUATAHTJWt
-         giE7nwU+GFp9viGftAVxtVS+prc8vRSEeFDQqkYf6TwtdOiYHGPKdJn7TxDSfDzXFn9t
-         eR831eFZ7cHYg7AhjeYcF3iJJfxmtgx3px+hMp/QMSyIP4hvOIoEpOE27VRdbIMvcKAc
-         G4lSpTruAP15DQSaZVIxvcy8dvSwCI087DvfsenRWYrHPwLzGEQmsAACr7Jdg2pNPLl7
-         RjDQ==
-X-Forwarded-Encrypted: i=1; AJvYcCW8NAx1ZDzN0GAiT4xvsTpl6HtvhDsOJDzur5jo2OL6zsefcILnb+pRj+/Ky2AAVd9PXzD3IONw+1nkTDQ4/s14h1eNhnncmr/FVVUP2lgCOYVxxRoejEFLDQ==
-X-Gm-Message-State: AOJu0YyDAEptPN6PrqHbMOAA6/Z4FSny7tkvP5cd+IcZ5Zax/LHNS1c4
-	7nSXWidWUG2Hv0+kdsHDFmqtK4injKGwWNKOBvrJE96Gye0JnpoJGVBJmFbtjl9uUT5+C8NMThZ
-	SJa+53mondOWCh5Xcz9Rf2BFBGN/nAa1EXuFx4jnRs0YOuRh1EP20SVbIYtqwv8vVbp6W69GBxN
-	cJeW5gigxpFIuy6xj85QIhoaq02HKZiLIIjasVvJteW00cvGtLWvn4Ig==
-X-Received: by 2002:a25:b226:0:b0:dcc:1449:71ea with SMTP id i38-20020a25b226000000b00dcc144971eamr1605458ybj.50.1709031022978;
-        Tue, 27 Feb 2024 02:50:22 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFOzuO5/7OdS8Y9+YIReLWHG1+QhlUYSZo85aLKKuXBLbo/FYogFv1f2uZ0/lkEtHpKlKfTB6cGLuQsoZn0ph4=
-X-Received: by 2002:a25:b226:0:b0:dcc:1449:71ea with SMTP id
- i38-20020a25b226000000b00dcc144971eamr1605440ybj.50.1709031022659; Tue, 27
- Feb 2024 02:50:22 -0800 (PST)
+	bh=TO71hQgks4/Pgbc4cHdHdGcrj0klF3qxns73s6epIWU=;
+	b=YUxT1Hfe+ztfUp218ZjVGn8HEvrZ7g2zVqDs1uph3Uo6V13zajBOg16zcoDD7N2K7fO+MG
+	JiGZ4+k12Oheg37OrnC7mQ3UID4p/q55mTBlerU73BNmCbKLsgjE/o/ZYPI8O4C2GYKRQ0
+	v+Zaav+koMdR9R6H+KS9STBK8MyDias=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1709033937;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=TO71hQgks4/Pgbc4cHdHdGcrj0klF3qxns73s6epIWU=;
+	b=uJQtrjdj9oXf/AKrXDVT7hGI/ZDDOgXIk/L7tt+W95ivj08BwhmMKgIcFjjjvixpfvIyWj
+	BqKHha515htmeRAQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1709033937; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=TO71hQgks4/Pgbc4cHdHdGcrj0klF3qxns73s6epIWU=;
+	b=YUxT1Hfe+ztfUp218ZjVGn8HEvrZ7g2zVqDs1uph3Uo6V13zajBOg16zcoDD7N2K7fO+MG
+	JiGZ4+k12Oheg37OrnC7mQ3UID4p/q55mTBlerU73BNmCbKLsgjE/o/ZYPI8O4C2GYKRQ0
+	v+Zaav+koMdR9R6H+KS9STBK8MyDias=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1709033937;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=TO71hQgks4/Pgbc4cHdHdGcrj0klF3qxns73s6epIWU=;
+	b=uJQtrjdj9oXf/AKrXDVT7hGI/ZDDOgXIk/L7tt+W95ivj08BwhmMKgIcFjjjvixpfvIyWj
+	BqKHha515htmeRAQ==
+Received: from imap2.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap2.dmz-prg2.suse.org (Postfix) with ESMTPS id 370DB13ABC;
+	Tue, 27 Feb 2024 11:38:56 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([10.150.64.162])
+	by imap2.dmz-prg2.suse.org with ESMTPSA
+	id OOEHDNDJ3WVMUQAAn2gu4w
+	(envelope-from <tzimmermann@suse.de>); Tue, 27 Feb 2024 11:38:56 +0000
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: daniel@ffwll.ch,
+	airlied@gmail.com,
+	mripard@kernel.org,
+	maarten.lankhorst@linux.intel.com,
+	christian.koenig@amd.com,
+	sumit.semwal@linaro.org,
+	dmitry.osipenko@collabora.com,
+	robdclark@gmail.com,
+	quic_abhinavk@quicinc.com,
+	dmitry.baryshkov@linaro.org,
+	sean@poorly.run,
+	marijn.suijten@somainline.org,
+	suijingfeng@loongson.cn,
+	kherbst@redhat.com,
+	lyude@redhat.com,
+	dakr@redhat.com,
+	airlied@redhat.com,
+	kraxel@redhat.com,
+	alexander.deucher@amd.com,
+	Xinhui.Pan@amd.com,
+	zack.rusin@broadcom.com,
+	bcm-kernel-feedback-list@broadcom.com
+Cc: dri-devel@lists.freedesktop.org,
+	linux-arm-msm@vger.kernel.org,
+	freedreno@lists.freedesktop.org,
+	nouveau@lists.freedesktop.org,
+	virtualization@lists.linux.dev,
+	spice-devel@lists.freedesktop.org,
+	amd-gfx@lists.freedesktop.org,
+	Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH 01/13] drm/gem-shmem: Acquire reservation lock in GEM pin/unpin callbacks
+Date: Tue, 27 Feb 2024 11:14:48 +0100
+Message-ID: <20240227113853.8464-2-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.43.2
+In-Reply-To: <20240227113853.8464-1-tzimmermann@suse.de>
+References: <20240227113853.8464-1-tzimmermann@suse.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240216142502.78095-1-jonah.palmer@oracle.com> <CAPpAL=zp+VxFUNw5W2jB0ENhYZ4Ts5+gAH7cQu-7LMhFnApqrA@mail.gmail.com>
-In-Reply-To: <CAPpAL=zp+VxFUNw5W2jB0ENhYZ4Ts5+gAH7cQu-7LMhFnApqrA@mail.gmail.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Tue, 27 Feb 2024 11:49:46 +0100
-Message-ID: <CAJaqyWe4V23-Koadp3dQhmfmZyDP9dhS56s1ObwJgb+Veb+Twg@mail.gmail.com>
-Subject: Re: [PATCH v2] vdpa/mlx5: Allow CVQ size changes
-To: Lei Yang <leiyang@redhat.com>
-Cc: Jonah Palmer <jonah.palmer@oracle.com>, mst@redhat.com, jasowang@redhat.com, 
-	xuanzhuo@linux.alibaba.com, si-wei.liu@oracle.com, 
-	virtualization@lists.linux-foundation.org, dtatulea@nvidia.com, 
-	boris.ostrovsky@oracle.com, linux-kernel@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Spam-Level: 
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=YUxT1Hfe;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=uJQtrjdj
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Spamd-Result: default: False [-1.23 / 50.00];
+	 RCVD_VIA_SMTP_AUTH(0.00)[];
+	 SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:98:from];
+	 TO_DN_SOME(0.00)[];
+	 R_MISSING_CHARSET(2.50)[];
+	 BROKEN_CONTENT_TYPE(1.50)[];
+	 R_RATELIMIT(0.00)[to_ip_from(RLo3wgn6xaqcdyw4c639zmwwtu)];
+	 RCVD_COUNT_THREE(0.00)[3];
+	 DKIM_TRACE(0.00)[suse.de:+];
+	 MX_GOOD(-0.01)[];
+	 NEURAL_HAM_SHORT(-0.20)[-1.000];
+	 FREEMAIL_TO(0.00)[ffwll.ch,gmail.com,kernel.org,linux.intel.com,amd.com,linaro.org,collabora.com,quicinc.com,poorly.run,somainline.org,loongson.cn,redhat.com,broadcom.com];
+	 FROM_EQ_ENVFROM(0.00)[];
+	 MIME_TRACE(0.00)[0:+];
+	 BAYES_HAM(-2.72)[98.78%];
+	 ARC_NA(0.00)[];
+	 R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	 FROM_HAS_DN(0.00)[];
+	 DWL_DNSWL_MED(-2.00)[suse.de:dkim];
+	 FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	 TO_MATCH_ENVRCPT_ALL(0.00)[];
+	 MIME_GOOD(-0.10)[text/plain];
+	 NEURAL_HAM_LONG(-1.00)[-1.000];
+	 DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	 RCPT_COUNT_TWELVE(0.00)[30];
+	 MID_CONTAINS_FROM(1.00)[];
+	 DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,suse.de:email];
+	 FUZZY_BLOCKED(0.00)[rspamd.com];
+	 RCVD_TLS_ALL(0.00)[]
+X-Spam-Score: -1.23
+X-Rspamd-Queue-Id: F353F1FB92
+X-Spam-Flag: NO
 
-On Mon, Feb 19, 2024 at 2:09=E2=80=AFAM Lei Yang <leiyang@redhat.com> wrote=
-:
->
-> QE tested this patch's V2, qemu no longer print error messages
-> "qemu-system-x86_64: Insufficient written data (0)" after
-> enable/disable multi queues multi times inside guest. Both "x-svq=3Don
-> '' and without it are all test pass.
->
-> Tested-by: Lei Yang <leiyang@redhat.com>
->
-> On Fri, Feb 16, 2024 at 10:25=E2=80=AFPM Jonah Palmer <jonah.palmer@oracl=
-e.com> wrote:
-> >
-> > The MLX driver was not updating its control virtqueue size at set_vq_nu=
-m
-> > and instead always initialized to MLX5_CVQ_MAX_ENT (16) at
-> > setup_cvq_vring.
-> >
-> > Qemu would try to set the size to 64 by default, however, because the
-> > CVQ size always was initialized to 16, an error would be thrown when
-> > sending >16 control messages (as used-ring entry 17 is initialized to 0=
-).
-> > For example, starting a guest with x-svq=3Don and then executing the
-> > following command would produce the error below:
-> >
-> >  # for i in {1..20}; do ifconfig eth0 hw ether XX:xx:XX:xx:XX:XX; done
-> >
-> >  qemu-system-x86_64: Insufficient written data (0)
-> >  [  435.331223] virtio_net virtio0: Failed to set mac address by vq com=
-mand.
-> >  SIOCSIFHWADDR: Invalid argument
-> >
+Export drm_gem_shmem_pin_locked() and acquire the reservation lock
+directly in GEM pin callback. Same for unpin. Prepares for further
+changes.
 
-Also,
+Dma-buf locking semantics require callers to hold the buffer's
+reservation lock when invoking the pin and unpin callbacks. Prepare
+gem-shmem accordingly by pushing locking out of the implementation.
+A follow-up patch will fix locking for all GEM code at once.
 
-Fixes: 5262912ef3cf ("vdpa/mlx5: Add support for control VQ and MAC setting=
-")
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+---
+ drivers/gpu/drm/drm_gem_shmem_helper.c |  6 ++++--
+ include/drm/drm_gem_shmem_helper.h     | 16 ++++++++++++++--
+ 2 files changed, 18 insertions(+), 4 deletions(-)
 
-> > Acked-by: Dragos Tatulea <dtatulea@nvidia.com>
-> > Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-> > Signed-off-by: Jonah Palmer <jonah.palmer@oracle.com>
-> > ---
-> >  drivers/vdpa/mlx5/net/mlx5_vnet.c | 13 +++++++++----
-> >  1 file changed, 9 insertions(+), 4 deletions(-)
-> >
-> > diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/=
-mlx5_vnet.c
-> > index 778821bab7d9..ecfc16151d61 100644
-> > --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > @@ -151,8 +151,6 @@ static void teardown_driver(struct mlx5_vdpa_net *n=
-dev);
-> >
-> >  static bool mlx5_vdpa_debug;
-> >
-> > -#define MLX5_CVQ_MAX_ENT 16
-> > -
-> >  #define MLX5_LOG_VIO_FLAG(_feature)                                   =
-                             \
-> >         do {                                                           =
-                            \
-> >                 if (features & BIT_ULL(_feature))                      =
-                            \
-> > @@ -2276,9 +2274,16 @@ static void mlx5_vdpa_set_vq_num(struct vdpa_dev=
-ice *vdev, u16 idx, u32 num)
-> >         struct mlx5_vdpa_net *ndev =3D to_mlx5_vdpa_ndev(mvdev);
-> >         struct mlx5_vdpa_virtqueue *mvq;
-> >
-> > -       if (!is_index_valid(mvdev, idx) || is_ctrl_vq_idx(mvdev, idx))
-> > +       if (!is_index_valid(mvdev, idx))
-> >                 return;
-> >
-> > +        if (is_ctrl_vq_idx(mvdev, idx)) {
-> > +                struct mlx5_control_vq *cvq =3D &mvdev->cvq;
-> > +
-> > +                cvq->vring.vring.num =3D num;
-> > +                return;
-> > +        }
-> > +
-> >         mvq =3D &ndev->vqs[idx];
-> >         mvq->num_ent =3D num;
-> >  }
-> > @@ -2963,7 +2968,7 @@ static int setup_cvq_vring(struct mlx5_vdpa_dev *=
-mvdev)
-> >                 u16 idx =3D cvq->vring.last_avail_idx;
-> >
-> >                 err =3D vringh_init_iotlb(&cvq->vring, mvdev->actual_fe=
-atures,
-> > -                                       MLX5_CVQ_MAX_ENT, false,
-> > +                                       cvq->vring.vring.num, false,
-> >                                         (struct vring_desc *)(uintptr_t=
-)cvq->desc_addr,
-> >                                         (struct vring_avail *)(uintptr_=
-t)cvq->driver_addr,
-> >                                         (struct vring_used *)(uintptr_t=
-)cvq->device_addr);
-> > --
-> > 2.39.3
-> >
->
-
-There is another related issue in both mlx and vdpa_sim, although I
-think it does not cause any direct bug. They both return a hardcoded
-256 in .get_vq_num_max, although they both accept bigger sizes with
-.set_vq_num.
-
-QEMU just never calls .get_vq_num_max, so it does not forward this
-maximum to the guest.
-
-To be aligned with the VirtIO standard it should return the actual
-maximum, which I think is only bounded by the uint16_t maximum in the
-packed case and the half in the case of split, due to the requisite of
-being a power of 2. This is a very big value however, so I think the
-right solution is to allow to specify this maximum on vdpa command
-line tool.
-
-Moreover, the virtio standard allows the device to set different max Q
-size values per virtqueue, something that the vdpa ops does not allow
-as it cannot tell between queues, is a per device vdpa_op.
-
-Having said that, maybe it is not worth all the trouble, as it has not
-been reported to cause any issue?
-
-Thanks!
+diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
+index e435f986cd135..0ac3dddb917f3 100644
+--- a/drivers/gpu/drm/drm_gem_shmem_helper.c
++++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
+@@ -228,7 +228,7 @@ void drm_gem_shmem_put_pages(struct drm_gem_shmem_object *shmem)
+ }
+ EXPORT_SYMBOL(drm_gem_shmem_put_pages);
+ 
+-static int drm_gem_shmem_pin_locked(struct drm_gem_shmem_object *shmem)
++int drm_gem_shmem_pin_locked(struct drm_gem_shmem_object *shmem)
+ {
+ 	int ret;
+ 
+@@ -238,13 +238,15 @@ static int drm_gem_shmem_pin_locked(struct drm_gem_shmem_object *shmem)
+ 
+ 	return ret;
+ }
++EXPORT_SYMBOL(drm_gem_shmem_pin_locked);
+ 
+-static void drm_gem_shmem_unpin_locked(struct drm_gem_shmem_object *shmem)
++void drm_gem_shmem_unpin_locked(struct drm_gem_shmem_object *shmem)
+ {
+ 	dma_resv_assert_held(shmem->base.resv);
+ 
+ 	drm_gem_shmem_put_pages(shmem);
+ }
++EXPORT_SYMBOL(drm_gem_shmem_unpin_locked);
+ 
+ /**
+  * drm_gem_shmem_pin - Pin backing pages for a shmem GEM object
+diff --git a/include/drm/drm_gem_shmem_helper.h b/include/drm/drm_gem_shmem_helper.h
+index bf0c31aa8fbe4..eb12aa9a8c556 100644
+--- a/include/drm/drm_gem_shmem_helper.h
++++ b/include/drm/drm_gem_shmem_helper.h
+@@ -108,6 +108,9 @@ void drm_gem_shmem_vunmap(struct drm_gem_shmem_object *shmem,
+ 			  struct iosys_map *map);
+ int drm_gem_shmem_mmap(struct drm_gem_shmem_object *shmem, struct vm_area_struct *vma);
+ 
++int drm_gem_shmem_pin_locked(struct drm_gem_shmem_object *shmem);
++void drm_gem_shmem_unpin_locked(struct drm_gem_shmem_object *shmem);
++
+ int drm_gem_shmem_madvise(struct drm_gem_shmem_object *shmem, int madv);
+ 
+ static inline bool drm_gem_shmem_is_purgeable(struct drm_gem_shmem_object *shmem)
+@@ -172,8 +175,15 @@ static inline void drm_gem_shmem_object_print_info(struct drm_printer *p, unsign
+ static inline int drm_gem_shmem_object_pin(struct drm_gem_object *obj)
+ {
+ 	struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
++	int ret;
++
++	ret = dma_resv_lock_interruptible(shmem->base.resv, NULL);
++	if (ret)
++		return ret;
++	ret = drm_gem_shmem_pin_locked(shmem);
++	dma_resv_unlock(shmem->base.resv);
+ 
+-	return drm_gem_shmem_pin(shmem);
++	return ret;
+ }
+ 
+ /**
+@@ -187,7 +197,9 @@ static inline void drm_gem_shmem_object_unpin(struct drm_gem_object *obj)
+ {
+ 	struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
+ 
+-	drm_gem_shmem_unpin(shmem);
++	dma_resv_lock(shmem->base.resv, NULL);
++	drm_gem_shmem_unpin_locked(shmem);
++	dma_resv_unlock(shmem->base.resv);
+ }
+ 
+ /**
+-- 
+2.43.2
 
