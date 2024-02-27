@@ -1,92 +1,132 @@
-Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [46.235.227.194])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A671535AE
-	for <virtualization@lists.linux.dev>; Tue, 27 Feb 2024 16:00:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB3036A338
+	for <virtualization@lists.linux.dev>; Tue, 27 Feb 2024 18:15:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.235.227.194
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709049603; cv=none; b=LjoWp61lxAzpa/iBowlSeNwPbDEFm3y8QkOWruy8TWQiMGHmwcrIicCLowFbQ8+SZ8XEK1oc2KCDDA89yjJK6GokRTR87utGdAJGwNhmR4he+e5FA8tT0bTDF0S9xt5Dl+o3P458jp+t2QsLUXzR0vwi0PPukIMMLFVSihoGRiM=
+	t=1709057705; cv=none; b=h5G8rWoePlrA6ec+KzM96yj3GXSw5FUdbAVID+bQbSwS44oBuLxDTl6R7FyErwZ39Y4RMpOQVWy7UJK2eWt4HPQHABky2uU1uj5Dc7LKnGJX3iiUq3uxBdGJYVlNbEOyW2iRzUW9Ae0kIz6SmJtAQr+aqg6vxukvuTN2j2eYnZY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709049603; c=relaxed/simple;
-	bh=tKB3i2ULzUxqcZteb4ZQczEAibcM9FOTotdV80h3GfI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=YR9ivHxfhpA0uPE+kaZmLUH0zl4efCItk7SQSAO+Ds0TcWvs7I7iBPWLmbAUxeE0dqjq/PBYzQuOsmjNLSx1m/2F454wTdM9QK5LyrpajePFMEMNseusoedSNTk6leF7Fw6OAGnccLxrlFI6KOp/6Afw5d7f3MWwNS+5dvAgl1k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=NajQPw57; arc=none smtp.client-ip=209.85.128.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+	s=arc-20240116; t=1709057705; c=relaxed/simple;
+	bh=+YGlht2j8DKNiyJTxizt7m7K6VT5e57wafvM3lFhmI0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=WYef12y/VDOjSoZSZsnknwL+aMGpXx8bDRozk7+xZkSdGcHerPaHTsTPS4AL4GCNQyOMrSXZdP9goWH6NLliHEmzOSjfUi2b3spd+UWVVR1v2+gve9MmL2P6tocrtq+fkJLwLjd5PlPvpFJLW9urq4Rf6yol4WVGVOjFvihSslM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=g3bMKRZR; arc=none smtp.client-ip=46.235.227.194
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="NajQPw57"
-Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-412a3903586so18677555e9.3
-        for <virtualization@lists.linux.dev>; Tue, 27 Feb 2024 08:00:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1709049600; x=1709654400; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=3y4We/I/OAkRE57RPqipAeKw/rV+o/vnjOiV2Pndg08=;
-        b=NajQPw57PmnYV1qYRlnbRg2Hud+F1UDrryHbSGOsNsa7rIGmPk1AQPi3hEmyWBvIq7
-         EJlwd2TMgmx8injL7EQkqGNNu+WEcIbA/0nc+8Ba3Bbfdb5NY9ox6t+paG0rPzfe+k0A
-         rg/K5NLBlXgikBSFcGxJhOhMO/XTNc4U49MMMK4RHJN6cdkcvm0KmbAupt+zlU7chb4W
-         XeLWnhGEQf6jh8NLtmUoFviKL9CWN5kZ8iVW9pzLjHFJJh1k71ku0Axmq7JiNSdWG2wJ
-         grsoAtQ+7QQ9JYztLA39nuFTKZLAFBN30yXAWyKdo9MT/EHCoItPcpPOIzAFsk6xMcPw
-         2fsg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1709049600; x=1709654400;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=3y4We/I/OAkRE57RPqipAeKw/rV+o/vnjOiV2Pndg08=;
-        b=MRCodTVj8qQPj/ydrtW4RsiP8EG8gvOsfl66E1gKa4qxV1XGugOCi9LyuvsX640kPG
-         BdP3bAQwPW6B41xHKJGxtMDV+VO63wCaoM9Bgl/6IxWxr3yk3bYlbFok4Id33FVqZItJ
-         GMUEH6NsL2BXrh1zA3kneXokUo8did0Y4pBw870oVFKGw6hwyMCCr5ydu1LnM+m0RFUc
-         t55yUHzBzJA+p1/eIDx9htZy0wbHiKVB1Re4ZiB5oZjimWg6tLNbNtg9E088YaxnJCJS
-         gsOCP4Ce66E5ECEqLq+bugqtbP6DRYgQfUDn4l0J+ub/FbwLBymJW+aSP89OBlUveT8d
-         D0Vg==
-X-Forwarded-Encrypted: i=1; AJvYcCV6VPEkhjNcUdf9IgvOw6Zbdi0gfl1RFZW8CsF6jeQGakggOugr/p4zS1j+FH7m8anj7oY5nl8BJy0dZVn/AbJNCzZO9AcWLlSWun20628=
-X-Gm-Message-State: AOJu0YxWjTmKw5tzCH7RspeMg/qO6J3X7KcfsXdVyMnmt73iQsJnlU85
-	Lww1Xh99iGZ69YJtOgjOz6eI6pegQtzTjtOkZ1AXp2XGQsNcZjreTGOIuu9OyRI=
-X-Google-Smtp-Source: AGHT+IFN22/PPS0qL2fxWHOrSnH0K36g5mA/lXRY/+/guJN2/bh1+PTY0kVY+08pzvReMFEyRZLSSw==
-X-Received: by 2002:a05:600c:1c8d:b0:412:afa6:cf3a with SMTP id k13-20020a05600c1c8d00b00412afa6cf3amr1073126wms.32.1709049600456;
-        Tue, 27 Feb 2024 08:00:00 -0800 (PST)
-Received: from localhost ([193.47.165.251])
-        by smtp.gmail.com with ESMTPSA id 20-20020a05600c22d400b0041069adbd87sm15255037wmg.21.2024.02.27.07.59.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Feb 2024 07:59:59 -0800 (PST)
-Date: Tue, 27 Feb 2024 16:59:56 +0100
-From: Jiri Pirko <jiri@resnulli.us>
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, netdev@vger.kernel.org,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH net-next v3 5/6] virtio_net: add the total stats field
-Message-ID: <Zd4G_GttG0XtQ0wz@nanopsycho>
-References: <20240227080303.63894-1-xuanzhuo@linux.alibaba.com>
- <20240227080303.63894-6-xuanzhuo@linux.alibaba.com>
- <20240227065424.2548eccd@kernel.org>
- <Zd36oZMvIvqtNSzr@nanopsycho>
- <20240227074117.128af8ca@kernel.org>
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="g3bMKRZR"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1709057701;
+	bh=+YGlht2j8DKNiyJTxizt7m7K6VT5e57wafvM3lFhmI0=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=g3bMKRZR8z46141kcoZ+/3ISYqCWcnf2sDx309BP6HtZ5OMyM1xvUwcax9hAxy/B5
+	 91N9GfiPOvoR2alFxNnQpooyTqAtUmAs7HqMK4pX8L7whYcPnyjZUgKN1r8u4hdUH+
+	 UJyn17e6HXA+5rPlTmHYhxPngj5uSP3icELO1rnNY5dGY7bN42Ot7nvW4LvB+ot4SJ
+	 CAUG+el9HsuiCmXP9KodUlbfOb8o2QlAVUATRalEsdXHFC1EaJ+nxfqwvOz5fR26aK
+	 b7fTsR1RrX7ubrIkRzSSVbLTTyjQTwLI9hmQapb+GkZp7FmwoVVsFrg2CWGAe2iGdc
+	 bLXAlX4YE+fZQ==
+Received: from [100.109.49.129] (cola.collaboradmins.com [195.201.22.229])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: dmitry.osipenko)
+	by madrid.collaboradmins.com (Postfix) with ESMTPSA id CDEBB378000B;
+	Tue, 27 Feb 2024 18:14:59 +0000 (UTC)
+Message-ID: <d854f70b-1d62-4da7-bfbd-2184456d1d25@collabora.com>
+Date: Tue, 27 Feb 2024 21:14:57 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240227074117.128af8ca@kernel.org>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 00/13] drm: Fix reservation locking for pin/unpin and
+ console
+To: Thomas Zimmermann <tzimmermann@suse.de>, daniel@ffwll.ch,
+ airlied@gmail.com, mripard@kernel.org, maarten.lankhorst@linux.intel.com,
+ christian.koenig@amd.com, sumit.semwal@linaro.org, robdclark@gmail.com,
+ quic_abhinavk@quicinc.com, dmitry.baryshkov@linaro.org, sean@poorly.run,
+ marijn.suijten@somainline.org, suijingfeng@loongson.cn, kherbst@redhat.com,
+ lyude@redhat.com, dakr@redhat.com, airlied@redhat.com, kraxel@redhat.com,
+ alexander.deucher@amd.com, Xinhui.Pan@amd.com, zack.rusin@broadcom.com,
+ bcm-kernel-feedback-list@broadcom.com
+Cc: dri-devel@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
+ freedreno@lists.freedesktop.org, nouveau@lists.freedesktop.org,
+ virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org,
+ amd-gfx@lists.freedesktop.org
+References: <20240227113853.8464-1-tzimmermann@suse.de>
+Content-Language: en-US
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <20240227113853.8464-1-tzimmermann@suse.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Tue, Feb 27, 2024 at 04:41:17PM CET, kuba@kernel.org wrote:
->On Tue, 27 Feb 2024 16:07:13 +0100 Jiri Pirko wrote:
->> >Please wait for this API to get merged:
->> >https://lore.kernel.org/all/20240226211015.1244807-1-kuba@kernel.org/
->> >A lot of the stats you're adding here can go into the new API.  
->> 
->> Can. But does that mean that ethtool additions of things like this
->> will be rejected after that?
->
->As a general policy, yes, the same way we reject duplicating other
->existing stats.
+Hello,
 
-Makes sense.
+Thank you for the patches!
+
+On 2/27/24 13:14, Thomas Zimmermann wrote:
+> Dma-buf locking semantics require the caller of pin and unpin to hold
+> the buffer's reservation lock. Fix DRM to adhere to the specs. This
+> enables to fix the locking in DRM's console emulation. Similar changes
+> for vmap and mmap have been posted at [1][2]
+> 
+> Most DRM drivers and memory managers acquire the buffer object's
+> reservation lock within their GEM pin and unpin callbacks. This
+> violates dma-buf locking semantics. We get away with it because PRIME
+> does not provide pin/unpin, but attach/detach, for which the locking
+> semantics is correct.
+> 
+> Patches 1 to 8 rework DRM GEM code in various implementations to
+> acquire the reservation lock when entering the pin and unpin callbacks.
+> This prepares them for the next patch. Drivers that are not affected
+> by these patches either don't acquire the reservation lock (amdgpu)
+> or don't need preparation (loongson).
+> 
+> Patch 9 moves reservation locking from the GEM pin/unpin callbacks
+> into drm_gem_pin() and drm_gem_unpin(). As PRIME uses these functions
+> internally it still gets the reservation lock.
+> 
+> With the updated GEM callbacks, the rest of the patchset fixes the
+> fbdev emulation's buffer locking. Fbdev emulation needs to keep its
+> GEM buffer object inplace while updating its content. This required
+> a implicit pinning and apparently amdgpu didn't do this at all.
+> 
+> Patch 10 introduces drm_client_buffer_vmap_local() and _vunmap_local().
+> The former function map a GEM buffer into the kernel's address space
+> with regular vmap operations, but keeps holding the reservation lock.
+> The _vunmap_local() helper undoes the vmap and releases the lock. The
+> updated GEM callbacks make this possible. Between the two calls, the
+> fbdev emulation can update the buffer content without have the buffer
+> moved or evicted. Update fbdev-generic to use vmap_local helpers,
+> which fix amdgpu. The idea of adding a "local vmap" has previously been
+> attempted at [3] in a different form.
+> 
+> Patch 11 adds implicit pinning to the DRM client's regular vmap
+> helper so that long-term vmap'ed buffers won't be evicted. This only
+> affects fbdev-dma, but GEM DMA helpers don't require pinning. So
+> there are no practical changes.
+> 
+> Patches 12 and 13 remove implicit pinning from the vmap and vunmap
+> operations in gem-vram and qxl. These pin operations are not supposed
+> to be part of vmap code, but were required to keep the buffers in place
+> for fbdev emulation. With the conversion o ffbdev-generic to to
+> vmap_local helpers, that code can finally be removed.
+
+Isn't it a common behaviour for all DRM drivers to implicitly pin BO
+while it's vmapped? I was sure it should be common /o\
+
+Why would you want to kmap BO that isn't pinned?
+
+Shouldn't TTM's vmap() be changed to do the pinning?
+
+I missed that TTM doesn't pin BO on vmap() and now surprised to see it.
+It should be a rather serious problem requiring backporting of the
+fixes, but I don't see the fixes tags on the patches (?)
+
+-- 
+Best regards,
+Dmitry
+
