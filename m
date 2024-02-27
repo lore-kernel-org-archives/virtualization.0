@@ -1,45 +1,25 @@
-Received: from mailbox.box.xen0n.name (mail.xen0n.name [115.28.160.31])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82C88130E27;
-	Tue, 27 Feb 2024 09:10:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.28.160.31
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 37BC856466;
+	Tue, 27 Feb 2024 09:52:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709025007; cv=none; b=dL8sJhHHCEbyR6RzO996MwLzUU1WgedawaA1yCl8q7xGi7x98KlOGIVowqgKMhi5WJWqkuPNrbvZL5W3VN7DdIjrR7Ppzm1ACSjW9hbSb+hos3Qib9KeR/0n2wl1flRyG/Rscq/ddPuXwXwWkIm/3qU0qAEhJqz24OXE+mHLsyQ=
+	t=1709027535; cv=none; b=b+D9Rh6yVoMuweKenvFuULByrZ5mjhsB1qUWq91lGjSp0evC91vlMTtOUJMXiny++6syQqeVb3B+b3fJV8MdkzDEBHxpaNdYMct7FJizumEfK9J0Gm8VD10wKZLSJ5TtDRS+/sQ73q96KMKVHEVSbW9LfP6B1yVr/oNwDv00y1g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709025007; c=relaxed/simple;
-	bh=2QRwkyDopjViBhgivlkaR7KknT+WqiWIyxPXfwZSt8Q=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=kD/NRAxbOlqdSqI1Ai3VcqbVDZvH0HonvGzZz53RKxUx0gQ11ZkOecNLC25bnH8MGRJgY4BrnpnjxJxZQb4+/FoedCuySadDKxo6u8ctkU54DQlcEv15RHDDt2xI0M9/2N7PWgU1bh+c0XEjqGVQd0JalKCPdeL33GJ9vfL1B4M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xen0n.name; spf=pass smtp.mailfrom=xen0n.name; dkim=pass (1024-bit key) header.d=xen0n.name header.i=@xen0n.name header.b=DbP/vRRH; arc=none smtp.client-ip=115.28.160.31
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xen0n.name
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xen0n.name
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=xen0n.name header.i=@xen0n.name header.b="DbP/vRRH"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=xen0n.name; s=mail;
-	t=1709025003; bh=2QRwkyDopjViBhgivlkaR7KknT+WqiWIyxPXfwZSt8Q=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=DbP/vRRH4BosyygfDh5mT7aMTFLMz8aCKTN5MEzw48pICGSPDW6KdryxvvXGaQgC6
-	 BVNH6usoU10utBRYtr14JSVuw4Zz4Cr855oxMIh4vl3wzQHCd4Jt0s849wGSDNwKcO
-	 qsk7/KRaytNeBtRd3UXMDFREBwUNIwgOXwbMGyFY=
-Received: from [28.0.0.1] (unknown [101.230.251.34])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mailbox.box.xen0n.name (Postfix) with ESMTPSA id 1305A60150;
-	Tue, 27 Feb 2024 17:10:03 +0800 (CST)
-Message-ID: <327808dd-ac34-4c61-9992-38642acc9419@xen0n.name>
-Date: Tue, 27 Feb 2024 17:10:02 +0800
-Precedence: bulk
-X-Mailing-List: virtualization@lists.linux.dev
-List-Id: <virtualization.lists.linux.dev>
-List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
-List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
+	s=arc-20240116; t=1709027535; c=relaxed/simple;
+	bh=Cqn5IP45YhhILCijJAtbO8jWBeRWihbMdcIirdKca3Y=;
+	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=mq0bKWtEGutt3mxh566diGaVL9hq0f85KMVNTImoJJ9uaAG5+urcHTBrYdsX0WA8a+Ho2BSmHN+xje6gm2KnbvZIw0yIvik1GuQoF7VfCao7ACjbBMSQ8Y2VIsHCqYmpXmtbvB8qITLsKBl+23qJs5z8XrB0WL7SixyPZkaz3b8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.20.42.173])
+	by gateway (Coremail) with SMTP id _____8AxqvDKsN1lfeYRAA--.45777S3;
+	Tue, 27 Feb 2024 17:52:10 +0800 (CST)
+Received: from [10.20.42.173] (unknown [10.20.42.173])
+	by localhost.localdomain (Coremail) with SMTP id AQAAf8DxfRPJsN1l2LZHAA--.26685S3;
+	Tue, 27 Feb 2024 17:52:10 +0800 (CST)
 Subject: Re: [PATCH v5 3/6] LoongArch: KVM: Add cpucfg area for kvm hypervisor
-Content-Language: en-US
-To: maobibo <maobibo@loongson.cn>, Jiaxun Yang <jiaxun.yang@flygoat.com>,
+To: Xi Ruoyao <xry111@xry111.site>, Jiaxun Yang <jiaxun.yang@flygoat.com>,
  Huacai Chen <chenhuacai@kernel.org>
 Cc: Tianrui Zhao <zhaotianrui@loongson.cn>, Juergen Gross <jgross@suse.com>,
  Paolo Bonzini <pbonzini@redhat.com>, loongarch@lists.linux.dev,
@@ -53,81 +33,70 @@ References: <20240222032803.2177856-1-maobibo@loongson.cn>
  <06647e4a-0027-9c9f-f3bd-cd525d37b6d8@loongson.cn>
  <85781278-f3e9-4755-8715-3b9ff714fb20@app.fastmail.com>
  <0d428e30-07a8-5a91-a20c-c2469adbf613@loongson.cn>
-From: WANG Xuerui <kernel@xen0n.name>
-In-Reply-To: <0d428e30-07a8-5a91-a20c-c2469adbf613@loongson.cn>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+ <09c5af9b-cc79-4cf2-84f7-276bb188754a@app.fastmail.com>
+ <fc05cf09-bf53-158a-3cc9-eff6f06a220a@loongson.cn>
+ <f1ba53fd2a99949187ca392c6d4488d3d5aeaf88.camel@xry111.site>
+From: maobibo <maobibo@loongson.cn>
+Message-ID: <e04a527b-2d9d-cfcd-e6ed-e8bd390649dd@loongson.cn>
+Date: Tue, 27 Feb 2024 17:52:33 +0800
+User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
+Precedence: bulk
+X-Mailing-List: virtualization@lists.linux.dev
+List-Id: <virtualization.lists.linux.dev>
+List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
+List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+In-Reply-To: <f1ba53fd2a99949187ca392c6d4488d3d5aeaf88.camel@xry111.site>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:AQAAf8DxfRPJsN1l2LZHAA--.26685S3
+X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
+X-Coremail-Antispam: 1Uk129KBj9xXoW7XrW7tryxtw4kAF48uF4kGrX_yoWfAwbE9r
+	47tr9xAw1qyr4xG3y2y3y7CFW3Ga1DCFyqv3yxGas3W345JFyUWF1xuF1fA3WIqa4UZrn3
+	CF1qq3yaqa4avosvyTuYvTs0mTUanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUj1kv1TuYvT
+	s0mT0YCTnIWjqI5I8CrVACY4xI64kE6c02F40Ex7xfYxn0WfASr-VFAUDa7-sFnT9fnUUI
+	cSsGvfJTRUUUbaAYFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1xkIjI8I6I8E6xAIw20EY4v20x
+	vaj40_Wr0E3s1l1IIY67AEw4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxS
+	w2x7M28EF7xvwVC0I7IYx2IY67AKxVW8JVW5JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxV
+	W8JVWxJwA2z4x0Y4vEx4A2jsIE14v26r4UJVWxJr1l84ACjcxK6I8E87Iv6xkF7I0E14v2
+	6r4UJVWxJr1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqjxCEc2xF0cIa020Ex4CE44I27w
+	Aqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_Jr4lYx0Ex4A2jsIE
+	14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvEwIxGrwCYjI0SjxkI62AI1c
+	AE67vIY487MxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMxCIbckI1I0E
+	14v26r1Y6r17MI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4
+	CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1x
+	MIIF0xvE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF
+	4lIxAIcVC2z280aVAFwI0_Gr0_Cr1lIxAIcVC2z280aVCY1x0267AKxVW8JVW8JrUvcSsG
+	vfC2KfnxnUUI43ZEXa7IU82-e7UUUUU==
 
-On 2/27/24 11:14, maobibo wrote:
+
+
+On 2024/2/27 下午5:05, Xi Ruoyao wrote:
+> On Tue, 2024-02-27 at 15:09 +0800, maobibo wrote:
 > 
+>> It is difficult to find an area unused by HW for CSR method since the
+>> small CSR ID range.
 > 
-> On 2024/2/27 上午4:02, Jiaxun Yang wrote:
->>
->>
->> 在2024年2月26日二月 上午8:04，maobibo写道：
->>> On 2024/2/26 下午2:12, Huacai Chen wrote:
->>>> On Mon, Feb 26, 2024 at 10:04 AM maobibo <maobibo@loongson.cn> wrote:
->>>>>
->>>>>
->>>>>
->>>>> On 2024/2/24 下午5:13, Huacai Chen wrote:
->>>>>> Hi, Bibo,
->>>>>>
->>>>>> On Thu, Feb 22, 2024 at 11:28 AM Bibo Mao <maobibo@loongson.cn> 
->>>>>> wrote:
->>>>>>>
->>>>>>> Instruction cpucfg can be used to get processor features. And there
->>>>>>> is trap exception when it is executed in VM mode, and also it is
->>>>>>> to provide cpu features to VM. On real hardware cpucfg area 0 - 20
->>>>>>> is used.  Here one specified area 0x40000000 -- 0x400000ff is used
->>>>>>> for KVM hypervisor to privide PV features, and the area can be 
->>>>>>> extended
->>>>>>> for other hypervisors in future. This area will never be used for
->>>>>>> real HW, it is only used by software.
->>>>>> After reading and thinking, I find that the hypercall method which is
->>>>>> used in our productive kernel is better than this cpucfg method.
->>>>>> Because hypercall is more simple and straightforward, plus we don't
->>>>>> worry about conflicting with the real hardware.
->>>>> No, I do not think so. cpucfg is simper than hypercall, hypercall can
->>>>> be in effect when system runs in guest mode. In some scenario like TCG
->>>>> mode, hypercall is illegal intruction, however cpucfg can work.
->>>> Nearly all architectures use hypercall except x86 for its historical
->>> Only x86 support multiple hypervisors and there is multiple hypervisor
->>> in x86 only. It is an advantage, not historical reason.
->>
->> I do believe that all those stuff should not be exposed to guest user 
->> space
->> for security reasons.
-> Can you add PLV checking when cpucfg 0x40000000-0x400000FF is emulated? 
-> if it is user mode return value is zero and it is kernel mode emulated 
-> value will be returned. It can avoid information leaking.
+> We may use IOCSR instead.  In kernel/cpu-probe.c there are already some
+> IOCSR reads.
 
-I've suggested this approach in another reply [1], but I've rechecked 
-the manual, and it turns out this behavior is not permitted by the 
-current wording. See LoongArch Reference Manual v1.10, Volume 1, Section 
-2.2.10.5 "CPUCFG":
+yes, IOCSR can be used and one IOCSR area will be reserved for software. 
+In general CSR/CPUCFG is to describe CPU features and IOCSR is to 
+describe board/device features.
 
- > CPUCFG 访问未定义的配置字将读回全 0 值。
- >
- > Reads of undefined CPUCFG configuration words shall return all-zeroes.
+CSR area is limited to 16K, it is difficult for HW guys to reserve 
+special area for software usage. IOCSR/CPUCFG is possible however.
 
-This sentence mentions no distinction based on privilege modes, so it 
-can only mean the behavior applies universally regardless of privilege 
-modes.
-
-I think if you want to make CPUCFG behavior PLV-dependent, you may have 
-to ask the LoongArch spec editors, internally or in public, for a new 
-spec revision.
-
-(There are already multiple third-party LoongArch implementers as of 
-late 2023, so any ISA-level change like this would best be coordinated, 
-to minimize surprises.)
-
-[1]: 
-https://lore.kernel.org/loongarch/d8994f0f-d789-46d2-bc4d-f9b37fb396ff@xen0n.name/
-
--- 
-WANG "xen0n" Xuerui
-
-Linux/LoongArch mailing list: https://lore.kernel.org/loongarch/
+Regards
+Bibo Mao
+> 
+>> It is difficult to find an area unused by HW for CSR method since the
+>> small CSR ID range. However it is easy for cpucfg. Here I doubt whether
+>> you really know about LoongArch LVZ.
+> 
+> It's unfair to accuse the others for not knowing about LVZ considering
+> the lack of public documentation.
+> 
 
