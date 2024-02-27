@@ -1,317 +1,277 @@
-Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67D25525E
-	for <virtualization@lists.linux.dev>; Tue, 27 Feb 2024 01:36:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.113
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id ECDBA1BF2A;
+	Tue, 27 Feb 2024 03:14:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708997808; cv=none; b=XQXoDNBrjWDnjpEPw+gQmt84xnHWVsILH38NrxOiG/+oM+oMpw/ajcgiYfsvHF/WdqAfexQbn0xg2FeDNxuq2v3giz1PHyW+JR0MySG6uklx/qb+W5Qxvaw/GVZA1ntrE2nvYWPKymPrzTmNy1RPy+GY04KeK0ujDmawtb/aLNo=
+	t=1709003658; cv=none; b=fJ+zctGucjq8hGHKY/LKxo5mEvNcwALq5Akf3ozIAfwu4v30tRLdaqF8MjHls57+R5QHf5PFh0poBUimZ9+PT52Z2anw2+WLRGDHN8F0UQAZB0/w7Io9oCrv1apW7zENi1JA/ezs/ltprrNcteEYdorBtq47YLljXF9leELI6Q4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708997808; c=relaxed/simple;
-	bh=JgbQ84LLosYkQTgKWeL0jbmQ2QAczryCflXC2Kzrrxg=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=rv/+fRomcpo4d81GJnimqwCWZ0jJfA8U8dCAv/X52HsSGrS1mLJH7fNvTLkDXnQcQ7OAMPACeRYavEoIe7dQzvwDb2w8hM1IrLkpTlFnWU40ln7f0Kc2LQcbhmNxxH8zDkLaxdMZx2JlXuYgZyLoAm46XolqKXm+LRCMROtV+KA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=ev13AoIf; arc=none smtp.client-ip=115.124.30.113
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="ev13AoIf"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1708997803; h=Message-ID:Subject:Date:From:To;
-	bh=ctI/fd/lFbqwu10pNa1KxwlRBClS5pr4qNOcpDAT7KM=;
-	b=ev13AoIfb6+ntaznNDhq0nRQZ1MpyveTd/xqkMBp81NWLcUtdIEj8UEHJ4+UPqpA1IJlxm5i9xhQIf0x+uq4fgagAi6XvHD88OthUej8YVKszzrlyq4UsJxrLuEJERFkWhWq6oNbKShkDkA+fKDFiuJaxR6LXT+fFX7XTA9f3KY=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=34;SR=0;TI=SMTPD_---0W1KvUn4_1708997800;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W1KvUn4_1708997800)
-          by smtp.aliyun-inc.com;
-          Tue, 27 Feb 2024 09:36:41 +0800
-Message-ID: <1708997579.5613105-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost v2 19/19] virtio_net: sq support premapped mode
-Date: Tue, 27 Feb 2024 09:32:59 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux.dev,
- Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- Jason Wang <jasowang@redhat.com>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- Hans de Goede <hdegoede@redhat.com>,
- =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- Vadim Pasternak <vadimp@nvidia.com>,
- Bjorn Andersson <andersson@kernel.org>,
- Mathieu Poirier <mathieu.poirier@linaro.org>,
- Cornelia Huck <cohuck@redhat.com>,
- Halil Pasic <pasic@linux.ibm.com>,
- Eric Farman <farman@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- linux-um@lists.infradead.org,
- netdev@vger.kernel.org,
- platform-driver-x86@vger.kernel.org,
- linux-remoteproc@vger.kernel.org,
- linux-s390@vger.kernel.org,
- kvm@vger.kernel.org,
- bpf@vger.kernel.org
-References: <20240223082726.52915-1-xuanzhuo@linux.alibaba.com>
- <20240223082726.52915-20-xuanzhuo@linux.alibaba.com>
- <20240225032330-mutt-send-email-mst@kernel.org>
- <1708939451.7601678-3-xuanzhuo@linux.alibaba.com>
- <20240226063843-mutt-send-email-mst@kernel.org>
- <1708947680.4503584-3-xuanzhuo@linux.alibaba.com>
- <20240226065746-mutt-send-email-mst@kernel.org>
- <20240226070030-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20240226070030-mutt-send-email-mst@kernel.org>
+	s=arc-20240116; t=1709003658; c=relaxed/simple;
+	bh=FqzHsKV7E++1r3+f9nmRVlX6daHy9V5Kk9QPAfSJO/I=;
+	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=eDpBjhIHgm7N5hr5pF9snwgwGCl6llcWhiBS58GCFvcKK8ej0g/2RK/Y2kqYVnFe+XujkwHIhiUnHIwrkiuwINaSo6te8LWFCijep0EOdhN/Ga4r20HY06oXL6xutV8W+DNHmwjdZzDOLVtHhpbTACK0bNYRNdksz5w/Y7y8HfM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.20.42.173])
+	by gateway (Coremail) with SMTP id _____8Bxnut+U91lgdERAA--.44824S3;
+	Tue, 27 Feb 2024 11:14:07 +0800 (CST)
+Received: from [10.20.42.173] (unknown [10.20.42.173])
+	by localhost.localdomain (Coremail) with SMTP id AQAAf8Bx8OR7U91l_AhHAA--.57350S3;
+	Tue, 27 Feb 2024 11:14:05 +0800 (CST)
+Subject: Re: [PATCH v5 3/6] LoongArch: KVM: Add cpucfg area for kvm hypervisor
+To: Jiaxun Yang <jiaxun.yang@flygoat.com>, Huacai Chen <chenhuacai@kernel.org>
+Cc: Tianrui Zhao <zhaotianrui@loongson.cn>, Juergen Gross <jgross@suse.com>,
+ Paolo Bonzini <pbonzini@redhat.com>, loongarch@lists.linux.dev,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+ kvm@vger.kernel.org
+References: <20240222032803.2177856-1-maobibo@loongson.cn>
+ <20240222032803.2177856-4-maobibo@loongson.cn>
+ <CAAhV-H5eqXMqTYVb6cAVqOsDNcEDeP9HzaMKw69KFQeVaAYEdA@mail.gmail.com>
+ <d1a6c424-b710-74d6-29f6-e0d8e597e1fb@loongson.cn>
+ <CAAhV-H7p114hWUVrYRfKiBX3teG8sG7xmEW-Q-QT3i+xdLqDEA@mail.gmail.com>
+ <06647e4a-0027-9c9f-f3bd-cd525d37b6d8@loongson.cn>
+ <85781278-f3e9-4755-8715-3b9ff714fb20@app.fastmail.com>
+From: maobibo <maobibo@loongson.cn>
+Message-ID: <0d428e30-07a8-5a91-a20c-c2469adbf613@loongson.cn>
+Date: Tue, 27 Feb 2024 11:14:27 +0800
+User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-
-On Mon, 26 Feb 2024 07:01:11 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Mon, Feb 26, 2024 at 07:00:09AM -0500, Michael S. Tsirkin wrote:
-> > On Mon, Feb 26, 2024 at 07:41:20PM +0800, Xuan Zhuo wrote:
-> > > On Mon, 26 Feb 2024 06:39:51 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > > On Mon, Feb 26, 2024 at 05:24:11PM +0800, Xuan Zhuo wrote:
-> > > > > On Sun, 25 Feb 2024 03:38:48 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > > > > On Fri, Feb 23, 2024 at 04:27:26PM +0800, Xuan Zhuo wrote:
-> > > > > > > If the xsk is enabling, the xsk tx will share the send queue.
-> > > > > > > But the xsk requires that the send queue use the premapped mode.
-> > > > > > > So the send queue must support premapped mode.
-> > > > > > >
-> > > > > > > cmd:
-> > > > > > >     sh samples/pktgen/pktgen_sample01_simple.sh -i eth0 \
-> > > > > > >         -s 16 -d 10.0.0.128 -m 00:16:3e:2c:c8:2e -n 0 -p 100
-> > > > > > > CPU:
-> > > > > > >     Intel(R) Xeon(R) Platinum 8369B CPU @ 2.70GHz
-> > > > > > >
-> > > > > > > Machine:
-> > > > > > >     ecs.g7.2xlarge(Aliyun)
-> > > > > > >
-> > > > > > > before:              1600010.00
-> > > > > > > after(no-premapped): 1599966.00
-> > > > > > > after(premapped):    1600014.00
-> > > > > > >
-> > > > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > > > > ---
-> > > > > > >  drivers/net/virtio_net.c | 136 +++++++++++++++++++++++++++++++++++++--
-> > > > > > >  1 file changed, 132 insertions(+), 4 deletions(-)
-> > > > > > >
-> > > > > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > > > > > index 7715bb7032ec..b83ef6afc4fb 100644
-> > > > > > > --- a/drivers/net/virtio_net.c
-> > > > > > > +++ b/drivers/net/virtio_net.c
-> > > > > > > @@ -146,6 +146,25 @@ struct virtnet_rq_dma {
-> > > > > > >  	u16 need_sync;
-> > > > > > >  };
-> > > > > > >
-> > > > > > > +struct virtnet_sq_dma {
-> > > > > > > +	union {
-> > > > > > > +		struct virtnet_sq_dma *next;
-> > > > > > > +		void *data;
-> > > > > > > +	};
-> > > > > > > +
-> > > > > > > +	u32 num;
-> > > > > > > +
-> > > > > > > +	dma_addr_t addr[MAX_SKB_FRAGS + 2];
-> > > > > > > +	u32 len[MAX_SKB_FRAGS + 2];
-> > > > > > > +};
-> > > > > > > +
-> > > > > > > +struct virtnet_sq_dma_head {
-> > > > > > > +	/* record for kfree */
-> > > > > > > +	void *p;
-> > > > > > > +
-> > > > > > > +	struct virtnet_sq_dma *free;
-> > > > > > > +};
-> > > > > > > +
-> > > > > > >  /* Internal representation of a send virtqueue */
-> > > > > > >  struct send_queue {
-> > > > > > >  	/* Virtqueue associated with this send _queue */
-> > > > > > > @@ -165,6 +184,8 @@ struct send_queue {
-> > > > > > >
-> > > > > > >  	/* Record whether sq is in reset state. */
-> > > > > > >  	bool reset;
-> > > > > > > +
-> > > > > > > +	struct virtnet_sq_dma_head dmainfo;
-> > > > > > >  };
-> > > > > > >
-> > > > > > >  /* Internal representation of a receive virtqueue */
-> > > > > > > @@ -368,6 +389,95 @@ static struct xdp_frame *ptr_to_xdp(void *ptr)
-> > > > > > >  	return (struct xdp_frame *)((unsigned long)ptr & ~VIRTIO_XDP_FLAG);
-> > > > > > >  }
-> > > > > > >
-> > > > > > > +static struct virtnet_sq_dma *virtnet_sq_unmap(struct send_queue *sq, void **data)
-> > > > > > > +{
-> > > > > > > +	struct virtnet_sq_dma *d;
-> > > > > > > +	int i;
-> > > > > > > +
-> > > > > > > +	d = *data;
-> > > > > > > +	*data = d->data;
-> > > > > > > +
-> > > > > > > +	for (i = 0; i < d->num; ++i)
-> > > > > > > +		virtqueue_dma_unmap_page_attrs(sq->vq, d->addr[i], d->len[i],
-> > > > > > > +					       DMA_TO_DEVICE, 0);
-> > > > > > > +
-> > > > > > > +	d->next = sq->dmainfo.free;
-> > > > > > > +	sq->dmainfo.free = d;
-> > > > > > > +
-> > > > > > > +	return d;
-> > > > > > > +}
-> > > > > > > +
-> > > > > > > +static struct virtnet_sq_dma *virtnet_sq_map_sg(struct send_queue *sq,
-> > > > > > > +						int nents, void *data)
-> > > > > > > +{
-> > > > > > > +	struct virtnet_sq_dma *d;
-> > > > > > > +	struct scatterlist *sg;
-> > > > > > > +	int i;
-> > > > > > > +
-> > > > > > > +	if (!sq->dmainfo.free)
-> > > > > > > +		return NULL;
-> > > > > > > +
-> > > > > > > +	d = sq->dmainfo.free;
-> > > > > > > +	sq->dmainfo.free = d->next;
-> > > > > > > +
-> > > > > > > +	for_each_sg(sq->sg, sg, nents, i) {
-> > > > > > > +		if (virtqueue_dma_map_sg_attrs(sq->vq, sg, DMA_TO_DEVICE, 0))
-> > > > > > > +			goto err;
-> > > > > > > +
-> > > > > > > +		d->addr[i] = sg->dma_address;
-> > > > > > > +		d->len[i] = sg->length;
-> > > > > > > +	}
-> > > > > > > +
-> > > > > > > +	d->data = data;
-> > > > > > > +	d->num = i;
-> > > > > > > +	return d;
-> > > > > > > +
-> > > > > > > +err:
-> > > > > > > +	d->num = i;
-> > > > > > > +	virtnet_sq_unmap(sq, (void **)&d);
-> > > > > > > +	return NULL;
-> > > > > > > +}
-> > > > > >
-> > > > > >
-> > > > > > Do I see a reimplementation of linux/llist.h here?
-> > > > > >
-> > > > > >
-> > > > > > > +
-> > > > > > > +static int virtnet_add_outbuf(struct send_queue *sq, u32 num, void *data)
-> > > > > > > +{
-> > > > > > > +	int ret;
-> > > > > > > +
-> > > > > > > +	if (sq->vq->premapped) {
-> > > > > > > +		data = virtnet_sq_map_sg(sq, num, data);
-> > > > > > > +		if (!data)
-> > > > > > > +			return -ENOMEM;
-> > > > > > > +	}
-> > > > > > > +
-> > > > > > > +	ret = virtqueue_add_outbuf(sq->vq, sq->sg, num, data, GFP_ATOMIC);
-> > > > > > > +	if (ret && sq->vq->premapped)
-> > > > > > > +		virtnet_sq_unmap(sq, &data);
-> > > > > > > +
-> > > > > > > +	return ret;
-> > > > > > > +}
-> > > > > > > +
-> > > > > > > +static int virtnet_sq_init_dma_mate(struct send_queue *sq)
-> > > > > >
-> > > > > > Mate? The popular south african drink?
-> > > > > >
-> > > > > > > +{
-> > > > > > > +	struct virtnet_sq_dma *d;
-> > > > > > > +	int num, i;
-> > > > > > > +
-> > > > > > > +	num = virtqueue_get_vring_size(sq->vq);
-> > > > > > > +
-> > > > > > > +	sq->dmainfo.free = kcalloc(num, sizeof(*sq->dmainfo.free), GFP_KERNEL);
-> > > > > > > +	if (!sq->dmainfo.free)
-> > > > > > > +		return -ENOMEM;
-> > > > > >
-> > > > > >
-> > > > > > This could be quite a bit of memory for a large queue.  And for a bunch
-> > > > > > of common cases where unmap is a nop (e.g. iommu pt) this does nothing
-> > > > > > useful at all.  And also, this does nothing useful if PLATFORM_ACCESS is off
-> > > > > > which is super common.
-> > > > > >
-> > > > > > A while ago I proposed:
-> > > > > > - extend DMA APIs so one can query whether unmap is a nop
-> > > > >
-> > > > >
-> > > > > We may have trouble for this.
-> > > > >
-> > > > > dma_addr_t dma_map_page_attrs(struct device *dev, struct page *page,
-> > > > > 		size_t offset, size_t size, enum dma_data_direction dir,
-> > > > > 		unsigned long attrs)
-> > > > > {
-> > > > > 	const struct dma_map_ops *ops = get_dma_ops(dev);
-> > > > > 	dma_addr_t addr;
-> > > > >
-> > > > > 	BUG_ON(!valid_dma_direction(dir));
-> > > > >
-> > > > > 	if (WARN_ON_ONCE(!dev->dma_mask))
-> > > > > 		return DMA_MAPPING_ERROR;
-> > > > >
-> > > > > 	if (dma_map_direct(dev, ops) ||
-> > > > > 	    arch_dma_map_page_direct(dev, page_to_phys(page) + offset + size))
-> > > > > 		addr = dma_direct_map_page(dev, page, offset, size, dir, attrs);
-> > > > > 	else
-> > > > > 		addr = ops->map_page(dev, page, offset, size, dir, attrs);
-> > > > > 	kmsan_handle_dma(page, offset, size, dir);
-> > > > > 	debug_dma_map_page(dev, page, offset, size, dir, addr, attrs);
-> > > > >
-> > > > > 	return addr;
-> > > > > }
-> > > > >
-> > > > > arch_dma_map_page_direct will check the dma address.
-> > > > > So we can not judge by the API in advance.
-> > > > >
-> > > > > Thanks.
-> > > >
-> > > > So if dma_map_direct is false we'll still waste some memory.
-> > > > So be it.
-> > >
-> > > arch_dma_map_page_direct default is marco (false), just for powerpc
-> > > it is a function. So I think we can skip it.
-> > >
-> > > If the dma_map_direct is false, I think should save the dma info.
-> > >
-> > > Thanks.
-> >
-> >
-> > Would already be an improvement.
-> > But can we have better names?
-> >
-> > I'd prefer:
-> >
-> > dma_can_skip_unmap
-> > dma_can_skip_sync
-> >
-> > Because we do not know for sure if it's direct unless
-> > we have the page.
->
-> we might need to add these callbacks to dma ops too, I think
-> with iommu pt that is the case and it is pretty common,
-> right?
+MIME-Version: 1.0
+In-Reply-To: <85781278-f3e9-4755-8715-3b9ff714fb20@app.fastmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:AQAAf8Bx8OR7U91l_AhHAA--.57350S3
+X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
+X-Coremail-Antispam: 1Uk129KBj93XoWxKFy3Jw15CF1Duw4rXFyxZwc_yoW3ArWxpr
+	W8AF1DCF48JrySyw42qw1UXrnIvr4kGr1xXry3J34UAF1DKr1xJr10kr4jkFykJw18CF10
+	qF4Utry3uF1UA3gCm3ZEXasCq-sJn29KB7ZKAUJUUUUr529EdanIXcx71UUUUU7KY7ZEXa
+	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
+	0xBIdaVrnRJUUUBFb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
+	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
+	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_JFI_Gr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
+	0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVWxJVW8Jr1l84ACjcxK6I8E87Iv6xkF7I0E14v2
+	6r4UJVWxJr1ln4kS14v26r1Y6r17M2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12
+	xvs2x26I8E6xACxx1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1Y
+	6r17McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr4
+	1lc7I2V7IY0VAS07AlzVAYIcxG8wCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWU
+	JVW8JwCFI7km07C267AKxVWUXVWUAwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4
+	vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVC0I7IY
+	x2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr1lIxAIcVCF04k26c
+	xKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r4j6F4UMIIF0xvEx4A2jsIEc7CjxVAF
+	wI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07jjwZcUUUUU=
 
 
-I agree.
 
-But this patch set has 19 commits, I hope to do this on a new patchset on the
-top of this.
+On 2024/2/27 上午4:02, Jiaxun Yang wrote:
+> 
+> 
+> 在2024年2月26日二月 上午8:04，maobibo写道：
+>> On 2024/2/26 下午2:12, Huacai Chen wrote:
+>>> On Mon, Feb 26, 2024 at 10:04 AM maobibo <maobibo@loongson.cn> wrote:
+>>>>
+>>>>
+>>>>
+>>>> On 2024/2/24 下午5:13, Huacai Chen wrote:
+>>>>> Hi, Bibo,
+>>>>>
+>>>>> On Thu, Feb 22, 2024 at 11:28 AM Bibo Mao <maobibo@loongson.cn> wrote:
+>>>>>>
+>>>>>> Instruction cpucfg can be used to get processor features. And there
+>>>>>> is trap exception when it is executed in VM mode, and also it is
+>>>>>> to provide cpu features to VM. On real hardware cpucfg area 0 - 20
+>>>>>> is used.  Here one specified area 0x40000000 -- 0x400000ff is used
+>>>>>> for KVM hypervisor to privide PV features, and the area can be extended
+>>>>>> for other hypervisors in future. This area will never be used for
+>>>>>> real HW, it is only used by software.
+>>>>> After reading and thinking, I find that the hypercall method which is
+>>>>> used in our productive kernel is better than this cpucfg method.
+>>>>> Because hypercall is more simple and straightforward, plus we don't
+>>>>> worry about conflicting with the real hardware.
+>>>> No, I do not think so. cpucfg is simper than hypercall, hypercall can
+>>>> be in effect when system runs in guest mode. In some scenario like TCG
+>>>> mode, hypercall is illegal intruction, however cpucfg can work.
+>>> Nearly all architectures use hypercall except x86 for its historical
+>> Only x86 support multiple hypervisors and there is multiple hypervisor
+>> in x86 only. It is an advantage, not historical reason.
+> 
+> I do believe that all those stuff should not be exposed to guest user space
+> for security reasons.
+Can you add PLV checking when cpucfg 0x40000000-0x400000FF is emulated? 
+if it is user mode return value is zero and it is kernel mode emulated 
+value will be returned. It can avoid information leaking.
 
-If we need to check the iommu pt, I need to study the iommu first.
+> 
+> Also for different implementations of hypervisors they may have different
+> PV features behavior, using hypcall to perform feature detection
+> can pass more information to help us cope with hypervisor diversity.
+How do different hypervisors can be detected firstly?  On x86 MSR is 
+used for all hypervisors detection and on ARM64 hyperv used 
+acpi_gbl_FADT and kvm use smc forcely, host mode can execute smc 
+instruction without exception on ARM64.
 
-Thanks.
+I do not know why hypercall is better than cpucfg on LoongArch, cpucfg 
+is basic intruction however hypercall is not, it is part of LVZ feature.
 
+>>
+>>> reasons. If we use CPUCFG, then the hypervisor information is
+>>> unnecessarily leaked to userspace, and this may be a security issue.
+>>> Meanwhile, I don't think TCG mode needs PV features.
+>> Besides PV features, there is other features different with real hw such
+>> as virtio device, virtual interrupt controller.
+> 
+> Those are *device* level information, they must be passed in firmware
+> interfaces to keep processor emulation sane.
+File arch/x86/hyperv/hv_apic.c can be referenced, apic features comes 
+from ms_hyperv.hints and HYPERV_CPUID_ENLIGHTMENT_INFO cpuid info, not 
+must be passed by firmware interface.
 
->
-> > --
-> > MST
->
+Regards
+Bibo Mao
+> 
+> Thanks
+> 
+>>
+>> Regards
+>> Bibo Mao
+>>
+>>>
+>>> I consulted with Jiaxun before, and maybe he can give some more comments.
+>>>
+>>>>
+>>>> Extioi virtualization extension will be added later, cpucfg can be used
+>>>> to get extioi features. It is unlikely that extioi driver depends on
+>>>> PARA_VIRT macro if hypercall is used to get features.
+>>> CPUCFG is per-core information, if we really need something about
+>>> extioi, it should be in iocsr (LOONGARCH_IOCSR_FEATURES).
+>>>
+>>>
+>>> Huacai
+>>>
+>>>>
+>>>> Regards
+>>>> Bibo Mao
+>>>>
+>>>>>
+>>>>> Huacai
+>>>>>
+>>>>>>
+>>>>>> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
+>>>>>> ---
+>>>>>>     arch/loongarch/include/asm/inst.h      |  1 +
+>>>>>>     arch/loongarch/include/asm/loongarch.h | 10 ++++++
+>>>>>>     arch/loongarch/kvm/exit.c              | 46 +++++++++++++++++---------
+>>>>>>     3 files changed, 41 insertions(+), 16 deletions(-)
+>>>>>>
+>>>>>> diff --git a/arch/loongarch/include/asm/inst.h b/arch/loongarch/include/asm/inst.h
+>>>>>> index d8f637f9e400..ad120f924905 100644
+>>>>>> --- a/arch/loongarch/include/asm/inst.h
+>>>>>> +++ b/arch/loongarch/include/asm/inst.h
+>>>>>> @@ -67,6 +67,7 @@ enum reg2_op {
+>>>>>>            revhd_op        = 0x11,
+>>>>>>            extwh_op        = 0x16,
+>>>>>>            extwb_op        = 0x17,
+>>>>>> +       cpucfg_op       = 0x1b,
+>>>>>>            iocsrrdb_op     = 0x19200,
+>>>>>>            iocsrrdh_op     = 0x19201,
+>>>>>>            iocsrrdw_op     = 0x19202,
+>>>>>> diff --git a/arch/loongarch/include/asm/loongarch.h b/arch/loongarch/include/asm/loongarch.h
+>>>>>> index 46366e783c84..a1d22e8b6f94 100644
+>>>>>> --- a/arch/loongarch/include/asm/loongarch.h
+>>>>>> +++ b/arch/loongarch/include/asm/loongarch.h
+>>>>>> @@ -158,6 +158,16 @@
+>>>>>>     #define  CPUCFG48_VFPU_CG              BIT(2)
+>>>>>>     #define  CPUCFG48_RAM_CG               BIT(3)
+>>>>>>
+>>>>>> +/*
+>>>>>> + * cpucfg index area: 0x40000000 -- 0x400000ff
+>>>>>> + * SW emulation for KVM hypervirsor
+>>>>>> + */
+>>>>>> +#define CPUCFG_KVM_BASE                        0x40000000UL
+>>>>>> +#define CPUCFG_KVM_SIZE                        0x100
+>>>>>> +#define CPUCFG_KVM_SIG                 CPUCFG_KVM_BASE
+>>>>>> +#define  KVM_SIGNATURE                 "KVM\0"
+>>>>>> +#define CPUCFG_KVM_FEATURE             (CPUCFG_KVM_BASE + 4)
+>>>>>> +
+>>>>>>     #ifndef __ASSEMBLY__
+>>>>>>
+>>>>>>     /* CSR */
+>>>>>> diff --git a/arch/loongarch/kvm/exit.c b/arch/loongarch/kvm/exit.c
+>>>>>> index 923bbca9bd22..6a38fd59d86d 100644
+>>>>>> --- a/arch/loongarch/kvm/exit.c
+>>>>>> +++ b/arch/loongarch/kvm/exit.c
+>>>>>> @@ -206,10 +206,37 @@ int kvm_emu_idle(struct kvm_vcpu *vcpu)
+>>>>>>            return EMULATE_DONE;
+>>>>>>     }
+>>>>>>
+>>>>>> -static int kvm_trap_handle_gspr(struct kvm_vcpu *vcpu)
+>>>>>> +static int kvm_emu_cpucfg(struct kvm_vcpu *vcpu, larch_inst inst)
+>>>>>>     {
+>>>>>>            int rd, rj;
+>>>>>>            unsigned int index;
+>>>>>> +
+>>>>>> +       rd = inst.reg2_format.rd;
+>>>>>> +       rj = inst.reg2_format.rj;
+>>>>>> +       ++vcpu->stat.cpucfg_exits;
+>>>>>> +       index = vcpu->arch.gprs[rj];
+>>>>>> +
+>>>>>> +       /*
+>>>>>> +        * By LoongArch Reference Manual 2.2.10.5
+>>>>>> +        * Return value is 0 for undefined cpucfg index
+>>>>>> +        */
+>>>>>> +       switch (index) {
+>>>>>> +       case 0 ... (KVM_MAX_CPUCFG_REGS - 1):
+>>>>>> +               vcpu->arch.gprs[rd] = vcpu->arch.cpucfg[index];
+>>>>>> +               break;
+>>>>>> +       case CPUCFG_KVM_SIG:
+>>>>>> +               vcpu->arch.gprs[rd] = *(unsigned int *)KVM_SIGNATURE;
+>>>>>> +               break;
+>>>>>> +       default:
+>>>>>> +               vcpu->arch.gprs[rd] = 0;
+>>>>>> +               break;
+>>>>>> +       }
+>>>>>> +
+>>>>>> +       return EMULATE_DONE;
+>>>>>> +}
+>>>>>> +
+>>>>>> +static int kvm_trap_handle_gspr(struct kvm_vcpu *vcpu)
+>>>>>> +{
+>>>>>>            unsigned long curr_pc;
+>>>>>>            larch_inst inst;
+>>>>>>            enum emulation_result er = EMULATE_DONE;
+>>>>>> @@ -224,21 +251,8 @@ static int kvm_trap_handle_gspr(struct kvm_vcpu *vcpu)
+>>>>>>            er = EMULATE_FAIL;
+>>>>>>            switch (((inst.word >> 24) & 0xff)) {
+>>>>>>            case 0x0: /* CPUCFG GSPR */
+>>>>>> -               if (inst.reg2_format.opcode == 0x1B) {
+>>>>>> -                       rd = inst.reg2_format.rd;
+>>>>>> -                       rj = inst.reg2_format.rj;
+>>>>>> -                       ++vcpu->stat.cpucfg_exits;
+>>>>>> -                       index = vcpu->arch.gprs[rj];
+>>>>>> -                       er = EMULATE_DONE;
+>>>>>> -                       /*
+>>>>>> -                        * By LoongArch Reference Manual 2.2.10.5
+>>>>>> -                        * return value is 0 for undefined cpucfg index
+>>>>>> -                        */
+>>>>>> -                       if (index < KVM_MAX_CPUCFG_REGS)
+>>>>>> -                               vcpu->arch.gprs[rd] = vcpu->arch.cpucfg[index];
+>>>>>> -                       else
+>>>>>> -                               vcpu->arch.gprs[rd] = 0;
+>>>>>> -               }
+>>>>>> +               if (inst.reg2_format.opcode == cpucfg_op)
+>>>>>> +                       er = kvm_emu_cpucfg(vcpu, inst);
+>>>>>>                    break;
+>>>>>>            case 0x4: /* CSR{RD,WR,XCHG} GSPR */
+>>>>>>                    er = kvm_handle_csr(vcpu, inst);
+>>>>>> --
+>>>>>> 2.39.3
+>>>>>>
+>>>>
+>>>>
+> 
+
