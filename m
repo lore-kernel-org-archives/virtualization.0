@@ -1,70 +1,68 @@
-Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com [209.85.167.50])
+Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com [209.85.221.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D24A14A4F0
-	for <virtualization@lists.linux.dev>; Tue, 27 Feb 2024 15:08:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F978136659
+	for <virtualization@lists.linux.dev>; Tue, 27 Feb 2024 15:21:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709046504; cv=none; b=hLu4E4rCPhfAYKtzU31DbJ9q1CyPpyBeuPzOJyDZmeoflPtxnw1+xBs0xA9ezdFBqjkOnUDm/HmhG8nFGoskXJ68xxXQme1KairGa2HbWbzJhsr9EsEJH50OuVr9Girt6sIKLJrbq0pwPUkKd/Alw55pu3nbH32g+4GysY+/070=
+	t=1709047314; cv=none; b=XvSLh/G25Cl1OPJ4jlT1AEligyaM1c5/FMZwUIfT/QWXKGxpO9WcwbwNuruUSL0AIVlgxeLHz15apcrEPuUsdZTo3sYz95JAM2wXvEDSvNzeSwKtdTbICDSbnD6LdyHzn4W3PDkza0SRJujy1TGEY2+f2/xoWSn6T13I19GzUDQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709046504; c=relaxed/simple;
-	bh=kVffUr20Izax4YF9+0wwB28rgK6Y0uZGPUDJDiZR4Qw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RHr1yZsIAUtyFUrG4NIc8/cshxyKJ13RIyE9j59LvvpgdAVB0XiuXkqlaG7h1zzHfqUL0FbkIJmgsYC74dza3/QIBsX8H4CN6z0/yhpRfm59D3RpjSxI/+q+9oxSSVnwxB4TxvwsTeAg8GMrUf42jWR+HYIs5+bedi53TmarS3A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=2f0u34yh; arc=none smtp.client-ip=209.85.167.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+	s=arc-20240116; t=1709047314; c=relaxed/simple;
+	bh=QsD3Iiv/LhOTtgVgR1olwTS+toXhr/zliUNlH+elpAo=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=k3VIwdQqWmC3KRECJPlsXumZRk8g7vTnZdvaW6f07YR5Cy43BQ+K+EMfLU8WEJ6Jei3OjOOqFyLDromFMbP0AbGPdggKzMQkxfm6wWaNRNCjJrjW1aNj2l940ws1rAg6jpK+VjsUXrSLMCQwLZLOZZX7HiISlkwO0Gf7b9Wae1U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=qz2wuPkl; arc=none smtp.client-ip=209.85.221.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="2f0u34yh"
-Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-512bc0e8ce1so4556429e87.0
-        for <virtualization@lists.linux.dev>; Tue, 27 Feb 2024 07:08:22 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="qz2wuPkl"
+Received: by mail-wr1-f43.google.com with SMTP id ffacd0b85a97d-3392b12dd21so3608070f8f.0
+        for <virtualization@lists.linux.dev>; Tue, 27 Feb 2024 07:21:52 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1709046501; x=1709651301; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=QgKE4Y5Fe/K9QqRyLFbe9JH+uzN4iuJkkyLvvTToOHA=;
-        b=2f0u34yhoqpav+O8mRoK0ZIg+mH1B2XHE6wMeij8a/SPdbTju/8u9HhKkFGqfnWMdx
-         SDkBbYc4GQTG0Nbs+EzQwtLbUYxdQrBUfYkHCcwfci+OCUOdSBR1WlrkLEt5egfmxXOw
-         KSvrb3oQAZSAo0RtDWvCO9knzDyD+KtY2IuMWp9eH3HqlcQgch3os7oTBY5Z1+FIBZQT
-         ICCeyf8TydTRZP58b5OMtUNsEAkRU5Ykj4GZR0puDBOENBrZD1zmRmr96zZMSKbKxr9n
-         hPEEqnxiDkokxtkhUcJ0B/eUCa8vDs0j6a+hpGSTsBB/FlGz8yEQfEz81I4zMG6cV8PS
-         ssUQ==
+        d=linaro.org; s=google; t=1709047311; x=1709652111; darn=lists.linux.dev;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=oAR0191YpG6gmNK9RS3NwTYy2tpEgrl20yHlWytzXZU=;
+        b=qz2wuPklWXA3sdO7BZpYFttQDeZ5uUQytdiJJy7Ixy7f/5G3wIiOS2Eq5akw9zuu/u
+         0IbKvMQIBW30QGu6MDuTwvAuH+/wvG4+3KNQ/YEsNJTatuQKjgSFpJvVLyCVjbcuLb62
+         jrs/4YqZatG0X+JFoV3OPDVox9nbOotkBIUPXcEMgFnTjfHYs3yxdQ3lmEHeA7wxdk2d
+         VloQcURr3Oa3GIrqIDx+61hFdSp7OqweGG33IQ+YSeODlvXQDiD83seVEThzahY1UCIX
+         optesc6K6NouX98VbTGtPkcnX3QbEPxVByAjED1oxLzaTlw+iNJfsrFhtTo9PiJVsfZf
+         6RhA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1709046501; x=1709651301;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=QgKE4Y5Fe/K9QqRyLFbe9JH+uzN4iuJkkyLvvTToOHA=;
-        b=SrovRof7iPPj0e3jto8kn4MsRkdcLTXVXlC0ancntBY35+c+VztwJfk7eTGjTc2lp9
-         wPwRCICByJ/giKG1DiiTUv5xBiWQjlmyGP9l0ygolYgzjSUo8I3HMf2csgb59oATVExw
-         6lWYjjtUzurG/fJHzkFyXAsgG+2OXEPW8YZ3pmSNqqS9arpDJ2VSmXtndItUXIrq1LBG
-         34eRPGGG+wmiUQQ0N/m2bcYkEtz1JLas4kEgxHNJ8NUEyHAxttxfy3cTpnTVlC+RbLIj
-         50h04dhUGhE+Q644inoDoZDfGcKEbivAuK0z11LEnfb4V8HhzigNBdGqL+c/7JBq3Jjy
-         n0jA==
-X-Forwarded-Encrypted: i=1; AJvYcCXPjcHXdrBSRQ6mdPnwa2ATBALAwhdJFfA1p+/kEj37KbOIZOXm/jGbYBKnY5lW/oTZlKq0t/p64bokgoI7/rfBvjKA2Wi/y09edc8U2xU=
-X-Gm-Message-State: AOJu0YxHWnH4b3b2DQ8purdhGsyrOIothAbp+v7VbkwkY3oBqYgk1kwd
-	Y2b4QLGjPaC2RFJpDk/llxzxxxhcDdGHr5FWk/JXcbcatSRZUGRFB2mrEFsnKqI=
-X-Google-Smtp-Source: AGHT+IGTERjeJ4l2yM/AZTnVBJihHHv2kACSJ6apoYoy24DobZxv5fIlFBhKgDxUgSkMlOVD0RJNmA==
-X-Received: by 2002:a19:5e19:0:b0:512:b27c:18b5 with SMTP id s25-20020a195e19000000b00512b27c18b5mr6445800lfb.30.1709046501439;
-        Tue, 27 Feb 2024 07:08:21 -0800 (PST)
-Received: from localhost ([193.47.165.251])
-        by smtp.gmail.com with ESMTPSA id ba16-20020a0560001c1000b0033dc7706be3sm9409625wrb.79.2024.02.27.07.08.20
+        d=1e100.net; s=20230601; t=1709047311; x=1709652111;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=oAR0191YpG6gmNK9RS3NwTYy2tpEgrl20yHlWytzXZU=;
+        b=XvAQYQRv7Y2UX/6+LimiY4sKeWARjU7ZEFNV1Je0zW6M2GV1P6X+8im9djVH4OZYYn
+         PnzpB9B+Am18INdcSILhnyCGuHwq2mybqixo73T8qUK0Y5Oa1kvEAprb48+Dy2o98b0z
+         9bXpmG/V7yIEsTTUjwzlk5vGMh4Ph5JE1wNlC9viTfxtVbR5wV0EaHWl2jFgRyd7Px80
+         0K0nCQ1dd5KZiDiwbmdI6sTQacWZ7GyWQuHDYbx3HBG5s+Za0TKEvPs0d/kUoAFIditE
+         gUn22MAIaLpa5d5UyXGvq7DOFzh0Y6GlL8JD39H1TIm0dPnQG9TONKav6QtNADIXE/nk
+         SIZQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVIaI55tbY8FkDIXSuZ0GuX2rbfTDTd1o9updOTZteA+DRblvysxgI3lXma4ur4HapPsPc9yqt9WpmPvd/NWLbapqpcYc7wwNRKOgGH0vs=
+X-Gm-Message-State: AOJu0YycZgWGEQRQcglZq1pvHIPos44xyFPvtbjEgqGfhmZINJ3lHTc5
+	2W1aPJEyc1clkyCXL1gtUtSix2q65Ec/4sWPbDtSpdtH2KBHcnERbiugljyMGA8=
+X-Google-Smtp-Source: AGHT+IGx3UJwCU3OwYophAFSeMY+HT7j8jGN+JsrR+9BGVpaMQSzmvZQht8iS1eq9Il37PGPrMeIYg==
+X-Received: by 2002:a5d:4f01:0:b0:33d:87e9:5905 with SMTP id c1-20020a5d4f01000000b0033d87e95905mr6160029wru.28.1709047311631;
+        Tue, 27 Feb 2024 07:21:51 -0800 (PST)
+Received: from localhost ([102.222.70.76])
+        by smtp.gmail.com with ESMTPSA id k2-20020a5d6d42000000b0033b79d385f6sm11579719wri.47.2024.02.27.07.21.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Feb 2024 07:08:20 -0800 (PST)
-Date: Tue, 27 Feb 2024 16:08:18 +0100
-From: Jiri Pirko <jiri@resnulli.us>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH net-next v3 6/6] virtio_net: rename stat tx_timeout to
- timeout
-Message-ID: <Zd364r85MU0DDVNB@nanopsycho>
-References: <20240227080303.63894-1-xuanzhuo@linux.alibaba.com>
- <20240227080303.63894-7-xuanzhuo@linux.alibaba.com>
+        Tue, 27 Feb 2024 07:21:51 -0800 (PST)
+Date: Tue, 27 Feb 2024 18:21:46 +0300
+From: Dan Carpenter <dan.carpenter@linaro.org>
+To: Cindy Lu <lulu@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Xie Yongji <xieyongji@bytedance.com>,
+	Maxime Coquelin <maxime.coquelin@redhat.com>,
+	Christian Brauner <brauner@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+	kernel-janitors@vger.kernel.org
+Subject: [PATCH] vduse: Fix off by one in vduse_dev_mmap()
+Message-ID: <e26476e0-68ae-412d-a5d9-4996bc30d038@moroto.mountain>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -73,20 +71,31 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240227080303.63894-7-xuanzhuo@linux.alibaba.com>
+X-Mailer: git-send-email haha only kidding
 
-Tue, Feb 27, 2024 at 09:03:03AM CET, xuanzhuo@linux.alibaba.com wrote:
->Now, we have this:
->
->    tx_queue_0_tx_timeouts
->
->This is used to record the tx schedule timeout.
->But this has two "tx". I think the below is enough.
->
->    tx_queue_0_timeouts
->
->So I rename this field.
->
->Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+The dev->vqs[] array has "dev->vq_num" elements.  It's allocated in
+vduse_dev_init_vqs().  Thus, this > comparison needs to be >= to avoid
+reading one element beyond the end of the array.
 
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+Fixes: 316ecd1346b0 ("vduse: Add file operation for mmap")
+Signed-off-by: Dan Carpenter <dan.carpenter@linaro.org>
+---
+ drivers/vdpa/vdpa_user/vduse_dev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
+index b7a1fb88c506..9150c8281953 100644
+--- a/drivers/vdpa/vdpa_user/vduse_dev.c
++++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+@@ -1532,7 +1532,7 @@ static int vduse_dev_mmap(struct file *file, struct vm_area_struct *vma)
+ 	if ((vma->vm_flags & VM_SHARED) == 0)
+ 		return -EINVAL;
+ 
+-	if (index > dev->vq_num)
++	if (index >= dev->vq_num)
+ 		return -EINVAL;
+ 
+ 	vq = dev->vqs[index];
+-- 
+2.43.0
+
