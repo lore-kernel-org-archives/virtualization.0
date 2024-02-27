@@ -1,117 +1,92 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8074D1468FE
-	for <virtualization@lists.linux.dev>; Tue, 27 Feb 2024 15:48:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A671535AE
+	for <virtualization@lists.linux.dev>; Tue, 27 Feb 2024 16:00:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709048941; cv=none; b=VGljqesMJgweMyEMdRHJ7CgtQiTgftLK2TyC1dMtmaM2UIEawvFKQUi7L7XXmV4cRrEvKXa7L5reyky0orfrDP8K5dRk+GYrqg5iHR/HOPYeVO5eWBgWYlJ7PcXKvh02ddt2tRTiRXsB4TaHENCPJlU7ImV7wVtdCEV8UjrdHtI=
+	t=1709049603; cv=none; b=LjoWp61lxAzpa/iBowlSeNwPbDEFm3y8QkOWruy8TWQiMGHmwcrIicCLowFbQ8+SZ8XEK1oc2KCDDA89yjJK6GokRTR87utGdAJGwNhmR4he+e5FA8tT0bTDF0S9xt5Dl+o3P458jp+t2QsLUXzR0vwi0PPukIMMLFVSihoGRiM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709048941; c=relaxed/simple;
-	bh=up+DCN5ChGl/E+3j2L4zs+YPx9EtncoGLVBvu8pAspA=;
+	s=arc-20240116; t=1709049603; c=relaxed/simple;
+	bh=tKB3i2ULzUxqcZteb4ZQczEAibcM9FOTotdV80h3GfI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=S0dxqufKHr6wLLJGUDidRUOXjva4HVfgAPJZTdc2OGT4SxIW3kVJyEg0Tjcg3PFYaBjs9Q9s9O2+VuGyqfy5c8WsQpSp+Bu0kgf7788E6fjIcdFH7jhjY/3SZlTa9Itea8D21zP+NmufnocZGMmh+hAYmeTdQNoExplkUZe1p0k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YO5g2sSg; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=YR9ivHxfhpA0uPE+kaZmLUH0zl4efCItk7SQSAO+Ds0TcWvs7I7iBPWLmbAUxeE0dqjq/PBYzQuOsmjNLSx1m/2F454wTdM9QK5LyrpajePFMEMNseusoedSNTk6leF7Fw6OAGnccLxrlFI6KOp/6Afw5d7f3MWwNS+5dvAgl1k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=NajQPw57; arc=none smtp.client-ip=209.85.128.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YO5g2sSg"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1709048937;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=/xbnPq7RXIvNg+PfYUQ/SxQLN6DLHw3idVYtn+kLNDc=;
-	b=YO5g2sSgOA9ZUeviweCeFCQ4DH0bxYJCawiNTNqm0voftXnIsfR1qJVAVEHMRrCJ427qG6
-	39PGcW0pYoPvkFmHQIl/SeZY0sAGoFtXWXm8OHkWvM9pGNspHNnMrM5Be82GBym1yMH9WT
-	3uLjAXEE1CU9fN9DGZnmR5zFclMe1MQ=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-463-3gYvVTwVNVO9ep30bp_aAw-1; Tue, 27 Feb 2024 10:48:55 -0500
-X-MC-Unique: 3gYvVTwVNVO9ep30bp_aAw-1
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-33dadb50731so2330757f8f.1
-        for <virtualization@lists.linux.dev>; Tue, 27 Feb 2024 07:48:55 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="NajQPw57"
+Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-412a3903586so18677555e9.3
+        for <virtualization@lists.linux.dev>; Tue, 27 Feb 2024 08:00:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1709049600; x=1709654400; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=3y4We/I/OAkRE57RPqipAeKw/rV+o/vnjOiV2Pndg08=;
+        b=NajQPw57PmnYV1qYRlnbRg2Hud+F1UDrryHbSGOsNsa7rIGmPk1AQPi3hEmyWBvIq7
+         EJlwd2TMgmx8injL7EQkqGNNu+WEcIbA/0nc+8Ba3Bbfdb5NY9ox6t+paG0rPzfe+k0A
+         rg/K5NLBlXgikBSFcGxJhOhMO/XTNc4U49MMMK4RHJN6cdkcvm0KmbAupt+zlU7chb4W
+         XeLWnhGEQf6jh8NLtmUoFviKL9CWN5kZ8iVW9pzLjHFJJh1k71ku0Axmq7JiNSdWG2wJ
+         grsoAtQ+7QQ9JYztLA39nuFTKZLAFBN30yXAWyKdo9MT/EHCoItPcpPOIzAFsk6xMcPw
+         2fsg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1709048934; x=1709653734;
+        d=1e100.net; s=20230601; t=1709049600; x=1709654400;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=/xbnPq7RXIvNg+PfYUQ/SxQLN6DLHw3idVYtn+kLNDc=;
-        b=vYFJRkpSGaU53MLkKjKQrTXe3uLyhzWMVq4kC4etL4Hw448rCCb/HuUuJAwoMpZdHz
-         iICJOQqIwojWwHqkMhwEvk98bHK7I0t4nxXj3mwStEAy6N5PEeAQ5EP6vhq1t1HE+RRN
-         8tQHdlhapbP8b5SFBPIzPCfBkQCNqAVJzWlaD8sjw7W4AGy4G/1xoBhROM573GtlfeuL
-         WycWbtSeVLtrAWIK54sbJTlnxDqgVmYaRLXith4Zdi01hs/QolFIqCMr1F+rLeMUwRdM
-         hZ5QTQZGUSOfpQArY/23V2c0nytEi+Yq7XPd4xEiW9yWgcY996NdjHzLKpfzVnRoaxvT
-         0CDg==
-X-Forwarded-Encrypted: i=1; AJvYcCWxrkJrhnQVpZCn53vhCriIJY70CuVCTvWuz6fXxYjZogHOEHIScQ6TS2cRAaJ+hdxl2icP2oefYWt7sL1ahI5bc0MudsosDYhjCjSlQSU=
-X-Gm-Message-State: AOJu0YzYpLFvFO0waBbOy3VTYqPlt5GqOJ4mLXICTBTz1QrqpU+HnfD3
-	csfsIImSwj49VH8svFQJeQ7pMm7BCmTel7o1EXoXXfqSY44hnSDRmluEs5LxQEba/BQiIo1xofA
-	cPyUpc6BXHq7GvOR1HV4eGR/+xVH2bcfT0beOEqemfPzrZSzLfJWnoXmFgwRM/OhX
-X-Received: by 2002:adf:e702:0:b0:33d:509c:5692 with SMTP id c2-20020adfe702000000b0033d509c5692mr7613809wrm.31.1709048934561;
-        Tue, 27 Feb 2024 07:48:54 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHhhMpgy8POimkjUANc+4RteuVbX4FX4SRQYH18i2c3XpSnO3gd/o0FCmDM1lLUaZunxWosww==
-X-Received: by 2002:adf:e702:0:b0:33d:509c:5692 with SMTP id c2-20020adfe702000000b0033d509c5692mr7613789wrm.31.1709048934215;
-        Tue, 27 Feb 2024 07:48:54 -0800 (PST)
-Received: from redhat.com ([2.52.10.44])
-        by smtp.gmail.com with ESMTPSA id t9-20020adfeb89000000b0033dbeb2eb4dsm11575355wrn.110.2024.02.27.07.48.51
+        bh=3y4We/I/OAkRE57RPqipAeKw/rV+o/vnjOiV2Pndg08=;
+        b=MRCodTVj8qQPj/ydrtW4RsiP8EG8gvOsfl66E1gKa4qxV1XGugOCi9LyuvsX640kPG
+         BdP3bAQwPW6B41xHKJGxtMDV+VO63wCaoM9Bgl/6IxWxr3yk3bYlbFok4Id33FVqZItJ
+         GMUEH6NsL2BXrh1zA3kneXokUo8did0Y4pBw870oVFKGw6hwyMCCr5ydu1LnM+m0RFUc
+         t55yUHzBzJA+p1/eIDx9htZy0wbHiKVB1Re4ZiB5oZjimWg6tLNbNtg9E088YaxnJCJS
+         gsOCP4Ce66E5ECEqLq+bugqtbP6DRYgQfUDn4l0J+ub/FbwLBymJW+aSP89OBlUveT8d
+         D0Vg==
+X-Forwarded-Encrypted: i=1; AJvYcCV6VPEkhjNcUdf9IgvOw6Zbdi0gfl1RFZW8CsF6jeQGakggOugr/p4zS1j+FH7m8anj7oY5nl8BJy0dZVn/AbJNCzZO9AcWLlSWun20628=
+X-Gm-Message-State: AOJu0YxWjTmKw5tzCH7RspeMg/qO6J3X7KcfsXdVyMnmt73iQsJnlU85
+	Lww1Xh99iGZ69YJtOgjOz6eI6pegQtzTjtOkZ1AXp2XGQsNcZjreTGOIuu9OyRI=
+X-Google-Smtp-Source: AGHT+IFN22/PPS0qL2fxWHOrSnH0K36g5mA/lXRY/+/guJN2/bh1+PTY0kVY+08pzvReMFEyRZLSSw==
+X-Received: by 2002:a05:600c:1c8d:b0:412:afa6:cf3a with SMTP id k13-20020a05600c1c8d00b00412afa6cf3amr1073126wms.32.1709049600456;
+        Tue, 27 Feb 2024 08:00:00 -0800 (PST)
+Received: from localhost ([193.47.165.251])
+        by smtp.gmail.com with ESMTPSA id 20-20020a05600c22d400b0041069adbd87sm15255037wmg.21.2024.02.27.07.59.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Feb 2024 07:48:53 -0800 (PST)
-Date: Tue, 27 Feb 2024 10:48:49 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Dan Carpenter <dan.carpenter@linaro.org>
-Cc: Cindy Lu <lulu@redhat.com>, Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Xie Yongji <xieyongji@bytedance.com>,
-	Maxime Coquelin <maxime.coquelin@redhat.com>,
-	Christian Brauner <brauner@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	kernel-janitors@vger.kernel.org
-Subject: Re: [PATCH] vduse: Fix off by one in vduse_dev_mmap()
-Message-ID: <20240227104743-mutt-send-email-mst@kernel.org>
-References: <e26476e0-68ae-412d-a5d9-4996bc30d038@moroto.mountain>
+        Tue, 27 Feb 2024 07:59:59 -0800 (PST)
+Date: Tue, 27 Feb 2024 16:59:56 +0100
+From: Jiri Pirko <jiri@resnulli.us>
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, netdev@vger.kernel.org,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH net-next v3 5/6] virtio_net: add the total stats field
+Message-ID: <Zd4G_GttG0XtQ0wz@nanopsycho>
+References: <20240227080303.63894-1-xuanzhuo@linux.alibaba.com>
+ <20240227080303.63894-6-xuanzhuo@linux.alibaba.com>
+ <20240227065424.2548eccd@kernel.org>
+ <Zd36oZMvIvqtNSzr@nanopsycho>
+ <20240227074117.128af8ca@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <e26476e0-68ae-412d-a5d9-4996bc30d038@moroto.mountain>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20240227074117.128af8ca@kernel.org>
 
-On Tue, Feb 27, 2024 at 06:21:46PM +0300, Dan Carpenter wrote:
-> The dev->vqs[] array has "dev->vq_num" elements.  It's allocated in
-> vduse_dev_init_vqs().  Thus, this > comparison needs to be >= to avoid
-> reading one element beyond the end of the array.
-> 
-> Fixes: 316ecd1346b0 ("vduse: Add file operation for mmap")
-> Signed-off-by: Dan Carpenter <dan.carpenter@linaro.org>
+Tue, Feb 27, 2024 at 04:41:17PM CET, kuba@kernel.org wrote:
+>On Tue, 27 Feb 2024 16:07:13 +0100 Jiri Pirko wrote:
+>> >Please wait for this API to get merged:
+>> >https://lore.kernel.org/all/20240226211015.1244807-1-kuba@kernel.org/
+>> >A lot of the stats you're adding here can go into the new API.  
+>> 
+>> Can. But does that mean that ethtool additions of things like this
+>> will be rejected after that?
+>
+>As a general policy, yes, the same way we reject duplicating other
+>existing stats.
 
-
-Oh wow and does this not come from userspace? If yes we
-need the speculation magic macro when using the index, do we not?
-
-> ---
->  drivers/vdpa/vdpa_user/vduse_dev.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-> index b7a1fb88c506..9150c8281953 100644
-> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> @@ -1532,7 +1532,7 @@ static int vduse_dev_mmap(struct file *file, struct vm_area_struct *vma)
->  	if ((vma->vm_flags & VM_SHARED) == 0)
->  		return -EINVAL;
->  
-> -	if (index > dev->vq_num)
-> +	if (index >= dev->vq_num)
->  		return -EINVAL;
->  
->  	vq = dev->vqs[index];
-> -- 
-> 2.43.0
-
+Makes sense.
