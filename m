@@ -1,64 +1,64 @@
 Received: from mail-yw1-f178.google.com (mail-yw1-f178.google.com [209.85.128.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65AED208CF
-	for <virtualization@lists.linux.dev>; Wed, 28 Feb 2024 03:47:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A5E11F94D
+	for <virtualization@lists.linux.dev>; Wed, 28 Feb 2024 03:52:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709092071; cv=none; b=Dwb/16jPksyng5PlAHIr96W8K8oUQik1p+0Ie6UAP+rfADR4PW+Q936AMX2thirvjFTPvcsvQrucq6iaLDKeN2MmTJcFIqH/rnfg0yH+bScSwLuy+j8MOYIJFHJx6RGn3LBHOmYOKO2CTX6b04VOr9JEPrAo0adcTFSeOVOLX+0=
+	t=1709092344; cv=none; b=q/TyncuVNxzbvRiCcuIeu8y0n2aEBBVhJg1NmtT4AKGmX33jwlrMFGzR/ldBXkb1bNKMySwhZ2zagMTrFJyK0/DEDhIqqEpO9UPeF0eIWLIvdXSlx+yyS3J42B77D+M98LsofTowTQHeOqymgLN8fDeCjOrogyR28fWYQgVBsmg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709092071; c=relaxed/simple;
-	bh=877chHYX5RTm5JyotlsmbVFl7mbnFWQp4f4lHZ0QFtQ=;
+	s=arc-20240116; t=1709092344; c=relaxed/simple;
+	bh=GSoPUr98npdOvHVYGHXdXALHgEhv6dtMOFIMK2HPbeE=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=mDIZ3ZOtH5GXOX8NHKyVxLca9J2VoreeacnJPlJEgbCynqGlqoKjvXhKEj50W20gtnUl53HnMR7mtWY4Sx6wbDB2BRsCkWar38YBSKCk0iAY8141AtMC8lWFqBtL+bj+0nTBOcn61+VM3SZ85D54A4X7nfAH2XBjcZDFPaozqVQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=L6jwKVTF; arc=none smtp.client-ip=209.85.128.178
+	 To:Cc:Content-Type; b=MSue3qqwMz8DHrImUFZp4HUawNrR6VmmPYh2xQdB0uPh7I6b6wbNcJac7vqKk8KRX3wZhE7ZuP4WjMDm1BMbSF+LZzUFiL6wDLkTkteMZF68/vyN10zQ5yPo4ht1TqT3++X0UVSp16kF6nibQWrt0neOeISPgZUoHvYrGwqZ96Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=SzbDC0aq; arc=none smtp.client-ip=209.85.128.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="L6jwKVTF"
-Received: by mail-yw1-f178.google.com with SMTP id 00721157ae682-609241c2696so16145157b3.0
-        for <virtualization@lists.linux.dev>; Tue, 27 Feb 2024 19:47:49 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="SzbDC0aq"
+Received: by mail-yw1-f178.google.com with SMTP id 00721157ae682-607bfa4c913so50016477b3.3
+        for <virtualization@lists.linux.dev>; Tue, 27 Feb 2024 19:52:22 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1709092068; x=1709696868; darn=lists.linux.dev;
+        d=broadcom.com; s=google; t=1709092341; x=1709697141; darn=lists.linux.dev;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=g/DHH/2GuNtK9+6RCOfdjmOHhlQolPWcSEw0qt7/GJo=;
-        b=L6jwKVTFJRZ1XVjrgYSlRTMJhfCAQYd91AxM79H0NdCHgkgbIfGYKCQo7E6o8pAKmA
-         homHlP7km5e3VhBKqTT0HZ05a8KYFaC1/OBTmAIB9JUtoK6LxDmBNYfbQ7qvtMGbBn5o
-         aNUpbn33qZ5gtsXBQ1NL6BDJprihpoZ3xMRos=
+        bh=f3VZ+gKw3xKCEuJeJ0WfU+cy5aus56GaHtywGqRgWrw=;
+        b=SzbDC0aqE/MOCO930uTPAecyZZXlO6u6gurzy5zg2EPSMJdRBn9f1SUvjmV4muaLvQ
+         X+2PXgHl37M09uVal1WTKFYkDH5WIXAeOSMZ/06XbcEkH2a5KruZJu0nHb7Q86LWwF0e
+         QXdVDLoSLdikwtyK1x2fgIpfKkD4HXcXXkTxc=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1709092068; x=1709696868;
+        d=1e100.net; s=20230601; t=1709092341; x=1709697141;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=g/DHH/2GuNtK9+6RCOfdjmOHhlQolPWcSEw0qt7/GJo=;
-        b=lnhe6AWu50R/7hqgXpuoLyjmbdvPAp8T5iS9Ah7/kXifsFe0eSt3+7sXfKraVmF1ll
-         ODTmuUBY7/i7xLeG9D7uZ3OUb5QUWdIl0mSfK5KoZ3pNbHD2lJFQdBVohpDPDLENUlhx
-         Ku4yziZwUbVIBPrWazAUBqtpz+A+YhlumMBUpIMn1r3FoMA1Ciz4AMC6yanBRiFvGe5D
-         irasnxkBjQQ+UKUN8ChYlhZXy4ZZxWlCDMExkAcgCAxcD6IwySiG0HJs1afIMqfENIhL
-         VhJhvMSE+xHrDFGgpkupQqm5mcbyRHHiRUut9C+ck3QJV5OlUwnzPgJjsnBy2AyN2Qfm
-         ay+g==
-X-Forwarded-Encrypted: i=1; AJvYcCUF+WW3FGYbHZD0LtGjVelIxrDl8aPtcXOkyVrGBURL3pmx0KbKd81L7t5FgNTC7DxyQP+5iL2gzB3v/jOgR7XH7lXUTnoSMjjvR5M6xDs=
-X-Gm-Message-State: AOJu0YyvMV3PLANw/WBHSlix/1SXKz1sOcpWNy6pOp5zPMWOtnlnEuy+
-	+lIFvLzhZecp1SenLXm7Kudg+XxAzJdCZNZ0P8CtZCifnfAX/Dkgi/65dFAIpXyxEESxup+s3qS
-	5AVpylHxRqENKcnKd1bT6o4vBxlrkXDh/aB81
-X-Google-Smtp-Source: AGHT+IEuu5G9/EtkiJuIqK5DEsLbHEiSicOLnCwW2E1hTZ+I5ANhBoRZTZztYsh0saLiizBliAy4AujGNkSwBQUlm8o=
-X-Received: by 2002:a05:690c:f8f:b0:5ff:7cca:a434 with SMTP id
- df15-20020a05690c0f8f00b005ff7ccaa434mr4528537ywb.51.1709092068238; Tue, 27
- Feb 2024 19:47:48 -0800 (PST)
+        bh=f3VZ+gKw3xKCEuJeJ0WfU+cy5aus56GaHtywGqRgWrw=;
+        b=M7QuUnCO3fUArUW48LX3/SfoCasqX6JS7vLOkFj4aUd7gXvWrmqgHjbTVGMWL+vlGv
+         TmWzWxQ+2DKvIzTcqOL6atzWwp7PZcnhB3U+TOOsY0GmuuczPmk+lgY6S2CtPGIJh67v
+         /1KFFe97Hkk+RbDM/7wUa8asMrJC6iSnWxY3nZ1pYcXlJAtztgOIgHSI80S7HvHSsFQ/
+         KeNQPY35U5LC+vyR73gFXNkt/J6rcVdRwp9cbCfPu+sRiEEo1Lqcx7eg2umoI3LVeKG4
+         PviCUanmngg74qKkmdfNv3uBxZ6Dqf7642wmis2XMIvgFAH6iNQulaAgckOzjGEZoMm6
+         JFUw==
+X-Forwarded-Encrypted: i=1; AJvYcCXK/ES4MW01KpR0B372QXbL+uJKayF0CjmH+OtlGBMTB4PZuUvMOyfXhEtvEIWDPS3vreIqRbLvmTNp/WEKXPsbfbp+NM8cjnwOOqthzAY=
+X-Gm-Message-State: AOJu0YydRRZD0xjTKJVorQvxphiFt0pc0LBKC/A2/cFxBOodwh008SZ2
+	ac9u1CFsQ2R6QGPBGb+oj2/vZbgF8YPLO2FCDHsXdyoHlZHNhqfFx7onOXESqgWcypmPGJxptVD
+	ETq8Vw0vG2DLm4RBSbyFVWEn+Vj83iNh1lrHK
+X-Google-Smtp-Source: AGHT+IG+BwKuHHjdZ1dDLmHrdsYB7kIPGn/Q57nsYSjiYIsCMx/l1O7r26Xps7p1g8K7t8uA3VSHz6e1UAMKI+l86HM=
+X-Received: by 2002:a81:4f48:0:b0:609:3f15:321d with SMTP id
+ d69-20020a814f48000000b006093f15321dmr311678ywb.51.1709092341105; Tue, 27 Feb
+ 2024 19:52:21 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240227113853.8464-1-tzimmermann@suse.de> <20240227113853.8464-9-tzimmermann@suse.de>
-In-Reply-To: <20240227113853.8464-9-tzimmermann@suse.de>
+References: <20240227113853.8464-1-tzimmermann@suse.de> <20240227113853.8464-10-tzimmermann@suse.de>
+In-Reply-To: <20240227113853.8464-10-tzimmermann@suse.de>
 From: Zack Rusin <zack.rusin@broadcom.com>
-Date: Tue, 27 Feb 2024 22:47:37 -0500
-Message-ID: <CABQX2QP4dCy2nfxXp3tEybtRF1UW_wMAKp1+m=2VA7Lt=C+Vvg@mail.gmail.com>
-Subject: Re: [PATCH 08/13] drm/qxl: Acquire reservation lock in GEM pin/unpin callbacks
+Date: Tue, 27 Feb 2024 22:52:10 -0500
+Message-ID: <CABQX2QNrX6994nKyKNBF5fxhUJv_MG=a8d31N=191auQAepMzw@mail.gmail.com>
+Subject: Re: [PATCH 09/13] drm/gem: Acquire reservation lock in drm_gem_{pin/unpin}()
 To: Thomas Zimmermann <tzimmermann@suse.de>
 Cc: daniel@ffwll.ch, airlied@gmail.com, mripard@kernel.org, 
 	maarten.lankhorst@linux.intel.com, christian.koenig@amd.com, 
@@ -77,54 +77,411 @@ Content-Transfer-Encoding: quoted-printable
 On Tue, Feb 27, 2024 at 6:39=E2=80=AFAM Thomas Zimmermann <tzimmermann@suse=
 .de> wrote:
 >
-> Acquire the reservation lock directly in GEM pin callback. Same for
-> unpin. Prepares for further changes.
+> Acquire the buffer object's reservation lock in drm_gem_pin() and
+> remove locking the drivers' GEM callbacks where necessary. Same for
+> unpin().
 >
-> Dma-buf locking semantics require callers to hold the buffer's
-> reservation lock when invoking the pin and unpin callbacks. Prepare
-> qxl accordingly by pushing locking out of the implementation. A
-> follow-up patch will fix locking for all GEM code at once.
+> DRM drivers and memory managers modified by this patch will now have
+> correct dma-buf locking semantics: the caller is responsible for
+> holding the reservation lock when calling the pin or unpin callback.
+>
+> DRM drivers and memory managers that are not modified will now be
+> protected against concurent invocation of their pin and unpin callbacks.
+>
+> PRIME does not implement struct dma_buf_ops.pin, which requires
+> the caller to hold the reservation lock. It does implement struct
+> dma_buf_ops.attach, which requires to callee to acquire the
+> reservation lock. The PRIME code uses drm_gem_pin(), so locks
+> are now taken as specified. Same for unpin and detach.
+>
+> The patch harmonizes GEM pin and unpin to have non-interruptible
+> reservation locking across all drivers, as is already the case for
+> vmap and vunmap. This affects gem-shmem, gem-vram, loongson, qxl and
+> radeon.
 >
 > Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 > ---
->  drivers/gpu/drm/qxl/qxl_prime.c | 16 ++++++++++++++--
->  1 file changed, 14 insertions(+), 2 deletions(-)
+>  drivers/gpu/drm/drm_gem.c               | 22 ++++++++++++++++++++--
+>  drivers/gpu/drm/drm_gem_vram_helper.c   | 15 +--------------
+>  drivers/gpu/drm/drm_internal.h          |  2 ++
+>  drivers/gpu/drm/loongson/lsdc_gem.c     | 13 ++-----------
+>  drivers/gpu/drm/msm/msm_gem_prime.c     |  4 ----
+>  drivers/gpu/drm/nouveau/nouveau_prime.c | 11 -----------
+>  drivers/gpu/drm/qxl/qxl_prime.c         | 14 +-------------
+>  drivers/gpu/drm/radeon/radeon_prime.c   | 11 -----------
+>  drivers/gpu/drm/vmwgfx/vmwgfx_gem.c     | 25 ++++++-------------------
+>  include/drm/drm_gem_shmem_helper.h      | 11 +----------
+>  10 files changed, 33 insertions(+), 95 deletions(-)
 >
+> diff --git a/drivers/gpu/drm/drm_gem.c b/drivers/gpu/drm/drm_gem.c
+> index 44a948b80ee14..e0f80c6a7096f 100644
+> --- a/drivers/gpu/drm/drm_gem.c
+> +++ b/drivers/gpu/drm/drm_gem.c
+> @@ -1161,7 +1161,7 @@ void drm_gem_print_info(struct drm_printer *p, unsi=
+gned int indent,
+>                 obj->funcs->print_info(p, indent, obj);
+>  }
+>
+> -int drm_gem_pin(struct drm_gem_object *obj)
+> +int drm_gem_pin_locked(struct drm_gem_object *obj)
+>  {
+>         if (obj->funcs->pin)
+>                 return obj->funcs->pin(obj);
+> @@ -1169,12 +1169,30 @@ int drm_gem_pin(struct drm_gem_object *obj)
+>         return 0;
+>  }
+>
+> -void drm_gem_unpin(struct drm_gem_object *obj)
+> +void drm_gem_unpin_locked(struct drm_gem_object *obj)
+>  {
+>         if (obj->funcs->unpin)
+>                 obj->funcs->unpin(obj);
+>  }
+>
+> +int drm_gem_pin(struct drm_gem_object *obj)
+> +{
+> +       int ret;
+> +
+> +       dma_resv_lock(obj->resv, NULL);
+> +       ret =3D drm_gem_pin_locked(obj);
+> +       dma_resv_unlock(obj->resv);
+> +
+> +       return ret;
+> +}
+> +
+> +void drm_gem_unpin(struct drm_gem_object *obj)
+> +{
+> +       dma_resv_lock(obj->resv, NULL);
+> +       drm_gem_unpin_locked(obj);
+> +       dma_resv_unlock(obj->resv);
+> +}
+> +
+>  int drm_gem_vmap(struct drm_gem_object *obj, struct iosys_map *map)
+>  {
+>         int ret;
+> diff --git a/drivers/gpu/drm/drm_gem_vram_helper.c b/drivers/gpu/drm/drm_=
+gem_vram_helper.c
+> index 15029d89badf8..5a16b3e0a4134 100644
+> --- a/drivers/gpu/drm/drm_gem_vram_helper.c
+> +++ b/drivers/gpu/drm/drm_gem_vram_helper.c
+> @@ -774,11 +774,6 @@ EXPORT_SYMBOL(drm_gem_vram_simple_display_pipe_clean=
+up_fb);
+>  static int drm_gem_vram_object_pin(struct drm_gem_object *gem)
+>  {
+>         struct drm_gem_vram_object *gbo =3D drm_gem_vram_of_gem(gem);
+> -       int ret;
+> -
+> -       ret =3D ttm_bo_reserve(&gbo->bo, true, false, NULL);
+> -       if (ret)
+> -               return ret;
+>
+>         /*
+>          * Fbdev console emulation is the use case of these PRIME
+> @@ -789,10 +784,7 @@ static int drm_gem_vram_object_pin(struct drm_gem_ob=
+ject *gem)
+>          * the buffer to be pinned to VRAM, implement a callback that
+>          * sets the flags accordingly.
+>          */
+> -       ret =3D drm_gem_vram_pin_locked(gbo, 0);
+> -       ttm_bo_unreserve(&gbo->bo);
+> -
+> -       return ret;
+> +       return drm_gem_vram_pin_locked(gbo, 0);
+>  }
+>
+>  /**
+> @@ -803,13 +795,8 @@ static int drm_gem_vram_object_pin(struct drm_gem_ob=
+ject *gem)
+>  static void drm_gem_vram_object_unpin(struct drm_gem_object *gem)
+>  {
+>         struct drm_gem_vram_object *gbo =3D drm_gem_vram_of_gem(gem);
+> -       int ret;
+>
+> -       ret =3D ttm_bo_reserve(&gbo->bo, true, false, NULL);
+> -       if (ret)
+> -               return;
+>         drm_gem_vram_unpin_locked(gbo);
+> -       ttm_bo_unreserve(&gbo->bo);
+>  }
+>
+>  /**
+> diff --git a/drivers/gpu/drm/drm_internal.h b/drivers/gpu/drm/drm_interna=
+l.h
+> index 8e4faf0a28e6c..40b2d3a274d6c 100644
+> --- a/drivers/gpu/drm/drm_internal.h
+> +++ b/drivers/gpu/drm/drm_internal.h
+> @@ -170,6 +170,8 @@ void drm_gem_release(struct drm_device *dev, struct d=
+rm_file *file_private);
+>  void drm_gem_print_info(struct drm_printer *p, unsigned int indent,
+>                         const struct drm_gem_object *obj);
+>
+> +int drm_gem_pin_locked(struct drm_gem_object *obj);
+> +void drm_gem_unpin_locked(struct drm_gem_object *obj);
+>  int drm_gem_pin(struct drm_gem_object *obj);
+>  void drm_gem_unpin(struct drm_gem_object *obj);
+>  int drm_gem_vmap(struct drm_gem_object *obj, struct iosys_map *map);
+> diff --git a/drivers/gpu/drm/loongson/lsdc_gem.c b/drivers/gpu/drm/loongs=
+on/lsdc_gem.c
+> index 04293df2f0de0..a720d8f532093 100644
+> --- a/drivers/gpu/drm/loongson/lsdc_gem.c
+> +++ b/drivers/gpu/drm/loongson/lsdc_gem.c
+> @@ -19,33 +19,24 @@ static int lsdc_gem_prime_pin(struct drm_gem_object *=
+obj)
+>         struct lsdc_bo *lbo =3D gem_to_lsdc_bo(obj);
+>         int ret;
+>
+> -       ret =3D lsdc_bo_reserve(lbo);
+> -       if (unlikely(ret))
+> -               return ret;
+> +       dma_resv_assert_held(obj->resv);
+>
+>         ret =3D lsdc_bo_pin(lbo, LSDC_GEM_DOMAIN_GTT, NULL);
+>         if (likely(ret =3D=3D 0))
+>                 lbo->sharing_count++;
+>
+> -       lsdc_bo_unreserve(lbo);
+> -
+>         return ret;
+>  }
+>
+>  static void lsdc_gem_prime_unpin(struct drm_gem_object *obj)
+>  {
+>         struct lsdc_bo *lbo =3D gem_to_lsdc_bo(obj);
+> -       int ret;
+>
+> -       ret =3D lsdc_bo_reserve(lbo);
+> -       if (unlikely(ret))
+> -               return;
+> +       dma_resv_assert_held(obj->resv);
+>
+>         lsdc_bo_unpin(lbo);
+>         if (lbo->sharing_count)
+>                 lbo->sharing_count--;
+> -
+> -       lsdc_bo_unreserve(lbo);
+>  }
+>
+>  static struct sg_table *lsdc_gem_prime_get_sg_table(struct drm_gem_objec=
+t *obj)
+> diff --git a/drivers/gpu/drm/msm/msm_gem_prime.c b/drivers/gpu/drm/msm/ms=
+m_gem_prime.c
+> index 0d22df53ab98a..ee267490c9359 100644
+> --- a/drivers/gpu/drm/msm/msm_gem_prime.c
+> +++ b/drivers/gpu/drm/msm/msm_gem_prime.c
+> @@ -53,11 +53,9 @@ int msm_gem_prime_pin(struct drm_gem_object *obj)
+>         if (obj->import_attach)
+>                 return 0;
+>
+> -       msm_gem_lock(obj);
+>         pages =3D msm_gem_pin_pages_locked(obj);
+>         if (IS_ERR(pages))
+>                 ret =3D PTR_ERR(pages);
+> -       msm_gem_unlock(obj);
+>
+>         return ret;
+>  }
+> @@ -67,7 +65,5 @@ void msm_gem_prime_unpin(struct drm_gem_object *obj)
+>         if (obj->import_attach)
+>                 return;
+>
+> -       msm_gem_lock(obj);
+>         msm_gem_unpin_pages_locked(obj);
+> -       msm_gem_unlock(obj);
+>  }
+> diff --git a/drivers/gpu/drm/nouveau/nouveau_prime.c b/drivers/gpu/drm/no=
+uveau/nouveau_prime.c
+> index 774f9bd031102..b58ab595faf82 100644
+> --- a/drivers/gpu/drm/nouveau/nouveau_prime.c
+> +++ b/drivers/gpu/drm/nouveau/nouveau_prime.c
+> @@ -86,17 +86,12 @@ struct drm_gem_object *nouveau_gem_prime_import_sg_ta=
+ble(struct drm_device *dev,
+>  int nouveau_gem_prime_pin(struct drm_gem_object *obj)
+>  {
+>         struct nouveau_bo *nvbo =3D nouveau_gem_object(obj);
+> -       struct ttm_buffer_object *bo =3D &nvbo->bo;
+>         int ret;
+>
+> -       ret =3D ttm_bo_reserve(bo, false, false, NULL);
+> -       if (ret)
+> -               return -EINVAL;
+>         /* pin buffer into GTT */
+>         ret =3D nouveau_bo_pin_locked(nvbo, NOUVEAU_GEM_DOMAIN_GART, fals=
+e);
+>         if (ret)
+>                 ret =3D -EINVAL;
+> -       ttm_bo_unreserve(bo);
+>
+>         return ret;
+>  }
+> @@ -104,14 +99,8 @@ int nouveau_gem_prime_pin(struct drm_gem_object *obj)
+>  void nouveau_gem_prime_unpin(struct drm_gem_object *obj)
+>  {
+>         struct nouveau_bo *nvbo =3D nouveau_gem_object(obj);
+> -       struct ttm_buffer_object *bo =3D &nvbo->bo;
+> -       int ret;
+>
+> -       ret =3D ttm_bo_reserve(bo, false, false, NULL);
+> -       if (ret)
+> -               return;
+>         nouveau_bo_unpin_locked(nvbo);
+> -       ttm_bo_unreserve(bo);
+>  }
+>
+>  struct dma_buf *nouveau_gem_prime_export(struct drm_gem_object *gobj,
 > diff --git a/drivers/gpu/drm/qxl/qxl_prime.c b/drivers/gpu/drm/qxl/qxl_pr=
 ime.c
-> index 9169c26357d36..f2646603e12eb 100644
+> index f2646603e12eb..19bf551a7b311 100644
 > --- a/drivers/gpu/drm/qxl/qxl_prime.c
 > +++ b/drivers/gpu/drm/qxl/qxl_prime.c
-> @@ -31,15 +31,27 @@
+> @@ -31,27 +31,15 @@
 >  int qxl_gem_prime_pin(struct drm_gem_object *obj)
 >  {
 >         struct qxl_bo *bo =3D gem_to_qxl_bo(obj);
-> +       int r;
+> -       int r;
 >
-> -       return qxl_bo_pin(bo);
-> +       r =3D qxl_bo_reserve(bo);
-> +       if (r)
-> +               return r;
-> +       r =3D qxl_bo_pin_locked(bo);
-> +       qxl_bo_unreserve(bo);
-> +
-> +       return r;
+> -       r =3D qxl_bo_reserve(bo);
+> -       if (r)
+> -               return r;
+> -       r =3D qxl_bo_pin_locked(bo);
+> -       qxl_bo_unreserve(bo);
+> -
+> -       return r;
+> +       return qxl_bo_pin_locked(bo);
 >  }
 >
 >  void qxl_gem_prime_unpin(struct drm_gem_object *obj)
 >  {
 >         struct qxl_bo *bo =3D gem_to_qxl_bo(obj);
-> +       int r;
+> -       int r;
 >
-> -       qxl_bo_unpin(bo);
-> +       r =3D qxl_bo_reserve(bo);
-> +       if (r)
-> +               return;
-> +       qxl_bo_unpin_locked(bo);
-> +       qxl_bo_unreserve(bo);
+> -       r =3D qxl_bo_reserve(bo);
+> -       if (r)
+> -               return;
+>         qxl_bo_unpin_locked(bo);
+> -       qxl_bo_unreserve(bo);
 >  }
+>
+>  struct sg_table *qxl_gem_prime_get_sg_table(struct drm_gem_object *obj)
+> diff --git a/drivers/gpu/drm/radeon/radeon_prime.c b/drivers/gpu/drm/rade=
+on/radeon_prime.c
+> index b3cfc99f4d7ed..a77881f035e7a 100644
+> --- a/drivers/gpu/drm/radeon/radeon_prime.c
+> +++ b/drivers/gpu/drm/radeon/radeon_prime.c
+> @@ -73,32 +73,21 @@ int radeon_gem_prime_pin(struct drm_gem_object *obj)
+>         struct radeon_bo *bo =3D gem_to_radeon_bo(obj);
+>         int ret =3D 0;
+>
+> -       ret =3D radeon_bo_reserve(bo, false);
+> -       if (unlikely(ret !=3D 0))
+> -               return ret;
+> -
+>         /* pin buffer into GTT */
+>         ret =3D radeon_bo_pin(bo, RADEON_GEM_DOMAIN_GTT, NULL);
+>         if (likely(ret =3D=3D 0))
+>                 bo->prime_shared_count++;
+>
+> -       radeon_bo_unreserve(bo);
+>         return ret;
+>  }
+>
+>  void radeon_gem_prime_unpin(struct drm_gem_object *obj)
+>  {
+>         struct radeon_bo *bo =3D gem_to_radeon_bo(obj);
+> -       int ret =3D 0;
+> -
+> -       ret =3D radeon_bo_reserve(bo, false);
+> -       if (unlikely(ret !=3D 0))
+> -               return;
+>
+>         radeon_bo_unpin(bo);
+>         if (bo->prime_shared_count)
+>                 bo->prime_shared_count--;
+> -       radeon_bo_unreserve(bo);
+>  }
+>
+>
+> diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c b/drivers/gpu/drm/vmwgfx=
+/vmwgfx_gem.c
+> index 12787bb9c111d..186150f41fbcc 100644
+> --- a/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
+> +++ b/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
+> @@ -48,33 +48,20 @@ static void vmw_gem_object_close(struct drm_gem_objec=
+t *obj,
+>  {
+>  }
+>
+> -static int vmw_gem_pin_private(struct drm_gem_object *obj, bool do_pin)
+> +static int vmw_gem_object_pin(struct drm_gem_object *obj)
+>  {
+> -       struct ttm_buffer_object *bo =3D drm_gem_ttm_of_gem(obj);
+>         struct vmw_bo *vbo =3D to_vmw_bo(obj);
+> -       int ret;
+> -
+> -       ret =3D ttm_bo_reserve(bo, false, false, NULL);
+> -       if (unlikely(ret !=3D 0))
+> -               goto err;
+> -
+> -       vmw_bo_pin_reserved(vbo, do_pin);
+> -
+> -       ttm_bo_unreserve(bo);
+> -
+> -err:
+> -       return ret;
+> -}
+>
+> +       vmw_bo_pin_reserved(vbo, true);
+>
+> -static int vmw_gem_object_pin(struct drm_gem_object *obj)
+> -{
+> -       return vmw_gem_pin_private(obj, true);
+> +       return 0;
+>  }
+>
+>  static void vmw_gem_object_unpin(struct drm_gem_object *obj)
+>  {
+> -       vmw_gem_pin_private(obj, false);
+> +       struct vmw_bo *vbo =3D to_vmw_bo(obj);
+> +
+> +       vmw_bo_pin_reserved(vbo, false);
+>  }
+>
+>  static struct sg_table *vmw_gem_object_get_sg_table(struct drm_gem_objec=
+t *obj)
+> diff --git a/include/drm/drm_gem_shmem_helper.h b/include/drm/drm_gem_shm=
+em_helper.h
+> index eb12aa9a8c556..efbc9f27312b5 100644
+> --- a/include/drm/drm_gem_shmem_helper.h
+> +++ b/include/drm/drm_gem_shmem_helper.h
+> @@ -175,15 +175,8 @@ static inline void drm_gem_shmem_object_print_info(s=
+truct drm_printer *p, unsign
+>  static inline int drm_gem_shmem_object_pin(struct drm_gem_object *obj)
+>  {
+>         struct drm_gem_shmem_object *shmem =3D to_drm_gem_shmem_obj(obj);
+> -       int ret;
+>
+> -       ret =3D dma_resv_lock_interruptible(shmem->base.resv, NULL);
+> -       if (ret)
+> -               return ret;
+> -       ret =3D drm_gem_shmem_pin_locked(shmem);
+> -       dma_resv_unlock(shmem->base.resv);
+> -
+> -       return ret;
+> +       return drm_gem_shmem_pin_locked(shmem);
+>  }
+>
+>  /**
+> @@ -197,9 +190,7 @@ static inline void drm_gem_shmem_object_unpin(struct =
+drm_gem_object *obj)
+>  {
+>         struct drm_gem_shmem_object *shmem =3D to_drm_gem_shmem_obj(obj);
+>
+> -       dma_resv_lock(shmem->base.resv, NULL);
+>         drm_gem_shmem_unpin_locked(shmem);
+> -       dma_resv_unlock(shmem->base.resv);
+>  }
+>
+>
 
-It looks like gem_prime_pin/unpin is largely the same between a lot of
-drivers now. That might be a nice cleanup in the future.
+Ah, I see. Looks great.
 
-z
+Reviewed-by: Zack Rusin <zack.rusin@broadcom.com>
