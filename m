@@ -1,237 +1,85 @@
-Received: from szxga05-in.huawei.com (szxga05-in.huawei.com [45.249.212.191])
+Received: from szxga04-in.huawei.com (szxga04-in.huawei.com [45.249.212.190])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E50B383BB
-	for <virtualization@lists.linux.dev>; Wed, 28 Feb 2024 09:32:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.191
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D820D12EBC9
+	for <virtualization@lists.linux.dev>; Wed, 28 Feb 2024 11:05:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.190
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709112733; cv=none; b=qxc2xbjOrPVjAWjUz3n4qcdZszRPFxPwxTWaNZ2di3D0RQwSW3J30nReBUqdWEbA11qXwQXzH3Snhl5xMGIRjcvL/dIkw9pukTd9lJ83nlGcXRh27ugGTq9+jblEMSQJuAGflg7QU3BRfhLsbU6slaoxVSepL7Bd8uO5QlkV4iw=
+	t=1709118314; cv=none; b=HYeNFe0j7EAdcSHE8yjDXShADBRTRBcocG2WLEqvjRsGRFSFyAhBAHvUp43HoAjdaV2wpsjP7CuvdKcBwCZFz16cHxU6JF9v8Iyy8wR7cbcQm3063fwQcZGeavX6nV9eujbiKgJr8EpYrTEwlKxRFq947s6+ST0+8rgntla5qSg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709112733; c=relaxed/simple;
-	bh=EkOVPmyG8AwI1ztH4WPEnwo5N1dm4jflvATq8fvXt7Q=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=AuqY8jt/udQghqJ3EO6T8OnoSwyqdLrXittmBudPzTtDy+TMsLh52ykIqcfJ2ILJpLHiiG+dxuZARLlsanyzz5h/eW7+L5Fp3je7dYarwB5pON2mOw3pspRvWQD5ZhlcoNOrik09wEnh9fJi6a7tI2KyGoLs1I3J5CkJexbytlA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.191
+	s=arc-20240116; t=1709118314; c=relaxed/simple;
+	bh=fzby08iFoLHHuRG0MLFoUXRbZcJapueKM6rj/Q2uFY4=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=V+0BpbBFH0L0ggAb9Dd13yb1v8P6i1wl6MzKvJTeX/vs5ip99Ug9trrkTsntExDwdcN0lp1bGW0Mw1JioecJzbPg5xQweAjeinrKoS9akNOf6M9vYLzAIaLsl637Y8iGUOEdhw5K4MZ95Uj5d4pPVYczu6EOiWEA2UpAoKtzqXo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.190
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.162.112])
-	by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4Tl8Fn0V8Lz1h0nt;
-	Wed, 28 Feb 2024 17:29:49 +0800 (CST)
-Received: from dggpemm500005.china.huawei.com (unknown [7.185.36.74])
-	by mail.maildlp.com (Postfix) with ESMTPS id D037F1404F1;
-	Wed, 28 Feb 2024 17:32:03 +0800 (CST)
-Received: from localhost.localdomain (10.69.192.56) by
- dggpemm500005.china.huawei.com (7.185.36.74) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.35; Wed, 28 Feb 2024 17:32:03 +0800
-From: Yunsheng Lin <linyunsheng@huawei.com>
-To: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>
-CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Yunsheng Lin
-	<linyunsheng@huawei.com>, Jason Wang <jasowang@redhat.com>, "Michael S.
- Tsirkin" <mst@redhat.com>, Alexei Starovoitov <ast@kernel.org>, Daniel
- Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>, <kvm@vger.kernel.org>,
-	<virtualization@lists.linux.dev>, <bpf@vger.kernel.org>
-Subject: [PATCH net-next v6 4/5] vhost/net: remove vhost_net_page_frag_refill()
-Date: Wed, 28 Feb 2024 17:30:11 +0800
-Message-ID: <20240228093013.8263-5-linyunsheng@huawei.com>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20240228093013.8263-1-linyunsheng@huawei.com>
-References: <20240228093013.8263-1-linyunsheng@huawei.com>
+Received: from mail.maildlp.com (unknown [172.19.88.163])
+	by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4TlBK83Vw5z2BdmP;
+	Wed, 28 Feb 2024 19:02:52 +0800 (CST)
+Received: from dggpemm500008.china.huawei.com (unknown [7.185.36.136])
+	by mail.maildlp.com (Postfix) with ESMTPS id 813BE18002F;
+	Wed, 28 Feb 2024 19:05:07 +0800 (CST)
+Received: from localhost (10.174.242.157) by dggpemm500008.china.huawei.com
+ (7.185.36.136) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.1.2507.35; Wed, 28 Feb
+ 2024 19:05:07 +0800
+From: Yunjian Wang <wangyunjian@huawei.com>
+To: <mst@redhat.com>, <willemdebruijn.kernel@gmail.com>,
+	<jasowang@redhat.com>, <kuba@kernel.org>, <bjorn@kernel.org>,
+	<magnus.karlsson@intel.com>, <maciej.fijalkowski@intel.com>,
+	<jonathan.lemon@gmail.com>, <davem@davemloft.net>
+CC: <bpf@vger.kernel.org>, <netdev@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <kvm@vger.kernel.org>,
+	<virtualization@lists.linux.dev>, <xudingke@huawei.com>,
+	<liwei395@huawei.com>, Yunjian Wang <wangyunjian@huawei.com>
+Subject: [PATCH net-next v2 0/3] tun: AF_XDP Tx zero-copy support
+Date: Wed, 28 Feb 2024 19:04:41 +0800
+Message-ID: <1709118281-125508-1-git-send-email-wangyunjian@huawei.com>
+X-Mailer: git-send-email 1.9.5.msysgit.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- dggpemm500005.china.huawei.com (7.185.36.74)
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ dggpemm500008.china.huawei.com (7.185.36.136)
 
-The page frag in vhost_net_page_frag_refill() uses the
-'struct page_frag' from skb_page_frag_refill(), but it's
-implementation is similar to page_frag_alloc_align() now.
+Hi all:
 
-This patch removes vhost_net_page_frag_refill() by using
-'struct page_frag_cache' instead of 'struct page_frag',
-and allocating frag using page_frag_alloc_align().
+Now, some drivers support the zero-copy feature of AF_XDP sockets,
+which can significantly reduce CPU utilization for XDP programs.
 
-The added benefit is that not only unifying the page frag
-implementation a little, but also having about 0.5% performance
-boost testing by using the vhost_net_test introduced in the
-last patch.
+This patch set allows TUN to also support the AF_XDP Tx zero-copy
+feature. It is based on Linux 6.8.0+(openEuler 23.09) and has
+successfully passed Netperf and Netserver stress testing with
+multiple streams between VM A and VM B, using AF_XDP and OVS.
 
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
----
- drivers/vhost/net.c | 91 ++++++++++++++-------------------------------
- 1 file changed, 27 insertions(+), 64 deletions(-)
+The performance testing was performed on a Intel E5-2620 2.40GHz
+machine. Traffic were generated/send through TUN(testpmd txonly
+with AF_XDP) to VM (testpmd rxonly in guest).
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index e574e21cc0ca..4b2fcb228a0a 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -141,10 +141,8 @@ struct vhost_net {
- 	unsigned tx_zcopy_err;
- 	/* Flush in progress. Protected by tx vq lock. */
- 	bool tx_flush;
--	/* Private page frag */
--	struct page_frag page_frag;
--	/* Refcount bias of page frag */
--	int refcnt_bias;
-+	/* Private page frag cache */
-+	struct page_frag_cache pf_cache;
- };
- 
- static unsigned vhost_net_zcopy_mask __read_mostly;
-@@ -655,41 +653,6 @@ static bool tx_can_batch(struct vhost_virtqueue *vq, size_t total_len)
- 	       !vhost_vq_avail_empty(vq->dev, vq);
- }
- 
--static bool vhost_net_page_frag_refill(struct vhost_net *net, unsigned int sz,
--				       struct page_frag *pfrag, gfp_t gfp)
--{
--	if (pfrag->page) {
--		if (pfrag->offset + sz <= pfrag->size)
--			return true;
--		__page_frag_cache_drain(pfrag->page, net->refcnt_bias);
--	}
--
--	pfrag->offset = 0;
--	net->refcnt_bias = 0;
--	if (SKB_FRAG_PAGE_ORDER) {
--		/* Avoid direct reclaim but allow kswapd to wake */
--		pfrag->page = alloc_pages((gfp & ~__GFP_DIRECT_RECLAIM) |
--					  __GFP_COMP | __GFP_NOWARN |
--					  __GFP_NORETRY | __GFP_NOMEMALLOC,
--					  SKB_FRAG_PAGE_ORDER);
--		if (likely(pfrag->page)) {
--			pfrag->size = PAGE_SIZE << SKB_FRAG_PAGE_ORDER;
--			goto done;
--		}
--	}
--	pfrag->page = alloc_page(gfp);
--	if (likely(pfrag->page)) {
--		pfrag->size = PAGE_SIZE;
--		goto done;
--	}
--	return false;
--
--done:
--	net->refcnt_bias = USHRT_MAX;
--	page_ref_add(pfrag->page, USHRT_MAX - 1);
--	return true;
--}
--
- #define VHOST_NET_RX_PAD (NET_IP_ALIGN + NET_SKB_PAD)
- 
- static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
-@@ -699,7 +662,6 @@ static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
- 	struct vhost_net *net = container_of(vq->dev, struct vhost_net,
- 					     dev);
- 	struct socket *sock = vhost_vq_get_backend(vq);
--	struct page_frag *alloc_frag = &net->page_frag;
- 	struct virtio_net_hdr *gso;
- 	struct xdp_buff *xdp = &nvq->xdp[nvq->batched_xdp];
- 	struct tun_xdp_hdr *hdr;
-@@ -710,6 +672,7 @@ static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
- 	int sock_hlen = nvq->sock_hlen;
- 	void *buf;
- 	int copied;
-+	int ret;
- 
- 	if (unlikely(len < nvq->sock_hlen))
- 		return -EFAULT;
-@@ -719,18 +682,17 @@ static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
- 		return -ENOSPC;
- 
- 	buflen += SKB_DATA_ALIGN(len + pad);
--	alloc_frag->offset = ALIGN((u64)alloc_frag->offset, SMP_CACHE_BYTES);
--	if (unlikely(!vhost_net_page_frag_refill(net, buflen,
--						 alloc_frag, GFP_KERNEL)))
-+	buf = page_frag_alloc_align(&net->pf_cache, buflen, GFP_KERNEL,
-+				    SMP_CACHE_BYTES);
-+	if (unlikely(!buf))
- 		return -ENOMEM;
- 
--	buf = (char *)page_address(alloc_frag->page) + alloc_frag->offset;
--	copied = copy_page_from_iter(alloc_frag->page,
--				     alloc_frag->offset +
--				     offsetof(struct tun_xdp_hdr, gso),
--				     sock_hlen, from);
--	if (copied != sock_hlen)
--		return -EFAULT;
-+	copied = copy_from_iter(buf + offsetof(struct tun_xdp_hdr, gso),
-+				sock_hlen, from);
-+	if (copied != sock_hlen) {
-+		ret = -EFAULT;
-+		goto err;
-+	}
- 
- 	hdr = buf;
- 	gso = &hdr->gso;
-@@ -743,27 +705,30 @@ static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
- 			       vhost16_to_cpu(vq, gso->csum_start) +
- 			       vhost16_to_cpu(vq, gso->csum_offset) + 2);
- 
--		if (vhost16_to_cpu(vq, gso->hdr_len) > len)
--			return -EINVAL;
-+		if (vhost16_to_cpu(vq, gso->hdr_len) > len) {
-+			ret = -EINVAL;
-+			goto err;
-+		}
- 	}
- 
- 	len -= sock_hlen;
--	copied = copy_page_from_iter(alloc_frag->page,
--				     alloc_frag->offset + pad,
--				     len, from);
--	if (copied != len)
--		return -EFAULT;
-+	copied = copy_from_iter(buf + pad, len, from);
-+	if (copied != len) {
-+		ret = -EFAULT;
-+		goto err;
-+	}
- 
- 	xdp_init_buff(xdp, buflen, NULL);
- 	xdp_prepare_buff(xdp, buf, pad, len, true);
- 	hdr->buflen = buflen;
- 
--	--net->refcnt_bias;
--	alloc_frag->offset += buflen;
--
- 	++nvq->batched_xdp;
- 
- 	return 0;
-+
-+err:
-+	page_frag_free(buf);
-+	return ret;
- }
- 
- static void handle_tx_copy(struct vhost_net *net, struct socket *sock)
-@@ -1353,8 +1318,7 @@ static int vhost_net_open(struct inode *inode, struct file *f)
- 			vqs[VHOST_NET_VQ_RX]);
- 
- 	f->private_data = n;
--	n->page_frag.page = NULL;
--	n->refcnt_bias = 0;
-+	n->pf_cache.va = NULL;
- 
- 	return 0;
- }
-@@ -1422,8 +1386,7 @@ static int vhost_net_release(struct inode *inode, struct file *f)
- 	kfree(n->vqs[VHOST_NET_VQ_RX].rxq.queue);
- 	kfree(n->vqs[VHOST_NET_VQ_TX].xdp);
- 	kfree(n->dev.vqs);
--	if (n->page_frag.page)
--		__page_frag_cache_drain(n->page_frag.page, n->refcnt_bias);
-+	page_frag_cache_drain(&n->pf_cache);
- 	kvfree(n);
- 	return 0;
- }
++------+---------+---------+---------+
+|      |   copy  |zero-copy| speedup |
++------+---------+---------+---------+
+| UDP  |   Mpps  |   Mpps  |    %    |
+| 64   |   2.5   |   4.0   |   60%   |
+| 512  |   2.1   |   3.6   |   71%   |
+| 1024 |   1.9   |   3.3   |   73%   |
++------+---------+---------+---------+
+
+Yunjian Wang (3):
+  xsk: Remove non-zero 'dma_page' check in xp_assign_dev
+  vhost_net: Call peek_len when using xdp
+  tun: AF_XDP Tx zero-copy support
+
+ drivers/net/tun.c       | 177 ++++++++++++++++++++++++++++++++++++++--
+ drivers/vhost/net.c     |  21 +++--
+ include/linux/if_tun.h  |  32 ++++++++
+ net/xdp/xsk_buff_pool.c |   7 --
+ 4 files changed, 220 insertions(+), 17 deletions(-)
+
 -- 
-2.33.0
+2.41.0
 
