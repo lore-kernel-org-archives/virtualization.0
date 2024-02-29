@@ -1,65 +1,65 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 044B379DCF
-	for <virtualization@lists.linux.dev>; Thu, 29 Feb 2024 10:48:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C78F87A709
+	for <virtualization@lists.linux.dev>; Thu, 29 Feb 2024 11:12:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709203731; cv=none; b=p4QPN+tZQrHwpnviGx7qqUfzBKYDvwqpnhg32iG8rAl+3AaHfCAvhTweMTl5bn0t/yGEWmGGYtnfTg0UFxARbyQfJTQlixiGXctgzwC2oTvjelJ8lzNXTCJUDHJC/LrCBbjIGJuv1RDYct2mntm9xtsKFGKrag6EqPm/XIXIUgw=
+	t=1709205172; cv=none; b=LiczDqdn1jviBOoHaOHm/HMAjTBIcCYKB8wDb2Axyv7q+gxATw+U/cQSIE920jQYxyWhGDj1Y70JtRLQkAbaZkkSes0mHDW/ADIqK0ExMEvD7WZ4jWfF4DTJh06r9sGtUbwHHRjt+Bcoue+JAnrNxxWCZhX6Qr7sjpxgQ3Qc2Wo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709203731; c=relaxed/simple;
-	bh=U040oU0vEP06i1C25D56/VpGVa5ZSvafwiSSOBz7nWw=;
+	s=arc-20240116; t=1709205172; c=relaxed/simple;
+	bh=+bJsDAmsCHuuybkojpUcqg83Cd3FuY+Moz8CZejknmE=;
 	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=g6gySe4q8fH1ZYkInaE3MOJ4D17iAZ9fQawEWd9c8wu6xTnNBUwejcbC6+CHV6A9GjTp/ojRRsYY2Aj8bTCYfXzksaRdEJHfT2Ff5Su8AsL5d/vQx3FLMekc4srmwTYzOg7B1nffgM8CkkyBLpHBwfRTd2RMXngosYUfB8woJSA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SglJRMCo; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version:Content-Type; b=UA6USY5eFsp/rwdbJDwJr30n/YNtdD1QCOOrdmUTGBN9o0vM7iB452ariREQQUC+H+u5r2ygS9FXm5g2jciXUgxbLBDCrof8pyKGw+yZ7YCUjfd1BL8zCwSyPGVnMbkFI2kkviBwxaeekFXZWVJS0k6ZPEDlVdFuMWeZR9SaE+Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cKbcHiNM; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SglJRMCo"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cKbcHiNM"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1709203729;
+	s=mimecast20190719; t=1709205169;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=abeHQN/Ifs+3w7+L704xqLeF0Y/ZlN8gh1Nav3s3twc=;
-	b=SglJRMCoZo+5tifSKcFnhpDowddxamb9IDaYLxe8yV3ow4Co7ShZhdwP4GL1ChfST2Ikdw
-	4ljYks5hJgci0k97NyP222DsE0BIUFNhNrmpEcAd3FmX1xQo03YRNtnxegDsEagrADrQH6
-	JuF3PSchB93bXt40SFjijm0h//GTuqA=
-Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
- [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=ZX2J7Wyo2BWhvF75jz1nSkY+uDz435TdGwuyfJeDJcw=;
+	b=cKbcHiNMyc2A6M7bBiHoufDE12rNwDhSiMkDQpwtBciG6vBGopn/OZCQX29bc7NKJmw61S
+	8IqP8O11uSFVy5uNDi+kAYEfNPT30LI3gS0t9/834/jiJZKML4L3kWSBmGbyBYzfNQLrE7
+	cbJbz8AW+m2HjZdekxkJiTd1VFA5W9s=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-320-yKO7ciJmOxCJtKE_dbFdOg-1; Thu, 29 Feb 2024 05:48:47 -0500
-X-MC-Unique: yKO7ciJmOxCJtKE_dbFdOg-1
-Received: by mail-lf1-f72.google.com with SMTP id 2adb3069b0e04-5132987ccfaso52198e87.0
-        for <virtualization@lists.linux.dev>; Thu, 29 Feb 2024 02:48:47 -0800 (PST)
+ us-mta-413-UBPdgAIdNuejjYQ68SSpsQ-1; Thu, 29 Feb 2024 06:12:48 -0500
+X-MC-Unique: UBPdgAIdNuejjYQ68SSpsQ-1
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-40e354aaf56so1111325e9.1
+        for <virtualization@lists.linux.dev>; Thu, 29 Feb 2024 03:12:48 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1709203726; x=1709808526;
+        d=1e100.net; s=20230601; t=1709205167; x=1709809967;
         h=mime-version:user-agent:content-transfer-encoding:autocrypt
          :references:in-reply-to:date:cc:to:from:subject:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=kTQNgwDYWMu50d3fX4YnqzUpTcfqlF52qDT1Uxsy8p8=;
-        b=Ovn4UY+uwGRBNxUhjfA4w2VKHkf/zyCc8CVU6wX3UFBSzLSFc/83JSd7Cylz7zxdXg
-         j3jV9jEd62SxyyYTv8OdnUpcvWIxKbnpqWGEBAQO+5MjK5bpQyF206crdfvWPo1Ob9pq
-         MXVLfCoLjnnpWNJ/lXnTjN3m2lYbdK4kp/zC/0mdVJngIzbU7r+ENp54LzqDI8Xg988R
-         QKYmLFibWezcFr7GkKi8WEqxa+cYNKoG8HZ+ABfQTnu9OeT9+vol3zvgwHWjqbXwQGN5
-         JR8i98rFrVbwk1QINSUUKZ2hIsKhL4QyFh4e/gZyLb55ixQDa8Z3ZpqqifCcdSB1VO5L
-         ttPw==
-X-Forwarded-Encrypted: i=1; AJvYcCVMI5aMOcFVTZkyb86PcryT9+M2VVCqGNiFdzW2xxd4Fg0vsajFTF9VLBKou3qRabGS1lioiqqMuT92YShZibR9iXtZnfE6VS67/GDHeww=
-X-Gm-Message-State: AOJu0Yxm9t+e8Pb+LrjzNWDa6NRcK/1UnHwm7DLZXaeIydl4iY/7gu1B
-	vWMS0EHHYYkNk4qLCxC1+vYHYSIRoKADTGxJRy8L90b/amdMg0nvr2Mre0nk6+je7sCH70Bp/of
-	6hU+tgUuB4RwsP26xGSuWkpND8TXT0ecJXZ8O5erbGC21Tu1ROOI1HArC+PMZsfKv
-X-Received: by 2002:a05:6512:3b89:b0:511:9ea2:f589 with SMTP id g9-20020a0565123b8900b005119ea2f589mr1463611lfv.0.1709203726265;
-        Thu, 29 Feb 2024 02:48:46 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGS5gieFTKdIGG4SJuTQlGR8TPXmC/tE8BJ9sq2UItrPbXs/wsObrdj9Ky7fDTCqAnBObdqLg==
-X-Received: by 2002:a05:6512:3b89:b0:511:9ea2:f589 with SMTP id g9-20020a0565123b8900b005119ea2f589mr1463595lfv.0.1709203725888;
-        Thu, 29 Feb 2024 02:48:45 -0800 (PST)
+        bh=J1ljLBvAKrzOfqXsdymMG4sOPRNjFy8nCCCQL/VLcRg=;
+        b=BjPL4XcNrSsxBVkmWawpTqWL/NM0QyWyxxirfxxnM6z0c/szzZlMxQk4rUXn67qDMf
+         qsEulKMZ1YAQp6ItzEx4lTmhcQvcwDn+UDpEFAYEAtrie9ONopaGwfBXL6nFofVqsf2Q
+         Yk1kSALenhddonPB+73nQlEpkxZS5ejZfx+Reupr507sSvrWcgp6BhOcalt0oUOQ/g0x
+         6YSIPIjy8KfqbDEVu9kg2Is6PuFMyA6HHHF+hQQBbnimxc2UIZ2jIrHAUe95Ke4XYc81
+         yrsjY6G6W9rhXD1kncT/neDHU2Xug4mTYLnbEytqSGRww0yYHd+i3fnKRc+w6aYCtpvh
+         cbIw==
+X-Forwarded-Encrypted: i=1; AJvYcCVtNc+YeC/hoKOJ+qPUGgkmnxDvDzqBof9hPiIhVA36lJLNXc4k2JqueiKSh0SbXTUhghg/gwbjdOqeAtUdvzh+I2N4ZjBAy7/CvThha9M=
+X-Gm-Message-State: AOJu0YyT/7VsXA8aIP0/Ry7jZxtsAgnCQawfTMkWF/ZkYIAxZW7bVb/z
+	Gm8wQmIa+m01sbumOrNFEIeGfDmt/7XEkBadyOADrVHwDHTeFULUBOwSXosOJM5FkgP8fyWdHvg
+	OU7qARpSKvO2bLa9xCIxwXie3v98/sP8Nmj8xSqV0VlXlY/ucTllZV8lG/8HxS64v
+X-Received: by 2002:a05:6000:18a9:b0:33d:9e15:12bf with SMTP id b9-20020a05600018a900b0033d9e1512bfmr1372337wri.3.1709205167098;
+        Thu, 29 Feb 2024 03:12:47 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHfKKnPq3F5LjzBgxvLGpBosG5KZdsojuxXv+y3866lEvo3VcN/Hqtb7eOfxFpQwYKS/TI+dQ==
+X-Received: by 2002:a05:6000:18a9:b0:33d:9e15:12bf with SMTP id b9-20020a05600018a900b0033d9e1512bfmr1372320wri.3.1709205166722;
+        Thu, 29 Feb 2024 03:12:46 -0800 (PST)
 Received: from gerbillo.redhat.com (146-241-250-174.dyn.eolo.it. [146.241.250.174])
-        by smtp.gmail.com with ESMTPSA id bx5-20020a5d5b05000000b0033e103eaf5bsm1159217wrb.115.2024.02.29.02.48.44
+        by smtp.gmail.com with ESMTPSA id e5-20020adff345000000b0033b278cf5fesm1462888wrp.102.2024.02.29.03.12.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Feb 2024 02:48:45 -0800 (PST)
-Message-ID: <94bd28f625f7ca066e8f2b2686c2493cfab386bd.camel@redhat.com>
-Subject: Re: [PATCH net-next v2 2/3] vhost_net: Call peek_len when using xdp
+        Thu, 29 Feb 2024 03:12:46 -0800 (PST)
+Message-ID: <7d478cb842e28094f4d6102e593e3de25ab27dfe.camel@redhat.com>
+Subject: Re: [PATCH net-next v2 3/3] tun: AF_XDP Tx zero-copy support
 From: Paolo Abeni <pabeni@redhat.com>
 To: Yunjian Wang <wangyunjian@huawei.com>, mst@redhat.com, 
 	willemdebruijn.kernel@gmail.com, jasowang@redhat.com, kuba@kernel.org, 
@@ -68,9 +68,9 @@ To: Yunjian Wang <wangyunjian@huawei.com>, mst@redhat.com,
 Cc: bpf@vger.kernel.org, netdev@vger.kernel.org,
  linux-kernel@vger.kernel.org,  kvm@vger.kernel.org,
  virtualization@lists.linux.dev, xudingke@huawei.com,  liwei395@huawei.com
-Date: Thu, 29 Feb 2024 11:48:43 +0100
-In-Reply-To: <1709118344-127812-1-git-send-email-wangyunjian@huawei.com>
-References: <1709118344-127812-1-git-send-email-wangyunjian@huawei.com>
+Date: Thu, 29 Feb 2024 12:12:44 +0100
+In-Reply-To: <1709118356-133960-1-git-send-email-wangyunjian@huawei.com>
+References: <1709118356-133960-1-git-send-email-wangyunjian@huawei.com>
 Autocrypt: addr=pabeni@redhat.com; prefer-encrypt=mutual; keydata=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
@@ -88,46 +88,68 @@ Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
 On Wed, 2024-02-28 at 19:05 +0800, Yunjian Wang wrote:
-> If TUN supports AF_XDP TX zero-copy, the XDP program will enqueue
-> packets to the XDP ring and wake up the vhost worker. This requires
-> the vhost worker to call peek_len(), which can be used to consume
-> XDP descriptors.
->=20
-> Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
-> ---
->  drivers/vhost/net.c | 17 ++++++++++++-----
->  1 file changed, 12 insertions(+), 5 deletions(-)
->=20
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index f2ed7167c848..077e74421558 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -207,6 +207,11 @@ static int vhost_net_buf_peek_len(void *ptr)
->  =09return __skb_array_len_with_tag(ptr);
+> @@ -2661,6 +2776,54 @@ static int tun_ptr_peek_len(void *ptr)
+>  =09}
 >  }
 > =20
-> +static bool vhost_sock_xdp(struct socket *sock)
+> +static void tun_peek_xsk(struct tun_file *tfile)
 > +{
-> +=09return sock_flag(sock->sk, SOCK_XDP);
-> +}
+> +=09struct xsk_buff_pool *pool;
+> +=09u32 i, batch, budget;
+> +=09void *frame;
 > +
->  static int vhost_net_buf_peek(struct vhost_net_virtqueue *nvq)
->  {
->  =09struct vhost_net_buf *rxq =3D &nvq->rxq;
-> @@ -214,6 +219,13 @@ static int vhost_net_buf_peek(struct vhost_net_virtq=
-ueue *nvq)
->  =09if (!vhost_net_buf_is_empty(rxq))
->  =09=09goto out;
-> =20
-> +=09if (ptr_ring_empty(nvq->rx_ring)) {
-> +=09=09struct socket *sock =3D vhost_vq_get_backend(&nvq->vq);
-> +=09=09/* Call peek_len to consume XSK descriptors, when using xdp */
-> +=09=09if (vhost_sock_xdp(sock) && sock->ops->peek_len)
-> +=09=09=09sock->ops->peek_len(sock);
+> +=09if (!ptr_ring_empty(&tfile->tx_ring))
+> +=09=09return;
+> +
+> +=09spin_lock(&tfile->pool_lock);
+> +=09pool =3D tfile->xsk_pool;
+> +=09if (!pool) {
+> +=09=09spin_unlock(&tfile->pool_lock);
+> +=09=09return;
+> +=09}
+> +
+> +=09if (tfile->nb_descs) {
+> +=09=09xsk_tx_completed(pool, tfile->nb_descs);
+> +=09=09if (xsk_uses_need_wakeup(pool))
+> +=09=09=09xsk_set_tx_need_wakeup(pool);
+> +=09}
+> +
+> +=09spin_lock(&tfile->tx_ring.producer_lock);
+> +=09budget =3D min_t(u32, tfile->tx_ring.size, TUN_XDP_BATCH);
+> +
+> +=09batch =3D xsk_tx_peek_release_desc_batch(pool, budget);
+> +=09if (!batch) {
 
-This really looks like a socket API misuse. Why can't you use ptr-ring
-primitives to consume XSK descriptors? peek_len could be constified
-some day, this code will prevent such (good) thing.
+This branch looks like an unneeded "optimization". The generic loop
+below should have the same effect with no measurable perf delta - and
+smaller code. Just remove this.
+
+> +=09=09tfile->nb_descs =3D 0;
+> +=09=09spin_unlock(&tfile->tx_ring.producer_lock);
+> +=09=09spin_unlock(&tfile->pool_lock);
+> +=09=09return;
+> +=09}
+> +
+> +=09tfile->nb_descs =3D batch;
+> +=09for (i =3D 0; i < batch; i++) {
+> +=09=09/* Encode the XDP DESC flag into lowest bit for consumer to differ
+> +=09=09 * XDP desc from XDP buffer and sk_buff.
+> +=09=09 */
+> +=09=09frame =3D tun_xdp_desc_to_ptr(&pool->tx_descs[i]);
+> +=09=09/* The budget must be less than or equal to tx_ring.size,
+> +=09=09 * so enqueuing will not fail.
+> +=09=09 */
+> +=09=09__ptr_ring_produce(&tfile->tx_ring, frame);
+> +=09}
+> +=09spin_unlock(&tfile->tx_ring.producer_lock);
+> +=09spin_unlock(&tfile->pool_lock);
+
+More related to the general design: it looks wrong. What if
+get_rx_bufs() will fail (ENOBUF) after successful peeking? With no more
+incoming packets, later peek will return 0 and it looks like that the
+half-processed packets will stay in the ring forever???
+
+I think the 'ring produce' part should be moved into tun_do_read().
 
 Cheers,
 
