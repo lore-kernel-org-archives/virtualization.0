@@ -1,61 +1,63 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E5C913776F
-	for <virtualization@lists.linux.dev>; Thu, 29 Feb 2024 15:00:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B0D514A0B6;
+	Thu, 29 Feb 2024 15:46:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709218809; cv=none; b=TtbTXY/+RyvRlNVLeyuR2Rat/pmhV7WXF6sltPxV474AtlwQwteFoBpDEa6aWfKPZBXXEf8LvITZ2/6C38lIBjnm8SaEqZCpygjk/gFoWcaIxZIUSZuCDAhL0JXXmGyVyyweLWt2gb7jPdBqVDfJbvoOCO55JoEpiVdazRzivfw=
+	t=1709221594; cv=none; b=AiqX+7gwW8Ugf4uoY6pAdTjJcCuu4vrs/Eh1pi54jdhzy3zQXDKlizvHmBXs3gr2Mjz4Okpk9X1Swon0PUFD1b8jm5rk20o32cvDNHdT7DkcvQWmEV8UfoB0/la91qWKvCnUFurUJXz31oiAQ4T0bQehkBQc62rLzkUmLWj1+oY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709218809; c=relaxed/simple;
-	bh=bzsLAiCQthrVFAfhIeoz62wmMKFtw1xDTxQwvoxknAM=;
+	s=arc-20240116; t=1709221594; c=relaxed/simple;
+	bh=lczR1LgOcbUQlGy40uUgvgOpZit1cKPUO/BBWojFrb8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RUpiGlzWHUcBwElZ1f+bFruWpInrsJ64vmCWRpijgsj73YodC7HJ8oZ/DLSFKxyONmTrcqL5yBpT4giANi+anC1uhciIaVGmD9eyO52roHMptYuoQ/iSo5w7hkYGCiUAPOuyQ69Dp+62fA02FtHxe0q5iieiAa9ZgT7FWvwETeo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JJSnjjKl; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=NYdJJZbxuXjEvpoJyAGKapLyYZ1BVPIjOexp8DyEWC25F65mGkUKQTt/XhyzV+fubhn/ff+T8+JVxw53j2CDZd3sy7ShVkqkD0qcGync5gKrlyb8hc6xb6vJo9Z+zBiQp1wX+QouLOc34gTnehSYe+n287fEDAXKP2cXAlFSc8g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Nf5pJAlJ; arc=none smtp.client-ip=198.175.65.21
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JJSnjjKl"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1709218807;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=6egRvLYRkiVfRFj4cN+8vcXUmac/AnmcaQNAMGAMNAg=;
-	b=JJSnjjKlg4iyXtO29AjYhbmIDlzfqJMrbLy1HtEvX5/i4Zjz70Noxg1AO5WmRzae7OdkTu
-	acDCeuQ8UwsgAX8/NmQg2V+yJ9fC1hQYj6DWP4z3LiIv0oX5rir50QEH5bD2WxwcacQPBZ
-	kKDnTFbH0Psk9S7uBItpBnc//KV72YE=
-Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
- by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-422-i8F5JyzwPvWRc0Tt_-tQzw-1; Thu,
- 29 Feb 2024 10:00:04 -0500
-X-MC-Unique: i8F5JyzwPvWRc0Tt_-tQzw-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id C5BC33C14955;
-	Thu, 29 Feb 2024 15:00:03 +0000 (UTC)
-Received: from bfoster (unknown [10.22.32.137])
-	by smtp.corp.redhat.com (Postfix) with ESMTPS id 76A79112132A;
-	Thu, 29 Feb 2024 15:00:01 +0000 (UTC)
-Date: Thu, 29 Feb 2024 10:01:43 -0500
-From: Brian Foster <bfoster@redhat.com>
-To: Hou Tao <houtao@huaweicloud.com>
-Cc: linux-fsdevel@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>,
-	Vivek Goyal <vgoyal@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Bernd Schubert <bernd.schubert@fastmail.fm>,
-	"Michael S . Tsirkin" <mst@redhat.com>,
-	Matthew Wilcox <willy@infradead.org>,
-	Benjamin Coddington <bcodding@redhat.com>,
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-	houtao1@huawei.com
-Subject: Re: [PATCH v2 4/6] virtiofs: support bounce buffer backed by
- scattered pages
-Message-ID: <ZeCcV9Jo3mTRPsME@bfoster>
-References: <20240228144126.2864064-1-houtao@huaweicloud.com>
- <20240228144126.2864064-5-houtao@huaweicloud.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Nf5pJAlJ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1709221594; x=1740757594;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=lczR1LgOcbUQlGy40uUgvgOpZit1cKPUO/BBWojFrb8=;
+  b=Nf5pJAlJ9CgYm0AEvc5pgsgqNFZlyld1kKycPaBIYewETdroyvPtSRym
+   QBBIaCmgQAKKXUF9ggeBNyT09MMVG6JfU/Ry6wqtIcnkGl7q/m6HKDlls
+   kOOarKMLBZnMkRc/RPTV8+jiwseFlmBLBHSRYIumnUA9HRKil17V+HYbZ
+   VRGffshJsrZ5vw1sdNQHIs6oWTtXHajJWYRHJ2hFR2NOa7e3is77Fy8ek
+   vi1Lj0XQqcHMrtFC/MRcv62jDBLPwBJiDijLjfMr7wReZNrZSjHpiGB8+
+   YXjG+c/87yrjNAjzl46Y/R4VoR3rGDCGWEnYZzrbHKq5nrKc0g4LB5p5k
+   A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10999"; a="3623089"
+X-IronPort-AV: E=Sophos;i="6.06,194,1705392000"; 
+   d="scan'208";a="3623089"
+Received: from fmviesa009.fm.intel.com ([10.60.135.149])
+  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Feb 2024 07:46:33 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.06,194,1705392000"; 
+   d="scan'208";a="7770452"
+Received: from lkp-server02.sh.intel.com (HELO 3c78fa4d504c) ([10.239.97.151])
+  by fmviesa009.fm.intel.com with ESMTP; 29 Feb 2024 07:46:29 -0800
+Received: from kbuild by 3c78fa4d504c with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1rfic6-000D2f-14;
+	Thu, 29 Feb 2024 15:46:26 +0000
+Date: Thu, 29 Feb 2024 23:44:54 +0800
+From: kernel test robot <lkp@intel.com>
+To: Yunjian Wang <wangyunjian@huawei.com>, mst@redhat.com,
+	willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
+	kuba@kernel.org, bjorn@kernel.org, magnus.karlsson@intel.com,
+	maciej.fijalkowski@intel.com, jonathan.lemon@gmail.com,
+	davem@davemloft.net
+Cc: oe-kbuild-all@lists.linux.dev, bpf@vger.kernel.org,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+	kvm@vger.kernel.org, virtualization@lists.linux.dev,
+	xudingke@huawei.com, liwei395@huawei.com,
+	Yunjian Wang <wangyunjian@huawei.com>
+Subject: Re: [PATCH net-next v2 3/3] tun: AF_XDP Tx zero-copy support
+Message-ID: <202402292345.a49gfJLj-lkp@intel.com>
+References: <1709118356-133960-1-git-send-email-wangyunjian@huawei.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -64,132 +66,55 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240228144126.2864064-5-houtao@huaweicloud.com>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.3
+In-Reply-To: <1709118356-133960-1-git-send-email-wangyunjian@huawei.com>
 
-On Wed, Feb 28, 2024 at 10:41:24PM +0800, Hou Tao wrote:
-> From: Hou Tao <houtao1@huawei.com>
-> 
-> When reading a file kept in virtiofs from kernel (e.g., insmod a kernel
-> module), if the cache of virtiofs is disabled, the read buffer will be
-> passed to virtiofs through out_args[0].value instead of pages. Because
-> virtiofs can't get the pages for the read buffer, virtio_fs_argbuf_new()
-> will create a bounce buffer for the read buffer by using kmalloc() and
-> copy the read buffer into bounce buffer. If the read buffer is large
-> (e.g., 1MB), the allocation will incur significant stress on the memory
-> subsystem.
-> 
-> So instead of allocating bounce buffer by using kmalloc(), allocate a
-> bounce buffer which is backed by scattered pages. The original idea is
-> to use vmap(), but the use of GFP_ATOMIC is no possible for vmap(). To
-> simplify the copy operations in the bounce buffer, use a bio_vec flex
-> array to represent the argbuf. Also add an is_flat field in struct
-> virtio_fs_argbuf to distinguish between kmalloc-ed and scattered bounce
-> buffer.
-> 
-> Signed-off-by: Hou Tao <houtao1@huawei.com>
-> ---
->  fs/fuse/virtio_fs.c | 163 ++++++++++++++++++++++++++++++++++++++++----
->  1 file changed, 149 insertions(+), 14 deletions(-)
-> 
-> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-> index f10fff7f23a0f..ffea684bd100d 100644
-> --- a/fs/fuse/virtio_fs.c
-> +++ b/fs/fuse/virtio_fs.c
-...
-> @@ -408,42 +425,143 @@ static void virtio_fs_request_dispatch_work(struct work_struct *work)
->  	}
->  }
->  
-...  
->  static void virtio_fs_argbuf_copy_from_in_arg(struct virtio_fs_argbuf *argbuf,
->  					      unsigned int offset,
->  					      const void *src, unsigned int len)
->  {
-> -	memcpy(argbuf->buf + offset, src, len);
-> +	struct iov_iter iter;
-> +	unsigned int copied;
-> +
-> +	if (argbuf->is_flat) {
-> +		memcpy(argbuf->f.buf + offset, src, len);
-> +		return;
-> +	}
-> +
-> +	iov_iter_bvec(&iter, ITER_DEST, argbuf->s.bvec,
-> +		      argbuf->s.nr, argbuf->s.size);
-> +	iov_iter_advance(&iter, offset);
+Hi Yunjian,
 
-Hi Hou,
+kernel test robot noticed the following build errors:
 
-Just a random comment, but it seems a little inefficient to reinit and
-readvance the iter like this on every copy/call. It looks like offset is
-already incremented in the callers of the argbuf copy helpers. Perhaps
-iov_iter could be lifted into the callers and passed down, or even just
-include it in the argbuf structure and init it at alloc time?
+[auto build test ERROR on net-next/main]
 
-Brian
+url:    https://github.com/intel-lab-lkp/linux/commits/Yunjian-Wang/xsk-Remove-non-zero-dma_page-check-in-xp_assign_dev/20240228-190840
+base:   net-next/main
+patch link:    https://lore.kernel.org/r/1709118356-133960-1-git-send-email-wangyunjian%40huawei.com
+patch subject: [PATCH net-next v2 3/3] tun: AF_XDP Tx zero-copy support
+config: microblaze-randconfig-r131-20240229 (https://download.01.org/0day-ci/archive/20240229/202402292345.a49gfJLj-lkp@intel.com/config)
+compiler: microblaze-linux-gcc (GCC) 13.2.0
+reproduce: (https://download.01.org/0day-ci/archive/20240229/202402292345.a49gfJLj-lkp@intel.com/reproduce)
 
-> +
-> +	copied = _copy_to_iter(src, len, &iter);
-> +	WARN_ON_ONCE(copied != len);
->  }
->  
->  static unsigned int
-> @@ -451,15 +569,32 @@ virtio_fs_argbuf_out_args_offset(struct virtio_fs_argbuf *argbuf,
->  				 const struct fuse_args *args)
->  {
->  	unsigned int num_in = args->in_numargs - args->in_pages;
-> +	unsigned int offset = fuse_len_args(num_in,
-> +					    (struct fuse_arg *)args->in_args);
->  
-> -	return fuse_len_args(num_in, (struct fuse_arg *)args->in_args);
-> +	if (argbuf->is_flat)
-> +		return offset;
-> +	return round_up(offset, PAGE_SIZE);
->  }
->  
->  static void virtio_fs_argbuf_copy_to_out_arg(struct virtio_fs_argbuf *argbuf,
->  					     unsigned int offset, void *dst,
->  					     unsigned int len)
->  {
-> -	memcpy(dst, argbuf->buf + offset, len);
-> +	struct iov_iter iter;
-> +	unsigned int copied;
-> +
-> +	if (argbuf->is_flat) {
-> +		memcpy(dst, argbuf->f.buf + offset, len);
-> +		return;
-> +	}
-> +
-> +	iov_iter_bvec(&iter, ITER_SOURCE, argbuf->s.bvec,
-> +		      argbuf->s.nr, argbuf->s.size);
-> +	iov_iter_advance(&iter, offset);
-> +
-> +	copied = _copy_from_iter(dst, len, &iter);
-> +	WARN_ON_ONCE(copied != len);
->  }
->  
->  /*
-> @@ -1154,7 +1289,7 @@ static unsigned int sg_init_fuse_args(struct scatterlist *sg,
->  	len = fuse_len_args(numargs - argpages, args);
->  	if (len)
->  		total_sgs += virtio_fs_argbuf_setup_sg(req->argbuf, *len_used,
-> -						       len, &sg[total_sgs]);
-> +						       &len, &sg[total_sgs]);
->  
->  	if (argpages)
->  		total_sgs += sg_init_fuse_pages(&sg[total_sgs],
-> @@ -1199,7 +1334,7 @@ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
->  	}
->  
->  	/* Use a bounce buffer since stack args cannot be mapped */
-> -	req->argbuf = virtio_fs_argbuf_new(args, GFP_ATOMIC);
-> +	req->argbuf = virtio_fs_argbuf_new(args, GFP_ATOMIC, true);
->  	if (!req->argbuf) {
->  		ret = -ENOMEM;
->  		goto out;
-> -- 
-> 2.29.2
-> 
-> 
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202402292345.a49gfJLj-lkp@intel.com/
 
+All errors (new ones prefixed by >>):
+
+   drivers/vhost/net.c: In function 'vhost_net_buf_peek_len':
+>> drivers/vhost/net.c:206:41: error: initialization of 'struct xdp_desc *' from incompatible pointer type 'struct xdp_frame *' [-Werror=incompatible-pointer-types]
+     206 |                 struct xdp_desc *desc = tun_ptr_to_xdp_desc(ptr);
+         |                                         ^~~~~~~~~~~~~~~~~~~
+   cc1: some warnings being treated as errors
+
+
+vim +206 drivers/vhost/net.c
+
+   198	
+   199	static int vhost_net_buf_peek_len(void *ptr)
+   200	{
+   201		if (tun_is_xdp_frame(ptr)) {
+   202			struct xdp_frame *xdpf = tun_ptr_to_xdp(ptr);
+   203	
+   204			return xdpf->len;
+   205		} else if (tun_is_xdp_desc_frame(ptr)) {
+ > 206			struct xdp_desc *desc = tun_ptr_to_xdp_desc(ptr);
+   207	
+   208			return desc->len;
+   209		}
+   210	
+   211		return __skb_array_len_with_tag(ptr);
+   212	}
+   213	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
