@@ -1,211 +1,226 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f42.google.com (mail-ed1-f42.google.com [209.85.208.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DAB3481DF
-	for <virtualization@lists.linux.dev>; Thu, 29 Feb 2024 08:21:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF17B50A6D
+	for <virtualization@lists.linux.dev>; Thu, 29 Feb 2024 08:37:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709194892; cv=none; b=ZCafLSRKBhJGxPaq6cN+IF2JOYD6S5WHaxFs7ssSQGM+6IjdgOaDvvL2ieldVPPBNi1e6gU5gbT3sv0OPFmyIYxvhfoTDv59e2LTLdvZF+dDb0OWnPQbE7eFijFiJjciRcsnarZtpEZkOH5lG4BXo6abPy4CI2tT0IDUwpWa/hY=
+	t=1709195851; cv=none; b=pNhCJbnvrlwzTk8yZ/xoLfgjZ0dEp2SSgc5cGVyf8+FI+APZgIK9VP7wjTK3WWCLZ57gV8plPL57FJsMTvWLxm+yWRer4HbnJt8CcEnFhT3u62zVY8wdsfQCo8ifZ1spCvQ8uwwUCUHxISsiXk5uEsrySKk932Uyl3WNzXOQGhQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709194892; c=relaxed/simple;
-	bh=WU7ffeSphhs/r9s6sbUYBG4gjwSJ/QhbvB2NXAEgqLU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=dwwSLrs7/eBrHk0eu2e9le4YWSGCdmPZaQsr1WuO5K80fpQAldh7mYt9XFWCjtbIDLptSGjTIZ9zuvrj8EcAKb3lVIpfQ5LcqOl24lAwSRWaWCHe3E8XC/GOpdQg8MxiRyjYSO8OcQNRvx9tyeXzxIzP/RzEF+7YB3bGKWLHnbg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UkqZuhdJ; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1709195851; c=relaxed/simple;
+	bh=73aWUygvtPP8Z7/LtZcyFtLnYpjq7zVAKtXzB+vWT2Q=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=o/IF28DuFMAMiOjdt/59x36Dg/eG3NLzpOS0Vt+GANnu26wy8NWV9pRk+ec+naAzN6Xf+uqTFblCgsQX6ji1knutPCPBmfsMXbMCSf6dqqy/F+5tjiuoFMQp0DBdznn1QTYIs/VokJroAJtMuyZ6S0XFcfd50BDbZtYdSLC/+Zc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gAb7QeAY; arc=none smtp.client-ip=209.85.208.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UkqZuhdJ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1709194889;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=yYWjbn49/FOaKnxv8tY8E/wAWpBZLZbrgSR43I6LPzc=;
-	b=UkqZuhdJCRQ92srziGQ6PSpCoIlkdZdv7SiBfTeqI6BQpQ0xOpzKQGPRYcdZlDM/In61vh
-	TFg6xaSOZzwGJ8e41dHHu5sX3Lv9HUJAMu413NbZa/9VNVtvhlmVaGS6/Y3Upz/XjYivgy
-	m/A2Uzw7CLoEVfUVj6vz9LJ7j8HUCYE=
-Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
- [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-387-gjnO6waOOsePQ1eKPegCNw-1; Thu, 29 Feb 2024 03:21:25 -0500
-X-MC-Unique: gjnO6waOOsePQ1eKPegCNw-1
-Received: by mail-lf1-f70.google.com with SMTP id 2adb3069b0e04-512aacf66d1so388043e87.3
-        for <virtualization@lists.linux.dev>; Thu, 29 Feb 2024 00:21:24 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1709194883; x=1709799683;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gAb7QeAY"
+Received: by mail-ed1-f42.google.com with SMTP id 4fb4d7f45d1cf-56647babfe6so950718a12.3
+        for <virtualization@lists.linux.dev>; Thu, 29 Feb 2024 00:37:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1709195848; x=1709800648; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=yYWjbn49/FOaKnxv8tY8E/wAWpBZLZbrgSR43I6LPzc=;
-        b=QuJUPU6hzd8UmSDggot6joqZ3k/FNIDzrlSqOecpb/GJKn/fmzqjraspZEaI7MEpIg
-         BTfmJ/sX15DwsTs+hkPf0H1J6HZFJCcSbxZLqbTaxFbY5JoeAv9qx6bP47PP+048sM12
-         y9G9+HXamSDcSJ17VItWdxQp44bL15AC06Qx3seQE+Pd5ntfXUr2iWn5qLGjK7elp/IO
-         KZ+qjmeK2KJViAAIvnVJIr3HqupMK6jmEa+W5fRLd812NbKlsoKxHsJV/K+Z/EaDLldY
-         UyK/AG828HQTTmUKrac4cxfaqHHD3WraIKFHkPBVUWE5MvpjaVPcmSpGl3AyB7aQ7zB+
-         fifw==
-X-Gm-Message-State: AOJu0YyyRw0VJxPKZ9vYbipq4FlduJIb2ppPO/tshSGGHrQlEV2EDQm8
-	oGf3A2N784YrjvO/WdTuqlvh93Arx0VgsyPgbu+bPQGQ6kWuMkIFUBsF8nZRaS+zKprKa3gr0jB
-	R7t7isu9wK1s0r+q6R56IdADwMidy7QkP3ZO2mS6eEsO21b58TESUU1WTmik4zCFM
-X-Received: by 2002:a05:6512:2388:b0:513:26e7:440c with SMTP id c8-20020a056512238800b0051326e7440cmr679716lfv.61.1709194883516;
-        Thu, 29 Feb 2024 00:21:23 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHnM+zAIJHxVsYzJ0TLR9J0gKcOujhg4JzZrjGf+sjNfANqyY2DOR0YHjNv8O6HjvN3PHqhFQ==
-X-Received: by 2002:a05:6512:2388:b0:513:26e7:440c with SMTP id c8-20020a056512238800b0051326e7440cmr679694lfv.61.1709194883093;
-        Thu, 29 Feb 2024 00:21:23 -0800 (PST)
-Received: from redhat.com ([2a02:14f:178:d6b0:a21c:61c4:2098:5db])
-        by smtp.gmail.com with ESMTPSA id bt6-20020a056000080600b0033db9383e70sm1078294wrb.81.2024.02.29.00.21.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Feb 2024 00:21:22 -0800 (PST)
-Date: Thu, 29 Feb 2024 03:21:14 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Jason Wang <jasowang@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Hans de Goede <hdegoede@redhat.com>,
-	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	Vadim Pasternak <vadimp@nvidia.com>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Mathieu Poirier <mathieu.poirier@linaro.org>,
-	Cornelia Huck <cohuck@redhat.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	Eric Farman <farman@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>,
-	linux-um@lists.infradead.org, netdev@vger.kernel.org,
-	platform-driver-x86@vger.kernel.org,
-	linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-	kvm@vger.kernel.org, bpf@vger.kernel.org
-Subject: Re: [PATCH vhost v3 00/19] virtio: drivers maintain dma info for
- premapped vq
-Message-ID: <20240229031755-mutt-send-email-mst@kernel.org>
-References: <20240229072044.77388-1-xuanzhuo@linux.alibaba.com>
+        bh=e8cTr0+z19J6pwkR8dLU+gDwd3ZIlpIHp0+RUxF/+gU=;
+        b=gAb7QeAYUMB3ULDvAyEqXinyx1JlNkMIxPTqDDNWcNdF0nwbeR9Ogm4hJvppYh93dj
+         uorSOQ7ymPMOA94pRbN150CX4Qnd8NiMYzRoUMu/gWWIP9usuWvA/WC3ntQASly44mHG
+         8aiuEIvBBRaJrqAd/RBxbU7D83Bv3PybnMD+SY2MpAPPjL4dTVSovgZLdmwtZDmKrFh8
+         N4wvGYEMR0uOu16d7b/vTo9sjFvzmkjsV0JBDfVfYUDt70CUJJotCg/L/YfRCLDrhwYD
+         PWEKzjECnBdZHs/w0rSuCr+7mWkUttZq3t+7htzwT38rOwq1Ji2py3neEcD6g5gS2luU
+         RTeg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1709195848; x=1709800648;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=e8cTr0+z19J6pwkR8dLU+gDwd3ZIlpIHp0+RUxF/+gU=;
+        b=UsvifnuLcta3kuX+sc4kMihMCXs3XGuCRIinWrUjMowucLAwIIGiyuM3JKOqflBXLu
+         BYfnNopaS6ehF8aAnEbNiiXdBMwMsiVsy+lLjjryzf7tlkLUWWWQfJlpQ9uos3H2RbY4
+         Hdz1LJM6X8I9opj+Ej5YUuB6DuGgQRCMCpdcBuvSCHawQSZ+ET5d3nN/HSF/DNJ74xJQ
+         HKur695tE4pZqe0UwHCi2db9ysUiLD0niQcRS/XhI37X5edRfhdznjRQ2GvrUKgZx9Xp
+         xzq4HSxleqWmV9NE2RH+TqsAwgPZgvs6j2PgQAq1vNSU6+/1CsOdZgLwnHqnQPLdnXQL
+         90xQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUG/8kHBtua3Jm7OrfCMT3O6OpxINpbSWcdySZIBCCnDcnWVgFTXw2EAShVBtLdZO7Vo5jqyCUt2G1dZHDE6mvJdZCBT+PsWX/AxBWLluc=
+X-Gm-Message-State: AOJu0YwgI9g4kaJIF82W1KQ8O7yP6r8P2gsZ7MwcnrqJKMk+QDJJJLmU
+	TpC9ntsYtztENq0SE7gXUfsEB17CvLrSFGv1ueZbQIn6wLFS2J77HeAt26A+ijKLB0EUxCUQI3u
+	AV0dSdDcQvrswSEEtTcAEuxnUD6U=
+X-Google-Smtp-Source: AGHT+IFLhjfZIE6MHHesG5Kgo+lcNytIZXrW9TCaJs/ONRHajCriDWIZXmhUNamJ26KxMcmMKaD+7mSOf7PlKGyLbYs=
+X-Received: by 2002:a05:6402:3097:b0:564:65c5:f048 with SMTP id
+ de23-20020a056402309700b0056465c5f048mr902059edb.28.1709195848187; Thu, 29
+ Feb 2024 00:37:28 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240229072044.77388-1-xuanzhuo@linux.alibaba.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+References: <20240202121151.65710-1-liangchen.linux@gmail.com>
+ <c8d59e75-d0bb-4a03-9ef4-d6de65fa9356@kernel.org> <CAKhg4tJFpG5nUNdeEbXFLonKkFUP0QCh8A9CpwU5OvtnBuz4Sw@mail.gmail.com>
+ <5297dad6499f6d00f7229e8cf2c08e0eacb67e0c.camel@redhat.com>
+ <CAKhg4tLbF8SfYD4dU9U9Nhii4FY2dftjPKYz-Emrn-CRwo10mg@mail.gmail.com>
+ <73c242b43513bde04eebb4eb581deb189443c26b.camel@redhat.com>
+ <CAKhg4tJPjcShkw4-FHFkKOcgzHK27A5pMu9FP7OWj4qJUX1ApA@mail.gmail.com>
+ <1b2d471a5d06ecadcb75e3d9155b6d566afb2767.camel@redhat.com>
+ <1708652254.1517398-1-xuanzhuo@linux.alibaba.com> <CACGkMEuUeQTJYpZDx8ggqwBWULQS1Fjd_DgPvVMLq-_cjYfm7g@mail.gmail.com>
+ <65dcf7a775437_20e0a2087f@john.notmuch>
+In-Reply-To: <65dcf7a775437_20e0a2087f@john.notmuch>
+From: Liang Chen <liangchen.linux@gmail.com>
+Date: Thu, 29 Feb 2024 16:37:10 +0800
+Message-ID: <CAKhg4t+dzRPjyRXAifS_TCGPv3SfMMm1CF3pCs18OR+o9v+S_Q@mail.gmail.com>
+Subject: Re: [PATCH net-next v5] virtio_net: Support RX hash XDP hint
+To: John Fastabend <john.fastabend@gmail.com>
+Cc: Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Paolo Abeni <pabeni@redhat.com>, Jesper Dangaard Brouer <hawk@kernel.org>, mst@redhat.com, 
+	hengqi@linux.alibaba.com, davem@davemloft.net, edumazet@google.com, 
+	kuba@kernel.org, netdev@vger.kernel.org, virtualization@lists.linux.dev, 
+	linux-kernel@vger.kernel.org, bpf@vger.kernel.org, daniel@iogearbox.net, 
+	ast@kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Feb 29, 2024 at 03:20:25PM +0800, Xuan Zhuo wrote:
-> As discussed:
-> http://lore.kernel.org/all/CACGkMEvq0No8QGC46U4mGsMtuD44fD_cfLcPaVmJ3rHYqRZxYg@mail.gmail.com
-> 
-> If the virtio is premapped mode, the driver should manage the dma info by self.
-> So the virtio core should not store the dma info.
-> So we can release the memory used to store the dma info.
-> 
-> But if the desc_extra has not dma info, we face a new question,
-> it is hard to get the dma info of the desc with indirect flag.
-> For split mode, that is easy from desc, but for the packed mode,
-> it is hard to get the dma info from the desc. And for hardening
-> the dma unmap is saft, we should store the dma info of indirect
-> descs.
-> 
-> So I introduce the "structure the indirect desc table" to
-> allocate space to store dma info with the desc table.
-> 
-> On the other side, we mix the descs with indirect flag
-> with other descs together to share the unmap api. That
-> is complex. I found if we we distinguish the descs with
-> VRING_DESC_F_INDIRECT before unmap, thing will be clearer.
-> 
-> Because of the dma array is allocated in the find_vqs(),
-> so I introduce a new parameter to find_vqs().
-> 
-> Note:
->     this is on the top of
->         [PATCH vhost v1] virtio: packed: fix unmap leak for indirect desc table
->         http://lore.kernel.org/all/20240223071833.26095-1-xuanzhuo@linux.alibaba.com
-> 
-> Please review.
-> 
-> Thanks
-> 
-> v3:
->     1. fix the conflict with the vp_modern_create_avq().
+On Tue, Feb 27, 2024 at 4:42=E2=80=AFAM John Fastabend <john.fastabend@gmai=
+l.com> wrote:
+>
+> Jason Wang wrote:
+> > On Fri, Feb 23, 2024 at 9:42=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.aliba=
+ba.com> wrote:
+> > >
+> > > On Fri, 09 Feb 2024 13:57:25 +0100, Paolo Abeni <pabeni@redhat.com> w=
+rote:
+> > > > On Fri, 2024-02-09 at 18:39 +0800, Liang Chen wrote:
+> > > > > On Wed, Feb 7, 2024 at 10:27=E2=80=AFPM Paolo Abeni <pabeni@redha=
+t.com> wrote:
+> > > > > >
+> > > > > > On Wed, 2024-02-07 at 10:54 +0800, Liang Chen wrote:
+> > > > > > > On Tue, Feb 6, 2024 at 6:44=E2=80=AFPM Paolo Abeni <pabeni@re=
+dhat.com> wrote:
+> > > > > > > >
+> > > > > > > > On Sat, 2024-02-03 at 10:56 +0800, Liang Chen wrote:
+> > > > > > > > > On Sat, Feb 3, 2024 at 12:20=E2=80=AFAM Jesper Dangaard B=
+rouer <hawk@kernel.org> wrote:
+> > > > > > > > > > On 02/02/2024 13.11, Liang Chen wrote:
+> > > > > > > > [...]
+> > > > > > > > > > > @@ -1033,6 +1039,16 @@ static void put_xdp_frags(stru=
+ct xdp_buff *xdp)
+> > > > > > > > > > >       }
+> > > > > > > > > > >   }
+> > > > > > > > > > >
+> > > > > > > > > > > +static void virtnet_xdp_save_rx_hash(struct virtnet_=
+xdp_buff *virtnet_xdp,
+> > > > > > > > > > > +                                  struct net_device =
+*dev,
+> > > > > > > > > > > +                                  struct virtio_net_=
+hdr_v1_hash *hdr_hash)
+> > > > > > > > > > > +{
+> > > > > > > > > > > +     if (dev->features & NETIF_F_RXHASH) {
+> > > > > > > > > > > +             virtnet_xdp->hash_value =3D hdr_hash->h=
+ash_value;
+> > > > > > > > > > > +             virtnet_xdp->hash_report =3D hdr_hash->=
+hash_report;
+> > > > > > > > > > > +     }
+> > > > > > > > > > > +}
+> > > > > > > > > > > +
+> > > > > > > > > >
+> > > > > > > > > > Would it be possible to store a pointer to hdr_hash in =
+virtnet_xdp_buff,
+> > > > > > > > > > with the purpose of delaying extracting this, until and=
+ only if XDP
+> > > > > > > > > > bpf_prog calls the kfunc?
+> > > > > > > > > >
+> > > > > > > > >
+> > > > > > > > > That seems to be the way v1 works,
+> > > > > > > > > https://lore.kernel.org/all/20240122102256.261374-1-liang=
+chen.linux@gmail.com/
+> > > > > > > > > . But it was pointed out that the inline header may be ov=
+erwritten by
+> > > > > > > > > the xdp prog, so the hash is copied out to maintain its i=
+ntegrity.
+> > > > > > > >
+> > > > > > > > Why? isn't XDP supposed to get write access only to the pkt
+> > > > > > > > contents/buffer?
+> > > > > > > >
+> > > > > > >
+> > > > > > > Normally, an XDP program accesses only the packet data. Howev=
+er,
+> > > > > > > there's also an XDP RX Metadata area, referenced by the data_=
+meta
+> > > > > > > pointer. This pointer can be adjusted with bpf_xdp_adjust_met=
+a to
+> > > > > > > point somewhere ahead of the data buffer, thereby granting th=
+e XDP
+> > > > > > > program access to the virtio header located immediately befor=
+e the
+> > > > > >
+> > > > > > AFAICS bpf_xdp_adjust_meta() does not allow moving the meta_dat=
+a before
+> > > > > > xdp->data_hard_start:
+> > > > > >
+> > > > > > https://elixir.bootlin.com/linux/latest/source/net/core/filter.=
+c#L4210
+> > > > > >
+> > > > > > and virtio net set such field after the virtio_net_hdr:
+> > > > > >
+> > > > > > https://elixir.bootlin.com/linux/latest/source/drivers/net/virt=
+io_net.c#L1218
+> > > > > > https://elixir.bootlin.com/linux/latest/source/drivers/net/virt=
+io_net.c#L1420
+> > > > > >
+> > > > > > I don't see how the virtio hdr could be touched? Possibly even =
+more
+> > > > > > important: if such thing is possible, I think is should be some=
+what
+> > > > > > denied (for the same reason an H/W nic should prevent XDP from
+> > > > > > modifying its own buffer descriptor).
+> > > > >
+> > > > > Thank you for highlighting this concern. The header layout differ=
+s
+> > > > > slightly between small and mergeable mode. Taking 'mergeable mode=
+' as
+> > > > > an example, after calling xdp_prepare_buff the layout of xdp_buff
+> > > > > would be as depicted in the diagram below,
+> > > > >
+> > > > >                       buf
+> > > > >                        |
+> > > > >                        v
+> > > > >         +--------------+--------------+-------------+
+> > > > >         | xdp headroom | virtio header| packet      |
+> > > > >         | (256 bytes)  | (20 bytes)   | content     |
+> > > > >         +--------------+--------------+-------------+
+> > > > >         ^                             ^
+> > > > >         |                             |
+> > > > >  data_hard_start                    data
+> > > > >                                   data_meta
+> > > > >
+> > > > > If 'bpf_xdp_adjust_meta' repositions the 'data_meta' pointer a li=
+ttle
+> > > > > towards 'data_hard_start', it would point to the inline header, t=
+hus
+> > > > > potentially allowing the XDP program to access the inline header.
+>
+> Fairly late to the thread sorry. Given above layout does it make sense to
+> just delay extraction to the kfunc as suggested above? Sure the XDP progr=
+am
+> could smash the entry in virtio header, but this is already the case for
+> anything else there. A program writing over the virtio header is likely
+> buggy anyways. Worse that might happen is bad rss values and mappings?
 
-Okay but are you going to address huge memory waste all this is causing for
-- people who never do zero copy
-- systems where dma unmap is a nop
+Thank you for raising the concern. I am not quite sure if the XDP
+program is considered buggy, as it is agnostic to the layout of the
+inline header.
+Let's say an XDP program calls bpf_xdp_adjust_meta to adjust data_meta
+to point to the inline header and overwrites it without even knowing
+of its existence. Later, when the XDP program invokes the kfunc to
+retrieve the hash, incorrect data would be returned. In this case, the
+XDP program seems to be doing everything legally but ends up with the
+wrong hash data.
 
-?
+Thanks,
+Liang
 
-You should address all comments when you post a new version, not just
-what was expedient, or alternatively tag patch as RFC and explain
-in commit log that you plan to do it later.
-
-> v2:
->     1. change the dma item of virtio-net, every item have MAX_SKB_FRAGS + 2
->         addr + len pairs.
->     2. introduce virtnet_sq_free_stats for __free_old_xmit
-> 
-> v1:
->     1. rename transport_vq_config to vq_transport_config
->     2. virtio-net set dma meta number to (ring-size + 1)(MAX_SKB_FRGAS +2)
->     3. introduce virtqueue_dma_map_sg_attrs
->     4. separate vring_create_virtqueue to an independent commit
-> 
-> 
-> 
-> Xuan Zhuo (19):
->   virtio_ring: introduce vring_need_unmap_buffer
->   virtio_ring: packed: remove double check of the unmap ops
->   virtio_ring: packed: structure the indirect desc table
->   virtio_ring: split: remove double check of the unmap ops
->   virtio_ring: split: structure the indirect desc table
->   virtio_ring: no store dma info when unmap is not needed
->   virtio: find_vqs: pass struct instead of multi parameters
->   virtio: vring_create_virtqueue: pass struct instead of multi
->     parameters
->   virtio: vring_new_virtqueue(): pass struct instead of multi parameters
->   virtio_ring: simplify the parameters of the funcs related to
->     vring_create/new_virtqueue()
->   virtio: find_vqs: add new parameter premapped
->   virtio_ring: export premapped to driver by struct virtqueue
->   virtio_net: set premapped mode by find_vqs()
->   virtio_ring: remove api of setting vq premapped
->   virtio_ring: introduce dma map api for page
->   virtio_ring: introduce virtqueue_dma_map_sg_attrs
->   virtio_net: unify the code for recycling the xmit ptr
->   virtio_net: rename free_old_xmit_skbs to free_old_xmit
->   virtio_net: sq support premapped mode
-> 
->  arch/um/drivers/virtio_uml.c             |  31 +-
->  drivers/net/virtio_net.c                 | 283 ++++++---
->  drivers/platform/mellanox/mlxbf-tmfifo.c |  24 +-
->  drivers/remoteproc/remoteproc_virtio.c   |  31 +-
->  drivers/s390/virtio/virtio_ccw.c         |  33 +-
->  drivers/virtio/virtio_mmio.c             |  30 +-
->  drivers/virtio/virtio_pci_common.c       |  59 +-
->  drivers/virtio/virtio_pci_common.h       |   9 +-
->  drivers/virtio/virtio_pci_legacy.c       |  16 +-
->  drivers/virtio/virtio_pci_modern.c       |  38 +-
->  drivers/virtio/virtio_ring.c             | 698 ++++++++++++-----------
->  drivers/virtio/virtio_vdpa.c             |  45 +-
->  include/linux/virtio.h                   |  13 +-
->  include/linux/virtio_config.h            |  48 +-
->  include/linux/virtio_ring.h              |  82 +--
->  tools/virtio/virtio_test.c               |   4 +-
->  tools/virtio/vringh_test.c               |  28 +-
->  17 files changed, 847 insertions(+), 625 deletions(-)
-> 
-> --
-> 2.32.0.3.g01195cf9f
-
+>
+> I like seeing more use cases for the hints though.
+>
+> Thanks!
+> John
