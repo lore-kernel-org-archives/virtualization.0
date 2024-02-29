@@ -1,107 +1,195 @@
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3695B7E0F6
-	for <virtualization@lists.linux.dev>; Thu, 29 Feb 2024 13:17:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.188
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E5C913776F
+	for <virtualization@lists.linux.dev>; Thu, 29 Feb 2024 15:00:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709212663; cv=none; b=WQxca3ZfbmqaIDev6wLmdmU8tufahGvD+0gwGh4rL1RPBNoK+y0U9cjHim7uncD0Si5nEAWJWyJz6Xz/PdVVTn7lwrZqIwyaG2d6Japq0LiKwlgl1RW0DSIZavKQgyJlXfCfryDdF6fo2Gy3tvYuijYQyVoEGn8xyuRzs9O8h7A=
+	t=1709218809; cv=none; b=TtbTXY/+RyvRlNVLeyuR2Rat/pmhV7WXF6sltPxV474AtlwQwteFoBpDEa6aWfKPZBXXEf8LvITZ2/6C38lIBjnm8SaEqZCpygjk/gFoWcaIxZIUSZuCDAhL0JXXmGyVyyweLWt2gb7jPdBqVDfJbvoOCO55JoEpiVdazRzivfw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709212663; c=relaxed/simple;
-	bh=ffaOsioAuW/jkHp3zdbo8WE/lDghqJi6iwSVpu984bw=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=juJccjusY7W7L6Ck10rziQu13xU7W5KjpV8F6p3YrmZJyJOJ0Q80oxPMjmM7jsWbI9wgCCtBHk3XDr8LKIUjD5wUTGuLWkFk0yl40C4WWzWsKszct0UO6RMH2ERVZd034hAoSKVqsz3VbaLMXdCCgBuhf52Q8ifu1RpG4udfQN0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.188
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.163.174])
-	by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4TlsFL2KnqzNndD;
-	Thu, 29 Feb 2024 21:16:54 +0800 (CST)
-Received: from kwepemm000004.china.huawei.com (unknown [7.193.23.18])
-	by mail.maildlp.com (Postfix) with ESMTPS id 1140B14037F;
-	Thu, 29 Feb 2024 21:17:34 +0800 (CST)
-Received: from dggpemm500008.china.huawei.com (7.185.36.136) by
- kwepemm000004.china.huawei.com (7.193.23.18) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.35; Thu, 29 Feb 2024 21:17:33 +0800
-Received: from dggpemm500008.china.huawei.com ([7.185.36.136]) by
- dggpemm500008.china.huawei.com ([7.185.36.136]) with mapi id 15.01.2507.035;
- Thu, 29 Feb 2024 21:17:33 +0800
-From: wangyunjian <wangyunjian@huawei.com>
-To: Paolo Abeni <pabeni@redhat.com>, "mst@redhat.com" <mst@redhat.com>,
-	"willemdebruijn.kernel@gmail.com" <willemdebruijn.kernel@gmail.com>,
-	"jasowang@redhat.com" <jasowang@redhat.com>, "kuba@kernel.org"
-	<kuba@kernel.org>, "bjorn@kernel.org" <bjorn@kernel.org>,
-	"magnus.karlsson@intel.com" <magnus.karlsson@intel.com>,
-	"maciej.fijalkowski@intel.com" <maciej.fijalkowski@intel.com>,
-	"jonathan.lemon@gmail.com" <jonathan.lemon@gmail.com>, "davem@davemloft.net"
-	<davem@davemloft.net>
-CC: "bpf@vger.kernel.org" <bpf@vger.kernel.org>, "netdev@vger.kernel.org"
-	<netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, xudingke
-	<xudingke@huawei.com>, "liwei (DT)" <liwei395@huawei.com>
-Subject: RE: [PATCH net-next v2 2/3] vhost_net: Call peek_len when using xdp
-Thread-Topic: [PATCH net-next v2 2/3] vhost_net: Call peek_len when using xdp
-Thread-Index: AQHaajYUllx6TBWEQkypM6YmziwRB7EgnzGAgACvRnA=
-Date: Thu, 29 Feb 2024 13:17:33 +0000
-Message-ID: <3841008ad79642d694779aaeac87516e@huawei.com>
-References: <1709118344-127812-1-git-send-email-wangyunjian@huawei.com>
- <94bd28f625f7ca066e8f2b2686c2493cfab386bd.camel@redhat.com>
-In-Reply-To: <94bd28f625f7ca066e8f2b2686c2493cfab386bd.camel@redhat.com>
-Accept-Language: zh-CN, en-US
-Content-Language: zh-CN
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+	s=arc-20240116; t=1709218809; c=relaxed/simple;
+	bh=bzsLAiCQthrVFAfhIeoz62wmMKFtw1xDTxQwvoxknAM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=RUpiGlzWHUcBwElZ1f+bFruWpInrsJ64vmCWRpijgsj73YodC7HJ8oZ/DLSFKxyONmTrcqL5yBpT4giANi+anC1uhciIaVGmD9eyO52roHMptYuoQ/iSo5w7hkYGCiUAPOuyQ69Dp+62fA02FtHxe0q5iieiAa9ZgT7FWvwETeo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JJSnjjKl; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JJSnjjKl"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1709218807;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=6egRvLYRkiVfRFj4cN+8vcXUmac/AnmcaQNAMGAMNAg=;
+	b=JJSnjjKlg4iyXtO29AjYhbmIDlzfqJMrbLy1HtEvX5/i4Zjz70Noxg1AO5WmRzae7OdkTu
+	acDCeuQ8UwsgAX8/NmQg2V+yJ9fC1hQYj6DWP4z3LiIv0oX5rir50QEH5bD2WxwcacQPBZ
+	kKDnTFbH0Psk9S7uBItpBnc//KV72YE=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-422-i8F5JyzwPvWRc0Tt_-tQzw-1; Thu,
+ 29 Feb 2024 10:00:04 -0500
+X-MC-Unique: i8F5JyzwPvWRc0Tt_-tQzw-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id C5BC33C14955;
+	Thu, 29 Feb 2024 15:00:03 +0000 (UTC)
+Received: from bfoster (unknown [10.22.32.137])
+	by smtp.corp.redhat.com (Postfix) with ESMTPS id 76A79112132A;
+	Thu, 29 Feb 2024 15:00:01 +0000 (UTC)
+Date: Thu, 29 Feb 2024 10:01:43 -0500
+From: Brian Foster <bfoster@redhat.com>
+To: Hou Tao <houtao@huaweicloud.com>
+Cc: linux-fsdevel@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>,
+	Vivek Goyal <vgoyal@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Bernd Schubert <bernd.schubert@fastmail.fm>,
+	"Michael S . Tsirkin" <mst@redhat.com>,
+	Matthew Wilcox <willy@infradead.org>,
+	Benjamin Coddington <bcodding@redhat.com>,
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+	houtao1@huawei.com
+Subject: Re: [PATCH v2 4/6] virtiofs: support bounce buffer backed by
+ scattered pages
+Message-ID: <ZeCcV9Jo3mTRPsME@bfoster>
+References: <20240228144126.2864064-1-houtao@huaweicloud.com>
+ <20240228144126.2864064-5-houtao@huaweicloud.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240228144126.2864064-5-houtao@huaweicloud.com>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.3
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogUGFvbG8gQWJlbmkgW21h
-aWx0bzpwYWJlbmlAcmVkaGF0LmNvbV0NCj4gU2VudDogVGh1cnNkYXksIEZlYnJ1YXJ5IDI5LCAy
-MDI0IDY6NDkgUE0NCj4gVG86IHdhbmd5dW5qaWFuIDx3YW5neXVuamlhbkBodWF3ZWkuY29tPjsg
-bXN0QHJlZGhhdC5jb207DQo+IHdpbGxlbWRlYnJ1aWpuLmtlcm5lbEBnbWFpbC5jb207IGphc293
-YW5nQHJlZGhhdC5jb207IGt1YmFAa2VybmVsLm9yZzsNCj4gYmpvcm5Aa2VybmVsLm9yZzsgbWFn
-bnVzLmthcmxzc29uQGludGVsLmNvbTsgbWFjaWVqLmZpamFsa293c2tpQGludGVsLmNvbTsNCj4g
-am9uYXRoYW4ubGVtb25AZ21haWwuY29tOyBkYXZlbUBkYXZlbWxvZnQubmV0DQo+IENjOiBicGZA
-dmdlci5rZXJuZWwub3JnOyBuZXRkZXZAdmdlci5rZXJuZWwub3JnOw0KPiBsaW51eC1rZXJuZWxA
-dmdlci5rZXJuZWwub3JnOyBrdm1Admdlci5rZXJuZWwub3JnOw0KPiB2aXJ0dWFsaXphdGlvbkBs
-aXN0cy5saW51eC5kZXY7IHh1ZGluZ2tlIDx4dWRpbmdrZUBodWF3ZWkuY29tPjsgbGl3ZWkgKERU
-KQ0KPiA8bGl3ZWkzOTVAaHVhd2VpLmNvbT4NCj4gU3ViamVjdDogUmU6IFtQQVRDSCBuZXQtbmV4
-dCB2MiAyLzNdIHZob3N0X25ldDogQ2FsbCBwZWVrX2xlbiB3aGVuIHVzaW5nIHhkcA0KPiANCj4g
-T24gV2VkLCAyMDI0LTAyLTI4IGF0IDE5OjA1ICswODAwLCBZdW5qaWFuIFdhbmcgd3JvdGU6DQo+
-ID4gSWYgVFVOIHN1cHBvcnRzIEFGX1hEUCBUWCB6ZXJvLWNvcHksIHRoZSBYRFAgcHJvZ3JhbSB3
-aWxsIGVucXVldWUNCj4gPiBwYWNrZXRzIHRvIHRoZSBYRFAgcmluZyBhbmQgd2FrZSB1cCB0aGUg
-dmhvc3Qgd29ya2VyLiBUaGlzIHJlcXVpcmVzDQo+ID4gdGhlIHZob3N0IHdvcmtlciB0byBjYWxs
-IHBlZWtfbGVuKCksIHdoaWNoIGNhbiBiZSB1c2VkIHRvIGNvbnN1bWUgWERQDQo+ID4gZGVzY3Jp
-cHRvcnMuDQo+ID4NCj4gPiBTaWduZWQtb2ZmLWJ5OiBZdW5qaWFuIFdhbmcgPHdhbmd5dW5qaWFu
-QGh1YXdlaS5jb20+DQo+ID4gLS0tDQo+ID4gIGRyaXZlcnMvdmhvc3QvbmV0LmMgfCAxNyArKysr
-KysrKysrKystLS0tLQ0KPiA+ICAxIGZpbGUgY2hhbmdlZCwgMTIgaW5zZXJ0aW9ucygrKSwgNSBk
-ZWxldGlvbnMoLSkNCj4gPg0KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L25ldC5jIGIv
-ZHJpdmVycy92aG9zdC9uZXQuYyBpbmRleA0KPiA+IGYyZWQ3MTY3Yzg0OC4uMDc3ZTc0NDIxNTU4
-IDEwMDY0NA0KPiA+IC0tLSBhL2RyaXZlcnMvdmhvc3QvbmV0LmMNCj4gPiArKysgYi9kcml2ZXJz
-L3Zob3N0L25ldC5jDQo+ID4gQEAgLTIwNyw2ICsyMDcsMTEgQEAgc3RhdGljIGludCB2aG9zdF9u
-ZXRfYnVmX3BlZWtfbGVuKHZvaWQgKnB0cikNCj4gPiAgCXJldHVybiBfX3NrYl9hcnJheV9sZW5f
-d2l0aF90YWcocHRyKTsgIH0NCj4gPg0KPiA+ICtzdGF0aWMgYm9vbCB2aG9zdF9zb2NrX3hkcChz
-dHJ1Y3Qgc29ja2V0ICpzb2NrKSB7DQo+ID4gKwlyZXR1cm4gc29ja19mbGFnKHNvY2stPnNrLCBT
-T0NLX1hEUCk7IH0NCj4gPiArDQo+ID4gIHN0YXRpYyBpbnQgdmhvc3RfbmV0X2J1Zl9wZWVrKHN0
-cnVjdCB2aG9zdF9uZXRfdmlydHF1ZXVlICpudnEpICB7DQo+ID4gIAlzdHJ1Y3Qgdmhvc3RfbmV0
-X2J1ZiAqcnhxID0gJm52cS0+cnhxOyBAQCAtMjE0LDYgKzIxOSwxMyBAQCBzdGF0aWMNCj4gPiBp
-bnQgdmhvc3RfbmV0X2J1Zl9wZWVrKHN0cnVjdCB2aG9zdF9uZXRfdmlydHF1ZXVlICpudnEpDQo+
-ID4gIAlpZiAoIXZob3N0X25ldF9idWZfaXNfZW1wdHkocnhxKSkNCj4gPiAgCQlnb3RvIG91dDsN
-Cj4gPg0KPiA+ICsJaWYgKHB0cl9yaW5nX2VtcHR5KG52cS0+cnhfcmluZykpIHsNCj4gPiArCQlz
-dHJ1Y3Qgc29ja2V0ICpzb2NrID0gdmhvc3RfdnFfZ2V0X2JhY2tlbmQoJm52cS0+dnEpOw0KPiA+
-ICsJCS8qIENhbGwgcGVla19sZW4gdG8gY29uc3VtZSBYU0sgZGVzY3JpcHRvcnMsIHdoZW4gdXNp
-bmcgeGRwICovDQo+ID4gKwkJaWYgKHZob3N0X3NvY2tfeGRwKHNvY2spICYmIHNvY2stPm9wcy0+
-cGVla19sZW4pDQo+ID4gKwkJCXNvY2stPm9wcy0+cGVla19sZW4oc29jayk7DQo+IA0KPiBUaGlz
-IHJlYWxseSBsb29rcyBsaWtlIGEgc29ja2V0IEFQSSBtaXN1c2UuIFdoeSBjYW4ndCB5b3UgdXNl
-IHB0ci1yaW5nIHByaW1pdGl2ZXMNCj4gdG8gY29uc3VtZSBYU0sgZGVzY3JpcHRvcnM/IHBlZWtf
-bGVuIGNvdWxkIGJlIGNvbnN0aWZpZWQgc29tZSBkYXksIHRoaXMgY29kZQ0KPiB3aWxsIHByZXZl
-bnQgc3VjaCAoZ29vZCkgdGhpbmcuDQoNClRoYW5rIHlvdSBmb3IgeW91ciBzdWdnZXN0aW9uLiBJ
-IHdpbGwgY29uc2lkZXIgdGhhdCB3aXRoIFBhdGNoIDMvMy4NCg0KPiANCj4gQ2hlZXJzLA0KPiAN
-Cj4gUGFvbG8NCg0K
+On Wed, Feb 28, 2024 at 10:41:24PM +0800, Hou Tao wrote:
+> From: Hou Tao <houtao1@huawei.com>
+> 
+> When reading a file kept in virtiofs from kernel (e.g., insmod a kernel
+> module), if the cache of virtiofs is disabled, the read buffer will be
+> passed to virtiofs through out_args[0].value instead of pages. Because
+> virtiofs can't get the pages for the read buffer, virtio_fs_argbuf_new()
+> will create a bounce buffer for the read buffer by using kmalloc() and
+> copy the read buffer into bounce buffer. If the read buffer is large
+> (e.g., 1MB), the allocation will incur significant stress on the memory
+> subsystem.
+> 
+> So instead of allocating bounce buffer by using kmalloc(), allocate a
+> bounce buffer which is backed by scattered pages. The original idea is
+> to use vmap(), but the use of GFP_ATOMIC is no possible for vmap(). To
+> simplify the copy operations in the bounce buffer, use a bio_vec flex
+> array to represent the argbuf. Also add an is_flat field in struct
+> virtio_fs_argbuf to distinguish between kmalloc-ed and scattered bounce
+> buffer.
+> 
+> Signed-off-by: Hou Tao <houtao1@huawei.com>
+> ---
+>  fs/fuse/virtio_fs.c | 163 ++++++++++++++++++++++++++++++++++++++++----
+>  1 file changed, 149 insertions(+), 14 deletions(-)
+> 
+> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+> index f10fff7f23a0f..ffea684bd100d 100644
+> --- a/fs/fuse/virtio_fs.c
+> +++ b/fs/fuse/virtio_fs.c
+...
+> @@ -408,42 +425,143 @@ static void virtio_fs_request_dispatch_work(struct work_struct *work)
+>  	}
+>  }
+>  
+...  
+>  static void virtio_fs_argbuf_copy_from_in_arg(struct virtio_fs_argbuf *argbuf,
+>  					      unsigned int offset,
+>  					      const void *src, unsigned int len)
+>  {
+> -	memcpy(argbuf->buf + offset, src, len);
+> +	struct iov_iter iter;
+> +	unsigned int copied;
+> +
+> +	if (argbuf->is_flat) {
+> +		memcpy(argbuf->f.buf + offset, src, len);
+> +		return;
+> +	}
+> +
+> +	iov_iter_bvec(&iter, ITER_DEST, argbuf->s.bvec,
+> +		      argbuf->s.nr, argbuf->s.size);
+> +	iov_iter_advance(&iter, offset);
+
+Hi Hou,
+
+Just a random comment, but it seems a little inefficient to reinit and
+readvance the iter like this on every copy/call. It looks like offset is
+already incremented in the callers of the argbuf copy helpers. Perhaps
+iov_iter could be lifted into the callers and passed down, or even just
+include it in the argbuf structure and init it at alloc time?
+
+Brian
+
+> +
+> +	copied = _copy_to_iter(src, len, &iter);
+> +	WARN_ON_ONCE(copied != len);
+>  }
+>  
+>  static unsigned int
+> @@ -451,15 +569,32 @@ virtio_fs_argbuf_out_args_offset(struct virtio_fs_argbuf *argbuf,
+>  				 const struct fuse_args *args)
+>  {
+>  	unsigned int num_in = args->in_numargs - args->in_pages;
+> +	unsigned int offset = fuse_len_args(num_in,
+> +					    (struct fuse_arg *)args->in_args);
+>  
+> -	return fuse_len_args(num_in, (struct fuse_arg *)args->in_args);
+> +	if (argbuf->is_flat)
+> +		return offset;
+> +	return round_up(offset, PAGE_SIZE);
+>  }
+>  
+>  static void virtio_fs_argbuf_copy_to_out_arg(struct virtio_fs_argbuf *argbuf,
+>  					     unsigned int offset, void *dst,
+>  					     unsigned int len)
+>  {
+> -	memcpy(dst, argbuf->buf + offset, len);
+> +	struct iov_iter iter;
+> +	unsigned int copied;
+> +
+> +	if (argbuf->is_flat) {
+> +		memcpy(dst, argbuf->f.buf + offset, len);
+> +		return;
+> +	}
+> +
+> +	iov_iter_bvec(&iter, ITER_SOURCE, argbuf->s.bvec,
+> +		      argbuf->s.nr, argbuf->s.size);
+> +	iov_iter_advance(&iter, offset);
+> +
+> +	copied = _copy_from_iter(dst, len, &iter);
+> +	WARN_ON_ONCE(copied != len);
+>  }
+>  
+>  /*
+> @@ -1154,7 +1289,7 @@ static unsigned int sg_init_fuse_args(struct scatterlist *sg,
+>  	len = fuse_len_args(numargs - argpages, args);
+>  	if (len)
+>  		total_sgs += virtio_fs_argbuf_setup_sg(req->argbuf, *len_used,
+> -						       len, &sg[total_sgs]);
+> +						       &len, &sg[total_sgs]);
+>  
+>  	if (argpages)
+>  		total_sgs += sg_init_fuse_pages(&sg[total_sgs],
+> @@ -1199,7 +1334,7 @@ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
+>  	}
+>  
+>  	/* Use a bounce buffer since stack args cannot be mapped */
+> -	req->argbuf = virtio_fs_argbuf_new(args, GFP_ATOMIC);
+> +	req->argbuf = virtio_fs_argbuf_new(args, GFP_ATOMIC, true);
+>  	if (!req->argbuf) {
+>  		ret = -ENOMEM;
+>  		goto out;
+> -- 
+> 2.29.2
+> 
+> 
+
