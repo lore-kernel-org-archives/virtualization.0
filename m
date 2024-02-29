@@ -1,150 +1,120 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C90164AB6
-	for <virtualization@lists.linux-foundation.org>; Thu, 29 Feb 2024 10:16:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B451464AB6;
+	Thu, 29 Feb 2024 10:26:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.19
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709201777; cv=none; b=aKvvVOxKzaD17+oC3AOe9ChcBIsp3yLC+brQaKapeqO3rZID1dTJg4hyeaYoRw6q4OIyTH3ouDqIP3hQxpVJ8EITBVly/h2E7X9fLoeO0WDFob7IknoKhfvDm/E5bIG0WGFum4rXZNZlpOhazZE7ma/lqVXLcTNBlltS8ns8qPw=
+	t=1709202372; cv=none; b=rwGTgXk8hF/ehuGaNitKG6rkOR3az78WuKOsnQJx21x1Gc5+2Bc5G6BuMpnevqEjo5QGpEmW+c3s82VHOWBf+01xwbQw8ZabEskglLSf3RgVTqj0xZlI7/Oy159bBQ8ZAlNXJFjH3Yu/tIX54qbQfBTYD2YagqMysfbNW1CPjeE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709201777; c=relaxed/simple;
-	bh=ZFNByMRwPsfoa2cUfDMVpesTGK2oEeY3hMlEJOxrYqU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=p8UchNZ3yVQVAj8AfaV4Yd63EdoUqtLe0pc/LLKXk6dtQ0Z/8FdA2ATqrXDQuGVyMqdqwYN/3oJTvbp04UWDHqAIUdcL5SHn6VwJFoIkt5f0b1j12muxUKlngo9GxR8SMuSxhtKjDkJfp746SYh3GjpSBWo+jXF47VKgroBhkK8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hUY2E0zP; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1709202372; c=relaxed/simple;
+	bh=YWOWrb13iLVWmU3eCgGMRsxQVEI8HkV4cWq2o6HncYE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=aAcSP1yCPHuJVQbJOpZSwl9HmAq/HkCxkrOHJzfVc3rY97rvioxEVgd3KmID8coTf6V1w6e4hspCMl7UBGC9PVhH70R3Z3io3SKYLmQ0AdBjaYUvkp2FgaENpZVk9NltwQgtyFsbITNANxcod8y35r/psiCta7Q+g9DhEwsH4fk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=QpMSc+op; arc=none smtp.client-ip=192.198.163.19
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hUY2E0zP"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id D626B605EC
-	for <virtualization@lists.linux-foundation.org>; Thu, 29 Feb 2024 10:16:15 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id qd6tChzRRYmk
-	for <virtualization@lists.linux-foundation.org>;
-	Thu, 29 Feb 2024 10:16:15 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=maxime.coquelin@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 0F7256084E
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0F7256084E
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=hUY2E0zP
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 0F7256084E
-	for <virtualization@lists.linux-foundation.org>; Thu, 29 Feb 2024 10:16:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1709201773;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=cRtOZtNwdEl8BanGTfcluvA6Vfr8D7Q+rJB/hOzOCRg=;
-	b=hUY2E0zPDHMXllzdnOFVOiSo4E1UwY5bZeC/WFrfpUVLQ/idvHuFGFzzkJBxj4fj3C0qV3
-	yrkCnckQy8f555maDRFBm5B6cKxZopONCNK9eoyttogeum1RyXrefLyUFawEFLykVf9xBu
-	ogAjixmcW9cU0TNG0msKN+RzjcDAHN4=
-Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
- by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-120-9gnFqUauNuiEVXKRPzJeFw-1; Thu,
- 29 Feb 2024 05:16:09 -0500
-X-MC-Unique: 9gnFqUauNuiEVXKRPzJeFw-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id C0E3E29AA393;
-	Thu, 29 Feb 2024 10:16:08 +0000 (UTC)
-Received: from [10.39.208.20] (unknown [10.39.208.20])
-	by smtp.corp.redhat.com (Postfix) with ESMTPS id D09A2AC1E;
-	Thu, 29 Feb 2024 10:16:05 +0000 (UTC)
-Message-ID: <27d1fc65-14d2-4a1c-b1fa-c3250ac2356a@redhat.com>
-Date: Thu, 29 Feb 2024 11:16:04 +0100
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="QpMSc+op"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1709202370; x=1740738370;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=YWOWrb13iLVWmU3eCgGMRsxQVEI8HkV4cWq2o6HncYE=;
+  b=QpMSc+op0021pfNZpbuhiSxjWR3gcgJIfsnJbO9BtBhslYBGQI9rCLjH
+   af+KjrNK6LxehkwZPUTrT0mRKah2ms75FaLIl0DRcR6KaeoJPqrxIrUu1
+   OPsjQ3L9M6h6I0SMDdPZ2VjS3bSC/CN/FgcGOqUYvBOEXTz2OAVDW93m6
+   3UPjrl6Kify23tWGOvjcIiWA+/SHx+4b7n1jzUWYJRD4ixyzsf1biYgmb
+   1Wza6g00XqEeshKwTAAth+HAC/0VQ0TlSuKW7ryXgqDpKmNTzTbgNtLcl
+   jv7ygRenf/ctDod2PcVpNoefWzlRxzGB9mqg2uq70YXbi2wZzzCkpwLgA
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10998"; a="3518804"
+X-IronPort-AV: E=Sophos;i="6.06,194,1705392000"; 
+   d="scan'208";a="3518804"
+Received: from fmviesa005.fm.intel.com ([10.60.135.145])
+  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Feb 2024 02:26:10 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.06,194,1705392000"; 
+   d="scan'208";a="12348112"
+Received: from lkp-server02.sh.intel.com (HELO 3c78fa4d504c) ([10.239.97.151])
+  by fmviesa005.fm.intel.com with ESMTP; 29 Feb 2024 02:26:06 -0800
+Received: from kbuild by 3c78fa4d504c with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1rfdbf-000Crf-1q;
+	Thu, 29 Feb 2024 10:25:49 +0000
+Date: Thu, 29 Feb 2024 18:24:46 +0800
+From: kernel test robot <lkp@intel.com>
+To: Yunjian Wang <wangyunjian@huawei.com>, mst@redhat.com,
+	willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
+	kuba@kernel.org, bjorn@kernel.org, magnus.karlsson@intel.com,
+	maciej.fijalkowski@intel.com, jonathan.lemon@gmail.com,
+	davem@davemloft.net
+Cc: oe-kbuild-all@lists.linux.dev, bpf@vger.kernel.org,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+	kvm@vger.kernel.org, virtualization@lists.linux.dev,
+	xudingke@huawei.com, liwei395@huawei.com,
+	Yunjian Wang <wangyunjian@huawei.com>
+Subject: Re: [PATCH net-next v2 3/3] tun: AF_XDP Tx zero-copy support
+Message-ID: <202402291828.G9c5tW50-lkp@intel.com>
+References: <1709118356-133960-1-git-send-email-wangyunjian@huawei.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v7 0/3] vduse: add support for networking devices
-Content-Language: en-US
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: jasowang@redhat.com, xuanzhuo@linux.alibaba.com, xieyongji@bytedance.com,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
- david.marchand@redhat.com, lulu@redhat.com
-References: <20240109111025.1320976-1-maxime.coquelin@redhat.com>
- <f25f3c31-c793-4743-a587-0e2063dc2d65@redhat.com>
- <20240201033944-mutt-send-email-mst@kernel.org>
-From: Maxime Coquelin <maxime.coquelin@redhat.com>
-Autocrypt: addr=maxime.coquelin@redhat.com; keydata=
- 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
- Mwqu3GQ=
-In-Reply-To: <20240201033944-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1709118356-133960-1-git-send-email-wangyunjian@huawei.com>
 
-Hello Michael,
+Hi Yunjian,
 
-On 2/1/24 09:40, Michael S. Tsirkin wrote:
-> On Thu, Feb 01, 2024 at 09:34:11AM +0100, Maxime Coquelin wrote:
->> Hi Jason,
->>
->> It looks like all patches got acked by you.
->> Any blocker to queue the series for next release?
->>
->> Thanks,
->> Maxime
-> 
-> I think it's good enough at this point. Will put it in
-> linux-next shortly.
-> 
+kernel test robot noticed the following build errors:
 
-I fetched linux-next and it seems the series is not in yet.
-Is there anything to be reworked on my side?
+[auto build test ERROR on net-next/main]
 
-Thanks,
-Maxime
+url:    https://github.com/intel-lab-lkp/linux/commits/Yunjian-Wang/xsk-Remove-non-zero-dma_page-check-in-xp_assign_dev/20240228-190840
+base:   net-next/main
+patch link:    https://lore.kernel.org/r/1709118356-133960-1-git-send-email-wangyunjian%40huawei.com
+patch subject: [PATCH net-next v2 3/3] tun: AF_XDP Tx zero-copy support
+config: i386-randconfig-012-20240229 (https://download.01.org/0day-ci/archive/20240229/202402291828.G9c5tW50-lkp@intel.com/config)
+compiler: gcc-7 (Ubuntu 7.5.0-6ubuntu2) 7.5.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240229/202402291828.G9c5tW50-lkp@intel.com/reproduce)
 
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202402291828.G9c5tW50-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+   drivers/vhost/net.c: In function 'vhost_net_buf_peek_len':
+>> drivers/vhost/net.c:206:27: error: initialization from incompatible pointer type [-Werror=incompatible-pointer-types]
+      struct xdp_desc *desc = tun_ptr_to_xdp_desc(ptr);
+                              ^~~~~~~~~~~~~~~~~~~
+   cc1: some warnings being treated as errors
+
+
+vim +206 drivers/vhost/net.c
+
+   198	
+   199	static int vhost_net_buf_peek_len(void *ptr)
+   200	{
+   201		if (tun_is_xdp_frame(ptr)) {
+   202			struct xdp_frame *xdpf = tun_ptr_to_xdp(ptr);
+   203	
+   204			return xdpf->len;
+   205		} else if (tun_is_xdp_desc_frame(ptr)) {
+ > 206			struct xdp_desc *desc = tun_ptr_to_xdp_desc(ptr);
+   207	
+   208			return desc->len;
+   209		}
+   210	
+   211		return __skb_array_len_with_tag(ptr);
+   212	}
+   213	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
