@@ -1,147 +1,131 @@
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4CEF58118
-	for <virtualization@lists.linux.dev>; Thu, 29 Feb 2024 07:21:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A492A4596C
+	for <virtualization@lists.linux.dev>; Thu, 29 Feb 2024 07:21:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709191283; cv=none; b=fpuhgDOZ9qb+IBIEjID76lAv0kXvTgJ7PLf4i2w+cXIP7BKTiBfdmjbHk/3zQGNrQV/bjGt2sIWd4iX2kRFSXIIGhTXb/smOA9OW5WcAhVQVC7UMAdytK+eZ0QPYFz8ERljYjPr32E1OpqlWG8NH3P/g22MEsTGz0//LxUBXQcM=
+	t=1709191313; cv=none; b=Hql2zGvPKUoD6hLbViygqcfAUdGDf1sVDjnNR+TFY4ugpnzCxgPziBPIzb+wKfJiwAsRVhnFnV+fQAK0SXt7Rsd47Ha+u5AKkRJPiqHnzgzWLgqql02hU5ieuyNPGyP3kGN7NO7G1a6DAItxDDUw/AP7FVaDvGFu0MDU98ZbTlo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709191283; c=relaxed/simple;
-	bh=nufMRbXLj+YSuSWmljSpMKFk1LTW93GH2wujXElJyos=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=GvyEPskPGPsoMLklah0fRmH1j29KVkqy9Gf9YxMBpTo5TaBVwy21CKHZYKGhm/ZOn8wyWo5Aoi72Omq3+MnlNu6uyCm5J4kAsV+1eOPsSbOMIiK/YZD8wJt7gv35b4GiQK0UVF3leGq41dqyiFKaWlkNbMTZmGINhShVg9mFEpk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Z8bybb+7; arc=none smtp.client-ip=115.124.30.110
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1709191313; c=relaxed/simple;
+	bh=HqknOjEjlYxT7iVdqKOIUCiHsRYWnF8WRHrWHM7BaNU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ux4oCx6O9SyHDOu5mAvFmZJo5ZGQX5w2lydEfNRlJbe+kDS/Y6fz3qj5etXZHnAG+Aa6NCjXMANdlMuW/Bpok8LSyL4Psc87TA4q+ZzZ+ST/mwmvjvhkmcSf0gxr8tcuMSd3E4tTuubkKACpnlnS7zp3AkbzH4ib5On+AOeVFo0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fuAnC3Lp; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Z8bybb+7"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1709191274; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=d8VgurjiHoufBNHjBHr2ztXStBXU+RItFeIKBycQigI=;
-	b=Z8bybb+7Hmg387ynZmXl+LRq6GymNJ24H1thpiWwUfLLcUELY9eL26ypoTz5GfNJYaAQ4BCtXbgS65sNhfKWIDTwaXLmGlc6uS2RJS4/w+upwB6EcIuTjSPBvNLSsOznbNNe27WPWPqY7wF1Jil6vTGl3HQW+aeGUECNq6tx0ew=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R661e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=35;SR=0;TI=SMTPD_---0W1SBcCO_1709191270;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W1SBcCO_1709191270)
-          by smtp.aliyun-inc.com;
-          Thu, 29 Feb 2024 15:21:11 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: virtualization@lists.linux.dev
-Cc: Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Hans de Goede <hdegoede@redhat.com>,
-	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	Vadim Pasternak <vadimp@nvidia.com>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Mathieu Poirier <mathieu.poirier@linaro.org>,
-	Cornelia Huck <cohuck@redhat.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	Eric Farman <farman@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>,
-	linux-um@lists.infradead.org,
-	netdev@vger.kernel.org,
-	platform-driver-x86@vger.kernel.org,
-	linux-remoteproc@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	kvm@vger.kernel.org,
-	bpf@vger.kernel.org
-Subject: [PATCH vhost v3 16/19] virtio_ring: introduce virtqueue_dma_map_sg_attrs
-Date: Thu, 29 Feb 2024 15:20:41 +0800
-Message-Id: <20240229072044.77388-17-xuanzhuo@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20240229072044.77388-1-xuanzhuo@linux.alibaba.com>
-References: <20240229072044.77388-1-xuanzhuo@linux.alibaba.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fuAnC3Lp"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1709191310;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Net7WSZ0SLXfX6qP1fBqoZy/fUubtzc+/J9dRqSPBjo=;
+	b=fuAnC3LpSFsEfOh0B2+6nUeT3+gZjZkEjbcVPUWgw2RUz8ZHs2RDDEHoe6ohr0ROw1/nYy
+	LEpxh5FdUX0Uxdczz79TeCqs/68hH0AToWWpFRcZmlLeSvf2htWKG7rFzq8fS64nx+WB0W
+	dnC0UjiT5P6dgqyHBWeSxfH9EHb+oFo=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-240-I0WjZ6BKM9ulSVs6vQlr2w-1; Thu, 29 Feb 2024 02:21:47 -0500
+X-MC-Unique: I0WjZ6BKM9ulSVs6vQlr2w-1
+Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-a3ec1d8b1e2so37349966b.3
+        for <virtualization@lists.linux.dev>; Wed, 28 Feb 2024 23:21:47 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1709191306; x=1709796106;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Net7WSZ0SLXfX6qP1fBqoZy/fUubtzc+/J9dRqSPBjo=;
+        b=QHqmmXDlsWwP9okbO4E0A66fGBrAA57aLvWr1YqYVGBckw+3lzyIbLRftl1UzltNIp
+         sxdY5DcvyL//za1qDXPDykNZScxfd4gqo9P6CtjKKYSK34IrTnxWuEL9GpsEK8X8Bxsz
+         KKYnGd8//M0yOal07oVgk+i776q2m24WavtbQzT8daU5odtR/VtyUw/E8XePcOOePEEc
+         5Jj18lX/MEqEyiu0bmW5JmuSKWRnMnf5WhtUa6yUmihCpJRU2/7HygSdi0XBodHrjOwh
+         KdRT/QjAgygCtzQdQ2LjCi9SHBArZ80gp76DLPBcyMJtHW/5SSKjqAWm+GXLKi6caQvl
+         QoNg==
+X-Forwarded-Encrypted: i=1; AJvYcCUAtKLSYAJvXa+Rq6+IpK4JqX9D/OmK3I26DK22ieEV28dIxlwepFAyyD8hd5Q321gu6DJlyrYYh8QjMp3EjlYnE61JLVVYvCR9Nel/Ozg=
+X-Gm-Message-State: AOJu0YzFS0pV42aJxx0huJVizZrCMRXDguOeXZeOXROUjxrnWj2xOIIf
+	cVLYnrjqC0hK+PgYXOS7T3wWEzO8psZbqrQ22Hbc8NqJA9gLn6Gsg1sAq367FDAFItJNs3YaQpo
+	TrGBqrGRXM6vKuAUZ2Yk+FWDh3lm9bFbRcp75G8vfll7kVdqe2VYvggNv45jwCq1My3Z7BFnU9P
+	BoWEdTI5jYzaTCv/+HBd1nYvIXm2tRgbo40KtVk20=
+X-Received: by 2002:a17:906:f848:b0:a3f:d71d:d820 with SMTP id ks8-20020a170906f84800b00a3fd71dd820mr688214ejb.26.1709191306657;
+        Wed, 28 Feb 2024 23:21:46 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHR1+8q9qhWcpHCQv9NfHXzSbTJvOggAWbOmIh8P8wUWatZVIF7qiSuP0cDF+Mqh1M4VO49hebtH0JZ7m1N8oM=
+X-Received: by 2002:a17:906:f848:b0:a3f:d71d:d820 with SMTP id
+ ks8-20020a170906f84800b00a3fd71dd820mr688204ejb.26.1709191306393; Wed, 28 Feb
+ 2024 23:21:46 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Git-Hash: e3a3e51d6b70
-Content-Transfer-Encoding: 8bit
+References: <98298b2f-7288-4b0b-8974-3d5111b589cb@moroto.mountain> <CAJSP0QWW2QvibpcrZbcLzVp8ngnooiTqP8i2emd+0sdCj_7Yww@mail.gmail.com>
+In-Reply-To: <CAJSP0QWW2QvibpcrZbcLzVp8ngnooiTqP8i2emd+0sdCj_7Yww@mail.gmail.com>
+From: Cindy Lu <lulu@redhat.com>
+Date: Thu, 29 Feb 2024 15:21:09 +0800
+Message-ID: <CACLfguXksa4TEb5gk2bvoeGaQrR8s5TZMJGzR0r7Y9Wo9N82UQ@mail.gmail.com>
+Subject: Re: [PATCH v3] vduse: Fix off by one in vduse_dev_mmap()
+To: Stefan Hajnoczi <stefanha@gmail.com>
+Cc: Dan Carpenter <dan.carpenter@linaro.org>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Xie Yongji <xieyongji@bytedance.com>, Maxime Coquelin <maxime.coquelin@redhat.com>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Christian Brauner <brauner@kernel.org>, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	kernel-janitors@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Introduce a helper to do dma map for scatterlist.
-That can be used by other drivers.
-
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
----
- drivers/virtio/virtio_ring.c | 32 ++++++++++++++++++++++++++++++++
- include/linux/virtio.h       |  3 +++
- 2 files changed, 35 insertions(+)
-
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index df7633155558..3f790fa3d56a 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -3187,6 +3187,38 @@ int virtqueue_dma_mapping_error(struct virtqueue *_vq, dma_addr_t addr)
- }
- EXPORT_SYMBOL_GPL(virtqueue_dma_mapping_error);
- 
-+/**
-+ * virtqueue_dma_map_sg_attrs - map scatterlist addr DMA for _vq
-+ * @_vq: the struct virtqueue we're talking about.
-+ * @sg: the scatterlist to do dma
-+ * @dir: DMA direction
-+ * @attrs: DMA Attrs
-+ *
-+ * The caller calls this to do dma mapping in advance. The sg can be
-+ * passed to this _vq when it is in pre-mapped mode.
-+ *
-+ * Returns zero or a negative error.
-+ *   0: success
-+ *   -ENOMEM: dma map error
-+ */
-+int virtqueue_dma_map_sg_attrs(struct virtqueue *_vq, struct scatterlist *sg,
-+			       enum dma_data_direction dir, unsigned long attrs)
-+{
-+	dma_addr_t addr;
-+	int err;
-+
-+	addr = virtqueue_dma_map_page_attrs(_vq, sg_page(sg), sg->offset,
-+					    sg->length, dir, attrs);
-+	err = virtqueue_dma_mapping_error(_vq, addr);
-+	if (err)
-+		return err;
-+
-+	sg->dma_address = addr;
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(virtqueue_dma_map_sg_attrs);
-+
- /**
-  * virtqueue_dma_need_sync - check a dma address needs sync
-  * @_vq: the struct virtqueue we're talking about.
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index b81b93b3eb27..5027eba82fda 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -233,6 +233,9 @@ void virtqueue_dma_unmap_page_attrs(struct virtqueue *_vq, dma_addr_t addr,
- 				    unsigned long attrs);
- int virtqueue_dma_mapping_error(struct virtqueue *_vq, dma_addr_t addr);
- 
-+int virtqueue_dma_map_sg_attrs(struct virtqueue *_vq, struct scatterlist *sg,
-+			       enum dma_data_direction dir, unsigned long attrs);
-+
- bool virtqueue_dma_need_sync(struct virtqueue *_vq, dma_addr_t addr);
- void virtqueue_dma_sync_single_range_for_cpu(struct virtqueue *_vq, dma_addr_t addr,
- 					     unsigned long offset, size_t size,
--- 
-2.32.0.3.g01195cf9f
+On Thu, Feb 29, 2024 at 3:19=E2=80=AFAM Stefan Hajnoczi <stefanha@gmail.com=
+> wrote:
+>
+> On Wed, 28 Feb 2024 at 13:24, Dan Carpenter <dan.carpenter@linaro.org> wr=
+ote:
+> >
+> > The dev->vqs[] array has "dev->vq_num" elements.  It's allocated in
+> > vduse_dev_init_vqs().  Thus, this > comparison needs to be >=3D to avoi=
+d
+> > reading one element beyond the end of the array.
+> >
+> > Add an array_index_nospec() as well to prevent speculation issues.
+> >
+> > Fixes: 316ecd1346b0 ("vduse: Add file operation for mmap")
+> > Signed-off-by: Dan Carpenter <dan.carpenter@linaro.org>
+> > ---
+> > v2: add array_index_nospec()
+> > v3: I accidentally corrupted v2.  Try again.
+> >
+Thanks for fix this
+> >  drivers/vdpa/vdpa_user/vduse_dev.c | 3 ++-
+> >  1 file changed, 2 insertions(+), 1 deletion(-)
+>
+> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Reviewed-by:  Cindy Lu <lulu@redhat.com>
+> > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_use=
+r/vduse_dev.c
+> > index b7a1fb88c506..eb914084c650 100644
+> > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> > @@ -1532,9 +1532,10 @@ static int vduse_dev_mmap(struct file *file, str=
+uct vm_area_struct *vma)
+> >         if ((vma->vm_flags & VM_SHARED) =3D=3D 0)
+> >                 return -EINVAL;
+> >
+> > -       if (index > dev->vq_num)
+> > +       if (index >=3D dev->vq_num)
+> >                 return -EINVAL;
+> >
+> > +       index =3D array_index_nospec(index, dev->vq_num);
+> >         vq =3D dev->vqs[index];
+> >         vaddr =3D vq->vdpa_reconnect_vaddr;
+> >         if (vaddr =3D=3D 0)
+> > --
+> > 2.43.0
+> >
+> >
+>
 
