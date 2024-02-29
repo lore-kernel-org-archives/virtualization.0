@@ -1,30 +1,30 @@
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E49E445BFA
-	for <virtualization@lists.linux.dev>; Thu, 29 Feb 2024 07:21:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02C6456757
+	for <virtualization@lists.linux.dev>; Thu, 29 Feb 2024 07:21:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709191279; cv=none; b=owuddKv+61ShSNx3aTS5PX5JEdMaM9jJLXRmNx+2hm4BDSsjKOPO1D9BoIbtDIFP8g956/z+IYegVYvEj7esER5Pnx6RtnUXqbddTW31wSw3v02B3VRSm6FGh8EQC+Ld/OWW3gLbqaunVLUmIWCuQBfK0sAehxR157dw5vjjoQU=
+	t=1709191280; cv=none; b=Xk2KXXouF0XmMK55Qp4rY+3UtwguEmIJxlhw1/gHH2Qx3D+hrSDL2JOMSpFNaY7puciw/YWGR2GnFgkkBQC7syqcNDFOY2mxQbB1ir9yxa50tE+F29SH3TWtWCz6OCBeoNuciZ2IPGsHvl5W0S6C32osn8jqAQzvehFs07SJPjo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709191279; c=relaxed/simple;
-	bh=0Gk9UztMGIIcRnEHpqYyAjKvdnBaolmfK4xirNAtcuc=;
+	s=arc-20240116; t=1709191280; c=relaxed/simple;
+	bh=MUO8U5SVj3P1Xil/ahjJ/yQETxekSikLccDlysDuyiA=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=CrTdH6rfoClGTPspqARbla2leV6ndpG/0diZArIg7rnDUrLlE6NRshX56CcHjXZa5sRFXEyJ5tOSpQqXUBiz4CNbFRZvvX4F1r+SzIuCJhgoHV/+ogzk8pmsJN/0JQoy37eAm5Ysx+uOr6BQAWyX59TK1dIGd+xLKhnncvG+Rrk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=LukkCFYD; arc=none smtp.client-ip=115.124.30.100
+	 MIME-Version; b=DReikxOkOLstiLMmgsvQx7yzzIRMp2SzjDNW7cYEcPZ/jPIBjyBT8dRq4nWS5Zm+qXe+sXv5PryfXq9kIlAlJJ8UUgKbjI44iXVjkx/V0XcD9VoRylxcbg+rInwjLJALmDzKB+KcZE0Mz0ShOazynebFVTS6+DMKPN7/JHB8kjM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=rvTwESTo; arc=none smtp.client-ip=115.124.30.99
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="LukkCFYD"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="rvTwESTo"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1709191276; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=0bf+ondcixqn/GNrn6hzfTiAxwONS6eM86OVYrAkzbE=;
-	b=LukkCFYDzHDNjuaXAVfA3WjA+GjFTfyo49cpJO8T8Q/yQt0jnx8FzFjimoDfGV4eGswSpVsZK6er0wBW4xtbtbnUPK4bvMAJn0/qChUi6iE0IJJWHrkZ1NSeqHuCVkIxpTdNA5tEpl3SgyENFcu5x7/oKmUnFjilRrVPjll8tRE=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R511e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=35;SR=0;TI=SMTPD_---0W1SCLiX_1709191273;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W1SCLiX_1709191273)
+	t=1709191268; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=IRSlxqMw0yhAkJ08APM/0uZy3bVrhWlhvpCjnaXaq8Y=;
+	b=rvTwESToXUsNOmX9s/U6z8RNjNMRR2oQCnaaqA54V2u5YvgdbqtGm0LXxgevIzsqX+fai7Npdpv+/WmeDwvGLUZlw4cBX3MqAyj9wHqgx3XjSWdNfuaqE0rYH+4CUZjrTcqgUY5UcKZx9Sss7UtfHmdqU94rTqk0jqsjcSCLdxY=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R441e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=35;SR=0;TI=SMTPD_---0W1SD3j6_1709191266;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W1SD3j6_1709191266)
           by smtp.aliyun-inc.com;
-          Thu, 29 Feb 2024 15:21:14 +0800
+          Thu, 29 Feb 2024 15:21:06 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: virtualization@lists.linux.dev
 Cc: Richard Weinberger <richard@nod.at>,
@@ -61,9 +61,9 @@ Cc: Richard Weinberger <richard@nod.at>,
 	linux-s390@vger.kernel.org,
 	kvm@vger.kernel.org,
 	bpf@vger.kernel.org
-Subject: [PATCH vhost v3 18/19] virtio_net: rename free_old_xmit_skbs to free_old_xmit
-Date: Thu, 29 Feb 2024 15:20:43 +0800
-Message-Id: <20240229072044.77388-19-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH vhost v3 13/19] virtio_net: set premapped mode by find_vqs()
+Date: Thu, 29 Feb 2024 15:20:38 +0800
+Message-Id: <20240229072044.77388-14-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20240229072044.77388-1-xuanzhuo@linux.alibaba.com>
 References: <20240229072044.77388-1-xuanzhuo@linux.alibaba.com>
@@ -76,65 +76,216 @@ MIME-Version: 1.0
 X-Git-Hash: e3a3e51d6b70
 Content-Transfer-Encoding: 8bit
 
-Since free_old_xmit_skbs not only deals with skb, but also xdp frame and
-subsequent added xsk, so change the name of this function to
-free_old_xmit.
+Now, the virtio core can set the premapped mode by find_vqs().
+If the premapped can be enabled, the dma array will not be
+allocated. So virtio-net use the api of find_vqs to enable the
+premapped.
+
+Judge the premapped mode by the vq->premapped instead of saving
+local variable.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/net/virtio_net.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/net/virtio_net.c      | 57 +++++++++++++++++------------------
+ include/linux/virtio_config.h | 16 ++--------
+ 2 files changed, 29 insertions(+), 44 deletions(-)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 62f65e2cacd5..7715bb7032ec 100644
+index d7ce4a1011ea..140b2c155650 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -787,7 +787,7 @@ static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *buf)
- 	virtnet_rq_free_buf(vi, rq, buf);
+@@ -208,9 +208,6 @@ struct receive_queue {
+ 
+ 	/* Record the last dma info to free after new pages is allocated. */
+ 	struct virtnet_rq_dma *last_dma;
+-
+-	/* Do dma by self */
+-	bool do_dma;
+ };
+ 
+ /* This structure can contain rss message with maximum settings for indirection table and keysize
+@@ -657,7 +654,7 @@ static void *virtnet_rq_get_buf(struct receive_queue *rq, u32 *len, void **ctx)
+ 	void *buf;
+ 
+ 	buf = virtqueue_get_buf_ctx(rq->vq, len, ctx);
+-	if (buf && rq->do_dma)
++	if (buf && rq->vq->premapped)
+ 		virtnet_rq_unmap(rq, buf, *len);
+ 
+ 	return buf;
+@@ -670,7 +667,7 @@ static void virtnet_rq_init_one_sg(struct receive_queue *rq, void *buf, u32 len)
+ 	u32 offset;
+ 	void *head;
+ 
+-	if (!rq->do_dma) {
++	if (!rq->vq->premapped) {
+ 		sg_init_one(rq->sg, buf, len);
+ 		return;
+ 	}
+@@ -700,7 +697,7 @@ static void *virtnet_rq_alloc(struct receive_queue *rq, u32 size, gfp_t gfp)
+ 
+ 	head = page_address(alloc_frag->page);
+ 
+-	if (rq->do_dma) {
++	if (rq->vq->premapped) {
+ 		dma = head;
+ 
+ 		/* new pages */
+@@ -746,22 +743,6 @@ static void *virtnet_rq_alloc(struct receive_queue *rq, u32 size, gfp_t gfp)
+ 	return buf;
  }
  
--static void free_old_xmit_skbs(struct send_queue *sq, bool in_napi)
-+static void free_old_xmit(struct send_queue *sq, bool in_napi)
+-static void virtnet_rq_set_premapped(struct virtnet_info *vi)
+-{
+-	int i;
+-
+-	/* disable for big mode */
+-	if (!vi->mergeable_rx_bufs && vi->big_packets)
+-		return;
+-
+-	for (i = 0; i < vi->max_queue_pairs; i++) {
+-		if (virtqueue_set_dma_premapped(vi->rq[i].vq))
+-			continue;
+-
+-		vi->rq[i].do_dma = true;
+-	}
+-}
+-
+ static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *buf)
  {
- 	struct virtnet_sq_free_stats stats = {0};
+ 	struct virtnet_info *vi = vq->vdev->priv;
+@@ -770,7 +751,7 @@ static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *buf)
  
-@@ -841,7 +841,7 @@ static void check_sq_full_and_disable(struct virtnet_info *vi,
- 				virtqueue_napi_schedule(&sq->napi, sq->vq);
- 		} else if (unlikely(!virtqueue_enable_cb_delayed(sq->vq))) {
- 			/* More just got used, free them then recheck. */
--			free_old_xmit_skbs(sq, false);
-+			free_old_xmit(sq, false);
- 			if (sq->vq->num_free >= 2+MAX_SKB_FRAGS) {
- 				netif_start_subqueue(dev, qnum);
- 				virtqueue_disable_cb(sq->vq);
-@@ -2137,7 +2137,7 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
+ 	rq = &vi->rq[i];
  
- 		do {
- 			virtqueue_disable_cb(sq->vq);
--			free_old_xmit_skbs(sq, true);
-+			free_old_xmit(sq, true);
- 		} while (unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
+-	if (rq->do_dma)
++	if (rq->vq->premapped)
+ 		virtnet_rq_unmap(rq, buf, 0);
  
- 		if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
-@@ -2285,7 +2285,7 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
- 	txq = netdev_get_tx_queue(vi->dev, index);
- 	__netif_tx_lock(txq, raw_smp_processor_id());
- 	virtqueue_disable_cb(sq->vq);
--	free_old_xmit_skbs(sq, true);
-+	free_old_xmit(sq, true);
+ 	virtnet_rq_free_buf(vi, rq, buf);
+@@ -1865,7 +1846,7 @@ static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
  
- 	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
- 		netif_tx_wake_queue(txq);
-@@ -2375,7 +2375,7 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
- 		if (use_napi)
- 			virtqueue_disable_cb(sq->vq);
+ 	err = virtqueue_add_inbuf_ctx(rq->vq, rq->sg, 1, buf, ctx, gfp);
+ 	if (err < 0) {
+-		if (rq->do_dma)
++		if (rq->vq->premapped)
+ 			virtnet_rq_unmap(rq, buf, 0);
+ 		put_page(virt_to_head_page(buf));
+ 	}
+@@ -1980,7 +1961,7 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
+ 	ctx = mergeable_len_to_ctx(len + room, headroom);
+ 	err = virtqueue_add_inbuf_ctx(rq->vq, rq->sg, 1, buf, ctx, gfp);
+ 	if (err < 0) {
+-		if (rq->do_dma)
++		if (rq->vq->premapped)
+ 			virtnet_rq_unmap(rq, buf, 0);
+ 		put_page(virt_to_head_page(buf));
+ 	}
+@@ -4229,7 +4210,7 @@ static void free_receive_page_frags(struct virtnet_info *vi)
+ 	int i;
+ 	for (i = 0; i < vi->max_queue_pairs; i++)
+ 		if (vi->rq[i].alloc_frag.page) {
+-			if (vi->rq[i].do_dma && vi->rq[i].last_dma)
++			if (vi->rq[i].vq->premapped && vi->rq[i].last_dma)
+ 				virtnet_rq_unmap(&vi->rq[i], vi->rq[i].last_dma, 0);
+ 			put_page(vi->rq[i].alloc_frag.page);
+ 		}
+@@ -4293,11 +4274,13 @@ static unsigned int mergeable_min_buf_len(struct virtnet_info *vi, struct virtqu
  
--		free_old_xmit_skbs(sq, false);
-+		free_old_xmit(sq, false);
+ static int virtnet_find_vqs(struct virtnet_info *vi)
+ {
++	struct virtio_vq_config cfg = {};
+ 	vq_callback_t **callbacks;
+ 	struct virtqueue **vqs;
+ 	const char **names;
+ 	int ret = -ENOMEM;
+ 	int total_vqs;
++	bool *premapped;
+ 	bool *ctx;
+ 	u16 i;
  
- 	} while (use_napi && kick &&
- 	       unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
+@@ -4322,8 +4305,13 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+ 		ctx = kcalloc(total_vqs, sizeof(*ctx), GFP_KERNEL);
+ 		if (!ctx)
+ 			goto err_ctx;
++
++		premapped = kcalloc(total_vqs, sizeof(*premapped), GFP_KERNEL);
++		if (!ctx)
++			goto err_premapped;
+ 	} else {
+ 		ctx = NULL;
++		premapped = NULL;
+ 	}
+ 
+ 	/* Parameters for control virtqueue, if any */
+@@ -4342,10 +4330,19 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+ 		names[txq2vq(i)] = vi->sq[i].name;
+ 		if (ctx)
+ 			ctx[rxq2vq(i)] = true;
++
++		if (premapped)
++			premapped[rxq2vq(i)] = true;
+ 	}
+ 
+-	ret = virtio_find_vqs_ctx(vi->vdev, total_vqs, vqs, callbacks,
+-				  names, ctx, NULL);
++	cfg.nvqs      = total_vqs;
++	cfg.vqs       = vqs;
++	cfg.callbacks = callbacks;
++	cfg.names     = names;
++	cfg.ctx       = ctx;
++	cfg.premapped = premapped;
++
++	ret = virtio_find_vqs_cfg(vi->vdev, &cfg);
+ 	if (ret)
+ 		goto err_find;
+ 
+@@ -4365,6 +4362,8 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+ 
+ 
+ err_find:
++	kfree(premapped);
++err_premapped:
+ 	kfree(ctx);
+ err_ctx:
+ 	kfree(names);
+@@ -4437,8 +4436,6 @@ static int init_vqs(struct virtnet_info *vi)
+ 	if (ret)
+ 		goto err_free;
+ 
+-	virtnet_rq_set_premapped(vi);
+-
+ 	cpus_read_lock();
+ 	virtnet_set_affinity(vi);
+ 	cpus_read_unlock();
+diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+index f1f62e57f395..e40509fef5fe 100644
+--- a/include/linux/virtio_config.h
++++ b/include/linux/virtio_config.h
+@@ -260,21 +260,9 @@ int virtio_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ }
+ 
+ static inline
+-int virtio_find_vqs_ctx(struct virtio_device *vdev, unsigned nvqs,
+-			struct virtqueue *vqs[], vq_callback_t *callbacks[],
+-			const char * const names[], const bool *ctx,
+-			struct irq_affinity *desc)
++int virtio_find_vqs_cfg(struct virtio_device *vdev, struct virtio_vq_config *cfg)
+ {
+-	struct virtio_vq_config cfg = {};
+-
+-	cfg.nvqs = nvqs;
+-	cfg.vqs = vqs;
+-	cfg.callbacks = callbacks;
+-	cfg.names = (const char **)names;
+-	cfg.ctx = ctx;
+-	cfg.desc = desc;
+-
+-	return vdev->config->find_vqs(vdev, &cfg);
++	return vdev->config->find_vqs(vdev, cfg);
+ }
+ 
+ /**
 -- 
 2.32.0.3.g01195cf9f
 
