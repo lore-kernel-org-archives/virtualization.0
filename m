@@ -1,157 +1,101 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C78F87A709
-	for <virtualization@lists.linux.dev>; Thu, 29 Feb 2024 11:12:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E83DD7D3FF
+	for <virtualization@lists.linux.dev>; Thu, 29 Feb 2024 12:52:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.187
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709205172; cv=none; b=LiczDqdn1jviBOoHaOHm/HMAjTBIcCYKB8wDb2Axyv7q+gxATw+U/cQSIE920jQYxyWhGDj1Y70JtRLQkAbaZkkSes0mHDW/ADIqK0ExMEvD7WZ4jWfF4DTJh06r9sGtUbwHHRjt+Bcoue+JAnrNxxWCZhX6Qr7sjpxgQ3Qc2Wo=
+	t=1709211134; cv=none; b=aOrOZZC1LwthEtOq1ejR56MAWbXk4gZQQwieV7hyredJsLQ8pFdu69ru0/lFX35OYm2lE8fgEqfXyVWcqjf5kNd9Pb2W6AtiB6STT3m8G7l+JS9jqAfBsCPWLXA7MwB0tEdY2pKpe9nF0UqQLl9fA7wyc5kMtG05r4KIHqN+b7w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709205172; c=relaxed/simple;
-	bh=+bJsDAmsCHuuybkojpUcqg83Cd3FuY+Moz8CZejknmE=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=UA6USY5eFsp/rwdbJDwJr30n/YNtdD1QCOOrdmUTGBN9o0vM7iB452ariREQQUC+H+u5r2ygS9FXm5g2jciXUgxbLBDCrof8pyKGw+yZ7YCUjfd1BL8zCwSyPGVnMbkFI2kkviBwxaeekFXZWVJS0k6ZPEDlVdFuMWeZR9SaE+Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cKbcHiNM; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cKbcHiNM"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1709205169;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=ZX2J7Wyo2BWhvF75jz1nSkY+uDz435TdGwuyfJeDJcw=;
-	b=cKbcHiNMyc2A6M7bBiHoufDE12rNwDhSiMkDQpwtBciG6vBGopn/OZCQX29bc7NKJmw61S
-	8IqP8O11uSFVy5uNDi+kAYEfNPT30LI3gS0t9/834/jiJZKML4L3kWSBmGbyBYzfNQLrE7
-	cbJbz8AW+m2HjZdekxkJiTd1VFA5W9s=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-413-UBPdgAIdNuejjYQ68SSpsQ-1; Thu, 29 Feb 2024 06:12:48 -0500
-X-MC-Unique: UBPdgAIdNuejjYQ68SSpsQ-1
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-40e354aaf56so1111325e9.1
-        for <virtualization@lists.linux.dev>; Thu, 29 Feb 2024 03:12:48 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1709205167; x=1709809967;
-        h=mime-version:user-agent:content-transfer-encoding:autocrypt
-         :references:in-reply-to:date:cc:to:from:subject:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=J1ljLBvAKrzOfqXsdymMG4sOPRNjFy8nCCCQL/VLcRg=;
-        b=BjPL4XcNrSsxBVkmWawpTqWL/NM0QyWyxxirfxxnM6z0c/szzZlMxQk4rUXn67qDMf
-         qsEulKMZ1YAQp6ItzEx4lTmhcQvcwDn+UDpEFAYEAtrie9ONopaGwfBXL6nFofVqsf2Q
-         Yk1kSALenhddonPB+73nQlEpkxZS5ejZfx+Reupr507sSvrWcgp6BhOcalt0oUOQ/g0x
-         6YSIPIjy8KfqbDEVu9kg2Is6PuFMyA6HHHF+hQQBbnimxc2UIZ2jIrHAUe95Ke4XYc81
-         yrsjY6G6W9rhXD1kncT/neDHU2Xug4mTYLnbEytqSGRww0yYHd+i3fnKRc+w6aYCtpvh
-         cbIw==
-X-Forwarded-Encrypted: i=1; AJvYcCVtNc+YeC/hoKOJ+qPUGgkmnxDvDzqBof9hPiIhVA36lJLNXc4k2JqueiKSh0SbXTUhghg/gwbjdOqeAtUdvzh+I2N4ZjBAy7/CvThha9M=
-X-Gm-Message-State: AOJu0YyT/7VsXA8aIP0/Ry7jZxtsAgnCQawfTMkWF/ZkYIAxZW7bVb/z
-	Gm8wQmIa+m01sbumOrNFEIeGfDmt/7XEkBadyOADrVHwDHTeFULUBOwSXosOJM5FkgP8fyWdHvg
-	OU7qARpSKvO2bLa9xCIxwXie3v98/sP8Nmj8xSqV0VlXlY/ucTllZV8lG/8HxS64v
-X-Received: by 2002:a05:6000:18a9:b0:33d:9e15:12bf with SMTP id b9-20020a05600018a900b0033d9e1512bfmr1372337wri.3.1709205167098;
-        Thu, 29 Feb 2024 03:12:47 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHfKKnPq3F5LjzBgxvLGpBosG5KZdsojuxXv+y3866lEvo3VcN/Hqtb7eOfxFpQwYKS/TI+dQ==
-X-Received: by 2002:a05:6000:18a9:b0:33d:9e15:12bf with SMTP id b9-20020a05600018a900b0033d9e1512bfmr1372320wri.3.1709205166722;
-        Thu, 29 Feb 2024 03:12:46 -0800 (PST)
-Received: from gerbillo.redhat.com (146-241-250-174.dyn.eolo.it. [146.241.250.174])
-        by smtp.gmail.com with ESMTPSA id e5-20020adff345000000b0033b278cf5fesm1462888wrp.102.2024.02.29.03.12.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Feb 2024 03:12:46 -0800 (PST)
-Message-ID: <7d478cb842e28094f4d6102e593e3de25ab27dfe.camel@redhat.com>
-Subject: Re: [PATCH net-next v2 3/3] tun: AF_XDP Tx zero-copy support
-From: Paolo Abeni <pabeni@redhat.com>
-To: Yunjian Wang <wangyunjian@huawei.com>, mst@redhat.com, 
-	willemdebruijn.kernel@gmail.com, jasowang@redhat.com, kuba@kernel.org, 
-	bjorn@kernel.org, magnus.karlsson@intel.com, maciej.fijalkowski@intel.com, 
-	jonathan.lemon@gmail.com, davem@davemloft.net
-Cc: bpf@vger.kernel.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org,  kvm@vger.kernel.org,
- virtualization@lists.linux.dev, xudingke@huawei.com,  liwei395@huawei.com
-Date: Thu, 29 Feb 2024 12:12:44 +0100
-In-Reply-To: <1709118356-133960-1-git-send-email-wangyunjian@huawei.com>
-References: <1709118356-133960-1-git-send-email-wangyunjian@huawei.com>
-Autocrypt: addr=pabeni@redhat.com; prefer-encrypt=mutual; keydata=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
-User-Agent: Evolution 3.50.4 (3.50.4-1.fc39)
+	s=arc-20240116; t=1709211134; c=relaxed/simple;
+	bh=kb07Bofn5YvOT4z4iZNaMpVFkUQyAqY/FdzZob/hJ6s=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=rBlbUcQKMFdkEcoYUsros0Uc8aaDZ2w7kKsv+17GO4TmUL6ucHTu7QDEl5KbcqGqrL6s+jwHme0PfYGXmu7r8o6vvCwBulDSl/e/MyrCM6Tgno66qKJeNIg77Olys3LIX4c91PCLuB73ZHUQZ8mwvrC/u3rejV9WAZ6s7vCMwy4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.187
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.163.174])
+	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4Tlrff5y2FzpVXm;
+	Thu, 29 Feb 2024 20:50:18 +0800 (CST)
+Received: from kwepemm600003.china.huawei.com (unknown [7.193.23.202])
+	by mail.maildlp.com (Postfix) with ESMTPS id EEBBB1404DB;
+	Thu, 29 Feb 2024 20:52:08 +0800 (CST)
+Received: from dggpemm500008.china.huawei.com (7.185.36.136) by
+ kwepemm600003.china.huawei.com (7.193.23.202) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.35; Thu, 29 Feb 2024 20:52:08 +0800
+Received: from dggpemm500008.china.huawei.com ([7.185.36.136]) by
+ dggpemm500008.china.huawei.com ([7.185.36.136]) with mapi id 15.01.2507.035;
+ Thu, 29 Feb 2024 20:52:08 +0800
+From: wangyunjian <wangyunjian@huawei.com>
+To: Paolo Abeni <pabeni@redhat.com>, "mst@redhat.com" <mst@redhat.com>,
+	"willemdebruijn.kernel@gmail.com" <willemdebruijn.kernel@gmail.com>,
+	"jasowang@redhat.com" <jasowang@redhat.com>, "kuba@kernel.org"
+	<kuba@kernel.org>, "bjorn@kernel.org" <bjorn@kernel.org>,
+	"magnus.karlsson@intel.com" <magnus.karlsson@intel.com>,
+	"maciej.fijalkowski@intel.com" <maciej.fijalkowski@intel.com>,
+	"jonathan.lemon@gmail.com" <jonathan.lemon@gmail.com>, "davem@davemloft.net"
+	<davem@davemloft.net>
+CC: "bpf@vger.kernel.org" <bpf@vger.kernel.org>, "netdev@vger.kernel.org"
+	<netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, xudingke
+	<xudingke@huawei.com>, "liwei (DT)" <liwei395@huawei.com>
+Subject: RE: [PATCH net-next v2 1/3] xsk: Remove non-zero 'dma_page' check in
+ xp_assign_dev
+Thread-Topic: [PATCH net-next v2 1/3] xsk: Remove non-zero 'dma_page' check in
+ xp_assign_dev
+Thread-Index: AQHaajYJnbtzT7JgCU+QOT7x4zY88rEgnaQAgACpFNA=
+Date: Thu, 29 Feb 2024 12:52:08 +0000
+Message-ID: <55ef319de7084614b1883018f69de1eb@huawei.com>
+References: <1709118325-120336-1-git-send-email-wangyunjian@huawei.com>
+ <75b6f7686c03519a1aaeb461618070747890143b.camel@redhat.com>
+In-Reply-To: <75b6f7686c03519a1aaeb461618070747890143b.camel@redhat.com>
+Accept-Language: zh-CN, en-US
+Content-Language: zh-CN
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, 2024-02-28 at 19:05 +0800, Yunjian Wang wrote:
-> @@ -2661,6 +2776,54 @@ static int tun_ptr_peek_len(void *ptr)
->  =09}
->  }
-> =20
-> +static void tun_peek_xsk(struct tun_file *tfile)
-> +{
-> +=09struct xsk_buff_pool *pool;
-> +=09u32 i, batch, budget;
-> +=09void *frame;
-> +
-> +=09if (!ptr_ring_empty(&tfile->tx_ring))
-> +=09=09return;
-> +
-> +=09spin_lock(&tfile->pool_lock);
-> +=09pool =3D tfile->xsk_pool;
-> +=09if (!pool) {
-> +=09=09spin_unlock(&tfile->pool_lock);
-> +=09=09return;
-> +=09}
-> +
-> +=09if (tfile->nb_descs) {
-> +=09=09xsk_tx_completed(pool, tfile->nb_descs);
-> +=09=09if (xsk_uses_need_wakeup(pool))
-> +=09=09=09xsk_set_tx_need_wakeup(pool);
-> +=09}
-> +
-> +=09spin_lock(&tfile->tx_ring.producer_lock);
-> +=09budget =3D min_t(u32, tfile->tx_ring.size, TUN_XDP_BATCH);
-> +
-> +=09batch =3D xsk_tx_peek_release_desc_batch(pool, budget);
-> +=09if (!batch) {
-
-This branch looks like an unneeded "optimization". The generic loop
-below should have the same effect with no measurable perf delta - and
-smaller code. Just remove this.
-
-> +=09=09tfile->nb_descs =3D 0;
-> +=09=09spin_unlock(&tfile->tx_ring.producer_lock);
-> +=09=09spin_unlock(&tfile->pool_lock);
-> +=09=09return;
-> +=09}
-> +
-> +=09tfile->nb_descs =3D batch;
-> +=09for (i =3D 0; i < batch; i++) {
-> +=09=09/* Encode the XDP DESC flag into lowest bit for consumer to differ
-> +=09=09 * XDP desc from XDP buffer and sk_buff.
-> +=09=09 */
-> +=09=09frame =3D tun_xdp_desc_to_ptr(&pool->tx_descs[i]);
-> +=09=09/* The budget must be less than or equal to tx_ring.size,
-> +=09=09 * so enqueuing will not fail.
-> +=09=09 */
-> +=09=09__ptr_ring_produce(&tfile->tx_ring, frame);
-> +=09}
-> +=09spin_unlock(&tfile->tx_ring.producer_lock);
-> +=09spin_unlock(&tfile->pool_lock);
-
-More related to the general design: it looks wrong. What if
-get_rx_bufs() will fail (ENOBUF) after successful peeking? With no more
-incoming packets, later peek will return 0 and it looks like that the
-half-processed packets will stay in the ring forever???
-
-I think the 'ring produce' part should be moved into tun_do_read().
-
-Cheers,
-
-Paolo
-
+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBQYW9sbyBBYmVuaSBbbWFpbHRv
+OnBhYmVuaUByZWRoYXQuY29tXQ0KPiBTZW50OiBUaHVyc2RheSwgRmVicnVhcnkgMjksIDIwMjQg
+Njo0MyBQTQ0KPiBUbzogd2FuZ3l1bmppYW4gPHdhbmd5dW5qaWFuQGh1YXdlaS5jb20+OyBtc3RA
+cmVkaGF0LmNvbTsNCj4gd2lsbGVtZGVicnVpam4ua2VybmVsQGdtYWlsLmNvbTsgamFzb3dhbmdA
+cmVkaGF0LmNvbTsga3ViYUBrZXJuZWwub3JnOw0KPiBiam9ybkBrZXJuZWwub3JnOyBtYWdudXMu
+a2FybHNzb25AaW50ZWwuY29tOyBtYWNpZWouZmlqYWxrb3dza2lAaW50ZWwuY29tOw0KPiBqb25h
+dGhhbi5sZW1vbkBnbWFpbC5jb207IGRhdmVtQGRhdmVtbG9mdC5uZXQNCj4gQ2M6IGJwZkB2Z2Vy
+Lmtlcm5lbC5vcmc7IG5ldGRldkB2Z2VyLmtlcm5lbC5vcmc7DQo+IGxpbnV4LWtlcm5lbEB2Z2Vy
+Lmtlcm5lbC5vcmc7IGt2bUB2Z2VyLmtlcm5lbC5vcmc7DQo+IHZpcnR1YWxpemF0aW9uQGxpc3Rz
+LmxpbnV4LmRldjsgeHVkaW5na2UgPHh1ZGluZ2tlQGh1YXdlaS5jb20+OyBsaXdlaSAoRFQpDQo+
+IDxsaXdlaTM5NUBodWF3ZWkuY29tPg0KPiBTdWJqZWN0OiBSZTogW1BBVENIIG5ldC1uZXh0IHYy
+IDEvM10geHNrOiBSZW1vdmUgbm9uLXplcm8gJ2RtYV9wYWdlJyBjaGVjayBpbg0KPiB4cF9hc3Np
+Z25fZGV2DQo+IA0KPiBPbiBXZWQsIDIwMjQtMDItMjggYXQgMTk6MDUgKzA4MDAsIFl1bmppYW4g
+V2FuZyB3cm90ZToNCj4gPiBOb3cgZG1hIG1hcHBpbmdzIGFyZSB1c2VkIGJ5IHRoZSBwaHlzaWNh
+bCBOSUNzLiBIb3dldmVyIHRoZSB2TklDIG1heWJlDQo+ID4gZG8gbm90IG5lZWQgdGhlbS4gU28g
+cmVtb3ZlIG5vbi16ZXJvICdkbWFfcGFnZScgY2hlY2sgaW4NCj4gPiB4cF9hc3NpZ25fZGV2Lg0K
+PiA+DQo+ID4gU2lnbmVkLW9mZi1ieTogWXVuamlhbiBXYW5nIDx3YW5neXVuamlhbkBodWF3ZWku
+Y29tPg0KPiA+IC0tLQ0KPiA+ICBuZXQveGRwL3hza19idWZmX3Bvb2wuYyB8IDcgLS0tLS0tLQ0K
+PiA+ICAxIGZpbGUgY2hhbmdlZCwgNyBkZWxldGlvbnMoLSkNCj4gPg0KPiA+IGRpZmYgLS1naXQg
+YS9uZXQveGRwL3hza19idWZmX3Bvb2wuYyBiL25ldC94ZHAveHNrX2J1ZmZfcG9vbC5jIGluZGV4
+DQo+ID4gY2U2MGVjZDQ4YTRkLi5hNWFmNzViMWY0M2MgMTAwNjQ0DQo+ID4gLS0tIGEvbmV0L3hk
+cC94c2tfYnVmZl9wb29sLmMNCj4gPiArKysgYi9uZXQveGRwL3hza19idWZmX3Bvb2wuYw0KPiA+
+IEBAIC0yMTksMTYgKzIxOSw5IEBAIGludCB4cF9hc3NpZ25fZGV2KHN0cnVjdCB4c2tfYnVmZl9w
+b29sICpwb29sLA0KPiA+ICAJaWYgKGVycikNCj4gPiAgCQlnb3RvIGVycl91bnJlZ19wb29sOw0K
+PiA+DQo+ID4gLQlpZiAoIXBvb2wtPmRtYV9wYWdlcykgew0KPiA+IC0JCVdBUk4oMSwgIkRyaXZl
+ciBkaWQgbm90IERNQSBtYXAgemVyby1jb3B5IGJ1ZmZlcnMiKTsNCj4gPiAtCQllcnIgPSAtRUlO
+VkFMOw0KPiA+IC0JCWdvdG8gZXJyX3VucmVnX3hzazsNCj4gPiAtCX0NCj4gDQo+IFRoaXMgd291
+bGQgdW5jb25kaXRpb25hbGx5IHJlbW92ZSBhbiBvdGhlcndpc2UgdmFsaWQgY2hlY2sgZm9yIG1v
+c3QgTklDLiBXaGF0DQo+IGFib3V0IGxldCB0aGUgZHJpdmVyIGRlY2xhcmUgaXQgd29udCBuZWVk
+IERNQSBtYXAgd2l0aCBhDQo+IChwb29sPykgZmxhZy4NCg0KVGhpcyBjaGVjayBpcyByZWR1bmRh
+bnQuIFRoZSBOSUMncyBkcml2ZXIgZGV0ZXJtaW5lcyB3aGV0aGVyIGEgRE1BIG1hcCBpcyByZXF1
+aXJlZC4NCklmIHRoZSBOSUMnZHJpdmVyIHJlcXVpcmVzIHRoZSBETUEgbWFwLCBpdCB1c2VzIHRo
+ZSB4c2tfcG9vbF9kbWFfbWFwIGZ1bmN0aW9uLCB3aGljaA0KaW5pdGlhbGl6ZXMgdGhlIERNQSBt
+YXAgYW5kIHBlcmZvcm1zIGEgY2hlY2suDQoNClRoYW5rcw0KDQo+IA0KPiBDaGVlcnMsDQo+IA0K
+PiBQYW9sbw0KDQo=
