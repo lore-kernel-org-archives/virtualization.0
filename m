@@ -1,120 +1,116 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B0D514A0B6;
-	Thu, 29 Feb 2024 15:46:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 0619A273FC
+	for <virtualization@lists.linux.dev>; Thu, 29 Feb 2024 16:33:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709221594; cv=none; b=AiqX+7gwW8Ugf4uoY6pAdTjJcCuu4vrs/Eh1pi54jdhzy3zQXDKlizvHmBXs3gr2Mjz4Okpk9X1Swon0PUFD1b8jm5rk20o32cvDNHdT7DkcvQWmEV8UfoB0/la91qWKvCnUFurUJXz31oiAQ4T0bQehkBQc62rLzkUmLWj1+oY=
+	t=1709224387; cv=none; b=b2Y7EqWIzkFlEfiMcULajV2FqaYY9UfHGR0yyvInD7Dq12jC+fjx+dax2853Zi19PeQkLDwKutCyERzWXs4K7bPx1MWB2sdPsoI+gC5Mp5GnyXWQ7eDEW6oyVxL7xJjCmH+j1pTwy1bSJPVnaHe+DKM+Schizh8ieLyWg/ONEp0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709221594; c=relaxed/simple;
-	bh=lczR1LgOcbUQlGy40uUgvgOpZit1cKPUO/BBWojFrb8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NYdJJZbxuXjEvpoJyAGKapLyYZ1BVPIjOexp8DyEWC25F65mGkUKQTt/XhyzV+fubhn/ff+T8+JVxw53j2CDZd3sy7ShVkqkD0qcGync5gKrlyb8hc6xb6vJo9Z+zBiQp1wX+QouLOc34gTnehSYe+n287fEDAXKP2cXAlFSc8g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Nf5pJAlJ; arc=none smtp.client-ip=198.175.65.21
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Nf5pJAlJ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1709221594; x=1740757594;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=lczR1LgOcbUQlGy40uUgvgOpZit1cKPUO/BBWojFrb8=;
-  b=Nf5pJAlJ9CgYm0AEvc5pgsgqNFZlyld1kKycPaBIYewETdroyvPtSRym
-   QBBIaCmgQAKKXUF9ggeBNyT09MMVG6JfU/Ry6wqtIcnkGl7q/m6HKDlls
-   kOOarKMLBZnMkRc/RPTV8+jiwseFlmBLBHSRYIumnUA9HRKil17V+HYbZ
-   VRGffshJsrZ5vw1sdNQHIs6oWTtXHajJWYRHJ2hFR2NOa7e3is77Fy8ek
-   vi1Lj0XQqcHMrtFC/MRcv62jDBLPwBJiDijLjfMr7wReZNrZSjHpiGB8+
-   YXjG+c/87yrjNAjzl46Y/R4VoR3rGDCGWEnYZzrbHKq5nrKc0g4LB5p5k
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10999"; a="3623089"
-X-IronPort-AV: E=Sophos;i="6.06,194,1705392000"; 
-   d="scan'208";a="3623089"
-Received: from fmviesa009.fm.intel.com ([10.60.135.149])
-  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Feb 2024 07:46:33 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.06,194,1705392000"; 
-   d="scan'208";a="7770452"
-Received: from lkp-server02.sh.intel.com (HELO 3c78fa4d504c) ([10.239.97.151])
-  by fmviesa009.fm.intel.com with ESMTP; 29 Feb 2024 07:46:29 -0800
-Received: from kbuild by 3c78fa4d504c with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1rfic6-000D2f-14;
-	Thu, 29 Feb 2024 15:46:26 +0000
-Date: Thu, 29 Feb 2024 23:44:54 +0800
-From: kernel test robot <lkp@intel.com>
-To: Yunjian Wang <wangyunjian@huawei.com>, mst@redhat.com,
-	willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
-	kuba@kernel.org, bjorn@kernel.org, magnus.karlsson@intel.com,
-	maciej.fijalkowski@intel.com, jonathan.lemon@gmail.com,
-	davem@davemloft.net
-Cc: oe-kbuild-all@lists.linux.dev, bpf@vger.kernel.org,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-	kvm@vger.kernel.org, virtualization@lists.linux.dev,
-	xudingke@huawei.com, liwei395@huawei.com,
-	Yunjian Wang <wangyunjian@huawei.com>
-Subject: Re: [PATCH net-next v2 3/3] tun: AF_XDP Tx zero-copy support
-Message-ID: <202402292345.a49gfJLj-lkp@intel.com>
-References: <1709118356-133960-1-git-send-email-wangyunjian@huawei.com>
+	s=arc-20240116; t=1709224387; c=relaxed/simple;
+	bh=sePhUcPjkcFqzWnN7R/fomNhNX1xSNAJjz1E157zh24=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=pdLbX5jgTHN9+9qSj1URysvlsV05ablJ2K60BW7BvoJ6tGICSC9MgYJ5N4kXMbVSfeYZpsSn5t/a4jEx+1IQ4n4w05ClmTmyxkq9wsYLBEC2PDIQedIu5/ypvSEEXrPxjsHb0M1RdyLqMMd93Upzz+eI8xzszzAFlUdcpfheyw0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id CA4B21FB;
+	Thu, 29 Feb 2024 08:33:42 -0800 (PST)
+Received: from ewhatever.cambridge.arm.com (ewhatever.cambridge.arm.com [10.1.197.1])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id A11FE3F6C4;
+	Thu, 29 Feb 2024 08:33:02 -0800 (PST)
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>,
+	Alex Williamson <alex.williamson@redhat.com>,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	Suzuki K Poulose <suzuki.poulose@arm.com>,
+	Feng Liu <feliu@nvidia.com>,
+	Yishai Hadas <yishaih@nvidia.com>,
+	Jean-Philippe Brucker <jean-philippe@linaro.org>
+Subject: [RESEND PATCH v2] virtio: uapi: Drop __packed attribute in linux/virtio_pci.h:
+Date: Thu, 29 Feb 2024 16:32:54 +0000
+Message-Id: <20240229163254.236017-1-suzuki.poulose@arm.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1709118356-133960-1-git-send-email-wangyunjian@huawei.com>
+Content-Transfer-Encoding: 8bit
 
-Hi Yunjian,
+Commit 92792ac752aa ("virtio-pci: Introduce admin command sending function")
+added "__packed" structures to UAPI header linux/virtio_pci.h. This triggers
+build failures in the consumer userspace applications without proper "definition"
+of __packed (e.g., kvmtool build fails).
 
-kernel test robot noticed the following build errors:
+Moreover, the structures are already packed well, and doesn't need explicit
+packing, similar to the rest of the structures in all virtio_* headers. Remove
+the __packed attribute.
 
-[auto build test ERROR on net-next/main]
+Fixes: 92792ac752aa ("virtio-pci: Introduce admin command sending function")
+Cc: Feng Liu <feliu@nvidia.com>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Yishai Hadas <yishaih@nvidia.com>
+Cc: Alex Williamson <alex.williamson@redhat.com>
+Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Reviewed-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+---
+Changes since v1:
+  - Fix description for the "Fixes" tag format
+  - Collect Tags from Jean-Philippe and Michael
+ ---
+ include/uapi/linux/virtio_pci.h | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Yunjian-Wang/xsk-Remove-non-zero-dma_page-check-in-xp_assign_dev/20240228-190840
-base:   net-next/main
-patch link:    https://lore.kernel.org/r/1709118356-133960-1-git-send-email-wangyunjian%40huawei.com
-patch subject: [PATCH net-next v2 3/3] tun: AF_XDP Tx zero-copy support
-config: microblaze-randconfig-r131-20240229 (https://download.01.org/0day-ci/archive/20240229/202402292345.a49gfJLj-lkp@intel.com/config)
-compiler: microblaze-linux-gcc (GCC) 13.2.0
-reproduce: (https://download.01.org/0day-ci/archive/20240229/202402292345.a49gfJLj-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202402292345.a49gfJLj-lkp@intel.com/
-
-All errors (new ones prefixed by >>):
-
-   drivers/vhost/net.c: In function 'vhost_net_buf_peek_len':
->> drivers/vhost/net.c:206:41: error: initialization of 'struct xdp_desc *' from incompatible pointer type 'struct xdp_frame *' [-Werror=incompatible-pointer-types]
-     206 |                 struct xdp_desc *desc = tun_ptr_to_xdp_desc(ptr);
-         |                                         ^~~~~~~~~~~~~~~~~~~
-   cc1: some warnings being treated as errors
-
-
-vim +206 drivers/vhost/net.c
-
-   198	
-   199	static int vhost_net_buf_peek_len(void *ptr)
-   200	{
-   201		if (tun_is_xdp_frame(ptr)) {
-   202			struct xdp_frame *xdpf = tun_ptr_to_xdp(ptr);
-   203	
-   204			return xdpf->len;
-   205		} else if (tun_is_xdp_desc_frame(ptr)) {
- > 206			struct xdp_desc *desc = tun_ptr_to_xdp_desc(ptr);
-   207	
-   208			return desc->len;
-   209		}
-   210	
-   211		return __skb_array_len_with_tag(ptr);
-   212	}
-   213	
-
+diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
+index ef3810dee7ef..a8208492e822 100644
+--- a/include/uapi/linux/virtio_pci.h
++++ b/include/uapi/linux/virtio_pci.h
+@@ -240,7 +240,7 @@ struct virtio_pci_cfg_cap {
+ #define VIRTIO_ADMIN_CMD_LEGACY_DEV_CFG_READ		0x5
+ #define VIRTIO_ADMIN_CMD_LEGACY_NOTIFY_INFO		0x6
+ 
+-struct __packed virtio_admin_cmd_hdr {
++struct virtio_admin_cmd_hdr {
+ 	__le16 opcode;
+ 	/*
+ 	 * 1 - SR-IOV
+@@ -252,20 +252,20 @@ struct __packed virtio_admin_cmd_hdr {
+ 	__le64 group_member_id;
+ };
+ 
+-struct __packed virtio_admin_cmd_status {
++struct virtio_admin_cmd_status {
+ 	__le16 status;
+ 	__le16 status_qualifier;
+ 	/* Unused, reserved for future extensions. */
+ 	__u8 reserved2[4];
+ };
+ 
+-struct __packed virtio_admin_cmd_legacy_wr_data {
++struct virtio_admin_cmd_legacy_wr_data {
+ 	__u8 offset; /* Starting offset of the register(s) to write. */
+ 	__u8 reserved[7];
+ 	__u8 registers[];
+ };
+ 
+-struct __packed virtio_admin_cmd_legacy_rd_data {
++struct virtio_admin_cmd_legacy_rd_data {
+ 	__u8 offset; /* Starting offset of the register(s) to read. */
+ };
+ 
+@@ -275,7 +275,7 @@ struct __packed virtio_admin_cmd_legacy_rd_data {
+ 
+ #define VIRTIO_ADMIN_CMD_MAX_NOTIFY_INFO 4
+ 
+-struct __packed virtio_admin_cmd_notify_info_data {
++struct virtio_admin_cmd_notify_info_data {
+ 	__u8 flags; /* 0 = end of list, 1 = owner device, 2 = member device */
+ 	__u8 bar; /* BAR of the member or the owner device */
+ 	__u8 padding[6];
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+2.34.1
+
