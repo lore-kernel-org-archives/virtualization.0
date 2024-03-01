@@ -1,77 +1,86 @@
-Received: from mail.8bytes.org (mail.8bytes.org [85.214.250.239])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id ED11D4205A;
-	Fri,  1 Mar 2024 12:47:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=85.214.250.239
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709297249; cv=none; b=H4qK/FX09nyWMjwFWQnJ0AqaETI2yHeNEnowxlIdDsh5OKfcy6RRyAL9zV+95wro069XxbDvHo42dOKnsHC8FnrSHRVJh8wf8VxBJjcQG2WmOqiwuoF5+oe2LpLATawIKOvRQkFPwDweIWF11cfgqrj8JX5BCyY6JkGuvICUp1Q=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709297249; c=relaxed/simple;
-	bh=hA0oxwD27gd74f5RciQ0gAwJyLc3AOc6ENazGRzlsA8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cfoZjahUq3l+yScVLWlGSno08DbXOeYGdDERBlcJ3z1pJEVixW6p3YbuDYKQLy9YWBMucRCacQyQUAJUy/jRI8W/SQVQl5yOWe1FIflkZRiPXKhsQCvqz89JFuI7XYxV4XXKP505uG4YnQ42v57/v1yTVSG9pjOwPVvgyV/iy5Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=8bytes.org; spf=pass smtp.mailfrom=8bytes.org; dkim=pass (2048-bit key) header.d=8bytes.org header.i=@8bytes.org header.b=17zvLga4; arc=none smtp.client-ip=85.214.250.239
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=8bytes.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=8bytes.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=8bytes.org header.i=@8bytes.org header.b="17zvLga4"
-Received: from 8bytes.org (p4ffe0c3c.dip0.t-ipconnect.de [79.254.12.60])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by mail.8bytes.org (Postfix) with ESMTPSA id B32031C2C89;
-	Fri,  1 Mar 2024 13:47:22 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=8bytes.org;
-	s=default; t=1709297243;
-	bh=hA0oxwD27gd74f5RciQ0gAwJyLc3AOc6ENazGRzlsA8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=17zvLga4k0NTgX7vMeySb0BST/85bdOAY7Tbmc6qXLWdcX5iiVdGYAFNMGHwTHhaD
-	 283fe6n+XYrQ/bHfCjsAfEvCK0QPphrx/G0/uJLueU+GPWo0u0fURkWHAClQ45C9uI
-	 uIvO1RmSja0KtwTEwIzL5JJM9GJ/LcAvmkyaz6Qi9DbfkNzr9uSWNtRbOriy+5pRPV
-	 2gQtzJ+O2Br8Ta3rRxwqFFTiug2NvFzLQFRpROnF95KN8tzg5yj5MpDAvgx2Dm/psw
-	 sDfN2jQw/qIHXKrhff0JF5WdLh5syukwy7nwIhemdPGPS4RXoyorYt7ID45BQAFQpD
-	 VrRA+CYGCvnTg==
-Date: Fri, 1 Mar 2024 13:47:21 +0100
-From: Joerg Roedel <joro@8bytes.org>
-To: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Cc: Hector Martin <marcan@marcan.st>, Sven Peter <sven@svenpeter.dev>,
-	Alyssa Rosenzweig <alyssa@rosenzweig.io>,
-	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-	Rob Clark <robdclark@gmail.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Alim Akhtar <alim.akhtar@samsung.com>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Konrad Dybcio <konrad.dybcio@linaro.org>,
-	Yong Wu <yong.wu@mediatek.com>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Heiko Stuebner <heiko@sntech.de>, Orson Zhai <orsonzhai@gmail.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Chunyan Zhang <zhang.lyra@gmail.com>, Chen-Yu Tsai <wens@csie.org>,
-	Jernej Skrabec <jernej.skrabec@gmail.com>,
-	Samuel Holland <samuel@sholland.org>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	Krishna Reddy <vdumpa@nvidia.com>,
-	Jonathan Hunter <jonathanh@nvidia.com>,
-	Jean-Philippe Brucker <jean-philippe@linaro.org>,
-	asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
-	linux-mediatek@lists.infradead.org,
-	linux-rockchip@lists.infradead.org, linux-sunxi@lists.linux.dev,
-	linux-tegra@vger.kernel.org, virtualization@lists.linux.dev
-Subject: Re: [PATCH 1/4] iommu: constify pointer to bus_type
-Message-ID: <ZeHOWXuNLhQlSrxM@8bytes.org>
-References: <20240216144027.185959-1-krzysztof.kozlowski@linaro.org>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE4327291D
+	for <virtualization@lists.linux.dev>; Fri,  1 Mar 2024 13:42:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.53
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1709300550; cv=none; b=uSyFZOvtNRYqgxQ7m0bVN9KNpCQLvZrjd/DqCPzqjzk9FU+T/wJQRn9N2a41/9FVIr8jAt1O8aM9C5V0aSRbBG9ht/1ktBcTTSWWRhEafVaTHTVzpWO9iepy6cAvWkAdFnAa9H8842zU7stKdJxyN5oQsEwwpQdNLQc3RvuhMzc=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1709300550; c=relaxed/simple;
+	bh=uvKCAXMT8sNauk5+VTMaEUp0n/5PMKoLqFnsKI5EKpM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Gsht2vjimFBedHbHOlxewh57oWsj1+r91OPyZqJ5clKLxwCBTEjJDeU9snmlhgzdVoSAhT9QBJkQEzl8uINmD08OpoqrL9iKdZmlGbghJ6b0cYwhOBkbw+zLJglN8jNdFLpIS2qEgfDPj+f6o6XquP8ouzhgWncCFGyCKI6+O6c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu; spf=pass smtp.mailfrom=szeredi.hu; dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b=OyEcqU+i; arc=none smtp.client-ip=209.85.218.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=szeredi.hu
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b="OyEcqU+i"
+Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-a443d2b78caso290855966b.1
+        for <virtualization@lists.linux.dev>; Fri, 01 Mar 2024 05:42:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=szeredi.hu; s=google; t=1709300546; x=1709905346; darn=lists.linux.dev;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=uvKCAXMT8sNauk5+VTMaEUp0n/5PMKoLqFnsKI5EKpM=;
+        b=OyEcqU+iIBXoWx18HrOVmDPiUXTGyQuQAQYVlICGHIieHcDjBsZSFo/DlQlghpCihu
+         7TI4KjnCgp39118Z9Y5V2z6ismnie/a4V1iUxIKQ2L19u+6D6wPE7ucAaxUhQR/DTtS/
+         9q4YaNeppiJrYKGCvNhG5jBE1KDkevkIc9DnE=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1709300546; x=1709905346;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=uvKCAXMT8sNauk5+VTMaEUp0n/5PMKoLqFnsKI5EKpM=;
+        b=MVzF0ROgVztPaY2vvJ7I+cXcn5RvELOofLpej6jfq1/od1lSCDGNcmTFdooGmK0ZdO
+         NdA8j0ZNBB3Y/vISoxemrlYySfYIf2ddmbkWwFh9ZwCFZ2+5Uize8hkK/k2Ei1hE4WUd
+         ro8vxlsrzwajRKyPyjofrqw5XYbu7LYSqOvopC+hatxggDN4q5iwYbW1eahrpmVIxPzH
+         gYywtWKEb0LaMr65gweddmW0pDkf2JBMjag+xF8TnpxVDYOaIYboFkYZC5+ERpkRnTG9
+         wVwsV9zjMXpXg6eUORt9vV48ZyjC4UQBcz9Y4pPXXL1m539XV/q8XG034qnOaKvHJaQo
+         mYKg==
+X-Forwarded-Encrypted: i=1; AJvYcCVlxHxGgB33tUffVgKVOmWdX3GPxA4UziZOyl1CCYy9vwlMo+IohKmQ+Pw64Oik5mmNj+GztNl4aI2pNQGEjrPJWVVBGD8ohOjnuZ85VCA=
+X-Gm-Message-State: AOJu0YzbHBe2dBoAo/mWduOBTWeRWb8PL0xYBTIo3jKBrw4TRhlzPSSq
+	37oVQ52fuLKwidnXwlTlnX8vUYqk5JG+wPwXDcHVEyZ8sQWRABmg/YeZvKzFXBYjuvXGvWbmbvC
+	nnCDgjoyWiLw2e0RMNesvVFYtocv+76f1JkelEA==
+X-Google-Smtp-Source: AGHT+IFKyHCJjugXaVuo0TxhU2eqFIxuWNNPqdDj2p82dGOLUVGFGenBabw1NVs94YGP7ZFDeiyjxuD5xd7aKXazFdw=
+X-Received: by 2002:a17:906:b347:b0:a43:f170:aa44 with SMTP id
+ cd7-20020a170906b34700b00a43f170aa44mr1504212ejb.47.1709300546044; Fri, 01
+ Mar 2024 05:42:26 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240216144027.185959-1-krzysztof.kozlowski@linaro.org>
+References: <20240228144126.2864064-1-houtao@huaweicloud.com> <20240228144126.2864064-2-houtao@huaweicloud.com>
+In-Reply-To: <20240228144126.2864064-2-houtao@huaweicloud.com>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Fri, 1 Mar 2024 14:42:14 +0100
+Message-ID: <CAJfpegtMhkKG-Hk5vQ5gi6bSqwb=eMG9_TzcW7b08AtXBmnQXQ@mail.gmail.com>
+Subject: Re: [PATCH v2 1/6] fuse: limit the length of ITER_KVEC dio by max_pages
+To: Hou Tao <houtao@huaweicloud.com>
+Cc: linux-fsdevel@vger.kernel.org, Vivek Goyal <vgoyal@redhat.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, Bernd Schubert <bernd.schubert@fastmail.fm>, 
+	"Michael S . Tsirkin" <mst@redhat.com>, Matthew Wilcox <willy@infradead.org>, 
+	Benjamin Coddington <bcodding@redhat.com>, linux-kernel@vger.kernel.org, 
+	virtualization@lists.linux.dev, houtao1@huawei.com
+Content-Type: text/plain; charset="UTF-8"
 
-On Fri, Feb 16, 2024 at 03:40:24PM +0100, Krzysztof Kozlowski wrote:
+On Wed, 28 Feb 2024 at 15:40, Hou Tao <houtao@huaweicloud.com> wrote:
 
-Applied all, thanks.
+> So instead of limiting both the values of max_read and max_write in
+> kernel, capping the maximal length of kvec iter IO by using max_pages in
+> fuse_direct_io() just like it does for ubuf/iovec iter IO. Now the max
+> value for max_pages is 256, so on host with 4KB page size, the maximal
+> size passed to kmalloc() in copy_args_to_argbuf() is about 1MB+40B. The
+> allocation of 2MB of physically contiguous memory will still incur
+> significant stress on the memory subsystem, but the warning is fixed.
+> Additionally, the requirement for huge physically contiguous memory will
+> be removed in the following patch.
+
+So the issue will be fixed properly by following patches?
+
+In that case this patch could be omitted, right?
+
+Thanks,
+Miklos
