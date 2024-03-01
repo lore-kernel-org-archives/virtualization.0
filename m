@@ -1,115 +1,127 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from szxga04-in.huawei.com (szxga04-in.huawei.com [45.249.212.190])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D71796BFC8
-	for <virtualization@lists.linux-foundation.org>; Fri,  1 Mar 2024 10:54:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EDE56A34F
+	for <virtualization@lists.linux.dev>; Fri,  1 Mar 2024 11:45:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.190
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709290470; cv=none; b=F8LwyPTckSa+7iL16VfKm2a+G/FUoaYjIffcogvLLYD7iiZeHhnhN94bkKMrjEqhlW6vxTeSI4SjMUDNpIBjJFfPuJk7xspYZEQUvJmzISW6PQhchb1hKm+10H0H1Jn0NmC4ZTBIfaij2Vmz3vylVWRwdE7pppZ4zdNZKUoqWWo=
+	t=1709293559; cv=none; b=rbTQTgUwOhBNvo0Chqe9TUA8svX0a3TbAJ4m3MBOOwtSDhY+Ae5++MoZLKcQLcIb8fhhYwEl5AVRqguS2casJAR1sSXJpUjvA9aPGrSodOxgKJpEeBmLjfkCHZUn4SnkACXjc6oHpooityF4GOcs/E5PNFrPcBE9YDD3+pO3my0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709290470; c=relaxed/simple;
-	bh=9yUqjRiZDnW0sxFymCG3HhyOZ20gbsK/kpqIlF8AEuI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=SHDNktBVrqAP+MgO8yydwICRNCguuJucuyONCYb160/GK0FvzFtp1FrQOmwYdfZSBvx3n0UXkOzNfYBv44wa2KkdVIGQJDWVYgAeCVTKs0gQikm5IUSzpPk0DEY4xsfEpTngwScBgt6+22hgLqSTINm/aMHzvCGWQoYFWLdoFWo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SbXWPtcx; arc=none smtp.client-ip=140.211.166.138
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SbXWPtcx"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 70D8F830C0
-	for <virtualization@lists.linux-foundation.org>; Fri,  1 Mar 2024 10:54:28 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7TMGWkLylfol
-	for <virtualization@lists.linux-foundation.org>;
-	Fri,  1 Mar 2024 10:54:28 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=kraxel@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org AD2F1830B8
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AD2F1830B8
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=SbXWPtcx
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id AD2F1830B8
-	for <virtualization@lists.linux-foundation.org>; Fri,  1 Mar 2024 10:54:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1709290466;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tjGEhzuhFUDcE6IMM+mL5TlbxL3v8+X2s2hqXwmwqxI=;
-	b=SbXWPtcxN+a6zd9haYCWECMiKI4nbaCLpyUR87U1vosZ/T3o4bOpvInHS+p+x1C31yTNnv
-	GYOZ57eD0Ou1RkozsfSOp51P4WDUIbj8UaiVfJMxHthV0aVWUjD3i2XeQeqdjjBVUcvD6T
-	JeMpJszpUuGEI0Zjc0JhbAroV2F0kFw=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-670-b4NeP0x0OrKwLhGq2lOl_g-1; Fri, 01 Mar 2024 05:54:21 -0500
-X-MC-Unique: b4NeP0x0OrKwLhGq2lOl_g-1
-Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id B1CCB106CF91;
-	Fri,  1 Mar 2024 10:54:20 +0000 (UTC)
-Received: from sirius.home.kraxel.org (unknown [10.39.192.121])
-	by smtp.corp.redhat.com (Postfix) with ESMTPS id C7014492BE8;
-	Fri,  1 Mar 2024 10:54:19 +0000 (UTC)
-Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
-	id 6AB671800DFF; Fri,  1 Mar 2024 11:54:18 +0100 (CET)
-Date: Fri, 1 Mar 2024 11:54:18 +0100
-From: Gerd Hoffmann <kraxel@redhat.com>
-To: Aleksandr Burakov <a.burakov@rosalinux.ru>
-Cc: Dave Airlie <airlied@redhat.com>, 
-	virtualization@lists.linux-foundation.org, spice-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, 
-	lvc-project@linuxtesting.org
-Subject: Re: [PATCH] drm/qxl: fix NULL dereference in qxl_add_mode
-Message-ID: <oprbqmdpjzhjwuqypqfdnirl44drvrhlaiounos44ywdbiustm@myk6llv5chlv>
-References: <20240301085511.23298-1-a.burakov@rosalinux.ru>
+	s=arc-20240116; t=1709293559; c=relaxed/simple;
+	bh=7euRu9gC1qZwJ0nCZHbyU4FyH2aqHWlDJQgi7OX/OZw=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=qvTtws3jJwIrnkmONS0/Y9E9ekLMl70iOhjF7HtYjVhCavohUXlSsRivPWrSrnxTji1/PINW8ewoxjN4e/hmywDd6QJ9j17G/daz9XGIottzWxBz1pOEaMlmUhmDjquEVMDfmu3mLVyK9K/Aev7rCsqOamARon8/fd38TtkpmmA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.190
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.88.234])
+	by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4TmR7D5q2Bz2Bf5g;
+	Fri,  1 Mar 2024 19:43:36 +0800 (CST)
+Received: from kwepemd100001.china.huawei.com (unknown [7.221.188.240])
+	by mail.maildlp.com (Postfix) with ESMTPS id 95F5514011A;
+	Fri,  1 Mar 2024 19:45:53 +0800 (CST)
+Received: from kwepemd100012.china.huawei.com (7.221.188.214) by
+ kwepemd100001.china.huawei.com (7.221.188.240) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1258.28; Fri, 1 Mar 2024 19:45:53 +0800
+Received: from dggpemm500008.china.huawei.com (7.185.36.136) by
+ kwepemd100012.china.huawei.com (7.221.188.214) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1258.28; Fri, 1 Mar 2024 19:45:52 +0800
+Received: from dggpemm500008.china.huawei.com ([7.185.36.136]) by
+ dggpemm500008.china.huawei.com ([7.185.36.136]) with mapi id 15.01.2507.035;
+ Fri, 1 Mar 2024 19:45:52 +0800
+From: wangyunjian <wangyunjian@huawei.com>
+To: Paolo Abeni <pabeni@redhat.com>, "mst@redhat.com" <mst@redhat.com>,
+	"willemdebruijn.kernel@gmail.com" <willemdebruijn.kernel@gmail.com>,
+	"jasowang@redhat.com" <jasowang@redhat.com>, "kuba@kernel.org"
+	<kuba@kernel.org>, "bjorn@kernel.org" <bjorn@kernel.org>,
+	"magnus.karlsson@intel.com" <magnus.karlsson@intel.com>,
+	"maciej.fijalkowski@intel.com" <maciej.fijalkowski@intel.com>,
+	"jonathan.lemon@gmail.com" <jonathan.lemon@gmail.com>, "davem@davemloft.net"
+	<davem@davemloft.net>
+CC: "bpf@vger.kernel.org" <bpf@vger.kernel.org>, "netdev@vger.kernel.org"
+	<netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, xudingke
+	<xudingke@huawei.com>, "liwei (DT)" <liwei395@huawei.com>
+Subject: RE: [PATCH net-next v2 3/3] tun: AF_XDP Tx zero-copy support
+Thread-Topic: [PATCH net-next v2 3/3] tun: AF_XDP Tx zero-copy support
+Thread-Index: AQHaajYcNkJKJoTBfEqyMPzDlwSi+bEgpeYAgAIJPRA=
+Date: Fri, 1 Mar 2024 11:45:52 +0000
+Message-ID: <223aeca6435342ec8a4d57c959c23303@huawei.com>
+References: <1709118356-133960-1-git-send-email-wangyunjian@huawei.com>
+ <7d478cb842e28094f4d6102e593e3de25ab27dfe.camel@redhat.com>
+In-Reply-To: <7d478cb842e28094f4d6102e593e3de25ab27dfe.camel@redhat.com>
+Accept-Language: zh-CN, en-US
+Content-Language: zh-CN
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240301085511.23298-1-a.burakov@rosalinux.ru>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.10
 
-On Fri, Mar 01, 2024 at 11:55:11AM +0300, Aleksandr Burakov wrote:
-> Return value of a function 'drm_cvt_mode' is dereferenced without
-> checking for NULL but drm_mode_create() in drm_cvt_mode() may
-> return NULL value in case of memory allocation error.
-> 
-> Found by Linux Verification Center (linuxtesting.org) with SVACE.
-> 
-> Fixes: 1b043677d4be ("drm/qxl: add qxl_add_mode helper function")
-> Signed-off-by: Aleksandr Burakov <a.burakov@rosalinux.ru>
-> ---
->  drivers/gpu/drm/qxl/qxl_display.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-> index a152a7c6db21..447532c29e02 100644
-> --- a/drivers/gpu/drm/qxl/qxl_display.c
-> +++ b/drivers/gpu/drm/qxl/qxl_display.c
-> @@ -236,8 +236,10 @@ static int qxl_add_mode(struct drm_connector *connector,
->  		return 0;
->  
->  	mode = drm_cvt_mode(dev, width, height, 60, false, false, false);
-> -	if (preferred)
-> +	if (preferred && mode)
->  		mode->type |= DRM_MODE_TYPE_PREFERRED;
-> +	else
-> +		return 0;
->  	mode->hdisplay = width;
-
-That doesn't fix the NULL pointer dereference in case "preferred" is
-false.
-
-I'd suggest "if (!mode) return 0" instead.
-
+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBQYW9sbyBBYmVuaSBbbWFpbHRv
+OnBhYmVuaUByZWRoYXQuY29tXQ0KPiBTZW50OiBUaHVyc2RheSwgRmVicnVhcnkgMjksIDIwMjQg
+NzoxMyBQTQ0KPiBUbzogd2FuZ3l1bmppYW4gPHdhbmd5dW5qaWFuQGh1YXdlaS5jb20+OyBtc3RA
+cmVkaGF0LmNvbTsNCj4gd2lsbGVtZGVicnVpam4ua2VybmVsQGdtYWlsLmNvbTsgamFzb3dhbmdA
+cmVkaGF0LmNvbTsga3ViYUBrZXJuZWwub3JnOw0KPiBiam9ybkBrZXJuZWwub3JnOyBtYWdudXMu
+a2FybHNzb25AaW50ZWwuY29tOyBtYWNpZWouZmlqYWxrb3dza2lAaW50ZWwuY29tOw0KPiBqb25h
+dGhhbi5sZW1vbkBnbWFpbC5jb207IGRhdmVtQGRhdmVtbG9mdC5uZXQNCj4gQ2M6IGJwZkB2Z2Vy
+Lmtlcm5lbC5vcmc7IG5ldGRldkB2Z2VyLmtlcm5lbC5vcmc7DQo+IGxpbnV4LWtlcm5lbEB2Z2Vy
+Lmtlcm5lbC5vcmc7IGt2bUB2Z2VyLmtlcm5lbC5vcmc7DQo+IHZpcnR1YWxpemF0aW9uQGxpc3Rz
+LmxpbnV4LmRldjsgeHVkaW5na2UgPHh1ZGluZ2tlQGh1YXdlaS5jb20+OyBsaXdlaSAoRFQpDQo+
+IDxsaXdlaTM5NUBodWF3ZWkuY29tPg0KPiBTdWJqZWN0OiBSZTogW1BBVENIIG5ldC1uZXh0IHYy
+IDMvM10gdHVuOiBBRl9YRFAgVHggemVyby1jb3B5IHN1cHBvcnQNCj4gDQo+IE9uIFdlZCwgMjAy
+NC0wMi0yOCBhdCAxOTowNSArMDgwMCwgWXVuamlhbiBXYW5nIHdyb3RlOg0KPiA+IEBAIC0yNjYx
+LDYgKzI3NzYsNTQgQEAgc3RhdGljIGludCB0dW5fcHRyX3BlZWtfbGVuKHZvaWQgKnB0cikNCj4g
+PiAgCX0NCj4gPiAgfQ0KPiA+DQo+ID4gK3N0YXRpYyB2b2lkIHR1bl9wZWVrX3hzayhzdHJ1Y3Qg
+dHVuX2ZpbGUgKnRmaWxlKSB7DQo+ID4gKwlzdHJ1Y3QgeHNrX2J1ZmZfcG9vbCAqcG9vbDsNCj4g
+PiArCXUzMiBpLCBiYXRjaCwgYnVkZ2V0Ow0KPiA+ICsJdm9pZCAqZnJhbWU7DQo+ID4gKw0KPiA+
+ICsJaWYgKCFwdHJfcmluZ19lbXB0eSgmdGZpbGUtPnR4X3JpbmcpKQ0KPiA+ICsJCXJldHVybjsN
+Cj4gPiArDQo+ID4gKwlzcGluX2xvY2soJnRmaWxlLT5wb29sX2xvY2spOw0KPiA+ICsJcG9vbCA9
+IHRmaWxlLT54c2tfcG9vbDsNCj4gPiArCWlmICghcG9vbCkgew0KPiA+ICsJCXNwaW5fdW5sb2Nr
+KCZ0ZmlsZS0+cG9vbF9sb2NrKTsNCj4gPiArCQlyZXR1cm47DQo+ID4gKwl9DQo+ID4gKw0KPiA+
+ICsJaWYgKHRmaWxlLT5uYl9kZXNjcykgew0KPiA+ICsJCXhza190eF9jb21wbGV0ZWQocG9vbCwg
+dGZpbGUtPm5iX2Rlc2NzKTsNCj4gPiArCQlpZiAoeHNrX3VzZXNfbmVlZF93YWtldXAocG9vbCkp
+DQo+ID4gKwkJCXhza19zZXRfdHhfbmVlZF93YWtldXAocG9vbCk7DQo+ID4gKwl9DQo+ID4gKw0K
+PiA+ICsJc3Bpbl9sb2NrKCZ0ZmlsZS0+dHhfcmluZy5wcm9kdWNlcl9sb2NrKTsNCj4gPiArCWJ1
+ZGdldCA9IG1pbl90KHUzMiwgdGZpbGUtPnR4X3Jpbmcuc2l6ZSwgVFVOX1hEUF9CQVRDSCk7DQo+
+ID4gKw0KPiA+ICsJYmF0Y2ggPSB4c2tfdHhfcGVla19yZWxlYXNlX2Rlc2NfYmF0Y2gocG9vbCwg
+YnVkZ2V0KTsNCj4gPiArCWlmICghYmF0Y2gpIHsNCj4gDQo+IFRoaXMgYnJhbmNoIGxvb2tzIGxp
+a2UgYW4gdW5uZWVkZWQgIm9wdGltaXphdGlvbiIuIFRoZSBnZW5lcmljIGxvb3AgYmVsb3cNCj4g
+c2hvdWxkIGhhdmUgdGhlIHNhbWUgZWZmZWN0IHdpdGggbm8gbWVhc3VyYWJsZSBwZXJmIGRlbHRh
+IC0gYW5kIHNtYWxsZXIgY29kZS4NCj4gSnVzdCByZW1vdmUgdGhpcy4NCj4gDQo+ID4gKwkJdGZp
+bGUtPm5iX2Rlc2NzID0gMDsNCj4gPiArCQlzcGluX3VubG9jaygmdGZpbGUtPnR4X3JpbmcucHJv
+ZHVjZXJfbG9jayk7DQo+ID4gKwkJc3Bpbl91bmxvY2soJnRmaWxlLT5wb29sX2xvY2spOw0KPiA+
+ICsJCXJldHVybjsNCj4gPiArCX0NCj4gPiArDQo+ID4gKwl0ZmlsZS0+bmJfZGVzY3MgPSBiYXRj
+aDsNCj4gPiArCWZvciAoaSA9IDA7IGkgPCBiYXRjaDsgaSsrKSB7DQo+ID4gKwkJLyogRW5jb2Rl
+IHRoZSBYRFAgREVTQyBmbGFnIGludG8gbG93ZXN0IGJpdCBmb3IgY29uc3VtZXIgdG8gZGlmZmVy
+DQo+ID4gKwkJICogWERQIGRlc2MgZnJvbSBYRFAgYnVmZmVyIGFuZCBza19idWZmLg0KPiA+ICsJ
+CSAqLw0KPiA+ICsJCWZyYW1lID0gdHVuX3hkcF9kZXNjX3RvX3B0cigmcG9vbC0+dHhfZGVzY3Nb
+aV0pOw0KPiA+ICsJCS8qIFRoZSBidWRnZXQgbXVzdCBiZSBsZXNzIHRoYW4gb3IgZXF1YWwgdG8g
+dHhfcmluZy5zaXplLA0KPiA+ICsJCSAqIHNvIGVucXVldWluZyB3aWxsIG5vdCBmYWlsLg0KPiA+
+ICsJCSAqLw0KPiA+ICsJCV9fcHRyX3JpbmdfcHJvZHVjZSgmdGZpbGUtPnR4X3JpbmcsIGZyYW1l
+KTsNCj4gPiArCX0NCj4gPiArCXNwaW5fdW5sb2NrKCZ0ZmlsZS0+dHhfcmluZy5wcm9kdWNlcl9s
+b2NrKTsNCj4gPiArCXNwaW5fdW5sb2NrKCZ0ZmlsZS0+cG9vbF9sb2NrKTsNCj4gDQo+IE1vcmUg
+cmVsYXRlZCB0byB0aGUgZ2VuZXJhbCBkZXNpZ246IGl0IGxvb2tzIHdyb25nLiBXaGF0IGlmDQo+
+IGdldF9yeF9idWZzKCkgd2lsbCBmYWlsIChFTk9CVUYpIGFmdGVyIHN1Y2Nlc3NmdWwgcGVla2lu
+Zz8gV2l0aCBubyBtb3JlDQo+IGluY29taW5nIHBhY2tldHMsIGxhdGVyIHBlZWsgd2lsbCByZXR1
+cm4gMCBhbmQgaXQgbG9va3MgbGlrZSB0aGF0IHRoZQ0KPiBoYWxmLXByb2Nlc3NlZCBwYWNrZXRz
+IHdpbGwgc3RheSBpbiB0aGUgcmluZyBmb3JldmVyPz8/DQo+IA0KPiBJIHRoaW5rIHRoZSAncmlu
+ZyBwcm9kdWNlJyBwYXJ0IHNob3VsZCBiZSBtb3ZlZCBpbnRvIHR1bl9kb19yZWFkKCkuDQoNCkN1
+cnJlbnRseSwgdGhlIHZob3N0LW5ldCBvYnRhaW5zIGEgYmF0Y2ggZGVzY3JpcHRvcnMvc2tfYnVm
+ZnMgZnJvbSB0aGUNCnB0cl9yaW5nIGFuZCBlbnF1ZXVlIHRoZSBiYXRjaCBkZXNjcmlwdG9ycy9z
+a19idWZmcyB0byB0aGUgdmlydHF1ZXVlJ3F1ZXVlLA0KYW5kIHRoZW4gY29uc3VtZXMgdGhlIGRl
+c2NyaXB0b3JzL3NrX2J1ZmZzIGZyb20gdGhlIHZpcnRxdWV1ZSdxdWV1ZSBpbg0Kc2VxdWVuY2Uu
+IEFzIGEgcmVzdWx0LCBUVU4gZG9lcyBub3Qga25vdyB3aGV0aGVyIHRoZSBiYXRjaCBkZXNjcmlw
+dG9ycyBoYXZlDQpiZWVuIHVzZWQgdXAsIGFuZCB0aHVzIGRvZXMgbm90IGtub3cgd2hlbiB0byBy
+ZXR1cm4gdGhlIGJhdGNoIGRlc2NyaXB0b3JzLg0KDQpTbywgSSB0aGluayBpdCdzIHJlYXNvbmFi
+bGUgdGhhdCB3aGVuIHZob3N0LW5ldCBjaGVja3MgcHRyX3JpbmcgaXMgZW1wdHksDQppdCBjYWxs
+cyBwZWVrX2xlbiB0byBnZXQgbmV3IHhzaydzIGRlc2NzIGFuZCByZXR1cm4gdGhlIGRlc2NyaXB0
+b3JzLg0KDQpUaGFua3MNCj4gDQo+IENoZWVycywNCj4gDQo+IFBhb2xvDQoNCg==
