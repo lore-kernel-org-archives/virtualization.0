@@ -1,116 +1,117 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 0619A273FC
-	for <virtualization@lists.linux.dev>; Thu, 29 Feb 2024 16:33:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 420D76A32F
+	for <virtualization@lists.linux-foundation.org>; Fri,  1 Mar 2024 09:05:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709224387; cv=none; b=b2Y7EqWIzkFlEfiMcULajV2FqaYY9UfHGR0yyvInD7Dq12jC+fjx+dax2853Zi19PeQkLDwKutCyERzWXs4K7bPx1MWB2sdPsoI+gC5Mp5GnyXWQ7eDEW6oyVxL7xJjCmH+j1pTwy1bSJPVnaHe+DKM+Schizh8ieLyWg/ONEp0=
+	t=1709283951; cv=none; b=nR7gCKWu5vPkIf+xueITK/9gbAJVsG7UHpE+duD0523HAgsFA8zTg2cdG8h/7VA1x8FitsjpP/+DUBQSPNM+Zm7ghZh/4MZNWrkOGt+0+vOvgCdoTRS77Y9L7IxnEt/qC3ScBJcMQP85e5G7ywNQRam3G5pL4z+Z04bGXQejlak=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709224387; c=relaxed/simple;
-	bh=sePhUcPjkcFqzWnN7R/fomNhNX1xSNAJjz1E157zh24=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=pdLbX5jgTHN9+9qSj1URysvlsV05ablJ2K60BW7BvoJ6tGICSC9MgYJ5N4kXMbVSfeYZpsSn5t/a4jEx+1IQ4n4w05ClmTmyxkq9wsYLBEC2PDIQedIu5/ypvSEEXrPxjsHb0M1RdyLqMMd93Upzz+eI8xzszzAFlUdcpfheyw0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id CA4B21FB;
-	Thu, 29 Feb 2024 08:33:42 -0800 (PST)
-Received: from ewhatever.cambridge.arm.com (ewhatever.cambridge.arm.com [10.1.197.1])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id A11FE3F6C4;
-	Thu, 29 Feb 2024 08:33:02 -0800 (PST)
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
-To: "Michael S . Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>,
-	Alex Williamson <alex.williamson@redhat.com>,
-	virtualization@lists.linux.dev,
+	s=arc-20240116; t=1709283951; c=relaxed/simple;
+	bh=U6zrGDf1CH9J4v5DCBN2pKsyO7iS9kDU6k4Ptp3kKy4=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=rSXVWa3+KzZx+nVK3iuY10IVFYa8iBx2DPVWPK4pSkOZKaPW3uW38JFJzUevBNjt9nB89SKTsz2FRGFOE5Jz1kbq517w0fJUefjoKAgANTt95HfGs7AV8oOtZr5CgJIqv2LHT/odNmJMNFP+yhhkgKO2m4wfC56WeyGTDDzyfIE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=rosalinux.ru header.i=@rosalinux.ru header.b=P8auQz5C; arc=none smtp.client-ip=140.211.166.137
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=rosalinux.ru header.i=@rosalinux.ru header.b="P8auQz5C"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id D485841579
+	for <virtualization@lists.linux-foundation.org>; Fri,  1 Mar 2024 09:05:44 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id opxQjc9w7Oj6
+	for <virtualization@lists.linux-foundation.org>;
+	Fri,  1 Mar 2024 09:05:44 +0000 (UTC)
+X-Greylist: delayed 603 seconds by postgrey-1.37 at util1.osuosl.org; Fri, 01 Mar 2024 09:05:43 UTC
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 95EC941559
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=rosalinux.ru
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 95EC941559
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=rosalinux.ru header.i=@rosalinux.ru header.a=rsa-sha256 header.s=1D4BB666-A0F1-11EB-A1A2-F53579C7F503 header.b=P8auQz5C
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=195.19.76.54; helo=mail.rosalinux.ru; envelope-from=a.burakov@rosalinux.ru; receiver=<UNKNOWN> 
+Received: from mail.rosalinux.ru (mail.rosalinux.ru [195.19.76.54])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 95EC941559
+	for <virtualization@lists.linux-foundation.org>; Fri,  1 Mar 2024 09:05:43 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+	by mail.rosalinux.ru (Postfix) with ESMTP id 20489D998EC3B;
+	Fri,  1 Mar 2024 11:55:33 +0300 (MSK)
+Received: from mail.rosalinux.ru ([127.0.0.1])
+	by localhost (mail.rosalinux.ru [127.0.0.1]) (amavisd-new, port 10032)
+	with ESMTP id z6G6-abwn9Qu; Fri,  1 Mar 2024 11:55:33 +0300 (MSK)
+Received: from localhost (localhost [127.0.0.1])
+	by mail.rosalinux.ru (Postfix) with ESMTP id E0C91D99A42FF;
+	Fri,  1 Mar 2024 11:55:32 +0300 (MSK)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.rosalinux.ru E0C91D99A42FF
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=rosalinux.ru;
+	s=1D4BB666-A0F1-11EB-A1A2-F53579C7F503; t=1709283332;
+	bh=f2qKsIAGkUNEVelOg7DTK/0b4IF/e+zG6QgMW3olvD4=;
+	h=From:To:Date:Message-Id:MIME-Version;
+	b=P8auQz5C6OaEzL92Wd4UVkrC0+agep5xnkw9WQbAvEflW8hYcBiV0bOPGTvWixe7R
+	 5gxvNYDmZDMIDT39UZNaUeriACLVOP+LYwBzNwp2rfCUbIjLGIV4y+Gn9PkkJH1Er2
+	 JUF5lJQmT3mMEr+/Q+tD7LNg94RH6EhR51r9IvJ99jPoMVABIFcQizUSbngm4T9xos
+	 YOlMDOS/3uc9mLjR6mQOjQb3qWpyRgPOrUpRCM0lhwhsDpkcZH8FPO5fhQU+YqsFOp
+	 sZn27iVdF2fI7cmW584/cJT+Vz4OzY87Bc1BK5LaXVEkH+8L44a/1Ao+xDCGi3r66n
+	 9aqkPUQvTnBAg==
+X-Virus-Scanned: amavisd-new at rosalinux.ru
+Received: from mail.rosalinux.ru ([127.0.0.1])
+	by localhost (mail.rosalinux.ru [127.0.0.1]) (amavisd-new, port 10026)
+	with ESMTP id I9d5Qmb4AYe6; Fri,  1 Mar 2024 11:55:32 +0300 (MSK)
+Received: from ubuntu.localdomain (unknown [144.206.93.23])
+	by mail.rosalinux.ru (Postfix) with ESMTPSA id 97E4FD998EC3B;
+	Fri,  1 Mar 2024 11:55:32 +0300 (MSK)
+From: Aleksandr Burakov <a.burakov@rosalinux.ru>
+To: Dave Airlie <airlied@redhat.com>,
+	Gerd Hoffmann <kraxel@redhat.com>
+Cc: Aleksandr Burakov <a.burakov@rosalinux.ru>,
+	virtualization@lists.linux-foundation.org,
+	spice-devel@lists.freedesktop.org,
 	linux-kernel@vger.kernel.org,
-	Suzuki K Poulose <suzuki.poulose@arm.com>,
-	Feng Liu <feliu@nvidia.com>,
-	Yishai Hadas <yishaih@nvidia.com>,
-	Jean-Philippe Brucker <jean-philippe@linaro.org>
-Subject: [RESEND PATCH v2] virtio: uapi: Drop __packed attribute in linux/virtio_pci.h:
-Date: Thu, 29 Feb 2024 16:32:54 +0000
-Message-Id: <20240229163254.236017-1-suzuki.poulose@arm.com>
-X-Mailer: git-send-email 2.34.1
+	lvc-project@linuxtesting.org
+Subject: [PATCH] drm/qxl: fix NULL dereference in qxl_add_mode
+Date: Fri,  1 Mar 2024 11:55:11 +0300
+Message-Id: <20240301085511.23298-1-a.burakov@rosalinux.ru>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
 
-Commit 92792ac752aa ("virtio-pci: Introduce admin command sending function")
-added "__packed" structures to UAPI header linux/virtio_pci.h. This triggers
-build failures in the consumer userspace applications without proper "definition"
-of __packed (e.g., kvmtool build fails).
+Return value of a function 'drm_cvt_mode' is dereferenced without
+checking for NULL but drm_mode_create() in drm_cvt_mode() may
+return NULL value in case of memory allocation error.
 
-Moreover, the structures are already packed well, and doesn't need explicit
-packing, similar to the rest of the structures in all virtio_* headers. Remove
-the __packed attribute.
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
 
-Fixes: 92792ac752aa ("virtio-pci: Introduce admin command sending function")
-Cc: Feng Liu <feliu@nvidia.com>
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Cc: Yishai Hadas <yishaih@nvidia.com>
-Cc: Alex Williamson <alex.williamson@redhat.com>
-Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Reviewed-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Fixes: 1b043677d4be ("drm/qxl: add qxl_add_mode helper function")
+Signed-off-by: Aleksandr Burakov <a.burakov@rosalinux.ru>
 ---
-Changes since v1:
-  - Fix description for the "Fixes" tag format
-  - Collect Tags from Jean-Philippe and Michael
- ---
- include/uapi/linux/virtio_pci.h | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/qxl/qxl_display.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
-index ef3810dee7ef..a8208492e822 100644
---- a/include/uapi/linux/virtio_pci.h
-+++ b/include/uapi/linux/virtio_pci.h
-@@ -240,7 +240,7 @@ struct virtio_pci_cfg_cap {
- #define VIRTIO_ADMIN_CMD_LEGACY_DEV_CFG_READ		0x5
- #define VIRTIO_ADMIN_CMD_LEGACY_NOTIFY_INFO		0x6
- 
--struct __packed virtio_admin_cmd_hdr {
-+struct virtio_admin_cmd_hdr {
- 	__le16 opcode;
- 	/*
- 	 * 1 - SR-IOV
-@@ -252,20 +252,20 @@ struct __packed virtio_admin_cmd_hdr {
- 	__le64 group_member_id;
- };
- 
--struct __packed virtio_admin_cmd_status {
-+struct virtio_admin_cmd_status {
- 	__le16 status;
- 	__le16 status_qualifier;
- 	/* Unused, reserved for future extensions. */
- 	__u8 reserved2[4];
- };
- 
--struct __packed virtio_admin_cmd_legacy_wr_data {
-+struct virtio_admin_cmd_legacy_wr_data {
- 	__u8 offset; /* Starting offset of the register(s) to write. */
- 	__u8 reserved[7];
- 	__u8 registers[];
- };
- 
--struct __packed virtio_admin_cmd_legacy_rd_data {
-+struct virtio_admin_cmd_legacy_rd_data {
- 	__u8 offset; /* Starting offset of the register(s) to read. */
- };
- 
-@@ -275,7 +275,7 @@ struct __packed virtio_admin_cmd_legacy_rd_data {
- 
- #define VIRTIO_ADMIN_CMD_MAX_NOTIFY_INFO 4
- 
--struct __packed virtio_admin_cmd_notify_info_data {
-+struct virtio_admin_cmd_notify_info_data {
- 	__u8 flags; /* 0 = end of list, 1 = owner device, 2 = member device */
- 	__u8 bar; /* BAR of the member or the owner device */
- 	__u8 padding[6];
--- 
-2.34.1
+diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_=
+display.c
+index a152a7c6db21..447532c29e02 100644
+--- a/drivers/gpu/drm/qxl/qxl_display.c
++++ b/drivers/gpu/drm/qxl/qxl_display.c
+@@ -236,8 +236,10 @@ static int qxl_add_mode(struct drm_connector *connec=
+tor,
+ 		return 0;
+=20
+ 	mode =3D drm_cvt_mode(dev, width, height, 60, false, false, false);
+-	if (preferred)
++	if (preferred && mode)
+ 		mode->type |=3D DRM_MODE_TYPE_PREFERRED;
++	else
++		return 0;
+ 	mode->hdisplay =3D width;
+ 	mode->vdisplay =3D height;
+ 	drm_mode_set_name(mode);
+--=20
+2.25.1
 
