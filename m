@@ -1,22 +1,22 @@
 Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 4EF402582;
-	Sat,  2 Mar 2024 07:51:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 2A583125C4;
+	Sat,  2 Mar 2024 07:51:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709365886; cv=none; b=C2Dt3+tU9Zs6ejxK3HwEayIQE8qmapkAQIKIAdJZEkKtBDfZChx5t4bJST8KO2wuwSNUa8DstNLP3nS6Fb+umP395dsqreBoe9mfbdIEs2/Wadf0QsV3V661/erKeIpwX6AdSFsPS3sG/1jig6QjqCmqjTL8g35atwiLIpMsXas=
+	t=1709365887; cv=none; b=cJgXigedv9ygjQPIc0CV28CdYJ8lOT7fSP+qc4dcTRl9vKSgw3PRv/fmh1F6ASBXvWRA+eVECdKvY37Q6EQoKgdAyQenzo38k7b6Z/SaftB4MQ068AYoD7Dgj4foDHA5aBdRwVe90+y2cVgYALpXWUJJ6CNmKuvjMIf1hLy/y8s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709365886; c=relaxed/simple;
-	bh=AIgU3C1lGFAHJETtO9EJyAbpUdgl6hQx0pIjXkFE8XY=;
+	s=arc-20240116; t=1709365887; c=relaxed/simple;
+	bh=iOkFdHt0DdQA9EQ6zNgxtJ4hAyolVqwXSAyLav29ceU=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=G3oyWnOwaP1TPEwA1hE45oSh00eAKyL5hP5RqYZnOOTOGXUWLoCSxt1w7LeHX6p2Sy/ZD81NY8FeTGRBMAI8R03fey60uUV5fJ8YBikKLPP3uLfSRnQL9iQmgehwuico4TEtRyRMb3tY6jpYSoSNtUCTEqFeR4nK3KPnjM94/3s=
+	 MIME-Version; b=guu/n7Sx3JWG6coV/ofZSEEn3fGCM3ajILRC46Rmn8ntfjA8CiJjXy/mGD8mFDVdVIZV2di4HqRe6cLdEFhTt+Abgp0RX6oZSEsNsVqs9byto81LnwgIvdJTR6i0IspZrIUb9818nsHjPhrmV6fCVv3Ce9H/xGX0guX+ZdO4hg4=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
 Received: from loongson.cn (unknown [10.2.5.213])
-	by gateway (Coremail) with SMTP id _____8Cxrut62uJlcYYTAA--.49342S3;
-	Sat, 02 Mar 2024 15:51:22 +0800 (CST)
+	by gateway (Coremail) with SMTP id _____8Dxqeh72uJlgIYTAA--.29886S3;
+	Sat, 02 Mar 2024 15:51:23 +0800 (CST)
 Received: from localhost.localdomain (unknown [10.2.5.213])
-	by localhost.localdomain (Coremail) with SMTP id AQAAf8CxrhN42uJlLU9MAA--.16478S4;
+	by localhost.localdomain (Coremail) with SMTP id AQAAf8CxrhN42uJlLU9MAA--.16478S6;
 	Sat, 02 Mar 2024 15:51:22 +0800 (CST)
 From: Bibo Mao <maobibo@loongson.cn>
 To: Huacai Chen <chenhuacai@kernel.org>,
@@ -29,9 +29,9 @@ Cc: loongarch@lists.linux.dev,
 	virtualization@lists.linux.dev,
 	kvm@vger.kernel.org,
 	linux-doc@vger.kernel.org
-Subject: [PATCH v6 2/7] LoongArch: KVM: Add hypercall instruction emulation support
-Date: Sat,  2 Mar 2024 15:51:15 +0800
-Message-Id: <20240302075120.1414999-3-maobibo@loongson.cn>
+Subject: [PATCH v6 4/7] LoongArch: KVM: Add vcpu search support from physical cpuid
+Date: Sat,  2 Mar 2024 15:51:17 +0800
+Message-Id: <20240302075120.1414999-5-maobibo@loongson.cn>
 X-Mailer: git-send-email 2.39.3
 In-Reply-To: <20240302075120.1414999-1-maobibo@loongson.cn>
 References: <20240302075120.1414999-1-maobibo@loongson.cn>
@@ -42,121 +42,258 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:AQAAf8CxrhN42uJlLU9MAA--.16478S4
+X-CM-TRANSID:AQAAf8CxrhN42uJlLU9MAA--.16478S6
 X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
-X-Coremail-Antispam: 1Uk129KBj93XoWxWr1kWrWfuFyDGrW5tF1fGrX_yoW5tr47pF
-	93Crn5GF48GryfCFy3K34qgr13ArZ7Kw12gFWak3y5AF12qF1Fyr4kKryDZFy5Ja1rZF1S
-	gFs3tr1Y9F4UJ3XCm3ZEXasCq-sJn29KB7ZKAUJUUUU8529EdanIXcx71UUUUU7KY7ZEXa
+X-Coremail-Antispam: 1Uk129KBj93XoW3WrWrKr4xGw1fAr45Kw4DGFX_yoW3Jw48pF
+	ZF9wsxXr4rGr17G348tw4kurZI9rWvgw1SvasIgay3Ar1qqr98XrZYkryUAF98Jw1ruF4I
+	qF1fJ3W5uFW0yagCm3ZEXasCq-sJn29KB7ZKAUJUUUU5529EdanIXcx71UUUUU7KY7ZEXa
 	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
-	0xBIdaVrnRJUUUkYb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
+	0xBIdaVrnRJUUUkFb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
 	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1a6r1DM28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
-	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_JFI_Gr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
+	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
 	0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVWxJVW8Jr1l84ACjcxK6I8E87Iv6xkF7I0E14v2
-	6r4j6r4UJwAS0I0E0xvYzxvE52x082IY62kv0487Mc804VCY07AIYIkI8VC2zVCFFI0UMc
-	02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUtVWrXwAv7VC2z280aVAF
-	wI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JMxAIw28IcxkI7V
-	AKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCj
-	r7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6x
-	IIjxv20xvE14v26r1I6r4UMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI42IY6xAI
-	w20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Gr0_Cr1lIxAIcVC2z280aVCY1x
-	0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7IUbCzuJUUUUU==
+	6r4UJVWxJr1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqjxCEc2xF0cIa020Ex4CE44I27w
+	Aqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jw0_WrylYx0Ex4A2jsIE
+	14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwIxGrwCF04k20xvY0x
+	0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E
+	7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcV
+	C0I7IYx2IY67AKxVW5JVW7JwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lIxAIcVCF
+	04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r4j6F4UMIIF0xvEx4A2jsIEc7
+	CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07Ul4E_UUUUU=
 
-On LoongArch system, there is hypercall instruction special for
-virtualization. When system executes this instruction on host side,
-there is illegal instruction exception reported, however it will
-trap into host when it is executed in VM mode.
+Physical cpuid is used for interrupt routing for irqchips such as
+ipi/msi/extioi interrupt controller. And physical cpuid is stored
+at CSR register LOONGARCH_CSR_CPUID, it can not be changed once vcpu
+is created and physical cpuid of two vcpus cannot be the same.
 
-When hypercall is emulated, A0 register is set with value
-KVM_HCALL_INVALID_CODE, rather than inject EXCCODE_INE invalid
-instruction exception. So VM can continue to executing the next code.
+Different irqchips have different size declaration about physical cpuid,
+max cpuid value for CSR LOONGARCH_CSR_CPUID on 3A5000 is 512, max cpuid
+supported by IPI hardware is 1024, 256 for extioi irqchip, and 65536
+for MSI irqchip.
+
+The smallest value from all interrupt controllers is selected now,
+and the max cpuid size is defines as 256 by KVM which comes from
+extioi irqchip.
 
 Signed-off-by: Bibo Mao <maobibo@loongson.cn>
 ---
- arch/loongarch/include/asm/Kbuild      |  1 -
- arch/loongarch/include/asm/kvm_para.h  | 26 ++++++++++++++++++++++++++
- arch/loongarch/include/uapi/asm/Kbuild |  2 --
- arch/loongarch/kvm/exit.c              | 10 ++++++++++
- 4 files changed, 36 insertions(+), 3 deletions(-)
- create mode 100644 arch/loongarch/include/asm/kvm_para.h
- delete mode 100644 arch/loongarch/include/uapi/asm/Kbuild
+ arch/loongarch/include/asm/kvm_host.h | 26 ++++++++
+ arch/loongarch/include/asm/kvm_vcpu.h |  1 +
+ arch/loongarch/kvm/vcpu.c             | 93 ++++++++++++++++++++++++++-
+ arch/loongarch/kvm/vm.c               | 11 ++++
+ 4 files changed, 130 insertions(+), 1 deletion(-)
 
-diff --git a/arch/loongarch/include/asm/Kbuild b/arch/loongarch/include/asm/Kbuild
-index 93783fa24f6e..22991a6f0e2b 100644
---- a/arch/loongarch/include/asm/Kbuild
-+++ b/arch/loongarch/include/asm/Kbuild
-@@ -23,4 +23,3 @@ generic-y += poll.h
- generic-y += param.h
- generic-y += posix_types.h
- generic-y += resource.h
--generic-y += kvm_para.h
-diff --git a/arch/loongarch/include/asm/kvm_para.h b/arch/loongarch/include/asm/kvm_para.h
-new file mode 100644
-index 000000000000..d48f993ae206
---- /dev/null
-+++ b/arch/loongarch/include/asm/kvm_para.h
-@@ -0,0 +1,26 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _ASM_LOONGARCH_KVM_PARA_H
-+#define _ASM_LOONGARCH_KVM_PARA_H
-+
+diff --git a/arch/loongarch/include/asm/kvm_host.h b/arch/loongarch/include/asm/kvm_host.h
+index 2d62f7b0d377..3ba16ef1fe69 100644
+--- a/arch/loongarch/include/asm/kvm_host.h
++++ b/arch/loongarch/include/asm/kvm_host.h
+@@ -64,6 +64,30 @@ struct kvm_world_switch {
+ 
+ #define MAX_PGTABLE_LEVELS	4
+ 
 +/*
-+ * LoongArch hypercall return code
++ * Physical cpu id is used for interrupt routing, there are different
++ * definitions about physical cpuid on different hardwares.
++ *  For LOONGARCH_CSR_CPUID register, max cpuid size if 512
++ *  For IPI HW, max dest CPUID size 1024
++ *  For extioi interrupt controller, max dest CPUID size is 256
++ *  For MSI interrupt controller, max supported CPUID size is 65536
++ *
++ * Currently max CPUID is defined as 256 for KVM hypervisor, in future
++ * it will be expanded to 4096, including 16 packages at most. And every
++ * package supports at most 256 vcpus
 + */
-+#define KVM_HCALL_STATUS_SUCCESS	0
-+#define KVM_HCALL_INVALID_CODE		-1UL
-+#define KVM_HCALL_INVALID_PARAMETER	-2UL
++#define KVM_MAX_PHYID		256
 +
-+static inline unsigned int kvm_arch_para_features(void)
-+{
-+	return 0;
-+}
++struct kvm_phyid_info {
++	struct kvm_vcpu	*vcpu;
++	bool		enabled;
++};
 +
-+static inline unsigned int kvm_arch_para_hints(void)
-+{
-+	return 0;
-+}
++struct kvm_phyid_map {
++	int max_phyid;
++	struct kvm_phyid_info phys_map[KVM_MAX_PHYID];
++};
 +
-+static inline bool kvm_check_and_clear_guest_paused(void)
-+{
-+	return false;
-+}
-+#endif /* _ASM_LOONGARCH_KVM_PARA_H */
-diff --git a/arch/loongarch/include/uapi/asm/Kbuild b/arch/loongarch/include/uapi/asm/Kbuild
-deleted file mode 100644
-index 4aa680ca2e5f..000000000000
---- a/arch/loongarch/include/uapi/asm/Kbuild
-+++ /dev/null
-@@ -1,2 +0,0 @@
--# SPDX-License-Identifier: GPL-2.0
--generic-y += kvm_para.h
-diff --git a/arch/loongarch/kvm/exit.c b/arch/loongarch/kvm/exit.c
-index ed1d89d53e2e..923bbca9bd22 100644
---- a/arch/loongarch/kvm/exit.c
-+++ b/arch/loongarch/kvm/exit.c
-@@ -685,6 +685,15 @@ static int kvm_handle_lasx_disabled(struct kvm_vcpu *vcpu)
- 	return RESUME_GUEST;
+ struct kvm_arch {
+ 	/* Guest physical mm */
+ 	kvm_pte_t *pgd;
+@@ -71,6 +95,8 @@ struct kvm_arch {
+ 	unsigned long invalid_ptes[MAX_PGTABLE_LEVELS];
+ 	unsigned int  pte_shifts[MAX_PGTABLE_LEVELS];
+ 	unsigned int  root_level;
++	spinlock_t    phyid_map_lock;
++	struct kvm_phyid_map  *phyid_map;
+ 
+ 	s64 time_offset;
+ 	struct kvm_context __percpu *vmcs;
+diff --git a/arch/loongarch/include/asm/kvm_vcpu.h b/arch/loongarch/include/asm/kvm_vcpu.h
+index 0cb4fdb8a9b5..9f53950959da 100644
+--- a/arch/loongarch/include/asm/kvm_vcpu.h
++++ b/arch/loongarch/include/asm/kvm_vcpu.h
+@@ -81,6 +81,7 @@ void kvm_save_timer(struct kvm_vcpu *vcpu);
+ void kvm_restore_timer(struct kvm_vcpu *vcpu);
+ 
+ int kvm_vcpu_ioctl_interrupt(struct kvm_vcpu *vcpu, struct kvm_interrupt *irq);
++struct kvm_vcpu *kvm_get_vcpu_by_cpuid(struct kvm *kvm, int cpuid);
+ 
+ /*
+  * Loongarch KVM guest interrupt handling
+diff --git a/arch/loongarch/kvm/vcpu.c b/arch/loongarch/kvm/vcpu.c
+index 36106922b5d7..a1a1dc4a3cf2 100644
+--- a/arch/loongarch/kvm/vcpu.c
++++ b/arch/loongarch/kvm/vcpu.c
+@@ -274,6 +274,95 @@ static int _kvm_getcsr(struct kvm_vcpu *vcpu, unsigned int id, u64 *val)
+ 	return 0;
  }
  
-+static int kvm_handle_hypercall(struct kvm_vcpu *vcpu)
++static inline int kvm_set_cpuid(struct kvm_vcpu *vcpu, u64 val)
 +{
-+	update_pc(&vcpu->arch);
++	int cpuid;
++	struct loongarch_csrs *csr = vcpu->arch.csr;
++	struct kvm_phyid_map  *map;
 +
-+	/* Treat it as noop intruction, only set return value */
-+	vcpu->arch.gprs[LOONGARCH_GPR_A0] = KVM_HCALL_INVALID_CODE;
-+	return RESUME_GUEST;
++	if (val >= KVM_MAX_PHYID)
++		return -EINVAL;
++
++	cpuid = kvm_read_sw_gcsr(csr, LOONGARCH_CSR_ESTAT);
++	map = vcpu->kvm->arch.phyid_map;
++	spin_lock(&vcpu->kvm->arch.phyid_map_lock);
++	if (map->phys_map[cpuid].enabled) {
++		/*
++		 * Cpuid is already set before
++		 * Forbid changing different cpuid at runtime
++		 */
++		if (cpuid != val) {
++			/*
++			 * Cpuid 0 is initial value for vcpu, maybe invalid
++			 * unset value for vcpu
++			 */
++			if (cpuid) {
++				spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
++				return -EINVAL;
++			}
++		} else {
++			 /* Discard duplicated cpuid set */
++			spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
++			return 0;
++		}
++	}
++
++	if (map->phys_map[val].enabled) {
++		/*
++		 * New cpuid is already set with other vcpu
++		 * Forbid sharing the same cpuid between different vcpus
++		 */
++		if (map->phys_map[val].vcpu != vcpu) {
++			spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
++			return -EINVAL;
++		}
++
++		/* Discard duplicated cpuid set operation*/
++		spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
++		return 0;
++	}
++
++	kvm_write_sw_gcsr(csr, LOONGARCH_CSR_CPUID, val);
++	map->phys_map[val].enabled	= true;
++	map->phys_map[val].vcpu		= vcpu;
++	if (map->max_phyid < val)
++		map->max_phyid = val;
++	spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
++	return 0;
 +}
 +
- /*
-  * LoongArch KVM callback handling for unimplemented guest exiting
-  */
-@@ -716,6 +725,7 @@ static exit_handle_fn kvm_fault_tables[EXCCODE_INT_START] = {
- 	[EXCCODE_LSXDIS]		= kvm_handle_lsx_disabled,
- 	[EXCCODE_LASXDIS]		= kvm_handle_lasx_disabled,
- 	[EXCCODE_GSPR]			= kvm_handle_gspr,
-+	[EXCCODE_HVC]			= kvm_handle_hypercall,
- };
++struct kvm_vcpu *kvm_get_vcpu_by_cpuid(struct kvm *kvm, int cpuid)
++{
++	struct kvm_phyid_map  *map;
++
++	if (cpuid >= KVM_MAX_PHYID)
++		return NULL;
++
++	map = kvm->arch.phyid_map;
++	if (map->phys_map[cpuid].enabled)
++		return map->phys_map[cpuid].vcpu;
++
++	return NULL;
++}
++
++static inline void kvm_drop_cpuid(struct kvm_vcpu *vcpu)
++{
++	int cpuid;
++	struct loongarch_csrs *csr = vcpu->arch.csr;
++	struct kvm_phyid_map  *map;
++
++	map = vcpu->kvm->arch.phyid_map;
++	cpuid = kvm_read_sw_gcsr(csr, LOONGARCH_CSR_ESTAT);
++	if (cpuid >= KVM_MAX_PHYID)
++		return;
++
++	if (map->phys_map[cpuid].enabled) {
++		map->phys_map[cpuid].vcpu = NULL;
++		map->phys_map[cpuid].enabled = false;
++		kvm_write_sw_gcsr(csr, LOONGARCH_CSR_CPUID, 0);
++	}
++}
++
+ static int _kvm_setcsr(struct kvm_vcpu *vcpu, unsigned int id, u64 val)
+ {
+ 	int ret = 0, gintc;
+@@ -291,7 +380,8 @@ static int _kvm_setcsr(struct kvm_vcpu *vcpu, unsigned int id, u64 val)
+ 		kvm_set_sw_gcsr(csr, LOONGARCH_CSR_ESTAT, gintc);
  
- int kvm_handle_fault(struct kvm_vcpu *vcpu, int fault)
+ 		return ret;
+-	}
++	} else if (id == LOONGARCH_CSR_CPUID)
++		return kvm_set_cpuid(vcpu, val);
+ 
+ 	kvm_write_sw_gcsr(csr, id, val);
+ 
+@@ -924,6 +1014,7 @@ void kvm_arch_vcpu_destroy(struct kvm_vcpu *vcpu)
+ 	hrtimer_cancel(&vcpu->arch.swtimer);
+ 	kvm_mmu_free_memory_cache(&vcpu->arch.mmu_page_cache);
+ 	kfree(vcpu->arch.csr);
++	kvm_drop_cpuid(vcpu);
+ 
+ 	/*
+ 	 * If the vCPU is freed and reused as another vCPU, we don't want the
+diff --git a/arch/loongarch/kvm/vm.c b/arch/loongarch/kvm/vm.c
+index 0a37f6fa8f2d..6006a28653ad 100644
+--- a/arch/loongarch/kvm/vm.c
++++ b/arch/loongarch/kvm/vm.c
+@@ -30,6 +30,14 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+ 	if (!kvm->arch.pgd)
+ 		return -ENOMEM;
+ 
++	kvm->arch.phyid_map = kvzalloc(sizeof(struct kvm_phyid_map),
++				GFP_KERNEL_ACCOUNT);
++	if (!kvm->arch.phyid_map) {
++		free_page((unsigned long)kvm->arch.pgd);
++		kvm->arch.pgd = NULL;
++		return -ENOMEM;
++	}
++
+ 	kvm_init_vmcs(kvm);
+ 	kvm->arch.gpa_size = BIT(cpu_vabits - 1);
+ 	kvm->arch.root_level = CONFIG_PGTABLE_LEVELS - 1;
+@@ -44,6 +52,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+ 	for (i = 0; i <= kvm->arch.root_level; i++)
+ 		kvm->arch.pte_shifts[i] = PAGE_SHIFT + i * (PAGE_SHIFT - 3);
+ 
++	spin_lock_init(&kvm->arch.phyid_map_lock);
+ 	return 0;
+ }
+ 
+@@ -51,7 +60,9 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
+ {
+ 	kvm_destroy_vcpus(kvm);
+ 	free_page((unsigned long)kvm->arch.pgd);
++	kvfree(kvm->arch.phyid_map);
+ 	kvm->arch.pgd = NULL;
++	kvm->arch.phyid_map = NULL;
+ }
+ 
+ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
 -- 
 2.39.3
 
