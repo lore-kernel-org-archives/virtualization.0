@@ -1,201 +1,142 @@
-Received: from szxga07-in.huawei.com (szxga07-in.huawei.com [45.249.212.35])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f49.google.com (mail-qv1-f49.google.com [209.85.219.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 119F33E462
-	for <virtualization@lists.linux.dev>; Mon,  4 Mar 2024 13:45:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.35
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CDA53B795
+	for <virtualization@lists.linux.dev>; Mon,  4 Mar 2024 13:58:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709559927; cv=none; b=sF/cTlUzSck3a5qvTKAQ3hNnWKRREt84m8i41GskHuHNcwBMSIsb7UA75b8vm4SltuTF0hcn6n+MM6Kh9ky/VMwhbSW7v0j1UH9enivYJm+rGCFSiKt2ZTWPROzNR/x2rfmeDwAE1ka6f3bHyw4eP4p3nS8vT0z3qZAFCAxtYEU=
+	t=1709560704; cv=none; b=qAVXvq6oIYnG1ldEQdP8Pf08E5OgkYx1R1n8Ue/fcBuFMxBtC8SjU/nb24r7uSmiLou0VPuaA/UQtDfAIMFsQjM71dckpdWqsiplJ6J2vBCDpzZFtH2uqNJH4wLkyM4MSsjCW7cXbJjzOPe3bWKVzgFqoQLHURVqVFctbGt7ie4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709559927; c=relaxed/simple;
-	bh=Vogrl90LPvlwp2Ghw/yIzr9IKjNdfq8ALbuzUCNGjqc=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=BN8XS3akaYafwzDYsEybEMmow7gsf9bfqRKy8+uO63Zn8B9hns/M3JE5mh0KLp9gvl3JWemrX9xupkbzQSc+vYBz2rtnUvBvwzvoQ6Iob8NEhwBbTws+DFK/FqFjiJ051ob3o8z1yfRamTaCGiAitqpY3aqIZHlusd70e+/bBSM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.35
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.88.214])
-	by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4TpKdf3B0Sz1Q9mN;
-	Mon,  4 Mar 2024 21:43:02 +0800 (CST)
-Received: from kwepemm600003.china.huawei.com (unknown [7.193.23.202])
-	by mail.maildlp.com (Postfix) with ESMTPS id 414801A016E;
-	Mon,  4 Mar 2024 21:45:22 +0800 (CST)
-Received: from dggpemm500008.china.huawei.com (7.185.36.136) by
- kwepemm600003.china.huawei.com (7.193.23.202) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.35; Mon, 4 Mar 2024 21:45:21 +0800
-Received: from dggpemm500008.china.huawei.com ([7.185.36.136]) by
- dggpemm500008.china.huawei.com ([7.185.36.136]) with mapi id 15.01.2507.035;
- Mon, 4 Mar 2024 21:45:21 +0800
-From: wangyunjian <wangyunjian@huawei.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>, "jasowang@redhat.com"
-	<jasowang@redhat.com>
-CC: Paolo Abeni <pabeni@redhat.com>, "willemdebruijn.kernel@gmail.com"
-	<willemdebruijn.kernel@gmail.com>, "kuba@kernel.org" <kuba@kernel.org>,
-	"bjorn@kernel.org" <bjorn@kernel.org>, "magnus.karlsson@intel.com"
-	<magnus.karlsson@intel.com>, "maciej.fijalkowski@intel.com"
-	<maciej.fijalkowski@intel.com>, "jonathan.lemon@gmail.com"
-	<jonathan.lemon@gmail.com>, "davem@davemloft.net" <davem@davemloft.net>,
-	"bpf@vger.kernel.org" <bpf@vger.kernel.org>, "netdev@vger.kernel.org"
-	<netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, xudingke
-	<xudingke@huawei.com>, "liwei (DT)" <liwei395@huawei.com>
-Subject: RE: [PATCH net-next v2 3/3] tun: AF_XDP Tx zero-copy support
-Thread-Topic: [PATCH net-next v2 3/3] tun: AF_XDP Tx zero-copy support
-Thread-Index: AQHaajYcNkJKJoTBfEqyMPzDlwSi+bEgpeYAgAIJPRD//5RegIAFWUkg
-Date: Mon, 4 Mar 2024 13:45:21 +0000
-Message-ID: <ffbe60c2732842a3b81e6ae0f58d2556@huawei.com>
-References: <1709118356-133960-1-git-send-email-wangyunjian@huawei.com>
- <7d478cb842e28094f4d6102e593e3de25ab27dfe.camel@redhat.com>
- <223aeca6435342ec8a4d57c959c23303@huawei.com>
- <20240301065141-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20240301065141-mutt-send-email-mst@kernel.org>
-Accept-Language: zh-CN, en-US
-Content-Language: zh-CN
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	s=arc-20240116; t=1709560704; c=relaxed/simple;
+	bh=GIIoMXTb+jubmj3EvUmA/6kXLnrIGswSSlxeQCgWaHw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=aLY9e5uxQA7y7cr1NQePc+ddpYNM/2nsyPkPPNJcXiXccQuD5LiYuD9YUM4xW57fZezWKb7dILsXLTl4cGdks+Sqjrphr2NsDGZ/UIYwxdbKx9eyOSq8seT8KTNLWP2MZT7HSdg1l7aLrumcAi81WPsnigJn/xqhBNqfRyg1neI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Mx8c3Dls; arc=none smtp.client-ip=209.85.219.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Mx8c3Dls"
+Received: by mail-qv1-f49.google.com with SMTP id 6a1803df08f44-69069235a0eso806836d6.0
+        for <virtualization@lists.linux.dev>; Mon, 04 Mar 2024 05:58:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1709560702; x=1710165502; darn=lists.linux.dev;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=Plfy//rsylxMHB4eQxxysPEOJTihZRQSC1sBjCrslCI=;
+        b=Mx8c3Dls/ASs5gMYWQOWDhgTQfQ2oItSq/Rau6kE5pPWBWGlXYUEB+7n7o7OheIyVq
+         sW9YTFH9jWHNgGD8N49wCB2pmwSSxWXHmDIvRwCV8ng9hgFbPwmflnDD708g2obzIvai
+         k7pEelTd5uNKKLjU1wwpN6Z0lLCwV7Cez9VOA9NOiIzpVhlLbGWLtAUEtmrApHjdb7GJ
+         t6sTP9GVFXRL9Zm2QyXcdtcU+bQE0sJrkFk6c91sdKnmSLDpC5xFeca26sg9Ep7Is6Rd
+         W8gfdSaQKZm6WmGU/bvI0QKk0bGysH2TjhDYbMw6iBWWleWrkzmVHLBCVarbq4FnyWQU
+         O8OQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1709560702; x=1710165502;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Plfy//rsylxMHB4eQxxysPEOJTihZRQSC1sBjCrslCI=;
+        b=stPR44eVpQQtTN5Tle7kimxcsotj79rkUZ2ASt2xFPtKhyR7Pij2H/wLwdsQ4m4ayt
+         /Lo0qOynWws3jipUugjD0DiskJAGM5Idcvfp9nnBumV6rAm+0T9MHu1qbBuTPKx5XFxP
+         /LJqJH8pXNHCMlEQ9b0BQcjLvVRzwOUHzepzd5kvBP5pXoJM9eBBnE3u6iJq9yQVzAct
+         jbIVZNwyOvIMbZAQBYSp6l0cubbpNYTktpVUDRxIJhPqNzq/vCOoUlfwKyAb/zTEQLNI
+         eFdGafNoB9zbBFlhy1JD7sa3s0MfDuOQXEwA2jjJSLaTK5IQV3J6yEp75C+whgxhuoMH
+         h/wA==
+X-Forwarded-Encrypted: i=1; AJvYcCVRzPsO19eEldycxsJwGdza4iMZCZfXWdn96G2XIwihpTzSeGhIe7hwO9+rSJeAo2fDUBAi0p0k10Twskbbdx+mGCpaouaO004Hj/GMCFk=
+X-Gm-Message-State: AOJu0Yzc5A5Cs33ilYxtQ0cpryuTsMhuQvWmk9aL00VNKi5/tqlnlMM3
+	3+vaWhZVN9aEgS3Ym/PzdcheHxmLSTSA7pGMieIaoRQnWxGm/I21QhmSzI7665dwwBBQsXjLDN9
+	P6pUG2NNXyZ4bIisV5z+utS7p6Gs=
+X-Google-Smtp-Source: AGHT+IHVsvq0lEKFqn6fHC7GP6xP5UnPXqrWeVUiUt2RohzlqrCuJl+Isr9qbkGFJVhgPQdYWTGuml8Vs9zhghbXs5M=
+X-Received: by 2002:a05:6214:1bc7:b0:690:3c85:c5b with SMTP id
+ m7-20020a0562141bc700b006903c850c5bmr10351360qvc.3.1709560702082; Mon, 04 Mar
+ 2024 05:58:22 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+References: <1709118325-120336-1-git-send-email-wangyunjian@huawei.com>
+ <75b6f7686c03519a1aaeb461618070747890143b.camel@redhat.com> <55ef319de7084614b1883018f69de1eb@huawei.com>
+In-Reply-To: <55ef319de7084614b1883018f69de1eb@huawei.com>
+From: Magnus Karlsson <magnus.karlsson@gmail.com>
+Date: Mon, 4 Mar 2024 14:58:11 +0100
+Message-ID: <CAJ8uoz0xjdw7iHjP9=9wFPq21A6LdcYuGZBgwUKRemzkB5XoNg@mail.gmail.com>
+Subject: Re: [PATCH net-next v2 1/3] xsk: Remove non-zero 'dma_page' check in xp_assign_dev
+To: wangyunjian <wangyunjian@huawei.com>
+Cc: Paolo Abeni <pabeni@redhat.com>, "mst@redhat.com" <mst@redhat.com>, 
+	"willemdebruijn.kernel@gmail.com" <willemdebruijn.kernel@gmail.com>, 
+	"jasowang@redhat.com" <jasowang@redhat.com>, "kuba@kernel.org" <kuba@kernel.org>, 
+	"bjorn@kernel.org" <bjorn@kernel.org>, "magnus.karlsson@intel.com" <magnus.karlsson@intel.com>, 
+	"maciej.fijalkowski@intel.com" <maciej.fijalkowski@intel.com>, 
+	"jonathan.lemon@gmail.com" <jonathan.lemon@gmail.com>, "davem@davemloft.net" <davem@davemloft.net>, 
+	"bpf@vger.kernel.org" <bpf@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, 
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, 
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, xudingke <xudingke@huawei.com>, 
+	"liwei (DT)" <liwei395@huawei.com>
+Content-Type: text/plain; charset="UTF-8"
 
-
-
-> -----Original Message-----
-> From: Michael S. Tsirkin [mailto:mst@redhat.com]
-> Sent: Friday, March 1, 2024 7:53 PM
-> To: wangyunjian <wangyunjian@huawei.com>
-> Cc: Paolo Abeni <pabeni@redhat.com>; willemdebruijn.kernel@gmail.com;
-> jasowang@redhat.com; kuba@kernel.org; bjorn@kernel.org;
-> magnus.karlsson@intel.com; maciej.fijalkowski@intel.com;
-> jonathan.lemon@gmail.com; davem@davemloft.net; bpf@vger.kernel.org;
-> netdev@vger.kernel.org; linux-kernel@vger.kernel.org; kvm@vger.kernel.org=
-;
-> virtualization@lists.linux.dev; xudingke <xudingke@huawei.com>; liwei (DT=
-)
-> <liwei395@huawei.com>
-> Subject: Re: [PATCH net-next v2 3/3] tun: AF_XDP Tx zero-copy support
->=20
-> On Fri, Mar 01, 2024 at 11:45:52AM +0000, wangyunjian wrote:
-> > > -----Original Message-----
-> > > From: Paolo Abeni [mailto:pabeni@redhat.com]
-> > > Sent: Thursday, February 29, 2024 7:13 PM
-> > > To: wangyunjian <wangyunjian@huawei.com>; mst@redhat.com;
-> > > willemdebruijn.kernel@gmail.com; jasowang@redhat.com;
-> > > kuba@kernel.org; bjorn@kernel.org; magnus.karlsson@intel.com;
-> > > maciej.fijalkowski@intel.com; jonathan.lemon@gmail.com;
-> > > davem@davemloft.net
-> > > Cc: bpf@vger.kernel.org; netdev@vger.kernel.org;
-> > > linux-kernel@vger.kernel.org; kvm@vger.kernel.org;
-> > > virtualization@lists.linux.dev; xudingke <xudingke@huawei.com>;
-> > > liwei (DT) <liwei395@huawei.com>
-> > > Subject: Re: [PATCH net-next v2 3/3] tun: AF_XDP Tx zero-copy
-> > > support
-> > >
-> > > On Wed, 2024-02-28 at 19:05 +0800, Yunjian Wang wrote:
-> > > > @@ -2661,6 +2776,54 @@ static int tun_ptr_peek_len(void *ptr)
-> > > >  	}
-> > > >  }
-> > > >
-> > > > +static void tun_peek_xsk(struct tun_file *tfile) {
-> > > > +	struct xsk_buff_pool *pool;
-> > > > +	u32 i, batch, budget;
-> > > > +	void *frame;
-> > > > +
-> > > > +	if (!ptr_ring_empty(&tfile->tx_ring))
-> > > > +		return;
-> > > > +
-> > > > +	spin_lock(&tfile->pool_lock);
-> > > > +	pool =3D tfile->xsk_pool;
-> > > > +	if (!pool) {
-> > > > +		spin_unlock(&tfile->pool_lock);
-> > > > +		return;
-> > > > +	}
-> > > > +
-> > > > +	if (tfile->nb_descs) {
-> > > > +		xsk_tx_completed(pool, tfile->nb_descs);
-> > > > +		if (xsk_uses_need_wakeup(pool))
-> > > > +			xsk_set_tx_need_wakeup(pool);
-> > > > +	}
-> > > > +
-> > > > +	spin_lock(&tfile->tx_ring.producer_lock);
-> > > > +	budget =3D min_t(u32, tfile->tx_ring.size, TUN_XDP_BATCH);
-> > > > +
-> > > > +	batch =3D xsk_tx_peek_release_desc_batch(pool, budget);
-> > > > +	if (!batch) {
-> > >
-> > > This branch looks like an unneeded "optimization". The generic loop
-> > > below should have the same effect with no measurable perf delta - and
-> smaller code.
-> > > Just remove this.
-> > >
-> > > > +		tfile->nb_descs =3D 0;
-> > > > +		spin_unlock(&tfile->tx_ring.producer_lock);
-> > > > +		spin_unlock(&tfile->pool_lock);
-> > > > +		return;
-> > > > +	}
-> > > > +
-> > > > +	tfile->nb_descs =3D batch;
-> > > > +	for (i =3D 0; i < batch; i++) {
-> > > > +		/* Encode the XDP DESC flag into lowest bit for consumer to
-> differ
-> > > > +		 * XDP desc from XDP buffer and sk_buff.
-> > > > +		 */
-> > > > +		frame =3D tun_xdp_desc_to_ptr(&pool->tx_descs[i]);
-> > > > +		/* The budget must be less than or equal to tx_ring.size,
-> > > > +		 * so enqueuing will not fail.
-> > > > +		 */
-> > > > +		__ptr_ring_produce(&tfile->tx_ring, frame);
-> > > > +	}
-> > > > +	spin_unlock(&tfile->tx_ring.producer_lock);
-> > > > +	spin_unlock(&tfile->pool_lock);
-> > >
-> > > More related to the general design: it looks wrong. What if
-> > > get_rx_bufs() will fail (ENOBUF) after successful peeking? With no
-> > > more incoming packets, later peek will return 0 and it looks like
-> > > that the half-processed packets will stay in the ring forever???
-> > >
-> > > I think the 'ring produce' part should be moved into tun_do_read().
+On Thu, 29 Feb 2024 at 13:52, wangyunjian <wangyunjian@huawei.com> wrote:
+>
+> > -----Original Message-----
+> > From: Paolo Abeni [mailto:pabeni@redhat.com]
+> > Sent: Thursday, February 29, 2024 6:43 PM
+> > To: wangyunjian <wangyunjian@huawei.com>; mst@redhat.com;
+> > willemdebruijn.kernel@gmail.com; jasowang@redhat.com; kuba@kernel.org;
+> > bjorn@kernel.org; magnus.karlsson@intel.com; maciej.fijalkowski@intel.com;
+> > jonathan.lemon@gmail.com; davem@davemloft.net
+> > Cc: bpf@vger.kernel.org; netdev@vger.kernel.org;
+> > linux-kernel@vger.kernel.org; kvm@vger.kernel.org;
+> > virtualization@lists.linux.dev; xudingke <xudingke@huawei.com>; liwei (DT)
+> > <liwei395@huawei.com>
+> > Subject: Re: [PATCH net-next v2 1/3] xsk: Remove non-zero 'dma_page' check in
+> > xp_assign_dev
 > >
-> > Currently, the vhost-net obtains a batch descriptors/sk_buffs from the
-> > ptr_ring and enqueue the batch descriptors/sk_buffs to the
-> > virtqueue'queue, and then consumes the descriptors/sk_buffs from the
-> > virtqueue'queue in sequence. As a result, TUN does not know whether
-> > the batch descriptors have been used up, and thus does not know when to
-> return the batch descriptors.
-> >
-> > So, I think it's reasonable that when vhost-net checks ptr_ring is
-> > empty, it calls peek_len to get new xsk's descs and return the descript=
-ors.
-> >
-> > Thanks
->=20
-> What you need to think about is that if you peek, another call in paralle=
-l can get
-> the same value at the same time.
-
-Thank you. I have identified a problem. The tx_descs array was created with=
-in xsk's pool.
-When xsk is freed, the pool and tx_descs are also freed. Howerver, some des=
-cs may
-remain in the virtqueue'queue, which could lead to a use-after-free scenari=
-o. Currently,
-I do not have an idea to solve this concurrency problem and believe this sc=
-enario may
-not be appropriate for reusing the ptr_ring.
-
-Thanks
-
->=20
->=20
+> > On Wed, 2024-02-28 at 19:05 +0800, Yunjian Wang wrote:
+> > > Now dma mappings are used by the physical NICs. However the vNIC maybe
+> > > do not need them. So remove non-zero 'dma_page' check in
+> > > xp_assign_dev.
 > > >
-> > > Cheers,
+> > > Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
+> > > ---
+> > >  net/xdp/xsk_buff_pool.c | 7 -------
+> > >  1 file changed, 7 deletions(-)
 > > >
-> > > Paolo
+> > > diff --git a/net/xdp/xsk_buff_pool.c b/net/xdp/xsk_buff_pool.c index
+> > > ce60ecd48a4d..a5af75b1f43c 100644
+> > > --- a/net/xdp/xsk_buff_pool.c
+> > > +++ b/net/xdp/xsk_buff_pool.c
+> > > @@ -219,16 +219,9 @@ int xp_assign_dev(struct xsk_buff_pool *pool,
+> > >     if (err)
+> > >             goto err_unreg_pool;
+> > >
+> > > -   if (!pool->dma_pages) {
+> > > -           WARN(1, "Driver did not DMA map zero-copy buffers");
+> > > -           err = -EINVAL;
+> > > -           goto err_unreg_xsk;
+> > > -   }
 > >
+> > This would unconditionally remove an otherwise valid check for most NIC. What
+> > about let the driver declare it wont need DMA map with a
+> > (pool?) flag.
+>
+> This check is redundant. The NIC's driver determines whether a DMA map is required.
+> If the NIC'driver requires the DMA map, it uses the xsk_pool_dma_map function, which
+> initializes the DMA map and performs a check.
 
+Just to provide some context: I put this check there many years ago to
+guard against a zero-copy driver writer forgetting to call
+xsk_pool_dma_map() during the implementation phase. A working driver
+will always have pool->dma_pages != NULL. If you both think that this
+check is too much of a precaution, then I have no problem getting rid
+of it. Just thought that a text warning would be nicer than a crash
+later.
+
+Thanks: Magnus
+
+> Thanks
+>
+> >
+> > Cheers,
+> >
+> > Paolo
+>
