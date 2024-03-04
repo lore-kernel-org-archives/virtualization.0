@@ -1,305 +1,230 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 4038A20300;
-	Mon,  4 Mar 2024 09:10:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
+Received: from szxga04-in.huawei.com (szxga04-in.huawei.com [45.249.212.190])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07F0025760
+	for <virtualization@lists.linux.dev>; Mon,  4 Mar 2024 11:23:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.190
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709543448; cv=none; b=n8YkNMng2GnK7BT/AmX6EZb93FnKCAgvTS2pexOYxjUf1wVlZ5oDxsxdhI5Q8eqlZqY/G/O/3NvCGD3tCC65+iErpjpLkMZsQUipTaQIykFBV/DmpzzdblPBV7HugG5ga3vpNEM/EF9pmE0TxTtETR5WFtNLmUwqVU+6n/iTj78=
+	t=1709551443; cv=none; b=sRb1jyyelhxQPW+dElWvghpuTAGmbCLr6D76tJylk9x21Q3dD4qk985/togvv4BBXTTWHA3NpHwqIe/BJOg87D/+KrNECJ8ijVlid2v87Zc5g7bW5vLUUNYSpOSBAKvT3K56oPsOkJkmk0fPZDevEmPIB217IWv3olAFBXAcYvs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709543448; c=relaxed/simple;
-	bh=ecM/81Cew8tqn1qCfB4rRxkuZKAfzrO6bVDhJi9nQiQ=;
-	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=GAx9VgqhXtci931LypnxbNnCu8vDldYmNyfy7JJ9j9OW0kWDpdYgd2h+s+mqXp7N4NKXXEy4gVT62wk2tH05dZRpOdDYZhmhuynHENdlnkall0Mh9Nvy16l5HmW+8oOjDeQn9qo9sfotk91RTIyVf37nGw6d+o0Fzh/0UIp/GNY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [10.20.42.173])
-	by gateway (Coremail) with SMTP id _____8DxqegHkOVlXwQUAA--.30903S3;
-	Mon, 04 Mar 2024 17:10:32 +0800 (CST)
-Received: from [10.20.42.173] (unknown [10.20.42.173])
-	by localhost.localdomain (Coremail) with SMTP id AQAAf8BxXRMEkOVl7rBNAA--.9973S3;
-	Mon, 04 Mar 2024 17:10:30 +0800 (CST)
-Subject: Re: [PATCH v6 7/7] Documentation: KVM: Add hypercall for LoongArch
-To: WANG Xuerui <kernel@xen0n.name>, Tianrui Zhao <zhaotianrui@loongson.cn>,
- Juergen Gross <jgross@suse.com>, Paolo Bonzini <pbonzini@redhat.com>,
- Jonathan Corbet <corbet@lwn.net>
-Cc: loongarch@lists.linux.dev, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev, kvm@vger.kernel.org
-References: <20240302082532.1415200-1-maobibo@loongson.cn>
- <20240302084724.1415344-1-maobibo@loongson.cn>
- <846a5e46-4e8f-4f73-ac5b-323e78ec1bb1@xen0n.name>
-From: maobibo <maobibo@loongson.cn>
-Message-ID: <853f2909-e455-bd1c-c6a4-6a13beb37125@loongson.cn>
-Date: Mon, 4 Mar 2024 17:10:27 +0800
-User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+	s=arc-20240116; t=1709551443; c=relaxed/simple;
+	bh=BbBNrOU8T19U458T4VJVmpR70/3fIk+koxj6CJaxPcY=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=Daaoo4SyPWiQ1hBaBOtg7m9kIiOeEh00wGE1wQjqLneckSEh1h6oNGbStlXlqopoUmFT5mHl5saj1BKnKjxXfHLsG5oZG3uGPPa6YXMcwvZS849V0wCsCZwMZ/hs3Ow5cM8Zlozg3rt8x8cAwRRs+JEgG6d7yIeVseWPljbGkNk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.190
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.88.214])
+	by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4TpGVT6ptXz2BfBx;
+	Mon,  4 Mar 2024 19:21:37 +0800 (CST)
+Received: from kwepemd100003.china.huawei.com (unknown [7.221.188.180])
+	by mail.maildlp.com (Postfix) with ESMTPS id 586FB1A016C;
+	Mon,  4 Mar 2024 19:23:57 +0800 (CST)
+Received: from kwepemd200012.china.huawei.com (7.221.188.145) by
+ kwepemd100003.china.huawei.com (7.221.188.180) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1258.28; Mon, 4 Mar 2024 19:23:57 +0800
+Received: from dggpemm500008.china.huawei.com (7.185.36.136) by
+ kwepemd200012.china.huawei.com (7.221.188.145) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1258.28; Mon, 4 Mar 2024 19:23:56 +0800
+Received: from dggpemm500008.china.huawei.com ([7.185.36.136]) by
+ dggpemm500008.china.huawei.com ([7.185.36.136]) with mapi id 15.01.2507.035;
+ Mon, 4 Mar 2024 19:23:56 +0800
+From: wangyunjian <wangyunjian@huawei.com>
+To: Jason Wang <jasowang@redhat.com>
+CC: "mst@redhat.com" <mst@redhat.com>, "willemdebruijn.kernel@gmail.com"
+	<willemdebruijn.kernel@gmail.com>, "kuba@kernel.org" <kuba@kernel.org>,
+	"bjorn@kernel.org" <bjorn@kernel.org>, "magnus.karlsson@intel.com"
+	<magnus.karlsson@intel.com>, "maciej.fijalkowski@intel.com"
+	<maciej.fijalkowski@intel.com>, "jonathan.lemon@gmail.com"
+	<jonathan.lemon@gmail.com>, "davem@davemloft.net" <davem@davemloft.net>,
+	"bpf@vger.kernel.org" <bpf@vger.kernel.org>, "netdev@vger.kernel.org"
+	<netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, xudingke
+	<xudingke@huawei.com>, "liwei (DT)" <liwei395@huawei.com>
+Subject: RE: [PATCH net-next v2 3/3] tun: AF_XDP Tx zero-copy support
+Thread-Topic: [PATCH net-next v2 3/3] tun: AF_XDP Tx zero-copy support
+Thread-Index: AQHaajYcNkJKJoTBfEqyMPzDlwSi+bEmp3aAgADQ0dA=
+Date: Mon, 4 Mar 2024 11:23:56 +0000
+Message-ID: <b263a27344ec4566b7b70e3165d3d918@huawei.com>
+References: <1709118356-133960-1-git-send-email-wangyunjian@huawei.com>
+ <CACGkMEv+=k+RvbN2kWp85f9NWPYOPQtqkThdjvOrf5mWonBqvw@mail.gmail.com>
+In-Reply-To: <CACGkMEv+=k+RvbN2kWp85f9NWPYOPQtqkThdjvOrf5mWonBqvw@mail.gmail.com>
+Accept-Language: zh-CN, en-US
+Content-Language: zh-CN
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <846a5e46-4e8f-4f73-ac5b-323e78ec1bb1@xen0n.name>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:AQAAf8BxXRMEkOVl7rBNAA--.9973S3
-X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
-X-Coremail-Antispam: 1Uk129KBj93XoW3WryUJr1UGrWfuFW7tF43urX_yoWfZw4fpF
-	95J3s7KrWkJryxAw17tw1UXryYyr1xJ3W7Jr18tFy8Jw45Zr1aqr4jqrn093W8Gw48AF1j
-	qr4jqr17ur1UA3gCm3ZEXasCq-sJn29KB7ZKAUJUUUU7529EdanIXcx71UUUUU7KY7ZEXa
-	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
-	0xBIdaVrnRJUUUPIb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
-	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
-	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_JFI_Gr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
-	0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVCY1x0267AK
-	xVW8Jr0_Cr1UM2kKe7AKxVWUXVWUAwAS0I0E0xvYzxvE52x082IY62kv0487Mc804VCY07
-	AIYIkI8VC2zVCFFI0UMc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
-	AVWUtwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI4
-	8JMxk0xIA0c2IEe2xFo4CEbIxvr21lc7CjxVAaw2AFwI0_JF0_Jw1l42xK82IYc2Ij64vI
-	r41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1l4IxYO2xFxVAFwI0_Jrv_JF1lx2IqxVAqx4xG67
-	AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIY
-	rxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14
-	v26r1j6r4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8
-	JwCI42IY6I8E87Iv6xkF7I0E14v26r1j6r4UYxBIdaVFxhVjvjDU0xZFpf9x07j8SdgUUU
-	UU=
 
-
-
-On 2024/3/2 下午5:41, WANG Xuerui wrote:
-> On 3/2/24 16:47, Bibo Mao wrote:
->> Add documentation topic for using pv_virt when running as a guest
->> on KVM hypervisor.
->>
->> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
->> ---
->>   Documentation/virt/kvm/index.rst              |  1 +
->>   .../virt/kvm/loongarch/hypercalls.rst         | 79 +++++++++++++++++++
->>   Documentation/virt/kvm/loongarch/index.rst    | 10 +++
->>   3 files changed, 90 insertions(+)
->>   create mode 100644 Documentation/virt/kvm/loongarch/hypercalls.rst
->>   create mode 100644 Documentation/virt/kvm/loongarch/index.rst
->>
->> diff --git a/Documentation/virt/kvm/index.rst 
->> b/Documentation/virt/kvm/index.rst
->> index ad13ec55ddfe..9ca5a45c2140 100644
->> --- a/Documentation/virt/kvm/index.rst
->> +++ b/Documentation/virt/kvm/index.rst
->> @@ -14,6 +14,7 @@ KVM
->>      s390/index
->>      ppc-pv
->>      x86/index
->> +   loongarch/index
->>      locking
->>      vcpu-requests
->> diff --git a/Documentation/virt/kvm/loongarch/hypercalls.rst 
->> b/Documentation/virt/kvm/loongarch/hypercalls.rst
->> new file mode 100644
->> index 000000000000..1679e48d67d2
->> --- /dev/null
->> +++ b/Documentation/virt/kvm/loongarch/hypercalls.rst
->> @@ -0,0 +1,79 @@
->> +.. SPDX-License-Identifier: GPL-2.0
->> +
->> +===================================
->> +The LoongArch paravirtual interface
->> +===================================
->> +
->> +KVM hypercalls use the HVCL instruction with code 0x100, and the 
->> hypercall
->> +number is put in a0 and up to five arguments may be placed in a1-a5, the
->> +return value is placed in v0 (alias with a0).
-> 
-> Just say a0: the name v0 is long deprecated (has been the case ever 
-> since LoongArch got mainlined).
-> 
-Sure, will modify since you are compiler export :)
-
->> +
->> +The code for that interface can be found in arch/loongarch/kvm/*
->> +
->> +Querying for existence
->> +======================
->> +
->> +To find out if we're running on KVM or not, cpucfg can be used with 
->> index
->> +CPUCFG_KVM_BASE (0x40000000), cpucfg range between 0x40000000 - 
->> 0x400000FF
->> +is marked as a specially reserved range. All existing and future 
->> processors
->> +will not implement any features in this range.
->> +
->> +When Linux is running on KVM, cpucfg with index CPUCFG_KVM_BASE 
->> (0x40000000)
->> +returns magic string "KVM\0"
->> +
->> +Once you determined you're running under a PV capable KVM, you can 
->> now use
->> +hypercalls as described below.
-> 
-> So this is still the approach similar to the x86 CPUID-based 
-> implementation. But here the non-privileged behavior isn't specified -- 
-> I see there is PLV checking in Patch 3 but it's safer to have the 
-> requirement spelled out here too.
-> 
-> But I still think this approach touches more places than strictly 
-> needed. As it is currently the case in 
-> arch/loongarch/kernel/cpu-probe.c, the FEATURES IOCSR is checked for a 
-> bit IOCSRF_VM that already signifies presence of a hypervisor; if this 
-> information can be interpreted as availability of the HVCL instruction 
-> (which I suppose is the case -- a hypervisor can always trap-and-emulate 
-> in case HVCL isn't provided by hardware), here we can already start 
-> making calls with HVCL.
-> 
-> We can and should define a uniform interface for probing the hypervisor 
-> kind, similar to the centrally-managed RISC-V SBI implementation ID 
-> registry [1]: otherwise future non-KVM hypervisors would have to
-> 
-> 1. somehow pretend they are KVM and eventually fail to do so, leading to 
-> subtle incompatibilities,
-> 2. invent another way of probing for their existence,
-> 3. piggy-back on the current KVM definition, which is inelegant (reading 
-> the LoongArch-KVM-defined CPUCFG leaf only to find it's not KVM) and 
-> utterly makes the definition here *not* KVM-specific.
-> 
-> [1]: 
-> https://github.com/riscv-non-isa/riscv-sbi-doc/blob/v2.0/src/ext-base.adoc
-> 
-Sorry, I know nothing about riscv. Can you describe how sbi_get_mimpid() 
-is implemented in detailed? Is it a simple library or need trap into 
-secure mode or need trap into hypervisor mode?
-
-> My take on this:
-> 
-> To check if we are running on Linux KVM or not, first check IOCSR 0x8 
-> (``LOONGARCH_IOCSR_FEATURES``) for bit 11 (``IOCSRF_VM``); we are 
-> running under a hypervisor if the bit is set. Then invoke ``HVCL 0`` to 
-> find out the hypervisor implementation ID; a return value in ``$a0`` of 
-> 0x004d564b (``KVM\0``) means Linux KVM, in which case the rest of the 
-> convention applies.
-> 
-I do not think so. `HVCL 0` requires that hypercall ABIs need be unified 
-for all hypervisors. Instead it is not necessary, each hypervisor can 
-has its own hypercall ABI.
-
->> +
->> +KVM hypercall ABI
->> +=================
->> +
->> +Hypercall ABI on KVM is simple, only one scratch register a0 (v0) and 
->> at most
->> +five generic registers used as input parameter. FP register and 
->> vector register
->> +is not used for input register and should not be modified during 
->> hypercall.
->> +Hypercall function can be inlined since there is only one scratch 
->> register.
-> 
-> It should be pointed out explicitly that on hypercall return all 
-Well, return value description will added. What do think about the 
-meaning of return value for KVM_HCALL_FUNC_PV_IPI hypercall?  The number 
-of CPUs with IPI delivered successfully like kvm x86 or simply 
-success/failure?
-> architectural state except ``$a0`` is preserved. Or is the whole ``$a0 - 
-> $t8`` range clobbered, just like with Linux syscalls?
-> 
-what is advantage with $a0 - > $t8 clobbered?
-
-It seems that with linux Loongarch syscall, t0--t8 are clobber rather 
-than a0-t8. Am I wrong?
-
->> +
->> +The parameters are as follows:
->> +
->> +        ========    ================    ================
->> +    Register    IN            OUT
->> +        ========    ================    ================
->> +    a0        function number        Return code
->> +    a1        1st parameter        -
->> +    a2        2nd parameter        -
->> +    a3        3rd parameter        -
->> +    a4        4th parameter        -
->> +    a5        5th parameter        -
->> +        ========    ================    ================
->> +
->> +Return codes can be as follows:
->> +
->> +    ====        =========================
->> +    Code        Meaning
->> +    ====        =========================
->> +    0        Success
->> +    -1        Hypercall not implemented
->> +    -2        Hypercall parameter error
-> 
-> What about re-using well-known errno's, like -ENOSYS for "hypercall not 
-> implemented" and -EINVAL for "invalid parameter"? This could save people 
-> some hair when more error codes are added in the future.
-> 
-No, I do not think so. Here is hypercall return value, some OS need see 
-it. -ENOSYS/-EINVAL may be not understandable for non-Linux OS.
-
->> +    ====        =========================
->> +
->> +KVM Hypercalls Documentation
->> +============================
->> +
->> +The template for each hypercall is:
->> +1. Hypercall name
->> +2. Purpose
->> +
->> +1. KVM_HCALL_FUNC_PV_IPI
->> +------------------------
->> +
->> +:Purpose: Send IPIs to multiple vCPUs.
->> +
->> +- a0: KVM_HCALL_FUNC_PV_IPI
->> +- a1: lower part of the bitmap of destination physical CPUIDs
->> +- a2: higher part of the bitmap of destination physical CPUIDs
->> +- a3: the lowest physical CPUID in bitmap
-> 
-> "CPU ID", instead of "CPUID" for clarity: I suppose most people reading 
-> this also know about x86, so "CPUID" could evoke the wrong intuition.
-> 
-Both "CPU core id" or "CPUID" are ok for me since there is csr register 
-named LOONGARCH_CSR_CPUID already.
-
-> This function is equivalent to the C signature "void hypcall(int func, 
-> u128 mask, int lowest_cpu_id)", which I think is fine, but one can also 
-> see that the return value description is missing.
-> 
-Sure, the return value description will added.
-
-And it is not equivalent to the C signature "void hypcall(int func, u128 
-mask, int lowest_cpu_id)". int/u128/stucture is not permitted with 
-hypercall ABI, all parameter is "unsigned long".
-
-Regards
-Bibo Mao
-
->> +
->> +The hypercall lets a guest send multicast IPIs, with at most 128
->> +destinations per hypercall.  The destinations are represented by a 
->> bitmap
->> +contained in the first two arguments (a1 and a2). Bit 0 of a1 
->> corresponds
->> +to the physical CPUID in the third argument (a3), bit 1 corresponds 
->> to the
->> +physical ID a3+1, and so on.
->> diff --git a/Documentation/virt/kvm/loongarch/index.rst 
->> b/Documentation/virt/kvm/loongarch/index.rst
->> new file mode 100644
->> index 000000000000..83387b4c5345
->> --- /dev/null
->> +++ b/Documentation/virt/kvm/loongarch/index.rst
->> @@ -0,0 +1,10 @@
->> +.. SPDX-License-Identifier: GPL-2.0
->> +
->> +=========================
->> +KVM for LoongArch systems
->> +=========================
->> +
->> +.. toctree::
->> +   :maxdepth: 2
->> +
->> +   hypercalls.rst
-> 
-
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogSmFzb24gV2FuZyBbbWFp
+bHRvOmphc293YW5nQHJlZGhhdC5jb21dDQo+IFNlbnQ6IE1vbmRheSwgTWFyY2ggNCwgMjAyNCAy
+OjU2IFBNDQo+IFRvOiB3YW5neXVuamlhbiA8d2FuZ3l1bmppYW5AaHVhd2VpLmNvbT4NCj4gQ2M6
+IG1zdEByZWRoYXQuY29tOyB3aWxsZW1kZWJydWlqbi5rZXJuZWxAZ21haWwuY29tOyBrdWJhQGtl
+cm5lbC5vcmc7DQo+IGJqb3JuQGtlcm5lbC5vcmc7IG1hZ251cy5rYXJsc3NvbkBpbnRlbC5jb207
+IG1hY2llai5maWphbGtvd3NraUBpbnRlbC5jb207DQo+IGpvbmF0aGFuLmxlbW9uQGdtYWlsLmNv
+bTsgZGF2ZW1AZGF2ZW1sb2Z0Lm5ldDsgYnBmQHZnZXIua2VybmVsLm9yZzsNCj4gbmV0ZGV2QHZn
+ZXIua2VybmVsLm9yZzsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsga3ZtQHZnZXIua2Vy
+bmVsLm9yZzsNCj4gdmlydHVhbGl6YXRpb25AbGlzdHMubGludXguZGV2OyB4dWRpbmdrZSA8eHVk
+aW5na2VAaHVhd2VpLmNvbT47IGxpd2VpIChEVCkNCj4gPGxpd2VpMzk1QGh1YXdlaS5jb20+DQo+
+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggbmV0LW5leHQgdjIgMy8zXSB0dW46IEFGX1hEUCBUeCB6ZXJv
+LWNvcHkgc3VwcG9ydA0KPiANCj4gT24gV2VkLCBGZWIgMjgsIDIwMjQgYXQgNzowNuKAr1BNIFl1
+bmppYW4gV2FuZyA8d2FuZ3l1bmppYW5AaHVhd2VpLmNvbT4NCj4gd3JvdGU6DQo+ID4NCj4gPiBU
+aGlzIHBhdGNoIHNldCBhbGxvd3MgVFVOIHRvIHN1cHBvcnQgdGhlIEFGX1hEUCBUeCB6ZXJvLWNv
+cHkgZmVhdHVyZSwNCj4gPiB3aGljaCBjYW4gc2lnbmlmaWNhbnRseSByZWR1Y2UgQ1BVIHV0aWxp
+emF0aW9uIGZvciBYRFAgcHJvZ3JhbXMuDQo+ID4NCj4gPiBTaW5jZSBjb21taXQgZmM3MmQxZDU0
+ZGQ5ICgidHVudGFwOiBYRFAgdHJhbnNtaXNzaW9uIiksIHRoZSBwb2ludGVyDQo+ID4gcmluZyBo
+YXMgYmVlbiB1dGlsaXplZCB0byBxdWV1ZSBkaWZmZXJlbnQgdHlwZXMgb2YgcG9pbnRlcnMgYnkN
+Cj4gPiBlbmNvZGluZyB0aGUgdHlwZSBpbnRvIHRoZSBsb3dlciBiaXRzLiBUaGVyZWZvcmUsIHdl
+IGludHJvZHVjZSBhIG5ldw0KPiA+IGZsYWcsIFRVTl9YRFBfREVTQ19GTEFHKDB4MlVMKSwgd2hp
+Y2ggYWxsb3dzIHVzIHRvIGVucXVldWUgWERQDQo+ID4gZGVzY3JpcHRvcnMgYW5kIGRpZmZlcmVu
+dGlhdGUgdGhlbSBmcm9tIFhEUCBidWZmZXJzIGFuZCBza19idWZmcy4NCj4gPiBBZGRpdGlvbmFs
+bHksIGEgc3BpbiBsb2NrIGlzIGFkZGVkIGZvciBlbmFibGluZyBhbmQgZGlzYWJsaW5nIG9wZXJh
+dGlvbnMgb24gdGhlDQo+IHhzayBwb29sLg0KPiA+DQo+ID4gVGhlIHBlcmZvcm1hbmNlIHRlc3Rp
+bmcgd2FzIHBlcmZvcm1lZCBvbiBhIEludGVsIEU1LTI2MjAgMi40MEdIeg0KPiBtYWNoaW5lLg0K
+PiA+IFRyYWZmaWMgd2VyZSBnZW5lcmF0ZWQvc2VuZCB0aHJvdWdoIFRVTih0ZXN0cG1kIHR4b25s
+eSB3aXRoIEFGX1hEUCkgdG8NCj4gPiBWTSAodGVzdHBtZCByeG9ubHkgaW4gZ3Vlc3QpLg0KPiA+
+DQo+ID4gKy0tLS0tLSstLS0tLS0tLS0rLS0tLS0tLS0tKy0tLS0tLS0tLSsNCj4gPiB8ICAgICAg
+fCAgIGNvcHkgIHx6ZXJvLWNvcHl8IHNwZWVkdXAgfA0KPiA+ICstLS0tLS0rLS0tLS0tLS0tKy0t
+LS0tLS0tLSstLS0tLS0tLS0rDQo+ID4gfCBVRFAgIHwgICBNcHBzICB8ICAgTXBwcyAgfCAgICAl
+ICAgIHwNCj4gPiB8IDY0ICAgfCAgIDIuNSAgIHwgICA0LjAgICB8ICAgNjAlICAgfA0KPiA+IHwg
+NTEyICB8ICAgMi4xICAgfCAgIDMuNiAgIHwgICA3MSUgICB8DQo+ID4gfCAxMDI0IHwgICAxLjkg
+ICB8ICAgMy4zICAgfCAgIDczJSAgIHwNCj4gPiArLS0tLS0tKy0tLS0tLS0tLSstLS0tLS0tLS0r
+LS0tLS0tLS0tKw0KPiA+DQo+ID4gU2lnbmVkLW9mZi1ieTogWXVuamlhbiBXYW5nIDx3YW5neXVu
+amlhbkBodWF3ZWkuY29tPg0KPiA+IC0tLQ0KPiA+ICBkcml2ZXJzL25ldC90dW4uYyAgICAgIHwg
+MTc3DQo+ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tDQo+ID4gIGRy
+aXZlcnMvdmhvc3QvbmV0LmMgICAgfCAgIDQgKw0KPiA+ICBpbmNsdWRlL2xpbnV4L2lmX3R1bi5o
+IHwgIDMyICsrKysrKysrDQo+ID4gIDMgZmlsZXMgY2hhbmdlZCwgMjA4IGluc2VydGlvbnMoKyks
+IDUgZGVsZXRpb25zKC0pDQo+ID4NCj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9uZXQvdHVuLmMg
+Yi9kcml2ZXJzL25ldC90dW4uYyBpbmRleA0KPiA+IGJjODBmYzFkNTc2ZS4uN2Y0ZmY1MGI1MzJj
+IDEwMDY0NA0KPiA+IC0tLSBhL2RyaXZlcnMvbmV0L3R1bi5jDQo+ID4gKysrIGIvZHJpdmVycy9u
+ZXQvdHVuLmMNCj4gPiBAQCAtNjMsNiArNjMsNyBAQA0KPiA+ICAjaW5jbHVkZSA8bmV0L3J0bmV0
+bGluay5oPg0KPiA+ICAjaW5jbHVkZSA8bmV0L3NvY2suaD4NCj4gPiAgI2luY2x1ZGUgPG5ldC94
+ZHAuaD4NCj4gPiArI2luY2x1ZGUgPG5ldC94ZHBfc29ja19kcnYuaD4NCj4gPiAgI2luY2x1ZGUg
+PG5ldC9pcF90dW5uZWxzLmg+DQo+ID4gICNpbmNsdWRlIDxsaW51eC9zZXFfZmlsZS5oPg0KPiA+
+ICAjaW5jbHVkZSA8bGludXgvdWlvLmg+DQo+ID4gQEAgLTg2LDYgKzg3LDcgQEAgc3RhdGljIHZv
+aWQgdHVuX2RlZmF1bHRfbGlua19rc2V0dGluZ3Moc3RydWN0DQo+IG5ldF9kZXZpY2UgKmRldiwN
+Cj4gPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBzdHJ1Y3QNCj4gZXRo
+dG9vbF9saW5rX2tzZXR0aW5ncw0KPiA+ICpjbWQpOw0KPiA+DQo+ID4gICNkZWZpbmUgVFVOX1JY
+X1BBRCAoTkVUX0lQX0FMSUdOICsgTkVUX1NLQl9QQUQpDQo+ID4gKyNkZWZpbmUgVFVOX1hEUF9C
+QVRDSCA2NA0KPiA+DQo+ID4gIC8qIFRVTiBkZXZpY2UgZmxhZ3MgKi8NCj4gPg0KPiA+IEBAIC0x
+NDYsNiArMTQ4LDkgQEAgc3RydWN0IHR1bl9maWxlIHsNCj4gPiAgICAgICAgIHN0cnVjdCB0dW5f
+c3RydWN0ICpkZXRhY2hlZDsNCj4gPiAgICAgICAgIHN0cnVjdCBwdHJfcmluZyB0eF9yaW5nOw0K
+PiA+ICAgICAgICAgc3RydWN0IHhkcF9yeHFfaW5mbyB4ZHBfcnhxOw0KPiA+ICsgICAgICAgc3Ry
+dWN0IHhza19idWZmX3Bvb2wgKnhza19wb29sOw0KPiA+ICsgICAgICAgc3BpbmxvY2tfdCBwb29s
+X2xvY2s7ICAgLyogUHJvdGVjdHMgeHNrIHBvb2wgZW5hYmxlL2Rpc2FibGUgKi8NCj4gPiArICAg
+ICAgIHUzMiBuYl9kZXNjczsNCj4gPiAgfTsNCj4gPg0KPiA+ICBzdHJ1Y3QgdHVuX3BhZ2Ugew0K
+PiA+IEBAIC02MTQsNiArNjE5LDggQEAgdm9pZCB0dW5fcHRyX2ZyZWUodm9pZCAqcHRyKQ0KPiA+
+ICAgICAgICAgICAgICAgICBzdHJ1Y3QgeGRwX2ZyYW1lICp4ZHBmID0gdHVuX3B0cl90b194ZHAo
+cHRyKTsNCj4gPg0KPiA+ICAgICAgICAgICAgICAgICB4ZHBfcmV0dXJuX2ZyYW1lKHhkcGYpOw0K
+PiA+ICsgICAgICAgfSBlbHNlIGlmICh0dW5faXNfeGRwX2Rlc2NfZnJhbWUocHRyKSkgew0KPiA+
+ICsgICAgICAgICAgICAgICByZXR1cm47DQo+ID4gICAgICAgICB9IGVsc2Ugew0KPiA+ICAgICAg
+ICAgICAgICAgICBfX3NrYl9hcnJheV9kZXN0cm95X3NrYihwdHIpOw0KPiA+ICAgICAgICAgfQ0K
+PiA+IEBAIC02MzEsNiArNjM4LDM3IEBAIHN0YXRpYyB2b2lkIHR1bl9xdWV1ZV9wdXJnZShzdHJ1
+Y3QgdHVuX2ZpbGUgKnRmaWxlKQ0KPiA+ICAgICAgICAgc2tiX3F1ZXVlX3B1cmdlKCZ0ZmlsZS0+
+c2suc2tfZXJyb3JfcXVldWUpOw0KPiA+ICB9DQo+ID4NCj4gPiArc3RhdGljIHZvaWQgdHVuX3Nl
+dF94c2tfcG9vbChzdHJ1Y3QgdHVuX2ZpbGUgKnRmaWxlLCBzdHJ1Y3QNCj4gPiAreHNrX2J1ZmZf
+cG9vbCAqcG9vbCkgew0KPiA+ICsgICAgICAgaWYgKCFwb29sKQ0KPiA+ICsgICAgICAgICAgICAg
+ICByZXR1cm47DQo+ID4gKw0KPiA+ICsgICAgICAgc3Bpbl9sb2NrKCZ0ZmlsZS0+cG9vbF9sb2Nr
+KTsNCj4gPiArICAgICAgIHhza19wb29sX3NldF9yeHFfaW5mbyhwb29sLCAmdGZpbGUtPnhkcF9y
+eHEpOw0KPiA+ICsgICAgICAgdGZpbGUtPnhza19wb29sID0gcG9vbDsNCj4gPiArICAgICAgIHNw
+aW5fdW5sb2NrKCZ0ZmlsZS0+cG9vbF9sb2NrKTsgfQ0KPiA+ICsNCj4gPiArc3RhdGljIHZvaWQg
+dHVuX2NsZWFuX3hza19wb29sKHN0cnVjdCB0dW5fZmlsZSAqdGZpbGUpIHsNCj4gPiArICAgICAg
+IHNwaW5fbG9jaygmdGZpbGUtPnBvb2xfbG9jayk7DQo+ID4gKyAgICAgICBpZiAodGZpbGUtPnhz
+a19wb29sKSB7DQo+ID4gKyAgICAgICAgICAgICAgIHZvaWQgKnB0cjsNCj4gPiArDQo+ID4gKyAg
+ICAgICAgICAgICAgIHdoaWxlICgocHRyID0gcHRyX3JpbmdfY29uc3VtZSgmdGZpbGUtPnR4X3Jp
+bmcpKSAhPSBOVUxMKQ0KPiA+ICsgICAgICAgICAgICAgICAgICAgICAgIHR1bl9wdHJfZnJlZShw
+dHIpOw0KPiA+ICsNCj4gPiArICAgICAgICAgICAgICAgaWYgKHRmaWxlLT5uYl9kZXNjcykgew0K
+PiA+ICsgICAgICAgICAgICAgICAgICAgICAgIHhza190eF9jb21wbGV0ZWQodGZpbGUtPnhza19w
+b29sLA0KPiB0ZmlsZS0+bmJfZGVzY3MpOw0KPiA+ICsgICAgICAgICAgICAgICAgICAgICAgIGlm
+ICh4c2tfdXNlc19uZWVkX3dha2V1cCh0ZmlsZS0+eHNrX3Bvb2wpKQ0KPiA+ICsNCj4geHNrX3Nl
+dF90eF9uZWVkX3dha2V1cCh0ZmlsZS0+eHNrX3Bvb2wpOw0KPiA+ICsgICAgICAgICAgICAgICAg
+ICAgICAgIHRmaWxlLT5uYl9kZXNjcyA9IDA7DQo+ID4gKyAgICAgICAgICAgICAgIH0NCj4gPiAr
+ICAgICAgICAgICAgICAgdGZpbGUtPnhza19wb29sID0gTlVMTDsNCj4gPiArICAgICAgIH0NCj4g
+PiArICAgICAgIHNwaW5fdW5sb2NrKCZ0ZmlsZS0+cG9vbF9sb2NrKTsgfQ0KPiA+ICsNCj4gPiAg
+c3RhdGljIHZvaWQgX190dW5fZGV0YWNoKHN0cnVjdCB0dW5fZmlsZSAqdGZpbGUsIGJvb2wgY2xl
+YW4pICB7DQo+ID4gICAgICAgICBzdHJ1Y3QgdHVuX2ZpbGUgKm50ZmlsZTsNCj4gPiBAQCAtNjQ4
+LDYgKzY4NiwxMSBAQCBzdGF0aWMgdm9pZCBfX3R1bl9kZXRhY2goc3RydWN0IHR1bl9maWxlICp0
+ZmlsZSwgYm9vbA0KPiBjbGVhbikNCj4gPiAgICAgICAgICAgICAgICAgdTE2IGluZGV4ID0gdGZp
+bGUtPnF1ZXVlX2luZGV4Ow0KPiA+ICAgICAgICAgICAgICAgICBCVUdfT04oaW5kZXggPj0gdHVu
+LT5udW1xdWV1ZXMpOw0KPiA+DQo+ID4gKyAgICAgICAgICAgICAgIG50ZmlsZSA9IHJ0bmxfZGVy
+ZWZlcmVuY2UodHVuLT50ZmlsZXNbdHVuLT5udW1xdWV1ZXMgLQ0KPiAxXSk7DQo+ID4gKyAgICAg
+ICAgICAgICAgIC8qIFN0b3AgeHNrIHpjIHhtaXQgKi8NCj4gPiArICAgICAgICAgICAgICAgdHVu
+X2NsZWFuX3hza19wb29sKHRmaWxlKTsNCj4gPiArICAgICAgICAgICAgICAgdHVuX2NsZWFuX3hz
+a19wb29sKG50ZmlsZSk7DQo+ID4gKw0KPiA+ICAgICAgICAgICAgICAgICByY3VfYXNzaWduX3Bv
+aW50ZXIodHVuLT50ZmlsZXNbaW5kZXhdLA0KPiA+ICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgdHVuLT50ZmlsZXNbdHVuLT5udW1xdWV1ZXMgLSAxXSk7DQo+ID4gICAgICAgICAg
+ICAgICAgIG50ZmlsZSA9IHJ0bmxfZGVyZWZlcmVuY2UodHVuLT50ZmlsZXNbaW5kZXhdKTsNCj4g
+PiBAQCAtNjY4LDYgKzcxMSw3IEBAIHN0YXRpYyB2b2lkIF9fdHVuX2RldGFjaChzdHJ1Y3QgdHVu
+X2ZpbGUgKnRmaWxlLCBib29sDQo+IGNsZWFuKQ0KPiA+ICAgICAgICAgICAgICAgICB0dW5fZmxv
+d19kZWxldGVfYnlfcXVldWUodHVuLCB0dW4tPm51bXF1ZXVlcyArIDEpOw0KPiA+ICAgICAgICAg
+ICAgICAgICAvKiBEcm9wIHJlYWQgcXVldWUgKi8NCj4gPiAgICAgICAgICAgICAgICAgdHVuX3F1
+ZXVlX3B1cmdlKHRmaWxlKTsNCj4gPiArICAgICAgICAgICAgICAgdHVuX3NldF94c2tfcG9vbChu
+dGZpbGUsDQo+ID4gKyB4c2tfZ2V0X3Bvb2xfZnJvbV9xaWQodHVuLT5kZXYsIGluZGV4KSk7DQo+
+ID4gICAgICAgICAgICAgICAgIHR1bl9zZXRfcmVhbF9udW1fcXVldWVzKHR1bik7DQo+ID4gICAg
+ICAgICB9IGVsc2UgaWYgKHRmaWxlLT5kZXRhY2hlZCAmJiBjbGVhbikgew0KPiA+ICAgICAgICAg
+ICAgICAgICB0dW4gPSB0dW5fZW5hYmxlX3F1ZXVlKHRmaWxlKTsgQEAgLTgwMSw2ICs4NDUsNyBA
+QA0KPiA+IHN0YXRpYyBpbnQgdHVuX2F0dGFjaChzdHJ1Y3QgdHVuX3N0cnVjdCAqdHVuLCBzdHJ1
+Y3QgZmlsZSAqZmlsZSwNCj4gPg0KPiA+ICAgICAgICAgICAgICAgICBpZiAodGZpbGUtPnhkcF9y
+eHEucXVldWVfaW5kZXggICAgIT0gdGZpbGUtPnF1ZXVlX2luZGV4KQ0KPiA+ICAgICAgICAgICAg
+ICAgICAgICAgICAgIHRmaWxlLT54ZHBfcnhxLnF1ZXVlX2luZGV4ID0NCj4gPiB0ZmlsZS0+cXVl
+dWVfaW5kZXg7DQo+ID4gKyAgICAgICAgICAgICAgIHR1bl9zZXRfeHNrX3Bvb2wodGZpbGUsIHhz
+a19nZXRfcG9vbF9mcm9tX3FpZChkZXYsDQo+ID4gKyB0ZmlsZS0+cXVldWVfaW5kZXgpKTsNCj4g
+PiAgICAgICAgIH0gZWxzZSB7DQo+ID4gICAgICAgICAgICAgICAgIC8qIFNldHVwIFhEUCBSWC1x
+dWV1ZSBpbmZvLCBmb3IgbmV3IHRmaWxlIGdldHRpbmcNCj4gYXR0YWNoZWQgKi8NCj4gPiAgICAg
+ICAgICAgICAgICAgZXJyID0geGRwX3J4cV9pbmZvX3JlZygmdGZpbGUtPnhkcF9yeHEsIEBAIC0x
+MjIxLDExDQo+ID4gKzEyNjYsNTAgQEAgc3RhdGljIGludCB0dW5feGRwX3NldChzdHJ1Y3QgbmV0
+X2RldmljZSAqZGV2LCBzdHJ1Y3QgYnBmX3Byb2cNCj4gKnByb2csDQo+ID4gICAgICAgICByZXR1
+cm4gMDsNCj4gPiAgfQ0KPiA+DQo+ID4gK3N0YXRpYyBpbnQgdHVuX3hza19wb29sX2VuYWJsZShz
+dHJ1Y3QgbmV0X2RldmljZSAqbmV0ZGV2LA0KPiA+ICsgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICBzdHJ1Y3QgeHNrX2J1ZmZfcG9vbCAqcG9vbCwNCj4gPiArICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgdTE2IHFpZCkgew0KPiA+ICsgICAgICAgc3RydWN0IHR1bl9zdHJ1Y3QgKnR1
+biA9IG5ldGRldl9wcml2KG5ldGRldik7DQo+ID4gKyAgICAgICBzdHJ1Y3QgdHVuX2ZpbGUgKnRm
+aWxlOw0KPiA+ICsNCj4gPiArICAgICAgIGlmIChxaWQgPj0gdHVuLT5udW1xdWV1ZXMpDQo+ID4g
+KyAgICAgICAgICAgICAgIHJldHVybiAtRUlOVkFMOw0KPiA+ICsNCj4gPiArICAgICAgIHRmaWxl
+ID0gcnRubF9kZXJlZmVyZW5jZSh0dW4tPnRmaWxlc1txaWRdKTsNCj4gPiArICAgICAgIHR1bl9z
+ZXRfeHNrX3Bvb2wodGZpbGUsIHBvb2wpOw0KPiA+ICsNCj4gPiArICAgICAgIHJldHVybiAwOw0K
+PiA+ICt9DQo+ID4gKw0KPiA+ICtzdGF0aWMgaW50IHR1bl94c2tfcG9vbF9kaXNhYmxlKHN0cnVj
+dCBuZXRfZGV2aWNlICpuZXRkZXYsIHUxNiBxaWQpIHsNCj4gPiArICAgICAgIHN0cnVjdCB0dW5f
+c3RydWN0ICp0dW4gPSBuZXRkZXZfcHJpdihuZXRkZXYpOw0KPiA+ICsgICAgICAgc3RydWN0IHR1
+bl9maWxlICp0ZmlsZTsNCj4gPiArDQo+ID4gKyAgICAgICBpZiAocWlkID49IE1BWF9UQVBfUVVF
+VUVTKQ0KPiA+ICsgICAgICAgICAgICAgICByZXR1cm4gLUVJTlZBTDsNCj4gPiArDQo+ID4gKyAg
+ICAgICB0ZmlsZSA9IHJ0bmxfZGVyZWZlcmVuY2UodHVuLT50ZmlsZXNbcWlkXSk7DQo+ID4gKyAg
+ICAgICBpZiAodGZpbGUpDQo+ID4gKyAgICAgICAgICAgICAgIHR1bl9jbGVhbl94c2tfcG9vbCh0
+ZmlsZSk7DQo+ID4gKyAgICAgICByZXR1cm4gMDsNCj4gPiArfQ0KPiA+ICsNCj4gPiArc3RhdGlj
+IGludCB0dW5feHNrX3Bvb2xfc2V0dXAoc3RydWN0IG5ldF9kZXZpY2UgKmRldiwgc3RydWN0IHhz
+a19idWZmX3Bvb2wNCj4gKnBvb2wsDQo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+dTE2IHFpZCkgew0KPiA+ICsgICAgICAgcmV0dXJuIHBvb2wgPyB0dW5feHNrX3Bvb2xfZW5hYmxl
+KGRldiwgcG9vbCwgcWlkKSA6DQo+ID4gKyAgICAgICAgICAgICAgIHR1bl94c2tfcG9vbF9kaXNh
+YmxlKGRldiwgcWlkKTsgfQ0KPiA+ICsNCj4gPiAgc3RhdGljIGludCB0dW5feGRwKHN0cnVjdCBu
+ZXRfZGV2aWNlICpkZXYsIHN0cnVjdCBuZXRkZXZfYnBmICp4ZHApICB7DQo+ID4gICAgICAgICBz
+d2l0Y2ggKHhkcC0+Y29tbWFuZCkgew0KPiA+ICAgICAgICAgY2FzZSBYRFBfU0VUVVBfUFJPRzoN
+Cj4gPiAgICAgICAgICAgICAgICAgcmV0dXJuIHR1bl94ZHBfc2V0KGRldiwgeGRwLT5wcm9nLCB4
+ZHAtPmV4dGFjayk7DQo+ID4gKyAgICAgICBjYXNlIFhEUF9TRVRVUF9YU0tfUE9PTDoNCj4gPiAr
+ICAgICAgICAgICAgICAgcmV0dXJuIHR1bl94c2tfcG9vbF9zZXR1cChkZXYsIHhkcC0+eHNrLnBv
+b2wsDQo+ID4gKyB4ZHAtPnhzay5xdWV1ZV9pZCk7DQo+ID4gICAgICAgICBkZWZhdWx0Og0KPiA+
+ICAgICAgICAgICAgICAgICByZXR1cm4gLUVJTlZBTDsNCj4gPiAgICAgICAgIH0NCj4gPiBAQCAt
+MTMzMCw2ICsxNDE0LDE5IEBAIHN0YXRpYyBpbnQgdHVuX3hkcF90eChzdHJ1Y3QgbmV0X2Rldmlj
+ZSAqZGV2LA0KPiBzdHJ1Y3QgeGRwX2J1ZmYgKnhkcCkNCj4gPiAgICAgICAgIHJldHVybiBueG1p
+dDsNCj4gPiAgfQ0KPiA+DQo+ID4gK3N0YXRpYyBpbnQgdHVuX3hza193YWtldXAoc3RydWN0IG5l
+dF9kZXZpY2UgKmRldiwgdTMyIHFpZCwgdTMyIGZsYWdzKQ0KPiA+ICt7DQo+ID4gKyAgICAgICBz
+dHJ1Y3QgdHVuX3N0cnVjdCAqdHVuID0gbmV0ZGV2X3ByaXYoZGV2KTsNCj4gPiArICAgICAgIHN0
+cnVjdCB0dW5fZmlsZSAqdGZpbGU7DQo+ID4gKw0KPiA+ICsgICAgICAgcmN1X3JlYWRfbG9jaygp
+Ow0KPiA+ICsgICAgICAgdGZpbGUgPSByY3VfZGVyZWZlcmVuY2UodHVuLT50ZmlsZXNbcWlkXSk7
+DQo+ID4gKyAgICAgICBpZiAodGZpbGUpDQo+ID4gKyAgICAgICAgICAgICAgIF9fdHVuX3hkcF9m
+bHVzaF90ZmlsZSh0ZmlsZSk7DQo+ID4gKyAgICAgICByY3VfcmVhZF91bmxvY2soKTsNCj4gPiAr
+ICAgICAgIHJldHVybiAwOw0KPiA+ICt9DQo+IA0KPiBJIG1heSBtaXNzIHNvbWV0aGluZyBidXQg
+d2h5IG5vdCBzaW1wbHkgcXVldWUgeGRwIGZyYW1lcyBpbnRvIHB0ciByaW5nIHRoZW4NCj4gd2Ug
+ZG9uJ3QgbmVlZCB0cmlja3MgZm9yIHBlZWs/DQoNClRoZSBjdXJyZW50IGltcGxlbWVudGF0aW9u
+IGlzIGltcGxlbWVudGVkIHdpdGggcmVmZXJlbmNlIHRvIG90aGVyIE5JQydzIGRyaXZlcnMNCihp
+eGdiZSwgaWNlLCBkcGFhMiwgbWx4NSksIHdoaWNoIHVzZSBYRFAgZGVzY3JpcHRvcnMgZGlyZWN0
+bHkuIENvbnZlcnRpbmcgWERQDQpkZXNjcmlwdG9ycyB0byBYRFAgZnJhbWVzIGRvZXMgbm90IHNl
+ZW0gdG8gYmUgdmVyeSBiZW5lZmljaWFsLg0KDQpUaGFua3MNCj4gDQo+IFRoYW5rcw0KDQo=
