@@ -1,35 +1,46 @@
-Received: from mailbox.box.xen0n.name (mail.xen0n.name [115.28.160.31])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5330913AC4;
-	Sat,  2 Mar 2024 09:41:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.28.160.31
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E8BEBA27
+	for <virtualization@lists.linux.dev>; Mon,  4 Mar 2024 05:50:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709372475; cv=none; b=uRQUKrvEROusIXZTkCXNaSMjh40Gn9Bn+gHGEvrGlpXp1A/84Moq2VO+2Battpm1yZDRL0Kv3RJ43NhZQ9cMkB1AmsMqZwyz++TW9AVM8gTiA57uIAApe3jTAzg0phnM71uBszUoU5C7/R/+PkEKNxIZl3nv2FUEzVakg48/Rhs=
+	t=1709531425; cv=none; b=c1fipOtcZfwo/1UP8rMlUVLYdvo6DWaTcsqOvZKS0IHqzyrmTeIcIzD+Vi/2iVdwMGjXLqxsyh6INnLag+F7wc/d5aJy+qNLH+5cvn4pDFWZOYXJouBlzFQuQZVmPAxKGaG1vxeP+bCGc7Db5j3dHeKNv/a+ZyLuiXAeANmTPhI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709372475; c=relaxed/simple;
-	bh=XTih0RkV+CLsUxb68gWgpYMc79wSK+RIgjrzwxf8ctM=;
+	s=arc-20240116; t=1709531425; c=relaxed/simple;
+	bh=VvbSdOMNJSebGc+jMRFtjZVeWGkuAafHh9zPMv+XCbY=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Brz2dAHzRcO3KYq5+/0y1HoC2nNJXH0DykWgku1LIQ0Dd845Bbdunu0icT09979N4t1+n5fARhwWMtyQeo/4G4xhP+UTf7zXZCo01q9bBz1tBzw5cU0lydNwAox2aHQ2N7pzc0eRc+L574vLaFZL9IOBnRpp+kMy8CoLOPVjZrk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xen0n.name; spf=pass smtp.mailfrom=xen0n.name; dkim=pass (1024-bit key) header.d=xen0n.name header.i=@xen0n.name header.b=OULgf+63; arc=none smtp.client-ip=115.28.160.31
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xen0n.name
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xen0n.name
+	 In-Reply-To:Content-Type; b=iXRqtJnNKEsSmgvi6BlN2XK+8Qvt2Z3pyEGq8VgPLN9xGv9CJ2S1vUbPBTfRjOpQx74foHC043GYJN/kokmM7kIpEisQp/rj7nm74uQoJvUX17oRMMAUhCWwpcp3EHt3Ph3HR4aCrjYZZJ1B1y4pWGcZz74mdl2lAcRFmNgURxI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=VyuZU0ja; arc=none smtp.client-ip=192.198.163.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=xen0n.name header.i=@xen0n.name header.b="OULgf+63"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=xen0n.name; s=mail;
-	t=1709372465; bh=XTih0RkV+CLsUxb68gWgpYMc79wSK+RIgjrzwxf8ctM=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=OULgf+638+aCiElp0G+z/v4qC41UAXqkxeuPcXc4MhNzBsg6mWQHalasEEV+Zsa+I
-	 ZDYUE3QszDFZ1kKzjap29VlXyHV7aQiFHYV/wmDZYfQLEdyDzTZL8UNb4n6gjWX8w1
-	 g1+x+P4XIWq8qjFsfHnB5yAyTVQVtuiPM7OHmKYk=
-Received: from [IPV6:240e:46c:8710:297d:42ab:1d29:9ba8:1e03] (unknown [IPv6:240e:46c:8710:297d:42ab:1d29:9ba8:1e03])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mailbox.box.xen0n.name (Postfix) with ESMTPSA id 50A5D60111;
-	Sat,  2 Mar 2024 17:41:04 +0800 (CST)
-Message-ID: <846a5e46-4e8f-4f73-ac5b-323e78ec1bb1@xen0n.name>
-Date: Sat, 2 Mar 2024 17:41:03 +0800
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="VyuZU0ja"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1709531424; x=1741067424;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=VvbSdOMNJSebGc+jMRFtjZVeWGkuAafHh9zPMv+XCbY=;
+  b=VyuZU0jaIJU5VGNURjFr8sFlOHiGLa7IHCcqOn24/aVBVCENbTB5x/RN
+   Vw+LzbGjjGt9nzg+LEjsbpPUKcti4xxQgP0J+KrZHzD6b4L/YRdu1DnPU
+   C819YEqtN5d8MZoFWHz3qM0yngC3mCTP/hpa5dVpAGyiyjD/HNj/a9E7f
+   rd3fd1omuIlEBGp/DRBeuNBESObZFtJfK1wrstEP/CTRq3pK0hXS8IMYR
+   djdm+p7cQz11lAE0bqCzlPLvyBIEh+HDRA5IuoaF69Jfim1bw4BWhR1VZ
+   7k0xKoJc64xNigfGiT1K6tK8QVBX02H/7A5bpu1mMeWZr1J6PGv1zWKhr
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,11002"; a="6957611"
+X-IronPort-AV: E=Sophos;i="6.06,203,1705392000"; 
+   d="scan'208";a="6957611"
+Received: from fmviesa007.fm.intel.com ([10.60.135.147])
+  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Mar 2024 21:50:23 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.06,203,1705392000"; 
+   d="scan'208";a="8756822"
+Received: from lingshan-mobl.ccr.corp.intel.com (HELO [10.238.225.182]) ([10.238.225.182])
+  by fmviesa007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Mar 2024 21:50:22 -0800
+Message-ID: <09fbc96c-9083-4280-b64e-e5159279b4ce@intel.com>
+Date: Mon, 4 Mar 2024 13:50:18 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -37,209 +48,51 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 7/7] Documentation: KVM: Add hypercall for LoongArch
-To: Bibo Mao <maobibo@loongson.cn>, Tianrui Zhao <zhaotianrui@loongson.cn>,
- Juergen Gross <jgross@suse.com>, Paolo Bonzini <pbonzini@redhat.com>,
- Jonathan Corbet <corbet@lwn.net>
-Cc: loongarch@lists.linux.dev, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev, kvm@vger.kernel.org
-References: <20240302082532.1415200-1-maobibo@loongson.cn>
- <20240302084724.1415344-1-maobibo@loongson.cn>
+Subject: Re: [PATCH] MAINTAINERS: apply maintainer role of Intel vDPA driver
 Content-Language: en-US
-From: WANG Xuerui <kernel@xen0n.name>
-In-Reply-To: <20240302084724.1415344-1-maobibo@loongson.cn>
+To: jasowang@redhat.com, mst@redhat.com
+Cc: virtualization@lists.linux.dev
+References: <20240227144519.555554-1-lingshan.zhu@intel.com>
+From: "Zhu, Lingshan" <lingshan.zhu@intel.com>
+In-Reply-To: <20240227144519.555554-1-lingshan.zhu@intel.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 3/2/24 16:47, Bibo Mao wrote:
-> Add documentation topic for using pv_virt when running as a guest
-> on KVM hypervisor.
-> 
-> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
+Gentle Ping
+
+Thanks
+Zhu Lingshan
+
+On 2/27/2024 10:45 PM, Zhu Lingshan wrote:
+> This commit applies maintainer role of Intel vDPA
+> driver for myself.
+>
+> I am the author of this driver and have been contributing to
+> it for long time, I would like to help this solution evolve
+> in future.
+>
+> This driver is still under virito maintenance.
+>
+> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
 > ---
->   Documentation/virt/kvm/index.rst              |  1 +
->   .../virt/kvm/loongarch/hypercalls.rst         | 79 +++++++++++++++++++
->   Documentation/virt/kvm/loongarch/index.rst    | 10 +++
->   3 files changed, 90 insertions(+)
->   create mode 100644 Documentation/virt/kvm/loongarch/hypercalls.rst
->   create mode 100644 Documentation/virt/kvm/loongarch/index.rst
-> 
-> diff --git a/Documentation/virt/kvm/index.rst b/Documentation/virt/kvm/index.rst
-> index ad13ec55ddfe..9ca5a45c2140 100644
-> --- a/Documentation/virt/kvm/index.rst
-> +++ b/Documentation/virt/kvm/index.rst
-> @@ -14,6 +14,7 @@ KVM
->      s390/index
->      ppc-pv
->      x86/index
-> +   loongarch/index
+>   MAINTAINERS | 6 ++++--
+>   1 file changed, 4 insertions(+), 2 deletions(-)
+>
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 2ecaaec6a6bf..128ec843eb19 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -10365,8 +10365,10 @@ F:	include/net/nl802154.h
+>   F:	net/ieee802154/
+>   F:	net/mac802154/
 >   
->      locking
->      vcpu-requests
-> diff --git a/Documentation/virt/kvm/loongarch/hypercalls.rst b/Documentation/virt/kvm/loongarch/hypercalls.rst
-> new file mode 100644
-> index 000000000000..1679e48d67d2
-> --- /dev/null
-> +++ b/Documentation/virt/kvm/loongarch/hypercalls.rst
-> @@ -0,0 +1,79 @@
-> +.. SPDX-License-Identifier: GPL-2.0
-> +
-> +===================================
-> +The LoongArch paravirtual interface
-> +===================================
-> +
-> +KVM hypercalls use the HVCL instruction with code 0x100, and the hypercall
-> +number is put in a0 and up to five arguments may be placed in a1-a5, the
-> +return value is placed in v0 (alias with a0).
-
-Just say a0: the name v0 is long deprecated (has been the case ever 
-since LoongArch got mainlined).
-
-> +
-> +The code for that interface can be found in arch/loongarch/kvm/*
-> +
-> +Querying for existence
-> +======================
-> +
-> +To find out if we're running on KVM or not, cpucfg can be used with index
-> +CPUCFG_KVM_BASE (0x40000000), cpucfg range between 0x40000000 - 0x400000FF
-> +is marked as a specially reserved range. All existing and future processors
-> +will not implement any features in this range.
-> +
-> +When Linux is running on KVM, cpucfg with index CPUCFG_KVM_BASE (0x40000000)
-> +returns magic string "KVM\0"
-> +
-> +Once you determined you're running under a PV capable KVM, you can now use
-> +hypercalls as described below.
-
-So this is still the approach similar to the x86 CPUID-based 
-implementation. But here the non-privileged behavior isn't specified -- 
-I see there is PLV checking in Patch 3 but it's safer to have the 
-requirement spelled out here too.
-
-But I still think this approach touches more places than strictly 
-needed. As it is currently the case in 
-arch/loongarch/kernel/cpu-probe.c, the FEATURES IOCSR is checked for a 
-bit IOCSRF_VM that already signifies presence of a hypervisor; if this 
-information can be interpreted as availability of the HVCL instruction 
-(which I suppose is the case -- a hypervisor can always trap-and-emulate 
-in case HVCL isn't provided by hardware), here we can already start 
-making calls with HVCL.
-
-We can and should define a uniform interface for probing the hypervisor 
-kind, similar to the centrally-managed RISC-V SBI implementation ID 
-registry [1]: otherwise future non-KVM hypervisors would have to
-
-1. somehow pretend they are KVM and eventually fail to do so, leading to 
-subtle incompatibilities,
-2. invent another way of probing for their existence,
-3. piggy-back on the current KVM definition, which is inelegant (reading 
-the LoongArch-KVM-defined CPUCFG leaf only to find it's not KVM) and 
-utterly makes the definition here *not* KVM-specific.
-
-[1]: 
-https://github.com/riscv-non-isa/riscv-sbi-doc/blob/v2.0/src/ext-base.adoc
-
-My take on this:
-
-To check if we are running on Linux KVM or not, first check IOCSR 0x8 
-(``LOONGARCH_IOCSR_FEATURES``) for bit 11 (``IOCSRF_VM``); we are 
-running under a hypervisor if the bit is set. Then invoke ``HVCL 0`` to 
-find out the hypervisor implementation ID; a return value in ``$a0`` of 
-0x004d564b (``KVM\0``) means Linux KVM, in which case the rest of the 
-convention applies.
-
-> +
-> +KVM hypercall ABI
-> +=================
-> +
-> +Hypercall ABI on KVM is simple, only one scratch register a0 (v0) and at most
-> +five generic registers used as input parameter. FP register and vector register
-> +is not used for input register and should not be modified during hypercall.
-> +Hypercall function can be inlined since there is only one scratch register.
-
-It should be pointed out explicitly that on hypercall return all 
-architectural state except ``$a0`` is preserved. Or is the whole ``$a0 - 
-$t8`` range clobbered, just like with Linux syscalls?
-
-> +
-> +The parameters are as follows:
-> +
-> +        ========	================	================
-> +	Register	IN			OUT
-> +        ========	================	================
-> +	a0		function number		Return code
-> +	a1		1st parameter		-
-> +	a2		2nd parameter		-
-> +	a3		3rd parameter		-
-> +	a4		4th parameter		-
-> +	a5		5th parameter		-
-> +        ========	================	================
-> +
-> +Return codes can be as follows:
-> +
-> +	====		=========================
-> +	Code		Meaning
-> +	====		=========================
-> +	0		Success
-> +	-1		Hypercall not implemented
-> +	-2		Hypercall parameter error
-
-What about re-using well-known errno's, like -ENOSYS for "hypercall not 
-implemented" and -EINVAL for "invalid parameter"? This could save people 
-some hair when more error codes are added in the future.
-
-> +	====		=========================
-> +
-> +KVM Hypercalls Documentation
-> +============================
-> +
-> +The template for each hypercall is:
-> +1. Hypercall name
-> +2. Purpose
-> +
-> +1. KVM_HCALL_FUNC_PV_IPI
-> +------------------------
-> +
-> +:Purpose: Send IPIs to multiple vCPUs.
-> +
-> +- a0: KVM_HCALL_FUNC_PV_IPI
-> +- a1: lower part of the bitmap of destination physical CPUIDs
-> +- a2: higher part of the bitmap of destination physical CPUIDs
-> +- a3: the lowest physical CPUID in bitmap
-
-"CPU ID", instead of "CPUID" for clarity: I suppose most people reading 
-this also know about x86, so "CPUID" could evoke the wrong intuition.
-
-This function is equivalent to the C signature "void hypcall(int func, 
-u128 mask, int lowest_cpu_id)", which I think is fine, but one can also 
-see that the return value description is missing.
-
-> +
-> +The hypercall lets a guest send multicast IPIs, with at most 128
-> +destinations per hypercall.  The destinations are represented by a bitmap
-> +contained in the first two arguments (a1 and a2). Bit 0 of a1 corresponds
-> +to the physical CPUID in the third argument (a3), bit 1 corresponds to the
-> +physical ID a3+1, and so on.
-> diff --git a/Documentation/virt/kvm/loongarch/index.rst b/Documentation/virt/kvm/loongarch/index.rst
-> new file mode 100644
-> index 000000000000..83387b4c5345
-> --- /dev/null
-> +++ b/Documentation/virt/kvm/loongarch/index.rst
-> @@ -0,0 +1,10 @@
-> +.. SPDX-License-Identifier: GPL-2.0
-> +
-> +=========================
-> +KVM for LoongArch systems
-> +=========================
-> +
-> +.. toctree::
-> +   :maxdepth: 2
-> +
-> +   hypercalls.rst
-
--- 
-WANG "xen0n" Xuerui
-
-Linux/LoongArch mailing list: https://lore.kernel.org/loongarch/
+> -IFCVF VIRTIO DATA PATH ACCELERATOR
+> -R:	Zhu Lingshan <lingshan.zhu@intel.com>
+> +Intel VIRTIO DATA PATH ACCELERATOR
+> +M:	Zhu Lingshan <lingshan.zhu@intel.com>
+> +L:	virtualization@lists.linux.dev
+> +S:	Supported
+>   F:	drivers/vdpa/ifcvf/
+>   
+>   IFE PROTOCOL
 
