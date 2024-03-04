@@ -1,310 +1,305 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35ECC11715
-	for <virtualization@lists.linux.dev>; Mon,  4 Mar 2024 06:56:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 4038A20300;
+	Mon,  4 Mar 2024 09:10:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709535370; cv=none; b=uH9Z2o9BK+RySgXvZpEVg0O3Yu92L7X1tvVwqrEB5VYhJfFOTif2LzC8cBzDlfXfD6ri6VR+noobhaFMJhLV6FahYjqXgUUIdkG3gh0B2ezSTKkCyBt8O0dx4WXrCXqPxOUHARbs6rMa2/HnTNToyYOztd5S8Bvp8o5C/ZLWVZE=
+	t=1709543448; cv=none; b=n8YkNMng2GnK7BT/AmX6EZb93FnKCAgvTS2pexOYxjUf1wVlZ5oDxsxdhI5Q8eqlZqY/G/O/3NvCGD3tCC65+iErpjpLkMZsQUipTaQIykFBV/DmpzzdblPBV7HugG5ga3vpNEM/EF9pmE0TxTtETR5WFtNLmUwqVU+6n/iTj78=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709535370; c=relaxed/simple;
-	bh=ANv7CPYWbCbdTFbaMYIWnQE0qElMaJYeiOgmdNn1AmY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=k54NGZw0JYq5x/xROX/w698EWEs/sBLSwVdOPP6KgHcPyukX8yKpJv0PK3AAEsQEFuV57/eInz1tKkR9Rgd4QAA6rGbSUq3RH0TxWNZqaA2YWfoRa+SVH4J3j92xPOZuflw2ImTyd9Y3Pc1vwnI1u6dIRsVkz7c/+Jjvq66hoKI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=H/ORWkey; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="H/ORWkey"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1709535367;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=SnnMKJuI5h57AkdTs6wUac/zEo+KD+16W2yUuRvyBNA=;
-	b=H/ORWkeyunEmu0l+KateJcG2a5pOh5ZGKPE5y4ceJUktOEIFJEfF5zIHy7crr5YvKvFJz1
-	mBizlZ9ZgJffwdKIFRkp5CHYQwWhqYp/qbpipaDPCzAFe65Pg5WmZVFBl7LDQe0Zv+upHj
-	Pvl44SxCzWOVNaxp8v+/Z82x7GS/Qng=
-Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com
- [209.85.215.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-164-vdblR-DRNP6eTUmZA_aXeA-1; Mon, 04 Mar 2024 01:56:05 -0500
-X-MC-Unique: vdblR-DRNP6eTUmZA_aXeA-1
-Received: by mail-pg1-f199.google.com with SMTP id 41be03b00d2f7-5cdfd47de98so3515016a12.1
-        for <virtualization@lists.linux.dev>; Sun, 03 Mar 2024 22:56:05 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1709535365; x=1710140165;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=SnnMKJuI5h57AkdTs6wUac/zEo+KD+16W2yUuRvyBNA=;
-        b=Hp51vCS1LiB/EVlpdVSk2DCpR4TdQimMi5dbF5QwbMZ9LfUt7yvXe6hWyjgHivT5th
-         lCQHFhtVQl77Pf7egwOxksAgUUz6s06CcwzSDD1c1e0qvm/gh5EshTLdIifrJe3xXuMk
-         w3uxXRuSDWTIHsmIhRSFUPqX40MDbp+qQ8YwRInM5jAYmxHK8YgUiBeFRCFCna0NY22u
-         rPzJpz5w2TYps0Eq2Kn+D9w1oIOpq053YmolpNIWXtKeRzVi4n7HiLISGps/xbbYGUkL
-         xSvvxQP8urgHNhvvk5cmuxzjYeM6zGUH3eJfW5dwtnXyW/Aikdt6Joiet2uyGH770Mgh
-         lIEw==
-X-Forwarded-Encrypted: i=1; AJvYcCUSPJiYc2JIgjGNW4+ShGTF750aN4Ma61g2IvuBLdCfRMs33sLqLKi0D7ZdIYZw9TE8ycoFZ7URmU54bQPyoQNJQ8HeCG1b3qytg83YAZ8=
-X-Gm-Message-State: AOJu0Yz+AnHXMYfU/tI2JGkg2p+OI8g04EWoz/hJoBiSlNbyjMTUwkxt
-	ewgNKTqnCAy8m8brmhZfqEqlsb9Y9xVOGQg8CcotsjYFZdKpyl3+QVo8+2lTRFBidq86jg6xC0C
-	Q7iIkp4adkaRWz+w3kAz6Jaldy8DOkRxi/9JsGGeVvGFKorraQpF7e76stYziNSgGDGcq9BiUTi
-	q72V4Ru8l11mMno9mr09gznKEIekRGhsMMEhg9CDA=
-X-Received: by 2002:a05:6a20:9586:b0:1a1:4ed3:c088 with SMTP id iu6-20020a056a20958600b001a14ed3c088mr1655536pzb.42.1709535364754;
-        Sun, 03 Mar 2024 22:56:04 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IG17yX5NcCXqq0LBQnyxMhRX1MIou6zDKDeBeLtv08Lc0fZrfsKtXRWSCIZhWjat1jdDt4spuow+7XOuBi/ai0=
-X-Received: by 2002:a05:6a20:9586:b0:1a1:4ed3:c088 with SMTP id
- iu6-20020a056a20958600b001a14ed3c088mr1655512pzb.42.1709535364439; Sun, 03
- Mar 2024 22:56:04 -0800 (PST)
+	s=arc-20240116; t=1709543448; c=relaxed/simple;
+	bh=ecM/81Cew8tqn1qCfB4rRxkuZKAfzrO6bVDhJi9nQiQ=;
+	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=GAx9VgqhXtci931LypnxbNnCu8vDldYmNyfy7JJ9j9OW0kWDpdYgd2h+s+mqXp7N4NKXXEy4gVT62wk2tH05dZRpOdDYZhmhuynHENdlnkall0Mh9Nvy16l5HmW+8oOjDeQn9qo9sfotk91RTIyVf37nGw6d+o0Fzh/0UIp/GNY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.20.42.173])
+	by gateway (Coremail) with SMTP id _____8DxqegHkOVlXwQUAA--.30903S3;
+	Mon, 04 Mar 2024 17:10:32 +0800 (CST)
+Received: from [10.20.42.173] (unknown [10.20.42.173])
+	by localhost.localdomain (Coremail) with SMTP id AQAAf8BxXRMEkOVl7rBNAA--.9973S3;
+	Mon, 04 Mar 2024 17:10:30 +0800 (CST)
+Subject: Re: [PATCH v6 7/7] Documentation: KVM: Add hypercall for LoongArch
+To: WANG Xuerui <kernel@xen0n.name>, Tianrui Zhao <zhaotianrui@loongson.cn>,
+ Juergen Gross <jgross@suse.com>, Paolo Bonzini <pbonzini@redhat.com>,
+ Jonathan Corbet <corbet@lwn.net>
+Cc: loongarch@lists.linux.dev, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org
+References: <20240302082532.1415200-1-maobibo@loongson.cn>
+ <20240302084724.1415344-1-maobibo@loongson.cn>
+ <846a5e46-4e8f-4f73-ac5b-323e78ec1bb1@xen0n.name>
+From: maobibo <maobibo@loongson.cn>
+Message-ID: <853f2909-e455-bd1c-c6a4-6a13beb37125@loongson.cn>
+Date: Mon, 4 Mar 2024 17:10:27 +0800
+User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <1709118356-133960-1-git-send-email-wangyunjian@huawei.com>
-In-Reply-To: <1709118356-133960-1-git-send-email-wangyunjian@huawei.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 4 Mar 2024 14:55:53 +0800
-Message-ID: <CACGkMEv+=k+RvbN2kWp85f9NWPYOPQtqkThdjvOrf5mWonBqvw@mail.gmail.com>
-Subject: Re: [PATCH net-next v2 3/3] tun: AF_XDP Tx zero-copy support
-To: Yunjian Wang <wangyunjian@huawei.com>
-Cc: mst@redhat.com, willemdebruijn.kernel@gmail.com, kuba@kernel.org, 
-	bjorn@kernel.org, magnus.karlsson@intel.com, maciej.fijalkowski@intel.com, 
-	jonathan.lemon@gmail.com, davem@davemloft.net, bpf@vger.kernel.org, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
-	virtualization@lists.linux.dev, xudingke@huawei.com, liwei395@huawei.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <846a5e46-4e8f-4f73-ac5b-323e78ec1bb1@xen0n.name>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:AQAAf8BxXRMEkOVl7rBNAA--.9973S3
+X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
+X-Coremail-Antispam: 1Uk129KBj93XoW3WryUJr1UGrWfuFW7tF43urX_yoWfZw4fpF
+	95J3s7KrWkJryxAw17tw1UXryYyr1xJ3W7Jr18tFy8Jw45Zr1aqr4jqrn093W8Gw48AF1j
+	qr4jqr17ur1UA3gCm3ZEXasCq-sJn29KB7ZKAUJUUUU7529EdanIXcx71UUUUU7KY7ZEXa
+	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
+	0xBIdaVrnRJUUUPIb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
+	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
+	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_JFI_Gr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
+	0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVCY1x0267AK
+	xVW8Jr0_Cr1UM2kKe7AKxVWUXVWUAwAS0I0E0xvYzxvE52x082IY62kv0487Mc804VCY07
+	AIYIkI8VC2zVCFFI0UMc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
+	AVWUtwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI4
+	8JMxk0xIA0c2IEe2xFo4CEbIxvr21lc7CjxVAaw2AFwI0_JF0_Jw1l42xK82IYc2Ij64vI
+	r41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1l4IxYO2xFxVAFwI0_Jrv_JF1lx2IqxVAqx4xG67
+	AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIY
+	rxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14
+	v26r1j6r4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8
+	JwCI42IY6I8E87Iv6xkF7I0E14v26r1j6r4UYxBIdaVFxhVjvjDU0xZFpf9x07j8SdgUUU
+	UU=
 
-On Wed, Feb 28, 2024 at 7:06=E2=80=AFPM Yunjian Wang <wangyunjian@huawei.co=
-m> wrote:
->
-> This patch set allows TUN to support the AF_XDP Tx zero-copy feature,
-> which can significantly reduce CPU utilization for XDP programs.
->
-> Since commit fc72d1d54dd9 ("tuntap: XDP transmission"), the pointer
-> ring has been utilized to queue different types of pointers by encoding
-> the type into the lower bits. Therefore, we introduce a new flag,
-> TUN_XDP_DESC_FLAG(0x2UL), which allows us to enqueue XDP descriptors
-> and differentiate them from XDP buffers and sk_buffs. Additionally, a
-> spin lock is added for enabling and disabling operations on the xsk pool.
->
-> The performance testing was performed on a Intel E5-2620 2.40GHz machine.
-> Traffic were generated/send through TUN(testpmd txonly with AF_XDP)
-> to VM (testpmd rxonly in guest).
->
-> +------+---------+---------+---------+
-> |      |   copy  |zero-copy| speedup |
-> +------+---------+---------+---------+
-> | UDP  |   Mpps  |   Mpps  |    %    |
-> | 64   |   2.5   |   4.0   |   60%   |
-> | 512  |   2.1   |   3.6   |   71%   |
-> | 1024 |   1.9   |   3.3   |   73%   |
-> +------+---------+---------+---------+
->
-> Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
-> ---
->  drivers/net/tun.c      | 177 +++++++++++++++++++++++++++++++++++++++--
->  drivers/vhost/net.c    |   4 +
->  include/linux/if_tun.h |  32 ++++++++
->  3 files changed, 208 insertions(+), 5 deletions(-)
->
-> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-> index bc80fc1d576e..7f4ff50b532c 100644
-> --- a/drivers/net/tun.c
-> +++ b/drivers/net/tun.c
-> @@ -63,6 +63,7 @@
->  #include <net/rtnetlink.h>
->  #include <net/sock.h>
->  #include <net/xdp.h>
-> +#include <net/xdp_sock_drv.h>
->  #include <net/ip_tunnels.h>
->  #include <linux/seq_file.h>
->  #include <linux/uio.h>
-> @@ -86,6 +87,7 @@ static void tun_default_link_ksettings(struct net_devic=
-e *dev,
->                                        struct ethtool_link_ksettings *cmd=
-);
->
->  #define TUN_RX_PAD (NET_IP_ALIGN + NET_SKB_PAD)
-> +#define TUN_XDP_BATCH 64
->
->  /* TUN device flags */
->
-> @@ -146,6 +148,9 @@ struct tun_file {
->         struct tun_struct *detached;
->         struct ptr_ring tx_ring;
->         struct xdp_rxq_info xdp_rxq;
-> +       struct xsk_buff_pool *xsk_pool;
-> +       spinlock_t pool_lock;   /* Protects xsk pool enable/disable */
-> +       u32 nb_descs;
->  };
->
->  struct tun_page {
-> @@ -614,6 +619,8 @@ void tun_ptr_free(void *ptr)
->                 struct xdp_frame *xdpf =3D tun_ptr_to_xdp(ptr);
->
->                 xdp_return_frame(xdpf);
-> +       } else if (tun_is_xdp_desc_frame(ptr)) {
-> +               return;
->         } else {
->                 __skb_array_destroy_skb(ptr);
->         }
-> @@ -631,6 +638,37 @@ static void tun_queue_purge(struct tun_file *tfile)
->         skb_queue_purge(&tfile->sk.sk_error_queue);
->  }
->
-> +static void tun_set_xsk_pool(struct tun_file *tfile, struct xsk_buff_poo=
-l *pool)
-> +{
-> +       if (!pool)
-> +               return;
-> +
-> +       spin_lock(&tfile->pool_lock);
-> +       xsk_pool_set_rxq_info(pool, &tfile->xdp_rxq);
-> +       tfile->xsk_pool =3D pool;
-> +       spin_unlock(&tfile->pool_lock);
-> +}
-> +
-> +static void tun_clean_xsk_pool(struct tun_file *tfile)
-> +{
-> +       spin_lock(&tfile->pool_lock);
-> +       if (tfile->xsk_pool) {
-> +               void *ptr;
-> +
-> +               while ((ptr =3D ptr_ring_consume(&tfile->tx_ring)) !=3D N=
-ULL)
-> +                       tun_ptr_free(ptr);
-> +
-> +               if (tfile->nb_descs) {
-> +                       xsk_tx_completed(tfile->xsk_pool, tfile->nb_descs=
-);
-> +                       if (xsk_uses_need_wakeup(tfile->xsk_pool))
-> +                               xsk_set_tx_need_wakeup(tfile->xsk_pool);
-> +                       tfile->nb_descs =3D 0;
-> +               }
-> +               tfile->xsk_pool =3D NULL;
-> +       }
-> +       spin_unlock(&tfile->pool_lock);
-> +}
-> +
->  static void __tun_detach(struct tun_file *tfile, bool clean)
->  {
->         struct tun_file *ntfile;
-> @@ -648,6 +686,11 @@ static void __tun_detach(struct tun_file *tfile, boo=
-l clean)
->                 u16 index =3D tfile->queue_index;
->                 BUG_ON(index >=3D tun->numqueues);
->
-> +               ntfile =3D rtnl_dereference(tun->tfiles[tun->numqueues - =
-1]);
-> +               /* Stop xsk zc xmit */
-> +               tun_clean_xsk_pool(tfile);
-> +               tun_clean_xsk_pool(ntfile);
-> +
->                 rcu_assign_pointer(tun->tfiles[index],
->                                    tun->tfiles[tun->numqueues - 1]);
->                 ntfile =3D rtnl_dereference(tun->tfiles[index]);
-> @@ -668,6 +711,7 @@ static void __tun_detach(struct tun_file *tfile, bool=
- clean)
->                 tun_flow_delete_by_queue(tun, tun->numqueues + 1);
->                 /* Drop read queue */
->                 tun_queue_purge(tfile);
-> +               tun_set_xsk_pool(ntfile, xsk_get_pool_from_qid(tun->dev, =
-index));
->                 tun_set_real_num_queues(tun);
->         } else if (tfile->detached && clean) {
->                 tun =3D tun_enable_queue(tfile);
-> @@ -801,6 +845,7 @@ static int tun_attach(struct tun_struct *tun, struct =
-file *file,
->
->                 if (tfile->xdp_rxq.queue_index    !=3D tfile->queue_index=
-)
->                         tfile->xdp_rxq.queue_index =3D tfile->queue_index=
-;
-> +               tun_set_xsk_pool(tfile, xsk_get_pool_from_qid(dev, tfile-=
->queue_index));
->         } else {
->                 /* Setup XDP RX-queue info, for new tfile getting attache=
-d */
->                 err =3D xdp_rxq_info_reg(&tfile->xdp_rxq,
-> @@ -1221,11 +1266,50 @@ static int tun_xdp_set(struct net_device *dev, st=
-ruct bpf_prog *prog,
->         return 0;
->  }
->
-> +static int tun_xsk_pool_enable(struct net_device *netdev,
-> +                              struct xsk_buff_pool *pool,
-> +                              u16 qid)
-> +{
-> +       struct tun_struct *tun =3D netdev_priv(netdev);
-> +       struct tun_file *tfile;
-> +
-> +       if (qid >=3D tun->numqueues)
-> +               return -EINVAL;
-> +
-> +       tfile =3D rtnl_dereference(tun->tfiles[qid]);
-> +       tun_set_xsk_pool(tfile, pool);
-> +
-> +       return 0;
-> +}
-> +
-> +static int tun_xsk_pool_disable(struct net_device *netdev, u16 qid)
-> +{
-> +       struct tun_struct *tun =3D netdev_priv(netdev);
-> +       struct tun_file *tfile;
-> +
-> +       if (qid >=3D MAX_TAP_QUEUES)
-> +               return -EINVAL;
-> +
-> +       tfile =3D rtnl_dereference(tun->tfiles[qid]);
-> +       if (tfile)
-> +               tun_clean_xsk_pool(tfile);
-> +       return 0;
-> +}
-> +
-> +static int tun_xsk_pool_setup(struct net_device *dev, struct xsk_buff_po=
-ol *pool,
-> +                             u16 qid)
-> +{
-> +       return pool ? tun_xsk_pool_enable(dev, pool, qid) :
-> +               tun_xsk_pool_disable(dev, qid);
-> +}
-> +
->  static int tun_xdp(struct net_device *dev, struct netdev_bpf *xdp)
->  {
->         switch (xdp->command) {
->         case XDP_SETUP_PROG:
->                 return tun_xdp_set(dev, xdp->prog, xdp->extack);
-> +       case XDP_SETUP_XSK_POOL:
-> +               return tun_xsk_pool_setup(dev, xdp->xsk.pool, xdp->xsk.qu=
-eue_id);
->         default:
->                 return -EINVAL;
->         }
-> @@ -1330,6 +1414,19 @@ static int tun_xdp_tx(struct net_device *dev, stru=
-ct xdp_buff *xdp)
->         return nxmit;
->  }
->
-> +static int tun_xsk_wakeup(struct net_device *dev, u32 qid, u32 flags)
-> +{
-> +       struct tun_struct *tun =3D netdev_priv(dev);
-> +       struct tun_file *tfile;
-> +
-> +       rcu_read_lock();
-> +       tfile =3D rcu_dereference(tun->tfiles[qid]);
-> +       if (tfile)
-> +               __tun_xdp_flush_tfile(tfile);
-> +       rcu_read_unlock();
-> +       return 0;
-> +}
 
-I may miss something but why not simply queue xdp frames into ptr ring
-then we don't need tricks for peek?
 
-Thanks
+On 2024/3/2 下午5:41, WANG Xuerui wrote:
+> On 3/2/24 16:47, Bibo Mao wrote:
+>> Add documentation topic for using pv_virt when running as a guest
+>> on KVM hypervisor.
+>>
+>> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
+>> ---
+>>   Documentation/virt/kvm/index.rst              |  1 +
+>>   .../virt/kvm/loongarch/hypercalls.rst         | 79 +++++++++++++++++++
+>>   Documentation/virt/kvm/loongarch/index.rst    | 10 +++
+>>   3 files changed, 90 insertions(+)
+>>   create mode 100644 Documentation/virt/kvm/loongarch/hypercalls.rst
+>>   create mode 100644 Documentation/virt/kvm/loongarch/index.rst
+>>
+>> diff --git a/Documentation/virt/kvm/index.rst 
+>> b/Documentation/virt/kvm/index.rst
+>> index ad13ec55ddfe..9ca5a45c2140 100644
+>> --- a/Documentation/virt/kvm/index.rst
+>> +++ b/Documentation/virt/kvm/index.rst
+>> @@ -14,6 +14,7 @@ KVM
+>>      s390/index
+>>      ppc-pv
+>>      x86/index
+>> +   loongarch/index
+>>      locking
+>>      vcpu-requests
+>> diff --git a/Documentation/virt/kvm/loongarch/hypercalls.rst 
+>> b/Documentation/virt/kvm/loongarch/hypercalls.rst
+>> new file mode 100644
+>> index 000000000000..1679e48d67d2
+>> --- /dev/null
+>> +++ b/Documentation/virt/kvm/loongarch/hypercalls.rst
+>> @@ -0,0 +1,79 @@
+>> +.. SPDX-License-Identifier: GPL-2.0
+>> +
+>> +===================================
+>> +The LoongArch paravirtual interface
+>> +===================================
+>> +
+>> +KVM hypercalls use the HVCL instruction with code 0x100, and the 
+>> hypercall
+>> +number is put in a0 and up to five arguments may be placed in a1-a5, the
+>> +return value is placed in v0 (alias with a0).
+> 
+> Just say a0: the name v0 is long deprecated (has been the case ever 
+> since LoongArch got mainlined).
+> 
+Sure, will modify since you are compiler export :)
+
+>> +
+>> +The code for that interface can be found in arch/loongarch/kvm/*
+>> +
+>> +Querying for existence
+>> +======================
+>> +
+>> +To find out if we're running on KVM or not, cpucfg can be used with 
+>> index
+>> +CPUCFG_KVM_BASE (0x40000000), cpucfg range between 0x40000000 - 
+>> 0x400000FF
+>> +is marked as a specially reserved range. All existing and future 
+>> processors
+>> +will not implement any features in this range.
+>> +
+>> +When Linux is running on KVM, cpucfg with index CPUCFG_KVM_BASE 
+>> (0x40000000)
+>> +returns magic string "KVM\0"
+>> +
+>> +Once you determined you're running under a PV capable KVM, you can 
+>> now use
+>> +hypercalls as described below.
+> 
+> So this is still the approach similar to the x86 CPUID-based 
+> implementation. But here the non-privileged behavior isn't specified -- 
+> I see there is PLV checking in Patch 3 but it's safer to have the 
+> requirement spelled out here too.
+> 
+> But I still think this approach touches more places than strictly 
+> needed. As it is currently the case in 
+> arch/loongarch/kernel/cpu-probe.c, the FEATURES IOCSR is checked for a 
+> bit IOCSRF_VM that already signifies presence of a hypervisor; if this 
+> information can be interpreted as availability of the HVCL instruction 
+> (which I suppose is the case -- a hypervisor can always trap-and-emulate 
+> in case HVCL isn't provided by hardware), here we can already start 
+> making calls with HVCL.
+> 
+> We can and should define a uniform interface for probing the hypervisor 
+> kind, similar to the centrally-managed RISC-V SBI implementation ID 
+> registry [1]: otherwise future non-KVM hypervisors would have to
+> 
+> 1. somehow pretend they are KVM and eventually fail to do so, leading to 
+> subtle incompatibilities,
+> 2. invent another way of probing for their existence,
+> 3. piggy-back on the current KVM definition, which is inelegant (reading 
+> the LoongArch-KVM-defined CPUCFG leaf only to find it's not KVM) and 
+> utterly makes the definition here *not* KVM-specific.
+> 
+> [1]: 
+> https://github.com/riscv-non-isa/riscv-sbi-doc/blob/v2.0/src/ext-base.adoc
+> 
+Sorry, I know nothing about riscv. Can you describe how sbi_get_mimpid() 
+is implemented in detailed? Is it a simple library or need trap into 
+secure mode or need trap into hypervisor mode?
+
+> My take on this:
+> 
+> To check if we are running on Linux KVM or not, first check IOCSR 0x8 
+> (``LOONGARCH_IOCSR_FEATURES``) for bit 11 (``IOCSRF_VM``); we are 
+> running under a hypervisor if the bit is set. Then invoke ``HVCL 0`` to 
+> find out the hypervisor implementation ID; a return value in ``$a0`` of 
+> 0x004d564b (``KVM\0``) means Linux KVM, in which case the rest of the 
+> convention applies.
+> 
+I do not think so. `HVCL 0` requires that hypercall ABIs need be unified 
+for all hypervisors. Instead it is not necessary, each hypervisor can 
+has its own hypercall ABI.
+
+>> +
+>> +KVM hypercall ABI
+>> +=================
+>> +
+>> +Hypercall ABI on KVM is simple, only one scratch register a0 (v0) and 
+>> at most
+>> +five generic registers used as input parameter. FP register and 
+>> vector register
+>> +is not used for input register and should not be modified during 
+>> hypercall.
+>> +Hypercall function can be inlined since there is only one scratch 
+>> register.
+> 
+> It should be pointed out explicitly that on hypercall return all 
+Well, return value description will added. What do think about the 
+meaning of return value for KVM_HCALL_FUNC_PV_IPI hypercall?  The number 
+of CPUs with IPI delivered successfully like kvm x86 or simply 
+success/failure?
+> architectural state except ``$a0`` is preserved. Or is the whole ``$a0 - 
+> $t8`` range clobbered, just like with Linux syscalls?
+> 
+what is advantage with $a0 - > $t8 clobbered?
+
+It seems that with linux Loongarch syscall, t0--t8 are clobber rather 
+than a0-t8. Am I wrong?
+
+>> +
+>> +The parameters are as follows:
+>> +
+>> +        ========    ================    ================
+>> +    Register    IN            OUT
+>> +        ========    ================    ================
+>> +    a0        function number        Return code
+>> +    a1        1st parameter        -
+>> +    a2        2nd parameter        -
+>> +    a3        3rd parameter        -
+>> +    a4        4th parameter        -
+>> +    a5        5th parameter        -
+>> +        ========    ================    ================
+>> +
+>> +Return codes can be as follows:
+>> +
+>> +    ====        =========================
+>> +    Code        Meaning
+>> +    ====        =========================
+>> +    0        Success
+>> +    -1        Hypercall not implemented
+>> +    -2        Hypercall parameter error
+> 
+> What about re-using well-known errno's, like -ENOSYS for "hypercall not 
+> implemented" and -EINVAL for "invalid parameter"? This could save people 
+> some hair when more error codes are added in the future.
+> 
+No, I do not think so. Here is hypercall return value, some OS need see 
+it. -ENOSYS/-EINVAL may be not understandable for non-Linux OS.
+
+>> +    ====        =========================
+>> +
+>> +KVM Hypercalls Documentation
+>> +============================
+>> +
+>> +The template for each hypercall is:
+>> +1. Hypercall name
+>> +2. Purpose
+>> +
+>> +1. KVM_HCALL_FUNC_PV_IPI
+>> +------------------------
+>> +
+>> +:Purpose: Send IPIs to multiple vCPUs.
+>> +
+>> +- a0: KVM_HCALL_FUNC_PV_IPI
+>> +- a1: lower part of the bitmap of destination physical CPUIDs
+>> +- a2: higher part of the bitmap of destination physical CPUIDs
+>> +- a3: the lowest physical CPUID in bitmap
+> 
+> "CPU ID", instead of "CPUID" for clarity: I suppose most people reading 
+> this also know about x86, so "CPUID" could evoke the wrong intuition.
+> 
+Both "CPU core id" or "CPUID" are ok for me since there is csr register 
+named LOONGARCH_CSR_CPUID already.
+
+> This function is equivalent to the C signature "void hypcall(int func, 
+> u128 mask, int lowest_cpu_id)", which I think is fine, but one can also 
+> see that the return value description is missing.
+> 
+Sure, the return value description will added.
+
+And it is not equivalent to the C signature "void hypcall(int func, u128 
+mask, int lowest_cpu_id)". int/u128/stucture is not permitted with 
+hypercall ABI, all parameter is "unsigned long".
+
+Regards
+Bibo Mao
+
+>> +
+>> +The hypercall lets a guest send multicast IPIs, with at most 128
+>> +destinations per hypercall.  The destinations are represented by a 
+>> bitmap
+>> +contained in the first two arguments (a1 and a2). Bit 0 of a1 
+>> corresponds
+>> +to the physical CPUID in the third argument (a3), bit 1 corresponds 
+>> to the
+>> +physical ID a3+1, and so on.
+>> diff --git a/Documentation/virt/kvm/loongarch/index.rst 
+>> b/Documentation/virt/kvm/loongarch/index.rst
+>> new file mode 100644
+>> index 000000000000..83387b4c5345
+>> --- /dev/null
+>> +++ b/Documentation/virt/kvm/loongarch/index.rst
+>> @@ -0,0 +1,10 @@
+>> +.. SPDX-License-Identifier: GPL-2.0
+>> +
+>> +=========================
+>> +KVM for LoongArch systems
+>> +=========================
+>> +
+>> +.. toctree::
+>> +   :maxdepth: 2
+>> +
+>> +   hypercalls.rst
+> 
 
