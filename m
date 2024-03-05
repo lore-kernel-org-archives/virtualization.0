@@ -1,113 +1,79 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from sipsolutions.net (s3.sipsolutions.net [168.119.38.16])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CF61535C7
-	for <virtualization@lists.linux.dev>; Tue,  5 Mar 2024 09:49:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D9AD22068;
+	Tue,  5 Mar 2024 10:55:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.38.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709632186; cv=none; b=eoX7Pi2p2ghrEQnJx6DDOfPAkD2aIkkeqxDVp1OuL6dwppJri440oPgSMpC4ErHaAtBpzrwhSIvAB102BIznjUzcD+MCXMlKc5bvyyEwh/tLJeEoIH8/w87tiXfSYJwrBhBxnTHXeN52JlE4A+8no6QjD1t/03E5UbNgkZpMMDs=
+	t=1709636110; cv=none; b=Fa7RE5NDCGyR6n7r5plJf1vl4KpB6yVGcZHReakuZA8JIV02HHn6DDwnjFy/1NKVUcjDgiYkOpSU6PC2Js06ZP0ez6T6z5mu3KHZsECZVJl5JZRAdZbdiJauPapGgRLDWVdbxl8sb3GIGc49LIih6tRZrT+CZW3mlRRU8grZg4w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709632186; c=relaxed/simple;
-	bh=sdaz3up7hOyRJltiuAjQ+owmODJPp8utjvBWVYBhW5A=;
+	s=arc-20240116; t=1709636110; c=relaxed/simple;
+	bh=SL0/jW5AkjXWIIU3Pc2XZYnTvsMBxq0cm3EOzBmVbxE=;
 	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=MTklKSCTafhFy18jz9VWky1m55xRZ+jOKAvZ1snFiNk5lFBZvyFP3AUPk5UwUpmH6suFRDiG3bqhFBqQDISU3GcE8H0ws/pIwbH351BA0n6GdsCHhP5lIDhfP2qZoI29L+a4L5Zm7vmFDR39Gvecb29V/E/jhxm7ZVKAIZs8uOE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CeTkPlhh; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:MIME-Version; b=mkBDjukwNBVl/FCgXNzk1lchUMnU15pGY3kDMiYZph05aIc8cpIVNnoaKLym+UmWhKhWpEXHB/F727By5BUQ3MUlXYFPDwsmNzkOzFqyf9RfcZZ5Zjnh2PYctlMNzolJw7c1b8/PtSbOYCjQfQ9E9HON3xH/s7Wxwmh9oPRWQwU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sipsolutions.net; spf=pass smtp.mailfrom=sipsolutions.net; dkim=pass (2048-bit key) header.d=sipsolutions.net header.i=@sipsolutions.net header.b=lqk9tpte; arc=none smtp.client-ip=168.119.38.16
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sipsolutions.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sipsolutions.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CeTkPlhh"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1709632183;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=sdaz3up7hOyRJltiuAjQ+owmODJPp8utjvBWVYBhW5A=;
-	b=CeTkPlhhIO/7kQgz1FZ5dPTu635vna9V1FKRdvI33Qk9VLzDgpFXFzaVExUomHhHkUsk5W
-	bQVTL8apD55RgCozbtE3CtFZyAFf4zHAHOS3Eqrm+dcRRziOxCP+P8SP1MzaEWAS2C3hJO
-	DbYmJqSBiOuFKEiGcLPjFpXYtEsdz1A=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-74-Q20XbI4SPgGKD4C28eC31w-1; Tue, 05 Mar 2024 04:49:42 -0500
-X-MC-Unique: Q20XbI4SPgGKD4C28eC31w-1
-Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-a436a38bf5bso63180666b.1
-        for <virtualization@lists.linux.dev>; Tue, 05 Mar 2024 01:49:42 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1709632181; x=1710236981;
-        h=mime-version:user-agent:content-transfer-encoding:autocrypt
-         :references:in-reply-to:date:cc:to:from:subject:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=sdaz3up7hOyRJltiuAjQ+owmODJPp8utjvBWVYBhW5A=;
-        b=Hq+rJbEEDvdfghmdR70O3H5xVpg2RPIKUdlXyOBljdU3hdQ+hy78Ohj10/8NU9V9iD
-         In6ebiKSP3L0b9eLx5k+kZ+J3X5mdDC7UNU7u75a+GypfsY73Vvqv+MPpEG1GSHoDIb2
-         jINzyB6KjcKncla3J8V+1B99UjM2m/6DuuxpbG2WNjnVr5tq09REA+U1TJ4f4YzxzKRv
-         AHvmU2kY5EKy/SxBSDGcoVRw7EkojT/lPXSkOr8qBV3jWP86vLEHUvG6CeKRnEOzhDOP
-         949Qq6b/PdjJe+wCtlrPg3MbmhIvbF+o6b7vZcER734GoaasL1E2unCbl4/zQawt0GSz
-         yrLQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXw+o1WlDUJ9epToZOyhZwJZ+d0KSWzEMd2XbEIPUbGQfjErpOAbXc92TwWhW87BtbwaZUqGdSByuAFnzv84JnPesv21mNNSl6UXgxp6fE=
-X-Gm-Message-State: AOJu0YyJAQ06sVSK7/D0Q+km8aKLFVhuHWsVuBmsk71m3uQOkdIQDhGE
-	qYTBFX4KigfLTNYE/U2SBdFVAgHmrV+1QKDnzAWtIGsVxPZvI+J2KeMFZCpvS7YXBv2sq/7yyxZ
-	LnHoql+hiRrCsw90puTToXuFmRk9oHpkkbTF1iIQavpoH077P4hHbPsUftnSJ5eUV
-X-Received: by 2002:adf:d047:0:b0:33d:a6e8:4f7d with SMTP id v7-20020adfd047000000b0033da6e84f7dmr7757852wrh.3.1709630502098;
-        Tue, 05 Mar 2024 01:21:42 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHLvls29OMwUY36YbYsmwrHj7PM4I9ffDFEulZv3Bqcta1qZMkkko0NuH2kGJTPQD+NgR69og==
-X-Received: by 2002:adf:d047:0:b0:33d:a6e8:4f7d with SMTP id v7-20020adfd047000000b0033da6e84f7dmr7757827wrh.3.1709630501765;
-        Tue, 05 Mar 2024 01:21:41 -0800 (PST)
-Received: from gerbillo.redhat.com (146-241-235-19.dyn.eolo.it. [146.241.235.19])
-        by smtp.gmail.com with ESMTPSA id bo16-20020a056000069000b0033e422d0963sm3920276wrb.41.2024.03.05.01.21.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Mar 2024 01:21:41 -0800 (PST)
-Message-ID: <65c3503409c0e1670bdf06fecfd58ec483a114b9.camel@redhat.com>
-Subject: Re: [PATCH net-next v6 5/5] tools: virtio: introduce vhost_net_test
-From: Paolo Abeni <pabeni@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, "Michael S.
- Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- virtualization@lists.linux.dev, Yunsheng Lin <linyunsheng@huawei.com>, 
- davem@davemloft.net, kuba@kernel.org
-Date: Tue, 05 Mar 2024 10:21:40 +0100
-In-Reply-To: <20240228093013.8263-6-linyunsheng@huawei.com>
-References: <20240228093013.8263-1-linyunsheng@huawei.com>
-	 <20240228093013.8263-6-linyunsheng@huawei.com>
-Autocrypt: addr=pabeni@redhat.com; prefer-encrypt=mutual; keydata=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
-User-Agent: Evolution 3.50.4 (3.50.4-1.fc39)
+	dkim=pass (2048-bit key) header.d=sipsolutions.net header.i=@sipsolutions.net header.b="lqk9tpte"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=sipsolutions.net; s=mail; h=MIME-Version:Content-Transfer-Encoding:
+	Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender
+	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-To:
+	Resent-Cc:Resent-Message-ID; bh=EKvznC5nXjPBL3KoybiT7SDRunCs0+c0gV3HBnK/T7A=;
+	t=1709636107; x=1710845707; b=lqk9tpteK1fAIn7EtdbJ99uTV+x6QmPABY//OBkS2gt6UtR
+	MM1xIPhQwSeyzQq6C8eWp4CDGRYqdho9LWFlN34GMXUxQIF9SdtXPeafZn7rOU3wuYiCYLwa2TF0Q
+	TUcXQlI29e/dbHZ1iBsYUXVo64cUJX9uVPNg2mMaS11cMdsmo7ZZujuykuzWR/Of7IHK4co0z0iu1
+	cPY5cdQcK6zNPyNoS6Ikk08zrerwNuElv96YMB836xqTaAbEbEBZGpqRNyL3/80V1Hp4AfWbuR2W+
+	rCpmyD6wQBvy7CgOYEMNBLgETLnBPajgSaKw1sAwzxl1fO9HPv9L7uevO6hws6uA==;
+Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.97)
+	(envelope-from <johannes@sipsolutions.net>)
+	id 1rhSRq-00000002iv2-0O5o;
+	Tue, 05 Mar 2024 11:55:02 +0100
+Message-ID: <d4572433e5294c04ec2cab99cefca10f997f8507.camel@sipsolutions.net>
+Subject: Re: [PATCH vhost 1/4] virtio: find_vqs: pass struct instead of
+ multi parameters
+From: Johannes Berg <johannes@sipsolutions.net>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev
+Cc: Richard Weinberger <richard@nod.at>, Anton Ivanov
+ <anton.ivanov@cambridgegreys.com>, Hans de Goede <hdegoede@redhat.com>,
+ Ilpo =?ISO-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>, Vadim
+ Pasternak <vadimp@nvidia.com>, Bjorn Andersson <andersson@kernel.org>, 
+ Mathieu Poirier <mathieu.poirier@linaro.org>, Cornelia Huck
+ <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>,  Eric Farman
+ <farman@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik
+ <gor@linux.ibm.com>,  Alexander Gordeev <agordeev@linux.ibm.com>, Christian
+ Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle
+ <svens@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
+ <jasowang@redhat.com>, linux-um@lists.infradead.org, 
+ platform-driver-x86@vger.kernel.org, linux-remoteproc@vger.kernel.org, 
+ linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Date: Tue, 05 Mar 2024 11:55:00 +0100
+In-Reply-To: <20240304114719.3710-2-xuanzhuo@linux.alibaba.com>
+References: <20240304114719.3710-1-xuanzhuo@linux.alibaba.com>
+	 <20240304114719.3710-2-xuanzhuo@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.50.4 (3.50.4-1.fc39) 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-malware-bazaar: not-scanned
 
-On Wed, 2024-02-28 at 17:30 +0800, Yunsheng Lin wrote:
-> introduce vhost_net_test for both vhost_net tx and rx basing
-> on virtio_test to test vhost_net changing in the kernel.
+On Mon, 2024-03-04 at 19:47 +0800, Xuan Zhuo wrote:
+> Now, we pass multi parameters to find_vqs. These parameters
+> may work for transport or work for vring.
 >=20
-> Steps for vhost_net tx testing:
-> 1. Prepare a out buf.
-> 2. Kick the vhost_net to do tx processing.
-> 3. Do the receiving in the tun side.
-> 4. verify the data received by tun is correct.
+> And find_vqs has multi implements in many places:
 >=20
-> Steps for vhost_net rx testing:
-> 1. Prepare a in buf.
-> 2. Do the sending in the tun side.
-> 3. Kick the vhost_net to do rx processing.
-> 4. verify the data received by vhost_net is correct.
->=20
-> Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+>  arch/um/drivers/virtio_uml.c
 
-@Jason: AFAICS this addresses the points you raised on v5, could you
-please have a look?
+That part looks fine to me.
 
-Thanks!
+Acked-by: Johannes Berg <johannes@sipsolutions.net>
 
-Paolo
-
+johannes
