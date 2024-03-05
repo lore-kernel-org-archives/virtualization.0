@@ -1,35 +1,40 @@
-Received: from mailbox.box.xen0n.name (mail.xen0n.name [115.28.160.31])
+Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [46.235.227.194])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2E9418AE0;
-	Tue,  5 Mar 2024 18:26:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.28.160.31
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5564112C544
+	for <virtualization@lists.linux.dev>; Tue,  5 Mar 2024 21:59:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.235.227.194
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709663183; cv=none; b=S4Z2tw4QIh8n/ReRSkSDfzoiEsm7G2F6khJNJ+xliqN6KDC669gAgYkea+d/zl3SfPtZvqk9zC4QwWCtIxtUZ6Dv7m94xYYWbUroGVHTSW+HNTnTXXCKhTav1RjDYZ4emvPrK9YpwmPFxD8GBNdtUSoMGZa245qGyXJr3Nd5aBY=
+	t=1709675947; cv=none; b=Qo7xbyBuNB+Qp1DEzbNbMr4XYl6dSprRZ0AtVVQqZB1hlwDKiQOYmENDCOQL/aoElHSLdonuZ1n+P4/M7+XNG3y/rDD2UYywFGF9qWe03UmRWm3+kCYEnBTWP57nx7jBN+KFJ9BsQlGEbK3wlTmrn+D2mZohreCK6ATRzXcjFA8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709663183; c=relaxed/simple;
-	bh=WNffBT41r5F0XyJ7MFk8QsD65CMScBYk1QPLYhExK8U=;
+	s=arc-20240116; t=1709675947; c=relaxed/simple;
+	bh=Pi6T1W5bDFqqI2XXQ+4KYgY88rVQ95Vyl3n/fcXtOEo=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=aJbsy6H6SgN7lDCcIle+Q/qHZPZbJDiU2NinjnqiTEiJ3z0eg9+KxnsxPqzN2Fz2XgxtxMOlc5jfeEh4fQHgFdhCPp3cms2vF0yJfidu+ly0D4jh5yrRvOmbuL15qf4SisjH0AbU0jnUD/hyo6nPgciYg3lsokSgGjxnS8wHsq8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xen0n.name; spf=pass smtp.mailfrom=xen0n.name; dkim=pass (1024-bit key) header.d=xen0n.name header.i=@xen0n.name header.b=Gj3rJTE4; arc=none smtp.client-ip=115.28.160.31
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xen0n.name
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xen0n.name
+	 In-Reply-To:Content-Type; b=WbvejSApXVUza/u5p1TU97nE1xMkrAXqO5wIE9JBsDOGE4pwY+XH/6KJgj5jwE/qa2lESMxdnGTM7FZJYYVdEEHKdcw3UQtnE169MHPt/R9b9vdfZo/VdlgBqsyzGZEiFwl4FJ+Fi5QJBMLUVTwY553WPFNBxkFoVfFFb6N80J0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=eK71pGBZ; arc=none smtp.client-ip=46.235.227.194
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=xen0n.name header.i=@xen0n.name header.b="Gj3rJTE4"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=xen0n.name; s=mail;
-	t=1709663171; bh=WNffBT41r5F0XyJ7MFk8QsD65CMScBYk1QPLYhExK8U=;
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="eK71pGBZ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1709675943;
+	bh=Pi6T1W5bDFqqI2XXQ+4KYgY88rVQ95Vyl3n/fcXtOEo=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=Gj3rJTE4Xx3wNJQce3qkYCM6NYncvK5hc0F86WWBKwv2x62hB2XsL2VccgAK0xs5s
-	 BG6+or8HD2sQlbxrbymoHoO5rdAmQfh8Ece349RdQGaJ5L0xKiGew2G03DpbzwAJEh
-	 dKrY3/3xm5Olljr7p+9afGsitGUuwP7AGyt9U0AE=
-Received: from [IPV6:240e:388:8d00:6500:3d21:65e4:41f4:2696] (unknown [IPv6:240e:388:8d00:6500:3d21:65e4:41f4:2696])
+	b=eK71pGBZ6Cz51o8qikvWm9K+PhISQRoVeIfPrE1JiwaG7q1A3dZgkjtiTAbgZgp4B
+	 m69Q9A106Ja++jlIoMXxTtnhwo2cpnaGCPXX+0rOsMd7edcefjvG+OthSgVAm0YG+f
+	 84likditwTT7tx9UMns7EZBUfNHVdaIggZo1SEbHhX2IVe3jHtEaJO1DB/Xtbr53Hk
+	 BCF2Q3TBsTYA3Lh7WSssBcx882ZZbaRRWyKc6XKmxYGQjlL0JzyxoACxfQkGzlgTS5
+	 NfyWcJb5SAZclkjKZJdvPiySMBpD7/0op+jwvAnR0C3GCqBiyzqwaht8c3ZJeFNSQ6
+	 nfSnf4FKoD2aw==
+Received: from [100.109.49.129] (cola.collaboradmins.com [195.201.22.229])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mailbox.box.xen0n.name (Postfix) with ESMTPSA id 18FFE60106;
-	Wed,  6 Mar 2024 02:26:11 +0800 (CST)
-Message-ID: <ec871702-388d-4a29-aec1-5cd6d1de6d0a@xen0n.name>
-Date: Wed, 6 Mar 2024 02:26:10 +0800
+	(Authenticated sender: dmitry.osipenko)
+	by madrid.collaboradmins.com (Postfix) with ESMTPSA id 64017378149B;
+	Tue,  5 Mar 2024 21:59:01 +0000 (UTC)
+Message-ID: <c844b72e-6c4e-4c99-8e7f-b9c62f63209d@collabora.com>
+Date: Wed, 6 Mar 2024 00:58:58 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -37,217 +42,103 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 7/7] Documentation: KVM: Add hypercall for LoongArch
+Subject: Re: [PATCH 00/13] drm: Fix reservation locking for pin/unpin and
+ console
 Content-Language: en-US
-To: maobibo <maobibo@loongson.cn>, Tianrui Zhao <zhaotianrui@loongson.cn>,
- Juergen Gross <jgross@suse.com>, Paolo Bonzini <pbonzini@redhat.com>,
- Jonathan Corbet <corbet@lwn.net>
-Cc: loongarch@lists.linux.dev, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev, kvm@vger.kernel.org
-References: <20240302082532.1415200-1-maobibo@loongson.cn>
- <20240302084724.1415344-1-maobibo@loongson.cn>
- <846a5e46-4e8f-4f73-ac5b-323e78ec1bb1@xen0n.name>
- <853f2909-e455-bd1c-c6a4-6a13beb37125@loongson.cn>
-From: WANG Xuerui <kernel@xen0n.name>
-In-Reply-To: <853f2909-e455-bd1c-c6a4-6a13beb37125@loongson.cn>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+To: Thomas Zimmermann <tzimmermann@suse.de>, daniel@ffwll.ch,
+ airlied@gmail.com, mripard@kernel.org, maarten.lankhorst@linux.intel.com,
+ christian.koenig@amd.com, sumit.semwal@linaro.org, robdclark@gmail.com,
+ quic_abhinavk@quicinc.com, dmitry.baryshkov@linaro.org, sean@poorly.run,
+ marijn.suijten@somainline.org, suijingfeng@loongson.cn, kherbst@redhat.com,
+ lyude@redhat.com, dakr@redhat.com, airlied@redhat.com, kraxel@redhat.com,
+ alexander.deucher@amd.com, Xinhui.Pan@amd.com, zack.rusin@broadcom.com,
+ bcm-kernel-feedback-list@broadcom.com
+Cc: dri-devel@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
+ freedreno@lists.freedesktop.org, nouveau@lists.freedesktop.org,
+ virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org,
+ amd-gfx@lists.freedesktop.org
+References: <20240227113853.8464-1-tzimmermann@suse.de>
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <20240227113853.8464-1-tzimmermann@suse.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On 3/4/24 17:10, maobibo wrote:
-> On 2024/3/2 下午5:41, WANG Xuerui wrote:
->> On 3/2/24 16:47, Bibo Mao wrote:
->>> [snip]
->>> +Querying for existence
->>> +======================
->>> +
->>> +To find out if we're running on KVM or not, cpucfg can be used with 
->>> index
->>> +CPUCFG_KVM_BASE (0x40000000), cpucfg range between 0x40000000 - 
->>> 0x400000FF
->>> +is marked as a specially reserved range. All existing and future 
->>> processors
->>> +will not implement any features in this range.
->>> +
->>> +When Linux is running on KVM, cpucfg with index CPUCFG_KVM_BASE 
->>> (0x40000000)
->>> +returns magic string "KVM\0"
->>> +
->>> +Once you determined you're running under a PV capable KVM, you can 
->>> now use
->>> +hypercalls as described below.
->>
->> So this is still the approach similar to the x86 CPUID-based 
->> implementation. But here the non-privileged behavior isn't specified 
->> -- I see there is PLV checking in Patch 3 but it's safer to have the 
->> requirement spelled out here too.
->>
->> But I still think this approach touches more places than strictly 
->> needed. As it is currently the case in 
->> arch/loongarch/kernel/cpu-probe.c, the FEATURES IOCSR is checked for a 
->> bit IOCSRF_VM that already signifies presence of a hypervisor; if this 
->> information can be interpreted as availability of the HVCL instruction 
->> (which I suppose is the case -- a hypervisor can always 
->> trap-and-emulate in case HVCL isn't provided by hardware), here we can 
->> already start making calls with HVCL.
->>
->> We can and should define a uniform interface for probing the 
->> hypervisor kind, similar to the centrally-managed RISC-V SBI 
->> implementation ID registry [1]: otherwise future non-KVM hypervisors 
->> would have to
->>
->> 1. somehow pretend they are KVM and eventually fail to do so, leading 
->> to subtle incompatibilities,
->> 2. invent another way of probing for their existence,
->> 3. piggy-back on the current KVM definition, which is inelegant 
->> (reading the LoongArch-KVM-defined CPUCFG leaf only to find it's not 
->> KVM) and utterly makes the definition here *not* KVM-specific.
->>
->> [1]: 
->> https://github.com/riscv-non-isa/riscv-sbi-doc/blob/v2.0/src/ext-base.adoc
->>
-> Sorry, I know nothing about riscv. Can you describe how sbi_get_mimpid() 
-> is implemented in detailed? Is it a simple library or need trap into 
-> secure mode or need trap into hypervisor mode?
-
-For these simple interfaces you can expect trivial implementation. See 
-for example [OpenSBI]'s respective code.
-
-[OpenSBI]: 
-https://github.com/riscv-software-src/opensbi/blob/v1.4/lib/sbi/sbi_ecall.c#L29-L34
-
->> My take on this:
->>
->> To check if we are running on Linux KVM or not, first check IOCSR 0x8 
->> (``LOONGARCH_IOCSR_FEATURES``) for bit 11 (``IOCSRF_VM``); we are 
->> running under a hypervisor if the bit is set. Then invoke ``HVCL 0`` 
->> to find out the hypervisor implementation ID; a return value in 
->> ``$a0`` of 0x004d564b (``KVM\0``) means Linux KVM, in which case the 
->> rest of the convention applies.
->>
-> I do not think so. `HVCL 0` requires that hypercall ABIs need be unified 
-> for all hypervisors. Instead it is not necessary, each hypervisor can 
-> has its own hypercall ABI.
-
-I don't think agreeing upon the ABI of HVCL 0 is going to affect ABI of 
-other hypercalls. Plus, as long as people don't invent something that 
-they think is smart and deviate from the platform calling convention, 
-I'd expect every hypervisor to have identical ABI apart from the exact 
-HVCL operation ID chosen.
-
->>> +
->>> +KVM hypercall ABI
->>> +=================
->>> +
->>> +Hypercall ABI on KVM is simple, only one scratch register a0 (v0) 
->>> and at most
->>> +five generic registers used as input parameter. FP register and 
->>> vector register
->>> +is not used for input register and should not be modified during 
->>> hypercall.
->>> +Hypercall function can be inlined since there is only one scratch 
->>> register.
->>
->> It should be pointed out explicitly that on hypercall return all 
-> Well, return value description will added. What do think about the 
-> meaning of return value for KVM_HCALL_FUNC_PV_IPI hypercall?  The number 
-> of CPUs with IPI delivered successfully like kvm x86 or simply 
-> success/failure?
->> architectural state except ``$a0`` is preserved. Or is the whole ``$a0 
->> - $t8`` range clobbered, just like with Linux syscalls?
->>
-> what is advantage with $a0 - > $t8 clobbered?
-
-Because then a hypercall is going to behave identical as an ordinary C 
-function call, which is easy for people and compilers to understand.
-
-> It seems that with linux Loongarch syscall, t0--t8 are clobber rather 
-> than a0-t8. Am I wrong?
-
-You're right, my memory has faded a bit. But I think my reasoning still 
-holds.
-
->>> +
->>> +The parameters are as follows:
->>> +
->>> +        ========    ================    ================
->>> +    Register    IN            OUT
->>> +        ========    ================    ================
->>> +    a0        function number        Return code
->>> +    a1        1st parameter        -
->>> +    a2        2nd parameter        -
->>> +    a3        3rd parameter        -
->>> +    a4        4th parameter        -
->>> +    a5        5th parameter        -
->>> +        ========    ================    ================
->>> +
->>> +Return codes can be as follows:
->>> +
->>> +    ====        =========================
->>> +    Code        Meaning
->>> +    ====        =========================
->>> +    0        Success
->>> +    -1        Hypercall not implemented
->>> +    -2        Hypercall parameter error
->>
->> What about re-using well-known errno's, like -ENOSYS for "hypercall 
->> not implemented" and -EINVAL for "invalid parameter"? This could save 
->> people some hair when more error codes are added in the future.
->>
-> No, I do not think so. Here is hypercall return value, some OS need see 
-> it. -ENOSYS/-EINVAL may be not understandable for non-Linux OS.
-
-As long as you accept the associated costs (documentation, potential 
-mapping back-and-forth, proper conveyance of information etc.) I have no 
-problem with that either.
-
->>> +    ====        =========================
->>> +
->>> +KVM Hypercalls Documentation
->>> +============================
->>> +
->>> +The template for each hypercall is:
->>> +1. Hypercall name
->>> +2. Purpose
->>> +
->>> +1. KVM_HCALL_FUNC_PV_IPI
->>> +------------------------
->>> +
->>> +:Purpose: Send IPIs to multiple vCPUs.
->>> +
->>> +- a0: KVM_HCALL_FUNC_PV_IPI
->>> +- a1: lower part of the bitmap of destination physical CPUIDs
->>> +- a2: higher part of the bitmap of destination physical CPUIDs
->>> +- a3: the lowest physical CPUID in bitmap
->>
->> "CPU ID", instead of "CPUID" for clarity: I suppose most people 
->> reading this also know about x86, so "CPUID" could evoke the wrong 
->> intuition.
->>
-> Both "CPU core id" or "CPUID" are ok for me since there is csr register 
-> named LOONGARCH_CSR_CPUID already.
-
-I was suggesting to minimize confusion even at theoretical level, 
-because you cannot assume anything about your readers. Feel free to 
-provide extra info (e.g. the "CPU core ID" you suggested) as long as it 
-helps to resolve any potential ambiguity / confusion.
-
->> This function is equivalent to the C signature "void hypcall(int func, 
->> u128 mask, int lowest_cpu_id)", which I think is fine, but one can 
->> also see that the return value description is missing.
->>
-> Sure, the return value description will added.
+On 2/27/24 13:14, Thomas Zimmermann wrote:
+> Dma-buf locking semantics require the caller of pin and unpin to hold
+> the buffer's reservation lock. Fix DRM to adhere to the specs. This
+> enables to fix the locking in DRM's console emulation. Similar changes
+> for vmap and mmap have been posted at [1][2]
 > 
-> And it is not equivalent to the C signature "void hypcall(int func, u128 
-> mask, int lowest_cpu_id)". int/u128/stucture is not permitted with 
-> hypercall ABI, all parameter is "unsigned long".
+> Most DRM drivers and memory managers acquire the buffer object's
+> reservation lock within their GEM pin and unpin callbacks. This
+> violates dma-buf locking semantics. We get away with it because PRIME
+> does not provide pin/unpin, but attach/detach, for which the locking
+> semantics is correct.
+> 
+> Patches 1 to 8 rework DRM GEM code in various implementations to
+> acquire the reservation lock when entering the pin and unpin callbacks.
+> This prepares them for the next patch. Drivers that are not affected
+> by these patches either don't acquire the reservation lock (amdgpu)
+> or don't need preparation (loongson).
+> 
+> Patch 9 moves reservation locking from the GEM pin/unpin callbacks
+> into drm_gem_pin() and drm_gem_unpin(). As PRIME uses these functions
+> internally it still gets the reservation lock.
+> 
+> With the updated GEM callbacks, the rest of the patchset fixes the
+> fbdev emulation's buffer locking. Fbdev emulation needs to keep its
+> GEM buffer object inplace while updating its content. This required
+> a implicit pinning and apparently amdgpu didn't do this at all.
+> 
+> Patch 10 introduces drm_client_buffer_vmap_local() and _vunmap_local().
+> The former function map a GEM buffer into the kernel's address space
+> with regular vmap operations, but keeps holding the reservation lock.
+> The _vunmap_local() helper undoes the vmap and releases the lock. The
+> updated GEM callbacks make this possible. Between the two calls, the
+> fbdev emulation can update the buffer content without have the buffer
+> moved or evicted. Update fbdev-generic to use vmap_local helpers,
+> which fix amdgpu. The idea of adding a "local vmap" has previously been
+> attempted at [3] in a different form.
+> 
+> Patch 11 adds implicit pinning to the DRM client's regular vmap
+> helper so that long-term vmap'ed buffers won't be evicted. This only
+> affects fbdev-dma, but GEM DMA helpers don't require pinning. So
+> there are no practical changes.
+> 
+> Patches 12 and 13 remove implicit pinning from the vmap and vunmap
+> operations in gem-vram and qxl. These pin operations are not supposed
+> to be part of vmap code, but were required to keep the buffers in place
+> for fbdev emulation. With the conversion o ffbdev-generic to to
+> vmap_local helpers, that code can finally be removed.
+> 
+> Tested with amdgpu, nouveau, radeon, simpledrm and vc4.
+> 
+> [1] https://patchwork.freedesktop.org/series/106371/
+> [2] https://patchwork.freedesktop.org/series/116001/
+> [3] https://patchwork.freedesktop.org/series/84732/
+> 
+> Thomas Zimmermann (13):
+>   drm/gem-shmem: Acquire reservation lock in GEM pin/unpin callbacks
+>   drm/gem-vram: Acquire reservation lock in GEM pin/unpin callbacks
+>   drm/msm: Provide msm_gem_get_pages_locked()
+>   drm/msm: Acquire reservation lock in GEM pin/unpin callback
+>   drm/nouveau: Provide nouveau_bo_{pin,unpin}_locked()
+>   drm/nouveau: Acquire reservation lock in GEM pin/unpin callbacks
+>   drm/qxl: Provide qxl_bo_{pin,unpin}_locked()
+>   drm/qxl: Acquire reservation lock in GEM pin/unpin callbacks
+>   drm/gem: Acquire reservation lock in drm_gem_{pin/unpin}()
+>   drm/fbdev-generic: Fix locking with drm_client_buffer_vmap_local()
+>   drm/client: Pin vmap'ed GEM buffers
+>   drm/gem-vram: Do not pin buffer objects for vmap
+>   drm/qxl: Do not pin buffer objects for vmap
 
-I was talking about the ABI in a C perspective, and the register usage 
-is identical. You can define the KVM hypercall ABI however you want but 
-having some nice analogy/equivalence would help a lot, especially for 
-people not already familiar with all the details.
+The patches look good. I gave them fbtest on virtio-gpu, no problems
+spotted.
+
+Reviewed-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Tested-by: Dmitry Osipenko <dmitry.osipenko@collabora.com> # virtio-gpu
 
 -- 
-WANG "xen0n" Xuerui
-
-Linux/LoongArch mailing list: https://lore.kernel.org/loongarch/
+Best regards,
+Dmitry
 
