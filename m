@@ -1,249 +1,329 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 460EA133435
-	for <virtualization@lists.linux.dev>; Wed,  6 Mar 2024 14:44:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFD0E1350EA
+	for <virtualization@lists.linux-foundation.org>; Wed,  6 Mar 2024 15:16:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709736298; cv=none; b=dlXS23GgJI/MfsocYT8SHxNihjQL9fylmpWe8ha8wjnnnoEceTfqjVLKADMaiwNeKz10mcC/vPqS9gJrp44T8jDGzkdoLQ3SDMk4AaPxpw8yQp3uZmNK3JaZg+y9emT3vSAXAMs6ycbAuL5VReeVGlHlsHsutWHv3AtqrcpO9sU=
+	t=1709738170; cv=none; b=h8MnTlbpbiw5p72DYvZwMISa9doEbI9OUHqPnjGxTUNP4aySZx/pDXD7HBQ0ehE8sQ//eU/TOE+pzY6tWIvaBBRVy0bpTfpeKDoXe9qGCIEGAKGH/315H4SO3YvMuDiZogF527zei1afe27BY7xOSbGlDLBf9cFs11Vhod0+lYQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709736298; c=relaxed/simple;
-	bh=eMMJn/1cMgAEamBoLAwPmsvKPy9eh10KGjqTOB8Tj8o=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=c2A7eipjNJCEWgN1GGyN/TH7Qcsl4vqV6T/oFl/f0IXL/Ko6CtaPcEoseg3pOqZtHL02LASiq/KCBe3p3eYzYKkJRXYb/EN8cSGrNJhoXNDVO2c86L6M5BCDJl3yEk3AkiXhxTmjYMBHmGtiDoEVG6B36W0dQECEnyVW9PF1N/M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=Z6bm1Dkf; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=KBfRhPNj; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=Z6bm1Dkf; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=KBfRhPNj; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1709738170; c=relaxed/simple;
+	bh=kZ8mXvtpel/ZYEPSkuZBEYdU1hA22wv0YjD3idEA/+Y=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=oHTeXwlCSg0moTB/P0cPLwuB41qDyTVfMrusSv3An6U1RrSi44koMBWWb3qMCfYR5LWtKKiKxLjo0aUCH4zOxlKdyofBLHfuVwhWYYnobmbTg+9GKV0FeVRvWJVcEIG4s6YxLbIL4Z5K860UkO/evB7Sq6KBNCwi8eYN+bTN9h8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=G4oSQVYP; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Z6bm1Dkf";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="KBfRhPNj";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Z6bm1Dkf";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="KBfRhPNj"
-Received: from imap2.dmz-prg2.suse.org (imap2.dmz-prg2.suse.org [10.150.64.98])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 6A1366B508;
-	Wed,  6 Mar 2024 14:44:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1709736295; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=gNozcRck7HD1pz36B+cb3AEI5BDD6Vqr5+Fs9ZciyZc=;
-	b=Z6bm1Dkf1AO/315BvC8m+fjvHW6W5O+amhr2HIlMBVld1r+LsBq3S4kNg9vNRpyNYB9sby
-	8T1qqWKWbsF7Sl7pp3mh81uRYTliDwp0m4Sx88cGtJkqzeT9xUuAbMlzbnq9XdyKnu+bq0
-	ZZ0uPwfOWQ1YhzuPdsRrzsiN52myXtE=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1709736295;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=gNozcRck7HD1pz36B+cb3AEI5BDD6Vqr5+Fs9ZciyZc=;
-	b=KBfRhPNj4plBaJ2be6qT/TIC17q/Uh4tuEjRqusi79TjI+T+V+u52QbTsodC3ffWMFgjOj
-	ATy2rYVoA8gm/JAQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1709736295; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=gNozcRck7HD1pz36B+cb3AEI5BDD6Vqr5+Fs9ZciyZc=;
-	b=Z6bm1Dkf1AO/315BvC8m+fjvHW6W5O+amhr2HIlMBVld1r+LsBq3S4kNg9vNRpyNYB9sby
-	8T1qqWKWbsF7Sl7pp3mh81uRYTliDwp0m4Sx88cGtJkqzeT9xUuAbMlzbnq9XdyKnu+bq0
-	ZZ0uPwfOWQ1YhzuPdsRrzsiN52myXtE=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1709736295;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=gNozcRck7HD1pz36B+cb3AEI5BDD6Vqr5+Fs9ZciyZc=;
-	b=KBfRhPNj4plBaJ2be6qT/TIC17q/Uh4tuEjRqusi79TjI+T+V+u52QbTsodC3ffWMFgjOj
-	ATy2rYVoA8gm/JAQ==
-Received: from imap2.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap2.dmz-prg2.suse.org (Postfix) with ESMTPS id B44231377D;
-	Wed,  6 Mar 2024 14:44:54 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap2.dmz-prg2.suse.org with ESMTPSA
-	id nQyvKmaB6GWDbwAAn2gu4w
-	(envelope-from <tzimmermann@suse.de>); Wed, 06 Mar 2024 14:44:54 +0000
-Message-ID: <bf149016-5077-4220-b473-d2808d064c5d@suse.de>
-Date: Wed, 6 Mar 2024 15:44:54 +0100
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="G4oSQVYP"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 9DB4641850
+	for <virtualization@lists.linux-foundation.org>; Wed,  6 Mar 2024 15:16:08 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 0jvP1Dn2ZmaY
+	for <virtualization@lists.linux-foundation.org>;
+	Wed,  6 Mar 2024 15:16:05 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::235; helo=mail-lj1-x235.google.com; envelope-from=zhangfei.gao@linaro.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 291AC408E8
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 291AC408E8
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=G4oSQVYP
+Received: from mail-lj1-x235.google.com (mail-lj1-x235.google.com [IPv6:2a00:1450:4864:20::235])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 291AC408E8
+	for <virtualization@lists.linux-foundation.org>; Wed,  6 Mar 2024 15:16:04 +0000 (UTC)
+Received: by mail-lj1-x235.google.com with SMTP id 38308e7fff4ca-2d09cf00214so89107611fa.0
+        for <virtualization@lists.linux-foundation.org>; Wed, 06 Mar 2024 07:16:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1709738162; x=1710342962; darn=lists.linux-foundation.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=1tzJ9zCUXkaV13wzjAuc8h9G1xtp7/nN8arE8U8gfY8=;
+        b=G4oSQVYPs7RAyCjLPJWuVEheCe1ltSN2AfCUKWIUXSw9TWPPmNCV/zLRr8HaaC+h1Q
+         zvMxnpBHnT6CebBcQYjkEiPtHxYnpzjG9IKoyeY6JcdcMgOnYJ73j1cGksKPGD6p5XWJ
+         7wK72/kTI01j44N5CTE4h1DJYvNeXElCqmhIQ7eCshBPybU8J23qZ4HXSWtjAxLVGwMj
+         H5dixnEMNMKtH9dsOPTsPUl7kcuZxVSAu307hw1/t/Ujck5+STyzg6z4CtkjNulK6HKq
+         Lsue4pZ+SJMZ++RA0j0NS3PpBpxNNwttFeokLz+APxFxiiXfybhxPGnPXLGPEtJ+i7qq
+         tg8Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1709738162; x=1710342962;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=1tzJ9zCUXkaV13wzjAuc8h9G1xtp7/nN8arE8U8gfY8=;
+        b=qL+xRLdAN6BwltGmf2SwoTIHqWWcuBNEOaiRzb9nX200+zNcZx690N+rK6CokgN6Ew
+         5tJHj3fPTVa0z/jEo9P23lc4NnWa/2x0WQvGzWZyI8tDUaVnHgcZ4YQEWcL3o/cLbHEN
+         fcQeQ19R/OOkxTEPreLZpO6iKRPa5TKJg/wRcVYc5bYo9EPr9SwzbkOINpmWnt8LDruI
+         imSv9Cj5MlfQ8P9kIahH9lUCneSdvNcoPfFip7G8Z5Jk3rQvFmWRe2fhlLVViOz+iT+Y
+         wlEnL3NbwAv7zqTon61lHilSuAKmpRe1kZ64r88xNA+RMjQ9ZEy+wTO04MzvlPy8sycH
+         nVWA==
+X-Forwarded-Encrypted: i=1; AJvYcCUrKXwDQOr8tKXmAaQmvX6fGrd+YjkuoHqMlDCIeMxYIcpRNE7IN0wU4oOMGAPTRK+IIbv2Fr7CVXpPKQrjLRTOnFSPY5XWFhZg7jCb0Y4E3fCV/IV8Pqqy9w==
+X-Gm-Message-State: AOJu0YwdtDD6VNS4Qd5MTCsVvfM8IdQ++p+urIQqDCNionc2F1rf0V86
+	v7qpZIwWyyQz8OJXOBJVR2sD3z3toWoBpgSp8FMwbBH6K/vmBMRQXK2M+J+51nYG+uuX9Wjq19w
+	GZNfd3ekCYVvfVo85KwaUqHobsKrWSKbIRfx48A==
+X-Google-Smtp-Source: AGHT+IHmRpEcbVPzqLhnsNtyibyzMhmgr/03XxNzNXgO7mCxUIf62cD2x5AhOtv+FfAHACFNwN5t6nlDOMlQ2JOOkcE=
+X-Received: by 2002:a2e:9796:0:b0:2d2:2b2e:1680 with SMTP id
+ y22-20020a2e9796000000b002d22b2e1680mr3445457lji.35.1709738162161; Wed, 06
+ Mar 2024 07:16:02 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 00/13] drm: Fix reservation locking for pin/unpin and
- console
-Content-Language: en-US
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>, daniel@ffwll.ch,
- airlied@gmail.com, mripard@kernel.org, maarten.lankhorst@linux.intel.com,
- christian.koenig@amd.com, sumit.semwal@linaro.org, robdclark@gmail.com,
- quic_abhinavk@quicinc.com, dmitry.baryshkov@linaro.org, sean@poorly.run,
- marijn.suijten@somainline.org, suijingfeng@loongson.cn, kherbst@redhat.com,
- lyude@redhat.com, dakr@redhat.com, airlied@redhat.com, kraxel@redhat.com,
- alexander.deucher@amd.com, Xinhui.Pan@amd.com, zack.rusin@broadcom.com,
- bcm-kernel-feedback-list@broadcom.com
-Cc: dri-devel@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
- freedreno@lists.freedesktop.org, nouveau@lists.freedesktop.org,
- virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org,
- amd-gfx@lists.freedesktop.org
-References: <20240227113853.8464-1-tzimmermann@suse.de>
- <c844b72e-6c4e-4c99-8e7f-b9c62f63209d@collabora.com>
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <c844b72e-6c4e-4c99-8e7f-b9c62f63209d@collabora.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Authentication-Results: smtp-out1.suse.de;
-	none
-X-Spam-Level: 
-X-Spam-Score: -4.28
-X-Spamd-Result: default: False [-4.28 / 50.00];
-	 ARC_NA(0.00)[];
-	 RCVD_VIA_SMTP_AUTH(0.00)[];
-	 XM_UA_NO_VERSION(0.01)[];
-	 FROM_HAS_DN(0.00)[];
-	 TO_DN_SOME(0.00)[];
-	 FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	 TO_MATCH_ENVRCPT_ALL(0.00)[];
-	 MIME_GOOD(-0.10)[text/plain];
-	 NEURAL_HAM_LONG(-1.00)[-1.000];
-	 BAYES_HAM(-3.00)[100.00%];
-	 R_RATELIMIT(0.00)[to_ip_from(RLqs7qcp4g99ribr8z1n9xsc8a)];
-	 RCVD_COUNT_THREE(0.00)[3];
-	 DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	 NEURAL_HAM_SHORT(-0.19)[-0.962];
-	 RCPT_COUNT_TWELVE(0.00)[29];
-	 FREEMAIL_TO(0.00)[collabora.com,ffwll.ch,gmail.com,kernel.org,linux.intel.com,amd.com,linaro.org,quicinc.com,poorly.run,somainline.org,loongson.cn,redhat.com,broadcom.com];
-	 FUZZY_BLOCKED(0.00)[rspamd.com];
-	 FROM_EQ_ENVFROM(0.00)[];
-	 MIME_TRACE(0.00)[0:+];
-	 RCVD_TLS_ALL(0.00)[];
-	 MID_RHS_MATCH_FROM(0.00)[]
-X-Spam-Flag: NO
+References: <20240122073903.24406-1-baolu.lu@linux.intel.com>
+ <20240122073903.24406-6-baolu.lu@linux.intel.com> <CABQgh9FwOVsFe3+5VG0_rDruJVW0ueHTcsnxUcVAvFqrF4Vz6Q@mail.gmail.com>
+In-Reply-To: <CABQgh9FwOVsFe3+5VG0_rDruJVW0ueHTcsnxUcVAvFqrF4Vz6Q@mail.gmail.com>
+From: Zhangfei Gao <zhangfei.gao@linaro.org>
+Date: Wed, 6 Mar 2024 23:15:50 +0800
+Message-ID: <CABQgh9G5yFZ_p+tfvnJqOQo+Be62rMDatsEX1rhD_oTiXDaw5w@mail.gmail.com>
+Subject: Re: [PATCH v3 5/8] iommufd: Associate fault object with iommufd_hw_pgtable
+To: Lu Baolu <baolu.lu@linux.intel.com>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>, Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>, 
+	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, 
+	Jean-Philippe Brucker <jean-philippe@linaro.org>, Nicolin Chen <nicolinc@nvidia.com>, 
+	Yi Liu <yi.l.liu@intel.com>, Jacob Pan <jacob.jun.pan@linux.intel.com>, 
+	Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev, 
+	virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-Hi
+Hi, Baolu
 
-Am 05.03.24 um 22:58 schrieb Dmitry Osipenko:
-> On 2/27/24 13:14, Thomas Zimmermann wrote:
->> Dma-buf locking semantics require the caller of pin and unpin to hold
->> the buffer's reservation lock. Fix DRM to adhere to the specs. This
->> enables to fix the locking in DRM's console emulation. Similar changes
->> for vmap and mmap have been posted at [1][2]
->>
->> Most DRM drivers and memory managers acquire the buffer object's
->> reservation lock within their GEM pin and unpin callbacks. This
->> violates dma-buf locking semantics. We get away with it because PRIME
->> does not provide pin/unpin, but attach/detach, for which the locking
->> semantics is correct.
->>
->> Patches 1 to 8 rework DRM GEM code in various implementations to
->> acquire the reservation lock when entering the pin and unpin callbacks.
->> This prepares them for the next patch. Drivers that are not affected
->> by these patches either don't acquire the reservation lock (amdgpu)
->> or don't need preparation (loongson).
->>
->> Patch 9 moves reservation locking from the GEM pin/unpin callbacks
->> into drm_gem_pin() and drm_gem_unpin(). As PRIME uses these functions
->> internally it still gets the reservation lock.
->>
->> With the updated GEM callbacks, the rest of the patchset fixes the
->> fbdev emulation's buffer locking. Fbdev emulation needs to keep its
->> GEM buffer object inplace while updating its content. This required
->> a implicit pinning and apparently amdgpu didn't do this at all.
->>
->> Patch 10 introduces drm_client_buffer_vmap_local() and _vunmap_local().
->> The former function map a GEM buffer into the kernel's address space
->> with regular vmap operations, but keeps holding the reservation lock.
->> The _vunmap_local() helper undoes the vmap and releases the lock. The
->> updated GEM callbacks make this possible. Between the two calls, the
->> fbdev emulation can update the buffer content without have the buffer
->> moved or evicted. Update fbdev-generic to use vmap_local helpers,
->> which fix amdgpu. The idea of adding a "local vmap" has previously been
->> attempted at [3] in a different form.
->>
->> Patch 11 adds implicit pinning to the DRM client's regular vmap
->> helper so that long-term vmap'ed buffers won't be evicted. This only
->> affects fbdev-dma, but GEM DMA helpers don't require pinning. So
->> there are no practical changes.
->>
->> Patches 12 and 13 remove implicit pinning from the vmap and vunmap
->> operations in gem-vram and qxl. These pin operations are not supposed
->> to be part of vmap code, but were required to keep the buffers in place
->> for fbdev emulation. With the conversion o ffbdev-generic to to
->> vmap_local helpers, that code can finally be removed.
->>
->> Tested with amdgpu, nouveau, radeon, simpledrm and vc4.
->>
->> [1] https://patchwork.freedesktop.org/series/106371/
->> [2] https://patchwork.freedesktop.org/series/116001/
->> [3] https://patchwork.freedesktop.org/series/84732/
->>
->> Thomas Zimmermann (13):
->>    drm/gem-shmem: Acquire reservation lock in GEM pin/unpin callbacks
->>    drm/gem-vram: Acquire reservation lock in GEM pin/unpin callbacks
->>    drm/msm: Provide msm_gem_get_pages_locked()
->>    drm/msm: Acquire reservation lock in GEM pin/unpin callback
->>    drm/nouveau: Provide nouveau_bo_{pin,unpin}_locked()
->>    drm/nouveau: Acquire reservation lock in GEM pin/unpin callbacks
->>    drm/qxl: Provide qxl_bo_{pin,unpin}_locked()
->>    drm/qxl: Acquire reservation lock in GEM pin/unpin callbacks
->>    drm/gem: Acquire reservation lock in drm_gem_{pin/unpin}()
->>    drm/fbdev-generic: Fix locking with drm_client_buffer_vmap_local()
->>    drm/client: Pin vmap'ed GEM buffers
->>    drm/gem-vram: Do not pin buffer objects for vmap
->>    drm/qxl: Do not pin buffer objects for vmap
-> The patches look good. I gave them fbtest on virtio-gpu, no problems
-> spotted.
+On Sat, 2 Mar 2024 at 10:36, Zhangfei Gao <zhangfei.gao@linaro.org> wrote:
 >
-> Reviewed-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-> Tested-by: Dmitry Osipenko <dmitry.osipenko@collabora.com> # virtio-gpu
-
-Great, thanks a lot. If no other reviews come in, I'll land the patchset 
-within the next days.
-
-Best regards
-Thomas
-
+> On Mon, 22 Jan 2024 at 15:46, Lu Baolu <baolu.lu@linux.intel.com> wrote:
+> >
+> > When allocating a user iommufd_hw_pagetable, the user space is allowed to
+> > associate a fault object with the hw_pagetable by specifying the fault
+> > object ID in the page table allocation data and setting the
+> > IOMMU_HWPT_FAULT_ID_VALID flag bit.
+> >
+> > On a successful return of hwpt allocation, the user can retrieve and
+> > respond to page faults by reading and writing the file interface of the
+> > fault object.
+> >
+> > Once a fault object has been associated with a hwpt, the hwpt is
+> > iopf-capable, indicated by fault_capable set to true. Attaching,
+> > detaching, or replacing an iopf-capable hwpt to an RID or PASID will
+> > differ from those that are not iopf-capable. The implementation of these
+> > will be introduced in the next patch.
+> >
+> > Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+> > ---
+> >  drivers/iommu/iommufd/iommufd_private.h | 11 ++++++++
+> >  include/uapi/linux/iommufd.h            |  6 +++++
+> >  drivers/iommu/iommufd/fault.c           | 14 ++++++++++
+> >  drivers/iommu/iommufd/hw_pagetable.c    | 36 +++++++++++++++++++------
+> >  4 files changed, 59 insertions(+), 8 deletions(-)
+> >
+> > diff --git a/drivers/iommu/iommufd/iommufd_private.h b/drivers/iommu/iommufd/iommufd_private.h
+> > index 52d83e888bd0..2780bed0c6b1 100644
+> > --- a/drivers/iommu/iommufd/iommufd_private.h
+> > +++ b/drivers/iommu/iommufd/iommufd_private.h
+> > @@ -293,6 +293,8 @@ int iommufd_check_iova_range(struct io_pagetable *iopt,
+> >  struct iommufd_hw_pagetable {
+> >         struct iommufd_object obj;
+> >         struct iommu_domain *domain;
+> > +       struct iommufd_fault *fault;
+> > +       bool fault_capable : 1;
+> >  };
+> >
+> >  struct iommufd_hwpt_paging {
+> > @@ -446,8 +448,17 @@ struct iommufd_fault {
+> >         struct wait_queue_head wait_queue;
+> >  };
+> >
+> > +static inline struct iommufd_fault *
+> > +iommufd_get_fault(struct iommufd_ucmd *ucmd, u32 id)
+> > +{
+> > +       return container_of(iommufd_get_object(ucmd->ictx, id,
+> > +                                              IOMMUFD_OBJ_FAULT),
+> > +                           struct iommufd_fault, obj);
+> > +}
+> > +
+> >  int iommufd_fault_alloc(struct iommufd_ucmd *ucmd);
+> >  void iommufd_fault_destroy(struct iommufd_object *obj);
+> > +int iommufd_fault_iopf_handler(struct iopf_group *group);
+> >
+> >  #ifdef CONFIG_IOMMUFD_TEST
+> >  int iommufd_test(struct iommufd_ucmd *ucmd);
+> > diff --git a/include/uapi/linux/iommufd.h b/include/uapi/linux/iommufd.h
+> > index c32d62b02306..7481cdd57027 100644
+> > --- a/include/uapi/linux/iommufd.h
+> > +++ b/include/uapi/linux/iommufd.h
+> > @@ -357,10 +357,13 @@ struct iommu_vfio_ioas {
+> >   *                                the parent HWPT in a nesting configuration.
+> >   * @IOMMU_HWPT_ALLOC_DIRTY_TRACKING: Dirty tracking support for device IOMMU is
+> >   *                                   enforced on device attachment
+> > + * @IOMMU_HWPT_FAULT_ID_VALID: The fault_id field of hwpt allocation data is
+> > + *                             valid.
+> >   */
+> >  enum iommufd_hwpt_alloc_flags {
+> >         IOMMU_HWPT_ALLOC_NEST_PARENT = 1 << 0,
+> >         IOMMU_HWPT_ALLOC_DIRTY_TRACKING = 1 << 1,
+> > +       IOMMU_HWPT_FAULT_ID_VALID = 1 << 2,
+> >  };
+> >
+> >  /**
+> > @@ -411,6 +414,8 @@ enum iommu_hwpt_data_type {
+> >   * @__reserved: Must be 0
+> >   * @data_type: One of enum iommu_hwpt_data_type
+> >   * @data_len: Length of the type specific data
+> > + * @fault_id: The ID of IOMMUFD_FAULT object. Valid only if flags field of
+> > + *            IOMMU_HWPT_FAULT_ID_VALID is set.
+> >   * @data_uptr: User pointer to the type specific data
+> >   *
+> >   * Explicitly allocate a hardware page table object. This is the same object
+> > @@ -441,6 +446,7 @@ struct iommu_hwpt_alloc {
+> >         __u32 __reserved;
+> >         __u32 data_type;
+> >         __u32 data_len;
+> > +       __u32 fault_id;
+> >         __aligned_u64 data_uptr;
+> >  };
+> >  #define IOMMU_HWPT_ALLOC _IO(IOMMUFD_TYPE, IOMMUFD_CMD_HWPT_ALLOC)
+> > diff --git a/drivers/iommu/iommufd/fault.c b/drivers/iommu/iommufd/fault.c
+> > index 9844a85feeb2..e752d1c49dde 100644
+> > --- a/drivers/iommu/iommufd/fault.c
+> > +++ b/drivers/iommu/iommufd/fault.c
+> > @@ -253,3 +253,17 @@ int iommufd_fault_alloc(struct iommufd_ucmd *ucmd)
+> >
+> >         return rc;
+> >  }
+> > +
+> > +int iommufd_fault_iopf_handler(struct iopf_group *group)
+> > +{
+> > +       struct iommufd_hw_pagetable *hwpt = group->cookie->domain->fault_data;
+> > +       struct iommufd_fault *fault = hwpt->fault;
+> > +
+> > +       mutex_lock(&fault->mutex);
+> > +       list_add_tail(&group->node, &fault->deliver);
+> > +       mutex_unlock(&fault->mutex);
+> > +
+> > +       wake_up_interruptible(&fault->wait_queue);
+> > +
+> > +       return 0;
+> > +}
+> > diff --git a/drivers/iommu/iommufd/hw_pagetable.c b/drivers/iommu/iommufd/hw_pagetable.c
+> > index 3f3f1fa1a0a9..2703d5aea4f5 100644
+> > --- a/drivers/iommu/iommufd/hw_pagetable.c
+> > +++ b/drivers/iommu/iommufd/hw_pagetable.c
+> > @@ -8,6 +8,15 @@
+> >  #include "../iommu-priv.h"
+> >  #include "iommufd_private.h"
+> >
+> > +static void __iommufd_hwpt_destroy(struct iommufd_hw_pagetable *hwpt)
+> > +{
+> > +       if (hwpt->domain)
+> > +               iommu_domain_free(hwpt->domain);
+> > +
+> > +       if (hwpt->fault)
+> > +               iommufd_put_object(hwpt->fault->ictx, &hwpt->fault->obj);
+> > +}
+> > +
+> >  void iommufd_hwpt_paging_destroy(struct iommufd_object *obj)
+> >  {
+> >         struct iommufd_hwpt_paging *hwpt_paging =
+> > @@ -22,9 +31,7 @@ void iommufd_hwpt_paging_destroy(struct iommufd_object *obj)
+> >                                          hwpt_paging->common.domain);
+> >         }
+> >
+> > -       if (hwpt_paging->common.domain)
+> > -               iommu_domain_free(hwpt_paging->common.domain);
+> > -
+> > +       __iommufd_hwpt_destroy(&hwpt_paging->common);
+> >         refcount_dec(&hwpt_paging->ioas->obj.users);
+> >  }
+> >
+> > @@ -49,9 +56,7 @@ void iommufd_hwpt_nested_destroy(struct iommufd_object *obj)
+> >         struct iommufd_hwpt_nested *hwpt_nested =
+> >                 container_of(obj, struct iommufd_hwpt_nested, common.obj);
+> >
+> > -       if (hwpt_nested->common.domain)
+> > -               iommu_domain_free(hwpt_nested->common.domain);
+> > -
+> > +       __iommufd_hwpt_destroy(&hwpt_nested->common);
+> >         refcount_dec(&hwpt_nested->parent->common.obj.users);
+> >  }
+> >
+> > @@ -213,7 +218,8 @@ iommufd_hwpt_nested_alloc(struct iommufd_ctx *ictx,
+> >         struct iommufd_hw_pagetable *hwpt;
+> >         int rc;
+> >
+> > -       if (flags || !user_data->len || !ops->domain_alloc_user)
+> > +       if ((flags & ~IOMMU_HWPT_FAULT_ID_VALID) ||
+> > +           !user_data->len || !ops->domain_alloc_user)
+> >                 return ERR_PTR(-EOPNOTSUPP);
+> >         if (parent->auto_domain || !parent->nest_parent)
+> >                 return ERR_PTR(-EINVAL);
+> > @@ -227,7 +233,7 @@ iommufd_hwpt_nested_alloc(struct iommufd_ctx *ictx,
+> >         refcount_inc(&parent->common.obj.users);
+> >         hwpt_nested->parent = parent;
+> >
+> > -       hwpt->domain = ops->domain_alloc_user(idev->dev, flags,
+> > +       hwpt->domain = ops->domain_alloc_user(idev->dev, 0,
+> >                                               parent->common.domain, user_data);
+>
+> Why remove flags? typo or any reason?
+> arm_smmu_domain_alloc_user  can not get flags from the user app.
+> User should set IOMMU_HWPT_FAULT_ID_VALID, right?
 >
 
--- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstrasse 146, 90461 Nuernberg, Germany
-GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
-HRB 36809 (AG Nuernberg)
+Double checked, this does not send flags, 0 is OK,
+Only domain_alloc_user in iommufd_hwpt_paging_alloc requires flags.
 
+In my debug, I need this patch, otherwise NULL pointer errors happen
+since SVA is not set.
+
+Subject: [PATCH] iommufd: enable/disable IOMMU_DEV_FEAT_SVA when
+ iopf_enable/disable
+
+When iopf_enable, IOMMU_DEV_FEAT_SVA has to be enabled as well,
+which will call iopf_queue_add_device(master->smmu->evtq.iopf, dev).
+Otherwise NULL pointer will happen since fault_param is NULL.
+
+And disable IOMMU_DEV_FEAT_SVA in iopf_disable accordingly.
+
+Signed-off-by: Zhangfei Gao <zhangfei.gao@linaro.org>
+---
+ drivers/iommu/iommufd/fault.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/drivers/iommu/iommufd/fault.c b/drivers/iommu/iommufd/fault.c
+index a4a49f3cd4c2..89837d83e757 100644
+--- a/drivers/iommu/iommufd/fault.c
++++ b/drivers/iommu/iommufd/fault.c
+@@ -289,6 +289,12 @@ static int iommufd_fault_iopf_enable(struct
+iommufd_device *idev)
+        if (ret)
+                return ret;
+
++       ret = iommu_dev_enable_feature(idev->dev, IOMMU_DEV_FEAT_SVA);
++       if (ret) {
++               iommu_dev_disable_feature(idev->dev, IOMMU_DEV_FEAT_IOPF);
++               return ret;
++       }
++
+        idev->iopf_enabled = true;
+
+        return 0;
+@@ -299,6 +305,7 @@ static void iommufd_fault_iopf_disable(struct
+iommufd_device *idev)
+        if (!idev->iopf_enabled)
+                return;
+
++       iommu_dev_disable_feature(idev->dev, IOMMU_DEV_FEAT_SVA);
+        iommu_dev_disable_feature(idev->dev, IOMMU_DEV_FEAT_IOPF);
+        idev->iopf_enabled = false;
+ }
+
+
+And iommufd_fault_domain_replace_dev
+        if (iopf_enabled_originally && !hwpt->fault_capable)
+                iommufd_fault_iopf_disable(idev);
+will cause iopf enable/ disable / enable, is this required, a bit confused.
+
+Thanks
