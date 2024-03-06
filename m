@@ -1,118 +1,130 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mailbox.box.xen0n.name (mail.xen0n.name [115.28.160.31])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCD961B7E5
-	for <virtualization@lists.linux.dev>; Wed,  6 Mar 2024 05:33:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 862845DF03;
+	Wed,  6 Mar 2024 09:22:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.28.160.31
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709703216; cv=none; b=KBhaY+aHvZyjD2rYXa1JBONCV3K1Bw+CywUjbM+7S0dJ7/QAyi8mBe6i5h+ObdebPpDNiVtI36QzFX5efb0r7PSMQ5adWKb5MPYgv7WkVSRZSm90ANQ6mJ1fHPygQUNQafZRirVKHWPUQSJHT/T7HwAxZ5LgQbN1sWw+88we0w4=
+	t=1709716970; cv=none; b=jIszY+j/M/kP7NZQ113j54l/6cGluj1+dMROzZoBRwpz6yHGELh5v88jBryFvLPoeM6yo/s4UEYHEx+99W84bPuhFn7OSl/QvmMqDPPfornCaXFCMzifU96YIt9gFsFKkZTYro3MJtLy+uXm5zCKglqnZDwieil17uPPxirUnB4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709703216; c=relaxed/simple;
-	bh=3hxZI4emF1wYSHuHobZcbBk1gscMxJ+EA04ne/SQOYA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=UFxI292WdoQIh9n9YlDpg7a/KGK04h2NgaiHUWSRdvqu5u4jQM7J8Aaxut4y7Pxsj36denEwCgoFT70DGcGI3ffy/8udSoTBakgm5oqesP57fNfF1yjqtcXM7NaW1ksyOgmgOpo6D76qxSfr2g6qoEDyVYos/CRCFTA8QbNqPFM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Tr8KADRe; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1709716970; c=relaxed/simple;
+	bh=o4WXpLuFlb2On21gYF6e06FQki+re+8xuTwVBSizxMI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=swnWBWEqkamfgfUgPw+3EoJitExCJ536ldb1/6JII5lm6BmfJY+KdfZ93H2vamt2wFPtwMg0RcpoqONxWu+TC5aVcDDRxZ+EGfsPcJ0YPrBb7aZrQlNPQxbHzgeotViA8DJUo7cyWwDG1uAgj0R3LjybKT1ijVn9Nis3wnFW1hs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xen0n.name; spf=pass smtp.mailfrom=xen0n.name; dkim=pass (1024-bit key) header.d=xen0n.name header.i=@xen0n.name header.b=rBzkv6WH; arc=none smtp.client-ip=115.28.160.31
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xen0n.name
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xen0n.name
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Tr8KADRe"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1709703213;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=3hxZI4emF1wYSHuHobZcbBk1gscMxJ+EA04ne/SQOYA=;
-	b=Tr8KADRe6ejto1C/WSD0BaRjzPGGHakLAQloU2VPFbqxhtAlusUV1TT7Y9733cHf2LRd4G
-	/G9GvqX2NdsgHc/dbI9Q8sn0QeGYwC8ZoomlvcQM34ZrSDXTGDv3EAWfkQRjoyYju7cdu0
-	k3s78V9DATZWvd+a4bUGXycGnogSg1g=
-Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
- [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-262-i-tdgjvePl-E-n66AvSlUA-1; Wed, 06 Mar 2024 00:33:32 -0500
-X-MC-Unique: i-tdgjvePl-E-n66AvSlUA-1
-Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-29b4becb184so2050041a91.0
-        for <virtualization@lists.linux.dev>; Tue, 05 Mar 2024 21:33:31 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1709702908; x=1710307708;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=3hxZI4emF1wYSHuHobZcbBk1gscMxJ+EA04ne/SQOYA=;
-        b=r5i/87Usb4MjGSC6AAharh3QrRKA0XM+9lZnHmCt7ns8nDgjkaPNIbS7hJe14UYBOL
-         WUubruDtERjTBCtAvV0NFLD3Kk4/nlz2BjsKnbDh6etLmxYTYzmsKkdOWfau6yD1JkOX
-         zLGv2UYI+eMsr+PhaSvuDdtIFJtrEJtE98FgeZPkfjui+1iNSXgDEdQJpVJU/uUzN92l
-         t7p5aFSX+bKbboAryDburiDh/Mg5nxRLEvEg0cZA0vEwOSfYqb9KJ84C2l89UbBcLdtq
-         j/D2BP4F0rpp60BonUYkaWHFvbi216Nz3cbxbAEvOvaXI7v+WKbYg8Ku3nIbATTun6UD
-         14dA==
-X-Forwarded-Encrypted: i=1; AJvYcCULuR6lkEAjDF+aKtHlaIFciptxbDtREhwrNpFX1MGrOTfD3Rv+xk/23ZNLrYeEpDiqr7dtqxV+ZMARQkjYlUZatD39cbsnfAid2CpGMSM=
-X-Gm-Message-State: AOJu0YywKnGuxPEHN+2gjC4cg4ZMxGhgtu37q+O3OZHu9zfF3VEmK4wN
-	LrDAqVjh6yL7C8nFAEWZd4zlT98XnUOQa4GjGgE+7BrwU0Y+Iux+dUHxmRycSabX6UH1oPw/wQp
-	zLzZJxcdGi6orBmmy5zFj6Nqap8ezGrXjbAuf8K0JhEsQ1EkRp+TIRqrE5RLnt2/84FO0lxP6Z7
-	7BZRbuzPYdqnt+hoRDLaQwUS51m3vSCVfOi4XWHl4=
-X-Received: by 2002:a17:90a:fa96:b0:299:8957:9898 with SMTP id cu22-20020a17090afa9600b0029989579898mr11177779pjb.42.1709702907977;
-        Tue, 05 Mar 2024 21:28:27 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IG3Aj9fYblNSHqZkWcccQqlzqUYhtj/+FONgyoU5B6Vd3h9SCF/s0WtuY4Kuj8YPdnUmWlVkzWj361ddQrkNHc=
-X-Received: by 2002:a17:90a:fa96:b0:299:8957:9898 with SMTP id
- cu22-20020a17090afa9600b0029989579898mr11177772pjb.42.1709702907704; Tue, 05
- Mar 2024 21:28:27 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=xen0n.name header.i=@xen0n.name header.b="rBzkv6WH"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=xen0n.name; s=mail;
+	t=1709716964; bh=o4WXpLuFlb2On21gYF6e06FQki+re+8xuTwVBSizxMI=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=rBzkv6WHSyXZIk6znzU7nnLyL4/jck+sMZRhuySYFRLWZKkN1d1KsNE7YUsV8NWoK
+	 umxFcxOBgdLaEa1rvbZ520CbIoNR8/RHQG/cdi98q2Tll/TNBWCQER0u0OTXpPmCEc
+	 CsAEx0w4+waz8+o8k40rSOV9dqnlRmLpToVMFjRA=
+Received: from [IPV6:240e:688:100:1:e42:6442:8662:5647] (unknown [IPv6:240e:688:100:1:e42:6442:8662:5647])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mailbox.box.xen0n.name (Postfix) with ESMTPSA id 7524F600CE;
+	Wed,  6 Mar 2024 17:22:44 +0800 (CST)
+Message-ID: <4039d1ff-8e9f-42cf-a8fa-b326102fcbf5@xen0n.name>
+Date: Wed, 6 Mar 2024 17:22:43 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240228093013.8263-1-linyunsheng@huawei.com> <20240228093013.8263-6-linyunsheng@huawei.com>
- <65c3503409c0e1670bdf06fecfd58ec483a114b9.camel@redhat.com>
-In-Reply-To: <65c3503409c0e1670bdf06fecfd58ec483a114b9.camel@redhat.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 6 Mar 2024 13:28:16 +0800
-Message-ID: <CACGkMEts-S7=p8aY+p+1JcTGZdLO65ug6t7c_yNj8xwRrhg9tA@mail.gmail.com>
-Subject: Re: [PATCH net-next v6 5/5] tools: virtio: introduce vhost_net_test
-To: Paolo Abeni <pabeni@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	virtualization@lists.linux.dev, Yunsheng Lin <linyunsheng@huawei.com>, 
-	davem@davemloft.net, kuba@kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v6 7/7] Documentation: KVM: Add hypercall for LoongArch
+To: maobibo <maobibo@loongson.cn>, Tianrui Zhao <zhaotianrui@loongson.cn>,
+ Juergen Gross <jgross@suse.com>, Paolo Bonzini <pbonzini@redhat.com>,
+ Jonathan Corbet <corbet@lwn.net>
+Cc: loongarch@lists.linux.dev, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org
+References: <20240302082532.1415200-1-maobibo@loongson.cn>
+ <20240302084724.1415344-1-maobibo@loongson.cn>
+ <846a5e46-4e8f-4f73-ac5b-323e78ec1bb1@xen0n.name>
+ <853f2909-e455-bd1c-c6a4-6a13beb37125@loongson.cn>
+ <ec871702-388d-4a29-aec1-5cd6d1de6d0a@xen0n.name>
+ <7079bf3b-a7af-7cab-be78-3de1081649e1@loongson.cn>
+Content-Language: en-US
+From: WANG Xuerui <kernel@xen0n.name>
+In-Reply-To: <7079bf3b-a7af-7cab-be78-3de1081649e1@loongson.cn>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Tue, Mar 5, 2024 at 5:47=E2=80=AFPM Paolo Abeni <pabeni@redhat.com> wrot=
-e:
->
-> On Wed, 2024-02-28 at 17:30 +0800, Yunsheng Lin wrote:
-> > introduce vhost_net_test for both vhost_net tx and rx basing
-> > on virtio_test to test vhost_net changing in the kernel.
-> >
-> > Steps for vhost_net tx testing:
-> > 1. Prepare a out buf.
-> > 2. Kick the vhost_net to do tx processing.
-> > 3. Do the receiving in the tun side.
-> > 4. verify the data received by tun is correct.
-> >
-> > Steps for vhost_net rx testing:
-> > 1. Prepare a in buf.
-> > 2. Do the sending in the tun side.
-> > 3. Kick the vhost_net to do rx processing.
-> > 4. verify the data received by vhost_net is correct.
-> >
-> > Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
->
-> @Jason: AFAICS this addresses the points you raised on v5, could you
-> please have a look?
->
-> Thanks!
+On 3/6/24 11:28, maobibo wrote:
+> On 2024/3/6 上午2:26, WANG Xuerui wrote:
+>> On 3/4/24 17:10, maobibo wrote:
+>>> On 2024/3/2 下午5:41, WANG Xuerui wrote:
+>>>> On 3/2/24 16:47, Bibo Mao wrote:
+>>>>> [snip]
+>>>>> +
+>>>>> +KVM hypercall ABI
+>>>>> +=================
+>>>>> +
+>>>>> +Hypercall ABI on KVM is simple, only one scratch register a0 (v0) 
+>>>>> and at most
+>>>>> +five generic registers used as input parameter. FP register and 
+>>>>> vector register
+>>>>> +is not used for input register and should not be modified during 
+>>>>> hypercall.
+>>>>> +Hypercall function can be inlined since there is only one scratch 
+>>>>> register.
+>>>>
+>>>> It should be pointed out explicitly that on hypercall return all 
+>>> Well, return value description will added. What do think about the 
+>>> meaning of return value for KVM_HCALL_FUNC_PV_IPI hypercall?  The 
+>>> number of CPUs with IPI delivered successfully like kvm x86 or simply 
+>>> success/failure?
 
-Looks good to me.
+I just noticed I've forgotten to comment on this question. FYI, RISC-V 
+SBI's equivalent [1] doesn't even indicate errors. And from my 
+perspective, we can always add a new hypercall returning more info 
+should that info is needed in the future; for now I don't have a problem 
+whether the return type is void, bool or number of CPUs that are 
+successfully reached.
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+[1]: 
+https://github.com/riscv-non-isa/riscv-sbi-doc/blob/v2.0/src/ext-ipi.adoc
 
-Thanks
+>>>> architectural state except ``$a0`` is preserved. Or is the whole 
+>>>> ``$a0 - $t8`` range clobbered, just like with Linux syscalls?
+>>>>
+>>> what is advantage with $a0 - > $t8 clobbered?
+>>
+>> Because then a hypercall is going to behave identical as an ordinary C 
+>> function call, which is easy for people and compilers to understand.
+>>
+> If you really understand detailed behavior about hypercall/syscall, the 
+> conclusion may be different.
+> 
+> If T0 - T8 is clobbered with hypercall instruction, hypercall caller 
+> need save clobbered register, now hypercall exception save/restore all 
+> the registers during VM exits. If so, hypercall caller need not save 
+> general registers and it is not necessary scratched for hypercall ABI.
+> 
+> Until now all the discussion the macro level, no detail code level.
+> 
+> Can you show me some example code where T0-T8 need not save/restore 
+> during LoongArch hypercall exception?
 
->
-> Paolo
->
->
+I was emphasizing that consistency is generally good, and yes that's 
+"macroscopic" level talk. Of course, the hypercall client code would 
+have to do *less* work if *more* registers than the minimum are 
+preserved -- if right now everything is already preserved, nothing needs 
+to change.
+
+But please also notice that the context switch cost is paid for every 
+hypercall, and we can't reduce the number of preserved registers without 
+breaking compatibility. So I think we can keep the current 
+implementation behavior, but promise less in the spec: this way we'll 
+keep the possibility of reducing the context switch overhead.
+
+-- 
+WANG "xen0n" Xuerui
+
+Linux/LoongArch mailing list: https://lore.kernel.org/loongarch/
 
