@@ -1,194 +1,174 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F1CD1DA37;
-	Thu,  7 Mar 2024 16:50:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37B5F13B783
+	for <virtualization@lists.linux.dev>; Thu,  7 Mar 2024 21:29:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709830223; cv=none; b=dHyqSierylRWk5Y7/Li1MujvYJZ6Fhtg22QpqLOSIMiKTI+6a246Mt4OcCRj+zN2SXA+eoM9lvMU1bbj+YaKz5TlGydRlf82jeGhcKfBykp3wBhDyUOpeaoaK1ONl5RV9FJo3RAG6nIFtDTf5nviIFQtvZbX8vcBHQEuxXJePDo=
+	t=1709846999; cv=none; b=fDvguoh5nOLa1i1njpSdvX3PE52yAXHsrE54q/h6APZfuEjQuyye0xbOrI9ZZDga3AQSNkJikadkJZP+eDaIJgPq9IUNgyif0PGp+z1MWlK5cN87RVtfp2UuBiNM1+tqoV6v/+49YzYIetgfZnxO+suhUwMqQBpNDeg0VZG1vnc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709830223; c=relaxed/simple;
-	bh=lHR56V/CodyEaIm3onpnKKQD1mT9eLVoJRYt25cfX0c=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=SJCjGoDssDE1+DGneOUPtadTr5uHss+W7ZVfkl7d/rBKYCoL0YlPlVA+5x1miFcjkaQmRkdjVFQhh0qfIyDQnq7ANFPdixf4FQpHbDquOtVjv7MM8mFUogefHvR8bYa6wdhsMTNvvU3sqd+CTuKintY9Pa9KeTFVvQKwIczVbqA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V1osucTv; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1709846999; c=relaxed/simple;
+	bh=sUZxtGNHFx4zLodxUdWUhxGzSh51kPJIzM5f+5HerXM=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=lQGapol8WQ9R8eifXpb+49c49ucTx6wgQsjB9743ZmbGXTWOF2FqC2dRpEN4WvVW/uRirsTv21tA39KhVux7EgfQcKJie/tgisNDP4tbWpOc/TOiFCB1uBsieNg587anDgpSdtv8aTNpIMOcgkEHNI0jJNhpTz8wMUUchxNAzLU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=TrIOnDBF; arc=none smtp.client-ip=209.85.215.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V1osucTv"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13502C43394;
-	Thu,  7 Mar 2024 16:50:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1709830222;
-	bh=lHR56V/CodyEaIm3onpnKKQD1mT9eLVoJRYt25cfX0c=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=V1osucTvjHURTZv3n8pEZmmxRSeo0uSxeoLhilH3IQFKra8aTlTsuH4yc5w1jhEsE
-	 4Fx0FbXpwnh4fsj44LzocdqbU65ryv+cDwg+KwpvYFaQxzJ2KfUXfxgjyaX2QAvXnm
-	 MW5aW3l0xHbVvZHnm/MvhRhN3oeLQJtxhr+AXwFbizyimKLX//7zQympipZIUFRQ+t
-	 hLt4Fn7m1w2HX1kMyOhL+Bkk35WqsHN/u2gfoF+YlcsNwkAVjHF1+pU1l0Gyagv23M
-	 /B9CykPDnYhlzsPt5bzZNsKu1qlb4YHYFUlmEdV5rYY7uTvliMZxsHWmlOxBK5qe5L
-	 SdICx32Zr8NOA==
-Date: Thu, 7 Mar 2024 08:50:21 -0800
-From: Jakub Kicinski <kuba@kernel.org>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Jason
- Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric
- Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
- virtualization@lists.linux.dev, Willem de Bruijn
- <willemdebruijn.kernel@gmail.com>, Tariq Toukan <tariqt@nvidia.com>,
- Michael Chan <michael.chan@broadcom.com>, Jesse Brandeburg
- <jesse.brandeburg@intel.com>, Alexander Lobakin
- <aleksander.lobakin@intel.com>, Shannon Nelson <shannon.nelson@amd.com>
-Subject: Re: [PATCH net-next v3 3/6] virtio_net: support device stats
-Message-ID: <20240307085021.1081777d@kernel.org>
-In-Reply-To: <20240227080303.63894-4-xuanzhuo@linux.alibaba.com>
-References: <20240227080303.63894-1-xuanzhuo@linux.alibaba.com>
-	<20240227080303.63894-4-xuanzhuo@linux.alibaba.com>
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="TrIOnDBF"
+Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-53fbf2c42bfso100511a12.3
+        for <virtualization@lists.linux.dev>; Thu, 07 Mar 2024 13:29:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google; t=1709846997; x=1710451797; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=+YZLpG094wphSKZXLLG7LA5wMsC4o/YJbeoOf2hZChI=;
+        b=TrIOnDBFhhAXr2CL5ewVKVg+N4KGms4BoYdF78rkvk4x60VZvqPLA9Z1MWEKmtPEAo
+         IDGAoxcgcJBYYqWxYAt6K27pKpXaHGhBB8Sj2dKbMUBkFDyMcSan9bpZNIdG81dLixqe
+         XDGE5I7kuVQ2PaOsNdSj9OEP7dEv0VNWbdZdM=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1709846997; x=1710451797;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=+YZLpG094wphSKZXLLG7LA5wMsC4o/YJbeoOf2hZChI=;
+        b=lTX8R0QzujB3gnvboS+Vmd2oVbn+E680lOsiCl+RJeuDDZushljMTJZ/16EJmWb+Y0
+         P4jLq3/O0aYjd8vASEzMyPSAHVnZJXWKUqmWRHmpXMV8J29xgEtI2vkBWE9MXw4cdqtp
+         a0Mmi2sJi/CLhRzJlfVpA5ed+zZWKO8Vqu9Jpbumd46Xd72mAqVw1DuDFHH9Cl2HXbOp
+         xh6wWiuOIpab45D8TPxD6sRMIj8wvLsxCT9M6q56MJN36p9GWDtwWjAb12bJtCTud9AR
+         I+uwD/145hKNBO8UFb64lJFISrUptwPDX8h7XQD1Q32EhVairWSh3urN47WNgHZtyIQB
+         +sCw==
+X-Forwarded-Encrypted: i=1; AJvYcCWjoqSBww26o4Xazg2lpotu35DVSXSLQ34D0T/kVmrvDOd6H+VkVVGL5ZjH+TfDYz4Y9sq8hX9LFUdd8hSp78WeQaJ0KBuMiljCDEylvPs=
+X-Gm-Message-State: AOJu0Yyql3jwnNQ3AECglTBt5mF+84uuhPJcUaBQRJxbIAD8Spm2FBa+
+	DkcfI89R3CW/W44UYFeOC+dI7W1ANqpEP+THDAlcrZkcvty2Jwhh4kr2UZTfaQ==
+X-Google-Smtp-Source: AGHT+IEzz+bckUTxMNcu0RwZK0XnBSiwtoTYqhjpphfi8E+fSD4mV1nsz9A9Yr4VpADTNeEUBC8JoQ==
+X-Received: by 2002:a17:90a:a606:b0:29a:a3a6:dde7 with SMTP id c6-20020a17090aa60600b0029aa3a6dde7mr17873626pjq.18.1709846997354;
+        Thu, 07 Mar 2024 13:29:57 -0800 (PST)
+Received: from amakhalov-build-vm.eng.vmware.com ([64.186.27.43])
+        by smtp.gmail.com with ESMTPSA id y12-20020a17090abd0c00b00299db19a81asm1991021pjr.56.2024.03.07.13.29.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 07 Mar 2024 13:29:57 -0800 (PST)
+From: Alexey Makhalov <alexey.makhalov@broadcom.com>
+To: linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	bp@alien8.de,
+	hpa@zytor.com,
+	dave.hansen@linux.intel.com,
+	mingo@redhat.com,
+	tglx@linutronix.de
+Cc: x86@kernel.org,
+	netdev@vger.kernel.org,
+	richardcochran@gmail.com,
+	linux-input@vger.kernel.org,
+	dmitry.torokhov@gmail.com,
+	zackr@vmware.com,
+	linux-graphics-maintainer@vmware.com,
+	pv-drivers@vmware.com,
+	namit@vmware.com,
+	timothym@vmware.com,
+	akaher@vmware.com,
+	jsipek@vmware.com,
+	dri-devel@lists.freedesktop.org,
+	daniel@ffwll.ch,
+	airlied@gmail.com,
+	tzimmermann@suse.de,
+	mripard@kernel.org,
+	maarten.lankhorst@linux.intel.com,
+	horms@kernel.org,
+	kirill.shutemov@linux.intel.com
+Subject: [PATCH v7 0/7] VMware hypercalls enhancements
+Date: Thu,  7 Mar 2024 13:29:42 -0800
+Message-Id: <20240307212949.4166120-1-alexey.makhalov@broadcom.com>
+X-Mailer: git-send-email 2.39.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-CC: Willem and some driver folks for more input, context: extending
-https://lore.kernel.org/all/20240306195509.1502746-1-kuba@kernel.org/
-to cover virtio stats.
+VMware hypercalls invocations were all spread out across the kernel
+implementing same ABI as in-place asm-inline. With encrypted memory
+and confidential computing it became harder to maintain every changes
+in these hypercall implementations.
 
-On Tue, 27 Feb 2024 16:03:00 +0800 Xuan Zhuo wrote:
-> +static const struct virtnet_stat_desc virtnet_stats_rx_basic_desc[] = {
-> +	VIRTNET_STATS_DESC(rx, basic, packets),
-> +	VIRTNET_STATS_DESC(rx, basic, bytes),
+Intention of this patchset is to introduce arch independent VMware
+hypercall API layer other subsystems such as device drivers can call
+to, while hiding architecture specific implementation behind.
 
-Covered.
+Second patch introduces the vmware_hypercall low and high bandwidth
+families of functions, with little enhancements there.
+Sixth patch adds tdx hypercall support
 
-> +	VIRTNET_STATS_DESC(rx, basic, notifications),
-> +	VIRTNET_STATS_DESC(rx, basic, interrupts),
+arm64 implementation of vmware_hypercalls is in drivers/gpu/drm/
+vmwgfx/vmwgfx_msg_arm64.h and going to be moved to arch/arm64 with
+a separate patchset with the introduction of VMware Linux guest
+support for arm64.
 
-I haven't seen HW devices count interrupts coming from a specific
-queue (there's usually a lot more queues than IRQs these days),
-let's keep these in ethtool -S for now, unless someone has a HW use
-case.
+No functional changes in drivers/input/mouse/vmmouse.c and
+drivers/ptp/ptp_vmw.c
 
-> +	VIRTNET_STATS_DESC(rx, basic, drops),
-> +	VIRTNET_STATS_DESC(rx, basic, drop_overruns),
+v6->v7 changes (only in patch 7):
+- Addressed comments from H. Peter Anvin:
+  1. Removed vmware_tdx_hypercall_args(), moved args handling inside
+     vmware_tdx_hypercall().
+  2. Added pr_warn_once() for !hypervisor_is_type(X86_HYPER_VMWARE) case.
+- Added ack by Dave Hansen.
 
-These are important, but we need to make sure we have a good definition
-for vendors to follow...
+v5->v6 change:
+- Added ack by Kirill A. Shutemov in patch 7. 
 
-drops I'd define as "sum of all packets which came into the device, but
-never left it, including but not limited to: packets dropped due to
-lack of buffer space, processing errors, explicitly set policies and
-packet filters." 
-Call it hw-rx-drops ?
+v4->v5 changes:
+  [patch 2]:
+- Fixed the problem reported by Simon Horman where build fails after
+  patch 2 application. Do not undefine VMWARE_HYPERCALL for now, and
+  update vmwgfx, vmmouse and ptp_vmw code for new VMWARE_HYPERCALL macro.
+- Introduce new patch 6 to undefine VMWARE_HYPERCALL, which is safe to do
+  after patches 3 to 5.
+- [patch 7 (former patch 6)]: Add missing r15 (CPL) initialization.
 
-overruns is a bit harder to precisely define. I was thinking of
-something more broad, like: "packets dropped due to transient lack of
-resources, such as buffer space, host descriptors etc."
+v3->v4 changes: (no functional changes in patches 1-5)
+  [patch 2]:
+- Added the comment with VMware hypercall ABI description.
+  [patch 6]:
+- vmware_tdx_hypercall_args remove in6/out6 arguments as excessive.
+- vmware_tdx_hypercall return ULONG_MAX on error to mimic bad hypercall
+  command error from the hypervisor.
+- Replaced pr_warn by pr_warn_once as pointed by Kirill Shutemov.
+- Fixed the warning reported by Intel's kernel test robot.
+- Added the comment describing VMware TDX hypercall ABI.
 
-For context why not just go with virtio spec definition of "no
-descriptors" - for HW devices, what exact point in the pipeline drops
-depends on how back pressure is configured/implemented, and fetching
-descriptors is high latency, so differentiating between "PCIe is slow"
-and "host didn't post descriptors" is hard in practice.
-Call it hw-rx-drop-overruns ?
+v2->v3 changes: (no functional changes in patches 1-5)
+- Improved commit message in patches 1, 2 and 5 as was suggested by
+  Borislav Petkov.
+- To address Dave Hansen's concern, patch 6 was reorganized to avoid
+  exporting bare __tdx_hypercall and to make exported vmware_tdx_hypercall
+  VMWare guest specific.
 
-> +static const struct virtnet_stat_desc virtnet_stats_tx_basic_desc[] = {
-> +	VIRTNET_STATS_DESC(tx, basic, packets),
-> +	VIRTNET_STATS_DESC(tx, basic, bytes),
-> +
-> +	VIRTNET_STATS_DESC(tx, basic, notifications),
-> +	VIRTNET_STATS_DESC(tx, basic, interrupts),
-> +
-> +	VIRTNET_STATS_DESC(tx, basic, drops),
+v1->v2 changes (no functional changes):
+- Improved commit message in patches 2 and 5.
+- Added Reviewed-by for all patches.
+- Added Ack from Dmitry Torokhov in patch 4. No fixes regarding reported
+  by Simon Horman gcc error in this patch.
 
-These 5 same as rx.
+Alexey Makhalov (7):
+  x86/vmware: Move common macros to vmware.h
+  x86/vmware: Introduce VMware hypercall API
+  ptp/vmware: Use VMware hypercall API
+  input/vmmouse: Use VMware hypercall API
+  drm/vmwgfx: Use VMware hypercall API
+  x86/vmware: Undefine VMWARE_HYPERCALL
+  x86/vmware: Add TDX hypercall support
 
-> +	VIRTNET_STATS_DESC(tx, basic, drop_malformed),
+ arch/x86/include/asm/vmware.h             | 331 +++++++++++++++++++---
+ arch/x86/kernel/cpu/vmware.c              | 144 +++++-----
+ drivers/gpu/drm/vmwgfx/vmwgfx_msg.c       | 173 ++++-------
+ drivers/gpu/drm/vmwgfx/vmwgfx_msg_arm64.h | 197 +++++++++----
+ drivers/gpu/drm/vmwgfx/vmwgfx_msg_x86.h   | 185 ------------
+ drivers/input/mouse/vmmouse.c             |  76 ++---
+ drivers/ptp/ptp_vmw.c                     |  12 +-
+ 7 files changed, 593 insertions(+), 525 deletions(-)
 
-These I'd call hw-tx-drop-errors, "packets dropped because they were
-invalid or malformed"?
+-- 
+2.39.0
 
-> +static const struct virtnet_stat_desc virtnet_stats_rx_csum_desc[] = {
-> +	VIRTNET_STATS_DESC(rx, csum, csum_valid),
-
-I think in kernel parlance that would translate to CHECKSUM_UNNECESSARY?
-So let's call it rx-csum-unnecessary ?
-I'd skip the hw- prefix for this one, it doesn't matter to the user if
-the HW or SW counted it.
-
-> +	VIRTNET_STATS_DESC(rx, csum, needs_csum),
-
-Hm, I think this is a bit software/virt device specific, presumably
-rx-csum-partial for the kernel, up to you whether to make it ethtool -S
-or netlink.
-
-> +	VIRTNET_STATS_DESC(rx, csum, csum_none),
-> +	VIRTNET_STATS_DESC(rx, csum, csum_bad),
-
-These two make sense as is in netlink, should be fairly commonly
-reported by devices. Maybe add a note in "bad" that packets with
-bad csum are not discarded, but still delivered to the stack.
-
-> +static const struct virtnet_stat_desc virtnet_stats_tx_csum_desc[] = {
-> +	VIRTNET_STATS_DESC(tx, csum, needs_csum),
-> +	VIRTNET_STATS_DESC(tx, csum, csum_none),
-
-tx- version of what names we pick for rx-, netlink seems appropriate.
-
-> +static const struct virtnet_stat_desc virtnet_stats_rx_gso_desc[] = {
-> +	VIRTNET_STATS_DESC(rx, gso, gso_packets),
-> +	VIRTNET_STATS_DESC(rx, gso, gso_bytes),
-
-I used the term "GSO" in conversations about Rx and it often confuses
-people. Let's use "GRO", so hw-gro-packets, and hw-gro-bytes ?
-Or maybe coalesce? "hw-rx-coalesce" ? That's quite a bit longer..
-
-Ah, and please mention in the doc that these counters "do not cover LRO
-i.e. any coalescing implementation which doesn't follow GRO rules".
-
-> +	VIRTNET_STATS_DESC(rx, gso, gso_packets_coalesced),
-
-hw-gro-wire-packets ?
-No strong preference on the naming, but I find that saying -wire
-makes it 100% clear to everyone what the meaning is.
-
-> +	VIRTNET_STATS_DESC(rx, gso, gso_bytes_coalesced),
-
-The documentation in the virtio spec seems to be identical 
-to the one for gso_packets, which gotta be unintentional?
-I'm guessing this is hw-gro-wire-bytes? I.e. headers counted
-multiple times?
-
-> +static const struct virtnet_stat_desc virtnet_stats_tx_gso_desc[] = {
-> +	VIRTNET_STATS_DESC(tx, gso, gso_packets),
-> +	VIRTNET_STATS_DESC(tx, gso, gso_bytes),
-> +	VIRTNET_STATS_DESC(tx, gso, gso_segments),
-> +	VIRTNET_STATS_DESC(tx, gso, gso_segments_bytes),
-
-these 4 make sense as mirror of the Rx
-
-> +	VIRTNET_STATS_DESC(tx, gso, gso_packets_noseg),
-> +	VIRTNET_STATS_DESC(tx, gso, gso_bytes_noseg),
-
-Not sure what these are :) unless someone knows what it is and that
-HW devices report it, let's keep them in ethtool -S ?
-
-> +static const struct virtnet_stat_desc virtnet_stats_rx_speed_desc[] = {
-> +	VIRTNET_STATS_DESC(rx, speed, packets_allowance_exceeded),
-
-hw-rx-drop-ratelimits ?
-"Allowance exceeded" is a bit of a mouthful to me, perhaps others
-disagree. The description from the virtio spec is quite good.
-
-> +	VIRTNET_STATS_DESC(rx, speed, bytes_allowance_exceeded),
-
-No strong preference whether to expose this as a standard stat or
-ethtool -S, we don't generally keep byte counters for drops, so
-this would be special.
-
-> +static const struct virtnet_stat_desc virtnet_stats_tx_speed_desc[] = {
-> +	VIRTNET_STATS_DESC(tx, speed, packets_allowance_exceeded),
-> +	VIRTNET_STATS_DESC(tx, speed, packets_allowance_exceeded),
-
-same as rx
