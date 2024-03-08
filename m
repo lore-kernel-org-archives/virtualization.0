@@ -1,166 +1,139 @@
-Received: from relay4-d.mail.gandi.net (relay4-d.mail.gandi.net [217.70.183.196])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C229015C8
-	for <virtualization@lists.linux.dev>; Fri,  8 Mar 2024 17:03:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.196
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63B105E07F
+	for <virtualization@lists.linux.dev>; Fri,  8 Mar 2024 17:18:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709917386; cv=none; b=D4xUewWX43S2IStk6qw+JKYkYmLRIXSbFnjq7e4LcS6spepz3V8RZJd0FQ4BTUXVALSoShKpKW8PfOLYdNnoRHSTJ95jQFOHaK07IFctCzvT7SWmCiAWyChHtw5D77TDi6f+4g/+FMt09bPx9vT0pbO6zhol1kPndjm6JjFL9eg=
+	t=1709918315; cv=none; b=pwr4E4y9i46b2XB7YpW5az/BoPBstyzehC0V9HTihwCUMF+JCKaRyuMPjfwCAPCyhm8z9J7ezsr7rzBLAqfuRqdt8cPkPa2PDIQidq6QvmBF4r3HxcZ1oSxY+oQZTnlKpH/3c0zLrXyQLF8h2nGeL/PP4XoYoROl1YbBWcjhrp8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709917386; c=relaxed/simple;
-	bh=x+BSDaogTlTx6HExeJr2kY2Xre214xK5ve/7vns2ivI=;
+	s=arc-20240116; t=1709918315; c=relaxed/simple;
+	bh=LoSGNZh4FtejyrcxyRuCe7BMBFayjFDM4mQ+O9e+4Qc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QV/5EJ4+FqhYFDbq/Wp/Ogr53knqXXm9aUeK6IBLLHHSkznogovv34q8nJt8oUZQRL/M0EeWCQ4byeMBM36vNlZBn/g2a3AST8VZYvMp2rSx08zusU1JGr2lxAwcvk0yqCMli9IlaVflzeEnurhom0eJYwqJfLKRK06PqsfZgf4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=NxDOJFxH; arc=none smtp.client-ip=217.70.183.196
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	 In-Reply-To:Content-Type:Content-Disposition; b=UfZsDJyLvi+czadqORg9jtWgPvla54c52ysRto7bMAaPUcM//OXmL2XRbsFi9RCCb8ljhVsfeIQdiPOLJxKHp5yo+/93RYn+fYzqzesg6DzGEVTJRTRYJZmJgwTe7mMi7H5SKOmO0+KDpUBKNsA2h7G3m1wSG+HrVK/5ceCzzQs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dUn6/AmZ; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="NxDOJFxH"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 4D209E000C;
-	Fri,  8 Mar 2024 17:03:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1709917382;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dUn6/AmZ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1709918312;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=f9DxpRYK3Ncnn+zC+8VF/kBAVFbc4p7Pz1eQkOUJfqs=;
-	b=NxDOJFxHZZQpII8j4FhRtWaaVeu2+jnA4DKtp2VDRbX22TNJqYWjrpQ12j2mdhrtyNmbsQ
-	OLVJgJr/Px/rZAuJY4K2+H1shQUaEz8LbDrP4qJ6SyY7lIx7BJ42s6iMN7eL6ctGvU00KU
-	HR4VjODLrN2jsSGEUOWtCCrjtwJoKBvCafH6hoMvcZttd/5HnV8g1QtFvHJWI6SYt2ah5q
-	XfAHg5DWx0565aYzdYhnCnvKq+7YqC2VANQAyswcCuNbeleE1Yhegk8bsxEwivvNTMYI6+
-	tlD4s/maYzK1CoW3AvgbOXbgBzhMYRYWgHaGJCnp/0FYQNHjCISidhKvtsoGBQ==
-Date: Fri, 8 Mar 2024 18:03:00 +0100
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Peter Hilber <peter.hilber@opensynergy.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-	virtio-dev@lists.oasis-open.org, linux-rtc@vger.kernel.org,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
+	bh=7yPDbYfYVCjD6jkpVVZaC5nQLyNSNZXwpB21Gzx/O2s=;
+	b=dUn6/AmZiLgHPuKECcjLtmxJp+5gziszKRRRwFJxSUbF8IJJVtWOnmDDR0tqUIDrSKyoKv
+	5tr1xr/tEvglccuFfBtMW7SipaHdPXYJhzzKU/ZIbQjb5yN1xUWRoYt2S5CV9Z/SdO5b4X
+	qRRsuJYxRVo8SZhfpbXhGJlA6ERGzqU=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-295--bu4vXtIMf26BGf-p2Je4g-1; Fri, 08 Mar 2024 12:18:31 -0500
+X-MC-Unique: -bu4vXtIMf26BGf-p2Je4g-1
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-33d5aee5f0dso802745f8f.1
+        for <virtualization@lists.linux.dev>; Fri, 08 Mar 2024 09:18:30 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1709918310; x=1710523110;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=7yPDbYfYVCjD6jkpVVZaC5nQLyNSNZXwpB21Gzx/O2s=;
+        b=ZtsfZFzf1EgD/DUb8hCot+PhrkeM90x/SByhuXfdBkKVtU+N7DsPnjEXBRz1Di0pro
+         TG/0U5rB9nkHSAjbaC8YFf/WXBrASXXZ8FYv64ssECyGATO7afOgMxQ+SE85b5xcUk2w
+         KF+kLmo01RKnTAb8kB6YGyKWO5jUDjV5xbbDJe8e+AqZgum8bz8WB481cguFUxMbMWg3
+         F25LE4kmyeX8GCE6gqVoNR0hFYkdnBViMVesLK38h8Gt6nM2gk7oydzBwtK29i+R91Fk
+         X79mmq+0fsEEJrkhkG7l9NVawqMWoc7YK1OuUC6kU/R/3eSMtq8kZFmxYZ5egp0Fso6a
+         G0FA==
+X-Forwarded-Encrypted: i=1; AJvYcCU9yGMZUfnOseMjbGAKQgoq0Q97FYNwteqRFUJYGJlY8y6tCfjjr90GW6BsR3MaG9FGscto510PNBdNzp4mFoCgIgQqL2e++DfHPsFA3ng=
+X-Gm-Message-State: AOJu0Yy2B2bNmCepIV3jxQaUY6TUPnQNhNCGGV2bVB2Ecs2JhHveFDT5
+	zSt26OWtQnIrdna8g0exBJnBGx8uExHg0rr2dHlrw5UXCcnUeDG+GAf9W2BNqA/VwrVOCqAKoc8
+	xWIZWAjueltgoV6Xkcc87cZD3icgLuvM5U4qwUSfK5x48mPiignGHLTrPlixyNYf8
+X-Received: by 2002:adf:e310:0:b0:33d:b627:c3ec with SMTP id b16-20020adfe310000000b0033db627c3ecmr17387512wrj.44.1709918309624;
+        Fri, 08 Mar 2024 09:18:29 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFEcLCPTsB4rQmZ3icXY8ztQNYxBtAct6i9KrJitWvzDhGIWNg5+ETaBy1dR6GiOUAE/5xXVg==
+X-Received: by 2002:adf:e310:0:b0:33d:b627:c3ec with SMTP id b16-20020adfe310000000b0033db627c3ecmr17387493wrj.44.1709918309057;
+        Fri, 08 Mar 2024 09:18:29 -0800 (PST)
+Received: from redhat.com ([2a06:c701:73cd:f300:bc74:daca:b316:492a])
+        by smtp.gmail.com with ESMTPSA id i14-20020adfefce000000b0033e7603987dsm2379319wrp.12.2024.03.08.09.18.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 08 Mar 2024 09:18:28 -0800 (PST)
+Date: Fri, 8 Mar 2024 12:18:26 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
+Cc: Jason Wang <jasowang@redhat.com>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Alessandro Zummo <a.zummo@towertech.it>
-Subject: Re: [RFC PATCH v3 7/7] virtio_rtc: Add RTC class driver
-Message-ID: <2024030817030063a909f0@mail.local>
-References: <20231218073849.35294-1-peter.hilber@opensynergy.com>
- <20231218073849.35294-8-peter.hilber@opensynergy.com>
+	virtualization@lists.linux.dev, kernel@pengutronix.de
+Subject: Re: [PATCH] virtio-mmio: Convert to platform remove callback
+ returning void
+Message-ID: <20240308121725-mutt-send-email-mst@kernel.org>
+References: <ef71f955531d5e41b20d801e1149bb08d155679a.1709886922.git.u.kleine-koenig@pengutronix.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <ef71f955531d5e41b20d801e1149bb08d155679a.1709886922.git.u.kleine-koenig@pengutronix.de>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20231218073849.35294-8-peter.hilber@opensynergy.com>
-X-GND-Sasl: alexandre.belloni@bootlin.com
+Content-Transfer-Encoding: 8bit
 
-Hello,
-
-I'll start by saying that I'm sorry, I have a very very high level
-knowledge about what virtio is.
-
-On 18/12/2023 08:38:45+0100, Peter Hilber wrote:
-> Expose the virtio-rtc UTC clock as an RTC clock to userspace, if it is
-> present. Support RTC alarm if the virtio-rtc alarm feature is present. The
-> virtio-rtc device signals an alarm by marking an alarmq buffer as used.
+On Fri, Mar 08, 2024 at 09:51:20AM +0100, Uwe Kleine-König wrote:
+> The .remove() callback for a platform driver returns an int which makes
+> many driver authors wrongly assume it's possible to do error handling by
+> returning an error code. However the value returned is ignored (apart
+> from emitting a warning) and this typically results in resource leaks.
 > 
-> Peculiarities
-> -------------
+> To improve here there is a quest to make the remove callback return
+> void. In the first step of this quest all drivers are converted to
+> .remove_new(), which already returns void. Eventually after all drivers
+> are converted, .remove_new() will be renamed to .remove().
 > 
-> A virtio-rtc clock is a bit special for an RTC clock in that
+> Trivially convert this driver from always returning zero in the remove
+> callback to the void returning variant.
 > 
-> - the clock may step (also backwards) autonomously at any time and
+> Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+do u want me to merge this?
+
+> ---
+>  drivers/virtio/virtio_mmio.c | 6 ++----
+>  1 file changed, 2 insertions(+), 4 deletions(-)
 > 
-> - the device, and its notification mechanism, will be reset during boot or
->   resume from sleep.
+> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+> index 59892a31cf76..173596589c71 100644
+> --- a/drivers/virtio/virtio_mmio.c
+> +++ b/drivers/virtio/virtio_mmio.c
+> @@ -696,12 +696,10 @@ static int virtio_mmio_probe(struct platform_device *pdev)
+>  	return rc;
+>  }
+>  
+> -static int virtio_mmio_remove(struct platform_device *pdev)
+> +static void virtio_mmio_remove(struct platform_device *pdev)
+>  {
+>  	struct virtio_mmio_device *vm_dev = platform_get_drvdata(pdev);
+>  	unregister_virtio_device(&vm_dev->vdev);
+> -
+> -	return 0;
+>  }
+>  
+>  
+> @@ -847,7 +845,7 @@ MODULE_DEVICE_TABLE(acpi, virtio_mmio_acpi_match);
+>  
+>  static struct platform_driver virtio_mmio_driver = {
+>  	.probe		= virtio_mmio_probe,
+> -	.remove		= virtio_mmio_remove,
+> +	.remove_new	= virtio_mmio_remove,
+>  	.driver		= {
+>  		.name	= "virtio-mmio",
+>  		.of_match_table	= virtio_mmio_match,
 > 
-> The virtio-rtc device avoids that the driver might miss an alarm. The
-> device signals an alarm whenever the clock has reached or passed the alarm
-> time, and also when the device is reset (on boot or resume from sleep), if
-> the alarm time is in the past.
-> 
-> Open Issue
-> ----------
-> 
-> The CLOCK_BOOTTIME_ALARM will use the RTC clock to wake up from sleep, and
-> implicitly assumes that no RTC clock steps will occur during sleep. The RTC
-> class driver does not know whether the current alarm is a real-time alarm
-> or a boot-time alarm.
-> 
-> Perhaps this might be handled by the driver also setting a virtio-rtc
-> monotonic alarm (which uses a clock similar to CLOCK_BOOTTIME_ALARM). The
-> virtio-rtc monotonic alarm would just be used to wake up in case it was a
-> CLOCK_BOOTTIME_ALARM alarm.
-> 
-> Otherwise, the behavior should not differ from other RTC class drivers.
-> 
+> base-commit: 8ffc8b1bbd505e27e2c8439d326b6059c906c9dd
+> -- 
+> 2.43.0
 
-What I don't quite get is how this is actually related to RTCs. This
-would be a super imprecise mechanism to get the current time and date
-from the host to the guest which is what I think your are trying to do,
-especially since this is not supporting UIE.
-The host system clock may come from reading the RTC at some point in
-time but more likely from another source so is it really the best
-synchronization mechanism?
-
-The other thing is that I don't quite get the point of the RTC alarm
-versus a regular timer in this context.
-
-
-[...]
-
-> +static const struct rtc_class_ops viortc_class_with_alarm_ops = {
-> +	.read_time = viortc_class_read_time,
-> +	.read_alarm = viortc_class_read_alarm,
-> +	.set_alarm = viortc_class_set_alarm,
-> +	.alarm_irq_enable = viortc_class_alarm_irq_enable,
-> +};
-> +
-> +static const struct rtc_class_ops viortc_class_no_alarm_ops = {
-> +	.read_time = viortc_class_read_time,
-> +};
-> +
-
-[...]
-
-> +/**
-> +/**
-> + * viortc_class_init() - init RTC class wrapper and device
-> + * @viortc: device data
-> + * @vio_clk_id: virtio_rtc clock id
-> + * @have_alarm: expose alarm ops
-> + * @parent_dev: virtio device
-> + *
-> + * Context: Process context.
-> + * Return: RTC class wrapper on success, ERR_PTR otherwise.
-> + */
-> +struct viortc_class *viortc_class_init(struct viortc_dev *viortc,
-> +				       u16 vio_clk_id, bool have_alarm,
-> +				       struct device *parent_dev)
-> +{
-> +	struct viortc_class *viortc_class;
-> +	struct rtc_device *rtc;
-> +
-> +	viortc_class =
-> +		devm_kzalloc(parent_dev, sizeof(*viortc_class), GFP_KERNEL);
-> +	if (!viortc_class)
-> +		return ERR_PTR(-ENOMEM);
-> +
-> +	viortc_class->viortc = viortc;
-> +
-> +	rtc = devm_rtc_allocate_device(parent_dev);
-> +	if (IS_ERR(rtc))
-> +		return ERR_PTR(PTR_ERR(rtc));
-> +
-> +	viortc_class->rtc = rtc;
-> +
-> +	clear_bit(RTC_FEATURE_UPDATE_INTERRUPT, rtc->features);
-> +
-> +	rtc->ops = have_alarm ? &viortc_class_with_alarm_ops :
-> +				&viortc_class_no_alarm_ops;
-
-Don't do this, simply clear the alarm feature.
-
--- 
-Alexandre Belloni, co-owner and COO, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
