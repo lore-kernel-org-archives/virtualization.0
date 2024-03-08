@@ -1,109 +1,140 @@
-Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 576C93C32
-	for <virtualization@lists.linux.dev>; Fri,  8 Mar 2024 18:46:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E66B58AD9
+	for <virtualization@lists.linux-foundation.org>; Fri,  8 Mar 2024 19:05:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709923604; cv=none; b=kNCpD7EtmFs3HcREN87JpPP/sya70QQoZ5W3np29y5td1r2NDU1+Ko91FTDk5M676fdQ7dO2eEN+tAD/Uo+spqvbYioS1OneK6pARuyD/uqW2ySCLywEl/MJuip6CPG9h7V9M35uWIwOQIt2jEhj8MwqvbRlfC0LRd9x/gaRHb8=
+	t=1709924745; cv=none; b=kztVM5I7rWf2h3eSSeKk4qP8HcWR132YmJONPfujFINQE2fiPXRY1bejCRi9aob6eQn6SQb1l2LLNRoOyofcm89ynnEmJz8fMicysPCu7IpCllBcRKn71YTBrLs8DAuCHK7Up/yaeBL1TD2b8m8GxUy70xbekMW7fSP7pt0qn1A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709923604; c=relaxed/simple;
-	bh=x0j42jhPh/MLbb9JbXocSIltT5lWWPSMGpo2bWMSPhg=;
+	s=arc-20240116; t=1709924745; c=relaxed/simple;
+	bh=ILaKu4J8rSQrN8d6WmZQitsoeFgh+zPlpkPgOdLz644=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=I/j2JcRvdTAbkRt9uLKp8LsDeqNSqGPLeNVvq44o0lrGyGZTWeLTm6KrGyiUe91pXQEh3rtUnnE12YyDg5m2jbEDuMhHXW0Ykm2Aykl7fsIv+Cx95TAXNBqvWc2iuKLZC6/B1Ku9DBbEbGQ1N09+PimSAhHvC2FwZHgoh/y0mdk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-	(Exim 4.92)
-	(envelope-from <ukl@pengutronix.de>)
-	id 1rifEm-0008OD-Co; Fri, 08 Mar 2024 19:46:32 +0100
-Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
-	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.94.2)
-	(envelope-from <ukl@pengutronix.de>)
-	id 1rifEk-005Bdj-U9; Fri, 08 Mar 2024 19:46:30 +0100
-Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.96)
-	(envelope-from <ukl@pengutronix.de>)
-	id 1rifEk-002SPL-2j;
-	Fri, 08 Mar 2024 19:46:30 +0100
-Date: Fri, 8 Mar 2024 19:46:30 +0100
-From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Jason Wang <jasowang@redhat.com>, virtualization@lists.linux.dev, kernel@pengutronix.de
-Subject: Re: [PATCH] virtio-mmio: Convert to platform remove callback
- returning void
-Message-ID: <jsfldiklmu45j72rp7rqlpxfrgzjvpjmz664zsuvaetz4t2h5f@2hiy3huvrukc>
-References: <ef71f955531d5e41b20d801e1149bb08d155679a.1709886922.git.u.kleine-koenig@pengutronix.de>
- <20240308121725-mutt-send-email-mst@kernel.org>
+	 Content-Type:Content-Disposition:In-Reply-To; b=Co9UuOvjTegwVdoI968vJye5PvTXRt179gRtVwMvveOPbsoet/zaZaFDPbS9uhhG5H42VwaIP6MIUibnjFXWirdcWIk3OEWjQXEc3ZTOY2LBtmm2p9JtQa3DwHYsiDGqmh9k6k62OfBNeJRVUco3LWYS5OTqrWNOwbPudBtb9I8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=nvQNbyWM; arc=none smtp.client-ip=140.211.166.137
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="nvQNbyWM"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id B83A741E12
+	for <virtualization@lists.linux-foundation.org>; Fri,  8 Mar 2024 19:05:43 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id hD44lho-IxzK
+	for <virtualization@lists.linux-foundation.org>;
+	Fri,  8 Mar 2024 19:05:42 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2001:4860:4864:20::33; helo=mail-oa1-x33.google.com; envelope-from=jgg@ziepe.ca; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org E9A9741E0C
+Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E9A9741E0C
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=nvQNbyWM
+Received: from mail-oa1-x33.google.com (mail-oa1-x33.google.com [IPv6:2001:4860:4864:20::33])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id E9A9741E0C
+	for <virtualization@lists.linux-foundation.org>; Fri,  8 Mar 2024 19:05:41 +0000 (UTC)
+Received: by mail-oa1-x33.google.com with SMTP id 586e51a60fabf-2210a266118so844156fac.1
+        for <virtualization@lists.linux-foundation.org>; Fri, 08 Mar 2024 11:05:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1709924740; x=1710529540; darn=lists.linux-foundation.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=7qMRR7sLkZVUANHdEsXoEoSh+RPGbp+63DXPrOksx9o=;
+        b=nvQNbyWM3mDwN+2SADxJgy3UII0H6IpRtZvAodSwFJ+l1oLKe+QqWjvGy0K41MuBZr
+         ZQDTmAC1XtPBZnAIF8nFapu8h48tAfTN2LTvNov44wJlESEE4KP2Xdfpov21h34asMk5
+         7Zsu0blH8b1IJa0kbpKGbZQMj567/qE+h0j38qELcTKRqZ+DuFu43RXBhTBT5PPPHZHx
+         Fe7I0H3Z0NNra0BBx/BMjcnsOtIOKBM32LtVgQXsRMslNY5qTsjYHGqgom7GGiuG1xmh
+         QO9Bj32FfsR2JEsu2MzvdyGp5p1aGNzowzZmKXKik6j8xIB9SCjdltkwg2tgys22Txtq
+         9lcQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1709924740; x=1710529540;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=7qMRR7sLkZVUANHdEsXoEoSh+RPGbp+63DXPrOksx9o=;
+        b=EO1cjcLeMupb+aa+FGn/VI5FFcFdwMvku/jOpgvBWDN2eb+XAhT4hqltolxN6wJO74
+         LZ9VtbCiSbJtrdzee9hwlflrAECi4Bl1IYWHE6jP1TG364CCdKVs/09KxxQdveqhj5oN
+         BPghOayNo3EbYoPuKcAd140WBehwlM6657LYO3Jh0nQicbYOtKzyiiqI0EUVj4MoOI4Q
+         76LQZNGBqAZotgs9THQoAvYidvXS8DL1sw3BNlCYDvlQ3MLerwDwwtetjTEy/IaSTSH0
+         wu+Uczqj9en+gqvoej1UueYnVvjzcSWJsuflxunPEoB+PDXY8wH4wzX2gmlfSS1Quqv2
+         bjCQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVENRM4VhLKHyYnfdTPwiUsQaMfco0/VRVOvk7ZgPlvwggABNX4IQRGNnCfxsmwFW+h2jIfQsQSVFx17SH8ew6z0QPmDNpOZcxJcWX3lqhgKQT157gzBXf35w==
+X-Gm-Message-State: AOJu0Yzv2QrAIRb/xME3wfCi1GUNYLTDiC3J/YyCo94RCiR/Bjkp3QJL
+	GOeKjiRfDYaPvjRSJXCKcJW5tKjDrIGc5erOE0duHIRg1/r/oKHdFPIsTiwgOy0=
+X-Google-Smtp-Source: AGHT+IFDoglDB8jr4C0bRLZGs90q16mK5wPOyxs6caLbupPbYv27tZdKsh1cc0oiSg/2ojAvVJQeAA==
+X-Received: by 2002:a05:6870:844f:b0:220:fc89:db73 with SMTP id n15-20020a056870844f00b00220fc89db73mr42008oak.0.1709924740712;
+        Fri, 08 Mar 2024 11:05:40 -0800 (PST)
+Received: from ziepe.ca (hlfxns017vw-142-68-80-239.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.80.239])
+        by smtp.gmail.com with ESMTPSA id la12-20020a056871410c00b00221847430e2sm1485oab.30.2024.03.08.11.05.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 08 Mar 2024 11:05:40 -0800 (PST)
+Received: from jgg by wakko with local (Exim 4.95)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1rifXH-007kGb-7w;
+	Fri, 08 Mar 2024 15:05:39 -0400
+Date: Fri, 8 Mar 2024 15:05:39 -0400
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Lu Baolu <baolu.lu@linux.intel.com>
+Cc: Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
+	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
+	Jean-Philippe Brucker <jean-philippe@linaro.org>,
+	Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
+	Jacob Pan <jacob.jun.pan@linux.intel.com>,
+	Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
+	virtualization@lists.linux-foundation.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 5/8] iommufd: Associate fault object with
+ iommufd_hw_pgtable
+Message-ID: <20240308190539.GY9225@ziepe.ca>
+References: <20240122073903.24406-1-baolu.lu@linux.intel.com>
+ <20240122073903.24406-6-baolu.lu@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="pacfivvrj6g767f5"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240308121725-mutt-send-email-mst@kernel.org>
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: virtualization@lists.linux.dev
+In-Reply-To: <20240122073903.24406-6-baolu.lu@linux.intel.com>
 
+On Mon, Jan 22, 2024 at 03:39:00PM +0800, Lu Baolu wrote:
 
---pacfivvrj6g767f5
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> @@ -411,6 +414,8 @@ enum iommu_hwpt_data_type {
+>   * @__reserved: Must be 0
+>   * @data_type: One of enum iommu_hwpt_data_type
+>   * @data_len: Length of the type specific data
+> + * @fault_id: The ID of IOMMUFD_FAULT object. Valid only if flags field of
+> + *            IOMMU_HWPT_FAULT_ID_VALID is set.
+>   * @data_uptr: User pointer to the type specific data
+>   *
+>   * Explicitly allocate a hardware page table object. This is the same object
+> @@ -441,6 +446,7 @@ struct iommu_hwpt_alloc {
+>  	__u32 __reserved;
+>  	__u32 data_type;
+>  	__u32 data_len;
+> +	__u32 fault_id;
+>  	__aligned_u64 data_uptr;
+>  };
 
-Hello Michael,
+?? We can't add fault_id in the middle of the struct??
 
-On Fri, Mar 08, 2024 at 12:18:26PM -0500, Michael S. Tsirkin wrote:
-> On Fri, Mar 08, 2024 at 09:51:20AM +0100, Uwe Kleine-K=F6nig wrote:
-> > The .remove() callback for a platform driver returns an int which makes
-> > many driver authors wrongly assume it's possible to do error handling by
-> > returning an error code. However the value returned is ignored (apart
-> > from emitting a warning) and this typically results in resource leaks.
-> >=20
-> > To improve here there is a quest to make the remove callback return
-> > void. In the first step of this quest all drivers are converted to
-> > .remove_new(), which already returns void. Eventually after all drivers
-> > are converted, .remove_new() will be renamed to .remove().
-> >=20
-> > Trivially convert this driver from always returning zero in the remove
-> > callback to the void returning variant.
-> >=20
-> > Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
->=20
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
->=20
-> do u want me to merge this?
+> +	if (cmd->flags & IOMMU_HWPT_FAULT_ID_VALID) {
+> +		struct iommufd_fault *fault;
+> +
+> +		fault = iommufd_get_fault(ucmd, cmd->fault_id);
+> +		if (IS_ERR(fault)) {
+> +			rc = PTR_ERR(fault);
+> +			goto out_hwpt;
+> +		}
+> +		hwpt->fault = fault;
+> +		hwpt->domain->iopf_handler = iommufd_fault_iopf_handler;
+> +		hwpt->domain->fault_data = hwpt;
+> +		hwpt->fault_capable = true;
 
-I have no merge plan, so if you take it, that would be great.
+I wonder if there should be an iommu API to make a domain fault
+capable?
 
-Best regards
-Uwe
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
-Industrial Linux Solutions                 | https://www.pengutronix.de/ |
-
---pacfivvrj6g767f5
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmXrXQUACgkQj4D7WH0S
-/k785wf/TRoS/GWWgYsmoPJJHWQnXnXuBCn+c8v0RRSGBhiH8F5sHQ7q+o5fIloQ
-NHdTdzB8176zAR52iyP4xCsamJ4fgi+8ADXBu/sXGaqkd8s9wt0ZV90TR55OEsJ7
-4VXLJPAgQPPeNRkvjyBgIISAP2AzhB4fc951Upx1kdvD2LJnZLcix0fUqx5+iWpG
-nEHwt+qZtnVVhwVw2hicJ15pEsRHR/HeV4qHfpD5IN3X9hd0JvJEJ1EQc9q13LLf
-ii93u9ZdbSya2pBjpmO9Fd9CkqTKDewHq2UlCGPMnjslQNwrna42TI9ASKEOQisR
-pPI/tVpevBujw698rxylSsVYDkrizg==
-=Oma0
------END PGP SIGNATURE-----
-
---pacfivvrj6g767f5--
+Jason
