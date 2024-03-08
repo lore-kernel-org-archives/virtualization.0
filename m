@@ -1,324 +1,104 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 128B633CC4
-	for <virtualization@lists.linux.dev>; Fri,  8 Mar 2024 06:03:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 109B054BC9
+	for <virtualization@lists.linux.dev>; Fri,  8 Mar 2024 08:52:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709877839; cv=none; b=MSoZBjRkSIaneNyqijliVQGWN72++xM6bsSXi5GxhlMTLaf866RRBf+O1rmaHQ9+GnmRIT0B/OLUOl/s7zjv+O9XjNGagOzYaFuoC8LA7WwCYkpRLI23Q/Pv2evzigjPGRW2yN70YcTEyuOHskNQxxj+vuP1OMqGZbyPy1UTKl4=
+	t=1709887926; cv=none; b=FwTBnETjTM+RXfGo9yftu2dkW0Y8aqZr/kwCDWBu0cNNX5LrpABVNsjnPWHgDKlxxrWTxNOZqqTj7CtmXb7XfmqSEGlMO4F6+OjSPA6h/Cgphhl8vm2FnBfnN6uKDwpvQwvOfgrrFLoGeH1/DdVmdDpI0Q7Jlx/zykwMee2UpQw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709877839; c=relaxed/simple;
-	bh=jgt2FmcV3Yk28s1hw88s4sNZ9AfG+QarsYVdwOdt8LQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=L5hvhROmydZOfaC1yjc71zx8NDUGxM+t+BBaDqITJNO+/B5fCEjENW/XhjTbERKE52HzC0TVhW97RFB3Fya7Eb+9oPDXqNuYlXwQVpsItRMy6bpQT7fd/UY9RZRkf/5aTfPh179T81ooC7Y7wSbxKrMDM1iLdGc61jrIBDA3OkI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SHyDNdvc; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SHyDNdvc"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1709877835;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=yaMKbz1uGEbeDlqPaWY/PoRYwRKKFpuiuv79VQFM3t8=;
-	b=SHyDNdvcBdi1IeJTzTG7WgTFlZsjiJzS5kgOrgtko5vwewLQyDep7T0pvNhP0H0xSvKwI+
-	WxPCFB3iIvNasACtNohOJJN+egWp3bCNdVQzpCK4BwV18xPWQY1tTpEZLrsZTqW6xYorl/
-	xXWAdD4cuTzayZWhLhIY7kucBgkxc5w=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-491-y0GhDIA0PtmCeDwCmirJbQ-1; Fri, 08 Mar 2024 01:03:53 -0500
-X-MC-Unique: y0GhDIA0PtmCeDwCmirJbQ-1
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-29ba3ccfd2bso863167a91.2
-        for <virtualization@lists.linux.dev>; Thu, 07 Mar 2024 22:03:53 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1709877832; x=1710482632;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=yaMKbz1uGEbeDlqPaWY/PoRYwRKKFpuiuv79VQFM3t8=;
-        b=MHSaILoT8z4SD9n0BmWDXVs3FC5m3bsyFHUsSP0y/K4SkNV3/QpIG5rSjTkzf3Bvb4
-         X+Eo0jzeekloRpdNagHYVdWpwzQO7QxiM3fjWin2QAd+ehpAn4aaATF5CPB7VIm5nHFV
-         ALDPpZE7DF9KnPD5oMRuZhLfKqV0mrPZCvopIkWbVW8l7rkQnLi8ru6CLi/r99YFNGNC
-         ehlcO6J/h8UtL5NCJhUf1Bdn8eH2mG4gPWeQvWMvgqZdnJN7hCz3fmxUSktumLqg9FHb
-         UrEu6ey1+aUGVuRKzc2nWh8o7mKosoHJ5IdAgIu6J7oFvD/WH1GXysRTS7Yd3hny07dc
-         lbhA==
-X-Forwarded-Encrypted: i=1; AJvYcCW6aACwvuELRhjki7liLotACyhjHmGPl4Fl7kX/kpUjCxAAZ0UGnpEZberNdnq7MOgsrt5enRmoas1ABHBAzMaMXhnargwrdVoO6PUftxI=
-X-Gm-Message-State: AOJu0Yw/dqRnEoXWPgY7yhYhTAQ23g7Y1jWdY1jjXtUQu3VK0CJFcnjM
-	MazWIfjWuuMqr245OyD4xdD9tXVCbCOWO4NvBbQcg7xFe5eW/WapMKK3JvkMAsCWOOE3xCKQ3lj
-	Qg91huvSuJ6mLVJOdmOMDdSPIodnK2uJLtOWFNeKMzFeVjulnQyetlZwxlhitIMaeJsTiNsSria
-	lQnYHwfDygafnAXih1OCXLvf0qISSc0y5vgjcu5mM=
-X-Received: by 2002:a05:6a20:1586:b0:1a0:ebbd:9ae7 with SMTP id h6-20020a056a20158600b001a0ebbd9ae7mr11552882pzj.4.1709877832483;
-        Thu, 07 Mar 2024 22:03:52 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFwSy+KRC/GSn2zLsN0UNnw00pTdXTREweDEIwdkwzwwVJ8XmarEUl1eSz0tZAv2yTcVHqnwoNrrIMVt2DhM18=
-X-Received: by 2002:a05:6a20:1586:b0:1a0:ebbd:9ae7 with SMTP id
- h6-20020a056a20158600b001a0ebbd9ae7mr11552863pzj.4.1709877832102; Thu, 07 Mar
- 2024 22:03:52 -0800 (PST)
+	s=arc-20240116; t=1709887926; c=relaxed/simple;
+	bh=MvSY8r1Krx1rKfGPGF2tqqKGuMEPrCCpu4pYJDPsdCs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=MQKf7fddZknfvbJ/noPZ1eJPJF7nhH2hou5totdpHVFfcOF2hm3XjaeLiJz/wzyHZ1ZkChkYvg33UZXcgeMONT86klVI24VGVzk6i3lhvKvGOYpLh9GAFkKoUoOpLBBydCCYff9e0YMslLy9MXaa+Y1CLtk1cr63EEjGJbZ7ua0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+	(Exim 4.92)
+	(envelope-from <ukl@pengutronix.de>)
+	id 1riVxI-00072X-DG; Fri, 08 Mar 2024 09:51:52 +0100
+Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
+	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.94.2)
+	(envelope-from <ukl@pengutronix.de>)
+	id 1riVxH-0056Nu-0R; Fri, 08 Mar 2024 09:51:51 +0100
+Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.96)
+	(envelope-from <ukl@pengutronix.de>)
+	id 1riVxG-00246L-31;
+	Fri, 08 Mar 2024 09:51:50 +0100
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+To: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	virtualization@lists.linux.dev,
+	kernel@pengutronix.de
+Subject: [PATCH] virtio-mmio: Convert to platform remove callback returning void
+Date: Fri,  8 Mar 2024 09:51:20 +0100
+Message-ID:  <ef71f955531d5e41b20d801e1149bb08d155679a.1709886922.git.u.kleine-koenig@pengutronix.de>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240229072044.77388-1-xuanzhuo@linux.alibaba.com>
- <20240229031755-mutt-send-email-mst@kernel.org> <1709197357.626784-1-xuanzhuo@linux.alibaba.com>
- <20240229043238-mutt-send-email-mst@kernel.org> <1709718889.4420547-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEu5=DKJfXsvOoXDDH7KJ-DWt83jj=vf8GoRnq-9zUeOOg@mail.gmail.com> <1709798771.2564156-2-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <1709798771.2564156-2-xuanzhuo@linux.alibaba.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 8 Mar 2024 14:03:41 +0800
-Message-ID: <CACGkMEsHTwA=9W+3QfQGxzHcgzZZ=Bi9bb4PijUJHUQmLfEQpw@mail.gmail.com>
-Subject: Re: [PATCH vhost v3 00/19] virtio: drivers maintain dma info for
- premapped vq
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, 
-	Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
-	Johannes Berg <johannes@sipsolutions.net>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Hans de Goede <hdegoede@redhat.com>, =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
-	Vadim Pasternak <vadimp@nvidia.com>, Bjorn Andersson <andersson@kernel.org>, 
-	Mathieu Poirier <mathieu.poirier@linaro.org>, Cornelia Huck <cohuck@redhat.com>, 
-	Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Alexei Starovoitov <ast@kernel.org>, 
-	Daniel Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>, 
-	John Fastabend <john.fastabend@gmail.com>, linux-um@lists.infradead.org, 
-	netdev@vger.kernel.org, platform-driver-x86@vger.kernel.org, 
-	linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org, 
-	kvm@vger.kernel.org, bpf@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1788; i=u.kleine-koenig@pengutronix.de; h=from:subject:message-id; bh=MvSY8r1Krx1rKfGPGF2tqqKGuMEPrCCpu4pYJDPsdCs=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBl6tGNVhx6jfBloi39sSQ5Y007kLE1vRoD3PelZ cPtz0Z5w/OJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZerRjQAKCRCPgPtYfRL+ TlMKCACvXe3ahdI6IkkW9mn6HBvkCNTW20T1bZ/xn1CmjAX0GqTv9xHDJE1H4jlry6NdkCgZBVH +jfnGRsH5ap/6/UaZUgxAP6aoFlgtKjrObJV9BlfRmotbiGYBlnKsvzCo0x5/FRBZjBfM4Dvkyv bjuSNoHUwquQBQzl7IUgd8WDWtxQs/4g9eAfvIr+Sb4nmzbLRnBEMpEIlda4563ot/0Lp5GNO/J Q2ODayXHXE0EcBAmWJItVotxiYJ4/9TRmuui/5Xu4pavW1wHkHFh8sIr8Nu1BQE6+47Kgodlbx2 Q2rMjwsWZ/8eszwRVm1hEOrS8GnHs0cjPEPYlr983l0LYYyx
+X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: virtualization@lists.linux.dev
 
-On Thu, Mar 7, 2024 at 4:15=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.co=
-m> wrote:
->
-> On Thu, 7 Mar 2024 13:28:27 +0800, Jason Wang <jasowang@redhat.com> wrote=
-:
-> > On Wed, Mar 6, 2024 at 6:01=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibab=
-a.com> wrote:
-> > >
-> > > On Thu, 29 Feb 2024 04:34:20 -0500, "Michael S. Tsirkin" <mst@redhat.=
-com> wrote:
-> > > > On Thu, Feb 29, 2024 at 05:02:37PM +0800, Xuan Zhuo wrote:
-> > > > > On Thu, 29 Feb 2024 03:21:14 -0500, "Michael S. Tsirkin" <mst@red=
-hat.com> wrote:
-> > > > > > On Thu, Feb 29, 2024 at 03:20:25PM +0800, Xuan Zhuo wrote:
-> > > > > > > As discussed:
-> > > > > > > http://lore.kernel.org/all/CACGkMEvq0No8QGC46U4mGsMtuD44fD_cf=
-LcPaVmJ3rHYqRZxYg@mail.gmail.com
-> > > > > > >
-> > > > > > > If the virtio is premapped mode, the driver should manage the=
- dma info by self.
-> > > > > > > So the virtio core should not store the dma info.
-> > > > > > > So we can release the memory used to store the dma info.
-> > > > > > >
-> > > > > > > But if the desc_extra has not dma info, we face a new questio=
-n,
-> > > > > > > it is hard to get the dma info of the desc with indirect flag=
-.
-> > > > > > > For split mode, that is easy from desc, but for the packed mo=
-de,
-> > > > > > > it is hard to get the dma info from the desc. And for hardeni=
-ng
-> > > > > > > the dma unmap is saft, we should store the dma info of indire=
-ct
-> > > > > > > descs.
-> > > > > > >
-> > > > > > > So I introduce the "structure the indirect desc table" to
-> > > > > > > allocate space to store dma info with the desc table.
-> > > > > > >
-> > > > > > > On the other side, we mix the descs with indirect flag
-> > > > > > > with other descs together to share the unmap api. That
-> > > > > > > is complex. I found if we we distinguish the descs with
-> > > > > > > VRING_DESC_F_INDIRECT before unmap, thing will be clearer.
-> > > > > > >
-> > > > > > > Because of the dma array is allocated in the find_vqs(),
-> > > > > > > so I introduce a new parameter to find_vqs().
-> > > > > > >
-> > > > > > > Note:
-> > > > > > >     this is on the top of
-> > > > > > >         [PATCH vhost v1] virtio: packed: fix unmap leak for i=
-ndirect desc table
-> > > > > > >         http://lore.kernel.org/all/20240223071833.26095-1-xua=
-nzhuo@linux.alibaba.com
-> > > > > > >
-> > > > > > > Please review.
-> > > > > > >
-> > > > > > > Thanks
-> > > > > > >
-> > > > > > > v3:
-> > > > > > >     1. fix the conflict with the vp_modern_create_avq().
-> > > > > >
-> > > > > > Okay but are you going to address huge memory waste all this is=
- causing for
-> > > > > > - people who never do zero copy
-> > > > > > - systems where dma unmap is a nop
-> > > > > >
-> > > > > > ?
-> > > > > >
-> > > > > > You should address all comments when you post a new version, no=
-t just
-> > > > > > what was expedient, or alternatively tag patch as RFC and expla=
-in
-> > > > > > in commit log that you plan to do it later.
-> > > > >
-> > > > >
-> > > > > Do you miss this one?
-> > > > > http://lore.kernel.org/all/1708997579.5613105-1-xuanzhuo@linux.al=
-ibaba.com
-> > > >
-> > > >
-> > > > I did. The answer is that no, you don't get to regress memory usage
-> > > > for lots of people then fix it up.
-> > > > So the patchset is big, I guess it will take a couple of cycles to
-> > > > merge gradually.
-> > >
-> > > Hi @Michael
-> > >
-> > > So, how about this patch set?
-> > >
-> > > I do not think they (dma maintainers) will agree the API dma_can_skip=
-_unmap().
-> > >
-> > > If you think sq wastes too much memory using pre-mapped dma mode, how=
- about
-> > > we only enable it when xsk is bond?
-> > >
-> > > Could you give me some advice?
-> >
-> > I think we have some discussion, one possible solution is:
-> >
-> > when pre mapping is enabled, virtio core won't store dma metadatas.
-> >
-> > Then it makes virtio-net align with other NIC.
->
->
-> YES.
->
-> This patch set works as this.
->
-> But the virtio-net must allocate too much memory to store dma and len.
->
-> num =3D queue size * 19
->
-> Michael thinks that waste too much memory.
->         http://lore.kernel.org/all/20240225032330-mutt-send-email-mst@ker=
-nel.org
->
-> So we try this:
->         http://lore.kernel.org/all/20240301071918.64631-1-xuanzhuo@linux.=
-alibaba.com
->
-> But I think that is difficult to be accepted by the  DMA maintainers.
->
-> So I have two advices:
->
-> 1. virtio-net sq works without indirect.
->         - that more like other NIC
->         - the num of the memory to store the dma info is queue_size
+The .remove() callback for a platform driver returns an int which makes
+many driver authors wrongly assume it's possible to do error handling by
+returning an error code. However the value returned is ignored (apart
+from emitting a warning) and this typically results in resource leaks.
 
-This requires benchmarks.
+To improve here there is a quest to make the remove callback return
+void. In the first step of this quest all drivers are converted to
+.remove_new(), which already returns void. Eventually after all drivers
+are converted, .remove_new() will be renamed to .remove().
 
->
-> 2. The default mode of virtio-net sq is no-premapped
->         - we just switch the mode when binding xsk
+Trivially convert this driver from always returning zero in the remove
+callback to the void returning variant.
 
-This could be one step.
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+---
+ drivers/virtio/virtio_mmio.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-We can hear from Michael.
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index 59892a31cf76..173596589c71 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -696,12 +696,10 @@ static int virtio_mmio_probe(struct platform_device *pdev)
+ 	return rc;
+ }
+ 
+-static int virtio_mmio_remove(struct platform_device *pdev)
++static void virtio_mmio_remove(struct platform_device *pdev)
+ {
+ 	struct virtio_mmio_device *vm_dev = platform_get_drvdata(pdev);
+ 	unregister_virtio_device(&vm_dev->vdev);
+-
+-	return 0;
+ }
+ 
+ 
+@@ -847,7 +845,7 @@ MODULE_DEVICE_TABLE(acpi, virtio_mmio_acpi_match);
+ 
+ static struct platform_driver virtio_mmio_driver = {
+ 	.probe		= virtio_mmio_probe,
+-	.remove		= virtio_mmio_remove,
++	.remove_new	= virtio_mmio_remove,
+ 	.driver		= {
+ 		.name	= "virtio-mmio",
+ 		.of_match_table	= virtio_mmio_match,
 
-Thanks
-
->
-> Thanks.
->
->
-> >
-> > Thanks
-> >
-> > >
-> > > Thanks.
-> > >
-> > >
-> > > >
-> > > > > I asked you. But I didnot recv your answer.
-> > > > >
-> > > > > Thanks.
-> > > > >
-> > > > >
-> > > > > >
-> > > > > > > v2:
-> > > > > > >     1. change the dma item of virtio-net, every item have MAX=
-_SKB_FRAGS + 2
-> > > > > > >         addr + len pairs.
-> > > > > > >     2. introduce virtnet_sq_free_stats for __free_old_xmit
-> > > > > > >
-> > > > > > > v1:
-> > > > > > >     1. rename transport_vq_config to vq_transport_config
-> > > > > > >     2. virtio-net set dma meta number to (ring-size + 1)(MAX_=
-SKB_FRGAS +2)
-> > > > > > >     3. introduce virtqueue_dma_map_sg_attrs
-> > > > > > >     4. separate vring_create_virtqueue to an independent comm=
-it
-> > > > > > >
-> > > > > > >
-> > > > > > >
-> > > > > > > Xuan Zhuo (19):
-> > > > > > >   virtio_ring: introduce vring_need_unmap_buffer
-> > > > > > >   virtio_ring: packed: remove double check of the unmap ops
-> > > > > > >   virtio_ring: packed: structure the indirect desc table
-> > > > > > >   virtio_ring: split: remove double check of the unmap ops
-> > > > > > >   virtio_ring: split: structure the indirect desc table
-> > > > > > >   virtio_ring: no store dma info when unmap is not needed
-> > > > > > >   virtio: find_vqs: pass struct instead of multi parameters
-> > > > > > >   virtio: vring_create_virtqueue: pass struct instead of mult=
-i
-> > > > > > >     parameters
-> > > > > > >   virtio: vring_new_virtqueue(): pass struct instead of multi=
- parameters
-> > > > > > >   virtio_ring: simplify the parameters of the funcs related t=
-o
-> > > > > > >     vring_create/new_virtqueue()
-> > > > > > >   virtio: find_vqs: add new parameter premapped
-> > > > > > >   virtio_ring: export premapped to driver by struct virtqueue
-> > > > > > >   virtio_net: set premapped mode by find_vqs()
-> > > > > > >   virtio_ring: remove api of setting vq premapped
-> > > > > > >   virtio_ring: introduce dma map api for page
-> > > > > > >   virtio_ring: introduce virtqueue_dma_map_sg_attrs
-> > > > > > >   virtio_net: unify the code for recycling the xmit ptr
-> > > > > > >   virtio_net: rename free_old_xmit_skbs to free_old_xmit
-> > > > > > >   virtio_net: sq support premapped mode
-> > > > > > >
-> > > > > > >  arch/um/drivers/virtio_uml.c             |  31 +-
-> > > > > > >  drivers/net/virtio_net.c                 | 283 ++++++---
-> > > > > > >  drivers/platform/mellanox/mlxbf-tmfifo.c |  24 +-
-> > > > > > >  drivers/remoteproc/remoteproc_virtio.c   |  31 +-
-> > > > > > >  drivers/s390/virtio/virtio_ccw.c         |  33 +-
-> > > > > > >  drivers/virtio/virtio_mmio.c             |  30 +-
-> > > > > > >  drivers/virtio/virtio_pci_common.c       |  59 +-
-> > > > > > >  drivers/virtio/virtio_pci_common.h       |   9 +-
-> > > > > > >  drivers/virtio/virtio_pci_legacy.c       |  16 +-
-> > > > > > >  drivers/virtio/virtio_pci_modern.c       |  38 +-
-> > > > > > >  drivers/virtio/virtio_ring.c             | 698 ++++++++++++-=
-----------
-> > > > > > >  drivers/virtio/virtio_vdpa.c             |  45 +-
-> > > > > > >  include/linux/virtio.h                   |  13 +-
-> > > > > > >  include/linux/virtio_config.h            |  48 +-
-> > > > > > >  include/linux/virtio_ring.h              |  82 +--
-> > > > > > >  tools/virtio/virtio_test.c               |   4 +-
-> > > > > > >  tools/virtio/vringh_test.c               |  28 +-
-> > > > > > >  17 files changed, 847 insertions(+), 625 deletions(-)
-> > > > > > >
-> > > > > > > --
-> > > > > > > 2.32.0.3.g01195cf9f
-> > > > > >
-> > > >
-> > >
-> >
->
+base-commit: 8ffc8b1bbd505e27e2c8439d326b6059c906c9dd
+-- 
+2.43.0
 
