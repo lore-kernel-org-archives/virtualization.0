@@ -1,104 +1,96 @@
-Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 109B054BC9
-	for <virtualization@lists.linux.dev>; Fri,  8 Mar 2024 08:52:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B38B535A7
+	for <virtualization@lists.linux-foundation.org>; Fri,  8 Mar 2024 09:45:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709887926; cv=none; b=FwTBnETjTM+RXfGo9yftu2dkW0Y8aqZr/kwCDWBu0cNNX5LrpABVNsjnPWHgDKlxxrWTxNOZqqTj7CtmXb7XfmqSEGlMO4F6+OjSPA6h/Cgphhl8vm2FnBfnN6uKDwpvQwvOfgrrFLoGeH1/DdVmdDpI0Q7Jlx/zykwMee2UpQw=
+	t=1709891127; cv=none; b=J8kxEALQRp12oEFUjckmw6j/HpYi0+nQ9gCrlbK/vhxxbCoNpJbfZUElXlErwkqGuf6ZzTLZpi7wlgEAyI37nYWJaViSs6CH9FlLOdOY6yYBXrlhTDxLs6xhwnUiAyabjHGyicobChQ1YMMV7h61iR1cZwE8+y9g4dZZWnqNvd4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709887926; c=relaxed/simple;
-	bh=MvSY8r1Krx1rKfGPGF2tqqKGuMEPrCCpu4pYJDPsdCs=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=MQKf7fddZknfvbJ/noPZ1eJPJF7nhH2hou5totdpHVFfcOF2hm3XjaeLiJz/wzyHZ1ZkChkYvg33UZXcgeMONT86klVI24VGVzk6i3lhvKvGOYpLh9GAFkKoUoOpLBBydCCYff9e0YMslLy9MXaa+Y1CLtk1cr63EEjGJbZ7ua0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-	(Exim 4.92)
-	(envelope-from <ukl@pengutronix.de>)
-	id 1riVxI-00072X-DG; Fri, 08 Mar 2024 09:51:52 +0100
-Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
-	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.94.2)
-	(envelope-from <ukl@pengutronix.de>)
-	id 1riVxH-0056Nu-0R; Fri, 08 Mar 2024 09:51:51 +0100
-Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.96)
-	(envelope-from <ukl@pengutronix.de>)
-	id 1riVxG-00246L-31;
-	Fri, 08 Mar 2024 09:51:50 +0100
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-To: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	virtualization@lists.linux.dev,
-	kernel@pengutronix.de
-Subject: [PATCH] virtio-mmio: Convert to platform remove callback returning void
-Date: Fri,  8 Mar 2024 09:51:20 +0100
-Message-ID:  <ef71f955531d5e41b20d801e1149bb08d155679a.1709886922.git.u.kleine-koenig@pengutronix.de>
-X-Mailer: git-send-email 2.43.0
+	s=arc-20240116; t=1709891127; c=relaxed/simple;
+	bh=9nk/LM8qbXxqqrGQTnt5jKWaF87oDn2J91q3tvQdGAc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=c1ceFFXhSVV2wz7VRVURPmY/vTVU4ESubeidgQEAXV7X8YatKL7iFH/otxQgoQIcxhQYbvpYseHy3zXx6R+4pstVRQivaRHOKpSYfl6O0+4XJqql3odQEgJ+zx8kiPOejvHY5/n1HdxEiY2FUZThaw8kFClQQen4ynIgW+dDk9U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b=MyNZGUHa; arc=none smtp.client-ip=140.211.166.137
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b="MyNZGUHa"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id F1FEB41932
+	for <virtualization@lists.linux-foundation.org>; Fri,  8 Mar 2024 09:45:25 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id zrBml2Lb7DO8
+	for <virtualization@lists.linux-foundation.org>;
+	Fri,  8 Mar 2024 09:45:24 +0000 (UTC)
+X-Greylist: delayed 2771 seconds by postgrey-1.37 at util1.osuosl.org; Fri, 08 Mar 2024 09:45:24 UTC
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 7E5A3408B5
+Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=leemhuis.info
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7E5A3408B5
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=leemhuis.info header.i=@leemhuis.info header.a=rsa-sha256 header.s=he214686 header.b=MyNZGUHa
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=80.237.130.52; helo=wp530.webpack.hosteurope.de; envelope-from=regressions@leemhuis.info; receiver=<UNKNOWN> 
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 7E5A3408B5
+	for <virtualization@lists.linux-foundation.org>; Fri,  8 Mar 2024 09:45:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=leemhuis.info; s=he214686; h=Content-Transfer-Encoding:Content-Type:
+	In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:From:
+	Sender:Reply-To:Subject:Date:Message-ID:To:Cc:MIME-Version:Content-Type:
+	Content-Transfer-Encoding:Content-ID:Content-Description:In-Reply-To:
+	References; bh=9nk/LM8qbXxqqrGQTnt5jKWaF87oDn2J91q3tvQdGAc=; t=1709891124;
+	x=1710323124; b=MyNZGUHaAOBLpOuaJV2ItpVsMltJUVnB1OA6MJV2Jk6i9e6Ox4AaiJ3i0BRMr
+	SnA+6LswZePwxmnuidv4Bzo4C18YAshiGILxEg7/4NDTWBGiYjCISbDyOupnXon/dd5gBXxuM3TLH
+	jOlZ3LyeCo/GH9fSrPmsyhpuXCIk0l3fmpyFxJ9ubdxQupq12WIoCs1XzEfJ0uaxLEQWfqA2IjRKq
+	cmqEg+OpN1Ezt9O/puKpr45MPHp1n360CGA/DD86PGTPnBuvZPejfMH0I8hvI1j39fkc4J5u+DQiy
+	VSH8+svmsWARNU1n+eluSyUILAMBVWKC5fjGtTgAUj0JpsjS7Q==;
+Received: from [2a02:8108:8980:2478:8cde:aa2c:f324:937e]; authenticated
+	by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+	id 1riW4D-0001ul-M1; Fri, 08 Mar 2024 09:59:01 +0100
+Message-ID: <7c7e363b-ec9b-4b46-a0bf-7ae062d734d1@leemhuis.info>
+Date: Fri, 8 Mar 2024 09:58:59 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/1] drm/qxl: fixes qxl_fence_wait
+Content-Language: en-US, de-DE
+To: Alex Constantino <dreaming.about.electric.sheep@gmail.com>
+Cc: 1054514@bugs.debian.org, airlied@redhat.com, carnil@debian.org,
+ daniel@ffwll.ch, dri-devel@lists.freedesktop.org, kraxel@redhat.com,
+ linux-kernel@vger.kernel.org, regressions@lists.linux.dev,
+ spice-devel@lists.freedesktop.org, timo.lindfors@iki.fi,
+ tzimmermann@suse.de, virtualization@lists.linux-foundation.org
+References: <fb0fda6a-3750-4e1b-893f-97a3e402b9af@leemhuis.info>
+ <20240308010851.17104-1-dreaming.about.electric.sheep@gmail.com>
+ <20240308010851.17104-2-dreaming.about.electric.sheep@gmail.com>
+From: Thorsten Leemhuis <regressions@leemhuis.info>
+In-Reply-To: <20240308010851.17104-2-dreaming.about.electric.sheep@gmail.com>
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1788; i=u.kleine-koenig@pengutronix.de; h=from:subject:message-id; bh=MvSY8r1Krx1rKfGPGF2tqqKGuMEPrCCpu4pYJDPsdCs=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBl6tGNVhx6jfBloi39sSQ5Y007kLE1vRoD3PelZ cPtz0Z5w/OJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZerRjQAKCRCPgPtYfRL+ TlMKCACvXe3ahdI6IkkW9mn6HBvkCNTW20T1bZ/xn1CmjAX0GqTv9xHDJE1H4jlry6NdkCgZBVH +jfnGRsH5ap/6/UaZUgxAP6aoFlgtKjrObJV9BlfRmotbiGYBlnKsvzCo0x5/FRBZjBfM4Dvkyv bjuSNoHUwquQBQzl7IUgd8WDWtxQs/4g9eAfvIr+Sb4nmzbLRnBEMpEIlda4563ot/0Lp5GNO/J Q2ODayXHXE0EcBAmWJItVotxiYJ4/9TRmuui/5Xu4pavW1wHkHFh8sIr8Nu1BQE6+47Kgodlbx2 Q2rMjwsWZ/8eszwRVm1hEOrS8GnHs0cjPEPYlr983l0LYYyx
-X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: virtualization@lists.linux.dev
+Content-Transfer-Encoding: 7bit
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1709891124;025a823d;
+X-HE-SMSGID: 1riW4D-0001ul-M1
 
-The .remove() callback for a platform driver returns an int which makes
-many driver authors wrongly assume it's possible to do error handling by
-returning an error code. However the value returned is ignored (apart
-from emitting a warning) and this typically results in resource leaks.
+On 08.03.24 02:08, Alex Constantino wrote:
+> Fix OOM scenario by doing multiple notifications to the OOM handler through
+> a busy wait logic.
+> Changes from commit 5a838e5d5825 ("drm/qxl: simplify qxl_fence_wait") would
+> result in a '[TTM] Buffer eviction failed' exception whenever it reached a
+> timeout.
 
-To improve here there is a quest to make the remove callback return
-void. In the first step of this quest all drivers are converted to
-.remove_new(), which already returns void. Eventually after all drivers
-are converted, .remove_new() will be renamed to .remove().
+Thx for working on this.
 
-Trivially convert this driver from always returning zero in the remove
-callback to the void returning variant.
+> Fixes: 5a838e5d5825 ("drm/qxl: simplify qxl_fence_wait")
+> Link: https://lore.kernel.org/regressions/fb0fda6a-3750-4e1b-893f-97a3e402b9af@leemhuis.info
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
----
- drivers/virtio/virtio_mmio.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+Nitpicking: that ideally should be pointing to
+https://lore.kernel.org/regressions/ZTgydqRlK6WX_b29@eldamar.lan/ , as
+that the report and not just a reply to prod things.
 
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 59892a31cf76..173596589c71 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -696,12 +696,10 @@ static int virtio_mmio_probe(struct platform_device *pdev)
- 	return rc;
- }
- 
--static int virtio_mmio_remove(struct platform_device *pdev)
-+static void virtio_mmio_remove(struct platform_device *pdev)
- {
- 	struct virtio_mmio_device *vm_dev = platform_get_drvdata(pdev);
- 	unregister_virtio_device(&vm_dev->vdev);
--
--	return 0;
- }
- 
- 
-@@ -847,7 +845,7 @@ MODULE_DEVICE_TABLE(acpi, virtio_mmio_acpi_match);
- 
- static struct platform_driver virtio_mmio_driver = {
- 	.probe		= virtio_mmio_probe,
--	.remove		= virtio_mmio_remove,
-+	.remove_new	= virtio_mmio_remove,
- 	.driver		= {
- 		.name	= "virtio-mmio",
- 		.of_match_table	= virtio_mmio_match,
-
-base-commit: 8ffc8b1bbd505e27e2c8439d326b6059c906c9dd
--- 
-2.43.0
-
+Ciao, Thorsten
