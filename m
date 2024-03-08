@@ -1,139 +1,132 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63B105E07F
-	for <virtualization@lists.linux.dev>; Fri,  8 Mar 2024 17:18:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7B673FBB9
+	for <virtualization@lists.linux-foundation.org>; Fri,  8 Mar 2024 17:19:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709918315; cv=none; b=pwr4E4y9i46b2XB7YpW5az/BoPBstyzehC0V9HTihwCUMF+JCKaRyuMPjfwCAPCyhm8z9J7ezsr7rzBLAqfuRqdt8cPkPa2PDIQidq6QvmBF4r3HxcZ1oSxY+oQZTnlKpH/3c0zLrXyQLF8h2nGeL/PP4XoYoROl1YbBWcjhrp8=
+	t=1709918389; cv=none; b=ZZZPdbLXQPb0aupqTscdwx2UqsmxTUKiuoR49B8UFeeQpKzXdiImhjHb8hMOwV4kwP+3exoA7et+GRoyz2DbiXXJ+H1Nqm4UnlSEjclV0a0G6Jhb0I40+OV1Z1q/CIvweBLEsETzwWwhsKIQOa6mJ0mTLyxfdqDdBgPNKtReMtE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709918315; c=relaxed/simple;
-	bh=LoSGNZh4FtejyrcxyRuCe7BMBFayjFDM4mQ+O9e+4Qc=;
+	s=arc-20240116; t=1709918389; c=relaxed/simple;
+	bh=JzkeDh5AwdfJCEuCQJCZYQvR6O/baYk0o5Ac9VAu/wQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=UfZsDJyLvi+czadqORg9jtWgPvla54c52ysRto7bMAaPUcM//OXmL2XRbsFi9RCCb8ljhVsfeIQdiPOLJxKHp5yo+/93RYn+fYzqzesg6DzGEVTJRTRYJZmJgwTe7mMi7H5SKOmO0+KDpUBKNsA2h7G3m1wSG+HrVK/5ceCzzQs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dUn6/AmZ; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=EjmcZ7XHn1zya7IF7pLEQHFtxHJkBRdWtai4BMqp01DwUwlftu9+/p3zvm5wlxbrdzINITsW2Q71toQ3THuvgemxcmr5EPDnvnzWtirNmxDqp0dWeBR5wMLVY+fcI4dMDdhzW7N7gtRWLTayrsl9j1t2FE0O3QpvI1BrKyNBr1s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=gK1j6OS2; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dUn6/AmZ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1709918312;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=7yPDbYfYVCjD6jkpVVZaC5nQLyNSNZXwpB21Gzx/O2s=;
-	b=dUn6/AmZiLgHPuKECcjLtmxJp+5gziszKRRRwFJxSUbF8IJJVtWOnmDDR0tqUIDrSKyoKv
-	5tr1xr/tEvglccuFfBtMW7SipaHdPXYJhzzKU/ZIbQjb5yN1xUWRoYt2S5CV9Z/SdO5b4X
-	qRRsuJYxRVo8SZhfpbXhGJlA6ERGzqU=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-295--bu4vXtIMf26BGf-p2Je4g-1; Fri, 08 Mar 2024 12:18:31 -0500
-X-MC-Unique: -bu4vXtIMf26BGf-p2Je4g-1
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-33d5aee5f0dso802745f8f.1
-        for <virtualization@lists.linux.dev>; Fri, 08 Mar 2024 09:18:30 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="gK1j6OS2"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 474B040232
+	for <virtualization@lists.linux-foundation.org>; Fri,  8 Mar 2024 17:19:48 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 8eSsert2kb4g
+	for <virtualization@lists.linux-foundation.org>;
+	Fri,  8 Mar 2024 17:19:47 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::c30; helo=mail-oo1-xc30.google.com; envelope-from=jgg@ziepe.ca; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 614D140194
+Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 614D140194
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=gK1j6OS2
+Received: from mail-oo1-xc30.google.com (mail-oo1-xc30.google.com [IPv6:2607:f8b0:4864:20::c30])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 614D140194
+	for <virtualization@lists.linux-foundation.org>; Fri,  8 Mar 2024 17:19:47 +0000 (UTC)
+Received: by mail-oo1-xc30.google.com with SMTP id 006d021491bc7-5a1b861e255so675953eaf.1
+        for <virtualization@lists.linux-foundation.org>; Fri, 08 Mar 2024 09:19:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1709918386; x=1710523186; darn=lists.linux-foundation.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=QyfvgQ7g3k3inQ55L9jhBCdrQml4NQHWxp+tVzvR3qY=;
+        b=gK1j6OS2hZmg2IDl+urXvb+qOz+5bGyDtno2xggBzIP+WJoeuJnY0sBhQ4HdMyww/U
+         6RwPJar65mb1OOa9kKLNKOa1LbkwP9+ZdmOirI/c5Qlp+eeQdPVYaoxBZwUM8nxum1Nz
+         Z3U4Hu3lHgRF/Ge1w35PT86qa7Zqn135q17iwNtaJr8qNBJ7xb9w98GzNmPm/klg0Jbs
+         hR99MHRg9XuZ2RI7ADW49zFGGjGQdUo09b4RsIvKoIKhJIi38YmR0KsTWCIR9SBPjkh+
+         yz0zq1lPiPjPCSYEap2whbejK1K7DKCqgfJp0nkJBu5CqePde9tOhbRELlN38sNf3pHx
+         BF2Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1709918310; x=1710523110;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=7yPDbYfYVCjD6jkpVVZaC5nQLyNSNZXwpB21Gzx/O2s=;
-        b=ZtsfZFzf1EgD/DUb8hCot+PhrkeM90x/SByhuXfdBkKVtU+N7DsPnjEXBRz1Di0pro
-         TG/0U5rB9nkHSAjbaC8YFf/WXBrASXXZ8FYv64ssECyGATO7afOgMxQ+SE85b5xcUk2w
-         KF+kLmo01RKnTAb8kB6YGyKWO5jUDjV5xbbDJe8e+AqZgum8bz8WB481cguFUxMbMWg3
-         F25LE4kmyeX8GCE6gqVoNR0hFYkdnBViMVesLK38h8Gt6nM2gk7oydzBwtK29i+R91Fk
-         X79mmq+0fsEEJrkhkG7l9NVawqMWoc7YK1OuUC6kU/R/3eSMtq8kZFmxYZ5egp0Fso6a
-         G0FA==
-X-Forwarded-Encrypted: i=1; AJvYcCU9yGMZUfnOseMjbGAKQgoq0Q97FYNwteqRFUJYGJlY8y6tCfjjr90GW6BsR3MaG9FGscto510PNBdNzp4mFoCgIgQqL2e++DfHPsFA3ng=
-X-Gm-Message-State: AOJu0Yy2B2bNmCepIV3jxQaUY6TUPnQNhNCGGV2bVB2Ecs2JhHveFDT5
-	zSt26OWtQnIrdna8g0exBJnBGx8uExHg0rr2dHlrw5UXCcnUeDG+GAf9W2BNqA/VwrVOCqAKoc8
-	xWIZWAjueltgoV6Xkcc87cZD3icgLuvM5U4qwUSfK5x48mPiignGHLTrPlixyNYf8
-X-Received: by 2002:adf:e310:0:b0:33d:b627:c3ec with SMTP id b16-20020adfe310000000b0033db627c3ecmr17387512wrj.44.1709918309624;
-        Fri, 08 Mar 2024 09:18:29 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFEcLCPTsB4rQmZ3icXY8ztQNYxBtAct6i9KrJitWvzDhGIWNg5+ETaBy1dR6GiOUAE/5xXVg==
-X-Received: by 2002:adf:e310:0:b0:33d:b627:c3ec with SMTP id b16-20020adfe310000000b0033db627c3ecmr17387493wrj.44.1709918309057;
-        Fri, 08 Mar 2024 09:18:29 -0800 (PST)
-Received: from redhat.com ([2a06:c701:73cd:f300:bc74:daca:b316:492a])
-        by smtp.gmail.com with ESMTPSA id i14-20020adfefce000000b0033e7603987dsm2379319wrp.12.2024.03.08.09.18.27
+        d=1e100.net; s=20230601; t=1709918386; x=1710523186;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=QyfvgQ7g3k3inQ55L9jhBCdrQml4NQHWxp+tVzvR3qY=;
+        b=Hpro/UwalKVLdPu//lQj2BpbUNKTx4aGEqBNvowsRWsR2d84CPPzK2yqx2iSW00/sg
+         Sw+jp3mlaNOewSowp59IAx/4VxlkA6+5JcFdIAS50a73d6vLk18M4bWPmd2AxIdRWJvM
+         PaK59aLwLfwtZUx4gv1sM9JDjZKUfaI6RNDcWodDe/0l00tFKABIgxY79nOe6UtoaTgB
+         ObcprQpxNEGVih/Oz+aCz3mI2UA7rt8dAnwnewjCZHHGqE0d4OhykXOPfzd8sHCw0WSv
+         fWjrIojsApi/+sIWHxGnT0fkTmkBdCALsa1f0pEqjolSaFfqxKVwlwvsVQWzCIZTANGO
+         TPKw==
+X-Forwarded-Encrypted: i=1; AJvYcCUpobKxLEVxG5KglXohPa+6aXfGcEv1RepqOMiA8xRr7v0Chzs0viZVGzwHgdhug9VpsRzXeuheZ3h5WYNf0LRZziPIfRtu/2lkOANFlXnX2q0vYyAqpE9osQ==
+X-Gm-Message-State: AOJu0YyCed83dIKAu2nSFCagTeIeiR54SEsHfkpaq6jJLAO0ExmChNw6
+	BRqK7U4VqQ5R6gXcvbWr5CoYEuQbP+VK/gHMDtabfL6By8eehIF/x17j+lDySFE=
+X-Google-Smtp-Source: AGHT+IHGXwED6hQvAWGBvs0kxPiSJ0tL8OBtEwFzgQm9eQ3JplhnsbF7jKSfoG/okjgvLWcpY+GZ4g==
+X-Received: by 2002:a05:6820:229b:b0:5a1:c935:2eca with SMTP id ck27-20020a056820229b00b005a1c9352ecamr2575641oob.6.1709918386043;
+        Fri, 08 Mar 2024 09:19:46 -0800 (PST)
+Received: from ziepe.ca (hlfxns017vw-142-68-80-239.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.80.239])
+        by smtp.gmail.com with ESMTPSA id bs18-20020a056820179200b005a12e140fa2sm490330oob.22.2024.03.08.09.19.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 08 Mar 2024 09:18:28 -0800 (PST)
-Date: Fri, 8 Mar 2024 12:18:26 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	virtualization@lists.linux.dev, kernel@pengutronix.de
-Subject: Re: [PATCH] virtio-mmio: Convert to platform remove callback
- returning void
-Message-ID: <20240308121725-mutt-send-email-mst@kernel.org>
-References: <ef71f955531d5e41b20d801e1149bb08d155679a.1709886922.git.u.kleine-koenig@pengutronix.de>
+        Fri, 08 Mar 2024 09:19:45 -0800 (PST)
+Received: from jgg by wakko with local (Exim 4.95)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1ridsm-007URd-IT;
+	Fri, 08 Mar 2024 13:19:44 -0400
+Date: Fri, 8 Mar 2024 13:19:44 -0400
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Baolu Lu <baolu.lu@linux.intel.com>
+Cc: Zhangfei Gao <zhangfei.gao@linaro.org>,
+	Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
+	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
+	Jean-Philippe Brucker <jean-philippe@linaro.org>,
+	Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
+	Jacob Pan <jacob.jun.pan@linux.intel.com>,
+	Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
+	virtualization@lists.linux-foundation.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 5/8] iommufd: Associate fault object with
+ iommufd_hw_pgtable
+Message-ID: <20240308171944.GU9225@ziepe.ca>
+References: <20240122073903.24406-1-baolu.lu@linux.intel.com>
+ <20240122073903.24406-6-baolu.lu@linux.intel.com>
+ <CABQgh9FwOVsFe3+5VG0_rDruJVW0ueHTcsnxUcVAvFqrF4Vz6Q@mail.gmail.com>
+ <CABQgh9G5yFZ_p+tfvnJqOQo+Be62rMDatsEX1rhD_oTiXDaw5w@mail.gmail.com>
+ <20240306160120.GN9225@ziepe.ca>
+ <74d6f11a-9415-48e5-a165-7b9f5b87873d@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <ef71f955531d5e41b20d801e1149bb08d155679a.1709886922.git.u.kleine-koenig@pengutronix.de>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <74d6f11a-9415-48e5-a165-7b9f5b87873d@linux.intel.com>
 
-On Fri, Mar 08, 2024 at 09:51:20AM +0100, Uwe Kleine-König wrote:
-> The .remove() callback for a platform driver returns an int which makes
-> many driver authors wrongly assume it's possible to do error handling by
-> returning an error code. However the value returned is ignored (apart
-> from emitting a warning) and this typically results in resource leaks.
+On Thu, Mar 07, 2024 at 09:54:53AM +0800, Baolu Lu wrote:
+> On 2024/3/7 0:01, Jason Gunthorpe wrote:
+> > On Wed, Mar 06, 2024 at 11:15:50PM +0800, Zhangfei Gao wrote:
+> > > Double checked, this does not send flags, 0 is OK,
+> > > Only domain_alloc_user in iommufd_hwpt_paging_alloc requires flags.
+> > > 
+> > > In my debug, I need this patch, otherwise NULL pointer errors happen
+> > > since SVA is not set.
+> > This is some driver bug, we need to get rid of these
+> > iommu_dev_enable_feature() requirements.
 > 
-> To improve here there is a quest to make the remove callback return
-> void. In the first step of this quest all drivers are converted to
-> .remove_new(), which already returns void. Eventually after all drivers
-> are converted, .remove_new() will be renamed to .remove().
+> Yes. Especially iopf should be independent of SVA.
 > 
-> Trivially convert this driver from always returning zero in the remove
-> callback to the void returning variant.
-> 
-> Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+> The problem in the arm smmu v3 driver is that enabling iopf is actually
+> done in the enabling SVA path, while the enabling iopf path does nothing
+> except for some checks. It doesn't matter if iopf is tied with SVA, but
+> when it comes to delivering iopf to user space, we need to decouple it.
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Yes. Each driver is going to need to get a to a NOP for the feature
+things then we can remove them.
 
-do u want me to merge this?
+I did half the ARM driver in my part 2, the iopf bit still needs
+doing there.
 
-> ---
->  drivers/virtio/virtio_mmio.c | 6 ++----
->  1 file changed, 2 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> index 59892a31cf76..173596589c71 100644
-> --- a/drivers/virtio/virtio_mmio.c
-> +++ b/drivers/virtio/virtio_mmio.c
-> @@ -696,12 +696,10 @@ static int virtio_mmio_probe(struct platform_device *pdev)
->  	return rc;
->  }
->  
-> -static int virtio_mmio_remove(struct platform_device *pdev)
-> +static void virtio_mmio_remove(struct platform_device *pdev)
->  {
->  	struct virtio_mmio_device *vm_dev = platform_get_drvdata(pdev);
->  	unregister_virtio_device(&vm_dev->vdev);
-> -
-> -	return 0;
->  }
->  
->  
-> @@ -847,7 +845,7 @@ MODULE_DEVICE_TABLE(acpi, virtio_mmio_acpi_match);
->  
->  static struct platform_driver virtio_mmio_driver = {
->  	.probe		= virtio_mmio_probe,
-> -	.remove		= virtio_mmio_remove,
-> +	.remove_new	= virtio_mmio_remove,
->  	.driver		= {
->  		.name	= "virtio-mmio",
->  		.of_match_table	= virtio_mmio_match,
-> 
-> base-commit: 8ffc8b1bbd505e27e2c8439d326b6059c906c9dd
-> -- 
-> 2.43.0
-
+Jason
