@@ -1,140 +1,218 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from dggsgout11.his.huawei.com (unknown [45.249.212.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E66B58AD9
-	for <virtualization@lists.linux-foundation.org>; Fri,  8 Mar 2024 19:05:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFB9133FE
+	for <virtualization@lists.linux.dev>; Sat,  9 Mar 2024 04:14:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709924745; cv=none; b=kztVM5I7rWf2h3eSSeKk4qP8HcWR132YmJONPfujFINQE2fiPXRY1bejCRi9aob6eQn6SQb1l2LLNRoOyofcm89ynnEmJz8fMicysPCu7IpCllBcRKn71YTBrLs8DAuCHK7Up/yaeBL1TD2b8m8GxUy70xbekMW7fSP7pt0qn1A=
+	t=1709957675; cv=none; b=fJmEPPgKuJFvdCQYByOsF+HE/ndfK7LomdhctcVf8Uuj+zw+cofOIHO06frg1xWFUnvSDAsMjBSdWAsCfepwKoYr3eP8nYBCIPkIAS8h23NhrhHJKFtVmsfUWf3oPFzJU3BYSuaW1AfFQ3SfL3nc2BXr4/Z1vTqOLPMKxWZ9HF4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709924745; c=relaxed/simple;
-	bh=ILaKu4J8rSQrN8d6WmZQitsoeFgh+zPlpkPgOdLz644=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Co9UuOvjTegwVdoI968vJye5PvTXRt179gRtVwMvveOPbsoet/zaZaFDPbS9uhhG5H42VwaIP6MIUibnjFXWirdcWIk3OEWjQXEc3ZTOY2LBtmm2p9JtQa3DwHYsiDGqmh9k6k62OfBNeJRVUco3LWYS5OTqrWNOwbPudBtb9I8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=nvQNbyWM; arc=none smtp.client-ip=140.211.166.137
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="nvQNbyWM"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id B83A741E12
-	for <virtualization@lists.linux-foundation.org>; Fri,  8 Mar 2024 19:05:43 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.1
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id hD44lho-IxzK
-	for <virtualization@lists.linux-foundation.org>;
-	Fri,  8 Mar 2024 19:05:42 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2001:4860:4864:20::33; helo=mail-oa1-x33.google.com; envelope-from=jgg@ziepe.ca; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org E9A9741E0C
-Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E9A9741E0C
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=nvQNbyWM
-Received: from mail-oa1-x33.google.com (mail-oa1-x33.google.com [IPv6:2001:4860:4864:20::33])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id E9A9741E0C
-	for <virtualization@lists.linux-foundation.org>; Fri,  8 Mar 2024 19:05:41 +0000 (UTC)
-Received: by mail-oa1-x33.google.com with SMTP id 586e51a60fabf-2210a266118so844156fac.1
-        for <virtualization@lists.linux-foundation.org>; Fri, 08 Mar 2024 11:05:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1709924740; x=1710529540; darn=lists.linux-foundation.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=7qMRR7sLkZVUANHdEsXoEoSh+RPGbp+63DXPrOksx9o=;
-        b=nvQNbyWM3mDwN+2SADxJgy3UII0H6IpRtZvAodSwFJ+l1oLKe+QqWjvGy0K41MuBZr
-         ZQDTmAC1XtPBZnAIF8nFapu8h48tAfTN2LTvNov44wJlESEE4KP2Xdfpov21h34asMk5
-         7Zsu0blH8b1IJa0kbpKGbZQMj567/qE+h0j38qELcTKRqZ+DuFu43RXBhTBT5PPPHZHx
-         Fe7I0H3Z0NNra0BBx/BMjcnsOtIOKBM32LtVgQXsRMslNY5qTsjYHGqgom7GGiuG1xmh
-         QO9Bj32FfsR2JEsu2MzvdyGp5p1aGNzowzZmKXKik6j8xIB9SCjdltkwg2tgys22Txtq
-         9lcQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1709924740; x=1710529540;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=7qMRR7sLkZVUANHdEsXoEoSh+RPGbp+63DXPrOksx9o=;
-        b=EO1cjcLeMupb+aa+FGn/VI5FFcFdwMvku/jOpgvBWDN2eb+XAhT4hqltolxN6wJO74
-         LZ9VtbCiSbJtrdzee9hwlflrAECi4Bl1IYWHE6jP1TG364CCdKVs/09KxxQdveqhj5oN
-         BPghOayNo3EbYoPuKcAd140WBehwlM6657LYO3Jh0nQicbYOtKzyiiqI0EUVj4MoOI4Q
-         76LQZNGBqAZotgs9THQoAvYidvXS8DL1sw3BNlCYDvlQ3MLerwDwwtetjTEy/IaSTSH0
-         wu+Uczqj9en+gqvoej1UueYnVvjzcSWJsuflxunPEoB+PDXY8wH4wzX2gmlfSS1Quqv2
-         bjCQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVENRM4VhLKHyYnfdTPwiUsQaMfco0/VRVOvk7ZgPlvwggABNX4IQRGNnCfxsmwFW+h2jIfQsQSVFx17SH8ew6z0QPmDNpOZcxJcWX3lqhgKQT157gzBXf35w==
-X-Gm-Message-State: AOJu0Yzv2QrAIRb/xME3wfCi1GUNYLTDiC3J/YyCo94RCiR/Bjkp3QJL
-	GOeKjiRfDYaPvjRSJXCKcJW5tKjDrIGc5erOE0duHIRg1/r/oKHdFPIsTiwgOy0=
-X-Google-Smtp-Source: AGHT+IFDoglDB8jr4C0bRLZGs90q16mK5wPOyxs6caLbupPbYv27tZdKsh1cc0oiSg/2ojAvVJQeAA==
-X-Received: by 2002:a05:6870:844f:b0:220:fc89:db73 with SMTP id n15-20020a056870844f00b00220fc89db73mr42008oak.0.1709924740712;
-        Fri, 08 Mar 2024 11:05:40 -0800 (PST)
-Received: from ziepe.ca (hlfxns017vw-142-68-80-239.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.80.239])
-        by smtp.gmail.com with ESMTPSA id la12-20020a056871410c00b00221847430e2sm1485oab.30.2024.03.08.11.05.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 08 Mar 2024 11:05:40 -0800 (PST)
-Received: from jgg by wakko with local (Exim 4.95)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1rifXH-007kGb-7w;
-	Fri, 08 Mar 2024 15:05:39 -0400
-Date: Fri, 8 Mar 2024 15:05:39 -0400
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Lu Baolu <baolu.lu@linux.intel.com>
-Cc: Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
-	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-	Jean-Philippe Brucker <jean-philippe@linaro.org>,
-	Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
-	Jacob Pan <jacob.jun.pan@linux.intel.com>,
-	Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
-	virtualization@lists.linux-foundation.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 5/8] iommufd: Associate fault object with
- iommufd_hw_pgtable
-Message-ID: <20240308190539.GY9225@ziepe.ca>
-References: <20240122073903.24406-1-baolu.lu@linux.intel.com>
- <20240122073903.24406-6-baolu.lu@linux.intel.com>
+	s=arc-20240116; t=1709957675; c=relaxed/simple;
+	bh=aDharQ5Zr3CvZw8T5yYIYXdAyz83YOaP3kBsZGPqdUo=;
+	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=QZea4Ngy6TSFQ5Pgu9gZD+wKe9WMOwcxOM29A9v4+WIqsmMKdPCO7Atqz8yADVVx2ClzHN8Id1aa5420aQkbYv7+5x8wRwa9kVk96XmpFpPECtqSpqzViC975bE7wU9RAGO927MAxij6T5grpBxmlGscmflb7nMxmbim9YHS2c8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com; spf=pass smtp.mailfrom=huaweicloud.com; arc=none smtp.client-ip=45.249.212.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huaweicloud.com
+Received: from mail.maildlp.com (unknown [172.19.163.235])
+	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4Ts8n73t0gz4f3jJF
+	for <virtualization@lists.linux.dev>; Sat,  9 Mar 2024 12:14:19 +0800 (CST)
+Received: from mail02.huawei.com (unknown [10.116.40.128])
+	by mail.maildlp.com (Postfix) with ESMTP id 262311A0232
+	for <virtualization@lists.linux.dev>; Sat,  9 Mar 2024 12:14:27 +0800 (CST)
+Received: from [10.174.176.117] (unknown [10.174.176.117])
+	by APP4 (Coremail) with SMTP id gCh0CgB3ymwf4utlrj30GQ--.5053S2;
+	Sat, 09 Mar 2024 12:14:27 +0800 (CST)
+Subject: Re: [PATCH v2 4/6] virtiofs: support bounce buffer backed by
+ scattered pages
+To: Brian Foster <bfoster@redhat.com>
+Cc: linux-fsdevel@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>,
+ Vivek Goyal <vgoyal@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
+ Bernd Schubert <bernd.schubert@fastmail.fm>,
+ "Michael S . Tsirkin" <mst@redhat.com>, Matthew Wilcox
+ <willy@infradead.org>, Benjamin Coddington <bcodding@redhat.com>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+ houtao1@huawei.com
+References: <20240228144126.2864064-1-houtao@huaweicloud.com>
+ <20240228144126.2864064-5-houtao@huaweicloud.com> <ZeCcV9Jo3mTRPsME@bfoster>
+From: Hou Tao <houtao@huaweicloud.com>
+Message-ID: <ef80346a-532a-c394-77f7-ec9f640e5b6f@huaweicloud.com>
+Date: Sat, 9 Mar 2024 12:14:23 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240122073903.24406-6-baolu.lu@linux.intel.com>
+In-Reply-To: <ZeCcV9Jo3mTRPsME@bfoster>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-CM-TRANSID:gCh0CgB3ymwf4utlrj30GQ--.5053S2
+X-Coremail-Antispam: 1UD129KBjvJXoW3GrW8AFyrWrW7JFWrJF18Krg_yoW7CF15pF
+	WUt3W5CFZ7JFW2kryxKF4UCF1Fk393uF17GrZ3XasYkr1DZrWSqFy5JryF9Fs7Ar97CF10
+	yF10van7Wr1qy3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUv2b4IE77IF4wAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k2
+	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+	vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7Cj
+	xVAFwI0_Cr0_Gr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I
+	0E14v26rxl6s0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
+	x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
+	0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1lc7I2V7IY0VAS
+	07AlzVAYIcxG8wCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c
+	02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_
+	GFylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7
+	CjxVAFwI0_Gr0_Cr1lIxAIcVCF04k26cxKx2IYs7xG6rW3Jr0E3s1lIxAIcVC2z280aVAF
+	wI0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa
+	7IU1zuWJUUUUU==
+X-CM-SenderInfo: xkrx3t3r6k3tpzhluzxrxghudrp/
 
-On Mon, Jan 22, 2024 at 03:39:00PM +0800, Lu Baolu wrote:
+Hi,
 
-> @@ -411,6 +414,8 @@ enum iommu_hwpt_data_type {
->   * @__reserved: Must be 0
->   * @data_type: One of enum iommu_hwpt_data_type
->   * @data_len: Length of the type specific data
-> + * @fault_id: The ID of IOMMUFD_FAULT object. Valid only if flags field of
-> + *            IOMMU_HWPT_FAULT_ID_VALID is set.
->   * @data_uptr: User pointer to the type specific data
->   *
->   * Explicitly allocate a hardware page table object. This is the same object
-> @@ -441,6 +446,7 @@ struct iommu_hwpt_alloc {
->  	__u32 __reserved;
->  	__u32 data_type;
->  	__u32 data_len;
-> +	__u32 fault_id;
->  	__aligned_u64 data_uptr;
->  };
+On 2/29/2024 11:01 PM, Brian Foster wrote:
+> On Wed, Feb 28, 2024 at 10:41:24PM +0800, Hou Tao wrote:
+>> From: Hou Tao <houtao1@huawei.com>
+>>
+>> When reading a file kept in virtiofs from kernel (e.g., insmod a kernel
+>> module), if the cache of virtiofs is disabled, the read buffer will be
+>> passed to virtiofs through out_args[0].value instead of pages. Because
+>> virtiofs can't get the pages for the read buffer, virtio_fs_argbuf_new()
+>> will create a bounce buffer for the read buffer by using kmalloc() and
+>> copy the read buffer into bounce buffer. If the read buffer is large
+>> (e.g., 1MB), the allocation will incur significant stress on the memory
+>> subsystem.
+>>
+>> So instead of allocating bounce buffer by using kmalloc(), allocate a
+>> bounce buffer which is backed by scattered pages. The original idea is
+>> to use vmap(), but the use of GFP_ATOMIC is no possible for vmap(). To
+>> simplify the copy operations in the bounce buffer, use a bio_vec flex
+>> array to represent the argbuf. Also add an is_flat field in struct
+>> virtio_fs_argbuf to distinguish between kmalloc-ed and scattered bounce
+>> buffer.
+>>
+>> Signed-off-by: Hou Tao <houtao1@huawei.com>
+>> ---
+>>  fs/fuse/virtio_fs.c | 163 ++++++++++++++++++++++++++++++++++++++++----
+>>  1 file changed, 149 insertions(+), 14 deletions(-)
+>>
+>> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+>> index f10fff7f23a0f..ffea684bd100d 100644
+>> --- a/fs/fuse/virtio_fs.c
+>> +++ b/fs/fuse/virtio_fs.c
+> ...
+>> @@ -408,42 +425,143 @@ static void virtio_fs_request_dispatch_work(struct work_struct *work)
+>>  	}
+>>  }
+>>  
+> ...  
+>>  static void virtio_fs_argbuf_copy_from_in_arg(struct virtio_fs_argbuf *argbuf,
+>>  					      unsigned int offset,
+>>  					      const void *src, unsigned int len)
+>>  {
+>> -	memcpy(argbuf->buf + offset, src, len);
+>> +	struct iov_iter iter;
+>> +	unsigned int copied;
+>> +
+>> +	if (argbuf->is_flat) {
+>> +		memcpy(argbuf->f.buf + offset, src, len);
+>> +		return;
+>> +	}
+>> +
+>> +	iov_iter_bvec(&iter, ITER_DEST, argbuf->s.bvec,
+>> +		      argbuf->s.nr, argbuf->s.size);
+>> +	iov_iter_advance(&iter, offset);
+> Hi Hou,
+>
+> Just a random comment, but it seems a little inefficient to reinit and
+> readvance the iter like this on every copy/call. It looks like offset is
+> already incremented in the callers of the argbuf copy helpers. Perhaps
+> iov_iter could be lifted into the callers and passed down, or even just
+> include it in the argbuf structure and init it at alloc time?
 
-?? We can't add fault_id in the middle of the struct??
+Sorry for the late reply. Being busy with off-site workshop these days.
 
-> +	if (cmd->flags & IOMMU_HWPT_FAULT_ID_VALID) {
-> +		struct iommufd_fault *fault;
-> +
-> +		fault = iommufd_get_fault(ucmd, cmd->fault_id);
-> +		if (IS_ERR(fault)) {
-> +			rc = PTR_ERR(fault);
-> +			goto out_hwpt;
-> +		}
-> +		hwpt->fault = fault;
-> +		hwpt->domain->iopf_handler = iommufd_fault_iopf_handler;
-> +		hwpt->domain->fault_data = hwpt;
-> +		hwpt->fault_capable = true;
+I have tried a similar idea before in which iov_iter was saved directly
+in argbuf struct, but it didn't work out well. The reason is that for
+copy both in_args and out_args, an iov_iter is needed, but the direction
+is different. Currently the bi-directional io_vec is not supported, so
+the code have to initialize the iov_iter twice: one for copy from
+in_args and another one for copy to out_args.
 
-I wonder if there should be an iommu API to make a domain fault
-capable?
+For dio read initiated from kernel, both of its in_numargs and
+out_numargs is 1, so there will be only one iov_iter_advance() in
+virtio_fs_argbuf_copy_to_out_arg() and the offset is 64, so I think the
+overhead will be fine. For dio write initiated from kernel, its
+in_numargs is 2 and out_numargs is 1, so there will be two invocations
+of iov_iter_advance(). The first one with offset=64, and the another one
+with offset=round_up_page_size(64 + write_size), so the later one may
+introduce extra overhead. But compared with the overhead of data copy, I
+still think the overhead of calling iov_iter_advance() is fine.
 
-Jason
+> Brian
+>
+>> +
+>> +	copied = _copy_to_iter(src, len, &iter);
+>> +	WARN_ON_ONCE(copied != len);
+>>  }
+>>  
+>>  static unsigned int
+>> @@ -451,15 +569,32 @@ virtio_fs_argbuf_out_args_offset(struct virtio_fs_argbuf *argbuf,
+>>  				 const struct fuse_args *args)
+>>  {
+>>  	unsigned int num_in = args->in_numargs - args->in_pages;
+>> +	unsigned int offset = fuse_len_args(num_in,
+>> +					    (struct fuse_arg *)args->in_args);
+>>  
+>> -	return fuse_len_args(num_in, (struct fuse_arg *)args->in_args);
+>> +	if (argbuf->is_flat)
+>> +		return offset;
+>> +	return round_up(offset, PAGE_SIZE);
+>>  }
+>>  
+>>  static void virtio_fs_argbuf_copy_to_out_arg(struct virtio_fs_argbuf *argbuf,
+>>  					     unsigned int offset, void *dst,
+>>  					     unsigned int len)
+>>  {
+>> -	memcpy(dst, argbuf->buf + offset, len);
+>> +	struct iov_iter iter;
+>> +	unsigned int copied;
+>> +
+>> +	if (argbuf->is_flat) {
+>> +		memcpy(dst, argbuf->f.buf + offset, len);
+>> +		return;
+>> +	}
+>> +
+>> +	iov_iter_bvec(&iter, ITER_SOURCE, argbuf->s.bvec,
+>> +		      argbuf->s.nr, argbuf->s.size);
+>> +	iov_iter_advance(&iter, offset);
+>> +
+>> +	copied = _copy_from_iter(dst, len, &iter);
+>> +	WARN_ON_ONCE(copied != len);
+>>  }
+>>  
+>>  /*
+>> @@ -1154,7 +1289,7 @@ static unsigned int sg_init_fuse_args(struct scatterlist *sg,
+>>  	len = fuse_len_args(numargs - argpages, args);
+>>  	if (len)
+>>  		total_sgs += virtio_fs_argbuf_setup_sg(req->argbuf, *len_used,
+>> -						       len, &sg[total_sgs]);
+>> +						       &len, &sg[total_sgs]);
+>>  
+>>  	if (argpages)
+>>  		total_sgs += sg_init_fuse_pages(&sg[total_sgs],
+>> @@ -1199,7 +1334,7 @@ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
+>>  	}
+>>  
+>>  	/* Use a bounce buffer since stack args cannot be mapped */
+>> -	req->argbuf = virtio_fs_argbuf_new(args, GFP_ATOMIC);
+>> +	req->argbuf = virtio_fs_argbuf_new(args, GFP_ATOMIC, true);
+>>  	if (!req->argbuf) {
+>>  		ret = -ENOMEM;
+>>  		goto out;
+>> -- 
+>> 2.29.2
+>>
+>>
+
