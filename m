@@ -1,94 +1,116 @@
-Received: from dggsgout11.his.huawei.com (unknown [45.249.212.51])
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 418C13612E
-	for <virtualization@lists.linux.dev>; Sat,  9 Mar 2024 04:27:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F7BEA35
+	for <virtualization@lists.linux.dev>; Mon, 11 Mar 2024 02:25:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709958470; cv=none; b=gEleJ+eqx8Q4lk5hX0qJ7CR6K+WOH+uOSDLdW6agpiuSFdqVALZ6brP+6pfbK+CnaBLcwCK2I4ggQD8cZIa4y6AGymHeEJzuraJ8UJOswvhCKgfVIVS59YkPNTT/RofKv4VSv6GhgX03E5n/dlUIGYLwR74ytiB2WGyOd/6D2eQ=
+	t=1710123909; cv=none; b=qq/2rGx3R3BQxykUWMp4uUBaSqMqwqdaw8s3mSGbLdnMh61OVwSRwniF72qSK2WGwuhsq80eMXBAaMWfqNQktqfrf5GI+Cx3ObYU7TcnH1I+Or7emTHVWgK0/HfG5o4TbMa5Eiy9Pjgw36eytbISt3vPof2bK+PS3gfGQkq6ngA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709958470; c=relaxed/simple;
-	bh=s9lzqrPDk9j8gcGT1nVVajiJKR4b1xN8/LcICY6fQy4=;
-	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=tDiZswnmRx8k9ZFJWhC+Y8tlGOKuKCSJ4vaH47GlQBQLtYZV6z8Xi+E1rfezI5+rFpkJ1brpQV1KxAjxBp0RaA38ilHngyLospqhdgzyWDNRB57+15kOsI7fbqgCb+4RGmeCMOc+d7MvVa+sbKnza5HN0BIYq4/LYxRJL+Y/W4Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com; spf=pass smtp.mailfrom=huaweicloud.com; arc=none smtp.client-ip=45.249.212.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huaweicloud.com
-Received: from mail.maildlp.com (unknown [172.19.163.216])
-	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4Ts94T1TVCz4f3jJ6
-	for <virtualization@lists.linux.dev>; Sat,  9 Mar 2024 12:27:37 +0800 (CST)
-Received: from mail02.huawei.com (unknown [10.116.40.252])
-	by mail.maildlp.com (Postfix) with ESMTP id C97691A0BDD
-	for <virtualization@lists.linux.dev>; Sat,  9 Mar 2024 12:27:44 +0800 (CST)
-Received: from [10.174.176.117] (unknown [10.174.176.117])
-	by APP3 (Coremail) with SMTP id _Ch0CgC3w5tA5etlC_4kGQ--.6806S2;
-	Sat, 09 Mar 2024 12:27:44 +0800 (CST)
-Subject: Re: [PATCH v2 3/6] virtiofs: factor out more common methods for
- argbuf
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: linux-fsdevel@vger.kernel.org, Vivek Goyal <vgoyal@redhat.com>,
- Stefan Hajnoczi <stefanha@redhat.com>,
- Bernd Schubert <bernd.schubert@fastmail.fm>,
- "Michael S . Tsirkin" <mst@redhat.com>, Matthew Wilcox
- <willy@infradead.org>, Benjamin Coddington <bcodding@redhat.com>,
- linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
- houtao1@huawei.com
-References: <20240228144126.2864064-1-houtao@huaweicloud.com>
- <20240228144126.2864064-4-houtao@huaweicloud.com>
- <CAJfpegsSHfO6yMpNAxaZVMvLNub_Kv5rhZQaDuJHNgHpWhpteg@mail.gmail.com>
-From: Hou Tao <houtao@huaweicloud.com>
-Message-ID: <4eed238d-f6c1-f170-797f-5b4b172b59e4@huaweicloud.com>
-Date: Sat, 9 Mar 2024 12:27:44 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.0
+	s=arc-20240116; t=1710123909; c=relaxed/simple;
+	bh=Q+YAp+SydATt35XhZXtZHP2qTDIuk+FIlk46vKpyMsQ=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=u6PnCrxae9JBsD+LExDNNqSqthdz4bDBHz5QEl2/pOvbReY8+jGPI9pMhMqkRK5p5pLtqITQmCGq1Hf/QhxqzHffxhxYz0z1drkf7kaanNFVQ/BzyLsRMfjOkqSJaaGk2sTYikbpAZL0pH9LksXYJpXGvu5IFLATcweRbQj/2aI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=vGA1cGpe; arc=none smtp.client-ip=115.124.30.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="vGA1cGpe"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1710123898; h=Message-ID:Subject:Date:From:To;
+	bh=IjggKy7HR74Lw2lFaJO8aNhkimYBeigCUfT94zbJh7Y=;
+	b=vGA1cGpej+3MrnWBoeHQsr/wgLBXBiWBy+p29cpU3VJaKpS3uZH2FfeA8MHynRllzr6QhTJrefuGAdieT2ZQeoeNaSJEYAqALrK6XQ/GOXhRx/5kA/cYUbgSmKKtUmZzwKLfkBF7xXx8qXI5ed1pK0maknGSUeVPh7BIOe2hj/A=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=24;SR=0;TI=SMTPD_---0W29MS6c_1710123896;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W29MS6c_1710123896)
+          by smtp.aliyun-inc.com;
+          Mon, 11 Mar 2024 10:24:57 +0800
+Message-ID: <1710123875.2753754-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH vhost v1 2/4] virtio: vring_create_virtqueue: pass struct instead of multi parameters
+Date: Mon, 11 Mar 2024 10:24:35 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Cc: virtualization@lists.linux.dev,
+ Richard Weinberger <richard@nod.at>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Johannes Berg <johannes@sipsolutions.net>,
+ Hans de Goede <hdegoede@redhat.com>,
+ Vadim Pasternak <vadimp@nvidia.com>,
+ Bjorn Andersson <andersson@kernel.org>,
+ Mathieu Poirier <mathieu.poirier@linaro.org>,
+ Cornelia Huck <cohuck@redhat.com>,
+ Halil Pasic <pasic@linux.ibm.com>,
+ Eric Farman <farman@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>,
+ linux-um@lists.infradead.org,
+ platform-driver-x86@vger.kernel.org,
+ linux-remoteproc@vger.kernel.org,
+ linux-s390@vger.kernel.org,
+ kvm@vger.kernel.org
+References: <20240306114615.88770-1-xuanzhuo@linux.alibaba.com>
+ <20240306114615.88770-3-xuanzhuo@linux.alibaba.com>
+ <8f77a787-0bb7-96ad-0dac-f8ef36879ae3@linux.intel.com>
+In-Reply-To: <8f77a787-0bb7-96ad-0dac-f8ef36879ae3@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-In-Reply-To: <CAJfpegsSHfO6yMpNAxaZVMvLNub_Kv5rhZQaDuJHNgHpWhpteg@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-CM-TRANSID:_Ch0CgC3w5tA5etlC_4kGQ--.6806S2
-X-Coremail-Antispam: 1UD129KBjvdXoWrtFW3Gr1fKF48XF45Zr4rGrg_yoW3AFX_uF
-	Wvkry5JayUG3WfAr4kAr1agwsrCayftF109343A3929F15GFWYvF1xXryFg3Z8Xa17Ar47
-	GrW3tan5trySgjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-	9fnUUIcSsGvfJTRUUUbxkYFVCjjxCrM7AC8VAFwI0_Gr0_Xr1l1xkIjI8I6I8E6xAIw20E
-	Y4v20xvaj40_Wr0E3s1l1IIY67AEw4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwV
-	A0rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVW5JVW7JwA2z4x0Y4vE2Ix0cI8IcVCY1x02
-	67AKxVWxJVW8Jr1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxV
-	AFwI0_GcCE3s1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2
-	j2WlYx0E2Ix0cI8IcVAFwI0_Jrv_JF1lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7x
-	kEbVWUJVW8JwACjcxG0xvEwIxGrwACI402YVCY1x02628vn2kIc2xKxwCYjI0SjxkI62AI
-	1cAE67vIY487MxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I
-	8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8
-	ZwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x
-	0267AKxVW8JVWxJwCI42IY6xAIw20EY4v20xvaj40_Gr0_Zr1lIxAIcVC2z280aVAFwI0_
-	Jr0_Gr1lIxAIcVC2z280aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7IU1
-	89N3UUUUU==
-X-CM-SenderInfo: xkrx3t3r6k3tpzhluzxrxghudrp/
 
-Hi,
-
-On 3/1/2024 10:24 PM, Miklos Szeredi wrote:
-> On Wed, 28 Feb 2024 at 15:41, Hou Tao <houtao@huaweicloud.com> wrote:
->> From: Hou Tao <houtao1@huawei.com>
->>
->> Factor out more common methods for bounce buffer of fuse args:
->>
->> 1) virtio_fs_argbuf_setup_sg: set-up sgs for bounce buffer
->> 2) virtio_fs_argbuf_copy_from_in_arg: copy each in-arg to bounce buffer
->> 3) virtio_fs_argbuf_out_args_offset: calc the start offset of out-arg
->> 4) virtio_fs_argbuf_copy_to_out_arg: copy bounce buffer to each out-arg
->>
->> These methods will be used to implement bounce buffer backed by
->> scattered pages which are allocated separatedly.
-> Why is req->argbuf not changed to being typed?
-
-Will update in next revision. Thanks for the suggestion.
+On Fri, 8 Mar 2024 12:19:21 +0200 (EET), =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com> wrote:
+> On Wed, 6 Mar 2024, Xuan Zhuo wrote:
 >
-> Thanks,
-> Miklos
+> > Now, we pass multi parameters to vring_create_virtqueue. These parameters
+> > may from transport or from driver.
+> >
+> > vring_create_virtqueue is called by many places.
+> > Every time, we try to add a new parameter, that is difficult.
+> >
+> > If parameters from the driver, that should directly be passed to vring.
+> > Then the vring can access the config from driver directly.
+> >
+> > If parameters from the transport, we squish the parameters to a
+> > structure. That will be helpful to add new parameter.
+> >
+> > Because the virtio_uml.c changes the name, so change the "names" inside
+> > the virtio_vq_config from "const char *const *names" to
+> > "const char **names".
+> >
+> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > Acked-by: Johannes Berg <johannes@sipsolutions.net>
+>
+> > @@ -60,38 +61,25 @@ struct virtio_device;
+> >  struct virtqueue;
+> >  struct device;
+> >
+> > +struct vq_transport_config {
+> > +	unsigned int num;
+> > +	unsigned int vring_align;
+> > +	bool weak_barriers;
+> > +	bool may_reduce_num;
+> > +	bool (*notify)(struct virtqueue *vq);
+> > +	struct device *dma_dev;
+> > +};
+>
+> kerneldoc is missing from this struct too.
+>
+> It would be generally helpful if you are proactive when somebody comments
+> your series by checking if there are similar cases within your series,
+> instead of waiting them to be pointed out for you specificly.
 
+Sorry. I missed it.
+
+Will fix in next version.
+
+Thanks
+
+
+>
+> --
+>  i.
+>
