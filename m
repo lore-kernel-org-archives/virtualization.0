@@ -1,204 +1,458 @@
-Received: from out-177.mta1.migadu.com (out-177.mta1.migadu.com [95.215.58.177])
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7B3C58113
-	for <virtualization@lists.linux.dev>; Mon, 11 Mar 2024 22:36:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EBF9613C
+	for <virtualization@lists.linux.dev>; Tue, 12 Mar 2024 02:10:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710196619; cv=none; b=g92/Fiz/XD1u4e9B1ljjUmRDjhJE2ZsnyR5tdHIrRzVlkVZinyg4vGGVt9zI2nZBAlg9is0yAoKFZAZxJ/J2e6KLofkLxfu4G9NRd8+hYE1B2rWihOIq/GFN7+MkAq3IYhHiBUid6+Zye5SrYUQuslo1w0WfgEAW1hcJ4HCpNF0=
+	t=1710209424; cv=none; b=CeH9jyrX1YNGs/25N94jN5wmQd1pq9nHqfF/ZM30SH5ULA7gdQKFQX37m4kUC6jXTJ5o7241CU8zHjXP1JcaZyrMpNkSiS+CrJMbLBwSRRG2ihBOdzwzK1aAfNRhBNU6NLPR8VrCBrv1EQk0IdqN4ZJZ8Mzp7S0UOZzplGDKO+k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710196619; c=relaxed/simple;
-	bh=MYqnrnXYYg+q0rN32HhqumbqoF5MOt9ZB61pc4+EsSU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ey9JrjEmTKa3b27P7mqvgcjrq9eBh0fKYyTLNxGz2Ffbh9EHeXziutL+OBtBJCRpi20utFnhJ1h+A2R+8Ga4bwfAFTx5W/2XXh0JRCZl2EbWSpOryU93eNw5EuaJOm+OWEEPh0t3F0KD1X6eKRa7Pa9bSBmnsUEI2VuA//qkoTM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=HqhuOUUr; arc=none smtp.client-ip=95.215.58.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1710209424; c=relaxed/simple;
+	bh=FWejyKJDnUuFsLUkRm7sK0BOKJEm7tykHTjPNfv9RsU=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=lzFmYVD4HwbGjg8cx1a5csHtLZQJLFo1KataX4bTtRb/qzYOPLsAhT0AC4UeBon+2r78HpqvyEHqgt/raAXwabDid8LzHTc/kuVkWoyb6ErIhvkJwMg0wOzvWdjqziRW9rwzZeI7c01nFz4rboW2ljG36mJeTaqxNfnxBpPI/YQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=a1Tng+zs; arc=none smtp.client-ip=115.124.30.119
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="HqhuOUUr"
-Message-ID: <83e2d77c-d12b-4f4f-a759-8e97fd86eff5@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1710196614;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=kUQPkht64sWX7JVV8v7D7kaGK+/xr09KYmGxuaLQzAo=;
-	b=HqhuOUUrijOnMo8iwXnOShESjlO2ucwqsLA1yJ3Ss3rkH6Yd1JmhQ4kEi35gjRlnEl+W5y
-	WbO5+7os9DpccK6BVJft3mXh5wSgShvrwfDcOXvh0m84UdqUgJQjPU/E7xJsQIpKyNC+zm
-	tIAJuScW36ApYLQ4wf4CbL+4aD0kEj4=
-Date: Tue, 12 Mar 2024 06:36:31 +0800
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="a1Tng+zs"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1710209418; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=XmEEWuO98tzJ8F2vlPObkN+ZyR4RJUcjBkaOhL9dtAE=;
+	b=a1Tng+zsx2N8WyAVMS630aDAglkyjxpU2mzwOsBingXT5qkkMOjCsaYLV/H/G87DCNZ2XBUaZBSHdciE0tL250z0nVV2jfDo70TcUq2yCbM+/elr/Y8Dl7cAPMrtpjXbdByCik3HMKR9v2AEY3QVknv9kgG56ZYNh1ZuUOhzIkc=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=25;SR=0;TI=SMTPD_---0W2K23vj_1710209416;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W2K23vj_1710209416)
+          by smtp.aliyun-inc.com;
+          Tue, 12 Mar 2024 10:10:17 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: virtualization@lists.linux.dev
+Cc: Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Hans de Goede <hdegoede@redhat.com>,
+	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	Vadim Pasternak <vadimp@nvidia.com>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Mathieu Poirier <mathieu.poirier@linaro.org>,
+	Cornelia Huck <cohuck@redhat.com>,
+	Halil Pasic <pasic@linux.ibm.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	linux-um@lists.infradead.org,
+	platform-driver-x86@vger.kernel.org,
+	linux-remoteproc@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	kvm@vger.kernel.org
+Subject: [PATCH vhost v3 2/4] virtio: vring_create_virtqueue: pass struct instead of multi parameters
+Date: Tue, 12 Mar 2024 10:10:11 +0800
+Message-Id: <20240312021013.88656-3-xuanzhuo@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+In-Reply-To: <20240312021013.88656-1-xuanzhuo@linux.alibaba.com>
+References: <20240312021013.88656-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Subject: Re: [10/13] drm/fbdev-generic: Fix locking with
- drm_client_buffer_vmap_local()
-Content-Language: en-US
-To: Thomas Zimmermann <tzimmermann@suse.de>, daniel@ffwll.ch,
- airlied@gmail.com, mripard@kernel.org, maarten.lankhorst@linux.intel.com,
- christian.koenig@amd.com, sumit.semwal@linaro.org,
- dmitry.osipenko@collabora.com, robdclark@gmail.com,
- quic_abhinavk@quicinc.com, dmitry.baryshkov@linaro.org, sean@poorly.run,
- marijn.suijten@somainline.org, kherbst@redhat.com, lyude@redhat.com,
- dakr@redhat.com, airlied@redhat.com, kraxel@redhat.com,
- alexander.deucher@amd.com, Xinhui.Pan@amd.com, zack.rusin@broadcom.com,
- bcm-kernel-feedback-list@broadcom.com
-Cc: dri-devel@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
- freedreno@lists.freedesktop.org, nouveau@lists.freedesktop.org,
- virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org,
- amd-gfx@lists.freedesktop.org
-References: <20240227113853.8464-11-tzimmermann@suse.de>
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Sui Jingfeng <sui.jingfeng@linux.dev>
-In-Reply-To: <20240227113853.8464-11-tzimmermann@suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Migadu-Flow: FLOW_OUT
+X-Git-Hash: 8d1a4cfe2924
+Content-Transfer-Encoding: 8bit
 
-Hi,
+Now, we pass multi parameters to vring_create_virtqueue. These parameters
+may from transport or from driver.
 
+vring_create_virtqueue is called by many places.
+Every time, we try to add a new parameter, that is difficult.
 
-On 2024/2/27 18:14, Thomas Zimmermann wrote:
-> Temporarily lock the fbdev buffer object during updates to prevent
-> memory managers from evicting/moving the buffer. Moving a buffer
-> object while update its content results in undefined behaviour.
->
-> Fbdev-generic updates its buffer object from a shadow buffer. Gem-shmem
-> and gem-dma helpers do not move buffer objects, so they are safe to be
-> used with fbdev-generic. Gem-vram and qxl are based on TTM, but pin
-> buffer objects are part of the vmap operation. So both are also safe
-> to be used with fbdev-generic.
->
-> Amdgpu and nouveau do not pin or lock the buffer object during an
-> update. Their TTM-based memory management could move the buffer object
-> while the update is ongoing.
->
-> The new vmap_local and vunmap_local helpers hold the buffer object's
-> reservation lock during the buffer update. This prevents moving the
-> buffer object on all memory managers.
->
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> ---
->   drivers/gpu/drm/drm_client.c        | 68 +++++++++++++++++++++++++----
->   drivers/gpu/drm/drm_fbdev_generic.c |  4 +-
->   drivers/gpu/drm/drm_gem.c           | 12 +++++
->   include/drm/drm_client.h            | 10 +++++
->   include/drm/drm_gem.h               |  3 ++
->   5 files changed, 87 insertions(+), 10 deletions(-)
->
-> diff --git a/drivers/gpu/drm/drm_client.c b/drivers/gpu/drm/drm_client.c
-> index 9403b3f576f7b..2cc81831236b5 100644
-> --- a/drivers/gpu/drm/drm_client.c
-> +++ b/drivers/gpu/drm/drm_client.c
-> @@ -304,6 +304,66 @@ drm_client_buffer_create(struct drm_client_dev *client, u32 width, u32 height,
->   	return ERR_PTR(ret);
->   }
->   
-> +/**
-> + * drm_client_buffer_vmap_local - Map DRM client buffer into address space
-> + * @buffer: DRM client buffer
-> + * @map_copy: Returns the mapped memory's address
-> + *
-> + * This function maps a client buffer into kernel address space. If the
-> + * buffer is already mapped, it returns the existing mapping's address.
-> + *
-> + * Client buffer mappings are not ref'counted. Each call to
-> + * drm_client_buffer_vmap_local() should be closely followed by a call to
-> + * drm_client_buffer_vunmap_local(). See drm_client_buffer_vmap() for
-> + * long-term mappings.
-> + *
-> + * The returned address is a copy of the internal value. In contrast to
-> + * other vmap interfaces, you don't need it for the client's vunmap
-> + * function. So you can modify it at will during blit and draw operations.
-> + *
-> + * Returns:
-> + *	0 on success, or a negative errno code otherwise.
-> + */
-> +int drm_client_buffer_vmap_local(struct drm_client_buffer *buffer,
-> +				 struct iosys_map *map_copy)
-> +{
-> +	struct drm_gem_object *gem = buffer->gem;
-> +	struct iosys_map *map = &buffer->map;
-> +	int ret;
-> +
-> +	drm_gem_lock(gem);
-> +
-> +	ret = drm_gem_vmap(gem, map);
-> +	if (ret)
-> +		goto err_drm_gem_vmap_unlocked;
-> +	*map_copy = *map;
-> +
-> +	return 0;
-> +
-> +err_drm_gem_vmap_unlocked:
-> +	drm_gem_unlock(gem);
-> +	return 0;
-> +}
-> +EXPORT_SYMBOL(drm_client_buffer_vmap_local);
-> +
-> +/**
-> + * drm_client_buffer_vunmap_local - Unmap DRM client buffer
-> + * @buffer: DRM client buffer
-> + *
-> + * This function removes a client buffer's memory mapping established
-> + * with drm_client_buffer_vunmap_local(). Calling this function is only
-> + * required by clients that manage their buffer mappings by themselves.
-> + */
-> +void drm_client_buffer_vunmap_local(struct drm_client_buffer *buffer)
-> +{
-> +	struct drm_gem_object *gem = buffer->gem;
-> +	struct iosys_map *map = &buffer->map;
-> +
-> +	drm_gem_vunmap(gem, map);
-> +	drm_gem_unlock(gem);
-> +}
-> +EXPORT_SYMBOL(drm_client_buffer_vunmap_local);
-> +
->   /**
->    * drm_client_buffer_vmap - Map DRM client buffer into address space
->    * @buffer: DRM client buffer
-> @@ -331,14 +391,6 @@ drm_client_buffer_vmap(struct drm_client_buffer *buffer,
->   	struct iosys_map *map = &buffer->map;
->   	int ret;
->   
-> -	/*
-> -	 * FIXME: The dependency on GEM here isn't required, we could
-> -	 * convert the driver handle to a dma-buf instead and use the
-> -	 * backend-agnostic dma-buf vmap support instead. This would
-> -	 * require that the handle2fd prime ioctl is reworked to pull the
-> -	 * fd_install step out of the driver backend hooks, to make that
-> -	 * final step optional for internal users.
-> -	 */
->   	ret = drm_gem_vmap_unlocked(buffer->gem, map);
->   	if (ret)
->   		return ret;
-> diff --git a/drivers/gpu/drm/drm_fbdev_generic.c b/drivers/gpu/drm/drm_fbdev_generic.c
-> index d647d89764cb9..be357f926faec 100644
-> --- a/drivers/gpu/drm/drm_fbdev_generic.c
-> +++ b/drivers/gpu/drm/drm_fbdev_generic.c
-> @@ -197,14 +197,14 @@ static int drm_fbdev_generic_damage_blit(struct drm_fb_helper *fb_helper,
->   	 */
->   	mutex_lock(&fb_helper->lock);
->   
-> -	ret = drm_client_buffer_vmap(buffer, &map);
-> +	ret = drm_client_buffer_vmap_local(buffer, &map);
->   	if (ret)
->   		goto out;
->   
->   	dst = map;
+If parameters from the driver, that should directly be passed to vring.
+Then the vring can access the config from driver directly.
 
-Then, please remove the local variable 'dst' (struct iosys_map) at here.
-As you said, the returned iosys_map is another copy of the original backup,
-we can play with this local variable at will, there no need to duplicate
-another time again.
+If parameters from the transport, we squish the parameters to a
+structure. That will be helpful to add new parameter.
 
-I have modified and tested with fbdev generic, no problem. With this trivial
-issue resolved. For fbdev-generic:
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Acked-by: Johannes Berg <johannes@sipsolutions.net>
+Reviewed-by: Ilpo J=E4rvinen <ilpo.jarvinen@linux.intel.com>
+---
+ arch/um/drivers/virtio_uml.c       | 14 +++++---
+ drivers/s390/virtio/virtio_ccw.c   | 14 ++++----
+ drivers/virtio/virtio_mmio.c       | 14 ++++----
+ drivers/virtio/virtio_pci_legacy.c | 15 ++++----
+ drivers/virtio/virtio_pci_modern.c | 15 ++++----
+ drivers/virtio/virtio_ring.c       | 57 ++++++++++++------------------
+ drivers/virtio/virtio_vdpa.c       | 21 +++++------
+ include/linux/virtio_ring.h        | 51 +++++++++++++-------------
+ 8 files changed, 101 insertions(+), 100 deletions(-)
 
-
-Acked-by: Sui Jingfeng <sui.jingfeng@linux.dev>
-
+diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
+index c13dfeeb90c4..1c2d59d3d02b 100644
+--- a/arch/um/drivers/virtio_uml.c
++++ b/arch/um/drivers/virtio_uml.c
+@@ -942,6 +942,7 @@ static struct virtqueue *vu_setup_vq(struct virtio_device *vdev,
+ {
+ 	struct virtio_uml_device *vu_dev = to_virtio_uml_device(vdev);
+ 	struct platform_device *pdev = vu_dev->pdev;
++	struct vq_transport_config tp_cfg = {};
+ 	struct virtio_uml_vq_info *info;
+ 	struct virtqueue *vq;
+ 	int num = MAX_SUPPORTED_QUEUE_SIZE;
+@@ -955,10 +956,15 @@ static struct virtqueue *vu_setup_vq(struct virtio_device *vdev,
+ 	snprintf(info->name, sizeof(info->name), "%s.%d-%s", pdev->name,
+ 		 pdev->id, cfg->names[cfg->cfg_idx]);
+ 
+-	vq = vring_create_virtqueue(index, num, PAGE_SIZE, vdev, true, true,
+-				    cfg->ctx ? cfg->ctx[cfg->cfg_idx] : false,
+-				    vu_notify,
+-				    cfg->callbacks[cfg->cfg_idx], info->name);
++	tp_cfg.num = num;
++	tp_cfg.vring_align = PAGE_SIZE;
++	tp_cfg.weak_barriers = true;
++	tp_cfg.may_reduce_num = true;
++	tp_cfg.notify = vu_notify;
++
++	cfg->names[cfg->cfg_idx] = info->name;
++
++	vq = vring_create_virtqueue(vdev, index, &tp_cfg, cfg);
+ 	if (!vq) {
+ 		rc = -ENOMEM;
+ 		goto error_create;
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index 11eea5086cff..f8d5bbd13359 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -503,6 +503,7 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
+ 					     struct virtio_vq_config *cfg)
+ {
+ 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
++	struct vq_transport_config tp_cfg = {};
+ 	bool (*notify)(struct virtqueue *vq);
+ 	int err;
+ 	struct virtqueue *vq = NULL;
+@@ -536,13 +537,14 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
+ 		goto out_err;
+ 	}
+ 	may_reduce = vcdev->revision > 0;
+-	vq = vring_create_virtqueue(i, info->num, KVM_VIRTIO_CCW_RING_ALIGN,
+-				    vdev, true, may_reduce,
+-				    cfg->ctx ? cfg->ctx[cfg->cfg_idx] : false,
+-				    notify,
+-				    cfg->callbacks[cfg->cfg_idx],
+-				    cfg->names[cfg->cfg_idx]);
+ 
++	tp_cfg.num = info->num;
++	tp_cfg.vring_align = KVM_VIRTIO_CCW_RING_ALIGN;
++	tp_cfg.weak_barriers = true;
++	tp_cfg.may_reduce_num = may_reduce;
++	tp_cfg.notify = notify;
++
++	vq = vring_create_virtqueue(vdev, i, &tp_cfg, cfg);
+ 	if (!vq) {
+ 		/* For now, we fail if we can't get the requested size. */
+ 		dev_warn(&vcdev->cdev->dev, "no vq\n");
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index feb823d279d2..cb172fa4d7cc 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -373,6 +373,7 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int in
+ 				     struct virtio_vq_config *cfg)
+ {
+ 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
++	struct vq_transport_config tp_cfg = {};
+ 	bool (*notify)(struct virtqueue *vq);
+ 	struct virtio_mmio_vq_info *info;
+ 	struct virtqueue *vq;
+@@ -411,13 +412,14 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int in
+ 		goto error_new_virtqueue;
+ 	}
+ 
++	tp_cfg.num = num;
++	tp_cfg.vring_align = VIRTIO_MMIO_VRING_ALIGN;
++	tp_cfg.weak_barriers = true;
++	tp_cfg.may_reduce_num = true;
++	tp_cfg.notify = notify;
++
+ 	/* Create the vring */
+-	vq = vring_create_virtqueue(index, num, VIRTIO_MMIO_VRING_ALIGN, vdev,
+-				 true, true,
+-				 cfg->ctx ? cfg->ctx[cfg->cfg_idx] : false,
+-				 notify,
+-				 cfg->callbacks[cfg->cfg_idx],
+-				 cfg->names[cfg->cfg_idx]);
++	vq = vring_create_virtqueue(vdev, index, &tp_cfg, cfg);
+ 	if (!vq) {
+ 		err = -ENOMEM;
+ 		goto error_new_virtqueue;
+diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
+index e8d22fce32f5..6fe675b2a5e5 100644
+--- a/drivers/virtio/virtio_pci_legacy.c
++++ b/drivers/virtio/virtio_pci_legacy.c
+@@ -113,6 +113,7 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+ 				  struct virtio_vq_config *cfg,
+ 				  u16 msix_vec)
+ {
++	struct vq_transport_config tp_cfg = {};
+ 	struct virtqueue *vq;
+ 	u16 num;
+ 	int err;
+@@ -125,14 +126,14 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+ 
+ 	info->msix_vector = msix_vec;
+ 
++	tp_cfg.num = num;
++	tp_cfg.vring_align = VIRTIO_PCI_VRING_ALIGN;
++	tp_cfg.weak_barriers = true;
++	tp_cfg.may_reduce_num = false;
++	tp_cfg.notify = vp_notify;
++
+ 	/* create the vring */
+-	vq = vring_create_virtqueue(index, num,
+-				    VIRTIO_PCI_VRING_ALIGN, &vp_dev->vdev,
+-				    true, false,
+-				    cfg->ctx ? cfg->ctx[cfg->cfg_idx] : false,
+-				    vp_notify,
+-				    cfg->callbacks[cfg->cfg_idx],
+-				    cfg->names[cfg->cfg_idx]);
++	vq = vring_create_virtqueue(&vp_dev->vdev, index, &tp_cfg, cfg);
+ 	if (!vq)
+ 		return ERR_PTR(-ENOMEM);
+ 
+diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+index b2cdf5d3824d..dd75534346d1 100644
+--- a/drivers/virtio/virtio_pci_modern.c
++++ b/drivers/virtio/virtio_pci_modern.c
+@@ -535,6 +535,7 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+ {
+ 
+ 	struct virtio_pci_modern_device *mdev = &vp_dev->mdev;
++	struct vq_transport_config tp_cfg = {};
+ 	bool (*notify)(struct virtqueue *vq);
+ 	struct virtqueue *vq;
+ 	bool is_avq;
+@@ -558,14 +559,14 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+ 
+ 	info->msix_vector = msix_vec;
+ 
++	tp_cfg.num = num;
++	tp_cfg.vring_align = SMP_CACHE_BYTES;
++	tp_cfg.weak_barriers = true;
++	tp_cfg.may_reduce_num = true;
++	tp_cfg.notify = notify;
++
+ 	/* create the vring */
+-	vq = vring_create_virtqueue(index, num,
+-				    SMP_CACHE_BYTES, &vp_dev->vdev,
+-				    true, true,
+-				    cfg->ctx ? cfg->ctx[cfg->cfg_idx] : false,
+-				    notify,
+-				    cfg->callbacks[cfg->cfg_idx],
+-				    cfg->names[cfg->cfg_idx]);
++	vq = vring_create_virtqueue(&vp_dev->vdev, index, &tp_cfg, cfg);
+ 	if (!vq)
+ 		return ERR_PTR(-ENOMEM);
+ 
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 6f7e5010a673..08858e2d761e 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -2662,43 +2662,32 @@ static struct virtqueue *__vring_new_virtqueue(unsigned int index,
+ 	return &vq->vq;
+ }
+ 
+-struct virtqueue *vring_create_virtqueue(
+-	unsigned int index,
+-	unsigned int num,
+-	unsigned int vring_align,
+-	struct virtio_device *vdev,
+-	bool weak_barriers,
+-	bool may_reduce_num,
+-	bool context,
+-	bool (*notify)(struct virtqueue *),
+-	void (*callback)(struct virtqueue *),
+-	const char *name)
++struct virtqueue *vring_create_virtqueue(struct virtio_device *vdev,
++					 unsigned int index,
++					 struct vq_transport_config *tp_cfg,
++					 struct virtio_vq_config *cfg)
+ {
++	struct device *dma_dev;
++	unsigned int num;
++	unsigned int vring_align;
++	bool weak_barriers;
++	bool may_reduce_num;
++	bool context;
++	bool (*notify)(struct virtqueue *_);
++	void (*callback)(struct virtqueue *_);
++	const char *name;
+ 
+-	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED))
+-		return vring_create_virtqueue_packed(index, num, vring_align,
+-				vdev, weak_barriers, may_reduce_num,
+-				context, notify, callback, name, vdev->dev.parent);
++	dma_dev = tp_cfg->dma_dev ? : vdev->dev.parent;
+ 
+-	return vring_create_virtqueue_split(index, num, vring_align,
+-			vdev, weak_barriers, may_reduce_num,
+-			context, notify, callback, name, vdev->dev.parent);
+-}
+-EXPORT_SYMBOL_GPL(vring_create_virtqueue);
++	num            = tp_cfg->num;
++	vring_align    = tp_cfg->vring_align;
++	weak_barriers  = tp_cfg->weak_barriers;
++	may_reduce_num = tp_cfg->may_reduce_num;
++	notify         = tp_cfg->notify;
+ 
+-struct virtqueue *vring_create_virtqueue_dma(
+-	unsigned int index,
+-	unsigned int num,
+-	unsigned int vring_align,
+-	struct virtio_device *vdev,
+-	bool weak_barriers,
+-	bool may_reduce_num,
+-	bool context,
+-	bool (*notify)(struct virtqueue *),
+-	void (*callback)(struct virtqueue *),
+-	const char *name,
+-	struct device *dma_dev)
+-{
++	name     = cfg->names[cfg->cfg_idx];
++	callback = cfg->callbacks[cfg->cfg_idx];
++	context  = cfg->ctx ? cfg->ctx[cfg->cfg_idx] : false;
+ 
+ 	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED))
+ 		return vring_create_virtqueue_packed(index, num, vring_align,
+@@ -2709,7 +2698,7 @@ struct virtqueue *vring_create_virtqueue_dma(
+ 			vdev, weak_barriers, may_reduce_num,
+ 			context, notify, callback, name, dma_dev);
+ }
+-EXPORT_SYMBOL_GPL(vring_create_virtqueue_dma);
++EXPORT_SYMBOL_GPL(vring_create_virtqueue);
+ 
+ /**
+  * virtqueue_resize - resize the vring of vq
+diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
+index 7f3e173f669c..1ab219fce653 100644
+--- a/drivers/virtio/virtio_vdpa.c
++++ b/drivers/virtio/virtio_vdpa.c
+@@ -146,8 +146,8 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
+ {
+ 	struct virtio_vdpa_device *vd_dev = to_virtio_vdpa_device(vdev);
+ 	struct vdpa_device *vdpa = vd_get_vdpa(vdev);
+-	struct device *dma_dev;
+ 	const struct vdpa_config_ops *ops = vdpa->config;
++	struct vq_transport_config tp_cfg = {};
+ 	struct virtio_vdpa_vq_info *info;
+ 	bool (*notify)(struct virtqueue *vq) = virtio_vdpa_notify;
+ 	struct vdpa_callback cb;
+@@ -201,16 +201,17 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
+ 	align = ops->get_vq_align(vdpa);
+ 
+ 	if (ops->get_vq_dma_dev)
+-		dma_dev = ops->get_vq_dma_dev(vdpa, index);
++		tp_cfg.dma_dev = ops->get_vq_dma_dev(vdpa, index);
+ 	else
+-		dma_dev = vdpa_get_dma_dev(vdpa);
+-	vq = vring_create_virtqueue_dma(index, max_num, align, vdev,
+-					true, may_reduce_num,
+-					cfg->ctx ? cfg->ctx[cfg->cfg_idx] : false,
+-					notify,
+-					cfg->callbacks[cfg->cfg_idx],
+-					cfg->names[cfg->cfg_idx],
+-					dma_dev);
++		tp_cfg.dma_dev = vdpa_get_dma_dev(vdpa);
++
++	tp_cfg.num = max_num;
++	tp_cfg.vring_align = align;
++	tp_cfg.weak_barriers = true;
++	tp_cfg.may_reduce_num = may_reduce_num;
++	tp_cfg.notify = notify;
++
++	vq = vring_create_virtqueue(vdev, index, &tp_cfg, cfg);
+ 	if (!vq) {
+ 		err = -ENOMEM;
+ 		goto error_new_virtqueue;
+diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
+index 9b33df741b63..0a81f7f025ce 100644
+--- a/include/linux/virtio_ring.h
++++ b/include/linux/virtio_ring.h
+@@ -5,6 +5,7 @@
+ #include <asm/barrier.h>
+ #include <linux/irqreturn.h>
+ #include <uapi/linux/virtio_ring.h>
++#include <linux/virtio_config.h>
+ 
+ /*
+  * Barriers in virtio are tricky.  Non-SMP virtio guests can't assume
+@@ -60,38 +61,36 @@ struct virtio_device;
+ struct virtqueue;
+ struct device;
+ 
++/**
++ * struct vq_transport_config - Configuration for creating a new virtqueue (vq)
++ * @num: Number of descriptors in this virtqueue.
++ * @vring_align: Alignment size of this virtqueue's ring.
++ * @weak_barriers: Memory barrier strategy used within virtio_[rw]mb() to
++ *	enforce ordering of memory operations.
++ * @may_reduce_num: Indicates whether the number of descriptors can be reduced
++ *	if vring allocation fails.
++ * @notify: Callback function used to notify the device of certain events.
++ * @dma_dev: DMA device associated with this virtqueue, used by the DMA API.
++ */
++struct vq_transport_config {
++	unsigned int num;
++	unsigned int vring_align;
++	bool weak_barriers;
++	bool may_reduce_num;
++	bool (*notify)(struct virtqueue *vq);
++	struct device *dma_dev;
++};
++
+ /*
+  * Creates a virtqueue and allocates the descriptor ring.  If
+  * may_reduce_num is set, then this may allocate a smaller ring than
+  * expected.  The caller should query virtqueue_get_vring_size to learn
+  * the actual size of the ring.
+  */
+-struct virtqueue *vring_create_virtqueue(unsigned int index,
+-					 unsigned int num,
+-					 unsigned int vring_align,
+-					 struct virtio_device *vdev,
+-					 bool weak_barriers,
+-					 bool may_reduce_num,
+-					 bool ctx,
+-					 bool (*notify)(struct virtqueue *vq),
+-					 void (*callback)(struct virtqueue *vq),
+-					 const char *name);
+-
+-/*
+- * Creates a virtqueue and allocates the descriptor ring with per
+- * virtqueue DMA device.
+- */
+-struct virtqueue *vring_create_virtqueue_dma(unsigned int index,
+-					     unsigned int num,
+-					     unsigned int vring_align,
+-					     struct virtio_device *vdev,
+-					     bool weak_barriers,
+-					     bool may_reduce_num,
+-					     bool ctx,
+-					     bool (*notify)(struct virtqueue *vq),
+-					     void (*callback)(struct virtqueue *vq),
+-					     const char *name,
+-					     struct device *dma_dev);
++struct virtqueue *vring_create_virtqueue(struct virtio_device *vdev,
++					 unsigned int index,
++					 struct vq_transport_config *tp_cfg,
++					 struct virtio_vq_config *cfg);
+ 
+ /*
+  * Creates a virtqueue with a standard layout but a caller-allocated
+-- 
+2.32.0.3.g01195cf9f
 
