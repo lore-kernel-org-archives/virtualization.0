@@ -1,216 +1,215 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 380087AE5B
-	for <virtualization@lists.linux-foundation.org>; Tue, 12 Mar 2024 14:04:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 314867BAEC
+	for <virtualization@lists.linux-foundation.org>; Tue, 12 Mar 2024 15:06:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.137
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710252267; cv=fail; b=oYJ/CyJ5UWRkZDQqd8j92Aznclup8TriqfELqvsyrF63YG2P51WvEs/6d9a5PW9pMq+xI8iH9HpR+81uVJGRW62NhYPysUR/1zrKpv11Zy/kcgMtx5Iy6PUygMfLi/y87B1mrWohxF+nHoKQCjO1YLI+uiOuZjKCQfacLVuFRCs=
+	t=1710255973; cv=fail; b=TJdPGatH1UfSyxa131XRjUpLyngcAMyMuNNOtfhDdhipb10fSVpLw5Gto0wI8F17xOwZA8esLPLQ+ZdK0VAOvomuxgZJLGFGoqd2cHtcNwf4+90vaL7uDPavHghJaPFqk2MulTsLl9Aa/p+Xi6QKqDVzYzGnRZN/7UcqzlbzIDQ=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710252267; c=relaxed/simple;
-	bh=NiAnTGhryo6F7FSyuocMQdkHzLLLPs1ZhNPR56IlhGQ=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=OwELzlzP7bo8QxMmiVARgwfwEPz+5XJjhIZpq7K7z2qG2I2nAt3FMJCw5SSi+oaPoxRAlDLtZKdPWMgji7bAgwEo8xwn8VCdVAG76auQLEf6J3EWjnUFqmQNoQT6/XdNx59R3YBqfk4U493vPb80bl7onV6u+BFbZlXtSVT7N10=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=NG000tOB; arc=fail smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1710255973; c=relaxed/simple;
+	bh=DIeHg/mDTKNYaBZulPyZ2+4AIEwM0ezoeNFERSR6bNI=;
+	h=From:To:Subject:Date:Message-ID:Content-Type:MIME-Version; b=NITZxFQlWKxcTfrXPmTq9DCWzF6b8btHizTu3b923HbZzwRzDadJZPKz6kEyXZWGIl+yNOVXXuF/d40Y+U8u5KKvmgWCDqSHXKfB08s+C22d00mwqSf25ktegPfMnwTv1OzDlo2tPwuyVMoK1DXkv21RA26QRHMv7VcUJXnTBEs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=phd.unipi.it header.i=@phd.unipi.it header.b=RSP9UHX0; arc=fail smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="NG000tOB"
+	dkim=pass (1024-bit key) header.d=phd.unipi.it header.i=@phd.unipi.it header.b="RSP9UHX0"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id C6C4F409C4
-	for <virtualization@lists.linux-foundation.org>; Tue, 12 Mar 2024 14:04:25 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 8C70F406F5
+	for <virtualization@lists.linux-foundation.org>; Tue, 12 Mar 2024 15:06:10 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.103
+X-Spam-Score: -2.002
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 0CSulE_LOYeE
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id PMG6D271KXmI
 	for <virtualization@lists.linux-foundation.org>;
-	Tue, 12 Mar 2024 14:04:25 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2414::600; helo=nam11-bn8-obe.outbound.protection.outlook.com; envelope-from=thomas.lendacky@amd.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org B0D0340111
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B0D0340111
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=NG000tOB
-Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on20600.outbound.protection.outlook.com [IPv6:2a01:111:f403:2414::600])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id B0D0340111
-	for <virtualization@lists.linux-foundation.org>; Tue, 12 Mar 2024 14:04:24 +0000 (UTC)
+	Tue, 12 Mar 2024 15:06:08 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f400:fe02::713; helo=eur01-db5-obe.outbound.protection.outlook.com; envelope-from=alberto.ottimo@phd.unipi.it; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 49205406E9
+Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=phd.unipi.it
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 49205406E9
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=phd.unipi.it header.i=@phd.unipi.it header.a=rsa-sha256 header.s=selector1 header.b=RSP9UHX0
+Received: from EUR01-DB5-obe.outbound.protection.outlook.com (mail-db5eur01on0713.outbound.protection.outlook.com [IPv6:2a01:111:f400:fe02::713])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 49205406E9
+	for <virtualization@lists.linux-foundation.org>; Tue, 12 Mar 2024 15:06:06 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=UOx2/ZLyXAX0Dwirj5g8pufoA7tLIAqUXQS85fru38tZXOOXZW6LPeUNOyricHPZoyg2TfhHMIKEWEtWUpmu6B0OU5Eqpn9HHxnVuNlw5ng9GWyspJ7TJ+3rLoNc3m9qTCTNJUA6CqCsMvaY+hYKa4kylOKqibr8cjhdeFngBxsp9Tr0pAbM1uG2hWVte+x+wDT9oGNS4KvqXSaevbLMg99HrXsGgr9WLhVw0aUES0Kr+7rsPgHySdQQ3uCP+T/Ozr8RPO7ehkEOboLzvfRibpBaIVHl+YsWqKSSFxD2EzEqCySe9T5M2urcWmq9neyLOo20fOpim0wz8+HChCiJzw==
+ b=FOYbEoaiHUK/F3Sd3w8U2hFdnhttqYNUSuUGp1XPzsDba5I0n096P44VABv8g/8DEdBl0IsiWd4aMRT3OKmFDOE3bPwjZb6oWeV62fBO9qB4uPoh5AF2D2bYhJxhLhTPfZ01z5/XgF5iq/1c/Hk1mdeove++bn2EeH2UvGnQOWsBdpBbAFDGaXyiC6YlGFglmhRs7/opnV1bYZbdqirF1g55ML00Nuxqy/WCoJQ4zlW/qB3nk+VsTZeNzfWyawNTDqnSQFynEV3Bg4J5C5Y3A6UHiv1Y3tK/e4Nz4iqE4tMITlmNqrIJNJotjFkokQC8eF6bWMtZ4lr1lniJ2/fLPA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=sAs0n1hGkbtM8H5DeQISTi2KQvvBuOUn1wFmrucRiO4=;
- b=Vfj6XAzSRB2HUV6dHmhyj/tdnZnrN7EoMQJShOBs1enJLNOggouEr4fgVwB2RPJgkh34GpQdvV8/LWUYpeDqXGeS9vjAZX+36rYtJZLZkouAol4g22/GwHJWaU+mkQwAR/xvkNkS61i+bYXVlN+Fu80YQT3iEOSoB/DNrIss1R2qotbvQYd50VDFiEEYS7HM+0NX/2RcPHnDB9saUp1RFde2Q6zzvqOkdDWZchaFp06gsa+y5oTi/P58YeJUT4tUcK53h4gQmXmR0uwxxLKfC/JOJCBGp/ZtExHEQP+V9PYEsjJmSnhGPMWP9FcTYseTZIt9nc6/YnBSoECfdRoGGg==
+ bh=pPKcXjJt7mKRavMGOsN7Ln6rA1uMLf//4Spy1rnHd/k=;
+ b=QbaHGsgK1UrCHSY/rPwl5xr9C8VGPAVAQBiv4PDKWtBYZ1eHadO86oQv15eQibdJtew7hzpoP44Z/JqKsDjQuFL2UlWgxfP8Q2FC3lOTnqXgthyOUmLGgqaZHtMO/BFUX68qHQJmivnCdSd8NQN8rMwtZzMf+C2rwS9DSGMiVBjFoEhyYpOAuE9O36kwLPjErLfHuUljZu+SkzSHjBvRNUX7PdKYITFQKHl3i3DD+65Un7PhdRZyyQKGqZgaVJIAvR7acnfraxXxHP9DAWDQWkaHDT09QU9Saj6lsNBDsd5GXyF5yVJ7cZ8aWRrsoeFn0vexn1caAuDpxuBf+SEiYw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ smtp.mailfrom=phd.unipi.it; dmarc=pass action=none header.from=phd.unipi.it;
+ dkim=pass header.d=phd.unipi.it; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=phd.unipi.it;
+ s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=sAs0n1hGkbtM8H5DeQISTi2KQvvBuOUn1wFmrucRiO4=;
- b=NG000tOBRNKrTGh5Ge+DIOzUtxToRVx76/30ctKCtL90Br0OxKYegN+KD+aErHQR7rpoGa++jel7m1nwWLrrxXDrUtdzjPw29LlDihCptDKG27jREzDhKuEqvMqbUtR69hL69c3TQaBAdzgcOawkecQIeCHS3HGXKa5sz0zanv0=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from BL1PR12MB5732.namprd12.prod.outlook.com (2603:10b6:208:387::17)
- by PH0PR12MB7815.namprd12.prod.outlook.com (2603:10b6:510:28a::15) with
+ bh=pPKcXjJt7mKRavMGOsN7Ln6rA1uMLf//4Spy1rnHd/k=;
+ b=RSP9UHX0RqhtdKKbBslFu4QBzeY8dWylNmexUe51hb92znlOiSGFhQPxjN6g/rZGJwfWEzSAOS7hKDiziXPqUVoqql0fhkiPBS3iwT/WAGhEfKKT60HFuq7UYbCHapxkGqkAgiydBBF7Q23gtF8RTCDYKh9noXScghGdjqEm3SM=
+Received: from AS1PR07MB8408.eurprd07.prod.outlook.com (2603:10a6:20b:4c4::17)
+ by PR3PR07MB8184.eurprd07.prod.outlook.com (2603:10a6:102:177::13) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7362.36; Tue, 12 Mar
- 2024 14:04:17 +0000
-Received: from BL1PR12MB5732.namprd12.prod.outlook.com
- ([fe80::4c26:40af:e1fd:849e]) by BL1PR12MB5732.namprd12.prod.outlook.com
- ([fe80::4c26:40af:e1fd:849e%7]) with mapi id 15.20.7362.035; Tue, 12 Mar 2024
- 14:04:17 +0000
-Message-ID: <c8c88a28-30be-4034-9fe7-9c9de5247c53@amd.com>
-Date: Tue, 12 Mar 2024 09:04:13 -0500
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 0/9] x86/sev: KEXEC/KDUMP support for SEV-ES guests
+ 2024 15:06:01 +0000
+Received: from AS1PR07MB8408.eurprd07.prod.outlook.com
+ ([fe80::f49d:54e2:b3e6:f607]) by AS1PR07MB8408.eurprd07.prod.outlook.com
+ ([fe80::f49d:54e2:b3e6:f607%2]) with mapi id 15.20.7362.035; Tue, 12 Mar 2024
+ 15:06:01 +0000
+From: Alberto Ottimo <alberto.ottimo@phd.unipi.it>
+To: "virtualization@lists.linux-foundation.org"
+	<virtualization@lists.linux-foundation.org>
+Subject: HPDC 2024: Call for Posters
+Thread-Topic: HPDC 2024: Call for Posters
+Thread-Index: AQHadI7LFnoa/lHHUEOUK1oJAwUK4w==
+Date: Tue, 12 Mar 2024 15:06:01 +0000
+Message-ID: <51EE2840-D827-4D44-B9C6-69E96A7B6E4D@studenti.unipi.it>
+Accept-Language: en-US
 Content-Language: en-US
-To: Vasant k <vsntk18@gmail.com>
-Cc: x86@kernel.org, joro@8bytes.org, cfir@google.com,
- dan.j.williams@intel.com, dave.hansen@linux.intel.com,
- ebiederm@xmission.com, erdemaktas@google.com, hpa@zytor.com,
- jgross@suse.com, jslaby@suse.cz, keescook@chromium.org,
- kexec@lists.infradead.org, kvm@vger.kernel.org, linux-coco@lists.linux.dev,
- linux-kernel@vger.kernel.org, luto@kernel.org, martin.b.radev@gmail.com,
- mhiramat@kernel.org, mstunes@vmware.com, nivedita@alum.mit.edu,
- peterz@infradead.org, rientjes@google.com, seanjc@google.com,
- stable@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Vasant Karasulli <vkarasulli@suse.de>
-References: <20240311161727.14916-1-vsntk18@gmail.com>
- <f1ff678d-88fd-4893-b01a-04e1a60670ce@amd.com>
- <CAF2zH5qZKEmECy=9vG4sLmdDt5k7nC=MwjKvJLyVfPyFzt+0hA@mail.gmail.com>
-From: Tom Lendacky <thomas.lendacky@amd.com>
-Autocrypt: addr=thomas.lendacky@amd.com; keydata=
- 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
- vFkWitqCJg==
-In-Reply-To: <CAF2zH5qZKEmECy=9vG4sLmdDt5k7nC=MwjKvJLyVfPyFzt+0hA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: DS7PR03CA0083.namprd03.prod.outlook.com
- (2603:10b6:5:3bb::28) To BL1PR12MB5732.namprd12.prod.outlook.com
- (2603:10b6:208:387::17)
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+x-mailer: Apple Mail (2.3696.120.41.1.1)
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=phd.unipi.it;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: AS1PR07MB8408:EE_|PR3PR07MB8184:EE_
+x-ms-office365-filtering-correlation-id: a09d99c9-2825-470c-eec4-08dc42a5ee5a
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info:
+ yPsLuSbe3MVMvH88eDgF2l1CHPey5RIteBwTxnlWeUYZNXLhy9Ph1Z1OMyZQf0yhfvimENTQamGukAbEhnjvAvLA0iU2qNYjlon6dMizZyCrZ8vIrVMRPHgQi4cDN9UBN4SyQ7UdPn888gNYCXmvPCOOrlZi+H6JqLx+UDtPYMyyQbBzhcJo+iBPsgSM3poPBylwUhjFZNr6VlHJQC6BU9XkuCVyS70Hbnvedf4SPnQN9u4A9kKS7DO8t38OKRfg7AervSD9c16DrE11okCv8ffxW7v9rGLQ79QDgAY62LOlVklv1UOoUuEBUrzy67qG+6o+VUuLbgSZaLq+wysCSfA+6tQ4I//ksoHit+R4oVF4UeclgkVbD/J+jCcExVWW7wRhcHiMsW3sv7Qoa6rLa7RJ8bVh4Q0fiEVsn0UFb0Rlb7o4Nji27fB7pJRp+MY0QzUfE066DrnV78TU+MlKvsca5EOrB++iEyi/F5e3ETdwziYlkpg7tfV8CSoeKuj/yJJ19KEDWYINXav5B+Iqfd6e6cciHGBURLai6SZRgrITtMVgtMhf9XipTRYdkur8ZaJZLBDKjnoHQUw49AlnOH4cqbP3maV+kuKhHy7Cq7xCmXGy2XoURogsqWLlE6BAHtsMYc1sOt3IJ6ilMaKbUa6pRMiEBREkJGLYMGTggGM=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AS1PR07MB8408.eurprd07.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(376005)(1800799015)(38070700009);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?tR3u2Sbsm5lT01FFTrRBuK52pS9WeL/cwsW85wX7EcBi0Vq1uLYJCL0BbxIO?=
+ =?us-ascii?Q?2P1nyaizBB2EyAO0fj9V8DctPtzt5OC0/EpYEVzkbxFcm2Htx8E17gASxGyr?=
+ =?us-ascii?Q?MFUvpk1H9CAbuzCZZpWw+qPMOvo4wJ8wbyPII0l9M6FyCa7/C/SK3D2rnjPf?=
+ =?us-ascii?Q?JeXv/epidUs8Zq4lNNzghfwUIazmIbFRty9ijritQlnDsUGrlzujPOVdSxuh?=
+ =?us-ascii?Q?ApHTSpkWkZKMs4hYfaK5TZ4KMXC/foFxXIzLsn0CSv97Xvy/5HxHXQC7WhvC?=
+ =?us-ascii?Q?f9GCkMZHEv5gvXG2qbu5jzAb2upWksQg/ZzzNxsqWo7xNLRuoJWVIOFRr9kU?=
+ =?us-ascii?Q?QkvBGA/tStDKT2l3jBEQXP7kGgCTRDGC6Ck9cvxQ7TgXFHfLL4MsSmm+kNoH?=
+ =?us-ascii?Q?fFW7u5bFs1ucVfbZ8ZPDmSQj3M32LeCCVGc3OCf8AIkzgelBPFkSLeM8bY10?=
+ =?us-ascii?Q?x2t8VsXR5MFc3bKnk+AP0MgDlU1z06bGlq1Ysfw7172Q7mHNohjGUWFine5S?=
+ =?us-ascii?Q?RaCuyFSqOef9eroNMGmCH/NT1cp8owSsepWnIu+RFq8gKimG54LMX5YfE/QG?=
+ =?us-ascii?Q?Xik89tW7/jnq2uXBU0y2S7aNxGvxAK+Us2qpDNdVmtFnCabOvtwlbTRSmiVA?=
+ =?us-ascii?Q?/b/GbiPUnmzQ4zSP1b1TaNDjDT7SuDMZAWk3bTvnFU6Lmg82R24w9rdmOVbF?=
+ =?us-ascii?Q?mGmTBbtmyXv8MPUhp9f3ib04Tgfpt8OIVGJ25H4BV1rNWo7Qyg7padmWBMTr?=
+ =?us-ascii?Q?6Ao2ndBPCK8AZN9TtcT/vTqwg8JUvgCa58oh9WODWgu/24eaGrWwpC0iebuB?=
+ =?us-ascii?Q?G49lchYHGG1qUWX7xRJSCmV0EzgXcAJNWT/qPGR6MzYT6qSaZ9P7+d85+W/U?=
+ =?us-ascii?Q?UZpz1gpvv5xE9lb6dtVPf6m+w4uD6a5Gwbsw8at+2xJfKVUXLj0blnZCxsKu?=
+ =?us-ascii?Q?zmTcF2bOGTZN7/av6IkATtob4xgWGRxxCYYhCq+33eNdrN9IUmLYdDFyXcuQ?=
+ =?us-ascii?Q?gabiIWjc3dDQWbvEQuAqRtQmhrEEVE/BM7xORGJX3Bh9r01KdIpvuSRF/I4+?=
+ =?us-ascii?Q?E6KItDU2t/B15Nyx0LYWC8FK6PEybOZTLH/J1sm/o8zd8ZXNjBoVCA4bQAh1?=
+ =?us-ascii?Q?raBR+SDhygXvip3laBSmV9/sBLc1+wKxgAQxWcPIPok+hXq65d8doofXnYVP?=
+ =?us-ascii?Q?wUXEJ1E0bHcec8RZlLaUG50JenR/Ua4z1HCf2GtLl261nsuLcqsAIJ325DS9?=
+ =?us-ascii?Q?b2MVs6utgjl+FvvOIPy5mneppaLvJkbprPB4LZ/JYlEqPqvdKC/HeflzLDgQ?=
+ =?us-ascii?Q?t4ku3pi2digOZVYeZzX0wOdOB8awyeetMRtNbvkffPWaytvRFPiPlZMB1bjt?=
+ =?us-ascii?Q?kTtD0Mdgb9sar/KwZJ0PFX70mm3wE88ARI6/Jji+kZd6tnmVt6up3VbMts2v?=
+ =?us-ascii?Q?Bkty1Q6CFVvhG9GVJGoYJAj6x3+t46pZquDy2abdgglcnvVQ/M3ojxHZn3+b?=
+ =?us-ascii?Q?d67ZLjwqoxDq2sn4OKKnWDhHr0V4h0as1B/MI3tNzBXiJ7U5qzMa0s/nD1H+?=
+ =?us-ascii?Q?Tsd28FUxqxk3e2v9Tb7JBepnLzD0uhYXYPodydJ9Lfhk6Oyy3WoHj8AXIwPb?=
+ =?us-ascii?Q?OZwnZJsC6PvCpknqzLatqTW4wiGdmrnfB31RkV09mWKv?=
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <A66C6EF0274C2F479EC2B136E8C8539C@eurprd07.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BL1PR12MB5732:EE_|PH0PR12MB7815:EE_
-X-MS-Office365-Filtering-Correlation-Id: 60bbe057-c449-4b8c-1edd-08dc429d4e3d
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info:
-	EhaLjkM5lXCLkJXZFkpQL9RSnc0DIsicQ4aYPr98Xv0T4CO4dk4vtiMxuVtEVJB4YgVo6F2WSnv2chazH2jjaHUmAsbZWhycO22h8YdTb3xTlYRuBiQyscjZ541H7hKSTU+fLEuhsqCRbREv3g5LCyuvR83pGzc7bMMdwZht9AStivtVuDp9Eb0C0eDrawFtPmMyUHg+TDjjx1FeLjWOIN171Visne2W/j0O0Q393AoW4HLHu+4is8ikoWrIrEVkD0yZstdVskJKH81uRMElYzfZqK/AZ8TGtsvwTwcjMFjxarnvnnIXb+b/ZJpbHJlE9OtKlSuT5sg4X9auhOeK1T5tE6VuUbA+r9fezHd2R74WycyNZ7/SwmET/R80vUW9p7/RfvdoxVFZhHzVj8JGVtEq0KTVsYtDw2p4Jg8Ve6kquzUl3b4o6z3+7ry2bOccznFpxiDhSf48V0yBSej3Ub/6OGE0RaOHhJevF4iilXOEAE+TIlwzi5cIGS76pAiWjEMFG9B1ke8mTOdLsmBg3qjwLQuan56TCfkppUaEI1t+MV/X03+rTWYcLoM/lJ793VDLBitRNBJx1ns5GDcJU0JrMG2izv1F9f6QmYYSRFCe3NDiXnubh/+5jLlx47+0h2lt5K8K/XSQYwzahm3sQuGuxw1FnvjnFlnIHHUug6M=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL1PR12MB5732.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(376005)(7416005)(1800799015);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?N3lZVFlyeFNMa1kyVnIxWlpJdFZjNEV0Q0ZTRWVmbDMzWWxMWUJpbHU0a2lh?=
- =?utf-8?B?Tmlvb1BLWThDWCtQU0g2aU80VFNsV3pTOE9EM0IrQTA3bUVhMzB0NWN1QUxh?=
- =?utf-8?B?V2p0cHNGSmVSMFJibHhheDJHL1pUQ2pMTkZkbkRPT1hVMTRvdlNCWllJcUpI?=
- =?utf-8?B?dkZSU2ZxcjRQUHJHNU9KMnlOMndUL0hHQmNNeHN4Rk96MWVNODZsaURXS1FQ?=
- =?utf-8?B?bUZMeHRVblA4ZzJBNjY5YUNaNjNUQVVDYkJJL1ZPVW0vYlkzM2l3bVdmWkVB?=
- =?utf-8?B?bk5qUHY4Y2k4YVNpME5McGg0WCt6UWZxaDUvVThWTndmOGljUTNZMFZmMUZq?=
- =?utf-8?B?Z0w5Rm1OWjJvTVQ5YklBZVpoRzJjdFgyamMrMDJVK0EvL01pYy9Zc3ZraW01?=
- =?utf-8?B?SG1uK1JpUzdnTlJiY2ZHbTZmWVljNEs0a0NaczlxYlJqYWRka3dLRFQyWi9H?=
- =?utf-8?B?TEtXYU1XSkZOV3BGcEY3dTNPMCtyOFlpMGY0Wml0THJCV3pEMVp0RXNtWWE4?=
- =?utf-8?B?R3IxRU1IRWxmNWtHQW5aclJXQ0ZLRW9XUjc5VDFzSDl5SFNscmtmY1hTb1lS?=
- =?utf-8?B?WXN6eWdBVHdveWZaOW0rcmN3eHlPTVF2R0lmMzRZV0ltQlFzZ3F0V3g3UmY5?=
- =?utf-8?B?MEpKZkxvdlV6MTNBQVJqT09ieXBtV0FMTGU0bzZWUWF6WHZPRXFHSXBncXhO?=
- =?utf-8?B?QUhobTRXNU4yOTVlUHpTLzlRSThIb0wvTHd6UUtaMFdhNk1ER2dlVHFhT2NH?=
- =?utf-8?B?Z0YwVVBEVTRuMm5XOWJvanNWRkVobHBNdGtlWEh6UU5mU2drUnlZRTF4SlJy?=
- =?utf-8?B?aWRTb29id0NTV3ZXQUVIWU9UQ2QxNktqNmRPUnR6cEl4MEk2cUp5QXRGSm5J?=
- =?utf-8?B?enUxTkw4RXB5TmcvRTU0WW9OR0dxTGpwZTlXRHV6c2hGdmhRYm5JY0NJNTBE?=
- =?utf-8?B?djBzMTNrZnp0NHZnTjl5TTl6aDRCaUhzbGZwd1RFeUNINDl5eW5FSDRhQnA4?=
- =?utf-8?B?emRLNTI4d1UzZko0bnhYOFlndjBKbHJqYU1rRFk4Y3dlZFpsVGlFR1h4Q1o3?=
- =?utf-8?B?MUFBTXorR2h5MFovdUpmOUhsWm9ucytPYnBBeXNWcE9pUnhJb24rUW5uZ1Bu?=
- =?utf-8?B?NGlEYjRJUFIzMTlaSlZUSlR5SVlPNnFOODdkZVlsck82VEdaY3dSSE5sZlhk?=
- =?utf-8?B?eCtxNnJiUUFYcEpRaW84WDFPUmVKQ2tzUlA4eFgzZWJrdmk0VUhscWh6NUJK?=
- =?utf-8?B?RkxpeEZIZ2Q5RHIra1RxMjc3ejE3bWhsc21tVEJHclpJdVUrNFQ0RVhVUnRW?=
- =?utf-8?B?eXEvUTF3TTRZdWpyd3NodUplQ2MySzJRYWRMWjlqaWVYRHRleEZIVkIrS3FW?=
- =?utf-8?B?Zzc3TE0wYWhlYVZYVU9wWjQrSGIzaUlKRDBDVlQvaC90ZjFpdlFhbGJDbTd4?=
- =?utf-8?B?T3NKd2JobDExMldiOWJ1T1J4eWZVTlFqM2VzUmhNVVhsZnZkNVNWK0lJWnh2?=
- =?utf-8?B?dENpcEl5NFJPREtKMjlVdWI3bi9YSTQwR2tad1V0YWlCa3pSWUs2bjhSUWs3?=
- =?utf-8?B?emIwUnQzeTZwS1ZWZnZBci9IOU01eDNFQXUzZEV5OFNpdkRXM0Jrb2NhVzJB?=
- =?utf-8?B?cmt0SWkwUUR4a3JMMUd0dHgyYWlrQ0t3by8wN3NrSm5tRjg2N0l4bllGNmlH?=
- =?utf-8?B?dldhamx6cld3aS9YUVJCVzlMSi9wNzVYNFdHMG12OTJvNk1kOStZdzhHNUNC?=
- =?utf-8?B?U2xyeE1ha3M2alY3Y2ZHd1RSWFM5cXBTUlRKZ2llNTRGOThBN2E2RmtQSDFR?=
- =?utf-8?B?RFo4VUExWG5WL1BWOEFDQW5BczNBUUpCODB4eFpuaDZGMkpLd0Y4WGRkTTBQ?=
- =?utf-8?B?SW9rVFdhYVE5TGFXaitYVEhZY1BhWDIraWFvNCtTZDU2N1FGK2V0QW5oSGpU?=
- =?utf-8?B?Yk1YcUo3Y0FPMXM1UzJUSzZ0ekhlaEpiOEJUQ1I3dXJWdmlJdTRpSkJtWnVJ?=
- =?utf-8?B?N2t3NDlVYllFR0tsVHhjTFBwUFVSYStyWW1sRmRVbE9EMmtsaldpZjBUQ1Nz?=
- =?utf-8?B?R09mZVhoRDZobFZYRlliMHNQUUg0RDlYTyttaGdNa3g5cjQyNUF4SGw3RFdB?=
- =?utf-8?Q?PoUl+l8Kdz+ILVssWZdpXdmvn?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 60bbe057-c449-4b8c-1edd-08dc429d4e3d
-X-MS-Exchange-CrossTenant-AuthSource: BL1PR12MB5732.namprd12.prod.outlook.com
+X-OriginatorOrg: phd.unipi.it
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Mar 2024 14:04:17.2431
+X-MS-Exchange-CrossTenant-AuthSource: AS1PR07MB8408.eurprd07.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a09d99c9-2825-470c-eec4-08dc42a5ee5a
+X-MS-Exchange-CrossTenant-originalarrivaltime: 12 Mar 2024 15:06:01.4337
  (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: rbQl671zEPSOMWEEzOn+AJtHQW7RbeAxLFAKBTFV5sFRtN+jSWa59veCAuw5XsreDHkQxBkhvZ/fz7xCyMwKPg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR12MB7815
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: c7456b31-a220-47f5-be52-473828670aa1
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: qh0sJbDaPjQT48Ct2riaZ5PMKHX1C0YCNCeW9O2zo2DVCXzn5XlWQiLwvFYEeyKGn+eeO3I61jPxaXJG41vqhqGaQIXkbvbJqMvLBAxj1Dw=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PR3PR07MB8184
 
-On 3/11/24 15:32, Vasant k wrote:
-> Hi Tom,
-> 
->         Right,  it just escaped my mind that the SNP uses the secrets page
-> to hand over APs to the next stage.  I will correct that in the next
+--- Apologies for multiple postings ---=20
 
-Not quite... The MADT table lists the APs and the GHCB AP Create NAE event 
-is used to start the APs.
+**********************************************
+HPDC 2024: Call for Posters
+Date: 3-7 June 2024
+Location: Pisa, Italy
+Web Site: Web Site: https://www.hpdc.org/2024/
+Sponsored by SIGARCH
+In-cooperation with SIGHPC
+**********************************************
 
-Thanks,
-Tom
+* Call for Posters
 
-> version.  Please let me know if you have any corrections or improvement
-> suggestions on the rest of the patchset.
-> 
-> Thanks,
-> Vasant
-> 
+The 33rd International Symposium on High-Performance Parallel and Distribut=
+ed Computing (HPDC 2024)
+Pisa, Italy, June 03 - 07, 2024
+
+* Overview
+
+The ACM International Symposium on High-Performance Parallel and Distribute=
+d Computing (HPDC) will include a poster session with an associated 3-page =
+extended abstract, which will be included in the HPDC 2024 proceedings. The=
+ topics of interest follow the regular paper submission and include (but ar=
+e not limited to): Cloud computing, cluster computing, edge computing, Cont=
+inuum platforms, big data, massively multicore systems, AI for systems, sys=
+tems for AI, distributed computing, hybrid memory systems, disaggregated st=
+orage, quantum computing and data management, and extreme-scale computing s=
+ystems. Authors of accepted posters will be given the opportunity to presen=
+t their work in a dedicated session during the main conference.
+
+* Submission Guidelines
+
+We invite authors to submit poster contributions in the form of a three-pag=
+e extended abstract and a poster draft. Abstracts shall be submitted via th=
+e poster submission website and should be formatted in the ACM Proceedings =
+Style (for Latex, use \documentclass[sigconf]{acmart}, for MS Word  use the=
+ template provided by ACM here https://tinyurl.com/bde976ds ). We recommend=
+ A1 size for the poster, portrait orientation.
+
+Each submission should include a title, all author names and affiliations, =
+notes on whether any of the authors are students, and an indication of whic=
+h author is corresponding/presenting the material.=20
+Poster abstracts will be reviewed by the poster program committee through a=
+ single-blind process and will be evaluated based on the following criteria=
+:
+
+1. Submissions must describe new and interesting ideas related to HPDC topi=
+cs of interest.
+2. Submissions can present work in progress, but authors are strongly encou=
+raged to include preliminary experimental results, if available.
+3. Student submissions meeting the above criteria will be given preference.
+
+* Poster Chairs
+
+- Janki Bhimani, Florida International University, USA
+- Massimo Coppola, National Research Council of Italy (CNR), Italy
+
+* Submission
+
+https://hpdc24-posters.hotcrp.com/
+
+* Deadlines (Times are in AOE)
+
+- Submissions due:                 March 21, 2024
+- Author notifications:            April 4th, 2024
+- Camera-Ready upload of Extended Abstracts:   April 18, 2024=20
+- Conference dates:                June 3-7, 2024
+
+
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+Alberto Ottimo
+PhD Student
+Department of Computer Science
+University of Pisa, Italy
+E-mail: alberto.ottimo@phd.unipi.it
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
