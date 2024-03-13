@@ -1,102 +1,316 @@
-Received: from mail-lf1-f45.google.com (mail-lf1-f45.google.com [209.85.167.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E62793EA9F
-	for <virtualization@lists.linux.dev>; Wed, 13 Mar 2024 11:26:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 329563EA88
+	for <virtualization@lists.linux.dev>; Wed, 13 Mar 2024 12:13:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710329196; cv=none; b=WzkoUPeAboaqKaPNN+TBycxs8BIG5no3KG82wUW4iwbpj1tHpezyOAU0zQNnuKk8/B2DbEuAFxwX6lvgWhEn5Y4fyeJkgrTV7OBUbsvNTkPpw48DkIFNahQLA1F7eClCsHu3U8s5rWMBq3Ckxyy8DpeR8LidPmJe0Skr8cqf+94=
+	t=1710331991; cv=none; b=IlxnLCaFnf69BRO9BLmNMLtEJNSQuUvsmzsKf/gXBD4iVESgw3s93hYq20AQGYeV6Bhha2IjQOlgqNZnMUjiLJt0wlJtssQ9ijGXKA1W6OSiOFVTO/QXMrbfyOb1lm02GWPsNKFpcmFIq4QAgShBmaqEgOUcW21zAJXqUiReSSs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710329196; c=relaxed/simple;
-	bh=5qzekjfuvebL2UR1FzA7R5gK9ijJWsW3F2Wj7DKSuvU=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=c5J5ivvmmX7HvR73n+IEw5p4IZZu7lYjx6BCn9ih9Y+p22SfHVN4VDDEgiI2nF/c4Fy/1llWsEGQX25iuaQ1SnVnRYuj7tZUFaCLlUqhU2FyN6H73U8JbEvWV5R+WEvdFImxvxs8iLYSTifQKU5FSCdotittEUZ6MngT766xMPc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Jjp1fMBJ; arc=none smtp.client-ip=209.85.167.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1710331991; c=relaxed/simple;
+	bh=KY3GmGiPcro3a+CAKfJWS6zbPB2AHWvN4QxteRVDrsY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=PdY+zIZ6NV1fB6CX0JUTPtBMBpEsB0HMEZ8+9yemD82Dz8nuSGTo1joAi6TR3OOIUPH4HUxbY5tH8M93H0zjJtLtB1ozSMI1bXzax/T/SbaYUEZs/4OHT04d16B6QL8SklGaHy/jJOZcJ0CCKAIJZwIszYZsGDJnGcOMWRrqHz0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=E9V0VbxP; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Jjp1fMBJ"
-Received: by mail-lf1-f45.google.com with SMTP id 2adb3069b0e04-51323dfce59so4874775e87.3
-        for <virtualization@lists.linux.dev>; Wed, 13 Mar 2024 04:26:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1710329193; x=1710933993; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=lfLsFRDMtbO4BOATAAgu9+j4r/MV0Lasvl2lY8+nWuI=;
-        b=Jjp1fMBJDvc11T2eQ9Xa6EzN1GYvO2SBzGP6+7DPsJ2kaxgHJttnilnxV3FVTuyye8
-         oKmu0OxhIMGVZjwgyhZUM4j0QYtgZdlLeWY9wMrgqKQ7HVtvz2zYnPTwFImhtK1bYVuH
-         d/WZIbu78tXuuIRou57VOS1Ji+7mCyG3Chakw/Ter6w+qcyka7QhrdqIXM05z3w+OJM3
-         ayLNAiiOMuyueICkpaUoqZZ0iqDU8ySScupi7wB0whXjduUwIB6zDF3nzFp4TiSBxlgd
-         2nofeAJoKbwq+IasUJe6+z7M2YfeGKJaypcY68m6LnkFuZs4z3t9eeujRyXfJTYzTGA3
-         FQ9Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710329193; x=1710933993;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=lfLsFRDMtbO4BOATAAgu9+j4r/MV0Lasvl2lY8+nWuI=;
-        b=cfZwS7Mg+WADiiw3qH32BTfTfA8a/pUtg9O0s4DEvSk2A3PCZ8nBFJ30RuR4Uw0tGx
-         Jqy/7SyazMvVABuozDSVoc8i6jL9gVrGE6Tt3C2+6hqLaEXQBZQ4PcCK7opM8SYVHZb5
-         l/LBZPkmCSfJuSaOtEO6/R0RbNpi1UzPaa1R+ZNc0WIwWllajA65EeSJzv8/Sxq6hUud
-         TpCoIeuBeFnEulpLckA8euUorTsD1lnYFxwx2R1yAhg3ps7A1IrPD0JXpooypWM37w5Q
-         4Et4p/SqVwEDROw18Crsimy0fDmOa9P7Nuk+NKobWjyG0CX1cDwbZ6SKMLTrOdb5Hmyx
-         6wAQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVhep4RHg9kSEoLs0EiE/dRadN+A56lM3P++q1bA+s4FhwldTBOpAWv5SCPuTwFcRLOPWGgLncFuP9FsREKgv0iLgPK+oawvOdHTJWHWqk=
-X-Gm-Message-State: AOJu0YxgpesQoQ9Ft8Yo2lH9ZtYi0RO+uMXCajc0pMhw8zHXT1dgCxqL
-	TaZKNSlE0Y/baWtm+gihOuAuLQQ5wj7VotY8OycHpOl+/GeLwwtG
-X-Google-Smtp-Source: AGHT+IE09mLx4VQegu+Vnd0FwZuy7/tra7X+S5yizQYa4igYpoiDi330J+2AjIJz1BQLwhk6pLz3rA==
-X-Received: by 2002:ac2:5506:0:b0:512:a4ce:abaa with SMTP id j6-20020ac25506000000b00512a4ceabaamr7845165lfk.48.1710329192820;
-        Wed, 13 Mar 2024 04:26:32 -0700 (PDT)
-Received: from localhost.localdomain ([212.22.67.162])
-        by smtp.gmail.com with ESMTPSA id g5-20020a19e045000000b00513201a0e56sm268249lfj.78.2024.03.13.04.26.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 Mar 2024 04:26:32 -0700 (PDT)
-From: Maxim Korotkov <korotkov.maxim.s@gmail.com>
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Maxim Korotkov <korotkov.maxim.s@gmail.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	David Airlie <airlied@gmail.com>,
-	Daniel Vetter <daniel@ffwll.ch>,
-	virtualization@lists.linux.dev,
-	dri-devel@lists.freedesktop.org,
-	linux-kernel@vger.kernel.org,
-	Maxim Korotkov <m.korotkov@securitycode.ru>
-Subject: [PATCH] drm/bochs: avoided potential integer overflow
-Date: Wed, 13 Mar 2024 14:25:18 +0300
-Message-Id: <20240313112518.2030805-1-korotkov.maxim.s@gmail.com>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="E9V0VbxP"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1710331988;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=FQcf1nOKlMmN0CZVH5a2pQzTSI6ZekOBuZjHd+HZgWU=;
+	b=E9V0VbxPV3ZzkkEJTuK/FJYBzWxWy5F9K/Y82vh56ab96hxG/DB/rzmxwW0rEvjexorMou
+	tqtKxfafI/dp05dSKEi3fv6VY01h4iweUVFviFLwjwz4UsrVqWIWgITrAar+vFqKhdTGjM
+	1qq6Ycip1/PAu8zGPyYyY9+LSXm0eGQ=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-97-bn3cwYwINeCfsO7QsZGFFA-1; Wed, 13 Mar 2024 08:13:04 -0400
+X-MC-Unique: bn3cwYwINeCfsO7QsZGFFA-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 1D2088007AF;
+	Wed, 13 Mar 2024 12:13:04 +0000 (UTC)
+Received: from bfoster (unknown [10.22.16.21])
+	by smtp.corp.redhat.com (Postfix) with ESMTPS id 67E3C1121306;
+	Wed, 13 Mar 2024 12:13:02 +0000 (UTC)
+Date: Wed, 13 Mar 2024 08:14:44 -0400
+From: Brian Foster <bfoster@redhat.com>
+To: Hou Tao <houtao@huaweicloud.com>
+Cc: linux-fsdevel@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>,
+	Vivek Goyal <vgoyal@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Bernd Schubert <bernd.schubert@fastmail.fm>,
+	"Michael S . Tsirkin" <mst@redhat.com>,
+	Matthew Wilcox <willy@infradead.org>,
+	Benjamin Coddington <bcodding@redhat.com>,
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+	houtao1@huawei.com
+Subject: Re: [PATCH v2 4/6] virtiofs: support bounce buffer backed by
+ scattered pages
+Message-ID: <ZfGYtAq01tPv7BNc@bfoster>
+References: <20240228144126.2864064-1-houtao@huaweicloud.com>
+ <20240228144126.2864064-5-houtao@huaweicloud.com>
+ <ZeCcV9Jo3mTRPsME@bfoster>
+ <ef80346a-532a-c394-77f7-ec9f640e5b6f@huaweicloud.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ef80346a-532a-c394-77f7-ec9f640e5b6f@huaweicloud.com>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.3
 
-if the bochs_dispi_read() function returns a value between
-0x8000 and 0xFFFF, then an overflow may occurs.
+On Sat, Mar 09, 2024 at 12:14:23PM +0800, Hou Tao wrote:
+> Hi,
+> 
+> On 2/29/2024 11:01 PM, Brian Foster wrote:
+> > On Wed, Feb 28, 2024 at 10:41:24PM +0800, Hou Tao wrote:
+> >> From: Hou Tao <houtao1@huawei.com>
+> >>
+> >> When reading a file kept in virtiofs from kernel (e.g., insmod a kernel
+> >> module), if the cache of virtiofs is disabled, the read buffer will be
+> >> passed to virtiofs through out_args[0].value instead of pages. Because
+> >> virtiofs can't get the pages for the read buffer, virtio_fs_argbuf_new()
+> >> will create a bounce buffer for the read buffer by using kmalloc() and
+> >> copy the read buffer into bounce buffer. If the read buffer is large
+> >> (e.g., 1MB), the allocation will incur significant stress on the memory
+> >> subsystem.
+> >>
+> >> So instead of allocating bounce buffer by using kmalloc(), allocate a
+> >> bounce buffer which is backed by scattered pages. The original idea is
+> >> to use vmap(), but the use of GFP_ATOMIC is no possible for vmap(). To
+> >> simplify the copy operations in the bounce buffer, use a bio_vec flex
+> >> array to represent the argbuf. Also add an is_flat field in struct
+> >> virtio_fs_argbuf to distinguish between kmalloc-ed and scattered bounce
+> >> buffer.
+> >>
+> >> Signed-off-by: Hou Tao <houtao1@huawei.com>
+> >> ---
+> >>  fs/fuse/virtio_fs.c | 163 ++++++++++++++++++++++++++++++++++++++++----
+> >>  1 file changed, 149 insertions(+), 14 deletions(-)
+> >>
+> >> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+> >> index f10fff7f23a0f..ffea684bd100d 100644
+> >> --- a/fs/fuse/virtio_fs.c
+> >> +++ b/fs/fuse/virtio_fs.c
+> > ...
+> >> @@ -408,42 +425,143 @@ static void virtio_fs_request_dispatch_work(struct work_struct *work)
+> >>  	}
+> >>  }
+> >>  
+> > ...  
+> >>  static void virtio_fs_argbuf_copy_from_in_arg(struct virtio_fs_argbuf *argbuf,
+> >>  					      unsigned int offset,
+> >>  					      const void *src, unsigned int len)
+> >>  {
+> >> -	memcpy(argbuf->buf + offset, src, len);
+> >> +	struct iov_iter iter;
+> >> +	unsigned int copied;
+> >> +
+> >> +	if (argbuf->is_flat) {
+> >> +		memcpy(argbuf->f.buf + offset, src, len);
+> >> +		return;
+> >> +	}
+> >> +
+> >> +	iov_iter_bvec(&iter, ITER_DEST, argbuf->s.bvec,
+> >> +		      argbuf->s.nr, argbuf->s.size);
+> >> +	iov_iter_advance(&iter, offset);
+> > Hi Hou,
+> >
+> > Just a random comment, but it seems a little inefficient to reinit and
+> > readvance the iter like this on every copy/call. It looks like offset is
+> > already incremented in the callers of the argbuf copy helpers. Perhaps
+> > iov_iter could be lifted into the callers and passed down, or even just
+> > include it in the argbuf structure and init it at alloc time?
+> 
+> Sorry for the late reply. Being busy with off-site workshop these days.
+> 
 
-Found by Security Code and Linux Verification Center (linuxtesting.org)
+No worries.
 
-Signed-off-by: Maxim Korotkov <m.korotkov@securitycode.ru>
----
- drivers/gpu/drm/tiny/bochs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> I have tried a similar idea before in which iov_iter was saved directly
+> in argbuf struct, but it didn't work out well. The reason is that for
+> copy both in_args and out_args, an iov_iter is needed, but the direction
+> is different. Currently the bi-directional io_vec is not supported, so
+> the code have to initialize the iov_iter twice: one for copy from
+> in_args and another one for copy to out_args.
+> 
 
-diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
-index c23c9f0cf49c..ad31049f9779 100644
---- a/drivers/gpu/drm/tiny/bochs.c
-+++ b/drivers/gpu/drm/tiny/bochs.c
-@@ -240,7 +240,7 @@ static int bochs_hw_init(struct drm_device *dev)
+Ok, seems reasonable enough.
+
+> For dio read initiated from kernel, both of its in_numargs and
+> out_numargs is 1, so there will be only one iov_iter_advance() in
+> virtio_fs_argbuf_copy_to_out_arg() and the offset is 64, so I think the
+> overhead will be fine. For dio write initiated from kernel, its
+> in_numargs is 2 and out_numargs is 1, so there will be two invocations
+> of iov_iter_advance(). The first one with offset=64, and the another one
+> with offset=round_up_page_size(64 + write_size), so the later one may
+> introduce extra overhead. But compared with the overhead of data copy, I
+> still think the overhead of calling iov_iter_advance() is fine.
+> 
+
+I'm not claiming the overhead is some practical problem here, but rather
+that we shouldn't need to be concerned with it in the first place with
+some cleaner code. It's been a bit since I first looked at this. I was
+originally wondering about defining the iov_iter in the caller and pass
+as a param, but on another look, do the lowest level helpers really need
+to exist?
+
+If you don't anticipate further users, IMO something like the diff below
+is a bit more clean (compile tested only, but no reinits and less code
+overall). But that's just my .02, feel free to use it or not..
+
+Brian
+
+--- 8< ---
+
+diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+index 9ee71051c89f..9de477e9ccd5 100644
+--- a/fs/fuse/virtio_fs.c
++++ b/fs/fuse/virtio_fs.c
+@@ -544,26 +544,6 @@ static unsigned int virtio_fs_argbuf_setup_sg(struct virtio_fs_argbuf *argbuf,
+ 	return cur - sg;
+ }
  
- 	id = bochs_dispi_read(bochs, VBE_DISPI_INDEX_ID);
- 	mem = bochs_dispi_read(bochs, VBE_DISPI_INDEX_VIDEO_MEMORY_64K)
--		* 64 * 1024;
-+		* mul_u32_u32(64, 1024);
- 	if ((id & 0xfff0) != VBE_DISPI_ID0) {
- 		DRM_ERROR("ID mismatch\n");
- 		return -ENODEV;
--- 
-2.34.1
+-static void virtio_fs_argbuf_copy_from_in_arg(struct virtio_fs_argbuf *argbuf,
+-					      unsigned int offset,
+-					      const void *src, unsigned int len)
+-{
+-	struct iov_iter iter;
+-	unsigned int copied;
+-
+-	if (argbuf->is_flat) {
+-		memcpy(argbuf->f.buf + offset, src, len);
+-		return;
+-	}
+-
+-	iov_iter_bvec(&iter, ITER_DEST, argbuf->s.bvec,
+-		      argbuf->s.nr, argbuf->s.size);
+-	iov_iter_advance(&iter, offset);
+-
+-	copied = _copy_to_iter(src, len, &iter);
+-	WARN_ON_ONCE(copied != len);
+-}
+-
+ static unsigned int
+ virtio_fs_argbuf_out_args_offset(struct virtio_fs_argbuf *argbuf,
+ 				 const struct fuse_args *args)
+@@ -577,26 +557,6 @@ virtio_fs_argbuf_out_args_offset(struct virtio_fs_argbuf *argbuf,
+ 	return round_up(offset, PAGE_SIZE);
+ }
+ 
+-static void virtio_fs_argbuf_copy_to_out_arg(struct virtio_fs_argbuf *argbuf,
+-					     unsigned int offset, void *dst,
+-					     unsigned int len)
+-{
+-	struct iov_iter iter;
+-	unsigned int copied;
+-
+-	if (argbuf->is_flat) {
+-		memcpy(dst, argbuf->f.buf + offset, len);
+-		return;
+-	}
+-
+-	iov_iter_bvec(&iter, ITER_SOURCE, argbuf->s.bvec,
+-		      argbuf->s.nr, argbuf->s.size);
+-	iov_iter_advance(&iter, offset);
+-
+-	copied = _copy_from_iter(dst, len, &iter);
+-	WARN_ON_ONCE(copied != len);
+-}
+-
+ /*
+  * Returns 1 if queue is full and sender should wait a bit before sending
+  * next request, 0 otherwise.
+@@ -684,23 +644,41 @@ static void virtio_fs_hiprio_dispatch_work(struct work_struct *work)
+ static void copy_args_to_argbuf(struct fuse_req *req)
+ {
+ 	struct fuse_args *args = req->args;
++	struct virtio_fs_argbuf *argbuf = req->argbuf;
++	struct iov_iter iter;
++	unsigned int copied;
+ 	unsigned int offset = 0;
+ 	unsigned int num_in;
+ 	unsigned int i;
+ 
++	if (!argbuf->is_flat) {
++		iov_iter_bvec(&iter, ITER_DEST, argbuf->s.bvec, argbuf->s.nr,
++			argbuf->s.size);
++	}
++
+ 	num_in = args->in_numargs - args->in_pages;
+ 	for (i = 0; i < num_in; i++) {
+-		virtio_fs_argbuf_copy_from_in_arg(req->argbuf, offset,
+-						  args->in_args[i].value,
+-						  args->in_args[i].size);
+-		offset += args->in_args[i].size;
++		const void *src = args->in_args[i].value;
++		unsigned int len = args->in_args[i].size;
++
++		if (argbuf->is_flat) {
++			memcpy(argbuf->f.buf + offset, src, len);
++			offset += len;
++			continue;
++		}
++
++		iov_iter_advance(&iter, len);
++		copied = _copy_to_iter(src, len, &iter);
++		WARN_ON_ONCE(copied != len);
+ 	}
+ }
+ 
+ /* Copy args out of req->argbuf */
+ static void copy_args_from_argbuf(struct fuse_args *args, struct fuse_req *req)
+ {
+-	struct virtio_fs_argbuf *argbuf;
++	struct virtio_fs_argbuf *argbuf = req->argbuf;
++	struct iov_iter iter;
++	unsigned int copied;
+ 	unsigned int remaining;
+ 	unsigned int offset;
+ 	unsigned int num_out;
+@@ -711,10 +689,14 @@ static void copy_args_from_argbuf(struct fuse_args *args, struct fuse_req *req)
+ 	if (!num_out)
+ 		goto out;
+ 
+-	argbuf = req->argbuf;
++	if (!argbuf->is_flat)
++		iov_iter_bvec(&iter, ITER_SOURCE, argbuf->s.bvec,
++		      argbuf->s.nr, argbuf->s.size);
++
+ 	offset = virtio_fs_argbuf_out_args_offset(argbuf, args);
+ 	for (i = 0; i < num_out; i++) {
+ 		unsigned int argsize = args->out_args[i].size;
++		void *dst = args->out_args[i].value;
+ 
+ 		if (args->out_argvar &&
+ 		    i == args->out_numargs - 1 &&
+@@ -722,10 +704,14 @@ static void copy_args_from_argbuf(struct fuse_args *args, struct fuse_req *req)
+ 			argsize = remaining;
+ 		}
+ 
+-		virtio_fs_argbuf_copy_to_out_arg(argbuf, offset,
+-						 args->out_args[i].value,
+-						 argsize);
+-		offset += argsize;
++		if (argbuf->is_flat) {
++			memcpy(dst, argbuf->f.buf + offset, argsize);
++			offset += argsize;
++		} else {
++			iov_iter_advance(&iter, argsize);
++			copied = _copy_from_iter(dst, argsize, &iter);
++			WARN_ON_ONCE(copied != argsize);
++		}
+ 
+ 		if (i != args->out_numargs - 1)
+ 			remaining -= argsize;
 
