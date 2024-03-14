@@ -1,142 +1,152 @@
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE979D2E5
-	for <virtualization@lists.linux.dev>; Thu, 14 Mar 2024 06:05:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1C035CDE7
+	for <virtualization@lists.linux-foundation.org>; Thu, 14 Mar 2024 07:41:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710396352; cv=none; b=Wfe6Z5HaB7ZrCFtcULO4z4YvgnWE8Seu9vgNZ7yqVLpEAoH8DqZKlMQZM+Up6YpLl8N5Qj+N+mPIOYQJ1Bdb1bbXs7Mfku3bowDgBl8AIjXNT1SHa2dLaErf1Vl0E51cMhd2HP+fmV3uGm36g+Xdy9pVNWsg/Kd38qN7Uigixew=
+	t=1710402094; cv=none; b=n7dvYt8y4auxD0waarcOnP54aIcjIoq+CFjmDUGT2w5f0WEl5Z+9tC1UuIGJk7PC5m1hcglKRsxMpEPOOcpdcefh+Ma/bxfdXd1zmS0S0uu4D7qmBkeung93P92hp6NEXYE/FnZ0mBVMlvr+We39sYWWasUFk5swZF6M1x3cDa8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710396352; c=relaxed/simple;
-	bh=4sZqY6J/YMhF2k8mvjAMYsqm1g9w7kkJUFdg7aHeAcU=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=UBcuLo4M1i5BWoL8TNtD9gtI1vQrq0wZSz1SfHxo4xabRRATY8i0dqLTk8wUN6Sx87Hhpf2UJIZPRBnQx2k4n/N5FXvImar2E7EMwwx26rAt4C21OxlX4Ibyxp3iWiizhIj26kcTWHFFbfVqRnMKHupxzJFf1pQwpaBsuGJSgSc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=nt7IhojQ; arc=none smtp.client-ip=115.124.30.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1710402094; c=relaxed/simple;
+	bh=tYLRFrjCwOGp9whBxYAiRelcKZZjcsXaVqhFiwh3zBg=;
+	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=c+Ssrszdelxy5MGHW/LAYOIQ/o+jwXkAKeKVoeGBiWUVboDkxzHD/O2Ticy4BspeZwFgVOEU7wzOSzQLHD157dJrci8ETY2A9RkHRvLq19T2ejgXDClSJ3E3eInuOtnoS0BO7DSWqNl4ES04drOCLt15NDPE5zRqEkOoZSyiMKg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Si3EgK1a; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="nt7IhojQ"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1710396347; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=/3auDq21P+3VIk5KDxp7XywdJJcGN1ChRwn63QuP8Pg=;
-	b=nt7IhojQ3tAn/zQ4YROO0cdGblmWhc6cHMhB07UoWWR7vERbacZn25lB+30Da+GZKWo0Jt1kgFxdiSaPq3TxNNa3jWjlrqGY3d3Eq/IEks+3zEoViPWudYLkD9NIPJ5/ZKy6Hm1Xps7Dd3+z5Ln0rnwZxyr/xD3Nd3JEJWW9uBg=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=24;SR=0;TI=SMTPD_---0W2RGslY_1710396029;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W2RGslY_1710396029)
-          by smtp.aliyun-inc.com;
-          Thu, 14 Mar 2024 14:00:29 +0800
-Message-ID: <1710395908.7915084-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost v3 1/4] virtio: find_vqs: pass struct instead of multi parameters
-Date: Thu, 14 Mar 2024 13:58:28 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux.dev,
- Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- Hans de Goede <hdegoede@redhat.com>,
- =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- Vadim Pasternak <vadimp@nvidia.com>,
- Bjorn Andersson <andersson@kernel.org>,
- Mathieu Poirier <mathieu.poirier@linaro.org>,
- Cornelia Huck <cohuck@redhat.com>,
- Halil Pasic <pasic@linux.ibm.com>,
- Eric Farman <farman@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- "Michael S. Tsirkin" <mst@redhat.com>,
- linux-um@lists.infradead.org,
- platform-driver-x86@vger.kernel.org,
- linux-remoteproc@vger.kernel.org,
- linux-s390@vger.kernel.org,
- kvm@vger.kernel.org
-References: <20240312021013.88656-1-xuanzhuo@linux.alibaba.com>
- <20240312021013.88656-2-xuanzhuo@linux.alibaba.com>
- <CACGkMEvVgfgAxLoKeFTgy-1GR0W07ciPYFuqs6PiWtKCnXuWTw@mail.gmail.com>
-In-Reply-To: <CACGkMEvVgfgAxLoKeFTgy-1GR0W07ciPYFuqs6PiWtKCnXuWTw@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Si3EgK1a"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 57C7D408C8
+	for <virtualization@lists.linux-foundation.org>; Thu, 14 Mar 2024 07:41:32 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -1.999
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 9qZVOFsLS102
+	for <virtualization@lists.linux-foundation.org>;
+	Thu, 14 Mar 2024 07:41:31 +0000 (UTC)
+Received-SPF: None (mailfrom) identity=mailfrom; client-ip=192.198.163.7; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 03CB9408C6
+Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 03CB9408C6
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=Si3EgK1a
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 03CB9408C6
+	for <virtualization@lists.linux-foundation.org>; Thu, 14 Mar 2024 07:41:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1710402091; x=1741938091;
+  h=message-id:date:mime-version:cc:subject:to:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=tYLRFrjCwOGp9whBxYAiRelcKZZjcsXaVqhFiwh3zBg=;
+  b=Si3EgK1aCVpWvocmMonXkzGwLi3BsbnWD7/2/x1vW9AdajFILCpe7pGL
+   tO7mXh2yxLGI7jGTFLK5sDYlPIwnBdRf2oFzuaYqbmFxJYXHjwc1u/7xd
+   YxljE5Asz4Z6tyTEKMlM1ct9OIYdk1ukjOJaXU5ZdoRP7Ch6fnsrhpDld
+   dCb4uY9aD6E4j9U9CsszxeiPxCESWeCXC+jNe8jb4ks+dr2RtskJIfww6
+   uqbGWIXxm2nHXWfxGQTXedlMBeOr94qZyZRY91bSgfNr7CazPb3tO3+ll
+   PnOp420HI/KXrEYq3/uO0IlzTxOICg5GDih8QKk9SfpiJyGH2BhEtQcnU
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,11012"; a="30644723"
+X-IronPort-AV: E=Sophos;i="6.07,124,1708416000"; 
+   d="scan'208";a="30644723"
+Received: from fmviesa004.fm.intel.com ([10.60.135.144])
+  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Mar 2024 00:41:29 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.07,124,1708416000"; 
+   d="scan'208";a="16798366"
+Received: from schen8x-mobl.ccr.corp.intel.com (HELO [10.255.29.38]) ([10.255.29.38])
+  by fmviesa004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Mar 2024 00:41:26 -0700
+Message-ID: <b33bf29b-2fe5-4a2a-a2ce-9fd8d67c5f6f@linux.intel.com>
+Date: Thu, 14 Mar 2024 15:41:23 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Cc: baolu.lu@linux.intel.com, Kevin Tian <kevin.tian@intel.com>,
+ Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+ Robin Murphy <robin.murphy@arm.com>,
+ Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
+ Jacob Pan <jacob.jun.pan@linux.intel.com>,
+ Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
+ virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 2/8] iommu/sva: Use iopf domain attach/detach interface
+To: Jason Gunthorpe <jgg@ziepe.ca>
+References: <20240122073903.24406-1-baolu.lu@linux.intel.com>
+ <20240122073903.24406-3-baolu.lu@linux.intel.com>
+ <20240308174605.GV9225@ziepe.ca>
+Content-Language: en-US
+From: Baolu Lu <baolu.lu@linux.intel.com>
+In-Reply-To: <20240308174605.GV9225@ziepe.ca>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Thu, 14 Mar 2024 11:12:24 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Tue, Mar 12, 2024 at 10:10=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alibab=
-a.com> wrote:
-> >
-> > Now, we pass multi parameters to find_vqs. These parameters
-> > may work for transport or work for vring.
-> >
-> > And find_vqs has multi implements in many places:
-> >
-> >  arch/um/drivers/virtio_uml.c
-> >  drivers/platform/mellanox/mlxbf-tmfifo.c
-> >  drivers/remoteproc/remoteproc_virtio.c
-> >  drivers/s390/virtio/virtio_ccw.c
-> >  drivers/virtio/virtio_mmio.c
-> >  drivers/virtio/virtio_pci_legacy.c
-> >  drivers/virtio/virtio_pci_modern.c
-> >  drivers/virtio/virtio_vdpa.c
-> >
-> > Every time, we try to add a new parameter, that is difficult.
-> > We must change every find_vqs implement.
-> >
-> > One the other side, if we want to pass a parameter to vring,
-> > we must change the call path from transport to vring.
-> > Too many functions need to be changed.
-> >
-> > So it is time to refactor the find_vqs. We pass a structure
-> > cfg to find_vqs(), that will be passed to vring by transport.
-> >
-> > Because the vp_modern_create_avq() use the "const char *names[]",
-> > and the virtio_uml.c changes the name in the subsequent commit, so
-> > change the "names" inside the virtio_vq_config from "const char *const
-> > *names" to "const char **names".
-> >
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > Acked-by: Johannes Berg <johannes@sipsolutions.net>
-> > Reviewed-by: Ilpo J=3DE4rvinen <ilpo.jarvinen@linux.intel.com>
->
-> The name seems broken here.
+On 2024/3/9 1:46, Jason Gunthorpe wrote:
+> On Mon, Jan 22, 2024 at 03:38:57PM +0800, Lu Baolu wrote:
+>> @@ -215,7 +202,23 @@ static struct iopf_group *iopf_group_alloc(struct iommu_fault_param *iopf_param,
+>>   		group = abort_group;
+>>   	}
+>>   
+>> +	cookie = iopf_pasid_cookie_get(iopf_param->dev, pasid);
+>> +	if (!cookie && pasid != IOMMU_NO_PASID)
+>> +		cookie = iopf_pasid_cookie_get(iopf_param->dev, IOMMU_NO_PASID);
+>> +	if (IS_ERR(cookie) || !cookie) {
+>> +		/*
+>> +		 * The PASID of this device was not attached by an I/O-capable
+>> +		 * domain. Ask the caller to abort handling of this fault.
+>> +		 * Otherwise, the reference count will be switched to the new
+>> +		 * iopf group and will be released in iopf_free_group().
+>> +		 */
+>> +		kfree(group);
+>> +		group = abort_group;
+>> +		cookie = NULL;
+>> +	}
+> 
+> If this is the main point of the cookie mechansim - why not just have
+> a refcount inside the domain itself?
+> 
+> I'm really having a hard time making sense of this cookie thing, we
+> have a lifetime issue on the domain pointer, why is adding another
+> structure the answer?
 
-Email APP bug.
+The whole cookie mechanism aims to address two things:
 
-I will fix.
+- Extend the domain lifetime until all pending page faults are resolved.
+- Associate information about the iommu device with each attachment of
+   the domain so that the iommufd device object ID could be quickly
+   retrieved in the fault delivering path.
 
 
->
-> [...]
->
-> >
-> >  typedef void vq_callback_t(struct virtqueue *);
-> >
-> > +/**
-> > + * struct virtio_vq_config - configure for find_vqs()
-> > + * @cfg_idx: Used by virtio core. The drivers should set this to 0.
-> > + *     During the initialization of each vq(vring setup), we need to k=
-now which
-> > + *     item in the array should be used at that time. But since the it=
-em in
-> > + *     names can be null, which causes some item of array to be skippe=
-d, we
-> > + *     cannot use vq.index as the current id. So add a cfg_idx to let =
-vring
-> > + *     know how to get the current configuration from the array when
-> > + *     initializing vq.
->
-> So this design is not good. If it is not something that the driver
-> needs to care about, the core needs to hide it from the API.
+> I see we also need to stick a pointer in the domain for iommufd to get
+> back to the hwpt, but that doesn't seem to need such a big system to
+> accomplish - just add a void *. It would make sense for the domain to
+> have some optional pointer to a struct for all the fault related data
+> that becomes allocated when a PRI domain is created..
 
-The driver just ignore it. That will be beneficial to the virtio core.
-Otherwise, we must pass one more parameter everywhere.
+It's not getting back hwpt from domain, just getting the iommufd_device
+in the fault delivering path. The iommufd_device is not per-domain, but
+per-domain-attachment.
 
-Thanks.
+> 
+> Also, I thought we'd basically said that domain detatch is supposed to
+> flush any open PRIs before returning, what happened to that as a
+> solution to the lifetime problem?
 
->
-> Thanks
->
+If I remember it correctly, what we discussed was to flush all pending
+page faults when disabling PRI. Anyway, the current driver behavior is
+to flush faults during domain detachment. And if we keep this behavior,
+we no longer need to worry about domain lifetime anymore.
+
+> 
+> Regardless I think we should split this into two series - improve the PRI
+> lifetime model for domains and then put iommufd on top of it..
+
+Yes, agreed. Let's tackle those two points in a separate series.
+
+Best regards,
+baolu
