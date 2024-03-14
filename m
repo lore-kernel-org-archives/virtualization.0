@@ -1,143 +1,202 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89DB2DDD9
-	for <virtualization@lists.linux.dev>; Thu, 14 Mar 2024 15:09:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD6CCDF53;
+	Thu, 14 Mar 2024 16:58:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710428976; cv=none; b=TDwOdR1NHiYEHqufwOg461lxLPKHU2915sMIwZKuFcTqAXdA95YRon6gpzdaEI9tQsqLpmqgnpsaBlMXP2io2HaCVgj/ARcSY0QQEt0sxzM7uDU0MdNliOnoXebQacxFfKSFV10ThWSJNZaMC20S/Xo7qhI3pqiWnLywifQ4MNI=
+	t=1710435484; cv=none; b=MGfwMaPYKmvpEgy1b+4RsO3mStvdbPGYacDrL20va9iC5V3l0CNhZRlVM1rMe+dtdtbKZgx+4/yD35KmauYRGGAMgcWBnGQRnR83+3PzWvigdEiWcCmSmXKwCLmMFvUtDKpeEh/EgmDBRZ4ctKpgvxpUpvUPfZvkNSfBJoP0fWc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710428976; c=relaxed/simple;
-	bh=AQfUW3gFNrbjXXL3IloGvW+E2jBS9PDIeGTSBRAl+RQ=;
+	s=arc-20240116; t=1710435484; c=relaxed/simple;
+	bh=fcf8GvnNI2NlxwWa/BLBUBs674hhRLyrkoAa66D2RKo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=OmyXqUVGeWQgvuFixQIirL/7GW2ijlOefu/ppR1rGGRhvphNdc4dGiiIA4xpaLQz/BvEfsxux5oMRuGpmqaqXocnlcQUBKHuXJWHrsrg7I/APuaLGzlIaKnaYfg1ejCkaJP+umZoe8Wg/8N5rMbhdI5mcN3ljaJl5okt+T2hT1E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fl97IKut; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=KUp8eX0BR2WWsNQYDNN9WdtuilgAPObBrk64jCwr1PrKldvtOOrL1hYoZY2ASwPSA+gjVHZRRLo8mzwKpISfXW+brZTSWVODrUAjQPIxz3rrLM2Qci6w4ENA01Bt/DA2nH3JPC+UvKQg5DDEaM/ssH2B1MOGRxTnPBu2QFrdeIk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=F49o9o6f; arc=none smtp.client-ip=198.175.65.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fl97IKut"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1710428973;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=EtZDDd/rvhCl2ys9FRYjPigN0aLlgEl2NbUy3nuNa/o=;
-	b=fl97IKutY6aBnF6qX2fmlgb9ew7nFw+Hy5KJQExEFLk/2yniut/1NydZbLmn+wCCJ/dSkh
-	utSAgXIUUMyhI+rRsOgTHCAei7HTPlZq8xtVg6HWIbF6JL2PUXU5NwehMPSDlN6DSEkHWO
-	k5ZHUqvFtRQ1VaUBHyRZ2tVFZWRmfmE=
-Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
- [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-119-xct7V9XPOlKPQpAzDMClog-1; Thu, 14 Mar 2024 11:09:31 -0400
-X-MC-Unique: xct7V9XPOlKPQpAzDMClog-1
-Received: by mail-lf1-f70.google.com with SMTP id 2adb3069b0e04-513b3ca9650so903487e87.2
-        for <virtualization@lists.linux.dev>; Thu, 14 Mar 2024 08:09:31 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710428970; x=1711033770;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=EtZDDd/rvhCl2ys9FRYjPigN0aLlgEl2NbUy3nuNa/o=;
-        b=or4FySB3aBjGCO2fFOuzQO7IHpnTYY2WYz/JW5jmlG6482Ud9TIMvcTMFuOYbpU6X0
-         bXI/AtyUry3K1S2hCSBKQ0rpA4taP43eFjsimIy/iSpc6JBy7KVMQ+51BFjaIlhfJgRU
-         ADbfBGOpG/GLpEHKTyb+VH5A8XpNzMnNRZ0ui75IwymYPp0NXJvZAyORPmhTT+k9jwfu
-         BWE5LLYd5ZMK/pjEQMOba+NWf0xJU6zVLOuHrP57Nj8XsMXtAaCbqH6dG0ENDAc0qYBy
-         JM1ZE+0WSluyETp7mRHVtGC4Hl9cs3dNvRGuBrGzsvZGeLZ3u1KfHbvEEKr03eHwS3p1
-         U5dw==
-X-Forwarded-Encrypted: i=1; AJvYcCWQ2qLy0Jd1Y57lFYqkgM8sdPKbm/aa9nFJrsEEKRZhHIr0baX/mxSibN+flsMPRO3wSLXZJG5u6uHwp7hyKbT3UCxwRpP40Wj9ZyngD+U=
-X-Gm-Message-State: AOJu0YyBIc7O33eNaE3008BvsyImADhuGNdWIGXiGPbIMcNTwMK/5cQr
-	DEYnZMyvdx699FCdaxeWPCrMx0btosRI3drV7L93KL86RNSVKswWY5G3+hYYPBp81fj02V4cJEN
-	n0gqWizn39WTj/7jRRsC2ELLNYHadNCT6KRx7tDCdBljuNgjwxdVWlrWZr5J9CK6k
-X-Received: by 2002:a19:914c:0:b0:513:cab1:dc9a with SMTP id y12-20020a19914c000000b00513cab1dc9amr1492774lfj.19.1710428970157;
-        Thu, 14 Mar 2024 08:09:30 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEJWuoe/3iFru0sIgh80GCQKJ1jGXO44jJmLMs2cyMkKY2erF0fOYFgEPRPLaBXlctWIZnyYg==
-X-Received: by 2002:a19:914c:0:b0:513:cab1:dc9a with SMTP id y12-20020a19914c000000b00513cab1dc9amr1492752lfj.19.1710428969612;
-        Thu, 14 Mar 2024 08:09:29 -0700 (PDT)
-Received: from redhat.com ([2.52.141.198])
-        by smtp.gmail.com with ESMTPSA id b9-20020a05600c4e0900b004132f8c2ac1sm2732690wmq.14.2024.03.14.08.09.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 14 Mar 2024 08:09:29 -0700 (PDT)
-Date: Thu, 14 Mar 2024 11:09:25 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Tobias Huschle <huschle@linux.ibm.com>
-Cc: Luis Machado <luis.machado@arm.com>, Jason Wang <jasowang@redhat.com>,
-	Abel Wu <wuyun.abel@bytedance.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	nd <nd@arm.com>
-Subject: Re: EEVDF/vhost regression (bisected to 86bfbb7ce4f6 sched/fair: Add
- lag based placement)
-Message-ID: <20240314110649-mutt-send-email-mst@kernel.org>
-References: <20231213094854-mutt-send-email-mst@kernel.org>
- <20231214021328-mutt-send-email-mst@kernel.org>
- <92916.124010808133201076@us-mta-622.us.mimecast.lan>
- <20240121134311-mutt-send-email-mst@kernel.org>
- <07974.124020102385100135@us-mta-501.us.mimecast.lan>
- <20240201030341-mutt-send-email-mst@kernel.org>
- <89460.124020106474400877@us-mta-475.us.mimecast.lan>
- <20240311130446-mutt-send-email-mst@kernel.org>
- <cf813f92-9806-4449-b099-1bb2bd492b3c@arm.com>
- <73123.124031407552500165@us-mta-156.us.mimecast.lan>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="F49o9o6f"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1710435483; x=1741971483;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=fcf8GvnNI2NlxwWa/BLBUBs674hhRLyrkoAa66D2RKo=;
+  b=F49o9o6f1wA2+0hKn2KaNWoiU1UaqF5OSDbpLsz7FOXcrELL9HyUrEm2
+   Q7o/CPG+e7ansTYgABaa4woiQvX89RKbkPHj+bcgh3tYYn0XGK646ElkI
+   HrgYq/7XfEdsyNtraXvIPPPL9YendLYAIydJX7fyXvsyOkFSLKRZSD2KS
+   /viwGMOLdRhlZ5Ia5FECnv7rM7SLSFF6MvtJ9znOXtJRdgwbP4P/BZ58s
+   J7j0afF+CVkZ4pph2QI+dRrCHA03wcMHd7Ly3thCHCt+6jI+JMAnuKqhK
+   T122oCRSneZNdNILJL0gsQT3+Fp4ao8P7KOOXtiUwYbhAvSMXWpouRApx
+   A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,11013"; a="22731673"
+X-IronPort-AV: E=Sophos;i="6.07,126,1708416000"; 
+   d="scan'208";a="22731673"
+Received: from fmviesa003.fm.intel.com ([10.60.135.143])
+  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Mar 2024 09:58:02 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.07,126,1708416000"; 
+   d="scan'208";a="16952403"
+Received: from aschofie-mobl2.amr.corp.intel.com (HELO aschofie-mobl2) ([10.209.72.214])
+  by fmviesa003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Mar 2024 09:57:59 -0700
+Date: Thu, 14 Mar 2024 09:57:57 -0700
+From: Alison Schofield <alison.schofield@intel.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+	Linux Trace Kernel <linux-trace-kernel@vger.kernel.org>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	Linus Torvalds <torvalds@linux-foundation.org>,
+	linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
+	linux-block@vger.kernel.org, linux-cxl@vger.kernel.org,
+	linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
+	amd-gfx@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+	intel-xe@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
+	freedreno@lists.freedesktop.org, virtualization@lists.linux.dev,
+	linux-rdma@vger.kernel.org, linux-pm@vger.kernel.org,
+	iommu@lists.linux.dev, linux-tegra@vger.kernel.org,
+	netdev@vger.kernel.org, linux-hyperv@vger.kernel.org,
+	ath10k@lists.infradead.org, linux-wireless@vger.kernel.org,
+	ath11k@lists.infradead.org, ath12k@lists.infradead.org,
+	brcm80211@lists.linux.dev, brcm80211-dev-list.pdl@broadcom.com,
+	linux-usb@vger.kernel.org, linux-bcachefs@vger.kernel.org,
+	linux-nfs@vger.kernel.org, ocfs2-devel@lists.linux.dev,
+	linux-cifs@vger.kernel.org, linux-xfs@vger.kernel.org,
+	linux-edac@vger.kernel.org, selinux@vger.kernel.org,
+	linux-btrfs@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+	linux-f2fs-devel@lists.sourceforge.net, linux-hwmon@vger.kernel.org,
+	io-uring@vger.kernel.org, linux-sound@vger.kernel.org,
+	bpf@vger.kernel.org, linux-wpan@vger.kernel.org,
+	dev@openvswitch.org, linux-s390@vger.kernel.org,
+	tipc-discussion@lists.sourceforge.net,
+	Julia Lawall <Julia.Lawall@inria.fr>
+Subject: Re: [FYI][PATCH] tracing/treewide: Remove second parameter of
+ __assign_str()
+Message-ID: <ZfMslbCmCtyEaEWN@aschofie-mobl2>
+References: <20240223125634.2888c973@gandalf.local.home>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <73123.124031407552500165@us-mta-156.us.mimecast.lan>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20240223125634.2888c973@gandalf.local.home>
 
-On Thu, Mar 14, 2024 at 12:46:54PM +0100, Tobias Huschle wrote:
-> On Tue, Mar 12, 2024 at 09:45:57AM +0000, Luis Machado wrote:
-> > On 3/11/24 17:05, Michael S. Tsirkin wrote:
-> > > 
-> > > Are we going anywhere with this btw?
-> > > 
-> > >
-> > 
-> > I think Tobias had a couple other threads related to this, with other potential fixes:
-> > 
-> > https://lore.kernel.org/lkml/20240228161018.14253-1-huschle@linux.ibm.com/
-> > 
-> > https://lore.kernel.org/lkml/20240228161023.14310-1-huschle@linux.ibm.com/
-> > 
+On Fri, Feb 23, 2024 at 12:56:34PM -0500, Steven Rostedt wrote:
+> From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
 > 
-> Sorry, Michael, should have provided those threads here as well.
+> [
+>    This is a treewide change. I will likely re-create this patch again in
+>    the second week of the merge window of v6.9 and submit it then. Hoping
+>    to keep the conflicts that it will cause to a minimum.
+> ]
 > 
-> The more I look into this issue, the more things to ponder upon I find.
-> It seems like this issue can (maybe) be fixed on the scheduler side after all.
+> With the rework of how the __string() handles dynamic strings where it
+> saves off the source string in field in the helper structure[1], the
+> assignment of that value to the trace event field is stored in the helper
+> value and does not need to be passed in again.
 > 
-> The root cause of this regression remains that the mentioned kworker gets
-> a negative lag value and is therefore not elligible to run on wake up.
-> This negative lag is potentially assigned incorrectly. But I'm not sure yet.
+> This means that with:
 > 
-> Anytime I find something that can address the symptom, there is a potential
-> root cause on another level, and I would like to avoid to just address a
-> symptom to fix the issue, wheras it would be better to find the actual
-> root cause.
+>   __string(field, mystring)
 > 
-> I would nevertheless still argue, that vhost relies rather heavily on the fact
-> that the kworker gets scheduled on wake up everytime. But I don't have a 
-> proposal at hand that accounts for potential side effects if opting for
-> explicitly initiating a schedule.
-> Maybe the assumption, that said kworker should always be selected on wake 
-> up is valid. In that case the explicit schedule would merely be a safety 
-> net.
+> Which use to be assigned with __assign_str(field, mystring), no longer
+> needs the second parameter and it is unused. With this, __assign_str()
+> will now only get a single parameter.
 > 
-> I will let you know if something comes up on the scheduler side. There are
-> some more ideas on my side how this could be approached.
+> There's over 700 users of __assign_str() and because coccinelle does not
+> handle the TRACE_EVENT() macro I ended up using the following sed script:
+> 
+>   git grep -l __assign_str | while read a ; do
+>       sed -e 's/\(__assign_str([^,]*[^ ,]\) *,[^;]*/\1)/' $a > /tmp/test-file;
+>       mv /tmp/test-file $a;
+>   done
+> 
+> I then searched for __assign_str() that did not end with ';' as those
+> were multi line assignments that the sed script above would fail to catch.
+> 
+> Note, the same updates will need to be done for:
+> 
+>   __assign_str_len()
+>   __assign_rel_str()
+>   __assign_rel_str_len()
+>   __assign_bitmask()
+>   __assign_rel_bitmask()
+>   __assign_cpumask()
+>   __assign_rel_cpumask()
+> 
+> [1] https://lore.kernel.org/linux-trace-kernel/20240222211442.634192653@goodmis.org/
+> 
+> Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+> ---
+>  arch/arm64/kernel/trace-events-emulation.h    |   2 +-
+>  arch/powerpc/include/asm/trace.h              |   4 +-
+>  arch/x86/kvm/trace.h                          |   2 +-
+>  drivers/base/regmap/trace.h                   |  18 +--
+>  drivers/base/trace.h                          |   2 +-
+>  drivers/block/rnbd/rnbd-srv-trace.h           |  12 +-
+>  drivers/cxl/core/trace.h                      |  24 ++--
 
-Thanks a lot! To clarify it is not that I am opposed to changing vhost.
-I would like however for some documentation to exist saying that if you
-do abc then call API xyz. Then I hope we can feel a bit safer that
-future scheduler changes will not break vhost (though as usual, nothing
-is for sure).  Right now we are going by the documentation and that says
-cond_resched so we do that.
+snip to CXL
 
--- 
-MST
+
+> diff --git a/drivers/cxl/core/trace.h b/drivers/cxl/core/trace.h
+> index bdf117a33744..07ba4e033347 100644
+> --- a/drivers/cxl/core/trace.h
+> +++ b/drivers/cxl/core/trace.h
+
+snip to poison
+
+> @@ -668,8 +668,8 @@ TRACE_EVENT(cxl_poison,
+>  	    ),
+>  
+>  	TP_fast_assign(
+> -		__assign_str(memdev, dev_name(&cxlmd->dev));
+> -		__assign_str(host, dev_name(cxlmd->dev.parent));
+> +		__assign_str(memdev);
+> +		__assign_str(host);
+
+I think I get that the above changes work because the TP_STRUCT__entry for
+these did:
+	__string(memdev, dev_name(&cxlmd->dev))
+	__string(host, dev_name(cxlmd->dev.parent))
+
+>  		__entry->serial = cxlmd->cxlds->serial;
+>  		__entry->overflow_ts = cxl_poison_overflow(flags, overflow_ts);
+>  		__entry->dpa = cxl_poison_record_dpa(record);
+> @@ -678,12 +678,12 @@ TRACE_EVENT(cxl_poison,
+>  		__entry->trace_type = trace_type;
+>  		__entry->flags = flags;
+>  		if (region) {
+> -			__assign_str(region, dev_name(&region->dev));
+> +			__assign_str(region);
+>  			memcpy(__entry->uuid, &region->params.uuid, 16);
+>  			__entry->hpa = cxl_trace_hpa(region, cxlmd,
+>  						     __entry->dpa);
+>  		} else {
+> -			__assign_str(region, "");
+> +			__assign_str(region);
+>  			memset(__entry->uuid, 0, 16);
+>  			__entry->hpa = ULLONG_MAX;
+
+For the above 2, there was no helper in TP_STRUCT__entry. A recently
+posted patch is fixing that up to be __string(region, NULL) See [1],
+with the actual assignment still happening in TP_fast_assign.
+
+Does that assign logic need to move to the TP_STRUCT__entry definition
+when you merge these changes? I'm not clear how much logic is able to be
+included, ie like 'C' style code in the TP_STRUCT__entry.
+
+[1]
+https://lore.kernel.org/linux-cxl/20240314044301.2108650-1-alison.schofield@intel.com/
+
+Thanks for helping,
+Alison
+
+
+>  		}
+
+
 
