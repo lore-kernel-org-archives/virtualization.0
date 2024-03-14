@@ -1,142 +1,251 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD21D60ED0;
-	Thu, 14 Mar 2024 11:55:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7FFB2581
+	for <virtualization@lists.linux.dev>; Thu, 14 Mar 2024 12:50:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710417345; cv=none; b=E3Qj67x7XNryAWDxOodlATur6HZ8me96rGmZSRiZdhp4vp3DtZwJgDs2ar71loqPnxjdRawpVT60ymrCvsFMoafLw10PAKF13c38qnsxvRLHHNSqyTSjy9O31D5pkM1q4L1FQdFtNP+V4JMC0NMgb3F4Ijk6QoLDt+L8ckeuN78=
+	t=1710420626; cv=none; b=qmkkRegdEwcPnrIWvm5THtRKFLslgjcgAFOjCf/fYicTZzynIwcSNC7VUdSdwXrh5G533TDZURT//QxwuI2hmnzzOTs3tYhO1V7qs1yAwrEE8H10sZQhv10NQfWdBfmBZJDsRxJjVw8uK7N7BvTbULrNhSUJ0gUWkA45Pi5T5Vw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710417345; c=relaxed/simple;
-	bh=1JjhfL7FcQqnuhY7jT5WcbVKksVOcdGMYehx/+c0rr0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=lk0CEgHKDnOq68XLOGvD1FwgPAJLeauiwwh2t+6z4cmVWGaAEnhBN3w8YhA/x9PWOqYghrMxC8DuPr5kHfK0zf71aEpL/CphDvG1Ak6/GyJvyQ1KnM8xMQ1+BIyqCGTui0iIi+nnw03vCfssB2JIUQvgFI3PHgidVBIdxNjYcro=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fLZxSUsE; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1710420626; c=relaxed/simple;
+	bh=dj1A/fUS1g7cQVRcUGlz9j57twwZfLXHvxcl85dh9bU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=RXJTU1IwptXY6aNICX1t2bPuN7RilhRQvfw7pkyxoLf8CnM9U/4HS2n+o02Sf7XoRj032WTYJD2IEH8QQevrlnKdzm52WcLeLJng9Q75Lxx4hWmVMKuyznYsgD1SMqmw/RWHHE2VNQWCBG4S5d6SAhAy8jI59BHs04Kl8nQBUOE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=THxMpcRe; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fLZxSUsE"
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 42EBlHeF003175;
-	Thu, 14 Mar 2024 11:55:23 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to :
- mime-version; s=pp1; bh=xHYEL1lRKfbbIXWWI4DDnPg/kjBT2P/MRCov2Y8zLH8=;
- b=fLZxSUsEBoXmkeDkU8mPLsAfh2icRZ2876jBMfL+otAhwyDmMh4PC6eDEeSMhVBWEmR1
- HRsnr/jBlZVGHIrW+eyRrSf7plYqFZ/QFvMwqrMYVdFVEznkOdh1fvsU+n8GwH+RamuU
- WuV0DjSecMAYrcK7hmyx0ztcS/2ZcrgRLg/fQMw1vAjnd3lwYATXvfVmk/6ufTVWsrm7
- WqQuKV3bL4jVXnyF70gG8hj2TtfI12QXzauXFf4sErUuu8WExF8KuGY647mKsAvj9aIN
- ylVV51qsgbhlKGrafDjtahYIO1kmJQOQcp/AKZeOybaK0CrturiT5HZEz6a8ksfZJsio zA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wv0ntr22n-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 14 Mar 2024 11:55:23 +0000
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 42EBtNpD019215;
-	Thu, 14 Mar 2024 11:55:23 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wv0ntr1ve-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 14 Mar 2024 11:55:23 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 42E90Yas015501;
-	Thu, 14 Mar 2024 11:46:59 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3ws2g04t67-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 14 Mar 2024 11:46:59 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 42EBktXE30146886
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 14 Mar 2024 11:46:57 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BE70020043;
-	Thu, 14 Mar 2024 11:46:55 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8D84D20040;
-	Thu, 14 Mar 2024 11:46:55 +0000 (GMT)
-Received: from DESKTOP-2CCOB1S. (unknown [9.171.201.209])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 14 Mar 2024 11:46:55 +0000 (GMT)
-Date: Thu, 14 Mar 2024 12:46:54 +0100
-From: Tobias Huschle <huschle@linux.ibm.com>
-To: Luis Machado <luis.machado@arm.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-        Abel Wu <wuyun.abel@bytedance.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Linux Kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
-        virtualization@lists.linux.dev, netdev@vger.kernel.org,
-        nd <nd@arm.com>
-Subject: Re: EEVDF/vhost regression (bisected to 86bfbb7ce4f6 sched/fair: Add
- lag based placement)
-Message-ID: <ZfLjrgn5rlPOD5Xa@DESKTOP-2CCOB1S.>
-References: <25485.123121307454100283@us-mta-18.us.mimecast.lan>
- <20231213094854-mutt-send-email-mst@kernel.org>
- <20231214021328-mutt-send-email-mst@kernel.org>
- <92916.124010808133201076@us-mta-622.us.mimecast.lan>
- <20240121134311-mutt-send-email-mst@kernel.org>
- <07974.124020102385100135@us-mta-501.us.mimecast.lan>
- <20240201030341-mutt-send-email-mst@kernel.org>
- <89460.124020106474400877@us-mta-475.us.mimecast.lan>
- <20240311130446-mutt-send-email-mst@kernel.org>
- <cf813f92-9806-4449-b099-1bb2bd492b3c@arm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cf813f92-9806-4449-b099-1bb2bd492b3c@arm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 4WG_DbRUNjYH5LKbYYHh4Hj_rurXdFYU
-X-Proofpoint-GUID: yN8qJr39mIg58TjVoNIARvWEO-oed-Kd
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="THxMpcRe"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1710420623;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=2JugQATvY6YilsDeUh+JSk0j4lwCKfjARrjMcGpoo2I=;
+	b=THxMpcRe7SmtI6vG4R37en/NDSw/g4KF/lmRw7WthbSpJ45clC0xcPkftADTSPKATJ6hUN
+	ocG1mg34loJkt6rjQ2PDtiVzhaPGYc0dz38atRim7IH3K6WLzXcYwVGNbmkNShfNE1aaXA
+	9+kxalgXyXnbRxGBia+kDnksc4lXHW8=
+Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com
+ [209.85.214.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-379-S8JVD7UWMPqxpW92cf0BfQ-1; Thu, 14 Mar 2024 08:50:22 -0400
+X-MC-Unique: S8JVD7UWMPqxpW92cf0BfQ-1
+Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-1dda642853eso9566285ad.2
+        for <virtualization@lists.linux.dev>; Thu, 14 Mar 2024 05:50:22 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1710420621; x=1711025421;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=2JugQATvY6YilsDeUh+JSk0j4lwCKfjARrjMcGpoo2I=;
+        b=qpT5YXffobCyyqNQ+1MxZRvV04FNPINKV9OUrYYsXh6SENbNeQlOg0702ypuap1jWj
+         vZ5xeUvykjwpJyeJ0n6P6SBVCM15OJZNf61EoAwF2qt0ouh2KeUJtvZxFGSrart+7TIL
+         1u+Z+gdcrtWp851qOhDYBdYDYM6bsckAI3ZZS2SdwgH5ftMV/h9FzV0j1ST1rhsIaP8A
+         Yxt9QrM1p2NRoDX2EsOLZ3z+Qc/ZVvZbJdeoDfsF9X7gzPMcaHAW9lGmnQZv7s878x81
+         5r/FIGzIhTtMUWlY97Zw9orU2s5JcizMM/3ElW3aEJGMRpM+vvWSB0ws+c9H42Xphtnf
+         U6lQ==
+X-Gm-Message-State: AOJu0YwiHHvq/vR4/DgTePijrobxztte9Slc0PMm7/+8SSUVziaz1iUJ
+	L0ZtpyDrmEJmahSOomlvGDu4LKeL8TiHEfitWKL8SftLbsvd0mhlKSWKNbjqpCDnqXOYLktZy6H
+	AVJmrIPVbn3RKHYAcGvHCQVPIPmdqCnnoM5P7Rkocj3ezFuigjgcolrsQFGMuJIyn
+X-Received: by 2002:a17:902:ba8c:b0:1dd:916d:771f with SMTP id k12-20020a170902ba8c00b001dd916d771fmr1299434pls.39.1710420621263;
+        Thu, 14 Mar 2024 05:50:21 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFqsGU2ry7VV2mdfejjivkYSa8XmnwJOgmDP+Hceb/WTio9PW3VdLpDdDFKJXGaRAfrmAiHuQ==
+X-Received: by 2002:a17:902:ba8c:b0:1dd:916d:771f with SMTP id k12-20020a170902ba8c00b001dd916d771fmr1299421pls.39.1710420620870;
+        Thu, 14 Mar 2024 05:50:20 -0700 (PDT)
+Received: from [192.168.68.51] ([43.252.115.31])
+        by smtp.gmail.com with ESMTPSA id p8-20020a170902e74800b001db2ff16acasm1588244plf.128.2024.03.14.05.50.17
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 14 Mar 2024 05:50:20 -0700 (PDT)
+Message-ID: <23dc6d00-6a57-4ddf-8611-f3c6f6a8e43c@redhat.com>
+Date: Thu, 14 Mar 2024 22:50:15 +1000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-03-14_10,2024-03-13_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
- impostorscore=0 mlxlogscore=999 phishscore=0 lowpriorityscore=0
- priorityscore=1501 clxscore=1011 adultscore=0 spamscore=0 bulkscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2403140085
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] virtio_ring: Fix the stale index in available ring
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+ jasowang@redhat.com, xuanzhuo@linux.alibaba.com, yihyu@redhat.com,
+ shan.gavin@gmail.com
+References: <20240314074923.426688-1-gshan@redhat.com>
+ <20240314040443-mutt-send-email-mst@kernel.org>
+ <9b148de7-b687-4d10-b177-5608b8dc7046@redhat.com>
+ <20240314074216-mutt-send-email-mst@kernel.org>
+From: Gavin Shan <gshan@redhat.com>
+In-Reply-To: <20240314074216-mutt-send-email-mst@kernel.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Tue, Mar 12, 2024 at 09:45:57AM +0000, Luis Machado wrote:
-> On 3/11/24 17:05, Michael S. Tsirkin wrote:
-> > 
-> > Are we going anywhere with this btw?
-> > 
-> >
+On 3/14/24 21:50, Michael S. Tsirkin wrote:
+> On Thu, Mar 14, 2024 at 08:15:22PM +1000, Gavin Shan wrote:
+>> On 3/14/24 18:05, Michael S. Tsirkin wrote:
+>>> On Thu, Mar 14, 2024 at 05:49:23PM +1000, Gavin Shan wrote:
+>>>> The issue is reported by Yihuang Yu who have 'netperf' test on
+>>>> NVidia's grace-grace and grace-hopper machines. The 'netperf'
+>>>> client is started in the VM hosted by grace-hopper machine,
+>>>> while the 'netperf' server is running on grace-grace machine.
+>>>>
+>>>> The VM is started with virtio-net and vhost has been enabled.
+>>>> We observe a error message spew from VM and then soft-lockup
+>>>> report. The error message indicates the data associated with
+>>>> the descriptor (index: 135) has been released, and the queue
+>>>> is marked as broken. It eventually leads to the endless effort
+>>>> to fetch free buffer (skb) in drivers/net/virtio_net.c::start_xmit()
+>>>> and soft-lockup. The stale index 135 is fetched from the available
+>>>> ring and published to the used ring by vhost, meaning we have
+>>>> disordred write to the available ring element and available index.
+>>>>
+>>>>     /home/gavin/sandbox/qemu.main/build/qemu-system-aarch64              \
+>>>>     -accel kvm -machine virt,gic-version=host                            \
+>>>>        :                                                                 \
+>>>>     -netdev tap,id=vnet0,vhost=on                                        \
+>>>>     -device virtio-net-pci,bus=pcie.8,netdev=vnet0,mac=52:54:00:f1:26:b0 \
+>>>>
+>>>>     [   19.993158] virtio_net virtio1: output.0:id 135 is not a head!
+>>>>
+>>>> Fix the issue by replacing virtio_wmb(vq->weak_barriers) with stronger
+>>>> virtio_mb(false), equivalent to replaced 'dmb' by 'dsb' instruction on
+>>>> ARM64. It should work for other architectures, but performance loss is
+>>>> expected.
+>>>>
+>>>> Cc: stable@vger.kernel.org
+>>>> Reported-by: Yihuang Yu <yihyu@redhat.com>
+>>>> Signed-off-by: Gavin Shan <gshan@redhat.com>
+>>>> ---
+>>>>    drivers/virtio/virtio_ring.c | 12 +++++++++---
+>>>>    1 file changed, 9 insertions(+), 3 deletions(-)
+>>>>
+>>>> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+>>>> index 49299b1f9ec7..7d852811c912 100644
+>>>> --- a/drivers/virtio/virtio_ring.c
+>>>> +++ b/drivers/virtio/virtio_ring.c
+>>>> @@ -687,9 +687,15 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+>>>>    	avail = vq->split.avail_idx_shadow & (vq->split.vring.num - 1);
+>>>>    	vq->split.vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, head);
+>>>> -	/* Descriptors and available array need to be set before we expose the
+>>>> -	 * new available array entries. */
+>>>> -	virtio_wmb(vq->weak_barriers);
+>>>> +	/*
+>>>> +	 * Descriptors and available array need to be set before we expose
+>>>> +	 * the new available array entries. virtio_wmb() should be enough
+>>>> +	 * to ensuere the order theoretically. However, a stronger barrier
+>>>> +	 * is needed by ARM64. Otherwise, the stale data can be observed
+>>>> +	 * by the host (vhost). A stronger barrier should work for other
+>>>> +	 * architectures, but performance loss is expected.
+>>>> +	 */
+>>>> +	virtio_mb(false);
+>>>
+>>>
+>>> I don't get what is going on here. Any explanation why virtio_wmb is not
+>>> enough besides "it does not work"?
+>>>
+>>
+>> The change is replacing instruction "dmb" with "dsb". "dsb" is stronger barrier
+>> than "dmb" because "dsb" ensures that all memory accesses raised before this
+>> instruction is completed when the 'dsb' instruction completes. However, "dmb"
+>> doesn't guarantee the order of completion of the memory accesses.
+>>
+>> So 'vq->split.vring.avail->idx = cpu_to_virtio(_vq->vdev, vq->split.avail_idx_shadow)'
+>> can be completed before 'vq->split.vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, head)'.
 > 
-> I think Tobias had a couple other threads related to this, with other potential fixes:
+> Completed as observed by which CPU?
+> We have 2 writes that we want observed by another CPU in order.
+> So if CPU observes a new value of idx we want it to see
+> new value in ring.
+> This is standard use of smp_wmb()
+> How are these 2 writes different?
 > 
-> https://lore.kernel.org/lkml/20240228161018.14253-1-huschle@linux.ibm.com/
+> What DMB does, is that is seems to ensure that effects
+> of 'vq->split.vring.avail->idx = cpu_to_virtio(_vq->vdev, vq->split.avail_idx_shadow)'
+> are observed after effects of
+> 'vq->split.vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, head)'.
 > 
-> https://lore.kernel.org/lkml/20240228161023.14310-1-huschle@linux.ibm.com/
+>
+
+Completed as observed by the CPU where vhost worker is running. I don't think DMB
+does the work here. If I'm understanding correctly, DMB ensures the order of these
+two writes from the local CPU's standpoint. The written data can be stored in local
+CPU's cache, not flushed to DRAM and propogated to the cache of the far CPU where
+vhost worker is running. So DMB isn't ensuring the write data is observed from the
+far CPU.
+
+DSB ensures that the written data is observable from the far CPU immediately.
+  
+> 
+> 
+>> The stronger barrier 'dsb' ensures the completion order as we expected.
+>>
+>>      virtio_wmb(true)         virt_mb(false)
+>>        virt_wmb                 mb
+>>          __smp_wmb               __mb
+>>            dmb(ishst)              dsb(sy)
+> 
+> First, why would you want a non smp barrier when you are
+> synchronizing with another CPU? This is what smp_ means ...
+> 
+> 
+>> Extraced from ARMv9 specificaton
+>> ================================
+>> The DMB instruction is a memory barrier instruction that ensures the relative
+>> order of memory accesses before the barrier with memory accesses after the
+>> barrier. The DMB instruction _does not_ ensure the completion of any of the
+>> memory accesses for which it ensures relative order.
+> 
+> Isn't this exactly what we need?
 > 
 
-Sorry, Michael, should have provided those threads here as well.
+I don't think so. DMB gurantees the order of EXECUTION, but DSB gurantees the
+order of COMPLETION. After the data store is executed, the written data can
+be stored in local CPU's cache, far from completion. Only the instruction is
+completed, the written data is synchronized to the far CPU where vhost worker
+is running.
 
-The more I look into this issue, the more things to ponder upon I find.
-It seems like this issue can (maybe) be fixed on the scheduler side after all.
+Here is another paper talking about the difference between DMB and DSB. It's
+explaining the difference between DMB/DSB better than ARMv9 specification.
+However, it's hard for us to understand DMB/DSB work from the hardware level
+based on the specification and paper.
 
-The root cause of this regression remains that the mentioned kworker gets
-a negative lag value and is therefore not elligible to run on wake up.
-This negative lag is potentially assigned incorrectly. But I'm not sure yet.
+https://ipads.se.sjtu.edu.cn/_media/publications/liuppopp20.pdf
+(section 2.2  Order-preserving Options)
+(I'm extracting the relevant part as below)
 
-Anytime I find something that can address the symptom, there is a potential
-root cause on another level, and I would like to avoid to just address a
-symptom to fix the issue, wheras it would be better to find the actual
-root cause.
+Data Memory Barrier (DMB) prevents reordering of memory accesses across the barrier.
+Instead of waiting for previous accesses to become observable in the specified domain,
+DMB only maintains the relative order between memory accesses. Meanwhile, DMB does
+not block any non-memory access operations.
 
-I would nevertheless still argue, that vhost relies rather heavily on the fact
-that the kworker gets scheduled on wake up everytime. But I don't have a 
-proposal at hand that accounts for potential side effects if opting for
-explicitly initiating a schedule.
-Maybe the assumption, that said kworker should always be selected on wake 
-up is valid. In that case the explicit schedule would merely be a safety 
-net.
+Data Synchronization Barrier (DSB) prevents reordering of any instructions across
+the barrier. DSB will make sure that all masters in the specified domain can observe
+the previous operations before issuing any subsequent instructions.
 
-I will let you know if something comes up on the scheduler side. There are
-some more ideas on my side how this could be approached.
+>> A DSB instruction is a memory barrier that ensures that memory accesses that
+>> occur before the DSB instruction have __completed__ before the completion of
+>> the DSB instruction.
+> 
+> This seems appropriate for when you want to order things more
+> strongly. I do not get why it's necessary here.
+> 
+
+Please refer to above explanations.
+
+>> In doing this, it acts as a stronger barrier than a DMB
+>> and all ordering that is created by a DMB with specific options is also generated
+>> by a DSB with the same options.
+>>
+>>>>    	vq->split.avail_idx_shadow++;
+>>>>    	vq->split.vring.avail->idx = cpu_to_virtio16(_vq->vdev,
+>>>>    						vq->split.avail_idx_shadow);
+>>>> -- 
+>>>> 2.44.0
+>>>
+
+Thanks,
+Gavin
+
