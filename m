@@ -1,30 +1,30 @@
 Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B71E5D497
-	for <virtualization@lists.linux.dev>; Thu, 14 Mar 2024 08:55:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F5A46BFAB
+	for <virtualization@lists.linux.dev>; Thu, 14 Mar 2024 08:55:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.113
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710406507; cv=none; b=SuS9oH/AKc8VymvIsG10DVrFuu+Exc+OLVxWoMx+1/phTE/ZTbmX4N8FZVrVCn6alc+dsmu7tLkIaf9Ar08ZRc63uYNURx8inORVFYiCJiJq0bhRYz+Osy2ZlVNfVd0ILu30+lBRJhmGjCgZKq5cqcY4nJ0ggtR1mk+HvPhz+UQ=
+	t=1710406511; cv=none; b=jh/Wx2CKfeRbK57Nt9HcvFENCS95HwlvArpmN3XLuKvVyESjtBAqfZ34adF9v9IXEWJMCCf0b/u6FdQUE/3YbbWzcTKE++roo3rp0NfP5KaeEoIoNmLXciil+XS/HVuZBgAkuN+9yFuvye4f9JLjd5gMux68kvPqv/1MwqdIhyg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710406507; c=relaxed/simple;
-	bh=YuqG9Q8Kr1yM7oYoTbH4KCzWxxkvj9jh4u661p/AqT4=;
+	s=arc-20240116; t=1710406511; c=relaxed/simple;
+	bh=DDVK0Kxl97Rq7kCrzMYktQ9SwmI4N3mrd02iSIYBK6M=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=Fc+IOkS3ndA5CBbuB+7SnCvSv6pqt/x9fNKr2rdWRvq3ewyGRQXpauOl2wEw3x+YdouWKcSvgD8U0notQyWRw8qiy7QxLd+Z84pa5PY87lX1o1u3wmMui95K3Z+8MaIVQIt0WVLN78GzPvZ15cK67eBGwaNOLOEAiyZUECU8Phw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=gFB69njV; arc=none smtp.client-ip=115.124.30.113
+	 MIME-Version; b=XORbPPt4+wz+nj/b1TX7LLdNtYOqDQEg08e7HQ57NIMVEGHsXT+VdNGYgciK/4s/PKMUvElB48c1RfDOhCdC032LMLTxz/ma4Oz9F9Rte8I8IzqGUOMNio5fe/IM/UHDOj5dkTukJvNneYHfSYD2PQiZFjPa76f6w1aBQ93uN/g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=GewG8KJV; arc=none smtp.client-ip=115.124.30.113
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="gFB69njV"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="GewG8KJV"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1710406503; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=pLoFRHsvjIql+26bv08B4iQKkZOgJybLfzscGb2Wuf8=;
-	b=gFB69njVK658iBsuo25ByxVXtQqYaHOo3t8hbbpK7S1SwyPrduV8WhwtpZcTQJ9E3sb1Ll8/STyH9xmo4acAYsereMrVKvNqP+3WVGvLTvhfv/5ptU/Mplrc+/5FEyptjbZDnVDUvVXgvJVlsxoqFXWn1RnbkDz0VI6QHCsKx7o=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0W2S2VGu_1710406501;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W2S2VGu_1710406501)
+	t=1710406507; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=uvUNm0fEIo37DYRfBx8YeihhR00l/u+vhQwqaIQC7jA=;
+	b=GewG8KJV8xrTmvI8kQUMByKG+PIO4zDC1OTq7TmIz3dby+2jYm1SnNW+xh9UIJgtH6wr87COAO2Ts/JE8lWhOC8+Xv72A201GhcoTfBWmYS4IBVYXgqun7tHkjeZ8ypaH6QfTByBhVJ1ZQXEHw3SymLnEt2GFU4SDoNBgpynXDE=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0W2S1OEM_1710406506;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W2S1OEM_1710406506)
           by smtp.aliyun-inc.com;
-          Thu, 14 Mar 2024 16:55:02 +0800
+          Thu, 14 Mar 2024 16:55:06 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: netdev@vger.kernel.org
 Cc: "David S. Miller" <davem@davemloft.net>,
@@ -45,9 +45,9 @@ Cc: "David S. Miller" <davem@davemloft.net>,
 	Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
 	virtualization@lists.linux.dev,
 	bpf@vger.kernel.org
-Subject: [PATCH net-next v4 1/8] virtio_net: introduce device stats feature and structures
-Date: Thu, 14 Mar 2024 16:54:52 +0800
-Message-Id: <20240314085459.115933-2-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH net-next v4 5/8] virtio_net: add the total stats field
+Date: Thu, 14 Mar 2024 16:54:56 +0800
+Message-Id: <20240314085459.115933-6-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20240314085459.115933-1-xuanzhuo@linux.alibaba.com>
 References: <20240314085459.115933-1-xuanzhuo@linux.alibaba.com>
@@ -60,170 +60,210 @@ MIME-Version: 1.0
 X-Git-Hash: 76259b0090f3
 Content-Transfer-Encoding: 8bit
 
-The virtio-net device stats spec:
+Now, we just show the stats of every queue.
 
-https://github.com/oasis-tcs/virtio-spec/commit/42f389989823039724f95bbbd243291ab0064f82
+But for the user, the total values of every stat may are valuable.
 
-We introduce the relative feature and structures.
+NIC statistics:
+     rx_packets: 373522
+     rx_bytes: 85919736
+     rx_drops: 0
+     rx_xdp_packets: 0
+     rx_xdp_tx: 0
+     rx_xdp_redirects: 0
+     rx_xdp_drops: 0
+     rx_kicks: 11125
+     rx_hw_notifications: 0
+     rx_hw_packets: 1325870
+     rx_hw_bytes: 263348963
+     rx_hw_interrupts: 0
+     rx_hw_drops: 1451
+     rx_hw_drop_overruns: 0
+     rx_hw_csum_valid: 1325870
+     rx_hw_needs_csum: 1325870
+     rx_hw_csum_none: 0
+     rx_hw_csum_bad: 0
+     rx_hw_packets_allowance_exceede: 0
+     rx_hw_bytes_allowance_exceeded: 0
+     tx_packets: 10050
+     tx_bytes: 1230176
+     tx_xdp_tx: 0
+     tx_xdp_tx_drops: 0
+     tx_kicks: 10050
+     tx_timeouts: 0
+     tx_hw_notifications: 0
+     tx_hw_packets: 32281
+     tx_hw_bytes: 4315590
+     tx_hw_interrupts: 0
+     tx_hw_drops: 0
+     tx_hw_drop_malformed: 0
+     tx_hw_csum_none: 0
+     tx_hw_needs_csum: 32281
+     tx_hw_packets_allowance_exceede: 0
+     tx_hw_packets_allowance_exceede: 0
+     rx_queue_0_packets: 373522
+     rx_queue_0_bytes: 85919736
+     rx_queue_0_drops: 0
+     rx_queue_0_xdp_packets: 0
+     rx_queue_0_xdp_tx: 0
+     rx_queue_0_xdp_redirects: 0
+     rx_queue_0_xdp_drops: 0
+     rx_queue_0_kicks: 11125
+     rx_queue_hw_0_notifications: 0
+     rx_queue_hw_0_packets: 1325870
+     rx_queue_hw_0_bytes: 263348963
+     rx_queue_hw_0_interrupts: 0
+     rx_queue_hw_0_drops: 1451
+     rx_queue_hw_0_drop_overruns: 0
+     rx_queue_hw_0_csum_valid: 1325870
+     rx_queue_hw_0_needs_csum: 1325870
+     rx_queue_hw_0_csum_none: 0
+     rx_queue_hw_0_csum_bad: 0
+     rx_queue_hw_0_packets_allowance: 0
+     rx_queue_hw_0_bytes_allowance_e: 0
+     tx_queue_0_packets: 10050
+     tx_queue_0_bytes: 1230176
+     tx_queue_0_xdp_tx: 0
+     tx_queue_0_xdp_tx_drops: 0
+     tx_queue_0_kicks: 10050
+     tx_queue_0_timeouts: 0
+     tx_queue_hw_0_notifications: 0
+     tx_queue_hw_0_packets: 32281
+     tx_queue_hw_0_bytes: 4315590
+     tx_queue_hw_0_interrupts: 0
+     tx_queue_hw_0_drops: 0
+     tx_queue_hw_0_drop_malformed: 0
+     tx_queue_hw_0_csum_none: 0
+     tx_queue_hw_0_needs_csum: 32281
+     tx_queue_hw_0_packets_allowance: 0
+     tx_queue_hw_0_packets_allowance: 0
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- include/uapi/linux/virtio_net.h | 137 ++++++++++++++++++++++++++++++++
- 1 file changed, 137 insertions(+)
+ drivers/net/virtio_net.c | 65 ++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 60 insertions(+), 5 deletions(-)
 
-diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
-index cc65ef0f3c3e..8fca4d1b7635 100644
---- a/include/uapi/linux/virtio_net.h
-+++ b/include/uapi/linux/virtio_net.h
-@@ -56,6 +56,7 @@
- #define VIRTIO_NET_F_MQ	22	/* Device supports Receive Flow
- 					 * Steering */
- #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
-+#define VIRTIO_NET_F_DEVICE_STATS 50	/* Device can provide device-level statistics. */
- #define VIRTIO_NET_F_VQ_NOTF_COAL 52	/* Device supports virtqueue notification coalescing */
- #define VIRTIO_NET_F_NOTF_COAL	53	/* Device supports notifications coalescing */
- #define VIRTIO_NET_F_GUEST_USO4	54	/* Guest can handle USOv4 in. */
-@@ -406,4 +407,140 @@ struct  virtio_net_ctrl_coal_vq {
- 	struct virtio_net_ctrl_coal coal;
- };
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index e127915a20bd..784512406218 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -3419,6 +3419,7 @@ static int virtnet_set_channels(struct net_device *dev,
+ 	return err;
+ }
  
-+/*
-+ * Device Statistics
++/* qid == -1: for rx/tx queue total field */
+ static void virtnet_get_stats_string(struct virtnet_info *vi, int type, int qid, u8 **data)
+ {
+ 	struct virtnet_stats_map *m;
+@@ -3446,7 +3447,10 @@ static void virtnet_get_stats_string(struct virtnet_info *vi, int type, int qid,
+ 				continue;
+ 			}
+ 
+-			ethtool_sprintf(&p, "%s_queue%s_%u_%s", tp, hw, qid, desc);
++			if (qid < 0)
++				ethtool_sprintf(&p, "%s%s_%s", tp, hw, desc);
++			else
++				ethtool_sprintf(&p, "%s_queue%s_%u_%s", tp, hw, qid, desc);
+ 		}
+ 	}
+ 
+@@ -3484,6 +3488,49 @@ static void virtnet_stats_ctx_init(struct virtnet_info *vi,
+ 	}
+ }
+ 
++/* stats_sum_queue - Calculate the sum of the same fields in sq or rq.
++ * @sum: the position to store the sum values
++ * @num: field num
++ * @q_value: the first queue fields
++ * @q_num: number of the queues
 + */
-+#define VIRTIO_NET_CTRL_STATS         8
-+#define VIRTIO_NET_CTRL_STATS_QUERY   0
-+#define VIRTIO_NET_CTRL_STATS_GET     1
++static void stats_sum_queue(u64 *sum, u32 num, u64 *q_value, u32 q_num)
++{
++	u32 step = num;
++	int i, j;
++	u64 *p;
 +
-+struct virtio_net_stats_capabilities {
++	for (i = 0; i < num; ++i) {
++		p = sum + i;
++		*p = 0;
 +
-+#define VIRTIO_NET_STATS_TYPE_CVQ       (1ULL << 32)
++		for (j = 0; j < q_num; ++j)
++			*p += *(q_value + i + j * step);
++	}
++}
 +
-+#define VIRTIO_NET_STATS_TYPE_RX_BASIC  (1ULL << 0)
-+#define VIRTIO_NET_STATS_TYPE_RX_CSUM   (1ULL << 1)
-+#define VIRTIO_NET_STATS_TYPE_RX_GSO    (1ULL << 2)
-+#define VIRTIO_NET_STATS_TYPE_RX_SPEED  (1ULL << 3)
++static void virtnet_fill_total_fields(struct virtnet_info *vi,
++				      struct virtnet_stats_ctx *ctx)
++{
++	u64 *data, *first_rx_q, *first_tx_q;
++	u32 num_cq, num_rx, num_tx;
 +
-+#define VIRTIO_NET_STATS_TYPE_TX_BASIC  (1ULL << 16)
-+#define VIRTIO_NET_STATS_TYPE_TX_CSUM   (1ULL << 17)
-+#define VIRTIO_NET_STATS_TYPE_TX_GSO    (1ULL << 18)
-+#define VIRTIO_NET_STATS_TYPE_TX_SPEED  (1ULL << 19)
++	num_cq = ctx->desc_num[VIRTNET_Q_TYPE_CQ];
++	num_rx = ctx->desc_num[VIRTNET_Q_TYPE_RX];
++	num_tx = ctx->desc_num[VIRTNET_Q_TYPE_TX];
 +
-+	__le64 supported_stats_types[1];
-+};
++	first_rx_q = ctx->data + num_rx + num_tx + num_cq;
++	first_tx_q = first_rx_q + vi->curr_queue_pairs * num_rx;
 +
-+struct virtio_net_ctrl_queue_stats {
-+	struct {
-+		__le16 vq_index;
-+		__le16 reserved[3];
-+		__le64 types_bitmap[1];
-+	} stats[1];
-+};
++	data = ctx->data;
 +
-+struct virtio_net_stats_reply_hdr {
-+#define VIRTIO_NET_STATS_TYPE_REPLY_CVQ       32
++	stats_sum_queue(data, num_rx, first_rx_q, vi->curr_queue_pairs);
 +
-+#define VIRTIO_NET_STATS_TYPE_REPLY_RX_BASIC  0
-+#define VIRTIO_NET_STATS_TYPE_REPLY_RX_CSUM   1
-+#define VIRTIO_NET_STATS_TYPE_REPLY_RX_GSO    2
-+#define VIRTIO_NET_STATS_TYPE_REPLY_RX_SPEED  3
++	data = ctx->data + num_rx;
 +
-+#define VIRTIO_NET_STATS_TYPE_REPLY_TX_BASIC  16
-+#define VIRTIO_NET_STATS_TYPE_REPLY_TX_CSUM   17
-+#define VIRTIO_NET_STATS_TYPE_REPLY_TX_GSO    18
-+#define VIRTIO_NET_STATS_TYPE_REPLY_TX_SPEED  19
-+	__u8 type;
-+	__u8 reserved;
-+	__le16 vq_index;
-+	__le16 reserved1;
-+	__le16 size;
-+};
++	stats_sum_queue(data, num_tx, first_tx_q, vi->curr_queue_pairs);
++}
 +
-+struct virtio_net_stats_cvq {
-+	struct virtio_net_stats_reply_hdr hdr;
+ /* virtnet_fill_stats - copy the stats to ethtool -S
+  * The stats source is the device or the driver.
+  *
+@@ -3512,12 +3559,14 @@ static void virtnet_fill_stats(struct virtnet_info *vi, u32 qid,
+ 	num_tx = ctx->desc_num[VIRTNET_Q_TYPE_TX];
+ 
+ 	queue_type = vq_type(vi, qid);
+-	offset = 0;
 +
-+	__le64 command_num;
-+	__le64 ok_num;
-+};
++	/* skip the total fields of pairs */
++	offset = num_rx + num_tx;
+ 
+ 	if (queue_type == VIRTNET_Q_TYPE_TX)
+-		offset = num_cq + num_rx * vi->curr_queue_pairs + num_tx * (qid / 2);
++		offset += num_cq + num_rx * vi->curr_queue_pairs + num_tx * (qid / 2);
+ 	else if (queue_type == VIRTNET_Q_TYPE_RX)
+-		offset = num_cq + num_rx * (qid / 2);
++		offset += num_cq + num_rx * (qid / 2);
+ 
+ 	for (i = 0; i < ARRAY_SIZE(virtio_net_stats_map); ++i) {
+ 		m = &virtio_net_stats_map[i];
+@@ -3653,6 +3702,9 @@ static void virtnet_get_strings(struct net_device *dev, u32 stringset, u8 *data)
+ 
+ 	switch (stringset) {
+ 	case ETH_SS_STATS:
++		virtnet_get_stats_string(vi, VIRTNET_Q_TYPE_RX, -1, &p);
++		virtnet_get_stats_string(vi, VIRTNET_Q_TYPE_TX, -1, &p);
 +
-+struct virtio_net_stats_rx_basic {
-+	struct virtio_net_stats_reply_hdr hdr;
+ 		virtnet_get_stats_string(vi, VIRTNET_Q_TYPE_CQ, 0, &p);
+ 
+ 		for (i = 0; i < vi->curr_queue_pairs; ++i)
+@@ -3694,7 +3746,8 @@ static int virtnet_get_sset_count(struct net_device *dev, int sset)
+ 
+ 		pair_count = ctx.desc_num[VIRTNET_Q_TYPE_RX] + ctx.desc_num[VIRTNET_Q_TYPE_TX];
+ 
+-		return ctx.desc_num[VIRTNET_Q_TYPE_CQ] + vi->curr_queue_pairs * pair_count;
++		return pair_count + ctx.desc_num[VIRTNET_Q_TYPE_CQ] +
++			vi->curr_queue_pairs * pair_count;
+ 	default:
+ 		return -EOPNOTSUPP;
+ 	}
+@@ -3728,6 +3781,8 @@ static void virtnet_get_ethtool_stats(struct net_device *dev,
+ 			virtnet_fill_stats(vi, i * 2 + 1, &ctx, stats_base, true, 0);
+ 		} while (u64_stats_fetch_retry(&sq->stats.syncp, start));
+ 	}
 +
-+	__le64 rx_notifications;
-+
-+	__le64 rx_packets;
-+	__le64 rx_bytes;
-+
-+	__le64 rx_interrupts;
-+
-+	__le64 rx_drops;
-+	__le64 rx_drop_overruns;
-+};
-+
-+struct virtio_net_stats_tx_basic {
-+	struct virtio_net_stats_reply_hdr hdr;
-+
-+	__le64 tx_notifications;
-+
-+	__le64 tx_packets;
-+	__le64 tx_bytes;
-+
-+	__le64 tx_interrupts;
-+
-+	__le64 tx_drops;
-+	__le64 tx_drop_malformed;
-+};
-+
-+struct virtio_net_stats_rx_csum {
-+	struct virtio_net_stats_reply_hdr hdr;
-+
-+	__le64 rx_csum_valid;
-+	__le64 rx_needs_csum;
-+	__le64 rx_csum_none;
-+	__le64 rx_csum_bad;
-+};
-+
-+struct virtio_net_stats_tx_csum {
-+	struct virtio_net_stats_reply_hdr hdr;
-+
-+	__le64 tx_csum_none;
-+	__le64 tx_needs_csum;
-+};
-+
-+struct virtio_net_stats_rx_gso {
-+	struct virtio_net_stats_reply_hdr hdr;
-+
-+	__le64 rx_gso_packets;
-+	__le64 rx_gso_bytes;
-+	__le64 rx_gso_packets_coalesced;
-+	__le64 rx_gso_bytes_coalesced;
-+};
-+
-+struct virtio_net_stats_tx_gso {
-+	struct virtio_net_stats_reply_hdr hdr;
-+
-+	__le64 tx_gso_packets;
-+	__le64 tx_gso_bytes;
-+	__le64 tx_gso_segments;
-+	__le64 tx_gso_segments_bytes;
-+	__le64 tx_gso_packets_noseg;
-+	__le64 tx_gso_bytes_noseg;
-+};
-+
-+struct virtio_net_stats_rx_speed {
-+	struct virtio_net_stats_reply_hdr hdr;
-+
-+	__le64 rx_packets_allowance_exceeded;
-+	__le64 rx_bytes_allowance_exceeded;
-+};
-+
-+struct virtio_net_stats_tx_speed {
-+	struct virtio_net_stats_reply_hdr hdr;
-+
-+	__le64 tx_packets_allowance_exceeded;
-+	__le64 tx_bytes_allowance_exceeded;
-+};
-+
- #endif /* _UAPI_LINUX_VIRTIO_NET_H */
++	virtnet_fill_total_fields(vi, &ctx);
+ }
+ 
+ static void virtnet_get_channels(struct net_device *dev,
 -- 
 2.32.0.3.g01195cf9f
 
