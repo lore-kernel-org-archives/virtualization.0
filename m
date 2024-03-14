@@ -1,152 +1,122 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1C035CDE7
-	for <virtualization@lists.linux-foundation.org>; Thu, 14 Mar 2024 07:41:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC3575D747
+	for <virtualization@lists.linux.dev>; Thu, 14 Mar 2024 07:49:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710402094; cv=none; b=n7dvYt8y4auxD0waarcOnP54aIcjIoq+CFjmDUGT2w5f0WEl5Z+9tC1UuIGJk7PC5m1hcglKRsxMpEPOOcpdcefh+Ma/bxfdXd1zmS0S0uu4D7qmBkeung93P92hp6NEXYE/FnZ0mBVMlvr+We39sYWWasUFk5swZF6M1x3cDa8=
+	t=1710402589; cv=none; b=bfD/puRITh4j+fXtPYhEHxzJygoTWU+RoCcm90iNYSelseFlRbauoYrPX4aOAGBf8yXBeAsnvHpwwjMKb2q5cE0NHennXysBodr9fhxp5kFqdbZ+PaE914Y4nfewGOw97FnD3geS9T5bLyb8YOGutoPPwyOo5KfhaLs/om4elaY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710402094; c=relaxed/simple;
-	bh=tYLRFrjCwOGp9whBxYAiRelcKZZjcsXaVqhFiwh3zBg=;
-	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=c+Ssrszdelxy5MGHW/LAYOIQ/o+jwXkAKeKVoeGBiWUVboDkxzHD/O2Ticy4BspeZwFgVOEU7wzOSzQLHD157dJrci8ETY2A9RkHRvLq19T2ejgXDClSJ3E3eInuOtnoS0BO7DSWqNl4ES04drOCLt15NDPE5zRqEkOoZSyiMKg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Si3EgK1a; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1710402589; c=relaxed/simple;
+	bh=au2T8EyQNZT1Y2JxCjARB4gUru0OlT7JfM1KnJZLoUw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=OWGDMEYG1BNW9xq3eq6TnIn/7J3WFsjYAd1QMHVbX4ZoN5nDBNjhqw6SDyCGhLdl8/sqnwYExmu8T8mN0yp9X8Zq0qj+Z2HtvBQSgxKuMKpGKYfF0aWq62DHNmeQHmXob/tiXjPgzm51vOoawvujgMgFvOqDBK6wPAoj2ABcwBA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LY6RvdsO; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Si3EgK1a"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 57C7D408C8
-	for <virtualization@lists.linux-foundation.org>; Thu, 14 Mar 2024 07:41:32 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -1.999
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9qZVOFsLS102
-	for <virtualization@lists.linux-foundation.org>;
-	Thu, 14 Mar 2024 07:41:31 +0000 (UTC)
-Received-SPF: None (mailfrom) identity=mailfrom; client-ip=192.198.163.7; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 03CB9408C6
-Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 03CB9408C6
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=Si3EgK1a
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 03CB9408C6
-	for <virtualization@lists.linux-foundation.org>; Thu, 14 Mar 2024 07:41:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1710402091; x=1741938091;
-  h=message-id:date:mime-version:cc:subject:to:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=tYLRFrjCwOGp9whBxYAiRelcKZZjcsXaVqhFiwh3zBg=;
-  b=Si3EgK1aCVpWvocmMonXkzGwLi3BsbnWD7/2/x1vW9AdajFILCpe7pGL
-   tO7mXh2yxLGI7jGTFLK5sDYlPIwnBdRf2oFzuaYqbmFxJYXHjwc1u/7xd
-   YxljE5Asz4Z6tyTEKMlM1ct9OIYdk1ukjOJaXU5ZdoRP7Ch6fnsrhpDld
-   dCb4uY9aD6E4j9U9CsszxeiPxCESWeCXC+jNe8jb4ks+dr2RtskJIfww6
-   uqbGWIXxm2nHXWfxGQTXedlMBeOr94qZyZRY91bSgfNr7CazPb3tO3+ll
-   PnOp420HI/KXrEYq3/uO0IlzTxOICg5GDih8QKk9SfpiJyGH2BhEtQcnU
-   g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,11012"; a="30644723"
-X-IronPort-AV: E=Sophos;i="6.07,124,1708416000"; 
-   d="scan'208";a="30644723"
-Received: from fmviesa004.fm.intel.com ([10.60.135.144])
-  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Mar 2024 00:41:29 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.07,124,1708416000"; 
-   d="scan'208";a="16798366"
-Received: from schen8x-mobl.ccr.corp.intel.com (HELO [10.255.29.38]) ([10.255.29.38])
-  by fmviesa004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Mar 2024 00:41:26 -0700
-Message-ID: <b33bf29b-2fe5-4a2a-a2ce-9fd8d67c5f6f@linux.intel.com>
-Date: Thu, 14 Mar 2024 15:41:23 +0800
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LY6RvdsO"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1710402586;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=4k25JO+YyOBDjJ6GZlIvWxzo6WAx4koWTCdtMZJqhv8=;
+	b=LY6RvdsOqQ9uNZGhVPJlvwUTBARCGgO2teLpv7jaV6oiD1HOU49f93rAs6QRcL1xRuOWET
+	8n4FEtjt8Upe+O6cUJSe7DCoaIYqYOeWWKZthITtFRAZq/Ao/+9Js0hXFq38sqQuILVxEJ
+	ezXu/2RqR8BJ3MOvBuncY58xZpqwTf8=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-677-9gCeRlxeO9iXPE7lJWv7UA-1; Thu, 14 Mar 2024 03:49:42 -0400
+X-MC-Unique: 9gCeRlxeO9iXPE7lJWv7UA-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 85AEF81A260;
+	Thu, 14 Mar 2024 07:49:42 +0000 (UTC)
+Received: from gshan-thinkpadx1nanogen2.remote.csb (unknown [10.64.136.81])
+	by smtp.corp.redhat.com (Postfix) with ESMTPS id BA96B1121306;
+	Thu, 14 Mar 2024 07:49:39 +0000 (UTC)
+From: Gavin Shan <gshan@redhat.com>
+To: virtualization@lists.linux.dev
+Cc: linux-kernel@vger.kernel.org,
+	mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	yihyu@redhat.com,
+	shan.gavin@gmail.com
+Subject: [PATCH] virtio_ring: Fix the stale index in available ring
+Date: Thu, 14 Mar 2024 17:49:23 +1000
+Message-ID: <20240314074923.426688-1-gshan@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Cc: baolu.lu@linux.intel.com, Kevin Tian <kevin.tian@intel.com>,
- Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
- Robin Murphy <robin.murphy@arm.com>,
- Jean-Philippe Brucker <jean-philippe@linaro.org>,
- Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
- Jacob Pan <jacob.jun.pan@linux.intel.com>,
- Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 2/8] iommu/sva: Use iopf domain attach/detach interface
-To: Jason Gunthorpe <jgg@ziepe.ca>
-References: <20240122073903.24406-1-baolu.lu@linux.intel.com>
- <20240122073903.24406-3-baolu.lu@linux.intel.com>
- <20240308174605.GV9225@ziepe.ca>
-Content-Language: en-US
-From: Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <20240308174605.GV9225@ziepe.ca>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.3
 
-On 2024/3/9 1:46, Jason Gunthorpe wrote:
-> On Mon, Jan 22, 2024 at 03:38:57PM +0800, Lu Baolu wrote:
->> @@ -215,7 +202,23 @@ static struct iopf_group *iopf_group_alloc(struct iommu_fault_param *iopf_param,
->>   		group = abort_group;
->>   	}
->>   
->> +	cookie = iopf_pasid_cookie_get(iopf_param->dev, pasid);
->> +	if (!cookie && pasid != IOMMU_NO_PASID)
->> +		cookie = iopf_pasid_cookie_get(iopf_param->dev, IOMMU_NO_PASID);
->> +	if (IS_ERR(cookie) || !cookie) {
->> +		/*
->> +		 * The PASID of this device was not attached by an I/O-capable
->> +		 * domain. Ask the caller to abort handling of this fault.
->> +		 * Otherwise, the reference count will be switched to the new
->> +		 * iopf group and will be released in iopf_free_group().
->> +		 */
->> +		kfree(group);
->> +		group = abort_group;
->> +		cookie = NULL;
->> +	}
-> 
-> If this is the main point of the cookie mechansim - why not just have
-> a refcount inside the domain itself?
-> 
-> I'm really having a hard time making sense of this cookie thing, we
-> have a lifetime issue on the domain pointer, why is adding another
-> structure the answer?
+The issue is reported by Yihuang Yu who have 'netperf' test on
+NVidia's grace-grace and grace-hopper machines. The 'netperf'
+client is started in the VM hosted by grace-hopper machine,
+while the 'netperf' server is running on grace-grace machine.
 
-The whole cookie mechanism aims to address two things:
+The VM is started with virtio-net and vhost has been enabled.
+We observe a error message spew from VM and then soft-lockup
+report. The error message indicates the data associated with
+the descriptor (index: 135) has been released, and the queue
+is marked as broken. It eventually leads to the endless effort
+to fetch free buffer (skb) in drivers/net/virtio_net.c::start_xmit()
+and soft-lockup. The stale index 135 is fetched from the available
+ring and published to the used ring by vhost, meaning we have
+disordred write to the available ring element and available index.
 
-- Extend the domain lifetime until all pending page faults are resolved.
-- Associate information about the iommu device with each attachment of
-   the domain so that the iommufd device object ID could be quickly
-   retrieved in the fault delivering path.
+  /home/gavin/sandbox/qemu.main/build/qemu-system-aarch64              \
+  -accel kvm -machine virt,gic-version=host                            \
+     :                                                                 \
+  -netdev tap,id=vnet0,vhost=on                                        \
+  -device virtio-net-pci,bus=pcie.8,netdev=vnet0,mac=52:54:00:f1:26:b0 \
 
+  [   19.993158] virtio_net virtio1: output.0:id 135 is not a head!
 
-> I see we also need to stick a pointer in the domain for iommufd to get
-> back to the hwpt, but that doesn't seem to need such a big system to
-> accomplish - just add a void *. It would make sense for the domain to
-> have some optional pointer to a struct for all the fault related data
-> that becomes allocated when a PRI domain is created..
+Fix the issue by replacing virtio_wmb(vq->weak_barriers) with stronger
+virtio_mb(false), equivalent to replaced 'dmb' by 'dsb' instruction on
+ARM64. It should work for other architectures, but performance loss is
+expected.
 
-It's not getting back hwpt from domain, just getting the iommufd_device
-in the fault delivering path. The iommufd_device is not per-domain, but
-per-domain-attachment.
+Cc: stable@vger.kernel.org
+Reported-by: Yihuang Yu <yihyu@redhat.com>
+Signed-off-by: Gavin Shan <gshan@redhat.com>
+---
+ drivers/virtio/virtio_ring.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-> 
-> Also, I thought we'd basically said that domain detatch is supposed to
-> flush any open PRIs before returning, what happened to that as a
-> solution to the lifetime problem?
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 49299b1f9ec7..7d852811c912 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -687,9 +687,15 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+ 	avail = vq->split.avail_idx_shadow & (vq->split.vring.num - 1);
+ 	vq->split.vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, head);
+ 
+-	/* Descriptors and available array need to be set before we expose the
+-	 * new available array entries. */
+-	virtio_wmb(vq->weak_barriers);
++	/*
++	 * Descriptors and available array need to be set before we expose
++	 * the new available array entries. virtio_wmb() should be enough
++	 * to ensuere the order theoretically. However, a stronger barrier
++	 * is needed by ARM64. Otherwise, the stale data can be observed
++	 * by the host (vhost). A stronger barrier should work for other
++	 * architectures, but performance loss is expected.
++	 */
++	virtio_mb(false);
+ 	vq->split.avail_idx_shadow++;
+ 	vq->split.vring.avail->idx = cpu_to_virtio16(_vq->vdev,
+ 						vq->split.avail_idx_shadow);
+-- 
+2.44.0
 
-If I remember it correctly, what we discussed was to flush all pending
-page faults when disabling PRI. Anyway, the current driver behavior is
-to flush faults during domain detachment. And if we keep this behavior,
-we no longer need to worry about domain lifetime anymore.
-
-> 
-> Regardless I think we should split this into two series - improve the PRI
-> lifetime model for domains and then put iommufd on top of it..
-
-Yes, agreed. Let's tackle those two points in a separate series.
-
-Best regards,
-baolu
