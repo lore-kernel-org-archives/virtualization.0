@@ -1,479 +1,230 @@
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+Received: from refb01.tmes.trendmicro.eu (refb01.tmes.trendmicro.eu [18.185.115.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFB196BFA4
-	for <virtualization@lists.linux.dev>; Thu, 14 Mar 2024 08:55:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710406522; cv=none; b=DAtN4+ZNG8To56eYzygFy2/lVrUttbhSgA9Hc9UeBfvmVA0qDlVmTDnK673vdhJ8xlmMgc3lcgerkwF+aLRRraaOdTLPdM1Xih5BfoX11xs3pTGeOmEaVw74lsW3T6t1vC+Ki1/bDyq7H2s9yu4yB1jSql1BPhTHAe5YhG/SrY8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710406522; c=relaxed/simple;
-	bh=DO52Ju4188zpX06ZisrV189B78C+myiB2XCM8tpADNE=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=Lo0PS9lcurfsA99+qIv4JUuZE4lMR48UNDmYCmpqWscYC+qH++x+azUvesEte/nOGS9FHATzO/iYJseZr6SVZt1RzRIYdKUyLZH6QB6Uzr/r+252e+93LSv6xa//3dPFRy5WCqx6QnKXWEZA+oKhLFt1k7ZXSGT/LLpC9WXB9VQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=qWypFDPt; arc=none smtp.client-ip=115.124.30.118
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 280F06CDD9
+	for <virtualization@lists.linux.dev>; Thu, 14 Mar 2024 09:25:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=18.185.115.53
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1710408308; cv=fail; b=SjkknW72ctu+LqvTO7tXvDf5CjGIUrN7chOQtMqPaBcSTd8diKVN6lqahqL1EerbETnKy6MnuQernOhWLePxfzRUpwwoRBef6yqP0mQoJ3lWjc8Tk/ep1WRrMFgTHaGuruvjqp2PyBD27iVy61HDHEPc3GoxR0YbiAn1GCP/9gg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1710408308; c=relaxed/simple;
+	bh=S5yionLxs/ffmpPuuEObJJjl7tCL42MQZ7oTUj6QOrU=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=PIh28iRNho6kXjXs3g0DIBXmkVm1MitnWlmKEMp/dU8TTKvZqqbEsLGl4HEuf69k8O9zKr6Yo8FCljtcjB2KBaWhxFChDZ2/3DQ4xTel81SMZju6/+KJ+9uAiEQfnkOlgkiBxSkgJznzejGC+I/wNON4cBlsF7GTGllOkHcsBR0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=opensynergy.com; spf=pass smtp.mailfrom=opensynergy.com; dkim=pass (2048-bit key) header.d=opensynergy.com header.i=@opensynergy.com header.b=QCbP/BMC; arc=fail smtp.client-ip=18.185.115.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=opensynergy.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=opensynergy.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="qWypFDPt"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1710406512; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=FQkFfqe9owyn4QRszlRMhlAjQzbUKIgXZsFJ9PU7xCQ=;
-	b=qWypFDPt8lGz5HiVUScI+vt1mKVM/1W1WAxKRoHhGOmV1TY9Bx0WSAILH+5jeH5v/pN9RmhANlg5wb3h6nR++xys62rUpFcglTehRT0upHrbOAuTga6bsHshnWktYcYgS/u1Svyllkp6cY+SpLwmfc3Y47ib9FcjheVHHn0xj2g=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0W2S1OGK_1710406509;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W2S1OGK_1710406509)
-          by smtp.aliyun-inc.com;
-          Thu, 14 Mar 2024 16:55:10 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: netdev@vger.kernel.org
-Cc: "David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>,
-	Stanislav Fomichev <sdf@google.com>,
-	Amritha Nambiar <amritha.nambiar@intel.com>,
-	Larysa Zaremba <larysa.zaremba@intel.com>,
-	Sridhar Samudrala <sridhar.samudrala@intel.com>,
-	Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-	virtualization@lists.linux.dev,
-	bpf@vger.kernel.org
-Subject: [PATCH net-next v4 8/8] virtio-net: support queue stat
-Date: Thu, 14 Mar 2024 16:54:59 +0800
-Message-Id: <20240314085459.115933-9-xuanzhuo@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20240314085459.115933-1-xuanzhuo@linux.alibaba.com>
-References: <20240314085459.115933-1-xuanzhuo@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=opensynergy.com header.i=@opensynergy.com header.b="QCbP/BMC"
+Received: from 104.47.11.168_.trendmicro.com (unknown [172.21.19.113])
+	by refb01.tmes.trendmicro.eu (Postfix) with ESMTPS id 71D7F10117B85
+	for <virtualization@lists.linux.dev>; Thu, 14 Mar 2024 09:13:40 +0000 (UTC)
+Received: from 104.47.11.168_.trendmicro.com (unknown [172.21.187.21])
+	by repost01.tmes.trendmicro.eu (Postfix) with SMTP id E910A100017BC;
+	Thu, 14 Mar 2024 09:13:32 +0000 (UTC)
+X-TM-MAIL-RECEIVED-TIME: 1710407611.918000
+X-TM-MAIL-UUID: 574abe95-263c-4c06-b2e9-eff720b77c70
+Received: from DEU01-FR2-obe.outbound.protection.outlook.com (unknown [104.47.11.168])
+	by repre01.tmes.trendmicro.eu (Trend Micro Email Security) with ESMTPS id E03B01000040D;
+	Thu, 14 Mar 2024 09:13:31 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Z8MbSSLmtkiidajlpbyEKSiiVfplwn5/k8dC2OQ0laWJgGFkB9Ff0Im7uwSHpC/+8jBmV6/Wnh6wtjiktLMXp35AmLfo9LafcGwder+QeGwxUSiJ8Cy6M09t1/rAsKl/v9izzB3fsbJZskK2+NxGfZ29B38jnYeb2UNrlTPHhJ3r2r0Q08zIuvmx/n3BFZ9QdWbMUclguA0CVLfwIp3p4dKv6HKpQ6x/+SHsUSzgi+9EE78JKODAjayaHx5bdNTXcAQiipGid+CmCw1pgsfiM5zk8IBCCUfO6WWUqHdxwJ241u7S2bLi7XjHn4IBvH55cy7qpmaPfSJfRVqb9ofzVg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=yZQJdKYgzUnhPbTpmaXzBjB1zAg6KtrsouiLvBxBMqY=;
+ b=G+XBYYM/qXiqXiRH4jIC85IRKz2uFt2X9EtatpsA030CW8IrSVAlU9wCLoYBx45PM/2Z8oyCDGG/+Be0nGS83APIQ7e5Bo5M+0s6fUSscpuUTj8br7M8l/EhUFaT8Hmlr5al73jn9NfVgZtRJDr1DwVBA7EOjn2piBmcs9poD0M+PMENZ8lwA0lQ6XQmZm5LQeb1LHJr7J7r8jws3XW8dLd6Hrkl4YIghYeCVuezIp9CfjbFpv5QA+8AZUHqnK8PcECwuhvNBs0hXbPyasnrCRsKf37IOPre2OxBg1x6aAMjznuYxIZlg1SUPUVPPOFpJ+JhqhCf7K6QEY8MGkY3jw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=opensynergy.com; dmarc=pass action=none
+ header.from=opensynergy.com; dkim=pass header.d=opensynergy.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=opensynergy.com;
+Message-ID: <ed2769d7-1cbe-4e27-86b1-4ae365cceb28@opensynergy.com>
+Date: Thu, 14 Mar 2024 10:13:28 +0100
+Subject: Re: [RFC PATCH v3 0/7] Add virtio_rtc module and related changes
+To: Andrew Lunn <andrew@lunn.ch>,
+ Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev, virtio-dev@lists.oasis-open.org,
+ linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org,
+ "virtio-comment@lists.oasis-open.org" <virtio-comment@lists.oasis-open.org>,
+ "Christopher S. Hall" <christopher.s.hall@intel.com>,
+ Jason Wang <jasowang@redhat.com>, John Stultz <jstultz@google.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
+ Richard Cochran <richardcochran@gmail.com>, Stephen Boyd <sboyd@kernel.org>,
+ Thomas Gleixner <tglx@linutronix.de>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>, Marc Zyngier <maz@kernel.org>,
+ Mark Rutland <mark.rutland@arm.com>,
+ Daniel Lezcano <daniel.lezcano@linaro.org>,
+ Alessandro Zummo <a.zummo@towertech.it>, "Ridoux, Julien"
+ <ridouxj@amazon.com>
+References: <204c6339-e80d-4a98-8d07-a11eeb729497@opensynergy.com>
+ <667c8d944ce9ea5c570b82b1858a70cc67b2f3e4.camel@infradead.org>
+ <f6940954-334a-458b-af32-f03d8efbe607@opensynergy.com>
+ <57704b2658e643fce30468dffd8c1477607f59fb.camel@infradead.org>
+ <d796d9a5-8eda-4528-a6d8-1c4eba24aa1e@opensynergy.com>
+ <202403131118010e7ed5bf@mail.local>
+ <dcd07f0b733a90ac3f3c43a4614967bbb3ef14ad.camel@infradead.org>
+ <20240313125813ec78d5a9@mail.local>
+ <96be7312f7bddaf06c690e082a8028fa8b511deb.camel@infradead.org>
+ <202403131450547f373268@mail.local>
+ <04246331-e890-4c9a-95fb-9673580e6d30@lunn.ch>
+Content-Language: en-US
+From: Peter Hilber <peter.hilber@opensynergy.com>
+Autocrypt: addr=peter.hilber@opensynergy.com; keydata=
+ xsDNBFuyHTIBDAClsxKaykR7WINWbw2hd8SjAU5Ft7Vx2qOyRR3guringPRMDvc5sAQeDPP4
+ lgFIZS5Ow3Z+0XMb/MtbJt0vQHg4Zi6WQtEysvctmAN4JG08XrO8Kf1Ly86Z0sJOrYTzd9oA
+ JoNqk7/JufMre4NppAMUcJnB1zIDyhKkkGgM1znDvcW/pVkAIKZQ4Be3A9297tl7YjhVLkph
+ kuw3yL8eyj7fk+3vruuEbMafYytozKCSBn5pM0wabiNUlPK39iQzcZd8VMIkh1BszRouInlc
+ 7hjiWjBjGDQ2eAbMww09ETAP1u38PpDolrO8IlTFb7Yy7OlD4lzr8AV+a2CTJhbKrCJznDQS
+ +GPGwLtOqTP5S5OJ0DCqVHdQyKoZMe1sLaZSPLMLx1WYAGN5R8ftCZSBjilVpwJ3lFsqO5cj
+ t5w1/JfNeVBWa4cENt5Z0B2gTuZ4F8j0QAc506uGxWO0wxH1rWNv2LuInSxj8d1yIUu76MqY
+ p92TS3D4t/myerODX3xGnjkAEQEAAc07cGV0ZXIuaGlsYmVyQG9wZW5zeW5lcmd5LmNvbSA8
+ cGV0ZXIuaGlsYmVyQG9wZW5zeW5lcmd5LmNvbT7CwQ4EEwEIADgCGwMFCwkIBwIGFQoJCAsC
+ BBYCAwECHgECF4AWIQTj5TCZN1jYfjl5iwQiPT9iQ46MNwUCXXd8PQAKCRAiPT9iQ46MN1PT
+ C/4mgNGlWB1/vsStNH+TGfJKt3eTi1Oxn6Uo0y4sXzZg+CHXYXnrG2OdLgOa/ZdA+O/o1ofU
+ v/nLKki7XH/cGsOtZ6n3Q5+irkLsUI9tcIlxLCZZlgDPqmJO3lu+8Uf2d96udw/5JLiPyhk/
+ DLtKEnvIOnn2YU9LK80WuJk7CMK4ii/bIipS6WFV6s67YG8HrzMKEwIzScf/7dC/dN221wh0
+ f3uUMht0A7eVOfEuC/i0//Y+ytuoPcqyT5YsAdvNk4Ns7dmWTJ8MS2t2m55BHQnYh7UBOIqB
+ BkEWLOxbs2zZnC5b/yjg7FOhVxUmSP4wU1Tp/ye+MoVhiUXwzXps5JmOuKahLbIysIpeRNxf
+ B8ndHEjKRl6YglPtqwJ45AF+BFEcblLe4eHk3Gl43jfoBJ43jFUSkge9K7wddB2FpaXrpfwM
+ KupTSWeavVwnjDb+mXfqr4e7C4CX3VoyBQvoGGPpK/93cVZInu5zV/OAxSayXt6NqZECkMBu
+ mg7W7hbcQezOwM0EW7IdMwEMANZOEgW7gpZr0l4MHVvEZomKRgHmKghiKffCyR/cZdB5CWPE
+ syD0QMkQCQHg0FUQIB/SyS7hV/MOYL47Zb+QUlBosMGkyyseEBWx0UgxgdMOh88JxAEHs0gQ
+ FYjL13DFLX/JfPyUqEnmWHLmvPpwPy2Qp7M1PPYb/KT8YxQEcJ0agxiSSGC+0c6efziPLW1u
+ vGnQpBXhbLRdmUVS9JE390vQLCjIQWQP34e6MnKrylqPpOeaiVSC9Nvr44f7LDk0X3Hsg3b4
+ kV9TInGcbskXCB9QnKo6lVgXI9Q419WZtI9T/d8n5Wx54P+iaw4pISqDHi6v+U9YhHACInqJ
+ m8S4WhlRIXhXmDVXBjyPvMkxEYp9EGxT5yeu49fN5oB1SQCf819obhO7GfP2pUx8H3dy96Tv
+ KFEQmuh15iXYCxgltrvy9TjUIHj9SbKiaXW1O45tjlDohZJofA0AZ1gU0X8ZVXwqn3vEmrML
+ DBiko3gdBy7mx2vl+Z1LJyqYKBBvw+pi7wARAQABwsD2BBgBCAAgAhsMFiEE4+UwmTdY2H45
+ eYsEIj0/YkOOjDcFAl13fD0ACgkQIj0/YkOOjDfFhwv9F6qVRBlMFPmb3dWIs+QcbdgUW9Vi
+ GOHNyjCnr+UBE5jc0ERP3IOzcgqavcL5YpuWadfPn4/LyMDhVcl5SQGIdk5oZlRWQRiSpqS+
+ IIU8idu+Ogl/Hdsp4n9S8GiINNwNh5KzWoCNN0PpcrjuMTacJnZur9/ym9tjr+mMvW7Z0k52
+ lnS9L+CRHLKHpVJSnccpTpShQHa335c5YvRC8NN+Ygj1uZL/98+1GmP1WMZ6nc1LSFDUxR60
+ cxnlbgH7cwBuy8y5DBeCCYiPHKBglVIp5nUFZdLG/HmufQT3f4/GVoDEo2Q7H0lq3KULX1xE
+ wHFeXHw4NXR7mYeX/eftz/9GFMVU29c72NTw8UihOy9qJgNo19wroRYKHLz1eWtMVcqS3hbX
+ m0/QcrG9+C9qCPXVxpC/L0YLAtmdvEIyaFtXWRyW7UQ3us6klHh4XUvSpsQhOgzLHFJ1Lpfc
+ upeBYECJQdxgIYyhgFAwRHeLGIPxjlvUmk22C0ualbekkuPTQs/m
+In-Reply-To: <04246331-e890-4c9a-95fb-9673580e6d30@lunn.ch>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: BE1P281CA0148.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:b10:7c::11) To BEZP281MB3267.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:b10:77::8)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Git-Hash: 76259b0090f3
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BEZP281MB3267:EE_|FR6P281MB3483:EE_
+X-MS-Office365-Filtering-Correlation-Id: 8c52801b-5555-432b-2187-08dc44070429
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	er5yYPVrb8TV1J28bpOYdrj6YK1f0hlvi5uInwItad407dWER3TTR+VdAsP5nOEBfG8kLA0EHbOQMx/Pz7teB+8csThBTAUAuoxLk+s4jHs9+4fnR484ddI33wYa9zYIz98z5AHiEMfNiOAScd70Q5Y98/++AtpmdVilQXA7JfuR5d78KjkRKendf0vxLMbrhaGTWbjk9qfM5sPy/V2o14jRawC/cgrwBR33dvMtT283NaQdIaEo9B9jRsa2YMIcKS45xUfZG76l+MZl0yxbb1HBWg72h1c8e99bWXwmNLVEmeQQO6sQkgG3LM7TFnPsfb1H2aoXS2MTVyrcBRIjq1nSxXbOawo2WB9WHxilTC2Uz0LVAzKoqS32PH47Atz4mXSOJTietwa/i8v02/uWI8jOH1a/gecjm2KvYQMUQ7JlVObu2XB0FEZfG6NyPoNh9mjADLJBhZrC2N5sptl1cvrXuw/QTP/NglqVXrNDMOnG65YyWOPmSLcgz0CPJsUmCZZCnX8/iIW3pNvQ8o+CMrDD4MwTGJjtCKNul9SYWFUjUm1iFMnttITzDpFPZ+FZfFB9wdO/P22w1fgS4zTQfq1eGtg5KZT/3Qp9sbffx/DTW3R5AKQCLbToznEXxpMgu0amJM0m2iKfXZaYObocQ+U4uxrrmOdvIfQkipyM/x8=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BEZP281MB3267.DEUP281.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230031)(376005)(1800799015)(7416005);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?b1pyVzRxTHhUaHRrM245WjZ1MEhReXh5N1A2R1pJQVFhUS96Uk1uTWxaelRj?=
+ =?utf-8?B?SldxUUV0WEJnOFpZUU9odkl1Z2tXNkh2NURNL0tYZ055N1FBTmpraEpUcVkv?=
+ =?utf-8?B?Z3lvM0IvRVU4TURCWHVXQzFFbTFGT05NVXhhNWp2UmZjeHdPQTFoK2RVVEdt?=
+ =?utf-8?B?c2xNalRHaW40QnI1RjdZM1JQNkRUcC95ZWhsT1pFbUNDbTZJbzV3WWI0YmZJ?=
+ =?utf-8?B?aWpxS09FL015WW55dklIYkxsR1BQWURZZGI4MGhML2JZUWtqVW1HQlhUaWJJ?=
+ =?utf-8?B?Slk4MjdLWlBhS09IaTFXQXowKzBXNnZzMEM5azZXZXZzckJtOEZSai9rMkVt?=
+ =?utf-8?B?RTlYRU1nOHlmVi9SdU1CanNFZWhMTHNrdmJFbmpaZ2kvbFRVSllGN3FUeTVH?=
+ =?utf-8?B?RkRSdkdpVG9EeXU1VGd0WWJ5Z3NEOVFOckQxa3JRMUluRDVaYnk3WU9wQUV1?=
+ =?utf-8?B?YmF3ajlkRTlZamgvTUh3bXVyMUw5eGxQRWYxT0ZLcytJRHZwQ3BFWTg0U3pF?=
+ =?utf-8?B?Yzg3amljZmNRalZ2T1hUeFNqK1ZDcVQ3MzVVRzZldkF0R3RYT2ZjODRnQ1lN?=
+ =?utf-8?B?enhYRkZMaVhXR2o0VWZHSVE3ejVtSzQ5VXU5c2hQSFcwbVZhLzVCZi9Dejc4?=
+ =?utf-8?B?dHlYQS9ORTJORFdNeTZPTzBSTE9rdUE5TUlNUzN3Q2c1UExmWkpmdXdLd2ZV?=
+ =?utf-8?B?RGtmb0h5UXI0eW1weUlna2ZPdTZrRXRsWFZWd0wybGtiUTVpZ0FnSHJpc3Nm?=
+ =?utf-8?B?ODNWWGYxOEd1dmEyR3RoSGtTWXhCd3R2R0pXbmNlbXBFd2E3Z291dVhRL0Rj?=
+ =?utf-8?B?ZG04TXNzSEZjbzZ6K0dVeFNFb2RJTzBtOVEvODA3Tmk3VFNCM0VLVk5FREVi?=
+ =?utf-8?B?RXBDM3R4K29VL0xxVzdRN3VGWk92RGlNbGlsQUVZL2s0NnFuSVQ2UEV3Z2N6?=
+ =?utf-8?B?Z3AvaWZlci9uNWZwMFRRZEpMdE1qelcvRWtyTldldzduYzM0NERBM0FNYVln?=
+ =?utf-8?B?ZGlkRzJGODlMZHdlWTUxcFZVSUY1WEdUa09pdDBDak5POWM2Zi9NVkJ6OWp1?=
+ =?utf-8?B?eTQybUVBa3oyemxEOHRSVjZSSzRyRTJoTUxrZUtad2s3RmlSNWtMK1E0dUZE?=
+ =?utf-8?B?cHBZWnF3V0Z5Y2VwTFJkc1VKUDBpdnBpdHhWMmRwOC91b1lUMmxQUEhLQVdQ?=
+ =?utf-8?B?aTgybWZwUVYxWVlrbmUzQXI4UE9iY1VhSGFpVi9TWHpOb0tYMlVVWlZHdGZn?=
+ =?utf-8?B?ZGNCRGFadnY5dlByWnFIZEZSanVQZjU0dVVNVG1NS1BBOEVsZUg4RVNiVGRV?=
+ =?utf-8?B?aW1hTkJkZm1EanlBTTRZVG16K0FwdWdUZnFmRHZIalRlY2FlbzJrTWlCNkgy?=
+ =?utf-8?B?ZHk2bzdWK1FWeDBETXAxb3lJVEhrbFhMZXJja3FacVhUR29DbThwVGJncXhp?=
+ =?utf-8?B?V1VraU9NSHJwMHJ5RVpIakh3VWZNOHN4bkV6bkFKc1J1NU5qOEphdG8zekNC?=
+ =?utf-8?B?MTFoRVlFMko4QnYySTd2MkxoZFRoR0hBLzZEMlRvdkUycWZhMEdkdEZkRnpk?=
+ =?utf-8?B?Y3h5RnkxbW1pdWhxeW55RzcxRWdBUDdZSEpoZWk3UGViVFY2QmtRNFR2UFlq?=
+ =?utf-8?B?dXpRclZpQmV1Y20wUW5tL1FNL1pkWEpwM1Y3SmNTQk41VGpLNXdnQWIzaEJT?=
+ =?utf-8?B?TUZEa3FUZkVXY3FqOWxDVzRnbXBKOERuNFRBRXVZRVhoL0kxUkxUWHNxa3hJ?=
+ =?utf-8?B?cjIwVGtla0FjTW5tOHo5WWxCTHprb3R6S1V1L1ZiTEtCQXMzVWJZWHJJRGFl?=
+ =?utf-8?B?aHlLSzZwbWc2MmNKTGZJTExLcTJuQWpqcWw3TU4vM1dqYjhUbFhEM3NJYlRG?=
+ =?utf-8?B?ZFdCQjJDQUFSS2hZc2QxcUJyd3NCVzhSWWlOWWVBRGtlbk9FeDZkUU1YN2pP?=
+ =?utf-8?B?NlU5T3J1dDJWMEh1S3cxanZaL09EN0s1QmszRTZyaEZZR21SaXZ2VURxc3RN?=
+ =?utf-8?B?TFNhT0VndzM0YjVlMUNTQ0FNVXcrQ2tjeTRrNDV1d2VQS0d2SElSUzhyS21r?=
+ =?utf-8?B?ZFNRTHFmVGg3VG00Tm1ZcWJ5RkpvQ3RmV3BmRDdmR0hoSGZsVTROWTM1UkRj?=
+ =?utf-8?B?MCsvZjhhNjN2bVdWOUNyRHdnQmp1cHc3M1pVaU5oRjM4RU9CbjJJeGluWmJO?=
+ =?utf-8?Q?HOJxoQ/r5bY1gIN9tNS0jq4m14WSf/u+hiL2pqPEro2X?=
+X-OriginatorOrg: opensynergy.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8c52801b-5555-432b-2187-08dc44070429
+X-MS-Exchange-CrossTenant-AuthSource: BEZP281MB3267.DEUP281.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Mar 2024 09:13:30.7240
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 800fae25-9b1b-4edc-993d-c939c4e84a64
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: VahofVO6SAM0NaPI5+6XU/YrQsMWc2TyxKu8KhlHvuBczVm+UT17UcfVJdZ8egjaVLfBUn/jbkXPI3X6KACARg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: FR6P281MB3483
+X-TM-AS-ERS: 104.47.11.168-0.0.0.0
+X-TMASE-Version: StarCloud-1.3-9.1.1015-28250.006
+X-TMASE-Result: 10--10.196000-4.000000
+X-TMASE-MatchedRID: VPleTT1nwdT5ETspAEX/ngw4DIWv1jSVbU+XbFYs1xIgVjtEzPedW2bk
+	7AUpj3QfzPGL5Z29NfWBtTCKewZ6xePXzq8/z8gYnRTJpY7VAKeVmuhG06IIbUfA+mhLvGJNRQc
+	XrCueZFg7agZLomT1YdixLe5vszLRFnf33mBzr9FCPQBD3xA/3aryV/2jRq/XEgg3cwDHl/1qdl
+	V1LmbEfINlCgp1qvO8HWzqMRY7mohIkEj2f2VroVo7GmCOJYd1/KO2LNTSuGMnqVKtN93FnMpZ+
+	i3kzp/niUsgTX2zjLHckiyazWPDrw==
+X-TMASE-XGENCLOUD: 31e3eb51-602c-493b-aa22-f31abc011119-0-0-200-0
+X-TM-Deliver-Signature: 1138B98EBD5FC8C21C837A5DA93F517F
+X-TM-Addin-Auth: aETC8i63u+/sWhK+DUUlovUVvdLkpgn5iWymgpPpcE6YR1RO/5FGbldtlu9
+	bUhhQPDM8dgQ5yJrcOuqGRKw1GNMeOuqP1N4cVRltEetf183iewV1im1tGxjtbUwE4iOi+jI6bF
+	FiEoNhmuIL73HGOkiyBHrkkGa7TE60o7AeUkgflWlRc1PAFDRU+xuL9NbYqAIhAkoPph+rCA0/y
+	mVOju4wg4SDOKmhWjparUjMJ8Job6qMy6b9f//LpcmBYjfr7++AcMUlubV7fDIJOWt+FzhQ+gm5
+	WA2nQoLhTsVj264=.qVsrtSwxrQOC9jpJtR/8soLrmV8pmeVqVPNqg8L+u2W4XuM4lCJfAh/5U1
+	OHkt3Cp6c9sqvZM0mjYvqdKWV/486szdvftJV3qDVuDI8yb2bbhOXKtfDCHdwaYT57ef8Da9Vr2
+	SVt8Js9KVXGrVlIB7q/aA1CL+y0LeZaYhnB+4Jd8mTX+e2ZOL1DgKXkptt/gKNEVom3Tx2TkcRu
+	FeTi9VSnfn7D0tlN1DPMUfDmw6AUW5dpDPGUO9rhitt+CpvsDt78fJK/dguH7TM0kXHFoOweM73
+	FR5kj5XFaBoiweopeOIurIdDYZc1mpbpjnaZurlSWRvBODf3v/g2BAU3Otw==
+X-TM-Addin-ProductCode: EMS
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=opensynergy.com;
+	s=TM-DKIM-20210503141657; t=1710407612;
+	bh=S5yionLxs/ffmpPuuEObJJjl7tCL42MQZ7oTUj6QOrU=; l=827;
+	h=Date:To:From;
+	b=QCbP/BMCnUKUjgn5z4LCRXGvIc5M2FvZLW/ZT7U2/Qo3FCegAFMr7SGbSXqAHRDYZ
+	 R+B/h1SWpNebw9RKvMSPkXSPlWJu6L5CHV7vtnu+ywPAxV96ifMhpqFbHZ9UbVtFl2
+	 pWHHpfkLnN7CuD1sLkFI19QV0j0zp2UhhdpjxY3A784yzqNehw9L93E3yP1pBY1GDy
+	 PIM7MneLJJgSPihysfRXx5w+9+BKzgclHGygKSvE9r/ClHIKuWUP3zQ/L7rzHH4eUz
+	 EmOjc4K4NzK8NvFiv6hHujU5zEyzvac4Lcm/3R1fBVh1wRN3b0ul7rdU7/b4/CwSMb
+	 NCBSm/+w/XDQw==
 
-To enhance functionality, we now support reporting statistics through
-the netdev-generic netlink (netdev-genl) queue stats interface. However,
-this does not extend to all statistics, so a new field, qstat_offset,
-has been introduced. This field determines which statistics should be
-reported via netdev-genl queue stats.
+On 13.03.24 21:12, Andrew Lunn wrote:
+>> As long as it doesn't behave differently from the other RTC, I'm fine
+>> with this. This is important because I don't want to carry any special
+>> infrastructure for this driver or to have to special case this driver
+>> later on because it is incompatible with some evolution of the
+>> subsystem.
+> 
+> Maybe deliberately throw away all the sub-second accuracy when
+> accessing the time via the RTC API? That helps to make it look like an
+> RTC. And when doing the rounding, add a constant offset of 10ms to
+> emulate the virtual i2c bus it is hanging off, like most RTCs?
+> 
+> 	  Andrew
 
-Given that queue stats are retrieved individually per queue, it's
-necessary for the virtnet_get_hw_stats() function to be capable of
-fetching statistics for a specific queue.
+The truncating to whole seconds is already done. As to the offset, I do not
+understand how this would help. I can read out my CMOS RTC in ~50 us.
 
-python3 ./tools/net/ynl/cli.py --spec Documentation/netlink/specs/netdev.yaml
-    --dump qstats-get --json '{"scope": "queue"}'
-[{'ifindex': 2,
-  'queue-id': 0,
-  'queue-type': 'rx',
-  'rx-bytes': 157844011,
-  'rx-csum-bad': 0,
-  'rx-csum-none': 0,
-  'rx-csum-unnecessary': 2195386,
-  'rx-hw-drop-overruns': 0,
-  'rx-hw-drop-ratelimits': 0,
-  'rx-hw-drops': 12964,
-  'rx-packets': 598929},
- {'ifindex': 2,
-  'queue-id': 0,
-  'queue-type': 'tx',
-  'tx-bytes': 1938511,
-  'tx-csum-none': 0,
-  'tx-hw-drop-errors': 0,
-  'tx-hw-drop-ratelimits': 0,
-  'tx-hw-drops': 0,
-  'tx-needs-csum': 61263,
-  'tx-packets': 15515}]
+Thanks for the comment,
 
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
----
- drivers/net/virtio_net.c | 191 ++++++++++++++++++++++++++++++---------
- 1 file changed, 148 insertions(+), 43 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index d48985d61418..3e6ebfa1f4a5 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -24,6 +24,7 @@
- #include <net/xdp.h>
- #include <net/net_failover.h>
- #include <net/netdev_rx_queue.h>
-+#include <net/netdev_queues.h>
- 
- static int napi_weight = NAPI_POLL_WEIGHT;
- module_param(napi_weight, int, 0444);
-@@ -78,6 +79,7 @@ static const unsigned long guest_offloads[] = {
- struct virtnet_stat_desc {
- 	char desc[ETH_GSTRING_LEN];
- 	size_t offset;
-+	int qstat_offset;
- };
- 
- struct virtnet_sq_stats {
-@@ -102,12 +104,27 @@ struct virtnet_rq_stats {
- 	u64_stats_t kicks;
- };
- 
--#define VIRTNET_SQ_STAT(name, m) {name, offsetof(struct virtnet_sq_stats, m)}
--#define VIRTNET_RQ_STAT(name, m) {name, offsetof(struct virtnet_rq_stats, m)}
-+#define VIRTNET_SQ_STAT(name, m) {name, offsetof(struct virtnet_sq_stats, m), -1}
-+#define VIRTNET_RQ_STAT(name, m) {name, offsetof(struct virtnet_rq_stats, m), -1}
-+
-+#define VIRTNET_SQ_STAT_QSTAT(name, m)				\
-+	{							\
-+		name,						\
-+		offsetof(struct virtnet_sq_stats, m),		\
-+		offsetof(struct netdev_queue_stats_tx, m),	\
-+	}
-+
-+#define VIRTNET_RQ_STAT_QSTAT(name, m)				\
-+	{							\
-+		name,						\
-+		offsetof(struct virtnet_rq_stats, m),		\
-+		offsetof(struct netdev_queue_stats_rx, m),	\
-+	}
- 
- static const struct virtnet_stat_desc virtnet_sq_stats_desc[] = {
--	VIRTNET_SQ_STAT("packets",      packets),
--	VIRTNET_SQ_STAT("bytes",        bytes),
-+	VIRTNET_SQ_STAT_QSTAT("packets", packets),
-+	VIRTNET_SQ_STAT_QSTAT("bytes",   bytes),
-+
- 	VIRTNET_SQ_STAT("xdp_tx",       xdp_tx),
- 	VIRTNET_SQ_STAT("xdp_tx_drops", xdp_tx_drops),
- 	VIRTNET_SQ_STAT("kicks",        kicks),
-@@ -115,8 +132,9 @@ static const struct virtnet_stat_desc virtnet_sq_stats_desc[] = {
- };
- 
- static const struct virtnet_stat_desc virtnet_rq_stats_desc[] = {
--	VIRTNET_RQ_STAT("packets",       packets),
--	VIRTNET_RQ_STAT("bytes",         bytes),
-+	VIRTNET_RQ_STAT_QSTAT("packets", packets),
-+	VIRTNET_RQ_STAT_QSTAT("bytes",   bytes),
-+
- 	VIRTNET_RQ_STAT("drops",         drops),
- 	VIRTNET_RQ_STAT("xdp_packets",   xdp_packets),
- 	VIRTNET_RQ_STAT("xdp_tx",        xdp_tx),
-@@ -129,10 +147,24 @@ static const struct virtnet_stat_desc virtnet_rq_stats_desc[] = {
- 	{#name, offsetof(struct virtio_net_stats_cvq, name)}
- 
- #define VIRTNET_STATS_DESC_RX(class, name) \
--	{#name, offsetof(struct virtio_net_stats_rx_ ## class, rx_ ## name)}
-+	{#name, offsetof(struct virtio_net_stats_rx_ ## class, rx_ ## name), -1}
- 
- #define VIRTNET_STATS_DESC_TX(class, name) \
--	{#name, offsetof(struct virtio_net_stats_tx_ ## class, tx_ ## name)}
-+	{#name, offsetof(struct virtio_net_stats_tx_ ## class, tx_ ## name), -1}
-+
-+#define VIRTNET_STATS_DESC_RX_QSTAT(class, name, qstat_field)			\
-+	{									\
-+		#name,								\
-+		offsetof(struct virtio_net_stats_rx_ ## class, rx_ ## name),	\
-+		offsetof(struct netdev_queue_stats_rx, qstat_field),		\
-+	}
-+
-+#define VIRTNET_STATS_DESC_TX_QSTAT(class, name, qstat_field)			\
-+	{									\
-+		#name,								\
-+		offsetof(struct virtio_net_stats_tx_ ## class, tx_ ## name),	\
-+		offsetof(struct netdev_queue_stats_tx, qstat_field),		\
-+	}
- 
- static const struct virtnet_stat_desc virtnet_stats_cvq_desc[] = {
- 	VIRTNET_STATS_DESC_CQ(command_num),
-@@ -146,8 +178,8 @@ static const struct virtnet_stat_desc virtnet_stats_rx_basic_desc[] = {
- 	VIRTNET_STATS_DESC_RX(basic, notifications),
- 	VIRTNET_STATS_DESC_RX(basic, interrupts),
- 
--	VIRTNET_STATS_DESC_RX(basic, drops),
--	VIRTNET_STATS_DESC_RX(basic, drop_overruns),
-+	VIRTNET_STATS_DESC_RX_QSTAT(basic, drops,         hw_drops),
-+	VIRTNET_STATS_DESC_RX_QSTAT(basic, drop_overruns, hw_drop_overruns),
- };
- 
- static const struct virtnet_stat_desc virtnet_stats_tx_basic_desc[] = {
-@@ -157,46 +189,47 @@ static const struct virtnet_stat_desc virtnet_stats_tx_basic_desc[] = {
- 	VIRTNET_STATS_DESC_TX(basic, notifications),
- 	VIRTNET_STATS_DESC_TX(basic, interrupts),
- 
--	VIRTNET_STATS_DESC_TX(basic, drops),
--	VIRTNET_STATS_DESC_TX(basic, drop_malformed),
-+	VIRTNET_STATS_DESC_TX_QSTAT(basic, drops,          hw_drops),
-+	VIRTNET_STATS_DESC_TX_QSTAT(basic, drop_malformed, hw_drop_errors),
- };
- 
- static const struct virtnet_stat_desc virtnet_stats_rx_csum_desc[] = {
--	VIRTNET_STATS_DESC_RX(csum, csum_valid),
--	VIRTNET_STATS_DESC_RX(csum, needs_csum),
-+	VIRTNET_STATS_DESC_RX_QSTAT(csum, csum_valid, csum_unnecessary),
-+	VIRTNET_STATS_DESC_RX_QSTAT(csum, csum_none,  csum_none),
-+	VIRTNET_STATS_DESC_RX_QSTAT(csum, csum_bad,   csum_bad),
- 
--	VIRTNET_STATS_DESC_RX(csum, csum_none),
--	VIRTNET_STATS_DESC_RX(csum, csum_bad),
-+	VIRTNET_STATS_DESC_RX(csum, needs_csum),
- };
- 
- static const struct virtnet_stat_desc virtnet_stats_tx_csum_desc[] = {
--	VIRTNET_STATS_DESC_TX(csum, needs_csum),
--	VIRTNET_STATS_DESC_TX(csum, csum_none),
-+	VIRTNET_STATS_DESC_TX_QSTAT(csum, csum_none,  csum_none),
-+	VIRTNET_STATS_DESC_TX_QSTAT(csum, needs_csum, needs_csum),
- };
- 
- static const struct virtnet_stat_desc virtnet_stats_rx_gso_desc[] = {
--	VIRTNET_STATS_DESC_RX(gso, gso_packets),
--	VIRTNET_STATS_DESC_RX(gso, gso_bytes),
--	VIRTNET_STATS_DESC_RX(gso, gso_packets_coalesced),
--	VIRTNET_STATS_DESC_RX(gso, gso_bytes_coalesced),
-+	VIRTNET_STATS_DESC_RX_QSTAT(gso, gso_packets,           hw_gro_packets),
-+	VIRTNET_STATS_DESC_RX_QSTAT(gso, gso_bytes,             hw_gro_bytes),
-+	VIRTNET_STATS_DESC_RX_QSTAT(gso, gso_packets_coalesced, hw_gro_wire_packets),
-+	VIRTNET_STATS_DESC_RX_QSTAT(gso, gso_bytes_coalesced,   hw_gro_wire_bytes),
- };
- 
- static const struct virtnet_stat_desc virtnet_stats_tx_gso_desc[] = {
--	VIRTNET_STATS_DESC_TX(gso, gso_packets),
--	VIRTNET_STATS_DESC_TX(gso, gso_bytes),
--	VIRTNET_STATS_DESC_TX(gso, gso_segments),
--	VIRTNET_STATS_DESC_TX(gso, gso_segments_bytes),
-+	VIRTNET_STATS_DESC_TX_QSTAT(gso, gso_packets,        hw_gso_packets),
-+	VIRTNET_STATS_DESC_TX_QSTAT(gso, gso_bytes,          hw_gso_bytes),
-+	VIRTNET_STATS_DESC_TX_QSTAT(gso, gso_segments,       hw_gso_wire_packets),
-+	VIRTNET_STATS_DESC_TX_QSTAT(gso, gso_segments_bytes, hw_gso_wire_bytes),
-+
- 	VIRTNET_STATS_DESC_TX(gso, gso_packets_noseg),
- 	VIRTNET_STATS_DESC_TX(gso, gso_bytes_noseg),
- };
- 
- static const struct virtnet_stat_desc virtnet_stats_rx_speed_desc[] = {
--	VIRTNET_STATS_DESC_RX(speed, packets_allowance_exceeded),
-+	VIRTNET_STATS_DESC_RX_QSTAT(speed, packets_allowance_exceeded, hw_drop_ratelimits),
- 	VIRTNET_STATS_DESC_RX(speed, bytes_allowance_exceeded),
- };
- 
- static const struct virtnet_stat_desc virtnet_stats_tx_speed_desc[] = {
--	VIRTNET_STATS_DESC_TX(speed, packets_allowance_exceeded),
-+	VIRTNET_STATS_DESC_TX_QSTAT(speed, packets_allowance_exceeded, hw_drop_ratelimits),
- 	VIRTNET_STATS_DESC_TX(speed, packets_allowance_exceeded),
- };
- 
-@@ -3458,6 +3491,9 @@ static void virtnet_get_stats_string(struct virtnet_info *vi, int type, int qid,
- }
- 
- struct virtnet_stats_ctx {
-+	/* the stats are write to qstats or ethtool -S */
-+	bool to_qstat;
-+
- 	u32 desc_num[3];
- 
- 	u32 bitmap[3];
-@@ -3469,12 +3505,13 @@ struct virtnet_stats_ctx {
- 
- static void virtnet_stats_ctx_init(struct virtnet_info *vi,
- 				   struct virtnet_stats_ctx *ctx,
--				   u64 *data)
-+				   u64 *data, bool to_qstat)
- {
- 	struct virtnet_stats_map *m;
- 	int i;
- 
- 	ctx->data = data;
-+	ctx->to_qstat = to_qstat;
- 
- 	for (i = 0; i < ARRAY_SIZE(virtio_net_stats_map); ++i) {
- 		m = &virtio_net_stats_map[i];
-@@ -3531,7 +3568,7 @@ static void virtnet_fill_total_fields(struct virtnet_info *vi,
- 	stats_sum_queue(data, num_tx, first_tx_q, vi->curr_queue_pairs);
- }
- 
--/* virtnet_fill_stats - copy the stats to ethtool -S
-+/* virtnet_fill_stats - copy the stats to qstats or ethtool -S
-  * The stats source is the device or the driver.
-  *
-  * @vi: virtio net info
-@@ -3550,8 +3587,8 @@ static void virtnet_fill_stats(struct virtnet_info *vi, u32 qid,
- 	const struct virtnet_stat_desc *desc;
- 	struct virtnet_stats_map *m;
- 	const u64_stats_t *v_stat;
-+	u64 offset, value;
- 	const __le64 *v;
--	u64 offset;
- 	int i, j;
- 
- 	num_cq = ctx->desc_num[VIRTNET_Q_TYPE_CQ];
-@@ -3584,10 +3621,21 @@ static void virtnet_fill_stats(struct virtnet_info *vi, u32 qid,
- 			desc = &m->desc[j];
- 			if (!from_driver) {
- 				v = (const __le64 *)(base + desc->offset);
--				ctx->data[offset + j] = le64_to_cpu(*v);
-+				value = le64_to_cpu(*v);
- 			} else {
- 				v_stat = (const u64_stats_t *)(base + desc->offset);
--				ctx->data[offset + j] = u64_stats_read(v_stat);
-+				value = u64_stats_read(v_stat);
-+			}
-+
-+			if (ctx->to_qstat) {
-+				/* store to the queue stats structure */
-+				if (desc->qstat_offset >= 0) {
-+					offset = desc->qstat_offset / sizeof(*ctx->data);
-+					ctx->data[offset] = value;
-+				}
-+			} else {
-+				/* store to the ethtool -S data area */
-+				ctx->data[offset + j] = value;
- 			}
- 		}
- 
-@@ -3648,21 +3696,33 @@ static void virtnet_make_stat_req(struct virtnet_info *vi,
- 	*idx += 1;
- }
- 
-+/* qid: -1: get stats of all vq.
-+ *     > 0: get the stats for the special vq. This must not be cvq.
-+ */
- static int virtnet_get_hw_stats(struct virtnet_info *vi,
--				struct virtnet_stats_ctx *ctx)
-+				struct virtnet_stats_ctx *ctx, int qid)
- {
-+	int qnum, i, j, res_size, qtype, last_vq, first_vq;
- 	struct virtio_net_ctrl_queue_stats *req;
--	int qnum, i, j, res_size, qtype, last_vq;
-+	bool enable_cvq;
- 	void *reply;
- 
- 	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_DEVICE_STATS))
- 		return 0;
- 
--	last_vq = vi->curr_queue_pairs * 2 - 1;
-+	if (qid == -1) {
-+		last_vq = vi->curr_queue_pairs * 2 - 1;
-+		first_vq = 0;
-+		enable_cvq = true;
-+	} else {
-+		last_vq = qid;
-+		first_vq = qid;
-+		enable_cvq = false;
-+	}
- 
- 	qnum = 0;
- 	res_size = 0;
--	for (i = 0; i <= last_vq ; ++i) {
-+	for (i = first_vq; i <= last_vq ; ++i) {
- 		qtype = vq_type(vi, i);
- 		if (ctx->bitmap[qtype]) {
- 			++qnum;
-@@ -3670,7 +3730,7 @@ static int virtnet_get_hw_stats(struct virtnet_info *vi,
- 		}
- 	}
- 
--	if (ctx->bitmap[VIRTNET_Q_TYPE_CQ]) {
-+	if (enable_cvq && ctx->bitmap[VIRTNET_Q_TYPE_CQ]) {
- 		res_size += ctx->size[VIRTNET_Q_TYPE_CQ];
- 		qnum += 1;
- 	}
-@@ -3686,10 +3746,11 @@ static int virtnet_get_hw_stats(struct virtnet_info *vi,
- 	}
- 
- 	j = 0;
--	for (i = 0; i <= last_vq ; ++i)
-+	for (i = first_vq; i <= last_vq ; ++i)
- 		virtnet_make_stat_req(vi, ctx, req, i, &j);
- 
--	virtnet_make_stat_req(vi, ctx, req, vi->max_queue_pairs * 2, &j);
-+	if (enable_cvq)
-+		virtnet_make_stat_req(vi, ctx, req, vi->max_queue_pairs * 2, &j);
- 
- 	return __virtnet_get_hw_stats(vi, ctx, req, sizeof(*req) * j, reply, res_size);
- }
-@@ -3742,7 +3803,7 @@ static int virtnet_get_sset_count(struct net_device *dev, int sset)
- 			}
- 		}
- 
--		virtnet_stats_ctx_init(vi, &ctx, NULL);
-+		virtnet_stats_ctx_init(vi, &ctx, NULL, false);
- 
- 		pair_count = ctx.desc_num[VIRTNET_Q_TYPE_RX] + ctx.desc_num[VIRTNET_Q_TYPE_TX];
- 
-@@ -3761,8 +3822,8 @@ static void virtnet_get_ethtool_stats(struct net_device *dev,
- 	unsigned int start, i;
- 	const u8 *stats_base;
- 
--	virtnet_stats_ctx_init(vi, &ctx, data);
--	if (virtnet_get_hw_stats(vi, &ctx))
-+	virtnet_stats_ctx_init(vi, &ctx, data, false);
-+	if (virtnet_get_hw_stats(vi, &ctx, -1))
- 		dev_warn(&vi->dev->dev, "Failed to get hw stats.\n");
- 
- 	for (i = 0; i < vi->curr_queue_pairs; i++) {
-@@ -4301,6 +4362,49 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
- 	.set_rxnfc = virtnet_set_rxnfc,
- };
- 
-+static void virtnet_get_queue_stats_rx(struct net_device *dev, int i,
-+				       struct netdev_queue_stats_rx *stats)
-+{
-+	struct virtnet_info *vi = netdev_priv(dev);
-+	struct receive_queue *rq = &vi->rq[i];
-+	struct virtnet_stats_ctx ctx = {0};
-+
-+	virtnet_stats_ctx_init(vi, &ctx, (void *)stats, true);
-+
-+	virtnet_get_hw_stats(vi, &ctx, i * 2);
-+	virtnet_fill_stats(vi, i * 2, &ctx, (void *)&rq->stats, true, 0);
-+}
-+
-+static void virtnet_get_queue_stats_tx(struct net_device *dev, int i,
-+				       struct netdev_queue_stats_tx *stats)
-+{
-+	struct virtnet_info *vi = netdev_priv(dev);
-+	struct send_queue *sq = &vi->sq[i];
-+	struct virtnet_stats_ctx ctx = {0};
-+
-+	virtnet_stats_ctx_init(vi, &ctx, (void *)stats, true);
-+
-+	virtnet_get_hw_stats(vi, &ctx, i * 2 + 1);
-+	virtnet_fill_stats(vi, i * 2 + 1, &ctx, (void *)&sq->stats, true, 0);
-+}
-+
-+static void virtnet_get_base_stats(struct net_device *dev,
-+				   struct netdev_queue_stats_rx *rx,
-+				   struct netdev_queue_stats_tx *tx)
-+{
-+	/* The queue stats of the virtio-net will not be reset. So here we
-+	 * return 0.
-+	 */
-+	memset(rx, 0, sizeof(*rx));
-+	memset(tx, 0, sizeof(*tx));
-+}
-+
-+static const struct netdev_stat_ops virtnet_stat_ops = {
-+	.get_queue_stats_rx	= virtnet_get_queue_stats_rx,
-+	.get_queue_stats_tx	= virtnet_get_queue_stats_tx,
-+	.get_base_stats		= virtnet_get_base_stats,
-+};
-+
- static void virtnet_freeze_down(struct virtio_device *vdev)
- {
- 	struct virtnet_info *vi = vdev->priv;
-@@ -5060,6 +5164,7 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	dev->priv_flags |= IFF_UNICAST_FLT | IFF_LIVE_ADDR_CHANGE |
- 			   IFF_TX_SKB_NO_LINEAR;
- 	dev->netdev_ops = &virtnet_netdev;
-+	dev->stat_ops = &virtnet_stat_ops;
- 	dev->features = NETIF_F_HIGHDMA;
- 
- 	dev->ethtool_ops = &virtnet_ethtool_ops;
--- 
-2.32.0.3.g01195cf9f
-
+Peter
