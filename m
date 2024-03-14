@@ -1,131 +1,149 @@
-Received: from wfhigh7-smtp.messagingengine.com (wfhigh7-smtp.messagingengine.com [64.147.123.158])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC86F5BACB
-	for <virtualization@lists.linux.dev>; Wed, 13 Mar 2024 23:02:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=64.147.123.158
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0E464A08
+	for <virtualization@lists.linux.dev>; Thu, 14 Mar 2024 03:12:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710370982; cv=none; b=fycfXIVU5etgITPeoIt4lHMdlhZs0ZT58ixWkuCBblRiicy8jwPtiDn577weP3R0wrderOa15DW1yA7cpsMZ+ET7Da2AkwQ65NqlB4+DQFUpspMYKErPFMZwM/+0++jRokjcajdtjBjgEuarCGGvGWcyPWz8jzqCXSs8XOzuSg8=
+	t=1710385963; cv=none; b=QWFWFDTMsVHQcmxx4kHtal4tBTbBa/QihDnHOvfu2ayrdAqjFnWG8SVWTQ+5z/VNZ9HMgI5+losvsTjBMgi/W/0iJDv8bIeSfK00EJ71b9xZC/hq1NBhzBSkbJThIGmGEMrSghabugyhMs++veCQeaYZ2XYSEzKBkR0Zk6u/6xM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710370982; c=relaxed/simple;
-	bh=omms3SFurO0RSz7Vcb0yj6X1bkgms38UbPEuLlEOTOg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Xo4QwjPftNBrvPJ7c9clqfmK55WGxE32NCkunxctoPtUzbTFxlbowT0DCDQocLWkbnAA3Wt7OISy17PeCYnSfchLTGXpVBltSJhYpMgsBjU2E9SglKyKd1DI151fXRYzI88Z2V2IEBUgp+xipe+ozuzHv+vDiivNcDr7i6XDxEI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fastmail.fm; spf=pass smtp.mailfrom=fastmail.fm; dkim=pass (2048-bit key) header.d=fastmail.fm header.i=@fastmail.fm header.b=aE6FCaxf; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=Bg+P+DBt; arc=none smtp.client-ip=64.147.123.158
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fastmail.fm
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fastmail.fm
+	s=arc-20240116; t=1710385963; c=relaxed/simple;
+	bh=bXjlov1+xgNpyNB5/H0sUGt9aauzEi+JWNlLMri0PVk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ijH5kZt0BcntmhRlI/oSUBMk591R6Ptr5J/Kxn+6jsCNvjZB2E8t5rW7z8zBgEb7iLGAW6LeZRGNmcXhdviGb7OznupUibq1iofaH1hVZP1d5Up9GyQkikAIJAEVWeLmuNXjE9rW5klY7/jqm30RQJY4XcdGJfZ6f1516glxWBw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VhjAEB1U; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fastmail.fm header.i=@fastmail.fm header.b="aE6FCaxf";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="Bg+P+DBt"
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-	by mailfhigh.west.internal (Postfix) with ESMTP id 388141800090;
-	Wed, 13 Mar 2024 19:02:58 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute5.internal (MEProxy); Wed, 13 Mar 2024 19:02:59 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fastmail.fm; h=
-	cc:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm2; t=1710370977;
-	 x=1710457377; bh=Bz4OSDL737dXWZswYNHf7v3iQ4bma+bPDF/AfKYK8vI=; b=
-	aE6FCaxfm+Xa6KPA6rEvpcPdrVzbm9+PjDYhWEMyXBXgIaY6mzWcHT7oCTjGSI90
-	Ur2imzdQKYPokhOpXSGpWwrPb6QY2QkjYCLDvAM7jGt/Af6U54PStQmIWcJbbZ1b
-	KZ7Mmvd4dTskp1x/KLZ/NgJaNNL6sPKCQ3DsQsEpOWtQ5T8THYjyr+h0uFt3m70w
-	Kn/epS80cNzapzq2aEUOFnmIdr5eMvnakl4DXwmRof9LfQjIxY3pNrMA4OIP8vKE
-	b/RtD5fSKWywzkt0YOX35IEU8WwWnow4C8OZqWEtHN8NT+2k8SSWHnVrid8FnBVe
-	g+3ifq733zXkNrB8M461gg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1710370977; x=
-	1710457377; bh=Bz4OSDL737dXWZswYNHf7v3iQ4bma+bPDF/AfKYK8vI=; b=B
-	g+P+DBtnuUCigeIBzC+2RyT/kLAJjW7Se2HVhtZi6vYnUDRryAwDXi8kM55AvdCF
-	rapFWUbusKa5CJiaK/TqyZpeJ7G/dEjGOw3wnFZFe9bGw8cRo/Xv5Zve5v+IFffW
-	+KDGasTsw5eMRjHqLCSoNSigKsbCNL0Qe8P5mxE/Nb4vhh+7Vw2CFHRucVJ4CXEg
-	qLpcDKRHPy4WP73/BKepww4NZixnzySRSy86MOHKUuOs93MPbp9l9461wkL8BzQ+
-	f0VH3Mw+h07ySWWKslZLBWgoG4Qdz6O8Kx1mj0t/JH2ZcUok8t75NPCvNVNbCqoA
-	VsmtEBoUT0Yqwd/CJoiRA==
-X-ME-Sender: <xms:oDDyZb3HmaZhlDp9JbkyPB1Vc3pz7Xc2JSo6XPMlheWr03PhzXWh8A>
-    <xme:oDDyZaH1H2l-QpiWy3fn_wgb20GUNtg15ifBAYlkYBpvJdBjJt4YsozbK6EU53M4Y
-    _zxuIpR0HWwQICV>
-X-ME-Received: <xmr:oDDyZb6TFn9S-466_istBZsBYd-ARoI3MvFKEYgCB8-jMCmggL6dV9PfuGPN7HSxbiC8fX8Q3c8UXq7RhbX-4LiZIodmSaqAUsVBYVcDx4FuhlMVMjyQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvledrjeeigddtfecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpefkffggfgfuvfevfhfhjggtgfesthejredttddvjeenucfhrhhomhepuegvrhhn
-    ugcuufgthhhusggvrhhtuceosggvrhhnugdrshgthhhusggvrhhtsehfrghsthhmrghilh
-    drfhhmqeenucggtffrrghtthgvrhhnpeevhffgvdeltddugfdtgfegleefvdehfeeiveej
-    ieefveeiteeggffggfeulefgjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmh
-    epmhgrihhlfhhrohhmpegsvghrnhgurdhstghhuhgsvghrthesfhgrshhtmhgrihhlrdhf
-    mh
-X-ME-Proxy: <xmx:oDDyZQ0IZaGmu3XuaXb2Pv8eehKoMX-WokCMiIBSnxkq__Is3RjM4Q>
-    <xmx:oDDyZeHff2tp5zoJgG_lo5mwLgu4YpKLc8k9fQrU_89kdVc6saxB7g>
-    <xmx:oDDyZR8V6arTFUqAd8Kd-bQN5YT8duiJBWikcySQ_3dMQC6fovNq1Q>
-    <xmx:oDDyZblpafvyWASHpjcYKL5r8PsY_wbA7v4a3szraAHtBl05N_gsaQ>
-    <xmx:oTDyZVdKF5fa1Ul0H4gpQtt3m-A5TXuFtw-w2n48DYRMLvTjoWUOanfLJHQ>
-Feedback-ID: id8a24192:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 13 Mar 2024 19:02:55 -0400 (EDT)
-Message-ID: <d9d2ede5-7454-4c43-ab5d-29816e266453@fastmail.fm>
-Date: Thu, 14 Mar 2024 00:02:52 +0100
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VhjAEB1U"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1710385959;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ujVLStF8fNwjZHlFP85Jc/cq8HmkRWbLvyNFVb8jE2E=;
+	b=VhjAEB1UhlV6ugFjGWTMxi26Fzea/S9sDgnBENrbr56pzfAOzW2E8kJXP3G2uMtBkLPLWV
+	S/bkeh1trPydBzn8vIrQ2+7Tb+oFwewSlTZY4bPBDPTHCTPpMrFRX1+qXLc+TLRQUYXdhO
+	ZCZcvvtc6IEnonHpenGkzXqB+HzEhTI=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-472-RPTeVYg2MBaAIHAV1blWbg-1; Wed, 13 Mar 2024 23:12:36 -0400
+X-MC-Unique: RPTeVYg2MBaAIHAV1blWbg-1
+Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-29bda2d3ea3so516787a91.3
+        for <virtualization@lists.linux.dev>; Wed, 13 Mar 2024 20:12:36 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1710385955; x=1710990755;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ujVLStF8fNwjZHlFP85Jc/cq8HmkRWbLvyNFVb8jE2E=;
+        b=Cj0kjkBZO50aMyGg/WZ1oASzAoYY0T9zXKf5/a9xpBa/lOw5zyLXho+Yw96eGGdVjf
+         kfvQ4U+pWIvZHKAvO5r3YqkWAGyt4c2+SqSJGm2kCf7SeyGVxJNjHG9/4xWKp5lSZigb
+         gR39ruyNBUlyPRT97uJDwfMfSamw3ovkRA90hJQJ4OezT2kdGkYVZz0BUtWuEreO2Dkv
+         p4ZVO93S1ats/vdlw2NvstjBu7VDZ90QDhQan+7bg9PLOkG6DD6s4YqKszlJfWYQNEpp
+         PW3Q94gi8KoBpEnYm/39FZCWJWzRLXCX6ZFWB6EKBxKVRvyNInxRP8TG0mDaxFWiBcgw
+         ENXA==
+X-Gm-Message-State: AOJu0Yz77J7R1I+MyTzZweQnQT0ytMqUrGkc8Zgio5VPwaEh8Zd7xNj7
+	HL/guc4xMLBsld52P3J9TxC/gqp0pf9xjw5PnQLCFsgws9z22bp00K3yHRWoEvQdYynCERY++hz
+	eQKW8QgsMfAw6Qd7BpeW1/YwYUzWUA1XOwbfCiPJP5WiGypuFZM1OSaf+au2eTBNEHNWH7zoI2N
+	fkooSrUKQzyvElZJtMCjLSEo6peOCNWweDapGNbVk=
+X-Received: by 2002:a17:90b:1115:b0:29b:dc5c:d534 with SMTP id gi21-20020a17090b111500b0029bdc5cd534mr556801pjb.29.1710385955620;
+        Wed, 13 Mar 2024 20:12:35 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHgnFIYDkamcOx1cys2VlJt8HrQE2eq5Dv8Fg1l35A9jQKw+iznC+SY6FdtZSdCDKBufcIfbsUlkHcDHjjBuKE=
+X-Received: by 2002:a17:90b:1115:b0:29b:dc5c:d534 with SMTP id
+ gi21-20020a17090b111500b0029bdc5cd534mr556779pjb.29.1710385955375; Wed, 13
+ Mar 2024 20:12:35 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 1/6] fuse: limit the length of ITER_KVEC dio by
- max_pages
-Content-Language: en-US, de-DE, fr
-To: Hou Tao <houtao@huaweicloud.com>, Miklos Szeredi <miklos@szeredi.hu>
-Cc: linux-fsdevel@vger.kernel.org, Vivek Goyal <vgoyal@redhat.com>,
- Stefan Hajnoczi <stefanha@redhat.com>, "Michael S . Tsirkin"
- <mst@redhat.com>, Matthew Wilcox <willy@infradead.org>,
- Benjamin Coddington <bcodding@redhat.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev, houtao1@huawei.com
-References: <20240228144126.2864064-1-houtao@huaweicloud.com>
- <20240228144126.2864064-2-houtao@huaweicloud.com>
- <CAJfpegtMhkKG-Hk5vQ5gi6bSqwb=eMG9_TzcW7b08AtXBmnQXQ@mail.gmail.com>
- <8f21c92f-5456-7a2e-59af-1a02d8a10c24@huaweicloud.com>
-From: Bernd Schubert <bernd.schubert@fastmail.fm>
-In-Reply-To: <8f21c92f-5456-7a2e-59af-1a02d8a10c24@huaweicloud.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <20240312021013.88656-1-xuanzhuo@linux.alibaba.com> <20240312021013.88656-2-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20240312021013.88656-2-xuanzhuo@linux.alibaba.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 14 Mar 2024 11:12:24 +0800
+Message-ID: <CACGkMEvVgfgAxLoKeFTgy-1GR0W07ciPYFuqs6PiWtKCnXuWTw@mail.gmail.com>
+Subject: Re: [PATCH vhost v3 1/4] virtio: find_vqs: pass struct instead of
+ multi parameters
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>, 
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg <johannes@sipsolutions.net>, 
+	Hans de Goede <hdegoede@redhat.com>, =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
+	Vadim Pasternak <vadimp@nvidia.com>, Bjorn Andersson <andersson@kernel.org>, 
+	Mathieu Poirier <mathieu.poirier@linaro.org>, Cornelia Huck <cohuck@redhat.com>, 
+	Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-um@lists.infradead.org, 
+	platform-driver-x86@vger.kernel.org, linux-remoteproc@vger.kernel.org, 
+	linux-s390@vger.kernel.org, kvm@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+On Tue, Mar 12, 2024 at 10:10=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alibaba.=
+com> wrote:
+>
+> Now, we pass multi parameters to find_vqs. These parameters
+> may work for transport or work for vring.
+>
+> And find_vqs has multi implements in many places:
+>
+>  arch/um/drivers/virtio_uml.c
+>  drivers/platform/mellanox/mlxbf-tmfifo.c
+>  drivers/remoteproc/remoteproc_virtio.c
+>  drivers/s390/virtio/virtio_ccw.c
+>  drivers/virtio/virtio_mmio.c
+>  drivers/virtio/virtio_pci_legacy.c
+>  drivers/virtio/virtio_pci_modern.c
+>  drivers/virtio/virtio_vdpa.c
+>
+> Every time, we try to add a new parameter, that is difficult.
+> We must change every find_vqs implement.
+>
+> One the other side, if we want to pass a parameter to vring,
+> we must change the call path from transport to vring.
+> Too many functions need to be changed.
+>
+> So it is time to refactor the find_vqs. We pass a structure
+> cfg to find_vqs(), that will be passed to vring by transport.
+>
+> Because the vp_modern_create_avq() use the "const char *names[]",
+> and the virtio_uml.c changes the name in the subsequent commit, so
+> change the "names" inside the virtio_vq_config from "const char *const
+> *names" to "const char **names".
+>
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> Acked-by: Johannes Berg <johannes@sipsolutions.net>
+> Reviewed-by: Ilpo J=3DE4rvinen <ilpo.jarvinen@linux.intel.com>
 
+The name seems broken here.
 
-On 3/9/24 05:26, Hou Tao wrote:
-> Hi,
-> 
-> On 3/1/2024 9:42 PM, Miklos Szeredi wrote:
->> On Wed, 28 Feb 2024 at 15:40, Hou Tao <houtao@huaweicloud.com> wrote:
->>
->>> So instead of limiting both the values of max_read and max_write in
->>> kernel, capping the maximal length of kvec iter IO by using max_pages in
->>> fuse_direct_io() just like it does for ubuf/iovec iter IO. Now the max
->>> value for max_pages is 256, so on host with 4KB page size, the maximal
->>> size passed to kmalloc() in copy_args_to_argbuf() is about 1MB+40B. The
->>> allocation of 2MB of physically contiguous memory will still incur
->>> significant stress on the memory subsystem, but the warning is fixed.
->>> Additionally, the requirement for huge physically contiguous memory will
->>> be removed in the following patch.
->> So the issue will be fixed properly by following patches?
->>
->> In that case this patch could be omitted, right?
-> 
-> Sorry for the late reply. Being busy with off-site workshop these days.
-> 
-> No, this patch is still necessary and it is used to limit the number of
-> scatterlist used for fuse request and reply in virtio-fs. If the length
-> of out_args[0].size is not limited, the number of scatterlist used to
-> map the fuse request may be greater than the queue size of virtio-queue
-> and the fuse request may hang forever.
+[...]
 
-I'm currently also totally busy and didn't carefully check, but isn't
-there something missing that limits fc->max_write/fc->max_read?
+>
+>  typedef void vq_callback_t(struct virtqueue *);
+>
+> +/**
+> + * struct virtio_vq_config - configure for find_vqs()
+> + * @cfg_idx: Used by virtio core. The drivers should set this to 0.
+> + *     During the initialization of each vq(vring setup), we need to kno=
+w which
+> + *     item in the array should be used at that time. But since the item=
+ in
+> + *     names can be null, which causes some item of array to be skipped,=
+ we
+> + *     cannot use vq.index as the current id. So add a cfg_idx to let vr=
+ing
+> + *     know how to get the current configuration from the array when
+> + *     initializing vq.
 
+So this design is not good. If it is not something that the driver
+needs to care about, the core needs to hide it from the API.
 
-Thanks,
-Bernd
+Thanks
+
