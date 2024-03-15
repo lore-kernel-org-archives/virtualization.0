@@ -1,192 +1,70 @@
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0AD11B81D
-	for <virtualization@lists.linux.dev>; Fri, 15 Mar 2024 07:26:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBCE4168B9
+	for <virtualization@lists.linux.dev>; Fri, 15 Mar 2024 07:53:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710487576; cv=none; b=TceVuWlNeP5Ys96BREkyQIhCdbd6yFD5Fu3G+HHJ6JtyD6iOWGd2+Ze09t0T8wooCzNtNJ7iLJ/DENIcf+Jg+DOYp+/HYBUFPJfJPxFPuEL8EpmVovUCqc6Zsm8oeVAzBKiz9hbBHBnQJWoQ/iPEtr7cO2mwXkXPLZ+0L0R/7us=
+	t=1710489236; cv=none; b=f5ZfvMD6LWRDVcM35ZBHNoxhSdqRLwo512gE/w/gdqwdWlbaFU2tS1f8aKFkN97xk5bCjv04aIEMRsdG1srrpA0COt85n93Nf8KqDpPJ6S016apxxfWi8ufga6oGp57hgmJtnYV08Hjr+uKEn4B2UXVHLcuL5DaerFvICTU5sY0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710487576; c=relaxed/simple;
-	bh=IlnTwJkD/NFj9OhDdLChXyekLSfqZUNOjDd7FEHIIH8=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=nVHLAP2qdmg84yjlUBVvvUO5kJxlCoA8XLQ7pvmZ3qeAUqxnQg1PrMAbW/ONG7rKsOEUAAVg8MkoZ42w2XFeq9QzQD6TJWKtSx8skoO2hwFxHkUnB49MU13tOvtmFMPrFH7ObZjHk6mOKjB7f6+NnLAfQRSfQSdwTFaqt31w52k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=VaaPnwWI; arc=none smtp.client-ip=115.124.30.132
+	s=arc-20240116; t=1710489236; c=relaxed/simple;
+	bh=6FMRl6m8tBGLZaaAzsLem205PhnR/hBTd36NLkHi/Cw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=gBVtCe94FvJgOals7IT0pJ9YIXoI5tDdRFQArMtQAfyhHxowIsuPiETJX9kvh4UZAskWJ5XZ8gFFNckRrTdudu8S2mp9kxibt3QiI10s67mS0cczAbwv/hXEB2RH5PdyMWmkXnkOm3rAhRgqEQSPcAxZDU2sG+Xuzl4If4YLUCU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=pbcKQ7M4; arc=none smtp.client-ip=115.124.30.97
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="VaaPnwWI"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="pbcKQ7M4"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1710487571; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=wYXGZXsXkyY7qVA2NeuTlUtUzzuzmBM3vEFpfOr6Om4=;
-	b=VaaPnwWIJ7A23cs+15MCEIjhSA1ci5RFAfwD1ANzkX0QKhRY3tZ3pRyZB7W8PCosQn0c22eo1rVliomKdpBjveu5nMQ3yf/WvP8w6MIO56uc4p55Ci16Neuy/D7bT6iVl2dWBXrMrRe04m9M87uanqjfDgYngCi1TfTkY7sfDH8=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=24;SR=0;TI=SMTPD_---0W2VQGyQ_1710487569;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W2VQGyQ_1710487569)
+	t=1710489232; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=taaP0Q9u2K5DH9xLuWgNdAcyQdJAZ4Px6dOvD4Tr4Bc=;
+	b=pbcKQ7M4jCwCSvtI2xk3pF8GntnYk4TIAZGeeb3NM+WG2nE7z4rer+KGjBLCIET5B1V/l/Hw2TveqOfbPi2U9FQPyi1dHahd3/jgPT4l/avukSS3aB0Mxl1774J/INJq5yS1X46z2qKMBULqB/X/IluYSsLH6AZDuztkROA7zKw=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=xianting.tian@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0W2VZ4oX_1710489199;
+Received: from 30.221.98.145(mailfrom:xianting.tian@linux.alibaba.com fp:SMTPD_---0W2VZ4oX_1710489199)
           by smtp.aliyun-inc.com;
-          Fri, 15 Mar 2024 15:26:10 +0800
-Message-ID: <1710487245.6843069-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost v3 1/4] virtio: find_vqs: pass struct instead of multi parameters
-Date: Fri, 15 Mar 2024 15:20:45 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux.dev,
- Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- Hans de Goede <hdegoede@redhat.com>,
- =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- Vadim Pasternak <vadimp@nvidia.com>,
- Bjorn Andersson <andersson@kernel.org>,
- Mathieu Poirier <mathieu.poirier@linaro.org>,
- Cornelia Huck <cohuck@redhat.com>,
- Halil Pasic <pasic@linux.ibm.com>,
- Eric Farman <farman@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- "Michael S. Tsirkin" <mst@redhat.com>,
- linux-um@lists.infradead.org,
- platform-driver-x86@vger.kernel.org,
- linux-remoteproc@vger.kernel.org,
- linux-s390@vger.kernel.org,
- kvm@vger.kernel.org
-References: <20240312021013.88656-1-xuanzhuo@linux.alibaba.com>
- <20240312021013.88656-2-xuanzhuo@linux.alibaba.com>
- <CACGkMEvVgfgAxLoKeFTgy-1GR0W07ciPYFuqs6PiWtKCnXuWTw@mail.gmail.com>
- <1710395908.7915084-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEsT2JqJ1r_kStUzW0+-f+qT0C05n2A+Yrjpc-mHMZD_mQ@mail.gmail.com>
-In-Reply-To: <CACGkMEsT2JqJ1r_kStUzW0+-f+qT0C05n2A+Yrjpc-mHMZD_mQ@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+          Fri, 15 Mar 2024 15:53:48 +0800
+Message-ID: <e004b5d6-e74c-44a8-afaa-b6f4b993817d@linux.alibaba.com>
+Date: Fri, 15 Mar 2024 15:53:18 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] vhost: correct misleading printing information
+To: mst@redhat.com, jasowang@redhat.com
+Cc: kvm@vger.kernel.org, virtualization@lists.linux.dev,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20240311082109.46773-1-xianting.tian@linux.alibaba.com>
+From: Xianting Tian <xianting.tian@linux.alibaba.com>
+In-Reply-To: <20240311082109.46773-1-xianting.tian@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Fri, 15 Mar 2024 11:51:48 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Thu, Mar 14, 2024 at 2:00=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba=
-.com> wrote:
-> >
-> > On Thu, 14 Mar 2024 11:12:24 +0800, Jason Wang <jasowang@redhat.com> wr=
-ote:
-> > > On Tue, Mar 12, 2024 at 10:10=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.al=
-ibaba.com> wrote:
-> > > >
-> > > > Now, we pass multi parameters to find_vqs. These parameters
-> > > > may work for transport or work for vring.
-> > > >
-> > > > And find_vqs has multi implements in many places:
-> > > >
-> > > >  arch/um/drivers/virtio_uml.c
-> > > >  drivers/platform/mellanox/mlxbf-tmfifo.c
-> > > >  drivers/remoteproc/remoteproc_virtio.c
-> > > >  drivers/s390/virtio/virtio_ccw.c
-> > > >  drivers/virtio/virtio_mmio.c
-> > > >  drivers/virtio/virtio_pci_legacy.c
-> > > >  drivers/virtio/virtio_pci_modern.c
-> > > >  drivers/virtio/virtio_vdpa.c
-> > > >
-> > > > Every time, we try to add a new parameter, that is difficult.
-> > > > We must change every find_vqs implement.
-> > > >
-> > > > One the other side, if we want to pass a parameter to vring,
-> > > > we must change the call path from transport to vring.
-> > > > Too many functions need to be changed.
-> > > >
-> > > > So it is time to refactor the find_vqs. We pass a structure
-> > > > cfg to find_vqs(), that will be passed to vring by transport.
-> > > >
-> > > > Because the vp_modern_create_avq() use the "const char *names[]",
-> > > > and the virtio_uml.c changes the name in the subsequent commit, so
-> > > > change the "names" inside the virtio_vq_config from "const char *co=
-nst
-> > > > *names" to "const char **names".
-> > > >
-> > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > Acked-by: Johannes Berg <johannes@sipsolutions.net>
-> > > > Reviewed-by: Ilpo J=3DE4rvinen <ilpo.jarvinen@linux.intel.com>
-> > >
-> > > The name seems broken here.
-> >
-> > Email APP bug.
-> >
-> > I will fix.
-> >
-> >
-> > >
-> > > [...]
-> > >
-> > > >
-> > > >  typedef void vq_callback_t(struct virtqueue *);
-> > > >
-> > > > +/**
-> > > > + * struct virtio_vq_config - configure for find_vqs()
-> > > > + * @cfg_idx: Used by virtio core. The drivers should set this to 0.
-> > > > + *     During the initialization of each vq(vring setup), we need =
-to know which
-> > > > + *     item in the array should be used at that time. But since th=
-e item in
-> > > > + *     names can be null, which causes some item of array to be sk=
-ipped, we
-> > > > + *     cannot use vq.index as the current id. So add a cfg_idx to =
-let vring
-> > > > + *     know how to get the current configuration from the array wh=
-en
-> > > > + *     initializing vq.
-> > >
-> > > So this design is not good. If it is not something that the driver
-> > > needs to care about, the core needs to hide it from the API.
-> >
-> > The driver just ignore it. That will be beneficial to the virtio core.
-> > Otherwise, we must pass one more parameter everywhere.
+it is a very minor fix, I think it can be applied
+
+在 2024/3/11 下午4:21, Xianting Tian 写道:
+> Guest moved avail idx not used idx when we need to print log if
+> '(vq->avail_idx - last_avail_idx) > vq->num', so fix it.
 >
-> I don't get here, it's an internal logic and we've already done that.
-
-
-## Then these must add one param "cfg_idx";
-
- struct virtqueue *vring_create_virtqueue(struct virtio_device *vdev,
- 					 unsigned int index,
- 					 struct vq_transport_config *tp_cfg,
- 					 struct virtio_vq_config *cfg,
---> 					 uint cfg_idx);
-
- struct virtqueue *vring_new_virtqueue(struct virtio_device *vdev,
- 				      unsigned int index,
- 				      void *pages,
- 				      struct vq_transport_config *tp_cfg,
- 				      struct virtio_vq_config *cfg,
---> 					 uint cfg_idx);
-
-
-## The functions inside virtio_ring also need to add a new param, such as:
-
- static struct virtqueue *vring_create_virtqueue_split(struct virtio_device=
- *vdev,
-						      unsigned int index,
-						      struct vq_transport_config *tp_cfg,
-						      struct virtio_vq_config,
---> 					              uint cfg_idx);
-
-
-
-Thanks.
-
-
-
-
+> Signed-off-by: Xianting Tian <xianting.tian@linux.alibaba.com>
+> ---
+>   drivers/vhost/vhost.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> Thanks
->
-> >
-> > Thanks.
-> >
-> > >
-> > > Thanks
-> > >
-> >
->
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 045f666b4f12..1f3604c79394 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -2515,7 +2515,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+>   		vq->avail_idx = vhost16_to_cpu(vq, avail_idx);
+>   
+>   		if (unlikely((u16)(vq->avail_idx - last_avail_idx) > vq->num)) {
+> -			vq_err(vq, "Guest moved used index from %u to %u",
+> +			vq_err(vq, "Guest moved avail index from %u to %u",
+>   				last_avail_idx, vq->avail_idx);
+>   			return -EFAULT;
+>   		}
