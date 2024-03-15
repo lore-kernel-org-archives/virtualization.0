@@ -1,66 +1,65 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D885D502
-	for <virtualization@lists.linux-foundation.org>; Fri, 15 Mar 2024 01:24:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E2C579DE
+	for <virtualization@lists.linux-foundation.org>; Fri, 15 Mar 2024 01:46:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710465877; cv=none; b=MGUHcvFmxf25DuGj5Vv9F515llkj06BSRMnJ/DPvsqIq/R/GbHgAXYZszoxGh1jfKbE6KLGk9Az9FCzkJhr64pES7zp9K5lZO1is+BfXHST7h6pcq+lvKH5KcQ5xFG0ed1zs6FFBS3xyH96MN6chEf8bOtwPnr89MBSgbokiIKA=
+	t=1710467212; cv=none; b=XOpOpOYI2vBJzwotGd6ghueSpJCnptB20U+ix+ydM+DUu6uxxpa3F3ojW0cl1d52dr587juyzuDhpUvJTzdHJ+otsDaUvSCE6IXrzntszf8egrSB4AYzuJZYmfwJJ+H469rDibHFQ0EsuW5i6t7HabT1SGNpDMG0YhXKHVEDD50=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710465877; c=relaxed/simple;
-	bh=RINii3wGGnlUbE3ZLF3vQV3MCY+kCa38spzuhHObNjs=;
+	s=arc-20240116; t=1710467212; c=relaxed/simple;
+	bh=l81d10+lHaftFL1YK7CpbPytTHQnfGv0yfai+oBbApQ=;
 	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=XEeNG8t3R2BQStKuyo2L4MUMLdU9ZWg0hntwEyN4tbaganTTxjgPX8rXtGH77DJ+1lfFT4IopkxFw8IVLcHN2Ul1/HmGCCZnEp1kxJWmhbP9f0bZ0+/d3NB2RBikPCxtR6XQ0KzgJHJopGM8JtgX8P37BTEhrl/uzjODnaE+9Yo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=XreUmlMu; arc=none smtp.client-ip=140.211.166.137
+	 In-Reply-To:Content-Type; b=fDDc2GPxv/+RYYYOw9Pg///SQ7QpHMrO6ChzR9WNigwiADUxqDAkGtsELfwJ+tiPLrktGsL3as43RRin/kPsbp3buqznuE3Xui57Jrp0QGi8iESNNfIpRX9xkG49y3+2zWr/aMITmSd1UMnEQcTC789qx8xy+fjKzKfSzsvYalY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=WlKC9VW6; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="XreUmlMu"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="WlKC9VW6"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id D2B86400E7
-	for <virtualization@lists.linux-foundation.org>; Fri, 15 Mar 2024 01:24:35 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id DEE1282130
+	for <virtualization@lists.linux-foundation.org>; Fri, 15 Mar 2024 01:46:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -1.999
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 2OUpscSeCULz
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 2o-pUVG1_rIi
 	for <virtualization@lists.linux-foundation.org>;
-	Fri, 15 Mar 2024 01:24:35 +0000 (UTC)
-X-Greylist: delayed 428 seconds by postgrey-1.37 at util1.osuosl.org; Fri, 15 Mar 2024 01:24:34 UTC
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 4CE36400E5
-Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4CE36400E5
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=XreUmlMu
-Received-SPF: None (mailfrom) identity=mailfrom; client-ip=192.198.163.19; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 4CE36400E5
-	for <virtualization@lists.linux-foundation.org>; Fri, 15 Mar 2024 01:24:34 +0000 (UTC)
+	Fri, 15 Mar 2024 01:46:50 +0000 (UTC)
+Received-SPF: None (mailfrom) identity=mailfrom; client-ip=198.175.65.10; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org A871F81F83
+Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A871F81F83
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=WlKC9VW6
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id A871F81F83
+	for <virtualization@lists.linux-foundation.org>; Fri, 15 Mar 2024 01:46:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1710465874; x=1742001874;
+  t=1710467210; x=1742003210;
   h=message-id:date:mime-version:cc:subject:to:references:
    from:in-reply-to:content-transfer-encoding;
-  bh=RINii3wGGnlUbE3ZLF3vQV3MCY+kCa38spzuhHObNjs=;
-  b=XreUmlMuwONQcQCFYSHFmN2m8181gD4tB0x0+z9wUagMlQ5WNcJTqDBU
-   zUi1G+90pWN1tWRJQxdl/MyYs1JXI04pbHc95MmuLySRKR4Ftv8f7nvvF
-   WOFz4lyqoU8v1aAkQyH6gX+vSst0dqXlTmQfkNNTblAmYlVhmaiCI4Ckv
-   En780/w/IbPXmyUNkbpRnjMPmGIxxUm4TczL4LHe7uHmESZeL/Z1lOhJ6
-   Hy2Rtu0+67WErYZ4TPNVHXqSGGjQq8Q3jtsSbfCZr5gEh/fZ/el9zXqp/
-   3nDkZLfYkbN5GPgUmjd1DpQZEzfgX6dpcVXbQfZo/KhvkYx9q97XcvNhf
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,11013"; a="5175578"
+  bh=l81d10+lHaftFL1YK7CpbPytTHQnfGv0yfai+oBbApQ=;
+  b=WlKC9VW6c05ZzS8omKJwgGuiJ4C5W44D3M4XUXmzXhadsvRETHi68vpG
+   bc59GYcw7Hor4YHyjRWl9+vBDCxqQCHujXrdomETItJdsFVxR66B80HwM
+   ISutgIBQBP7Euw26xYZVfq0brVf8ssA+XXOuzjy31GbDd3tUEYaNeMMNq
+   iHv3vxFY0SyoE3d3SSqNhcTTAbb8rlmT3RrATQfLuRVW2sal0cJ7E47lh
+   RjLkcrV+yAssL8XkmR4Mr7IfJ7WdYxa6BE9TzJJil7OSScECgSx/OJdsc
+   f8J5KGDO/lea2QOjMeWzQvreGaFvOgqDJ7nJ96GiolWB9cAV2qwUn1IS6
+   A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,11013"; a="22780098"
 X-IronPort-AV: E=Sophos;i="6.07,127,1708416000"; 
-   d="scan'208";a="5175578"
-Received: from orviesa007.jf.intel.com ([10.64.159.147])
-  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Mar 2024 18:17:25 -0700
+   d="scan'208";a="22780098"
+Received: from orviesa010.jf.intel.com ([10.64.159.150])
+  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Mar 2024 18:46:48 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.07,127,1708416000"; 
-   d="scan'208";a="12947095"
+   d="scan'208";a="12412987"
 Received: from allen-box.sh.intel.com (HELO [10.239.159.127]) ([10.239.159.127])
-  by orviesa007.jf.intel.com with ESMTP; 14 Mar 2024 18:17:21 -0700
-Message-ID: <7a6ac83b-3165-4abe-91be-a58f69656f8a@linux.intel.com>
-Date: Fri, 15 Mar 2024 09:16:43 +0800
+  by orviesa010.jf.intel.com with ESMTP; 14 Mar 2024 18:46:45 -0700
+Message-ID: <e66064d7-c384-4f14-9459-ea21809b51b5@linux.intel.com>
+Date: Fri, 15 Mar 2024 09:46:06 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -76,66 +75,300 @@ Cc: baolu.lu@linux.intel.com, Kevin Tian <kevin.tian@intel.com>,
  Jacob Pan <jacob.jun.pan@linux.intel.com>,
  Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
  virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 5/8] iommufd: Associate fault object with
- iommufd_hw_pgtable
+Subject: Re: [PATCH v3 4/8] iommufd: Add iommufd fault object
+Content-Language: en-US
 To: Jason Gunthorpe <jgg@ziepe.ca>
 References: <20240122073903.24406-1-baolu.lu@linux.intel.com>
- <20240122073903.24406-6-baolu.lu@linux.intel.com>
- <20240308190539.GY9225@ziepe.ca>
-Content-Language: en-US
+ <20240122073903.24406-5-baolu.lu@linux.intel.com>
+ <20240308180332.GX9225@ziepe.ca>
 From: Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <20240308190539.GY9225@ziepe.ca>
+In-Reply-To: <20240308180332.GX9225@ziepe.ca>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 3/9/24 3:05 AM, Jason Gunthorpe wrote:
-> On Mon, Jan 22, 2024 at 03:39:00PM +0800, Lu Baolu wrote:
-> 
->> @@ -411,6 +414,8 @@ enum iommu_hwpt_data_type {
->>    * @__reserved: Must be 0
->>    * @data_type: One of enum iommu_hwpt_data_type
->>    * @data_len: Length of the type specific data
->> + * @fault_id: The ID of IOMMUFD_FAULT object. Valid only if flags field of
->> + *            IOMMU_HWPT_FAULT_ID_VALID is set.
->>    * @data_uptr: User pointer to the type specific data
->>    *
->>    * Explicitly allocate a hardware page table object. This is the same object
->> @@ -441,6 +446,7 @@ struct iommu_hwpt_alloc {
->>   	__u32 __reserved;
->>   	__u32 data_type;
->>   	__u32 data_len;
->> +	__u32 fault_id;
->>   	__aligned_u64 data_uptr;
->>   };
-> 
-> ?? We can't add fault_id in the middle of the struct??
-
-Yes. I should add the new field at the end.
-
-By the way, with a __u32 added, this data structure is not 64-byte-
-aligned anymore. Do we need to add another unused u32 entry, or just let
-the compiler handle it?
-
-> 
->> +	if (cmd->flags & IOMMU_HWPT_FAULT_ID_VALID) {
->> +		struct iommufd_fault *fault;
+On 3/9/24 2:03 AM, Jason Gunthorpe wrote:
+> On Mon, Jan 22, 2024 at 03:38:59PM +0800, Lu Baolu wrote:
+>> --- /dev/null
+>> +++ b/drivers/iommu/iommufd/fault.c
+>> @@ -0,0 +1,255 @@
+>> +// SPDX-License-Identifier: GPL-2.0-only
+>> +/* Copyright (C) 2024 Intel Corporation
+>> + */
+>> +#define pr_fmt(fmt) "iommufd: " fmt
 >> +
->> +		fault = iommufd_get_fault(ucmd, cmd->fault_id);
->> +		if (IS_ERR(fault)) {
->> +			rc = PTR_ERR(fault);
->> +			goto out_hwpt;
->> +		}
->> +		hwpt->fault = fault;
->> +		hwpt->domain->iopf_handler = iommufd_fault_iopf_handler;
->> +		hwpt->domain->fault_data = hwpt;
->> +		hwpt->fault_capable = true;
+>> +#include <linux/file.h>
+>> +#include <linux/fs.h>
+>> +#include <linux/module.h>
+>> +#include <linux/mutex.h>
+>> +#include <linux/iommufd.h>
+>> +#include <linux/poll.h>
+>> +#include <linux/anon_inodes.h>
+>> +#include <uapi/linux/iommufd.h>
+>> +
+>> +#include "iommufd_private.h"
+>> +
+>> +static int device_add_fault(struct iopf_group *group)
+>> +{
+>> +	struct iommufd_device *idev = group->cookie->private;
+>> +	void *curr;
+>> +
+>> +	curr = xa_cmpxchg(&idev->faults, group->last_fault.fault.prm.grpid,
+>> +			  NULL, group, GFP_KERNEL);
+>> +
+>> +	return curr ? xa_err(curr) : 0;
+>> +}
+>> +
+>> +static void device_remove_fault(struct iopf_group *group)
+>> +{
+>> +	struct iommufd_device *idev = group->cookie->private;
+>> +
+>> +	xa_store(&idev->faults, group->last_fault.fault.prm.grpid,
+>> +		 NULL, GFP_KERNEL);
 > 
-> I wonder if there should be an iommu API to make a domain fault
-> capable?
+> xa_erase ?
 
-The iommu core identifies a fault-capable domain by checking its
-domain->iopf_handler. Anyway, what's the difference between a fault or
-non-fault capable domain from iommu core's point of view?
+Yes. Sure.
+
+> Is grpid OK to use this way? Doesn't it come from the originating
+> device?
+
+The group ID is generated by the hardware. Here, we use it as an index
+in the fault array to ensure it can be quickly retrieved in the page
+fault response path.
+
+>> +void iommufd_fault_destroy(struct iommufd_object *obj)
+>> +{
+>> +	struct iommufd_fault *fault = container_of(obj, struct iommufd_fault, obj);
+>> +	struct iopf_group *group, *next;
+>> +
+>> +	mutex_lock(&fault->mutex);
+>> +	list_for_each_entry_safe(group, next, &fault->deliver, node) {
+>> +		list_del(&group->node);
+>> +		iopf_group_response(group, IOMMU_PAGE_RESP_INVALID);
+>> +		iopf_free_group(group);
+>> +	}
+>> +	list_for_each_entry_safe(group, next, &fault->response, node) {
+>> +		list_del(&group->node);
+>> +		device_remove_fault(group);
+>> +		iopf_group_response(group, IOMMU_PAGE_RESP_INVALID);
+>> +		iopf_free_group(group);
+>> +	}
+>> +	mutex_unlock(&fault->mutex);
+>> +
+>> +	mutex_destroy(&fault->mutex);
+> 
+> It is really weird to lock a mutex we are about to destroy? At this
+> point the refcount on the iommufd_object is zero so there had better
+> not be any other threads with access to this pointer!
+
+You are right. I will remove the lock/unlock and add a comment instead.
+
+> 
+>> +static ssize_t iommufd_fault_fops_read(struct file *filep, char __user *buf,
+>> +				       size_t count, loff_t *ppos)
+>> +{
+>> +	size_t fault_size = sizeof(struct iommu_hwpt_pgfault);
+>> +	struct iommufd_fault *fault = filep->private_data;
+>> +	struct iommu_hwpt_pgfault data;
+>> +	struct iommufd_device *idev;
+>> +	struct iopf_group *group;
+>> +	struct iopf_fault *iopf;
+>> +	size_t done = 0;
+>> +	int rc;
+>> +
+>> +	if (*ppos || count % fault_size)
+>> +		return -ESPIPE;
+>> +
+>> +	mutex_lock(&fault->mutex);
+>> +	while (!list_empty(&fault->deliver) && count > done) {
+>> +		group = list_first_entry(&fault->deliver,
+>> +					 struct iopf_group, node);
+>> +
+>> +		if (list_count_nodes(&group->faults) * fault_size > count - done)
+>> +			break;
+>> +
+>> +		idev = (struct iommufd_device *)group->cookie->private;
+>> +		list_for_each_entry(iopf, &group->faults, list) {
+>> +			iommufd_compose_fault_message(&iopf->fault, &data, idev);
+>> +			rc = copy_to_user(buf + done, &data, fault_size);
+>> +			if (rc)
+>> +				goto err_unlock;
+>> +			done += fault_size;
+>> +		}
+>> +
+>> +		rc = device_add_fault(group);
+> 
+> See I wonder if this should be some xa_alloc or something instead of
+> trying to use the grpid?
+
+So this magic number will be passed to user space in the fault message.
+And the user will then include this number in its response message. The
+response message is valid only when the magic number matches. Do I get
+you correctly?
+
+> 
+>> +	while (!list_empty(&fault->response) && count > done) {
+>> +		rc = copy_from_user(&response, buf + done, response_size);
+>> +		if (rc)
+>> +			break;
+>> +
+>> +		idev = container_of(iommufd_get_object(fault->ictx,
+>> +						       response.dev_id,
+>> +						       IOMMUFD_OBJ_DEVICE),
+>> +				    struct iommufd_device, obj);
+> 
+> It seems unfortunate we do this lookup for every iteration of the loop,
+> I would lift it up and cache it..
+
+Okay.
+
+> 
+>> +		if (IS_ERR(idev))
+>> +			break;
+>> +
+>> +		group = device_get_fault(idev, response.grpid);
+> 
+> This looks locked wrong, it should hold the fault mutex here and we
+> should probably do xchng to zero it at the same time we fetch it.
+
+Okay, will fix it.
+
+> 
+>> +		if (!group ||
+>> +		    response.addr != group->last_fault.fault.prm.addr ||
+>> +		    ((group->last_fault.fault.prm.flags & IOMMU_FAULT_PAGE_REQUEST_PASID_VALID) &&
+>> +		      response.pasid != group->last_fault.fault.prm.pasid)) {
+> 
+> Why? If grpid is unique then just trust it.
+
+I was just considering that we should add some sanity check here to
+ensure the response message is composed in the right way.
+
+> 
+>> +			iommufd_put_object(fault->ictx, &idev->obj);
+>> +			break;
+>> +		}
+>> +
+>> +		iopf_group_response(group, response.code);
+>> +
+>> +		mutex_lock(&fault->mutex);
+>> +		list_del(&group->node);
+>> +		mutex_unlock(&fault->mutex);
+>> +
+>> +		device_remove_fault(group);
+>> +		iopf_free_group(group);
+>> +		done += response_size;
+>> +
+>> +		iommufd_put_object(fault->ictx, &idev->obj);
+>> +	}
+>> +
+>> +	return done;
+>> +}
+>> +
+>> +static __poll_t iommufd_fault_fops_poll(struct file *filep,
+>> +					struct poll_table_struct *wait)
+>> +{
+>> +	struct iommufd_fault *fault = filep->private_data;
+>> +	__poll_t pollflags = 0;
+>> +
+>> +	poll_wait(filep, &fault->wait_queue, wait);
+>> +	mutex_lock(&fault->mutex);
+>> +	if (!list_empty(&fault->deliver))
+>> +		pollflags = EPOLLIN | EPOLLRDNORM;
+>> +	mutex_unlock(&fault->mutex);
+>> +
+>> +	return pollflags;
+>> +}
+>> +
+>> +static const struct file_operations iommufd_fault_fops = {
+>> +	.owner		= THIS_MODULE,
+>> +	.open		= nonseekable_open,
+>> +	.read		= iommufd_fault_fops_read,
+>> +	.write		= iommufd_fault_fops_write,
+>> +	.poll		= iommufd_fault_fops_poll,
+>> +	.llseek		= no_llseek,
+>> +};
+> 
+> No release? That seems wrong..
+
+Yes. Will fix it.
+
+> 
+>> +static int get_fault_fd(struct iommufd_fault *fault)
+>> +{
+>> +	struct file *filep;
+>> +	int fdno;
+>> +
+>> +	fdno = get_unused_fd_flags(O_CLOEXEC);
+>> +	if (fdno < 0)
+>> +		return fdno;
+>> +
+>> +	filep = anon_inode_getfile("[iommufd-pgfault]", &iommufd_fault_fops,
+>> +				   fault, O_RDWR);
+>                                     ^^^^^^
+> 
+> See here you stick the iommufd_object into the FD but we don't
+> refcount it...
+> 
+> And iommufd_fault_destroy() doesn't do anything about this, so it just
+> UAFs the fault memory in the FD.
+> 
+> You need to refcount the iommufd_object here and add a release
+> function for the fd to put it back
+> 
+> *and* this FD needs to take a reference on the base iommufd_ctx fd too
+> as we can't tolerate them being destroyed out of sequence.
+
+Good catch. I will fix it.
+
+> 
+>> +int iommufd_fault_alloc(struct iommufd_ucmd *ucmd)
+>> +{
+>> +	struct iommu_fault_alloc *cmd = ucmd->cmd;
+>> +	struct iommufd_fault *fault;
+>> +	int rc;
+>> +
+>> +	if (cmd->flags)
+>> +		return -EOPNOTSUPP;
+>> +
+>> +	fault = iommufd_object_alloc(ucmd->ictx, fault, IOMMUFD_OBJ_FAULT);
+>> +	if (IS_ERR(fault))
+>> +		return PTR_ERR(fault);
+>> +
+>> +	fault->ictx = ucmd->ictx;
+>> +	INIT_LIST_HEAD(&fault->deliver);
+>> +	INIT_LIST_HEAD(&fault->response);
+>> +	mutex_init(&fault->mutex);
+>> +	init_waitqueue_head(&fault->wait_queue);
+>> +
+>> +	rc = get_fault_fd(fault);
+>> +	if (rc < 0)
+>> +		goto out_abort;
+> 
+> And this is ordered wrong, fd_install has to happen after return to
+> user space is guarenteed as it cannot be undone.
+> 
+>> +	cmd->out_fault_id = fault->obj.id;
+>> +	cmd->out_fault_fd = rc;
+>> +
+>> +	rc = iommufd_ucmd_respond(ucmd, sizeof(*cmd));
+>> +	if (rc)
+>> +		goto out_abort;
+>> +	iommufd_object_finalize(ucmd->ictx, &fault->obj);
+> 
+> fd_install() goes here
+
+Yes. Sure.
+
+> 
+>> +	return 0;
+>> +out_abort:
+>> +	iommufd_object_abort_and_destroy(ucmd->ictx, &fault->obj);
+>> +
+>> +	return rc;
+>> +}
+> 
+> Jason
 
 Best regards,
 baolu
