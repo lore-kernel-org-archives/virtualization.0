@@ -1,159 +1,174 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF6FE199B0
-	for <virtualization@lists.linux.dev>; Fri, 15 Mar 2024 11:08:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EB5E1AADF
+	for <virtualization@lists.linux.dev>; Fri, 15 Mar 2024 11:24:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710500883; cv=none; b=d2ZgLb4cTT0mGGhtz4IvmkaUR8a0W/+0I2KZ3Pje7ngRZPx8A7R8pibkoRISjtLtqC8zGv/9AUgq11mgwbBxjvLbjpWTLxtVLGvo/ovJYCs7ALs/wDB/3aFxYm21ev2YHgzLNVCawbp1iXu5WF9+IG4zVR+EkDH4xdYBsa7UHsk=
+	t=1710501889; cv=none; b=aa5y3c7VKYeWCu0B8VeMPi8maQ9QRsLcfAQf64aA05sEsaAdKx5HuDNS7Ac3FtWH6axnmD12k8gTHGmuyEWnq9TbJft9J1QnpGQ/2S7xrs2rLwJMZwEgHo6zQ+/3Jy7+gWimipQDiU9i2rOX0W+yLFVm0nqP6bHLl+RzylF81nQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710500883; c=relaxed/simple;
-	bh=c4wYEZog0PRJdHImcM2djdT+hyrOHIVSPdATKeYj3MA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=DuFpFD4FJR7k9wOkCRln6xhiJr8NyQBh0Vl5RLgWMUnQEpmSGZn1k5efdpjplkuoMfJo/Hq/nLJ/fO1KUM/Wf3S/+GfP2jV4RvbZ0RVmpCZxj5BpSldFE2E7KpHzXIspIGxahgLt7zqc7uF+ePmT1ONSvJRHMWBCakAtcOVZEIA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RmCGZqta; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1710501889; c=relaxed/simple;
+	bh=Fw3gXm5GXjZxZ4JPw0DW5hTXqGv9wxu9zz3x6N9pKEE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=GxcK6xszGJexCmoYpOKxgSjBgyBCqGbPRy0Y1AtOEM1OasEoqvqYmx7cKkW62j3X8QWBzjv5FLmMQ7Qf/OZ9EbWn0Mt+sRV7cTXGvwAdlMog1eMNE5FbsHvc4Ffm8E3EN0IiEhSFHWp4NQKJ5iN5Q4qcu4J7ji3Um2XfZtGLc5A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LqE8+0Fn; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RmCGZqta"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LqE8+0Fn"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1710500880;
+	s=mimecast20190719; t=1710501886;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=i6UwHobYGHdZn3NTbBWvSTPbK7asvqgJeqq7UigoLXg=;
-	b=RmCGZqtabr0HuOAH7WbfzjggtlX8C8meC9F1/7Ogzj6IEs8QI3NcNkR+vLrRSSvXI+WJls
-	SfZLd3MZ6O0u/+DvZEaI2eUBYwiGbixXhXGtnbu1Rt77oTZanPYPnssD5vF94VvUFJDo38
-	3xuoCX6si6RZwgXmRq9A/P7gtueRo+8=
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
- [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=E5BzWgrmdgiGxq+PlZflG+BHDXAH3VOatC+yV3V4Mnk=;
+	b=LqE8+0FnLPIGae3x7zI0v1EJ5WswsvKPs2OGxi806Lqlja5I/TrEOdP5rXS+ZDGSFqeXRD
+	XM/Bc3vhXSwEDLjnfv6aDH1epGTCt3zkQcl5w2Ay3d3to982743x8KuRlLTHy//BSbQ8U/
+	7glDbPOhGBkEq4Ri8hA6DbIpr0HEuTs=
+Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
+ [209.85.210.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-400-OTkyTVGuOByQei1OLWWneg-1; Fri, 15 Mar 2024 07:07:59 -0400
-X-MC-Unique: OTkyTVGuOByQei1OLWWneg-1
-Received: by mail-lf1-f69.google.com with SMTP id 2adb3069b0e04-513c9f60a60so1931425e87.3
-        for <virtualization@lists.linux.dev>; Fri, 15 Mar 2024 04:07:59 -0700 (PDT)
+ us-mta-607-9KkpW20WNUa4njpO2YHn2Q-1; Fri, 15 Mar 2024 07:24:45 -0400
+X-MC-Unique: 9KkpW20WNUa4njpO2YHn2Q-1
+Received: by mail-pf1-f198.google.com with SMTP id d2e1a72fcca58-6e68be494d2so1359438b3a.2
+        for <virtualization@lists.linux.dev>; Fri, 15 Mar 2024 04:24:44 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710500877; x=1711105677;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=i6UwHobYGHdZn3NTbBWvSTPbK7asvqgJeqq7UigoLXg=;
-        b=FeiELnUDfnwk0LdDM2K8V8jDsGf6D3ZPfQ1K0ezc9bEUWDUvX1Gwv4npIrDrZua1AH
-         sGrX/h7mvUnurrA+uuyoqn0ekcneKFcyPT7lZOCsviMHnIOoRp9rsWX7abqkMCYOXLOz
-         gy9A1KxUhn6Wu7hzXwrbZmw0eYHZxcp5Rqoc5ooCWMUNBkf85112pt0+Udq9LfS3kGvD
-         Ngy/SdGOCJK5XyIlmS4gNSpAR3KcbDM5/+qBFXdH5ADpOPum1uQbbWflCeW3Dgh0SjvS
-         eNJImJPiEX5deCLyN7OhLDvewetViD7IRZOZTXNnfGyeCZTKKx8BZOGMvxzgRj7YwYfG
-         evkg==
-X-Forwarded-Encrypted: i=1; AJvYcCW3mXtK0v4WkUat/BEngiphk7gD5t8V5+IB8xbsUsynSCusKaV7snRe6O0cvI9Laq1lzat/Pu6v3ZNISpK2LOu9pRkZPqsG/E2kWY58YK4=
-X-Gm-Message-State: AOJu0YzdsGaIEkyvtR1DNpFrSaTk16VG8njP4ZfE5VBByRFSSO+FRXyS
-	Rm6BDJVvLorrXl2pjP1ZzCozjxIcCkZ+Tgi84Gq77XIyCCzFZnCpLiHCHHsN0BQ0KED1sblOYct
-	9g018nypWXsYlMWGjbO+GHmb4o8Srd5nnukwJkPYAuaBYwIH5p8oRRC7LUHKj4UXG2kghrcAw
-X-Received: by 2002:a19:644e:0:b0:512:c8f0:1954 with SMTP id b14-20020a19644e000000b00512c8f01954mr2982726lfj.0.1710500876817;
-        Fri, 15 Mar 2024 04:07:56 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGhJKkwhy+bsmkfKleXijIj/MlY0bxu7Yj1iuhmf7e6R7u0XC2hvAuYIjMdXb55v3fiyOFfJQ==
-X-Received: by 2002:a19:644e:0:b0:512:c8f0:1954 with SMTP id b14-20020a19644e000000b00512c8f01954mr2982706lfj.0.1710500876284;
-        Fri, 15 Mar 2024 04:07:56 -0700 (PDT)
-Received: from redhat.com ([2a02:14f:176:3a04:e2ee:42e3:ba74:3b8e])
-        by smtp.gmail.com with ESMTPSA id fb4-20020a05600c520400b004132901d73asm5376699wmb.46.2024.03.15.04.07.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 Mar 2024 04:07:55 -0700 (PDT)
-Date: Fri, 15 Mar 2024 07:07:52 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: "gavin.liu" <gavin.liu@jaguarmicro.com>
-Cc: jasowang@redhat.com, xuanzhuo@linux.alibaba.com, pbonzini@redhat.com,
-	stefanha@redhat.com, virtualization@lists.linux.dev,
-	angus.chen@jaguarmicro.com, yuxue.liu@jaguarmicro.com
-Subject: Re: [PATCH] virtio_config: add device ready status check
-Message-ID: <20240315070641-mutt-send-email-mst@kernel.org>
-References: <20240315103125.1817-1-gavin.liu@jaguarmicro.com>
+        d=1e100.net; s=20230601; t=1710501884; x=1711106684;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=E5BzWgrmdgiGxq+PlZflG+BHDXAH3VOatC+yV3V4Mnk=;
+        b=psb/kURrhVEBNGRbZQR6Zf1i738inc0wgquhWgu3LjjkHOf9QcdG2cwLmGFi8vnba1
+         RIIXTVMQeYUEO7l5clPIW15qNPOvFBZEP+CcAfq1af1tsk1nhD45ASTBziBaNwRdZeVV
+         6DR25bXLSO+jG87VgdI4NM8Nw1ICNnS4woKXAwkE5OFN5/4yufu5OFANR8T2GheieVlf
+         /7oJ7QVJSgNy6slQlc897OY2C7CdJyVgYT2YNdCSrCjauIGmnP+eLi7ClVWvjPGWVj8i
+         jKswyNOtXRdHvLIqp0MVrqKuf/SrboW29hAKiHECfNqpepNi7o7xO33QGH8ob0SFHpVD
+         LwbQ==
+X-Gm-Message-State: AOJu0YzeImALVTJuadaG+wJUhSttbghE3xUh1Xp2nCMb3BjiHPJQYlYz
+	MbfL0OTVIwvNmCERNWGTamOndgYPWTbbgwa2ClU8X23qHtHrTOvKBo/l74bWP26R41YOcEuQCjM
+	wy9WkIdajQbb0thBk0jQjjXFZQ9u+QP5r4xdvN2KaEoeVRhe2OSD08oEhDEDfOa6t
+X-Received: by 2002:a05:6a00:b96:b0:6e3:b1b3:139f with SMTP id g22-20020a056a000b9600b006e3b1b3139fmr3397438pfj.17.1710501883981;
+        Fri, 15 Mar 2024 04:24:43 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFv6UByGgC+juEfECmFf0FkqYVVrr5jER7l/udV8Oy/Bm8qarOlLsSpAREhnDHVoTzcBzZzsg==
+X-Received: by 2002:a05:6a00:b96:b0:6e3:b1b3:139f with SMTP id g22-20020a056a000b9600b006e3b1b3139fmr3397425pfj.17.1710501883695;
+        Fri, 15 Mar 2024 04:24:43 -0700 (PDT)
+Received: from [192.168.68.51] ([43.252.115.31])
+        by smtp.gmail.com with ESMTPSA id kt2-20020a056a004ba200b006e6233563cesm3131483pfb.218.2024.03.15.04.24.39
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 15 Mar 2024 04:24:43 -0700 (PDT)
+Message-ID: <66e12633-b2d6-4b9a-9103-bb79770fcafa@redhat.com>
+Date: Fri, 15 Mar 2024 21:24:36 +1000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240315103125.1817-1-gavin.liu@jaguarmicro.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] virtio_ring: Fix the stale index in available ring
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+ jasowang@redhat.com, xuanzhuo@linux.alibaba.com, yihyu@redhat.com,
+ shan.gavin@gmail.com, Will Deacon <will@kernel.org>,
+ Catalin Marinas <catalin.marinas@arm.com>,
+ linux-arm-kernel@lists.infradead.org, mochs@nvidia.com
+References: <20240314074923.426688-1-gshan@redhat.com>
+ <20240314040443-mutt-send-email-mst@kernel.org>
+ <9b148de7-b687-4d10-b177-5608b8dc7046@redhat.com>
+ <20240314074216-mutt-send-email-mst@kernel.org>
+ <23dc6d00-6a57-4ddf-8611-f3c6f6a8e43c@redhat.com>
+ <20240314085630-mutt-send-email-mst@kernel.org>
+ <63002c24-8117-458f-84c7-fa4f7acd8cc6@redhat.com>
+ <20240315065318-mutt-send-email-mst@kernel.org>
+From: Gavin Shan <gshan@redhat.com>
+In-Reply-To: <20240315065318-mutt-send-email-mst@kernel.org>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Fri, Mar 15, 2024 at 06:31:25PM +0800, gavin.liu wrote:
-> From: Yuxue Liu <yuxue.liu@jaguarmicro.com>
+
+On 3/15/24 21:05, Michael S. Tsirkin wrote:
+> On Fri, Mar 15, 2024 at 08:45:10PM +1000, Gavin Shan wrote:
+>>>> Yes, I guess smp_wmb() ('dmb') is buggy on NVidia's grace-hopper platform. I tried
+>> to reproduce it with my own driver where one thread writes to the shared buffer
+>> and another thread reads from the buffer. I don't hit the out-of-order issue so
+>> far.
 > 
-> Under the VDPA framework, when the VDPA driver of a device sets the status
-> to DRIVER OK,success is not guaranteed. The virtio driver should provide
-> some protection or notification.
+> Make sure the 2 areas you are accessing are in different cache lines.
 > 
-> Signed-off-by: Yuxue Liu <yuxue.liu@jaguarmicro.com>
+
+Yes, I already put those 2 areas to separate cache lines.
+
+> 
+>> My driver may be not correct somewhere and I will update if I can reproduce
+>> the issue with my driver in the future.
+> 
+> Then maybe your change is just making virtio slower and masks the bug
+> that is actually elsewhere?
+> 
+> You don't really need a driver. Here's a simple test: without barriers
+> assertion will fail. With barriers it will not.
+> (Warning: didn't bother testing too much, could be buggy.
+> 
 > ---
->  drivers/block/virtio_blk.c    |  4 +++-
->  drivers/net/virtio_net.c      |  7 ++++++-
->  include/linux/virtio_config.h | 14 ++++++++++++++
->  3 files changed, 23 insertions(+), 2 deletions(-)
+> 
+> #include <pthread.h>
+> #include <stdio.h>
+> #include <stdlib.h>
+> #include <assert.h>
+> 
+> #define FIRST values[0]
+> #define SECOND values[64]
+> 
+> volatile int values[100] = {};
+> 
+> void* writer_thread(void* arg) {
+> 	while (1) {
+> 	FIRST++;
+> 	// NEED smp_wmb here
+         __asm__ volatile("dmb ishst" : : : "memory");
+> 	SECOND++;
+> 	}
+> }
+> 
+> void* reader_thread(void* arg) {
+>      while (1) {
+> 	int first = FIRST;
+> 	// NEED smp_rmb here
+         __asm__ volatile("dmb ishld" : : : "memory");
+> 	int second = SECOND;
+> 	assert(first - second == 1 || first - second == 0);
+>      }
+> }
+> 
+> int main() {
+>      pthread_t writer, reader;
+> 
+>      pthread_create(&writer, NULL, writer_thread, NULL);
+>      pthread_create(&reader, NULL, reader_thread, NULL);
+> 
+>      pthread_join(writer, NULL);
+>      pthread_join(reader, NULL);
+> 
+>      return 0;
+> }
+> 
 
+Had a quick test on NVidia's grace-hopper and Ampere's CPUs. I hit
+the assert on both of them. After replacing 'dmb' with 'dsb', I can
+hit assert on both of them too. I need to look at the code closely.
 
-And then what we are expected to change all drivers for this hack to
-work? Suggest you instead have vdpa set broken flag and be done with it.
+[root@virt-mtcollins-02 test]# ./a
+a: a.c:26: reader_thread: Assertion `first - second == 1 || first - second == 0' failed.
+Aborted (core dumped)
 
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 42dea7601d87..14cabf662705 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -1535,7 +1535,9 @@ static int virtblk_probe(struct virtio_device *vdev)
->  		set_disk_ro(vblk->disk, 1);
->  
->  	virtblk_update_capacity(vblk, false);
-> -	virtio_device_ready(vdev);
-> +	err = virtio_device_ready_safe(vdev);
-> +	if (err)
-> +		goto out_cleanup_disk;
->  
->  	/*
->  	 * All steps that follow use the VQs therefore they need to be
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index d7ce4a1011ea..0431fc9095ae 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -4808,7 +4808,12 @@ static int virtnet_probe(struct virtio_device *vdev)
->  		goto free_failover;
->  	}
->  
-> -	virtio_device_ready(vdev);
-> +	err = virtio_device_ready_safe(vdev);
-> +	if (err) {
-> +		pr_debug("virtio_net: setting device ready failed\n");
-> +		rtnl_unlock();
-> +		goto free_unregister_netdev;
-> +	}
->  
->  	_virtnet_set_queues(vi, vi->curr_queue_pairs);
->  
-> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> index da9b271b54db..de4e864952ef 100644
-> --- a/include/linux/virtio_config.h
-> +++ b/include/linux/virtio_config.h
-> @@ -301,6 +301,20 @@ void virtio_device_ready(struct virtio_device *dev)
->  	dev->config->set_status(dev, status | VIRTIO_CONFIG_S_DRIVER_OK);
->  }
->  
-> +static inline
-> +int virtio_device_ready_safe(struct virtio_device *dev)
-> +{
-> +	u8 status;
-> +
-> +	virtio_device_ready(dev);
-> +	status = dev->config->get_status(dev);
-> +	if (!(status & VIRTIO_CONFIG_S_DRIVER_OK)) {
-> +		WARN_ON(1);
-> +		return -EINVAL;
-> +	}
-> +	return 0;
-> +}
-> +
->  static inline
->  const char *virtio_bus_name(struct virtio_device *vdev)
->  {
-> -- 
-> 2.43.0
+[root@nvidia-grace-hopper-05 test]# ./a
+a: a.c:26: reader_thread: Assertion `first - second == 1 || first - second == 0' failed.
+Aborted (core dumped)
+
+Thanks,
+Gavin
 
