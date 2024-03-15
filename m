@@ -1,32 +1,32 @@
-Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
+Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7A7E14AB8
-	for <virtualization@lists.linux.dev>; Fri, 15 Mar 2024 08:11:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 501F317BA6
+	for <virtualization@lists.linux.dev>; Fri, 15 Mar 2024 08:20:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710490271; cv=none; b=LBu26/jsUGr7ZwCj/uAIDv7LABXeCJoVm/hmCxwUzd8zEhTPQiO7P9z7ocQipm1i2KdyPz4Ft0qj87dUYkSjo5up/5uPFCj9Cpi1aP6Ei/5vo2mxd/MjuxHxGEkpBCHGgikXIG8nUq0YYFer5fBw+CraxJVMMoXrugba11K8oo0=
+	t=1710490831; cv=none; b=CYIOQ2VwmIh57+ItJwi9SrHxDV3DoaHeKGEXj3Y5UPFV5KEp3GlA02qq9Zhax/70FM6uy146g0NS403SX2aMLZ06RRKmpFxlFl7OTKNuMsHbMvNtplpjSqGs5Lnt8phxHg7uY6Kx2mDq6Dag0Aa7Upft/3X6T6wJxFdPP1jrkCk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710490271; c=relaxed/simple;
-	bh=DRkkmD/QbTHhutIxMrgokTp3CCqI7QaR/h8T7hy55is=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=RDYXSeDJKww+rBmo6w9q3AdjBH/nXE68Irvp5x3W2BOuyXqye0Cqm18V9jN4To+2DkzjBax+aLSQ9L2Xj0rg4n9CRif3ICwtvvNrOQdbGSEeeuhBkdpA1V2MB/TAvnLfZhBceHUzGjXiwaZr9V3J2KuUfYyQwicvtDZ4A3VUorI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=haheg2Ec; arc=none smtp.client-ip=115.124.30.112
+	s=arc-20240116; t=1710490831; c=relaxed/simple;
+	bh=xUuE1iZyi4Wob8UCQdc96ObbDd1HQ8vDLq2+WEYq5Ok=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=Etw62ZO5Mre9PveXilyXjLlhB8unR53o787klmVLpEUERelo6BDUwaoMHVW+8tDLvc1nlyyHldqIh19ywD80oCI8wpTq8AJWygk5jkLt1r5m4KBNz7UQxwM0hYoHQZp/nsrUVeVQ3ItyGGo48l1Sz1RIscA5riEW6LWPiE4Efnc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=ZY8EHCkA; arc=none smtp.client-ip=115.124.30.101
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="haheg2Ec"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="ZY8EHCkA"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1710490266; h=Message-ID:Subject:Date:From:To;
-	bh=YPsibT017DvxyxoNSxNBbO0nrsAsyY5mHP0Y0p2jK9w=;
-	b=haheg2Ec7oNb1oepTKjT3oUC+HkAWUl7G76h+oTbKVkk/MCbdh9SE1j9ldSsCCUOLYb857zw1xKmQ+m/0prCQ1MQQR02fLr0uqHs1qLWVxe30oQI5ryDd0uSvfnDU/4KCQysG3rcI9Tvgo0ELbauxEYpQCD2xqxQ1qF831y3gPg=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R561e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0W2Vb0V3_1710490264;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W2Vb0V3_1710490264)
+	t=1710490826; h=Message-ID:Subject:Date:From:To;
+	bh=edjWm6pjFHdaKcblPtA1wtYlkDRoGpaq6U1nkRYhcmg=;
+	b=ZY8EHCkAwJw5OydHeKAr9r0BTaaRcG+g8Oac9tcI5szQo6dTADEniHl9Vdg9+cLMx1CdlPqVLLSX/LYNW+ffTR3+AQN5UOU9WW9kob+a95+F/k6ruujRnCpTEm+oXllysxFW8/cvbEmDl/ZejqTxt3I1DYUMxWZCo9G4hekq2Lo=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0W2Vjw7v_1710490825;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W2Vjw7v_1710490825)
           by smtp.aliyun-inc.com;
-          Fri, 15 Mar 2024 16:11:05 +0800
-Message-ID: <1710490258.2804203-2-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next v4 8/8] virtio-net: support queue stat
-Date: Fri, 15 Mar 2024 16:10:58 +0800
+          Fri, 15 Mar 2024 16:20:26 +0800
+Message-ID: <1710490269.2113092-3-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next v4 7/8] netdev: add queue stats
+Date: Fri, 15 Mar 2024 16:11:09 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: Jakub Kicinski <kuba@kernel.org>
 Cc: netdev@vger.kernel.org,
@@ -47,40 +47,269 @@ Cc: netdev@vger.kernel.org,
  virtualization@lists.linux.dev,
  bpf@vger.kernel.org
 References: <20240314085459.115933-1-xuanzhuo@linux.alibaba.com>
- <20240314085459.115933-9-xuanzhuo@linux.alibaba.com>
- <20240314155616.107de7c3@kernel.org>
-In-Reply-To: <20240314155616.107de7c3@kernel.org>
+ <20240314085459.115933-8-xuanzhuo@linux.alibaba.com>
+ <20240314162142.36b8ff02@kernel.org>
+In-Reply-To: <20240314162142.36b8ff02@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-On Thu, 14 Mar 2024 15:56:16 -0700, Jakub Kicinski <kuba@kernel.org> wrote:
-> On Thu, 14 Mar 2024 16:54:59 +0800 Xuan Zhuo wrote:
-> > +static void virtnet_get_base_stats(struct net_device *dev,
-> > +				   struct netdev_queue_stats_rx *rx,
-> > +				   struct netdev_queue_stats_tx *tx)
-> > +{
-> > +	/* The queue stats of the virtio-net will not be reset. So here we
-> > +	 * return 0.
-> > +	 */
-> > +	memset(rx, 0, sizeof(*rx));
-> > +	memset(tx, 0, sizeof(*tx));
-> > +}
+On Thu, 14 Mar 2024 16:21:42 -0700, Jakub Kicinski <kuba@kernel.org> wrote:
+> On Thu, 14 Mar 2024 16:54:58 +0800 Xuan Zhuo wrote:
+> > +      -
+> > +        name: rx-hw-drops
+> > +        doc: |
+> > +          Number of packets that arrived at the device but never left it,
+> > +          encompassing packets dropped for reasons such as insufficient buffer
 >
-> /**
->  * struct netdev_stat_ops - netdev ops for fine grained stats
->  * @get_queue_stats_rx:	get stats for a given Rx queue
->  * @get_queue_stats_tx:	get stats for a given Tx queue
->  * @get_base_stats:	get base stats (not belonging to any live instance)
->  *
->  * Query stats for a given object. The values of the statistics are undefined
->  * on entry (specifically they are *not* zero-initialized). Drivers should
->  * assign values only to the statistics they collect. Statistics which are not
->  * collected must be left undefined.                  ^^^^^^^^^^^^^^^^^^^^^^^^
->    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> s/encompassing/including/
+>
+> > +          space, processing errors, as well as those affected by explicitly
+> > +          defined policies and packet filtering criteria.
+>
+> I'm afraid the attempt to "correct my English" ended up decreasing the
+> clarity.
 
-I see.
+I apologize for the misunderstanding; that was not my intention. Your original
+phrasing is indeed clear and comprehensive. Let's use your suggested
+description.
+
+> Maybe use what I suggested more directly?
+>
+>   Number of all packets which entered the device, but never left it,
+>   including but not limited to: packets dropped due to lack of buffer
+>   space, processing errors, explicit or implicit policies and packet filters.
+>
+> > +        type: uint
+> > +      -
+> > +        name: rx-hw-drop-overruns
+> > +        doc: |
+> > +          Number of packets that arrived at the device but never left it due to
+> > +          no descriptors.
+>
+> I put a paragraph in my previous email explaining how tricky this is to
+> state for HW devices and you just went with the virtio spec :|
+
+Sorry, not native speaker, I misunderstood.
+
+Other is ok. I will fix in next version.
 
 Thanks.
+
+>
+>   Number of packets dropped due to transient lack of resources, such as
+>   buffer space, host descriptors etc.
+>
+> > +      -
+> > +        name: rx-csum-bad
+> > +        doc: |
+> > +          Number of packets that are dropped by device due to invalid checksum.
+>
+> Quoting myself:
+>
+> >> Maybe add a note in "bad" that packets with bad csum are not
+> >> discarded, but still delivered to the stack.
+>
+> Devices should not drop packets due to invalid L4 checksums.
+>
+> > +        type: uint
+> > +      -
+> > +        name: rx-hw-gro-packets
+> > +        doc: |
+> > +          Number of packets that area coalesced from smaller packets by the device,
+> > +          that do not cover LRO packets.
+>
+> s/area/were/ ?
+> s/that do not cover LRO packets/Counts only packets coalesced with the
+> HW-GRO netdevice feature, LRO-coalesced packets are not counted./
+>
+> > +        type: uint
+> > +      -
+> > +        name: rx-hw-gro-bytes
+> > +        doc: see `rx-hw-gro-packets`.
+> > +        type: uint
+> > +      -
+> > +        name: rx-hw-gro-wire-packets
+> > +        doc: |
+> > +          Number of packets that area coalesced to bigger packets(no LRO packets)
+> > +          by the device.
+>
+> s/area/were/
+> s/packets(no LRO packets)/packets by the HW-GRO feature of the device/
+>
+> > +        type: uint
+> > +      -
+> > +        name: rx-hw-gro-wire-bytes
+> > +        doc: see `rx-hw-gro-wire-packets`.
+>
+> Please make sure the "See `xyz`." references are capitalized (See)
+> and end with a full stop.
+>
+> > +        type: uint
+> > +      -
+> > +        name: rx-hw-drop-ratelimits
+> > +        doc: |
+> > +          Number of the packets dropped by the device due to the received
+> > +          packets bitrate exceeding the device speed limit.
+>
+> Maybe s/speed/rate/
+>
+> > +        type: uint
+> > +      -
+> > +        name: tx-hw-drops
+> > +        doc: |
+> > +          Number of packets that arrived at the device but never left it,
+> > +          encompassing packets dropped for reasons such as processing errors, as
+> > +          well as those affected by explicitly defined policies and packet
+> > +          filtering criteria.
+> > +        type: uint
+> > +      -
+> > +        name: tx-hw-drop-errors
+> > +        doc: Number of packets dropped because they were invalid or malformed.
+> > +        type: uint
+> > +      -
+> > +        name: tx-csum-none
+> > +        doc: |
+> > +          Number of packets that do not require the device to calculate the
+> > +          checksum.
+>
+> I think we should use past tense everywhere.
+>
+> > +        type: uint
+> > +      -
+> > +        name: tx-needs-csum
+> > +        doc: |
+> > +          Number of packets that require the device to calculate the
+> > +          checksum.
+> > +        type: uint
+> > +      -
+> > +        name: tx-hw-gso-packets
+> > +        doc: |
+> > +          Number of packets that necessitated segmentation into smaller packets
+> > +          by the device.
+> > +        type: uint
+> > +      -
+> > +        name: tx-hw-gso-bytes
+> > +        doc: |
+> > +          Successfully segmented into smaller packets by the device, see
+> > +          `tx-hw-gso-packets`.
+>
+> Maybe stick to "see `tx-hw-gso-packets`", none of the other counters
+> mention the send being "successful".
+>
+> > +        type: uint
+> > +      -
+> > +        name: tx-hw-gso-wire-packets
+> > +        doc: |
+> > +          Number of the small packets that segmented from bigger packets by the
+> > +          device.
+>
+> Maybe
+>
+>   Number of wire-sized packets generated by processing
+>   `tx-hw-gso-packets`
+>
+> ?
+>
+> > +        type: uint
+> > +      -
+> > +        name: tx-hw-gso-wire-bytes
+> > +        doc: See `tx-hw-gso-wire-packets`.
+> > +
+> > +        type: uint
+> > +      -
+> > +        name: tx-hw-drop-ratelimits
+> > +        doc: |
+> > +          Number of the packets dropped by the device due to the transmit
+> > +          packets bitrate exceeding the device speed limit.
+>
+> s/speed/rate/
+>
+> > +        type: uint
+> >
+> >  operations:
+> >    list:
+> > diff --git a/include/net/netdev_queues.h b/include/net/netdev_queues.h
+> > index 1ec408585373..c7ac4539eafc 100644
+> > --- a/include/net/netdev_queues.h
+> > +++ b/include/net/netdev_queues.h
+> > @@ -9,11 +9,38 @@ struct netdev_queue_stats_rx {
+> >  	u64 bytes;
+> >  	u64 packets;
+> >  	u64 alloc_fail;
+> > +
+> > +	u64 hw_drops;
+> > +	u64 hw_drop_overruns;
+> > +
+> > +	u64 csum_unnecessary;
+> > +	u64 csum_none;
+> > +	u64 csum_bad;
+> > +
+> > +	u64 hw_gro_packets;
+> > +	u64 hw_gro_bytes;
+> > +	u64 hw_gro_wire_packets;
+> > +	u64 hw_gro_wire_bytes;
+> > +
+> > +	u64 hw_drop_ratelimits;
+> >  };
+> >
+> >  struct netdev_queue_stats_tx {
+> >  	u64 bytes;
+> >  	u64 packets;
+> > +
+> > +	u64 hw_drops;
+> > +	u64 hw_drop_errors;
+> > +
+> > +	u64 csum_none;
+> > +	u64 needs_csum;
+> > +
+> > +	u64 hw_gso_packets;
+> > +	u64 hw_gso_bytes;
+> > +	u64 hw_gso_wire_packets;
+> > +	u64 hw_gso_wire_bytes;
+> > +
+> > +	u64 hw_drop_ratelimits;
+> >  };
+> >
+> >  /**
+> > diff --git a/include/uapi/linux/netdev.h b/include/uapi/linux/netdev.h
+> > index bb65ee840cda..702d69b09f14 100644
+> > --- a/include/uapi/linux/netdev.h
+> > +++ b/include/uapi/linux/netdev.h
+> > @@ -147,6 +147,26 @@ enum {
+> >  	NETDEV_A_QSTATS_TX_BYTES,
+> >  	NETDEV_A_QSTATS_RX_ALLOC_FAIL,
+> >
+>
+> Looks hand written. Once you update the yaml file, you should run:
+>
+> ./tools/net/ynl/ynl-regen.sh
+>
+> This will generate the uAPI changes for you.
+>
+> > +	NETDEV_A_QSTATS_RX_HW_DROPS,
+> > +	NETDEV_A_QSTATS_RX_HW_DROP_OVERRUNS,
+> > +	NETDEV_A_QSTATS_RX_CSUM_UNNECESSARY,
+> > +	NETDEV_A_QSTATS_RX_CSUM_NONE,
+> > +	NETDEV_A_QSTATS_RX_CSUM_BAD,
+> > +	NETDEV_A_QSTATS_RX_HW_GRO_PACKETS,
+> > +	NETDEV_A_QSTATS_RX_HW_GRO_BYTES,
+> > +	NETDEV_A_QSTATS_RX_HW_GRO_WIRE_PACKETS,
+> > +	NETDEV_A_QSTATS_RX_HW_GRO_WIRE_BYTES,
+> > +	NETDEV_A_QSTATS_RX_HW_DROP_RATELIMITS,
+> > +	NETDEV_A_QSTATS_TX_HW_DROPS,
+> > +	NETDEV_A_QSTATS_TX_HW_DROP_ERRORS,
+> > +	NETDEV_A_QSTATS_TX_CSUM_NONE,
+> > +	NETDEV_A_QSTATS_TX_NEEDS_CSUM,
+> > +	NETDEV_A_QSTATS_TX_HW_GSO_PACKETS,
+> > +	NETDEV_A_QSTATS_TX_HW_GSO_BYTES,
+> > +	NETDEV_A_QSTATS_TX_HW_GSO_WIRE_PACKETS,
+> > +	NETDEV_A_QSTATS_TX_HW_GSO_WIRE_BYTES,
+> > +	NETDEV_A_QSTATS_TX_HW_DROP_RATELIMITS,
+> > +
+> >  	__NETDEV_A_QSTATS_MAX,
+> >  	NETDEV_A_QSTATS_MAX = (__NETDEV_A_QSTATS_MAX - 1)
+> >  };
+>
