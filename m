@@ -1,299 +1,141 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B497E12E67;
-	Thu, 14 Mar 2024 23:21:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D885D502
+	for <virtualization@lists.linux-foundation.org>; Fri, 15 Mar 2024 01:24:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710458504; cv=none; b=LfMFEEitUsC7sOwM3Bk190n1hYQ8YJe8J4scw34WLAQk/TFyih+XAivVREJnl852Lk4TPyG0iuXX3+YoJkCPHBaLJM30PjPphbl2l1MQBcDGLHaEtxjzFyX9RvHnQuoP7JwZE4SfkPCEmb/2jbkjjviqVyjDs4vNKagTSwYuiII=
+	t=1710465877; cv=none; b=MGUHcvFmxf25DuGj5Vv9F515llkj06BSRMnJ/DPvsqIq/R/GbHgAXYZszoxGh1jfKbE6KLGk9Az9FCzkJhr64pES7zp9K5lZO1is+BfXHST7h6pcq+lvKH5KcQ5xFG0ed1zs6FFBS3xyH96MN6chEf8bOtwPnr89MBSgbokiIKA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710458504; c=relaxed/simple;
-	bh=YuMhRaZvH093ZY63IA1EVCbrxTiyw6BfBGNhm7xZy7o=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=jKpMvgezmSQblqogB6YaLi/p+Nb7ptFtLJPTNVvneJLjgGzhv8PSocGq+rypKvuVPCJq5/lGHABoOJ6DJcfewuecsDPF1e295GZqNlLsQSQTDYWLylRyh/+SUPDnrF+m1YGzA+MN8Pp9abDhE/Osylmcb5/Txp0qZr3nNZYlIvU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EhNGG0Cq; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1710465877; c=relaxed/simple;
+	bh=RINii3wGGnlUbE3ZLF3vQV3MCY+kCa38spzuhHObNjs=;
+	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=XEeNG8t3R2BQStKuyo2L4MUMLdU9ZWg0hntwEyN4tbaganTTxjgPX8rXtGH77DJ+1lfFT4IopkxFw8IVLcHN2Ul1/HmGCCZnEp1kxJWmhbP9f0bZ0+/d3NB2RBikPCxtR6XQ0KzgJHJopGM8JtgX8P37BTEhrl/uzjODnaE+9Yo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=XreUmlMu; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EhNGG0Cq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FA0FC433C7;
-	Thu, 14 Mar 2024 23:21:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1710458504;
-	bh=YuMhRaZvH093ZY63IA1EVCbrxTiyw6BfBGNhm7xZy7o=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=EhNGG0CqUe6UF5gAXCruWkaggThAxoTkrXZ2JM/0mpBN+cF0eqA0bEZkTRl/CEddu
-	 gVvZcYBPdIKA/QdNhzCN23PNNiD3lcG/TKsbReHAgaYSQKiTgqnyowHPu6z/XAn9bA
-	 d8hL3hyemZrkR78KFUuNcXs/Thy1D/inL0sgtdRzkCHHMorykG3pDwBdrGtZxhC2hT
-	 zBm/9Z9mFpW4zu6MeNoR0ztb4SSqwjVgSzY51P8A6/ibRnezlcSJiGREAvX1Me2yBj
-	 gjp4VsJQNrLjllL8CQbqG54WEq1FfCh65IWaTooweu+N1IocGaq0nUJ9KCiqnSVCH4
-	 u0C/PMRCiZWNA==
-Date: Thu, 14 Mar 2024 16:21:42 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Eric
- Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, "Michael S.
- Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Alexei
- Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend
- <john.fastabend@gmail.com>, Stanislav Fomichev <sdf@google.com>, Amritha
- Nambiar <amritha.nambiar@intel.com>, Larysa Zaremba
- <larysa.zaremba@intel.com>, Sridhar Samudrala
- <sridhar.samudrala@intel.com>, Maciej Fijalkowski
- <maciej.fijalkowski@intel.com>, virtualization@lists.linux.dev,
- bpf@vger.kernel.org
-Subject: Re: [PATCH net-next v4 7/8] netdev: add queue stats
-Message-ID: <20240314162142.36b8ff02@kernel.org>
-In-Reply-To: <20240314085459.115933-8-xuanzhuo@linux.alibaba.com>
-References: <20240314085459.115933-1-xuanzhuo@linux.alibaba.com>
-	<20240314085459.115933-8-xuanzhuo@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="XreUmlMu"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id D2B86400E7
+	for <virtualization@lists.linux-foundation.org>; Fri, 15 Mar 2024 01:24:35 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -1.999
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 2OUpscSeCULz
+	for <virtualization@lists.linux-foundation.org>;
+	Fri, 15 Mar 2024 01:24:35 +0000 (UTC)
+X-Greylist: delayed 428 seconds by postgrey-1.37 at util1.osuosl.org; Fri, 15 Mar 2024 01:24:34 UTC
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 4CE36400E5
+Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4CE36400E5
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=XreUmlMu
+Received-SPF: None (mailfrom) identity=mailfrom; client-ip=192.198.163.19; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 4CE36400E5
+	for <virtualization@lists.linux-foundation.org>; Fri, 15 Mar 2024 01:24:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1710465874; x=1742001874;
+  h=message-id:date:mime-version:cc:subject:to:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=RINii3wGGnlUbE3ZLF3vQV3MCY+kCa38spzuhHObNjs=;
+  b=XreUmlMuwONQcQCFYSHFmN2m8181gD4tB0x0+z9wUagMlQ5WNcJTqDBU
+   zUi1G+90pWN1tWRJQxdl/MyYs1JXI04pbHc95MmuLySRKR4Ftv8f7nvvF
+   WOFz4lyqoU8v1aAkQyH6gX+vSst0dqXlTmQfkNNTblAmYlVhmaiCI4Ckv
+   En780/w/IbPXmyUNkbpRnjMPmGIxxUm4TczL4LHe7uHmESZeL/Z1lOhJ6
+   Hy2Rtu0+67WErYZ4TPNVHXqSGGjQq8Q3jtsSbfCZr5gEh/fZ/el9zXqp/
+   3nDkZLfYkbN5GPgUmjd1DpQZEzfgX6dpcVXbQfZo/KhvkYx9q97XcvNhf
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,11013"; a="5175578"
+X-IronPort-AV: E=Sophos;i="6.07,127,1708416000"; 
+   d="scan'208";a="5175578"
+Received: from orviesa007.jf.intel.com ([10.64.159.147])
+  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Mar 2024 18:17:25 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.07,127,1708416000"; 
+   d="scan'208";a="12947095"
+Received: from allen-box.sh.intel.com (HELO [10.239.159.127]) ([10.239.159.127])
+  by orviesa007.jf.intel.com with ESMTP; 14 Mar 2024 18:17:21 -0700
+Message-ID: <7a6ac83b-3165-4abe-91be-a58f69656f8a@linux.intel.com>
+Date: Fri, 15 Mar 2024 09:16:43 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Cc: baolu.lu@linux.intel.com, Kevin Tian <kevin.tian@intel.com>,
+ Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+ Robin Murphy <robin.murphy@arm.com>,
+ Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
+ Jacob Pan <jacob.jun.pan@linux.intel.com>,
+ Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
+ virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 5/8] iommufd: Associate fault object with
+ iommufd_hw_pgtable
+To: Jason Gunthorpe <jgg@ziepe.ca>
+References: <20240122073903.24406-1-baolu.lu@linux.intel.com>
+ <20240122073903.24406-6-baolu.lu@linux.intel.com>
+ <20240308190539.GY9225@ziepe.ca>
+Content-Language: en-US
+From: Baolu Lu <baolu.lu@linux.intel.com>
+In-Reply-To: <20240308190539.GY9225@ziepe.ca>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On Thu, 14 Mar 2024 16:54:58 +0800 Xuan Zhuo wrote:
-> +      -
-> +        name: rx-hw-drops
-> +        doc: |
-> +          Number of packets that arrived at the device but never left it,
-> +          encompassing packets dropped for reasons such as insufficient buffer
+On 3/9/24 3:05 AM, Jason Gunthorpe wrote:
+> On Mon, Jan 22, 2024 at 03:39:00PM +0800, Lu Baolu wrote:
+> 
+>> @@ -411,6 +414,8 @@ enum iommu_hwpt_data_type {
+>>    * @__reserved: Must be 0
+>>    * @data_type: One of enum iommu_hwpt_data_type
+>>    * @data_len: Length of the type specific data
+>> + * @fault_id: The ID of IOMMUFD_FAULT object. Valid only if flags field of
+>> + *            IOMMU_HWPT_FAULT_ID_VALID is set.
+>>    * @data_uptr: User pointer to the type specific data
+>>    *
+>>    * Explicitly allocate a hardware page table object. This is the same object
+>> @@ -441,6 +446,7 @@ struct iommu_hwpt_alloc {
+>>   	__u32 __reserved;
+>>   	__u32 data_type;
+>>   	__u32 data_len;
+>> +	__u32 fault_id;
+>>   	__aligned_u64 data_uptr;
+>>   };
+> 
+> ?? We can't add fault_id in the middle of the struct??
 
-s/encompassing/including/
+Yes. I should add the new field at the end.
 
-> +          space, processing errors, as well as those affected by explicitly
-> +          defined policies and packet filtering criteria.
+By the way, with a __u32 added, this data structure is not 64-byte-
+aligned anymore. Do we need to add another unused u32 entry, or just let
+the compiler handle it?
 
-I'm afraid the attempt to "correct my English" ended up decreasing the
-clarity. Maybe use what I suggested more directly?
+> 
+>> +	if (cmd->flags & IOMMU_HWPT_FAULT_ID_VALID) {
+>> +		struct iommufd_fault *fault;
+>> +
+>> +		fault = iommufd_get_fault(ucmd, cmd->fault_id);
+>> +		if (IS_ERR(fault)) {
+>> +			rc = PTR_ERR(fault);
+>> +			goto out_hwpt;
+>> +		}
+>> +		hwpt->fault = fault;
+>> +		hwpt->domain->iopf_handler = iommufd_fault_iopf_handler;
+>> +		hwpt->domain->fault_data = hwpt;
+>> +		hwpt->fault_capable = true;
+> 
+> I wonder if there should be an iommu API to make a domain fault
+> capable?
 
-  Number of all packets which entered the device, but never left it,
-  including but not limited to: packets dropped due to lack of buffer
-  space, processing errors, explicit or implicit policies and packet filters.
+The iommu core identifies a fault-capable domain by checking its
+domain->iopf_handler. Anyway, what's the difference between a fault or
+non-fault capable domain from iommu core's point of view?
 
-> +        type: uint
-> +      -
-> +        name: rx-hw-drop-overruns
-> +        doc: |
-> +          Number of packets that arrived at the device but never left it due to
-> +          no descriptors.
-
-I put a paragraph in my previous email explaining how tricky this is to
-state for HW devices and you just went with the virtio spec :|
-
-  Number of packets dropped due to transient lack of resources, such as
-  buffer space, host descriptors etc.
-
-> +      -
-> +        name: rx-csum-bad
-> +        doc: |
-> +          Number of packets that are dropped by device due to invalid checksum.
-
-Quoting myself:
-
->> Maybe add a note in "bad" that packets with bad csum are not
->> discarded, but still delivered to the stack.
-
-Devices should not drop packets due to invalid L4 checksums.
-
-> +        type: uint
-> +      -
-> +        name: rx-hw-gro-packets
-> +        doc: |
-> +          Number of packets that area coalesced from smaller packets by the device,
-> +          that do not cover LRO packets.
-
-s/area/were/ ?
-s/that do not cover LRO packets/Counts only packets coalesced with the
-HW-GRO netdevice feature, LRO-coalesced packets are not counted./
-
-> +        type: uint
-> +      -
-> +        name: rx-hw-gro-bytes
-> +        doc: see `rx-hw-gro-packets`.
-> +        type: uint
-> +      -
-> +        name: rx-hw-gro-wire-packets
-> +        doc: |
-> +          Number of packets that area coalesced to bigger packets(no LRO packets)
-> +          by the device.
-
-s/area/were/
-s/packets(no LRO packets)/packets by the HW-GRO feature of the device/
-
-> +        type: uint
-> +      -
-> +        name: rx-hw-gro-wire-bytes
-> +        doc: see `rx-hw-gro-wire-packets`.
-
-Please make sure the "See `xyz`." references are capitalized (See)
-and end with a full stop.
-
-> +        type: uint
-> +      -
-> +        name: rx-hw-drop-ratelimits
-> +        doc: |
-> +          Number of the packets dropped by the device due to the received
-> +          packets bitrate exceeding the device speed limit.
-
-Maybe s/speed/rate/
-
-> +        type: uint
-> +      -
-> +        name: tx-hw-drops
-> +        doc: |
-> +          Number of packets that arrived at the device but never left it,
-> +          encompassing packets dropped for reasons such as processing errors, as
-> +          well as those affected by explicitly defined policies and packet
-> +          filtering criteria.
-> +        type: uint
-> +      -
-> +        name: tx-hw-drop-errors
-> +        doc: Number of packets dropped because they were invalid or malformed.
-> +        type: uint
-> +      -
-> +        name: tx-csum-none
-> +        doc: |
-> +          Number of packets that do not require the device to calculate the
-> +          checksum.
-
-I think we should use past tense everywhere.
-
-> +        type: uint
-> +      -
-> +        name: tx-needs-csum
-> +        doc: |
-> +          Number of packets that require the device to calculate the
-> +          checksum.
-> +        type: uint
-> +      -
-> +        name: tx-hw-gso-packets
-> +        doc: |
-> +          Number of packets that necessitated segmentation into smaller packets
-> +          by the device.
-> +        type: uint
-> +      -
-> +        name: tx-hw-gso-bytes
-> +        doc: |
-> +          Successfully segmented into smaller packets by the device, see
-> +          `tx-hw-gso-packets`.
-
-Maybe stick to "see `tx-hw-gso-packets`", none of the other counters
-mention the send being "successful".
-
-> +        type: uint
-> +      -
-> +        name: tx-hw-gso-wire-packets
-> +        doc: |
-> +          Number of the small packets that segmented from bigger packets by the
-> +          device.
-
-Maybe
-
-  Number of wire-sized packets generated by processing
-  `tx-hw-gso-packets`
-
-?
-
-> +        type: uint
-> +      -
-> +        name: tx-hw-gso-wire-bytes
-> +        doc: See `tx-hw-gso-wire-packets`.
-> +
-> +        type: uint
-> +      -
-> +        name: tx-hw-drop-ratelimits
-> +        doc: |
-> +          Number of the packets dropped by the device due to the transmit
-> +          packets bitrate exceeding the device speed limit.
-
-s/speed/rate/
-
-> +        type: uint
->  
->  operations:
->    list:
-> diff --git a/include/net/netdev_queues.h b/include/net/netdev_queues.h
-> index 1ec408585373..c7ac4539eafc 100644
-> --- a/include/net/netdev_queues.h
-> +++ b/include/net/netdev_queues.h
-> @@ -9,11 +9,38 @@ struct netdev_queue_stats_rx {
->  	u64 bytes;
->  	u64 packets;
->  	u64 alloc_fail;
-> +
-> +	u64 hw_drops;
-> +	u64 hw_drop_overruns;
-> +
-> +	u64 csum_unnecessary;
-> +	u64 csum_none;
-> +	u64 csum_bad;
-> +
-> +	u64 hw_gro_packets;
-> +	u64 hw_gro_bytes;
-> +	u64 hw_gro_wire_packets;
-> +	u64 hw_gro_wire_bytes;
-> +
-> +	u64 hw_drop_ratelimits;
->  };
->  
->  struct netdev_queue_stats_tx {
->  	u64 bytes;
->  	u64 packets;
-> +
-> +	u64 hw_drops;
-> +	u64 hw_drop_errors;
-> +
-> +	u64 csum_none;
-> +	u64 needs_csum;
-> +
-> +	u64 hw_gso_packets;
-> +	u64 hw_gso_bytes;
-> +	u64 hw_gso_wire_packets;
-> +	u64 hw_gso_wire_bytes;
-> +
-> +	u64 hw_drop_ratelimits;
->  };
->  
->  /**
-> diff --git a/include/uapi/linux/netdev.h b/include/uapi/linux/netdev.h
-> index bb65ee840cda..702d69b09f14 100644
-> --- a/include/uapi/linux/netdev.h
-> +++ b/include/uapi/linux/netdev.h
-> @@ -147,6 +147,26 @@ enum {
->  	NETDEV_A_QSTATS_TX_BYTES,
->  	NETDEV_A_QSTATS_RX_ALLOC_FAIL,
->  
-
-Looks hand written. Once you update the yaml file, you should run:
-
-./tools/net/ynl/ynl-regen.sh
-
-This will generate the uAPI changes for you.
-
-> +	NETDEV_A_QSTATS_RX_HW_DROPS,
-> +	NETDEV_A_QSTATS_RX_HW_DROP_OVERRUNS,
-> +	NETDEV_A_QSTATS_RX_CSUM_UNNECESSARY,
-> +	NETDEV_A_QSTATS_RX_CSUM_NONE,
-> +	NETDEV_A_QSTATS_RX_CSUM_BAD,
-> +	NETDEV_A_QSTATS_RX_HW_GRO_PACKETS,
-> +	NETDEV_A_QSTATS_RX_HW_GRO_BYTES,
-> +	NETDEV_A_QSTATS_RX_HW_GRO_WIRE_PACKETS,
-> +	NETDEV_A_QSTATS_RX_HW_GRO_WIRE_BYTES,
-> +	NETDEV_A_QSTATS_RX_HW_DROP_RATELIMITS,
-> +	NETDEV_A_QSTATS_TX_HW_DROPS,
-> +	NETDEV_A_QSTATS_TX_HW_DROP_ERRORS,
-> +	NETDEV_A_QSTATS_TX_CSUM_NONE,
-> +	NETDEV_A_QSTATS_TX_NEEDS_CSUM,
-> +	NETDEV_A_QSTATS_TX_HW_GSO_PACKETS,
-> +	NETDEV_A_QSTATS_TX_HW_GSO_BYTES,
-> +	NETDEV_A_QSTATS_TX_HW_GSO_WIRE_PACKETS,
-> +	NETDEV_A_QSTATS_TX_HW_GSO_WIRE_BYTES,
-> +	NETDEV_A_QSTATS_TX_HW_DROP_RATELIMITS,
-> +
->  	__NETDEV_A_QSTATS_MAX,
->  	NETDEV_A_QSTATS_MAX = (__NETDEV_A_QSTATS_MAX - 1)
->  };
-
+Best regards,
+baolu
