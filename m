@@ -1,158 +1,174 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 710111EF0D
-	for <virtualization@lists.linux.dev>; Mon, 18 Mar 2024 04:06:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53DDA20332
+	for <virtualization@lists.linux.dev>; Mon, 18 Mar 2024 04:21:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710734799; cv=none; b=a+Weviofe8EsVteSOE6TJ9hIUO75AV1whu/tOY2jrhjfzLX+XekcqBwtqiiTh9n/4ktsRFvIO4o0PJkhYBcVXuGBiDzgkNCuhTHEf1vLWhk+tTU/0FX5Dm0G2BbkZ9rvKbSVugOHr519O9spqaBjfKMQYpQRuPJLPMmgxFlHVGU=
+	t=1710735710; cv=none; b=dotUDUpVmGp71XbLWgKORVpk/bXPbVBl4U6Ub4v2a/krHT5mgVE2eODpHzr78tADEm360lwhjgPQFyGn69h4YAFTck08q7jDtvN+kWZ3FgVs5cTxvdz2NV5r7uiIAwFBhh2ZUjLYrh7DT8RojqVpTmswJGsfAYKvHyYpYrabC4c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710734799; c=relaxed/simple;
-	bh=Q6bQMCAz3D+8839rxdaY/X8g7IJM0JChm5Xn7hhtj+g=;
+	s=arc-20240116; t=1710735710; c=relaxed/simple;
+	bh=jXwxnWKC278FCPKzxn5dtNNJKkks0/4+IM645aS8Wgc=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Zk2D2uM4aQg/0aoyFJv5teGag6pCY0L0ApumwpYfz+26hoxFyGi4EIQ62NXagMesLEQmGpYOeTJIzsmzWyZwstzkP/6gdV7han+ppia3sNNy6M0a6COF3VVjxUjSnhGkNgtT7LtcNNheFgiaItHNdpCuUNAvxHtYLkYs9eL+fso=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PzUGnWMi; arc=none smtp.client-ip=170.10.129.124
+	 To:Cc:Content-Type; b=GkM6owXrgkF7yqAaePAeKP8SRgR3DI/PkWxaEwqZ+mkY3kttNzMSUE9vEhg5hzIb/LG1PvmKGtHFHppjO0WNY4I2iOqb0tTWNH2T/JXj0004PzBl6T8MJp3aFw+JofNo81oYndT5od1oQyLDMHkNg7t6g9k6BxaioECqod8wSO8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZmEsRQ+h; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PzUGnWMi"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZmEsRQ+h"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1710734796;
+	s=mimecast20190719; t=1710735707;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=x8EK8peOWXRDiqjhcyGcF10KbckkSNcbVTNFgWjb/dI=;
-	b=PzUGnWMiH/9Sd1YdobOCceGWxs0+gFPpuKUlKvE3UN3j/bhGhCTp3InIf+lvlh9UIjfwZu
-	sw0hgDztLCXcLuF580Pckc7bXSMa7HKkpz9Sr4UYaZnbo4yTkun2wyN+cWYuBNOMK9CRCz
-	lg4UhJIfX0v4AAC5Rl9pkXY6WoeuS6c=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=CXOp18MAMc2Wngpp/ezxSDL4vZtwEunhnfSnOaIjTt8=;
+	b=ZmEsRQ+hzno2/9QKnQ26srwnWTTqh6mrQFfWVpz3PBkhaBosFv8iXq/JQN9t/jdvpXN2VS
+	hSuknXwTxiIXwWsD/pAyZkUpPxXuXvSb1Jn78MpHGiPnNBjSIp6NBm4p7rjf6RDUu2oZsX
+	hDeQWwWa+ve/AAnIdUhV7la12U+awGo=
+Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com
+ [209.85.215.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-549-8tEwevnhNYi6NAZdCjImmw-1; Mon, 18 Mar 2024 00:06:33 -0400
-X-MC-Unique: 8tEwevnhNYi6NAZdCjImmw-1
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-29fbe1089b8so94402a91.2
-        for <virtualization@lists.linux.dev>; Sun, 17 Mar 2024 21:06:33 -0700 (PDT)
+ us-mta-665-nC70cTWvPxi2Vkipys_sew-1; Mon, 18 Mar 2024 00:21:45 -0400
+X-MC-Unique: nC70cTWvPxi2Vkipys_sew-1
+Received: by mail-pg1-f200.google.com with SMTP id 41be03b00d2f7-5d8df7c5500so2597831a12.2
+        for <virtualization@lists.linux.dev>; Sun, 17 Mar 2024 21:21:45 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710734793; x=1711339593;
+        d=1e100.net; s=20230601; t=1710735705; x=1711340505;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=x8EK8peOWXRDiqjhcyGcF10KbckkSNcbVTNFgWjb/dI=;
-        b=crvyCS7WHhaEI/WroZYXSAVQy65D4AJNN9i1EqHPgA8VAIzIIauq7jvgaA4g2mp1gj
-         udMxwmDcGIPlItmwwY/wu0M/euhbpg7Up2BB/DqHQh7ZPoaHvaHpvV9p+X9I3XAP7Wbo
-         9yaBXzRpE1smPdWrMfOol0nv7Nkm/P72C/lx+H7qUymaWflXghHf24hQuY3nKzVTTJPc
-         t41QAkNqRfdXyhdDW7rfEGuPHh5gdKUhDOLNnpfCt3NHMXG8Ancb56ALYvoHFwag78H6
-         TNfjXqfZNiBzFJdJepO/uWEK7dChfCdvHpfe1FSyWLuKWdnV8PSdniPBDKtMWNLY89tl
-         KvJA==
-X-Forwarded-Encrypted: i=1; AJvYcCVemcWym7NVYkJM4XeW76ui+7FecXMEzrMfBxrkIe1sEqlJvXr/qiMs2fDDqC7Zka46OcFCMJChJTY0icBqHZxhlBaLwbfis/xp/e+ccxQ=
-X-Gm-Message-State: AOJu0Yw7NIbzmj/L75Cc/Np2/ncQ1EslUTpjSrseafAbVu4IzS/z1Evz
-	jO6cWIz518BU3Xdm79zOzvdPIMAA7QfDWQx7oh3AIY/8wZyyUYxh7zXfidb4oGrrFIJAjn0iJZ7
-	Tg0O5w/DgW6k6/FQqOue+WBacqj3r6BQV5BzRqsz+7y7hsZrNmY0BqC3OxKjEvOdcTVv5o5/DQu
-	LH+s+xxA7ELikhJT+jvQv6SL0nVMIubgb+Qq9UeW8=
-X-Received: by 2002:a17:90a:f2d3:b0:29d:fb96:e809 with SMTP id gt19-20020a17090af2d300b0029dfb96e809mr5390040pjb.31.1710734792857;
-        Sun, 17 Mar 2024 21:06:32 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGQdC+q3NnZjT9MHrobYbux1seMtS9A7ZslrlYCYsBWHWhqS184XNPXfNvenD4/hzYFPLgIUCKCN7GNYq6JV8A=
-X-Received: by 2002:a17:90a:f2d3:b0:29d:fb96:e809 with SMTP id
- gt19-20020a17090af2d300b0029dfb96e809mr5390028pjb.31.1710734792511; Sun, 17
- Mar 2024 21:06:32 -0700 (PDT)
+        bh=CXOp18MAMc2Wngpp/ezxSDL4vZtwEunhnfSnOaIjTt8=;
+        b=u8oMO/TJ0fcdZBpixgb7wneqIT55dcJ/nMiuJSuYNOcReMHE9NiJDOWqVrWU3NY3R4
+         D6U/1sAW5efBFec0EFyYkXInBxiSsSGbv2ZAMUJL5AmeVVeF7lo88WokWwMH5qRMYOhK
+         bNhgKoo1A/agyMZosZYmgVAFsHiJnWniY3Flf3Ktp4yapF9EQMboYHGRr3Lasy6TyAOE
+         Td48uO6WxCCC5BeG1bELt8MljdEPjTfAPy2P5+Iq/wToyS0VMRwDWPerHN2QK7l//mbD
+         tTRsu1UpnF3yjRFp1P0kg8O3r3aVKkG6gAtHhjfDn7JJcVHWRdOhcpVruCg0AdzfY/Z2
+         hZuA==
+X-Forwarded-Encrypted: i=1; AJvYcCVpbq0iAaPxN3JxarFhqdGoyLPCwK7AO6eFXycGVKRZ0nnyWISvdLYj1EclT3s1C2G6f5NT7LW/qDzP+06OWC7bYFXKsRR8SMr2cGhuE/8=
+X-Gm-Message-State: AOJu0YziT0u+pLM+m76DWIfThm+YKuSrhSr2vv096wszXDE0Ou1iPvtc
+	ylXei+rPSmdmWomY6ppihmeudk8HN4ZEGTI0UhNpxQ0gfs7n1gGTy9F+ZCuOoO75Q3UAj7LvBsh
+	dULieCGcJ8vM46EktndjAGNKAVBVVZfquwmjSybeNnvatLKzocvK3gzIqH1gPNhhTUvsTCvhmxs
+	Z/8quqelJN5pg6IsSezRGDsAfg5XTIwlETLEUzOyE=
+X-Received: by 2002:a05:6a20:6f08:b0:1a3:5350:2c30 with SMTP id gt8-20020a056a206f0800b001a353502c30mr5869750pzb.33.1710735704876;
+        Sun, 17 Mar 2024 21:21:44 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGBJek8s3/OVbNG+tCGXDCZ2t5Ckhzr/aXQfHWLo7ucpmlSGIP/0UgxRsfvFwBl+nAXpFGB5McRaRKJzHz9Yho=
+X-Received: by 2002:a05:6a20:6f08:b0:1a3:5350:2c30 with SMTP id
+ gt8-20020a056a206f0800b001a353502c30mr5869740pzb.33.1710735704560; Sun, 17
+ Mar 2024 21:21:44 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240318030121.1873-1-gavin.liu@jaguarmicro.com>
-In-Reply-To: <20240318030121.1873-1-gavin.liu@jaguarmicro.com>
+References: <20240315103125.1817-1-gavin.liu@jaguarmicro.com>
+In-Reply-To: <20240315103125.1817-1-gavin.liu@jaguarmicro.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 18 Mar 2024 12:06:20 +0800
-Message-ID: <CACGkMEsuHYVe7KBxRMO=S555HviKGoRz9Y6EDsC5AzweU9b+Fg@mail.gmail.com>
-Subject: Re: [PATCH] vp_vdpa: fix the method of calculating vectors
+Date: Mon, 18 Mar 2024 12:21:33 +0800
+Message-ID: <CACGkMEuxub5Res+UbhTvzv+GvhFtQpo3CU7chORLRpe-XPxwYA@mail.gmail.com>
+Subject: Re: [PATCH] virtio_config: add device ready status check
 To: "gavin.liu" <gavin.liu@jaguarmicro.com>
-Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev, 
+Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, pbonzini@redhat.com, 
+	stefanha@redhat.com, virtualization@lists.linux.dev, 
 	angus.chen@jaguarmicro.com, yuxue.liu@jaguarmicro.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Mar 18, 2024 at 11:01=E2=80=AFAM gavin.liu <gavin.liu@jaguarmicro.c=
-om> wrote:
+On Fri, Mar 15, 2024 at 6:31=E2=80=AFPM gavin.liu <gavin.liu@jaguarmicro.co=
+m> wrote:
 >
 > From: Yuxue Liu <yuxue.liu@jaguarmicro.com>
 >
-> When there is a ctlq and it doesn't require interrupt
-> callbacks,the original method of calculating vectors
-> wastes hardware MSI or MSI-X resources as well as system
-> IRQ resources. Referencing the per_vq_vectors mode in the
-> vp_find_vqs_msix function, calculate the required number
-> of vectors based on whether the callback is set.
+> Under the VDPA framework, when the VDPA driver of a device sets the statu=
+s
+> to DRIVER OK,success is not guaranteed. The virtio driver should provide
+> some protection or notification.
 >
 > Signed-off-by: Yuxue Liu <yuxue.liu@jaguarmicro.com>
 > ---
->  drivers/vdpa/virtio_pci/vp_vdpa.c | 14 ++++++++++----
->  1 file changed, 10 insertions(+), 4 deletions(-)
+>  drivers/block/virtio_blk.c    |  4 +++-
+>  drivers/net/virtio_net.c      |  7 ++++++-
+>  include/linux/virtio_config.h | 14 ++++++++++++++
+>  3 files changed, 23 insertions(+), 2 deletions(-)
 >
-> diff --git a/drivers/vdpa/virtio_pci/vp_vdpa.c b/drivers/vdpa/virtio_pci/=
-vp_vdpa.c
-> index 281287fae89f..5066970b2570 100644
-> --- a/drivers/vdpa/virtio_pci/vp_vdpa.c
-> +++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
-> @@ -160,7 +160,13 @@ static int vp_vdpa_request_irq(struct vp_vdpa *vp_vd=
-pa)
->         struct pci_dev *pdev =3D mdev->pci_dev;
->         int i, ret, irq;
->         int queues =3D vp_vdpa->queues;
-> -       int vectors =3D queues + 1;
-> +       int vectors =3D 0;
-> +
-> +       for (i =3D 0; i < queues; i++) {
-> +               if (vp_vdpa->vring[i].cb.callback !=3D NULL)
-> +                       vectors++;
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 42dea7601d87..14cabf662705 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -1535,7 +1535,9 @@ static int virtblk_probe(struct virtio_device *vdev=
+)
+>                 set_disk_ro(vblk->disk, 1);
+>
+>         virtblk_update_capacity(vblk, false);
+> -       virtio_device_ready(vdev);
+> +       err =3D virtio_device_ready_safe(vdev);
+> +       if (err)
+> +               goto out_cleanup_disk;
+>
+>         /*
+>          * All steps that follow use the VQs therefore they need to be
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index d7ce4a1011ea..0431fc9095ae 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -4808,7 +4808,12 @@ static int virtnet_probe(struct virtio_device *vde=
+v)
+>                 goto free_failover;
+>         }
+>
+> -       virtio_device_ready(vdev);
+> +       err =3D virtio_device_ready_safe(vdev);
+> +       if (err) {
+> +               pr_debug("virtio_net: setting device ready failed\n");
+> +               rtnl_unlock();
+> +               goto free_unregister_netdev;
 > +       }
-> +       vectors =3D vectors + 1;
 >
->         ret =3D pci_alloc_irq_vectors(pdev, vectors, vectors, PCI_IRQ_MSI=
-X);
->         if (ret !=3D vectors) {
-> @@ -172,7 +178,7 @@ static int vp_vdpa_request_irq(struct vp_vdpa *vp_vdp=
-a)
+>         _virtnet_set_queues(vi, vi->curr_queue_pairs);
 >
->         vp_vdpa->vectors =3D vectors;
+> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.=
+h
+> index da9b271b54db..de4e864952ef 100644
+> --- a/include/linux/virtio_config.h
+> +++ b/include/linux/virtio_config.h
+> @@ -301,6 +301,20 @@ void virtio_device_ready(struct virtio_device *dev)
+>         dev->config->set_status(dev, status | VIRTIO_CONFIG_S_DRIVER_OK);
+>  }
 >
-> -       for (i =3D 0; i < queues; i++) {
-> +       for (i =3D 0; i < vectors - 1; i++) {
+> +static inline
+> +int virtio_device_ready_safe(struct virtio_device *dev)
+> +{
+> +       u8 status;
+> +
+> +       virtio_device_ready(dev);
+> +       status =3D dev->config->get_status(dev);
+> +       if (!(status & VIRTIO_CONFIG_S_DRIVER_OK)) {
+> +               WARN_ON(1);
+> +               return -EINVAL;
 
-This seems to be buggy. You didn't scan all queues so you will miss
-the IRQ for the last queue.
+The seems to be a violation of the virtio spec:
+
+Section 3.1.1 Driver Requirements: Device Initialization said
+
+"""
+Set the DRIVER_OK status bit. At this point the device is =E2=80=9Clive=E2=
+=80=9D.
+"""
+
+Or why did you need to read the status back and check?
 
 Thanks
 
->                 snprintf(vp_vdpa->vring[i].msix_name, VP_VDPA_NAME_SIZE,
->                         "vp-vdpa[%s]-%d\n", pci_name(pdev), i);
->                 irq =3D pci_irq_vector(pdev, i);
-> @@ -191,7 +197,7 @@ static int vp_vdpa_request_irq(struct vp_vdpa *vp_vdp=
-a)
->
->         snprintf(vp_vdpa->msix_name, VP_VDPA_NAME_SIZE, "vp-vdpa[%s]-conf=
-ig\n",
->                  pci_name(pdev));
-> -       irq =3D pci_irq_vector(pdev, queues);
-> +       irq =3D pci_irq_vector(pdev, vectors - 1);
->         ret =3D devm_request_irq(&pdev->dev, irq, vp_vdpa_config_handler,=
- 0,
->                                vp_vdpa->msix_name, vp_vdpa);
->         if (ret) {
-> @@ -199,7 +205,7 @@ static int vp_vdpa_request_irq(struct vp_vdpa *vp_vdp=
-a)
->                         "vp_vdpa: fail to request irq for vq %d\n", i);
->                         goto err;
->         }
-> -       vp_modern_config_vector(mdev, queues);
-> +       vp_modern_config_vector(mdev, vectors - 1);
->         vp_vdpa->config_irq =3D irq;
->
->         return 0;
+> +       }
+> +       return 0;
+> +}
+> +
+>  static inline
+>  const char *virtio_bus_name(struct virtio_device *vdev)
+>  {
 > --
 > 2.43.0
 >
