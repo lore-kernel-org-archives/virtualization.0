@@ -1,548 +1,180 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from SINPR02CU002.outbound.protection.outlook.com (mail-southeastasiaazon11021006.outbound.protection.outlook.com [52.101.133.6])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE0B0200C1
-	for <virtualization@lists.linux.dev>; Sun, 17 Mar 2024 23:41:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710718918; cv=none; b=OurJJFaCKixbYZvEi+27j+YAQ6yuNT4dDOgYXYdypeVPOorq4AM/sGGjjC9I0uOC5mEZJYzjrJskBQ/6IA/rp0RznPqJndhbA6RZk/NfEs4RTr576AZhUPb6/xaSZUWX2xI3eQjAPQyj20u7u7NvkG63DsiphVBOgAHB4dPyia8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710718918; c=relaxed/simple;
-	bh=E0W+KPeRYgxbpPySJO8obxXEgAJoWeJnktC3ciM4R2I=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=bE1eIjd0fkgzgWqQy/bAViRu16A/Ot64pQko+ezY//8mCI45zaUs2R3UQpVgCorPYpRFBFFkxcHq5B0zWGPhHBmG9C7Fr3ujqG3u3wi7RhULnCLGmQdaBulear30EzvvPlyRH/lq+wtlv2I0eyWiIcbhrLZjm9IfIWXGiL5SZr0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DFXewxET; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 122B717BB5
+	for <virtualization@lists.linux.dev>; Mon, 18 Mar 2024 03:01:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.133.6
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1710730881; cv=fail; b=IuTKH9TWIYvUl+p53nVC8SmKiaDOtlBk664GaqYhPOlrjnW7S1fz2SuW96k2NpbgA7osLqYU/cBJgwrr0LrI5EuM4yjnrT7KhevOh7tk+7DITmRLzifz2PLeKSQr0IYWO9RR8IxRZQ/9Oc06dGUJShcfXGu5WdsMpwErav44P1Y=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1710730881; c=relaxed/simple;
+	bh=+epaA6onWInRYImB3hRBarnf/RV9MUAyvhVaZ9xU7NQ=;
+	h=From:To:Cc:Subject:Date:Message-Id:Content-Type:MIME-Version; b=XSbc0SPakbbI2yc3j4RlLO8Ci9c0VyjBvIIBkwnOeUL6w9wLHXGMoPY+E9wjuZVrWVf5SY8bnEWzhcbRQg1Gd/ffFROs0gbZUdYuJ4J1kcraQon8H9kJxCTDyLIGdLyI2ee1vqFZTiuebucn0uDUl4AEV0p6LVV7tpr2ZkEu3aM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=jaguarmicro.com; spf=pass smtp.mailfrom=jaguarmicro.com; dkim=pass (2048-bit key) header.d=jaguarmicro.com header.i=@jaguarmicro.com header.b=PK8ncrgp; arc=fail smtp.client-ip=52.101.133.6
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=jaguarmicro.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=jaguarmicro.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DFXewxET"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1710718915;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=VoTTZNQ7z7ZfL93MKLZfFSy4HN01sRZbWbDkkopjTv8=;
-	b=DFXewxETtylaNti/cnrGW1uOW3RJoLLq51ovYAHo8ZsRqrVTvE0LsexrTOmL83p+ee55NG
-	a9nMALTmdBVmjesBPvCPc7PEbkKYgN3iMR4J5xW/7U/0xl7rEgADf8VeuptSlKEYnnB8om
-	X8Kf9xZhp2OTqIFY5cLwaSNM2GVgBCQ=
-Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com
- [209.85.214.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-215-EoWaHvdaOeabBp1uRWAAHw-1; Sun, 17 Mar 2024 19:41:54 -0400
-X-MC-Unique: EoWaHvdaOeabBp1uRWAAHw-1
-Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-1e01bf88b99so5866245ad.1
-        for <virtualization@lists.linux.dev>; Sun, 17 Mar 2024 16:41:53 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710718913; x=1711323713;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=VoTTZNQ7z7ZfL93MKLZfFSy4HN01sRZbWbDkkopjTv8=;
-        b=asnftbiphd95sLEYQVD6nChH/snZE4GN7r01FG7W2BQYmiz+kThKmrko0eRKPGao+I
-         aVIMrpIcXfavJpqx8NTPewiX0KL8xJm+iZdfFkGkyRi8sASWasCWHEWdirzzUDeAiWNf
-         UJ4NfSolsoNjjyWKtYEVzCXFc0C9QvmsHIXW/ZaqXejIzTQaBjT2aPhpT+tiGgA0Chxu
-         p0AlE08YEXc8xbovbNhVExGY8Qzg+I2TqWvNskuWItlhodt76ORE7QmMUBXm/Km9/CFd
-         Kjn13jFbE66IX9daG5bxkxWtVGHbfAgaIqcekdMbOyayF0nfzt5QnbyLi3Pz0tH47RbR
-         J4yw==
-X-Gm-Message-State: AOJu0YzHDELj/nhUiLmIUKW+hwqaKacuKOEDw1rZ+keiA4ZJEBB5ax4c
-	0MujlGh8zPeMRe57eHfG+4oM3mG5pKQq1r90mPBFiiW3cixfIPkhN0+IIcF7+DU9dFzBKyUXWTk
-	ui2iFI7mDSbWPAQTX191jNq71XH5mz7amr4RtXGxETzRt68Q9TXYvTw4i+jmLmLRM
-X-Received: by 2002:a17:902:ee4d:b0:1dd:ba2c:c1c7 with SMTP id 13-20020a170902ee4d00b001ddba2cc1c7mr10818298plo.60.1710718912914;
-        Sun, 17 Mar 2024 16:41:52 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHEO/wqqfVzrPrcABSXe5zrIiQqNXi3v2vD8YlMPl0S/co5tg57mXT8eRN5oJ0hKyrMK8luEA==
-X-Received: by 2002:a17:902:ee4d:b0:1dd:ba2c:c1c7 with SMTP id 13-20020a170902ee4d00b001ddba2cc1c7mr10818282plo.60.1710718912496;
-        Sun, 17 Mar 2024 16:41:52 -0700 (PDT)
-Received: from [192.168.68.51] ([43.252.115.31])
-        by smtp.gmail.com with ESMTPSA id x9-20020a170902a38900b001e004924412sm2654363pla.108.2024.03.17.16.41.47
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 17 Mar 2024 16:41:51 -0700 (PDT)
-Message-ID: <589d980f-2e4d-47b4-9dc7-8c64dbe271ce@redhat.com>
-Date: Mon, 18 Mar 2024 09:41:45 +1000
+	dkim=pass (2048-bit key) header.d=jaguarmicro.com header.i=@jaguarmicro.com header.b="PK8ncrgp"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=C0CMt7vuvemXCBR8Xt6Lv9w0Bld1CiFIloVjJTcZbwq1JFfzgMi1pWY/RNmN5OqzwxpIA69Shn0e9IWkkcVWxpUPnEltrKQfroApmd6ZgXj3XY+DrafgEEiWX+hJzo9AXZ2LwVsLgMDnObQ8VpamO4tVpy+YRONtnqGQlMSXGhjRgp/DRxTEvHtDAhm6+jfR2unnma4db94BK53DwjpfqZlg3xybDLrdUSJGEtKuld6FlpFZT+CLZ8ZlmyCExFDl37SpiBoTxZhl47CZgorgpp4mjoa69gKNyvZtYQ7+ZQtlhB7EwXo+9zDCx6wt92d6XSwMG7fnDtPgqRM1IfvNhA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=zwREAFiGghBVZ7SXbtI6AiFfkRTyU2F9CFLM5E6AE8k=;
+ b=HrPfpEi2bQPDGXXPUTtOE5jkCrjJ8axTxKBpArRKZq2bIH9aR2E5SsxTCeM+sS8N2iefxWXBo028+f733nq19BUOrUv0Hfv83kf1gv3IKtd9jb3m6/Yi03TFoTWAHbFcfJHGuFhz+KVTkWnS94uT/ybyzcbG4nneF7+FWJcMaVDBoVJY/gSxiyCz2bJl72OUP5IEJGoINntS8Skv3+D0m4sBF27ps7WpFIOcDsKOrBqhZ5W0KZtafSpIycjsXwIaPtDxrKI+UJmD9wYksSCK9aOY1+lqBRynEG63X01Swjce63ui3gQ+hb3KBATvnX/K0ues32JyMc2o+k/AmKijPw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=jaguarmicro.com; dmarc=pass action=none
+ header.from=jaguarmicro.com; dkim=pass header.d=jaguarmicro.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=jaguarmicro.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=zwREAFiGghBVZ7SXbtI6AiFfkRTyU2F9CFLM5E6AE8k=;
+ b=PK8ncrgpc6rqCxCq0YZ8e6VGnEycUxY4QNhZAN4C4IToqjLQE7rrXLJMSO3i7k5uHER3LZYjIhZh7gc+gK+mHcCUfIHPYDMWkNRDf+WXr2sOKgR7BgaIlg+gVXlUombJOHDJwDtqE6R7nRPguLdF74Mhsm2LrcoZytgSIpDLQKT0ygirdaWtj+HfK4tqhk60Jo/Ql6xYQoFrxvz41hAW2SWGO1NqT4ofbATAIQA28SQUDY4vMoG9EafSifrBmi1YW2m0p0ZQUrNTFBegoyJBf/e9/QRWWz2g3DVsKuJ/DFhOt7nSaE+ZcvxTx1ctRYLPCtLe3Jp3guYmqL12YOE+MQ==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=jaguarmicro.com;
+Received: from SEYPR06MB6756.apcprd06.prod.outlook.com (2603:1096:101:165::11)
+ by SEYPR06MB6430.apcprd06.prod.outlook.com (2603:1096:101:16a::6) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7386.26; Mon, 18 Mar
+ 2024 03:01:11 +0000
+Received: from SEYPR06MB6756.apcprd06.prod.outlook.com
+ ([fe80::ce49:84ce:23db:8b8]) by SEYPR06MB6756.apcprd06.prod.outlook.com
+ ([fe80::ce49:84ce:23db:8b8%6]) with mapi id 15.20.7386.023; Mon, 18 Mar 2024
+ 03:01:11 +0000
+From: "gavin.liu" <gavin.liu@jaguarmicro.com>
+To: jasowang@redhat.com,
+	mst@redhat.com
+Cc: xuanzhuo@linux.alibaba.com,
+	virtualization@lists.linux.dev,
+	angus.chen@jaguarmicro.com,
+	yuxue.liu@jaguarmicro.com
+Subject: [PATCH] vp_vdpa: fix the method of calculating vectors
+Date: Mon, 18 Mar 2024 11:01:21 +0800
+Message-Id: <20240318030121.1873-1-gavin.liu@jaguarmicro.com>
+X-Mailer: git-send-email 2.33.0.windows.2
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: SG2PR01CA0150.apcprd01.prod.exchangelabs.com
+ (2603:1096:4:8f::30) To SEYPR06MB6756.apcprd06.prod.outlook.com
+ (2603:1096:101:165::11)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] virtio_ring: Fix the stale index in available ring
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- jasowang@redhat.com, xuanzhuo@linux.alibaba.com, yihyu@redhat.com,
- shan.gavin@gmail.com, Will Deacon <will@kernel.org>,
- Catalin Marinas <catalin.marinas@arm.com>,
- linux-arm-kernel@lists.infradead.org, mochs@nvidia.com
-References: <20240314074923.426688-1-gshan@redhat.com>
- <20240314040443-mutt-send-email-mst@kernel.org>
- <9b148de7-b687-4d10-b177-5608b8dc7046@redhat.com>
- <20240314074216-mutt-send-email-mst@kernel.org>
- <23dc6d00-6a57-4ddf-8611-f3c6f6a8e43c@redhat.com>
- <20240314085630-mutt-send-email-mst@kernel.org>
- <63002c24-8117-458f-84c7-fa4f7acd8cc6@redhat.com>
- <20240315065318-mutt-send-email-mst@kernel.org>
- <66e12633-b2d6-4b9a-9103-bb79770fcafa@redhat.com>
- <20240317124214-mutt-send-email-mst@kernel.org>
-From: Gavin Shan <gshan@redhat.com>
-In-Reply-To: <20240317124214-mutt-send-email-mst@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-
-On 3/18/24 02:50, Michael S. Tsirkin wrote:
-> On Fri, Mar 15, 2024 at 09:24:36PM +1000, Gavin Shan wrote:
->>
->> On 3/15/24 21:05, Michael S. Tsirkin wrote:
->>> On Fri, Mar 15, 2024 at 08:45:10PM +1000, Gavin Shan wrote:
->>>>>> Yes, I guess smp_wmb() ('dmb') is buggy on NVidia's grace-hopper platform. I tried
->>>> to reproduce it with my own driver where one thread writes to the shared buffer
->>>> and another thread reads from the buffer. I don't hit the out-of-order issue so
->>>> far.
->>>
->>> Make sure the 2 areas you are accessing are in different cache lines.
->>>
->>
->> Yes, I already put those 2 areas to separate cache lines.
->>
->>>
->>>> My driver may be not correct somewhere and I will update if I can reproduce
->>>> the issue with my driver in the future.
->>>
->>> Then maybe your change is just making virtio slower and masks the bug
->>> that is actually elsewhere?
->>>
->>> You don't really need a driver. Here's a simple test: without barriers
->>> assertion will fail. With barriers it will not.
->>> (Warning: didn't bother testing too much, could be buggy.
->>>
->>> ---
->>>
->>> #include <pthread.h>
->>> #include <stdio.h>
->>> #include <stdlib.h>
->>> #include <assert.h>
->>>
->>> #define FIRST values[0]
->>> #define SECOND values[64]
->>>
->>> volatile int values[100] = {};
->>>
->>> void* writer_thread(void* arg) {
->>> 	while (1) {
->>> 	FIRST++;
->>> 	// NEED smp_wmb here
->>          __asm__ volatile("dmb ishst" : : : "memory");
->>> 	SECOND++;
->>> 	}
->>> }
->>>
->>> void* reader_thread(void* arg) {
->>>       while (1) {
->>> 	int first = FIRST;
->>> 	// NEED smp_rmb here
->>          __asm__ volatile("dmb ishld" : : : "memory");
->>> 	int second = SECOND;
->>> 	assert(first - second == 1 || first - second == 0);
->>>       }
->>> }
->>>
->>> int main() {
->>>       pthread_t writer, reader;
->>>
->>>       pthread_create(&writer, NULL, writer_thread, NULL);
->>>       pthread_create(&reader, NULL, reader_thread, NULL);
->>>
->>>       pthread_join(writer, NULL);
->>>       pthread_join(reader, NULL);
->>>
->>>       return 0;
->>> }
->>>
->>
->> Had a quick test on NVidia's grace-hopper and Ampere's CPUs. I hit
->> the assert on both of them. After replacing 'dmb' with 'dsb', I can
->> hit assert on both of them too. I need to look at the code closely.
->>
->> [root@virt-mtcollins-02 test]# ./a
->> a: a.c:26: reader_thread: Assertion `first - second == 1 || first - second == 0' failed.
->> Aborted (core dumped)
->>
->> [root@nvidia-grace-hopper-05 test]# ./a
->> a: a.c:26: reader_thread: Assertion `first - second == 1 || first - second == 0' failed.
->> Aborted (core dumped)
->>
->> Thanks,
->> Gavin
-> 
-> 
-> Actually this test is broken. No need for ordering it's a simple race.
-> The following works on x86 though (x86 does not need barriers
-> though).
-> 
-> 
-> #include <pthread.h>
-> #include <stdio.h>
-> #include <stdlib.h>
-> #include <assert.h>
-> 
-> #if 0
-> #define x86_rmb()  asm volatile("lfence":::"memory")
-> #define x86_mb()  asm volatile("mfence":::"memory")
-> #define x86_smb()  asm volatile("sfence":::"memory")
-> #else
-> #define x86_rmb()  asm volatile("":::"memory")
-> #define x86_mb()  asm volatile("":::"memory")
-> #define x86_smb()  asm volatile("":::"memory")
-> #endif
-> 
-> #define FIRST values[0]
-> #define SECOND values[640]
-> #define FLAG values[1280]
-> 
-> volatile unsigned values[2000] = {};
-> 
-> void* writer_thread(void* arg) {
-> 	while (1) {
-> 	/* Now synchronize with reader */
-> 	while(FLAG);
-> 	FIRST++;
-> 	x86_smb();
-> 	SECOND++;
-> 	x86_smb();
-> 	FLAG = 1;
-> 	}
-> }
-> 
-> void* reader_thread(void* arg) {
->      while (1) {
-> 	/* Now synchronize with writer */
-> 	while(!FLAG);
-> 	x86_rmb();
-> 	unsigned first = FIRST;
-> 	x86_rmb();
-> 	unsigned second = SECOND;
-> 	assert(first - second == 1 || first - second == 0);
-> 	FLAG = 0;
-> 
-> 	if (!(first %1000000))
-> 		printf("%d\n", first);
->     }
-> }
-> 
-> int main() {
->      pthread_t writer, reader;
-> 
->      pthread_create(&writer, NULL, writer_thread, NULL);
->      pthread_create(&reader, NULL, reader_thread, NULL);
-> 
->      pthread_join(writer, NULL);
->      pthread_join(reader, NULL);
-> 
->      return 0;
-> }
-> 
-
-I tried it on host and VM of NVidia's grace-hopper. Without the barriers, I
-can hit assert. With the barriers, it's working fine without hitting the
-assert.
-
-I also had some code to mimic virtio vring last weekend, and it's just
-working well. Back to our original issue, __smb_wmb() is issued by guest
-while __smb_rmb() is executed on host. The VM and host are running at
-different exception level: EL2 vs EL1. I'm not sure it's the cause. I
-need to modify my code so that __smb_wmb() and __smb_rmb() can be executed
-from guest and host.
-
-[gshan@gshan code]$ cat test.h
-#ifndef __TEST_H
-#define __TEST_H
-
-struct vring_desc {
-	uint64_t	addr;
-	uint32_t	len;
-	uint16_t	flags;
-	uint16_t	next;
-} __attribute__((aligned(4)));
-
-struct vring_avail {
-	uint16_t	flags;
-	uint16_t	idx;
-	uint16_t	ring[];
-} __attribute__((aligned(4)));
-
-struct vring_used_elem {
-	uint32_t	id;
-	uint32_t	len;
-} __attribute__((aligned(4)));
-
-struct vring_used {
-	uint16_t 		flags;
-         uint16_t 		idx;
-         struct vring_used_elem	ring[];
-} __attribute__((aligned(4)));
-
-struct vring {
-	struct vring_desc	*desc;
-	struct vring_avail	*avail;
-	struct vring_used	*used;
-	uint8_t			pad0[64];
-
-	/* Writer */
-	uint32_t		num;
-	uint32_t		w_num_free;
-	uint32_t		w_free_head;
-	uint16_t		w_avail_idx;
-	uint16_t		w_last_used_idx;
-	uint16_t		*w_extra_data;
-	uint16_t		*w_extra_next;
-	uint8_t			pad1[64];
-
-	/* Reader */
-	uint16_t		r_avail_idx;
-	uint16_t		r_last_avail_idx;
-	uint16_t		r_last_used_idx;
-	uint8_t			pad2[64];
-};
-
-static inline unsigned int vring_size(unsigned int num, unsigned long align)
-{
-	return ((sizeof(struct vring_desc) * num +
-		 sizeof(uint16_t) * (3 + num) + (align - 1)) & ~(align - 1)) +
-	       sizeof(uint16_t) * 3 + sizeof(struct vring_used_elem) * num;
-		
-}
-
-static inline void __smp_rmb(void)
-{
-#ifdef WEAK_BARRIER
-	__asm__ volatile("dmb ishld" : : : "memory");
-#else
-	__asm__ volatile("dsb sy"    : : : "memory");
-#endif
-}
-
-static inline void __smp_wmb(void)
-{
-#ifdef WEAK_BARRIER
-	__asm__ volatile("dmb ishst" : : : "memory");
-#else
-	__asm__ volatile("dsb sy"    : : : "memory");
-#endif
-}
-
-#endif /* __TEST_H */
-
-
-[gshan@gshan code]$ cat test.c
-#define _GNU_SOURCE
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <errno.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <sys/types.h>
-#include <assert.h>
-#include <sched.h>
-#include <pthread.h>
-
-#include "test.h"
-
-static struct vring *vring;
-
-static int bind_cpu(int cpuid)
-{
-	cpu_set_t cpuset;
-
-	CPU_ZERO(&cpuset);
-	CPU_SET(cpuid, &cpuset);
-
-	return pthread_setaffinity_np(pthread_self(), sizeof(cpuset), &cpuset);
-}
-
-static void write_free_used_desc(void)
-{
-	uint16_t last_used;
-	uint32_t idx;
-
-	if ((uint16_t)(vring->used->idx - vring->w_last_used_idx) < 64)
-		return;
-
-	while (true) {
-		if (vring->w_last_used_idx == vring->used->idx)
-			return;
-
-		__smp_rmb();
-
-		/* Retrieve the head */
-		last_used = vring->w_last_used_idx & (vring->num - 1);
-		idx = vring->used->ring[last_used].id;
-		assert(idx < vring->num);
-		assert(vring->w_extra_data[idx]);
-
-		/* Reclaim the descriptor */
-		vring->w_extra_data[idx] = 0;
-		vring->w_extra_next[idx] = vring->w_free_head;
-		vring->w_free_head = idx;
-
-		/* Update statistics */
-		vring->w_num_free++;
-		vring->w_last_used_idx++;
-	}
-}
-
-static void write_push_desc(void)
-{
-	uint32_t head = vring->w_free_head;
-	uint32_t avail_idx;
-
-	if (vring->w_num_free < 1)
-		return;
-
-	/*
-	 * The data in the descriptor doesn't matter. The idea here
-	 * is to dirty the cache line.
-	 */
-	vring->desc[head].flags = 1;
-	vring->desc[head].addr  = 0xffffffffffffffff;
-	vring->desc[head].len   = 0xffffffff;
-	vring->desc[head].next  = vring->w_extra_next[head];
-	vring->desc[head].flags = 0;
-
-	vring->w_num_free--;
-	vring->w_free_head = vring->w_extra_next[head];
-	vring->w_extra_data[head] = 1;
-
-	avail_idx = vring->w_avail_idx & (vring->num - 1);
-	vring->avail->ring[avail_idx] = head;
-
-	__smp_wmb();
-
-	vring->w_avail_idx++;
-	vring->avail->idx = vring->w_avail_idx;
-}
-
-static void *write_worker(void *arg)
-{
-	assert(!bind_cpu(10));
-
-	while (true) {
-		write_free_used_desc();
-		write_push_desc();
-	}
-
-	return NULL;
-}
-
-static void read_pull_desc(void)
-{
-	uint16_t avail_idx, last_avail_idx;
-	uint32_t head;
-
-	last_avail_idx = vring->r_last_avail_idx;
-	if (vring->r_avail_idx == vring->r_last_avail_idx) {
-		vring->r_avail_idx = vring->avail->idx;
-		if (vring->r_avail_idx == last_avail_idx)
-			return;
-
-		__smp_rmb();
-	}
-
-	head = vring->avail->ring[last_avail_idx & (vring->num - 1)];
-	assert(head < vring->num);
-	vring->r_last_avail_idx++;
-
-	vring->used->ring[vring->r_last_used_idx & (vring->num - 1)].id  = head;
-	vring->used->ring[vring->r_last_used_idx & (vring->num - 1)].len = 0;
-	vring->r_last_used_idx++;
-
-	__smp_wmb();
-
-	vring->used->idx = vring->r_last_used_idx;
-}
-
-static void *read_worker(void *arg)
-{
-	assert(!bind_cpu(60));
-
-	while (true) {
-		read_pull_desc();
-	}
-
-	return NULL;
-}
-
-static void init_vring(unsigned int num, unsigned long align)
-{
-	unsigned int size, i;
-
-	/* vring */
-	vring = malloc(sizeof(*vring));
-	assert(vring);
-	memset(vring, 0, sizeof(*vring));
-
-	/* Descriptors */
-	size = vring_size(num, align);
-	vring->desc = (struct vring_desc *)malloc(size);
-	assert(vring->desc);
-	memset(vring->desc, 0, size);
-	vring->avail = (struct vring_avail *)((void *)vring->desc +
-					      num * sizeof(struct vring_desc));
-	vring->used = (struct vring_used *)(((unsigned long)&vring->avail->ring[num] +
-					    sizeof(uint16_t) + (align - 1)) & ~(align - 1));
-
-	/* Writer's extra data */
-	vring->w_extra_data = malloc(sizeof(uint16_t) * num);
-	assert(vring->w_extra_data);
-	memset(vring->w_extra_data, 0, sizeof(uint16_t) * num);
-	vring->w_extra_next = malloc(sizeof(uint16_t) * num);
-	assert(vring->w_extra_next);
-	memset(vring->w_extra_next, 0, sizeof(uint16_t) * num);
-	for (i = 0; i < num - 1; i++)
-		vring->w_extra_next[i] = i + 1;
-
-	/* Statistics */
-	vring->num = num;
-	vring->w_num_free = num;
-	vring->w_free_head = 0;
-	vring->w_avail_idx = 0;
-	vring->w_last_used_idx = 0;
-	vring->r_avail_idx = 0;
-	vring->r_last_avail_idx = 0;
-	vring->r_last_used_idx = 0;
-}
-
-int main(int argc, char **argv)
-{
-	pthread_t w_tid, r_tid;
-	int ret;
-
-	assert(!bind_cpu(0));
-
-	init_vring(256, 64);
-
-	ret = pthread_create(&w_tid, NULL, write_worker, NULL);
-	assert(!ret);
-	ret = pthread_create(&r_tid, NULL, read_worker, NULL);
-	assert(!ret);
-	ret = pthread_join(w_tid, NULL);
-	assert(!ret);
-	ret = pthread_join(r_tid, NULL);
-	assert(!ret);
-
-	while (true) {
-		sleep(1);
-	}
-
-	return 0;
-}
-
-Thanks,
-Gavin
-
-
-
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SEYPR06MB6756:EE_|SEYPR06MB6430:EE_
+X-MS-Office365-Filtering-Correlation-Id: bfde9c1e-cbd6-4cbb-63c8-08dc46f7aa1b
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	w/nnfDzAOS/QIB4VB7ig1m3AT9Q8PwihPUdu3Wv6HzUHxXR87y0dATkTCFuqf1lX7ZTiTo8LNdvjqhLraUvRpqHIkCsxlP+uhM0TjB0J+uHPmbyyMnMduH1gUcjaltxDNZ+aY9KkC6oWI+09oADvbpKvT4lIX4lFviWY0rEJTXBrato4Ao3p1SAsyUEnsklHfFAjpGqpSymuu2mMAC1eNDGJpOPhZh6jPibkTzWDnAC9hCzY3lIUDr1rWUubigWbT4wGtvkuxGkv4UVuuxmw3xT/ZH/KM3J+IrJpwFMtGkX1R8CNOUbfahOy/JU51Qp285VuYTm25OJWexSGDn/bk+LZ+3k8jJE4uApjMTHMazTe9EfSOLIxyaEht06ZhqMNAyIoOte1LBQzfTk+qfVw9Yv5PcBd1CCQizLTwJ39lhbSlVp1JlwYTRn5gm2EDknwxiKGd4wUYGK1P3HSshBdrjD/ymiMSUQ46Nw4BUwQhiF9biq2ZICGJLeTplEQ6s8bwjBv6BsvPUuDnRfPo9ps/+dzp/riRGF5s2PN7yoxTbabnvs16LtZGNzdzLCpxVTartOXlVLhVXqxi/psCVdHDDKGqTrYJmKA8st48GzmvfWVxVU1vzHMjwCxLcB/uk51lA9MxBAsACxv8B4bz670S8WLvqPiIkaNMHcZA8n0oP1Sz9gZJNUCdZnnDI7QDt7vrgbFBeMrCudCnRvNyyQekySuss0DlSzZDPoo3fiFlWU=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SEYPR06MB6756.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(376005)(1800799015)(52116005)(366007)(38350700005);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?6EwTTGltDjLAbItujWJ/3dPoGlJMhhObjOfasM3DkBxZqITMiqCgs2tZIVbm?=
+ =?us-ascii?Q?Qlds/P4Mv5pTPvko3mNI129XXP9kRZsRikK7ltDjKb7QgLGTS3w8G3TY9ooh?=
+ =?us-ascii?Q?R6qIPPA+pLkOTJZce9R9JW9NBC9R43xuzeb9gnTAUjiDK5H4sgrMICAUkup5?=
+ =?us-ascii?Q?O45W8HbSWsUIuTZiIoJIZjSeB2lAoNl/J/SIyUTPYMSSqiz15GSNszlqX3FS?=
+ =?us-ascii?Q?GB+wcuaLqWXNEB2cKAlWoYFvliRyKk8xA2h9RhEnpGhgrKwgGE0uQgron6Zj?=
+ =?us-ascii?Q?nbayImQRCN9yMvUDQoLjmpgyT9jc91YbqcRmi9bexxxcDN3R03KnnE3rQZCJ?=
+ =?us-ascii?Q?tLzmjsPOpiKBH/Rie+hoUoilROKFrLf+/VisTRXf9ExyMG5acSOS2Oa97CLt?=
+ =?us-ascii?Q?Dxn0TYOPnZhsUSBZpW8oTol212z5Z16LeLSWRGfR/4p1y2Ohv/rEO3MYOr2w?=
+ =?us-ascii?Q?m3N4r/qjIpRn4UCWzW39bvgT7SqWHgTcz1GrvoySfx6hv55mD2D/MfffWtrl?=
+ =?us-ascii?Q?RHZtHz43HlLLIkTK+s1kUZxi8ErVLw4Zt1WPd2nxzCGaCAehxzR36PqTU9FT?=
+ =?us-ascii?Q?CwmGS6jci/xNjlJQC3kzXsJ6F9IfTJN5RBgp6a4GkzJiWwpgbDYyZ2wgNy6E?=
+ =?us-ascii?Q?JfPS9uoThmNNUm9OwisSb24uSImRUFgMfdHpc855hBlfBfieBBLtdBUBXuL4?=
+ =?us-ascii?Q?ZlNQBtVxmjC3TZ2UnWyGt+85wVOIEc2iG7flU7OtPAp8BYFitrbyuKoAtG2F?=
+ =?us-ascii?Q?rFQO5Gx/No1HH9G6zH56lBMOuKyP88FarHLBIn0CfMeYdkZOcSa7WkpSaLc3?=
+ =?us-ascii?Q?Fbq02G9ucbuQwOPDGNdVI1FVXsRYldaLn+YzP/lqkMiXu19QYgDBKcfBUNIu?=
+ =?us-ascii?Q?VxUFJBm5HmXpII6N7T3qtoIploi3/ve5OxQi0GGs+dEqEJ6rrWBWn/ehAVzA?=
+ =?us-ascii?Q?acSunB965P5sas3XOqh2eAaYY2tPj0UuCklZwMD3VKxQw7LI+S5OXq2wfXut?=
+ =?us-ascii?Q?4JY2kJ72uJHHtammKz0E+hB1sVMf2BbzU4rEpX/BE1zMIgIPp+lD9zOsyisd?=
+ =?us-ascii?Q?8YBueDcgz/bzKQ+LSRVnkwg/AkM9kbkUxE5g1TxqJhCQTCezmgah54WxGHFA?=
+ =?us-ascii?Q?kOinCgfU7WFklXYjA1u0p9RIdjma6eDpucirqy4NA/e7R16roP/lOpBdJiPh?=
+ =?us-ascii?Q?MRs//f9/zgCuNlyCUZWkqk5rXnPve2TILaSkhDAbFMXC12VizOapD9ynL1mF?=
+ =?us-ascii?Q?PmQsIvBF7iFSznraZ6SqWO9XHh7d04Vubvy6d//dLfNS543p1GaqiS1uQw/t?=
+ =?us-ascii?Q?rkYVTKwo6qzxoDXd2v0k+aDlbDi94sXGiW3SDrDZGrJgVrN5hxMm1hKQXHyk?=
+ =?us-ascii?Q?keVnARYi2smq70dHeJoMdYoRx+Y264G9sgArLe3G8zbWiYnjlRuOiCM5F32P?=
+ =?us-ascii?Q?Q9C5lg0CRdnu6H4U+N+0nCHKmGi8vrJCQBT6pH8ENP1R/6a+ReRlYWx1Njhv?=
+ =?us-ascii?Q?z4p/270D5U2Uoqc3jzFLGNhMp/rJccOPj7UTIDrbipPE7yEbEMwbR1YDwD/m?=
+ =?us-ascii?Q?ZYfMPJvnywpeNn7OD5sbSqH6tTcz7lufG9RrX1ILgAk0pTGuGuwEMoPhxTMO?=
+ =?us-ascii?Q?uA=3D=3D?=
+X-OriginatorOrg: jaguarmicro.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: bfde9c1e-cbd6-4cbb-63c8-08dc46f7aa1b
+X-MS-Exchange-CrossTenant-AuthSource: SEYPR06MB6756.apcprd06.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Mar 2024 03:01:10.8350
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 1e45a5c2-d3e1-46b3-a0e6-c5ebf6d8ba7b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: JUp3GMHvEISN0CsqhIv1KR7vGQ8DzDnQOZuq+ElYpkf/3VHjvS0JFTzW9LI9KK/+g7S/3JgU6sb+9s0vAVIaKVPUbWnfdBnFCkKNp06YGOs=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SEYPR06MB6430
+
+From: Yuxue Liu <yuxue.liu@jaguarmicro.com>
+
+When there is a ctlq and it doesn't require interrupt
+callbacks,the original method of calculating vectors
+wastes hardware MSI or MSI-X resources as well as system
+IRQ resources. Referencing the per_vq_vectors mode in the
+vp_find_vqs_msix function, calculate the required number
+of vectors based on whether the callback is set.
+
+Signed-off-by: Yuxue Liu <yuxue.liu@jaguarmicro.com>
+---
+ drivers/vdpa/virtio_pci/vp_vdpa.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/vdpa/virtio_pci/vp_vdpa.c b/drivers/vdpa/virtio_pci/vp_vdpa.c
+index 281287fae89f..5066970b2570 100644
+--- a/drivers/vdpa/virtio_pci/vp_vdpa.c
++++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
+@@ -160,7 +160,13 @@ static int vp_vdpa_request_irq(struct vp_vdpa *vp_vdpa)
+ 	struct pci_dev *pdev = mdev->pci_dev;
+ 	int i, ret, irq;
+ 	int queues = vp_vdpa->queues;
+-	int vectors = queues + 1;
++	int vectors = 0;
++
++	for (i = 0; i < queues; i++) {
++		if (vp_vdpa->vring[i].cb.callback != NULL)
++			vectors++;
++	}
++	vectors = vectors + 1;
+ 
+ 	ret = pci_alloc_irq_vectors(pdev, vectors, vectors, PCI_IRQ_MSIX);
+ 	if (ret != vectors) {
+@@ -172,7 +178,7 @@ static int vp_vdpa_request_irq(struct vp_vdpa *vp_vdpa)
+ 
+ 	vp_vdpa->vectors = vectors;
+ 
+-	for (i = 0; i < queues; i++) {
++	for (i = 0; i < vectors - 1; i++) {
+ 		snprintf(vp_vdpa->vring[i].msix_name, VP_VDPA_NAME_SIZE,
+ 			"vp-vdpa[%s]-%d\n", pci_name(pdev), i);
+ 		irq = pci_irq_vector(pdev, i);
+@@ -191,7 +197,7 @@ static int vp_vdpa_request_irq(struct vp_vdpa *vp_vdpa)
+ 
+ 	snprintf(vp_vdpa->msix_name, VP_VDPA_NAME_SIZE, "vp-vdpa[%s]-config\n",
+ 		 pci_name(pdev));
+-	irq = pci_irq_vector(pdev, queues);
++	irq = pci_irq_vector(pdev, vectors - 1);
+ 	ret = devm_request_irq(&pdev->dev, irq,	vp_vdpa_config_handler, 0,
+ 			       vp_vdpa->msix_name, vp_vdpa);
+ 	if (ret) {
+@@ -199,7 +205,7 @@ static int vp_vdpa_request_irq(struct vp_vdpa *vp_vdpa)
+ 			"vp_vdpa: fail to request irq for vq %d\n", i);
+ 			goto err;
+ 	}
+-	vp_modern_config_vector(mdev, queues);
++	vp_modern_config_vector(mdev, vectors - 1);
+ 	vp_vdpa->config_irq = irq;
+ 
+ 	return 0;
+-- 
+2.43.0
 
