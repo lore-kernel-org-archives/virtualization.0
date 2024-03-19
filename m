@@ -1,145 +1,87 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9DC25915E
-	for <virtualization@lists.linux.dev>; Tue, 19 Mar 2024 16:05:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77CEB1CD24
+	for <virtualization@lists.linux-foundation.org>; Tue, 19 Mar 2024 16:32:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710864305; cv=none; b=QQHiBw8dtkdy+QQZN2Zquc1EevxUy/JbZ/Vx27kO0pV08sAqm2QzCtngqAi7gFbOmalSPcJVbQzjUg6ROTN70IkbAh7Jpvr4UTTO8c8rJ+NMXNMkyWOHYFDSOBBAf38G089jA0LbMEUpvggjG6axnZS7OF2OsLMCP5fsJ3ISv7g=
+	t=1710865942; cv=none; b=a5UPoGQlYhXNowGehg04U2uzF6WDvxFTsTWgXxwP3tlePqwbXaYhzaXWEdC/T4zPSx0Su1vbBGcWOQdr5//f/liXZ3NuFzPZW1SpRVUq0cKKDCUFI+JVyk5iCXUuqEEyzyRRLSVERI/X8rsoHdMNsNshJwOUOJeGjmNdyAQYKt0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710864305; c=relaxed/simple;
-	bh=wd2kotEU4+NV46zBwHOnAc6q+O57rHDgbCGcnVkk5As=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=fMJLuVMktzVRvFsyAwG8s8VKZ/9vQXbYjEEgXOECMK9O7TFBAh8SivSxUeStEm2nZJXmCC/Eyv2/M0w92b1e1/xZ7YGvEJUeW+RuwHyF3yDoFoHXI0Co1ct4WW+Ajzz0pC9Dycbf7pk/StbHcW16faNkpQSKVAMHeyvGiZ3il30=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bmEfqL0f; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1710865942; c=relaxed/simple;
+	bh=dlwS+ClYwtdCIhyRMHsdbtRf3zIzcBodhDuKwd+a6r4=;
+	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=WgIbyIbWSmXt7j2P+mdZFzsQoGSs/2kbVpnfrqaudFC1cZh10QdZpgnv46E6dzrargSxzhy99WvwfXsvg5BCwvfg5xJVGdVR4lPS3LmOJ3DQT093hyWABptAokqTLd2NV0en5bNEKlrGP8ldP1kLo2/zdHDZQG46CkEZTctnz9A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KqafG1FO; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bmEfqL0f"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1710864301;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=15s/C56ODRym9kta7gLOhHOx5AT1fdwfDUQsPKBzp58=;
-	b=bmEfqL0fDi3lFX+WLRWKwmLQhc4pWez4dA1MIH7lPaEReK/j3u/5UCCZ/w/ncA3nFd/K9E
-	xQnYuOrc3GKiWIb5sHiZrmIbVY1i/RZV16n/Dm3XVg4cp2AzQX7K0uyq4VySA11a4ddz7l
-	5WvHahNsgm/sGnQhFksZ3M0OXflUIIA=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-466-Z5F0eoffNHCETPKAqa47ZQ-1; Tue, 19 Mar 2024 12:04:59 -0400
-X-MC-Unique: Z5F0eoffNHCETPKAqa47ZQ-1
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-40e4478a3afso30565455e9.1
-        for <virtualization@lists.linux.dev>; Tue, 19 Mar 2024 09:04:59 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710864298; x=1711469098;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=15s/C56ODRym9kta7gLOhHOx5AT1fdwfDUQsPKBzp58=;
-        b=sElw0Pfhvuom4t0klv4PNTF2fTYEu63h+E7vvkt+GKhB5Z/a6CPbNBwwOnQsqYUJwN
-         laY0qLTsEvPAW8PT5ea+cLlC14SJerdq/zNgQMWO1MHrVRtFy/3iWQ9uPtEaIhwmC/Dg
-         VHJPrdOWk+Jtr9s0/R4L00mjD8qG/Ffa4KtEWeZW2hWJ1yzq0M+WWVk9kFBOKigWvZQF
-         /kq/siqPUVeNEEZYiYejwe+cPjm6tSQbonV22FIf+QLvFexc+5gfO3bIPKyk7W5Y2UPU
-         BJiwq93IWeZSP/QxiBP52yI1hCVxNf4Ln8PTsQnTcjJtnzKDk8s39PhpULFwb/za0kXk
-         hpxw==
-X-Forwarded-Encrypted: i=1; AJvYcCUo9tpsczirxhx1pBNv4hv2hwPnuVDdo2BZzQJLDheVa9fkUoOA8Rn3tdXTZwjWHdwmhRxKCGyTtBdgxfl7RExNVWwvdqwfp6DJytKKv4E=
-X-Gm-Message-State: AOJu0YxxlxF+Cj5ggKv5nMClhV4JVcDti5BgmSFg+6sQoI1n08vJSQsc
-	eip2UWzCr/ldIigPe88qHV58tuXjE6NvHqQweJxS0tqLDKZBcLEr3VfnBG3mV9KZCuMLVn8uq6X
-	HycuOmKMrUvRJxllvpFM8xvbbWPF0s/yb+wXKMkkKSV17cGaafhY/WnJFZ8h2WyYM
-X-Received: by 2002:a05:600c:3549:b0:412:e8f5:c368 with SMTP id i9-20020a05600c354900b00412e8f5c368mr2972241wmq.8.1710864298153;
-        Tue, 19 Mar 2024 09:04:58 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGy9AQxl/PxRcdKYu42VuFZ9eAfvxR4sdCSilJk4srz+SscCAOc540dUoBEKrGBWv/KtOU12g==
-X-Received: by 2002:a05:600c:3549:b0:412:e8f5:c368 with SMTP id i9-20020a05600c354900b00412e8f5c368mr2972211wmq.8.1710864297831;
-        Tue, 19 Mar 2024 09:04:57 -0700 (PDT)
-Received: from sgarzare-redhat (host-87-12-25-33.business.telecomitalia.it. [87.12.25.33])
-        by smtp.gmail.com with ESMTPSA id p22-20020a05600c359600b0041404f017easm12902033wmq.0.2024.03.19.09.04.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Mar 2024 09:04:57 -0700 (PDT)
-Date: Tue, 19 Mar 2024 17:04:52 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Zhu Lingshan <lingshan.zhu@intel.com>
-Cc: jasowang@redhat.com, mst@redhat.com, virtualization@lists.linux.dev
-Subject: Re: [PATCH 02/10] vDPA: report virtio-block max segment size to user
- space
-Message-ID: <etmgf3zcsnuz5hoj26g2nr7qunc7dxqg5p5hb43oe2mefkgyk5@4dofowgn4vcy>
-References: <20240218185606.13509-1-lingshan.zhu@intel.com>
- <20240218185606.13509-3-lingshan.zhu@intel.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KqafG1FO"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 2543F40BD5
+	for <virtualization@lists.linux-foundation.org>; Tue, 19 Mar 2024 16:32:21 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -4.401
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id lRLRvAHV69nP
+	for <virtualization@lists.linux-foundation.org>;
+	Tue, 19 Mar 2024 16:32:20 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=145.40.73.55; helo=sin.source.kernel.org; envelope-from=pr-tracker-bot@kernel.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 1D3D8403E5
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=kernel.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1D3D8403E5
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=KqafG1FO
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 1D3D8403E5
+	for <virtualization@lists.linux-foundation.org>; Tue, 19 Mar 2024 16:32:19 +0000 (UTC)
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by sin.source.kernel.org (Postfix) with ESMTP id D3816CE0ECB;
+	Tue, 19 Mar 2024 16:32:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 07641C433C7;
+	Tue, 19 Mar 2024 16:32:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1710865935;
+	bh=dlwS+ClYwtdCIhyRMHsdbtRf3zIzcBodhDuKwd+a6r4=;
+	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+	b=KqafG1FOkpQ1tdSHmOM60N3qo+kOfsYOfMeSna55txX+1i+AeJRYBB0RLCBBwOJdA
+	 P8Zl+dfevApg/fTIQzEwgyrWb/g2LivLHaHjVjnZFHXDxLpRR2hihs7OGrSZFFdDZu
+	 e5szhg4Z+P6J0PAnAVAfHnj08LTiNzpKMxgC3V17cKU2TMawKIrDohePcxHoPclan9
+	 sWVA46+AnWm6O7WR0Mlcw01n+EU7qeyguE34jiW1OrK+VUxpCQkbTmaph2xrv0bs8s
+	 Y6KXl7cKjswa3L4uxlA+jknT5YRY0Woznmtz8Ldre8Uh75/h0QYeGzPWtD9aVospJA
+	 P6DpI9lV8tBtA==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id F1E92D84BB3;
+	Tue, 19 Mar 2024 16:32:14 +0000 (UTC)
+Subject: Re: [GIT PULL] virtio: features, fixes
+From: pr-tracker-bot@kernel.org
+In-Reply-To: <20240319034143-mutt-send-email-mst@kernel.org>
+References: <20240319034143-mutt-send-email-mst@kernel.org>
+X-PR-Tracked-List-Id: <kvm.vger.kernel.org>
+X-PR-Tracked-Message-Id: <20240319034143-mutt-send-email-mst@kernel.org>
+X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+X-PR-Tracked-Commit-Id: 5da7137de79ca6ffae3ace77050588cdf5263d33
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: d95fcdf4961d27a3d17e5c7728367197adc89b8d
+Message-Id: <171086593498.7768.14462757833782378841.pr-tracker-bot@kernel.org>
+Date: Tue, 19 Mar 2024 16:32:14 +0000
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, alex.williamson@redhat.com, andrew@daynix.com, david@redhat.com, dtatulea@nvidia.com, eperezma@redhat.com, feliu@nvidia.com, gregkh@linuxfoundation.org, jasowang@redhat.com, jean-philippe@linaro.org, jonah.palmer@oracle.com, leiyang@redhat.com, lingshan.zhu@intel.com, maxime.coquelin@redhat.com, mst@redhat.com, ricardo@marliere.net, shannon.nelson@amd.com, stable@kernel.org, steven.sistare@oracle.com, suzuki.poulose@arm.com, xuanzhuo@linux.alibaba.com, yishaih@nvidia.com
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-In-Reply-To: <20240218185606.13509-3-lingshan.zhu@intel.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
 
-On Mon, Feb 19, 2024 at 02:55:58AM +0800, Zhu Lingshan wrote:
->This commit allows reporting the max size of any
->single segment of virtio-block devices to user space.
->
->Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
->---
-> drivers/vdpa/vdpa.c       | 17 +++++++++++++++++
-> include/uapi/linux/vdpa.h |  1 +
-> 2 files changed, 18 insertions(+)
->
->diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
->index d5ccb618de2b..ee1472d32b0d 100644
->--- a/drivers/vdpa/vdpa.c
->+++ b/drivers/vdpa/vdpa.c
->@@ -956,6 +956,20 @@ vdpa_dev_blk_capacity_config_fill(struct sk_buff *msg,
-> 				 val_u64, VDPA_ATTR_PAD);
-> }
->
->+static int
->+vdpa_dev_blk_seg_size_config_fill(struct sk_buff *msg, u64 features,
->+				  const struct virtio_blk_config *config)
->+{
->+	u32 val_u32;
->+
->+	if ((features & BIT_ULL(VIRTIO_BLK_F_SIZE_MAX)) == 0)
->+		return 0;
->+
->+	val_u32 = __virtio32_to_cpu(true, config->size_max);
->+
->+	return nla_put_u32(msg, VDPA_ATTR_DEV_BLK_CFG_SEG_SIZE, val_u32);
+The pull request you sent on Tue, 19 Mar 2024 03:41:43 -0400:
 
-Should we call this VDPA_ATTR_DEV_BLK_CFG_SIZE_MAX ?
+> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
->+}
->+
-> static int vdpa_dev_blk_config_fill(struct vdpa_device *vdev,
-> 				    struct sk_buff *msg)
-> {
->@@ -973,6 +987,9 @@ static int vdpa_dev_blk_config_fill(struct vdpa_device *vdev,
-> 	if (vdpa_dev_blk_capacity_config_fill(msg, &config))
-> 		return -EMSGSIZE;
->
->+	if (vdpa_dev_blk_seg_size_config_fill(msg, features_device, &config))
->+		return -EMSGSIZE;
->+
-> 	return 0;
-> }
->
->diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
->index 1bf69226cb96..586bce3c906a 100644
->--- a/include/uapi/linux/vdpa.h
->+++ b/include/uapi/linux/vdpa.h
->@@ -57,6 +57,7 @@ enum vdpa_attr {
-> 	VDPA_ATTR_DEV_FEATURES,                 /* u64 */
->
-> 	VDPA_ATTR_DEV_BLK_CFG_CAPACITY,		/* u64 */
->+	VDPA_ATTR_DEV_BLK_CFG_SEG_SIZE,		/* u32 */
->
-> 	/* new attributes must be added above here */
-> 	VDPA_ATTR_MAX,
->-- 
->2.39.3
->
->
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/d95fcdf4961d27a3d17e5c7728367197adc89b8d
 
+Thank you!
+
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
