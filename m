@@ -1,212 +1,276 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43D375473F
-	for <virtualization@lists.linux-foundation.org>; Tue, 19 Mar 2024 07:41:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 721CC54775
+	for <virtualization@lists.linux.dev>; Tue, 19 Mar 2024 08:08:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710834117; cv=none; b=nm5rNlH+ji1PqpUZGWMtVqz9QDQ9gwL03yhC3kQGhSQSpj1JpPdGQuhaxgH4J+n6GxDL4uEFbgsozoEj29GJZVfpBhoCq18Wqx5ispPwQ4JjLnHe3P0E9mo8Yi1D+gv36aVhiLkiZkHc0Yrl2fddS4VmV4Sh9QdcFt6Yg2A//3Y=
+	t=1710835720; cv=none; b=PeHQKffmP3WoD0CFk6E1nxYTDOZxlpNHCBg9QqUTZrzGx+9jAVfsyq1B2D1R+uLPcJDfThLGmEkm0Fwh8X/k0r/wSRcN5RSVKBpFUoYI0LaOq/vtPDYeDMgyQRDvadHkLFXI66Rgngan9fxm0Flg0sB7BM+apkalNUcEayx3zpA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710834117; c=relaxed/simple;
-	bh=2crLoEVLnwiq99cE6HQUHEb+ylseepzZNYcoRSHN6zw=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=AFVa0cZlUeztJJJ4nbBIezmAYUZ5oUVtRYGxLGVMaBcglmbj6Qr9xASfWXAq2YpKiseUI3moKndHXj70M2ewkPIe6Q9DkHDcFXLj4FZImYbVJHneTvganvK14dxGqSQOJRC/kNp9RiA0Fd99OXo1MJXddIu1/6XD2KCTgAp89hg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Uu+P8N19; arc=none smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1710835720; c=relaxed/simple;
+	bh=8ibEuIaVig1hAiYyalS4W6OCLW5TeFYVgNtcnd7QKyo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=N4+6uX4HFXDgiAJIlJ1XvHcF5DQ58LJ0rQuBTHXgaRyOj7iI8nYkMB9otFlCZB1sLsl0RFqEViaXmk9GxXgCBg/2KwcNcDW1KENFPN55Wp7ogByPIpujc+91+5bzknzs/oxSpo9W9UiH1fSiW6C6RbP5Ux387ws5MU3xu5zWbbg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FLPeyV5v; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Uu+P8N19"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id D29AF81764
-	for <virtualization@lists.linux-foundation.org>; Tue, 19 Mar 2024 07:41:55 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Woj9xehJ0-r8
-	for <virtualization@lists.linux-foundation.org>;
-	Tue, 19 Mar 2024 07:41:54 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 99A208146E
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 99A208146E
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Uu+P8N19
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 99A208146E
-	for <virtualization@lists.linux-foundation.org>; Tue, 19 Mar 2024 07:41:54 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FLPeyV5v"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1710834113;
+	s=mimecast20190719; t=1710835717;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-	bh=sTsSPri+D6Wdelir2mIVSESP1KmjuvB/LjDkRovj8pE=;
-	b=Uu+P8N19DBOsip+SS2CDg3oLJDUyn5kdE1ttiBF3zMB7oOD505ERiBlLSy51Tya0GyP5Nh
-	zaQ9bXHWtZYWUqYyqkA+tVO1kmOSJTTdGCZaDhpPCguddB1ZmwOQGFcTs9uyAQXExC8xZK
-	FMFbH9JoHXZk1BwNXxFs/LIVOH52fAI=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Ju8gWBaWN+2UIqDfiEjPtIBulqNS5l/Hxkm05DauZf8=;
+	b=FLPeyV5vUpRaH4r6Cc7j53+2PVQRlIKA4cTeebivjXypHshJtuTgkxJvkD42Juc5nkkUnT
+	gusx+b/GnjWXGgkQpsZaTRmKw09m7BrpetXgKArOQdvg32rkaMZBHJg/Wj6CufKDSW4y45
+	wijDZIVULZeZ6mhGJpexJW5+NWWfa+E=
+Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com
+ [209.85.215.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-679-k8uhEfIXNMqZzbwPwDKVAg-1; Tue, 19 Mar 2024 03:41:49 -0400
-X-MC-Unique: k8uhEfIXNMqZzbwPwDKVAg-1
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-33ed22facfeso2055353f8f.0
-        for <virtualization@lists.linux-foundation.org>; Tue, 19 Mar 2024 00:41:49 -0700 (PDT)
+ us-mta-282-zaxQ-gknMlyO7qw4Zcc7Xw-1; Tue, 19 Mar 2024 04:08:35 -0400
+X-MC-Unique: zaxQ-gknMlyO7qw4Zcc7Xw-1
+Received: by mail-pg1-f200.google.com with SMTP id 41be03b00d2f7-5c17cff57f9so2974495a12.0
+        for <virtualization@lists.linux.dev>; Tue, 19 Mar 2024 01:08:34 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710834109; x=1711438909;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+        d=1e100.net; s=20230601; t=1710835714; x=1711440514;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=sTsSPri+D6Wdelir2mIVSESP1KmjuvB/LjDkRovj8pE=;
-        b=X6iqRXFe9ZlqZobDLsyLSzsS6XRB3kkRHvegYT0AnfbYEbOeiNDA83YFm9eFLmQIuZ
-         qfuhhbStj+BeM5ZyMBDaNtIWvXSL9rl3k8UphbdWpdv0NAi2AxNi3t0NeQ24GGFfVlHA
-         kcVuORo7wp2dHRs8tggpTSLM9/FbTGiNBw097FXalubFmNrKduT/CjDE+dg1FmiQR7mx
-         dPMIG9i1mVVZ+SJzsalH2ksWHFeOIVyoqUNt8r2ZcYjll/T7/4QxcdzHx9wPQDDNunnY
-         Tu3TjpAHYN12R0OVqDY4g5AY8SP8/tyw/uyqIYz4Mfx/w0KLhU7TktMftY8RtcjDbn6G
-         eKJg==
-X-Forwarded-Encrypted: i=1; AJvYcCWp3pUW5tUI1QDCJdGNnrMY6T0ddzOs6RufhtI7lh/vqPY5RoopRzEkNdGBCivSTGnTeNifjsQ9R7OLuB4rCw5HLjiLRSZDSVDaviqaAuOE9UnmJLAGenfxsA==
-X-Gm-Message-State: AOJu0YxnSaD1WbcsgtH8Lq0zfI3Z61Ofqk+G8paCavlKmgkwcCxTqEBn
-	ud7qhsaUVF3GPH0W+7rEjHl9yOzRJs/ElAoUZ5plP5q0ZMCFfOhdOLxowJ25zQpveCO6E2s5xzJ
-	h9De+0YbEP+S8eSkypHwWJ5nOcA31gVQUFt7H98NOMlb9w7XWuSsxgx8kql0yrjtdSFO0TUhJAk
-	Msjfk=
-X-Received: by 2002:a5d:4e11:0:b0:33e:7adc:516c with SMTP id p17-20020a5d4e11000000b0033e7adc516cmr10534530wrt.57.1710834108687;
-        Tue, 19 Mar 2024 00:41:48 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFAK2WGJat4vmdPSy7ECLAOOCSKt1cm0uCh7BMlmPoT49BMQqI0q9+XAAprgAMQmNyXP8ysuQ==
-X-Received: by 2002:a5d:4e11:0:b0:33e:7adc:516c with SMTP id p17-20020a5d4e11000000b0033e7adc516cmr10534503wrt.57.1710834108096;
-        Tue, 19 Mar 2024 00:41:48 -0700 (PDT)
-Received: from redhat.com ([2.52.6.254])
-        by smtp.gmail.com with ESMTPSA id t18-20020a5d42d2000000b0033e456f6e7csm11781382wrr.1.2024.03.19.00.41.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Mar 2024 00:41:47 -0700 (PDT)
-Date: Tue, 19 Mar 2024 03:41:43 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-	alex.williamson@redhat.com, andrew@daynix.com, david@redhat.com,
-	dtatulea@nvidia.com, eperezma@redhat.com, feliu@nvidia.com,
-	gregkh@linuxfoundation.org, jasowang@redhat.com,
-	jean-philippe@linaro.org, jonah.palmer@oracle.com,
-	leiyang@redhat.com, lingshan.zhu@intel.com,
-	maxime.coquelin@redhat.com, mst@redhat.com, ricardo@marliere.net,
-	shannon.nelson@amd.com, stable@kernel.org,
-	steven.sistare@oracle.com, suzuki.poulose@arm.com,
-	xuanzhuo@linux.alibaba.com, yishaih@nvidia.com
-Subject: [GIT PULL] virtio: features, fixes
-Message-ID: <20240319034143-mutt-send-email-mst@kernel.org>
+        bh=Ju8gWBaWN+2UIqDfiEjPtIBulqNS5l/Hxkm05DauZf8=;
+        b=Ws7F1bED1pjMOg0ouv6GDO3dZ2lWimS8YwQYBPAxqO18vcZqWYYLicVC0PbwFq309i
+         zx43zq1vdb2m7y8FqOf8g71CiBNh5fVy+cNowJsRtmDf6Dytlcjf3gFQn/S/AsOcSTyL
+         4RxyNYf3+mq6yGq04Vhjr2eFLibtwX/R5WkRtWGkXLiG/V9YfeqjD5fl4betA8Y5+aDe
+         AY+ZF7mamghcqw91bidufJiqonPwZKW98+4A9/5ufO7XOze0Am0RXgLzvlW29Gs63IkD
+         X001zA9Qp67ZpPvFOEYyDCW9+Q3qb2SpcyAfpzd8oOUtYud/RhwygdFtzjveas2wW5Zt
+         SjUg==
+X-Forwarded-Encrypted: i=1; AJvYcCUh15+BN1bB0rN+mx0JOxdddeV2A2k3EBnl5MeAlIEVurLebRzhphEHtYRpzd24luWtlmyC0Upz/9UXycxWoIqn1BEJgREw/DcwIwxxOCk=
+X-Gm-Message-State: AOJu0YxEbDu5w30SR/pzd86f0yPxXRcRVd24XrTmyKcvGS4oT+86culp
+	EHPKCVM8OsFGze5/y4FxSMCaa0Xb7rvKJDMgAanTWDhy7lJ01LwEBWmT3ngcX+Jk0SaBJZMyskN
+	kKDK2E7yArIujuDkHDlOkkcI+PI3rETTpU6Onz8CwBxH/9K2LLBBoEvnxHWzIHk8r
+X-Received: by 2002:a05:6a20:3955:b0:1a3:6704:8885 with SMTP id r21-20020a056a20395500b001a367048885mr1371132pzg.51.1710835713764;
+        Tue, 19 Mar 2024 01:08:33 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFk7L/5R++tIec7RGJ5dVuOOSuByzVSgvORsavBQdMwSBFir5LXMrz07yEfky6wE6VMoQutNA==
+X-Received: by 2002:a05:6a20:3955:b0:1a3:6704:8885 with SMTP id r21-20020a056a20395500b001a367048885mr1371095pzg.51.1710835712980;
+        Tue, 19 Mar 2024 01:08:32 -0700 (PDT)
+Received: from [192.168.68.51] ([43.252.115.31])
+        by smtp.gmail.com with ESMTPSA id h14-20020a170902680e00b001dda608484asm10932340plk.57.2024.03.19.01.08.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 19 Mar 2024 01:08:32 -0700 (PDT)
+Message-ID: <e582f248-28e9-4d0b-aa5d-26b82cd96a68@redhat.com>
+Date: Tue, 19 Mar 2024 18:08:27 +1000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mutt-Fcc: =sent
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] virtio_ring: Fix the stale index in available ring
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Will Deacon <will@kernel.org>, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, jasowang@redhat.com,
+ xuanzhuo@linux.alibaba.com, yihyu@redhat.com, shan.gavin@gmail.com,
+ linux-arm-kernel@lists.infradead.org,
+ Catalin Marinas <catalin.marinas@arm.com>, mochs@nvidia.com
+References: <20240314074923.426688-1-gshan@redhat.com>
+ <20240318165924.GA1824@willie-the-truck>
+ <35a6bcef-27cf-4626-a41d-9ec0a338fe28@redhat.com>
+ <20240319020905-mutt-send-email-mst@kernel.org>
+ <9b3030d1-cb2c-4ce0-8b24-1074b616fc84@redhat.com>
+ <20240319024025-mutt-send-email-mst@kernel.org>
+ <d8387677-7025-4daa-b8b5-5a8f24a671d5@redhat.com>
+ <20240319030505-mutt-send-email-mst@kernel.org>
+From: Gavin Shan <gshan@redhat.com>
+In-Reply-To: <20240319030505-mutt-send-email-mst@kernel.org>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The following changes since commit e8f897f4afef0031fe618a8e94127a0934896aba:
+On 3/19/24 17:09, Michael S. Tsirkin wrote:
+> On Tue, Mar 19, 2024 at 04:49:50PM +1000, Gavin Shan wrote:
+>>
+>> On 3/19/24 16:43, Michael S. Tsirkin wrote:
+>>> On Tue, Mar 19, 2024 at 04:38:49PM +1000, Gavin Shan wrote:
+>>>> On 3/19/24 16:09, Michael S. Tsirkin wrote:
+>>>>
+>>>>>>>> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+>>>>>>>> index 49299b1f9ec7..7d852811c912 100644
+>>>>>>>> --- a/drivers/virtio/virtio_ring.c
+>>>>>>>> +++ b/drivers/virtio/virtio_ring.c
+>>>>>>>> @@ -687,9 +687,15 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+>>>>>>>>      	avail = vq->split.avail_idx_shadow & (vq->split.vring.num - 1);
+>>>>>>>>      	vq->split.vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, head);
+>>>>>>>> -	/* Descriptors and available array need to be set before we expose the
+>>>>>>>> -	 * new available array entries. */
+>>>>>>>> -	virtio_wmb(vq->weak_barriers);
+>>>>>>>> +	/*
+>>>>>>>> +	 * Descriptors and available array need to be set before we expose
+>>>>>>>> +	 * the new available array entries. virtio_wmb() should be enough
+>>>>>>>> +	 * to ensuere the order theoretically. However, a stronger barrier
+>>>>>>>> +	 * is needed by ARM64. Otherwise, the stale data can be observed
+>>>>>>>> +	 * by the host (vhost). A stronger barrier should work for other
+>>>>>>>> +	 * architectures, but performance loss is expected.
+>>>>>>>> +	 */
+>>>>>>>> +	virtio_mb(false);
+>>>>>>>>      	vq->split.avail_idx_shadow++;
+>>>>>>>>      	vq->split.vring.avail->idx = cpu_to_virtio16(_vq->vdev,
+>>>>>>>>      						vq->split.avail_idx_shadow);
+>>>>>>>
+>>>>>>> Replacing a DMB with a DSB is _very_ unlikely to be the correct solution
+>>>>>>> here, especially when ordering accesses to coherent memory.
+>>>>>>>
+>>>>>>> In practice, either the larger timing different from the DSB or the fact
+>>>>>>> that you're going from a Store->Store barrier to a full barrier is what
+>>>>>>> makes things "work" for you. Have you tried, for example, a DMB SY
+>>>>>>> (e.g. via __smb_mb()).
+>>>>>>>
+>>>>>>> We definitely shouldn't take changes like this without a proper
+>>>>>>> explanation of what is going on.
+>>>>>>>
+>>>>>>
+>>>>>> Thanks for your comments, Will.
+>>>>>>
+>>>>>> Yes, DMB should work for us. However, it seems this instruction has issues on
+>>>>>> NVidia's grace-hopper. It's hard for me to understand how DMB and DSB works
+>>>>>> from hardware level. I agree it's not the solution to replace DMB with DSB
+>>>>>> before we fully understand the root cause.
+>>>>>>
+>>>>>> I tried the possible replacement like below. __smp_mb() can avoid the issue like
+>>>>>> __mb() does. __ndelay(10) can avoid the issue, but __ndelay(9) doesn't.
+>>>>>>
+>>>>>> static inline int virtqueue_add_split(struct virtqueue *_vq, ...)
+>>>>>> {
+>>>>>>        :
+>>>>>>            /* Put entry in available array (but don't update avail->idx until they
+>>>>>>             * do sync). */
+>>>>>>            avail = vq->split.avail_idx_shadow & (vq->split.vring.num - 1);
+>>>>>>            vq->split.vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, head);
+>>>>>>
+>>>>>>            /* Descriptors and available array need to be set before we expose the
+>>>>>>             * new available array entries. */
+>>>>>>            // Broken: virtio_wmb(vq->weak_barriers);
+>>>>>>            // Broken: __dma_mb();
+>>>>>>            // Work:   __mb();
+>>>>>>            // Work:   __smp_mb();
+>>>>>>            // Work:   __ndelay(100);
+>>>>>>            // Work:   __ndelay(10);
+>>>>>>            // Broken: __ndelay(9);
+>>>>>>
+>>>>>>           vq->split.avail_idx_shadow++;
+>>>>>>            vq->split.vring.avail->idx = cpu_to_virtio16(_vq->vdev,
+>>>>>>                                                    vq->split.avail_idx_shadow);
+>>>>>
+>>>>> What if you stick __ndelay here?
+>>>>>
+>>>>
+>>>>          /* Put entry in available array (but don't update avail->idx until they
+>>>>            * do sync). */
+>>>>           avail = vq->split.avail_idx_shadow & (vq->split.vring.num - 1);
+>>>>           vq->split.vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, head);
+>>>>
+>>>>           /* Descriptors and available array need to be set before we expose the
+>>>>            * new available array entries. */
+>>>>           virtio_wmb(vq->weak_barriers);
+>>>>           vq->split.avail_idx_shadow++;
+>>>>           vq->split.vring.avail->idx = cpu_to_virtio16(_vq->vdev,
+>>>>                                                   vq->split.avail_idx_shadow);
+>>>>           /* Try __ndelay(x) here as Michael suggested
+>>>>            *
+>>>>            * Work:      __ndelay(200);    possiblly make it hard to reproduce
+>>>>            * Broken:    __ndelay(100);
+>>>>            * Broken:    __ndelay(20);
+>>>>            * Broken:    __ndelay(10);
+>>>>            */
+>>>>           __ndelay(200);
+>>>
+>>> So we see that just changing the timing masks the race.
+>>> What are you using on the host side? vhost or qemu?
+>>>
+>>
+>> __ndelay(200) may make the issue harder to be reproduce as I understand.
+>> More delays here will give vhost relief, reducing the race.
+>>
+>> The issue is only reproducible when vhost is turned on. Otherwise, we
+>> aren't able to hit the issue.
+>>
+>>     -netdev tap,id=vnet0,vhost=true,script=/etc/qemu-ifup,downscript=/etc/qemu-ifdown \
+>>     -device virtio-net-pci,bus=pcie.8,netdev=vnet0,mac=52:54:00:f1:26:b0
+> 
+> 
+> Given it's vhost, it's also possible that the issue is host side.
+> I wonder what happens if we stick a delay or a stronger barrier
+> in vhost.c - either here:
+> 
+>          /* Make sure buffer is written before we update index. */
+>          smp_wmb();
+> 
+> 
+> or here:
+> 
+>                  /* Only get avail ring entries after they have been
+>                   * exposed by guest.
+>                   */
+>                  smp_rmb();
+> 
+> ?
+> 
 
-  Linux 6.8 (2024-03-10 13:38:09 -0700)
+It's possible. However, I still can hit the issue after both of them are
+replaed with '__mb()'. So the issue seems on the guest side, where the
+written data isn't observed in time by the CPU on far end (for vhost worker).
 
-are available in the Git repository at:
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 045f666b4f12..327b68d21b02 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -2529,7 +2529,8 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+                 /* Only get avail ring entries after they have been
+                  * exposed by guest.
+                  */
+-               smp_rmb();
++               // smp_rmb();
++               __mb();
+         }
+  
+         /* Grab the next descriptor number they're advertising, and increment
+@@ -2703,7 +2704,9 @@ int vhost_add_used_n(struct vhost_virtqueue *vq, struct vring_used_elem *heads,
+         r = __vhost_add_used_n(vq, heads, count);
+  
+         /* Make sure buffer is written before we update index. */
+-       smp_wmb();
++       // smp_wmb();
++       __mb();
++
 
-  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+ From the guest:
 
-for you to fetch changes up to 5da7137de79ca6ffae3ace77050588cdf5263d33:
+[   14.102608] virtio_net virtio0: output.0:id 80 is not a head!
 
-  virtio_net: rename free_old_xmit_skbs to free_old_xmit (2024-03-19 03:19:22 -0400)
 
-----------------------------------------------------------------
-virtio: features, fixes
+>>>>
+>>>>>
+>>>>>>            vq->num_added++;
+>>>>>>
+>>>>>>            pr_debug("Added buffer head %i to %p\n", head, vq);
+>>>>>>            END_USE(vq);
+>>>>>>            :
+>>>>>> }
+>>>>>>
+>>>>>> I also tried to measure the consumed time for various barrier-relative instructions using
+>>>>>> ktime_get_ns() which should have consumed most of the time. __smb_mb() is slower than
+>>>>>> __smp_wmb() but faster than __mb()
+>>>>>>
+>>>>>>        Instruction           Range of used time in ns
+>>>>>>        ----------------------------------------------
+>>>>>>        __smp_wmb()           [32  1128032]
+>>>>>>        __smp_mb()            [32  1160096]
+>>>>>>        __mb()                [32  1162496]
+>>>>>>
 
-Per vq sizes in vdpa.
-Info query for block devices support in vdpa.
-DMA sync callbacks in vduse.
-
-Fixes, cleanups.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Andrew Melnychenko (1):
-      vhost: Added pad cleanup if vnet_hdr is not present.
-
-David Hildenbrand (1):
-      virtio: reenable config if freezing device failed
-
-Jason Wang (2):
-      virtio-net: convert rx mode setting to use workqueue
-      virtio-net: add cond_resched() to the command waiting loop
-
-Jonah Palmer (1):
-      vdpa/mlx5: Allow CVQ size changes
-
-Maxime Coquelin (1):
-      vduse: implement DMA sync callbacks
-
-Ricardo B. Marliere (2):
-      vdpa: make vdpa_bus const
-      virtio: make virtio_bus const
-
-Shannon Nelson (1):
-      vdpa/pds: fixes for VF vdpa flr-aer handling
-
-Steve Sistare (2):
-      vdpa_sim: reset must not run
-      vdpa: skip suspend/resume ops if not DRIVER_OK
-
-Suzuki K Poulose (1):
-      virtio: uapi: Drop __packed attribute in linux/virtio_pci.h
-
-Xuan Zhuo (3):
-      virtio: packed: fix unmap leak for indirect desc table
-      virtio_net: unify the code for recycling the xmit ptr
-      virtio_net: rename free_old_xmit_skbs to free_old_xmit
-
-Zhu Lingshan (20):
-      vhost-vdpa: uapi to support reporting per vq size
-      vDPA: introduce get_vq_size to vdpa_config_ops
-      vDPA/ifcvf: implement vdpa_config_ops.get_vq_size
-      vp_vdpa: implement vdpa_config_ops.get_vq_size
-      eni_vdpa: implement vdpa_config_ops.get_vq_size
-      vdpa_sim: implement vdpa_config_ops.get_vq_size for vDPA simulator
-      vduse: implement vdpa_config_ops.get_vq_size for vduse
-      virtio_vdpa: create vqs with the actual size
-      vDPA/ifcvf: get_max_vq_size to return max size
-      vDPA/ifcvf: implement vdpa_config_ops.get_vq_num_min
-      vDPA: report virtio-block capacity to user space
-      vDPA: report virtio-block max segment size to user space
-      vDPA: report virtio-block block-size to user space
-      vDPA: report virtio-block max segments in a request to user space
-      vDPA: report virtio-block MQ info to user space
-      vDPA: report virtio-block topology info to user space
-      vDPA: report virtio-block discarding configuration to user space
-      vDPA: report virtio-block write zeroes configuration to user space
-      vDPA: report virtio-block read-only info to user space
-      vDPA: report virtio-blk flush info to user space
-
- drivers/net/virtio_net.c             | 151 +++++++++++++++---------
- drivers/vdpa/alibaba/eni_vdpa.c      |   8 ++
- drivers/vdpa/ifcvf/ifcvf_base.c      |  11 +-
- drivers/vdpa/ifcvf/ifcvf_base.h      |   2 +
- drivers/vdpa/ifcvf/ifcvf_main.c      |  15 +++
- drivers/vdpa/mlx5/net/mlx5_vnet.c    |  13 ++-
- drivers/vdpa/pds/aux_drv.c           |   2 +-
- drivers/vdpa/pds/vdpa_dev.c          |  20 +++-
- drivers/vdpa/pds/vdpa_dev.h          |   1 +
- drivers/vdpa/vdpa.c                  | 214 ++++++++++++++++++++++++++++++++++-
- drivers/vdpa/vdpa_sim/vdpa_sim.c     |  15 ++-
- drivers/vdpa/vdpa_user/iova_domain.c |  27 ++++-
- drivers/vdpa/vdpa_user/iova_domain.h |   8 ++
- drivers/vdpa/vdpa_user/vduse_dev.c   |  34 ++++++
- drivers/vdpa/virtio_pci/vp_vdpa.c    |   8 ++
- drivers/vhost/net.c                  |   3 +
- drivers/vhost/vdpa.c                 |  14 +++
- drivers/virtio/virtio.c              |   6 +-
- drivers/virtio/virtio_ring.c         |   6 +-
- drivers/virtio/virtio_vdpa.c         |   5 +-
- include/linux/vdpa.h                 |   6 +
- include/uapi/linux/vdpa.h            |  17 +++
- include/uapi/linux/vhost.h           |   7 ++
- include/uapi/linux/virtio_pci.h      |  10 +-
- 24 files changed, 521 insertions(+), 82 deletions(-)
+Thanks,
+Gavin
 
