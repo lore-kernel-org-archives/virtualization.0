@@ -1,137 +1,259 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f171.google.com (mail-lj1-f171.google.com [209.85.208.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C83A27F48D
-	for <virtualization@lists.linux-foundation.org>; Tue, 19 Mar 2024 12:21:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4B727F7C0
+	for <virtualization@lists.linux.dev>; Tue, 19 Mar 2024 12:29:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710850918; cv=none; b=VNzjeTNmACcisALh7PoeUNOmIpv31HJFUhB3Y5b7xmgeQa1hqDTo9SGUAR2F3MMUMsYtEqlqORszfEIXrdD/FGnomg8i6bJUXpJchALb1jlZDlgOmMpP4cKrE+94ZpTpdf1Prifjv63blDT5+BFKr78SKXQgKW6nHOwzXAU6/Ew=
+	t=1710851377; cv=none; b=V1Sjzc7xKjyp74KFxjPoREW0hebO7HmV3dYfpLfPi1u6xIk6lkQ8PAPuCwi8nkkMSWnR97cOLcyCUyeWQV821daIzu4O/AqrA2zRUZeKkKKOJoT70yMN+sG9TNSSS0ynB2C4Na1q4/XshwxgTzcTc0iif4BPzWE8XqbGNY9jESU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710850918; c=relaxed/simple;
-	bh=qjqkqT8pZjwVcGcPOjT8S/YwSWCuV7Rv8qOtJCVbWUw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=oXP9dVUtLTHOXWDMuTt/BD6cnFO5Y0jtL0Ko+Ocgdr0xrHSPkylyJGOFAxi8f46xi19+egmEavrMohgJihjPk09Qr411ZRzRsvIFLaij/vdJ0j4reSfUrYP0x5v5jj2VtqVuzrPOfrSwlKzprodmhL+esvgEa6MzZnmUIxvtqMs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=W727OLu4; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1710851377; c=relaxed/simple;
+	bh=r7LQvPSbTVcUADe+MFtzy5TaJbb3VOdeiXAzNHTbuxk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=q/aHMgYEJyuqOcWM/jppGxK52TeCxKl8p5tZ4cY1He9CVhv719Fbzsllmc7TwRDDd15uqa9NmLkYydiF2sIGOiGMO4SFrpG3BaeCHnQYsCbvsoZG9+bKyW2AXPMgcsHTA406PzwRWIMw3Bw1eEg17qT2gDn9YrhlLrnRFesiD00=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gooddata.com; spf=pass smtp.mailfrom=gooddata.com; dkim=pass (1024-bit key) header.d=gooddata.com header.i=@gooddata.com header.b=NhUOBiiG; arc=none smtp.client-ip=209.85.208.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gooddata.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gooddata.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="W727OLu4"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 5163B60AE1
-	for <virtualization@lists.linux-foundation.org>; Tue, 19 Mar 2024 12:21:56 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id qUVXpE8Lk9uy
-	for <virtualization@lists.linux-foundation.org>;
-	Tue, 19 Mar 2024 12:21:55 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 90CB760AA8
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 90CB760AA8
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=W727OLu4
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 90CB760AA8
-	for <virtualization@lists.linux-foundation.org>; Tue, 19 Mar 2024 12:21:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1710850914;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=fcURuON76N2jBOBvhQi/fRmFrRjaRgELhmNbazWraRw=;
-	b=W727OLu4y/6TQo9Xn7668FoOZwcRclkuXkBRK8FrYpvQIQeDWUebgR4arJ//k/HCOqAgXF
-	uWzi6iHES4OtcSUocon794rHtR978+rKdEs4IITrbKCzv78w8Y2Yv2k4edM+GqlmU3E5hA
-	XAaMjTlRaLkFtwDJYTyv6ORRgvKazIo=
-Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
- [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-283-GKTT4pfPOCClYmI-FWG6Rg-1; Tue, 19 Mar 2024 08:21:53 -0400
-X-MC-Unique: GKTT4pfPOCClYmI-FWG6Rg-1
-Received: by mail-lf1-f71.google.com with SMTP id 2adb3069b0e04-513ec050f5cso1637546e87.1
-        for <virtualization@lists.linux-foundation.org>; Tue, 19 Mar 2024 05:21:53 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710850911; x=1711455711;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+	dkim=pass (1024-bit key) header.d=gooddata.com header.i=@gooddata.com header.b="NhUOBiiG"
+Received: by mail-lj1-f171.google.com with SMTP id 38308e7fff4ca-2d24a727f78so63949901fa.0
+        for <virtualization@lists.linux.dev>; Tue, 19 Mar 2024 05:29:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gooddata.com; s=google; t=1710851374; x=1711456174; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=fcURuON76N2jBOBvhQi/fRmFrRjaRgELhmNbazWraRw=;
-        b=OgSZI8ZQgRRS2i07rdRfFyquR1OVRxVjLYOlvvAqduO9AJqVHL7ysfdUUCBfbTa5/X
-         2zYYH6oHnvIVnN/JqtQXfM+ks8XnhcrpSDMPZyzyyIN8DOxCldjPmlHIpZAtfUOXgWDW
-         f5wGMBUbtStM1BarF96yKaniYEmMIKcrsJYPLpJaRQOCN1GksxDg6TSFV867Rm+doxO1
-         IVRMl1uWXQeI2Y4iMZtZed+mMDHuhOzT4DPSQCDLlZqVCJ2M+3LuVmzGN5Y0EDY/nveo
-         HBlsuJVCezay8eDFpdzO+QT20J0X2hoEXh+FiLM2fzXDplrVAvHBzY59engkdNcQeDTC
-         0J3w==
-X-Forwarded-Encrypted: i=1; AJvYcCU8HNkBJelV/r9xQ3yB3p092ZuVUUteki8vmnEtswS2xW7G75rnwh6nYywxzI7kcSv/2kSBoSZMpczR4l+Z99ql2IGgmgRCvt0/BtSZ4Q0vCRie3jDWBgJEng==
-X-Gm-Message-State: AOJu0Yw/EDh4Ah2KW/QpUXR9wnqp2J7gOQzyr87e6cuAGdrMb0n0vW9t
-	SLChqs3pwRmOS/slBk3DBwGkzS9SSfXZ4zhcF3i6itYQ59odnqU8e+MbpdpTlYgHf0ZBiDNMwgt
-	8IdghsVuPs0FO5ZtKVmz1BMERuqZKdnbo14P/TZdO53TJgMr07QchDgdae5DeQwCXR820oUnG85
-	7+e/I=
-X-Received: by 2002:a05:6512:29c:b0:513:1e31:ddec with SMTP id j28-20020a056512029c00b005131e31ddecmr1778313lfp.40.1710850911470;
-        Tue, 19 Mar 2024 05:21:51 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFhc9xlMsZwNZSLJmLpjDngn3edaSnQJUFYnLMn1neznXIr75uSIGVCW6AHqadrgQY3NJEJYg==
-X-Received: by 2002:a05:6512:29c:b0:513:1e31:ddec with SMTP id j28-20020a056512029c00b005131e31ddecmr1778292lfp.40.1710850910940;
-        Tue, 19 Mar 2024 05:21:50 -0700 (PDT)
-Received: from redhat.com ([2.52.6.254])
-        by smtp.gmail.com with ESMTPSA id f2-20020a7bc8c2000000b00414041032casm442527wml.1.2024.03.19.05.21.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Mar 2024 05:21:50 -0700 (PDT)
-Date: Tue, 19 Mar 2024 08:21:46 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Maxime Coquelin <maxime.coquelin@redhat.com>
-Cc: jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
-	xieyongji@bytedance.com, virtualization@lists.linux-foundation.org,
-	linux-kernel@vger.kernel.org, david.marchand@redhat.com,
-	lulu@redhat.com
-Subject: Re: [PATCH v7 0/3] vduse: add support for networking devices
-Message-ID: <20240319081938-mutt-send-email-mst@kernel.org>
-References: <20240109111025.1320976-1-maxime.coquelin@redhat.com>
- <f25f3c31-c793-4743-a587-0e2063dc2d65@redhat.com>
- <20240201033944-mutt-send-email-mst@kernel.org>
- <27d1fc65-14d2-4a1c-b1fa-c3250ac2356a@redhat.com>
+        bh=S9hKCYDSzXyqAgTbSXm0uyTkE4NDjKRN02YkqXSTPPE=;
+        b=NhUOBiiG69AAcYcsajR9bU2sNTqpJxc2ltTabvCpKH/m74pfriyZ5MliDg2kvpDPjD
+         x9CsaN9y8DBEZe1MECYc56dWn6QA/3k5Aun5ArfZrdC8V88wNEDhZ+0FGqiBSL/nlFF7
+         8ghEZNdTjegyIyPdONJOBIt3IiVgGd8yo66XU=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1710851374; x=1711456174;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=S9hKCYDSzXyqAgTbSXm0uyTkE4NDjKRN02YkqXSTPPE=;
+        b=TbAOfthKkOtSxQgmTJF8TD/ZlfNbby/tih3GgED/YcIrzzJ/WGTI+K3I1rT1k8iSU0
+         eQXo13agOViBJhdmT6q6FFVtwm6/vS+AXuIYtIEpEyFUJkeTj8bj5i5+RmkNv0VX58Gc
+         OGtmVrS/3PIPYrJJXFM+oAWJsdViK3xqAfSnXQfFBXbvj2+sXxQZdBd5ZiPzTYgbgsGE
+         uZ2mte2foC+ZwK1l9R7/gSRsAFoiXKUQzmJfxBYspMgGfTjH/eu+pjp9TAlK3ha2/fz2
+         ij3ts7KWsFjSXMIq5QJvNberRoy/49+7e7HIbLWXK5QFfll+zz3PDyY39Ots6CjDcOyn
+         4NfQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWYDMFjp4scFFyxqB7IlVkAnU5LWSNyyy8vQuGVoTmvih1KWyiHyL0Z3evxVHciZ5hdRgMx7MV2IuCeeRtCQ1Ro38tv5PFk7N2kFxV9oC0=
+X-Gm-Message-State: AOJu0YxeREH3yqD35snltdnmGjwy1PTTuvP1ZzqB597ONv5pvkNc/4z0
+	3dMi/CNeZSz8rAGvgypRYawpUYElUbqRPtZ3Qfyf1BOGa1xWWp4e2X7wM7cth4asDwG6TONQje1
+	8ous30rJNrzswMRd4rbNh4SY6BZRNdR+i7FhHzuQg/uSo0G0pMigx
+X-Google-Smtp-Source: AGHT+IF94iynmBXpU9wTklLZ6UhQkCL1JEqJVFqbFF4TC/0qk21TwJn2uH3hjeOoLJo5WVgYH1M+zF4elaEuDFVnywc=
+X-Received: by 2002:a2e:a68d:0:b0:2d4:57c5:886c with SMTP id
+ q13-20020a2ea68d000000b002d457c5886cmr8268471lje.13.1710851373851; Tue, 19
+ Mar 2024 05:29:33 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <27d1fc65-14d2-4a1c-b1fa-c3250ac2356a@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+References: <CA+9S74hbTMxckB=HgRiqL6b8ChZMQfJ6-K9y_GQ0ZDiWkev_vA@mail.gmail.com>
+In-Reply-To: <CA+9S74hbTMxckB=HgRiqL6b8ChZMQfJ6-K9y_GQ0ZDiWkev_vA@mail.gmail.com>
+From: Igor Raits <igor@gooddata.com>
+Date: Tue, 19 Mar 2024 13:29:22 +0100
+Message-ID: <CA+9S74izRjDRb1DLOcpeju4kS=6O9zm6bbCksKABtwfu68PPYw@mail.gmail.com>
+Subject: Re: REGRESSION: RIP: 0010:skb_release_data+0xb8/0x1e0 in vhost/tun
+To: kvm@vger.kernel.org, virtualization@lists.linux.dev, 
+	netdev@vger.kernel.org
+Cc: Stefano Garzarella <sgarzare@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
+	Jaroslav Pulchart <jaroslav.pulchart@gooddata.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Feb 29, 2024 at 11:16:04AM +0100, Maxime Coquelin wrote:
-> Hello Michael,
-> 
-> On 2/1/24 09:40, Michael S. Tsirkin wrote:
-> > On Thu, Feb 01, 2024 at 09:34:11AM +0100, Maxime Coquelin wrote:
-> > > Hi Jason,
-> > > 
-> > > It looks like all patches got acked by you.
-> > > Any blocker to queue the series for next release?
-> > > 
-> > > Thanks,
-> > > Maxime
-> > 
-> > I think it's good enough at this point. Will put it in
-> > linux-next shortly.
-> > 
-> 
-> I fetched linux-next and it seems the series is not in yet.
-> Is there anything to be reworked on my side?
-> 
-> Thanks,
-> Maxime
+Hello again,
 
-I am sorry I messed up. It was in a wrong branch and was not
-pushed so of course it did not get tested and I kept wondering
-why. I pushed it in my tree but it is too late to put it upstream
-for this cycle. Assuming Linus merges my tree
-with no drama, I will make an effort not to rebase my tree below them
-so these patches will keep their hashes, you can use them already.
+On Tue, Mar 19, 2024 at 10:00=E2=80=AFAM Igor Raits <igor@gooddata.com> wro=
+te:
+>
+> Hello,
+>
+> We have started to observe kernel crashes on 6.7.y kernels (atm we
+> have hit the issue 5 times on 6.7.5 and 6.7.10). On 6.6.9 where we
+> have nodes of cluster it looks stable. Please see stacktrace below. If
+> you need more information please let me know.
 
--- 
-MST
+We have tried to downgrade to 6.6.y (6.6.9 in this case) and it looks
+like we get a slightly different crash but maybe in a similar
+direction.
 
+[  906.338157] usercopy: Kernel memory exposure attempt detected from
+SLUB object 'skbuff_head_cache' (offset 2, size 3006)!
+[  906.349149] ------------[ cut here ]------------
+[  906.353785] kernel BUG at mm/usercopy.c:102!
+[  906.358081] invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
+[  906.363314] CPU: 62 PID: 9143 Comm: vhost-9119 Tainted: G
+ E      6.6.9-2.gdc.el9.x86_64 #1
+[  906.372541] Hardware name: Dell Inc. PowerEdge R7525/0H3K7P, BIOS
+2.14.1 12/17/2023
+[  906.380209] RIP: 0010:usercopy_abort+0x6a/0x80
+[  906.384665] Code: 61 78 af 50 48 c7 c2 62 61 78 af 57 48 c7 c7 28
+df 79 af 48 0f 44 d6 48 c7 c6 88 df 79 af 4c 89 d1 49 0f 44 f3 e8 f6
+f1 d5 ff <0f> 0b 49 c7 c1 d0 40 7b af 4c 89 cf 4d 89 c8 eb a9 0f 1f 44
+00 00
+[  906.403419] RSP: 0018:ffffc9000fdb3b58 EFLAGS: 00010246
+[  906.408662] RAX: 000000000000006d RBX: 0000000000000002 RCX: 00000000000=
+00000
+[  906.415802] RDX: 0000000000000000 RSI: ffff88c05fb9f700 RDI: ffff88c05fb=
+9f700
+[  906.422941] RBP: 0000000000000bbe R08: 0000000000000000 R09: 00000000fff=
+f7fff
+[  906.430077] R10: ffffc9000fdb3a10 R11: ffffffffb01e26a8 R12: ffff889881b=
+6bd40
+[  906.437214] R13: 0000000000000001 R14: 0000000000000002 R15: ffff889069f=
+adee0
+[  906.444348] FS:  00007f4552ca3f80(0000) GS:ffff88c05fb80000(0000)
+knlGS:0000000000000000
+[  906.452523] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  906.458276] CR2: 00007f7bc42f3000 CR3: 0000003878eb6006 CR4: 00000000007=
+70ee0
+[  906.465408] PKRU: 55555554
+[  906.468118] Call Trace:
+[  906.470570]  <TASK>
+[  906.472680]  ? die+0x33/0x90
+[  906.475572]  ? do_trap+0xe0/0x110
+[  906.478892]  ? usercopy_abort+0x6a/0x80
+[  906.482733]  ? do_error_trap+0x65/0x80
+[  906.486484]  ? usercopy_abort+0x6a/0x80
+[  906.490323]  ? exc_invalid_op+0x4e/0x70
+[  906.494163]  ? usercopy_abort+0x6a/0x80
+[  906.498003]  ? asm_exc_invalid_op+0x16/0x20
+[  906.502188]  ? usercopy_abort+0x6a/0x80
+[  906.506026]  ? usercopy_abort+0x6a/0x80
+[  906.509866]  __check_heap_object+0xd5/0x110
+[  906.514056]  __check_object_size.part.0+0x5e/0x140
+[  906.518853]  simple_copy_to_iter+0x26/0x50
+[  906.522958]  __skb_datagram_iter+0x199/0x2e0
+[  906.527235]  ? __pfx_simple_copy_to_iter+0x10/0x10
+[  906.532028]  skb_copy_datagram_iter+0x33/0x90
+[  906.536389]  tun_put_user.constprop.0+0x16b/0x370 [tun]
+[  906.541624]  tun_do_read+0x54/0x1f0 [tun]
+[  906.545646]  tun_recvmsg+0x7e/0x160 [tun]
+[  906.549667]  handle_rx+0x3ab/0x750 [vhost_net]
+[  906.554123]  vhost_worker+0x42/0x70 [vhost]
+[  906.558314]  vhost_task_fn+0x4b/0xb0
+[  906.561903]  ? finish_task_switch.isra.0+0x8f/0x2a0
+[  906.566788]  ? __pfx_vhost_task_fn+0x10/0x10
+[  906.571073]  ? __pfx_vhost_task_fn+0x10/0x10
+[  906.575351]  ret_from_fork+0x2d/0x50
+[  906.578937]  ? __pfx_vhost_task_fn+0x10/0x10
+[  906.583219]  ret_from_fork_asm+0x1b/0x30
+[  906.587152]  </TASK>
+[  906.589340] Modules linked in: nf_conntrack_netlink(E) vhost_net(E)
+vhost(E) vhost_iotlb(E) tap(E) tun(E) rpcsec_gss_krb5(E)
+auth_rpcgss(E) nfsv4(E) dns_resolver(E) nfs(E) lockd(E) grace(E)
+fscache(E) netfs(E) netconsole(E) ib_core(E) scsi_transport_iscsi(E)
+sch_ingress(E) target_core_user(E) uio(E) target_core_pscsi(E)
+target_core_file(E) target_core_iblock(E) iscsi_target_mod(E)
+target_core_mod(E) 8021q(E) garp(E) mrp(E) bonding(E) tls(E)
+nfnetlink_cttimeout(E) nfnetlink(E) openvswitch(E) nf_conncount(E)
+nf_nat(E) binfmt_misc(E) dell_rbu(E) sunrpc(E) vfat(E) fat(E)
+dm_service_time(E) dm_multipath(E) btrfs(E) intel_rapl_msr(E)
+intel_rapl_common(E) xor(E) zstd_compress(E) ipmi_ssif(E) raid6_pq(E)
+amd64_edac(E) edac_mce_amd(E) kvm_amd(E) kvm(E) dell_smbios(E)
+irqbypass(E) acpi_ipmi(E) dcdbas(E) dell_wmi_descriptor(E) wmi_bmof(E)
+ipmi_si(E) acpi_cpufreq(E) rapl(E) ipmi_devintf(E) ptdma(E) wmi(E)
+i2c_piix4(E) k10temp(E) ipmi_msghandler(E) acpi_power_meter(E) fuse(E)
+drm(E) zram(E) ext4(E) mbcache(E) jbd2(E) dm_crypt(E)
+[  906.589385]  sd_mod(E) t10_pi(E) sg(E) crct10dif_pclmul(E)
+crc32_pclmul(E) polyval_clmulni(E) ahci(E) polyval_generic(E)
+ghash_clmulni_intel(E) libahci(E) ice(E) sha512_ssse3(E) libata(E)
+ccp(E) megaraid_sas(E) gnss(E) sp5100_tco(E) dm_mirror(E)
+dm_region_hash(E) dm_log(E) dm_mod(E) nf_conntrack(E) libcrc32c(E)
+crc32c_intel(E) nf_defrag_ipv6(E) nf_defrag_ipv4(E) br_netfilter(E)
+bridge(E) stp(E) llc(E)
+[  906.679233] Unloaded tainted modules: fjes(E):2
+[  906.719287] ---[ end trace 0000000000000000 ]---
+
+> We do not have a consistent reproducer but when we put some bigger
+> network load on a VM, the hypervisor's kernel crashes.
+>
+> Help is much appreciated! We are happy to test any patches.
+>
+> [62254.167584] stack segment: 0000 [#1] PREEMPT SMP NOPTI
+> [62254.173450] CPU: 63 PID: 11939 Comm: vhost-11890 Tainted: G
+>    E      6.7.10-1.gdc.el9.x86_64 #1
+> [62254.183743] Hardware name: Dell Inc. PowerEdge R7525/0H3K7P, BIOS
+> 2.14.1 12/17/2023
+> [62254.192083] RIP: 0010:skb_release_data+0xb8/0x1e0
+> [62254.197357] Code: 48 83 c3 01 39 d8 7e 54 48 89 d8 48 c1 e0 04 41
+> 80 7d 7e 00 49 8b 6c 04 30 79 0f 44 89 f6 48 89 ef e8 4c e4 ff ff 84
+> c0 75 d0 <48> 8b 45 08 a8 01 0f 85 09 01 00 00 e9 d9 00 00 00 0f 1f 44
+> 00 00
+> [62254.217013] RSP: 0018:ffffa975a0247ba8 EFLAGS: 00010206
+> [62254.222692] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 000000000=
+0000785
+> [62254.230263] RDX: 0000000000000016 RSI: 0000000000000002 RDI: ffff98986=
+2b32b00
+> [62254.237878] RBP: 4f2b318c69a8b0f9 R08: 000000000001fe4d R09: 000000000=
+000003a
+> [62254.245417] R10: 0000000000000000 R11: 0000000000001736 R12: ffff9880b=
+819aec0
+> [62254.252963] R13: ffff989862b32b00 R14: 0000000000000000 R15: 000000000=
+0000002
+> [62254.260591] FS:  00007f6cf388bf80(0000) GS:ffff98b85fbc0000(0000)
+> knlGS:0000000000000000
+> [62254.269061] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [62254.275170] CR2: 000000c002236020 CR3: 000000387d37a002 CR4: 000000000=
+0770ef0
+> [62254.282733] PKRU: 55555554
+> [62254.285911] Call Trace:
+> [62254.288884]  <TASK>
+> [62254.291549]  ? die+0x33/0x90
+> [62254.294769]  ? do_trap+0xe0/0x110
+> [62254.298405]  ? do_error_trap+0x65/0x80
+> [62254.302471]  ? exc_stack_segment+0x35/0x50
+> [62254.306884]  ? asm_exc_stack_segment+0x22/0x30
+> [62254.311637]  ? skb_release_data+0xb8/0x1e0
+> [62254.316047]  kfree_skb_list_reason+0x6d/0x210
+> [62254.320697]  ? free_unref_page_commit+0x80/0x2f0
+> [62254.325700]  ? free_unref_page+0xe9/0x130
+> [62254.330013]  skb_release_data+0xfc/0x1e0
+> [62254.334261]  consume_skb+0x45/0xd0
+> [62254.338077]  tun_do_read+0x68/0x1f0 [tun]
+> [62254.342414]  tun_recvmsg+0x7e/0x160 [tun]
+> [62254.346696]  handle_rx+0x3ab/0x750 [vhost_net]
+> [62254.351488]  vhost_worker+0x42/0x70 [vhost]
+> [62254.355934]  vhost_task_fn+0x4b/0xb0
+> [62254.359758]  ? finish_task_switch.isra.0+0x8f/0x2a0
+> [62254.364882]  ? __pfx_vhost_task_fn+0x10/0x10
+> [62254.369390]  ? __pfx_vhost_task_fn+0x10/0x10
+> [62254.373888]  ret_from_fork+0x2d/0x50
+> [62254.377687]  ? __pfx_vhost_task_fn+0x10/0x10
+> [62254.382169]  ret_from_fork_asm+0x1b/0x30
+> [62254.386310]  </TASK>
+> [62254.388705] Modules linked in: nf_tables(E) nf_conntrack_netlink(E)
+> vhost_net(E) vhost(E) vhost_iotlb(E) tap(E) tun(E) mptcp_diag(E)
+> xsk_diag(E) udp_diag(E) raw_diag(E) unix_diag(E) af_packet_diag(E)
+> netlink_diag(E) tcp_diag(E) inet_diag(E) rpcsec_gss_krb5(E)
+> auth_rpcgss(E) nfsv4(E) dns_resolver(E) nfs(E) lockd(E) grace(E)
+> fscache(E) netfs(E) netconsole(E) ib_core(E) scsi_transport_iscsi(E)
+> sch_ingress(E) target_core_user(E) uio(E) target_core_pscsi(E)
+> target_core_file(E) target_core_iblock(E) iscsi_target_mod(E)
+> target_core_mod(E) 8021q(E) garp(E) mrp(E) bonding(E) tls(E)
+> nfnetlink_cttimeout(E) nfnetlink(E) openvswitch(E) nf_conncount(E)
+> nf_nat(E) binfmt_misc(E) dell_rbu(E) sunrpc(E) vfat(E) fat(E)
+> dm_service_time(E) dm_multipath(E) btrfs(E) xor(E) zstd_compress(E)
+> raid6_pq(E) ipmi_ssif(E) intel_rapl_msr(E) intel_rapl_common(E)
+> amd64_edac(E) edac_mce_amd(E) kvm_amd(E) kvm(E) irqbypass(E)
+> dell_smbios(E) acpi_ipmi(E) dcdbas(E) dell_wmi_descriptor(E)
+> wmi_bmof(E) rapl(E) ipmi_si(E) acp
+> Mar 19 09:40:16 10.12.17.70 i_cpufreq(E) ipmi_devintf(E)
+> [62254.388751]  mgag200(E) i2c_algo_bit(E) ptdma(E) wmi(E)
+> i2c_piix4(E) k10temp(E) ipmi_msghandler(E) acpi_power_meter(E) fuse(E)
+> zram(E) ext4(E) mbcache(E) jbd2(E) dm_crypt(E) sd_mod(E) t10_pi(E)
+> sg(E) ice(E) crct10dif_pclmul(E) crc32_pclmul(E) polyval_clmulni(E)
+> polyval_generic(E) ahci(E) libahci(E) ghash_clmulni_intel(E)
+> sha512_ssse3(E) libata(E) megaraid_sas(E) ccp(E) gnss(E) sp5100_tco(E)
+> dm_mirror(E) dm_region_hash(E) dm_log(E) dm_mod(E) nf_conntrack(E)
+> libcrc32c(E) crc32c_intel(E) nf_defrag_ipv6(E) nf_defrag_ipv4(E)
+> br_netfilter(E) bridge(E) stp(E) llc(E)
+> [62254.480070] Unloaded tainted modules: fjes(E):2 padlock_aes(E):3
+> [62254.537711] ---[ end trace 0000000000000000 ]---
+>
+> Thanks in advance!
