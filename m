@@ -1,141 +1,138 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D5CDF9E4
-	for <virtualization@lists.linux.dev>; Tue, 19 Mar 2024 16:44:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7E34179BF
+	for <virtualization@lists.linux.dev>; Tue, 19 Mar 2024 16:44:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710866645; cv=none; b=lYyIMYKeOksk7LVMEfPHBO1k1cqIi0f/9WG0mI7DUS/bPq6tdEo707wPGTbpAw1B8Xhs+RJSndJGJkOur5xBOdY2i3g9QyE2nB+HmpDNFE6oBbRDFA75tzlANTtd4F/WCt3Ng7fZsoi8qyNN1HFAMzxdHTAuERJGCg69qnUK/eA=
+	t=1710866662; cv=none; b=ArsDaSMJdfWkSzZ75JEAu3sfPsn1YoXmXpGJfKAHJQGdM3BbqNgofUsNNS69ysHDNLfBSvAtcBub4CD9gXB7aevhVHzB7VW91+7XAuv0MGWkuGo97/bUczCpk8tFXbjOfbRSnMcGVTEvpTQJFeVsXMbfJpeA6dTN2zlLUib30Tk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710866645; c=relaxed/simple;
-	bh=79WTgplI2tuiTAhnPDrwvZeW3HgT2XLHEgikAYJD4KU=;
+	s=arc-20240116; t=1710866662; c=relaxed/simple;
+	bh=J8FiXtw52qQhBZjZ/QZdmhJ+w1FbYdF84Hefh7dcgOA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=kkUfcJ2Y3YznZk8EhumzPtXuvhL1r2dK2EazKRp4NgK6Bf57xPHuPksH2gafiEmg3geDx8w15soxfbXOFf7gy7HnVAJ+KzcUwRtSUnGrGKaDziEp1DOOD3/Li5gzmSAyi0nHACe+QLd+V4OTwwRuB+Fl3jXXUHCSP57YwZkd7jE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fQTN/hlL; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=JWuEG/1FoMPnXPgkGQ0AqZU+dKNSC7skcimI3lfQ72GeN1HtfeJUt+fpdVo/pmLdZ+4qiFlg8DyZjQYq4oxG59GRTwvxQA6yBoinOHCIJ6wwIOE49SVthI7/oAZBtcY9z2msa2vTo2hiqh07CvH1GUY4q6/+ymg8nNCdPbBqpyI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GenQCX6R; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fQTN/hlL"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GenQCX6R"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1710866642;
+	s=mimecast20190719; t=1710866659;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=rwtruWOSXfzr4TFYjfBsSh6GEsS1US5e+YE2gGsnPmc=;
-	b=fQTN/hlLmGjdvpq4ChoX2defJUzZ5lcddxqGnPSMuTOeTOuiYhzwdE+F7mtljMug6y5629
-	PU30ikr+H1W+Zip+ieUtWXnIz5Q1qVAwg8S4lsI3Xe28ZuHUyNJiQ3j+0TxKFR2ahieTVs
-	ISA++S/ulZVut+gPIneDKsG9/5D6bYw=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=2hxrwowLB1+/BWBXgYoIKBegzHrqX0HHsc4MvRBC9ZM=;
+	b=GenQCX6RdDn826JYTDX2BdRJqAZ7FEEK/YISStP6yC2Pl1WuVutAHv+pPbM1Xn4XswUFTS
+	2UD8txfSZEgkub0C6JJxSYsXOC0lVjyTUmzfuG4zOJFreVShwvDhlmfy6HUnOZfEXAgTKq
+	cB1/egoTIlGB0WdX0iZ2qn/WdpVWkAU=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-634-usGbieNLNgyQlwMg8Kwq-A-1; Tue, 19 Mar 2024 12:44:01 -0400
-X-MC-Unique: usGbieNLNgyQlwMg8Kwq-A-1
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4140a47f514so17022765e9.0
-        for <virtualization@lists.linux.dev>; Tue, 19 Mar 2024 09:44:00 -0700 (PDT)
+ us-mta-596-VDYkgES7MVKqE-7TaG2GRg-1; Tue, 19 Mar 2024 12:44:18 -0400
+X-MC-Unique: VDYkgES7MVKqE-7TaG2GRg-1
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-33ec308655eso1659171f8f.0
+        for <virtualization@lists.linux.dev>; Tue, 19 Mar 2024 09:44:17 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710866640; x=1711471440;
+        d=1e100.net; s=20230601; t=1710866657; x=1711471457;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=rwtruWOSXfzr4TFYjfBsSh6GEsS1US5e+YE2gGsnPmc=;
-        b=Af69mUCBNudfN49BNjoqjdZX7eMfr+h1xWSbKG7bUaQVzqASgXpbCips8RndRgS1Zb
-         X6cbEo6skgONzNXGAKwrbPChvPlXw5XyaQAmKLc8zt1xt8eRd/zmCLXABqLY2+TkLEaQ
-         s3Hfxg98Gsheinrxdiu8dYdK6goq/HN5rJljFXQ9webOmJkNP70CPISbxjPuUk7SVrOe
-         oPP1QQX7m2hYPG+4rxajJhvcEX+1jqq0HTYpFEiUaa629BAvuxbddtsBIpPZdIXkGzoE
-         JpnDy0UstwNdbkpP54+wpeASTLAblJsO6/ebJRSiiCuetjDRo6yluebjnLtImN6Dsub6
-         qg8A==
-X-Forwarded-Encrypted: i=1; AJvYcCXL3WVn2jI6R+R6fTJERkDp6pxqjS07txQGi2FH/iQIIlBRJi2EDtRWOIpI28Cv9S0rEmn5+xaKSogK0J+XIjoPx/IfcPixSKFafqVEsn0=
-X-Gm-Message-State: AOJu0Yy86Tlgwre87vq2ahr3cAdbptgaRfpkHIKs12nTsLiqd8eKRIOZ
-	hwaAuZbnLwsKU0297bEZ4q1r+jBg2I6WlJ6MqTWiqnvxpa/FDCV+5meRf0ODRiI9J96reWBvh47
-	a7JRBJwGLkv8B1GY9VU7i4dXUDf0U3qcF++b4wghNA49yNXbHE0CyUni1Tl+8rRDy
-X-Received: by 2002:a05:600c:444f:b0:414:a6d:52d8 with SMTP id v15-20020a05600c444f00b004140a6d52d8mr6494769wmn.17.1710866639933;
-        Tue, 19 Mar 2024 09:43:59 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEv/ZMPBMMqrMqBBK1xYXWdP9JppIf+sFTnhatFL8FaL7gUAa0NXBYDRWptNF1cLK6z9XboSw==
-X-Received: by 2002:a05:600c:444f:b0:414:a6d:52d8 with SMTP id v15-20020a05600c444f00b004140a6d52d8mr6494755wmn.17.1710866639619;
-        Tue, 19 Mar 2024 09:43:59 -0700 (PDT)
+        bh=2hxrwowLB1+/BWBXgYoIKBegzHrqX0HHsc4MvRBC9ZM=;
+        b=nI7qDtqQtX6xAizI60naWgZpAW4OjyApPaaDM8l5eFvz7XP7DBQO8OB8BMh9+mPCBW
+         Ycr3pRVn5v+JXz39WMTKpgdorShFpRB1DBFhaIwwTrWqsD92pNOw+3TXby/MFd/3CLn4
+         DaC5s4HhxCHYl8c5ENGilIo5JipJaQe2xsAHSTNjyD2gCvjf2UKmBx2v51EgYo6TKw/c
+         K4VFxvSzqvb3N+e10LR0SgcOpb2ro4U4xcPERbx4sifg8D/3aE9WcwSvQCoK/Hdbr9NV
+         OjT6vCQb00tYbHz/H5kFP2gu1sVVv/XiEqc9ECNH6XQgfA+uapEbO1WxpDgwxvmpX8cU
+         9ARw==
+X-Forwarded-Encrypted: i=1; AJvYcCXS1AlVHGUv97NJAl7148JDlrn/2veeSFcJeR4llxGCxKlJnzOAax337jBwSPnmeIQepjCM+9DTePK7dARW9bcKoGT1CCky4w99jfPFclo=
+X-Gm-Message-State: AOJu0YwxApDqq7c0XguzdRhxEB54Y2JPT27BMnu3edPNgeJcjKFI8+cD
+	LcSc0XuiVSi1spwc7VdPx/7TjTMoTZ1c+L1EIFX5gQiA7dcB0mU5z1hmWBQBGlriSKrcarqMQZZ
+	EFxWgYM+JScBMgZoUj1mIIxprBO6FZAuMo4gyCZZrwmk9Iy8ofra4SQlrepGMNuVj
+X-Received: by 2002:a05:6000:e4a:b0:33d:f3c4:6002 with SMTP id dy10-20020a0560000e4a00b0033df3c46002mr2349517wrb.1.1710866656888;
+        Tue, 19 Mar 2024 09:44:16 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEjnAOLviXebOH5yDZjLv0CjsTSEG/TW/nBZUbfetsBwSotehHK+JEc9V7aonZ6gfdWiivcNA==
+X-Received: by 2002:a05:6000:e4a:b0:33d:f3c4:6002 with SMTP id dy10-20020a0560000e4a00b0033df3c46002mr2349506wrb.1.1710866656616;
+        Tue, 19 Mar 2024 09:44:16 -0700 (PDT)
 Received: from sgarzare-redhat (host-87-12-25-33.business.telecomitalia.it. [87.12.25.33])
-        by smtp.gmail.com with ESMTPSA id p12-20020a05600c1d8c00b004146895086esm1164248wms.8.2024.03.19.09.43.58
+        by smtp.gmail.com with ESMTPSA id bq24-20020a5d5a18000000b0033ed8643638sm9446827wrb.106.2024.03.19.09.44.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Mar 2024 09:43:59 -0700 (PDT)
-Date: Tue, 19 Mar 2024 17:43:57 +0100
+        Tue, 19 Mar 2024 09:44:16 -0700 (PDT)
+Date: Tue, 19 Mar 2024 17:44:14 +0100
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Zhu Lingshan <lingshan.zhu@intel.com>
 Cc: jasowang@redhat.com, mst@redhat.com, virtualization@lists.linux.dev
-Subject: Re: [PATCH 04/10] vDPA: report virtio-block max segments in a
- request to user space
-Message-ID: <msb34qftopn35qfhbqpslghzc4rbm6fb5sxyd7wwn2rpmsqxfc@gwiozq52trvn>
+Subject: Re: [PATCH 05/10] vDPA: report virtio-block MQ info to user space
+Message-ID: <s5mjdvs3h7opv6qefhhix3gjubkc256l6smnomll5x2mvspzpf@h6rlhf6hxfua>
 References: <20240218185606.13509-1-lingshan.zhu@intel.com>
- <20240218185606.13509-5-lingshan.zhu@intel.com>
+ <20240218185606.13509-6-lingshan.zhu@intel.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240218185606.13509-5-lingshan.zhu@intel.com>
+In-Reply-To: <20240218185606.13509-6-lingshan.zhu@intel.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
 
-On Mon, Feb 19, 2024 at 02:56:00AM +0800, Zhu Lingshan wrote:
->This commit allows vDPA reporting the maximum number of
->segments in a request of virtio-block devices to
->user space.
+On Mon, Feb 19, 2024 at 02:56:01AM +0800, Zhu Lingshan wrote:
+>This commits allows vDPA reporting virtio-block multi-queue
+>configuration to user sapce.
 >
 >Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
 >---
-> drivers/vdpa/vdpa.c       | 17 +++++++++++++++++
+> drivers/vdpa/vdpa.c       | 16 ++++++++++++++++
 > include/uapi/linux/vdpa.h |  1 +
-> 2 files changed, 18 insertions(+)
+> 2 files changed, 17 insertions(+)
 
 Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
 >
 >diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
->index cc8f41d24c9c..8d00e9976aba 100644
+>index 8d00e9976aba..26e8768b869a 100644
 >--- a/drivers/vdpa/vdpa.c
 >+++ b/drivers/vdpa/vdpa.c
->@@ -985,6 +985,20 @@ vdpa_dev_blk_block_size_config_fill(struct sk_buff *msg, u64 features,
-> 	return nla_put_u32(msg, VDPA_ATTR_DEV_BLK_CFG_BLK_SIZE, val_u32);
+>@@ -999,6 +999,19 @@ vdpa_dev_blk_seg_max_config_fill(struct sk_buff *msg, u64 features,
+> 	return nla_put_u32(msg, VDPA_ATTR_DEV_BLK_CFG_SEG_MAX, val_u32);
 > }
 >
->+static int
->+vdpa_dev_blk_seg_max_config_fill(struct sk_buff *msg, u64 features,
->+				 const struct virtio_blk_config *config)
+>+static int vdpa_dev_blk_mq_config_fill(struct sk_buff *msg, u64 features,
+>+				       const struct virtio_blk_config *config)
 >+{
->+	u32 val_u32;
+>+	u16 val_u16;
 >+
->+	if ((features & BIT_ULL(VIRTIO_BLK_F_SEG_MAX)) == 0)
+>+	if ((features & BIT_ULL(VIRTIO_BLK_F_MQ)) == 0)
 >+		return 0;
 >+
->+	val_u32 = __virtio32_to_cpu(true, config->seg_max);
+>+	val_u16 = __virtio16_to_cpu(true, config->num_queues);
 >+
->+	return nla_put_u32(msg, VDPA_ATTR_DEV_BLK_CFG_SEG_MAX, val_u32);
+>+	return nla_put_u16(msg, VDPA_ATTR_DEV_BLK_CFG_NUM_QUEUES, val_u16);
 >+}
 >+
 > static int vdpa_dev_blk_config_fill(struct vdpa_device *vdev,
 > 				    struct sk_buff *msg)
 > {
->@@ -1008,6 +1022,9 @@ static int vdpa_dev_blk_config_fill(struct vdpa_device *vdev,
-> 	if (vdpa_dev_blk_block_size_config_fill(msg, features_device, &config))
+>@@ -1025,6 +1038,9 @@ static int vdpa_dev_blk_config_fill(struct vdpa_device *vdev,
+> 	if (vdpa_dev_blk_seg_max_config_fill(msg, features_device, &config))
 > 		return -EMSGSIZE;
 >
->+	if (vdpa_dev_blk_seg_max_config_fill(msg, features_device, &config))
+>+	if (vdpa_dev_blk_mq_config_fill(msg, features_device, &config))
 >+		return -EMSGSIZE;
 >+
 > 	return 0;
 > }
 >
 >diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
->index f3baf7ea7d6d..2dc92fca2052 100644
+>index 2dc92fca2052..3c8e3c87a864 100644
 >--- a/include/uapi/linux/vdpa.h
 >+++ b/include/uapi/linux/vdpa.h
->@@ -59,6 +59,7 @@ enum vdpa_attr {
-> 	VDPA_ATTR_DEV_BLK_CFG_CAPACITY,		/* u64 */
+>@@ -60,6 +60,7 @@ enum vdpa_attr {
 > 	VDPA_ATTR_DEV_BLK_CFG_SEG_SIZE,		/* u32 */
 > 	VDPA_ATTR_DEV_BLK_CFG_BLK_SIZE,		/* u32 */
->+	VDPA_ATTR_DEV_BLK_CFG_SEG_MAX,		/* u32 */
+> 	VDPA_ATTR_DEV_BLK_CFG_SEG_MAX,		/* u32 */
+>+	VDPA_ATTR_DEV_BLK_CFG_NUM_QUEUES,	/* u16 */
 >
 > 	/* new attributes must be added above here */
 > 	VDPA_ATTR_MAX,
