@@ -1,328 +1,177 @@
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0B3B3BBED
-	for <virtualization@lists.linux.dev>; Tue, 19 Mar 2024 20:51:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.165.32
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710881491; cv=fail; b=Ki1Qss/q2wNKVc7WyJckvgEEP7CqZfSLCuahehuNK0or0BTezqGaolIZ57DJPzUY64E27ARLlWfb+XfgbUU8lHVRFiEK2Zs+0ono6WCwz6iMfBiXX0va7vktYkVqcdbKupX/MhBwpkAF8V8lzZeTKARh8nsqktVSAhIlsNtZj0A=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710881491; c=relaxed/simple;
-	bh=8DGelfM89CFZXn/1HomZ7RfcqafHA2yG/WCVZSY7le4=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=Cbk4P11tfn4bZooeYEM7HQFKLe0SulCqU+RMMIZXqqHNnqflSbxpt+Soox86Z1UisglQ/a4Zy4DingdvM44kKktWVAmzmtykWNJjTLoIJo1PIvwxL/2XHQ30AYMCVsc5CRMfjSXAdLJJYP2ZhYkCZdXklPTjhSjlJKxqtqlyhuo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=n3P1ia25; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=Tf6s/Mcw; arc=fail smtp.client-ip=205.220.165.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oracle.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9D205FB9E
+	for <virtualization@lists.linux.dev>; Tue, 19 Mar 2024 23:57:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1710892630; cv=none; b=OGePmvyfscLdMxcNrlaNDDE6o4M0IRIO6cnJBjoXxEMzdxZP/sdLD3W3W3dg19v50/WG8h567Uw7nozcilhk/S1UMERmSg1QOyr8rqAArAS4xPYJBv9OadYczTp7871/Jzv6gQkduYHC7kvIPJQCZ2MPyNzDfy6If87c11fH7Y0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1710892630; c=relaxed/simple;
+	bh=P5AL6oEzG45qwEcNC4qe16rjLvTkOuHzRuBNCSbDhkE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Xt8yQ1NCj32tDE+QVOe2BaAV8JNnYQTXde7PUmrVYuDOkYbnB9GC+6gyY3SxL8Rl63gtJPX5EsBjMOnB3/kjwO8To8Ptk+LWClBQPkmAnLdGrlgHqiyxGqNYzMrvE47SAjn/ieqci51ls0ecSo32ivbtfE72h84y9ppTNRxxawA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dcuJldhe; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="n3P1ia25";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="Tf6s/Mcw"
-Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 42JJEMCp019073;
-	Tue, 19 Mar 2024 20:51:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2023-11-20;
- bh=/tsYRu2VHH1DAjfI3W8gNXYGavwuC6Iiz8T0m+An1Rc=;
- b=n3P1ia25svVQ7Yc20hz/ZA+pv19x4pxExx3JX14w8+KSxGrHyr+wPC2qDemZIwI4dHDz
- oMd0jfPbSWmRgzux+O2CeU6Sjj0jSe7pzqlCgwpt4UNRg8F0ryrQ0WtQE4AEXk8sdSbr
- HFFSAMLdVgOpZRDz1MmE262dibWC+rxsL+QRwn9YgIF5YpWt3f/Yz+b+V5MD60nmAMfH
- BH5xV6i3lonCkD/z3/HGiP3O11+tCayMVmob0wHL+IZqWjzEwC5+g0TP8hZvNtOLXCZN
- td27V4zWwswoQdLVdl0Y10Jaus4sK7PQZRzd6gODMW57QjTfIs04ZJx3J+7mNqtXAE8y 9A== 
-Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3ww3yu6fh8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 19 Mar 2024 20:51:24 +0000
-Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 42JKgfKQ003788;
-	Tue, 19 Mar 2024 20:51:23 GMT
-Received: from nam11-co1-obe.outbound.protection.outlook.com (mail-co1nam11lp2169.outbound.protection.outlook.com [104.47.56.169])
-	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3ww1v6uk51-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 19 Mar 2024 20:51:23 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=RQKdhdqSugO1DLfvtDnsuPXgZJmpJqhwUojeK1IufgquEs7VpgTFkG2q4FEUniNpDIJ+pHo+wLC6IYmdnxq3S+yT6dRFHuvxSXHgilA0WagfhlRTHohou6BuyaK1Kl/UUlwUSvpy5YBRWNiHI+EwrOZLt7HmywZutvC8fuAmlOfycXQWQRpQHK/q5RMTBwqCifngMRGhUsnpXgxIUMCRy3wwd/li7v8ENW3j33SYRIWcnCR7ut6ncMEQw6oU5SBBw7MdpenWr0VouP6pHTnn9ptvYAkhb3mhv5ckCQQorRbmEsYadJFwGywUA9Hp5ff0Ujz9IygNs/QaZVqcHufWMA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=/tsYRu2VHH1DAjfI3W8gNXYGavwuC6Iiz8T0m+An1Rc=;
- b=GQ3tuL9DdDwJSqqUsX6LJVEWnLL+8Yacp2QPERx6xKuiwTNwv9bJxKCubI1mXjfp53JV3v74Nj28yrJw9ihaMTrd9b6F6t55jXO4l1ozILHBhZQ1vDxRB8ZRmDbQers3GUVBW08iaebupRhV06tGt7Fh95SPy3xcI7T0M5siPlDj4kybUEowEYqQJ0pM1XNh5eXjUwCyDltQZNPGFZW6WIdHZxb/4pTHbM364cZybN63j0bUuT76BSTYPiHS4W/fQWHLfBieZ2ozPSpjEQtPtlLdMxV5yggwHsAX+VAR3LluF93LwnT0KUcqIs2uqfNWgiNppEusrHCfwE2mx8kMMA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=/tsYRu2VHH1DAjfI3W8gNXYGavwuC6Iiz8T0m+An1Rc=;
- b=Tf6s/Mcw2JPJ9no7C5Xkni/Gj4XtI1D0NTEoOskVFsqHy+YJO4Wtg4xeUtvpyzs7lkrdSqmZe3wU9ycnqq3C6K0gwZWTgQrwDxiE/R8s+EdZcUJ2cuZsZA1Eyzy3QFKEeEoW6YnpmCnMi5z0lhY9Po/2m2XHIzy8/N7EgsTbMb4=
-Received: from CY8PR10MB7243.namprd10.prod.outlook.com (2603:10b6:930:7c::10)
- by DS7PR10MB4944.namprd10.prod.outlook.com (2603:10b6:5:38d::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7386.30; Tue, 19 Mar
- 2024 20:51:20 +0000
-Received: from CY8PR10MB7243.namprd10.prod.outlook.com
- ([fe80::2246:144f:3bb9:60d]) by CY8PR10MB7243.namprd10.prod.outlook.com
- ([fe80::2246:144f:3bb9:60d%3]) with mapi id 15.20.7386.025; Tue, 19 Mar 2024
- 20:51:20 +0000
-Message-ID: <7a767645-af51-456d-bf7e-e0038ba38871@oracle.com>
-Date: Tue, 19 Mar 2024 15:51:18 -0500
-User-Agent: Mozilla Thunderbird
-Subject: Re: [syzbot] [virtualization?] upstream boot error: WARNING: refcount
- bug in __free_pages_ok
-To: Stefan Hajnoczi <stefanha@redhat.com>,
-        "Michael S. Tsirkin"
- <mst@redhat.com>
-Cc: syzbot <syzbot+70f57d8a3ae84934c003@syzkaller.appspotmail.com>,
-        jasowang@redhat.com, linux-kernel@vger.kernel.org,
-        syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev,
-        xuanzhuo@linux.alibaba.com, Paolo Bonzini <pbonzini@redhat.com>
-References: <000000000000cfd4800613fe79b1@google.com>
- <20240319033941-mutt-send-email-mst@kernel.org>
- <20240319171923.GA1123315@fedora>
-Content-Language: en-US
-From: Mike Christie <michael.christie@oracle.com>
-In-Reply-To: <20240319171923.GA1123315@fedora>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: DM6PR02CA0093.namprd02.prod.outlook.com
- (2603:10b6:5:1f4::34) To CY8PR10MB7243.namprd10.prod.outlook.com
- (2603:10b6:930:7c::10)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dcuJldhe"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1710892626;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=pYQV4r9zs4nIx65Nz1fOoMB0sTDImRp2TfUwSyH+J0Y=;
+	b=dcuJldheM20uPum7AiSVqvtfZJ/R3TBPZebqT3zd+oCAON9DzG0YEF9antsP5RJ+X+ezaO
+	uq1i5NbJ81+QMws4EgCL9z69ltk9YhS5fbdDxvYyuNXe/x9IamtQxF2lv6AiOorbqarx+G
+	8Dg2U7VYERMBoRKTkoBy0BO0D1f0oUI=
+Received: from mail-oa1-f69.google.com (mail-oa1-f69.google.com
+ [209.85.160.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-144-Qc7XiK1DOHiK1IIArZixng-1; Tue, 19 Mar 2024 19:57:05 -0400
+X-MC-Unique: Qc7XiK1DOHiK1IIArZixng-1
+Received: by mail-oa1-f69.google.com with SMTP id 586e51a60fabf-2206493f627so6694056fac.1
+        for <virtualization@lists.linux.dev>; Tue, 19 Mar 2024 16:57:05 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1710892625; x=1711497425;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=pYQV4r9zs4nIx65Nz1fOoMB0sTDImRp2TfUwSyH+J0Y=;
+        b=DxuzFPaE7QwnRGHncSa5P/dbpyCxT3zfbu4S2fL2T5dj7wxlhtd4XxVzIQ3FSRr97x
+         kqmFD4Oe+a8PadamVswUrUG/yzR62jqI3Mu08Ukl4GxAm7GjewdhPLMbPpXx9v9Tq322
+         vnzvSkn9bzyxoA8V6Gk+fM8J8KJRlRME6M6N1dtLbWpTKEboBacssZ0GHrAdTVdOkKJf
+         UeCnjjU4Cv+/4tipGThZyZKtEB8Kvslo8iTd0sOrFBwftFEfTMws99e63vi0hSz2WM4N
+         bsHBIheIyMZcbRR5lZGCunqPRj22FhOPwhZKAwGpq/JImIsRqRMU+otJy+AgLyh0O7vT
+         IN5Q==
+X-Gm-Message-State: AOJu0YzDQGUa/wZX0xDTl9qglavmADzUpXMIlRJNBzEQyzGHuEPoQOkS
+	tDB+rEs8QnZ0FtIbW9+gCgowO6HRC6CruLTDLRJstwt6aYrjRoABSIHY5oH86++9zmL0UTbZaQj
+	zp8xLDXYeEKK/9RDab5xQeAEyajA3XZDwVO456FGYkWwwCBgCucidZ5thoSxXUl/A
+X-Received: by 2002:a05:6870:b6a4:b0:221:bcde:29cc with SMTP id cy36-20020a056870b6a400b00221bcde29ccmr17583118oab.21.1710892624806;
+        Tue, 19 Mar 2024 16:57:04 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IG4TxVfQFAYxTperCAEMsmhXIreADULgFe4gLlGCSkgk3/ZqneaXS1xQJLQfu2YBZU/LyKC2Q==
+X-Received: by 2002:a05:6870:b6a4:b0:221:bcde:29cc with SMTP id cy36-20020a056870b6a400b00221bcde29ccmr17583110oab.21.1710892624537;
+        Tue, 19 Mar 2024 16:57:04 -0700 (PDT)
+Received: from [192.168.68.51] ([43.252.115.31])
+        by smtp.gmail.com with ESMTPSA id m17-20020aa78a11000000b006e5af565b1dsm10339889pfa.201.2024.03.19.16.57.00
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 19 Mar 2024 16:57:04 -0700 (PDT)
+Message-ID: <9500adaf-0075-4ae9-92db-7e310b6598b0@redhat.com>
+Date: Wed, 20 Mar 2024 09:56:58 +1000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY8PR10MB7243:EE_|DS7PR10MB4944:EE_
-X-MS-Office365-Filtering-Correlation-Id: 90f36d69-84cb-4ad6-04c8-08dc48565462
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 
-	doIFDmaoCM03PYRq/iR3sh1M+YmW3laU+P/BrjotexpQDK52t/oCcOCc+xWOKO5SaWKbzjMc4ZTXtAF/kXyM2Ko37oI56AWKmoIq8Ek8VZqKWX8NOEfdKXUIXsJkZiYZ+lgy7GixUY7VBkmdEVWR3+wPTwgApWlRky6rvz2852U/f75sQ2hSPwqpjTpNRue3XqnpoUai6YV/VUye5/dAVQNgkSrm+o+1Y0sUV1o3O0chcqhFOL78gCOhxGbXVN1dH5ndVEA8KtdtpEd2Om57SMZV92Jdw4q/Mbi6RIDSOx0CND2WZ05ITgfWq+a7FhL/UkzBF5Eaxn6mlLPj5Ffcp9wgvqcWKpsjIEiA892UyMgqiECADz2KJDDNZ/i4nNKyamTaggW9P1T6k+4UoPBwGgM4EZzpnKArhNIiT4vZWI7SJek1YGOKcZvdb0/My1N7d28KiJgcG4IR5pxg44t69JF7F4y+2jSla5dx1OrVWyE07eQFqGCSo9sUdhd5WwEatldzFAKdAZwE77u6s34Te80cKkOmBZQUvpEm6cjMuaV0YXU9tr+6Y6BTaTYyNZoqbTOm3Yiqyj5Z9QGkMlS+YcmijtDBENaBSHbIeQONw96flt4DvjgTk+OWWxjylukY
-X-Forefront-Antispam-Report: 
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR10MB7243.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(376005)(1800799015)(366007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: 
-	=?utf-8?B?Zm1pQ0ErcXdBaDR4RG1XOG9uQ2pjK0Z6OGdQZGVYOGNpYWxFc3NDemV5em15?=
- =?utf-8?B?a0RWRythcys5Tld6aS9GMTNYQTR0b1F1ZmMrY29wR1dIQjNiVmR6SlJBZ2VE?=
- =?utf-8?B?Z2t5YXZoYW1ISklTQi9xVWpRY2JFcGEyWVFaUEExZ0hRUWFGNFJKdjNzWlhG?=
- =?utf-8?B?ZU1tbzBGTHhtbFA4K3Y4bjJVWHN1SlhFZDFMQjdjVkRsYk9MSW02ay9WN3JM?=
- =?utf-8?B?TjRITEh6RVYxemxranZFWTV3VzdUVFhSSzZNUGhxRVhaVmowUUxpNk8rRGlW?=
- =?utf-8?B?RDJjTkI3MUxSYVljNmdyNlpKb1g3ZGVDYVFXZlQ5bENtUEpjT1ZXcnJBdkM5?=
- =?utf-8?B?V0dzN0xPdFhPL2pqTENWM21nTHQ5U2ZIaDFMVm5iWFFzM2x0NWJxOCtOZHhR?=
- =?utf-8?B?MjVjNEU2Y29NZzFwKzY4M0gvczhOZUdsUitnUGxLa1QrcTU1dGZYSzNKS0hS?=
- =?utf-8?B?bFh2YzJ4bHd5YTJiNW1CYUtkLzJ1WkpDaDUzYW9xUUo0cjMwVkdtMFlBM2wz?=
- =?utf-8?B?NzRLOUFISU1EM1laM3pjQjJlOTFhU3pHZnEzZ3o5Zk1CM2F3L3NHd0EremNm?=
- =?utf-8?B?R3VnSjNaSlJPbktMb1FKZjFZS055MXVYcE1nMi9SMXNpdzl1ZmdrWml4dTZS?=
- =?utf-8?B?c0VKWGxRT0VPc2pJWHFaZi95NkQxOWM5WWhZOEo3c2hFbmFWeDZHVUtDKzNr?=
- =?utf-8?B?b3BzK1BrQ2JHaWFXZXZqLzQzcGdCUHAvT0hrbDVCTkVwT1lxbmJ5Sktmdmds?=
- =?utf-8?B?R3hlMFZQa1kxcXZNVGxHNCtkNVpCU0ZJWkgyTWZ5SGZ4eHVCZ21GLzV5eDYy?=
- =?utf-8?B?RnRaaTFBZThXWDU3cEF0YXlnQ2lDUUdKYzhzVjBjVXk5MDNPQVJaV0w3OVR0?=
- =?utf-8?B?MS85NnA1ZHY2dCtEUitINjFHVWcreHEyY3B5SUZCRVd2SnNGamNtWXhyRlVT?=
- =?utf-8?B?UGlSeFdFaVhHcmM2aHlZOWJXcUxoRng4ejNudHRQRGpEYW1KRXpHODEwVkk0?=
- =?utf-8?B?aWJ0dnFGMC9QQXl2aEhBamZwM0VRUmlDT1piMVdnS2RzdlZjKzI5R2dBV3cz?=
- =?utf-8?B?YmlQTWFMN0VwSkRxQzZkRFgza0RUeTBsRW9QdDhRUWJMNzY0NDArTFRIRllL?=
- =?utf-8?B?MEcva1FLK0ZTSUkrMm91UWI1OTFkQURnbERlYW5hWDR3YmtYREJ6Y2QvanRk?=
- =?utf-8?B?dWNtMHRPV0c1WXVzaEFyd29qKy9talNvbllLbWZSSVhacVFEUDM1YnFPRVgw?=
- =?utf-8?B?NkltSTMwaUd6dXNBV09Gdk5IcG9hcWF6blBUSEhURlR2THU1eFJRYm9Benl4?=
- =?utf-8?B?UVZ2WitEaFNFVVE0SmZaZlZERWVyR1Q1UFlIeTF1L3dkTlU4OHJoNlZUNTBj?=
- =?utf-8?B?T2VFMWpGTmZNdTFJRlA0N0xtNnZtWEkyK2dNRyttWGs0T3dHSDhvVU9WWE1j?=
- =?utf-8?B?WkJRTDJZV3NmTkUyWXR1bjhCOUVDdXdBRDZJQXc3Si9WT0k1SHQ1ZERRb1J4?=
- =?utf-8?B?eU44MXhVbHhHSlFRKzRONDBGZE5vYTBIRGJGTkdSQkRhOWJyTUM2eXVESUND?=
- =?utf-8?B?STlKK096Z3M2VEFiWFZQeWc2TmZoVnhsYlBrQ1ZqM0JGVEFRT25KajUvV1pj?=
- =?utf-8?B?M1IreDJOeTYwWlR4M05hNVIzc3AyZDNCQ1BlNlhWR3VXRXppSzJnUE8rVUFw?=
- =?utf-8?B?cG1vcWh1Qy9nWkwzVHhhdzk2Q3hQdlpQcS80LzZRbDFsNkZwR3JZMkV6NklJ?=
- =?utf-8?B?QU52aHQxMkt5RU9ycmljQ0lpZ2U1R3NSb2VXMk40NkVtbmQ5dGtpZDgvZE5x?=
- =?utf-8?B?VVBmVTJNMW1hVThoS1YxNTdJTVJTZlFZZWhQaEZ6TEc4RW1UL0E0ell1WUVt?=
- =?utf-8?B?cG41aHZuWTNNUk9IYTdVdXRMZkNXZlBjR2RaQ00zUkJUbHZPUlExSUtjc3J0?=
- =?utf-8?B?ckpzM1JKTjFaeGNJWnk0RVF4b3lNalFQVnV6SmpVUHlpY1pGNXE3VTY3RTd4?=
- =?utf-8?B?aDQ2Nk5vOTJEYStkaHVlZmthUDFJbk16UU1UN2lmVFZWMW9JcUQvZDN1Wkpq?=
- =?utf-8?B?blFLazNjNisxY0h5WS90dHV3TmMwcWRlSm0zMlA0VnlOWE16VkQyQ05PRUFS?=
- =?utf-8?B?ZGtQblZKRGtJNGdLU2VqUVlac0ZYL2FlVG5qazA1a0IvckNuVUMxbWJtT09G?=
- =?utf-8?B?WXc9PQ==?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: 
-	djxsg1WLI4LmbsoFw4hurkhFsV1phya/3lHtwxTzyiyc5wexG+I13W9DcB++vSAJ/rRsHtuuoSI4L/RiMvIG3YCq7nPC7E5JmT8YPrLg/eZ0xY2dRJAVQa+7HcUu4efkN1QkaQ/rNF1RnCZqVO4hk6224A8GzFGEgkI22hzvC8okKuVBUxWbldZlQnEuP78ISmZ/gf1Ykcy/T5RCuZHdbw7k/Glom1PcPMKlXpAFM2KXFCDiyYTGPciwuqaTDw7xNppF7OmKQ5TsU/yLhRWPTQkRYliCTk/KTcmCt9bnCi4fPL6mpigeG2PqChT49sL1bvP646hkLX4dI4cMCQagkhYNNDlkzYu9T22dy1Y9HRs6HUqKoxu4sMQCQAi+PL6w5S4f8+hZpmgYbgPtd0ogplDban4hYynq+q2QEzrltnfMJXlEI5mmhslIEss6NxPa6B+WLV+T93c9Aq6j/4Vp+OGNgDYkXgXBTca4glrTBfEouzuLmG9go6RyOFwgK3WvuoFbZkVprJ12PzFP2qtSS7y3olvqHoAVllCHSZLKjnNVTEi5X5B1NOlUkFTac/86+pbutmxYFoW5szQS3kxf/XF/JTlpZJqXIV6YpiaU85g=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 90f36d69-84cb-4ad6-04c8-08dc48565462
-X-MS-Exchange-CrossTenant-AuthSource: CY8PR10MB7243.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Mar 2024 20:51:20.1706
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: rB2ZJqlK35FQjZcrkzlHz7Qx4ikqn02d8SLgtSgUw/Z+rj5ZRk4MRDNj3pqIERFBTleYZgXMpHHwp1BJVB33lx+ON2kxwF9slZvHXjm+pz8=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR10MB4944
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-03-19_08,2024-03-18_03,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 mlxscore=0 adultscore=0
- spamscore=0 bulkscore=0 mlxlogscore=999 malwarescore=0 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2403140000
- definitions=main-2403190161
-X-Proofpoint-GUID: OPp5W_kBtfObVxoCDlOF77AkSrrTPfsd
-X-Proofpoint-ORIG-GUID: OPp5W_kBtfObVxoCDlOF77AkSrrTPfsd
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] virtio_ring: Fix the stale index in available ring
+To: Will Deacon <will@kernel.org>
+Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+ mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+ yihyu@redhat.com, shan.gavin@gmail.com,
+ linux-arm-kernel@lists.infradead.org,
+ Catalin Marinas <catalin.marinas@arm.com>, mochs@nvidia.com
+References: <20240314074923.426688-1-gshan@redhat.com>
+ <20240318165924.GA1824@willie-the-truck>
+ <35a6bcef-27cf-4626-a41d-9ec0a338fe28@redhat.com>
+ <20240319182251.GB3121@willie-the-truck>
+From: Gavin Shan <gshan@redhat.com>
+In-Reply-To: <20240319182251.GB3121@willie-the-truck>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On 3/19/24 12:19 PM, Stefan Hajnoczi wrote:
-> On Tue, Mar 19, 2024 at 03:40:53AM -0400, Michael S. Tsirkin wrote:
->> On Tue, Mar 19, 2024 at 12:32:26AM -0700, syzbot wrote:
->>> Hello,
+On 3/20/24 04:22, Will Deacon wrote:
+> On Tue, Mar 19, 2024 at 02:59:23PM +1000, Gavin Shan wrote:
+>> On 3/19/24 02:59, Will Deacon wrote:
+>>>>    drivers/virtio/virtio_ring.c | 12 +++++++++---
+>>>>    1 file changed, 9 insertions(+), 3 deletions(-)
+>>>>
+>>>> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+>>>> index 49299b1f9ec7..7d852811c912 100644
+>>>> --- a/drivers/virtio/virtio_ring.c
+>>>> +++ b/drivers/virtio/virtio_ring.c
+>>>> @@ -687,9 +687,15 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+>>>>    	avail = vq->split.avail_idx_shadow & (vq->split.vring.num - 1);
+>>>>    	vq->split.vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, head);
+>>>> -	/* Descriptors and available array need to be set before we expose the
+>>>> -	 * new available array entries. */
+>>>> -	virtio_wmb(vq->weak_barriers);
+>>>> +	/*
+>>>> +	 * Descriptors and available array need to be set before we expose
+>>>> +	 * the new available array entries. virtio_wmb() should be enough
+>>>> +	 * to ensuere the order theoretically. However, a stronger barrier
+>>>> +	 * is needed by ARM64. Otherwise, the stale data can be observed
+>>>> +	 * by the host (vhost). A stronger barrier should work for other
+>>>> +	 * architectures, but performance loss is expected.
+>>>> +	 */
+>>>> +	virtio_mb(false);
+>>>>    	vq->split.avail_idx_shadow++;
+>>>>    	vq->split.vring.avail->idx = cpu_to_virtio16(_vq->vdev,
+>>>>    						vq->split.avail_idx_shadow);
 >>>
->>> syzbot found the following issue on:
+>>> Replacing a DMB with a DSB is _very_ unlikely to be the correct solution
+>>> here, especially when ordering accesses to coherent memory.
 >>>
->>> HEAD commit:    b3603fcb79b1 Merge tag 'dlm-6.9' of git://git.kernel.org/p..
->>> git tree:       upstream
->>> console output: https://syzkaller.appspot.com/x/log.txt?x=10f04c81180000
->>> kernel config:  https://syzkaller.appspot.com/x/.config?x=fcb5bfbee0a42b54
->>> dashboard link: https://syzkaller.appspot.com/bug?extid=70f57d8a3ae84934c003
->>> compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
+>>> In practice, either the larger timing different from the DSB or the fact
+>>> that you're going from a Store->Store barrier to a full barrier is what
+>>> makes things "work" for you. Have you tried, for example, a DMB SY
+>>> (e.g. via __smb_mb()).
 >>>
->>> Downloadable assets:
->>> disk image: https://storage.googleapis.com/syzbot-assets/43969dffd4a6/disk-b3603fcb.raw.xz
->>> vmlinux: https://storage.googleapis.com/syzbot-assets/ef48ab3b378b/vmlinux-b3603fcb.xz
->>> kernel image: https://storage.googleapis.com/syzbot-assets/728f5ff2b6fe/bzImage-b3603fcb.xz
->>>
->>> IMPORTANT: if you fix the issue, please add the following tag to the commit:
->>> Reported-by: syzbot+70f57d8a3ae84934c003@syzkaller.appspotmail.com
->>>
->>> Key type pkcs7_test registered
->>> Block layer SCSI generic (bsg) driver version 0.4 loaded (major 239)
->>> io scheduler mq-deadline registered
->>> io scheduler kyber registered
->>> io scheduler bfq registered
->>> input: Power Button as /devices/LNXSYSTM:00/LNXPWRBN:00/input/input0
->>> ACPI: button: Power Button [PWRF]
->>> input: Sleep Button as /devices/LNXSYSTM:00/LNXSLPBN:00/input/input1
->>> ACPI: button: Sleep Button [SLPF]
->>> ioatdma: Intel(R) QuickData Technology Driver 5.00
->>> ACPI: \_SB_.LNKC: Enabled at IRQ 11
->>> virtio-pci 0000:00:03.0: virtio_pci: leaving for legacy driver
->>> ACPI: \_SB_.LNKD: Enabled at IRQ 10
->>> virtio-pci 0000:00:04.0: virtio_pci: leaving for legacy driver
->>> ACPI: \_SB_.LNKB: Enabled at IRQ 10
->>> virtio-pci 0000:00:06.0: virtio_pci: leaving for legacy driver
->>> virtio-pci 0000:00:07.0: virtio_pci: leaving for legacy driver
->>> N_HDLC line discipline registered with maxframe=4096
->>> Serial: 8250/16550 driver, 4 ports, IRQ sharing enabled
->>> 00:03: ttyS0 at I/O 0x3f8 (irq = 4, base_baud = 115200) is a 16550A
->>> 00:04: ttyS1 at I/O 0x2f8 (irq = 3, base_baud = 115200) is a 16550A
->>> 00:05: ttyS2 at I/O 0x3e8 (irq = 6, base_baud = 115200) is a 16550A
->>> 00:06: ttyS3 at I/O 0x2e8 (irq = 7, base_baud = 115200) is a 16550A
->>> Non-volatile memory driver v1.3
->>> Linux agpgart interface v0.103
->>> ACPI: bus type drm_connector registered
->>> [drm] Initialized vgem 1.0.0 20120112 for vgem on minor 0
->>> [drm] Initialized vkms 1.0.0 20180514 for vkms on minor 1
->>> Console: switching to colour frame buffer device 128x48
->>> platform vkms: [drm] fb0: vkmsdrmfb frame buffer device
->>> usbcore: registered new interface driver udl
->>> brd: module loaded
->>> loop: module loaded
->>> zram: Added device: zram0
->>> null_blk: disk nullb0 created
->>> null_blk: module loaded
->>> Guest personality initialized and is inactive
->>> VMCI host device registered (name=vmci, major=10, minor=118)
->>> Initialized host personality
->>> usbcore: registered new interface driver rtsx_usb
->>> usbcore: registered new interface driver viperboard
->>> usbcore: registered new interface driver dln2
->>> usbcore: registered new interface driver pn533_usb
->>> nfcsim 0.2 initialized
->>> usbcore: registered new interface driver port100
->>> usbcore: registered new interface driver nfcmrvl
->>> Loading iSCSI transport class v2.0-870.
->>> virtio_scsi virtio0: 1/0/0 default/read/poll queues
->>> ------------[ cut here ]------------
->>> refcount_t: decrement hit 0; leaking memory.
->>> WARNING: CPU: 0 PID: 1 at lib/refcount.c:31 refcount_warn_saturate+0xfa/0x1d0 lib/refcount.c:31
->>> Modules linked in:
->>> CPU: 0 PID: 1 Comm: swapper/0 Not tainted 6.8.0-syzkaller-11567-gb3603fcb79b1 #0
->>> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 02/29/2024
->>> RIP: 0010:refcount_warn_saturate+0xfa/0x1d0 lib/refcount.c:31
->>> Code: b2 00 00 00 e8 57 d4 f2 fc 5b 5d c3 cc cc cc cc e8 4b d4 f2 fc c6 05 0c f9 ef 0a 01 90 48 c7 c7 a0 5d 1e 8c e8 b7 75 b5 fc 90 <0f> 0b 90 90 eb d9 e8 2b d4 f2 fc c6 05 e9 f8 ef 0a 01 90 48 c7 c7
->>> RSP: 0000:ffffc90000066e18 EFLAGS: 00010246
->>> RAX: 76f86e452fcad900 RBX: ffff8880210d2aec RCX: ffff888016ac8000
->>> RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
->>> RBP: 0000000000000004 R08: ffffffff8157ffe2 R09: fffffbfff1c396e0
->>> R10: dffffc0000000000 R11: fffffbfff1c396e0 R12: ffffea000502cdc0
->>> R13: ffffea000502cdc8 R14: 1ffffd4000a059b9 R15: 0000000000000000
->>> FS:  0000000000000000(0000) GS:ffff8880b9400000(0000) knlGS:0000000000000000
->>> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->>> CR2: ffff88823ffff000 CR3: 000000000e132000 CR4: 00000000003506f0
->>> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
->>> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
->>> Call Trace:
->>>  <TASK>
->>>  reset_page_owner include/linux/page_owner.h:25 [inline]
->>>  free_pages_prepare mm/page_alloc.c:1141 [inline]
->>>  __free_pages_ok+0xc54/0xd80 mm/page_alloc.c:1270
->>>  make_alloc_exact+0xa3/0xf0 mm/page_alloc.c:4829
->>>  vring_alloc_queue drivers/virtio/virtio_ring.c:319 [inline]
->>>  vring_alloc_queue_split+0x20a/0x600 drivers/virtio/virtio_ring.c:1108
->>>  vring_create_virtqueue_split+0xc6/0x310 drivers/virtio/virtio_ring.c:1158
->>>  vring_create_virtqueue+0xca/0x110 drivers/virtio/virtio_ring.c:2683
->>>  setup_vq+0xe9/0x2d0 drivers/virtio/virtio_pci_legacy.c:131
->>>  vp_setup_vq+0xbf/0x330 drivers/virtio/virtio_pci_common.c:189
->>>  vp_find_vqs_msix+0x8b2/0xc80 drivers/virtio/virtio_pci_common.c:331
->>>  vp_find_vqs+0x4c/0x4e0 drivers/virtio/virtio_pci_common.c:408
->>>  virtio_find_vqs include/linux/virtio_config.h:233 [inline]
->>>  virtscsi_init+0x8db/0xd00 drivers/scsi/virtio_scsi.c:887
->>>  virtscsi_probe+0x3ea/0xf60 drivers/scsi/virtio_scsi.c:945
->>>  virtio_dev_probe+0x991/0xaf0 drivers/virtio/virtio.c:311
->>>  really_probe+0x29e/0xc50 drivers/base/dd.c:658
->>>  __driver_probe_device+0x1a2/0x3e0 drivers/base/dd.c:800
->>>  driver_probe_device+0x50/0x430 drivers/base/dd.c:830
->>>  __driver_attach+0x45f/0x710 drivers/base/dd.c:1216
->>>  bus_for_each_dev+0x239/0x2b0 drivers/base/bus.c:368
->>>  bus_add_driver+0x347/0x620 drivers/base/bus.c:673
->>>  driver_register+0x23a/0x320 drivers/base/driver.c:246
->>>  virtio_scsi_init+0x65/0xe0 drivers/scsi/virtio_scsi.c:1083
->>>  do_one_initcall+0x248/0x880 init/main.c:1238
->>>  do_initcall_level+0x157/0x210 init/main.c:1300
->>>  do_initcalls+0x3f/0x80 init/main.c:1316
->>>  kernel_init_freeable+0x435/0x5d0 init/main.c:1548
->>>  kernel_init+0x1d/0x2b0 init/main.c:1437
->>>  ret_from_fork+0x4b/0x80 arch/x86/kernel/process.c:147
->>>  ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:243
->>>  </TASK>
+>>> We definitely shouldn't take changes like this without a proper
+>>> explanation of what is going on.
 >>>
 >>
->> I think I saw this already and also with virtio scsi. virtio
->> core does not seem to be doing anything special here,
->> Cc virtio scsi maintainers.
+>> Thanks for your comments, Will.
+>>
+>> Yes, DMB should work for us. However, it seems this instruction has issues on
+>> NVidia's grace-hopper. It's hard for me to understand how DMB and DSB works
+>> from hardware level. I agree it's not the solution to replace DMB with DSB
+>> before we fully understand the root cause.
+>>
+>> I tried the possible replacement like below. __smp_mb() can avoid the issue like
+>> __mb() does. __ndelay(10) can avoid the issue, but __ndelay(9) doesn't.
+>>
+>> static inline int virtqueue_add_split(struct virtqueue *_vq, ...)
+>> {
+>>      :
+>>          /* Put entry in available array (but don't update avail->idx until they
+>>           * do sync). */
+>>          avail = vq->split.avail_idx_shadow & (vq->split.vring.num - 1);
+>>          vq->split.vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, head);
+>>
+>>          /* Descriptors and available array need to be set before we expose the
+>>           * new available array entries. */
+>>          // Broken: virtio_wmb(vq->weak_barriers);
+>>          // Broken: __dma_mb();
+>>          // Work:   __mb();
+>>          // Work:   __smp_mb();
 > 
-> The oldest commit that syzkaller found is a memory management pull
-> request:
-> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/log/?id=e5eb28f6d1afebed4bb7d740a797d0390bd3a357
+> It's pretty weird that __dma_mb() is "broken" but __smp_mb() "works". How
+> confident are you in that result?
 > 
-> I can't reproduce the issue locally with QEMU 8.2.0 so I don't have a
-> way to bisect.
-> 
-> I reviewed the virtio_scsi.c git log and there have been few changes
-> over the last several months. I couldn't spot an issue in this patch,
-> but the most likely virtio-scsi commit is:
-> 
->   commit 95e7249691f082a5178d4d6f60fcdee91da458ab
->   Author: Mike Christie <michael.christie@oracle.com>
->   Date:   Wed Dec 13 23:26:49 2023 -0600
-> 
->       scsi: virtio_scsi: Add mq_poll support
-> 
-> Stefan
 
-I also tested the current kernel and didn't hit it.
+Yes, __dma_mb() is even stronger than __smp_mb(). I retried the test, showing
+that both __dma_mb() and __smp_mb() work for us. I had too many tests yesterday
+and something may have been messed up.
 
-In this mail:
+Instruction         Hitting times in 10 tests
+---------------------------------------------
+__smp_wmb()         8
+__smp_mb()          0
+__dma_wmb()         7
+__dma_mb()          0
+__mb()              0
+__wmb()             0
 
-https://lore.kernel.org/all/ZfKPf_pGxv-xtSPN@localhost.localdomain/
+It's strange that __smp_mb() works, but __smp_wmb() fails. It seems we need a
+read barrier here. I will try WRITE_ONCE() + __smp_wmb() as suggested by Michael
+in another reply. Will update the result soon.
 
-from this thread:
-
-https://lore.kernel.org/all/37cb2e7c-97f1-4179-a715-84cc02096083@I-love.SAKURA.ne.jp/T/
-
-it looks like Oscar is saying he has a fix right?
+Thanks,
+Gavin
 
