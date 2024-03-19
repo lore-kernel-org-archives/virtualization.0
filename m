@@ -1,150 +1,110 @@
-Received: from mail-lj1-f172.google.com (mail-lj1-f172.google.com [209.85.208.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6352E54BF6
-	for <virtualization@lists.linux.dev>; Tue, 19 Mar 2024 09:00:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86E0E548F9
+	for <virtualization@lists.linux.dev>; Tue, 19 Mar 2024 09:52:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710838823; cv=none; b=uiL1gsXRbEDwAMzNlh6cG8urGD+QI0LMCtKahenGvuXbvc3zXZxo0JA8nprNGEp1DIXIkEkUhUCpm7TzbEAZ0+2Kbtlxts2bgiB6FSbVrtQymQzLxVQWYS4p3SSoh8GDS7ZiwwkafJv53gp06wXrbzTGO3OipAISRa83C2ZD410=
+	t=1710841922; cv=none; b=SVNtho+pnBZdHF3GOn27c+Y3O0SOTfRJN0Z7PWDFFYnNfOTOoV2z2TL2zZTo1PIOIFi3INS9GDgyM59QxaSf4cNy9IV8zgwdQDg1+aPfD6Cc5pVeS940/Rb+U48eyk29clTXPUvpSioAeoewp3TfoEbBminBN1IYwZDDpVCQAFE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710838823; c=relaxed/simple;
-	bh=LYZBi+bUQakFekCjRxf78pErckbW983ar7dUR9YXSYU=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=aJKhv1c6MMGbMOZLu6fxdZlSvQR+Bp3Xa3bN822It4Sk2mqylR5qVHO3yZC22g8UkCDDpWjj4jqZE4XzA8+3RGdWxhHJkrPcYRyn4EgLQsAIbV/Q0dwg+CXQUyvForEok00wNDnL0dILqCU/whJmBK9tkhdW3WgC1jFfPgyokQA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gooddata.com; spf=pass smtp.mailfrom=gooddata.com; dkim=pass (1024-bit key) header.d=gooddata.com header.i=@gooddata.com header.b=QH2p835C; arc=none smtp.client-ip=209.85.208.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gooddata.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gooddata.com
+	s=arc-20240116; t=1710841922; c=relaxed/simple;
+	bh=piytSOK3Xc/vNcme9MWSfC+2n9FoBe8ooKi8TE9QfUM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=DZz9qNXL+moJ77W4bGgT+CV0wPaGM8Rkh0MSQ8vYrnXrh2sj1kKutpN+a0zjH1JKktK6itJu807O107d1vhgYtK6yBrIDRJDXCldvTqThabZe8fNOwFf1mnM0HSDmVLZhve8e1/JhwlFJwefToXYu7w7z34Zm+oP6HYcJ7k61OA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=WZc5WcL7; arc=none smtp.client-ip=192.198.163.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=gooddata.com header.i=@gooddata.com header.b="QH2p835C"
-Received: by mail-lj1-f172.google.com with SMTP id 38308e7fff4ca-2d46dd8b0b8so70376821fa.2
-        for <virtualization@lists.linux.dev>; Tue, 19 Mar 2024 02:00:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gooddata.com; s=google; t=1710838819; x=1711443619; darn=lists.linux.dev;
-        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=7WRXNz8lUy0QV9/Mo1M3xURlEYVlBAf//6FRdDs8S4U=;
-        b=QH2p835C63xoYHvhNikYLA2oUmtCOdedcOLCcRYME9yiwTBMzdObSogLfubXcjBduv
-         8xnPm+PppKhvx/nnVsDgt3I27YQ8U2NI1DZDQTaYkQnKVWWHjOp9p8a7GFE6BW63HMv+
-         RYJJDW5+90+b0JuBp24I3eXrZwpgouO8V5Tzw=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710838819; x=1711443619;
-        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=7WRXNz8lUy0QV9/Mo1M3xURlEYVlBAf//6FRdDs8S4U=;
-        b=KRDGLuSrkZLEIB8DMqtIbWnTuDJM+1jdtOiwEz7j8Ev3uR0K632HdKPq5tPjPL8FM8
-         4xYMmIH2eUQGbjNGh5YscGWhPfbONeTo/If0vg//Bw545bph7FuLKZDK5WjHxL929j0L
-         JmXjW9/V9MTZBcWPp9XiMQiaOkIjg5MTSZONAPOu/sd3kYs7eSHyS4CwUclp24tpQaj9
-         mpmJ4C15SgKjl5owKgta+/Fu06Lm3cE/rnTN9P9kfYSuzBHGURmgI8lYdG5umtfXIB5G
-         XpRXvm6BMQ/Eb1vpmJIY71OfURpIrTzy3qNXnBdEQ4GKT5f1d61kjzxeuxfZmue3PTPX
-         6r/A==
-X-Forwarded-Encrypted: i=1; AJvYcCXVHU8iy6bHNMcPz/5rG1wCU3yObC77uUtGcRQe/sINBKo1/ow7EOoATdzNnMIgo+RQNSvlymSXV+YZ1gZhv/szQTvA5CKp8Krwpc6tMLI=
-X-Gm-Message-State: AOJu0YwgFdyV8xq5lBQkl6KoO9ptO2DIdQC/DmDgQgeWbvYUsnxrIHPE
-	uMo8sA3/NXxc+xqw9xphxt8Ke44lZFE4N19pVWXn+9ku4YJtG6wpRnzaPOFSiFqyL8TU5vI8DBQ
-	mpxBDUSM4iE+Cq4VXTsIXYQyy0h8MnwEb2tTT
-X-Google-Smtp-Source: AGHT+IFs5BUm4uuBapI+f/gOF/bcQhLF0wHkL1zPCcd0XaPcTT0m7DPRL82yKadrmbcnu13Unijcju8bKu9rpDCoJds=
-X-Received: by 2002:a2e:a30b:0:b0:2d4:72be:e2c6 with SMTP id
- l11-20020a2ea30b000000b002d472bee2c6mr9584001lje.52.1710838819457; Tue, 19
- Mar 2024 02:00:19 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="WZc5WcL7"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1710841921; x=1742377921;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=piytSOK3Xc/vNcme9MWSfC+2n9FoBe8ooKi8TE9QfUM=;
+  b=WZc5WcL70WnRn6b8RACOZJmtZBc6KI46lICyGEN8e/1ZdXkGIt2knMf8
+   +4M27OsADBEciHZFhi7q2CuMXbPYjtOZ98wbY0OchLNENbnJcDcgKrWpp
+   Gjb7tUSxBfTPpNYe3oZGC+Duh55anyQrVN4+A6akVCA3YJI/xhTjTCrNT
+   P+ub9hv8nhMw4ji+Ti1+a7Eo99NHgZWtG1Gxb/vy6p66ZBmckImtoZZ2V
+   2eyERVev7o6cGPKjp+zWvqa59KvWvnvd0Yf8uPUdpoLjZY1Dx2jQeCld6
+   Yl3Cq3tL+rXH9rof+KrLxfgcVSHu9p+51wCMOKMnNY6GcySsKnoJG6wg3
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,11017"; a="9465426"
+X-IronPort-AV: E=Sophos;i="6.07,136,1708416000"; 
+   d="scan'208";a="9465426"
+Received: from orviesa004.jf.intel.com ([10.64.159.144])
+  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Mar 2024 02:51:57 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.07,136,1708416000"; 
+   d="scan'208";a="18425415"
+Received: from lingshan-mobl.ccr.corp.intel.com (HELO [10.124.224.9]) ([10.124.224.9])
+  by orviesa004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Mar 2024 02:51:56 -0700
+Message-ID: <ed8fdc47-2a11-4c29-bfe2-865b38630988@intel.com>
+Date: Tue, 19 Mar 2024 17:51:53 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-From: Igor Raits <igor@gooddata.com>
-Date: Tue, 19 Mar 2024 10:00:08 +0100
-Message-ID: <CA+9S74hbTMxckB=HgRiqL6b8ChZMQfJ6-K9y_GQ0ZDiWkev_vA@mail.gmail.com>
-Subject: REGRESSION: RIP: 0010:skb_release_data+0xb8/0x1e0 in vhost/tun
-To: kvm@vger.kernel.org, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org
-Cc: Stefano Garzarella <sgarzare@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
-	Jaroslav Pulchart <jaroslav.pulchart@gooddata.com>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] MAINTAINERS: apply maintainer role of Intel vDPA driver
+To: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux.dev
+References: <20240227144519.555554-1-lingshan.zhu@intel.com>
+ <CACGkMEsBaC8HDsfbOWG9ix9Ho3ZVYkSPHaW26PiucJfOwXpYDg@mail.gmail.com>
+Content-Language: en-US
+From: "Zhu, Lingshan" <lingshan.zhu@intel.com>
+In-Reply-To: <CACGkMEsBaC8HDsfbOWG9ix9Ho3ZVYkSPHaW26PiucJfOwXpYDg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Hello,
+Hi Michael,
 
-We have started to observe kernel crashes on 6.7.y kernels (atm we
-have hit the issue 5 times on 6.7.5 and 6.7.10). On 6.6.9 where we
-have nodes of cluster it looks stable. Please see stacktrace below. If
-you need more information please let me know.
+Gentle ping
 
-We do not have a consistent reproducer but when we put some bigger
-network load on a VM, the hypervisor's kernel crashes.
+Thanks
+Zhu Lingshan
 
-Help is much appreciated! We are happy to test any patches.
+On 3/7/2024 1:34 PM, Jason Wang wrote:
+> On Tue, Feb 27, 2024 at 2:45 PM Zhu Lingshan <lingshan.zhu@intel.com> wrote:
+>> This commit applies maintainer role of Intel vDPA
+>> driver for myself.
+>>
+>> I am the author of this driver and have been contributing to
+>> it for long time, I would like to help this solution evolve
+>> in future.
+>>
+>> This driver is still under virito maintenance.
+>>
+>> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+> Acked-by: Jason Wang <jasowang@redhat.com>
+>
+> Thanks
+>
+>> ---
+>>   MAINTAINERS | 6 ++++--
+>>   1 file changed, 4 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/MAINTAINERS b/MAINTAINERS
+>> index 2ecaaec6a6bf..128ec843eb19 100644
+>> --- a/MAINTAINERS
+>> +++ b/MAINTAINERS
+>> @@ -10365,8 +10365,10 @@ F:     include/net/nl802154.h
+>>   F:     net/ieee802154/
+>>   F:     net/mac802154/
+>>
+>> -IFCVF VIRTIO DATA PATH ACCELERATOR
+>> -R:     Zhu Lingshan <lingshan.zhu@intel.com>
+>> +Intel VIRTIO DATA PATH ACCELERATOR
+>> +M:     Zhu Lingshan <lingshan.zhu@intel.com>
+>> +L:     virtualization@lists.linux.dev
+>> +S:     Supported
+>>   F:     drivers/vdpa/ifcvf/
+>>
+>>   IFE PROTOCOL
+>> --
+>> 2.39.3
+>>
+>
 
-[62254.167584] stack segment: 0000 [#1] PREEMPT SMP NOPTI
-[62254.173450] CPU: 63 PID: 11939 Comm: vhost-11890 Tainted: G
-   E      6.7.10-1.gdc.el9.x86_64 #1
-[62254.183743] Hardware name: Dell Inc. PowerEdge R7525/0H3K7P, BIOS
-2.14.1 12/17/2023
-[62254.192083] RIP: 0010:skb_release_data+0xb8/0x1e0
-[62254.197357] Code: 48 83 c3 01 39 d8 7e 54 48 89 d8 48 c1 e0 04 41
-80 7d 7e 00 49 8b 6c 04 30 79 0f 44 89 f6 48 89 ef e8 4c e4 ff ff 84
-c0 75 d0 <48> 8b 45 08 a8 01 0f 85 09 01 00 00 e9 d9 00 00 00 0f 1f 44
-00 00
-[62254.217013] RSP: 0018:ffffa975a0247ba8 EFLAGS: 00010206
-[62254.222692] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000785
-[62254.230263] RDX: 0000000000000016 RSI: 0000000000000002 RDI: ffff989862b32b00
-[62254.237878] RBP: 4f2b318c69a8b0f9 R08: 000000000001fe4d R09: 000000000000003a
-[62254.245417] R10: 0000000000000000 R11: 0000000000001736 R12: ffff9880b819aec0
-[62254.252963] R13: ffff989862b32b00 R14: 0000000000000000 R15: 0000000000000002
-[62254.260591] FS:  00007f6cf388bf80(0000) GS:ffff98b85fbc0000(0000)
-knlGS:0000000000000000
-[62254.269061] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[62254.275170] CR2: 000000c002236020 CR3: 000000387d37a002 CR4: 0000000000770ef0
-[62254.282733] PKRU: 55555554
-[62254.285911] Call Trace:
-[62254.288884]  <TASK>
-[62254.291549]  ? die+0x33/0x90
-[62254.294769]  ? do_trap+0xe0/0x110
-[62254.298405]  ? do_error_trap+0x65/0x80
-[62254.302471]  ? exc_stack_segment+0x35/0x50
-[62254.306884]  ? asm_exc_stack_segment+0x22/0x30
-[62254.311637]  ? skb_release_data+0xb8/0x1e0
-[62254.316047]  kfree_skb_list_reason+0x6d/0x210
-[62254.320697]  ? free_unref_page_commit+0x80/0x2f0
-[62254.325700]  ? free_unref_page+0xe9/0x130
-[62254.330013]  skb_release_data+0xfc/0x1e0
-[62254.334261]  consume_skb+0x45/0xd0
-[62254.338077]  tun_do_read+0x68/0x1f0 [tun]
-[62254.342414]  tun_recvmsg+0x7e/0x160 [tun]
-[62254.346696]  handle_rx+0x3ab/0x750 [vhost_net]
-[62254.351488]  vhost_worker+0x42/0x70 [vhost]
-[62254.355934]  vhost_task_fn+0x4b/0xb0
-[62254.359758]  ? finish_task_switch.isra.0+0x8f/0x2a0
-[62254.364882]  ? __pfx_vhost_task_fn+0x10/0x10
-[62254.369390]  ? __pfx_vhost_task_fn+0x10/0x10
-[62254.373888]  ret_from_fork+0x2d/0x50
-[62254.377687]  ? __pfx_vhost_task_fn+0x10/0x10
-[62254.382169]  ret_from_fork_asm+0x1b/0x30
-[62254.386310]  </TASK>
-[62254.388705] Modules linked in: nf_tables(E) nf_conntrack_netlink(E)
-vhost_net(E) vhost(E) vhost_iotlb(E) tap(E) tun(E) mptcp_diag(E)
-xsk_diag(E) udp_diag(E) raw_diag(E) unix_diag(E) af_packet_diag(E)
-netlink_diag(E) tcp_diag(E) inet_diag(E) rpcsec_gss_krb5(E)
-auth_rpcgss(E) nfsv4(E) dns_resolver(E) nfs(E) lockd(E) grace(E)
-fscache(E) netfs(E) netconsole(E) ib_core(E) scsi_transport_iscsi(E)
-sch_ingress(E) target_core_user(E) uio(E) target_core_pscsi(E)
-target_core_file(E) target_core_iblock(E) iscsi_target_mod(E)
-target_core_mod(E) 8021q(E) garp(E) mrp(E) bonding(E) tls(E)
-nfnetlink_cttimeout(E) nfnetlink(E) openvswitch(E) nf_conncount(E)
-nf_nat(E) binfmt_misc(E) dell_rbu(E) sunrpc(E) vfat(E) fat(E)
-dm_service_time(E) dm_multipath(E) btrfs(E) xor(E) zstd_compress(E)
-raid6_pq(E) ipmi_ssif(E) intel_rapl_msr(E) intel_rapl_common(E)
-amd64_edac(E) edac_mce_amd(E) kvm_amd(E) kvm(E) irqbypass(E)
-dell_smbios(E) acpi_ipmi(E) dcdbas(E) dell_wmi_descriptor(E)
-wmi_bmof(E) rapl(E) ipmi_si(E) acp
-Mar 19 09:40:16 10.12.17.70 i_cpufreq(E) ipmi_devintf(E)
-[62254.388751]  mgag200(E) i2c_algo_bit(E) ptdma(E) wmi(E)
-i2c_piix4(E) k10temp(E) ipmi_msghandler(E) acpi_power_meter(E) fuse(E)
-zram(E) ext4(E) mbcache(E) jbd2(E) dm_crypt(E) sd_mod(E) t10_pi(E)
-sg(E) ice(E) crct10dif_pclmul(E) crc32_pclmul(E) polyval_clmulni(E)
-polyval_generic(E) ahci(E) libahci(E) ghash_clmulni_intel(E)
-sha512_ssse3(E) libata(E) megaraid_sas(E) ccp(E) gnss(E) sp5100_tco(E)
-dm_mirror(E) dm_region_hash(E) dm_log(E) dm_mod(E) nf_conntrack(E)
-libcrc32c(E) crc32c_intel(E) nf_defrag_ipv6(E) nf_defrag_ipv4(E)
-br_netfilter(E) bridge(E) stp(E) llc(E)
-[62254.480070] Unloaded tainted modules: fjes(E):2 padlock_aes(E):3
-[62254.537711] ---[ end trace 0000000000000000 ]---
-
-Thanks in advance!
