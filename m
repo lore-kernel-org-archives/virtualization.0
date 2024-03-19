@@ -1,126 +1,137 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75CA1548F9
-	for <virtualization@lists.linux.dev>; Tue, 19 Mar 2024 10:12:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C83A27F48D
+	for <virtualization@lists.linux-foundation.org>; Tue, 19 Mar 2024 12:21:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710843152; cv=none; b=XJvVNT0hDH+gvnilHU3+yE6xsRrM2FO88ocFpnniujxYGaKNJdLqKdsSXTuZKd8RkdmuHiMQsk/NV3GAd9ZWjglMu0mo/CPNwFpXthJbeWBaM99hYA9YR7Muxz6+SSaj9r6NypMuVC+/2ChIPIRT1ny7wepB4teNs82SGAGZv7Q=
+	t=1710850918; cv=none; b=VNzjeTNmACcisALh7PoeUNOmIpv31HJFUhB3Y5b7xmgeQa1hqDTo9SGUAR2F3MMUMsYtEqlqORszfEIXrdD/FGnomg8i6bJUXpJchALb1jlZDlgOmMpP4cKrE+94ZpTpdf1Prifjv63blDT5+BFKr78SKXQgKW6nHOwzXAU6/Ew=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710843152; c=relaxed/simple;
-	bh=xnsp3gfIoBuqkf9WzUWArWK2Eue0B2a4uf2f2qgcP1s=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Yd1PjQa2d3gsB92bWtM6AYihatdWXqtYGTPZ/FwpBMmxqTMMrynK1w396PP1Mpbn0FxqUG9DFNT982oiN0YEAQgXdpGs4hUiarOw2V6L2EjEb1orIRUndf6kJelX+gtOdgYWLuknCRSrfKQYPuRtC1qp0ZIBqgUFLWplyFqbZV4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IdOvO8lf; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1710850918; c=relaxed/simple;
+	bh=qjqkqT8pZjwVcGcPOjT8S/YwSWCuV7Rv8qOtJCVbWUw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=oXP9dVUtLTHOXWDMuTt/BD6cnFO5Y0jtL0Ko+Ocgdr0xrHSPkylyJGOFAxi8f46xi19+egmEavrMohgJihjPk09Qr411ZRzRsvIFLaij/vdJ0j4reSfUrYP0x5v5jj2VtqVuzrPOfrSwlKzprodmhL+esvgEa6MzZnmUIxvtqMs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=W727OLu4; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IdOvO8lf"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="W727OLu4"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 5163B60AE1
+	for <virtualization@lists.linux-foundation.org>; Tue, 19 Mar 2024 12:21:56 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id qUVXpE8Lk9uy
+	for <virtualization@lists.linux-foundation.org>;
+	Tue, 19 Mar 2024 12:21:55 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 90CB760AA8
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 90CB760AA8
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=W727OLu4
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 90CB760AA8
+	for <virtualization@lists.linux-foundation.org>; Tue, 19 Mar 2024 12:21:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1710843149;
+	s=mimecast20190719; t=1710850914;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=xnsp3gfIoBuqkf9WzUWArWK2Eue0B2a4uf2f2qgcP1s=;
-	b=IdOvO8lf+aV5pucZUbL+W7n9ktFJrwBP3YPPF8DFf4f/w7Mc7L+LLhlh6t0NtKgynHOh7L
-	//VcgJ+1gZ/Bc5Hdyziud6rvvxm21BmRG3w1EgqayZ0YuMDsapo0eqMtccHwMZjOCR5TMl
-	As/1Z4KYGvi/UQCHhTR+SGNZ7M/BvQs=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	 in-reply-to:in-reply-to:references:references;
+	bh=fcURuON76N2jBOBvhQi/fRmFrRjaRgELhmNbazWraRw=;
+	b=W727OLu4y/6TQo9Xn7668FoOZwcRclkuXkBRK8FrYpvQIQeDWUebgR4arJ//k/HCOqAgXF
+	uWzi6iHES4OtcSUocon794rHtR978+rKdEs4IITrbKCzv78w8Y2Yv2k4edM+GqlmU3E5hA
+	XAaMjTlRaLkFtwDJYTyv6ORRgvKazIo=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-479-N6AYwaIZPTqsFDNeEYXEQA-1; Tue, 19 Mar 2024 06:12:28 -0400
-X-MC-Unique: N6AYwaIZPTqsFDNeEYXEQA-1
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-33ed3e8cf50so632181f8f.1
-        for <virtualization@lists.linux.dev>; Tue, 19 Mar 2024 03:12:27 -0700 (PDT)
+ us-mta-283-GKTT4pfPOCClYmI-FWG6Rg-1; Tue, 19 Mar 2024 08:21:53 -0400
+X-MC-Unique: GKTT4pfPOCClYmI-FWG6Rg-1
+Received: by mail-lf1-f71.google.com with SMTP id 2adb3069b0e04-513ec050f5cso1637546e87.1
+        for <virtualization@lists.linux-foundation.org>; Tue, 19 Mar 2024 05:21:53 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710843147; x=1711447947;
-        h=mime-version:user-agent:content-transfer-encoding:autocrypt
-         :references:in-reply-to:date:cc:to:from:subject:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=xnsp3gfIoBuqkf9WzUWArWK2Eue0B2a4uf2f2qgcP1s=;
-        b=RDDHcbvb4JKjUdeyo8vee9++Z8LHhw03xbKbF6nuYwnMLMBwsavO5X4uGp064k71DW
-         gwUQCwknNJGfGdbEx2dr9f9DoSFnFNMT+f+PlVrLc6s3bLp1dl953P2i8wS23h/AxK8m
-         7kpYShErVbpVnVm39vBGUBNUfJ8yRj1ZnvlsU5nr8EJwVyuWqjnQoA4416vf5vLfBXrG
-         n+fbnBmrFqhGscYn4uVbWBFnI0SX4L6wn1PLfpdLB+Fvpk0ycTCTxi0HFjpUJwCPx/XO
-         ALlCJWt2fyjddHsEnJX3s4lM/O07yafmF+CqP5u/usMSVJMZMOCho1Rh9v94t6K2XlaG
-         ISow==
-X-Forwarded-Encrypted: i=1; AJvYcCUgxcJRt8EcTixGjaXmnUz1JVP7aFrCJpdaFbi+eUNrsav/UPOtr6GfarON7h+5/IQ32EJpOzjGe0x7DRhIw42ddfQgLoMHZPdLuuLHyWk=
-X-Gm-Message-State: AOJu0YwHCPv1gknYm0H+mrIMg3+T9hfdq0r3Lr2WxhMsSYHaPiNmRxF7
-	1QOxdHTjUoVAARI2q/pNZ/icv/xVXNziczz9C97zgNJhrPg1OQ2Xpfx2aVEW9ro+mqvRYpow1D1
-	ZAJkOZzcMICueL9VRe6w6ZZeNE9H6ObUfuwh3+PkYDZ7sVw61XqX6eMqWFF3emk80
-X-Received: by 2002:adf:e4ca:0:b0:33e:c361:7cdf with SMTP id v10-20020adfe4ca000000b0033ec3617cdfmr1245398wrm.0.1710843146931;
-        Tue, 19 Mar 2024 03:12:26 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IF6l9P4AKCtN8uc1X/vjfDKtqMSUpnkdXstRYGAYxc8xRddl7mvdvVQRdQAxQyD/C1foBNwvg==
-X-Received: by 2002:adf:e4ca:0:b0:33e:c361:7cdf with SMTP id v10-20020adfe4ca000000b0033ec3617cdfmr1245378wrm.0.1710843146515;
-        Tue, 19 Mar 2024 03:12:26 -0700 (PDT)
-Received: from gerbillo.redhat.com (146-241-224-202.dyn.eolo.it. [146.241.224.202])
-        by smtp.gmail.com with ESMTPSA id o14-20020adfe80e000000b0033e8c50fc3fsm11963607wrm.90.2024.03.19.03.12.24
+        d=1e100.net; s=20230601; t=1710850911; x=1711455711;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=fcURuON76N2jBOBvhQi/fRmFrRjaRgELhmNbazWraRw=;
+        b=OgSZI8ZQgRRS2i07rdRfFyquR1OVRxVjLYOlvvAqduO9AJqVHL7ysfdUUCBfbTa5/X
+         2zYYH6oHnvIVnN/JqtQXfM+ks8XnhcrpSDMPZyzyyIN8DOxCldjPmlHIpZAtfUOXgWDW
+         f5wGMBUbtStM1BarF96yKaniYEmMIKcrsJYPLpJaRQOCN1GksxDg6TSFV867Rm+doxO1
+         IVRMl1uWXQeI2Y4iMZtZed+mMDHuhOzT4DPSQCDLlZqVCJ2M+3LuVmzGN5Y0EDY/nveo
+         HBlsuJVCezay8eDFpdzO+QT20J0X2hoEXh+FiLM2fzXDplrVAvHBzY59engkdNcQeDTC
+         0J3w==
+X-Forwarded-Encrypted: i=1; AJvYcCU8HNkBJelV/r9xQ3yB3p092ZuVUUteki8vmnEtswS2xW7G75rnwh6nYywxzI7kcSv/2kSBoSZMpczR4l+Z99ql2IGgmgRCvt0/BtSZ4Q0vCRie3jDWBgJEng==
+X-Gm-Message-State: AOJu0Yw/EDh4Ah2KW/QpUXR9wnqp2J7gOQzyr87e6cuAGdrMb0n0vW9t
+	SLChqs3pwRmOS/slBk3DBwGkzS9SSfXZ4zhcF3i6itYQ59odnqU8e+MbpdpTlYgHf0ZBiDNMwgt
+	8IdghsVuPs0FO5ZtKVmz1BMERuqZKdnbo14P/TZdO53TJgMr07QchDgdae5DeQwCXR820oUnG85
+	7+e/I=
+X-Received: by 2002:a05:6512:29c:b0:513:1e31:ddec with SMTP id j28-20020a056512029c00b005131e31ddecmr1778313lfp.40.1710850911470;
+        Tue, 19 Mar 2024 05:21:51 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFhc9xlMsZwNZSLJmLpjDngn3edaSnQJUFYnLMn1neznXIr75uSIGVCW6AHqadrgQY3NJEJYg==
+X-Received: by 2002:a05:6512:29c:b0:513:1e31:ddec with SMTP id j28-20020a056512029c00b005131e31ddecmr1778292lfp.40.1710850910940;
+        Tue, 19 Mar 2024 05:21:50 -0700 (PDT)
+Received: from redhat.com ([2.52.6.254])
+        by smtp.gmail.com with ESMTPSA id f2-20020a7bc8c2000000b00414041032casm442527wml.1.2024.03.19.05.21.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Mar 2024 03:12:25 -0700 (PDT)
-Message-ID: <316ea06417279a45d2d54bf4cc4afd2d775b419a.camel@redhat.com>
-Subject: Re: [PATCH net-next v5 0/9] virtio-net: support device stats
-From: Paolo Abeni <pabeni@redhat.com>
-To: Jiri Pirko <jiri@resnulli.us>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Eric
- Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, "Michael
- S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Alexei
- Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend
- <john.fastabend@gmail.com>, Stanislav Fomichev <sdf@google.com>, Amritha
- Nambiar <amritha.nambiar@intel.com>, Larysa Zaremba
- <larysa.zaremba@intel.com>, Sridhar Samudrala
- <sridhar.samudrala@intel.com>,  Maciej Fijalkowski
- <maciej.fijalkowski@intel.com>, virtualization@lists.linux.dev,
- bpf@vger.kernel.org
-Date: Tue, 19 Mar 2024 11:12:23 +0100
-In-Reply-To: <ZfgxSug4sekWGyNd@nanopsycho>
-References: <20240318110602.37166-1-xuanzhuo@linux.alibaba.com>
-	 <Zfgq8k2Q-olYWiuw@nanopsycho>
-	 <1710762818.1520293-1-xuanzhuo@linux.alibaba.com>
-	 <ZfgxSug4sekWGyNd@nanopsycho>
-Autocrypt: addr=pabeni@redhat.com; prefer-encrypt=mutual; keydata=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
-User-Agent: Evolution 3.50.4 (3.50.4-1.fc39)
+        Tue, 19 Mar 2024 05:21:50 -0700 (PDT)
+Date: Tue, 19 Mar 2024 08:21:46 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Maxime Coquelin <maxime.coquelin@redhat.com>
+Cc: jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+	xieyongji@bytedance.com, virtualization@lists.linux-foundation.org,
+	linux-kernel@vger.kernel.org, david.marchand@redhat.com,
+	lulu@redhat.com
+Subject: Re: [PATCH v7 0/3] vduse: add support for networking devices
+Message-ID: <20240319081938-mutt-send-email-mst@kernel.org>
+References: <20240109111025.1320976-1-maxime.coquelin@redhat.com>
+ <f25f3c31-c793-4743-a587-0e2063dc2d65@redhat.com>
+ <20240201033944-mutt-send-email-mst@kernel.org>
+ <27d1fc65-14d2-4a1c-b1fa-c3250ac2356a@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <27d1fc65-14d2-4a1c-b1fa-c3250ac2356a@redhat.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Mon, 2024-03-18 at 13:19 +0100, Jiri Pirko wrote:
-> Mon, Mar 18, 2024 at 12:53:38PM CET, xuanzhuo@linux.alibaba.com wrote:
-> > On Mon, 18 Mar 2024 12:52:18 +0100, Jiri Pirko <jiri@resnulli.us> wrote=
-:
-> > > Mon, Mar 18, 2024 at 12:05:53PM CET, xuanzhuo@linux.alibaba.com wrote=
-:
-> > > > As the spec:
-> > > >=20
-> > > > https://github.com/oasis-tcs/virtio-spec/commit/42f389989823039724f=
-95bbbd243291ab0064f82
-> > > >=20
-> > > > The virtio net supports to get device stats.
-> > > >=20
-> > > > Please review.
-> > >=20
-> > > net-next is closed. Please resubmit next week.
-> >=20
-> >=20
-> > For review.
->=20
-> RFC, or wait.
+On Thu, Feb 29, 2024 at 11:16:04AM +0100, Maxime Coquelin wrote:
+> Hello Michael,
+> 
+> On 2/1/24 09:40, Michael S. Tsirkin wrote:
+> > On Thu, Feb 01, 2024 at 09:34:11AM +0100, Maxime Coquelin wrote:
+> > > Hi Jason,
+> > > 
+> > > It looks like all patches got acked by you.
+> > > Any blocker to queue the series for next release?
+> > > 
+> > > Thanks,
+> > > Maxime
+> > 
+> > I think it's good enough at this point. Will put it in
+> > linux-next shortly.
+> > 
+> 
+> I fetched linux-next and it seems the series is not in yet.
+> Is there anything to be reworked on my side?
+> 
+> Thanks,
+> Maxime
 
-@Xuan, please note that you received exactly the same feedback on your
-previous submission, a few days ago. While I do understand the legit
-interest in reviews, ignoring explicit feedback tend to bring no
-feedback at all.
+I am sorry I messed up. It was in a wrong branch and was not
+pushed so of course it did not get tested and I kept wondering
+why. I pushed it in my tree but it is too late to put it upstream
+for this cycle. Assuming Linus merges my tree
+with no drama, I will make an effort not to rebase my tree below them
+so these patches will keep their hashes, you can use them already.
 
-Paolo
+-- 
+MST
 
