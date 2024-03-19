@@ -1,96 +1,145 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2413439FC1
-	for <virtualization@lists.linux.dev>; Tue, 19 Mar 2024 18:59:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D809339FE5
+	for <virtualization@lists.linux-foundation.org>; Tue, 19 Mar 2024 19:24:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710874799; cv=none; b=SZ9j9iZ1qZBNbqk5QrtzhX29JmI5fUb9YG6iGNoU0blJ7FehsHuEznl8rYxX39jV2aHTYVrPMV4E1+Q5EYKYJ54VLuXt6stjEbNeh3wZebuwpmvKZekNqs+xYy8EDr6FzQ+zA53TgaNmxF0iorEviPNoxUonTJ1qw4UsGJBfou0=
+	t=1710876284; cv=none; b=Bw6RvuOfVMyD+CIXCftfP5M5RwYfLkQWHpn421KNrufPB/JeRRMxlWvNAEOWR85UpZXmaEem++ePt83pbVBQWLtIZZnCig9+OYbUDFa05fruHT4HZLZDT8mFUvVOuomp8kNh97OpI+QUP6gBTkR/HaLs9EPi/YI7IwLU2IrRsY8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710874799; c=relaxed/simple;
-	bh=SoQAjBBgsyMmx7FZyCs2CojnY/io37fmcb8h+s7f7Cc=;
+	s=arc-20240116; t=1710876284; c=relaxed/simple;
+	bh=SPOcqFOa4IEJC4nSqQwjCzcE1cmOqlod9iEJDt4l1Tk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=MnNoOYzUkyix+LDK33vSwXCISadX66OJtSFU1O3eEf2z1l7UAEOjq9HdIX5B+5S9FGUMIuEOg6jbJXHJTxFULs9QmfBbWD47ZlJKel+yCzQjNFjNo7RRL3e9NnDWtPnGGTLQc4YqeZS06oDPq9QsGrZGjX1673tc3gssK5vTyO8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=clR/9OZF; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 In-Reply-To:Content-Type:Content-Disposition; b=qXkK+yso7nKvG7z6AEymeWkSotojwJqh9s7BAWTnpaKFAvFTie6vDmcGmt4OfX3ptrFyNp24Zd7uXofysmjEQvQExbQUuJ9yFcHqlqh8Y8lQJdUG3YwF1f9pnCgWSf8gCd1wtPKmF6l5Wk0WT8okTHyG4IgHj90mqDS+kx3Adew=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PZe70Yz7; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="clR/9OZF"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PZe70Yz7"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 56EE340C88
+	for <virtualization@lists.linux-foundation.org>; Tue, 19 Mar 2024 19:24:42 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id nDZZrLs0oeYH
+	for <virtualization@lists.linux-foundation.org>;
+	Tue, 19 Mar 2024 19:24:41 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 92BB140327
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 92BB140327
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PZe70Yz7
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 92BB140327
+	for <virtualization@lists.linux-foundation.org>; Tue, 19 Mar 2024 19:24:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1710874797;
+	s=mimecast20190719; t=1710876279;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=SoQAjBBgsyMmx7FZyCs2CojnY/io37fmcb8h+s7f7Cc=;
-	b=clR/9OZFyPo03bp19cdCdyoD5GCVkdGpXEhF5HzZc92kqxUs0fAYSMu7AtIrvGB2H11hwe
-	Gk8176dGXqhv9PAWzjW2n87iKMzHREADvaZzUXL+rFlq+immOR7g+KnrZUYq1wPRNF3u/G
-	iCNxxp6ai8IuaJVITWGANhTM8XTCwWU=
-Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
- by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-562-y1HlCi9QNn-YADG6YxDA4g-1; Tue,
- 19 Mar 2024 14:59:53 -0400
-X-MC-Unique: y1HlCi9QNn-YADG6YxDA4g-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id E6D8038009E7;
-	Tue, 19 Mar 2024 18:59:52 +0000 (UTC)
-Received: from localhost (unknown [10.39.195.82])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id DB83017A90;
-	Tue, 19 Mar 2024 18:59:51 +0000 (UTC)
-Date: Tue, 19 Mar 2024 14:59:46 -0400
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: syzbot <syzbot+70f57d8a3ae84934c003@syzkaller.appspotmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, jasowang@redhat.com,
-	linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com,
-	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com,
-	Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [syzbot] [virtualization?] upstream boot error: WARNING:
- refcount bug in __free_pages_ok
-Message-ID: <20240319185946.GA1134281@fedora>
-References: <000000000000cfd4800613fe79b1@google.com>
- <20240319033941-mutt-send-email-mst@kernel.org>
+	bh=054PSwUxcEoyTTyT0YXDp5Ih5pKTqj1jctjnvFZE9RA=;
+	b=PZe70Yz7POOFOTaicoaaPjvQmXajtstRibO8+6qqDwpGZ/qoF3BH9xNv4FyhzIN/kKKj/i
+	ROrF83qYX5wOUboYDxgd6LNQYLT8zjKC1cB6ykXH1ytPmoFgjc9ZRAfHOmxBP+SYk9+sSn
+	4WVoRoHj1nXqRrSn91pvaTwrxy1C7ck=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-453-ZXZjXo3eMZqJm_pZRjmkrg-1; Tue, 19 Mar 2024 15:24:38 -0400
+X-MC-Unique: ZXZjXo3eMZqJm_pZRjmkrg-1
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-33ed483c2ecso2027723f8f.0
+        for <virtualization@lists.linux-foundation.org>; Tue, 19 Mar 2024 12:24:38 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1710876277; x=1711481077;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=054PSwUxcEoyTTyT0YXDp5Ih5pKTqj1jctjnvFZE9RA=;
+        b=eEZpyyKNcjEALpMYja91PmW+k35tjbUJX1ZP3pxht3YXgT1kXsl2WXR2DIzrQupeDe
+         Iozf2G/wc1XX5JtHuhMzCRxQj7Z3csXSy5D6+yDaybkjkmH58TJ8wE6Q+8zQ1qr4cpny
+         AgFlm6dzJL5CIts8Sl4lMEJsWiVJQmGSbWUgSEqcuJ+84MVaoen8XJbDmNy6zAJ1Lo04
+         DY45v0EbnVEFxPhxLQF+FJJwPc+ED+z7YoFLrEKbMTerutQWz7bSNx9vU8qQBdBZAYnX
+         R9DV1mfTHYEeOxUsZM2NzO/sc0OCqW9dVW6AYRBvZOUOC1bBOzIT4lQvstRDLLcg45yv
+         f6uw==
+X-Forwarded-Encrypted: i=1; AJvYcCVL3AgACSpPrkWV6WCWH4HDI3xtWxUhfGvqg6vgRbwsdGLQ9jUmsUj1/Bj1JLzdnNJPco+BwRPeXmLTZGImiZCgfydavaHkIV9lCbtfFsBCnM9PTqXhB19HCQ==
+X-Gm-Message-State: AOJu0YzOw9q9ZO5+h7SpU/xsEJVmeFpOdBFCA7/N+S3CDTb68cR8pC6t
+	3y99zObuddnSVeHJyU+fd6xplHJmyvjjRo/3ByblR71WJOFYRfcVaPjcIGO1DsKoKoO3g3ku6jJ
+	VY8LiDopT/MPMAPGs0yyVK4KDObqGhorbiPsTTiAEgFdgzSpB94NLPcBEJrm5lnvJRp8d+Zmv9Z
+	hvACY=
+X-Received: by 2002:a05:6000:104e:b0:33e:d1fa:6627 with SMTP id c14-20020a056000104e00b0033ed1fa6627mr7835989wrx.50.1710876277025;
+        Tue, 19 Mar 2024 12:24:37 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHQZid9lWxUAfX9KUhv4EBBJ2gUziSxS4M3VUS2nzuzhpo41M0C+zkRsiu9Q7+Z7XgReUIshA==
+X-Received: by 2002:a05:6000:104e:b0:33e:d1fa:6627 with SMTP id c14-20020a056000104e00b0033ed1fa6627mr7835957wrx.50.1710876276421;
+        Tue, 19 Mar 2024 12:24:36 -0700 (PDT)
+Received: from redhat.com ([2.52.6.254])
+        by smtp.gmail.com with ESMTPSA id v3-20020adfe4c3000000b0033e052be14fsm12994886wrm.98.2024.03.19.12.24.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 Mar 2024 12:24:35 -0700 (PDT)
+Date: Tue, 19 Mar 2024 15:24:31 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+	alex.williamson@redhat.com, andrew@daynix.com, david@redhat.com,
+	dtatulea@nvidia.com, eperezma@redhat.com, feliu@nvidia.com,
+	gregkh@linuxfoundation.org, jasowang@redhat.com,
+	jean-philippe@linaro.org, jonah.palmer@oracle.com,
+	leiyang@redhat.com, lingshan.zhu@intel.com,
+	maxime.coquelin@redhat.com, ricardo@marliere.net,
+	shannon.nelson@amd.com, stable@kernel.org,
+	steven.sistare@oracle.com, suzuki.poulose@arm.com,
+	xuanzhuo@linux.alibaba.com, yishaih@nvidia.com
+Subject: Re: [GIT PULL] virtio: features, fixes
+Message-ID: <20240319152109-mutt-send-email-mst@kernel.org>
+References: <20240319034143-mutt-send-email-mst@kernel.org>
+ <CAHk-=wi363CLXBm=jB=eAtJQ18E-h4Vwrgmd6_7Q=DN+9u8z6w@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="1qhB/swQVRYSNmxw"
-Content-Disposition: inline
-In-Reply-To: <20240319033941-mutt-send-email-mst@kernel.org>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.5
-
-
---1qhB/swQVRYSNmxw
+In-Reply-To: <CAHk-=wi363CLXBm=jB=eAtJQ18E-h4Vwrgmd6_7Q=DN+9u8z6w@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-#syz test: git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git 52998cdd8d3438df9a77c858a827b8932da1bb28
+On Tue, Mar 19, 2024 at 11:03:44AM -0700, Linus Torvalds wrote:
+> On Tue, 19 Mar 2024 at 00:41, Michael S. Tsirkin <mst@redhat.com> wrote:
+> >
+> > virtio: features, fixes
+> >
+> > Per vq sizes in vdpa.
+> > Info query for block devices support in vdpa.
+> > DMA sync callbacks in vduse.
+> >
+> > Fixes, cleanups.
+> 
+> Grr. I thought the merge message was a bit too terse, but I let it slide.
+> 
+> But only after pushing it out do I notice that not only was the pull
+> request message overly terse, you had also rebased this all just
+> moments before sending the pull request and didn't even give a hit of
+> a reason for that.
+> 
+> So I missed that, and the merge is out now, but this was NOT OK.
+> 
+> Yes, rebasing happens. But last-minute rebasing needs to be explained,
+> not some kind of nasty surprise after-the-fact.
+> 
+> And that pull request explanation was really borderline even *without*
+> that issue.
+> 
+>                 Linus
 
-This is the last time virtio_scsi.c was touched. If the test passes then
-the issue is probably in another subsystem and we can bisect more recent
-commits. If it fails, then older virtio_scsi.c commits need to be
-bisected.
+OK thanks Linus and sorry. I did that rebase for testing then I thought
+hey history looks much nicer now why don't I switch to that.  Just goes
+to show not to do this thing past midnight, I write better merge
+messages at sane hours, too.
 
-Stefan
-
---1qhB/swQVRYSNmxw
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmX54KIACgkQnKSrs4Gr
-c8hI8gf9FyLEhUZ2CxIbtdgn26qHFikmHCqcXBqAx0am78njMRBof6rhTipL4nWk
-QA96+1gUvZrzC/PEb1927MJmNFLUnYgCkc/DLhaCGpuOvwuIBD++thTH1/YpSvPY
-q8KVxTrv+/HNzACIBlfz9sIO7/JkatQugxHpJzRysIaylhm8PuzzPEjmTjZauve+
-IOGfB06zMJZqmFZuGET+M58+t9p9hOdteoEVtDVkzGa+FXOEp4g11fspqh/h55nQ
-7AM8XR66MxpKL9uUKv/H8mbfumEkBwhHmdTQXUftjaXOHSwgBQxJONg1jQVcIj6O
-zP98QczOTd5mIPKWs/xKQ1IBvf0RfA==
-=Rx+T
------END PGP SIGNATURE-----
-
---1qhB/swQVRYSNmxw--
+-- 
+MST
 
