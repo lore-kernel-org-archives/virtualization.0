@@ -1,42 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC06F3A1B7;
-	Tue, 19 Mar 2024 18:21:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D905374F2;
+	Tue, 19 Mar 2024 18:22:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710872491; cv=none; b=Wnya0KRiSokjHTSCHYdvYVZ//k9niTwd+ApHJolSrllZ8jQjEk0ykGUU6qeZh8xdhOdyNSgNyEKRrVy3a1x0VZop8pWvFHmmHWhhxiQsNhhwex3Jcy5u5wfh3NhlXWOhXdLUBHiA8lasfui9xSoZByVUDxtPtjitueAEe5TAgac=
+	t=1710872577; cv=none; b=T4mcEM87yWFbiKAZS5lMd2ySxnwVxkwAUznMg1cg8LEvyocbjKny0p3v2le1aGiZDGbrk0VC6zINZwNOswQh8DfWLQiX1VvyPAwOmY3u0pTHzwn/2zBKKk1iVC7CR97cKeKjlGPiZCLLBXLJ4UAdadNkq38APdtAQZzqnt6RFE0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710872491; c=relaxed/simple;
-	bh=aD/VhLpbiA3vcXTWj5tF6nefydh1cXCm5/9qP5S2BSw=;
+	s=arc-20240116; t=1710872577; c=relaxed/simple;
+	bh=T/xW9xACdijAKdAsTAcfOoYLNSPzlFzEkZf6uy18UYw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=pp6sky/Rj5J5NZluqB7LFnLLzBoF6LdXf8NpBx3AocuLEdNij4vNanS8OAM16a9J2U3mEIj3eIflXGk7Zat4HYeoTQ/wWoFmh4URFbJvDYM3biIOjQ7GwRp6WaWxe4Opa+NDZCPheDsymE5wuM/lwFJErWQvySOY0Aa+W89JgDk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HOjkjRAp; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=jH7CBn+z7OeRnSxRlO0mqKc4uYaaEdMyqN5AjFBQqf1op1g7EQR5SkOSF/4jRQ7+7gUU12j5NGpGVSZLyH1LAvR14mJ43pkNHRzH/D41RK7AmXGMMe5COLfYCEXDJ8N4/9+3q6MJQLgS19syldlOZQEBSUYGrQdWEsXC96xVtao=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=rDbrMCe1; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HOjkjRAp"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 015D4C43390;
-	Tue, 19 Mar 2024 18:21:28 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="rDbrMCe1"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBCB6C43390;
+	Tue, 19 Mar 2024 18:22:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1710872490;
-	bh=aD/VhLpbiA3vcXTWj5tF6nefydh1cXCm5/9qP5S2BSw=;
+	s=k20201202; t=1710872576;
+	bh=T/xW9xACdijAKdAsTAcfOoYLNSPzlFzEkZf6uy18UYw=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=HOjkjRApQsEMcD8/EU3bOuLQ1KoiBSQRcgsqPtCeo/Q6ZNDK9itubzQ5b9FpZ4nY1
-	 EHSL6xcECUV0XhH7M/0BjqFgHUqKniHneY9HV8ThzLOM/ZFTDacutQuQkNyvQ8hDpg
-	 hpGKQhN6pROh1QbqET4OSotLbs6GWi0+pJhcmpAKi8dAqiqIwlQm1kRq2pxthrqURQ
-	 NgZ/GaJ803xu0ym2EvzF2M14UPC578wY04EDBbQS5WRv0ts4RDcVyIhVeMBHAS8U83
-	 QsTasv/u14Nf47VNM1QyZjktx3npaNIO5+gEZ/EKn9RcuJHH6B8/uvcAIV5seBfXE7
-	 QmqqkqiQwZG7g==
-Date: Tue, 19 Mar 2024 18:21:25 +0000
+	b=rDbrMCe1KWxt3v/BQGVS9s1d03mwvHYcCBlT2CGLZelWwqbOd4jcvfiEpUbmnti9u
+	 x2ThGrn9ImJQ+iQXzvdCo0i0xRcwl22auO9S8+/URavirztZprUPknHUQTqNoov63g
+	 4NMMkghdb207xs1Fig/CIXKZ8buqdnXSg9IHr8KzuTB/8Wt+stdfsEfLGjpZpUKbp+
+	 6V5HQWcP0TOboD6EyHmdyAx8G3vFBETm99hdEJ7o0QUhC1bdygmUR+Y/iMx4mkuZl2
+	 9H9Wb0DoxAukmvXYqIFwKFV3POZ1g4Qb7whpPQGMtRmYxEb8kTLjRg61/POb5e8KHw
+	 coNmgm7TQ5n8Q==
+Date: Tue, 19 Mar 2024 18:22:51 +0000
 From: Will Deacon <will@kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Gavin Shan <gshan@redhat.com>, virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org, jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com, yihyu@redhat.com, shan.gavin@gmail.com
+To: Gavin Shan <gshan@redhat.com>
+Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+	mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+	yihyu@redhat.com, shan.gavin@gmail.com,
+	linux-arm-kernel@lists.infradead.org,
+	Catalin Marinas <catalin.marinas@arm.com>, mochs@nvidia.com
 Subject: Re: [PATCH] virtio_ring: Fix the stale index in available ring
-Message-ID: <20240319182125.GA3121@willie-the-truck>
+Message-ID: <20240319182251.GB3121@willie-the-truck>
 References: <20240314074923.426688-1-gshan@redhat.com>
  <20240318165924.GA1824@willie-the-truck>
- <20240319033016-mutt-send-email-mst@kernel.org>
+ <35a6bcef-27cf-4626-a41d-9ec0a338fe28@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -45,20 +47,54 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240319033016-mutt-send-email-mst@kernel.org>
+In-Reply-To: <35a6bcef-27cf-4626-a41d-9ec0a338fe28@redhat.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 
-On Tue, Mar 19, 2024 at 03:36:31AM -0400, Michael S. Tsirkin wrote:
-> On Mon, Mar 18, 2024 at 04:59:24PM +0000, Will Deacon wrote:
+On Tue, Mar 19, 2024 at 02:59:23PM +1000, Gavin Shan wrote:
+> On 3/19/24 02:59, Will Deacon wrote:
 > > On Thu, Mar 14, 2024 at 05:49:23PM +1000, Gavin Shan wrote:
+> > > The issue is reported by Yihuang Yu who have 'netperf' test on
+> > > NVidia's grace-grace and grace-hopper machines. The 'netperf'
+> > > client is started in the VM hosted by grace-hopper machine,
+> > > while the 'netperf' server is running on grace-grace machine.
+> > > 
+> > > The VM is started with virtio-net and vhost has been enabled.
+> > > We observe a error message spew from VM and then soft-lockup
+> > > report. The error message indicates the data associated with
+> > > the descriptor (index: 135) has been released, and the queue
+> > > is marked as broken. It eventually leads to the endless effort
+> > > to fetch free buffer (skb) in drivers/net/virtio_net.c::start_xmit()
+> > > and soft-lockup. The stale index 135 is fetched from the available
+> > > ring and published to the used ring by vhost, meaning we have
+> > > disordred write to the available ring element and available index.
+> > > 
+> > >    /home/gavin/sandbox/qemu.main/build/qemu-system-aarch64              \
+> > >    -accel kvm -machine virt,gic-version=host                            \
+> > >       :                                                                 \
+> > >    -netdev tap,id=vnet0,vhost=on                                        \
+> > >    -device virtio-net-pci,bus=pcie.8,netdev=vnet0,mac=52:54:00:f1:26:b0 \
+> > > 
+> > >    [   19.993158] virtio_net virtio1: output.0:id 135 is not a head!
+> > > 
+> > > Fix the issue by replacing virtio_wmb(vq->weak_barriers) with stronger
+> > > virtio_mb(false), equivalent to replaced 'dmb' by 'dsb' instruction on
+> > > ARM64. It should work for other architectures, but performance loss is
+> > > expected.
+> > > 
+> > > Cc: stable@vger.kernel.org
+> > > Reported-by: Yihuang Yu <yihyu@redhat.com>
+> > > Signed-off-by: Gavin Shan <gshan@redhat.com>
+> > > ---
+> > >   drivers/virtio/virtio_ring.c | 12 +++++++++---
+> > >   1 file changed, 9 insertions(+), 3 deletions(-)
+> > > 
 > > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
 > > > index 49299b1f9ec7..7d852811c912 100644
 > > > --- a/drivers/virtio/virtio_ring.c
 > > > +++ b/drivers/virtio/virtio_ring.c
 > > > @@ -687,9 +687,15 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
-> > >  	avail = vq->split.avail_idx_shadow & (vq->split.vring.num - 1);
-> > >  	vq->split.vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, head);
-> > >  
+> > >   	avail = vq->split.avail_idx_shadow & (vq->split.vring.num - 1);
+> > >   	vq->split.vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, head);
 > > > -	/* Descriptors and available array need to be set before we expose the
 > > > -	 * new available array entries. */
 > > > -	virtio_wmb(vq->weak_barriers);
@@ -71,9 +107,9 @@ On Tue, Mar 19, 2024 at 03:36:31AM -0400, Michael S. Tsirkin wrote:
 > > > +	 * architectures, but performance loss is expected.
 > > > +	 */
 > > > +	virtio_mb(false);
-> > >  	vq->split.avail_idx_shadow++;
-> > >  	vq->split.vring.avail->idx = cpu_to_virtio16(_vq->vdev,
-> > >  						vq->split.avail_idx_shadow);
+> > >   	vq->split.avail_idx_shadow++;
+> > >   	vq->split.vring.avail->idx = cpu_to_virtio16(_vq->vdev,
+> > >   						vq->split.avail_idx_shadow);
 > > 
 > > Replacing a DMB with a DSB is _very_ unlikely to be the correct solution
 > > here, especially when ordering accesses to coherent memory.
@@ -85,30 +121,34 @@ On Tue, Mar 19, 2024 at 03:36:31AM -0400, Michael S. Tsirkin wrote:
 > > 
 > > We definitely shouldn't take changes like this without a proper
 > > explanation of what is going on.
+> > 
 > 
-> Just making sure: so on this system, how do
-> smp_wmb() and wmb() differ? smb_wmb is normally for synchronizing
-> with kernel running on another CPU and we are doing something
-> unusual in virtio when we use it to synchronize with host
-> as opposed to the guest - e.g. CONFIG_SMP is special cased
-> because of this:
+> Thanks for your comments, Will.
 > 
-> #define virt_wmb() do { kcsan_wmb(); __smp_wmb(); } while (0)
+> Yes, DMB should work for us. However, it seems this instruction has issues on
+> NVidia's grace-hopper. It's hard for me to understand how DMB and DSB works
+> from hardware level. I agree it's not the solution to replace DMB with DSB
+> before we fully understand the root cause.
 > 
-> Note __smp_wmb not smp_wmb which would be a NOP on UP.
+> I tried the possible replacement like below. __smp_mb() can avoid the issue like
+> __mb() does. __ndelay(10) can avoid the issue, but __ndelay(9) doesn't.
+> 
+> static inline int virtqueue_add_split(struct virtqueue *_vq, ...)
+> {
+>     :
+>         /* Put entry in available array (but don't update avail->idx until they
+>          * do sync). */
+>         avail = vq->split.avail_idx_shadow & (vq->split.vring.num - 1);
+>         vq->split.vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, head);
+> 
+>         /* Descriptors and available array need to be set before we expose the
+>          * new available array entries. */
+>         // Broken: virtio_wmb(vq->weak_barriers);
+>         // Broken: __dma_mb();
+>         // Work:   __mb();
+>         // Work:   __smp_mb();
 
-I think that should be fine (as long as the NOP is a barrier() for the
-compiler).
-
-wmb() uses a DSB, but that is only really relevant to endpoint ordering
-with real I/O devices, e.g. if for some reason you need to guarantee
-that a write has made it all the way to the device before proceeding.
-Even then you're slightly at the mercy of the memory type and the
-interconnect not giving an early acknowledgement, so the extra ordering
-is rarely needed in practice and we don't even provide it for our I/O
-accessors (e.g. writel() and readl()).
-
-So for virtio between two CPUs using coherent memory, DSB is a red
-herring.
+It's pretty weird that __dma_mb() is "broken" but __smp_mb() "works". How
+confident are you in that result?
 
 Will
