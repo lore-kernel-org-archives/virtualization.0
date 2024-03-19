@@ -1,152 +1,203 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45C894597B
-	for <virtualization@lists.linux.dev>; Tue, 19 Mar 2024 06:14:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D53E07CF1B
+	for <virtualization@lists.linux.dev>; Tue, 19 Mar 2024 06:38:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710828876; cv=none; b=HmE/wpEJYVTVyOtPR460MVts8od5GwCTwVy+R9/u1MjV3KmyouV8iY0ujuTvOUBFaMDxkP5ggHSd4gjHpe2KPAwd70OAPg6bhiYNfYga+oWTxMRJfLf/Unym4rFLjvTwcWYHFFgNVKZ9UyMfYFZFAnfZg2V63cVIxBiSGSwbUXg=
+	t=1710830340; cv=none; b=sBlrZ4lx724kmiOQ6UaFJP7Ad61jWy05uQUe1BWNf3CKvI2mmmvfwOMbnpTHy/AMnwXkTmMnxvSVG/i5hfQIsHrZ2ex7uU9d5sf8pjRQpv9V8h5cA1SpsDJmMGsIvEUqU/i9OgDEGH4jUPKBOduRnyEww3W9Oe0eVaCjlVPZfyY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710828876; c=relaxed/simple;
-	bh=v2pKD6xIQbKNmcB1pUgXdy2M1Ktb7FP3Z2rqu9Hj1HQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Mrxy+bxT3OfMv1o3l0jTgp89FeWchZKlAp7XOVg3frzIRSzG/KDrEgoLkNMYcAZUpy1AjLD+ec2NVHlNg7SP5k9EPKkvHbyzl5CbpPZm+hgEaqkeIjvK6tMUArFzb3rKobJjlVsHvGkwU8+F78O9gySoq8FHJXSPgP3D82gklAI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=EydbctBz; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1710830340; c=relaxed/simple;
+	bh=QgucDFrEr/SvLAZY1wBdMptDb13bGtRFhwoS3CnfYNE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=PITrePI3dfPub8ijfvEtYnQgHtkP+6ZDf/DtZlhnLSSYLrcVZdbtNZ/3JtfZx32X4aG8iGV1vXezGWLelwfjzhCLMlEkfEgmNZhTpqw+WFFHDbuiRRUE7K2pyCAgrYlJQoqtCRllVtm0t3IQtoDXUs4ez+EmRx8TVJY+1d7Q5sM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hvKPPN7/; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EydbctBz"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hvKPPN7/"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1710828874;
+	s=mimecast20190719; t=1710830337;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Nd2WnTQpqJ6t/rcAd5QrbY0+YyvvOiz3e4ifplxSCyk=;
-	b=EydbctBz7AA1OfuJXclf1uafiXIRYeFHp4RC56HI8nX9ywR4+mENGIZpNGt4evOrVWfq0P
-	SG4Rfgpc4XdPMsLVxsYdzEhcFPRoLAr3tGJIN1aq/AfLXeNAV1lWRai2ikZ63HQUvrg4bI
-	G+hJY5mVHOGnwDoKcvj47TDsr9huLCU=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=5PWFWfjNWiRH0RK0T1uriWMCNRFoVCxB1MnvhpCDvFQ=;
+	b=hvKPPN7/X4RBR2qEe50dzR5TTXOGdm0t8U+YHdlU78QtybURq1X5SBSixLS/iSib1ApG+e
+	5RWRq73erimWIqoZXkynF7ALMOlMX6aTQz7WLIMWSSlorWcksXzKyRTdBE196wXk9uXTh4
+	fiYJgo1lfpVrDdvWoWYfDFQdVotBzvo=
+Received: from mail-pf1-f200.google.com (mail-pf1-f200.google.com
+ [209.85.210.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-588-yIr8CjwANhK6A-kN_m5aKw-1; Tue, 19 Mar 2024 02:14:32 -0400
-X-MC-Unique: yIr8CjwANhK6A-kN_m5aKw-1
-Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-a46b82df33cso133291266b.0
-        for <virtualization@lists.linux.dev>; Mon, 18 Mar 2024 23:14:31 -0700 (PDT)
+ us-mta-393-5e2ip-giMye17Fv7DySf_A-1; Tue, 19 Mar 2024 02:38:56 -0400
+X-MC-Unique: 5e2ip-giMye17Fv7DySf_A-1
+Received: by mail-pf1-f200.google.com with SMTP id d2e1a72fcca58-6e04e1ac036so5118778b3a.3
+        for <virtualization@lists.linux.dev>; Mon, 18 Mar 2024 23:38:56 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710828871; x=1711433671;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Nd2WnTQpqJ6t/rcAd5QrbY0+YyvvOiz3e4ifplxSCyk=;
-        b=bR/3tSpRO1fNnL/m5rp8uF/JJ0971oTKCOHh0avDhSynUUg1yJ4lLpRR3PTdUWsbAX
-         Qwgk64rBcMyEtOjGFgZ48fs+2tvHJcGRR/oWLXRX0eEqLwCgLk2tqreCjdi75g6KmBbj
-         RMMOFTWCzHZzWjaAR4DMPNoArndLEl482y+CMVGOPIF/rDRvqJ4I/wSEeFS6ob2Wljfs
-         BTCaGLz73lyAhlZZPvTPweHVEKAVecDMXhEbX7SE2fvpZze56IfISse/0HntfPa/QmC2
-         gg5mCY2m8zjYusfyWXr7UKaM0AEmtXA8imYJdmpFFZzGVJ1QARhoWG3nXW6VdYIbHC/A
-         10EQ==
-X-Gm-Message-State: AOJu0YxeeleHUkQ10eZfTiRHShN/kgIenbyyLGJQ5MyZxUub1yA4v62M
-	1aR8CWmsZkcb0k307ErrUQGEAQ7TqJRsFpQjNMBI/ed6WAG7iUJzS9a5rDdHgt+6c4hswBoqJKg
-	sOdFMtNAkYS7wCR6uPJOC4IpYBmFewZ2aFNQZubQsSN0/9zPzVJz8DsyUJsQqTxnR
-X-Received: by 2002:a17:907:7a93:b0:a46:74fe:904f with SMTP id mm19-20020a1709077a9300b00a4674fe904fmr10682761ejc.26.1710828870985;
-        Mon, 18 Mar 2024 23:14:30 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGo/SmdwOaw3x3Vaq0MJ5ceF64rXJYjddl/AfDh1pN5ip0sZk4YZOLeNTJ1ec6BERFY/yXtfQ==
-X-Received: by 2002:a17:907:7a93:b0:a46:74fe:904f with SMTP id mm19-20020a1709077a9300b00a4674fe904fmr10682741ejc.26.1710828870515;
-        Mon, 18 Mar 2024 23:14:30 -0700 (PDT)
-Received: from redhat.com ([2a02:14f:175:ca2b:adb0:2501:10a9:c4b2])
-        by smtp.gmail.com with ESMTPSA id gf8-20020a170906e20800b00a46d9966ff8sm567031ejb.147.2024.03.18.23.14.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 18 Mar 2024 23:14:29 -0700 (PDT)
-Date: Tue, 19 Mar 2024 02:14:26 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Gavin Shan <gshan@redhat.com>
-Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	jasowang@redhat.com, xuanzhuo@linux.alibaba.com, yihyu@redhat.com,
-	shan.gavin@gmail.com
-Subject: Re: [PATCH] virtio_ring: Fix the stale index in available ring
-Message-ID: <20240319021136-mutt-send-email-mst@kernel.org>
-References: <20240314074923.426688-1-gshan@redhat.com>
+        d=1e100.net; s=20230601; t=1710830335; x=1711435135;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=5PWFWfjNWiRH0RK0T1uriWMCNRFoVCxB1MnvhpCDvFQ=;
+        b=h6LBExoTEDFtXUOPHEPY/zKPSkvdfEEUhDzzd3YLeI+n886rAgxnSUJV6TFEm49NEv
+         nR28ifzUX8V3tVai+zPtIlMEP8o8I9G9rJIfWw+ClyqRwQrv4gEGXwAjm5oeZBXTkgaa
+         ns9J88a6AVBQeSmD2diOf00M4SEqRGDE61ZrRb8sb7Oyw4TuhuOYS9O+E7t2132Vsg+3
+         m5ZOz1qLrJhlfeeLaOd4L9HcK8EtkIqOgQvHe2Kp+UCAvXuB8CHjp2MiRbmPbS5UObsh
+         nDe01ous4HrCWE5ye0bVWmRSWDKznuJFHRSgwn4ua2xqMvAJFTehyzRYSbx3oMK9ybwz
+         6rqg==
+X-Forwarded-Encrypted: i=1; AJvYcCWp4cT3e7acDbKsV+p2TXk0bNTtiSO9Lrjn6wFeAzmybxE6WwFZ50w+in0YLgfxLIPef6y3fx6yP0jv/65hp1GhY0tSNUY/0Xo5BeQP2Gs=
+X-Gm-Message-State: AOJu0YzPMnICF7qwVkgsL3bcsmLIgS07MXTD5e3ZTgPTb2YUViwysOrW
+	5+1sMfZ4FV+ndk70rvCbo/bJrRI3lebCbQDmOn4rhqMC+XMUmTpsJirqu3Hcdiu+BuJsKYPymqj
+	55I2U/RQ4gXSljMxS39HU1/5jfiqz0zuT8eeu/ZF8CXfAfyahbAI2/NS+6PgmyNDa
+X-Received: by 2002:a05:6a21:78a9:b0:1a3:5299:1648 with SMTP id bf41-20020a056a2178a900b001a352991648mr11972188pzc.16.1710830335509;
+        Mon, 18 Mar 2024 23:38:55 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IG4CuCVJiYhCSgYrUKlARZPvazBultLs5Ehqesd5coo9WIACzRgb9oUYr+Q8e3TOtm1pisQnQ==
+X-Received: by 2002:a05:6a21:78a9:b0:1a3:5299:1648 with SMTP id bf41-20020a056a2178a900b001a352991648mr11972179pzc.16.1710830335114;
+        Mon, 18 Mar 2024 23:38:55 -0700 (PDT)
+Received: from [192.168.68.51] ([43.252.115.31])
+        by smtp.gmail.com with ESMTPSA id d6-20020a170902654600b001db8f7720e2sm10759114pln.288.2024.03.18.23.38.50
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 18 Mar 2024 23:38:54 -0700 (PDT)
+Message-ID: <9b3030d1-cb2c-4ce0-8b24-1074b616fc84@redhat.com>
+Date: Tue, 19 Mar 2024 16:38:49 +1000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240314074923.426688-1-gshan@redhat.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] virtio_ring: Fix the stale index in available ring
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Will Deacon <will@kernel.org>, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, jasowang@redhat.com,
+ xuanzhuo@linux.alibaba.com, yihyu@redhat.com, shan.gavin@gmail.com,
+ linux-arm-kernel@lists.infradead.org,
+ Catalin Marinas <catalin.marinas@arm.com>, mochs@nvidia.com
+References: <20240314074923.426688-1-gshan@redhat.com>
+ <20240318165924.GA1824@willie-the-truck>
+ <35a6bcef-27cf-4626-a41d-9ec0a338fe28@redhat.com>
+ <20240319020905-mutt-send-email-mst@kernel.org>
+From: Gavin Shan <gshan@redhat.com>
+In-Reply-To: <20240319020905-mutt-send-email-mst@kernel.org>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Thu, Mar 14, 2024 at 05:49:23PM +1000, Gavin Shan wrote:
-> The issue is reported by Yihuang Yu who have 'netperf' test on
-> NVidia's grace-grace and grace-hopper machines. The 'netperf'
-> client is started in the VM hosted by grace-hopper machine,
-> while the 'netperf' server is running on grace-grace machine.
+On 3/19/24 16:09, Michael S. Tsirkin wrote:
+
+>>>> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+>>>> index 49299b1f9ec7..7d852811c912 100644
+>>>> --- a/drivers/virtio/virtio_ring.c
+>>>> +++ b/drivers/virtio/virtio_ring.c
+>>>> @@ -687,9 +687,15 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+>>>>    	avail = vq->split.avail_idx_shadow & (vq->split.vring.num - 1);
+>>>>    	vq->split.vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, head);
+>>>> -	/* Descriptors and available array need to be set before we expose the
+>>>> -	 * new available array entries. */
+>>>> -	virtio_wmb(vq->weak_barriers);
+>>>> +	/*
+>>>> +	 * Descriptors and available array need to be set before we expose
+>>>> +	 * the new available array entries. virtio_wmb() should be enough
+>>>> +	 * to ensuere the order theoretically. However, a stronger barrier
+>>>> +	 * is needed by ARM64. Otherwise, the stale data can be observed
+>>>> +	 * by the host (vhost). A stronger barrier should work for other
+>>>> +	 * architectures, but performance loss is expected.
+>>>> +	 */
+>>>> +	virtio_mb(false);
+>>>>    	vq->split.avail_idx_shadow++;
+>>>>    	vq->split.vring.avail->idx = cpu_to_virtio16(_vq->vdev,
+>>>>    						vq->split.avail_idx_shadow);
+>>>
+>>> Replacing a DMB with a DSB is _very_ unlikely to be the correct solution
+>>> here, especially when ordering accesses to coherent memory.
+>>>
+>>> In practice, either the larger timing different from the DSB or the fact
+>>> that you're going from a Store->Store barrier to a full barrier is what
+>>> makes things "work" for you. Have you tried, for example, a DMB SY
+>>> (e.g. via __smb_mb()).
+>>>
+>>> We definitely shouldn't take changes like this without a proper
+>>> explanation of what is going on.
+>>>
+>>
+>> Thanks for your comments, Will.
+>>
+>> Yes, DMB should work for us. However, it seems this instruction has issues on
+>> NVidia's grace-hopper. It's hard for me to understand how DMB and DSB works
+>> from hardware level. I agree it's not the solution to replace DMB with DSB
+>> before we fully understand the root cause.
+>>
+>> I tried the possible replacement like below. __smp_mb() can avoid the issue like
+>> __mb() does. __ndelay(10) can avoid the issue, but __ndelay(9) doesn't.
+>>
+>> static inline int virtqueue_add_split(struct virtqueue *_vq, ...)
+>> {
+>>      :
+>>          /* Put entry in available array (but don't update avail->idx until they
+>>           * do sync). */
+>>          avail = vq->split.avail_idx_shadow & (vq->split.vring.num - 1);
+>>          vq->split.vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, head);
+>>
+>>          /* Descriptors and available array need to be set before we expose the
+>>           * new available array entries. */
+>>          // Broken: virtio_wmb(vq->weak_barriers);
+>>          // Broken: __dma_mb();
+>>          // Work:   __mb();
+>>          // Work:   __smp_mb();
+>>          // Work:   __ndelay(100);
+>>          // Work:   __ndelay(10);
+>>          // Broken: __ndelay(9);
+>>
+>>         vq->split.avail_idx_shadow++;
+>>          vq->split.vring.avail->idx = cpu_to_virtio16(_vq->vdev,
+>>                                                  vq->split.avail_idx_shadow);
 > 
-> The VM is started with virtio-net and vhost has been enabled.
-> We observe a error message spew from VM and then soft-lockup
-> report. The error message indicates the data associated with
-> the descriptor (index: 135) has been released, and the queue
-> is marked as broken. It eventually leads to the endless effort
-> to fetch free buffer (skb) in drivers/net/virtio_net.c::start_xmit()
-> and soft-lockup. The stale index 135 is fetched from the available
-> ring and published to the used ring by vhost, meaning we have
-> disordred write to the available ring element and available index.
+> What if you stick __ndelay here?
 > 
->   /home/gavin/sandbox/qemu.main/build/qemu-system-aarch64              \
->   -accel kvm -machine virt,gic-version=host                            \
->      :                                                                 \
->   -netdev tap,id=vnet0,vhost=on                                        \
->   -device virtio-net-pci,bus=pcie.8,netdev=vnet0,mac=52:54:00:f1:26:b0 \
+
+        /* Put entry in available array (but don't update avail->idx until they
+          * do sync). */
+         avail = vq->split.avail_idx_shadow & (vq->split.vring.num - 1);
+         vq->split.vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, head);
+
+         /* Descriptors and available array need to be set before we expose the
+          * new available array entries. */
+         virtio_wmb(vq->weak_barriers);
+         vq->split.avail_idx_shadow++;
+         vq->split.vring.avail->idx = cpu_to_virtio16(_vq->vdev,
+                                                 vq->split.avail_idx_shadow);
+         /* Try __ndelay(x) here as Michael suggested
+          *
+          * Work:      __ndelay(200);    possiblly make it hard to reproduce
+          * Broken:    __ndelay(100);
+          * Broken:    __ndelay(20);
+          * Broken:    __ndelay(10);
+          */
+         __ndelay(200);
+
+
 > 
->   [   19.993158] virtio_net virtio1: output.0:id 135 is not a head!
-> 
-> Fix the issue by replacing virtio_wmb(vq->weak_barriers) with stronger
-> virtio_mb(false), equivalent to replaced 'dmb' by 'dsb' instruction on
-> ARM64. It should work for other architectures, but performance loss is
-> expected.
-> 
-> Cc: stable@vger.kernel.org
-> Reported-by: Yihuang Yu <yihyu@redhat.com>
-> Signed-off-by: Gavin Shan <gshan@redhat.com>
-> ---
->  drivers/virtio/virtio_ring.c | 12 +++++++++---
->  1 file changed, 9 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 49299b1f9ec7..7d852811c912 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -687,9 +687,15 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
->  	avail = vq->split.avail_idx_shadow & (vq->split.vring.num - 1);
->  	vq->split.vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, head);
->  
-> -	/* Descriptors and available array need to be set before we expose the
-> -	 * new available array entries. */
-> -	virtio_wmb(vq->weak_barriers);
-> +	/*
-> +	 * Descriptors and available array need to be set before we expose
-> +	 * the new available array entries. virtio_wmb() should be enough
-> +	 * to ensuere the order theoretically. However, a stronger barrier
-> +	 * is needed by ARM64. Otherwise, the stale data can be observed
-> +	 * by the host (vhost). A stronger barrier should work for other
-> +	 * architectures, but performance loss is expected.
-> +	 */
-> +	virtio_mb(false);
->  	vq->split.avail_idx_shadow++;
->  	vq->split.vring.avail->idx = cpu_to_virtio16(_vq->vdev,
->  						vq->split.avail_idx_shadow);
+>>          vq->num_added++;
+>>
+>>          pr_debug("Added buffer head %i to %p\n", head, vq);
+>>          END_USE(vq);
+>>          :
+>> }
+>>
+>> I also tried to measure the consumed time for various barrier-relative instructions using
+>> ktime_get_ns() which should have consumed most of the time. __smb_mb() is slower than
+>> __smp_wmb() but faster than __mb()
+>>
+>>      Instruction           Range of used time in ns
+>>      ----------------------------------------------
+>>      __smp_wmb()           [32  1128032]
+>>      __smp_mb()            [32  1160096]
+>>      __mb()                [32  1162496]
+>>
 
-
-
-Something else to try, is to disassemble the code and check the compiler is not broken.
-
-It also might help to replace assigment above with WRITE_ONCE -
-it's technically always has been the right thing to do, it's just a big
-change (has to be done everywhere if done at all) so we never bothered
-and we never hit a compiler that would split or speculate stores ...
-
-
-> -- 
-> 2.44.0
+Thanks,
+Gavin
 
