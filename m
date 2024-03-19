@@ -1,87 +1,154 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77CEB1CD24
-	for <virtualization@lists.linux-foundation.org>; Tue, 19 Mar 2024 16:32:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B65CD1CAB2
+	for <virtualization@lists.linux.dev>; Tue, 19 Mar 2024 16:36:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710865942; cv=none; b=a5UPoGQlYhXNowGehg04U2uzF6WDvxFTsTWgXxwP3tlePqwbXaYhzaXWEdC/T4zPSx0Su1vbBGcWOQdr5//f/liXZ3NuFzPZW1SpRVUq0cKKDCUFI+JVyk5iCXUuqEEyzyRRLSVERI/X8rsoHdMNsNshJwOUOJeGjmNdyAQYKt0=
+	t=1710866172; cv=none; b=ZLJJNk5x9B3L9uBSaSTdHsvpsZOdxgRP6wwY/cmHnSh9ZGmKLgfMfjwkwZrfCy0+ikL0i5q6/2O+cNId8YP0wysdktclMlpoctnIGGZzUdcVZI9t4jLvN2noHOQyq4y89/l+DrgIi7pS2Ln2wPHgQHhSPMp46aY27JI38jOJB1Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710865942; c=relaxed/simple;
-	bh=dlwS+ClYwtdCIhyRMHsdbtRf3zIzcBodhDuKwd+a6r4=;
-	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=WgIbyIbWSmXt7j2P+mdZFzsQoGSs/2kbVpnfrqaudFC1cZh10QdZpgnv46E6dzrargSxzhy99WvwfXsvg5BCwvfg5xJVGdVR4lPS3LmOJ3DQT093hyWABptAokqTLd2NV0en5bNEKlrGP8ldP1kLo2/zdHDZQG46CkEZTctnz9A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KqafG1FO; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1710866172; c=relaxed/simple;
+	bh=QyJ0MFX0Suf+U+cV1hcmUbR73ilIbzBwpu3S3Wn3vRQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=MyeRoOyS9m6ZwYSxvSw/HQxZCdGxbIWlS9NWkkX6PjK7HRudGwE9oJrs7q0QbESKXa6yNfh9ebre8/DzWbX9k8IlrSxaYgR0E6GMvH4pNzw0z6miVIH0iADcrJRBYONfvxNNHsI9HSb0RCj7VeMW/Ra6R57aFoEFsUAcpGUAuh8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XykPr0xt; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KqafG1FO"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 2543F40BD5
-	for <virtualization@lists.linux-foundation.org>; Tue, 19 Mar 2024 16:32:21 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -4.401
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id lRLRvAHV69nP
-	for <virtualization@lists.linux-foundation.org>;
-	Tue, 19 Mar 2024 16:32:20 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=145.40.73.55; helo=sin.source.kernel.org; envelope-from=pr-tracker-bot@kernel.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 1D3D8403E5
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=kernel.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1D3D8403E5
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=KqafG1FO
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 1D3D8403E5
-	for <virtualization@lists.linux-foundation.org>; Tue, 19 Mar 2024 16:32:19 +0000 (UTC)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sin.source.kernel.org (Postfix) with ESMTP id D3816CE0ECB;
-	Tue, 19 Mar 2024 16:32:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 07641C433C7;
-	Tue, 19 Mar 2024 16:32:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1710865935;
-	bh=dlwS+ClYwtdCIhyRMHsdbtRf3zIzcBodhDuKwd+a6r4=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-	b=KqafG1FOkpQ1tdSHmOM60N3qo+kOfsYOfMeSna55txX+1i+AeJRYBB0RLCBBwOJdA
-	 P8Zl+dfevApg/fTIQzEwgyrWb/g2LivLHaHjVjnZFHXDxLpRR2hihs7OGrSZFFdDZu
-	 e5szhg4Z+P6J0PAnAVAfHnj08LTiNzpKMxgC3V17cKU2TMawKIrDohePcxHoPclan9
-	 sWVA46+AnWm6O7WR0Mlcw01n+EU7qeyguE34jiW1OrK+VUxpCQkbTmaph2xrv0bs8s
-	 Y6KXl7cKjswa3L4uxlA+jknT5YRY0Woznmtz8Ldre8Uh75/h0QYeGzPWtD9aVospJA
-	 P6DpI9lV8tBtA==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id F1E92D84BB3;
-	Tue, 19 Mar 2024 16:32:14 +0000 (UTC)
-Subject: Re: [GIT PULL] virtio: features, fixes
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <20240319034143-mutt-send-email-mst@kernel.org>
-References: <20240319034143-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-List-Id: <kvm.vger.kernel.org>
-X-PR-Tracked-Message-Id: <20240319034143-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-X-PR-Tracked-Commit-Id: 5da7137de79ca6ffae3ace77050588cdf5263d33
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: d95fcdf4961d27a3d17e5c7728367197adc89b8d
-Message-Id: <171086593498.7768.14462757833782378841.pr-tracker-bot@kernel.org>
-Date: Tue, 19 Mar 2024 16:32:14 +0000
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, alex.williamson@redhat.com, andrew@daynix.com, david@redhat.com, dtatulea@nvidia.com, eperezma@redhat.com, feliu@nvidia.com, gregkh@linuxfoundation.org, jasowang@redhat.com, jean-philippe@linaro.org, jonah.palmer@oracle.com, leiyang@redhat.com, lingshan.zhu@intel.com, maxime.coquelin@redhat.com, mst@redhat.com, ricardo@marliere.net, shannon.nelson@amd.com, stable@kernel.org, steven.sistare@oracle.com, suzuki.poulose@arm.com, xuanzhuo@linux.alibaba.com, yishaih@nvidia.com
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XykPr0xt"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1710866169;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=cwRmdfNR12zSLEPRKiwCn8QhewuQKA59LJ2FEJ+4fV0=;
+	b=XykPr0xtUPIj9eVC0DrX1cJ8N1q0FIdBawUn3/JLuZLX025TYmSgCYUnjbp+0GKhFB0GOJ
+	2rcUOrD4Cvz0xasSFw4IQcyEmnQYRURVDRHKjvrJ+VErUlfj2Mj2OfyQ3nzl0BpWc7y7C9
+	nbdyXfBrOYiLV70oofjVv39qafk58WY=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-661-jPYcuyusPl6M3b_MSKNF9w-1; Tue, 19 Mar 2024 12:36:08 -0400
+X-MC-Unique: jPYcuyusPl6M3b_MSKNF9w-1
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-41407d66b11so16613035e9.1
+        for <virtualization@lists.linux.dev>; Tue, 19 Mar 2024 09:36:07 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1710866166; x=1711470966;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=cwRmdfNR12zSLEPRKiwCn8QhewuQKA59LJ2FEJ+4fV0=;
+        b=GRoLqwwGIZdglLesGlOIJLNC6FtbloMkU+dLGqzhrlQtGCuwTTyIyemMju624Zeyr8
+         CKQZ4vqQ66nRtBd6HRmsFfNry4nGUivEiW0ibIFJgDUl8aE3piB828QwPNmV3o6GoUsH
+         5KlZwLRxWw11hXAXJDWDTw8AvBN+a3jaDy+6IMJeG/BWQG5LnPl+9cxBLVfJryTYdjnU
+         EbS/9e6VO7Ct7DPqhhvHQfEXZcZ26cKmD8f5aen0QrxN1q/uLYtQAuMxdCu9QSi2bzv+
+         GqX0a4EoaJf/gJLjR8Xjki3L7nZbxV42gdJ9ieSKpL3l3/puU9CgLf/jqrMHy0ZLRvDx
+         NBbQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVi1np74BBzNK3HrkRFEbevYOygETA4GmlSWa9xsE9a/99TK5hfGfsmirT2FA67yKu9xu5NdDMk8ssATpw9leDRYkO8e9moSHqTntEsJ98=
+X-Gm-Message-State: AOJu0Yx2fX8uzEe+nh26pX9uUpt8CVsVuFjIfE5QaFgZZtGWuc/pXTEA
+	Hq27nQSeNpjB4OnXyQf1My1jsErLoKUrHk7wsZn998g+RJqkEsrD7U+ZkP/kKpGAAq3QmrCFaZd
+	BVUx5uk7+yNkIsMr3A6ObJWBobpkn0df/N+/7h3WrgJoLP7tCquZ0DJqoStq2l7+j
+X-Received: by 2002:a05:600c:444f:b0:414:835:6ed2 with SMTP id v15-20020a05600c444f00b0041408356ed2mr2121314wmn.35.1710866166482;
+        Tue, 19 Mar 2024 09:36:06 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IH53e2BgY2zXtcEMyi4ZXExIYDJWgvTeQg2HqWKgpzxcoO9K0JTLkImCEXfXui2abRQMA/p+g==
+X-Received: by 2002:a05:600c:444f:b0:414:835:6ed2 with SMTP id v15-20020a05600c444f00b0041408356ed2mr2121302wmn.35.1710866166065;
+        Tue, 19 Mar 2024 09:36:06 -0700 (PDT)
+Received: from sgarzare-redhat (host-87-12-25-33.business.telecomitalia.it. [87.12.25.33])
+        by smtp.gmail.com with ESMTPSA id s9-20020a05600c45c900b00412e3717ae6sm22311861wmo.36.2024.03.19.09.36.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 Mar 2024 09:36:05 -0700 (PDT)
+Date: Tue, 19 Mar 2024 17:36:01 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Zhu Lingshan <lingshan.zhu@intel.com>
+Cc: jasowang@redhat.com, mst@redhat.com, virtualization@lists.linux.dev
+Subject: Re: [PATCH 08/10] vDPA: report virtio-block write zeroes
+ configuration to user space
+Message-ID: <kr2l5cuwdblc5o3xae324uxc2gmphe4wffgunthvhnjfbhqkmz@erwxl3v22gdy>
+References: <20240218185606.13509-1-lingshan.zhu@intel.com>
+ <20240218185606.13509-9-lingshan.zhu@intel.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+In-Reply-To: <20240218185606.13509-9-lingshan.zhu@intel.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-The pull request you sent on Tue, 19 Mar 2024 03:41:43 -0400:
+On Mon, Feb 19, 2024 at 02:56:04AM +0800, Zhu Lingshan wrote:
+>This commits reports write zeroes configuration of
+>virtio-block devices to user space, includes:
+>1)maximum write zeroes sectors size
+>2)maximum write zeroes segment number
+>
+>Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+>---
+> drivers/vdpa/vdpa.c       | 23 +++++++++++++++++++++++
+> include/uapi/linux/vdpa.h |  2 ++
+> 2 files changed, 25 insertions(+)
+>
+>diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+>index bf3fa90908a7..adbcbc7b18b2 100644
+>--- a/drivers/vdpa/vdpa.c
+>+++ b/drivers/vdpa/vdpa.c
+>@@ -1064,6 +1064,26 @@ static int vdpa_dev_blk_discard_config_fill(struct sk_buff *msg, u64 features,
+> 	return 0;
+> }
+>
+>+static int
+>+vdpa_dev_blk_write_zeroes_config_fill(struct sk_buff *msg, u64 features,
+>+				     const struct virtio_blk_config *config)
+>+{
+>+	u32 val_u32;
+>+
+>+	if ((features & BIT_ULL(VIRTIO_BLK_F_WRITE_ZEROES)) == 0)
+>+		return 0;
+>+
+>+	val_u32 = __virtio32_to_cpu(true, config->max_write_zeroes_sectors);
+>+	if (nla_put_u32(msg, VDPA_ATTR_DEV_BLK_CFG_MAX_WRITE_ZEROES_SEC, val_u32))
+>+		return -EMSGSIZE;
+>+
+>+	val_u32 = __virtio32_to_cpu(true, config->max_write_zeroes_seg);
+>+	if (nla_put_u32(msg, VDPA_ATTR_DEV_BLK_CFG_MAX_WRITE_ZEROES_SEG, val_u32))
+>+		return -EMSGSIZE;
 
-> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+Should we cover also `config->write_zeroes_may_unmap` ?
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/d95fcdf4961d27a3d17e5c7728367197adc89b8d
+>+
+>+	return 0;
+>+}
+>+
+> static int vdpa_dev_blk_config_fill(struct vdpa_device *vdev,
+> 				    struct sk_buff *msg)
+> {
+>@@ -1099,6 +1119,9 @@ static int vdpa_dev_blk_config_fill(struct vdpa_device *vdev,
+> 	if (vdpa_dev_blk_discard_config_fill(msg, features_device, &config))
+> 		return -EMSGSIZE;
+>
+>+	if (vdpa_dev_blk_write_zeroes_config_fill(msg, features_device, &config))
+>+		return -EMSGSIZE;
+>+
+> 	return 0;
+> }
+>
+>diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
+>index 30887931a220..797d5708492f 100644
+>--- a/include/uapi/linux/vdpa.h
+>+++ b/include/uapi/linux/vdpa.h
+>@@ -68,6 +68,8 @@ enum vdpa_attr {
+> 	VDPA_ATTR_DEV_BLK_CFG_MAX_DISCARD_SEC,	/* u32 */
+> 	VDPA_ATTR_DEV_BLK_CFG_MAX_DISCARD_SEG,	/* u32 */
+> 	VDPA_ATTR_DEV_BLK_CFG_DISCARD_SEC_ALIGN,/* u32 */
+>+	VDPA_ATTR_DEV_BLK_CFG_MAX_WRITE_ZEROES_SEC,	/* u32 */
+>+	VDPA_ATTR_DEV_BLK_CFG_MAX_WRITE_ZEROES_SEG,	/* u32 */
+>
+> 	/* new attributes must be added above here */
+> 	VDPA_ATTR_MAX,
+>-- 
+>2.39.3
+>
+>
 
-Thank you!
-
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
