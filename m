@@ -1,188 +1,155 @@
-Received: from m15.mail.163.com (m15.mail.163.com [45.254.50.219])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 2772C3FBA3
-	for <virtualization@lists.linux.dev>; Wed, 20 Mar 2024 10:19:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.254.50.219
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D59BF3C478
+	for <virtualization@lists.linux.dev>; Wed, 20 Mar 2024 10:20:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710929962; cv=none; b=puLl6PtMUVyYoZSVZuTtOPBYOKuQRq1cwKEhoTjgqN4Lxrl+OnozxegyXkj+Az16J+3YHBJHQwnN/Qkh7fZvk8ENN9NMJI3sySBVM52DoGnuv4DrF1gtqkS+zJKW/MyWRP1RTXqI0jLAOeQ1hLdjC3LvkYryfLkWNF1dqszA5Jc=
+	t=1710930031; cv=none; b=sIBIvR+mBzWuYwDMkvBH6ePx+xj4Uf+/n+rhFCVIlXE6L2yfVDwMbiGQlRs114BDXV01VN6SUXrY9nuRet/yClIBCu8XK7bcRmEZJhNs5yIzKS4vuPYc6L2oUnNRY3X5uIqEQjV/SVQAIOXQVHM66RWeFWwFS95LQBL2fhY8M38=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710929962; c=relaxed/simple;
-	bh=xIi+cW4w2WN3sLl/pWDZi4mIfB8RX4auWJofB6sJ99c=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=vAow8Uh+Zw50/yQE/ZiyPJg1hyCzqr2FGG8xg+aI9A6u1dLYw8LpDWT1t+iiD0wXb02crnXz9417lBcBMaBeO9RME1omIZUya2FsR7TfuhXbq6zPaFXx2dRKqfSaqiKuCCpLxuvpg7fZEovBsqpxsfoc/sHn2A/50wM9NL7rtmQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=ortV1WbK; arc=none smtp.client-ip=45.254.50.219
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1710930031; c=relaxed/simple;
+	bh=53xBEHWSnLxXwQBryUKnnPb7iNmr3Gh+RO9howPWLMg=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=FozYcE1mLj+R+dMgzphVlIDmYY66X56u/3k0oTGNg+dNAlYdPvLnYS8uSaMT3lN+A/jG+nojRLDT845r4FkLFicovM1IUINo+RvVMgt/NZIO93DYX0+fIr41kGobaV3obiDOvUIlSMpVdh6oW/F3RJ3qXRKL1L/Lfm6vNyKBybA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=tYjQ0qes; arc=none smtp.client-ip=115.124.30.119
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="ortV1WbK"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:Subject:Date:Message-Id:MIME-Version; bh=1oeuD
-	vFn2YDBckFkO47Q7YRsJ8OZ8rJl2dHg14vkSuw=; b=ortV1WbKJzj6lpEmSXyvL
-	h2kbUcPWGRGzjC/OzoXLMd2R/kn/a3AECnO54dT5Gq5+sHqK9C55X1p6IrN79kuD
-	SH3Bm3bQ1FnuFM7BFtMCtCQk2JjuLKXunHn3WNmamQZ3xhRDni5/ZMi9BQjcrEPy
-	5YYJ3UwTBQ+DRSamx0eAHs=
-Received: from localhost.localdomain (unknown [39.144.124.65])
-	by gzga-smtp-mta-g0-4 (Coremail) with SMTP id _____wDnL5ciuPpliawpBA--.38680S2;
-	Wed, 20 Mar 2024 18:19:15 +0800 (CST)
-From: Wang Rong <w_angrong@163.com>
-To: mst@redhat.com,
-	jasowang@redhat.com
-Cc: kvm@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Rong Wang <w_angrong@163.com>
-Subject: [PATCH v3] vhost/vdpa: Add MSI translation tables to iommu for software-managed MSI
-Date: Wed, 20 Mar 2024 18:19:12 +0800
-Message-Id: <20240320101912.28210-1-w_angrong@163.com>
-X-Mailer: git-send-email 2.20.1
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="tYjQ0qes"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1710930026; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=ZK/1fPU2P6JGQovu6CqIpUNTRU4scN5CeSIZeQKlgUQ=;
+	b=tYjQ0qesX7NlqdWIBs01ymq/k52Ya2qrT0JHADUuTN4w4NvtnrqWSIOVMkPA8xy6KfLkKgBPZw/Sc2i7clTB2J5DuXfaZfbYXBv9PlHNqs6zsYtU2NYBKyJd5xfN/P7Cv4MoNIFhFmBPJbnWyk/M9vHB0VsJ97SYaY2aDXCpqmw=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R231e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0W2x65HT_1710930025;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W2x65HT_1710930025)
+          by smtp.aliyun-inc.com;
+          Wed, 20 Mar 2024 18:20:26 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: virtualization@lists.linux.dev
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Spike Du <spiked@nvidia.com>
+Subject: [PATCH vhost] virtio_net: update the hdr_len calculation for xmit
+Date: Wed, 20 Mar 2024 18:20:25 +0800
+Message-Id: <20240320102025.11327-1-xuanzhuo@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+X-Git-Hash: e263084e43a9
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wDnL5ciuPpliawpBA--.38680S2
-X-Coremail-Antispam: 1Uf129KBjvJXoWxWrWkGF4ftw1DJF45Jr18Xwb_yoWrXry7pF
-	ZrCFy5Gr4UJw4xWrsxAF4DZFnYk3s2y3y8Caya9anakr1Utr90kaykGa4jyF15AFWrJF17
-	XF42kr18uw4UJ37anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0pEb18DUUUUU=
-X-CM-SenderInfo: xzbd0wpurqwqqrwthudrp/1tbiNgSniGXAkngAPAAAsu
 
-From: Rong Wang <w_angrong@163.com>
+The virtio spec says:
+    If one of the VIRTIO_NET_F_HOST_TSO4, TSO6, USO or UFO options have
+    been negotiated:
+        If the VIRTIO_NET_F_GUEST_HDRLEN feature has been negotiated,
+        and gso_type differs from VIRTIO_NET_HDR_GSO_NONE, the driver
+        MUST set hdr_len to a value equal to the length of the headers,
+        including the transport header.
 
-Once enable iommu domain for one device, the MSI
-translation tables have to be there for software-managed MSI.
-Otherwise, platform with software-managed MSI without an
-irq bypass function, can not get a correct memory write event
-from pcie, will not get irqs.
-The solution is to obtain the MSI phy base address from
-iommu reserved region, and set it to iommu MSI cookie,
-then translation tables will be created while request irq.
+        If the VIRTIO_NET_F_GUEST_HDRLEN feature has not been negotiated,
+        or gso_type is VIRTIO_NET_HDR_GSO_NONE, the driver SHOULD set
+        hdr_len to a value not less than the length of the headers,
+        including the transport header.
 
-Change log
-----------
+So if the VIRTIO_NET_F_GUEST_HDRLEN feature has been negotiated, the
+hdr->hdr_len should be eth header + ip header + tcp/udp header.
 
-v1->v2:
-- add resv iotlb to avoid overlap mapping.
-v2->v3:
-- there is no need to export the iommu symbol anymore.
+But now:
+    hdr->hdr_len = __cpu_to_virtio15(little_endian, skb_headlen(skb));
 
-Signed-off-by: Rong Wang <w_angrong@163.com>
+The skb_headlen() returns the linear space of the skb, not the header
+size that only match the case the VIRTIO_NET_F_GUEST_HDRLEN feature has
+not been negotiated, or gso_type is VIRTIO_NET_HDR_GSO_NONE.
+
+We do not check the feature of the device. This function is a common
+function used by many places. So we do more stricter work whatever
+the features is negotiated.
+
+For the case skb_is_gso(skb) is false, if none of the
+VIRTIO_NET_F_HOST_TSO4, TSO6, USO or UFO options have been negotiated,
+the spec not define the action of setting hdr_len. Here I set it to
+skb_headlen(). If one of the above features have been negotiated, we
+should set a value not less than the length of "eth header + ip header +
+tcp/udp header". So the skb_headlen() also is a valid value.
+
+For the case skb_is_gso(skb) is true, it implies that one of
+VIRTIO_NET_F_HOST_TSO4, TSO6, USO or UFO options MUST have been
+negotiated. If the VIRTIO_NET_F_GUEST_HDRLEN is negotiated, we MUST set
+it to the length of "eth header + ip header + tcp/udp header".
+If the VIRTIO_NET_F_GUEST_HDRLEN is not negotiated, that still be a
+valid value.
+
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Reported-by: Spike Du <spiked@nvidia.com>
 ---
- drivers/vhost/vdpa.c | 59 +++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 56 insertions(+), 3 deletions(-)
+ include/linux/virtio_net.h | 41 ++++++++++++++++++++++++++++----------
+ 1 file changed, 31 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-index ba52d128aeb7..28b56b10372b 100644
---- a/drivers/vhost/vdpa.c
-+++ b/drivers/vhost/vdpa.c
-@@ -49,6 +49,7 @@ struct vhost_vdpa {
- 	struct completion completion;
- 	struct vdpa_device *vdpa;
- 	struct hlist_head as[VHOST_VDPA_IOTLB_BUCKETS];
-+	struct vhost_iotlb resv_iotlb;
- 	struct device dev;
- 	struct cdev cdev;
- 	atomic_t opened;
-@@ -247,6 +248,7 @@ static int _compat_vdpa_reset(struct vhost_vdpa *v)
- static int vhost_vdpa_reset(struct vhost_vdpa *v)
- {
- 	v->in_batch = 0;
-+	vhost_iotlb_reset(&v->resv_iotlb);
- 	return _compat_vdpa_reset(v);
- }
+diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+index 4dfa9b69ca8d..51d93f9762d7 100644
+--- a/include/linux/virtio_net.h
++++ b/include/linux/virtio_net.h
+@@ -201,24 +201,45 @@ static inline int virtio_net_hdr_from_skb(const struct sk_buff *skb,
  
-@@ -1219,10 +1221,15 @@ static int vhost_vdpa_process_iotlb_update(struct vhost_vdpa *v,
- 	    msg->iova + msg->size - 1 > v->range.last)
- 		return -EINVAL;
+ 	if (skb_is_gso(skb)) {
+ 		struct skb_shared_info *sinfo = skb_shinfo(skb);
++		u32 hdrlen;
  
-+	if (vhost_iotlb_itree_first(&v->resv_iotlb, msg->iova,
-+					msg->iova + msg->size - 1))
-+		return -EINVAL;
+-		/* This is a hint as to how much should be linear. */
+-		hdr->hdr_len = __cpu_to_virtio16(little_endian,
+-						 skb_headlen(skb));
+-		hdr->gso_size = __cpu_to_virtio16(little_endian,
+-						  sinfo->gso_size);
+-		if (sinfo->gso_type & SKB_GSO_TCPV4)
++		if (sinfo->gso_type & SKB_GSO_TCPV4) {
+ 			hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV4;
+-		else if (sinfo->gso_type & SKB_GSO_TCPV6)
++			hdrlen = tcp_hdrlen(skb) + skb_transport_offset(skb);
 +
- 	if (vhost_iotlb_itree_first(iotlb, msg->iova,
- 				    msg->iova + msg->size - 1))
- 		return -EEXIST;
- 
++		} else if (sinfo->gso_type & SKB_GSO_TCPV6) {
+ 			hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV6;
+-		else if (sinfo->gso_type & SKB_GSO_UDP_L4)
++			hdrlen = tcp_hdrlen(skb) + skb_transport_offset(skb);
 +
- 	if (vdpa->use_va)
- 		return vhost_vdpa_va_map(v, iotlb, msg->iova, msg->size,
- 					 msg->uaddr, msg->perm);
-@@ -1307,6 +1314,45 @@ static ssize_t vhost_vdpa_chr_write_iter(struct kiocb *iocb,
- 	return vhost_chr_write_iter(dev, from);
- }
- 
-+static int vhost_vdpa_resv_iommu_region(struct iommu_domain *domain, struct device *dma_dev,
-+	struct vhost_iotlb *resv_iotlb)
-+{
-+	struct list_head dev_resv_regions;
-+	phys_addr_t resv_msi_base = 0;
-+	struct iommu_resv_region *region;
-+	int ret = 0;
-+	bool with_sw_msi = false;
-+	bool with_hw_msi = false;
++		} else if (sinfo->gso_type & SKB_GSO_UDP_L4) {
+ 			hdr->gso_type = VIRTIO_NET_HDR_GSO_UDP_L4;
+-		else
++			hdrlen = sizeof(struct udphdr) + skb_transport_offset(skb);
 +
-+	INIT_LIST_HEAD(&dev_resv_regions);
-+	iommu_get_resv_regions(dma_dev, &dev_resv_regions);
-+
-+	list_for_each_entry(region, &dev_resv_regions, list) {
-+		ret = vhost_iotlb_add_range_ctx(resv_iotlb, region->start,
-+				region->start + region->length - 1,
-+				0, 0, NULL);
-+		if (ret) {
-+			vhost_iotlb_reset(resv_iotlb);
-+			break;
++		} else {
+ 			return -EINVAL;
 +		}
 +
-+		if (region->type == IOMMU_RESV_MSI)
-+			with_hw_msi = true;
++		/* One of VIRTIO_NET_F_HOST_TSO4, TSO6, USO or UFO options MUST
++		 * have been negotiated. If the VIRTIO_NET_F_GUEST_HDRLEN is
++		 * negotiated, we MUST set it to the length of "eth header + ip
++		 * header + tcp/udp header".  If the VIRTIO_NET_F_GUEST_HDRLEN
++		 * is not negotiated, that still be a valid value.
++		 */
++		hdr->hdr_len = __cpu_to_virtio16(little_endian, hdrlen);
++		hdr->gso_size = __cpu_to_virtio16(little_endian,
++						  sinfo->gso_size);
 +
-+		if (region->type == IOMMU_RESV_SW_MSI) {
-+			resv_msi_base = region->start;
-+			with_sw_msi = true;
-+		}
+ 		if (sinfo->gso_type & SKB_GSO_TCP_ECN)
+ 			hdr->gso_type |= VIRTIO_NET_HDR_GSO_ECN;
+-	} else
++	} else {
++		/* If one of the VIRTIO_NET_F_HOST_TSO4, TSO6, USO or UFO
++		 * options have been negotiated, we should set hdr_len to a
++		 * value not less than the length of "eth header + ip header +
++		 * tcp/udp header".
++		 */
++		hdr->hdr_len = __cpu_to_virtio16(little_endian, skb_headlen(skb));
+ 		hdr->gso_type = VIRTIO_NET_HDR_GSO_NONE;
 +	}
-+
-+	if (!ret && !with_hw_msi && with_sw_msi)
-+		ret = iommu_get_msi_cookie(domain, resv_msi_base);
-+
-+	iommu_put_resv_regions(dma_dev, &dev_resv_regions);
-+
-+	return ret;
-+}
-+
- static int vhost_vdpa_alloc_domain(struct vhost_vdpa *v)
- {
- 	struct vdpa_device *vdpa = v->vdpa;
-@@ -1335,11 +1381,16 @@ static int vhost_vdpa_alloc_domain(struct vhost_vdpa *v)
  
- 	ret = iommu_attach_device(v->domain, dma_dev);
- 	if (ret)
--		goto err_attach;
-+		goto err_alloc_domain;
- 
--	return 0;
-+	ret = vhost_vdpa_resv_iommu_region(v->domain, dma_dev, &v->resv_iotlb);
-+	if (ret)
-+		goto err_attach_device;
- 
--err_attach:
-+	return 0;
-+err_attach_device:
-+	iommu_detach_device(v->domain, dma_dev);
-+err_alloc_domain:
- 	iommu_domain_free(v->domain);
- 	v->domain = NULL;
- 	return ret;
-@@ -1595,6 +1646,8 @@ static int vhost_vdpa_probe(struct vdpa_device *vdpa)
- 		goto err;
- 	}
- 
-+	vhost_iotlb_init(&v->resv_iotlb, 0, 0);
-+
- 	r = dev_set_name(&v->dev, "vhost-vdpa-%u", minor);
- 	if (r)
- 		goto err;
+ 	if (skb->ip_summed == CHECKSUM_PARTIAL) {
+ 		hdr->flags = VIRTIO_NET_HDR_F_NEEDS_CSUM;
 -- 
-2.27.0
+2.32.0.3.g01195cf9f
 
