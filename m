@@ -1,282 +1,72 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-io1-f70.google.com (mail-io1-f70.google.com [209.85.166.70])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 105AE17BA1
-	for <virtualization@lists.linux.dev>; Wed, 20 Mar 2024 05:24:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1AD7182C5
+	for <virtualization@lists.linux.dev>; Wed, 20 Mar 2024 06:12:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.70
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710912273; cv=none; b=rs2XPEHM8KxwgrhE0VvnDuvgmSZbWReQjNNhYgyPpdnMlIsg4kIGOI571Oby4tIO5445qZzypqXRyMieBnbvX+F3XXZZkzw3UDL+sbIpR5IJotXdP1hVStYb0qm0p8+No617NxocyzesvhvK2xc3VQj271+UfwT90Gx/gBhnhxw=
+	t=1710915125; cv=none; b=YbwaxTxGAGsRKmLmHZsGgdpIeRIv34m2jz2Z8l481MJ1y4YKhAM0fP3SJkedPfJzuWGL5Teb+1c6VYN2iqq3F590DkSfCVa26gN4TBb288/x7wTTUur3UNuJfavNA4k0ka+NnCL1qvsZbVxFWHQp392SCq2S7VFuq95Xbu8PqOU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710912273; c=relaxed/simple;
-	bh=caYaSpmjWLfenJmZLDNeCx4DtxlujtzRJi2hwjbOFhI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gsEE66ZM+MtKjLcC5ecAY1ud8T1ilWk510/kIto5qxChgnBQB5WXKFvtGnmWQ3YlMpe7f9wskK79vTFtUqAvyqS4KUAn3ZuzbWh4UqXbWw+Ww7p84f48UqnPIG014yKywUwemTNTRWJqK97LT6L9DM8t0PpEmCm/9CH04Y9z6hE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=B9j43OhD; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="B9j43OhD"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1710912270;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=paGiGEEp9xes32fQLOmnOD45tZcdVk+dgcPS6McRIVA=;
-	b=B9j43OhDKXnmhjMDHxLEymZXbDOrC6SA+WI8Hih8thShneAPwt5K81rU/L1ZIAbPWvBJi5
-	tetFJeI4lQfidZJTXmTUQf76neTG0MIKji4SU0dIqpl2XgefMBMKDfITLjr8e/K3Ra93Uw
-	e75Cb/A1qs/WCDZ7w/0fHznqdfevKJc=
-Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com
- [209.85.215.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-369-0vuzefJnNbyzND5DYpouFQ-1; Wed, 20 Mar 2024 01:24:26 -0400
-X-MC-Unique: 0vuzefJnNbyzND5DYpouFQ-1
-Received: by mail-pg1-f200.google.com with SMTP id 41be03b00d2f7-5dc992f8c8aso4638509a12.3
-        for <virtualization@lists.linux.dev>; Tue, 19 Mar 2024 22:24:25 -0700 (PDT)
+	s=arc-20240116; t=1710915125; c=relaxed/simple;
+	bh=Fg3+p9aGxeQZ/9oyVfu/Bs1KEeita6s240ybpqDaibU=;
+	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
+	 Content-Type; b=lBdKt4Sm6/kVVwf2db46g2OSNI7Jqz3DJdA6e7wCo90JFaWs757Sk5/IsI17lCGYW62VncEo0ckspJMLtq+zNluSoWGM+4FPcEWgsD+WYhnSpZkFXZAg/cw2CiOAJmbBT0PSwzWSJXwLqhkUwD8LyN12m1klfQAkPxDbz9HXlSg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.70
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-io1-f70.google.com with SMTP id ca18e2360f4ac-7c8a98e52b5so481558739f.1
+        for <virtualization@lists.linux.dev>; Tue, 19 Mar 2024 23:12:03 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710912265; x=1711517065;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
+        d=1e100.net; s=20230601; t=1710915123; x=1711519923;
+        h=to:from:subject:message-id:in-reply-to:date:mime-version
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=paGiGEEp9xes32fQLOmnOD45tZcdVk+dgcPS6McRIVA=;
-        b=xAVIA4GbR6PljBTgSBb6V9W++cmMsp4Xs0p9ArXxmj2+p2S7jlvgDUu+tiYeFwFHGV
-         ogpTkPsjZp6R1YliSsWFeTueKNjrZsLCDm4aHtQDx8y7QT4ofa3/hUwWubCsHrwbRL6R
-         A6mDUJs/Js7PO8UaAoPuAuk3xgifa/9pFgS6DFwBF8qh/dw8AjllA1t0SmUZupG7rdax
-         FgW4zw4DJ2H56iYwtmjlwLj/hjNoyR7GT1A5HnJRk6vZ2nSdFuZC6l71ZaPrCmq3+dIF
-         54cPX29eeHa/T5uycf6dWXehYOUgKY6O6lCRC9gCKXpSjGSCxTp+5AxG287Grq+kzlMl
-         m4KQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXoxfZKRErMse4RyaI+3UJlnxuX6jX5huG1kx1v6wuCWTp/xL8ll1Sua1b04pBh6EvG6eTjINehvYxxLRqK8KTY9jpOzuqtsMJQ4LEWckI=
-X-Gm-Message-State: AOJu0Yye/777nnNgynzQb/fXdiQTBjQpnJQi4hTQ3dexo3imKXGHsxTH
-	FxwqCsIwYjtQJMFGrhbcbVhqN7EW97V5BiLh3zQLNHQW5/vDUwlnp6E7fxzr6bDKjxmMZYD6pqN
-	wMSjQNxc6vuxCf9bDrLCtokmUKzHLUkKQqcBbArjjS2SJ4wWCcyqkKy8cVK8BFb6g
-X-Received: by 2002:a05:6a20:94ca:b0:1a3:62a9:39c0 with SMTP id ht10-20020a056a2094ca00b001a362a939c0mr8664983pzb.38.1710912264991;
-        Tue, 19 Mar 2024 22:24:24 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFHmD834wqq1B57Qja9j6q53cvP8FpzYPiHAT8lVP0F2/dYQAzwDSEQXaw57UhbilvqTXb9JA==
-X-Received: by 2002:a05:6a20:94ca:b0:1a3:62a9:39c0 with SMTP id ht10-20020a056a2094ca00b001a362a939c0mr8664968pzb.38.1710912264566;
-        Tue, 19 Mar 2024 22:24:24 -0700 (PDT)
-Received: from [192.168.68.51] ([43.252.115.31])
-        by smtp.gmail.com with ESMTPSA id c8-20020a170903234800b001dd7d00f7afsm12527037plh.18.2024.03.19.22.24.19
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 19 Mar 2024 22:24:23 -0700 (PDT)
-Message-ID: <3a6c8b23-af9c-47a7-8c22-8e0a78154bd3@redhat.com>
-Date: Wed, 20 Mar 2024 15:24:16 +1000
+        bh=JGhV+BjFTmT2BRGB/4pS+DB4I2X3ipzTIt7FUzSRHWw=;
+        b=kr9RntPTI9nuusUJj0i6kncSx+15u1Pew1ihh1O1d3QKundsWx+gGkAoHeJWbssT8a
+         IL1kVFFMxFJUIZasSs+iqQaity+wfEq7ANlUCFPhCdi/Lge9pJXCv/Ud6HOjgdRO4+jy
+         TEo/qfpK7KZ0W/WAcrxqHyNHcuSKC/cQFT5+vWW3gnnoM5XEYOx6aAE6sWVqSCNlFHuH
+         AFgoQlOW8rsc8AUIi7ypQxNsBv2Kn6xAcQsFmaf8y3zC2QQTuAUC6Mx9kEanZ5K5F9Wm
+         tmtj9/29AcPS1QILRf7YLFJfwuRMb9n0WDyxKsVPyiwPbJjApSI7YeCv2SAqUPJ2WnUz
+         mUQg==
+X-Forwarded-Encrypted: i=1; AJvYcCXLwjZFjp4CVUHRqErVUpRLDMGPpWpDAi/EhWQTjRJh0oGDQbBSQoI9JRLE24Lg5BpCM8uGwW2reob1lWXv27DSGsix2Xx2zrWiAhC1P2I=
+X-Gm-Message-State: AOJu0Yy0cUqF78MEMtXN0W9hPXGF6oqTs5+hAPicGMICl7Sqb5Ec0XMi
+	+hy2KCw2JDQzeRV3zMPB/4rYmM1ebt2j/yNp3MEsB6JobRd40fFv7K8/x2ukWnkwvp7y6HEtvZm
+	GCbhADITyZjfM6OGWC9ApPqF/87jacs4iFcs1Fb0qziuyfFb49tvOEFQ=
+X-Google-Smtp-Source: AGHT+IGU/qjjRg+iFnh0XV8rbPxCgFHKjyUJ7lfwD/79GZ3RLd9rgNbteeYz+Ih6Qhu6AEfq4m0FCpckZ5ER9pr5gNHc8NbD+0BD
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] virtio_ring: Fix the stale index in available ring
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Will Deacon <will@kernel.org>, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, jasowang@redhat.com,
- xuanzhuo@linux.alibaba.com, yihyu@redhat.com, shan.gavin@gmail.com,
- linux-arm-kernel@lists.infradead.org,
- Catalin Marinas <catalin.marinas@arm.com>, mochs@nvidia.com
-References: <20240314074923.426688-1-gshan@redhat.com>
- <20240318165924.GA1824@willie-the-truck>
- <35a6bcef-27cf-4626-a41d-9ec0a338fe28@redhat.com>
- <20240319182251.GB3121@willie-the-truck>
- <9500adaf-0075-4ae9-92db-7e310b6598b0@redhat.com>
- <20240319203540-mutt-send-email-mst@kernel.org>
-From: Gavin Shan <gshan@redhat.com>
-In-Reply-To: <20240319203540-mutt-send-email-mst@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Received: by 2002:a05:6602:3423:b0:7cc:ea7:4f0f with SMTP id
+ n35-20020a056602342300b007cc0ea74f0fmr347660ioz.3.1710915122555; Tue, 19 Mar
+ 2024 23:12:02 -0700 (PDT)
+Date: Tue, 19 Mar 2024 23:12:02 -0700
+In-Reply-To: <20240319185946.GA1134281@fedora>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <0000000000001f00030614117851@google.com>
+Subject: Re: [syzbot] [virtualization?] upstream boot error: WARNING: refcount
+ bug in __free_pages_ok
+From: syzbot <syzbot+70f57d8a3ae84934c003@syzkaller.appspotmail.com>
+To: jasowang@redhat.com, linux-kernel@vger.kernel.org, mst@redhat.com, 
+	pbonzini@redhat.com, stefanha@redhat.com, syzkaller-bugs@googlegroups.com, 
+	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
+Content-Type: text/plain; charset="UTF-8"
 
-On 3/20/24 10:49, Michael S. Tsirkin wrote:> 
-> I think you are wasting the time with these tests. Even if it helps what
-> does this tell us? Try setting a flag as I suggested elsewhere.
-> Then check it in vhost.
-> Or here's another idea - possibly easier. Copy the high bits from index
-> into ring itself. Then vhost can check that head is synchronized with
-> index.
-> 
-> Warning: completely untested, not even compiled. But should give you
-> the idea. If this works btw we should consider making this official in
-> the spec.
-> 
-> 
->   static inline int vhost_get_avail_flags(struct vhost_virtqueue *vq,
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 6f7e5010a673..79456706d0bd 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -685,7 +685,8 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
->   	/* Put entry in available array (but don't update avail->idx until they
->   	 * do sync). */
->   	avail = vq->split.avail_idx_shadow & (vq->split.vring.num - 1);
-> -	vq->split.vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, head);
-> +	u16 headwithflag = head | (q->split.avail_idx_shadow & ~(vq->split.vring.num - 1));
-> +	vq->split.vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, headwithflag);
->   
->   	/* Descriptors and available array need to be set before we expose the
->   	 * new available array entries. */
-> 
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index 045f666b4f12..bd8f7c763caa 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -1299,8 +1299,15 @@ static inline int vhost_get_avail_idx(struct vhost_virtqueue *vq,
->   static inline int vhost_get_avail_head(struct vhost_virtqueue *vq,
->   				       __virtio16 *head, int idx)
->   {
-> -	return vhost_get_avail(vq, *head,
-> +	unsigned i = idx;
-> +	unsigned flag = i & ~(vq->num - 1);
-> +	unsigned val = vhost_get_avail(vq, *head,
->   			       &vq->avail->ring[idx & (vq->num - 1)]);
-> +	unsigned valflag = val & ~(vq->num - 1);
-> +
-> +	WARN_ON(valflag != flag);
-> +
-> +	return val & (vq->num - 1);
->   }
->   
+Hello,
 
-Thanks, Michael. The code is already self-explanatory. Since vq->num is 256, I just
-squeezed the last_avail_idx to the high byte. Unfortunately, I'm unable to hit
-the WARN_ON(). Does it mean the low byte is stale (or corrupted) while the high
-byte is still correct and valid?
+syzbot has tested the proposed patch and the reproducer did not trigger any issue:
 
-         avail = vq->split.avail_idx_shadow & (vq->split.vring.num - 1);
-         vq->split.vring.avail->ring[avail] =
-                 cpu_to_virtio16(_vq->vdev, head | (avail << 8));
+Reported-and-tested-by: syzbot+70f57d8a3ae84934c003@syzkaller.appspotmail.com
 
+Tested on:
 
-         head = vhost16_to_cpu(vq, ring_head);
-         WARN_ON((head >> 8) != (vq->last_avail_idx % vq->num));
-         head = head & 0xff;
+commit:         52998cdd Merge branch '6.8/scsi-staging' into 6.8/scsi..
+git tree:       git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+kernel config:  https://syzkaller.appspot.com/x/.config?x=7b1f286a7e950707
+dashboard link: https://syzkaller.appspot.com/bug?extid=70f57d8a3ae84934c003
+compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
 
-One question: Does QEMU has any chance writing data to the available queue when
-vhost is enabled? My previous understanding is no, the queue is totally owned by
-vhost instead of QEMU.
-
-Before this patch was posted, I had debugging code to record last 16 transactions
-to the available and used queue from guest and host side. It did reveal the wrong
-head was fetched from the available queue.
-
-[   11.785745] ================ virtqueue_get_buf_ctx_split ================
-[   11.786238] virtio_net virtio0: output.0:id 74 is not a head!
-[   11.786655] head to be released: 036 077
-[   11.786952]
-[   11.786952] avail_idx:
-[   11.787234] 000  63985  <--
-[   11.787237] 001  63986
-[   11.787444] 002  63987
-[   11.787632] 003  63988
-[   11.787821] 004  63989
-[   11.788006] 005  63990
-[   11.788194] 006  63991
-[   11.788381] 007  63992
-[   11.788567] 008  63993
-[   11.788772] 009  63994
-[   11.788957] 010  63995
-[   11.789141] 011  63996
-[   11.789327] 012  63997
-[   11.789515] 013  63998
-[   11.789701] 014  63999
-[   11.789886] 015  64000
-[   11.790068]
-[   11.790068] avail_head:
-[   11.790529] 000  075  <--
-[   11.790718] 001  036
-[   11.790890] 002  077
-[   11.791061] 003  129
-[   11.791231] 004  072
-[   11.791400] 005  130
-[   11.791574] 006  015
-[   11.791748] 007  074
-[   11.791918] 008  130
-[   11.792094] 009  130
-[   11.792263] 010  074
-[   11.792437] 011  015
-[   11.792617] 012  072
-[   11.792788] 013  129
-[   11.792961] 014  077    // The last two heads from guest to host: 077, 036
-[   11.793134] 015  036
-
-[root@nvidia-grace-hopper-05 qemu.main]# cat /proc/vhost
-
-avail_idx
-000  63998
-001  64000
-002  63954  <---
-003  63955
-004  63956
-005  63974
-006  63981
-007  63984
-008  63986
-009  63987
-010  63988
-011  63989
-012  63992
-013  63993
-014  63995
-015  63997
-
-avail_head
-000  074
-001  015
-002  072
-003  129
-004  074            // The last two heads seen by vhost is: 074, 036
-005  036
-006  075  <---
-007  036
-008  077
-009  129
-010  072
-011  130
-012  015
-013  074
-014  130
-015  130
-
-used_idx
-000  64000
-001  63882  <---
-002  63889
-003  63891
-004  63898
-005  63936
-006  63942
-007  63946
-008  63949
-009  63953
-010  63957
-011  63981
-012  63990
-013  63992
-014  63993
-015  63999
-
-used_head
-000  072
-001  129
-002  074          // The last two heads published to guest is: 074, 036
-003  036
-004  075  <---
-005  036
-006  077
-007  129
-008  072
-009  130
-010  015
-011  074
-012  130
-013  130
-014  074
-015  015
-
-Thanks,
-Gavin
-
-
-
-
+Note: no patches were applied.
+Note: testing is done by a robot and is best-effort only.
