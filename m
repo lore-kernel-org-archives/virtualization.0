@@ -1,138 +1,156 @@
-Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55CE939FD9
-	for <virtualization@lists.linux.dev>; Wed, 20 Mar 2024 12:23:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 682CD54BF7
+	for <virtualization@lists.linux-foundation.org>; Wed, 20 Mar 2024 15:26:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710937438; cv=none; b=jFMk74e8DCjwvaT96OWYwnjezAMp+vKwHUJxu6u053crk79eznqNmQai6JSMRofYDx7S9e/n91K1Q9RZ9Nq1uUxYcawO8QETMj3YG4T9QMD7SSx4EJ3Jtz6f3V15wGvaJM7NkL7Db6znYlS9Dw/wOY9JS81LFnMJrQA3LghLWd0=
+	t=1710948366; cv=none; b=V8wTMe7ky9WytDWR43CjIOCVk5Bli7eKi/G/WBBbKdCWVL8KoYyQYrSxbtEBBg0vL8//MygcJFaetcBK/rTn4vbcABmqMsSeEKPdvEB1gOiIy2HYoGw3qcXKSckoGRoRtHAKpmm8OZTRgSy2JZEyE4fiHdqkthCbCNUhZTyB8Ew=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710937438; c=relaxed/simple;
-	bh=256hIVOWqKGNs0clZdEecQjT2nDPiAh+uHQB0f0lp0s=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=TmysAwBYLQslCncG6LUYr0zXHzP2hjAVMzPNhzO7hHq2Kxfn2Gbug4L/5djxfsbDvOSa8+eWsOiCLGlpjtZWd2edRBH4h1RcnRYXGvs+5xBr9rpYrlM/956IZmd7mV2M2CPRSZ33mleO+37nQVfGK/V1nsd1eIKnSHK/zNdv/sk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=d4h3HlFX; arc=none smtp.client-ip=209.85.128.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+	s=arc-20240116; t=1710948366; c=relaxed/simple;
+	bh=zR+ah/AZybH8jZSLZxrEDknNvOMLtHTgIU4u4ltErhk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=MWw3peZVg1jL0P+G7w+sY7DSjYylcz8Sk60NAvxMKqhRlSIf81ubLk61zKyh9S098XE1WBHSRTymYiXbR7uQdTRGShrTx/SF1KzMBnIjzUbBPEMgE9N5jPUgO5VGnox5YUVlRY1rKluf2KgsA16glIoyfLNHijKUUz3k4xHxELU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b=VK1dkoim; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="d4h3HlFX"
-Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-4146d750dcdso2730595e9.1
-        for <virtualization@lists.linux.dev>; Wed, 20 Mar 2024 05:23:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1710937433; x=1711542233; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=256hIVOWqKGNs0clZdEecQjT2nDPiAh+uHQB0f0lp0s=;
-        b=d4h3HlFXdOVo0L2WE82OiiCriz2121FooNmGgrwnIDktuyvcn0cg8lZQ9Qs9mpUlIO
-         Hrr+2crsD824NYTKD1BoHZZcfrfHI4yPxi1uSEz5zXNucQnnVs5jO1od0lKBMgm38MXN
-         6rbCefl4GC2N0TKLFJfEBOapTjEFMP1F+Jg065kK9RweeBNx/UKvP5wSlc7IDWjKT71m
-         2Yw24d7wfLEf0oy/B40IknlvoUgAgVEsSHQJjIhK5YVHs/a8ijCy78+EW6IsjNL4Xbrv
-         sk3lhHPP35ptokwWztGj27y6D90VxiJ83B1zv+sz/5yuqeINxaR6xTjoC84ckbwzGF9S
-         lESQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710937433; x=1711542233;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=256hIVOWqKGNs0clZdEecQjT2nDPiAh+uHQB0f0lp0s=;
-        b=iJNrvTaY3p2V2+/O2E7MRWmOvVNzYOCO/iBGVSDSfzxDVFh3KTlCBRatnHvYmARVYt
-         BtnEN3qKX2niOm4wwDteLlNUoeOM92Xya2aDUZWju21pHeCZnGGAIdxlk6hV9eeA8F61
-         vXgRfusUYNkqPnYzoPZNPKnzfBViA7vVdC49t0Pdt4oJ8H739SgNFiw+HA2Yfb0v9+RN
-         KTz0pku/ZwfkTCz5XG2fWqUWEzxnZNrUcj/J8GcOs/+fDDdoypzevmHxBBKpq2kPi3ao
-         ZSCnPI67UrY/t3SXz9YIZcRClJPME40GVkt5ewk5ZlEEN9imQLkEmixEGz2ZHBSvFNx+
-         5owg==
-X-Forwarded-Encrypted: i=1; AJvYcCWSN+U/D2Sj/dpvYJr1y11uVP0Y8CFAOVE/w+r0BQj32ZVKwmeRtRJ1r5DGd/gUWayH3fkljhJkdr8ZbvomQnI9O30QV3p6R7TT/A5XtG8=
-X-Gm-Message-State: AOJu0YxIWKwAHgrQ8jlBPIVVeFdqa/ym0OOtI+SJk49X0xi7nQtyF/1W
-	gy94m1wG4pC96vHoeErWp3B+ouuVMpwnNaRMGOpxL0afaiHn4w9vtbafb4/PvBs=
-X-Google-Smtp-Source: AGHT+IEeP+QulfChhn2oDlevD/cXp00IH9MWfPkU71hEwGa+tm6JDBn0nfQzXtMpTmqHCqJzlI6TMw==
-X-Received: by 2002:a7b:cbd0:0:b0:414:6467:d8e9 with SMTP id n16-20020a7bcbd0000000b004146467d8e9mr2347163wmi.17.1710937433216;
-        Wed, 20 Mar 2024 05:23:53 -0700 (PDT)
-Received: from localhost ([193.47.165.251])
-        by smtp.gmail.com with ESMTPSA id z20-20020a05600c0a1400b004146c80ade5sm1725802wmp.12.2024.03.20.05.23.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 20 Mar 2024 05:23:52 -0700 (PDT)
-Date: Wed, 20 Mar 2024 13:23:48 +0100
-From: Jiri Pirko <jiri@resnulli.us>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	"Michael  S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>,
-	Stanislav Fomichev <sdf@google.com>,
-	Amritha Nambiar <amritha.nambiar@intel.com>,
-	Larysa Zaremba <larysa.zaremba@intel.com>,
-	Sridhar Samudrala <sridhar.samudrala@intel.com>,
-	Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-	virtualization@lists.linux.dev, bpf@vger.kernel.org
-Subject: Re: [PATCH net-next v5 0/9] virtio-net: support device stats
-Message-ID: <ZfrVVGUG5rGZxjRx@nanopsycho>
-References: <20240318110602.37166-1-xuanzhuo@linux.alibaba.com>
- <Zfgq8k2Q-olYWiuw@nanopsycho>
- <1710762818.1520293-1-xuanzhuo@linux.alibaba.com>
- <ZfgxSug4sekWGyNd@nanopsycho>
- <316ea06417279a45d2d54bf4cc4afd2d775b419a.camel@redhat.com>
- <1710921861.9268863-1-xuanzhuo@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b="VK1dkoim"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id B102260C21
+	for <virtualization@lists.linux-foundation.org>; Wed, 20 Mar 2024 15:26:04 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id fcTWzndwxZuQ
+	for <virtualization@lists.linux-foundation.org>;
+	Wed, 20 Mar 2024 15:26:03 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=80.237.130.52; helo=wp530.webpack.hosteurope.de; envelope-from=regressions@leemhuis.info; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 41FD260C07
+Authentication-Results: smtp3.osuosl.org; dmarc=none (p=none dis=none) header.from=leemhuis.info
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 41FD260C07
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=leemhuis.info header.i=@leemhuis.info header.a=rsa-sha256 header.s=he214686 header.b=VK1dkoim
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 41FD260C07
+	for <virtualization@lists.linux-foundation.org>; Wed, 20 Mar 2024 15:26:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=leemhuis.info; s=he214686; h=Content-Transfer-Encoding:Content-Type:
+	In-Reply-To:Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
+	Message-ID:From:Sender:Reply-To:Subject:Date:Message-ID:To:Cc:MIME-Version:
+	Content-Type:Content-Transfer-Encoding:Content-ID:Content-Description:
+	In-Reply-To:References; bh=/EpaCQTpGqGU5ULt8qAmE+s8SSReKSogNzvd/au7Mjs=;
+	t=1710948363; x=1711380363; b=VK1dkoimVrResAdC5OFibRO/WNeeSGJIYT81lOHUoE1QaXN
+	S23TAN61cY5/umeushGw3Q19Ce4TOaDQsnqTVabY+gAaEEtLPx+cZEYA6L1/wFrFUY+u1V56cdgFa
+	y32UGApPY6TVi5N2mVohD5xwZleMV5DHzmYwuUlfX8SQCcwqwmL22cHeMmHeelZzB72yEMvXSsxtU
+	LsGYoGgLMmOa3bed04bu3ujE2cUfE8jkfk8o9yi0tlQXKb2EPdparCBLxqJdJWDdrDQ0Uv2idwmod
+	SSpV1H5lpZMkKyjOSbwHqra/mhncZ10Cn0jM0dVAK7nrF/dqZ58DLsPL91IMSUbA==;
+Received: from [2a02:8108:8980:2478:8cde:aa2c:f324:937e]; authenticated
+	by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+	id 1rmxp7-0004iK-29; Wed, 20 Mar 2024 16:25:49 +0100
+Message-ID: <db4c8e74-5c79-49be-9781-a5d8669eccc1@leemhuis.info>
+Date: Wed, 20 Mar 2024 16:25:48 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1710921861.9268863-1-xuanzhuo@linux.alibaba.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/1] drm/qxl: fixes qxl_fence_wait
+Content-Language: en-US, de-DE
+To: Alex Constantino <dreaming.about.electric.sheep@gmail.com>
+Cc: 1054514@bugs.debian.org, airlied@redhat.com, carnil@debian.org,
+ daniel@ffwll.ch, dri-devel@lists.freedesktop.org, kraxel@redhat.com,
+ linux-kernel@vger.kernel.org, regressions@lists.linux.dev,
+ spice-devel@lists.freedesktop.org, timo.lindfors@iki.fi,
+ tzimmermann@suse.de, virtualization@lists.linux-foundation.org,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>
+References: <fb0fda6a-3750-4e1b-893f-97a3e402b9af@leemhuis.info>
+ <20240308010851.17104-1-dreaming.about.electric.sheep@gmail.com>
+ <20240308010851.17104-2-dreaming.about.electric.sheep@gmail.com>
+From: "Linux regression tracking (Thorsten Leemhuis)"
+ <regressions@leemhuis.info>
+Reply-To: Linux regressions mailing list <regressions@lists.linux.dev>
+In-Reply-To: <20240308010851.17104-2-dreaming.about.electric.sheep@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1710948363;8fc86e2f;
+X-HE-SMSGID: 1rmxp7-0004iK-29
 
-Wed, Mar 20, 2024 at 09:04:21AM CET, xuanzhuo@linux.alibaba.com wrote:
->On Tue, 19 Mar 2024 11:12:23 +0100, Paolo Abeni <pabeni@redhat.com> wrote:
->> On Mon, 2024-03-18 at 13:19 +0100, Jiri Pirko wrote:
->> > Mon, Mar 18, 2024 at 12:53:38PM CET, xuanzhuo@linux.alibaba.com wrote:
->> > > On Mon, 18 Mar 2024 12:52:18 +0100, Jiri Pirko <jiri@resnulli.us> wrote:
->> > > > Mon, Mar 18, 2024 at 12:05:53PM CET, xuanzhuo@linux.alibaba.com wrote:
->> > > > > As the spec:
->> > > > >
->> > > > > https://github.com/oasis-tcs/virtio-spec/commit/42f389989823039724f95bbbd243291ab0064f82
->> > > > >
->> > > > > The virtio net supports to get device stats.
->> > > > >
->> > > > > Please review.
->> > > >
->> > > > net-next is closed. Please resubmit next week.
->> > >
->> > >
->> > > For review.
->> >
->> > RFC, or wait.
->>
->> @Xuan, please note that you received exactly the same feedback on your
->> previous submission, a few days ago. While I do understand the legit
->> interest in reviews, ignoring explicit feedback tend to bring no
->> feedback at all.
->
->Sorry.
->
->I have a question regarding the workflow for feature discussions. If we
->consistently engage in discussions about a particular feature, this may result
->in the submission of multiple patch sets. In light of this, should we modify the
->usage of "PATCH" or "RFC" in our submissions depending on whether the merge
+On 08.03.24 02:08, Alex Constantino wrote:
+> Fix OOM scenario by doing multiple notifications to the OOM handler through
+> a busy wait logic.
+> Changes from commit 5a838e5d5825 ("drm/qxl: simplify qxl_fence_wait") would
+> result in a '[TTM] Buffer eviction failed' exception whenever it reached a
+> timeout.
+> 
+> Fixes: 5a838e5d5825 ("drm/qxl: simplify qxl_fence_wait")
+> Link: https://lore.kernel.org/regressions/fb0fda6a-3750-4e1b-893f-97a3e402b9af@leemhuis.info
+> Reported-by: Timo Lindfors <timo.lindfors@iki.fi>
+> Closes: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1054514
+> Signed-off-by: Alex Constantino <dreaming.about.electric.sheep@gmail.com>
+> ---
+>  drivers/gpu/drm/qxl/qxl_release.c | 20 ++++++++++++++------
+>  1 file changed, 14 insertions(+), 6 deletions(-)
 
-No, just wait 2 weeks, simple.
+Hey Dave and Gerd as well as Thomas, Maarten and Maxime (the latter two
+I just added to the CC), it seems to me this regression fix did not
+maybe any progress since it was posted. Did I miss something, is it just
+"we are busy with the merge window", or is there some other a reason?
+Just wondering, I just saw someone on a Fedora IRC channel complaining
+about the regression, that's why I'm asking. Would be really good to
+finally get this resolved...
 
+Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
+--
+Everything you wanna know about Linux kernel regression tracking:
+https://linux-regtracking.leemhuis.info/about/#tldr
+If I did something stupid, please tell me, as explained on that page.
 
->window is open or closed? This causes the title of our patch sets to keep
->changing.
->
->Or I miss something.
->
->
->Thanks.
->
->
->>
->> Paolo
->>
+#regzbot poke
+
+> diff --git a/drivers/gpu/drm/qxl/qxl_release.c b/drivers/gpu/drm/qxl/qxl_release.c
+> index 368d26da0d6a..51c22e7f9647 100644
+> --- a/drivers/gpu/drm/qxl/qxl_release.c
+> +++ b/drivers/gpu/drm/qxl/qxl_release.c
+> @@ -20,8 +20,6 @@
+>   * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+>   */
+>  
+> -#include <linux/delay.h>
+> -
+>  #include <trace/events/dma_fence.h>
+>  
+>  #include "qxl_drv.h"
+> @@ -59,14 +57,24 @@ static long qxl_fence_wait(struct dma_fence *fence, bool intr,
+>  {
+>  	struct qxl_device *qdev;
+>  	unsigned long cur, end = jiffies + timeout;
+> +	signed long iterations = 1;
+> +	signed long timeout_fraction = timeout;
+>  
+>  	qdev = container_of(fence->lock, struct qxl_device, release_lock);
+>  
+> -	if (!wait_event_timeout(qdev->release_event,
+> +	// using HZ as a factor since it is used in ttm_bo_wait_ctx too
+> +	if (timeout_fraction > HZ) {
+> +		iterations = timeout_fraction / HZ;
+> +		timeout_fraction = HZ;
+> +	}
+> +	for (int i = 0; i < iterations; i++) {
+> +		if (wait_event_timeout(
+> +				qdev->release_event,
+>  				(dma_fence_is_signaled(fence) ||
+> -				 (qxl_io_notify_oom(qdev), 0)),
+> -				timeout))
+> -		return 0;
+> +					(qxl_io_notify_oom(qdev), 0)),
+> +				timeout_fraction))
+> +			break;
+> +	}
+>  
+>  	cur = jiffies;
+>  	if (time_after(cur, end))
