@@ -1,156 +1,282 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16F6B11182
-	for <virtualization@lists.linux.dev>; Wed, 20 Mar 2024 03:31:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 105AE17BA1
+	for <virtualization@lists.linux.dev>; Wed, 20 Mar 2024 05:24:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710905473; cv=none; b=Z9Mds7mrrYVJDFab6vIqSwbPFDRqEUeQT/FX7e2DI49nmxYATxrYeYeVM4qOLnpHkc2x5CiyHGk0E6bVV8YL8wQxIwilvgpF7t8aPfAsJgptKy1+tahniXJ4uBRVv5n7I3kyncEs1bZUOr6+8EQlMpMkhxMhmg/oUNQStvQn3as=
+	t=1710912273; cv=none; b=rs2XPEHM8KxwgrhE0VvnDuvgmSZbWReQjNNhYgyPpdnMlIsg4kIGOI571Oby4tIO5445qZzypqXRyMieBnbvX+F3XXZZkzw3UDL+sbIpR5IJotXdP1hVStYb0qm0p8+No617NxocyzesvhvK2xc3VQj271+UfwT90Gx/gBhnhxw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710905473; c=relaxed/simple;
-	bh=cJbRBJU/rWQUYiWkeNe1/wgCgexpKks2BaJuo3hgNig=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=VYROaHTOZqGRDgFYw7k71BqA760LHoMcZEcixTqWN1MTar1iSlPOkae6YkEFywFZFkjbGh0r5DsnBmx0XF1mVsqEEWf2YiDzRYGsjD76EEi6cZ3Qj6WiRjYadB8k5P6ylPAbcCjob5AFu7HU30smUg4SFymhQXeyf5aPOaUf5n0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HD/IziJj; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1710912273; c=relaxed/simple;
+	bh=caYaSpmjWLfenJmZLDNeCx4DtxlujtzRJi2hwjbOFhI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=gsEE66ZM+MtKjLcC5ecAY1ud8T1ilWk510/kIto5qxChgnBQB5WXKFvtGnmWQ3YlMpe7f9wskK79vTFtUqAvyqS4KUAn3ZuzbWh4UqXbWw+Ww7p84f48UqnPIG014yKywUwemTNTRWJqK97LT6L9DM8t0PpEmCm/9CH04Y9z6hE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=B9j43OhD; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HD/IziJj"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="B9j43OhD"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1710905471;
+	s=mimecast20190719; t=1710912270;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=evNRGK/G29C98iYVY9eVfU4KqDPrewVerPnMCY05k/Q=;
-	b=HD/IziJjmcKKcVqQm8AmJimy8QfUhgs6KVKm5XbYoDufVzchEQxuFoSb/V9arY4cLdPbz7
-	r6tRqFhd7b6qHvzhlRLmbVVzx/Buj58FZ2GrejBaRsd3LQsysQeARqAVfid3+i+rVqHos2
-	49Wuar+Iilt//Uc5Rkc3Lgd1iwHPCWo=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=paGiGEEp9xes32fQLOmnOD45tZcdVk+dgcPS6McRIVA=;
+	b=B9j43OhDKXnmhjMDHxLEymZXbDOrC6SA+WI8Hih8thShneAPwt5K81rU/L1ZIAbPWvBJi5
+	tetFJeI4lQfidZJTXmTUQf76neTG0MIKji4SU0dIqpl2XgefMBMKDfITLjr8e/K3Ra93Uw
+	e75Cb/A1qs/WCDZ7w/0fHznqdfevKJc=
+Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com
+ [209.85.215.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-427-VIfY97F0Na-uYjWIjndmOA-1; Tue, 19 Mar 2024 23:31:09 -0400
-X-MC-Unique: VIfY97F0Na-uYjWIjndmOA-1
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-29dd9bfd4fdso4811334a91.0
-        for <virtualization@lists.linux.dev>; Tue, 19 Mar 2024 20:31:09 -0700 (PDT)
+ us-mta-369-0vuzefJnNbyzND5DYpouFQ-1; Wed, 20 Mar 2024 01:24:26 -0400
+X-MC-Unique: 0vuzefJnNbyzND5DYpouFQ-1
+Received: by mail-pg1-f200.google.com with SMTP id 41be03b00d2f7-5dc992f8c8aso4638509a12.3
+        for <virtualization@lists.linux.dev>; Tue, 19 Mar 2024 22:24:25 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710905468; x=1711510268;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=evNRGK/G29C98iYVY9eVfU4KqDPrewVerPnMCY05k/Q=;
-        b=iyS5xiZqMo6R3qaBYexKmc/xvPUprB+D7MN2hbnDdl2TrW0WkvvA+K6Gk0+5oy+wTC
-         0z3xwxHezEqJqGdzM+Dn/4Tn+immnBW9xU+/UyeCGQBCAXgeoYwM9Qfj6ms1oW46ivp6
-         zMa2e+mDNtt3dMdbdW7XJ+j8kw5PjLoWs1L3Xc0WcPkqqiVov2Dob0Zzbn1XE3kImBFE
-         r+bF6dK7jlEJ7VrhOVuiHIKQHVuFv7KQtSQtfpSLMljcWxdMH+IPotFVblVPdHUTm2oJ
-         py71oG4Z4tt5wAhkg07cCoOKdqP78vFZ9y8Q4h1oV1YJewtCQ+Knfql5DeA9d1k4jdEj
-         mNGg==
-X-Forwarded-Encrypted: i=1; AJvYcCXW0vyLeyIRqxdzGNgSeh70zFD1aM3ilGvIqMT9NYhCiP9zVUspFNlfPJNkT1I42aWEDAXScRXwskl6scWiGNK5UYfag2/c4sgdmjOr1+E=
-X-Gm-Message-State: AOJu0YzaBwtDCmFo7NpMmUuR8TS9L29ly6ZxYk+fpFr7mwvC6h9cXTM7
-	XyJY2QrS/ddOUS62WVP6dgShMcm7yeuWq2YarD84IafqEhDcD77E3AGcvY4GlEP6ABLMUsAHR2b
-	l9YzpxWurm137elDX2vJ0IR0Bvt/83zCTg70JELSc3DWtXUkfqcj7ovZdX7kNg3klUWIpVjva62
-	MODck/tp83A0WTNQxdWff6sSRyJG4rU/jjnJVY4po=
-X-Received: by 2002:a17:90a:ad46:b0:29d:f554:4509 with SMTP id w6-20020a17090aad4600b0029df5544509mr1157442pjv.0.1710905468600;
-        Tue, 19 Mar 2024 20:31:08 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGHa5Rthw+WLr41g4C8wV+6thHnL3xmYeLVbogCO4594t2bt4M37sweyYNquQuEE8Xnri5Tchk13asEbYAxG8w=
-X-Received: by 2002:a17:90a:ad46:b0:29d:f554:4509 with SMTP id
- w6-20020a17090aad4600b0029df5544509mr1157428pjv.0.1710905468228; Tue, 19 Mar
- 2024 20:31:08 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1710912265; x=1711517065;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=paGiGEEp9xes32fQLOmnOD45tZcdVk+dgcPS6McRIVA=;
+        b=xAVIA4GbR6PljBTgSBb6V9W++cmMsp4Xs0p9ArXxmj2+p2S7jlvgDUu+tiYeFwFHGV
+         ogpTkPsjZp6R1YliSsWFeTueKNjrZsLCDm4aHtQDx8y7QT4ofa3/hUwWubCsHrwbRL6R
+         A6mDUJs/Js7PO8UaAoPuAuk3xgifa/9pFgS6DFwBF8qh/dw8AjllA1t0SmUZupG7rdax
+         FgW4zw4DJ2H56iYwtmjlwLj/hjNoyR7GT1A5HnJRk6vZ2nSdFuZC6l71ZaPrCmq3+dIF
+         54cPX29eeHa/T5uycf6dWXehYOUgKY6O6lCRC9gCKXpSjGSCxTp+5AxG287Grq+kzlMl
+         m4KQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXoxfZKRErMse4RyaI+3UJlnxuX6jX5huG1kx1v6wuCWTp/xL8ll1Sua1b04pBh6EvG6eTjINehvYxxLRqK8KTY9jpOzuqtsMJQ4LEWckI=
+X-Gm-Message-State: AOJu0Yye/777nnNgynzQb/fXdiQTBjQpnJQi4hTQ3dexo3imKXGHsxTH
+	FxwqCsIwYjtQJMFGrhbcbVhqN7EW97V5BiLh3zQLNHQW5/vDUwlnp6E7fxzr6bDKjxmMZYD6pqN
+	wMSjQNxc6vuxCf9bDrLCtokmUKzHLUkKQqcBbArjjS2SJ4wWCcyqkKy8cVK8BFb6g
+X-Received: by 2002:a05:6a20:94ca:b0:1a3:62a9:39c0 with SMTP id ht10-20020a056a2094ca00b001a362a939c0mr8664983pzb.38.1710912264991;
+        Tue, 19 Mar 2024 22:24:24 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFHmD834wqq1B57Qja9j6q53cvP8FpzYPiHAT8lVP0F2/dYQAzwDSEQXaw57UhbilvqTXb9JA==
+X-Received: by 2002:a05:6a20:94ca:b0:1a3:62a9:39c0 with SMTP id ht10-20020a056a2094ca00b001a362a939c0mr8664968pzb.38.1710912264566;
+        Tue, 19 Mar 2024 22:24:24 -0700 (PDT)
+Received: from [192.168.68.51] ([43.252.115.31])
+        by smtp.gmail.com with ESMTPSA id c8-20020a170903234800b001dd7d00f7afsm12527037plh.18.2024.03.19.22.24.19
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 19 Mar 2024 22:24:23 -0700 (PDT)
+Message-ID: <3a6c8b23-af9c-47a7-8c22-8e0a78154bd3@redhat.com>
+Date: Wed, 20 Mar 2024 15:24:16 +1000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240218185606.13509-1-lingshan.zhu@intel.com> <20240319023840-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20240319023840-mutt-send-email-mst@kernel.org>
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 20 Mar 2024 11:30:57 +0800
-Message-ID: <CACGkMEundY+cxPPvRLS06b1CK94jGL4poCd0tcj2wfSAzTVGFg@mail.gmail.com>
-Subject: Re: [PATCH 00/10] vDPA: allow userspace query virito-block device
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] virtio_ring: Fix the stale index in available ring
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Zhu Lingshan <lingshan.zhu@intel.com>, virtualization@lists.linux.dev
+Cc: Will Deacon <will@kernel.org>, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, jasowang@redhat.com,
+ xuanzhuo@linux.alibaba.com, yihyu@redhat.com, shan.gavin@gmail.com,
+ linux-arm-kernel@lists.infradead.org,
+ Catalin Marinas <catalin.marinas@arm.com>, mochs@nvidia.com
+References: <20240314074923.426688-1-gshan@redhat.com>
+ <20240318165924.GA1824@willie-the-truck>
+ <35a6bcef-27cf-4626-a41d-9ec0a338fe28@redhat.com>
+ <20240319182251.GB3121@willie-the-truck>
+ <9500adaf-0075-4ae9-92db-7e310b6598b0@redhat.com>
+ <20240319203540-mutt-send-email-mst@kernel.org>
+From: Gavin Shan <gshan@redhat.com>
+In-Reply-To: <20240319203540-mutt-send-email-mst@kernel.org>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Tue, Mar 19, 2024 at 2:40=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
- wrote:
->
-> On Mon, Feb 19, 2024 at 02:55:56AM +0800, Zhu Lingshan wrote:
-> > This series allows the user space applications query vDPA virtio-block
-> > device inforamtion.
-> >
-> > testing on vdpa_sim_blk, iproute2 output:
-> > sudo ./vdpa/vdpa dev config show -jp vdpa_blk0
-> > {
-> >     "config": {
-> >         "vdpa_blk0": {
-> >             "capacity": 262144,
-> >             "segment size": 4096,
-> >             "block size": 512,
-> >             "max segments in a request": 32,
-> >             "num of queues": 1,
-> >             "logical blocks per physical block (log2)": 0,
-> >             "offset of first aligned logical block": 0,
-> >             "minimum io size": 1,
-> >             "optimal io size": 1,
-> >             "maximum discard sectors for a segment": 4294967295,
-> >             "max discard segments in a command": 1,
-> >             "discard sector alignment": 512,
-> >             "max write zeros sectors in a segment": 4294967295,
-> >             "max write zero segments": 1,
-> >             "read only": false,
-> >             "flush command support": true
-> >         }
-> >     }
-> > }
-> >
-> > Please help review
-> >
-> > Thanks
-> > Zhu Lingshan
->
-> It's been in my tree for a while so it will be in the next pull,
-> but going forward Jason I'd like to know what kind of
-> timeline do you have in mind for reviewing vdpa patches?
+On 3/20/24 10:49, Michael S. Tsirkin wrote:> 
+> I think you are wasting the time with these tests. Even if it helps what
+> does this tell us? Try setting a flag as I suggested elsewhere.
+> Then check it in vhost.
+> Or here's another idea - possibly easier. Copy the high bits from index
+> into ring itself. Then vhost can check that head is synchronized with
+> index.
+> 
+> Warning: completely untested, not even compiled. But should give you
+> the idea. If this works btw we should consider making this official in
+> the spec.
+> 
+> 
+>   static inline int vhost_get_avail_flags(struct vhost_virtqueue *vq,
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index 6f7e5010a673..79456706d0bd 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -685,7 +685,8 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+>   	/* Put entry in available array (but don't update avail->idx until they
+>   	 * do sync). */
+>   	avail = vq->split.avail_idx_shadow & (vq->split.vring.num - 1);
+> -	vq->split.vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, head);
+> +	u16 headwithflag = head | (q->split.avail_idx_shadow & ~(vq->split.vring.num - 1));
+> +	vq->split.vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, headwithflag);
+>   
+>   	/* Descriptors and available array need to be set before we expose the
+>   	 * new available array entries. */
+> 
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 045f666b4f12..bd8f7c763caa 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -1299,8 +1299,15 @@ static inline int vhost_get_avail_idx(struct vhost_virtqueue *vq,
+>   static inline int vhost_get_avail_head(struct vhost_virtqueue *vq,
+>   				       __virtio16 *head, int idx)
+>   {
+> -	return vhost_get_avail(vq, *head,
+> +	unsigned i = idx;
+> +	unsigned flag = i & ~(vq->num - 1);
+> +	unsigned val = vhost_get_avail(vq, *head,
+>   			       &vq->avail->ring[idx & (vq->num - 1)]);
+> +	unsigned valflag = val & ~(vq->num - 1);
+> +
+> +	WARN_ON(valflag != flag);
+> +
+> +	return val & (vq->num - 1);
+>   }
+>   
 
-I think there are some misunderstandings here.
+Thanks, Michael. The code is already self-explanatory. Since vq->num is 256, I just
+squeezed the last_avail_idx to the high byte. Unfortunately, I'm unable to hit
+the WARN_ON(). Does it mean the low byte is stale (or corrupted) while the high
+byte is still correct and valid?
 
-I usually try my best to offer a review.
+         avail = vq->split.avail_idx_shadow & (vq->split.vring.num - 1);
+         vq->split.vring.avail->ring[avail] =
+                 cpu_to_virtio16(_vq->vdev, head | (avail << 8));
 
-This series was posted during my vacation, and when I came back after
-the vacation it was merged into your tree. I'd expect you are fine
-with the patches.
 
-If that doesn't work, maybe we can start to do something like:
+         head = vhost16_to_cpu(vq, ring_head);
+         WARN_ON((head >> 8) != (vq->last_avail_idx % vq->num));
+         head = head & 0xff;
 
-vDPA patches needs my ack before it can be merged
+One question: Does QEMU has any chance writing data to the available queue when
+vhost is enabled? My previous understanding is no, the queue is totally owned by
+vhost instead of QEMU.
 
-Does it work?
+Before this patch was posted, I had debugging code to record last 16 transactions
+to the available and used queue from guest and host side. It did reveal the wrong
+head was fetched from the available queue.
 
-Thanks
+[   11.785745] ================ virtqueue_get_buf_ctx_split ================
+[   11.786238] virtio_net virtio0: output.0:id 74 is not a head!
+[   11.786655] head to be released: 036 077
+[   11.786952]
+[   11.786952] avail_idx:
+[   11.787234] 000  63985  <--
+[   11.787237] 001  63986
+[   11.787444] 002  63987
+[   11.787632] 003  63988
+[   11.787821] 004  63989
+[   11.788006] 005  63990
+[   11.788194] 006  63991
+[   11.788381] 007  63992
+[   11.788567] 008  63993
+[   11.788772] 009  63994
+[   11.788957] 010  63995
+[   11.789141] 011  63996
+[   11.789327] 012  63997
+[   11.789515] 013  63998
+[   11.789701] 014  63999
+[   11.789886] 015  64000
+[   11.790068]
+[   11.790068] avail_head:
+[   11.790529] 000  075  <--
+[   11.790718] 001  036
+[   11.790890] 002  077
+[   11.791061] 003  129
+[   11.791231] 004  072
+[   11.791400] 005  130
+[   11.791574] 006  015
+[   11.791748] 007  074
+[   11.791918] 008  130
+[   11.792094] 009  130
+[   11.792263] 010  074
+[   11.792437] 011  015
+[   11.792617] 012  072
+[   11.792788] 013  129
+[   11.792961] 014  077    // The last two heads from guest to host: 077, 036
+[   11.793134] 015  036
 
->
-> > Zhu Lingshan (10):
-> >   vDPA: report virtio-block capacity to user space
-> >   vDPA: report virtio-block max segment size to user space
-> >   vDPA: report virtio-block block-size to user space
-> >   vDPA: report virtio-block max segments in a request to user space
-> >   vDPA: report virtio-block MQ info to user space
-> >   vDPA: report virtio-block topology info to user space
-> >   vDPA: report virtio-block discarding configuration to user space
-> >   vDPA: report virtio-block write zeroes configuration to user space
-> >   vDPA: report virtio-block read-only info to user space
-> >   vDPA: report virtio-blk flush info to user space
-> >
-> >  drivers/vdpa/vdpa.c       | 212 ++++++++++++++++++++++++++++++++++++++
-> >  include/linux/vdpa.h      |   1 +
-> >  include/uapi/linux/vdpa.h |  17 +++
-> >  3 files changed, 230 insertions(+)
-> >
-> > --
-> > 2.39.3
->
+[root@nvidia-grace-hopper-05 qemu.main]# cat /proc/vhost
+
+avail_idx
+000  63998
+001  64000
+002  63954  <---
+003  63955
+004  63956
+005  63974
+006  63981
+007  63984
+008  63986
+009  63987
+010  63988
+011  63989
+012  63992
+013  63993
+014  63995
+015  63997
+
+avail_head
+000  074
+001  015
+002  072
+003  129
+004  074            // The last two heads seen by vhost is: 074, 036
+005  036
+006  075  <---
+007  036
+008  077
+009  129
+010  072
+011  130
+012  015
+013  074
+014  130
+015  130
+
+used_idx
+000  64000
+001  63882  <---
+002  63889
+003  63891
+004  63898
+005  63936
+006  63942
+007  63946
+008  63949
+009  63953
+010  63957
+011  63981
+012  63990
+013  63992
+014  63993
+015  63999
+
+used_head
+000  072
+001  129
+002  074          // The last two heads published to guest is: 074, 036
+003  036
+004  075  <---
+005  036
+006  077
+007  129
+008  072
+009  130
+010  015
+011  074
+012  130
+013  130
+014  074
+015  015
+
+Thanks,
+Gavin
+
+
+
 
