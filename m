@@ -1,351 +1,188 @@
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC4073C6BA
-	for <virtualization@lists.linux.dev>; Wed, 20 Mar 2024 10:06:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
+Received: from m15.mail.163.com (m15.mail.163.com [45.254.50.219])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 2772C3FBA3
+	for <virtualization@lists.linux.dev>; Wed, 20 Mar 2024 10:19:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.254.50.219
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710929221; cv=none; b=MTNJPzOybEybfPhlPW/DZwDapzPHNfVIhc/0XlO4/Pz20HudDqf9i7YImfFxhhBqvca7xFQ54NjhPjFy0cb8XmAQ8upS4Co4gj3t3S1X6brUkVtcjG7meBOiywRqXtDCVDE6pxTOCY6VLrsXrSsYwKmwnykb1UdKXBHpg14wDJg=
+	t=1710929962; cv=none; b=puLl6PtMUVyYoZSVZuTtOPBYOKuQRq1cwKEhoTjgqN4Lxrl+OnozxegyXkj+Az16J+3YHBJHQwnN/Qkh7fZvk8ENN9NMJI3sySBVM52DoGnuv4DrF1gtqkS+zJKW/MyWRP1RTXqI0jLAOeQ1hLdjC3LvkYryfLkWNF1dqszA5Jc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710929221; c=relaxed/simple;
-	bh=HAQlkkxHQwVp7954ewneIU0UNGObWXoxiytLXehNbWo=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=rOgayusNLoPPO+WF6ET6uY+5ajlw5PhanqKge7M8miaDXkkQITq4mSk88RQPKRTa/YHh+M/vRrd7suDDWAWx1hKekMXIbFAYQ7utrcAkS7vt2OrdvQaNboBaJ9hNesMAmfvcZUUPOd63yEzvoPyV/RwHk3WuLvrvoCCkb02NkQ8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=sKnLD1yo; arc=none smtp.client-ip=115.124.30.132
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1710929962; c=relaxed/simple;
+	bh=xIi+cW4w2WN3sLl/pWDZi4mIfB8RX4auWJofB6sJ99c=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=vAow8Uh+Zw50/yQE/ZiyPJg1hyCzqr2FGG8xg+aI9A6u1dLYw8LpDWT1t+iiD0wXb02crnXz9417lBcBMaBeO9RME1omIZUya2FsR7TfuhXbq6zPaFXx2dRKqfSaqiKuCCpLxuvpg7fZEovBsqpxsfoc/sHn2A/50wM9NL7rtmQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=ortV1WbK; arc=none smtp.client-ip=45.254.50.219
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="sKnLD1yo"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1710929210; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=SGALuz+N6dUhUq1FnLMC5eDEdySwjv+HJ+duhr2rJA8=;
-	b=sKnLD1yokXWKyEqRd16DRViKVK6aFdy1+VasD+JfU1Znjo3RyyEBCM6a92NkGgRPofROyIzccQQQVHa3KrYYdVw9KyALCOpgRsf+YQ3j74BYMuhT7xWk6uYG/qIDmXi6ekqbbcPlX6teD+tDi0t5IJug1voU2hiWV2/kQ6KqcQk=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=25;SR=0;TI=SMTPD_---0W2x0oks_1710929208;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W2x0oks_1710929208)
-          by smtp.aliyun-inc.com;
-          Wed, 20 Mar 2024 18:06:49 +0800
-Message-ID: <1710928485.9310899-3-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost v3 1/4] virtio: find_vqs: pass struct instead of multi parameters
-Date: Wed, 20 Mar 2024 17:54:45 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: virtualization@lists.linux.dev,
- Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- Hans de Goede <hdegoede@redhat.com>,
- =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- Vadim Pasternak <vadimp@nvidia.com>,
- Bjorn Andersson <andersson@kernel.org>,
- Mathieu Poirier <mathieu.poirier@linaro.org>,
- Cornelia Huck <cohuck@redhat.com>,
- Halil Pasic <pasic@linux.ibm.com>,
- Eric Farman <farman@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- linux-um@lists.infradead.org,
- platform-driver-x86@vger.kernel.org,
- linux-remoteproc@vger.kernel.org,
- linux-s390@vger.kernel.org,
- kvm@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>
-References: <20240312021013.88656-1-xuanzhuo@linux.alibaba.com>
- <20240312021013.88656-2-xuanzhuo@linux.alibaba.com>
- <CACGkMEvVgfgAxLoKeFTgy-1GR0W07ciPYFuqs6PiWtKCnXuWTw@mail.gmail.com>
- <1710395908.7915084-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEsT2JqJ1r_kStUzW0+-f+qT0C05n2A+Yrjpc-mHMZD_mQ@mail.gmail.com>
- <1710487245.6843069-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEspzDTZP1yxkBz17MgU9meyfCUBDxG8mjm=acXHNxAxhg@mail.gmail.com>
- <1710741592.205804-1-xuanzhuo@linux.alibaba.com>
- <20240319025726-mutt-send-email-mst@kernel.org>
- <CACGkMEsO6e2=v36F=ezhHCEaXqG0+AhkCM2ZgmKAtyWncnif5Q@mail.gmail.com>
- <1710927569.5383172-1-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <1710927569.5383172-1-xuanzhuo@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="ortV1WbK"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:Subject:Date:Message-Id:MIME-Version; bh=1oeuD
+	vFn2YDBckFkO47Q7YRsJ8OZ8rJl2dHg14vkSuw=; b=ortV1WbKJzj6lpEmSXyvL
+	h2kbUcPWGRGzjC/OzoXLMd2R/kn/a3AECnO54dT5Gq5+sHqK9C55X1p6IrN79kuD
+	SH3Bm3bQ1FnuFM7BFtMCtCQk2JjuLKXunHn3WNmamQZ3xhRDni5/ZMi9BQjcrEPy
+	5YYJ3UwTBQ+DRSamx0eAHs=
+Received: from localhost.localdomain (unknown [39.144.124.65])
+	by gzga-smtp-mta-g0-4 (Coremail) with SMTP id _____wDnL5ciuPpliawpBA--.38680S2;
+	Wed, 20 Mar 2024 18:19:15 +0800 (CST)
+From: Wang Rong <w_angrong@163.com>
+To: mst@redhat.com,
+	jasowang@redhat.com
+Cc: kvm@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Rong Wang <w_angrong@163.com>
+Subject: [PATCH v3] vhost/vdpa: Add MSI translation tables to iommu for software-managed MSI
+Date: Wed, 20 Mar 2024 18:19:12 +0800
+Message-Id: <20240320101912.28210-1-w_angrong@163.com>
+X-Mailer: git-send-email 2.20.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:_____wDnL5ciuPpliawpBA--.38680S2
+X-Coremail-Antispam: 1Uf129KBjvJXoWxWrWkGF4ftw1DJF45Jr18Xwb_yoWrXry7pF
+	ZrCFy5Gr4UJw4xWrsxAF4DZFnYk3s2y3y8Caya9anakr1Utr90kaykGa4jyF15AFWrJF17
+	XF42kr18uw4UJ37anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0pEb18DUUUUU=
+X-CM-SenderInfo: xzbd0wpurqwqqrwthudrp/1tbiNgSniGXAkngAPAAAsu
 
-On Wed, 20 Mar 2024 17:39:29 +0800, Xuan Zhuo <xuanzhuo@linux.alibaba.com> =
-wrote:
-> On Wed, 20 Mar 2024 17:22:50 +0800, Jason Wang <jasowang@redhat.com> wrot=
-e:
-> > On Tue, Mar 19, 2024 at 2:58=E2=80=AFPM Michael S. Tsirkin <mst@redhat.=
-com> wrote:
-> > >
-> > > On Mon, Mar 18, 2024 at 01:59:52PM +0800, Xuan Zhuo wrote:
-> > > > On Mon, 18 Mar 2024 12:18:23 +0800, Jason Wang <jasowang@redhat.com=
-> wrote:
-> > > > > On Fri, Mar 15, 2024 at 3:26=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux=
-.alibaba.com> wrote:
-> > > > > >
-> > > > > > On Fri, 15 Mar 2024 11:51:48 +0800, Jason Wang <jasowang@redhat=
-.com> wrote:
-> > > > > > > On Thu, Mar 14, 2024 at 2:00=E2=80=AFPM Xuan Zhuo <xuanzhuo@l=
-inux.alibaba.com> wrote:
-> > > > > > > >
-> > > > > > > > On Thu, 14 Mar 2024 11:12:24 +0800, Jason Wang <jasowang@re=
-dhat.com> wrote:
-> > > > > > > > > On Tue, Mar 12, 2024 at 10:10=E2=80=AFAM Xuan Zhuo <xuanz=
-huo@linux.alibaba.com> wrote:
-> > > > > > > > > >
-> > > > > > > > > > Now, we pass multi parameters to find_vqs. These parame=
-ters
-> > > > > > > > > > may work for transport or work for vring.
-> > > > > > > > > >
-> > > > > > > > > > And find_vqs has multi implements in many places:
-> > > > > > > > > >
-> > > > > > > > > >  arch/um/drivers/virtio_uml.c
-> > > > > > > > > >  drivers/platform/mellanox/mlxbf-tmfifo.c
-> > > > > > > > > >  drivers/remoteproc/remoteproc_virtio.c
-> > > > > > > > > >  drivers/s390/virtio/virtio_ccw.c
-> > > > > > > > > >  drivers/virtio/virtio_mmio.c
-> > > > > > > > > >  drivers/virtio/virtio_pci_legacy.c
-> > > > > > > > > >  drivers/virtio/virtio_pci_modern.c
-> > > > > > > > > >  drivers/virtio/virtio_vdpa.c
-> > > > > > > > > >
-> > > > > > > > > > Every time, we try to add a new parameter, that is diff=
-icult.
-> > > > > > > > > > We must change every find_vqs implement.
-> > > > > > > > > >
-> > > > > > > > > > One the other side, if we want to pass a parameter to v=
-ring,
-> > > > > > > > > > we must change the call path from transport to vring.
-> > > > > > > > > > Too many functions need to be changed.
-> > > > > > > > > >
-> > > > > > > > > > So it is time to refactor the find_vqs. We pass a struc=
-ture
-> > > > > > > > > > cfg to find_vqs(), that will be passed to vring by tran=
-sport.
-> > > > > > > > > >
-> > > > > > > > > > Because the vp_modern_create_avq() use the "const char =
-*names[]",
-> > > > > > > > > > and the virtio_uml.c changes the name in the subsequent=
- commit, so
-> > > > > > > > > > change the "names" inside the virtio_vq_config from "co=
-nst char *const
-> > > > > > > > > > *names" to "const char **names".
-> > > > > > > > > >
-> > > > > > > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > > > > > > > Acked-by: Johannes Berg <johannes@sipsolutions.net>
-> > > > > > > > > > Reviewed-by: Ilpo J=3DE4rvinen <ilpo.jarvinen@linux.int=
-el.com>
-> > > > > > > > >
-> > > > > > > > > The name seems broken here.
-> > > > > > > >
-> > > > > > > > Email APP bug.
-> > > > > > > >
-> > > > > > > > I will fix.
-> > > > > > > >
-> > > > > > > >
-> > > > > > > > >
-> > > > > > > > > [...]
-> > > > > > > > >
-> > > > > > > > > >
-> > > > > > > > > >  typedef void vq_callback_t(struct virtqueue *);
-> > > > > > > > > >
-> > > > > > > > > > +/**
-> > > > > > > > > > + * struct virtio_vq_config - configure for find_vqs()
-> > > > > > > > > > + * @cfg_idx: Used by virtio core. The drivers should s=
-et this to 0.
-> > > > > > > > > > + *     During the initialization of each vq(vring setu=
-p), we need to know which
-> > > > > > > > > > + *     item in the array should be used at that time. =
-But since the item in
-> > > > > > > > > > + *     names can be null, which causes some item of ar=
-ray to be skipped, we
-> > > > > > > > > > + *     cannot use vq.index as the current id. So add a=
- cfg_idx to let vring
-> > > > > > > > > > + *     know how to get the current configuration from =
-the array when
-> > > > > > > > > > + *     initializing vq.
-> > > > > > > > >
-> > > > > > > > > So this design is not good. If it is not something that t=
-he driver
-> > > > > > > > > needs to care about, the core needs to hide it from the A=
-PI.
-> > > > > > > >
-> > > > > > > > The driver just ignore it. That will be beneficial to the v=
-irtio core.
-> > > > > > > > Otherwise, we must pass one more parameter everywhere.
-> > > > > > >
-> > > > > > > I don't get here, it's an internal logic and we've already do=
-ne that.
-> > > > > >
-> > > > > >
-> > > > > > ## Then these must add one param "cfg_idx";
-> > > > > >
-> > > > > >  struct virtqueue *vring_create_virtqueue(struct virtio_device =
-*vdev,
-> > > > > >                                          unsigned int index,
-> > > > > >                                          struct vq_transport_co=
-nfig *tp_cfg,
-> > > > > >                                          struct virtio_vq_confi=
-g *cfg,
-> > > > > > -->                                      uint cfg_idx);
-> > > > > >
-> > > > > >  struct virtqueue *vring_new_virtqueue(struct virtio_device *vd=
-ev,
-> > > > > >                                       unsigned int index,
-> > > > > >                                       void *pages,
-> > > > > >                                       struct vq_transport_confi=
-g *tp_cfg,
-> > > > > >                                       struct virtio_vq_config *=
-cfg,
-> > > > > > -->                                      uint cfg_idx);
-> > > > > >
-> > > > > >
-> > > > > > ## The functions inside virtio_ring also need to add a new para=
-m, such as:
-> > > > > >
-> > > > > >  static struct virtqueue *vring_create_virtqueue_split(struct v=
-irtio_device *vdev,
-> > > > > >                                                       unsigned =
-int index,
-> > > > > >                                                       struct vq=
-_transport_config *tp_cfg,
-> > > > > >                                                       struct vi=
-rtio_vq_config,
-> > > > > > -->                                                   uint cfg_=
-idx);
-> > > > > >
-> > > > > >
-> > > > > >
-> > > > >
-> > > > > I guess what I'm missing is when could the index differ from cfg_=
-idx?
-> > > >
-> > > >
-> > > >  @cfg_idx: Used by virtio core. The drivers should set this to 0.
-> > > >      During the initialization of each vq(vring setup), we need to =
-know which
-> > > >      item in the array should be used at that time. But since the i=
-tem in
-> > > >      names can be null, which causes some item of array to be skipp=
-ed, we
-> > > >      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^=
-^^
-> > > >      cannot use vq.index as the current id. So add a cfg_idx to let=
- vring
-> > > >      know how to get the current configuration from the array when
-> > > >      initializing vq.
-> > > >
-> > > >
-> > > > static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned in=
-t nvqs,
-> > > >
-> > > >       ................
-> > > >
-> > > >       for (i =3D 0; i < nvqs; ++i) {
-> > > >               if (!names[i]) {
-> > > >                       vqs[i] =3D NULL;
-> > > >                       continue;
-> > > >               }
-> > > >
-> > > >               if (!callbacks[i])
-> > > >                       msix_vec =3D VIRTIO_MSI_NO_VECTOR;
-> > > >               else if (vp_dev->per_vq_vectors)
-> > > >                       msix_vec =3D allocated_vectors++;
-> > > >               else
-> > > >                       msix_vec =3D VP_MSIX_VQ_VECTOR;
-> > > >               vqs[i] =3D vp_setup_vq(vdev, queue_idx++, callbacks[i=
-], names[i],
-> > > >                                    ctx ? ctx[i] : false,
-> > > >                                    msix_vec);
-> > > >
-> > > >
-> > > > Thanks.
-> > >
-> > >
-> > > Jason what do you think is the way to resolve this?
-> >
-> > I wonder which driver doesn't use a specific virtqueue in this case.
->
->
-> commit 6457f126c888b3481fdae6f702e616cd0c79646e
-> Author: Michael S. Tsirkin <mst@redhat.com>
-> Date:   Wed Sep 5 21:47:45 2012 +0300
->
->     virtio: support reserved vqs
->
->     virtio network device multiqueue support reserves
->     vq 3 for future use (useful both for future extensions and to make it
->     pretty - this way receive vqs have even and transmit - odd numbers).
->     Make it possible to skip initialization for
->     specific vq numbers by specifying NULL for name.
->     Document this usage as well as (existing) NULL callback.
->
->     Drivers using this not coded up yet, so I simply tested
->     with virtio-pci and verified that this patch does
->     not break existing drivers.
->
->     Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
->     Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
->
-> This patch introduced this.
->
-> Could we remove this? Then we can use the vq.index directly. That will
-> be great.
+From: Rong Wang <w_angrong@163.com>
 
-I checked the current kernel.
-Just virtio-ballon uses this feture. But we can fix by one line code.
+Once enable iommu domain for one device, the MSI
+translation tables have to be there for software-managed MSI.
+Otherwise, platform with software-managed MSI without an
+irq bypass function, can not get a correct memory write event
+from pcie, will not get irqs.
+The solution is to obtain the MSI phy base address from
+iommu reserved region, and set it to iommu MSI cookie,
+then translation tables will be created while request irq.
 
-Thanks.
+Change log
+----------
 
+v1->v2:
+- add resv iotlb to avoid overlap mapping.
+v2->v3:
+- there is no need to export the iommu symbol anymore.
 
->
-> >
-> > And it looks to me, introducing a per-vq-config struct might be better
-> > then we have
-> >
-> > virtio_vqs_config {
-> >       unsigned int nvqs;
-> >       struct virtio_vq_config *configs;
-> > }
->
-> YES. I prefer this. But we need to refactor every driver.
->
-> >
-> > So we don't need the cfg_idx stuff.
->
-> This still needs cfg_idx.
->
-> Thanks
->
->
-> >
-> > Thanks
-> >
-> > >
-> > > > >
-> > > > > Thanks
-> > > > >
-> > > > > > Thanks.
-> > > > > >
-> > > > > >
-> > > > > >
-> > > > > >
-> > > > > > >
-> > > > > > > Thanks
-> > > > > > >
-> > > > > > > >
-> > > > > > > > Thanks.
-> > > > > > > >
-> > > > > > > > >
-> > > > > > > > > Thanks
-> > > > > > > > >
-> > > > > > > >
-> > > > > > >
-> > > > > >
-> > > > >
-> > >
-> >
->
+Signed-off-by: Rong Wang <w_angrong@163.com>
+---
+ drivers/vhost/vdpa.c | 59 +++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 56 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index ba52d128aeb7..28b56b10372b 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -49,6 +49,7 @@ struct vhost_vdpa {
+ 	struct completion completion;
+ 	struct vdpa_device *vdpa;
+ 	struct hlist_head as[VHOST_VDPA_IOTLB_BUCKETS];
++	struct vhost_iotlb resv_iotlb;
+ 	struct device dev;
+ 	struct cdev cdev;
+ 	atomic_t opened;
+@@ -247,6 +248,7 @@ static int _compat_vdpa_reset(struct vhost_vdpa *v)
+ static int vhost_vdpa_reset(struct vhost_vdpa *v)
+ {
+ 	v->in_batch = 0;
++	vhost_iotlb_reset(&v->resv_iotlb);
+ 	return _compat_vdpa_reset(v);
+ }
+ 
+@@ -1219,10 +1221,15 @@ static int vhost_vdpa_process_iotlb_update(struct vhost_vdpa *v,
+ 	    msg->iova + msg->size - 1 > v->range.last)
+ 		return -EINVAL;
+ 
++	if (vhost_iotlb_itree_first(&v->resv_iotlb, msg->iova,
++					msg->iova + msg->size - 1))
++		return -EINVAL;
++
+ 	if (vhost_iotlb_itree_first(iotlb, msg->iova,
+ 				    msg->iova + msg->size - 1))
+ 		return -EEXIST;
+ 
++
+ 	if (vdpa->use_va)
+ 		return vhost_vdpa_va_map(v, iotlb, msg->iova, msg->size,
+ 					 msg->uaddr, msg->perm);
+@@ -1307,6 +1314,45 @@ static ssize_t vhost_vdpa_chr_write_iter(struct kiocb *iocb,
+ 	return vhost_chr_write_iter(dev, from);
+ }
+ 
++static int vhost_vdpa_resv_iommu_region(struct iommu_domain *domain, struct device *dma_dev,
++	struct vhost_iotlb *resv_iotlb)
++{
++	struct list_head dev_resv_regions;
++	phys_addr_t resv_msi_base = 0;
++	struct iommu_resv_region *region;
++	int ret = 0;
++	bool with_sw_msi = false;
++	bool with_hw_msi = false;
++
++	INIT_LIST_HEAD(&dev_resv_regions);
++	iommu_get_resv_regions(dma_dev, &dev_resv_regions);
++
++	list_for_each_entry(region, &dev_resv_regions, list) {
++		ret = vhost_iotlb_add_range_ctx(resv_iotlb, region->start,
++				region->start + region->length - 1,
++				0, 0, NULL);
++		if (ret) {
++			vhost_iotlb_reset(resv_iotlb);
++			break;
++		}
++
++		if (region->type == IOMMU_RESV_MSI)
++			with_hw_msi = true;
++
++		if (region->type == IOMMU_RESV_SW_MSI) {
++			resv_msi_base = region->start;
++			with_sw_msi = true;
++		}
++	}
++
++	if (!ret && !with_hw_msi && with_sw_msi)
++		ret = iommu_get_msi_cookie(domain, resv_msi_base);
++
++	iommu_put_resv_regions(dma_dev, &dev_resv_regions);
++
++	return ret;
++}
++
+ static int vhost_vdpa_alloc_domain(struct vhost_vdpa *v)
+ {
+ 	struct vdpa_device *vdpa = v->vdpa;
+@@ -1335,11 +1381,16 @@ static int vhost_vdpa_alloc_domain(struct vhost_vdpa *v)
+ 
+ 	ret = iommu_attach_device(v->domain, dma_dev);
+ 	if (ret)
+-		goto err_attach;
++		goto err_alloc_domain;
+ 
+-	return 0;
++	ret = vhost_vdpa_resv_iommu_region(v->domain, dma_dev, &v->resv_iotlb);
++	if (ret)
++		goto err_attach_device;
+ 
+-err_attach:
++	return 0;
++err_attach_device:
++	iommu_detach_device(v->domain, dma_dev);
++err_alloc_domain:
+ 	iommu_domain_free(v->domain);
+ 	v->domain = NULL;
+ 	return ret;
+@@ -1595,6 +1646,8 @@ static int vhost_vdpa_probe(struct vdpa_device *vdpa)
+ 		goto err;
+ 	}
+ 
++	vhost_iotlb_init(&v->resv_iotlb, 0, 0);
++
+ 	r = dev_set_name(&v->dev, "vhost-vdpa-%u", minor);
+ 	if (r)
+ 		goto err;
+-- 
+2.27.0
+
