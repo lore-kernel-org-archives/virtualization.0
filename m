@@ -1,59 +1,351 @@
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 132083B794
-	for <virtualization@lists.linux.dev>; Wed, 20 Mar 2024 09:46:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC4073C6BA
+	for <virtualization@lists.linux.dev>; Wed, 20 Mar 2024 10:06:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710927969; cv=none; b=cDaEaCxZjl1CplsZjdY3a8z0/0BsVjnTzL8EFGwI3R7k+BxfchFk949S0a56P4GiUeUUrp9j/+OJUUM/tFa1VkC/16YbIKrPZh7vDoPCBWoLaA4gfv7ZJdSHRq28Qd01geBmk8rdi3GBzEgHPaN5LIEwX+OO9P2yz55RlCboRYI=
+	t=1710929221; cv=none; b=MTNJPzOybEybfPhlPW/DZwDapzPHNfVIhc/0XlO4/Pz20HudDqf9i7YImfFxhhBqvca7xFQ54NjhPjFy0cb8XmAQ8upS4Co4gj3t3S1X6brUkVtcjG7meBOiywRqXtDCVDE6pxTOCY6VLrsXrSsYwKmwnykb1UdKXBHpg14wDJg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710927969; c=relaxed/simple;
-	bh=dLgoIfaTqa8nTP1PGLsxkGjCBSm52im/6G2YUb9BLjg=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=jUpGCPoun0kFdwOVf7Yq7q2LbjqS9DnjLIUvt/d3CS8mii0Dzv2mR9sH73JmiovSiQL0S8nv2do6ApYz6nhRI5JDh+mhN4iYXbUdtibQ5nVlf+XStWiKBVChkpDpbAAdQad1AsLi9fTNbUvd1rpd5ZiBP/e5qNJcItOu5I72fcQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=bUmE85ho; arc=none smtp.client-ip=115.124.30.133
+	s=arc-20240116; t=1710929221; c=relaxed/simple;
+	bh=HAQlkkxHQwVp7954ewneIU0UNGObWXoxiytLXehNbWo=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
+	 Content-Type; b=rOgayusNLoPPO+WF6ET6uY+5ajlw5PhanqKge7M8miaDXkkQITq4mSk88RQPKRTa/YHh+M/vRrd7suDDWAWx1hKekMXIbFAYQ7utrcAkS7vt2OrdvQaNboBaJ9hNesMAmfvcZUUPOd63yEzvoPyV/RwHk3WuLvrvoCCkb02NkQ8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=sKnLD1yo; arc=none smtp.client-ip=115.124.30.132
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="bUmE85ho"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="sKnLD1yo"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1710927956; h=Message-ID:Subject:Date:From:To;
-	bh=dLgoIfaTqa8nTP1PGLsxkGjCBSm52im/6G2YUb9BLjg=;
-	b=bUmE85hoBhrpAS6lMzRQz7u0GsM+dUs+EOSYwVmbqV++ZVQeFtbwp0Kh3dOc9H6Q5LEisMeMF2m4vd53nPImzNPLf5NTpF9njLGC9U5bpFHjAQmg+T7+/Xz2jmz71KoIebo9Q1NRbgzD8zyZs91A6sxsjaKwpBeJmYiAR7qugao=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0W2wsc.n_1710927953;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W2wsc.n_1710927953)
+	t=1710929210; h=Message-ID:Subject:Date:From:To:Content-Type;
+	bh=SGALuz+N6dUhUq1FnLMC5eDEdySwjv+HJ+duhr2rJA8=;
+	b=sKnLD1yokXWKyEqRd16DRViKVK6aFdy1+VasD+JfU1Znjo3RyyEBCM6a92NkGgRPofROyIzccQQQVHa3KrYYdVw9KyALCOpgRsf+YQ3j74BYMuhT7xWk6uYG/qIDmXi6ekqbbcPlX6teD+tDi0t5IJug1voU2hiWV2/kQ6KqcQk=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=25;SR=0;TI=SMTPD_---0W2x0oks_1710929208;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W2x0oks_1710929208)
           by smtp.aliyun-inc.com;
-          Wed, 20 Mar 2024 17:45:54 +0800
-Message-ID: <1710927912.3040364-2-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next v5 0/9] virtio-net: support device stats
-Date: Wed, 20 Mar 2024 17:45:12 +0800
+          Wed, 20 Mar 2024 18:06:49 +0800
+Message-ID: <1710928485.9310899-3-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH vhost v3 1/4] virtio: find_vqs: pass struct instead of multi parameters
+Date: Wed, 20 Mar 2024 17:54:45 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: virtualization@lists.linux.dev,
+ Richard Weinberger <richard@nod.at>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Johannes Berg <johannes@sipsolutions.net>,
+ Hans de Goede <hdegoede@redhat.com>,
+ =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+ Vadim Pasternak <vadimp@nvidia.com>,
+ Bjorn Andersson <andersson@kernel.org>,
+ Mathieu Poirier <mathieu.poirier@linaro.org>,
+ Cornelia Huck <cohuck@redhat.com>,
+ Halil Pasic <pasic@linux.ibm.com>,
+ Eric Farman <farman@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ linux-um@lists.infradead.org,
+ platform-driver-x86@vger.kernel.org,
+ linux-remoteproc@vger.kernel.org,
+ linux-s390@vger.kernel.org,
+ kvm@vger.kernel.org,
  "Michael S. Tsirkin" <mst@redhat.com>,
- Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- Stanislav Fomichev <sdf@google.com>,
- Amritha Nambiar <amritha.nambiar@intel.com>,
- Larysa Zaremba <larysa.zaremba@intel.com>,
- Sridhar Samudrala <sridhar.samudrala@intel.com>,
- Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
- virtualization@lists.linux.dev,
- bpf@vger.kernel.org,
- netdev@vger.kernel.org
-References: <20240318110602.37166-1-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <20240318110602.37166-1-xuanzhuo@linux.alibaba.com>
+ Jason Wang <jasowang@redhat.com>
+References: <20240312021013.88656-1-xuanzhuo@linux.alibaba.com>
+ <20240312021013.88656-2-xuanzhuo@linux.alibaba.com>
+ <CACGkMEvVgfgAxLoKeFTgy-1GR0W07ciPYFuqs6PiWtKCnXuWTw@mail.gmail.com>
+ <1710395908.7915084-1-xuanzhuo@linux.alibaba.com>
+ <CACGkMEsT2JqJ1r_kStUzW0+-f+qT0C05n2A+Yrjpc-mHMZD_mQ@mail.gmail.com>
+ <1710487245.6843069-1-xuanzhuo@linux.alibaba.com>
+ <CACGkMEspzDTZP1yxkBz17MgU9meyfCUBDxG8mjm=acXHNxAxhg@mail.gmail.com>
+ <1710741592.205804-1-xuanzhuo@linux.alibaba.com>
+ <20240319025726-mutt-send-email-mst@kernel.org>
+ <CACGkMEsO6e2=v36F=ezhHCEaXqG0+AhkCM2ZgmKAtyWncnif5Q@mail.gmail.com>
+ <1710927569.5383172-1-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1710927569.5383172-1-xuanzhuo@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-Hope this in your list.
+On Wed, 20 Mar 2024 17:39:29 +0800, Xuan Zhuo <xuanzhuo@linux.alibaba.com> =
+wrote:
+> On Wed, 20 Mar 2024 17:22:50 +0800, Jason Wang <jasowang@redhat.com> wrot=
+e:
+> > On Tue, Mar 19, 2024 at 2:58=E2=80=AFPM Michael S. Tsirkin <mst@redhat.=
+com> wrote:
+> > >
+> > > On Mon, Mar 18, 2024 at 01:59:52PM +0800, Xuan Zhuo wrote:
+> > > > On Mon, 18 Mar 2024 12:18:23 +0800, Jason Wang <jasowang@redhat.com=
+> wrote:
+> > > > > On Fri, Mar 15, 2024 at 3:26=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux=
+.alibaba.com> wrote:
+> > > > > >
+> > > > > > On Fri, 15 Mar 2024 11:51:48 +0800, Jason Wang <jasowang@redhat=
+.com> wrote:
+> > > > > > > On Thu, Mar 14, 2024 at 2:00=E2=80=AFPM Xuan Zhuo <xuanzhuo@l=
+inux.alibaba.com> wrote:
+> > > > > > > >
+> > > > > > > > On Thu, 14 Mar 2024 11:12:24 +0800, Jason Wang <jasowang@re=
+dhat.com> wrote:
+> > > > > > > > > On Tue, Mar 12, 2024 at 10:10=E2=80=AFAM Xuan Zhuo <xuanz=
+huo@linux.alibaba.com> wrote:
+> > > > > > > > > >
+> > > > > > > > > > Now, we pass multi parameters to find_vqs. These parame=
+ters
+> > > > > > > > > > may work for transport or work for vring.
+> > > > > > > > > >
+> > > > > > > > > > And find_vqs has multi implements in many places:
+> > > > > > > > > >
+> > > > > > > > > >  arch/um/drivers/virtio_uml.c
+> > > > > > > > > >  drivers/platform/mellanox/mlxbf-tmfifo.c
+> > > > > > > > > >  drivers/remoteproc/remoteproc_virtio.c
+> > > > > > > > > >  drivers/s390/virtio/virtio_ccw.c
+> > > > > > > > > >  drivers/virtio/virtio_mmio.c
+> > > > > > > > > >  drivers/virtio/virtio_pci_legacy.c
+> > > > > > > > > >  drivers/virtio/virtio_pci_modern.c
+> > > > > > > > > >  drivers/virtio/virtio_vdpa.c
+> > > > > > > > > >
+> > > > > > > > > > Every time, we try to add a new parameter, that is diff=
+icult.
+> > > > > > > > > > We must change every find_vqs implement.
+> > > > > > > > > >
+> > > > > > > > > > One the other side, if we want to pass a parameter to v=
+ring,
+> > > > > > > > > > we must change the call path from transport to vring.
+> > > > > > > > > > Too many functions need to be changed.
+> > > > > > > > > >
+> > > > > > > > > > So it is time to refactor the find_vqs. We pass a struc=
+ture
+> > > > > > > > > > cfg to find_vqs(), that will be passed to vring by tran=
+sport.
+> > > > > > > > > >
+> > > > > > > > > > Because the vp_modern_create_avq() use the "const char =
+*names[]",
+> > > > > > > > > > and the virtio_uml.c changes the name in the subsequent=
+ commit, so
+> > > > > > > > > > change the "names" inside the virtio_vq_config from "co=
+nst char *const
+> > > > > > > > > > *names" to "const char **names".
+> > > > > > > > > >
+> > > > > > > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > > > > > > > Acked-by: Johannes Berg <johannes@sipsolutions.net>
+> > > > > > > > > > Reviewed-by: Ilpo J=3DE4rvinen <ilpo.jarvinen@linux.int=
+el.com>
+> > > > > > > > >
+> > > > > > > > > The name seems broken here.
+> > > > > > > >
+> > > > > > > > Email APP bug.
+> > > > > > > >
+> > > > > > > > I will fix.
+> > > > > > > >
+> > > > > > > >
+> > > > > > > > >
+> > > > > > > > > [...]
+> > > > > > > > >
+> > > > > > > > > >
+> > > > > > > > > >  typedef void vq_callback_t(struct virtqueue *);
+> > > > > > > > > >
+> > > > > > > > > > +/**
+> > > > > > > > > > + * struct virtio_vq_config - configure for find_vqs()
+> > > > > > > > > > + * @cfg_idx: Used by virtio core. The drivers should s=
+et this to 0.
+> > > > > > > > > > + *     During the initialization of each vq(vring setu=
+p), we need to know which
+> > > > > > > > > > + *     item in the array should be used at that time. =
+But since the item in
+> > > > > > > > > > + *     names can be null, which causes some item of ar=
+ray to be skipped, we
+> > > > > > > > > > + *     cannot use vq.index as the current id. So add a=
+ cfg_idx to let vring
+> > > > > > > > > > + *     know how to get the current configuration from =
+the array when
+> > > > > > > > > > + *     initializing vq.
+> > > > > > > > >
+> > > > > > > > > So this design is not good. If it is not something that t=
+he driver
+> > > > > > > > > needs to care about, the core needs to hide it from the A=
+PI.
+> > > > > > > >
+> > > > > > > > The driver just ignore it. That will be beneficial to the v=
+irtio core.
+> > > > > > > > Otherwise, we must pass one more parameter everywhere.
+> > > > > > >
+> > > > > > > I don't get here, it's an internal logic and we've already do=
+ne that.
+> > > > > >
+> > > > > >
+> > > > > > ## Then these must add one param "cfg_idx";
+> > > > > >
+> > > > > >  struct virtqueue *vring_create_virtqueue(struct virtio_device =
+*vdev,
+> > > > > >                                          unsigned int index,
+> > > > > >                                          struct vq_transport_co=
+nfig *tp_cfg,
+> > > > > >                                          struct virtio_vq_confi=
+g *cfg,
+> > > > > > -->                                      uint cfg_idx);
+> > > > > >
+> > > > > >  struct virtqueue *vring_new_virtqueue(struct virtio_device *vd=
+ev,
+> > > > > >                                       unsigned int index,
+> > > > > >                                       void *pages,
+> > > > > >                                       struct vq_transport_confi=
+g *tp_cfg,
+> > > > > >                                       struct virtio_vq_config *=
+cfg,
+> > > > > > -->                                      uint cfg_idx);
+> > > > > >
+> > > > > >
+> > > > > > ## The functions inside virtio_ring also need to add a new para=
+m, such as:
+> > > > > >
+> > > > > >  static struct virtqueue *vring_create_virtqueue_split(struct v=
+irtio_device *vdev,
+> > > > > >                                                       unsigned =
+int index,
+> > > > > >                                                       struct vq=
+_transport_config *tp_cfg,
+> > > > > >                                                       struct vi=
+rtio_vq_config,
+> > > > > > -->                                                   uint cfg_=
+idx);
+> > > > > >
+> > > > > >
+> > > > > >
+> > > > >
+> > > > > I guess what I'm missing is when could the index differ from cfg_=
+idx?
+> > > >
+> > > >
+> > > >  @cfg_idx: Used by virtio core. The drivers should set this to 0.
+> > > >      During the initialization of each vq(vring setup), we need to =
+know which
+> > > >      item in the array should be used at that time. But since the i=
+tem in
+> > > >      names can be null, which causes some item of array to be skipp=
+ed, we
+> > > >      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^=
+^^
+> > > >      cannot use vq.index as the current id. So add a cfg_idx to let=
+ vring
+> > > >      know how to get the current configuration from the array when
+> > > >      initializing vq.
+> > > >
+> > > >
+> > > > static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned in=
+t nvqs,
+> > > >
+> > > >       ................
+> > > >
+> > > >       for (i =3D 0; i < nvqs; ++i) {
+> > > >               if (!names[i]) {
+> > > >                       vqs[i] =3D NULL;
+> > > >                       continue;
+> > > >               }
+> > > >
+> > > >               if (!callbacks[i])
+> > > >                       msix_vec =3D VIRTIO_MSI_NO_VECTOR;
+> > > >               else if (vp_dev->per_vq_vectors)
+> > > >                       msix_vec =3D allocated_vectors++;
+> > > >               else
+> > > >                       msix_vec =3D VP_MSIX_VQ_VECTOR;
+> > > >               vqs[i] =3D vp_setup_vq(vdev, queue_idx++, callbacks[i=
+], names[i],
+> > > >                                    ctx ? ctx[i] : false,
+> > > >                                    msix_vec);
+> > > >
+> > > >
+> > > > Thanks.
+> > >
+> > >
+> > > Jason what do you think is the way to resolve this?
+> >
+> > I wonder which driver doesn't use a specific virtqueue in this case.
+>
+>
+> commit 6457f126c888b3481fdae6f702e616cd0c79646e
+> Author: Michael S. Tsirkin <mst@redhat.com>
+> Date:   Wed Sep 5 21:47:45 2012 +0300
+>
+>     virtio: support reserved vqs
+>
+>     virtio network device multiqueue support reserves
+>     vq 3 for future use (useful both for future extensions and to make it
+>     pretty - this way receive vqs have even and transmit - odd numbers).
+>     Make it possible to skip initialization for
+>     specific vq numbers by specifying NULL for name.
+>     Document this usage as well as (existing) NULL callback.
+>
+>     Drivers using this not coded up yet, so I simply tested
+>     with virtio-pci and verified that this patch does
+>     not break existing drivers.
+>
+>     Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>     Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+>
+> This patch introduced this.
+>
+> Could we remove this? Then we can use the vq.index directly. That will
+> be great.
+
+I checked the current kernel.
+Just virtio-ballon uses this feture. But we can fix by one line code.
 
 Thanks.
+
+
+>
+> >
+> > And it looks to me, introducing a per-vq-config struct might be better
+> > then we have
+> >
+> > virtio_vqs_config {
+> >       unsigned int nvqs;
+> >       struct virtio_vq_config *configs;
+> > }
+>
+> YES. I prefer this. But we need to refactor every driver.
+>
+> >
+> > So we don't need the cfg_idx stuff.
+>
+> This still needs cfg_idx.
+>
+> Thanks
+>
+>
+> >
+> > Thanks
+> >
+> > >
+> > > > >
+> > > > > Thanks
+> > > > >
+> > > > > > Thanks.
+> > > > > >
+> > > > > >
+> > > > > >
+> > > > > >
+> > > > > > >
+> > > > > > > Thanks
+> > > > > > >
+> > > > > > > >
+> > > > > > > > Thanks.
+> > > > > > > >
+> > > > > > > > >
+> > > > > > > > > Thanks
+> > > > > > > > >
+> > > > > > > >
+> > > > > > >
+> > > > > >
+> > > > >
+> > >
+> >
+>
