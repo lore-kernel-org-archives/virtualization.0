@@ -1,367 +1,187 @@
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81D0620B00
-	for <virtualization@lists.linux.dev>; Thu, 21 Mar 2024 04:17:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4038E1C05
+	for <virtualization@lists.linux.dev>; Thu, 21 Mar 2024 04:24:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710994679; cv=none; b=nQkR4EjKMSGzp1rGOBfq/DhksOF1aJCZumX+hTkIhRHWBI9e1hmbZL1X/hIhKrS+41LvbH3P64sOzgXe4xVq7TMMWRww/J3+calNgj8Ln9ANWJN3EqnXymropSDe8E0UqExbpWWgTBMvMAluSMZi0ChrblI5K3abBQLre3N+PsQ=
+	t=1710995084; cv=none; b=YBVrG59zP9PFs5whbrtEFAhmHEdCFaQMthf3qEIhvISJ/IjnY6Bzcl7QEI/oK3RTCYOHqVi/ArVxn4j7ng8KwnPd6+Y8IMGlwEBB5WaclJqBtw1wRiRVqWPMNyzRpWlB+DDHTNctvxpR6VWMJqPMYzKVoehXtgp7o5vMS1a02NQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710994679; c=relaxed/simple;
-	bh=Vp71B4GEMTDHiQM7xMQ+BiW79aJuO9Vlm922xRazkJ0=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=NrxQw4xyiM+RdE9upWn4HwXWYRQJBJLV3HwWFgaMkK5R208ahNNar1vjoJr97aK3u4ouA6ArbXHGFiwSalAOWN5pxvSJtIf90B4Ns64Uifw4cgjYGzI1Hw6QAWpOsuaecPiO8C3796/VXNDjMxEchFv1/ioV74U36KQhdPm6/NE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=P+0qaJ3B; arc=none smtp.client-ip=115.124.30.119
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1710995084; c=relaxed/simple;
+	bh=/29hY5IG7EQlFwEonahgndJyCOBX1B61kvxNuHIb3HI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=IznbcW+TEjT6vzzmz27pCArJXBbGnH2AR/Cw9jzq1Gzps+oc8MHVq+n0MtuTnt5Rhp5CyX8C1cX+MDhU2N9seyOZpJMOpXb8XOC5rEIHN1zIxwBp4Ryy6kYLgtm1jL8nNVj0vDjslAXEtm6C5YT3yCG61/ZYEvFtVwisy3YZypo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IWTHvIbI; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="P+0qaJ3B"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1710994674; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=req0CIF/JHvwS9l1KiNeKKb/Omqe6sSvgFAD4vx65+k=;
-	b=P+0qaJ3BjF4GqbGSzKBT7M+WSqtlLQsWv2CV/8vxAkQQT+Ozae3bilesLPt3p8Okm7WRLl3RlUl/8ilULZIYiQYL2HhUcnwThC72GlIROCLlVbJZwDQ9i6FrRR66PsK0sYZpQMmXbv/XGSR2LK8Jqq88aImuZ0Ea7F6Fapjlu6M=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=24;SR=0;TI=SMTPD_---0W2zLFlC_1710994361;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W2zLFlC_1710994361)
-          by smtp.aliyun-inc.com;
-          Thu, 21 Mar 2024 12:12:42 +0800
-Message-ID: <1710994269.7745419-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost v3 1/4] virtio: find_vqs: pass struct instead of multi parameters
-Date: Thu, 21 Mar 2024 12:11:09 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux.dev,
- Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- Hans de Goede <hdegoede@redhat.com>,
- =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- Vadim Pasternak <vadimp@nvidia.com>,
- Bjorn Andersson <andersson@kernel.org>,
- Mathieu Poirier <mathieu.poirier@linaro.org>,
- Cornelia Huck <cohuck@redhat.com>,
- Halil Pasic <pasic@linux.ibm.com>,
- Eric Farman <farman@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- linux-um@lists.infradead.org,
- platform-driver-x86@vger.kernel.org,
- linux-remoteproc@vger.kernel.org,
- linux-s390@vger.kernel.org,
- kvm@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>
-References: <20240312021013.88656-1-xuanzhuo@linux.alibaba.com>
- <20240312021013.88656-2-xuanzhuo@linux.alibaba.com>
- <CACGkMEvVgfgAxLoKeFTgy-1GR0W07ciPYFuqs6PiWtKCnXuWTw@mail.gmail.com>
- <1710395908.7915084-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEsT2JqJ1r_kStUzW0+-f+qT0C05n2A+Yrjpc-mHMZD_mQ@mail.gmail.com>
- <1710487245.6843069-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEspzDTZP1yxkBz17MgU9meyfCUBDxG8mjm=acXHNxAxhg@mail.gmail.com>
- <1710741592.205804-1-xuanzhuo@linux.alibaba.com>
- <20240319025726-mutt-send-email-mst@kernel.org>
- <CACGkMEsO6e2=v36F=ezhHCEaXqG0+AhkCM2ZgmKAtyWncnif5Q@mail.gmail.com>
- <1710927569.5383172-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEuEqiLLGj-HY=gx4R1EVh_d=eYrmi=cuLzb1SiqiEHb-A@mail.gmail.com>
-In-Reply-To: <CACGkMEuEqiLLGj-HY=gx4R1EVh_d=eYrmi=cuLzb1SiqiEHb-A@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IWTHvIbI"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1710995082;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Yke4G17h9FSuhFMTF4qSsCfwNBeje3/pPUgFxfL3or0=;
+	b=IWTHvIbIr9znNJ5KzyI+Th+MUf2Ks53Pe/Kp0jsfXw04C0MuChosm4VlcQVj6kkEDa6I/O
+	zqp1GPUFmRflpsWQPXFi8zYnGvR1FTuE9J0j1EiwhsFO3ZjWsarNBnb4snn45KmNz+aBjF
+	vt92Zl7CvJI4fyzxfI/yVS9zvenmQDM=
+Received: from mail-pl1-f197.google.com (mail-pl1-f197.google.com
+ [209.85.214.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-65-URZtyEKtOfWf-L5CWxiFNA-1; Thu, 21 Mar 2024 00:24:40 -0400
+X-MC-Unique: URZtyEKtOfWf-L5CWxiFNA-1
+Received: by mail-pl1-f197.google.com with SMTP id d9443c01a7336-1e021b84d95so4437935ad.3
+        for <virtualization@lists.linux.dev>; Wed, 20 Mar 2024 21:24:40 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1710995079; x=1711599879;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Yke4G17h9FSuhFMTF4qSsCfwNBeje3/pPUgFxfL3or0=;
+        b=IKKHCK/wnazyRkQKS/T3cFzCNtl11+jHkfZnYf6K6a4DJPjBbc3xAMYVvvk77gwzzM
+         +WnPssKHyjpal9/may6qmSXwAbq6/4P8c21GIi6rCw2QUD7Q1mdUxtJLZqYLWjjx3b6p
+         1Fhx3zNdxSIBue1Vfriaa8gmwSWbfoqzXqmK04PicVKKYeZmlnyWdyxKVoJ19+eBS7if
+         w8XpEDw8uJ8nODOmSTp/FbmExzLa2w0TtpoYnU15yXvm1Yi+uwZB3YtY7ykvUQpBklPT
+         dqCrQoo/LrLciQCSojRWZl+RciGmTM8jukDA+E4nr3ysfLW4moexHXPS7zlu9L3sKw9b
+         wDcQ==
+X-Gm-Message-State: AOJu0Yx8NjwKGH3oC9qvSQf6aMt518L4MGIEd3B/cBtlvivxeKbOBmbu
+	rsfLWkrtPH/K5x4O1EamjQZ2nNxg0OJlcUzv4yExmjRYU09LWDnVKVMlmoRf7HQQoY5qf9vyH6+
+	ORqXFkwAJ0bpxJ7ha+vMAwBNw7NQxAZ879dkDVFO8rutWNpYIzWwJw7gBHHxWbUxF79sIAZlZJt
+	VaRAEGTmqITu1Kx0wTL1nFq2t1OhlnXnJDwtftgGe0tlXYsskAIHWa
+X-Received: by 2002:a17:903:228b:b0:1e0:c9a:38db with SMTP id b11-20020a170903228b00b001e00c9a38dbmr16394253plh.35.1710995079719;
+        Wed, 20 Mar 2024 21:24:39 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IG9umUJycB954NDEFfLYyn6CE/x8Hhuo1+FkGJozNPzMawLep2HRwqaK3CrS0gDfcw8GiyrCxwOL4xtK1zoUh8=
+X-Received: by 2002:a05:6a20:8f29:b0:1a3:5462:f891 with SMTP id
+ b41-20020a056a208f2900b001a35462f891mr13999008pzk.14.1710994685995; Wed, 20
+ Mar 2024 21:18:05 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+References: <20240320102025.11327-1-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20240320102025.11327-1-xuanzhuo@linux.alibaba.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 21 Mar 2024 12:17:54 +0800
+Message-ID: <CACGkMEs-x-W2DHh8U=+0ORnq7=kjw9SJNNtDFfGNjC2KqqPZeA@mail.gmail.com>
+Subject: Re: [PATCH vhost] virtio_net: update the hdr_len calculation for xmit
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Spike Du <spiked@nvidia.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, 21 Mar 2024 12:03:36 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Wed, Mar 20, 2024 at 5:41=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba=
-.com> wrote:
-> >
-> > On Wed, 20 Mar 2024 17:22:50 +0800, Jason Wang <jasowang@redhat.com> wr=
-ote:
-> > > On Tue, Mar 19, 2024 at 2:58=E2=80=AFPM Michael S. Tsirkin <mst@redha=
-t.com> wrote:
-> > > >
-> > > > On Mon, Mar 18, 2024 at 01:59:52PM +0800, Xuan Zhuo wrote:
-> > > > > On Mon, 18 Mar 2024 12:18:23 +0800, Jason Wang <jasowang@redhat.c=
+On Wed, Mar 20, 2024 at 6:20=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
 om> wrote:
-> > > > > > On Fri, Mar 15, 2024 at 3:26=E2=80=AFPM Xuan Zhuo <xuanzhuo@lin=
-ux.alibaba.com> wrote:
-> > > > > > >
-> > > > > > > On Fri, 15 Mar 2024 11:51:48 +0800, Jason Wang <jasowang@redh=
-at.com> wrote:
-> > > > > > > > On Thu, Mar 14, 2024 at 2:00=E2=80=AFPM Xuan Zhuo <xuanzhuo=
-@linux.alibaba.com> wrote:
-> > > > > > > > >
-> > > > > > > > > On Thu, 14 Mar 2024 11:12:24 +0800, Jason Wang <jasowang@=
-redhat.com> wrote:
-> > > > > > > > > > On Tue, Mar 12, 2024 at 10:10=E2=80=AFAM Xuan Zhuo <xua=
-nzhuo@linux.alibaba.com> wrote:
-> > > > > > > > > > >
-> > > > > > > > > > > Now, we pass multi parameters to find_vqs. These para=
-meters
-> > > > > > > > > > > may work for transport or work for vring.
-> > > > > > > > > > >
-> > > > > > > > > > > And find_vqs has multi implements in many places:
-> > > > > > > > > > >
-> > > > > > > > > > >  arch/um/drivers/virtio_uml.c
-> > > > > > > > > > >  drivers/platform/mellanox/mlxbf-tmfifo.c
-> > > > > > > > > > >  drivers/remoteproc/remoteproc_virtio.c
-> > > > > > > > > > >  drivers/s390/virtio/virtio_ccw.c
-> > > > > > > > > > >  drivers/virtio/virtio_mmio.c
-> > > > > > > > > > >  drivers/virtio/virtio_pci_legacy.c
-> > > > > > > > > > >  drivers/virtio/virtio_pci_modern.c
-> > > > > > > > > > >  drivers/virtio/virtio_vdpa.c
-> > > > > > > > > > >
-> > > > > > > > > > > Every time, we try to add a new parameter, that is di=
-fficult.
-> > > > > > > > > > > We must change every find_vqs implement.
-> > > > > > > > > > >
-> > > > > > > > > > > One the other side, if we want to pass a parameter to=
- vring,
-> > > > > > > > > > > we must change the call path from transport to vring.
-> > > > > > > > > > > Too many functions need to be changed.
-> > > > > > > > > > >
-> > > > > > > > > > > So it is time to refactor the find_vqs. We pass a str=
-ucture
-> > > > > > > > > > > cfg to find_vqs(), that will be passed to vring by tr=
-ansport.
-> > > > > > > > > > >
-> > > > > > > > > > > Because the vp_modern_create_avq() use the "const cha=
-r *names[]",
-> > > > > > > > > > > and the virtio_uml.c changes the name in the subseque=
-nt commit, so
-> > > > > > > > > > > change the "names" inside the virtio_vq_config from "=
-const char *const
-> > > > > > > > > > > *names" to "const char **names".
-> > > > > > > > > > >
-> > > > > > > > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > > > > > > > > Acked-by: Johannes Berg <johannes@sipsolutions.net>
-> > > > > > > > > > > Reviewed-by: Ilpo J=3DE4rvinen <ilpo.jarvinen@linux.i=
-ntel.com>
-> > > > > > > > > >
-> > > > > > > > > > The name seems broken here.
-> > > > > > > > >
-> > > > > > > > > Email APP bug.
-> > > > > > > > >
-> > > > > > > > > I will fix.
-> > > > > > > > >
-> > > > > > > > >
-> > > > > > > > > >
-> > > > > > > > > > [...]
-> > > > > > > > > >
-> > > > > > > > > > >
-> > > > > > > > > > >  typedef void vq_callback_t(struct virtqueue *);
-> > > > > > > > > > >
-> > > > > > > > > > > +/**
-> > > > > > > > > > > + * struct virtio_vq_config - configure for find_vqs()
-> > > > > > > > > > > + * @cfg_idx: Used by virtio core. The drivers should=
- set this to 0.
-> > > > > > > > > > > + *     During the initialization of each vq(vring se=
-tup), we need to know which
-> > > > > > > > > > > + *     item in the array should be used at that time=
-. But since the item in
-> > > > > > > > > > > + *     names can be null, which causes some item of =
-array to be skipped, we
-> > > > > > > > > > > + *     cannot use vq.index as the current id. So add=
- a cfg_idx to let vring
-> > > > > > > > > > > + *     know how to get the current configuration fro=
-m the array when
-> > > > > > > > > > > + *     initializing vq.
-> > > > > > > > > >
-> > > > > > > > > > So this design is not good. If it is not something that=
- the driver
-> > > > > > > > > > needs to care about, the core needs to hide it from the=
- API.
-> > > > > > > > >
-> > > > > > > > > The driver just ignore it. That will be beneficial to the=
- virtio core.
-> > > > > > > > > Otherwise, we must pass one more parameter everywhere.
-> > > > > > > >
-> > > > > > > > I don't get here, it's an internal logic and we've already =
-done that.
-> > > > > > >
-> > > > > > >
-> > > > > > > ## Then these must add one param "cfg_idx";
-> > > > > > >
-> > > > > > >  struct virtqueue *vring_create_virtqueue(struct virtio_devic=
-e *vdev,
-> > > > > > >                                          unsigned int index,
-> > > > > > >                                          struct vq_transport_=
-config *tp_cfg,
-> > > > > > >                                          struct virtio_vq_con=
-fig *cfg,
-> > > > > > > -->                                      uint cfg_idx);
-> > > > > > >
-> > > > > > >  struct virtqueue *vring_new_virtqueue(struct virtio_device *=
-vdev,
-> > > > > > >                                       unsigned int index,
-> > > > > > >                                       void *pages,
-> > > > > > >                                       struct vq_transport_con=
-fig *tp_cfg,
-> > > > > > >                                       struct virtio_vq_config=
- *cfg,
-> > > > > > > -->                                      uint cfg_idx);
-> > > > > > >
-> > > > > > >
-> > > > > > > ## The functions inside virtio_ring also need to add a new pa=
-ram, such as:
-> > > > > > >
-> > > > > > >  static struct virtqueue *vring_create_virtqueue_split(struct=
- virtio_device *vdev,
-> > > > > > >                                                       unsigne=
-d int index,
-> > > > > > >                                                       struct =
-vq_transport_config *tp_cfg,
-> > > > > > >                                                       struct =
-virtio_vq_config,
-> > > > > > > -->                                                   uint cf=
-g_idx);
-> > > > > > >
-> > > > > > >
-> > > > > > >
-> > > > > >
-> > > > > > I guess what I'm missing is when could the index differ from cf=
-g_idx?
-> > > > >
-> > > > >
-> > > > >  @cfg_idx: Used by virtio core. The drivers should set this to 0.
-> > > > >      During the initialization of each vq(vring setup), we need t=
-o know which
-> > > > >      item in the array should be used at that time. But since the=
- item in
-> > > > >      names can be null, which causes some item of array to be ski=
-pped, we
-> > > > >      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^=
-^^^^
-> > > > >      cannot use vq.index as the current id. So add a cfg_idx to l=
-et vring
-> > > > >      know how to get the current configuration from the array when
-> > > > >      initializing vq.
-> > > > >
-> > > > >
-> > > > > static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned =
-int nvqs,
-> > > > >
-> > > > >       ................
-> > > > >
-> > > > >       for (i =3D 0; i < nvqs; ++i) {
-> > > > >               if (!names[i]) {
-> > > > >                       vqs[i] =3D NULL;
-> > > > >                       continue;
-> > > > >               }
-> > > > >
-> > > > >               if (!callbacks[i])
-> > > > >                       msix_vec =3D VIRTIO_MSI_NO_VECTOR;
-> > > > >               else if (vp_dev->per_vq_vectors)
-> > > > >                       msix_vec =3D allocated_vectors++;
-> > > > >               else
-> > > > >                       msix_vec =3D VP_MSIX_VQ_VECTOR;
-> > > > >               vqs[i] =3D vp_setup_vq(vdev, queue_idx++, callbacks=
-[i], names[i],
-> > > > >                                    ctx ? ctx[i] : false,
-> > > > >                                    msix_vec);
-> > > > >
-> > > > >
-> > > > > Thanks.
-> > > >
-> > > >
-> > > > Jason what do you think is the way to resolve this?
-> > >
-> > > I wonder which driver doesn't use a specific virtqueue in this case.
-> >
-> >
-> > commit 6457f126c888b3481fdae6f702e616cd0c79646e
-> > Author: Michael S. Tsirkin <mst@redhat.com>
-> > Date:   Wed Sep 5 21:47:45 2012 +0300
-> >
-> >     virtio: support reserved vqs
-> >
-> >     virtio network device multiqueue support reserves
-> >     vq 3 for future use (useful both for future extensions and to make =
-it
-> >     pretty - this way receive vqs have even and transmit - odd numbers).
-> >     Make it possible to skip initialization for
-> >     specific vq numbers by specifying NULL for name.
-> >     Document this usage as well as (existing) NULL callback.
-> >
-> >     Drivers using this not coded up yet, so I simply tested
-> >     with virtio-pci and verified that this patch does
-> >     not break existing drivers.
-> >
-> >     Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> >     Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> >
-> > This patch introduced this.
-> >
-> > Could we remove this? Then we can use the vq.index directly. That will
-> > be great.
-> >
-> > >
-> > > And it looks to me, introducing a per-vq-config struct might be better
-> > > then we have
-> > >
-> > > virtio_vqs_config {
-> > >       unsigned int nvqs;
-> > >       struct virtio_vq_config *configs;
-> > > }
-> >
-> > YES. I prefer this. But we need to refactor every driver.
 >
-> Yes.
+> The virtio spec says:
+>     If one of the VIRTIO_NET_F_HOST_TSO4, TSO6, USO or UFO options have
+>     been negotiated:
+>         If the VIRTIO_NET_F_GUEST_HDRLEN feature has been negotiated,
+>         and gso_type differs from VIRTIO_NET_HDR_GSO_NONE, the driver
+>         MUST set hdr_len to a value equal to the length of the headers,
+>         including the transport header.
 >
-> >
-> > >
-> > > So we don't need the cfg_idx stuff.
-> >
-> > This still needs cfg_idx.
+>         If the VIRTIO_NET_F_GUEST_HDRLEN feature has not been negotiated,
+>         or gso_type is VIRTIO_NET_HDR_GSO_NONE, the driver SHOULD set
+>         hdr_len to a value not less than the length of the headers,
+>         including the transport header.
 >
-> Drive needs to pass config for each virtqueue. We can still check
-> config->name so the virtqueue index could be used.
+> So if the VIRTIO_NET_F_GUEST_HDRLEN feature has been negotiated, the
+> hdr->hdr_len should be eth header + ip header + tcp/udp header.
+>
+> But now:
+>     hdr->hdr_len =3D __cpu_to_virtio15(little_endian, skb_headlen(skb));
+>
+> The skb_headlen() returns the linear space of the skb, not the header
+> size that only match the case the VIRTIO_NET_F_GUEST_HDRLEN feature has
+> not been negotiated, or gso_type is VIRTIO_NET_HDR_GSO_NONE.
+>
+> We do not check the feature of the device. This function is a common
+> function used by many places. So we do more stricter work whatever
+> the features is negotiated.
+>
+> For the case skb_is_gso(skb) is false, if none of the
+> VIRTIO_NET_F_HOST_TSO4, TSO6, USO or UFO options have been negotiated,
+> the spec not define the action of setting hdr_len. Here I set it to
+> skb_headlen(). If one of the above features have been negotiated, we
+> should set a value not less than the length of "eth header + ip header +
+> tcp/udp header". So the skb_headlen() also is a valid value.
+>
+> For the case skb_is_gso(skb) is true, it implies that one of
+> VIRTIO_NET_F_HOST_TSO4, TSO6, USO or UFO options MUST have been
+> negotiated. If the VIRTIO_NET_F_GUEST_HDRLEN is negotiated, we MUST set
+> it to the length of "eth header + ip header + tcp/udp header".
+> If the VIRTIO_NET_F_GUEST_HDRLEN is not negotiated, that still be a
+> valid value.
+>
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> Reported-by: Spike Du <spiked@nvidia.com>
+> ---
+>  include/linux/virtio_net.h | 41 ++++++++++++++++++++++++++++----------
+>  1 file changed, 31 insertions(+), 10 deletions(-)
+>
+> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> index 4dfa9b69ca8d..51d93f9762d7 100644
+> --- a/include/linux/virtio_net.h
+> +++ b/include/linux/virtio_net.h
+> @@ -201,24 +201,45 @@ static inline int virtio_net_hdr_from_skb(const str=
+uct sk_buff *skb,
+>
+>         if (skb_is_gso(skb)) {
+>                 struct skb_shared_info *sinfo =3D skb_shinfo(skb);
+> +               u32 hdrlen;
+>
+> -               /* This is a hint as to how much should be linear. */
+> -               hdr->hdr_len =3D __cpu_to_virtio16(little_endian,
+> -                                                skb_headlen(skb));
+> -               hdr->gso_size =3D __cpu_to_virtio16(little_endian,
+> -                                                 sinfo->gso_size);
+> -               if (sinfo->gso_type & SKB_GSO_TCPV4)
+> +               if (sinfo->gso_type & SKB_GSO_TCPV4) {
+>                         hdr->gso_type =3D VIRTIO_NET_HDR_GSO_TCPV4;
+> -               else if (sinfo->gso_type & SKB_GSO_TCPV6)
+> +                       hdrlen =3D tcp_hdrlen(skb) + skb_transport_offset=
+(skb);
 
-I see. If we pass the config for one queue to virtio ring,
-then we do not to pass the idx.
+So could evil guests give us a 0 hdrlen through this. If yes, it seems
+much more dangerous than headlen or we need harden the value as
+9181d6f8a2bb32d158de66a84164fac05e3ddd18 did.
 
-But for now, I will remove the logic of checking name,
-then we can use vq->index inside virtio ring.
+> +
+> +               } else if (sinfo->gso_type & SKB_GSO_TCPV6) {
+>                         hdr->gso_type =3D VIRTIO_NET_HDR_GSO_TCPV6;
+> -               else if (sinfo->gso_type & SKB_GSO_UDP_L4)
+> +                       hdrlen =3D tcp_hdrlen(skb) + skb_transport_offset=
+(skb);
+> +
+> +               } else if (sinfo->gso_type & SKB_GSO_UDP_L4) {
+>                         hdr->gso_type =3D VIRTIO_NET_HDR_GSO_UDP_L4;
+> -               else
+> +                       hdrlen =3D sizeof(struct udphdr) + skb_transport_=
+offset(skb);
+> +
+> +               } else {
+>                         return -EINVAL;
+> +               }
+> +
+> +               /* One of VIRTIO_NET_F_HOST_TSO4, TSO6, USO or UFO option=
+s MUST
+> +                * have been negotiated. If the VIRTIO_NET_F_GUEST_HDRLEN=
+ is
+> +                * negotiated, we MUST set it to the length of "eth heade=
+r + ip
+> +                * header + tcp/udp header".  If the VIRTIO_NET_F_GUEST_H=
+DRLEN
+> +                * is not negotiated, that still be a valid value.
+> +                */
 
-Thanks.
+I'd stick the headlen for deivce without GUEST_HDRLEN. It seems much
+more safe as we don't want to break legacy devices.
 
+Thanks
 
->
-> Thanks
->
-> >
-> > Thanks
-> >
-> >
-> > >
-> > > Thanks
-> > >
-> > > >
-> > > > > >
-> > > > > > Thanks
-> > > > > >
-> > > > > > > Thanks.
-> > > > > > >
-> > > > > > >
-> > > > > > >
-> > > > > > >
-> > > > > > > >
-> > > > > > > > Thanks
-> > > > > > > >
-> > > > > > > > >
-> > > > > > > > > Thanks.
-> > > > > > > > >
-> > > > > > > > > >
-> > > > > > > > > > Thanks
-> > > > > > > > > >
-> > > > > > > > >
-> > > > > > > >
-> > > > > > >
-> > > > > >
-> > > >
-> > >
-> >
->
