@@ -1,73 +1,73 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 182E53A1DE
-	for <virtualization@lists.linux.dev>; Thu, 21 Mar 2024 04:45:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EDB9DBA28
+	for <virtualization@lists.linux.dev>; Thu, 21 Mar 2024 04:47:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710996325; cv=none; b=VW/GEqPWlk2jOndF0r16BTRSBV1xqO3qxzV8beIJxlyNYD2TilwIkuvZSIS7z6zu+4T+XV8YjJjt6IPr9/esAQkDTauS2vlFsxTx3uHucml6FpSPaNsi0R9RzQkdJXr6JegqEY9YTO6+Mt1MdiFIv0aVh4D5jXffbwVsR+FJNiI=
+	t=1710996456; cv=none; b=CnkEnoE5iOdEWWzBBKtiTdwbO/+KtLyttkSIIQQYRUDULZJVasNUQM4NWDrrQe20fnA1UL0JE90cYhLBmGBTzvRJd+60CLQHghcGzn4b4TCVWgqa8DmFxy1kaNHd9S6aHiAyvMcb8+dewO2oQbzZKdKWyIkMlUzz/U3/V/iad2E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710996325; c=relaxed/simple;
-	bh=SxCsvT/GRyu/rn5q7M36vN+zwqDkQMsgVTcUheY6AxE=;
+	s=arc-20240116; t=1710996456; c=relaxed/simple;
+	bh=FzlUkh/H3PbaE/6rvjuQ59WfzY/3yeTercRcek9n7MY=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=i4VUd06+pa3q2IJt2XMM8lC5xlvHTKs08NVryireH5tpn+WEC1RJEyyECpFnxob8GgI27/tWRxqogb91unulyUf0gnqN9iBrVhQaIK1nTaEAXNQEL+tE9oiDAwecCtjnPGO6nbDvatXUDuN+uBr5F+eP0QEUTW/yVJv2WmRkH6s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Kbp9n2Ha; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=eXys0JBcfdeckqs8Eet3avi0uhcvSZice7WYVIfN5bQ0ZOfzHt6CrzLjqNCKZuqnXbpJh6R0QdbKBqBnVPxoGvJ+191bKODiQe2dV1+vcwNbKz9Nl3DSe5xigQsiMc4/ACg/wWVG+R9pwfze0bXZF7MkVOJcA7aj4DXBo4eU4X4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=H9BjiUyF; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Kbp9n2Ha"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="H9BjiUyF"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1710996321;
+	s=mimecast20190719; t=1710996454;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=wH8/VeorvE4c7PulO3VQxftUYl5zGgQdm4ZFfmXkP9U=;
-	b=Kbp9n2HaDTh04HpN/NEg4jEFZVgOfl2ACvRQL5TiQF1FWJz5pQDYzTZ6Fgj7Ewvr8OCKZH
-	GpDpNz1Gur9ZYk271hysGz+xte5P1e6VhALRjPJKH+FjwEeSWEHiKJbbIYc4Bsy8qfQ3PD
-	qWW6/jD2XDcKGD++ndOAgOE1b/Iqbds=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=R25xG+GYTZrVm6e0l/eGbmaWKputPFk5P5+kIKivy9A=;
+	b=H9BjiUyFOpy9T1Z3koPkUFLg01N/aYQIu/Sb8Exn7HacRlOaaK/CmSMuXfSgM/T9305qFe
+	n6h16QniW3xBfENWRFqDUcr6SAZxjRI5w53P8XPXmWS4wKePvv+OLf3quBB4pDxYYijO79
+	IB03ZuOW3m8OvcSvJfRp8W7tQ+dn1MU=
+Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com
+ [209.85.215.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-646-bRv95r4hMSWOfNncJ240Tg-1; Thu, 21 Mar 2024 00:45:20 -0400
-X-MC-Unique: bRv95r4hMSWOfNncJ240Tg-1
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-29fbe1089b8so430842a91.2
-        for <virtualization@lists.linux.dev>; Wed, 20 Mar 2024 21:45:20 -0700 (PDT)
+ us-mta-588-yL4E_pH5PTu3MeKMJk5cYA-1; Thu, 21 Mar 2024 00:47:30 -0400
+X-MC-Unique: yL4E_pH5PTu3MeKMJk5cYA-1
+Received: by mail-pg1-f198.google.com with SMTP id 41be03b00d2f7-5d8dbe37d56so406084a12.0
+        for <virtualization@lists.linux.dev>; Wed, 20 Mar 2024 21:47:30 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710996319; x=1711601119;
+        d=1e100.net; s=20230601; t=1710996449; x=1711601249;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=wH8/VeorvE4c7PulO3VQxftUYl5zGgQdm4ZFfmXkP9U=;
-        b=Z2UXbwiqPif2Bi4y1YPJZUVy7kwO2OHu2kDOOSFBpz+m3/+dmzzIbFyeq40BpTlA6A
-         MM74xSY5qV/rO4WUTnG6vZTZwLk5k5a30SM6cbf5VXqJyhj4rYH4IP0wAVRBCUcB1QQS
-         oj5Hae+f7yDtWCUm143EnEPowPWIscDoFXGo9bkV2LgbPbue9l6kr7rwjTd+Jl+0a9GS
-         DdmET6jJnrZrgH6B32Aa1KiUw9Op47dwMt2y5lPQFLcIpG71dzgYUEeNWQAC3lnsE8pz
-         ITgmE5hsHFwDxXI/ZeHQwGeRg5MDjcXiWHtiib7f6/sk3yJQlyJfnUCjJA+rwHlXucIY
-         TeZA==
-X-Gm-Message-State: AOJu0YzidGf9EwshZ1PtMtWRYdJ2J+BCZCxMPZ+KRD8AAVAxT4O6QeFM
-	IZLLeJ+mz8nBvj/8LXAP/jLGIlKQop1iwQLe6+TxwIoHotkaJSxyXhAcb4psn76o8HoIeRWQJov
-	Ivt6UYINQsmz3i0z+n8u1BSvdmxkHXHSIPvdnUaCSWbc4q0TxwezaBooKRAJjbrz/lrYMJVB39A
-	/fOpQRvTRhmV5biMrJf40pbiIFmJdmiqGZVectZ8rbCleaWN8w9nl0
-X-Received: by 2002:a17:90a:aa81:b0:29d:f581:3c60 with SMTP id l1-20020a17090aaa8100b0029df5813c60mr1014609pjq.36.1710996319178;
-        Wed, 20 Mar 2024 21:45:19 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFRE9khlq2ZW2iQRjrQwZ1H4ruuk3IJR+sGr7WWqhgjUWdbekOfDA/isAkj6GJmvZWnqEcQolXyMdwaB+6uLjM=
-X-Received: by 2002:a17:90a:aa81:b0:29d:f581:3c60 with SMTP id
- l1-20020a17090aaa8100b0029df5813c60mr1014600pjq.36.1710996318883; Wed, 20 Mar
- 2024 21:45:18 -0700 (PDT)
+        bh=R25xG+GYTZrVm6e0l/eGbmaWKputPFk5P5+kIKivy9A=;
+        b=JEfGoBfWlTcZRoU/68G3MQ9QWdeXCJwO/41rnTyRSj7Gis4g+PT3UpWbhr2MP3a6/A
+         6K46WbUeZ5RYM4+rtugu+GtD+gU4G9UuKz0JoMuK9Yf2NpofKWFNFXeJVqyb7ZtGMZGZ
+         yicHKX2MmiVc7eYiI/yHzshb2qbIDF8Rel/J69xiz9AKBhQvVNI3s4I2EMnHkkEzLdUF
+         1evbMc0FJFIuss0u7PNvxA53LVd/bNpBsxXAfrQMAwwCBCvtNPp+WrRx2UbYLokkHyAP
+         Siv9V70BfAnLYRJRAutssMiYlCvk4vh2AJ4rI7QcMHwxvTTJP0RaFzsmoRp46LwlmaVr
+         jkJQ==
+X-Gm-Message-State: AOJu0Yy0rW1YxMu5GUcpw1BiIBndZoo7uvIgCLZbr5mUaz6w8KpvTJam
+	xvf4brWIEqiTBmOTGq0Glq/R3zi7H1IqlV2GD0HphSydlCbR8DMU6lAL7WlL/9xoMlKIifGporj
+	VmmAEzIHmz6AikiJSpBRd7dnSY6P3arQOkUkeVD93boGtm3UMx0u/9lmnCuagZXNhYlpySkpV17
+	EmBmX3W1sR2qRNaKx1lH/xaZiabaUNYqBOtEQJIyLx/4P/BWfSCg==
+X-Received: by 2002:a17:90b:805:b0:29f:ce37:50d8 with SMTP id bk5-20020a17090b080500b0029fce3750d8mr7560809pjb.17.1710996449284;
+        Wed, 20 Mar 2024 21:47:29 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHyDhQJUmAvKGCX0+SMStEIsEjG/lNtxS4uSp3iypJcJ5+avMQtxZkO4K4D+IcRdQ5QWbJwZqi+MUMIMi3IObg=
+X-Received: by 2002:a17:90b:805:b0:29f:ce37:50d8 with SMTP id
+ bk5-20020a17090b080500b0029fce3750d8mr7560798pjb.17.1710996449003; Wed, 20
+ Mar 2024 21:47:29 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240312033557.6351-1-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <20240312033557.6351-1-xuanzhuo@linux.alibaba.com>
+References: <20240312033557.6351-1-xuanzhuo@linux.alibaba.com> <20240312033557.6351-4-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20240312033557.6351-4-xuanzhuo@linux.alibaba.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 21 Mar 2024 12:45:08 +0800
-Message-ID: <CACGkMEt0O1tjJu_paVWvxUQqnq_wMv+9YmOBzFGuGLy9_0-qVA@mail.gmail.com>
-Subject: Re: [PATCH vhost v4 00/10] virtio: drivers maintain dma info for
- premapped vq
+Date: Thu, 21 Mar 2024 12:47:18 +0800
+Message-ID: <CACGkMEs_DT1309_hj8igcvX7H1sU+-s_OP6Jnp-c=0kmu+ia_g@mail.gmail.com>
+Subject: Re: [PATCH vhost v4 03/10] virtio_ring: packed: structure the
+ indirect desc table
 To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, 
 	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
@@ -80,128 +80,43 @@ Content-Transfer-Encoding: quoted-printable
 On Tue, Mar 12, 2024 at 11:36=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alibaba.=
 com> wrote:
 >
-> As discussed:
+> This commit structure the indirect desc table.
+> Then we can get the desc num directly when doing unmap.
 >
-> http://lore.kernel.org/all/CACGkMEvq0No8QGC46U4mGsMtuD44fD_cfLcPaVmJ3rHYq=
-RZxYg@mail.gmail.com
+> And save the dma info to the struct, then the indirect
+> will not use the dma fields of the desc_extra. The subsequent
+> commits will make the dma fields are optional. But for
+> the indirect case, we must record the dma info.
 >
-> If the virtio is premapped mode, the driver should manage the dma info by=
- self.
-> So the virtio core should not store the dma info. We can release the memo=
-ry used
-> to store the dma info.
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> ---
+>  drivers/virtio/virtio_ring.c | 66 +++++++++++++++++++++---------------
+>  1 file changed, 38 insertions(+), 28 deletions(-)
 >
-> For virtio-net xmit queue, if the virtio-net maintains the dma info,
-> the virtio-net must allocate too much memory(19 * queue_size for per-queu=
-e), so
-> we do not plan to make the virtio-net to maintain the dma info by default=
-. The
-> virtio-net xmit queue only maintain the dma info when premapped mode is e=
-nable
-> (such as AF_XDP is enable).
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index 0dfbd17e5a87..22a588bba166 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -72,9 +72,16 @@ struct vring_desc_state_split {
+>         struct vring_desc *indir_desc;  /* Indirect descriptor, if any. *=
+/
+>  };
 >
-> So this patch set try to do:
->
-> 1. make the virtio core to do not store the dma info
+> +struct vring_packed_desc_indir {
+> +       dma_addr_t addr;                /* Descriptor Array DMA addr. */
+> +       u32 len;                        /* Descriptor Array length. */
+> +       u32 num;
+> +       struct vring_packed_desc desc[];
+> +};
+> +
+>  struct vring_desc_state_packed {
+>         void *data;                     /* Data for callback. */
+> -       struct vring_packed_desc *indir_desc; /* Indirect descriptor, if =
+any. */
+> +       struct vring_packed_desc_indir *indir_desc; /* Indirect descripto=
+r, if any. */
 
-I think you mean "make the virtio core to do not store the dma info
-when driver can do that"
-
->     - But if the desc_extra has not dma info, we face a new question,
->       it is hard to get the dma info of the desc with indirect flag.
-
-I guess you want to avoid allocating desc_extra array, otherwise you
-won't have this issue.
-
-How about keeping that?
-
->       For split mode, that is easy from desc, but for the packed mode,
->       it is hard to get the dma info from the desc. And hardening
->       the dma unmap is safe, we should store the dma info of indirect
->       descs when the virtio core does not store the bufer dma info.
->
->       So I introduce the "structure the indirect desc table" to
->       allocate space to store dma info of the desc table.
->
->         +struct vring_split_desc_indir {
->         +       dma_addr_t addr;                /* Descriptor Array DMA a=
-ddr. */
->         +       u32 len;                        /* Descriptor Array lengt=
-h. */
->         +       u32 num;
-
-We can probably just reuse vring_desc_extra here with a known flag
-(read only for device).
-
->         +       struct vring_desc desc[];
->         +};
->
->       The follow patches to this:
->          * virtio_ring: packed: structure the indirect desc table
->          * virtio_ring: split: structure the indirect desc table
->
->     - On the other side, in the umap handle, we mix the indirect descs wi=
-th
->       other descs. That make things too complex. I found if we we disting=
-uish
->       the descs with VRING_DESC_F_INDIRECT before unmap, thing will be cl=
-earer.
->
->       The follow patches do this.
->          * virtio_ring: packed: remove double check of the unmap ops
->          * virtio_ring: split: structure the indirect desc table
->
-> 2. make the virtio core to enable premapped mode by find_vqs() params
->     - Because the find_vqs() will try to allocate memory for the dma info=
-.
->       If we set the premapped mode after find_vqs() and release the
->       dma info, that is odd.
+Maybe it's better just to have a vring_desc_extra here.
 
 Thanks
-
->
->
-> Please review.
->
-> Thanks
->
-> v4:
->     1. virtio-net xmit queue does not enable premapped mode by default
->
-> v3:
->     1. fix the conflict with the vp_modern_create_avq().
->
-> v2:
->     1. change the dma item of virtio-net, every item have MAX_SKB_FRAGS +=
- 2 addr + len pairs.
->     2. introduce virtnet_sq_free_stats for __free_old_xmit
->
-> v1:
->     1. rename transport_vq_config to vq_transport_config
->     2. virtio-net set dma meta number to (ring-size + 1)(MAX_SKB_FRGAS +2=
-)
->     3. introduce virtqueue_dma_map_sg_attrs
->     4. separate vring_create_virtqueue to an independent commit
->
-> Xuan Zhuo (10):
->   virtio_ring: introduce vring_need_unmap_buffer
->   virtio_ring: packed: remove double check of the unmap ops
->   virtio_ring: packed: structure the indirect desc table
->   virtio_ring: split: remove double check of the unmap ops
->   virtio_ring: split: structure the indirect desc table
->   virtio_ring: no store dma info when unmap is not needed
->   virtio: find_vqs: add new parameter premapped
->   virtio_ring: export premapped to driver by struct virtqueue
->   virtio_net: set premapped mode by find_vqs()
->   virtio_ring: virtqueue_set_dma_premapped support disable
->
->  drivers/net/virtio_net.c      |  57 +++--
->  drivers/virtio/virtio_ring.c  | 436 +++++++++++++++++++++-------------
->  include/linux/virtio.h        |   3 +-
->  include/linux/virtio_config.h |  17 +-
->  4 files changed, 307 insertions(+), 206 deletions(-)
->
-> --
-> 2.32.0.3.g01195cf9f
->
 
