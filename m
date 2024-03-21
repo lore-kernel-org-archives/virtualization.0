@@ -1,69 +1,60 @@
-Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D461757F7
-	for <virtualization@lists.linux.dev>; Thu, 21 Mar 2024 12:25:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B28B83CB1;
+	Thu, 21 Mar 2024 12:42:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711023955; cv=none; b=IMyjyxCLloALnN+lvh4HOVX6aDDgsQvpuR/o/Ug6MCQTT89xtH5uOZLk4vtSWdKofxrwBUkZiaptiAKxjooqwVYzODFdijLVwiWs/2K8jBWveRIBpKgRTbm9KdggM9+121iiqclfe8A8wHcnZcKN0Qu8rT/T7norvo52vqxrJ1Q=
+	t=1711024946; cv=none; b=Ol1LihAwiIiF4cLhiJTWtzk05ePraJ3H2hgsHb+UvZtOM6U1yGkzRsFvdua0VfbSYDVLO0kARfICLA2f+Jl8Et3SBshUkIiQIPcCVU1SKoIlZeOXnpsM1LG077fKmp70mJlwegX1zOGGEEDBlNo4X7CE5l/qseh/nFjpYcrGAOw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711023955; c=relaxed/simple;
-	bh=f0UFDOliM0/oFqbShrqNpo9zCLLTLt/hpgBvhtyDe20=;
+	s=arc-20240116; t=1711024946; c=relaxed/simple;
+	bh=4L1mImHIJn/5ij9Hza2dN0P8w+LD4aIzTC2/Uq/6rl4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LGby/dAjnWZwfnmUN97K/PoMgYxLJWeJbE8mwWvpobzsy1JKwFgWGKn+Wfq51wDsPzMB2ZQ3tZT/qjwf7ghM0T+u32xaoLP1piCilPLT4mizPiOBPpjsnmyGfdCTYExN14oKZh24J5U2LvQfdIcfcFWEcAngsy8sK2hVp8PxBHM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=3RZITb8m; arc=none smtp.client-ip=209.85.128.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+	 Content-Type:Content-Disposition:In-Reply-To; b=FQMypzjnbC077nQ0RZgyp1ScNqQWtpF9tgFWjXgo/TrqbQEAEHFMMLbgluUqHz39PdNhJFx9rvLvVnG1J3l4SyAl6R+Pod+IBvIox8LmY1oj4AaJrW5J+TAiY8N7Q53JN7SJl2XehyiTYCY4wrkgHtsBWMvxmVfQN1C9+kAnRlM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ugl2Z8fv; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="3RZITb8m"
-Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-4146f2b3fafso6482555e9.1
-        for <virtualization@lists.linux.dev>; Thu, 21 Mar 2024 05:25:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1711023952; x=1711628752; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=m56XLFlbHMb5W7WCW5wQ6I/h2Kkdc9w2hy23AT0x+8w=;
-        b=3RZITb8msWri9SY37QPSm2fMgPpbSQZ7cMrmxz72eQjPQGgb9LQD4ikqR2MkbK5LPB
-         VYfTiw5f26arQf3DKpVBuHkZD16bbtDFHKsSVaYMLxyH+58ZJ2TF/d1qXd3yNLXB15y+
-         jsQAZlwH4NC5BidcoH2MGZCX0BdKQQhVdEmbTLVHCfc1rF6WJnevW6PFI/lWgt+e4eH4
-         p6YufkSd7bUzgrmg13rpeH/DVQ2fROp92vIYPjcRsLLw84SEHcrjrfx48PF7plYi34QR
-         41wLF+t72e5K+aee96xvZqb5RN4rDtUw/+11KJXEmHyVYtkTvGs9kQEQdKD3N5a1HGpb
-         lCIQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711023952; x=1711628752;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=m56XLFlbHMb5W7WCW5wQ6I/h2Kkdc9w2hy23AT0x+8w=;
-        b=sQnCxeCZfo8+1+MXLSaNZayb0cmEDJR33qyaxrWkfxxazKhcOQOUwKXQJyUNnQy1ut
-         OVlr5MV3lviLJS7V20SYY8Wk/cQbhwgUqSooZ26W+ALa2+6TZULYTBYzid7s7pQ/YHNQ
-         pcyCmn/h7JhQUf/vH9KFVMUG7/wa5NoqnqOrOa63+ns+O0+QaOehqKCEjt+T4ybg2c/N
-         JuUetoDZPcxc9u6fs0dKp6x8qOr7XhhHVgT0h5T4em3o4+45ngcNvGL74LpeD2bKqwrQ
-         MLMunSUBVpM/A/kl6pXwZR3DVE8gPlk5PCe6SGDLYUuFdai8nWD1SfwwopNA/f9jKNHj
-         iGWg==
-X-Forwarded-Encrypted: i=1; AJvYcCXtYySXSRKHDDAjNMuQ2QRR7Re8ODMXKwTwVDOwMjXbypthaGQtxcGhzwUxXLuoYZXigREILJitHuH9Rx69jXkgo0bCjNEl7emRURrP59I=
-X-Gm-Message-State: AOJu0Yy8l0dYUQf1lUTKAHHidaTh4CKLQGrV8+MNwWI0pIQ7e7rA0tZE
-	k2M3jBOobFIs5OwY7kvBBppAVTvWdCeZvntxmNSuZDfwFxdQLCliIDMl6xm1mrY=
-X-Google-Smtp-Source: AGHT+IGhXuA9mSb9k6iVMD5LLd452Lwv0mOTj1BFgjLiBJYBANZoXhSViPIyKUvXNEgYKATgMq1kHQ==
-X-Received: by 2002:a5d:4483:0:b0:33e:7650:58b4 with SMTP id j3-20020a5d4483000000b0033e765058b4mr1434697wrq.27.1711023951565;
-        Thu, 21 Mar 2024 05:25:51 -0700 (PDT)
-Received: from localhost ([193.47.165.251])
-        by smtp.gmail.com with ESMTPSA id q2-20020a05600000c200b0033dedd63382sm17012019wrx.101.2024.03.21.05.25.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 21 Mar 2024 05:25:50 -0700 (PDT)
-Date: Thu, 21 Mar 2024 13:25:47 +0100
-From: Jiri Pirko <jiri@resnulli.us>
-To: Heng Qi <hengqi@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
-	Jason Wang <jasowang@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ugl2Z8fv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D20DCC433F1;
+	Thu, 21 Mar 2024 12:42:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1711024945;
+	bh=4L1mImHIJn/5ij9Hza2dN0P8w+LD4aIzTC2/Uq/6rl4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=Ugl2Z8fvJFURguYqJPEFzWEPyKrQ4TffJDxZ6C+d0U4czwvuXj0o+dnF82indBDtv
+	 2aCFb9V826WNgqcSuWpf6DaKRahEOSAVlOkjjhueAjbak3IpjnLKgna/S9xWNWYnkC
+	 XwiStrhg4CxWNwbwMMNc10Q2mi6v011fo+13hE+Esn2PW2cINblBLbylM/Jdt9Su2t
+	 Jxp8R2gpI52OXTc6pWekXcCgZTEgk2ildWTmifzJQtLOadsOcEY8G5b1fZZqrVwZAN
+	 G2y8nQ7AwTMUxXGVacIoAQRG8I6fFb7/h9rQMe7lPkX4ub5BSAGgUmBnR4SALzLTwL
+	 gWhPl5MOxb1bg==
+Date: Thu, 21 Mar 2024 12:42:19 +0000
+From: Simon Horman <horms@kernel.org>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	netdev@vger.kernel.org, "David S.  Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@google.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH 0/2] virtio-net: a fix and some updates for virtio dim
-Message-ID: <ZfwnSz5vP4KzXNxa@nanopsycho>
-References: <1711021557-58116-1-git-send-email-hengqi@linux.alibaba.com>
+	"Michael  S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	Stanislav Fomichev <sdf@google.com>,
+	Amritha Nambiar <amritha.nambiar@intel.com>,
+	Larysa Zaremba <larysa.zaremba@intel.com>,
+	Sridhar Samudrala <sridhar.samudrala@intel.com>,
+	Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+	virtualization@lists.linux.dev, bpf@vger.kernel.org,
+	Jiri Pirko <jiri@resnulli.us>
+Subject: Re: [PATCH net-next v5 0/9] virtio-net: support device stats
+Message-ID: <20240321124219.GC356367@kernel.org>
+References: <20240318110602.37166-1-xuanzhuo@linux.alibaba.com>
+ <Zfgq8k2Q-olYWiuw@nanopsycho>
+ <1710762818.1520293-1-xuanzhuo@linux.alibaba.com>
+ <ZfgxSug4sekWGyNd@nanopsycho>
+ <316ea06417279a45d2d54bf4cc4afd2d775b419a.camel@redhat.com>
+ <1710921861.9268863-1-xuanzhuo@linux.alibaba.com>
+ <20240320203801.5950fb1d@kernel.org>
+ <1710993274.7038217-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -72,37 +63,42 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1711021557-58116-1-git-send-email-hengqi@linux.alibaba.com>
+In-Reply-To: <1710993274.7038217-1-xuanzhuo@linux.alibaba.com>
 
-Thu, Mar 21, 2024 at 12:45:55PM CET, hengqi@linux.alibaba.com wrote:
->Patch 1 fixes an existing bug. Belongs to the net branch.
+On Thu, Mar 21, 2024 at 11:54:34AM +0800, Xuan Zhuo wrote:
+> On Wed, 20 Mar 2024 20:38:01 -0700, Jakub Kicinski <kuba@kernel.org> wrote:
+> > On Wed, 20 Mar 2024 16:04:21 +0800 Xuan Zhuo wrote:
+> > > I have a question regarding the workflow for feature discussions. If we
+> > > consistently engage in discussions about a particular feature, this may result
+> > > in the submission of multiple patch sets. In light of this, should we modify the
+> > > usage of "PATCH" or "RFC" in our submissions depending on whether the merge
+> > > window is open or closed? This causes the title of our patch sets to keep
+> > > changing.
+> >
+> > Is switching between RFC and PATCH causing issues?
+> 
+> You know someone may ignore the RFC patches.
+> And for me, that the pathsets for the particular feture have differ
+> prefix "PATCH" or "RFC" is odd.
+> 
+> > Should be a simple modification to the git format-patch argument.
+> 
+> That is ok.
+> 
+> 
+> > But perhaps your workload is different than mine.
+> >
+> > The merge window is only 2 weeks every 10 weeks, it's not changing
+> > often, I don't think.
+> 
+> YES. I'm ok, if that is a rule.
 
-Send separately with "net" indication in the patch brackets:
-https://www.kernel.org/doc/html/next/process/maintainer-netdev.html?highlight=network#tl-dr
+Hi,
 
+Maybe this helps:
 
->Patch 2 attempts to modify the sending of dim cmds to an asynchronous way.
-Not a bugfix, then send separately with "net-next" indication. Net-next
-is currently closed, send it next week.
+It is a long standing rule that for netdev, during the merge window,
+net-next is closed. During this time bugfixes may be posted (for net),
+and RFCs may be posted.
 
-
->
->Heng Qi (2):
->  virtio-net: fix possible dim status unrecoverable
->  virtio-net: reduce the CPU consumption of dim worker
-
-The name of the driver is "virtio_net".
-
-
-
-pw-bot: cr
-
-
->
-> drivers/net/virtio_net.c | 273 ++++++++++++++++++++++++++++++++++++++++++-----
-> 1 file changed, 246 insertions(+), 27 deletions(-)
->
->-- 
->1.8.3.1
->
->
+https://docs.kernel.org/process/maintainer-netdev.html#git-trees-and-patch-flow
