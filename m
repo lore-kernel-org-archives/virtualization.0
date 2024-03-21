@@ -1,192 +1,135 @@
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f177.google.com (mail-lj1-f177.google.com [209.85.208.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3C1EC2E3
-	for <virtualization@lists.linux.dev>; Thu, 21 Mar 2024 08:32:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DB8A4F1E5
+	for <virtualization@lists.linux.dev>; Thu, 21 Mar 2024 09:44:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711009971; cv=none; b=EV+bzOEcgMyWlrwOqoC3c7Liv3piHtFRO9PEPIiqaHT8TSk8jk1TpMVZvcwXVkkLzEDURtzYIuFU5A5nBxv/s/qM+h9D+006ODBj55sB+YPckuo4rnZ5N/zK4MMkn1x9p4EMUbVNhrSqTEejjM5U57x8q6Xd8JHwA3h+bFk/qD0=
+	t=1711014257; cv=none; b=RyhlNKdvyyy/Lz8KrWHH2PrK/YwO7yal1ewxsMX9t4sYHWOokXfzKwBE4czfawko9SyGT8wd5Th1bsg/iT1dodwFOjQHcUtxkrwc6b0zuGBNYHavdK1VZxFF5BMeBkGe4VnygyIWUZ4hdQ14VSdvj6SwxvoyuuF0h2wbEHWonj4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711009971; c=relaxed/simple;
-	bh=jjXZnyIwwnqHtpyXY9kprbHen6nKmOUvgl7EyNGh+2E=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=MxMfr122H+F21Y3aMCkBbviQsKXgGyqRKj0MiCsd5nG36EQaAmvh36h+FezC16SBi3t8msZCV+NulAkahrMVnfvHVW6HGnqckJvxu+p+HrdV8fxz+GW2ubxoHjpT7VcFtX6Qc2thf44imdIvrpaNXSxOPtO69guRpiq01sBgxuI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=CrHW+3pu; arc=none smtp.client-ip=115.124.30.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1711014257; c=relaxed/simple;
+	bh=+BddkWmVb2KxQclyW5gI/MMg+/38KCLwOvq0RB+zoRg=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=CiZSO0wXeU8tdflmGgs4DLv6HWsDWm3GPsSNestD3Ih8QcPFuWe+bse5a0NKHFPiB40RGJeb03lR4Vt15qt/6EXlZQuJfF2IH2LqOMtwW028/HWFwPm4/kRp+sOcGdUXHcyl6YpELStfT9GR9u1aZNlpcS5mtuc/i73GgIciXZE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gooddata.com; spf=pass smtp.mailfrom=gooddata.com; dkim=pass (1024-bit key) header.d=gooddata.com header.i=@gooddata.com header.b=TPkK55+x; arc=none smtp.client-ip=209.85.208.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gooddata.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gooddata.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="CrHW+3pu"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1711009961; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=BLoHe15uKdp14O/oRqVBuqsIWpnD38/Sd4/X0Jt2YMY=;
-	b=CrHW+3puIv3yfWo+Tn/BSP9ilbUaYIR4HnoJHLcN9EvT10UxhmhMbVJFpHxQHWyagwv9q3/NBNpVa8+NDaeOtwjBuw/LiWCzKmCycYlIXsIwF+EavtEI844X4xqQZS579R/1OVgv5th8m99BnuYfxQpi8azZ7w925sDHomYq/14=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R651e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0W3-AsBW_1711009960;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W3-AsBW_1711009960)
-          by smtp.aliyun-inc.com;
-          Thu, 21 Mar 2024 16:32:40 +0800
-Message-ID: <1711009827.9194505-5-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost v4 00/10] virtio: drivers maintain dma info for premapped vq
-Date: Thu, 21 Mar 2024 16:30:27 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux.dev,
- "Michael S. Tsirkin" <mst@redhat.com>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- netdev@vger.kernel.org
-References: <20240312033557.6351-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEt0O1tjJu_paVWvxUQqnq_wMv+9YmOBzFGuGLy9_0-qVA@mail.gmail.com>
-In-Reply-To: <CACGkMEt0O1tjJu_paVWvxUQqnq_wMv+9YmOBzFGuGLy9_0-qVA@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=gooddata.com header.i=@gooddata.com header.b="TPkK55+x"
+Received: by mail-lj1-f177.google.com with SMTP id 38308e7fff4ca-2d41d1bedc9so13698381fa.3
+        for <virtualization@lists.linux.dev>; Thu, 21 Mar 2024 02:44:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gooddata.com; s=google; t=1711014253; x=1711619053; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=7bnysIZLRHuJugMNjksHZ7KgXRP8kfnV+ELbUklK0tQ=;
+        b=TPkK55+x+CyoX62hcEdT63q4B95D/iL7JUtspc+fSBfHCHI+if2dvInzYwtMMIvk9E
+         udpy9Wr/1ZkjHd07pl+yFl2vHTrjd1FH3kCwkZw6F7adV5pLdlNbd6IZnC5k10s/PC1C
+         KIvZck56Ww3NSJtSYMhU5PHYgom8QkHv67ioo=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1711014253; x=1711619053;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=7bnysIZLRHuJugMNjksHZ7KgXRP8kfnV+ELbUklK0tQ=;
+        b=Ds6olaNCVMz78v0+Tvm/mLv9lZ3koPQ9LJNpc7hSuWva/sCTkJXa2lpSOvoUwzshy7
+         d6q2Nj6UCW27I9PHsG7ci2MxpPBsyTS9Fax0LXogSQ/AZJIMuxKsjwp6pYyxDdii3B9B
+         T2sc8QSljKCfI318toL7RL5SOhqlzpyg08yVq58nmOkSs+piDkmY6njhfY+/IE7HA5xN
+         7qbpDdFfRH/yaQsMrEaeV208jUWQvth08vXMxF47b/9WTxjlIDsd3n3GhLwbn0tTi4cC
+         Mrd4MTQY74bPT36zIzvteFLRcTHeo7XEUJJPPYQIw7fl/AxRYEkWmB3Ck5yoVnx3uVRG
+         6tTA==
+X-Forwarded-Encrypted: i=1; AJvYcCVTPK6VSQUmEA8YUUXMzO2K+yJNYTBqkcpT55XM2SJZpZuwDzFQaVXqQhW2RefKYVUDVftcdTcLNDwZIT8JNmE2rNavpb+1Hvbt68pzqVI=
+X-Gm-Message-State: AOJu0YxlPvdlg0qMC5adD08cWBbpAI2eCZ1ATasW5BjEJRfwVI7BIJW2
+	M1aZ6w8wEg9R82Eb1XxIvDtUrjtogPbISkAh6CnOuxedEmwH90C0Cj6IbugOgAstqly+hLI1qfv
+	dM275bfsYyiKVJQRyH33kEvEPhL8u5DzNFnXq
+X-Google-Smtp-Source: AGHT+IEuiJ3gPiBp0utLLCSVFQZk+rtPf3Lsyn4LSIs5SyTRd+I+8Eds85ZIqUIGPgvT//dxXReBQprBN392uYZNzpA=
+X-Received: by 2002:a05:651c:3cf:b0:2d4:132b:9f21 with SMTP id
+ f15-20020a05651c03cf00b002d4132b9f21mr1205215ljp.6.1711014253330; Thu, 21 Mar
+ 2024 02:44:13 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+References: <CA+9S74hbTMxckB=HgRiqL6b8ChZMQfJ6-K9y_GQ0ZDiWkev_vA@mail.gmail.com>
+ <20240319131207.GB1096131@fedora> <CA+9S74jMBbgrxaH2Nit50uDQsHES+e+VHnOXkxnq2TrUFtAQRA@mail.gmail.com>
+ <CACGkMEvX2R+wKcH5V45Yd6CkgGhADVbpvfmWsHducN2zCS=OKw@mail.gmail.com>
+In-Reply-To: <CACGkMEvX2R+wKcH5V45Yd6CkgGhADVbpvfmWsHducN2zCS=OKw@mail.gmail.com>
+From: Igor Raits <igor@gooddata.com>
+Date: Thu, 21 Mar 2024 10:44:01 +0100
+Message-ID: <CA+9S74g5fR=hBxWk1U2TyvW1uPmU3XgJnjw4Owov8LNwLiiOZw@mail.gmail.com>
+Subject: Re: REGRESSION: RIP: 0010:skb_release_data+0xb8/0x1e0 in vhost/tun
+To: Jason Wang <jasowang@redhat.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	Stefano Garzarella <sgarzare@redhat.com>, Jaroslav Pulchart <jaroslav.pulchart@gooddata.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, 21 Mar 2024 12:45:08 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Tue, Mar 12, 2024 at 11:36=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alibab=
-a.com> wrote:
-> >
-> > As discussed:
-> >
-> > http://lore.kernel.org/all/CACGkMEvq0No8QGC46U4mGsMtuD44fD_cfLcPaVmJ3rH=
-YqRZxYg@mail.gmail.com
-> >
-> > If the virtio is premapped mode, the driver should manage the dma info =
-by self.
-> > So the virtio core should not store the dma info. We can release the me=
-mory used
-> > to store the dma info.
-> >
-> > For virtio-net xmit queue, if the virtio-net maintains the dma info,
-> > the virtio-net must allocate too much memory(19 * queue_size for per-qu=
-eue), so
-> > we do not plan to make the virtio-net to maintain the dma info by defau=
-lt. The
-> > virtio-net xmit queue only maintain the dma info when premapped mode is=
- enable
-> > (such as AF_XDP is enable).
-> >
-> > So this patch set try to do:
-> >
-> > 1. make the virtio core to do not store the dma info
+Hello Jason & others,
+
+On Wed, Mar 20, 2024 at 10:33=E2=80=AFAM Jason Wang <jasowang@redhat.com> w=
+rote:
 >
-> I think you mean "make the virtio core to do not store the dma info
-> when driver can do that"
-
-YES.
-
-
->
-> >     - But if the desc_extra has not dma info, we face a new question,
-> >       it is hard to get the dma info of the desc with indirect flag.
->
-> I guess you want to avoid allocating desc_extra array, otherwise you
-> won't have this issue.
->
-> How about keeping that?
-
-This is a way. But when we allocate the indirect desc, we alloc
-more memory to save that, I think that is a good way.
-And in the future, we can handen the unmap for the indirect buffer
-with more memory allocated by once.
-
-Thanks.
-
-
->
-> >       For split mode, that is easy from desc, but for the packed mode,
-> >       it is hard to get the dma info from the desc. And hardening
-> >       the dma unmap is safe, we should store the dma info of indirect
-> >       descs when the virtio core does not store the bufer dma info.
+> On Tue, Mar 19, 2024 at 9:15=E2=80=AFPM Igor Raits <igor@gooddata.com> wr=
+ote:
 > >
-> >       So I introduce the "structure the indirect desc table" to
-> >       allocate space to store dma info of the desc table.
+> > Hello Stefan,
 > >
-> >         +struct vring_split_desc_indir {
-> >         +       dma_addr_t addr;                /* Descriptor Array DMA=
- addr. */
-> >         +       u32 len;                        /* Descriptor Array len=
-gth. */
-> >         +       u32 num;
+> > On Tue, Mar 19, 2024 at 2:12=E2=80=AFPM Stefan Hajnoczi <stefanha@redha=
+t.com> wrote:
+> > >
+> > > On Tue, Mar 19, 2024 at 10:00:08AM +0100, Igor Raits wrote:
+> > > > Hello,
+> > > >
+> > > > We have started to observe kernel crashes on 6.7.y kernels (atm we
+> > > > have hit the issue 5 times on 6.7.5 and 6.7.10). On 6.6.9 where we
+> > > > have nodes of cluster it looks stable. Please see stacktrace below.=
+ If
+> > > > you need more information please let me know.
+> > > >
+> > > > We do not have a consistent reproducer but when we put some bigger
+> > > > network load on a VM, the hypervisor's kernel crashes.
+> > > >
+> > > > Help is much appreciated! We are happy to test any patches.
+> > >
+> > > CCing Michael Tsirkin and Jason Wang for vhost_net.
+> > >
+> > > >
+> > > > [62254.167584] stack segment: 0000 [#1] PREEMPT SMP NOPTI
+> > > > [62254.173450] CPU: 63 PID: 11939 Comm: vhost-11890 Tainted: G
+> > > >    E      6.7.10-1.gdc.el9.x86_64 #1
+> > >
+> > > Are there any patches in this kernel?
+> >
+> > Only one, unrelated to this part. Removal of pr_err("EEVDF scheduling
+> > fail, picking leftmost\n"); line (reported somewhere few months ago
+> > and it was suggested workaround until proper solution comes).
 >
-> We can probably just reuse vring_desc_extra here with a known flag
-> (read only for device).
->
-> >         +       struct vring_desc desc[];
-> >         +};
-> >
-> >       The follow patches to this:
-> >          * virtio_ring: packed: structure the indirect desc table
-> >          * virtio_ring: split: structure the indirect desc table
-> >
-> >     - On the other side, in the umap handle, we mix the indirect descs =
-with
-> >       other descs. That make things too complex. I found if we we disti=
-nguish
-> >       the descs with VRING_DESC_F_INDIRECT before unmap, thing will be =
-clearer.
-> >
-> >       The follow patches do this.
-> >          * virtio_ring: packed: remove double check of the unmap ops
-> >          * virtio_ring: split: structure the indirect desc table
-> >
-> > 2. make the virtio core to enable premapped mode by find_vqs() params
-> >     - Because the find_vqs() will try to allocate memory for the dma in=
-fo.
-> >       If we set the premapped mode after find_vqs() and release the
-> >       dma info, that is odd.
+> Btw, a bisection would help as well.
+
+In the end it seems like we don't really have "stable" setup, so
+bisection looks to be useless but we did find few things meantime:
+
+1. On 6.6.9 it crashes either with unexpected GSO type or usercopy:
+Kernel memory exposure attempt detected from SLUB object
+'skbuff_head_cache'
+2. On 6.7.5, 6.7.10 and 6.8.1 it crashes with RIP:
+0010:skb_release_data+0xb8/0x1e0
+3. It does NOT crash on 6.8.1 when VM does not have multi-queue setup
+
+Looks like the multi-queue setup (we have 2 interfaces =C3=97 3 virtio
+queues for each) is causing problems as if we set only one queue for
+each interface the issue is gone.
+Maybe there is some race condition in __pfx_vhost_task_fn+0x10/0x10 or
+somewhere around? We have noticed that there are 3 of such functions
+in the stacktrace that gave us hints about what we could try=E2=80=A6
+
 >
 > Thanks
 >
-> >
-> >
-> > Please review.
-> >
-> > Thanks
-> >
-> > v4:
-> >     1. virtio-net xmit queue does not enable premapped mode by default
-> >
-> > v3:
-> >     1. fix the conflict with the vp_modern_create_avq().
-> >
-> > v2:
-> >     1. change the dma item of virtio-net, every item have MAX_SKB_FRAGS=
- + 2 addr + len pairs.
-> >     2. introduce virtnet_sq_free_stats for __free_old_xmit
-> >
-> > v1:
-> >     1. rename transport_vq_config to vq_transport_config
-> >     2. virtio-net set dma meta number to (ring-size + 1)(MAX_SKB_FRGAS =
-+2)
-> >     3. introduce virtqueue_dma_map_sg_attrs
-> >     4. separate vring_create_virtqueue to an independent commit
-> >
-> > Xuan Zhuo (10):
-> >   virtio_ring: introduce vring_need_unmap_buffer
-> >   virtio_ring: packed: remove double check of the unmap ops
-> >   virtio_ring: packed: structure the indirect desc table
-> >   virtio_ring: split: remove double check of the unmap ops
-> >   virtio_ring: split: structure the indirect desc table
-> >   virtio_ring: no store dma info when unmap is not needed
-> >   virtio: find_vqs: add new parameter premapped
-> >   virtio_ring: export premapped to driver by struct virtqueue
-> >   virtio_net: set premapped mode by find_vqs()
-> >   virtio_ring: virtqueue_set_dma_premapped support disable
-> >
-> >  drivers/net/virtio_net.c      |  57 +++--
-> >  drivers/virtio/virtio_ring.c  | 436 +++++++++++++++++++++-------------
-> >  include/linux/virtio.h        |   3 +-
-> >  include/linux/virtio_config.h |  17 +-
-> >  4 files changed, 307 insertions(+), 206 deletions(-)
-> >
-> > --
-> > 2.32.0.3.g01195cf9f
-> >
->
+
+Thank you!
