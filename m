@@ -1,72 +1,71 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5754C5CB5
-	for <virtualization@lists.linux-foundation.org>; Thu, 21 Mar 2024 01:25:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86C4617D2
+	for <virtualization@lists.linux-foundation.org>; Thu, 21 Mar 2024 01:30:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710984307; cv=none; b=nhZscE+32S5kqQ3I6lnF7gwgeu1IBaarwawg4LThbhIugaPYs8i+IuxNxHXFtvskgxkKAlsi3wMqbH97P4wBsgy7D+B4kQ2XI9qquAYFZ9ASULCTfppnT+0ZOdAMzuIblQNg0L4/8UVqDAjMelmlaua+MZ9+pp4M8beIQ8tefCE=
+	t=1710984631; cv=none; b=N+OM2FfqYpbVv3rP6Jv0rwTxpqznIokiX8gohJ8Vr5krtAaEJ++MSsP1neCemjdaF1vS2sKgpPv6LlBZ6LySb/1vQLslXuiBupStie0BK0fIfTyJTZog52DFQRyL9kDvXGR/sPIyTSHvpsJj/4YYJAvJsFEeC8nHSYkGVrYJqmk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710984307; c=relaxed/simple;
-	bh=wpS8fm0Fo8ZsmPmoFGOQ3aNztiAVNXAi///YoP3asEk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=aPj4oleGI+xLzDEOEzbuZ+ljAs3S20E/jKjR1Tv3PsX3CIv9lIuIOodvq2IDtjE6/VG9/l5P31uSQxLD3L7fSSFPkKN8JfBx4roUsiCkVO3/Ru6vDOLlu91R+5QNjpZ0MFiw2xu0+IqNcsOHbaQ9jIN6gr4iywMzNxbsmRX50QI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=arFBpH5J; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1710984631; c=relaxed/simple;
+	bh=kl/gBd+Lc3gNj5XO0OTXtqTZ86F3iToD6CkJPAtrC0M=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=T0/PsZ15hieYb4aqN7l0rzZK7O1YRClv6ygvBCdvGYt9EIKj7gIbj7cZ8ExIKdio0xNwiwKTzLyZ7hvleg0wwutKIe3on3xBtz1HRg7rR15cPvVFH5LEkY2GpAeePYzPOsq6fKRb8Ny6ijH7BGiLBcOYXLoWAjal8Dg052mkMUs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=jQI5bApF; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="arFBpH5J"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="jQI5bApF"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 1A1194075C
-	for <virtualization@lists.linux-foundation.org>; Thu, 21 Mar 2024 01:25:06 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 218E281E92
+	for <virtualization@lists.linux-foundation.org>; Thu, 21 Mar 2024 01:30:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.101
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 4MpFLCHUeC2Z
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id b3SBuOuHXmPt
 	for <virtualization@lists.linux-foundation.org>;
-	Thu, 21 Mar 2024 01:25:05 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::62d; helo=mail-pl1-x62d.google.com; envelope-from=stevensd@chromium.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 03D9440743
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 03D9440743
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=arFBpH5J
-Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 03D9440743
-	for <virtualization@lists.linux-foundation.org>; Thu, 21 Mar 2024 01:25:04 +0000 (UTC)
-Received: by mail-pl1-x62d.google.com with SMTP id d9443c01a7336-1deefb08b9eso2807975ad.3
-        for <virtualization@lists.linux-foundation.org>; Wed, 20 Mar 2024 18:25:04 -0700 (PDT)
+	Thu, 21 Mar 2024 01:30:28 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::72e; helo=mail-qk1-x72e.google.com; envelope-from=stevensd@chromium.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 2397D81E50
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2397D81E50
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=jQI5bApF
+Received: from mail-qk1-x72e.google.com (mail-qk1-x72e.google.com [IPv6:2607:f8b0:4864:20::72e])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 2397D81E50
+	for <virtualization@lists.linux-foundation.org>; Thu, 21 Mar 2024 01:30:27 +0000 (UTC)
+Received: by mail-qk1-x72e.google.com with SMTP id af79cd13be357-78a01a3012aso32825385a.2
+        for <virtualization@lists.linux-foundation.org>; Wed, 20 Mar 2024 18:30:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1710984304; x=1711589104; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=8bwghl2kBHBb0RS0OTenXBt5Ga/ttCmAZ1ErfJHsePc=;
-        b=arFBpH5Jb+2TbVy5acbTDcd+9COZyEuMPYDqUxl3jpsCUiLP7pueDLM3aRqcXVL0k3
-         XykMF3WrIXAW+yXpU2V6K3hXpVK1aB+ENszcXzFrFpO7uhRE1+MnGiSj3b6NtCR27+G/
-         zpooI9/+ZFgO3fcXlzJzJ+obCyuDnNRIvVij0=
+        d=chromium.org; s=google; t=1710984627; x=1711589427; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=cRSqzJosPoKI6/qjkm8bzkMOGa+EX2021eXQBZPsvWc=;
+        b=jQI5bApFnZfVLkY2ancXst4a4cKp0X/GY4/y1w9PAlJXddekuNnwx7WCoRD1imQRpQ
+         VGsz7qy1MYza6LNsHYrG3gQarnp12mkIysRzsI+clQ5HQgGaml/KfPTacl9EAZSmWbGm
+         0BvugbnXcylGRl8/lNP6QnRCvWphnW5s8qXt8=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710984304; x=1711589104;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=8bwghl2kBHBb0RS0OTenXBt5Ga/ttCmAZ1ErfJHsePc=;
-        b=ZkmlhNiG2fKXf7s9UWdZL7xFv3B4eOZjKujOKVq65nLeyXsqVD4jpnpqdcpxDGnr/c
-         H66jAyr56/JOAml9qwnjQi4uZNHRzGdz7D96TWtGAR++4wPsFEajB66Bv1hwubt5Zyif
-         xnCJLnEHmUScfalL6q6PyHhdvH4OxYklqiJotjgSUYDEUJ3cOXJUEPoTu0tbEr7UEywf
-         Fkkyxfl0appLRa4YH//8K1B/oREpLNute4znag+xD0UISqpTKS6YtGFRpsXeuDdhcGzg
-         SduLI/yb+nFJ4n6kxKPziQF4lFE98w9iMo26syaWnUx9NfIcqAgpjX1f+FpiYjevVAy2
-         L6rw==
-X-Gm-Message-State: AOJu0YylszxHO4FAwx9UG+7FCGSh2DoR75Lmqr0pND2UHfidQAdVlCFw
-	HK5LUi/zrUo1k1nf54XtuFVVvzx7jbH9YBbmyXRIQKFFc/+xdjCIxkYuQwhL5g==
-X-Google-Smtp-Source: AGHT+IFZHrEsSnSQLHK7vl91mKd0fj+nzVpmHYMY60a4WFFk+eLOrsMqyzek1/2wU1jM5XYbDU4/rg==
-X-Received: by 2002:a17:902:e5c8:b0:1de:f29e:d7b with SMTP id u8-20020a170902e5c800b001def29e0d7bmr8585541plf.64.1710984303775;
-        Wed, 20 Mar 2024 18:25:03 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1710984627; x=1711589427;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=cRSqzJosPoKI6/qjkm8bzkMOGa+EX2021eXQBZPsvWc=;
+        b=VimpOHDD5cv/KKXoX/SYQR5GGX0uxfrWizrzkcI8fGuWwArwH/nIJ/VpILxO1YZVq3
+         46Q7PKTjfEULnYv3jWR0IvotMKH9nmkdlpU/BA6ST8OCgDmvMpWVQEJuf/6Araav6uqH
+         6VjG4lGmZK5CVoCLCNJrmjr7ZROkwXX9SU1TN4tpWOY9XMpPn18lPtHrq9BMOmtlEH2G
+         3v9gFuxcQKIsVw0kYfc5ZU0y+iRbNdfVxglT5xG2d7udLJo2sinDmB8oB5RQehKaoKIj
+         y8bFe69N2pNc1ZQJ+jxqhfdsqr8YgHVdWJtiLsLJptnM1355mUsZOBt89FFO/nCtVdTD
+         bXxA==
+X-Gm-Message-State: AOJu0YykVfEOyc61igF0+UjChqHPP6hOvIAGV0gZ6Tg/gx515n4baTMs
+	FadwXVJggzaHaM0qD0L6AV69214PKT6hQhPU2IS+/aKeojMZhIA6VBLVOxxnjLsKrSBch4FDTVw
+	=
+X-Google-Smtp-Source: AGHT+IELQCIYxX1ks+CpfT7OtuOzAf4Z+DIiVFEwIwS6fFzcle3k2lvos9qVE71qOSIUdmeUd1hghQ==
+X-Received: by 2002:a05:6a20:6a08:b0:1a3:49a7:f56f with SMTP id p8-20020a056a206a0800b001a349a7f56fmr17972155pzk.2.1710984296424;
+        Wed, 20 Mar 2024 18:24:56 -0700 (PDT)
 Received: from localhost ([2401:fa00:8f:203:d837:1d3e:d3cd:7674])
-        by smtp.gmail.com with UTF8SMTPSA id v2-20020a170903238200b001dc3c4e7a12sm14411710plh.14.2024.03.20.18.25.02
+        by smtp.gmail.com with UTF8SMTPSA id k10-20020a170902c40a00b001defa97c6basm11137159plk.235.2024.03.20.18.24.54
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 20 Mar 2024 18:25:03 -0700 (PDT)
+        Wed, 20 Mar 2024 18:24:55 -0700 (PDT)
 From: David Stevens <stevensd@chromium.org>
 X-Google-Original-From: David Stevens <stevensd@google.com>
 To: "Michael S . Tsirkin" <mst@redhat.com>,
@@ -74,12 +73,10 @@ To: "Michael S . Tsirkin" <mst@redhat.com>,
 Cc: virtualization@lists.linux-foundation.org,
 	linux-kernel@vger.kernel.org,
 	David Stevens <stevensd@chromium.org>
-Subject: [PATCH v2 2/2] virtio_balloon: Treat stats requests as wakeup events
-Date: Thu, 21 Mar 2024 10:24:45 +0900
-Message-ID: <20240321012445.1593685-3-stevensd@google.com>
+Subject: [PATCH v2 0/2] Improvements to virtio_balloon pm
+Date: Thu, 21 Mar 2024 10:24:43 +0900
+Message-ID: <20240321012445.1593685-1-stevensd@google.com>
 X-Mailer: git-send-email 2.44.0.291.gc1ea87d7ee-goog
-In-Reply-To: <20240321012445.1593685-1-stevensd@google.com>
-References: <20240321012445.1593685-1-stevensd@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -90,157 +87,29 @@ Content-Transfer-Encoding: 8bit
 
 From: David Stevens <stevensd@chromium.org>
 
-Treat stats requests as wakeup events to ensure that the driver responds
-to device requests in a timely manner.
+The virtio_balloon driver uses wakeup sources to allow the guest to
+enter system power management sleep states (e.g. s2idle) without running
+the risk of becoming unresponsive to cooperative memory management
+requests from the host. This series fixes an issue where wakeup sources
+for inflate/deflate were improperly shared between drivers. It also
+closes a race where stats requests that come in immediately before a
+sleep state transition could fail to be handled in a timely manner.
 
-Signed-off-by: David Stevens <stevensd@chromium.org>
-Acked-by: David Hildenbrand <david@redhat.com>
----
- drivers/virtio/virtio_balloon.c | 75 ++++++++++++++++++++-------------
- 1 file changed, 46 insertions(+), 29 deletions(-)
+v1: https://lore.kernel.org/lkml/20240318091034.535573-1-stevensd@google.com/
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 89bc8da80519..b09e8e3c62e5 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -121,11 +121,14 @@ struct virtio_balloon {
- 	struct page_reporting_dev_info pr_dev_info;
- 
- 	/* State for keeping the wakeup_source active while adjusting the balloon */
--	spinlock_t adjustment_lock;
--	bool adjustment_signal_pending;
--	bool adjustment_in_progress;
-+	spinlock_t wakeup_lock;
-+	bool processing_wakeup_event;
-+	u32 wakeup_signal_mask;
- };
- 
-+#define VIRTIO_BALLOON_WAKEUP_SIGNAL_ADJUST (1 << 0)
-+#define VIRTIO_BALLOON_WAKEUP_SIGNAL_STATS (1 << 1)
-+
- static const struct virtio_device_id id_table[] = {
- 	{ VIRTIO_ID_BALLOON, VIRTIO_DEV_ANY_ID },
- 	{ 0 },
-@@ -140,6 +143,36 @@ static u32 page_to_balloon_pfn(struct page *page)
- 	return pfn * VIRTIO_BALLOON_PAGES_PER_PAGE;
- }
- 
-+static void start_wakeup_event(struct virtio_balloon *vb, u32 mask)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&vb->wakeup_lock, flags);
-+	vb->wakeup_signal_mask |= mask;
-+	if (!vb->processing_wakeup_event) {
-+		vb->processing_wakeup_event = true;
-+		pm_stay_awake(&vb->vdev->dev);
-+	}
-+	spin_unlock_irqrestore(&vb->wakeup_lock, flags);
-+}
-+
-+static void process_wakeup_event(struct virtio_balloon *vb, u32 mask)
-+{
-+	spin_lock_irq(&vb->wakeup_lock);
-+	vb->wakeup_signal_mask &= ~mask;
-+	spin_unlock_irq(&vb->wakeup_lock);
-+}
-+
-+static void finish_wakeup_event(struct virtio_balloon *vb)
-+{
-+	spin_lock_irq(&vb->wakeup_lock);
-+	if (!vb->wakeup_signal_mask && vb->processing_wakeup_event) {
-+		vb->processing_wakeup_event = false;
-+		pm_relax(&vb->vdev->dev);
-+	}
-+	spin_unlock_irq(&vb->wakeup_lock);
-+}
-+
- static void balloon_ack(struct virtqueue *vq)
- {
- 	struct virtio_balloon *vb = vq->vdev->priv;
-@@ -370,8 +403,10 @@ static void stats_request(struct virtqueue *vq)
- 	struct virtio_balloon *vb = vq->vdev->priv;
- 
- 	spin_lock(&vb->stop_update_lock);
--	if (!vb->stop_update)
-+	if (!vb->stop_update) {
-+		start_wakeup_event(vb, VIRTIO_BALLOON_WAKEUP_SIGNAL_STATS);
- 		queue_work(system_freezable_wq, &vb->update_balloon_stats_work);
-+	}
- 	spin_unlock(&vb->stop_update_lock);
- }
- 
-@@ -444,29 +479,10 @@ static void virtio_balloon_queue_free_page_work(struct virtio_balloon *vb)
- 
- static void start_update_balloon_size(struct virtio_balloon *vb)
- {
--	unsigned long flags;
--
--	spin_lock_irqsave(&vb->adjustment_lock, flags);
--	vb->adjustment_signal_pending = true;
--	if (!vb->adjustment_in_progress) {
--		vb->adjustment_in_progress = true;
--		pm_stay_awake(&vb->vdev->dev);
--	}
--	spin_unlock_irqrestore(&vb->adjustment_lock, flags);
--
-+	start_wakeup_event(vb, VIRTIO_BALLOON_WAKEUP_SIGNAL_ADJUST);
- 	queue_work(system_freezable_wq, &vb->update_balloon_size_work);
- }
- 
--static void end_update_balloon_size(struct virtio_balloon *vb)
--{
--	spin_lock_irq(&vb->adjustment_lock);
--	if (!vb->adjustment_signal_pending && vb->adjustment_in_progress) {
--		vb->adjustment_in_progress = false;
--		pm_relax(&vb->vdev->dev);
--	}
--	spin_unlock_irq(&vb->adjustment_lock);
--}
--
- static void virtballoon_changed(struct virtio_device *vdev)
- {
- 	struct virtio_balloon *vb = vdev->priv;
-@@ -495,7 +511,10 @@ static void update_balloon_stats_func(struct work_struct *work)
- 
- 	vb = container_of(work, struct virtio_balloon,
- 			  update_balloon_stats_work);
-+
-+	process_wakeup_event(vb, VIRTIO_BALLOON_WAKEUP_SIGNAL_STATS);
- 	stats_handle_request(vb);
-+	finish_wakeup_event(vb);
- }
- 
- static void update_balloon_size_func(struct work_struct *work)
-@@ -506,9 +525,7 @@ static void update_balloon_size_func(struct work_struct *work)
- 	vb = container_of(work, struct virtio_balloon,
- 			  update_balloon_size_work);
- 
--	spin_lock_irq(&vb->adjustment_lock);
--	vb->adjustment_signal_pending = false;
--	spin_unlock_irq(&vb->adjustment_lock);
-+	process_wakeup_event(vb, VIRTIO_BALLOON_WAKEUP_SIGNAL_ADJUST);
- 
- 	diff = towards_target(vb);
- 
-@@ -523,7 +540,7 @@ static void update_balloon_size_func(struct work_struct *work)
- 	if (diff)
- 		queue_work(system_freezable_wq, work);
- 	else
--		end_update_balloon_size(vb);
-+		finish_wakeup_event(vb);
- }
- 
- static int init_vqs(struct virtio_balloon *vb)
-@@ -1027,7 +1044,7 @@ static int virtballoon_probe(struct virtio_device *vdev)
- 			goto out_unregister_oom;
- 	}
- 
--	spin_lock_init(&vb->adjustment_lock);
-+	spin_lock_init(&vb->wakeup_lock);
- 
- 	/*
- 	 * The virtio balloon itself can't wake up the device, but it is
+v1 -> v2:
+ - Add comment about virtio-balloon's wakeup source
+ - Rename virtio-balloon wakeup event macros
+
+David Stevens (2):
+  virtio_balloon: Give the balloon its own wakeup source
+  virtio_balloon: Treat stats requests as wakeup events
+
+ drivers/virtio/virtio_balloon.c | 84 +++++++++++++++++++++------------
+ 1 file changed, 55 insertions(+), 29 deletions(-)
+
+
+base-commit: e8f897f4afef0031fe618a8e94127a0934896aba
 -- 
 2.44.0.291.gc1ea87d7ee-goog
 
