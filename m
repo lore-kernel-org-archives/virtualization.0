@@ -1,236 +1,119 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28E5375811
-	for <virtualization@lists.linux.dev>; Thu, 21 Mar 2024 12:06:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BC886A00B
+	for <virtualization@lists.linux.dev>; Thu, 21 Mar 2024 12:07:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711022789; cv=none; b=P6as102NjbYnRz8Wf0fn0V3UInw9DBTx1VOgvnISWjP9CjiKqp3tpGLgzNIzLLL6A0UAmyrimf+Jq6CBO+WvRfBhw1hVicjPK+ljnMmkp5FXQ6VHM5PPCH4owVgu/XE0Vo1yIfUknJ6iBB2JU+MI/gWOcLXmLv6fd0D8W/wOpu0=
+	t=1711022866; cv=none; b=ETQov6xmiacbVcIFW+GX9KDLkkG6V6T5NtDC1+N7NbY066b7TFI1zMs+7X3j5PjLPgpRZutQRVPsrJS6oBD6yGJidK12MmDRmcT4VcNjfCp8a9mTMXayzGUsd13qjlGqCdmmcgP5ZN27sA3yba9c6X2l6cbe/Jp8c//wFBdatEI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711022789; c=relaxed/simple;
-	bh=k3CJSaMRAsHvZqgMfwvwOFoj47VDXS22sIOAMkNiMLA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=QAaJ9mn6gIf2zwkHdUeSeA4J4yJV7YQksslF5h4QdpP16NzmjRDzEJw9GV+U2zDoo3Up9K/kmw0bkxpjcjnqFrRRHYgXI7yvx6iL/oiFPBOAeEnlCxK6HIZoL7IqR0hSPs6+LqO1IsLSNPd7P/0izcM7qEXdsfpOWU/L8WoPxGI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bG435YnP; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1711022866; c=relaxed/simple;
+	bh=X0tL/3FFAGPNviRZQumMrIGH7M5K6g7DYUNkbDET8/k=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=YnLdEiNO6xhPqPngYtrMo6XOCXDvxoJd7ZIPlq7lrcSBBTABmSEABAJ2znviHzYI3Ytt0SLTE7PZrY9LLWT5+zp4/laQVWLPkjo5YU4Isv+0LyGUrqZwe9vjsLetoWVcuORUsG3Qq7VqVIug19GTYiXyA6ezOMBL1v8CzvuLJng=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iLne0evL; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bG435YnP"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iLne0evL"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1711022787;
+	s=mimecast20190719; t=1711022864;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=MaftwFTntyTyuVDa9i6qNAWKdEHOXUZrSNQMfaI1f0M=;
-	b=bG435YnPM3hHmlWiRk8D90J6ZXdbkH24hLF7wZ5GQIPR5uyxe+uJ7Nvtyp0L3+MSPFwpW0
-	AyADXGO9TMAn5A+h7JUiWYajSjsHkeDn/eD7WRPQaEfCXgVtvpSDOoXR491IPTY5Aqngfb
-	LoQH9xSfUGoXk5HiT00MYoKa941p4TA=
-Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com
- [209.85.214.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-597-m9Cw4GJqM02PCYSziuLy_Q-1; Thu, 21 Mar 2024 08:06:23 -0400
-X-MC-Unique: m9Cw4GJqM02PCYSziuLy_Q-1
-Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-1e0115ce0c4so9355425ad.0
-        for <virtualization@lists.linux.dev>; Thu, 21 Mar 2024 05:06:23 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711022782; x=1711627582;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=MaftwFTntyTyuVDa9i6qNAWKdEHOXUZrSNQMfaI1f0M=;
-        b=T+uszq/g0UTtlMHN+jNrTJniZUsFhoZqwWgO/DmEQEVIIxeMxrPvm1tvaTWryCU3km
-         UocWxG0d0WtFliSjaZEQNMFwNIZupAHFtDx583lgAVa73Tx09B4xi2fmMs9kR0Xc0i2D
-         PmVS/ZMHsLStiP7i2z6nD4HUD+dA2+exxC0WgRzbICJfaVp4sD0i3nCWYDcXYrSaOzqk
-         MsqKLtJNsUpk0/ixrcJe2EG2kVz2miAkOngVRAroF2e9tBHc5iPXIX4Av9Pnx3gyDrS9
-         dE9Fncem702TM1FAwSd8h7WaMm35Ho5ayXtj4/CW4tOnFauOeUMg6s5ybk1MbuaVBC0p
-         r9cQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVvTnmfQFN6rgHzDzLqEWJVJVPk1V3HeFKLEygtgbDLmkX6asQX97r6UxQUZT5+ETzs0fUbGy6962f4qIVQmOVGOUCwCV8XyjR6WqszZVE=
-X-Gm-Message-State: AOJu0Yw6Wj3ge5N6Nt3s+dmvufUU7ju0KXrMU/CG/FVp3Vdk3hBaM4vf
-	hA6OnLoe6Wg/beODk6Q3sgGnPj3aNRvOCpWFu2x2g3Y6UjYrVgJT1t02LPOr7ksoZLFKgtH+KFG
-	zBg4JSZiu0HWgrfmQxRVHMPcLl7CgKSfii5UxAE6YuL1ggASSrDGr4OCcYXaEVYJl
-X-Received: by 2002:a17:902:d549:b0:1dd:93f3:d575 with SMTP id z9-20020a170902d54900b001dd93f3d575mr5914489plf.30.1711022782357;
-        Thu, 21 Mar 2024 05:06:22 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IECnTXS5JWKv1pXKbA06u3gvbc+DZ5MivOM5zLUIw9sRi+g/m+s1qUdZJQCXBTcImopf4ZsuA==
-X-Received: by 2002:a17:902:d549:b0:1dd:93f3:d575 with SMTP id z9-20020a170902d54900b001dd93f3d575mr5914451plf.30.1711022781958;
-        Thu, 21 Mar 2024 05:06:21 -0700 (PDT)
-Received: from [192.168.68.51] ([43.252.115.31])
-        by smtp.gmail.com with ESMTPSA id j11-20020a17090276cb00b001dd88a5dc47sm5893220plt.290.2024.03.21.05.06.17
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 21 Mar 2024 05:06:21 -0700 (PDT)
-Message-ID: <fa91d7bc-f4e5-4a1b-b35a-8e0ccfe1af2b@redhat.com>
-Date: Thu, 21 Mar 2024 22:06:15 +1000
+	bh=aE2vIOB5AxhtNUIPZE0VWth2YHNZEb1JCikNc71y+sE=;
+	b=iLne0evLTkCPwAdUFogooUSy2HOsu/tRvLDm0mKWqMknBNTMPmmggulLkgBFUJmDNMo04q
+	H4NeC10OpqzFoFapjx7zk5snfeUBdiysRsP9PpaiMwPQtdmg3ti+/9YA+J68FccPSxgNaR
+	ALqEY6zpuowc3WvMet/3ZGOJkdU/VtE=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-595-CxiE_PixOw6d_og37MHeuA-1; Thu,
+ 21 Mar 2024 08:07:40 -0400
+X-MC-Unique: CxiE_PixOw6d_og37MHeuA-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 36D121C01E8D;
+	Thu, 21 Mar 2024 12:07:40 +0000 (UTC)
+Received: from localhost (unknown [10.39.194.39])
+	by smtp.corp.redhat.com (Postfix) with ESMTP id 60D843C20;
+	Thu, 21 Mar 2024 12:07:39 +0000 (UTC)
+Date: Thu, 21 Mar 2024 08:07:22 -0400
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: syzbot <syzbot+70f57d8a3ae84934c003@syzkaller.appspotmail.com>
+Cc: jasowang@redhat.com, linux-kernel@vger.kernel.org,
+	michael.christie@oracle.com, mst@redhat.com, osalvador@suse.de,
+	pbonzini@redhat.com, syzkaller-bugs@googlegroups.com,
+	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
+Subject: Re: [syzbot] [virtualization?] upstream boot error: WARNING:
+ refcount bug in __free_pages_ok
+Message-ID: <20240321120722.GC1465092@fedora>
+References: <20240320113002.GA1178948@fedora>
+ <000000000000e4b57b06141d250c@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] virtio_ring: Fix the stale index in available ring
-To: Keir Fraser <keirf@google.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Will Deacon <will@kernel.org>,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- jasowang@redhat.com, xuanzhuo@linux.alibaba.com, yihyu@redhat.com,
- shan.gavin@gmail.com, linux-arm-kernel@lists.infradead.org,
- Catalin Marinas <catalin.marinas@arm.com>, mochs@nvidia.com
-References: <20240314074923.426688-1-gshan@redhat.com>
- <20240318165924.GA1824@willie-the-truck>
- <35a6bcef-27cf-4626-a41d-9ec0a338fe28@redhat.com>
- <20240319182251.GB3121@willie-the-truck>
- <9500adaf-0075-4ae9-92db-7e310b6598b0@redhat.com>
- <20240319203540-mutt-send-email-mst@kernel.org>
- <3a6c8b23-af9c-47a7-8c22-8e0a78154bd3@redhat.com>
- <ZfsZljA_mmHKkBsA@google.com>
-From: Gavin Shan <gshan@redhat.com>
-In-Reply-To: <ZfsZljA_mmHKkBsA@google.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="TO9rjoh4tmuqYx/1"
+Content-Disposition: inline
+In-Reply-To: <000000000000e4b57b06141d250c@google.com>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.1
 
-On 3/21/24 03:15, Keir Fraser wrote:
-> On Wed, Mar 20, 2024 at 03:24:16PM +1000, Gavin Shan wrote:
->>
->> Before this patch was posted, I had debugging code to record last 16 transactions
->> to the available and used queue from guest and host side. It did reveal the wrong
->> head was fetched from the available queue.
->>
->> [   11.785745] ================ virtqueue_get_buf_ctx_split ================
->> [   11.786238] virtio_net virtio0: output.0:id 74 is not a head!
->> [   11.786655] head to be released: 036 077
->> [   11.786952]
->> [   11.786952] avail_idx:
->> [   11.787234] 000  63985  <--
->> [   11.787237] 001  63986
->> [   11.787444] 002  63987
->> [   11.787632] 003  63988
->> [   11.787821] 004  63989
->> [   11.788006] 005  63990
->> [   11.788194] 006  63991
->> [   11.788381] 007  63992
->> [   11.788567] 008  63993
->> [   11.788772] 009  63994
->> [   11.788957] 010  63995
->> [   11.789141] 011  63996
->> [   11.789327] 012  63997
->> [   11.789515] 013  63998
->> [   11.789701] 014  63999
->> [   11.789886] 015  64000
-> 
-> Does the error always occur at such a round idx value?
-> 
-> Here, 64000 == 0xFA00. Maybe coincidence but it's improbable enough to be interesting.
-> 
-> This debug code seems rather useful!
-> 
 
-Keir, Nope, it's just coincidence. We don't have such kind of pattern.
+--TO9rjoh4tmuqYx/1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks,
-Gavin
+On Wed, Mar 20, 2024 at 01:08:02PM -0700, syzbot wrote:
+> Hello,
+>=20
+> syzbot has tested the proposed patch and the reproducer did not trigger a=
+ny issue:
+>=20
+> Reported-and-tested-by: syzbot+70f57d8a3ae84934c003@syzkaller.appspotmail=
+=2Ecom
+>=20
+> Tested on:
+>=20
+> commit:         4bedfb31 mm,page_owner: maintain own list of stack_rec..
+> git tree:       git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/li=
+nux.git
+> kernel config:  https://syzkaller.appspot.com/x/.config?x=3D527195e149aa3=
+091
+> dashboard link: https://syzkaller.appspot.com/bug?extid=3D70f57d8a3ae8493=
+4c003
+> compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Deb=
+ian) 2.40
+>=20
+> Note: no patches were applied.
+> Note: testing is done by a robot and is best-effort only.
+>=20
 
-> 
-> 
->> [   11.790068]
->> [   11.790068] avail_head:
->> [   11.790529] 000  075  <--
->> [   11.790718] 001  036
->> [   11.790890] 002  077
->> [   11.791061] 003  129
->> [   11.791231] 004  072
->> [   11.791400] 005  130
->> [   11.791574] 006  015
->> [   11.791748] 007  074
->> [   11.791918] 008  130
->> [   11.792094] 009  130
->> [   11.792263] 010  074
->> [   11.792437] 011  015
->> [   11.792617] 012  072
->> [   11.792788] 013  129
->> [   11.792961] 014  077    // The last two heads from guest to host: 077, 036
->> [   11.793134] 015  036
->>
->> [root@nvidia-grace-hopper-05 qemu.main]# cat /proc/vhost
->>
->> avail_idx
->> 000  63998
->> 001  64000
->> 002  63954  <---
->> 003  63955
->> 004  63956
->> 005  63974
->> 006  63981
->> 007  63984
->> 008  63986
->> 009  63987
->> 010  63988
->> 011  63989
->> 012  63992
->> 013  63993
->> 014  63995
->> 015  63997
->>
->> avail_head
->> 000  074
->> 001  015
->> 002  072
->> 003  129
->> 004  074            // The last two heads seen by vhost is: 074, 036
->> 005  036
->> 006  075  <---
->> 007  036
->> 008  077
->> 009  129
->> 010  072
->> 011  130
->> 012  015
->> 013  074
->> 014  130
->> 015  130
->>
->> used_idx
->> 000  64000
->> 001  63882  <---
->> 002  63889
->> 003  63891
->> 004  63898
->> 005  63936
->> 006  63942
->> 007  63946
->> 008  63949
->> 009  63953
->> 010  63957
->> 011  63981
->> 012  63990
->> 013  63992
->> 014  63993
->> 015  63999
->>
->> used_head
->> 000  072
->> 001  129
->> 002  074          // The last two heads published to guest is: 074, 036
->> 003  036
->> 004  075  <---
->> 005  036
->> 006  077
->> 007  129
->> 008  072
->> 009  130
->> 010  015
->> 011  074
->> 012  130
->> 013  130
->> 014  074
->> 015  015
->>
->> Thanks,
->> Gavin
->>
->>
->>
->>
-> 
+Good, that was the expected last working commit. Here is the next commit
+(it should fail):
+
+#syz test: git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git=
+ 217b2119b9e260609958db413876f211038f00ee
+
+--TO9rjoh4tmuqYx/1
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmX8IvoACgkQnKSrs4Gr
+c8gUEAf/UP1SqeIPex02ksQ+fvPCq8XcEw+bdapCwds2y2LtGptJziYCZMhzxZNw
+z8LNojdyW3N/AJd1HH+UXBWjTQUm1pI8WQ0Ryb+BuwlVFA/jlkj8vXjADM/yHsLO
+9PMZtQ6ESvKS14trV8XZglo8XcOAatHKjlLPUO5wOZscWiDJ0HWi4CUdfp2Ue+dP
+cA3LRWfChQXTSoGJJGQaUGm/czzJP9iIX/FApyDgBuCM+zVAv7GKkdMQgvxG14on
+uVk8P/IfhSM6P5vOt7FvujGfW10Wk3ABaLQ2UvooLR75Nt1jQP0QDsH3opDNqgYp
+cD5ZF4ZCJznQyZE2UQ45+Gtt1Oq1Lg==
+=7YIU
+-----END PGP SIGNATURE-----
+
+--TO9rjoh4tmuqYx/1--
 
