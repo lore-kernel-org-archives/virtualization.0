@@ -1,73 +1,154 @@
-Received: from mail-il1-f199.google.com (mail-il1-f199.google.com [209.85.166.199])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 737388592D
-	for <virtualization@lists.linux.dev>; Wed, 20 Mar 2024 20:08:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F8C817D2
+	for <virtualization@lists.linux-foundation.org>; Thu, 21 Mar 2024 01:25:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710965284; cv=none; b=gxDUS678wOMZ6JivkcHwlL2rDnjoElVrWvMEiW3BS87m4yG1b50euu3JLaO1eUj5wNM/aRePSDnuGff5P/eN/Tmqr6En9HcSbnzmdqW3LZzJ3c6Yl4J1xuZOnR4V/OXpaozdeF5bh3uADsEQGaIx+DPClKYUVOx8/xd39rAV7dc=
+	t=1710984304; cv=none; b=ebwSzZAwqFeSOYmu4CjZ+PgqtYmD9DxH8H0HewnflgUw9f2G+70839IMPuYvNTJXoB8OIVwu+96PbShyOcNosebvP4bTdQa8WVX8XjItlGciTGfqJtsbB31634OE4HVQDqlNcNA7XNZEMeATiVglowoxAZpoH6TbRyHmkdSLZII=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710965284; c=relaxed/simple;
-	bh=U+UVKAt/Bq8p2XJNRPjZNvXZ6YosjOH7xSAmcPxwOps=;
-	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
-	 Content-Type; b=iy/l+Hty+X1zov6v6Pks3iBb/lrYh/AIZhQFhplBBUK4meVnwFQpdg5GEkXqvHjAOXPoTkZL7apHsNNrFTylaJNiybTjv0PSyo37WRJA8fOyMX3LtiDeNTw22YeYs6PHxb4b1dDktuabEfpnsArjQA+cdUm5XcJ3lm10zv/Z0yE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.199
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-il1-f199.google.com with SMTP id e9e14a558f8ab-3685020a8edso2223095ab.2
-        for <virtualization@lists.linux.dev>; Wed, 20 Mar 2024 13:08:03 -0700 (PDT)
+	s=arc-20240116; t=1710984304; c=relaxed/simple;
+	bh=9qViWAiTCFIgFNI104sEmf2/03Isba6KDxtepjBz+As=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=qVXu53eNp9MbI9gqDGeR8zcVCngfFsOZiuPbE6Pdf55MkZFjJ8oySx5Gnq5CmODTfm3iALaa+/X2fkQ5R/e0928d3mxR0F8RxClAw+IGEeBxdxwKoA6QpWDcpLlqLJrFsU2RFzOF1ypgHmRWB3FXEFOwN5DQJrIT64yOBBudNag=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=kj/dJ4uK; arc=none smtp.client-ip=140.211.166.137
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="kj/dJ4uK"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id BE3B54075C
+	for <virtualization@lists.linux-foundation.org>; Thu, 21 Mar 2024 01:25:02 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.101
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id AvwsZ91HwHZn
+	for <virtualization@lists.linux-foundation.org>;
+	Thu, 21 Mar 2024 01:25:01 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::102d; helo=mail-pj1-x102d.google.com; envelope-from=stevensd@chromium.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 9E29040743
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9E29040743
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=kj/dJ4uK
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 9E29040743
+	for <virtualization@lists.linux-foundation.org>; Thu, 21 Mar 2024 01:25:00 +0000 (UTC)
+Received: by mail-pj1-x102d.google.com with SMTP id 98e67ed59e1d1-29df3333d30so404664a91.1
+        for <virtualization@lists.linux-foundation.org>; Wed, 20 Mar 2024 18:25:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1710984300; x=1711589100; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=LKMmiCHffcx2ZBQ5QrgfnTfmU8fHpt/uWul6SXcgwsw=;
+        b=kj/dJ4uKVlrvuqjOKe8hjJLTCXKIYKBUxoakBBiAF7A3Xh1UWUlag6QX5C2rCLOq2A
+         EdZ127YTksWyHKkReIDfeC6Ka085r3sDguym60h36LOJkOyDpf/7st2sMMCsu8lwsdoY
+         HURpsFkF29R3119AW3HgBbMVL2PPYxTJ7OAo4=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710965282; x=1711570082;
-        h=to:from:subject:message-id:in-reply-to:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=90ngouxeClPqd2Uy/VEUTMh551N/5NtUq2TP2nVIm+Q=;
-        b=BYUwQhhyPqQfyKbWMoJ7wV7aWlCCE4ukm4D47Nkgrc79jvlJhmga6QLgErQRhbeg+0
-         rXYVNrrqChD0Tf8lqLLA6syDINPPJoFAHXWg0J6yeKWhU/RrH2Om9f+Zb6hk8k3AnmzL
-         qu2jqELMTQlRG5uT0GlLbO2HNqtf1ERHvqI/Kbv94QS/kouJQxGZEsR77hUJrMRm7VpR
-         iU0kC8qa/Psk7dRQEm5FdJ80psHlUNJtdWFgBdnWEtZhfK/Js61jqZoovOscgnESVEbq
-         w02uB/6IVPGriwY8I8splejd1U/qAeF7TaWndhUuHi278f04KtAV+Yk1b7UD51dUVLo3
-         DUpA==
-X-Forwarded-Encrypted: i=1; AJvYcCWHLThe5t04wZ5lsbs9ImKabYI6wsFV7d2qnupP4ruFukatTEioOw23CoLwpZmHr0Xsvuzo4dCPTsQQwMI3PiNRowHhoJqwKHKxvJ+sdVU=
-X-Gm-Message-State: AOJu0YxJOvbfA051d4SuYCaOrVFW/rSfAKLDOI/7i6uGhBsTAScC5Jtd
-	KCQUAddrV6bp7vWkojx0w+HZDtKyVX444nQZIbBrfzLyrVvgsZSo4z/ARkrQMkpNqsSkz68mMlj
-	azWr0/8E5KdjoXF8i3PwZhx1N48U+lTc1NJpWrDppRatrTLZae6H4qsw=
-X-Google-Smtp-Source: AGHT+IFRSgFMkgU5w4crMUDJ7kthxDKNL9C7Z1syq/rB6BCaRhzrzbNaiH9JCERgVxC0vDcoLAhfCgoOJW3SIHdDAfFpp7CxCPQn
+        d=1e100.net; s=20230601; t=1710984300; x=1711589100;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=LKMmiCHffcx2ZBQ5QrgfnTfmU8fHpt/uWul6SXcgwsw=;
+        b=V9UP4xmlNcsZ0h7+a8ISNiGWFaSuU3ypTbb0R9SPe6EEW71sBUxZvfI2jE1mr+NMcn
+         gXRyrLQaJZ5tNf4vXRP3LWUsu3bCQYuvfO6wqTa1U6wB0QPA8TBZzqysr3Zc5Qoxi/N8
+         QwnU56ioYlmtxTCTulZyTTFSpJ04LmTqYWq3WRQolNa3IQ2j2lG9De5+fBWDYOZF5YQu
+         t0mWU9eix5Tpmh98yCZw7U96xXg78dob90YytatyQfOusbDcqzZDACzhgVp1QQ/3MgBS
+         aKauWbLE7an2srj01EoeET+kigENem6vJLoeb/etxmEhiJvraaxzjKNdW0Pc4ubg4iIw
+         U4Jw==
+X-Gm-Message-State: AOJu0YzT+HU4gsPSky0qYle1aO+yyV8OKf2kHTCt244JGi5jQ8msLeef
+	A188+a2++1/wCdUCfr2sDeaoofwDQUsaTwLuta95e+PslZ2nQRbkWQjnPJqOoQ==
+X-Google-Smtp-Source: AGHT+IFblfDsuIjIHTVJCb0dAYrbnIzAn8PgVyToCqQbTiekWIhtFt694PRGUKrwdZCzQZU0XxixSQ==
+X-Received: by 2002:a17:90b:4cc3:b0:29c:7620:6fde with SMTP id nd3-20020a17090b4cc300b0029c76206fdemr746531pjb.36.1710984300365;
+        Wed, 20 Mar 2024 18:25:00 -0700 (PDT)
+Received: from localhost ([2401:fa00:8f:203:d837:1d3e:d3cd:7674])
+        by smtp.gmail.com with UTF8SMTPSA id sw15-20020a17090b2c8f00b0029bc2b845c4sm2309353pjb.11.2024.03.20.18.24.58
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 20 Mar 2024 18:25:00 -0700 (PDT)
+From: David Stevens <stevensd@chromium.org>
+X-Google-Original-From: David Stevens <stevensd@google.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>,
+	David Hildenbrand <david@redhat.com>
+Cc: virtualization@lists.linux-foundation.org,
+	linux-kernel@vger.kernel.org,
+	David Stevens <stevensd@chromium.org>
+Subject: [PATCH v2 1/2] virtio_balloon: Give the balloon its own wakeup source
+Date: Thu, 21 Mar 2024 10:24:44 +0900
+Message-ID: <20240321012445.1593685-2-stevensd@google.com>
+X-Mailer: git-send-email 2.44.0.291.gc1ea87d7ee-goog
+In-Reply-To: <20240321012445.1593685-1-stevensd@google.com>
+References: <20240321012445.1593685-1-stevensd@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a92:c56f:0:b0:368:5b92:cfd8 with SMTP id
- b15-20020a92c56f000000b003685b92cfd8mr67313ilj.2.1710965282612; Wed, 20 Mar
- 2024 13:08:02 -0700 (PDT)
-Date: Wed, 20 Mar 2024 13:08:02 -0700
-In-Reply-To: <20240320113002.GA1178948@fedora>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <000000000000e4b57b06141d250c@google.com>
-Subject: Re: [syzbot] [virtualization?] upstream boot error: WARNING: refcount
- bug in __free_pages_ok
-From: syzbot <syzbot+70f57d8a3ae84934c003@syzkaller.appspotmail.com>
-To: jasowang@redhat.com, linux-kernel@vger.kernel.org, 
-	michael.christie@oracle.com, mst@redhat.com, osalvador@suse.de, 
-	pbonzini@redhat.com, stefanha@redhat.com, syzkaller-bugs@googlegroups.com, 
-	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-Hello,
+From: David Stevens <stevensd@chromium.org>
 
-syzbot has tested the proposed patch and the reproducer did not trigger any issue:
+Wakeup sources don't support nesting multiple events, so sharing a
+single object between multiple drivers can result in one driver
+overriding the wakeup event processing period specified by another
+driver. Have the virtio balloon driver use the wakeup source of the
+device it is bound to rather than the wakeup source of the parent
+device, to avoid conflicts with the transport layer.
 
-Reported-and-tested-by: syzbot+70f57d8a3ae84934c003@syzkaller.appspotmail.com
+Note that although the virtio balloon's virtio_device itself isn't what
+actually wakes up the device, it is responsible for processing wakeup
+events. In the same way that EPOLLWAKEUP uses a dedicated wakeup_source
+to prevent suspend when userspace is processing wakeup events, a
+dedicated wakeup_source is necessary when processing wakeup events in a
+higher layer in the kernel.
 
-Tested on:
+Fixes: b12fbc3f787e ("virtio_balloon: stay awake while adjusting balloon")
+Signed-off-by: David Stevens <stevensd@chromium.org>
+Acked-by: David Hildenbrand <david@redhat.com>
+---
+ drivers/virtio/virtio_balloon.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-commit:         4bedfb31 mm,page_owner: maintain own list of stack_rec..
-git tree:       git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
-kernel config:  https://syzkaller.appspot.com/x/.config?x=527195e149aa3091
-dashboard link: https://syzkaller.appspot.com/bug?extid=70f57d8a3ae84934c003
-compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 1f5b3dd31fcf..89bc8da80519 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -450,7 +450,7 @@ static void start_update_balloon_size(struct virtio_balloon *vb)
+ 	vb->adjustment_signal_pending = true;
+ 	if (!vb->adjustment_in_progress) {
+ 		vb->adjustment_in_progress = true;
+-		pm_stay_awake(vb->vdev->dev.parent);
++		pm_stay_awake(&vb->vdev->dev);
+ 	}
+ 	spin_unlock_irqrestore(&vb->adjustment_lock, flags);
+ 
+@@ -462,7 +462,7 @@ static void end_update_balloon_size(struct virtio_balloon *vb)
+ 	spin_lock_irq(&vb->adjustment_lock);
+ 	if (!vb->adjustment_signal_pending && vb->adjustment_in_progress) {
+ 		vb->adjustment_in_progress = false;
+-		pm_relax(vb->vdev->dev.parent);
++		pm_relax(&vb->vdev->dev);
+ 	}
+ 	spin_unlock_irq(&vb->adjustment_lock);
+ }
+@@ -1029,6 +1029,15 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ 
+ 	spin_lock_init(&vb->adjustment_lock);
+ 
++	/*
++	 * The virtio balloon itself can't wake up the device, but it is
++	 * responsible for processing wakeup events passed up from the transport
++	 * layer. Wakeup sources don't support nesting/chaining calls, so we use
++	 * our own wakeup source to ensure wakeup events are properly handled
++	 * without trampling on the transport layer's wakeup source.
++	 */
++	device_set_wakeup_capable(&vb->vdev->dev, true);
++
+ 	virtio_device_ready(vdev);
+ 
+ 	if (towards_target(vb))
+-- 
+2.44.0.291.gc1ea87d7ee-goog
 
-Note: no patches were applied.
-Note: testing is done by a robot and is best-effort only.
