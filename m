@@ -1,212 +1,251 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from mail.zeus03.de (www.zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E42345EE78
-	for <virtualization@lists.linux-foundation.org>; Fri, 22 Mar 2024 17:09:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 231DD5FDC3
+	for <virtualization@lists.linux.dev>; Fri, 22 Mar 2024 17:09:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711127384; cv=none; b=PntrHiGIIKK0/OTUaCsHyp2fZt88iS+ng1iogYFj1VuXd9sgxPN7pQgqHluBTosW6kVj2Sdrz5NYL81wQXrIcjUhx2Wxj2gWkWOTnliBECvlZII9idg2V5n+Cv1NoCr/b/lxBDay+EoMl/cIv6kLn/KO1Ac7UuiKwjYkHABLVlw=
+	t=1711127398; cv=none; b=Mm/j9TyerulsC5pJyk7ayPY0rx2qR0o2BixWnKNGLyL99pT9qGSDCnVRsERf+ZF5e+V3hKRr9R0PUYGyS4RupvX45InOd5w6iGe64MHu/EfakcXsSfFYOLcseXs3Rlk7G8xm4kC1msCh6hsTuXgLCs/tfoN277USnIMWiZ+r6SI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711127384; c=relaxed/simple;
-	bh=7ur9VHXBBmtR/BzJooZLLcq+YeBquA9kLKNbVLwTOXU=;
+	s=arc-20240116; t=1711127398; c=relaxed/simple;
+	bh=WFSROxQZOVxFu47A+8VqRSUCe8TRaljA8PS0t5b553Y=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=c/NtcEQ/XIG2828uzjfaDRmtNkHoY0j3hl3DFVX9na8ZgoYXgYu1mcVCB7hzQb/0NL8AlhSVaIx3ov4hFlcA8Sw2iFdM1I6vFpBzaAowY2gm8CtEJ/gwer9VY8t0QbXH8NIVi+r/1vqVlUGpopQHh1rH5k8UmLbymmwusJNlyMc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=TcTBBVyK; arc=none smtp.client-ip=140.211.166.133
+	 Content-Type:Content-Disposition:In-Reply-To; b=SrczS+oQxWtkbewa2YNDVQWK3+AGrYjPOpmPBeZBfSINEckOkrBDbM5DjxnGD7a8IXkGTr9xE8PqA/ulPSec1BAGj5n6WswvEhhekXfWz9miA3f5YWC9ljAKkKJZ1u1Jv0Wa/icK/dRmXc7vP+RBTwyCX3W0Y+JaXLsEpcECo98=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=cNmYtKwO; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="TcTBBVyK"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 902E9418DA
-	for <virtualization@lists.linux-foundation.org>; Fri, 22 Mar 2024 17:09:42 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.1
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id MYnDqpUlYQbV
-	for <virtualization@lists.linux-foundation.org>;
-	Fri, 22 Mar 2024 17:09:41 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::734; helo=mail-qk1-x734.google.com; envelope-from=jgg@ziepe.ca; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 777A440279
-Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 777A440279
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=TcTBBVyK
-Received: from mail-qk1-x734.google.com (mail-qk1-x734.google.com [IPv6:2607:f8b0:4864:20::734])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 777A440279
-	for <virtualization@lists.linux-foundation.org>; Fri, 22 Mar 2024 17:09:41 +0000 (UTC)
-Received: by mail-qk1-x734.google.com with SMTP id af79cd13be357-78a26803f1aso160983585a.3
-        for <virtualization@lists.linux-foundation.org>; Fri, 22 Mar 2024 10:09:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1711127380; x=1711732180; darn=lists.linux-foundation.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=ApAHAb/kVXuA2vroBRV/sxLLRFwBeKrRqNlXizxetGM=;
-        b=TcTBBVyKAusos2I1MVDYRZGIWj8EOqomnFsQVYa9hdOCsmUhzwXZn1OhbDt2S4zSq9
-         zxMQN4lV4KEbFG5I/Ea2x710TqgAcZyaXWkK3QVyrW3qrYMBws+azEE3N/OjPj44bjPH
-         cQOzA9N4YDBxVVXPX2mwvdTuYdxdvwxoWgS51wMdtCB5HWbRB4dWILKAfMvIyabfhXxz
-         WeVX01tmEd61DfIoCpenCZ0bQrM2y+jcFUTRJ4OubMfP+cSQrewLiTjJZGHo5dv7I6pF
-         Ph/cUBPHglBrbdtvqgwfqMNh47o8UuKgS78oh3WLB8VFYS2VHiNBtwzrdYS9egFVXExv
-         dAOA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711127380; x=1711732180;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ApAHAb/kVXuA2vroBRV/sxLLRFwBeKrRqNlXizxetGM=;
-        b=QE8BTr18i/k2aspaNe05OXhSUY1WzUpH0EdYBGNr/r7/RkbsZ04Ufhq1Mpr18wrxjy
-         vj8H70GahW0BOL6pLr5j8LvmsZTDE9ht8MILK5TnML2bxhXnJNJ0ttGgDat6Y84gMUuj
-         EJY975D9ae7gM/elq16IT8gYRaQsP2NFgooL9xqFmoNIjZWF+VywG1EvW+6obeXiPwY7
-         Qd7KQNjY0Q+z1qmJLrwIHMqd1tJ82sUoA0eRy0PYvbnomMcFdUXSUyCoE6WDrhx0I+RE
-         bY2MTpHTBrPAMkEG+wN9Yqw/6U4mWSBkbcqtNtNj2QAYf5vsm2zPIaP98jB10Lz32zCI
-         xC8Q==
-X-Forwarded-Encrypted: i=1; AJvYcCXt5qmKBsnS9LEOzmAGWbVtKCJ8HzSHTaiUAwdS1gF2uXBMAhcvcl6tsIYRk9lTyZPa+tIodSiQQKTvZbZ3kvtPTyJ1vjzSTDB5WHdtOuMuRNij0CFIxlUkxA==
-X-Gm-Message-State: AOJu0YxuLdxnXXWYV826sQL96tpzXgcFBNGmbri7FQH7DG/HdyAlP5DR
-	ry4NIbgmuwVvrWGW0hjGtUCfZyO9YK+SZ07jXzypOCBZR8nRUwP6uAHSmPe//Bs=
-X-Google-Smtp-Source: AGHT+IEL8xR2S4VoPl+Aw327BSxdHoOXFRAq/bqB5JLQ7T86b5yNtZewLe/kyN/nOGUpgLU+Lu7bKg==
-X-Received: by 2002:ae9:e401:0:b0:78a:2d4b:3b06 with SMTP id q1-20020ae9e401000000b0078a2d4b3b06mr18512qkc.76.1711127380253;
-        Fri, 22 Mar 2024 10:09:40 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-142-68-80-239.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.80.239])
-        by smtp.gmail.com with ESMTPSA id a12-20020a05620a02ec00b00789fa326156sm921596qko.82.2024.03.22.10.09.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 22 Mar 2024 10:09:39 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.95)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1rniOh-00CSno-4j;
-	Fri, 22 Mar 2024 14:09:39 -0300
-Date: Fri, 22 Mar 2024 14:09:39 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Baolu Lu <baolu.lu@linux.intel.com>
-Cc: Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
-	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-	Jean-Philippe Brucker <jean-philippe@linaro.org>,
-	Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
-	Jacob Pan <jacob.jun.pan@linux.intel.com>,
-	Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
-	virtualization@lists.linux-foundation.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 4/8] iommufd: Add iommufd fault object
-Message-ID: <20240322170939.GJ66976@ziepe.ca>
-References: <20240122073903.24406-1-baolu.lu@linux.intel.com>
- <20240122073903.24406-5-baolu.lu@linux.intel.com>
- <20240308180332.GX9225@ziepe.ca>
- <e66064d7-c384-4f14-9459-ea21809b51b5@linux.intel.com>
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="cNmYtKwO"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=WFSR
+	OxQZOVxFu47A+8VqRSUCe8TRaljA8PS0t5b553Y=; b=cNmYtKwO5Cu5IWiuRD5o
+	Rra1wfWzl7faA6KT3pVfA9ipAZ93fnWCDyioXrFmupshiecN38ZhuEn20Lv197ck
+	wliUCprkQUA+jo49CTtVw9txv7lkqS3TK7Sph3u8PGimL8isWCSjBtDUOvzRJC0c
+	HV4nrVroNyYOMldN5AgE4PNKHFpmVyKgXYoBCwPSXbXBzaxGbeNIbPfQZpKPIkJj
+	OW/7uewh3zH5HPeHcYM/IfiHiY62bvPzBSsPOmiOjbDOgKSwOamu6D/qtV+wk6R+
+	BNT0hTYDcakbO1754UvcuMCQVFvDQRT4cCISEjn5KLHZbq2psaT5U9oxZ+uoJ87t
+	pw==
+Received: (qmail 3929014 invoked from network); 22 Mar 2024 18:09:43 +0100
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 22 Mar 2024 18:09:43 +0100
+X-UD-Smtp-Session: l3s3148p1@P2He40IU0sJehhtF
+Date: Fri, 22 Mar 2024 18:09:42 +0100
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Guenter Roeck <groeck@google.com>
+Cc: Nicolas Ferre <nicolas.ferre@microchip.com>, linux-i2c@vger.kernel.org,
+	Elie Morisse <syniurge@gmail.com>,
+	Shyam Sundar S K <shyam-sundar.s-k@amd.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Claudiu Beznea <claudiu.beznea@tuxon.dev>,
+	Krzysztof Adamski <krzysztof.adamski@nokia.com>,
+	Benson Leung <bleung@chromium.org>,
+	Guenter Roeck <groeck@chromium.org>,
+	Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Mika Westerberg <mika.westerberg@linux.intel.com>,
+	Jan Dabros <jsd@semihalf.com>,
+	Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+	Alim Akhtar <alim.akhtar@samsung.com>,
+	Jean-Marie Verdun <verdun@hpe.com>,
+	Nick Hawkins <nick.hawkins@hpe.com>,
+	Yicong Yang <yangyicong@hisilicon.com>,
+	Oleksij Rempel <o.rempel@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Shawn Guo <shawnguo@kernel.org>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>,
+	Paul Cercueil <paul@crapouillou.net>,
+	Neil Armstrong <neil.armstrong@linaro.org>,
+	Kevin Hilman <khilman@baylibre.com>,
+	Jerome Brunet <jbrunet@baylibre.com>,
+	Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+	Khalil Blaiech <kblaiech@nvidia.com>,
+	Asmaa Mnebhi <asmaa@nvidia.com>, Qii Wang <qii.wang@mediatek.com>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Avi Fishman <avifishman70@gmail.com>,
+	Tomer Maimon <tmaimon77@gmail.com>,
+	Tali Perry <tali.perry1@gmail.com>,
+	Patrick Venture <venture@google.com>, Nancy Yuen <yuenn@google.com>,
+	Benjamin Fair <benjaminfair@google.com>,
+	Ajay Gupta <ajayg@nvidia.com>,
+	Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>,
+	Robert Richter <rric@kernel.org>,
+	Aaro Koskinen <aaro.koskinen@iki.fi>,
+	Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+	Tony Lindgren <tony@atomide.com>, Vignesh R <vigneshr@ti.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
+	"Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+	Hector Martin <marcan@marcan.st>, Sven Peter <sven@svenpeter.dev>,
+	Alyssa Rosenzweig <alyssa@rosenzweig.io>,
+	Vladimir Zapolskiy <vz@mleia.com>,
+	Loic Poulain <loic.poulain@linaro.org>,
+	Robert Foss <rfoss@kernel.org>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Konrad Dybcio <konrad.dybcio@linaro.org>,
+	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
+	Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
+	Alain Volmat <alain.volmat@foss.st.com>,
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+	Alexandre Torgue <alexandre.torgue@foss.st.com>,
+	Thierry Reding <thierry.reding@gmail.com>,
+	Jonathan Hunter <jonathanh@nvidia.com>,
+	Laxman Dewangan <ldewangan@nvidia.com>,
+	Dmitry Osipenko <digetx@gmail.com>,
+	Conghui Chen <conghui.chen@intel.com>,
+	Viresh Kumar <viresh.kumar@linaro.org>,
+	Michal Simek <michal.simek@amd.com>, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	chrome-platform@lists.linux.dev, linux-samsung-soc@vger.kernel.org,
+	imx@lists.linux.dev, linux-mips@vger.kernel.org,
+	linux-amlogic@lists.infradead.org,
+	linux-mediatek@lists.infradead.org, openbmc@lists.ozlabs.org,
+	linux-omap@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	asahi@lists.linux.dev, linux-arm-msm@vger.kernel.org,
+	linux-renesas-soc@vger.kernel.org,
+	linux-stm32@st-md-mailman.stormreply.com,
+	linux-tegra@vger.kernel.org, virtualization@lists.linux.dev,
+	Ryan Wanner <Ryan.Wanner@microchip.com>
+Subject: Re: [PATCH 64/64] i2c: reword i2c_algorithm in drivers according to
+ newest specification
+Message-ID: <Zf27VpOHPXAtHCLr@shikoro>
+Mail-Followup-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Guenter Roeck <groeck@google.com>,
+	Nicolas Ferre <nicolas.ferre@microchip.com>,
+	linux-i2c@vger.kernel.org, Elie Morisse <syniurge@gmail.com>,
+	Shyam Sundar S K <shyam-sundar.s-k@amd.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Claudiu Beznea <claudiu.beznea@tuxon.dev>,
+	Krzysztof Adamski <krzysztof.adamski@nokia.com>,
+	Benson Leung <bleung@chromium.org>,
+	Guenter Roeck <groeck@chromium.org>,
+	Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Mika Westerberg <mika.westerberg@linux.intel.com>,
+	Jan Dabros <jsd@semihalf.com>,
+	Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+	Alim Akhtar <alim.akhtar@samsung.com>,
+	Jean-Marie Verdun <verdun@hpe.com>,
+	Nick Hawkins <nick.hawkins@hpe.com>,
+	Yicong Yang <yangyicong@hisilicon.com>,
+	Oleksij Rempel <o.rempel@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Shawn Guo <shawnguo@kernel.org>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>,
+	Paul Cercueil <paul@crapouillou.net>,
+	Neil Armstrong <neil.armstrong@linaro.org>,
+	Kevin Hilman <khilman@baylibre.com>,
+	Jerome Brunet <jbrunet@baylibre.com>,
+	Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+	Khalil Blaiech <kblaiech@nvidia.com>,
+	Asmaa Mnebhi <asmaa@nvidia.com>, Qii Wang <qii.wang@mediatek.com>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Avi Fishman <avifishman70@gmail.com>,
+	Tomer Maimon <tmaimon77@gmail.com>,
+	Tali Perry <tali.perry1@gmail.com>,
+	Patrick Venture <venture@google.com>, Nancy Yuen <yuenn@google.com>,
+	Benjamin Fair <benjaminfair@google.com>,
+	Ajay Gupta <ajayg@nvidia.com>,
+	Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>,
+	Robert Richter <rric@kernel.org>,
+	Aaro Koskinen <aaro.koskinen@iki.fi>,
+	Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+	Tony Lindgren <tony@atomide.com>, Vignesh R <vigneshr@ti.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
+	"Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+	Hector Martin <marcan@marcan.st>, Sven Peter <sven@svenpeter.dev>,
+	Alyssa Rosenzweig <alyssa@rosenzweig.io>,
+	Vladimir Zapolskiy <vz@mleia.com>,
+	Loic Poulain <loic.poulain@linaro.org>,
+	Robert Foss <rfoss@kernel.org>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Konrad Dybcio <konrad.dybcio@linaro.org>,
+	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
+	Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
+	Alain Volmat <alain.volmat@foss.st.com>,
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+	Alexandre Torgue <alexandre.torgue@foss.st.com>,
+	Thierry Reding <thierry.reding@gmail.com>,
+	Jonathan Hunter <jonathanh@nvidia.com>,
+	Laxman Dewangan <ldewangan@nvidia.com>,
+	Dmitry Osipenko <digetx@gmail.com>,
+	Conghui Chen <conghui.chen@intel.com>,
+	Viresh Kumar <viresh.kumar@linaro.org>,
+	Michal Simek <michal.simek@amd.com>, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	chrome-platform@lists.linux.dev, linux-samsung-soc@vger.kernel.org,
+	imx@lists.linux.dev, linux-mips@vger.kernel.org,
+	linux-amlogic@lists.infradead.org,
+	linux-mediatek@lists.infradead.org, openbmc@lists.ozlabs.org,
+	linux-omap@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	asahi@lists.linux.dev, linux-arm-msm@vger.kernel.org,
+	linux-renesas-soc@vger.kernel.org,
+	linux-stm32@st-md-mailman.stormreply.com,
+	linux-tegra@vger.kernel.org, virtualization@lists.linux.dev,
+	Ryan Wanner <Ryan.Wanner@microchip.com>
+References: <20240322132619.6389-1-wsa+renesas@sang-engineering.com>
+ <20240322132619.6389-65-wsa+renesas@sang-engineering.com>
+ <e8dff9d4-ed15-44e9-ae9a-2e77845ec40b@microchip.com>
+ <Zf22G4jC2gIlzhi_@shikoro>
+ <CABXOdTc14kfPpkF96KG-oeLRTLvjxAD_gtOO2TQFLnHMLNoU_Q@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="un7BlYMtStBuO9gz"
+Content-Disposition: inline
+In-Reply-To: <CABXOdTc14kfPpkF96KG-oeLRTLvjxAD_gtOO2TQFLnHMLNoU_Q@mail.gmail.com>
+
+
+--un7BlYMtStBuO9gz
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <e66064d7-c384-4f14-9459-ea21809b51b5@linux.intel.com>
 
-On Fri, Mar 15, 2024 at 09:46:06AM +0800, Baolu Lu wrote:
-> On 3/9/24 2:03 AM, Jason Gunthorpe wrote:
-> > On Mon, Jan 22, 2024 at 03:38:59PM +0800, Lu Baolu wrote:
-> > > --- /dev/null
-> > > +++ b/drivers/iommu/iommufd/fault.c
-> > > @@ -0,0 +1,255 @@
-> > > +// SPDX-License-Identifier: GPL-2.0-only
-> > > +/* Copyright (C) 2024 Intel Corporation
-> > > + */
-> > > +#define pr_fmt(fmt) "iommufd: " fmt
-> > > +
-> > > +#include <linux/file.h>
-> > > +#include <linux/fs.h>
-> > > +#include <linux/module.h>
-> > > +#include <linux/mutex.h>
-> > > +#include <linux/iommufd.h>
-> > > +#include <linux/poll.h>
-> > > +#include <linux/anon_inodes.h>
-> > > +#include <uapi/linux/iommufd.h>
-> > > +
-> > > +#include "iommufd_private.h"
-> > > +
-> > > +static int device_add_fault(struct iopf_group *group)
-> > > +{
-> > > +	struct iommufd_device *idev = group->cookie->private;
-> > > +	void *curr;
-> > > +
-> > > +	curr = xa_cmpxchg(&idev->faults, group->last_fault.fault.prm.grpid,
-> > > +			  NULL, group, GFP_KERNEL);
-> > > +
-> > > +	return curr ? xa_err(curr) : 0;
-> > > +}
-> > > +
-> > > +static void device_remove_fault(struct iopf_group *group)
-> > > +{
-> > > +	struct iommufd_device *idev = group->cookie->private;
-> > > +
-> > > +	xa_store(&idev->faults, group->last_fault.fault.prm.grpid,
-> > > +		 NULL, GFP_KERNEL);
-> > 
-> > xa_erase ?
-> 
-> Yes. Sure.
-> 
-> > Is grpid OK to use this way? Doesn't it come from the originating
-> > device?
-> 
-> The group ID is generated by the hardware. Here, we use it as an index
-> in the fault array to ensure it can be quickly retrieved in the page
-> fault response path.
 
-I'm nervous about this, we are trusting HW outside the kernel to
-provide unique grp id's which are integral to how the kernel
-operates..
+> Kind of odd though to change function names but not parameter names of
+> those very same functions.
 
-> > > +static ssize_t iommufd_fault_fops_read(struct file *filep, char __user *buf,
-> > > +				       size_t count, loff_t *ppos)
-> > > +{
-> > > +	size_t fault_size = sizeof(struct iommu_hwpt_pgfault);
-> > > +	struct iommufd_fault *fault = filep->private_data;
-> > > +	struct iommu_hwpt_pgfault data;
-> > > +	struct iommufd_device *idev;
-> > > +	struct iopf_group *group;
-> > > +	struct iopf_fault *iopf;
-> > > +	size_t done = 0;
-> > > +	int rc;
-> > > +
-> > > +	if (*ppos || count % fault_size)
-> > > +		return -ESPIPE;
-> > > +
-> > > +	mutex_lock(&fault->mutex);
-> > > +	while (!list_empty(&fault->deliver) && count > done) {
-> > > +		group = list_first_entry(&fault->deliver,
-> > > +					 struct iopf_group, node);
-> > > +
-> > > +		if (list_count_nodes(&group->faults) * fault_size > count - done)
-> > > +			break;
-> > > +
-> > > +		idev = (struct iommufd_device *)group->cookie->private;
-> > > +		list_for_each_entry(iopf, &group->faults, list) {
-> > > +			iommufd_compose_fault_message(&iopf->fault, &data, idev);
-> > > +			rc = copy_to_user(buf + done, &data, fault_size);
-> > > +			if (rc)
-> > > +				goto err_unlock;
-> > > +			done += fault_size;
-> > > +		}
-> > > +
-> > > +		rc = device_add_fault(group);
-> > 
-> > See I wonder if this should be some xa_alloc or something instead of
-> > trying to use the grpid?
-> 
-> So this magic number will be passed to user space in the fault message.
-> And the user will then include this number in its response message. The
-> response message is valid only when the magic number matches. Do I get
-> you correctly?
+Ouch, this is definitely a valid point. Seems like this series will need
+a respin after all. Will wait for further comments, though.
 
-Yes, then it is simple xa_alloc() and xa_load() without any other
-searching and we don't have to rely on the grpid to be correctly
-formed by the PCI device.
+Thanks!
 
-But I don't know about performance xa_alloc() is pretty fast but
-trusting the grpid would be faster..
 
-IMHO from a uapi perspective we should have a definate "cookie" that
-gets echo'd back. If the kernel uses xa_alloc or grpid to build that
-cookie it doesn't matter to the uAPI.
+--un7BlYMtStBuO9gz
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Jason
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmX9u1YACgkQFA3kzBSg
+KbZSKA//Q8484MbfzpPKmvUS0QA73oCgcHXOiIKbRKOfwXWkquKc1vuGV6LbxWG+
+oPc84UQGrv+MjAhAMX/ZpO2VdGp+ej/a1j1kNYihlqVTkY/rRWPMa5y1oNB2H5Xq
+tFjFmqgwbqm/K/OND3KcJw8zAmXCTgCvgQDyQx76B6KMydRGzKel/sM29TwW6mTm
+HCQ9klGLK273LaNEAwn4vkLQ6BtVmjI1CpnjIp3hSRWdW9IytTQlM2weh0gQ+D2p
+OerYgE9JUZp4dgPgLIR60J3AER1DaZtHMVH5NwMLT8xMLa/L3RgkSaTbxa/D2tvm
+K2XQbEWvx8HsxtEIUEcIy936gmSyZ7Nta1mJv+5yN+DLHdGoo9KNl6vcMxzXLgpM
+02/ySV8tMq+Q4cX/fIVZxaeudi69toWj1QcjLg11KaJDo4ndbPqBwYRkSYJ+o2Nh
+aJNDu7J+5ud051bq05bFRaCitl7kyEdv5WEjwk5RTLDD1xvwR84SZ3ElcQ6Jnb/I
+VaA1JNnKw/et4KmEF4A65wphnC8pC/gmH5c9SrPs6w7dUw44dla+p+jPrgtvUOnY
+sqhCnFNLZ5MGuyhTemuWVdGNNvwwuTYFf/VYKi7mdRVsCRdLQIoHklH7FUfmwhpM
+G5oEk4nI7j9MbLPl4WOjrZ9k5wZQnd5zRSWHj/aw5xmVCbNVKsQ=
+=dqSs
+-----END PGP SIGNATURE-----
+
+--un7BlYMtStBuO9gz--
