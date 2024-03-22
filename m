@@ -1,294 +1,146 @@
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f170.google.com (mail-lj1-f170.google.com [209.85.208.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D37828C11
-	for <virtualization@lists.linux.dev>; Fri, 22 Mar 2024 06:11:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AAE710799
+	for <virtualization@lists.linux.dev>; Fri, 22 Mar 2024 06:50:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711087881; cv=none; b=WOvGdq2+SgTTNzl+34mx3AvGStG6U1nc1b+yGriXtSHJg0VSCfK8MUC6cpm1ltWvxCLI9wxTG3jJBhiyHfVU6oWPFEEBz0fY7Ry1yOl94tLwdlh+LYqe8delOyMSqggIaf/RpKMZAeI4tMOu3O1jQ18I8ZPjR2rz4RQJSilOJhE=
+	t=1711090237; cv=none; b=Zg7N5154XyFNlJjxvWkQcYfkTh+BQuo/gyAzI+VDKJgls9grbPwC07HII5RG4eCVR/R7NndXFhPknvRUBfSdySgricCpFHu9vYeg+sCQCXAIXvjWWaX69Jl1Q+bNiJ2QFTsiWHxjdIulJ0glXBcq3CuCjk4t78WZGK/xCNhKvKE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711087881; c=relaxed/simple;
-	bh=qPyTRzUtI1B5csLrpfeTHFbEZuwuu1l2FEYIDk256EE=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=pIYlGMYkZyy/ow5um1EbRxLoK8WqP1x5N6inznIZ1ojCFHTvebVJgABnOZfOHo2DbmpEubxodLVi3yoh99Y1JVIke93hpbUb/jvH9yhxGQczO1e6JpGKPu5prHsmNl5GmWIoYutVM8S2K8TE9wYjffCiF2mcU211X2P104Lwa4s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=EglbVDjP; arc=none smtp.client-ip=115.124.30.118
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1711090237; c=relaxed/simple;
+	bh=zrzuAso8aeh5pC4mAiFrJhVpvOb5mnzmkaw95vJcMks=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To; b=ZnlfH7Lx7xYYU1tzJvdBVFumWvN5j/5a2ag/nBocZGyJzmL8EqMk1CpP9wWNfY6AXnYioLKMmUSAcNICkcNGLkor0qwQqvVXw/jYvj4xom7jjLKrkgKR2S91O/tESbK3h2YvDI8sais2s/kpeskVo1dyVFdyb1ej/+mCqtd68ss=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=Nf0vgoyt; arc=none smtp.client-ip=209.85.208.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="EglbVDjP"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1711087871; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=4T1oRh4SMTuC0j/o6bQt1gQ/vLyBVyX5rQPBJwjEDe0=;
-	b=EglbVDjPsGwF+5u+aOWEyQNWR5A7pCIjfPp1wwt5LHtVne9wibjsk/Jdjfd3yIbxO5vikKyOBaH7bzZQ0OagCbJSRpmzELrZUSglLL0A30MLGEg1VqFx/bFTV218yMQEVC6CAGdIaBSm95sv7zSeALJvJ2mVWCMuxvw0dL/C0ZU=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0W315sE7_1711087870;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W315sE7_1711087870)
-          by smtp.aliyun-inc.com;
-          Fri, 22 Mar 2024 14:11:10 +0800
-Message-ID: <1711087705.9262164-4-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost] virtio_net: update the hdr_len calculation for xmit
-Date: Fri, 22 Mar 2024 14:08:25 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux.dev,
- "Michael S. Tsirkin" <mst@redhat.com>,
- Spike Du <spiked@nvidia.com>
-References: <20240320102025.11327-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEs-x-W2DHh8U=+0ORnq7=kjw9SJNNtDFfGNjC2KqqPZeA@mail.gmail.com>
- <1711074462.3244817-3-xuanzhuo@linux.alibaba.com>
- <CACGkMEtOjPYuPi7MQcnp+TroxLKa4YtpTdsP4bNUSxUV8rgq3A@mail.gmail.com>
- <1711086351.5199406-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEv7XsRVLSgOu8=VPvLwQZf5rAXrUFD2v9mCvLiV4PRCSw@mail.gmail.com>
-In-Reply-To: <CACGkMEv7XsRVLSgOu8=VPvLwQZf5rAXrUFD2v9mCvLiV4PRCSw@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="Nf0vgoyt"
+Received: by mail-lj1-f170.google.com with SMTP id 38308e7fff4ca-2d476d7972aso31007331fa.1
+        for <virtualization@lists.linux.dev>; Thu, 21 Mar 2024 23:50:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1711090234; x=1711695034; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:message-id:subject:cc
+         :to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=Lear5JurVCpdFHONteGtRS/FeuXHg1HujgyE41Ql6qk=;
+        b=Nf0vgoytz8xeVZd7qc9PE0yOTBNACkvCE8atRlbnv4OIRNN3p9Q2YohTWwKctKm/Qb
+         aJAEWEAoPjMPgeIsyaUeLH3gGtQ4zB8FZWfe5Eb6MaOGHtCy1GPumP+fqQdKO1JHCzMo
+         1WdNNxD/z2qkuAA3svT/y18tVd9CxjtjMRrSH+Zbif+MswHUywXn0YumwdPk4DbXjFFI
+         9Ucjd0s7ym7L56Zndpc0h6/V+xUKKQhWEdCMWX70hueEPAy/ytfadc3pQbSzRYhpgPn1
+         T18tC2TaHA3g55gposEey2r7DEvT3ngHXWaZy9eyIq61fhx6FVQNcXOh7krDQlCQVgLD
+         KLoQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1711090234; x=1711695034;
+        h=in-reply-to:content-disposition:mime-version:message-id:subject:cc
+         :to:from:date:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Lear5JurVCpdFHONteGtRS/FeuXHg1HujgyE41Ql6qk=;
+        b=J8hdcM0R7cRSgOWUDSY91RSGlnST6BL6YjWsVIR4iWGEuYguwDabkC5Saflt7am7bi
+         jt58/otLvUfXVSNeBuOdwTacWaDo4jvKgZBa2v5T5LDQxdacYMUfHO8kdR16Ok0JgxqP
+         g749XVqCsnrqJXaxhSn1qTnrZLImxfZ6hLUbssUos6VaLoEYiC/aIsOfJaPZia6obxUx
+         zCjQ4K72V/XeCfpZ1jV0WMOuYEunMGu0WL4vu4vHftgGhQH0xmuV8JDw675EBuGZUALJ
+         FHXmIqOrlfjtquZ7PyakHQlaHsZ43RWF6h5aQY3QZFs+Rp0SQ+hZTO3mxXOtNVQjytYN
+         xuow==
+X-Forwarded-Encrypted: i=1; AJvYcCV97fbY6H5eBv5Qh70Snjxh6/VHpDjAGfJDsuyr9bixue2KLjbucNC2R7i82ITe5sSt9XkOTchV3856uubnsFLxYKo7WPKkw38zh7w/rlE=
+X-Gm-Message-State: AOJu0YyVl+NSNc39jQxjkHS8ywq/IGwj5NES7rN7Qcakr4QWMOktKOek
+	Y9mgzKxJpWzoJ6qHW7oAMWYbW1Id2LYDAZbExI9xUX76k6XmQcgI6C3IK5h4AVM=
+X-Google-Smtp-Source: AGHT+IFMKzopYJg1Vt6qS3sf2pwS4XyO1nc7E0ZLMHJ/MRpND18D1RLffEWtQvCiMJW2u64hmYBWrg==
+X-Received: by 2002:a2e:3015:0:b0:2d2:dfd6:8335 with SMTP id w21-20020a2e3015000000b002d2dfd68335mr1126741ljw.22.1711090233349;
+        Thu, 21 Mar 2024 23:50:33 -0700 (PDT)
+Received: from localhost ([102.222.70.76])
+        by smtp.gmail.com with ESMTPSA id q17-20020a05600c46d100b00414659ba8c2sm2090679wmo.37.2024.03.21.23.50.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 21 Mar 2024 23:50:33 -0700 (PDT)
+Date: Fri, 22 Mar 2024 09:50:29 +0300
+From: Dan Carpenter <dan.carpenter@linaro.org>
+To: oe-kbuild@lists.linux.dev, Heng Qi <hengqi@linux.alibaba.com>,
+	netdev@vger.kernel.org, virtualization@lists.linux.dev,
+	Jason Wang <jasowang@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Eric Dumazet <edumazet@google.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: lkp@intel.com, oe-kbuild-all@lists.linux.dev
+Subject: Re: [PATCH 2/2] virtio-net: reduce the CPU consumption of dim worker
+Message-ID: <b7392d49-5619-4653-b565-29a7c5ca6ca1@moroto.mountain>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1711021557-58116-3-git-send-email-hengqi@linux.alibaba.com>
 
-On Fri, 22 Mar 2024 13:57:36 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Fri, Mar 22, 2024 at 1:51=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba=
-.com> wrote:
-> >
-> > On Fri, 22 Mar 2024 13:04:48 +0800, Jason Wang <jasowang@redhat.com> wr=
-ote:
-> > > On Fri, Mar 22, 2024 at 10:29=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.al=
-ibaba.com> wrote:
-> > > >
-> > > > On Thu, 21 Mar 2024 12:17:54 +0800, Jason Wang <jasowang@redhat.com=
-> wrote:
-> > > > > On Wed, Mar 20, 2024 at 6:20=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux=
-.alibaba.com> wrote:
-> > > > > >
-> > > > > > The virtio spec says:
-> > > > > >     If one of the VIRTIO_NET_F_HOST_TSO4, TSO6, USO or UFO opti=
-ons have
-> > > > > >     been negotiated:
-> > > > > >         If the VIRTIO_NET_F_GUEST_HDRLEN feature has been negot=
-iated,
-> > > > > >         and gso_type differs from VIRTIO_NET_HDR_GSO_NONE, the =
-driver
-> > > > > >         MUST set hdr_len to a value equal to the length of the =
-headers,
-> > > > > >         including the transport header.
-> > > > > >
-> > > > > >         If the VIRTIO_NET_F_GUEST_HDRLEN feature has not been n=
-egotiated,
-> > > > > >         or gso_type is VIRTIO_NET_HDR_GSO_NONE, the driver SHOU=
-LD set
-> > > > > >         hdr_len to a value not less than the length of the head=
-ers,
-> > > > > >         including the transport header.
-> > > > > >
-> > > > > > So if the VIRTIO_NET_F_GUEST_HDRLEN feature has been negotiated=
-, the
-> > > > > > hdr->hdr_len should be eth header + ip header + tcp/udp header.
-> > > > > >
-> > > > > > But now:
-> > > > > >     hdr->hdr_len =3D __cpu_to_virtio15(little_endian, skb_headl=
-en(skb));
-> > > > > >
-> > > > > > The skb_headlen() returns the linear space of the skb, not the =
-header
-> > > > > > size that only match the case the VIRTIO_NET_F_GUEST_HDRLEN fea=
-ture has
-> > > > > > not been negotiated, or gso_type is VIRTIO_NET_HDR_GSO_NONE.
-> > > > > >
-> > > > > > We do not check the feature of the device. This function is a c=
-ommon
-> > > > > > function used by many places. So we do more stricter work whate=
-ver
-> > > > > > the features is negotiated.
-> > > > > >
-> > > > > > For the case skb_is_gso(skb) is false, if none of the
-> > > > > > VIRTIO_NET_F_HOST_TSO4, TSO6, USO or UFO options have been nego=
-tiated,
-> > > > > > the spec not define the action of setting hdr_len. Here I set i=
-t to
-> > > > > > skb_headlen(). If one of the above features have been negotiate=
-d, we
-> > > > > > should set a value not less than the length of "eth header + ip=
- header +
-> > > > > > tcp/udp header". So the skb_headlen() also is a valid value.
-> > > > > >
-> > > > > > For the case skb_is_gso(skb) is true, it implies that one of
-> > > > > > VIRTIO_NET_F_HOST_TSO4, TSO6, USO or UFO options MUST have been
-> > > > > > negotiated. If the VIRTIO_NET_F_GUEST_HDRLEN is negotiated, we =
-MUST set
-> > > > > > it to the length of "eth header + ip header + tcp/udp header".
-> > > > > > If the VIRTIO_NET_F_GUEST_HDRLEN is not negotiated, that still =
-be a
-> > > > > > valid value.
-> > > > > >
-> > > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > > > Reported-by: Spike Du <spiked@nvidia.com>
-> > > > > > ---
-> > > > > >  include/linux/virtio_net.h | 41 ++++++++++++++++++++++++++++--=
---------
-> > > > > >  1 file changed, 31 insertions(+), 10 deletions(-)
-> > > > > >
-> > > > > > diff --git a/include/linux/virtio_net.h b/include/linux/virtio_=
-net.h
-> > > > > > index 4dfa9b69ca8d..51d93f9762d7 100644
-> > > > > > --- a/include/linux/virtio_net.h
-> > > > > > +++ b/include/linux/virtio_net.h
-> > > > > > @@ -201,24 +201,45 @@ static inline int virtio_net_hdr_from_skb=
-(const struct sk_buff *skb,
-> > > > > >
-> > > > > >         if (skb_is_gso(skb)) {
-> > > > > >                 struct skb_shared_info *sinfo =3D skb_shinfo(sk=
-b);
-> > > > > > +               u32 hdrlen;
-> > > > > >
-> > > > > > -               /* This is a hint as to how much should be line=
-ar. */
-> > > > > > -               hdr->hdr_len =3D __cpu_to_virtio16(little_endia=
-n,
-> > > > > > -                                                skb_headlen(sk=
-b));
-> > > > > > -               hdr->gso_size =3D __cpu_to_virtio16(little_endi=
-an,
-> > > > > > -                                                 sinfo->gso_si=
-ze);
-> > > > > > -               if (sinfo->gso_type & SKB_GSO_TCPV4)
-> > > > > > +               if (sinfo->gso_type & SKB_GSO_TCPV4) {
-> > > > > >                         hdr->gso_type =3D VIRTIO_NET_HDR_GSO_TC=
-PV4;
-> > > > > > -               else if (sinfo->gso_type & SKB_GSO_TCPV6)
-> > > > > > +                       hdrlen =3D tcp_hdrlen(skb) + skb_transp=
-ort_offset(skb);
-> > > > >
-> > > > > So could evil guests give us a 0 hdrlen through this. If yes, it =
-seems
-> > > > > much more dangerous than headlen or we need harden the value as
-> > > > > 9181d6f8a2bb32d158de66a84164fac05e3ddd18 did.
-> > > >
-> > > > Spec says:
-> > > >         If the VIRTIO_NET_F_GUEST_HDRLEN feature has been negotiate=
-d, and
-> > > >         gso_type differs from VIRTIO_NET_HDR_GSO_NONE, the device M=
-AY use
-> > > >         hdr_len as the transport header size. Note: Caution should =
-be taken by
-> > > >         the implementation so as to prevent a malicious driver from=
- attacking
-> > > >         the device by setting an incorrect hdr_len.
-> > > >
-> > > >         If the VIRTIO_NET_F_GUEST_HDRLEN feature has not been negot=
-iated, or
-> > > >         gso_type is VIRTIO_NET_HDR_GSO_NONE, the device MAY use hdr=
-_len only as
-> > > >         a hint about the transport header size. The device MUST NOT=
- rely on
-> > > >         hdr_len to be correct. Note: This is due to various bugs in
-> > > >         implementations.
-> > > >
-> > > > The device nerver trust the hdr_len completely.
-> > > > So I think that is safe.
-> > >
-> > > It doesn't, there's no way to audit all the existing implementations =
-of virtio.
-> > >
-> > > For example, have you seen the commit I've pointed to you?
-> >
-> > I haven seen it.
-> >
-> > But here, this is driver, the device should handen the check.
->
-> Unfortunately not. We can't audit all device implementations.
->
-> > For the driver, we should do as the spec.
-> > Do you mean that some evil driver pass 0 to device?
-> > Now we fix that.
->
-> hdrlen =3D tcp_hdrlen(skb) + skb_transport_offset(skb)
->
-> Did you mean hdrlen can't be zero here? I guess it is done by the
-> DODGY checking in the GSO path?
+Hi Heng,
 
-Do you mean tcp_hdrlen(skb) + skb_transport_offset(skb) maybe zero?
-I think so indeed. I will to check the logic of DODGY.
+kernel test robot noticed the following build warnings:
 
-Thanks.
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
->
-> Then, let's explain it here.
->
-> >
-> >
-> > >
-> > > >
-> > > >
-> > > > >
-> > > > > > +
-> > > > > > +               } else if (sinfo->gso_type & SKB_GSO_TCPV6) {
-> > > > > >                         hdr->gso_type =3D VIRTIO_NET_HDR_GSO_TC=
-PV6;
-> > > > > > -               else if (sinfo->gso_type & SKB_GSO_UDP_L4)
-> > > > > > +                       hdrlen =3D tcp_hdrlen(skb) + skb_transp=
-ort_offset(skb);
-> > > > > > +
-> > > > > > +               } else if (sinfo->gso_type & SKB_GSO_UDP_L4) {
-> > > > > >                         hdr->gso_type =3D VIRTIO_NET_HDR_GSO_UD=
-P_L4;
-> > > > > > -               else
-> > > > > > +                       hdrlen =3D sizeof(struct udphdr) + skb_=
-transport_offset(skb);
-> > > > > > +
-> > > > > > +               } else {
-> > > > > >                         return -EINVAL;
-> > > > > > +               }
-> > > > > > +
-> > > > > > +               /* One of VIRTIO_NET_F_HOST_TSO4, TSO6, USO or =
-UFO options MUST
-> > > > > > +                * have been negotiated. If the VIRTIO_NET_F_GU=
-EST_HDRLEN is
-> > > > > > +                * negotiated, we MUST set it to the length of =
-"eth header + ip
-> > > > > > +                * header + tcp/udp header".  If the VIRTIO_NET=
-_F_GUEST_HDRLEN
-> > > > > > +                * is not negotiated, that still be a valid val=
-ue.
-> > > > > > +                */
-> > > > >
-> > > > > I'd stick the headlen for deivce without GUEST_HDRLEN. It seems m=
-uch
-> > > > > more safe as we don't want to break legacy devices.
-> > > >
-> > > > I do not get it.
-> > >
-> > > if (GUEST_HDRLEN)
-> > >     tell the offset of the payload
-> > > else
-> > >     tell the headlen (stick to the old behaviour)
-> >
-> >
-> > I am ok. Then we need to pass the features of the device to this functi=
-on.
->
-> Yes, a boolean probably.
->
-> Thanks
->
-> >
-> > Thanks
-> >
-> >
-> >
-> > >
-> > > Thanks
-> > >
-> > > >
-> > > > Thanks.
-> > > >
-> > > >
-> > > > >
-> > > > > Thanks
-> > > > >
-> > > > >
-> > > >
-> > >
-> >
->
+url:    https://github.com/intel-lab-lkp/linux/commits/Heng-Qi/virtio-net-fix-possible-dim-status-unrecoverable/20240321-194759
+base:   linus/master
+patch link:    https://lore.kernel.org/r/1711021557-58116-3-git-send-email-hengqi%40linux.alibaba.com
+patch subject: [PATCH 2/2] virtio-net: reduce the CPU consumption of dim worker
+config: i386-randconfig-141-20240322 (https://download.01.org/0day-ci/archive/20240322/202403221133.J66oueZh-lkp@intel.com/config)
+compiler: gcc-12 (Debian 12.2.0-14) 12.2.0
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Reported-by: Dan Carpenter <dan.carpenter@linaro.org>
+| Closes: https://lore.kernel.org/r/202403221133.J66oueZh-lkp@intel.com/
+
+New smatch warnings:
+drivers/net/virtio_net.c:5031 virtnet_probe() warn: missing error code 'err'
+
+vim +/err +5031 drivers/net/virtio_net.c
+
+986a4f4d452dec Jason Wang            2012-12-07  5006  	/* Allocate/initialize the rx/tx queues, and invoke find_vqs */
+3f9c10b0d478a3 Amit Shah             2011-12-22  5007  	err = init_vqs(vi);
+d2a7ddda9ffb1c Michael S. Tsirkin    2009-06-12  5008  	if (err)
+d7dfc5cf56b0e3 Toshiaki Makita       2018-01-17  5009  		goto free;
+296f96fcfc160e Rusty Russell         2007-10-22  5010  
+3014a0d54820d2 Heng Qi               2023-10-08  5011  	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_NOTF_COAL)) {
+3014a0d54820d2 Heng Qi               2023-10-08  5012  		vi->intr_coal_rx.max_usecs = 0;
+3014a0d54820d2 Heng Qi               2023-10-08  5013  		vi->intr_coal_tx.max_usecs = 0;
+3014a0d54820d2 Heng Qi               2023-10-08  5014  		vi->intr_coal_rx.max_packets = 0;
+3014a0d54820d2 Heng Qi               2023-10-08  5015  
+3014a0d54820d2 Heng Qi               2023-10-08  5016  		/* Keep the default values of the coalescing parameters
+3014a0d54820d2 Heng Qi               2023-10-08  5017  		 * aligned with the default napi_tx state.
+3014a0d54820d2 Heng Qi               2023-10-08  5018  		 */
+3014a0d54820d2 Heng Qi               2023-10-08  5019  		if (vi->sq[0].napi.weight)
+3014a0d54820d2 Heng Qi               2023-10-08  5020  			vi->intr_coal_tx.max_packets = 1;
+3014a0d54820d2 Heng Qi               2023-10-08  5021  		else
+3014a0d54820d2 Heng Qi               2023-10-08  5022  			vi->intr_coal_tx.max_packets = 0;
+3014a0d54820d2 Heng Qi               2023-10-08  5023  	}
+3014a0d54820d2 Heng Qi               2023-10-08  5024  
+d8cd72f1622753 Heng Qi               2024-03-21  5025  	INIT_LIST_HEAD(&vi->coal_list);
+3014a0d54820d2 Heng Qi               2023-10-08  5026  	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL)) {
+d8cd72f1622753 Heng Qi               2024-03-21  5027  		vi->cvq_cmd_nums = 0;
+d8cd72f1622753 Heng Qi               2024-03-21  5028  		vi->dim_loop_index = 0;
+d8cd72f1622753 Heng Qi               2024-03-21  5029  
+d8cd72f1622753 Heng Qi               2024-03-21  5030  		if (virtnet_init_coal_list(vi))
+d8cd72f1622753 Heng Qi               2024-03-21 @5031  			goto free;
+
+This should probably set the error code.
+
+	err = virtnet_init_coal_list(vi);
+	if (err)
+		goto free;
+
+d8cd72f1622753 Heng Qi               2024-03-21  5032  
+3014a0d54820d2 Heng Qi               2023-10-08  5033  		/* The reason is the same as VIRTIO_NET_F_NOTF_COAL. */
+d8cd72f1622753 Heng Qi               2024-03-21  5034  		for (i = 0; i < vi->max_queue_pairs; i++) {
+d8cd72f1622753 Heng Qi               2024-03-21  5035  			vi->rq[i].packets_in_napi = 0;
+3014a0d54820d2 Heng Qi               2023-10-08  5036  			if (vi->sq[i].napi.weight)
+3014a0d54820d2 Heng Qi               2023-10-08  5037  				vi->sq[i].intr_coal.max_packets = 1;
+3014a0d54820d2 Heng Qi               2023-10-08  5038  		}
+d8cd72f1622753 Heng Qi               2024-03-21  5039  	}
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
+
