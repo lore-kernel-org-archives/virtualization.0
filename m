@@ -1,251 +1,133 @@
-Received: from mail.zeus03.de (www.zeus03.de [194.117.254.33])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 231DD5FDC3
-	for <virtualization@lists.linux.dev>; Fri, 22 Mar 2024 17:09:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86D845FB87
+	for <virtualization@lists.linux-foundation.org>; Fri, 22 Mar 2024 17:22:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711127398; cv=none; b=Mm/j9TyerulsC5pJyk7ayPY0rx2qR0o2BixWnKNGLyL99pT9qGSDCnVRsERf+ZF5e+V3hKRr9R0PUYGyS4RupvX45InOd5w6iGe64MHu/EfakcXsSfFYOLcseXs3Rlk7G8xm4kC1msCh6hsTuXgLCs/tfoN277USnIMWiZ+r6SI=
+	t=1711128157; cv=none; b=sQIGoD49yMSOEhMCpjqBuUiHB3M+Pgz1jmJUXq+4K7zy9owwkYUFLmxb0tLB6BHlIyqwbDaqTvg9mLt/vqMJkB9upmnStfc3PX/UTcujoaqbDMK1KOFA2HgtF29saGtCKTCVvUNTi3VSgGbZdcVE08UfL9owU1O3QhNHGQnPqnE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711127398; c=relaxed/simple;
-	bh=WFSROxQZOVxFu47A+8VqRSUCe8TRaljA8PS0t5b553Y=;
+	s=arc-20240116; t=1711128157; c=relaxed/simple;
+	bh=JRQSJkNbZDDh5hmntu8CppKCnDmLxnU8CBU620nL6DI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=SrczS+oQxWtkbewa2YNDVQWK3+AGrYjPOpmPBeZBfSINEckOkrBDbM5DjxnGD7a8IXkGTr9xE8PqA/ulPSec1BAGj5n6WswvEhhekXfWz9miA3f5YWC9ljAKkKJZ1u1Jv0Wa/icK/dRmXc7vP+RBTwyCX3W0Y+JaXLsEpcECo98=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=cNmYtKwO; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=Fqqnk5q+q5qdHd0CzHEkxpeirxoIp7ejy/ROtTZPwaHng5/uuTzv+Ac1fG9CqgjNM43ihjdOVbVF/T20IBQC3v4Hda0oOV1irRz4EJh1hzxlkJUFI2wDX1UtyY6u0NN6hcoN64YEBAx3shttXU7zTSjwXno7innvqg9z69b6E+w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=I5ZLeqtH; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="cNmYtKwO"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=WFSR
-	OxQZOVxFu47A+8VqRSUCe8TRaljA8PS0t5b553Y=; b=cNmYtKwO5Cu5IWiuRD5o
-	Rra1wfWzl7faA6KT3pVfA9ipAZ93fnWCDyioXrFmupshiecN38ZhuEn20Lv197ck
-	wliUCprkQUA+jo49CTtVw9txv7lkqS3TK7Sph3u8PGimL8isWCSjBtDUOvzRJC0c
-	HV4nrVroNyYOMldN5AgE4PNKHFpmVyKgXYoBCwPSXbXBzaxGbeNIbPfQZpKPIkJj
-	OW/7uewh3zH5HPeHcYM/IfiHiY62bvPzBSsPOmiOjbDOgKSwOamu6D/qtV+wk6R+
-	BNT0hTYDcakbO1754UvcuMCQVFvDQRT4cCISEjn5KLHZbq2psaT5U9oxZ+uoJ87t
-	pw==
-Received: (qmail 3929014 invoked from network); 22 Mar 2024 18:09:43 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 22 Mar 2024 18:09:43 +0100
-X-UD-Smtp-Session: l3s3148p1@P2He40IU0sJehhtF
-Date: Fri, 22 Mar 2024 18:09:42 +0100
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Guenter Roeck <groeck@google.com>
-Cc: Nicolas Ferre <nicolas.ferre@microchip.com>, linux-i2c@vger.kernel.org,
-	Elie Morisse <syniurge@gmail.com>,
-	Shyam Sundar S K <shyam-sundar.s-k@amd.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Claudiu Beznea <claudiu.beznea@tuxon.dev>,
-	Krzysztof Adamski <krzysztof.adamski@nokia.com>,
-	Benson Leung <bleung@chromium.org>,
-	Guenter Roeck <groeck@chromium.org>,
-	Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Jan Dabros <jsd@semihalf.com>,
-	Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-	Alim Akhtar <alim.akhtar@samsung.com>,
-	Jean-Marie Verdun <verdun@hpe.com>,
-	Nick Hawkins <nick.hawkins@hpe.com>,
-	Yicong Yang <yangyicong@hisilicon.com>,
-	Oleksij Rempel <o.rempel@pengutronix.de>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Shawn Guo <shawnguo@kernel.org>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	Paul Cercueil <paul@crapouillou.net>,
-	Neil Armstrong <neil.armstrong@linaro.org>,
-	Kevin Hilman <khilman@baylibre.com>,
-	Jerome Brunet <jbrunet@baylibre.com>,
-	Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-	Khalil Blaiech <kblaiech@nvidia.com>,
-	Asmaa Mnebhi <asmaa@nvidia.com>, Qii Wang <qii.wang@mediatek.com>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Avi Fishman <avifishman70@gmail.com>,
-	Tomer Maimon <tmaimon77@gmail.com>,
-	Tali Perry <tali.perry1@gmail.com>,
-	Patrick Venture <venture@google.com>, Nancy Yuen <yuenn@google.com>,
-	Benjamin Fair <benjaminfair@google.com>,
-	Ajay Gupta <ajayg@nvidia.com>,
-	Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>,
-	Robert Richter <rric@kernel.org>,
-	Aaro Koskinen <aaro.koskinen@iki.fi>,
-	Janusz Krzysztofik <jmkrzyszt@gmail.com>,
-	Tony Lindgren <tony@atomide.com>, Vignesh R <vigneshr@ti.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
-	"Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-	Hector Martin <marcan@marcan.st>, Sven Peter <sven@svenpeter.dev>,
-	Alyssa Rosenzweig <alyssa@rosenzweig.io>,
-	Vladimir Zapolskiy <vz@mleia.com>,
-	Loic Poulain <loic.poulain@linaro.org>,
-	Robert Foss <rfoss@kernel.org>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Konrad Dybcio <konrad.dybcio@linaro.org>,
-	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
-	Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
-	Alain Volmat <alain.volmat@foss.st.com>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Alexandre Torgue <alexandre.torgue@foss.st.com>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	Jonathan Hunter <jonathanh@nvidia.com>,
-	Laxman Dewangan <ldewangan@nvidia.com>,
-	Dmitry Osipenko <digetx@gmail.com>,
-	Conghui Chen <conghui.chen@intel.com>,
-	Viresh Kumar <viresh.kumar@linaro.org>,
-	Michal Simek <michal.simek@amd.com>, linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	chrome-platform@lists.linux.dev, linux-samsung-soc@vger.kernel.org,
-	imx@lists.linux.dev, linux-mips@vger.kernel.org,
-	linux-amlogic@lists.infradead.org,
-	linux-mediatek@lists.infradead.org, openbmc@lists.ozlabs.org,
-	linux-omap@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	asahi@lists.linux.dev, linux-arm-msm@vger.kernel.org,
-	linux-renesas-soc@vger.kernel.org,
-	linux-stm32@st-md-mailman.stormreply.com,
-	linux-tegra@vger.kernel.org, virtualization@lists.linux.dev,
-	Ryan Wanner <Ryan.Wanner@microchip.com>
-Subject: Re: [PATCH 64/64] i2c: reword i2c_algorithm in drivers according to
- newest specification
-Message-ID: <Zf27VpOHPXAtHCLr@shikoro>
-Mail-Followup-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Guenter Roeck <groeck@google.com>,
-	Nicolas Ferre <nicolas.ferre@microchip.com>,
-	linux-i2c@vger.kernel.org, Elie Morisse <syniurge@gmail.com>,
-	Shyam Sundar S K <shyam-sundar.s-k@amd.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Claudiu Beznea <claudiu.beznea@tuxon.dev>,
-	Krzysztof Adamski <krzysztof.adamski@nokia.com>,
-	Benson Leung <bleung@chromium.org>,
-	Guenter Roeck <groeck@chromium.org>,
-	Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Jan Dabros <jsd@semihalf.com>,
-	Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-	Alim Akhtar <alim.akhtar@samsung.com>,
-	Jean-Marie Verdun <verdun@hpe.com>,
-	Nick Hawkins <nick.hawkins@hpe.com>,
-	Yicong Yang <yangyicong@hisilicon.com>,
-	Oleksij Rempel <o.rempel@pengutronix.de>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Shawn Guo <shawnguo@kernel.org>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	Paul Cercueil <paul@crapouillou.net>,
-	Neil Armstrong <neil.armstrong@linaro.org>,
-	Kevin Hilman <khilman@baylibre.com>,
-	Jerome Brunet <jbrunet@baylibre.com>,
-	Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-	Khalil Blaiech <kblaiech@nvidia.com>,
-	Asmaa Mnebhi <asmaa@nvidia.com>, Qii Wang <qii.wang@mediatek.com>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Avi Fishman <avifishman70@gmail.com>,
-	Tomer Maimon <tmaimon77@gmail.com>,
-	Tali Perry <tali.perry1@gmail.com>,
-	Patrick Venture <venture@google.com>, Nancy Yuen <yuenn@google.com>,
-	Benjamin Fair <benjaminfair@google.com>,
-	Ajay Gupta <ajayg@nvidia.com>,
-	Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>,
-	Robert Richter <rric@kernel.org>,
-	Aaro Koskinen <aaro.koskinen@iki.fi>,
-	Janusz Krzysztofik <jmkrzyszt@gmail.com>,
-	Tony Lindgren <tony@atomide.com>, Vignesh R <vigneshr@ti.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
-	"Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-	Hector Martin <marcan@marcan.st>, Sven Peter <sven@svenpeter.dev>,
-	Alyssa Rosenzweig <alyssa@rosenzweig.io>,
-	Vladimir Zapolskiy <vz@mleia.com>,
-	Loic Poulain <loic.poulain@linaro.org>,
-	Robert Foss <rfoss@kernel.org>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Konrad Dybcio <konrad.dybcio@linaro.org>,
-	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
-	Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
-	Alain Volmat <alain.volmat@foss.st.com>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Alexandre Torgue <alexandre.torgue@foss.st.com>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	Jonathan Hunter <jonathanh@nvidia.com>,
-	Laxman Dewangan <ldewangan@nvidia.com>,
-	Dmitry Osipenko <digetx@gmail.com>,
-	Conghui Chen <conghui.chen@intel.com>,
-	Viresh Kumar <viresh.kumar@linaro.org>,
-	Michal Simek <michal.simek@amd.com>, linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	chrome-platform@lists.linux.dev, linux-samsung-soc@vger.kernel.org,
-	imx@lists.linux.dev, linux-mips@vger.kernel.org,
-	linux-amlogic@lists.infradead.org,
-	linux-mediatek@lists.infradead.org, openbmc@lists.ozlabs.org,
-	linux-omap@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	asahi@lists.linux.dev, linux-arm-msm@vger.kernel.org,
-	linux-renesas-soc@vger.kernel.org,
-	linux-stm32@st-md-mailman.stormreply.com,
-	linux-tegra@vger.kernel.org, virtualization@lists.linux.dev,
-	Ryan Wanner <Ryan.Wanner@microchip.com>
-References: <20240322132619.6389-1-wsa+renesas@sang-engineering.com>
- <20240322132619.6389-65-wsa+renesas@sang-engineering.com>
- <e8dff9d4-ed15-44e9-ae9a-2e77845ec40b@microchip.com>
- <Zf22G4jC2gIlzhi_@shikoro>
- <CABXOdTc14kfPpkF96KG-oeLRTLvjxAD_gtOO2TQFLnHMLNoU_Q@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="I5ZLeqtH"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 23BF3405CE
+	for <virtualization@lists.linux-foundation.org>; Fri, 22 Mar 2024 17:22:36 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id RIOcI3bRxZUT
+	for <virtualization@lists.linux-foundation.org>;
+	Fri, 22 Mar 2024 17:22:35 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::f29; helo=mail-qv1-xf29.google.com; envelope-from=jgg@ziepe.ca; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 1FBEC40519
+Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1FBEC40519
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=I5ZLeqtH
+Received: from mail-qv1-xf29.google.com (mail-qv1-xf29.google.com [IPv6:2607:f8b0:4864:20::f29])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 1FBEC40519
+	for <virtualization@lists.linux-foundation.org>; Fri, 22 Mar 2024 17:22:34 +0000 (UTC)
+Received: by mail-qv1-xf29.google.com with SMTP id 6a1803df08f44-690c1747c3cso18644596d6.0
+        for <virtualization@lists.linux-foundation.org>; Fri, 22 Mar 2024 10:22:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1711128154; x=1711732954; darn=lists.linux-foundation.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=f2AQjZhkcpL+YcTkiIsVz9MRTBhpc8RMyyFuJbdJLXk=;
+        b=I5ZLeqtHKuftCZxWI620RNWotnCQ8enGqlRZy0gyHmAui1DIgMq1Az/385ablWDsPv
+         o6+3bnsVpnUw750I3XNA3mkRMR808Tr/BVdYNJ10EPBXddLGNigoNLht4oSOTx34Wt7r
+         d7Y58hqraUV3LyHUxWHtFMj7bugfMPjvR/oJcms5dmVum6C+3jIf23g0FNyhOs6Sl8m4
+         ugJ67oLHMBLU/fq/md223d9QNS1oPuHrQpbPcq8jFJ1jB4+gBna45zYWYhyNh11mBPpp
+         YpWJM64j5i10O7mnOvzGLzeDqnIy02cWGJuPrD2bW+ASQ7o4ATY7Ji5DqM8dGl3UPwMB
+         q6yQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1711128154; x=1711732954;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=f2AQjZhkcpL+YcTkiIsVz9MRTBhpc8RMyyFuJbdJLXk=;
+        b=rWUlFSHxABOlY+QFHcMBRt49MZJ3plcEKaC394ALdpp+CVza+Id7lX786N3UWY0THj
+         qUYUlZ2Rty4ooTvsVrl29S+qv0jayo6KGcolVmkE5oW//KBkP2RpBQhO/sUCMybsDEMQ
+         l/53f3iMLdqJq9Q2jRJBcjaUWEwnyB9SwHsYUCrycbWKxNpDJatxE6+N6IhB6ViUrLVw
+         mgRcyZDGhZLV5lzd0i2QM7lAAPZ7qh8pmI3IrKPCMommH0wJQ08UF4vXmhYoBekjlcFv
+         hNCeyHND4FFXhD5MXpggBWw5J9pyvOU27cADmLp47IUWn8NkCwS4W3VK129RyynOdaVT
+         MSVQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVG1ZiIfwArZ2OHQ8sqQeq27d2HrSnswFp4fHoUUqWl3caplpQtFKC+gzAUr/erIyBpbElBG+w92Bbp79vBK6HsOc1Omz7RYGwKKSV9KZyho0BBLy7i0gAJlg==
+X-Gm-Message-State: AOJu0YxgoZTdbB6DVnCJA+DqNk1sme+k9k+rnEAc/1fopEZH9oZ6CFzW
+	FN9oZHQ4rmbT9WaS1VQh9/+CFtGqOrrfxnS729mgKFa7fkmPBaQCwO5npcVF2fo=
+X-Google-Smtp-Source: AGHT+IFkTNz9gzTcdcg16F0TwV7dxXOkqWGRizUzT+UpEdwSHdcAyu+RuzvoVxcbESzfseuHHEH9Lw==
+X-Received: by 2002:a05:6214:1307:b0:690:b479:527e with SMTP id pn7-20020a056214130700b00690b479527emr4829755qvb.13.1711128153820;
+        Fri, 22 Mar 2024 10:22:33 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-142-68-80-239.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.80.239])
+        by smtp.gmail.com with ESMTPSA id kl6-20020a056214518600b00691281bf661sm1267511qvb.5.2024.03.22.10.22.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 22 Mar 2024 10:22:33 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.95)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1rnibA-00CUem-JS;
+	Fri, 22 Mar 2024 14:22:32 -0300
+Date: Fri, 22 Mar 2024 14:22:32 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Shameerali Kolothum Thodi <shameerali.kolothum.thodi@huawei.com>
+Cc: Lu Baolu <baolu.lu@linux.intel.com>, Kevin Tian <kevin.tian@intel.com>,
+	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Jean-Philippe Brucker <jean-philippe@linaro.org>,
+	Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
+	Jacob Pan <jacob.jun.pan@linux.intel.com>,
+	Joel Granados <j.granados@samsung.com>,
+	"iommu@lists.linux.dev" <iommu@lists.linux.dev>,
+	"virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v3 4/8] iommufd: Add iommufd fault object
+Message-ID: <20240322172232.GK66976@ziepe.ca>
+References: <20240122073903.24406-1-baolu.lu@linux.intel.com>
+ <20240122073903.24406-5-baolu.lu@linux.intel.com>
+ <ad4575588dd247fa8beae60963f36404@huawei.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="un7BlYMtStBuO9gz"
-Content-Disposition: inline
-In-Reply-To: <CABXOdTc14kfPpkF96KG-oeLRTLvjxAD_gtOO2TQFLnHMLNoU_Q@mail.gmail.com>
-
-
---un7BlYMtStBuO9gz
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <ad4575588dd247fa8beae60963f36404@huawei.com>
 
+On Wed, Mar 20, 2024 at 04:18:05PM +0000, Shameerali Kolothum Thodi wrote:
+> 
+> What I have noticed is that,
+> -read interface works fine and I can receive struct tiommu_hwpt_pgfault data.
+> -But once Guest handles the page faults and returns the page response,
+>  the write to fault fd never reaches the kernel. The sequence is like below,
+>  
+>   sqe = io_uring_get_sqe(ring);
+>   io_uring_prep_write(sqe, hwpt->fault_fd, resp, sizeof(*resp), 0);
+>   io_uring_sqe_set_data(sqe, resp);
+>   io_uring_submit(ring);
+>   ret = io_uring_wait_cqe(ring, &cqe); 
+>   ....
+> Please find the function here[2]
+> 
+> The above cqe wait never returns and hardware times out without receiving
+> page response. My understanding of io_uring default op is that it tries to 
+> issue an sqe as non-blocking first. But it looks like the above write sequence
+> ends up in kernel poll_wait() as well.Not sure how we can avoid that for
+> write.
 
-> Kind of odd though to change function names but not parameter names of
-> those very same functions.
+Ah, right, it is because poll can't be choosy about read/write, it has
+to work equally for both directions. iommufd_fault_fops_poll() never
+returns EPOLLOUT
 
-Ouch, this is definitely a valid point. Seems like this series will need
-a respin after all. Will wait for further comments, though.
+It should just always return EPOLLOUT because we don't have any queue
+to manage.
 
-Thanks!
-
-
---un7BlYMtStBuO9gz
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmX9u1YACgkQFA3kzBSg
-KbZSKA//Q8484MbfzpPKmvUS0QA73oCgcHXOiIKbRKOfwXWkquKc1vuGV6LbxWG+
-oPc84UQGrv+MjAhAMX/ZpO2VdGp+ej/a1j1kNYihlqVTkY/rRWPMa5y1oNB2H5Xq
-tFjFmqgwbqm/K/OND3KcJw8zAmXCTgCvgQDyQx76B6KMydRGzKel/sM29TwW6mTm
-HCQ9klGLK273LaNEAwn4vkLQ6BtVmjI1CpnjIp3hSRWdW9IytTQlM2weh0gQ+D2p
-OerYgE9JUZp4dgPgLIR60J3AER1DaZtHMVH5NwMLT8xMLa/L3RgkSaTbxa/D2tvm
-K2XQbEWvx8HsxtEIUEcIy936gmSyZ7Nta1mJv+5yN+DLHdGoo9KNl6vcMxzXLgpM
-02/ySV8tMq+Q4cX/fIVZxaeudi69toWj1QcjLg11KaJDo4ndbPqBwYRkSYJ+o2Nh
-aJNDu7J+5ud051bq05bFRaCitl7kyEdv5WEjwk5RTLDD1xvwR84SZ3ElcQ6Jnb/I
-VaA1JNnKw/et4KmEF4A65wphnC8pC/gmH5c9SrPs6w7dUw44dla+p+jPrgtvUOnY
-sqhCnFNLZ5MGuyhTemuWVdGNNvwwuTYFf/VYKi7mdRVsCRdLQIoHklH7FUfmwhpM
-G5oEk4nI7j9MbLPl4WOjrZ9k5wZQnd5zRSWHj/aw5xmVCbNVKsQ=
-=dqSs
------END PGP SIGNATURE-----
-
---un7BlYMtStBuO9gz--
+Jason
