@@ -1,249 +1,288 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mail.zeus03.de (www.zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C2D13F9F5
-	for <virtualization@lists.linux.dev>; Fri, 22 Mar 2024 11:56:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A58D46426
+	for <virtualization@lists.linux.dev>; Fri, 22 Mar 2024 13:26:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711108616; cv=none; b=miIPFFnliwOn9w4s9QFntiWW/UAfvd7aiUk6swr5DH3Mr4gJtUI3WXUdROpYOcmrdIMSyJeq2MhNKD8g8oKn60oVFB65bMGpTGK36gy7yUZsi92DMIR0pn/dEcrrEwT3Z44ueFmpqbAc4Usch0S2m77W7pKG5+7gMWzy3k3VN8Y=
+	t=1711113997; cv=none; b=Br6uj0xSLTM3g2LuAVXd7kRvxMzeb39ULgzDrNSOiYEzM4q+Wyd0+Thllocp3jyKtdfYDBzUDoAQ9rofymGttmustw5VzGkvKoGAZL9nn5ONtPLbvT+Z+JhBdJZv+TEyDtT+L+GpbgycPbQMypKCW3/3OpmT16Xg3CwJQtIoxdA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711108616; c=relaxed/simple;
-	bh=sulsfC3nRd0LxdfOW1zC16Mdv3AZjGZeArE2KLK+Jrk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Xl4tgC6Olcwrp9RBnF0EJaNz6T6LZC30H6HRWv1ILOQ9iVEYI2aAsC1fb7G+gr0UCrlLsx5AJs5Pob4XDTfb9h+vSHjktHnPXN3fn2by9tA8nOe1495WuAgTKeiRx1BAcLSRxo0jkVDXRcCwk4lNh6GtlAbH/S+R2wEydeMvDGY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FYBrsepx; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1711113997; c=relaxed/simple;
+	bh=dkHEK5fRN4ISlL8OBFqYbKAYt0DED3N3Yfj6qrUQoVQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=F8gMQRzfZZtrUF7nrq01x7dy+vQPB+8h6HNNUeYWNH+th8a//XvYE6oaKYfAKEZlF9MddtnbaWbAKFcaCliU+Djkcg0PT3pEo/W/cE31PlyQZswc96xwS8S8D6pbt4Nl7oHChOk2KXUdWQcU9JYB5CyTotBu1C/kJYN8ne4mjis=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=a6wbfcte; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FYBrsepx"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1711108613;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=k8phzhH+bcCAhu8LzPRS+w6MFVuocyKpcgRJTQx5vTg=;
-	b=FYBrsepx67G50MfFx02OzqbIy1cArODQXFHVI49Wc/D8bxSv8jpYTCXZ17NJYv8CDX1eoD
-	zZ+NcGzJq5tG4NQqDzLMQzDr3q0KRhkhhZ8fthykvzY4ZGS8nEoqHUBma4cYBDneZhFw2a
-	1gvHhtHpdJ9O5sIxlcYZBk9Uuy0KNJg=
-Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
- [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-690-ZerQ2NOJN2qgbT10PUaB8w-1; Fri, 22 Mar 2024 07:56:51 -0400
-X-MC-Unique: ZerQ2NOJN2qgbT10PUaB8w-1
-Received: by mail-lf1-f70.google.com with SMTP id 2adb3069b0e04-513ec050f5cso1767113e87.1
-        for <virtualization@lists.linux.dev>; Fri, 22 Mar 2024 04:56:51 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711108610; x=1711713410;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
-         :references:cc:to:content-language:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=k8phzhH+bcCAhu8LzPRS+w6MFVuocyKpcgRJTQx5vTg=;
-        b=JgGyr7y4zcpKthvu3SfdClx9wakHMPgSrAzEH4Eyay7Ab2Q46F0nkm+Z1nI16VK9W2
-         yfjnINzopjU5EreQUglchvaMnE2eby0wBD4Jl8Wur8Y2z7OOjjJu2xjf/zd5C6/U9YQf
-         I/RCz1D1Mk3V3cGeP4f4eo+2QCEfO0sq4LI3kh7a2cbnhQlVRpkCWV1vjzaxTwQ5e01N
-         vAcZ+ILk+CSpKRZM33XOzYlOLPjXkOOjsFUYNbK5lpGQCmqKdJ1V/7YdDBfrt4ouMOVy
-         ya9zl28ShsTmA06HYgvfE5hXyMIYoGRlZCDzF1xg4Uaqh62OlCGC3qcn0h69pTh44GBG
-         mC9g==
-X-Forwarded-Encrypted: i=1; AJvYcCVhiN0896VprvxwpUn6pPq+mQgXDORicTlKDUnSR2kdVCgm0ogH9TsgShSMMg1S0Kh5UI+iRF3FCgQQB8JYKVQdmoAVWkRjrioqT+3ZPjs=
-X-Gm-Message-State: AOJu0YxV753naErnBonHmIbfv6W3QFCvR9ymQ51KKwqV2D4kulv+9z28
-	mL/7CyuvTO1mQt5IbqNGWetOlsU+E4kbVkKeFmyoqFt+05hXzcV6udQUGg/lwizKj2OP0Gns6FB
-	2KRmhRHOHIwq629+F6YYctp7n784Ijb6QA/Vo/8M9Q2nJjmAnkjHWLbFv4wstQHhP
-X-Received: by 2002:a19:2d47:0:b0:513:8102:1a1e with SMTP id t7-20020a192d47000000b0051381021a1emr1519559lft.50.1711108610487;
-        Fri, 22 Mar 2024 04:56:50 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFQx6PbBrwZG4C6vyRezVR/JnZxZ2mjcNcbAkSDm5jCYhr8+aNKGnr1n8kbswqbAuJNosOaww==
-X-Received: by 2002:a19:2d47:0:b0:513:8102:1a1e with SMTP id t7-20020a192d47000000b0051381021a1emr1519516lft.50.1711108609056;
-        Fri, 22 Mar 2024 04:56:49 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c71b:7e00:9339:4017:7111:82d0? (p200300cbc71b7e0093394017711182d0.dip0.t-ipconnect.de. [2003:cb:c71b:7e00:9339:4017:7111:82d0])
-        by smtp.gmail.com with ESMTPSA id h11-20020a05600c350b00b0041477e76ec6sm2915008wmq.2.2024.03.22.04.56.47
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 22 Mar 2024 04:56:48 -0700 (PDT)
-Message-ID: <3620be9c-e288-4ff2-a7be-1fcf806e6e6e@redhat.com>
-Date: Fri, 22 Mar 2024 12:56:46 +0100
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="a6wbfcte"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=from:to:cc:subject:date:message-id
+	:mime-version:content-transfer-encoding; s=k1; bh=bOf4HkOrzle/Fy
+	JG8mZHPOABnHhQv51u3vi0fpeyQ5Q=; b=a6wbfcte3+iXXCHibc+JrZzTin6dRv
+	R/KSB8hp01+LD2eYy9sHlg2rk631UWOsn12Y+n+kLseFY+llqMyTkAsXsa6SiRwh
+	MWm4LoN2zRJucl7AcBuXiztmbKc/EIBM7mZDtMCuyBPr9HgJZmeZ/QrbcrtglWHS
+	XN+P7gn2zQD/Lze6LmCDGEGHL9G2ujuVTWCU21W3oIUiV/btIhr/tqNO2UzK6c7u
+	GiqtIoKlD88U2nMoYFxi6SLiCaIBiXxhRRTMJxL3pZ9O0lWnbgR868o+Ty13YBXb
+	C70pYVUa6DcFGd/ysTyvqG2U7fdTnfOcmCXLvQLbrSiCtbkj8qjVIAVA==
+Received: (qmail 3869988 invoked from network); 22 Mar 2024 14:26:20 +0100
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 22 Mar 2024 14:26:20 +0100
+X-UD-Smtp-Session: l3s3148p1@LoLvxD8UMpNehhtF
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	asahi@lists.linux.dev,
+	chrome-platform@lists.linux.dev,
+	imx@lists.linux.dev,
+	linux-actions@lists.infradead.org,
+	linux-amlogic@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-arm-msm@vger.kernel.org,
+	linux-aspeed@lists.ozlabs.org,
+	linux-kernel@vger.kernel.org,
+	linux-mediatek@lists.infradead.org,
+	linux-mips@vger.kernel.org,
+	linux-omap@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-renesas-soc@vger.kernel.org,
+	linux-riscv@lists.infradead.org,
+	linux-rockchip@lists.infradead.org,
+	linux-rpi-kernel@lists.infradead.org,
+	linux-samsung-soc@vger.kernel.org,
+	linux-stm32@st-md-mailman.stormreply.com,
+	linux-sunxi@lists.linux.dev,
+	linux-tegra@vger.kernel.org,
+	openbmc@lists.ozlabs.org,
+	virtualization@lists.linux.dev
+Subject: [PATCH 00/64] i2c: reword i2c_algorithm according to newest specification
+Date: Fri, 22 Mar 2024 14:24:53 +0100
+Message-ID: <20240322132619.6389-1-wsa+renesas@sang-engineering.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH vhost v4 1/6] virtio_balloon: remove the dependence where
- names[] is null
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev
-Cc: Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- Hans de Goede <hdegoede@redhat.com>,
- =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- Vadim Pasternak <vadimp@nvidia.com>, Bjorn Andersson <andersson@kernel.org>,
- Mathieu Poirier <mathieu.poirier@linaro.org>,
- Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>,
- Eric Farman <farman@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>, linux-um@lists.infradead.org,
- platform-driver-x86@vger.kernel.org, linux-remoteproc@vger.kernel.org,
- linux-s390@vger.kernel.org, kvm@vger.kernel.org
-References: <20240321101532.59272-1-xuanzhuo@linux.alibaba.com>
- <20240321101532.59272-2-xuanzhuo@linux.alibaba.com>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <20240321101532.59272-2-xuanzhuo@linux.alibaba.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 21.03.24 11:15, Xuan Zhuo wrote:
-> Currently, the init_vqs function within the virtio_balloon driver relies
-> on the condition that certain names array entries are null in order to
-> skip the initialization of some virtual queues (vqs). This behavior is
-> unique to this part of the codebase. In an upcoming commit, we plan to
-> eliminate this dependency by removing the function entirely. Therefore,
-> with this change, we are ensuring that the virtio_balloon no longer
-> depends on the aforementioned function.
-> 
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> ---
->   drivers/virtio/virtio_balloon.c | 41 +++++++++++++++------------------
->   1 file changed, 19 insertions(+), 22 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 1f5b3dd31fcf..becc12a05407 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -531,49 +531,46 @@ static int init_vqs(struct virtio_balloon *vb)
->   	struct virtqueue *vqs[VIRTIO_BALLOON_VQ_MAX];
->   	vq_callback_t *callbacks[VIRTIO_BALLOON_VQ_MAX];
->   	const char *names[VIRTIO_BALLOON_VQ_MAX];
-> -	int err;
-> +	int err, nvqs, idx;
->   
-> -	/*
-> -	 * Inflateq and deflateq are used unconditionally. The names[]
-> -	 * will be NULL if the related feature is not enabled, which will
-> -	 * cause no allocation for the corresponding virtqueue in find_vqs.
-> -	 */
->   	callbacks[VIRTIO_BALLOON_VQ_INFLATE] = balloon_ack;
->   	names[VIRTIO_BALLOON_VQ_INFLATE] = "inflate";
->   	callbacks[VIRTIO_BALLOON_VQ_DEFLATE] = balloon_ack;
->   	names[VIRTIO_BALLOON_VQ_DEFLATE] = "deflate";
+Okay, we need to begin somewhere...
 
-I'd remove the static dependencies here completely and do it
-consistently:
+Start changing the wording of the I2C main header wrt. the newest I2C
+v7, SMBus 3.2, I3C specifications and replace "master/slave" with more
+appropriate terms. This first step renames the members of struct
+i2c_algorithm. Once all in-tree users are converted, the anonymous union
+will go away again. All this work will also pave the way for finally
+seperating the monolithic header into more fine-grained headers like
+"i2c/clients.h" etc. So, this is not a simple renaming-excercise but
+also a chance to update the I2C core to recent Linux standards.
 
-nvqs = 0;
+My motivation is to improve the I2C core API, in general. My motivation
+is not to clean each and every driver. I think this is impossible
+because register names based on official documentation will need to stay
+as they are. But the Linux-internal names should be updated IMO.
 
-callbacks[nvqs] = balloon_ack;
-names[nvqs++] = "inflate";
-callbacks[nvqs] = balloon_ack;
-names[nvqs++] = "deflate";
+That being said, I worked on 62 drivers in this series beyond plain
+renames inside 'struct i2c_algorithm' because the fruits were so
+low-hanging. Before this series, 112 files in the 'busses/' directory
+contained 'master' and/or 'slave'. After the series, only 57. Why not?
+
+Next step is updating the drivers outside the 'i2c'-folder regarding
+'struct i2c_algorithm' so we can remove the anonymous union ASAP. To be
+able to work on this with minimal dependencies, I'd like to apply this
+series between -rc1 and -rc2.
+
+I hope this will work for you guys. The changes are really minimal. If
+you are not comfortable with changes to your driver or need more time to
+review, please NACK the patch and I will drop the patch and/or address
+the issues separeately.
+
+@Andi: are you okay with this approach? It means you'd need to merge
+-rc2 into your for-next branch. Or rebase if all fails.
+
+Speaking of Andi, thanks a lot to him taking care of the controller
+drivers these days. His work really gives me the freedom to work on I2C
+core issues again. Also, Renesas deserves a honorable mention here for
+increased support of my I2C activities. Thank you!
+
+If you have comments, hints, etc, please let me know.
+
+Happy hacking,
+
+   Wolfram
 
 
-> -	callbacks[VIRTIO_BALLOON_VQ_STATS] = NULL;
-> -	names[VIRTIO_BALLOON_VQ_STATS] = NULL;
-> -	callbacks[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
-> -	names[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
-> -	names[VIRTIO_BALLOON_VQ_REPORTING] = NULL;
-> +
-> +	nvqs = VIRTIO_BALLOON_VQ_DEFLATE + 1;
->   
->   	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
-> -		names[VIRTIO_BALLOON_VQ_STATS] = "stats";
-> -		callbacks[VIRTIO_BALLOON_VQ_STATS] = stats_request;
-> +		names[nvqs] = "stats";
-> +		callbacks[nvqs] = stats_request;
-> +		++nvqs;
+Wolfram Sang (64):
+  i2c: reword i2c_algorithm according to newest specification
+  i2c: ali15x3: reword according to newest specification
+  i2c: altera: reword according to newest specification
+  i2c: amd-mp2-pci: reword according to newest specification
+  i2c: aspeed: reword according to newest specification
+  i2c: au1550: reword according to newest specification
+  i2c: bcm-iproc: reword according to newest specification
+  i2c: bcm-kona: reword according to newest specification
+  i2c: bcm2835: reword according to newest specification
+  i2c: brcmstb: reword according to newest specification
+  i2c: cadence: reword according to newest specification
+  i2c: cht-wc: reword according to newest specification
+  i2c: cp2615: reword according to newest specification
+  i2c: cpm: reword according to newest specification
+  i2c: davinci: reword according to newest specification
+  i2c: digicolor: reword according to newest specification
+  i2c: dln2: reword according to newest specification
+  i2c: eg20t: reword according to newest specification
+  i2c: emev2: reword according to newest specification
+  i2c: fsi: reword according to newest specification
+  i2c: gpio: reword according to newest specification
+  i2c: highlander: reword according to newest specification
+  i2c: hix5hd2: reword according to newest specification
+  i2c: i801: reword according to newest specification
+  i2c: ibm_iic: reword according to newest specification
+  i2c: imx-lpi2c: reword according to newest specification
+  i2c: iop3xx: reword according to newest specification
+  i2c: isch: reword according to newest specification
+  i2c: ismt: reword according to newest specification
+  i2c: ljca: reword according to newest specification
+  i2c: lpc2k: reword according to newest specification
+  i2c: ls2x: reword according to newest specification
+  i2c: mchp-pci1xxxx: reword according to newest specification
+  i2c: microchip-corei2c: reword according to newest specification
+  i2c: mlxcpld: reword according to newest specification
+  i2c: mpc: reword according to newest specification
+  i2c: mt7621: reword according to newest specification
+  i2c: mv64xxx: reword according to newest specification
+  i2c: octeon-core: reword according to newest specification
+  i2c: owl: reword according to newest specification
+  i2c: piix4: reword according to newest specification
+  i2c: powermac: reword according to newest specification
+  i2c: pxa-pci: reword according to newest specification
+  i2c: qup: reword according to newest specification
+  i2c: rcar: reword according to newest specification
+  i2c: riic: reword according to newest specification
+  i2c: rk3x: reword according to newest specification
+  i2c: sh7760: reword according to newest specification
+  i2c: sh_mobile: reword according to newest specification
+  i2c: sis5595: reword according to newest specification
+  i2c: sis630: reword according to newest specification
+  i2c: sprd: reword according to newest specification
+  i2c: st: reword according to newest specification
+  i2c: stm32f4: reword according to newest specification
+  i2c: sun6i-p2wi: reword according to newest specification
+  i2c: synquacer: reword according to newest specification
+  i2c: taos-evm: reword according to newest specification
+  i2c: tiny-usb: reword according to newest specification
+  i2c: uniphier-f: reword according to newest specification
+  i2c: uniphier: reword according to newest specification
+  i2c: viperboard: reword according to newest specification
+  i2c: xlp9xx: reword according to newest specification
+  i2c: scx200_acb: reword according to newest specification
+  i2c: reword i2c_algorithm in drivers according to newest specification
 
-callbacks[nvqs++] = stats_request;
-
-If you prefer to keep it separate, "nvqs++" please.
-
-... same here:
-
-idx = 0;
-vb->inflate_vq = vqs[idx++];
-vb->deflate_vq = vqs[idx++];
-
-...
-
->   
->   	vb->inflate_vq = vqs[VIRTIO_BALLOON_VQ_INFLATE];
->   	vb->deflate_vq = vqs[VIRTIO_BALLOON_VQ_DEFLATE];
-> +
-> +	idx = VIRTIO_BALLOON_VQ_DEFLATE + 1;
-> +
->   	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
->   		struct scatterlist sg;
->   		unsigned int num_stats;
-> -		vb->stats_vq = vqs[VIRTIO_BALLOON_VQ_STATS];
-> +		vb->stats_vq = vqs[idx++];
->   
->   		/*
->   		 * Prime this virtqueue with one buffer so the hypervisor can
-> @@ -593,10 +590,10 @@ static int init_vqs(struct virtio_balloon *vb)
->   	}
->   
->   	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
-> -		vb->free_page_vq = vqs[VIRTIO_BALLOON_VQ_FREE_PAGE];
-> +		vb->free_page_vq = vqs[idx++];
->   
->   	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING))
-> -		vb->reporting_vq = vqs[VIRTIO_BALLOON_VQ_REPORTING];
-> +		vb->reporting_vq = vqs[idx++];
->   
-
-Apart from that LGTM
+ drivers/i2c/busses/i2c-ali15x3.c           |  2 +-
+ drivers/i2c/busses/i2c-altera.c            |  4 +-
+ drivers/i2c/busses/i2c-amd-mp2-pci.c       |  8 ++--
+ drivers/i2c/busses/i2c-amd-mp2-plat.c      |  2 +-
+ drivers/i2c/busses/i2c-aspeed.c            | 26 +++++-----
+ drivers/i2c/busses/i2c-at91-master.c       |  2 +-
+ drivers/i2c/busses/i2c-at91-slave.c        |  8 ++--
+ drivers/i2c/busses/i2c-au1550.c            | 14 +++---
+ drivers/i2c/busses/i2c-axxia.c             | 10 ++--
+ drivers/i2c/busses/i2c-bcm-iproc.c         | 20 ++++----
+ drivers/i2c/busses/i2c-bcm-kona.c          | 14 +++---
+ drivers/i2c/busses/i2c-bcm2835.c           |  8 ++--
+ drivers/i2c/busses/i2c-brcmstb.c           | 12 ++---
+ drivers/i2c/busses/i2c-cadence.c           | 14 +++---
+ drivers/i2c/busses/i2c-cht-wc.c            |  8 ++--
+ drivers/i2c/busses/i2c-cp2615.c            |  6 +--
+ drivers/i2c/busses/i2c-cpm.c               |  4 +-
+ drivers/i2c/busses/i2c-cros-ec-tunnel.c    |  2 +-
+ drivers/i2c/busses/i2c-davinci.c           | 13 +++--
+ drivers/i2c/busses/i2c-designware-master.c |  2 +-
+ drivers/i2c/busses/i2c-designware-slave.c  |  8 ++--
+ drivers/i2c/busses/i2c-digicolor.c         |  4 +-
+ drivers/i2c/busses/i2c-diolan-u2c.c        |  2 +-
+ drivers/i2c/busses/i2c-dln2.c              |  4 +-
+ drivers/i2c/busses/i2c-eg20t.c             | 10 ++--
+ drivers/i2c/busses/i2c-emev2.c             | 10 ++--
+ drivers/i2c/busses/i2c-exynos5.c           |  4 +-
+ drivers/i2c/busses/i2c-fsi.c               | 56 +++++++++++-----------
+ drivers/i2c/busses/i2c-gpio.c              |  8 ++--
+ drivers/i2c/busses/i2c-gxp.c               | 12 ++---
+ drivers/i2c/busses/i2c-highlander.c        |  2 +-
+ drivers/i2c/busses/i2c-hisi.c              |  4 +-
+ drivers/i2c/busses/i2c-hix5hd2.c           |  4 +-
+ drivers/i2c/busses/i2c-i801.c              | 12 ++---
+ drivers/i2c/busses/i2c-ibm_iic.c           | 26 +++++-----
+ drivers/i2c/busses/i2c-img-scb.c           |  2 +-
+ drivers/i2c/busses/i2c-imx-lpi2c.c         | 10 ++--
+ drivers/i2c/busses/i2c-imx.c               | 12 ++---
+ drivers/i2c/busses/i2c-iop3xx.c            | 10 ++--
+ drivers/i2c/busses/i2c-isch.c              |  2 +-
+ drivers/i2c/busses/i2c-ismt.c              |  2 +-
+ drivers/i2c/busses/i2c-jz4780.c            |  2 +-
+ drivers/i2c/busses/i2c-kempld.c            |  2 +-
+ drivers/i2c/busses/i2c-ljca.c              | 20 ++++----
+ drivers/i2c/busses/i2c-lpc2k.c             |  8 ++--
+ drivers/i2c/busses/i2c-ls2x.c              |  8 ++--
+ drivers/i2c/busses/i2c-mchp-pci1xxxx.c     | 40 ++++++++--------
+ drivers/i2c/busses/i2c-meson.c             |  4 +-
+ drivers/i2c/busses/i2c-microchip-corei2c.c |  4 +-
+ drivers/i2c/busses/i2c-mlxbf.c             |  8 ++--
+ drivers/i2c/busses/i2c-mlxcpld.c           | 12 ++---
+ drivers/i2c/busses/i2c-mpc.c               |  4 +-
+ drivers/i2c/busses/i2c-mt65xx.c            |  2 +-
+ drivers/i2c/busses/i2c-mt7621.c            | 22 ++++-----
+ drivers/i2c/busses/i2c-mv64xxx.c           | 12 ++---
+ drivers/i2c/busses/i2c-mxs.c               |  2 +-
+ drivers/i2c/busses/i2c-nomadik.c           |  2 +-
+ drivers/i2c/busses/i2c-npcm7xx.c           | 12 ++---
+ drivers/i2c/busses/i2c-nvidia-gpu.c        |  4 +-
+ drivers/i2c/busses/i2c-ocores.c            |  8 ++--
+ drivers/i2c/busses/i2c-octeon-core.c       |  6 +--
+ drivers/i2c/busses/i2c-octeon-platdrv.c    |  2 +-
+ drivers/i2c/busses/i2c-omap.c              |  4 +-
+ drivers/i2c/busses/i2c-opal.c              |  4 +-
+ drivers/i2c/busses/i2c-owl.c               | 10 ++--
+ drivers/i2c/busses/i2c-pasemi-core.c       |  2 +-
+ drivers/i2c/busses/i2c-piix4.c             |  2 +-
+ drivers/i2c/busses/i2c-pnx.c               |  2 +-
+ drivers/i2c/busses/i2c-powermac.c          |  8 ++--
+ drivers/i2c/busses/i2c-pxa-pci.c           |  2 +-
+ drivers/i2c/busses/i2c-pxa.c               | 12 ++---
+ drivers/i2c/busses/i2c-qcom-cci.c          |  2 +-
+ drivers/i2c/busses/i2c-qcom-geni.c         |  2 +-
+ drivers/i2c/busses/i2c-qup.c               |  6 +--
+ drivers/i2c/busses/i2c-rcar.c              | 16 +++----
+ drivers/i2c/busses/i2c-riic.c              |  6 +--
+ drivers/i2c/busses/i2c-rk3x.c              | 18 +++----
+ drivers/i2c/busses/i2c-robotfuzz-osif.c    |  2 +-
+ drivers/i2c/busses/i2c-rzv2m.c             |  8 ++--
+ drivers/i2c/busses/i2c-s3c2410.c           |  4 +-
+ drivers/i2c/busses/i2c-sh7760.c            | 18 +++----
+ drivers/i2c/busses/i2c-sh_mobile.c         | 12 ++---
+ drivers/i2c/busses/i2c-sis5595.c           |  2 +-
+ drivers/i2c/busses/i2c-sis630.c            | 16 +++----
+ drivers/i2c/busses/i2c-sprd.c              | 14 +++---
+ drivers/i2c/busses/i2c-st.c                | 17 +++----
+ drivers/i2c/busses/i2c-stm32f4.c           |  8 ++--
+ drivers/i2c/busses/i2c-stm32f7.c           | 14 +++---
+ drivers/i2c/busses/i2c-sun6i-p2wi.c        | 20 ++++----
+ drivers/i2c/busses/i2c-synquacer.c         | 30 ++++++------
+ drivers/i2c/busses/i2c-taos-evm.c          |  2 +-
+ drivers/i2c/busses/i2c-tegra-bpmp.c        |  4 +-
+ drivers/i2c/busses/i2c-tegra.c             |  4 +-
+ drivers/i2c/busses/i2c-thunderx-pcidrv.c   |  2 +-
+ drivers/i2c/busses/i2c-tiny-usb.c          |  4 +-
+ drivers/i2c/busses/i2c-uniphier-f.c        | 22 ++++-----
+ drivers/i2c/busses/i2c-uniphier.c          | 12 ++---
+ drivers/i2c/busses/i2c-viperboard.c        |  8 ++--
+ drivers/i2c/busses/i2c-virtio.c            |  2 +-
+ drivers/i2c/busses/i2c-wmt.c               |  2 +-
+ drivers/i2c/busses/i2c-xiic.c              |  2 +-
+ drivers/i2c/busses/i2c-xlp9xx.c            |  4 +-
+ drivers/i2c/busses/scx200_acb.c            |  4 +-
+ include/linux/i2c.h                        | 24 ++++++++--
+ 104 files changed, 460 insertions(+), 464 deletions(-)
 
 -- 
-Cheers,
-
-David / dhildenb
+2.43.0
 
