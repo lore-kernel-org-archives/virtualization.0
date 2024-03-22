@@ -1,1041 +1,239 @@
-Received: from mail.zeus03.de (www.zeus03.de [194.117.254.33])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 969364B5AE
-	for <virtualization@lists.linux.dev>; Fri, 22 Mar 2024 13:27:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711114071; cv=none; b=Jrr8Bc/+rXCZxh3NLlpcdKrZiN38xqQv5VxEu7j4Ihz6giuavnShijZGRSZCQl8ljgGJLEB4yFIhEDOO8NC3KL7k3dHmPUGMIiAt68Wmz/EFxTIGM81ZZW7EpydHp5+AiJWFxlbKRTkERUgz8eoL6XVJD+zn3frDO+2U2A0LS80=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711114071; c=relaxed/simple;
-	bh=yNIpLOfDxIiTSAsTFqiaOJw6yB4FTUpIKCf3oT9NZzg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=FewGEWics1kZUQEzerxB8icurEdL8sZh4YeC3AwVdwXHhb9bOR6Jv6VweTOTECHWJphChK6j6EO1mQltHU6JtvMmY13VG+bmInWNsyJ7RWgTXk3nRxj0tNFg04YkrXLQlQlqc4J98CZftJZnmkdExrvKCoNFwkOLZ8ZBrMDfnVw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=j27V4HKx; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C76C145BED
+	for <virtualization@lists.linux-foundation.org>; Fri, 22 Mar 2024 13:54:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.138
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1711115692; cv=fail; b=XsQo4EBMv+KtjBngMF+ao4KZrZU8mdo0PGq79g5THDbuIgreRP13mhTyr1eJbyxAetJZseQiu3/e3RiF1aCiB81zh1VjWG0GIE7TbrNACS4fkaiy5P4kthFqAx9t08ro2I3W2uymZNYbphMcOXLnya1TKB5+Bedmz8edhbmvy+I=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1711115692; c=relaxed/simple;
+	bh=Y1jW9I7KO4EDXiMzkY1qIcU9Q1FSciDNH78ho5O3RSU=;
+	h=From:To:Subject:Date:Message-ID:Content-Type:MIME-Version; b=RbvkbX8Gu+cKxFHLA6HSeQOoJD64ZXcEX0xcI+d3hUUBx5KThCNxuGDmx5Ak/RxlTs0k70/DrOgKDyNqt0ouhfrN6at39dMj6Povf66x+TBwnC5IgUzzaoWYV/BrK71LWB9nQSK39IUnsKA38N9P52AaAHOvFqb9Qh7YWkVOoWw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=phd.unipi.it header.i=@phd.unipi.it header.b=LRDjXvRa; arc=fail smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="j27V4HKx"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=from:to:cc:subject:date:message-id
-	:in-reply-to:references:mime-version:content-transfer-encoding;
-	 s=k1; bh=Ti6AdHy5R1zA41nNzipr+t9xh3GImQtOLYTApON+Q2c=; b=j27V4H
-	KxIoXYdsu5hRFQ4CqcnKrQH0oudUDD0KO6oj2ax6Fk6Mdln7q4GGIOGEVy+0fNul
-	V7rUEJYdj2aDzQNHA+B27rMrPaL19zMM2k1V0R/HbgIo0bHgTob2eHTotl4fBH3n
-	FOtOOb6hxiD04M3EvhmSamdiB9+dYyEnsaMDNrQ0lXyUXkXwcGOjSxGQCFOZU/Ww
-	831ovjvSsYRlU2yOrZHH1o215xV2KHVqPCZlV10FNqdRaEgMiD/ZwK8+2C+ne4Ki
-	/2FqUSe6u14wfMFgLP+HcLNCi2JRo+Vy2VHbhWY7DQDuhKffqssIHjDj/hvkC/di
-	Sd4dQqC44KzIdiYA==
-Received: (qmail 3872506 invoked from network); 22 Mar 2024 14:27:18 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 22 Mar 2024 14:27:18 +0100
-X-UD-Smtp-Session: l3s3148p1@wmtsyD8UpIVehhtF
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Elie Morisse <syniurge@gmail.com>,
-	Shyam Sundar S K <shyam-sundar.s-k@amd.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
-	Nicolas Ferre <nicolas.ferre@microchip.com>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Claudiu Beznea <claudiu.beznea@tuxon.dev>,
-	Krzysztof Adamski <krzysztof.adamski@nokia.com>,
-	Benson Leung <bleung@chromium.org>,
-	Guenter Roeck <groeck@chromium.org>,
-	Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Jan Dabros <jsd@semihalf.com>,
-	Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-	Alim Akhtar <alim.akhtar@samsung.com>,
-	Jean-Marie Verdun <verdun@hpe.com>,
-	Nick Hawkins <nick.hawkins@hpe.com>,
-	Yicong Yang <yangyicong@hisilicon.com>,
-	Oleksij Rempel <o.rempel@pengutronix.de>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Shawn Guo <shawnguo@kernel.org>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	Paul Cercueil <paul@crapouillou.net>,
-	Neil Armstrong <neil.armstrong@linaro.org>,
-	Kevin Hilman <khilman@baylibre.com>,
-	Jerome Brunet <jbrunet@baylibre.com>,
-	Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-	Khalil Blaiech <kblaiech@nvidia.com>,
-	Asmaa Mnebhi <asmaa@nvidia.com>,
-	Qii Wang <qii.wang@mediatek.com>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Avi Fishman <avifishman70@gmail.com>,
-	Tomer Maimon <tmaimon77@gmail.com>,
-	Tali Perry <tali.perry1@gmail.com>,
-	Patrick Venture <venture@google.com>,
-	Nancy Yuen <yuenn@google.com>,
-	Benjamin Fair <benjaminfair@google.com>,
-	Ajay Gupta <ajayg@nvidia.com>,
-	Peter Korsgaard <peter@korsgaard.com>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Robert Richter <rric@kernel.org>,
-	Aaro Koskinen <aaro.koskinen@iki.fi>,
-	Janusz Krzysztofik <jmkrzyszt@gmail.com>,
-	Tony Lindgren <tony@atomide.com>,
-	Vignesh R <vigneshr@ti.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
-	"Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-	Hector Martin <marcan@marcan.st>,
-	Sven Peter <sven@svenpeter.dev>,
-	Alyssa Rosenzweig <alyssa@rosenzweig.io>,
-	Vladimir Zapolskiy <vz@mleia.com>,
-	Loic Poulain <loic.poulain@linaro.org>,
-	Robert Foss <rfoss@kernel.org>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Konrad Dybcio <konrad.dybcio@linaro.org>,
-	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
-	Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
-	Alain Volmat <alain.volmat@foss.st.com>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Alexandre Torgue <alexandre.torgue@foss.st.com>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	Jonathan Hunter <jonathanh@nvidia.com>,
-	Laxman Dewangan <ldewangan@nvidia.com>,
-	Dmitry Osipenko <digetx@gmail.com>,
-	Conghui Chen <conghui.chen@intel.com>,
-	Viresh Kumar <viresh.kumar@linaro.org>,
-	Michal Simek <michal.simek@amd.com>,
-	linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	chrome-platform@lists.linux.dev,
-	linux-samsung-soc@vger.kernel.org,
-	imx@lists.linux.dev,
-	linux-mips@vger.kernel.org,
-	linux-amlogic@lists.infradead.org,
-	linux-mediatek@lists.infradead.org,
-	openbmc@lists.ozlabs.org,
-	linux-omap@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	asahi@lists.linux.dev,
-	linux-arm-msm@vger.kernel.org,
-	linux-renesas-soc@vger.kernel.org,
-	linux-stm32@st-md-mailman.stormreply.com,
-	linux-tegra@vger.kernel.org,
-	virtualization@lists.linux.dev
-Subject: [PATCH 64/64] i2c: reword i2c_algorithm in drivers according to newest specification
-Date: Fri, 22 Mar 2024 14:25:57 +0100
-Message-ID: <20240322132619.6389-65-wsa+renesas@sang-engineering.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240322132619.6389-1-wsa+renesas@sang-engineering.com>
-References: <20240322132619.6389-1-wsa+renesas@sang-engineering.com>
+	dkim=pass (1024-bit key) header.d=phd.unipi.it header.i=@phd.unipi.it header.b="LRDjXvRa"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 4093A82560
+	for <virtualization@lists.linux-foundation.org>; Fri, 22 Mar 2024 13:54:49 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.001
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 7N5yZFCTGiZ5
+	for <virtualization@lists.linux-foundation.org>;
+	Fri, 22 Mar 2024 13:54:48 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2612::701; helo=eur05-am6-obe.outbound.protection.outlook.com; envelope-from=alberto.ottimo@phd.unipi.it; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org BDC9182531
+Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=phd.unipi.it
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BDC9182531
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=phd.unipi.it header.i=@phd.unipi.it header.a=rsa-sha256 header.s=selector1 header.b=LRDjXvRa
+Received: from EUR05-AM6-obe.outbound.protection.outlook.com (mail-am6eur05on20701.outbound.protection.outlook.com [IPv6:2a01:111:f403:2612::701])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id BDC9182531
+	for <virtualization@lists.linux-foundation.org>; Fri, 22 Mar 2024 13:54:45 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=cZ1F4S+XSCDhlJ1zJgbzwOTaeUq+fRESISVenplJO4yAeA14+p7Pu20rh5PbbfDeVwayQX+Uk12OXDWsi/rKmR6SaShJjkJj1yQ/PeC4U7wOWWz50k7hLYgEpfIGQ28xeicw9oV6AunQdcTq/A15qe3XIgqD+mLnIXIZHsXk+GxdZJv1kpIkTTNVPAJx/X1eBnIpmErhi3zQ3jjvIChHtwSza7EHRrz+WU5G1ec/+s+gwI7lqy8fOrG3bFIamsc5FhgXpUFbvV3lAJ5YdeqGv5F65p+nQtoci5/0OfY7AgOoSWyWOV+rvi612IBdeYG10jt7FSfL5MSK8iGrYSf9+w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Y1jW9I7KO4EDXiMzkY1qIcU9Q1FSciDNH78ho5O3RSU=;
+ b=OvEfYELWSnEph1oVfOsEyQQuzFTW/Te3KgtfmnRSqJkLh1PrX4ilpfKzWvbhm/OngKQm7R0zXoUFI8ZkcC3b94heAv8dUJ/Pf78To3QC+qDCjDALUmuwGtLhUV6wr6fLEdV46rnJUDEgKnbQP94p/jUpRUID0fOKWp5rTdRF22/AubAINqZ1vVKRzEj8HziFYbzHsUYMrdefg7m8ChBvt4a3sQ4LBwe1rhoiQ6w5NdLwgdzAdwH+YCZPy/GuATzZAtX3UFAwDZ827nWV6G5shcPgLNKmQTidvAXANIWjQ/JPAE0g8Y6hJwkK/sJDig7389QYtGuZFjV4KILJaM5kaw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=phd.unipi.it; dmarc=pass action=none header.from=phd.unipi.it;
+ dkim=pass header.d=phd.unipi.it; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=phd.unipi.it;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Y1jW9I7KO4EDXiMzkY1qIcU9Q1FSciDNH78ho5O3RSU=;
+ b=LRDjXvRaWjiJ0EL59UrOCJH+gyLZZevCFmw1XEwRWkc04G4ksQubnLKmdkqIsypxbNML0UhniQMRbsf5amBs+6veUoOLK9HosnXV1CI2wSM6zF/fRAhBTuBNQUVUkW6Han2+5SwbXmtAIpnvoALVlg7mZN+vZHALndP8ROj18pE=
+Received: from AS1PR07MB8408.eurprd07.prod.outlook.com (2603:10a6:20b:4c4::17)
+ by PR3PR07MB6809.eurprd07.prod.outlook.com (2603:10a6:102:7f::5) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7386.31; Fri, 22 Mar
+ 2024 13:54:42 +0000
+Received: from AS1PR07MB8408.eurprd07.prod.outlook.com
+ ([fe80::1a84:daa4:7969:dd41]) by AS1PR07MB8408.eurprd07.prod.outlook.com
+ ([fe80::1a84:daa4:7969:dd41%5]) with mapi id 15.20.7409.010; Fri, 22 Mar 2024
+ 13:54:42 +0000
+From: Alberto Ottimo <alberto.ottimo@phd.unipi.it>
+To: "virtualization@lists.linux-foundation.org"
+	<virtualization@lists.linux-foundation.org>
+Subject: Call For Nominations: HPDC 2024 Achievement Award
+Thread-Topic: Call For Nominations: HPDC 2024 Achievement Award
+Thread-Index: AQHafGB9SPb4C2Qc/EyHMyu5EaBgVw==
+Date: Fri, 22 Mar 2024 13:54:42 +0000
+Message-ID: <9C8FC14C-0518-4648-943D-EB3AA06F2430@studenti.unipi.it>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+x-mailer: Apple Mail (2.3696.120.41.1.1)
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: AS1PR07MB8408:EE_|PR3PR07MB6809:EE_
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info:
+ MoKiTz9NvZWiHCMDGr5qxeIKz5i33Obl/EirDNsTute9B5HTM/VEZ9bXIUs/WFjkCkkp4d18ULsjuvIV12n/mkZ0Z/5E9EvXUEnAnz+kmYivRdYbxNrSy4Xn9MYROo9uMNlbcpaX5eqeyTc2/8FrDjhiAqJCwaeqF+ODmA0v2ZzzTB4Mr9BihBkFhSL8RDBteDyOZT6y21r8jFjIY4JFr/f18HgBzqtMYX1rYqNXE/h0cGuY4Eyz2DdV0YJMNfBFFKt+YgKZvBXFQzWgGB0teLLIDFWzXTdmJMKUAiettwgD7+N0oifd11D8vn66dmhbDPpm/fcHRvAOJI3c7Rb0lC8TU0UYrnzK+7GM/zXruXfSSUAQxV3a1XWIS02/ym2pFFdqQ10p71I25NoRpzQQnKwqqD2slNX2TdGbUaP8VUql6LsAAX/3bXsCXP4za4CUN1z0OEPkiKuDgLpp4ur31Ar4YismuUQTAAYjOyeQtA7gF9fcqBiXnCDYluZZMtngNGJFL3b0/+QXzxzCzxX/39ylbwSvWExDOMBoELzuCrI3YX6m34Too0KqvMwRG/RcTClEse7nbIpL2Qs31iODg1ztUdXBt5DCpM5FIgPaUIf2Gq4z/BpSib6vY5d4z9Khft4H+lo7ncA3MPW0N2H6wCL38AxWxSszEHF3/YqLNOw=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AS1PR07MB8408.eurprd07.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(376005)(366007)(1800799015);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?tIag3V+1JTA56pRSFAcX/KdIw0JE2eEYqTW+Fk9egAYGAoazMqXrQO6IxcLy?=
+ =?us-ascii?Q?fkl4XIgVAg+AyOWkWEzbZ95R4/vfaeS96ePq65B8Rxo3gbKFKUYk0dILL8SL?=
+ =?us-ascii?Q?o1AuSyjQfomr7xPwPeIYd7ABlVSNaJumy7n5rw9JQdhgNR012p/z3ypkHljf?=
+ =?us-ascii?Q?ZJmH23Fb8M7vvx76WeJbCpZUSNGUEGYabE/L+FcdrkuE8DXhCwbRG6fPrV2j?=
+ =?us-ascii?Q?aaPuik/6pA/v6NZcktKFpXf/urxJuxyT+fpQWdQwYVlvtWCS1RlOZwhVwOHK?=
+ =?us-ascii?Q?pzlpDe88pgWEmpMG3Aql53UDCxZXEzDQWRsM1uni/ND6bUh5z5kIK+smjX3X?=
+ =?us-ascii?Q?dbzvVP0R92ROUaOm9Gc5vzt6ys2F27KBQ4O9BLAnBavHI3nijwG11iTfDxCZ?=
+ =?us-ascii?Q?DyuT44Bjijc9RiKlh4e+Ip++Y3FvBK3F3Oi402BOFZc8ttKs04tfGfUV04bG?=
+ =?us-ascii?Q?NJf4rHlvGaNTSGuwYN5jefcgKj3qEy+0ZrQrFg5HtKEod3FFOIkntz0gtLt1?=
+ =?us-ascii?Q?JaWh1NrCyh5YB+qJnTCQS/l/ArX+/MfGK293Gx8MrkDCNwG49RYDHz0ilvY2?=
+ =?us-ascii?Q?BR58I1aDpuGp1pXrafkH/SZaEMI6r8LcC1DIDwqTy68YELgquGLPhIko2iVu?=
+ =?us-ascii?Q?af7UBZEO+cpkt4Fih9HMfrETyCsEVjDkCDv+Fjp1VQ5zl7540XrhPUgtjnO4?=
+ =?us-ascii?Q?M5FK74RS2IN3L1Y2YOMYEzpVS2MwIK+layP+nP1dcgvbJfDCEkgQduTjjYAL?=
+ =?us-ascii?Q?NxMc396RzqMP0OiEAWc+OYuXuq+2bmX44lvDni8RqxfR+J2Q+UxokXaallA4?=
+ =?us-ascii?Q?rF50BNkhdOb/by54AiYX1h5zcg4KYDity0BX/vQ15bgqYn5pmLROzT+yD0bg?=
+ =?us-ascii?Q?bv6YNOY1/bAZrM37ic5PVKVnbRSZXNbgPeKugEgm1k36Gy0PQ4zkwUSoLI49?=
+ =?us-ascii?Q?lgwYCzF3wRxMrvgVCmU23dJZTq9vtVaM++goojay8ih7ntbI4iGn+9NCX/JN?=
+ =?us-ascii?Q?pvm7mFM7Gor1BczEhUbdh9swHBYE5T2E1HCIlGyz4nUNJB+dsijlCQ8Zz+Rp?=
+ =?us-ascii?Q?jXgFBl66KTNwDBpMIviICD8DA7G5UPQ5nREosjAOu3tIPznVaEp0cVHVxWQ8?=
+ =?us-ascii?Q?uMfkM1bRY3iBUziY+qNJ/rQ/zE4BGx2kbwSugVk2qgFeAYpFsT1l/1e3sTDg?=
+ =?us-ascii?Q?5MRZSopGDrWZprpMytZCGDAQXoHYr0k7n/uDd3K4FX9zU18wBRG1OUg6ANsp?=
+ =?us-ascii?Q?GNUsbpWAcsv2V5o5A1CJtCNSZ8QTxjekt/Zdt6oERhEPMEszEqXvrmROepEc?=
+ =?us-ascii?Q?KJKTxznuYrn0mMxWPGRoPznZABRHwo/XrGsXp2cOKWUOP+Cg9p3XRHna1rfj?=
+ =?us-ascii?Q?9z92m7KvjbK9e0mNJrtbGt6HLxslZkmPOZ/Luy8vFfKDjYPvC5OY5TZk+0en?=
+ =?us-ascii?Q?FqsaEPLW3eQlNpabJD/54fp413i94frKBotLp+J7yrcl18TfaDWici29L+n5?=
+ =?us-ascii?Q?0tUGQZTkLIm3SMnJxR5N7m9qq6OEkPGLv6CPBRwfV4xrLJloD2zZChFniodO?=
+ =?us-ascii?Q?Te7dAmqNUIdypTozfJfbzjYIiUa05LPj0EXbatjNZrssygcBPgtdrDo3K5o/?=
+ =?us-ascii?Q?vWlDD5e7+uYi1XcDJYW+Ged6RFp3IqqkMh+925nedrrM?=
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <3D9F6BB3ED304E4EAED056E248159814@eurprd07.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-OriginatorOrg: phd.unipi.it
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: AS1PR07MB8408.eurprd07.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 67093ada-2cc0-48cb-8fa7-08dc4a77a006
+X-MS-Exchange-CrossTenant-originalarrivaltime: 22 Mar 2024 13:54:42.3084
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: c7456b31-a220-47f5-be52-473828670aa1
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: MO8Xhd0epgMqxhhjr9V3WOVHhVkgpFfi+8zqXzkTmJCtYB9wdvucfnmhHagGrUycOwO/Yo1FTINqS9nt7Jvatcu5YCPZADs37zK2ul1IjIw=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PR3PR07MB6809
 
-Match the wording in i2c_algorithm in I2C drivers wrt. the newest I2C
-v7, SMBus 3.2, I3C specifications and replace "master/slave" with more
-appropriate terms. For some drivers, this means no more conversions are
-needed. For the others more work needs to be done but this will be
-performed incrementally along with API changes/improvements. All these
-changes here are simple search/replace results.
+Call For Nominations: HPDC 2024 Achievement Award
+-------------------------------------------------
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- drivers/i2c/busses/i2c-amd-mp2-plat.c      |  2 +-
- drivers/i2c/busses/i2c-at91-master.c       |  2 +-
- drivers/i2c/busses/i2c-at91-slave.c        |  8 ++++----
- drivers/i2c/busses/i2c-axxia.c             | 10 +++++-----
- drivers/i2c/busses/i2c-cros-ec-tunnel.c    |  2 +-
- drivers/i2c/busses/i2c-designware-master.c |  2 +-
- drivers/i2c/busses/i2c-designware-slave.c  |  8 ++++----
- drivers/i2c/busses/i2c-diolan-u2c.c        |  2 +-
- drivers/i2c/busses/i2c-exynos5.c           |  4 ++--
- drivers/i2c/busses/i2c-gxp.c               | 12 ++++++------
- drivers/i2c/busses/i2c-hisi.c              |  4 ++--
- drivers/i2c/busses/i2c-img-scb.c           |  2 +-
- drivers/i2c/busses/i2c-imx.c               | 12 ++++++------
- drivers/i2c/busses/i2c-jz4780.c            |  2 +-
- drivers/i2c/busses/i2c-kempld.c            |  2 +-
- drivers/i2c/busses/i2c-meson.c             |  4 ++--
- drivers/i2c/busses/i2c-mlxbf.c             |  8 ++++----
- drivers/i2c/busses/i2c-mt65xx.c            |  2 +-
- drivers/i2c/busses/i2c-mxs.c               |  2 +-
- drivers/i2c/busses/i2c-nomadik.c           |  2 +-
- drivers/i2c/busses/i2c-npcm7xx.c           | 12 ++++++------
- drivers/i2c/busses/i2c-nvidia-gpu.c        |  4 ++--
- drivers/i2c/busses/i2c-ocores.c            |  8 ++++----
- drivers/i2c/busses/i2c-octeon-platdrv.c    |  2 +-
- drivers/i2c/busses/i2c-omap.c              |  4 ++--
- drivers/i2c/busses/i2c-opal.c              |  4 ++--
- drivers/i2c/busses/i2c-pasemi-core.c       |  2 +-
- drivers/i2c/busses/i2c-pnx.c               |  2 +-
- drivers/i2c/busses/i2c-pxa.c               | 12 ++++++------
- drivers/i2c/busses/i2c-qcom-cci.c          |  2 +-
- drivers/i2c/busses/i2c-qcom-geni.c         |  2 +-
- drivers/i2c/busses/i2c-robotfuzz-osif.c    |  2 +-
- drivers/i2c/busses/i2c-rzv2m.c             |  8 ++++----
- drivers/i2c/busses/i2c-s3c2410.c           |  4 ++--
- drivers/i2c/busses/i2c-stm32f7.c           | 14 +++++++-------
- drivers/i2c/busses/i2c-tegra-bpmp.c        |  4 ++--
- drivers/i2c/busses/i2c-tegra.c             |  4 ++--
- drivers/i2c/busses/i2c-thunderx-pcidrv.c   |  2 +-
- drivers/i2c/busses/i2c-virtio.c            |  2 +-
- drivers/i2c/busses/i2c-wmt.c               |  2 +-
- drivers/i2c/busses/i2c-xiic.c              |  2 +-
- 41 files changed, 95 insertions(+), 95 deletions(-)
+In 2012, HPDC established an annual achievement award, which is presented t=
+o an individual who has made long-lasting, influential contributions to the=
+ foundations or practice of the field of high-performance parallel and dist=
+ributed computing (HPDC). These contributions may include one or more of th=
+e following:
 
-diff --git a/drivers/i2c/busses/i2c-amd-mp2-plat.c b/drivers/i2c/busses/i2c-amd-mp2-plat.c
-index 112fe2bc5662..eb47de29ec90 100644
---- a/drivers/i2c/busses/i2c-amd-mp2-plat.c
-+++ b/drivers/i2c/busses/i2c-amd-mp2-plat.c
-@@ -179,7 +179,7 @@ static u32 i2c_amd_func(struct i2c_adapter *a)
- }
- 
- static const struct i2c_algorithm i2c_amd_algorithm = {
--	.master_xfer = i2c_amd_xfer,
-+	.xfer = i2c_amd_xfer,
- 	.functionality = i2c_amd_func,
- };
- 
-diff --git a/drivers/i2c/busses/i2c-at91-master.c b/drivers/i2c/busses/i2c-at91-master.c
-index d311981d3e60..56223eee7755 100644
---- a/drivers/i2c/busses/i2c-at91-master.c
-+++ b/drivers/i2c/busses/i2c-at91-master.c
-@@ -739,7 +739,7 @@ static u32 at91_twi_func(struct i2c_adapter *adapter)
- }
- 
- static const struct i2c_algorithm at91_twi_algorithm = {
--	.master_xfer	= at91_twi_xfer,
-+	.xfer	= at91_twi_xfer,
- 	.functionality	= at91_twi_func,
- };
- 
-diff --git a/drivers/i2c/busses/i2c-at91-slave.c b/drivers/i2c/busses/i2c-at91-slave.c
-index d6eeea5166c0..00234bf776ab 100644
---- a/drivers/i2c/busses/i2c-at91-slave.c
-+++ b/drivers/i2c/busses/i2c-at91-slave.c
-@@ -62,7 +62,7 @@ static irqreturn_t atmel_twi_interrupt_slave(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
- 
--static int at91_reg_slave(struct i2c_client *slave)
-+static int at91_reg_target(struct i2c_client *slave)
- {
- 	struct at91_twi_dev *dev = i2c_get_adapdata(slave->adapter);
- 
-@@ -86,7 +86,7 @@ static int at91_reg_slave(struct i2c_client *slave)
- 	return 0;
- }
- 
--static int at91_unreg_slave(struct i2c_client *slave)
-+static int at91_unreg_target(struct i2c_client *slave)
- {
- 	struct at91_twi_dev *dev = i2c_get_adapdata(slave->adapter);
- 
-@@ -111,8 +111,8 @@ static u32 at91_twi_func(struct i2c_adapter *adapter)
- }
- 
- static const struct i2c_algorithm at91_twi_algorithm_slave = {
--	.reg_slave	= at91_reg_slave,
--	.unreg_slave	= at91_unreg_slave,
-+	.reg_target	= at91_reg_target,
-+	.unreg_target	= at91_unreg_target,
- 	.functionality	= at91_twi_func,
- };
- 
-diff --git a/drivers/i2c/busses/i2c-axxia.c b/drivers/i2c/busses/i2c-axxia.c
-index a66f7f67b3b8..19545a44dbc9 100644
---- a/drivers/i2c/busses/i2c-axxia.c
-+++ b/drivers/i2c/busses/i2c-axxia.c
-@@ -673,7 +673,7 @@ static u32 axxia_i2c_func(struct i2c_adapter *adap)
- 	return caps;
- }
- 
--static int axxia_i2c_reg_slave(struct i2c_client *slave)
-+static int axxia_i2c_reg_target(struct i2c_client *slave)
- {
- 	struct axxia_i2c_dev *idev = i2c_get_adapdata(slave->adapter);
- 	u32 slv_int_mask = SLV_STATUS_RFH;
-@@ -705,7 +705,7 @@ static int axxia_i2c_reg_slave(struct i2c_client *slave)
- 	return 0;
- }
- 
--static int axxia_i2c_unreg_slave(struct i2c_client *slave)
-+static int axxia_i2c_unreg_target(struct i2c_client *slave)
- {
- 	struct axxia_i2c_dev *idev = i2c_get_adapdata(slave->adapter);
- 
-@@ -721,10 +721,10 @@ static int axxia_i2c_unreg_slave(struct i2c_client *slave)
- }
- 
- static const struct i2c_algorithm axxia_i2c_algo = {
--	.master_xfer = axxia_i2c_xfer,
-+	.xfer = axxia_i2c_xfer,
- 	.functionality = axxia_i2c_func,
--	.reg_slave = axxia_i2c_reg_slave,
--	.unreg_slave = axxia_i2c_unreg_slave,
-+	.reg_target = axxia_i2c_reg_target,
-+	.unreg_target = axxia_i2c_unreg_target,
- };
- 
- static const struct i2c_adapter_quirks axxia_i2c_quirks = {
-diff --git a/drivers/i2c/busses/i2c-cros-ec-tunnel.c b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
-index 2737fd8abd32..4cd6a364aa3b 100644
---- a/drivers/i2c/busses/i2c-cros-ec-tunnel.c
-+++ b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
-@@ -235,7 +235,7 @@ static u32 ec_i2c_functionality(struct i2c_adapter *adap)
- }
- 
- static const struct i2c_algorithm ec_i2c_algorithm = {
--	.master_xfer	= ec_i2c_xfer,
-+	.xfer	= ec_i2c_xfer,
- 	.functionality	= ec_i2c_functionality,
- };
- 
-diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index c7e56002809a..14c61b31f877 100644
---- a/drivers/i2c/busses/i2c-designware-master.c
-+++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -832,7 +832,7 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
- }
- 
- static const struct i2c_algorithm i2c_dw_algo = {
--	.master_xfer = i2c_dw_xfer,
-+	.xfer = i2c_dw_xfer,
- 	.functionality = i2c_dw_func,
- };
- 
-diff --git a/drivers/i2c/busses/i2c-designware-slave.c b/drivers/i2c/busses/i2c-designware-slave.c
-index 2e079cf20bb5..b47ad6b16814 100644
---- a/drivers/i2c/busses/i2c-designware-slave.c
-+++ b/drivers/i2c/busses/i2c-designware-slave.c
-@@ -58,7 +58,7 @@ static int i2c_dw_init_slave(struct dw_i2c_dev *dev)
- 	return 0;
- }
- 
--static int i2c_dw_reg_slave(struct i2c_client *slave)
-+static int i2c_dw_reg_target(struct i2c_client *slave)
- {
- 	struct dw_i2c_dev *dev = i2c_get_adapdata(slave->adapter);
- 
-@@ -83,7 +83,7 @@ static int i2c_dw_reg_slave(struct i2c_client *slave)
- 	return 0;
- }
- 
--static int i2c_dw_unreg_slave(struct i2c_client *slave)
-+static int i2c_dw_unreg_target(struct i2c_client *slave)
- {
- 	struct dw_i2c_dev *dev = i2c_get_adapdata(slave->adapter);
- 
-@@ -214,8 +214,8 @@ static irqreturn_t i2c_dw_isr_slave(int this_irq, void *dev_id)
- 
- static const struct i2c_algorithm i2c_dw_algo = {
- 	.functionality = i2c_dw_func,
--	.reg_slave = i2c_dw_reg_slave,
--	.unreg_slave = i2c_dw_unreg_slave,
-+	.reg_target = i2c_dw_reg_target,
-+	.unreg_target = i2c_dw_unreg_target,
- };
- 
- void i2c_dw_configure_slave(struct dw_i2c_dev *dev)
-diff --git a/drivers/i2c/busses/i2c-diolan-u2c.c b/drivers/i2c/busses/i2c-diolan-u2c.c
-index b48b7888936f..c02459405b26 100644
---- a/drivers/i2c/busses/i2c-diolan-u2c.c
-+++ b/drivers/i2c/busses/i2c-diolan-u2c.c
-@@ -414,7 +414,7 @@ static u32 diolan_usb_func(struct i2c_adapter *a)
- }
- 
- static const struct i2c_algorithm diolan_usb_algorithm = {
--	.master_xfer = diolan_usb_xfer,
-+	.xfer = diolan_usb_xfer,
- 	.functionality = diolan_usb_func,
- };
- 
-diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
-index 385ef9d9e4d4..eda5f06b158d 100644
---- a/drivers/i2c/busses/i2c-exynos5.c
-+++ b/drivers/i2c/busses/i2c-exynos5.c
-@@ -852,8 +852,8 @@ static u32 exynos5_i2c_func(struct i2c_adapter *adap)
- }
- 
- static const struct i2c_algorithm exynos5_i2c_algorithm = {
--	.master_xfer		= exynos5_i2c_xfer,
--	.master_xfer_atomic	= exynos5_i2c_xfer_atomic,
-+	.xfer		= exynos5_i2c_xfer,
-+	.xfer_atomic	= exynos5_i2c_xfer_atomic,
- 	.functionality		= exynos5_i2c_func,
- };
- 
-diff --git a/drivers/i2c/busses/i2c-gxp.c b/drivers/i2c/busses/i2c-gxp.c
-index efafc0528c44..9cd29c096fe4 100644
---- a/drivers/i2c/busses/i2c-gxp.c
-+++ b/drivers/i2c/busses/i2c-gxp.c
-@@ -110,7 +110,7 @@ static void gxp_i2c_start(struct gxp_i2c_drvdata *drvdata)
- 	writew(value, drvdata->base + GXP_I2CMCMD);
- }
- 
--static int gxp_i2c_master_xfer(struct i2c_adapter *adapter,
-+static int gxp_i2c_xfer(struct i2c_adapter *adapter,
- 			       struct i2c_msg *msgs, int num)
- {
- 	int ret;
-@@ -148,7 +148,7 @@ static u32 gxp_i2c_func(struct i2c_adapter *adap)
- }
- 
- #if IS_ENABLED(CONFIG_I2C_SLAVE)
--static int gxp_i2c_reg_slave(struct i2c_client *slave)
-+static int gxp_i2c_reg_target(struct i2c_client *slave)
- {
- 	struct gxp_i2c_drvdata *drvdata = i2c_get_adapdata(slave->adapter);
- 
-@@ -167,7 +167,7 @@ static int gxp_i2c_reg_slave(struct i2c_client *slave)
- 	return 0;
- }
- 
--static int gxp_i2c_unreg_slave(struct i2c_client *slave)
-+static int gxp_i2c_unreg_target(struct i2c_client *slave)
- {
- 	struct gxp_i2c_drvdata *drvdata = i2c_get_adapdata(slave->adapter);
- 
-@@ -184,11 +184,11 @@ static int gxp_i2c_unreg_slave(struct i2c_client *slave)
- #endif
- 
- static const struct i2c_algorithm gxp_i2c_algo = {
--	.master_xfer   = gxp_i2c_master_xfer,
-+	.xfer   = gxp_i2c_xfer,
- 	.functionality = gxp_i2c_func,
- #if IS_ENABLED(CONFIG_I2C_SLAVE)
--	.reg_slave     = gxp_i2c_reg_slave,
--	.unreg_slave   = gxp_i2c_unreg_slave,
-+	.reg_target     = gxp_i2c_reg_target,
-+	.unreg_target   = gxp_i2c_unreg_target,
- #endif
- };
- 
-diff --git a/drivers/i2c/busses/i2c-hisi.c b/drivers/i2c/busses/i2c-hisi.c
-index 975c0b1c44de..26072cef8e6e 100644
---- a/drivers/i2c/busses/i2c-hisi.c
-+++ b/drivers/i2c/busses/i2c-hisi.c
-@@ -197,7 +197,7 @@ static void hisi_i2c_reset_xfer(struct hisi_i2c_controller *ctlr)
-  * wait for the transfer done. The major transfer process is performed
-  * in the IRQ handler.
-  */
--static int hisi_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
-+static int hisi_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 				int num)
- {
- 	struct hisi_i2c_controller *ctlr = i2c_get_adapdata(adap);
-@@ -236,7 +236,7 @@ static u32 hisi_i2c_functionality(struct i2c_adapter *adap)
- }
- 
- static const struct i2c_algorithm hisi_i2c_algo = {
--	.master_xfer	= hisi_i2c_master_xfer,
-+	.xfer	= hisi_i2c_xfer,
- 	.functionality	= hisi_i2c_functionality,
- };
- 
-diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-img-scb.c
-index f9d4bfef511c..89833330ec25 100644
---- a/drivers/i2c/busses/i2c-img-scb.c
-+++ b/drivers/i2c/busses/i2c-img-scb.c
-@@ -1146,7 +1146,7 @@ static u32 img_i2c_func(struct i2c_adapter *adap)
- }
- 
- static const struct i2c_algorithm img_i2c_algo = {
--	.master_xfer = img_i2c_xfer,
-+	.xfer = img_i2c_xfer,
- 	.functionality = img_i2c_func,
- };
- 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 3842e527116b..3609d9889304 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -857,7 +857,7 @@ static void i2c_imx_slave_init(struct imx_i2c_struct *i2c_imx)
- 	i2c_imx_enable_bus_idle(i2c_imx);
- }
- 
--static int i2c_imx_reg_slave(struct i2c_client *client)
-+static int i2c_imx_reg_target(struct i2c_client *client)
- {
- 	struct imx_i2c_struct *i2c_imx = i2c_get_adapdata(client->adapter);
- 	int ret;
-@@ -880,7 +880,7 @@ static int i2c_imx_reg_slave(struct i2c_client *client)
- 	return 0;
- }
- 
--static int i2c_imx_unreg_slave(struct i2c_client *client)
-+static int i2c_imx_unreg_target(struct i2c_client *client)
- {
- 	struct imx_i2c_struct *i2c_imx = i2c_get_adapdata(client->adapter);
- 	int ret;
-@@ -1386,11 +1386,11 @@ static u32 i2c_imx_func(struct i2c_adapter *adapter)
- }
- 
- static const struct i2c_algorithm i2c_imx_algo = {
--	.master_xfer = i2c_imx_xfer,
--	.master_xfer_atomic = i2c_imx_xfer_atomic,
-+	.xfer = i2c_imx_xfer,
-+	.xfer_atomic = i2c_imx_xfer_atomic,
- 	.functionality = i2c_imx_func,
--	.reg_slave	= i2c_imx_reg_slave,
--	.unreg_slave	= i2c_imx_unreg_slave,
-+	.reg_target	= i2c_imx_reg_target,
-+	.unreg_target	= i2c_imx_unreg_target,
- };
- 
- static int i2c_imx_probe(struct platform_device *pdev)
-diff --git a/drivers/i2c/busses/i2c-jz4780.c b/drivers/i2c/busses/i2c-jz4780.c
-index 55035cca0ae5..6d2c54982bca 100644
---- a/drivers/i2c/busses/i2c-jz4780.c
-+++ b/drivers/i2c/busses/i2c-jz4780.c
-@@ -730,7 +730,7 @@ static u32 jz4780_i2c_functionality(struct i2c_adapter *adap)
- }
- 
- static const struct i2c_algorithm jz4780_i2c_algorithm = {
--	.master_xfer	= jz4780_i2c_xfer,
-+	.xfer	= jz4780_i2c_xfer,
- 	.functionality	= jz4780_i2c_functionality,
- };
- 
-diff --git a/drivers/i2c/busses/i2c-kempld.c b/drivers/i2c/busses/i2c-kempld.c
-index c3a529a73b5b..4fd799740242 100644
---- a/drivers/i2c/busses/i2c-kempld.c
-+++ b/drivers/i2c/busses/i2c-kempld.c
-@@ -276,7 +276,7 @@ static u32 kempld_i2c_func(struct i2c_adapter *adap)
- }
- 
- static const struct i2c_algorithm kempld_i2c_algorithm = {
--	.master_xfer	= kempld_i2c_xfer,
-+	.xfer	= kempld_i2c_xfer,
- 	.functionality	= kempld_i2c_func,
- };
- 
-diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
-index c7b203cc4434..f5505904aa23 100644
---- a/drivers/i2c/busses/i2c-meson.c
-+++ b/drivers/i2c/busses/i2c-meson.c
-@@ -448,8 +448,8 @@ static u32 meson_i2c_func(struct i2c_adapter *adap)
- }
- 
- static const struct i2c_algorithm meson_i2c_algorithm = {
--	.master_xfer = meson_i2c_xfer,
--	.master_xfer_atomic = meson_i2c_xfer_atomic,
-+	.xfer = meson_i2c_xfer,
-+	.xfer_atomic = meson_i2c_xfer_atomic,
- 	.functionality = meson_i2c_func,
- };
- 
-diff --git a/drivers/i2c/busses/i2c-mlxbf.c b/drivers/i2c/busses/i2c-mlxbf.c
-index b3a73921ab69..cbf5e87ce6e8 100644
---- a/drivers/i2c/busses/i2c-mlxbf.c
-+++ b/drivers/i2c/busses/i2c-mlxbf.c
-@@ -2152,7 +2152,7 @@ static s32 mlxbf_i2c_smbus_xfer(struct i2c_adapter *adap, u16 addr,
- 	return mlxbf_i2c_smbus_start_transaction(priv, &request);
- }
- 
--static int mlxbf_i2c_reg_slave(struct i2c_client *slave)
-+static int mlxbf_i2c_reg_target(struct i2c_client *slave)
- {
- 	struct mlxbf_i2c_priv *priv = i2c_get_adapdata(slave->adapter);
- 	struct device *dev = &slave->dev;
-@@ -2174,7 +2174,7 @@ static int mlxbf_i2c_reg_slave(struct i2c_client *slave)
- 	return 0;
- }
- 
--static int mlxbf_i2c_unreg_slave(struct i2c_client *slave)
-+static int mlxbf_i2c_unreg_target(struct i2c_client *slave)
- {
- 	struct mlxbf_i2c_priv *priv = i2c_get_adapdata(slave->adapter);
- 	struct device *dev = &slave->dev;
-@@ -2232,8 +2232,8 @@ static struct mlxbf_i2c_chip_info mlxbf_i2c_chip[] = {
- static const struct i2c_algorithm mlxbf_i2c_algo = {
- 	.smbus_xfer = mlxbf_i2c_smbus_xfer,
- 	.functionality = mlxbf_i2c_functionality,
--	.reg_slave = mlxbf_i2c_reg_slave,
--	.unreg_slave = mlxbf_i2c_unreg_slave,
-+	.reg_target = mlxbf_i2c_reg_target,
-+	.unreg_target = mlxbf_i2c_unreg_target,
- };
- 
- static struct i2c_adapter_quirks mlxbf_i2c_quirks = {
-diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index a8b5719c3372..4c67f5f94f11 100644
---- a/drivers/i2c/busses/i2c-mt65xx.c
-+++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -1345,7 +1345,7 @@ static u32 mtk_i2c_functionality(struct i2c_adapter *adap)
- }
- 
- static const struct i2c_algorithm mtk_i2c_algorithm = {
--	.master_xfer = mtk_i2c_transfer,
-+	.xfer = mtk_i2c_transfer,
- 	.functionality = mtk_i2c_functionality,
- };
- 
-diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
-index 36def0a9c95c..955d275676d1 100644
---- a/drivers/i2c/busses/i2c-mxs.c
-+++ b/drivers/i2c/busses/i2c-mxs.c
-@@ -687,7 +687,7 @@ static irqreturn_t mxs_i2c_isr(int this_irq, void *dev_id)
- }
- 
- static const struct i2c_algorithm mxs_i2c_algo = {
--	.master_xfer = mxs_i2c_xfer,
-+	.xfer = mxs_i2c_xfer,
- 	.functionality = mxs_i2c_func,
- };
- 
-diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index b10574d42b7a..41cded3b017e 100644
---- a/drivers/i2c/busses/i2c-nomadik.c
-+++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -934,7 +934,7 @@ static unsigned int nmk_i2c_functionality(struct i2c_adapter *adap)
- }
- 
- static const struct i2c_algorithm nmk_i2c_algo = {
--	.master_xfer	= nmk_i2c_xfer,
-+	.xfer	= nmk_i2c_xfer,
- 	.functionality	= nmk_i2c_functionality
- };
- 
-diff --git a/drivers/i2c/busses/i2c-npcm7xx.c b/drivers/i2c/busses/i2c-npcm7xx.c
-index 2fe68615942e..6259cd70939e 100644
---- a/drivers/i2c/busses/i2c-npcm7xx.c
-+++ b/drivers/i2c/busses/i2c-npcm7xx.c
-@@ -1257,7 +1257,7 @@ static irqreturn_t npcm_i2c_int_slave_handler(struct npcm_i2c *bus)
- 	return IRQ_HANDLED;
- }
- 
--static int npcm_i2c_reg_slave(struct i2c_client *client)
-+static int npcm_i2c_reg_target(struct i2c_client *client)
- {
- 	unsigned long lock_flags;
- 	struct npcm_i2c *bus = i2c_get_adapdata(client->adapter);
-@@ -1290,7 +1290,7 @@ static int npcm_i2c_reg_slave(struct i2c_client *client)
- 	return 0;
- }
- 
--static int npcm_i2c_unreg_slave(struct i2c_client *client)
-+static int npcm_i2c_unreg_target(struct i2c_client *client)
- {
- 	struct npcm_i2c *bus = client->adapter->algo_data;
- 	unsigned long lock_flags;
-@@ -2075,7 +2075,7 @@ static bool npcm_i2c_master_start_xmit(struct npcm_i2c *bus,
- 	return true;
- }
- 
--static int npcm_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
-+static int npcm_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 				int num)
- {
- 	struct npcm_i2c *bus = container_of(adap, struct npcm_i2c, adap);
-@@ -2238,11 +2238,11 @@ static const struct i2c_adapter_quirks npcm_i2c_quirks = {
- };
- 
- static const struct i2c_algorithm npcm_i2c_algo = {
--	.master_xfer = npcm_i2c_master_xfer,
-+	.xfer = npcm_i2c_xfer,
- 	.functionality = npcm_i2c_functionality,
- #if IS_ENABLED(CONFIG_I2C_SLAVE)
--	.reg_slave	= npcm_i2c_reg_slave,
--	.unreg_slave	= npcm_i2c_unreg_slave,
-+	.reg_target	= npcm_i2c_reg_target,
-+	.unreg_target	= npcm_i2c_unreg_target,
- #endif
- };
- 
-diff --git a/drivers/i2c/busses/i2c-nvidia-gpu.c b/drivers/i2c/busses/i2c-nvidia-gpu.c
-index 26622d24bb1b..6d5329d6ddd8 100644
---- a/drivers/i2c/busses/i2c-nvidia-gpu.c
-+++ b/drivers/i2c/busses/i2c-nvidia-gpu.c
-@@ -163,7 +163,7 @@ static int gpu_i2c_write(struct gpu_i2c_dev *i2cd, u8 data)
- 	return gpu_i2c_check_status(i2cd);
- }
- 
--static int gpu_i2c_master_xfer(struct i2c_adapter *adap,
-+static int gpu_i2c_xfer(struct i2c_adapter *adap,
- 			       struct i2c_msg *msgs, int num)
- {
- 	struct gpu_i2c_dev *i2cd = i2c_get_adapdata(adap);
-@@ -234,7 +234,7 @@ static u32 gpu_i2c_functionality(struct i2c_adapter *adap)
- }
- 
- static const struct i2c_algorithm gpu_i2c_algorithm = {
--	.master_xfer	= gpu_i2c_master_xfer,
-+	.xfer	= gpu_i2c_xfer,
- 	.functionality	= gpu_i2c_functionality,
- };
- 
-diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-index e106af83cef4..17551d33d5b0 100644
---- a/drivers/i2c/busses/i2c-ocores.c
-+++ b/drivers/i2c/busses/i2c-ocores.c
-@@ -455,8 +455,8 @@ static u32 ocores_func(struct i2c_adapter *adap)
- }
- 
- static struct i2c_algorithm ocores_algorithm = {
--	.master_xfer = ocores_xfer,
--	.master_xfer_atomic = ocores_xfer_polling,
-+	.xfer = ocores_xfer,
-+	.xfer_atomic = ocores_xfer_polling,
- 	.functionality = ocores_func,
- };
- 
-@@ -689,13 +689,13 @@ static int ocores_i2c_probe(struct platform_device *pdev)
- 	}
- 
- 	if (irq == -ENXIO) {
--		ocores_algorithm.master_xfer = ocores_xfer_polling;
-+		ocores_algorithm.xfer = ocores_xfer_polling;
- 	} else {
- 		if (irq < 0)
- 			return irq;
- 	}
- 
--	if (ocores_algorithm.master_xfer != ocores_xfer_polling) {
-+	if (ocores_algorithm.xfer != ocores_xfer_polling) {
- 		ret = devm_request_any_context_irq(&pdev->dev, irq,
- 						   ocores_isr, 0,
- 						   pdev->name, i2c);
-diff --git a/drivers/i2c/busses/i2c-octeon-platdrv.c b/drivers/i2c/busses/i2c-octeon-platdrv.c
-index 7d54b3203f71..dc6dff95c68c 100644
---- a/drivers/i2c/busses/i2c-octeon-platdrv.c
-+++ b/drivers/i2c/busses/i2c-octeon-platdrv.c
-@@ -122,7 +122,7 @@ static u32 octeon_i2c_functionality(struct i2c_adapter *adap)
- }
- 
- static const struct i2c_algorithm octeon_i2c_algo = {
--	.master_xfer = octeon_i2c_xfer,
-+	.xfer = octeon_i2c_xfer,
- 	.functionality = octeon_i2c_functionality,
- };
- 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 42165ef57946..3b9ae8e522e2 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -1212,8 +1212,8 @@ omap_i2c_isr_thread(int this_irq, void *dev_id)
- }
- 
- static const struct i2c_algorithm omap_i2c_algo = {
--	.master_xfer	= omap_i2c_xfer_irq,
--	.master_xfer_atomic	= omap_i2c_xfer_polling,
-+	.xfer	= omap_i2c_xfer_irq,
-+	.xfer_atomic	= omap_i2c_xfer_polling,
- 	.functionality	= omap_i2c_func,
- };
- 
-diff --git a/drivers/i2c/busses/i2c-opal.c b/drivers/i2c/busses/i2c-opal.c
-index 17ef87d50f7c..b6640d8e77af 100644
---- a/drivers/i2c/busses/i2c-opal.c
-+++ b/drivers/i2c/busses/i2c-opal.c
-@@ -70,7 +70,7 @@ static int i2c_opal_send_request(u32 bus_id, struct opal_i2c_request *req)
- 	return rc;
- }
- 
--static int i2c_opal_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
-+static int i2c_opal_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 				int num)
- {
- 	unsigned long opal_id = (unsigned long)adap->algo_data;
-@@ -179,7 +179,7 @@ static u32 i2c_opal_func(struct i2c_adapter *adapter)
- }
- 
- static const struct i2c_algorithm i2c_opal_algo = {
--	.master_xfer	= i2c_opal_master_xfer,
-+	.xfer	= i2c_opal_xfer,
- 	.smbus_xfer	= i2c_opal_smbus_xfer,
- 	.functionality	= i2c_opal_func,
- };
-diff --git a/drivers/i2c/busses/i2c-pasemi-core.c b/drivers/i2c/busses/i2c-pasemi-core.c
-index bd8becbdeeb2..b07bf8286a47 100644
---- a/drivers/i2c/busses/i2c-pasemi-core.c
-+++ b/drivers/i2c/busses/i2c-pasemi-core.c
-@@ -336,7 +336,7 @@ static u32 pasemi_smb_func(struct i2c_adapter *adapter)
- }
- 
- static const struct i2c_algorithm smbus_algorithm = {
--	.master_xfer	= pasemi_i2c_xfer,
-+	.xfer	= pasemi_i2c_xfer,
- 	.smbus_xfer	= pasemi_smb_xfer,
- 	.functionality	= pasemi_smb_func,
- };
-diff --git a/drivers/i2c/busses/i2c-pnx.c b/drivers/i2c/busses/i2c-pnx.c
-index a12525b3186b..e31ac2dbbd7b 100644
---- a/drivers/i2c/busses/i2c-pnx.c
-+++ b/drivers/i2c/busses/i2c-pnx.c
-@@ -609,7 +609,7 @@ static u32 i2c_pnx_func(struct i2c_adapter *adapter)
- }
- 
- static const struct i2c_algorithm pnx_algorithm = {
--	.master_xfer = i2c_pnx_xfer,
-+	.xfer = i2c_pnx_xfer,
- 	.functionality = i2c_pnx_func,
- };
- 
-diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index 76f79b68cef8..474abc4f5784 100644
---- a/drivers/i2c/busses/i2c-pxa.c
-+++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -1154,11 +1154,11 @@ static u32 i2c_pxa_functionality(struct i2c_adapter *adap)
- }
- 
- static const struct i2c_algorithm i2c_pxa_algorithm = {
--	.master_xfer	= i2c_pxa_xfer,
-+	.xfer	= i2c_pxa_xfer,
- 	.functionality	= i2c_pxa_functionality,
- #ifdef CONFIG_I2C_PXA_SLAVE
--	.reg_slave	= i2c_pxa_slave_reg,
--	.unreg_slave	= i2c_pxa_slave_unreg,
-+	.reg_target	= i2c_pxa_slave_reg,
-+	.unreg_target	= i2c_pxa_slave_unreg,
- #endif
- };
- 
-@@ -1244,11 +1244,11 @@ static int i2c_pxa_pio_xfer(struct i2c_adapter *adap,
- }
- 
- static const struct i2c_algorithm i2c_pxa_pio_algorithm = {
--	.master_xfer	= i2c_pxa_pio_xfer,
-+	.xfer	= i2c_pxa_pio_xfer,
- 	.functionality	= i2c_pxa_functionality,
- #ifdef CONFIG_I2C_PXA_SLAVE
--	.reg_slave	= i2c_pxa_slave_reg,
--	.unreg_slave	= i2c_pxa_slave_unreg,
-+	.reg_target	= i2c_pxa_slave_reg,
-+	.unreg_target	= i2c_pxa_slave_unreg,
- #endif
- };
- 
-diff --git a/drivers/i2c/busses/i2c-qcom-cci.c b/drivers/i2c/busses/i2c-qcom-cci.c
-index 414882c57d7f..d8d6d99dd4e7 100644
---- a/drivers/i2c/busses/i2c-qcom-cci.c
-+++ b/drivers/i2c/busses/i2c-qcom-cci.c
-@@ -463,7 +463,7 @@ static u32 cci_func(struct i2c_adapter *adap)
- }
- 
- static const struct i2c_algorithm cci_algo = {
--	.master_xfer	= cci_xfer,
-+	.xfer	= cci_xfer,
- 	.functionality	= cci_func,
- };
- 
-diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
-index da94df466e83..337a80089f43 100644
---- a/drivers/i2c/busses/i2c-qcom-geni.c
-+++ b/drivers/i2c/busses/i2c-qcom-geni.c
-@@ -715,7 +715,7 @@ static u32 geni_i2c_func(struct i2c_adapter *adap)
- }
- 
- static const struct i2c_algorithm geni_i2c_algo = {
--	.master_xfer	= geni_i2c_xfer,
-+	.xfer	= geni_i2c_xfer,
- 	.functionality	= geni_i2c_func,
- };
- 
-diff --git a/drivers/i2c/busses/i2c-robotfuzz-osif.c b/drivers/i2c/busses/i2c-robotfuzz-osif.c
-index 66dfa211e736..40985a38bec0 100644
---- a/drivers/i2c/busses/i2c-robotfuzz-osif.c
-+++ b/drivers/i2c/busses/i2c-robotfuzz-osif.c
-@@ -112,7 +112,7 @@ static u32 osif_func(struct i2c_adapter *adapter)
- }
- 
- static const struct i2c_algorithm osif_algorithm = {
--	.master_xfer	= osif_xfer,
-+	.xfer	= osif_xfer,
- 	.functionality	= osif_func,
- };
- 
-diff --git a/drivers/i2c/busses/i2c-rzv2m.c b/drivers/i2c/busses/i2c-rzv2m.c
-index b0bfc96b9ede..60aa0a4e4247 100644
---- a/drivers/i2c/busses/i2c-rzv2m.c
-+++ b/drivers/i2c/busses/i2c-rzv2m.c
-@@ -321,7 +321,7 @@ static int rzv2m_i2c_stop_condition(struct rzv2m_i2c_priv *priv)
- 				  100, jiffies_to_usecs(priv->adap.timeout));
- }
- 
--static int rzv2m_i2c_master_xfer_msg(struct rzv2m_i2c_priv *priv,
-+static int rzv2m_i2c_xfer_msg(struct rzv2m_i2c_priv *priv,
- 				  struct i2c_msg *msg, int stop)
- {
- 	unsigned int count = 0;
-@@ -351,7 +351,7 @@ static int rzv2m_i2c_master_xfer_msg(struct rzv2m_i2c_priv *priv,
- 	return ret;
- }
- 
--static int rzv2m_i2c_master_xfer(struct i2c_adapter *adap,
-+static int rzv2m_i2c_xfer(struct i2c_adapter *adap,
- 				 struct i2c_msg *msgs, int num)
- {
- 	struct rzv2m_i2c_priv *priv = i2c_get_adapdata(adap);
-@@ -370,7 +370,7 @@ static int rzv2m_i2c_master_xfer(struct i2c_adapter *adap,
- 
- 	/* I2C main transfer */
- 	for (i = 0; i < num; i++) {
--		ret = rzv2m_i2c_master_xfer_msg(priv, &msgs[i], i == (num - 1));
-+		ret = rzv2m_i2c_xfer_msg(priv, &msgs[i], i == (num - 1));
- 		if (ret < 0)
- 			goto out;
- 	}
-@@ -408,7 +408,7 @@ static const struct i2c_adapter_quirks rzv2m_i2c_quirks = {
- };
- 
- static struct i2c_algorithm rzv2m_i2c_algo = {
--	.master_xfer = rzv2m_i2c_master_xfer,
-+	.xfer = rzv2m_i2c_xfer,
- 	.functionality = rzv2m_i2c_func,
- };
- 
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-index 275f7c42165c..29f5fef39b54 100644
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -800,8 +800,8 @@ static u32 s3c24xx_i2c_func(struct i2c_adapter *adap)
- 
- /* i2c bus registration info */
- static const struct i2c_algorithm s3c24xx_i2c_algorithm = {
--	.master_xfer		= s3c24xx_i2c_xfer,
--	.master_xfer_atomic     = s3c24xx_i2c_xfer_atomic,
-+	.xfer		= s3c24xx_i2c_xfer,
-+	.xfer_atomic     = s3c24xx_i2c_xfer_atomic,
- 	.functionality		= s3c24xx_i2c_func,
- };
- 
-diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-index 01210452216b..6ecaafc700bc 100644
---- a/drivers/i2c/busses/i2c-stm32f7.c
-+++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -1065,7 +1065,7 @@ static int stm32f7_i2c_smbus_xfer_msg(struct stm32f7_i2c_dev *i2c_dev,
- 		f7_msg->read_write = I2C_SMBUS_READ;
- 		break;
- 	case I2C_SMBUS_I2C_BLOCK_DATA:
--		/* Rely on emulated i2c transfer (through master_xfer) */
-+		/* Rely on emulated i2c transfer (through xfer) */
- 		return -EOPNOTSUPP;
- 	default:
- 		dev_err(dev, "Unsupported smbus protocol %d\n", f7_msg->size);
-@@ -1888,7 +1888,7 @@ static void stm32f7_i2c_enable_wakeup(struct stm32f7_i2c_dev *i2c_dev,
- 	}
- }
- 
--static int stm32f7_i2c_reg_slave(struct i2c_client *slave)
-+static int stm32f7_i2c_reg_target(struct i2c_client *slave)
- {
- 	struct stm32f7_i2c_dev *i2c_dev = i2c_get_adapdata(slave->adapter);
- 	void __iomem *base = i2c_dev->base;
-@@ -1978,7 +1978,7 @@ static int stm32f7_i2c_reg_slave(struct i2c_client *slave)
- 	return ret;
- }
- 
--static int stm32f7_i2c_unreg_slave(struct i2c_client *slave)
-+static int stm32f7_i2c_unreg_target(struct i2c_client *slave)
- {
- 	struct stm32f7_i2c_dev *i2c_dev = i2c_get_adapdata(slave->adapter);
- 	void __iomem *base = i2c_dev->base;
-@@ -2151,12 +2151,12 @@ static u32 stm32f7_i2c_func(struct i2c_adapter *adap)
- }
- 
- static const struct i2c_algorithm stm32f7_i2c_algo = {
--	.master_xfer = stm32f7_i2c_xfer,
--	.master_xfer_atomic = stm32f7_i2c_xfer_atomic,
-+	.xfer = stm32f7_i2c_xfer,
-+	.xfer_atomic = stm32f7_i2c_xfer_atomic,
- 	.smbus_xfer = stm32f7_i2c_smbus_xfer,
- 	.functionality = stm32f7_i2c_func,
--	.reg_slave = stm32f7_i2c_reg_slave,
--	.unreg_slave = stm32f7_i2c_unreg_slave,
-+	.reg_target = stm32f7_i2c_reg_target,
-+	.unreg_target = stm32f7_i2c_unreg_target,
- };
- 
- static int stm32f7_i2c_probe(struct platform_device *pdev)
-diff --git a/drivers/i2c/busses/i2c-tegra-bpmp.c b/drivers/i2c/busses/i2c-tegra-bpmp.c
-index b0840fa0f53e..dabadbcc6d6a 100644
---- a/drivers/i2c/busses/i2c-tegra-bpmp.c
-+++ b/drivers/i2c/busses/i2c-tegra-bpmp.c
-@@ -275,8 +275,8 @@ static u32 tegra_bpmp_i2c_func(struct i2c_adapter *adapter)
- }
- 
- static const struct i2c_algorithm tegra_bpmp_i2c_algo = {
--	.master_xfer = tegra_bpmp_i2c_xfer,
--	.master_xfer_atomic = tegra_bpmp_i2c_xfer_atomic,
-+	.xfer = tegra_bpmp_i2c_xfer,
-+	.xfer_atomic = tegra_bpmp_i2c_xfer_atomic,
- 	.functionality = tegra_bpmp_i2c_func,
- };
- 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 920d5a8cbf4c..861b1c9e2627 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -1437,8 +1437,8 @@ static u32 tegra_i2c_func(struct i2c_adapter *adap)
- }
- 
- static const struct i2c_algorithm tegra_i2c_algo = {
--	.master_xfer		= tegra_i2c_xfer,
--	.master_xfer_atomic	= tegra_i2c_xfer_atomic,
-+	.xfer		= tegra_i2c_xfer,
-+	.xfer_atomic	= tegra_i2c_xfer_atomic,
- 	.functionality		= tegra_i2c_func,
- };
- 
-diff --git a/drivers/i2c/busses/i2c-thunderx-pcidrv.c b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
-index a77cd86fe75e..de325c8e18f3 100644
---- a/drivers/i2c/busses/i2c-thunderx-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
-@@ -71,7 +71,7 @@ static u32 thunderx_i2c_functionality(struct i2c_adapter *adap)
- }
- 
- static const struct i2c_algorithm thunderx_i2c_algo = {
--	.master_xfer = octeon_i2c_xfer,
-+	.xfer = octeon_i2c_xfer,
- 	.functionality = thunderx_i2c_functionality,
- };
- 
-diff --git a/drivers/i2c/busses/i2c-virtio.c b/drivers/i2c/busses/i2c-virtio.c
-index c60ae531ba57..52ba1e0845ca 100644
---- a/drivers/i2c/busses/i2c-virtio.c
-+++ b/drivers/i2c/busses/i2c-virtio.c
-@@ -183,7 +183,7 @@ static u32 virtio_i2c_func(struct i2c_adapter *adap)
- }
- 
- static struct i2c_algorithm virtio_algorithm = {
--	.master_xfer = virtio_i2c_xfer,
-+	.xfer = virtio_i2c_xfer,
- 	.functionality = virtio_i2c_func,
- };
- 
-diff --git a/drivers/i2c/busses/i2c-wmt.c b/drivers/i2c/busses/i2c-wmt.c
-index 198afee5233c..05ff6228c2dd 100644
---- a/drivers/i2c/busses/i2c-wmt.c
-+++ b/drivers/i2c/busses/i2c-wmt.c
-@@ -269,7 +269,7 @@ static u32 wmt_i2c_func(struct i2c_adapter *adap)
- }
- 
- static const struct i2c_algorithm wmt_i2c_algo = {
--	.master_xfer	= wmt_i2c_xfer,
-+	.xfer	= wmt_i2c_xfer,
- 	.functionality	= wmt_i2c_func,
- };
- 
-diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index 71391b590ada..7ff36df7319e 100644
---- a/drivers/i2c/busses/i2c-xiic.c
-+++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -1193,7 +1193,7 @@ static u32 xiic_func(struct i2c_adapter *adap)
- }
- 
- static const struct i2c_algorithm xiic_algorithm = {
--	.master_xfer = xiic_xfer,
-+	.xfer = xiic_xfer,
- 	.functionality = xiic_func,
- };
- 
--- 
-2.43.0
+- Conceptual advances that have influenced the design or operation of HPDC =
+systems or applications;
+- Innovative techniques or tools for the design or analysis of HPDC systems=
+ or applications;
+- Design, implementation, and deployment of innovative (components of) HPDC=
+ systems or applications;
+- Analysis of innovative (components of) HPDC systems or applications.
 
+In selecting the achievement award recipient, the Award Selection Committee=
+ will place particular emphasis on seminal contributions and a sustained re=
+cord of high-impact in the field.
+
+Past Winners
+------------
+
+- 2023: Manish Parashar for pioneering contributions in high performance pa=
+rallel and distributed computational methods, data management, in-situ comp=
+uting, and international leadership in cyberinfrastructure and translationa=
+l computer science.
+- 2022: Franck Cappello for his pioneering contributions in methods, tools,=
+ and testbeds for resilient high performance parallel and distributed compu=
+ting.
+- 2021: Rosa Badia, for her innovations in parallel task-based programming =
+models, workflow applications and systems, and leadership in the high perfo=
+rmance computing research community.
+- 2019: Geoffrey Fox, for his foundational contributions to parallel comput=
+ing, high-performance software, the interface between applications and syst=
+ems, contributions to education, and outreach to underrepresented communiti=
+es.
+- 2018: Satoshi Matsuoka, for his pioneering research in the design, implem=
+entation, and application of high performance systems and software tools fo=
+r parallel and distributed systems.
+- 2017: David Abramson, for his pioneering research in the design, implemen=
+tation, and application of high performance systems and software tools for =
+parallel and distributed systems.
+- 2016: Jack Dongarra, for his long-standing and far-reaching contributions=
+ in high performance linear algebra and large-scale parallel and distribute=
+d computing.
+- 2015: Ewa Deelman, for her significant influence, contributions, and dist=
+inguished use of workflow systems in high-performance computing.
+- 2014: Rich Wolski, for pioneering and high-impact contributions to grid, =
+cloud, and parallel computing.
+- 2013: Miron Livny, for his significant contribution and high impact in th=
+e area of high-throughput computing.
+- 2012: Ian Foster, for his initiative in the creation and development of g=
+rid computing and his significant contributions to high-performance distrib=
+uted computing in support of the sciences.
+
+Achievement Award Talk
+----------------------
+
+The award will be presented at the 33nd International Symposium on High-Per=
+formance Parallel and Distributed Computing in Pisa, Italy, June 3 - June 7=
+, 2024. The winner should be available to receive the award and present an =
+achievement award talk at the conference.
+
+Nomination for the 2024 Award
+-----------------------------
+
+Candidates may nominate a colleague by sending a letter in PDF form to dtha=
+in@nd.edu. Each nomination received will be retained and considered by the =
+committee for three consecutive years. The letter of nomination should be a=
+bout one page and contain:
+The nominee's current professional affiliation(s).
+A brief citation (thirty words or less) precisely stating the most salient =
+reason(s) why the nominee is qualified for the award.
+A description of the technical contributions of the nominee and their signi=
+ficance and impact.
+
+Important Dates
+---------------
+Nomination deadline: Monday, April 8, 2024
+
+2024 Award Selection Committee
+------------------------------
+
+- Rosa M Badia
+- Patrizio Dazzi
+- Gabriele Mencagli
+- Manish Parashar
+- Douglas Thain
+
+The award selection committee is chaired by a member of the HPDC steering c=
+ommittee and includes the General Chair(s) and the Program Committee Chair(=
+s) of the current HPDC conference, and the previous year's award winner. An=
+ award committee member cannot be a nominator or be selected as the winner.
+
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+Alberto Ottimo
+PhD Student
+Department of Computer Science
+University of Pisa, Italy
+E-mail: alberto.ottimo@phd.unipi.it
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
