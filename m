@@ -1,43 +1,48 @@
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E269D8F68
-	for <virtualization@lists.linux.dev>; Fri, 22 Mar 2024 05:50:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 651468C1F
+	for <virtualization@lists.linux.dev>; Fri, 22 Mar 2024 06:03:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711086652; cv=none; b=p2oxdakyqs4Q3KpjR1mjgl4QDsDUPJLN1RFKZD4d2GIVmQHdDf4aX1itie1Y/9zaRYO4ta/3qBBpuMJQyekALENiumOfAHjWRrpKh6vbatGs2rnIIUuM0BBvLTNzXNgthu1HNepspEuDP8hGE+RnzOfl7NhNpF/NR1DrafBN+LE=
+	t=1711087397; cv=none; b=MHChxo0/+3q5Hez2buSAYFzodoKusAMrKW1kGgBUzfJET0+sdPF7yq4bf5OLdCFbPBLjISoDynbjxOslaxDFRY0//+kdHOoxX9G9IVHrQGlY5pZIiP+Cta8byAEk2sfdvbsIxUzt6dh4NGdJBqqb+tCSUVe4YZOxaSbhpHjzxag=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711086652; c=relaxed/simple;
-	bh=ZPcAbPZbgwha3coRt5UvTIPeTih8m59AEHpI3qDQcX4=;
+	s=arc-20240116; t=1711087397; c=relaxed/simple;
+	bh=caCmcTzq12y+jqWMv9A7kwwJIN7zLpIY6BF1bQNHflM=;
 	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=kp+XbxXuHay+CJVmaKEvGFiQ1St2EfjwMWD9EVymokWEvgm53Stsz+GN3Kur2QhPMUH1K87vLDUDEU6EEMHvMWcbWqjaWdEnqNGS4xmCzRKErn19A2/DkxFvLRgu5/fovbKaWZU3kLoruJIEF/AwIiw9IsXnpR+VBsKM0nWwWb0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Du0pZncl; arc=none smtp.client-ip=115.124.30.101
+	 Content-Type; b=FEfboWNlmZuV6DfTxXPg+GHAIKowFgC0MO9gdjPFRXmPkVXWKh9sHG8v9hM68HRUaT2/jcOCxkjCaVzga9VdBubFqPdwrmZw/yyW3S64sKKRpkNuyQD3n1upFez/HBH6O3d0/8piPrjGv+95SFwzhljufo/FIZnJ2LNdR3LD31s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=aYnimi1H; arc=none smtp.client-ip=115.124.30.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Du0pZncl"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="aYnimi1H"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1711086646; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=UwCdL2MNslMJGZsEr33rlN5G4C05VGgW0tNuKfRIZbs=;
-	b=Du0pZnclSMN+x8Mm8hjNI9MAiGRrMoqlyP0vaQbybjV76CpYg3Ob/29sPnj3HlRjZQ316bmRvLCATunBhT7D+StPM7FUzZchxHPxT0AhMRaAVMBVzM+vmsSnEVblZfF4BbRdVZ4J/93pdeaIFn4QnpADDdPeFfWVk+FSyj5m+As=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0W315.kX_1711086644;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W315.kX_1711086644)
+	t=1711087388; h=Message-ID:Subject:Date:From:To:Content-Type;
+	bh=XmHyb2TAUIWlcUq9ZQ14Lpel252a1eCeznWun+VNgYw=;
+	b=aYnimi1HJUsLoXjyQ3uUwaf4DzGIChnMp7TetIn6c4n8x6y5f5Rt/zCsRUW/tF+o+BndnULAdrQMmK+E+QtZDUH8P1N5xAMj2PS9nxraLYhfgrobZcG8ejwg/ViWK2vADkGfJjPGlj6Mz9VZ5n4vRkFQiQQxnx2yCYd+m71MGrc=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0W315pdr_1711087387;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W315pdr_1711087387)
           by smtp.aliyun-inc.com;
-          Fri, 22 Mar 2024 13:50:44 +0800
-Message-ID: <1711086351.5199406-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost] virtio_net: update the hdr_len calculation for xmit
-Date: Fri, 22 Mar 2024 13:45:51 +0800
+          Fri, 22 Mar 2024 14:03:08 +0800
+Message-ID: <1711086955.58408-2-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH vhost v4 03/10] virtio_ring: packed: structure the indirect desc table
+Date: Fri, 22 Mar 2024 13:55:55 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: Jason Wang <jasowang@redhat.com>
 Cc: virtualization@lists.linux.dev,
  "Michael S. Tsirkin" <mst@redhat.com>,
- Spike Du <spiked@nvidia.com>
-References: <20240320102025.11327-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEs-x-W2DHh8U=+0ORnq7=kjw9SJNNtDFfGNjC2KqqPZeA@mail.gmail.com>
- <1711074462.3244817-3-xuanzhuo@linux.alibaba.com>
- <CACGkMEtOjPYuPi7MQcnp+TroxLKa4YtpTdsP4bNUSxUV8rgq3A@mail.gmail.com>
-In-Reply-To: <CACGkMEtOjPYuPi7MQcnp+TroxLKa4YtpTdsP4bNUSxUV8rgq3A@mail.gmail.com>
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>,
+ netdev@vger.kernel.org
+References: <20240312033557.6351-1-xuanzhuo@linux.alibaba.com>
+ <20240312033557.6351-4-xuanzhuo@linux.alibaba.com>
+ <CACGkMEs_DT1309_hj8igcvX7H1sU+-s_OP6Jnp-c=0kmu+ia_g@mail.gmail.com>
+ <1711009465.784253-4-xuanzhuo@linux.alibaba.com>
+ <CACGkMEvimfmQRUZ04CykZs-6cOkASF8S02n2N7caJ4XivR8hNw@mail.gmail.com>
+In-Reply-To: <CACGkMEvimfmQRUZ04CykZs-6cOkASF8S02n2N7caJ4XivR8hNw@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
@@ -46,191 +51,122 @@ List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-On Fri, 22 Mar 2024 13:04:48 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Fri, Mar 22, 2024 at 10:29=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alibab=
-a.com> wrote:
+On Fri, 22 Mar 2024 13:15:10 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> On Thu, Mar 21, 2024 at 4:29=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba=
+.com> wrote:
 > >
-> > On Thu, 21 Mar 2024 12:17:54 +0800, Jason Wang <jasowang@redhat.com> wr=
+> > On Thu, 21 Mar 2024 12:47:18 +0800, Jason Wang <jasowang@redhat.com> wr=
 ote:
-> > > On Wed, Mar 20, 2024 at 6:20=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.ali=
-baba.com> wrote:
+> > > On Tue, Mar 12, 2024 at 11:36=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.al=
+ibaba.com> wrote:
 > > > >
-> > > > The virtio spec says:
-> > > >     If one of the VIRTIO_NET_F_HOST_TSO4, TSO6, USO or UFO options =
-have
-> > > >     been negotiated:
-> > > >         If the VIRTIO_NET_F_GUEST_HDRLEN feature has been negotiate=
-d,
-> > > >         and gso_type differs from VIRTIO_NET_HDR_GSO_NONE, the driv=
-er
-> > > >         MUST set hdr_len to a value equal to the length of the head=
-ers,
-> > > >         including the transport header.
+> > > > This commit structure the indirect desc table.
+> > > > Then we can get the desc num directly when doing unmap.
 > > > >
-> > > >         If the VIRTIO_NET_F_GUEST_HDRLEN feature has not been negot=
-iated,
-> > > >         or gso_type is VIRTIO_NET_HDR_GSO_NONE, the driver SHOULD s=
-et
-> > > >         hdr_len to a value not less than the length of the headers,
-> > > >         including the transport header.
-> > > >
-> > > > So if the VIRTIO_NET_F_GUEST_HDRLEN feature has been negotiated, the
-> > > > hdr->hdr_len should be eth header + ip header + tcp/udp header.
-> > > >
-> > > > But now:
-> > > >     hdr->hdr_len =3D __cpu_to_virtio15(little_endian, skb_headlen(s=
-kb));
-> > > >
-> > > > The skb_headlen() returns the linear space of the skb, not the head=
-er
-> > > > size that only match the case the VIRTIO_NET_F_GUEST_HDRLEN feature=
- has
-> > > > not been negotiated, or gso_type is VIRTIO_NET_HDR_GSO_NONE.
-> > > >
-> > > > We do not check the feature of the device. This function is a common
-> > > > function used by many places. So we do more stricter work whatever
-> > > > the features is negotiated.
-> > > >
-> > > > For the case skb_is_gso(skb) is false, if none of the
-> > > > VIRTIO_NET_F_HOST_TSO4, TSO6, USO or UFO options have been negotiat=
-ed,
-> > > > the spec not define the action of setting hdr_len. Here I set it to
-> > > > skb_headlen(). If one of the above features have been negotiated, we
-> > > > should set a value not less than the length of "eth header + ip hea=
-der +
-> > > > tcp/udp header". So the skb_headlen() also is a valid value.
-> > > >
-> > > > For the case skb_is_gso(skb) is true, it implies that one of
-> > > > VIRTIO_NET_F_HOST_TSO4, TSO6, USO or UFO options MUST have been
-> > > > negotiated. If the VIRTIO_NET_F_GUEST_HDRLEN is negotiated, we MUST=
- set
-> > > > it to the length of "eth header + ip header + tcp/udp header".
-> > > > If the VIRTIO_NET_F_GUEST_HDRLEN is not negotiated, that still be a
-> > > > valid value.
+> > > > And save the dma info to the struct, then the indirect
+> > > > will not use the dma fields of the desc_extra. The subsequent
+> > > > commits will make the dma fields are optional. But for
+> > > > the indirect case, we must record the dma info.
 > > > >
 > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > Reported-by: Spike Du <spiked@nvidia.com>
 > > > > ---
-> > > >  include/linux/virtio_net.h | 41 ++++++++++++++++++++++++++++------=
+> > > >  drivers/virtio/virtio_ring.c | 66 +++++++++++++++++++++-----------=
 ----
-> > > >  1 file changed, 31 insertions(+), 10 deletions(-)
+> > > >  1 file changed, 38 insertions(+), 28 deletions(-)
 > > > >
-> > > > diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-> > > > index 4dfa9b69ca8d..51d93f9762d7 100644
-> > > > --- a/include/linux/virtio_net.h
-> > > > +++ b/include/linux/virtio_net.h
-> > > > @@ -201,24 +201,45 @@ static inline int virtio_net_hdr_from_skb(con=
-st struct sk_buff *skb,
+> > > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_r=
+ing.c
+> > > > index 0dfbd17e5a87..22a588bba166 100644
+> > > > --- a/drivers/virtio/virtio_ring.c
+> > > > +++ b/drivers/virtio/virtio_ring.c
+> > > > @@ -72,9 +72,16 @@ struct vring_desc_state_split {
+> > > >         struct vring_desc *indir_desc;  /* Indirect descriptor, if =
+any. */
+> > > >  };
 > > > >
-> > > >         if (skb_is_gso(skb)) {
-> > > >                 struct skb_shared_info *sinfo =3D skb_shinfo(skb);
-> > > > +               u32 hdrlen;
-> > > >
-> > > > -               /* This is a hint as to how much should be linear. =
-*/
-> > > > -               hdr->hdr_len =3D __cpu_to_virtio16(little_endian,
-> > > > -                                                skb_headlen(skb));
-> > > > -               hdr->gso_size =3D __cpu_to_virtio16(little_endian,
-> > > > -                                                 sinfo->gso_size);
-> > > > -               if (sinfo->gso_type & SKB_GSO_TCPV4)
-> > > > +               if (sinfo->gso_type & SKB_GSO_TCPV4) {
-> > > >                         hdr->gso_type =3D VIRTIO_NET_HDR_GSO_TCPV4;
-> > > > -               else if (sinfo->gso_type & SKB_GSO_TCPV6)
-> > > > +                       hdrlen =3D tcp_hdrlen(skb) + skb_transport_=
-offset(skb);
+> > > > +struct vring_packed_desc_indir {
+> > > > +       dma_addr_t addr;                /* Descriptor Array DMA add=
+r. */
+> > > > +       u32 len;                        /* Descriptor Array length.=
+ */
+> > > > +       u32 num;
+> > > > +       struct vring_packed_desc desc[];
+> > > > +};
+> > > > +
+> > > >  struct vring_desc_state_packed {
+> > > >         void *data;                     /* Data for callback. */
+> > > > -       struct vring_packed_desc *indir_desc; /* Indirect descripto=
+r, if any. */
+> > > > +       struct vring_packed_desc_indir *indir_desc; /* Indirect des=
+criptor, if any. */
 > > >
-> > > So could evil guests give us a 0 hdrlen through this. If yes, it seems
-> > > much more dangerous than headlen or we need harden the value as
-> > > 9181d6f8a2bb32d158de66a84164fac05e3ddd18 did.
+> > > Maybe it's better just to have a vring_desc_extra here.
 > >
-> > Spec says:
-> >         If the VIRTIO_NET_F_GUEST_HDRLEN feature has been negotiated, a=
-nd
-> >         gso_type differs from VIRTIO_NET_HDR_GSO_NONE, the device MAY u=
-se
-> >         hdr_len as the transport header size. Note: Caution should be t=
-aken by
-> >         the implementation so as to prevent a malicious driver from att=
-acking
-> >         the device by setting an incorrect hdr_len.
 > >
-> >         If the VIRTIO_NET_F_GUEST_HDRLEN feature has not been negotiate=
-d, or
-> >         gso_type is VIRTIO_NET_HDR_GSO_NONE, the device MAY use hdr_len=
- only as
-> >         a hint about the transport header size. The device MUST NOT rel=
-y on
-> >         hdr_len to be correct. Note: This is due to various bugs in
-> >         implementations.
-> >
-> > The device nerver trust the hdr_len completely.
-> > So I think that is safe.
+> > Do you mean replacing vring_packed_desc_indir by vring_desc_extra?
 >
-> It doesn't, there's no way to audit all the existing implementations of v=
-irtio.
->
-> For example, have you seen the commit I've pointed to you?
+> Just add a vring_desc_extra in vring_desc_state_packed.
 
-I haven seen it.
 
-But here, this is driver, the device should handen the check.
-For the driver, we should do as the spec.
-Do you mean that some evil driver pass 0 to device?
-Now we fix that.
+I am surprise to here that.
+
+Do you mean this: #1
+
+
+struct vring_desc_state_packed {
+	void *data;			/* Data for callback. */
+	struct vring_packed_desc *indir_desc; /* Indirect descriptor, if any. */
+	u16 num;			/* Descriptor list length. */
+	u16 last;			/* The last desc state in a list. */
+
+	struct vring_desc_extra desc_extra;
+};
+
+
+Then desc_extra is included by desc_state. I do not think so.
+
+I guess you mean this: #2
+
+struct vring_desc_state_packed {
+	void *data;			/* Data for callback. */
+	struct vring_desc_extra *indir_desc; /* Indirect descriptor, if any. */
+	u16 num;			/* Descriptor list length. */
+	u16 last;			/* The last desc state in a list. */
+};
+
+indir_desc pointers to memory:
+
+|struct vring_desc_extra | struct vring_packed_desc desc[] |
 
 
 >
 > >
+> > I am ok for that. But vring_desc_extra has two extra items:
 > >
-> > >
-> > > > +
-> > > > +               } else if (sinfo->gso_type & SKB_GSO_TCPV6) {
-> > > >                         hdr->gso_type =3D VIRTIO_NET_HDR_GSO_TCPV6;
-> > > > -               else if (sinfo->gso_type & SKB_GSO_UDP_L4)
-> > > > +                       hdrlen =3D tcp_hdrlen(skb) + skb_transport_=
-offset(skb);
-> > > > +
-> > > > +               } else if (sinfo->gso_type & SKB_GSO_UDP_L4) {
-> > > >                         hdr->gso_type =3D VIRTIO_NET_HDR_GSO_UDP_L4;
-> > > > -               else
-> > > > +                       hdrlen =3D sizeof(struct udphdr) + skb_tran=
-sport_offset(skb);
-> > > > +
-> > > > +               } else {
-> > > >                         return -EINVAL;
-> > > > +               }
-> > > > +
-> > > > +               /* One of VIRTIO_NET_F_HOST_TSO4, TSO6, USO or UFO =
-options MUST
-> > > > +                * have been negotiated. If the VIRTIO_NET_F_GUEST_=
-HDRLEN is
-> > > > +                * negotiated, we MUST set it to the length of "eth=
- header + ip
-> > > > +                * header + tcp/udp header".  If the VIRTIO_NET_F_G=
-UEST_HDRLEN
-> > > > +                * is not negotiated, that still be a valid value.
-> > > > +                */
-> > >
-> > > I'd stick the headlen for deivce without GUEST_HDRLEN. It seems much
-> > > more safe as we don't want to break legacy devices.
+> >         u16 flags;                      /* Descriptor flags. */
+> >         u16 next;                       /* The next desc state in a lis=
+t. */
 > >
-> > I do not get it.
+> > vring_packed_desc_indir has "desc". I think that is more convenient.
+> >
+> > So, I think vring_packed_desc_indir is appropriate.
 >
-> if (GUEST_HDRLEN)
->     tell the offset of the payload
-> else
->     tell the headlen (stick to the old behaviour)
+> It reuses the existing structure so we had the chance to reuse the
+> helper.
 
+Which helper?
 
-I am ok. Then we need to pass the features of the device to this function.
+But, if you mean #2. I am ok.
 
-Thanks
+Thanks.
 
-
-
+> And it could be used for future chained indirect (if it turns
+> out to be necessary).
 >
 > Thanks
 >
+> > Or I missed something.
+> >
 > >
 > > Thanks.
 > >
@@ -238,6 +174,6 @@ Thanks
 > > >
 > > > Thanks
 > > >
-> > >
 > >
+>
 >
