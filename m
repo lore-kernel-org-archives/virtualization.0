@@ -1,148 +1,183 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 772A310F2;
-	Fri, 22 Mar 2024 02:04:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5606D65C
+	for <virtualization@lists.linux.dev>; Fri, 22 Mar 2024 02:29:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711073052; cv=none; b=Rv1sElp0P+LH3Rrq+pv4g5ZUVNu8+Unw9B9yWJf0ntdfG6WBpxCmG3GMdOEjwMoyjjLHWcr6z4mj9KF3z/fW1n73c+uWKzQ4bxbIoudYShHCrSWaDWxc3etM/fzPtq0a23eY9uZIEbYE/vKGoZaMnM6G1uKPQaruMoDi5ZQsPWo=
+	t=1711074587; cv=none; b=c5fBSTWm4AqsTcEJ4+V4Af+jzrvAjsZXRIy2iF5m+6ZWcBwXco+8q9uxbPAwATNT5nEiM+rl6Vn6O0wiT7wFAWD+BcaVAQFp5//3vpmevmHDGtzwhbkSXuMsZdlYHec3Ec97xYMt/K3T6b2Zf8VX/RpMe5U6GVxOovP8RhfcWms=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711073052; c=relaxed/simple;
-	bh=3uqy2Uppc52InSO3KZVvz8PNc+CPSB6XHBZqlNjTr84=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tYZBuPCczfI+J1J+r4abK1A1JQMlfYtO38BZzKRziVArqbmIftxiOzWWwE8mHoaUAxV7OIIBM1CUp321D9dUtEahooPgUcI0FY8grjiRe60HyBauDhyxEph1X2r/F7CMNZ/UdmQGS+zqbs5BPaKR9b3ZgFFa7LJQLHJaRKLfFXA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=TgvtJ9La; arc=none smtp.client-ip=198.175.65.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1711074587; c=relaxed/simple;
+	bh=CieOxzIBUlQZFUCEz7pUgclpokc3TUGzvfoHbgAjT0c=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
+	 Content-Type; b=BXJ1pAAYxpy6NY1tmIzK9m6B5Sj/fCEj2p1LoSI6FbKb7ASSRtBeMwBtQ22uMdRsOX9Qo9yUs1Gk4aztha3gHiJ4FW+568Zp2z4VBjON1VjoR9YmomVg/oF6V3KJnC1Cg5JQaTfGHwfZinyPlwLq40vEBfYDewUJg2fxmpnl9uM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=sXvpVmSM; arc=none smtp.client-ip=115.124.30.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="TgvtJ9La"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1711073051; x=1742609051;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=3uqy2Uppc52InSO3KZVvz8PNc+CPSB6XHBZqlNjTr84=;
-  b=TgvtJ9La4jzeaXM1zks9BiJhzqwsiUrrS2GfMyMqUbgnt2PXYXdGhhCQ
-   8zCAgfkfW4HrpSpiOYLCtSO7yYW6QSvBGm33BVfKFVnT0pR3rB1i1Yhpt
-   UcraFJvbZ6QKZawUEezT5FdtIymmLzRzyYsc7/JS+fDjivc5ZStyS/voo
-   Fg+SoAvMpEgbM5mizucAJQjnh7rGGB7vM9Mxi7I6rDGVVacR7IBDsoB/i
-   JbxH9yst9So0dXI7jhm29raEds19F/7PHZq9wAAnrQ7ORqxOyvnekMBbL
-   zW+cOYS4JaYVFKsa3D7esWF1gqF/yGCvqq8GEDq+KkEwOxxRPMlf6YEqN
-   g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,11020"; a="23557407"
-X-IronPort-AV: E=Sophos;i="6.07,144,1708416000"; 
-   d="scan'208";a="23557407"
-Received: from orviesa002.jf.intel.com ([10.64.159.142])
-  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Mar 2024 19:04:10 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.07,144,1708416000"; 
-   d="scan'208";a="45722401"
-Received: from lkp-server01.sh.intel.com (HELO b21307750695) ([10.239.97.150])
-  by orviesa002.jf.intel.com with ESMTP; 21 Mar 2024 19:04:07 -0700
-Received: from kbuild by b21307750695 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1rnUGK-000Jvr-0B;
-	Fri, 22 Mar 2024 02:04:04 +0000
-Date: Fri, 22 Mar 2024 10:03:21 +0800
-From: kernel test robot <lkp@intel.com>
-To: Heng Qi <hengqi@linux.alibaba.com>, netdev@vger.kernel.org,
-	virtualization@lists.linux.dev, Jason Wang <jasowang@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Eric Dumazet <edumazet@google.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: oe-kbuild-all@lists.linux.dev
-Subject: Re: [PATCH 2/2] virtio-net: reduce the CPU consumption of dim worker
-Message-ID: <202403220916.cSUxehuW-lkp@intel.com>
-References: <1711021557-58116-3-git-send-email-hengqi@linux.alibaba.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="sXvpVmSM"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1711074582; h=Message-ID:Subject:Date:From:To:Content-Type;
+	bh=llvpoe0TiqXlqpm6Zn+2Eb/X7ym0DKMgmBHC9RDyCLM=;
+	b=sXvpVmSMZbovE29z9CQftY/WmbMIQYK5wUEaFE0tcr7rPPqz98wV+zsuutXNl6nYx7wzc6bbDfDrwgsSWMlCkF3A13ObZnuJBhFf6gsSSTB+jnao0ACPhXVgIfDSa7BeBW6ghW9wQ6RSCrgGb3cQ3spA4m9LUZeNdHHHF+wpGBY=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0W30NP74_1711074581;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W30NP74_1711074581)
+          by smtp.aliyun-inc.com;
+          Fri, 22 Mar 2024 10:29:41 +0800
+Message-ID: <1711074462.3244817-3-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH vhost] virtio_net: update the hdr_len calculation for xmit
+Date: Fri, 22 Mar 2024 10:27:42 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: virtualization@lists.linux.dev,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Spike Du <spiked@nvidia.com>
+References: <20240320102025.11327-1-xuanzhuo@linux.alibaba.com>
+ <CACGkMEs-x-W2DHh8U=+0ORnq7=kjw9SJNNtDFfGNjC2KqqPZeA@mail.gmail.com>
+In-Reply-To: <CACGkMEs-x-W2DHh8U=+0ORnq7=kjw9SJNNtDFfGNjC2KqqPZeA@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1711021557-58116-3-git-send-email-hengqi@linux.alibaba.com>
 
-Hi Heng,
+On Thu, 21 Mar 2024 12:17:54 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> On Wed, Mar 20, 2024 at 6:20=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba=
+.com> wrote:
+> >
+> > The virtio spec says:
+> >     If one of the VIRTIO_NET_F_HOST_TSO4, TSO6, USO or UFO options have
+> >     been negotiated:
+> >         If the VIRTIO_NET_F_GUEST_HDRLEN feature has been negotiated,
+> >         and gso_type differs from VIRTIO_NET_HDR_GSO_NONE, the driver
+> >         MUST set hdr_len to a value equal to the length of the headers,
+> >         including the transport header.
+> >
+> >         If the VIRTIO_NET_F_GUEST_HDRLEN feature has not been negotiate=
+d,
+> >         or gso_type is VIRTIO_NET_HDR_GSO_NONE, the driver SHOULD set
+> >         hdr_len to a value not less than the length of the headers,
+> >         including the transport header.
+> >
+> > So if the VIRTIO_NET_F_GUEST_HDRLEN feature has been negotiated, the
+> > hdr->hdr_len should be eth header + ip header + tcp/udp header.
+> >
+> > But now:
+> >     hdr->hdr_len =3D __cpu_to_virtio15(little_endian, skb_headlen(skb));
+> >
+> > The skb_headlen() returns the linear space of the skb, not the header
+> > size that only match the case the VIRTIO_NET_F_GUEST_HDRLEN feature has
+> > not been negotiated, or gso_type is VIRTIO_NET_HDR_GSO_NONE.
+> >
+> > We do not check the feature of the device. This function is a common
+> > function used by many places. So we do more stricter work whatever
+> > the features is negotiated.
+> >
+> > For the case skb_is_gso(skb) is false, if none of the
+> > VIRTIO_NET_F_HOST_TSO4, TSO6, USO or UFO options have been negotiated,
+> > the spec not define the action of setting hdr_len. Here I set it to
+> > skb_headlen(). If one of the above features have been negotiated, we
+> > should set a value not less than the length of "eth header + ip header +
+> > tcp/udp header". So the skb_headlen() also is a valid value.
+> >
+> > For the case skb_is_gso(skb) is true, it implies that one of
+> > VIRTIO_NET_F_HOST_TSO4, TSO6, USO or UFO options MUST have been
+> > negotiated. If the VIRTIO_NET_F_GUEST_HDRLEN is negotiated, we MUST set
+> > it to the length of "eth header + ip header + tcp/udp header".
+> > If the VIRTIO_NET_F_GUEST_HDRLEN is not negotiated, that still be a
+> > valid value.
+> >
+> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > Reported-by: Spike Du <spiked@nvidia.com>
+> > ---
+> >  include/linux/virtio_net.h | 41 ++++++++++++++++++++++++++++----------
+> >  1 file changed, 31 insertions(+), 10 deletions(-)
+> >
+> > diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> > index 4dfa9b69ca8d..51d93f9762d7 100644
+> > --- a/include/linux/virtio_net.h
+> > +++ b/include/linux/virtio_net.h
+> > @@ -201,24 +201,45 @@ static inline int virtio_net_hdr_from_skb(const s=
+truct sk_buff *skb,
+> >
+> >         if (skb_is_gso(skb)) {
+> >                 struct skb_shared_info *sinfo =3D skb_shinfo(skb);
+> > +               u32 hdrlen;
+> >
+> > -               /* This is a hint as to how much should be linear. */
+> > -               hdr->hdr_len =3D __cpu_to_virtio16(little_endian,
+> > -                                                skb_headlen(skb));
+> > -               hdr->gso_size =3D __cpu_to_virtio16(little_endian,
+> > -                                                 sinfo->gso_size);
+> > -               if (sinfo->gso_type & SKB_GSO_TCPV4)
+> > +               if (sinfo->gso_type & SKB_GSO_TCPV4) {
+> >                         hdr->gso_type =3D VIRTIO_NET_HDR_GSO_TCPV4;
+> > -               else if (sinfo->gso_type & SKB_GSO_TCPV6)
+> > +                       hdrlen =3D tcp_hdrlen(skb) + skb_transport_offs=
+et(skb);
+>
+> So could evil guests give us a 0 hdrlen through this. If yes, it seems
+> much more dangerous than headlen or we need harden the value as
+> 9181d6f8a2bb32d158de66a84164fac05e3ddd18 did.
 
-kernel test robot noticed the following build warnings:
+Spec says:
+	If the VIRTIO_NET_F_GUEST_HDRLEN feature has been negotiated, and
+	gso_type differs from VIRTIO_NET_HDR_GSO_NONE, the device MAY use
+	hdr_len as the transport header size. Note: Caution should be taken by
+	the implementation so as to prevent a malicious driver from attacking
+	the device by setting an incorrect hdr_len.
 
-[auto build test WARNING on linus/master]
-[also build test WARNING on next-20240321]
-[cannot apply to v6.8]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+	If the VIRTIO_NET_F_GUEST_HDRLEN feature has not been negotiated, or
+	gso_type is VIRTIO_NET_HDR_GSO_NONE, the device MAY use hdr_len only as
+	a hint about the transport header size. The device MUST NOT rely on
+	hdr_len to be correct. Note: This is due to various bugs in
+	implementations.
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Heng-Qi/virtio-net-fix-possible-dim-status-unrecoverable/20240321-194759
-base:   linus/master
-patch link:    https://lore.kernel.org/r/1711021557-58116-3-git-send-email-hengqi%40linux.alibaba.com
-patch subject: [PATCH 2/2] virtio-net: reduce the CPU consumption of dim worker
-config: x86_64-defconfig (https://download.01.org/0day-ci/archive/20240322/202403220916.cSUxehuW-lkp@intel.com/config)
-compiler: gcc-11 (Debian 11.3.0-12) 11.3.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240322/202403220916.cSUxehuW-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202403220916.cSUxehuW-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
->> drivers/net/virtio_net.c:2564: warning: Function parameter or struct member 'vi' not described in 'virtnet_cvq_response'
+The device nerver trust the hdr_len completely.
+So I think that is safe.
 
 
-vim +2564 drivers/net/virtio_net.c
+>
+> > +
+> > +               } else if (sinfo->gso_type & SKB_GSO_TCPV6) {
+> >                         hdr->gso_type =3D VIRTIO_NET_HDR_GSO_TCPV6;
+> > -               else if (sinfo->gso_type & SKB_GSO_UDP_L4)
+> > +                       hdrlen =3D tcp_hdrlen(skb) + skb_transport_offs=
+et(skb);
+> > +
+> > +               } else if (sinfo->gso_type & SKB_GSO_UDP_L4) {
+> >                         hdr->gso_type =3D VIRTIO_NET_HDR_GSO_UDP_L4;
+> > -               else
+> > +                       hdrlen =3D sizeof(struct udphdr) + skb_transpor=
+t_offset(skb);
+> > +
+> > +               } else {
+> >                         return -EINVAL;
+> > +               }
+> > +
+> > +               /* One of VIRTIO_NET_F_HOST_TSO4, TSO6, USO or UFO opti=
+ons MUST
+> > +                * have been negotiated. If the VIRTIO_NET_F_GUEST_HDRL=
+EN is
+> > +                * negotiated, we MUST set it to the length of "eth hea=
+der + ip
+> > +                * header + tcp/udp header".  If the VIRTIO_NET_F_GUEST=
+_HDRLEN
+> > +                * is not negotiated, that still be a valid value.
+> > +                */
+>
+> I'd stick the headlen for deivce without GUEST_HDRLEN. It seems much
+> more safe as we don't want to break legacy devices.
 
-  2552	
-  2553	/**
-  2554	 * virtnet_cvq_response - get the response for filled ctrlq requests
-  2555	 * @poll: keep polling ctrlq when a NULL buffer is obtained.
-  2556	 * @dim_oneshot: process a dim cmd then exit, excluding user commands.
-  2557	 *
-  2558	 * Note that user commands must be processed synchronously
-  2559	 *  (poll = true, dim_oneshot = false).
-  2560	 */
-  2561	static void virtnet_cvq_response(struct virtnet_info *vi,
-  2562					 bool poll,
-  2563					 bool dim_oneshot)
-> 2564	{
-  2565		unsigned tmp;
-  2566		void *res;
-  2567	
-  2568		while (true) {
-  2569			res = virtqueue_get_buf(vi->cvq, &tmp);
-  2570			if (virtqueue_is_broken(vi->cvq)) {
-  2571				dev_warn(&vi->dev->dev, "Control vq is broken.\n");
-  2572				return;
-  2573			}
-  2574	
-  2575			if (!res) {
-  2576				if (!poll)
-  2577					return;
-  2578	
-  2579				cond_resched();
-  2580				cpu_relax();
-  2581				continue;
-  2582			}
-  2583	
-  2584			/* this does not occur inside the process of waiting dim */
-  2585			if (res == ((void *)vi))
-  2586				return;
-  2587	
-  2588			virtnet_process_dim_cmd(vi, res);
-  2589			/* When it is a user command, we must wait until the
-  2590			 * processing result is processed synchronously.
-  2591			 */
-  2592			if (dim_oneshot)
-  2593				return;
-  2594		}
-  2595	}
-  2596	
+I do not get it.
 
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Thanks.
+
+
+>
+> Thanks
+>
+>
