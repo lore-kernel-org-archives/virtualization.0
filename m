@@ -1,133 +1,161 @@
-Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 796655FDBF
-	for <virtualization@lists.linux.dev>; Fri, 22 Mar 2024 17:05:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3E6B5D752
+	for <virtualization@lists.linux-foundation.org>; Fri, 22 Mar 2024 17:06:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711127114; cv=none; b=Ilgdzls3dxCpjKRwCO+52ou+5WU6AMIWvoSigjOxqkvW5x8Jc4Wm5pL91ipiREVg+v+Rbvw47hQQKNAV5txgNAT+S2IyDpRBM3m5XRWgORqgvCRhGNvfNvW5pGRfEDX12SoVAFOp44+eG2PvjvM2DgGPC1fcZFcABoIhzOILwZw=
+	t=1711127178; cv=none; b=I3Z61Qab6hfY+owcMbvyXKUGhh4NYDYuZT0JzqvwlHpdiFeKU6EOYxbie+AVOS9Ybj4WRpflKZktiiFoGqzTd/gaH9XAEQWJl+nROq1+S6izkTvPSZo9cZ3stNGLVMOA+dAS1hTChsE5ZxusqmWdxvNQlbqHR95TtAZMB83x2Ko=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711127114; c=relaxed/simple;
-	bh=v4N44CMN5oCIe/XAnwlaVauiT1tmi9O/mBbrMgK8XAg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Content-Type; b=bQ6NleU0w2j0RtM/tHOEHDuOgRqUC3oauJ1w6tNuKottnWQyvKpqdbgWFN3eSnSTwFpvOTHEw8hNGJ85DNqVEF8OM4WTx2/JvG65ojpNp7/hcKfSMMwGBVOLtfYA3gn1qGzvffzrHhM55NN9NLtK9qEdehgn1dUqWi4G79sUUhQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=H4gXwxGH; arc=none smtp.client-ip=209.85.160.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1711127178; c=relaxed/simple;
+	bh=jT967HD0NkVb4sBMYdepySf5iZRznTV4xbYQBqhu4p4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=X5VnodEGExqfU1bASYj46V7mPtxefBGgwXknLoUiGCdHH7DC47GzH3ivjkv3Lu1108q/VTrvSpLZwhjSgZ5z8icfq08Q1pmGYQ7ZtyrV0FeTFwvQlj8j2LeTDRR41YIhYp7ljxrVJM+d2hFGW9JQUwqLQ17zmWRyz9pwO3+QKx4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=RB09PxFL; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="H4gXwxGH"
-Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-431347c6c99so11841cf.0
-        for <virtualization@lists.linux.dev>; Fri, 22 Mar 2024 10:05:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="RB09PxFL"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 98905606AF
+	for <virtualization@lists.linux-foundation.org>; Fri, 22 Mar 2024 17:06:16 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 9yTAb8NT-9Pq
+	for <virtualization@lists.linux-foundation.org>;
+	Fri, 22 Mar 2024 17:06:16 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::72f; helo=mail-qk1-x72f.google.com; envelope-from=jgg@ziepe.ca; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 9E6B360684
+Authentication-Results: smtp3.osuosl.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9E6B360684
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=RB09PxFL
+Received: from mail-qk1-x72f.google.com (mail-qk1-x72f.google.com [IPv6:2607:f8b0:4864:20::72f])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 9E6B360684
+	for <virtualization@lists.linux-foundation.org>; Fri, 22 Mar 2024 17:06:15 +0000 (UTC)
+Received: by mail-qk1-x72f.google.com with SMTP id af79cd13be357-789e6f7f748so139850185a.3
+        for <virtualization@lists.linux-foundation.org>; Fri, 22 Mar 2024 10:06:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1711127111; x=1711731911; darn=lists.linux.dev;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=v4N44CMN5oCIe/XAnwlaVauiT1tmi9O/mBbrMgK8XAg=;
-        b=H4gXwxGHfLbbsKU4ZXQayKiQi89pEKweJCNkAeHOnYLuH1mYVW6tAZFJUlyTs699Qf
-         d0YvL49iGLudNGv+Twk05KYUtm5lI2OgEsRtiIwijpyDbSP5nmdKo9qaZNCxjgE7OJlP
-         7mwpN+jtDYHyVp5wcYoYkcY0BuUR2YcDZ5Kg22VglFJ94V6IoP/cV3tFgnA03kLvwARx
-         SLZ7V/A/UccvUdmJK9BKdVRv7v6w1LUjuuJ7FxyIeusY4oUM9pATpELqmzMWY9qPpEPM
-         LoCk5Tcy8qKBrS596ZhG3yPZJKOPPvp5gs/yu3Wq3mlfECgUat34zboC3mtKjGpTuRIH
-         Rmfg==
+        d=ziepe.ca; s=google; t=1711127174; x=1711731974; darn=lists.linux-foundation.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=DIw9kOrgrH/Oi2+Nn2/myUDrH5PEiTKiNi9APpbGWJQ=;
+        b=RB09PxFLJiMI8myhGP5k4oTMuftViGhhOlzZF4d1rx4fT3uiri+e5k7GxrFK6ig6kA
+         15YVcQKJ0bWGaARsQoFZbjz11/k0U9+hLQWV/nke3G3gcGbEodO/Ma/74CFGMJI0/FRN
+         UjbpIUIL2zmB8/QnxCuQsszRhyeICetYs/86LsAD70W9qstTsFFRvA0lZ7RDeZabcolX
+         AXrRCD0u4cRnkTTB777upeLkxM6VBvbUzuuORlYEdDB+G0zwJJKSNHYKyhQBPDSX3j3e
+         0sR7mzve+Se5GBABdMEvic81SyMuwFyd/sQNRv///P5bFZQwz3AfLvlmVYkaBrdsU3AC
+         QMVw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711127111; x=1711731911;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=v4N44CMN5oCIe/XAnwlaVauiT1tmi9O/mBbrMgK8XAg=;
-        b=Fg/wqnDtsQP0z45f3Q4fUfLMzp9OGvJ9LwGTVIqlaDRzyge4xhWzKr/0IRGXlElUei
-         gv14NVIzGEhUPfOlz1cbz04KPfy/Hm6wOLVlk8O/wmrODEdnDIpwHRoEi2lFsvEMUd+B
-         06ZblYuRj7m/T1Q0KkirUZDb5HOnqENyIkOdSP+CJT8rD2rVyJU/j5k0lQoQE/M4yRAG
-         8JCFnvT+2v55Jn1o6psgVixUU8wqzNFSEl3CaLXSoAa2HJ0LDAcg1CczzbfwQt51+6SF
-         PzFDAKajx9UTwwhQ4qsIdhIADcrNWUvsBYYUAARta3VFHSb4DkYrV9cJpvN2GHHJJYu7
-         uw2g==
-X-Forwarded-Encrypted: i=1; AJvYcCW9MlSyJUYeOe+obxLWrUgdy64GZpPoCARaZPiCtuPeBAgDFsQGQ1LZusROkVxFsWlyQ71leUCxy3QKu08E/PIYk9z577UgTAoL51GSfmw=
-X-Gm-Message-State: AOJu0YxYBcagpYPQhaj03KBSNz4o1Sognyri/VzbOvyIkCggBzwxbnKk
-	6+/yySeReeGsZ2UTo6rQ9+CywMVkmmENus9Yp9MBrbQNbaiVm3kqFPoOc1XT/4mPwucNrDRhWYT
-	YTilu9Q1r4893C6DKX9GpsirdTRDLUWWwipQ5
-X-Google-Smtp-Source: AGHT+IEMXRAiaxzgPudCV28IsnfTo93KghidIO1NcmkDbiSOepYGnBba5CPcjtadamz0IWr8XSq/M+NvnzVf5opCbEA=
-X-Received: by 2002:a05:622a:2486:b0:431:3c48:a65b with SMTP id
- cn6-20020a05622a248600b004313c48a65bmr12492qtb.11.1711127111085; Fri, 22 Mar
- 2024 10:05:11 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1711127174; x=1711731974;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=DIw9kOrgrH/Oi2+Nn2/myUDrH5PEiTKiNi9APpbGWJQ=;
+        b=K69ec7JLnYSLM3w8Rac2vZG0vtAwu1NTue6AHnlU6KVerAMiK2FaU3tWRQ6ZqUHOq5
+         Knf/sHB9O/OIbXthv1ibknna9YgwW+8GYDAqJv7TtAaxdOoK2FuwLhL0Hb7SN2qN9qqT
+         pIWSPIHAK+extDvZSHmUmlo+44V0Nz3foTK/TWSBLHKoYi4ZFVlhbRoZHjCFR/1l6xUZ
+         UT+UHMHtYzrW3KuX9BL6Q3Q3ZQVfx03OVNnvc3WSos8B6FPmzBEJH0K6x/+CBq026Am4
+         2Pz7l55iDp10VSrms4ESnZO40SgA1uLbpn8shixf9u0khU5GrQHm8n5i+pYGscGZ8dPM
+         RhOQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWCS3hFLfyRaIPpeXQCWO2zXY1A8c9Ds2rdyHiiWs7U/j/088RR+L4LCYJa93dusa8L12Qu3JZ5bOams/DkIhHgbJtd89ZDmsFu7MgLB7In7Cnl4lYIK3bQ5w==
+X-Gm-Message-State: AOJu0Yz4ZCy1El3v1H0ZAFtOtaiikeUF4m4FSqB64oQrHHR7WdSyg26O
+	KdR/a9VaCf+19X7jjjf0NEJ1pvIILrVr1yfOrP6iJ+g18rH8wVbAcbGY4JUYgQI=
+X-Google-Smtp-Source: AGHT+IEHFGKv/VWM3Yg4smu9N1G/2nFTpEK73dYxyEMKGfCzZHq73AEibapXcw3+Qlp7ej5p7M2doQ==
+X-Received: by 2002:a05:620a:27c7:b0:789:f0ac:1b4b with SMTP id i7-20020a05620a27c700b00789f0ac1b4bmr34471qkp.58.1711127174318;
+        Fri, 22 Mar 2024 10:06:14 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-142-68-80-239.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.80.239])
+        by smtp.gmail.com with ESMTPSA id g12-20020a37e20c000000b007882fe32acasm926378qki.3.2024.03.22.10.06.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 22 Mar 2024 10:06:13 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.95)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1rniLN-00CSJq-BV;
+	Fri, 22 Mar 2024 14:06:13 -0300
+Date: Fri, 22 Mar 2024 14:06:13 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Baolu Lu <baolu.lu@linux.intel.com>
+Cc: Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
+	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
+	Jean-Philippe Brucker <jean-philippe@linaro.org>,
+	Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
+	Jacob Pan <jacob.jun.pan@linux.intel.com>,
+	Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
+	virtualization@lists.linux-foundation.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 5/8] iommufd: Associate fault object with
+ iommufd_hw_pgtable
+Message-ID: <20240322170613.GI66976@ziepe.ca>
+References: <20240122073903.24406-1-baolu.lu@linux.intel.com>
+ <20240122073903.24406-6-baolu.lu@linux.intel.com>
+ <20240308190539.GY9225@ziepe.ca>
+ <7a6ac83b-3165-4abe-91be-a58f69656f8a@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240322132619.6389-1-wsa+renesas@sang-engineering.com>
- <20240322132619.6389-65-wsa+renesas@sang-engineering.com> <e8dff9d4-ed15-44e9-ae9a-2e77845ec40b@microchip.com>
- <Zf22G4jC2gIlzhi_@shikoro>
-In-Reply-To: <Zf22G4jC2gIlzhi_@shikoro>
-From: Guenter Roeck <groeck@google.com>
-Date: Fri, 22 Mar 2024 10:05:00 -0700
-Message-ID: <CABXOdTc14kfPpkF96KG-oeLRTLvjxAD_gtOO2TQFLnHMLNoU_Q@mail.gmail.com>
-Subject: Re: [PATCH 64/64] i2c: reword i2c_algorithm in drivers according to
- newest specification
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>, 
-	Nicolas Ferre <nicolas.ferre@microchip.com>, linux-i2c@vger.kernel.org, 
-	Elie Morisse <syniurge@gmail.com>, Shyam Sundar S K <shyam-sundar.s-k@amd.com>, 
-	Andi Shyti <andi.shyti@kernel.org>, Codrin Ciubotariu <codrin.ciubotariu@microchip.com>, 
-	Alexandre Belloni <alexandre.belloni@bootlin.com>, Claudiu Beznea <claudiu.beznea@tuxon.dev>, 
-	Krzysztof Adamski <krzysztof.adamski@nokia.com>, Benson Leung <bleung@chromium.org>, 
-	Guenter Roeck <groeck@chromium.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, 
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>, 
-	Mika Westerberg <mika.westerberg@linux.intel.com>, Jan Dabros <jsd@semihalf.com>, 
-	Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>, Alim Akhtar <alim.akhtar@samsung.com>, 
-	Jean-Marie Verdun <verdun@hpe.com>, Nick Hawkins <nick.hawkins@hpe.com>, 
-	Yicong Yang <yangyicong@hisilicon.com>, Oleksij Rempel <o.rempel@pengutronix.de>, 
-	Pengutronix Kernel Team <kernel@pengutronix.de>, Shawn Guo <shawnguo@kernel.org>, 
-	Sascha Hauer <s.hauer@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, 
-	Paul Cercueil <paul@crapouillou.net>, Neil Armstrong <neil.armstrong@linaro.org>, 
-	Kevin Hilman <khilman@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>, 
-	Martin Blumenstingl <martin.blumenstingl@googlemail.com>, Khalil Blaiech <kblaiech@nvidia.com>, 
-	Asmaa Mnebhi <asmaa@nvidia.com>, Qii Wang <qii.wang@mediatek.com>, 
-	Matthias Brugger <matthias.bgg@gmail.com>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
-	Linus Walleij <linus.walleij@linaro.org>, Avi Fishman <avifishman70@gmail.com>, 
-	Tomer Maimon <tmaimon77@gmail.com>, Tali Perry <tali.perry1@gmail.com>, 
-	Patrick Venture <venture@google.com>, Nancy Yuen <yuenn@google.com>, 
-	Benjamin Fair <benjaminfair@google.com>, Ajay Gupta <ajayg@nvidia.com>, 
-	Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>, Robert Richter <rric@kernel.org>, 
-	Aaro Koskinen <aaro.koskinen@iki.fi>, Janusz Krzysztofik <jmkrzyszt@gmail.com>, 
-	Tony Lindgren <tony@atomide.com>, Vignesh R <vigneshr@ti.com>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
-	Christophe Leroy <christophe.leroy@csgroup.eu>, "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, 
-	"Naveen N. Rao" <naveen.n.rao@linux.ibm.com>, Hector Martin <marcan@marcan.st>, 
-	Sven Peter <sven@svenpeter.dev>, Alyssa Rosenzweig <alyssa@rosenzweig.io>, 
-	Vladimir Zapolskiy <vz@mleia.com>, Loic Poulain <loic.poulain@linaro.org>, Robert Foss <rfoss@kernel.org>, 
-	Bjorn Andersson <andersson@kernel.org>, Konrad Dybcio <konrad.dybcio@linaro.org>, 
-	Fabrizio Castro <fabrizio.castro.jz@renesas.com>, 
-	Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>, Alain Volmat <alain.volmat@foss.st.com>, 
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@foss.st.com>, 
-	Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, 
-	Laxman Dewangan <ldewangan@nvidia.com>, Dmitry Osipenko <digetx@gmail.com>, 
-	Conghui Chen <conghui.chen@intel.com>, Viresh Kumar <viresh.kumar@linaro.org>, 
-	Michal Simek <michal.simek@amd.com>, linux-kernel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, chrome-platform@lists.linux.dev, 
-	linux-samsung-soc@vger.kernel.org, imx@lists.linux.dev, 
-	linux-mips@vger.kernel.org, linux-amlogic@lists.infradead.org, 
-	linux-mediatek@lists.infradead.org, openbmc@lists.ozlabs.org, 
-	linux-omap@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
-	asahi@lists.linux.dev, linux-arm-msm@vger.kernel.org, 
-	linux-renesas-soc@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, 
-	linux-tegra@vger.kernel.org, virtualization@lists.linux.dev, 
-	Ryan Wanner <Ryan.Wanner@microchip.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7a6ac83b-3165-4abe-91be-a58f69656f8a@linux.intel.com>
 
-On Fri, Mar 22, 2024 at 9:47=E2=80=AFAM Wolfram Sang
-<wsa+renesas@sang-engineering.com> wrote:
->
->
-> > Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com> # for at91
-> > Probably file names themselves will need some care, in a second time.
->
-> Totally true. I am aware of that. But one step after the other...
->
+On Fri, Mar 15, 2024 at 09:16:43AM +0800, Baolu Lu wrote:
+> On 3/9/24 3:05 AM, Jason Gunthorpe wrote:
+> > On Mon, Jan 22, 2024 at 03:39:00PM +0800, Lu Baolu wrote:
+> > 
+> > > @@ -411,6 +414,8 @@ enum iommu_hwpt_data_type {
+> > >    * @__reserved: Must be 0
+> > >    * @data_type: One of enum iommu_hwpt_data_type
+> > >    * @data_len: Length of the type specific data
+> > > + * @fault_id: The ID of IOMMUFD_FAULT object. Valid only if flags field of
+> > > + *            IOMMU_HWPT_FAULT_ID_VALID is set.
+> > >    * @data_uptr: User pointer to the type specific data
+> > >    *
+> > >    * Explicitly allocate a hardware page table object. This is the same object
+> > > @@ -441,6 +446,7 @@ struct iommu_hwpt_alloc {
+> > >   	__u32 __reserved;
+> > >   	__u32 data_type;
+> > >   	__u32 data_len;
+> > > +	__u32 fault_id;
+> > >   	__aligned_u64 data_uptr;
+> > >   };
+> > 
+> > ?? We can't add fault_id in the middle of the struct??
+> 
+> Yes. I should add the new field at the end.
+> 
+> By the way, with a __u32 added, this data structure is not 64-byte-
+> aligned anymore. Do we need to add another unused u32 entry, or just let
+> the compiler handle it?
 
-Kind of odd though to change function names but not parameter names of
-those very same functions.
+Yes, add a reserved u32 to ensure the structs is always without
+implicit padding.
 
-Guenter
+> > 
+> > > +	if (cmd->flags & IOMMU_HWPT_FAULT_ID_VALID) {
+> > > +		struct iommufd_fault *fault;
+> > > +
+> > > +		fault = iommufd_get_fault(ucmd, cmd->fault_id);
+> > > +		if (IS_ERR(fault)) {
+> > > +			rc = PTR_ERR(fault);
+> > > +			goto out_hwpt;
+> > > +		}
+> > > +		hwpt->fault = fault;
+> > > +		hwpt->domain->iopf_handler = iommufd_fault_iopf_handler;
+> > > +		hwpt->domain->fault_data = hwpt;
+> > > +		hwpt->fault_capable = true;
+> > 
+> > I wonder if there should be an iommu API to make a domain fault
+> > capable?
+> 
+> The iommu core identifies a fault-capable domain by checking its
+> domain->iopf_handler. Anyway, what's the difference between a fault or
+> non-fault capable domain from iommu core's point of view?
+
+From the core? Nothing. I'm just wondering from an API perspective if
+we should have a little inline to indicate it.
+
+Jason
