@@ -1,98 +1,164 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D81D58495
-	for <virtualization@lists.linux.dev>; Fri, 22 Mar 2024 05:19:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7489C121
+	for <virtualization@lists.linux.dev>; Fri, 22 Mar 2024 05:22:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711084788; cv=none; b=QqK/Sdtfk4Kc53h9cpHhY7wHKwZI1g2/hlpqLhNBEnpifrCIKONe3NFfdm4RwKC9NTk/yXiUAge96ud36OrDIsGm1tt1NHkUfp6CCXZNr64fHAknY+z/nQ5bW9z2lWQMXQhNHpzaA/rXb8Do/CX2gkj6CsE6+n7SDyAqtTrcnxY=
+	t=1711084948; cv=none; b=GunJDRW2vZOxgtZvI8qizgjYzhQmWzA3TqEXEyYrEJoniAYjm3I6xcUhU9Og8tGniECCd9gUTyS1R6CDixwspMEjXsgxNstxlhm16b9A09eg1ccyitdcRJhc0jUMXYNljj10ziCWHc1cGdupAVapZIwOZCY69SfLeqRtFFY0Vbs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711084788; c=relaxed/simple;
-	bh=9WljUklEtnqgFdT0/2aUVbLCn9e8lCLCn5JN6nZDEas=;
+	s=arc-20240116; t=1711084948; c=relaxed/simple;
+	bh=QytD35JuDlG+En/9t6sSJpgNDREt9E94XyMto3Rpa+k=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=hiY8mIDu0rVe5yZvM8EUga055eOqQMsug0an9tVoRf/hz8LTGI842W6OSwzDLtPjHY6w1fdWrTx6rcRZcsZ6uQc6HT623fekfjouT4XOPGM3qaFkeRALJtq72wSGZqjVABBKBs6Z69fr1tyZZhcpDNivCS4k3AST3ySq9j6aSLA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Bv3H24bz; arc=none smtp.client-ip=170.10.129.124
+	 To:Cc:Content-Type; b=cMkzMAXkJImo68ECUVaqp93oYLHWWMUr9v6AWDJHWmn14iAmZpYHUHMdLIEghUqZ3ce6WxYnAx4nOgHgPyGbxK1EDDgdJmJkSkrlWDL0A8eYKtfVPdp1XVeeZVEJTbk+AWI3JWBIreOEJ0gAQ0qHxphY6COhr97UKIlhR+o+mAI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Zvsl87vY; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Bv3H24bz"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Zvsl87vY"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1711084785;
+	s=mimecast20190719; t=1711084945;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=9WljUklEtnqgFdT0/2aUVbLCn9e8lCLCn5JN6nZDEas=;
-	b=Bv3H24bzbHnWrow5nl0oPvsJ6+IHidSY0uVJedQ5RBY72QHftQB1hsHPhFNhZVEwOcxUnV
-	SOhf8PcRw+gBcL9ocymh9SXIu1vDFWPd59bbj4hMkZOwdXBuc2aPLq4JSjWJQzDX3EjpcY
-	3s89PsUGvTyrRjM9/3M4dnWwbEBBNKw=
-Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
- [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=f64uD3ctRKLKxfrmn6XfohoQXF2Xm9nnpbY3kz4u4o4=;
+	b=Zvsl87vYoJl/3qdgF1jcc77QIpp8muIe4dBHVI+ukG0w/xIGZ4E0VW30aI5xG4ULXFUai7
+	36OWM7ZIXYQQ5XCB84pHB1+VAlFsvZ0KpM+0kfG0qFuPCFlIYdGEjGcioNm6APNt5GX4eh
+	ADqvgq+e4ZzCDrQ12WcpftT1rrtCdmc=
+Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com
+ [209.85.219.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-663-y3N2zrz8PpSQJHAs9f9SqA-1; Fri, 22 Mar 2024 01:19:42 -0400
-X-MC-Unique: y3N2zrz8PpSQJHAs9f9SqA-1
-Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-29de3646c56so1196464a91.2
-        for <virtualization@lists.linux.dev>; Thu, 21 Mar 2024 22:19:42 -0700 (PDT)
+ us-mta-358-YKa7kckGPw-tDSue7S7klg-1; Fri, 22 Mar 2024 01:22:24 -0400
+X-MC-Unique: YKa7kckGPw-tDSue7S7klg-1
+Received: by mail-qv1-f69.google.com with SMTP id 6a1803df08f44-6962767b1e7so29242726d6.1
+        for <virtualization@lists.linux.dev>; Thu, 21 Mar 2024 22:22:24 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711084781; x=1711689581;
+        d=1e100.net; s=20230601; t=1711084943; x=1711689743;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=9WljUklEtnqgFdT0/2aUVbLCn9e8lCLCn5JN6nZDEas=;
-        b=Wt4pQhGqsJcUd63GMFHSP5H7otGgRHpg/BgoZjwR78rqvxIxJM/rRryY/dlJnEqzor
-         yyDNLqVdxI7Q89Ui5xJTttZEE7r/U4Y4MfUu8bLMYrIVi0LCXSiPaLN+fMnV1r6NXhgX
-         utOpQ2viGZKrKHD98+cWHRFirVeHLkFETBKVuU8ZsLt766VpmZDlPt0Cxk23slCv2CSH
-         JtY2QXvN1isMgxvNPg+rmJTxcTWs+29mcsP1GhIuhs3M6XLlVIySWrNpN8oA16gJ4kxL
-         6VbhqB6X71o4T2DcHlc+UUUZRi6tL4K0s08qqiFTQJrcIQ7cbTplyZfcp3qHFAYpwPet
-         4fDw==
-X-Forwarded-Encrypted: i=1; AJvYcCWwRQTtRlIAcd06ofvX7Bs1eIXj5Ajn/+QIEr9nGpLLrUFiPemG7IeDXvCb+VUMI52FJFnLYKrF/T7olXGXvdF0CKdBQ0KG28rLnl1yGMo=
-X-Gm-Message-State: AOJu0YzXKcBF5lYasxc0NoaGq8bSleExDWFtFFOYoFqmTINTgpRy73gB
-	NzvG/oL18Gjcs/iT0IwAM+RAI5Hd/ZZ/6RD9B6WsJywxZoV2Z2ADlwFyWo5Qye98FmNp7Qv1wuA
-	h2qFwI9R0EfxyGv3C+5d1iyCVJx+V/+3i7DgtZD0Jf5l2nqALqFtHicK3h1+4twkQ4XYprrEgcU
-	BuT4xvtXhOm7jxM+8kTusR9RmbfQ+TxmokH1ED828=
-X-Received: by 2002:a17:90a:e54f:b0:2a0:39e9:bbff with SMTP id ei15-20020a17090ae54f00b002a039e9bbffmr800511pjb.8.1711084781620;
-        Thu, 21 Mar 2024 22:19:41 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEEqlxvXagJuFEUOF4z/T7yo9ZWXfypHCNh8PgRY3CFCwWph4hQ9De6Peq6FbRIVJmZmGRYpZVicf0gqBNYJMI=
-X-Received: by 2002:a17:90a:e54f:b0:2a0:39e9:bbff with SMTP id
- ei15-20020a17090ae54f00b002a039e9bbffmr800493pjb.8.1711084781374; Thu, 21 Mar
- 2024 22:19:41 -0700 (PDT)
+        bh=f64uD3ctRKLKxfrmn6XfohoQXF2Xm9nnpbY3kz4u4o4=;
+        b=s+rydIGcgI5YIF/1mebAfPnc+tnZhg1Qzk1JYyPYMEkUdLLMD5Ze2SCicNlRkVPC7/
+         2j9IJT2U0Li54TG6dqT/pXDi/zeDfaObiSARUTGwskJHTMAJzrHVV1Wf2qD3+yFhflDo
+         BUhT2XHj95pUtqasZ9UvKNqynJRRqwIJplvgpstk88mo0leRIlKYNfbnnrjpa6pxl/Lq
+         re0ZggpEMKHwENNjBeb5r2rIZ/WcdAJkn8KW3S9p2GhGjyLUNWSChFA5J0a5RAiWr8Os
+         HaIKHbEzKEGg2D7GBP8ts+hHWjlJ4BsGMjGDvYDq3knWkxmjCM28iUB2O3NvX5Tve9b+
+         oJ5g==
+X-Gm-Message-State: AOJu0YzJ0ovxt+xgR5g2X7aSZ4Sc6ZeXCm+jX2WOcOoOnfYpFpNUi6gQ
+	Y76yxmbfT67lbpkzBFpWLTIfs0i8fMnU+EdElRbL5IMhribqqGQ4qFlwWmjUwtNLb41bseYztrY
+	N94BJGkPkXOtlgE92WOqjJc50hjdEfBrsj1BS8NzMlkdWg1Pe/jNpgZ8F+qMmxKOaqKjAIFY5zy
+	JtwamK/I0N21e5qkor+4JbQoo3FvVUafL0JCXBUoL/3D48U8VfyeQz
+X-Received: by 2002:a05:6214:2388:b0:691:5655:f571 with SMTP id fw8-20020a056214238800b006915655f571mr1359979qvb.37.1711084943687;
+        Thu, 21 Mar 2024 22:22:23 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IF5yXn3+w5s6+ehppU+kKXkeJABGiiv8v0yk9v5XPd/nmqIS5A83FzmMfiZGNHonIsnis37fDEgTrVhYHLvbiI=
+X-Received: by 2002:a05:6a20:4f23:b0:1a3:69f8:b6eb with SMTP id
+ gi35-20020a056a204f2300b001a369f8b6ebmr1346699pzb.14.1711084521278; Thu, 21
+ Mar 2024 22:15:21 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <1711021557-58116-1-git-send-email-hengqi@linux.alibaba.com> <1711021557-58116-3-git-send-email-hengqi@linux.alibaba.com>
-In-Reply-To: <1711021557-58116-3-git-send-email-hengqi@linux.alibaba.com>
+References: <20240312033557.6351-1-xuanzhuo@linux.alibaba.com>
+ <20240312033557.6351-4-xuanzhuo@linux.alibaba.com> <CACGkMEs_DT1309_hj8igcvX7H1sU+-s_OP6Jnp-c=0kmu+ia_g@mail.gmail.com>
+ <1711009465.784253-4-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1711009465.784253-4-xuanzhuo@linux.alibaba.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 22 Mar 2024 13:19:29 +0800
-Message-ID: <CACGkMEuZ457UU6MhPtKHd_Y0VryvZoNU+uuKOc_4OK7jc62WwA@mail.gmail.com>
-Subject: Re: [PATCH 2/2] virtio-net: reduce the CPU consumption of dim worker
-To: Heng Qi <hengqi@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Eric Dumazet <edumazet@google.com>, "David S. Miller" <davem@davemloft.net>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Date: Fri, 22 Mar 2024 13:15:10 +0800
+Message-ID: <CACGkMEvimfmQRUZ04CykZs-6cOkASF8S02n2N7caJ4XivR8hNw@mail.gmail.com>
+Subject: Re: [PATCH vhost v4 03/10] virtio_ring: packed: structure the
+ indirect desc table
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Mar 21, 2024 at 7:46=E2=80=AFPM Heng Qi <hengqi@linux.alibaba.com> =
-wrote:
+On Thu, Mar 21, 2024 at 4:29=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
+om> wrote:
 >
-> Currently, ctrlq processes commands in a synchronous manner,
-> which increases the delay of dim commands when configuring
-> multi-queue VMs, which in turn causes the CPU utilization to
-> increase and interferes with the performance of dim.
+> On Thu, 21 Mar 2024 12:47:18 +0800, Jason Wang <jasowang@redhat.com> wrot=
+e:
+> > On Tue, Mar 12, 2024 at 11:36=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alib=
+aba.com> wrote:
+> > >
+> > > This commit structure the indirect desc table.
+> > > Then we can get the desc num directly when doing unmap.
+> > >
+> > > And save the dma info to the struct, then the indirect
+> > > will not use the dma fields of the desc_extra. The subsequent
+> > > commits will make the dma fields are optional. But for
+> > > the indirect case, we must record the dma info.
+> > >
+> > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > ---
+> > >  drivers/virtio/virtio_ring.c | 66 +++++++++++++++++++++-------------=
+--
+> > >  1 file changed, 38 insertions(+), 28 deletions(-)
+> > >
+> > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_rin=
+g.c
+> > > index 0dfbd17e5a87..22a588bba166 100644
+> > > --- a/drivers/virtio/virtio_ring.c
+> > > +++ b/drivers/virtio/virtio_ring.c
+> > > @@ -72,9 +72,16 @@ struct vring_desc_state_split {
+> > >         struct vring_desc *indir_desc;  /* Indirect descriptor, if an=
+y. */
+> > >  };
+> > >
+> > > +struct vring_packed_desc_indir {
+> > > +       dma_addr_t addr;                /* Descriptor Array DMA addr.=
+ */
+> > > +       u32 len;                        /* Descriptor Array length. *=
+/
+> > > +       u32 num;
+> > > +       struct vring_packed_desc desc[];
+> > > +};
+> > > +
+> > >  struct vring_desc_state_packed {
+> > >         void *data;                     /* Data for callback. */
+> > > -       struct vring_packed_desc *indir_desc; /* Indirect descriptor,=
+ if any. */
+> > > +       struct vring_packed_desc_indir *indir_desc; /* Indirect descr=
+iptor, if any. */
+> >
+> > Maybe it's better just to have a vring_desc_extra here.
 >
-> Therefore we asynchronously process ctlq's dim commands.
 >
-> Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
+> Do you mean replacing vring_packed_desc_indir by vring_desc_extra?
 
-I may miss some previous discussions.
+Just add a vring_desc_extra in vring_desc_state_packed.
 
-But at least the changelog needs to explain why you don't use interrupt.
+>
+> I am ok for that. But vring_desc_extra has two extra items:
+>
+>         u16 flags;                      /* Descriptor flags. */
+>         u16 next;                       /* The next desc state in a list.=
+ */
+>
+> vring_packed_desc_indir has "desc". I think that is more convenient.
+>
+> So, I think vring_packed_desc_indir is appropriate.
+
+It reuses the existing structure so we had the chance to reuse the
+helper. And it could be used for future chained indirect (if it turns
+out to be necessary).
 
 Thanks
+
+> Or I missed something.
+>
+>
+> Thanks.
+>
+>
+> >
+> > Thanks
+> >
+>
 
