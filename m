@@ -1,209 +1,249 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3C003F8D0
-	for <virtualization@lists.linux.dev>; Fri, 22 Mar 2024 11:29:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C2D13F9F5
+	for <virtualization@lists.linux.dev>; Fri, 22 Mar 2024 11:56:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711106998; cv=none; b=qxYpjW2OEemC6s2C3tCG7uObpwDaMbCYKu8V7lHg1yA3wJQFXnt/Hh06zo/RBe3LXVv7+sYarvzfS0/M8SwphEb3fDmYoVLL1GeakKbBBQDil0QuPWaPLByxUU7o5sKUs4H2qkX1mbEiXK69hku+xZ/T2kM0K/fLBghNhwkJpw8=
+	t=1711108616; cv=none; b=miIPFFnliwOn9w4s9QFntiWW/UAfvd7aiUk6swr5DH3Mr4gJtUI3WXUdROpYOcmrdIMSyJeq2MhNKD8g8oKn60oVFB65bMGpTGK36gy7yUZsi92DMIR0pn/dEcrrEwT3Z44ueFmpqbAc4Usch0S2m77W7pKG5+7gMWzy3k3VN8Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711106998; c=relaxed/simple;
-	bh=sIAXmu2MpVDSgTXtvrQZQ0jLcG/8PHiBbpmS1BXTv1g=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=CA3s1dfk23EXIPOVU7oPPC+6zvUvK2lWJdCN+4sNqsD6xLhh+nSYnvSDDJSsYCCCNOuEnS3Cs0BAIfn9PQlKMKK7FwefJnbbPaKloCJ+U3lam/2regkr2c3ZXzBnQSPfxQ7t+p8SD+Smk5Dx04AXdjs+m7jinj0rjEIDjUEDm0c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cZu0pfm+; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1711108616; c=relaxed/simple;
+	bh=sulsfC3nRd0LxdfOW1zC16Mdv3AZjGZeArE2KLK+Jrk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Xl4tgC6Olcwrp9RBnF0EJaNz6T6LZC30H6HRWv1ILOQ9iVEYI2aAsC1fb7G+gr0UCrlLsx5AJs5Pob4XDTfb9h+vSHjktHnPXN3fn2by9tA8nOe1495WuAgTKeiRx1BAcLSRxo0jkVDXRcCwk4lNh6GtlAbH/S+R2wEydeMvDGY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FYBrsepx; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cZu0pfm+"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FYBrsepx"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1711106995;
+	s=mimecast20190719; t=1711108613;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=jw2bfgtsApnZVxeXjYyO+V5I9lMts3UUwyazaFvr/XA=;
-	b=cZu0pfm+1VU3skkSvLcXWGakE6ET62xzoQ0DIZ2WiDGxR52LBnVdSzi37m4R3P8go7DOW9
-	JtaJSR3zF/EY2nMrra55gjbTzIaLp/POX564s3OTinwNSH5RE5ice6aH+mYhMZ3v6HbPal
-	4c2gTvdxEPUiRiuut1EPl8aQQbYPbdI=
-Received: from mail-yw1-f198.google.com (mail-yw1-f198.google.com
- [209.85.128.198]) by relay.mimecast.com with ESMTP with STARTTLS
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=k8phzhH+bcCAhu8LzPRS+w6MFVuocyKpcgRJTQx5vTg=;
+	b=FYBrsepx67G50MfFx02OzqbIy1cArODQXFHVI49Wc/D8bxSv8jpYTCXZ17NJYv8CDX1eoD
+	zZ+NcGzJq5tG4NQqDzLMQzDr3q0KRhkhhZ8fthykvzY4ZGS8nEoqHUBma4cYBDneZhFw2a
+	1gvHhtHpdJ9O5sIxlcYZBk9Uuy0KNJg=
+Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
+ [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-614-Bg__47l-OK2z9sWpr0FGMA-1; Fri, 22 Mar 2024 07:29:54 -0400
-X-MC-Unique: Bg__47l-OK2z9sWpr0FGMA-1
-Received: by mail-yw1-f198.google.com with SMTP id 00721157ae682-60ff1816749so34413997b3.3
-        for <virtualization@lists.linux.dev>; Fri, 22 Mar 2024 04:29:54 -0700 (PDT)
+ us-mta-690-ZerQ2NOJN2qgbT10PUaB8w-1; Fri, 22 Mar 2024 07:56:51 -0400
+X-MC-Unique: ZerQ2NOJN2qgbT10PUaB8w-1
+Received: by mail-lf1-f70.google.com with SMTP id 2adb3069b0e04-513ec050f5cso1767113e87.1
+        for <virtualization@lists.linux.dev>; Fri, 22 Mar 2024 04:56:51 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711106994; x=1711711794;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=jw2bfgtsApnZVxeXjYyO+V5I9lMts3UUwyazaFvr/XA=;
-        b=Fk2XzORoULqdBAq6zINCPSoN4Rl1Ld2IP82KF8LgwEPWhrDKYanZyKbFdtESjegeX5
-         bcDyYvnoVKRBx0sE0rBXbiqBe58XRM3vG14tl6linNNlvcGtZYt7/FR/pUxVLpBEZ92x
-         EU5BPLPfrZBxTePs5QMD1Hocl6Pqvt94dMQSbSMBnFD7TfNvJY5s4NpYPhjhRgF1E1Tw
-         IxSyHP/RYErVD78W0vjUiIkFBbtSDEhf/QAThbstvmyIhnm+iUWhE8nOoxKe1u/W89dE
-         9NopghQ6dCSz3wO1I3glek35trLJBAuYgoNZpdH0EZ19Zd4NWLB69kGAgPKsnHpyaIh/
-         Ci5w==
-X-Forwarded-Encrypted: i=1; AJvYcCVue3XHzr2vIXjKbz//tI0q0K6IGENhnH4sC7SyVeNhcg0UgJ2guzOD62jsSDVxs9Aj2BGeZKdhBd7Zm9lJgO/yraznl/YDeMlqeYkiNtI=
-X-Gm-Message-State: AOJu0YwEiPfxQI0X1HT1unIEFjX4tIMsh6sCiy1TqkUvXEr6ijEAA9kA
-	j7CG4j9VKywEO99WLXobgolky3XDspgxZYzio9fARboPuVURJryXUUnmk32auzZlZRlnAwAutB2
-	dv3IosEtcY2dVW5msuaqeU+Eb6icw9teEBUB64/DFd0TkoV/nReCThm0qCXomSxZsNJVn2oSBon
-	Eklm5Ydfy1f+31QdnGMlqZt3gO/fgrul5XNjLcloM=
-X-Received: by 2002:a0d:db13:0:b0:609:ff22:1a88 with SMTP id d19-20020a0ddb13000000b00609ff221a88mr1744239ywe.44.1711106993832;
-        Fri, 22 Mar 2024 04:29:53 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHy0GkXyoLQh9IGnmMcvfIfSb80352BTOhRhvV2Q6BffAizjk6dreezEJLNyHeyWFdHs2nfBlI2fXh5chdbxhI=
-X-Received: by 2002:a0d:db13:0:b0:609:ff22:1a88 with SMTP id
- d19-20020a0ddb13000000b00609ff221a88mr1744204ywe.44.1711106993294; Fri, 22
- Mar 2024 04:29:53 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1711108610; x=1711713410;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
+         :references:cc:to:content-language:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=k8phzhH+bcCAhu8LzPRS+w6MFVuocyKpcgRJTQx5vTg=;
+        b=JgGyr7y4zcpKthvu3SfdClx9wakHMPgSrAzEH4Eyay7Ab2Q46F0nkm+Z1nI16VK9W2
+         yfjnINzopjU5EreQUglchvaMnE2eby0wBD4Jl8Wur8Y2z7OOjjJu2xjf/zd5C6/U9YQf
+         I/RCz1D1Mk3V3cGeP4f4eo+2QCEfO0sq4LI3kh7a2cbnhQlVRpkCWV1vjzaxTwQ5e01N
+         vAcZ+ILk+CSpKRZM33XOzYlOLPjXkOOjsFUYNbK5lpGQCmqKdJ1V/7YdDBfrt4ouMOVy
+         ya9zl28ShsTmA06HYgvfE5hXyMIYoGRlZCDzF1xg4Uaqh62OlCGC3qcn0h69pTh44GBG
+         mC9g==
+X-Forwarded-Encrypted: i=1; AJvYcCVhiN0896VprvxwpUn6pPq+mQgXDORicTlKDUnSR2kdVCgm0ogH9TsgShSMMg1S0Kh5UI+iRF3FCgQQB8JYKVQdmoAVWkRjrioqT+3ZPjs=
+X-Gm-Message-State: AOJu0YxV753naErnBonHmIbfv6W3QFCvR9ymQ51KKwqV2D4kulv+9z28
+	mL/7CyuvTO1mQt5IbqNGWetOlsU+E4kbVkKeFmyoqFt+05hXzcV6udQUGg/lwizKj2OP0Gns6FB
+	2KRmhRHOHIwq629+F6YYctp7n784Ijb6QA/Vo/8M9Q2nJjmAnkjHWLbFv4wstQHhP
+X-Received: by 2002:a19:2d47:0:b0:513:8102:1a1e with SMTP id t7-20020a192d47000000b0051381021a1emr1519559lft.50.1711108610487;
+        Fri, 22 Mar 2024 04:56:50 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFQx6PbBrwZG4C6vyRezVR/JnZxZ2mjcNcbAkSDm5jCYhr8+aNKGnr1n8kbswqbAuJNosOaww==
+X-Received: by 2002:a19:2d47:0:b0:513:8102:1a1e with SMTP id t7-20020a192d47000000b0051381021a1emr1519516lft.50.1711108609056;
+        Fri, 22 Mar 2024 04:56:49 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c71b:7e00:9339:4017:7111:82d0? (p200300cbc71b7e0093394017711182d0.dip0.t-ipconnect.de. [2003:cb:c71b:7e00:9339:4017:7111:82d0])
+        by smtp.gmail.com with ESMTPSA id h11-20020a05600c350b00b0041477e76ec6sm2915008wmq.2.2024.03.22.04.56.47
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 22 Mar 2024 04:56:48 -0700 (PDT)
+Message-ID: <3620be9c-e288-4ff2-a7be-1fcf806e6e6e@redhat.com>
+Date: Fri, 22 Mar 2024 12:56:46 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <CA+9S74hbTMxckB=HgRiqL6b8ChZMQfJ6-K9y_GQ0ZDiWkev_vA@mail.gmail.com>
- <20240319131207.GB1096131@fedora> <CA+9S74jMBbgrxaH2Nit50uDQsHES+e+VHnOXkxnq2TrUFtAQRA@mail.gmail.com>
- <CACGkMEvX2R+wKcH5V45Yd6CkgGhADVbpvfmWsHducN2zCS=OKw@mail.gmail.com>
- <CA+9S74g5fR=hBxWk1U2TyvW1uPmU3XgJnjw4Owov8LNwLiiOZw@mail.gmail.com>
- <CACGkMEt4MbyDgdqDGUqQ+0gV-1kmp6CWASDgwMpZnRU8dfPd2Q@mail.gmail.com>
- <CA+9S74hUt_aZCrgN3Yx9Y2OZtwHNan7gmbBa1TzBafW6=YLULQ@mail.gmail.com> <CA+9S74ia-vUag2QMo6zFL7r+wZyOZVmcpe317RdMbK-rpomn+Q@mail.gmail.com>
-In-Reply-To: <CA+9S74ia-vUag2QMo6zFL7r+wZyOZVmcpe317RdMbK-rpomn+Q@mail.gmail.com>
-From: Stefano Garzarella <sgarzare@redhat.com>
-Date: Fri, 22 Mar 2024 12:29:41 +0100
-Message-ID: <CAGxU2F63gJGbVBANeg4rA33E5gLacSawWamCPNTkigTE4bGgaw@mail.gmail.com>
-Subject: Re: REGRESSION: RIP: 0010:skb_release_data+0xb8/0x1e0 in vhost/tun
-To: Igor Raits <igor@gooddata.com>
-Cc: Jason Wang <jasowang@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org, 
-	virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	Jaroslav Pulchart <jaroslav.pulchart@gooddata.com>, "Michael S. Tsirkin" <mst@redhat.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH vhost v4 1/6] virtio_balloon: remove the dependence where
+ names[] is null
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev
+Cc: Richard Weinberger <richard@nod.at>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Johannes Berg <johannes@sipsolutions.net>,
+ Hans de Goede <hdegoede@redhat.com>,
+ =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+ Vadim Pasternak <vadimp@nvidia.com>, Bjorn Andersson <andersson@kernel.org>,
+ Mathieu Poirier <mathieu.poirier@linaro.org>,
+ Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>,
+ Eric Farman <farman@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, linux-um@lists.infradead.org,
+ platform-driver-x86@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+ linux-s390@vger.kernel.org, kvm@vger.kernel.org
+References: <20240321101532.59272-1-xuanzhuo@linux.alibaba.com>
+ <20240321101532.59272-2-xuanzhuo@linux.alibaba.com>
+From: David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <20240321101532.59272-2-xuanzhuo@linux.alibaba.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Fri, Mar 22, 2024 at 12:20=E2=80=AFPM Igor Raits <igor@gooddata.com> wro=
-te:
->
-> Hi Jason,
->
-> On Fri, Mar 22, 2024 at 9:39=E2=80=AFAM Igor Raits <igor@gooddata.com> wr=
-ote:
-> >
-> > Hi Jason,
-> >
-> > On Fri, Mar 22, 2024 at 6:31=E2=80=AFAM Jason Wang <jasowang@redhat.com=
-> wrote:
-> > >
-> > > On Thu, Mar 21, 2024 at 5:44=E2=80=AFPM Igor Raits <igor@gooddata.com=
-> wrote:
-> > > >
-> > > > Hello Jason & others,
-> > > >
-> > > > On Wed, Mar 20, 2024 at 10:33=E2=80=AFAM Jason Wang <jasowang@redha=
-t.com> wrote:
-> > > > >
-> > > > > On Tue, Mar 19, 2024 at 9:15=E2=80=AFPM Igor Raits <igor@gooddata=
-.com> wrote:
-> > > > > >
-> > > > > > Hello Stefan,
-> > > > > >
-> > > > > > On Tue, Mar 19, 2024 at 2:12=E2=80=AFPM Stefan Hajnoczi <stefan=
-ha@redhat.com> wrote:
-> > > > > > >
-> > > > > > > On Tue, Mar 19, 2024 at 10:00:08AM +0100, Igor Raits wrote:
-> > > > > > > > Hello,
-> > > > > > > >
-> > > > > > > > We have started to observe kernel crashes on 6.7.y kernels =
-(atm we
-> > > > > > > > have hit the issue 5 times on 6.7.5 and 6.7.10). On 6.6.9 w=
-here we
-> > > > > > > > have nodes of cluster it looks stable. Please see stacktrac=
-e below. If
-> > > > > > > > you need more information please let me know.
-> > > > > > > >
-> > > > > > > > We do not have a consistent reproducer but when we put some=
- bigger
-> > > > > > > > network load on a VM, the hypervisor's kernel crashes.
-> > > > > > > >
-> > > > > > > > Help is much appreciated! We are happy to test any patches.
-> > > > > > >
-> > > > > > > CCing Michael Tsirkin and Jason Wang for vhost_net.
-> > > > > > >
-> > > > > > > >
-> > > > > > > > [62254.167584] stack segment: 0000 [#1] PREEMPT SMP NOPTI
-> > > > > > > > [62254.173450] CPU: 63 PID: 11939 Comm: vhost-11890 Tainted=
-: G
-> > > > > > > >    E      6.7.10-1.gdc.el9.x86_64 #1
-> > > > > > >
-> > > > > > > Are there any patches in this kernel?
-> > > > > >
-> > > > > > Only one, unrelated to this part. Removal of pr_err("EEVDF sche=
-duling
-> > > > > > fail, picking leftmost\n"); line (reported somewhere few months=
- ago
-> > > > > > and it was suggested workaround until proper solution comes).
-> > > > >
-> > > > > Btw, a bisection would help as well.
-> > > >
-> > > > In the end it seems like we don't really have "stable" setup, so
-> > > > bisection looks to be useless but we did find few things meantime:
-> > > >
-> > > > 1. On 6.6.9 it crashes either with unexpected GSO type or usercopy:
-> > > > Kernel memory exposure attempt detected from SLUB object
-> > > > 'skbuff_head_cache'
-> > >
-> > > Do you have a full calltrace for this?
-> >
-> > I have shared it in one of the messages in this thread.
-> > https://marc.info/?l=3Dlinux-virtualization&m=3D171085443512001&w=3D2
-> >
-> > > > 2. On 6.7.5, 6.7.10 and 6.8.1 it crashes with RIP:
-> > > > 0010:skb_release_data+0xb8/0x1e0
-> > >
-> > > And for this?
-> >
-> > https://marc.info/?l=3Dlinux-netdev&m=3D171083870801761&w=3D2
-> >
-> > > > 3. It does NOT crash on 6.8.1 when VM does not have multi-queue set=
-up
-> > > >
-> > > > Looks like the multi-queue setup (we have 2 interfaces =C3=97 3 vir=
-tio
-> > > > queues for each) is causing problems as if we set only one queue fo=
-r
-> > > > each interface the issue is gone.
-> > > > Maybe there is some race condition in __pfx_vhost_task_fn+0x10/0x10=
- or
-> > > > somewhere around?
-> > >
-> > > I can't tell now, but it seems not because if we have 3 queue pairs w=
-e
-> > > will have 3 vhost threads.
-> > >
-> > > > We have noticed that there are 3 of such functions
-> > > > in the stacktrace that gave us hints about what we could try=E2=80=
-=A6
-> > >
-> > > Let's try to enable SLUB_DEBUG and KASAN to see if we can get
-> > > something interesting.
-> >
-> > We were able to reproduce it even with 1 vhost queue... And now we
-> > have slub_debug + kasan so I hopefully have more useful data for you
-> > now.
-> > I have attached it for better readability.
->
-> Looks like we have found a "stable" kernel and that is 6.1.32. The
-> 6.3.y is broken and we are testing 6.2.y now.
-> My guess it would be related to virtio/vsock: replace virtio_vsock_pkt
-> with sk_buff that was done around that time but we are going to test,
-> bisect and let you know more.
->
+On 21.03.24 11:15, Xuan Zhuo wrote:
+> Currently, the init_vqs function within the virtio_balloon driver relies
+> on the condition that certain names array entries are null in order to
+> skip the initialization of some virtual queues (vqs). This behavior is
+> unique to this part of the codebase. In an upcoming commit, we plan to
+> eliminate this dependency by removing the function entirely. Therefore,
+> with this change, we are ensuring that the virtio_balloon no longer
+> depends on the aforementioned function.
+> 
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> ---
+>   drivers/virtio/virtio_balloon.c | 41 +++++++++++++++------------------
+>   1 file changed, 19 insertions(+), 22 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index 1f5b3dd31fcf..becc12a05407 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -531,49 +531,46 @@ static int init_vqs(struct virtio_balloon *vb)
+>   	struct virtqueue *vqs[VIRTIO_BALLOON_VQ_MAX];
+>   	vq_callback_t *callbacks[VIRTIO_BALLOON_VQ_MAX];
+>   	const char *names[VIRTIO_BALLOON_VQ_MAX];
+> -	int err;
+> +	int err, nvqs, idx;
+>   
+> -	/*
+> -	 * Inflateq and deflateq are used unconditionally. The names[]
+> -	 * will be NULL if the related feature is not enabled, which will
+> -	 * cause no allocation for the corresponding virtqueue in find_vqs.
+> -	 */
+>   	callbacks[VIRTIO_BALLOON_VQ_INFLATE] = balloon_ack;
+>   	names[VIRTIO_BALLOON_VQ_INFLATE] = "inflate";
+>   	callbacks[VIRTIO_BALLOON_VQ_DEFLATE] = balloon_ack;
+>   	names[VIRTIO_BALLOON_VQ_DEFLATE] = "deflate";
 
-That patch should only affect the virtio-vsock driver and vhost-vsock
-device, but here IIUC the problem is with a vhost-net device, so I'm
-not sure it's related.
+I'd remove the static dependencies here completely and do it
+consistently:
 
-Thanks,
-Stefano
+nvqs = 0;
+
+callbacks[nvqs] = balloon_ack;
+names[nvqs++] = "inflate";
+callbacks[nvqs] = balloon_ack;
+names[nvqs++] = "deflate";
+
+
+> -	callbacks[VIRTIO_BALLOON_VQ_STATS] = NULL;
+> -	names[VIRTIO_BALLOON_VQ_STATS] = NULL;
+> -	callbacks[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
+> -	names[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
+> -	names[VIRTIO_BALLOON_VQ_REPORTING] = NULL;
+> +
+> +	nvqs = VIRTIO_BALLOON_VQ_DEFLATE + 1;
+>   
+>   	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
+> -		names[VIRTIO_BALLOON_VQ_STATS] = "stats";
+> -		callbacks[VIRTIO_BALLOON_VQ_STATS] = stats_request;
+> +		names[nvqs] = "stats";
+> +		callbacks[nvqs] = stats_request;
+> +		++nvqs;
+
+callbacks[nvqs++] = stats_request;
+
+If you prefer to keep it separate, "nvqs++" please.
+
+... same here:
+
+idx = 0;
+vb->inflate_vq = vqs[idx++];
+vb->deflate_vq = vqs[idx++];
+
+...
+
+>   
+>   	vb->inflate_vq = vqs[VIRTIO_BALLOON_VQ_INFLATE];
+>   	vb->deflate_vq = vqs[VIRTIO_BALLOON_VQ_DEFLATE];
+> +
+> +	idx = VIRTIO_BALLOON_VQ_DEFLATE + 1;
+> +
+>   	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
+>   		struct scatterlist sg;
+>   		unsigned int num_stats;
+> -		vb->stats_vq = vqs[VIRTIO_BALLOON_VQ_STATS];
+> +		vb->stats_vq = vqs[idx++];
+>   
+>   		/*
+>   		 * Prime this virtqueue with one buffer so the hypervisor can
+> @@ -593,10 +590,10 @@ static int init_vqs(struct virtio_balloon *vb)
+>   	}
+>   
+>   	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
+> -		vb->free_page_vq = vqs[VIRTIO_BALLOON_VQ_FREE_PAGE];
+> +		vb->free_page_vq = vqs[idx++];
+>   
+>   	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING))
+> -		vb->reporting_vq = vqs[VIRTIO_BALLOON_VQ_REPORTING];
+> +		vb->reporting_vq = vqs[idx++];
+>   
+
+Apart from that LGTM
+
+-- 
+Cheers,
+
+David / dhildenb
 
