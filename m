@@ -1,248 +1,171 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 818686FB2
-	for <virtualization@lists.linux.dev>; Fri, 22 Mar 2024 05:05:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1908BE4C
+	for <virtualization@lists.linux.dev>; Fri, 22 Mar 2024 05:13:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711083905; cv=none; b=CkWAGOkb4PEbMkGMPwvyReYt1wWRjdZiUGvdwwmOPLEf1cA/MMpCjaMhkturo68MtEsv9IC8XwibhN/5dlGtPX9/MVfWKV5ThzJm5U+wgBgOTdQqFZFVuNNPCmDmGa3oszIEzB2vZ9Y7XGovwaXm+zYfpfMxeV2/4PbR4o5I9DU=
+	t=1711084435; cv=none; b=dtQ9CiJCPow/NavolUxI665DfwWnfxSxAqLEbHZH5llCTt0UZNmJKttBrMEV8Vi3pdh8puRoLWbBwQW8SVAMEP+SxJ24rbMOeGxqYJFyeiCNFF5vdZdVkqfGya2qbpdxC8b6ciIfWKfmFgI5KZhWDatCgsmvK9coktIhNtXoO5U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711083905; c=relaxed/simple;
-	bh=f2fYbvc7tT4ucJT1n3nMqZCQoet9BVHoSh4qx6HV6Ks=;
+	s=arc-20240116; t=1711084435; c=relaxed/simple;
+	bh=BUYMklqmw7+639WJzmrIAMbYivvbfYTPpa1SYTIG0dM=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=e0HSGqZ5d9vRoEnuC6w9mebp076KHDmJanLJFRBythP50GjXc5thHp6bY4TlgdbarETabV90649Kqgxy5bCktbfdJNJNWzt0xNv6hAydhcS9ngThluXQdl2F63TsvINnbbdrmRVeDwuTtqMauXoFV/wjtPTZpAm4tCrlyAE/MTo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=E2mvUrih; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=KgF1BQglecfrWgU4aEUQ+i+/7fm085XEo2P261E+qPUj0JxOXz5qDDiD/yKv4aXEVw7KJ20ByqY71c58H03J5Byx9hRaw5vWcqD8KGIicuf9CbNmy19e0cvNynEd1U2qqFM7EAX90hNIdbl0rwzbYTAxzbUVF3ZcvRZIB1SxnS8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ajGolDAr; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="E2mvUrih"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ajGolDAr"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1711083902;
+	s=mimecast20190719; t=1711084432;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=8LhdGUFW1bntuO8Gsl4OJDteGEtgJ6yqk5jWqFFkZyQ=;
-	b=E2mvUrih4e8eizh3ZfQnDd6/UZIhgu5zywQDzWcGstI0NJkjWlMb307Q/JcBgd1DQZLLiC
-	qijrhaxa5/cvVD4mk81+INm0vo1fRY9pdQF+8gAMTqdNICw+OO/Qn40bq9l5KQ3KAWupdK
-	+k1GJDTJX5OhKVi2rkmOjgbGzMkIIJc=
-Received: from mail-oa1-f71.google.com (mail-oa1-f71.google.com
- [209.85.160.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=tVLbbYCxnNuf6Gw/xnXzjZXwreLI7AHf88DnXBC8tyY=;
+	b=ajGolDArN9lrJH+rKLyF/vb1c9CMGcmwsZLSb/JkYlcT6dWz/4y26n9T2InhvpttJe2mhD
+	gAxY6jZ5Ks2l5+wY2PqKmgmO6OGkxzaQaaXmTHAu2lcg0r/B6kJfcbckyGoCYXM3qZDez4
+	CtFepizgqbz7l9vR9nM409riPMFImys=
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
+ [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-590-xgMZz7gxPuK8TozzuJ7GqQ-1; Fri, 22 Mar 2024 01:05:00 -0400
-X-MC-Unique: xgMZz7gxPuK8TozzuJ7GqQ-1
-Received: by mail-oa1-f71.google.com with SMTP id 586e51a60fabf-221d1cc21deso2070103fac.3
-        for <virtualization@lists.linux.dev>; Thu, 21 Mar 2024 22:05:00 -0700 (PDT)
+ us-mta-665-GocHPdWjMzyjMz5Zg0Phlw-1; Fri, 22 Mar 2024 01:13:49 -0400
+X-MC-Unique: GocHPdWjMzyjMz5Zg0Phlw-1
+Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-29ff65bbd63so1270493a91.0
+        for <virtualization@lists.linux.dev>; Thu, 21 Mar 2024 22:13:48 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711083900; x=1711688700;
+        d=1e100.net; s=20230601; t=1711084428; x=1711689228;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=8LhdGUFW1bntuO8Gsl4OJDteGEtgJ6yqk5jWqFFkZyQ=;
-        b=Uyy19JEXSdDJUFKjr4UglMTkUuE/jmaJFVuWTnf5jl7SXQmY27Wu1bFznTByH+0TiG
-         As667YD0SGPmaywvL5Vfs8ImOzrHmy1d+qV43F/YQ7Mz73ZBYXkj2vXBkMvbeu5cD8at
-         6YDlz9Mwx7N3Q9WAxJkXrxGU+J9EXxOeLuI20oB55ejCHqtIIYZGE/2+H8IGFrwOp6ZR
-         a7p0oxlUKWDk2R4N3EeDYbios2l9FzOxmKwp+hczwxNpPxwOGtl20bSxovLFL2B5eMT7
-         I4wU6AzYFq8k0nVnrF+Ny4jgtQ/BqR9a6Emm5fVljSPw6J7cYbvAzFedtKCb20tq7BCT
-         kj3w==
-X-Gm-Message-State: AOJu0YxaPes0mfmaFZHruq+ap4d1eX/qQeV7hmSQYVRh91rOh/yT4bkF
-	dG6cqQ+qRmVqQc3AVcoVkGCMwAdgrkdRvk84vybJK1WwGU+24OmRHAlea7cxrcLHVn/XMLPid9j
-	e1KLTs3ydg+ZYUqzgmT0mJlZ5ZD423T2YolUMtlu/XA/A34fUAke90SeqwwbBao9zNLhDQkPWPk
-	gZvp0Bbv40K5uwxKXgF/FuUwfogOUs5hgVmDOzHr4=
-X-Received: by 2002:a05:6870:c68d:b0:220:fffc:e085 with SMTP id cv13-20020a056870c68d00b00220fffce085mr1303483oab.18.1711083899969;
-        Thu, 21 Mar 2024 22:04:59 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE24GHuw+CdnIpdSdqKXHD7Z9AvHsfAd4wX3hyEKpR/0MEOrLQyQiKNbpgMQMKdPjgOefKCtlRPdKEBz0u857Y=
-X-Received: by 2002:a05:6870:c68d:b0:220:fffc:e085 with SMTP id
- cv13-20020a056870c68d00b00220fffce085mr1303475oab.18.1711083899704; Thu, 21
- Mar 2024 22:04:59 -0700 (PDT)
+        bh=tVLbbYCxnNuf6Gw/xnXzjZXwreLI7AHf88DnXBC8tyY=;
+        b=OfBYZLgZRe6FanpdXnbAtCffsZUS/1DHVC9HYCAQhgVtPWhrOhDAojgXvScgkHEoi9
+         2ptRsh7WC5S/b1W5AWi2usU6q4o3Dx9PE1xIdaF+dxUwf9MNyPqZyo+HGicl0c0HegBl
+         y70zWWuyMIXyQ+a3/vlZ9QaCVQsq+hiuGRh885aB65AtKRQpi92GouXuI4+R5Ffux0Fd
+         jlKarKDdU842mxBl3wXmr0M9tTeT4U7x+5zwGKVflSHgmccW7ZOAsiEXu0SlpA5buc7h
+         PXFTqEaD5lUkQkUZNYUqcsoGw8vO0/6YBGtyzx6Wu6Mx3H6pKOJYwl3TEkFOXHq3v95c
+         kGng==
+X-Gm-Message-State: AOJu0YzXi6KE8MXy6STx3CJKYIkRulznqbn5wUuznjk4gsqfuhEzPQu/
+	VLj7p+h8zRfK16ovmNJaL/AfPGrWEjGCIfviNVHFL3VE955SrLDWMdlnpY6ZxmXsvBjAUrfJ0Yh
+	rAvstrg2QtcRqs2ISlaNbKal0UrRmB7UNfN1ZP1LJvO+uNYHbDhDGgH82pbzvZyoa57LFko0O+P
+	5mUQh+hyATXwrhz+4TmD2DUCiPSbwn6GyAMmZedvE=
+X-Received: by 2002:a17:90a:1284:b0:29b:c17c:5fa6 with SMTP id g4-20020a17090a128400b0029bc17c5fa6mr1249114pja.33.1711084428009;
+        Thu, 21 Mar 2024 22:13:48 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IF9Eayi83t0eb1MJcsMUvJ5thFo5csIJL+WG37qUBhny1rRRa9A1HtQYegMbPSe0jgONNu33xOctIxNcksYaEI=
+X-Received: by 2002:a17:90a:1284:b0:29b:c17c:5fa6 with SMTP id
+ g4-20020a17090a128400b0029bc17c5fa6mr1249104pja.33.1711084427767; Thu, 21 Mar
+ 2024 22:13:47 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240320102025.11327-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEs-x-W2DHh8U=+0ORnq7=kjw9SJNNtDFfGNjC2KqqPZeA@mail.gmail.com> <1711074462.3244817-3-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <1711074462.3244817-3-xuanzhuo@linux.alibaba.com>
+References: <20240312033557.6351-1-xuanzhuo@linux.alibaba.com>
+ <20240312033557.6351-11-xuanzhuo@linux.alibaba.com> <CACGkMEuM35+jDY3kQXtKNBFJi32+hVSnqDuOc2GVqX6L2hcafw@mail.gmail.com>
+ <1711009281.7778504-3-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1711009281.7778504-3-xuanzhuo@linux.alibaba.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 22 Mar 2024 13:04:48 +0800
-Message-ID: <CACGkMEtOjPYuPi7MQcnp+TroxLKa4YtpTdsP4bNUSxUV8rgq3A@mail.gmail.com>
-Subject: Re: [PATCH vhost] virtio_net: update the hdr_len calculation for xmit
+Date: Fri, 22 Mar 2024 13:13:36 +0800
+Message-ID: <CACGkMEs+x8bObJ0Fr0LbkPzWqYSoU8Y8504=bqZtjux2T5-_Vg@mail.gmail.com>
+Subject: Re: [PATCH vhost v4 10/10] virtio_ring: virtqueue_set_dma_premapped
+ support disable
 To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Spike Du <spiked@nvidia.com>
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Mar 22, 2024 at 10:29=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alibaba.=
-com> wrote:
+On Thu, Mar 21, 2024 at 4:22=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
+om> wrote:
 >
-> On Thu, 21 Mar 2024 12:17:54 +0800, Jason Wang <jasowang@redhat.com> wrot=
+> On Thu, 21 Mar 2024 14:02:14 +0800, Jason Wang <jasowang@redhat.com> wrot=
 e:
-> > On Wed, Mar 20, 2024 at 6:20=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.aliba=
-ba.com> wrote:
+> > On Tue, Mar 12, 2024 at 11:36=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alib=
+aba.com> wrote:
 > > >
-> > > The virtio spec says:
-> > >     If one of the VIRTIO_NET_F_HOST_TSO4, TSO6, USO or UFO options ha=
-ve
-> > >     been negotiated:
-> > >         If the VIRTIO_NET_F_GUEST_HDRLEN feature has been negotiated,
-> > >         and gso_type differs from VIRTIO_NET_HDR_GSO_NONE, the driver
-> > >         MUST set hdr_len to a value equal to the length of the header=
-s,
-> > >         including the transport header.
+> > > Now, the API virtqueue_set_dma_premapped just support to
+> > > enable premapped mode.
 > > >
-> > >         If the VIRTIO_NET_F_GUEST_HDRLEN feature has not been negotia=
-ted,
-> > >         or gso_type is VIRTIO_NET_HDR_GSO_NONE, the driver SHOULD set
-> > >         hdr_len to a value not less than the length of the headers,
-> > >         including the transport header.
-> > >
-> > > So if the VIRTIO_NET_F_GUEST_HDRLEN feature has been negotiated, the
-> > > hdr->hdr_len should be eth header + ip header + tcp/udp header.
-> > >
-> > > But now:
-> > >     hdr->hdr_len =3D __cpu_to_virtio15(little_endian, skb_headlen(skb=
-));
-> > >
-> > > The skb_headlen() returns the linear space of the skb, not the header
-> > > size that only match the case the VIRTIO_NET_F_GUEST_HDRLEN feature h=
-as
-> > > not been negotiated, or gso_type is VIRTIO_NET_HDR_GSO_NONE.
-> > >
-> > > We do not check the feature of the device. This function is a common
-> > > function used by many places. So we do more stricter work whatever
-> > > the features is negotiated.
-> > >
-> > > For the case skb_is_gso(skb) is false, if none of the
-> > > VIRTIO_NET_F_HOST_TSO4, TSO6, USO or UFO options have been negotiated=
-,
-> > > the spec not define the action of setting hdr_len. Here I set it to
-> > > skb_headlen(). If one of the above features have been negotiated, we
-> > > should set a value not less than the length of "eth header + ip heade=
-r +
-> > > tcp/udp header". So the skb_headlen() also is a valid value.
-> > >
-> > > For the case skb_is_gso(skb) is true, it implies that one of
-> > > VIRTIO_NET_F_HOST_TSO4, TSO6, USO or UFO options MUST have been
-> > > negotiated. If the VIRTIO_NET_F_GUEST_HDRLEN is negotiated, we MUST s=
-et
-> > > it to the length of "eth header + ip header + tcp/udp header".
-> > > If the VIRTIO_NET_F_GUEST_HDRLEN is not negotiated, that still be a
-> > > valid value.
+> > > If we allow enabling the premapped dynamically, we should
+> > > make this API to support disable the premapped mode.
 > > >
 > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > Reported-by: Spike Du <spiked@nvidia.com>
 > > > ---
-> > >  include/linux/virtio_net.h | 41 ++++++++++++++++++++++++++++--------=
---
-> > >  1 file changed, 31 insertions(+), 10 deletions(-)
+> > >  drivers/virtio/virtio_ring.c | 34 ++++++++++++++++++++++++++--------
+> > >  include/linux/virtio.h       |  2 +-
+> > >  2 files changed, 27 insertions(+), 9 deletions(-)
 > > >
-> > > diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-> > > index 4dfa9b69ca8d..51d93f9762d7 100644
-> > > --- a/include/linux/virtio_net.h
-> > > +++ b/include/linux/virtio_net.h
-> > > @@ -201,24 +201,45 @@ static inline int virtio_net_hdr_from_skb(const=
- struct sk_buff *skb,
-> > >
-> > >         if (skb_is_gso(skb)) {
-> > >                 struct skb_shared_info *sinfo =3D skb_shinfo(skb);
-> > > +               u32 hdrlen;
-> > >
-> > > -               /* This is a hint as to how much should be linear. */
-> > > -               hdr->hdr_len =3D __cpu_to_virtio16(little_endian,
-> > > -                                                skb_headlen(skb));
-> > > -               hdr->gso_size =3D __cpu_to_virtio16(little_endian,
-> > > -                                                 sinfo->gso_size);
-> > > -               if (sinfo->gso_type & SKB_GSO_TCPV4)
-> > > +               if (sinfo->gso_type & SKB_GSO_TCPV4) {
-> > >                         hdr->gso_type =3D VIRTIO_NET_HDR_GSO_TCPV4;
-> > > -               else if (sinfo->gso_type & SKB_GSO_TCPV6)
-> > > +                       hdrlen =3D tcp_hdrlen(skb) + skb_transport_of=
-fset(skb);
+> > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_rin=
+g.c
+> > > index 34f4b2c0c31e..3bf69cae4965 100644
+> > > --- a/drivers/virtio/virtio_ring.c
+> > > +++ b/drivers/virtio/virtio_ring.c
+> > > @@ -2801,6 +2801,7 @@ EXPORT_SYMBOL_GPL(virtqueue_resize);
+> > >  /**
+> > >   * virtqueue_set_dma_premapped - set the vring premapped mode
+> > >   * @_vq: the struct virtqueue we're talking about.
+> > > + * @premapped: enable/disable the premapped mode.
+> > >   *
+> > >   * Enable the premapped mode of the vq.
+> > >   *
+> > > @@ -2819,9 +2820,10 @@ EXPORT_SYMBOL_GPL(virtqueue_resize);
+> > >   * 0: success.
+> > >   * -EINVAL: vring does not use the dma api, so we can not enable pre=
+mapped mode.
+> > >   */
+> > > -int virtqueue_set_dma_premapped(struct virtqueue *_vq)
+> > > +int virtqueue_set_dma_premapped(struct virtqueue *_vq, bool premappe=
+d)
 > >
-> > So could evil guests give us a 0 hdrlen through this. If yes, it seems
-> > much more dangerous than headlen or we need harden the value as
-> > 9181d6f8a2bb32d158de66a84164fac05e3ddd18 did.
->
-> Spec says:
->         If the VIRTIO_NET_F_GUEST_HDRLEN feature has been negotiated, and
->         gso_type differs from VIRTIO_NET_HDR_GSO_NONE, the device MAY use
->         hdr_len as the transport header size. Note: Caution should be tak=
-en by
->         the implementation so as to prevent a malicious driver from attac=
-king
->         the device by setting an incorrect hdr_len.
->
->         If the VIRTIO_NET_F_GUEST_HDRLEN feature has not been negotiated,=
- or
->         gso_type is VIRTIO_NET_HDR_GSO_NONE, the device MAY use hdr_len o=
-nly as
->         a hint about the transport header size. The device MUST NOT rely =
-on
->         hdr_len to be correct. Note: This is due to various bugs in
->         implementations.
->
-> The device nerver trust the hdr_len completely.
-> So I think that is safe.
-
-It doesn't, there's no way to audit all the existing implementations of vir=
-tio.
-
-For example, have you seen the commit I've pointed to you?
-
->
->
+> > I think we need to document the requirement for calling this.
 > >
-> > > +
-> > > +               } else if (sinfo->gso_type & SKB_GSO_TCPV6) {
-> > >                         hdr->gso_type =3D VIRTIO_NET_HDR_GSO_TCPV6;
-> > > -               else if (sinfo->gso_type & SKB_GSO_UDP_L4)
-> > > +                       hdrlen =3D tcp_hdrlen(skb) + skb_transport_of=
-fset(skb);
-> > > +
-> > > +               } else if (sinfo->gso_type & SKB_GSO_UDP_L4) {
-> > >                         hdr->gso_type =3D VIRTIO_NET_HDR_GSO_UDP_L4;
-> > > -               else
-> > > +                       hdrlen =3D sizeof(struct udphdr) + skb_transp=
-ort_offset(skb);
-> > > +
-> > > +               } else {
-> > >                         return -EINVAL;
-> > > +               }
-> > > +
-> > > +               /* One of VIRTIO_NET_F_HOST_TSO4, TSO6, USO or UFO op=
-tions MUST
-> > > +                * have been negotiated. If the VIRTIO_NET_F_GUEST_HD=
-RLEN is
-> > > +                * negotiated, we MUST set it to the length of "eth h=
-eader + ip
-> > > +                * header + tcp/udp header".  If the VIRTIO_NET_F_GUE=
-ST_HDRLEN
-> > > +                * is not negotiated, that still be a valid value.
-> > > +                */
-> >
-> > I'd stick the headlen for deivce without GUEST_HDRLEN. It seems much
-> > more safe as we don't want to break legacy devices.
+> > Looking at the code, it seems it requires to stop the datapath and
+> > detach all the used buffers?
 >
-> I do not get it.
+>
+> YES. The complete document is:
+>
+> /**
+>  * virtqueue_set_dma_premapped - set the vring premapped mode
+>  * @_vq: the struct virtqueue we're talking about.
+>  *
+>  * Enable the premapped mode of the vq.
+>  *
+>  * The vring in premapped mode does not do dma internally, so the driver =
+must
+>  * do dma mapping in advance. The driver must pass the dma_address throug=
+h
+>  * dma_address of scatterlist. When the driver got a used buffer from
+>  * the vring, it has to unmap the dma address.
+>  *
+>  * This function must be called immediately after creating the vq, or aft=
+er vq
+>  * reset, and before adding any buffers to it.
 
-if (GUEST_HDRLEN)
-    tell the offset of the payload
-else
-    tell the headlen (stick to the old behaviour)
+I'm not sure this is a good design but we need at least some guard for
+this, probably WARN for num_added or others.
 
 Thanks
 
+>  *
+>  * Caller must ensure we don't call this with other virtqueue operations
+>  * at the same time (except where noted).
+>  *
+>  * Returns zero or a negative error.
+>  * 0: success.
+>  * -EINVAL: vring does not use the dma api, so we can not enable premappe=
+d mode.
+>  */
 >
-> Thanks.
+> Thanks
 >
 >
 > >
 > > Thanks
-> >
 > >
 >
 
