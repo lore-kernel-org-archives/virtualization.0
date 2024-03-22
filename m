@@ -1,33 +1,33 @@
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 651468C1F
-	for <virtualization@lists.linux.dev>; Fri, 22 Mar 2024 06:03:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABA2DBA39
+	for <virtualization@lists.linux.dev>; Fri, 22 Mar 2024 06:04:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711087397; cv=none; b=MHChxo0/+3q5Hez2buSAYFzodoKusAMrKW1kGgBUzfJET0+sdPF7yq4bf5OLdCFbPBLjISoDynbjxOslaxDFRY0//+kdHOoxX9G9IVHrQGlY5pZIiP+Cta8byAEk2sfdvbsIxUzt6dh4NGdJBqqb+tCSUVe4YZOxaSbhpHjzxag=
+	t=1711087483; cv=none; b=ubbb29iwcjkHVhLfwna0mNK6x/xnvFvlUjdWUnVlxGf7n2o2gy0vFbtoFwU0ywnUx4ZkgVDXMLh7Z0mqKF9d/K2K5JiRN9hy0OA/EqhHXeCcxpopz6PWawVlaFm9L/dUycBAGcHJzomBb79kAHdpZ5c78b+q5gT7RebOQ8hdUAA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711087397; c=relaxed/simple;
-	bh=caCmcTzq12y+jqWMv9A7kwwJIN7zLpIY6BF1bQNHflM=;
+	s=arc-20240116; t=1711087483; c=relaxed/simple;
+	bh=454572vmYgK7qe8auMubjdFKIVg5/0Fz1LEWsUV7Krc=;
 	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=FEfboWNlmZuV6DfTxXPg+GHAIKowFgC0MO9gdjPFRXmPkVXWKh9sHG8v9hM68HRUaT2/jcOCxkjCaVzga9VdBubFqPdwrmZw/yyW3S64sKKRpkNuyQD3n1upFez/HBH6O3d0/8piPrjGv+95SFwzhljufo/FIZnJ2LNdR3LD31s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=aYnimi1H; arc=none smtp.client-ip=115.124.30.131
+	 Content-Type; b=ZRIutTxhziIzzCw5psWKOBnx4cSt3YdbIbpNd0aV22wu/EcasbNZQych/BAM8IBttHC2V2a09t/JfGIwpGIpaDEwdzJt8UNGAcrXbUOk0Q80w/LRTOiD+ipkifzv8n6W+vCR1sApi36gllNsD/wEtUE+tWM6ytMdXqGIgCQ8vRQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=MUXS1Hdi; arc=none smtp.client-ip=115.124.30.100
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="aYnimi1H"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="MUXS1Hdi"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1711087388; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=XmHyb2TAUIWlcUq9ZQ14Lpel252a1eCeznWun+VNgYw=;
-	b=aYnimi1HJUsLoXjyQ3uUwaf4DzGIChnMp7TetIn6c4n8x6y5f5Rt/zCsRUW/tF+o+BndnULAdrQMmK+E+QtZDUH8P1N5xAMj2PS9nxraLYhfgrobZcG8ejwg/ViWK2vADkGfJjPGlj6Mz9VZ5n4vRkFQiQQxnx2yCYd+m71MGrc=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0W315pdr_1711087387;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W315pdr_1711087387)
+	t=1711087476; h=Message-ID:Subject:Date:From:To:Content-Type;
+	bh=eb4KMo0Pf/8SqKLxf77zotoNMMhspnpHYcPyHWh1TOc=;
+	b=MUXS1HdiLxrokbcOJNojh1BRsWxsl6xqzpI75o80uyck+gC1GIa9Kh0vlGoW1T2wRSf7qWuFuDvuFc//Nr4zoHYZSD4GyLWiernIV9hJJSno7CiVz/7zmEUVIZgqeRbKSyfjd0NyrZ7kwuOe5yLbOFAVNiHdk/hbzABDcYN7WtA=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0W3154W2_1711087475;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W3154W2_1711087475)
           by smtp.aliyun-inc.com;
-          Fri, 22 Mar 2024 14:03:08 +0800
-Message-ID: <1711086955.58408-2-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost v4 03/10] virtio_ring: packed: structure the indirect desc table
-Date: Fri, 22 Mar 2024 13:55:55 +0800
+          Fri, 22 Mar 2024 14:04:36 +0800
+Message-ID: <1711087439.5923152-3-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH vhost v4 10/10] virtio_ring: virtqueue_set_dma_premapped support disable
+Date: Fri, 22 Mar 2024 14:03:59 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: Jason Wang <jasowang@redhat.com>
 Cc: virtualization@lists.linux.dev,
@@ -38,11 +38,11 @@ Cc: virtualization@lists.linux.dev,
  Paolo Abeni <pabeni@redhat.com>,
  netdev@vger.kernel.org
 References: <20240312033557.6351-1-xuanzhuo@linux.alibaba.com>
- <20240312033557.6351-4-xuanzhuo@linux.alibaba.com>
- <CACGkMEs_DT1309_hj8igcvX7H1sU+-s_OP6Jnp-c=0kmu+ia_g@mail.gmail.com>
- <1711009465.784253-4-xuanzhuo@linux.alibaba.com>
- <CACGkMEvimfmQRUZ04CykZs-6cOkASF8S02n2N7caJ4XivR8hNw@mail.gmail.com>
-In-Reply-To: <CACGkMEvimfmQRUZ04CykZs-6cOkASF8S02n2N7caJ4XivR8hNw@mail.gmail.com>
+ <20240312033557.6351-11-xuanzhuo@linux.alibaba.com>
+ <CACGkMEuM35+jDY3kQXtKNBFJi32+hVSnqDuOc2GVqX6L2hcafw@mail.gmail.com>
+ <1711009281.7778504-3-xuanzhuo@linux.alibaba.com>
+ <CACGkMEs+x8bObJ0Fr0LbkPzWqYSoU8Y8504=bqZtjux2T5-_Vg@mail.gmail.com>
+In-Reply-To: <CACGkMEs+x8bObJ0Fr0LbkPzWqYSoU8Y8504=bqZtjux2T5-_Vg@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
@@ -51,129 +51,117 @@ List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-On Fri, 22 Mar 2024 13:15:10 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Thu, Mar 21, 2024 at 4:29=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba=
+On Fri, 22 Mar 2024 13:13:36 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> On Thu, Mar 21, 2024 at 4:22=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba=
 .com> wrote:
 > >
-> > On Thu, 21 Mar 2024 12:47:18 +0800, Jason Wang <jasowang@redhat.com> wr=
+> > On Thu, 21 Mar 2024 14:02:14 +0800, Jason Wang <jasowang@redhat.com> wr=
 ote:
 > > > On Tue, Mar 12, 2024 at 11:36=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.al=
 ibaba.com> wrote:
 > > > >
-> > > > This commit structure the indirect desc table.
-> > > > Then we can get the desc num directly when doing unmap.
+> > > > Now, the API virtqueue_set_dma_premapped just support to
+> > > > enable premapped mode.
 > > > >
-> > > > And save the dma info to the struct, then the indirect
-> > > > will not use the dma fields of the desc_extra. The subsequent
-> > > > commits will make the dma fields are optional. But for
-> > > > the indirect case, we must record the dma info.
+> > > > If we allow enabling the premapped dynamically, we should
+> > > > make this API to support disable the premapped mode.
 > > > >
 > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 > > > > ---
-> > > >  drivers/virtio/virtio_ring.c | 66 +++++++++++++++++++++-----------=
-----
-> > > >  1 file changed, 38 insertions(+), 28 deletions(-)
+> > > >  drivers/virtio/virtio_ring.c | 34 ++++++++++++++++++++++++++------=
+--
+> > > >  include/linux/virtio.h       |  2 +-
+> > > >  2 files changed, 27 insertions(+), 9 deletions(-)
 > > > >
 > > > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_r=
 ing.c
-> > > > index 0dfbd17e5a87..22a588bba166 100644
+> > > > index 34f4b2c0c31e..3bf69cae4965 100644
 > > > > --- a/drivers/virtio/virtio_ring.c
 > > > > +++ b/drivers/virtio/virtio_ring.c
-> > > > @@ -72,9 +72,16 @@ struct vring_desc_state_split {
-> > > >         struct vring_desc *indir_desc;  /* Indirect descriptor, if =
-any. */
-> > > >  };
-> > > >
-> > > > +struct vring_packed_desc_indir {
-> > > > +       dma_addr_t addr;                /* Descriptor Array DMA add=
-r. */
-> > > > +       u32 len;                        /* Descriptor Array length.=
- */
-> > > > +       u32 num;
-> > > > +       struct vring_packed_desc desc[];
-> > > > +};
-> > > > +
-> > > >  struct vring_desc_state_packed {
-> > > >         void *data;                     /* Data for callback. */
-> > > > -       struct vring_packed_desc *indir_desc; /* Indirect descripto=
-r, if any. */
-> > > > +       struct vring_packed_desc_indir *indir_desc; /* Indirect des=
-criptor, if any. */
+> > > > @@ -2801,6 +2801,7 @@ EXPORT_SYMBOL_GPL(virtqueue_resize);
+> > > >  /**
+> > > >   * virtqueue_set_dma_premapped - set the vring premapped mode
+> > > >   * @_vq: the struct virtqueue we're talking about.
+> > > > + * @premapped: enable/disable the premapped mode.
+> > > >   *
+> > > >   * Enable the premapped mode of the vq.
+> > > >   *
+> > > > @@ -2819,9 +2820,10 @@ EXPORT_SYMBOL_GPL(virtqueue_resize);
+> > > >   * 0: success.
+> > > >   * -EINVAL: vring does not use the dma api, so we can not enable p=
+remapped mode.
+> > > >   */
+> > > > -int virtqueue_set_dma_premapped(struct virtqueue *_vq)
+> > > > +int virtqueue_set_dma_premapped(struct virtqueue *_vq, bool premap=
+ped)
 > > >
-> > > Maybe it's better just to have a vring_desc_extra here.
+> > > I think we need to document the requirement for calling this.
+> > >
+> > > Looking at the code, it seems it requires to stop the datapath and
+> > > detach all the used buffers?
 > >
 > >
-> > Do you mean replacing vring_packed_desc_indir by vring_desc_extra?
+> > YES. The complete document is:
+> >
+> > /**
+> >  * virtqueue_set_dma_premapped - set the vring premapped mode
+> >  * @_vq: the struct virtqueue we're talking about.
+> >  *
+> >  * Enable the premapped mode of the vq.
+> >  *
+> >  * The vring in premapped mode does not do dma internally, so the drive=
+r must
+> >  * do dma mapping in advance. The driver must pass the dma_address thro=
+ugh
+> >  * dma_address of scatterlist. When the driver got a used buffer from
+> >  * the vring, it has to unmap the dma address.
+> >  *
+> >  * This function must be called immediately after creating the vq, or a=
+fter vq
+> >  * reset, and before adding any buffers to it.
 >
-> Just add a vring_desc_extra in vring_desc_state_packed.
+> I'm not sure this is a good design but we need at least some guard for
+> this, probably WARN for num_added or others.
 
 
-I am surprise to here that.
+int virtqueue_set_dma_premapped(struct virtqueue *_vq)
+{
+	struct vring_virtqueue *vq =3D to_vvq(_vq);
+	u32 num;
 
-Do you mean this: #1
+	START_USE(vq);
 
+	num =3D vq->packed_ring ? vq->packed.vring.num : vq->split.vring.num;
 
-struct vring_desc_state_packed {
-	void *data;			/* Data for callback. */
-	struct vring_packed_desc *indir_desc; /* Indirect descriptor, if any. */
-	u16 num;			/* Descriptor list length. */
-	u16 last;			/* The last desc state in a list. */
-
-	struct vring_desc_extra desc_extra;
-};
-
-
-Then desc_extra is included by desc_state. I do not think so.
-
-I guess you mean this: #2
-
-struct vring_desc_state_packed {
-	void *data;			/* Data for callback. */
-	struct vring_desc_extra *indir_desc; /* Indirect descriptor, if any. */
-	u16 num;			/* Descriptor list length. */
-	u16 last;			/* The last desc state in a list. */
-};
-
-indir_desc pointers to memory:
-
-|struct vring_desc_extra | struct vring_packed_desc desc[] |
+	if (num !=3D vq->vq.num_free) {
+		END_USE(vq);
+		return -EINVAL;
+	}
 
 
->
-> >
-> > I am ok for that. But vring_desc_extra has two extra items:
-> >
-> >         u16 flags;                      /* Descriptor flags. */
-> >         u16 next;                       /* The next desc state in a lis=
-t. */
-> >
-> > vring_packed_desc_indir has "desc". I think that is more convenient.
-> >
-> > So, I think vring_packed_desc_indir is appropriate.
->
-> It reuses the existing structure so we had the chance to reuse the
-> helper.
-
-Which helper?
-
-But, if you mean #2. I am ok.
+Now, we have checked the num_free.
 
 Thanks.
 
-> And it could be used for future chained indirect (if it turns
-> out to be necessary).
+
 >
 > Thanks
 >
-> > Or I missed something.
+> >  *
+> >  * Caller must ensure we don't call this with other virtqueue operations
+> >  * at the same time (except where noted).
+> >  *
+> >  * Returns zero or a negative error.
+> >  * 0: success.
+> >  * -EINVAL: vring does not use the dma api, so we can not enable premap=
+ped mode.
+> >  */
 > >
-> >
-> > Thanks.
+> > Thanks
 > >
 > >
 > > >
 > > > Thanks
 > > >
 > >
->
 >
