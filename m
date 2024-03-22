@@ -1,80 +1,80 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3E6B5D752
-	for <virtualization@lists.linux-foundation.org>; Fri, 22 Mar 2024 17:06:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E42345EE78
+	for <virtualization@lists.linux-foundation.org>; Fri, 22 Mar 2024 17:09:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711127178; cv=none; b=I3Z61Qab6hfY+owcMbvyXKUGhh4NYDYuZT0JzqvwlHpdiFeKU6EOYxbie+AVOS9Ybj4WRpflKZktiiFoGqzTd/gaH9XAEQWJl+nROq1+S6izkTvPSZo9cZ3stNGLVMOA+dAS1hTChsE5ZxusqmWdxvNQlbqHR95TtAZMB83x2Ko=
+	t=1711127384; cv=none; b=PntrHiGIIKK0/OTUaCsHyp2fZt88iS+ng1iogYFj1VuXd9sgxPN7pQgqHluBTosW6kVj2Sdrz5NYL81wQXrIcjUhx2Wxj2gWkWOTnliBECvlZII9idg2V5n+Cv1NoCr/b/lxBDay+EoMl/cIv6kLn/KO1Ac7UuiKwjYkHABLVlw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711127178; c=relaxed/simple;
-	bh=jT967HD0NkVb4sBMYdepySf5iZRznTV4xbYQBqhu4p4=;
+	s=arc-20240116; t=1711127384; c=relaxed/simple;
+	bh=7ur9VHXBBmtR/BzJooZLLcq+YeBquA9kLKNbVLwTOXU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=X5VnodEGExqfU1bASYj46V7mPtxefBGgwXknLoUiGCdHH7DC47GzH3ivjkv3Lu1108q/VTrvSpLZwhjSgZ5z8icfq08Q1pmGYQ7ZtyrV0FeTFwvQlj8j2LeTDRR41YIhYp7ljxrVJM+d2hFGW9JQUwqLQ17zmWRyz9pwO3+QKx4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=RB09PxFL; arc=none smtp.client-ip=140.211.166.136
+	 Content-Type:Content-Disposition:In-Reply-To; b=c/NtcEQ/XIG2828uzjfaDRmtNkHoY0j3hl3DFVX9na8ZgoYXgYu1mcVCB7hzQb/0NL8AlhSVaIx3ov4hFlcA8Sw2iFdM1I6vFpBzaAowY2gm8CtEJ/gwer9VY8t0QbXH8NIVi+r/1vqVlUGpopQHh1rH5k8UmLbymmwusJNlyMc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=TcTBBVyK; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="RB09PxFL"
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="TcTBBVyK"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 98905606AF
-	for <virtualization@lists.linux-foundation.org>; Fri, 22 Mar 2024 17:06:16 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 902E9418DA
+	for <virtualization@lists.linux-foundation.org>; Fri, 22 Mar 2024 17:09:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.1
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9yTAb8NT-9Pq
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id MYnDqpUlYQbV
 	for <virtualization@lists.linux-foundation.org>;
-	Fri, 22 Mar 2024 17:06:16 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::72f; helo=mail-qk1-x72f.google.com; envelope-from=jgg@ziepe.ca; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 9E6B360684
-Authentication-Results: smtp3.osuosl.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9E6B360684
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=RB09PxFL
-Received: from mail-qk1-x72f.google.com (mail-qk1-x72f.google.com [IPv6:2607:f8b0:4864:20::72f])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 9E6B360684
-	for <virtualization@lists.linux-foundation.org>; Fri, 22 Mar 2024 17:06:15 +0000 (UTC)
-Received: by mail-qk1-x72f.google.com with SMTP id af79cd13be357-789e6f7f748so139850185a.3
-        for <virtualization@lists.linux-foundation.org>; Fri, 22 Mar 2024 10:06:15 -0700 (PDT)
+	Fri, 22 Mar 2024 17:09:41 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::734; helo=mail-qk1-x734.google.com; envelope-from=jgg@ziepe.ca; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 777A440279
+Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 777A440279
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=TcTBBVyK
+Received: from mail-qk1-x734.google.com (mail-qk1-x734.google.com [IPv6:2607:f8b0:4864:20::734])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 777A440279
+	for <virtualization@lists.linux-foundation.org>; Fri, 22 Mar 2024 17:09:41 +0000 (UTC)
+Received: by mail-qk1-x734.google.com with SMTP id af79cd13be357-78a26803f1aso160983585a.3
+        for <virtualization@lists.linux-foundation.org>; Fri, 22 Mar 2024 10:09:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1711127174; x=1711731974; darn=lists.linux-foundation.org;
+        d=ziepe.ca; s=google; t=1711127380; x=1711732180; darn=lists.linux-foundation.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=DIw9kOrgrH/Oi2+Nn2/myUDrH5PEiTKiNi9APpbGWJQ=;
-        b=RB09PxFLJiMI8myhGP5k4oTMuftViGhhOlzZF4d1rx4fT3uiri+e5k7GxrFK6ig6kA
-         15YVcQKJ0bWGaARsQoFZbjz11/k0U9+hLQWV/nke3G3gcGbEodO/Ma/74CFGMJI0/FRN
-         UjbpIUIL2zmB8/QnxCuQsszRhyeICetYs/86LsAD70W9qstTsFFRvA0lZ7RDeZabcolX
-         AXrRCD0u4cRnkTTB777upeLkxM6VBvbUzuuORlYEdDB+G0zwJJKSNHYKyhQBPDSX3j3e
-         0sR7mzve+Se5GBABdMEvic81SyMuwFyd/sQNRv///P5bFZQwz3AfLvlmVYkaBrdsU3AC
-         QMVw==
+        bh=ApAHAb/kVXuA2vroBRV/sxLLRFwBeKrRqNlXizxetGM=;
+        b=TcTBBVyKAusos2I1MVDYRZGIWj8EOqomnFsQVYa9hdOCsmUhzwXZn1OhbDt2S4zSq9
+         zxMQN4lV4KEbFG5I/Ea2x710TqgAcZyaXWkK3QVyrW3qrYMBws+azEE3N/OjPj44bjPH
+         cQOzA9N4YDBxVVXPX2mwvdTuYdxdvwxoWgS51wMdtCB5HWbRB4dWILKAfMvIyabfhXxz
+         WeVX01tmEd61DfIoCpenCZ0bQrM2y+jcFUTRJ4OubMfP+cSQrewLiTjJZGHo5dv7I6pF
+         Ph/cUBPHglBrbdtvqgwfqMNh47o8UuKgS78oh3WLB8VFYS2VHiNBtwzrdYS9egFVXExv
+         dAOA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711127174; x=1711731974;
+        d=1e100.net; s=20230601; t=1711127380; x=1711732180;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=DIw9kOrgrH/Oi2+Nn2/myUDrH5PEiTKiNi9APpbGWJQ=;
-        b=K69ec7JLnYSLM3w8Rac2vZG0vtAwu1NTue6AHnlU6KVerAMiK2FaU3tWRQ6ZqUHOq5
-         Knf/sHB9O/OIbXthv1ibknna9YgwW+8GYDAqJv7TtAaxdOoK2FuwLhL0Hb7SN2qN9qqT
-         pIWSPIHAK+extDvZSHmUmlo+44V0Nz3foTK/TWSBLHKoYi4ZFVlhbRoZHjCFR/1l6xUZ
-         UT+UHMHtYzrW3KuX9BL6Q3Q3ZQVfx03OVNnvc3WSos8B6FPmzBEJH0K6x/+CBq026Am4
-         2Pz7l55iDp10VSrms4ESnZO40SgA1uLbpn8shixf9u0khU5GrQHm8n5i+pYGscGZ8dPM
-         RhOQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWCS3hFLfyRaIPpeXQCWO2zXY1A8c9Ds2rdyHiiWs7U/j/088RR+L4LCYJa93dusa8L12Qu3JZ5bOams/DkIhHgbJtd89ZDmsFu7MgLB7In7Cnl4lYIK3bQ5w==
-X-Gm-Message-State: AOJu0Yz4ZCy1El3v1H0ZAFtOtaiikeUF4m4FSqB64oQrHHR7WdSyg26O
-	KdR/a9VaCf+19X7jjjf0NEJ1pvIILrVr1yfOrP6iJ+g18rH8wVbAcbGY4JUYgQI=
-X-Google-Smtp-Source: AGHT+IEHFGKv/VWM3Yg4smu9N1G/2nFTpEK73dYxyEMKGfCzZHq73AEibapXcw3+Qlp7ej5p7M2doQ==
-X-Received: by 2002:a05:620a:27c7:b0:789:f0ac:1b4b with SMTP id i7-20020a05620a27c700b00789f0ac1b4bmr34471qkp.58.1711127174318;
-        Fri, 22 Mar 2024 10:06:14 -0700 (PDT)
+        bh=ApAHAb/kVXuA2vroBRV/sxLLRFwBeKrRqNlXizxetGM=;
+        b=QE8BTr18i/k2aspaNe05OXhSUY1WzUpH0EdYBGNr/r7/RkbsZ04Ufhq1Mpr18wrxjy
+         vj8H70GahW0BOL6pLr5j8LvmsZTDE9ht8MILK5TnML2bxhXnJNJ0ttGgDat6Y84gMUuj
+         EJY975D9ae7gM/elq16IT8gYRaQsP2NFgooL9xqFmoNIjZWF+VywG1EvW+6obeXiPwY7
+         Qd7KQNjY0Q+z1qmJLrwIHMqd1tJ82sUoA0eRy0PYvbnomMcFdUXSUyCoE6WDrhx0I+RE
+         bY2MTpHTBrPAMkEG+wN9Yqw/6U4mWSBkbcqtNtNj2QAYf5vsm2zPIaP98jB10Lz32zCI
+         xC8Q==
+X-Forwarded-Encrypted: i=1; AJvYcCXt5qmKBsnS9LEOzmAGWbVtKCJ8HzSHTaiUAwdS1gF2uXBMAhcvcl6tsIYRk9lTyZPa+tIodSiQQKTvZbZ3kvtPTyJ1vjzSTDB5WHdtOuMuRNij0CFIxlUkxA==
+X-Gm-Message-State: AOJu0YxuLdxnXXWYV826sQL96tpzXgcFBNGmbri7FQH7DG/HdyAlP5DR
+	ry4NIbgmuwVvrWGW0hjGtUCfZyO9YK+SZ07jXzypOCBZR8nRUwP6uAHSmPe//Bs=
+X-Google-Smtp-Source: AGHT+IEL8xR2S4VoPl+Aw327BSxdHoOXFRAq/bqB5JLQ7T86b5yNtZewLe/kyN/nOGUpgLU+Lu7bKg==
+X-Received: by 2002:ae9:e401:0:b0:78a:2d4b:3b06 with SMTP id q1-20020ae9e401000000b0078a2d4b3b06mr18512qkc.76.1711127380253;
+        Fri, 22 Mar 2024 10:09:40 -0700 (PDT)
 Received: from ziepe.ca (hlfxns017vw-142-68-80-239.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.80.239])
-        by smtp.gmail.com with ESMTPSA id g12-20020a37e20c000000b007882fe32acasm926378qki.3.2024.03.22.10.06.13
+        by smtp.gmail.com with ESMTPSA id a12-20020a05620a02ec00b00789fa326156sm921596qko.82.2024.03.22.10.09.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 22 Mar 2024 10:06:13 -0700 (PDT)
+        Fri, 22 Mar 2024 10:09:39 -0700 (PDT)
 Received: from jgg by wakko with local (Exim 4.95)
 	(envelope-from <jgg@ziepe.ca>)
-	id 1rniLN-00CSJq-BV;
-	Fri, 22 Mar 2024 14:06:13 -0300
-Date: Fri, 22 Mar 2024 14:06:13 -0300
+	id 1rniOh-00CSno-4j;
+	Fri, 22 Mar 2024 14:09:39 -0300
+Date: Fri, 22 Mar 2024 14:09:39 -0300
 From: Jason Gunthorpe <jgg@ziepe.ca>
 To: Baolu Lu <baolu.lu@linux.intel.com>
 Cc: Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
@@ -85,13 +85,12 @@ Cc: Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
 	Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
 	virtualization@lists.linux-foundation.org,
 	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 5/8] iommufd: Associate fault object with
- iommufd_hw_pgtable
-Message-ID: <20240322170613.GI66976@ziepe.ca>
+Subject: Re: [PATCH v3 4/8] iommufd: Add iommufd fault object
+Message-ID: <20240322170939.GJ66976@ziepe.ca>
 References: <20240122073903.24406-1-baolu.lu@linux.intel.com>
- <20240122073903.24406-6-baolu.lu@linux.intel.com>
- <20240308190539.GY9225@ziepe.ca>
- <7a6ac83b-3165-4abe-91be-a58f69656f8a@linux.intel.com>
+ <20240122073903.24406-5-baolu.lu@linux.intel.com>
+ <20240308180332.GX9225@ziepe.ca>
+ <e66064d7-c384-4f14-9459-ea21809b51b5@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -100,62 +99,114 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <7a6ac83b-3165-4abe-91be-a58f69656f8a@linux.intel.com>
+In-Reply-To: <e66064d7-c384-4f14-9459-ea21809b51b5@linux.intel.com>
 
-On Fri, Mar 15, 2024 at 09:16:43AM +0800, Baolu Lu wrote:
-> On 3/9/24 3:05 AM, Jason Gunthorpe wrote:
-> > On Mon, Jan 22, 2024 at 03:39:00PM +0800, Lu Baolu wrote:
-> > 
-> > > @@ -411,6 +414,8 @@ enum iommu_hwpt_data_type {
-> > >    * @__reserved: Must be 0
-> > >    * @data_type: One of enum iommu_hwpt_data_type
-> > >    * @data_len: Length of the type specific data
-> > > + * @fault_id: The ID of IOMMUFD_FAULT object. Valid only if flags field of
-> > > + *            IOMMU_HWPT_FAULT_ID_VALID is set.
-> > >    * @data_uptr: User pointer to the type specific data
-> > >    *
-> > >    * Explicitly allocate a hardware page table object. This is the same object
-> > > @@ -441,6 +446,7 @@ struct iommu_hwpt_alloc {
-> > >   	__u32 __reserved;
-> > >   	__u32 data_type;
-> > >   	__u32 data_len;
-> > > +	__u32 fault_id;
-> > >   	__aligned_u64 data_uptr;
-> > >   };
-> > 
-> > ?? We can't add fault_id in the middle of the struct??
-> 
-> Yes. I should add the new field at the end.
-> 
-> By the way, with a __u32 added, this data structure is not 64-byte-
-> aligned anymore. Do we need to add another unused u32 entry, or just let
-> the compiler handle it?
-
-Yes, add a reserved u32 to ensure the structs is always without
-implicit padding.
-
-> > 
-> > > +	if (cmd->flags & IOMMU_HWPT_FAULT_ID_VALID) {
-> > > +		struct iommufd_fault *fault;
+On Fri, Mar 15, 2024 at 09:46:06AM +0800, Baolu Lu wrote:
+> On 3/9/24 2:03 AM, Jason Gunthorpe wrote:
+> > On Mon, Jan 22, 2024 at 03:38:59PM +0800, Lu Baolu wrote:
+> > > --- /dev/null
+> > > +++ b/drivers/iommu/iommufd/fault.c
+> > > @@ -0,0 +1,255 @@
+> > > +// SPDX-License-Identifier: GPL-2.0-only
+> > > +/* Copyright (C) 2024 Intel Corporation
+> > > + */
+> > > +#define pr_fmt(fmt) "iommufd: " fmt
 > > > +
-> > > +		fault = iommufd_get_fault(ucmd, cmd->fault_id);
-> > > +		if (IS_ERR(fault)) {
-> > > +			rc = PTR_ERR(fault);
-> > > +			goto out_hwpt;
-> > > +		}
-> > > +		hwpt->fault = fault;
-> > > +		hwpt->domain->iopf_handler = iommufd_fault_iopf_handler;
-> > > +		hwpt->domain->fault_data = hwpt;
-> > > +		hwpt->fault_capable = true;
+> > > +#include <linux/file.h>
+> > > +#include <linux/fs.h>
+> > > +#include <linux/module.h>
+> > > +#include <linux/mutex.h>
+> > > +#include <linux/iommufd.h>
+> > > +#include <linux/poll.h>
+> > > +#include <linux/anon_inodes.h>
+> > > +#include <uapi/linux/iommufd.h>
+> > > +
+> > > +#include "iommufd_private.h"
+> > > +
+> > > +static int device_add_fault(struct iopf_group *group)
+> > > +{
+> > > +	struct iommufd_device *idev = group->cookie->private;
+> > > +	void *curr;
+> > > +
+> > > +	curr = xa_cmpxchg(&idev->faults, group->last_fault.fault.prm.grpid,
+> > > +			  NULL, group, GFP_KERNEL);
+> > > +
+> > > +	return curr ? xa_err(curr) : 0;
+> > > +}
+> > > +
+> > > +static void device_remove_fault(struct iopf_group *group)
+> > > +{
+> > > +	struct iommufd_device *idev = group->cookie->private;
+> > > +
+> > > +	xa_store(&idev->faults, group->last_fault.fault.prm.grpid,
+> > > +		 NULL, GFP_KERNEL);
 > > 
-> > I wonder if there should be an iommu API to make a domain fault
-> > capable?
+> > xa_erase ?
 > 
-> The iommu core identifies a fault-capable domain by checking its
-> domain->iopf_handler. Anyway, what's the difference between a fault or
-> non-fault capable domain from iommu core's point of view?
+> Yes. Sure.
+> 
+> > Is grpid OK to use this way? Doesn't it come from the originating
+> > device?
+> 
+> The group ID is generated by the hardware. Here, we use it as an index
+> in the fault array to ensure it can be quickly retrieved in the page
+> fault response path.
 
-From the core? Nothing. I'm just wondering from an API perspective if
-we should have a little inline to indicate it.
+I'm nervous about this, we are trusting HW outside the kernel to
+provide unique grp id's which are integral to how the kernel
+operates..
+
+> > > +static ssize_t iommufd_fault_fops_read(struct file *filep, char __user *buf,
+> > > +				       size_t count, loff_t *ppos)
+> > > +{
+> > > +	size_t fault_size = sizeof(struct iommu_hwpt_pgfault);
+> > > +	struct iommufd_fault *fault = filep->private_data;
+> > > +	struct iommu_hwpt_pgfault data;
+> > > +	struct iommufd_device *idev;
+> > > +	struct iopf_group *group;
+> > > +	struct iopf_fault *iopf;
+> > > +	size_t done = 0;
+> > > +	int rc;
+> > > +
+> > > +	if (*ppos || count % fault_size)
+> > > +		return -ESPIPE;
+> > > +
+> > > +	mutex_lock(&fault->mutex);
+> > > +	while (!list_empty(&fault->deliver) && count > done) {
+> > > +		group = list_first_entry(&fault->deliver,
+> > > +					 struct iopf_group, node);
+> > > +
+> > > +		if (list_count_nodes(&group->faults) * fault_size > count - done)
+> > > +			break;
+> > > +
+> > > +		idev = (struct iommufd_device *)group->cookie->private;
+> > > +		list_for_each_entry(iopf, &group->faults, list) {
+> > > +			iommufd_compose_fault_message(&iopf->fault, &data, idev);
+> > > +			rc = copy_to_user(buf + done, &data, fault_size);
+> > > +			if (rc)
+> > > +				goto err_unlock;
+> > > +			done += fault_size;
+> > > +		}
+> > > +
+> > > +		rc = device_add_fault(group);
+> > 
+> > See I wonder if this should be some xa_alloc or something instead of
+> > trying to use the grpid?
+> 
+> So this magic number will be passed to user space in the fault message.
+> And the user will then include this number in its response message. The
+> response message is valid only when the magic number matches. Do I get
+> you correctly?
+
+Yes, then it is simple xa_alloc() and xa_load() without any other
+searching and we don't have to rely on the grpid to be correctly
+formed by the PCI device.
+
+But I don't know about performance xa_alloc() is pretty fast but
+trusting the grpid would be faster..
+
+IMHO from a uapi perspective we should have a definate "cookie" that
+gets echo'd back. If the kernel uses xa_alloc or grpid to build that
+cookie it doesn't matter to the uAPI.
 
 Jason
