@@ -1,108 +1,78 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mailbox.box.xen0n.name (mail.xen0n.name [115.28.160.31])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFED7DDC5;
-	Sat, 23 Mar 2024 09:20:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABBE954668;
+	Sat, 23 Mar 2024 18:48:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.28.160.31
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711185637; cv=none; b=ncOmAjFw4nEPoF0J2y/49n7YILGtVM/GZBxJPRBw7iGx8Q3CF1vxx75esN0JU+6OiKH8slJCUM7G2sYETfMhHBbpRJ7CpCBwHVf9u+7Oyej1He8OBtFzL0YYOMFdz/B17Y3BzBgzDeYdlmG37+laJae/kelDEGxseod/p95RRAM=
+	t=1711219726; cv=none; b=ZVg/JwTryWbQM6hkc43/pIoQcraQtEpxGo5RRM0eox876ztvrwqoL0WsOOwZ4TOmSbs09IRhtWrnze0YHnuV7329nwO01KlK1Ow1Djmyn4BS9cYcs2OeEStwO8tcB+YQgiqDwKDfm1ttgvtKj+XSSzZozpeAovAXamJcKAxVnKA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711185637; c=relaxed/simple;
-	bh=aGTQuZy7vZpxuhlc2uWM1FWO2cNVLUpXYHPr+30NYM4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Rh0DSAdSQVNBS1adbiZGMY4peRzHf0OTI1CLdrkJl+mE1QbOUeJ4y6uzhifAP3lPqxAJ+LIqYAI9lNkveAzkyTTykksIouPaF+eEm+Dp1DBn5jBle6zAmfSWwrlcPoHoim7asJCNSjOC4eFVZF68Wj1uh+JRYU+LavkF/Ophhpc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AmGkF125; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1711219726; c=relaxed/simple;
+	bh=npwipMtKSwmLf9mv4yQ2FyleQl5NkVskeswqDmWzh0g=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=KxxOePsbD/H9h6iY4p4TQA3uQC+kaF7bUR3k0aY/nVmc3yEzno8rA8UymRVuB4/QVUIrTOKDBrH9OtJO0N6XqIqJ8qVh8qHzr6X3S18uR83TK9yoI7ZQ3KFFbUlhiz64RItQnOSmQQrLAVRGrxzrmT3dlQIErlvjsP2m6htovRc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xen0n.name; spf=pass smtp.mailfrom=xen0n.name; dkim=pass (1024-bit key) header.d=xen0n.name header.i=@xen0n.name header.b=QMSfzB9R; arc=none smtp.client-ip=115.28.160.31
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xen0n.name
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xen0n.name
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AmGkF125"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D51C0C433F1;
-	Sat, 23 Mar 2024 09:20:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1711185636;
-	bh=aGTQuZy7vZpxuhlc2uWM1FWO2cNVLUpXYHPr+30NYM4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=AmGkF125xegySFWAiHvPntmZ+07s8hZQPC/0IVIftdkxYeMJTqDHDoBaq087Sl4Ry
-	 qKx2QcAVw6S410SG7j4biAqt4/h5dTjc1vKUs5R8LJBjxtJSQyMNE1PxZTAhzLwpa+
-	 ZvDOHlqhfPGo+3K1JP9tq5K11rxRL31gNRIYe4fcfJjyAcpNQmozM0AzDwGqt7aAAm
-	 vL1bo7yWAyyXHWJXICav98Il7syCI5t9aEO0HLvfyTQ7cJVQX5WfpHiaD8JmvRG1Zm
-	 VmI4taBLphr2uo/nVmCk1uj3x3TE6/IYqaCXMkAcTk/3yvQe9KoaZIneVeSaGY4Thk
-	 hCCXd6I1k2Bcg==
-Date: Sat, 23 Mar 2024 10:20:32 +0100
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, asahi@lists.linux.dev, 
-	chrome-platform@lists.linux.dev, imx@lists.linux.dev, linux-actions@lists.infradead.org, 
-	linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
-	linux-arm-msm@vger.kernel.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org, 
-	linux-mediatek@lists.infradead.org, linux-mips@vger.kernel.org, linux-omap@vger.kernel.org, 
-	linuxppc-dev@lists.ozlabs.org, linux-renesas-soc@vger.kernel.org, 
-	linux-riscv@lists.infradead.org, linux-rockchip@lists.infradead.org, 
-	linux-rpi-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, 
-	linux-stm32@st-md-mailman.stormreply.com, linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org, 
-	openbmc@lists.ozlabs.org, virtualization@lists.linux.dev
-Subject: Re: [PATCH 00/64] i2c: reword i2c_algorithm according to newest
- specification
-Message-ID: <ug266trshvhhbsln3eoh53fmsuj3l63ziz6gavcl7rv2jhjr5t@3av5givh5n7m>
-References: <20240322132619.6389-1-wsa+renesas@sang-engineering.com>
+	dkim=pass (1024-bit key) header.d=xen0n.name header.i=@xen0n.name header.b="QMSfzB9R"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=xen0n.name; s=mail;
+	t=1711219204; bh=npwipMtKSwmLf9mv4yQ2FyleQl5NkVskeswqDmWzh0g=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=QMSfzB9RAzfhKYaxTnVOG0t1sAMrc040mVeLSw5dcg6t2kvKK/yOZQHfSyfNd5VDs
+	 HpcJ04SmV4fjOhSsWeQyid5DxcOaFvL2IaSn+l1YrmmAoJU8ik7X9A7xG/ERvn82SR
+	 /jLSjwcwGVaqd8H3/KPx68+iUsJXdQ0RVxpoFZkA=
+Received: from [IPV6:240e:388:8d00:6500:cccf:e2b8:7fab:4dfb] (unknown [IPv6:240e:388:8d00:6500:cccf:e2b8:7fab:4dfb])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mailbox.box.xen0n.name (Postfix) with ESMTPSA id 6AB18600A6;
+	Sun, 24 Mar 2024 02:40:04 +0800 (CST)
+Message-ID: <68473508-dbf1-4875-a392-88ca09f7ea63@xen0n.name>
+Date: Sun, 24 Mar 2024 02:40:04 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240322132619.6389-1-wsa+renesas@sang-engineering.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v7 7/7] Documentation: KVM: Add hypercall for LoongArch
+Content-Language: en-US
+To: Bibo Mao <maobibo@loongson.cn>, Huacai Chen <chenhuacai@kernel.org>,
+ Tianrui Zhao <zhaotianrui@loongson.cn>, Juergen Gross <jgross@suse.com>,
+ Paolo Bonzini <pbonzini@redhat.com>, Jonathan Corbet <corbet@lwn.net>
+Cc: loongarch@lists.linux.dev, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org
+References: <20240315080710.2812974-1-maobibo@loongson.cn>
+ <20240315081104.2813031-1-maobibo@loongson.cn>
+From: WANG Xuerui <kernel@xen0n.name>
+In-Reply-To: <20240315081104.2813031-1-maobibo@loongson.cn>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hi Wolfram,
+On 3/15/24 16:11, Bibo Mao wrote:
+> [snip]
+> +KVM hypercall ABI
+> +=================
+> +
+> +Hypercall ABI on KVM is simple, only one scratch register a0 and at most
+> +five generic registers used as input parameter. FP register and vector register
+> +is not used for input register and should not be modified during hypercall.
+> +Hypercall function can be inlined since there is only one scratch register.
 
-On Fri, Mar 22, 2024 at 02:24:53PM +0100, Wolfram Sang wrote:
-> Okay, we need to begin somewhere...
-> 
-> Start changing the wording of the I2C main header wrt. the newest I2C
-> v7, SMBus 3.2, I3C specifications and replace "master/slave" with more
-> appropriate terms. This first step renames the members of struct
-> i2c_algorithm. Once all in-tree users are converted, the anonymous union
-> will go away again. All this work will also pave the way for finally
-> seperating the monolithic header into more fine-grained headers like
-> "i2c/clients.h" etc. So, this is not a simple renaming-excercise but
-> also a chance to update the I2C core to recent Linux standards.
+Maybe it's better to describe the list of preserved registers with an 
+expression such as "all non-GPR registers shall remain unmodified after 
+returning from the hypercall", to guard ourselves against future ISA 
+state additions.
 
-yes, very good! It's clearly stated in all three documentations
-that Target replaces Slave and Controller replaces Master (i3c is
-at the 1.1.1 version).
+But I still maintain that it's better to promise less here, and only 
+hint on the extensive preservation of context as an implementation 
+detail. It is for not losing our ability to save/restore less in the 
+future, should we decide to do so.
 
-> My motivation is to improve the I2C core API, in general. My motivation
-> is not to clean each and every driver. I think this is impossible
-> because register names based on official documentation will need to stay
-> as they are. But the Linux-internal names should be updated IMO.
+-- 
+WANG "xen0n" Xuerui
 
-Also because some drivers have been written based on previous
-specifications where master/slave was used.
+Linux/LoongArch mailing list: https://lore.kernel.org/loongarch/
 
-> That being said, I worked on 62 drivers in this series beyond plain
-> renames inside 'struct i2c_algorithm' because the fruits were so
-> low-hanging. Before this series, 112 files in the 'busses/' directory
-> contained 'master' and/or 'slave'. After the series, only 57. Why not?
-> 
-> Next step is updating the drivers outside the 'i2c'-folder regarding
-> 'struct i2c_algorithm' so we can remove the anonymous union ASAP. To be
-> able to work on this with minimal dependencies, I'd like to apply this
-> series between -rc1 and -rc2.
-> 
-> I hope this will work for you guys. The changes are really minimal. If
-> you are not comfortable with changes to your driver or need more time to
-> review, please NACK the patch and I will drop the patch and/or address
-> the issues separeately.
-> 
-> @Andi: are you okay with this approach? It means you'd need to merge
-> -rc2 into your for-next branch. Or rebase if all fails.
-
-I think it's a good plan, I'll try to support you with it.
-
-> Speaking of Andi, thanks a lot to him taking care of the controller
-> drivers these days. His work really gives me the freedom to work on I2C
-> core issues again.
-
-Thank you, Wolfram!
-
-Andi
