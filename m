@@ -1,131 +1,123 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0949E14D6E6
-	for <virtualization@lists.linux.dev>; Mon, 25 Mar 2024 05:57:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AB7259B40
+	for <virtualization@lists.linux.dev>; Mon, 25 Mar 2024 06:00:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711346277; cv=none; b=I6+Ai1J0/mPUGowUsY4FNu392ssooxi8FIbsxbVuGEJnRCMSRrvCeORHmc3lAnC6md/FZxriMnzWN0XUrwr7pE5CTyXaF9Kcsl3FcK0zQtTgC09454Pr2y+NMobhTcytZVvo6vuOh6zTq3xbXX0zzelwm64u6+FBRTPekcokzt8=
+	t=1711346417; cv=none; b=Ad6vDkpoDU1NaM34ZQ7P0eRH/9x2iRT1EiE38kmpNIQap6Qfj/FdamRCXnleWBXLoaN34Jqiw50VHRUAZfkT1teSYbuorOjs2qToQlGFkM+8XXvBa2WtFrKdAY4hbqR6s4uBcoRe+L2WTpkrXrfckZTlIfRZa49jV0k71g99Jbw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711346277; c=relaxed/simple;
-	bh=yk2CPraBaf6pstVDw2coT42i+tAhrE7QlfbtGyeM5BA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=oYFGEX+KmaDRYAkj1gk8rgxOXhRIk0VZscAI+yNXRV1Pdfh+GRHuIU514oC6b2XWnKpUUt8ZgG6Gc+l62VQelGzXYc0Vjt6rK449R9WyErLf420JzB6TgurDOFTZzZO0KnxL58A122vOpfTQaK7UpbbJX+6TsbO/szvvR15Yn1M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=btKoXo8x; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1711346417; c=relaxed/simple;
+	bh=pkhfJ+Q1nAAONeQTS6q9Z+AlngVVouzqkHVOLqRn46s=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=BYGgJHR914tqOlVbJx5CtWVmBwhwGduQU3Ldqm0RiipfuixVfDwHEOwppSUstgcoQo18FwMdfO4EyKJIWbPRcYm+zytjM/92URTTvnHrIw3jXPdQKRVoSJCe1IADuzJjPH4x9bkilKJVXtFXdqQh1aCI18JKzI/2LDEZtRcvWSA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=hoKZ9qlo; arc=none smtp.client-ip=115.124.30.119
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="btKoXo8x"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1711346274;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=yk2CPraBaf6pstVDw2coT42i+tAhrE7QlfbtGyeM5BA=;
-	b=btKoXo8xnDrr/oqLmxHMKZ660Jd5zbHgD54wBx2Jqm4b2wp0RIpGkpNbZBjPLJ5owwA/x9
-	rbEoPHsFNnHAUYB0ZoOdaFByUYlodLUDWM9zXtGbX3/x3MP8gHthAMy34JMlrhSE99mRkW
-	GsdgL4/2ohUHdIrfdoXlzW2nwTzewYU=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-296-gmSC-dWQMnu7CKpyFZElcQ-1; Mon, 25 Mar 2024 01:57:53 -0400
-X-MC-Unique: gmSC-dWQMnu7CKpyFZElcQ-1
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-29f820081easo3604828a91.3
-        for <virtualization@lists.linux.dev>; Sun, 24 Mar 2024 22:57:52 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711346272; x=1711951072;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=yk2CPraBaf6pstVDw2coT42i+tAhrE7QlfbtGyeM5BA=;
-        b=OGgzcodN4M7rR3qydEUDSYUZw3P5r24KrmozR71YAATNfbt+g1QWLfp17jrn4lLsHq
-         OtqtsMzRlctAgwdKOdvv24bF1ZEiQYgIdNAea5nPccHydXd9nkB0BcEysv9u0UAAZm0a
-         KAL6FuXaLfh55vrxxb3uWlF4szyTRlxjedt32a1lE8iOuWTJfdyGk7zuO7YwG85DZry/
-         4BbZUHMWxAV4/2r0XJ3L4TLFhDQoduvE+NjotR5uOibUlFcX4+FfPPQHsV5dM60vlz0J
-         C7MqEmsbMYUYr/5vSQvu9X23b/2/4ltNlH/BDJsOpO5BmNLh/kAUmtHdKMw4GsQyS2RW
-         guGw==
-X-Forwarded-Encrypted: i=1; AJvYcCWqWe9xqS9QYrijz7mVtUggnjsfVQk03N+rr7PiwmnMXh6Mj3Dwaq7nIw8+Y5MaLedcfwN+3miJO4pU5NmnJc4cDR6rEKptyGmyTV+LPq8=
-X-Gm-Message-State: AOJu0YytgBiJVzJUHB+UZkFh9E5xhVGGXapM8KAFZQ44WB2+0q6MNNl/
-	iuccNOLxtghy2eeU/Pz1ePj0Ztrk0kzuDDN8dLkOyJlTkADfnFoQo5NX8u8dQmTOgGcoDyPIeoZ
-	n7n0U4cg8I3omP2CPmUAN5uCZasTApZ1aXnyjbOwYefNn1NKCkgot/mLkGXIHJcem1ITPZTtJK1
-	DpX2C7Nyp70jNI/fH/jhapsVtKXa6V2qVhjBO6OT0=
-X-Received: by 2002:a17:902:e546:b0:1e0:9da6:1765 with SMTP id n6-20020a170902e54600b001e09da61765mr7474488plf.46.1711346272032;
-        Sun, 24 Mar 2024 22:57:52 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEbSBGmoujt2DqEgZCTFU091ZGyX5Kg/qyLAwmd74LsdjhC87PQ1Ts+fJEtISdMr7oDOf0/oUhVkkcDUH39+GE=
-X-Received: by 2002:a17:902:e546:b0:1e0:9da6:1765 with SMTP id
- n6-20020a170902e54600b001e09da61765mr7474477plf.46.1711346271773; Sun, 24 Mar
- 2024 22:57:51 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="hoKZ9qlo"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1711346413; h=Message-ID:Subject:Date:From:To;
+	bh=JNL9A38afeP0aEJfOCNG1LEpvhSBCwkDLxX/IRTOtms=;
+	b=hoKZ9qloGzGZjW1UBci6ghhqAiZ7vJiUqa14wLENKkRafNZ2JPuv6rSD2nGsfG5wggAzlNZyb/w05dbs7TMfmeWOKEHBlZQalGC5+EVqjWo1DuxSHZB2ksP/Gps3DVbQv59Mx43/yRO8enSvZF/sg6UKV4N6eB+tMMe3JRmxDIg=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=15;SR=0;TI=SMTPD_---0W39kIMB_1711346410;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W39kIMB_1711346410)
+          by smtp.aliyun-inc.com;
+          Mon, 25 Mar 2024 14:00:11 +0800
+Message-ID: <1711346273.5079622-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH] virtio_net: Do not send RSS key if it is not supported
+Date: Mon, 25 Mar 2024 13:57:53 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Breno Leitao <leitao@debian.org>
+Cc: rbc@meta.com,
+ riel@surriel.com,
+ stable@vger.kernel.org,
+ qemu-devel@nongnu.org,
+ "open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
+ "open list:NETWORKING DRIVERS" <netdev@vger.kernel.org>,
+ open list <linux-kernel@vger.kernel.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>,
+ Andrew Melnychenko <andrew@daynix.com>
+References: <20240321165431.3517868-1-leitao@debian.org>
+ <1711072822.882584-1-xuanzhuo@linux.alibaba.com>
+ <Zf1bofzE4x0wGEm+@gmail.com>
+In-Reply-To: <Zf1bofzE4x0wGEm+@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-References: <1711021557-58116-1-git-send-email-hengqi@linux.alibaba.com>
- <1711021557-58116-3-git-send-email-hengqi@linux.alibaba.com>
- <CACGkMEuZ457UU6MhPtKHd_Y0VryvZoNU+uuKOc_4OK7jc62WwA@mail.gmail.com> <5708312a-d8eb-40ee-88a9-e16930b94dda@linux.alibaba.com>
-In-Reply-To: <5708312a-d8eb-40ee-88a9-e16930b94dda@linux.alibaba.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 25 Mar 2024 13:57:40 +0800
-Message-ID: <CACGkMEu8or7+fw3+vX_PY3Qsrm7zVSf6TS9SiE20NpOsz-or6g@mail.gmail.com>
-Subject: Re: [PATCH 2/2] virtio-net: reduce the CPU consumption of dim worker
-To: Heng Qi <hengqi@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Eric Dumazet <edumazet@google.com>, "David S. Miller" <davem@davemloft.net>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Mar 25, 2024 at 10:21=E2=80=AFAM Heng Qi <hengqi@linux.alibaba.com>=
- wrote:
+On Fri, 22 Mar 2024 03:21:21 -0700, Breno Leitao <leitao@debian.org> wrote:
+> Hello Xuan,
 >
+> On Fri, Mar 22, 2024 at 10:00:22AM +0800, Xuan Zhuo wrote:
+> > On Thu, 21 Mar 2024 09:54:30 -0700, Breno Leitao <leitao@debian.org> wrote:
 >
->
-> =E5=9C=A8 2024/3/22 =E4=B8=8B=E5=8D=881:19, Jason Wang =E5=86=99=E9=81=93=
-:
-> > On Thu, Mar 21, 2024 at 7:46=E2=80=AFPM Heng Qi <hengqi@linux.alibaba.c=
-om> wrote:
-> >> Currently, ctrlq processes commands in a synchronous manner,
-> >> which increases the delay of dim commands when configuring
-> >> multi-queue VMs, which in turn causes the CPU utilization to
-> >> increase and interferes with the performance of dim.
-> >>
-> >> Therefore we asynchronously process ctlq's dim commands.
-> >>
-> >> Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
-> > I may miss some previous discussions.
+> > > 4) Since the command above does not have a key, then the last
+> > >    scatter-gatter entry will be zeroed, since rss_key_size == 0.
+> > >     sg_buf_size = vi->rss_key_size;
 > >
-> > But at least the changelog needs to explain why you don't use interrupt=
-.
->
-> Will add, but reply here first.
->
-> When upgrading the driver's ctrlq to use interrupt, problems may occur
-> with some existing devices.
-> For example, when existing devices are replaced with new drivers, they
-> may not work.
-> Or, if the guest OS supported by the new device is replaced by an old
-> downstream OS product, it will not be usable.
->
-> Although, ctrlq has the same capabilities as IOq in the virtio spec,
-> this does have historical baggage.
-
-I don't think the upstream Linux drivers need to workaround buggy
-devices. Or it is a good excuse to block configure interrupts.
-
-And I remember you told us your device doesn't have such an issue.
-
-Thanks
-
->
-> Thanks,
-> Heng
->
 > >
-> > Thanks
+> >
+> > 	if (vi->has_rss || vi->has_rss_hash_report) {
+> > 		vi->rss_indir_table_size =
+> > 			virtio_cread16(vdev, offsetof(struct virtio_net_config,
+> > 				rss_max_indirection_table_length));
+> > 		vi->rss_key_size =
+> > 			virtio_cread8(vdev, offsetof(struct virtio_net_config, rss_max_key_size));
+> >
+> > 		vi->rss_hash_types_supported =
+> > 		    virtio_cread32(vdev, offsetof(struct virtio_net_config, supported_hash_types));
+> > 		vi->rss_hash_types_supported &=
+> > 				~(VIRTIO_NET_RSS_HASH_TYPE_IP_EX |
+> > 				  VIRTIO_NET_RSS_HASH_TYPE_TCP_EX |
+> > 				  VIRTIO_NET_RSS_HASH_TYPE_UDP_EX);
+> >
+> > 		dev->hw_features |= NETIF_F_RXHASH;
+> > 	}
+> >
+> >
+> > vi->rss_key_size is initiated here, I wonder if there is something wrong?
 >
+> Not really, the code above is never executed (in my machines). This is
+> because `vi->has_rss` and `vi->has_rss_hash_report` are both unset.
+>
+> Looking further, vdev does not have the VIRTIO_NET_F_RSS and
+> VIRTIO_NET_F_HASH_REPORT features.
+>
+> Also, when I run `ethtool -x`, I got:
+>
+> 	# ethtool  -x eth0
+> 	RX flow hash indirection table for eth0 with 1 RX ring(s):
+> 	Operation not supported
+> 	RSS hash key:
+> 	Operation not supported
+> 	RSS hash function:
+> 	    toeplitz: on
+> 	    xor: off
+> 	    crc32: off
 
+
+The spec saies:
+	Note that if the device offers VIRTIO_NET_F_HASH_REPORT, even if it
+	supports only one pair of virtqueues, it MUST support at least one of
+	commands of VIRTIO_NET_CTRL_MQ class to configure reported hash
+	parameters:
+
+	If the device offers VIRTIO_NET_F_RSS, it MUST support
+	VIRTIO_NET_CTRL_MQ_RSS_CONFIG command per 5.1.6.5.7.1.
+
+	Otherwise the device MUST support VIRTIO_NET_CTRL_MQ_HASH_CONFIG command
+	per 5.1.6.5.6.4.
+
+
+So if we have not anyone of `vi->has_rss` and `vi->has_rss_hash_report`,
+we should return from virtnet_set_rxfh directly.
+
+Thanks.
