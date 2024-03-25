@@ -1,32 +1,32 @@
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84574143C4B
-	for <virtualization@lists.linux.dev>; Mon, 25 Mar 2024 02:11:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1014F5479F
+	for <virtualization@lists.linux.dev>; Mon, 25 Mar 2024 02:21:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711332696; cv=none; b=qpOHh5e1fQbIFpEf477wFct5Rcx9ZSeZjjkAblZ3MfIMEeGlT9kx8dzKbyiUAWMT4ttWsG457EGWWG3DSQhU04mH50RYHyolRLGNRCtfSa/w0zVzd3C7Xo1BLaoVyfoERTeLzwjfaCxHg7XcRBouHxbvmS78U+Z3gRnbW6IA83k=
+	t=1711333295; cv=none; b=QGalEYnS/j8DAaCF94mzSZxp/+Eg/kNAtiS4g/tg/JpWoeC32k4phO4qn5GOrSve8AC9kq6hU6aVZ/b//JATCBaHXfnyL3icrD7ZV0PprwWz1ElK9jEM9LpjN/lFSUiqq91CRvp9UXLd/zZy8VCTJ+1S5F77vIw/H1j2sXQTUx0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711332696; c=relaxed/simple;
-	bh=ERBwTcCRR7JfAh9Bqn1NavkHYZ2+HQ+GxQVq4GtLf5k=;
+	s=arc-20240116; t=1711333295; c=relaxed/simple;
+	bh=O55hfeRrM8Nyva7hubsFry8A4/QGu0XdVfEA6z4VZmY=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LrGg4ZwYh8Wsh8N5qJA9FAp4fMjUeVTTal245GCvqdM62xzMrvZDfkVPy0Py8RtW588HKjfpbBHQIIYisTZW2Ete6AHm06dKP/3dbtrflx85X8PcWf4dx0CqI5paNSer4SoZJAIoGJCin4iH2lDMjzLRneCqU17DazsmQy29y2o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=N0hCTclj; arc=none smtp.client-ip=115.124.30.100
+	 In-Reply-To:Content-Type; b=CshLIC66uKSy/JSewTDwidB5W6IA82OTPloUB+3WIjljan72woSZCVpEsXzUZIbwM9GzGxz3/KRJm9iKJYSMM1ki3tpFNIT4toYFWAI1n/sBH6yrmeC5fTGRQZt7afVxDZXnZpBadvzGAPUv+peixKGrsaGeylE3G/nTmc6bBn0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=uDdh0wSq; arc=none smtp.client-ip=115.124.30.133
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="N0hCTclj"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="uDdh0wSq"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1711332691; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=tYm0g5gQm89rFEk/IhJUT8xYkoINUjzAQrSyxy54c/0=;
-	b=N0hCTcljXiE8+gma4T4nHjXu28n974o8YSojfg6CjRUsKQwBF7QAzc48EuSPwg7dbG5zrRJlfJDlbMJDkidTNQ2CK2xjk4nDxt2k0WYUQVRnvJHU3XkbbUNVvMrVrGHmLEWshFAW23KRUj0xH4rWElkvJUg39Sizbh3i31kJJjQ=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0W3868H4_1711332676;
-Received: from 30.221.148.153(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W3868H4_1711332676)
+	t=1711333290; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=P3YrW/OUqxaVBghKQR22O4dIfIzNVTvbEPAdpxgPbw4=;
+	b=uDdh0wSqyOKKQbWOLmE+7KSMsKBJjiTaISQA1HuqhaCS1ylErYQgzyfikkkds6zvEzwuhWXpL3gFqqQ+xpWBbJTH7EIBtsEcxVWsvRnQveJ+WOR4U3AB0wwfbZ+XnLEVcCjCQYIiofdoQTOwymlt4mZNbMzz7MjnFpZJxK4Rax4=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R651e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0W38IF0._1711333286;
+Received: from 30.221.148.153(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W38IF0._1711333286)
           by smtp.aliyun-inc.com;
-          Mon, 25 Mar 2024 10:11:28 +0800
-Message-ID: <8d829442-0eef-485c-b448-cd2376c20270@linux.alibaba.com>
-Date: Mon, 25 Mar 2024 10:11:16 +0800
+          Mon, 25 Mar 2024 10:21:29 +0800
+Message-ID: <5708312a-d8eb-40ee-88a9-e16930b94dda@linux.alibaba.com>
+Date: Mon, 25 Mar 2024 10:21:23 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -34,7 +34,7 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/2] virtio-net: fix possible dim status unrecoverable
+Subject: Re: [PATCH 2/2] virtio-net: reduce the CPU consumption of dim worker
 To: Jason Wang <jasowang@redhat.com>
 Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
  "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
@@ -42,63 +42,44 @@ Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
  "David S. Miller" <davem@davemloft.net>,
  Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 References: <1711021557-58116-1-git-send-email-hengqi@linux.alibaba.com>
- <1711021557-58116-2-git-send-email-hengqi@linux.alibaba.com>
- <CACGkMEtyujkJ6Gvxr1xV94a_tMzTo48opA+42oBvN-eQ=92StA@mail.gmail.com>
+ <1711021557-58116-3-git-send-email-hengqi@linux.alibaba.com>
+ <CACGkMEuZ457UU6MhPtKHd_Y0VryvZoNU+uuKOc_4OK7jc62WwA@mail.gmail.com>
 From: Heng Qi <hengqi@linux.alibaba.com>
-In-Reply-To: <CACGkMEtyujkJ6Gvxr1xV94a_tMzTo48opA+42oBvN-eQ=92StA@mail.gmail.com>
+In-Reply-To: <CACGkMEuZ457UU6MhPtKHd_Y0VryvZoNU+uuKOc_4OK7jc62WwA@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
 
 
-在 2024/3/22 下午1:17, Jason Wang 写道:
+在 2024/3/22 下午1:19, Jason Wang 写道:
 > On Thu, Mar 21, 2024 at 7:46 PM Heng Qi <hengqi@linux.alibaba.com> wrote:
->> When the dim worker is scheduled, if it fails to acquire the lock,
->> dim may not be able to return to the working state later.
+>> Currently, ctrlq processes commands in a synchronous manner,
+>> which increases the delay of dim commands when configuring
+>> multi-queue VMs, which in turn causes the CPU utilization to
+>> increase and interferes with the performance of dim.
 >>
->> For example, the following single queue scenario:
->>    1. The dim worker of rxq0 is scheduled, and the dim status is
->>       changed to DIM_APPLY_NEW_PROFILE;
->>    2. The ethtool command is holding rtnl lock;
->>    3. Since the rtnl lock is already held, virtnet_rx_dim_work fails
->>       to acquire the lock and exits;
+>> Therefore we asynchronously process ctlq's dim commands.
 >>
->> Then, even if net_dim is invoked again, it cannot work because the
->> state is not restored to DIM_START_MEASURE.
->>
->> Fixes: 6208799553a8 ("virtio-net: support rx netdim")
 >> Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
->> ---
->>   drivers/net/virtio_net.c | 4 +++-
->>   1 file changed, 3 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
->> index c22d111..0ebe322 100644
->> --- a/drivers/net/virtio_net.c
->> +++ b/drivers/net/virtio_net.c
->> @@ -3563,8 +3563,10 @@ static void virtnet_rx_dim_work(struct work_struct *work)
->>          struct dim_cq_moder update_moder;
->>          int i, qnum, err;
->>
->> -       if (!rtnl_trylock())
->> +       if (!rtnl_trylock()) {
->> +               schedule_work(&dim->work);
->>                  return;
->> +       }
-> Patch looks fine but I wonder if a delayed schedule is better.
+> I may miss some previous discussions.
+>
+> But at least the changelog needs to explain why you don't use interrupt.
 
-The work in net_dim() core layer uses non-delayed-work, and the two 
-cannot be mixed.
+Will add, but reply here first.
+
+When upgrading the driver's ctrlq to use interrupt, problems may occur 
+with some existing devices.
+For example, when existing devices are replaced with new drivers, they 
+may not work.
+Or, if the guest OS supported by the new device is replaced by an old 
+downstream OS product, it will not be usable.
+
+Although, ctrlq has the same capabilities as IOq in the virtio spec, 
+this does have historical baggage.
 
 Thanks,
 Heng
 
 >
 > Thanks
->
->>          /* Each rxq's work is queued by "net_dim()->schedule_work()"
->>           * in response to NAPI traffic changes. Note that dim->profile_ix
->> --
->> 1.8.3.1
->>
 
