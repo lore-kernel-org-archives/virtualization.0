@@ -1,223 +1,153 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFCF713B7BC;
-	Mon, 25 Mar 2024 07:54:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42DCC143C7B
+	for <virtualization@lists.linux.dev>; Mon, 25 Mar 2024 07:56:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711353250; cv=none; b=bBAmbowNxO8DT6EuacrnB+NkaxR4n2E7dVut7aBFsVqj6+gAHMdXWXPfg5pABtRJqSaxUeGd3i0SmbFqFAL4hB2Gg9uNwFLjWMTMK2L/1fTSMCBInhbgECEqYtquKtuRhxzs8j1/6EtRGGZQM7muQ2djOReqkbTS6E6wdLmqWiA=
+	t=1711353406; cv=none; b=uGzjA3+Bx8geMEaXWeZJN7HQ84dSw4ReyEFxk/G936ywk8SY5JhZGJSSPnlmaT35AnNKi16r942U2MfN3Kbq9B1uF41XDOkdthFmJkHExFiqPUCcPrbiu9A5UUbqorgRNwacigwVRLDg+ZtEo8ljgKoe+6kfFeYMYlA5UaEAv24=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711353250; c=relaxed/simple;
-	bh=G9pVMPBkGeSCKm7GL4349gPmBncBHLw8Di6BWoQcag0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Gg1wCX7Tp9CjQfzfsWgLPfb7+N1veIcTe5mSVqEutaJRqgkGsOKVv47JxrrDQKzMloax02NISpVbxUhuKIgM3LQ2yEtFSpPBBkKmdifvYc6jRorJT8tGXNCkrXXvLk/bBzSUoLO2YE/nAfPvczxpMK+vBbZn8G5xmLHt/NLmths=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=fkXBLBgH; arc=none smtp.client-ip=198.175.65.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1711353406; c=relaxed/simple;
+	bh=lU4OSBkt/3LkRz6yEJhf8BKrnbEhDjeHaHo7SUbDdtA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=UkFtJMXWZsuMJUI/wiGhEsqSfCyRm7AhOtYoOFSkadgRF7VIzfxweiNqUNSx3SFlbLlmwPLZ2toqtytRbrRaS3v+ow7twtrrHNjglcoeDyju0348ZyycEx/pYq68STZ+I9ljkZVhQB37+uXmkHc0g2EgNj9UCKwVmSiMWXE9rsY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QLb6nv/U; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="fkXBLBgH"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1711353246; x=1742889246;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=G9pVMPBkGeSCKm7GL4349gPmBncBHLw8Di6BWoQcag0=;
-  b=fkXBLBgH37ph5Q0oYqWWbQJliLEsV/7J0cRb9rnT+QtQitFB1LufvUhR
-   6RbAy21oMDg0XwBl2NbcQeU1Th3VwscKlE20dvZ5f7JIhKFElboWiyf9v
-   AoMfPWHhEa189te3dE2STHMcSX1XKpuZC/9kgI4CzPJ9m6PRNtlvqDuaL
-   nN6V2ei/lTfqgAXmfQoLN8yhfvu93Vj4NIIYgfA1T9W0hCDNpKb9uxXQX
-   Dhv3JxCOHVocNU6iEtQTMeJHdCB5MGLVPKCuloulscTuDe93TllMdzTgy
-   OXt8/kHxgpiBw8R+45tukcx9r+bXhkr1PvtE/TQn9JXL8uBNH5WKpQr2p
-   Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,11023"; a="6199157"
-X-IronPort-AV: E=Sophos;i="6.07,152,1708416000"; 
-   d="scan'208";a="6199157"
-Received: from orviesa008.jf.intel.com ([10.64.159.148])
-  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Mar 2024 00:54:04 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.07,152,1708416000"; 
-   d="scan'208";a="16197266"
-Received: from marquiz-s-2.fi.intel.com (HELO [10.237.72.58]) ([10.237.72.58])
-  by orviesa008.jf.intel.com with ESMTP; 25 Mar 2024 00:53:46 -0700
-Message-ID: <1f1e59a4-359e-4679-8ea9-3d915a930e91@linux.intel.com>
-Date: Mon, 25 Mar 2024 09:53:42 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QLb6nv/U"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1711353404;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=lU4OSBkt/3LkRz6yEJhf8BKrnbEhDjeHaHo7SUbDdtA=;
+	b=QLb6nv/UZgdWY8rbVd0MJkRJV+Zra1/gseCUDXke9lNnGefS1dJXAfPM7YW9lR20u1wW5W
+	mXeMCr8y+Cf8C+p5P/Fyx7Q/Z+6KEvrMplAaBV7MrdKjvkEYtvkvQN1ns7dwKFZjteLh5B
+	JDiOs75RykfvZGnwwe45MqW+LED5s14=
+Received: from mail-pl1-f197.google.com (mail-pl1-f197.google.com
+ [209.85.214.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-622-lMkXJszjM8KorG8nV7YBPA-1; Mon, 25 Mar 2024 03:56:39 -0400
+X-MC-Unique: lMkXJszjM8KorG8nV7YBPA-1
+Received: by mail-pl1-f197.google.com with SMTP id d9443c01a7336-1e09e32e5a2so16401245ad.0
+        for <virtualization@lists.linux.dev>; Mon, 25 Mar 2024 00:56:38 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1711353398; x=1711958198;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=lU4OSBkt/3LkRz6yEJhf8BKrnbEhDjeHaHo7SUbDdtA=;
+        b=IMqG8+jsTHg4NNfRorsSTZATR3ZBpRGIiIgc1lOFHChNQu6m8hZr3PibctQ2z8E0PE
+         VUfHcInNfq0Rcy1JyM+MKGfNEuMWrIWMcODOFG5j9a7sVBQ3daMVb7UNqk8oda+UwpYC
+         zbgs63/byq3FCs23G2sAq2wwxG1siWzC+5H3QYqUVyCJUnOHEVXfpgPpFT/PaVOQmrYy
+         uNayLCA2uvqT4lZXwMJcJcGs08h/F8cLrs5L4eSJnAgsEpPj5zqjirzAbo8R07hZBi+S
+         Kg4/2YLGGXo47VtAnWUqKd4KZP4Ov+4dlMyJiHRaiAeNefSa843+eMzv/vKN4TMWrTJH
+         t2xA==
+X-Forwarded-Encrypted: i=1; AJvYcCUnkNiu3Ba3xrGgQyhe7T7ha5vaxy3GO0R/oylYElI1DzuBBFtjltZZ8BBfD7sR7zxoZmxEFC1CNNGWG9WVuTz+D61oY1YoNcRI/P8A5Fs=
+X-Gm-Message-State: AOJu0Ywofn/q+kqdd6uG0KvNsRPAmQXzP2d2QORfjcrLBGxZfvGcYnKE
+	HnhFsPI5F7k9b6TyON/w+nDTV3woTwlCLLkU8g5DUUpAnejOQodRmvajf4FIdqXrUa1/JmZA2dE
+	8sHhsDnhamfCLSi27ZUk431YYRNSpcruW0pXgBx7z9+qJZsfOztK3bK26Yp4u9j6uAgNhNIDls/
+	2WW/jnHkJFmrtbMQxF61Hz3upTg9AMeTyrj6mohbc=
+X-Received: by 2002:a17:902:db11:b0:1e0:b5d4:9f53 with SMTP id m17-20020a170902db1100b001e0b5d49f53mr4928393plx.7.1711353398045;
+        Mon, 25 Mar 2024 00:56:38 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGsYydG1l3Z9JQOMTYJBqCI5ISsQvkpaKkenKgFJj6VAKs/43eSGZyYxU88y4yAl8yrGgFXcHJSk2WFdezvSYk=
+X-Received: by 2002:a17:902:db11:b0:1e0:b5d4:9f53 with SMTP id
+ m17-20020a170902db1100b001e0b5d49f53mr4928382plx.7.1711353397735; Mon, 25 Mar
+ 2024 00:56:37 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 64/64] i2c: reword i2c_algorithm in drivers according to
- newest specification
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org
-Cc: Elie Morisse <syniurge@gmail.com>,
- Shyam Sundar S K <shyam-sundar.s-k@amd.com>,
- Andi Shyti <andi.shyti@kernel.org>,
- Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
- Nicolas Ferre <nicolas.ferre@microchip.com>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>,
- Claudiu Beznea <claudiu.beznea@tuxon.dev>,
- Krzysztof Adamski <krzysztof.adamski@nokia.com>,
- Benson Leung <bleung@chromium.org>, Guenter Roeck <groeck@chromium.org>,
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
- Mika Westerberg <mika.westerberg@linux.intel.com>,
- Jan Dabros <jsd@semihalf.com>,
- Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
- Alim Akhtar <alim.akhtar@samsung.com>, Jean-Marie Verdun <verdun@hpe.com>,
- Nick Hawkins <nick.hawkins@hpe.com>, Yicong Yang <yangyicong@hisilicon.com>,
- Oleksij Rempel <o.rempel@pengutronix.de>,
- Pengutronix Kernel Team <kernel@pengutronix.de>,
- Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>,
- Fabio Estevam <festevam@gmail.com>, Paul Cercueil <paul@crapouillou.net>,
- Neil Armstrong <neil.armstrong@linaro.org>,
- Kevin Hilman <khilman@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>,
- Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
- Khalil Blaiech <kblaiech@nvidia.com>, Asmaa Mnebhi <asmaa@nvidia.com>,
- Qii Wang <qii.wang@mediatek.com>, Matthias Brugger <matthias.bgg@gmail.com>,
- AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
- Linus Walleij <linus.walleij@linaro.org>,
- Avi Fishman <avifishman70@gmail.com>, Tomer Maimon <tmaimon77@gmail.com>,
- Tali Perry <tali.perry1@gmail.com>, Patrick Venture <venture@google.com>,
- Nancy Yuen <yuenn@google.com>, Benjamin Fair <benjaminfair@google.com>,
- Ajay Gupta <ajayg@nvidia.com>, Peter Korsgaard <peter@korsgaard.com>,
- Andrew Lunn <andrew@lunn.ch>, Robert Richter <rric@kernel.org>,
- Aaro Koskinen <aaro.koskinen@iki.fi>,
- Janusz Krzysztofik <jmkrzyszt@gmail.com>, Tony Lindgren <tony@atomide.com>,
- Vignesh R <vigneshr@ti.com>, Michael Ellerman <mpe@ellerman.id.au>,
- Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
- "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
- Hector Martin <marcan@marcan.st>, Sven Peter <sven@svenpeter.dev>,
- Alyssa Rosenzweig <alyssa@rosenzweig.io>, Vladimir Zapolskiy <vz@mleia.com>,
- Loic Poulain <loic.poulain@linaro.org>, Robert Foss <rfoss@kernel.org>,
- Bjorn Andersson <andersson@kernel.org>,
- Konrad Dybcio <konrad.dybcio@linaro.org>,
- Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
- Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
- Alain Volmat <alain.volmat@foss.st.com>,
- Maxime Coquelin <mcoquelin.stm32@gmail.com>,
- Alexandre Torgue <alexandre.torgue@foss.st.com>,
- Thierry Reding <thierry.reding@gmail.com>,
- Jonathan Hunter <jonathanh@nvidia.com>,
- Laxman Dewangan <ldewangan@nvidia.com>, Dmitry Osipenko <digetx@gmail.com>,
- Conghui Chen <conghui.chen@intel.com>, Viresh Kumar
- <viresh.kumar@linaro.org>, Michal Simek <michal.simek@amd.com>,
- linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- chrome-platform@lists.linux.dev, linux-samsung-soc@vger.kernel.org,
- imx@lists.linux.dev, linux-mips@vger.kernel.org,
- linux-amlogic@lists.infradead.org, linux-mediatek@lists.infradead.org,
- openbmc@lists.ozlabs.org, linux-omap@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, asahi@lists.linux.dev,
- linux-arm-msm@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
- linux-stm32@st-md-mailman.stormreply.com, linux-tegra@vger.kernel.org,
- virtualization@lists.linux.dev
-References: <20240322132619.6389-1-wsa+renesas@sang-engineering.com>
- <20240322132619.6389-65-wsa+renesas@sang-engineering.com>
-Content-Language: en-US
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-In-Reply-To: <20240322132619.6389-65-wsa+renesas@sang-engineering.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <1711021557-58116-1-git-send-email-hengqi@linux.alibaba.com>
+ <1711021557-58116-3-git-send-email-hengqi@linux.alibaba.com>
+ <CACGkMEuZ457UU6MhPtKHd_Y0VryvZoNU+uuKOc_4OK7jc62WwA@mail.gmail.com>
+ <5708312a-d8eb-40ee-88a9-e16930b94dda@linux.alibaba.com> <CACGkMEu8or7+fw3+vX_PY3Qsrm7zVSf6TS9SiE20NpOsz-or6g@mail.gmail.com>
+ <b54ad370-67bd-4b8c-82fb-54625e68288b@linux.alibaba.com>
+In-Reply-To: <b54ad370-67bd-4b8c-82fb-54625e68288b@linux.alibaba.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 25 Mar 2024 15:56:26 +0800
+Message-ID: <CACGkMEv88U1_2K2b0KdmH97gfrdOvK_1ajqh=UTK6=KgZ4OYvQ@mail.gmail.com>
+Subject: Re: [PATCH 2/2] virtio-net: reduce the CPU consumption of dim worker
+To: Heng Qi <hengqi@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Eric Dumazet <edumazet@google.com>, "David S. Miller" <davem@davemloft.net>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 3/22/24 3:25 PM, Wolfram Sang wrote:
-> Match the wording in i2c_algorithm in I2C drivers wrt. the newest I2C
-> v7, SMBus 3.2, I3C specifications and replace "master/slave" with more
-> appropriate terms. For some drivers, this means no more conversions are
-> needed. For the others more work needs to be done but this will be
-> performed incrementally along with API changes/improvements. All these
-> changes here are simple search/replace results.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
->   drivers/i2c/busses/i2c-amd-mp2-plat.c      |  2 +-
->   drivers/i2c/busses/i2c-at91-master.c       |  2 +-
->   drivers/i2c/busses/i2c-at91-slave.c        |  8 ++++----
->   drivers/i2c/busses/i2c-axxia.c             | 10 +++++-----
->   drivers/i2c/busses/i2c-cros-ec-tunnel.c    |  2 +-
->   drivers/i2c/busses/i2c-designware-master.c |  2 +-
->   drivers/i2c/busses/i2c-designware-slave.c  |  8 ++++----
->   drivers/i2c/busses/i2c-diolan-u2c.c        |  2 +-
->   drivers/i2c/busses/i2c-exynos5.c           |  4 ++--
->   drivers/i2c/busses/i2c-gxp.c               | 12 ++++++------
->   drivers/i2c/busses/i2c-hisi.c              |  4 ++--
->   drivers/i2c/busses/i2c-img-scb.c           |  2 +-
->   drivers/i2c/busses/i2c-imx.c               | 12 ++++++------
->   drivers/i2c/busses/i2c-jz4780.c            |  2 +-
->   drivers/i2c/busses/i2c-kempld.c            |  2 +-
->   drivers/i2c/busses/i2c-meson.c             |  4 ++--
->   drivers/i2c/busses/i2c-mlxbf.c             |  8 ++++----
->   drivers/i2c/busses/i2c-mt65xx.c            |  2 +-
->   drivers/i2c/busses/i2c-mxs.c               |  2 +-
->   drivers/i2c/busses/i2c-nomadik.c           |  2 +-
->   drivers/i2c/busses/i2c-npcm7xx.c           | 12 ++++++------
->   drivers/i2c/busses/i2c-nvidia-gpu.c        |  4 ++--
->   drivers/i2c/busses/i2c-ocores.c            |  8 ++++----
->   drivers/i2c/busses/i2c-octeon-platdrv.c    |  2 +-
->   drivers/i2c/busses/i2c-omap.c              |  4 ++--
->   drivers/i2c/busses/i2c-opal.c              |  4 ++--
->   drivers/i2c/busses/i2c-pasemi-core.c       |  2 +-
->   drivers/i2c/busses/i2c-pnx.c               |  2 +-
->   drivers/i2c/busses/i2c-pxa.c               | 12 ++++++------
->   drivers/i2c/busses/i2c-qcom-cci.c          |  2 +-
->   drivers/i2c/busses/i2c-qcom-geni.c         |  2 +-
->   drivers/i2c/busses/i2c-robotfuzz-osif.c    |  2 +-
->   drivers/i2c/busses/i2c-rzv2m.c             |  8 ++++----
->   drivers/i2c/busses/i2c-s3c2410.c           |  4 ++--
->   drivers/i2c/busses/i2c-stm32f7.c           | 14 +++++++-------
->   drivers/i2c/busses/i2c-tegra-bpmp.c        |  4 ++--
->   drivers/i2c/busses/i2c-tegra.c             |  4 ++--
->   drivers/i2c/busses/i2c-thunderx-pcidrv.c   |  2 +-
->   drivers/i2c/busses/i2c-virtio.c            |  2 +-
->   drivers/i2c/busses/i2c-wmt.c               |  2 +-
->   drivers/i2c/busses/i2c-xiic.c              |  2 +-
->   41 files changed, 95 insertions(+), 95 deletions(-)
-> 
+On Mon, Mar 25, 2024 at 3:18=E2=80=AFPM Heng Qi <hengqi@linux.alibaba.com> =
+wrote:
+>
+>
+>
+> =E5=9C=A8 2024/3/25 =E4=B8=8B=E5=8D=881:57, Jason Wang =E5=86=99=E9=81=93=
+:
+> > On Mon, Mar 25, 2024 at 10:21=E2=80=AFAM Heng Qi <hengqi@linux.alibaba.=
+com> wrote:
+> >>
+> >>
+> >> =E5=9C=A8 2024/3/22 =E4=B8=8B=E5=8D=881:19, Jason Wang =E5=86=99=E9=81=
+=93:
+> >>> On Thu, Mar 21, 2024 at 7:46=E2=80=AFPM Heng Qi <hengqi@linux.alibaba=
+.com> wrote:
+> >>>> Currently, ctrlq processes commands in a synchronous manner,
+> >>>> which increases the delay of dim commands when configuring
+> >>>> multi-queue VMs, which in turn causes the CPU utilization to
+> >>>> increase and interferes with the performance of dim.
+> >>>>
+> >>>> Therefore we asynchronously process ctlq's dim commands.
+> >>>>
+> >>>> Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
+> >>> I may miss some previous discussions.
+> >>>
+> >>> But at least the changelog needs to explain why you don't use interru=
+pt.
+> >> Will add, but reply here first.
+> >>
+> >> When upgrading the driver's ctrlq to use interrupt, problems may occur
+> >> with some existing devices.
+> >> For example, when existing devices are replaced with new drivers, they
+> >> may not work.
+> >> Or, if the guest OS supported by the new device is replaced by an old
+> >> downstream OS product, it will not be usable.
+> >>
+> >> Although, ctrlq has the same capabilities as IOq in the virtio spec,
+> >> this does have historical baggage.
+> > I don't think the upstream Linux drivers need to workaround buggy
+> > devices. Or it is a good excuse to block configure interrupts.
+>
+> Of course I agree. Our DPU devices support ctrlq irq natively, as long
+> as the guest os opens irq to ctrlq.
+>
+> If other products have no problem with this, I would prefer to use irq
+> to solve this problem, which is the most essential solution.
 
-> diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-> index c7e56002809a..14c61b31f877 100644
-> --- a/drivers/i2c/busses/i2c-designware-master.c
-> +++ b/drivers/i2c/busses/i2c-designware-master.c
-> @@ -832,7 +832,7 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
->   }
->   
->   static const struct i2c_algorithm i2c_dw_algo = {
-> -	.master_xfer = i2c_dw_xfer,
-> +	.xfer = i2c_dw_xfer,
->   	.functionality = i2c_dw_func,
->   };
->   
-> diff --git a/drivers/i2c/busses/i2c-designware-slave.c b/drivers/i2c/busses/i2c-designware-slave.c
-> index 2e079cf20bb5..b47ad6b16814 100644
-> --- a/drivers/i2c/busses/i2c-designware-slave.c
-> +++ b/drivers/i2c/busses/i2c-designware-slave.c
-> @@ -58,7 +58,7 @@ static int i2c_dw_init_slave(struct dw_i2c_dev *dev)
->   	return 0;
->   }
->   
-> -static int i2c_dw_reg_slave(struct i2c_client *slave)
-> +static int i2c_dw_reg_target(struct i2c_client *slave)
->   {
->   	struct dw_i2c_dev *dev = i2c_get_adapdata(slave->adapter);
->   
-> @@ -83,7 +83,7 @@ static int i2c_dw_reg_slave(struct i2c_client *slave)
->   	return 0;
->   }
->   
-> -static int i2c_dw_unreg_slave(struct i2c_client *slave)
-> +static int i2c_dw_unreg_target(struct i2c_client *slave)
->   {
->   	struct dw_i2c_dev *dev = i2c_get_adapdata(slave->adapter);
->   
-> @@ -214,8 +214,8 @@ static irqreturn_t i2c_dw_isr_slave(int this_irq, void *dev_id)
->   
->   static const struct i2c_algorithm i2c_dw_algo = {
->   	.functionality = i2c_dw_func,
-> -	.reg_slave = i2c_dw_reg_slave,
-> -	.unreg_slave = i2c_dw_unreg_slave,
-> +	.reg_target = i2c_dw_reg_target,
-> +	.unreg_target = i2c_dw_unreg_target,
->   };
+Let's do that.
 
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Thanks
+
+>
+> >
+> > And I remember you told us your device doesn't have such an issue.
+>
+> YES.
+>
+> Thanks,
+> Heng
+>
+> >
+> > Thanks
+> >
+> >> Thanks,
+> >> Heng
+> >>
+> >>> Thanks
+>
+
