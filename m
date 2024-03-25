@@ -1,206 +1,131 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 563D81C6AD0
-	for <virtualization@lists.linux-foundation.org>; Mon, 25 Mar 2024 05:01:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0949E14D6E6
+	for <virtualization@lists.linux.dev>; Mon, 25 Mar 2024 05:57:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711342902; cv=none; b=qvjoKTATRH7plpEnu7r16XJxgdBhqPYOVxGICVk5pZ7FFI8aaqKKJDc6MJ8yWUX6ya4a389/iCgk8Y8FqINjljQFwwH+4pnwq/uNMqEz7cGUwF9GULJocFyjF6PrDN0D1PtoeUSuYjMTm5fH8vuTgPuaOhJIX9aUdUUdYPepl9Q=
+	t=1711346277; cv=none; b=I6+Ai1J0/mPUGowUsY4FNu392ssooxi8FIbsxbVuGEJnRCMSRrvCeORHmc3lAnC6md/FZxriMnzWN0XUrwr7pE5CTyXaF9Kcsl3FcK0zQtTgC09454Pr2y+NMobhTcytZVvo6vuOh6zTq3xbXX0zzelwm64u6+FBRTPekcokzt8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711342902; c=relaxed/simple;
-	bh=/N5JTo1cqebm9N//Jwpzh45pjE1qsAYdVPNGOLORkyI=;
-	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=KzXpJe0CfWmLCT2QELGnRLVoQitkDoRsRWg2CFHHDtSSoPT5DpOTsTuQrT8A/TVW6bFhtoiAfnKiT5k+Z1ut02JeUJzC7nFTr9TQvDoABgKpyJF2Uwfzn5ySJ73OIFWV5OLzVFVgX9nofhFPufpaFgzKDtwK9cuMOn5X4vOmx2A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=U+qgGCTT; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1711346277; c=relaxed/simple;
+	bh=yk2CPraBaf6pstVDw2coT42i+tAhrE7QlfbtGyeM5BA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=oYFGEX+KmaDRYAkj1gk8rgxOXhRIk0VZscAI+yNXRV1Pdfh+GRHuIU514oC6b2XWnKpUUt8ZgG6Gc+l62VQelGzXYc0Vjt6rK449R9WyErLf420JzB6TgurDOFTZzZO0KnxL58A122vOpfTQaK7UpbbJX+6TsbO/szvvR15Yn1M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=btKoXo8x; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="U+qgGCTT"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id EB86F4014B
-	for <virtualization@lists.linux-foundation.org>; Mon, 25 Mar 2024 05:01:40 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -1.999
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id cjiIpiWeTmMO for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Mar 2024 05:01:39 +0000 (UTC)
-Received-SPF: None (mailfrom) identity=mailfrom; client-ip=192.198.163.7; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 90D79400FF
-Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 90D79400FF
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=U+qgGCTT
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 90D79400FF
-	for <virtualization@lists.linux-foundation.org>; Mon, 25 Mar 2024 05:01:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1711342899; x=1742878899;
-  h=message-id:date:mime-version:cc:subject:to:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=/N5JTo1cqebm9N//Jwpzh45pjE1qsAYdVPNGOLORkyI=;
-  b=U+qgGCTTNmJear1eHz9rCeJ9Dl9qhfrZZD3WmbAEUITjtwbmcejefq2Q
-   A7LUfV/Ubr2bB6WEHEmgxmSLFPSJs//S6p7d0FGLsbL2MKVlV8ZS2n6nT
-   1ku4SoS92LLexMTv6zSbkBWsQWRBIlf8YqFAj4gFm7tYshBiBuqgqoCEp
-   2TbCBhL7WGZufucOni5yk7T1YtLkyJ7pg1exwLlAJKluiYFldPjLF5S6m
-   eexVUquH6EmxV65DMzGNK4JPug4AixWsipErmzIrHLaWro9nmfAdsG0Bs
-   pqW1YM9S9su8t9ePK091REJDy2cXfUH1Ad2w7Xjm03r2h90sefiaXQFE0
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,11023"; a="31764836"
-X-IronPort-AV: E=Sophos;i="6.07,152,1708416000"; 
-   d="scan'208";a="31764836"
-Received: from orviesa006.jf.intel.com ([10.64.159.146])
-  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Mar 2024 22:01:38 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.07,152,1708416000"; 
-   d="scan'208";a="15932605"
-Received: from blu2-mobl.ccr.corp.intel.com (HELO [10.254.209.86]) ([10.254.209.86])
-  by orviesa006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Mar 2024 22:01:35 -0700
-Message-ID: <90813c19-5fef-4c29-9387-6c9e2770a549@linux.intel.com>
-Date: Mon, 25 Mar 2024 13:01:32 +0800
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="btKoXo8x"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1711346274;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=yk2CPraBaf6pstVDw2coT42i+tAhrE7QlfbtGyeM5BA=;
+	b=btKoXo8xnDrr/oqLmxHMKZ660Jd5zbHgD54wBx2Jqm4b2wp0RIpGkpNbZBjPLJ5owwA/x9
+	rbEoPHsFNnHAUYB0ZoOdaFByUYlodLUDWM9zXtGbX3/x3MP8gHthAMy34JMlrhSE99mRkW
+	GsdgL4/2ohUHdIrfdoXlzW2nwTzewYU=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-296-gmSC-dWQMnu7CKpyFZElcQ-1; Mon, 25 Mar 2024 01:57:53 -0400
+X-MC-Unique: gmSC-dWQMnu7CKpyFZElcQ-1
+Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-29f820081easo3604828a91.3
+        for <virtualization@lists.linux.dev>; Sun, 24 Mar 2024 22:57:52 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1711346272; x=1711951072;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=yk2CPraBaf6pstVDw2coT42i+tAhrE7QlfbtGyeM5BA=;
+        b=OGgzcodN4M7rR3qydEUDSYUZw3P5r24KrmozR71YAATNfbt+g1QWLfp17jrn4lLsHq
+         OtqtsMzRlctAgwdKOdvv24bF1ZEiQYgIdNAea5nPccHydXd9nkB0BcEysv9u0UAAZm0a
+         KAL6FuXaLfh55vrxxb3uWlF4szyTRlxjedt32a1lE8iOuWTJfdyGk7zuO7YwG85DZry/
+         4BbZUHMWxAV4/2r0XJ3L4TLFhDQoduvE+NjotR5uOibUlFcX4+FfPPQHsV5dM60vlz0J
+         C7MqEmsbMYUYr/5vSQvu9X23b/2/4ltNlH/BDJsOpO5BmNLh/kAUmtHdKMw4GsQyS2RW
+         guGw==
+X-Forwarded-Encrypted: i=1; AJvYcCWqWe9xqS9QYrijz7mVtUggnjsfVQk03N+rr7PiwmnMXh6Mj3Dwaq7nIw8+Y5MaLedcfwN+3miJO4pU5NmnJc4cDR6rEKptyGmyTV+LPq8=
+X-Gm-Message-State: AOJu0YytgBiJVzJUHB+UZkFh9E5xhVGGXapM8KAFZQ44WB2+0q6MNNl/
+	iuccNOLxtghy2eeU/Pz1ePj0Ztrk0kzuDDN8dLkOyJlTkADfnFoQo5NX8u8dQmTOgGcoDyPIeoZ
+	n7n0U4cg8I3omP2CPmUAN5uCZasTApZ1aXnyjbOwYefNn1NKCkgot/mLkGXIHJcem1ITPZTtJK1
+	DpX2C7Nyp70jNI/fH/jhapsVtKXa6V2qVhjBO6OT0=
+X-Received: by 2002:a17:902:e546:b0:1e0:9da6:1765 with SMTP id n6-20020a170902e54600b001e09da61765mr7474488plf.46.1711346272032;
+        Sun, 24 Mar 2024 22:57:52 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEbSBGmoujt2DqEgZCTFU091ZGyX5Kg/qyLAwmd74LsdjhC87PQ1Ts+fJEtISdMr7oDOf0/oUhVkkcDUH39+GE=
+X-Received: by 2002:a17:902:e546:b0:1e0:9da6:1765 with SMTP id
+ n6-20020a170902e54600b001e09da61765mr7474477plf.46.1711346271773; Sun, 24 Mar
+ 2024 22:57:51 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Cc: baolu.lu@linux.intel.com, Kevin Tian <kevin.tian@intel.com>,
- Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
- Robin Murphy <robin.murphy@arm.com>,
- Jean-Philippe Brucker <jean-philippe@linaro.org>,
- Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
- Jacob Pan <jacob.jun.pan@linux.intel.com>,
- Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 4/8] iommufd: Add iommufd fault object
-To: Jason Gunthorpe <jgg@ziepe.ca>
-References: <20240122073903.24406-1-baolu.lu@linux.intel.com>
- <20240122073903.24406-5-baolu.lu@linux.intel.com>
- <20240308180332.GX9225@ziepe.ca>
- <e66064d7-c384-4f14-9459-ea21809b51b5@linux.intel.com>
- <20240322170939.GJ66976@ziepe.ca>
-Content-Language: en-US
-From: Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <20240322170939.GJ66976@ziepe.ca>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <1711021557-58116-1-git-send-email-hengqi@linux.alibaba.com>
+ <1711021557-58116-3-git-send-email-hengqi@linux.alibaba.com>
+ <CACGkMEuZ457UU6MhPtKHd_Y0VryvZoNU+uuKOc_4OK7jc62WwA@mail.gmail.com> <5708312a-d8eb-40ee-88a9-e16930b94dda@linux.alibaba.com>
+In-Reply-To: <5708312a-d8eb-40ee-88a9-e16930b94dda@linux.alibaba.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 25 Mar 2024 13:57:40 +0800
+Message-ID: <CACGkMEu8or7+fw3+vX_PY3Qsrm7zVSf6TS9SiE20NpOsz-or6g@mail.gmail.com>
+Subject: Re: [PATCH 2/2] virtio-net: reduce the CPU consumption of dim worker
+To: Heng Qi <hengqi@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Eric Dumazet <edumazet@google.com>, "David S. Miller" <davem@davemloft.net>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 2024/3/23 1:09, Jason Gunthorpe wrote:
-> On Fri, Mar 15, 2024 at 09:46:06AM +0800, Baolu Lu wrote:
->> On 3/9/24 2:03 AM, Jason Gunthorpe wrote:
->>> On Mon, Jan 22, 2024 at 03:38:59PM +0800, Lu Baolu wrote:
->>>> --- /dev/null
->>>> +++ b/drivers/iommu/iommufd/fault.c
->>>> @@ -0,0 +1,255 @@
->>>> +// SPDX-License-Identifier: GPL-2.0-only
->>>> +/* Copyright (C) 2024 Intel Corporation
->>>> + */
->>>> +#define pr_fmt(fmt) "iommufd: " fmt
->>>> +
->>>> +#include <linux/file.h>
->>>> +#include <linux/fs.h>
->>>> +#include <linux/module.h>
->>>> +#include <linux/mutex.h>
->>>> +#include <linux/iommufd.h>
->>>> +#include <linux/poll.h>
->>>> +#include <linux/anon_inodes.h>
->>>> +#include <uapi/linux/iommufd.h>
->>>> +
->>>> +#include "iommufd_private.h"
->>>> +
->>>> +static int device_add_fault(struct iopf_group *group)
->>>> +{
->>>> +	struct iommufd_device *idev = group->cookie->private;
->>>> +	void *curr;
->>>> +
->>>> +	curr = xa_cmpxchg(&idev->faults, group->last_fault.fault.prm.grpid,
->>>> +			  NULL, group, GFP_KERNEL);
->>>> +
->>>> +	return curr ? xa_err(curr) : 0;
->>>> +}
->>>> +
->>>> +static void device_remove_fault(struct iopf_group *group)
->>>> +{
->>>> +	struct iommufd_device *idev = group->cookie->private;
->>>> +
->>>> +	xa_store(&idev->faults, group->last_fault.fault.prm.grpid,
->>>> +		 NULL, GFP_KERNEL);
->>>
->>> xa_erase ?
->>
->> Yes. Sure.
->>
->>> Is grpid OK to use this way? Doesn't it come from the originating
->>> device?
->>
->> The group ID is generated by the hardware. Here, we use it as an index
->> in the fault array to ensure it can be quickly retrieved in the page
->> fault response path.
-> 
-> I'm nervous about this, we are trusting HW outside the kernel to
-> provide unique grp id's which are integral to how the kernel
-> operates..
+On Mon, Mar 25, 2024 at 10:21=E2=80=AFAM Heng Qi <hengqi@linux.alibaba.com>=
+ wrote:
+>
+>
+>
+> =E5=9C=A8 2024/3/22 =E4=B8=8B=E5=8D=881:19, Jason Wang =E5=86=99=E9=81=93=
+:
+> > On Thu, Mar 21, 2024 at 7:46=E2=80=AFPM Heng Qi <hengqi@linux.alibaba.c=
+om> wrote:
+> >> Currently, ctrlq processes commands in a synchronous manner,
+> >> which increases the delay of dim commands when configuring
+> >> multi-queue VMs, which in turn causes the CPU utilization to
+> >> increase and interferes with the performance of dim.
+> >>
+> >> Therefore we asynchronously process ctlq's dim commands.
+> >>
+> >> Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
+> > I may miss some previous discussions.
+> >
+> > But at least the changelog needs to explain why you don't use interrupt=
+.
+>
+> Will add, but reply here first.
+>
+> When upgrading the driver's ctrlq to use interrupt, problems may occur
+> with some existing devices.
+> For example, when existing devices are replaced with new drivers, they
+> may not work.
+> Or, if the guest OS supported by the new device is replaced by an old
+> downstream OS product, it will not be usable.
+>
+> Although, ctrlq has the same capabilities as IOq in the virtio spec,
+> this does have historical baggage.
 
-Agreed.
+I don't think the upstream Linux drivers need to workaround buggy
+devices. Or it is a good excuse to block configure interrupts.
 
-> 
->>>> +static ssize_t iommufd_fault_fops_read(struct file *filep, char __user *buf,
->>>> +				       size_t count, loff_t *ppos)
->>>> +{
->>>> +	size_t fault_size = sizeof(struct iommu_hwpt_pgfault);
->>>> +	struct iommufd_fault *fault = filep->private_data;
->>>> +	struct iommu_hwpt_pgfault data;
->>>> +	struct iommufd_device *idev;
->>>> +	struct iopf_group *group;
->>>> +	struct iopf_fault *iopf;
->>>> +	size_t done = 0;
->>>> +	int rc;
->>>> +
->>>> +	if (*ppos || count % fault_size)
->>>> +		return -ESPIPE;
->>>> +
->>>> +	mutex_lock(&fault->mutex);
->>>> +	while (!list_empty(&fault->deliver) && count > done) {
->>>> +		group = list_first_entry(&fault->deliver,
->>>> +					 struct iopf_group, node);
->>>> +
->>>> +		if (list_count_nodes(&group->faults) * fault_size > count - done)
->>>> +			break;
->>>> +
->>>> +		idev = (struct iommufd_device *)group->cookie->private;
->>>> +		list_for_each_entry(iopf, &group->faults, list) {
->>>> +			iommufd_compose_fault_message(&iopf->fault, &data, idev);
->>>> +			rc = copy_to_user(buf + done, &data, fault_size);
->>>> +			if (rc)
->>>> +				goto err_unlock;
->>>> +			done += fault_size;
->>>> +		}
->>>> +
->>>> +		rc = device_add_fault(group);
->>>
->>> See I wonder if this should be some xa_alloc or something instead of
->>> trying to use the grpid?
->>
->> So this magic number will be passed to user space in the fault message.
->> And the user will then include this number in its response message. The
->> response message is valid only when the magic number matches. Do I get
->> you correctly?
-> 
-> Yes, then it is simple xa_alloc() and xa_load() without any other
-> searching and we don't have to rely on the grpid to be correctly
-> formed by the PCI device.
-> 
-> But I don't know about performance xa_alloc() is pretty fast but
-> trusting the grpid would be faster..
-> 
-> IMHO from a uapi perspective we should have a definate "cookie" that
-> gets echo'd back. If the kernel uses xa_alloc or grpid to build that
-> cookie it doesn't matter to the uAPI.
+And I remember you told us your device doesn't have such an issue.
 
-Okay, I will head in this direction.
+Thanks
 
-Best regards,
-baolu
+>
+> Thanks,
+> Heng
+>
+> >
+> > Thanks
+>
 
