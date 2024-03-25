@@ -1,163 +1,151 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22B638665B
-	for <virtualization@lists.linux.dev>; Mon, 25 Mar 2024 07:34:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F402112F384
+	for <virtualization@lists.linux.dev>; Mon, 25 Mar 2024 07:47:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711352083; cv=none; b=ga1otmcsPy+IU/VkrGRastNbzF+ZpwQa0sFYGmH1xuY04jkHpadurxlirRawCfEiZ0fg1AHqYzpQCa8l8v9LnABWsjen82knQyFzcJidxkyLaGB4qxLIHMbVrz+oA8Gma/d8Pih8hvFMvP+HC98BJSQG7snEVTJ80vMPATqZjVU=
+	t=1711352839; cv=none; b=nZKk1erOQqbBdv8Nt44nH5wu9TLmxeHD4G+nHfPzNWs6aPVlG6dzK9n975tDD7R2uhTj9mLjI481Yf5ZRrjvgF0iqIJsL+dnZZXo5loODEezyqDGGc6hIQZEphZ/V/g++yIlG6z3hm9B7Pk1DznSL7gNbjjhHxrilDHX0EamFYA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711352083; c=relaxed/simple;
-	bh=BDt3n+MUaCFNO4y3L2tuOOVWGjx2h2RQhyP7NCMw9HY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=MAjo2Zl2JUNqoZ+QcMHilPjr9zCrWD6jAXfx50PfUAfWX85mKyIj2HKeaL2t0+1azDCB1V1pwvVdJv4RlFkwdcWQ9uBruZqLxyAabfLg1yVr4Xc5YySlFeaSfYoIDlJqQ0+rTaXq5z42WBbyj3s07/D5JA5W/8NqPmYjr7mzxA0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=i1R2wcGT; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="i1R2wcGT"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1711352080;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=6I4mGWtPnXl+rCWErFK37GiocqArlyDhDISrag+E6MY=;
-	b=i1R2wcGTd+Y6Lm1ZGbeZRJxcbz5IFNUilNqnSvsQfwzLjoxRJJENXbZXGDNifelVVvW59g
-	H7w29KRs+hd17UWlOyp3aUhpGbFrp48YHetepjmpKeGhKjI8YSKRx1ZxHy/Qz03Yhhk5vs
-	P3JX6x41/Rq3gf97d1So4gccx34HqCI=
-Received: from mail-oa1-f69.google.com (mail-oa1-f69.google.com
- [209.85.160.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-54-8Lom4U2TMFqdwoTutu01zA-1; Mon, 25 Mar 2024 03:34:38 -0400
-X-MC-Unique: 8Lom4U2TMFqdwoTutu01zA-1
-Received: by mail-oa1-f69.google.com with SMTP id 586e51a60fabf-22a0191d8f0so1444960fac.2
-        for <virtualization@lists.linux.dev>; Mon, 25 Mar 2024 00:34:38 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711352077; x=1711956877;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=6I4mGWtPnXl+rCWErFK37GiocqArlyDhDISrag+E6MY=;
-        b=KBdoef1fGhdEOjzZf4L1NuPhjkDBxJrmDlBzj8sN7l07HBpmsuO1ADWY1oyc1P8sbR
-         RWqOPNGNJKq3a/fKcqiTu2S08biEsjku94bKk2TdENKGEdldplikGQDRv2bvDoj0bTmS
-         I69Ds60zJiPQOCqFf+da1GXnNYDTvmSwHcAYbEK21DpVZtQk6xE3zw+X5A7CYq9eCB9a
-         9idsVTAM9KtooduGPrKa7RIscaymwlihxCkx5DC4kLrDsJTYPD/a+UBzIy7ohsWVzAZt
-         G4GZWbZ0tvV2qfNkilb5TRYpVm89HhZmmnP+7FrSksDf+FHgGK3gp6C9nClXVUbuNIeZ
-         C7jg==
-X-Forwarded-Encrypted: i=1; AJvYcCUCMNfzeFMbfdD+W4O3KyNMPZxmcKYaglY3J4cDY9fHJTttD3DBfZwuZQfzQ17Dsdgp6V1WOw2IWlSy6qgxcokEhG6g3/hag93euLUeADU=
-X-Gm-Message-State: AOJu0Yy0nwwM0yDsnO9dLba1BQiWsoKzIyZw3ZRkuF2b+BVubBpsq3Kz
-	GcqRI7L62cR2ygwyLEFYbLTcuEVtPBg9mcobMvhZe1UVjlNLZlqnxjnF0NonLMctf46BpWQUcoV
-	WRWex9barlX3HQeZWxRw/DvsGa2xGjq4RyfQjW/mSNUUl9zlceHoZzv2CUF7xbVt9
-X-Received: by 2002:a05:6871:288e:b0:22a:2446:353f with SMTP id bq14-20020a056871288e00b0022a2446353fmr3755163oac.11.1711352077653;
-        Mon, 25 Mar 2024 00:34:37 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFKY6GYp1/XIaWHrTUl2r4qAWkWvRiG3Ehn1RpYbN3BtHiFYE6R3jh1TKiJs6ZlTqhiC8/SJA==
-X-Received: by 2002:a05:6871:288e:b0:22a:2446:353f with SMTP id bq14-20020a056871288e00b0022a2446353fmr3755157oac.11.1711352077282;
-        Mon, 25 Mar 2024 00:34:37 -0700 (PDT)
-Received: from [192.168.68.51] ([43.252.115.31])
-        by smtp.gmail.com with ESMTPSA id c17-20020aa781d1000000b006e6bfff6085sm3766624pfn.143.2024.03.25.00.34.32
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 25 Mar 2024 00:34:36 -0700 (PDT)
-Message-ID: <1dcec730-ec26-46f4-ba4c-06101fcc599e@redhat.com>
-Date: Mon, 25 Mar 2024 17:34:29 +1000
+	s=arc-20240116; t=1711352839; c=relaxed/simple;
+	bh=SwWn0CQu/X5SVnKJRgCwnQf5i60zqkGmkyhz8diQZ4M=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=iY0aqdJ4xtlU9U6QIjrdQKjRhQ9mH+4ZvihA2qlNnmGblqAmMuqWkjWpA+6F5KsPe1lpjtGQD/NUsrcN3KmKNVJKXt/VXzxTw2hVXvGShr68IkA3MKRs7qS0B737zf9cyP38ZQ6AcNcEmbjrQosoTal0udZGQaVfRcyL6SH5364=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+	(Exim 4.92)
+	(envelope-from <ore@pengutronix.de>)
+	id 1rof17-0003OW-Jx; Mon, 25 Mar 2024 08:45:13 +0100
+Received: from [2a0a:edc0:2:b01:1d::c5] (helo=pty.whiteo.stw.pengutronix.de)
+	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.94.2)
+	(envelope-from <ore@pengutronix.de>)
+	id 1rof0v-008NMm-2h; Mon, 25 Mar 2024 08:45:01 +0100
+Received: from ore by pty.whiteo.stw.pengutronix.de with local (Exim 4.96)
+	(envelope-from <ore@pengutronix.de>)
+	id 1rof0u-00G1gD-2q;
+	Mon, 25 Mar 2024 08:45:00 +0100
+Date: Mon, 25 Mar 2024 08:45:00 +0100
+From: Oleksij Rempel <o.rempel@pengutronix.de>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, Elie Morisse <syniurge@gmail.com>,
+	Shyam Sundar S K <shyam-sundar.s-k@amd.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
+	Nicolas Ferre <nicolas.ferre@microchip.com>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Claudiu Beznea <claudiu.beznea@tuxon.dev>,
+	Krzysztof Adamski <krzysztof.adamski@nokia.com>,
+	Benson Leung <bleung@chromium.org>,
+	Guenter Roeck <groeck@chromium.org>,
+	Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Mika Westerberg <mika.westerberg@linux.intel.com>,
+	Jan Dabros <jsd@semihalf.com>,
+	Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+	Alim Akhtar <alim.akhtar@samsung.com>,
+	Jean-Marie Verdun <verdun@hpe.com>,
+	Nick Hawkins <nick.hawkins@hpe.com>,
+	Yicong Yang <yangyicong@hisilicon.com>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Shawn Guo <shawnguo@kernel.org>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>,
+	Paul Cercueil <paul@crapouillou.net>,
+	Neil Armstrong <neil.armstrong@linaro.org>,
+	Kevin Hilman <khilman@baylibre.com>,
+	Jerome Brunet <jbrunet@baylibre.com>,
+	Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+	Khalil Blaiech <kblaiech@nvidia.com>,
+	Asmaa Mnebhi <asmaa@nvidia.com>, Qii Wang <qii.wang@mediatek.com>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Avi Fishman <avifishman70@gmail.com>,
+	Tomer Maimon <tmaimon77@gmail.com>,
+	Tali Perry <tali.perry1@gmail.com>,
+	Patrick Venture <venture@google.com>, Nancy Yuen <yuenn@google.com>,
+	Benjamin Fair <benjaminfair@google.com>,
+	Ajay Gupta <ajayg@nvidia.com>,
+	Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>,
+	Robert Richter <rric@kernel.org>,
+	Aaro Koskinen <aaro.koskinen@iki.fi>,
+	Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+	Tony Lindgren <tony@atomide.com>, Vignesh R <vigneshr@ti.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
+	"Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+	Hector Martin <marcan@marcan.st>, Sven Peter <sven@svenpeter.dev>,
+	Alyssa Rosenzweig <alyssa@rosenzweig.io>,
+	Vladimir Zapolskiy <vz@mleia.com>,
+	Loic Poulain <loic.poulain@linaro.org>,
+	Robert Foss <rfoss@kernel.org>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Konrad Dybcio <konrad.dybcio@linaro.org>,
+	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
+	Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
+	Alain Volmat <alain.volmat@foss.st.com>,
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+	Alexandre Torgue <alexandre.torgue@foss.st.com>,
+	Thierry Reding <thierry.reding@gmail.com>,
+	Jonathan Hunter <jonathanh@nvidia.com>,
+	Laxman Dewangan <ldewangan@nvidia.com>,
+	Dmitry Osipenko <digetx@gmail.com>,
+	Conghui Chen <conghui.chen@intel.com>,
+	Viresh Kumar <viresh.kumar@linaro.org>,
+	Michal Simek <michal.simek@amd.com>, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	chrome-platform@lists.linux.dev, linux-samsung-soc@vger.kernel.org,
+	imx@lists.linux.dev, linux-mips@vger.kernel.org,
+	linux-amlogic@lists.infradead.org,
+	linux-mediatek@lists.infradead.org, openbmc@lists.ozlabs.org,
+	linux-omap@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	asahi@lists.linux.dev, linux-arm-msm@vger.kernel.org,
+	linux-renesas-soc@vger.kernel.org,
+	linux-stm32@st-md-mailman.stormreply.com,
+	linux-tegra@vger.kernel.org, virtualization@lists.linux.dev
+Subject: Re: [PATCH 64/64] i2c: reword i2c_algorithm in drivers according to
+ newest specification
+Message-ID: <ZgErfGFanetan_gP@pengutronix.de>
+References: <20240322132619.6389-1-wsa+renesas@sang-engineering.com>
+ <20240322132619.6389-65-wsa+renesas@sang-engineering.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] virtio_ring: Fix the stale index in available ring
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Will Deacon <will@kernel.org>, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, jasowang@redhat.com,
- xuanzhuo@linux.alibaba.com, yihyu@redhat.com, shan.gavin@gmail.com,
- linux-arm-kernel@lists.infradead.org,
- Catalin Marinas <catalin.marinas@arm.com>, mochs@nvidia.com
-References: <20240314074923.426688-1-gshan@redhat.com>
- <20240318165924.GA1824@willie-the-truck>
- <35a6bcef-27cf-4626-a41d-9ec0a338fe28@redhat.com>
- <20240319182251.GB3121@willie-the-truck>
- <9500adaf-0075-4ae9-92db-7e310b6598b0@redhat.com>
- <20240319203540-mutt-send-email-mst@kernel.org>
- <3a6c8b23-af9c-47a7-8c22-8e0a78154bd3@redhat.com>
- <20240320030215-mutt-send-email-mst@kernel.org>
-From: Gavin Shan <gshan@redhat.com>
-In-Reply-To: <20240320030215-mutt-send-email-mst@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20240322132619.6389-65-wsa+renesas@sang-engineering.com>
+X-Sent-From: Pengutronix Hildesheim
+X-URL: http://www.pengutronix.de/
+X-Accept-Language: de,en
+X-Accept-Content-Type: text/plain
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: ore@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: virtualization@lists.linux.dev
 
+On Fri, Mar 22, 2024 at 02:25:57PM +0100, Wolfram Sang wrote:
+> Match the wording in i2c_algorithm in I2C drivers wrt. the newest I2C
+> v7, SMBus 3.2, I3C specifications and replace "master/slave" with more
+> appropriate terms. For some drivers, this means no more conversions are
+> needed. For the others more work needs to be done but this will be
+> performed incrementally along with API changes/improvements. All these
+> changes here are simple search/replace results.
+> 
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-On 3/20/24 17:14, Michael S. Tsirkin wrote:
-> On Wed, Mar 20, 2024 at 03:24:16PM +1000, Gavin Shan wrote:
->> On 3/20/24 10:49, Michael S. Tsirkin wrote:>
->>> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
->>> index 6f7e5010a673..79456706d0bd 100644
->>> --- a/drivers/virtio/virtio_ring.c
->>> +++ b/drivers/virtio/virtio_ring.c
->>> @@ -685,7 +685,8 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
->>>    	/* Put entry in available array (but don't update avail->idx until they
->>>    	 * do sync). */
->>>    	avail = vq->split.avail_idx_shadow & (vq->split.vring.num - 1);
->>> -	vq->split.vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, head);
->>> +	u16 headwithflag = head | (q->split.avail_idx_shadow & ~(vq->split.vring.num - 1));
->>> +	vq->split.vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, headwithflag);
->>>    	/* Descriptors and available array need to be set before we expose the
->>>    	 * new available array entries. */
->>>
+Acked-by: Oleksij Rempel <o.rempel@pengutronix.de> # for i2c-imx.c 
 
-Ok, Michael. I continued with my debugging code. It still looks like a
-hardware bug on NVidia's grace-hopper. I really think NVidia needs to be
-involved for the discussion, as suggested by you.
-
-Firstly, I bind the vhost process and vCPU thread to CPU#71 and CPU#70.
-Note that I have only one vCPU in my configuration.
-
-Secondly, the debugging code is enhanced so that the available head for
-(last_avail_idx - 1) is read for twice and recorded. It means the available
-head for one specific available index is read for twice. I do see the
-available heads are different from the consecutive reads. More details
-are shared as below.
-
- From the guest side
-===================
-
-virtio_net virtio0: output.0:id 86 is not a head!
-head to be released: 047 062 112
-
-avail_idx:
-000  49665
-001  49666  <--
-  :
-015  49664
-
-avail_head:
-000  062
-001  047  <--
-  :
-015  112
-
- From the host side
-==================
-
-avail_idx
-000  49663
-001  49666  <---
-  :
-
-avail_head
-000  062  (062)
-001  047  (047)  <---
-  :
-015  086  (112)          // head 086 is returned from the first read,
-                          // but head 112 is returned from the second read
-
-vhost_get_vq_desc: Inconsistent head in two read (86 -> 112) for avail_idx 49664
-
-Thanks,
-Gavin
-
-
+-- 
+Pengutronix e.K.                           |                             |
+Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
+31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
