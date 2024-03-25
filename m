@@ -1,65 +1,66 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE1A474E3A
-	for <virtualization@lists.linux.dev>; Mon, 25 Mar 2024 09:11:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA7B417A928
+	for <virtualization@lists.linux.dev>; Mon, 25 Mar 2024 09:12:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711357871; cv=none; b=ifDrYmeVe5G8gheTD0d0mKxAi1R2H/ZIoFDN+UMkyd09H+aaX+z7IGJwI0wZ+Jb7aXXMx3e0FyxYP8h638d7EBHiGNjUtT27WeOXP68c1wsW3dAB1Vaj4W8j2lC/C2VrnGoCdT4VYjJ0ba7v9fOcaK6UvTkkHY1OpDPKfM8TPfs=
+	t=1711357979; cv=none; b=bc5CV7m+EtWANzO00wdxrDQ8Q4xdreKX4tPHAqlf8lAafQpXCwtK7ZwDOhYNQ0mmkhclMyceCiil61xh/9GVDmT/pi1ydXiR7uKbFXp1fVW/3cbsi7WHZlsyxJ+v0c9HLYtR2aI0PPDPdRJmrgPqWHEDOuV+4J2nz/GnnloLdWs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711357871; c=relaxed/simple;
-	bh=ARF0iZoZIjdZhMwT1oVgCUXttDIoYZEPyHnnjmTJx6U=;
+	s=arc-20240116; t=1711357979; c=relaxed/simple;
+	bh=ACMMD4d3P9MVSSLJ/DEMYqlWW6kazp4GcWCNJPcctm4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=EzvUczOjsAK/x3F2V+T3y1U3cMIRwDcoW0Jx4JTYb4c8+iL3c3b8sRGgesbf6RL14hivpHHIwm4mV+ki4jeD4rm7V2i9j6gdNJsRISoumjV4yh+WG9rAnjz1OJpbRh5oujMNc0h6UH+aCYp8tSdI6Gfz5V+SYDfHwGgIAKJAQh8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=I2nuKYT9; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type; b=Nt3t4rS0a4Z1y9OFCHoiSSS/Fl5g9d/dBytA9beF5oIvS73bWpg4BbooYcD+Ug07TC2WoBWRQHiiC2htD16SiY8LHHCT6TLY2r4oxUVG2cP3PSQWCRoD8QF+nP8GahIe7SqTyysLRO0T1FMkKhpsVa7JZUbDvtx8DVy/motUJrU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JlzDEhpB; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="I2nuKYT9"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JlzDEhpB"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1711357868;
+	s=mimecast20190719; t=1711357976;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=eodL44A0zmP+nkw2anBS4wOysdDIJWPYzeL/IC8ftqI=;
-	b=I2nuKYT91pw9tCTCMUlsts5l8gu25inZIbjQSIp0sZ2gjT5fpEhfRCqCv4rwNA0yKWIGmW
-	mRSlqKku+zJzyJUNZU5SJxFkgMVoLhMsLBPbh2OpymZ7x4HvVhl/xR+OmJ1bTz1dAIdG9d
-	P2+nkIcb5WTd2H9gAx58A1GfvXihEdc=
-Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
- [209.85.208.197]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=1sxJG9Rd8JSB6G8M3v8VO1p5IgxWq/SJrawonCcKSfU=;
+	b=JlzDEhpBBq5SVSm4XaOZSi7NcxTJbd8rE8WrSXyUT4mqEvN3JThOpEGmf+Vlk6LeL60XZ7
+	Iosks3Su6JCPXZrzJrmycBYL9iFustYaBkTtYOPPfnYfEMDeHVvZAvB4HKRt/UuwGT5VCO
+	XeVsO9FFHoe+P6p/ADBKKFBC2XzsZD4=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-237-WnXyDw2gP-iNoU6dpyXfMg-1; Mon, 25 Mar 2024 05:11:07 -0400
-X-MC-Unique: WnXyDw2gP-iNoU6dpyXfMg-1
-Received: by mail-lj1-f197.google.com with SMTP id 38308e7fff4ca-2d486c08c6eso40093531fa.0
-        for <virtualization@lists.linux.dev>; Mon, 25 Mar 2024 02:11:07 -0700 (PDT)
+ us-mta-595-ajgk5mudPM6EFitoOuJVcg-1; Mon, 25 Mar 2024 05:12:55 -0400
+X-MC-Unique: ajgk5mudPM6EFitoOuJVcg-1
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-41413823c1bso24153755e9.1
+        for <virtualization@lists.linux.dev>; Mon, 25 Mar 2024 02:12:54 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711357866; x=1711962666;
+        d=1e100.net; s=20230601; t=1711357974; x=1711962774;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
          :references:cc:to:content-language:subject:user-agent:mime-version
          :date:message-id:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=eodL44A0zmP+nkw2anBS4wOysdDIJWPYzeL/IC8ftqI=;
-        b=e7mHYPnR21BYrx8l7dlV1n8ISeMUV7tbgDhu8hsRGrujsMgjquPakQhSm0F792LptF
-         YuLbyrS61u/q/mqftPpjOQiR9dMVjkjqpJj9lT/p35+h8VAOBXvkLQUbiWQ2z/B62OWY
-         RFVVVLmslXA1t8Oc5l1ZuYFQCvsTIT9TE+ztOVH3RsBSiPZs/buLxw6J7R4eqMHLEkGf
-         JBk7htQISlrWj5jouhu/HzIHOB3ipBtjQ74BhquCbrn3S6hFHhevcIvcSAY4LVL7+f9n
-         qp1579Xb3h+G2PMC9ozySt8oEdbv7CfJv6XOfW6680+mg+35ZPRpVUxy0d6HaaeJUYg+
-         J4Sg==
-X-Gm-Message-State: AOJu0Yzp21wtSGzJe8dL/E0tIpo+NV8un2Q5txqBLhV5HJ/F5FzBu5BH
-	P64cevZT9pgslOLIRJNK9mr8sDKWBXCWA2Xar1zmzn/MXcLxH/PPcF47J+LMz7bYt0u1iZdYHRt
-	nLbLhqGPRdjxFo3v603E6GA95sdOrVBlTkIRMD0DUCtMp6Ws3gCWBLHBXy+QIluik
-X-Received: by 2002:a2e:8947:0:b0:2d4:7777:b7fb with SMTP id b7-20020a2e8947000000b002d47777b7fbmr4359258ljk.17.1711357865749;
-        Mon, 25 Mar 2024 02:11:05 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE7PlfCmimUoKtTJDbsbLoVaILrVOW6htqejyhlsq8LubUc6twBMEH8AEMoGLTKITdy3ouCHg==
-X-Received: by 2002:a2e:8947:0:b0:2d4:7777:b7fb with SMTP id b7-20020a2e8947000000b002d47777b7fbmr4359222ljk.17.1711357865235;
-        Mon, 25 Mar 2024 02:11:05 -0700 (PDT)
+        bh=1sxJG9Rd8JSB6G8M3v8VO1p5IgxWq/SJrawonCcKSfU=;
+        b=YoLqlV82XsR5gTI6J2Nc+SlEyuBUgtVUe56ad5dKcF1/NPhkItckNoCc4RASSV13pe
+         8CW1pV+WiHXtkw+W4rENTQeJDFLiTBaN1XJFqdP6ldSQ6U/cZgvsJVUrViC90EsgxvFs
+         K/UfMPw6dNe6UWcIQ8KxSgOlCTicE5KANJamVJhzzquVI4FrtTn0TCYd4/6jqrCJXJrZ
+         ZCTpXZ4hNkMCSYHzXfLQZCPMrzSFMxTEJH0AjgnLiU5T/PNOkTOfZGCqtB8xP2aSKEEf
+         WSn4duFuTbGtJne1ij1hUUMwmvtzbFV/1Hnn+8RzIjS9lnm9tknZyFf784aj6O5PKj6p
+         euAA==
+X-Forwarded-Encrypted: i=1; AJvYcCVaFxo0gJkXgYnCe1awm/WIrbhcozVxTJnsfrgVU1CHiGzlgqWu3gmMBMngXp7WICPOWircD3c9s9rUjQNv/gb9kq91fTSEMR22stJ3F6U=
+X-Gm-Message-State: AOJu0YwcYBwFJ8cSChjPltfreEPwGt+AZZ+8utwIYxwieSvCYGLd5/81
+	V0SlGIhwFzB6s7UJqTsVU1Rfy/5M3pPuZgNv42M6BFsBT2p2oZP4GH3xRnZO+ZdtCSueBWxws+9
+	DnJaTtN6BUaHKJPP20c9QYxJLNT9h+yAE/WPCXZZyK8WY5/virgbiPwAj65YsHTEe
+X-Received: by 2002:a05:600c:1c13:b0:414:37f:18dc with SMTP id j19-20020a05600c1c1300b00414037f18dcmr4633343wms.1.1711357973785;
+        Mon, 25 Mar 2024 02:12:53 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEGbDxVphxm4LD39Nm0ODG91JF+LM1ahBlILvI0fg8O9MuHA0Av59aSpiVzAeU8+H/e1DLG/A==
+X-Received: by 2002:a05:600c:1c13:b0:414:37f:18dc with SMTP id j19-20020a05600c1c1300b00414037f18dcmr4633326wms.1.1711357973418;
+        Mon, 25 Mar 2024 02:12:53 -0700 (PDT)
 Received: from ?IPV6:2003:cb:c738:b400:6a82:1eac:2b5:8fca? (p200300cbc738b4006a821eac02b58fca.dip0.t-ipconnect.de. [2003:cb:c738:b400:6a82:1eac:2b5:8fca])
-        by smtp.gmail.com with ESMTPSA id h20-20020a05600c351400b0041477f95cf6sm7785217wmq.13.2024.03.25.02.11.03
+        by smtp.gmail.com with ESMTPSA id gw8-20020a05600c850800b004146dd6bfe2sm7745532wmb.47.2024.03.25.02.12.52
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 25 Mar 2024 02:11:04 -0700 (PDT)
-Message-ID: <041867ab-6cff-4bd1-9a44-2ca847c1ad63@redhat.com>
-Date: Mon, 25 Mar 2024 10:11:03 +0100
+        Mon, 25 Mar 2024 02:12:53 -0700 (PDT)
+Message-ID: <1b5123f9-6fd8-4783-aec7-5cc5507ee3b4@redhat.com>
+Date: Mon, 25 Mar 2024 10:12:51 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -67,10 +68,10 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH vhost v4 1/6] virtio_balloon: remove the dependence where
+Subject: Re: [PATCH vhost v5 1/6] virtio_balloon: remove the dependence where
  names[] is null
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>,
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev
+Cc: Richard Weinberger <richard@nod.at>,
  Anton Ivanov <anton.ivanov@cambridgegreys.com>,
  Johannes Berg <johannes@sipsolutions.net>,
  Hans de Goede <hdegoede@redhat.com>,
@@ -84,13 +85,9 @@ Cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>,
  Sven Schnelle <svens@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>,
  Jason Wang <jasowang@redhat.com>, linux-um@lists.infradead.org,
  platform-driver-x86@vger.kernel.org, linux-remoteproc@vger.kernel.org,
- linux-s390@vger.kernel.org, kvm@vger.kernel.org,
- Daniel Verkamp <dverkamp@chromium.org>
-References: <20240321101532.59272-1-xuanzhuo@linux.alibaba.com>
- <20240321101532.59272-2-xuanzhuo@linux.alibaba.com>
- <CABVzXAkwcKMb7pC21aUDLEM=RoyOtGA2Vim+LF0oWQ7mjUx68g@mail.gmail.com>
- <b420a545-0a7a-431c-aa48-c5db3d221420@redhat.com>
- <1711346901.0977402-2-xuanzhuo@linux.alibaba.com>
+ linux-s390@vger.kernel.org, kvm@vger.kernel.org
+References: <20240325090419.33677-1-xuanzhuo@linux.alibaba.com>
+ <20240325090419.33677-2-xuanzhuo@linux.alibaba.com>
 From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -137,92 +134,43 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <1711346901.0977402-2-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20240325090419.33677-2-xuanzhuo@linux.alibaba.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Language: en-US
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
-On 25.03.24 07:08, Xuan Zhuo wrote:
-> On Fri, 22 Mar 2024 22:02:27 +0100, David Hildenbrand <david@redhat.com> wrote:
->> On 22.03.24 20:16, Daniel Verkamp wrote:
->>> On Thu, Mar 21, 2024 at 3:16 AM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
->>>>
->>>> Currently, the init_vqs function within the virtio_balloon driver relies
->>>> on the condition that certain names array entries are null in order to
->>>> skip the initialization of some virtual queues (vqs). This behavior is
->>>> unique to this part of the codebase. In an upcoming commit, we plan to
->>>> eliminate this dependency by removing the function entirely. Therefore,
->>>> with this change, we are ensuring that the virtio_balloon no longer
->>>> depends on the aforementioned function.
->>>
->>> This is a behavior change, and I believe means that the driver no
->>> longer follows the spec [1].
->>>
->>> For example, the spec says that virtqueue 4 is reporting_vq, and
->>> reporting_vq only exists if VIRTIO_BALLOON_F_PAGE_REPORTING is set,
->>> but there is no mention of its virtqueue number changing if other
->>> features are not set. If a device/driver combination negotiates
->>> VIRTIO_BALLOON_F_PAGE_REPORTING but not VIRTIO_BALLOON_F_STATS_VQ or
->>> VIRTIO_BALLOON_F_FREE_PAGE_HINT, my reading of the specification is
->>> that reporting_vq should still be vq number 4, and vq 2 and 3 should
->>> be unused. This patch would make the reporting_vq use vq 2 instead in
->>> this case.
->>>
->>> If the new behavior is truly intended, then the spec does not match
->>> reality, and it would need to be changed first (IMO); however,
->>> changing the spec would mean that any devices implemented correctly
->>> per the previous spec would now be wrong, so some kind of mechanism
->>> for detecting the new behavior would be warranted, e.g. a new
->>> non-device-specific virtio feature flag.
->>>
->>> I have brought this up previously on the virtio-comment list [2], but
->>> it did not receive any satisfying answers at that time.
->>
->> Rings a bell, but staring at this patch, I thought that there would be
->> no behavioral change. Maybe I missed it :/
->>
->> I stared at virtio_ccw_find_vqs(), and it contains:
->>
->> 	for (i = 0; i < nvqs; ++i) {
->> 		if (!names[i]) {
->> 			vqs[i] = NULL;
->> 			continue;
->> 		}
->>
->> 		vqs[i] = virtio_ccw_setup_vq(vdev, queue_idx++, callbacks[i],
->> 					     names[i], ctx ? ctx[i] : false,
->> 					     ccw);
->> 		if (IS_ERR(vqs[i])) {
->> 			ret = PTR_ERR(vqs[i]);
->> 			vqs[i] = NULL;
->> 			goto out;
->> 		}
->> 	}
->>
->> We increment queue_idx only if an entry was not NULL. SO I thought no
->> behavioral change? (at least on s390x :) )
->>
->> It's late here in Germany, so maybe I'm missing something.
+On 25.03.24 10:04, Xuan Zhuo wrote:
+> Currently, the init_vqs function within the virtio_balloon driver relies
+> on the condition that certain names array entries are null in order to
+> skip the initialization of some virtual queues (vqs). This behavior is
+> unique to this part of the codebase. In an upcoming commit, we plan to
+> eliminate this dependency by removing the function entirely. Therefore,
+> with this change, we are ensuring that the virtio_balloon no longer
+> depends on the aforementioned function.
 > 
-> I think we've encountered a tricky issue. Currently, all transports handle queue
-> id by incrementing them in order, without skipping any queue id. So, I'm quite
-> surprised that my changes would affect the spec. The fact that the
-> 'names' value is null is just a small trick in the Linux kernel implementation
-> and should not have an impact on the queue id.
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> ---
+>   drivers/virtio/virtio_balloon.c | 46 +++++++++++++--------------------
+>   1 file changed, 18 insertions(+), 28 deletions(-)
 > 
-> I believe that my recent modification will not affect the spec. So, let's
-> consider the issues with this patch set separately for now. Regarding the Memory
-> Balloon Device, it has been operational for many years, and perhaps we should
-> add to the spec that if a certain vq does not exist, then subsequent vqs will
-> take over its id.
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index 1f5b3dd31fcf..8409642e54d7 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -531,49 +531,39 @@ static int init_vqs(struct virtio_balloon *vb)
+>   	struct virtqueue *vqs[VIRTIO_BALLOON_VQ_MAX];
+>   	vq_callback_t *callbacks[VIRTIO_BALLOON_VQ_MAX];
+>   	const char *names[VIRTIO_BALLOON_VQ_MAX];
+> -	int err;
+> +	int err, nvqs = 0, idx = 0;
 
-Right, if I am not missing something your patch should have no 
-functional change in that regard (that the current 
-behavior/implementation might not match the spec is a different discussion).
+Re-reading, you could just use a single variable for both purposes.
 
-@Daniel, if I'm missing something, please shout.
+Assuming I didn't miss a functional change
+
+Acked-by: David Hildenbrand <david@redhat.com>
 
 -- 
 Cheers,
