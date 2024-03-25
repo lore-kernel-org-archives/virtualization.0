@@ -1,213 +1,199 @@
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+Received: from SG2PR03CU006.outbound.protection.outlook.com (mail-southeastasiaazon11020002.outbound.protection.outlook.com [52.101.133.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEC4313CA97
-	for <virtualization@lists.linux.dev>; Mon, 25 Mar 2024 12:34:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711370081; cv=none; b=t9d5pAqc6GSbIxEPyPlx5Gnsym6yoOCmmJkuj13qFIHvnG1FX4QTT0U/RDIgx8Rm2YuTIDE1pXgof2ppgvODORVEMo7r8dXVoF/pxT+IcKPsptgDF3YufAMN3OhkSTY5dV2AJUSvktt07SzN6I4W4T3BhX64WgRY5/9VsYpITAk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711370081; c=relaxed/simple;
-	bh=/fVBMV2UWnw1wyfMQdYkFy0hz1HTu93VW89tfybxaps=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=A4Q/M43yRhB4tKmZZUi570HLw8Win8/0hCYI64cw9U256YX90p2qCL3ua2TEiPpeExqi/rOcjZbxpWwUagDML5oWCwaE3+AgzOVwhFde8AuNIL0f5Se3P9UPagx0vqcAS1tH6PhaOEYAS9tpWw9BXKAs6h9UrWMamPdDHvOUMzA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=OQHtyaYw; arc=none smtp.client-ip=115.124.30.119
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81D3014AD3D
+	for <virtualization@lists.linux.dev>; Mon, 25 Mar 2024 14:47:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.133.2
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1711378025; cv=fail; b=UnhEolqJsFtAwRd9EP4aXiAUOxS2aqJyHeue12vVQE/YKzfy3XgkJF6n8HbVfDlieYPS2npCRd+R1/ekBkE8rHj0f9NUGdbTs/aVlRCCztpkhxMAlG5nE7Ara5oYjWU2qxJAnRaB0WtzwMQXIUCwJ6va7kWNVAZUQb8/BtPCYQQ=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1711378025; c=relaxed/simple;
+	bh=02spUBYJbGjeT3bBkeiBqh+n0kC8Cr9irNZ0tUH0hKI=;
+	h=From:To:CC:Subject:Date:Message-ID:Content-Type:MIME-Version; b=fyznJk2aHWcuzv4+VKCxJMWqkwjmn7ie9kbbg3NsBTVnNnqcm72fQxqborHXaGd1i6eP3CsFTM+LWZdzSW0ryGMeUDatWvwBJRJCP6RTXnk0ylI3cEUNs54ORWbTh5NHNY67rOr5rLsHGqXigIe48cp+hkoaVUwZjtgZQJqQ8cg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=jaguarmicro.com; spf=pass smtp.mailfrom=jaguarmicro.com; dkim=pass (2048-bit key) header.d=jaguarmicro.com header.i=@jaguarmicro.com header.b=cjVD4JWJ; arc=fail smtp.client-ip=52.101.133.2
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=jaguarmicro.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=jaguarmicro.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="OQHtyaYw"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1711370074; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=Ft3qtYaEtZMEshTVhjrwWpD5LD/8PLTqQczoDNnyhTg=;
-	b=OQHtyaYw26DSWcI9uLA/5Jdd/mLmwO9T+8gDJy7tC1i/386iSfIPewJrC+xqwuQr5sSx/EPEFTxQXFNTDiFWAS7KTKzyl16WVkaFIUHlgMJ0qH4EIyfV4GCxkB3ANfFTK3Rrl91vspp3yHtoS4hOjtMP6gfMTa8XfZiYjgeSZt0=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=16;SR=0;TI=SMTPD_---0W3HQz9A_1711370072;
-Received: from 30.221.148.153(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W3HQz9A_1711370072)
-          by smtp.aliyun-inc.com;
-          Mon, 25 Mar 2024 20:34:33 +0800
-Message-ID: <3ea3a097-e119-4615-a262-62c5f878b6fe@linux.alibaba.com>
-Date: Mon, 25 Mar 2024 20:34:32 +0800
+	dkim=pass (2048-bit key) header.d=jaguarmicro.com header.i=@jaguarmicro.com header.b="cjVD4JWJ"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=NpaNOJImJ+QvZDFzjloskiBXpSTfvReD2Dgd5dxD1Ngf5QJGL9auSH59FupSvZIWCYgqnbwETTbrfDY3qfR7H4ObOYWcHM0KnD6L8SCidJpTT8YLZ95WXfGrPBrxQ938YsiU3nP0TDJ4LyXfizfxi4aBaSDcRIggJD7FptRKHtXPM/x0iewgP9pj86TbqEzhvrAYdVhWSP6CiiSm5N8mIbHxxXzRrfCPSQFrFrM3r9NmfJzvlRPmQZYUp6KkaB4XZxnOp5ieTGMfobjpJh+pLuAgLUh6yEGs9hFHjC9NqDYwEEarI7/I3Q0vXMM1KwtC8Vdk5KwrQZhImPWn/S/K+w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=02spUBYJbGjeT3bBkeiBqh+n0kC8Cr9irNZ0tUH0hKI=;
+ b=GNC9G4Kax+gcDnEum5faeZ/rjjNVfjH/oOUHotuJbgpODkAk+c15le7SE+dRM+EwuaBsavsvlJcrI48yzJd23ChSs+PRrih95cshZ9Mwq+HbUfXvJ8O5wuKDiBgvoCtEQ5M3UNK3ek1qwtT3jTwdiL39A4ACr1T8ND/bZjrPnbsNrszrBra6nYE16pYgMb9c2R6N6yopiBs+kLkp7Fyx/Pkb3H2npVsbEa/PTSa0qfiFfXYBzSqzerJPP0CcbKS08ZvZSz8j8bIhwa2gMWEK3hPsYIAbohwrFL0u7CHgbJOpvtcLItmJikVCVgnGn1n6E2ThrSte5hR4bzeDtxacFg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=jaguarmicro.com; dmarc=pass action=none
+ header.from=jaguarmicro.com; dkim=pass header.d=jaguarmicro.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=jaguarmicro.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=02spUBYJbGjeT3bBkeiBqh+n0kC8Cr9irNZ0tUH0hKI=;
+ b=cjVD4JWJYHdNZvfITF37OKRf/WpWzWNEa51kTJ8nNjyGiPNMBUkf8VBpVvWQzStge38BQ2BIPh6/0LmKgaJlIYI89IM0DaSIse7Up9VIrTcqKdllB+xxoMVAz5UlUAnvgn0wSXoJcMP8OPwfZ6fVDemiWAxEEuHh2xhN9q92MRMNF6lWX47hluA1xo88Uz34xFBT5vAmZi0I7/DxPv3OW/Q/njuW14WEgaE0Tle4gfbUKPtQVH/VsSjHeGT9ZdbWlf1bZTWBUUSRnEtWHRCUFjb598ID5kw6V+GNQ7z6zNoZv10dbd43NubgVpSJo/iOXU/j+OWDg/p1F2QBEZ1ybg==
+Received: from SEYPR06MB6756.apcprd06.prod.outlook.com (2603:1096:101:165::11)
+ by TYZPR06MB6913.apcprd06.prod.outlook.com (2603:1096:405:3d::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7409.31; Mon, 25 Mar
+ 2024 14:46:57 +0000
+Received: from SEYPR06MB6756.apcprd06.prod.outlook.com
+ ([fe80::ce49:84ce:23db:8b8]) by SEYPR06MB6756.apcprd06.prod.outlook.com
+ ([fe80::ce49:84ce:23db:8b8%6]) with mapi id 15.20.7409.028; Mon, 25 Mar 2024
+ 14:46:57 +0000
+From: Gavin Liu <gavin.liu@jaguarmicro.com>
+To: Jason Wang <jasowang@redhat.com>
+CC: "mst@redhat.com" <mst@redhat.com>, "xuanzhuo@linux.alibaba.com"
+	<xuanzhuo@linux.alibaba.com>, "virtualization@lists.linux.dev"
+	<virtualization@lists.linux.dev>
+Subject: Reply: [PATCH v2] vp_vdpa: Fix return value check vp_vdpa_request_irq
+Thread-Topic: Reply: [PATCH v2] vp_vdpa: Fix return value check
+ vp_vdpa_request_irq
+Thread-Index: Adp+w08u83otn6s5RQ+6exjOg7y/LA==
+Date: Mon, 25 Mar 2024 14:46:56 +0000
+Message-ID:
+ <SEYPR06MB6756BA1B73EAE710C93BA788EC362@SEYPR06MB6756.apcprd06.prod.outlook.com>
+Accept-Language: zh-CN, en-US
+Content-Language: zh-CN
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=jaguarmicro.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: SEYPR06MB6756:EE_|TYZPR06MB6913:EE_
+x-ms-office365-filtering-correlation-id: 02d60ab7-0e8a-4739-3472-08dc4cda6b6d
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info:
+ Z4RA8NvAbjGbneEvvnONqajxpiuXBPKujWjgRXcGr+m0gGdQb4ske+dm8+ercabtHzTzsLfFcixH2oYzhJIAf1t2bOjcEFqOn1lUGoxtsQYxuU3jSmk/4zFYACSgYUAZu2bS+d+M4zw+XOZ2nDSocZdmyiJ1MY5P+tGRSJ33FRJOpFBfx8LUdNxKbbh7Vf4VGepfAWhB0iA8X3Tkk0p/vop1WeHr9viIMTb1zttpS9T5r47ON/CKhID9uCPRRXmensWBaGPyGFFWgems3wNV2yiS1gWFULwGqQUPWkuU2CkqVi+CoZX78B/wKlg+VC9kz7LIC9QXgpQ9Tn94AEetf99KvZgSjsgH5S3Gpy62eXlCcayaPrmZvr3nO241/5ZLF3B2RZDF9mE1reC3YWMD9Xe57qzsECW/SkH2g+AecpJFjEkCc5aTSmWiTD6Sq+EofnuZLjN6klBrkx557JiZC5lcXReRFF3gKfYs5oFqQBNMGFm55ZCN3Y7gkPyzxapkNXwj/LLEjgXMJ05Mu6xepse0/4VxwB8VK8YE8ASJyoZV70uNeuSxcz1Z1t5bvBa12ucUo0qH7uSdYgPPTKAnwMj/I/LXgB8llePab3k+HWZxpMyy6Ke+93a3xIykIsoaTTmtlaapl45cNvr+atQa2CazbLeMrAPeq5/F65fiCoc=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:zh-cn;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SEYPR06MB6756.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(1800799015)(366007)(376005)(38070700009);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?utf-8?B?T2hGT005aTl4cHVGY29YUnNoRmZnM2hKMEh2ZUNPakxtSTJJRU82VU1YYVdG?=
+ =?utf-8?B?Mk0wUG1XeHk2anFYdURzMEwyYWszQ2hJZStGZDQ3Q01ZR1JLdWlMSzJWNU83?=
+ =?utf-8?B?MzRHQ2gwWWNEVUNvdXY0dEhKNnlQVzFlOE5ta0x5S1ZNR1pQOXN1N1VldnRj?=
+ =?utf-8?B?SUVscitjV25HOC8wcXVocHhIV0xCMnZtdUhqNDVMVUhjSElnNSttSUZXM1dk?=
+ =?utf-8?B?NmlEcDBPQ3JsL2dOT2x4THJiT2E2WE1pWFNGS3JjQnhwV3lRUXdKQS9RWm5E?=
+ =?utf-8?B?R1AwR083RGNqTDBSSzNnOHI5RUtYVG9HTFhYcWxMZ0UvT3owOWdpZnJZUzNU?=
+ =?utf-8?B?N0dvekhyS0ZEZGtJMW9NNFIzSG1JOUNyNW95b2VOSlYrd1MxQTdzMWcraVli?=
+ =?utf-8?B?ZTNJYmJxZDJERnJxbGFia1Zja1IzeVdiajVIOGhWN0tEZ3BPajdOQm1qOHlC?=
+ =?utf-8?B?SnppOXk4K1dUT2VnNlFZZ2tTRjdNQUtnbUp3aFhkdDZMV1B2djZJODVoUkxr?=
+ =?utf-8?B?WDdrYWRpWm50MDltTkQ0Uzh3Z0Myb0NCZlZybVdYc2dXUGhhYjd2VFZCeHJp?=
+ =?utf-8?B?VkZ1ZDRYRDdJMm5Va3ZGdERWYXRVQ2J6ckdVcnJLYUZUbDFoTzloZldWQ0w1?=
+ =?utf-8?B?OG4vVmpIRG4yMi9hcFQrZkJoQVZDY3kvT0pPSFZ0QWlhdnpHbEdET1RrZ3lH?=
+ =?utf-8?B?cXVKVlR3WFREOVUwTHFlQWxsQ0FCNnNLR0RuK3pOaXN6OUxRVCttVDdreitr?=
+ =?utf-8?B?N0NxV3dEUkpiRW9KODI2VEsxVDNCbGdVcTlkMk9oWUhwK2xWallPdkdQMUR0?=
+ =?utf-8?B?QmNodkZTVjBiYTQva0VhUEFTc21JTjNibytMSDI4b244aG5LWVljcUVwbWdn?=
+ =?utf-8?B?akdsRUdhSFBaNmYwSG5BSWp1QmZycTZyUTYrV3BlSmlsTFYvc3dsU25jY1Yw?=
+ =?utf-8?B?NEhVb1QzcFpqVnlZRDJuM1ZaRW55aWMvTlNlN1pUUnZZZURJVjl1WGdoVTc4?=
+ =?utf-8?B?algxVUIzeUtpV3JHYWkrTUM3MlBxdlpab0M0NkwycHlXUXpQWkNXeEZ4VytX?=
+ =?utf-8?B?TENYVUg3WlhZS3hjcnV0RlY5TDdCNHBFZWFPTDFvQkNuQTd4QXY1OHZKaitx?=
+ =?utf-8?B?ME9jNjI1dk5kU3hLbEhMMXdNa1A3dkROMWFJNzZ2S1RnNER1aytvQ2JIdndv?=
+ =?utf-8?B?cE4rdXVWQnZtbjYvWS9ncC9XSGcwN3Bsc1paK1Q1Q0wyTm5hWjIrd2U0emE1?=
+ =?utf-8?B?aE9MNzBXS1VrN1oyb1lYU1QyYUc0RE1KYXYyUThzd1k4SjM5amZkcFAya1o4?=
+ =?utf-8?B?UXdiSnhmUlBWaThFaG9PYng3bloxNDlaT2pEYTZrcGMxTjF2SUd0a0xVb0kv?=
+ =?utf-8?B?ZEtadzlSempzRldOelRTSmpOeXpwYnNBZUtRbFQvbjhNRklGMEFLZ0swaSt5?=
+ =?utf-8?B?OTJuN1l6RlFkNUdvN1hKcldvQTFDelFHZUt1R0RTUi8wK1hvZVFXNTduejFS?=
+ =?utf-8?B?aXNrT3R1U0VWYXNocFdvQTJmVXgwT0svVkFvMUZ2ckRXR1ZacXdHSGFLWWVX?=
+ =?utf-8?B?ci9Jdzc5TUR0a3lZZ2drVWJVcDdQMWdLSkEzb0dQQjc4cHpYcFBoRGFlMWFU?=
+ =?utf-8?B?NTUwcmlvbm5DQWtuMU81WE1NanRZYWdGV3Y1R1ZibjBBck9DaDFwK2puQXZJ?=
+ =?utf-8?B?OXB5WnN0dEdWcHQrdXhYd2xGMlJaeTNORkZydnpvWW0zTlBHOWhCcklabFpN?=
+ =?utf-8?B?OWlydDl5SHFtY09CeDJvSU5zbjg1ZEdtTXovL3p1TnJOczlmeUlNaTI2aHM4?=
+ =?utf-8?B?WDBhQ21pa1VDbytMV1lldDdmM1RqeUN6cmp6czhKZEVDVWFVaHZHbUg4Z3Y5?=
+ =?utf-8?B?NGhMOW5oc0JJckozYWFWTTdkUm1ESzl2VmgxY3V0YmxqeE9ZSHVvQ2o2WmR6?=
+ =?utf-8?B?YlJMdDkzUFliN2VxS2RLRGRlSFdVMFVBdFZiT3NBVlptTDRYTC9wTHpWVnBv?=
+ =?utf-8?B?QWs2UzZJUFZPZW5yd2NDVEpwd1g2N2FSVFcrMDVHOGF4Zm40WGx0Wnh3L1R3?=
+ =?utf-8?B?VmphU0JVK3VJOC9vL2FxdW9tdTlteVNvSTZOcmkzZVF3Y09QREhKZXR1Uk1Z?=
+ =?utf-8?Q?Jeg1HEe2pDEG7h5ZfqV8+0SBM?=
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] virtio_net: Do not send RSS key if it is not supported
-To: Breno Leitao <leitao@debian.org>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: rbc@meta.com, riel@surriel.com, stable@vger.kernel.org,
- qemu-devel@nongnu.org,
- "open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
- "open list:NETWORKING DRIVERS" <netdev@vger.kernel.org>,
- open list <linux-kernel@vger.kernel.org>, "Michael S. Tsirkin"
- <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Andrew Melnychenko <andrew@daynix.com>
-References: <20240321165431.3517868-1-leitao@debian.org>
- <1711072822.882584-1-xuanzhuo@linux.alibaba.com> <Zf1bofzE4x0wGEm+@gmail.com>
- <1711346273.5079622-1-xuanzhuo@linux.alibaba.com>
- <ZgFfUHQhMdAWixqB@gmail.com>
- <1711366510.4360204-1-xuanzhuo@linux.alibaba.com>
-From: Heng Qi <hengqi@linux.alibaba.com>
-In-Reply-To: <1711366510.4360204-1-xuanzhuo@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+X-OriginatorOrg: jaguarmicro.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SEYPR06MB6756.apcprd06.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 02d60ab7-0e8a-4739-3472-08dc4cda6b6d
+X-MS-Exchange-CrossTenant-originalarrivaltime: 25 Mar 2024 14:46:56.8481
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 1e45a5c2-d3e1-46b3-a0e6-c5ebf6d8ba7b
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: z+G21jxKo6x578VlO0pahYKPYBu6TPvxZGKuNoTfjXnI63vE5Yb9FoOTuN9Kzijhbf7OwBzYYDlZfQGj8hVK067wdFVoc9KlVKurAyg4L0E=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: TYZPR06MB6913
 
-
-
-在 2024/3/25 下午7:35, Xuan Zhuo 写道:
-> On Mon, 25 Mar 2024 04:26:08 -0700, Breno Leitao <leitao@debian.org> wrote:
->> Hello Xuan,
->>
->> On Mon, Mar 25, 2024 at 01:57:53PM +0800, Xuan Zhuo wrote:
->>> On Fri, 22 Mar 2024 03:21:21 -0700, Breno Leitao <leitao@debian.org> wrote:
->>>> Hello Xuan,
->>>>
->>>> On Fri, Mar 22, 2024 at 10:00:22AM +0800, Xuan Zhuo wrote:
->>>>> On Thu, 21 Mar 2024 09:54:30 -0700, Breno Leitao <leitao@debian.org> wrote:
->>>>>> 4) Since the command above does not have a key, then the last
->>>>>>     scatter-gatter entry will be zeroed, since rss_key_size == 0.
->>>>>>      sg_buf_size = vi->rss_key_size;
->>>>>
->>>>>
->>>>> 	if (vi->has_rss || vi->has_rss_hash_report) {
->>>>> 		vi->rss_indir_table_size =
->>>>> 			virtio_cread16(vdev, offsetof(struct virtio_net_config,
->>>>> 				rss_max_indirection_table_length));
->>>>> 		vi->rss_key_size =
->>>>> 			virtio_cread8(vdev, offsetof(struct virtio_net_config, rss_max_key_size));
->>>>>
->>>>> 		vi->rss_hash_types_supported =
->>>>> 		    virtio_cread32(vdev, offsetof(struct virtio_net_config, supported_hash_types));
->>>>> 		vi->rss_hash_types_supported &=
->>>>> 				~(VIRTIO_NET_RSS_HASH_TYPE_IP_EX |
->>>>> 				  VIRTIO_NET_RSS_HASH_TYPE_TCP_EX |
->>>>> 				  VIRTIO_NET_RSS_HASH_TYPE_UDP_EX);
->>>>>
->>>>> 		dev->hw_features |= NETIF_F_RXHASH;
->>>>> 	}
->>>>>
->>>>>
->>>>> vi->rss_key_size is initiated here, I wonder if there is something wrong?
->>>> Not really, the code above is never executed (in my machines). This is
->>>> because `vi->has_rss` and `vi->has_rss_hash_report` are both unset.
->>>>
->>>> Looking further, vdev does not have the VIRTIO_NET_F_RSS and
->>>> VIRTIO_NET_F_HASH_REPORT features.
->>>>
->>>> Also, when I run `ethtool -x`, I got:
->>>>
->>>> 	# ethtool  -x eth0
->>>> 	RX flow hash indirection table for eth0 with 1 RX ring(s):
->>>> 	Operation not supported
->>>> 	RSS hash key:
->>>> 	Operation not supported
->>>> 	RSS hash function:
->>>> 	    toeplitz: on
->>>> 	    xor: off
->>>> 	    crc32: off
->>>
->>> The spec saies:
->>> 	Note that if the device offers VIRTIO_NET_F_HASH_REPORT, even if it
->>> 	supports only one pair of virtqueues, it MUST support at least one of
->>> 	commands of VIRTIO_NET_CTRL_MQ class to configure reported hash
->>> 	parameters:
->>>
->>> 	If the device offers VIRTIO_NET_F_RSS, it MUST support
->>> 	VIRTIO_NET_CTRL_MQ_RSS_CONFIG command per 5.1.6.5.7.1.
->>>
->>> 	Otherwise the device MUST support VIRTIO_NET_CTRL_MQ_HASH_CONFIG command
->>> 	per 5.1.6.5.6.4.
->>>
->>>
->>> So if we have not anyone of `vi->has_rss` and `vi->has_rss_hash_report`,
->>> we should return from virtnet_set_rxfh directly.
->> Makes sense. Although it is not clear to me how vi->has_rss_hash_report
->> is related here, but, I am convinced that we shouldn't do any RSS
->> operation if the device doesn't have the RSS feature, i.e, vi->has_rss
->> is false.
->>
->> That said, I am thinking about something like this. How does it sound?
->>
->> 	diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
->> 	index 5a7700b103f8..8c1ad7361cf2 100644
->> 	--- a/drivers/net/virtio_net.c
->> 	+++ b/drivers/net/virtio_net.c
->> 	@@ -3780,6 +3780,9 @@ static int virtnet_set_rxfh(struct net_device *dev,
->> 		struct virtnet_info *vi = netdev_priv(dev);
->> 		int i;
->>
->> 	+	if (!vi->has_rss)
->> 	+		return -EOPNOTSUPP;
->> 	+
-> Should we check has_rss_hash_report?
-
-Hi, Breno.
-
-You can refer to the following modification. It is worth noting
-that \field{rss_max_indirection_table_length} should only be
-accessed if VIRTIO_NET_F_RSS is negotiated, which I have
-modified below:
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 727c874..fb4c438 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -3836,10 +3836,16 @@ static int virtnet_set_rxfh(struct net_device *dev,
-         struct virtnet_info *vi = netdev_priv(dev);
-         int i;
-
-+       if (!vi->has_rss && !vi->has_rss_hash_report)
-+               return -EOPNOTSUPP;
-+
-         if (rxfh->hfunc != ETH_RSS_HASH_NO_CHANGE &&
-             rxfh->hfunc != ETH_RSS_HASH_TOP)
-                 return -EOPNOTSUPP;
-
-+       if (rxfh->indir && !vi->has_rss)
-+               return -EINVAL;
-+
-         if (rxfh->indir) {
-                 for (i = 0; i < vi->rss_indir_table_size; ++i)
-                         vi->ctrl->rss.indirection_table[i] = 
-rxfh->indir[i];
-@@ -4757,13 +4763,14 @@ static int virtnet_probe(struct virtio_device *vdev)
-         if (virtio_has_feature(vdev, VIRTIO_NET_F_HASH_REPORT))
-                 vi->has_rss_hash_report = true;
-
--       if (virtio_has_feature(vdev, VIRTIO_NET_F_RSS))
-+       if (virtio_has_feature(vdev, VIRTIO_NET_F_RSS)) {
-                 vi->has_rss = true;
--
--       if (vi->has_rss || vi->has_rss_hash_report) {
-                 vi->rss_indir_table_size =
-                         virtio_cread16(vdev, offsetof(struct 
-virtio_net_config,
-                                 rss_max_indirection_table_length));
-+       }
-+
-+       if (vi->has_rss || vi->has_rss_hash_report) {
-                 vi->rss_key_size =
-                         virtio_cread8(vdev, offsetof(struct 
-virtio_net_config, rss_max_key_size));
-
-
-Regards,
-Heng
-
->
-> @Heng Qi
->
-> Could you help us?
->
-> Thanks.
->
->
->> 		if (rxfh->hfunc != ETH_RSS_HASH_NO_CHANGE &&
->> 		    rxfh->hfunc != ETH_RSS_HASH_TOP)
->> 			return -EOPNOTSUPP;
->>
->> Thanks!
-
+SGkgSmFzb24gV2FuZw0KDQpUaGFua3MgZm9yIHlvdXIgcmV2aWV3Lg0KDQpZZXMsIHlvdSdyZSBj
+b3JyZWN0LiBJIHdpbGwgdXBkYXRlIHRoZSBwYXRjaCBhY2NvcmRpbmdseSB0byBhZGRyZXNzIHRo
+ZSBpc3N1ZXMgeW91IHBvaW50ZWQgb3V0LiBIZXJlIGlzIHRoZSBsaW5rIHRvIHRoZSBWMiB2ZXJz
+aW9uOiBodHRwczovL2xvcmUua2VybmVsLm9yZy9hbGwvMjAyNDAzMjUxMTAzMzMuMjQ5LTEtZ2F2
+aW4ubGl1QGphZ3Vhcm1pY3JvLmNvbS8NCkhlcmUgaXMgdGhlIGNvbnRlbnQgb2YgdGhlIFYyIHZl
+cnNpb246DQotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tDQoNCkluIHRoZSB2
+cF92ZHBhX3NldF9zdGF0dXMgZnVuY3Rpb24sIHdoZW4gc2V0dGluZyB0aGUgZGV2aWNlIHN0YXR1
+cyB0byBWSVJUSU9fQ09ORklHX1NfRFJJVkVSX09LLCB0aGUgdnBfdmRwYV9yZXF1ZXN0X2lycSBm
+dW5jdGlvbiBtYXkgZmFpbC4NCkluIHN1Y2ggY2FzZXMsIHRoZSBkZXZpY2Ugc3RhdHVzIHNob3Vs
+ZCBub3QgYmUgc2V0IHRvIERSSVZFUl9PSy4gQWRkIGV4Y2VwdGlvbiBwcmludGluZyB0byByZW1p
+bmQgdGhlIHVzZXIuDQoNClNpZ25lZC1vZmYtYnk6IFl1eHVlIExpdSA8eXV4dWUubGl1QGphZ3Vh
+cm1pY3JvLmNvbT4NCi0tLQ0KDQpWMSAtPiBWMjogUmVtb3ZlIHJlZHVuZGFudCBwcmludG91dHMN
+ClYxOiBodHRwczovL2xvcmUua2VybmVsLm9yZy9hbGwvMjAyNDAzMTUxMDI4NTcuMTgwMy0xLWdh
+dmluLmxpdUBqYWd1YXJtaWNyby5jb20vDQoNCi0tLQ0KIGRyaXZlcnMvdmRwYS92aXJ0aW9fcGNp
+L3ZwX3ZkcGEuYyB8IDUgKysrKy0NCiAxIGZpbGUgY2hhbmdlZCwgNCBpbnNlcnRpb25zKCspLCAx
+IGRlbGV0aW9uKC0pDQoNCmRpZmYgLS1naXQgYS9kcml2ZXJzL3ZkcGEvdmlydGlvX3BjaS92cF92
+ZHBhLmMgYi9kcml2ZXJzL3ZkcGEvdmlydGlvX3BjaS92cF92ZHBhLmMNCmluZGV4IGRmNWY0YTNi
+Y2NiNS4uNGNhY2EwNTE3Y2FkIDEwMDY0NA0KLS0tIGEvZHJpdmVycy92ZHBhL3ZpcnRpb19wY2kv
+dnBfdmRwYS5jDQorKysgYi9kcml2ZXJzL3ZkcGEvdmlydGlvX3BjaS92cF92ZHBhLmMNCkBAIC0y
+MTYsNyArMjE2LDEwIEBAIHN0YXRpYyB2b2lkIHZwX3ZkcGFfc2V0X3N0YXR1cyhzdHJ1Y3QgdmRw
+YV9kZXZpY2UgKnZkcGEsIHU4IHN0YXR1cykNCiANCiAJaWYgKHN0YXR1cyAmIFZJUlRJT19DT05G
+SUdfU19EUklWRVJfT0sgJiYNCiAJICAgICEocyAmIFZJUlRJT19DT05GSUdfU19EUklWRVJfT0sp
+KSB7DQotCQl2cF92ZHBhX3JlcXVlc3RfaXJxKHZwX3ZkcGEpOw0KKwkJaWYgKHZwX3ZkcGFfcmVx
+dWVzdF9pcnEodnBfdmRwYSkpIHsNCisJCQlXQVJOX09OKDEpOw0KKwkJCXJldHVybjsNCisJCX0N
+CiAJfQ0KIA0KIAl2cF9tb2Rlcm5fc2V0X3N0YXR1cyhtZGV2LCBzdGF0dXMpOw0KLS0NCi0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NCg0K
+QmVzdCByZWdhcmRzLA0KR2F2aW4NCg0KLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206
+IEphc29uIFdhbmcgamFzb3dhbmdAcmVkaGF0LmNvbQ0KU2VudDogTWFyY2ggMTgsIDIwMjQgMTI6
+MjUNClRvOiBHYXZpbiBMaXUgZ2F2aW4ubGl1QGphZ3Vhcm1pY3JvLmNvbQ0KQ2M6IG1zdEByZWRo
+YXQuY29tOyB4dWFuemh1b0BsaW51eC5hbGliYWJhLmNvbTsgdmlydHVhbGl6YXRpb25AbGlzdHMu
+bGludXguZGV2OyBBbmd1cyBDaGVuIGFuZ3VzLmNoZW5AamFndWFybWljcm8uY29tOyBHYXZpbiBM
+aXUgZ2F2aW4ubGl1QGphZ3Vhcm1pY3JvLmNvbQ0KU3ViamVjdDogUmU6IFtQQVRDSF0gdnBfdmRw
+YTogRml4IHJldHVybiB2YWx1ZSBjaGVjayB2cF92ZHBhX3JlcXVlc3RfaXJxDQoNCkV4dGVybmFs
+IE1haWw6IFRoaXMgZW1haWwgb3JpZ2luYXRlZCBmcm9tIE9VVFNJREUgb2YgdGhlIG9yZ2FuaXph
+dGlvbiENCkRvIG5vdCBjbGljayBsaW5rcywgb3BlbiBhdHRhY2htZW50cyBvciBwcm92aWRlIEFO
+WSBpbmZvcm1hdGlvbiB1bmxlc3MgeW91IHJlY29nbml6ZSB0aGUgc2VuZGVyIGFuZCBrbm93IHRo
+ZSBjb250ZW50IGlzIHNhZmUuDQoNCg0KT24gRnJpLCBNYXIgMTUsIDIwMjQgYXQgNjoyOeKAr1BN
+IGdhdmluLmxpdSA8Z2F2aW4ubGl1QGphZ3Vhcm1pY3JvLmNvbT4gd3JvdGU6DQo+DQo+IEZyb206
+IFl1eHVlIExpdSA8eXV4dWUubGl1QGphZ3Vhcm1pY3JvLmNvbT4NCj4NCj4gSW4gdGhlIHZwX3Zk
+cGFfc2V0X3N0YXR1cyBmdW5jdGlvbiwgd2hlbiBzZXR0aW5nIHRoZSBkZXZpY2Ugc3RhdHVzIHRv
+DQo+IFZJUlRJT19DT05GSUdfU19EUklWRVJfT0ssIHRoZSB2cF92ZHBhX3JlcXVlc3RfaXJxIGZ1
+bmN0aW9uIG1heSBmYWlsLg0KPiBJbiBzdWNoIGNhc2VzLCB0aGUgZGV2aWNlIHN0YXR1cyBzaG91
+bGQgbm90IGJlIHNldCB0byBEUklWRVJfT0suIEFkZA0KPiBleGNlcHRpb24gcHJpbnRpbmcgdG8g
+cmVtaW5kIHRoZSB1c2VyLg0KPg0KPiBTaWduZWQtb2ZmLWJ5OiBZdXh1ZSBMaXUgPHl1eHVlLmxp
+dUBqYWd1YXJtaWNyby5jb20+DQo+IC0tLQ0KPiAgZHJpdmVycy92ZHBhL3ZpcnRpb19wY2kvdnBf
+dmRwYS5jIHwgOCArKysrKysrLQ0KPiAgMSBmaWxlIGNoYW5nZWQsIDcgaW5zZXJ0aW9ucygrKSwg
+MSBkZWxldGlvbigtKQ0KPg0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92ZHBhL3ZpcnRpb19wY2kv
+dnBfdmRwYS5jIGIvZHJpdmVycy92ZHBhL3ZpcnRpb19wY2kvdnBfdmRwYS5jDQo+IGluZGV4IDI4
+MTI4N2ZhZTg5Zi4uYzEyNzBiMjYzODY3IDEwMDY0NA0KPiAtLS0gYS9kcml2ZXJzL3ZkcGEvdmly
+dGlvX3BjaS92cF92ZHBhLmMNCj4gKysrIGIvZHJpdmVycy92ZHBhL3ZpcnRpb19wY2kvdnBfdmRw
+YS5jDQo+IEBAIC0yMTMsMTAgKzIxMywxNiBAQCBzdGF0aWMgdm9pZCB2cF92ZHBhX3NldF9zdGF0
+dXMoc3RydWN0IHZkcGFfZGV2aWNlICp2ZHBhLCB1OCBzdGF0dXMpDQo+ICAgICAgICAgc3RydWN0
+IHZwX3ZkcGEgKnZwX3ZkcGEgPSB2ZHBhX3RvX3ZwKHZkcGEpOw0KPiAgICAgICAgIHN0cnVjdCB2
+aXJ0aW9fcGNpX21vZGVybl9kZXZpY2UgKm1kZXYgPSB2cF92ZHBhX3RvX21kZXYodnBfdmRwYSk7
+DQo+ICAgICAgICAgdTggcyA9IHZwX3ZkcGFfZ2V0X3N0YXR1cyh2ZHBhKTsNCj4gKyAgICAgICBz
+dHJ1Y3QgcGNpX2RldiAqcGRldiA9IG1kZXYtPnBjaV9kZXY7DQo+DQo+ICAgICAgICAgaWYgKHN0
+YXR1cyAmIFZJUlRJT19DT05GSUdfU19EUklWRVJfT0sgJiYNCj4gICAgICAgICAgICAgIShzICYg
+VklSVElPX0NPTkZJR19TX0RSSVZFUl9PSykpIHsNCj4gLSAgICAgICAgICAgICAgIHZwX3ZkcGFf
+cmVxdWVzdF9pcnEodnBfdmRwYSk7DQo+ICsgICAgICAgICAgICAgICBpZiAodnBfdmRwYV9yZXF1
+ZXN0X2lycSh2cF92ZHBhKSkgew0KPiArICAgICAgICAgICAgICAgICAgICAgICBXQVJOX09OKDEp
+Ow0KPiArICAgICAgICAgICAgICAgICAgICAgICBkZXZfZXJyKCZwZGV2LT5kZXYsDQo+ICsgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgInZwX3ZkcGEgOiBmYWlsIHNldCBzdGF0dXMgaXMg
+RFJJVkVSX09LXG4iKTsNCg0KSSB0aGluayBoYXZpbmcgb25lIG9mIHRoZSBXQVJOX09OIG9yIGRl
+dl9lcnIgc2hvdWxkIGJlIHN1ZmZpY2llbnQuDQoNClRoYW5rcw0KDQo+ICsgICAgICAgICAgICAg
+ICAgICAgICAgIHJldHVybjsNCj4gKyAgICAgICAgICAgICAgIH0NCj4gICAgICAgICB9DQo+DQo+
+ICAgICAgICAgdnBfbW9kZXJuX3NldF9zdGF0dXMobWRldiwgc3RhdHVzKTsNCj4gLS0NCj4gMi40
+My4wDQo+DQoNCg==
