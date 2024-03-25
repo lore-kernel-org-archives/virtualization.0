@@ -1,187 +1,152 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from APC01-SG2-obe.outbound.protection.outlook.com (mail-sgaapc01on2106.outbound.protection.outlook.com [40.107.215.106])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD5B2184F1C
-	for <virtualization@lists.linux.dev>; Mon, 25 Mar 2024 09:44:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711359901; cv=none; b=fMbExmH3GjjVA3vE0Oe1YHCYGiuJBnDslwJX9xbGO6Yw2HO6EE6obk06MHq6uBFzgq/MjubRgp3jYOKsTsQs4l601yA4Hz6H0drSn6PQ+EeZbp42pQ84A1KBX285e6yJZRd/VKHimcwwyoz2B7ju5SzjAwzRZCqqg+Ax3pmUNE8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711359901; c=relaxed/simple;
-	bh=yKCyNRThwZiKQFl3ZGytN6SP5I5cAUdIfq1PtSY8/0o=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=sBCu78FZSYWkXrI3RtLefxYrtkxEL8unYUInX29gVoaQgzpHxMRa9PqHt1n8c+kAQk98vNZIR5dqKX7xQGqAKUs0CkrxENXDgJJfZXexhcliI/dwL/KXBifGsBIcjxEsj7qOZFEstXFdOm92GARIzYweTxDc5FyqWJocX9JF5HQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=B/IQQaFi; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A60991B7CE8
+	for <virtualization@lists.linux.dev>; Mon, 25 Mar 2024 11:04:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.215.106
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1711364671; cv=fail; b=Zu+C6J4aWr8vSWRESOwzJldh1EDtM4S1jbTLnIVPuOR0MLzi4mxKRhVmhDh5vhh5uNU9D8i+DWdPLZFuLzwhmY/aLgUpjWbbmyou6Jn+kfAvOOQfvH5PZffWpn4NUDn4qz6XsZj5W5Du+h76Opvr1r8NfZFsxk1xGcIA4CNWKQg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1711364671; c=relaxed/simple;
+	bh=uwLAFG3YtlQs8DzdJy7AVwMYReJK/uIC2RWLXRef93s=;
+	h=From:To:Cc:Subject:Date:Message-Id:Content-Type:MIME-Version; b=kQaCUCn2/5hfhOyDdQZrukymSMsU6avtil7owD3cemR4LKf+H29vhuA47ZMoP9HZ8ciVHttn4oJX7WE/Qav3ybi/6xe5IKNCYA5tgjeZ5cAU1y++gUvjuHaddkWMgQoFN/s3DCwnnVDHI4K/oBr/9s8XoOTVS8Gkb9+lhMtS0vU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=jaguarmicro.com; spf=pass smtp.mailfrom=jaguarmicro.com; dkim=pass (2048-bit key) header.d=jaguarmicro.com header.i=@jaguarmicro.com header.b=EffP/mtH; arc=fail smtp.client-ip=40.107.215.106
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=jaguarmicro.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=jaguarmicro.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="B/IQQaFi"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1711359897;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=BdmZcxTxaezoD4ADz7mbOH050D8bZAskNFuCnh+xicc=;
-	b=B/IQQaFijoXlhM0zSIq/g1//TE3Qkrv1+xc1IncneaU8keSRXmloxQ0JVof/3hW6tNvHo0
-	mAUuBcWekNN3SDZt+9dLg5AeYzJORy+jVIRvJ50CFv3SPTYgEzV+I1iLUQ19a+USyxnHgK
-	AJb0SZItFQNkqiso2LNiG9IPASOVaIw=
-Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
- by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-625-4bwf4HvHONWvCeWH0UPaXQ-1; Mon,
- 25 Mar 2024 05:44:51 -0400
-X-MC-Unique: 4bwf4HvHONWvCeWH0UPaXQ-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 488B628B6AA2;
-	Mon, 25 Mar 2024 09:44:50 +0000 (UTC)
-Received: from localhost (dhcp-192-239.str.redhat.com [10.33.192.239])
-	by smtp.corp.redhat.com (Postfix) with ESMTPS id 9FD631C060A4;
-	Mon, 25 Mar 2024 09:44:48 +0000 (UTC)
-From: Cornelia Huck <cohuck@redhat.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, David Hildenbrand
- <david@redhat.com>
-Cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg
- <johannes@sipsolutions.net>, Hans de Goede <hdegoede@redhat.com>, Ilpo
- =?utf-8?Q?J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, Vadim Pasternak
- <vadimp@nvidia.com>, Bjorn Andersson <andersson@kernel.org>, Mathieu
- Poirier <mathieu.poirier@linaro.org>, Halil Pasic <pasic@linux.ibm.com>,
- Eric Farman <farman@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger
- <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, "Michael
- S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- linux-um@lists.infradead.org, platform-driver-x86@vger.kernel.org,
- linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
- kvm@vger.kernel.org, Daniel Verkamp <dverkamp@chromium.org>
-Subject: Re: [PATCH vhost v4 1/6] virtio_balloon: remove the dependence
- where names[] is null
-In-Reply-To: <1711346901.0977402-2-xuanzhuo@linux.alibaba.com>
-Organization: "Red Hat GmbH, Sitz: Werner-von-Siemens-Ring 12, D-85630
- Grasbrunn, Handelsregister: Amtsgericht =?utf-8?Q?M=C3=BCnchen=2C?= HRB
- 153243,
- =?utf-8?Q?Gesch=C3=A4ftsf=C3=BChrer=3A?= Ryan Barnhart, Charles Cachera,
- Michael O'Neill, Amy
- Ross"
-References: <20240321101532.59272-1-xuanzhuo@linux.alibaba.com>
- <20240321101532.59272-2-xuanzhuo@linux.alibaba.com>
- <CABVzXAkwcKMb7pC21aUDLEM=RoyOtGA2Vim+LF0oWQ7mjUx68g@mail.gmail.com>
- <b420a545-0a7a-431c-aa48-c5db3d221420@redhat.com>
- <1711346901.0977402-2-xuanzhuo@linux.alibaba.com>
-User-Agent: Notmuch/0.37 (https://notmuchmail.org)
-Date: Mon, 25 Mar 2024 10:44:47 +0100
-Message-ID: <87zfum7ii8.fsf@redhat.com>
+	dkim=pass (2048-bit key) header.d=jaguarmicro.com header.i=@jaguarmicro.com header.b="EffP/mtH"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=A0kmf30+V63d5FfsRFQVpYLo3Rz9NlvX/ukO7M+VbPKFAiJww9oFfRFWGROj4unQJ9Xyx/T+XKm82kpT1fix0KYou4SbsdVQZtzB/4V/RD3rIjHGVB9tmjJeQPWVv7Tx61eQYTcTOoMOjHR5jkmm6fvjZbTzR2ylJ1wOFZWzUqcu1+zryTMYB/d6fbp5eOc0k88fOWxdgEt/QoQj1hTiHrNbz7I3/6kyd6gawFM6Iyvg2I6451p3vPgNn/O1tcXlVSxkinK+9Sto5eMNVZgdxWoAWqjKEvFoFRlOG6PoN15OKkB9Vuqxq46ExRuaWbTKYha9QXxND9QlMoZKh9rOPQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=tG7VTbd0cEGa9QCWFI9+pgRa/zqNboFBoSDZAj5VLGQ=;
+ b=U3W7BmqDyr4rdrgsr3F26AtCkxTFONf7LkjRfnGfeS/PsejU9oD1OzPsYURC88MIB1Moqs/prND6Evk0BMBFDi6H55FlQYWWJ42CkjmwJgzGpeOaHx4J3xPVPK//5w7Vk65k/979wvkmdx8oB2FX5P2LrGV6F+o6akZOTBJBsk0QH88DqrwXBWLdkeXA9sD+Lx3yqXcqI6KwA+Q8PWqf6eLqFGQrJ4+wChTBgXqjNqjcCfk/DUW9z4q4Qz2mivgp/brxzgUotgXrcaFn4IaFa47n+EqnR++i6ChJ54YQa5GTaekxhQAJaLO+Kuhxhcw0wwVihlWM72zprkzyLHZtfg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=jaguarmicro.com; dmarc=pass action=none
+ header.from=jaguarmicro.com; dkim=pass header.d=jaguarmicro.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=jaguarmicro.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=tG7VTbd0cEGa9QCWFI9+pgRa/zqNboFBoSDZAj5VLGQ=;
+ b=EffP/mtHpFcH2BwzwW4bKHhuCmSoymNHvrohRAyPzAGNiRDZ/19zhUq0k4hub0WOAfWFnOZCZ6rnu2uMg28eAahVVqvym/VwLWrQoSim0fCw3pIer481JN1xx4LErVD+HtYw9Wg10AMoatSNURbzMcX6J4NYdMnYRcYOu9ssaUTiozoyr4iGDmHJI+ZQ9j0lSygLOhRnQJSuQxgjUvXetcnktPgDD4a6ygLBvh3HJKXu2lvqTk6iPZAnkxYyj3OpUl7g0Aq2ozOdTGHt9OeTkfhaO8HOuNbzGbN96Xz0ugD5G/b6iFsk7pwjDwVgbBnJdgdYyzoI+YysCHQZYyCe1w==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=jaguarmicro.com;
+Received: from SEYPR06MB6756.apcprd06.prod.outlook.com (2603:1096:101:165::11)
+ by TYSPR06MB7307.apcprd06.prod.outlook.com (2603:1096:405:95::9) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7386.26; Mon, 25 Mar
+ 2024 11:04:24 +0000
+Received: from SEYPR06MB6756.apcprd06.prod.outlook.com
+ ([fe80::ce49:84ce:23db:8b8]) by SEYPR06MB6756.apcprd06.prod.outlook.com
+ ([fe80::ce49:84ce:23db:8b8%6]) with mapi id 15.20.7409.028; Mon, 25 Mar 2024
+ 11:04:24 +0000
+From: "gavin.liu" <gavin.liu@jaguarmicro.com>
+To: jasowang@redhat.com,
+	mst@redhat.com
+Cc: xuanzhuo@linux.alibaba.com,
+	virtualization@lists.linux.dev,
+	yuxue.liu@jaguarmicro.com,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2] vp_vdpa: Fix return value check vp_vdpa_request_irq
+Date: Mon, 25 Mar 2024 19:03:33 +0800
+Message-Id: <20240325110333.249-1-gavin.liu@jaguarmicro.com>
+X-Mailer: git-send-email 2.33.0.windows.2
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: SG2PR06CA0182.apcprd06.prod.outlook.com (2603:1096:4:1::14)
+ To SEYPR06MB6756.apcprd06.prod.outlook.com (2603:1096:101:165::11)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.7
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SEYPR06MB6756:EE_|TYSPR06MB7307:EE_
+X-MS-Office365-Filtering-Correlation-Id: 37605ed6-fb5f-425c-2203-08dc4cbb549b
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	2U0zMlo097Z+HtCq+qdRnDi4EIp9P9vlu8sL0MH1pzfyCKncFdLvXkoV3TufvVp3wkTGffiiALwhyv38UCR1J+PH0AmMqWungm4RWW2zIEKvU+jLsqBibnNQSZhhaK6/mQjJGwg+jHDvSVPjM4oFJ/UEf45W71FmdZk7h30I/ABmja6qyK9iySKHeLMIMj0Cs5TR09GULUS+4Xam0yrHXMJIjp+guN5cl2puGto7+lqAs9qqWW3onNGxBZehwx2N9fOp0OqdOYR8438KWoahX9w7DyGHbBdy/+HtsREtWzJyBTXv0ravMXOXQhdZUyT9vFhDgIU6fjIXDxz4RbDtoVd+VcN+VcV7GXahMa86c7zTOMy8Y1B3NkoapCi4fQtFIXJi5DxYBJTaJ35ZCVTego1ngdt2EVMEm2xzjTzlx8mhLuR2hO1SJE2dJPG7bWCyv4g1/q6IegHy4pNdMB4iV6A5DkPACKbf++XJCO1OA4RpbJqUoEpEqe/8/XfdBeU2I/FCRa5a3+3YFeer97aBzBiwXW+T2JyvlfghY/QvfSdW1ZhOUBUXJemJsrjKGnpDssQknxm2KO05a306v1KOwsbGlAkHdWRDU5curaMRsMjPdAPh5xj/yI3Mya1cOib+gbpKGdVhOI+4HN7QaGRiz6FszxQNbWVaolnTJB1ET+s=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SEYPR06MB6756.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(52116005)(376005)(1800799015)(366007)(38350700005);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?iteP994K5hqGgV9JMbf/kvvwHbcaAFN3smncOuwv/VNKxrCM8BMPeK+NWlpy?=
+ =?us-ascii?Q?p/QtZ85FSoIRhlYJ0Fc4yrLfYw7tleaGWnXj35Q2WE8WtkOMEvfOzxkMS72V?=
+ =?us-ascii?Q?yLB4JKk5P8Qq+CZsjmlpZa6CB/eODTs6vvzMzCXPaKuu8RhIqkSpKBJ8AOAk?=
+ =?us-ascii?Q?Ap0qJt8hXUt9ARedNoBVpFkEriqVASBl4idbCYwrMQwpSdoJ+Y+elTS309vr?=
+ =?us-ascii?Q?SEEeKFVFnpbFv+Oq8rnK1opZ2TwIs4Fx52cyqNZPmNV4cd9d0vAX/NZ+XV3M?=
+ =?us-ascii?Q?99Z1gqguei8uh3Qq+56uqM69Z3lmXEgPigdD/yRgbkZKrN5CgXLcuodLbqlB?=
+ =?us-ascii?Q?8tcU2iAFU4JxuC4PSfMuv1Zc3CBF3TVIugF4wDGZBIMtGD6XkXVWx5wkEbLB?=
+ =?us-ascii?Q?4Crzrh3yCQoxmjg2bFQrjYXvrLqVoHM9EuWUbGeeLNXDy00/MWoAlqdQyASI?=
+ =?us-ascii?Q?y0GrV7zjl0tWROGM71YkGj63IxpWap+dhViuBT11smP9GgEt796Go60sFdmQ?=
+ =?us-ascii?Q?mG2yge68sCTpShuk5yUm643RqDqr07crskQsu24P3wiNbRI+ZFpY5mnh/rQd?=
+ =?us-ascii?Q?7EwhWMqFiZUekY33poKsOiBYFC67BmGknzsOODwuwMKH0p3aNM8jfBGJFW9y?=
+ =?us-ascii?Q?iripHI2N6RtJM0EsQq87e9UFpAoTU+l4Rtx/AKaEEXnqFN6PHyOwQeOV/5il?=
+ =?us-ascii?Q?DRcj2Ls+/mOwA5korYmPNnY09BL22vehvez/b88V8CjG4kFhWgiQMG89R6LG?=
+ =?us-ascii?Q?K7sHK2aDTcKXzMTlVvaLALwDEXN9MhsOhDWvnapceOOZkAEw7h3DogoFUAG2?=
+ =?us-ascii?Q?NVofCkAvtPwUJLxCUfIgUFy0BtACu/EfOGVqq/ttNKo7TpFBCapneHcEWfdo?=
+ =?us-ascii?Q?L1VsPZ4L/onXqKhjJJCM/DCHAnDFEJkYMhUEBZIxM9D/R1dj7BrAMDoaCp+c?=
+ =?us-ascii?Q?q5DihAODJ5VutwekcvL3RuJV0x7jCO4raBaDx10l74AEHfLLUoA9jrEFKk6w?=
+ =?us-ascii?Q?3DJTob8ab6Wux3SBSODq33tSiNSj8vBGHQt/fvi3wun4GI3jV9kQHztCMei9?=
+ =?us-ascii?Q?cW1l0FBvV57yRiO2BbprSMnSXlf8aeEKndYdP28svpoPaG3axEbOSjeTKZCV?=
+ =?us-ascii?Q?WlWjQ0nEMYJ6XaA2Hw2TRKJx44mXgy2libo8iTUsc4w6K0CrnWeU5SVg2RNs?=
+ =?us-ascii?Q?4FfafDDnz8unDKL1CtTrF8IHGwf+mfKTUoovY6ch0VR+WiHIQWxXyI9oonjL?=
+ =?us-ascii?Q?dmEdAv1k4oOREwfkNm1A3ob/OpPVwPBx7qdNKgyzWPQfuG5Kwo2Ymodxt1vR?=
+ =?us-ascii?Q?9uCsO/1HO/CNR6bpU8ovA5fwMQuVHF8pqHJ9dLJwTd3oiIw6e8Nn0shQXAGU?=
+ =?us-ascii?Q?fdKb5Y/FM0r32S58bkuDUvfqJe5mkObX8SKl74vuLais/+39L/wa+MSfFQ4H?=
+ =?us-ascii?Q?o9RuW9dLcfviSQgRy1ioZppdM0a33cqmFu1xOjQJLo1P0SPm9xP8aGNNiHLY?=
+ =?us-ascii?Q?uAwSOLTfYsp/b9PavoVbCB/vnCYiYQ0dv49fP9eTkJ/R/QImTjnxJ7+o2zjE?=
+ =?us-ascii?Q?Yey5VmAsPRheUOJ78f1tlmrEe/Av7rgKIAyotjO1q3gjfuVNLtx4gqsXvPM+?=
+ =?us-ascii?Q?eQ=3D=3D?=
+X-OriginatorOrg: jaguarmicro.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 37605ed6-fb5f-425c-2203-08dc4cbb549b
+X-MS-Exchange-CrossTenant-AuthSource: SEYPR06MB6756.apcprd06.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 Mar 2024 11:04:24.7767
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 1e45a5c2-d3e1-46b3-a0e6-c5ebf6d8ba7b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: sxr2W4X5Ws3rfClkQ5Qsj8vCcHlpU0QFX5MbnO0+iuhNEUebjCD3quYa0A4AIIFvVkON23m7wKkn627rU03rbEoXrw+O4DNibIncOpT1Flo=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: TYSPR06MB7307
 
-On Mon, Mar 25 2024, Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
+From: Yuxue Liu <yuxue.liu@jaguarmicro.com>
 
-> On Fri, 22 Mar 2024 22:02:27 +0100, David Hildenbrand <david@redhat.com> =
-wrote:
->> On 22.03.24 20:16, Daniel Verkamp wrote:
->> > On Thu, Mar 21, 2024 at 3:16=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alib=
-aba.com> wrote:
->> >>
->> >> Currently, the init_vqs function within the virtio_balloon driver rel=
-ies
->> >> on the condition that certain names array entries are null in order to
->> >> skip the initialization of some virtual queues (vqs). This behavior is
->> >> unique to this part of the codebase. In an upcoming commit, we plan to
->> >> eliminate this dependency by removing the function entirely. Therefor=
-e,
->> >> with this change, we are ensuring that the virtio_balloon no longer
->> >> depends on the aforementioned function.
->> >
->> > This is a behavior change, and I believe means that the driver no
->> > longer follows the spec [1].
->> >
->> > For example, the spec says that virtqueue 4 is reporting_vq, and
->> > reporting_vq only exists if VIRTIO_BALLOON_F_PAGE_REPORTING is set,
->> > but there is no mention of its virtqueue number changing if other
->> > features are not set. If a device/driver combination negotiates
->> > VIRTIO_BALLOON_F_PAGE_REPORTING but not VIRTIO_BALLOON_F_STATS_VQ or
->> > VIRTIO_BALLOON_F_FREE_PAGE_HINT, my reading of the specification is
->> > that reporting_vq should still be vq number 4, and vq 2 and 3 should
->> > be unused. This patch would make the reporting_vq use vq 2 instead in
->> > this case.
->> >
->> > If the new behavior is truly intended, then the spec does not match
->> > reality, and it would need to be changed first (IMO); however,
->> > changing the spec would mean that any devices implemented correctly
->> > per the previous spec would now be wrong, so some kind of mechanism
->> > for detecting the new behavior would be warranted, e.g. a new
->> > non-device-specific virtio feature flag.
->> >
->> > I have brought this up previously on the virtio-comment list [2], but
->> > it did not receive any satisfying answers at that time.
+In the vp_vdpa_set_status function, when setting the device status to
+VIRTIO_CONFIG_S_DRIVER_OK, the vp_vdpa_request_irq function may fail.
+In such cases, the device status should not be set to DRIVER_OK. Add
+exception printing to remind the user.
 
-I had missed it back then, but now that I read it, I realize that we
-really have a bit of a mess here :/
+Signed-off-by: Yuxue Liu <yuxue.liu@jaguarmicro.com>
+---
 
->>
->> Rings a bell, but staring at this patch, I thought that there would be
->> no behavioral change. Maybe I missed it :/
->>
->> I stared at virtio_ccw_find_vqs(), and it contains:
->>
->> 	for (i =3D 0; i < nvqs; ++i) {
->> 		if (!names[i]) {
->> 			vqs[i] =3D NULL;
->> 			continue;
->> 		}
->>
->> 		vqs[i] =3D virtio_ccw_setup_vq(vdev, queue_idx++, callbacks[i],
->> 					     names[i], ctx ? ctx[i] : false,
->> 					     ccw);
->> 		if (IS_ERR(vqs[i])) {
->> 			ret =3D PTR_ERR(vqs[i]);
->> 			vqs[i] =3D NULL;
->> 			goto out;
->> 		}
->> 	}
->>
->> We increment queue_idx only if an entry was not NULL. SO I thought no
->> behavioral change? (at least on s390x :) )
+V1 -> V2: Remove redundant printouts
+V1: https://lore.kernel.org/all/20240315102857.1803-1-gavin.liu@jaguarmicro.com/
 
-The code for pci behaves in the same way.
+---
+ drivers/vdpa/virtio_pci/vp_vdpa.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
->>
->> It's late here in Germany, so maybe I'm missing something.
->
-> I think we've encountered a tricky issue. Currently, all transports handl=
-e queue
-> id by incrementing them in order, without skipping any queue id. So, I'm =
-quite
-> surprised that my changes would affect the spec. The fact that the
-> 'names' value is null is just a small trick in the Linux kernel implement=
-ation
-> and should not have an impact on the queue id.
->
-> I believe that my recent modification will not affect the spec. So, let's
-> consider the issues with this patch set separately for now. Regarding the=
- Memory
-> Balloon Device, it has been operational for many years, and perhaps we sh=
-ould
-> add to the spec that if a certain vq does not exist, then subsequent vqs =
-will
-> take over its id.
-
-The changes here do not really seem to affect the spec issue that Daniel
-had noted, unless I'm reading the code wrong.
-
-However, we should try to address the spec mess, where we have at least
-some of the most popular/important implementations behaving differently
-than the spec describes... I would suggest to discuss that on the virtio
-lists -- but they are still dead, and at this point I'm just hoping
-they'll come back eventually :/
+diff --git a/drivers/vdpa/virtio_pci/vp_vdpa.c b/drivers/vdpa/virtio_pci/vp_vdpa.c
+index df5f4a3bccb5..4caca0517cad 100644
+--- a/drivers/vdpa/virtio_pci/vp_vdpa.c
++++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
+@@ -216,7 +216,10 @@ static void vp_vdpa_set_status(struct vdpa_device *vdpa, u8 status)
+ 
+ 	if (status & VIRTIO_CONFIG_S_DRIVER_OK &&
+ 	    !(s & VIRTIO_CONFIG_S_DRIVER_OK)) {
+-		vp_vdpa_request_irq(vp_vdpa);
++		if (vp_vdpa_request_irq(vp_vdpa)) {
++			WARN_ON(1);
++			return;
++		}
+ 	}
+ 
+ 	vp_modern_set_status(mdev, status);
+-- 
+2.43.0
 
