@@ -1,35 +1,32 @@
-Received: from mailbox.box.xen0n.name (mail.xen0n.name [115.28.160.31])
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A70947A70;
-	Sat, 23 Mar 2024 19:02:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.28.160.31
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84574143C4B
+	for <virtualization@lists.linux.dev>; Mon, 25 Mar 2024 02:11:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711220544; cv=none; b=uOXEK2tBHPSEKhRc3L9Kv3DikyGdhvxnMOYRTT9JSvLTjvx0vPzDdndE+bH4G3Fx0Qlsfmoc/kR5MIWfG5AOptYeLhVC7fa+XJLOtvcepIlmPFEzJoyy6GnWdjCc1WVeAIKWulZRWYTDkJEz0KGd+zyX/z2f8GQGpEIXQ26eYQ8=
+	t=1711332696; cv=none; b=qpOHh5e1fQbIFpEf477wFct5Rcx9ZSeZjjkAblZ3MfIMEeGlT9kx8dzKbyiUAWMT4ttWsG457EGWWG3DSQhU04mH50RYHyolRLGNRCtfSa/w0zVzd3C7Xo1BLaoVyfoERTeLzwjfaCxHg7XcRBouHxbvmS78U+Z3gRnbW6IA83k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711220544; c=relaxed/simple;
-	bh=tFoKc1U020apqjY0CyTn0PLkWp/8f59KT4myiLC5PH4=;
+	s=arc-20240116; t=1711332696; c=relaxed/simple;
+	bh=ERBwTcCRR7JfAh9Bqn1NavkHYZ2+HQ+GxQVq4GtLf5k=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=YdBo7j13RMneFf3PXswFto5b+8yqsMjyhkL22wvz6cNHxnHDVGopZaN01AEVQRJ7nRZV/l+sRO9pFJJNVpereBg0Bpji9/l8LJL6AR3jbVnrftFXUho788p1tIkDURKedepIjoxFoxtY0uG4BNxyF3EIX1b22YBtRaNT2PzX/tU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xen0n.name; spf=pass smtp.mailfrom=xen0n.name; dkim=pass (1024-bit key) header.d=xen0n.name header.i=@xen0n.name header.b=ExGVrAu/; arc=none smtp.client-ip=115.28.160.31
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xen0n.name
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xen0n.name
+	 In-Reply-To:Content-Type; b=LrGg4ZwYh8Wsh8N5qJA9FAp4fMjUeVTTal245GCvqdM62xzMrvZDfkVPy0Py8RtW588HKjfpbBHQIIYisTZW2Ete6AHm06dKP/3dbtrflx85X8PcWf4dx0CqI5paNSer4SoZJAIoGJCin4iH2lDMjzLRneCqU17DazsmQy29y2o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=N0hCTclj; arc=none smtp.client-ip=115.124.30.100
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=xen0n.name header.i=@xen0n.name header.b="ExGVrAu/"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=xen0n.name; s=mail;
-	t=1711220539; bh=tFoKc1U020apqjY0CyTn0PLkWp/8f59KT4myiLC5PH4=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=ExGVrAu/5SFYnug9FVfmW9AU5A4FlDHPTXX9W8cY+kxaBK1DgNwGWCfWo/O0VEWTx
-	 ZHNygDTnQ97aMEQOdKPQSi7o75izdTUhmIvu709DdWihl+1be7sP0NBJ3mWhFghB2m
-	 SojDik3yNPgo/XZyJA7ok+vj+uiGTba3DwFphci0=
-Received: from [IPV6:240e:388:8d00:6500:cccf:e2b8:7fab:4dfb] (unknown [IPv6:240e:388:8d00:6500:cccf:e2b8:7fab:4dfb])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
-	(No client certificate requested)
-	by mailbox.box.xen0n.name (Postfix) with ESMTPSA id 20B3C600A6;
-	Sun, 24 Mar 2024 03:02:19 +0800 (CST)
-Message-ID: <4668e606-a7b5-49b7-a68d-1c2af86f7d76@xen0n.name>
-Date: Sun, 24 Mar 2024 03:02:18 +0800
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="N0hCTclj"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1711332691; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=tYm0g5gQm89rFEk/IhJUT8xYkoINUjzAQrSyxy54c/0=;
+	b=N0hCTcljXiE8+gma4T4nHjXu28n974o8YSojfg6CjRUsKQwBF7QAzc48EuSPwg7dbG5zrRJlfJDlbMJDkidTNQ2CK2xjk4nDxt2k0WYUQVRnvJHU3XkbbUNVvMrVrGHmLEWshFAW23KRUj0xH4rWElkvJUg39Sizbh3i31kJJjQ=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0W3868H4_1711332676;
+Received: from 30.221.148.153(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W3868H4_1711332676)
+          by smtp.aliyun-inc.com;
+          Mon, 25 Mar 2024 10:11:28 +0800
+Message-ID: <8d829442-0eef-485c-b448-cd2376c20270@linux.alibaba.com>
+Date: Mon, 25 Mar 2024 10:11:16 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -37,82 +34,71 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v7 3/7] LoongArch: KVM: Add cpucfg area for kvm hypervisor
-Content-Language: en-US
-To: Bibo Mao <maobibo@loongson.cn>, Huacai Chen <chenhuacai@kernel.org>,
- Tianrui Zhao <zhaotianrui@loongson.cn>, Juergen Gross <jgross@suse.com>,
- Paolo Bonzini <pbonzini@redhat.com>, Jonathan Corbet <corbet@lwn.net>
-Cc: loongarch@lists.linux.dev, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev, kvm@vger.kernel.org
-References: <20240315080710.2812974-1-maobibo@loongson.cn>
- <20240315080710.2812974-4-maobibo@loongson.cn>
-From: WANG Xuerui <kernel@xen0n.name>
-In-Reply-To: <20240315080710.2812974-4-maobibo@loongson.cn>
+Subject: Re: [PATCH 1/2] virtio-net: fix possible dim status unrecoverable
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+References: <1711021557-58116-1-git-send-email-hengqi@linux.alibaba.com>
+ <1711021557-58116-2-git-send-email-hengqi@linux.alibaba.com>
+ <CACGkMEtyujkJ6Gvxr1xV94a_tMzTo48opA+42oBvN-eQ=92StA@mail.gmail.com>
+From: Heng Qi <hengqi@linux.alibaba.com>
+In-Reply-To: <CACGkMEtyujkJ6Gvxr1xV94a_tMzTo48opA+42oBvN-eQ=92StA@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 3/15/24 16:07, Bibo Mao wrote:
-> Instruction cpucfg can be used to get processor features. And there
-> is trap exception when it is executed in VM mode, and also it is
-> to provide cpu features to VM. On real hardware cpucfg area 0 - 20
-> is used.  Here one specified area 0x40000000 -- 0x400000ff is used
-> for KVM hypervisor to privide PV features, and the area can be extended
-> for other hypervisors in future. This area will never be used for
-> real HW, it is only used by software.
-> 
-> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
-> ---
->   arch/loongarch/include/asm/inst.h      |  1 +
->   arch/loongarch/include/asm/loongarch.h | 10 +++++
->   arch/loongarch/kvm/exit.c              | 59 +++++++++++++++++++-------
->   3 files changed, 54 insertions(+), 16 deletions(-)
-> 
 
-Sorry for the late reply, but I think it may be a bit non-constructive 
-to repeatedly submit the same code without due explanation in our 
-previous review threads. Let me try to recollect some of the details 
-though...
 
-If I remember correctly, during the previous reviews, it was mentioned 
-that the only upsides of using CPUCFG were:
+在 2024/3/22 下午1:17, Jason Wang 写道:
+> On Thu, Mar 21, 2024 at 7:46 PM Heng Qi <hengqi@linux.alibaba.com> wrote:
+>> When the dim worker is scheduled, if it fails to acquire the lock,
+>> dim may not be able to return to the working state later.
+>>
+>> For example, the following single queue scenario:
+>>    1. The dim worker of rxq0 is scheduled, and the dim status is
+>>       changed to DIM_APPLY_NEW_PROFILE;
+>>    2. The ethtool command is holding rtnl lock;
+>>    3. Since the rtnl lock is already held, virtnet_rx_dim_work fails
+>>       to acquire the lock and exits;
+>>
+>> Then, even if net_dim is invoked again, it cannot work because the
+>> state is not restored to DIM_START_MEASURE.
+>>
+>> Fixes: 6208799553a8 ("virtio-net: support rx netdim")
+>> Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
+>> ---
+>>   drivers/net/virtio_net.c | 4 +++-
+>>   1 file changed, 3 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>> index c22d111..0ebe322 100644
+>> --- a/drivers/net/virtio_net.c
+>> +++ b/drivers/net/virtio_net.c
+>> @@ -3563,8 +3563,10 @@ static void virtnet_rx_dim_work(struct work_struct *work)
+>>          struct dim_cq_moder update_moder;
+>>          int i, qnum, err;
+>>
+>> -       if (!rtnl_trylock())
+>> +       if (!rtnl_trylock()) {
+>> +               schedule_work(&dim->work);
+>>                  return;
+>> +       }
+> Patch looks fine but I wonder if a delayed schedule is better.
 
-- it was exactly identical to the x86 approach,
-- it would not require access to the LoongArch Reference Manual Volume 3 
-to use, and
-- it was plain old data.
+The work in net_dim() core layer uses non-delayed-work, and the two 
+cannot be mixed.
 
-But, for the first point, we don't have to follow x86 convention after 
-all. The second reason might be compelling, but on the one hand that's 
-another problem orthogonal to the current one, and on the other hand 
-HVCL is:
+Thanks,
+Heng
 
-- already effectively public because of the fact that this very patchset 
-is public,
-- its semantics is trivial to implement even without access to the LVZ 
-manual, because of its striking similarity with SYSCALL, and
-- by being a function call, we reserve the possibility for hypervisors 
-to invoke logic for self-identification purposes, even if this is likely 
-overkill from today's perspective.
-
-And, even if we decide that using HVCL for self-identification is 
-overkill after all, we still have another choice that's IOCSR. We 
-already read LOONGARCH_IOCSR_FEATURES (0x8) for its bit 11 (IOCSRF_VM) 
-to populate the CPU_FEATURE_HYPERVISOR bit, and it's only natural that 
-we put the identification word in the IOCSR space. As far as I can see, 
-the IOCSR space is plenty and equally available for making reservations; 
-it can only be even easier when it's done by a Loongson team.
-
-Finally, I've mentioned multiple times, that varying CPUCFG behavior 
-based on PLV is not something well documented on the manuals, hence not 
-friendly to low-level developers. Devs of third-party firmware and/or 
-kernels do exist, I've personally spoken to some of them on the 
-2023-11-18 3A6000 release event; in order for the varying CPUCFG 
-behavior approach to pass for me, at the very least, the LoongArch 
-reference manual must be amended to explicitly include an explanation of 
-it, and a reference to potential use cases.
-
--- 
-WANG "xen0n" Xuerui
-
-Linux/LoongArch mailing list: https://lore.kernel.org/loongarch/
+>
+> Thanks
+>
+>>          /* Each rxq's work is queued by "net_dim()->schedule_work()"
+>>           * in response to NAPI traffic changes. Note that dim->profile_ix
+>> --
+>> 1.8.3.1
+>>
 
