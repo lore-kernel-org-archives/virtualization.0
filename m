@@ -1,124 +1,209 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62118184D
-	for <virtualization@lists.linux-foundation.org>; Mon, 25 Mar 2024 03:53:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E531181311
+	for <virtualization@lists.linux.dev>; Mon, 25 Mar 2024 07:10:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711338784; cv=none; b=ioWuKrunbypF+Fp5+1k4RuFD1y+QiwqB9HvJ797XCa8E+grkmcvq+NsiIluJAdg/6eyU5kSFj5OJSAyIS37RWeoVNP3+SoTAy/V1ShsJvuJKrT7Vwe000GRYX7z4CTW/mJ/mVfxO/kLwz2ekcHCV3IiMXF3Q1e/AAorCvh3zYnk=
+	t=1711350657; cv=none; b=K37XNHIHODAYfoqJyH2gEggPlPFd1oHPDQchhlCt+1oSUaFExZSliieMluUjJ4DEFN4z0C5W9z7hTcQEwpmfU8WNNTwKFA3Tno9Kig1mYBEQE7lCVJf7VvCo2VhnPhoD5uZxkzKMmv8gSih7qDvs7Ocj30KC3cliWDewymU8Stg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711338784; c=relaxed/simple;
-	bh=fm/ErcL7W49rS5AmQMWHiVhN2nRexSlcv3UfZogZWnk=;
-	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=oRjAjgWBZFHWxda2MggSF4mpMZxjMpgFP6LvDkmT31Fm5QHMWdbPr9q/WgBzlAMk4Ew5pqmd1lPlOjZLwPwdFWpjUxpKgV183sfiYKdzPyQ5xPzozia3791KaS0eeiPqU7KEm7TDBorAymOZdyl6qW6mMOSokRBfD9OheDNCU1M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Vz7WHdqg; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1711350657; c=relaxed/simple;
+	bh=VDqqc4FaS3nqEG410984TzqLk1OgwsUduElIlSglyJM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=kTik3eH5SpM1J8QAaSAu/rRRBotqxo/hY3TVY/TVnkdovj95ZXLXSldjCo2bp77s/4aFOEE7hiay2DqMeiO7Lz7f7NGOP109vYh3hz7HEtDzpYl3GEqRCY0Bpr8evARBSaPNSxB0ziUxzIf9KW8yqg1jA0ShCz/ygIwKwvp4RQI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XNPcrKOi; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Vz7WHdqg"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id DEAEB60849
-	for <virtualization@lists.linux-foundation.org>; Mon, 25 Mar 2024 03:53:02 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -1.999
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id un0sEvTCvOfR for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Mar 2024 03:53:01 +0000 (UTC)
-Received-SPF: None (mailfrom) identity=mailfrom; client-ip=192.198.163.12; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 4ECE86083F
-Authentication-Results: smtp3.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4ECE86083F
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=Vz7WHdqg
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 4ECE86083F
-	for <virtualization@lists.linux-foundation.org>; Mon, 25 Mar 2024 03:53:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1711338781; x=1742874781;
-  h=message-id:date:mime-version:cc:subject:to:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=fm/ErcL7W49rS5AmQMWHiVhN2nRexSlcv3UfZogZWnk=;
-  b=Vz7WHdqgOJfA9Ot+KPvqDCD8OyVdjIjLVVh7wEfbqPyVSXathEjA4lvP
-   7LDMhVlOpIxTZKLnISM5UeGMr3cq/2EatBsKMdnSohhqx1ZqvILk6cLq0
-   5IyV2gG3PjfxYr5Of6WJClCUqcB8gC5bRFrXrQT2nFZjs0DXbIRc+Rz3D
-   feGQwvHwtMuPN20JZ7l71IBi3Ij/zI9Uln6OgUuAVSQHrZI4lRZ2VoOpE
-   bVRbfHjcMRw2ApkDGdh6IcFbLAcQUkz3X/nFO6R2WF20VivjzcK2xiG6f
-   BJLalEwGGkfYKFm3d/wL/2jCCtfopRk8R4cgrb7oYcU3F5/WpfD/lz9s0
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,11023"; a="10093992"
-X-IronPort-AV: E=Sophos;i="6.07,152,1708416000"; 
-   d="scan'208";a="10093992"
-Received: from fmviesa003.fm.intel.com ([10.60.135.143])
-  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Mar 2024 20:52:59 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.07,152,1708416000"; 
-   d="scan'208";a="20033103"
-Received: from allen-box.sh.intel.com (HELO [10.239.159.127]) ([10.239.159.127])
-  by fmviesa003.fm.intel.com with ESMTP; 24 Mar 2024 20:52:55 -0700
-Message-ID: <0d12a5f4-0380-4e00-8c23-b4f63e3b93e7@linux.intel.com>
-Date: Mon, 25 Mar 2024 11:52:05 +0800
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XNPcrKOi"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1711350655;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=p3FtN9QE0Nl7sj3xGWxMvMJxRPeJKkkDH54Kwbx0i5I=;
+	b=XNPcrKOinux2kpXcr5XKhQC6/LB1gMAxCLeuWB/zCE2w9JM1ILp2tPr0q0YhLchU3zog//
+	sGVw+zTkKIR36AzdL9Oyr5j3LDTMllgSHtc1iW2R7FwYB3nh17mi/M5LyTboLnSf/vEMmq
+	VXiIMs59Xs9wKRB3X0j6ZLHXYi1DNgM=
+Received: from mail-pl1-f197.google.com (mail-pl1-f197.google.com
+ [209.85.214.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-657-QvtVtia9Ncad-xxYrIm3ZQ-1; Mon, 25 Mar 2024 03:10:52 -0400
+X-MC-Unique: QvtVtia9Ncad-xxYrIm3ZQ-1
+Received: by mail-pl1-f197.google.com with SMTP id d9443c01a7336-1e0af99f0aeso7866455ad.1
+        for <virtualization@lists.linux.dev>; Mon, 25 Mar 2024 00:10:52 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1711350652; x=1711955452;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=p3FtN9QE0Nl7sj3xGWxMvMJxRPeJKkkDH54Kwbx0i5I=;
+        b=fvrWRheQ8w4jvBMupu5Ogw1LbKC1JopPu+z0rksrfu4IVVAs7SFubcW7fssX6oczMh
+         QEvkLDqyuKIXEk2o2HrNijr0XHD+dIG6uaiBy1u/TQQoQVxZx9W9uwDyaF8zUKpNdVzc
+         xkiz3DqdULzulSw3e4tu2w01LEYy4sE3Xof4dLyfGR6UBjwmJGguwtJ1GFi52JtE+5oQ
+         +lcde7cqhyD4TKUwf2Xq5NY2XdMw8Q9Yqnft9HQqZ5d86ZdE04jH1uNoKOwY4ybpaZ9I
+         nLbzP4OYtnMcOBG9+Se5O4KaPkAs8BKLjtkAlmx28ramgt/jamy1mqZEHdiTw3z0rpxy
+         CSfw==
+X-Gm-Message-State: AOJu0YyH7g9zX3KXGIfAAx5g2OAk4r2+Mn8e2F08c+6mr5AoKBIsUfy5
+	8uNmNVp3XdnfLEmeaI9scYr6weUO8Ejcy6M84qqNFJTaoe6WjuGm8SkltfqZApx78SXmc8o4CEW
+	WIDcy8z9Y9/xBi/Rpp7G6v+6YZgVbtfsrgmybdP1PdiwV4TQEIcH0zNnN7YwwO9/NyZlRQt6kgP
+	zz5KU0u9qMPQaAgKSVpiYkm770xwka7yHIJ7GdOEw=
+X-Received: by 2002:a17:903:2ad0:b0:1e0:188c:ad4f with SMTP id lw16-20020a1709032ad000b001e0188cad4fmr7647659plb.26.1711350651803;
+        Mon, 25 Mar 2024 00:10:51 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGryY0YwWrPcst5KxEzpJoy49ptg72bCQ1X4IHF3d4AYLcbOYwvZO8qUUvQddrOyR4NNHcKKNV1UBmnZjG7XvE=
+X-Received: by 2002:a17:903:2ad0:b0:1e0:188c:ad4f with SMTP id
+ lw16-20020a1709032ad000b001e0188cad4fmr7647643plb.26.1711350651504; Mon, 25
+ Mar 2024 00:10:51 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Cc: baolu.lu@linux.intel.com, Kevin Tian <kevin.tian@intel.com>,
- Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
- Robin Murphy <robin.murphy@arm.com>,
- Jean-Philippe Brucker <jean-philippe@linaro.org>,
- Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
- Jacob Pan <jacob.jun.pan@linux.intel.com>,
- Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 2/8] iommu/sva: Use iopf domain attach/detach interface
-Content-Language: en-US
-To: Jason Gunthorpe <jgg@ziepe.ca>
-References: <20240122073903.24406-1-baolu.lu@linux.intel.com>
- <20240122073903.24406-3-baolu.lu@linux.intel.com>
- <20240308174605.GV9225@ziepe.ca>
- <b33bf29b-2fe5-4a2a-a2ce-9fd8d67c5f6f@linux.intel.com>
- <20240322165927.GG66976@ziepe.ca>
-From: Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <20240322165927.GG66976@ziepe.ca>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20240312033557.6351-1-xuanzhuo@linux.alibaba.com>
+ <20240312033557.6351-11-xuanzhuo@linux.alibaba.com> <CACGkMEuM35+jDY3kQXtKNBFJi32+hVSnqDuOc2GVqX6L2hcafw@mail.gmail.com>
+ <1711009281.7778504-3-xuanzhuo@linux.alibaba.com> <CACGkMEs+x8bObJ0Fr0LbkPzWqYSoU8Y8504=bqZtjux2T5-_Vg@mail.gmail.com>
+ <1711087439.5923152-3-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1711087439.5923152-3-xuanzhuo@linux.alibaba.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 25 Mar 2024 15:10:39 +0800
+Message-ID: <CACGkMEsMJ+r6JfrHGnQVPeuEFzbWwqHxPgkxS8-SvzqG5VLiKw@mail.gmail.com>
+Subject: Re: [PATCH vhost v4 10/10] virtio_ring: virtqueue_set_dma_premapped
+ support disable
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+On Fri, Mar 22, 2024 at 2:04=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
+om> wrote:
+>
+> On Fri, 22 Mar 2024 13:13:36 +0800, Jason Wang <jasowang@redhat.com> wrot=
+e:
+> > On Thu, Mar 21, 2024 at 4:22=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.aliba=
+ba.com> wrote:
+> > >
+> > > On Thu, 21 Mar 2024 14:02:14 +0800, Jason Wang <jasowang@redhat.com> =
+wrote:
+> > > > On Tue, Mar 12, 2024 at 11:36=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.=
+alibaba.com> wrote:
+> > > > >
+> > > > > Now, the API virtqueue_set_dma_premapped just support to
+> > > > > enable premapped mode.
+> > > > >
+> > > > > If we allow enabling the premapped dynamically, we should
+> > > > > make this API to support disable the premapped mode.
+> > > > >
+> > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > > ---
+> > > > >  drivers/virtio/virtio_ring.c | 34 ++++++++++++++++++++++++++----=
+----
+> > > > >  include/linux/virtio.h       |  2 +-
+> > > > >  2 files changed, 27 insertions(+), 9 deletions(-)
+> > > > >
+> > > > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio=
+_ring.c
+> > > > > index 34f4b2c0c31e..3bf69cae4965 100644
+> > > > > --- a/drivers/virtio/virtio_ring.c
+> > > > > +++ b/drivers/virtio/virtio_ring.c
+> > > > > @@ -2801,6 +2801,7 @@ EXPORT_SYMBOL_GPL(virtqueue_resize);
+> > > > >  /**
+> > > > >   * virtqueue_set_dma_premapped - set the vring premapped mode
+> > > > >   * @_vq: the struct virtqueue we're talking about.
+> > > > > + * @premapped: enable/disable the premapped mode.
+> > > > >   *
+> > > > >   * Enable the premapped mode of the vq.
+> > > > >   *
+> > > > > @@ -2819,9 +2820,10 @@ EXPORT_SYMBOL_GPL(virtqueue_resize);
+> > > > >   * 0: success.
+> > > > >   * -EINVAL: vring does not use the dma api, so we can not enable=
+ premapped mode.
+> > > > >   */
+> > > > > -int virtqueue_set_dma_premapped(struct virtqueue *_vq)
+> > > > > +int virtqueue_set_dma_premapped(struct virtqueue *_vq, bool prem=
+apped)
+> > > >
+> > > > I think we need to document the requirement for calling this.
+> > > >
+> > > > Looking at the code, it seems it requires to stop the datapath and
+> > > > detach all the used buffers?
+> > >
+> > >
+> > > YES. The complete document is:
+> > >
+> > > /**
+> > >  * virtqueue_set_dma_premapped - set the vring premapped mode
+> > >  * @_vq: the struct virtqueue we're talking about.
+> > >  *
+> > >  * Enable the premapped mode of the vq.
+> > >  *
+> > >  * The vring in premapped mode does not do dma internally, so the dri=
+ver must
+> > >  * do dma mapping in advance. The driver must pass the dma_address th=
+rough
+> > >  * dma_address of scatterlist. When the driver got a used buffer from
+> > >  * the vring, it has to unmap the dma address.
+> > >  *
+> > >  * This function must be called immediately after creating the vq, or=
+ after vq
+> > >  * reset, and before adding any buffers to it.
+> >
+> > I'm not sure this is a good design but we need at least some guard for
+> > this, probably WARN for num_added or others.
+>
+>
+> int virtqueue_set_dma_premapped(struct virtqueue *_vq)
+> {
+>         struct vring_virtqueue *vq =3D to_vvq(_vq);
+>         u32 num;
+>
+>         START_USE(vq);
+>
+>         num =3D vq->packed_ring ? vq->packed.vring.num : vq->split.vring.=
+num;
+>
+>         if (num !=3D vq->vq.num_free) {
+>                 END_USE(vq);
+>                 return -EINVAL;
+>         }
+>
+>
+> Now, we have checked the num_free.
 
+Ok, let's add it to the doc.
 
-On 3/23/24 12:59 AM, Jason Gunthorpe wrote:
-> On Thu, Mar 14, 2024 at 03:41:23PM +0800, Baolu Lu wrote:
-> 
->> The whole cookie mechanism aims to address two things:
->>
->> - Extend the domain lifetime until all pending page faults are
->> resolved.
-> Like you answered, I think the flush is a simpler scheme..
+Thanks
 
-Yeah! Let me head this direction.
+>
+> Thanks.
+>
+>
+> >
+> > Thanks
+> >
+> > >  *
+> > >  * Caller must ensure we don't call this with other virtqueue operati=
+ons
+> > >  * at the same time (except where noted).
+> > >  *
+> > >  * Returns zero or a negative error.
+> > >  * 0: success.
+> > >  * -EINVAL: vring does not use the dma api, so we can not enable prem=
+apped mode.
+> > >  */
+> > >
+> > > Thanks
+> > >
+> > >
+> > > >
+> > > > Thanks
+> > > >
+> > >
+> >
+>
 
-> 
->> - Associate information about the iommu device with each attachment of
->>    the domain so that the iommufd device object ID could be quickly
->>    retrieved in the fault delivering path.
->   
->>> I see we also need to stick a pointer in the domain for iommufd to get
->>> back to the hwpt, but that doesn't seem to need such a big system to
->>> accomplish - just add a void *. It would make sense for the domain to
->>> have some optional pointer to a struct for all the fault related data
->>> that becomes allocated when a PRI domain is created..
->> It's not getting back hwpt from domain, just getting the iommufd_device
->> in the fault delivering path. The iommufd_device is not per-domain, but
->> per-domain-attachment.
-> It does make sense you'd need that, but I think something like this is
-> a more direct way to get it. Caller allocates the handle struct. The
-> iopf will provide the handle from the XA to the
-> callback. container_of() not void * is used to in the caller's API.
-
-Your code looks attractive to me. It's much simpler. Thank you!
-
-Best regards,
-baolu
