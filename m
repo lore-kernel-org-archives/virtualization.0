@@ -1,205 +1,222 @@
-Received: from mail-lf1-f48.google.com (mail-lf1-f48.google.com [209.85.167.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A010A179FA9
-	for <virtualization@lists.linux.dev>; Mon, 25 Mar 2024 08:44:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A8AC15E815
+	for <virtualization@lists.linux.dev>; Mon, 25 Mar 2024 08:54:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711356279; cv=none; b=b/p9qiJzU3f3MLQis8jkHQCGAdHg4dvWxtH0Ka4S+M1wEssREWRTWcCOuLj8Jmn2788va3V1zZXScjVls8/rmLhqc0zRMoeqxImCb5HOXlmARAKaE7OA9D7qKUpMobHEQqRwc21LVv7pajWwGoNd5eATv6o/ePlV84eD87lQ98s=
+	t=1711356878; cv=none; b=ZPzgMhAvkMIAaXB5uuAQKGJiNnk2Br6aFopYt4OutCl1D4KlZ3ePz442slRN4cfKn0y1NE6lzU1zXOx7ydFtXj8ajFchHZmPStQ1uowkLOo89v8oFr14PRB3umYWRBws6OKmO5PWfOGaTuc6O7UTN3WsHfXN/+ghB7lO56Ia2vs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711356279; c=relaxed/simple;
-	bh=KlNZqGKcY8wJJqzBqoSqe94osLn2EZS8gGGi0MRJ1/Y=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=YcpYyanuIjgsFzH8YWyx7Sh1PNFUY8bgmSBnkR1YMMJDgidB+RUcWGW0ja86R4FThhyuVPpfd+//gn5MZcitEGuQ4sAndCn5bzI+v+dTKYcUlgIaH6fnQktlOfMr00OFgD9Ezu23GqY6eA4ZoP18UT8FyQsT/MzqOc70Y9HN/fY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gooddata.com; spf=pass smtp.mailfrom=gooddata.com; dkim=pass (1024-bit key) header.d=gooddata.com header.i=@gooddata.com header.b=TJd6zPW+; arc=none smtp.client-ip=209.85.167.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gooddata.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gooddata.com
+	s=arc-20240116; t=1711356878; c=relaxed/simple;
+	bh=c4jfFmqYnQggFPQ6Wol/611ygcSvayV7Of1tx0wDmjM=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=TX7wkrtkbr5MJCYlzXn8rIfJVeIZtluZUs/GLkwC4T0eR9mVWGSnlXMf02L9XdaSDbcw4m6mytGGNPeiQpMm4QXfY0Ov6Wd9EWCsn9iKQq8B6tqgGRofKFZuekMYcbWs/VAzVwLPD/SSgNScplL7CHP3yREzreJ7p6u7rAqEsiE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=n4tJPQbB; arc=none smtp.client-ip=115.124.30.100
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=gooddata.com header.i=@gooddata.com header.b="TJd6zPW+"
-Received: by mail-lf1-f48.google.com with SMTP id 2adb3069b0e04-514ba4e5640so4779562e87.1
-        for <virtualization@lists.linux.dev>; Mon, 25 Mar 2024 01:44:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gooddata.com; s=google; t=1711356276; x=1711961076; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=+AQnc+S8eeewHWVi7q229L+fZxCbZfHJQPdr0bWKRFA=;
-        b=TJd6zPW+R+U88L5eY9SlQYA6t9sqgKozZ3GISYNqHp60TdtI00UXgdaz7scsk2F8Na
-         hWTq2fqNWyOirxJApH2Sr6E0rA8ZKKrbyochwdOkFUrBG6y1A7+bz1EmiOttgb/33Av2
-         kSxDncrHCoBVq16RaBJJTiXvtEPoFhWgjhhOc=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711356276; x=1711961076;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=+AQnc+S8eeewHWVi7q229L+fZxCbZfHJQPdr0bWKRFA=;
-        b=wCfH+QAfGQV0E2yPwwQUZaO7PFKnX1HsqtnY1hUbCPO5bw23PjRgIhp8Zr5vHyXI0J
-         lZU/dkkL5qPdQts9M0+wOCr/yTTSrv5k4dDViVCuKvkWbfLoVNasxBNJ4egYmEjcOJ4S
-         7cRqdzKAg2isBMliJz0YnJiW9on9+pUXw9X+ZE1nXXyoHhOqaXnHIh+Wi+F5n09hk02Y
-         5Xf/yoMgN1Y+LT4kflKW6cIf1d7Fga3UW6Vk7qvNTt+ohzzGX6Ga6g+jHYThy8nX8Cum
-         OHTDw61ZyuS/bRTfk5oM8F+jVdLGIfhY0gByiGXw6xQIV4DtGfCIIWOG9QN5RcbQLR+9
-         NsZw==
-X-Forwarded-Encrypted: i=1; AJvYcCUZbDvH19LuADpHUP3aJsLDOUHojxZ2bHIkCgYekgRJXedDgOb+3A43EtCM2eWuXn8i0rEsYMV7HWEdZubtWGVK4n11Jb9j1Rx6JXRxXnE=
-X-Gm-Message-State: AOJu0YwcxNOnhp7VvwzLYkBH2uWO871iObHZF1cxx1ZkSMnTfpdImEHV
-	4uJ5EMTY7ydg+JDFuVOMbg8hUAaIYbqo/qX7YhKiC7PJ2hoLSn7rJtqPR/uvNcBOf9R7FrGJ8dj
-	EtEjNzK19Kf/4En8tQVYJFlPo4x06EEeA1VuO
-X-Google-Smtp-Source: AGHT+IHpPljUYvS/v6zIPdlCSCskC5KA1wMk0ygWW04BfrfXUTs4QbWjBPvQqYu8FjNfMaTN+Ytdl3l03Fm/KfIPCY0=
-X-Received: by 2002:a2e:b176:0:b0:2d4:9334:3c11 with SMTP id
- a22-20020a2eb176000000b002d493343c11mr1669978ljm.16.1711356275855; Mon, 25
- Mar 2024 01:44:35 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="n4tJPQbB"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1711356873; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=IIODulX2bDUS1gdYH0/YfIZG+SUOw6BVT5FYBTh739M=;
+	b=n4tJPQbB9ozlPijlt/nog3SbaMXA1H52WhlkIZbY1K5unQj3LapMS0fro16IdP7rK+r07cLgkQ8wC5zvNspt+RdkBgmVyXHAyZZep1mUPraGM8P4PvreqwgT4ZAXMQcK61TXF9elr74k2Pp85+9eMt44AfxHQEY/fMrBq/oK54M=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0W3DYiIv_1711356872;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W3DYiIv_1711356872)
+          by smtp.aliyun-inc.com;
+          Mon, 25 Mar 2024 16:54:32 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: virtualization@lists.linux.dev
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	netdev@vger.kernel.org
+Subject: [PATCH vhost v5 03/10] virtio_ring: packed: structure the indirect desc table
+Date: Mon, 25 Mar 2024 16:54:21 +0800
+Message-Id: <20240325085428.7275-4-xuanzhuo@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+In-Reply-To: <20240325085428.7275-1-xuanzhuo@linux.alibaba.com>
+References: <20240325085428.7275-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <CA+9S74hbTMxckB=HgRiqL6b8ChZMQfJ6-K9y_GQ0ZDiWkev_vA@mail.gmail.com>
- <20240319131207.GB1096131@fedora> <CA+9S74jMBbgrxaH2Nit50uDQsHES+e+VHnOXkxnq2TrUFtAQRA@mail.gmail.com>
- <CACGkMEvX2R+wKcH5V45Yd6CkgGhADVbpvfmWsHducN2zCS=OKw@mail.gmail.com>
- <CA+9S74g5fR=hBxWk1U2TyvW1uPmU3XgJnjw4Owov8LNwLiiOZw@mail.gmail.com>
- <CACGkMEt4MbyDgdqDGUqQ+0gV-1kmp6CWASDgwMpZnRU8dfPd2Q@mail.gmail.com>
- <CA+9S74hUt_aZCrgN3Yx9Y2OZtwHNan7gmbBa1TzBafW6=YLULQ@mail.gmail.com> <CA+9S74ia-vUag2QMo6zFL7r+wZyOZVmcpe317RdMbK-rpomn+Q@mail.gmail.com>
-In-Reply-To: <CA+9S74ia-vUag2QMo6zFL7r+wZyOZVmcpe317RdMbK-rpomn+Q@mail.gmail.com>
-From: Igor Raits <igor@gooddata.com>
-Date: Mon, 25 Mar 2024 09:44:23 +0100
-Message-ID: <CA+9S74hs_1Ft9iyXOPU_vF_EFKuoG8LjDpSna0QSPMFnMywd_g@mail.gmail.com>
-Subject: Re: REGRESSION: RIP: 0010:skb_release_data+0xb8/0x1e0 in vhost/tun
-To: Jason Wang <jasowang@redhat.com>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org, 
-	virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	Stefano Garzarella <sgarzare@redhat.com>, Jaroslav Pulchart <jaroslav.pulchart@gooddata.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-Git-Hash: 630d711f51f7
+Content-Transfer-Encoding: 8bit
 
-Hello,
+This commit structure the indirect desc table.
+Then we can get the desc num directly when doing unmap.
 
-On Fri, Mar 22, 2024 at 12:19=E2=80=AFPM Igor Raits <igor@gooddata.com> wro=
-te:
->
-> Hi Jason,
->
-> On Fri, Mar 22, 2024 at 9:39=E2=80=AFAM Igor Raits <igor@gooddata.com> wr=
-ote:
-> >
-> > Hi Jason,
-> >
-> > On Fri, Mar 22, 2024 at 6:31=E2=80=AFAM Jason Wang <jasowang@redhat.com=
-> wrote:
-> > >
-> > > On Thu, Mar 21, 2024 at 5:44=E2=80=AFPM Igor Raits <igor@gooddata.com=
-> wrote:
-> > > >
-> > > > Hello Jason & others,
-> > > >
-> > > > On Wed, Mar 20, 2024 at 10:33=E2=80=AFAM Jason Wang <jasowang@redha=
-t.com> wrote:
-> > > > >
-> > > > > On Tue, Mar 19, 2024 at 9:15=E2=80=AFPM Igor Raits <igor@gooddata=
-.com> wrote:
-> > > > > >
-> > > > > > Hello Stefan,
-> > > > > >
-> > > > > > On Tue, Mar 19, 2024 at 2:12=E2=80=AFPM Stefan Hajnoczi <stefan=
-ha@redhat.com> wrote:
-> > > > > > >
-> > > > > > > On Tue, Mar 19, 2024 at 10:00:08AM +0100, Igor Raits wrote:
-> > > > > > > > Hello,
-> > > > > > > >
-> > > > > > > > We have started to observe kernel crashes on 6.7.y kernels =
-(atm we
-> > > > > > > > have hit the issue 5 times on 6.7.5 and 6.7.10). On 6.6.9 w=
-here we
-> > > > > > > > have nodes of cluster it looks stable. Please see stacktrac=
-e below. If
-> > > > > > > > you need more information please let me know.
-> > > > > > > >
-> > > > > > > > We do not have a consistent reproducer but when we put some=
- bigger
-> > > > > > > > network load on a VM, the hypervisor's kernel crashes.
-> > > > > > > >
-> > > > > > > > Help is much appreciated! We are happy to test any patches.
-> > > > > > >
-> > > > > > > CCing Michael Tsirkin and Jason Wang for vhost_net.
-> > > > > > >
-> > > > > > > >
-> > > > > > > > [62254.167584] stack segment: 0000 [#1] PREEMPT SMP NOPTI
-> > > > > > > > [62254.173450] CPU: 63 PID: 11939 Comm: vhost-11890 Tainted=
-: G
-> > > > > > > >    E      6.7.10-1.gdc.el9.x86_64 #1
-> > > > > > >
-> > > > > > > Are there any patches in this kernel?
-> > > > > >
-> > > > > > Only one, unrelated to this part. Removal of pr_err("EEVDF sche=
-duling
-> > > > > > fail, picking leftmost\n"); line (reported somewhere few months=
- ago
-> > > > > > and it was suggested workaround until proper solution comes).
-> > > > >
-> > > > > Btw, a bisection would help as well.
-> > > >
-> > > > In the end it seems like we don't really have "stable" setup, so
-> > > > bisection looks to be useless but we did find few things meantime:
-> > > >
-> > > > 1. On 6.6.9 it crashes either with unexpected GSO type or usercopy:
-> > > > Kernel memory exposure attempt detected from SLUB object
-> > > > 'skbuff_head_cache'
-> > >
-> > > Do you have a full calltrace for this?
-> >
-> > I have shared it in one of the messages in this thread.
-> > https://marc.info/?l=3Dlinux-virtualization&m=3D171085443512001&w=3D2
-> >
-> > > > 2. On 6.7.5, 6.7.10 and 6.8.1 it crashes with RIP:
-> > > > 0010:skb_release_data+0xb8/0x1e0
-> > >
-> > > And for this?
-> >
-> > https://marc.info/?l=3Dlinux-netdev&m=3D171083870801761&w=3D2
-> >
-> > > > 3. It does NOT crash on 6.8.1 when VM does not have multi-queue set=
-up
-> > > >
-> > > > Looks like the multi-queue setup (we have 2 interfaces =C3=97 3 vir=
-tio
-> > > > queues for each) is causing problems as if we set only one queue fo=
-r
-> > > > each interface the issue is gone.
-> > > > Maybe there is some race condition in __pfx_vhost_task_fn+0x10/0x10=
- or
-> > > > somewhere around?
-> > >
-> > > I can't tell now, but it seems not because if we have 3 queue pairs w=
-e
-> > > will have 3 vhost threads.
-> > >
-> > > > We have noticed that there are 3 of such functions
-> > > > in the stacktrace that gave us hints about what we could try=E2=80=
-=A6
-> > >
-> > > Let's try to enable SLUB_DEBUG and KASAN to see if we can get
-> > > something interesting.
-> >
-> > We were able to reproduce it even with 1 vhost queue... And now we
-> > have slub_debug + kasan so I hopefully have more useful data for you
-> > now.
-> > I have attached it for better readability.
->
-> Looks like we have found a "stable" kernel and that is 6.1.32. The
-> 6.3.y is broken and we are testing 6.2.y now.
-> My guess it would be related to virtio/vsock: replace virtio_vsock_pkt
-> with sk_buff that was done around that time but we are going to test,
-> bisect and let you know more.
+And save the dma info to the struct, then the indirect
+will not use the dma fields of the desc_extra. The subsequent
+commits will make the dma fields are optional. But for
+the indirect case, we must record the dma info.
 
-So we have been trying to bisect it but it is basically impossible for
-us to do so as the ICE driver was quite broken for most of the release
-cycle so we have no networking on 99% of the builds and we can't test
-such a setup.
-More specifically, the bug was introduced between 6.2 and 6.3 but we
-could not get much further. The last good commit we were able to test
-was f18f9845f2f10d3d1fc63e4ad16ee52d2d9292fa and then after 20 commits
-where we had no networking we gave up.
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+---
+ drivers/virtio/virtio_ring.c | 61 +++++++++++++++++++-----------------
+ 1 file changed, 33 insertions(+), 28 deletions(-)
 
-If you have some suspicious commit(s) we could revert - happy to test.
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 0dfbd17e5a87..cf17456f4d95 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -74,7 +74,7 @@ struct vring_desc_state_split {
+ 
+ struct vring_desc_state_packed {
+ 	void *data;			/* Data for callback. */
+-	struct vring_packed_desc *indir_desc; /* Indirect descriptor, if any. */
++	struct vring_desc_extra *indir_desc; /* Indirect descriptor, if any. */
+ 	u16 num;			/* Descriptor list length. */
+ 	u16 last;			/* The last desc state in a list. */
+ };
+@@ -1243,10 +1243,13 @@ static void vring_unmap_desc_packed(const struct vring_virtqueue *vq,
+ 		       DMA_FROM_DEVICE : DMA_TO_DEVICE);
+ }
+ 
+-static struct vring_packed_desc *alloc_indirect_packed(unsigned int total_sg,
+-						       gfp_t gfp)
++static struct vring_desc_extra *alloc_indirect_packed(unsigned int total_sg,
++						      gfp_t gfp)
+ {
+-	struct vring_packed_desc *desc;
++	struct vring_desc_extra *in_extra;
++	u32 size;
++
++	size = sizeof(*in_extra) + sizeof(struct vring_packed_desc) * total_sg;
+ 
+ 	/*
+ 	 * We require lowmem mappings for the descriptors because
+@@ -1255,9 +1258,10 @@ static struct vring_packed_desc *alloc_indirect_packed(unsigned int total_sg,
+ 	 */
+ 	gfp &= ~__GFP_HIGHMEM;
+ 
+-	desc = kmalloc_array(total_sg, sizeof(struct vring_packed_desc), gfp);
+ 
+-	return desc;
++	in_extra = kmalloc(size, gfp);
++
++	return in_extra;
+ }
+ 
+ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
+@@ -1268,6 +1272,7 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
+ 					 void *data,
+ 					 gfp_t gfp)
+ {
++	struct vring_desc_extra *in_extra;
+ 	struct vring_packed_desc *desc;
+ 	struct scatterlist *sg;
+ 	unsigned int i, n, err_idx;
+@@ -1275,10 +1280,12 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
+ 	dma_addr_t addr;
+ 
+ 	head = vq->packed.next_avail_idx;
+-	desc = alloc_indirect_packed(total_sg, gfp);
+-	if (!desc)
++	in_extra = alloc_indirect_packed(total_sg, gfp);
++	if (!in_extra)
+ 		return -ENOMEM;
+ 
++	desc = (struct vring_packed_desc *)(in_extra + 1);
++
+ 	if (unlikely(vq->vq.num_free < 1)) {
+ 		pr_debug("Can't add buf len 1 - avail = 0\n");
+ 		kfree(desc);
+@@ -1315,17 +1322,16 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
+ 		goto unmap_release;
+ 	}
+ 
++	if (vq->use_dma_api) {
++		in_extra->addr = addr;
++		in_extra->len = total_sg * sizeof(struct vring_packed_desc);
++	}
++
+ 	vq->packed.vring.desc[head].addr = cpu_to_le64(addr);
+ 	vq->packed.vring.desc[head].len = cpu_to_le32(total_sg *
+ 				sizeof(struct vring_packed_desc));
+ 	vq->packed.vring.desc[head].id = cpu_to_le16(id);
+ 
+-	if (vq->use_dma_api) {
+-		vq->packed.desc_extra[id].addr = addr;
+-		vq->packed.desc_extra[id].len = total_sg *
+-				sizeof(struct vring_packed_desc);
+-	}
+-
+ 	vq->packed.desc_extra[id].flags = VRING_DESC_F_INDIRECT |
+ 		vq->packed.avail_used_flags;
+ 
+@@ -1356,7 +1362,7 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
+ 	/* Store token and indirect buffer state. */
+ 	vq->packed.desc_state[id].num = 1;
+ 	vq->packed.desc_state[id].data = data;
+-	vq->packed.desc_state[id].indir_desc = desc;
++	vq->packed.desc_state[id].indir_desc = in_extra;
+ 	vq->packed.desc_state[id].last = id;
+ 
+ 	vq->num_added += 1;
+@@ -1375,7 +1381,7 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
+ 		vring_unmap_desc_packed(vq, &desc[i]);
+ 
+ free_desc:
+-	kfree(desc);
++	kfree(in_extra);
+ 
+ 	END_USE(vq);
+ 	return -ENOMEM;
+@@ -1589,7 +1595,6 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
+ 			      unsigned int id, void **ctx)
+ {
+ 	struct vring_desc_state_packed *state = NULL;
+-	struct vring_packed_desc *desc;
+ 	unsigned int i, curr;
+ 	u16 flags;
+ 
+@@ -1616,27 +1621,27 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
+ 		if (ctx)
+ 			*ctx = state->indir_desc;
+ 	} else {
+-		const struct vring_desc_extra *extra;
+-		u32 len;
++		struct vring_desc_extra *in_extra;
++		struct vring_packed_desc *desc;
++		u32 num;
++
++		in_extra = state->indir_desc;
+ 
+ 		if (vq->use_dma_api) {
+-			extra = &vq->packed.desc_extra[id];
+ 			dma_unmap_single(vring_dma_dev(vq),
+-					 extra->addr, extra->len,
++					 in_extra->addr, in_extra->len,
+ 					 (flags & VRING_DESC_F_WRITE) ?
+ 					 DMA_FROM_DEVICE : DMA_TO_DEVICE);
+ 		}
+ 
+-		/* Free the indirect table, if any, now that it's unmapped. */
+-		desc = state->indir_desc;
+-
+ 		if (vring_need_unmap_buffer(vq)) {
+-			len = vq->packed.desc_extra[id].len;
+-			for (i = 0; i < len / sizeof(struct vring_packed_desc);
+-					i++)
++			num = in_extra->len / sizeof(struct vring_packed_desc);
++			desc = (struct vring_packed_desc *)(in_extra + 1);
++
++			for (i = 0; i < num; i++)
+ 				vring_unmap_desc_packed(vq, &desc[i]);
+ 		}
+-		kfree(desc);
++		kfree(in_extra);
+ 		state->indir_desc = NULL;
+ 	}
+ }
+-- 
+2.32.0.3.g01195cf9f
 
-Thanks again.
