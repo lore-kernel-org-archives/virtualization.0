@@ -1,145 +1,305 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE694749A
-	for <virtualization@lists.linux.dev>; Tue, 26 Mar 2024 06:35:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F2EB129E99
+	for <virtualization@lists.linux.dev>; Tue, 26 Mar 2024 07:06:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711434938; cv=none; b=lNsfY6IRkKfEnnoEyVelI2/7p/IoYLpeHA34HyV/pRGswVQnKb6NQBjO9IpdXNYPRPO+SqVHyZ3M7GLE4K9HkO2OFmvbcyUk0K3bzYy2iVg8AU6ktwS5q/p+vvV6sPX12dkVjmfa6KAzzE6G7w+AuciCA1qkau1Px6teLrTae8k=
+	t=1711436810; cv=none; b=tssuGqvZowroJnYYvoCrOwqSGSgtSIOJQnSOAUNsnIfSH9Li5rkshG95sW1VaOlF0+x7gqyQ4SQupotz/3E2Oc+j1/7rSljkH/uatG9K5MFJJsEet3vACH00RDq1VMP/UhPXmt+/gH28DaQCYjTldG/Gn/sp4wB8dlAgu0yPYDU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711434938; c=relaxed/simple;
-	bh=4+78nYQYB5Ci4NBkQebLOQgyOWv4FelTbQqjgSKmNzE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=P14aNz0p5Gv++xX/5NbNtUVL2ZQK2jmK5Ph6A3tuXniI+2I+K+nTvHVVD2x4L+PF0FEe8DvRtOksZ/cLr9xAPLs9GsTuNxOfUW+Z161mN3YUfinOtcaMbB/0eLOL3G7kXF0A6tyJYR/2m5mbe/d9LbLvBbwQrpp9jkRql2LFU7Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DUs3uehJ; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1711436810; c=relaxed/simple;
+	bh=SM7/wtXj4RB89IBwhHF+vcoa0LZcbSXCiJQJjk9y3IY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=iZW1w5aiDhLYrQBbNCUdAGqHIla4jaL4a4sXM9HfD/W7v08XWRYPe8gA9T8fbugrSv7AhnDd1ELrbYuJA8ozia80QSrQLxSjdsEih5VvaANFCTyQHy2YHmVKgC03eKImcTNWjUy+IOLen2snTkBbSc8UXID697JWWnYwNHgnGRk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=jyUpio6p; arc=none smtp.client-ip=115.124.30.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DUs3uehJ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1711434935;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tV+n/AeH1+Y7vCOvFadr8DCW2Eq+lIrkj6t17qDJyoM=;
-	b=DUs3uehJbb9o+Z86OpHKah8wmqNdE+H3IQCWWG7GzJbDAMiM2JhwTaJwB0hEn8UeEmatjD
-	eOfgViJ9EtkrX4UQk2AWSnqu/79DG50/zvV8WwQUcgPUxDMtWB2fE39EtthM7SOox58xku
-	wWIEjid37wPqJezjyF8/jsaEBfrrBn8=
-Received: from mail-pl1-f197.google.com (mail-pl1-f197.google.com
- [209.85.214.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-96-PLqkrXIRNAmYh_pC09UvqA-1; Tue, 26 Mar 2024 02:35:34 -0400
-X-MC-Unique: PLqkrXIRNAmYh_pC09UvqA-1
-Received: by mail-pl1-f197.google.com with SMTP id d9443c01a7336-1dddbcc6a2aso41730695ad.1
-        for <virtualization@lists.linux.dev>; Mon, 25 Mar 2024 23:35:33 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711434933; x=1712039733;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=tV+n/AeH1+Y7vCOvFadr8DCW2Eq+lIrkj6t17qDJyoM=;
-        b=uz0BhtkH4yFAadav0fCJUZduS3/LZ3ULyGFaXwVFZiBMFmbOTFrsrR8c6uIZ3iIYXc
-         GrEdnzG5uYe9yTrEmqXcczzUwL1n+WvAkXQnWQ180xFT2szxIOiVlSyMCgBDLkMFVNZh
-         +PyBBPQn+SGWEcVhRChI5EHMtibAioM4i1TYWwHz8JboJHSyTTA2larFaFjuCl4LNthu
-         ryOZcgfDruzZNEen3Gp/WJDW8If5zPYIuAyc2peza+V8ieLfaf3JG6Uq/1D6N2qiBAo2
-         YEfnxzFKuBBqo7LpOzHxrPgSBNgHsuheON7ApxIw6xYcsPvvw86gABOsa5JlUMQBS1xC
-         4JbA==
-X-Gm-Message-State: AOJu0YzrcJAXUDL4w/GV8dLsP1G8YDSSkPk+kHYfl548LKQXv9hqcPCb
-	qjIDArPn//4wrbftXdRjQ8pkRbibst9lCj0/z8LhJt/6ayn/mIM79VWNPfEmJ0NeYYC7t0sDwX2
-	TT0bXAtwpIIaN7toMUwBo6xWQEY+EN1gCo6KC/tFDasMeizO+DsyaHsgn49KVlVvZa4TTNPkZwm
-	iqxkFKR/TmwE2hwJcgwuN4uDN09RWm1Ntda+97oNQ=
-X-Received: by 2002:a17:902:fc45:b0:1e0:93a:e681 with SMTP id me5-20020a170902fc4500b001e0093ae681mr10547523plb.58.1711434932771;
-        Mon, 25 Mar 2024 23:35:32 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IG38L73eoMVI0gE3VFcyJZbiAF71PJ9iqlnhy7YMgjlqkfIehY0e1Gl+LcuuDusrn1SHlJkZivN0EXqYXxdNPQ=
-X-Received: by 2002:a17:902:fc45:b0:1e0:93a:e681 with SMTP id
- me5-20020a170902fc4500b001e0093ae681mr10547503plb.58.1711434932411; Mon, 25
- Mar 2024 23:35:32 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="jyUpio6p"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1711436805; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=/0QlwJ2edQh7Sh9ibZNTAZPbKA98FsDhFB636sT2f4I=;
+	b=jyUpio6ppzg9BClsloaB30wkemCzWpbgfNwYq8pL8eO6hCrr7KyrFHWjhaKB/HdpKnxU/OVIGiQXb04QCUNcnqYaPnTm9kQqJqlzOPbwVI71nji/qWsS6u80eRqjV7U1nQrO/g2yo+7KGvYiq2w2uA8ML7rMR9PPrWHdctYuxTM=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0W3K38sE_1711436800;
+Received: from 30.221.149.28(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W3K38sE_1711436800)
+          by smtp.aliyun-inc.com;
+          Tue, 26 Mar 2024 15:06:43 +0800
+Message-ID: <413cc507-4cd0-431a-8efb-fab09cb2d490@linux.alibaba.com>
+Date: Tue, 26 Mar 2024 15:06:39 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240325085428.7275-1-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <20240325085428.7275-1-xuanzhuo@linux.alibaba.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 26 Mar 2024 14:35:21 +0800
-Message-ID: <CACGkMEtEWCjb8+Zcfizij2+0ef-wb8YJD2bfyAvP_72hKZrGvA@mail.gmail.com>
-Subject: Re: [PATCH vhost v5 00/10] virtio: drivers maintain dma info for
- premapped vq
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next 2/4] virtio_net: Remove command data from
+ control_buf
+To: Daniel Jurgens <danielj@nvidia.com>
+Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+ virtualization@lists.linux.dev, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, jiri@nvidia.com,
+ "open list:NETWORKING DRIVERS" <netdev@vger.kernel.org>
+References: <20240325214912.323749-1-danielj@nvidia.com>
+ <20240325214912.323749-3-danielj@nvidia.com>
+From: Heng Qi <hengqi@linux.alibaba.com>
+In-Reply-To: <20240325214912.323749-3-danielj@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Mon, Mar 25, 2024 at 4:54=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
-om> wrote:
->
-> As discussed:
->
-> http://lore.kernel.org/all/CACGkMEvq0No8QGC46U4mGsMtuD44fD_cfLcPaVmJ3rHYq=
-RZxYg@mail.gmail.com
->
-> If the virtio is premapped mode, the driver should manage the dma info by=
- self.
-> So the virtio core should not store the dma info. We can release the memo=
-ry used
-> to store the dma info.
->
-> For virtio-net xmit queue, if the virtio-net maintains the dma info,
-> the virtio-net must allocate too much memory(19 * queue_size for per-queu=
-e), so
-> we do not plan to make the virtio-net to maintain the dma info by default=
-. The
-> virtio-net xmit queue only maintain the dma info when premapped mode is e=
-nable
-> (such as AF_XDP is enable).
->
-> So this patch set try to do:
->
-> 1. make the virtio core to do not store the dma info when driver can do t=
-hat
->     - But if the desc_extra has not dma info, we face a new question,
->       it is hard to get the dma info of the desc with indirect flag.
->       For split mode, that is easy from desc, but for the packed mode,
->       it is hard to get the dma info from the desc. And hardening
->       the dma unmap is safe, we should store the dma info of indirect
->       descs when the virtio core does not store the bufer dma info.
->
->       The follow patches to this:
->          * virtio_ring: packed: structure the indirect desc table
->          * virtio_ring: split: structure the indirect desc table
->
->     - On the other side, in the umap handle, we mix the indirect descs wi=
-th
->       other descs. That make things too complex. I found if we we disting=
-uish
->       the descs with VRING_DESC_F_INDIRECT before unmap, thing will be cl=
-earer.
->
->       The follow patches do this.
->          * virtio_ring: packed: remove double check of the unmap ops
->          * virtio_ring: split: structure the indirect desc table
->
-> 2. make the virtio core to enable premapped mode by find_vqs() params
->     - Because the find_vqs() will try to allocate memory for the dma info=
-.
->       If we set the premapped mode after find_vqs() and release the
->       dma info, that is odd.
->
->
-> Please review.
->
-> Thanks
 
-This doesn't apply cleany on vhost.git linux-next branch.
 
-Which tree is this based on?
+在 2024/3/26 上午5:49, Daniel Jurgens 写道:
+> Allocate memory for the data when it's used. Ideally the could be on the
+> stack, but we can't DMA stack memory. With this change only the header
+> and status memory are shared between commands, which will allow using a
+> tighter lock than RTNL.
+>
+> Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
+> Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+> ---
+>   drivers/net/virtio_net.c | 110 ++++++++++++++++++++++++++-------------
+>   1 file changed, 74 insertions(+), 36 deletions(-)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 7419a68cf6e2..6780479a1e6c 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -235,14 +235,6 @@ struct virtio_net_ctrl_rss {
+>   struct control_buf {
+>   	struct virtio_net_ctrl_hdr hdr;
+>   	virtio_net_ctrl_ack status;
+> -	struct virtio_net_ctrl_mq mq;
+> -	u8 promisc;
+> -	u8 allmulti;
+> -	__virtio16 vid;
+> -	__virtio64 offloads;
+> -	struct virtio_net_ctrl_coal_tx coal_tx;
+> -	struct virtio_net_ctrl_coal_rx coal_rx;
+> -	struct virtio_net_ctrl_coal_vq coal_vq;
+>   };
+>   
+>   struct virtnet_info {
+> @@ -2654,14 +2646,19 @@ static void virtnet_ack_link_announce(struct virtnet_info *vi)
+>   
+>   static int _virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
+>   {
+> +	struct virtio_net_ctrl_mq *mq __free(kfree) = NULL;
+>   	struct scatterlist sg;
+>   	struct net_device *dev = vi->dev;
+>   
+>   	if (!vi->has_cvq || !virtio_has_feature(vi->vdev, VIRTIO_NET_F_MQ))
+>   		return 0;
+>   
+> -	vi->ctrl->mq.virtqueue_pairs = cpu_to_virtio16(vi->vdev, queue_pairs);
+> -	sg_init_one(&sg, &vi->ctrl->mq, sizeof(vi->ctrl->mq));
+> +	mq = kzalloc(sizeof(*mq), GFP_KERNEL);
+> +	if (!mq)
+> +		return -ENOMEM;
+> +
+> +	mq->virtqueue_pairs = cpu_to_virtio16(vi->vdev, queue_pairs);
+> +	sg_init_one(&sg, mq, sizeof(*mq));
+>   
+>   	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_MQ,
+>   				  VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET, &sg)) {
+> @@ -2708,6 +2705,7 @@ static int virtnet_close(struct net_device *dev)
+>   
+>   static void virtnet_set_rx_mode(struct net_device *dev)
 
-Thanks
+You need to rebase next branch in the next version,
+.ndo_set_rx_mode has been completed using workqueue in that.
+
+Regards,
+Heng
+
+>   {
+> +	u8 *promisc_allmulti  __free(kfree) = NULL;
+>   	struct virtnet_info *vi = netdev_priv(dev);
+>   	struct scatterlist sg[2];
+>   	struct virtio_net_ctrl_mac *mac_data;
+> @@ -2721,22 +2719,27 @@ static void virtnet_set_rx_mode(struct net_device *dev)
+>   	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_RX))
+>   		return;
+>   
+> -	vi->ctrl->promisc = ((dev->flags & IFF_PROMISC) != 0);
+> -	vi->ctrl->allmulti = ((dev->flags & IFF_ALLMULTI) != 0);
+> +	promisc_allmulti = kzalloc(sizeof(*promisc_allmulti), GFP_ATOMIC);
+> +	if (!promisc_allmulti) {
+> +		dev_warn(&dev->dev, "Failed to set RX mode, no memory.\n");
+> +		return;
+> +	}
+>   
+> -	sg_init_one(sg, &vi->ctrl->promisc, sizeof(vi->ctrl->promisc));
+> +	*promisc_allmulti = !!(dev->flags & IFF_PROMISC);
+> +	sg_init_one(sg, promisc_allmulti, sizeof(*promisc_allmulti));
+>   
+>   	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_RX,
+>   				  VIRTIO_NET_CTRL_RX_PROMISC, sg))
+>   		dev_warn(&dev->dev, "Failed to %sable promisc mode.\n",
+> -			 vi->ctrl->promisc ? "en" : "dis");
+> +			 *promisc_allmulti ? "en" : "dis");
+>   
+> -	sg_init_one(sg, &vi->ctrl->allmulti, sizeof(vi->ctrl->allmulti));
+> +	*promisc_allmulti = !!(dev->flags & IFF_ALLMULTI);
+> +	sg_init_one(sg, promisc_allmulti, sizeof(*promisc_allmulti));
+>   
+>   	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_RX,
+>   				  VIRTIO_NET_CTRL_RX_ALLMULTI, sg))
+>   		dev_warn(&dev->dev, "Failed to %sable allmulti mode.\n",
+> -			 vi->ctrl->allmulti ? "en" : "dis");
+> +			 *promisc_allmulti ? "en" : "dis");
+>   
+>   	uc_count = netdev_uc_count(dev);
+>   	mc_count = netdev_mc_count(dev);
+> @@ -2780,10 +2783,15 @@ static int virtnet_vlan_rx_add_vid(struct net_device *dev,
+>   				   __be16 proto, u16 vid)
+>   {
+>   	struct virtnet_info *vi = netdev_priv(dev);
+> +	__virtio16 *_vid __free(kfree) = NULL;
+>   	struct scatterlist sg;
+>   
+> -	vi->ctrl->vid = cpu_to_virtio16(vi->vdev, vid);
+> -	sg_init_one(&sg, &vi->ctrl->vid, sizeof(vi->ctrl->vid));
+> +	_vid = kzalloc(sizeof(*_vid), GFP_KERNEL);
+> +	if (!_vid)
+> +		return -ENOMEM;
+> +
+> +	*_vid = cpu_to_virtio16(vi->vdev, vid);
+> +	sg_init_one(&sg, _vid, sizeof(*_vid));
+>   
+>   	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_VLAN,
+>   				  VIRTIO_NET_CTRL_VLAN_ADD, &sg))
+> @@ -2795,10 +2803,15 @@ static int virtnet_vlan_rx_kill_vid(struct net_device *dev,
+>   				    __be16 proto, u16 vid)
+>   {
+>   	struct virtnet_info *vi = netdev_priv(dev);
+> +	__virtio16 *_vid __free(kfree) = NULL;
+>   	struct scatterlist sg;
+>   
+> -	vi->ctrl->vid = cpu_to_virtio16(vi->vdev, vid);
+> -	sg_init_one(&sg, &vi->ctrl->vid, sizeof(vi->ctrl->vid));
+> +	_vid = kzalloc(sizeof(*_vid), GFP_KERNEL);
+> +	if (!_vid)
+> +		return -ENOMEM;
+> +
+> +	*_vid = cpu_to_virtio16(vi->vdev, vid);
+> +	sg_init_one(&sg, _vid, sizeof(*_vid));
+>   
+>   	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_VLAN,
+>   				  VIRTIO_NET_CTRL_VLAN_DEL, &sg))
+> @@ -2911,12 +2924,17 @@ static void virtnet_cpu_notif_remove(struct virtnet_info *vi)
+>   static int virtnet_send_ctrl_coal_vq_cmd(struct virtnet_info *vi,
+>   					 u16 vqn, u32 max_usecs, u32 max_packets)
+>   {
+> +	struct virtio_net_ctrl_coal_vq *coal_vq __free(kfree) = NULL;
+>   	struct scatterlist sgs;
+>   
+> -	vi->ctrl->coal_vq.vqn = cpu_to_le16(vqn);
+> -	vi->ctrl->coal_vq.coal.max_usecs = cpu_to_le32(max_usecs);
+> -	vi->ctrl->coal_vq.coal.max_packets = cpu_to_le32(max_packets);
+> -	sg_init_one(&sgs, &vi->ctrl->coal_vq, sizeof(vi->ctrl->coal_vq));
+> +	coal_vq = kzalloc(sizeof(*coal_vq), GFP_KERNEL);
+> +	if (!coal_vq)
+> +		return -ENOMEM;
+> +
+> +	coal_vq->vqn = cpu_to_le16(vqn);
+> +	coal_vq->coal.max_usecs = cpu_to_le32(max_usecs);
+> +	coal_vq->coal.max_packets = cpu_to_le32(max_packets);
+> +	sg_init_one(&sgs, coal_vq, sizeof(*coal_vq));
+>   
+>   	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_NOTF_COAL,
+>   				  VIRTIO_NET_CTRL_NOTF_COAL_VQ_SET,
+> @@ -3062,11 +3080,15 @@ static bool virtnet_commit_rss_command(struct virtnet_info *vi)
+>   
+>   	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_MQ,
+>   				  vi->has_rss ? VIRTIO_NET_CTRL_MQ_RSS_CONFIG
+> -				  : VIRTIO_NET_CTRL_MQ_HASH_CONFIG, sgs)) {
+> -		dev_warn(&dev->dev, "VIRTIONET issue with committing RSS sgs\n");
+> -		return false;
+> -	}
+> +				  : VIRTIO_NET_CTRL_MQ_HASH_CONFIG, sgs))
+> +		goto err;
+> +
+>   	return true;
+> +
+> +err:
+> +	dev_warn(&dev->dev, "VIRTIONET issue with committing RSS sgs\n");
+> +	return false;
+> +
+>   }
+>   
+>   static void virtnet_init_default_rss(struct virtnet_info *vi)
+> @@ -3371,12 +3393,17 @@ static int virtnet_get_link_ksettings(struct net_device *dev,
+>   static int virtnet_send_tx_notf_coal_cmds(struct virtnet_info *vi,
+>   					  struct ethtool_coalesce *ec)
+>   {
+> +	struct virtio_net_ctrl_coal_tx *coal_tx __free(kfree) = NULL;
+>   	struct scatterlist sgs_tx;
+>   	int i;
+>   
+> -	vi->ctrl->coal_tx.tx_usecs = cpu_to_le32(ec->tx_coalesce_usecs);
+> -	vi->ctrl->coal_tx.tx_max_packets = cpu_to_le32(ec->tx_max_coalesced_frames);
+> -	sg_init_one(&sgs_tx, &vi->ctrl->coal_tx, sizeof(vi->ctrl->coal_tx));
+> +	coal_tx = kzalloc(sizeof(*coal_tx), GFP_KERNEL);
+> +	if (!coal_tx)
+> +		return -ENOMEM;
+> +
+> +	coal_tx->tx_usecs = cpu_to_le32(ec->tx_coalesce_usecs);
+> +	coal_tx->tx_max_packets = cpu_to_le32(ec->tx_max_coalesced_frames);
+> +	sg_init_one(&sgs_tx, coal_tx, sizeof(*coal_tx));
+>   
+>   	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_NOTF_COAL,
+>   				  VIRTIO_NET_CTRL_NOTF_COAL_TX_SET,
+> @@ -3396,6 +3423,7 @@ static int virtnet_send_tx_notf_coal_cmds(struct virtnet_info *vi,
+>   static int virtnet_send_rx_notf_coal_cmds(struct virtnet_info *vi,
+>   					  struct ethtool_coalesce *ec)
+>   {
+> +	struct virtio_net_ctrl_coal_rx *coal_rx __free(kfree) = NULL;
+>   	bool rx_ctrl_dim_on = !!ec->use_adaptive_rx_coalesce;
+>   	struct scatterlist sgs_rx;
+>   	int i;
+> @@ -3414,6 +3442,10 @@ static int virtnet_send_rx_notf_coal_cmds(struct virtnet_info *vi,
+>   		return 0;
+>   	}
+>   
+> +	coal_rx = kzalloc(sizeof(*coal_rx), GFP_KERNEL);
+> +	if (!coal_rx)
+> +		return -ENOMEM;
+> +
+>   	if (!rx_ctrl_dim_on && vi->rx_dim_enabled) {
+>   		vi->rx_dim_enabled = false;
+>   		for (i = 0; i < vi->max_queue_pairs; i++)
+> @@ -3424,9 +3456,9 @@ static int virtnet_send_rx_notf_coal_cmds(struct virtnet_info *vi,
+>   	 * we need apply the global new params even if they
+>   	 * are not updated.
+>   	 */
+> -	vi->ctrl->coal_rx.rx_usecs = cpu_to_le32(ec->rx_coalesce_usecs);
+> -	vi->ctrl->coal_rx.rx_max_packets = cpu_to_le32(ec->rx_max_coalesced_frames);
+> -	sg_init_one(&sgs_rx, &vi->ctrl->coal_rx, sizeof(vi->ctrl->coal_rx));
+> +	coal_rx->rx_usecs = cpu_to_le32(ec->rx_coalesce_usecs);
+> +	coal_rx->rx_max_packets = cpu_to_le32(ec->rx_max_coalesced_frames);
+> +	sg_init_one(&sgs_rx, coal_rx, sizeof(*coal_rx));
+>   
+>   	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_NOTF_COAL,
+>   				  VIRTIO_NET_CTRL_NOTF_COAL_RX_SET,
+> @@ -3893,10 +3925,16 @@ static int virtnet_restore_up(struct virtio_device *vdev)
+>   
+>   static int virtnet_set_guest_offloads(struct virtnet_info *vi, u64 offloads)
+>   {
+> +	u64 *_offloads __free(kfree) = NULL;
+>   	struct scatterlist sg;
+> -	vi->ctrl->offloads = cpu_to_virtio64(vi->vdev, offloads);
+>   
+> -	sg_init_one(&sg, &vi->ctrl->offloads, sizeof(vi->ctrl->offloads));
+> +	_offloads = kzalloc(sizeof(*_offloads), GFP_KERNEL);
+> +	if (!_offloads)
+> +		return -ENOMEM;
+> +
+> +	*_offloads = cpu_to_virtio64(vi->vdev, offloads);
+> +
+> +	sg_init_one(&sg, _offloads, sizeof(*_offloads));
+>   
+>   	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_GUEST_OFFLOADS,
+>   				  VIRTIO_NET_CTRL_GUEST_OFFLOADS_SET, &sg)) {
 
