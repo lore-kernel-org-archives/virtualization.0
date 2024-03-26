@@ -1,205 +1,196 @@
-Received: from mail-ed1-f49.google.com (mail-ed1-f49.google.com [209.85.208.49])
+Received: from mail-il1-f198.google.com (mail-il1-f198.google.com [209.85.166.198])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D22B13D639
-	for <virtualization@lists.linux.dev>; Tue, 26 Mar 2024 20:24:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B224313E02E
+	for <virtualization@lists.linux.dev>; Tue, 26 Mar 2024 22:38:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.198
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711484648; cv=none; b=o+gRicBG/WgV1QDXX6volf6SKJERHcp1Wdba5IETA+8SfJwqGNAJJrPTlzSXFgKJ7TffJEHlv/Y6va6Abr327yaJuD1JRtU12gos3i8zE4euAvWi8QpU0T8RvhAjWZNUt3aZ636gf8lmf8kqIxULCy7rqfXWySAkR2jXwMXw6kk=
+	t=1711492709; cv=none; b=kL2BzGQjz84xzutgGWEqnEAeWhQsEjqhEBeCYXWHjxlIqAgsnt4LXNM44f0qCgdIF+IkJcGSNjzH0k4yrCq6FbXDj5GV9xeFSqn49gOWF/p4jAwo2pHcNtRzJYrQpexx5tuD5+K9J0Rz0yOHkgs/seVwEOSymp5RlbSftccWhZg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711484648; c=relaxed/simple;
-	bh=mWwfdGmaJI5/v599SuFLYqcN0BETsqK70kzkErBfIJ0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=kPmAXvhayOnKqEukQ1awEyONBrez2cydzDyqkWHCofSxdxwxUkLUyjK7//l1Q+B3pDn6NSJ8tUB1GqlJaXO/I+EmBfcgmxB9CR6UAPv/+BJVAo6enQX3OuzfO9UMT1yXWaU/ua/KgRUE4b4oBCtSOYNEUTMK7+91HiqIIzmvyTE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=UIVdFEaa; arc=none smtp.client-ip=209.85.208.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="UIVdFEaa"
-Received: by mail-ed1-f49.google.com with SMTP id 4fb4d7f45d1cf-56bc8cfc19fso6636891a12.1
-        for <virtualization@lists.linux.dev>; Tue, 26 Mar 2024 13:24:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1711484644; x=1712089444; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=pnO3hfDzNJhG1W8n4621OnBzOy9cpmEtEz5rXGN5tRg=;
-        b=UIVdFEaa65Hcekl+qMPbjfUB/I8rCOXfNlgvuiGTZpQLCOH0VYGFzwRYu4MRJlCvoP
-         WImVVeweWDruWbmv5/dDpEna23bqwNfl5Q08nOXz+zhTzhtDOR5xG0WFeC79PWH5BaX7
-         c2UJCye76kDTtPNQXacT196L3hn0n8oS5jQi4=
+	s=arc-20240116; t=1711492709; c=relaxed/simple;
+	bh=Lbq/0U+KE6IrvSkCL0zaYEXlSWMqVHZH+4PcV8PJj+o=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=aHs1j36mCyUkhd0lQu06uCl6VZya9HoqW05anmojco57O5DOfcFk4YIs9+BB3MUQkMqTrkEmBHEt92+c+nP4xa3aL4F7OOdArapshh2U5TqDTu52w2bdSXcs6RW8aVoCfsUE9zdVwS1R+U/FE7w7tHmmbX4fYMzuUeH+1bFYecs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.198
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-il1-f198.google.com with SMTP id e9e14a558f8ab-3665991058fso2679625ab.1
+        for <virtualization@lists.linux.dev>; Tue, 26 Mar 2024 15:38:26 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711484644; x=1712089444;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=pnO3hfDzNJhG1W8n4621OnBzOy9cpmEtEz5rXGN5tRg=;
-        b=Al9usmVeiUgy20y+bMfoDKmVujvtbglcKfaoKB2umdNy0KtoUHs3poCPpyupQNY7MB
-         oBE3CEaoB1p2S/i18VC7okXwPwICt1aqJQPBxPzy/0zckqGisobU3uoqknjCZFtCFIWH
-         XOlLsE7Z9NG9JB+YT5YaUWQutPfBRc0yZ75Gkg8gxMO8cARgkVTdbPLvE1CnBGXaJ/wp
-         W4ZwKHhi/iJJ/sh/oGPLR179UILi0pZy9LZZK4zTzp/DjSbBr4aKUfBfjY4PIxVij0/d
-         G40ACzHZ2dUJ3x/Yb+OMe/OpyYH2pK7vxy1XMajYlhYOk1kNfDu5d0Aqhj6d2nyBTfMz
-         TCrQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVtHbh9+h8JPOWS4Sz4YtTojf9cFQEfRr67UxSXVgK4jbBlC6NYrs3dPaakS53O09CDzNg3gSLPggJjxudkVoRnm3LHBMvumtkOnQZfMbQ=
-X-Gm-Message-State: AOJu0YzyFqI13HCf0619h7JBQPDm/c7mq67CxJLeNNXLOQ/HMRjpKHDS
-	wGcxtkoArYfd2hRjTsmmVtdb7uFNuiA1hOT6SjKhD5lsx3ry8vfcxitwGHFAx6i1I624ZIHK4Nx
-	LZQ==
-X-Google-Smtp-Source: AGHT+IGprUp1Zpp54OJkDCdVvzDIsKZY14G+KNLC+ckEqBBkqc3mXcLETWLmnaQ1U1Y1FwHYUMXQuQ==
-X-Received: by 2002:a50:9e65:0:b0:568:fb58:bc4d with SMTP id z92-20020a509e65000000b00568fb58bc4dmr1625835ede.8.1711484644420;
-        Tue, 26 Mar 2024 13:24:04 -0700 (PDT)
-Received: from mail-ej1-f44.google.com (mail-ej1-f44.google.com. [209.85.218.44])
-        by smtp.gmail.com with ESMTPSA id ev17-20020a056402541100b0056bf7f92346sm4272481edb.50.2024.03.26.13.24.03
-        for <virtualization@lists.linux.dev>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 26 Mar 2024 13:24:03 -0700 (PDT)
-Received: by mail-ej1-f44.google.com with SMTP id a640c23a62f3a-a4751063318so371429466b.0
-        for <virtualization@lists.linux.dev>; Tue, 26 Mar 2024 13:24:03 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCV/42KdGzdoVNlLcCHWgGGeXg4s/E97Sq6uQOsz8+Sjuf9OcVk+tOE6FMWo9UAW/D4qjMkL8hjoCZoz6Ay3+ONEDClaMhSHNK8s5R9e4wg=
-X-Received: by 2002:a17:907:2686:b0:a47:3c66:b396 with SMTP id
- bn6-20020a170907268600b00a473c66b396mr1888708ejc.64.1711484642859; Tue, 26
- Mar 2024 13:24:02 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1711492706; x=1712097506;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=pg4FbvwKuIZDOjcZr1xzWIWjh7nZvLbstqVZUm4IHx8=;
+        b=trQbyl+FoCBvChDSds+BcoKIcsff4L1SRwiStlQ3vBUk0RG9u9tMXGlzCVur/plHyF
+         6VSnl1nFK5dlqhCMqio5H+XuoSckYW6WOuxEKycIvufoRUZ73b32sW5EkDTGmiJ7PNvO
+         61hbCvZ7HUWOr8sSeoNtnAptgnitfwkiA1uUCv+QPNTndXNbL1LJMxRY+J8tx/jCuSwx
+         aMihetWhOlsCFQqXbYXZCusxYILZZGBi7b4KREmcXJ96fjGU8J2woWbI+5iRFwWUfUBb
+         JO/ZAK5t27aGtjzmGkutj+zlcI4GCd365dIzhHTPMHm4lxxtUmjys5lCTsDFKVrY/12d
+         jxBA==
+X-Forwarded-Encrypted: i=1; AJvYcCURijRenefIpe19Wer1l459f4Q2f7g0kt+BR8X1G0tHzwFwa9WxUyVeT8JlvNIMqKoBaKek9FAKSxy4apOOmWZWWWqHiAp5IHUcQPZYq8g=
+X-Gm-Message-State: AOJu0YyLNAVDAuNiY4xAO131InJqNdoG/ZCiJTBMvAIN4786Hx4bLFOv
+	ivGsyJ14T/bi2+E00NRWQSVtmUsN5KwgCv6ncI3CfsoP/J/5M3j2FzuDphbusG5j/8sN5oIrvPL
+	vWOS+zzCMyO34DEsp19n5tJcG1Is3Nbd/gP3e3MSGU/3FGFX1Gq7b2BQ=
+X-Google-Smtp-Source: AGHT+IE1nOIfaWoCc8LJq4vT89ASXfPLzzJhw0mvC4pk70MpBRfHet54JdkcVxfjmvfsLEzXhlYN3Gv3qaJGMuBqOLsERvcq2crB
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240321101532.59272-1-xuanzhuo@linux.alibaba.com>
- <20240321101532.59272-2-xuanzhuo@linux.alibaba.com> <CABVzXAkwcKMb7pC21aUDLEM=RoyOtGA2Vim+LF0oWQ7mjUx68g@mail.gmail.com>
- <b420a545-0a7a-431c-aa48-c5db3d221420@redhat.com> <1711346901.0977402-2-xuanzhuo@linux.alibaba.com>
- <041867ab-6cff-4bd1-9a44-2ca847c1ad63@redhat.com>
-In-Reply-To: <041867ab-6cff-4bd1-9a44-2ca847c1ad63@redhat.com>
-From: Daniel Verkamp <dverkamp@chromium.org>
-Date: Tue, 26 Mar 2024 13:23:35 -0700
-X-Gmail-Original-Message-ID: <CABVzXA=QHxAbkN5qorb5e8gKtd-c9P61z_ft07PPkkzaDMxB_A@mail.gmail.com>
-Message-ID: <CABVzXA=QHxAbkN5qorb5e8gKtd-c9P61z_ft07PPkkzaDMxB_A@mail.gmail.com>
-Subject: Re: [PATCH vhost v4 1/6] virtio_balloon: remove the dependence where
- names[] is null
-To: David Hildenbrand <david@redhat.com>
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev, 
-	Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
-	Johannes Berg <johannes@sipsolutions.net>, Hans de Goede <hdegoede@redhat.com>, 
-	=?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
-	Vadim Pasternak <vadimp@nvidia.com>, Bjorn Andersson <andersson@kernel.org>, 
-	Mathieu Poirier <mathieu.poirier@linaro.org>, Cornelia Huck <cohuck@redhat.com>, 
-	Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	linux-um@lists.infradead.org, platform-driver-x86@vger.kernel.org, 
-	linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org, 
-	kvm@vger.kernel.org
+X-Received: by 2002:a05:6e02:2199:b0:366:b246:2f10 with SMTP id
+ j25-20020a056e02219900b00366b2462f10mr114997ila.2.1711492705393; Tue, 26 Mar
+ 2024 15:38:25 -0700 (PDT)
+Date: Tue, 26 Mar 2024 15:38:25 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <000000000000bdb4b9061497f2de@google.com>
+Subject: [syzbot] [virtualization?] net boot error: WARNING: refcount bug in __free_pages_ok
+From: syzbot <syzbot+84f677a274bd8b05f6cb@syzkaller.appspotmail.com>
+To: davem@davemloft.net, jasowang@redhat.com, kuba@kernel.org, 
+	linux-kernel@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, 
+	syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev, 
+	xuanzhuo@linux.alibaba.com
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Mar 25, 2024 at 2:11=E2=80=AFAM David Hildenbrand <david@redhat.com=
-> wrote:
->
-> On 25.03.24 07:08, Xuan Zhuo wrote:
-> > On Fri, 22 Mar 2024 22:02:27 +0100, David Hildenbrand <david@redhat.com=
-> wrote:
-> >> On 22.03.24 20:16, Daniel Verkamp wrote:
-> >>> On Thu, Mar 21, 2024 at 3:16=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.ali=
-baba.com> wrote:
-> >>>>
-> >>>> Currently, the init_vqs function within the virtio_balloon driver re=
-lies
-> >>>> on the condition that certain names array entries are null in order =
-to
-> >>>> skip the initialization of some virtual queues (vqs). This behavior =
-is
-> >>>> unique to this part of the codebase. In an upcoming commit, we plan =
-to
-> >>>> eliminate this dependency by removing the function entirely. Therefo=
-re,
-> >>>> with this change, we are ensuring that the virtio_balloon no longer
-> >>>> depends on the aforementioned function.
-> >>>
-> >>> This is a behavior change, and I believe means that the driver no
-> >>> longer follows the spec [1].
-> >>>
-> >>> For example, the spec says that virtqueue 4 is reporting_vq, and
-> >>> reporting_vq only exists if VIRTIO_BALLOON_F_PAGE_REPORTING is set,
-> >>> but there is no mention of its virtqueue number changing if other
-> >>> features are not set. If a device/driver combination negotiates
-> >>> VIRTIO_BALLOON_F_PAGE_REPORTING but not VIRTIO_BALLOON_F_STATS_VQ or
-> >>> VIRTIO_BALLOON_F_FREE_PAGE_HINT, my reading of the specification is
-> >>> that reporting_vq should still be vq number 4, and vq 2 and 3 should
-> >>> be unused. This patch would make the reporting_vq use vq 2 instead in
-> >>> this case.
-> >>>
-> >>> If the new behavior is truly intended, then the spec does not match
-> >>> reality, and it would need to be changed first (IMO); however,
-> >>> changing the spec would mean that any devices implemented correctly
-> >>> per the previous spec would now be wrong, so some kind of mechanism
-> >>> for detecting the new behavior would be warranted, e.g. a new
-> >>> non-device-specific virtio feature flag.
-> >>>
-> >>> I have brought this up previously on the virtio-comment list [2], but
-> >>> it did not receive any satisfying answers at that time.
-> >>
-> >> Rings a bell, but staring at this patch, I thought that there would be
-> >> no behavioral change. Maybe I missed it :/
-> >>
-> >> I stared at virtio_ccw_find_vqs(), and it contains:
-> >>
-> >>      for (i =3D 0; i < nvqs; ++i) {
-> >>              if (!names[i]) {
-> >>                      vqs[i] =3D NULL;
-> >>                      continue;
-> >>              }
-> >>
-> >>              vqs[i] =3D virtio_ccw_setup_vq(vdev, queue_idx++, callbac=
-ks[i],
-> >>                                           names[i], ctx ? ctx[i] : fal=
-se,
-> >>                                           ccw);
-> >>              if (IS_ERR(vqs[i])) {
-> >>                      ret =3D PTR_ERR(vqs[i]);
-> >>                      vqs[i] =3D NULL;
-> >>                      goto out;
-> >>              }
-> >>      }
-> >>
-> >> We increment queue_idx only if an entry was not NULL. SO I thought no
-> >> behavioral change? (at least on s390x :) )
-> >>
-> >> It's late here in Germany, so maybe I'm missing something.
-> >
-> > I think we've encountered a tricky issue. Currently, all transports han=
-dle queue
-> > id by incrementing them in order, without skipping any queue id. So, I'=
-m quite
-> > surprised that my changes would affect the spec. The fact that the
-> > 'names' value is null is just a small trick in the Linux kernel impleme=
-ntation
-> > and should not have an impact on the queue id.
-> >
-> > I believe that my recent modification will not affect the spec. So, let=
-'s
-> > consider the issues with this patch set separately for now. Regarding t=
-he Memory
-> > Balloon Device, it has been operational for many years, and perhaps we =
-should
-> > add to the spec that if a certain vq does not exist, then subsequent vq=
-s will
-> > take over its id.
->
-> Right, if I am not missing something your patch should have no
-> functional change in that regard (that the current
-> behavior/implementation might not match the spec is a different discussio=
-n).
->
-> @Daniel, if I'm missing something, please shout.
+Hello,
 
-Thanks for digging into that - I think you're correct in that the
-patch does not change the behavior, due to changes elsewhere in the
-generic virtio and virtio-pci code. So in that sense, I guess this
-should not block this particular patch.
+syzbot found the following issue on:
 
-It would be good to have the spec situation cleared up, though - I
-guess in practice, all relevant drivers and device implementations are
-already following the model where there are no gaps in the queue
-numbering, rather than what the spec seems to indicate.
+HEAD commit:    c1fd3a9433a2 Merge branch 'there-are-some-bugfix-for-the-h..
+git tree:       net
+console output: https://syzkaller.appspot.com/x/log.txt?x=134f4c81180000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=a5e4ca7f025e9172
+dashboard link: https://syzkaller.appspot.com/bug?extid=84f677a274bd8b05f6cb
+compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
 
-Thanks,
--- Daniel
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/89219dafdd42/disk-c1fd3a94.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/d962e40c0da9/vmlinux-c1fd3a94.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/248b8f5eb3a1/bzImage-c1fd3a94.xz
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+84f677a274bd8b05f6cb@syzkaller.appspotmail.com
+
+Key type pkcs7_test registered
+Block layer SCSI generic (bsg) driver version 0.4 loaded (major 239)
+io scheduler mq-deadline registered
+io scheduler kyber registered
+io scheduler bfq registered
+input: Power Button as /devices/LNXSYSTM:00/LNXPWRBN:00/input/input0
+ACPI: button: Power Button [PWRF]
+input: Sleep Button as /devices/LNXSYSTM:00/LNXSLPBN:00/input/input1
+ACPI: button: Sleep Button [SLPF]
+ioatdma: Intel(R) QuickData Technology Driver 5.00
+ACPI: \_SB_.LNKC: Enabled at IRQ 11
+virtio-pci 0000:00:03.0: virtio_pci: leaving for legacy driver
+ACPI: \_SB_.LNKD: Enabled at IRQ 10
+virtio-pci 0000:00:04.0: virtio_pci: leaving for legacy driver
+ACPI: \_SB_.LNKB: Enabled at IRQ 10
+virtio-pci 0000:00:06.0: virtio_pci: leaving for legacy driver
+virtio-pci 0000:00:07.0: virtio_pci: leaving for legacy driver
+N_HDLC line discipline registered with maxframe=4096
+Serial: 8250/16550 driver, 4 ports, IRQ sharing enabled
+00:03: ttyS0 at I/O 0x3f8 (irq = 4, base_baud = 115200) is a 16550A
+00:04: ttyS1 at I/O 0x2f8 (irq = 3, base_baud = 115200) is a 16550A
+00:05: ttyS2 at I/O 0x3e8 (irq = 6, base_baud = 115200) is a 16550A
+00:06: ttyS3 at I/O 0x2e8 (irq = 7, base_baud = 115200) is a 16550A
+Non-volatile memory driver v1.3
+Linux agpgart interface v0.103
+ACPI: bus type drm_connector registered
+[drm] Initialized vgem 1.0.0 20120112 for vgem on minor 0
+[drm] Initialized vkms 1.0.0 20180514 for vkms on minor 1
+Console: switching to colour frame buffer device 128x48
+platform vkms: [drm] fb0: vkmsdrmfb frame buffer device
+usbcore: registered new interface driver udl
+brd: module loaded
+loop: module loaded
+zram: Added device: zram0
+null_blk: disk nullb0 created
+null_blk: module loaded
+Guest personality initialized and is inactive
+VMCI host device registered (name=vmci, major=10, minor=118)
+Initialized host personality
+usbcore: registered new interface driver rtsx_usb
+usbcore: registered new interface driver viperboard
+usbcore: registered new interface driver dln2
+usbcore: registered new interface driver pn533_usb
+nfcsim 0.2 initialized
+usbcore: registered new interface driver port100
+usbcore: registered new interface driver nfcmrvl
+Loading iSCSI transport class v2.0-870.
+virtio_scsi virtio0: 1/0/0 default/read/poll queues
+------------[ cut here ]------------
+refcount_t: decrement hit 0; leaking memory.
+WARNING: CPU: 1 PID: 1 at lib/refcount.c:31 refcount_warn_saturate+0xfa/0x1d0 lib/refcount.c:31
+Modules linked in:
+CPU: 1 PID: 1 Comm: swapper/0 Not tainted 6.8.0-syzkaller-12856-gc1fd3a9433a2 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 02/29/2024
+RIP: 0010:refcount_warn_saturate+0xfa/0x1d0 lib/refcount.c:31
+Code: b2 00 00 00 e8 97 cf e9 fc 5b 5d c3 cc cc cc cc e8 8b cf e9 fc c6 05 6c 6b e8 0a 01 90 48 c7 c7 e0 34 1f 8c e8 27 6c ac fc 90 <0f> 0b 90 90 eb d9 e8 6b cf e9 fc c6 05 49 6b e8 0a 01 90 48 c7 c7
+RSP: 0000:ffffc90000066e18 EFLAGS: 00010246
+RAX: 57706ef3c4162200 RBX: ffff88801f8f468c RCX: ffff8880166d8000
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
+RBP: 0000000000000004 R08: ffffffff815800c2 R09: fffffbfff1c396e0
+R10: dffffc0000000000 R11: fffffbfff1c396e0 R12: ffffea0000850dc0
+R13: ffffea0000850dc8 R14: 1ffffd400010a1b9 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ffff8880b9500000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000000000 CR3: 000000000e132000 CR4: 00000000003506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ reset_page_owner include/linux/page_owner.h:25 [inline]
+ free_pages_prepare mm/page_alloc.c:1141 [inline]
+ __free_pages_ok+0xc60/0xd90 mm/page_alloc.c:1270
+ make_alloc_exact+0xa3/0xf0 mm/page_alloc.c:4829
+ vring_alloc_queue drivers/virtio/virtio_ring.c:319 [inline]
+ vring_alloc_queue_split+0x20a/0x600 drivers/virtio/virtio_ring.c:1108
+ vring_create_virtqueue_split+0xc6/0x310 drivers/virtio/virtio_ring.c:1158
+ vring_create_virtqueue+0xca/0x110 drivers/virtio/virtio_ring.c:2683
+ setup_vq+0xe9/0x2d0 drivers/virtio/virtio_pci_legacy.c:131
+ vp_setup_vq+0xbf/0x330 drivers/virtio/virtio_pci_common.c:189
+ vp_find_vqs_msix+0x8b2/0xc80 drivers/virtio/virtio_pci_common.c:331
+ vp_find_vqs+0x4c/0x4e0 drivers/virtio/virtio_pci_common.c:408
+ virtio_find_vqs include/linux/virtio_config.h:233 [inline]
+ virtscsi_init+0x8db/0xd00 drivers/scsi/virtio_scsi.c:887
+ virtscsi_probe+0x3ea/0xf60 drivers/scsi/virtio_scsi.c:945
+ virtio_dev_probe+0x991/0xaf0 drivers/virtio/virtio.c:311
+ really_probe+0x2b8/0xad0 drivers/base/dd.c:656
+ __driver_probe_device+0x1a2/0x390 drivers/base/dd.c:798
+ driver_probe_device+0x50/0x430 drivers/base/dd.c:828
+ __driver_attach+0x45f/0x710 drivers/base/dd.c:1214
+ bus_for_each_dev+0x239/0x2b0 drivers/base/bus.c:368
+ bus_add_driver+0x347/0x620 drivers/base/bus.c:673
+ driver_register+0x23a/0x320 drivers/base/driver.c:246
+ virtio_scsi_init+0x65/0xe0 drivers/scsi/virtio_scsi.c:1083
+ do_one_initcall+0x248/0x880 init/main.c:1238
+ do_initcall_level+0x157/0x210 init/main.c:1300
+ do_initcalls+0x3f/0x80 init/main.c:1316
+ kernel_init_freeable+0x435/0x5d0 init/main.c:1548
+ kernel_init+0x1d/0x2b0 init/main.c:1437
+ ret_from_fork+0x4b/0x80 arch/x86/kernel/process.c:147
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:243
+ </TASK>
+
+
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
+
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup
