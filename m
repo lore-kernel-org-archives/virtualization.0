@@ -1,129 +1,102 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 225D313E03C
-	for <virtualization@lists.linux.dev>; Tue, 26 Mar 2024 23:15:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0A871E534
+	for <virtualization@lists.linux.dev>; Tue, 26 Mar 2024 23:39:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711494903; cv=none; b=EpV6kjdF7J3DTtU9YjAVwOpUNhce4nruN13xmVSWWtBOx5SEYbtz+7d47xr1MmwBFS+MIBNe9bgR/Vt+jhGQeG6AI6W2Hh6sDYIkwjmSb67i6tdITLpcMYneGdwyJQEggx1iK7Jb9uwZ4TCGu+VjH1S3OSNqXuqwTanrgvKGPwM=
+	t=1711496353; cv=none; b=WYavHL+4wZBzL+kEbEAJrQoo5sItIzhHM6iWG+bCDE3NElLLi9St8poI8grpan9Gty6okk6YsgPDPd6AXNZ1LnsviVTmeZeZW6INpHgoyTIIKZhrAMAzgfO1CuBmRi/ncHU+rzWmIccIyKqR19Oo3Rqg1c1EgoiXCJxQMQamoN4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711494903; c=relaxed/simple;
-	bh=gSKaYFfv4cMNoB/Xn0Tfp61c93C2qN7CcfMYY8i+xOU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=usNJ2V1ULRN5NenDOxImnwcnzRQW1VbUlJd5R3ULKgVuGw6jgupF/9o6oPSwGjUlK0NYZgvDZ/DdA6bqdDDjcdmf14qINk3L96QzzagxSzB63UAcXh7u0gLuhpLgS6Z0YDkILiIWn9ccU+voqGaRxGQjUw4grvLFU66JkXgryhk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SezgEI9o; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1711496353; c=relaxed/simple;
+	bh=KSP5PW6Tat7+mvCBesGMHnxy9MBeZnYKX7fmi5RHl7c=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=VsXYjFEkOHpBD/YuS7XI9KmNzmxxcVzAbx6HIq4EFKH1tA9xxA9UPDq76S1ALVWW/bP1+/Aj5/uiLZAqwQE3OzkadQK3QlJuXQfV1KyiaK6k7AL9ZosWXfvIVtbFZNu8MhXlXrAtebcuKsmUumnZ82IGEyTxBaDD7A3cjc9zdDM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=B9ErABC5; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SezgEI9o"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="B9ErABC5"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1711494899;
+	s=mimecast20190719; t=1711496350;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=0mQCN5HobjN2Q/dtCo4+7FNCVXz9DGDP5AkWFtGzZjc=;
-	b=SezgEI9otM7MOqkq3QMijSGK9QdaTG3NiqSUoaudrF8U3o2/tea33GLGONoM4ugfqsbZ8K
-	YNoaZJBfhf9CNEOXH7IwCQ3iFJnEfdxdTzjsAyTusGky49HRnkVQfGMgVWYuELffgeW6oA
-	70rVd1fYPPtA1WlFBHk6b9j+Ut+7DgM=
-Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
- [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-70-SoPIaiO8O8mw0grVfkltiQ-1; Tue, 26 Mar 2024 19:14:58 -0400
-X-MC-Unique: SoPIaiO8O8mw0grVfkltiQ-1
-Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-29dfc072e95so4535599a91.3
-        for <virtualization@lists.linux.dev>; Tue, 26 Mar 2024 16:14:58 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711494897; x=1712099697;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=0mQCN5HobjN2Q/dtCo4+7FNCVXz9DGDP5AkWFtGzZjc=;
-        b=ESJwDexfP4gEpz4fM9C+jd+m+x2rQYZ4Oj3G8rVgW0g5RYyrlCrNUD1P4NmVrFMeCl
-         UOZKjUrTzAyD35AGwimHvFAR4Uc896WckDLTmvNPlB8EgJxXlCSwi/xBVZJMg5aAaurl
-         brXoWRNnE8ixVDTSPXPz6L0OsXmPleuL7t19ZHn3upIC0Djh5YIy6+zSH+xLbO9l7AcJ
-         xupvOkNZMPKXsnc/Ee/x3zXoL7IS3jUPUknNEi+n6q6Z0Q8RRSS8IrBNiJ+Kj2w7p4TZ
-         p4c2gnB1Gr8gBOaf7qoWQ/lEIxAn2+Nwt83Xhy3P7/69FIIHPuGWoytl0Y6eApZjoNI6
-         fhNA==
-X-Forwarded-Encrypted: i=1; AJvYcCXK1byo96mq412YFEQBoHKYHtBhWfNe9o81AhBpdT7Q9oHBJ7DAZtjGeM/rhVHO5+7kFWXpNdYIyh1vx9d2V2+Qo+h7h2M4z4ApgEet90U=
-X-Gm-Message-State: AOJu0YxtakkSLlWSy91KFWLCUczrTBSThGw22rWvCopOSY6UuTTYEGVS
-	j8p6fhTTlkf5rbhpHwCHD+K3dQ1LfmOxqRN5PCQYmhoOALvi0EKJUTwMo/uo4rRmImTyzaKfvnz
-	IaQju1wQpC/ctstYCz3AFM4srxTuV/6SHujRF2XP07kf2fz4uVEDUZzBtdS1Gzpe5
-X-Received: by 2002:a17:90a:9606:b0:2a0:50ce:aa95 with SMTP id v6-20020a17090a960600b002a050ceaa95mr8314396pjo.21.1711494897369;
-        Tue, 26 Mar 2024 16:14:57 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFaigOMr/7CiLFK70hJIs+MvOMb27KbuLh6qIXIIew+T0XDmdil0bNWD2Rq0OI35ubw/SLB0g==
-X-Received: by 2002:a17:90a:9606:b0:2a0:50ce:aa95 with SMTP id v6-20020a17090a960600b002a050ceaa95mr8314380pjo.21.1711494897036;
-        Tue, 26 Mar 2024 16:14:57 -0700 (PDT)
-Received: from [192.168.68.51] ([43.252.115.31])
-        by smtp.gmail.com with ESMTPSA id u14-20020a17090abb0e00b0029c49ed3974sm154556pjr.37.2024.03.26.16.14.50
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 26 Mar 2024 16:14:54 -0700 (PDT)
-Message-ID: <6bdf2884-852e-42d3-9e67-c9d5aa7d932a@redhat.com>
-Date: Wed, 27 Mar 2024 09:14:47 +1000
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=LgVOWVaRotiQeKhXoxLI72etF+MpLQFws3pYRrc5Rhw=;
+	b=B9ErABC5hpgxDsCIBkOqalp9hPKDa5JhtJHkS4yPLKCxRlxpWV8ccEGF3yZPJI6j7pYpeW
+	onzFm9Zl04IiyNNZnuPxbBC15Z2LkW8i8q92WjA2lJdleqUVb9BW1pwScjxksap4rFhv1A
+	0idHFyvC1taChDZWmrh7MUhbeGuGzJ8=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-341-_S6MW8KnN2SVOZgD_Swqng-1; Tue,
+ 26 Mar 2024 19:39:09 -0400
+X-MC-Unique: _S6MW8KnN2SVOZgD_Swqng-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id F038C380390C;
+	Tue, 26 Mar 2024 23:39:08 +0000 (UTC)
+Received: from gshan-thinkpadx1nanogen2.remote.csb (unknown [10.64.136.81])
+	by smtp.corp.redhat.com (Postfix) with ESMTPS id 549CB1121306;
+	Tue, 26 Mar 2024 23:39:05 +0000 (UTC)
+From: Gavin Shan <gshan@redhat.com>
+To: virtualization@lists.linux.dev
+Cc: linux-kernel@vger.kernel.org,
+	mst@redhat.com,
+	jasowang@redhat.com,
+	davem@davemloft.net,
+	stefanha@redhat.com,
+	sgarzare@redhat.com,
+	keirf@google.com,
+	yihyu@redhat.com,
+	shan.gavin@gmail.com
+Subject: [PATCH v2 0/2] vhost: Fix stale available ring entries
+Date: Wed, 27 Mar 2024 09:38:44 +1000
+Message-ID: <20240326233846.1086253-1-gshan@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] virtio_ring: Fix the stale index in available ring
-To: Will Deacon <will@kernel.org>, Keir Fraser <keirf@google.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, jasowang@redhat.com,
- xuanzhuo@linux.alibaba.com, yihyu@redhat.com, shan.gavin@gmail.com,
- linux-arm-kernel@lists.infradead.org,
- Catalin Marinas <catalin.marinas@arm.com>, mochs@nvidia.com
-References: <35a6bcef-27cf-4626-a41d-9ec0a338fe28@redhat.com>
- <20240319182251.GB3121@willie-the-truck>
- <9500adaf-0075-4ae9-92db-7e310b6598b0@redhat.com>
- <20240319203540-mutt-send-email-mst@kernel.org>
- <3a6c8b23-af9c-47a7-8c22-8e0a78154bd3@redhat.com>
- <20240320030215-mutt-send-email-mst@kernel.org>
- <1dcec730-ec26-46f4-ba4c-06101fcc599e@redhat.com>
- <20240326033809-mutt-send-email-mst@kernel.org> <ZgKXr8IQ51xBECuP@google.com>
- <20240326114313.GA9482@willie-the-truck>
- <20240326154628.GA9613@willie-the-truck>
-From: Gavin Shan <gshan@redhat.com>
-In-Reply-To: <20240326154628.GA9613@willie-the-truck>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.3
 
+The issue was reported by Yihuang Yu on NVidia's grace-hopper (ARM64)
+platform. The wrong head (available ring entry) is seen by the guest
+when running 'netperf' on the guest and running 'netserver' on another
+NVidia's grace-grace machine.
 
-On 3/27/24 01:46, Will Deacon wrote:
-> On Tue, Mar 26, 2024 at 11:43:13AM +0000, Will Deacon wrote:
-> 
-> Ok, long shot after eyeballing the vhost code, but does the diff below
-> help at all? It looks like vhost_vq_avail_empty() can advance the value
-> saved in 'vq->avail_idx' but without the read barrier, possibly confusing
-> vhost_get_vq_desc() in polling mode.
-> 
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index 045f666b4f12..87bff710331a 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -2801,6 +2801,7 @@ bool vhost_vq_avail_empty(struct vhost_dev *dev, struct vhost_virtqueue *vq)
->                  return false;
->          vq->avail_idx = vhost16_to_cpu(vq, avail_idx);
->   
-> +       smp_rmb();
->          return vq->avail_idx == vq->last_avail_idx;
->   }
->   EXPORT_SYMBOL_GPL(vhost_vq_avail_empty);
-> 
+  /home/gavin/sandbox/qemu.main/build/qemu-system-aarch64      \
+  -accel kvm -machine virt,gic-version=host -cpu host          \
+  -smp maxcpus=1,cpus=1,sockets=1,clusters=1,cores=1,threads=1 \
+  -m 4096M,slots=16,maxmem=64G                                 \
+  -object memory-backend-ram,id=mem0,size=4096M                \
+   :                                                           \
+  -netdev tap,id=tap0,vhost=true                               \
+  -device virtio-net-pci,bus=pcie.8,netdev=tap0,mac=52:54:00:f1:26:b0
+   :
+  guest# ifconfig eth0 | grep 'inet addr'
+  inet addr:10.26.1.220
+  guest# netperf -H 10.26.1.81 -l 60 -C -c -t UDP_STREAM
+  virtio_net virtio0: output.0:id 100 is not a head!
 
-Thanks, Will. I already noticed smp_rmb() has been missed in vhost_vq_avail_empty().
-The issue still exists after smp_rmb() is added here. However, I'm inspired by your
-suggestion and recheck the code again. It seems another smp_rmb() has been missed
-in vhost_enable_notify().
+There is missed smp_rmb() in vhost_vq_avail_empty() and vhost_enable_notify().
+Without smp_rmb(), vq->avail_idx is increased but the available ring
+entries aren't arriving to vhost side yet. So a stale available ring
+entry can be fetched in vhost_get_vq_desc().
 
-With smp_rmb() added to vhost_vq_avail_empty() and vhost_enable_notify(), I'm unable
-to hit the issue. I will try for more times to make sure the issue is really resolved.
-After that, I will post formal patches for review.
+Fix it by adding smp_rmb() in those two functions. Note that I need
+two patches so that they can be easily picked up by the stable kernel.
+With the changes, I'm unable to hit the issue again.
 
-Thanks,
-Gavin
+Gavin Shan (2):
+  vhost: Add smp_rmb() in vhost_vq_avail_empty()
+  vhost: Add smp_rmb() in vhost_enable_notify()
+
+ drivers/vhost/vhost.c | 22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
+
+-- 
+2.44.0
 
