@@ -1,196 +1,129 @@
-Received: from mail-il1-f198.google.com (mail-il1-f198.google.com [209.85.166.198])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B224313E02E
-	for <virtualization@lists.linux.dev>; Tue, 26 Mar 2024 22:38:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.198
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 225D313E03C
+	for <virtualization@lists.linux.dev>; Tue, 26 Mar 2024 23:15:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711492709; cv=none; b=kL2BzGQjz84xzutgGWEqnEAeWhQsEjqhEBeCYXWHjxlIqAgsnt4LXNM44f0qCgdIF+IkJcGSNjzH0k4yrCq6FbXDj5GV9xeFSqn49gOWF/p4jAwo2pHcNtRzJYrQpexx5tuD5+K9J0Rz0yOHkgs/seVwEOSymp5RlbSftccWhZg=
+	t=1711494903; cv=none; b=EpV6kjdF7J3DTtU9YjAVwOpUNhce4nruN13xmVSWWtBOx5SEYbtz+7d47xr1MmwBFS+MIBNe9bgR/Vt+jhGQeG6AI6W2Hh6sDYIkwjmSb67i6tdITLpcMYneGdwyJQEggx1iK7Jb9uwZ4TCGu+VjH1S3OSNqXuqwTanrgvKGPwM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711492709; c=relaxed/simple;
-	bh=Lbq/0U+KE6IrvSkCL0zaYEXlSWMqVHZH+4PcV8PJj+o=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=aHs1j36mCyUkhd0lQu06uCl6VZya9HoqW05anmojco57O5DOfcFk4YIs9+BB3MUQkMqTrkEmBHEt92+c+nP4xa3aL4F7OOdArapshh2U5TqDTu52w2bdSXcs6RW8aVoCfsUE9zdVwS1R+U/FE7w7tHmmbX4fYMzuUeH+1bFYecs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.198
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-il1-f198.google.com with SMTP id e9e14a558f8ab-3665991058fso2679625ab.1
-        for <virtualization@lists.linux.dev>; Tue, 26 Mar 2024 15:38:26 -0700 (PDT)
+	s=arc-20240116; t=1711494903; c=relaxed/simple;
+	bh=gSKaYFfv4cMNoB/Xn0Tfp61c93C2qN7CcfMYY8i+xOU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=usNJ2V1ULRN5NenDOxImnwcnzRQW1VbUlJd5R3ULKgVuGw6jgupF/9o6oPSwGjUlK0NYZgvDZ/DdA6bqdDDjcdmf14qINk3L96QzzagxSzB63UAcXh7u0gLuhpLgS6Z0YDkILiIWn9ccU+voqGaRxGQjUw4grvLFU66JkXgryhk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SezgEI9o; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SezgEI9o"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1711494899;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=0mQCN5HobjN2Q/dtCo4+7FNCVXz9DGDP5AkWFtGzZjc=;
+	b=SezgEI9otM7MOqkq3QMijSGK9QdaTG3NiqSUoaudrF8U3o2/tea33GLGONoM4ugfqsbZ8K
+	YNoaZJBfhf9CNEOXH7IwCQ3iFJnEfdxdTzjsAyTusGky49HRnkVQfGMgVWYuELffgeW6oA
+	70rVd1fYPPtA1WlFBHk6b9j+Ut+7DgM=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-70-SoPIaiO8O8mw0grVfkltiQ-1; Tue, 26 Mar 2024 19:14:58 -0400
+X-MC-Unique: SoPIaiO8O8mw0grVfkltiQ-1
+Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-29dfc072e95so4535599a91.3
+        for <virtualization@lists.linux.dev>; Tue, 26 Mar 2024 16:14:58 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711492706; x=1712097506;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=pg4FbvwKuIZDOjcZr1xzWIWjh7nZvLbstqVZUm4IHx8=;
-        b=trQbyl+FoCBvChDSds+BcoKIcsff4L1SRwiStlQ3vBUk0RG9u9tMXGlzCVur/plHyF
-         6VSnl1nFK5dlqhCMqio5H+XuoSckYW6WOuxEKycIvufoRUZ73b32sW5EkDTGmiJ7PNvO
-         61hbCvZ7HUWOr8sSeoNtnAptgnitfwkiA1uUCv+QPNTndXNbL1LJMxRY+J8tx/jCuSwx
-         aMihetWhOlsCFQqXbYXZCusxYILZZGBi7b4KREmcXJ96fjGU8J2woWbI+5iRFwWUfUBb
-         JO/ZAK5t27aGtjzmGkutj+zlcI4GCd365dIzhHTPMHm4lxxtUmjys5lCTsDFKVrY/12d
-         jxBA==
-X-Forwarded-Encrypted: i=1; AJvYcCURijRenefIpe19Wer1l459f4Q2f7g0kt+BR8X1G0tHzwFwa9WxUyVeT8JlvNIMqKoBaKek9FAKSxy4apOOmWZWWWqHiAp5IHUcQPZYq8g=
-X-Gm-Message-State: AOJu0YyLNAVDAuNiY4xAO131InJqNdoG/ZCiJTBMvAIN4786Hx4bLFOv
-	ivGsyJ14T/bi2+E00NRWQSVtmUsN5KwgCv6ncI3CfsoP/J/5M3j2FzuDphbusG5j/8sN5oIrvPL
-	vWOS+zzCMyO34DEsp19n5tJcG1Is3Nbd/gP3e3MSGU/3FGFX1Gq7b2BQ=
-X-Google-Smtp-Source: AGHT+IE1nOIfaWoCc8LJq4vT89ASXfPLzzJhw0mvC4pk70MpBRfHet54JdkcVxfjmvfsLEzXhlYN3Gv3qaJGMuBqOLsERvcq2crB
+        d=1e100.net; s=20230601; t=1711494897; x=1712099697;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=0mQCN5HobjN2Q/dtCo4+7FNCVXz9DGDP5AkWFtGzZjc=;
+        b=ESJwDexfP4gEpz4fM9C+jd+m+x2rQYZ4Oj3G8rVgW0g5RYyrlCrNUD1P4NmVrFMeCl
+         UOZKjUrTzAyD35AGwimHvFAR4Uc896WckDLTmvNPlB8EgJxXlCSwi/xBVZJMg5aAaurl
+         brXoWRNnE8ixVDTSPXPz6L0OsXmPleuL7t19ZHn3upIC0Djh5YIy6+zSH+xLbO9l7AcJ
+         xupvOkNZMPKXsnc/Ee/x3zXoL7IS3jUPUknNEi+n6q6Z0Q8RRSS8IrBNiJ+Kj2w7p4TZ
+         p4c2gnB1Gr8gBOaf7qoWQ/lEIxAn2+Nwt83Xhy3P7/69FIIHPuGWoytl0Y6eApZjoNI6
+         fhNA==
+X-Forwarded-Encrypted: i=1; AJvYcCXK1byo96mq412YFEQBoHKYHtBhWfNe9o81AhBpdT7Q9oHBJ7DAZtjGeM/rhVHO5+7kFWXpNdYIyh1vx9d2V2+Qo+h7h2M4z4ApgEet90U=
+X-Gm-Message-State: AOJu0YxtakkSLlWSy91KFWLCUczrTBSThGw22rWvCopOSY6UuTTYEGVS
+	j8p6fhTTlkf5rbhpHwCHD+K3dQ1LfmOxqRN5PCQYmhoOALvi0EKJUTwMo/uo4rRmImTyzaKfvnz
+	IaQju1wQpC/ctstYCz3AFM4srxTuV/6SHujRF2XP07kf2fz4uVEDUZzBtdS1Gzpe5
+X-Received: by 2002:a17:90a:9606:b0:2a0:50ce:aa95 with SMTP id v6-20020a17090a960600b002a050ceaa95mr8314396pjo.21.1711494897369;
+        Tue, 26 Mar 2024 16:14:57 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFaigOMr/7CiLFK70hJIs+MvOMb27KbuLh6qIXIIew+T0XDmdil0bNWD2Rq0OI35ubw/SLB0g==
+X-Received: by 2002:a17:90a:9606:b0:2a0:50ce:aa95 with SMTP id v6-20020a17090a960600b002a050ceaa95mr8314380pjo.21.1711494897036;
+        Tue, 26 Mar 2024 16:14:57 -0700 (PDT)
+Received: from [192.168.68.51] ([43.252.115.31])
+        by smtp.gmail.com with ESMTPSA id u14-20020a17090abb0e00b0029c49ed3974sm154556pjr.37.2024.03.26.16.14.50
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 26 Mar 2024 16:14:54 -0700 (PDT)
+Message-ID: <6bdf2884-852e-42d3-9e67-c9d5aa7d932a@redhat.com>
+Date: Wed, 27 Mar 2024 09:14:47 +1000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6e02:2199:b0:366:b246:2f10 with SMTP id
- j25-20020a056e02219900b00366b2462f10mr114997ila.2.1711492705393; Tue, 26 Mar
- 2024 15:38:25 -0700 (PDT)
-Date: Tue, 26 Mar 2024 15:38:25 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <000000000000bdb4b9061497f2de@google.com>
-Subject: [syzbot] [virtualization?] net boot error: WARNING: refcount bug in __free_pages_ok
-From: syzbot <syzbot+84f677a274bd8b05f6cb@syzkaller.appspotmail.com>
-To: davem@davemloft.net, jasowang@redhat.com, kuba@kernel.org, 
-	linux-kernel@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, 
-	syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev, 
-	xuanzhuo@linux.alibaba.com
-Content-Type: text/plain; charset="UTF-8"
-
-Hello,
-
-syzbot found the following issue on:
-
-HEAD commit:    c1fd3a9433a2 Merge branch 'there-are-some-bugfix-for-the-h..
-git tree:       net
-console output: https://syzkaller.appspot.com/x/log.txt?x=134f4c81180000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=a5e4ca7f025e9172
-dashboard link: https://syzkaller.appspot.com/bug?extid=84f677a274bd8b05f6cb
-compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
-
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/89219dafdd42/disk-c1fd3a94.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/d962e40c0da9/vmlinux-c1fd3a94.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/248b8f5eb3a1/bzImage-c1fd3a94.xz
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+84f677a274bd8b05f6cb@syzkaller.appspotmail.com
-
-Key type pkcs7_test registered
-Block layer SCSI generic (bsg) driver version 0.4 loaded (major 239)
-io scheduler mq-deadline registered
-io scheduler kyber registered
-io scheduler bfq registered
-input: Power Button as /devices/LNXSYSTM:00/LNXPWRBN:00/input/input0
-ACPI: button: Power Button [PWRF]
-input: Sleep Button as /devices/LNXSYSTM:00/LNXSLPBN:00/input/input1
-ACPI: button: Sleep Button [SLPF]
-ioatdma: Intel(R) QuickData Technology Driver 5.00
-ACPI: \_SB_.LNKC: Enabled at IRQ 11
-virtio-pci 0000:00:03.0: virtio_pci: leaving for legacy driver
-ACPI: \_SB_.LNKD: Enabled at IRQ 10
-virtio-pci 0000:00:04.0: virtio_pci: leaving for legacy driver
-ACPI: \_SB_.LNKB: Enabled at IRQ 10
-virtio-pci 0000:00:06.0: virtio_pci: leaving for legacy driver
-virtio-pci 0000:00:07.0: virtio_pci: leaving for legacy driver
-N_HDLC line discipline registered with maxframe=4096
-Serial: 8250/16550 driver, 4 ports, IRQ sharing enabled
-00:03: ttyS0 at I/O 0x3f8 (irq = 4, base_baud = 115200) is a 16550A
-00:04: ttyS1 at I/O 0x2f8 (irq = 3, base_baud = 115200) is a 16550A
-00:05: ttyS2 at I/O 0x3e8 (irq = 6, base_baud = 115200) is a 16550A
-00:06: ttyS3 at I/O 0x2e8 (irq = 7, base_baud = 115200) is a 16550A
-Non-volatile memory driver v1.3
-Linux agpgart interface v0.103
-ACPI: bus type drm_connector registered
-[drm] Initialized vgem 1.0.0 20120112 for vgem on minor 0
-[drm] Initialized vkms 1.0.0 20180514 for vkms on minor 1
-Console: switching to colour frame buffer device 128x48
-platform vkms: [drm] fb0: vkmsdrmfb frame buffer device
-usbcore: registered new interface driver udl
-brd: module loaded
-loop: module loaded
-zram: Added device: zram0
-null_blk: disk nullb0 created
-null_blk: module loaded
-Guest personality initialized and is inactive
-VMCI host device registered (name=vmci, major=10, minor=118)
-Initialized host personality
-usbcore: registered new interface driver rtsx_usb
-usbcore: registered new interface driver viperboard
-usbcore: registered new interface driver dln2
-usbcore: registered new interface driver pn533_usb
-nfcsim 0.2 initialized
-usbcore: registered new interface driver port100
-usbcore: registered new interface driver nfcmrvl
-Loading iSCSI transport class v2.0-870.
-virtio_scsi virtio0: 1/0/0 default/read/poll queues
-------------[ cut here ]------------
-refcount_t: decrement hit 0; leaking memory.
-WARNING: CPU: 1 PID: 1 at lib/refcount.c:31 refcount_warn_saturate+0xfa/0x1d0 lib/refcount.c:31
-Modules linked in:
-CPU: 1 PID: 1 Comm: swapper/0 Not tainted 6.8.0-syzkaller-12856-gc1fd3a9433a2 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 02/29/2024
-RIP: 0010:refcount_warn_saturate+0xfa/0x1d0 lib/refcount.c:31
-Code: b2 00 00 00 e8 97 cf e9 fc 5b 5d c3 cc cc cc cc e8 8b cf e9 fc c6 05 6c 6b e8 0a 01 90 48 c7 c7 e0 34 1f 8c e8 27 6c ac fc 90 <0f> 0b 90 90 eb d9 e8 6b cf e9 fc c6 05 49 6b e8 0a 01 90 48 c7 c7
-RSP: 0000:ffffc90000066e18 EFLAGS: 00010246
-RAX: 57706ef3c4162200 RBX: ffff88801f8f468c RCX: ffff8880166d8000
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
-RBP: 0000000000000004 R08: ffffffff815800c2 R09: fffffbfff1c396e0
-R10: dffffc0000000000 R11: fffffbfff1c396e0 R12: ffffea0000850dc0
-R13: ffffea0000850dc8 R14: 1ffffd400010a1b9 R15: 0000000000000000
-FS:  0000000000000000(0000) GS:ffff8880b9500000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000000000 CR3: 000000000e132000 CR4: 00000000003506f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- reset_page_owner include/linux/page_owner.h:25 [inline]
- free_pages_prepare mm/page_alloc.c:1141 [inline]
- __free_pages_ok+0xc60/0xd90 mm/page_alloc.c:1270
- make_alloc_exact+0xa3/0xf0 mm/page_alloc.c:4829
- vring_alloc_queue drivers/virtio/virtio_ring.c:319 [inline]
- vring_alloc_queue_split+0x20a/0x600 drivers/virtio/virtio_ring.c:1108
- vring_create_virtqueue_split+0xc6/0x310 drivers/virtio/virtio_ring.c:1158
- vring_create_virtqueue+0xca/0x110 drivers/virtio/virtio_ring.c:2683
- setup_vq+0xe9/0x2d0 drivers/virtio/virtio_pci_legacy.c:131
- vp_setup_vq+0xbf/0x330 drivers/virtio/virtio_pci_common.c:189
- vp_find_vqs_msix+0x8b2/0xc80 drivers/virtio/virtio_pci_common.c:331
- vp_find_vqs+0x4c/0x4e0 drivers/virtio/virtio_pci_common.c:408
- virtio_find_vqs include/linux/virtio_config.h:233 [inline]
- virtscsi_init+0x8db/0xd00 drivers/scsi/virtio_scsi.c:887
- virtscsi_probe+0x3ea/0xf60 drivers/scsi/virtio_scsi.c:945
- virtio_dev_probe+0x991/0xaf0 drivers/virtio/virtio.c:311
- really_probe+0x2b8/0xad0 drivers/base/dd.c:656
- __driver_probe_device+0x1a2/0x390 drivers/base/dd.c:798
- driver_probe_device+0x50/0x430 drivers/base/dd.c:828
- __driver_attach+0x45f/0x710 drivers/base/dd.c:1214
- bus_for_each_dev+0x239/0x2b0 drivers/base/bus.c:368
- bus_add_driver+0x347/0x620 drivers/base/bus.c:673
- driver_register+0x23a/0x320 drivers/base/driver.c:246
- virtio_scsi_init+0x65/0xe0 drivers/scsi/virtio_scsi.c:1083
- do_one_initcall+0x248/0x880 init/main.c:1238
- do_initcall_level+0x157/0x210 init/main.c:1300
- do_initcalls+0x3f/0x80 init/main.c:1316
- kernel_init_freeable+0x435/0x5d0 init/main.c:1548
- kernel_init+0x1d/0x2b0 init/main.c:1437
- ret_from_fork+0x4b/0x80 arch/x86/kernel/process.c:147
- ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:243
- </TASK>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] virtio_ring: Fix the stale index in available ring
+To: Will Deacon <will@kernel.org>, Keir Fraser <keirf@google.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, jasowang@redhat.com,
+ xuanzhuo@linux.alibaba.com, yihyu@redhat.com, shan.gavin@gmail.com,
+ linux-arm-kernel@lists.infradead.org,
+ Catalin Marinas <catalin.marinas@arm.com>, mochs@nvidia.com
+References: <35a6bcef-27cf-4626-a41d-9ec0a338fe28@redhat.com>
+ <20240319182251.GB3121@willie-the-truck>
+ <9500adaf-0075-4ae9-92db-7e310b6598b0@redhat.com>
+ <20240319203540-mutt-send-email-mst@kernel.org>
+ <3a6c8b23-af9c-47a7-8c22-8e0a78154bd3@redhat.com>
+ <20240320030215-mutt-send-email-mst@kernel.org>
+ <1dcec730-ec26-46f4-ba4c-06101fcc599e@redhat.com>
+ <20240326033809-mutt-send-email-mst@kernel.org> <ZgKXr8IQ51xBECuP@google.com>
+ <20240326114313.GA9482@willie-the-truck>
+ <20240326154628.GA9613@willie-the-truck>
+From: Gavin Shan <gshan@redhat.com>
+In-Reply-To: <20240326154628.GA9613@willie-the-truck>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
 
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+On 3/27/24 01:46, Will Deacon wrote:
+> On Tue, Mar 26, 2024 at 11:43:13AM +0000, Will Deacon wrote:
+> 
+> Ok, long shot after eyeballing the vhost code, but does the diff below
+> help at all? It looks like vhost_vq_avail_empty() can advance the value
+> saved in 'vq->avail_idx' but without the read barrier, possibly confusing
+> vhost_get_vq_desc() in polling mode.
+> 
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 045f666b4f12..87bff710331a 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -2801,6 +2801,7 @@ bool vhost_vq_avail_empty(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+>                  return false;
+>          vq->avail_idx = vhost16_to_cpu(vq, avail_idx);
+>   
+> +       smp_rmb();
+>          return vq->avail_idx == vq->last_avail_idx;
+>   }
+>   EXPORT_SYMBOL_GPL(vhost_vq_avail_empty);
+> 
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+Thanks, Will. I already noticed smp_rmb() has been missed in vhost_vq_avail_empty().
+The issue still exists after smp_rmb() is added here. However, I'm inspired by your
+suggestion and recheck the code again. It seems another smp_rmb() has been missed
+in vhost_enable_notify().
 
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
+With smp_rmb() added to vhost_vq_avail_empty() and vhost_enable_notify(), I'm unable
+to hit the issue. I will try for more times to make sure the issue is really resolved.
+After that, I will post formal patches for review.
 
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
+Thanks,
+Gavin
 
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
-
-If you want to undo deduplication, reply with:
-#syz undup
