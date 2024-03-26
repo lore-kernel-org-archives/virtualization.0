@@ -1,119 +1,103 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f175.google.com (mail-pg1-f175.google.com [209.85.215.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44E7013C3C4;
-	Tue, 26 Mar 2024 15:46:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F23084D2A
+	for <virtualization@lists.linux.dev>; Tue, 26 Mar 2024 18:05:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711467995; cv=none; b=eikQpBj7jQPmVE04jJ4MXRBgD/hW9Ok8w6eXyGrm0a71JGQRMD16ZPNJf63ir4T1PPXO8NUon6WwAeibkEG/LCTzyT06IIu5mfkZxHxnMEt80NCMATxnlZ103hWgX+SKxQoChWLlPtODzLErADPfZTTjFKTQwqwPV1ccdkLBGJc=
+	t=1711476305; cv=none; b=oU8cQDmVv7h9Ukfiv5Z1qrT4ma/v10WdKzGVF1vGqdLoZlWhHFy4KIJp6lCVRSkpync8ofanrN77XS69bqmUpxUo7KT/b4MO2BZrEJbNgvdzZXcgmwDz09kRqy7asTXfYMJ0gbe608Ex2fbk2uT2Yn1ei1vs+9ts9Q7aIMEbq9c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711467995; c=relaxed/simple;
-	bh=blMMUCS6bBwkEUeKDfD5/uqKHUYqqABX3cMRG8GSLtw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=PnEmZfaRFCq0CywlbKY1GikGDLB63uh219sNsDQb+IApCUEuX2ndjej8Kt5VbUnolY1oSaLYpthueKJqmFyXAlMXojp6q0U3rZ7k9NJE0v9UO7sCEhBPuDDIG2cIjKO7RKtyRC1OApB3J8V1Na3w6sMpzrrEzIlfCl0iZRd0A7I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EtXOD6iW; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1711476305; c=relaxed/simple;
+	bh=1HtAEn3GUDU1rNP6LZWmBuVwhufr+rjFcdlx8t9YYvw=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=RpKaelVFOXlJPvwBULwSBzr4/l90GV33dHRsMqzdFd33ew8jC4T4aUho5L64ch73YAstUFjs05vKDxIB+8T0F7KOkkQmwwByd2jPBBImX9MHh3XZR7ipL4//jSsapVU//k3HxXUPlpSjEvhJGr8O/+CgZL5mesuNJa51Jr+cjAg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=StuMDGZs; arc=none smtp.client-ip=209.85.215.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EtXOD6iW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89CCFC43394;
-	Tue, 26 Mar 2024 15:46:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1711467994;
-	bh=blMMUCS6bBwkEUeKDfD5/uqKHUYqqABX3cMRG8GSLtw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=EtXOD6iWSamqz0Z4Z2qRKxQx5zenEIGgmpVobYercZRuxN04pSqre+436BYwczR1z
-	 xUOu00ogyzPBJ8VMxe2OtroDVVpSOLB9/VDJc3ZtWe9Z8trBwb5AzHdzZ6dBKnOl7S
-	 j23/yCWp4ziRHXMaC4sTcB6jaRBAmL2VMghON5PvuR+B9aWB5BflLQY32JLyjdhCsI
-	 BFqWK+dSiPl0qkEXLWxqlVE2TCrHh3fn6sneuVVO7ZmLsgcCjohsGQd4eIra3LxnNF
-	 Wsa3oI7oWDa/z1ouDfCokJH30C5BAgGAnoVMjquuwSGVql191lxWXcTwXXZCLOrny9
-	 dZV3fMT7ND9gA==
-Date: Tue, 26 Mar 2024 15:46:29 +0000
-From: Will Deacon <will@kernel.org>
-To: Keir Fraser <keirf@google.com>, gshan@redhat.com
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org, jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com, yihyu@redhat.com, shan.gavin@gmail.com,
-	linux-arm-kernel@lists.infradead.org,
-	Catalin Marinas <catalin.marinas@arm.com>, mochs@nvidia.com
-Subject: Re: [PATCH] virtio_ring: Fix the stale index in available ring
-Message-ID: <20240326154628.GA9613@willie-the-truck>
-References: <35a6bcef-27cf-4626-a41d-9ec0a338fe28@redhat.com>
- <20240319182251.GB3121@willie-the-truck>
- <9500adaf-0075-4ae9-92db-7e310b6598b0@redhat.com>
- <20240319203540-mutt-send-email-mst@kernel.org>
- <3a6c8b23-af9c-47a7-8c22-8e0a78154bd3@redhat.com>
- <20240320030215-mutt-send-email-mst@kernel.org>
- <1dcec730-ec26-46f4-ba4c-06101fcc599e@redhat.com>
- <20240326033809-mutt-send-email-mst@kernel.org>
- <ZgKXr8IQ51xBECuP@google.com>
- <20240326114313.GA9482@willie-the-truck>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="StuMDGZs"
+Received: by mail-pg1-f175.google.com with SMTP id 41be03b00d2f7-5d4a1e66750so2852973a12.0
+        for <virtualization@lists.linux.dev>; Tue, 26 Mar 2024 11:05:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1711476303; x=1712081103; darn=lists.linux.dev;
+        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=InAZ9/C9EDyJhkW+bEV5eavwbh4jrGbQhGajHqMOaXs=;
+        b=StuMDGZsrTtK6gLuI3TEzQknGOzKxEZfms1jWcIyQXq+Hj+8EQA4xPqAlKQx88FHqf
+         G+Kscnxw37EkJHjHs4tly7ITGJZJo8GrDSpFLSPnOl0OOhvfPiRcZWd4XXQcVe3a5OCf
+         J9VBc7CclMHM2vIerR8bj0r/FJFBbs06vw65o4r+Saqo+Zw/SDwTgelArDd+1Q/y2Ktt
+         4ahMKTyTE7SU6B7V1jFwg3FwAfhmtCTRvd805ghl0BkXQn4siYj7p0e2jbvv/8GCoqMY
+         0Tk8rlGwrbi4LuWdchkjgl27zd9JHWLEf8oZTSoNaKcfn+z++ldrGFXL8CmaWXtYVszH
+         bH4A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1711476303; x=1712081103;
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=InAZ9/C9EDyJhkW+bEV5eavwbh4jrGbQhGajHqMOaXs=;
+        b=xDdMeXeVxRrb6H8zdckoRrQmi7hTt+qbFc2BGLeZBr5CyW5eRJE/WiYHX0w+xTdTM+
+         58UMSfiA9sYXGD+qxGQV0tCQ0sqBzyXEvUZwrHU6bDMW8ZwWneQ2KrIWTm+lSZXXtqiQ
+         L4FG9TVjcgSrtIE6zOZttOXnAT6XAQJfqBR0jd9GUnINIAo7m2gBDPR/qiT2pKBdG86C
+         DebbF9rQXWbYO2ei6E8aInq6nzMDINkeSlRfcE507dcZF6oCCgkEzQmC0eznLLIAxgBU
+         YQSqvJfZ04qSDboP7Oj9vhaN84UqWl9B8AZHSF3FkfPaRAGpWRYn+Z6W0WMuzn2LygrU
+         0wPg==
+X-Forwarded-Encrypted: i=1; AJvYcCUSpz1SJAyvVc2IQMC54QEqgh/CKYf+a9zOPO9ePFZw6lyU95eDz06dY6KCPMuoXTgZhMcu+i4BAvIN4QQg/n7eSmIRf5r76epusJegv54=
+X-Gm-Message-State: AOJu0YxdixPuaPgxiBkY5fYeRWVYwiQeMVU1K0zHgcSTt0xiVZtf1zvj
+	/K9CZRdmMowmPkudGWqim2dOPdM9+mAGf2fI2W9heACt/CJIm/qVHD4b4DR5F/sTrGVhknUTENV
+	V0CvJmtn4ge0REe12gkwYk+1FUXw=
+X-Google-Smtp-Source: AGHT+IEBhA+WnnRTf8AR2UyUOmIouX8FcColXZqyCdRGDNFO76HxCoWYBYVkcsPJZ6LizCzy9BOlPUU/AKNzLxSVaQ8=
+X-Received: by 2002:a17:90b:380c:b0:29f:e443:204f with SMTP id
+ mq12-20020a17090b380c00b0029fe443204fmr8861033pjb.18.1711476303337; Tue, 26
+ Mar 2024 11:05:03 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240326114313.GA9482@willie-the-truck>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Date: Tue, 26 Mar 2024 19:04:34 +0100
+Message-ID: <CANiq72mbsAYmR_dRPpQQ=9-NWhTtp0TWiOz0v=V-0AvwYbWw4A@mail.gmail.com>
+Subject: drivers/gpu/drm/qxl/qxl_cmd.c:424:6: error: variable 'count' set but
+ not used
+To: Dave Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
+	Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>, Daniel Vetter <daniel@ffwll.ch>, 
+	virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org, 
+	dri-devel <dri-devel@lists.freedesktop.org>, 
+	linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 
-On Tue, Mar 26, 2024 at 11:43:13AM +0000, Will Deacon wrote:
-> On Tue, Mar 26, 2024 at 09:38:55AM +0000, Keir Fraser wrote:
-> > On Tue, Mar 26, 2024 at 03:49:02AM -0400, Michael S. Tsirkin wrote:
-> > > > Secondly, the debugging code is enhanced so that the available head for
-> > > > (last_avail_idx - 1) is read for twice and recorded. It means the available
-> > > > head for one specific available index is read for twice. I do see the
-> > > > available heads are different from the consecutive reads. More details
-> > > > are shared as below.
-> > > > 
-> > > > From the guest side
-> > > > ===================
-> > > > 
-> > > > virtio_net virtio0: output.0:id 86 is not a head!
-> > > > head to be released: 047 062 112
-> > > > 
-> > > > avail_idx:
-> > > > 000  49665
-> > > > 001  49666  <--
-> > > >  :
-> > > > 015  49664
-> > > 
-> > > what are these #s 49665 and so on?
-> > > and how large is the ring?
-> > > I am guessing 49664 is the index ring size is 16 and
-> > > 49664 % 16 == 0
-> > 
-> > More than that, 49664 % 256 == 0
-> > 
-> > So again there seems to be an error in the vicinity of roll-over of
-> > the idx low byte, as I observed in the earlier log. Surely this is
-> > more than coincidence?
-> 
-> Yeah, I'd still really like to see the disassembly for both sides of the
-> protocol here. Gavin, is that something you're able to provide? Worst
-> case, the host and guest vmlinux objects would be a starting point.
-> 
-> Personally, I'd be fairly surprised if this was a hardware issue.
+Hi,
 
-Ok, long shot after eyeballing the vhost code, but does the diff below
-help at all? It looks like vhost_vq_avail_empty() can advance the value
-saved in 'vq->avail_idx' but without the read barrier, possibly confusing
-vhost_get_vq_desc() in polling mode.
+In today's next, I got:
 
-Will
+    drivers/gpu/drm/qxl/qxl_cmd.c:424:6: error: variable 'count' set
+but not used [-Werror,-Wunused-but-set-variable]
 
---->8
+`count` seems to be there since commit f64122c1f6ad ("drm: add new QXL
+driver. (v1.4)").
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 045f666b4f12..87bff710331a 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -2801,6 +2801,7 @@ bool vhost_vq_avail_empty(struct vhost_dev *dev, struct vhost_virtqueue *vq)
-                return false;
-        vq->avail_idx = vhost16_to_cpu(vq, avail_idx);
- 
-+       smp_rmb();
-        return vq->avail_idx == vq->last_avail_idx;
- }
- EXPORT_SYMBOL_GPL(vhost_vq_avail_empty);
+Untested diff below -- if you want a formal patch, please let me know.
 
+Cheers,
+Miguel
+
+diff --git a/drivers/gpu/drm/qxl/qxl_cmd.c b/drivers/gpu/drm/qxl/qxl_cmd.c
+index 281edab518cd..d6ea01f3797b 100644
+--- a/drivers/gpu/drm/qxl/qxl_cmd.c
++++ b/drivers/gpu/drm/qxl/qxl_cmd.c
+@@ -421,7 +421,6 @@ int qxl_surface_id_alloc(struct qxl_device *qdev,
+ {
+        uint32_t handle;
+        int idr_ret;
+-       int count = 0;
+ again:
+        idr_preload(GFP_ATOMIC);
+        spin_lock(&qdev->surf_id_idr_lock);
+@@ -433,7 +432,6 @@ int qxl_surface_id_alloc(struct qxl_device *qdev,
+        handle = idr_ret;
+
+        if (handle >= qdev->rom->n_surfaces) {
+-               count++;
+                spin_lock(&qdev->surf_id_idr_lock);
+                idr_remove(&qdev->surf_id_idr, handle);
+                spin_unlock(&qdev->surf_id_idr_lock);
