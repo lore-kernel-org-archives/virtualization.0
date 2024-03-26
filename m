@@ -1,158 +1,268 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7315612A176
-	for <virtualization@lists.linux.dev>; Tue, 26 Mar 2024 04:28:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB3F05B1E6
+	for <virtualization@lists.linux.dev>; Tue, 26 Mar 2024 04:46:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711427333; cv=none; b=HVR3XEKfjyctFD7YfBAoHwYdJQHsjW0z5E+2xnFwUkb2OKR9+rR3f2wNV+ZOJrMEnyFzOrZqaf/in157NFZIC/NiYTPS3i7WFacjXiAnsszGE/wSbx3Rjmf2wZhUPQms5CDOw52wJJaqFgKHalfmFODE+WAiBIOsAmbnFd4RaZA=
+	t=1711428419; cv=none; b=Tw9Q/TKRlUiMiKY5naLDROIatwR7yRFQ/yn7/sX+wrfVPNf/B6qy1+C0k/YI7UGpWsy2DIU7+1KMBagiJYxzxK0JHOko7Lc/+R6N1ltVp0WDPXM4PZuUQ8MPKMbAT4HUx9YJtkAEDHDg2p7DPDHRXK8R9N7v5DRV1DCPtR3ohto=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711427333; c=relaxed/simple;
-	bh=9ltv4DwYwWj7kB/fZ2mzOIYt06/xNjINGiA4oBElaQk=;
+	s=arc-20240116; t=1711428419; c=relaxed/simple;
+	bh=I0hBgUkJ6VetAVQzfY2/W0v2jZI+GcguK0+glpr0W/g=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=MXuBvKANVsIhRt2Z3YiP1FvyW0RflK+z288NK6/vVCIVTBLmANh8xgTalZODzkK94vDDEZNCBxgSUEL5nHyp0rJTc3ymxXfSByZR09czuPsi5EdI84a1N39wDHa9mRa5NqQMgED+nL0HwGcHlI/DUvk3CEOteIDZ91WP6+0+5Ig=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=aWWffcPe; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=taLwPXdaYH4rGWZsKNzSHX1D+N+0ZSuKBBMGRhQzwr28ieD4r1eomeUaamHn70gRc3mY/o2+pV5xr5XhP4HGYxISW4y6ML2D74/+OxWM9q6Cf1IluBF0Hcb65O8ZFmKaAKE5g1Y97khWfwphHQ3OUZdPVR5rywNsKkTr9DL0YTk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bSLEDtPp; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aWWffcPe"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bSLEDtPp"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1711427330;
+	s=mimecast20190719; t=1711428416;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=VYJdaPfqxCLnNgCpNcotB2CUqnM+IpEVFvBowNr66ZI=;
-	b=aWWffcPeoO2J8El2OytmIQt3aF3bVvnPgNdCgYCSJJstShzl9u2HR2xDhg/mGeQOxWpR3s
-	49vNGeUJEwVHwWQNbOguUBmAl9UDVt1MsoO42R1915Df1LLsmKahsUCfaceaR/dquuOP+n
-	99fDIuVxHma2ucYPrbkr9TvMoNNGeWc=
+	bh=lGXaQ3GVVuKxjOu0MEIZIl+iuzlQBISaMUUEdgRTSrA=;
+	b=bSLEDtPpdFdN9UD6IQjUZgLFoNfWup7r6shAphs/oPUPyMGwI3tpiT8zwX1Rf70/EzNCaZ
+	I9AQIhOsrdkAjN2Rs8JFNDO+ZZEtLQQIh7nfkngUH4qgQ6g9pkZSC7xwZFv+ODpXyTkEZv
+	o6rmRjYdege6pifuUVT5epylMoj3ALI=
 Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com
  [209.85.214.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-500-nONV9X-tNB-XVyqjVOZRKQ-1; Tue, 26 Mar 2024 00:28:46 -0400
-X-MC-Unique: nONV9X-tNB-XVyqjVOZRKQ-1
-Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-1e0c070b660so12604865ad.2
-        for <virtualization@lists.linux.dev>; Mon, 25 Mar 2024 21:28:46 -0700 (PDT)
+ us-mta-296-UTQd_qL0NVSbDYIS3YhyaA-1; Tue, 26 Mar 2024 00:46:55 -0400
+X-MC-Unique: UTQd_qL0NVSbDYIS3YhyaA-1
+Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-1e0984b137aso18122355ad.2
+        for <virtualization@lists.linux.dev>; Mon, 25 Mar 2024 21:46:54 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711427325; x=1712032125;
+        d=1e100.net; s=20230601; t=1711428412; x=1712033212;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=VYJdaPfqxCLnNgCpNcotB2CUqnM+IpEVFvBowNr66ZI=;
-        b=d+2R+rrHDLL4h5AQR8CHUpgpqJp1vQnFI6GYsrH7WbAwz6jxsc4UUJSrXr7ZxNw7W9
-         N+NcfPVs2Mlcn9ANcL453elubXjTnM0bW5V9cm016RKbeyejkRYVZo19aDQwMRSNe2iC
-         bVBuz2k/1kgcQGAQjy3ue5f2U73MzMocliYNlmTHEBvNI2vAbVYg9Eh07jCA4okNVbHl
-         g4uIHjQXA4ew4W6viY1MJCAITZC2rUoQoaXXA500v6F6oGMumkjZvgYa9wJZBPaBKqXv
-         jgY8jrO+Sj0YgquVkfdtMPAh6+UOe20kBOSn+QRfxE8qi9GsdCQObbMdO7bZLhoB5cDi
-         TR7Q==
-X-Gm-Message-State: AOJu0Yx7oDT7pjoiwo0R4B4w52cGhZMi7CP2HHuAT508PHX7b50e45AS
-	aGmJ6IiQyapDsG0BB1Y1V+XQLT56PH5opAQCTyPkYTXIHL6/oMJ3AMUg7rVjvpJa3vEfgMTL6CS
-	qVazhWqAVv3NDzdih2vK9/UGPLcojmnUHdgbdj3bilALqhywDnjNl6GdpFGb6rXxZz4L6XwLKNw
-	fYDG1Bp0Q802iqEW7abX6nWQ3ab00J7Lo5gV5iObI=
-X-Received: by 2002:a17:902:e541:b0:1e0:f550:82e2 with SMTP id n1-20020a170902e54100b001e0f55082e2mr154446plf.22.1711427325203;
-        Mon, 25 Mar 2024 21:28:45 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEYwbHtFo5NnweY6aiIQsz8qOqVwbBb5nB1OBSL78XFdIi+hU5TswumUMNoFDqt6TH1kJ3Y6QgJCf7jKybputQ=
-X-Received: by 2002:a17:902:e541:b0:1e0:f550:82e2 with SMTP id
- n1-20020a170902e54100b001e0f55082e2mr154413plf.22.1711427324953; Mon, 25 Mar
- 2024 21:28:44 -0700 (PDT)
+        bh=lGXaQ3GVVuKxjOu0MEIZIl+iuzlQBISaMUUEdgRTSrA=;
+        b=JCNT607L08PjCdq09GTkKthKn41d5emmdyC0/kTjdN9nMBxObXFGs2skV4E5y4ELXH
+         kvT/NjG4/kQ9FZAa7WIQl2tX1ifi0tHPc8EgFZIX6hFr/PZAkCxJC8AkpKdPKnNY/6IS
+         WcrHmzd9v3DwVQ9sOs75A3aMyp1761oLHVaXz1FYIW4zVw5fvW59V5MWoxId+QzgVIw0
+         0jC9YGxEBA/oxJdOAZLp2+Y5WXqQ6wH7L6gwFPP2h4DKVgpEfnKUX5f/sQ+PoO5jK9eO
+         gGobEukeqA6FVBN6WQuSt+XGfE1/9QpTz9kv2ZXaUBubrVHeo2J2F69S0zxUFrK+JO0S
+         3X6A==
+X-Forwarded-Encrypted: i=1; AJvYcCWFlIQDF/9Z2kA1SqaioG8yIx4C9CRQlLK2HmDtCFDCy3qSFkHTcwEB7geuFwmr2jPBcWSoSn+YIMtsZ1exfA08ng9woV2hCqTssJ8/i5o=
+X-Gm-Message-State: AOJu0YwMz/CNw4/Fi3ynXPvy0UbcKmAQLf9MHoUbwO0EgEpqDmbcQF8J
+	lDfMA4Z+W9Kx2Q6Sn9EzzlC5Y02O88raUtsGY2NTo07QdFJZJ3Kok3sT/ww/efnmffcM2jM+z9o
+	uXH/psiP0zfVEp19KWcIHrXNAD2DFJC4A2ncnORk+CQTIxaNrRIqFOEh58Z+WBuVwAeUC4mFA3k
+	9QG6r9hlZQtXYHQDoFxyVSjtJTV8JC9ZpuJSUyhA1BJ4nSE22lsQ==
+X-Received: by 2002:a17:902:d489:b0:1e0:c37d:cfb5 with SMTP id c9-20020a170902d48900b001e0c37dcfb5mr4165147plg.22.1711428412627;
+        Mon, 25 Mar 2024 21:46:52 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFyZmO2cvV4Hypg7KgUhp4pGLbalivRgNQTcdIDlFTO7Rsww9A745kpUDRmzlVRxVoxlFRU8bCaHOEWYUelx6c=
+X-Received: by 2002:a17:902:d489:b0:1e0:c37d:cfb5 with SMTP id
+ c9-20020a170902d48900b001e0c37dcfb5mr4165133plg.22.1711428412276; Mon, 25 Mar
+ 2024 21:46:52 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240325090419.33677-1-xuanzhuo@linux.alibaba.com> <20240325090419.33677-3-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <20240325090419.33677-3-xuanzhuo@linux.alibaba.com>
+References: <CA+9S74hbTMxckB=HgRiqL6b8ChZMQfJ6-K9y_GQ0ZDiWkev_vA@mail.gmail.com>
+ <20240319131207.GB1096131@fedora> <CA+9S74jMBbgrxaH2Nit50uDQsHES+e+VHnOXkxnq2TrUFtAQRA@mail.gmail.com>
+ <CACGkMEvX2R+wKcH5V45Yd6CkgGhADVbpvfmWsHducN2zCS=OKw@mail.gmail.com>
+ <CA+9S74g5fR=hBxWk1U2TyvW1uPmU3XgJnjw4Owov8LNwLiiOZw@mail.gmail.com>
+ <CACGkMEt4MbyDgdqDGUqQ+0gV-1kmp6CWASDgwMpZnRU8dfPd2Q@mail.gmail.com>
+ <CA+9S74hUt_aZCrgN3Yx9Y2OZtwHNan7gmbBa1TzBafW6=YLULQ@mail.gmail.com>
+ <CA+9S74ia-vUag2QMo6zFL7r+wZyOZVmcpe317RdMbK-rpomn+Q@mail.gmail.com> <CA+9S74hs_1Ft9iyXOPU_vF_EFKuoG8LjDpSna0QSPMFnMywd_g@mail.gmail.com>
+In-Reply-To: <CA+9S74hs_1Ft9iyXOPU_vF_EFKuoG8LjDpSna0QSPMFnMywd_g@mail.gmail.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 26 Mar 2024 12:28:34 +0800
-Message-ID: <CACGkMEuuNrDkEUnnES-APDVag2=4wjyZi3aEg0+8vY+Bho=BRg@mail.gmail.com>
-Subject: Re: [PATCH vhost v5 2/6] virtio: remove support for names array
- entries being null.
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>, 
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg <johannes@sipsolutions.net>, 
-	Hans de Goede <hdegoede@redhat.com>, =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
-	Vadim Pasternak <vadimp@nvidia.com>, Bjorn Andersson <andersson@kernel.org>, 
-	Mathieu Poirier <mathieu.poirier@linaro.org>, Cornelia Huck <cohuck@redhat.com>, 
-	Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	David Hildenbrand <david@redhat.com>, linux-um@lists.infradead.org, 
-	platform-driver-x86@vger.kernel.org, linux-remoteproc@vger.kernel.org, 
-	linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Date: Tue, 26 Mar 2024 12:46:41 +0800
+Message-ID: <CACGkMEvHiAN7X_QBgihWX6zzEUOxhrV2Nqg1arw1sfYy2A5K0g@mail.gmail.com>
+Subject: Re: REGRESSION: RIP: 0010:skb_release_data+0xb8/0x1e0 in vhost/tun
+To: Igor Raits <igor@gooddata.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	Stefano Garzarella <sgarzare@redhat.com>, Jaroslav Pulchart <jaroslav.pulchart@gooddata.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Mar 25, 2024 at 5:04=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
+On Mon, Mar 25, 2024 at 4:44=E2=80=AFPM Igor Raits <igor@gooddata.com> wrot=
+e:
+>
+> Hello,
+>
+> On Fri, Mar 22, 2024 at 12:19=E2=80=AFPM Igor Raits <igor@gooddata.com> w=
+rote:
+> >
+> > Hi Jason,
+> >
+> > On Fri, Mar 22, 2024 at 9:39=E2=80=AFAM Igor Raits <igor@gooddata.com> =
+wrote:
+> > >
+> > > Hi Jason,
+> > >
+> > > On Fri, Mar 22, 2024 at 6:31=E2=80=AFAM Jason Wang <jasowang@redhat.c=
 om> wrote:
+> > > >
+> > > > On Thu, Mar 21, 2024 at 5:44=E2=80=AFPM Igor Raits <igor@gooddata.c=
+om> wrote:
+> > > > >
+> > > > > Hello Jason & others,
+> > > > >
+> > > > > On Wed, Mar 20, 2024 at 10:33=E2=80=AFAM Jason Wang <jasowang@red=
+hat.com> wrote:
+> > > > > >
+> > > > > > On Tue, Mar 19, 2024 at 9:15=E2=80=AFPM Igor Raits <igor@goodda=
+ta.com> wrote:
+> > > > > > >
+> > > > > > > Hello Stefan,
+> > > > > > >
+> > > > > > > On Tue, Mar 19, 2024 at 2:12=E2=80=AFPM Stefan Hajnoczi <stef=
+anha@redhat.com> wrote:
+> > > > > > > >
+> > > > > > > > On Tue, Mar 19, 2024 at 10:00:08AM +0100, Igor Raits wrote:
+> > > > > > > > > Hello,
+> > > > > > > > >
+> > > > > > > > > We have started to observe kernel crashes on 6.7.y kernel=
+s (atm we
+> > > > > > > > > have hit the issue 5 times on 6.7.5 and 6.7.10). On 6.6.9=
+ where we
+> > > > > > > > > have nodes of cluster it looks stable. Please see stacktr=
+ace below. If
+> > > > > > > > > you need more information please let me know.
+> > > > > > > > >
+> > > > > > > > > We do not have a consistent reproducer but when we put so=
+me bigger
+> > > > > > > > > network load on a VM, the hypervisor's kernel crashes.
+> > > > > > > > >
+> > > > > > > > > Help is much appreciated! We are happy to test any patche=
+s.
+> > > > > > > >
+> > > > > > > > CCing Michael Tsirkin and Jason Wang for vhost_net.
+> > > > > > > >
+> > > > > > > > >
+> > > > > > > > > [62254.167584] stack segment: 0000 [#1] PREEMPT SMP NOPTI
+> > > > > > > > > [62254.173450] CPU: 63 PID: 11939 Comm: vhost-11890 Taint=
+ed: G
+> > > > > > > > >    E      6.7.10-1.gdc.el9.x86_64 #1
+> > > > > > > >
+> > > > > > > > Are there any patches in this kernel?
+> > > > > > >
+> > > > > > > Only one, unrelated to this part. Removal of pr_err("EEVDF sc=
+heduling
+> > > > > > > fail, picking leftmost\n"); line (reported somewhere few mont=
+hs ago
+> > > > > > > and it was suggested workaround until proper solution comes).
+> > > > > >
+> > > > > > Btw, a bisection would help as well.
+> > > > >
+> > > > > In the end it seems like we don't really have "stable" setup, so
+> > > > > bisection looks to be useless but we did find few things meantime=
+:
+> > > > >
+> > > > > 1. On 6.6.9 it crashes either with unexpected GSO type or usercop=
+y:
+> > > > > Kernel memory exposure attempt detected from SLUB object
+> > > > > 'skbuff_head_cache'
+> > > >
+> > > > Do you have a full calltrace for this?
+> > >
+> > > I have shared it in one of the messages in this thread.
+> > > https://marc.info/?l=3Dlinux-virtualization&m=3D171085443512001&w=3D2
+> > >
+> > > > > 2. On 6.7.5, 6.7.10 and 6.8.1 it crashes with RIP:
+> > > > > 0010:skb_release_data+0xb8/0x1e0
+> > > >
+> > > > And for this?
+> > >
+> > > https://marc.info/?l=3Dlinux-netdev&m=3D171083870801761&w=3D2
+> > >
+> > > > > 3. It does NOT crash on 6.8.1 when VM does not have multi-queue s=
+etup
+> > > > >
+> > > > > Looks like the multi-queue setup (we have 2 interfaces =C3=97 3 v=
+irtio
+> > > > > queues for each) is causing problems as if we set only one queue =
+for
+> > > > > each interface the issue is gone.
+> > > > > Maybe there is some race condition in __pfx_vhost_task_fn+0x10/0x=
+10 or
+> > > > > somewhere around?
+> > > >
+> > > > I can't tell now, but it seems not because if we have 3 queue pairs=
+ we
+> > > > will have 3 vhost threads.
+> > > >
+> > > > > We have noticed that there are 3 of such functions
+> > > > > in the stacktrace that gave us hints about what we could try=E2=
+=80=A6
+> > > >
+> > > > Let's try to enable SLUB_DEBUG and KASAN to see if we can get
+> > > > something interesting.
+> > >
+> > > We were able to reproduce it even with 1 vhost queue... And now we
+> > > have slub_debug + kasan so I hopefully have more useful data for you
+> > > now.
+> > > I have attached it for better readability.
+> >
+> > Looks like we have found a "stable" kernel and that is 6.1.32. The
+> > 6.3.y is broken and we are testing 6.2.y now.
+> > My guess it would be related to virtio/vsock: replace virtio_vsock_pkt
+> > with sk_buff that was done around that time but we are going to test,
+> > bisect and let you know more.
 >
-> commit 6457f126c888 ("virtio: support reserved vqs") introduced this
-> support. Multiqueue virtio-net use 2N as ctrl vq finally, so the logic
-> doesn't apply. And not one uses this.
+> So we have been trying to bisect it but it is basically impossible for
+> us to do so as the ICE driver was quite broken for most of the release
+> cycle so we have no networking on 99% of the builds and we can't test
+> such a setup.
+> More specifically, the bug was introduced between 6.2 and 6.3 but we
+> could not get much further. The last good commit we were able to test
+> was f18f9845f2f10d3d1fc63e4ad16ee52d2d9292fa and then after 20 commits
+> where we had no networking we gave up.
 >
-> On the other side, that makes some trouble for us to refactor the
-> find_vqs() params.
+> If you have some suspicious commit(s) we could revert - happy to test.
+
+Here is the is for the change since f18f9845f2f10d3d1fc63e4ad16ee52d2d9292f=
+a:
+
+cbfbfe3aee71 tun: prevent negative ifindex
+b2f8323364ab tun: add __exit annotations to module exit func tun_cleanup()
+6231e47b6fad tun: avoid high-order page allocation for packet header
+4d016ae42efb Merge git://git.kernel.org/pub/scm/linux/kernel/git/netdev/net
+59eeb2329405 drivers: net: prevent tun_build_skb() to exceed the
+packet size limit
+35b1b1fd9638 Merge git://git.kernel.org/pub/scm/linux/kernel/git/netdev/net
+ce7c7fef1473 net: tun: change tun_alloc_skb() to allow bigger paged allocat=
+ions
+9bc3047374d5 net: tun_chr_open(): set sk_uid from current_fsuid()
+82b2bc279467 tun: Fix memory leak for detached NAPI queue.
+6e98b09da931 Merge tag 'net-next-6.4' of
+git://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next
+de4f5fed3f23 iov_iter: add iter_iovec() helper
+438b406055cd tun: flag the device as supporting FMODE_NOWAIT
+de4287336794 Daniel Borkmann says:
+a096ccca6e50 tun: tun_chr_open(): correctly initialize socket uid
+66c0e13ad236 drivers: net: turn on XDP features
+
+The commit that touches the datapath are:
+
+6231e47b6fad tun: avoid high-order page allocation for packet header
+59eeb2329405 drivers: net: prevent tun_build_skb() to exceed the
+packet size limit
+ce7c7fef1473 net: tun: change tun_alloc_skb() to allow bigger paged allocat=
+ions
+82b2bc279467 tun: Fix memory leak for detached NAPI queue.
+de4f5fed3f23 iov_iter: add iter_iovec() helper
+
+I assume you didn't use NAPI mode, so 82b2bc279467 tun: Fix memory
+leak for detached NAPI queue doesn't make sense for us.
+
+The rest might be the bad commit if it is caused by a change of tun itself.
+
+btw I vaguely remember KASAN will report who did the allocation and
+who did the free. But it seems not in your KASAN log.
+
+Thanks
+
 >
-> So I remove this support.
->
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> ---
->  arch/um/drivers/virtio_uml.c             | 5 -----
->  drivers/platform/mellanox/mlxbf-tmfifo.c | 4 ----
->  drivers/remoteproc/remoteproc_virtio.c   | 5 -----
->  drivers/s390/virtio/virtio_ccw.c         | 5 -----
->  drivers/virtio/virtio_mmio.c             | 5 -----
->  drivers/virtio/virtio_pci_common.c       | 9 ---------
->  drivers/virtio/virtio_vdpa.c             | 5 -----
->  include/linux/virtio_config.h            | 1 -
->  8 files changed, 39 deletions(-)
->
-> diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
-> index 8adca2000e51..1d1e8654b7fc 100644
-> --- a/arch/um/drivers/virtio_uml.c
-> +++ b/arch/um/drivers/virtio_uml.c
-> @@ -1031,11 +1031,6 @@ static int vu_find_vqs(struct virtio_device *vdev,=
- unsigned nvqs,
->                 return rc;
->
->         for (i =3D 0; i < nvqs; ++i) {
-> -               if (!names[i]) {
-> -                       vqs[i] =3D NULL;
-> -                       continue;
-> -               }
-
-Does this mean names[i] must not be NULL? If yes, should we fail or
-not? If not, do we need to change the doc?
-
-[...]
-
-> --- a/include/linux/virtio_config.h
-> +++ b/include/linux/virtio_config.h
-> @@ -56,7 +56,6 @@ typedef void vq_callback_t(struct virtqueue *);
->   *     callbacks: array of callbacks, for each virtqueue
->   *             include a NULL entry for vqs that do not need a callback
->   *     names: array of virtqueue names (mainly for debugging)
-> - *             include a NULL entry for vqs unused by driver
->   *     Returns 0 on success or error status
->   * @del_vqs: free virtqueues found by find_vqs().
->   * @synchronize_cbs: synchronize with the virtqueue callbacks (optional)
-
-
-Since we had other check for names[i] like:
-
-        if (per_vq_vectors) {
-                /* Best option: one for change interrupt, one per vq. */
-                nvectors =3D 1;
-                for (i =3D 0; i < nvqs; ++i)
-                        if (names[i] && callbacks[i])
-                                ++nvectors;
-
-in vp_find_vqs_msix() and maybe other places.
-
-> --
-> 2.32.0.3.g01195cf9f
+> Thanks again.
 >
 
