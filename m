@@ -1,32 +1,32 @@
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC702127B5C
-	for <virtualization@lists.linux.dev>; Tue, 26 Mar 2024 02:46:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F1D7128379
+	for <virtualization@lists.linux.dev>; Tue, 26 Mar 2024 02:54:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711421209; cv=none; b=YMYA/OOXaD9UazxAc6wbFlza6h4FOKBdIA+GvtBJsmSkUeXqw4pObuCSore7r+WzdQDiN9+ZRnSZ8/DaY/C/ApJ6xsSSrbhmsjePzWASTL6YfuGQqByX2/cXS+KNIKMwbwRA5KdpYeyY2e4I4mbyn/zjaWSrdOG8yvzTYSRjyFk=
+	t=1711421670; cv=none; b=VTXW/rTb4kSdl6Fkm2WwFCirAJeWBVb0yMdWKlgkDcNjaNugEDsStdaPIZD7F+xX8USCEiUssXs0VsGcYxdNIlUeJsSTxTBOTR/N1fDYkUPQWy9+i3DX3PK3k/eyHCrSz2JfiDd07JfYamIufqYX/uMZhL/PV8N/9AAgD1Bd++k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711421209; c=relaxed/simple;
-	bh=5/4+FnYP7WrpibFUSjMKZGgmnDOJvtxN/hNT/iYWwQc=;
+	s=arc-20240116; t=1711421670; c=relaxed/simple;
+	bh=TxGTsuGBxROLKSdAQvZMyFNNsHy1cOax6j6iJDS9unM=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=pX8ScmGgNkk9XSC/MQgIgdcTeEFbuKHsOTCf08HIKl9kCp1r0VrSUckysdcnNWr4370bBs9Ix0V+Cw9FLtxW1/C8jHarSQEcV7Hh3IXNAyXBWLAcBfK1MfR+fHqubsKjapNyG1VNf5f3psvrdQ0Zjabs6TFLXk3964iGme4EFxU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=xu73QNL6; arc=none smtp.client-ip=115.124.30.110
+	 In-Reply-To:Content-Type; b=f8P+KLTshaKG9UljVWvDlbBfp5/7qdvXW++UN1d8Qajy5RAjipiHylJld+cslCriQFPQT/G2wQzKMoFFdb9aLd4D9oF7E4uiaAOxqOIui4HTIRpQPdyZm1jOiYJa71+RTkCEoTSyH63ZDBtN2jXlAda1iN8kkIL2TiUTtnEyw+Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=C7vwQrPE; arc=none smtp.client-ip=115.124.30.98
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="xu73QNL6"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="C7vwQrPE"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1711421203; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=+tg+cbDnyeGxeUBGCtIjLT8x555SiGV5b/HSGfpvPmc=;
-	b=xu73QNL693bYNfosaMQnRhTPd4M4pSQM5AuDajfWpxNNHj5ba6d78YuW+Wvd6GW7iczMhh/51pj1TY1G9ENp5Pmk5zL8FYFNV4TebkVlf6x4BIJDaFNnDo8srbaytjCjtwc7Mk9hV9G4pap+pEkpCBxs3kaP2YLN6JD1Tmk3RJQ=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0W3JTV0m_1711421201;
-Received: from 30.221.81.94(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W3JTV0m_1711421201)
+	t=1711421663; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=Fk4VDor+i7xq88k4s0CwyfZDIKcm6sD+3WARYskt/aI=;
+	b=C7vwQrPEVi3JTb9u30Msbv0TyFBwyjjEthPcUNcRgR+VeYcxqG5y4DRuPrV38VCTHep9vvHXJlS55ug7id8MLoh90GyZ2VW9vZ4l8ouwTKRwwwt28qtTpoZ9NdBcWypTX33qP0X+Zg8Xb+s0BCAyPGucog2vJVZK0bZVGRQAz20=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0W3JVLgT_1711421660;
+Received: from 30.221.81.94(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W3JVLgT_1711421660)
           by smtp.aliyun-inc.com;
-          Tue, 26 Mar 2024 10:46:42 +0800
-Message-ID: <62451c11-0957-4d1b-8a34-5e224ea552e0@linux.alibaba.com>
-Date: Tue, 26 Mar 2024 10:46:41 +0800
+          Tue, 26 Mar 2024 10:54:22 +0800
+Message-ID: <23e442f0-a18b-4da0-9321-f543b028cd7e@linux.alibaba.com>
+Date: Tue, 26 Mar 2024 10:54:20 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -34,140 +34,50 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/2] virtio-net: reduce the CPU consumption of dim worker
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
- "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>,
- "David S. Miller" <davem@davemloft.net>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-References: <1711021557-58116-1-git-send-email-hengqi@linux.alibaba.com>
- <1711021557-58116-3-git-send-email-hengqi@linux.alibaba.com>
- <CACGkMEuZ457UU6MhPtKHd_Y0VryvZoNU+uuKOc_4OK7jc62WwA@mail.gmail.com>
- <5708312a-d8eb-40ee-88a9-e16930b94dda@linux.alibaba.com>
- <CACGkMEu8or7+fw3+vX_PY3Qsrm7zVSf6TS9SiE20NpOsz-or6g@mail.gmail.com>
- <b54ad370-67bd-4b8c-82fb-54625e68288b@linux.alibaba.com>
- <CACGkMEv88U1_2K2b0KdmH97gfrdOvK_1ajqh=UTK6=KgZ4OYvQ@mail.gmail.com>
- <36ce2bbf-3a31-4c01-99f3-1875f79e2831@linux.alibaba.com>
- <CACGkMEvShZKd7AvMFtmEWBVGQsQrGkQMTEx8yQYYU0uYqp=uMg@mail.gmail.com>
+Subject: Re: [PATCH net-next 0/4] Remove RTNL lock protection of CVQ
+To: Daniel Jurgens <danielj@nvidia.com>, netdev@vger.kernel.org
+Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+ virtualization@lists.linux.dev, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, jiri@nvidia.com
+References: <20240325214912.323749-1-danielj@nvidia.com>
 From: Heng Qi <hengqi@linux.alibaba.com>
-In-Reply-To: <CACGkMEvShZKd7AvMFtmEWBVGQsQrGkQMTEx8yQYYU0uYqp=uMg@mail.gmail.com>
+In-Reply-To: <20240325214912.323749-1-danielj@nvidia.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
 
 
-在 2024/3/25 下午4:42, Jason Wang 写道:
-> On Mon, Mar 25, 2024 at 4:22 PM Heng Qi <hengqi@linux.alibaba.com> wrote:
->>
->>
->> 在 2024/3/25 下午3:56, Jason Wang 写道:
->>> On Mon, Mar 25, 2024 at 3:18 PM Heng Qi <hengqi@linux.alibaba.com> wrote:
->>>>
->>>> 在 2024/3/25 下午1:57, Jason Wang 写道:
->>>>> On Mon, Mar 25, 2024 at 10:21 AM Heng Qi <hengqi@linux.alibaba.com> wrote:
->>>>>> 在 2024/3/22 下午1:19, Jason Wang 写道:
->>>>>>> On Thu, Mar 21, 2024 at 7:46 PM Heng Qi <hengqi@linux.alibaba.com> wrote:
->>>>>>>> Currently, ctrlq processes commands in a synchronous manner,
->>>>>>>> which increases the delay of dim commands when configuring
->>>>>>>> multi-queue VMs, which in turn causes the CPU utilization to
->>>>>>>> increase and interferes with the performance of dim.
->>>>>>>>
->>>>>>>> Therefore we asynchronously process ctlq's dim commands.
->>>>>>>>
->>>>>>>> Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
->>>>>>> I may miss some previous discussions.
->>>>>>>
->>>>>>> But at least the changelog needs to explain why you don't use interrupt.
->>>>>> Will add, but reply here first.
->>>>>>
->>>>>> When upgrading the driver's ctrlq to use interrupt, problems may occur
->>>>>> with some existing devices.
->>>>>> For example, when existing devices are replaced with new drivers, they
->>>>>> may not work.
->>>>>> Or, if the guest OS supported by the new device is replaced by an old
->>>>>> downstream OS product, it will not be usable.
->>>>>>
->>>>>> Although, ctrlq has the same capabilities as IOq in the virtio spec,
->>>>>> this does have historical baggage.
->>>>> I don't think the upstream Linux drivers need to workaround buggy
->>>>> devices. Or it is a good excuse to block configure interrupts.
->>>> Of course I agree. Our DPU devices support ctrlq irq natively, as long
->>>> as the guest os opens irq to ctrlq.
->>>>
->>>> If other products have no problem with this, I would prefer to use irq
->>>> to solve this problem, which is the most essential solution.
->>> Let's do that.
->> Ok, will do.
->>
->> Do you have the link to the patch where you previously modified the
->> control queue for interrupt notifications.
->> I think a new patch could be made on top of it, but I can't seem to find it.
-> Something like this?
-
-YES. Thanks Jason.
-
+在 2024/3/26 上午5:49, Daniel Jurgens 写道:
+> Currently the buffer used for control VQ commands is protected by the
+> RTNL lock. Previously this wasn't a major concern because the control
+> VQ was only used during device setup and user interaction. With the
+> recent addition of dynamic interrupt moderation the control VQ may be
+> used frequently during normal operation.
 >
-> https://lore.kernel.org/lkml/6026e801-6fda-fee9-a69b-d06a80368621@redhat.com/t/
->
-> Note that
->
-> 1) some patch has been merged
-> 2) we probably need to drop the timeout logic as it's another topic
-> 3) need to address other comments
+> This series removes the RNTL lock dependancy by introducing a spin lock
+> to protect the control buffer and writing SGs to the control VQ.
 
-I did a quick read of your patch sets from the previous 5 version:
-[1] 
-https://lore.kernel.org/lkml/6026e801-6fda-fee9-a69b-d06a80368621@redhat.com/t/
-[2] https://lore.kernel.org/all/20221226074908.8154-1-jasowang@redhat.com/
-[3] https://lore.kernel.org/all/20230413064027.13267-1-jasowang@redhat.com/
-[4] https://lore.kernel.org/all/20230524081842.3060-1-jasowang@redhat.com/
-[5] https://lore.kernel.org/all/20230720083839.481487-1-jasowang@redhat.com/
+Hi Daniel.
 
-Regarding adding the interrupt to ctrlq, there are a few points where 
-there is no agreement,
-which I summarize below.
+It's a nice piece of work, but now that we're talking about ctrlq adding 
+interrupts, spin lock has some
+conflicts with its goals. For example, we expect the ethtool command to 
+be blocked.
+Therefore, a mutex lock may be more suitable.
 
-1. Require additional interrupt vector resource
-https://lore.kernel.org/all/20230516165043-mutt-send-email-mst@kernel.org/
-2. Adding the interrupt for ctrlq may break some devices
-https://lore.kernel.org/all/f9e75ce5-e6df-d1be-201b-7d0f18c1b6e7@redhat.com/
-3. RTNL breaks surprise removal
-https://lore.kernel.org/all/20230720170001-mutt-send-email-mst@kernel.org/
+Any how, the final conclusion may require some waiting.
 
-Regarding the above, there seems to be no conclusion yet.
-If these problems still exist, I think this patch is good enough and we 
-can merge it first.
-
-For the third point, it seems to be being solved by Daniel now [6], but 
-spink lock is used,
-which I think conflicts with the way of adding interrupts to ctrlq.
-
-[6] https://lore.kernel.org/all/20240325214912.323749-1-danielj@nvidia.com/
-
-
-Thanks,
+Regards,
 Heng
 
 >
-> THanks
+> Daniel Jurgens (4):
+>    virtio_net: Store RSS setting in virtnet_info
+>    virtio_net: Remove command data from control_buf
+>    virtio_net: Add a lock for the command VQ.
+>    virtio_net: Remove rtnl lock protection of command buffers
 >
+>   drivers/net/virtio_net.c | 185 ++++++++++++++++++++++-----------------
+>   1 file changed, 104 insertions(+), 81 deletions(-)
 >
->> Thanks,
->> Heng
->>
->>> Thanks
->>>
->>>>> And I remember you told us your device doesn't have such an issue.
->>>> YES.
->>>>
->>>> Thanks,
->>>> Heng
->>>>
->>>>> Thanks
->>>>>
->>>>>> Thanks,
->>>>>> Heng
->>>>>>
->>>>>>> Thanks
 
