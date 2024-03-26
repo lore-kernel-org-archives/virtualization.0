@@ -1,389 +1,175 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id B33F81B299;
-	Tue, 26 Mar 2024 08:35:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
+Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9364811CBA
+	for <virtualization@lists.linux.dev>; Tue, 26 Mar 2024 08:54:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711442135; cv=none; b=QgJxvotsxSTecey4QVSmi0Jim3DUBYp9w5FAMb5mA0MZIJFZyKEVQwT7SrCbBtNcZJ+dyvRKKoX3VmjU8rvLYKTISZhc7vPdlXpEXHn/VCsMs0nVqvYWjFaRJGsdHseLKdgj5cJzJ6O5WcRSS1fPTbq85PZLgzUi3KPB/vHjjhA=
+	t=1711443300; cv=none; b=KhhuD+LqC6E7raT1jtOzS40vxoP7+1PzXHSCFNAN9SGFCIEPJxkHMOvCmCAlFm7sUuChI6HbSqPuw0jpPQIwT5QsUKvYI+Y2s5rOvzXTYjV63WytOtYXtVqCfcSLAsV6OCnwNcGywSZxTtZdg8RmC9cq+gr8KeAfLaP7ZEanjXg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711442135; c=relaxed/simple;
-	bh=2GIXjbCzNeDWpQsOaIK0hhFHXZOOSzld/T5q5PGZYJY=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=gjAc9SjLzz7amADRCBV319XTFIzDFaElWUu9pRzxXDb07Vd/ZJ3E17OuJcTQfZt3ox2zpbLoQSaKc/1TxP0E7D3Wgs4XfssgilSxAZeb5/yZyBKOOdD2kK5NvWcyEuqrOtSP+un5ZX67ZdzZu/Pj0yxhvyzNw6qitgwky2tEssU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [10.2.5.213])
-	by gateway (Coremail) with SMTP id _____8DxmfAFggJmCkoeAA--.6209S3;
-	Tue, 26 Mar 2024 16:06:29 +0800 (CST)
-Received: from localhost.localdomain (unknown [10.2.5.213])
-	by localhost.localdomain (Coremail) with SMTP id AQAAf8CxbRMBggJmhaRoAA--.9600S3;
-	Tue, 26 Mar 2024 16:06:26 +0800 (CST)
-From: Bibo Mao <maobibo@loongson.cn>
-To: Tianrui Zhao <zhaotianrui@loongson.cn>,
-	Huacai Chen <chenhuacai@kernel.org>
-Cc: Juergen Gross <jgross@suse.com>,
-	kvm@vger.kernel.org,
-	loongarch@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	x86@kernel.org
-Subject: [PATCH 1/2] LoongArch: KVM: Add steal time support in kvm side
-Date: Tue, 26 Mar 2024 16:06:24 +0800
-Message-Id: <20240326080625.898051-2-maobibo@loongson.cn>
-X-Mailer: git-send-email 2.39.3
-In-Reply-To: <20240326080625.898051-1-maobibo@loongson.cn>
-References: <20240326080625.898051-1-maobibo@loongson.cn>
+	s=arc-20240116; t=1711443300; c=relaxed/simple;
+	bh=CrajXvb3Y6yOtElYto91kI0srJFZeDUdWSC6aT2R9vc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=bB1ds3VXR6RCu3oq+bks8IeCyXx304duqP2Zn31eiuj+6y9tZDvA1TqCq/JD55WEz6RCea4jk8aB2vuA4xPOlhy7Zi29kLCSU/kH2c/Mf9g/uUh7Vunsp3C1xVBBK4Vgfoyc3JqtHdJVy4fXEiKHUmaH3LN4eiy8uj+4q7LmY84=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=CNhhBiBn; arc=none smtp.client-ip=115.124.30.118
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="CNhhBiBn"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1711443295; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=Gpm/s+EmzB9U/+tLm8dO6kOXPvtxh6u8iVlG8sBa3z0=;
+	b=CNhhBiBnKDMXSyC3OJOJLDnqEuGIn6y8HYE1oP7PUsgqVeCeaVV6MdnZLmNa1XAcAfzbMW9wo9jMw7X8bwGVjS5GxiB97U2eUzxKcQFlqyXk/p1iUQJPfYI0zf0nGxwUu8iKqr+TY2PuAfCMcUq9HbiG0uR07KwrzFaJVFCUb0k=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0W3KW6I9_1711443293;
+Received: from 30.221.149.28(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W3KW6I9_1711443293)
+          by smtp.aliyun-inc.com;
+          Tue, 26 Mar 2024 16:54:54 +0800
+Message-ID: <11b6dac0-a18a-47ae-904d-cb9d29e1ca31@linux.alibaba.com>
+Date: Tue, 26 Mar 2024 16:54:52 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next 4/4] virtio_net: Remove rtnl lock protection of
+ command buffers
+To: Daniel Jurgens <danielj@nvidia.com>, netdev@vger.kernel.org
+Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+ virtualization@lists.linux.dev, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, jiri@nvidia.com
+References: <20240325214912.323749-1-danielj@nvidia.com>
+ <20240325214912.323749-5-danielj@nvidia.com>
+From: Heng Qi <hengqi@linux.alibaba.com>
+In-Reply-To: <20240325214912.323749-5-danielj@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:AQAAf8CxbRMBggJmhaRoAA--.9600S3
-X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
-X-Coremail-Antispam: 1Uk129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7KY7
-	ZEXasCq-sGcSsGvfJ3UbIjqfuFe4nvWSU5nxnvy29KBjDU0xBIdaVrnUUvcSsGvfC2Kfnx
-	nUUI43ZEXa7xR_UUUUUUUUU==
-X-Gw-Check: c0fd0a87d2a814b0
 
-Steal time feature is added here in kvm side, VM can search supported
-features provided by KVM hypervisor, feature KVM_FEATURE_STEAL_TIME
-is added here. Like x86, steal time structure is saved in guest memory,
-one hypercall function KVM_HCALL_FUNC_NOTIFY is added to notify KVM to
-enable the feature.
 
-One cpu attr ioctl command KVM_LOONGARCH_VCPU_PVTIME_CTRL is added to
-save and restore base address of steal time structure when VM is migrated.
 
-Since it needs hypercall instruction emulation handling, and it is
-dependent on this patchset:
-https://lore.kernel.org/all/20240201031950.3225626-1-maobibo@loongson.cn/
+在 2024/3/26 上午5:49, Daniel Jurgens 写道:
+> The rtnl lock is no longer needed to protect the control buffer and
+> command VQ.
+>
+> Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
+> Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+> ---
+>   drivers/net/virtio_net.c | 27 +++++----------------------
+>   1 file changed, 5 insertions(+), 22 deletions(-)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 41f8dc16ff38..d09ea20b16be 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -2639,14 +2639,12 @@ static void virtnet_stats(struct net_device *dev,
+>   
+>   static void virtnet_ack_link_announce(struct virtnet_info *vi)
+>   {
+> -	rtnl_lock();
+>   	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_ANNOUNCE,
+>   				  VIRTIO_NET_CTRL_ANNOUNCE_ACK, NULL))
+>   		dev_warn(&vi->dev->dev, "Failed to ack link announce.\n");
+> -	rtnl_unlock();
+>   }
+>   
+> -static int _virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
+> +static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
+>   {
+>   	struct virtio_net_ctrl_mq *mq __free(kfree) = NULL;
+>   	struct scatterlist sg;
+> @@ -2677,16 +2675,6 @@ static int _virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
+>   	return 0;
+>   }
+>   
+> -static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
+> -{
+> -	int err;
+> -
+> -	rtnl_lock();
+> -	err = _virtnet_set_queues(vi, queue_pairs);
+> -	rtnl_unlock();
+> -	return err;
+> -}
+> -
+>   static int virtnet_close(struct net_device *dev)
+>   {
+>   	struct virtnet_info *vi = netdev_priv(dev);
+> @@ -3268,7 +3256,7 @@ static int virtnet_set_channels(struct net_device *dev,
+>   		return -EINVAL;
+>   
+>   	cpus_read_lock();
+> -	err = _virtnet_set_queues(vi, queue_pairs);
+> +	err = virtnet_set_queues(vi, queue_pairs);
+>   	if (err) {
+>   		cpus_read_unlock();
+>   		goto err;
+> @@ -3558,14 +3546,11 @@ static void virtnet_rx_dim_work(struct work_struct *work)
+>   	struct dim_cq_moder update_moder;
+>   	int i, qnum, err;
+>   
+> -	if (!rtnl_trylock())
+> -		return;
+> -
 
-Signed-off-by: Bibo Mao <maobibo@loongson.cn>
----
- arch/loongarch/include/asm/kvm_host.h  |   7 ++
- arch/loongarch/include/asm/kvm_para.h  |  10 +++
- arch/loongarch/include/asm/loongarch.h |   1 +
- arch/loongarch/include/uapi/asm/kvm.h  |   4 +
- arch/loongarch/kvm/exit.c              |  35 ++++++--
- arch/loongarch/kvm/vcpu.c              | 120 +++++++++++++++++++++++++
- 6 files changed, 172 insertions(+), 5 deletions(-)
+Does this guarantee that the synchronization is completely correct?
 
-diff --git a/arch/loongarch/include/asm/kvm_host.h b/arch/loongarch/include/asm/kvm_host.h
-index c53946f8ef9f..1d1eaa124349 100644
---- a/arch/loongarch/include/asm/kvm_host.h
-+++ b/arch/loongarch/include/asm/kvm_host.h
-@@ -30,6 +30,7 @@
- #define KVM_PRIVATE_MEM_SLOTS		0
- 
- #define KVM_HALT_POLL_NS_DEFAULT	500000
-+#define KVM_REQ_RECORD_STEAL		KVM_ARCH_REQ(1)
- 
- #define KVM_GUESTDBG_VALID_MASK		(KVM_GUESTDBG_ENABLE | \
- 			KVM_GUESTDBG_USE_SW_BP | KVM_GUESTDBG_SINGLESTEP)
-@@ -199,6 +200,12 @@ struct kvm_vcpu_arch {
- 	struct kvm_mp_state mp_state;
- 	/* cpucfg */
- 	u32 cpucfg[KVM_MAX_CPUCFG_REGS];
-+	/* paravirt steal time */
-+	struct {
-+		u64 guest_addr;
-+		u64 last_steal;
-+		struct gfn_to_hva_cache cache;
-+	} st;
- };
- 
- static inline unsigned long readl_sw_gcsr(struct loongarch_csrs *csr, int reg)
-diff --git a/arch/loongarch/include/asm/kvm_para.h b/arch/loongarch/include/asm/kvm_para.h
-index 56775554402a..5fb89e20432d 100644
---- a/arch/loongarch/include/asm/kvm_para.h
-+++ b/arch/loongarch/include/asm/kvm_para.h
-@@ -12,6 +12,7 @@
- #define KVM_HCALL_CODE_SWDBG		1
- #define KVM_HCALL_PV_SERVICE		HYPERCALL_CODE(HYPERVISOR_KVM, KVM_HCALL_CODE_PV_SERVICE)
- #define  KVM_HCALL_FUNC_PV_IPI		1
-+#define  KVM_HCALL_FUNC_NOTIFY		2
- #define KVM_HCALL_SWDBG			HYPERCALL_CODE(HYPERVISOR_KVM, KVM_HCALL_CODE_SWDBG)
- 
- /*
-@@ -21,6 +22,15 @@
- #define KVM_HCALL_INVALID_CODE		-1UL
- #define KVM_HCALL_INVALID_PARAMETER	-2UL
- 
-+#define KVM_STEAL_PHYS_VALID		BIT_ULL(0)
-+#define KVM_STEAL_PHYS_MASK		GENMASK_ULL(63, 6)
-+struct kvm_steal_time {
-+	__u64 steal;
-+	__u32 version;
-+	__u32 flags;
-+	__u32 pad[12];
-+};
-+
- /*
-  * Hypercall interface for KVM hypervisor
-  *
-diff --git a/arch/loongarch/include/asm/loongarch.h b/arch/loongarch/include/asm/loongarch.h
-index 0ad36704cb4b..ab6a5e93c280 100644
---- a/arch/loongarch/include/asm/loongarch.h
-+++ b/arch/loongarch/include/asm/loongarch.h
-@@ -168,6 +168,7 @@
- #define  KVM_SIGNATURE			"KVM\0"
- #define CPUCFG_KVM_FEATURE		(CPUCFG_KVM_BASE + 4)
- #define  KVM_FEATURE_PV_IPI		BIT(1)
-+#define  KVM_FEATURE_STEAL_TIME		BIT(2)
- 
- #ifndef __ASSEMBLY__
- 
-diff --git a/arch/loongarch/include/uapi/asm/kvm.h b/arch/loongarch/include/uapi/asm/kvm.h
-index 8f78b23672ac..286b5ce93a57 100644
---- a/arch/loongarch/include/uapi/asm/kvm.h
-+++ b/arch/loongarch/include/uapi/asm/kvm.h
-@@ -80,7 +80,11 @@ struct kvm_fpu {
- #define LOONGARCH_REG_64(TYPE, REG)	(TYPE | KVM_REG_SIZE_U64 | (REG << LOONGARCH_REG_SHIFT))
- #define KVM_IOC_CSRID(REG)		LOONGARCH_REG_64(KVM_REG_LOONGARCH_CSR, REG)
- #define KVM_IOC_CPUCFG(REG)		LOONGARCH_REG_64(KVM_REG_LOONGARCH_CPUCFG, REG)
-+
-+/* Device Control API on vcpu fd */
- #define KVM_LOONGARCH_VCPU_CPUCFG	0
-+#define KVM_LOONGARCH_VCPU_PVTIME_CTRL	1
-+#define  KVM_LOONGARCH_VCPU_PVTIME_GPA	0
- 
- struct kvm_debug_exit_arch {
- };
-diff --git a/arch/loongarch/kvm/exit.c b/arch/loongarch/kvm/exit.c
-index d71172e2568e..c774e5803f7f 100644
---- a/arch/loongarch/kvm/exit.c
-+++ b/arch/loongarch/kvm/exit.c
-@@ -209,7 +209,7 @@ int kvm_emu_idle(struct kvm_vcpu *vcpu)
- static int kvm_emu_cpucfg(struct kvm_vcpu *vcpu, larch_inst inst)
- {
- 	int rd, rj;
--	unsigned int index;
-+	unsigned int index, ret;
- 	unsigned long plv;
- 
- 	rd = inst.reg2_format.rd;
-@@ -240,10 +240,13 @@ static int kvm_emu_cpucfg(struct kvm_vcpu *vcpu, larch_inst inst)
- 			vcpu->arch.gprs[rd] = 0;
- 		break;
- 	case CPUCFG_KVM_FEATURE:
--		if ((plv & CSR_CRMD_PLV) == PLV_KERN)
--			vcpu->arch.gprs[rd] = KVM_FEATURE_PV_IPI;
--		else
--			vcpu->arch.gprs[rd] = 0;
-+		ret = 0;
-+		if ((plv & CSR_CRMD_PLV) == PLV_KERN) {
-+			ret = KVM_FEATURE_PV_IPI;
-+			if (sched_info_on())
-+				ret |= KVM_FEATURE_STEAL_TIME;
-+		}
-+		vcpu->arch.gprs[rd] = ret;
- 		break;
- 	default:
- 		vcpu->arch.gprs[rd] = 0;
-@@ -749,6 +752,25 @@ static int kvm_pv_send_ipi(struct kvm_vcpu *vcpu)
- 	return 0;
- }
- 
-+static int kvm_save_notify(struct kvm_vcpu *vcpu)
-+{
-+	unsigned long id, data;
-+
-+	id   = kvm_read_reg(vcpu, LOONGARCH_GPR_A1);
-+	data = kvm_read_reg(vcpu, LOONGARCH_GPR_A2);
-+	switch (id) {
-+	case KVM_FEATURE_STEAL_TIME:
-+		vcpu->arch.st.guest_addr = data;
-+		vcpu->arch.st.last_steal = current->sched_info.run_delay;
-+		kvm_make_request(KVM_REQ_RECORD_STEAL, vcpu);
-+		break;
-+	default:
-+		break;
-+	};
-+
-+	return 0;
-+};
-+
- /*
-  * hypercall emulation always return to guest, Caller should check retval.
-  */
-@@ -762,6 +784,9 @@ static void kvm_handle_pv_service(struct kvm_vcpu *vcpu)
- 		kvm_pv_send_ipi(vcpu);
- 		ret = KVM_HCALL_STATUS_SUCCESS;
- 		break;
-+	case KVM_HCALL_FUNC_NOTIFY:
-+		ret = kvm_save_notify(vcpu);
-+		break;
- 	default:
- 		ret = KVM_HCALL_INVALID_CODE;
- 		break;
-diff --git a/arch/loongarch/kvm/vcpu.c b/arch/loongarch/kvm/vcpu.c
-index f22d10228cd2..ccfb9c899ec9 100644
---- a/arch/loongarch/kvm/vcpu.c
-+++ b/arch/loongarch/kvm/vcpu.c
-@@ -31,6 +31,113 @@ const struct kvm_stats_header kvm_vcpu_stats_header = {
- 		       sizeof(kvm_vcpu_stats_desc),
- };
- 
-+static void kvm_update_stolen_time(struct kvm_vcpu *vcpu)
-+{
-+	struct kvm_steal_time __user *st;
-+	struct gfn_to_hva_cache *ghc;
-+	struct kvm_memslots *slots;
-+	gpa_t gpa;
-+	u64 steal;
-+	u32 version;
-+
-+	ghc = &vcpu->arch.st.cache;
-+	gpa = vcpu->arch.st.guest_addr;
-+	if (!(gpa & KVM_STEAL_PHYS_VALID))
-+		return;
-+
-+	gpa &= KVM_STEAL_PHYS_MASK;
-+	slots = kvm_memslots(vcpu->kvm);
-+	if (slots->generation != ghc->generation || gpa != ghc->gpa) {
-+		if (kvm_gfn_to_hva_cache_init(vcpu->kvm, ghc, gpa,
-+					sizeof(*st))) {
-+			ghc->gpa = INVALID_GPA;
-+			return;
-+		}
-+	}
-+
-+	st = (struct kvm_steal_time __user *)ghc->hva;
-+	unsafe_get_user(version, &st->version, out);
-+	if (version & 1)
-+		version += 1;
-+	version += 1;
-+	unsafe_put_user(version, &st->version, out);
-+	smp_wmb();
-+
-+	unsafe_get_user(steal, &st->steal, out);
-+	steal += current->sched_info.run_delay -
-+		vcpu->arch.st.last_steal;
-+	vcpu->arch.st.last_steal = current->sched_info.run_delay;
-+	unsafe_put_user(steal, &st->steal, out);
-+
-+	smp_wmb();
-+	version += 1;
-+	unsafe_put_user(version, &st->version, out);
-+out:
-+	mark_page_dirty_in_slot(vcpu->kvm, ghc->memslot, gpa_to_gfn(ghc->gpa));
-+}
-+
-+static bool kvm_pvtime_supported(void)
-+{
-+	return !!sched_info_on();
-+}
-+
-+static int kvm_loongarch_pvtime_set_attr(struct kvm_vcpu *vcpu,
-+					struct kvm_device_attr *attr)
-+{
-+	u64 __user *user = (u64 __user *)attr->addr;
-+	struct kvm *kvm = vcpu->kvm;
-+	u64 gpa;
-+	int ret = 0;
-+	int idx;
-+
-+	if (!kvm_pvtime_supported() ||
-+			attr->attr != KVM_LOONGARCH_VCPU_PVTIME_GPA)
-+		return -ENXIO;
-+
-+	if (get_user(gpa, user))
-+		return -EFAULT;
-+
-+	/* Check the address is in a valid memslot */
-+	idx = srcu_read_lock(&kvm->srcu);
-+	if (kvm_is_error_hva(gfn_to_hva(kvm, gpa >> PAGE_SHIFT)))
-+		ret = -EINVAL;
-+	srcu_read_unlock(&kvm->srcu, idx);
-+
-+	if (!ret)
-+		vcpu->arch.st.guest_addr = gpa;
-+
-+	return ret;
-+}
-+
-+static int kvm_loongarch_pvtime_get_attr(struct kvm_vcpu *vcpu,
-+					struct kvm_device_attr *attr)
-+{
-+	u64 __user *user = (u64 __user *)attr->addr;
-+	u64 gpa;
-+
-+	if (!kvm_pvtime_supported() ||
-+			attr->attr != KVM_LOONGARCH_VCPU_PVTIME_GPA)
-+		return -ENXIO;
-+
-+	gpa = vcpu->arch.st.guest_addr;
-+	if (put_user(gpa, user))
-+		return -EFAULT;
-+
-+	return 0;
-+}
-+
-+static int kvm_loongarch_pvtime_has_attr(struct kvm_vcpu *vcpu,
-+					struct kvm_device_attr *attr)
-+{
-+	switch (attr->attr) {
-+	case KVM_LOONGARCH_VCPU_PVTIME_GPA:
-+		if (kvm_pvtime_supported())
-+			return 0;
-+	}
-+
-+	return -ENXIO;
-+}
-+
- /*
-  * kvm_check_requests - check and handle pending vCPU requests
-  *
-@@ -48,6 +155,9 @@ static int kvm_check_requests(struct kvm_vcpu *vcpu)
- 	if (kvm_dirty_ring_check_request(vcpu))
- 		return RESUME_HOST;
- 
-+	if (kvm_check_request(KVM_REQ_RECORD_STEAL, vcpu))
-+		kvm_update_stolen_time(vcpu);
-+
- 	return RESUME_GUEST;
- }
- 
-@@ -672,6 +782,9 @@ static int kvm_loongarch_vcpu_has_attr(struct kvm_vcpu *vcpu,
- 	case KVM_LOONGARCH_VCPU_CPUCFG:
- 		ret = kvm_loongarch_cpucfg_has_attr(vcpu, attr);
- 		break;
-+	case KVM_LOONGARCH_VCPU_PVTIME_CTRL:
-+		ret = kvm_loongarch_pvtime_has_attr(vcpu, attr);
-+		break;
- 	default:
- 		break;
- 	}
-@@ -704,6 +817,9 @@ static int kvm_loongarch_vcpu_get_attr(struct kvm_vcpu *vcpu,
- 	case KVM_LOONGARCH_VCPU_CPUCFG:
- 		ret = kvm_loongarch_get_cpucfg_attr(vcpu, attr);
- 		break;
-+	case KVM_LOONGARCH_VCPU_PVTIME_CTRL:
-+		ret = kvm_loongarch_pvtime_get_attr(vcpu, attr);
-+		break;
- 	default:
- 		break;
- 	}
-@@ -726,6 +842,9 @@ static int kvm_loongarch_vcpu_set_attr(struct kvm_vcpu *vcpu,
- 	case KVM_LOONGARCH_VCPU_CPUCFG:
- 		ret = kvm_loongarch_cpucfg_set_attr(vcpu, attr);
- 		break;
-+	case KVM_LOONGARCH_VCPU_PVTIME_CTRL:
-+		ret = kvm_loongarch_pvtime_set_attr(vcpu, attr);
-+		break;
- 	default:
- 		break;
- 	}
-@@ -1084,6 +1203,7 @@ static int _kvm_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
- 
- 	/* Control guest page CCA attribute */
- 	change_csr_gcfg(CSR_GCFG_MATC_MASK, CSR_GCFG_MATC_ROOT);
-+	kvm_make_request(KVM_REQ_RECORD_STEAL, vcpu);
- 
- 	/* Don't bother restoring registers multiple times unless necessary */
- 	if (vcpu->arch.aux_inuse & KVM_LARCH_HWCSR_USABLE)
--- 
-2.39.3
+The purpose of this patch set is to add a separate lock for ctrlq rather 
+than reusing the RTNL lock.
+But for dim workers, it not only involves the use of ctrlq, but also 
+involves reading shared variables
+in interfaces such as .set_coalesce, .get_coalesce, etc.
+
+In addition, assuming there are 10 queues, each queue is scheduled with 
+its own dim worker at the
+same time, then these 10 workers may issue parameters to rxq0 10 times 
+in parallel, just because
+the RTNL lock is removed here.
+
+Therefore, when the RTNL lock is removed, a 'for loop' is no longer 
+needed in virtnet_rx_dim_work,
+and the dim worker of each queue only configures its own parameters.
+
+Alternatively, please keep RTNL lock here.
+
+Regards,
+Heng
+
+>   	/* Each rxq's work is queued by "net_dim()->schedule_work()"
+>   	 * in response to NAPI traffic changes. Note that dim->profile_ix
+>   	 * for each rxq is updated prior to the queuing action.
+>   	 * So we only need to traverse and update profiles for all rxqs
+> -	 * in the work which is holding rtnl_lock.
+> +	 * in the work.
+>   	 */
+>   	for (i = 0; i < vi->curr_queue_pairs; i++) {
+>   		rq = &vi->rq[i];
+> @@ -3587,8 +3572,6 @@ static void virtnet_rx_dim_work(struct work_struct *work)
+>   			dim->state = DIM_START_MEASURE;
+>   		}
+>   	}
+> -
+> -	rtnl_unlock();
+>   }
+>   
+>   static int virtnet_coal_params_supported(struct ethtool_coalesce *ec)
+> @@ -4036,7 +4019,7 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
+>   		synchronize_net();
+>   	}
+>   
+> -	err = _virtnet_set_queues(vi, curr_qp + xdp_qp);
+> +	err = virtnet_set_queues(vi, curr_qp + xdp_qp);
+>   	if (err)
+>   		goto err;
+>   	netif_set_real_num_rx_queues(dev, curr_qp + xdp_qp);
+> @@ -4852,7 +4835,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+>   
+>   	virtio_device_ready(vdev);
+>   
+> -	_virtnet_set_queues(vi, vi->curr_queue_pairs);
+> +	virtnet_set_queues(vi, vi->curr_queue_pairs);
+>   
+>   	/* a random MAC address has been assigned, notify the device.
+>   	 * We don't fail probe if VIRTIO_NET_F_CTRL_MAC_ADDR is not there
 
