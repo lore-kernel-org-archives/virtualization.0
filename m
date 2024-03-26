@@ -1,70 +1,76 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E256B1804F;
-	Tue, 26 Mar 2024 00:36:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D65A520B28
+	for <virtualization@lists.linux.dev>; Tue, 26 Mar 2024 01:34:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711413406; cv=none; b=s/wPuTkwcAZC/mztNgv2M9V/PhIGPAcx6w6BAsDWtQQGkl73MEWj569zN8pFjg74lXLCyU6P9lBTOatNDmpg9fgJ1E8UY8o4YBK8xE2/fqWCI5/w29HDPvH4V3FdgZIU2c95Rf7jXvPdtyhwRXvVjl4h5HVvJaR+/WeXjidT1bI=
+	t=1711416843; cv=none; b=tseVpG9nYkafsf3XvnJBNY7ddsgstXopmZ6N1I70epOB6S8EGsrga4ZjfHqYyUOLJTOVzVHbitWSLmH2CwyKrudjwDPYTGDaYowCQ6PTzWUJtPoW7ly5m9+EVBooqJW2pBaL/P5mJMvIsF3Z5FFf3XuGg34KSDTdUsvIGqNOS1A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711413406; c=relaxed/simple;
-	bh=r6ja1S3WkmxWys+sE3KabUy5bKAQKHZGyKXel35g+zY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Dpc+FvOx18fHm1OGndsMDgpoQyDIMSjFGHKmGbshxy45Ao/sgRnwfvIaTWlts0nhnzwQS945Vc2ZXiv3G3xafTrYj66NuWfvwY14zz2rJ0arutkxDAPH3AAKEy1W4IQjXsK0GJeQkcJbU2848eYoUajcE0okRAQwhJFB19z6Pok=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RFOy9Sck; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1711416843; c=relaxed/simple;
+	bh=BixFEykapZwVNVEYPFjYThzYjKiAkONn3vmz/qgv0gc=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=K6SCMfd1tadw8mr7e97Z9CKpcwb9X+yH3pRn1FH8e23/r5IIDEbBsG6nnKy8OiAw5d9gaHckMehflBkd8whH5HOagKQxWd2CKRgCh9uzAyQY0F8ASYEvYWavpGce0U+M8Rl3q2WDLPf9W2yExq52Mr4a+HZAET7OLcWdQVUW9M8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=kFyvbM0K; arc=none smtp.client-ip=115.124.30.110
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RFOy9Sck"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84803C433C7;
-	Tue, 26 Mar 2024 00:36:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1711413405;
-	bh=r6ja1S3WkmxWys+sE3KabUy5bKAQKHZGyKXel35g+zY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=RFOy9SckrUmOjcVY80p+Bpxbe+5dpDJq+JeaQvIywXepTed1YRXnEepoqUkHhDLDv
-	 KZQ8orGHJmcfhxU4yqXzvKwkkh03GuDsm5VknrzWZxwAeC8moegodFxeAFmHcguP3V
-	 MvMXRlBgmBX55pjBPgOUTWQbK7zrjPHUR7Ivk7miBmPv+gpyP5Ja8S02vD6UZnj61n
-	 CqfQ4NXy/CKPT7KniveufUJdSfosIbl7mM5+gISfC65C9eTYs21OyRMfhMeYTy9MAj
-	 ov2d24lOwn4Oj/ZJVUPrXNuEHsLe2pES4uVY1T8XSrKZegQunB7Zn3qmkn816MOaQo
-	 yZPbuVAYSRHAg==
-Date: Tue, 26 Mar 2024 01:36:41 +0100
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, asahi@lists.linux.dev, 
-	chrome-platform@lists.linux.dev, imx@lists.linux.dev, linux-actions@lists.infradead.org, 
-	linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
-	linux-arm-msm@vger.kernel.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org, 
-	linux-mediatek@lists.infradead.org, linux-mips@vger.kernel.org, linux-omap@vger.kernel.org, 
-	linuxppc-dev@lists.ozlabs.org, linux-renesas-soc@vger.kernel.org, 
-	linux-riscv@lists.infradead.org, linux-rockchip@lists.infradead.org, 
-	linux-rpi-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, 
-	linux-stm32@st-md-mailman.stormreply.com, linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org, 
-	openbmc@lists.ozlabs.org, virtualization@lists.linux.dev
-Subject: Re: [PATCH 00/64] i2c: reword i2c_algorithm according to newest
- specification
-Message-ID: <j2l7tu24itjelylrgwe6gdsy3mfrw3dnve4rdofmri3z7xdroc@se56t5ylmdak>
-References: <20240322132619.6389-1-wsa+renesas@sang-engineering.com>
- <ug266trshvhhbsln3eoh53fmsuj3l63ziz6gavcl7rv2jhjr5t@3av5givh5n7m>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="kFyvbM0K"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1711416831; h=Message-ID:Subject:Date:From:To;
+	bh=OtDyvDpEmkA9ncX8H7rdwsGH2Mc+/yUbMhqgfXQ4gjU=;
+	b=kFyvbM0K24u337YJ2zue8x9tjmQWlbXKLT4dqXlxmK19fA2eJRgzTHXZydDmJ11YC/2g+qpyzqr2wzilPSSCVbaXP18pJEBfbu5O6FxbpvCjNGyOTTWThEIP8fotGTMU9Ko1ORGHififzSPOLh3x2AW6oXv2C7IGtIgfYLa1XOg=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R251e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0W3J8F6j_1711416828;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W3J8F6j_1711416828)
+          by smtp.aliyun-inc.com;
+          Tue, 26 Mar 2024 09:33:49 +0800
+Message-ID: <1711416803.443376-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next 0/4] Remove RTNL lock protection of CVQ
+Date: Tue, 26 Mar 2024 09:33:23 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Daniel Jurgens <danielj@nvidia.com>
+Cc: <mst@redhat.com>,
+ <jasowang@redhat.com>,
+ <xuanzhuo@linux.alibaba.com>,
+ <virtualization@lists.linux.dev>,
+ <davem@davemloft.net>,
+ <edumazet@google.com>,
+ <kuba@kernel.org>,
+ <pabeni@redhat.com>,
+ <jiri@nvidia.com>,
+ Daniel Jurgens <danielj@nvidia.com>,
+ <netdev@vger.kernel.org>
+References: <20240325214912.323749-1-danielj@nvidia.com>
+In-Reply-To: <20240325214912.323749-1-danielj@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ug266trshvhhbsln3eoh53fmsuj3l63ziz6gavcl7rv2jhjr5t@3av5givh5n7m>
 
-Hi Wolfram,
+For series:
 
-> > @Andi: are you okay with this approach? It means you'd need to merge
-> > -rc2 into your for-next branch. Or rebase if all fails.
-> 
-> I think it's a good plan, I'll try to support you with it.
+Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
-Do you feel more comfortable if I take the patches as soon as
-they are reviewd?
-
-So far I have tagged patch 1-4 and I can already merge 2,3,4 as
-long as you merge patch 1.
-
-Andi
+On Mon, 25 Mar 2024 16:49:07 -0500, Daniel Jurgens <danielj@nvidia.com> wrote:
+> Currently the buffer used for control VQ commands is protected by the
+> RTNL lock. Previously this wasn't a major concern because the control
+> VQ was only used during device setup and user interaction. With the
+> recent addition of dynamic interrupt moderation the control VQ may be
+> used frequently during normal operation.
+>
+> This series removes the RNTL lock dependancy by introducing a spin lock
+> to protect the control buffer and writing SGs to the control VQ.
+>
+> Daniel Jurgens (4):
+>   virtio_net: Store RSS setting in virtnet_info
+>   virtio_net: Remove command data from control_buf
+>   virtio_net: Add a lock for the command VQ.
+>   virtio_net: Remove rtnl lock protection of command buffers
+>
+>  drivers/net/virtio_net.c | 185 ++++++++++++++++++++++-----------------
+>  1 file changed, 104 insertions(+), 81 deletions(-)
+>
+> --
+> 2.42.0
+>
