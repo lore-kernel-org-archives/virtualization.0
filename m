@@ -1,97 +1,452 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f170.google.com (mail-lj1-f170.google.com [209.85.208.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 884E7481A5;
-	Tue, 26 Mar 2024 11:43:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E9715C61F
+	for <virtualization@lists.linux.dev>; Tue, 26 Mar 2024 13:26:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711453399; cv=none; b=PCgESzqzJ37VAz9H7zxaoA0lQ2VApuvaPlmV+qEW3TvhNQ0gPtUQyBRoogmKc1hsKimlLjHMBAvzJFt2rtKqTmUoTZzhPS7MrdURQjksl1k5XWwt6IbWpuMxa2d+wFjytqdhEJuuTGnEVskFZLjkKMH7zazNTDoDoc8LY+WfWTw=
+	t=1711459583; cv=none; b=nhbvbOe/nAQazyxe7uXexZJh4IFb83l6xAZYGSWPU34rEB4yMq1KjA8hrisELtzVRQ5UOKAp32Ew8fFtQ+qfrjr2TQ8B9NQ9oJRPSSXj6y+/cXWv2rpiKD2Ltml7zM+3sEJzHezgraK0nZaUgvHQoF4zsAcv7FysUuCdafnEoDw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711453399; c=relaxed/simple;
-	bh=+q70O26ZXjPNpVTC31rJuwR6dreQFcSrUybo8JVW1Ak=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OOMRy6rQueepnuGi+drHAeMmr5V1l5q0HWaYU/QWJpOgEGkd+IR8azgIewSRmTANmKR+bp8h4xi4tuRTWUZSDx6YGkjvN8rOs6K+O0MmDCl4jqd41+eNjnVwxa9AjHVq+hnKm11ppxKnSyyBzdidjlVWJ/weoXEOpLTFXq/Ne9o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kwcYUMrK; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1711459583; c=relaxed/simple;
+	bh=7EO04ojzTypjH2v7CJmgZ6/R0sRRFHxIT+rfgbUeHyc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=jbNlOyHsB34J23pyaXvqEz3ThvkCmFdKXruBl9pWq/oYY9ldFx7IG/i5IvgtvYSrvf6OGwYEqypnXI5MK+enU4k0de9yglKyIEUGUKC8+Q3EYl4h439+fxjFyqjJ0IFJVL6D8QsxHqk4WlEaMyUXiNqPI3dzrdFsSxmOEQvXcx4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gooddata.com; spf=pass smtp.mailfrom=gooddata.com; dkim=pass (1024-bit key) header.d=gooddata.com header.i=@gooddata.com header.b=LDCFUVD/; arc=none smtp.client-ip=209.85.208.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gooddata.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gooddata.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kwcYUMrK"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D821FC433C7;
-	Tue, 26 Mar 2024 11:43:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1711453399;
-	bh=+q70O26ZXjPNpVTC31rJuwR6dreQFcSrUybo8JVW1Ak=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=kwcYUMrKQ1S6l+SzMLozCeiunrOAHmJynbh5lU5umulZ7oUNnf1ZJdgjXU7CpPW3s
-	 Sw/RqIbfgvR5yG2Z0dQxoZACtpr5XRwbsRk+R+rAB/cxpTCtp8+YcEO8NI+haJEA7k
-	 UAQwk7rE+uWtcFW3blADUDZQjyx6QcC+jgDycwT1KIjdo38I8lJH2jZJ8CkQ7E6A8e
-	 nF/QAKASrPJ7PsRQqgPl7S6WQeQX3Xc6KeCbqg2eMs9i2TBqbwEk+Su6IOiAP3Vcc9
-	 XLZxH/efw/kVIDuhQJjRrpPE9E506h994NFKll+XBSdKZlmFfFMw6HHpXJeR+mbCt3
-	 vtkR62AwGBwfg==
-Date: Tue, 26 Mar 2024 11:43:13 +0000
-From: Will Deacon <will@kernel.org>
-To: Keir Fraser <keirf@google.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Gavin Shan <gshan@redhat.com>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	jasowang@redhat.com, xuanzhuo@linux.alibaba.com, yihyu@redhat.com,
-	shan.gavin@gmail.com, linux-arm-kernel@lists.infradead.org,
-	Catalin Marinas <catalin.marinas@arm.com>, mochs@nvidia.com
-Subject: Re: [PATCH] virtio_ring: Fix the stale index in available ring
-Message-ID: <20240326114313.GA9482@willie-the-truck>
-References: <20240318165924.GA1824@willie-the-truck>
- <35a6bcef-27cf-4626-a41d-9ec0a338fe28@redhat.com>
- <20240319182251.GB3121@willie-the-truck>
- <9500adaf-0075-4ae9-92db-7e310b6598b0@redhat.com>
- <20240319203540-mutt-send-email-mst@kernel.org>
- <3a6c8b23-af9c-47a7-8c22-8e0a78154bd3@redhat.com>
- <20240320030215-mutt-send-email-mst@kernel.org>
- <1dcec730-ec26-46f4-ba4c-06101fcc599e@redhat.com>
- <20240326033809-mutt-send-email-mst@kernel.org>
- <ZgKXr8IQ51xBECuP@google.com>
+	dkim=pass (1024-bit key) header.d=gooddata.com header.i=@gooddata.com header.b="LDCFUVD/"
+Received: by mail-lj1-f170.google.com with SMTP id 38308e7fff4ca-2d41d1bedc9so103040031fa.3
+        for <virtualization@lists.linux.dev>; Tue, 26 Mar 2024 06:26:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gooddata.com; s=google; t=1711459580; x=1712064380; darn=lists.linux.dev;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=l7j4GbJ5c1I5JqdtHtnFGH7HrfqFzv/PZoksZMgqKsA=;
+        b=LDCFUVD/rRiRCN+qQ0drxGHFuAo5EDNoPbprVRrWa0be9p/ohdl3uR7stBzFDH4Gqm
+         zcY6Hiia2Va8nbHKZObFNNUmjdyJJMGnFkKR8zxjJ2JxLf7AoYGguCo1cSPImhyuHRrl
+         +P547mHg7UmnuXh4c/u9iF5F6oKtPrIP3/zas=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1711459580; x=1712064380;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=l7j4GbJ5c1I5JqdtHtnFGH7HrfqFzv/PZoksZMgqKsA=;
+        b=mQaWVgJnDBCBl6uicC/BWI8m/ig3i4zUvfRLqHoyXcj3NE5xbGvUhkHXg1OSeZcfIX
+         9KfZbGVv9rddR2HsgdJ0dzRn0pDN0e4eoMzgYzM/hya1SPWHXhGnXZzROX7FB98Xa+/I
+         jysE0iihBLFjp7sZXxvWG7jc0vGZurj0Ewt0Z5hsGgX2m3vDXsqsWonzqPBufb/tBL0L
+         5qIxqbvMu5NVJsytAziQonapNywO/1Xuyw8EhLwbSaCil1MeRzr6CjL4biwwZs15m1Mp
+         DpXwfeoMI73ll6fZI/u06pfwM/V/RTTwXdJ8+nP0HBZiGNtf4ycycVVBs11tGwsnFuoh
+         jXRQ==
+X-Forwarded-Encrypted: i=1; AJvYcCX343ejx3BCWjjUYux67VWuHMDVAmUfpwjfLOKDw733ysi2kHRLrL12FKuV2ZziJx493vVba3CARfNcWSZmxFysHTYlM6WyBr0pgbn4jOo=
+X-Gm-Message-State: AOJu0Ywl4srPw6ZMdc4ImXBMuTqyub1yRQkx5gXfipntaCEVYT+qqIT9
+	dzIJpuzpWMEqezqkH6ha3JNMXIfuS1suzkFVHbKUBH4tKBIrFJ4XvxHzwjkLvSqPHC5gmG5dd2A
+	dmRr/bCTyR4pTOTDOVjzTacHHqGaMQMRIAbjI
+X-Google-Smtp-Source: AGHT+IEClS5PJDGT1t7USuKxHctOc6c/LyuI+6zfC2ZHwmK3IB8Y6PTDb4iFTSkchEaAtbNbK1H0teDe/jaIsTGRqok=
+X-Received: by 2002:a2e:9c8f:0:b0:2d5:bfe4:4ebe with SMTP id
+ x15-20020a2e9c8f000000b002d5bfe44ebemr8022092lji.30.1711459579578; Tue, 26
+ Mar 2024 06:26:19 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZgKXr8IQ51xBECuP@google.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <CA+9S74hbTMxckB=HgRiqL6b8ChZMQfJ6-K9y_GQ0ZDiWkev_vA@mail.gmail.com>
+ <20240319131207.GB1096131@fedora> <CA+9S74jMBbgrxaH2Nit50uDQsHES+e+VHnOXkxnq2TrUFtAQRA@mail.gmail.com>
+ <CACGkMEvX2R+wKcH5V45Yd6CkgGhADVbpvfmWsHducN2zCS=OKw@mail.gmail.com>
+ <CA+9S74g5fR=hBxWk1U2TyvW1uPmU3XgJnjw4Owov8LNwLiiOZw@mail.gmail.com>
+ <CACGkMEt4MbyDgdqDGUqQ+0gV-1kmp6CWASDgwMpZnRU8dfPd2Q@mail.gmail.com>
+ <CA+9S74hUt_aZCrgN3Yx9Y2OZtwHNan7gmbBa1TzBafW6=YLULQ@mail.gmail.com>
+ <CA+9S74ia-vUag2QMo6zFL7r+wZyOZVmcpe317RdMbK-rpomn+Q@mail.gmail.com>
+ <CA+9S74hs_1Ft9iyXOPU_vF_EFKuoG8LjDpSna0QSPMFnMywd_g@mail.gmail.com> <CACGkMEvHiAN7X_QBgihWX6zzEUOxhrV2Nqg1arw1sfYy2A5K0g@mail.gmail.com>
+In-Reply-To: <CACGkMEvHiAN7X_QBgihWX6zzEUOxhrV2Nqg1arw1sfYy2A5K0g@mail.gmail.com>
+From: Jaroslav Pulchart <jaroslav.pulchart@gooddata.com>
+Date: Tue, 26 Mar 2024 14:25:53 +0100
+Message-ID: <CAK8fFZ5j_T1NzoOEfqE1HYhAEhD04smR4OT2bnMEAr+2+6C5RQ@mail.gmail.com>
+Subject: Re: REGRESSION: RIP: 0010:skb_release_data+0xb8/0x1e0 in vhost/tun
+To: Jason Wang <jasowang@redhat.com>
+Cc: Igor Raits <igor@gooddata.com>, Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	Stefano Garzarella <sgarzare@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Content-Type: multipart/mixed; boundary="0000000000004a926e0614903c93"
 
-On Tue, Mar 26, 2024 at 09:38:55AM +0000, Keir Fraser wrote:
-> On Tue, Mar 26, 2024 at 03:49:02AM -0400, Michael S. Tsirkin wrote:
-> > > Secondly, the debugging code is enhanced so that the available head for
-> > > (last_avail_idx - 1) is read for twice and recorded. It means the available
-> > > head for one specific available index is read for twice. I do see the
-> > > available heads are different from the consecutive reads. More details
-> > > are shared as below.
-> > > 
-> > > From the guest side
-> > > ===================
-> > > 
-> > > virtio_net virtio0: output.0:id 86 is not a head!
-> > > head to be released: 047 062 112
-> > > 
-> > > avail_idx:
-> > > 000  49665
-> > > 001  49666  <--
-> > >  :
-> > > 015  49664
-> > 
-> > what are these #s 49665 and so on?
-> > and how large is the ring?
-> > I am guessing 49664 is the index ring size is 16 and
-> > 49664 % 16 == 0
-> 
-> More than that, 49664 % 256 == 0
-> 
-> So again there seems to be an error in the vicinity of roll-over of
-> the idx low byte, as I observed in the earlier log. Surely this is
-> more than coincidence?
+--0000000000004a926e0614903c93
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Yeah, I'd still really like to see the disassembly for both sides of the
-protocol here. Gavin, is that something you're able to provide? Worst
-case, the host and guest vmlinux objects would be a starting point.
+>
+> On Mon, Mar 25, 2024 at 4:44=E2=80=AFPM Igor Raits <igor@gooddata.com> wr=
+ote:
+> >
+> > Hello,
+> >
+> > On Fri, Mar 22, 2024 at 12:19=E2=80=AFPM Igor Raits <igor@gooddata.com>=
+ wrote:
+> > >
+> > > Hi Jason,
+> > >
+> > > On Fri, Mar 22, 2024 at 9:39=E2=80=AFAM Igor Raits <igor@gooddata.com=
+> wrote:
+> > > >
+> > > > Hi Jason,
+> > > >
+> > > > On Fri, Mar 22, 2024 at 6:31=E2=80=AFAM Jason Wang <jasowang@redhat=
+.com> wrote:
+> > > > >
+> > > > > On Thu, Mar 21, 2024 at 5:44=E2=80=AFPM Igor Raits <igor@gooddata=
+.com> wrote:
+> > > > > >
+> > > > > > Hello Jason & others,
+> > > > > >
+> > > > > > On Wed, Mar 20, 2024 at 10:33=E2=80=AFAM Jason Wang <jasowang@r=
+edhat.com> wrote:
+> > > > > > >
+> > > > > > > On Tue, Mar 19, 2024 at 9:15=E2=80=AFPM Igor Raits <igor@good=
+data.com> wrote:
+> > > > > > > >
+> > > > > > > > Hello Stefan,
+> > > > > > > >
+> > > > > > > > On Tue, Mar 19, 2024 at 2:12=E2=80=AFPM Stefan Hajnoczi <st=
+efanha@redhat.com> wrote:
+> > > > > > > > >
+> > > > > > > > > On Tue, Mar 19, 2024 at 10:00:08AM +0100, Igor Raits wrot=
+e:
+> > > > > > > > > > Hello,
+> > > > > > > > > >
+> > > > > > > > > > We have started to observe kernel crashes on 6.7.y kern=
+els (atm we
+> > > > > > > > > > have hit the issue 5 times on 6.7.5 and 6.7.10). On 6.6=
+.9 where we
+> > > > > > > > > > have nodes of cluster it looks stable. Please see stack=
+trace below. If
+> > > > > > > > > > you need more information please let me know.
+> > > > > > > > > >
+> > > > > > > > > > We do not have a consistent reproducer but when we put =
+some bigger
+> > > > > > > > > > network load on a VM, the hypervisor's kernel crashes.
+> > > > > > > > > >
+> > > > > > > > > > Help is much appreciated! We are happy to test any patc=
+hes.
+> > > > > > > > >
+> > > > > > > > > CCing Michael Tsirkin and Jason Wang for vhost_net.
+> > > > > > > > >
+> > > > > > > > > >
+> > > > > > > > > > [62254.167584] stack segment: 0000 [#1] PREEMPT SMP NOP=
+TI
+> > > > > > > > > > [62254.173450] CPU: 63 PID: 11939 Comm: vhost-11890 Tai=
+nted: G
+> > > > > > > > > >    E      6.7.10-1.gdc.el9.x86_64 #1
+> > > > > > > > >
+> > > > > > > > > Are there any patches in this kernel?
+> > > > > > > >
+> > > > > > > > Only one, unrelated to this part. Removal of pr_err("EEVDF =
+scheduling
+> > > > > > > > fail, picking leftmost\n"); line (reported somewhere few mo=
+nths ago
+> > > > > > > > and it was suggested workaround until proper solution comes=
+).
+> > > > > > >
+> > > > > > > Btw, a bisection would help as well.
+> > > > > >
+> > > > > > In the end it seems like we don't really have "stable" setup, s=
+o
+> > > > > > bisection looks to be useless but we did find few things meanti=
+me:
+> > > > > >
+> > > > > > 1. On 6.6.9 it crashes either with unexpected GSO type or userc=
+opy:
+> > > > > > Kernel memory exposure attempt detected from SLUB object
+> > > > > > 'skbuff_head_cache'
+> > > > >
+> > > > > Do you have a full calltrace for this?
+> > > >
+> > > > I have shared it in one of the messages in this thread.
+> > > > https://marc.info/?l=3Dlinux-virtualization&m=3D171085443512001&w=
+=3D2
+> > > >
+> > > > > > 2. On 6.7.5, 6.7.10 and 6.8.1 it crashes with RIP:
+> > > > > > 0010:skb_release_data+0xb8/0x1e0
+> > > > >
+> > > > > And for this?
+> > > >
+> > > > https://marc.info/?l=3Dlinux-netdev&m=3D171083870801761&w=3D2
+> > > >
+> > > > > > 3. It does NOT crash on 6.8.1 when VM does not have multi-queue=
+ setup
+> > > > > >
+> > > > > > Looks like the multi-queue setup (we have 2 interfaces =C3=97 3=
+ virtio
+> > > > > > queues for each) is causing problems as if we set only one queu=
+e for
+> > > > > > each interface the issue is gone.
+> > > > > > Maybe there is some race condition in __pfx_vhost_task_fn+0x10/=
+0x10 or
+> > > > > > somewhere around?
+> > > > >
+> > > > > I can't tell now, but it seems not because if we have 3 queue pai=
+rs we
+> > > > > will have 3 vhost threads.
+> > > > >
+> > > > > > We have noticed that there are 3 of such functions
+> > > > > > in the stacktrace that gave us hints about what we could try=E2=
+=80=A6
+> > > > >
+> > > > > Let's try to enable SLUB_DEBUG and KASAN to see if we can get
+> > > > > something interesting.
+> > > >
+> > > > We were able to reproduce it even with 1 vhost queue... And now we
+> > > > have slub_debug + kasan so I hopefully have more useful data for yo=
+u
+> > > > now.
+> > > > I have attached it for better readability.
+> > >
+> > > Looks like we have found a "stable" kernel and that is 6.1.32. The
+> > > 6.3.y is broken and we are testing 6.2.y now.
+> > > My guess it would be related to virtio/vsock: replace virtio_vsock_pk=
+t
+> > > with sk_buff that was done around that time but we are going to test,
+> > > bisect and let you know more.
+> >
+> > So we have been trying to bisect it but it is basically impossible for
+> > us to do so as the ICE driver was quite broken for most of the release
+> > cycle so we have no networking on 99% of the builds and we can't test
+> > such a setup.
+> > More specifically, the bug was introduced between 6.2 and 6.3 but we
+> > could not get much further. The last good commit we were able to test
+> > was f18f9845f2f10d3d1fc63e4ad16ee52d2d9292fa and then after 20 commits
+> > where we had no networking we gave up.
+> >
+> > If you have some suspicious commit(s) we could revert - happy to test.
+>
+> Here is the is for the change since f18f9845f2f10d3d1fc63e4ad16ee52d2d929=
+2fa:
+>
+> cbfbfe3aee71 tun: prevent negative ifindex
+> b2f8323364ab tun: add __exit annotations to module exit func tun_cleanup(=
+)
+> 6231e47b6fad tun: avoid high-order page allocation for packet header
+> 4d016ae42efb Merge git://git.kernel.org/pub/scm/linux/kernel/git/netdev/n=
+et
+> 59eeb2329405 drivers: net: prevent tun_build_skb() to exceed the
+> packet size limit
+> 35b1b1fd9638 Merge git://git.kernel.org/pub/scm/linux/kernel/git/netdev/n=
+et
+> ce7c7fef1473 net: tun: change tun_alloc_skb() to allow bigger paged alloc=
+ations
+> 9bc3047374d5 net: tun_chr_open(): set sk_uid from current_fsuid()
+> 82b2bc279467 tun: Fix memory leak for detached NAPI queue.
+> 6e98b09da931 Merge tag 'net-next-6.4' of
+> git://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next
+> de4f5fed3f23 iov_iter: add iter_iovec() helper
+> 438b406055cd tun: flag the device as supporting FMODE_NOWAIT
+> de4287336794 Daniel Borkmann says:
+> a096ccca6e50 tun: tun_chr_open(): correctly initialize socket uid
+> 66c0e13ad236 drivers: net: turn on XDP features
+>
+> The commit that touches the datapath are:
+>
+> 6231e47b6fad tun: avoid high-order page allocation for packet header
+> 59eeb2329405 drivers: net: prevent tun_build_skb() to exceed the
+> packet size limit
+> ce7c7fef1473 net: tun: change tun_alloc_skb() to allow bigger paged alloc=
+ations
+> 82b2bc279467 tun: Fix memory leak for detached NAPI queue.
+> de4f5fed3f23 iov_iter: add iter_iovec() helper
+>
+> I assume you didn't use NAPI mode, so 82b2bc279467 tun: Fix memory
+> leak for detached NAPI queue doesn't make sense for us.
+>
+> The rest might be the bad commit if it is caused by a change of tun itsel=
+f.
+>
+> btw I vaguely remember KASAN will report who did the allocation and
+> who did the free. But it seems not in your KASAN log.
+>
+> Thanks
+>
+> >
+> > Thanks again.
+> >
+>
 
-Personally, I'd be fairly surprised if this was a hardware issue.
+Hello
 
-Will
+We have one observation. The occurrence of the error depends on the
+ring buffer size of physical network cards. We have two E810 Intel
+cards bonded by two interfaces (em1 + p3p2, ice driver) into single
+bon0. The bond0 is then linux bridged and/or ovs(witched) to VMs via
+tun interfaces (both switch solutions have the same problem). VMs are
+qemu-kvm instances and using vhost/virtio-net.
+
+We see:
+1/ The issue is triggered almost instantaneously when tx/rx ring
+buffer is set to 2048 (our default)
+ethtool -G em1 rx 2048 tx 2048
+ethtool -G p3p1 rx 2048 tx 2048
+
+2/ Similar issue is triggered when the tx/rx ring buffer is set to
+4096: the host does not crash immediately, but some trace is shown
+soon and later it gets into memory pressure and crashes.
+ethtool -G em1 rx 4096 tx 4096
+ethtool -G p3p1 rx 4096 tx 4096
+See attached ring_4096.kasan.txt (vanila 6.8.1 with enabled KASAN) and
+ring_4096.txt (vanila 6.8.1 without kasan)
+
+3/ The system is stable or we just can-not trigger the issue if the
+ring buffer is >=3D 6144.
+ethtool -G em1 rx 7120 tx 7120
+ethtool -G p3p1 rx 7120 tx 7120
+
+could it be influenced by a some rate of dropped packets in the ring buffer=
+?
+
+# for i in em1 p3p1; do ethtool -S ${i} | grep dropped.nic; done
+     rx_dropped.nic: 158225
+     rx_dropped.nic: 74285
+
+Best,
+Jaroslav Pulchart
+
+--0000000000004a926e0614903c93
+Content-Type: text/plain; charset="US-ASCII"; name="ring_4096.kasan.txt"
+Content-Disposition: attachment; filename="ring_4096.kasan.txt"
+Content-Transfer-Encoding: base64
+Content-ID: <f_lu8ellzg1>
+X-Attachment-Id: f_lu8ellzg1
+
+WyAxNzA5Ljg5MzE0N10gPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09ClsgMTcwOS45MDEwODRdIEJVRzogS0FTQU46IHVzZS1h
+ZnRlci1mcmVlIGluIGluZXRfZ3JvX2NvbXBsZXRlKzB4MzUyLzB4M2QwClsgMTcwOS45MDg0Mzdd
+IFJlYWQgb2Ygc2l6ZSAyIGF0IGFkZHIgZmZmZjg4YTAyOTczZTBkMCBieSB0YXNrIHN3YXBwZXIv
+NDkvMApbIDE3MDkuOTE1Njg0XSAKWyAxNzA5LjkxNzcxNF0gQ1BVOiA0OSBQSUQ6IDAgQ29tbTog
+c3dhcHBlci80OSBUYWludGVkOiBHICAgICAgICAgICAgRSAgICAgIDYuOC4xLTEuZ2RjLmVsOS5r
+YXNhbi54ODZfNjQgIzEKWyAxNzA5LjkyNzcyN10gSGFyZHdhcmUgbmFtZTogRGVsbCBJbmMuIFBv
+d2VyRWRnZSBSNzUyNS8wSDNLN1AsIEJJT1MgMi4xNC4xIDEyLzE3LzIwMjMKWyAxNzA5LjkzNjIy
+Nl0gQ2FsbCBUcmFjZToKWyAxNzA5LjkzOTM2NF0gIDxJUlE+ClsgMTcwOS45NDE5MzBdICBkdW1w
+X3N0YWNrX2x2bCsweDMzLzB4NTAKWyAxNzA5Ljk0NjEwM10gIHByaW50X2FkZHJlc3NfZGVzY3Jp
+cHRpb24uY29uc3Rwcm9wLjArMHgyYy8weDNlMApbIDE3MDkuOTUyNjA4XSAgPyBpbmV0X2dyb19j
+b21wbGV0ZSsweDM1Mi8weDNkMApbIDE3MDkuOTU3MzkyXSAgcHJpbnRfcmVwb3J0KzB4YjUvMHgy
+NzAKWyAxNzA5Ljk2MTg1MF0gID8ga2FzYW5fYWRkcl90b19zbGFiKzB4OS8weGEwClsgMTcwOS45
+NjY0OTZdICBrYXNhbl9yZXBvcnQrMHhhYy8weGUwClsgMTcwOS45NzA1MDFdICA/IGluZXRfZ3Jv
+X2NvbXBsZXRlKzB4MzUyLzB4M2QwClsgMTcwOS45NzUzMDBdICBpbmV0X2dyb19jb21wbGV0ZSsw
+eDM1Mi8weDNkMApbIDE3MDkuOTc5OTA5XSAgPyBpY2VfYWxsb2NfcnhfYnVmcysweDQzNS8weDg2
+MCBbaWNlXQpbIDE3MDkuOTg1MzMxXSAgbmFwaV9ncm9fY29tcGxldGUuY29uc3Rwcm9wLjArMHgz
+Y2QvMHg0YzAKWyAxNzA5Ljk5MTA5NF0gIG5hcGlfZ3JvX2ZsdXNoKzB4MWFkLzB4MzcwClsgMTcw
+OS45OTU0NTFdICBuYXBpX2NvbXBsZXRlX2RvbmUrMHg0MzMvMHg3MTAKWyAxNzEwLjAwMDI1OV0g
+ID8gX19wZnhfbmFwaV9jb21wbGV0ZV9kb25lKzB4MTAvMHgxMApbIDE3MTAuMDA1NTA5XSAgaWNl
+X25hcGlfcG9sbCsweDIzZS8weDhiMCBbaWNlXQpbIDE3MTAuMDEwMzkxXSAgPyBfX3BmeF9pY2Vf
+bmFwaV9wb2xsKzB4MTAvMHgxMCBbaWNlXQpbIDE3MTAuMDE1NzkwXSAgPyBfX3BmeF9sb2FkX2Jh
+bGFuY2UrMHgxMC8weDEwClsgMTcxMC4wMjA1ODddICBfX25hcGlfcG9sbCsweGEyLzB4NTAwClsg
+MTcxMC4wMjQ1ODFdICA/IF9yYXdfc3Bpbl90cnlsb2NrKzB4NmUvMHgxMjAKWyAxNzEwLjAyOTI2
+N10gIG5ldF9yeF9hY3Rpb24rMHg0MjEvMHhiODAKWyAxNzEwLjAzMzU1MV0gID8gX19wZnhfbmV0
+X3J4X2FjdGlvbisweDEwLzB4MTAKWyAxNzEwLjAzODMzMV0gID8gX19wZnhfc2NoZWRfY2xvY2tf
+Y3B1KzB4MTAvMHgxMApbIDE3MTAuMDQzMzcyXSAgPyBfcmF3X3NwaW5fbG9jaysweDgxLzB4ZTAK
+WyAxNzEwLjA0NzcxMV0gIF9fZG9fc29mdGlycSsweDE5Yi8weDU5NwpbIDE3MTAuMDUxOTc3XSAg
+X19pcnFfZXhpdF9yY3UrMHgxMjUvMHgxNzAKWyAxNzEwLjA1NjQ1OV0gIGNvbW1vbl9pbnRlcnJ1
+cHQrMHg3ZC8weGEwClsgMTcxMC4wNjA3OTZdICA8L0lSUT4KWyAxNzEwLjA2MzQzMV0gIDxUQVNL
+PgpbIDE3MTAuMDY2MDE2XSAgYXNtX2NvbW1vbl9pbnRlcnJ1cHQrMHgyMi8weDQwClsgMTcxMC4w
+NzEwOThdIFJJUDogMDAxMDpjcHVpZGxlX2VudGVyX3N0YXRlKzB4MTc2LzB4MzAwClsgMTcxMC4w
+NzY2OTRdIENvZGU6IDQ4IDgzIDNjIDAzIDAwIDBmIDg0IDJjIDAxIDAwIDAwIDgzIGU5IDAxIDcz
+IGU0IDQ4IDgzIGM0IDE4IDQ0IDg5IGUwIDViIDVkIDQxIDVjIDQxIDVkIDQxIDVlIDQxIDVmIGMz
+IGNjIGNjIGNjIGNjIGZiIDQ1IDg1IGU0IDwwZj4gODkgNWYgZmYgZmYgZmYgNGIgOGQgNDQgNmQg
+MDAgNDggYzcgNDMgMTggMDAgMDAgMDAgMDAgNDggYzEgZTAKWyAxNzEwLjA5Njg3M10gUlNQOiAw
+MDE4OmZmZmY4ODkwMDIwMTdkOTAgRUZMQUdTOiAwMDAwMDIwMgpbIDE3MTAuMTAyNjU3XSBSQVg6
+IDAwMDAwMDAwMDAwMDAwMDAgUkJYOiBmZmZmODhiMDAzNjIyODAwIFJDWDogMDAwMDAwMDAwMDAw
+MDAxZgpbIDE3MTAuMTEwMzIxXSBSRFg6IDFmZmZmMTEyMDA0Yzg4MjEgUlNJOiAwMDAwMDAwMDAw
+MDAwMDMxIFJESTogZmZmZjg4OTAwMjY0NDEwOApbIDE3MTAuMTE3OTgyXSBSQlA6IGZmZmZmZmZm
+YjBhNzcxNDAgUjA4OiAwMDAwMDE4ZTFkOTI5YWU1IFIwOTogZmZmZmVkMTIwMDRjN2RmNQpbIDE3
+MTAuMTI1NjU4XSBSMTA6IGZmZmY4ODkwMDI2M2VmYWIgUjExOiAwNzFjNzFjNzFjNzFjNzFjIFIx
+MjogMDAwMDAwMDAwMDAwMDAwMQpbIDE3MTAuMTMzMzMyXSBSMTM6IDAwMDAwMDAwMDAwMDAwMDEg
+UjE0OiAwMDAwMDE4ZTFkOTI5YWU1IFIxNTogMDAwMDAwMDAwMDAwMDAwMApbIDE3MTAuMTQwOTUy
+XSAgY3B1aWRsZV9lbnRlcisweDRhLzB4YTAKWyAxNzEwLjE0NTIwOV0gID8gdGlja19ub2h6X2lk
+bGVfc3RvcF90aWNrKzB4MTA4LzB4MjkwClsgMTcxMC4xNTA1NTNdICBjcHVpZGxlX2lkbGVfY2Fs
+bCsweDE3NC8weDFkMApbIDE3MTAuMTU1MzYwXSAgPyBfX3BmeF9jcHVpZGxlX2lkbGVfY2FsbCsw
+eDEwLzB4MTAKWyAxNzEwLjE2MDQzMF0gID8gaXJxdGltZV9hY2NvdW50X3Byb2Nlc3NfdGljaysw
+eDFlMS8weDM0MApbIDE3MTAuMTY2MzYwXSAgZG9faWRsZSsweGUxLzB4MTUwClsgMTcxMC4xNzAx
+MjddICBjcHVfc3RhcnR1cF9lbnRyeSsweDUxLzB4NjAKWyAxNzEwLjE3NDQ4Ml0gIHN0YXJ0X3Nl
+Y29uZGFyeSsweDIwOS8weDI4MApbIDE3MTAuMTc4ODMwXSAgPyBfX3BmeF9zdGFydF9zZWNvbmRh
+cnkrMHgxMC8weDEwClsgMTcxMC4xODM3MzJdICA/IHNvZnRfcmVzdGFydF9jcHUrMHgxNS8weDE1
+ClsgMTcxMC4xODg1MTBdICBzZWNvbmRhcnlfc3RhcnR1cF82NF9ub192ZXJpZnkrMHgxODQvMHgx
+OGIKWyAxNzEwLjE5NDQyNF0gIDwvVEFTSz4KWyAxNzEwLjE5NzA5MF0gClsgMTcxMC4xOTkwOTBd
+IFRoZSBidWdneSBhZGRyZXNzIGJlbG9uZ3MgdG8gdGhlIHBoeXNpY2FsIHBhZ2U6ClsgMTcxMC4y
+MDUxMzldIHBhZ2U6ZmZmZmVhMDA4MGE1Y2Y4MCByZWZjb3VudDowIG1hcGNvdW50OjAgbWFwcGlu
+ZzowMDAwMDAwMDAwMDAwMDAwIGluZGV4OjB4MCBwZm46MHgyMDI5NzNlClsgMTcxMC4yMTUwNTNd
+IGZsYWdzOiAweDU3ZmZmZmMwMDAwMDAwKG5vZGU9MXx6b25lPTJ8bGFzdGNwdXBpZD0weDFmZmZm
+ZikKWyAxNzEwLjIyMjIxOV0gcGFnZV90eXBlOiAweGZmZmZmZmZmKCkKWyAxNzEwLjIyNjE4Ml0g
+cmF3OiAwMDU3ZmZmZmMwMDAwMDAwIGZmZmZlYTAwNDNjOGMxODggZmZmZjg4OTAwMjY0OTY1MCAw
+MDAwMDAwMDAwMDAwMDAwClsgMTcxMC4yMzQ0MjVdIHJhdzogMDAwMDAwMDAwMDAwMDAwMCAwMDAw
+MDAwMDAwMDAwMDAwIDAwMDAwMDAwZmZmZmZmZmYgMDAwMDAwMDAwMDAwMDAwMApbIDE3MTAuMjQy
+Njg3XSBwYWdlIGR1bXBlZCBiZWNhdXNlOiBrYXNhbjogYmFkIGFjY2VzcyBkZXRlY3RlZApbIDE3
+MTAuMjQ4ODAxXSAKWyAxNzEwLjI1MDc0OF0gTWVtb3J5IHN0YXRlIGFyb3VuZCB0aGUgYnVnZ3kg
+YWRkcmVzczoKWyAxNzEwLjI1NjM3OV0gIGZmZmY4OGEwMjk3M2RmODA6IGZjIGZjIGZjIGZjIGZj
+IGZjIGZjIGZjIGZjIGZjIGZjIGZjIGZjIGZjIGZjIGZjClsgMTcxMC4yNjQwNjddICBmZmZmODhh
+MDI5NzNlMDAwOiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBm
+ZgpbIDE3MTAuMjcxNzcxXSA+ZmZmZjg4YTAyOTczZTA4MDogZmYgZmYgZmYgZmYgZmYgZmYgZmYg
+ZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYKWyAxNzEwLjI3OTY3NV0gICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIF4KWyAxNzEwLjI4NTk3OF0gIGZmZmY4
+OGEwMjk3M2UxMDA6IGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZm
+IGZmClsgMTcxMC4yOTM4NzBdICBmZmZmODhhMDI5NzNlMTgwOiBmZiBmZiBmZiBmZiBmZiBmZiBm
+ZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZgpbIDE3MTAuMzAxNTc5XSA9PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KWyAx
+NzEwLjMwOTI4Nl0gRGlzYWJsaW5nIGxvY2sgZGVidWdnaW5nIGR1ZSB0byBrZXJuZWwgdGFpbnQK
+Li4uClsgMjM2Mi4zMzkwOTBdIGdlbmVyYWwgcHJvdGVjdGlvbiBmYXVsdCwgcHJvYmFibHkgZm9y
+IG5vbi1jYW5vbmljYWwgYWRkcmVzcyAweGRmZmZmYzAwMDAwMDg4NWM6IDAwMDAgWyMxXSBQUkVF
+TVBUIFNNUCBLQVNBTiBOT1BUSQpbIDIzNjIuMzQ3ODI4XSAtLS0tLS0tLS0tLS1bIGN1dCBoZXJl
+IF0tLS0tLS0tLS0tLS0KWyAyMzYyLjM1MDQ3NF0gS0FTQU46IHByb2JhYmx5IHVzZXItbWVtb3J5
+LWFjY2VzcyBpbiByYW5nZSBbMHgwMDAwMDAwMDAwMDQ0MmUwLTB4MDAwMDAwMDAwMDA0NDJlN10K
+WyAyMzYyLjM1NTA5Ml0gV0FSTklORzogQ1BVOiAxOSBQSUQ6IDAgYXQga2VybmVsL3NjaGVkL2Nv
+cmUuYzozMzg5IHNldF90YXNrX2NwdSsweDYyZS8weDdjMApbIDIzNjIuMzYzNzg2XSBDUFU6IDIw
+IFBJRDogMCBDb21tOiBzd2FwcGVyLzIwIFRhaW50ZWQ6IEcgICAgQiAgICAgICBFICAgICAgNi44
+LjEtMS5nZGMuZWw5Lmthc2FuLng4Nl82NCAjMQpbIDIzNjIuMzYzODM5XSBLZXJuZWwgcGFuaWMg
+LSBub3Qgc3luY2luZzogc3RhY2stcHJvdGVjdG9yOiBLZXJuZWwgc3RhY2sgaXMgY29ycnVwdGVk
+IGluOiBfX3NjaGVkdWxlKzB4MTRmMC8weDE3NjAKCgo=
+--0000000000004a926e0614903c93
+Content-Type: text/plain; charset="US-ASCII"; name="ring_4096.txt"
+Content-Disposition: attachment; filename="ring_4096.txt"
+Content-Transfer-Encoding: base64
+Content-ID: <f_lu8ellz90>
+X-Attachment-Id: f_lu8ellz90
+
+WyAxNDE1LjQ3ODkwM10gVW5sb2FkZWQgdGFpbnRlZCBtb2R1bGVzOiBmamVzKEUpOjIgcGFkbG9j
+a19hZXMoRSk6MwpbIDE0MTUuNTI5NTI3XSBDUFU6IDMyIFBJRDogMTEwNDQgQ29tbTogdmhvc3Qt
+MTA5OTggVGFpbnRlZDogRyAgICAgICAgICAgIEUgICAgICA2LjguMS0xLmdkYy5lbDkueDg2XzY0
+ICMxClsgMTQxNS41MzkxMjRdIEhhcmR3YXJlIG5hbWU6IERlbGwgSW5jLiBQb3dlckVkZ2UgUjc1
+MjUvMEgzSzdQLCBCSU9TIDIuMTQuMSAxMi8xNy8yMDIzClsgMTQxNS41NDY5OTVdIFJJUDogMDAx
+MDprbWVtX2NhY2hlX2ZyZWUrMHgzMDEvMHgzZDAKWyAxNDE1LjU1MTkyMV0gQ29kZTogZmQgZmYg
+ZmYgODAgM2QgM2EgOWYgZjUgMDEgMDAgMGYgODUgYmYgZmUgZmYgZmYgNDggYzcgYzYgNTAgNGQg
+YTcgOGUgNDggYzcgYzcgNDAgNjkgZmQgOGUgYzYgMDUgMWYgOWYgZjUgMDEgMDEgZTggMWYgNDQg
+ZDMgZmYgPDBmPiAwYiBlOSA5ZSBmZSBmZiBmZiA0OCA4ZCA0MiBmZiBlOSA2MyBmZCBmZiBmZiA0
+YyA4ZCA2OCBmZiBlOSBlMwpbIDE0MTUuNTcxMTAzXSBSU1A6IDAwMTg6ZmZmZmFiMTJkZTU1YmM4
+MCBFRkxBR1M6IDAwMDEwMjgyClsgMTQxNS41NzY1NDhdIFJBWDogMDAwMDAwMDAwMDAwMDAwMCBS
+Qlg6IGZmZmY5MWQyYjRkZDk4MDAgUkNYOiAwMDAwMDAwMDAwMDAwMDAwClsgMTQxNS41ODM5MTRd
+IFJEWDogZmZmZjkxYjI3ZmNhZDgwMCBSU0k6IGZmZmY5MWIyN2ZjYTBhNDAgUkRJOiBmZmZmOTFi
+MjdmY2EwYTQwClsgMTQxNS41OTEyNjhdIFJCUDogZmZmZmFiMTJkZTU1YmNjOCBSMDg6IDAwMDAw
+MDAwMDAwMDAwMDAgUjA5OiAwMDAwMDAwMGZmZmY3ZmZmClsgMTQxNS41OTg2MzFdIFIxMDogZmZm
+ZmFiMTJkZTU1YmIyMCBSMTE6IGZmZmZmZmZmOGZiZTI5NjggUjEyOiBmZmZmOTFkMzM0ZGQ5ODAw
+ClsgMTQxNS42MDYwNzhdIFIxMzogMDAwMDAwMDAwMDAwMDAwMCBSMTQ6IDAwMDAwMDAwMDAwMDAw
+MDEgUjE1OiAwMDAwMDAwMDAwMDA2NGU0ClsgMTQxNS42MTM0NDVdIEZTOiAgMDAwMDdmODE3ZmUz
+MmY4MCgwMDAwKSBHUzpmZmZmOTFiMjdmYzgwMDAwKDAwMDApIGtubEdTOjAwMDAwMDAwMDAwMDAw
+MDAKWyAxNDE1LjYyMTc2N10gQ1M6ICAwMDEwIERTOiAwMDAwIEVTOiAwMDAwIENSMDogMDAwMDAw
+MDA4MDA1MDAzMwpbIDE0MTUuNjI3NzQ3XSBDUjI6IDAwMDAwMGMxYWQ1OWIwMDAgQ1IzOiAwMDAw
+MDE0MDM1ZTIwMDAxIENSNDogMDAwMDAwMDAwMDc3MGVmMApbIDE0MTUuNjM1MTIzXSBQS1JVOiA1
+NTU1NTU1NApbIDE0MTUuNjM4MDY5XSBDYWxsIFRyYWNlOgpbIDE0MTUuNjQwNzU3XSAgPFRBU0s+
+ClsgMTQxNS42NDMwOThdICA/IF9fd2FybisweDgwLzB4MTMwClsgMTQxNS42NDY1NjBdICA/IGtt
+ZW1fY2FjaGVfZnJlZSsweDMwMS8weDNkMApbIDE0MTUuNjUwODk0XSAgPyByZXBvcnRfYnVnKzB4
+MTk1LzB4MWEwClsgMTQxNS42NTQ3OTNdICA/IHByYl9yZWFkX3ZhbGlkKzB4MTcvMHgyMApbIDE0
+MTUuNjU4ODY4XSAgPyBoYW5kbGVfYnVnKzB4M2MvMHg3MApbIDE0MTUuNjYyNTkyXSAgPyBleGNf
+aW52YWxpZF9vcCsweDE0LzB4NzAKWyAxNDE1LjY2NjY2NV0gID8gYXNtX2V4Y19pbnZhbGlkX29w
+KzB4MTYvMHgyMApbIDE0MTUuNjcxMDg5XSAgPyBrbWVtX2NhY2hlX2ZyZWUrMHgzMDEvMHgzZDAK
+WyAxNDE1LjY3NTQxN10gID8gc2tiX3JlbGVhc2VfZGF0YSsweDEwNy8weDFlMApbIDE0MTUuNjc5
+ODQzXSAgdHVuX2RvX3JlYWQrMHg2OC8weDFmMCBbdHVuXQpbIDE0MTUuNjg0MTA1XSAgdHVuX3Jl
+Y3Ztc2crMHg3ZS8weDE2MCBbdHVuXQpbIDE0MTUuNjg4MzUwXSAgaGFuZGxlX3J4KzB4M2FiLzB4
+NzUwIFt2aG9zdF9uZXRdClsgMTQxNS42OTMwMjhdICA/IGluaXRfbnVtYV9iYWxhbmNpbmcrMHhk
+Ny8weDFlMApbIDE0MTUuNjk3NjIzXSAgdmhvc3Rfd29ya2VyKzB4NDIvMHg3MCBbdmhvc3RdClsg
+MTQxNS43MDIwNDJdICB2aG9zdF90YXNrX2ZuKzB4NGIvMHhiMApbIDE0MTUuNzA1ODU2XSAgPyBm
+aW5pc2hfdGFza19zd2l0Y2guaXNyYS4wKzB4OGYvMHgyYTAKWyAxNDE1LjcxMDk2Nl0gID8gX19w
+Znhfdmhvc3RfdGFza19mbisweDEwLzB4MTAKWyAxNDE1LjcxNTQ2MF0gID8gX19wZnhfdmhvc3Rf
+dGFza19mbisweDEwLzB4MTAKWyAxNDE1LjcxOTk1M10gIHJldF9mcm9tX2ZvcmsrMHgyZC8weDUw
+ClsgMTQxNS43MjM3NDBdICA/IF9fcGZ4X3Zob3N0X3Rhc2tfZm4rMHgxMC8weDEwClsgMTQxNS43
+MjgyMTVdICByZXRfZnJvbV9mb3JrX2FzbSsweDFiLzB4MzAKWyAxNDE1LjczMjM0N10gIDwvVEFT
+Sz4KWyAxNDE1LjczNDczMF0gLS0tWyBlbmQgdHJhY2UgMDAwMDAwMDAwMDAwMDAwMCBdLS0tCg==
+--0000000000004a926e0614903c93--
