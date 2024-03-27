@@ -1,149 +1,141 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B4CA15624D;
-	Wed, 27 Mar 2024 13:07:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B052213BAFF
+	for <virtualization@lists.linux-foundation.org>; Wed, 27 Mar 2024 13:27:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711544869; cv=none; b=MF4p7KiqxM+/K+GirUSOMmxnbLJGGMN2s6xzZ3ZInX4JWh6fwP/Gm7dTDsiFGL/nisE65mTDc5Da0SnpP9IP36zlbBWp/UnfURyFajN02K0VnaFWsqhXoMSeIkOA5UHhjQw0jhkPUlcIlCAI8fyg6iLSsEu2GNRV4HOK3Mvqlw4=
+	t=1711546061; cv=none; b=axjY9uhurnG/PAhqmSC9priloBZ9jOwmjSzwFssGpbqmkR97O5fbaSvgGbwgfuyy5d3i3Vja2l5hNoKKTeIHVF601sZm73gGsEhtb1O1BntnGdyX2PoJ9OZfM4iIr/HCUT4krLXJ6tkfWUaGhjPFFcBUNUm9+PiwrgA0TsqSv90=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711544869; c=relaxed/simple;
-	bh=xhKg7hp+u1WND+c2bdO193Y6m+7ScB88u2D06vHhfNs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=hbJ89m19rQEzIp7pcDuci5l0PPLw3HzpRR7zMnHhH5EfgVL0XRR2wJD+lXv+1OzkJcuZGS40xEIUE4qLfpYoGmgSvy3ZRNW3gSfpHrR1nJcMpMFeFRJ53PLLwDd7oSLtaQZU5NawqubxrlFxBOK0lg/M0Q2IWtuI4RbElljCd7A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BXpYjYML; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1711546061; c=relaxed/simple;
+	bh=+fnPEP5LofR/YkwTOOjws1iuVa2ieMZ1vJLvtYNQ7OQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=mNvQLe+h29UdukUb7WjyLkjs5LmjNO9h8q6d3wF7TKBSMW0b6b0r8GUZyeLp3bjVV2aT2PjHW+dTbwvPJycZkLBaVp3XVWNfpD5RM04Lze7ZZ8O5PjXiYLCAgQeP5l7uMCghY5wViE5laRuh433IfuL6NixbRBlV1Sbcv+aLb28=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=p4cYrqgk; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BXpYjYML"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26B54C43390;
-	Wed, 27 Mar 2024 13:07:18 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="p4cYrqgk"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 2A3564058A
+	for <virtualization@lists.linux-foundation.org>; Wed, 27 Mar 2024 13:27:40 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -4.401
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id zwMoQ_ojjhys for <virtualization@lists.linux-foundation.org>;
+ Wed, 27 Mar 2024 13:27:39 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2604:1380:40e1:4800::1; helo=sin.source.kernel.org; envelope-from=mripard@kernel.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org A023740589
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=kernel.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A023740589
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=p4cYrqgk
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id A023740589
+	for <virtualization@lists.linux-foundation.org>; Wed, 27 Mar 2024 13:27:38 +0000 (UTC)
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by sin.source.kernel.org (Postfix) with ESMTP id 632E7CE1DB4;
+	Wed, 27 Mar 2024 13:27:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 527BDC433C7;
+	Wed, 27 Mar 2024 13:27:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1711544869;
-	bh=xhKg7hp+u1WND+c2bdO193Y6m+7ScB88u2D06vHhfNs=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=BXpYjYMLKiW4ENzwSPrRUhs3gmSOQtwVuaObdDRWar2yBx+Tl2cgUxgmysxaqsQ9z
-	 +aoWxkdS2+HLcRmotjg3sBcX/dQynDqIMB4WvEl0mpkoJEU4RWFwCy6imho4/g4boB
-	 K7pkLn2hdMa4NOEH51aueAtp0LYp+fEvlTP5k640s21+jrmooIgSKheQ0y6EI9KtmE
-	 XJRdZBQZ3sCulSmaMj88unM6Cob5mZ7EeCucqTNYMr0Ygy3US2oSUf+CkbJxnQbpGA
-	 YHwYbXwLLtsbQUDyqSd11aWgryWT5yNuwiZG9to/e/YnAdnbwmOXevE61N3Wvyx9AL
-	 6idpc4IfqdUqA==
-Message-ID: <d3d5933a-3f77-4596-8a6e-d4be63935b69@kernel.org>
-Date: Wed, 27 Mar 2024 14:07:15 +0100
+	s=k20201202; t=1711546051;
+	bh=+fnPEP5LofR/YkwTOOjws1iuVa2ieMZ1vJLvtYNQ7OQ=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=p4cYrqgkZ5yR7qOyVmXAK6DNicMANTj9MoO3Ly2aMyd9olFbTRqMM410U7a1HbqBF
+	 BBGyKztQYn+jgZ0gMdHhmWE/CQLavoPNnnA77UiTkS+Jingwh7g5AVE4tP4G4e+WFy
+	 azkgCGC3Mk8wbHHnbmmKObNlVP5pDWzqdhqh+HAXPE8o+1l+Hlu8tswxiaVM1Ul+v3
+	 UZIRARydgHnI7ECFVslwev4AIl3+vH0o85jzBa4zAD8XNfd936b14q//9bEplTNQEs
+	 DOK3S7d/FoKpW3V3bjlb0IdnyLScR5VwaGAJ1kq+XFnDpPAL50yEJQi08FswygCuFA
+	 RH7g1qmxJ7Dxw==
+Date: Wed, 27 Mar 2024 14:27:29 +0100
+From: Maxime Ripard <mripard@kernel.org>
+To: Linux regressions mailing list <regressions@lists.linux.dev>
+Cc: Alex Constantino <dreaming.about.electric.sheep@gmail.com>, 
+	1054514@bugs.debian.org, airlied@redhat.com, carnil@debian.org, daniel@ffwll.ch, 
+	dri-devel@lists.freedesktop.org, kraxel@redhat.com, linux-kernel@vger.kernel.org, 
+	spice-devel@lists.freedesktop.org, timo.lindfors@iki.fi, tzimmermann@suse.de, 
+	virtualization@lists.linux-foundation.org, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Subject: Re: [PATCH 1/1] drm/qxl: fixes qxl_fence_wait
+Message-ID: <20240327-cuddly-smooth-trogon-59c02d@houat>
+References: <fb0fda6a-3750-4e1b-893f-97a3e402b9af@leemhuis.info>
+ <20240308010851.17104-1-dreaming.about.electric.sheep@gmail.com>
+ <20240308010851.17104-2-dreaming.about.electric.sheep@gmail.com>
+ <db4c8e74-5c79-49be-9781-a5d8669eccc1@leemhuis.info>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 17/22] wireless: mac80211_hwsim: drop owner assignment
-To: Kalle Valo <kvalo@kernel.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
- Jens Axboe <axboe@kernel.dk>, Marcel Holtmann <marcel@holtmann.org>,
- Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
- Olivia Mackall <olivia@selenic.com>, Herbert Xu
- <herbert@gondor.apana.org.au>, Amit Shah <amit@kernel.org>,
- Arnd Bergmann <arnd@arndb.de>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Gonglei <arei.gonglei@huawei.com>, "David S. Miller" <davem@davemloft.net>,
- Viresh Kumar <vireshk@kernel.org>, Linus Walleij <linus.walleij@linaro.org>,
- Bartosz Golaszewski <brgl@bgdev.pl>, David Airlie <airlied@redhat.com>,
- Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>,
- Joerg Roedel <joro@8bytes.org>, Alexander Graf <graf@amazon.com>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Eric Van Hensbergen <ericvh@kernel.org>,
- Latchesar Ionkov <lucho@ionkov.net>,
- Dominique Martinet <asmadeus@codewreck.org>,
- Christian Schoenebeck <linux_oss@crudebyte.com>,
- Stefano Garzarella <sgarzare@redhat.com>,
- Dan Williams <dan.j.williams@intel.com>,
- Vishal Verma <vishal.l.verma@intel.com>, Dave Jiang <dave.jiang@intel.com>,
- Ira Weiny <ira.weiny@intel.com>, Pankaj Gupta
- <pankaj.gupta.linux@gmail.com>, Bjorn Andersson <andersson@kernel.org>,
- Mathieu Poirier <mathieu.poirier@linaro.org>,
- "Martin K. Petersen" <martin.petersen@oracle.com>,
- Vivek Goyal <vgoyal@redhat.com>, Miklos Szeredi <miklos@szeredi.hu>,
- Anton Yakovlev <anton.yakovlev@opensynergy.com>,
- Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
- virtualization@lists.linux.dev, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-um@lists.infradead.org,
- linux-block@vger.kernel.org, linux-bluetooth@vger.kernel.org,
- linux-crypto@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-gpio@vger.kernel.org, dri-devel@lists.freedesktop.org,
- iommu@lists.linux.dev, netdev@vger.kernel.org, v9fs@lists.linux.dev,
- kvm@vger.kernel.org, linux-wireless@vger.kernel.org, nvdimm@lists.linux.dev,
- linux-remoteproc@vger.kernel.org, linux-scsi@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, alsa-devel@alsa-project.org,
- linux-sound@vger.kernel.org
-References: <20240327-module-owner-virtio-v1-0-0feffab77d99@linaro.org>
- <20240327-module-owner-virtio-v1-17-0feffab77d99@linaro.org>
- <87plvf7s0x.fsf@kernel.org>
-Content-Language: en-US
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Autocrypt: addr=krzk@kernel.org; keydata=
- xsFNBFVDQq4BEAC6KeLOfFsAvFMBsrCrJ2bCalhPv5+KQF2PS2+iwZI8BpRZoV+Bd5kWvN79
- cFgcqTTuNHjAvxtUG8pQgGTHAObYs6xeYJtjUH0ZX6ndJ33FJYf5V3yXqqjcZ30FgHzJCFUu
- JMp7PSyMPzpUXfU12yfcRYVEMQrmplNZssmYhiTeVicuOOypWugZKVLGNm0IweVCaZ/DJDIH
- gNbpvVwjcKYrx85m9cBVEBUGaQP6AT7qlVCkrf50v8bofSIyVa2xmubbAwwFA1oxoOusjPIE
- J3iadrwpFvsZjF5uHAKS+7wHLoW9hVzOnLbX6ajk5Hf8Pb1m+VH/E8bPBNNYKkfTtypTDUCj
- NYcd27tjnXfG+SDs/EXNUAIRefCyvaRG7oRYF3Ec+2RgQDRnmmjCjoQNbFrJvJkFHlPeHaeS
- BosGY+XWKydnmsfY7SSnjAzLUGAFhLd/XDVpb1Een2XucPpKvt9ORF+48gy12FA5GduRLhQU
- vK4tU7ojoem/G23PcowM1CwPurC8sAVsQb9KmwTGh7rVz3ks3w/zfGBy3+WmLg++C2Wct6nM
- Pd8/6CBVjEWqD06/RjI2AnjIq5fSEH/BIfXXfC68nMp9BZoy3So4ZsbOlBmtAPvMYX6U8VwD
- TNeBxJu5Ex0Izf1NV9CzC3nNaFUYOY8KfN01X5SExAoVTr09ewARAQABzSVLcnp5c3p0b2Yg
- S296bG93c2tpIDxrcnprQGtlcm5lbC5vcmc+wsGVBBMBCgA/AhsDBgsJCAcDAgYVCAIJCgsE
- FgIDAQIeAQIXgBYhBJvQfg4MUfjVlne3VBuTQ307QWKbBQJgPO8PBQkUX63hAAoJEBuTQ307
- QWKbBn8P+QFxwl7pDsAKR1InemMAmuykCHl+XgC0LDqrsWhAH5TYeTVXGSyDsuZjHvj+FRP+
- gZaEIYSw2Yf0e91U9HXo3RYhEwSmxUQ4Fjhc9qAwGKVPQf6YuQ5yy6pzI8brcKmHHOGrB3tP
- /MODPt81M1zpograAC2WTDzkICfHKj8LpXp45PylD99J9q0Y+gb04CG5/wXs+1hJy/dz0tYy
- iua4nCuSRbxnSHKBS5vvjosWWjWQXsRKd+zzXp6kfRHHpzJkhRwF6ArXi4XnQ+REnoTfM5Fk
- VmVmSQ3yFKKePEzoIriT1b2sXO0g5QXOAvFqB65LZjXG9jGJoVG6ZJrUV1MVK8vamKoVbUEe
- 0NlLl/tX96HLowHHoKhxEsbFzGzKiFLh7hyboTpy2whdonkDxpnv/H8wE9M3VW/fPgnL2nPe
- xaBLqyHxy9hA9JrZvxg3IQ61x7rtBWBUQPmEaK0azW+l3ysiNpBhISkZrsW3ZUdknWu87nh6
- eTB7mR7xBcVxnomxWwJI4B0wuMwCPdgbV6YDUKCuSgRMUEiVry10xd9KLypR9Vfyn1AhROrq
- AubRPVeJBf9zR5UW1trJNfwVt3XmbHX50HCcHdEdCKiT9O+FiEcahIaWh9lihvO0ci0TtVGZ
- MCEtaCE80Q3Ma9RdHYB3uVF930jwquplFLNF+IBCn5JRzsFNBFVDXDQBEADNkrQYSREUL4D3
- Gws46JEoZ9HEQOKtkrwjrzlw/tCmqVzERRPvz2Xg8n7+HRCrgqnodIYoUh5WsU84N03KlLue
- MNsWLJBvBaubYN4JuJIdRr4dS4oyF1/fQAQPHh8Thpiz0SAZFx6iWKB7Qrz3OrGCjTPcW6ei
- OMheesVS5hxietSmlin+SilmIAPZHx7n242u6kdHOh+/SyLImKn/dh9RzatVpUKbv34eP1wA
- GldWsRxbf3WP9pFNObSzI/Bo3kA89Xx2rO2roC+Gq4LeHvo7ptzcLcrqaHUAcZ3CgFG88CnA
- 6z6lBZn0WyewEcPOPdcUB2Q7D/NiUY+HDiV99rAYPJztjeTrBSTnHeSBPb+qn5ZZGQwIdUW9
- YegxWKvXXHTwB5eMzo/RB6vffwqcnHDoe0q7VgzRRZJwpi6aMIXLfeWZ5Wrwaw2zldFuO4Dt
- 91pFzBSOIpeMtfgb/Pfe/a1WJ/GgaIRIBE+NUqckM+3zJHGmVPqJP/h2Iwv6nw8U+7Yyl6gU
- BLHFTg2hYnLFJI4Xjg+AX1hHFVKmvl3VBHIsBv0oDcsQWXqY+NaFahT0lRPjYtrTa1v3tem/
- JoFzZ4B0p27K+qQCF2R96hVvuEyjzBmdq2esyE6zIqftdo4MOJho8uctOiWbwNNq2U9pPWmu
- 4vXVFBYIGmpyNPYzRm0QPwARAQABwsF8BBgBCgAmAhsMFiEEm9B+DgxR+NWWd7dUG5NDfTtB
- YpsFAmA872oFCRRflLYACgkQG5NDfTtBYpvScw/9GrqBrVLuJoJ52qBBKUBDo4E+5fU1bjt0
- Gv0nh/hNJuecuRY6aemU6HOPNc2t8QHMSvwbSF+Vp9ZkOvrM36yUOufctoqON+wXrliEY0J4
- ksR89ZILRRAold9Mh0YDqEJc1HmuxYLJ7lnbLYH1oui8bLbMBM8S2Uo9RKqV2GROLi44enVt
- vdrDvo+CxKj2K+d4cleCNiz5qbTxPUW/cgkwG0lJc4I4sso7l4XMDKn95c7JtNsuzqKvhEVS
- oic5by3fbUnuI0cemeizF4QdtX2uQxrP7RwHFBd+YUia7zCcz0//rv6FZmAxWZGy5arNl6Vm
- lQqNo7/Poh8WWfRS+xegBxc6hBXahpyUKphAKYkah+m+I0QToCfnGKnPqyYIMDEHCS/RfqA5
- t8F+O56+oyLBAeWX7XcmyM6TGeVfb+OZVMJnZzK0s2VYAuI0Rl87FBFYgULdgqKV7R7WHzwD
- uZwJCLykjad45hsWcOGk3OcaAGQS6NDlfhM6O9aYNwGL6tGt/6BkRikNOs7VDEa4/HlbaSJo
- 7FgndGw1kWmkeL6oQh7wBvYll2buKod4qYntmNKEicoHGU+x91Gcan8mCoqhJkbqrL7+nXG2
- 5Q/GS5M9RFWS+nYyJh+c3OcfKqVcZQNANItt7+ULzdNJuhvTRRdC3g9hmCEuNSr+CLMdnRBY fv0=
-In-Reply-To: <87plvf7s0x.fsf@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha384;
+	protocol="application/pgp-signature"; boundary="odhn7ryspel32gtq"
+Content-Disposition: inline
+In-Reply-To: <db4c8e74-5c79-49be-9781-a5d8669eccc1@leemhuis.info>
 
-On 27/03/2024 13:55, Kalle Valo wrote:
-> Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org> writes:
-> 
->> virtio core already sets the .owner, so driver does not need to.
->>
->> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-> 
-> We use "wifi:" in the title, not "wireless:". It would be nice if you
-> can fix this during commit.
 
-Sure.
+--odhn7ryspel32gtq
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Best regards,
-Krzysztof
+Hi,
 
+On Wed, Mar 20, 2024 at 04:25:48PM +0100, Linux regression tracking (Thorst=
+en Leemhuis) wrote:
+> On 08.03.24 02:08, Alex Constantino wrote:
+> > Fix OOM scenario by doing multiple notifications to the OOM handler thr=
+ough
+> > a busy wait logic.
+> > Changes from commit 5a838e5d5825 ("drm/qxl: simplify qxl_fence_wait") w=
+ould
+> > result in a '[TTM] Buffer eviction failed' exception whenever it reache=
+d a
+> > timeout.
+> >=20
+> > Fixes: 5a838e5d5825 ("drm/qxl: simplify qxl_fence_wait")
+> > Link: https://lore.kernel.org/regressions/fb0fda6a-3750-4e1b-893f-97a3e=
+402b9af@leemhuis.info
+> > Reported-by: Timo Lindfors <timo.lindfors@iki.fi>
+> > Closes: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=3D1054514
+> > Signed-off-by: Alex Constantino <dreaming.about.electric.sheep@gmail.co=
+m>
+> > ---
+> >  drivers/gpu/drm/qxl/qxl_release.c | 20 ++++++++++++++------
+> >  1 file changed, 14 insertions(+), 6 deletions(-)
+>=20
+> Hey Dave and Gerd as well as Thomas, Maarten and Maxime (the latter two
+> I just added to the CC), it seems to me this regression fix did not
+> maybe any progress since it was posted. Did I miss something, is it just
+> "we are busy with the merge window", or is there some other a reason?
+> Just wondering, I just saw someone on a Fedora IRC channel complaining
+> about the regression, that's why I'm asking. Would be really good to
+> finally get this resolved...
+
+I've ping'd Gerd last week about it, but he couldn't remember the
+details of why that patch was warranted in the first place.
+
+If it works, I'd prefer to revert the original patch that we know used
+to work instead of coming up with some less proven logic, which seems to
+be quite different to what it used to be.
+
+Alex, could you try reverting 5a838e5d5825c85556011478abde708251cc0776
+and letting us know the result?
+
+Thanks!
+Maxime
+
+--odhn7ryspel32gtq
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iJUEABMJAB0WIQTkHFbLp4ejekA/qfgnX84Zoj2+dgUCZgQeuAAKCRAnX84Zoj2+
+dtzBAX9D2qc3cRTI5gt0TJbZn+B1KZluieFl8m0F3A4+AMDS3Evkhqnpw13peeHP
+19X3+xUBgN+7f0zhgWoJGzvnglkgra50VOoD9JZHUkmxpgZHXMavpspIDYDdwpKe
+xEgQ8lSVDQ==
+=4Ivy
+-----END PGP SIGNATURE-----
+
+--odhn7ryspel32gtq--
