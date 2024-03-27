@@ -1,134 +1,262 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.11])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C333B12DD97;
-	Wed, 27 Mar 2024 15:52:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDBFC142E9E
+	for <virtualization@lists.linux.dev>; Wed, 27 Mar 2024 17:26:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711554763; cv=none; b=es30UiAs5kVqrN9pCy/7d+uA4uUTTt59+vTsOPKUChWglAYDrAFUj9D3BY8Hwh6f6rsBAu8YTQEemy2lyUuWJs2aZCMT8EtkV/1pX1RquEYCH5mze3kXXeCafeDcpUR+LwL+/zaz8wDqxVPBkd6ZlJEh4pP0xdF1RaMaYghLkzg=
+	t=1711560397; cv=none; b=Vwkcw7TEXWreX+TeeRpDN8izIEkM3bn9F7/uYWeObDnkQTy1rJ6aQyCY+RG4zoe1BChj6HMH8Sv/0R9TBhqqyAyxfXOhHGbxzgngVFmIVwaQ3wYrBMhAEUwjWnHjs3+yPmfUhwE/N8uQdy6zFOfoWDptL0WjATgcQmgWTa0nyG8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711554763; c=relaxed/simple;
-	bh=qW/fd5BsHMv42OERGvBEWgfMs2nJ8WYa2Q4ev1Mj2bE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=tSM5gF62V7CSYQRYuXDGgTTvwBEEWG7z9dfRN6FkcaNE+1YtVExnwjObJ+poR6ZryFUTyMnY4xnEhHR+v9rbmm0CBUNDdNnkH4OiPMHXca1v7VuvuHzskFIalyF2MCoYgx8Wn8tF4I5KA3fGnggFwji9xWU/n8IulrSEv8U9oK0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=GM6fiX/K; arc=none smtp.client-ip=192.198.163.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1711560397; c=relaxed/simple;
+	bh=KO68VCsBjC7YXYAlyG5RlT0YZwWtlqL82EO6khY7yOQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=nVSy6CX/0E7o7f1VxmqqCpk4bK02w9I0sSEOAwIIw8OJbHjobPraIxk2dpxDgThQYGDJVECznzTReXF4Z7tmdliuldARAiogJmBgG4aAJkPk2htZg/FMMPIxw0D0V0If5XjnBHIvEpG0ePvqTeDHlt1Ye648jiI1GHvNdgL2JI0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JKQcH3Li; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="GM6fiX/K"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1711554762; x=1743090762;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=qW/fd5BsHMv42OERGvBEWgfMs2nJ8WYa2Q4ev1Mj2bE=;
-  b=GM6fiX/KWb2SvgMdZ06xGUflF/tlwS7KtbZr6bBL1KJnJPA5KZgxl5ym
-   4Lq9Ga9Rxhox/VQfjRLd24Mpyr+vEbwnvBoMSPR1T84fGYLv+XvZSdnks
-   /m3yt31ccAgLylJBkXlfh2A07QrqsfBXyrvhPpLE0SPxS7jbRh0bKDqHJ
-   XqNoO8BJGCrg8vaX+yc1kw4rMB6u28ej+8gsb0ptbZ9ZmOErYKQ2vC97V
-   h+NMmo5CQ2DGM8rNMxvWWCKNTRo4UL5HaRAFY1P9y6h/Z4hOZxMcGZbiR
-   ax2nhnuGsp3bLKHoKQy4d+wjNGvOGIu5svNAxNZJoyCDeVd6th/g3oLYx
-   w==;
-X-CSE-ConnectionGUID: f017ChnrQFacU5xobsLPWw==
-X-CSE-MsgGUID: mHUDgny8TTepoTSsPFQmhw==
-X-IronPort-AV: E=McAfee;i="6600,9927,11026"; a="17302195"
-X-IronPort-AV: E=Sophos;i="6.07,159,1708416000"; 
-   d="scan'208";a="17302195"
-Received: from fmviesa005.fm.intel.com ([10.60.135.145])
-  by fmvoesa105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Mar 2024 08:52:40 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.07,159,1708416000"; 
-   d="scan'208";a="20816491"
-Received: from djiang5-mobl3.amr.corp.intel.com (HELO [10.212.56.222]) ([10.212.56.222])
-  by fmviesa005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Mar 2024 08:52:37 -0700
-Message-ID: <2757205c-8a58-4619-bed1-d511812d5a18@intel.com>
-Date: Wed, 27 Mar 2024 08:52:35 -0700
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JKQcH3Li"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1711560394;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+	bh=/EOUB4d8qVh5umKC4okNLh+AeZuN4LrBRasgfUriSZs=;
+	b=JKQcH3Li4Usdw0S0YcsOMz4HNs0HDMgb3b1nSA7080PdF6qkGJ7h4bFbsLE2rRVGzhx7qj
+	XrNhyus8sFRkK8kJ244R10UVx+hBzUhPHKpLGrI2xC+dXWDmld+zDNgp0/DBPCrlBIWSVC
+	3wWNxasLTy3dmYTOVucrluq71fP64Ic=
+Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
+ [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-390-Ep9ksPcVMkesg8JEKGvEdA-1; Wed, 27 Mar 2024 13:26:32 -0400
+X-MC-Unique: Ep9ksPcVMkesg8JEKGvEdA-1
+Received: by mail-lf1-f70.google.com with SMTP id 2adb3069b0e04-513db3a5f7cso716116e87.0
+        for <virtualization@lists.linux.dev>; Wed, 27 Mar 2024 10:26:31 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1711560391; x=1712165191;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=/EOUB4d8qVh5umKC4okNLh+AeZuN4LrBRasgfUriSZs=;
+        b=UN3THa111hS5un2CZEI0E1UR0q0Yn23eDszkhXJ2gGIlg7z4Sq8WifmYo1n3O+ZORD
+         exyDo4wqkFJe1iGeiMjqwOBGHQ2viqo9F4ZdBNucC63GxSIFwq7C80CyTUdu5/+MrCSQ
+         VWyp3Y75QhA8xBRm/oBv8Te61Xczs2ePBbhh3H11TwL4dT/WLkrMjlS3lzgeQPI0byhV
+         baSX7CMX3LezyiTRxW527QptOzddxK5vSQhJ86CaGmx4wwmBnZnYdsgbR9LrrpQ24ucb
+         +dEGuJmC2bCGVBlDIY9V0a3Jr8F1LEE6KlHXFVpJ5wuI2G/hiDZnT1P91wOQzvTGa5r5
+         8dbw==
+X-Forwarded-Encrypted: i=1; AJvYcCUDfbyAd/dr1IBmJ8YlVpiVkCEkDQgpMr568+p3JY46L40+Lonqm9GL/WsnpWIpxM8g8JbIaUOG0cfXThZZa0OsAa1Khju/YHoUgtPrl10=
+X-Gm-Message-State: AOJu0YxhRiuTll48hrKUC0shzpPryRFDXiNbX6RYD2pnrEjQcomt1v3s
+	AWiGSf9RqlFmBT9DRJYhCWEHRPAmRtJ1pk4AZg7mPC5TGaMm6o/PcQ74dB7d3HCUJvjjC/YBxwN
+	B+uI8CcTZRN3jVF64Gxy5kZzYGME1LszY0DOcapR0J9DnU/yLYmbZDGS+vm0gWr/M
+X-Received: by 2002:a19:ca4b:0:b0:513:e69a:a1ff with SMTP id h11-20020a19ca4b000000b00513e69aa1ffmr72099lfj.33.1711560390553;
+        Wed, 27 Mar 2024 10:26:30 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFsrrH9Se2ailCE8t/vJCFLbo93g75ddmuCiDF++8BsJ7zx/RU+W9ujlWe6Cep9MzUutd5uVA==
+X-Received: by 2002:a19:ca4b:0:b0:513:e69a:a1ff with SMTP id h11-20020a19ca4b000000b00513e69aa1ffmr72081lfj.33.1711560389862;
+        Wed, 27 Mar 2024 10:26:29 -0700 (PDT)
+Received: from redhat.com ([2.52.20.36])
+        by smtp.gmail.com with ESMTPSA id e5-20020a196905000000b00515904f7ba3sm1947672lfc.198.2024.03.27.10.26.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 27 Mar 2024 10:26:29 -0700 (PDT)
+Date: Wed, 27 Mar 2024 13:26:23 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org, Gavin Shan <gshan@redhat.com>,
+	Will Deacon <will@kernel.org>, Jason Wang <jasowang@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org
+Subject: [PATCH untested] vhost: order avail ring reads after index updates
+Message-ID: <f7be6f4ed4bc5405e9a6b848e5ac3dd1f9955c2a.1711560268.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 18/22] nvdimm: virtio_pmem: drop owner assignment
-Content-Language: en-US
-To: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
- Jens Axboe <axboe@kernel.dk>, Marcel Holtmann <marcel@holtmann.org>,
- Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
- Olivia Mackall <olivia@selenic.com>, Herbert Xu
- <herbert@gondor.apana.org.au>, Amit Shah <amit@kernel.org>,
- Arnd Bergmann <arnd@arndb.de>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Gonglei <arei.gonglei@huawei.com>, "David S. Miller" <davem@davemloft.net>,
- Viresh Kumar <vireshk@kernel.org>, Linus Walleij <linus.walleij@linaro.org>,
- Bartosz Golaszewski <brgl@bgdev.pl>, David Airlie <airlied@redhat.com>,
- Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>,
- Joerg Roedel <joro@8bytes.org>, Alexander Graf <graf@amazon.com>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Eric Van Hensbergen <ericvh@kernel.org>,
- Latchesar Ionkov <lucho@ionkov.net>,
- Dominique Martinet <asmadeus@codewreck.org>,
- Christian Schoenebeck <linux_oss@crudebyte.com>,
- Stefano Garzarella <sgarzare@redhat.com>, Kalle Valo <kvalo@kernel.org>,
- Dan Williams <dan.j.williams@intel.com>,
- Vishal Verma <vishal.l.verma@intel.com>, Ira Weiny <ira.weiny@intel.com>,
- Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
- Bjorn Andersson <andersson@kernel.org>,
- Mathieu Poirier <mathieu.poirier@linaro.org>,
- "Martin K. Petersen" <martin.petersen@oracle.com>,
- Vivek Goyal <vgoyal@redhat.com>, Miklos Szeredi <miklos@szeredi.hu>,
- Anton Yakovlev <anton.yakovlev@opensynergy.com>,
- Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>
-Cc: virtualization@lists.linux.dev, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-um@lists.infradead.org,
- linux-block@vger.kernel.org, linux-bluetooth@vger.kernel.org,
- linux-crypto@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-gpio@vger.kernel.org, dri-devel@lists.freedesktop.org,
- iommu@lists.linux.dev, netdev@vger.kernel.org, v9fs@lists.linux.dev,
- kvm@vger.kernel.org, linux-wireless@vger.kernel.org, nvdimm@lists.linux.dev,
- linux-remoteproc@vger.kernel.org, linux-scsi@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, alsa-devel@alsa-project.org,
- linux-sound@vger.kernel.org
-References: <20240327-module-owner-virtio-v1-0-0feffab77d99@linaro.org>
- <20240327-module-owner-virtio-v1-18-0feffab77d99@linaro.org>
-From: Dave Jiang <dave.jiang@intel.com>
-In-Reply-To: <20240327-module-owner-virtio-v1-18-0feffab77d99@linaro.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
+X-Mutt-Fcc: =sent
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+vhost_get_vq_desc (correctly) uses smp_rmb to order
+avail ring reads after index reads.
+However, over time we added two more places that read the
+index and do not bother with barriers.
+Since vhost_get_vq_desc when it was written assumed it is the
+only reader when it sees a new index value is cached
+it does not bother with a barrier either, as a result,
+on the nvidia-gracehopper platform (arm64) available ring
+entry reads have been observed bypassing ring reads, causing
+a ring corruption.
+
+To fix, factor out the correct index access code from vhost_get_vq_desc.
+As a side benefit, we also validate the index on all paths now, which
+will hopefully help catch future errors earlier.
+
+Note: current code is inconsistent in how it handles errors:
+some places treat it as an empty ring, others - non empty.
+This patch does not attempt to change the existing behaviour.
+
+Cc: stable@vger.kernel.org
+Reported-by: Gavin Shan <gshan@redhat.com>
+Reported-by: Will Deacon <will@kernel.org>
+Suggested-by: Will Deacon <will@kernel.org>
+Fixes: 275bf960ac69 ("vhost: better detection of available buffers")
+Cc: "Jason Wang" <jasowang@redhat.com>
+Fixes: d3bb267bbdcb ("vhost: cache avail index in vhost_enable_notify()")
+Cc: "Stefano Garzarella" <sgarzare@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+
+I think it's better to bite the bullet and clean up the code.
+Note: this is still only built, not tested.
+Gavin could you help test please?
+Especially on the arm platform you have?
+
+Will thanks so much for finding this race!
 
 
+ drivers/vhost/vhost.c | 80 +++++++++++++++++++++++--------------------
+ 1 file changed, 42 insertions(+), 38 deletions(-)
 
-On 3/27/24 5:41 AM, Krzysztof Kozlowski wrote:
-> virtio core already sets the .owner, so driver does not need to.
-> 
-> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 045f666b4f12..26b70b1fd9ff 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -1290,10 +1290,38 @@ static void vhost_dev_unlock_vqs(struct vhost_dev *d)
+ 		mutex_unlock(&d->vqs[i]->mutex);
+ }
+ 
+-static inline int vhost_get_avail_idx(struct vhost_virtqueue *vq,
+-				      __virtio16 *idx)
++static inline int vhost_get_avail_idx(struct vhost_virtqueue *vq)
+ {
+-	return vhost_get_avail(vq, *idx, &vq->avail->idx);
++	__virtio16 idx;
++	u16 avail_idx;
++	int r = vhost_get_avail(vq, idx, &vq->avail->idx);
++
++	if (unlikely(r < 0)) {
++		vq_err(vq, "Failed to access avail idx at %p: %d\n",
++		       &vq->avail->idx, r);
++		return -EFAULT;
++	}
++
++	avail_idx = vhost16_to_cpu(vq, idx);
++
++	/* Check it isn't doing very strange things with descriptor numbers. */
++	if (unlikely((u16)(avail_idx - vq->last_avail_idx) > vq->num)) {
++		vq_err(vq, "Guest moved used index from %u to %u",
++		       vq->last_avail_idx, vq->avail_idx);
++		return -EFAULT;
++	}
++
++	/* Nothing new? We are done. */
++	if (avail_idx == vq->avail_idx)
++		return 0;
++
++	vq->avail_idx = avail_idx;
++
++	/* We updated vq->avail_idx so we need a memory barrier between
++	 * the index read above and the caller reading avail ring entries.
++	 */
++	smp_rmb();
++	return 1;
+ }
+ 
+ static inline int vhost_get_avail_head(struct vhost_virtqueue *vq,
+@@ -2498,38 +2526,21 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+ {
+ 	struct vring_desc desc;
+ 	unsigned int i, head, found = 0;
+-	u16 last_avail_idx;
+-	__virtio16 avail_idx;
++	u16 last_avail_idx = vq->last_avail_idx;
+ 	__virtio16 ring_head;
+ 	int ret, access;
+ 
+-	/* Check it isn't doing very strange things with descriptor numbers. */
+-	last_avail_idx = vq->last_avail_idx;
+ 
+ 	if (vq->avail_idx == vq->last_avail_idx) {
+-		if (unlikely(vhost_get_avail_idx(vq, &avail_idx))) {
+-			vq_err(vq, "Failed to access avail idx at %p\n",
+-				&vq->avail->idx);
+-			return -EFAULT;
+-		}
+-		vq->avail_idx = vhost16_to_cpu(vq, avail_idx);
+-
+-		if (unlikely((u16)(vq->avail_idx - last_avail_idx) > vq->num)) {
+-			vq_err(vq, "Guest moved used index from %u to %u",
+-				last_avail_idx, vq->avail_idx);
+-			return -EFAULT;
+-		}
++		ret = vhost_get_avail_idx(vq);
++		if (unlikely(ret < 0))
++			return ret;
+ 
+ 		/* If there's nothing new since last we looked, return
+ 		 * invalid.
+ 		 */
+-		if (vq->avail_idx == last_avail_idx)
++		if (!ret)
+ 			return vq->num;
+-
+-		/* Only get avail ring entries after they have been
+-		 * exposed by guest.
+-		 */
+-		smp_rmb();
+ 	}
+ 
+ 	/* Grab the next descriptor number they're advertising, and increment
+@@ -2790,25 +2801,21 @@ EXPORT_SYMBOL_GPL(vhost_add_used_and_signal_n);
+ /* return true if we're sure that avaiable ring is empty */
+ bool vhost_vq_avail_empty(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+ {
+-	__virtio16 avail_idx;
+ 	int r;
+ 
+ 	if (vq->avail_idx != vq->last_avail_idx)
+ 		return false;
+ 
+-	r = vhost_get_avail_idx(vq, &avail_idx);
+-	if (unlikely(r))
+-		return false;
+-	vq->avail_idx = vhost16_to_cpu(vq, avail_idx);
++	r = vhost_get_avail_idx(vq);
+ 
+-	return vq->avail_idx == vq->last_avail_idx;
++	/* Note: we treat error as non-empty here */
++	return r == 0;
+ }
+ EXPORT_SYMBOL_GPL(vhost_vq_avail_empty);
+ 
+ /* OK, now we need to know about added descriptors. */
+ bool vhost_enable_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+ {
+-	__virtio16 avail_idx;
+ 	int r;
+ 
+ 	if (!(vq->used_flags & VRING_USED_F_NO_NOTIFY))
+@@ -2832,13 +2839,10 @@ bool vhost_enable_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+ 	/* They could have slipped one in as we were doing that: make
+ 	 * sure it's written, then check again. */
+ 	smp_mb();
+-	r = vhost_get_avail_idx(vq, &avail_idx);
+-	if (r) {
+-		vq_err(vq, "Failed to check avail idx at %p: %d\n",
+-		       &vq->avail->idx, r);
++	r = vhost_get_avail_idx(vq);
++	/* Note: we treat error as empty here */
++	if (r < 0)
+ 		return false;
+-	}
+-	vq->avail_idx = vhost16_to_cpu(vq, avail_idx);
+ 
+ 	return vq->avail_idx != vq->last_avail_idx;
+ }
+-- 
+MST
 
-Acked-by: Dave Jiang <dave.jiang@intel.com>
-> 
-> ---
-> 
-> Depends on the first patch.
-> ---
->  drivers/nvdimm/virtio_pmem.c | 1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/drivers/nvdimm/virtio_pmem.c b/drivers/nvdimm/virtio_pmem.c
-> index 4ceced5cefcf..c9b97aeabf85 100644
-> --- a/drivers/nvdimm/virtio_pmem.c
-> +++ b/drivers/nvdimm/virtio_pmem.c
-> @@ -151,7 +151,6 @@ static struct virtio_driver virtio_pmem_driver = {
->  	.feature_table		= features,
->  	.feature_table_size	= ARRAY_SIZE(features),
->  	.driver.name		= KBUILD_MODNAME,
-> -	.driver.owner		= THIS_MODULE,
->  	.id_table		= id_table,
->  	.validate		= virtio_pmem_validate,
->  	.probe			= virtio_pmem_probe,
-> 
