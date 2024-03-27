@@ -1,172 +1,340 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DE4622EF4
-	for <virtualization@lists.linux.dev>; Wed, 27 Mar 2024 02:45:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5648021A02
+	for <virtualization@lists.linux.dev>; Wed, 27 Mar 2024 03:11:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711507507; cv=none; b=A8puLkHgezo5qe4gQ7kPfkulkt7BcQTPa4DmYCFoWlpZ0DnTLxj8E99P0f2g3+wuU5GCCFgmLRwjqnYGpCsZhjAM9SYbTJHYjt2j+Wd93/Z4Rms5AujD3MpB1+7U4PLeaW31ZQz4AqJYU1hxrpMUfoni3RRg5xHchF86rL2THls=
+	t=1711509101; cv=none; b=dbt2p54PDC5JtD7p4UIdz6SYapp/c+FLcqXbXrRBA/p7aCsPfzmJ9Sge/d5XSD8hZSwtrv9u3bPsAolak6/rICrndhbwY9S+lNO2aqlO/g209visUhYHfVv1g8Wj7E4gItltc8EcWc1ThWKtJ3r+mMwTEi/42vNSo/W2hAR4m0A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711507507; c=relaxed/simple;
-	bh=IqGg7LyLJ4vm9PU6ptmTZNKaGaZu+PMIhLvA/eSMrIs=;
+	s=arc-20240116; t=1711509101; c=relaxed/simple;
+	bh=6orz1aw7V5wdQBIbCls73qlkLc/Y53C5olsOslMpVYI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=lZjCrGD0WVQatwwDTSGtYeLIZrjnLj4PIVD3GAvFbyP0nJ7VyDYUcAX/1ttJnuEuAxuUloPg1DG48N9+qV6oKxdpnS0P3nO+CT0YeGULKHSXAZntkp/xwBCWnLjWuRWb39ysP0+K1CBhb2CqHZGAC+Nig9G3hGC+pxM0zbXkK2g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=V+4Iee3H; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=Uos79tbPadwTv7hMOwlaNNmO4DccNbLdVjC8jq2BM7lCWlQuPI0Bqnah0MV4WtF5jkQaKfJl5ncIo7ljdujd+QROZEfyujMseLxrXjj4B4BG0OwTNplHChjKRsPx7pFUM0tRemFJIrDBRR1aWdmTUWPCBIkNXSRRxMjxmDpnMDY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Iog6K2Ze; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="V+4Iee3H"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Iog6K2Ze"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1711507502;
+	s=mimecast20190719; t=1711509098;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=LkfmtcIYl603EVBW7jCFuDGcWJSt5orkk6Zu8ttf8Fk=;
-	b=V+4Iee3H1VH8TEoiXWova94+JuDXaUkJd9qWvr4ATJnfRaShBNiexnBhmVG/iDb33rt40M
-	Clrt2jSVxaEUzdOyaikJEGddhiQu7Isg5VvAfYpp7y0Q3q/N5JuoRDVXM2xtIj/inA9/DC
-	sr4vgWvvGCuGIoe9V8D/oQMpB4eddLU=
-Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com
- [209.85.215.198]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=urcyWyF08xmQUzgTmG3QLbx+SDWeNDyaOtq12rZn01E=;
+	b=Iog6K2ZePL49W4uNhNQOfUVwly7JO+AJa0hAvN9ZUTAOel+ZGz/W1R1xeSZIwDRJOXhO6D
+	3WgSUBgdrXhzXLmd0G9nVAmSpQkTAWnPUNJK+ydUqXwmiA5IXnHOtjLNEdwHdv7qSS7nVI
+	vbdhWUgo240S9E6Dza9rRfxwd8sQUkU=
+Received: from mail-oo1-f72.google.com (mail-oo1-f72.google.com
+ [209.85.161.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-176-2jK1RXswNFKFG3oEXqbR5g-1; Tue, 26 Mar 2024 22:45:01 -0400
-X-MC-Unique: 2jK1RXswNFKFG3oEXqbR5g-1
-Received: by mail-pg1-f198.google.com with SMTP id 41be03b00d2f7-5cf555b2a53so255925a12.1
-        for <virtualization@lists.linux.dev>; Tue, 26 Mar 2024 19:45:00 -0700 (PDT)
+ us-mta-587-znQRRRw9PM2xG2ufgQ8IEg-1; Tue, 26 Mar 2024 23:11:32 -0400
+X-MC-Unique: znQRRRw9PM2xG2ufgQ8IEg-1
+Received: by mail-oo1-f72.google.com with SMTP id 006d021491bc7-5a57d555abcso779627eaf.3
+        for <virtualization@lists.linux.dev>; Tue, 26 Mar 2024 20:11:32 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711507499; x=1712112299;
+        d=1e100.net; s=20230601; t=1711509090; x=1712113890;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=LkfmtcIYl603EVBW7jCFuDGcWJSt5orkk6Zu8ttf8Fk=;
-        b=qES3Bh2Gcc9qkAqu/YZUuv7CRBptG2Fveeo5/JSZ/n1Ojp98Cmu+9T6RUeWyS2dfWo
-         eTjBpQWF2hgMGW8UOhw0wYpkeYh89VoZapxRBhQh8jB8Mk2i1yIkCfoBt/eJrVEVhqO8
-         SSxyypw6ceaSXiflkys26QSPmou3nsC4gNVLSMPTJPfxlgZIwhxU7FqQxtJVgafpv4Nt
-         mkISiSW5gE667v+r9TTrWJ/AeMS5WplarAyUDP5+XNCzRtsfBHmjpPTCkmLHZgYo5hCh
-         6K61U7etuvmdm8JqL7PTey0G9nJHRKoUhPcq5fYjyaDn/sYH8kQRIARyQicvwSyLQQGV
-         3utg==
-X-Gm-Message-State: AOJu0YzukmkAEz8d4nk5o1tA9nX1ZmV8950xan8Cu+X0Wb+FDmmI893q
-	MkdDiQdrDfb9bo6LkIkZmj9dcJfdJ97+nRRCpSBN7t8GJIYmdXTlq9Tf1uTHFdY5Qe6fDx3celJ
-	yWqwm8AR0ry0n20+AOsOarvAcLAgDd22NRv6Wv39JXzblu1gZ3tE6A94tY1yVfQJuwbOTuZToll
-	LujERgiSmQdtiZCV4NZxq7Y1d9ogJhy+J2Y5fLeNg=
-X-Received: by 2002:a17:90a:c703:b0:2a0:76b1:896 with SMTP id o3-20020a17090ac70300b002a076b10896mr4392456pjt.12.1711507499589;
-        Tue, 26 Mar 2024 19:44:59 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IH3MSgO2iAnKqGRMUSsmYhf817+2wItKWdIG835eY+e3znNWn8QDzGM+32n0mUkdpfVvpgn44vCtIs5VuWjmrI=
-X-Received: by 2002:a17:90a:c703:b0:2a0:76b1:896 with SMTP id
- o3-20020a17090ac70300b002a076b10896mr4392437pjt.12.1711507499282; Tue, 26 Mar
- 2024 19:44:59 -0700 (PDT)
+        bh=urcyWyF08xmQUzgTmG3QLbx+SDWeNDyaOtq12rZn01E=;
+        b=BwL9BbH0UFaeDGN+X3zYEWLjCNl/7k/mFFUi2ho2ocWGWVZNvU9jSUzvfeNR93Zh7L
+         1OIhB5IkGxg1B04ORavt1HZCrWtxyhL96K9ELszJd15h5JNulQ2EyMxwBV851kxsdTzN
+         /hCGz7dSGIOaPMaHyA4nPwGQpMqo2ZEg2blXV2TYqLBkJRrkX4qf7EEFTVm8P2U0vxvA
+         Vo/EwRKHekAZIh9lk1Ksa5Vfx25SX3UniX0kKz+HA/BTdJMr+PB6rpKneitk6jFlQJ+/
+         duuF6YkTCsyy7hoiBaDQm/+3dLF+VMksia3Uhwi03fRrguXmKjZC/ZJcGm8pv6e0vEwi
+         1SUQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVnx1CeQ2y3Av913S+8URhAPAIn3IBBuel0aVbL9oabblI0vgRSK5u9JJoftEx9liN1cl/+5KXHQrkwjsSQi+O5ZHJnwwiIuK/yv0zPGdc=
+X-Gm-Message-State: AOJu0YxWgJDfaj2pNWRd6YJHCYeGJXeiHUeU7GnyYelkrBfAmSUf7qcj
+	iPzjA1Q82RvpeVSeYVHmvwdARRBc52fgEgUpuSK7dktbafbyvUS0FiuZqsJWbwhbjNSImkTSIKP
+	hvhsnZeykY7rANWe77ZOMketXoiGA6xDoYVplhod0VvQ4FAuMijJBXHwHtbusrMzlRSsBkye3/9
+	gzLFzyFtbmEhc6oGqmmFQnmEB6lpJSqmncLgK0DqE=
+X-Received: by 2002:a05:6358:7584:b0:17b:b559:2ba3 with SMTP id x4-20020a056358758400b0017bb5592ba3mr82726rwf.11.1711509089804;
+        Tue, 26 Mar 2024 20:11:29 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFO38JUEDTdr4HhhvKNkEw2Kv+aGV0Qo9yOQttg7EbNDyITSEF6Evv6AMrQQYE30l6zuy4u3Mo9bgb6y+PqWDw=
+X-Received: by 2002:a05:6358:7584:b0:17b:b559:2ba3 with SMTP id
+ x4-20020a056358758400b0017bb5592ba3mr82704rwf.11.1711509089470; Tue, 26 Mar
+ 2024 20:11:29 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240326233846.1086253-1-gshan@redhat.com> <20240326233846.1086253-2-gshan@redhat.com>
- <CACGkMEtyEo2QQSEh0ZnZDUJSXMMhzeO97Jp0wF4_rhzUBGk4Zg@mail.gmail.com>
-In-Reply-To: <CACGkMEtyEo2QQSEh0ZnZDUJSXMMhzeO97Jp0wF4_rhzUBGk4Zg@mail.gmail.com>
+References: <CA+9S74hbTMxckB=HgRiqL6b8ChZMQfJ6-K9y_GQ0ZDiWkev_vA@mail.gmail.com>
+ <20240319131207.GB1096131@fedora> <CA+9S74jMBbgrxaH2Nit50uDQsHES+e+VHnOXkxnq2TrUFtAQRA@mail.gmail.com>
+ <CACGkMEvX2R+wKcH5V45Yd6CkgGhADVbpvfmWsHducN2zCS=OKw@mail.gmail.com>
+ <CA+9S74g5fR=hBxWk1U2TyvW1uPmU3XgJnjw4Owov8LNwLiiOZw@mail.gmail.com>
+ <CACGkMEt4MbyDgdqDGUqQ+0gV-1kmp6CWASDgwMpZnRU8dfPd2Q@mail.gmail.com>
+ <CA+9S74hUt_aZCrgN3Yx9Y2OZtwHNan7gmbBa1TzBafW6=YLULQ@mail.gmail.com>
+ <CA+9S74ia-vUag2QMo6zFL7r+wZyOZVmcpe317RdMbK-rpomn+Q@mail.gmail.com>
+ <CA+9S74hs_1Ft9iyXOPU_vF_EFKuoG8LjDpSna0QSPMFnMywd_g@mail.gmail.com>
+ <CACGkMEvHiAN7X_QBgihWX6zzEUOxhrV2Nqg1arw1sfYy2A5K0g@mail.gmail.com> <CAK8fFZ5j_T1NzoOEfqE1HYhAEhD04smR4OT2bnMEAr+2+6C5RQ@mail.gmail.com>
+In-Reply-To: <CAK8fFZ5j_T1NzoOEfqE1HYhAEhD04smR4OT2bnMEAr+2+6C5RQ@mail.gmail.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 27 Mar 2024 10:44:48 +0800
-Message-ID: <CACGkMEtUdgDr_M-F8-gdFkJp+29Xuw9DCib2-diFmJxFxDN2Bw@mail.gmail.com>
-Subject: Re: [PATCH v2 1/2] vhost: Add smp_rmb() in vhost_vq_avail_empty()
-To: Gavin Shan <gshan@redhat.com>
-Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	mst@redhat.com, davem@davemloft.net, stefanha@redhat.com, sgarzare@redhat.com, 
-	keirf@google.com, yihyu@redhat.com, shan.gavin@gmail.com
+Date: Wed, 27 Mar 2024 11:11:18 +0800
+Message-ID: <CACGkMEtUyR3HbBHpQmP5Pm8OePB5pzXtJVJPL-wyH57Ddh1PSA@mail.gmail.com>
+Subject: Re: REGRESSION: RIP: 0010:skb_release_data+0xb8/0x1e0 in vhost/tun
+To: Jaroslav Pulchart <jaroslav.pulchart@gooddata.com>
+Cc: Igor Raits <igor@gooddata.com>, Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	Stefano Garzarella <sgarzare@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Mar 27, 2024 at 10:34=E2=80=AFAM Jason Wang <jasowang@redhat.com> w=
-rote:
+On Tue, Mar 26, 2024 at 9:26=E2=80=AFPM Jaroslav Pulchart
+<jaroslav.pulchart@gooddata.com> wrote:
 >
-> On Wed, Mar 27, 2024 at 7:39=E2=80=AFAM Gavin Shan <gshan@redhat.com> wro=
-te:
 > >
-> > A smp_rmb() has been missed in vhost_vq_avail_empty(), spotted by
-> > Will Deacon <will@kernel.org>. Otherwise, it's not ensured the
-> > available ring entries pushed by guest can be observed by vhost
-> > in time, leading to stale available ring entries fetched by vhost
-> > in vhost_get_vq_desc(), as reported by Yihuang Yu on NVidia's
-> > grace-hopper (ARM64) platform.
-> >
-> >   /home/gavin/sandbox/qemu.main/build/qemu-system-aarch64      \
-> >   -accel kvm -machine virt,gic-version=3Dhost -cpu host          \
-> >   -smp maxcpus=3D1,cpus=3D1,sockets=3D1,clusters=3D1,cores=3D1,threads=
-=3D1 \
-> >   -m 4096M,slots=3D16,maxmem=3D64G                                 \
-> >   -object memory-backend-ram,id=3Dmem0,size=3D4096M                \
-> >    :                                                           \
-> >   -netdev tap,id=3Dvnet0,vhost=3Dtrue                              \
-> >   -device virtio-net-pci,bus=3Dpcie.8,netdev=3Dvnet0,mac=3D52:54:00:f1:=
-26:b0
-> >    :
-> >   guest# netperf -H 10.26.1.81 -l 60 -C -c -t UDP_STREAM
-> >   virtio_net virtio0: output.0:id 100 is not a head!
-> >
-> > Add the missed smp_rmb() in vhost_vq_avail_empty(). Note that it
-> > should be safe until vq->avail_idx is changed by commit 275bf960ac697
-> > ("vhost: better detection of available buffers").
-> >
-> > Fixes: 275bf960ac697 ("vhost: better detection of available buffers")
-> > Cc: <stable@kernel.org> # v4.11+
-> > Reported-by: Yihuang Yu <yihyu@redhat.com>
-> > Signed-off-by: Gavin Shan <gshan@redhat.com>
-> > ---
-> >  drivers/vhost/vhost.c | 11 ++++++++++-
-> >  1 file changed, 10 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> > index 045f666b4f12..00445ab172b3 100644
-> > --- a/drivers/vhost/vhost.c
-> > +++ b/drivers/vhost/vhost.c
-> > @@ -2799,9 +2799,18 @@ bool vhost_vq_avail_empty(struct vhost_dev *dev,=
- struct vhost_virtqueue *vq)
-> >         r =3D vhost_get_avail_idx(vq, &avail_idx);
-> >         if (unlikely(r))
-> >                 return false;
-> > +
-> >         vq->avail_idx =3D vhost16_to_cpu(vq, avail_idx);
-> > +       if (vq->avail_idx !=3D vq->last_avail_idx) {
-> > +               /* Similar to what's done in vhost_get_vq_desc(), we ne=
-ed
-> > +                * to ensure the available ring entries have been expos=
-ed
-> > +                * by guest.
-> > +                */
->
-> We need to be more verbose here. For example, which load needs to be
-> ordered with which load.
->
-> The rmb in vhost_get_vq_desc() is used to order the load of avail idx
-> and the load of head. It is paired with e.g virtio_wmb() in
-> virtqueue_add_split().
->
-> vhost_vq_avail_empty() are mostly used as a hint in
-> vhost_net_busy_poll() which is under the protection of the vq mutex.
->
-> An exception is the tx_can_batch(), but in that case it doesn't even
-> want to read the head.
-
-Ok, if it is needed only in that path, maybe we can move the barriers there=
+> > On Mon, Mar 25, 2024 at 4:44=E2=80=AFPM Igor Raits <igor@gooddata.com> =
+wrote:
+> > >
+> > > Hello,
+> > >
+> > > On Fri, Mar 22, 2024 at 12:19=E2=80=AFPM Igor Raits <igor@gooddata.co=
+m> wrote:
+> > > >
+> > > > Hi Jason,
+> > > >
+> > > > On Fri, Mar 22, 2024 at 9:39=E2=80=AFAM Igor Raits <igor@gooddata.c=
+om> wrote:
+> > > > >
+> > > > > Hi Jason,
+> > > > >
+> > > > > On Fri, Mar 22, 2024 at 6:31=E2=80=AFAM Jason Wang <jasowang@redh=
+at.com> wrote:
+> > > > > >
+> > > > > > On Thu, Mar 21, 2024 at 5:44=E2=80=AFPM Igor Raits <igor@goodda=
+ta.com> wrote:
+> > > > > > >
+> > > > > > > Hello Jason & others,
+> > > > > > >
+> > > > > > > On Wed, Mar 20, 2024 at 10:33=E2=80=AFAM Jason Wang <jasowang=
+@redhat.com> wrote:
+> > > > > > > >
+> > > > > > > > On Tue, Mar 19, 2024 at 9:15=E2=80=AFPM Igor Raits <igor@go=
+oddata.com> wrote:
+> > > > > > > > >
+> > > > > > > > > Hello Stefan,
+> > > > > > > > >
+> > > > > > > > > On Tue, Mar 19, 2024 at 2:12=E2=80=AFPM Stefan Hajnoczi <=
+stefanha@redhat.com> wrote:
+> > > > > > > > > >
+> > > > > > > > > > On Tue, Mar 19, 2024 at 10:00:08AM +0100, Igor Raits wr=
+ote:
+> > > > > > > > > > > Hello,
+> > > > > > > > > > >
+> > > > > > > > > > > We have started to observe kernel crashes on 6.7.y ke=
+rnels (atm we
+> > > > > > > > > > > have hit the issue 5 times on 6.7.5 and 6.7.10). On 6=
+.6.9 where we
+> > > > > > > > > > > have nodes of cluster it looks stable. Please see sta=
+cktrace below. If
+> > > > > > > > > > > you need more information please let me know.
+> > > > > > > > > > >
+> > > > > > > > > > > We do not have a consistent reproducer but when we pu=
+t some bigger
+> > > > > > > > > > > network load on a VM, the hypervisor's kernel crashes=
 .
+> > > > > > > > > > >
+> > > > > > > > > > > Help is much appreciated! We are happy to test any pa=
+tches.
+> > > > > > > > > >
+> > > > > > > > > > CCing Michael Tsirkin and Jason Wang for vhost_net.
+> > > > > > > > > >
+> > > > > > > > > > >
+> > > > > > > > > > > [62254.167584] stack segment: 0000 [#1] PREEMPT SMP N=
+OPTI
+> > > > > > > > > > > [62254.173450] CPU: 63 PID: 11939 Comm: vhost-11890 T=
+ainted: G
+> > > > > > > > > > >    E      6.7.10-1.gdc.el9.x86_64 #1
+> > > > > > > > > >
+> > > > > > > > > > Are there any patches in this kernel?
+> > > > > > > > >
+> > > > > > > > > Only one, unrelated to this part. Removal of pr_err("EEVD=
+F scheduling
+> > > > > > > > > fail, picking leftmost\n"); line (reported somewhere few =
+months ago
+> > > > > > > > > and it was suggested workaround until proper solution com=
+es).
+> > > > > > > >
+> > > > > > > > Btw, a bisection would help as well.
+> > > > > > >
+> > > > > > > In the end it seems like we don't really have "stable" setup,=
+ so
+> > > > > > > bisection looks to be useless but we did find few things mean=
+time:
+> > > > > > >
+> > > > > > > 1. On 6.6.9 it crashes either with unexpected GSO type or use=
+rcopy:
+> > > > > > > Kernel memory exposure attempt detected from SLUB object
+> > > > > > > 'skbuff_head_cache'
+> > > > > >
+> > > > > > Do you have a full calltrace for this?
+> > > > >
+> > > > > I have shared it in one of the messages in this thread.
+> > > > > https://marc.info/?l=3Dlinux-virtualization&m=3D171085443512001&w=
+=3D2
+> > > > >
+> > > > > > > 2. On 6.7.5, 6.7.10 and 6.8.1 it crashes with RIP:
+> > > > > > > 0010:skb_release_data+0xb8/0x1e0
+> > > > > >
+> > > > > > And for this?
+> > > > >
+> > > > > https://marc.info/?l=3Dlinux-netdev&m=3D171083870801761&w=3D2
+> > > > >
+> > > > > > > 3. It does NOT crash on 6.8.1 when VM does not have multi-que=
+ue setup
+> > > > > > >
+> > > > > > > Looks like the multi-queue setup (we have 2 interfaces =C3=97=
+ 3 virtio
+> > > > > > > queues for each) is causing problems as if we set only one qu=
+eue for
+> > > > > > > each interface the issue is gone.
+> > > > > > > Maybe there is some race condition in __pfx_vhost_task_fn+0x1=
+0/0x10 or
+> > > > > > > somewhere around?
+> > > > > >
+> > > > > > I can't tell now, but it seems not because if we have 3 queue p=
+airs we
+> > > > > > will have 3 vhost threads.
+> > > > > >
+> > > > > > > We have noticed that there are 3 of such functions
+> > > > > > > in the stacktrace that gave us hints about what we could try=
+=E2=80=A6
+> > > > > >
+> > > > > > Let's try to enable SLUB_DEBUG and KASAN to see if we can get
+> > > > > > something interesting.
+> > > > >
+> > > > > We were able to reproduce it even with 1 vhost queue... And now w=
+e
+> > > > > have slub_debug + kasan so I hopefully have more useful data for =
+you
+> > > > > now.
+> > > > > I have attached it for better readability.
+> > > >
+> > > > Looks like we have found a "stable" kernel and that is 6.1.32. The
+> > > > 6.3.y is broken and we are testing 6.2.y now.
+> > > > My guess it would be related to virtio/vsock: replace virtio_vsock_=
+pkt
+> > > > with sk_buff that was done around that time but we are going to tes=
+t,
+> > > > bisect and let you know more.
+> > >
+> > > So we have been trying to bisect it but it is basically impossible fo=
+r
+> > > us to do so as the ICE driver was quite broken for most of the releas=
+e
+> > > cycle so we have no networking on 99% of the builds and we can't test
+> > > such a setup.
+> > > More specifically, the bug was introduced between 6.2 and 6.3 but we
+> > > could not get much further. The last good commit we were able to test
+> > > was f18f9845f2f10d3d1fc63e4ad16ee52d2d9292fa and then after 20 commit=
+s
+> > > where we had no networking we gave up.
+> > >
+> > > If you have some suspicious commit(s) we could revert - happy to test=
+.
+> >
+> > Here is the is for the change since f18f9845f2f10d3d1fc63e4ad16ee52d2d9=
+292fa:
+> >
+> > cbfbfe3aee71 tun: prevent negative ifindex
+> > b2f8323364ab tun: add __exit annotations to module exit func tun_cleanu=
+p()
+> > 6231e47b6fad tun: avoid high-order page allocation for packet header
+> > 4d016ae42efb Merge git://git.kernel.org/pub/scm/linux/kernel/git/netdev=
+/net
+> > 59eeb2329405 drivers: net: prevent tun_build_skb() to exceed the
+> > packet size limit
+> > 35b1b1fd9638 Merge git://git.kernel.org/pub/scm/linux/kernel/git/netdev=
+/net
+> > ce7c7fef1473 net: tun: change tun_alloc_skb() to allow bigger paged all=
+ocations
+> > 9bc3047374d5 net: tun_chr_open(): set sk_uid from current_fsuid()
+> > 82b2bc279467 tun: Fix memory leak for detached NAPI queue.
+> > 6e98b09da931 Merge tag 'net-next-6.4' of
+> > git://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next
+> > de4f5fed3f23 iov_iter: add iter_iovec() helper
+> > 438b406055cd tun: flag the device as supporting FMODE_NOWAIT
+> > de4287336794 Daniel Borkmann says:
+> > a096ccca6e50 tun: tun_chr_open(): correctly initialize socket uid
+> > 66c0e13ad236 drivers: net: turn on XDP features
+> >
+> > The commit that touches the datapath are:
+> >
+> > 6231e47b6fad tun: avoid high-order page allocation for packet header
+> > 59eeb2329405 drivers: net: prevent tun_build_skb() to exceed the
+> > packet size limit
+> > ce7c7fef1473 net: tun: change tun_alloc_skb() to allow bigger paged all=
+ocations
+> > 82b2bc279467 tun: Fix memory leak for detached NAPI queue.
+> > de4f5fed3f23 iov_iter: add iter_iovec() helper
+> >
+> > I assume you didn't use NAPI mode, so 82b2bc279467 tun: Fix memory
+> > leak for detached NAPI queue doesn't make sense for us.
+> >
+> > The rest might be the bad commit if it is caused by a change of tun its=
+elf.
+> >
+> > btw I vaguely remember KASAN will report who did the allocation and
+> > who did the free. But it seems not in your KASAN log.
+> >
+> > Thanks
+> >
+> > >
+> > > Thanks again.
+> > >
+> >
+>
+> Hello
+>
+> We have one observation. The occurrence of the error depends on the
+> ring buffer size of physical network cards. We have two E810 Intel
+> cards bonded by two interfaces (em1 + p3p2, ice driver) into single
+> bon0. The bond0 is then linux bridged and/or ovs(witched) to VMs via
+> tun interfaces (both switch solutions have the same problem). VMs are
+> qemu-kvm instances and using vhost/virtio-net.
+>
+> We see:
+> 1/ The issue is triggered almost instantaneously when tx/rx ring
+> buffer is set to 2048 (our default)
+> ethtool -G em1 rx 2048 tx 2048
+> ethtool -G p3p1 rx 2048 tx 2048
+>
+> 2/ Similar issue is triggered when the tx/rx ring buffer is set to
+> 4096: the host does not crash immediately, but some trace is shown
+> soon and later it gets into memory pressure and crashes.
+
+This is probably a hint of memory leak somewhere.
+
+> ethtool -G em1 rx 4096 tx 4096
+> ethtool -G p3p1 rx 4096 tx 4096
+> See attached ring_4096.kasan.txt (vanila 6.8.1 with enabled KASAN) and
+> ring_4096.txt (vanila 6.8.1 without kasan)
+>
+> 3/ The system is stable or we just can-not trigger the issue if the
+> ring buffer is >=3D 6144.
+> ethtool -G em1 rx 7120 tx 7120
+> ethtool -G p3p1 rx 7120 tx 7120
+>
+> could it be influenced by a some rate of dropped packets in the ring buff=
+er?
+
+I can't tell.
+
+Btw, it looks like the logs were cut off. Could we get a full log?
 
 Thanks
 
 >
-> Thanks
+> # for i in em1 p3p1; do ethtool -S ${i} | grep dropped.nic; done
+>      rx_dropped.nic: 158225
+>      rx_dropped.nic: 74285
 >
->
-> > +               smp_rmb();
-> > +               return false;
-> > +       }
-> >
-> > -       return vq->avail_idx =3D=3D vq->last_avail_idx;
-> > +       return true;
-> >  }
-> >  EXPORT_SYMBOL_GPL(vhost_vq_avail_empty);
-> >
-> > --
-> > 2.44.0
-> >
+> Best,
+> Jaroslav Pulchart
 
