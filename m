@@ -1,141 +1,104 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from sipsolutions.net (s3.sipsolutions.net [168.119.38.16])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B052213BAFF
-	for <virtualization@lists.linux-foundation.org>; Wed, 27 Mar 2024 13:27:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E34613D257;
+	Wed, 27 Mar 2024 13:34:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.38.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711546061; cv=none; b=axjY9uhurnG/PAhqmSC9priloBZ9jOwmjSzwFssGpbqmkR97O5fbaSvgGbwgfuyy5d3i3Vja2l5hNoKKTeIHVF601sZm73gGsEhtb1O1BntnGdyX2PoJ9OZfM4iIr/HCUT4krLXJ6tkfWUaGhjPFFcBUNUm9+PiwrgA0TsqSv90=
+	t=1711546488; cv=none; b=JauUuAQu/M+/408e+aJRISYbM4gG2kN4vMJAehO5KFeYgUg/vImlaFCLxZDMl19G1xh6Q1x/F5ard8LVV5N/509CiqhEIrQ0JgXX7tI5WpAl78i7TpwW7RMw1lqQehsOh4CJ1f+RYmyCRIu7BXRKwVdm2+mJcwa12hVIL+dYsbU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711546061; c=relaxed/simple;
-	bh=+fnPEP5LofR/YkwTOOjws1iuVa2ieMZ1vJLvtYNQ7OQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mNvQLe+h29UdukUb7WjyLkjs5LmjNO9h8q6d3wF7TKBSMW0b6b0r8GUZyeLp3bjVV2aT2PjHW+dTbwvPJycZkLBaVp3XVWNfpD5RM04Lze7ZZ8O5PjXiYLCAgQeP5l7uMCghY5wViE5laRuh433IfuL6NixbRBlV1Sbcv+aLb28=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=p4cYrqgk; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1711546488; c=relaxed/simple;
+	bh=NZdy0X3liUqTEzRbInNe/vjDY6MNb1re1WUM40McVv8=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=LZ8Dln/zjOG72JEUOOS4hbQGPyqejul50l9nbRk1O9/j/Rfqp6RIUUwou18pshvK4NOIXs3J3ok3RAbi8dNC3PJur9gY/y88nXRfR7ArgDBrTakRHToQNEh89L2/kX4IQu3z6HSRuFamam4r/nlwqILxX7Is51TInAIiy4EKT8Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sipsolutions.net; spf=pass smtp.mailfrom=sipsolutions.net; dkim=pass (2048-bit key) header.d=sipsolutions.net header.i=@sipsolutions.net header.b=fntl9GJN; arc=none smtp.client-ip=168.119.38.16
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sipsolutions.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sipsolutions.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="p4cYrqgk"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 2A3564058A
-	for <virtualization@lists.linux-foundation.org>; Wed, 27 Mar 2024 13:27:40 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -4.401
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id zwMoQ_ojjhys for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Mar 2024 13:27:39 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2604:1380:40e1:4800::1; helo=sin.source.kernel.org; envelope-from=mripard@kernel.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org A023740589
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=kernel.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A023740589
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=p4cYrqgk
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id A023740589
-	for <virtualization@lists.linux-foundation.org>; Wed, 27 Mar 2024 13:27:38 +0000 (UTC)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sin.source.kernel.org (Postfix) with ESMTP id 632E7CE1DB4;
-	Wed, 27 Mar 2024 13:27:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 527BDC433C7;
-	Wed, 27 Mar 2024 13:27:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1711546051;
-	bh=+fnPEP5LofR/YkwTOOjws1iuVa2ieMZ1vJLvtYNQ7OQ=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=p4cYrqgkZ5yR7qOyVmXAK6DNicMANTj9MoO3Ly2aMyd9olFbTRqMM410U7a1HbqBF
-	 BBGyKztQYn+jgZ0gMdHhmWE/CQLavoPNnnA77UiTkS+Jingwh7g5AVE4tP4G4e+WFy
-	 azkgCGC3Mk8wbHHnbmmKObNlVP5pDWzqdhqh+HAXPE8o+1l+Hlu8tswxiaVM1Ul+v3
-	 UZIRARydgHnI7ECFVslwev4AIl3+vH0o85jzBa4zAD8XNfd936b14q//9bEplTNQEs
-	 DOK3S7d/FoKpW3V3bjlb0IdnyLScR5VwaGAJ1kq+XFnDpPAL50yEJQi08FswygCuFA
-	 RH7g1qmxJ7Dxw==
-Date: Wed, 27 Mar 2024 14:27:29 +0100
-From: Maxime Ripard <mripard@kernel.org>
-To: Linux regressions mailing list <regressions@lists.linux.dev>
-Cc: Alex Constantino <dreaming.about.electric.sheep@gmail.com>, 
-	1054514@bugs.debian.org, airlied@redhat.com, carnil@debian.org, daniel@ffwll.ch, 
-	dri-devel@lists.freedesktop.org, kraxel@redhat.com, linux-kernel@vger.kernel.org, 
-	spice-devel@lists.freedesktop.org, timo.lindfors@iki.fi, tzimmermann@suse.de, 
-	virtualization@lists.linux-foundation.org, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Subject: Re: [PATCH 1/1] drm/qxl: fixes qxl_fence_wait
-Message-ID: <20240327-cuddly-smooth-trogon-59c02d@houat>
-References: <fb0fda6a-3750-4e1b-893f-97a3e402b9af@leemhuis.info>
- <20240308010851.17104-1-dreaming.about.electric.sheep@gmail.com>
- <20240308010851.17104-2-dreaming.about.electric.sheep@gmail.com>
- <db4c8e74-5c79-49be-9781-a5d8669eccc1@leemhuis.info>
+	dkim=pass (2048-bit key) header.d=sipsolutions.net header.i=@sipsolutions.net header.b="fntl9GJN"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=sipsolutions.net; s=mail; h=MIME-Version:Content-Transfer-Encoding:
+	Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender
+	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-To:
+	Resent-Cc:Resent-Message-ID; bh=NZdy0X3liUqTEzRbInNe/vjDY6MNb1re1WUM40McVv8=;
+	t=1711546486; x=1712756086; b=fntl9GJNw3T27S/XWxW9sEjOSV4SmrZcmhhd4YlmpmHI4Iq
+	mnOniwoR0IVjm9aWq+CRox56fWuhkne7MyGhcdaJ/k9N0CamgZPzcOV6zRF/pIndpPcw9Avuee9/t
+	Si10y0HmSlsxIerM6wXTBAQ/Rpd4MzPYYamUefqKMbXXytKdsw7G9N4p3a6Sra2uAATsNm1DhnV2I
+	/NO/SWUAN3iibTqe88eFukUDg6Zavwqp5anj0M1kJLYbYvKFNJKYt3LTnAYA6SoJQykU8Q/kZ0mAm
+	44zBsq7XBJ5QEBZqb6eJqoEbgQY27FyoA4YurKsX7p0fIloHRjrexNCFUtwOY0QQ==;
+Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.97)
+	(envelope-from <johannes@sipsolutions.net>)
+	id 1rpTPq-0000000H6pw-3l9Q;
+	Wed, 27 Mar 2024 14:34:07 +0100
+Message-ID: <46e9539f59c82762e3468a9519fa4123566910d5.camel@sipsolutions.net>
+Subject: Re: [PATCH 02/22] um: virt-pci: drop owner assignment
+From: Johannes Berg <johannes@sipsolutions.net>
+To: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>, "Michael S.
+ Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>,  Richard Weinberger <richard@nod.at>, Anton
+ Ivanov <anton.ivanov@cambridgegreys.com>, Paolo Bonzini
+ <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Jens Axboe
+ <axboe@kernel.dk>, Marcel Holtmann <marcel@holtmann.org>, Luiz Augusto von
+ Dentz <luiz.dentz@gmail.com>, Olivia Mackall <olivia@selenic.com>, Herbert
+ Xu <herbert@gondor.apana.org.au>, Amit Shah <amit@kernel.org>, Arnd
+ Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Gonglei <arei.gonglei@huawei.com>, "David S. Miller" <davem@davemloft.net>,
+ Viresh Kumar <vireshk@kernel.org>, Linus Walleij
+ <linus.walleij@linaro.org>, Bartosz Golaszewski <brgl@bgdev.pl>, David
+ Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, Gurchetan
+ Singh <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>,
+ Jean-Philippe Brucker <jean-philippe@linaro.org>, Joerg Roedel
+ <joro@8bytes.org>, Alexander Graf <graf@amazon.com>, Eric Dumazet
+ <edumazet@google.com>,  Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
+ <pabeni@redhat.com>, Eric Van Hensbergen <ericvh@kernel.org>, Latchesar
+ Ionkov <lucho@ionkov.net>, Dominique Martinet <asmadeus@codewreck.org>,
+ Christian Schoenebeck <linux_oss@crudebyte.com>,  Stefano Garzarella
+ <sgarzare@redhat.com>, Kalle Valo <kvalo@kernel.org>, Dan Williams
+ <dan.j.williams@intel.com>, Vishal Verma <vishal.l.verma@intel.com>, Dave
+ Jiang <dave.jiang@intel.com>, Ira Weiny <ira.weiny@intel.com>, Pankaj Gupta
+ <pankaj.gupta.linux@gmail.com>, Bjorn Andersson <andersson@kernel.org>, 
+ Mathieu Poirier <mathieu.poirier@linaro.org>, "Martin K. Petersen"
+ <martin.petersen@oracle.com>, Vivek Goyal <vgoyal@redhat.com>, Miklos
+ Szeredi <miklos@szeredi.hu>, Anton Yakovlev
+ <anton.yakovlev@opensynergy.com>, Jaroslav Kysela <perex@perex.cz>, Takashi
+ Iwai <tiwai@suse.com>
+Cc: virtualization@lists.linux.dev, linux-doc@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-um@lists.infradead.org, 
+ linux-block@vger.kernel.org, linux-bluetooth@vger.kernel.org, 
+ linux-crypto@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+ linux-gpio@vger.kernel.org, dri-devel@lists.freedesktop.org, 
+ iommu@lists.linux.dev, netdev@vger.kernel.org, v9fs@lists.linux.dev, 
+ kvm@vger.kernel.org, linux-wireless@vger.kernel.org,
+ nvdimm@lists.linux.dev,  linux-remoteproc@vger.kernel.org,
+ linux-scsi@vger.kernel.org,  linux-fsdevel@vger.kernel.org,
+ alsa-devel@alsa-project.org,  linux-sound@vger.kernel.org
+Date: Wed, 27 Mar 2024 14:34:04 +0100
+In-Reply-To: <20240327-module-owner-virtio-v1-2-0feffab77d99@linaro.org>
+References: <20240327-module-owner-virtio-v1-0-0feffab77d99@linaro.org>
+	 <20240327-module-owner-virtio-v1-2-0feffab77d99@linaro.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.50.4 (3.50.4-1.fc39) 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha384;
-	protocol="application/pgp-signature"; boundary="odhn7ryspel32gtq"
-Content-Disposition: inline
-In-Reply-To: <db4c8e74-5c79-49be-9781-a5d8669eccc1@leemhuis.info>
+X-malware-bazaar: not-scanned
 
+On Wed, 2024-03-27 at 13:40 +0100, Krzysztof Kozlowski wrote:
+> virtio core already sets the .owner, so driver does not need to.
 
---odhn7ryspel32gtq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> All further patches depend on the first virtio patch, therefore please ac=
+k
+> and this should go via one tree: virtio?
 
-Hi,
+Sure. Though it's not really actually necessary, you can set it in the
+core and merge the other patches in the next cycle; those drivers that
+_have_ an .owner aren't broken after all.
 
-On Wed, Mar 20, 2024 at 04:25:48PM +0100, Linux regression tracking (Thorst=
-en Leemhuis) wrote:
-> On 08.03.24 02:08, Alex Constantino wrote:
-> > Fix OOM scenario by doing multiple notifications to the OOM handler thr=
-ough
-> > a busy wait logic.
-> > Changes from commit 5a838e5d5825 ("drm/qxl: simplify qxl_fence_wait") w=
-ould
-> > result in a '[TTM] Buffer eviction failed' exception whenever it reache=
-d a
-> > timeout.
-> >=20
-> > Fixes: 5a838e5d5825 ("drm/qxl: simplify qxl_fence_wait")
-> > Link: https://lore.kernel.org/regressions/fb0fda6a-3750-4e1b-893f-97a3e=
-402b9af@leemhuis.info
-> > Reported-by: Timo Lindfors <timo.lindfors@iki.fi>
-> > Closes: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=3D1054514
-> > Signed-off-by: Alex Constantino <dreaming.about.electric.sheep@gmail.co=
-m>
-> > ---
-> >  drivers/gpu/drm/qxl/qxl_release.c | 20 ++++++++++++++------
-> >  1 file changed, 14 insertions(+), 6 deletions(-)
->=20
-> Hey Dave and Gerd as well as Thomas, Maarten and Maxime (the latter two
-> I just added to the CC), it seems to me this regression fix did not
-> maybe any progress since it was posted. Did I miss something, is it just
-> "we are busy with the merge window", or is there some other a reason?
-> Just wondering, I just saw someone on a Fedora IRC channel complaining
-> about the regression, that's why I'm asking. Would be really good to
-> finally get this resolved...
+Acked-by: Johannes Berg <johannes@sipsolutions.net>
 
-I've ping'd Gerd last week about it, but he couldn't remember the
-details of why that patch was warranted in the first place.
-
-If it works, I'd prefer to revert the original patch that we know used
-to work instead of coming up with some less proven logic, which seems to
-be quite different to what it used to be.
-
-Alex, could you try reverting 5a838e5d5825c85556011478abde708251cc0776
-and letting us know the result?
-
-Thanks!
-Maxime
-
---odhn7ryspel32gtq
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iJUEABMJAB0WIQTkHFbLp4ejekA/qfgnX84Zoj2+dgUCZgQeuAAKCRAnX84Zoj2+
-dtzBAX9D2qc3cRTI5gt0TJbZn+B1KZluieFl8m0F3A4+AMDS3Evkhqnpw13peeHP
-19X3+xUBgN+7f0zhgWoJGzvnglkgra50VOoD9JZHUkmxpgZHXMavpspIDYDdwpKe
-xEgQ8lSVDQ==
-=4Ivy
------END PGP SIGNATURE-----
-
---odhn7ryspel32gtq--
+johannes
