@@ -1,262 +1,98 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDBFC142E9E
-	for <virtualization@lists.linux.dev>; Wed, 27 Mar 2024 17:26:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8280E12EBEF;
+	Wed, 27 Mar 2024 17:56:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711560397; cv=none; b=Vwkcw7TEXWreX+TeeRpDN8izIEkM3bn9F7/uYWeObDnkQTy1rJ6aQyCY+RG4zoe1BChj6HMH8Sv/0R9TBhqqyAyxfXOhHGbxzgngVFmIVwaQ3wYrBMhAEUwjWnHjs3+yPmfUhwE/N8uQdy6zFOfoWDptL0WjATgcQmgWTa0nyG8=
+	t=1711562208; cv=none; b=aWc5xVEThrHR6YEA7D2HBehsU9yiiWMvLsw+FxWn9ft65Zc/aE3empMP+xiAEjRbgEnuBEOG2UkT/MZBVo60P6sb6U26QGgyg1COJLVmg9o1A/e/GZsGA0l05gBgWgA0hioLLJe4l1bbIbJ6TRfmsSufJ+Xu1sWZyHkGa8LraQA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711560397; c=relaxed/simple;
-	bh=KO68VCsBjC7YXYAlyG5RlT0YZwWtlqL82EO6khY7yOQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=nVSy6CX/0E7o7f1VxmqqCpk4bK02w9I0sSEOAwIIw8OJbHjobPraIxk2dpxDgThQYGDJVECznzTReXF4Z7tmdliuldARAiogJmBgG4aAJkPk2htZg/FMMPIxw0D0V0If5XjnBHIvEpG0ePvqTeDHlt1Ye648jiI1GHvNdgL2JI0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JKQcH3Li; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1711562208; c=relaxed/simple;
+	bh=pKuISH9h1n83BoSbEk6oIRQvBztb2uVAQCVjoqJHhUw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=t7otQ+NIqLMqs4Zd24SAqFDUARbPXr1C9ImdrSIUnome0glmVym+q7jgIQyg4jBkILxO131zD20C3zD97liT9viM+yeI8uxq0YCW3CrJBpRzs6mN1AjNhVM4dLj04RsnLVRoxeW/Lx0v148yi/T3NaAvagYoRXC4iRUUtrKX6gw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oJLaRwV+; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JKQcH3Li"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1711560394;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-	bh=/EOUB4d8qVh5umKC4okNLh+AeZuN4LrBRasgfUriSZs=;
-	b=JKQcH3Li4Usdw0S0YcsOMz4HNs0HDMgb3b1nSA7080PdF6qkGJ7h4bFbsLE2rRVGzhx7qj
-	XrNhyus8sFRkK8kJ244R10UVx+hBzUhPHKpLGrI2xC+dXWDmld+zDNgp0/DBPCrlBIWSVC
-	3wWNxasLTy3dmYTOVucrluq71fP64Ic=
-Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
- [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-390-Ep9ksPcVMkesg8JEKGvEdA-1; Wed, 27 Mar 2024 13:26:32 -0400
-X-MC-Unique: Ep9ksPcVMkesg8JEKGvEdA-1
-Received: by mail-lf1-f70.google.com with SMTP id 2adb3069b0e04-513db3a5f7cso716116e87.0
-        for <virtualization@lists.linux.dev>; Wed, 27 Mar 2024 10:26:31 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711560391; x=1712165191;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=/EOUB4d8qVh5umKC4okNLh+AeZuN4LrBRasgfUriSZs=;
-        b=UN3THa111hS5un2CZEI0E1UR0q0Yn23eDszkhXJ2gGIlg7z4Sq8WifmYo1n3O+ZORD
-         exyDo4wqkFJe1iGeiMjqwOBGHQ2viqo9F4ZdBNucC63GxSIFwq7C80CyTUdu5/+MrCSQ
-         VWyp3Y75QhA8xBRm/oBv8Te61Xczs2ePBbhh3H11TwL4dT/WLkrMjlS3lzgeQPI0byhV
-         baSX7CMX3LezyiTRxW527QptOzddxK5vSQhJ86CaGmx4wwmBnZnYdsgbR9LrrpQ24ucb
-         +dEGuJmC2bCGVBlDIY9V0a3Jr8F1LEE6KlHXFVpJ5wuI2G/hiDZnT1P91wOQzvTGa5r5
-         8dbw==
-X-Forwarded-Encrypted: i=1; AJvYcCUDfbyAd/dr1IBmJ8YlVpiVkCEkDQgpMr568+p3JY46L40+Lonqm9GL/WsnpWIpxM8g8JbIaUOG0cfXThZZa0OsAa1Khju/YHoUgtPrl10=
-X-Gm-Message-State: AOJu0YxhRiuTll48hrKUC0shzpPryRFDXiNbX6RYD2pnrEjQcomt1v3s
-	AWiGSf9RqlFmBT9DRJYhCWEHRPAmRtJ1pk4AZg7mPC5TGaMm6o/PcQ74dB7d3HCUJvjjC/YBxwN
-	B+uI8CcTZRN3jVF64Gxy5kZzYGME1LszY0DOcapR0J9DnU/yLYmbZDGS+vm0gWr/M
-X-Received: by 2002:a19:ca4b:0:b0:513:e69a:a1ff with SMTP id h11-20020a19ca4b000000b00513e69aa1ffmr72099lfj.33.1711560390553;
-        Wed, 27 Mar 2024 10:26:30 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFsrrH9Se2ailCE8t/vJCFLbo93g75ddmuCiDF++8BsJ7zx/RU+W9ujlWe6Cep9MzUutd5uVA==
-X-Received: by 2002:a19:ca4b:0:b0:513:e69a:a1ff with SMTP id h11-20020a19ca4b000000b00513e69aa1ffmr72081lfj.33.1711560389862;
-        Wed, 27 Mar 2024 10:26:29 -0700 (PDT)
-Received: from redhat.com ([2.52.20.36])
-        by smtp.gmail.com with ESMTPSA id e5-20020a196905000000b00515904f7ba3sm1947672lfc.198.2024.03.27.10.26.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 Mar 2024 10:26:29 -0700 (PDT)
-Date: Wed, 27 Mar 2024 13:26:23 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org, Gavin Shan <gshan@redhat.com>,
-	Will Deacon <will@kernel.org>, Jason Wang <jasowang@redhat.com>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>, kvm@vger.kernel.org,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org
-Subject: [PATCH untested] vhost: order avail ring reads after index updates
-Message-ID: <f7be6f4ed4bc5405e9a6b848e5ac3dd1f9955c2a.1711560268.git.mst@redhat.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oJLaRwV+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1B8DC433C7;
+	Wed, 27 Mar 2024 17:56:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1711562208;
+	bh=pKuISH9h1n83BoSbEk6oIRQvBztb2uVAQCVjoqJHhUw=;
+	h=From:To:Cc:Subject:Date:From;
+	b=oJLaRwV+CJsu2Yrg5VZootPUJY7AFWOEkOAzEDE2SL1OA52sYTmuQOHAfLhSaqRt6
+	 yusGg0Ou/c7wyIYWgoBR0mpsEeu5v7DZTINWbk1K7I6jEkagUTx4228++Eh9q6rlcS
+	 YHoNiJlhcF/ukHA0WGak2jy44J5O7zCArnXPeEW2Jzf+rdzuKHS2+Twe433TrbNtzg
+	 q8mYAkpcY0uT2EBAo1wtbCpr/c934Up7uVIUe6WoWgIDplJbm3j/w4JueLmA+FXTnu
+	 xWWYXh6H3An2kqJIVP6QNYrwHMs9T2MYZ4Tq2VRXlCbO9IsT5oBhGg5OGUmjzZHthm
+	 X3aIhw7ejkFyQ==
+From: Miguel Ojeda <ojeda@kernel.org>
+To: Dave Airlie <airlied@redhat.com>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>
+Cc: David Airlie <airlied@gmail.com>,
+	Daniel Vetter <daniel@ffwll.ch>,
+	Alon Levy <alevy@redhat.com>,
+	Frediano Ziglio <fziglio@redhat.com>,
+	Miguel Ojeda <ojeda@kernel.org>,
+	virtualization@lists.linux.dev,
+	spice-devel@lists.freedesktop.org,
+	dri-devel@lists.freedesktop.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 1/2] drm/qxl: remove unused `count` variable from `qxl_surface_id_alloc()`
+Date: Wed, 27 Mar 2024 18:55:55 +0100
+Message-ID: <20240327175556.233126-1-ojeda@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
-X-Mutt-Fcc: =sent
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-vhost_get_vq_desc (correctly) uses smp_rmb to order
-avail ring reads after index reads.
-However, over time we added two more places that read the
-index and do not bother with barriers.
-Since vhost_get_vq_desc when it was written assumed it is the
-only reader when it sees a new index value is cached
-it does not bother with a barrier either, as a result,
-on the nvidia-gracehopper platform (arm64) available ring
-entry reads have been observed bypassing ring reads, causing
-a ring corruption.
+Clang 14 in an (essentially) defconfig loongarch64 build for next-20240326
+reports [1]:
 
-To fix, factor out the correct index access code from vhost_get_vq_desc.
-As a side benefit, we also validate the index on all paths now, which
-will hopefully help catch future errors earlier.
+    drivers/gpu/drm/qxl/qxl_cmd.c:424:6: error: variable 'count' set
+    but not used [-Werror,-Wunused-but-set-variable]
 
-Note: current code is inconsistent in how it handles errors:
-some places treat it as an empty ring, others - non empty.
-This patch does not attempt to change the existing behaviour.
+The variable is already unused in the version that got into the tree.
 
-Cc: stable@vger.kernel.org
-Reported-by: Gavin Shan <gshan@redhat.com>
-Reported-by: Will Deacon <will@kernel.org>
-Suggested-by: Will Deacon <will@kernel.org>
-Fixes: 275bf960ac69 ("vhost: better detection of available buffers")
-Cc: "Jason Wang" <jasowang@redhat.com>
-Fixes: d3bb267bbdcb ("vhost: cache avail index in vhost_enable_notify()")
-Cc: "Stefano Garzarella" <sgarzare@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Thus remove the unused variable.
+
+Fixes: f64122c1f6ad ("drm: add new QXL driver. (v1.4)")
+Closes: https://lore.kernel.org/lkml/CANiq72mjc5t4n25SQvYSrOEhxxpXYPZ4pPzneSJHEnc3qApu2Q@mail.gmail.com/
+Signed-off-by: Miguel Ojeda <ojeda@kernel.org>
 ---
+Given there is a loop going on here, it would be good to double-check whether
+this variable was supposed to be used for something useful or if it was just a
+remnant of a version previous to v1.4.
 
-I think it's better to bite the bullet and clean up the code.
-Note: this is still only built, not tested.
-Gavin could you help test please?
-Especially on the arm platform you have?
+ drivers/gpu/drm/qxl/qxl_cmd.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-Will thanks so much for finding this race!
-
-
- drivers/vhost/vhost.c | 80 +++++++++++++++++++++++--------------------
- 1 file changed, 42 insertions(+), 38 deletions(-)
-
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 045f666b4f12..26b70b1fd9ff 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -1290,10 +1290,38 @@ static void vhost_dev_unlock_vqs(struct vhost_dev *d)
- 		mutex_unlock(&d->vqs[i]->mutex);
- }
- 
--static inline int vhost_get_avail_idx(struct vhost_virtqueue *vq,
--				      __virtio16 *idx)
-+static inline int vhost_get_avail_idx(struct vhost_virtqueue *vq)
+diff --git a/drivers/gpu/drm/qxl/qxl_cmd.c b/drivers/gpu/drm/qxl/qxl_cmd.c
+index 281edab518cd..d6ea01f3797b 100644
+--- a/drivers/gpu/drm/qxl/qxl_cmd.c
++++ b/drivers/gpu/drm/qxl/qxl_cmd.c
+@@ -421,7 +421,6 @@ int qxl_surface_id_alloc(struct qxl_device *qdev,
  {
--	return vhost_get_avail(vq, *idx, &vq->avail->idx);
-+	__virtio16 idx;
-+	u16 avail_idx;
-+	int r = vhost_get_avail(vq, idx, &vq->avail->idx);
-+
-+	if (unlikely(r < 0)) {
-+		vq_err(vq, "Failed to access avail idx at %p: %d\n",
-+		       &vq->avail->idx, r);
-+		return -EFAULT;
-+	}
-+
-+	avail_idx = vhost16_to_cpu(vq, idx);
-+
-+	/* Check it isn't doing very strange things with descriptor numbers. */
-+	if (unlikely((u16)(avail_idx - vq->last_avail_idx) > vq->num)) {
-+		vq_err(vq, "Guest moved used index from %u to %u",
-+		       vq->last_avail_idx, vq->avail_idx);
-+		return -EFAULT;
-+	}
-+
-+	/* Nothing new? We are done. */
-+	if (avail_idx == vq->avail_idx)
-+		return 0;
-+
-+	vq->avail_idx = avail_idx;
-+
-+	/* We updated vq->avail_idx so we need a memory barrier between
-+	 * the index read above and the caller reading avail ring entries.
-+	 */
-+	smp_rmb();
-+	return 1;
- }
- 
- static inline int vhost_get_avail_head(struct vhost_virtqueue *vq,
-@@ -2498,38 +2526,21 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
- {
- 	struct vring_desc desc;
- 	unsigned int i, head, found = 0;
--	u16 last_avail_idx;
--	__virtio16 avail_idx;
-+	u16 last_avail_idx = vq->last_avail_idx;
- 	__virtio16 ring_head;
- 	int ret, access;
- 
--	/* Check it isn't doing very strange things with descriptor numbers. */
--	last_avail_idx = vq->last_avail_idx;
- 
- 	if (vq->avail_idx == vq->last_avail_idx) {
--		if (unlikely(vhost_get_avail_idx(vq, &avail_idx))) {
--			vq_err(vq, "Failed to access avail idx at %p\n",
--				&vq->avail->idx);
--			return -EFAULT;
--		}
--		vq->avail_idx = vhost16_to_cpu(vq, avail_idx);
--
--		if (unlikely((u16)(vq->avail_idx - last_avail_idx) > vq->num)) {
--			vq_err(vq, "Guest moved used index from %u to %u",
--				last_avail_idx, vq->avail_idx);
--			return -EFAULT;
--		}
-+		ret = vhost_get_avail_idx(vq);
-+		if (unlikely(ret < 0))
-+			return ret;
- 
- 		/* If there's nothing new since last we looked, return
- 		 * invalid.
- 		 */
--		if (vq->avail_idx == last_avail_idx)
-+		if (!ret)
- 			return vq->num;
--
--		/* Only get avail ring entries after they have been
--		 * exposed by guest.
--		 */
--		smp_rmb();
- 	}
- 
- 	/* Grab the next descriptor number they're advertising, and increment
-@@ -2790,25 +2801,21 @@ EXPORT_SYMBOL_GPL(vhost_add_used_and_signal_n);
- /* return true if we're sure that avaiable ring is empty */
- bool vhost_vq_avail_empty(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- {
--	__virtio16 avail_idx;
- 	int r;
- 
- 	if (vq->avail_idx != vq->last_avail_idx)
- 		return false;
- 
--	r = vhost_get_avail_idx(vq, &avail_idx);
--	if (unlikely(r))
--		return false;
--	vq->avail_idx = vhost16_to_cpu(vq, avail_idx);
-+	r = vhost_get_avail_idx(vq);
- 
--	return vq->avail_idx == vq->last_avail_idx;
-+	/* Note: we treat error as non-empty here */
-+	return r == 0;
- }
- EXPORT_SYMBOL_GPL(vhost_vq_avail_empty);
- 
- /* OK, now we need to know about added descriptors. */
- bool vhost_enable_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- {
--	__virtio16 avail_idx;
- 	int r;
- 
- 	if (!(vq->used_flags & VRING_USED_F_NO_NOTIFY))
-@@ -2832,13 +2839,10 @@ bool vhost_enable_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- 	/* They could have slipped one in as we were doing that: make
- 	 * sure it's written, then check again. */
- 	smp_mb();
--	r = vhost_get_avail_idx(vq, &avail_idx);
--	if (r) {
--		vq_err(vq, "Failed to check avail idx at %p: %d\n",
--		       &vq->avail->idx, r);
-+	r = vhost_get_avail_idx(vq);
-+	/* Note: we treat error as empty here */
-+	if (r < 0)
- 		return false;
--	}
--	vq->avail_idx = vhost16_to_cpu(vq, avail_idx);
- 
- 	return vq->avail_idx != vq->last_avail_idx;
- }
--- 
-MST
+ 	uint32_t handle;
+ 	int idr_ret;
+-	int count = 0;
+ again:
+ 	idr_preload(GFP_ATOMIC);
+ 	spin_lock(&qdev->surf_id_idr_lock);
+@@ -433,7 +432,6 @@ int qxl_surface_id_alloc(struct qxl_device *qdev,
+ 	handle = idr_ret;
 
+ 	if (handle >= qdev->rom->n_surfaces) {
+-		count++;
+ 		spin_lock(&qdev->surf_id_idr_lock);
+ 		idr_remove(&qdev->surf_id_idr, handle);
+ 		spin_unlock(&qdev->surf_id_idr_lock);
+
+base-commit: 26074e1be23143b2388cacb36166766c235feb7c
+--
+2.44.0
