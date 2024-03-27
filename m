@@ -1,108 +1,156 @@
-Received: from mail-pg1-f176.google.com (mail-pg1-f176.google.com [209.85.215.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34AC114E2F0
-	for <virtualization@lists.linux.dev>; Wed, 27 Mar 2024 18:14:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF6B5152526;
+	Wed, 27 Mar 2024 19:52:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711563281; cv=none; b=vEVVnXOQHFY9vGYrnQcy6yfAr7zphFjcEtfMdNjPf1e1Xeg1spwuHxxzq3S50ZGY1Sf3H46unhn50c/68wpR1cHaIWoifmqjYLe4zX1Ks+arM8MAJagZrrZqCT7CdloTzDJCSK9n236Kj3VDCh1GvX2YSpfyfZUF92wOJzJz8RE=
+	t=1711569128; cv=none; b=Q5+Fu07WB9YTrHz0Xt6tu6ETQG0PFpaphRDhxZVM3iUSfiBzr9xmAW/E1X604X6DMpqgDVfeS58l9x9Qt/7gGJIe+B/64IUzoRm4jtsuy3s5iMLu8hnx6y8WP6nk1fsumcUsLhaqJKFhuLakFMrEXR2/hJ5wbel0Uz1+lt8VJHc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711563281; c=relaxed/simple;
-	bh=c+HAs8na8S1a+bn6lSS66HuiZEpVDV+PpxLmevXlW20=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=pz8PX7B3HqXCaYcGYMqTTdx07LaVr1TZMzbrDYui0vIIqMP0VnDWJq9Qbzf40vA3b+I83MGeXJUJO4s5FTFhozG/HoZ4bENhUDPinxPsHyKjgUkNW5wFpGAOJUxZ8KBuC4AVqf9qf/SJW9F069K2ZQlAN6FNk2SL5C4rq7OTKg4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kTC0KRye; arc=none smtp.client-ip=209.85.215.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1711569128; c=relaxed/simple;
+	bh=NW/plT/lkw+bj9qL/voWkJkmE88rQnUU6wEQcKQY0HE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=eONAc9XS9I9MxjP71jwuJ3hgo8ZWiJzf0Zz7bLDW1Wu+MBxeXKFJAo+tKESFcygYSZ7CbndqkSa7uCVSOlGI3lekEpqk8bocna9U+pPxIZjEWWH63xvoeR/VGHCSHKuuVVAhiIjSFyCe59qPio3NEacgnIaN9GUvWpvQ6xrmJWs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KASVTbbY; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kTC0KRye"
-Received: by mail-pg1-f176.google.com with SMTP id 41be03b00d2f7-5bdbe2de25fso22463a12.3
-        for <virtualization@lists.linux.dev>; Wed, 27 Mar 2024 11:14:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1711563279; x=1712168079; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=c+HAs8na8S1a+bn6lSS66HuiZEpVDV+PpxLmevXlW20=;
-        b=kTC0KRye4Ktnea2nBUsenZ/jetKbwBWRxJoEEcgYKXZ8glnsg8d3qXJQmcTAMQ/ZcD
-         +Z6r7P1n1yJ60KyDYvdn2Q/xUmgTMS21SunQnBF19oQSffLESFRsfZxstacvgcz8O8tT
-         sRm6VN9leFIxKNPVGObwUtfwofxPzrpCke0h7eBpdiLpAToDazrnSCbbgnaLnaz904Z5
-         hXgRy5jar+3X02hhOQ7EsLjQTkI7tc4UQUPrW1dPLwW7R3cSBIhYVGfZWhbTt3yPKPz7
-         X8UkEkGA+zdPOX8i33PRt0qtqzg/4X7Oc5NrcaCUcG/MvruZWOZNRsgj7myN0p7VqR6/
-         gR9g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711563279; x=1712168079;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=c+HAs8na8S1a+bn6lSS66HuiZEpVDV+PpxLmevXlW20=;
-        b=r5MKih/cQAMxpi6q8xMr05Me8P2NjrBeim01NkUy+BqxKU5fpDZmpZPHdCcpH6RTqa
-         of8TyA9QdIhnJhbbikqDZC0IhV2XCNPwIXUUKLNlcc2UNOzARZer5ejlPZB+dw2p7P7g
-         9wMXaXGRelAsBRO/jVReQjGremrODIMKa1p3oxNENrHw38HL4Sdu+my0sPBzVLRuo88H
-         4J7phOm0kqc+E1a0yWneS6JFndpjogKmu18MhtbxDtf4lEcsSmOzGGMr+UW4eIAOJhqO
-         xu169+SUU6n85d3IXkCB3LYgUGHUSK9qySym8Ch2kb6rDG5g7TMIcn0H8yHxHD++9CoR
-         6SGQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWXr+ZdG7azGHq/JND2BmPQNvRk58z+k7JbuMNCBfKGEAyMP/UKTSWzrr8McBtm9hn3Ak6cX4dBVYosO1DLsughuWXyf0Xq2Zu+yQk3fJU=
-X-Gm-Message-State: AOJu0Yxbc/LN+0Ow7M+BID8mEq1tPfgm0gY95wzG+EKY91VaVAlnr2Jh
-	x3Uex/FPHoO4F7rmlQty9e2LBDPI20uPskXvacJRT/aikQNcik3icS/RDNQMgzF/zcpJOG1JDKg
-	CgtJZnr18O0A0XYc4y/ddb+aU5TA=
-X-Google-Smtp-Source: AGHT+IHnSIlLulq0AsyDt/9ly+HaxaRItPV6nqivKIU7J2Nb3KNQ0NWtBnqlPPqPhd9pV7pygYtLClxUydXGZyW5r/Y=
-X-Received: by 2002:a17:90a:65cc:b0:29b:9a08:6007 with SMTP id
- i12-20020a17090a65cc00b0029b9a086007mr394616pjs.46.1711563279395; Wed, 27 Mar
- 2024 11:14:39 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KASVTbbY"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 235A0C433C7;
+	Wed, 27 Mar 2024 19:52:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1711569128;
+	bh=NW/plT/lkw+bj9qL/voWkJkmE88rQnUU6wEQcKQY0HE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=KASVTbbYdrxm95eqZVmCFpnLknJBDKYPdDamEQvTLthvPNOmRTdm47trn8eYWdN/T
+	 brLftUfBJD4RKutIOC2d2WZN52a33/sMjKZW56z9vj+U8CV/nhi0bHaDOk3RBCU7oa
+	 WzK2VOtcZ9sU2NPwoHINwlSOB94oflPngQS6nDfeF7iahMDXOFs2q/Loy66rDVcJoj
+	 ylq2GULbNPQnko8sVJwURfcalqYZ/PK8FSqT3Pld5CTvT4CKC96k0c4FU7IY3BGXyY
+	 xrbwHV+YPtuFxNvvJJWp/PFaQTVfQhVOubC+JPmOW0hjpxfRrPkwP/i1FMaSE+bXQZ
+	 BuJI+CL8aoJBw==
+Date: Wed, 27 Mar 2024 19:52:02 +0000
+From: Will Deacon <will@kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+	Gavin Shan <gshan@redhat.com>, Jason Wang <jasowang@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org
+Subject: Re: [PATCH untested] vhost: order avail ring reads after index
+ updates
+Message-ID: <20240327195202.GB12000@willie-the-truck>
+References: <f7be6f4ed4bc5405e9a6b848e5ac3dd1f9955c2a.1711560268.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240327175556.233126-1-ojeda@kernel.org>
-In-Reply-To: <20240327175556.233126-1-ojeda@kernel.org>
-From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Date: Wed, 27 Mar 2024 19:14:12 +0100
-Message-ID: <CANiq72=kGWSQR7TgKDnAaef+FS3VGQeo3ri5vv1wxpW_88vdqA@mail.gmail.com>
-Subject: Re: [PATCH 1/2] drm/qxl: remove unused `count` variable from `qxl_surface_id_alloc()`
-To: Miguel Ojeda <ojeda@kernel.org>
-Cc: Dave Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
-	Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>, Daniel Vetter <daniel@ffwll.ch>, 
-	Alon Levy <alevy@redhat.com>, Frediano Ziglio <fziglio@redhat.com>, virtualization@lists.linux.dev, 
-	spice-devel@lists.freedesktop.org, dri-devel@lists.freedesktop.org, 
-	linux-kernel@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>, Tom Rix <trix@redhat.com>, 
-	Colin Ian King <colin.i.king@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <f7be6f4ed4bc5405e9a6b848e5ac3dd1f9955c2a.1711560268.git.mst@redhat.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 
-On Wed, Mar 27, 2024 at 6:56=E2=80=AFPM Miguel Ojeda <ojeda@kernel.org> wro=
-te:
->
-> Closes: https://lore.kernel.org/lkml/CANiq72mjc5t4n25SQvYSrOEhxxpXYPZ4pPz=
-neSJHEnc3qApu2Q@mail.gmail.com/
-
-Should have a [1] at the end.
-
-> Signed-off-by: Miguel Ojeda <ojeda@kernel.org>
+On Wed, Mar 27, 2024 at 01:26:23PM -0400, Michael S. Tsirkin wrote:
+> vhost_get_vq_desc (correctly) uses smp_rmb to order
+> avail ring reads after index reads.
+> However, over time we added two more places that read the
+> index and do not bother with barriers.
+> Since vhost_get_vq_desc when it was written assumed it is the
+> only reader when it sees a new index value is cached
+> it does not bother with a barrier either, as a result,
+> on the nvidia-gracehopper platform (arm64) available ring
+> entry reads have been observed bypassing ring reads, causing
+> a ring corruption.
+> 
+> To fix, factor out the correct index access code from vhost_get_vq_desc.
+> As a side benefit, we also validate the index on all paths now, which
+> will hopefully help catch future errors earlier.
+> 
+> Note: current code is inconsistent in how it handles errors:
+> some places treat it as an empty ring, others - non empty.
+> This patch does not attempt to change the existing behaviour.
+> 
+> Cc: stable@vger.kernel.org
+> Reported-by: Gavin Shan <gshan@redhat.com>
+> Reported-by: Will Deacon <will@kernel.org>
+> Suggested-by: Will Deacon <will@kernel.org>
+> Fixes: 275bf960ac69 ("vhost: better detection of available buffers")
+> Cc: "Jason Wang" <jasowang@redhat.com>
+> Fixes: d3bb267bbdcb ("vhost: cache avail index in vhost_enable_notify()")
+> Cc: "Stefano Garzarella" <sgarzare@redhat.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > ---
-> Given there is a loop going on here, it would be good to double-check whe=
-ther
-> this variable was supposed to be used for something useful or if it was j=
-ust a
-> remnant of a version previous to v1.4.
+> 
+> I think it's better to bite the bullet and clean up the code.
+> Note: this is still only built, not tested.
+> Gavin could you help test please?
+> Especially on the arm platform you have?
+> 
+> Will thanks so much for finding this race!
 
-Also, I see Nathan sent meanwhile a message about these two that were
-also mentioned/reported a while ago [1].
+No problem, and I was also hoping that the smp_rmb() could be
+consolidated into a single helper like you've done here.
 
-On my side, I noticed these due to my loongarch64 defconfig
-compile-test with Rust enabled yesterday [2], but I don't want to step
-on Tom/Colin/Nathan/ClangBuiltLinux's work, so please feel free to do
-with these patches as you will!
+One minor comment below:
 
-Thanks!
+>  drivers/vhost/vhost.c | 80 +++++++++++++++++++++++--------------------
+>  1 file changed, 42 insertions(+), 38 deletions(-)
+> 
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 045f666b4f12..26b70b1fd9ff 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -1290,10 +1290,38 @@ static void vhost_dev_unlock_vqs(struct vhost_dev *d)
+>  		mutex_unlock(&d->vqs[i]->mutex);
+>  }
+>  
+> -static inline int vhost_get_avail_idx(struct vhost_virtqueue *vq,
+> -				      __virtio16 *idx)
+> +static inline int vhost_get_avail_idx(struct vhost_virtqueue *vq)
+>  {
+> -	return vhost_get_avail(vq, *idx, &vq->avail->idx);
+> +	__virtio16 idx;
+> +	u16 avail_idx;
+> +	int r = vhost_get_avail(vq, idx, &vq->avail->idx);
+> +
+> +	if (unlikely(r < 0)) {
+> +		vq_err(vq, "Failed to access avail idx at %p: %d\n",
+> +		       &vq->avail->idx, r);
+> +		return -EFAULT;
+> +	}
+> +
+> +	avail_idx = vhost16_to_cpu(vq, idx);
+> +
+> +	/* Check it isn't doing very strange things with descriptor numbers. */
+> +	if (unlikely((u16)(avail_idx - vq->last_avail_idx) > vq->num)) {
+> +		vq_err(vq, "Guest moved used index from %u to %u",
+> +		       vq->last_avail_idx, vq->avail_idx);
+> +		return -EFAULT;
+> +	}
+> +
+> +	/* Nothing new? We are done. */
+> +	if (avail_idx == vq->avail_idx)
+> +		return 0;
+> +
+> +	vq->avail_idx = avail_idx;
+> +
+> +	/* We updated vq->avail_idx so we need a memory barrier between
+> +	 * the index read above and the caller reading avail ring entries.
+> +	 */
+> +	smp_rmb();
+
+I think you could use smp_acquire__after_ctrl_dep() if you're feeling
+brave, but to be honest I'd prefer we went in the opposite direction
+and used READ/WRITE_ONCE + smp_load_acquire()/smp_store_release() across
+the board. It's just a thankless, error-prone task to get there :(
+
+So, for the patch as-is:
+
+Acked-by: Will Deacon <will@kernel.org>
+
+(I've not tested it either though, so definitely wait for Gavin on that!)
 
 Cheers,
-Miguel
 
-[1] https://lore.kernel.org/all/20240327163331.GB1153323@dev-arch.thelio-39=
-90X/
-[2] https://lore.kernel.org/lkml/CANiq72mjc5t4n25SQvYSrOEhxxpXYPZ4pPzneSJHE=
-nc3qApu2Q@mail.gmail.com/
+Will
