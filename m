@@ -1,246 +1,163 @@
-Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33439129E9E
-	for <virtualization@lists.linux.dev>; Wed, 27 Mar 2024 12:00:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F486136E2D
+	for <virtualization@lists.linux.dev>; Wed, 27 Mar 2024 12:08:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711540808; cv=none; b=qNjGM1AakSQS3R0Ep04v9tfAZwEw/cwNwARxO7v/Idhj1g6gTIxr4/LAXcpak7mr1WLzxJ7UTERrMSnLnknI2XJe8Dq9+eXbfMgRk8VAaHp6cqaXwSN32KGIW+o3VUFZUhVVKuMkPN07AFacJ60eMvDfjofGO4o+vW7yq1BRbtc=
+	t=1711541293; cv=none; b=DLbQRimr/bAjD8I1XZvw+HDnT17qFQOwA0DPkvb9en2Wr+LSLCn8vYnuKWLTs536ltbCYbE4CkvxJ4JiXHfB9p62ir47wrqikE3D5erxmOGccCcfSpcFm9MRsFVpwQ4mC4MjCNq3NLkIxy811jErK2tHym4fS3PsExuYXKwopnQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711540808; c=relaxed/simple;
-	bh=eA5GxF7TR+a6e/WOnrkvmh8TvpOLH+c/LG3f3FOpQD4=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=P366FyNE3fLo/GT6Y7Kt43XGDeBGv6fLLzpJW3B7PLyB+QPuyrsOJ9/qvIGxo+HFmYk+x4lzJsHLOYQA2wkMHKMQyZL+V/3tb/hl2uRIfsR87TUtbyIsefIeTVM4VMrno/yta0+4q1Lj6wvrXEROWmzyESlh7IGl7ooMErdbSHE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=mY3r8opu; arc=none smtp.client-ip=115.124.30.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1711541293; c=relaxed/simple;
+	bh=lKLG3UiaMdK6ulFJvlHav6o8D9DIxUzc0+qtoqM54VM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=nz9BOawve5u3t0rxbM48NGfbxbloDDgKMqhIIYrHAUhh1hzDkOw6NrQxle7tUVQURS/4XqkCG4wph/DkdZqqoeV5ot7muKAJj1ynYdU7fU5kFC9ACo2LuDpSCMjV8BatZLH9NE+YvJ0o/XVemcdhirFweJTvxSSCOO+Y5tGRN7w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TruiT/wm; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="mY3r8opu"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1711540803; h=Message-ID:Date:MIME-Version:Subject:From:To:Content-Type;
-	bh=CB0OzCMu7QlIaYlEd0xg2JNuqwd+jMTOtU7SHTAlnlg=;
-	b=mY3r8opu9ptZEUJ8TtnIwr0PIQy8PMxGxl9vcZHDSCIid6xibuH5+dkR3lcF7vsnvSA/MVRpi6OP10TF0hC/T6IMutJz5atzEM4BHRLZtfWzhus4uDyZPpOGkH/jmYkQQF6NlQEAHdGJPGsUA3qWl9+dqV2tmaaRRewSp38gm8k=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0W3OcvHX_1711540801;
-Received: from 30.221.148.214(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W3OcvHX_1711540801)
-          by smtp.aliyun-inc.com;
-          Wed, 27 Mar 2024 20:00:02 +0800
-Message-ID: <e03bf61e-22ab-4950-996c-9ce6e72b608b@linux.alibaba.com>
-Date: Wed, 27 Mar 2024 20:00:00 +0800
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TruiT/wm"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1711541290;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=bi+ZQnYSyNBVd43PK67DW5yA3+DYZIo1uqQGHuPLUr4=;
+	b=TruiT/wmqJDbvGYyCA7DgpuI9M2PUcY+Ias38wX4Rt7aitMRl5hBgLYdv57Hyr58YW6s9q
+	1TRwKtp3OzptLPJvhO6CTbYXsWtgwSckmC5tS5gIdff0x62sK6wGHMYjkEJJLVPz3vDmPs
+	0ARAA3pWXVAwRDDI6l4etSkqG4WynSQ=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-591-wkdd5HKwPCyLXxCI2_IZsA-1; Wed, 27 Mar 2024 08:08:09 -0400
+X-MC-Unique: wkdd5HKwPCyLXxCI2_IZsA-1
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4148a697e35so13057225e9.1
+        for <virtualization@lists.linux.dev>; Wed, 27 Mar 2024 05:08:08 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1711541287; x=1712146087;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=bi+ZQnYSyNBVd43PK67DW5yA3+DYZIo1uqQGHuPLUr4=;
+        b=VrdhRHAR9IHYUcmPpYTpNMwKFvZLgUYReVXMS22Qom/OPIapyE//Lu7fZO9CFdXj1H
+         evo+BYXZyOKzKKjRIMegdkKOoMdQ1ys8i2h3kgOF1wbkLeZiUzFIHWMPSZt6bXWtyOHP
+         DViTlG+viSo8iRz2aUl1ySF9+eFCPmbRU6z6UTE5MI/aqnVr+hGTCU0EThmBPXFUuRCS
+         JJxQnuMeC9A7BYtnPHjaulDeo9IjJOpM21tcJOTof09q57U5U6mb6f7INta7vv70vOkx
+         oGbGS4X9ilNpYJfvmpaUl4jPosn0Q4clQtu3uM8S2ls61eHXKseInuWiwa6UhCuH5Ywe
+         VNyw==
+X-Gm-Message-State: AOJu0Yy6FLtosq78Zal9PZHwG8i6rWRYVxzlwWhNP2jMODc/HrxY6CXI
+	BQ4BTION+2QN3poBhWzyppDygiDqxkVG60iWDD4RvZyzrszDBMngxwSvgYWSnjMnkkaQEEn0Dzj
+	j9dUEtXu9MfLCX+ktdZENrwDsWAKTd9s8yGX+rW92/OPjn413Y5t1egzUKKxRzag4huPQutP9
+X-Received: by 2002:a05:600c:5716:b0:413:f7c4:f4fc with SMTP id jv22-20020a05600c571600b00413f7c4f4fcmr1708275wmb.15.1711541286789;
+        Wed, 27 Mar 2024 05:08:06 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHrGIPFjXov8faB+sPfLv/7odN1taQWiMTqh1DDC2SOAY/ynb3YOFq7GV+r4op9aeSbHg+BTA==
+X-Received: by 2002:a05:600c:5716:b0:413:f7c4:f4fc with SMTP id jv22-20020a05600c571600b00413f7c4f4fcmr1708253wmb.15.1711541286235;
+        Wed, 27 Mar 2024 05:08:06 -0700 (PDT)
+Received: from redhat.com ([2.52.20.36])
+        by smtp.gmail.com with ESMTPSA id z18-20020a05600c0a1200b00414928360bbsm2000995wmp.6.2024.03.27.05.08.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 27 Mar 2024 05:08:05 -0700 (PDT)
+Date: Wed, 27 Mar 2024 08:07:59 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Gavin Shan <gshan@redhat.com>
+Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+	jasowang@redhat.com, davem@davemloft.net, stefanha@redhat.com,
+	sgarzare@redhat.com, keirf@google.com, yihyu@redhat.com,
+	shan.gavin@gmail.com
+Subject: Re: [PATCH v2 1/2] vhost: Add smp_rmb() in vhost_vq_avail_empty()
+Message-ID: <20240327075940-mutt-send-email-mst@kernel.org>
+References: <20240326233846.1086253-1-gshan@redhat.com>
+ <20240326233846.1086253-2-gshan@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next 4/4] virtio_net: Remove rtnl lock protection of
- command buffers
-From: Heng Qi <hengqi@linux.alibaba.com>
-To: Dan Jurgens <danielj@nvidia.com>
-Cc: "mst@redhat.com" <mst@redhat.com>,
- "jasowang@redhat.com" <jasowang@redhat.com>,
- "xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
- "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
- "davem@davemloft.net" <davem@davemloft.net>,
- "edumazet@google.com" <edumazet@google.com>,
- "kuba@kernel.org" <kuba@kernel.org>, "pabeni@redhat.com"
- <pabeni@redhat.com>, Jiri Pirko <jiri@nvidia.com>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>
-References: <20240325214912.323749-1-danielj@nvidia.com>
- <20240325214912.323749-5-danielj@nvidia.com>
- <11b6dac0-a18a-47ae-904d-cb9d29e1ca31@linux.alibaba.com>
- <CH0PR12MB8580B9701C9BD0B62FF04B77C9352@CH0PR12MB8580.namprd12.prod.outlook.com>
- <9c3656c0-bb73-4e96-9bd1-26e732f72781@linux.alibaba.com>
-In-Reply-To: <9c3656c0-bb73-4e96-9bd1-26e732f72781@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20240326233846.1086253-2-gshan@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Wed, Mar 27, 2024 at 09:38:45AM +1000, Gavin Shan wrote:
+> A smp_rmb() has been missed in vhost_vq_avail_empty(), spotted by
+> Will Deacon <will@kernel.org>. Otherwise, it's not ensured the
+> available ring entries pushed by guest can be observed by vhost
+> in time, leading to stale available ring entries fetched by vhost
+> in vhost_get_vq_desc(), as reported by Yihuang Yu on NVidia's
+> grace-hopper (ARM64) platform.
+> 
+>   /home/gavin/sandbox/qemu.main/build/qemu-system-aarch64      \
+>   -accel kvm -machine virt,gic-version=host -cpu host          \
+>   -smp maxcpus=1,cpus=1,sockets=1,clusters=1,cores=1,threads=1 \
+>   -m 4096M,slots=16,maxmem=64G                                 \
+>   -object memory-backend-ram,id=mem0,size=4096M                \
+>    :                                                           \
+>   -netdev tap,id=vnet0,vhost=true                              \
+>   -device virtio-net-pci,bus=pcie.8,netdev=vnet0,mac=52:54:00:f1:26:b0
+>    :
+>   guest# netperf -H 10.26.1.81 -l 60 -C -c -t UDP_STREAM
+>   virtio_net virtio0: output.0:id 100 is not a head!
+> 
+> Add the missed smp_rmb() in vhost_vq_avail_empty(). Note that it
+> should be safe until vq->avail_idx is changed by commit 275bf960ac697
+> ("vhost: better detection of available buffers").
+> 
+> Fixes: 275bf960ac697 ("vhost: better detection of available buffers")
+> Cc: <stable@kernel.org> # v4.11+
+> Reported-by: Yihuang Yu <yihyu@redhat.com>
+> Signed-off-by: Gavin Shan <gshan@redhat.com>
+> ---
+>  drivers/vhost/vhost.c | 11 ++++++++++-
+>  1 file changed, 10 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 045f666b4f12..00445ab172b3 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -2799,9 +2799,18 @@ bool vhost_vq_avail_empty(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+>  	r = vhost_get_avail_idx(vq, &avail_idx);
+>  	if (unlikely(r))
+>  		return false;
+> +
+>  	vq->avail_idx = vhost16_to_cpu(vq, avail_idx);
+> +	if (vq->avail_idx != vq->last_avail_idx) {
+> +		/* Similar to what's done in vhost_get_vq_desc(), we need
+> +		 * to ensure the available ring entries have been exposed
+> +		 * by guest.
+> +		 */
+
+A slightly clearer comment:
+
+/* Since we have updated avail_idx, the following call to
+ * vhost_get_vq_desc will read available ring entries.
+ * Make sure that read happens after the avail_idx read.
+ */
+
+Pls repost with that, and I will apply.
+
+Also add suggested-by for will.
+
+
+> +		smp_rmb();
+> +		return false;
+> +	}
+>  
+> -	return vq->avail_idx == vq->last_avail_idx;
+> +	return true;
+>  }
+>  EXPORT_SYMBOL_GPL(vhost_vq_avail_empty);
+
+As a follow-up patch, we should clean out code duplication that
+accumulated with 3 places reading avail idx in essentially
+the same way - this duplication is what causes the mess in
+the 1st place.
 
 
 
-在 2024/3/27 上午10:10, Heng Qi 写道:
->
->
-> 在 2024/3/26 下午11:18, Dan Jurgens 写道:
->>> From: Heng Qi <hengqi@linux.alibaba.com>
->>> Sent: Tuesday, March 26, 2024 3:55 AM
->>> To: Dan Jurgens <danielj@nvidia.com>; netdev@vger.kernel.org
->>> Cc: mst@redhat.com; jasowang@redhat.com; xuanzhuo@linux.alibaba.com;
->>> virtualization@lists.linux.dev; davem@davemloft.net;
->>> edumazet@google.com; kuba@kernel.org; pabeni@redhat.com; Jiri Pirko
->>> <jiri@nvidia.com>
->>> Subject: Re: [PATCH net-next 4/4] virtio_net: Remove rtnl lock 
->>> protection of
->>> command buffers
->>>
->>>
->>>
->>> 在 2024/3/26 上午5:49, Daniel Jurgens 写道:
->>>> The rtnl lock is no longer needed to protect the control buffer and
->>>> command VQ.
->>>>
->>>> Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
->>>> Reviewed-by: Jiri Pirko <jiri@nvidia.com>
->>>> ---
->>>>    drivers/net/virtio_net.c | 27 +++++----------------------
->>>>    1 file changed, 5 insertions(+), 22 deletions(-)
->>>>
->>>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c index
->>>> 41f8dc16ff38..d09ea20b16be 100644
->>>> --- a/drivers/net/virtio_net.c
->>>> +++ b/drivers/net/virtio_net.c
->>>> @@ -2639,14 +2639,12 @@ static void virtnet_stats(struct net_device
->>>> *dev,
->>>>
->>>>    static void virtnet_ack_link_announce(struct virtnet_info *vi)
->>>>    {
->>>> -    rtnl_lock();
->>>>        if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_ANNOUNCE,
->>>>                      VIRTIO_NET_CTRL_ANNOUNCE_ACK,
->>> NULL))
->>>> dev_warn(&vi->dev->dev, "Failed to ack link announce.\n");
->>>> -    rtnl_unlock();
->>>>    }
->>>>
->>>> -static int _virtnet_set_queues(struct virtnet_info *vi, u16
->>>> queue_pairs)
->>>> +static int virtnet_set_queues(struct virtnet_info *vi, u16
->>>> +queue_pairs)
->>>>    {
->>>>        struct virtio_net_ctrl_mq *mq __free(kfree) = NULL;
->>>>        struct scatterlist sg;
->>>> @@ -2677,16 +2675,6 @@ static int _virtnet_set_queues(struct
->>> virtnet_info *vi, u16 queue_pairs)
->>>>        return 0;
->>>>    }
->>>>
->>>> -static int virtnet_set_queues(struct virtnet_info *vi, u16
->>>> queue_pairs) -{
->>>> -    int err;
->>>> -
->>>> -    rtnl_lock();
->>>> -    err = _virtnet_set_queues(vi, queue_pairs);
->>>> -    rtnl_unlock();
->>>> -    return err;
->>>> -}
->>>> -
->>>>    static int virtnet_close(struct net_device *dev)
->>>>    {
->>>>        struct virtnet_info *vi = netdev_priv(dev); @@ -3268,7 
->>>> +3256,7 @@
->>>> static int virtnet_set_channels(struct net_device *dev,
->>>>            return -EINVAL;
->>>>
->>>>        cpus_read_lock();
->>>> -    err = _virtnet_set_queues(vi, queue_pairs);
->>>> +    err = virtnet_set_queues(vi, queue_pairs);
->>>>        if (err) {
->>>>            cpus_read_unlock();
->>>>            goto err;
->>>> @@ -3558,14 +3546,11 @@ static void virtnet_rx_dim_work(struct
->>> work_struct *work)
->>>>        struct dim_cq_moder update_moder;
->>>>        int i, qnum, err;
->>>>
->>>> -    if (!rtnl_trylock())
->>>> -        return;
->>>> -
->>> Does this guarantee that the synchronization is completely correct?
->>>
->>> The purpose of this patch set is to add a separate lock for ctrlq 
->>> rather than
->>> reusing the RTNL lock.
->>> But for dim workers, it not only involves the use of ctrlq, but also 
->>> involves
->>> reading shared variables in interfaces such as .set_coalesce, 
->>> .get_coalesce,
->>> etc.
->> It looks like there is a risk of a dirty read in the get (usecs 
->> updated, but not max_packets).
->
-> Also dim_enabled.
->
-> And later I need to asynchronousize the dim cmds, which means that
-> different dim workers will operate a shared linked list.
->
-> So we need a lock.
 
-After removing the loop, maybe READ_ONCE/WRITE_ONCE will be enough?
 
->
->>   In the set it will return -EINVAL if trying to adjust the settings 
->> aside from DIM enabled.  I can add a lock for this if you think it's 
->> needed, but it doesn't seem like a major problem for debug info.
->
-> Not just for debug info, but future extensions as well.
->
-> These desynchronizations can introduce more trouble in the future.
->
-> Regards,
-> Heng
->
->>
->>
->>> In addition, assuming there are 10 queues, each queue is scheduled 
->>> with its
->>> own dim worker at the same time, then these 10 workers may issue
->>> parameters to rxq0 10 times in parallel, just because the RTNL lock is
->>> removed here.
->>>
->>> Therefore, when the RTNL lock is removed, a 'for loop' is no longer 
->>> needed in
->>> virtnet_rx_dim_work, and the dim worker of each queue only 
->>> configures its
->>> own parameters.
->>>
->> Good point. I'll add a new patch to remove the for loop.
->>
->>> Alternatively, please keep RTNL lock here.
->>>
->>> Regards,
->>> Heng
->>>
->>>>        /* Each rxq's work is queued by "net_dim()->schedule_work()"
->>>>         * in response to NAPI traffic changes. Note that 
->>>> dim->profile_ix
->>>>         * for each rxq is updated prior to the queuing action.
->>>>         * So we only need to traverse and update profiles for all rxqs
->>>> -     * in the work which is holding rtnl_lock.
->>>> +     * in the work.
->>>>         */
->>>>        for (i = 0; i < vi->curr_queue_pairs; i++) {
->>>>            rq = &vi->rq[i];
->>>> @@ -3587,8 +3572,6 @@ static void virtnet_rx_dim_work(struct
->>> work_struct *work)
->>>>                dim->state = DIM_START_MEASURE;
->>>>            }
->>>>        }
->>>> -
->>>> -    rtnl_unlock();
->>>>    }
->>>>
->>>>    static int virtnet_coal_params_supported(struct ethtool_coalesce
->>>> *ec) @@ -4036,7 +4019,7 @@ static int virtnet_xdp_set(struct 
->>>> net_device
->>> *dev, struct bpf_prog *prog,
->>>>            synchronize_net();
->>>>        }
->>>>
->>>> -    err = _virtnet_set_queues(vi, curr_qp + xdp_qp);
->>>> +    err = virtnet_set_queues(vi, curr_qp + xdp_qp);
->>>>        if (err)
->>>>            goto err;
->>>>        netif_set_real_num_rx_queues(dev, curr_qp + xdp_qp); @@ -
->>> 4852,7
->>>> +4835,7 @@ static int virtnet_probe(struct virtio_device *vdev)
->>>>
->>>>        virtio_device_ready(vdev);
->>>>
->>>> -    _virtnet_set_queues(vi, vi->curr_queue_pairs);
->>>> +    virtnet_set_queues(vi, vi->curr_queue_pairs);
->>>>
->>>>        /* a random MAC address has been assigned, notify the device.
->>>>         * We don't fail probe if VIRTIO_NET_F_CTRL_MAC_ADDR is not
->>> there
->
+
+> -- 
+> 2.44.0
 
