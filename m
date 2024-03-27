@@ -1,92 +1,108 @@
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+Received: from mail-pg1-f176.google.com (mail-pg1-f176.google.com [209.85.215.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03EFF14E2E0
-	for <virtualization@lists.linux.dev>; Wed, 27 Mar 2024 18:13:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34AC114E2F0
+	for <virtualization@lists.linux.dev>; Wed, 27 Mar 2024 18:14:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711563197; cv=none; b=Xu2EukunIdytNxwyyXxQWzDnc2xaedrrv3iHGRtT2oMNgIEYK8C9pWh83jdQ9BDdmcjYlKNBNvrapRhH7ZGWwPsoeNY+/WohPXmOk+mXqGWJCELN8a5wreVt3Y7KBf1iEwg+ETqdQmpI+1/x8vMu11R2lB9gUcdlWap4DTUldz4=
+	t=1711563281; cv=none; b=vEVVnXOQHFY9vGYrnQcy6yfAr7zphFjcEtfMdNjPf1e1Xeg1spwuHxxzq3S50ZGY1Sf3H46unhn50c/68wpR1cHaIWoifmqjYLe4zX1Ks+arM8MAJagZrrZqCT7CdloTzDJCSK9n236Kj3VDCh1GvX2YSpfyfZUF92wOJzJz8RE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711563197; c=relaxed/simple;
-	bh=wyryXguB8266lLWCkFJS/84WDCfywSXsHKF549oL7yE=;
+	s=arc-20240116; t=1711563281; c=relaxed/simple;
+	bh=c+HAs8na8S1a+bn6lSS66HuiZEpVDV+PpxLmevXlW20=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=X+l5llOM9fCNB52mhTvIMBtros9ouiREw97JyXfVos8/7FJARefS8XwN/t1BQIStLdfceJuebj6gV8CNINcJK19hOFV9pZj0p9OHFyJup2vFolaigA4az3/PT14g2ik5PP0ukaYUshaqqUBO2HsatEbKnuOV8HO47W5Y3k6ho9o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Q6/Aw5+h; arc=none smtp.client-ip=209.85.216.48
+	 To:Cc:Content-Type; b=pz8PX7B3HqXCaYcGYMqTTdx07LaVr1TZMzbrDYui0vIIqMP0VnDWJq9Qbzf40vA3b+I83MGeXJUJO4s5FTFhozG/HoZ4bENhUDPinxPsHyKjgUkNW5wFpGAOJUxZ8KBuC4AVqf9qf/SJW9F069K2ZQlAN6FNk2SL5C4rq7OTKg4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kTC0KRye; arc=none smtp.client-ip=209.85.215.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Q6/Aw5+h"
-Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-29f6f8614c8so133884a91.0
-        for <virtualization@lists.linux.dev>; Wed, 27 Mar 2024 11:13:15 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kTC0KRye"
+Received: by mail-pg1-f176.google.com with SMTP id 41be03b00d2f7-5bdbe2de25fso22463a12.3
+        for <virtualization@lists.linux.dev>; Wed, 27 Mar 2024 11:14:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1711563195; x=1712167995; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1711563279; x=1712168079; darn=lists.linux.dev;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=F+Apmp+5NG0ozOI/JWe7g3FmXSoAcJcuTi09oKHmC84=;
-        b=Q6/Aw5+hn4VrkJQdlaSs6jzRNPoiUbA9/IcEldgAXPaswAqQGRq58XwnGngen7ljIe
-         iopgDOJxl2t+cpRVDK78Z3fDtPNmIqmMC7AWFF54V2MBwwbhYviGpjrSlmoxXogxiTai
-         pWKRefE13mCOV+8ylbdZeESVOCdIN+wQDMGHkgX+qL5T8UIIlIRlo8tVLxCKFJKfAKsy
-         9LKKzQzgN2N33xNv9fQMg03k2UaUPoFE/1H6jAHdcr/Ny2fNlLBGJAqv/Bwx7wFFo7t2
-         wILaFsEz9Z0ns2IxVVFjgr6ZqbJKZWxerXeu8RKHAIWV0H3bWbfPT5RphXd5JQ1djqOO
-         9zqQ==
+        bh=c+HAs8na8S1a+bn6lSS66HuiZEpVDV+PpxLmevXlW20=;
+        b=kTC0KRye4Ktnea2nBUsenZ/jetKbwBWRxJoEEcgYKXZ8glnsg8d3qXJQmcTAMQ/ZcD
+         +Z6r7P1n1yJ60KyDYvdn2Q/xUmgTMS21SunQnBF19oQSffLESFRsfZxstacvgcz8O8tT
+         sRm6VN9leFIxKNPVGObwUtfwofxPzrpCke0h7eBpdiLpAToDazrnSCbbgnaLnaz904Z5
+         hXgRy5jar+3X02hhOQ7EsLjQTkI7tc4UQUPrW1dPLwW7R3cSBIhYVGfZWhbTt3yPKPz7
+         X8UkEkGA+zdPOX8i33PRt0qtqzg/4X7Oc5NrcaCUcG/MvruZWOZNRsgj7myN0p7VqR6/
+         gR9g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711563195; x=1712167995;
+        d=1e100.net; s=20230601; t=1711563279; x=1712168079;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=F+Apmp+5NG0ozOI/JWe7g3FmXSoAcJcuTi09oKHmC84=;
-        b=ZDR8+DBZsTqSgJLMtxV5Sk+KvwKfh7y90dw6gHIw15dBPIO/rhBtmRrpe0HBSpRCZ1
-         Ij7h+KuzgTe3ZYUzQ36c7oml8W6iBdNzMZq4cCJ/KC+OclhYhX9/MZdqAePtVYujtelU
-         J5orGRDiEgAC9nIEKPeolyJl1eeFAMjvfNe9hBucZTC0OQG5ZMUqKQwrakHtxW1h8D9X
-         1k2Zhc8RKinyD0NsnFo7myiwjcCYDHAq7q1jTbSS6QpazfXS0cGRcZIgRZfx798rB0uk
-         KltxKgvW/nxxL4E1gb9rym5k1vvV9eR5TCBKzd/YEi2rjw0N+j/p3IxZR1jERkfqTC4L
-         t9yA==
-X-Forwarded-Encrypted: i=1; AJvYcCVBdB8sh/c7opD3/XSXDePzrG9HC/oKdJsffNdN52lE6PNGoWkAjBNdr/v7y10hkCX18YP1rwDAkDXSL0IcAqi+wBsKIecKCPMWntjU6ws=
-X-Gm-Message-State: AOJu0YwrGA1+0j6+oJqy24WFYbiuvhAZkrJ0llROgZNF11Xtl13omjeP
-	YCCXwzZslcVF6E43b37kcB7/H8IvlGaDe9T0aIiUQQDO5bJBIFlXplb8pRXdoiY8EA6Pb2w86K2
-	6jvQauuGpgUvnEqIWLw/hEJNMM+s=
-X-Google-Smtp-Source: AGHT+IHLikdTRV0YFY05LU+4dKjjaqnZE0r4ZhQYCDgh/j+5MZTT1jmReESMvyU/J8EN3USD/LkkQwkRCTSMfu5GTf8=
-X-Received: by 2002:a17:90b:3702:b0:29d:dfae:4fac with SMTP id
- mg2-20020a17090b370200b0029ddfae4facmr514671pjb.23.1711563195269; Wed, 27 Mar
- 2024 11:13:15 -0700 (PDT)
+        bh=c+HAs8na8S1a+bn6lSS66HuiZEpVDV+PpxLmevXlW20=;
+        b=r5MKih/cQAMxpi6q8xMr05Me8P2NjrBeim01NkUy+BqxKU5fpDZmpZPHdCcpH6RTqa
+         of8TyA9QdIhnJhbbikqDZC0IhV2XCNPwIXUUKLNlcc2UNOzARZer5ejlPZB+dw2p7P7g
+         9wMXaXGRelAsBRO/jVReQjGremrODIMKa1p3oxNENrHw38HL4Sdu+my0sPBzVLRuo88H
+         4J7phOm0kqc+E1a0yWneS6JFndpjogKmu18MhtbxDtf4lEcsSmOzGGMr+UW4eIAOJhqO
+         xu169+SUU6n85d3IXkCB3LYgUGHUSK9qySym8Ch2kb6rDG5g7TMIcn0H8yHxHD++9CoR
+         6SGQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWXr+ZdG7azGHq/JND2BmPQNvRk58z+k7JbuMNCBfKGEAyMP/UKTSWzrr8McBtm9hn3Ak6cX4dBVYosO1DLsughuWXyf0Xq2Zu+yQk3fJU=
+X-Gm-Message-State: AOJu0Yxbc/LN+0Ow7M+BID8mEq1tPfgm0gY95wzG+EKY91VaVAlnr2Jh
+	x3Uex/FPHoO4F7rmlQty9e2LBDPI20uPskXvacJRT/aikQNcik3icS/RDNQMgzF/zcpJOG1JDKg
+	CgtJZnr18O0A0XYc4y/ddb+aU5TA=
+X-Google-Smtp-Source: AGHT+IHnSIlLulq0AsyDt/9ly+HaxaRItPV6nqivKIU7J2Nb3KNQ0NWtBnqlPPqPhd9pV7pygYtLClxUydXGZyW5r/Y=
+X-Received: by 2002:a17:90a:65cc:b0:29b:9a08:6007 with SMTP id
+ i12-20020a17090a65cc00b0029b9a086007mr394616pjs.46.1711563279395; Wed, 27 Mar
+ 2024 11:14:39 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <CANiq72mbsAYmR_dRPpQQ=9-NWhTtp0TWiOz0v=V-0AvwYbWw4A@mail.gmail.com>
- <20240327-magnetic-nonchalant-hare-bbe8d2@houat> <CANiq72kqqQfUxLkHJYqeBAhpc6YcX7bfR96gmmbF=j8hEOykqw@mail.gmail.com>
-In-Reply-To: <CANiq72kqqQfUxLkHJYqeBAhpc6YcX7bfR96gmmbF=j8hEOykqw@mail.gmail.com>
+References: <20240327175556.233126-1-ojeda@kernel.org>
+In-Reply-To: <20240327175556.233126-1-ojeda@kernel.org>
 From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Date: Wed, 27 Mar 2024 19:12:47 +0100
-Message-ID: <CANiq72=hguVfscJQSCAYS2FfL1VpUVvX_Chd4X8gAX4Twq-TLQ@mail.gmail.com>
-Subject: Re: drivers/gpu/drm/qxl/qxl_cmd.c:424:6: error: variable 'count' set
- but not used
-To: Maxime Ripard <mripard@kernel.org>
+Date: Wed, 27 Mar 2024 19:14:12 +0100
+Message-ID: <CANiq72=kGWSQR7TgKDnAaef+FS3VGQeo3ri5vv1wxpW_88vdqA@mail.gmail.com>
+Subject: Re: [PATCH 1/2] drm/qxl: remove unused `count` variable from `qxl_surface_id_alloc()`
+To: Miguel Ojeda <ojeda@kernel.org>
 Cc: Dave Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Thomas Zimmermann <tzimmermann@suse.de>, 
-	David Airlie <airlied@gmail.com>, Daniel Vetter <daniel@ffwll.ch>, virtualization@lists.linux.dev, 
-	spice-devel@lists.freedesktop.org, 
-	dri-devel <dri-devel@lists.freedesktop.org>, 
-	linux-kernel <linux-kernel@vger.kernel.org>
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
+	Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>, Daniel Vetter <daniel@ffwll.ch>, 
+	Alon Levy <alevy@redhat.com>, Frediano Ziglio <fziglio@redhat.com>, virtualization@lists.linux.dev, 
+	spice-devel@lists.freedesktop.org, dri-devel@lists.freedesktop.org, 
+	linux-kernel@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>, Tom Rix <trix@redhat.com>, 
+	Colin Ian King <colin.i.king@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Mar 27, 2024 at 3:43=E2=80=AFPM Miguel Ojeda
-<miguel.ojeda.sandonis@gmail.com> wrote:
+On Wed, Mar 27, 2024 at 6:56=E2=80=AFPM Miguel Ojeda <ojeda@kernel.org> wro=
+te:
 >
-> Will do -- I found another one when running the CI with the above one fix=
-ed:
->
->     drivers/gpu/drm/qxl/qxl_ioctl.c:148:14: error: variable
-> 'num_relocs' set but not used [-Werror,-Wunused-but-set-variable]
->
-> I will send you one for that too then.
+> Closes: https://lore.kernel.org/lkml/CANiq72mjc5t4n25SQvYSrOEhxxpXYPZ4pPz=
+neSJHEnc3qApu2Q@mail.gmail.com/
 
-Done: https://lore.kernel.org/lkml/20240327175556.233126-1-ojeda@kernel.org=
-/
+Should have a [1] at the end.
+
+> Signed-off-by: Miguel Ojeda <ojeda@kernel.org>
+> ---
+> Given there is a loop going on here, it would be good to double-check whe=
+ther
+> this variable was supposed to be used for something useful or if it was j=
+ust a
+> remnant of a version previous to v1.4.
+
+Also, I see Nathan sent meanwhile a message about these two that were
+also mentioned/reported a while ago [1].
+
+On my side, I noticed these due to my loongarch64 defconfig
+compile-test with Rust enabled yesterday [2], but I don't want to step
+on Tom/Colin/Nathan/ClangBuiltLinux's work, so please feel free to do
+with these patches as you will!
+
+Thanks!
 
 Cheers,
 Miguel
+
+[1] https://lore.kernel.org/all/20240327163331.GB1153323@dev-arch.thelio-39=
+90X/
+[2] https://lore.kernel.org/lkml/CANiq72mjc5t4n25SQvYSrOEhxxpXYPZ4pPzneSJHE=
+nc3qApu2Q@mail.gmail.com/
