@@ -1,30 +1,30 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2E3E175C9C;
-	Wed, 27 Mar 2024 12:22:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51D841411ED;
+	Wed, 27 Mar 2024 12:26:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711542172; cv=none; b=pmJhdDcqvPadQfxh3IdUQc8A19wd3UDJpSCBx4uvsO/QhHHJloANajS32lOeQd5KlsGjwmxHlD/Xn77BDfJgBupgLeKEXDhacTUFzbNedpGnKQPOHXF+erFf9W7mxxiugwFfPy3x1XjCnBWJ8+Ol7CHQfes33DOtEhVIxfWnSoc=
+	t=1711542405; cv=none; b=GKI1mlXwDMaBBmdiVu3lAt+q78tglIZakCACJ02oWr/xVMhP2fXye4tXOUy3uj5v0dgdu1x0o043Qgon7mnogQOqODjZlgG9VASSSKkl6Kdl0YT5mE9JQuq5uPxBzMYP7/7nCmr78OkO8Xq9dycJOOXnwT/3hwJr66i75vetmNE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711542172; c=relaxed/simple;
-	bh=RR4sFtmaYHf077Rq0UYLUKWHmiXmerwtSgZ+nhI/z4Y=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=BiQKHNQ7FJav/GwQcyzf+GcjfSBOnkQ3U85C5WN17g1cx476T8SjmTLEUScJz+/75o05h+l4SXUKE0ymGVmlyL/WOMu6VSbdXj7TzTTPqTckf65rs266ldHd6uqVPgBQOUb5jFzdMImg02un8JKUMxtV7Zc/s7oTm3yWh9u6b5o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=elUUrKMC; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1711542405; c=relaxed/simple;
+	bh=GmeKlkNLUaS/w5sqHZUfTZPWxqKPVKXvoNIaWRL/jzA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=JLwib6WkO7G2vLfHYp65BlCNnfWmzGG0ICLhD10bCiKaNgnq1rztWCfWD8WXBXUKjXUqwbry7YW8imBniHbZ7ptBV41+eN9qcqOJX2lp58UfDOO3X6P8Uzbnkhc7OLk2XQ4eFr8tqbHS8t15/KBjMyTb0Gv4iMIDFlm6ZbL/oA8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZlQTrvO4; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="elUUrKMC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC28BC433F1;
-	Wed, 27 Mar 2024 12:22:51 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZlQTrvO4"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9AE3C433C7;
+	Wed, 27 Mar 2024 12:26:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1711542172;
-	bh=RR4sFtmaYHf077Rq0UYLUKWHmiXmerwtSgZ+nhI/z4Y=;
+	s=k20201202; t=1711542404;
+	bh=GmeKlkNLUaS/w5sqHZUfTZPWxqKPVKXvoNIaWRL/jzA=;
 	h=From:To:Cc:Subject:Date:From;
-	b=elUUrKMCno96E5J4zXI9N6QlFZhnNmH0cC3XzRP8eSWtc96zeyBApHJuoBzcDEGuN
-	 qDqOWHGsgi9Nc7wVyWJNEgZe54z6ktBNYa7gJrcWfhe5xGUAdhgH+6QxoNcD4/I1EH
-	 4i4w6QQhaG/Gz9OWYO2BIOLWQwRK9dP8dBe9g561KQZT/tenE68hqZ1Hyf9hHaZhTP
-	 Hhgms95vm17D8OCTSwqxoDveK28VMnnr0FolitZ4I+vqSeIm0DHek+BQsmvUMcS9Bb
-	 XdFQ8FEZnaSNNPsheF3zBcEyJbp+ddD0l1jXhZBrEUjTpN9z2hD6TDsiXqgJ+76E6n
-	 9V7GFLXUjemzw==
+	b=ZlQTrvO4GtcvMgBW8OMNzp6hJ+pBdJo6iCi9XRAytEOGcsrVK8jReCD37CQ2vgmaJ
+	 Io6NyP5vpp+zyNnQb1TyryJzGmhcxVQGIJvsqLmWKj7/2XZKt27YEGjOKvIRm/Js7/
+	 aB+ixxFpg40JQhOYI/d3qD8U/R4y97v+MOGEAUMJ/1rL6BW2Ho+zXAFqhdlad8KoDA
+	 hFeFkYedQL5kTp0V7wj4OWflJy4TbEpdy07+8GAKAJ8XC9Z6cDsWKkJyvKerxb8Ujz
+	 bs0aFmuNDscV7y/TwwhDIviXIZoP4JfkWDRu6B1ieyU70ut+ZQUjYGnCpyG45MbX/l
+	 +sCOwV6pHQOKw==
 From: Sasha Levin <sashal@kernel.org>
 To: stable@vger.kernel.org,
 	david@redhat.com
@@ -34,9 +34,9 @@ Cc: stable@kernel.org,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
 	virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org
-Subject: FAILED: Patch "virtio: reenable config if freezing device failed" failed to apply to 5.4-stable tree
-Date: Wed, 27 Mar 2024 08:22:50 -0400
-Message-ID: <20240327122251.2838016-1-sashal@kernel.org>
+Subject: FAILED: Patch "virtio: reenable config if freezing device failed" failed to apply to 4.19-stable tree
+Date: Wed, 27 Mar 2024 08:26:42 -0400
+Message-ID: <20240327122643.2841302-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -48,7 +48,7 @@ X-Patchwork-Hint: ignore
 X-stable: review
 Content-Transfer-Encoding: 8bit
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
