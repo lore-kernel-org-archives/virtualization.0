@@ -1,135 +1,109 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4FBA1E897
-	for <virtualization@lists.linux.dev>; Wed, 27 Mar 2024 00:01:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3746D17FF
+	for <virtualization@lists.linux.dev>; Wed, 27 Mar 2024 01:38:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711497709; cv=none; b=DdFIOtROud1uC7ePV+lWDGLGAlLfkw2bhSbtLfgra+SMJl+kY+XX45FEabQhPWUG5wmyo38yCl6ZyKMOt66Altgd0x59SmfBMtHN9Sh8qZNDVeSREkqLI9D5r5KbCNub9tCJzJy0+bcBkq8zSWl+5QYUikiKLy89zuSgTbF6CtI=
+	t=1711503493; cv=none; b=AqPBukLKLbFXMRXhN2uQ2EFFipLmPyFQcxi0IL/KnMxTuRZTHvPBwzkkMMbqqFolB1Ddi71oFmZHm9W7tvckzt3Rg60NC/grWaZ8U4Z98S/rE93aqAuUAZoMGgHzXL5dSGnTbzvfUSAlmtWueYVAxaL0O7A32eYnuwF6U8YVhdM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711497709; c=relaxed/simple;
-	bh=0uXCRp7jIQ/kQh2MkanVPzFrIyX5rDpcmB3AhOYTIiM=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=GG3e2CxFxG0Wf8+ogXd0LN60t+ySlONAx8obqv0BqWhtEUSCfT57g5hzY4C6olDrE7gyT2pngUkiyBCho0ctgwvtC5/PoWBHcMkFFJgHiI+Kc6HGsxUpsFILBFVVmAqYwlFiye20zdKrjq+nc9dD5MNA6BDcy9qLKObk67PTWJo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OqhzlJFN; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1711503493; c=relaxed/simple;
+	bh=6qAmt+xdA2QOcCOcEi6dB8mBsdItFfMjVsA3nuCRwiU=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=ExXKo/QQVQ2PnktxPN48oeKHHpbLIlEWRZtMcN6zj7x+xfYc4nZpzCJwSnuhNMdDRjbXNChCuiU6xGmDq6Q6Ogio00UxRJx4A/4A23LwScTUKOt9Voa53RthBde5B38strf5rzygZ0EGVYBdc90HEqc2II5QcX3+Klq+3ffU2ig=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=EjglInuY; arc=none smtp.client-ip=115.124.30.110
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OqhzlJFN"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1711497706;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=hVjfoltGFq6MrU7C6LO1jQFHwqgg6xkJxfUpaB5Bw1k=;
-	b=OqhzlJFN5PZlmCsqypyZ1UOS+YE3gfw5cBYn7inbAkQbe+2QCt7rYEgoPtUXHNOsbzNlr3
-	0NkdGxkdObFqIUSBzLBR/pnqVP/rB+RYj7IbVGgEFihxSqkh/UvZwTL17bCYfDZZBfKXa8
-	rWRoWOY57jiwnFSC+AtqxcT2SCMtcTg=
-Received: from mail-pf1-f199.google.com (mail-pf1-f199.google.com
- [209.85.210.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-371-iEhfe0fCP2eLEvIbsXKACA-1; Tue, 26 Mar 2024 20:01:45 -0400
-X-MC-Unique: iEhfe0fCP2eLEvIbsXKACA-1
-Received: by mail-pf1-f199.google.com with SMTP id d2e1a72fcca58-6eaad4ed2e7so2438636b3a.0
-        for <virtualization@lists.linux.dev>; Tue, 26 Mar 2024 17:01:44 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711497704; x=1712102504;
-        h=content-transfer-encoding:in-reply-to:references:cc:to:from
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=hVjfoltGFq6MrU7C6LO1jQFHwqgg6xkJxfUpaB5Bw1k=;
-        b=wRR9f4u7I/wEc5K2EplomCb7hgMmu3loKSLWC+whT+uh4F9/JI027otN38RNh6FTIw
-         hzzIY4leDtXiU3Qnkk8ip6abcdNx7+IOhn31PpcsAA3gBOm3wTireUAqfZLvt1R8uKtu
-         9xeMLjMJkUN+FFmMPZw9b81NS1gfk4nPEA8Iagg7ntR5AfWc04h6VhxamU4A8ulCCnDV
-         /xrJEGtSejmaQzpcEROnM2WEATTjqpXJSjqMiyr6qcG+nnmsjrm2MyJllgIe7VblVGd5
-         J/O4s2aJnF+36JVWHWODc+uZ1XFWVxosV5/peGai/u/rFje9b6sO5yajBszWPIuXscLu
-         aDmA==
-X-Forwarded-Encrypted: i=1; AJvYcCUe4lI4D3uPWmZtWkbBQ73RUA4sKVCHtmaWROdY1AQ4mJijhChs6idUgF83qcNNq2xJQQxMYPomKjqstfWWsB8SMAM0PPIACTAMceNs+cI=
-X-Gm-Message-State: AOJu0YwlKFTkrl0NDTZ1ZdWfJV2RSJVUu19AqLWAH0pmZrLo8YFtNo7H
-	+YShOl1MHiKgzitg2FhIaPzPUO/YSYKKHXRnbZ2N88pQG+vv3IWiPglK9TNv1weNpwXg1nJUkbM
-	RVH4vilkCEkLoYiEgeK7V8ql9CidZa/C9dnnCBUTDV8CyQ+VAYGhmXAG0AilWbNvZ
-X-Received: by 2002:a05:6a00:3a2a:b0:6ea:c4e5:a0b2 with SMTP id fj42-20020a056a003a2a00b006eac4e5a0b2mr1483109pfb.13.1711497703988;
-        Tue, 26 Mar 2024 17:01:43 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFUWocj3Qa/NlxAuJhM1KtqiSZe13LpGj7Sz7fbC2Z4fKrvyngbjb3cau9/aMUwg15ldTH/1w==
-X-Received: by 2002:a05:6a00:3a2a:b0:6ea:c4e5:a0b2 with SMTP id fj42-20020a056a003a2a00b006eac4e5a0b2mr1483095pfb.13.1711497703646;
-        Tue, 26 Mar 2024 17:01:43 -0700 (PDT)
-Received: from [192.168.68.51] ([43.252.115.31])
-        by smtp.gmail.com with ESMTPSA id fj11-20020a056a003a0b00b006eab7ca005esm2415729pfb.18.2024.03.26.17.01.38
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 26 Mar 2024 17:01:42 -0700 (PDT)
-Message-ID: <50d6fec8-708b-4174-b6d4-388083312bb8@redhat.com>
-Date: Wed, 27 Mar 2024 10:01:35 +1000
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="EjglInuY"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1711503482; h=Message-ID:Subject:Date:From:To;
+	bh=xSV0Dmq1/beES1CrMcd6dQoXETDRC4jlecw03aBarYs=;
+	b=EjglInuY6V8jSh3EBqsj7qs8nZgT+sBp8IgcJ8Hm9cl3rq4vef6FrUflu5jloFne7uxvBiTgQkGt/PBv+r4FYs4z9S8yqyiRz2C6hRo71tYP9biMzlzNttWWv1xtEJFyTHFwn+lBYx0X821dehTfQ53vgCIi6wAGYWnweBDwpBE=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0W3Mnh-R_1711503480;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W3Mnh-R_1711503480)
+          by smtp.aliyun-inc.com;
+          Wed, 27 Mar 2024 09:38:01 +0800
+Message-ID: <1711503463.632461-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net v2 1/2] virtio_net: Do not set rss_indir if RSS is not supported
+Date: Wed, 27 Mar 2024 09:37:43 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Breno Leitao <leitao@debian.org>
+Cc: rbc@meta.com,
+ riel@surriel.com,
+ virtualization@lists.linux.dev (open list:VIRTIO CORE AND NET DRIVERS),
+ netdev@vger.kernel.org (open list:NETWORKING DRIVERS),
+ linux-kernel@vger.kernel.org (open list),
+ hengqi@linux.alibaba.com,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>
+References: <20240326151911.2155689-1-leitao@debian.org>
+In-Reply-To: <20240326151911.2155689-1-leitao@debian.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] virtio_ring: Fix the stale index in available ring
-From: Gavin Shan <gshan@redhat.com>
-To: Will Deacon <will@kernel.org>, Keir Fraser <keirf@google.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, jasowang@redhat.com,
- xuanzhuo@linux.alibaba.com, yihyu@redhat.com, shan.gavin@gmail.com,
- linux-arm-kernel@lists.infradead.org,
- Catalin Marinas <catalin.marinas@arm.com>, mochs@nvidia.com
-References: <35a6bcef-27cf-4626-a41d-9ec0a338fe28@redhat.com>
- <20240319182251.GB3121@willie-the-truck>
- <9500adaf-0075-4ae9-92db-7e310b6598b0@redhat.com>
- <20240319203540-mutt-send-email-mst@kernel.org>
- <3a6c8b23-af9c-47a7-8c22-8e0a78154bd3@redhat.com>
- <20240320030215-mutt-send-email-mst@kernel.org>
- <1dcec730-ec26-46f4-ba4c-06101fcc599e@redhat.com>
- <20240326033809-mutt-send-email-mst@kernel.org> <ZgKXr8IQ51xBECuP@google.com>
- <20240326114313.GA9482@willie-the-truck>
- <20240326154628.GA9613@willie-the-truck>
- <6bdf2884-852e-42d3-9e67-c9d5aa7d932a@redhat.com>
-In-Reply-To: <6bdf2884-852e-42d3-9e67-c9d5aa7d932a@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+
+On Tue, 26 Mar 2024 08:19:08 -0700, Breno Leitao <leitao@debian.org> wrote:
+> Do not set virtnet_info->rss_indir_table_size if RSS is not available
+> for the device.
+>
+> Currently, rss_indir_table_size is set if either has_rss or
+> has_rss_hash_report is available, but, it should only be set if has_rss
+> is set.
+>
+> On the virtnet_set_rxfh(), return an invalid command if the request has
+> indirection table set, but virtnet does not support RSS.
+>
+> Suggested-by: Heng Qi <hengqi@linux.alibaba.com>
+> Signed-off-by: Breno Leitao <leitao@debian.org>
+> ---
+>  drivers/net/virtio_net.c | 9 +++++++--
+>  1 file changed, 7 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index c22d1118a133..c640fdf28fc5 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -3813,6 +3813,9 @@ static int virtnet_set_rxfh(struct net_device *dev,
+>  	    rxfh->hfunc != ETH_RSS_HASH_TOP)
+>  		return -EOPNOTSUPP;
+>
+> +	if (rxfh->indir && !vi->has_rss)
+> +		return -EINVAL;
+> +
+>  	if (rxfh->indir) {
+
+Put !vi->has_rss here?
+
+Thanks.
 
 
-On 3/27/24 09:14, Gavin Shan wrote:
-> On 3/27/24 01:46, Will Deacon wrote:
->> On Tue, Mar 26, 2024 at 11:43:13AM +0000, Will Deacon wrote:
->>
->> Ok, long shot after eyeballing the vhost code, but does the diff below
->> help at all? It looks like vhost_vq_avail_empty() can advance the value
->> saved in 'vq->avail_idx' but without the read barrier, possibly confusing
->> vhost_get_vq_desc() in polling mode.
->>
->> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
->> index 045f666b4f12..87bff710331a 100644
->> --- a/drivers/vhost/vhost.c
->> +++ b/drivers/vhost/vhost.c
->> @@ -2801,6 +2801,7 @@ bool vhost_vq_avail_empty(struct vhost_dev *dev, struct vhost_virtqueue *vq)
->>                  return false;
->>          vq->avail_idx = vhost16_to_cpu(vq, avail_idx);
->> +       smp_rmb();
->>          return vq->avail_idx == vq->last_avail_idx;
->>   }
->>   EXPORT_SYMBOL_GPL(vhost_vq_avail_empty);
->>
-> 
-> Thanks, Will. I already noticed smp_rmb() has been missed in vhost_vq_avail_empty().
-> The issue still exists after smp_rmb() is added here. However, I'm inspired by your
-> suggestion and recheck the code again. It seems another smp_rmb() has been missed
-> in vhost_enable_notify().
-> 
-> With smp_rmb() added to vhost_vq_avail_empty() and vhost_enable_notify(), I'm unable
-> to hit the issue. I will try for more times to make sure the issue is really resolved.
-> After that, I will post formal patches for review.
-> 
-
-Thanks again, Will. The formal patches have been sent for review.
-
-https://lkml.org/lkml/2024/3/27/40
-
-Thanks,
-Gavin
-
+>  		for (i = 0; i < vi->rss_indir_table_size; ++i)
+>  			vi->ctrl->rss.indirection_table[i] = rxfh->indir[i];
+> @@ -4729,13 +4732,15 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  	if (virtio_has_feature(vdev, VIRTIO_NET_F_HASH_REPORT))
+>  		vi->has_rss_hash_report = true;
+>
+> -	if (virtio_has_feature(vdev, VIRTIO_NET_F_RSS))
+> +	if (virtio_has_feature(vdev, VIRTIO_NET_F_RSS)) {
+>  		vi->has_rss = true;
+>
+> -	if (vi->has_rss || vi->has_rss_hash_report) {
+>  		vi->rss_indir_table_size =
+>  			virtio_cread16(vdev, offsetof(struct virtio_net_config,
+>  				rss_max_indirection_table_length));
+> +	}
+> +
+> +	if (vi->has_rss || vi->has_rss_hash_report) {
+>  		vi->rss_key_size =
+>  			virtio_cread8(vdev, offsetof(struct virtio_net_config, rss_max_key_size));
+>
+> --
+> 2.43.0
+>
