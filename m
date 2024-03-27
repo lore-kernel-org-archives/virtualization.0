@@ -1,115 +1,189 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7E1D2C699;
-	Wed, 27 Mar 2024 07:59:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E97B72577D
+	for <virtualization@lists.linux.dev>; Wed, 27 Mar 2024 08:07:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711526345; cv=none; b=YXK5EZ3uP5LL/mhGDtxmrGuuveM44kfQEWJsMDXu4LP409PlNzsgqheUMdajj/KJed4NF16nGJKfjTjye9RVKv9ybr0Sm+7q6MjpSv5KQaCaOQGcoXI2JfQCji2ZO+xmxZPW38tjri0gaCFXq9QQNVf4TZnqGpHTvqYqNFyo56A=
+	t=1711526847; cv=none; b=YGasfRHE7GAFkbKu080owdl9bPJQoL/USTuD1J/7gAtjILtsf67+I9MnTgcvj4LsTKuSEQsIs+8GiYTm9GhRUOTJKTqzMyd2NI6hO71mHg2JNalhseT7bCypp/AhWpBEt5JlciqowWX/DWbLZzZULe8UIxzaVoi+PkaYCzhaL1U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711526345; c=relaxed/simple;
-	bh=3Vch1QVVKz9oQdQipI2bgreZmQt1j9KfA9zuNaGttL4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=fgfXJnLQhESxjaCPNC/W5slBJ7bMaKqT8cjHOSfcnwxU0k8jcA8PQAgxxk5KclXjuRiCKxF9C0Idn02GxfLfkwE0z3YuInTwWdf/5nJ3KbPAC9Ym2wAdkE8aTqZRrrtTkiYfQ7Qsbcm6BUnMkt6tZPl4ut3L+wxGSbP2MjwWPWc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Di0d0Yt+; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1711526847; c=relaxed/simple;
+	bh=zb9pTWa4v6J7bjx0jnI6uWcGPwFOi+i8kDB7D26ywz4=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
+	 Content-Type; b=A47wQvJBq0YpZVgpxCWD6Co63VznHkWGFZ7dXQI9OxgOAMDzWhZ2R8VHUVsH1Uf+IpAl5BRnsCnkBNzSVVFJXqxOwPvLjEn/k7Yj1R6JLGfmpFdr9rf+53llehSY7/Geedz8FQ+Yj+qjNb0Ew0LKXcwIf8fHBo7ktIVfornEr14=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=OK8UOyKQ; arc=none smtp.client-ip=115.124.30.97
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Di0d0Yt+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D0C3C433C7;
-	Wed, 27 Mar 2024 07:59:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1711526345;
-	bh=3Vch1QVVKz9oQdQipI2bgreZmQt1j9KfA9zuNaGttL4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=Di0d0Yt+kulV0SFZXj34A8yHfdbrIl/RQIlgdOWmOgu0vU93q7/uZcKNfJbM19Owo
-	 +BZ42uXnvBbs2aNMWX2zEVxEyEJJPMwojzQAd/oOuGc6hsuzo9sjEfue92kS5s1+tL
-	 +X0T/IGlGpYESHZQDwjrSGM0goF1hyFWvEyWXrPg1ad4hI7cP4+ovYoM/hTgx8fCb/
-	 EZkqiKMKRqfh12FvgojNrxLdXU0BvomFMfwgXagDQybevdkNVgP/cLwVpzGTfko6us
-	 yqkf2Kn+Jp3UowrzesRfAiXd+8e3L1KqUh1f6QDNw2jNEHTy88aStfZfM1dI3aIme8
-	 Qz+9AY3eVnZ4w==
-Date: Wed, 27 Mar 2024 08:59:02 +0100
-From: Maxime Ripard <mripard@kernel.org>
-To: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Cc: Dave Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Thomas Zimmermann <tzimmermann@suse.de>, 
-	David Airlie <airlied@gmail.com>, Daniel Vetter <daniel@ffwll.ch>, virtualization@lists.linux.dev, 
-	spice-devel@lists.freedesktop.org, dri-devel <dri-devel@lists.freedesktop.org>, 
-	linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: drivers/gpu/drm/qxl/qxl_cmd.c:424:6: error: variable 'count' set
- but not used
-Message-ID: <20240327-magnetic-nonchalant-hare-bbe8d2@houat>
-References: <CANiq72mbsAYmR_dRPpQQ=9-NWhTtp0TWiOz0v=V-0AvwYbWw4A@mail.gmail.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="OK8UOyKQ"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1711526840; h=Message-ID:Subject:Date:From:To:Content-Type;
+	bh=HqBglzuBzXwHz8JFm548qIsgg7kLqHB9t6RwxUvdavE=;
+	b=OK8UOyKQsVDuIcAS7ycoSvlI/l3b4EC4eUdvB4DYR/Fx1peuxEhmnYrGb5Psm6Aq8K+T/vLJzRJoWFOu8UGj+9fwOE1Nw8BAhRdKCVZxCzQdoki5Cy2asdxgsX8UKUKJiMmUdWs3nLGwRgngzabONkg0nHtSY3x4H8dH53R6zWs=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R501e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0W3NzNmQ_1711526839;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W3NzNmQ_1711526839)
+          by smtp.aliyun-inc.com;
+          Wed, 27 Mar 2024 16:07:20 +0800
+Message-ID: <1711526642.5018039-4-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH vhost v5 00/10] virtio: drivers maintain dma info for premapped vq
+Date: Wed, 27 Mar 2024 16:04:02 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: virtualization@lists.linux.dev,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>,
+ netdev@vger.kernel.org
+References: <20240325085428.7275-1-xuanzhuo@linux.alibaba.com>
+ <CACGkMEtEWCjb8+Zcfizij2+0ef-wb8YJD2bfyAvP_72hKZrGvA@mail.gmail.com>
+ <1711523698.8996527-2-xuanzhuo@linux.alibaba.com>
+ <CACGkMEvzMKyYTNwCwept1HJKLM8FZBa2FZq1oyQ0tFVL2TvMeQ@mail.gmail.com>
+In-Reply-To: <CACGkMEvzMKyYTNwCwept1HJKLM8FZBa2FZq1oyQ0tFVL2TvMeQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha384;
-	protocol="application/pgp-signature"; boundary="6rt63sq2kbvenrzj"
-Content-Disposition: inline
-In-Reply-To: <CANiq72mbsAYmR_dRPpQQ=9-NWhTtp0TWiOz0v=V-0AvwYbWw4A@mail.gmail.com>
+
+On Wed, 27 Mar 2024 15:50:17 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> On Wed, Mar 27, 2024 at 3:16=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba=
+.com> wrote:
+> >
+> > On Tue, 26 Mar 2024 14:35:21 +0800, Jason Wang <jasowang@redhat.com> wr=
+ote:
+> > > On Mon, Mar 25, 2024 at 4:54=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.ali=
+baba.com> wrote:
+> > > >
+> > > > As discussed:
+> > > >
+> > > > http://lore.kernel.org/all/CACGkMEvq0No8QGC46U4mGsMtuD44fD_cfLcPaVm=
+J3rHYqRZxYg@mail.gmail.com
+> > > >
+> > > > If the virtio is premapped mode, the driver should manage the dma i=
+nfo by self.
+> > > > So the virtio core should not store the dma info. We can release th=
+e memory used
+> > > > to store the dma info.
+> > > >
+> > > > For virtio-net xmit queue, if the virtio-net maintains the dma info,
+> > > > the virtio-net must allocate too much memory(19 * queue_size for pe=
+r-queue), so
+> > > > we do not plan to make the virtio-net to maintain the dma info by d=
+efault. The
+> > > > virtio-net xmit queue only maintain the dma info when premapped mod=
+e is enable
+> > > > (such as AF_XDP is enable).
+> > > >
+> > > > So this patch set try to do:
+> > > >
+> > > > 1. make the virtio core to do not store the dma info when driver ca=
+n do that
+> > > >     - But if the desc_extra has not dma info, we face a new questio=
+n,
+> > > >       it is hard to get the dma info of the desc with indirect flag.
+> > > >       For split mode, that is easy from desc, but for the packed mo=
+de,
+> > > >       it is hard to get the dma info from the desc. And hardening
+> > > >       the dma unmap is safe, we should store the dma info of indire=
+ct
+> > > >       descs when the virtio core does not store the bufer dma info.
+> > > >
+> > > >       The follow patches to this:
+> > > >          * virtio_ring: packed: structure the indirect desc table
+> > > >          * virtio_ring: split: structure the indirect desc table
+> > > >
+> > > >     - On the other side, in the umap handle, we mix the indirect de=
+scs with
+> > > >       other descs. That make things too complex. I found if we we d=
+istinguish
+> > > >       the descs with VRING_DESC_F_INDIRECT before unmap, thing will=
+ be clearer.
+> > > >
+> > > >       The follow patches do this.
+> > > >          * virtio_ring: packed: remove double check of the unmap ops
+> > > >          * virtio_ring: split: structure the indirect desc table
+> > > >
+> > > > 2. make the virtio core to enable premapped mode by find_vqs() para=
+ms
+> > > >     - Because the find_vqs() will try to allocate memory for the dm=
+a info.
+> > > >       If we set the premapped mode after find_vqs() and release the
+> > > >       dma info, that is odd.
+> > > >
+> > > >
+> > > > Please review.
+> > > >
+> > > > Thanks
+> > >
+> > > This doesn't apply cleany on vhost.git linux-next branch.
+> > >
+> > > Which tree is this based on?
+> >
+> >
+> > Sorry. That is on the top of "[PATCH vhost v5 0/6] refactor the params =
+of
+> > find_vqs()".
+> >
+> > Lore-URL: http://lore.kernel.org/all/20240325090419.33677-1-xuanzhuo@li=
+nux.alibaba.com
+> >
+> > Thanks.
+>
+> I've tried that but it doesn't work:
+>
+> % git am ~/Downloads/\[PATCH\ vhost\ v5\ 01_10\]\ virtio_ring_\
+> introduce\ vring_need_unmap_buffer.eml
+> Applying: virtio_ring: introduce vring_need_unmap_buffer
+> error: patch failed: drivers/virtio/virtio_ring.c:2080
+> error: drivers/virtio/virtio_ring.c: patch does not apply
+> Patch failed at 0001 virtio_ring: introduce vring_need_unmap_buffer
+> hint: Use 'git am --show-current-patch=3Ddiff' to see the failed patch
+> When you have resolved this problem, run "git am --continue".
+> If you prefer to skip this patch, run "git am --skip" instead.
+> To restore the original branch and stop patching, run "git am --abort".
+>
+> I'm using vhost.git linux-next branch, HEAD is
+>
+> commit 56e71885b0349241c07631a7b979b61e81afab6a
+> Author: Maxime Coquelin <maxime.coquelin@redhat.com>
+> Date:   Tue Jan 9 12:10:24 2024 +0100
+>
+>     vduse: Temporarily fail if control queue feature requested
 
 
---6rt63sq2kbvenrzj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+NOT ON the vhost directly.
 
-Hi Miguel,
+That is on the top of "refactor the params of find_vqs"
 
-On Tue, Mar 26, 2024 at 07:04:34PM +0100, Miguel Ojeda wrote:
-> Hi,
->=20
-> In today's next, I got:
->=20
->     drivers/gpu/drm/qxl/qxl_cmd.c:424:6: error: variable 'count' set
-> but not used [-Werror,-Wunused-but-set-variable]
->=20
-> `count` seems to be there since commit f64122c1f6ad ("drm: add new QXL
-> driver. (v1.4)").
->=20
-> Untested diff below -- if you want a formal patch, please let me know.
->=20
-> Cheers,
-> Miguel
->=20
-> diff --git a/drivers/gpu/drm/qxl/qxl_cmd.c b/drivers/gpu/drm/qxl/qxl_cmd.c
-> index 281edab518cd..d6ea01f3797b 100644
-> --- a/drivers/gpu/drm/qxl/qxl_cmd.c
-> +++ b/drivers/gpu/drm/qxl/qxl_cmd.c
-> @@ -421,7 +421,6 @@ int qxl_surface_id_alloc(struct qxl_device *qdev,
->  {
->         uint32_t handle;
->         int idr_ret;
-> -       int count =3D 0;
->  again:
->         idr_preload(GFP_ATOMIC);
->         spin_lock(&qdev->surf_id_idr_lock);
-> @@ -433,7 +432,6 @@ int qxl_surface_id_alloc(struct qxl_device *qdev,
->         handle =3D idr_ret;
->=20
->         if (handle >=3D qdev->rom->n_surfaces) {
-> -               count++;
->                 spin_lock(&qdev->surf_id_idr_lock);
->                 idr_remove(&qdev->surf_id_idr, handle);
->                 spin_unlock(&qdev->surf_id_idr_lock);
->=20
+"refactor the params of find_vqs" said:
 
-It looks reasonable to me, can you send a formal patch?
+	"""
+	This pathset is splited from the
 
-Thanks!
-Maxime
+	     http://lore.kernel.org/all/20240229072044.77388-1-xuanzhuo@linux.alib=
+aba.com
 
---6rt63sq2kbvenrzj
-Content-Type: application/pgp-signature; name="signature.asc"
+	That may needs some cycles to discuss. But that notifies too many people.
+	"""
 
------BEGIN PGP SIGNATURE-----
+But now that is broken due to the change of the that patch set.
 
-iJUEABMJAB0WIQTkHFbLp4ejekA/qfgnX84Zoj2+dgUCZgPRxgAKCRAnX84Zoj2+
-duBCAYCkWAxADritRMIdxuo60bi8gMXg3ORzEQ+Re/8bjBZRbnoR6xSqWL/e9li6
-7QpWXHEBewR48AANqEfzQxPcmpLpFROyX8u8HAbDv9hKJuo8mvAnbhPYLB2LBIbR
-B2ivQmRB1A==
-=ZxYE
------END PGP SIGNATURE-----
+I will post the new version of these two patch set soon.
 
---6rt63sq2kbvenrzj--
+Thanks.
+
+
+>
+> Thanks
+>
+> >
+> > >
+> > > Thanks
+> > >
+> >
+>
