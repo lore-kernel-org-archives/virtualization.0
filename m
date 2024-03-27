@@ -1,145 +1,160 @@
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2EAC1F614
-	for <virtualization@lists.linux.dev>; Wed, 27 Mar 2024 02:28:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D50F7208A9
+	for <virtualization@lists.linux.dev>; Wed, 27 Mar 2024 02:34:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711506486; cv=none; b=Hw/WIb2HBBE1SSuNhcVjOqOtNH7EY8theE9OHg+N3HkUOjN0/WKvaBH8WcLFfQMQQPL/5gS+5b1+wAMOcflkVOx/XM54K/P2hyI14taagHL3bqFTyOwujTHjt2NLuMHgwjh4SshbbYJZmICBfoMvPJ+J5mYbrWZXvC2nBKVP0VI=
+	t=1711506892; cv=none; b=KKJY52e3Afuw+zuYRP8onVHSDHrhZzQiwnn5M3E4C4UBtL1fwO2cIgx5iT7h3T/MSBB+Eryyq98Txq5rcBtRHvnY4w6y+e4ZQNuYNpwGBJia9OYkF1mFZdPmw82otX5nCVZnyPmXDZzVVHO5LfnXq6b357XebFn00VN7uOoL5Gg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711506486; c=relaxed/simple;
-	bh=suO/hxHkYIiR7aN5fNMxxIMiIKDf7s7yifppD3JVj0k=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=WzzYPk1H59VJRpYezQYNzqpC/xYigR/XcnynxBI3PTxsh98yx/87PifDrESMVEiqUA08VdYkm01y+fG2VyCoBXjgkFvB8lXByxteLVz9zOYu/ooLIBXg1GWplBVNagh7fsbal0JNEQhq7WyFzWuITL+An88bFyi22HTbrCgfePs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=OHTWdWfW; arc=none smtp.client-ip=115.124.30.111
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1711506892; c=relaxed/simple;
+	bh=Qqzod6RnevlfYYey7LaLzZkHboMKdV2B1HONW9tD7FM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=XqtLGjIsV9JpOES/QLpjX7vF96GKQVGJNyYDOdeYEhApKKl6FieaHqQ9nWzFihQCqaJu53DyiYO1v7XQNgVzxCs1jHC+wXwchHHj5IXoed7rlFobaWoEOy7lrP7J6ILr5K+rSCXPo6SumlVQN1dJwe05qSC6jsGtYNvaAihcHdw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gY6BHbTs; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="OHTWdWfW"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1711506480; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=/zfwjKKsw5HeZkRsJXEcqJbxo+5sK1+snEjBOm3OoIY=;
-	b=OHTWdWfWPmt86P29yr0XhK29GdOlbzzZtAcw+BfPVjIXfq1PkCnVqEV5DcfzPdh6QK5dQLUWraSAHzzbMD35TtN8OVUjyUiWZR/WfCkPx0iPk40JjkxKpv158mclz5o/bj9wzp1pibUQYXrdpFpsVbnVIMDbLkxpEWfPN8L/FBI=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=16;SR=0;TI=SMTPD_---0W3Mvu.x_1711506478;
-Received: from 30.221.148.214(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W3Mvu.x_1711506478)
-          by smtp.aliyun-inc.com;
-          Wed, 27 Mar 2024 10:27:59 +0800
-Message-ID: <bc5a835b-94c8-4500-b05b-0dd32afddbe8@linux.alibaba.com>
-Date: Wed, 27 Mar 2024 10:27:58 +0800
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gY6BHbTs"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1711506889;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=daSGAK1vKPtHioOKtIUSXnIE1GcZiKLKNEvMx3yD3SY=;
+	b=gY6BHbTszOmv9My8BTXkWskCA1PYZeYyySb0ef52REvQs51aVaTYxu81fyiu1Mpx/nsnpH
+	HE9t/IxaKFxCziD8Z7SSFvHwBhoN8PhZ1LqMPAVlvZPb7GXZcyj8wBddJlHwoWnuerglf+
+	Pt5vANcFqHkVEteMB5K18yPNfKih6ok=
+Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
+ [209.85.210.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-139-GA3yfQoONA-rQ8LXRKdn0A-1; Tue, 26 Mar 2024 22:34:47 -0400
+X-MC-Unique: GA3yfQoONA-rQ8LXRKdn0A-1
+Received: by mail-pf1-f198.google.com with SMTP id d2e1a72fcca58-6e70785d542so267476b3a.0
+        for <virtualization@lists.linux.dev>; Tue, 26 Mar 2024 19:34:46 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1711506886; x=1712111686;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=daSGAK1vKPtHioOKtIUSXnIE1GcZiKLKNEvMx3yD3SY=;
+        b=xLCOMuUw/ztkxHVp1geAJKqUxeDUe0eotTGBsOgn5Y8HiFwHdrO+Axf218d3zAv7Yl
+         xlCKjd4YHwD0omEA5egiobF4ICirjmGElFhi8Ne61AqRYTj4o3yN7Nagjtai0jqwMwdh
+         e6nkcuqP8QkztJPFBIog5m9RN2pRrXEZSgeOKgFYMdH/zF9OjOhvdJps/eyZabmh4IW6
+         yJDD1LGkIWJrlKQL4uHk3+bUSNRIqUuKkhbQmLE+TL2gY0epvqKBA+jIaZjBRwyKdVaG
+         z5A/5WrLZLsiaZPiNkuSlbTmYbP72a3aMrPXZ7ek6OMyKj1CZZtpk/FZRR5cnbOWXnot
+         ukDQ==
+X-Gm-Message-State: AOJu0Yw1e6xuwtqIvWX308TuqtLSuxtDYh9oRRpPLzBbH/LO4HWZyzpA
+	RRgkPjN1Z3sQiE4961V/2T9v/4VrkwR1TjpzHVvWXxxRNaU4QwCANmQsuZCDbLqnVcz7B9VbAmS
+	9+YD4hYzceO4C+55tyW1lIUNaXLkjl46jtPxfhIRyuGd9N7o1aHhbZ3VoSuomdp8oR7xRXzPEWC
+	esX+0BRsqn1MGIZcMqp7yRwy4Ei9fK0rrpsskZ9eQ=
+X-Received: by 2002:a05:6a20:4325:b0:1a3:c6aa:ec7d with SMTP id h37-20020a056a20432500b001a3c6aaec7dmr4759152pzk.16.1711506886121;
+        Tue, 26 Mar 2024 19:34:46 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE2D17wf0XSecst4P0/CFvwY7g59bOHZlulOhr1pJevDkqh9TDzQlOYW1mV3flIFMZC5OA53NXcrZin2v4MLZU=
+X-Received: by 2002:a05:6a20:4325:b0:1a3:c6aa:ec7d with SMTP id
+ h37-20020a056a20432500b001a3c6aaec7dmr4759138pzk.16.1711506885767; Tue, 26
+ Mar 2024 19:34:45 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net v2 2/2] virtio_net: Do not send RSS key if it is not
- supported
-To: Breno Leitao <leitao@debian.org>, xuanzhuo@linux.alibaba.com,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Andrew Melnychenko <andrew@daynix.com>
-Cc: rbc@meta.com, riel@surriel.com, stable@vger.kernel.org,
- qemu-devel@nongnu.org,
- "open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
- "open list:NETWORKING DRIVERS" <netdev@vger.kernel.org>,
- open list <linux-kernel@vger.kernel.org>
-References: <20240326151911.2155689-1-leitao@debian.org>
- <20240326151911.2155689-2-leitao@debian.org>
-From: Heng Qi <hengqi@linux.alibaba.com>
-In-Reply-To: <20240326151911.2155689-2-leitao@debian.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+References: <20240326233846.1086253-1-gshan@redhat.com> <20240326233846.1086253-2-gshan@redhat.com>
+In-Reply-To: <20240326233846.1086253-2-gshan@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 27 Mar 2024 10:34:34 +0800
+Message-ID: <CACGkMEtyEo2QQSEh0ZnZDUJSXMMhzeO97Jp0wF4_rhzUBGk4Zg@mail.gmail.com>
+Subject: Re: [PATCH v2 1/2] vhost: Add smp_rmb() in vhost_vq_avail_empty()
+To: Gavin Shan <gshan@redhat.com>
+Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	mst@redhat.com, davem@davemloft.net, stefanha@redhat.com, sgarzare@redhat.com, 
+	keirf@google.com, yihyu@redhat.com, shan.gavin@gmail.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-
-
-在 2024/3/26 下午11:19, Breno Leitao 写道:
-> There is a bug when setting the RSS options in virtio_net that can break
-> the whole machine, getting the kernel into an infinite loop.
+On Wed, Mar 27, 2024 at 7:39=E2=80=AFAM Gavin Shan <gshan@redhat.com> wrote=
+:
 >
-> Running the following command in any QEMU virtual machine with virtionet
-> will reproduce this problem:
+> A smp_rmb() has been missed in vhost_vq_avail_empty(), spotted by
+> Will Deacon <will@kernel.org>. Otherwise, it's not ensured the
+> available ring entries pushed by guest can be observed by vhost
+> in time, leading to stale available ring entries fetched by vhost
+> in vhost_get_vq_desc(), as reported by Yihuang Yu on NVidia's
+> grace-hopper (ARM64) platform.
 >
->      # ethtool -X eth0  hfunc toeplitz
+>   /home/gavin/sandbox/qemu.main/build/qemu-system-aarch64      \
+>   -accel kvm -machine virt,gic-version=3Dhost -cpu host          \
+>   -smp maxcpus=3D1,cpus=3D1,sockets=3D1,clusters=3D1,cores=3D1,threads=3D=
+1 \
+>   -m 4096M,slots=3D16,maxmem=3D64G                                 \
+>   -object memory-backend-ram,id=3Dmem0,size=3D4096M                \
+>    :                                                           \
+>   -netdev tap,id=3Dvnet0,vhost=3Dtrue                              \
+>   -device virtio-net-pci,bus=3Dpcie.8,netdev=3Dvnet0,mac=3D52:54:00:f1:26=
+:b0
+>    :
+>   guest# netperf -H 10.26.1.81 -l 60 -C -c -t UDP_STREAM
+>   virtio_net virtio0: output.0:id 100 is not a head!
 >
-> This is how the problem happens:
+> Add the missed smp_rmb() in vhost_vq_avail_empty(). Note that it
+> should be safe until vq->avail_idx is changed by commit 275bf960ac697
+> ("vhost: better detection of available buffers").
 >
-> 1) ethtool_set_rxfh() calls virtnet_set_rxfh()
->
-> 2) virtnet_set_rxfh() calls virtnet_commit_rss_command()
->
-> 3) virtnet_commit_rss_command() populates 4 entries for the rss
-> scatter-gather
->
-> 4) Since the command above does not have a key, then the last
-> scatter-gatter entry will be zeroed, since rss_key_size == 0.
-> sg_buf_size = vi->rss_key_size;
->
-> 5) This buffer is passed to qemu, but qemu is not happy with a buffer
-> with zero length, and do the following in virtqueue_map_desc() (QEMU
-> function):
->
->    if (!sz) {
->        virtio_error(vdev, "virtio: zero sized buffers are not allowed");
->
-> 6) virtio_error() (also QEMU function) set the device as broken
->
->      vdev->broken = true;
->
-> 7) Qemu bails out, and do not repond this crazy kernel.
->
-> 8) The kernel is waiting for the response to come back (function
-> virtnet_send_command())
->
-> 9) The kernel is waiting doing the following :
->
->        while (!virtqueue_get_buf(vi->cvq, &tmp) &&
-> 	     !virtqueue_is_broken(vi->cvq))
-> 	      cpu_relax();
->
-> 10) None of the following functions above is true, thus, the kernel
-> loops here forever. Keeping in mind that virtqueue_is_broken() does
-> not look at the qemu `vdev->broken`, so, it never realizes that the
-> vitio is broken at QEMU side.
->
-> Fix it by not sending RSS commands if the feature is not available in
-> the device.
->
-> Fixes: c7114b1249fa ("drivers/net/virtio_net: Added basic RSS support.")
-> Cc: stable@vger.kernel.org
-> Cc: qemu-devel@nongnu.org
-> Signed-off-by: Breno Leitao <leitao@debian.org>
+> Fixes: 275bf960ac697 ("vhost: better detection of available buffers")
+> Cc: <stable@kernel.org> # v4.11+
+> Reported-by: Yihuang Yu <yihyu@redhat.com>
+> Signed-off-by: Gavin Shan <gshan@redhat.com>
 > ---
->   drivers/net/virtio_net.c | 3 +++
->   1 file changed, 3 insertions(+)
+>  drivers/vhost/vhost.c | 11 ++++++++++-
+>  1 file changed, 10 insertions(+), 1 deletion(-)
 >
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index c640fdf28fc5..e6b0eaf08ac2 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -3809,6 +3809,9 @@ static int virtnet_set_rxfh(struct net_device *dev,
->   	struct virtnet_info *vi = netdev_priv(dev);
->   	int i;
->   
-> +	if (!vi->has_rss && !vi->has_rss_hash_report)
-> +		return -EOPNOTSUPP;
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 045f666b4f12..00445ab172b3 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -2799,9 +2799,18 @@ bool vhost_vq_avail_empty(struct vhost_dev *dev, s=
+truct vhost_virtqueue *vq)
+>         r =3D vhost_get_avail_idx(vq, &avail_idx);
+>         if (unlikely(r))
+>                 return false;
 > +
+>         vq->avail_idx =3D vhost16_to_cpu(vq, avail_idx);
+> +       if (vq->avail_idx !=3D vq->last_avail_idx) {
+> +               /* Similar to what's done in vhost_get_vq_desc(), we need
+> +                * to ensure the available ring entries have been exposed
+> +                * by guest.
+> +                */
 
-Why not make the second patch as the first, this seems to work better.
-Or squash them into one patch.
+We need to be more verbose here. For example, which load needs to be
+ordered with which load.
 
-Apart from these and Xuan's comments.
+The rmb in vhost_get_vq_desc() is used to order the load of avail idx
+and the load of head. It is paired with e.g virtio_wmb() in
+virtqueue_add_split().
 
-For series:
+vhost_vq_avail_empty() are mostly used as a hint in
+vhost_net_busy_poll() which is under the protection of the vq mutex.
 
-         Reviewed-by: Heng Qi <hengqi@linux.alibaba.com>
+An exception is the tx_can_batch(), but in that case it doesn't even
+want to read the head.
 
-Regards,
-Heng
+Thanks
 
->   	if (rxfh->hfunc != ETH_RSS_HASH_NO_CHANGE &&
->   	    rxfh->hfunc != ETH_RSS_HASH_TOP)
->   		return -EOPNOTSUPP;
+
+> +               smp_rmb();
+> +               return false;
+> +       }
+>
+> -       return vq->avail_idx =3D=3D vq->last_avail_idx;
+> +       return true;
+>  }
+>  EXPORT_SYMBOL_GPL(vhost_vq_avail_empty);
+>
+> --
+> 2.44.0
+>
 
