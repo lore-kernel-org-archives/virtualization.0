@@ -1,147 +1,112 @@
-Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
+Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8B7913E413
-	for <virtualization@lists.linux.dev>; Wed, 27 Mar 2024 13:44:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 020B415CD69
+	for <virtualization@lists.linux.dev>; Wed, 27 Mar 2024 13:51:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711547078; cv=none; b=eVhRlM/2bNZxdh1+syZfF813mnWsN5FTjsCvpDFnuR+qsilEodYSP8d3exNQAMix4mkDTssgrW/SjzYAnSb7Hl/Z00QHzKkTcaHfPnfWdrOOlYOVZ2qSfUUBKfZYdX07bm9CD3vnb6BylfzLkHQ8D76g4KrRLvZlcnbQ+4coW4w=
+	t=1711547491; cv=none; b=lJnvELc3ol39lzYiBoHmfmnjrakTPQR69NXQ2KHbUxcZQZgqFVqNzHyCjo+FZbQXxicRvattb6l1/remcawbuC4tUgg9VSI8bxa6GSJQ+6Z4VoiwJymiH3a71RUHYHwn7fKf0G26NAhchKnbUKIBCpEXBHgRgn5qBJwR7hFRJxY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711547078; c=relaxed/simple;
-	bh=2xZT353bg+Gd2k0hEm0r6uRcXB+j37Lc80ZKxrL2FNc=;
+	s=arc-20240116; t=1711547491; c=relaxed/simple;
+	bh=LRh020dt3JvCw/r0YCn85ScWnAbwueBpSbcIgI27W8c=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=M28GYBziTQye7HLZ5PjSZQTp4LVgpkFtydwFj+lxzo4BB0uytmNjjQBdm33Sn/2BE45VaXg8vJYCIli1MooYAuxcTVepzlohLJ3c052EO8S/rWgmgdf9OufaUShEwOK28tVf5sYX0D2s+9en/OozX4fZUyhcDBazdlTgLxa/gpg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.218.53
+	 Content-Type:Content-Disposition:In-Reply-To; b=Fz95Gv3/08iTmqvr99mY3+BsB5QVhoTiTsYQJ/W8Cbu4K05UXADwhMNzhs8UdQ7PpJOsM9LnykV1+a5pskDAr0yYHc3kHLLAHhuNlPbgwzrxJV8be/E5VxmWqAvYrqCLYQV/XXFCz/DpOu9El2WqQpZgue4QOfWHXDtrln8bYss=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.208.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-a46f0da1b4fso863649766b.2
-        for <virtualization@lists.linux.dev>; Wed, 27 Mar 2024 06:44:36 -0700 (PDT)
+Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-56c12c73ed8so4088784a12.2
+        for <virtualization@lists.linux.dev>; Wed, 27 Mar 2024 06:51:29 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711547075; x=1712151875;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=jLz16fmiK7clzNfffXEiofOH4lXEAbKlwPA6/CgGe8Y=;
-        b=S/c0aw4JP3nxXOJDkyLjgGycgd4GsU/mqS8qPTLTmkK9bJ/kifChcvxuTF/Vibxf6e
-         86ZEhEF1eREGFgkvGNxKcnFfRdSK9SLjMHW8ex4m6AdnwBMhopkZFN/5mk8StHtJmfsy
-         R7Zz1LfjKfvqHIkevaTBMcl+nk/h7duk01+D9lbqGM11J4fXuAJDIoTZiHWtQWhTGE3L
-         taa2pAeRXF0bIMeRSy6cjOsGOeC4tDAa7rl4/4q/7tma6x8oJE9CmsIR3t+yMNH3IxEO
-         Ci6mPBkxiV0tHypCeNc+5XnUOEQUY+yOLCi//TqPK5/qQzPk5EXAqtFTpeOZNSvtAJqG
-         8Dig==
-X-Forwarded-Encrypted: i=1; AJvYcCV3vPl7dg3r3ZC+GndoImh8uv0IAqOYSF4qxdTg7IWWq3zzTBNr6XlnYl29C4rT0jhJxAW1RYfHcGrIwHMxUfKY/hIamgiI5Oty94JnqVc=
-X-Gm-Message-State: AOJu0YyHtRApnBS6gtBs3/HlNFrkdd1kuv1wdcks6SM9borcOyv1r7fK
-	6R9yibIFeh5wayG1z25zkTtnVUXxWTIkqvjgLCuHPg0azAaDjO1I
-X-Google-Smtp-Source: AGHT+IHlsqprzpnxJBYeJapDRINLx/aNTv+m24jMPvBz9QGVUn18hEMdVfXDoR7rOZNE4m03xIbPbA==
-X-Received: by 2002:a17:906:e08a:b0:a4d:fae7:ece3 with SMTP id gh10-20020a170906e08a00b00a4dfae7ece3mr2030643ejb.5.1711547074857;
-        Wed, 27 Mar 2024 06:44:34 -0700 (PDT)
-Received: from gmail.com (fwdproxy-lla-004.fbsv.net. [2a03:2880:30ff:4::face:b00c])
-        by smtp.gmail.com with ESMTPSA id a11-20020a170906670b00b00a44b90abb1dsm5439004ejp.110.2024.03.27.06.44.33
+        d=1e100.net; s=20230601; t=1711547488; x=1712152288;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=FcKm7eRThoxP9DS6Fq9W4RWZhYw3k695B/yck6NlVFk=;
+        b=soXMsuvAPTaJke0/FLtSg/zGBJLATP0jxTU6wV26+V7SwSzGjgxQBwXnhIgxI5APZ4
+         i2WfuVBpPdX6oqucTiDBPQkLxu9bonQroNFNfP+robZyKkcbTDNoUArL+hFg+QiEBGAG
+         ZiyVo7RpHkyL9QYEru+6bk348R0A5OGx7/c9939hYHgqr9k2y6xgC4T/0g8mkz/+ZWo+
+         3H64Eq4TvxM+jEuFVGgRp8x+4ZRf8B4N/N2ON5+Z8QMbn/HOl7vZWKlMLMrzysD02/gn
+         u+vYIHCkKrj2JBNZEQ1Pz9BlMI5yAYqc4NWtOpPkCiSV3Lgidj9W+GSfNU8SaxZPrw6Y
+         /EqA==
+X-Forwarded-Encrypted: i=1; AJvYcCWXwrwsRoc95moGJJpaNj/hmvw4KkQ9r/+kGsduMEoy1KLzbt7QJMHySfHHtG9trb5mdeDR9i48qOF+C65hrTOXFCFxTBvSXCSp1rSmNNM=
+X-Gm-Message-State: AOJu0YwD1c8Oy845ryl2cgA2E/4NaQs26/1jrY5ld9RmDYR8Sed/49by
+	rttS89qdeO8SjCr+WKujQqGR9ROOQB9IOSqYg3NnrUbQdU+LDbOc7q7iwrSQ
+X-Google-Smtp-Source: AGHT+IFhjYnrjdbXw7KmaYA4ypD1xuTa8d1VPV3peiZKf+9ZHYiqQFI4Rd7Plj+NeUPbD/snQmEOZA==
+X-Received: by 2002:a17:906:8415:b0:a46:22a3:479f with SMTP id n21-20020a170906841500b00a4622a3479fmr1138312ejx.21.1711547488000;
+        Wed, 27 Mar 2024 06:51:28 -0700 (PDT)
+Received: from gmail.com (fwdproxy-lla-003.fbsv.net. [2a03:2880:30ff:3::face:b00c])
+        by smtp.gmail.com with ESMTPSA id wr12-20020a170907700c00b00a474c3c2f9dsm4597296ejb.38.2024.03.27.06.51.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 Mar 2024 06:44:34 -0700 (PDT)
-Date: Wed, 27 Mar 2024 06:44:31 -0700
+        Wed, 27 Mar 2024 06:51:27 -0700 (PDT)
+Date: Wed, 27 Mar 2024 06:51:25 -0700
 From: Breno Leitao <leitao@debian.org>
-To: Heng Qi <hengqi@linux.alibaba.com>
-Cc: xuanzhuo@linux.alibaba.com, "Michael S. Tsirkin" <mst@redhat.com>,
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: rbc@meta.com, riel@surriel.com,
+	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
+	"open list:NETWORKING DRIVERS" <netdev@vger.kernel.org>,
+	open list <linux-kernel@vger.kernel.org>, hengqi@linux.alibaba.com,
+	"Michael S. Tsirkin" <mst@redhat.com>,
 	Jason Wang <jasowang@redhat.com>,
 	"David S. Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Andrew Melnychenko <andrew@daynix.com>, rbc@meta.com,
-	riel@surriel.com, stable@vger.kernel.org, qemu-devel@nongnu.org,
-	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
-	"open list:NETWORKING DRIVERS" <netdev@vger.kernel.org>,
-	open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH net v2 2/2] virtio_net: Do not send RSS key if it is not
- supported
-Message-ID: <ZgQivw8YG7XT2boy@gmail.com>
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
+Subject: Re: [PATCH net v2 1/2] virtio_net: Do not set rss_indir if RSS is
+ not supported
+Message-ID: <ZgQkXfMd6GIEndXm@gmail.com>
 References: <20240326151911.2155689-1-leitao@debian.org>
- <20240326151911.2155689-2-leitao@debian.org>
- <bc5a835b-94c8-4500-b05b-0dd32afddbe8@linux.alibaba.com>
+ <1711503463.632461-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <bc5a835b-94c8-4500-b05b-0dd32afddbe8@linux.alibaba.com>
+In-Reply-To: <1711503463.632461-1-xuanzhuo@linux.alibaba.com>
 
-On Wed, Mar 27, 2024 at 10:27:58AM +0800, Heng Qi wrote:
-> 
-> 
-> 在 2024/3/26 下午11:19, Breno Leitao 写道:
-> > There is a bug when setting the RSS options in virtio_net that can break
-> > the whole machine, getting the kernel into an infinite loop.
-> > 
-> > Running the following command in any QEMU virtual machine with virtionet
-> > will reproduce this problem:
-> > 
-> >      # ethtool -X eth0  hfunc toeplitz
-> > 
-> > This is how the problem happens:
-> > 
-> > 1) ethtool_set_rxfh() calls virtnet_set_rxfh()
-> > 
-> > 2) virtnet_set_rxfh() calls virtnet_commit_rss_command()
-> > 
-> > 3) virtnet_commit_rss_command() populates 4 entries for the rss
-> > scatter-gather
-> > 
-> > 4) Since the command above does not have a key, then the last
-> > scatter-gatter entry will be zeroed, since rss_key_size == 0.
-> > sg_buf_size = vi->rss_key_size;
-> > 
-> > 5) This buffer is passed to qemu, but qemu is not happy with a buffer
-> > with zero length, and do the following in virtqueue_map_desc() (QEMU
-> > function):
-> > 
-> >    if (!sz) {
-> >        virtio_error(vdev, "virtio: zero sized buffers are not allowed");
-> > 
-> > 6) virtio_error() (also QEMU function) set the device as broken
-> > 
-> >      vdev->broken = true;
-> > 
-> > 7) Qemu bails out, and do not repond this crazy kernel.
-> > 
-> > 8) The kernel is waiting for the response to come back (function
-> > virtnet_send_command())
-> > 
-> > 9) The kernel is waiting doing the following :
-> > 
-> >        while (!virtqueue_get_buf(vi->cvq, &tmp) &&
-> > 	     !virtqueue_is_broken(vi->cvq))
-> > 	      cpu_relax();
-> > 
-> > 10) None of the following functions above is true, thus, the kernel
-> > loops here forever. Keeping in mind that virtqueue_is_broken() does
-> > not look at the qemu `vdev->broken`, so, it never realizes that the
-> > vitio is broken at QEMU side.
-> > 
-> > Fix it by not sending RSS commands if the feature is not available in
-> > the device.
-> > 
-> > Fixes: c7114b1249fa ("drivers/net/virtio_net: Added basic RSS support.")
-> > Cc: stable@vger.kernel.org
-> > Cc: qemu-devel@nongnu.org
+Hello Xuan,
+
+On Wed, Mar 27, 2024 at 09:37:43AM +0800, Xuan Zhuo wrote:
+> On Tue, 26 Mar 2024 08:19:08 -0700, Breno Leitao <leitao@debian.org> wrote:
+> > Do not set virtnet_info->rss_indir_table_size if RSS is not available
+> > for the device.
+> >
+> > Currently, rss_indir_table_size is set if either has_rss or
+> > has_rss_hash_report is available, but, it should only be set if has_rss
+> > is set.
+> >
+> > On the virtnet_set_rxfh(), return an invalid command if the request has
+> > indirection table set, but virtnet does not support RSS.
+> >
+> > Suggested-by: Heng Qi <hengqi@linux.alibaba.com>
 > > Signed-off-by: Breno Leitao <leitao@debian.org>
 > > ---
-> >   drivers/net/virtio_net.c | 3 +++
-> >   1 file changed, 3 insertions(+)
-> > 
+> >  drivers/net/virtio_net.c | 9 +++++++--
+> >  1 file changed, 7 insertions(+), 2 deletions(-)
+> >
 > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index c640fdf28fc5..e6b0eaf08ac2 100644
+> > index c22d1118a133..c640fdf28fc5 100644
 > > --- a/drivers/net/virtio_net.c
 > > +++ b/drivers/net/virtio_net.c
-> > @@ -3809,6 +3809,9 @@ static int virtnet_set_rxfh(struct net_device *dev,
-> >   	struct virtnet_info *vi = netdev_priv(dev);
-> >   	int i;
-> > +	if (!vi->has_rss && !vi->has_rss_hash_report)
-> > +		return -EOPNOTSUPP;
+> > @@ -3813,6 +3813,9 @@ static int virtnet_set_rxfh(struct net_device *dev,
+> >  	    rxfh->hfunc != ETH_RSS_HASH_TOP)
+> >  		return -EOPNOTSUPP;
+> >
+> > +	if (rxfh->indir && !vi->has_rss)
+> > +		return -EINVAL;
 > > +
+> >  	if (rxfh->indir) {
 > 
-> Why not make the second patch as the first, this seems to work better.
+> Put !vi->has_rss here?
 
-Sure, that works for me. Let me update it in v2.
+I am not sure I understand the suggestion. Where do you suggest we have
+!vi->has_rss?
+
+If we got this far, we either have:
+
+a) rxfh->indir set and vi->has_rss is also set
+b) rxfh->indir not set. (vi->has_rss could be set or not).
+
+Thanks for the review,
+Breno
