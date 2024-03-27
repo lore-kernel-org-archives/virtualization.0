@@ -1,437 +1,325 @@
-Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com [209.85.208.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A427923765
-	for <virtualization@lists.linux.dev>; Wed, 27 Mar 2024 07:08:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0728428E0B
+	for <virtualization@lists.linux.dev>; Wed, 27 Mar 2024 07:14:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711523323; cv=none; b=KL8pn3TWkhDfw4/b17PIjqZ8vVJ6GumWCtuKcPUwTRD06anqzXsm+iXktExFm8y2h9tSPQ4TZs3XYPzaPlbn6V0gKYwL5DQZAefAgDXBeZB1L9mRpz6ocStdwZTNXd0R0FQQprQLDdCflZa3XvZWP5Hdl8JFH2mzbncpHvmDr00=
+	t=1711523695; cv=none; b=QW0xb9ASzP1Bnc6rDiH3ecD8i7NyLMdbLtFShIMYVkXKZas7LO+wpguCFi14g0vQ5apOiZFVCGOoQv23/RNT0O/qODnACFz4zGw9oxyHlzIKATJKji546AI36HPrXJ3sYbJZMEXLXfIMkbpEsjefte1EXRVPLbr7p7/kNZkjfmM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711523323; c=relaxed/simple;
-	bh=Wn6VthASsi6YX/AEJNdGx2M0GdMmMPsIEOMzyWB31aM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=jkPZXY7H8cEtDI+ZGR3OAvl4dB0u4dAm3Z/k/+sfXRBYIVU9OoP5MWeZh4A4gdGQC/5zm/LnUWkg77aDs6CXlmsJ/UWZzGX75iKl3nuP+GyyMaQb6zxuw3tWwcAAQbk1nUcDNegZ8tQ+W01XlrpXhgZ2EVgko7Nc9ZLcfcpY7ok=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gooddata.com; spf=pass smtp.mailfrom=gooddata.com; dkim=pass (1024-bit key) header.d=gooddata.com header.i=@gooddata.com header.b=gtW+jhcJ; arc=none smtp.client-ip=209.85.208.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gooddata.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gooddata.com
+	s=arc-20240116; t=1711523695; c=relaxed/simple;
+	bh=/FyUhnfIr3MGxtNmoF2+4qBA+02MgAxiwBAJByFcZe0=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
+	 Content-Type; b=WZW8VC4gTuridZw6g3ONrMA8twX10LabJ1Y0AX78gA+yNtiEU80dDEtXI0Owk8g2bPVz68aYfHWlk875UdyuO9mCIU0ItZcLl7iZUy2+zfMNOy+NGlMUIh6Pnkmj3ngYapMxP4zSkjOyHVI10iZ4m729Evx+nZi8fa56sFm8qeU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=T6bLPgNf; arc=none smtp.client-ip=115.124.30.118
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=gooddata.com header.i=@gooddata.com header.b="gtW+jhcJ"
-Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-56c0a249bacso3948465a12.1
-        for <virtualization@lists.linux.dev>; Wed, 27 Mar 2024 00:08:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gooddata.com; s=google; t=1711523319; x=1712128119; darn=lists.linux.dev;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=Kr/grj2aFrmgjnvCKB3dfDy3hkM98fR1JQDyzWYA7Gg=;
-        b=gtW+jhcJOiRdFVm+5MxhBOdD+sZ7x0OfV4GkV8skr3+VqhQLxG+o/Os7ecrkSrzuk+
-         2k8wGh/dnh9uqF1L+jg6vN4Z6lbyh1jy7Otc04zWfc3pDrLnw1Coe29lXN/NAHem+ken
-         KsGf9dJ/FYlcxxZ0Yj/PljAKagRtEsuWnW7KY=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711523319; x=1712128119;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Kr/grj2aFrmgjnvCKB3dfDy3hkM98fR1JQDyzWYA7Gg=;
-        b=sezKrcEwAwT5NFPTZMMgCjnoN7o5jTZr4a75i6CBcvVIZR26xLedwk02touZvJcWIU
-         iAQ84b5MHRg7QLopIHhfYXNg/ozQfKc1XwGbO357hZlU6wpMKzDVocOvDBOy1AmdgsG5
-         MXLJgIPRibjfLubWUxFVoVDS07sV7eATMVJhCyXM9aNqyLps3Wq/TUDChEwA6ULF/SWy
-         gDWC9gT5Kd1vKORGAEl5EN8rPfi4Z0OZr732sDcPW3UjdNLnug1amey67u8hy7XhG3O9
-         ZjPNIyJ7JD/+lWvlpWiKnq/mifFW5iQmD6DPQfpALVOghmP+xXZWcSDqT8Nuh7ZoTq8y
-         Po7A==
-X-Forwarded-Encrypted: i=1; AJvYcCVm7eMdQXuRtjjcxP+3JthKgnnI6cGE088BBFCpHurrfOIkWhdtWy8ZY4oUXkxfdYreqwGlfgDX5e5sNPJ+KdOAT2e66yqnj1piTXWn6Ns=
-X-Gm-Message-State: AOJu0Yw/NG4AmCYHHEhiWWu89ANVAB3fljyx3+QiFkru+rkoHLGXPIaV
-	wyrTX3pHQp54z8UZj9iCXQyNITmYqRdC6bHuQBLJpnLefQhaTqZQ/GmmZKR2d1gDzr+XFzgTI/n
-	vmOKLat7R7O6AkkMDudVzNQp5qzrKVdcARdaB
-X-Google-Smtp-Source: AGHT+IFlC8P+41yCGLG8EGaL8j0ldtNYHzHvCkZ5LUXKS+6DgtAklHx1C+X7kO7W3c4xiXZBXwWJvJL3ZAdaUpUQxko=
-X-Received: by 2002:a17:906:d93a:b0:a47:398f:1a06 with SMTP id
- rn26-20020a170906d93a00b00a47398f1a06mr222488ejb.1.1711523318793; Wed, 27 Mar
- 2024 00:08:38 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="T6bLPgNf"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1711523684; h=Message-ID:Subject:Date:From:To:Content-Type;
+	bh=LWqw/xb1J1jWmh4CKdj+LcYnTvzXIWBunaYHxvUeY+k=;
+	b=T6bLPgNfuTUFXlIDGj05A3Flesj2M/BXDC8eBwiv/oZ8z/HQWCqW24PEfkPODEAjRtwwp/ixjO5KhIaadqrl5rgl1NZ6XkDhypnYxpplyzJeojzr4ce8NUUBdkoDuH4nCSp6n9lTQNk2RuADwEmgOP93dq6bfGP+WOL/UQBAYLs=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R511e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0W3NvlbT_1711523682;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W3NvlbT_1711523682)
+          by smtp.aliyun-inc.com;
+          Wed, 27 Mar 2024 15:14:43 +0800
+Message-ID: <1711523492.236237-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH vhost v4 02/10] virtio_ring: packed: remove double check of the unmap ops
+Date: Wed, 27 Mar 2024 15:11:32 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>,
+ virtualization@lists.linux.dev,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>,
+ netdev@vger.kernel.org
+References: <20240312033557.6351-1-xuanzhuo@linux.alibaba.com>
+ <20240312033557.6351-3-xuanzhuo@linux.alibaba.com>
+ <CACGkMEtd1L=Cm0DWLZbfSazxxHr+iPP77B1kM=PmjdqeYoAz4w@mail.gmail.com>
+ <1711009209.0488706-2-xuanzhuo@linux.alibaba.com>
+ <20240326033031-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20240326033031-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-References: <CA+9S74hbTMxckB=HgRiqL6b8ChZMQfJ6-K9y_GQ0ZDiWkev_vA@mail.gmail.com>
- <20240319131207.GB1096131@fedora> <CA+9S74jMBbgrxaH2Nit50uDQsHES+e+VHnOXkxnq2TrUFtAQRA@mail.gmail.com>
- <CACGkMEvX2R+wKcH5V45Yd6CkgGhADVbpvfmWsHducN2zCS=OKw@mail.gmail.com>
- <CA+9S74g5fR=hBxWk1U2TyvW1uPmU3XgJnjw4Owov8LNwLiiOZw@mail.gmail.com>
- <CACGkMEt4MbyDgdqDGUqQ+0gV-1kmp6CWASDgwMpZnRU8dfPd2Q@mail.gmail.com>
- <CA+9S74hUt_aZCrgN3Yx9Y2OZtwHNan7gmbBa1TzBafW6=YLULQ@mail.gmail.com>
- <CA+9S74ia-vUag2QMo6zFL7r+wZyOZVmcpe317RdMbK-rpomn+Q@mail.gmail.com>
- <CA+9S74hs_1Ft9iyXOPU_vF_EFKuoG8LjDpSna0QSPMFnMywd_g@mail.gmail.com>
- <CACGkMEvHiAN7X_QBgihWX6zzEUOxhrV2Nqg1arw1sfYy2A5K0g@mail.gmail.com>
- <CAK8fFZ5j_T1NzoOEfqE1HYhAEhD04smR4OT2bnMEAr+2+6C5RQ@mail.gmail.com> <CACGkMEtUyR3HbBHpQmP5Pm8OePB5pzXtJVJPL-wyH57Ddh1PSA@mail.gmail.com>
-In-Reply-To: <CACGkMEtUyR3HbBHpQmP5Pm8OePB5pzXtJVJPL-wyH57Ddh1PSA@mail.gmail.com>
-From: Jaroslav Pulchart <jaroslav.pulchart@gooddata.com>
-Date: Wed, 27 Mar 2024 08:08:12 +0100
-Message-ID: <CAK8fFZ7ocTK2wknT41XdGr2NDXG9C_84fwiRzUUVAySaY-=dpg@mail.gmail.com>
-Subject: Re: REGRESSION: RIP: 0010:skb_release_data+0xb8/0x1e0 in vhost/tun
-To: Jason Wang <jasowang@redhat.com>
-Cc: Igor Raits <igor@gooddata.com>, Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org, 
-	virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	Stefano Garzarella <sgarzare@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Content-Type: multipart/mixed; boundary="0000000000007147b206149f13ba"
 
---0000000000007147b206149f13ba
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-st 27. 3. 2024 v 4:11 odes=C3=ADlatel Jason Wang <jasowang@redhat.com> naps=
-al:
->
-> On Tue, Mar 26, 2024 at 9:26=E2=80=AFPM Jaroslav Pulchart
-> <jaroslav.pulchart@gooddata.com> wrote:
+On Tue, 26 Mar 2024 03:32:43 -0400, "Michael S. Tsirkin" <mst@redhat.com> w=
+rote:
+> On Thu, Mar 21, 2024 at 04:20:09PM +0800, Xuan Zhuo wrote:
+> > On Thu, 21 Mar 2024 13:57:06 +0800, Jason Wang <jasowang@redhat.com> wr=
+ote:
+> > > On Tue, Mar 12, 2024 at 11:36=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.al=
+ibaba.com> wrote:
+> > > >
+> > > > In the functions vring_unmap_extra_packed and vring_unmap_desc_pack=
+ed,
+> > > > multiple checks are made whether unmap is performed and whether it =
+is
+> > > > INDIRECT.
+> > > >
+> > > > These two functions are usually called in a loop, and we should put=
+ the
+> > > > check outside the loop.
+> > > >
+> > > > And we unmap the descs with VRING_DESC_F_INDIRECT on the same path =
+with
+> > > > other descs, that make the thing more complex. If we distinguish the
+> > > > descs with VRING_DESC_F_INDIRECT before unmap, thing will be cleare=
+r.
+> > > >
+> > > > 1. only one desc of the desc table is used, we do not need the loop
+> > > > 2. the called unmap api is difference from the other desc
+> > > > 3. the vq->premapped is not needed to check
+> > > > 4. the vq->indirect is not needed to check
+> > > > 5. the state->indir_desc must not be null
+> > > >
+> > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > ---
+> > > >  drivers/virtio/virtio_ring.c | 78 ++++++++++++++++++--------------=
+----
+> > > >  1 file changed, 40 insertions(+), 38 deletions(-)
+> > > >
+> > > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_r=
+ing.c
+> > > > index c2779e34aac7..0dfbd17e5a87 100644
+> > > > --- a/drivers/virtio/virtio_ring.c
+> > > > +++ b/drivers/virtio/virtio_ring.c
+> > > > @@ -1214,6 +1214,7 @@ static u16 packed_last_used(u16 last_used_idx)
+> > > >         return last_used_idx & ~(-(1 << VRING_PACKED_EVENT_F_WRAP_C=
+TR));
+> > > >  }
+> > > >
+> > > > +/* caller must check vring_need_unmap_buffer() */
+> > > >  static void vring_unmap_extra_packed(const struct vring_virtqueue =
+*vq,
+> > > >                                      const struct vring_desc_extra =
+*extra)
+> > > >  {
+> > > > @@ -1221,33 +1222,18 @@ static void vring_unmap_extra_packed(const =
+struct vring_virtqueue *vq,
+> > > >
+> > > >         flags =3D extra->flags;
+> > > >
+> > > > -       if (flags & VRING_DESC_F_INDIRECT) {
+> > > > -               if (!vq->use_dma_api)
+> > > > -                       return;
+> > > > -
+> > > > -               dma_unmap_single(vring_dma_dev(vq),
+> > > > -                                extra->addr, extra->len,
+> > > > -                                (flags & VRING_DESC_F_WRITE) ?
+> > > > -                                DMA_FROM_DEVICE : DMA_TO_DEVICE);
+> > > > -       } else {
+> > > > -               if (!vring_need_unmap_buffer(vq))
+> > > > -                       return;
+> > > > -
+> > > > -               dma_unmap_page(vring_dma_dev(vq),
+> > > > -                              extra->addr, extra->len,
+> > > > -                              (flags & VRING_DESC_F_WRITE) ?
+> > > > -                              DMA_FROM_DEVICE : DMA_TO_DEVICE);
+> > > > -       }
+> > > > +       dma_unmap_page(vring_dma_dev(vq),
+> > > > +                      extra->addr, extra->len,
+> > > > +                      (flags & VRING_DESC_F_WRITE) ?
+> > > > +                      DMA_FROM_DEVICE : DMA_TO_DEVICE);
+> > > >  }
+> > > >
+> > > > +/* caller must check vring_need_unmap_buffer() */
+> > > >  static void vring_unmap_desc_packed(const struct vring_virtqueue *=
+vq,
+> > > >                                     const struct vring_packed_desc =
+*desc)
+> > > >  {
+> > > >         u16 flags;
+> > > >
+> > > > -       if (!vring_need_unmap_buffer(vq))
+> > > > -               return;
+> > > > -
+> > > >         flags =3D le16_to_cpu(desc->flags);
+> > > >
+> > > >         dma_unmap_page(vring_dma_dev(vq),
+> > > > @@ -1323,7 +1309,7 @@ static int virtqueue_add_indirect_packed(stru=
+ct vring_virtqueue *vq,
+> > > >                         total_sg * sizeof(struct vring_packed_desc),
+> > > >                         DMA_TO_DEVICE);
+> > > >         if (vring_mapping_error(vq, addr)) {
+> > > > -               if (vq->premapped)
+> > > > +               if (!vring_need_unmap_buffer(vq))
+> > > >                         goto free_desc;
+> > > >
+> > > >                 goto unmap_release;
+> > > > @@ -1338,10 +1324,11 @@ static int virtqueue_add_indirect_packed(st=
+ruct vring_virtqueue *vq,
+> > > >                 vq->packed.desc_extra[id].addr =3D addr;
+> > > >                 vq->packed.desc_extra[id].len =3D total_sg *
+> > > >                                 sizeof(struct vring_packed_desc);
+> > > > -               vq->packed.desc_extra[id].flags =3D VRING_DESC_F_IN=
+DIRECT |
+> > > > -                                                 vq->packed.avail_=
+used_flags;
+> > > >         }
+> > > >
+> > > > +       vq->packed.desc_extra[id].flags =3D VRING_DESC_F_INDIRECT |
+> > > > +               vq->packed.avail_used_flags;
+> > > > +
+> > > >         /*
+> > > >          * A driver MUST NOT make the first descriptor in the list
+> > > >          * available before all subsequent descriptors comprising
+> > > > @@ -1382,6 +1369,8 @@ static int virtqueue_add_indirect_packed(stru=
+ct vring_virtqueue *vq,
+> > > >  unmap_release:
+> > > >         err_idx =3D i;
+> > > >
+> > > > +       WARN_ON(!vring_need_unmap_buffer(vq));
+> > > > +
+> > > >         for (i =3D 0; i < err_idx; i++)
+> > > >                 vring_unmap_desc_packed(vq, &desc[i]);
+> > > >
+> > > > @@ -1475,12 +1464,13 @@ static inline int virtqueue_add_packed(stru=
+ct virtqueue *_vq,
+> > > >                         desc[i].len =3D cpu_to_le32(sg->length);
+> > > >                         desc[i].id =3D cpu_to_le16(id);
+> > > >
+> > > > -                       if (unlikely(vq->use_dma_api)) {
+> > > > +                       if (vring_need_unmap_buffer(vq)) {
+> > > >                                 vq->packed.desc_extra[curr].addr =
+=3D addr;
+> > > >                                 vq->packed.desc_extra[curr].len =3D=
+ sg->length;
+> > > > -                               vq->packed.desc_extra[curr].flags =
+=3D
+> > > > -                                       le16_to_cpu(flags);
+> > > >                         }
+> > > > +
+> > > > +                       vq->packed.desc_extra[curr].flags =3D le16_=
+to_cpu(flags);
+> > > > +
+> > > >                         prev =3D curr;
+> > > >                         curr =3D vq->packed.desc_extra[curr].next;
+> > > >
+> > > > @@ -1530,6 +1520,8 @@ static inline int virtqueue_add_packed(struct=
+ virtqueue *_vq,
+> > > >
+> > > >         vq->packed.avail_used_flags =3D avail_used_flags;
+> > > >
+> > > > +       WARN_ON(!vring_need_unmap_buffer(vq));
+> > > > +
+> > > >         for (n =3D 0; n < total_sg; n++) {
+> > > >                 if (i =3D=3D err_idx)
+> > > >                         break;
+> > > > @@ -1599,7 +1591,9 @@ static void detach_buf_packed(struct vring_vi=
+rtqueue *vq,
+> > > >         struct vring_desc_state_packed *state =3D NULL;
+> > > >         struct vring_packed_desc *desc;
+> > > >         unsigned int i, curr;
+> > > > +       u16 flags;
+> > > >
+> > > > +       flags =3D vq->packed.desc_extra[id].flags;
+> > > >         state =3D &vq->packed.desc_state[id];
+> > > >
+> > > >         /* Clear data ptr. */
+> > > > @@ -1609,22 +1603,32 @@ static void detach_buf_packed(struct vring_=
+virtqueue *vq,
+> > > >         vq->free_head =3D id;
+> > > >         vq->vq.num_free +=3D state->num;
+> > > >
+> > > > -       if (unlikely(vq->use_dma_api)) {
+> > > > -               curr =3D id;
+> > > > -               for (i =3D 0; i < state->num; i++) {
+> > > > -                       vring_unmap_extra_packed(vq,
+> > > > -                                                &vq->packed.desc_e=
+xtra[curr]);
+> > > > -                       curr =3D vq->packed.desc_extra[curr].next;
+> > > > +       if (!(flags & VRING_DESC_F_INDIRECT)) {
+> > > > +               if (vring_need_unmap_buffer(vq)) {
+> > > > +                       curr =3D id;
+> > > > +                       for (i =3D 0; i < state->num; i++) {
+> > > > +                               vring_unmap_extra_packed(vq,
+> > > > +                                                        &vq->packe=
+d.desc_extra[curr]);
+> > > > +                               curr =3D vq->packed.desc_extra[curr=
+].next;
+> > > > +                       }
+> > > >                 }
+> > > > -       }
+> > > >
+> > > > -       if (vq->indirect) {
+> > > > +               if (ctx)
+> > > > +                       *ctx =3D state->indir_desc;
+> > > > +       } else {
+> > > > +               const struct vring_desc_extra *extra;
+> > > >                 u32 len;
+> > > >
+> > > > +               if (vq->use_dma_api) {
+> > > > +                       extra =3D &vq->packed.desc_extra[id];
+> > > > +                       dma_unmap_single(vring_dma_dev(vq),
+> > > > +                                        extra->addr, extra->len,
+> > > > +                                        (flags & VRING_DESC_F_WRIT=
+E) ?
+> > > > +                                        DMA_FROM_DEVICE : DMA_TO_D=
+EVICE);
+> > > > +               }
+> > >
+> > > Theoretically, indirect descriptors could be chained. It is supported
+> > > without this patch but not here.
 > >
-> > >
-> > > On Mon, Mar 25, 2024 at 4:44=E2=80=AFPM Igor Raits <igor@gooddata.com=
-> wrote:
-> > > >
-> > > > Hello,
-> > > >
-> > > > On Fri, Mar 22, 2024 at 12:19=E2=80=AFPM Igor Raits <igor@gooddata.=
-com> wrote:
-> > > > >
-> > > > > Hi Jason,
-> > > > >
-> > > > > On Fri, Mar 22, 2024 at 9:39=E2=80=AFAM Igor Raits <igor@gooddata=
-.com> wrote:
-> > > > > >
-> > > > > > Hi Jason,
-> > > > > >
-> > > > > > On Fri, Mar 22, 2024 at 6:31=E2=80=AFAM Jason Wang <jasowang@re=
-dhat.com> wrote:
-> > > > > > >
-> > > > > > > On Thu, Mar 21, 2024 at 5:44=E2=80=AFPM Igor Raits <igor@good=
-data.com> wrote:
-> > > > > > > >
-> > > > > > > > Hello Jason & others,
-> > > > > > > >
-> > > > > > > > On Wed, Mar 20, 2024 at 10:33=E2=80=AFAM Jason Wang <jasowa=
-ng@redhat.com> wrote:
-> > > > > > > > >
-> > > > > > > > > On Tue, Mar 19, 2024 at 9:15=E2=80=AFPM Igor Raits <igor@=
-gooddata.com> wrote:
-> > > > > > > > > >
-> > > > > > > > > > Hello Stefan,
-> > > > > > > > > >
-> > > > > > > > > > On Tue, Mar 19, 2024 at 2:12=E2=80=AFPM Stefan Hajnoczi=
- <stefanha@redhat.com> wrote:
-> > > > > > > > > > >
-> > > > > > > > > > > On Tue, Mar 19, 2024 at 10:00:08AM +0100, Igor Raits =
-wrote:
-> > > > > > > > > > > > Hello,
-> > > > > > > > > > > >
-> > > > > > > > > > > > We have started to observe kernel crashes on 6.7.y =
-kernels (atm we
-> > > > > > > > > > > > have hit the issue 5 times on 6.7.5 and 6.7.10). On=
- 6.6.9 where we
-> > > > > > > > > > > > have nodes of cluster it looks stable. Please see s=
-tacktrace below. If
-> > > > > > > > > > > > you need more information please let me know.
-> > > > > > > > > > > >
-> > > > > > > > > > > > We do not have a consistent reproducer but when we =
-put some bigger
-> > > > > > > > > > > > network load on a VM, the hypervisor's kernel crash=
-es.
-> > > > > > > > > > > >
-> > > > > > > > > > > > Help is much appreciated! We are happy to test any =
-patches.
-> > > > > > > > > > >
-> > > > > > > > > > > CCing Michael Tsirkin and Jason Wang for vhost_net.
-> > > > > > > > > > >
-> > > > > > > > > > > >
-> > > > > > > > > > > > [62254.167584] stack segment: 0000 [#1] PREEMPT SMP=
- NOPTI
-> > > > > > > > > > > > [62254.173450] CPU: 63 PID: 11939 Comm: vhost-11890=
- Tainted: G
-> > > > > > > > > > > >    E      6.7.10-1.gdc.el9.x86_64 #1
-> > > > > > > > > > >
-> > > > > > > > > > > Are there any patches in this kernel?
-> > > > > > > > > >
-> > > > > > > > > > Only one, unrelated to this part. Removal of pr_err("EE=
-VDF scheduling
-> > > > > > > > > > fail, picking leftmost\n"); line (reported somewhere fe=
-w months ago
-> > > > > > > > > > and it was suggested workaround until proper solution c=
-omes).
-> > > > > > > > >
-> > > > > > > > > Btw, a bisection would help as well.
-> > > > > > > >
-> > > > > > > > In the end it seems like we don't really have "stable" setu=
-p, so
-> > > > > > > > bisection looks to be useless but we did find few things me=
-antime:
-> > > > > > > >
-> > > > > > > > 1. On 6.6.9 it crashes either with unexpected GSO type or u=
-sercopy:
-> > > > > > > > Kernel memory exposure attempt detected from SLUB object
-> > > > > > > > 'skbuff_head_cache'
-> > > > > > >
-> > > > > > > Do you have a full calltrace for this?
-> > > > > >
-> > > > > > I have shared it in one of the messages in this thread.
-> > > > > > https://marc.info/?l=3Dlinux-virtualization&m=3D171085443512001=
-&w=3D2
-> > > > > >
-> > > > > > > > 2. On 6.7.5, 6.7.10 and 6.8.1 it crashes with RIP:
-> > > > > > > > 0010:skb_release_data+0xb8/0x1e0
-> > > > > > >
-> > > > > > > And for this?
-> > > > > >
-> > > > > > https://marc.info/?l=3Dlinux-netdev&m=3D171083870801761&w=3D2
-> > > > > >
-> > > > > > > > 3. It does NOT crash on 6.8.1 when VM does not have multi-q=
-ueue setup
-> > > > > > > >
-> > > > > > > > Looks like the multi-queue setup (we have 2 interfaces =C3=
-=97 3 virtio
-> > > > > > > > queues for each) is causing problems as if we set only one =
-queue for
-> > > > > > > > each interface the issue is gone.
-> > > > > > > > Maybe there is some race condition in __pfx_vhost_task_fn+0=
-x10/0x10 or
-> > > > > > > > somewhere around?
-> > > > > > >
-> > > > > > > I can't tell now, but it seems not because if we have 3 queue=
- pairs we
-> > > > > > > will have 3 vhost threads.
-> > > > > > >
-> > > > > > > > We have noticed that there are 3 of such functions
-> > > > > > > > in the stacktrace that gave us hints about what we could tr=
-y=E2=80=A6
-> > > > > > >
-> > > > > > > Let's try to enable SLUB_DEBUG and KASAN to see if we can get
-> > > > > > > something interesting.
-> > > > > >
-> > > > > > We were able to reproduce it even with 1 vhost queue... And now=
- we
-> > > > > > have slub_debug + kasan so I hopefully have more useful data fo=
-r you
-> > > > > > now.
-> > > > > > I have attached it for better readability.
-> > > > >
-> > > > > Looks like we have found a "stable" kernel and that is 6.1.32. Th=
-e
-> > > > > 6.3.y is broken and we are testing 6.2.y now.
-> > > > > My guess it would be related to virtio/vsock: replace virtio_vsoc=
-k_pkt
-> > > > > with sk_buff that was done around that time but we are going to t=
-est,
-> > > > > bisect and let you know more.
-> > > >
-> > > > So we have been trying to bisect it but it is basically impossible =
-for
-> > > > us to do so as the ICE driver was quite broken for most of the rele=
-ase
-> > > > cycle so we have no networking on 99% of the builds and we can't te=
-st
-> > > > such a setup.
-> > > > More specifically, the bug was introduced between 6.2 and 6.3 but w=
-e
-> > > > could not get much further. The last good commit we were able to te=
-st
-> > > > was f18f9845f2f10d3d1fc63e4ad16ee52d2d9292fa and then after 20 comm=
-its
-> > > > where we had no networking we gave up.
-> > > >
-> > > > If you have some suspicious commit(s) we could revert - happy to te=
-st.
-> > >
-> > > Here is the is for the change since f18f9845f2f10d3d1fc63e4ad16ee52d2=
-d9292fa:
-> > >
-> > > cbfbfe3aee71 tun: prevent negative ifindex
-> > > b2f8323364ab tun: add __exit annotations to module exit func tun_clea=
-nup()
-> > > 6231e47b6fad tun: avoid high-order page allocation for packet header
-> > > 4d016ae42efb Merge git://git.kernel.org/pub/scm/linux/kernel/git/netd=
-ev/net
-> > > 59eeb2329405 drivers: net: prevent tun_build_skb() to exceed the
-> > > packet size limit
-> > > 35b1b1fd9638 Merge git://git.kernel.org/pub/scm/linux/kernel/git/netd=
-ev/net
-> > > ce7c7fef1473 net: tun: change tun_alloc_skb() to allow bigger paged a=
-llocations
-> > > 9bc3047374d5 net: tun_chr_open(): set sk_uid from current_fsuid()
-> > > 82b2bc279467 tun: Fix memory leak for detached NAPI queue.
-> > > 6e98b09da931 Merge tag 'net-next-6.4' of
-> > > git://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next
-> > > de4f5fed3f23 iov_iter: add iter_iovec() helper
-> > > 438b406055cd tun: flag the device as supporting FMODE_NOWAIT
-> > > de4287336794 Daniel Borkmann says:
-> > > a096ccca6e50 tun: tun_chr_open(): correctly initialize socket uid
-> > > 66c0e13ad236 drivers: net: turn on XDP features
-> > >
-> > > The commit that touches the datapath are:
-> > >
-> > > 6231e47b6fad tun: avoid high-order page allocation for packet header
-> > > 59eeb2329405 drivers: net: prevent tun_build_skb() to exceed the
-> > > packet size limit
-> > > ce7c7fef1473 net: tun: change tun_alloc_skb() to allow bigger paged a=
-llocations
-> > > 82b2bc279467 tun: Fix memory leak for detached NAPI queue.
-> > > de4f5fed3f23 iov_iter: add iter_iovec() helper
-> > >
-> > > I assume you didn't use NAPI mode, so 82b2bc279467 tun: Fix memory
-> > > leak for detached NAPI queue doesn't make sense for us.
-> > >
-> > > The rest might be the bad commit if it is caused by a change of tun i=
-tself.
-> > >
-> > > btw I vaguely remember KASAN will report who did the allocation and
-> > > who did the free. But it seems not in your KASAN log.
+> >
+> > YES. But now, that is not supported by "add", so I think we
+> > do not need to think about it.
+> >
+> > Thanks.
+>
+>
+> the "add" you are referring to is virtio drivers in the linux guest?
+> That's not the only guest and there's no way to be sure
+> no one does it. We can make some unusual operations go somewhat
+> slower but breaking them outright is not a good idea.
+
+
+"add" means virtqueue_add_packed/virtqueue_add_split.
+
+If the virtqueue_add_packed/virtqueue_add_split do not chain
+the indirect desc, then I think do not consider the case that
+the indirect desc wash chained.
+
+That was all done by the linux virtio core, we do not need to
+consider other cases.
+
+Thanks.
+
+
+>
 > > >
 > > > Thanks
 > > >
+> > > > +
+> > > >                 /* Free the indirect table, if any, now that it's u=
+nmapped. */
+> > > >                 desc =3D state->indir_desc;
+> > > > -               if (!desc)
+> > > > -                       return;
 > > > >
-> > > > Thanks again.
+> > > >                 if (vring_need_unmap_buffer(vq)) {
+> > > >                         len =3D vq->packed.desc_extra[id].len;
+> > > > @@ -1634,8 +1638,6 @@ static void detach_buf_packed(struct vring_vi=
+rtqueue *vq,
+> > > >                 }
+> > > >                 kfree(desc);
+> > > >                 state->indir_desc =3D NULL;
+> > > > -       } else if (ctx) {
+> > > > -               *ctx =3D state->indir_desc;
+> > > >         }
+> > > >  }
+> > > >
+> > > > --
+> > > > 2.32.0.3.g01195cf9f
 > > > >
 > > >
-> >
-> > Hello
-> >
-> > We have one observation. The occurrence of the error depends on the
-> > ring buffer size of physical network cards. We have two E810 Intel
-> > cards bonded by two interfaces (em1 + p3p2, ice driver) into single
-> > bon0. The bond0 is then linux bridged and/or ovs(witched) to VMs via
-> > tun interfaces (both switch solutions have the same problem). VMs are
-> > qemu-kvm instances and using vhost/virtio-net.
-> >
-> > We see:
-> > 1/ The issue is triggered almost instantaneously when tx/rx ring
-> > buffer is set to 2048 (our default)
-> > ethtool -G em1 rx 2048 tx 2048
-> > ethtool -G p3p1 rx 2048 tx 2048
-> >
-> > 2/ Similar issue is triggered when the tx/rx ring buffer is set to
-> > 4096: the host does not crash immediately, but some trace is shown
-> > soon and later it gets into memory pressure and crashes.
 >
-> This is probably a hint of memory leak somewhere.
->
-> > ethtool -G em1 rx 4096 tx 4096
-> > ethtool -G p3p1 rx 4096 tx 4096
-> > See attached ring_4096.kasan.txt (vanila 6.8.1 with enabled KASAN) and
-> > ring_4096.txt (vanila 6.8.1 without kasan)
-> >
-> > 3/ The system is stable or we just can-not trigger the issue if the
-> > ring buffer is >=3D 6144.
-> > ethtool -G em1 rx 7120 tx 7120
-> > ethtool -G p3p1 rx 7120 tx 7120
-> >
-> > could it be influenced by a some rate of dropped packets in the ring bu=
-ffer?
->
-> I can't tell.
->
-> Btw, it looks like the logs were cut off. Could we get a full log?
-
-I took it from the server console and was truncated by my copy-paste
-issue. Re-attaching the de-truncated log as "ring_4096.log" file.
-
->
-> Thanks
->
-> >
-> > # for i in em1 p3p1; do ethtool -S ${i} | grep dropped.nic; done
-> >      rx_dropped.nic: 158225
-> >      rx_dropped.nic: 74285
-> >
-> > Best,
-> > Jaroslav Pulchart
->
-
---0000000000007147b206149f13ba
-Content-Type: text/x-log; charset="US-ASCII"; name="ring_4096.log"
-Content-Disposition: attachment; filename="ring_4096.log"
-Content-Transfer-Encoding: base64
-Content-ID: <f_lu9goby10>
-X-Attachment-Id: f_lu9goby10
-
-TWFyIDI1IDExOjIzOjM5IGNtcDAyMjAga2VybmVsOiAtLS0tLS0tLS0tLS1bIGN1dCBoZXJlIF0t
-LS0tLS0tLS0tLS0KTWFyIDI1IDExOjIzOjM5IGNtcDAyMjAga2VybmVsOiB2aXJ0X3RvX2NhY2hl
-OiBPYmplY3QgaXMgbm90IGEgU2xhYiBwYWdlIQpNYXIgMjUgMTE6MjM6MzkgY21wMDIyMCBrZXJu
-ZWw6IFdBUk5JTkc6IENQVTogMzIgUElEOiAxMTA0NCBhdCBtbS9zbHViLmM6NDMyOCBrbWVtX2Nh
-Y2hlX2ZyZWUrMHgzMDEvMHgzZDAKTWFyIDI1IDExOjIzOjM5IGNtcDAyMjAga2VybmVsOiBNb2R1
-bGVzIGxpbmtlZCBpbjogbXB0Y3BfZGlhZyhFKSB4c2tfZGlhZyhFKSByYXdfZGlhZyhFKSB1bml4
-X2RpYWcoRSkgYWZfcGFja2V0X2RpYWcoRSkgbmV0bGlua19kaWFnKEUpIHVkcF9kaWFnKEUpIHRj
-cF9kaWFnKEUpIGluZQp0X2RpYWcoRSkgZWJ0X2FycChFKSBuZnRfbWV0YV9icmlkZ2UoRSkgeHRf
-Q1QoRSkgeHRfbWFjKEUpIHh0X3NldChFKSB4dF9jb25udHJhY2soRSkgeHRfY29tbWVudChFKSB4
-dF9waHlzZGV2KEUpIG5mdF9jb21wYXQoRSkgaXBfc2V0X2hhc2hfbmV0KEUpIGlwX3NldChFKSB2
-aG9zdF9uCmV0KEUpIHZob3N0KEUpIHZob3N0X2lvdGxiKEUpIHRhcChFKSB0dW4oRSkgcnBjc2Vj
-X2dzc19rcmI1KEUpIGF1dGhfcnBjZ3NzKEUpIG5mc3Y0KEUpIGRuc19yZXNvbHZlcihFKSBuZnMo
-RSkgbG9ja2QoRSkgZ3JhY2UoRSkgbmV0ZnMoRSkgbmV0Y29uc29sZShFKSBpYl9jb3JlKEUpIHMK
-Y3NpX3RyYW5zcG9ydF9pc2NzaShFKSBuZl90YWJsZXMoRSkgbmZuZXRsaW5rKEUpIHRhcmdldF9j
-b3JlX21vZChFKSBtYWN2bGFuKEUpIDgwMjFxKEUpIGdhcnAoRSkgbXJwKEUpIGJvbmRpbmcoRSkg
-dGxzKEUpIGJpbmZtdF9taXNjKEUpIGRlbGxfcmJ1KEUpIHN1bnJwYyhFKSBidHJmcwooRSkgeG9y
-KEUpIHpzdGRfY29tcHJlc3MoRSkgdmZhdChFKSBmYXQoRSkgZG1fc2VydmljZV90aW1lKEUpIHJh
-aWQ2X3BxKEUpIGRtX211bHRpcGF0aChFKSBpcG1pX3NzaWYoRSkgaW50ZWxfcmFwbF9tc3IoRSkg
-aW50ZWxfcmFwbF9jb21tb24oRSkgYW1kNjRfZWRhYyhFKSBlZGFjX21jCmVfYW1kKEUpIGt2bV9h
-bWQoRSkga3ZtKEUpIGRlbGxfc21iaW9zKEUpIGFjcGlfaXBtaShFKSBpcnFieXBhc3MoRSkgZGNk
-YmFzKEUpIHdtaQpfYm1vZihFKSBkZWxsX3dtaV9kZXNjcmlwdG9yKEUpIGlwbWlfc2koRSkgbWdh
-ZzIwMChFKSByYXBsKEUpIGkyY19hbGdvX2JpdChFKSBhY3BpX2NwdWZyZXEoRSkgaXBtaV9kZXZp
-bnRmKEUpIHB0ZG1hKEUpIGkyY19waWl4NChFKSB3bWkoRSkgazEwdGVtcChFKQpNYXIgMjUgMTE6
-MjM6MzkgY21wMDIyMCBrZXJuZWw6IGlwbWlfbXNnaGFuZGxlcihFKSBhY3BpX3Bvd2VyX21ldGVy
-KEUpIGZ1c2UoRSkgenJhbShFKSBleHQ0KEUpIG1iY2FjaGUoRSkgamJkMihFKSBkbV9jcnlwdChF
-KSBzZF9tb2QoRSkgdDEwX3BpKEUpIHNnKEUpIGNyY3QxMGRpZl9wY2xtdWwoRSkgYWhjaShFKSBj
-cmMzMl9wY2xtdWwoRSkgcG9seXZhbF9jbG11bG5pKEUpIGljZShFKSBsaWJhaGNpKEUpIHBvbHl2
-YWxfZ2VuZXJpYyhFKSBnaGFzaF9jbG11bG5pX2ludGVsKEUpIHNoYTUxMl9zc3NlMyhFKSBsaWJh
-dGEoRSkgbWVnYXJhaWRfc2FzKEUpIGduc3MoRSkgY2NwKEUpIHNwNTEwMF90Y28oRSkgZG1fbWly
-cm9yKEUpIGRtX3JlZ2lvbl9oYXNoKEUpIGRtX2xvZyhFKSBkbV9tb2QoRSkgbmZfY29ubnRyYWNr
-KEUpIGxpYmNyYzMyYyhFKSBjcmMzMmNfaW50ZWwoRSkgbmZfZGVmcmFnX2lwdjYoRSkgbmZfZGVm
-cmFnX2lwdjQoRSkgYnJfbmV0ZmlsdGVyKEUpIGJyaWRnZShFKSBzdHAoRSkgbGxjKEUpCk1hciAy
-NSAxMToyMzozOSBjbXAwMjIwIGtlcm5lbDogVW5sb2FkZWQgdGFpbnRlZCBtb2R1bGVzOiBmamVz
-KEUpOjIgcGFkbG9ja19hZXMoRSk6MwpNYXIgMjUgMTE6MjM6MzkgY21wMDIyMCBrZXJuZWw6IENQ
-VTogMzIgUElEOiAxMTA0NCBDb21tOiB2aG9zdC0xMDk5OCBUYWludGVkOiBHICAgICAgICAgICAg
-RSAgICAgIDYuOC4xLTEuZ2RjLmVsOS54ODZfNjQgIzEKTWFyIDI1IDExOjIzOjM5IGNtcDAyMjAg
-a2VybmVsOiBIYXJkd2FyZSBuYW1lOiBEZWxsIEluYy4gUG93ZXJFZGdlIFI3NTI1LzBIM0s3UCwg
-QklPUyAyLjE0LjEgMTIvMTcvMjAyMwpNYXIgMjUgMTE6MjM6MzkgY21wMDIyMCBrZXJuZWw6IFJJ
-UDogMDAxMDprbWVtX2NhY2hlX2ZyZWUrMHgzMDEvMHgzZDAKTWFyIDI1IDExOjIzOjM5IGNtcDAy
-MjAga2VybmVsOiBDb2RlOiBmZCBmZiBmZiA4MCAzZCAzYSA5ZiBmNSAwMSAwMCAwZiA4NSBiZiBm
-ZSBmZiBmZiA0OCBjNyBjNiA1MCA0ZCBhNyA4ZSA0OCBjNyBjNyA0MCA2OSBmZCA4ZSBjNiAwNSAx
-ZiA5ZiBmNSAwMSAwMSBlOCAxZiA0NCBkMyBmZiA8MGY+IDBiIGU5IDllIGZlIGZmIGZmIDQ4IDhk
-IDQyIGZmIGU5IDYzIGZkIGZmIGZmIDRjIDhkIDY4IGZmIGU5IGUzCk1hciAyNSAxMToyMzozOSBj
-bXAwMjIwIGtlcm5lbDogUlNQOiAwMDE4OmZmZmZhYjEyZGU1NWJjODAgRUZMQUdTOiAwMDAxMDI4
-MgpNYXIgMjUgMTE6MjM6MzkgY21wMDIyMCBrZXJuZWw6IFJBWDogMDAwMDAwMDAwMDAwMDAwMCBS
-Qlg6IGZmZmY5MWQyYjRkZDk4MDAgUkNYOiAwMDAwMDAwMDAwMDAwMDAwCk1hciAyNSAxMToyMzoz
-OSBjbXAwMjIwIGtlcm5lbDogUkRYOiBmZmZmOTFiMjdmY2FkODAwIFJTSTogZmZmZjkxYjI3ZmNh
-MGE0MCBSREk6IGZmZmY5MWIyN2ZjYTBhNDAKTWFyIDI1IDExOjIzOjM5IGNtcDAyMjAga2VybmVs
-OiBSQlA6IGZmZmZhYjEyZGU1NWJjYzggUjA4OiAwMDAwMDAwMDAwMDAwMDAwIFIwOTogMDAwMDAw
-MDBmZmZmN2ZmZgpNYXIgMjUgMTE6MjM6MzkgY21wMDIyMCBrZXJuZWw6IFIxMDogZmZmZmFiMTJk
-ZTU1YmIyMCBSMTE6IGZmZmZmZmZmOGZiZTI5NjggUjEyOiBmZmZmOTFkMzM0ZGQ5ODAwCk1hciAy
-NSAxMToyMzozOSBjbXAwMjIwIGtlcm5lbDogUjEzOiAwMDAwMDAwMDAwMDAwMDAwIFIxNDogMDAw
-MDAwMDAwMDAwMDAwMSBSMTU6IDAwMDAwMDAwMDAwMDY0ZTQKTWFyIDI1IDExOjIzOjM5IGNtcDAy
-MjAga2VybmVsOiBGUzogIDAwMDA3ZjgxN2ZlMzJmODAoMDAwMCkgR1M6ZmZmZjkxYjI3ZmM4MDAw
-MCgwMDAwKSBrbmxHUzowMDAwMDAwMDAwMDAwMDAwCk1hciAyNSAxMToyMzozOSBjbXAwMjIwIGtl
-cm5lbDogQ1M6ICAwMDEwIERTOiAwMDAwIEVTOiAwMDAwIENSMDogMDAwMDAwMDA4MDA1MDAzMwpN
-YXIgMjUgMTE6MjM6MzkgY21wMDIyMCBrZXJuZWw6IENSMjogMDAwMDAwYzFhZDU5YjAwMCBDUjM6
-IDAwMDAwMTQwMzVlMjAwMDEgQ1I0OiAwMDAwMDAwMDAwNzcwZWYwCk1hciAyNSAxMToyMzozOSBj
-bXAwMjIwIGtlcm5lbDogUEtSVTogNTU1NTU1NTQKTWFyIDI1IDExOjIzOjM5IGNtcDAyMjAga2Vy
-bmVsOiBDYWxsIFRyYWNlOgpNYXIgMjUgMTE6MjM6MzkgY21wMDIyMCBrZXJuZWw6IDxUQVNLPgpN
-YXIgMjUgMTE6MjM6MzkgY21wMDIyMCBrZXJuZWw6ID8gX193YXJuKzB4ODAvMHgxMzAKTWFyIDI1
-IDExOjIzOjM5IGNtcDAyMjAga2VybmVsOiA/IGttZW1fY2FjaGVfZnJlZSsweDMwMS8weDNkMApN
-YXIgMjUgMTE6MjM6MzkgY21wMDIyMCBrZXJuZWw6ID8gcmVwb3J0X2J1ZysweDE5NS8weDFhMApN
-YXIgMjUgMTE6MjM6MzkgY21wMDIyMCBrZXJuZWw6ID8gcHJiX3JlYWRfdmFsaWQrMHgxNy8weDIw
-Ck1hciAyNSAxMToyMzozOSBjbXAwMjIwIGtlcm5lbDogPyBoYW5kbGVfYnVnKzB4M2MvMHg3MApN
-YXIgMjUgMTE6MjM6MzkgY21wMDIyMCBrZXJuZWw6ID8gZXhjX2ludmFsaWRfb3ArMHgxNC8weDcw
-Ck1hciAyNSAxMToyMzozOSBjbXAwMjIwIGtlcm5lbDogPyBhc21fZXhjX2ludmFsaWRfb3ArMHgx
-Ni8weDIwCk1hciAyNSAxMToyMzozOSBjbXAwMjIwIGtlcm5lbDogPyBrbWVtX2NhY2hlX2ZyZWUr
-MHgzMDEvMHgzZDAKTWFyIDI1IDExOjIzOjM5IGNtcDAyMjAga2VybmVsOiA/IHNrYl9yZWxlYXNl
-X2RhdGErMHgxMDcvMHgxZTAKTWFyIDI1IDExOjIzOjM5IGNtcDAyMjAga2VybmVsOiB0dW5fZG9f
-cmVhZCsweDY4LzB4MWYwIFt0dW5dCk1hciAyNSAxMToyMzozOSBjbXAwMjIwIGtlcm5lbDogdHVu
-X3JlY3Ztc2crMHg3ZS8weDE2MCBbdHVuXQpNYXIgMjUgMTE6MjM6MzkgY21wMDIyMCBrZXJuZWw6
-IGhhbmRsZV9yeCsweDNhYi8weDc1MCBbdmhvc3RfbmV0XQpNYXIgMjUgMTE6MjM6MzkgY21wMDIy
-MCBrZXJuZWw6ID8gaW5pdF9udW1hX2JhbGFuY2luZysweGQ3LzB4MWUwCk1hciAyNSAxMToyMzoz
-OSBjbXAwMjIwIGtlcm5lbDogdmhvc3Rfd29ya2VyKzB4NDIvMHg3MCBbdmhvc3RdCk1hciAyNSAx
-MToyMzozOSBjbXAwMjIwIGtlcm5lbDogdmhvc3RfdGFza19mbisweDRiLzB4YjAKTWFyIDI1IDEx
-OjIzOjM5IGNtcDAyMjAga2VybmVsOiA/IGZpbmlzaF90YXNrX3N3aXRjaC5pc3JhLjArMHg4Zi8w
-eDJhMApNYXIgMjUgMTE6MjM6MzkgY21wMDIyMCBrZXJuZWw6ID8gX19wZnhfdmhvc3RfdGFza19m
-bisweDEwLzB4MTAKTWFyIDI1IDExOjIzOjM5IGNtcDAyMjAga2VybmVsOiA/IF9fcGZ4X3Zob3N0
-X3Rhc2tfZm4rMHgxMC8weDEwCk1hciAyNSAxMToyMzozOSBjbXAwMjIwIGtlcm5lbDogcmV0X2Zy
-b21fZm9yaysweDJkLzB4NTAKTWFyIDI1IDExOjIzOjM5IGNtcDAyMjAga2VybmVsOiA/IF9fcGZ4
-X3Zob3N0X3Rhc2tfZm4rMHgxMC8weDEwCk1hciAyNSAxMToyMzozOSBjbXAwMjIwIGtlcm5lbDog
-cmV0X2Zyb21fZm9ya19hc20rMHgxYi8weDMwCk1hciAyNSAxMToyMzozOSBjbXAwMjIwIGtlcm5l
-bDogPC9UQVNLPgpNYXIgMjUgMTE6MjM6MzkgY21wMDIyMCBrZXJuZWw6IC0tLVsgZW5kIHRyYWNl
-IDAwMDAwMDAwMDAwMDAwMDAgXS0tLQoK
---0000000000007147b206149f13ba--
