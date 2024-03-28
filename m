@@ -1,324 +1,97 @@
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA2755FB94
-	for <virtualization@lists.linux.dev>; Thu, 28 Mar 2024 08:04:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2B8C53E1F
+	for <virtualization@lists.linux.dev>; Thu, 28 Mar 2024 08:05:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711613047; cv=none; b=NyB+OEOAevD90B1MFZapvO4njhsYMwpAohy1xgf2DxOWZrukFJ7f4ju3xEflqlXk64gSOVZKvNI5RtosSnyJ+rGExpvFTiVCtok73YPKQoKTjV8DXZyp78O1wJ/5xwaEMh5rum7dN3nXQIDKdyxVD3o+KIcaXTV7pHWqSghUBeI=
+	t=1711613118; cv=none; b=IBEpOAuufvpcVtrzeJbjqufx4o0rL259WbEhVcj+Ta0cJGAtpQCnthH0y6GY1daJ445GCgCN2bMVMRy7Zyx0DLl2uVhj71l/HFNPfqJKehrJVX7i+V/v0dHJ73y2gwq/u0kzUwVQrTGQAJfy+Y+crZe6r2NB2eCuRP0Z8534n8o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711613047; c=relaxed/simple;
-	bh=xsZGhakUNZyK/WH+53T1KC31fT3XWhJRa5cyyptRgEc=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=EnisZHOkrWOaWnKzOeCr3OkuCsQXMl7H9CjIB41+EbE1qQlevaq+J+Wqy9n1mFXjtjInQ2Ec7SwwJv0apCvq2gyMXJat/ROjRwh3NwvEspt/PCk/XOlLZOroBN8UAgPWRp7iTEYSXKBZjsx1pO3WeE/7XGNDRpN3TR2rb1LR2JY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=D7sxnXQ1; arc=none smtp.client-ip=115.124.30.132
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1711613118; c=relaxed/simple;
+	bh=Be0UUd5PJExJNdd3TaFGM+tMRsL4MrmrEUd8POcwdfo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=NDJLGdz0ytaRauFsoEjx56hqUwK6dazqs1IGUOGvBrqjrmaayuFI/YzrSXHzHxtAslSCMxdcqrSgg/yA2j0+WQVYCufqYVcnv1b9urWLLUuvnr+0VWgF+fd484WSgClW0Cmx86LWjFtPTZ2EcAi0xeZ5mUdAveKO3RGigCQDz48=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=G57giJhw; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="D7sxnXQ1"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1711613037; h=From:To:Subject:Date:Message-Id:MIME-Version:Content-Type;
-	bh=hY1AAPA4rpSjxhmWWaOndqBf1lA+YqGx35AKxCVEa4c=;
-	b=D7sxnXQ1mhW0bHecWtOIK7aF27wCE+z0aoH+33OVaZThQ0zPQOAYlLw4M5mrobYhWXQzcX4KIR5Z5z5ziPNgBbxyjAPenxl9c9LpY4POCXBjf53WbIrSpaYffQUKYlHMmQaVaVt7WkDALV+Ix57AoGw3afC4pTqQ1b2XhjVnijM=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R361e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=26;SR=0;TI=SMTPD_---0W3SgpxU_1711613036;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W3SgpxU_1711613036)
-          by smtp.aliyun-inc.com;
-          Thu, 28 Mar 2024 16:03:56 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: virtualization@lists.linux.dev
-Cc: Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Hans de Goede <hdegoede@redhat.com>,
-	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	Vadim Pasternak <vadimp@nvidia.com>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Mathieu Poirier <mathieu.poirier@linaro.org>,
-	Cornelia Huck <cohuck@redhat.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	Eric Farman <farman@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	David Hildenbrand <david@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	linux-um@lists.infradead.org,
-	platform-driver-x86@vger.kernel.org,
-	linux-remoteproc@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	kvm@vger.kernel.org
-Subject: [PATCH vhost v7 5/6] virtio: vring_new_virtqueue(): pass struct instead of multi parameters
-Date: Thu, 28 Mar 2024 16:03:47 +0800
-Message-Id: <20240328080348.3620-6-xuanzhuo@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20240328080348.3620-1-xuanzhuo@linux.alibaba.com>
-References: <20240328080348.3620-1-xuanzhuo@linux.alibaba.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="G57giJhw"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1711613115;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Be0UUd5PJExJNdd3TaFGM+tMRsL4MrmrEUd8POcwdfo=;
+	b=G57giJhwcAzFj99f+RVo+4O9Iu3LnU2kHV/12U+XIaAfhBuHTLAmBKcjP6fSTeSpgT7AJA
+	6g/wLql2leBkHGigFcffejpD/ZqV7b3bsmXQSoLHKMKbiSr0p8WWCtMvz7LIhrjT+JgOZV
+	Ii+5xiWLoPg/LoUyGpuARVlrn97cF3A=
+Received: from mail-pf1-f200.google.com (mail-pf1-f200.google.com
+ [209.85.210.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-557-Yrn5cds9P46AzlF_qEE6mw-1; Thu, 28 Mar 2024 04:05:14 -0400
+X-MC-Unique: Yrn5cds9P46AzlF_qEE6mw-1
+Received: by mail-pf1-f200.google.com with SMTP id d2e1a72fcca58-6e7149bc12fso714869b3a.3
+        for <virtualization@lists.linux.dev>; Thu, 28 Mar 2024 01:05:14 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1711613113; x=1712217913;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Be0UUd5PJExJNdd3TaFGM+tMRsL4MrmrEUd8POcwdfo=;
+        b=hFdXucv4YX7rCJR+zXOC+gpo17+6r3LjDD1DhyNULniePwPTpJ6TZaRSX3aoaIyri9
+         JYG2V3HCWfkdCnNIBIhT5N6QkdeCN2yhKp7z3K8FBdH0IkUe4AQx52CtyWHBICvAHB+e
+         w5+XCuYRzA+oLrAnZnExz5fcTy0cPdNjM2Lo9wsjOELCktkxamsLe81r1E1Wq+CVe+Ks
+         fpKaZKc0QXxe1kP8M6xa+arsRmcf8bcXTAVY4U999Nk4+TcGlJIm3t1G0Pva6y6pGa1y
+         lgnkKwsKgn546V+KEXD07TTihvI6NeBtILSHkZ7ZgTeyPsOzLbWjJnzEAQ6ZMMh6J270
+         x2SQ==
+X-Gm-Message-State: AOJu0YxQ5Ev9pS5bl8oRSBorUtWmA6O3agBflHSTYlDRuXqp4ADGcKuJ
+	hMuhraNwNVwwbQjcYeL0daKJ+CVj+0ixl31/FquPEbRKV/mQm52BFCMjLml/kWpCKUrbY6aCKkE
+	tFK9AWlScQMtbsrRSCj458x5kgJVy/8V+7HfPCa53z8G6dqobOpM2kS2tbROgPm2Itn5A5L9AQk
+	fHhYv6oNCvnq1duOAj4fEOSbTY+44UdvGPFoKlO88=
+X-Received: by 2002:a05:6a21:338f:b0:1a3:71d4:cf3 with SMTP id yy15-20020a056a21338f00b001a371d40cf3mr2662976pzb.59.1711613113300;
+        Thu, 28 Mar 2024 01:05:13 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IERrEZq1/g2j0eedaT4nU+tDdrIYn3NcnhmsxEIr3VlSxiStFU+h9PY3rVqqpDbZd11ygttWItTa2FI/UGvmcc=
+X-Received: by 2002:a05:6a21:338f:b0:1a3:71d4:cf3 with SMTP id
+ yy15-20020a056a21338f00b001a371d40cf3mr2662962pzb.59.1711613113069; Thu, 28
+ Mar 2024 01:05:13 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-Git-Hash: fc2c3bb8a235
-Content-Transfer-Encoding: 8bit
+References: <20240327111430.108787-1-xuanzhuo@linux.alibaba.com> <20240327111430.108787-10-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20240327111430.108787-10-xuanzhuo@linux.alibaba.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 28 Mar 2024 16:05:02 +0800
+Message-ID: <CACGkMEs=NZGkkA7ye0wY7YcPBPfbKkYq84KCRX1gS0e=bZDX-w@mail.gmail.com>
+Subject: Re: [PATCH vhost v6 09/10] virtio_net: set premapped mode by find_vqs()
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Now, we pass multi parameters to vring_new_virtqueue. These parameters
-may from transport or from driver.
+On Wed, Mar 27, 2024 at 7:14=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
+om> wrote:
+>
+> Now, the virtio core can set the premapped mode by find_vqs().
+> If the premapped can be enabled, the dma array will not be
+> allocated. So virtio-net use the api of find_vqs to enable the
+> premapped.
+>
+> Judge the premapped mode by the vq->premapped instead of saving
+> local variable.
+>
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> ---
 
-vring_new_virtqueue is called by many places.
-Every time, we try to add a new parameter, that is difficult.
+I wonder what's the reason to keep a fallback when premapped is not enabled=
+?
 
-If parameters from the driver, that should directly be passed to vring.
-Then the vring can access the config from driver directly.
-
-If parameters from the transport, we squish the parameters to a
-structure. That will be helpful to add new parameter.
-
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
----
- drivers/platform/mellanox/mlxbf-tmfifo.c | 12 ++++---
- drivers/remoteproc/remoteproc_virtio.c   | 11 ++++---
- drivers/virtio/virtio_ring.c             | 29 +++++++++++-----
- include/linux/virtio_ring.h              | 42 +++++++++++++++++++-----
- tools/virtio/virtio_test.c               |  4 +--
- tools/virtio/vringh_test.c               | 28 ++++++++--------
- 6 files changed, 84 insertions(+), 42 deletions(-)
-
-diff --git a/drivers/platform/mellanox/mlxbf-tmfifo.c b/drivers/platform/mellanox/mlxbf-tmfifo.c
-index 4252388f52a2..d2e871fad8b4 100644
---- a/drivers/platform/mellanox/mlxbf-tmfifo.c
-+++ b/drivers/platform/mellanox/mlxbf-tmfifo.c
-@@ -1059,6 +1059,7 @@ static int mlxbf_tmfifo_virtio_find_vqs(struct virtio_device *vdev,
- 					struct virtio_vq_config *cfg)
- {
- 	struct mlxbf_tmfifo_vdev *tm_vdev = mlxbf_vdev_to_tmfifo(vdev);
-+	struct vq_transport_config tp_cfg = {};
- 	struct virtqueue **vqs = cfg->vqs;
- 	struct mlxbf_tmfifo_vring *vring;
- 	unsigned int nvqs = cfg->nvqs;
-@@ -1078,10 +1079,13 @@ static int mlxbf_tmfifo_virtio_find_vqs(struct virtio_device *vdev,
- 		/* zero vring */
- 		size = vring_size(vring->num, vring->align);
- 		memset(vring->va, 0, size);
--		vq = vring_new_virtqueue(i, vring->num, vring->align, vdev,
--					 false, false, vring->va,
--					 mlxbf_tmfifo_virtio_notify,
--					 cfg->callbacks[i], cfg->names[i]);
-+
-+		tp_cfg.num = vring->num;
-+		tp_cfg.vring_align = vring->align;
-+		tp_cfg.weak_barriers = false;
-+		tp_cfg.notify = mlxbf_tmfifo_virtio_notify;
-+
-+		vq = vring_new_virtqueue(vdev, i, vring->va, &tp_cfg, cfg);
- 		if (!vq) {
- 			dev_err(&vdev->dev, "vring_new_virtqueue failed\n");
- 			ret = -ENOMEM;
-diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
-index 489fea1d41c0..07acd7a51e62 100644
---- a/drivers/remoteproc/remoteproc_virtio.c
-+++ b/drivers/remoteproc/remoteproc_virtio.c
-@@ -106,6 +106,7 @@ static struct virtqueue *rp_find_vq(struct virtio_device *vdev,
- {
- 	struct rproc_vdev *rvdev = vdev_to_rvdev(vdev);
- 	struct rproc *rproc = vdev_to_rproc(vdev);
-+	struct vq_transport_config tp_cfg = {};
- 	struct device *dev = &rproc->dev;
- 	struct rproc_mem_entry *mem;
- 	struct rproc_vring *rvring;
-@@ -135,14 +136,16 @@ static struct virtqueue *rp_find_vq(struct virtio_device *vdev,
- 	dev_dbg(dev, "vring%d: va %pK qsz %d notifyid %d\n",
- 		id, addr, num, rvring->notifyid);
- 
-+	tp_cfg.num = num;
-+	tp_cfg.vring_align = rvring->align;
-+	tp_cfg.weak_barriers = false;
-+	tp_cfg.notify = rproc_virtio_notify;
-+
- 	/*
- 	 * Create the new vq, and tell virtio we're not interested in
- 	 * the 'weak' smp barriers, since we're talking with a real device.
- 	 */
--	vq = vring_new_virtqueue(id, num, rvring->align, vdev, false,
--				 cfg->ctx ? cfg->ctx[id] : false,
--				 addr, rproc_virtio_notify, cfg->callbacks[id],
--				 cfg->names[id]);
-+	vq = vring_new_virtqueue(vdev, id, addr, &tp_cfg, cfg);
- 	if (!vq) {
- 		dev_err(dev, "vring_new_virtqueue %s failed\n", cfg->names[id]);
- 		rproc_free_vring(rvring);
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index b0e19a84644c..20e5e4779f36 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -2835,18 +2835,29 @@ int virtqueue_reset(struct virtqueue *_vq,
- EXPORT_SYMBOL_GPL(virtqueue_reset);
- 
- /* Only available for split ring */
--struct virtqueue *vring_new_virtqueue(unsigned int index,
--				      unsigned int num,
--				      unsigned int vring_align,
--				      struct virtio_device *vdev,
--				      bool weak_barriers,
--				      bool context,
-+struct virtqueue *vring_new_virtqueue(struct virtio_device *vdev,
-+				      unsigned int index,
- 				      void *pages,
--				      bool (*notify)(struct virtqueue *vq),
--				      void (*callback)(struct virtqueue *vq),
--				      const char *name)
-+				      struct vq_transport_config *tp_cfg,
-+				      struct virtio_vq_config *cfg)
- {
- 	struct vring_virtqueue_split vring_split = {};
-+	unsigned int num;
-+	unsigned int vring_align;
-+	bool weak_barriers;
-+	bool context;
-+	bool (*notify)(struct virtqueue *_);
-+	void (*callback)(struct virtqueue *_);
-+	const char *name;
-+
-+	num            = tp_cfg->num;
-+	vring_align    = tp_cfg->vring_align;
-+	weak_barriers  = tp_cfg->weak_barriers;
-+	notify         = tp_cfg->notify;
-+
-+	name     = cfg->names[index];
-+	callback = cfg->callbacks[index];
-+	context  = cfg->ctx ? cfg->ctx[index] : false;
- 
- 	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED))
- 		return NULL;
-diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-index 0a81f7f025ce..ed005dc65cc0 100644
---- a/include/linux/virtio_ring.h
-+++ b/include/linux/virtio_ring.h
-@@ -96,16 +96,40 @@ struct virtqueue *vring_create_virtqueue(struct virtio_device *vdev,
-  * Creates a virtqueue with a standard layout but a caller-allocated
-  * ring.
-  */
--struct virtqueue *vring_new_virtqueue(unsigned int index,
--				      unsigned int num,
--				      unsigned int vring_align,
--				      struct virtio_device *vdev,
--				      bool weak_barriers,
--				      bool ctx,
-+struct virtqueue *vring_new_virtqueue(struct virtio_device *vdev,
-+				      unsigned int index,
- 				      void *pages,
--				      bool (*notify)(struct virtqueue *vq),
--				      void (*callback)(struct virtqueue *vq),
--				      const char *name);
-+				      struct vq_transport_config *tp_cfg,
-+				      struct virtio_vq_config *cfg);
-+
-+static inline struct virtqueue *vring_new_virtqueue_one(unsigned int index,
-+							unsigned int num,
-+							unsigned int vring_align,
-+							struct virtio_device *vdev,
-+							bool weak_barriers,
-+							bool context,
-+							void *pages,
-+							bool (*notify)(struct virtqueue *vq),
-+							void (*callback)(struct virtqueue *vq),
-+							const char *name)
-+{
-+	struct vq_transport_config tp_cfg = {};
-+	struct virtio_vq_config cfg = {};
-+	vq_callback_t *callbacks[] = { callback };
-+	const char *names[] = { name };
-+
-+	tp_cfg.num = num;
-+	tp_cfg.vring_align = vring_align;
-+	tp_cfg.weak_barriers = weak_barriers;
-+	tp_cfg.notify = notify;
-+
-+	cfg.nvqs = 1;
-+	cfg.callbacks = callbacks;
-+	cfg.names = names;
-+	cfg.ctx = &context;
-+
-+	return vring_new_virtqueue(vdev, index, pages, &tp_cfg, &cfg);
-+}
- 
- /*
-  * Destroys a virtqueue.  If created with vring_create_virtqueue, this
-diff --git a/tools/virtio/virtio_test.c b/tools/virtio/virtio_test.c
-index 028f54e6854a..e41300d71d5e 100644
---- a/tools/virtio/virtio_test.c
-+++ b/tools/virtio/virtio_test.c
-@@ -102,8 +102,8 @@ static void vq_reset(struct vq_info *info, int num, struct virtio_device *vdev)
- 
- 	memset(info->ring, 0, vring_size(num, 4096));
- 	vring_init(&info->vring, num, info->ring, 4096);
--	info->vq = vring_new_virtqueue(info->idx, num, 4096, vdev, true, false,
--				       info->ring, vq_notify, vq_callback, "test");
-+	info->vq = vring_new_virtqueue_one(info->idx, num, 4096, vdev, true, false,
-+					   info->ring, vq_notify, vq_callback, "test");
- 	assert(info->vq);
- 	info->vq->priv = info;
- }
-diff --git a/tools/virtio/vringh_test.c b/tools/virtio/vringh_test.c
-index 98ff808d6f0c..040689111584 100644
---- a/tools/virtio/vringh_test.c
-+++ b/tools/virtio/vringh_test.c
-@@ -316,11 +316,11 @@ static int parallel_test(u64 features,
- 		if (sched_setaffinity(getpid(), sizeof(cpu_set), &cpu_set))
- 			err(1, "Could not set affinity to cpu %u", first_cpu);
- 
--		vq = vring_new_virtqueue(0, RINGSIZE, ALIGN, &gvdev.vdev, true,
--					 false, guest_map,
--					 fast_vringh ? no_notify_host
--					 : parallel_notify_host,
--					 never_callback_guest, "guest vq");
-+		vq = vring_new_virtqueue_one(0, RINGSIZE, ALIGN, &gvdev.vdev, true,
-+					     false, guest_map,
-+					     fast_vringh ? no_notify_host
-+					     : parallel_notify_host,
-+					     never_callback_guest, "guest vq");
- 
- 		/* Don't kfree indirects. */
- 		__kfree_ignore_start = indirects;
-@@ -485,10 +485,10 @@ int main(int argc, char *argv[])
- 	memset(__user_addr_min, 0, vring_size(RINGSIZE, ALIGN));
- 
- 	/* Set up guest side. */
--	vq = vring_new_virtqueue(0, RINGSIZE, ALIGN, &vdev, true, false,
--				 __user_addr_min,
--				 never_notify_host, never_callback_guest,
--				 "guest vq");
-+	vq = vring_new_virtqueue_one(0, RINGSIZE, ALIGN, &vdev, true, false,
-+				     __user_addr_min,
-+				     never_notify_host, never_callback_guest,
-+				     "guest vq");
- 
- 	/* Set up host side. */
- 	vring_init(&vrh.vring, RINGSIZE, __user_addr_min, ALIGN);
-@@ -668,11 +668,11 @@ int main(int argc, char *argv[])
- 
- 		/* Force creation of direct, which we modify. */
- 		__virtio_clear_bit(&vdev, VIRTIO_RING_F_INDIRECT_DESC);
--		vq = vring_new_virtqueue(0, RINGSIZE, ALIGN, &vdev, true,
--					 false, __user_addr_min,
--					 never_notify_host,
--					 never_callback_guest,
--					 "guest vq");
-+		vq = vring_new_virtqueue_one(0, RINGSIZE, ALIGN, &vdev, true,
-+					     false, __user_addr_min,
-+					     never_notify_host,
-+					     never_callback_guest,
-+					     "guest vq");
- 
- 		sg_init_table(guest_sg, 4);
- 		sg_set_buf(&guest_sg[0], d, sizeof(*d)*2);
--- 
-2.32.0.3.g01195cf9f
+Thanks
 
