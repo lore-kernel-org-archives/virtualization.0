@@ -1,97 +1,110 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2B8C53E1F
-	for <virtualization@lists.linux.dev>; Thu, 28 Mar 2024 08:05:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84ED52C1A0
+	for <virtualization@lists.linux.dev>; Thu, 28 Mar 2024 08:06:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711613118; cv=none; b=IBEpOAuufvpcVtrzeJbjqufx4o0rL259WbEhVcj+Ta0cJGAtpQCnthH0y6GY1daJ445GCgCN2bMVMRy7Zyx0DLl2uVhj71l/HFNPfqJKehrJVX7i+V/v0dHJ73y2gwq/u0kzUwVQrTGQAJfy+Y+crZe6r2NB2eCuRP0Z8534n8o=
+	t=1711613214; cv=none; b=d8XFQRPo7NdKI4970Zta6qyl4Uz0C84KBgUoTg86JNk0VhI6gzLrOTXO0e3M4SkmRPYcauDqDJ612FZPX6S1tszJ7a2gwoNWskw5x3Uyi188fWTVQTcwd1ufJKVRuCxitPNZKC+46hBqFlHZl8UVXGS8V3q35AK1JUXVKZwanXI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711613118; c=relaxed/simple;
-	bh=Be0UUd5PJExJNdd3TaFGM+tMRsL4MrmrEUd8POcwdfo=;
+	s=arc-20240116; t=1711613214; c=relaxed/simple;
+	bh=/MW0cHjA5IzOddregUHmjjXRlsROk5qw/WwkRF1E0qA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=NDJLGdz0ytaRauFsoEjx56hqUwK6dazqs1IGUOGvBrqjrmaayuFI/YzrSXHzHxtAslSCMxdcqrSgg/yA2j0+WQVYCufqYVcnv1b9urWLLUuvnr+0VWgF+fd484WSgClW0Cmx86LWjFtPTZ2EcAi0xeZ5mUdAveKO3RGigCQDz48=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=G57giJhw; arc=none smtp.client-ip=170.10.129.124
+	 To:Cc:Content-Type; b=ani9IeNkm32FMTujDAAktRslisjlfe32l0Pyo6HdZErPWmGZlB+I3I/Ljb4u1fTNZT73rG5kySz+AkkCqUCmeDxwS4DsvAkGQKVvHHNIPL8qqFyIjFGlUHTYDFylJyRE8KHVSbwvZGuP/MqYJ+2wvjnRb62e5bozBJQVeCV6d5I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=L2y4PDtP; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="G57giJhw"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="L2y4PDtP"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1711613115;
+	s=mimecast20190719; t=1711613211;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Be0UUd5PJExJNdd3TaFGM+tMRsL4MrmrEUd8POcwdfo=;
-	b=G57giJhwcAzFj99f+RVo+4O9Iu3LnU2kHV/12U+XIaAfhBuHTLAmBKcjP6fSTeSpgT7AJA
-	6g/wLql2leBkHGigFcffejpD/ZqV7b3bsmXQSoLHKMKbiSr0p8WWCtMvz7LIhrjT+JgOZV
-	Ii+5xiWLoPg/LoUyGpuARVlrn97cF3A=
-Received: from mail-pf1-f200.google.com (mail-pf1-f200.google.com
- [209.85.210.200]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=/MW0cHjA5IzOddregUHmjjXRlsROk5qw/WwkRF1E0qA=;
+	b=L2y4PDtPbUMy6OEF7iZciOm2T7jugmA8ghoVoqV+ibdcb0ePAd2erRo47eJ1I9USGTC+fy
+	tNwd+cYozVGj/zhDZFI4I9G61NU3E7P2Q6YbUAqocQs74Mpb+UJwNpPNVIy79tgWj1EHcH
+	qvF+epPy0qr0WAGha4cHgFuhOxB7zac=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-557-Yrn5cds9P46AzlF_qEE6mw-1; Thu, 28 Mar 2024 04:05:14 -0400
-X-MC-Unique: Yrn5cds9P46AzlF_qEE6mw-1
-Received: by mail-pf1-f200.google.com with SMTP id d2e1a72fcca58-6e7149bc12fso714869b3a.3
-        for <virtualization@lists.linux.dev>; Thu, 28 Mar 2024 01:05:14 -0700 (PDT)
+ us-mta-9-Ur6lJ-tnOsOFF9q-CKv4Bg-1; Thu, 28 Mar 2024 04:06:50 -0400
+X-MC-Unique: Ur6lJ-tnOsOFF9q-CKv4Bg-1
+Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-2a04aded772so693134a91.2
+        for <virtualization@lists.linux.dev>; Thu, 28 Mar 2024 01:06:49 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711613113; x=1712217913;
+        d=1e100.net; s=20230601; t=1711613209; x=1712218009;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Be0UUd5PJExJNdd3TaFGM+tMRsL4MrmrEUd8POcwdfo=;
-        b=hFdXucv4YX7rCJR+zXOC+gpo17+6r3LjDD1DhyNULniePwPTpJ6TZaRSX3aoaIyri9
-         JYG2V3HCWfkdCnNIBIhT5N6QkdeCN2yhKp7z3K8FBdH0IkUe4AQx52CtyWHBICvAHB+e
-         w5+XCuYRzA+oLrAnZnExz5fcTy0cPdNjM2Lo9wsjOELCktkxamsLe81r1E1Wq+CVe+Ks
-         fpKaZKc0QXxe1kP8M6xa+arsRmcf8bcXTAVY4U999Nk4+TcGlJIm3t1G0Pva6y6pGa1y
-         lgnkKwsKgn546V+KEXD07TTihvI6NeBtILSHkZ7ZgTeyPsOzLbWjJnzEAQ6ZMMh6J270
-         x2SQ==
-X-Gm-Message-State: AOJu0YxQ5Ev9pS5bl8oRSBorUtWmA6O3agBflHSTYlDRuXqp4ADGcKuJ
-	hMuhraNwNVwwbQjcYeL0daKJ+CVj+0ixl31/FquPEbRKV/mQm52BFCMjLml/kWpCKUrbY6aCKkE
-	tFK9AWlScQMtbsrRSCj458x5kgJVy/8V+7HfPCa53z8G6dqobOpM2kS2tbROgPm2Itn5A5L9AQk
-	fHhYv6oNCvnq1duOAj4fEOSbTY+44UdvGPFoKlO88=
-X-Received: by 2002:a05:6a21:338f:b0:1a3:71d4:cf3 with SMTP id yy15-20020a056a21338f00b001a371d40cf3mr2662976pzb.59.1711613113300;
-        Thu, 28 Mar 2024 01:05:13 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IERrEZq1/g2j0eedaT4nU+tDdrIYn3NcnhmsxEIr3VlSxiStFU+h9PY3rVqqpDbZd11ygttWItTa2FI/UGvmcc=
-X-Received: by 2002:a05:6a21:338f:b0:1a3:71d4:cf3 with SMTP id
- yy15-20020a056a21338f00b001a371d40cf3mr2662962pzb.59.1711613113069; Thu, 28
- Mar 2024 01:05:13 -0700 (PDT)
+        bh=/MW0cHjA5IzOddregUHmjjXRlsROk5qw/WwkRF1E0qA=;
+        b=eKaRYZERtAdLhpEHOQy3PpndajvqHm8O9ylzLboM5OozV4f6afmiyaITErONcoV+ew
+         FmBo2g34iKQBU6eqha03y4SV2b5zg4HDsmmBlLS55IbNNn7i3TiQhVGhhKCwze3+Avr/
+         jiiA6h/5aPK8U03ZZqRCKcy4Z60NO+w1XfZFMgyr1RX+MFJnimJG1SMBepJwVy/7LyWl
+         T88ebPXdRK6BQ+A8H6rjFCHSy68eg4WWHjZ78qPD4zLPEGD6rjkyVLU/VQAWXQ5fyc3R
+         PnrxQlqCllRqUZd7QhbKrJDC7su+DZgMcfbLmfLy3O4WDcsfnfex3/XwRnFV0ixSn7X9
+         6XZw==
+X-Gm-Message-State: AOJu0YySIWvFJySGse+4qyvctNteWQzZnqQAFjigXDBZuB/cUWK4exnA
+	QwL4kaoCAN1pgmIuje3FrwJ0ksSy9k9qWbO3jY8jvgBdZWrpwq4fW1wHkHFhPI/pNB151JvUf/d
+	7rWnd18A2NBSXn1iKjKm9c91KNC6jIfR6iPrtuXUAoTEoPJiVLncWqCRHsv9FX1A6AKXIrIIKWa
+	8E4NHpr6clCiJYXN/HYrJVTbgak7vrKOBbqyJ/qBw=
+X-Received: by 2002:a17:90a:dc08:b0:2a0:4c3b:3454 with SMTP id i8-20020a17090adc0800b002a04c3b3454mr1573892pjv.47.1711613209128;
+        Thu, 28 Mar 2024 01:06:49 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEr3cKtOM4ZCyHExJ4R7r8BZoA5SFTXeHHD/kYgfJMhl+KEh6JWHIkXDQz44FirN0E+6Cmhpkbslv31U6+rB3Y=
+X-Received: by 2002:a17:90a:dc08:b0:2a0:4c3b:3454 with SMTP id
+ i8-20020a17090adc0800b002a04c3b3454mr1573868pjv.47.1711613208786; Thu, 28 Mar
+ 2024 01:06:48 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240327111430.108787-1-xuanzhuo@linux.alibaba.com> <20240327111430.108787-10-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <20240327111430.108787-10-xuanzhuo@linux.alibaba.com>
+References: <20240328080348.3620-1-xuanzhuo@linux.alibaba.com> <20240328080348.3620-6-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20240328080348.3620-6-xuanzhuo@linux.alibaba.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 28 Mar 2024 16:05:02 +0800
-Message-ID: <CACGkMEs=NZGkkA7ye0wY7YcPBPfbKkYq84KCRX1gS0e=bZDX-w@mail.gmail.com>
-Subject: Re: [PATCH vhost v6 09/10] virtio_net: set premapped mode by find_vqs()
+Date: Thu, 28 Mar 2024 16:06:37 +0800
+Message-ID: <CACGkMEvv5UdAEC4N_AfQRM5TeVnPLC7PWpBvURxn+wSUhjFqrw@mail.gmail.com>
+Subject: Re: [PATCH vhost v7 5/6] virtio: vring_new_virtqueue(): pass struct
+ instead of multi parameters
 To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org
+Cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>, 
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg <johannes@sipsolutions.net>, 
+	Hans de Goede <hdegoede@redhat.com>, =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
+	Vadim Pasternak <vadimp@nvidia.com>, Bjorn Andersson <andersson@kernel.org>, 
+	Mathieu Poirier <mathieu.poirier@linaro.org>, Cornelia Huck <cohuck@redhat.com>, 
+	Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	David Hildenbrand <david@redhat.com>, linux-um@lists.infradead.org, 
+	platform-driver-x86@vger.kernel.org, linux-remoteproc@vger.kernel.org, 
+	linux-s390@vger.kernel.org, kvm@vger.kernel.org
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Mar 27, 2024 at 7:14=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
+On Thu, Mar 28, 2024 at 4:04=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
 om> wrote:
 >
-> Now, the virtio core can set the premapped mode by find_vqs().
-> If the premapped can be enabled, the dma array will not be
-> allocated. So virtio-net use the api of find_vqs to enable the
-> premapped.
+> Now, we pass multi parameters to vring_new_virtqueue. These parameters
+> may from transport or from driver.
 >
-> Judge the premapped mode by the vq->premapped instead of saving
-> local variable.
+> vring_new_virtqueue is called by many places.
+> Every time, we try to add a new parameter, that is difficult.
+>
+> If parameters from the driver, that should directly be passed to vring.
+> Then the vring can access the config from driver directly.
+>
+> If parameters from the transport, we squish the parameters to a
+> structure. That will be helpful to add new parameter.
 >
 > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> ---
+> Reviewed-by: Ilpo J=C3=A4rvinen <ilpo.jarvinen@linux.intel.com>
 
-I wonder what's the reason to keep a fallback when premapped is not enabled=
-?
+Acked-by: Jason Wang <jasowang@redhat.com>
 
 Thanks
 
