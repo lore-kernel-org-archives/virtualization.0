@@ -1,127 +1,117 @@
-Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com [209.85.218.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82444152E01
-	for <virtualization@lists.linux.dev>; Wed, 27 Mar 2024 23:44:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92D61BE55
+	for <virtualization@lists.linux.dev>; Thu, 28 Mar 2024 00:22:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711583058; cv=none; b=a24hXEtLMWVyi2SIAEBba8Kl8l+nwNK9xDjGtwhFpPw054qEeoaJXhSJ/Ml9PR9kJNFupTcF8kufZeqhaWAVfEN4N2tfHrglY6d7nhziszWRp5fWchtT7GAaluCDBVk/voREcD/XmrkUg/+w8I+fGVIj8EJ5VrQHZifwfTnx+d8=
+	t=1711585333; cv=none; b=koF4bF4tizzwKasQGpxogEYYG8ZHwvX0j1ukboIcXk8H4gQpUaeR5CIIpQreP1HAMDaI7Vo1X7sT6SZNoYZ8voSkGlGYAtMVO6188ordFz9k1zGlSYHrgnIICHdr3hJDaZxwmjVw/LqUgiAVHqPZVNFrbpcmwLVXYD2n/pAX4Kk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711583058; c=relaxed/simple;
-	bh=dzBreCw05Zj1z2WXknwvtlBCs0CVANyQ6oNok2B+YWI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Mcz6Bnc+Shp2gbf+xRfRR9nPI2i+dZz0B4uzQ/KUaeMGXQJE7qZqsWwhoe+kggTPfN39v6KuA71x9rMFCsX33MAOrBVs6PIaNzQ/yhLBAU42qJcw9I6y+L4tdnyif2BDIYsVzLohTjK00lsTgSclowTv4rk6JPgXy8atV4DHJpo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com; spf=none smtp.mailfrom=daynix.com; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=gAEmtmGP; arc=none smtp.client-ip=209.85.218.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=daynix.com
+	s=arc-20240116; t=1711585333; c=relaxed/simple;
+	bh=ggJad3r1Me38vzL4zFSX3eh0yHbHRPyVOdnLa426/DU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=ofdTQSg90CfXCQvoMdq0fwECBrpQHI4N5zG4ngKqJ7YnlZHteHI1NiaOkgGVG+/SXq3QywQNxsH5Akl24zJDOJdGXIOYTljG0GI0tvYX74vZZhDwDuWJXhwd5qR4deGRhN80EFBxgDm2tTHCtb669TrUTlC0FyB7RDhoLkwmM9w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NB3wctXK; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="gAEmtmGP"
-Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-a46cca2a979so19755966b.3
-        for <virtualization@lists.linux.dev>; Wed, 27 Mar 2024 16:44:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1711583055; x=1712187855; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=uafOqS8+Hx03UMEMNJ98UkxQPudcualGmS525ViN+u4=;
-        b=gAEmtmGPqQtacyFM0bxsnUMnV6DYncDqg6OZoGK1poAm10xIZdhDP3hhMnAn5M1BTU
-         nq1ElBbKPmclxPSeRarmYg2dE1NZuVJEvKh69ObH7cAwb0s/7WL5TBbomlabsohqq180
-         RPrHHUMj+lppJ46izuhhH0N/PeqpJs8EKstNFDdvZLFhf6VM5Wu9+TU0aUpZ28uOoFxK
-         WWSios8y1CP4G2zwAKQKc3zPlkCTLyo2PxnSyY29cFYXmv3T3H1gVO0CO1ynecRGNTof
-         MlurRsPzENnvZVeKqGHUba1to0Vwa38iFjEXHRMs67mbFN24QXxH8/sZ2WIxrISdg83G
-         CCQg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711583055; x=1712187855;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=uafOqS8+Hx03UMEMNJ98UkxQPudcualGmS525ViN+u4=;
-        b=fgC0Mshhw51U6VJMmIVjTnyKewMG1OmdEZPnnGbRfjhe5qeRVQzTkN5nVS7YMnpCCi
-         Nklgaug9rHSuwBZLMjdvgcxqj2J2c4BnT4E288HJC400W7QHgc+7m5DFV1faIvBTLuUO
-         lBfb3BcoOzSeCG0CBFFBz192sipLZ497jE6rsQPGRuAfQlwSjFOC6luweIsPDXBkaOqG
-         UZgkoIKIPUqONupIs8oeTADXK877sRM1qZDAYUHv+QjJpN7wyEsPPFKfbSR2h9jHVY13
-         HxjkNpXNnnSSGmrT2MejOfGoitIVjmHk+7+P2MsZBjV2q4F1EpYTmHGDleIgV2/kp8G2
-         m5ig==
-X-Forwarded-Encrypted: i=1; AJvYcCWtJG1/De/o424aKc2hpJdBwn8uwGhBup1QyxwSmmSvEg9ObFrV/fIqOrQoIsuTFj1MdokgMeZHAvnIRvrky2rjB6OxxEZrDbP96oVjKMU=
-X-Gm-Message-State: AOJu0YyZcqwCmC9QxfRnS8eIodbgnEh107UDrNbDnHyG8tyybPCDgDgl
-	B2Co0cUEOq3Pj9rsiTi3crQnTFhMRDy28mZkWmTMWmA90J0sxsifthgMz+jisIM=
-X-Google-Smtp-Source: AGHT+IG7URuP7axjuQKV/J+VTSyGmCmmaOiCo+Mv3EERteoqR/3prQyrSPwxKzpmfIt9Ury01gmlHg==
-X-Received: by 2002:a50:8a93:0:b0:56c:18b4:d2ab with SMTP id j19-20020a508a93000000b0056c18b4d2abmr1042066edj.42.1711583054754;
-        Wed, 27 Mar 2024 16:44:14 -0700 (PDT)
-Received: from localhost.localdomain (178.165.195.38.wireless.dyn.drei.com. [178.165.195.38])
-        by smtp.gmail.com with ESMTPSA id eo12-20020a056402530c00b00568afb0e731sm139243edb.63.2024.03.27.16.44.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 Mar 2024 16:44:14 -0700 (PDT)
-From: Andrew Melnychenko <andrew@daynix.com>
-To: mst@redhat.com,
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NB3wctXK"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1711585330;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=mWWwnnOWfq06YB/Ymuc/Edm8EX5yVgqLY4BpR0fiI10=;
+	b=NB3wctXKTEo0RKGMXdTXE5bnfiF9fWC/8UV5OEu3X0XaR3ET0PIZIeDQrkzAaoNtAJnbBd
+	0VXopmB0U06LTadPwBTDU9TAfwfYi8uYlopgrM61iCLKOVGXIXuiyh9M67yYc9eparue6/
+	5NC0SkwOMevfLeQBbEvh6lDPXcJnIiA=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-352-RU8MFNU-OxqdIu-B8y5D4Q-1; Wed, 27 Mar 2024 20:22:06 -0400
+X-MC-Unique: RU8MFNU-OxqdIu-B8y5D4Q-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id E452A800264;
+	Thu, 28 Mar 2024 00:22:05 +0000 (UTC)
+Received: from gshan-thinkpadx1nanogen2.remote.csb (unknown [10.64.136.81])
+	by smtp.corp.redhat.com (Postfix) with ESMTPS id 76D772166B31;
+	Thu, 28 Mar 2024 00:22:01 +0000 (UTC)
+From: Gavin Shan <gshan@redhat.com>
+To: virtualization@lists.linux.dev
+Cc: linux-kernel@vger.kernel.org,
+	mst@redhat.com,
 	jasowang@redhat.com,
-	ast@kernel.org,
-	daniel@iogearbox.net,
+	will@kernel.org,
 	davem@davemloft.net,
-	kuba@kernel.org,
-	hawk@kernel.org,
-	john.fastabend@gmail.com,
-	kvm@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	bpf@vger.kernel.org
-Cc: yuri.benditovich@daynix.com,
-	yan@daynix.com
-Subject: [PATCH v2 1/1] vhost: Added pad cleanup if vnet_hdr is not present.
-Date: Thu, 28 Mar 2024 01:18:26 +0200
-Message-ID: <20240327231826.1725488-1-andrew@daynix.com>
-X-Mailer: git-send-email 2.43.0
+	stefanha@redhat.com,
+	sgarzare@redhat.com,
+	keirf@google.com,
+	yihyu@redhat.com,
+	shan.gavin@gmail.com
+Subject: [PATCH v3 0/3] vhost: Fix stale available ring entries
+Date: Thu, 28 Mar 2024 10:21:46 +1000
+Message-ID: <20240328002149.1141302-1-gshan@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.6
 
-When the Qemu launched with vhost but without tap vnet_hdr,
-vhost tries to copy vnet_hdr from socket iter with size 0
-to the page that may contain some trash.
-That trash can be interpreted as unpredictable values for
-vnet_hdr.
-That leads to dropping some packets and in some cases to
-stalling vhost routine when the vhost_net tries to process
-packets and fails in a loop.
+The issue was reported by Yihuang Yu on NVidia's grace-hopper (ARM64)
+platform. The wrong head (available ring entry) is seen by the guest
+when running 'netperf' on the guest and running 'netserver' on another
+NVidia's grace-grace machine.
 
-Qemu options:
-  -netdev tap,vhost=on,vnet_hdr=off,...
+  /home/gavin/sandbox/qemu.main/build/qemu-system-aarch64      \
+  -accel kvm -machine virt,gic-version=host -cpu host          \
+  -smp maxcpus=1,cpus=1,sockets=1,clusters=1,cores=1,threads=1 \
+  -m 4096M,slots=16,maxmem=64G                                 \
+  -object memory-backend-ram,id=mem0,size=4096M                \
+   :                                                           \
+  -netdev tap,id=tap0,vhost=true                               \
+  -device virtio-net-pci,bus=pcie.8,netdev=tap0,mac=52:54:00:f1:26:b0
+   :
+  guest# ifconfig eth0 | grep 'inet addr'
+  inet addr:10.26.1.220
+  guest# netperf -H 10.26.1.81 -l 60 -C -c -t UDP_STREAM
+  virtio_net virtio0: output.0:id 100 is not a head!
 
-From security point of view, wrong values on field used later
-tap's tap_get_user_xdp() and will affect skb gso and options.
-Later the header(and data in headroom) should not be used by the stack.
-Using custom socket as a backend to vhost_net can reveal some data
-in the vnet_hdr, although it would require kernel access to implement.
+There is missed smp_rmb() in vhost_{vq_avail_empty, enable_notify}()
+Without smp_rmb(), vq->avail_idx is advanced but the available ring
+entries aren't arriving to vhost side yet. So a stale available ring
+entry can be fetched in vhost_get_vq_desc().
 
-The issue happens because the value of sock_len in virtqueue is 0.
-That value is set at vhost_net_set_features() with
-VHOST_NET_F_VIRTIO_NET_HDR, also it's set to zero at device open()
-and reset() routine.
-So, currently, to trigger the issue, we need to set up qemu with
-vhost=on,vnet_hdr=off, or do not configure vhost in the custom program.
+Fix it by adding smp_rmb() in those two functions. Note that I need
+two patches so that they can be easily picked up by the stable kernel.
+With the changes, I'm unable to hit the issue again. Besides, the
+function vhost_get_avail_idx() is improved to tackle the memory barrier
+so that the callers needn't to worry about it.
 
-Signed-off-by: Andrew Melnychenko <andrew@daynix.com>
----
- drivers/vhost/net.c | 3 +++
- 1 file changed, 3 insertions(+)
+v2: https://lore.kernel.org/virtualization/46c6a9aa-821c-4013-afe7-61ec05fc9dd4@redhat.com
+v1: https://lore.kernel.org/virtualization/66e12633-b2d6-4b9a-9103-bb79770fcafa@redhat.com
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index f2ed7167c848..57411ac2d08b 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -735,6 +735,9 @@ static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
- 	hdr = buf;
- 	gso = &hdr->gso;
- 
-+	if (!sock_hlen)
-+		memset(buf, 0, pad);
-+
- 	if ((gso->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) &&
- 	    vhost16_to_cpu(vq, gso->csum_start) +
- 	    vhost16_to_cpu(vq, gso->csum_offset) + 2 >
+Changelog
+=========
+v3:
+  Improved change log                                         (Jason)
+  Improved comments and added PATCH[v3 3/3] to execute
+  smp_rmb() in vhost_get_avail_idx()                          (Michael)
+
+
+Gavin Shan (3):
+  vhost: Add smp_rmb() in vhost_vq_avail_empty()
+  vhost: Add smp_rmb() in vhost_enable_notify()
+  vhost: Improve vhost_get_avail_idx() with smp_rmb()
+
+ drivers/vhost/vhost.c | 51 ++++++++++++++++++++-----------------------
+ 1 file changed, 24 insertions(+), 27 deletions(-)
+
 -- 
-2.43.0
+2.44.0
 
