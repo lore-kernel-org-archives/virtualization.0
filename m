@@ -1,213 +1,138 @@
-Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03D281E89C
-	for <virtualization@lists.linux.dev>; Thu, 28 Mar 2024 14:37:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A42A128382
+	for <virtualization@lists.linux.dev>; Thu, 28 Mar 2024 15:29:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711636640; cv=none; b=mvU+YoGrHIOWfQ8l6OU+dESgCB1DOZM17YKxUK9DGXbyNoaAtsjfDpQWwM1QeTGIvfLn4ALOlXH6Uxmt0kyZgpZSJLUY9CIehitVTFqgnBBUe9iU8fkBT2fu+lzZH0E1DUMMhXndVoovnG0eW2BwTf2kLiKX8xkeLGtUSGcPbPQ=
+	t=1711639783; cv=none; b=qQWva+IRTvZ2PTdkTYqDIIJxAErwLsmFet0iNgJWoCk3cfF4o/i4YoqJSRPFDnpV0htbwAvMhVa+gRtwnIonfwGsiiaqvpcM5zWZXWg52J9Sc+rrZmHzaB6BqK8J/e1CMsY/HJBEexE2kOoGwBsyDH9+k+pffbHsdtVYOI3yPj0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711636640; c=relaxed/simple;
-	bh=i7jFpT3SlY+C5YpRF/nwGu5Tl5UvMVM0Giak+wc/aEc=;
+	s=arc-20240116; t=1711639783; c=relaxed/simple;
+	bh=voIPKnnuckDMQ9h4aFGjLZTBZsbN8bJ7CERH7xqJ/IY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=XWbXX70ieinYFz1UCCts9f53mNcoLuEP846t+sf7jCwnwjH6LHNjcDA9IW4I+10pSrqcmyOTVgC3inFR4Tg0peV8BX7PyeQLnhAAUYTN03k+lW0Y8tDocFkUVlK9XPdvasLqu4mBSWYR/FbDUz+25LnLsuJy2Cn/0V37UfNOF4o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.218.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-a46cd9e7fcaso133480066b.1
-        for <virtualization@lists.linux.dev>; Thu, 28 Mar 2024 07:37:18 -0700 (PDT)
+	 In-Reply-To:Content-Type:Content-Disposition; b=M8sVeD0vL+631vCXJaS1AKwkPg32pxhOFE61GGoohkc9ky7NCMTt+in8MU6sfi+pGe+H0aS51kHFSlgzJJv7cV2MT8jPYceAzkDBlZ5nVMi1C9euS6pg8ikHpJ/5soIL4mkGIilCcZb+lmB7j9QwlZoIfz0Fgeulg139+lGy5Cc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Hk1xQsRX; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Hk1xQsRX"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1711639780;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=CjLVRkd8oCaxXYk4LSR3ZhKWdvfAa5k0uQlVbiPFJzI=;
+	b=Hk1xQsRXh5UX2uRptTxLmIWCeKRp6IgNoJFdmU1plfMpuAR/6ln8QPG/XsQZwhw09DiGvH
+	OgGg4iy0UqNQNi1q0yXhbVpZwo/xu35A+6m142bMPl8+JISikLy9RG9j0PwVAbyy6BfIe7
+	SrgqQBdBhUFg+g3p2PLnXYTCV4X4ux0=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-5-VYc_2yF1NCCVaMoLnM1GFQ-1; Thu, 28 Mar 2024 11:29:37 -0400
+X-MC-Unique: VYc_2yF1NCCVaMoLnM1GFQ-1
+Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-a4df17773a5so78267866b.1
+        for <virtualization@lists.linux.dev>; Thu, 28 Mar 2024 08:29:37 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711636637; x=1712241437;
+        d=1e100.net; s=20230601; t=1711639776; x=1712244576;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=cRMMyiWkeqTEpdcUJkKviRGWqg83eHB0joKkjU2QhOQ=;
-        b=Dhwe8dJ55JQwvH6ixtE2Z6OnOdRiA5tV9EcobGpbnjMC7/5QbZB1/urilSB77HNhkj
-         uZyGH26BHKX1KiaPG/aqUlVCdta+yNEaSmmffUI+PnqO0o8JPR7U0MnXaYzOxOxktVUh
-         VdVJyAtHyY6bnocy0hVYSsYLpzSK1OvQhiSgUDLYz3vMITnshh5KBiuXB1WNgQRLFeNF
-         MBzc8TMUVc8G/HdVZdhRx2aXG9AWKfpPRCBE3yxRmoPfYxnTCzbRkkh7zatJsljnuNET
-         UTlg0nFC7POlZ/usAcEe1BDgye9BzVSYP8+zogiGFOvKlggJox8oEr3ugSH6dqMN9ZAz
-         wlAA==
-X-Forwarded-Encrypted: i=1; AJvYcCWDCciek+94aiOm2SMV0LR+4Nt5Y1Wy+ZVT6dijD/hqBoIGHBzQD+WwSMT6boTwxGxfko3qIqYQR3X8uAQ4/ynMtglgP7aYsul7mlXwzp8=
-X-Gm-Message-State: AOJu0Ywro60Jj+uK2qrClDEoX1TElOtcYf+3TA8dkLC2f/FFNnunf0Z2
-	lXhKbrR9tTD/gkQMEu5Er53Me0bw/jNMYfYQucmAcvCrsHSgqvei
-X-Google-Smtp-Source: AGHT+IHF+TMUaDmJ1lsrsQ8KYkot3eOluabfodUPxJ/mwfrIC03qj8U9JnQ3QW/z96AbIL35qUEHfQ==
-X-Received: by 2002:a17:906:d156:b0:a46:954a:aa14 with SMTP id br22-20020a170906d15600b00a46954aaa14mr2152846ejb.67.1711636637084;
-        Thu, 28 Mar 2024 07:37:17 -0700 (PDT)
-Received: from gmail.com (fwdproxy-lla-006.fbsv.net. [2a03:2880:30ff:6::face:b00c])
-        by smtp.gmail.com with ESMTPSA id z4-20020a170906714400b00a469e55767dsm816421ejj.214.2024.03.28.07.37.16
+        bh=CjLVRkd8oCaxXYk4LSR3ZhKWdvfAa5k0uQlVbiPFJzI=;
+        b=ZcUItWOEUPrGegPYRoGwfG0aOb4T0wgLR8WQRGSVAhD21+CUhY81JYoXuV/I4QuzmH
+         rNW3ndfLXd//8lp4DMd7v/Dyf9gj8Bu7/ju1SIV7J4kJEACC1f3a247K8zwt/HR1MBLv
+         +uoJQm2nSiY1iPw8orj4e9Iqb3A1mB9puq6oNaaEyfwgFadf/nlyQ+rZ6dgrY/ThaabC
+         rwTBEcjRKfr7POFlR3mUwQ63vxkFDi++Oj9KMomhqma0627uOCmWVgrRxFDPX7vGyxWJ
+         8fQfH1QWmgo0F0tTDDuI42Wee5zEAqyP+vu7rWHujxbRAu8626TOJ+RzhBnO1oqNw9gq
+         xpLw==
+X-Forwarded-Encrypted: i=1; AJvYcCVL7IwIJYlDYQzEfMjtn828KMH3h4EsB2g+Zlr2/xZd+BPODLGkborrmyntCrAAwDqz6WR766FpKToEKOmN5Y5JlWfF2fJSxHXub4diT9A=
+X-Gm-Message-State: AOJu0YzSwe7On4JhKYgVId/uGqd7wesRSzbLuPuRCTAsZ04ObJWmnrAF
+	ScEKVzIw2AGHxZdxzYKECQ9/J2Gqj4iSl9SVlOy3pld8NQH6xbL1ewV24HLEoMfHOClX9FefkYv
+	iIKoMroOTdSpcqMGBMV9FdNi5fqtVWREUUfCkOpCNLovAjGbBDaHXCSlJKPUZUyrU
+X-Received: by 2002:a17:906:dfc7:b0:a4d:d356:fd69 with SMTP id jt7-20020a170906dfc700b00a4dd356fd69mr1961317ejc.12.1711639776570;
+        Thu, 28 Mar 2024 08:29:36 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHCOeBfBT7xqbRmO+gVOJGi/tsSh711gxkYEEZnWavEz7DxOhNBf8COs0bAblMQ5OZm98QKfA==
+X-Received: by 2002:a17:906:dfc7:b0:a4d:d356:fd69 with SMTP id jt7-20020a170906dfc700b00a4dd356fd69mr1961301ejc.12.1711639776081;
+        Thu, 28 Mar 2024 08:29:36 -0700 (PDT)
+Received: from redhat.com ([2.52.20.36])
+        by smtp.gmail.com with ESMTPSA id dr3-20020a170907720300b00a4a38d10801sm871680ejc.35.2024.03.28.08.29.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 28 Mar 2024 07:37:16 -0700 (PDT)
-Date: Thu, 28 Mar 2024 07:37:14 -0700
-From: Breno Leitao <leitao@debian.org>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: rbc@meta.com, riel@surriel.com,
-	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
-	"open list:NETWORKING DRIVERS" <netdev@vger.kernel.org>,
-	open list <linux-kernel@vger.kernel.org>, hengqi@linux.alibaba.com,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
-Subject: Re: [PATCH net v2 1/2] virtio_net: Do not set rss_indir if RSS is
- not supported
-Message-ID: <ZgWAmsB4vTXE66uJ@gmail.com>
-References: <20240326151911.2155689-1-leitao@debian.org>
- <1711503463.632461-1-xuanzhuo@linux.alibaba.com>
- <ZgQkXfMd6GIEndXm@gmail.com>
- <1711589335.4973893-1-xuanzhuo@linux.alibaba.com>
+        Thu, 28 Mar 2024 08:29:35 -0700 (PDT)
+Date: Thu, 28 Mar 2024 11:29:22 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Simon Horman <horms@kernel.org>
+Cc: Daniel Jurgens <danielj@nvidia.com>, netdev@vger.kernel.org,
+	jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+	virtualization@lists.linux.dev, davem@davemloft.net,
+	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+	jiri@nvidia.com
+Subject: Re: [PATCH net-next 2/4] virtio_net: Remove command data from
+ control_buf
+Message-ID: <20240328112856-mutt-send-email-mst@kernel.org>
+References: <20240325214912.323749-1-danielj@nvidia.com>
+ <20240325214912.323749-3-danielj@nvidia.com>
+ <20240328133516.GK403975@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <20240328133516.GK403975@kernel.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1711589335.4973893-1-xuanzhuo@linux.alibaba.com>
 
-> > On Wed, Mar 27, 2024 at 09:37:43AM +0800, Xuan Zhuo wrote:
-> > > On Tue, 26 Mar 2024 08:19:08 -0700, Breno Leitao <leitao@debian.org> wrote:
-> > > > Do not set virtnet_info->rss_indir_table_size if RSS is not available
-> > > > for the device.
-> > > >
-> > > > Currently, rss_indir_table_size is set if either has_rss or
-> > > > has_rss_hash_report is available, but, it should only be set if has_rss
-> > > > is set.
-> > > >
-> > > > On the virtnet_set_rxfh(), return an invalid command if the request has
-> > > > indirection table set, but virtnet does not support RSS.
-> > > >
-> > > > Suggested-by: Heng Qi <hengqi@linux.alibaba.com>
-> > > > Signed-off-by: Breno Leitao <leitao@debian.org>
-> > > > ---
-> > > >  drivers/net/virtio_net.c | 9 +++++++--
-> > > >  1 file changed, 7 insertions(+), 2 deletions(-)
-> > > >
-> > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > > index c22d1118a133..c640fdf28fc5 100644
-> > > > --- a/drivers/net/virtio_net.c
-> > > > +++ b/drivers/net/virtio_net.c
-> > > > @@ -3813,6 +3813,9 @@ static int virtnet_set_rxfh(struct net_device *dev,
-> > > >  	    rxfh->hfunc != ETH_RSS_HASH_TOP)
-> > > >  		return -EOPNOTSUPP;
-> > > >
-> > > > +	if (rxfh->indir && !vi->has_rss)
-> > > > +		return -EINVAL;
-> > > > +
-> > > >  	if (rxfh->indir) {
-> > >
-> > > Put !vi->has_rss here?
-> >
-> > I am not sure I understand the suggestion. Where do you suggest we have
-> > !vi->has_rss?
-> >
-> > If we got this far, we either have:
-> >
-> > a) rxfh->indir set and vi->has_rss is also set
-> > b) rxfh->indir not set. (vi->has_rss could be set or not).
+On Thu, Mar 28, 2024 at 01:35:16PM +0000, Simon Horman wrote:
+> On Mon, Mar 25, 2024 at 04:49:09PM -0500, Daniel Jurgens wrote:
+> > Allocate memory for the data when it's used. Ideally the could be on the
+> > stack, but we can't DMA stack memory. With this change only the header
+> > and status memory are shared between commands, which will allow using a
+> > tighter lock than RTNL.
+> > 
+> > Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
+> > Reviewed-by: Jiri Pirko <jiri@nvidia.com>
 > 
+> ...
 > 
-> This function does two tasks.
-> 1. update indir table
-> 2. update rss key
+> > @@ -3893,10 +3925,16 @@ static int virtnet_restore_up(struct virtio_device *vdev)
+> >  
+> >  static int virtnet_set_guest_offloads(struct virtnet_info *vi, u64 offloads)
+> >  {
+> > +	u64 *_offloads __free(kfree) = NULL;
+> >  	struct scatterlist sg;
+> > -	vi->ctrl->offloads = cpu_to_virtio64(vi->vdev, offloads);
+> >  
+> > -	sg_init_one(&sg, &vi->ctrl->offloads, sizeof(vi->ctrl->offloads));
+> > +	_offloads = kzalloc(sizeof(*_offloads), GFP_KERNEL);
+> > +	if (!_offloads)
+> > +		return -ENOMEM;
+> > +
+> > +	*_offloads = cpu_to_virtio64(vi->vdev, offloads);
 > 
-> #1 only for has_rss
-> #2 for has_rss or has_rss_hash_report
+> Hi Daniel,
 > 
+> There is a type mismatch between *_offloads and cpu_to_virtio64
+> which is flagged by Sparse as follows:
 > 
-> So I would code:
+>  .../virtio_net.c:3978:20: warning: incorrect type in assignment (different base types)
+>  .../virtio_net.c:3978:20:    expected unsigned long long [usertype]
+>  .../virtio_net.c:3978:20:    got restricted __virtio64
 > 
-> 	bool update = false
-> 
-> 	if (rxfh->indir) {
-> 		if (!vi->has_rss)
-> 			return -EINVAL;
-> 
-> 		for (i = 0; i < vi->rss_indir_table_size; ++i)
-> 			vi->ctrl->rss.indirection_table[i] = rxfh->indir[i];
-> 
-> 		update = true
-> 	}
-> 
-> 	if (rxfh->key) {
-> 		if (!vi->has_rss && !vi->has_rss_hash_report)
-> 			return -EINVAL;
-> 
-> 		memcpy(vi->ctrl->rss.key, rxfh->key, vi->rss_key_size);
-> 		update = true
-> 	}
-> 
-> 
-> 	if (update)
-> 		virtnet_commit_rss_command(vi);
-> 
-> Thanks.
-
-This is a bit different from the previous proposal, but, I like this one
-approach better. It makes the code easier to read.
-
-How does the full patch looks like?
+> I think this can be addressed by changing the type of *_offloads to
+> __virtio64 *.
 
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index c22d1118a133..180f342f1898 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -3807,20 +3807,35 @@ static int virtnet_set_rxfh(struct net_device *dev,
- 			    struct netlink_ext_ack *extack)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
-+	bool update = false;
- 	int i;
- 
-+	if (!vi->has_rss && !vi->has_rss_hash_report)
-+		return -EOPNOTSUPP;
-+
- 	if (rxfh->hfunc != ETH_RSS_HASH_NO_CHANGE &&
- 	    rxfh->hfunc != ETH_RSS_HASH_TOP)
- 		return -EOPNOTSUPP;
- 
- 	if (rxfh->indir) {
-+		if (!vi->has_rss)
-+			return -EINVAL;
-+
- 		for (i = 0; i < vi->rss_indir_table_size; ++i)
- 			vi->ctrl->rss.indirection_table[i] = rxfh->indir[i];
-+		update = true;
- 	}
--	if (rxfh->key)
-+
-+	if (rxfh->key) {
-+		if (!vi->has_rss && !vi->has_rss_hash_report)
-+			return -EINVAL;
-+
- 		memcpy(vi->ctrl->rss.key, rxfh->key, vi->rss_key_size);
-+		update = true;
-+	}
- 
--	virtnet_commit_rss_command(vi);
-+	if (update)
-+		virtnet_commit_rss_command(vi);
- 
- 	return 0;
- }
-@@ -4729,13 +4744,15 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_HASH_REPORT))
- 		vi->has_rss_hash_report = true;
- 
--	if (virtio_has_feature(vdev, VIRTIO_NET_F_RSS))
-+	if (virtio_has_feature(vdev, VIRTIO_NET_F_RSS)) {
- 		vi->has_rss = true;
- 
--	if (vi->has_rss || vi->has_rss_hash_report) {
- 		vi->rss_indir_table_size =
- 			virtio_cread16(vdev, offsetof(struct virtio_net_config,
- 				rss_max_indirection_table_length));
-+	}
-+
-+	if (vi->has_rss || vi->has_rss_hash_report) {
- 		vi->rss_key_size =
- 			virtio_cread8(vdev, offsetof(struct virtio_net_config, rss_max_key_size));
- 
+Yes pls, endian-ness is easier to get right 1st time than fix
+afterwards.
+
+> > +
+> > +	sg_init_one(&sg, _offloads, sizeof(*_offloads));
+> >  
+> >  	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_GUEST_OFFLOADS,
+> >  				  VIRTIO_NET_CTRL_GUEST_OFFLOADS_SET, &sg)) {
+> > -- 
+> > 2.42.0
+> > 
+> > 
+
