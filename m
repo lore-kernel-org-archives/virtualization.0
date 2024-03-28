@@ -1,186 +1,146 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C83844654B
-	for <virtualization@lists.linux.dev>; Thu, 28 Mar 2024 07:58:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0074953E17
+	for <virtualization@lists.linux.dev>; Thu, 28 Mar 2024 08:03:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711612706; cv=none; b=qSlzpAZnooNYIh5S7X+iYLQDmMs8MoVPzkUU/n41H2EbrR8McoUIMZIqQJh49UE+PO7oRK5Rc/PeXrwpfBAssM39ckg4pyfW4H4r1ghbgUcZEisrayLQMt/EXE5LMfstVUPKg+SzOta7GggKX7N0OmNVe1qUZu72xbhrA5wzYHw=
+	t=1711613035; cv=none; b=T+m1rLg7KfLEosmTlbH7L0rc0HDNcsfMVfW5gEaC1O5QpCqpJtlESB8FZsxx6/GKEi3ALLPx7HrPdjCa0mhsn4SXEM10/QkZErKy3QUyjQZowPfByVZQ6qvC0783KQ8z7WOGci85d+5EGarkSMnQ/lGMoFhyYpoyEGzixjm4Qgc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711612706; c=relaxed/simple;
-	bh=wgar9MFt+ebTKBR0AhWjQsDpdIJDQJ/4kaniC1csFIk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=fuc+9U56ljuLZMStzFGi73U2yDhcvihPEmPbsCEDhgUWKKrMNDzHdLdRbAMy4LnIOp/HqfUocUF+G2VRCLOlH0pwM0hW4JBs0c0rK4tjYSFtmZtGw0eMH4o1HONyohp4o3qeY3NyXiA0owWboRR7TyoT+wJ5nVm6Lwx1VEcdOHo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ddl8Djyq; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1711613035; c=relaxed/simple;
+	bh=rxCBsk2tdlNICkJBcPELmGW3m58VKf/iG+c+3e4vERk=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=qv5q4fbo3cO0ia9fCSn7fTRup605WFv1J602L0g3uPmTgxyrUAX0DcyrkBgHPhqnfOxkaI8Z7/OyKKH7v8t/dsYjmzT/hq6J2VHM0ggulHTpqp0trRSxWtnUQ1p8kAUpePh/cafGgo50Gt/ZRviE/oqwCRLFWzm5ggNgXBphLLc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=KA4qI44G; arc=none smtp.client-ip=115.124.30.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ddl8Djyq"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1711612702;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=a/6Ik9J8vGv/Si18wlwWefqXsxMxZ3gle8zHK3RoExc=;
-	b=Ddl8DjyqSgjQ/yTN12ubNCZErQGiuGGwWtWea766+qUNXItBbmLpUUwhbTm1GO7zLEAjrn
-	+YFc8ZnYu/rhAS26dQTEmW2VR9HZm/0aDgKDSYaxP90BvWOF85tA2FZA2BHPRM1fz0dXF7
-	ZXpOEujGHlhHNGb69ETGdiKogrOfI9c=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-453-ofFunOgmPgGAZYm857pdrw-1; Thu, 28 Mar 2024 03:58:21 -0400
-X-MC-Unique: ofFunOgmPgGAZYm857pdrw-1
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-29de8002b0bso584007a91.3
-        for <virtualization@lists.linux.dev>; Thu, 28 Mar 2024 00:58:20 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711612700; x=1712217500;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=a/6Ik9J8vGv/Si18wlwWefqXsxMxZ3gle8zHK3RoExc=;
-        b=VzvFQMiknO0/t6/q4qjP8JT94N8xC8ZwjflerIeYeOuZzvV45xRML/Mdc1UBtLOCtT
-         qnROM0FOH7YkR9iLsYlBOBLWYOcBY0MIycA6Mjor5xROWpcViy1KvO1wkNSWPt5/JmOH
-         5GkXYZwttvcgdBkDWBlcG3Att7FHtpVITdCQlhotWJh3X0GIKY0Z7qOM+wRsBVKgdpHS
-         PzQ7nD3EocSpyz535yQwjX1nkK3wdDXisdiF+8pF8pIzVpSOuGBEiHGwyyvhgMBBzqDm
-         7/yaLEX00ZiSCOcOn2cBfFkmvgHBAHA1s+m6dVEauKK2xSPM7M3zxoLswc2EldROq6R2
-         d98g==
-X-Gm-Message-State: AOJu0Yy5rcxNIQfRW3g1eR/6DFE19lHEQJ+E4jRbpn2n3ftDVgprApBA
-	ufhpLoDA7U4uML7rQGiNVquWzVYd8giidXBL9X532MeDbkNisekvzhryi9UyBBXnncvToY7v7nf
-	IR+2CsnX5Q7Tk9uipgCiLKiINQdU0gVOHfIHwp25V5KM37NC3tAffCkom2mj3+C10dj6tCI/UhJ
-	aBdZ7LYaHmSC4v/69CTpPnQlFdwoDo8txsA76x4fRQEiEO73I=
-X-Received: by 2002:a17:90a:4586:b0:29c:7592:febf with SMTP id v6-20020a17090a458600b0029c7592febfmr1690148pjg.16.1711612699663;
-        Thu, 28 Mar 2024 00:58:19 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFblJp9w0pny5TjOhPfMS/kOyIQGBRDXwLRHifvEJFIeWVGOgBsTHymmXZIkSJ83ttYn4rXXzxGFePsKH9/fyA=
-X-Received: by 2002:a17:90a:4586:b0:29c:7592:febf with SMTP id
- v6-20020a17090a458600b0029c7592febfmr1690136pjg.16.1711612699330; Thu, 28 Mar
- 2024 00:58:19 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="KA4qI44G"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1711613030; h=From:To:Subject:Date:Message-Id:MIME-Version:Content-Type;
+	bh=RRwgpt8H+JeOfUF5M0fnLgI8P6UgcZIx9pzBvnK+1IM=;
+	b=KA4qI44GdYM9TTSo8GJlKCbfoiGdDAoidu6C7OHNv2bF9q2EGdJmEAzxK+BG6eYaBJmY17fBsZ1bhKkLMvdtfm0KDg+IMBc9pNTUfPYoY9hzp4mGV5x032ygPa/F1ZnrcGT8tgNM2/W5aW/RAfQ1UqjA130l1gfHBbytjEtBAaM=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=26;SR=0;TI=SMTPD_---0W3Sg6Fp_1711613029;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W3Sg6Fp_1711613029)
+          by smtp.aliyun-inc.com;
+          Thu, 28 Mar 2024 16:03:50 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: virtualization@lists.linux.dev
+Cc: Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Hans de Goede <hdegoede@redhat.com>,
+	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	Vadim Pasternak <vadimp@nvidia.com>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Mathieu Poirier <mathieu.poirier@linaro.org>,
+	Cornelia Huck <cohuck@redhat.com>,
+	Halil Pasic <pasic@linux.ibm.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	David Hildenbrand <david@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	linux-um@lists.infradead.org,
+	platform-driver-x86@vger.kernel.org,
+	linux-remoteproc@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	kvm@vger.kernel.org
+Subject: [PATCH vhost v7 0/6] refactor the params of find_vqs()
+Date: Thu, 28 Mar 2024 16:03:42 +0800
+Message-Id: <20240328080348.3620-1-xuanzhuo@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240327111430.108787-1-xuanzhuo@linux.alibaba.com> <20240327111430.108787-9-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <20240327111430.108787-9-xuanzhuo@linux.alibaba.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 28 Mar 2024 15:58:08 +0800
-Message-ID: <CACGkMEv9YCaWAPhcFcLkHaHMz-A6mHyM3pqHjYKooEpNkFn0CQ@mail.gmail.com>
-Subject: Re: [PATCH vhost v6 08/10] virtio_ring: export premapped to driver by
- struct virtqueue
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+X-Git-Hash: fc2c3bb8a235
+Content-Transfer-Encoding: 8bit
 
-On Wed, Mar 27, 2024 at 7:14=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
-om> wrote:
->
-> Export the premapped to drivers, then drivers can check
-> the vq premapped mode after the find_vqs().
-> Because the find_vqs() just try to enable the vq premapped mode,
-> the driver must check that after find_vqs().
+This pathset is splited from the
 
-What's the reason for this? For example, we never export use_dma_api.
+     http://lore.kernel.org/all/20240229072044.77388-1-xuanzhuo@linux.alibaba.com
 
-Thanks
+That may needs some cycles to discuss. But that notifies too many people.
 
->
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> ---
->  drivers/virtio/virtio_ring.c | 13 +++++--------
->  include/linux/virtio.h       |  1 +
->  2 files changed, 6 insertions(+), 8 deletions(-)
->
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index bbdeab3a9648..543204e26c5a 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -177,9 +177,6 @@ struct vring_virtqueue {
->         /* Host publishes avail event idx */
->         bool event;
->
-> -       /* Do DMA mapping by driver */
-> -       bool premapped;
-> -
->         /* Head of free buffer list. */
->         unsigned int free_head;
->         /* Number we've added since last sync. */
-> @@ -297,7 +294,7 @@ static bool vring_use_dma_api(const struct virtio_dev=
-ice *vdev)
->
->  static bool vring_need_unmap_buffer(const struct vring_virtqueue *vring)
->  {
-> -       return vring->use_dma_api && !vring->premapped;
-> +       return vring->use_dma_api && !vring->vq.premapped;
->  }
->
->  size_t virtio_max_dma_size(const struct virtio_device *vdev)
-> @@ -369,7 +366,7 @@ static struct device *vring_dma_dev(const struct vrin=
-g_virtqueue *vq)
->  static int vring_map_one_sg(const struct vring_virtqueue *vq, struct sca=
-tterlist *sg,
->                             enum dma_data_direction direction, dma_addr_t=
- *addr)
->  {
-> -       if (vq->premapped) {
-> +       if (vq->vq.premapped) {
->                 *addr =3D sg_dma_address(sg);
->                 return 0;
->         }
-> @@ -2148,7 +2145,7 @@ static struct virtqueue *vring_create_virtqueue_pac=
-ked(struct virtio_device *vde
->         vq->packed_ring =3D true;
->         vq->dma_dev =3D dma_dev;
->         vq->use_dma_api =3D vring_use_dma_api(vdev);
-> -       vq->premapped =3D vq->use_dma_api && cfg_vq_get(cfg, vq, premappe=
-d);
-> +       vq->vq.premapped =3D vq->use_dma_api && cfg_vq_get(cfg, vq, prema=
-pped);
->
->         vq->indirect =3D virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_=
-DESC) &&
->                 !cfg_vq_get(cfg, vq, ctx);
-> @@ -2696,7 +2693,7 @@ static struct virtqueue *__vring_new_virtqueue(stru=
-ct virtio_device *vdev,
->  #endif
->         vq->dma_dev =3D tp_cfg->dma_dev;
->         vq->use_dma_api =3D vring_use_dma_api(vdev);
-> -       vq->premapped =3D vq->use_dma_api && cfg_vq_get(cfg, vq, premappe=
-d);
-> +       vq->vq.premapped =3D vq->use_dma_api && cfg_vq_get(cfg, vq, prema=
-pped);
->
->         vq->indirect =3D virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_=
-DESC) &&
->                 !cfg_vq_get(cfg, vq, ctx);
-> @@ -2832,7 +2829,7 @@ int virtqueue_set_dma_premapped(struct virtqueue *_=
-vq)
->                 return -EINVAL;
->         }
->
-> -       vq->premapped =3D true;
-> +       vq->vq.premapped =3D true;
->
->         if (vq->packed_ring) {
->                 kfree(vq->packed.desc_dma);
-> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-> index b0201747a263..407277d5a16b 100644
-> --- a/include/linux/virtio.h
-> +++ b/include/linux/virtio.h
-> @@ -36,6 +36,7 @@ struct virtqueue {
->         unsigned int num_free;
->         unsigned int num_max;
->         bool reset;
-> +       bool premapped;
->         void *priv;
->  };
->
-> --
-> 2.32.0.3.g01195cf9f
->
+But just the four commits need to notify so many people.
+And four commits are independent. So I split that patch set,
+let us review these first.
+
+The patch set try to  refactor the params of find_vqs().
+Then we can just change the structure, when introducing new
+features.
+
+Thanks.
+
+v7:
+  1. fix two bugs. @Jason
+
+v6:
+  1. virtio_balloon: a single variable for both purposes.
+  2. if names[i] is null, return error
+
+v5:
+  1. virtio_balloon: follow David Hildenbrand's suggest
+    http://lore.kernel.org/all/3620be9c-e288-4ff2-a7be-1fcf806e6e6e@redhat.com
+  2. fix bug of the reference of "cfg_idx"
+    http://lore.kernel.org/all/202403222227.Sdp23Lcb-lkp@intel.com
+
+v4:
+  1. remove support for names array entries being null
+  2. remove cfg_idx from virtio_vq_config
+
+v3:
+  1. fix the bug: "assignment of read-only location '*cfg.names'"
+
+v2:
+  1. add kerneldoc for "struct vq_transport_config" @ilpo.jarvinen
+
+v1:
+  1. fix some comments from ilpo.jarvinen@linux.intel.com
+
+
+
+
+
+
+
+Xuan Zhuo (6):
+  virtio_balloon: remove the dependence where names[] is null
+  virtio: remove support for names array entries being null.
+  virtio: find_vqs: pass struct instead of multi parameters
+  virtio: vring_create_virtqueue: pass struct instead of multi
+    parameters
+  virtio: vring_new_virtqueue(): pass struct instead of multi parameters
+  virtio_ring: simplify the parameters of the funcs related to
+    vring_create/new_virtqueue()
+
+ arch/um/drivers/virtio_uml.c             |  36 +++--
+ drivers/platform/mellanox/mlxbf-tmfifo.c |  23 +--
+ drivers/remoteproc/remoteproc_virtio.c   |  37 +++--
+ drivers/s390/virtio/virtio_ccw.c         |  38 ++---
+ drivers/virtio/virtio_balloon.c          |  48 +++----
+ drivers/virtio/virtio_mmio.c             |  36 +++--
+ drivers/virtio/virtio_pci_common.c       |  69 ++++-----
+ drivers/virtio/virtio_pci_common.h       |   9 +-
+ drivers/virtio/virtio_pci_legacy.c       |  16 ++-
+ drivers/virtio/virtio_pci_modern.c       |  37 +++--
+ drivers/virtio/virtio_ring.c             | 173 ++++++++---------------
+ drivers/virtio/virtio_vdpa.c             |  51 ++++---
+ include/linux/virtio_config.h            |  76 +++++++---
+ include/linux/virtio_ring.h              |  93 +++++++-----
+ tools/virtio/virtio_test.c               |   4 +-
+ tools/virtio/vringh_test.c               |  28 ++--
+ 16 files changed, 382 insertions(+), 392 deletions(-)
+
+--
+2.32.0.3.g01195cf9f
 
