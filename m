@@ -1,151 +1,157 @@
-Received: from mail-oo1-f46.google.com (mail-oo1-f46.google.com [209.85.161.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C8EF4085D
-	for <virtualization@lists.linux.dev>; Thu, 28 Mar 2024 05:16:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B0802C1A0
+	for <virtualization@lists.linux.dev>; Thu, 28 Mar 2024 06:34:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711602999; cv=none; b=mbG8N9abfIy8mw0iFET37c+VOtYQfrtZPiKJKdYbbjo9h9Ze0qoTMC3GMX7nBDou8Pd+pM22hwRJk5ZT7G/LciOBYZsEVrx1DQvqgnYuIBkedFQi/RPZhJLj6c2nl1RoahmwtyqCdpg2Liwqo7brOdoLDO21JMxPjLesM0mCrMM=
+	t=1711607662; cv=none; b=hH+xI83Mk7pGJNInZwdHKZ8xS/AoWQBOAt1fc1LlgqF+cAyCHQKglZU40xW4FQmDK622OqyImGv9VTuzVzW8+25flpuciW/ZWxkAwmSFBQg6KhOAaSbLUeUGXN2EJo/8qIBNzDTXG5hDo94oEn9c1wr5hdyH2ed+BM3V/yWyLaU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711602999; c=relaxed/simple;
-	bh=sBPTJcGEYTbv3hcgUwqNauzYtskOKb+GWpnb7br0MOg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=aJ/ncgFtMEADlDvFMVmd53iz5s244myhr4VSZg7NNoneYGkaLLlW0OqH48lZIysy3nSgsFDDt8+4F4k/blVb0lcKJ4UH6UR/2P6IN5bOL9OlFhsrsod8r3+dBhRCoD7Zu75ep7gdA3/5LSLavQ7q3aacsuWuHVB0jeer8WTSnok=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=cHgMJrvU; arc=none smtp.client-ip=209.85.161.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1711607662; c=relaxed/simple;
+	bh=AWSWe37tvUTJI8Kn/xZqWAmqOVT4q401ypC073MJEQ4=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
+	 Content-Type; b=iIMb/DanfenZMLCFSFK5zBN9vmYLVdjehMsFKV/58oBZKmgDSOJbwdleY0RcJfarMEaR74CsjrjrajHqfonMm7UZEarRcYM5cmM9BZBpzhQKNa1qa0pVurGWAOQ8kW7oxH8glzmuflKLx6hL6o2OPUl2xidq8Qqb49hrgwrevHo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=X5refO/e; arc=none smtp.client-ip=115.124.30.110
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="cHgMJrvU"
-Received: by mail-oo1-f46.google.com with SMTP id 006d021491bc7-5a5362ceb7bso270879eaf.1
-        for <virtualization@lists.linux.dev>; Wed, 27 Mar 2024 22:16:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1711602994; x=1712207794; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=NCBBqATkrmhAqNvcc7V5yUc6Bj0MDD2J9Hd2vuTQUac=;
-        b=cHgMJrvUnb2PD1Oof8B3R/yBuTD8xTU/oKbU/K57hm4zxFGGBxCZiKpQd6q6JpR6IK
-         QUiUAmAJt1W15jf34xLRAzPr6MpBpu6DtZHEhfOXI+Lk9F5t1egIY9P3fZ5mQf+cFffA
-         IcSiYK474na2fIQ/Zu1WTw1ZDiIdASt+umyc9tmGtXIEUlyTPEdLHio+adAu0rUS52n6
-         2JaalArhzpecCw7Z5Axnj8ndfh1jA5XS026w21sj7xOFdScEnxQzkW+kWw5mj7aPXArE
-         92HelhGwyh3pDaA61QyvcF9/h2qCos9BbMSTs8fqABUsMSoilo4s0cu9men8+VyzOj50
-         FwMg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711602994; x=1712207794;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=NCBBqATkrmhAqNvcc7V5yUc6Bj0MDD2J9Hd2vuTQUac=;
-        b=MtwFdttlYNlchXvvOBRVWAO+ZrMjwVqbxlt418P4yrJass2fyvyGDGlb+OGbEDaCqs
-         O08ldq4JectAkNzRLlvcp1/AuwDzunr5rOj/ZEvK94sfJxJ5ADPSodvK5s1Ln7NxQ5Iq
-         1tfkv/H5JQiTrDb4xSvqcUL6v8haY6oRhErgynfxexfxi6aarGddRrN+fWZmvSoDfXtd
-         Q6oxJDxGCn/54kBJnObhosZgzdZ+LlY5OILAQ2Gmh58cBNrWY6qryR4dZNhgYY2mA0fx
-         y1D+57XcCLxNAiNUhVxf1LvgRglkRb98m+UmzLeF3cFphrkwCrkYoE/HH+Nuw9FEoAob
-         mP+Q==
-X-Forwarded-Encrypted: i=1; AJvYcCVmbCrMvZSwp6cOLrohRtwO2pFrPssBK+D278HAz2eWvNHBzFq/KwILqysKqt1YE66+C/NYI8oifA+KjDOcd7NdktyuHu2V5Egzz7kEzAQ=
-X-Gm-Message-State: AOJu0Yycjr69iYdvweBzVCjdxQV14yG6JeJ1SWKr/Lkkm/hhBrwKoEBX
-	0NlUSNg5HdmgDd9BezYq3LwHPYKXKD61ab6/5+ZSZp5PRiG2rNl7kh9q2PlAncc=
-X-Google-Smtp-Source: AGHT+IENjWm30W77Sho1F7STKjVDKRSghd/5qoLRwkalJNx2D7PN+W1+MnXgZZvq+TiwN/1tI/fojA==
-X-Received: by 2002:a05:6358:5307:b0:17e:8f90:dd31 with SMTP id n7-20020a056358530700b0017e8f90dd31mr1555244rwf.32.1711602994298;
-        Wed, 27 Mar 2024 22:16:34 -0700 (PDT)
-Received: from localhost ([122.172.85.206])
-        by smtp.gmail.com with ESMTPSA id u23-20020a63df17000000b005e857bba96csm433309pgg.10.2024.03.27.22.16.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 Mar 2024 22:16:33 -0700 (PDT)
-Date: Thu, 28 Mar 2024 10:46:31 +0530
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>, Jens Axboe <axboe@kernel.dk>,
-	Marcel Holtmann <marcel@holtmann.org>,
-	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-	Olivia Mackall <olivia@selenic.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	Amit Shah <amit@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Gonglei <arei.gonglei@huawei.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Viresh Kumar <vireshk@kernel.org>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Bartosz Golaszewski <brgl@bgdev.pl>,
-	David Airlie <airlied@redhat.com>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	Jean-Philippe Brucker <jean-philippe@linaro.org>,
-	Joerg Roedel <joro@8bytes.org>, Alexander Graf <graf@amazon.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Eric Van Hensbergen <ericvh@kernel.org>,
-	Latchesar Ionkov <lucho@ionkov.net>,
-	Dominique Martinet <asmadeus@codewreck.org>,
-	Christian Schoenebeck <linux_oss@crudebyte.com>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	Kalle Valo <kvalo@kernel.org>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Vishal Verma <vishal.l.verma@intel.com>,
-	Dave Jiang <dave.jiang@intel.com>, Ira Weiny <ira.weiny@intel.com>,
-	Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Mathieu Poirier <mathieu.poirier@linaro.org>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Vivek Goyal <vgoyal@redhat.com>, Miklos Szeredi <miklos@szeredi.hu>,
-	Anton Yakovlev <anton.yakovlev@opensynergy.com>,
-	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
-	virtualization@lists.linux.dev, linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-um@lists.infradead.org,
-	linux-block@vger.kernel.org, linux-bluetooth@vger.kernel.org,
-	linux-crypto@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-gpio@vger.kernel.org, dri-devel@lists.freedesktop.org,
-	iommu@lists.linux.dev, netdev@vger.kernel.org, v9fs@lists.linux.dev,
-	kvm@vger.kernel.org, linux-wireless@vger.kernel.org,
-	nvdimm@lists.linux.dev, linux-remoteproc@vger.kernel.org,
-	linux-scsi@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-	alsa-devel@alsa-project.org, linux-sound@vger.kernel.org
-Subject: Re: [PATCH 09/22] gpio: virtio: drop owner assignment
-Message-ID: <20240328051631.c5eitp4mzaj4bh6i@vireshk-i7>
-References: <20240327-module-owner-virtio-v1-0-0feffab77d99@linaro.org>
- <20240327-module-owner-virtio-v1-9-0feffab77d99@linaro.org>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="X5refO/e"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1711607653; h=Message-ID:Subject:Date:From:To:Content-Type;
+	bh=IBtAlx6xKMHEbRBKxgn51ZjPfu2bAbCnF3S7grDjY3g=;
+	b=X5refO/eYFS0UGp4/0+DOTyY1xcDxhBvpM7nQOPy5uDwDXcfoMF9rGkTjPol5v3yZMKEgWwllrF49yEMNMybmZesqjViba6h4BeLV9Xvo4v6Das2RyhM4v4/D3pv5frbR0MX1lERf6KWAsFcFVmmSKh1Byk0jNDHChQFhYmNx+w=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=25;SR=0;TI=SMTPD_---0W3QzI2o_1711607650;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W3QzI2o_1711607650)
+          by smtp.aliyun-inc.com;
+          Thu, 28 Mar 2024 14:34:11 +0800
+Message-ID: <1711607635.4907694-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH vhost v6 5/6] virtio: vring_new_virtqueue(): pass struct instead of multi parameters
+Date: Thu, 28 Mar 2024 14:33:55 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: virtualization@lists.linux.dev,
+ Richard Weinberger <richard@nod.at>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Johannes Berg <johannes@sipsolutions.net>,
+ Hans de Goede <hdegoede@redhat.com>,
+ =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+ Vadim Pasternak <vadimp@nvidia.com>,
+ Bjorn Andersson <andersson@kernel.org>,
+ Mathieu Poirier <mathieu.poirier@linaro.org>,
+ Cornelia Huck <cohuck@redhat.com>,
+ Halil Pasic <pasic@linux.ibm.com>,
+ Eric Farman <farman@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ David Hildenbrand <david@redhat.com>,
+ linux-um@lists.infradead.org,
+ platform-driver-x86@vger.kernel.org,
+ linux-remoteproc@vger.kernel.org,
+ linux-s390@vger.kernel.org,
+ kvm@vger.kernel.org
+References: <20240327095741.88135-1-xuanzhuo@linux.alibaba.com>
+ <20240327095741.88135-6-xuanzhuo@linux.alibaba.com>
+ <CACGkMEu4J0ZD26GjahKr6YysBrj==rgtiKcnpnuV7dC9Zj-+CQ@mail.gmail.com>
+In-Reply-To: <CACGkMEu4J0ZD26GjahKr6YysBrj==rgtiKcnpnuV7dC9Zj-+CQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240327-module-owner-virtio-v1-9-0feffab77d99@linaro.org>
 
-On 27-03-24, 13:41, Krzysztof Kozlowski wrote:
-> virtio core already sets the .owner, so driver does not need to.
-> 
-> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-> 
-> ---
-> 
-> Depends on the first patch.
-> ---
->  drivers/gpio/gpio-virtio.c | 1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/drivers/gpio/gpio-virtio.c b/drivers/gpio/gpio-virtio.c
-> index fcc5e8c08973..9fae8e396c58 100644
-> --- a/drivers/gpio/gpio-virtio.c
-> +++ b/drivers/gpio/gpio-virtio.c
-> @@ -653,7 +653,6 @@ static struct virtio_driver virtio_gpio_driver = {
->  	.remove			= virtio_gpio_remove,
->  	.driver			= {
->  		.name		= KBUILD_MODNAME,
-> -		.owner		= THIS_MODULE,
->  	},
->  };
->  module_virtio_driver(virtio_gpio_driver);
+On Thu, 28 Mar 2024 12:31:48 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> On Wed, Mar 27, 2024 at 5:58=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba=
+.com> wrote:
+> >
+> > Now, we pass multi parameters to vring_new_virtqueue. These parameters
+> > may from transport or from driver.
+> >
+> > vring_new_virtqueue is called by many places.
+> > Every time, we try to add a new parameter, that is difficult.
+> >
+> > If parameters from the driver, that should directly be passed to vring.
+> > Then the vring can access the config from driver directly.
+> >
+> > If parameters from the transport, we squish the parameters to a
+> > structure. That will be helpful to add new parameter.
+> >
+> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > Reviewed-by: Ilpo J=C3=A4rvinen <ilpo.jarvinen@linux.intel.com>
+> > ---
+> >  drivers/platform/mellanox/mlxbf-tmfifo.c | 12 ++++---
+> >  drivers/remoteproc/remoteproc_virtio.c   | 11 ++++---
+> >  drivers/virtio/virtio_ring.c             | 29 +++++++++++-----
+> >  include/linux/virtio_ring.h              | 42 +++++++++++++++++++-----
+> >  tools/virtio/virtio_test.c               |  4 +--
+> >  tools/virtio/vringh_test.c               | 28 ++++++++--------
+> >  6 files changed, 84 insertions(+), 42 deletions(-)
+> >
+> > diff --git a/drivers/platform/mellanox/mlxbf-tmfifo.c b/drivers/platfor=
+m/mellanox/mlxbf-tmfifo.c
+> > index 4252388f52a2..d2e871fad8b4 100644
+> > --- a/drivers/platform/mellanox/mlxbf-tmfifo.c
+> > +++ b/drivers/platform/mellanox/mlxbf-tmfifo.c
+> > @@ -1059,6 +1059,7 @@ static int mlxbf_tmfifo_virtio_find_vqs(struct vi=
+rtio_device *vdev,
+> >                                         struct virtio_vq_config *cfg)
+> >  {
+> >         struct mlxbf_tmfifo_vdev *tm_vdev =3D mlxbf_vdev_to_tmfifo(vdev=
+);
+> > +       struct vq_transport_config tp_cfg =3D {};
+> >         struct virtqueue **vqs =3D cfg->vqs;
+> >         struct mlxbf_tmfifo_vring *vring;
+> >         unsigned int nvqs =3D cfg->nvqs;
+> > @@ -1078,10 +1079,13 @@ static int mlxbf_tmfifo_virtio_find_vqs(struct =
+virtio_device *vdev,
+> >                 /* zero vring */
+> >                 size =3D vring_size(vring->num, vring->align);
+> >                 memset(vring->va, 0, size);
+> > -               vq =3D vring_new_virtqueue(i, vring->num, vring->align,=
+ vdev,
+> > -                                        false, false, vring->va,
+> > -                                        mlxbf_tmfifo_virtio_notify,
+> > -                                        cfg->callbacks[i], cfg->names[=
+i]);
+> > +
+> > +               tp_cfg.num =3D vring->num;
+> > +               tp_cfg.vring_align =3D vring->align;
+> > +               tp_cfg.weak_barriers =3D false;
+> > +               tp_cfg.notify =3D mlxbf_tmfifo_virtio_notify;
+> > +
+> > +               vq =3D vring_new_virtqueue(vdev, i, vring->va, &tp_cfg,=
+ cfg);
+> >                 if (!vq) {
+> >                         dev_err(&vdev->dev, "vring_new_virtqueue failed=
+\n");
+> >                         ret =3D -ENOMEM;
+> > diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remotepro=
+c/remoteproc_virtio.c
+> > index 489fea1d41c0..2319c2007833 100644
+> > --- a/drivers/remoteproc/remoteproc_virtio.c
+> > +++ b/drivers/remoteproc/remoteproc_virtio.c
+> > @@ -106,6 +106,7 @@ static struct virtqueue *rp_find_vq(struct virtio_d=
+evice *vdev,
+> >  {
+> >         struct rproc_vdev *rvdev =3D vdev_to_rvdev(vdev);
+> >         struct rproc *rproc =3D vdev_to_rproc(vdev);
+> > +       struct vq_transport_config tp_cfg;
+>
+> Should we zero this structure?
 
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+YES.
 
--- 
-viresh
+Will fix in next version.
+
+Thanks.
+
+
+>
+> Thanks
+>
