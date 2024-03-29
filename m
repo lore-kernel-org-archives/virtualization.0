@@ -1,122 +1,214 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
+Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81B1113B5AD;
-	Thu, 28 Mar 2024 21:58:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C54054EB33
+	for <virtualization@lists.linux.dev>; Fri, 29 Mar 2024 02:10:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711663108; cv=none; b=c2TGl/WOPbr/EuqVgpTU65Mw1T+rzBYsam9JFE9J8PvkWwlwbamnPmB6Bi7TIC0WhvNJRLt+c7rcz6m60StKJqpbCncpfQQv4ygpmnwz73o4uiOVJ4iJC0InJ5YFB7NYOnWSRTAjBX+Za2KlI6UIuT0F0GJOx99ybZ8OglpOltY=
+	t=1711678224; cv=none; b=Q59HHwj9JssAkQonzWy8mvcraYZ4shF4MXrQOnsaKxYmktvxjEggtZRuVMLEw8/6wQVaJtu3psKBfVFZ3AqzhnnRiggFSs4mvM3qoTML5th7r7PXZvGvb/dap9IqIWJXJFfOzY80XmHV+5RZ7GjfGXy/TYTCOGGEhvpNnihJa8I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711663108; c=relaxed/simple;
-	bh=6BeKv7cynE9jXeLrlEUYf6ErJw5ak51OkXd65W8K8/M=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hvBhHy5p3gdxUHEKOXB1LEC9mqS3lkdZsS0Kd3n7fcCuQ69oLViqMto5ilWTeajsQ/L/9kpJ36C9Xk/882TJSCx0zrhF8cioGp55d1W9wNlF1pvEvM2R07VqR0wK16k2A3/gikoGD2OZsE+O+Dqh8sb4SmlfDDh+5rJDLMqC88g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=WSTb6cQi; arc=none smtp.client-ip=198.175.65.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1711678224; c=relaxed/simple;
+	bh=hj5TjGL4a8qXk947vXHRELwRpXFvFpzKGFWwPuPdOh0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=nlkLhK8L6helP6CT0dVNb5jRjsgXi2G/44j0uPwtvdNi5sfR9nGa9iS3yVdQpeKL4rXHnDsBUyz7J0F3OIxslGvzJU9/W3f8O/uOGUvI/9QAeEzRiajfEi8ccl6/ZxPNJ7Sg0IIVXhs14jOr7h2SEMusTtyrzdXovmH3mkaszyg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=KPupsMe7; arc=none smtp.client-ip=115.124.30.111
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="WSTb6cQi"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1711663107; x=1743199107;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=6BeKv7cynE9jXeLrlEUYf6ErJw5ak51OkXd65W8K8/M=;
-  b=WSTb6cQiICARtS8LBXNST57CI3R/+fFNWxn5nrRzpg+4WnD89YaZ/ANx
-   i4jwa9JYRMDZfbdG8ayVHtWfB5S6MZdc8wrKqcdByvqjd1/mFXC2rRLfK
-   Ta/LqXiWoz3wAlsRhDKvKhKCX/LZlvnP6dNmGF8JFaBBOujzM3hITVb5C
-   XpDzfg492D+WavF+i4uci5Wqb2JqibKd3etn+46Zx25ZnIl9c93C45V+/
-   RP2a1SZj2O0zXGErU8OOuvhjKU6t9HmCRTwhZ/8o+9xyxROkJZ9yxstTG
-   tHbmbcBkLJCcnhbpB7/mUMeniDJyiqYa/82EmYIE9N0L7d8FlvqIwZigW
-   Q==;
-X-CSE-ConnectionGUID: EInsqX0lSoCjF97NcyTk0w==
-X-CSE-MsgGUID: zebMMJe6Rba5jt1u5GfSIQ==
-X-IronPort-AV: E=McAfee;i="6600,9927,11027"; a="24296239"
-X-IronPort-AV: E=Sophos;i="6.07,162,1708416000"; 
-   d="scan'208";a="24296239"
-Received: from fmviesa007.fm.intel.com ([10.60.135.147])
-  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Mar 2024 14:58:26 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.07,162,1708416000"; 
-   d="scan'208";a="16817273"
-Received: from lkp-server01.sh.intel.com (HELO be39aa325d23) ([10.239.97.150])
-  by fmviesa007.fm.intel.com with ESMTP; 28 Mar 2024 14:58:22 -0700
-Received: from kbuild by be39aa325d23 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1rpxlM-0002YA-2a;
-	Thu, 28 Mar 2024 21:58:20 +0000
-Date: Fri, 29 Mar 2024 05:58:14 +0800
-From: kernel test robot <lkp@intel.com>
-To: Daniel Jurgens <danielj@nvidia.com>, netdev@vger.kernel.org
-Cc: oe-kbuild-all@lists.linux.dev, mst@redhat.com, jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev,
-	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-	pabeni@redhat.com, jiri@nvidia.com,
-	Daniel Jurgens <danielj@nvidia.com>
-Subject: Re: [PATCH net-next v2 2/6] virtio_net: Remove command data from
- control_buf
-Message-ID: <202403290542.gM5D7hMG-lkp@intel.com>
-References: <20240328044715.266641-3-danielj@nvidia.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="KPupsMe7"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1711678213; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=NX8pI+Bd0/enxNzF+RhtcwIAqaNwq85yczophRjct+I=;
+	b=KPupsMe7H6qADWrwXStA2JgCOZ0U/RgzM2CxrMtUp8pEN2VJctvlle1oEFeOG+UbHCpsSY+jB1wkmaLXLIGlsiS7iOOojUUn93YOHfWKmKZNpT4N3BsAL1iZz4rQnzkA6pfUpIZnR3iqyV75DztbQXTBVwCk0Uax9ST4OonAlrs=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R241e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0W3UsYoD_1711678211;
+Received: from 30.221.147.241(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W3UsYoD_1711678211)
+          by smtp.aliyun-inc.com;
+          Fri, 29 Mar 2024 10:10:12 +0800
+Message-ID: <82e6e5c0-0943-467e-a11b-e511839f38eb@linux.alibaba.com>
+Date: Fri, 29 Mar 2024 10:10:10 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240328044715.266641-3-danielj@nvidia.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net v2 1/2] virtio_net: Do not set rss_indir if RSS is not
+ supported
+To: Breno Leitao <leitao@debian.org>
+Cc: rbc@meta.com, riel@surriel.com,
+ "open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>,
+ "open list:NETWORKING DRIVERS" <netdev@vger.kernel.org>,
+ open list <linux-kernel@vger.kernel.org>, "Michael S. Tsirkin"
+ <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+References: <20240326151911.2155689-1-leitao@debian.org>
+ <1711503463.632461-1-xuanzhuo@linux.alibaba.com> <ZgQkXfMd6GIEndXm@gmail.com>
+ <1711589335.4973893-1-xuanzhuo@linux.alibaba.com>
+ <ZgWAmsB4vTXE66uJ@gmail.com>
+From: Heng Qi <hengqi@linux.alibaba.com>
+In-Reply-To: <ZgWAmsB4vTXE66uJ@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Hi Daniel,
 
-kernel test robot noticed the following build warnings:
 
-[auto build test WARNING on net-next/main]
+在 2024/3/28 下午10:37, Breno Leitao 写道:
+>>> On Wed, Mar 27, 2024 at 09:37:43AM +0800, Xuan Zhuo wrote:
+>>>> On Tue, 26 Mar 2024 08:19:08 -0700, Breno Leitao <leitao@debian.org> wrote:
+>>>>> Do not set virtnet_info->rss_indir_table_size if RSS is not available
+>>>>> for the device.
+>>>>>
+>>>>> Currently, rss_indir_table_size is set if either has_rss or
+>>>>> has_rss_hash_report is available, but, it should only be set if has_rss
+>>>>> is set.
+>>>>>
+>>>>> On the virtnet_set_rxfh(), return an invalid command if the request has
+>>>>> indirection table set, but virtnet does not support RSS.
+>>>>>
+>>>>> Suggested-by: Heng Qi <hengqi@linux.alibaba.com>
+>>>>> Signed-off-by: Breno Leitao <leitao@debian.org>
+>>>>> ---
+>>>>>   drivers/net/virtio_net.c | 9 +++++++--
+>>>>>   1 file changed, 7 insertions(+), 2 deletions(-)
+>>>>>
+>>>>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>>>>> index c22d1118a133..c640fdf28fc5 100644
+>>>>> --- a/drivers/net/virtio_net.c
+>>>>> +++ b/drivers/net/virtio_net.c
+>>>>> @@ -3813,6 +3813,9 @@ static int virtnet_set_rxfh(struct net_device *dev,
+>>>>>   	    rxfh->hfunc != ETH_RSS_HASH_TOP)
+>>>>>   		return -EOPNOTSUPP;
+>>>>>
+>>>>> +	if (rxfh->indir && !vi->has_rss)
+>>>>> +		return -EINVAL;
+>>>>> +
+>>>>>   	if (rxfh->indir) {
+>>>> Put !vi->has_rss here?
+>>> I am not sure I understand the suggestion. Where do you suggest we have
+>>> !vi->has_rss?
+>>>
+>>> If we got this far, we either have:
+>>>
+>>> a) rxfh->indir set and vi->has_rss is also set
+>>> b) rxfh->indir not set. (vi->has_rss could be set or not).
+>>
+>> This function does two tasks.
+>> 1. update indir table
+>> 2. update rss key
+>>
+>> #1 only for has_rss
+>> #2 for has_rss or has_rss_hash_report
+>>
+>>
+>> So I would code:
+>>
+>> 	bool update = false
+>>
+>> 	if (rxfh->indir) {
+>> 		if (!vi->has_rss)
+>> 			return -EINVAL;
+>>
+>> 		for (i = 0; i < vi->rss_indir_table_size; ++i)
+>> 			vi->ctrl->rss.indirection_table[i] = rxfh->indir[i];
+>>
+>> 		update = true
+>> 	}
+>>
+>> 	if (rxfh->key) {
+>> 		if (!vi->has_rss && !vi->has_rss_hash_report)
+>> 			return -EINVAL;
+>>
+>> 		memcpy(vi->ctrl->rss.key, rxfh->key, vi->rss_key_size);
+>> 		update = true
+>> 	}
+>>
+>>
+>> 	if (update)
+>> 		virtnet_commit_rss_command(vi);
+>>
+>> Thanks.
+> This is a bit different from the previous proposal, but, I like this one
+> approach better. It makes the code easier to read.
+>
+> How does the full patch looks like?
+>
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index c22d1118a133..180f342f1898 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -3807,20 +3807,35 @@ static int virtnet_set_rxfh(struct net_device *dev,
+>   			    struct netlink_ext_ack *extack)
+>   {
+>   	struct virtnet_info *vi = netdev_priv(dev);
+> +	bool update = false;
+>   	int i;
+>   
+> +	if (!vi->has_rss && !vi->has_rss_hash_report)
+> +		return -EOPNOTSUPP;
+> +
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Daniel-Jurgens/virtio_net-Store-RSS-setting-in-virtnet_info/20240328-125022
-base:   net-next/main
-patch link:    https://lore.kernel.org/r/20240328044715.266641-3-danielj%40nvidia.com
-patch subject: [PATCH net-next v2 2/6] virtio_net: Remove command data from control_buf
-config: x86_64-randconfig-122-20240328 (https://download.01.org/0day-ci/archive/20240329/202403290542.gM5D7hMG-lkp@intel.com/config)
-compiler: clang version 17.0.6 (https://github.com/llvm/llvm-project 6009708b4367171ccdbf4b5905cb6a803753fe18)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240329/202403290542.gM5D7hMG-lkp@intel.com/reproduce)
+I think this two modifications are no longer needed as they have been 
+embedded below.
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202403290542.gM5D7hMG-lkp@intel.com/
+>   	if (rxfh->hfunc != ETH_RSS_HASH_NO_CHANGE &&
+>   	    rxfh->hfunc != ETH_RSS_HASH_TOP)
+>   		return -EOPNOTSUPP;
+>   
+>   	if (rxfh->indir) {
+> +		if (!vi->has_rss)
+> +			return -EINVAL;
 
-sparse warnings: (new ones prefixed by >>)
->> drivers/net/virtio_net.c:3978:20: sparse: sparse: incorrect type in assignment (different base types) @@     expected unsigned long long [usertype] @@     got restricted __virtio64 @@
-   drivers/net/virtio_net.c:3978:20: sparse:     expected unsigned long long [usertype]
-   drivers/net/virtio_net.c:3978:20: sparse:     got restricted __virtio64
+-EOPNOTSUPP seems better.
 
-vim +3978 drivers/net/virtio_net.c
+> +
+>   		for (i = 0; i < vi->rss_indir_table_size; ++i)
+>   			vi->ctrl->rss.indirection_table[i] = rxfh->indir[i];
+> +		update = true;
+>   	}
+> -	if (rxfh->key)
+> +
+> +	if (rxfh->key) {
+> +		if (!vi->has_rss && !vi->has_rss_hash_report)
+> +			return -EINVAL;
 
-  3968	
-  3969	static int virtnet_set_guest_offloads(struct virtnet_info *vi, u64 offloads)
-  3970	{
-  3971		u64 *_offloads __free(kfree) = NULL;
-  3972		struct scatterlist sg;
-  3973	
-  3974		_offloads = kzalloc(sizeof(*_offloads), GFP_KERNEL);
-  3975		if (!_offloads)
-  3976			return -ENOMEM;
-  3977	
-> 3978		*_offloads = cpu_to_virtio64(vi->vdev, offloads);
-  3979	
-  3980		sg_init_one(&sg, _offloads, sizeof(*_offloads));
-  3981	
-  3982		if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_GUEST_OFFLOADS,
-  3983					  VIRTIO_NET_CTRL_GUEST_OFFLOADS_SET, &sg)) {
-  3984			dev_warn(&vi->dev->dev, "Fail to set guest offload.\n");
-  3985			return -EINVAL;
-  3986		}
-  3987	
-  3988		return 0;
-  3989	}
-  3990	
+Same as above. return -EOPNOTSUPP.
 
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Others look good.
+
+Thanks.
+
+> +
+>   		memcpy(vi->ctrl->rss.key, rxfh->key, vi->rss_key_size);
+> +		update = true;
+> +	}
+>   
+> -	virtnet_commit_rss_command(vi);
+> +	if (update)
+> +		virtnet_commit_rss_command(vi);
+>   
+>   	return 0;
+>   }
+> @@ -4729,13 +4744,15 @@ static int virtnet_probe(struct virtio_device *vdev)
+>   	if (virtio_has_feature(vdev, VIRTIO_NET_F_HASH_REPORT))
+>   		vi->has_rss_hash_report = true;
+>   
+> -	if (virtio_has_feature(vdev, VIRTIO_NET_F_RSS))
+> +	if (virtio_has_feature(vdev, VIRTIO_NET_F_RSS)) {
+>   		vi->has_rss = true;
+>   
+> -	if (vi->has_rss || vi->has_rss_hash_report) {
+>   		vi->rss_indir_table_size =
+>   			virtio_cread16(vdev, offsetof(struct virtio_net_config,
+>   				rss_max_indirection_table_length));
+> +	}
+> +
+> +	if (vi->has_rss || vi->has_rss_hash_report) {
+>   		vi->rss_key_size =
+>   			virtio_cread8(vdev, offsetof(struct virtio_net_config, rss_max_key_size));
+>   
+
