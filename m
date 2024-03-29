@@ -1,133 +1,197 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f49.google.com (mail-ed1-f49.google.com [209.85.208.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D60B6A8D2
-	for <virtualization@lists.linux.dev>; Fri, 29 Mar 2024 16:22:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F188F33CC4
+	for <virtualization@lists.linux.dev>; Fri, 29 Mar 2024 17:16:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711729332; cv=none; b=WLC50qpGn6buMUkryl7eZ/xhp4iY6GAOLmhqs7hlRfCXWKpq8bVxTkkQmjvKXKeJEagPP6t/Y0a45/7wDq3ViMZS9HVvfh0cftLhESLbmSbXZNBFs0AS4AixFXJsb4ZxI92nyhYSaUSstn+3ClRHu/axW8y2i2TgKNqbhayOyoo=
+	t=1711732618; cv=none; b=P+oMoa8uavQb6ona0ffnhdp2hqi2uAnqSTgjzYp9x9x6jk/r3Y8j0D4DY3K0Vhi8uZsTnlvMv/ZbGCYlI2ars3TpF4Q38rSJHEktVAanqs9EezCyIOjJAQHoSPfGrc1Yrgjp0+puA3ecC5tgXTvFRnRJiWQQcYu6WKw9miZQtDQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711729332; c=relaxed/simple;
-	bh=riODE1dPTaLbQpz/0beewzGEpd2nIe52VyxmuEiuHaY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=SK8Y6yIJfvrJ7bqYjN02vkprVI3jqLqJCkultulEb1GfLTDqaTNv4w2SNa4bPY9Z2SKJSERRrAP+/RP6HshQmZ2KpFDXXynv4N0j6K5uCrP5Np/XTbck/o8Uc7ymzZ7lkcVAUh9Ig1hKl1UyMpduID86wSCezGjLST/qKHq1maY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QPnBiOpv; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QPnBiOpv"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1711729328;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=fmEyRcPuEinvJiX6Dq129jlFJ6SCvYGxlVcOYHlmNDQ=;
-	b=QPnBiOpvZPl+IxEG23vr79YEVKdSzecPfBlJPHQuv/0zPdsmAzPSHiw6bvTcXw1QQelBax
-	eOClarPaczPG9zbr+zk0XOUBHw3dJRKxMkoQlmHVr8ejacbGqlDEXDf4aVBzOpO04vMSf/
-	Zqyp5FRL2joWKHKtxIONvXsyRHsTrOY=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-546-OFcdqF0pOZGfKia9BkNIBg-1; Fri, 29 Mar 2024 12:22:06 -0400
-X-MC-Unique: OFcdqF0pOZGfKia9BkNIBg-1
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-41545a3eb12so8855565e9.0
-        for <virtualization@lists.linux.dev>; Fri, 29 Mar 2024 09:22:06 -0700 (PDT)
+	s=arc-20240116; t=1711732618; c=relaxed/simple;
+	bh=89L2hT9j8ZH6xSeMx6kL7OhHLwv6S7ZBlgaulX44G44=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=UvlMEEhAckv+km1F2PEOBsiAIGKpBdmQB+JuFRn1XuoGuZNdxYEtBui8jDVPewZZ0JeLwU5bh+gX6ysQd/1FrTQDNLxGG9JMl14viKjHICjHVCewBRTYCs1cPG2poJiDrekv8ihu+wWXHs8/PjKSEsol+Ch4cZXryB7W0Pca4Ak=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.208.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-ed1-f49.google.com with SMTP id 4fb4d7f45d1cf-56d7a0cf96cso685801a12.2
+        for <virtualization@lists.linux.dev>; Fri, 29 Mar 2024 10:16:54 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711729325; x=1712334125;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=fmEyRcPuEinvJiX6Dq129jlFJ6SCvYGxlVcOYHlmNDQ=;
-        b=glbTqsG3C8WVUJQAZP4G4P8TkjIrwFGWFNkDHsvqiX5AsgvAysNVhxfjsM7xuUSQ8F
-         LR3cI6Mc5AqGKnEUQMAP54SnAKGHLS8OrB193I3hY6bxyotiOvFP8aBmKp5z10eNxqyS
-         9RqLSW5z2oomGM2oYqKLg9vBgeyqiw3y5stFlIt9pNrkUi64B+3czZp2iC2UHRrnSBhV
-         X+Je9BZE3r/coYCyaF3yetxQWM/TtUi9La0t55RYteJwTMyUKvzSBGhflBJwApdJKmeQ
-         65Jcxb+0NLnX+2GZan+mkgCDz1+yeGWbYIQFIAwUHP8LZhgXYXSCTjMT9ImQwF7YHDF6
-         iMXA==
-X-Forwarded-Encrypted: i=1; AJvYcCX4B3cP3eJPwAUmJqHN2VepkVyCYvatQyeO8i+ussKKKaKPEpTiud5D7nErq2hLkaM1AjkkPZp+IMyvqm+j89ojbrSpRly7prT1qlY9zUo=
-X-Gm-Message-State: AOJu0YwnPtx5kH5Z0R7CMygXVi5T1o74ObocMyr7dQjqjwzIBVOYS4La
-	OMsK3YCGuGzskQ85u2q0VtWSPMJvUen7xJS8IVU51iSsFPhCUiyJ75W/1KQbCVkyEwSzQCPE+VB
-	Gyl+nYKumAOhwDEnuDjfadcklJGjD0XVHvDEpeEvRk35LM8DU9221ivOTsnHLShJJ
-X-Received: by 2002:adf:f810:0:b0:33e:7750:781d with SMTP id s16-20020adff810000000b0033e7750781dmr1813666wrp.56.1711729325176;
-        Fri, 29 Mar 2024 09:22:05 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEbg6+AHNtlfHpBhKeqnWBXMq04cVofQNecZMc0Hx1QL8O3mLHrvSVma3HCLwksp4G60St5Bw==
-X-Received: by 2002:adf:f810:0:b0:33e:7750:781d with SMTP id s16-20020adff810000000b0033e7750781dmr1813641wrp.56.1711729324802;
-        Fri, 29 Mar 2024 09:22:04 -0700 (PDT)
-Received: from sgarzare-redhat (host-87-12-25-33.business.telecomitalia.it. [87.12.25.33])
-        by smtp.gmail.com with ESMTPSA id u4-20020adff884000000b00341d9e8cc62sm4478654wrp.100.2024.03.29.09.22.03
+        d=1e100.net; s=20230601; t=1711732613; x=1712337413;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=hTKsJeBejVR4zYvKMWuByymkgZTrO1JGV3ZTFtbHxR4=;
+        b=ck7b0pIFuBaFjCQP4BgT2fFSuTbU6W8KRzEKP/0Jv9Oviypa/1nQXKMJ+q62WJPT74
+         y0TgtPvSfd1O7ChOkUdLKIJruzwZbNYriCheFRiU/f7UU0NbkutuoHR2ZxiEeK0R+BEZ
+         55dilI2A0EQtCZKJ9kT1a8ldrg3DevMD9Bl9znlU+vDb/REK8ITdAx4vIzP+YwAktFWJ
+         TtbI3CWo++LUeIu+H1p7hgAzlN9XO+risjvgzRFkC/RMuFo9BgkmzueTh7ivbg8RA6K0
+         7Bdxj0sUpD3racOgvDDIZwlC28BQZVAXsdxp6wYPT4O2BdEx8KT79Y/klCpcY/HTnvdE
+         KCcg==
+X-Forwarded-Encrypted: i=1; AJvYcCV7nwVIQhK9gOY8McrOoSeNAza1QjNasmebs4qyDvn0+4f0ZmIlpMGpYIcM4MWeEFpbs24MiZjrWH2J5CJA3W090UzCs19Rr4hoDUUMm5Q=
+X-Gm-Message-State: AOJu0Yw2lZ3NDk+rxZZ5m5ENmvZviDhUXaijwbq4mcNN1n9dVIMEHIY4
+	BBM2x3/fnjg64ZGsA79IiUXE8ovEFzW5Pb/XNNvs0cMG88OWJako
+X-Google-Smtp-Source: AGHT+IEOhTAJ2kk+k1zB7aww/76+35nhb1XyeU1rgxU55vXVijPYjJ5oUVM1Xv+Gs065gM9lKqmFxg==
+X-Received: by 2002:a05:6402:34d4:b0:56b:9b11:9594 with SMTP id w20-20020a05640234d400b0056b9b119594mr2715983edc.2.1711732613087;
+        Fri, 29 Mar 2024 10:16:53 -0700 (PDT)
+Received: from localhost (fwdproxy-lla-116.fbsv.net. [2a03:2880:30ff:74::face:b00c])
+        by smtp.gmail.com with ESMTPSA id u23-20020aa7d897000000b0056ba017ca7fsm2191542edq.87.2024.03.29.10.16.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 29 Mar 2024 09:22:04 -0700 (PDT)
-Date: Fri, 29 Mar 2024 17:22:00 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Marco Pinna <marco.pinn95@gmail.com>
-Cc: stefanha@redhat.com, davem@davemloft.net, edumazet@google.com, 
-	kuba@kernel.org, pabeni@redhat.com, ggarcia@deic.uab.cat, jhansen@vmware.com, 
-	kvm@vger.kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, stable@vge.kernel.org
-Subject: Re: [PATCH net v2] vsock/virtio: fix packet delivery to tap device
-Message-ID: <tglqxtqa47wu53idfssswmrb6ulhnkdlavt27qoxhp2hniwgxc@j3fmzh5wowbc>
-References: <20240329161259.411751-1-marco.pinn95@gmail.com>
+        Fri, 29 Mar 2024 10:16:52 -0700 (PDT)
+From: Breno Leitao <leitao@debian.org>
+To: hengqi@linux.alibaba.com,
+	xuanzhuo@linux.alibaba.com,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Andrew Melnychenko <andrew@daynix.com>
+Cc: rbc@meta.com,
+	riel@surriel.com,
+	stable@vger.kernel.org,
+	qemu-devel@nongnu.org,
+	virtualization@lists.linux.dev (open list:VIRTIO CORE AND NET DRIVERS),
+	netdev@vger.kernel.org (open list:NETWORKING DRIVERS),
+	linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH net v3] virtio_net: Do not send RSS key if it is not supported
+Date: Fri, 29 Mar 2024 10:16:41 -0700
+Message-ID: <20240329171641.366520-1-leitao@debian.org>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240329161259.411751-1-marco.pinn95@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Fri, Mar 29, 2024 at 05:12:59PM +0100, Marco Pinna wrote:
->Commit 82dfb540aeb2 ("VSOCK: Add virtio vsock vsockmon hooks") added
->virtio_transport_deliver_tap_pkt() for handing packets to the
->vsockmon device. However, in virtio_transport_send_pkt_work(),
->the function is called before actually sending the packet (i.e.
->before placing it in the virtqueue with virtqueue_add_sgs() and checking
->whether it returned successfully).
->Queuing the packet in the virtqueue can fail even multiple times.
->However, in virtio_transport_deliver_tap_pkt() we deliver the packet
->to the monitoring tap interface only the first time we call it.
->This certainly avoids seeing the same packet replicated multiple times
->in the monitoring interface, but it can show the packet sent with the
->wrong timestamp or even before we succeed to queue it in the virtqueue.
->
->Move virtio_transport_deliver_tap_pkt() after calling virtqueue_add_sgs()
->and making sure it returned successfully.
->
->Fixes: 82dfb540aeb2 ("VSOCK: Add virtio vsock vsockmon hooks")
->Cc: stable@vge.kernel.org
->Signed-off-by: Marco Pinna <marco.pinn95@gmail.com>
->---
-> net/vmw_vsock/virtio_transport.c | 3 ++-
-> 1 file changed, 2 insertions(+), 1 deletion(-)
+There is a bug when setting the RSS options in virtio_net that can break
+the whole machine, getting the kernel into an infinite loop.
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Running the following command in any QEMU virtual machine with virtionet
+will reproduce this problem:
 
->
->diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
->index 1748268e0694..ee5d306a96d0 100644
->--- a/net/vmw_vsock/virtio_transport.c
->+++ b/net/vmw_vsock/virtio_transport.c
->@@ -120,7 +120,6 @@ virtio_transport_send_pkt_work(struct work_struct *work)
-> 		if (!skb)
-> 			break;
->
->-		virtio_transport_deliver_tap_pkt(skb);
-> 		reply = virtio_vsock_skb_reply(skb);
-> 		sgs = vsock->out_sgs;
-> 		sg_init_one(sgs[out_sg], virtio_vsock_hdr(skb),
->@@ -170,6 +169,8 @@ virtio_transport_send_pkt_work(struct work_struct *work)
-> 			break;
-> 		}
->
->+		virtio_transport_deliver_tap_pkt(skb);
->+
-> 		if (reply) {
-> 			struct virtqueue *rx_vq = vsock->vqs[VSOCK_VQ_RX];
-> 			int val;
->-- 
->2.44.0
->
+    # ethtool -X eth0  hfunc toeplitz
+
+This is how the problem happens:
+
+1) ethtool_set_rxfh() calls virtnet_set_rxfh()
+
+2) virtnet_set_rxfh() calls virtnet_commit_rss_command()
+
+3) virtnet_commit_rss_command() populates 4 entries for the rss
+scatter-gather
+
+4) Since the command above does not have a key, then the last
+scatter-gatter entry will be zeroed, since rss_key_size == 0.
+sg_buf_size = vi->rss_key_size;
+
+5) This buffer is passed to qemu, but qemu is not happy with a buffer
+with zero length, and do the following in virtqueue_map_desc() (QEMU
+function):
+
+  if (!sz) {
+      virtio_error(vdev, "virtio: zero sized buffers are not allowed");
+
+6) virtio_error() (also QEMU function) set the device as broken
+
+    vdev->broken = true;
+
+7) Qemu bails out, and do not repond this crazy kernel.
+
+8) The kernel is waiting for the response to come back (function
+virtnet_send_command())
+
+9) The kernel is waiting doing the following :
+
+      while (!virtqueue_get_buf(vi->cvq, &tmp) &&
+	     !virtqueue_is_broken(vi->cvq))
+	      cpu_relax();
+
+10) None of the following functions above is true, thus, the kernel
+loops here forever. Keeping in mind that virtqueue_is_broken() does
+not look at the qemu `vdev->broken`, so, it never realizes that the
+vitio is broken at QEMU side.
+
+Fix it by not sending RSS commands if the feature is not available in
+the device.
+
+Fixes: c7114b1249fa ("drivers/net/virtio_net: Added basic RSS support.")
+Cc: stable@vger.kernel.org
+Cc: qemu-devel@nongnu.org
+Signed-off-by: Breno Leitao <leitao@debian.org>
+---
+Changelog:
+
+V2:
+  * Moved from creating a valid packet, by rejecting the request
+    completely
+V3:
+  * Got some good feedback from and Xuan Zhuo and Heng Qi, and reworked
+    the rejection path.
+
+---
+ drivers/net/virtio_net.c | 22 ++++++++++++++++++----
+ 1 file changed, 18 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index c22d1118a133..c4a21ec51adf 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -3807,6 +3807,7 @@ static int virtnet_set_rxfh(struct net_device *dev,
+ 			    struct netlink_ext_ack *extack)
+ {
+ 	struct virtnet_info *vi = netdev_priv(dev);
++	bool update = false;
+ 	int i;
+ 
+ 	if (rxfh->hfunc != ETH_RSS_HASH_NO_CHANGE &&
+@@ -3814,13 +3815,24 @@ static int virtnet_set_rxfh(struct net_device *dev,
+ 		return -EOPNOTSUPP;
+ 
+ 	if (rxfh->indir) {
++		if (!vi->has_rss)
++			return -EOPNOTSUPP;
++
+ 		for (i = 0; i < vi->rss_indir_table_size; ++i)
+ 			vi->ctrl->rss.indirection_table[i] = rxfh->indir[i];
++		update = true;
+ 	}
+-	if (rxfh->key)
++
++	if (rxfh->key) {
++		if (!vi->has_rss && !vi->has_rss_hash_report)
++			return -EOPNOTSUPP;
++
+ 		memcpy(vi->ctrl->rss.key, rxfh->key, vi->rss_key_size);
++		update = true;
++	}
+ 
+-	virtnet_commit_rss_command(vi);
++	if (update)
++		virtnet_commit_rss_command(vi);
+ 
+ 	return 0;
+ }
+@@ -4729,13 +4741,15 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	if (virtio_has_feature(vdev, VIRTIO_NET_F_HASH_REPORT))
+ 		vi->has_rss_hash_report = true;
+ 
+-	if (virtio_has_feature(vdev, VIRTIO_NET_F_RSS))
++	if (virtio_has_feature(vdev, VIRTIO_NET_F_RSS)) {
+ 		vi->has_rss = true;
+ 
+-	if (vi->has_rss || vi->has_rss_hash_report) {
+ 		vi->rss_indir_table_size =
+ 			virtio_cread16(vdev, offsetof(struct virtio_net_config,
+ 				rss_max_indirection_table_length));
++	}
++
++	if (vi->has_rss || vi->has_rss_hash_report) {
+ 		vi->rss_key_size =
+ 			virtio_cread8(vdev, offsetof(struct virtio_net_config, rss_max_key_size));
+ 
+-- 
+2.43.0
 
