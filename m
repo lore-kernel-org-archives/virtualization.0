@@ -1,250 +1,71 @@
-Received: from mail-ed1-f53.google.com (mail-ed1-f53.google.com [209.85.208.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6CF94A3E
-	for <virtualization@lists.linux.dev>; Mon,  1 Apr 2024 03:38:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07C344AECF;
+	Mon,  1 Apr 2024 15:21:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711942731; cv=none; b=Za96L92TXB327auCLuYswtEaBALJ7l3I+gi6xYyNS3Idf3ePfjNmVgJ/9izMVvH77y5P9SToQpROlvRHFfH5dJCCePgIbuis3ou6bZYXfmYSCEsWWTaOLTVbPa3EzTxT3uBHGekPzBGDxX+lcQ/Pw84OqCTDBOj9oWD/fedJc80=
+	t=1711984861; cv=none; b=LJfUwPRhG2oGlq+1RC721rqrELoqzc10mFDSKSh/4xPU2ik5i2iWtRstDII2q+/VawE26Uiaetf71w4yyocfT0T0k/WG+BrLzF4dc1Lp/2m9AwSD+TSNwiXcOrrm8duGXwzU0waCUQu8QoiWC47+MiHABL2uzzd7Q8aQoWbC+2A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711942731; c=relaxed/simple;
-	bh=i11uzskaeCHVuiNLrT89/y5YIUGJasf+9x+lVmqm1b8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ruKaewSKqMW40iMCldeyB3AUYlpzmIlSI7/K9GOsUrh3wggY+rfRRoQHv4uHMtCnK0EnlC/AbYVGGLzQknLRRv/A5610WRKMQvb3kaUFRSWrUpHgpGT4TkDEuNkHm1l+/VellZLuJ1lqHZzapHueU9J9EFYsACbDi651c+8uEq0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A+mzf+Ee; arc=none smtp.client-ip=209.85.208.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1711984861; c=relaxed/simple;
+	bh=ZBiBE3qZkHMm5Z23/govMm0X9TLV1iM7mEWgmk1P+oU=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=AcYJbAI+ndsmzJ1PTcHkdkL+WQAKwXPxktbH9JKxR7NgkQGb6jkgLPXiblc0W9yRBhzvKWP0+hJ+JsA8nRzST+hRu7Oylo31nYw71oooqBMt3OLdvO/VzOkBA3sXEbFokRi1FkAjQyPRUefEvdgKt9DScChMHNu+glvwoDcb+i4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fg5ZiGTn; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A+mzf+Ee"
-Received: by mail-ed1-f53.google.com with SMTP id 4fb4d7f45d1cf-56c0a249bacso4377726a12.1
-        for <virtualization@lists.linux.dev>; Sun, 31 Mar 2024 20:38:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1711942728; x=1712547528; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=2Q1PAGL3PzjVHU2xnkLk9TfT+VSrqXIeYGFzwjWDQQY=;
-        b=A+mzf+EeI5WX1dt/eZ+EBTIWPtwZC0cYdjDq5CKu0RobMLJi65IdOTEX7g/AvAApAQ
-         F1BfeYnbdHcDFiIECvi/LGiZ9LDMEKmbaAttenZZRl5wuJtnWU3ltk2QJp3ROwz4J4pJ
-         cQikORlUJ5QQDnzUHvh8nEnEBYIVxMW2sWtRE7i+9oN8LCTa+AJ7WDTN92d+jntdj4+E
-         LL9Jc8N8NY5abzDpUUMVR2yy9wH/AwbEKFqp0Tx3riD5RJuxGzJiv5mkzuGCK303+VzO
-         1feMuh+CgMnnr2aq76qoO1kIFjRcmJWGXCsxlQZaLYLhjoEQuJno538/XcLQefw9OAEn
-         sd4Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711942728; x=1712547528;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=2Q1PAGL3PzjVHU2xnkLk9TfT+VSrqXIeYGFzwjWDQQY=;
-        b=CM/dBAf2y1OS5a101cQvrc4UX/TG3+JZY6GDwS//tP6/GwozNP1KTMbEP4cUcvRiao
-         CR/WBBLA51wwtdtIxZFFpvyh9fFAjNRMk9Q9QEXpXKJqW1E9KgWoizVtSLx4OOFKFJ3/
-         /XOnBEPKu7IXdDxpNqKTF87duxP6rBPru3T4arAr9Y8lusItmP7vwJA5PuWbyl3xMOm5
-         IXgtkuhhI043yIN5AvWJXIjjAboG9aMHAyYBEcNa+NHBQs6QkMmraRKGKvHy43zNFjUs
-         YMexZnTHvEs7hhXftjrdf7EjfgJQbk7cNSf312rJWOogGsr3YahNY+rlo65nwaBVLB6S
-         Q1JA==
-X-Forwarded-Encrypted: i=1; AJvYcCWeAbsngVuYX0FBBWz4E4GrmLRn0sVnlD5qYfazZITLfwslnbSVWXyrUgnXA9GeTxhPiEIp40ToV82IPaYyPc3/g6oxvF1JWDfeKHWSw9Q=
-X-Gm-Message-State: AOJu0YybNQxL5PfeEQ34gSbQ+f64dYVsPkMWRAOeSpzCtz4T6Sz0wuTA
-	6OLzL57K7Txm8SgMVhWq3ZbDUz2vcaSxblKs4UHws0Xo/PW/Kk3ngV+ZDLP5mBReNRY3CvhwF8S
-	zG1/Btgvrs57T1O4avLBlRYDEZDs=
-X-Google-Smtp-Source: AGHT+IESyFP9W2rN1PCNqYQHGt2io56zS98g8aELou9j8eEbTRrpcyPeg2UCpQHNpk/rqcFafuBH4tBIjg53j5eFe2w=
-X-Received: by 2002:a50:9993:0:b0:56b:cf26:3af0 with SMTP id
- m19-20020a509993000000b0056bcf263af0mr4954345edb.17.1711942727968; Sun, 31
- Mar 2024 20:38:47 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fg5ZiGTn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED925C433F1;
+	Mon,  1 Apr 2024 15:20:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1711984860;
+	bh=ZBiBE3qZkHMm5Z23/govMm0X9TLV1iM7mEWgmk1P+oU=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=fg5ZiGTnwlWG59PKdduv+jm4pSBi8QM4G2Ox8yiViz/oWewJH5UFDzxvoxjcsmEYD
+	 pfUV3qkXIQW2Wgmb4vUz4L9E+SbduzgENEqefxfLzhRiTFXMsVSvYVmHsECK8jm3td
+	 nY5Ot3wf05bG59/VOI8568Rk3RPD309vB8RcTtEBhMJIwYdmbvwUnZUqQP/96ojCOz
+	 xi+zHt9sEuuwr8ZT/uTO/xh5J+84+71XEjmwhf7pVtxkPqMZIzFijlgVFLfyJ5TVyR
+	 JZHNlktj75gRwnYciOqFeq6WvxOkHX3cHX6TxpAtDTl+Hl1C6I/MWyx8hb302+tmqf
+	 spggwy8/Rj3MQ==
+Date: Mon, 1 Apr 2024 08:20:59 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Breno Leitao <leitao@debian.org>, hengqi@linux.alibaba.com,
+ xuanzhuo@linux.alibaba.com, Jason Wang <jasowang@redhat.com>, "David S.
+ Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Paolo
+ Abeni <pabeni@redhat.com>, Andrew Melnychenko <andrew@daynix.com>,
+ rbc@meta.com, riel@surriel.com, stable@vger.kernel.org,
+ qemu-devel@nongnu.org, "open list:VIRTIO CORE AND NET DRIVERS"
+ <virtualization@lists.linux.dev>, "open list:NETWORKING DRIVERS"
+ <netdev@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH net v3] virtio_net: Do not send RSS key if it is not
+ supported
+Message-ID: <20240401082059.77df2ff0@kernel.org>
+In-Reply-To: <20240331160618-mutt-send-email-mst@kernel.org>
+References: <20240329171641.366520-1-leitao@debian.org>
+	<20240331160618-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240202121151.65710-1-liangchen.linux@gmail.com>
- <c8d59e75-d0bb-4a03-9ef4-d6de65fa9356@kernel.org> <CAKhg4tJFpG5nUNdeEbXFLonKkFUP0QCh8A9CpwU5OvtnBuz4Sw@mail.gmail.com>
- <5297dad6499f6d00f7229e8cf2c08e0eacb67e0c.camel@redhat.com>
- <CAKhg4tLbF8SfYD4dU9U9Nhii4FY2dftjPKYz-Emrn-CRwo10mg@mail.gmail.com>
- <73c242b43513bde04eebb4eb581deb189443c26b.camel@redhat.com>
- <CAKhg4tJPjcShkw4-FHFkKOcgzHK27A5pMu9FP7OWj4qJUX1ApA@mail.gmail.com>
- <1b2d471a5d06ecadcb75e3d9155b6d566afb2767.camel@redhat.com>
- <1708652254.1517398-1-xuanzhuo@linux.alibaba.com> <CACGkMEuUeQTJYpZDx8ggqwBWULQS1Fjd_DgPvVMLq-_cjYfm7g@mail.gmail.com>
- <65dcf7a775437_20e0a2087f@john.notmuch> <CAKhg4t+dzRPjyRXAifS_TCGPv3SfMMm1CF3pCs18OR+o9v+S_Q@mail.gmail.com>
-In-Reply-To: <CAKhg4t+dzRPjyRXAifS_TCGPv3SfMMm1CF3pCs18OR+o9v+S_Q@mail.gmail.com>
-From: Liang Chen <liangchen.linux@gmail.com>
-Date: Mon, 1 Apr 2024 11:38:34 +0800
-Message-ID: <CAKhg4tLO7vG5jEYZ3xnzm=xKDHO0SNgDw=JT-j7gb5bjiQOqsw@mail.gmail.com>
-Subject: Re: [PATCH net-next v5] virtio_net: Support RX hash XDP hint
-To: John Fastabend <john.fastabend@gmail.com>
-Cc: Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Paolo Abeni <pabeni@redhat.com>, Jesper Dangaard Brouer <hawk@kernel.org>, mst@redhat.com, 
-	hengqi@linux.alibaba.com, davem@davemloft.net, edumazet@google.com, 
-	kuba@kernel.org, netdev@vger.kernel.org, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, bpf@vger.kernel.org, daniel@iogearbox.net, 
-	ast@kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Thu, Feb 29, 2024 at 4:37=E2=80=AFPM Liang Chen <liangchen.linux@gmail.c=
-om> wrote:
->
-> On Tue, Feb 27, 2024 at 4:42=E2=80=AFAM John Fastabend <john.fastabend@gm=
-ail.com> wrote:
-> >
-> > Jason Wang wrote:
-> > > On Fri, Feb 23, 2024 at 9:42=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.ali=
-baba.com> wrote:
-> > > >
-> > > > On Fri, 09 Feb 2024 13:57:25 +0100, Paolo Abeni <pabeni@redhat.com>=
- wrote:
-> > > > > On Fri, 2024-02-09 at 18:39 +0800, Liang Chen wrote:
-> > > > > > On Wed, Feb 7, 2024 at 10:27=E2=80=AFPM Paolo Abeni <pabeni@red=
-hat.com> wrote:
-> > > > > > >
-> > > > > > > On Wed, 2024-02-07 at 10:54 +0800, Liang Chen wrote:
-> > > > > > > > On Tue, Feb 6, 2024 at 6:44=E2=80=AFPM Paolo Abeni <pabeni@=
-redhat.com> wrote:
-> > > > > > > > >
-> > > > > > > > > On Sat, 2024-02-03 at 10:56 +0800, Liang Chen wrote:
-> > > > > > > > > > On Sat, Feb 3, 2024 at 12:20=E2=80=AFAM Jesper Dangaard=
- Brouer <hawk@kernel.org> wrote:
-> > > > > > > > > > > On 02/02/2024 13.11, Liang Chen wrote:
-> > > > > > > > > [...]
-> > > > > > > > > > > > @@ -1033,6 +1039,16 @@ static void put_xdp_frags(st=
-ruct xdp_buff *xdp)
-> > > > > > > > > > > >       }
-> > > > > > > > > > > >   }
-> > > > > > > > > > > >
-> > > > > > > > > > > > +static void virtnet_xdp_save_rx_hash(struct virtne=
-t_xdp_buff *virtnet_xdp,
-> > > > > > > > > > > > +                                  struct net_devic=
-e *dev,
-> > > > > > > > > > > > +                                  struct virtio_ne=
-t_hdr_v1_hash *hdr_hash)
-> > > > > > > > > > > > +{
-> > > > > > > > > > > > +     if (dev->features & NETIF_F_RXHASH) {
-> > > > > > > > > > > > +             virtnet_xdp->hash_value =3D hdr_hash-=
->hash_value;
-> > > > > > > > > > > > +             virtnet_xdp->hash_report =3D hdr_hash=
-->hash_report;
-> > > > > > > > > > > > +     }
-> > > > > > > > > > > > +}
-> > > > > > > > > > > > +
-> > > > > > > > > > >
-> > > > > > > > > > > Would it be possible to store a pointer to hdr_hash i=
-n virtnet_xdp_buff,
-> > > > > > > > > > > with the purpose of delaying extracting this, until a=
-nd only if XDP
-> > > > > > > > > > > bpf_prog calls the kfunc?
-> > > > > > > > > > >
-> > > > > > > > > >
-> > > > > > > > > > That seems to be the way v1 works,
-> > > > > > > > > > https://lore.kernel.org/all/20240122102256.261374-1-lia=
-ngchen.linux@gmail.com/
-> > > > > > > > > > . But it was pointed out that the inline header may be =
-overwritten by
-> > > > > > > > > > the xdp prog, so the hash is copied out to maintain its=
- integrity.
-> > > > > > > > >
-> > > > > > > > > Why? isn't XDP supposed to get write access only to the p=
-kt
-> > > > > > > > > contents/buffer?
-> > > > > > > > >
-> > > > > > > >
-> > > > > > > > Normally, an XDP program accesses only the packet data. How=
-ever,
-> > > > > > > > there's also an XDP RX Metadata area, referenced by the dat=
-a_meta
-> > > > > > > > pointer. This pointer can be adjusted with bpf_xdp_adjust_m=
-eta to
-> > > > > > > > point somewhere ahead of the data buffer, thereby granting =
-the XDP
-> > > > > > > > program access to the virtio header located immediately bef=
-ore the
-> > > > > > >
-> > > > > > > AFAICS bpf_xdp_adjust_meta() does not allow moving the meta_d=
-ata before
-> > > > > > > xdp->data_hard_start:
-> > > > > > >
-> > > > > > > https://elixir.bootlin.com/linux/latest/source/net/core/filte=
-r.c#L4210
-> > > > > > >
-> > > > > > > and virtio net set such field after the virtio_net_hdr:
-> > > > > > >
-> > > > > > > https://elixir.bootlin.com/linux/latest/source/drivers/net/vi=
-rtio_net.c#L1218
-> > > > > > > https://elixir.bootlin.com/linux/latest/source/drivers/net/vi=
-rtio_net.c#L1420
-> > > > > > >
-> > > > > > > I don't see how the virtio hdr could be touched? Possibly eve=
-n more
-> > > > > > > important: if such thing is possible, I think is should be so=
-mewhat
-> > > > > > > denied (for the same reason an H/W nic should prevent XDP fro=
-m
-> > > > > > > modifying its own buffer descriptor).
-> > > > > >
-> > > > > > Thank you for highlighting this concern. The header layout diff=
-ers
-> > > > > > slightly between small and mergeable mode. Taking 'mergeable mo=
-de' as
-> > > > > > an example, after calling xdp_prepare_buff the layout of xdp_bu=
-ff
-> > > > > > would be as depicted in the diagram below,
-> > > > > >
-> > > > > >                       buf
-> > > > > >                        |
-> > > > > >                        v
-> > > > > >         +--------------+--------------+-------------+
-> > > > > >         | xdp headroom | virtio header| packet      |
-> > > > > >         | (256 bytes)  | (20 bytes)   | content     |
-> > > > > >         +--------------+--------------+-------------+
-> > > > > >         ^                             ^
-> > > > > >         |                             |
-> > > > > >  data_hard_start                    data
-> > > > > >                                   data_meta
-> > > > > >
-> > > > > > If 'bpf_xdp_adjust_meta' repositions the 'data_meta' pointer a =
-little
-> > > > > > towards 'data_hard_start', it would point to the inline header,=
- thus
-> > > > > > potentially allowing the XDP program to access the inline heade=
-r.
-> >
-> > Fairly late to the thread sorry. Given above layout does it make sense =
-to
-> > just delay extraction to the kfunc as suggested above? Sure the XDP pro=
-gram
-> > could smash the entry in virtio header, but this is already the case fo=
-r
-> > anything else there. A program writing over the virtio header is likely
-> > buggy anyways. Worse that might happen is bad rss values and mappings?
->
-> Thank you for raising the concern. I am not quite sure if the XDP
-> program is considered buggy, as it is agnostic to the layout of the
-> inline header.
-> Let's say an XDP program calls bpf_xdp_adjust_meta to adjust data_meta
-> to point to the inline header and overwrites it without even knowing
-> of its existence. Later, when the XDP program invokes the kfunc to
-> retrieve the hash, incorrect data would be returned. In this case, the
-> XDP program seems to be doing everything legally but ends up with the
-> wrong hash data.
->
-> Thanks,
-> Liang
->
+On Sun, 31 Mar 2024 16:20:30 -0400 Michael S. Tsirkin wrote:
+> > Fixes: c7114b1249fa ("drivers/net/virtio_net: Added basic RSS support.")
+> > Cc: stable@vger.kernel.org  
+> 
+> net has its own stable process, don't CC stable on net patches.
 
-I haven=E2=80=99t received any feedback yet, so I=E2=80=99m under the impre=
-ssion that
-the XDP program is still considered buggy in the scenario mentioned
-above, and the overall behavior is as designed from XDP perspective.
-Looking up the intel igc driver, it also does not bother with this
-particular aspect.
+Not any more, FWIW:
 
-Given this context, we don't need to be concerned about the hash value
-being overwritten. So if there aren't any objections, I plan to remove
-the preservation of the hash value in the next iteration.
+  1.5.7. Stable tree
 
-Thanks,
-Liang
+  While it used to be the case that netdev submissions were not
+  supposed to carry explicit CC: stable@vger.kernel.org tags that is no
+  longer the case today. Please follow the standard stable rules in
+  Documentation/process/stable-kernel-rules.rst, and make sure you
+  include appropriate Fixes tags!
 
-> >
-> > I like seeing more use cases for the hints though.
-> >
-> > Thanks!
-> > John
+https://www.kernel.org/doc/html/next/process/maintainer-netdev.html#stable-tree
