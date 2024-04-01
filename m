@@ -1,144 +1,250 @@
-Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f53.google.com (mail-ed1-f53.google.com [209.85.208.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BD5C4696
-	for <virtualization@lists.linux.dev>; Mon,  1 Apr 2024 03:10:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.113
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6CF94A3E
+	for <virtualization@lists.linux.dev>; Mon,  1 Apr 2024 03:38:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711941016; cv=none; b=GKupItnLNnl4Vhz649vQ2ghKMrQaPufasq+NQlW7bIqJWyUtJWvqPGCGc2k5heX4sLz4h2LQ8VZ7VYOgzdi1g+DVBGbRNJ7EYrFUA46TSxeZGJM3DFRgJJV3STtqMOPqo70pq6Sn/vC8lQKUG0alKQQHiHwRdja6AUl37vnxiXY=
+	t=1711942731; cv=none; b=Za96L92TXB327auCLuYswtEaBALJ7l3I+gi6xYyNS3Idf3ePfjNmVgJ/9izMVvH77y5P9SToQpROlvRHFfH5dJCCePgIbuis3ou6bZYXfmYSCEsWWTaOLTVbPa3EzTxT3uBHGekPzBGDxX+lcQ/Pw84OqCTDBOj9oWD/fedJc80=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711941016; c=relaxed/simple;
-	bh=5rD5pYwEBPF9mnrp6IGl9JPh+Hr+NE4RH/8JaLR//TY=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=VGjkT1+1dIh8khq3Wg9+jTE7+qJHOEGpdoPLHYfwJRdzKNmaAavvUBf4ZMWqUqRCcxoVRMqUnCOmGvlTTuOdxNCG1j1uDbjoFukcYJ7wlDwddl5JzUHroOHK6xGVEcC0OumWCGvUNgPJ9tsYvvrPlE6LzFarg0npxQHaPYaVmx0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=FS3P0bYa; arc=none smtp.client-ip=115.124.30.113
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1711942731; c=relaxed/simple;
+	bh=i11uzskaeCHVuiNLrT89/y5YIUGJasf+9x+lVmqm1b8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ruKaewSKqMW40iMCldeyB3AUYlpzmIlSI7/K9GOsUrh3wggY+rfRRoQHv4uHMtCnK0EnlC/AbYVGGLzQknLRRv/A5610WRKMQvb3kaUFRSWrUpHgpGT4TkDEuNkHm1l+/VellZLuJ1lqHZzapHueU9J9EFYsACbDi651c+8uEq0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A+mzf+Ee; arc=none smtp.client-ip=209.85.208.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="FS3P0bYa"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1711941006; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=5rD5pYwEBPF9mnrp6IGl9JPh+Hr+NE4RH/8JaLR//TY=;
-	b=FS3P0bYa4nS2TalrqFlsRAQh2r3f0sbCAKLTNlLws0ezS3oe9Ea3vq/+++QG21zBkbDTgbRouzXEYmm+4HCiZ8cDSRwL2LkTdyGdFZeL/2rnBEBzJWu+FD+TprslDIisxtYUGuni7kXYDfHTZHNKn8A3/JPYFlz5NsI/ePXcwm8=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R781e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0W3dgpyi_1711941003;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W3dgpyi_1711941003)
-          by smtp.aliyun-inc.com;
-          Mon, 01 Apr 2024 11:10:03 +0800
-Message-ID: <1711940418.2573907-2-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost v6 09/10] virtio_net: set premapped mode by find_vqs()
-Date: Mon, 1 Apr 2024 11:00:18 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: virtualization@lists.linux.dev,
- "Michael S. Tsirkin" <mst@redhat.com>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- netdev@vger.kernel.org,
- Jason Wang <jasowang@redhat.com>
-References: <20240327111430.108787-1-xuanzhuo@linux.alibaba.com>
- <20240327111430.108787-10-xuanzhuo@linux.alibaba.com>
- <CACGkMEs=NZGkkA7ye0wY7YcPBPfbKkYq84KCRX1gS0e=bZDX-w@mail.gmail.com>
- <1711614157.5913072-7-xuanzhuo@linux.alibaba.com>
- <CACGkMEuBhfMwrfaiburLG7gFw36GuVHSbRTtK+FycrGFVTgOcA@mail.gmail.com>
- <1711935607.4691076-1-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <1711935607.4691076-1-xuanzhuo@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A+mzf+Ee"
+Received: by mail-ed1-f53.google.com with SMTP id 4fb4d7f45d1cf-56c0a249bacso4377726a12.1
+        for <virtualization@lists.linux.dev>; Sun, 31 Mar 2024 20:38:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1711942728; x=1712547528; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=2Q1PAGL3PzjVHU2xnkLk9TfT+VSrqXIeYGFzwjWDQQY=;
+        b=A+mzf+EeI5WX1dt/eZ+EBTIWPtwZC0cYdjDq5CKu0RobMLJi65IdOTEX7g/AvAApAQ
+         F1BfeYnbdHcDFiIECvi/LGiZ9LDMEKmbaAttenZZRl5wuJtnWU3ltk2QJp3ROwz4J4pJ
+         cQikORlUJ5QQDnzUHvh8nEnEBYIVxMW2sWtRE7i+9oN8LCTa+AJ7WDTN92d+jntdj4+E
+         LL9Jc8N8NY5abzDpUUMVR2yy9wH/AwbEKFqp0Tx3riD5RJuxGzJiv5mkzuGCK303+VzO
+         1feMuh+CgMnnr2aq76qoO1kIFjRcmJWGXCsxlQZaLYLhjoEQuJno538/XcLQefw9OAEn
+         sd4Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1711942728; x=1712547528;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=2Q1PAGL3PzjVHU2xnkLk9TfT+VSrqXIeYGFzwjWDQQY=;
+        b=CM/dBAf2y1OS5a101cQvrc4UX/TG3+JZY6GDwS//tP6/GwozNP1KTMbEP4cUcvRiao
+         CR/WBBLA51wwtdtIxZFFpvyh9fFAjNRMk9Q9QEXpXKJqW1E9KgWoizVtSLx4OOFKFJ3/
+         /XOnBEPKu7IXdDxpNqKTF87duxP6rBPru3T4arAr9Y8lusItmP7vwJA5PuWbyl3xMOm5
+         IXgtkuhhI043yIN5AvWJXIjjAboG9aMHAyYBEcNa+NHBQs6QkMmraRKGKvHy43zNFjUs
+         YMexZnTHvEs7hhXftjrdf7EjfgJQbk7cNSf312rJWOogGsr3YahNY+rlo65nwaBVLB6S
+         Q1JA==
+X-Forwarded-Encrypted: i=1; AJvYcCWeAbsngVuYX0FBBWz4E4GrmLRn0sVnlD5qYfazZITLfwslnbSVWXyrUgnXA9GeTxhPiEIp40ToV82IPaYyPc3/g6oxvF1JWDfeKHWSw9Q=
+X-Gm-Message-State: AOJu0YybNQxL5PfeEQ34gSbQ+f64dYVsPkMWRAOeSpzCtz4T6Sz0wuTA
+	6OLzL57K7Txm8SgMVhWq3ZbDUz2vcaSxblKs4UHws0Xo/PW/Kk3ngV+ZDLP5mBReNRY3CvhwF8S
+	zG1/Btgvrs57T1O4avLBlRYDEZDs=
+X-Google-Smtp-Source: AGHT+IESyFP9W2rN1PCNqYQHGt2io56zS98g8aELou9j8eEbTRrpcyPeg2UCpQHNpk/rqcFafuBH4tBIjg53j5eFe2w=
+X-Received: by 2002:a50:9993:0:b0:56b:cf26:3af0 with SMTP id
+ m19-20020a509993000000b0056bcf263af0mr4954345edb.17.1711942727968; Sun, 31
+ Mar 2024 20:38:47 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+References: <20240202121151.65710-1-liangchen.linux@gmail.com>
+ <c8d59e75-d0bb-4a03-9ef4-d6de65fa9356@kernel.org> <CAKhg4tJFpG5nUNdeEbXFLonKkFUP0QCh8A9CpwU5OvtnBuz4Sw@mail.gmail.com>
+ <5297dad6499f6d00f7229e8cf2c08e0eacb67e0c.camel@redhat.com>
+ <CAKhg4tLbF8SfYD4dU9U9Nhii4FY2dftjPKYz-Emrn-CRwo10mg@mail.gmail.com>
+ <73c242b43513bde04eebb4eb581deb189443c26b.camel@redhat.com>
+ <CAKhg4tJPjcShkw4-FHFkKOcgzHK27A5pMu9FP7OWj4qJUX1ApA@mail.gmail.com>
+ <1b2d471a5d06ecadcb75e3d9155b6d566afb2767.camel@redhat.com>
+ <1708652254.1517398-1-xuanzhuo@linux.alibaba.com> <CACGkMEuUeQTJYpZDx8ggqwBWULQS1Fjd_DgPvVMLq-_cjYfm7g@mail.gmail.com>
+ <65dcf7a775437_20e0a2087f@john.notmuch> <CAKhg4t+dzRPjyRXAifS_TCGPv3SfMMm1CF3pCs18OR+o9v+S_Q@mail.gmail.com>
+In-Reply-To: <CAKhg4t+dzRPjyRXAifS_TCGPv3SfMMm1CF3pCs18OR+o9v+S_Q@mail.gmail.com>
+From: Liang Chen <liangchen.linux@gmail.com>
+Date: Mon, 1 Apr 2024 11:38:34 +0800
+Message-ID: <CAKhg4tLO7vG5jEYZ3xnzm=xKDHO0SNgDw=JT-j7gb5bjiQOqsw@mail.gmail.com>
+Subject: Re: [PATCH net-next v5] virtio_net: Support RX hash XDP hint
+To: John Fastabend <john.fastabend@gmail.com>
+Cc: Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Paolo Abeni <pabeni@redhat.com>, Jesper Dangaard Brouer <hawk@kernel.org>, mst@redhat.com, 
+	hengqi@linux.alibaba.com, davem@davemloft.net, edumazet@google.com, 
+	kuba@kernel.org, netdev@vger.kernel.org, virtualization@lists.linux.dev, 
+	linux-kernel@vger.kernel.org, bpf@vger.kernel.org, daniel@iogearbox.net, 
+	ast@kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, 1 Apr 2024 09:40:07 +0800, Xuan Zhuo <xuanzhuo@linux.alibaba.com> w=
-rote:
-> On Fri, 29 Mar 2024 11:20:08 +0800, Jason Wang <jasowang@redhat.com> wrot=
-e:
-> > On Thu, Mar 28, 2024 at 4:27=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.aliba=
-ba.com> wrote:
-> > >
-> > > On Thu, 28 Mar 2024 16:05:02 +0800, Jason Wang <jasowang@redhat.com> =
-wrote:
-> > > > On Wed, Mar 27, 2024 at 7:14=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.a=
-libaba.com> wrote:
-> > > > >
-> > > > > Now, the virtio core can set the premapped mode by find_vqs().
-> > > > > If the premapped can be enabled, the dma array will not be
-> > > > > allocated. So virtio-net use the api of find_vqs to enable the
-> > > > > premapped.
-> > > > >
-> > > > > Judge the premapped mode by the vq->premapped instead of saving
-> > > > > local variable.
-> > > > >
-> > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > > ---
+On Thu, Feb 29, 2024 at 4:37=E2=80=AFPM Liang Chen <liangchen.linux@gmail.c=
+om> wrote:
+>
+> On Tue, Feb 27, 2024 at 4:42=E2=80=AFAM John Fastabend <john.fastabend@gm=
+ail.com> wrote:
+> >
+> > Jason Wang wrote:
+> > > On Fri, Feb 23, 2024 at 9:42=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.ali=
+baba.com> wrote:
 > > > >
-> > > > I wonder what's the reason to keep a fallback when premapped is not=
- enabled?
-> > >
-> > > Rethink this.
-> > >
-> > > I think you are right. We can remove the fallback.
-> > >
-> > > Because we have the virtio dma apis that wrap all the cases.
-> > > So I will remove the fallback from the virtio-net in next version.
+> > > > On Fri, 09 Feb 2024 13:57:25 +0100, Paolo Abeni <pabeni@redhat.com>=
+ wrote:
+> > > > > On Fri, 2024-02-09 at 18:39 +0800, Liang Chen wrote:
+> > > > > > On Wed, Feb 7, 2024 at 10:27=E2=80=AFPM Paolo Abeni <pabeni@red=
+hat.com> wrote:
+> > > > > > >
+> > > > > > > On Wed, 2024-02-07 at 10:54 +0800, Liang Chen wrote:
+> > > > > > > > On Tue, Feb 6, 2024 at 6:44=E2=80=AFPM Paolo Abeni <pabeni@=
+redhat.com> wrote:
+> > > > > > > > >
+> > > > > > > > > On Sat, 2024-02-03 at 10:56 +0800, Liang Chen wrote:
+> > > > > > > > > > On Sat, Feb 3, 2024 at 12:20=E2=80=AFAM Jesper Dangaard=
+ Brouer <hawk@kernel.org> wrote:
+> > > > > > > > > > > On 02/02/2024 13.11, Liang Chen wrote:
+> > > > > > > > > [...]
+> > > > > > > > > > > > @@ -1033,6 +1039,16 @@ static void put_xdp_frags(st=
+ruct xdp_buff *xdp)
+> > > > > > > > > > > >       }
+> > > > > > > > > > > >   }
+> > > > > > > > > > > >
+> > > > > > > > > > > > +static void virtnet_xdp_save_rx_hash(struct virtne=
+t_xdp_buff *virtnet_xdp,
+> > > > > > > > > > > > +                                  struct net_devic=
+e *dev,
+> > > > > > > > > > > > +                                  struct virtio_ne=
+t_hdr_v1_hash *hdr_hash)
+> > > > > > > > > > > > +{
+> > > > > > > > > > > > +     if (dev->features & NETIF_F_RXHASH) {
+> > > > > > > > > > > > +             virtnet_xdp->hash_value =3D hdr_hash-=
+>hash_value;
+> > > > > > > > > > > > +             virtnet_xdp->hash_report =3D hdr_hash=
+->hash_report;
+> > > > > > > > > > > > +     }
+> > > > > > > > > > > > +}
+> > > > > > > > > > > > +
+> > > > > > > > > > >
+> > > > > > > > > > > Would it be possible to store a pointer to hdr_hash i=
+n virtnet_xdp_buff,
+> > > > > > > > > > > with the purpose of delaying extracting this, until a=
+nd only if XDP
+> > > > > > > > > > > bpf_prog calls the kfunc?
+> > > > > > > > > > >
+> > > > > > > > > >
+> > > > > > > > > > That seems to be the way v1 works,
+> > > > > > > > > > https://lore.kernel.org/all/20240122102256.261374-1-lia=
+ngchen.linux@gmail.com/
+> > > > > > > > > > . But it was pointed out that the inline header may be =
+overwritten by
+> > > > > > > > > > the xdp prog, so the hash is copied out to maintain its=
+ integrity.
+> > > > > > > > >
+> > > > > > > > > Why? isn't XDP supposed to get write access only to the p=
+kt
+> > > > > > > > > contents/buffer?
+> > > > > > > > >
+> > > > > > > >
+> > > > > > > > Normally, an XDP program accesses only the packet data. How=
+ever,
+> > > > > > > > there's also an XDP RX Metadata area, referenced by the dat=
+a_meta
+> > > > > > > > pointer. This pointer can be adjusted with bpf_xdp_adjust_m=
+eta to
+> > > > > > > > point somewhere ahead of the data buffer, thereby granting =
+the XDP
+> > > > > > > > program access to the virtio header located immediately bef=
+ore the
+> > > > > > >
+> > > > > > > AFAICS bpf_xdp_adjust_meta() does not allow moving the meta_d=
+ata before
+> > > > > > > xdp->data_hard_start:
+> > > > > > >
+> > > > > > > https://elixir.bootlin.com/linux/latest/source/net/core/filte=
+r.c#L4210
+> > > > > > >
+> > > > > > > and virtio net set such field after the virtio_net_hdr:
+> > > > > > >
+> > > > > > > https://elixir.bootlin.com/linux/latest/source/drivers/net/vi=
+rtio_net.c#L1218
+> > > > > > > https://elixir.bootlin.com/linux/latest/source/drivers/net/vi=
+rtio_net.c#L1420
+> > > > > > >
+> > > > > > > I don't see how the virtio hdr could be touched? Possibly eve=
+n more
+> > > > > > > important: if such thing is possible, I think is should be so=
+mewhat
+> > > > > > > denied (for the same reason an H/W nic should prevent XDP fro=
+m
+> > > > > > > modifying its own buffer descriptor).
+> > > > > >
+> > > > > > Thank you for highlighting this concern. The header layout diff=
+ers
+> > > > > > slightly between small and mergeable mode. Taking 'mergeable mo=
+de' as
+> > > > > > an example, after calling xdp_prepare_buff the layout of xdp_bu=
+ff
+> > > > > > would be as depicted in the diagram below,
+> > > > > >
+> > > > > >                       buf
+> > > > > >                        |
+> > > > > >                        v
+> > > > > >         +--------------+--------------+-------------+
+> > > > > >         | xdp headroom | virtio header| packet      |
+> > > > > >         | (256 bytes)  | (20 bytes)   | content     |
+> > > > > >         +--------------+--------------+-------------+
+> > > > > >         ^                             ^
+> > > > > >         |                             |
+> > > > > >  data_hard_start                    data
+> > > > > >                                   data_meta
+> > > > > >
+> > > > > > If 'bpf_xdp_adjust_meta' repositions the 'data_meta' pointer a =
+little
+> > > > > > towards 'data_hard_start', it would point to the inline header,=
+ thus
+> > > > > > potentially allowing the XDP program to access the inline heade=
+r.
 > >
-> > Ok.
+> > Fairly late to the thread sorry. Given above layout does it make sense =
+to
+> > just delay extraction to the kfunc as suggested above? Sure the XDP pro=
+gram
+> > could smash the entry in virtio header, but this is already the case fo=
+r
+> > anything else there. A program writing over the virtio header is likely
+> > buggy anyways. Worse that might happen is bad rss values and mappings?
+>
+> Thank you for raising the concern. I am not quite sure if the XDP
+> program is considered buggy, as it is agnostic to the layout of the
+> inline header.
+> Let's say an XDP program calls bpf_xdp_adjust_meta to adjust data_meta
+> to point to the inline header and overwrites it without even knowing
+> of its existence. Later, when the XDP program invokes the kfunc to
+> retrieve the hash, incorrect data would be returned. In this case, the
+> XDP program seems to be doing everything legally but ends up with the
+> wrong hash data.
+>
+> Thanks,
+> Liang
+>
+
+I haven=E2=80=99t received any feedback yet, so I=E2=80=99m under the impre=
+ssion that
+the XDP program is still considered buggy in the scenario mentioned
+above, and the overall behavior is as designed from XDP perspective.
+Looking up the intel igc driver, it also does not bother with this
+particular aspect.
+
+Given this context, we don't need to be concerned about the hash value
+being overwritten. So if there aren't any objections, I plan to remove
+the preservation of the hash value in the next iteration.
+
+Thanks,
+Liang
+
 > >
-> > >
-> > > But we still need to export the premapped to the drivers.
-> > > Because we can enable the AF_XDP only when premapped is true.
+> > I like seeing more use cases for the hints though.
 > >
-> > I may miss something but it should work like
-> >
-> > enable AF_XDP -> enable remapping
-> >
-> > So can we fail during remapping enablement?
->
->
-> YES.
->
-> Enabling the premapped mode may fail, then we must stop to enable AF_XDP.
->
-> AF-XDP requires that we export the dma dev to the af-xdp.
-> We can do that only when the virtio core works with use_dma_api.
-> Other other side, if we support the page-pool in future, we may have the
-> same requirement.
-
-Rethink this.
-
-Enable premapped MUST NOT fail. No care the use_dma_api is true or not, bec=
-ause
-we have the DMA APIs for virtio. Then the virtio-net rx will work with
-premapped (I will make the big mode work with premapped mode)
-
-AF_XDP checks the virtqueue_dma_dev() when enabling.
-
-But disabling premapped mode may fail, because that virtio ring need to
-allocate memory for dma.
-
-Thanks.
-
-
-
->
->
-> Thanks.
->
->
-> >
-> > THanks
-> >
-> > >
-> > > Thanks
-> > >
-> > >
-> > > >
-> > > > Thanks
-> > > >
-> > >
-> >
->
+> > Thanks!
+> > John
