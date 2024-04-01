@@ -1,71 +1,149 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07C344AECF;
-	Mon,  1 Apr 2024 15:21:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91A515024E
+	for <virtualization@lists.linux.dev>; Mon,  1 Apr 2024 19:02:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711984861; cv=none; b=LJfUwPRhG2oGlq+1RC721rqrELoqzc10mFDSKSh/4xPU2ik5i2iWtRstDII2q+/VawE26Uiaetf71w4yyocfT0T0k/WG+BrLzF4dc1Lp/2m9AwSD+TSNwiXcOrrm8duGXwzU0waCUQu8QoiWC47+MiHABL2uzzd7Q8aQoWbC+2A=
+	t=1711998169; cv=none; b=X5dUjkv4EDFdRkND3+iJJnlglNb5wavQgZTiLRbFhYg/YIjiicDx8cw2PqCKfxChk9ucM+uZF74mtskGvS8/GvIsGofhOMeIn/uPLdT2Ybru/bf3EJ7X2sG4QmNNdGRYAOt/hKEFpSl5eGWXEACchiF814sdxqZaaclIfV9KGn8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711984861; c=relaxed/simple;
-	bh=ZBiBE3qZkHMm5Z23/govMm0X9TLV1iM7mEWgmk1P+oU=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=AcYJbAI+ndsmzJ1PTcHkdkL+WQAKwXPxktbH9JKxR7NgkQGb6jkgLPXiblc0W9yRBhzvKWP0+hJ+JsA8nRzST+hRu7Oylo31nYw71oooqBMt3OLdvO/VzOkBA3sXEbFokRi1FkAjQyPRUefEvdgKt9DScChMHNu+glvwoDcb+i4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fg5ZiGTn; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1711998169; c=relaxed/simple;
+	bh=JbQ/vyagne1B2SNAZ1pSK9x8j0xrTBqxnXBPQrwReEA=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=KVp9SmNONQpT8PFFAQzusVxIrlDAcQyuNHTnyAig2v67nS5yrVVCNTUzU7kE7jCPG87i3WmQJ1z6zc0YjEK+6bo++vdnv70HRG9jaoJpeJ2TLJA39nju6+5ROROqUC42u7YUYqHrtFf2S6Fs8lITa0GglBZXxCokTNIQ4uEVwz4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bAc4K7FD; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fg5ZiGTn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED925C433F1;
-	Mon,  1 Apr 2024 15:20:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1711984860;
-	bh=ZBiBE3qZkHMm5Z23/govMm0X9TLV1iM7mEWgmk1P+oU=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=fg5ZiGTnwlWG59PKdduv+jm4pSBi8QM4G2Ox8yiViz/oWewJH5UFDzxvoxjcsmEYD
-	 pfUV3qkXIQW2Wgmb4vUz4L9E+SbduzgENEqefxfLzhRiTFXMsVSvYVmHsECK8jm3td
-	 nY5Ot3wf05bG59/VOI8568Rk3RPD309vB8RcTtEBhMJIwYdmbvwUnZUqQP/96ojCOz
-	 xi+zHt9sEuuwr8ZT/uTO/xh5J+84+71XEjmwhf7pVtxkPqMZIzFijlgVFLfyJ5TVyR
-	 JZHNlktj75gRwnYciOqFeq6WvxOkHX3cHX6TxpAtDTl+Hl1C6I/MWyx8hb302+tmqf
-	 spggwy8/Rj3MQ==
-Date: Mon, 1 Apr 2024 08:20:59 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Breno Leitao <leitao@debian.org>, hengqi@linux.alibaba.com,
- xuanzhuo@linux.alibaba.com, Jason Wang <jasowang@redhat.com>, "David S.
- Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Paolo
- Abeni <pabeni@redhat.com>, Andrew Melnychenko <andrew@daynix.com>,
- rbc@meta.com, riel@surriel.com, stable@vger.kernel.org,
- qemu-devel@nongnu.org, "open list:VIRTIO CORE AND NET DRIVERS"
- <virtualization@lists.linux.dev>, "open list:NETWORKING DRIVERS"
- <netdev@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH net v3] virtio_net: Do not send RSS key if it is not
- supported
-Message-ID: <20240401082059.77df2ff0@kernel.org>
-In-Reply-To: <20240331160618-mutt-send-email-mst@kernel.org>
-References: <20240329171641.366520-1-leitao@debian.org>
-	<20240331160618-mutt-send-email-mst@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bAc4K7FD"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 431IvYNB011088;
+	Mon, 1 Apr 2024 19:02:23 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=JbQ/vyagne1B2SNAZ1pSK9x8j0xrTBqxnXBPQrwReEA=;
+ b=bAc4K7FDIfOzcAy62OkeeAUsX6ql6uHvU/ukjq5DsKj7m96BB1g3nuoRzKfPz/IUm1xt
+ 0fy2cUAG1IgJqQH24E3k0a3ZPX3Z/7hozrvV/+m5MjL4+LdTcbBoT9ZF7AmMq58FUOyD
+ 0ztKcecNXpz9I5+juG+tT9Of/8Bpd6hrSvYBKYCznnVYqCVWK8PnQuoI9gEG5xt3Rc6+
+ L12jo4rcmbD+5bevoeW6ZwlgCvmnMzvTi0SnUHxeamPh0vqoqgZXDEmqxkt4Ig3Zkq4W
+ sdoPpLXleVhq4Kl7GHQYBmIM10vOyMubCxbpyWbqbiKxNCDfRJDOugnp/33z8skRRDmV Kg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x82nf00gs-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 01 Apr 2024 19:02:23 +0000
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 431J2MA1020505;
+	Mon, 1 Apr 2024 19:02:22 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x82nf00gn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 01 Apr 2024 19:02:22 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 431J2Ds3015234;
+	Mon, 1 Apr 2024 19:02:21 GMT
+Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3x6y9ksk1b-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 01 Apr 2024 19:02:21 +0000
+Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
+	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 431J2Iru23134946
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 1 Apr 2024 19:02:20 GMT
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 536B058058;
+	Mon,  1 Apr 2024 19:02:18 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A75E25805C;
+	Mon,  1 Apr 2024 19:02:15 +0000 (GMT)
+Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.61.184.184])
+	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  1 Apr 2024 19:02:15 +0000 (GMT)
+Message-ID: <00311e8bb63ba873da9906d87e49499f40df5134.camel@linux.ibm.com>
+Subject: Re: [PATCH vhost v7 2/6] virtio: remove support for names array
+ entries being null.
+From: Eric Farman <farman@linux.ibm.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev
+Cc: Richard Weinberger <richard@nod.at>,
+        Anton Ivanov
+ <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg
+ <johannes@sipsolutions.net>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Ilpo
+ =?ISO-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Vadim
+ Pasternak <vadimp@nvidia.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Cornelia Huck
+ <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>,
+        Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Christian Borntraeger
+ <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        "Michael
+ S. Tsirkin" <mst@redhat.com>,
+        David Hildenbrand <david@redhat.com>,
+        Jason
+ Wang <jasowang@redhat.com>, linux-um@lists.infradead.org,
+        platform-driver-x86@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Date: Mon, 01 Apr 2024 15:02:15 -0400
+In-Reply-To: <20240328080348.3620-3-xuanzhuo@linux.alibaba.com>
+References: <20240328080348.3620-1-xuanzhuo@linux.alibaba.com>
+	 <20240328080348.3620-3-xuanzhuo@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.50.4 (3.50.4-1.fc39) 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: P1ukwj2SO_fm-loIj3BYJeRlaiRy_jcA
+X-Proofpoint-GUID: coub_UfOYCf5qBMsA2tFbBkXJ8453ebI
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-04-01_14,2024-04-01_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ clxscore=1011 malwarescore=0 spamscore=0 adultscore=0 mlxlogscore=999
+ bulkscore=0 lowpriorityscore=0 mlxscore=0 suspectscore=0 impostorscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2403210000 definitions=main-2404010134
 
-On Sun, 31 Mar 2024 16:20:30 -0400 Michael S. Tsirkin wrote:
-> > Fixes: c7114b1249fa ("drivers/net/virtio_net: Added basic RSS support.")
-> > Cc: stable@vger.kernel.org  
-> 
-> net has its own stable process, don't CC stable on net patches.
+On Thu, 2024-03-28 at 16:03 +0800, Xuan Zhuo wrote:
+> commit 6457f126c888 ("virtio: support reserved vqs") introduced this
+> support. Multiqueue virtio-net use 2N as ctrl vq finally, so the
+> logic
+> doesn't apply. And not one uses this.
+>=20
+> On the other side, that makes some trouble for us to refactor the
+> find_vqs() params.
+>=20
+> So I remove this support.
+>=20
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> Acked-by: Jason Wang <jasowang@redhat.com>
+> ---
+> =C2=A0arch/um/drivers/virtio_uml.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 8 ++++----
+> =C2=A0drivers/remoteproc/remoteproc_virtio.c | 11 ++++-------
+> =C2=A0drivers/s390/virtio/virtio_ccw.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0 |=C2=A0 8 ++++----
+> =C2=A0drivers/virtio/virtio_mmio.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0 | 11 ++++-------
+> =C2=A0drivers/virtio/virtio_pci_common.c=C2=A0=C2=A0=C2=A0=C2=A0 | 18 +++=
+++++++---------
+> =C2=A0drivers/virtio/virtio_vdpa.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0 | 11 ++++-------
+> =C2=A0include/linux/virtio_config.h=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0 |=C2=A0 2 +-
+> =C2=A07 files changed, 30 insertions(+), 39 deletions(-)
 
-Not any more, FWIW:
-
-  1.5.7. Stable tree
-
-  While it used to be the case that netdev submissions were not
-  supposed to carry explicit CC: stable@vger.kernel.org tags that is no
-  longer the case today. Please follow the standard stable rules in
-  Documentation/process/stable-kernel-rules.rst, and make sure you
-  include appropriate Fixes tags!
-
-https://www.kernel.org/doc/html/next/process/maintainer-netdev.html#stable-tree
+Acked-by: Eric Farman <farman@linux.ibm.com> # s390
