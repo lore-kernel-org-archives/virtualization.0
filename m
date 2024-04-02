@@ -1,158 +1,100 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id BFB7A945A;
-	Tue,  2 Apr 2024 01:44:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
+Received: from xry111.site (xry111.site [89.208.246.23])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97A216FB5;
+	Tue,  2 Apr 2024 02:50:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=89.208.246.23
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712022251; cv=none; b=sDOO7/7VWU+u263wt6VWIG+opSw0v0NHbBQM3O51K0xlkEEBuicuWpZs1c7s+e6i0peIgT4/GcEtV3SPcHewUoOE1LhycEJgPPmGGuJ+thPFLq5gsSczGEHwaS7rwnl5lejmbfyRSx1Zsuacz1paVlfJPFY9DgmBxmz7uswHtUg=
+	t=1712026203; cv=none; b=sBhQI/JnCD9ir1+15RjNTaLk4TsA2MEKZOFJdBFti0BA+was6OU/Sk0TMIZQVJA05qS2yH1GXiYr5HEOoj6lw3+9ragvy6B+bBp5d+ntZv4Sj/bdi2QuGs8UN8KLEvKWgkqr8U7u/DStpOHLLjEh8t9tP6iiQfDZpVzK9tdLDv8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712022251; c=relaxed/simple;
-	bh=FMcrAiDM9GDhgLUPo0dWEmrQBaq4UYLXE5VjE9+WkDM=;
-	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=QqNkxABS+A6UMuZSWKRhBxUakIGHfR5ujGu0hAFxy1Yj1UiA2POtMyLp4WX88DPBynqQsGHHP3FGFMPGX0nMts4SFqEbP66Tc9noeKYVIugYgRLx0GViix63ARTSYLqYeLhI/X7ejdE3BSARgrgt6gJ/YR7HFEd2FL+EhvxRnHM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [10.20.42.173])
-	by gateway (Coremail) with SMTP id _____8BxVfHjYgtmDSoiAA--.13523S3;
-	Tue, 02 Apr 2024 09:44:04 +0800 (CST)
-Received: from [10.20.42.173] (unknown [10.20.42.173])
-	by localhost.localdomain (Coremail) with SMTP id AQAAf8AxX8_fYgtmckZxAA--.22052S3;
-	Tue, 02 Apr 2024 09:44:01 +0800 (CST)
-Subject: Re: [PATCH v7 3/7] LoongArch: KVM: Add cpucfg area for kvm hypervisor
-To: WANG Xuerui <kernel@xen0n.name>, Huacai Chen <chenhuacai@kernel.org>,
- Tianrui Zhao <zhaotianrui@loongson.cn>, Juergen Gross <jgross@suse.com>,
- Paolo Bonzini <pbonzini@redhat.com>, Jonathan Corbet <corbet@lwn.net>
-Cc: loongarch@lists.linux.dev, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev, kvm@vger.kernel.org
+	s=arc-20240116; t=1712026203; c=relaxed/simple;
+	bh=ZejHzgaX0y9u6TAm0+5L3D9OCdZlYx5y2FcAPrC4nok=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=BBYk2PU8hVlVnnIr0Js5zM8SfKBQZL8hHKtHZ/d2SJVjjxPfXj2LcDpXjYwHQN9413hY0av/bjfZjsud7YjIXi5DwioabDOnCQdY5Rmo8XvTQgo2417F3qe6o5ay1xmKhYhspz3lf0VxD1DtyT6NEaFnORCykNW6OCDPEVoXJfA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=xry111.site; spf=pass smtp.mailfrom=xry111.site; dkim=pass (1024-bit key) header.d=xry111.site header.i=@xry111.site header.b=lLlPDxOM; arc=none smtp.client-ip=89.208.246.23
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=xry111.site
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xry111.site
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=xry111.site header.i=@xry111.site header.b="lLlPDxOM"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=xry111.site;
+	s=default; t=1712026200;
+	bh=ZejHzgaX0y9u6TAm0+5L3D9OCdZlYx5y2FcAPrC4nok=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+	b=lLlPDxOMOC6VQRM1fE3em7ahxkIummKiqw+wGHNL3WufO7u5Q9LulnvhdZAUxCmXG
+	 IROYSwo5hQ8ir8nKtBWBrZYC0VJgi3YoYQ+QK804ty1uiyveGVNjvPbDwMTy68pZ+m
+	 algdOPnQ62WvPLLIW6ID9YBdSsstgZ1WbpfcLuD4=
+Received: from [127.0.0.1] (unknown [IPv6:2001:470:683e::1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (P-256) server-signature ECDSA (P-384) server-digest SHA384)
+	(Client did not present a certificate)
+	(Authenticated sender: xry111@xry111.site)
+	by xry111.site (Postfix) with ESMTPSA id 8B63666E6D;
+	Mon,  1 Apr 2024 22:49:57 -0400 (EDT)
+Message-ID: <b7d91c1a42470821983a811a16f9fc1c55cfe699.camel@xry111.site>
+Subject: Re: [PATCH v7 3/7] LoongArch: KVM: Add cpucfg area for kvm
+ hypervisor
+From: Xi Ruoyao <xry111@xry111.site>
+To: maobibo <maobibo@loongson.cn>, WANG Xuerui <kernel@xen0n.name>, Huacai
+ Chen <chenhuacai@kernel.org>, Tianrui Zhao <zhaotianrui@loongson.cn>,
+ Juergen Gross <jgross@suse.com>, Paolo Bonzini <pbonzini@redhat.com>,
+ Jonathan Corbet <corbet@lwn.net>
+Cc: loongarch@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	virtualization@lists.linux.dev, kvm@vger.kernel.org
+Date: Tue, 02 Apr 2024 10:49:55 +0800
+In-Reply-To: <57e66ff5-1cb6-06bd-ee6f-a3c3dadd6aef@loongson.cn>
 References: <20240315080710.2812974-1-maobibo@loongson.cn>
- <20240315080710.2812974-4-maobibo@loongson.cn>
- <4668e606-a7b5-49b7-a68d-1c2af86f7d76@xen0n.name>
-From: maobibo <maobibo@loongson.cn>
-Message-ID: <57e66ff5-1cb6-06bd-ee6f-a3c3dadd6aef@loongson.cn>
-Date: Tue, 2 Apr 2024 09:43:59 +0800
-User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+	 <20240315080710.2812974-4-maobibo@loongson.cn>
+	 <4668e606-a7b5-49b7-a68d-1c2af86f7d76@xen0n.name>
+	 <57e66ff5-1cb6-06bd-ee6f-a3c3dadd6aef@loongson.cn>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.52.0 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <4668e606-a7b5-49b7-a68d-1c2af86f7d76@xen0n.name>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:AQAAf8AxX8_fYgtmckZxAA--.22052S3
-X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
-X-Coremail-Antispam: 1Uk129KBj93XoWxAFW5Gry8CrWDAFyfZw4xGrX_yoWrZryUpF
-	WSkFnxCr4kJFs3Awn3Ca17WFyrJrs5GrW3GF90kryDCrs8ur1Iyw1I9rWq9F9rCw4fCw1j
-	vr4jqFy093Z8A3cCm3ZEXasCq-sJn29KB7ZKAUJUUUUr529EdanIXcx71UUUUU7KY7ZEXa
-	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
-	0xBIdaVrnRJUUUBYb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
-	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
-	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
-	0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVWxJVW8Jr1l84ACjcxK6I8E87Iv6xkF7I0E14v2
-	6r4j6r4UJwAaw2AFwI0_Jrv_JF1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqjxCEc2xF0c
-	Ia020Ex4CE44I27wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jrv_
-	JF1lYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvEwIxGrw
-	CYjI0SjxkI62AI1cAE67vIY487MxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j
-	6r4UMxCIbckI1I0E14v26r1Y6r17MI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwV
-	AFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6xIIjxv2
-	0xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCI42IY6xAIw20EY4
-	v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267AK
-	xVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7IU8CksDUUUUU==
 
+On Tue, 2024-04-02 at 09:43 +0800, maobibo wrote:
+> > Sorry for the late reply, but I think it may be a bit non-constructive=
+=20
+> > to repeatedly submit the same code without due explanation in our=20
+> > previous review threads. Let me try to recollect some of the details
+> > though...
+> Because your review comments about hypercall method is wrong, I need not=
+=20
+> adopt it.
 
+Again it's unfair to say so considering the lack of LVZ documentation.
 
-On 2024/3/24 上午3:02, WANG Xuerui wrote:
-> On 3/15/24 16:07, Bibo Mao wrote:
->> Instruction cpucfg can be used to get processor features. And there
->> is trap exception when it is executed in VM mode, and also it is
->> to provide cpu features to VM. On real hardware cpucfg area 0 - 20
->> is used.  Here one specified area 0x40000000 -- 0x400000ff is used
->> for KVM hypervisor to privide PV features, and the area can be extended
->> for other hypervisors in future. This area will never be used for
->> real HW, it is only used by software.
->>
->> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
->> ---
->>   arch/loongarch/include/asm/inst.h      |  1 +
->>   arch/loongarch/include/asm/loongarch.h | 10 +++++
->>   arch/loongarch/kvm/exit.c              | 59 +++++++++++++++++++-------
->>   3 files changed, 54 insertions(+), 16 deletions(-)
->>
-> 
-> Sorry for the late reply, but I think it may be a bit non-constructive 
-> to repeatedly submit the same code without due explanation in our 
-> previous review threads. Let me try to recollect some of the details 
-> though...
-Because your review comments about hypercall method is wrong, I need not 
-adopt it.
-> 
-> If I remember correctly, during the previous reviews, it was mentioned 
-> that the only upsides of using CPUCFG were:
-> 
-> - it was exactly identical to the x86 approach,
-> - it would not require access to the LoongArch Reference Manual Volume 3 
-> to use, and
-> - it was plain old data.
-> 
-> But, for the first point, we don't have to follow x86 convention after 
-X86 virtualization is successfully and widely applied in our life and 
-products. It it normal to follow it if there is not obvious issues.
+/* snip */
 
-> all. The second reason might be compelling, but on the one hand that's 
-> another problem orthogonal to the current one, and on the other hand 
-> HVCL is:
-> 
-> - already effectively public because of the fact that this very patchset 
-> is public,
-> - its semantics is trivial to implement even without access to the LVZ 
-> manual, because of its striking similarity with SYSCALL, and
-> - by being a function call, we reserve the possibility for hypervisors 
-> to invoke logic for self-identification purposes, even if this is likely 
-> overkill from today's perspective.
-> 
-> And, even if we decide that using HVCL for self-identification is 
-> overkill after all, we still have another choice that's IOCSR. We 
-> already read LOONGARCH_IOCSR_FEATURES (0x8) for its bit 11 (IOCSRF_VM) 
-> to populate the CPU_FEATURE_HYPERVISOR bit, and it's only natural that 
-> we put the identification word in the IOCSR space. As far as I can see, 
-> the IOCSR space is plenty and equally available for making reservations; 
-> it can only be even easier when it's done by a Loongson team.
-IOCSR method is possible also, about chip design CPUCFG is used for cpu 
-features and IOCSR is for device featurs. Here CPUCFG method is 
-selected, I am KVM LoongArch maintainer and I can decide to select 
-methods if the method works well. Is that right?
+>=20
+> 1. T0-T7 are scratch registers during SYSCALL ABI, this is what you=20
+> suggest, does there exist information leaking to user space from T0-T7
+> registers?
 
-If you are interested in KVM LoongArch, you can submit more patches and 
-become maintainer or write new hypervisor support such xen/xvisor etc, 
-and use your method.
+It's not a problem.  When syscall returns RESTORE_ALL_AND_RET is invoked
+despite T0-T7 are not saved.  So a "junk" value will be read from the
+leading PT_SIZE bytes of the kernel stack for this thread.
 
-Also you are interested in Linux kernel, there are some issues. Can you 
-help to improve it?
+The leading PT_SIZE bytes of the kernel stack is dedicated for storing
+the struct pt_regs representing the reg file of the thread in the
+userspace.
 
-1. T0-T7 are scratch registers during SYSCALL ABI, this is what you 
-suggest, does there exist information leaking to user space from T0-T7 
-registers?
+Thus we may only read out the userspace T0-T7 value stored when the same
+thread was interrupted or trapped last time, or 0 (if the thread was
+never interrupted or trapped before).
 
-2. LoongArch KVM depends on AS_HAS_LVZ_EXTENSION, which requires the 
-latest binutils. It is also what you suggest. Some kernel developers 
-does not have the latest binutils and common kvm code is modified and 
-LoongArch KVM fails to compile. But they can not find it since their 
-LoongArch cross-compile is old and LoongArch KVM is disabled. This issue 
-can be found at https://lkml.org/lkml/2023/11/15/828.
+And it's impossible to read some data used by the kernel internally, or
+some data of another thread.
 
-Regards
-Bibo Mao
-> 
-> Finally, I've mentioned multiple times, that varying CPUCFG behavior 
-> based on PLV is not something well documented on the manuals, hence not 
-> friendly to low-level developers. Devs of third-party firmware and/or 
-> kernels do exist, I've personally spoken to some of them on the 
-> 2023-11-18 3A6000 release event; in order for the varying CPUCFG 
-> behavior approach to pass for me, at the very least, the LoongArch 
-> reference manual must be amended to explicitly include an explanation of 
-> it, and a reference to potential use cases.
-> 
+But indeed there is some improvement here.  Zeroing these registers
+seems cleaner than reading out the junk values, and also faster (move
+$t0, $r0 is faster than ld.d $t0, $sp, PT_R12).  Not sure if it's worthy
+to violate Huacai's "keep things simple" aspiration though.
 
+--=20
+Xi Ruoyao <xry111@xry111.site>
+School of Aerospace Science and Technology, Xidian University
