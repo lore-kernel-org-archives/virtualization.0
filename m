@@ -1,45 +1,45 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75BFF15E1E9
-	for <virtualization@lists.linux.dev>; Tue,  2 Apr 2024 20:33:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D11C315D5D1
+	for <virtualization@lists.linux.dev>; Tue,  2 Apr 2024 20:34:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712090020; cv=none; b=s8V2e4Nxr0IcxW0b6h01ENL/1IhHDLNqGgs8z07bbcxMMH2PnX9p9NZRhhKHa5uVlLOtm212M7WcYDrmgWE7Kwv7FD9bKliPSQ3zf+BPDZFeKl1MYQXHdugnQVnKYEtQEeHR4ht0LJW3BWecsMenpOLWrsTkzkl4aWvNLNDA2Co=
+	t=1712090048; cv=none; b=Z8OQGVkIYc8JNdhh4OwFjdyUUpLjeQSjcZxFr4ztZVtY6QIGCj7IunV4vAKXON9x+9X/CmiOd0wwRS+SXanKVSFUHTDm+NZqQpKG7qA52PO1iLLaLKffJVDwclc1+hd3PCI0DmeaDCjZLFaiK8KaCccf7bTri4OpCux6EcWx9Qw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712090020; c=relaxed/simple;
-	bh=ROySLNzi2sYnSa/JtIXRjIYuaaAEqJzMqCJdYS2UTqE=;
+	s=arc-20240116; t=1712090048; c=relaxed/simple;
+	bh=OX/xiC+71lDUNqQ4TncW2+vDu1US6El9ChgpPujewDY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JmPHRFn5MOZXnSWIYexZ1JW/go5/B2i3hfaNEZRIrD2rGJgqkFcu1hs6Ce24tVHY/hbixdndT4l0hGEjJCCYPwgCeLWSydh475NnZj5QKaCdMufx5XwzXpoltiidwk5U57wbXf5T3nWxHTdz7GyPUEoda10BUmAxxl1WWdbjM7g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=b7z8ce0b; arc=none smtp.client-ip=170.10.129.124
+	 Content-Type:Content-Disposition:In-Reply-To; b=ETbrovdNucThu5OP3IvQVhq2tjJzh3SeUulvX0edfhJRhRony2oUTwWwlAUDGOGW+xC9FLzSO4LmWUKtHp8rISxu2cEegU0OTdqUy9zcMblAlIT7x5MdvmtT0JpRinEa+E1EDjgzYdIeLFr7s5cl5G8XvX3Pe/hNfubbFI9Uzn4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JqxdiPKE; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="b7z8ce0b"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JqxdiPKE"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1712090017;
+	s=mimecast20190719; t=1712090046;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=XkVVzn7sUlZgXUm5P4BgsrM9gYYoxT1YIoFUz7D2uhU=;
-	b=b7z8ce0bZ+yH1b2JPSS1a9nv68wM2wx+4RzUUp2H0MGddRmS3ZrgjGh3gTKoVe9QDICDHh
-	Ae3+vJzIyCkAB/4KyhTpoCEysGvrSXOdpDX0FAuLacpPQMEMsLCMf92PbIifvMuusSud94
-	6LN9A2SYWvfBlMJppwkKs2dS9X2rQlY=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-455-jOxgHkElN6C86aO7WEzYtw-1; Tue, 02 Apr 2024 16:33:33 -0400
-X-MC-Unique: jOxgHkElN6C86aO7WEzYtw-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
+	bh=OvEQkpQpFepwfntSNPl3byIDfhmnVE0r1tpJKpODITA=;
+	b=JqxdiPKEXObbtgKF1v4gto+lz3e2h+9JmoVMZ1ujcbxq8I3VlzmAQGg3XwHC5DNLJWZ+XU
+	v3qSgfvT5rApay4ydebjik7sMJAjwPbWVRdjcoZDf2hhumqbTvBeL+xpDVNtp0I0QQnh9P
+	MuLQrWKxRwmMTKcXUgWwRVdmXtqyaN8=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-346-FO-mePWLNgWQQ7CUKOsM0w-1; Tue,
+ 02 Apr 2024 16:34:00 -0400
+X-MC-Unique: FO-mePWLNgWQQ7CUKOsM0w-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 16F5010B0702;
-	Tue,  2 Apr 2024 20:33:31 +0000 (UTC)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 6872F1C29EA2;
+	Tue,  2 Apr 2024 20:33:58 +0000 (UTC)
 Received: from localhost (unknown [10.39.193.21])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id EF28B17AA0;
-	Tue,  2 Apr 2024 20:33:26 +0000 (UTC)
-Date: Tue, 2 Apr 2024 16:33:21 -0400
+	by smtp.corp.redhat.com (Postfix) with ESMTP id 2D9162024517;
+	Tue,  2 Apr 2024 20:33:57 +0000 (UTC)
+Date: Tue, 2 Apr 2024 16:33:52 -0400
 From: Stefan Hajnoczi <stefanha@redhat.com>
 To: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
@@ -104,10 +104,10 @@ Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
 	nvdimm@lists.linux.dev, linux-remoteproc@vger.kernel.org,
 	linux-scsi@vger.kernel.org, linux-fsdevel@vger.kernel.org,
 	alsa-devel@alsa-project.org, linux-sound@vger.kernel.org
-Subject: Re: [PATCH v2 06/25] virtio_blk: drop owner assignment
-Message-ID: <20240402203321.GD2507314@fedora>
+Subject: Re: [PATCH v2 19/25] vsock/virtio: drop owner assignment
+Message-ID: <20240402203352.GE2507314@fedora>
 References: <20240331-module-owner-virtio-v2-0-98f04bfaf46a@linaro.org>
- <20240331-module-owner-virtio-v2-6-98f04bfaf46a@linaro.org>
+ <20240331-module-owner-virtio-v2-19-98f04bfaf46a@linaro.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -115,45 +115,45 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="n4/kSvCMF0M05hCx"
+	protocol="application/pgp-signature"; boundary="j9UBq3t7OV8LGaOj"
 Content-Disposition: inline
-In-Reply-To: <20240331-module-owner-virtio-v2-6-98f04bfaf46a@linaro.org>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.5
+In-Reply-To: <20240331-module-owner-virtio-v2-19-98f04bfaf46a@linaro.org>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.4
 
 
---n4/kSvCMF0M05hCx
+--j9UBq3t7OV8LGaOj
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Mar 31, 2024 at 10:43:53AM +0200, Krzysztof Kozlowski wrote:
+On Sun, Mar 31, 2024 at 10:44:06AM +0200, Krzysztof Kozlowski wrote:
 > virtio core already sets the .owner, so driver does not need to.
 >=20
+> Acked-by: Stefano Garzarella <sgarzare@redhat.com>
 > Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
->=20
 > ---
 >=20
 > Depends on the first patch.
 > ---
->  drivers/block/virtio_blk.c | 1 -
+>  net/vmw_vsock/virtio_transport.c | 1 -
 >  1 file changed, 1 deletion(-)
 
 Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 
---n4/kSvCMF0M05hCx
+--j9UBq3t7OV8LGaOj
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmYMa5EACgkQnKSrs4Gr
-c8j8dggAqO8KJXvt+0JqXmgxsfDAxN196OA9Q6Rm7VF0fuMhGpVUUh/iuOtkH59k
-ho0oB9szUvz/1tXZEJPtShx/omt2iENmq22unjzWE7ZmNimALVjtXPaZNTCkYxJn
-Z9//Ks9v/lHCNFzLjSiKC94ktRVJLDXSmG7uEpbeutDrzN9TWRJ8DNnylKmm+qWR
-VDiL3/2+03gC5B/LovTli4ozZuS4JlG37Tnh2Z8ACNrcFC74nv45KtNuQLR+hNy8
-12jEUGkhADWps+fQH7bZebswT9ePfwTfA1xh0pXeeWKCkaiKcgFhZH+JcNQLkwkx
-fC80yZK4qnvU1SmzK2tpfzAk7jUMtQ==
-=5tJl
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmYMa7AACgkQnKSrs4Gr
+c8g8hAf/Q/aJP3BDkVBlHnqhCUt12uHu9myV8OY7V9mafm3hc9xrowVkX6EuGzcU
+kCxhMH5ccP0ni+J0DGSwa7gYph8Okl7l2wFXLcRr9I92rUhpTZWCesa1OmkvLDgj
+TimEpARPnyEdZayGjMZzuxn6ATYSKpApBmRVF7rzpVpv1itAOOY+r+wFXBSBHrRF
+7uLi4Zx5FrAj8uYcBxFhzHCD9tH1DqVvNMnA6axVU6VagNtwzjPjwZakX852Cgb5
+HTHDSk5ECuFNl9ZF1SRX7tLvVmfFSkAQA/W0q0MS/knc1XxBwpOnrNrRPKvbegSU
+2FN7Oq2v2Y5E6uAdcVaIC3agl3LIug==
+=gHGP
 -----END PGP SIGNATURE-----
 
---n4/kSvCMF0M05hCx--
+--j9UBq3t7OV8LGaOj--
 
