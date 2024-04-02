@@ -1,121 +1,89 @@
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 600F9605C6
-	for <virtualization@lists.linux.dev>; Tue,  2 Apr 2024 10:15:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B41F77F1B
+	for <virtualization@lists.linux.dev>; Tue,  2 Apr 2024 12:13:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712052936; cv=none; b=RemSn9pNRH9M3y+pW1DQwvRCaSgXonu7l03ClWfEJA7Zg9iSgopGSjEqOEVU+hvIVsXzWX61ZbbSvgL3P0YQCoOUiZ4ofYoUQKIobhC2NHvUXWUs2nDTq2ARMt+TEOv9H9y68ILwgjOVw8a2udgQIJ77YOxb2NMcv+55oI1CyiI=
+	t=1712060001; cv=none; b=BoFJMwSIWeHcFHxl15Vom4kTz8Kl9AjeeG8O3Xgtx0UorI/CWsq1dZkOoFQICJJu4MQdiCS1k72/SZXBXnZ6PR0J0lAVB5Cami/Y246gwECgjfNU6stJKPvI4feNtaBuamfuw01hEBREym7IzRP4POo+Gjy18MZx8VcfvhYrTu8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712052936; c=relaxed/simple;
-	bh=0xWnBySin3hvFWM+Gg+lPth7dwJaIqmVEkA7v93kco4=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=hI+rbgPV1IDnojobyW9Ok/3P/Gn63FUb5pcidZLTc/KmDlAsv/c5vUHfipADv7Xumhm9KcuTgCY7RwHixTAuk07cXhVOak3NsFpTD1p0DtIczZiUvyX/J5o10dErUaNNuQ/RknCD0Jx80MzEXuR8GDRKxpXyLAo9EiRnWXSpnDc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: d83da598f0d411eeaf09c5092e5928d1-20240402
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.1.37,REQID:4be312ba-0d57-473e-9cf3-0be3798783b4,IP:25,
-	URL:0,TC:0,Content:0,EDM:0,RT:0,SF:-1,FILE:0,BULK:0,RULE:Release_Ham,ACTIO
-	N:release,TS:24
-X-CID-INFO: VERSION:1.1.37,REQID:4be312ba-0d57-473e-9cf3-0be3798783b4,IP:25,UR
-	L:0,TC:0,Content:0,EDM:0,RT:0,SF:-1,FILE:0,BULK:0,RULE:Release_Ham,ACTION:
-	release,TS:24
-X-CID-META: VersionHash:6f543d0,CLOUDID:c582b24fc3314ef5df3245e2b4f54bab,BulkI
-	D:24040217390781IC21SF,BulkQuantity:0,Recheck:0,SF:38|25|72|19|44|66|102,T
-	C:nil,Content:0,EDM:-3,IP:-2,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil
-	,COL:0,OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0
-X-CID-BVR: 0
-X-CID-BAS: 0,_,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR,TF_CID_SPAM_FSD,TF_CID_SPAM_FSI
-X-CTIC-Tags:
-	HR_CC_COUNT, HR_CC_DOMAIN_COUNT, HR_CC_NO_NAME, HR_CTE_8B, HR_CTT_TXT
-	HR_DATE_H, HR_DATE_WKD, HR_DATE_ZONE, HR_FROM_NAME, HR_SJ_LANG
-	HR_SJ_LEN, HR_SJ_LETTER, HR_SJ_NOR_SYM, HR_SJ_PHRASE, HR_SJ_PHRASE_LEN
-	HR_SJ_WS, HR_TO_COUNT, HR_TO_DOMAIN_COUNT, HR_TO_NO_NAME, IP_TRUSTED
-	SRC_TRUSTED, DN_TRUSTED, SA_UNTRUSTED, SA_UNFAMILIAR, SN_UNTRUSTED
-	SN_UNFAMILIAR, SPF_NOPASS, DKIM_NOPASS, DMARC_NOPASS, CIE_BAD
-	CIE_GOOD_SPF, GTI_FG_BS, GTI_RG_INFO, GTI_C_BU, AMN_T1
-	AMN_GOOD, AMN_C_TI, AMN_C_BU, ABX_MISS_RDNS, ZHF_RECV_LOCALHOST
-X-UUID: d83da598f0d411eeaf09c5092e5928d1-20240402
-X-User: liweishi@kylinos.cn
-Received: from localhost.localdomain [(116.128.244.171)] by mailgw
-	(envelope-from <liweishi@kylinos.cn>)
-	(Generic MTA)
-	with ESMTP id 1972772985; Tue, 02 Apr 2024 17:39:04 +0800
-From: Weishi Li <liweishi@kylinos.cn>
-To: airlied@redhat.com,
-	kraxel@redhat.com,
-	gurchetansingh@chromium.org,
-	olvaffe@gmail.com,
-	maarten.lankhorst@linux.intel.com,
-	mripard@kernel.org,
-	tzimmermann@suse.de,
-	daniel@ffwll.ch
-Cc: dri-devel@lists.freedesktop.org,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	liweishi@kylinos.cn
-Subject: [PATCH] drm/virtio: fix memory leak of vbuf
-Date: Tue,  2 Apr 2024 17:39:22 +0800
-Message-Id: <20240402093922.268368-1-liweishi@kylinos.cn>
-X-Mailer: git-send-email 2.25.1
+	s=arc-20240116; t=1712060001; c=relaxed/simple;
+	bh=XK4OTT6VC+B+XG7SIITThVz58AwJg8X2QabjnWlsH6A=;
+	h=From:To:Cc:Subject:Date:Message-Id; b=C1bHMXTLOaQqqq84fndOXyXqOjcLn/PAgm9Kp9C1qOlu6ZpVtrJsUNkjq/D9TFcNj5F3d2OG5p8jFtgGdcKjpmbNDBGK7D9eBrAO6qKH3YmwaaAVVLCYBTKT9HFFfIOKbhhCaqItIh5vj5KroNamvyWvg/z8Ta/jtFDX5PuiThA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=qM9wCsAA; arc=none smtp.client-ip=115.124.30.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="qM9wCsAA"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1712059990; h=From:To:Subject:Date:Message-Id;
+	bh=icRIIs4TR8+IsrlyXgj+2nMZMjoj3shYkTYVppy93Vs=;
+	b=qM9wCsAAg5Ja5uVVNiDH4V9Coh+pTwKRvGCojZ0vA6j8mrgLTeSbZOnlG9q6DvQJAQxEBAELhz2z7tF4g48iOvLD9GBkAIGjGYVh9OWIweXtZcsEZBoaKc71lylk/AqtlS94D9DOEWKP17QgxA1kAA0O67EnkPBQjNuO+UIi2oA=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0W3oLGcp_1712059988;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W3oLGcp_1712059988)
+          by smtp.aliyun-inc.com;
+          Tue, 02 Apr 2024 20:13:09 +0800
+From: Heng Qi <hengqi@linux.alibaba.com>
+To: netdev@vger.kernel.org,
+	virtualization@lists.linux.dev
+Cc: "David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Subject: [PATCH net-next v3 0/3] ethtool: provide the dim profile fine-tuning channel
+Date: Tue,  2 Apr 2024 20:13:05 +0800
+Message-Id: <1712059988-7705-1-git-send-email-hengqi@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 
-Both virtio_gpu_queue_ctrl_buffer and virtio_gpu_queue_cursor use
-virtqueue_add_sgs to upload the structure virtio_gpu_vbuffer * vbuf
-to virtqueue. However, when virtqueue_add_sgs returns -EIO or -ENOMEM,
-it means vbuf upload failed, and vbuf will not be able to be
-free by virtio_gpu_dequeue_*_func, resulting in a continuous increase
-in memory allocated to vgdev ->vbufs.
+The NetDIM library provides excellent acceleration for many modern
+network cards. However, the default profiles of DIM limits its maximum
+capabilities for different NICs, so providing a way which the NIC can
+be custom configured is necessary.
 
-Therefore, when upload fails，vbuf needs to be free directly.
+Currently, interaction with the driver is still based on the commonly
+used "ethtool -C". The driver declares its supported parameters based
+on .supported_coalesce_params, and implements driver-related custom
+restrictions in .set_coalesce and .get_coalesce.
 
-Signed-off-by: Weishi Li <liweishi@kylinos.cn>
----
- drivers/gpu/drm/virtio/virtgpu_vq.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+Please review, thank you very much!
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index b1a00c0c25a7..26f2e45635c1 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -356,12 +356,14 @@ static int virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
- 
- 	ret = virtqueue_add_sgs(vq, sgs, outcnt, incnt, vbuf, GFP_ATOMIC);
- 	WARN_ON(ret);
-+	if (ret < 0 && ret != -ENOSPC) {
-+		free_vbuf(vgdev, vbuf);
-+	} else {
-+		vbuf->seqno = ++vgdev->ctrlq.seqno;
-+		trace_virtio_gpu_cmd_queue(vq, virtio_gpu_vbuf_ctrl_hdr(vbuf), vbuf->seqno);
- 
--	vbuf->seqno = ++vgdev->ctrlq.seqno;
--	trace_virtio_gpu_cmd_queue(vq, virtio_gpu_vbuf_ctrl_hdr(vbuf), vbuf->seqno);
--
--	atomic_inc(&vgdev->pending_commands);
--
-+		atomic_inc(&vgdev->pending_commands);
-+	}
- 	spin_unlock(&vgdev->ctrlq.qlock);
- 
- 	drm_dev_exit(idx);
-@@ -469,6 +471,8 @@ static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
- 		wait_event(vgdev->cursorq.ack_queue, vq->num_free >= outcnt);
- 		spin_lock(&vgdev->cursorq.qlock);
- 		goto retry;
-+	else if (ret < 0) {
-+		free_vbuf(vgdev, vbuf);
- 	} else {
- 		vbuf->seqno = ++vgdev->cursorq.seqno;
- 		trace_virtio_gpu_cmd_queue(vq,
+Changelog
+=====
+v2->v3:
+  - Break up the attributes to avoid the use of raw c structs.
+  - Use per-device profile instead of global profile in the driver.
+
+v1->v2:
+  - Use ethtool tool instead of net-sysfs
+
+V1 link:
+https://lore.kernel.org/all/1710421773-61277-1-git-send-email-hengqi@linux.alibaba.com/#r
+
+Heng Qi (3):
+  ethtool: provide customized dim profile management
+  virtio-net: refactor dim initialization/destruction
+  virtio-net: support dim profile fine-tuning
+
+ Documentation/netlink/specs/ethtool.yaml     |  29 +++++
+ Documentation/networking/ethtool-netlink.rst |   8 ++
+ drivers/net/virtio_net.c                     |  79 ++++++++++---
+ include/linux/dim.h                          |   7 ++
+ include/linux/ethtool.h                      |  16 ++-
+ include/linux/virtio_net.h                   |  11 ++
+ include/uapi/linux/ethtool_netlink.h         |  24 ++++
+ lib/dim/net_dim.c                            |   6 -
+ net/ethtool/coalesce.c                       | 159 ++++++++++++++++++++++++++-
+ 9 files changed, 317 insertions(+), 22 deletions(-)
+
 -- 
-2.25.1
+1.8.3.1
 
