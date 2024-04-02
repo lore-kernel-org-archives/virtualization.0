@@ -1,278 +1,152 @@
-Received: from EUR05-DB8-obe.outbound.protection.outlook.com (mail-db8eur05olkn2013.outbound.protection.outlook.com [40.92.89.13])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4989012EBF4
-	for <virtualization@lists.linux.dev>; Tue,  2 Apr 2024 15:05:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.92.89.13
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712070357; cv=fail; b=AwOk93aUn1PRJxHqtNvKHtu2EXreWVp5nHnxk/3n9kcqhkFn5ShFUcj+bdN7hgAfTeYaxayngp8RAT4RkJ7/tobmhDSFdwbBfDhbzks9XfFCuLoDPQRCMMaHCfUjJx56BI7YS/MPm8zJd3ONOShdUwoSnNrzRtpZCgaI9uajTP0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712070357; c=relaxed/simple;
-	bh=6j0ZMigYN//DH4xbV1jGCceAialFNF+70tmwiv2Awiw=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=AHaE7euF0EGBlk6SrNAehLJDp60MJk6hsvM41wjWPhSVKBq8cAhBtiR0chWoEdUaa0NljurzRpkJ9WrK0hqsL55m/+tDMGpynJcViimXh7jeYK0sJN1Ba0TvZtqHJoZnxA+rRFeULKoFFG6LUGh33ptptH7eR7JH1gDsGd+zGpk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=Bb3nI1QD; arc=fail smtp.client-ip=40.92.89.13
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88AD815AABA
+	for <virtualization@lists.linux.dev>; Tue,  2 Apr 2024 18:01:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1712080892; cv=none; b=oALJ6IWzwwFeTTzKR1k1qHICk5xMNGYHy3JdX5GyvWFjtMrMy6lKXc5gIiirPlkej7alyMTVeCu6lyzIAHDmJZv2JYJh0eaxstUry0jVSfdwV5lRfd6qT+VONoSqbYKgAmmUBMS2qnx46gQFPM2bQKKkRlGZanqsB5R0XbzFKQw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1712080892; c=relaxed/simple;
+	bh=I/KfB5CieqB04RJ8p97BvpVXen9Z0TrS8q4lo+lHyiI=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Cm6HOmOJROkd6gcYnEcreLLuvW6KwYRtTS1e4UWrW21cUMjKUKhgN/+9XbSZETmi5kjL4j2Wi/KSwsgEwuvbsNgn0vnxi75Qn1PvL8SsjbLfyMJWnuyh11M17FuJdVjsAlfF9pfLxqDndNDu4dbPsRn0RkYE2SR8R08+UZWiW2g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=aRpk6iA+; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="Bb3nI1QD"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=HDbM/RGYfaIvh/6edlp1CJlyR4h+tKsdsabD/UQjtll9b6l0+JSuOs6YRy7Vjj8p0VeETRGR793GQOFpNFEaGhtrVV0ATSi/M7xmZUVUre+a+0GsSF0q+2V/enSeeWBVoR7ViooIowtMXZBPUNQV7m6AiO76Bzsv1bVloRG0UfN/Ku/xmiApVCczEXfbrj1AcUzjOKczyuQ0plqPlMZ5MCfKPQG1gw1dkFnnSx8pdsPllsnD9WhmDRUFG0I1OAJEND4IydKs+wsNKGY/aDEcdyik1bimfMXdggakfJAk58HdX2MNhAZrQzv264UszYMgMtw7f489cqodIg4rJJToeg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=aUEn2OjKUfkWAhbaW9m80S5CbKmWejDeozwTLWd4HW4=;
- b=Jnp4TtIxdiPKdxHiZqPIxyneEhsOZ0+Cng+Fm2fa1zmRc3JP+mKQ/P03NOpSVlo8jr8utal78LBm+0scwEhDJ5CSSL7gQwKHU6FKYEIQS6OkoIRs91TnYAl+LDxx1lFDnT6CSDu+X5wZrQYgvW88JV8JsPx7Lg1J5a9IwTiprUgq6vyVGh/0fN7nOfY3Uq4sF8KSb9yjUrI6ylQvkG8AIzbZ9WVuVgq2ZodfkVU41OEQYW9Pzbrrezs9rkCLwElBv7EP1Ff/rYCUEijNtsP8m9ZBFTXng8tlH4MrOm5w1O2NbOTNrDiaFr6YHuHKtu0ghNvjsFh/AB9tban9BvR6sw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=aUEn2OjKUfkWAhbaW9m80S5CbKmWejDeozwTLWd4HW4=;
- b=Bb3nI1QDQ3yJhrwfglpOKovW9I/AvrhccXfZDzKuWkAIPMZqehnr7pcRL3g27Ta4HUr+HVRgc0Q5pNOi2NQgU6iiANniglp6xGDsa7xTnZtwModxOwJPRn4b1jLKuJH28Cparg1baBkXR/icqYg5GZB3QTbzCGhoELhjlWoEs631zXEhobKyFopuKQZ+7mz+74eGhEKaIFi+JSSt4f9WPFYM3/dGInZLbei38movNbGbm9D0lUhLdnVEwNGPK1J2sG9lxLCcR5AnwJXbSu1wCYCPVK3ZUvnXfAqee2idNZd+UOx2an+mBsZa8zqQGR9h4+8NTb7rgNDVhOTZtU7iXA==
-Received: from AS2P194MB2170.EURP194.PROD.OUTLOOK.COM (2603:10a6:20b:642::8)
- by AS8P194MB1141.EURP194.PROD.OUTLOOK.COM (2603:10a6:20b:2a1::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7409.46; Tue, 2 Apr
- 2024 15:05:50 +0000
-Received: from AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
- ([fe80::56f0:1717:f1a8:ea4e]) by AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
- ([fe80::56f0:1717:f1a8:ea4e%2]) with mapi id 15.20.7409.042; Tue, 2 Apr 2024
- 15:05:50 +0000
-From: Luigi Leonardi <luigi.leonardi@outlook.com>
-To: sgarzare@redhat.com,
-	kvm@vger.kernel.org,
-	jasowang@redhat.com,
-	virtualization@lists.linux.dev,
-	mst@redhat.com,
-	kuba@kernel.org,
-	xuanzhuo@linux.alibaba.com,
-	netdev@vger.kernel.org,
-	stefanha@redhat.com,
-	pabeni@redhat.com,
-	davem@davemloft.net,
-	edumazet@google.com
-Cc: Luigi Leonardi <luigi.leonardi@outlook.com>
-Subject: [PATCH net-next 3/3] test/vsock: add ioctl unsent bytes test
-Date: Tue,  2 Apr 2024 17:05:39 +0200
-Message-ID:
- <AS2P194MB2170D78CDB7BDF00F0ACCB079A3E2@AS2P194MB2170.EURP194.PROD.OUTLOOK.COM>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20240402150539.390269-1-luigi.leonardi@outlook.com>
-References: <20240402150539.390269-1-luigi.leonardi@outlook.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-TMN: [n/sqeC4ap42aZMRqDNtkUSy5ekACeoKk]
-X-ClientProxiedBy: MI2P293CA0011.ITAP293.PROD.OUTLOOK.COM
- (2603:10a6:290:45::11) To AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
- (2603:10a6:20b:642::8)
-X-Microsoft-Original-Message-ID:
- <20240402150539.390269-4-luigi.leonardi@outlook.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="aRpk6iA+"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 432HqscV029201;
+	Tue, 2 Apr 2024 18:01:14 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=Ge+PCdmfdapG3nCKI7WpuuoKJVjlsUHNMa5EZQPh+Qk=;
+ b=aRpk6iA+UUeeVLtiuFhtNmSaMQsQ7/8MXvzEu8Mz9fU+69iduRNpXZr4ilYShTeGvl7j
+ izRH42UiYy1PGawVts2wptHJH9nKHPEVcb9LeC9zAChnX8rdlYfUdPqXyejA8yLVyAVn
+ bxYtOAW+XsUXB9qZHA8XprmlMQF3LrMq9kFoE6/2LIbrud66CVO1vAVsYomrl6m0O/nC
+ MZu3H4GhAdO0FgpD2zJ+yEFYnXlgSPrjIuQOZ1Tc4Sa9vK0QZ040Glv38O99yavZ9mP0
+ BNS823odZ/QAGUbl7LUJSOPsZi+h31FyUGa/ykcnCSSXz75mj31jzypSvf1L76ucvfrX WA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x8pt70121-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 02 Apr 2024 18:01:14 +0000
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 432I1Dtf009350;
+	Tue, 2 Apr 2024 18:01:13 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x8pt7011r-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 02 Apr 2024 18:01:13 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 432I0tfR029616;
+	Tue, 2 Apr 2024 18:01:12 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3x6ys2ypvh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 02 Apr 2024 18:01:12 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 432I16XT33620508
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 2 Apr 2024 18:01:08 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A898A2004F;
+	Tue,  2 Apr 2024 18:01:06 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 305C120043;
+	Tue,  2 Apr 2024 18:01:05 +0000 (GMT)
+Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.171.41.83])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Tue,  2 Apr 2024 18:01:05 +0000 (GMT)
+Date: Tue, 2 Apr 2024 20:01:03 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg
+ <johannes@sipsolutions.net>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Ilpo
+ =?UTF-8?B?SsOkcnZpbmVu?= <ilpo.jarvinen@linux.intel.com>,
+        Vadim Pasternak
+ <vadimp@nvidia.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Mathieu
+ Poirier <mathieu.poirier@linaro.org>,
+        Cornelia Huck <cohuck@redhat.com>, Eric Farman <farman@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Christian Borntraeger
+ <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        "Michael
+ S. Tsirkin" <mst@redhat.com>,
+        David Hildenbrand <david@redhat.com>,
+        Jason
+ Wang <jasowang@redhat.com>, linux-um@lists.infradead.org,
+        platform-driver-x86@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        Halil Pasic
+ <pasic@linux.ibm.com>
+Subject: Re: [PATCH vhost v7 2/6] virtio: remove support for names array
+ entries being null.
+Message-ID: <20240402200103.19618d0c.pasic@linux.ibm.com>
+In-Reply-To: <20240328080348.3620-3-xuanzhuo@linux.alibaba.com>
+References: <20240328080348.3620-1-xuanzhuo@linux.alibaba.com>
+	<20240328080348.3620-3-xuanzhuo@linux.alibaba.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: AS2P194MB2170:EE_|AS8P194MB1141:EE_
-X-MS-Office365-Filtering-Correlation-Id: f6c37df0-b72b-4204-3117-08dc532661da
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info:
-	XLU+9pJZmrhMcZ9+84edN7ddRPXXFHPWI78QWsQ7CsvBsQjMbgzy/TeG3SUGqV9oFnuLurdIpcfkRadDUkiFnKpZemju6DhDUrxCNejWshQVRl9fsz4jupGsJfG5F2N0HVBckBVedpm8FD4jGkCWgqAD7/nYEWUgJhzbVenWhVeM4Nr++5ECz178c7K5pfzcR2bbjO1gE7KLvkjvQ2gv9abubgSMULUjL4l1T/HijTnpqE0Jdw2OGT2oaRTrp1HGqi2ZtAbBhXpHVCcDFU5ljfhVHsia5Gx3rvNBBQ2BAWbq05LRW/arN5xpjOt9EspE2YQpnu+sZC8ToG5lUui6uttcRzE8W+UsTKdk9t7y3q3nPm6k/70jxZ7SqJSTB0Lo8ch5ahLUQAeZ3064w/37oUhrZUbuJTFNb9VVxoqmpkLecQ8arv1KPYao3e5eUHF2AbqGWSJWyQqHY+FSJho47skY+8cu0h4p676BSb0m9JdqRhkiOH83sdu5fu5QHtyqFdCUWxGM31ubE8kEk3b8x5OUcZCQ1n7SB3ZzbwRIr6pqkpttCgnf2wx0C0TaBe8y+0nhgk8SEEDNHpgAYWn0w4ilGO+a5FMwrN/nDyGaHQ2G5N29UILoajr/0C7xBquf
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?KYh3dAw3qytVpHLotFe9z7mQhlOIfTq174I2r7PJTedBXODfTfMoZMUqhqK+?=
- =?us-ascii?Q?1jtvJpEU2NzBgXtfMgVhRllUi69x29oZ1YFSnv9AQXOheWHTW9l+vsblVsHF?=
- =?us-ascii?Q?RrMuyQp7iRHkUSpnHrqSZ00HSDNCE97NMNa6rUkISgZSKwKxGFwFLZvKwgkm?=
- =?us-ascii?Q?EXObXbD0byEuU6vRc2bV6OObQ3sE8BtMvyqqqHz7ENTwuPtCiIGqAuD8j9O2?=
- =?us-ascii?Q?2wSudSkH4BdYIi0HTLKxkrqq1W7/kBg1makhkm70+RZfx9gkKfvlKsvsgd+W?=
- =?us-ascii?Q?yFuzVmxQOWvHyY9+yaC+OiGL19W0cvVUVJgsbHDN03+gx89tEwELGE/L+sSh?=
- =?us-ascii?Q?0rTo0Y2pnCO95TQXAIwlufmTU4O+pcQqh1f1q8J12XnTsk5uH2XeRaxM4yqt?=
- =?us-ascii?Q?/srIjHCQjW51YdHsESLq/majN4kcLcGm/fcqm2GrdldTq4EwgzAdsgw1bsiD?=
- =?us-ascii?Q?QVaA/uPiXZ4zpnBBmEhpS335yaTpwE2Ya0w7E3F0zLXIXF46vP7LxbtBl6Xt?=
- =?us-ascii?Q?3VO1bfigwcnGsub0clCnNatxopqIcWpD/4YPTNo3vWSA5FwWPddhDU2m/14D?=
- =?us-ascii?Q?/cGcMd9pEb8KuaOIcNToabRzkXOiej9VP2+QsPB9d5y+H7VqZXa7TbKqOBzQ?=
- =?us-ascii?Q?sC1tly+LsmHiAL0ZNCAXvb+NFtoKByZuZ21p70kyANOR8QahOBsDPaOQ/fb/?=
- =?us-ascii?Q?aS0ZwDFl3rfelujo+CE2cu9BAcimDa4OGfZ970KdEvqtTAzNKffOJWdPC8Qm?=
- =?us-ascii?Q?0aB+M/o4Yiv61ksZsy9fnvVOdid3bbPW4Nx6XjI57akWqhsTDad/MvvQSLWb?=
- =?us-ascii?Q?OONycMa/pG04jHbeLtzfP6/EDFNRuX4V3t5316Bmnxkw2/6mW+xdnvP8zb3S?=
- =?us-ascii?Q?AOelJESEVtkbJ+zB+/wEmOz/pW1BA3O+xjqDV5duWmB5gBRh40VC6jkvA8aw?=
- =?us-ascii?Q?DtCiiJXBJYFQ6/+ukUUAi9wbtAfXCJfv62B7lO2xPezKrzhCTkSlckW3C1Qu?=
- =?us-ascii?Q?X//ccm+4fF4xI/FauDYe0wR8xEQ/tX7I+75CE7U3+zjJVliOPK0JXQiwHQQP?=
- =?us-ascii?Q?B2w23biMOKwCBl/Ha8GYZ9Tw3gJf/pOh5bH6H6cK0dISxt4Zdy7msCjssj4h?=
- =?us-ascii?Q?7NYZsDcviN0UgTIbS0ncgms5pFoX+MRklDU/XNinu0m7ywOxB/GVrPDBgf+y?=
- =?us-ascii?Q?5H5uWj1V9OBmzUSecB8JOjfLBgXa+ipOL2JRVFWxnjfgeVEypwLOfqXORxYn?=
- =?us-ascii?Q?R3iQkQFXux1xH0dC8khN?=
-X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: f6c37df0-b72b-4204-3117-08dc532661da
-X-MS-Exchange-CrossTenant-AuthSource: AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Apr 2024 15:05:49.8634
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
-	00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS8P194MB1141
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 6KSAETINDiOyU9QFEllktnLI-PyY1diP
+X-Proofpoint-GUID: xwEdoevRFYCwufoSFRJa0qEo9oBQY5g_
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-04-02_10,2024-04-01_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ priorityscore=1501 lowpriorityscore=0 malwarescore=0 adultscore=0
+ clxscore=1011 mlxscore=0 mlxlogscore=999 bulkscore=0 spamscore=0
+ phishscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2403210000 definitions=main-2404020133
 
-This test that after a packet is delivered the number
-of unsent bytes is zero.
+On Thu, 28 Mar 2024 16:03:44 +0800
+Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
 
-Signed-off-by: Luigi Leonardi <luigi.leonardi@outlook.com>
----
- tools/testing/vsock/util.c       |  6 +--
- tools/testing/vsock/util.h       |  3 ++
- tools/testing/vsock/vsock_test.c | 83 ++++++++++++++++++++++++++++++++
- 3 files changed, 89 insertions(+), 3 deletions(-)
+> --- a/drivers/s390/virtio/virtio_ccw.c
+> +++ b/drivers/s390/virtio/virtio_ccw.c
+> @@ -659,7 +659,7 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+>  {
+>  	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
+>  	unsigned long *indicatorp = NULL;
+> -	int ret, i, queue_idx = 0;
+> +	int ret, i;
+>  	struct ccw1 *ccw;
+>  
+>  	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
+> @@ -668,11 +668,11 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+>  
+>  	for (i = 0; i < nvqs; ++i) {
+>  		if (!names[i]) {
+> -			vqs[i] = NULL;
+> -			continue;
+> +			ret = -EINVAL;
+> +			goto out;
+>  		}
+>  
+> -		vqs[i] = virtio_ccw_setup_vq(vdev, queue_idx++, callbacks[i],
+> +		vqs[i] = virtio_ccw_setup_vq(vdev, i, callbacks[i],
+>  					     names[i], ctx ? ctx[i] : false,
+>  					     ccw);
+>  		if (IS_ERR(vqs[i])) {
 
-diff --git a/tools/testing/vsock/util.c b/tools/testing/vsock/util.c
-index 554b290fefdc..a3d448a075e3 100644
---- a/tools/testing/vsock/util.c
-+++ b/tools/testing/vsock/util.c
-@@ -139,7 +139,7 @@ int vsock_bind_connect(unsigned int cid, unsigned int port, unsigned int bind_po
- }
- 
- /* Connect to <cid, port> and return the file descriptor. */
--static int vsock_connect(unsigned int cid, unsigned int port, int type)
-+int vsock_connect(unsigned int cid, unsigned int port, int type)
- {
- 	union {
- 		struct sockaddr sa;
-@@ -226,8 +226,8 @@ static int vsock_listen(unsigned int cid, unsigned int port, int type)
- /* Listen on <cid, port> and return the first incoming connection.  The remote
-  * address is stored to clientaddrp.  clientaddrp may be NULL.
-  */
--static int vsock_accept(unsigned int cid, unsigned int port,
--			struct sockaddr_vm *clientaddrp, int type)
-+int vsock_accept(unsigned int cid, unsigned int port,
-+		 struct sockaddr_vm *clientaddrp, int type)
- {
- 	union {
- 		struct sockaddr sa;
-diff --git a/tools/testing/vsock/util.h b/tools/testing/vsock/util.h
-index e95e62485959..fff22d4a14c0 100644
---- a/tools/testing/vsock/util.h
-+++ b/tools/testing/vsock/util.h
-@@ -39,6 +39,9 @@ struct test_case {
- void init_signals(void);
- unsigned int parse_cid(const char *str);
- unsigned int parse_port(const char *str);
-+int vsock_connect(unsigned int cid, unsigned int port, int type);
-+int vsock_accept(unsigned int cid, unsigned int port,
-+		 struct sockaddr_vm *clientaddrp, int type);
- int vsock_stream_connect(unsigned int cid, unsigned int port);
- int vsock_bind_connect(unsigned int cid, unsigned int port,
- 		       unsigned int bind_port, int type);
-diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
-index f851f8961247..58c94e04e3af 100644
---- a/tools/testing/vsock/vsock_test.c
-+++ b/tools/testing/vsock/vsock_test.c
-@@ -20,6 +20,8 @@
- #include <sys/mman.h>
- #include <poll.h>
- #include <signal.h>
-+#include <sys/ioctl.h>
-+#include <linux/sockios.h>
- 
- #include "vsock_test_zerocopy.h"
- #include "timeout.h"
-@@ -1238,6 +1240,77 @@ static void test_double_bind_connect_client(const struct test_opts *opts)
- 	}
- }
- 
-+#define MSG_BUF_IOCTL_LEN 64
-+static void test_unsent_bytes_server(const struct test_opts *opts, int type)
-+{
-+	unsigned char buf[MSG_BUF_IOCTL_LEN];
-+	int client_fd;
-+
-+	client_fd = vsock_accept(VMADDR_CID_ANY, 1234, NULL, type);
-+	if (client_fd < 0) {
-+		perror("accept");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	recv_buf(client_fd, buf, sizeof(buf), 0, sizeof(buf));
-+	control_writeln("RECEIVED");
-+
-+	close(client_fd);
-+}
-+
-+static void test_unsent_bytes_client(const struct test_opts *opts, int type)
-+{
-+	unsigned char buf[MSG_BUF_IOCTL_LEN];
-+	int ret, fd, sock_bytes_unsent;
-+
-+	fd = vsock_connect(opts->peer_cid, 1234, type);
-+	if (fd < 0) {
-+		perror("connect");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	for (int i = 0; i < sizeof(buf); i++)
-+		buf[i] = rand() & 0xFF;
-+
-+	send_buf(fd, buf, sizeof(buf), 0, sizeof(buf));
-+	control_expectln("RECEIVED");
-+
-+	ret = ioctl(fd, SIOCOUTQ, &sock_bytes_unsent);
-+	if (ret < 0 && errno != EOPNOTSUPP) {
-+		perror("ioctl");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	if (ret == 0 && sock_bytes_unsent != 0) {
-+		fprintf(stderr,
-+			"Unexpected 'SIOCOUTQ' value, expected 0, got %i\n",
-+			sock_bytes_unsent);
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	close(fd);
-+}
-+
-+static void test_stream_unsent_bytes_client(const struct test_opts *opts)
-+{
-+	test_unsent_bytes_client(opts, SOCK_STREAM);
-+}
-+
-+static void test_stream_unsent_bytes_server(const struct test_opts *opts)
-+{
-+	test_unsent_bytes_server(opts, SOCK_STREAM);
-+}
-+
-+static void test_seqpacket_unsent_bytes_client(const struct test_opts *opts)
-+{
-+	test_unsent_bytes_client(opts, SOCK_SEQPACKET);
-+}
-+
-+static void test_seqpacket_unsent_bytes_server(const struct test_opts *opts)
-+{
-+	test_unsent_bytes_server(opts, SOCK_SEQPACKET);
-+}
-+
- #define RCVLOWAT_CREDIT_UPD_BUF_SIZE	(1024 * 128)
- /* This define is the same as in 'include/linux/virtio_vsock.h':
-  * it is used to decide when to send credit update message during
-@@ -1523,6 +1596,16 @@ static struct test_case test_cases[] = {
- 		.run_client = test_stream_rcvlowat_def_cred_upd_client,
- 		.run_server = test_stream_cred_upd_on_low_rx_bytes,
- 	},
-+	{
-+		.name = "SOCK_STREAM ioctl(SIOCOUTQ) 0 unsent bytes",
-+		.run_client = test_stream_unsent_bytes_client,
-+		.run_server = test_stream_unsent_bytes_server,
-+	},
-+	{
-+		.name = "SOCK_SEQPACKET ioctl(SIOCOUTQ) 0 unsent bytes",
-+		.run_client = test_seqpacket_unsent_bytes_client,
-+		.run_server = test_seqpacket_unsent_bytes_server,
-+	},
- 	{},
- };
- 
--- 
-2.34.1
-
+For the virtio-ccw part:
+Acked-by: Halil Pasic <pasic@linux.ibm.com>
