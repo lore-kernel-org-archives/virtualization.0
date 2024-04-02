@@ -1,165 +1,159 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D8E915E5A4;
-	Tue,  2 Apr 2024 20:11:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75BFF15E1E9
+	for <virtualization@lists.linux.dev>; Tue,  2 Apr 2024 20:33:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712088721; cv=none; b=Fo6oN+5P3g4tC4GnzrkBhDKcas543PAGiAYS9CB1Kq3WNIT91EZnbsvkqml50jMcbaGHmLK1JIDph3t5hZsX2yTE5IOh7s3RmGsjtbfnATXa6AIaTXQPveQ9omwgjXrqPgRrutRioiudtg4HAOlUwAR9MbvygKlMIUrxKiO6MdE=
+	t=1712090020; cv=none; b=s8V2e4Nxr0IcxW0b6h01ENL/1IhHDLNqGgs8z07bbcxMMH2PnX9p9NZRhhKHa5uVlLOtm212M7WcYDrmgWE7Kwv7FD9bKliPSQ3zf+BPDZFeKl1MYQXHdugnQVnKYEtQEeHR4ht0LJW3BWecsMenpOLWrsTkzkl4aWvNLNDA2Co=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712088721; c=relaxed/simple;
-	bh=eXiWsMvZZG2RmREpe/OR0bmezRlbNy8wjN4Mp+uGxUs=;
+	s=arc-20240116; t=1712090020; c=relaxed/simple;
+	bh=ROySLNzi2sYnSa/JtIXRjIYuaaAEqJzMqCJdYS2UTqE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=fqeHOMSRbaz6XT/XjjuQdyxvoASSFnEfNgUwea5TZJ7A7MTuG5vsICjQl0+h0EdC2U2qc17YAvwOBJl9yc68CdfRHgZXHsc3is1pq6TNHs2R00mKEqbHaqFQhMWpfrsggjlNyG/g6IGAVZU40gMeVymfGlyCSvUuXgPLmMx260Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=LOyLDeEg; arc=none smtp.client-ip=198.175.65.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=JmPHRFn5MOZXnSWIYexZ1JW/go5/B2i3hfaNEZRIrD2rGJgqkFcu1hs6Ce24tVHY/hbixdndT4l0hGEjJCCYPwgCeLWSydh475NnZj5QKaCdMufx5XwzXpoltiidwk5U57wbXf5T3nWxHTdz7GyPUEoda10BUmAxxl1WWdbjM7g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=b7z8ce0b; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="LOyLDeEg"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1712088719; x=1743624719;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=eXiWsMvZZG2RmREpe/OR0bmezRlbNy8wjN4Mp+uGxUs=;
-  b=LOyLDeEgTNvIPgaoLBlYWBERfGWggXsrSjIGEcrCzmd1nEG+lKYRql1p
-   Vj1Ph5WRtPWAk994kjyly6/orOkFkIiw39Co1qcHdfI1sPTRQZ0TPEUp6
-   VbCec0f1dYcfddnLTID6dCuu6lA8gqyar64BfQJ2W5Nub71/ENmekICpq
-   MOa1vDzuIs7DVkhhaz3qgMFCaFoKk3OwQnOI9Cy+0f01HnACyUrMv9tIY
-   ugS0E63wqFdy8ZIFzfZfGRxDtqBozQACQRIDmXZQoqd71UyQY3AkpaeQh
-   26RqqTS+jDgrtwcbKbG6+2t3gyKHYq7OwpHIJ7GBB/QChhh93YtmGA7Ny
-   Q==;
-X-CSE-ConnectionGUID: y78t4JR1Q46np6O4vlpZQw==
-X-CSE-MsgGUID: +sou7bbtT2y3Kny3e2trPQ==
-X-IronPort-AV: E=McAfee;i="6600,9927,11032"; a="17857943"
-X-IronPort-AV: E=Sophos;i="6.07,176,1708416000"; 
-   d="scan'208";a="17857943"
-Received: from orviesa010.jf.intel.com ([10.64.159.150])
-  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Apr 2024 13:11:58 -0700
-X-CSE-ConnectionGUID: zvwFfhDpSyisT0fB2OUcaw==
-X-CSE-MsgGUID: PiQirJWUQaGhIuJYyYoVpQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.07,176,1708416000"; 
-   d="scan'208";a="18004659"
-Received: from lkp-server02.sh.intel.com (HELO 90ee3aa53dbd) ([10.239.97.151])
-  by orviesa010.jf.intel.com with ESMTP; 02 Apr 2024 13:11:55 -0700
-Received: from kbuild by 90ee3aa53dbd with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1rrkU3-0001VR-2q;
-	Tue, 02 Apr 2024 20:11:52 +0000
-Date: Wed, 3 Apr 2024 04:11:17 +0800
-From: kernel test robot <lkp@intel.com>
-To: Heng Qi <hengqi@linux.alibaba.com>, netdev@vger.kernel.org,
-	virtualization@lists.linux.dev
-Cc: oe-kbuild-all@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="b7z8ce0b"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1712090017;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=XkVVzn7sUlZgXUm5P4BgsrM9gYYoxT1YIoFUz7D2uhU=;
+	b=b7z8ce0bZ+yH1b2JPSS1a9nv68wM2wx+4RzUUp2H0MGddRmS3ZrgjGh3gTKoVe9QDICDHh
+	Ae3+vJzIyCkAB/4KyhTpoCEysGvrSXOdpDX0FAuLacpPQMEMsLCMf92PbIifvMuusSud94
+	6LN9A2SYWvfBlMJppwkKs2dS9X2rQlY=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-455-jOxgHkElN6C86aO7WEzYtw-1; Tue, 02 Apr 2024 16:33:33 -0400
+X-MC-Unique: jOxgHkElN6C86aO7WEzYtw-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 16F5010B0702;
+	Tue,  2 Apr 2024 20:33:31 +0000 (UTC)
+Received: from localhost (unknown [10.39.193.21])
+	by smtp.corp.redhat.com (Postfix) with ESMTP id EF28B17AA0;
+	Tue,  2 Apr 2024 20:33:26 +0000 (UTC)
+Date: Tue, 2 Apr 2024 16:33:21 -0400
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Jonathan Corbet <corbet@lwn.net>,
+	David Hildenbrand <david@redhat.com>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Paolo Bonzini <pbonzini@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+	Marcel Holtmann <marcel@holtmann.org>,
+	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+	Olivia Mackall <olivia@selenic.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	Amit Shah <amit@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Gonglei <arei.gonglei@huawei.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Sudeep Holla <sudeep.holla@arm.com>,
+	Cristian Marussi <cristian.marussi@arm.com>,
+	Viresh Kumar <vireshk@kernel.org>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Bartosz Golaszewski <brgl@bgdev.pl>,
+	David Airlie <airlied@redhat.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Daniel Vetter <daniel@ffwll.ch>,
+	Jean-Philippe Brucker <jean-philippe@linaro.org>,
+	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Alexander Graf <graf@amazon.com>,
+	Eric Dumazet <edumazet@google.com>,
 	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next v3 1/3] ethtool: provide customized dim profile
- management
-Message-ID: <202404030318.707Oc9CJ-lkp@intel.com>
-References: <1712059988-7705-2-git-send-email-hengqi@linux.alibaba.com>
+	Eric Van Hensbergen <ericvh@kernel.org>,
+	Latchesar Ionkov <lucho@ionkov.net>,
+	Dominique Martinet <asmadeus@codewreck.org>,
+	Christian Schoenebeck <linux_oss@crudebyte.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	Kalle Valo <kvalo@kernel.org>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Vishal Verma <vishal.l.verma@intel.com>,
+	Dave Jiang <dave.jiang@intel.com>, Ira Weiny <ira.weiny@intel.com>,
+	Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Mathieu Poirier <mathieu.poirier@linaro.org>,
+	"James E.J. Bottomley" <jejb@linux.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Vivek Goyal <vgoyal@redhat.com>, Miklos Szeredi <miklos@szeredi.hu>,
+	Anton Yakovlev <anton.yakovlev@opensynergy.com>,
+	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
+	virtualization@lists.linux.dev, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-um@lists.infradead.org,
+	linux-block@vger.kernel.org, linux-bluetooth@vger.kernel.org,
+	linux-crypto@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-gpio@vger.kernel.org, dri-devel@lists.freedesktop.org,
+	iommu@lists.linux.dev, netdev@vger.kernel.org, v9fs@lists.linux.dev,
+	kvm@vger.kernel.org, linux-wireless@vger.kernel.org,
+	nvdimm@lists.linux.dev, linux-remoteproc@vger.kernel.org,
+	linux-scsi@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	alsa-devel@alsa-project.org, linux-sound@vger.kernel.org
+Subject: Re: [PATCH v2 06/25] virtio_blk: drop owner assignment
+Message-ID: <20240402203321.GD2507314@fedora>
+References: <20240331-module-owner-virtio-v2-0-98f04bfaf46a@linaro.org>
+ <20240331-module-owner-virtio-v2-6-98f04bfaf46a@linaro.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="n4/kSvCMF0M05hCx"
+Content-Disposition: inline
+In-Reply-To: <20240331-module-owner-virtio-v2-6-98f04bfaf46a@linaro.org>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.5
+
+
+--n4/kSvCMF0M05hCx
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1712059988-7705-2-git-send-email-hengqi@linux.alibaba.com>
+Content-Transfer-Encoding: quoted-printable
 
-Hi Heng,
+On Sun, Mar 31, 2024 at 10:43:53AM +0200, Krzysztof Kozlowski wrote:
+> virtio core already sets the .owner, so driver does not need to.
+>=20
+> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+>=20
+> ---
+>=20
+> Depends on the first patch.
+> ---
+>  drivers/block/virtio_blk.c | 1 -
+>  1 file changed, 1 deletion(-)
 
-kernel test robot noticed the following build warnings:
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 
-[auto build test WARNING on net-next/main]
+--n4/kSvCMF0M05hCx
+Content-Type: application/pgp-signature; name="signature.asc"
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Heng-Qi/ethtool-provide-customized-dim-profile-management/20240402-201527
-base:   net-next/main
-patch link:    https://lore.kernel.org/r/1712059988-7705-2-git-send-email-hengqi%40linux.alibaba.com
-patch subject: [PATCH net-next v3 1/3] ethtool: provide customized dim profile management
-config: openrisc-defconfig (https://download.01.org/0day-ci/archive/20240403/202404030318.707Oc9CJ-lkp@intel.com/config)
-compiler: or1k-linux-gcc (GCC) 13.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240403/202404030318.707Oc9CJ-lkp@intel.com/reproduce)
+-----BEGIN PGP SIGNATURE-----
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202404030318.707Oc9CJ-lkp@intel.com/
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmYMa5EACgkQnKSrs4Gr
+c8j8dggAqO8KJXvt+0JqXmgxsfDAxN196OA9Q6Rm7VF0fuMhGpVUUh/iuOtkH59k
+ho0oB9szUvz/1tXZEJPtShx/omt2iENmq22unjzWE7ZmNimALVjtXPaZNTCkYxJn
+Z9//Ks9v/lHCNFzLjSiKC94ktRVJLDXSmG7uEpbeutDrzN9TWRJ8DNnylKmm+qWR
+VDiL3/2+03gC5B/LovTli4ozZuS4JlG37Tnh2Z8ACNrcFC74nv45KtNuQLR+hNy8
+12jEUGkhADWps+fQH7bZebswT9ePfwTfA1xh0pXeeWKCkaiKcgFhZH+JcNQLkwkx
+fC80yZK4qnvU1SmzK2tpfzAk7jUMtQ==
+=5tJl
+-----END PGP SIGNATURE-----
 
-All warnings (new ones prefixed by >>):
+--n4/kSvCMF0M05hCx--
 
->> net/ethtool/coalesce.c:363: warning: Function parameter or struct member 'extack' not described in 'ethnl_update_profile'
-
-
-vim +363 net/ethtool/coalesce.c
-
-   340	
-   341	/**
-   342	 * ethnl_update_profile - get a nla nest with four child nla nests from userspace.
-   343	 * @dst: data get from the driver and modified by ethnl_update_profile.
-   344	 * @nests: nest attr ETHTOOL_A_COALESCE_*X_*QE_PROFILE to set driver's profile.
-   345	 * @mod: whether the data is modified
-   346	 *
-   347	 * Layout of nests:
-   348	 *   Nested ETHTOOL_A_COALESCE_*X_*QE_PROFILE attr
-   349	 *     Nested ETHTOOL_A_MODERATIONS_MODERATION attr
-   350	 *       ETHTOOL_A_MODERATION_USEC attr
-   351	 *       ETHTOOL_A_MODERATION_PKTS attr
-   352	 *       ETHTOOL_A_MODERATION_COMPS attr
-   353	 *     ...
-   354	 *     Nested ETHTOOL_A_MODERATIONS_MODERATION attr
-   355	 *       ETHTOOL_A_MODERATION_USEC attr
-   356	 *       ETHTOOL_A_MODERATION_PKTS attr
-   357	 *       ETHTOOL_A_MODERATION_COMPS attr
-   358	 */
-   359	static inline void ethnl_update_profile(struct dim_cq_moder *dst,
-   360						const struct nlattr *nests,
-   361						bool *mod,
-   362						struct netlink_ext_ack *extack)
- > 363	{
-   364		struct nlattr *tb_moder[ARRAY_SIZE(coalesce_set_profile_policy)];
-   365		struct dim_cq_moder profs[NET_DIM_PARAMS_NUM_PROFILES];
-   366		struct nlattr *nest;
-   367		int ret, rem, i = 0;
-   368	
-   369		if (!nests)
-   370			return;
-   371	
-   372		nla_for_each_nested(nest, nests, rem) {
-   373			if (WARN_ONCE(nla_type(nest) != ETHTOOL_A_MODERATIONS_MODERATION,
-   374				      "unexpected nest attrtype %u\n", nla_type(nest)))
-   375				return;
-   376	
-   377			ret = nla_parse_nested(tb_moder,
-   378					       ARRAY_SIZE(coalesce_set_profile_policy) - 1,
-   379					       nest, coalesce_set_profile_policy,
-   380					       extack);
-   381			if (ret ||
-   382			    !tb_moder[ETHTOOL_A_MODERATION_USEC] ||
-   383			    !tb_moder[ETHTOOL_A_MODERATION_PKTS] ||
-   384			    !tb_moder[ETHTOOL_A_MODERATION_COMPS]) {
-   385				NL_SET_ERR_MSG(extack, "wrong ETHTOOL_A_MODERATION_* attribute\n");
-   386				return;
-   387			}
-   388	
-   389			profs[i].usec = nla_get_u16(tb_moder[ETHTOOL_A_MODERATION_USEC]);
-   390			profs[i].pkts = nla_get_u16(tb_moder[ETHTOOL_A_MODERATION_PKTS]);
-   391			profs[i].comps = nla_get_u16(tb_moder[ETHTOOL_A_MODERATION_COMPS]);
-   392	
-   393			if (dst[i].usec != profs[i].usec || dst[i].pkts != profs[i].pkts ||
-   394			    dst[i].comps != profs[i].comps)
-   395				*mod = true;
-   396	
-   397			i++;
-   398		}
-   399	
-   400		memcpy(dst, profs, sizeof(profs));
-   401	}
-   402	
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
