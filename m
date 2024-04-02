@@ -1,157 +1,116 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85EF415ADB1
-	for <virtualization@lists.linux.dev>; Tue,  2 Apr 2024 20:43:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26E7515E5A4;
+	Tue,  2 Apr 2024 20:54:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.19
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712090600; cv=none; b=PjdB96a9yHBzG9VqjzNuDPfZ0VeA0Az1xUgQTnrjzNRRntbTnNKHvJ1/MGttFq2MhDUeh0SXF3FXXe72zXAuluPQpgJmwpP2Si8QKa3kuSC+2xee9mnNCZfWwBgD0blLJkM1GIz4E4b91/oa6p0blVXUeozWMpuT+oloAx9WwlY=
+	t=1712091262; cv=none; b=O/s4MSsJqHw17VCGjBD7gVq8yzyF7bJLSvjndsw/RFx8S0fFlJaK1a8n0XYaBqWOUCrI3W6u1JwK3+eMcSpZdxX7ahilmS4mO8mi4fQ4QMOe8QLhHe5VeE68VMyFTHHnlkx+nf/MfRJX3Xvost5+BHCzuZrcef03/3K125+HwjE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712090600; c=relaxed/simple;
-	bh=aaHxh0ZajOvHS5KfJxmXsd5EvOqogaNIUdS3zyMuvq8=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=A6LNfzmu1Z8xsQfNDiQlUQWMRci1yHhZyqOPJqE8K3U7DKVKC7Ur85s44fc5X1eBmm5of1Z47STVQXUWxcJfmmx3rdibcMcZY34syOuEnL8RFlm+NT/qMqj9/QrSj+JECWQz6fRxMFHsMkN1JuYzmnZOZ1BGMhwMd+K9DTS6yTw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WKpIK81j; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1712091262; c=relaxed/simple;
+	bh=0dh4rks8DZA/rerPBvDhaWIFWqaos7zitKUPtS5xdI8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=BShfDzhH0Dpu084lzwTXEP6QVxDI17LpWOt+BJjAHG3L5kqurLFdh7H3fpheM6MoFZWC5iVEmjXcbO+176B+UkdNGcNgjJTV25bhOLoD4QtcogmTOLKu2WZ0H+jpvb6hFYhwI3EYG3uycKf9WsyfIm/2cIhbNGe3JXAY3LxSC/g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=nZ6R3ck/; arc=none smtp.client-ip=192.198.163.19
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WKpIK81j"
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 432KbuAs008721;
-	Tue, 2 Apr 2024 20:43:09 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=vPV0uWN8wwP3Lj+X6ad0Mvu8PMemMzWRl2tBGJIudWY=;
- b=WKpIK81j1Sqg94bsntLMPQv9DGV1qFPm3nebW2nt/+tSfOsjZGEpxl25t5xvLbd7K8rG
- 3ACZ0dTlEQl+fexcnfdhhyAJpG68B9zsqBuCIeGcaY0j7GliwJAUK3EtZXFDgN9INzy/
- iE3aeD+8Q41BzjAyTa4083y35u0VsjncXBR+Y8RrJVEJXJtyRd3NoVv8vQLpJZBn0JiK
- KbSZAFgpKaI2V+Of9y7eKjMp3bSA6aYQMwp/PR6A9qwgVwwgq/qW/TwBCzgcURpaScHe
- DxGtkwsa91Nk02nJXzskSvJrVwM9OUoEBGj4TfHxPfeONuQinWZECG+3ZUW7IAzOr8zB ng== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x8s7680bu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 02 Apr 2024 20:43:09 +0000
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 432Kh8P9017157;
-	Tue, 2 Apr 2024 20:43:08 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x8s7680br-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 02 Apr 2024 20:43:08 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 432IZ0X8029593;
-	Tue, 2 Apr 2024 20:43:07 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3x6ys30m11-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 02 Apr 2024 20:43:07 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 432Kh00s55509312
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 2 Apr 2024 20:43:02 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3371F20043;
-	Tue,  2 Apr 2024 20:43:00 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 908DB20040;
-	Tue,  2 Apr 2024 20:42:58 +0000 (GMT)
-Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.171.41.83])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Tue,  2 Apr 2024 20:42:58 +0000 (GMT)
-Date: Tue, 2 Apr 2024 22:42:56 +0200
-From: Halil Pasic <pasic@linux.ibm.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg
- <johannes@sipsolutions.net>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Ilpo
- =?UTF-8?B?SsOkcnZpbmVu?= <ilpo.jarvinen@linux.intel.com>,
-        Vadim Pasternak
- <vadimp@nvidia.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Mathieu
- Poirier <mathieu.poirier@linaro.org>,
-        Cornelia Huck <cohuck@redhat.com>, Eric Farman <farman@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev
- <agordeev@linux.ibm.com>,
-        Christian Borntraeger
- <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        "Michael
- S. Tsirkin" <mst@redhat.com>,
-        David Hildenbrand <david@redhat.com>,
-        Jason
- Wang <jasowang@redhat.com>, linux-um@lists.infradead.org,
-        platform-driver-x86@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        Halil Pasic
- <pasic@linux.ibm.com>
-Subject: Re: [PATCH vhost v7 4/6] virtio: vring_create_virtqueue: pass
- struct instead of multi parameters
-Message-ID: <20240402224256.7370d18b.pasic@linux.ibm.com>
-In-Reply-To: <20240328080348.3620-5-xuanzhuo@linux.alibaba.com>
-References: <20240328080348.3620-1-xuanzhuo@linux.alibaba.com>
-	<20240328080348.3620-5-xuanzhuo@linux.alibaba.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="nZ6R3ck/"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1712091260; x=1743627260;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=0dh4rks8DZA/rerPBvDhaWIFWqaos7zitKUPtS5xdI8=;
+  b=nZ6R3ck/8QwaZ7un8a+Wv2X59Oi9gCa8V0zzo235AAX/C/ZoCsZZoY04
+   FfOtdlhNkNUdeLNdCHEykOR/9gKNWifq6C1eiEy5O6vTe+KnLkUF5unG3
+   ab5iJATqvt1UEQrBDqA04X+gocN9TrZ6mWWJMRjl3UddB3yqgoDZgMYY6
+   f6lBuCQY/uuyNAbzpCySn4SItq7jnX3Ew6qy562Bb46tsvqCBk+BTVMMh
+   ejd6PxaVwoRRLUYilEKCJd8oO0N5vXQZh4rMxzqb1xDqg4GzItopNwL9h
+   i/1+/PpSditpig9IVooRHVIZ/3a1p4jCGje++7dmJiBTX1EVdkPvnhHfr
+   A==;
+X-CSE-ConnectionGUID: RjS4Hj1PSWK1kCusxiCj7A==
+X-CSE-MsgGUID: wMxCYOviTOOpWCRtAEmHdg==
+X-IronPort-AV: E=McAfee;i="6600,9927,11032"; a="7160767"
+X-IronPort-AV: E=Sophos;i="6.07,176,1708416000"; 
+   d="scan'208";a="7160767"
+Received: from fmviesa008.fm.intel.com ([10.60.135.148])
+  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Apr 2024 13:54:19 -0700
+X-CSE-ConnectionGUID: 4I50Zde3Rmmq0cv3i9cDCQ==
+X-CSE-MsgGUID: 2qdnQGE5TwWDZ4JscXzFzg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.07,176,1708416000"; 
+   d="scan'208";a="18306073"
+Received: from lkp-server02.sh.intel.com (HELO 90ee3aa53dbd) ([10.239.97.151])
+  by fmviesa008.fm.intel.com with ESMTP; 02 Apr 2024 13:54:16 -0700
+Received: from kbuild by 90ee3aa53dbd with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1rrl93-0001XZ-3B;
+	Tue, 02 Apr 2024 20:54:13 +0000
+Date: Wed, 3 Apr 2024 04:53:23 +0800
+From: kernel test robot <lkp@intel.com>
+To: Heng Qi <hengqi@linux.alibaba.com>, netdev@vger.kernel.org,
+	virtualization@lists.linux.dev
+Cc: oe-kbuild-all@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next v3 3/3] virtio-net: support dim profile
+ fine-tuning
+Message-ID: <202404030423.IyBzs9Jd-lkp@intel.com>
+References: <1712059988-7705-4-git-send-email-hengqi@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 3GI-WGeK5s55lBMUzMMapcBrCW7xXaZl
-X-Proofpoint-GUID: 6iUy-UfqbpinpmO9UNn-I9GuSFsVdcSl
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-04-02_13,2024-04-01_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 clxscore=1015
- mlxlogscore=999 suspectscore=0 lowpriorityscore=0 adultscore=0
- malwarescore=0 impostorscore=0 spamscore=0 mlxscore=0 priorityscore=1501
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2403210000 definitions=main-2404020153
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1712059988-7705-4-git-send-email-hengqi@linux.alibaba.com>
 
-On Thu, 28 Mar 2024 16:03:46 +0800
-Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
+Hi Heng,
 
-> --- a/drivers/s390/virtio/virtio_ccw.c
-> +++ b/drivers/s390/virtio/virtio_ccw.c
-> @@ -503,6 +503,7 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
->  					     struct virtio_vq_config *cfg)
->  {
->  	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
-> +	struct vq_transport_config tp_cfg = {};
->  	bool (*notify)(struct virtqueue *vq);
->  	int err;
->  	struct virtqueue *vq = NULL;
-> @@ -536,13 +537,14 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
->  		goto out_err;
->  	}
->  	may_reduce = vcdev->revision > 0;
-> -	vq = vring_create_virtqueue(i, info->num, KVM_VIRTIO_CCW_RING_ALIGN,
-> -				    vdev, true, may_reduce,
-> -				    cfg->ctx ? cfg->ctx[i] : false,
-> -				    notify,
-> -				    cfg->callbacks[i],
-> -				    cfg->names[i]);
->  
-> +	tp_cfg.num = info->num;
-> +	tp_cfg.vring_align = KVM_VIRTIO_CCW_RING_ALIGN;
-> +	tp_cfg.weak_barriers = true;
-> +	tp_cfg.may_reduce_num = may_reduce;
-> +	tp_cfg.notify = notify;
-> +
-> +	vq = vring_create_virtqueue(vdev, i, &tp_cfg, cfg);
->  	if (!vq) {
->  		/* For now, we fail if we can't get the requested size. */
->  		dev_warn(&vcdev->cdev->dev, "no vq\n");
+kernel test robot noticed the following build warnings:
 
-For the virtio-ccw part:
-Acked-by: Halil Pasic <pasic@linux.ibm.com>
+[auto build test WARNING on net-next/main]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Heng-Qi/ethtool-provide-customized-dim-profile-management/20240402-201527
+base:   net-next/main
+patch link:    https://lore.kernel.org/r/1712059988-7705-4-git-send-email-hengqi%40linux.alibaba.com
+patch subject: [PATCH net-next v3 3/3] virtio-net: support dim profile fine-tuning
+config: openrisc-defconfig (https://download.01.org/0day-ci/archive/20240403/202404030423.IyBzs9Jd-lkp@intel.com/config)
+compiler: or1k-linux-gcc (GCC) 13.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240403/202404030423.IyBzs9Jd-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202404030423.IyBzs9Jd-lkp@intel.com/
+
+All warnings (new ones prefixed by >>):
+
+   In file included from net/packet/af_packet.c:86:
+>> include/linux/virtio_net.h:15:34: warning: 'rx_eqe_conf' defined but not used [-Wunused-const-variable=]
+      15 | static const struct dim_cq_moder rx_eqe_conf[] = {
+         |                                  ^~~~~~~~~~~
+
+
+vim +/rx_eqe_conf +15 include/linux/virtio_net.h
+
+    12	
+    13	/* This is copied from NET_DIM_RX_EQE_PROFILES in DIM library */
+    14	#define VIRTNET_DIM_RX_PKTS 256
+  > 15	static const struct dim_cq_moder rx_eqe_conf[] = {
+    16		{.usec = 1,   .pkts = VIRTNET_DIM_RX_PKTS,},
+    17		{.usec = 8,   .pkts = VIRTNET_DIM_RX_PKTS,},
+    18		{.usec = 64,  .pkts = VIRTNET_DIM_RX_PKTS,},
+    19		{.usec = 128, .pkts = VIRTNET_DIM_RX_PKTS,},
+    20		{.usec = 256, .pkts = VIRTNET_DIM_RX_PKTS,}
+    21	};
+    22	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
