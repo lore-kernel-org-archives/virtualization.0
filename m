@@ -1,116 +1,146 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26E7515E5A4;
-	Tue,  2 Apr 2024 20:54:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78CB715E5C3
+	for <virtualization@lists.linux.dev>; Tue,  2 Apr 2024 21:21:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712091262; cv=none; b=O/s4MSsJqHw17VCGjBD7gVq8yzyF7bJLSvjndsw/RFx8S0fFlJaK1a8n0XYaBqWOUCrI3W6u1JwK3+eMcSpZdxX7ahilmS4mO8mi4fQ4QMOe8QLhHe5VeE68VMyFTHHnlkx+nf/MfRJX3Xvost5+BHCzuZrcef03/3K125+HwjE=
+	t=1712092911; cv=none; b=NX7uRRDV83hjYctt5G+BgfcmPfJlwxnimaP2TNPXmU/vJ+QAfAa77DyG1kd9Lw7c+wKfk9gdx39hqfLp9uPlMICW+UXEsJdQYhl2m/dZ2XnAeJVkdqVFryHPgpCBP85/pNxYA/vaRHHLAkBx1rRX+b8NMSqRDBtL9PYB82UG4Xg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712091262; c=relaxed/simple;
-	bh=0dh4rks8DZA/rerPBvDhaWIFWqaos7zitKUPtS5xdI8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BShfDzhH0Dpu084lzwTXEP6QVxDI17LpWOt+BJjAHG3L5kqurLFdh7H3fpheM6MoFZWC5iVEmjXcbO+176B+UkdNGcNgjJTV25bhOLoD4QtcogmTOLKu2WZ0H+jpvb6hFYhwI3EYG3uycKf9WsyfIm/2cIhbNGe3JXAY3LxSC/g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=nZ6R3ck/; arc=none smtp.client-ip=192.198.163.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1712092911; c=relaxed/simple;
+	bh=CeTf1GnLqEGbq7mpbpnjAmCKKQFZ0fqT+cHVafZlASk=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=JKnhyyD9X3cJZFOGCWAzrlwpNl1zdVkRmvmJkikdOQbhVbX0hkAoa1IUAMtuNGM/UGSqGcDZTSbSyUl9uY5EQlY5idd0oCKPDMORQqqSu/dBCL8Tx6E2vBTDsL1yAonN4ZrXPhYE5hHg1QNtT8l2/D3JuS5CZ3zLuZOvYxzhMKI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RfCdzcri; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="nZ6R3ck/"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1712091260; x=1743627260;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=0dh4rks8DZA/rerPBvDhaWIFWqaos7zitKUPtS5xdI8=;
-  b=nZ6R3ck/8QwaZ7un8a+Wv2X59Oi9gCa8V0zzo235AAX/C/ZoCsZZoY04
-   FfOtdlhNkNUdeLNdCHEykOR/9gKNWifq6C1eiEy5O6vTe+KnLkUF5unG3
-   ab5iJATqvt1UEQrBDqA04X+gocN9TrZ6mWWJMRjl3UddB3yqgoDZgMYY6
-   f6lBuCQY/uuyNAbzpCySn4SItq7jnX3Ew6qy562Bb46tsvqCBk+BTVMMh
-   ejd6PxaVwoRRLUYilEKCJd8oO0N5vXQZh4rMxzqb1xDqg4GzItopNwL9h
-   i/1+/PpSditpig9IVooRHVIZ/3a1p4jCGje++7dmJiBTX1EVdkPvnhHfr
-   A==;
-X-CSE-ConnectionGUID: RjS4Hj1PSWK1kCusxiCj7A==
-X-CSE-MsgGUID: wMxCYOviTOOpWCRtAEmHdg==
-X-IronPort-AV: E=McAfee;i="6600,9927,11032"; a="7160767"
-X-IronPort-AV: E=Sophos;i="6.07,176,1708416000"; 
-   d="scan'208";a="7160767"
-Received: from fmviesa008.fm.intel.com ([10.60.135.148])
-  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Apr 2024 13:54:19 -0700
-X-CSE-ConnectionGUID: 4I50Zde3Rmmq0cv3i9cDCQ==
-X-CSE-MsgGUID: 2qdnQGE5TwWDZ4JscXzFzg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.07,176,1708416000"; 
-   d="scan'208";a="18306073"
-Received: from lkp-server02.sh.intel.com (HELO 90ee3aa53dbd) ([10.239.97.151])
-  by fmviesa008.fm.intel.com with ESMTP; 02 Apr 2024 13:54:16 -0700
-Received: from kbuild by 90ee3aa53dbd with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1rrl93-0001XZ-3B;
-	Tue, 02 Apr 2024 20:54:13 +0000
-Date: Wed, 3 Apr 2024 04:53:23 +0800
-From: kernel test robot <lkp@intel.com>
-To: Heng Qi <hengqi@linux.alibaba.com>, netdev@vger.kernel.org,
-	virtualization@lists.linux.dev
-Cc: oe-kbuild-all@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RfCdzcri"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1712092908;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+	bh=L+alDoiqMN7Nxu8CAo+qwAjzO+OBQsTVsBJwYvjZdYY=;
+	b=RfCdzcriacYhsrbVzbOL+yyex4NXtv+mSZS0gTqfuC37QHrErSKAU9gbR7BWBgqfUZKYxi
+	3kTk2wmOXzT9oDauMNNRaKnXzqeeFV+WSqnvshyXjQc3zSt1c0FabGn1Z0aK4NGRCT6l5T
+	EoMvwEGfEllw6kjkRqe72Qz5ncE1lvA=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-436-fd3rbz6fM6G8CQx70eFOKQ-1; Tue, 02 Apr 2024 17:21:45 -0400
+X-MC-Unique: fd3rbz6fM6G8CQx70eFOKQ-1
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3435b7d65efso757938f8f.1
+        for <virtualization@lists.linux.dev>; Tue, 02 Apr 2024 14:21:44 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1712092904; x=1712697704;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=L+alDoiqMN7Nxu8CAo+qwAjzO+OBQsTVsBJwYvjZdYY=;
+        b=GB8SEJqCRH8uT8MT5JEmZ8wdY8P/6TwWZdFAOZec2pAO726yxtsnXLcDJxZxuF+9Wd
+         HdBFpXLm9YGfkcWDvvomWVFg8AifoeviC38CV8wXD0eqwUW+npHfo7uK8uq25rJsUBz7
+         Je6d3s9EIh+rQcUJwt7P/lAcYor4AxioOh+hh1guuyTkfPb/uitRXJ9gFFLQACKQd4yr
+         exb3wUO07WG1Egv7IV5w1ENcCu2vr4dibTFdf1KivVO1WmA2vGAXr84k8Ru5XzVw1Nua
+         7ok06T4zxd0/AcenOdcJrETJbZtylBa3E+fvJgKaOLUjYoV9AmloGdGkUlmGNMc5FWyh
+         Lq1w==
+X-Forwarded-Encrypted: i=1; AJvYcCXq4AI9jojnsgUW4mHBNjbUZbOlxoAG012Zv12hNbCtyg/rhkWAxcaxdTeNDDxat5Aeylz5tPiWOKC2xnVdds9HoxXMmjP+Jo8VJWaxQMI=
+X-Gm-Message-State: AOJu0YyhxFc/eymWHTTzBSKbGdgfC4+ebDrBITn9xoz2nHfirwc/V8JR
+	42IucMOor1vNn16k4YdVaYHvVBiPCJi75pMgE0eiBhk3Rf5qdU32W2Nm1LD0muxbrCcJH6mCD5u
+	DyXGB0HVBonpOuhmLZarK/PR0xmUa/Bz+FpCBhdpJ+5PHH125JmSS9MfoTDM1VdNu
+X-Received: by 2002:a5d:598e:0:b0:343:4c43:b38a with SMTP id n14-20020a5d598e000000b003434c43b38amr6924826wri.17.1712092903836;
+        Tue, 02 Apr 2024 14:21:43 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHoLR2TiY4NlePQYEkpCrVsZpefzcsOU3LO3zWyGpNr1faKWUSZIEppdou1j4Es/gmuSNpz7Q==
+X-Received: by 2002:a5d:598e:0:b0:343:4c43:b38a with SMTP id n14-20020a5d598e000000b003434c43b38amr6924812wri.17.1712092903398;
+        Tue, 02 Apr 2024 14:21:43 -0700 (PDT)
+Received: from redhat.com ([2.52.21.244])
+        by smtp.gmail.com with ESMTPSA id f13-20020a1709062c4d00b00a4df82aa6a7sm6888784ejh.219.2024.04.02.14.21.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 02 Apr 2024 14:21:42 -0700 (PDT)
+Date: Tue, 2 Apr 2024 17:21:39 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>,
+	Namhyung Kim <namhyung@kernel.org>,
+	Zhu Lingshan <lingshan.zhu@intel.com>,
 	Jason Wang <jasowang@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next v3 3/3] virtio-net: support dim profile
- fine-tuning
-Message-ID: <202404030423.IyBzs9Jd-lkp@intel.com>
-References: <1712059988-7705-4-git-send-email-hengqi@linux.alibaba.com>
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+	kvm@vger.kernel.org, virtualization@lists.linux.dev,
+	netdev@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+	Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
+	Kan Liang <kan.liang@linux.intel.com>
+Subject: [PATCH] vhost-vdpa: change ioctl # for VDPA_GET_VRING_SIZE
+Message-ID: <41c1c5489688abe5bfef9f7cf15584e3fb872ac5.1712092759.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
+X-Mutt-Fcc: =sent
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1712059988-7705-4-git-send-email-hengqi@linux.alibaba.com>
 
-Hi Heng,
+VDPA_GET_VRING_SIZE by mistake uses the already occupied
+ioctl # 0x80 and we never noticed - it happens to work
+because the direction and size are different, but confuses
+tools such as perf which like to look at just the number,
+and breaks the extra robustness of the ioctl numbering macros.
 
-kernel test robot noticed the following build warnings:
+To fix, sort the entries and renumber the ioctl - not too late
+since it wasn't in any released kernels yet.
 
-[auto build test WARNING on net-next/main]
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
+Reported-by: Namhyung Kim <namhyung@kernel.org>
+Fixes: 1496c47065f9 ("vhost-vdpa: uapi to support reporting per vq size")
+Cc: "Zhu Lingshan" <lingshan.zhu@intel.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Heng-Qi/ethtool-provide-customized-dim-profile-management/20240402-201527
-base:   net-next/main
-patch link:    https://lore.kernel.org/r/1712059988-7705-4-git-send-email-hengqi%40linux.alibaba.com
-patch subject: [PATCH net-next v3 3/3] virtio-net: support dim profile fine-tuning
-config: openrisc-defconfig (https://download.01.org/0day-ci/archive/20240403/202404030423.IyBzs9Jd-lkp@intel.com/config)
-compiler: or1k-linux-gcc (GCC) 13.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240403/202404030423.IyBzs9Jd-lkp@intel.com/reproduce)
+Build tested only - userspace patches using this will have to adjust.
+I will merge this in a week or so unless I hear otherwise,
+and afterwards perf can update there header.
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202404030423.IyBzs9Jd-lkp@intel.com/
+ include/uapi/linux/vhost.h | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
-All warnings (new ones prefixed by >>):
-
-   In file included from net/packet/af_packet.c:86:
->> include/linux/virtio_net.h:15:34: warning: 'rx_eqe_conf' defined but not used [-Wunused-const-variable=]
-      15 | static const struct dim_cq_moder rx_eqe_conf[] = {
-         |                                  ^~~~~~~~~~~
-
-
-vim +/rx_eqe_conf +15 include/linux/virtio_net.h
-
-    12	
-    13	/* This is copied from NET_DIM_RX_EQE_PROFILES in DIM library */
-    14	#define VIRTNET_DIM_RX_PKTS 256
-  > 15	static const struct dim_cq_moder rx_eqe_conf[] = {
-    16		{.usec = 1,   .pkts = VIRTNET_DIM_RX_PKTS,},
-    17		{.usec = 8,   .pkts = VIRTNET_DIM_RX_PKTS,},
-    18		{.usec = 64,  .pkts = VIRTNET_DIM_RX_PKTS,},
-    19		{.usec = 128, .pkts = VIRTNET_DIM_RX_PKTS,},
-    20		{.usec = 256, .pkts = VIRTNET_DIM_RX_PKTS,}
-    21	};
-    22	
-
+diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
+index bea697390613..b95dd84eef2d 100644
+--- a/include/uapi/linux/vhost.h
++++ b/include/uapi/linux/vhost.h
+@@ -179,12 +179,6 @@
+ /* Get the config size */
+ #define VHOST_VDPA_GET_CONFIG_SIZE	_IOR(VHOST_VIRTIO, 0x79, __u32)
+ 
+-/* Get the count of all virtqueues */
+-#define VHOST_VDPA_GET_VQS_COUNT	_IOR(VHOST_VIRTIO, 0x80, __u32)
+-
+-/* Get the number of virtqueue groups. */
+-#define VHOST_VDPA_GET_GROUP_NUM	_IOR(VHOST_VIRTIO, 0x81, __u32)
+-
+ /* Get the number of address spaces. */
+ #define VHOST_VDPA_GET_AS_NUM		_IOR(VHOST_VIRTIO, 0x7A, unsigned int)
+ 
+@@ -228,10 +222,17 @@
+ #define VHOST_VDPA_GET_VRING_DESC_GROUP	_IOWR(VHOST_VIRTIO, 0x7F,	\
+ 					      struct vhost_vring_state)
+ 
++
++/* Get the count of all virtqueues */
++#define VHOST_VDPA_GET_VQS_COUNT	_IOR(VHOST_VIRTIO, 0x80, __u32)
++
++/* Get the number of virtqueue groups. */
++#define VHOST_VDPA_GET_GROUP_NUM	_IOR(VHOST_VIRTIO, 0x81, __u32)
++
+ /* Get the queue size of a specific virtqueue.
+  * userspace set the vring index in vhost_vring_state.index
+  * kernel set the queue size in vhost_vring_state.num
+  */
+-#define VHOST_VDPA_GET_VRING_SIZE	_IOWR(VHOST_VIRTIO, 0x80,	\
++#define VHOST_VDPA_GET_VRING_SIZE	_IOWR(VHOST_VIRTIO, 0x82,	\
+ 					      struct vhost_vring_state)
+ #endif
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+MST
+
