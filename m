@@ -1,152 +1,165 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88AD815AABA
-	for <virtualization@lists.linux.dev>; Tue,  2 Apr 2024 18:01:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D8E915E5A4;
+	Tue,  2 Apr 2024 20:11:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712080892; cv=none; b=oALJ6IWzwwFeTTzKR1k1qHICk5xMNGYHy3JdX5GyvWFjtMrMy6lKXc5gIiirPlkej7alyMTVeCu6lyzIAHDmJZv2JYJh0eaxstUry0jVSfdwV5lRfd6qT+VONoSqbYKgAmmUBMS2qnx46gQFPM2bQKKkRlGZanqsB5R0XbzFKQw=
+	t=1712088721; cv=none; b=Fo6oN+5P3g4tC4GnzrkBhDKcas543PAGiAYS9CB1Kq3WNIT91EZnbsvkqml50jMcbaGHmLK1JIDph3t5hZsX2yTE5IOh7s3RmGsjtbfnATXa6AIaTXQPveQ9omwgjXrqPgRrutRioiudtg4HAOlUwAR9MbvygKlMIUrxKiO6MdE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712080892; c=relaxed/simple;
-	bh=I/KfB5CieqB04RJ8p97BvpVXen9Z0TrS8q4lo+lHyiI=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Cm6HOmOJROkd6gcYnEcreLLuvW6KwYRtTS1e4UWrW21cUMjKUKhgN/+9XbSZETmi5kjL4j2Wi/KSwsgEwuvbsNgn0vnxi75Qn1PvL8SsjbLfyMJWnuyh11M17FuJdVjsAlfF9pfLxqDndNDu4dbPsRn0RkYE2SR8R08+UZWiW2g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=aRpk6iA+; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1712088721; c=relaxed/simple;
+	bh=eXiWsMvZZG2RmREpe/OR0bmezRlbNy8wjN4Mp+uGxUs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=fqeHOMSRbaz6XT/XjjuQdyxvoASSFnEfNgUwea5TZJ7A7MTuG5vsICjQl0+h0EdC2U2qc17YAvwOBJl9yc68CdfRHgZXHsc3is1pq6TNHs2R00mKEqbHaqFQhMWpfrsggjlNyG/g6IGAVZU40gMeVymfGlyCSvUuXgPLmMx260Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=LOyLDeEg; arc=none smtp.client-ip=198.175.65.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="aRpk6iA+"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 432HqscV029201;
-	Tue, 2 Apr 2024 18:01:14 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=Ge+PCdmfdapG3nCKI7WpuuoKJVjlsUHNMa5EZQPh+Qk=;
- b=aRpk6iA+UUeeVLtiuFhtNmSaMQsQ7/8MXvzEu8Mz9fU+69iduRNpXZr4ilYShTeGvl7j
- izRH42UiYy1PGawVts2wptHJH9nKHPEVcb9LeC9zAChnX8rdlYfUdPqXyejA8yLVyAVn
- bxYtOAW+XsUXB9qZHA8XprmlMQF3LrMq9kFoE6/2LIbrud66CVO1vAVsYomrl6m0O/nC
- MZu3H4GhAdO0FgpD2zJ+yEFYnXlgSPrjIuQOZ1Tc4Sa9vK0QZ040Glv38O99yavZ9mP0
- BNS823odZ/QAGUbl7LUJSOPsZi+h31FyUGa/ykcnCSSXz75mj31jzypSvf1L76ucvfrX WA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x8pt70121-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 02 Apr 2024 18:01:14 +0000
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 432I1Dtf009350;
-	Tue, 2 Apr 2024 18:01:13 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3x8pt7011r-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 02 Apr 2024 18:01:13 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 432I0tfR029616;
-	Tue, 2 Apr 2024 18:01:12 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3x6ys2ypvh-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 02 Apr 2024 18:01:12 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 432I16XT33620508
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 2 Apr 2024 18:01:08 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A898A2004F;
-	Tue,  2 Apr 2024 18:01:06 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 305C120043;
-	Tue,  2 Apr 2024 18:01:05 +0000 (GMT)
-Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.171.41.83])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Tue,  2 Apr 2024 18:01:05 +0000 (GMT)
-Date: Tue, 2 Apr 2024 20:01:03 +0200
-From: Halil Pasic <pasic@linux.ibm.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg
- <johannes@sipsolutions.net>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Ilpo
- =?UTF-8?B?SsOkcnZpbmVu?= <ilpo.jarvinen@linux.intel.com>,
-        Vadim Pasternak
- <vadimp@nvidia.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Mathieu
- Poirier <mathieu.poirier@linaro.org>,
-        Cornelia Huck <cohuck@redhat.com>, Eric Farman <farman@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev
- <agordeev@linux.ibm.com>,
-        Christian Borntraeger
- <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        "Michael
- S. Tsirkin" <mst@redhat.com>,
-        David Hildenbrand <david@redhat.com>,
-        Jason
- Wang <jasowang@redhat.com>, linux-um@lists.infradead.org,
-        platform-driver-x86@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        Halil Pasic
- <pasic@linux.ibm.com>
-Subject: Re: [PATCH vhost v7 2/6] virtio: remove support for names array
- entries being null.
-Message-ID: <20240402200103.19618d0c.pasic@linux.ibm.com>
-In-Reply-To: <20240328080348.3620-3-xuanzhuo@linux.alibaba.com>
-References: <20240328080348.3620-1-xuanzhuo@linux.alibaba.com>
-	<20240328080348.3620-3-xuanzhuo@linux.alibaba.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="LOyLDeEg"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1712088719; x=1743624719;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=eXiWsMvZZG2RmREpe/OR0bmezRlbNy8wjN4Mp+uGxUs=;
+  b=LOyLDeEgTNvIPgaoLBlYWBERfGWggXsrSjIGEcrCzmd1nEG+lKYRql1p
+   Vj1Ph5WRtPWAk994kjyly6/orOkFkIiw39Co1qcHdfI1sPTRQZ0TPEUp6
+   VbCec0f1dYcfddnLTID6dCuu6lA8gqyar64BfQJ2W5Nub71/ENmekICpq
+   MOa1vDzuIs7DVkhhaz3qgMFCaFoKk3OwQnOI9Cy+0f01HnACyUrMv9tIY
+   ugS0E63wqFdy8ZIFzfZfGRxDtqBozQACQRIDmXZQoqd71UyQY3AkpaeQh
+   26RqqTS+jDgrtwcbKbG6+2t3gyKHYq7OwpHIJ7GBB/QChhh93YtmGA7Ny
+   Q==;
+X-CSE-ConnectionGUID: y78t4JR1Q46np6O4vlpZQw==
+X-CSE-MsgGUID: +sou7bbtT2y3Kny3e2trPQ==
+X-IronPort-AV: E=McAfee;i="6600,9927,11032"; a="17857943"
+X-IronPort-AV: E=Sophos;i="6.07,176,1708416000"; 
+   d="scan'208";a="17857943"
+Received: from orviesa010.jf.intel.com ([10.64.159.150])
+  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Apr 2024 13:11:58 -0700
+X-CSE-ConnectionGUID: zvwFfhDpSyisT0fB2OUcaw==
+X-CSE-MsgGUID: PiQirJWUQaGhIuJYyYoVpQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.07,176,1708416000"; 
+   d="scan'208";a="18004659"
+Received: from lkp-server02.sh.intel.com (HELO 90ee3aa53dbd) ([10.239.97.151])
+  by orviesa010.jf.intel.com with ESMTP; 02 Apr 2024 13:11:55 -0700
+Received: from kbuild by 90ee3aa53dbd with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1rrkU3-0001VR-2q;
+	Tue, 02 Apr 2024 20:11:52 +0000
+Date: Wed, 3 Apr 2024 04:11:17 +0800
+From: kernel test robot <lkp@intel.com>
+To: Heng Qi <hengqi@linux.alibaba.com>, netdev@vger.kernel.org,
+	virtualization@lists.linux.dev
+Cc: oe-kbuild-all@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next v3 1/3] ethtool: provide customized dim profile
+ management
+Message-ID: <202404030318.707Oc9CJ-lkp@intel.com>
+References: <1712059988-7705-2-git-send-email-hengqi@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 6KSAETINDiOyU9QFEllktnLI-PyY1diP
-X-Proofpoint-GUID: xwEdoevRFYCwufoSFRJa0qEo9oBQY5g_
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-04-02_10,2024-04-01_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- priorityscore=1501 lowpriorityscore=0 malwarescore=0 adultscore=0
- clxscore=1011 mlxscore=0 mlxlogscore=999 bulkscore=0 spamscore=0
- phishscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2403210000 definitions=main-2404020133
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1712059988-7705-2-git-send-email-hengqi@linux.alibaba.com>
 
-On Thu, 28 Mar 2024 16:03:44 +0800
-Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
+Hi Heng,
 
-> --- a/drivers/s390/virtio/virtio_ccw.c
-> +++ b/drivers/s390/virtio/virtio_ccw.c
-> @@ -659,7 +659,7 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  {
->  	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
->  	unsigned long *indicatorp = NULL;
-> -	int ret, i, queue_idx = 0;
-> +	int ret, i;
->  	struct ccw1 *ccw;
->  
->  	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
-> @@ -668,11 +668,11 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  
->  	for (i = 0; i < nvqs; ++i) {
->  		if (!names[i]) {
-> -			vqs[i] = NULL;
-> -			continue;
-> +			ret = -EINVAL;
-> +			goto out;
->  		}
->  
-> -		vqs[i] = virtio_ccw_setup_vq(vdev, queue_idx++, callbacks[i],
-> +		vqs[i] = virtio_ccw_setup_vq(vdev, i, callbacks[i],
->  					     names[i], ctx ? ctx[i] : false,
->  					     ccw);
->  		if (IS_ERR(vqs[i])) {
+kernel test robot noticed the following build warnings:
 
-For the virtio-ccw part:
-Acked-by: Halil Pasic <pasic@linux.ibm.com>
+[auto build test WARNING on net-next/main]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Heng-Qi/ethtool-provide-customized-dim-profile-management/20240402-201527
+base:   net-next/main
+patch link:    https://lore.kernel.org/r/1712059988-7705-2-git-send-email-hengqi%40linux.alibaba.com
+patch subject: [PATCH net-next v3 1/3] ethtool: provide customized dim profile management
+config: openrisc-defconfig (https://download.01.org/0day-ci/archive/20240403/202404030318.707Oc9CJ-lkp@intel.com/config)
+compiler: or1k-linux-gcc (GCC) 13.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240403/202404030318.707Oc9CJ-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202404030318.707Oc9CJ-lkp@intel.com/
+
+All warnings (new ones prefixed by >>):
+
+>> net/ethtool/coalesce.c:363: warning: Function parameter or struct member 'extack' not described in 'ethnl_update_profile'
+
+
+vim +363 net/ethtool/coalesce.c
+
+   340	
+   341	/**
+   342	 * ethnl_update_profile - get a nla nest with four child nla nests from userspace.
+   343	 * @dst: data get from the driver and modified by ethnl_update_profile.
+   344	 * @nests: nest attr ETHTOOL_A_COALESCE_*X_*QE_PROFILE to set driver's profile.
+   345	 * @mod: whether the data is modified
+   346	 *
+   347	 * Layout of nests:
+   348	 *   Nested ETHTOOL_A_COALESCE_*X_*QE_PROFILE attr
+   349	 *     Nested ETHTOOL_A_MODERATIONS_MODERATION attr
+   350	 *       ETHTOOL_A_MODERATION_USEC attr
+   351	 *       ETHTOOL_A_MODERATION_PKTS attr
+   352	 *       ETHTOOL_A_MODERATION_COMPS attr
+   353	 *     ...
+   354	 *     Nested ETHTOOL_A_MODERATIONS_MODERATION attr
+   355	 *       ETHTOOL_A_MODERATION_USEC attr
+   356	 *       ETHTOOL_A_MODERATION_PKTS attr
+   357	 *       ETHTOOL_A_MODERATION_COMPS attr
+   358	 */
+   359	static inline void ethnl_update_profile(struct dim_cq_moder *dst,
+   360						const struct nlattr *nests,
+   361						bool *mod,
+   362						struct netlink_ext_ack *extack)
+ > 363	{
+   364		struct nlattr *tb_moder[ARRAY_SIZE(coalesce_set_profile_policy)];
+   365		struct dim_cq_moder profs[NET_DIM_PARAMS_NUM_PROFILES];
+   366		struct nlattr *nest;
+   367		int ret, rem, i = 0;
+   368	
+   369		if (!nests)
+   370			return;
+   371	
+   372		nla_for_each_nested(nest, nests, rem) {
+   373			if (WARN_ONCE(nla_type(nest) != ETHTOOL_A_MODERATIONS_MODERATION,
+   374				      "unexpected nest attrtype %u\n", nla_type(nest)))
+   375				return;
+   376	
+   377			ret = nla_parse_nested(tb_moder,
+   378					       ARRAY_SIZE(coalesce_set_profile_policy) - 1,
+   379					       nest, coalesce_set_profile_policy,
+   380					       extack);
+   381			if (ret ||
+   382			    !tb_moder[ETHTOOL_A_MODERATION_USEC] ||
+   383			    !tb_moder[ETHTOOL_A_MODERATION_PKTS] ||
+   384			    !tb_moder[ETHTOOL_A_MODERATION_COMPS]) {
+   385				NL_SET_ERR_MSG(extack, "wrong ETHTOOL_A_MODERATION_* attribute\n");
+   386				return;
+   387			}
+   388	
+   389			profs[i].usec = nla_get_u16(tb_moder[ETHTOOL_A_MODERATION_USEC]);
+   390			profs[i].pkts = nla_get_u16(tb_moder[ETHTOOL_A_MODERATION_PKTS]);
+   391			profs[i].comps = nla_get_u16(tb_moder[ETHTOOL_A_MODERATION_COMPS]);
+   392	
+   393			if (dst[i].usec != profs[i].usec || dst[i].pkts != profs[i].pkts ||
+   394			    dst[i].comps != profs[i].comps)
+   395				*mod = true;
+   396	
+   397			i++;
+   398		}
+   399	
+   400		memcpy(dst, profs, sizeof(profs));
+   401	}
+   402	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
