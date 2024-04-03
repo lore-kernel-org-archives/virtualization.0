@@ -1,157 +1,184 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D797135407
-	for <virtualization@lists.linux.dev>; Wed,  3 Apr 2024 09:57:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712138282; cv=none; b=awD3RQGEizoh+MTQxikCIAaLQhWSDsijF3g6nfn0fz9AWLGNzAovtoeaRQ/cUUOpR/MXFT2lHxElqisPpUgGJxH1121cmzO2dUYSFGk1zKmy0v595QFwq1DGtWHroJLcF5MeqejWQp6kB0oNwqjTfSI9awHpbO0r2kNlxuOiXPw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712138282; c=relaxed/simple;
-	bh=8RRynYXEEsr910DpOhWgmhyIrE00u1hABv+0y3HxPJQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=taFXtpuvFJenNJjp66iIKkXrnvfMk6KGOQMOR9WcdAQVG14Ovw928/8xNSdp7N+oaccI3kcMJVKifrlUqZDaaRzdnc/Rizbl6wDK4CVnO+sOODXYZ+H5WY5KPfr9VFffNocgs6mslQuDoPJL1V3c3R8RrD1Yewhisv8td7oltj8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cTd6vcUi; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3253F143C42
+	for <virtualization@lists.linux-foundation.org>; Wed,  3 Apr 2024 11:59:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.133
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1712145544; cv=fail; b=Hj1YcbjZbrSTpWyST9aqR5mOqtZ6LlZzpMBjSwv3bVIa2aRUTnTH2csXKb4TiwEFpfwKScIKCNignn+bkJLAwmPXcA17Hps6SapUx4hS5ggKchyd4sll0HZec2ngF91aIef5RhdlhKiJNWT/P4VvU302mQDHNmjAVlwIMYNfq94=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1712145544; c=relaxed/simple;
+	bh=84yBnkGnFK6CNblbWiigGvmddlOvm4y2QZ7jZwSlrqQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=LGQHMkg4avrzyAAzBpvXY+LkNo5JxK81CBylv8suACttARumR/dNxgHfggWOx/giJg2mFvCyL9UH9jU+5I1yA4N5xqQszHQyJ+2eEWyhR2fBOUKqaPJjF8OLDCEqIsxEPXvl0yL/O0h0rEGb8OjzF5GImRoVLxB19/mgyn4D9Tc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=VdyeYP4J; arc=fail smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cTd6vcUi"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1712138278;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=0NkjBL5bDYnfw/9r7z0I5K4fWXu8LGwC+T3Asv+pwcA=;
-	b=cTd6vcUip3O1uXuISY8o2DL1x9xfi09U/s7cAsgjY1aGYj4/R8NpEsowmv6dpEvwYf70Wh
-	CzMZOUSq3OE/uNFytQ03QcP8mDBeC164w6ydC5ETlFRTsqyCZO63EXoNt4PKG14d/frfMD
-	BISWoYINYT/mMdLBF2Wy5/Geo6Butm8=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-387-u5KT4kDxPwSP0hNkIMWFZg-1; Wed, 03 Apr 2024 05:57:57 -0400
-X-MC-Unique: u5KT4kDxPwSP0hNkIMWFZg-1
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-41493ba3fcbso27969385e9.1
-        for <virtualization@lists.linux.dev>; Wed, 03 Apr 2024 02:57:57 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712138276; x=1712743076;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=0NkjBL5bDYnfw/9r7z0I5K4fWXu8LGwC+T3Asv+pwcA=;
-        b=cWQGw37bYce1N93QcPJXCE6QT4XM9gdpwqtvD6Zak2UGax1v+hEtnAMgPRKGeHV4y5
-         VkZt4gNHsEuYQ7aJKe6eBECVEZTjQFh0Wst/YBwjvK0Lli5blPvNCdLWYcAYz9gID1h0
-         Iu5PiYhCfceKI/reNMq66tOkcW3TcXLujRfQ8Mu5s75vjHMqdESnLf+BJ4w5bH7xxP2V
-         kBHo+zmRisAPEc4R6NXKtqlEUnROhUt2/rTtaqR7O+I2kuV8IApoYUg0C7tbqImB7Wzm
-         BM8IhhaywoLw38sKUii1X0ncgKRKB89LLdAWasaw/2rkabAdg0BcEHIwTXHzenZsAt1D
-         C22g==
-X-Forwarded-Encrypted: i=1; AJvYcCXDF810dkVb7hOexCB6fbX4EkSGwR9qaDtvakNfzbGHneSfChjoHii7hUsumBLkXlSh3VOCc5k2S2oqwimzL9yHV+qsjCLtX5Sy843+Ogg=
-X-Gm-Message-State: AOJu0YwYSp8Z1q0EtQqrdRVkenGMhAUZW2u/9iTrbYBMNHNDAUso4rPZ
-	cIMXeopg71ayxl1JKGogBoV8pfo6Mj7Glg4dcmUhK1zW48CApuiI30vR5I1VzWCYbumVlphRj64
-	pRrcVfnENbBl7n4/b+hmhShUDGozkGMz6dgv4AUs5AX86g6eMBcvWxB/bzBdE92QB
-X-Received: by 2002:a05:600c:1c99:b0:414:8a28:6c89 with SMTP id k25-20020a05600c1c9900b004148a286c89mr12523550wms.31.1712138276250;
-        Wed, 03 Apr 2024 02:57:56 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFOILQPfbGHxrOwnJYPLVzz5jLbxh1TQ7R/N3HPs9ewOGHos/rV5L9Q51JZB17uMPSq+TTRmQ==
-X-Received: by 2002:a05:600c:1c99:b0:414:8a28:6c89 with SMTP id k25-20020a05600c1c9900b004148a286c89mr12523530wms.31.1712138275940;
-        Wed, 03 Apr 2024 02:57:55 -0700 (PDT)
-Received: from sgarzare-redhat ([185.95.145.60])
-        by smtp.gmail.com with ESMTPSA id m4-20020a05600c3b0400b004161b8a0310sm4955377wms.1.2024.04.03.02.57.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Apr 2024 02:57:55 -0700 (PDT)
-Date: Wed, 3 Apr 2024 11:57:50 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, 
-	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, 
-	Zhu Lingshan <lingshan.zhu@intel.com>, Jason Wang <jasowang@redhat.com>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>, 
-	Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>, 
-	Kan Liang <kan.liang@linux.intel.com>
-Subject: Re: [PATCH] vhost-vdpa: change ioctl # for VDPA_GET_VRING_SIZE
-Message-ID: <qxnpqulknydwdaqn2uangg6ke6pzeo46us2xnqw37ll6m4te5m@ounccq6x7sto>
-References: <41c1c5489688abe5bfef9f7cf15584e3fb872ac5.1712092759.git.mst@redhat.com>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="VdyeYP4J"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id A2407416F4
+	for <virtualization@lists.linux-foundation.org>; Wed,  3 Apr 2024 11:59:02 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.103
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id v4Hvh4WNqwqi for <virtualization@lists.linux-foundation.org>;
+ Wed,  3 Apr 2024 11:59:01 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2418::700; helo=nam12-bn8-obe.outbound.protection.outlook.com; envelope-from=jgg@nvidia.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 5EB7A4017B
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5EB7A4017B
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=VdyeYP4J
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on20700.outbound.protection.outlook.com [IPv6:2a01:111:f403:2418::700])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 5EB7A4017B
+	for <virtualization@lists.linux-foundation.org>; Wed,  3 Apr 2024 11:59:00 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=T6lyfq+Lqaw3NTmOW3nD9VdYIFpT3933GO37PnM55Py45PPd2DbmeApxxxQM7N5ZBkxKlyaEhssrqh8f94Sd+wpfCH/xCdMU42Lim8OjLdGv/xukIhOaANggHVHffSHM0Zwl6/cBSWPG7jZQzFWSh5jZL8s3A9iQbKlC1s5WM3kVmC43w+kSYsYNI6HKZ895nohxFJkWrEnuCTYl+bRLIGnuezie38B3iyvzr+jFpJCyA/2eCgosRmGTGgBFMuBcj5YCxlmIt96WpuXMFjvWvK1p2B3h0alH8o3GU5YBXVv1ySEN8CbHlFuqO/jeHJIqbOy+Rkay0Vt27cdxMolrOg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=lnEEbKZy2pvn32/kc8iBkjVg9oUfhnu0JSOlYGczkkE=;
+ b=P8eFhZwbSi7h8umUoHemqpUoR9O7x9BHUI+e89Pb2BuDDWASy0uHYKsBpvig3gzpF9R67d5wh1s4Hx5QrbQSGUcG8MectklX0EoG4yP0vTJDCFuI2EM2W9w5U5KNMBy5GuumZompgA7Hg4/7M1qD7HWpGgC2IEwRGtIKxaKI60Wwslm/Z3YC9m0b12UCXVK39eUGr/npUTPNHGz0rd0XUc+Y2bc6vtmP7uBqY0AGCCQ3NCCFTfSmQo7S33nd3z/AxEcCOUqnveLQDpO32dxIF4E1qOWRnahrTU74j+T9VDEICNqhqto9XDPrsq1tiBmWRbVfhppDMo16UVEWQUD3mw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=lnEEbKZy2pvn32/kc8iBkjVg9oUfhnu0JSOlYGczkkE=;
+ b=VdyeYP4JON9t3uWwGiWgmcY1l1wiQjX1SGG1z+ycvcl5m87jcbZfqibQx254/dGVm6UujawwSMqL6lT9jatbk+efcHEO2ezVuId/G+yjVrgUbDLlbDmNg8wd26M/DAgWfeoJJWe+sc6zT0Ecjk78iFxkm6xsRIms6r19cidWEVhKrirXdyk81+VTs81FDzhMc4KREmWPCS4uWmyu6JtyJtE5uMkrUEyWe615PWV8MzlBtT8c5liH93cFyGJf/JmyQ2sPYx44aq0PWYr1OAH7XjHHjMZNiBBXuc46s5r0mR0z7VXpC+3Xs5s7IoC4+b1BZunUue0PEuB8Sd/b3CoZ6A==
+Received: from DM6PR12MB3849.namprd12.prod.outlook.com (2603:10b6:5:1c7::26)
+ by IA1PR12MB7688.namprd12.prod.outlook.com (2603:10b6:208:420::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7409.46; Wed, 3 Apr
+ 2024 11:58:53 +0000
+Received: from DM6PR12MB3849.namprd12.prod.outlook.com
+ ([fe80::6aec:dbca:a593:a222]) by DM6PR12MB3849.namprd12.prod.outlook.com
+ ([fe80::6aec:dbca:a593:a222%5]) with mapi id 15.20.7409.042; Wed, 3 Apr 2024
+ 11:58:53 +0000
+Date: Wed, 3 Apr 2024 08:58:51 -0300
+From: Jason Gunthorpe <jgg@nvidia.com>
+To: Lu Baolu <baolu.lu@linux.intel.com>
+Cc: Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
+	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
+	Jean-Philippe Brucker <jean-philippe@linaro.org>,
+	Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
+	Jacob Pan <jacob.jun.pan@linux.intel.com>,
+	Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
+	virtualization@lists.linux-foundation.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4 1/9] iommu: Introduce domain attachment handle
+Message-ID: <20240403115851.GA1723999@nvidia.com>
+References: <20240403011519.78512-1-baolu.lu@linux.intel.com>
+ <20240403011519.78512-2-baolu.lu@linux.intel.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240403011519.78512-2-baolu.lu@linux.intel.com>
+X-ClientProxiedBy: SA0PR11CA0201.namprd11.prod.outlook.com
+ (2603:10b6:806:1bc::26) To DM6PR12MB3849.namprd12.prod.outlook.com
+ (2603:10b6:5:1c7::26)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <41c1c5489688abe5bfef9f7cf15584e3fb872ac5.1712092759.git.mst@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DM6PR12MB3849:EE_|IA1PR12MB7688:EE_
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	VPkm1Dj61pStRpKkHmdkkT8VRyyXl1Nf5ND8peBHfsyZm7JiBYiG90LN7U8efANVDcnsRmcfAKD8LBgASCuVBrYKP5oE+EAQxp00SM42cTQZcBB0MIMbY9v1E008eKtL7LUeEHTeXAhMO776DglyELk5Io2pKO1TaV1kXnFHgN3dY5leVX9fljOEafMvSLsCekYO1fPo4VyipKyzhS+uCJhTvZ529GbVRVbLhMaSAQkiVxGQjNV8sGUjgedgb3rsLYQWXsCboTX6lgJPvP+FmlpCF1rNuQkv2BguNJTvePeW2ToegVvo1joj7829OhPZNKjY0oKV+OZujptTEThviRWCBOHaJqUBLCyP5hz/2EZN2vsvyMa+Ha8qDvNyWATd5S/8FAS/b8uz5vEn2DERozxN8yjzdNr8jLQxykgmUvmhYMzgyCKeDTDPaphzwfRBawai/+NP/pMYY0gtht1TE/3WLCYBmtMt8i71BHDrWEquUotfVpc7taESO/bmIx0EVLDakoEpyqZ2uK53nHvHOoH7BYtCYekNdF6XIgAbbgPSVhychZqIYr4m0QhMcoklXwpOIEqMtXd0rOYiUCocFn7rZEw1BYhRQi6orxWohpGIUcUs85uFGlBREb9mY1kNhncbLRCjPjQwTOuIHEDlwaNVtgfFRZG9ccDfpwgNiEc=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR12MB3849.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(7416005)(366007)(1800799015)(376005);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?XliPTdb3JxKu4bdSeMjI5+8cnrWcaAvEAs3FVmf7qpOiLkE6xAeF+nk09pki?=
+ =?us-ascii?Q?qmGumr2sK5Uc++MpERC3UeKYzGVdsZGzNP0LzfVF1Y90yU1HfCIZZzWBZcZp?=
+ =?us-ascii?Q?Wpvr4Ck+qlGIa24ZScIl2p2ZLJkjuP5e4H6epg0tdWgQdwtz/RICj+Ln2lqg?=
+ =?us-ascii?Q?z/3IJv1yR32HQJL3O3dJVR8LlkeApfuYH4LEdtt1xeY5S/xZuXZrlZoU/1sl?=
+ =?us-ascii?Q?pSWXJ6ZUdz7HqclgWI9WqZefEhctDi3v8ssUZLCyGErpQfSxIRAFF0kKwyuy?=
+ =?us-ascii?Q?Yvxu9zXo7Io1QxFhizCMbeuYpqrPTHatTrXIdJpdJObIYYlufIePmr7bAm4W?=
+ =?us-ascii?Q?4iZkr0+8u4uMWBuK/54sAmRif6hBb6q1E32eogkYqO1vgj27s4c0c+TybvLv?=
+ =?us-ascii?Q?9iapnBcuhU3itHBmX8X/FxJ0Dpa85vgqxkK1WTKowwe0CA12k6X7C0DqxwI4?=
+ =?us-ascii?Q?CX8y0IMEhdwYlF+ncDDm+x0usi3CRPrHckSrB/8jWRa3NaGo+orsXMKtfIRR?=
+ =?us-ascii?Q?hliXjMJHAtyfWhIe2C6gWvKYpE7BbuYZBQFORhttUJv5y6lf6AZQqCcKh2AQ?=
+ =?us-ascii?Q?YG6tZjiAsim3IO06dhZCO/QvsGZdTpixKQUp0T5OI7fF4lsFlJZ4NQ90t5qT?=
+ =?us-ascii?Q?kuW9zJKZWvpH2Qna/oKq0VoNoHnQQ4qAruCJ3uYgPaC6Fhx3dM9cPhe+/ST+?=
+ =?us-ascii?Q?8L79beah71p8X+ohb9k9kBqd87v7X5hMSZ8phSQTyoO8g8CgiE8PRKXwqTSj?=
+ =?us-ascii?Q?ZpXuDDptr+k61HI88OpB/oM38X9HtdpNFbqF2+nslSOu3TZ4/RsVqEwl8b95?=
+ =?us-ascii?Q?DJxPE50Er7rkkKstfQv9/DrOZLgWV5panI0PrX0m/q2Cb0yfbOVKtxzcmiYj?=
+ =?us-ascii?Q?rx77KZ/DzExFBh6nqhKU8g+TofcKbIQDr9kYNTxkCC1NvdiQrkSl2pvZFkb6?=
+ =?us-ascii?Q?zg+hpM3qEJjILucJNZlK4aHAxN4SoYUKgMd9jRqeA7jI82LQeV1zZ7QUgird?=
+ =?us-ascii?Q?IUvuI42sdJq4lJoUN4GpKOmEwLmOWRreziZJS2EgGhceaXnAbppUv/ybPYtG?=
+ =?us-ascii?Q?/PSt4uvDlxdapewG50bxyzcBxr6WR1fJ49lIJC8bbS7yVo4lBvdmITjVNK/g?=
+ =?us-ascii?Q?ib5UH36t92CgcWdvjDFY+5wPuRNCj4oaGql6YHju7KqDt+Ny5scyaITTZ0E5?=
+ =?us-ascii?Q?HawtrA+IQXycT62k1Ta7g3X5NCcSE5LZDmYsJH3bA07eC3nRgG7FYWcKI6+R?=
+ =?us-ascii?Q?S42OssTwERxirZtAPXQr29ewiOqyoXLUwGYkFYJ11sTIu8GnBv1gCexvJRYU?=
+ =?us-ascii?Q?7bs/XnvzR65JnAR3vp8mkiMdq+9oi+bkyQ5k/RA0B5BrNwkwq32l3f326dM9?=
+ =?us-ascii?Q?SAEPb5vru45nYqXe4ZAS8H57AQRIsOdBxSQQsqqio2jv0RbElLDRNjHdutPa?=
+ =?us-ascii?Q?4D99MqzKWPOHKzWyllYiABimtQY1BzcsAUkyfPcoGUnZo8kVHzl3hU9bcOnI?=
+ =?us-ascii?Q?Jjuk+p38ZUwjQjd1onYufOPtXvXoB0Z//TFijupj/jpnmFAoJsFY9em8xX9Q?=
+ =?us-ascii?Q?oT77itEYyg4DeA/n0THjmOibnWD8KgxysInYA0aQ?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: af5f3223-cc13-4bd7-9efe-08dc53d56ee3
+X-MS-Exchange-CrossTenant-AuthSource: DM6PR12MB3849.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Apr 2024 11:58:53.4708
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: I55o2z+Sr5WAaDLTY87Qr4urNdfUHcZE+/NdVdiSni6SLBdoB3ZMo8AcCpMidm2h
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB7688
 
-On Tue, Apr 02, 2024 at 05:21:39PM -0400, Michael S. Tsirkin wrote:
->VDPA_GET_VRING_SIZE by mistake uses the already occupied
->ioctl # 0x80 and we never noticed - it happens to work
->because the direction and size are different, but confuses
->tools such as perf which like to look at just the number,
->and breaks the extra robustness of the ioctl numbering macros.
->
->To fix, sort the entries and renumber the ioctl - not too late
->since it wasn't in any released kernels yet.
->
->Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
->Reported-by: Namhyung Kim <namhyung@kernel.org>
->Fixes: 1496c47065f9 ("vhost-vdpa: uapi to support reporting per vq size")
->Cc: "Zhu Lingshan" <lingshan.zhu@intel.com>
->Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
->---
->
->Build tested only - userspace patches using this will have to adjust.
->I will merge this in a week or so unless I hear otherwise,
->and afterwards perf can update there header.
+On Wed, Apr 03, 2024 at 09:15:11AM +0800, Lu Baolu wrote:
+> Currently, when attaching a domain to a device or its PASID, domain is
+> stored within the iommu group. It could be retrieved for use during the
+> window between attachment and detachment.
+> 
+> With new features introduced, there's a need to store more information
+> than just a domain pointer. This information essentially represents the
+> association between a domain and a device. For example, the SVA code
+> already has a custom struct iommu_sva which represents a bond between
+> sva domain and a PASID of a device. Looking forward, the IOMMUFD needs
+> a place to store the iommufd_device pointer in the core, so that the
+> device object ID could be quickly retrieved in the critical fault handling
+> path.
+> 
+> Introduce domain attachment handle that explicitly represents the
+> attachment relationship between a domain and a device or its PASID.
+> A caller-specific data field can be used by the caller to store additional
+> information beyond a domain pointer, depending on its specific use case.
+> 
+> Co-developed-by: Jason Gunthorpe <jgg@nvidia.com>
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+> ---
+>  drivers/iommu/iommu-priv.h |   9 +++
+>  drivers/iommu/iommu.c      | 158 +++++++++++++++++++++++++++++++++----
+>  2 files changed, 153 insertions(+), 14 deletions(-)
+> 
+> diff --git a/drivers/iommu/iommu-priv.h b/drivers/iommu/iommu-priv.h
+> index 5f731d994803..08c0667cef54 100644
+> --- a/drivers/iommu/iommu-priv.h
+> +++ b/drivers/iommu/iommu-priv.h
+> @@ -28,4 +28,13 @@ void iommu_device_unregister_bus(struct iommu_device *iommu,
+>  				 const struct bus_type *bus,
+>  				 struct notifier_block *nb);
+>  
+> +struct iommu_attach_handle {
+> +	struct iommu_domain		*domain;
+> +	refcount_t			users;
 
-Fortunately, we haven't released any kernels with this yet, right?
-(other than v6.9-rc*)
+I don't understand how the refcounting can be generally useful. There
+is no way to free this:
 
-LGTM:
+> +	void				*priv;
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+When the refcount goes to zero.
 
->
-> include/uapi/linux/vhost.h | 15 ++++++++-------
-> 1 file changed, 8 insertions(+), 7 deletions(-)
->
->diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
->index bea697390613..b95dd84eef2d 100644
->--- a/include/uapi/linux/vhost.h
->+++ b/include/uapi/linux/vhost.h
->@@ -179,12 +179,6 @@
-> /* Get the config size */
-> #define VHOST_VDPA_GET_CONFIG_SIZE	_IOR(VHOST_VIRTIO, 0x79, __u32)
->
->-/* Get the count of all virtqueues */
->-#define VHOST_VDPA_GET_VQS_COUNT	_IOR(VHOST_VIRTIO, 0x80, __u32)
->-
->-/* Get the number of virtqueue groups. */
->-#define VHOST_VDPA_GET_GROUP_NUM	_IOR(VHOST_VIRTIO, 0x81, __u32)
->-
-> /* Get the number of address spaces. */
-> #define VHOST_VDPA_GET_AS_NUM		_IOR(VHOST_VIRTIO, 0x7A, unsigned int)
->
->@@ -228,10 +222,17 @@
-> #define VHOST_VDPA_GET_VRING_DESC_GROUP	_IOWR(VHOST_VIRTIO, 0x7F,	\
-> 					      struct vhost_vring_state)
->
->+
->+/* Get the count of all virtqueues */
->+#define VHOST_VDPA_GET_VQS_COUNT	_IOR(VHOST_VIRTIO, 0x80, __u32)
->+
->+/* Get the number of virtqueue groups. */
->+#define VHOST_VDPA_GET_GROUP_NUM	_IOR(VHOST_VIRTIO, 0x81, __u32)
->+
-> /* Get the queue size of a specific virtqueue.
->  * userspace set the vring index in vhost_vring_state.index
->  * kernel set the queue size in vhost_vring_state.num
->  */
->-#define VHOST_VDPA_GET_VRING_SIZE	_IOWR(VHOST_VIRTIO, 0x80,	\
->+#define VHOST_VDPA_GET_VRING_SIZE	_IOWR(VHOST_VIRTIO, 0x82,	\
-> 					      struct vhost_vring_state)
-> #endif
->-- 
->MST
->
->
-
+Jason
