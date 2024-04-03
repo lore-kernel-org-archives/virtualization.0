@@ -1,66 +1,66 @@
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1894333997
-	for <virtualization@lists.linux-foundation.org>; Wed,  3 Apr 2024 01:16:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 579AC433DF
+	for <virtualization@lists.linux-foundation.org>; Wed,  3 Apr 2024 01:16:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712107010; cv=none; b=i3ZdFij3qr2wBJuW76NYpnKtXhhcutTKpjdkF2y0SDLNos9Nzpsw/vaRkN7wSW66OgimxltMdjHU1y/Ookup/6ErV4Aa3fA+T4t8M+kY4JKNlIdQGvFOb8D8vpGkcbKdkhnq3g51RnoupnP0SDs7NsifAcbMpq1KVPc1TcrvlkQ=
+	t=1712107017; cv=none; b=NwqOue9Q7gOb/2tDy2I/hmF99mdebJWiPH/XBZyVtt7yA0hn6Gsio5K5TvM/KyhA8p3MgeKhMsyHgyRuXQYZB6jd90ixr+Cl0PXmb9DCjfWnpkS3+Tn10zR4OjkqALUn0hWzrWODsJI0EoenCBAco+SbE3ZRRjDy5p+KsSOIrkU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712107010; c=relaxed/simple;
-	bh=b7TJ0f955tOKCT0EcM00BUcCZoKgdNaMTCXKLFWx9x4=;
+	s=arc-20240116; t=1712107017; c=relaxed/simple;
+	bh=Wx8nv2RbfUU5/rQlE3i/mjUA8iZwQsBV38GWN5zfJWQ=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=LQo4hJG1ffOO5VCCL21IJRLmoIQsonCZkF0UxrlF2MCsTqISg6AoBRUXs3lAzMzoPih0QN0foyldaV2TceW39ZJj/BBfWpnu+otDYR5VJjIXNIjwRSit6pyPKwdbOpPUCrE5Tsp+LGkDnM+mC7rw85/wHicnzcCsLkquOf961O4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=e4MhoAj5; arc=none smtp.client-ip=140.211.166.133
+	 MIME-Version; b=QP1yoXCve0fsuPRCEd2JfcB+2EzrrM6p/wB4WuhnCkofhBqWmRPuawGdSeFDJ3cfQHXJzPHhkuOvRIhdXKlRugnyIwNmCbal8E2AtpzEZhPkQaaVmTla/dnXZ9daiPW6s9PNhd7X0zzlhGBVBsukodLzf65BzRC435JCvjezdH0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=dkrNeACb; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="e4MhoAj5"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="dkrNeACb"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id A6B0640B72
-	for <virtualization@lists.linux-foundation.org>; Wed,  3 Apr 2024 01:16:48 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id EDBE040B72
+	for <virtualization@lists.linux-foundation.org>; Wed,  3 Apr 2024 01:16:51 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.699
 X-Spam-Level:
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 4SjWpoHrwJvu for <virtualization@lists.linux-foundation.org>;
- Wed,  3 Apr 2024 01:16:47 +0000 (UTC)
+ id lEIHj07yCtld for <virtualization@lists.linux-foundation.org>;
+ Wed,  3 Apr 2024 01:16:51 +0000 (UTC)
 Received-SPF: None (mailfrom) identity=mailfrom; client-ip=198.175.65.16; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org B4B70402DC
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 1C553402DC
 Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B4B70402DC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1C553402DC
 Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=e4MhoAj5
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=dkrNeACb
 Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.16])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id B4B70402DC
-	for <virtualization@lists.linux-foundation.org>; Wed,  3 Apr 2024 01:16:47 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 1C553402DC
+	for <virtualization@lists.linux-foundation.org>; Wed,  3 Apr 2024 01:16:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1712107008; x=1743643008;
+  t=1712107011; x=1743643011;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=b7TJ0f955tOKCT0EcM00BUcCZoKgdNaMTCXKLFWx9x4=;
-  b=e4MhoAj59P0UIGHlKZ8siMZPlmGFEEEBxEQd4SxrDHCPZnxTCv52XQR9
-   RwK4vMtlR02YQCqFQh66B+X1u0tXZZDu958vjTtKvXrIzBiqhDDxgfpsh
-   FyY2wysnLgTUSWQoDm9ZQsbVjVWPm+MwkBHgSqcoJDfgjwHest/jPStqp
-   DShMedk8ogPxgurpKApwa1RGpnZYBX366KUFI/8RvdkWC6QyDnkPsQbuO
-   uNWdFEU5t5LsTuD+HbMECXSrSdXUo03JP1FEBLMtA7+K7taWyC+B9dZoQ
-   V7lUqTl7oahilpmTpe4u/IK2H8XibwzhwGmmv42WBCzbXXQ8tge8wwNd+
-   g==;
-X-CSE-ConnectionGUID: ByiovO2CRz2o7xo1MUnTwQ==
-X-CSE-MsgGUID: J7HGthK2TB+ypKmAd57M7A==
-X-IronPort-AV: E=McAfee;i="6600,9927,11032"; a="7439811"
+  bh=Wx8nv2RbfUU5/rQlE3i/mjUA8iZwQsBV38GWN5zfJWQ=;
+  b=dkrNeACbuP53UxBevl+OOUH461scrw/knG8rR5mcaZopVx2rpRiDavdP
+   Th+73jBJ5eRdsAojkMB/QKqQL8srrZQryJLHCD6MXhuJCu7xeqkgQ6dov
+   FvHxA+eCB78OH/FjdZ1hFteMa60yiu0XWDuKjedixYXoXOeatphCuPQb/
+   BOOpDE9NfKYNIUlRZV0T4ILFSg+TRJJH7MYJUeHqNuvrWxfmT+kZyxkvY
+   wQ4L7w8v7CT6YW6J8eCylIbSLoLQWHCmtuPL29AAAyq8YL8dHy+E3vr/3
+   aVWh6L6WYEY7emq9Qiqmf34AeIMxquWuWRa41560BWB+gq3hTXczrDpxK
+   Q==;
+X-CSE-ConnectionGUID: 4AzQXQ0wQUCkbPuPUvx2jQ==
+X-CSE-MsgGUID: XLJlAeVsR0qfl0uwZfyLzg==
+X-IronPort-AV: E=McAfee;i="6600,9927,11032"; a="7439825"
 X-IronPort-AV: E=Sophos;i="6.07,176,1708416000"; 
-   d="scan'208";a="7439811"
+   d="scan'208";a="7439825"
 Received: from orviesa003.jf.intel.com ([10.64.159.143])
-  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Apr 2024 18:16:47 -0700
-X-CSE-ConnectionGUID: iQL+MAlSQbCguAZ9/PzDpA==
-X-CSE-MsgGUID: ikxUkevlRwaGnGq73QaT9g==
+  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Apr 2024 18:16:51 -0700
+X-CSE-ConnectionGUID: pSiwoUD0SXK6SiFjMtW1JQ==
+X-CSE-MsgGUID: WlFwJaLyRwKyd+SQHm1mkg==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.07,176,1708416000"; 
-   d="scan'208";a="22953316"
+   d="scan'208";a="22953328"
 Received: from allen-box.sh.intel.com ([10.239.159.127])
-  by orviesa003.jf.intel.com with ESMTP; 02 Apr 2024 18:16:45 -0700
+  by orviesa003.jf.intel.com with ESMTP; 02 Apr 2024 18:16:48 -0700
 From: Lu Baolu <baolu.lu@linux.intel.com>
 To: Jason Gunthorpe <jgg@ziepe.ca>,
 	Kevin Tian <kevin.tian@intel.com>,
@@ -76,9 +76,9 @@ Cc: iommu@lists.linux.dev,
 	virtualization@lists.linux-foundation.org,
 	linux-kernel@vger.kernel.org,
 	Lu Baolu <baolu.lu@linux.intel.com>
-Subject: [PATCH v4 7/9] iommufd: Associate fault object with iommufd_hw_pgtable
-Date: Wed,  3 Apr 2024 09:15:17 +0800
-Message-Id: <20240403011519.78512-8-baolu.lu@linux.intel.com>
+Subject: [PATCH v4 8/9] iommufd/selftest: Add IOPF support for mock device
+Date: Wed,  3 Apr 2024 09:15:18 +0800
+Message-Id: <20240403011519.78512-9-baolu.lu@linux.intel.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20240403011519.78512-1-baolu.lu@linux.intel.com>
 References: <20240403011519.78512-1-baolu.lu@linux.intel.com>
@@ -90,205 +90,160 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-When allocating a user iommufd_hw_pagetable, the user space is allowed to
-associate a fault object with the hw_pagetable by specifying the fault
-object ID in the page table allocation data and setting the
-IOMMU_HWPT_FAULT_ID_VALID flag bit.
-
-On a successful return of hwpt allocation, the user can retrieve and
-respond to page faults by reading and writing the file interface of the
-fault object.
-
-Once a fault object has been associated with a hwpt, the hwpt is
-iopf-capable, indicated by fault_capable set to true. Attaching,
-detaching, or replacing an iopf-capable hwpt to an RID or PASID will
-differ from those that are not iopf-capable.
+Extend the selftest mock device to support generating and responding to
+an IOPF. Also add an ioctl interface to userspace applications to trigger
+the IOPF on the mock device. This would allow userspace applications to
+test the IOMMUFD's handling of IOPFs without having to rely on any real
+hardware.
 
 Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
 ---
- drivers/iommu/iommufd/iommufd_private.h | 10 +++++++
- include/uapi/linux/iommufd.h            |  8 ++++++
- drivers/iommu/iommufd/fault.c           | 20 ++++++++++++++
- drivers/iommu/iommufd/hw_pagetable.c    | 36 +++++++++++++++++++------
- 4 files changed, 66 insertions(+), 8 deletions(-)
+ drivers/iommu/iommufd/iommufd_test.h |  8 ++++
+ drivers/iommu/iommufd/selftest.c     | 63 ++++++++++++++++++++++++++++
+ 2 files changed, 71 insertions(+)
 
-diff --git a/drivers/iommu/iommufd/iommufd_private.h b/drivers/iommu/iommufd/iommufd_private.h
-index 8dad1150eaf0..0c2f5fee4130 100644
---- a/drivers/iommu/iommufd/iommufd_private.h
-+++ b/drivers/iommu/iommufd/iommufd_private.h
-@@ -293,6 +293,7 @@ int iommufd_check_iova_range(struct io_pagetable *iopt,
- struct iommufd_hw_pagetable {
- 	struct iommufd_object obj;
- 	struct iommu_domain *domain;
-+	struct iommufd_fault *fault;
- 	bool fault_capable;
+diff --git a/drivers/iommu/iommufd/iommufd_test.h b/drivers/iommu/iommufd/iommufd_test.h
+index e854d3f67205..acbbba1c6671 100644
+--- a/drivers/iommu/iommufd/iommufd_test.h
++++ b/drivers/iommu/iommufd/iommufd_test.h
+@@ -22,6 +22,7 @@ enum {
+ 	IOMMU_TEST_OP_MOCK_DOMAIN_FLAGS,
+ 	IOMMU_TEST_OP_DIRTY,
+ 	IOMMU_TEST_OP_MD_CHECK_IOTLB,
++	IOMMU_TEST_OP_TRIGGER_IOPF,
  };
  
-@@ -456,8 +457,17 @@ struct iommufd_fault {
- 	struct wait_queue_head wait_queue;
+ enum {
+@@ -127,6 +128,13 @@ struct iommu_test_cmd {
+ 			__u32 id;
+ 			__u32 iotlb;
+ 		} check_iotlb;
++		struct {
++			__u32 dev_id;
++			__u32 pasid;
++			__u32 grpid;
++			__u32 perm;
++			__u64 addr;
++		} trigger_iopf;
+ 	};
+ 	__u32 last;
+ };
+diff --git a/drivers/iommu/iommufd/selftest.c b/drivers/iommu/iommufd/selftest.c
+index 97ce62602e66..f925f5e5c00a 100644
+--- a/drivers/iommu/iommufd/selftest.c
++++ b/drivers/iommu/iommufd/selftest.c
+@@ -504,6 +504,8 @@ static bool mock_domain_capable(struct device *dev, enum iommu_cap cap)
+ 	return false;
+ }
+ 
++static struct iopf_queue *mock_iommu_iopf_queue;
++
+ static struct iommu_device mock_iommu_device = {
  };
  
-+static inline struct iommufd_fault *
-+iommufd_get_fault(struct iommufd_ucmd *ucmd, u32 id)
+@@ -514,6 +516,29 @@ static struct iommu_device *mock_probe_device(struct device *dev)
+ 	return &mock_iommu_device;
+ }
+ 
++static void mock_domain_page_response(struct device *dev, struct iopf_fault *evt,
++				      struct iommu_page_response *msg)
 +{
-+	return container_of(iommufd_get_object(ucmd->ictx, id,
-+					       IOMMUFD_OBJ_FAULT),
-+			    struct iommufd_fault, obj);
 +}
 +
- int iommufd_fault_alloc(struct iommufd_ucmd *ucmd);
- void iommufd_fault_destroy(struct iommufd_object *obj);
-+int iommufd_fault_iopf_handler(struct iopf_group *group);
- 
- #ifdef CONFIG_IOMMUFD_TEST
- int iommufd_test(struct iommufd_ucmd *ucmd);
-diff --git a/include/uapi/linux/iommufd.h b/include/uapi/linux/iommufd.h
-index 1819b28e9e6b..3d566c1ffcc6 100644
---- a/include/uapi/linux/iommufd.h
-+++ b/include/uapi/linux/iommufd.h
-@@ -357,10 +357,13 @@ struct iommu_vfio_ioas {
-  *                                the parent HWPT in a nesting configuration.
-  * @IOMMU_HWPT_ALLOC_DIRTY_TRACKING: Dirty tracking support for device IOMMU is
-  *                                   enforced on device attachment
-+ * @IOMMU_HWPT_FAULT_ID_VALID: The fault_id field of hwpt allocation data is
-+ *                             valid.
-  */
- enum iommufd_hwpt_alloc_flags {
- 	IOMMU_HWPT_ALLOC_NEST_PARENT = 1 << 0,
- 	IOMMU_HWPT_ALLOC_DIRTY_TRACKING = 1 << 1,
-+	IOMMU_HWPT_FAULT_ID_VALID = 1 << 2,
- };
- 
- /**
-@@ -412,6 +415,9 @@ enum iommu_hwpt_data_type {
-  * @data_type: One of enum iommu_hwpt_data_type
-  * @data_len: Length of the type specific data
-  * @data_uptr: User pointer to the type specific data
-+ * @fault_id: The ID of IOMMUFD_FAULT object. Valid only if flags field of
-+ *            IOMMU_HWPT_FAULT_ID_VALID is set.
-+ * @__reserved2: Padding to 64-bit alignment. Must be 0.
-  *
-  * Explicitly allocate a hardware page table object. This is the same object
-  * type that is returned by iommufd_device_attach() and represents the
-@@ -442,6 +448,8 @@ struct iommu_hwpt_alloc {
- 	__u32 data_type;
- 	__u32 data_len;
- 	__aligned_u64 data_uptr;
-+	__u32 fault_id;
-+	__u32 __reserved2;
- };
- #define IOMMU_HWPT_ALLOC _IO(IOMMUFD_TYPE, IOMMUFD_CMD_HWPT_ALLOC)
- 
-diff --git a/drivers/iommu/iommufd/fault.c b/drivers/iommu/iommufd/fault.c
-index f16f15e7edd4..ffe948b6a5b5 100644
---- a/drivers/iommu/iommufd/fault.c
-+++ b/drivers/iommu/iommufd/fault.c
-@@ -350,3 +350,23 @@ int iommufd_fault_alloc(struct iommufd_ucmd *ucmd)
- 
- 	return rc;
- }
-+
-+int iommufd_fault_iopf_handler(struct iopf_group *group)
++static int mock_dev_enable_feat(struct device *dev, enum iommu_dev_features feat)
 +{
-+	struct iommufd_hw_pagetable *hwpt;
-+	struct iommufd_fault *fault;
++	if (feat != IOMMU_DEV_FEAT_IOPF || !mock_iommu_iopf_queue)
++		return -ENODEV;
 +
-+	if (!group->attach_handle)
-+		return -EINVAL;
++	return iopf_queue_add_device(mock_iommu_iopf_queue, dev);
++}
 +
-+	hwpt = group->attach_handle->domain->fault_data;
-+	fault = hwpt->fault;
++static int mock_dev_disable_feat(struct device *dev, enum iommu_dev_features feat)
++{
++	if (feat != IOMMU_DEV_FEAT_IOPF || !mock_iommu_iopf_queue)
++		return -ENODEV;
 +
-+	mutex_lock(&fault->mutex);
-+	list_add_tail(&group->node, &fault->deliver);
-+	mutex_unlock(&fault->mutex);
-+
-+	wake_up_interruptible(&fault->wait_queue);
++	iopf_queue_remove_device(mock_iommu_iopf_queue, dev);
 +
 +	return 0;
 +}
-diff --git a/drivers/iommu/iommufd/hw_pagetable.c b/drivers/iommu/iommufd/hw_pagetable.c
-index 33d142f8057d..95ea943f5be5 100644
---- a/drivers/iommu/iommufd/hw_pagetable.c
-+++ b/drivers/iommu/iommufd/hw_pagetable.c
-@@ -8,6 +8,15 @@
- #include "../iommu-priv.h"
- #include "iommufd_private.h"
- 
-+static void __iommufd_hwpt_destroy(struct iommufd_hw_pagetable *hwpt)
-+{
-+	if (hwpt->domain)
-+		iommu_domain_free(hwpt->domain);
 +
-+	if (hwpt->fault)
-+		iommufd_put_object(hwpt->fault->ictx, &hwpt->fault->obj);
+ static const struct iommu_ops mock_ops = {
+ 	/*
+ 	 * IOMMU_DOMAIN_BLOCKED cannot be returned from def_domain_type()
+@@ -529,6 +554,9 @@ static const struct iommu_ops mock_ops = {
+ 	.capable = mock_domain_capable,
+ 	.device_group = generic_device_group,
+ 	.probe_device = mock_probe_device,
++	.page_response = mock_domain_page_response,
++	.dev_enable_feat = mock_dev_enable_feat,
++	.dev_disable_feat = mock_dev_disable_feat,
+ 	.default_domain_ops =
+ 		&(struct iommu_domain_ops){
+ 			.free = mock_domain_free,
+@@ -1397,6 +1425,31 @@ static int iommufd_test_dirty(struct iommufd_ucmd *ucmd, unsigned int mockpt_id,
+ 	return rc;
+ }
+ 
++static int iommufd_test_trigger_iopf(struct iommufd_ucmd *ucmd,
++				     struct iommu_test_cmd *cmd)
++{
++	struct iopf_fault event = { };
++	struct iommufd_device *idev;
++
++	idev = iommufd_get_device(ucmd, cmd->trigger_iopf.dev_id);
++	if (IS_ERR(idev))
++		return PTR_ERR(idev);
++
++	event.fault.prm.flags = IOMMU_FAULT_PAGE_REQUEST_LAST_PAGE;
++	if (cmd->trigger_iopf.pasid != IOMMU_NO_PASID)
++		event.fault.prm.flags |= IOMMU_FAULT_PAGE_REQUEST_PASID_VALID;
++	event.fault.type = IOMMU_FAULT_PAGE_REQ;
++	event.fault.prm.addr = cmd->trigger_iopf.addr;
++	event.fault.prm.pasid = cmd->trigger_iopf.pasid;
++	event.fault.prm.grpid = cmd->trigger_iopf.grpid;
++	event.fault.prm.perm = cmd->trigger_iopf.perm;
++
++	iommu_report_device_fault(idev->dev, &event);
++	iommufd_put_object(ucmd->ictx, &idev->obj);
++
++	return 0;
 +}
 +
- void iommufd_hwpt_paging_destroy(struct iommufd_object *obj)
+ void iommufd_selftest_destroy(struct iommufd_object *obj)
  {
- 	struct iommufd_hwpt_paging *hwpt_paging =
-@@ -22,9 +31,7 @@ void iommufd_hwpt_paging_destroy(struct iommufd_object *obj)
- 					 hwpt_paging->common.domain);
+ 	struct selftest_obj *sobj = container_of(obj, struct selftest_obj, obj);
+@@ -1472,6 +1525,8 @@ int iommufd_test(struct iommufd_ucmd *ucmd)
+ 					  cmd->dirty.page_size,
+ 					  u64_to_user_ptr(cmd->dirty.uptr),
+ 					  cmd->dirty.flags);
++	case IOMMU_TEST_OP_TRIGGER_IOPF:
++		return iommufd_test_trigger_iopf(ucmd, cmd);
+ 	default:
+ 		return -EOPNOTSUPP;
  	}
- 
--	if (hwpt_paging->common.domain)
--		iommu_domain_free(hwpt_paging->common.domain);
--
-+	__iommufd_hwpt_destroy(&hwpt_paging->common);
- 	refcount_dec(&hwpt_paging->ioas->obj.users);
- }
- 
-@@ -49,9 +56,7 @@ void iommufd_hwpt_nested_destroy(struct iommufd_object *obj)
- 	struct iommufd_hwpt_nested *hwpt_nested =
- 		container_of(obj, struct iommufd_hwpt_nested, common.obj);
- 
--	if (hwpt_nested->common.domain)
--		iommu_domain_free(hwpt_nested->common.domain);
--
-+	__iommufd_hwpt_destroy(&hwpt_nested->common);
- 	refcount_dec(&hwpt_nested->parent->common.obj.users);
- }
- 
-@@ -213,7 +218,8 @@ iommufd_hwpt_nested_alloc(struct iommufd_ctx *ictx,
- 	struct iommufd_hw_pagetable *hwpt;
- 	int rc;
- 
--	if (flags || !user_data->len || !ops->domain_alloc_user)
-+	if ((flags & ~IOMMU_HWPT_FAULT_ID_VALID) ||
-+	    !user_data->len || !ops->domain_alloc_user)
- 		return ERR_PTR(-EOPNOTSUPP);
- 	if (parent->auto_domain || !parent->nest_parent)
- 		return ERR_PTR(-EINVAL);
-@@ -227,7 +233,7 @@ iommufd_hwpt_nested_alloc(struct iommufd_ctx *ictx,
- 	refcount_inc(&parent->common.obj.users);
- 	hwpt_nested->parent = parent;
- 
--	hwpt->domain = ops->domain_alloc_user(idev->dev, flags,
-+	hwpt->domain = ops->domain_alloc_user(idev->dev, 0,
- 					      parent->common.domain, user_data);
- 	if (IS_ERR(hwpt->domain)) {
- 		rc = PTR_ERR(hwpt->domain);
-@@ -308,6 +314,20 @@ int iommufd_hwpt_alloc(struct iommufd_ucmd *ucmd)
- 		goto out_put_pt;
- 	}
- 
-+	if (cmd->flags & IOMMU_HWPT_FAULT_ID_VALID) {
-+		struct iommufd_fault *fault;
+@@ -1513,6 +1568,9 @@ int __init iommufd_test_init(void)
+ 				  &iommufd_mock_bus_type.nb);
+ 	if (rc)
+ 		goto err_sysfs;
 +
-+		fault = iommufd_get_fault(ucmd, cmd->fault_id);
-+		if (IS_ERR(fault)) {
-+			rc = PTR_ERR(fault);
-+			goto out_hwpt;
-+		}
-+		hwpt->fault = fault;
-+		hwpt->domain->iopf_handler = iommufd_fault_iopf_handler;
-+		hwpt->domain->fault_data = hwpt;
-+		hwpt->fault_capable = true;
++	mock_iommu_iopf_queue = iopf_queue_alloc("mock-iopfq");
++
+ 	return 0;
+ 
+ err_sysfs:
+@@ -1528,6 +1586,11 @@ int __init iommufd_test_init(void)
+ 
+ void iommufd_test_exit(void)
+ {
++	if (mock_iommu_iopf_queue) {
++		iopf_queue_free(mock_iommu_iopf_queue);
++		mock_iommu_iopf_queue = NULL;
 +	}
 +
- 	cmd->out_hwpt_id = hwpt->obj.id;
- 	rc = iommufd_ucmd_respond(ucmd, sizeof(*cmd));
- 	if (rc)
+ 	iommu_device_sysfs_remove(&mock_iommu_device);
+ 	iommu_device_unregister_bus(&mock_iommu_device,
+ 				    &iommufd_mock_bus_type.bus,
 -- 
 2.34.1
 
