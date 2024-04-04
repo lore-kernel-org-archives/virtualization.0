@@ -1,101 +1,93 @@
-Received: from mail-ej1-f42.google.com (mail-ej1-f42.google.com [209.85.218.42])
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD4D112FF9D
-	for <virtualization@lists.linux.dev>; Thu,  4 Apr 2024 18:18:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEDDC13A41A
+	for <virtualization@lists.linux.dev>; Thu,  4 Apr 2024 23:32:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712254692; cv=none; b=t2D6gv0qaxie2zhJjVVATxH6SuVEzxWN/wPuV94+m5Vr+6CB6UtwEenYpfsgCZAhWupS9cFdR2jGTN9ZLAa5tnKWm9w3OPWVRUzeaHyGWhL3s9VSYTmnCeZUvqbiomuugY64+2SHlHjZIoNibDVFA6DMUWAqEnDEtJXCZoYUgnk=
+	t=1712273561; cv=none; b=aaVmkYp6K/QlHAd5bMP8eCy0uUY8hjuutKZKsPKaAbVXqt4nd6Oa0Wrm5/Equ44NxCrU1duNk8S+MV6QESk7lqJKfE43jNJQQ5SbHWwbZBoZje6FHVlPLGYUCfTD0wYPcG526Qm66UKQy0gFk8J90+8YjLbMoWwNN7Jdx68ETz0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712254692; c=relaxed/simple;
-	bh=SNfX+q1IgkQj9nz0GckYsepusnw34MhTeimF85l/VUU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=iKoNUf+OTCGDl3rFNnJFClzvMvijJKvJddaEFUePT2+w2Zz5MvRghDwNA2in9ysaqtXAllN3Zsnt503uuSjQ/UGylF6q4VduZ1HaYlQRmygQHxveOjbOZDg0+QkmOYoFaEVE+isQm91OcbvUzS0xd6Cfb6xzZpqNbKFHct0d3qg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gooddata.com; spf=pass smtp.mailfrom=gooddata.com; dkim=pass (1024-bit key) header.d=gooddata.com header.i=@gooddata.com header.b=gZvLuANj; arc=none smtp.client-ip=209.85.218.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gooddata.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gooddata.com
+	s=arc-20240116; t=1712273561; c=relaxed/simple;
+	bh=R+JcGZWerA4/j0GP5BcYvILM9CMcZQ3Ab1BvbCrrzCs=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=C66dA4PRX6WjGfI/ljnQm6PZldoiwXrJP6dxWWfJv8e6Xneig432h8US61n/tah9gwPR0c0XqMv6CD1TVhvnxWOmneIzejbVbpOQc5la28ILqo0deqJ/CSm+RaIvO6qeqnHni3QrmwlT+dpElw3DNg69erkblWWQdSTdVwo9KqY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=QF8WI1ZV; arc=none smtp.client-ip=209.85.214.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=gooddata.com header.i=@gooddata.com header.b="gZvLuANj"
-Received: by mail-ej1-f42.google.com with SMTP id a640c23a62f3a-a4e40fad4fdso186866266b.2
-        for <virtualization@lists.linux.dev>; Thu, 04 Apr 2024 11:18:09 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="QF8WI1ZV"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-1e24c889618so14073655ad.2
+        for <virtualization@lists.linux.dev>; Thu, 04 Apr 2024 16:32:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gooddata.com; s=google; t=1712254688; x=1712859488; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=broadcom.com; s=google; t=1712273559; x=1712878359; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=SNfX+q1IgkQj9nz0GckYsepusnw34MhTeimF85l/VUU=;
-        b=gZvLuANj1q5pG35iFER697uLJPJZdMZdQp/nUHoGw+2LCHO5mckNfW/vL0ygnxOJDO
-         TKUuOZYdie1JukjpbSaDviImO3c8qgHRyvXE5uYC7JkAOAVQAvG7dBf73jJR2KFO9Xme
-         Km6WfthylgW8ODR749E4BKZXnX5AgYWBCaHF4=
+        bh=R+JcGZWerA4/j0GP5BcYvILM9CMcZQ3Ab1BvbCrrzCs=;
+        b=QF8WI1ZVz+lFDcnC+KD90vAzlYBR3x/goUhvC0PTGmFCksCNUSrkeMD+Da34BhIAUe
+         xAAb5UAaA2kWfzpr8Qhk75I8+9s9qHVtXPHeb90QxiTw8kSdxmZnvm5gX5d0QSUH4okM
+         zOxP+3I+qqCBkfN2q2HwZ3y11vIfzA6RiFc9I=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712254688; x=1712859488;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1712273559; x=1712878359;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=SNfX+q1IgkQj9nz0GckYsepusnw34MhTeimF85l/VUU=;
-        b=V5tL0Xarn1iVMEmbevz6107ncorU0xAjkvRaX8YXXmSLch3ruopWK1qtLHNr4mJB1J
-         c1ETsMSACJDqbXjVUrV9SKySfswpSkAYmflelhrYMSImaMTgUCLs6xUm0wMYJC68R3bj
-         rjhpexSGTXHgrLy1KX6kyI1SfE3Be7iFnVciTKo0/u5nfx8tqbZmpyLdrHWIvOAb+a2W
-         11eYBI2nvt7CnvFW+16D0WHqoFoa4AZtmyx53E1pNnfQOfJvfasAFGDDnNYPU36fnK1w
-         qR8WhLUAsf1Nbg7SeY0gSLzMJICWRioJXFzVBeitncPsokwrFYQnXIKFqpa1sPcx8gDr
-         hUqg==
-X-Forwarded-Encrypted: i=1; AJvYcCWP+hp8PUHo0gN3V3EL1+gJ6M/UgUI9KIH4orwQ5SVM5OWZVtlaUZndyYnTX5t07nubIayLToJq0NWFiqmadBd5QnQdOvZY6nzTlUGc4CE=
-X-Gm-Message-State: AOJu0YzKh8EhiYsWllnE5oAnhRjBD5gTJ03a+cjeMhKJdkfrnpUwuAv7
-	Hs/ujGVGJ2EdW1k0A2DP1933wDjAMeVWe0EYUbnyQVm5HVDXKbA47ROYvCAvT4VJ39Z0wyUE2+d
-	+tzBu/CeXt50ViZ5TnKC5sC0UvYTqVgupfKz9
-X-Google-Smtp-Source: AGHT+IFs1ZK7fW9vhtx+DT4doL6b7bsFLXc6+FeNlebBKgAPxl18h2/KgaTIEGprqn2OnYYpU3mldzZYNuXXB6RyHE0=
-X-Received: by 2002:a17:906:d0d6:b0:a4e:62b3:6264 with SMTP id
- bq22-20020a170906d0d600b00a4e62b36264mr271865ejb.76.1712254688003; Thu, 04
- Apr 2024 11:18:08 -0700 (PDT)
+        bh=R+JcGZWerA4/j0GP5BcYvILM9CMcZQ3Ab1BvbCrrzCs=;
+        b=EPEyYkfIxIr8JE14CaAelFxmFkDVqMdgaVGM2ndAWta0uuIgNrxAhk9M+VGz+s3AOo
+         nj1n/XMenL8f6JqTdNfG/EFLrxOy1+im25bt2FuFA2X9K4zYwTdUQNmaGZtz7D9lcl55
+         rWxpvfVpBlrrVxkPUHAamfULQTTfmg2VEEYmRcEdGWRCZ4FOsEZaox/ngJk15vH+VnS1
+         HaNrGQW+v74NaLuUErxemIAvV6Hv7R28+sQG5VP0+8nO3Sun/HfSPVrebWjXGiKzPDvW
+         DbYdStdkoJIP/qHdGFn1f9WFnFTglX63L68s+u8wda8aim1gSxEsJkzlCdC5+v5eGBW6
+         E6lg==
+X-Forwarded-Encrypted: i=1; AJvYcCVuQPMOIvcF3KJJGf6G5pb66uR6IinteUFqMhVvMkmRp6u0gLQvmeAvlPxg2+FvMrRXbKoggrwOc0z1plzi7XpysLe95EqMv7kwWZSS4Sc=
+X-Gm-Message-State: AOJu0YwrL0WDxCo2IjzoPxp9lfohnObrgwqgq1SU46RJDtRO1S2JdKpm
+	bQyAmKYh8lu6DlzCwq+q2oXh659qMouRi7FkmCo7WlGt5fdE7HIVcqCVl2YtQQ==
+X-Google-Smtp-Source: AGHT+IGG4uDv5A1Im5aEtkPraZjP1jqit8IkG6mPT5w+o0kvHdp78WkPTKabNTc/bYh7JTK+vQvnlQ==
+X-Received: by 2002:a17:902:f7cb:b0:1e0:157a:846c with SMTP id h11-20020a170902f7cb00b001e0157a846cmr3031022plw.55.1712273559198;
+        Thu, 04 Apr 2024 16:32:39 -0700 (PDT)
+Received: from amakhalov-build-vm.eng.vmware.com ([128.177.82.146])
+        by smtp.gmail.com with ESMTPSA id c5-20020a170902c1c500b001e2a4663179sm188177plc.258.2024.04.04.16.32.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 04 Apr 2024 16:32:38 -0700 (PDT)
+From: Alexey Makhalov <alexey.makhalov@broadcom.com>
+To: hpa@zytor.com
+Cc: linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	bp@alien8.de,
+	x86@kernel.org,
+	dave.hansen@linux.intel.com,
+	mingo@redhat.com,
+	tglx@linutronix.de,
+	netdev@vger.kernel.org,
+	richardcochran@gmail.com,
+	linux-input@vger.kernel.org,
+	dmitry.torokhov@gmail.com,
+	zackr@vmware.com,
+	linux-graphics-maintainer@vmware.com,
+	pv-drivers@vmware.com,
+	timothym@vmware.com,
+	akaher@vmware.com,
+	dri-devel@lists.freedesktop.org,
+	daniel@ffwll.ch,
+	airlied@gmail.com,
+	tzimmermann@suse.de,
+	mripard@kernel.org,
+	maarten.lankhorst@linux.intel.com,
+	horms@kernel.org,
+	kirill.shutemov@linux.intel.com
+Subject: Re: [PATCH v7 0/7] VMware hypercalls enhancements
+Date: Thu,  4 Apr 2024 16:32:31 -0700
+Message-Id: <20240404233231.36294-1-alexey.makhalov@broadcom.com>
+X-Mailer: git-send-email 2.39.0
+In-Reply-To: <20240307212949.4166120-1-alexey.makhalov@broadcom.com>
+References: <20240307212949.4166120-1-alexey.makhalov@broadcom.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <CA+9S74hbTMxckB=HgRiqL6b8ChZMQfJ6-K9y_GQ0ZDiWkev_vA@mail.gmail.com>
- <20240319131207.GB1096131@fedora> <CA+9S74jMBbgrxaH2Nit50uDQsHES+e+VHnOXkxnq2TrUFtAQRA@mail.gmail.com>
- <CACGkMEvX2R+wKcH5V45Yd6CkgGhADVbpvfmWsHducN2zCS=OKw@mail.gmail.com>
- <CA+9S74g5fR=hBxWk1U2TyvW1uPmU3XgJnjw4Owov8LNwLiiOZw@mail.gmail.com>
- <CACGkMEt4MbyDgdqDGUqQ+0gV-1kmp6CWASDgwMpZnRU8dfPd2Q@mail.gmail.com>
- <CA+9S74hUt_aZCrgN3Yx9Y2OZtwHNan7gmbBa1TzBafW6=YLULQ@mail.gmail.com>
- <CA+9S74ia-vUag2QMo6zFL7r+wZyOZVmcpe317RdMbK-rpomn+Q@mail.gmail.com>
- <CA+9S74hs_1Ft9iyXOPU_vF_EFKuoG8LjDpSna0QSPMFnMywd_g@mail.gmail.com>
- <CACGkMEvHiAN7X_QBgihWX6zzEUOxhrV2Nqg1arw1sfYy2A5K0g@mail.gmail.com>
- <CAK8fFZ6P6e+6V6NUkc-H5SdkXqgHdZ-GEMEPp4hKZSJVaGbBYQ@mail.gmail.com> <20240404063737.7b6e3843@kernel.org>
-In-Reply-To: <20240404063737.7b6e3843@kernel.org>
-From: Jaroslav Pulchart <jaroslav.pulchart@gooddata.com>
-Date: Thu, 4 Apr 2024 20:17:42 +0200
-Message-ID: <CAK8fFZ5LHFMPAOFCKu-vr7JQJHKo9jshrgvCCP50d596nFiXUQ@mail.gmail.com>
-Subject: Re: REGRESSION: RIP: 0010:skb_release_data+0xb8/0x1e0 in vhost/tun
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: Jason Wang <jasowang@redhat.com>, Igor Raits <igor@gooddata.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-=C4=8Dt 4. 4. 2024 v 15:37 odes=C3=ADlatel Jakub Kicinski <kuba@kernel.org>=
- napsal:
->
-> On Thu, 4 Apr 2024 07:42:45 +0200 Jaroslav Pulchart wrote:
-> > We do not have much progress
->
-> Random thought - do you have KFENCE enabled?
-> It's sufficiently low overhead to run in production and maybe it could
-> help catch the bug? You also hit some inexplicable bug in the Intel
-> driver, IIRC, there may be something odd going on.. (it's not all
-> happening on a single machine, right?)
-
-We have KFENCE enabled.
-
-Issue was observed at multiple servers. It is not a problem to reproduce it
-everywhere where we deploy Loki service. The trigger is: I click
-once/twice "run query" (LogQL) button by Grafana UI. the Loki is
-starting to load data from the minio cluster at a speed of ~2GB/s and
-almost immediately it crashes.
-
-The Intel ICE driver is in my suspicion as well, it will not be for
-the first time when we are hitting some bugs there. I will try one
-testing server where we have different NIC vendor later.
+Peter, can you please review version 7 of "x86/vmware: Add TDX hypercall support" patch.
+It addresses the concern you had in previous version. Thanks.
