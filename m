@@ -1,204 +1,203 @@
-Received: from mail-ed1-f53.google.com (mail-ed1-f53.google.com [209.85.208.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18E1A1494D3
-	for <virtualization@lists.linux.dev>; Wed,  3 Apr 2024 15:43:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E8563DBBC
+	for <virtualization@lists.linux-foundation.org>; Thu,  4 Apr 2024 05:35:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712159006; cv=none; b=fk9IjIH9D6ZHPd8h8BvMmipgTbTDsSVBUAsiBJHhK4GNFLpZ0CVVrKxb7dAXxQarJH4aOu19q4hVgVggImhDD8XYbftv5cYdx67sqsbdEwL9sl/rV3qRqF9ps1snL1XZhmzeuWznaytzyaUrGdg2H/ieZTTsl2QdBCJDFFuYM+E=
+	t=1712208949; cv=none; b=h/faz0yEPusxE20HPVGgd2plmWexi80UvT3/bic9WTpx5ad9ilpPkVt7hlaKm00CE5LV79Cp88GWE+V+ZRojWiBNm8u0MaEOHPLXOnsFgAdKj0Y9rI4jnlfbQ28F9BI9Nvh+QKdIsUlCChp6CX1He01j7nRs+v2mj3a6n+Ia0lw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712159006; c=relaxed/simple;
-	bh=X3a4pIGTWIkMI9v/XpREqOBl8ZhpS8U+c8nUeSNcENM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=iLlb4524mmzupQuKdkAM6uMbGjyWVzztBgW4fNWTTIjW7fwBXerl/CKXkXj7gbazRWFUUuySPeUJPzYt8U2oGXHiPh4SsOpCyyXrNBGSw9L3azYxZJXqzwDZQVSsV4padOLC1OHuMQquBx2hVxYbTt4NGJa/Ms9T+w6yZ882Pd8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.208.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-ed1-f53.google.com with SMTP id 4fb4d7f45d1cf-56829f41f81so9549341a12.2
-        for <virtualization@lists.linux.dev>; Wed, 03 Apr 2024 08:43:24 -0700 (PDT)
+	s=arc-20240116; t=1712208949; c=relaxed/simple;
+	bh=Ym38qLEOUNfy/4hL6ENnTMzg8xPqYlCnX/Fr3RLE/U8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=W/vQioblm1sBwh28baNdJ2s0lmuRQxN9RAIXzVq+CB+xTiUGl2DyH4FeYjyXKkRIdlhCWaoKKaurZjfLJz7AA+vJaUhX2ZIWj3EP4GGPPgoKcn9jEW3ko1sgBy78+EEe98L+IePNtypSC0ezVqFw5wxxss0JqWO/zPyoP3v0K4Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PCUEluys; arc=none smtp.client-ip=140.211.166.136
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PCUEluys"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id D5BA060784
+	for <virtualization@lists.linux-foundation.org>; Thu,  4 Apr 2024 05:35:47 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id unXkQRUN8oBO for <virtualization@lists.linux-foundation.org>;
+ Thu,  4 Apr 2024 05:35:47 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org D1F126074E
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D1F126074E
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PCUEluys
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id D1F126074E
+	for <virtualization@lists.linux-foundation.org>; Thu,  4 Apr 2024 05:35:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1712208945;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=gaCNfh5JQ71P8XHmMhbBbFyQnfQUNQ6Qvksh5dYu/Jg=;
+	b=PCUEluys+PKa7j0+pXlF6DoGW6oPFqo3PAOuikK8RdV1cNCE2gKbhPUsRANUaJGJfPKExS
+	DtRJ2aa9gBwSLEXGtf37fsQMipCqi3FSjzXS9jXaCEu6s6ZudDRE+DOoidlbyrufrPK6vr
+	RHURDSH/VnHJ8SOKABgr8JmvIKGFPrs=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-163-P9Zlh8TlNOKPLeJUWhhH8A-1; Thu, 04 Apr 2024 01:35:43 -0400
+X-MC-Unique: P9Zlh8TlNOKPLeJUWhhH8A-1
+Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-a467a6d4e3eso22400366b.3
+        for <virtualization@lists.linux-foundation.org>; Wed, 03 Apr 2024 22:35:43 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712159003; x=1712763803;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=WYy0xsk/6e7/EP3ZA06B/kwt1hnSoccxl0+aSYTRzhw=;
-        b=fZK7ApwvCQiaLQDa7ILjlZkrqZMO35dIkkNtgFjQjtqTo1j5UOjM+Dai683cpNDmNr
-         Tno+awYIO9bE+pga5IBm+jkMAhRrZ8OL74rfKxA3cmNAAnHIjrQP+yiGUnK3uzuk0P1f
-         5um7rSAZcIYMZrSjgxX7RBob/BFslWnh9q35T8bExtg6xtMTQnm59+K5L8ySOWRjPAPY
-         U5Vn1MuP/hrv7ouUKwLeEIKxBBNKIpzb4tps+wmG3dltozT2CftFSgTcc8T67RJ68oMG
-         rApOmEb3MTJdX21lmtqKYCOX8V4oC+XTTcnZ0cXda0ML8PTis8zkWWp5aYOyPZrd/eRz
-         w64A==
-X-Forwarded-Encrypted: i=1; AJvYcCUMA/InVtZjdAkRfnxy+aXx9PCrr7wJN31Jyt8QPgXQguBUq1kDf+fZuB7OGdL2VEAdagAThUzEghidp8S3Ip0TkuDhZmyVBavhVwOM2z0=
-X-Gm-Message-State: AOJu0Yzn+R2cARGxNHZWc4zkU2z2LGnT8FM5FsvNJsu33YqUw7PhhBhi
-	vMrEe0MVdoLkY04di+20Dq0auQP2mkqkkoVx50jh0BOBd+xXXP4E
-X-Google-Smtp-Source: AGHT+IGjMXBqyqOYrFRXxpu0T86R9H2NUxfGQRZ7Sm1nQSfyM8IFBGndg+xpb3YMbBIoQ8iZBhCSaA==
-X-Received: by 2002:a17:907:868d:b0:a51:7d1a:e10d with SMTP id qa13-20020a170907868d00b00a517d1ae10dmr503935ejc.32.1712159002989;
-        Wed, 03 Apr 2024 08:43:22 -0700 (PDT)
-Received: from localhost (fwdproxy-lla-008.fbsv.net. [2a03:2880:30ff:8::face:b00c])
-        by smtp.gmail.com with ESMTPSA id wn2-20020a170907068200b00a4e781bd30dsm3029235ejb.24.2024.04.03.08.43.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Apr 2024 08:43:22 -0700 (PDT)
-From: Breno Leitao <leitao@debian.org>
-To: hengqi@linux.alibaba.com,
-	xuanzhuo@linux.alibaba.com,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Andrew Melnychenko <andrew@daynix.com>
-Cc: rbc@meta.com,
-	riel@surriel.com,
-	stable@vger.kernel.org,
-	qemu-devel@nongnu.org,
-	virtualization@lists.linux.dev (open list:VIRTIO CORE AND NET DRIVERS),
-	netdev@vger.kernel.org (open list:NETWORKING DRIVERS),
-	linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH net v4] virtio_net: Do not send RSS key if it is not supported
-Date: Wed,  3 Apr 2024 08:43:12 -0700
-Message-ID: <20240403154313.1331319-1-leitao@debian.org>
-X-Mailer: git-send-email 2.43.0
+        d=1e100.net; s=20230601; t=1712208943; x=1712813743;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=gaCNfh5JQ71P8XHmMhbBbFyQnfQUNQ6Qvksh5dYu/Jg=;
+        b=Z+UxGx7+Khtr/ioZTysKQU8OWrX6A26Muzdiw1hdlCtLRtao/BG4G6dXav27mUFMJR
+         2BrRQ0QdO+djR4AmOt+f1NpSRcpKv+Sy8dx6wj+eivLlZbRYOqYcUg0KM5bWGMAqHGPj
+         MQebmBU9YVSjuTFm4HbqOWVnZvitajCqt5nteyb6g22W3jN6ztzTicWBnlsewhZ71qcf
+         141Tc2kC+/HqoQJ7T5ZNxTvydL62g2buyzDRmC0FmjMkw+grAzTq9fST7Od0YVN3OC3n
+         AKD0ypbZjD4/TYL0e1ASnsj8TT865bFcYDMLHy7wbx623KQfsHCRntPfbVU/b2wG5DAb
+         2gwg==
+X-Forwarded-Encrypted: i=1; AJvYcCV7DlT3zTzOKo3Xg2dfWdh2YWQNm1GyEhB2G1hrOJR0sp3gInPR8BK73SUPjyQmn4lOPEd8Avc2ZiaJbEVGzceZBxWeI+mJ8TJaSumIvcLOLv3FTVDiwnmxGQ==
+X-Gm-Message-State: AOJu0Yxts+fZ1EclMvSTWjSYoCPpUc41YyHCg3NfeSUxqaEw1Xzxyt2E
+	PTahji1Ax5hHMSub760oBKvbB9hXhBOXxwdMpQN49SIqxylvQiu/uxMkVnK3N3aKXUfw/OR0qb1
+	74H4tGgU3jUephHwyFHSe1KblLBoo78b0lU25OBnVYFhMgWG+76sZ0kH6UWVoOzZTVEWkTpuHCS
+	q4FfNfYi7beaVNQf+WosvYoIAhIZ6f11KZkA9EwWGowXwl0otTJ+W+nQ==
+X-Received: by 2002:a17:906:3e50:b0:a4e:9591:c2dd with SMTP id t16-20020a1709063e5000b00a4e9591c2ddmr725277eji.39.1712208942842;
+        Wed, 03 Apr 2024 22:35:42 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IH6977Prz4EA27qaIn9ShWtc7ls7nUld0dGYjMeBaoZgL/dkR13B3ZOUXg8GK3+bvqSwQUifVVp85zJvDVRczk=
+X-Received: by 2002:a17:906:3e50:b0:a4e:9591:c2dd with SMTP id
+ t16-20020a1709063e5000b00a4e9591c2ddmr725266eji.39.1712208942439; Wed, 03 Apr
+ 2024 22:35:42 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20240329093832.140690-1-lulu@redhat.com> <20240329054845-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20240329054845-mutt-send-email-mst@kernel.org>
+From: Cindy Lu <lulu@redhat.com>
+Date: Thu, 4 Apr 2024 13:35:02 +0800
+Message-ID: <CACLfguW5GxYLtgL-8itH6b9re25bGsorKBWwDW9z5kBucSPLVg@mail.gmail.com>
+Subject: Re: [PATCH v2] Documentation: Add reconnect process for VDUSE
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: jasowang@redhat.com, virtualization@lists.linux-foundation.org, 
+	linux-kernel@vger.kernel.org, kvm@vger.kernel.org, netdev@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-There is a bug when setting the RSS options in virtio_net that can break
-the whole machine, getting the kernel into an infinite loop.
+On Fri, Mar 29, 2024 at 5:52=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
+ wrote:
+>
+> On Fri, Mar 29, 2024 at 05:38:25PM +0800, Cindy Lu wrote:
+> > Add a document explaining the reconnect process, including what the
+> > Userspace App needs to do and how it works with the kernel.
+> >
+> > Signed-off-by: Cindy Lu <lulu@redhat.com>
+> > ---
+> >  Documentation/userspace-api/vduse.rst | 41 +++++++++++++++++++++++++++
+> >  1 file changed, 41 insertions(+)
+> >
+> > diff --git a/Documentation/userspace-api/vduse.rst b/Documentation/user=
+space-api/vduse.rst
+> > index bdb880e01132..f903aed714d1 100644
+> > --- a/Documentation/userspace-api/vduse.rst
+> > +++ b/Documentation/userspace-api/vduse.rst
+> > @@ -231,3 +231,44 @@ able to start the dataplane processing as follows:
+> >     after the used ring is filled.
+> >
+> >  For more details on the uAPI, please see include/uapi/linux/vduse.h.
+> > +
+> > +HOW VDUSE devices reconnectoin works
+>
+> typo
+>
+Really sorry for this, I will send a new version
 
-Running the following command in any QEMU virtual machine with virtionet
-will reproduce this problem:
+Thanks
+Cindy
+> > +------------------------------------
+> > +1. What is reconnection?
+> > +
+> > +   When the userspace application loads, it should establish a connect=
+ion
+> > +   to the vduse kernel device. Sometimes,the userspace application exi=
+sts,
+> > +   and we want to support its restart and connect to the kernel device=
+ again
+> > +
+> > +2. How can I support reconnection in a userspace application?
+> > +
+> > +2.1 During initialization, the userspace application should first veri=
+fy the
+> > +    existence of the device "/dev/vduse/vduse_name".
+> > +    If it doesn't exist, it means this is the first-time for connectio=
+n. goto step 2.2
+> > +    If it exists, it means this is a reconnection, and we should goto =
+step 2.3
+> > +
+> > +2.2 Create a new VDUSE instance with ioctl(VDUSE_CREATE_DEV) on
+> > +    /dev/vduse/control.
+> > +    When ioctl(VDUSE_CREATE_DEV) is called, kernel allocates memory fo=
+r
+> > +    the reconnect information. The total memory size is PAGE_SIZE*vq_m=
+umber.
+> > +
+> > +2.3 Check if the information is suitable for reconnect
+> > +    If this is reconnection :
+> > +    Before attempting to reconnect, The userspace application needs to=
+ use the
+> > +    ioctl(VDUSE_DEV_GET_CONFIG, VDUSE_DEV_GET_STATUS, VDUSE_DEV_GET_FE=
+ATURES...)
+> > +    to get the information from kernel.
+> > +    Please review the information and confirm if it is suitable to rec=
+onnect.
+> > +
+> > +2.4 Userspace application needs to mmap the memory to userspace
+> > +    The userspace application requires mapping one page for every vq. =
+These pages
+> > +    should be used to save vq-related information during system runnin=
+g. Additionally,
+> > +    the application must define its own structure to store information=
+ for reconnection.
+> > +
+> > +2.5 Completed the initialization and running the application.
+> > +    While the application is running, it is important to store relevan=
+t information
+> > +    about reconnections in mapped pages. When calling the ioctl VDUSE_=
+VQ_GET_INFO to
+> > +    get vq information, it's necessary to check whether it's a reconne=
+ction. If it is
+> > +    a reconnection, the vq-related information must be get from the ma=
+pped pages.
+> > +
+>
+>
+> I don't get it. So this is just a way for the application to allocate
+> memory? Why do we need this new way to do it?
+> Why not just mmap a file anywhere at all?
+>
+We used to use tmpfs to save this reconnect information,
+but this will make the API not self contained, so we changed to using
+the kernel memory
+Thanks
+cindy
 
-    # ethtool -X eth0  hfunc toeplitz
 
-This is how the problem happens:
 
-1) ethtool_set_rxfh() calls virtnet_set_rxfh()
-
-2) virtnet_set_rxfh() calls virtnet_commit_rss_command()
-
-3) virtnet_commit_rss_command() populates 4 entries for the rss
-scatter-gather
-
-4) Since the command above does not have a key, then the last
-scatter-gatter entry will be zeroed, since rss_key_size == 0.
-sg_buf_size = vi->rss_key_size;
-
-5) This buffer is passed to qemu, but qemu is not happy with a buffer
-with zero length, and do the following in virtqueue_map_desc() (QEMU
-function):
-
-  if (!sz) {
-      virtio_error(vdev, "virtio: zero sized buffers are not allowed");
-
-6) virtio_error() (also QEMU function) set the device as broken
-
-    vdev->broken = true;
-
-7) Qemu bails out, and do not repond this crazy kernel.
-
-8) The kernel is waiting for the response to come back (function
-virtnet_send_command())
-
-9) The kernel is waiting doing the following :
-
-      while (!virtqueue_get_buf(vi->cvq, &tmp) &&
-	     !virtqueue_is_broken(vi->cvq))
-	      cpu_relax();
-
-10) None of the following functions above is true, thus, the kernel
-loops here forever. Keeping in mind that virtqueue_is_broken() does
-not look at the qemu `vdev->broken`, so, it never realizes that the
-vitio is broken at QEMU side.
-
-Fix it by not sending RSS commands if the feature is not available in
-the device.
-
-Fixes: c7114b1249fa ("drivers/net/virtio_net: Added basic RSS support.")
-Cc: stable@vger.kernel.org
-Cc: qemu-devel@nongnu.org
-Signed-off-by: Breno Leitao <leitao@debian.org>
-Reviewed-by: Heng Qi <hengqi@linux.alibaba.com>
----
-Changelog:
-
-V2:
-  * Moved from creating a valid packet, by rejecting the request
-    completely.
-V3:
-  * Got some good feedback from and Xuan Zhuo and Heng Qi, and reworked
-    the rejection path.
-V4:
-  * Added a comment in an "if" clause, as suggested by Michael S. Tsirkin.
-
----
- drivers/net/virtio_net.c | 26 ++++++++++++++++++++++----
- 1 file changed, 22 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index c22d1118a133..115c3c5414f2 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -3807,6 +3807,7 @@ static int virtnet_set_rxfh(struct net_device *dev,
- 			    struct netlink_ext_ack *extack)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
-+	bool update = false;
- 	int i;
- 
- 	if (rxfh->hfunc != ETH_RSS_HASH_NO_CHANGE &&
-@@ -3814,13 +3815,28 @@ static int virtnet_set_rxfh(struct net_device *dev,
- 		return -EOPNOTSUPP;
- 
- 	if (rxfh->indir) {
-+		if (!vi->has_rss)
-+			return -EOPNOTSUPP;
-+
- 		for (i = 0; i < vi->rss_indir_table_size; ++i)
- 			vi->ctrl->rss.indirection_table[i] = rxfh->indir[i];
-+		update = true;
- 	}
--	if (rxfh->key)
-+
-+	if (rxfh->key) {
-+		/* If either _F_HASH_REPORT or _F_RSS are negotiated, the
-+		 * device provides hash calculation capabilities, that is,
-+		 * hash_key is configured.
-+		 */
-+		if (!vi->has_rss && !vi->has_rss_hash_report)
-+			return -EOPNOTSUPP;
-+
- 		memcpy(vi->ctrl->rss.key, rxfh->key, vi->rss_key_size);
-+		update = true;
-+	}
- 
--	virtnet_commit_rss_command(vi);
-+	if (update)
-+		virtnet_commit_rss_command(vi);
- 
- 	return 0;
- }
-@@ -4729,13 +4745,15 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_HASH_REPORT))
- 		vi->has_rss_hash_report = true;
- 
--	if (virtio_has_feature(vdev, VIRTIO_NET_F_RSS))
-+	if (virtio_has_feature(vdev, VIRTIO_NET_F_RSS)) {
- 		vi->has_rss = true;
- 
--	if (vi->has_rss || vi->has_rss_hash_report) {
- 		vi->rss_indir_table_size =
- 			virtio_cread16(vdev, offsetof(struct virtio_net_config,
- 				rss_max_indirection_table_length));
-+	}
-+
-+	if (vi->has_rss || vi->has_rss_hash_report) {
- 		vi->rss_key_size =
- 			virtio_cread8(vdev, offsetof(struct virtio_net_config, rss_max_key_size));
- 
--- 
-2.43.0
+>
+> > +2.6 When the Userspace application exits, it is necessary to unmap all=
+ the
+> > +    pages for reconnection
+> > --
+> > 2.43.0
+>
 
