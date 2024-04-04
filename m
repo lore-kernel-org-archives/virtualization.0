@@ -1,155 +1,135 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from EUR04-VI1-obe.outbound.protection.outlook.com (mail-vi1eur04olkn2073.outbound.protection.outlook.com [40.92.75.73])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13E7D823D0
-	for <virtualization@lists.linux-foundation.org>; Thu,  4 Apr 2024 15:29:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712244586; cv=none; b=PLyXzwlbs+dCE5kG1u+scAm8m9PYCMj+3Impkk0vgkgF14TxWbVgfgF+aHdMTjxMiqn7NqeLqlEdxqUque8YrpVFRgRr9ccDq+3b7lqvs5L36bR7dde+FdTa9KS3djnoRkhSrXRXRIaxHbSW3llDQK0fq+vUCk+bZCj4XCNZSDI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712244586; c=relaxed/simple;
-	bh=zfakYO7CS29y5adFO9lRm1TfVsKhvUUh8TJ3RmzDees=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=lc1yzFZ5Dt8j7R4ZJMLq5GbWCOzCcinF3/+IpU1P+9AIv5+2+XAVN9kCUK7ONnxm0muX2HincDDS7jyvQ22SY6Z6kMh4hc3M6gmFxWSq0HFXjEKJUNZ/fsm6aZ9isSzqkvCC7irRSW0z6lACXLy98gbB7qu2OBBtxJOql0hQ3Lo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=bTFCO1zG; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B445612E1C0
+	for <virtualization@lists.linux.dev>; Thu,  4 Apr 2024 16:14:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.92.75.73
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1712247278; cv=fail; b=s29+B9JOiNieGQL4CZEA8sEl97N+E0CUN+XMntOnhR1vsdgsjBJ05OjwjjuquDcjxFBQOO/b8aY7ttAv2prc+5F4cKuTyVcSyFQOlyVh2ZdkGzPsRsymY9UqeoWA8U84z0lSkPzTeTxcKcDkZFoLRs37SsejZOA68YslDuO9dv8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1712247278; c=relaxed/simple;
+	bh=MAmHu9YY9DWnabA8QzOQKIRYM3B6FTI8ycr/bHF9sys=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=e2HdKq0SXchPPVroDyymbkpbyu9YqMxQ8Uy+7s9hGREesNsaDFxagkBSity9GDDiQERw8SvZNUSXgydENlKVJgKMeuThSqqEFIp9I3TpYOmD0Fdy3J2myKXiBXW2B8OAOw3xEZoCK6dK+cL4kAt3PDEnJPNW5PgH/MGBFarKuDA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=NFKH0v2v; arc=fail smtp.client-ip=40.92.75.73
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="bTFCO1zG"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 84F4641B9C
-	for <virtualization@lists.linux-foundation.org>; Thu,  4 Apr 2024 15:29:44 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.1
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id BvqsxpMe8o6Y for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Apr 2024 15:29:42 +0000 (UTC)
-X-Greylist: delayed 346 seconds by postgrey-1.37 at util1.osuosl.org; Thu, 04 Apr 2024 15:29:42 UTC
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 267A041B08
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 267A041B08
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=bTFCO1zG
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=46.235.227.194; helo=madrid.collaboradmins.com; envelope-from=dmitry.osipenko@collabora.com; receiver=<UNKNOWN> 
-Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [46.235.227.194])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 267A041B08
-	for <virtualization@lists.linux-foundation.org>; Thu,  4 Apr 2024 15:29:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1712244233;
-	bh=zfakYO7CS29y5adFO9lRm1TfVsKhvUUh8TJ3RmzDees=;
-	h=Date:Subject:From:To:Cc:References:In-Reply-To:From;
-	b=bTFCO1zGGbjB8onR6iZ4lBCNh9FODnJT9hBCwn4S/byXbNgUKQM9toMO9XrndQ0sn
-	 qN1C3bs0FtXvkvghDMLs4VoksoBiBAdoEi8z8S/ZHKoP0zHcK01EtlLnzRB6B46GxZ
-	 y9YZW4dA7xN6p2plCxTlDcQiNDOwEA/g5h8QgxHimdtOHgbwwcOoH6XYmoHVp7VOiq
-	 zz+qjkcJTgYrcWfk1bUp05IVfCu+m0j3MQ/vFojMOFoDUFfVjDNuAKLDIcYaJOZni4
-	 H8YIyU88BGwX6iL83kGnIL6tcagzZMEJUuUcMppg8pxiGQIvXIK+ddTGr8/sJfarmJ
-	 ySE3ee9VaUySQ==
-Received: from [100.109.49.129] (cola.collaboradmins.com [195.201.22.229])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: dmitry.osipenko)
-	by madrid.collaboradmins.com (Postfix) with ESMTPSA id B892D37813A4;
-	Thu,  4 Apr 2024 15:23:51 +0000 (UTC)
-Message-ID: <1f23ab7a-334c-4d7d-b917-8e8029e6c690@collabora.com>
-Date: Thu, 4 Apr 2024 18:23:49 +0300
+	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="NFKH0v2v"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=k+bO8yoFhp9Rjq/rxibU9c/398DwzeiUwiUwEQTDDzqtJsOHBGs82aAVWYginEql2rDjFB9Uoihccd8wcTNAxEe/ABXxJ4yaeaZkwBJePlxEebIPzp8b83YU+nPX6duCZJ00fMpaP5EcpIJ5rbK6BTktf57+6JOsj39/3hqTk5zjqEtMu0iFYxmJ7xFKKO+Nz6LucPhcr8D5j82z1/0m9d+tht0R+d6Rt8+a+OD1jwh7Qup/Ez3i1uh1ZQBqzgsemwumueyH1E8fLYld1TeBWFnMtDmBp9YizC4b+uRX8lOJbYqsBbf81etQ8kLwEJYywF5GbzvAjPAgkb51HcYhcA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=ZQDs0ib4dnCDeZfZW+2JLkP9VU+5eA24z54TCb24apo=;
+ b=W+/zcQJH3WR464+89IlSyiT9vr/skphDMZRrHh95aAp2CnaTJaNeZu6xwA/LgMc55+cscIcLQA3nnty9roCycLqA/LCLP/U/xtQfP1ObVF7wYCSKBuAMeOPS3xd2Er5X8Xwnjpjh6RdyxiPbEqZ96v6/CaM+uKz0jPSAyNFaMOoN6zSBd/uY+bLnuCtj0LoLOcH+7uVceeYTmJMDULTLiTamt05hhsqYtnhWHqXaP6Cr4tZgynhZ04Z3zLUdsXmpPsuGLUk20FOpJV/YE76VCPyCvS2PliJTj5HkYHnLLAMhvU0iueDheg6RXfPvpp0RSo/DchqKOOz03qPUCCQ/ow==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ZQDs0ib4dnCDeZfZW+2JLkP9VU+5eA24z54TCb24apo=;
+ b=NFKH0v2vK8R99Ldmeay6CAfQelCJeY8LTy7pOFNAJfL+jpjbFaCuXJpSDw2lAh1JCHGUlCNiTsQXGzAnfUf7ceZNzkkuch4e4XQkQYRwowq5DUPOf3Rigc0fOjlS3RAORgFxdU9Q+wjA+Mq56nLcX+VK2xWnGoruEDrYQ/ufTZ7iMaIMx0sYLzDMt9tDdJYXLwJETezN6YPsb2detz3E/CUweiV+o7AaAqHJkc2Dt+yIMCJpoWigrA8v1vUc/UHKknzs8iPz+TyFFhpSwzfDo4+HGyVxvU0kY8q3tMWd75SBJAK28QsfqRlCFSJEuYwXMGXCVE/sZjtJLZDzeQLi7Q==
+Received: from AS2P194MB2170.EURP194.PROD.OUTLOOK.COM (2603:10a6:20b:642::8)
+ by VE1P194MB0909.EURP194.PROD.OUTLOOK.COM (2603:10a6:800:16b::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7409.46; Thu, 4 Apr
+ 2024 16:14:33 +0000
+Received: from AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
+ ([fe80::56f0:1717:f1a8:ea4e]) by AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
+ ([fe80::56f0:1717:f1a8:ea4e%2]) with mapi id 15.20.7409.042; Thu, 4 Apr 2024
+ 16:14:33 +0000
+From: Luigi Leonardi <luigi.leonardi@outlook.com>
+To: sgarzare@redhat.com
+Cc: davem@davemloft.net,
+	edumazet@google.com,
+	jasowang@redhat.com,
+	kuba@kernel.org,
+	kvm@vger.kernel.org,
+	luigi.leonardi@outlook.com,
+	mst@redhat.com,
+	netdev@vger.kernel.org,
+	pabeni@redhat.com,
+	stefanha@redhat.com,
+	virtualization@lists.linux.dev,
+	xuanzhuo@linux.alibaba.com
+Subject: Re: [PATCH net-next 2/3] vsock/virtio: add SIOCOUTQ support for all virtio based transports
+Date: Thu,  4 Apr 2024 18:14:12 +0200
+Message-ID:
+ <AS2P194MB21702427C769FB68A13AF54B9A3C2@AS2P194MB2170.EURP194.PROD.OUTLOOK.COM>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <3n325gojjzphouapo36aowmcgt3iqjrqrmckqjjqgqmhvjdz4x@4givlk4egii3>
+References: <3n325gojjzphouapo36aowmcgt3iqjrqrmckqjjqgqmhvjdz4x@4givlk4egii3>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-TMN: [m5Pdr/5FTTvQKDDpTjNnZNBacqZhR17c]
+X-ClientProxiedBy: MI1P293CA0004.ITAP293.PROD.OUTLOOK.COM
+ (2603:10a6:290:2::13) To AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
+ (2603:10a6:20b:642::8)
+X-Microsoft-Original-Message-ID:
+ <20240404161412.3394-1-luigi.leonardi@outlook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v19 17/30] drm/panfrost: Fix the error path in
- panfrost_mmu_map_fault_addr()
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-To: Steven Price <steven.price@arm.com>,
- Boris Brezillon <boris.brezillon@collabora.com>
-Cc: dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
- kernel@collabora.com, virtualization@lists.linux-foundation.org,
- David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
- Qiang Yu <yuq825@gmail.com>, Emma Anholt <emma@anholt.net>,
- Melissa Wen <mwen@igalia.com>
-References: <20240105184624.508603-1-dmitry.osipenko@collabora.com>
- <20240105184624.508603-18-dmitry.osipenko@collabora.com>
-Content-Language: en-US
-In-Reply-To: <20240105184624.508603-18-dmitry.osipenko@collabora.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+X-MS-Exchange-MessageSentRepresentingType: 1
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: AS2P194MB2170:EE_|VE1P194MB0909:EE_
+X-MS-Office365-Filtering-Correlation-Id: f5b5205f-273d-43bf-1418-08dc54c250b8
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	i6TOCNL2DA9oYvKga8VmVDGnSOxBl+zCPzwEIwXxlpG3niFs5mHu6IYBQ7l8H+rPqv+i5EY5P47AS9Ix3IWLWYGwnM5UBcIoqJyizgWYvvYOdWox4HotKlTvuFUI0YO2wpnNayOPLS7QkCldDioX8VLNt+gSK6/ng1asZLq4w6N1b8T7RwLF7Nfd0snx/m5v/cxO+5vXxVRnMlWgELuqeTs5By4BJYe0XLxCAAPLXN+E8+MAUm9mwM/lCTCuLz3y2qftAh2FRgPKy9bqcFO2ru/oF60IyZaFaRrai7IRy/hNUzBm6AZKt1QPF0TmhIa/RK071FZt3NcJnlE8n1DM5wpw+Rtv0mCf8GZvyPwghNQ8QtI21EkVjSN3VBKcKloWzbXs2WsWlqk4ytWVGxazLCHSTGKLwyeZEXEKFBeVftjjTUDXNKDwp6+vIY/zHeml0bzNyiji1P5aAAMFg1gmzEtiiI9FcLtm0N0FOlGVdYiX7UGmrXnMjxQt1m5hhvauILzYe74Jo5Ymc/fsJgBOQxcR1CjhT+t3qYrg7FmImQ6aEMVkaIHyLAQD7VG095KerRGqGmk2a1Wi1tetRy5iiDNTWkpAJEcxAzBXl974u1kzrigap8RvT+hKINVRt/sa
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?1iQsM6eHjqc9wUPmimLCcjjbb7TyNxPrT2hKvLtecCGMfcd/EGtoU2xHgv3l?=
+ =?us-ascii?Q?/xTf2Y0ko/0hNf2ifp7MroMMQgIUdihcTwzXj9hqKtK3j5tMVflNKjTa1BMa?=
+ =?us-ascii?Q?toZmzLn9uypMIrSRF12hWj41bEXrRsCWkL7IvxV/8+UXxemLt8FSrBr+fscV?=
+ =?us-ascii?Q?d95DJxNsIFZmS7REDzvqZlnUaKRfyc/R4SU8rA3es4d5xnlOY/JBohp7s3gQ?=
+ =?us-ascii?Q?jWpy2UfSJE7wSISL4vn8N/YTv1qJ3TWM94skPqRohBOGybO1LUWPcnFvsets?=
+ =?us-ascii?Q?JyiAQGtyZWj/XbrG9l4gj4CEl81WYl3siKPxfjSEGvmDueK5/YusmSRbgoNW?=
+ =?us-ascii?Q?R4LUbldCLrR/5HrcxnYMF9YrmS4crB4/e7qNQYYrDcoa7lDZIbNsbkJb3/WW?=
+ =?us-ascii?Q?CAbYorXUQWEOVmjzkPbKT1a9V+4kxg8GAtwS3qdLvgmTk5NEOvz+EpsY9B4W?=
+ =?us-ascii?Q?zyylgJ4LM/4xSEFHr0C9+BnDwl22gRW5u23c2SmkSZgvlPksdq3z3hUeX9TV?=
+ =?us-ascii?Q?3OOjMV3b7AEfUvJOjlW4zhihDpNa4pvS6TQkId8NazN2ev0enYzcfXJ6jO0c?=
+ =?us-ascii?Q?gaSJttdRtJOkLOM1luEOdA4AqVez9aoWoOjt6qyP5DbXLcs9PMM+s5xy+xDd?=
+ =?us-ascii?Q?WvsBShE9cGH/BzfMm2XrjVWgo0DY9oY0Jus77gR327MxJyU2bR3QVfhl9ClI?=
+ =?us-ascii?Q?OLPJnSi9ZrEdZWWCl5CxAymU7tOaZ37zg3sj5niNVTOTQQ65xYmccI3UZRnD?=
+ =?us-ascii?Q?aBUuMzgHXg3xha3zlwTPIBLuQX+6yOMj5lri+fjTlN9vdPxE1Y+WzKZh/FBs?=
+ =?us-ascii?Q?lb/S15tnE9aVRHvfGUIXoMy40DTMw9qs6AkGNi0o2OhBmhybd40Np/VrDHk6?=
+ =?us-ascii?Q?kzOtUKrUjmwcl1FTgaakMA1SVvAnJqcStknO3IFSgagHCmMNv5eMPHxcgQI0?=
+ =?us-ascii?Q?H+suF3GegK69UX0ypmNhw7tg7NyF9c+al/jOIwv6bxPb3e/0ojo9wTcnASFz?=
+ =?us-ascii?Q?Uw3oigXMlN3v9HskzsXrEryL3nYo4Chr6Kp19g159c2Dg0bgFX2NhkXJn1nt?=
+ =?us-ascii?Q?PliG7ueoj//oI7tnJ4vF6AS7tpemQAfmkKPYibJDvi6dAy2C8pwyutc9WUUi?=
+ =?us-ascii?Q?kdeS40dbuSiDiAeNyvWKJyhOA456QLqPo8k+OVHQKUxWL26VWGyBQuVTEiMy?=
+ =?us-ascii?Q?6Ur+/Dx5HwsU9p+rCQH8Wkm5UQt85r0l3eVjEGKiDKnISbyf5Uao9yILAp1L?=
+ =?us-ascii?Q?fyzHPAbDJqsaCUsgnrQQ?=
+X-OriginatorOrg: outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: f5b5205f-273d-43bf-1418-08dc54c250b8
+X-MS-Exchange-CrossTenant-AuthSource: AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Apr 2024 16:14:33.7054
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
+	00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VE1P194MB0909
 
-On 1/5/24 21:46, Dmitry Osipenko wrote:
-> From: Boris Brezillon <boris.brezillon@collabora.com>
-> 
-> If some the pages or sgt allocation failed, we shouldn't release the
-> pages ref we got earlier, otherwise we will end up with unbalanced
-> get/put_pages() calls. We should instead leave everything in place
-> and let the BO release function deal with extra cleanup when the object
-> is destroyed, or let the fault handler try again next time it's called.
-> 
-> Fixes: 187d2929206e ("drm/panfrost: Add support for GPU heap allocations")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
-> Co-developed-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-> ---
->  drivers/gpu/drm/panfrost/panfrost_mmu.c | 13 +++++++++----
->  1 file changed, 9 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/panfrost/panfrost_mmu.c b/drivers/gpu/drm/panfrost/panfrost_mmu.c
-> index bd5a0073009d..4a0b4bf03f1a 100644
-> --- a/drivers/gpu/drm/panfrost/panfrost_mmu.c
-> +++ b/drivers/gpu/drm/panfrost/panfrost_mmu.c
-> @@ -502,11 +502,18 @@ static int panfrost_mmu_map_fault_addr(struct panfrost_device *pfdev, int as,
->  	mapping_set_unevictable(mapping);
->  
->  	for (i = page_offset; i < page_offset + NUM_FAULT_PAGES; i++) {
-> +		/* Can happen if the last fault only partially filled this
-> +		 * section of the pages array before failing. In that case
-> +		 * we skip already filled pages.
-> +		 */
-> +		if (pages[i])
-> +			continue;
-> +
->  		pages[i] = shmem_read_mapping_page(mapping, i);
->  		if (IS_ERR(pages[i])) {
->  			ret = PTR_ERR(pages[i]);
->  			pages[i] = NULL;
-> -			goto err_pages;
-> +			goto err_unlock;
->  		}
->  	}
->  
-> @@ -514,7 +521,7 @@ static int panfrost_mmu_map_fault_addr(struct panfrost_device *pfdev, int as,
->  	ret = sg_alloc_table_from_pages(sgt, pages + page_offset,
->  					NUM_FAULT_PAGES, 0, SZ_2M, GFP_KERNEL);
->  	if (ret)
-> -		goto err_pages;
-> +		goto err_unlock;
->  
->  	ret = dma_map_sgtable(pfdev->dev, sgt, DMA_BIDIRECTIONAL, 0);
->  	if (ret)
-> @@ -537,8 +544,6 @@ static int panfrost_mmu_map_fault_addr(struct panfrost_device *pfdev, int as,
->  
->  err_map:
->  	sg_free_table(sgt);
-> -err_pages:
-> -	drm_gem_shmem_put_pages_locked(&bo->base);
->  err_unlock:
->  	dma_resv_unlock(obj->resv);
->  err_bo:
+Hi Stefano,
+Thanks for the review.
 
-Applied to misc-fixes
+>We incremented it only for VIRTIO_VSOCK_OP_RW, should we check the
+>same here?
 
-Forgot that this patch doesn't depend on others in this series, sorry
-for not doing it earlier
+Checking for the length of the skbuf or checking for VIRTIO_VSOCK_OP_RW
+AFAIK is equivalent. Since the only packet with payload is this one. 
+I'll add a comment in v2 to make it more clear.
 
--- 
-Best regards,
-Dmitry
+>What about rename it in `consume`?
 
+Sounds good!
+
+Thanks,
+Luigi
