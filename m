@@ -1,143 +1,121 @@
-Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com [209.85.208.43])
+Received: from mail-yb1-f178.google.com (mail-yb1-f178.google.com [209.85.219.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BA908004D
-	for <virtualization@lists.linux.dev>; Thu,  4 Apr 2024 11:15:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46ED183A19
+	for <virtualization@lists.linux.dev>; Thu,  4 Apr 2024 11:41:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712229304; cv=none; b=EJuU3/TTt+Q1vkbygHuSS4zTp48/fcFA/E6VaDnFOXALxYfHUpJzi/MJCbPg9qRXu2hEzuv14XlUAIxORoqsiiFVo9aUZgLBiBgA2+3Xhzm2y/zDr5hjAskTm3FqMYhZRdQC1+NwJwEvjV/oWrfGbeOny2huivkjKjeapJeYjYs=
+	t=1712230892; cv=none; b=YUWzvgYI6Pp3NXqavHdVyk3t4a880/x/Fj8MxiWIABBXMSEcEU4YfIDenczisuUQVImrnSr9E6ctlW2Jfqew6S1MarpPmHU1uHeNneCM32jgG/HQqf34GirDoPQ7JN5TwABZUKIAjhsMTX/mkn4z89ywbVc3jlAqk/KiyNaU/Fg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712229304; c=relaxed/simple;
-	bh=lcJ+0RKOVKyrFkZyrW0bb1gbt91d8N2KUr9gV2aCHuQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=I0R3iwZPDrx84lRByhzF0WB5m+1bSQ3NEzKvkLhunPK6giBXr74ouMfGvnFqrodLlvWNOM6hr9c8F2Xeu2/IccNf0zNFKm+2xl78vaOU0XUeTy5eIE6gEe+giYbdIQeydHNCSDwo0xD0aH1RQ+v8BaEDs/5lPvm/gzAIJcZUkLo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ventanamicro.com; spf=pass smtp.mailfrom=ventanamicro.com; dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b=PNh6du5U; arc=none smtp.client-ip=209.85.208.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ventanamicro.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ventanamicro.com
+	s=arc-20240116; t=1712230892; c=relaxed/simple;
+	bh=xTu/IdCn/048THaVHddyM991QlKheudeHaOzDUEba/4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=cxNUye3WScm5H+r+2wccoZjJ+D84haG6kH/nX67a+dXWLAehcbhVKWo1EgYuVFINFfQd/9Ehj4MvpkbCJ5mJdY0je+TlWTHKGRQy5qAAjYxcjpN+5Xy1xhcK32ebKMg1LVQ6gySnizrFJTk9YJkrviT69IWOfz6CJ2h72GcchXU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=j/l193E/; arc=none smtp.client-ip=209.85.219.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b="PNh6du5U"
-Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-566e869f631so878271a12.0
-        for <virtualization@lists.linux.dev>; Thu, 04 Apr 2024 04:15:02 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="j/l193E/"
+Received: by mail-yb1-f178.google.com with SMTP id 3f1490d57ef6-dd10ebcd702so1002342276.2
+        for <virtualization@lists.linux.dev>; Thu, 04 Apr 2024 04:41:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ventanamicro.com; s=google; t=1712229301; x=1712834101; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=25ODCdRY+Jn4wzM+mEjHDke5+vqaysXX4gL6DfhOAvg=;
-        b=PNh6du5UlNfQs1auEeaOnvO5/KaaJDOn+pfPoOpCluLVKAPYAkfMTJbIUL1SPorBvV
-         vwg0cGE2q++SospmGAACFHMSVToEiS/a0RV3k3KeOwGFk6GIx/3hxunImgLMK4R6eaOI
-         uo3fer8azUZuZRn4LHB3IkH7IR8laPgxDcJmTaVAZ8QDA7Se1YOpbfbS0J6Hu7u0snTU
-         BmDzgfs7xlBPu7IPa2jJ9g16hRTc6M97nDgUDODnPJMh7fpR7ItY49JvyapOtpR42biZ
-         KzH8/NekjD/xLWxAJTJ3APrrMefexUW/NZR3z3+TQErIFQg/cgrrShLN+vRhBiU2ZTuA
-         Qnxw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712229301; x=1712834101;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+        d=linaro.org; s=google; t=1712230889; x=1712835689; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=25ODCdRY+Jn4wzM+mEjHDke5+vqaysXX4gL6DfhOAvg=;
-        b=tCMGdSghilpMJmYk9mtUZjDN3dkLe+6/RYoqxc7LyXB9y06TwrqXx5tvPXSgxdg616
-         KXLb7ulw5Ym8fQO5QcBgwqwdnsbAWUOyY+Mtk64gRP0zk1dB0mwzbJmhkuOvqvf4fTVE
-         KqnG326Axcud3zZVlO6cyjHf5s7raHSq/GRcFE+V/OSVKCAJk2GBJz6dIW7jJO6oqfi3
-         V93iBIALnPOgTgM9A+OiRK8zg6dyeuwJdcI2+oI1TWPs4q8dE/lBY/M/AYqr+GgqelBh
-         sPN1/LyTaapYHAdn8PIeN/GU3Bb+fQ0wO4YYt70cOH2+HzYGxOAzX1cVbbz7oRkwN/LE
-         hRlQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVGR9/ZW0An80hc0HHA82NIaTAvRkOUQLwnv/bT7G1/QnugNh42tK006m/Bb76gcKUOXeIag7ezouFd8F9V835ElJpWHDLLDwnloiEgot0=
-X-Gm-Message-State: AOJu0Yz/ILJ7g5I0KwCm/p7txXp40hMiMOLH5RcJ5eLz/3FWBpO0ZhPx
-	Hd/YZqJ+FIhRP2dVCCedGeZeSaC4VoHa3srhBN7pLLwF2b5WUD0lmqAr5RK3XyQ=
-X-Google-Smtp-Source: AGHT+IHVQCEpGYXXQyLBKL2NnoOYXTEECAPh40NJ3Rd5iw4YTlh7y+zWHd66X26Mz6VjXnim0PWvpg==
-X-Received: by 2002:a50:8e4f:0:b0:567:824:e36c with SMTP id 15-20020a508e4f000000b005670824e36cmr1856431edx.14.1712229301530;
-        Thu, 04 Apr 2024 04:15:01 -0700 (PDT)
-Received: from localhost (cst2-173-16.cust.vodafone.cz. [31.30.173.16])
-        by smtp.gmail.com with ESMTPSA id fj22-20020a0564022b9600b0056a2cc5c868sm9061098edb.72.2024.04.04.04.14.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Apr 2024 04:14:59 -0700 (PDT)
-Date: Thu, 4 Apr 2024 13:14:58 +0200
-From: Andrew Jones <ajones@ventanamicro.com>
-To: Atish Patra <atishp@rivosinc.com>
-Cc: linux-kernel@vger.kernel.org, Anup Patel <anup@brainfault.org>, 
-	Palmer Dabbelt <palmer@rivosinc.com>, Ajay Kaher <akaher@vmware.com>, 
-	Alexandre Ghiti <alexghiti@rivosinc.com>, Alexey Makhalov <amakhalov@vmware.com>, 
-	Conor Dooley <conor.dooley@microchip.com>, Juergen Gross <jgross@suse.com>, kvm-riscv@lists.infradead.org, 
-	kvm@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-riscv@lists.infradead.org, 
-	Mark Rutland <mark.rutland@arm.com>, Palmer Dabbelt <palmer@dabbelt.com>, 
-	Paolo Bonzini <pbonzini@redhat.com>, Paul Walmsley <paul.walmsley@sifive.com>, 
-	Shuah Khan <shuah@kernel.org>, virtualization@lists.linux.dev, 
-	VMware PV-Drivers Reviewers <pv-drivers@vmware.com>, Will Deacon <will@kernel.org>, x86@kernel.org
-Subject: Re: [PATCH v5 05/22] RISC-V: Add SBI PMU snapshot definitions
-Message-ID: <20240404-ecddd056e774ccec7cea3be8@orel>
-References: <20240403080452.1007601-1-atishp@rivosinc.com>
- <20240403080452.1007601-6-atishp@rivosinc.com>
+        bh=xTu/IdCn/048THaVHddyM991QlKheudeHaOzDUEba/4=;
+        b=j/l193E/44huoJ04oBkRB2ZnTXE6+p/NUCx8c35Myr8DR1iqSOtfR2Fz16hDbeJ1OH
+         tUExXpGQ28dkceUDdMpyO8EbZRjSCrex+1svJMWBUgMGjtORV2tIu1aUU7tRrlTqseAW
+         3xBtk7B1sZWDxq6CBSHE23og4y4Uf0xWMmAPTgeKpXcaQUESIoqY/A0oYtntVtq9wzjm
+         lJOxkU+B0t80gJwZe9OA2Oo42MF8k5j1NhzpyvqPDfPA7+hO00Q1BN72ZWALO04aNEn/
+         BY01VUCN7ueDh8EfydFPuyA/LoG6wR5CeAWHszNIXog+FGeMZVY6ZzFMUx6QC5hmrLKo
+         Veng==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1712230889; x=1712835689;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=xTu/IdCn/048THaVHddyM991QlKheudeHaOzDUEba/4=;
+        b=XMCUoK7WuS2yY+/4rYKHrXVDfkAK/dXWNaeZjyui43eQGmRm/yOKHLyNpIBxFmG2A+
+         PZ7y1w8KCEjCSzH03nViWCXuGjp5b68ejRbpKKxw6zkKrVzQA45QBM/Dmo3Tecd3jowg
+         T1SIS7UWun73Vp80JaRBODKoWBpNyln939bCtHsG4oSyrwyrnFh4BZS7KYZttL2oqLqa
+         of8YPlXt7Ui0xKn7dIvFWNGCe8i+UP07awzM1vAefw9X6MGgI93l1IKI9Q97IPysAR9+
+         JUn0Io7p9rsxj7Wv/9W/Z808y6a0ixPPJlI+dBznED5PSjJJh9EUye/emR8Y2GitBVbA
+         G5aA==
+X-Forwarded-Encrypted: i=1; AJvYcCWudfwcweMXA19CLStJpwdNPBywyfj9WJoYLB1apAgZ1tEEHkzuyzQI+8WQxSO7LTrk+G7HuB1ePLHLANOVlzrIZEnWGdKiz761ltes8Zc=
+X-Gm-Message-State: AOJu0Yw7ZdpVq4tu0dH2HwA2dkIzJljkyqLNVnNZBnQQ3Ar5e14k8vh9
+	yZyrSJF6ac8zy6wCw3ibcJCj7eN/wzHk1G5xPAZnl3seeaLJ2qQmmNG+PkV9/OhVAzIQSPm2uB5
+	8bA3FIltSM+L6ezYA3DQFiqvM9Hh80eTHgW4k8w==
+X-Google-Smtp-Source: AGHT+IEhL+O4bSIOCRsSy+Vdywn61xtrVBJ3li47sHwN1FOt8H7g9W+tj2/Or7rao9/9euGeRsXbtXq4vPMz7+GnZRc=
+X-Received: by 2002:a25:ba86:0:b0:dd1:6fab:81e4 with SMTP id
+ s6-20020a25ba86000000b00dd16fab81e4mr2034373ybg.37.1712230889318; Thu, 04 Apr
+ 2024 04:41:29 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240403080452.1007601-6-atishp@rivosinc.com>
+References: <20240331-module-owner-virtio-v2-0-98f04bfaf46a@linaro.org> <20240331-module-owner-virtio-v2-12-98f04bfaf46a@linaro.org>
+In-Reply-To: <20240331-module-owner-virtio-v2-12-98f04bfaf46a@linaro.org>
+From: Linus Walleij <linus.walleij@linaro.org>
+Date: Thu, 4 Apr 2024 13:41:18 +0200
+Message-ID: <CACRpkdYpVUq1SgxnPVfRdTiNg3o8dcBePxoxu9GRYy6LdzUE5A@mail.gmail.com>
+Subject: Re: [PATCH v2 12/25] gpio: virtio: drop owner assignment
+To: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Jonathan Corbet <corbet@lwn.net>, 
+	David Hildenbrand <david@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
+	Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
+	Johannes Berg <johannes@sipsolutions.net>, Paolo Bonzini <pbonzini@redhat.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, Jens Axboe <axboe@kernel.dk>, 
+	Marcel Holtmann <marcel@holtmann.org>, Luiz Augusto von Dentz <luiz.dentz@gmail.com>, 
+	Olivia Mackall <olivia@selenic.com>, Herbert Xu <herbert@gondor.apana.org.au>, 
+	Amit Shah <amit@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Gonglei <arei.gonglei@huawei.com>, 
+	"David S. Miller" <davem@davemloft.net>, Sudeep Holla <sudeep.holla@arm.com>, 
+	Cristian Marussi <cristian.marussi@arm.com>, Viresh Kumar <vireshk@kernel.org>, 
+	Bartosz Golaszewski <brgl@bgdev.pl>, David Airlie <airlied@redhat.com>, 
+	Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, 
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
+	Thomas Zimmermann <tzimmermann@suse.de>, Daniel Vetter <daniel@ffwll.ch>, 
+	Jean-Philippe Brucker <jean-philippe@linaro.org>, Joerg Roedel <joro@8bytes.org>, 
+	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Alexander Graf <graf@amazon.com>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Eric Van Hensbergen <ericvh@kernel.org>, Latchesar Ionkov <lucho@ionkov.net>, 
+	Dominique Martinet <asmadeus@codewreck.org>, Christian Schoenebeck <linux_oss@crudebyte.com>, 
+	Stefano Garzarella <sgarzare@redhat.com>, Kalle Valo <kvalo@kernel.org>, 
+	Dan Williams <dan.j.williams@intel.com>, Vishal Verma <vishal.l.verma@intel.com>, 
+	Dave Jiang <dave.jiang@intel.com>, Ira Weiny <ira.weiny@intel.com>, 
+	Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Bjorn Andersson <andersson@kernel.org>, 
+	Mathieu Poirier <mathieu.poirier@linaro.org>, "James E.J. Bottomley" <jejb@linux.ibm.com>, 
+	"Martin K. Petersen" <martin.petersen@oracle.com>, Vivek Goyal <vgoyal@redhat.com>, 
+	Miklos Szeredi <miklos@szeredi.hu>, Anton Yakovlev <anton.yakovlev@opensynergy.com>, 
+	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, virtualization@lists.linux.dev, 
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-um@lists.infradead.org, linux-block@vger.kernel.org, 
+	linux-bluetooth@vger.kernel.org, linux-crypto@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, 
+	dri-devel@lists.freedesktop.org, iommu@lists.linux.dev, 
+	netdev@vger.kernel.org, v9fs@lists.linux.dev, kvm@vger.kernel.org, 
+	linux-wireless@vger.kernel.org, nvdimm@lists.linux.dev, 
+	linux-remoteproc@vger.kernel.org, linux-scsi@vger.kernel.org, 
+	linux-fsdevel@vger.kernel.org, alsa-devel@alsa-project.org, 
+	linux-sound@vger.kernel.org, 
+	Bartosz Golaszewski <bartosz.golaszewski@linaro.org>, Viresh Kumar <viresh.kumar@linaro.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 03, 2024 at 01:04:34AM -0700, Atish Patra wrote:
-> SBI PMU Snapshot function optimizes the number of traps to
-> higher privilege mode by leveraging a shared memory between the S/VS-mode
-> and the M/HS mode. Add the definitions for that extension and new error
-> codes.
-> 
-> Reviewed-by: Anup Patel <anup@brainfault.org>
-> Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
-> Signed-off-by: Atish Patra <atishp@rivosinc.com>
-> ---
->  arch/riscv/include/asm/sbi.h | 11 +++++++++++
->  1 file changed, 11 insertions(+)
-> 
-> diff --git a/arch/riscv/include/asm/sbi.h b/arch/riscv/include/asm/sbi.h
-> index 4afa2cd01bae..9aada4b9f7b5 100644
-> --- a/arch/riscv/include/asm/sbi.h
-> +++ b/arch/riscv/include/asm/sbi.h
-> @@ -132,6 +132,7 @@ enum sbi_ext_pmu_fid {
->  	SBI_EXT_PMU_COUNTER_STOP,
->  	SBI_EXT_PMU_COUNTER_FW_READ,
->  	SBI_EXT_PMU_COUNTER_FW_READ_HI,
-> +	SBI_EXT_PMU_SNAPSHOT_SET_SHMEM,
->  };
->  
->  union sbi_pmu_ctr_info {
-> @@ -148,6 +149,13 @@ union sbi_pmu_ctr_info {
->  	};
->  };
->  
-> +/* Data structure to contain the pmu snapshot data */
-> +struct riscv_pmu_snapshot_data {
-> +	u64 ctr_overflow_mask;
-> +	u64 ctr_values[64];
-> +	u64 reserved[447];
-> +};
-> +
->  #define RISCV_PMU_RAW_EVENT_MASK GENMASK_ULL(47, 0)
->  #define RISCV_PMU_RAW_EVENT_IDX 0x20000
->  
-> @@ -244,9 +252,11 @@ enum sbi_pmu_ctr_type {
->  
->  /* Flags defined for counter start function */
->  #define SBI_PMU_START_FLAG_SET_INIT_VALUE BIT(0)
-> +#define SBI_PMU_START_FLAG_INIT_SNAPSHOT BIT(1)
->  
->  /* Flags defined for counter stop function */
->  #define SBI_PMU_STOP_FLAG_RESET BIT(0)
-> +#define SBI_PMU_STOP_FLAG_TAKE_SNAPSHOT BIT(1)
->  
->  enum sbi_ext_dbcn_fid {
->  	SBI_EXT_DBCN_CONSOLE_WRITE = 0,
-> @@ -285,6 +295,7 @@ struct sbi_sta_struct {
->  #define SBI_ERR_ALREADY_AVAILABLE -6
->  #define SBI_ERR_ALREADY_STARTED -7
->  #define SBI_ERR_ALREADY_STOPPED -8
-> +#define SBI_ERR_NO_SHMEM	-9
->  
->  extern unsigned long sbi_spec_version;
->  struct sbiret {
-> -- 
-> 2.34.1
+On Sun, Mar 31, 2024 at 10:45=E2=80=AFAM Krzysztof Kozlowski
+<krzysztof.kozlowski@linaro.org> wrote:
+
+> virtio core already sets the .owner, so driver does not need to.
 >
+> Acked-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+> Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-Reviewed-by: Andrew Jones <ajones@ventanamicro.com>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+
+Yours,
+Linus Walleij
