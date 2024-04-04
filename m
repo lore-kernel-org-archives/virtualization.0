@@ -1,73 +1,73 @@
-Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com [209.85.208.52])
+Received: from mail-ej1-f42.google.com (mail-ej1-f42.google.com [209.85.218.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7CA280635
-	for <virtualization@lists.linux.dev>; Thu,  4 Apr 2024 11:02:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01B1580C16
+	for <virtualization@lists.linux.dev>; Thu,  4 Apr 2024 11:08:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712228549; cv=none; b=lARtYH7wgvUs/uor4IEx9QDfxURpWaHLedIidBoRvasj3cpBqgwG1rgs2/IbxIbJBuAE/G8+WbLhDGA0DC9SnJainefYhlTSSsm06BxmSgiLui1pTz8QObuSkk8ViBKtrJo3v5LVEn5JpZn+zqfoqrJ1n+bw0ad0x72ahNuUitU=
+	t=1712228896; cv=none; b=fP5dr8Y/fTSxAKe+TRQ0C79TvBuSlnE4jaQ5Z+s0OAdD/pSiJBblAHJO8wxug8CUZf2eOROSqS7Spzzqai4vXN4GIz/kzDwEmXcLlvXrK3rQRbMjcmJVUaIbpkB8mISGQL918ZE0fHrvb08c8hkeUMgqkFY6KAYOdN6r/L9BCek=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712228549; c=relaxed/simple;
-	bh=t6zNz5pw//F+8XPDFb/QOAnmOim/cJz/4VwpJwe5ATY=;
+	s=arc-20240116; t=1712228896; c=relaxed/simple;
+	bh=b9wRAhDeshh10P0TwW9VE8z5e9tGLWnK8X6agCj/Bog=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bqDDekV3GcdpMi97VBlp83fbujYYnThBHru8itYUjMnGfnlqWRNh6T4HubR/wDvPcFJzR5y8p5H4Vbq8+aP2XO+zgoNDsODQHbkZqhFo5V/Hw9p2btu+pIhdMAsqftbJ5+qJOYEtaYv/PnUbWowkv3RIAtoCTTmi/PktKoUmE8g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ventanamicro.com; spf=pass smtp.mailfrom=ventanamicro.com; dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b=EdxWrPiB; arc=none smtp.client-ip=209.85.208.52
+	 Content-Type:Content-Disposition:In-Reply-To; b=EllmHBYzqfHZZy4R8oOUQZCgaSJSvjfOraKqY7IVP69F1+L+9NknNtpQtcv5tq7Ss3GuWTgbyowvavT60O0eHDTrJ/z2J3FprNY16nPOJtlTRu8LQSQvksMSP0MZkQLAN+nlJE4L/Kc+RSS+UkJmwp662gzGMvTcK7jx9z8h2v4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ventanamicro.com; spf=pass smtp.mailfrom=ventanamicro.com; dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b=dZ9LVaYk; arc=none smtp.client-ip=209.85.218.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ventanamicro.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ventanamicro.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b="EdxWrPiB"
-Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-56e1baf0380so790477a12.3
-        for <virtualization@lists.linux.dev>; Thu, 04 Apr 2024 04:02:27 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b="dZ9LVaYk"
+Received: by mail-ej1-f42.google.com with SMTP id a640c23a62f3a-a50f170b7e3so116181766b.2
+        for <virtualization@lists.linux.dev>; Thu, 04 Apr 2024 04:08:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ventanamicro.com; s=google; t=1712228546; x=1712833346; darn=lists.linux.dev;
+        d=ventanamicro.com; s=google; t=1712228893; x=1712833693; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=WI/gpDqjLiJmsDmwk7gqvmJeMZiYROtcIjc07FyAt1I=;
-        b=EdxWrPiBbd69vm3/UusHZN6ncwMhguNaDdr1UtGw2p93zKl5t6DXCuwkEQlFbQVxjA
-         vnFrk5LfnPSwZITWrh3iyQmJbz5OfTZUwh9xNqYoLxQhm1gF0d+IucbP/pwWNtD8GZsq
-         QrX2p/ETnCj6kfRs6W5IU/rf3GWY3D9139SxtIlFhJuZpI/nf3msRY+IfC2PHVqIQaHR
-         0atD7S5hfDy3s9fPixG75A/DRCN2PoM5h7/C286dMSSe7i99J7gHKo9kDJ2mOfgf0/zT
-         uZOYnOR2O9j1WHnNIUqbInKkBbBHhwoK1Wk6cfi6kDFHPTcU/K3YeYtNVZigSUdxJeKh
-         dU0A==
+        bh=XHYX+6wGVMHeamknM7Pg3k7ckv45aX0Tuc02oE5EGZo=;
+        b=dZ9LVaYkC9Q/ve7Slp5CRIHwHmeom8BeqLywGxaqoTZMDUyFsT1FH5+f1PrAWUBH2U
+         xYpUn0pjkIMaC9kZDaUtJhbG57Z1Q8PsGp+vdCeNXM+bGLRy1NyH6y7wZcMmsgVx6fSg
+         9rp9oeTG8dSA7k/bR8op/N5Am2VZVIcUMEteSLAkkLz4uvchsDEAR1DXkYadSfy+5WRO
+         wkYI3toAQJACzVI1JDjnNw0t8C/pc+EsBlRT2Dei5Vkwr/M0g+oVtVe9It2XIjkeIulr
+         6wn1+fHHqSrc4eQ7bVizl3+RJnWuL4ik2Js21/V45Oo/hLHisapqA9kvoqYE7eVCY4/a
+         IsqQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712228546; x=1712833346;
+        d=1e100.net; s=20230601; t=1712228893; x=1712833693;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=WI/gpDqjLiJmsDmwk7gqvmJeMZiYROtcIjc07FyAt1I=;
-        b=U23u1+tqZeAq4yEzvctW0PtHWf8nhVqZ/AgDWiMjzCZZGNYmX/L6eBhcMs8ZqJgqPc
-         3O57UKbU3gZSR0SKIhTjy1SeKcMhcQH/mlvUSFEJGx9Y1WNH0uAP2fkMP7bJ1QR6oDiu
-         9K/KeiGMAnC7O0G2/+qyc1tCaXOT40e5UIuRcmw+oG2mQtiy1dMQ1XSPjVxvGDMoUcJR
-         cu79XdT14FtJYXI+iZ3AEViwkOCoIHp7as3X+bqZ7HhhnFKitIvoL9zm1QNJHrrtZU1D
-         T0YzcmdrxsUrO6n2w4FCqmPEysrTf2NQoxRmiTbV9//aHCYRPZvSMCeEhxuEsXKKYKaa
-         H/vg==
-X-Forwarded-Encrypted: i=1; AJvYcCWXe0bHz/foszrcX9+VFPIsfkJy94+fz3VZbKYv/106rjS7KK/24UsKg2s/hRHVlMoUWn0AZ1y/h2M1q/zjWESlWYRfAETuUtL5FyK1MN0=
-X-Gm-Message-State: AOJu0YwWhoNnxLbdYy0qXEvMp3nsmiGSLNXDKFXZOJUKVddwo0Qe17FL
-	l+cd6kUn0oVPtJv+gyudQ90+itD9OMOTvWLUbvs9lqZX7asyVDlLLaYS6qeohoM=
-X-Google-Smtp-Source: AGHT+IH+cR5LnT4HHFFZfBDVpuneEFANhm0q0RefyMMIWR5DVI1nM63K0UMkrPub9LuoEZqin8kkoA==
-X-Received: by 2002:a17:906:7954:b0:a4e:a068:7f with SMTP id l20-20020a170906795400b00a4ea068007fmr1635905ejo.49.1712228545941;
-        Thu, 04 Apr 2024 04:02:25 -0700 (PDT)
+        bh=XHYX+6wGVMHeamknM7Pg3k7ckv45aX0Tuc02oE5EGZo=;
+        b=uHBwb2fsAE+jTiS47m/y+4A6Q0nmaDlLY3tN+8Q73tLg0FA2anM9ofGtIsZuyNmnnS
+         vVApHTtp+lbkBRSqh9qlfR9UflsB3Jc2DJkbKic4CM1dEanbG5Z46W/dFMYyVyEDQAk2
+         Dh+bibJ3ONTE+/Hg3gQtHf4gZq8YN+cj7VyGL9FGqvOfCv8PcOFiTqnecWOOF8fK4fOa
+         867Xk8OrxTtXxjEcaxuNDp7hlmoZyriJmXdYYFmK6iusk8IKFElk10fARTYPsanYAs+0
+         lX/yrBIE0gMo7pXU2WErgfNE9WIUS3uwsle04/rAx7CsWO40PUEy5qJQeKrz7pAcqo4J
+         emkg==
+X-Forwarded-Encrypted: i=1; AJvYcCUdX6AReNLeu+JvIpnCVh8wZK+PGli6AGcuBXGw+MWQEOnGcTp1b2YByxeLbli2LvFZgNX8tFuSrrcbKxPLVb4YNwUyjmi+fGaJqWhI67w=
+X-Gm-Message-State: AOJu0YyaY6FPopVo1Ew+BCaJlW3Nqcy9AlSrBKfc9CkKQwl44bFIFE9A
+	VwPE1zeV9Ivjm6f5K/2FY1zoF2hudoERM2pCUR96sLAhMzSZLj/focaJp2DCK4Y=
+X-Google-Smtp-Source: AGHT+IEwWasdhwJaS9vUXUMAlSdyN0d8CLHZIu2tQiTvCmJ1aDUIwnQzoZygayQdRyXB/log4Zvjmw==
+X-Received: by 2002:a17:906:a02:b0:a4e:2d69:e379 with SMTP id w2-20020a1709060a0200b00a4e2d69e379mr1481920ejf.4.1712228893383;
+        Thu, 04 Apr 2024 04:08:13 -0700 (PDT)
 Received: from localhost (cst2-173-16.cust.vodafone.cz. [31.30.173.16])
-        by smtp.gmail.com with ESMTPSA id an19-20020a17090656d300b00a4e58c74c9fsm5892101ejc.6.2024.04.04.04.02.25
+        by smtp.gmail.com with ESMTPSA id xh12-20020a170906da8c00b00a4e579ce949sm6017903ejb.51.2024.04.04.04.08.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Apr 2024 04:02:25 -0700 (PDT)
-Date: Thu, 4 Apr 2024 13:02:24 +0200
+        Thu, 04 Apr 2024 04:08:12 -0700 (PDT)
+Date: Thu, 4 Apr 2024 13:08:11 +0200
 From: Andrew Jones <ajones@ventanamicro.com>
 To: Atish Patra <atishp@rivosinc.com>
-Cc: linux-kernel@vger.kernel.org, Palmer Dabbelt <palmer@rivosinc.com>, 
-	Conor Dooley <conor.dooley@microchip.com>, Anup Patel <anup@brainfault.org>, Ajay Kaher <akaher@vmware.com>, 
+Cc: linux-kernel@vger.kernel.org, Ajay Kaher <akaher@vmware.com>, 
 	Alexandre Ghiti <alexghiti@rivosinc.com>, Alexey Makhalov <amakhalov@vmware.com>, 
+	Anup Patel <anup@brainfault.org>, Conor Dooley <conor.dooley@microchip.com>, 
 	Juergen Gross <jgross@suse.com>, kvm-riscv@lists.infradead.org, kvm@vger.kernel.org, 
 	linux-kselftest@vger.kernel.org, linux-riscv@lists.infradead.org, 
 	Mark Rutland <mark.rutland@arm.com>, Palmer Dabbelt <palmer@dabbelt.com>, 
 	Paolo Bonzini <pbonzini@redhat.com>, Paul Walmsley <paul.walmsley@sifive.com>, 
 	Shuah Khan <shuah@kernel.org>, virtualization@lists.linux.dev, 
 	VMware PV-Drivers Reviewers <pv-drivers@vmware.com>, Will Deacon <will@kernel.org>, x86@kernel.org
-Subject: Re: [PATCH v5 03/22] drivers/perf: riscv: Read upper bits of a
- firmware counter
-Message-ID: <20240404-89ee7d7f90a5fcc91809065e@orel>
+Subject: Re: [PATCH v5 04/22] drivers/perf: riscv: Use BIT macro for shifting
+ operations
+Message-ID: <20240404-9a84f2090d00f6b994e1de7c@orel>
 References: <20240403080452.1007601-1-atishp@rivosinc.com>
- <20240403080452.1007601-4-atishp@rivosinc.com>
+ <20240403080452.1007601-5-atishp@rivosinc.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -76,90 +76,76 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240403080452.1007601-4-atishp@rivosinc.com>
+In-Reply-To: <20240403080452.1007601-5-atishp@rivosinc.com>
 
-On Wed, Apr 03, 2024 at 01:04:32AM -0700, Atish Patra wrote:
-> SBI v2.0 introduced a explicit function to read the upper 32 bits
-> for any firmware counter width that is longer than 32bits.
-> This is only applicable for RV32 where firmware counter can be
-> 64 bit.
+On Wed, Apr 03, 2024 at 01:04:33AM -0700, Atish Patra wrote:
+> It is a good practice to use BIT() instead of (1UL << x).
+
+(1UL << x) isn't generally a problem. The problem is with (1 << x).
+
+> Replace the current usages with BIT().
 > 
-> Reviewed-by: Andrew Jones <ajones@ventanamicro.com>
-> Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
-> Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
-> Reviewed-by: Anup Patel <anup@brainfault.org>
 > Signed-off-by: Atish Patra <atishp@rivosinc.com>
 > ---
->  drivers/perf/riscv_pmu_sbi.c | 25 ++++++++++++++++++++-----
->  1 file changed, 20 insertions(+), 5 deletions(-)
+>  arch/riscv/include/asm/sbi.h | 20 ++++++++++----------
+>  drivers/perf/riscv_pmu_sbi.c |  2 +-
+>  2 files changed, 11 insertions(+), 11 deletions(-)
 > 
+> diff --git a/arch/riscv/include/asm/sbi.h b/arch/riscv/include/asm/sbi.h
+> index ef8311dafb91..4afa2cd01bae 100644
+> --- a/arch/riscv/include/asm/sbi.h
+> +++ b/arch/riscv/include/asm/sbi.h
+> @@ -233,20 +233,20 @@ enum sbi_pmu_ctr_type {
+>  #define SBI_PMU_EVENT_IDX_INVALID 0xFFFFFFFF
+>  
+>  /* Flags defined for config matching function */
+> -#define SBI_PMU_CFG_FLAG_SKIP_MATCH	(1 << 0)
+> -#define SBI_PMU_CFG_FLAG_CLEAR_VALUE	(1 << 1)
+> -#define SBI_PMU_CFG_FLAG_AUTO_START	(1 << 2)
+> -#define SBI_PMU_CFG_FLAG_SET_VUINH	(1 << 3)
+> -#define SBI_PMU_CFG_FLAG_SET_VSINH	(1 << 4)
+> -#define SBI_PMU_CFG_FLAG_SET_UINH	(1 << 5)
+> -#define SBI_PMU_CFG_FLAG_SET_SINH	(1 << 6)
+> -#define SBI_PMU_CFG_FLAG_SET_MINH	(1 << 7)
+> +#define SBI_PMU_CFG_FLAG_SKIP_MATCH	BIT(0)
+> +#define SBI_PMU_CFG_FLAG_CLEAR_VALUE	BIT(1)
+> +#define SBI_PMU_CFG_FLAG_AUTO_START	BIT(2)
+> +#define SBI_PMU_CFG_FLAG_SET_VUINH	BIT(3)
+> +#define SBI_PMU_CFG_FLAG_SET_VSINH	BIT(4)
+> +#define SBI_PMU_CFG_FLAG_SET_UINH	BIT(5)
+> +#define SBI_PMU_CFG_FLAG_SET_SINH	BIT(6)
+> +#define SBI_PMU_CFG_FLAG_SET_MINH	BIT(7)
+>  
+>  /* Flags defined for counter start function */
+> -#define SBI_PMU_START_FLAG_SET_INIT_VALUE (1 << 0)
+> +#define SBI_PMU_START_FLAG_SET_INIT_VALUE BIT(0)
+>  
+>  /* Flags defined for counter stop function */
+> -#define SBI_PMU_STOP_FLAG_RESET (1 << 0)
+> +#define SBI_PMU_STOP_FLAG_RESET BIT(0)
+>  
+>  enum sbi_ext_dbcn_fid {
+>  	SBI_EXT_DBCN_CONSOLE_WRITE = 0,
 > diff --git a/drivers/perf/riscv_pmu_sbi.c b/drivers/perf/riscv_pmu_sbi.c
-> index 3e44d2fb8bf8..babf1b9a4dbe 100644
+> index babf1b9a4dbe..a83ae82301e3 100644
 > --- a/drivers/perf/riscv_pmu_sbi.c
 > +++ b/drivers/perf/riscv_pmu_sbi.c
-> @@ -57,6 +57,8 @@ asm volatile(ALTERNATIVE(						\
->  PMU_FORMAT_ATTR(event, "config:0-47");
->  PMU_FORMAT_ATTR(firmware, "config:63");
->  
-> +static bool sbi_v2_available;
-> +
->  static struct attribute *riscv_arch_formats_attr[] = {
->  	&format_attr_event.attr,
->  	&format_attr_firmware.attr,
-> @@ -511,19 +513,29 @@ static u64 pmu_sbi_ctr_read(struct perf_event *event)
->  	struct hw_perf_event *hwc = &event->hw;
->  	int idx = hwc->idx;
->  	struct sbiret ret;
-> -	union sbi_pmu_ctr_info info;
->  	u64 val = 0;
-> +	union sbi_pmu_ctr_info info = pmu_ctr_list[idx];
->  
->  	if (pmu_sbi_is_fw_event(event)) {
->  		ret = sbi_ecall(SBI_EXT_PMU, SBI_EXT_PMU_COUNTER_FW_READ,
->  				hwc->idx, 0, 0, 0, 0, 0);
-> -		if (!ret.error)
-> -			val = ret.value;
-> +		if (ret.error)
-> +			return 0;
-> +
-> +		val = ret.value;
-> +		if (IS_ENABLED(CONFIG_32BIT) && sbi_v2_available && info.width >= 32) {
-> +			ret = sbi_ecall(SBI_EXT_PMU, SBI_EXT_PMU_COUNTER_FW_READ_HI,
-> +					hwc->idx, 0, 0, 0, 0, 0);
-> +			if (!ret.error)
-> +				val |= ((u64)ret.value << 32);
-> +			else
-> +				WARN_ONCE(1, "Unable to read upper 32 bits of firmware counter error: %d\n",
-> +					  sbi_err_map_linux_errno(ret.error));
-
-I don't think we should use sbi_err_map_linux_errno() in this case since
-we don't have a 1:1 mapping of SBI errors to Linux errors and we don't
-propagate the error as a Linux error. For warnings, it's better to output
-the exact SBI error.
-
-> +		}
->  	} else {
-> -		info = pmu_ctr_list[idx];
->  		val = riscv_pmu_ctr_read_csr(info.csr);
->  		if (IS_ENABLED(CONFIG_32BIT))
-> -			val = ((u64)riscv_pmu_ctr_read_csr(info.csr + 0x80)) << 31 | val;
-> +			val |= ((u64)riscv_pmu_ctr_read_csr(info.csr + 0x80)) << 32;
+> @@ -386,7 +386,7 @@ static int pmu_sbi_ctr_get_idx(struct perf_event *event)
+>  			cmask = 1;
+>  		} else if (event->attr.config == PERF_COUNT_HW_INSTRUCTIONS) {
+>  			cflags |= SBI_PMU_CFG_FLAG_SKIP_MATCH;
+> -			cmask = 1UL << (CSR_INSTRET - CSR_CYCLE);
+> +			cmask = BIT(CSR_INSTRET - CSR_CYCLE);
+>  		}
 >  	}
 >  
->  	return val;
-> @@ -1135,6 +1147,9 @@ static int __init pmu_sbi_devinit(void)
->  		return 0;
->  	}
->  
-> +	if (sbi_spec_version >= sbi_mk_version(2, 0))
-> +		sbi_v2_available = true;
-> +
->  	ret = cpuhp_setup_state_multi(CPUHP_AP_PERF_RISCV_STARTING,
->  				      "perf/riscv/pmu:starting",
->  				      pmu_sbi_starting_cpu, pmu_sbi_dying_cpu);
 > -- 
 > 2.34.1
 >
+
+Other than the commit message,
+
+Reviewed-by: Andrew Jones <ajones@ventanamicro.com>
 
 Thanks,
 drew
