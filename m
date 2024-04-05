@@ -1,57 +1,57 @@
-Received: from mail-lj1-f174.google.com (mail-lj1-f174.google.com [209.85.208.174])
+Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDF7916C847
-	for <virtualization@lists.linux.dev>; Fri,  5 Apr 2024 12:12:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07B1216C867
+	for <virtualization@lists.linux.dev>; Fri,  5 Apr 2024 12:16:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712319181; cv=none; b=a/Beyhc9i6GUfQbFiwNJy9nQAn08b2AQ6a/T4EimqXDP227Sm6pi5rCTa+glOFsVdT7zT7T9sgNjdjSondbiiNs04GTPbhziFwEv4ld26acyAT+qeUI6UA0i/+Y6aGqU6d8b1oti+tyBj8je5JP86CxhU9FUE779boyKqxpRcrQ=
+	t=1712319395; cv=none; b=QJRrHmFFdBu24q2GmZCu/RhNmIJkg45go6sKxFpruVhYrZ5kyWlsCNjtFHktQ3Vt0cx/hpq90TllbthRa5tAQ0DPcr5TE3ApC6wgIt2sE1Y7BUSlwLhYoYt6FhMciqlapsw8PXJWqKOesKDboQquAgABvxA1CTfvicJRObJ8OIA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712319181; c=relaxed/simple;
-	bh=dshtjM1v82zRVU8kvER3wDxbXe0KcYtKm0n9OIpWsWo=;
+	s=arc-20240116; t=1712319395; c=relaxed/simple;
+	bh=WjeDlT9dBOQe+BLqgl2oRIytcPuInRU8X9ml0l76d9Q=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=J9d60mRwpqSP/XWznzhPNrJWZGk8tNTRbqgVZF4KYYf2CG/ccucdcz0RJ9IDrIc9rzR27rG+nfLzKZj1vxPW8IlF06gVu6qoF+Py8IkUNlweYBboyHpb0N2CUApF3r1Vn9yWcjvatXQOlFBFAep5z1Xt74LHt3NFGjFqrfW/T8g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ventanamicro.com; spf=pass smtp.mailfrom=ventanamicro.com; dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b=HBTqXBCg; arc=none smtp.client-ip=209.85.208.174
+	 Content-Type:Content-Disposition:In-Reply-To; b=U+UDjD1EH/m0hkDd6wxYBSkYRZTQWX4sYjtMxAIC992PVyAXxm8N7rFLAX9MvqjkTmnZqQkApWfV+CJ/D8tIUtOsczkik7smY5viJ8pbONQ0pDG3dTy2Se3hLDKUpNSh/88JaqBaM+IKz93m5oesdjhXPJ/d03JUtAoF7YoF09Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ventanamicro.com; spf=pass smtp.mailfrom=ventanamicro.com; dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b=eIGyMyqG; arc=none smtp.client-ip=209.85.128.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ventanamicro.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ventanamicro.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b="HBTqXBCg"
-Received: by mail-lj1-f174.google.com with SMTP id 38308e7fff4ca-2d23114b19dso23655011fa.3
-        for <virtualization@lists.linux.dev>; Fri, 05 Apr 2024 05:12:59 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b="eIGyMyqG"
+Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-4162bac959cso11869515e9.0
+        for <virtualization@lists.linux.dev>; Fri, 05 Apr 2024 05:16:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ventanamicro.com; s=google; t=1712319178; x=1712923978; darn=lists.linux.dev;
+        d=ventanamicro.com; s=google; t=1712319390; x=1712924190; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=HYZcvWtsDvy2pse+vGPhkHFJFnqvbEcDhkbwdc6IM+c=;
-        b=HBTqXBCgHbYd4tGK8kontnbnsjQJG1HbUiqfxZGhvExcqhhskiOhgoH0DQj9kEqRvU
-         Ff5Zj20a1D2dAkY5zgPaGcYhPG7xkmFCIsg3SzxCc0hN1ABEDBRGtU5A9b3P08Fq4RmM
-         b/jMAKvkcX0X9CzN2g/EuFeJq9kUNGWXROoYYgDxTXYPZzldN7vMaT960YN4JnuPvgsw
-         1FzaeHuoElvyPQo+xJTOI0y4gATbA9zWBJLNs44MwtuasbJ9ZR5mBCTS2jTdrHxceP3Y
-         60FeBaTQbRNqOeNgjQb+OvfgfSh7zoIibAebAZr7jiqB7C7iH7a8XxOXR9gCWc7biWSu
-         NypQ==
+        bh=YIBbg/0Gkc3vc8eXQdCLIpelrpcjO2owsNnM3FfwOWI=;
+        b=eIGyMyqGTW4w2n6FjuRhxsgLnqm5MnCSmEz5kGUlTO/yyneT4vOFYi4UevHrx1IpPY
+         /kRTGCFDoAPqKJO7+cCs1PWF2tvmaPGQQUOSzmwfvfUm4HLEaz2th5yEMhKxQDLwfxkw
+         Tnz+d3dp734plyUMMe1hCFfu9B6mxBjS7Xk7KMXj5XXDai1GJk1RaH6zx7nEBVtBysum
+         MFYxGLlbe8qoD/ExHUkKKy0yisVGNyMb9ceMvOn+2bkPuUQSGA8VDIYSkDlXpVFvdbnb
+         pqYMGVcs+HfmoKsoqCOiUNHHndDbB4SmGqd/BEP5E5bg49NR/9TiCrLWDiNIVLV2UaPq
+         3KTA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712319178; x=1712923978;
+        d=1e100.net; s=20230601; t=1712319390; x=1712924190;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=HYZcvWtsDvy2pse+vGPhkHFJFnqvbEcDhkbwdc6IM+c=;
-        b=ID2TsnwyAoncy+NimtLOZhx825IuIIktR27GHZp+WakrGtYZ0OxlxYpqjp9DAdwXjl
-         7Zy4YUyqKUEsEKYWJUs31lKLNTQ4giZ4Mp0KmFGnGqGGpHMn27jNudz3Te9fisRZOWFR
-         TBov9a97UMx4+Fxv72ncNY6nH7qcT3ig4mVntNXZAgjh8uY59viKHjK6o53l9fMHzkV4
-         lLtgUkTeivsvuOs5ZaWnf+8zv6kE1Mx1Ue247/kjwqcEAw2a63+BfzYc/tKe4jT4Dhfq
-         507SPHmFVs1JOEDE8/1bEOGmks7ABhjCJit5PLWUc6KZ82L5JyEy2ypskU6QaK57k9Dt
-         P9Ow==
-X-Forwarded-Encrypted: i=1; AJvYcCWHkEgWT9JJhcRsXSj63jZ1DrnWyMY+B0swCi6gzNhJF36M13bbjDwIseNVBAA/kbN26NtAXfTThFPk67kAz2u1fBideASm+QoQoZgtwwI=
-X-Gm-Message-State: AOJu0YzdqJcQoC6p7Qwi2unkki7aogoeq1Yx5hebCnLpa/0ckVv11c9g
-	/ZNnD/jSBMvnIbn1C993k83pNNWMl/c+iFnxSrmKq0md+opJCvWzMnUH/IIrbAA=
-X-Google-Smtp-Source: AGHT+IE7Lx9Gy8UPuI2Fe6F5yEOkQeAtXYhy3EeJ04SwdjNicn6qCSA5xJIY7awO1OB5cSxmhomVgg==
-X-Received: by 2002:a2e:8555:0:b0:2d7:9d4:f31c with SMTP id u21-20020a2e8555000000b002d709d4f31cmr1244137ljj.15.1712319178095;
-        Fri, 05 Apr 2024 05:12:58 -0700 (PDT)
+        bh=YIBbg/0Gkc3vc8eXQdCLIpelrpcjO2owsNnM3FfwOWI=;
+        b=SVOlW944+BlRBAcgNoYbS6K5vsQrqgDILg6bdCZYz+MUAFnmPkkb2wRJlK+arqqu4X
+         87pejMiMczswgvj2p4oNTaGck3n81WO5xggEv6ldjQ0yDaNoVD70FeaP5HdmH1e0ktCn
+         /n2Q82Z6KSGO8BehYTdAkaeR0rvu/BjUACaLQhDsgh9aG2LFuoK4X9NuKJgIIBFg3qBj
+         pt4K2fPICEbBy5MiHcP/lk4BqQU2ifS7prs3Uw5Ru2nZWpjEkGhWJ65ceQUz+9nbhSib
+         5c2HJ3FhDa67oV1j59kpodiIlRTOjojhEkgIU3E1ioB1d6wSm4qrMa3fRNg3Im5jSEWq
+         GoKg==
+X-Forwarded-Encrypted: i=1; AJvYcCX1DKQ0S4N6gg3gJbTSTSwxJgnl5YpK91GfwFa/PHDkevoBXmI/qMOgdzaBVhURduFQCHHg1FtTSnSIiTiok1zTWjiZE9y5auDb0s8ryxU=
+X-Gm-Message-State: AOJu0YwB918RcfIgCz4hg4QhfQdKiv+IuxuY/2IwgIdj/GX+8GqemElq
+	08Qf+ItoqyO78qIQQYujaMb5A7ZQUTHPwCVaYdmc3Zh+1S943jcPJn/S1gfQwJA=
+X-Google-Smtp-Source: AGHT+IHWoJ0SVigRSQdE8aAqZ9Ahbq2SNfjubKUhDIh9/SPSG+4VJxdmaUN4mIX3yesibcIkwnQlKw==
+X-Received: by 2002:a05:600c:4e0c:b0:414:250:ccaa with SMTP id b12-20020a05600c4e0c00b004140250ccaamr1142350wmq.12.1712319390374;
+        Fri, 05 Apr 2024 05:16:30 -0700 (PDT)
 Received: from localhost (2001-1ae9-1c2-4c00-20f-c6b4-1e57-7965.ip6.tmcz.cz. [2001:1ae9:1c2:4c00:20f:c6b4:1e57:7965])
-        by smtp.gmail.com with ESMTPSA id iv9-20020a05600c548900b004162e3e5b9asm2463049wmb.44.2024.04.05.05.12.57
+        by smtp.gmail.com with ESMTPSA id fc9-20020a05600c524900b004162a9f03a6sm5867007wmb.7.2024.04.05.05.16.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 05 Apr 2024 05:12:57 -0700 (PDT)
-Date: Fri, 5 Apr 2024 14:12:56 +0200
+        Fri, 05 Apr 2024 05:16:29 -0700 (PDT)
+Date: Fri, 5 Apr 2024 14:16:29 +0200
 From: Andrew Jones <ajones@ventanamicro.com>
 To: Atish Patra <atishp@rivosinc.com>
 Cc: linux-kernel@vger.kernel.org, Ajay Kaher <akaher@vmware.com>, 
@@ -63,11 +63,11 @@ Cc: linux-kernel@vger.kernel.org, Ajay Kaher <akaher@vmware.com>,
 	Paolo Bonzini <pbonzini@redhat.com>, Paul Walmsley <paul.walmsley@sifive.com>, 
 	Shuah Khan <shuah@kernel.org>, virtualization@lists.linux.dev, 
 	VMware PV-Drivers Reviewers <pv-drivers@vmware.com>, Will Deacon <will@kernel.org>, x86@kernel.org
-Subject: Re: [PATCH v5 15/22] RISC-V: KVM: Improve firmware counter read
- function
-Message-ID: <20240405-dbb7765ae18820c57461dfff@orel>
+Subject: Re: [PATCH v5 16/22] KVM: riscv: selftests: Move sbi definitions to
+ its own header file
+Message-ID: <20240405-a09f9ed26805b6988179132c@orel>
 References: <20240403080452.1007601-1-atishp@rivosinc.com>
- <20240403080452.1007601-16-atishp@rivosinc.com>
+ <20240403080452.1007601-17-atishp@rivosinc.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -76,73 +76,158 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240403080452.1007601-16-atishp@rivosinc.com>
+In-Reply-To: <20240403080452.1007601-17-atishp@rivosinc.com>
 
-On Wed, Apr 03, 2024 at 01:04:44AM -0700, Atish Patra wrote:
-> Rename the function to indicate that it is meant for firmware
-> counter read. While at it, add a range sanity check for it as
-> well.
+On Wed, Apr 03, 2024 at 01:04:45AM -0700, Atish Patra wrote:
+> The SBI definitions will continue to grow. Move the sbi related
+> definitions to its own header file from processor.h
 > 
+> Suggested-by: Andrew Jones <ajones@ventanamicro.com>
 > Signed-off-by: Atish Patra <atishp@rivosinc.com>
 > ---
->  arch/riscv/include/asm/kvm_vcpu_pmu.h | 2 +-
->  arch/riscv/kvm/vcpu_pmu.c             | 7 ++++++-
->  arch/riscv/kvm/vcpu_sbi_pmu.c         | 2 +-
->  3 files changed, 8 insertions(+), 3 deletions(-)
+>  .../selftests/kvm/include/riscv/processor.h   | 39 ---------------
+>  .../testing/selftests/kvm/include/riscv/sbi.h | 50 +++++++++++++++++++
+>  .../selftests/kvm/include/riscv/ucall.h       |  1 +
+>  tools/testing/selftests/kvm/steal_time.c      |  4 +-
+>  4 files changed, 54 insertions(+), 40 deletions(-)
+>  create mode 100644 tools/testing/selftests/kvm/include/riscv/sbi.h
 > 
-> diff --git a/arch/riscv/include/asm/kvm_vcpu_pmu.h b/arch/riscv/include/asm/kvm_vcpu_pmu.h
-> index 55861b5d3382..fa0f535bbbf0 100644
-> --- a/arch/riscv/include/asm/kvm_vcpu_pmu.h
-> +++ b/arch/riscv/include/asm/kvm_vcpu_pmu.h
-> @@ -89,7 +89,7 @@ int kvm_riscv_vcpu_pmu_ctr_cfg_match(struct kvm_vcpu *vcpu, unsigned long ctr_ba
->  				     unsigned long ctr_mask, unsigned long flags,
->  				     unsigned long eidx, u64 evtdata,
->  				     struct kvm_vcpu_sbi_return *retdata);
-> -int kvm_riscv_vcpu_pmu_ctr_read(struct kvm_vcpu *vcpu, unsigned long cidx,
-> +int kvm_riscv_vcpu_pmu_fw_ctr_read(struct kvm_vcpu *vcpu, unsigned long cidx,
->  				struct kvm_vcpu_sbi_return *retdata);
->  int kvm_riscv_vcpu_pmu_fw_ctr_read_hi(struct kvm_vcpu *vcpu, unsigned long cidx,
->  				      struct kvm_vcpu_sbi_return *retdata);
-> diff --git a/arch/riscv/kvm/vcpu_pmu.c b/arch/riscv/kvm/vcpu_pmu.c
-> index ff326152eeff..94efa88d054d 100644
-> --- a/arch/riscv/kvm/vcpu_pmu.c
-> +++ b/arch/riscv/kvm/vcpu_pmu.c
-> @@ -235,6 +235,11 @@ static int pmu_ctr_read(struct kvm_vcpu *vcpu, unsigned long cidx,
->  	u64 enabled, running;
->  	int fevent_code;
+> diff --git a/tools/testing/selftests/kvm/include/riscv/processor.h b/tools/testing/selftests/kvm/include/riscv/processor.h
+> index ce473fe251dd..3b9cb39327ff 100644
+> --- a/tools/testing/selftests/kvm/include/riscv/processor.h
+> +++ b/tools/testing/selftests/kvm/include/riscv/processor.h
+> @@ -154,45 +154,6 @@ void vm_install_interrupt_handler(struct kvm_vm *vm, exception_handler_fn handle
+>  #define PGTBL_PAGE_SIZE				PGTBL_L0_BLOCK_SIZE
+>  #define PGTBL_PAGE_SIZE_SHIFT			PGTBL_L0_BLOCK_SHIFT
 >  
-> +	if (cidx >= kvm_pmu_num_counters(kvpmu) || cidx == 1) {
-> +		pr_warn("Invalid counter id [%ld] during read\n", cidx);
-> +		return -EINVAL;
-> +	}
-> +
->  	pmc = &kvpmu->pmc[cidx];
->  
->  	if (pmc->cinfo.type == SBI_PMU_CTR_TYPE_FW) {
-> @@ -747,7 +752,7 @@ int kvm_riscv_vcpu_pmu_fw_ctr_read_hi(struct kvm_vcpu *vcpu, unsigned long cidx,
->  	return 0;
->  }
->  
-> -int kvm_riscv_vcpu_pmu_ctr_read(struct kvm_vcpu *vcpu, unsigned long cidx,
-> +int kvm_riscv_vcpu_pmu_fw_ctr_read(struct kvm_vcpu *vcpu, unsigned long cidx,
->  				struct kvm_vcpu_sbi_return *retdata)
+> -/* SBI return error codes */
+> -#define SBI_SUCCESS				0
+> -#define SBI_ERR_FAILURE				-1
+> -#define SBI_ERR_NOT_SUPPORTED			-2
+> -#define SBI_ERR_INVALID_PARAM			-3
+> -#define SBI_ERR_DENIED				-4
+> -#define SBI_ERR_INVALID_ADDRESS			-5
+> -#define SBI_ERR_ALREADY_AVAILABLE		-6
+> -#define SBI_ERR_ALREADY_STARTED			-7
+> -#define SBI_ERR_ALREADY_STOPPED			-8
+> -
+> -#define SBI_EXT_EXPERIMENTAL_START		0x08000000
+> -#define SBI_EXT_EXPERIMENTAL_END		0x08FFFFFF
+> -
+> -#define KVM_RISCV_SELFTESTS_SBI_EXT		SBI_EXT_EXPERIMENTAL_END
+> -#define KVM_RISCV_SELFTESTS_SBI_UCALL		0
+> -#define KVM_RISCV_SELFTESTS_SBI_UNEXP		1
+> -
+> -enum sbi_ext_id {
+> -	SBI_EXT_BASE = 0x10,
+> -	SBI_EXT_STA = 0x535441,
+> -};
+> -
+> -enum sbi_ext_base_fid {
+> -	SBI_EXT_BASE_PROBE_EXT = 3,
+> -};
+> -
+> -struct sbiret {
+> -	long error;
+> -	long value;
+> -};
+> -
+> -struct sbiret sbi_ecall(int ext, int fid, unsigned long arg0,
+> -			unsigned long arg1, unsigned long arg2,
+> -			unsigned long arg3, unsigned long arg4,
+> -			unsigned long arg5);
+> -
+> -bool guest_sbi_probe_extension(int extid, long *out_val);
+> -
+>  static inline void local_irq_enable(void)
 >  {
->  	int ret;
-> diff --git a/arch/riscv/kvm/vcpu_sbi_pmu.c b/arch/riscv/kvm/vcpu_sbi_pmu.c
-> index cf111de51bdb..e4be34e03e83 100644
-> --- a/arch/riscv/kvm/vcpu_sbi_pmu.c
-> +++ b/arch/riscv/kvm/vcpu_sbi_pmu.c
-> @@ -62,7 +62,7 @@ static int kvm_sbi_ext_pmu_handler(struct kvm_vcpu *vcpu, struct kvm_run *run,
->  		ret = kvm_riscv_vcpu_pmu_ctr_stop(vcpu, cp->a0, cp->a1, cp->a2, retdata);
->  		break;
->  	case SBI_EXT_PMU_COUNTER_FW_READ:
-> -		ret = kvm_riscv_vcpu_pmu_ctr_read(vcpu, cp->a0, retdata);
-> +		ret = kvm_riscv_vcpu_pmu_fw_ctr_read(vcpu, cp->a0, retdata);
->  		break;
->  	case SBI_EXT_PMU_COUNTER_FW_READ_HI:
->  		if (IS_ENABLED(CONFIG_32BIT))
+>  	csr_set(CSR_SSTATUS, SR_SIE);
+> diff --git a/tools/testing/selftests/kvm/include/riscv/sbi.h b/tools/testing/selftests/kvm/include/riscv/sbi.h
+> new file mode 100644
+> index 000000000000..ba04f2dec7b5
+> --- /dev/null
+> +++ b/tools/testing/selftests/kvm/include/riscv/sbi.h
+> @@ -0,0 +1,50 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +/*
+> + * RISC-V SBI specific definitions
+> + *
+> + * Copyright (C) 2024 Rivos Inc.
+> + */
+> +
+> +#ifndef SELFTEST_KVM_SBI_H
+> +#define SELFTEST_KVM_SBI_H
+> +
+> +/* SBI return error codes */
+> +#define SBI_SUCCESS				 0
+> +#define SBI_ERR_FAILURE				-1
+> +#define SBI_ERR_NOT_SUPPORTED			-2
+> +#define SBI_ERR_INVALID_PARAM			-3
+> +#define SBI_ERR_DENIED				-4
+> +#define SBI_ERR_INVALID_ADDRESS			-5
+> +#define SBI_ERR_ALREADY_AVAILABLE		-6
+> +#define SBI_ERR_ALREADY_STARTED			-7
+> +#define SBI_ERR_ALREADY_STOPPED			-8
+> +
+> +#define SBI_EXT_EXPERIMENTAL_START		0x08000000
+> +#define SBI_EXT_EXPERIMENTAL_END		0x08FFFFFF
+> +
+> +#define KVM_RISCV_SELFTESTS_SBI_EXT		SBI_EXT_EXPERIMENTAL_END
+> +#define KVM_RISCV_SELFTESTS_SBI_UCALL		0
+> +#define KVM_RISCV_SELFTESTS_SBI_UNEXP		1
+> +
+> +enum sbi_ext_id {
+> +	SBI_EXT_BASE = 0x10,
+> +	SBI_EXT_STA = 0x535441,
+> +};
+> +
+> +enum sbi_ext_base_fid {
+> +	SBI_EXT_BASE_PROBE_EXT = 3,
+> +};
+> +
+> +struct sbiret {
+> +	long error;
+> +	long value;
+> +};
+> +
+> +struct sbiret sbi_ecall(int ext, int fid, unsigned long arg0,
+> +			unsigned long arg1, unsigned long arg2,
+> +			unsigned long arg3, unsigned long arg4,
+> +			unsigned long arg5);
+> +
+> +bool guest_sbi_probe_extension(int extid, long *out_val);
+> +
+> +#endif /* SELFTEST_KVM_SBI_H */
+> diff --git a/tools/testing/selftests/kvm/include/riscv/ucall.h b/tools/testing/selftests/kvm/include/riscv/ucall.h
+> index be46eb32ec27..a695ae36f3e0 100644
+> --- a/tools/testing/selftests/kvm/include/riscv/ucall.h
+> +++ b/tools/testing/selftests/kvm/include/riscv/ucall.h
+> @@ -3,6 +3,7 @@
+>  #define SELFTEST_KVM_UCALL_H
+>  
+>  #include "processor.h"
+> +#include "sbi.h"
+>  
+>  #define UCALL_EXIT_REASON       KVM_EXIT_RISCV_SBI
+>  
+> diff --git a/tools/testing/selftests/kvm/steal_time.c b/tools/testing/selftests/kvm/steal_time.c
+> index bae0c5026f82..2ff82c7fd926 100644
+> --- a/tools/testing/selftests/kvm/steal_time.c
+> +++ b/tools/testing/selftests/kvm/steal_time.c
+> @@ -11,7 +11,9 @@
+>  #include <pthread.h>
+>  #include <linux/kernel.h>
+>  #include <asm/kvm.h>
+> -#ifndef __riscv
+> +#ifdef __riscv
+> +#include "sbi.h"
+> +#else
+>  #include <asm/kvm_para.h>
+>  #endif
+>  
 > -- 
 > 2.34.1
 >
+
 
 Reviewed-by: Andrew Jones <ajones@ventanamicro.com>
