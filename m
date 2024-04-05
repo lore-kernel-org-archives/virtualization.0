@@ -1,93 +1,120 @@
-Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEDDC13A41A
-	for <virtualization@lists.linux.dev>; Thu,  4 Apr 2024 23:32:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E00428DC3
+	for <virtualization@lists.linux-foundation.org>; Fri,  5 Apr 2024 04:37:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712273561; cv=none; b=aaVmkYp6K/QlHAd5bMP8eCy0uUY8hjuutKZKsPKaAbVXqt4nd6Oa0Wrm5/Equ44NxCrU1duNk8S+MV6QESk7lqJKfE43jNJQQ5SbHWwbZBoZje6FHVlPLGYUCfTD0wYPcG526Qm66UKQy0gFk8J90+8YjLbMoWwNN7Jdx68ETz0=
+	t=1712291862; cv=none; b=bRFVuv4pi+McCFWkDKXJ2pdWA4Ixv3Bi+U0AE0NArTYvlja3CoOJMPXG7laOFdaFX9i2j5R5hNr/4R4ZrOe6bUmUTdBjtDcDQOBao9dQcDlD4TUHJFEAi0yeYUO2THWjdN6IzWLKnbssaY/tbGFworWLoujcpUuGXjBWhYybSGE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712273561; c=relaxed/simple;
-	bh=R+JcGZWerA4/j0GP5BcYvILM9CMcZQ3Ab1BvbCrrzCs=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=C66dA4PRX6WjGfI/ljnQm6PZldoiwXrJP6dxWWfJv8e6Xneig432h8US61n/tah9gwPR0c0XqMv6CD1TVhvnxWOmneIzejbVbpOQc5la28ILqo0deqJ/CSm+RaIvO6qeqnHni3QrmwlT+dpElw3DNg69erkblWWQdSTdVwo9KqY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=QF8WI1ZV; arc=none smtp.client-ip=209.85.214.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
+	s=arc-20240116; t=1712291862; c=relaxed/simple;
+	bh=fQSJmR5fXeT1gKRT6xVc9s6XAIrv64NLyk1tAD9C5N4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Hi083GpAQRCo1tEXHAo0JsbJu5s57UapAoEeJJ8hbUmYsZydUYxaQ4cZv7j4UAIaxHGKG6HBuCpNM8uzVlWHIeWMzDKfR5+UqXSJRobkvoYiB9KdaoEtHQLf+rUP2GuQ1GN5D9e2FMcGrdLdROLXmAUVCxYdjuli3CR9KKkKJSI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=X0h+sQCa; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="QF8WI1ZV"
-Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-1e24c889618so14073655ad.2
-        for <virtualization@lists.linux.dev>; Thu, 04 Apr 2024 16:32:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1712273559; x=1712878359; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=R+JcGZWerA4/j0GP5BcYvILM9CMcZQ3Ab1BvbCrrzCs=;
-        b=QF8WI1ZVz+lFDcnC+KD90vAzlYBR3x/goUhvC0PTGmFCksCNUSrkeMD+Da34BhIAUe
-         xAAb5UAaA2kWfzpr8Qhk75I8+9s9qHVtXPHeb90QxiTw8kSdxmZnvm5gX5d0QSUH4okM
-         zOxP+3I+qqCBkfN2q2HwZ3y11vIfzA6RiFc9I=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712273559; x=1712878359;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=R+JcGZWerA4/j0GP5BcYvILM9CMcZQ3Ab1BvbCrrzCs=;
-        b=EPEyYkfIxIr8JE14CaAelFxmFkDVqMdgaVGM2ndAWta0uuIgNrxAhk9M+VGz+s3AOo
-         nj1n/XMenL8f6JqTdNfG/EFLrxOy1+im25bt2FuFA2X9K4zYwTdUQNmaGZtz7D9lcl55
-         rWxpvfVpBlrrVxkPUHAamfULQTTfmg2VEEYmRcEdGWRCZ4FOsEZaox/ngJk15vH+VnS1
-         HaNrGQW+v74NaLuUErxemIAvV6Hv7R28+sQG5VP0+8nO3Sun/HfSPVrebWjXGiKzPDvW
-         DbYdStdkoJIP/qHdGFn1f9WFnFTglX63L68s+u8wda8aim1gSxEsJkzlCdC5+v5eGBW6
-         E6lg==
-X-Forwarded-Encrypted: i=1; AJvYcCVuQPMOIvcF3KJJGf6G5pb66uR6IinteUFqMhVvMkmRp6u0gLQvmeAvlPxg2+FvMrRXbKoggrwOc0z1plzi7XpysLe95EqMv7kwWZSS4Sc=
-X-Gm-Message-State: AOJu0YwrL0WDxCo2IjzoPxp9lfohnObrgwqgq1SU46RJDtRO1S2JdKpm
-	bQyAmKYh8lu6DlzCwq+q2oXh659qMouRi7FkmCo7WlGt5fdE7HIVcqCVl2YtQQ==
-X-Google-Smtp-Source: AGHT+IGG4uDv5A1Im5aEtkPraZjP1jqit8IkG6mPT5w+o0kvHdp78WkPTKabNTc/bYh7JTK+vQvnlQ==
-X-Received: by 2002:a17:902:f7cb:b0:1e0:157a:846c with SMTP id h11-20020a170902f7cb00b001e0157a846cmr3031022plw.55.1712273559198;
-        Thu, 04 Apr 2024 16:32:39 -0700 (PDT)
-Received: from amakhalov-build-vm.eng.vmware.com ([128.177.82.146])
-        by smtp.gmail.com with ESMTPSA id c5-20020a170902c1c500b001e2a4663179sm188177plc.258.2024.04.04.16.32.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Apr 2024 16:32:38 -0700 (PDT)
-From: Alexey Makhalov <alexey.makhalov@broadcom.com>
-To: hpa@zytor.com
-Cc: linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	bp@alien8.de,
-	x86@kernel.org,
-	dave.hansen@linux.intel.com,
-	mingo@redhat.com,
-	tglx@linutronix.de,
-	netdev@vger.kernel.org,
-	richardcochran@gmail.com,
-	linux-input@vger.kernel.org,
-	dmitry.torokhov@gmail.com,
-	zackr@vmware.com,
-	linux-graphics-maintainer@vmware.com,
-	pv-drivers@vmware.com,
-	timothym@vmware.com,
-	akaher@vmware.com,
-	dri-devel@lists.freedesktop.org,
-	daniel@ffwll.ch,
-	airlied@gmail.com,
-	tzimmermann@suse.de,
-	mripard@kernel.org,
-	maarten.lankhorst@linux.intel.com,
-	horms@kernel.org,
-	kirill.shutemov@linux.intel.com
-Subject: Re: [PATCH v7 0/7] VMware hypercalls enhancements
-Date: Thu,  4 Apr 2024 16:32:31 -0700
-Message-Id: <20240404233231.36294-1-alexey.makhalov@broadcom.com>
-X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20240307212949.4166120-1-alexey.makhalov@broadcom.com>
-References: <20240307212949.4166120-1-alexey.makhalov@broadcom.com>
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="X0h+sQCa"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 9DA566066E
+	for <virtualization@lists.linux-foundation.org>; Fri,  5 Apr 2024 04:37:40 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -4.401
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 427EInRFpFrt for <virtualization@lists.linux-foundation.org>;
+ Fri,  5 Apr 2024 04:37:39 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2604:1380:40e1:4800::1; helo=sin.source.kernel.org; envelope-from=gregkh@linuxfoundation.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 4AFBC60653
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=linuxfoundation.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4AFBC60653
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=X0h+sQCa
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 4AFBC60653
+	for <virtualization@lists.linux-foundation.org>; Fri,  5 Apr 2024 04:37:39 +0000 (UTC)
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by sin.source.kernel.org (Postfix) with ESMTP id E4CAFCE35D7;
+	Fri,  5 Apr 2024 04:37:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8622EC43390;
+	Fri,  5 Apr 2024 04:37:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1712291854;
+	bh=fQSJmR5fXeT1gKRT6xVc9s6XAIrv64NLyk1tAD9C5N4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=X0h+sQCaGpjBLPFOm2xQNQMCU5oLeDF03fPj6tAlY6RTNfQnrK5F6BapIWUPLXnWP
+	 2uWu+p9v4S3+ywP1x4IR/M/2xI5CBMayVe6Q5E84QciliA8B1mr8zqykyLNhqPhZU0
+	 AIOnC0lmtTp0k0nJJXScRmV5o7i55Dp7io+zr3cY=
+Date: Fri, 5 Apr 2024 06:37:31 +0200
+From: Greg KH <gregkh@linuxfoundation.org>
+To: Alex Constantino <dreaming.about.electric.sheep@gmail.com>
+Cc: mripard@kernel.org, 1054514@bugs.debian.org, airlied@redhat.com,
+	carnil@debian.org, daniel@ffwll.ch, dri-devel@lists.freedesktop.org,
+	kraxel@redhat.com, linux-kernel@vger.kernel.org,
+	maarten.lankhorst@linux.intel.com, regressions@lists.linux.dev,
+	spice-devel@lists.freedesktop.org, timo.lindfors@iki.fi,
+	tzimmermann@suse.de, virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH v2 1/1] Revert "drm/qxl: simplify qxl_fence_wait"
+Message-ID: <2024040515-salvage-uncounted-8164@gregkh>
+References: <20240327-cuddly-smooth-trogon-59c02d@houat>
+ <20240404181448.1643-1-dreaming.about.electric.sheep@gmail.com>
+ <20240404181448.1643-2-dreaming.about.electric.sheep@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240404181448.1643-2-dreaming.about.electric.sheep@gmail.com>
 
-Peter, can you please review version 7 of "x86/vmware: Add TDX hypercall support" patch.
-It addresses the concern you had in previous version. Thanks.
+On Thu, Apr 04, 2024 at 07:14:48PM +0100, Alex Constantino wrote:
+> This reverts commit 5a838e5d5825c85556011478abde708251cc0776.
+> 
+> Changes from commit 5a838e5d5825 ("drm/qxl: simplify qxl_fence_wait") would
+> result in a '[TTM] Buffer eviction failed' exception whenever it reached a
+> timeout.
+> Due to a dependency to DMA_FENCE_WARN this also restores some code deleted
+> by commit d72277b6c37d ("dma-buf: nuke DMA_FENCE_TRACE macros v2").
+> 
+> Fixes: 5a838e5d5825 ("drm/qxl: simplify qxl_fence_wait")
+> Link: https://lore.kernel.org/regressions/ZTgydqRlK6WX_b29@eldamar.lan/
+> Reported-by: Timo Lindfors <timo.lindfors@iki.fi>
+> Closes: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1054514
+> Signed-off-by: Alex Constantino <dreaming.about.electric.sheep@gmail.com>
+> ---
+>  drivers/gpu/drm/qxl/qxl_release.c | 50 +++++++++++++++++++++++++++----
+>  include/linux/dma-fence.h         |  7 +++++
+>  2 files changed, 52 insertions(+), 5 deletions(-)
+
+Hi,
+
+This is the friendly patch-bot of Greg Kroah-Hartman.  You have sent him
+a patch that has triggered this response.  He used to manually respond
+to these common problems, but in order to save his sanity (he kept
+writing the same thing over and over, yet to different people), I was
+created.  Hopefully you will not take offence and will fix the problem
+in your patch and resubmit it so that it can be accepted into the Linux
+kernel tree.
+
+You are receiving this message because of the following common error(s)
+as indicated below:
+
+- You have marked a patch with a "Fixes:" tag for a commit that is in an
+  older released kernel, yet you do not have a cc: stable line in the
+  signed-off-by area at all, which means that the patch will not be
+  applied to any older kernel releases.  To properly fix this, please
+  follow the documented rules in the
+  Documentation/process/stable-kernel-rules.rst file for how to resolve
+  this.
+
+If you wish to discuss this problem further, or you have questions about
+how to resolve this issue, please feel free to respond to this email and
+Greg will reply once he has dug out from the pending patches received
+from other developers.
+
+thanks,
+
+greg k-h's patch email bot
