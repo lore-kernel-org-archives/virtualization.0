@@ -1,120 +1,113 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from mail.zeus03.de (www.zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E00428DC3
-	for <virtualization@lists.linux-foundation.org>; Fri,  5 Apr 2024 04:37:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B981915FCE9
+	for <virtualization@lists.linux.dev>; Fri,  5 Apr 2024 08:48:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712291862; cv=none; b=bRFVuv4pi+McCFWkDKXJ2pdWA4Ixv3Bi+U0AE0NArTYvlja3CoOJMPXG7laOFdaFX9i2j5R5hNr/4R4ZrOe6bUmUTdBjtDcDQOBao9dQcDlD4TUHJFEAi0yeYUO2THWjdN6IzWLKnbssaY/tbGFworWLoujcpUuGXjBWhYybSGE=
+	t=1712306925; cv=none; b=Blx7i35PO7GBX/I3Vf6ycU0Z+f07f8E6L3UrVgtWfJImCvXKzUn6JqRwxO08g2DeruU9yrXyq52QG8AfPuY+y+4kszk08A9WGufCS6DpS145D0RBumstMFjK7e4HZvnPGaFmCz4msUMBRKp0X3eljcRVmv/rXzHtZBJfJLsZ9C8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712291862; c=relaxed/simple;
-	bh=fQSJmR5fXeT1gKRT6xVc9s6XAIrv64NLyk1tAD9C5N4=;
+	s=arc-20240116; t=1712306925; c=relaxed/simple;
+	bh=rs0vw5LW9UM/y60I9xGZqbakggiNBHyoOs4B+0ZsN6s=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Hi083GpAQRCo1tEXHAo0JsbJu5s57UapAoEeJJ8hbUmYsZydUYxaQ4cZv7j4UAIaxHGKG6HBuCpNM8uzVlWHIeWMzDKfR5+UqXSJRobkvoYiB9KdaoEtHQLf+rUP2GuQ1GN5D9e2FMcGrdLdROLXmAUVCxYdjuli3CR9KKkKJSI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=X0h+sQCa; arc=none smtp.client-ip=140.211.166.136
+	 Content-Type:Content-Disposition:In-Reply-To; b=UWlZLGF9i27homkUxP3LDxBtL9SQUirrtdX31q32nxXf6p+Zg0XyirkLi26FQ17S1kUS/euqvTy1wZicrlWs9mVSaJP/mESwtSuqC+ikF1sFMXhgh0DIyFERThhh/qGdh0OlRsNh8URE92Z9d4nLvGxf36LbhBIGg1/OVzPkN10=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=R8T/4zsl; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="X0h+sQCa"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 9DA566066E
-	for <virtualization@lists.linux-foundation.org>; Fri,  5 Apr 2024 04:37:40 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -4.401
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 427EInRFpFrt for <virtualization@lists.linux-foundation.org>;
- Fri,  5 Apr 2024 04:37:39 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2604:1380:40e1:4800::1; helo=sin.source.kernel.org; envelope-from=gregkh@linuxfoundation.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 4AFBC60653
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=linuxfoundation.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4AFBC60653
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=X0h+sQCa
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 4AFBC60653
-	for <virtualization@lists.linux-foundation.org>; Fri,  5 Apr 2024 04:37:39 +0000 (UTC)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sin.source.kernel.org (Postfix) with ESMTP id E4CAFCE35D7;
-	Fri,  5 Apr 2024 04:37:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8622EC43390;
-	Fri,  5 Apr 2024 04:37:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1712291854;
-	bh=fQSJmR5fXeT1gKRT6xVc9s6XAIrv64NLyk1tAD9C5N4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=X0h+sQCaGpjBLPFOm2xQNQMCU5oLeDF03fPj6tAlY6RTNfQnrK5F6BapIWUPLXnWP
-	 2uWu+p9v4S3+ywP1x4IR/M/2xI5CBMayVe6Q5E84QciliA8B1mr8zqykyLNhqPhZU0
-	 AIOnC0lmtTp0k0nJJXScRmV5o7i55Dp7io+zr3cY=
-Date: Fri, 5 Apr 2024 06:37:31 +0200
-From: Greg KH <gregkh@linuxfoundation.org>
-To: Alex Constantino <dreaming.about.electric.sheep@gmail.com>
-Cc: mripard@kernel.org, 1054514@bugs.debian.org, airlied@redhat.com,
-	carnil@debian.org, daniel@ffwll.ch, dri-devel@lists.freedesktop.org,
-	kraxel@redhat.com, linux-kernel@vger.kernel.org,
-	maarten.lankhorst@linux.intel.com, regressions@lists.linux.dev,
-	spice-devel@lists.freedesktop.org, timo.lindfors@iki.fi,
-	tzimmermann@suse.de, virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH v2 1/1] Revert "drm/qxl: simplify qxl_fence_wait"
-Message-ID: <2024040515-salvage-uncounted-8164@gregkh>
-References: <20240327-cuddly-smooth-trogon-59c02d@houat>
- <20240404181448.1643-1-dreaming.about.electric.sheep@gmail.com>
- <20240404181448.1643-2-dreaming.about.electric.sheep@gmail.com>
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="R8T/4zsl"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=D3bA
+	ysj0N+3ktsukYn/zGLisNXUDp098hBJ07HyHzKc=; b=R8T/4zsl0Zd0dNbaommC
+	kCLTauMRf6yuGZlEbnNrPo+sDuLbN4s8BfD2QtEyqFV73GtOSagiQmnkLEuHWGCQ
+	vRejlIPlKU/mYMv+6t8UkEAMEtwYdgwHTAQorcdRr9Ope6KAX7AmqTkxF537SxfY
+	hbp2DrU8wtJm0oExDm1ozx0tnjR+RM/n3EJ7Hxedj1A/sxIF9bIEt0Q6uqjDDZO6
+	DhN5dSoCZRnlewvb/Wq/ACyPQ8GtSN3yttgw0BjHvy2Oz86yt92QQcC0xPBJXssA
+	1OMpCVAZHpK9gwh4XkivjtbsyOTJWxSQAZ6QWGsn2F7XdFdDJmCqNTrRYM5kOmvv
+	nA==
+Received: (qmail 4044863 invoked from network); 5 Apr 2024 10:48:34 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 5 Apr 2024 10:48:34 +0200
+X-UD-Smtp-Session: l3s3148p1@j8VihVUV/oogAwDPXwEGAANOsN0UmmrN
+Date: Fri, 5 Apr 2024 10:48:34 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: linux-i2c@vger.kernel.org, asahi@lists.linux.dev, 
+	chrome-platform@lists.linux.dev, imx@lists.linux.dev, linux-actions@lists.infradead.org, 
+	linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
+	linux-arm-msm@vger.kernel.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org, 
+	linux-mediatek@lists.infradead.org, linux-mips@vger.kernel.org, linux-omap@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-renesas-soc@vger.kernel.org, 
+	linux-riscv@lists.infradead.org, linux-rockchip@lists.infradead.org, 
+	linux-rpi-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, 
+	linux-stm32@st-md-mailman.stormreply.com, linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org, 
+	openbmc@lists.ozlabs.org, virtualization@lists.linux.dev
+Subject: Re: [PATCH 00/64] i2c: reword i2c_algorithm according to newest
+ specification
+Message-ID: <kd2gnsosi5xar3mwc3zz7wqtqkfgicq3wical5ch34sbmlgegk@mb2c2hxzzoi4>
+Mail-Followup-To: Wolfram Sang <wsa+renesas@sang-engineering.com>, 
+	Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org, asahi@lists.linux.dev, 
+	chrome-platform@lists.linux.dev, imx@lists.linux.dev, linux-actions@lists.infradead.org, 
+	linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
+	linux-arm-msm@vger.kernel.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org, 
+	linux-mediatek@lists.infradead.org, linux-mips@vger.kernel.org, linux-omap@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-renesas-soc@vger.kernel.org, 
+	linux-riscv@lists.infradead.org, linux-rockchip@lists.infradead.org, 
+	linux-rpi-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, 
+	linux-stm32@st-md-mailman.stormreply.com, linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org, 
+	openbmc@lists.ozlabs.org, virtualization@lists.linux.dev
+References: <20240322132619.6389-1-wsa+renesas@sang-engineering.com>
+ <ug266trshvhhbsln3eoh53fmsuj3l63ziz6gavcl7rv2jhjr5t@3av5givh5n7m>
+ <j2l7tu24itjelylrgwe6gdsy3mfrw3dnve4rdofmri3z7xdroc@se56t5ylmdak>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="c5kq2kdwqrnl4eet"
+Content-Disposition: inline
+In-Reply-To: <j2l7tu24itjelylrgwe6gdsy3mfrw3dnve4rdofmri3z7xdroc@se56t5ylmdak>
+
+
+--c5kq2kdwqrnl4eet
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240404181448.1643-2-dreaming.about.electric.sheep@gmail.com>
 
-On Thu, Apr 04, 2024 at 07:14:48PM +0100, Alex Constantino wrote:
-> This reverts commit 5a838e5d5825c85556011478abde708251cc0776.
-> 
-> Changes from commit 5a838e5d5825 ("drm/qxl: simplify qxl_fence_wait") would
-> result in a '[TTM] Buffer eviction failed' exception whenever it reached a
-> timeout.
-> Due to a dependency to DMA_FENCE_WARN this also restores some code deleted
-> by commit d72277b6c37d ("dma-buf: nuke DMA_FENCE_TRACE macros v2").
-> 
-> Fixes: 5a838e5d5825 ("drm/qxl: simplify qxl_fence_wait")
-> Link: https://lore.kernel.org/regressions/ZTgydqRlK6WX_b29@eldamar.lan/
-> Reported-by: Timo Lindfors <timo.lindfors@iki.fi>
-> Closes: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1054514
-> Signed-off-by: Alex Constantino <dreaming.about.electric.sheep@gmail.com>
-> ---
->  drivers/gpu/drm/qxl/qxl_release.c | 50 +++++++++++++++++++++++++++----
->  include/linux/dma-fence.h         |  7 +++++
->  2 files changed, 52 insertions(+), 5 deletions(-)
+Hi Andi, hi everyone,
 
-Hi,
+thank you for reviewing and waiting. I had a small personal hiatus over
+Easter but now I am back. This series needs another cycle, so no need to
+hurry. I will address some of the review comments but not all. The
+conversion (and API improvements) are some bigger tasks, so
+inconsistencies inbetween can't be avoided AFAICS.
 
-This is the friendly patch-bot of Greg Kroah-Hartman.  You have sent him
-a patch that has triggered this response.  He used to manually respond
-to these common problems, but in order to save his sanity (he kept
-writing the same thing over and over, yet to different people), I was
-created.  Hopefully you will not take offence and will fix the problem
-in your patch and resubmit it so that it can be accepted into the Linux
-kernel tree.
+I'll keep you updated.
 
-You are receiving this message because of the following common error(s)
-as indicated below:
+Happy hacking,
 
-- You have marked a patch with a "Fixes:" tag for a commit that is in an
-  older released kernel, yet you do not have a cc: stable line in the
-  signed-off-by area at all, which means that the patch will not be
-  applied to any older kernel releases.  To properly fix this, please
-  follow the documented rules in the
-  Documentation/process/stable-kernel-rules.rst file for how to resolve
-  this.
+   Wolfram
 
-If you wish to discuss this problem further, or you have questions about
-how to resolve this issue, please feel free to respond to this email and
-Greg will reply once he has dug out from the pending patches received
-from other developers.
 
-thanks,
+--c5kq2kdwqrnl4eet
+Content-Type: application/pgp-signature; name="signature.asc"
 
-greg k-h's patch email bot
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmYPut4ACgkQFA3kzBSg
+KbbwnxAAtFWKOWnU/VyFFeZnqQCgQ76FzO93xERcjysHlgnZv3BnA6UpxFnrHrs4
+Cn7RTWa0i9Ct1ns2AkkjOQ5rUIqczF7M2dVS0tqODwyazGPaDHYtsa3urfkCsLT7
+Gz0y5V+oHHUNj1hypkKtQ37/7iFSYbo5oryt9MFK6eFfs878jel/4BCGJk3SEa48
+ewNnEuM8aYfzlrn7/VbkWqHkCS5J6x8/VFk3PjlxgEW45UtEI3r30K6/jT9HOdx4
+6lCofEZKn4Bl0VbfJJ7MXd1Be2/Dk6ZaY09e97iAKt2+fM1OLrBwig2V8PAdV7ei
+LlHolA153CWJAAkzXE2bJsr252IuCLpVpZobTSQRfr+u5vVV354dfo2ek11R8iff
+DSr94kqdKVvOvegpxt4vyHUxQrfy70R9vlkgVhkdvdGbi3JfLeiCK+C+IcBZlbXr
+uTaPlNvOt6p+VJNAlucnKQF3mK0FvVMK7bTwqjbKR8ZzB8J20qj5pqxqtBZDjfOl
+fpTR9f9+kHWdmBuCLBq35aes6Lxq4JtNRH+czt8F8wIAfx/xcgTf2uPThVoFPO9s
+jyO4fy773Wsfo8PGo9SqSKr7K6gQW3dIDoFTk489lp3e9Y/DYJ+ZV2ixvCQKATjO
+3K0umrWHYd25+mhripLMPzaz3h1GPtmAiQq/dq2GUviAFUPoZas=
+=RWT2
+-----END PGP SIGNATURE-----
+
+--c5kq2kdwqrnl4eet--
