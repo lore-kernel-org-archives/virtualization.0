@@ -1,278 +1,247 @@
-Received: from mail-ed1-f48.google.com (mail-ed1-f48.google.com [209.85.208.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B917316D4C7
-	for <virtualization@lists.linux.dev>; Fri,  5 Apr 2024 13:23:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.48
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712323405; cv=none; b=lJh94z2m4ie3TiClvaq2rWAZ0Yh3/fa+h7hzUF16whpDPS7xt5CEb08jub0gXUYDbN7Tf17xofT1hPS6XKuwQzHCW1aA0v9/RJhJ6+/CsVusl1SftmlniJHqikdk3g36+fGel9Qjy51OgvmE2PkIPJWfjVftF/S0zJEOZIWfIBc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712323405; c=relaxed/simple;
-	bh=jMhYY8dFdQP3i/lURcmjsgqU90mz/slXD8doxAmjetc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=iRwgJVWbRQnTGovXhpW+MMxnxOLmcehyudAhZ/j8EWEbrTOKwr+rtb0TA1vy2GKV3LiCGPryFPN9gOCD0swY5y8kTdyol7ZSJ+ZW6CscVLRNjD8+qBK+A4SnI3RH4L3EfzooNwsTpMTkNmoSRk6IKyfqW6SL7PVsh+HBYu9Pdvs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ventanamicro.com; spf=pass smtp.mailfrom=ventanamicro.com; dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b=DRfmlOME; arc=none smtp.client-ip=209.85.208.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ventanamicro.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ventanamicro.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B03BB6FCA;
+	Sat,  6 Apr 2024 01:16:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.177.32
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1712366185; cv=fail; b=fg6eXvUNRyqndd3M0YiKdxqPdvsbmvbTkUAh/lL4MqWmLweirOaYY/2amyhfIROKpz+RWUg6qrAvL7tBbbirrVdsv++KU8547VNijvjLzpDsIhhRCgd3xtFKizeRNV+EDIuPvgYsg/T10oC7RC6nuYPXpOv65VQoWeIe5n02dC4=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1712366185; c=relaxed/simple;
+	bh=5x+zUh/gigPwU77qrJdoLgtub/FslB/KDFaot4xzF7A=;
+	h=To:Cc:Subject:From:In-Reply-To:Message-ID:References:Date:
+	 Content-Type:MIME-Version; b=Ydqc2noM+zQtU7Co8TVaaDfJgqwT7yTD0pmaGTXJ/N1kE1fHv3a4RgNEUg/7x68eX71rx/7DdHDK3+X2sL+HZPG0Dh7Q+VAalIdWU84nqmOU3kLsaduW3qq9+rx/4JoyMI7XkxPAxeP7op8pvS7j9smjX5w8Kjz1fXvo7erU2M8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=WmoEHDEr; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=kkmyAnqJ; arc=fail smtp.client-ip=205.220.177.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b="DRfmlOME"
-Received: by mail-ed1-f48.google.com with SMTP id 4fb4d7f45d1cf-56e1bbdb362so2714410a12.1
-        for <virtualization@lists.linux.dev>; Fri, 05 Apr 2024 06:23:23 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="WmoEHDEr";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="kkmyAnqJ"
+Received: from pps.filterd (m0333520.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 4360iJHE016377;
+	Sat, 6 Apr 2024 01:15:56 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=to : cc : subject :
+ from : in-reply-to : message-id : references : date : content-type :
+ mime-version; s=corp-2023-11-20;
+ bh=V46fxPXPKkIuq+fDVPYM5K6s+NTMlm1XiN3ewDC58bw=;
+ b=WmoEHDErfwUXeszF70MDZ8yVIQh1xhCuEZoaGRDLIQLK3QdrGFbIhKRTq57gvkWWRZK+
+ SX6unj3iWv/MiMok7sKMwPgSEAaBl0AB7QVwgDcOpzSfh6NmCohZUb9lNlgvErahGA6P
+ gWSsnTVxG8ulynafAqVa+MNZxd2XtAP1rw4PPRX203KSG4hmGOPBjvC8vIgHIBIUC5A1
+ +ojnItwSw+PKmf6uWVCZplGYTJlmTX3q4HNMJoAJUZkAXmCoiw7DjRpdSUrH7zPbz+me
+ bKUDPBz03Fgv1fYSo5w4oQ5ZG6Larbw0LmqbILmnKCJFezE+MLmQadc3jD749HERxOzQ WA== 
+Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta03.appoci.oracle.com [130.35.103.27])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3x9emvvnas-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Sat, 06 Apr 2024 01:15:55 +0000
+Received: from pps.filterd (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 435MHfc2030595;
+	Sat, 6 Apr 2024 01:15:54 GMT
+Received: from nam11-co1-obe.outbound.protection.outlook.com (mail-co1nam11lp2169.outbound.protection.outlook.com [104.47.56.169])
+	by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3x9emys2gw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Sat, 06 Apr 2024 01:15:54 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=N1otC6Q4EdjdFFXVM+mcmVfRB+I+BXz1XBvtzwVrLoRc+GH1YeJ+JP8WlUmeEtGZas9PU6MSoCYRwgK3M2IbExLD9NH8RZSUbXAXaS4CWxW5TyfedwESwsT5YjxDzZg8wtIr990ONUAbE/9DxwO8AC5uv0vWKWvZfxKCOyxAdjbsIrciElZzSimmQO9+NoFLQ0ugyjZ81kdlbJJYLiC7tw/ztHH6yonbbqKuQRDiD8DNTFcNUqwXx2bhQx5UruyCOPSs7RwiBh0N3cbTnA/wi673ZD9YeE+a3bxt1MNQjamCK6sqMTtdfFBbKpiru594KrBIr+OQmAjKXrbTkWD5eA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=V46fxPXPKkIuq+fDVPYM5K6s+NTMlm1XiN3ewDC58bw=;
+ b=HNssJvP25alxa/LhqX1auIleR00yA0MWRTkL9yeOrS6Kj+VHk9DEbY7PX1/Vn4C2h8B23aL2x95zSffxZcVLl4azgE0Ho9yh8MuphG1xkXyvZ/RI1Mj1PatBiAr7SR0ruV8+CKvodv5GVViIslHCvw2sHVAufjgpqer/b7/gOUFBsurINrsZxrYqJWcyICefFej4lBbTRs3C1EyBnohrWPcZikViB/PWFg8tMVQ+C5w84aWoOJ0Sl+yA0/8//PZJwMCNloBPkUkkeDXrdFiIf5FKZ2YZ6uGggT5KrtOAlaJD7Jxq9dBpKV5xJ/f9Y4hIyOIH1cc8PBPHSOgN3UgwDA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ventanamicro.com; s=google; t=1712323402; x=1712928202; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=WAlEwvrkVW7t1ChXhk39Ejj3ZEPYPMlfWsiWP+NJhlQ=;
-        b=DRfmlOMEfU5+NUebwtnEEf4lj/AvrqXZzqku5o1xBn6G073NDkHq0fna8dS9T9s3+d
-         jW/1Ne9R+UjvW87wwGlc2hmAFFr5RJi0yixayORJYDqepngHbgzYRpsgRo+vvsfiol78
-         ze/vGjYWJoqh0jZ1EPGA1KAIqovyQwRwKoTAIiPBlHowxKW436cPgw0rdrcNJWHkDf7B
-         yn8hDx2VXTtVmqL02SPWvIzezmqHxuxwvs5IUMv5TZdyS/T5QwiO0xofK735yV6BQm1/
-         7+E2LnJic66Exg6ZAhfV6JWkbIvqZCTMpmCOW88w2hxpIYq0TzJItITDeljGdEdgGIaD
-         r3RQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712323402; x=1712928202;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=WAlEwvrkVW7t1ChXhk39Ejj3ZEPYPMlfWsiWP+NJhlQ=;
-        b=xNApEwe4i1IE6YEubTi630ONK/LvvoY0exMbc02yK9uSf7SWqaJbQq4pGjA24iyWma
-         CTjQGLr1J2zgwhFtXiEOr7TgpSu27UmmJdqJ+Y2KNdW2NZL4FW/ZHZFTeGe6xbjiFMk0
-         9R5QRQMUhRxb1oP2xTl4/tyDh9N73JXGkI2Jkeavv8B1Do7j12MVE4nrBY+CSA4y6IXJ
-         42ydtVPgtl6oFocMfly6vMmJJ8Dr7tTbSHGA1fgf2YAuTVZFq39xTbYZ4ArwNZa4mWGt
-         zknyfxltIew5mh/BGfeDu8wFJzezCXtU8KudL8nE/yIUC0s8tCVSQRjLdXkdvewzhScc
-         BoPQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUgX197VLo5Wm1B4DR+VvYIJykQx8fFUBR3/E2G0M/BAYTdODXRI00dPvK7Z/6mUrR1YDU6zSuNPXiCzvYNUNhXElltqnBCCLDjyS+90NA=
-X-Gm-Message-State: AOJu0Yyw42V5ipvx3GJjMAzLa8G1sWfGnAQibEl1nsqLxb53ILfaVp8F
-	v/rw5mrOZxCVVUedmPGqb6Ab/fnLZfIJYa8b3I9X/BJkHha50xS1uS0AXBQGyaE=
-X-Google-Smtp-Source: AGHT+IFT5fpj+iBK8UO32k7xz0OaaW2bIAmv7JHzJqwxSEHIQcNC0uhhtNFgJzf9NkGng4ZOEcQb2w==
-X-Received: by 2002:a17:906:4a81:b0:a4a:3663:2f51 with SMTP id x1-20020a1709064a8100b00a4a36632f51mr1265585eju.2.1712323402070;
-        Fri, 05 Apr 2024 06:23:22 -0700 (PDT)
-Received: from localhost (2001-1ae9-1c2-4c00-20f-c6b4-1e57-7965.ip6.tmcz.cz. [2001:1ae9:1c2:4c00:20f:c6b4:1e57:7965])
-        by smtp.gmail.com with ESMTPSA id dr2-20020a170907720200b00a4ea1fbb323sm822066ejc.98.2024.04.05.06.23.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 05 Apr 2024 06:23:21 -0700 (PDT)
-Date: Fri, 5 Apr 2024 15:23:20 +0200
-From: Andrew Jones <ajones@ventanamicro.com>
-To: Atish Patra <atishp@rivosinc.com>
-Cc: linux-kernel@vger.kernel.org, Anup Patel <anup@brainfault.org>, 
-	Ajay Kaher <akaher@vmware.com>, Alexandre Ghiti <alexghiti@rivosinc.com>, 
-	Alexey Makhalov <amakhalov@vmware.com>, Conor Dooley <conor.dooley@microchip.com>, 
-	Juergen Gross <jgross@suse.com>, kvm-riscv@lists.infradead.org, kvm@vger.kernel.org, 
-	linux-kselftest@vger.kernel.org, linux-riscv@lists.infradead.org, 
-	Mark Rutland <mark.rutland@arm.com>, Palmer Dabbelt <palmer@dabbelt.com>, 
-	Paolo Bonzini <pbonzini@redhat.com>, Paul Walmsley <paul.walmsley@sifive.com>, 
-	Shuah Khan <shuah@kernel.org>, virtualization@lists.linux.dev, 
-	VMware PV-Drivers Reviewers <pv-drivers@vmware.com>, Will Deacon <will@kernel.org>, x86@kernel.org
-Subject: Re: [PATCH v5 22/22] KVM: riscv: selftests: Add a test for counter
- overflow
-Message-ID: <20240405-3a20fe10d65368651c2d23fa@orel>
-References: <20240403080452.1007601-1-atishp@rivosinc.com>
- <20240403080452.1007601-23-atishp@rivosinc.com>
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=V46fxPXPKkIuq+fDVPYM5K6s+NTMlm1XiN3ewDC58bw=;
+ b=kkmyAnqJ2ccLLOg1FrfbNRMQlOxTxdywstKfQGtPZw8VprEzjTk7VQ7DmYcjxoN+hI1e/dMapRBjX294GBzI6YkHnhNPmTicHNHwdk81Uupz60V9JePEcSckeQEhK97LCFAmNPvDiFr/vDglnYQtriMa7Bgbu8jccL/ay++4O8M=
+Received: from PH0PR10MB4759.namprd10.prod.outlook.com (2603:10b6:510:3d::12)
+ by CYXPR10MB7973.namprd10.prod.outlook.com (2603:10b6:930:dd::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7409.46; Sat, 6 Apr
+ 2024 01:15:50 +0000
+Received: from PH0PR10MB4759.namprd10.prod.outlook.com
+ ([fe80::7856:8db7:c1f6:fc59]) by PH0PR10MB4759.namprd10.prod.outlook.com
+ ([fe80::7856:8db7:c1f6:fc59%4]) with mapi id 15.20.7409.042; Sat, 6 Apr 2024
+ 01:15:49 +0000
+To: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
+ <jasowang@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Jonathan
+ Corbet <corbet@lwn.net>,
+        David Hildenbrand <david@redhat.com>,
+        Gerd
+ Hoffmann <kraxel@redhat.com>,
+        Richard Weinberger <richard@nod.at>,
+        Anton
+ Ivanov <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg
+ <johannes@sipsolutions.net>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Stefan
+ Hajnoczi <stefanha@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        Marcel
+ Holtmann <marcel@holtmann.org>,
+        Luiz Augusto von Dentz
+ <luiz.dentz@gmail.com>,
+        Olivia Mackall <olivia@selenic.com>,
+        Herbert Xu
+ <herbert@gondor.apana.org.au>, Amit Shah <amit@kernel.org>,
+        Arnd
+ Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman
+ <gregkh@linuxfoundation.org>,
+        Gonglei <arei.gonglei@huawei.com>,
+        "David
+ S. Miller" <davem@davemloft.net>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Viresh Kumar
+ <vireshk@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz
+ Golaszewski <brgl@bgdev.pl>,
+        David Airlie <airlied@redhat.com>,
+        Gurchetan Singh <gurchetansingh@chromium.org>,
+        Chia-I Wu
+ <olvaffe@gmail.com>,
+        Maarten Lankhorst
+ <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Daniel Vetter
+ <daniel@ffwll.ch>,
+        Jean-Philippe Brucker <jean-philippe@linaro.org>,
+        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+        Robin
+ Murphy <robin.murphy@arm.com>, Alexander Graf <graf@amazon.com>,
+        Eric
+ Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo
+ Abeni <pabeni@redhat.com>,
+        Eric Van Hensbergen <ericvh@kernel.org>,
+        Latchesar Ionkov <lucho@ionkov.net>,
+        Dominique Martinet
+ <asmadeus@codewreck.org>,
+        Christian Schoenebeck
+ <linux_oss@crudebyte.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        Kalle Valo <kvalo@kernel.org>, Dan Williams <dan.j.williams@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Dave Jiang
+ <dave.jiang@intel.com>, Ira Weiny <ira.weiny@intel.com>,
+        Pankaj Gupta
+ <pankaj.gupta.linux@gmail.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        "James E.J. Bottomley"
+ <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Vivek Goyal <vgoyal@redhat.com>, Miklos Szeredi <miklos@szeredi.hu>,
+        Anton Yakovlev <anton.yakovlev@opensynergy.com>,
+        Jaroslav Kysela
+ <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
+        virtualization@lists.linux.dev, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-um@lists.infradead.org,
+        linux-block@vger.kernel.org, linux-bluetooth@vger.kernel.org,
+        linux-crypto@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-gpio@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        iommu@lists.linux.dev, netdev@vger.kernel.org, v9fs@lists.linux.dev,
+        kvm@vger.kernel.org, linux-wireless@vger.kernel.org,
+        nvdimm@lists.linux.dev, linux-remoteproc@vger.kernel.org,
+        linux-scsi@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        alsa-devel@alsa-project.org, linux-sound@vger.kernel.org
+Subject: Re: [PATCH v2 23/25] scsi: virtio: drop owner assignment
+From: "Martin K. Petersen" <martin.petersen@oracle.com>
+In-Reply-To: <20240331-module-owner-virtio-v2-23-98f04bfaf46a@linaro.org>
+	(Krzysztof Kozlowski's message of "Sun, 31 Mar 2024 10:44:10 +0200")
+Organization: Oracle Corporation
+Message-ID: <yq1ttkfqolf.fsf@ca-mkp.ca.oracle.com>
+References: <20240331-module-owner-virtio-v2-0-98f04bfaf46a@linaro.org>
+	<20240331-module-owner-virtio-v2-23-98f04bfaf46a@linaro.org>
+Date: Fri, 05 Apr 2024 21:15:47 -0400
+Content-Type: text/plain
+X-ClientProxiedBy: PH7P222CA0022.NAMP222.PROD.OUTLOOK.COM
+ (2603:10b6:510:33a::27) To PH0PR10MB4759.namprd10.prod.outlook.com
+ (2603:10b6:510:3d::12)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240403080452.1007601-23-atishp@rivosinc.com>
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PH0PR10MB4759:EE_|CYXPR10MB7973:EE_
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 
+	2+RvhkbvzGKL+l9+r1wutWaaziZNpCMThfCHIkOj7NLnMqIhEsuhFQ7ePy60RZcX4lETV4k7XtOGxcnsM3MUWnaGQtDyuOh3WouU1Oj70uEdE7145Z1sPej8zn9X97iRmNixq6fXOC5RH28Sv0RdIidlxFoLle6jJ3+Cl9XiYl4y8wzhZoR5g8+/TFCz8LQ13L2MqPUqmt35ljCyFG9jUIMPlePIEmaCbAIJ7am61nggpDPmMD/JZkvodvkUGjd3t9BIIkaE7LzpASI2zYtSi4CH2Wf40/pD7h0X8l+AaG/eYssF3GBUXo/L/kTraK9Qr+719Vin5DitTIOW4j2PLIHTaRPuU8B9Xt9F3JlYA3TXb7PeyzRPCCum4fV779gd5MXsfA5dRKsEconHlKHCu+A+brLsSVjVWBO+wpEzTKuZv14WWVLzQarEKAF1W1otBlAmtQEgyg2l//F9tfWbo58uNkBpPG6JQd5Tt0rsmEWBzNPi3yX1009VzDZnPGPePk1wN9X8ri41fp/wLD00ukThRFVDeeSwS214Z4KOVhkCjlYudB2OWEfFjebeGQgHBnLMCA6uycb6YVlAeE8E+edcidNlL7PN0XK3misHjpxKQ0P8b+jkHIHRR0+7tscuMZSZaFRj5X9uA9zJDnQAO2+/BhBQW63cVN09c0c++Pg=
+X-Forefront-Antispam-Report: 
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR10MB4759.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(7416005)(376005)(1800799015)(366007);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: 
+	=?us-ascii?Q?fCzv4Ruty7AsumpLqEfBYa0w7qG8LIsX9xNzvJMazVMgyeSi9oHlvV55v4+l?=
+ =?us-ascii?Q?KEOblFrKlvIErgOa/ELnOLvLYBYCj1rNIuRIiv8LgYGGZNLeyUyfJh948HxM?=
+ =?us-ascii?Q?JZV6aucUlFLn4TDg7yq+IibBWUevEvTl9tumJuduDHtmsTyqxbPnBODkkh3s?=
+ =?us-ascii?Q?6S9IX2S3/+Van2ToEtV87UlagcDi9YFmbXbx21ZME7B/LCHRkNCeiW6ZfTZx?=
+ =?us-ascii?Q?T9SRhq8QZZvz26qNuA3Gma+4w6RdvNqIbcrHZ1Fhpw5Flyke+ywddG5mv2VF?=
+ =?us-ascii?Q?wOmAxMNHUBhXWRvlFe8P7d51CwbADXm8YHTnq4IGGajy7lTr58zqAwpzmQ0o?=
+ =?us-ascii?Q?PyUQKae9NoWhSAvg/RkFsxL63OVLYhWCGxzPuSvQcmue1Bkg3JpLJTovwNDc?=
+ =?us-ascii?Q?clKb2xOpm2xn5irBBgUxHNotGX9ne2HscMm1YjkKaYYoVxICr8g+ehdwgE2X?=
+ =?us-ascii?Q?znBkm4/bDLF6Ox+stEWF//2kGo5vicCq4YkkIzWQMtIyQoCixPZeNRgB3JRU?=
+ =?us-ascii?Q?XGLLSD/Z35k+ctrEyG0TYjuHyHQ5VRXbleW7zhfkpE8L6hpGu9MuH0yr3Srw?=
+ =?us-ascii?Q?kipM90jr5hby6TnUUqr3Eueas7Q7pj1mZzYslkdJmHGx/T5yjpHs0rthNP9U?=
+ =?us-ascii?Q?aWcS/frgK/BRj8TkCfgNDin8PQFbVbn8eyggZlBDGMspSFJ5u6+8oPJQVfcH?=
+ =?us-ascii?Q?1CKXgwZGJOTMc+fFM1wGqrMwcr0a+1G7TBjO5aX2vQzlyyIeiDxADIeCxnrZ?=
+ =?us-ascii?Q?7nI6zNHGTBmrHio6K5lF2WLtRbsoNbQ6nK7XjzRJ5IIIoWEpNjlnN0WUGIKS?=
+ =?us-ascii?Q?B/3e4zov/Q5Z29b6Tsnkex1PytgbnGuCrEaQHs/xnB8xvfJKLWAvE9HV27dY?=
+ =?us-ascii?Q?Z/g1Ekzsa3ZBda3ErZXN7TQONTbA5zPDHx6HudFKQlIERGwUPEmUJHjCGW0h?=
+ =?us-ascii?Q?yPAV93Es2MMgMx9d0egELO21FKAfsnBFYrthwATAR4awJ8eyLoaORS/OwKYQ?=
+ =?us-ascii?Q?OwlCEbXRtFhnZNyfpKHNyVNzV6iOCwED05P+NW+EUs+t0XQXcdraEy3QYSna?=
+ =?us-ascii?Q?baJ5CooZfRxN/HKgohxAK0DcqPbi4KYte+/gpEp4LlGaa5ChxXkrBwV44hzo?=
+ =?us-ascii?Q?fBUutNyansr08fw5UUmpDAxjoIeVEv5uFrKUBg4LCF18p2hJQWqzCFVTxZ3s?=
+ =?us-ascii?Q?b+iyt1W7E9Hjr5Vk9mm/aXeUErCkf5kT55DXezR0AvjDH2BnX3kSB1YOLY/T?=
+ =?us-ascii?Q?enZKk0/y5JdYSU3wE9kY7VeDdTdVsgedVhHDVaSbf115ZaneUdIoVuucjCM8?=
+ =?us-ascii?Q?F4ANPRbe2wo0etgplvICZrsT6Q3kjWV6u1r+yPPWMQeZCUyxNcvW7G4OglGH?=
+ =?us-ascii?Q?MBezj45hjwmWafjpPCQOOjXtE7kkhfY/FGAP/4twx2yXPMumF6MNZD1rska0?=
+ =?us-ascii?Q?GwoSqirH6iNP3+4icqs2MbfNIPL7E1McELEGfNDfeYrg3oU5ccZVwnoTFB94?=
+ =?us-ascii?Q?40QhjO670wF2PTAqq1NvSSA2h96NQUCdGl4BD1k+iJMkdOp7S6l0f2H16524?=
+ =?us-ascii?Q?jIvasKCaaFgXv3O0S6ZfrmBLuf1fWgwTEZh6HF2ThpA/MVGitda7N/El6TdN?=
+ =?us-ascii?Q?rA=3D=3D?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: 
+	WldqGYUH6gJp6FEaUu0cEC0TbSPaizmKuyyVjJXfFlwL04Zsjnh0aBfF4fDB6v/z29AQ6+XIxmFglidDEo2W1YrslRf3T9g1YYdOqTLf1oaqgIrLxC6XqUWlnliNuszGKA+2hJfchjR0FSLLOiRmpVRgIpyDxcKUfgtcWAalm0j9tYLjAdVfalJDYb9ACZQq3lS+2ZAPMfRL6qv2OpUUMYMagZeeKO7VFHeWZNvUuLg4XfYzXfC9CNM1y4lFjag+PcEuxw4TQUeDnJm9l4OC/ZNiju0xE28Bwt19+B2FQdxeAL464AOWi2Hw6BRBSDLsj3Y2hwtp8hKkOHZvBuO7NqwA2GQ4MHw2l3TolvFkbsoUfrWwa9VDX8QHO3dituwgwNQSaUGbWulYy6QTbqE8AEx5Ha7SJC76dIjyR6qijSUZ3NI+20LbpDjpyCx0lxs1pJh4UOsATX8Gq2nKiVqzDdNOvSpjMMr9BYwvCQl3VRxWHl3c/92nw/N5STGMs8vgimQ7Bw+r+jgv7ta9JAqCsqHwNYlZSNx/dvpL1/yfcS1eaBdFJ2TDG/DU9TFVHO/gm/ke1E9MglZ74oyStWUZALEBKaV06SKSWxRyzJyRbx8=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a1c66396-928e-4122-24fc-08dc55d71871
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR10MB4759.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Apr 2024 01:15:49.7550
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: QwUZDmZYyxSxD8sbWopBPEvJ518bmsqIucjBdWHXAbzFRe7xsHCfRp0NZkPp2MNtqUjNqhdwCubKewUJ7o4lSTO/AKhxGlon1MOPY7FW1wc=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CYXPR10MB7973
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-04-05_31,2024-04-05_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 mlxlogscore=999
+ suspectscore=0 mlxscore=0 adultscore=0 spamscore=0 phishscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2404010000 definitions=main-2404060007
+X-Proofpoint-GUID: hVds4OPjqfLHoO491QkmqqJUZ-Ij3hev
+X-Proofpoint-ORIG-GUID: hVds4OPjqfLHoO491QkmqqJUZ-Ij3hev
 
-On Wed, Apr 03, 2024 at 01:04:51AM -0700, Atish Patra wrote:
-> Add a test for verifying overflow interrupt. Currently, it relies on
-> overflow support on cycle/instret events. This test works for cycle/
-> instret events which support sampling via hpmcounters on the platform.
-> There are no ISA extensions to detect if a platform supports that. Thus,
-> this test will fail on platform with virtualization but doesn't
-> support overflow on these two events.
 
-Maybe we should give the user a command line option to disable this test
-in case the platform they're testing doesn't support it but they want to
-run the rest of the tests without getting a FAIL.
+Krzysztof,
 
-> 
-> Reviewed-by: Anup Patel <anup@brainfault.org>
-> Signed-off-by: Atish Patra <atishp@rivosinc.com>
-> ---
->  .../selftests/kvm/riscv/sbi_pmu_test.c        | 114 ++++++++++++++++++
->  1 file changed, 114 insertions(+)
-> 
-> diff --git a/tools/testing/selftests/kvm/riscv/sbi_pmu_test.c b/tools/testing/selftests/kvm/riscv/sbi_pmu_test.c
-> index 7d195be5c3d9..451db956b885 100644
-> --- a/tools/testing/selftests/kvm/riscv/sbi_pmu_test.c
-> +++ b/tools/testing/selftests/kvm/riscv/sbi_pmu_test.c
-> @@ -14,6 +14,7 @@
->  #include "test_util.h"
->  #include "processor.h"
->  #include "sbi.h"
-> +#include "arch_timer.h"
->  
->  /* Maximum counters(firmware + hardware) */
->  #define RISCV_MAX_PMU_COUNTERS 64
-> @@ -24,6 +25,9 @@ union sbi_pmu_ctr_info ctrinfo_arr[RISCV_MAX_PMU_COUNTERS];
->  static void *snapshot_gva;
->  static vm_paddr_t snapshot_gpa;
->  
-> +static int vcpu_shared_irq_count;
-> +static int counter_in_use;
-> +
->  /* Cache the available counters in a bitmask */
->  static unsigned long counter_mask_available;
->  
-> @@ -117,6 +121,31 @@ static void guest_illegal_exception_handler(struct ex_regs *regs)
->  	regs->epc += 4;
->  }
->  
-> +static void guest_irq_handler(struct ex_regs *regs)
-> +{
-> +	unsigned int irq_num = regs->cause & ~CAUSE_IRQ_FLAG;
-> +	struct riscv_pmu_snapshot_data *snapshot_data = snapshot_gva;
-> +	unsigned long overflown_mask;
-> +	unsigned long counter_val = 0;
-> +
-> +	/* Validate that we are in the correct irq handler */
-> +	GUEST_ASSERT_EQ(irq_num, IRQ_PMU_OVF);
-> +
-> +	/* Stop all counters first to avoid further interrupts */
-> +	stop_counter(counter_in_use, SBI_PMU_STOP_FLAG_TAKE_SNAPSHOT);
-> +
-> +	csr_clear(CSR_SIP, BIT(IRQ_PMU_OVF));
-> +
-> +	overflown_mask = READ_ONCE(snapshot_data->ctr_overflow_mask);
-> +	GUEST_ASSERT(overflown_mask & 0x01);
-> +
-> +	WRITE_ONCE(vcpu_shared_irq_count, vcpu_shared_irq_count+1);
-> +
-> +	counter_val = READ_ONCE(snapshot_data->ctr_values[0]);
-> +	/* Now start the counter to mimick the real driver behavior */
-> +	start_counter(counter_in_use, SBI_PMU_START_FLAG_SET_INIT_VALUE, counter_val);
-> +}
-> +
->  static unsigned long get_counter_index(unsigned long cbase, unsigned long cmask,
->  				       unsigned long cflags,
->  				       unsigned long event)
-> @@ -276,6 +305,33 @@ static void test_pmu_event_snapshot(unsigned long event)
->  	stop_reset_counter(counter, 0);
->  }
->  
-> +static void test_pmu_event_overflow(unsigned long event)
-> +{
-> +	unsigned long counter;
-> +	unsigned long counter_value_post;
-> +	unsigned long counter_init_value = ULONG_MAX - 10000;
-> +	struct riscv_pmu_snapshot_data *snapshot_data = snapshot_gva;
-> +
-> +	counter = get_counter_index(0, counter_mask_available, 0, event);
-> +	counter_in_use = counter;
-> +
-> +	/* The counter value is updated w.r.t relative index of cbase passed to start/stop */
-> +	WRITE_ONCE(snapshot_data->ctr_values[0], counter_init_value);
-> +	start_counter(counter, SBI_PMU_START_FLAG_INIT_SNAPSHOT, 0);
-> +	dummy_func_loop(10000);
-> +	udelay(msecs_to_usecs(2000));
-> +	/* irq handler should have stopped the counter */
-> +	stop_counter(counter, SBI_PMU_STOP_FLAG_TAKE_SNAPSHOT);
-> +
-> +	counter_value_post = READ_ONCE(snapshot_data->ctr_values[0]);
-> +	/* The counter value after stopping should be less the init value due to overflow */
-> +	__GUEST_ASSERT(counter_value_post < counter_init_value,
-> +		       "counter_value_post %lx counter_init_value %lx for counter\n",
-> +		       counter_value_post, counter_init_value);
-> +
-> +	stop_reset_counter(counter, 0);
-> +}
-> +
->  static void test_invalid_event(void)
->  {
->  	struct sbiret ret;
-> @@ -366,6 +422,34 @@ static void test_pmu_events_snaphost(void)
->  	GUEST_DONE();
->  }
->  
-> +static void test_pmu_events_overflow(void)
-> +{
-> +	int num_counters = 0;
-> +
-> +	/* Verify presence of SBI PMU and minimum requrired SBI version */
-> +	verify_sbi_requirement_assert();
-> +
-> +	snapshot_set_shmem(snapshot_gpa, 0);
-> +	csr_set(CSR_IE, BIT(IRQ_PMU_OVF));
-> +	local_irq_enable();
-> +
-> +	/* Get the counter details */
-> +	num_counters = get_num_counters();
-> +	update_counter_info(num_counters);
-> +
-> +	/*
-> +	 * Qemu supports overflow for cycle/instruction.
-> +	 * This test may fail on any platform that do not support overflow for these two events.
-> +	 */
-> +	test_pmu_event_overflow(SBI_PMU_HW_CPU_CYCLES);
-> +	GUEST_ASSERT_EQ(vcpu_shared_irq_count, 1);
-> +
-> +	test_pmu_event_overflow(SBI_PMU_HW_INSTRUCTIONS);
-> +	GUEST_ASSERT_EQ(vcpu_shared_irq_count, 2);
-> +
-> +	GUEST_DONE();
-> +}
-> +
->  static void run_vcpu(struct kvm_vcpu *vcpu)
->  {
->  	struct ucall uc;
-> @@ -451,6 +535,33 @@ static void test_vm_events_snapshot_test(void *guest_code)
->  	test_vm_destroy(vm);
->  }
->  
-> +static void test_vm_events_overflow(void *guest_code)
-> +{
-> +	struct kvm_vm *vm = NULL;
-> +	struct kvm_vcpu *vcpu;
-> +
-> +	vm = vm_create_with_one_vcpu(&vcpu, guest_code);
-> +	__TEST_REQUIRE(__vcpu_has_sbi_ext(vcpu, KVM_RISCV_SBI_EXT_PMU),
-> +				   "SBI PMU not available, skipping test");
-> +
-> +	__TEST_REQUIRE(__vcpu_has_isa_ext(vcpu, KVM_RISCV_ISA_EXT_SSCOFPMF),
-> +				   "Sscofpmf is not available, skipping overflow test");
-> +
-> +
+> virtio core already sets the .owner, so driver does not need to.
 
-extra blank line here
+virtio_scsi looks OK to me.
 
-> +	test_vm_setup_snapshot_mem(vm, vcpu);
-> +	vm_init_vector_tables(vm);
-> +	vm_install_interrupt_handler(vm, guest_irq_handler);
-> +
-> +	vcpu_init_vector_tables(vcpu);
-> +	/* Initialize guest timer frequency. */
-> +	vcpu_get_reg(vcpu, RISCV_TIMER_REG(frequency), &timer_freq);
-> +	sync_global_to_guest(vm, timer_freq);
-> +
-> +	run_vcpu(vcpu);
-> +
-> +	test_vm_destroy(vm);
-> +}
-> +
->  int main(void)
->  {
->  	pr_info("SBI PMU basic test : starting\n");
-> @@ -463,5 +574,8 @@ int main(void)
->  	test_vm_events_snapshot_test(test_pmu_events_snaphost);
->  	pr_info("SBI PMU event verification with snapshot test : PASS\n");
->  
-> +	test_vm_events_overflow(test_pmu_events_overflow);
-> +	pr_info("SBI PMU event verification with overflow test : PASS\n");
-> +
->  	return 0;
->  }
-> -- 
-> 2.34.1
->
+Acked-by: Martin K. Petersen <martin.petersen@oracle.com>
 
-Other than the command line option idea,
-
-Reviewed-by: Andrew Jones <ajones@ventanamicro.com>
-
-Thanks,
-drew
+-- 
+Martin K. Petersen	Oracle Linux Engineering
