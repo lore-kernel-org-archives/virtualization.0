@@ -1,301 +1,188 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 581A917F0
-	for <virtualization@lists.linux.dev>; Sun,  7 Apr 2024 03:38:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C6F717C9
+	for <virtualization@lists.linux.dev>; Sun,  7 Apr 2024 04:24:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712461103; cv=none; b=cbttp+uO2lERLOo6rqxhhv1tkoud4onIu3K5hFlImxpl4latqyNZj9BZ+FwiFA1+IawGQM2HJMvJD118oA0+cCMGSzs6tNkXQOFpS97Rva0d2+6x/tJl7GGsceTKaHEN+P+0LvmxPDVkW1aURZzHwcvkRgi38IbUMC7HcV/szjQ=
+	t=1712463856; cv=none; b=BxK8L5BNHT8HMVYQW3isw60VqRDMi+7jmEiQJ9UujE45ebb5WH7+JBOoO5X9e7T287H2r97sig/Sj+4pSI4vM6CZZGU4Zicw/j3jt+Xwm0Wy9JCYC+tYjfClYaToOpKKjH/CBUIz/5rricsKsixGzoVh9oClKiCBD22UAgWHjI0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712461103; c=relaxed/simple;
-	bh=YQxadVvuF0J+SJvGU+MNROeYzSRs1jdUcSSxhujJhzk=;
+	s=arc-20240116; t=1712463856; c=relaxed/simple;
+	bh=6OATBPOVpS/ms3tqzNZDFhOAZJq2v3CoGie3cCKXJbA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ZZ8i74HQ6IFp/cPINawPfcs/yQ7CB1jDNDYNskdnbRXzakeQwIBhf5aeuGp/TuNmKPapouCHWED6241LNIs/wgR9WF5dzQKI1x8hcEAop8x4+Mf4iJsGZnuEr0EKtOnxZGh0vtv0lMk6in2juTDz+9dsyLPVdTMDeYYn2YZ6fZc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=F18ZHTop; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=u7a1ZeQHWCvFkIdBN+DU9pOwLczkg01Rf6c4Vp5H5cG3dxLTDCf/OXh5VnVeG8A4aGhMtrJhC2goDN5rIfgesikF/joCbHIgR41Hx2XxQ4wvdndVVZZfg4/6zh35ECeqgiiCiCGeXdUjvG9/QowEsYfG6OHrAXCFrhc2JzNIT18=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WJzGvJKJ; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="F18ZHTop"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WJzGvJKJ"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1712461100;
+	s=mimecast20190719; t=1712463854;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=JzWbsQPfAHE2Fu4sEEMuYyZFoRf+hMudhcgkTJElxG0=;
-	b=F18ZHTopl6YMYzUB3O2/a04e3Aur+RQe59O4K+z5bGGMe2XiAHnSz/iA2gPdW/uQepuiwZ
-	GHg5TktnmKVZiYxeYROI/G787pzR38UF5msrP0PTLhqSzs6AVcWGfqxxe0YBu8QrnEgHVk
-	aoIuIFqX06Y3LuXJgR9igv4Jl4Pt0/E=
-Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
- [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=6OATBPOVpS/ms3tqzNZDFhOAZJq2v3CoGie3cCKXJbA=;
+	b=WJzGvJKJ907sv6fHU1FeZicx6wwkdmI5jGlqFgaVK4mmOm17gEfLjmqXhnGGCy9oW+H/E4
+	y0Kw08o0QqUvUbGH5/VRcnKa5hOutzT/kv09DxlaDCm7rgvB8nTBwF5mgMDaFp4nzq7i9e
+	Z5/rq3xh+KVyx8fed0gAJpNJbSJ8gB8=
+Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com
+ [209.85.214.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-140--cIafVBwOoiGJZXWohlhyA-1; Sat, 06 Apr 2024 23:38:18 -0400
-X-MC-Unique: -cIafVBwOoiGJZXWohlhyA-1
-Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-2a482a2360aso893705a91.0
-        for <virtualization@lists.linux.dev>; Sat, 06 Apr 2024 20:38:18 -0700 (PDT)
+ us-mta-626-r9Ka6UbnNIuEEQn5glW5bg-1; Sun, 07 Apr 2024 00:24:12 -0400
+X-MC-Unique: r9Ka6UbnNIuEEQn5glW5bg-1
+Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-1e278ebfea1so31614595ad.0
+        for <virtualization@lists.linux.dev>; Sat, 06 Apr 2024 21:24:12 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712461097; x=1713065897;
+        d=1e100.net; s=20230601; t=1712463851; x=1713068651;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=JzWbsQPfAHE2Fu4sEEMuYyZFoRf+hMudhcgkTJElxG0=;
-        b=UsmEX+kGQW4fV7gJ2gtx0AX/DReVaifCAvjcHRZEsZcirfXV9N9cQVR19b+/mep6Ly
-         sUu/Sl5w+1XTn/CAcNp0KXA67GY0A3xInwn8mCNVcikS+BwaPW7HH76YYT63iV9kgbGD
-         WSCIGV2o25wTz9ofZrQzbij4Fk8LevMS2zp9f9hE2xGSEemAaJHaT/Deef+bCa9KLNKe
-         T2eN8YaYV1Ur5a8qfTkT4mfwNTTyrzQanp/M2FxU8XJm7rABYDfAcs2Ycwq/iqI6WVmK
-         eQXfLNV4YtKWTNDwlmp0/IABojuhIW/XICkrV5EXuokmASWJ+WbS6t2n0ulNv1ZehdDO
-         WL5g==
-X-Forwarded-Encrypted: i=1; AJvYcCU2WHqa5Nk018GiSfclk0JQGXXAKwFgnlcM8ygOt6wSVISdqN4NkknxlP6EI+WF+JllOb0jiyDrT6LsMJHyUZCWbaJGhC8T6ELWFr6YI0s=
-X-Gm-Message-State: AOJu0YzurHh0Rg7l8aAr+wP3+3Xlri5FaGg5OiCrXDTI1ky0ULRLJg7s
-	MPMP0mO2VhHYFQ9mRzALzELOkp6jHZl12IndfqY+h9srmsYxZksk4ebnIR2E4OajuqefOHtBFhG
-	D1MMMS7ud1SbIOtB9SYn8Om+ktu51ETo2q+ZOxhX43z9H6v0K0sZjhBUpGPIGf/4advJqHM4I9D
-	g8cbDfrjwlg+9nDz6spU1Wzty0sHZOALVQWqGLGhI=
-X-Received: by 2002:a17:90a:178b:b0:29f:76d4:306a with SMTP id q11-20020a17090a178b00b0029f76d4306amr6710452pja.24.1712461097561;
-        Sat, 06 Apr 2024 20:38:17 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGNALvsPcbitPftgtL8pJI/fSek5yRGrsuflUQovxhWJ3XJKMl1GIzz225ORIag6ldXLxQeiIItvz0/8Do5/DY=
-X-Received: by 2002:a17:90a:178b:b0:29f:76d4:306a with SMTP id
- q11-20020a17090a178b00b0029f76d4306amr6710446pja.24.1712461097235; Sat, 06
- Apr 2024 20:38:17 -0700 (PDT)
+        bh=6OATBPOVpS/ms3tqzNZDFhOAZJq2v3CoGie3cCKXJbA=;
+        b=JCaDvrzVWKUMugAlU5Mnrd/fN5DXUgmRtHj1L67sjEnl/QcDic0Et09XYMdSJ+m2rn
+         Y1yMO2ES9fLYHuodHSbKRVBZdn9O8j6NBuaZL51zKedhWuNBVvcD5/iCsZrYdVOJb20Q
+         YFA0jmI1PqQN0Zf+ZpLYObowMsHp40nPF3bObPUPNKUGsIXjSEpH/j5FNHJ8F085yTbV
+         S75yfjbuWyveAeI0TYPLmCrCqdKsaaDctLFPeQd28tyE4lKms+kWo+k107vqNxlpz+8O
+         8J90srVexGcUW0CI7aLCA6PwVJE/IaGSNS8iN2fWtpgWJYEAO1Xl+/Xp+uTrCHbZOenk
+         YhdA==
+X-Gm-Message-State: AOJu0Yxb82EOEXdn3oDXV4CAXkjlcgEVUwj7XxAnrKjJzW8MBaSWOfiw
+	pFyThPvWsknPeZ+5R3YM/2CAEv0w5t7sxPUyFaMNvByKcX0tDjF1TbQQq5nvhwj6Eb8gPAcdY3c
+	ZdfksdynzYkfaoD1uc11bCdZxV4zvUGtpDI652uAjszwSU4q/3NnToYca/w7ZYDWd0FIha/Y6rF
+	zU3+IIQLYK8mmB8LOpBhDp3pdZDz5Tt05gStcWllU=
+X-Received: by 2002:a17:902:d386:b0:1e2:aa62:2fbf with SMTP id e6-20020a170902d38600b001e2aa622fbfmr6062727pld.45.1712463851640;
+        Sat, 06 Apr 2024 21:24:11 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHKJ9h6aWFRS908/Qz7yqmKf6aKfGWv/jyE2JG7Z9q5DRXsyL7vtatY26Z0jM6vN9jB1rSm9kjSYvAmi7qPeUk=
+X-Received: by 2002:a17:902:d386:b0:1e2:aa62:2fbf with SMTP id
+ e6-20020a170902d38600b001e2aa622fbfmr6062713pld.45.1712463851383; Sat, 06 Apr
+ 2024 21:24:11 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240320101912.28210-1-w_angrong@163.com> <20240321025920-mutt-send-email-mst@kernel.org>
- <CACGkMEuHRf0ZfBiAYxyNHB3pxuzz=QCWt5VyHPLz-+-+LM=+bg@mail.gmail.com>
- <20240329051117-mutt-send-email-mst@kernel.org> <CACGkMEsdjdMNqe2OaJcpKGPSs0+BCK-qq6i6QZmJSvt+M5p8QQ@mail.gmail.com>
- <20240329064114-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20240329064114-mutt-send-email-mst@kernel.org>
+References: <20240327111430.108787-1-xuanzhuo@linux.alibaba.com>
+ <20240327111430.108787-10-xuanzhuo@linux.alibaba.com> <CACGkMEs=NZGkkA7ye0wY7YcPBPfbKkYq84KCRX1gS0e=bZDX-w@mail.gmail.com>
+ <1711614157.5913072-7-xuanzhuo@linux.alibaba.com> <CACGkMEuBhfMwrfaiburLG7gFw36GuVHSbRTtK+FycrGFVTgOcA@mail.gmail.com>
+ <1711935607.4691076-1-xuanzhuo@linux.alibaba.com> <1711940418.2573907-2-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1711940418.2573907-2-xuanzhuo@linux.alibaba.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Sun, 7 Apr 2024 11:38:06 +0800
-Message-ID: <CACGkMEtEwe9rMD=3AKP-fZw+aiw5mAHcaqRo0dPnPnAyB-k3jw@mail.gmail.com>
-Subject: Re: [PATCH v3] vhost/vdpa: Add MSI translation tables to iommu for
- software-managed MSI
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Wang Rong <w_angrong@163.com>, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Date: Sun, 7 Apr 2024 12:24:00 +0800
+Message-ID: <CACGkMEvPZKa-au=2XaXrjT4t1vpPF4mPRNYNZ6uTPNyUpT8dfA@mail.gmail.com>
+Subject: Re: [PATCH vhost v6 09/10] virtio_net: set premapped mode by find_vqs()
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Mar 29, 2024 at 6:42=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
+On Mon, Apr 1, 2024 at 11:10=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
+om> wrote:
+>
+> On Mon, 1 Apr 2024 09:40:07 +0800, Xuan Zhuo <xuanzhuo@linux.alibaba.com>=
  wrote:
->
-> On Fri, Mar 29, 2024 at 06:39:33PM +0800, Jason Wang wrote:
-> > On Fri, Mar 29, 2024 at 5:13=E2=80=AFPM Michael S. Tsirkin <mst@redhat.=
-com> wrote:
-> > >
-> > > On Wed, Mar 27, 2024 at 05:08:57PM +0800, Jason Wang wrote:
-> > > > On Thu, Mar 21, 2024 at 3:00=E2=80=AFPM Michael S. Tsirkin <mst@red=
-hat.com> wrote:
-> > > > >
-> > > > > On Wed, Mar 20, 2024 at 06:19:12PM +0800, Wang Rong wrote:
-> > > > > > From: Rong Wang <w_angrong@163.com>
-> > > > > >
-> > > > > > Once enable iommu domain for one device, the MSI
-> > > > > > translation tables have to be there for software-managed MSI.
-> > > > > > Otherwise, platform with software-managed MSI without an
-> > > > > > irq bypass function, can not get a correct memory write event
-> > > > > > from pcie, will not get irqs.
-> > > > > > The solution is to obtain the MSI phy base address from
-> > > > > > iommu reserved region, and set it to iommu MSI cookie,
-> > > > > > then translation tables will be created while request irq.
-> > > > > >
-> > > > > > Change log
-> > > > > > ----------
-> > > > > >
-> > > > > > v1->v2:
-> > > > > > - add resv iotlb to avoid overlap mapping.
-> > > > > > v2->v3:
-> > > > > > - there is no need to export the iommu symbol anymore.
-> > > > > >
-> > > > > > Signed-off-by: Rong Wang <w_angrong@163.com>
-> > > > >
-> > > > > There's in interest to keep extending vhost iotlb -
-> > > > > we should just switch over to iommufd which supports
-> > > > > this already.
+> > On Fri, 29 Mar 2024 11:20:08 +0800, Jason Wang <jasowang@redhat.com> wr=
+ote:
+> > > On Thu, Mar 28, 2024 at 4:27=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.ali=
+baba.com> wrote:
 > > > >
-> > > > IOMMUFD is good but VFIO supports this before IOMMUFD.
+> > > > On Thu, 28 Mar 2024 16:05:02 +0800, Jason Wang <jasowang@redhat.com=
+> wrote:
+> > > > > On Wed, Mar 27, 2024 at 7:14=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux=
+.alibaba.com> wrote:
+> > > > > >
+> > > > > > Now, the virtio core can set the premapped mode by find_vqs().
+> > > > > > If the premapped can be enabled, the dma array will not be
+> > > > > > allocated. So virtio-net use the api of find_vqs to enable the
+> > > > > > premapped.
+> > > > > >
+> > > > > > Judge the premapped mode by the vq->premapped instead of saving
+> > > > > > local variable.
+> > > > > >
+> > > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > > > ---
+> > > > >
+> > > > > I wonder what's the reason to keep a fallback when premapped is n=
+ot enabled?
+> > > >
+> > > > Rethink this.
+> > > >
+> > > > I think you are right. We can remove the fallback.
+> > > >
+> > > > Because we have the virtio dma apis that wrap all the cases.
+> > > > So I will remove the fallback from the virtio-net in next version.
 > > >
-> > > You mean VFIO migrated to IOMMUFD but of course they keep supporting
-> > > their old UAPI?
+> > > Ok.
+> > >
+> > > >
+> > > > But we still need to export the premapped to the drivers.
+> > > > Because we can enable the AF_XDP only when premapped is true.
+> > >
+> > > I may miss something but it should work like
+> > >
+> > > enable AF_XDP -> enable remapping
+> > >
+> > > So can we fail during remapping enablement?
 > >
-> > I meant VFIO support software managed MSI before IOMMUFD.
+> >
+> > YES.
+> >
+> > Enabling the premapped mode may fail, then we must stop to enable AF_XD=
+P.
+> >
+> > AF-XDP requires that we export the dma dev to the af-xdp.
+> > We can do that only when the virtio core works with use_dma_api.
+> > Other other side, if we support the page-pool in future, we may have th=
+e
+> > same requirement.
 >
-> And then they switched over and stopped adding new IOMMU
-> related features. And so should vdpa?
+> Rethink this.
+>
+> Enable premapped MUST NOT fail. No care the use_dma_api is true or not, b=
+ecause
+> we have the DMA APIs for virtio. Then the virtio-net rx will work with
+> premapped (I will make the big mode work with premapped mode)
 
-For some cloud vendors, it means vDPA can't be used until
+Just to make sure we're at the same page. Rx will always work in the
+mode or pre mapping. So we can easily fail the probe if we fail to
+enable RX premapping?
 
-1) IOMMUFD support for vDPA is supported by upstream
-2) IOMMUFD is backported
+>
+> AF_XDP checks the virtqueue_dma_dev() when enabling.
+>
+> But disabling premapped mode may fail, because that virtio ring need to
+> allocate memory for dma.
 
-1) might be fine but 2) might be impossible.
-
-Assuming IOMMUFD hasn't been done for vDPA. Adding small features like
-this seems reasonable (especially considering it is supported by the
-"legacy" VFIO container).
+That's kind of too tricky, what if we just allocate the memory for dma
+unconditionally?
 
 Thanks
 
 >
+> Thanks.
 >
-> > > OK and point being?
-> > >
-> > > > This patch
-> > > > makes vDPA run without a backporting of full IOMMUFD in the product=
-ion
-> > > > environment. I think it's worth.
-> > >
-> > > Where do we stop? saying no to features is the only tool maintainers
-> > > have to make cleanups happen, otherwise people will just keep piling
-> > > stuff up.
+>
+>
 > >
-> > I think we should not have more features than VFIO without IOMMUFD.
 > >
-> > Thanks
+> > Thanks.
+> >
 > >
 > > >
-> > > > If you worry about the extension, we can just use the vhost iotlb
-> > > > existing facility to do this.
+> > > THanks
+> > >
 > > > >
 > > > > Thanks
 > > > >
+> > > >
 > > > > >
-> > > > > > ---
-> > > > > >  drivers/vhost/vdpa.c | 59 ++++++++++++++++++++++++++++++++++++=
-+++++---
-> > > > > >  1 file changed, 56 insertions(+), 3 deletions(-)
-> > > > > >
-> > > > > > diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> > > > > > index ba52d128aeb7..28b56b10372b 100644
-> > > > > > --- a/drivers/vhost/vdpa.c
-> > > > > > +++ b/drivers/vhost/vdpa.c
-> > > > > > @@ -49,6 +49,7 @@ struct vhost_vdpa {
-> > > > > >       struct completion completion;
-> > > > > >       struct vdpa_device *vdpa;
-> > > > > >       struct hlist_head as[VHOST_VDPA_IOTLB_BUCKETS];
-> > > > > > +     struct vhost_iotlb resv_iotlb;
-> > > > > >       struct device dev;
-> > > > > >       struct cdev cdev;
-> > > > > >       atomic_t opened;
-> > > > > > @@ -247,6 +248,7 @@ static int _compat_vdpa_reset(struct vhost_=
-vdpa *v)
-> > > > > >  static int vhost_vdpa_reset(struct vhost_vdpa *v)
-> > > > > >  {
-> > > > > >       v->in_batch =3D 0;
-> > > > > > +     vhost_iotlb_reset(&v->resv_iotlb);
-> > > > > >       return _compat_vdpa_reset(v);
-> > > > > >  }
-> > > > > >
-> > > > > > @@ -1219,10 +1221,15 @@ static int vhost_vdpa_process_iotlb_upd=
-ate(struct vhost_vdpa *v,
-> > > > > >           msg->iova + msg->size - 1 > v->range.last)
-> > > > > >               return -EINVAL;
-> > > > > >
-> > > > > > +     if (vhost_iotlb_itree_first(&v->resv_iotlb, msg->iova,
-> > > > > > +                                     msg->iova + msg->size - 1=
-))
-> > > > > > +             return -EINVAL;
-> > > > > > +
-> > > > > >       if (vhost_iotlb_itree_first(iotlb, msg->iova,
-> > > > > >                                   msg->iova + msg->size - 1))
-> > > > > >               return -EEXIST;
-> > > > > >
-> > > > > > +
-> > > > > >       if (vdpa->use_va)
-> > > > > >               return vhost_vdpa_va_map(v, iotlb, msg->iova, msg=
-->size,
-> > > > > >                                        msg->uaddr, msg->perm);
-> > > > > > @@ -1307,6 +1314,45 @@ static ssize_t vhost_vdpa_chr_write_iter=
-(struct kiocb *iocb,
-> > > > > >       return vhost_chr_write_iter(dev, from);
-> > > > > >  }
-> > > > > >
-> > > > > > +static int vhost_vdpa_resv_iommu_region(struct iommu_domain *d=
-omain, struct device *dma_dev,
-> > > > > > +     struct vhost_iotlb *resv_iotlb)
-> > > > > > +{
-> > > > > > +     struct list_head dev_resv_regions;
-> > > > > > +     phys_addr_t resv_msi_base =3D 0;
-> > > > > > +     struct iommu_resv_region *region;
-> > > > > > +     int ret =3D 0;
-> > > > > > +     bool with_sw_msi =3D false;
-> > > > > > +     bool with_hw_msi =3D false;
-> > > > > > +
-> > > > > > +     INIT_LIST_HEAD(&dev_resv_regions);
-> > > > > > +     iommu_get_resv_regions(dma_dev, &dev_resv_regions);
-> > > > > > +
-> > > > > > +     list_for_each_entry(region, &dev_resv_regions, list) {
-> > > > > > +             ret =3D vhost_iotlb_add_range_ctx(resv_iotlb, reg=
-ion->start,
-> > > > > > +                             region->start + region->length - =
-1,
-> > > > > > +                             0, 0, NULL);
-> > > > > > +             if (ret) {
-> > > > > > +                     vhost_iotlb_reset(resv_iotlb);
-> > > > > > +                     break;
-> > > > > > +             }
-> > > > > > +
-> > > > > > +             if (region->type =3D=3D IOMMU_RESV_MSI)
-> > > > > > +                     with_hw_msi =3D true;
-> > > > > > +
-> > > > > > +             if (region->type =3D=3D IOMMU_RESV_SW_MSI) {
-> > > > > > +                     resv_msi_base =3D region->start;
-> > > > > > +                     with_sw_msi =3D true;
-> > > > > > +             }
-> > > > > > +     }
-> > > > > > +
-> > > > > > +     if (!ret && !with_hw_msi && with_sw_msi)
-> > > > > > +             ret =3D iommu_get_msi_cookie(domain, resv_msi_bas=
-e);
-> > > > > > +
-> > > > > > +     iommu_put_resv_regions(dma_dev, &dev_resv_regions);
-> > > > > > +
-> > > > > > +     return ret;
-> > > > > > +}
-> > > > > > +
-> > > > > >  static int vhost_vdpa_alloc_domain(struct vhost_vdpa *v)
-> > > > > >  {
-> > > > > >       struct vdpa_device *vdpa =3D v->vdpa;
-> > > > > > @@ -1335,11 +1381,16 @@ static int vhost_vdpa_alloc_domain(stru=
-ct vhost_vdpa *v)
-> > > > > >
-> > > > > >       ret =3D iommu_attach_device(v->domain, dma_dev);
-> > > > > >       if (ret)
-> > > > > > -             goto err_attach;
-> > > > > > +             goto err_alloc_domain;
-> > > > > >
-> > > > > > -     return 0;
-> > > > > > +     ret =3D vhost_vdpa_resv_iommu_region(v->domain, dma_dev, =
-&v->resv_iotlb);
-> > > > > > +     if (ret)
-> > > > > > +             goto err_attach_device;
-> > > > > >
-> > > > > > -err_attach:
-> > > > > > +     return 0;
-> > > > > > +err_attach_device:
-> > > > > > +     iommu_detach_device(v->domain, dma_dev);
-> > > > > > +err_alloc_domain:
-> > > > > >       iommu_domain_free(v->domain);
-> > > > > >       v->domain =3D NULL;
-> > > > > >       return ret;
-> > > > > > @@ -1595,6 +1646,8 @@ static int vhost_vdpa_probe(struct vdpa_d=
-evice *vdpa)
-> > > > > >               goto err;
-> > > > > >       }
-> > > > > >
-> > > > > > +     vhost_iotlb_init(&v->resv_iotlb, 0, 0);
-> > > > > > +
-> > > > > >       r =3D dev_set_name(&v->dev, "vhost-vdpa-%u", minor);
-> > > > > >       if (r)
-> > > > > >               goto err;
-> > > > > > --
-> > > > > > 2.27.0
-> > > > > >
+> > > > > Thanks
 > > > > >
+> > > >
 > > >
+> >
 >
 
