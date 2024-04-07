@@ -1,154 +1,118 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DD048485
-	for <virtualization@lists.linux.dev>; Sun,  7 Apr 2024 03:12:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E66A5223
+	for <virtualization@lists.linux.dev>; Sun,  7 Apr 2024 03:24:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712459580; cv=none; b=qr+H9fvW7Uz71ENwksPPtUwiBEXZTMH2gd0lVuk9iIqd3OTIPStk0Sa25bABFKDRk8pJFeCAgofwuBS5xVZ3DZlzgIuy5XVbrX8+CNtqSgXVPFifNfq+w2PiEAc8JiyTs3kAT0FVNrkrsi5AajOa/k4ku4gDP9BPCaIELWc9rQ0=
+	t=1712460258; cv=none; b=OjsCbhBNtn5gGhjd/cLT3S4SLGdwrdv7uKGeIDHafqffQQEGUBGRwgl3Pez5YAB6CXlUnqignglkhuDlCQLwJR+U+gFN1+FpOLNUuRzuLCoJxw5/z24vvsV5JwMjVXOuusfBBTiKOSiX9CSZHfnvWaF1n/pGMHthUofFIADEvKo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712459580; c=relaxed/simple;
-	bh=TiIS2U0Z+wfIv7YPyJrbBALHfW6m6U5jca6+YzZuA6Y=;
+	s=arc-20240116; t=1712460258; c=relaxed/simple;
+	bh=avNLGOjDVhisrZeK5myUOE2ae08MglbbeQHmIGiFyzc=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=YDaBd5SP/tr459NMrk+cUyW/aDAsJvI9uHAp93VT//sfcijO3u7X6IetgwnIuP30U2CQIkGi3MdczTJcbDqAcJIZ48P/lfrk6qB7+Ma2But2psUa/S4PQ0pc8EBWTMadt+WTfMh43Z67TQoV9GujBAfUGsqrOWUbm4iPSRr9ikU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Lq1lBg3j; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=CkH5dP38mPHMSKRj2HJXm74LVohRXH61RUDuAeUNu3HGJkndPHVGaaJcTk7obSiUnfRLUvxEN84ilwPGyEuh9/ohmZ8dnHaoJAs6s6JDoU6OMWPU3OnlEKpdhp8fMIWr2Y5+PwwAeFRLOt/kQFLBzJe8FqH+JpylKAnk22N0Gi8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=V23sc3EZ; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Lq1lBg3j"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="V23sc3EZ"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1712459577;
+	s=mimecast20190719; t=1712460255;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=MJmu/t6Sirl2odpSd1zSsNcSzxnsR4Ufnqv6dslmQe4=;
-	b=Lq1lBg3jJm4jSUZ/GIybfSzzCE26MTKnCVqw0hSGyOdu24+V6lWeAYxS/TkDmBJ77QmJLZ
-	kpHGTc1SAkhKphabBVWH/1aLJ+lY9Ahi/x13TStguXFh4teN8N2U21QE5+BuDJeSd6f/O+
-	MRsp/dwwQXaBBH1pqoe3/XaPqWl5ih8=
-Received: from mail-oa1-f69.google.com (mail-oa1-f69.google.com
- [209.85.160.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=/4llMbGOtb9G+H32W8HlzHWTqpdsqaxj/w9vQVxNuic=;
+	b=V23sc3EZHcm8G7IXWR2i44BAuwc/cKjBuBtArXvTAEAiI7T/YtO7BgyWVXEWXYYHrfGxv5
+	nR5ePSeUVJzCcuv+00jG9JZj78QAo1jx4ad6GhsMDD2vFDNLQGDl4dncrpRcbCM2+qe3wO
+	MCybZMYDDP8wb8c6xQAHhpVfc46CMOw=
+Received: from mail-io1-f72.google.com (mail-io1-f72.google.com
+ [209.85.166.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-350-vJHIx-m2PqyNRSpv1WSXyg-1; Sat, 06 Apr 2024 23:12:55 -0400
-X-MC-Unique: vJHIx-m2PqyNRSpv1WSXyg-1
-Received: by mail-oa1-f69.google.com with SMTP id 586e51a60fabf-22ee151dc4bso1299971fac.1
-        for <virtualization@lists.linux.dev>; Sat, 06 Apr 2024 20:12:55 -0700 (PDT)
+ us-mta-605-_f2TVBDyNEWWjKFO54ZykQ-1; Sat, 06 Apr 2024 23:24:13 -0400
+X-MC-Unique: _f2TVBDyNEWWjKFO54ZykQ-1
+Received: by mail-io1-f72.google.com with SMTP id ca18e2360f4ac-7d5d7d6b971so55091239f.0
+        for <virtualization@lists.linux.dev>; Sat, 06 Apr 2024 20:24:12 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712459575; x=1713064375;
+        d=1e100.net; s=20230601; t=1712460252; x=1713065052;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=MJmu/t6Sirl2odpSd1zSsNcSzxnsR4Ufnqv6dslmQe4=;
-        b=Lx1yCWRKAdFHYat4Ccf+6ygkExwycZ4XIXPvvYSOBVoCNlmsOiNngYtdy+/faxG8Lt
-         Ps7dEuJ/RDYfRNmZ8O6sBd077ZLc632zrNSyx6fi54T+XSHuPcwj3lJqPwqDWMu+18hd
-         Vf+4Q/pF3EEiNRdOvZH30V3e/MSQVqKARzggYb+hMv5VoxZVnx7ikiu2wINpUwp0pyLT
-         TgaQdhVMXc2BWuD/iqn31LXw48IwfaRpKGp7G+UIuOooaQYhmNQLlngPrgq1+sFyf9a+
-         mXGYGek78rgnsD76zW7bS8maAsYQ3RX9sVicnZmuYALVQa7fT8qV+RUpgcWCfBPFu38N
-         t7Yg==
-X-Forwarded-Encrypted: i=1; AJvYcCV/WaiVxXdKVqwGbd72xjtJVEHMTcgxKMsIqweqy1hIhHbm7N5LbNf4Xv7IMWbMzGZwlU1GUsyInWo6O65gnsBA5p25YUPrRPhNMNPxfj8=
-X-Gm-Message-State: AOJu0YzZ2I3+hMDGEdWJdXclz128C2SlMkeB1tTWcFDRMzeQlov0QwDN
-	wUAAjUqBiyFNz5Ewsdke2UrAMGzmMVxjxHv/2TnDLLTA3aYmb2EmlOsLMn1AAb3BJ2jttIdMAqT
-	nygKHNbSxXEWP/HuO49EFxkNI56pr5Ddalv5qacmR9hqAsVeP1aAAze9QQN3H8srJjcUMuMeCEI
-	y07hd3v+TxwZs7PaAa/dGKAZM5necylaK72K1Cquw=
-X-Received: by 2002:a05:6871:6a5:b0:22e:ae01:db2f with SMTP id l37-20020a05687106a500b0022eae01db2fmr5926304oao.36.1712459575181;
-        Sat, 06 Apr 2024 20:12:55 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFxJaq7stpKgMSraYoLMx3TodA+2coKA76eR/QIAcIB6lXcpj5+7p+9fIFMZ3XBRdEPZlKh8jIwI46m3wMubro=
-X-Received: by 2002:a05:6871:6a5:b0:22e:ae01:db2f with SMTP id
- l37-20020a05687106a500b0022eae01db2fmr5926294oao.36.1712459574910; Sat, 06
- Apr 2024 20:12:54 -0700 (PDT)
+        bh=/4llMbGOtb9G+H32W8HlzHWTqpdsqaxj/w9vQVxNuic=;
+        b=YsbPUwkJZiVCPwzXD1otqxtFJOy8Cw/qivYkhEQGTVaPF2Uq+mm9xlXx72oGvxzCpN
+         fRYooR/Xx6kzadN+cIlWPabCXDzvQQk4P2A3Me5Lq/95KvikGcniRUtstQXS2srLkS4N
+         SBpky9aAaHioN+PAB+psk2LLBx4BTkfDLgBLAWokxja9QtxvzMEzMtc010E3q2jom7Ez
+         PeF5BNCbnzPE7/EGLZA7+PeQMDSi4e2PqHqFJ0WlO12F2VEfuIiLNRfd+JCvFfeeKnTV
+         dq/GQzvBOJVq7Y13xvyxgt2O9ZqrDprabORsySSwKdCDZ+8NmEjhTi03WwcB0jmMqRpI
+         cblg==
+X-Forwarded-Encrypted: i=1; AJvYcCWLkRc4VCP/Nk7DyOEdouWBNsIFh8dE9kgWG8vzG1BtNUj9FoQBVKCXBAIyCbSfEgrMujmo+UrzFqcZMWc3p0Bb9Z0hFnFxQZ37Kvu+veU=
+X-Gm-Message-State: AOJu0YzbFleGjZy875fnsPVcigclAXoC3e3uBZ73zU4v+FQ7WVSj0J3r
+	t6AF6AD33euU6vESeJnMwf9mqeWf8WjrIGp+gVhBFdtnLxxH7Y28UhPFo2zgw9w1vv3WJ2h15aF
+	LDB3GMDHs46zWYNpdF/Gn9GEWMLipSJAQFK7hBrl4yo2DqIAHQxGjysxooKQWuhiFAZujl+Nr87
+	g10aQB8YOJAgZkuIDXf3OiWmn6NwJHdWyLiguQKdc=
+X-Received: by 2002:a05:6e02:190b:b0:36a:1104:2d6e with SMTP id w11-20020a056e02190b00b0036a11042d6emr6626507ilu.1.1712460252245;
+        Sat, 06 Apr 2024 20:24:12 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IF+3rRdgaxZRF8TpZU5PIXKR1yFdG7fJfb4neaG7xOdFbZTliP+Thd8FNrQj3g1PkMbZPEVqyeFMfwhDwn56Uk=
+X-Received: by 2002:a05:6e02:190b:b0:36a:1104:2d6e with SMTP id
+ w11-20020a056e02190b00b0036a11042d6emr6626487ilu.1.1712460251972; Sat, 06 Apr
+ 2024 20:24:11 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <41c1c5489688abe5bfef9f7cf15584e3fb872ac5.1712092759.git.mst@redhat.com>
-In-Reply-To: <41c1c5489688abe5bfef9f7cf15584e3fb872ac5.1712092759.git.mst@redhat.com>
+References: <20240327112136.2897479-1-schalla@marvell.com> <CACGkMEuKhKOtqYUk4Sbv1QmVSuo3AJ1-tX13ZZxdbPmSSNYk9Q@mail.gmail.com>
+ <DS0PR18MB53686F5F53AF5D26B7CE37B6A03A2@DS0PR18MB5368.namprd18.prod.outlook.com>
+ <20240331072925-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20240331072925-mutt-send-email-mst@kernel.org>
 From: Jason Wang <jasowang@redhat.com>
-Date: Sun, 7 Apr 2024 11:12:43 +0800
-Message-ID: <CACGkMEuBt9BvUSr0hhSx4obX9SmiZgze8eK7Omujx1LBDgWz4A@mail.gmail.com>
-Subject: Re: [PATCH] vhost-vdpa: change ioctl # for VDPA_GET_VRING_SIZE
+Date: Sun, 7 Apr 2024 11:24:00 +0800
+Message-ID: <CACGkMEsGVxz=SSNS1y+duz0Bw1c9ot_fGG+Bz8vkKkiOwQWhig@mail.gmail.com>
+Subject: Re: [EXTERNAL] Re: [PATCH] virtio: vdpa: vDPA driver for Marvell
+ OCTEON DPU devices
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>, 
-	Namhyung Kim <namhyung@kernel.org>, Zhu Lingshan <lingshan.zhu@intel.com>, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, kvm@vger.kernel.org, 
-	virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	Adrian Hunter <adrian.hunter@intel.com>, Ian Rogers <irogers@google.com>, 
-	Jiri Olsa <jolsa@kernel.org>, Kan Liang <kan.liang@linux.intel.com>
+Cc: Srujana Challa <schalla@marvell.com>, 
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>, Vamsi Krishna Attunuru <vattunuru@marvell.com>, 
+	Shijith Thotton <sthotton@marvell.com>, Nithin Kumar Dabilpuram <ndabilpuram@marvell.com>, 
+	Jerin Jacob <jerinj@marvell.com>, eperezma <eperezma@redhat.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 3, 2024 at 5:21=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com> =
-wrote:
+On Sun, Mar 31, 2024 at 7:31=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
+ wrote:
 >
-> VDPA_GET_VRING_SIZE by mistake uses the already occupied
-> ioctl # 0x80 and we never noticed - it happens to work
-> because the direction and size are different, but confuses
-> tools such as perf which like to look at just the number,
-> and breaks the extra robustness of the ioctl numbering macros.
+> On Fri, Mar 29, 2024 at 12:34:34PM +0000, Srujana Challa wrote:
+> > > > +static void octep_vdpa_set_config(struct vdpa_device *vdpa_dev, un=
+signed
+> > > int offset,
+> > > > +                                 const void *buf, unsigned int len=
+)
+> > > > +{
+> > > > +       /* Not supported */
+> > >
+> > > We probably need to filter out VIRTIO_NET_F_ANNOUNCE and other
+> > > features that depend on the config writing.
+> > As per modern virtio spec(v1.2), device config is read only for the dri=
+ver.
+> > Still do we need to filter out these features?
 >
-> To fix, sort the entries and renumber the ioctl - not too late
-> since it wasn't in any released kernels yet.
->
-> Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
-> Reported-by: Namhyung Kim <namhyung@kernel.org>
-> Fixes: x ("vhost-vdpa: uapi to support reporting per vq size")
-> Cc: "Zhu Lingshan" <lingshan.zhu@intel.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Yes I didn't get this either. What is VIRTIO_NET_F_ANNOUNCE?
+> VIRTIO_NET_F_GUEST_ANNOUNCE?
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+Yes.
+
+> And how does it depend on config
+> writing?
+
+My bad, it should have nothing. So the part looks fine.
 
 Thanks
 
-> ---
 >
-> Build tested only - userspace patches using this will have to adjust.
-> I will merge this in a week or so unless I hear otherwise,
-> and afterwards perf can update there header.
->
->  include/uapi/linux/vhost.h | 15 ++++++++-------
->  1 file changed, 8 insertions(+), 7 deletions(-)
->
-> diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-> index bea697390613..b95dd84eef2d 100644
-> --- a/include/uapi/linux/vhost.h
-> +++ b/include/uapi/linux/vhost.h
-> @@ -179,12 +179,6 @@
->  /* Get the config size */
->  #define VHOST_VDPA_GET_CONFIG_SIZE     _IOR(VHOST_VIRTIO, 0x79, __u32)
->
-> -/* Get the count of all virtqueues */
-> -#define VHOST_VDPA_GET_VQS_COUNT       _IOR(VHOST_VIRTIO, 0x80, __u32)
-> -
-> -/* Get the number of virtqueue groups. */
-> -#define VHOST_VDPA_GET_GROUP_NUM       _IOR(VHOST_VIRTIO, 0x81, __u32)
-> -
->  /* Get the number of address spaces. */
->  #define VHOST_VDPA_GET_AS_NUM          _IOR(VHOST_VIRTIO, 0x7A, unsigned=
- int)
->
-> @@ -228,10 +222,17 @@
->  #define VHOST_VDPA_GET_VRING_DESC_GROUP        _IOWR(VHOST_VIRTIO, 0x7F,=
-       \
->                                               struct vhost_vring_state)
->
-> +
-> +/* Get the count of all virtqueues */
-> +#define VHOST_VDPA_GET_VQS_COUNT       _IOR(VHOST_VIRTIO, 0x80, __u32)
-> +
-> +/* Get the number of virtqueue groups. */
-> +#define VHOST_VDPA_GET_GROUP_NUM       _IOR(VHOST_VIRTIO, 0x81, __u32)
-> +
->  /* Get the queue size of a specific virtqueue.
->   * userspace set the vring index in vhost_vring_state.index
->   * kernel set the queue size in vhost_vring_state.num
->   */
-> -#define VHOST_VDPA_GET_VRING_SIZE      _IOWR(VHOST_VIRTIO, 0x80,       \
-> +#define VHOST_VDPA_GET_VRING_SIZE      _IOWR(VHOST_VIRTIO, 0x82,       \
->                                               struct vhost_vring_state)
->  #endif
 > --
 > MST
 >
