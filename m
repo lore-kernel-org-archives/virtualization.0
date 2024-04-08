@@ -1,29 +1,29 @@
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1689D4690
-	for <virtualization@lists.linux.dev>; Mon,  8 Apr 2024 03:44:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24AC4524F
+	for <virtualization@lists.linux.dev>; Mon,  8 Apr 2024 03:44:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712547880; cv=none; b=aMF5LCt8ENwLcesdRyGZ8HwAQiyCqxLYD2xgufXaAbQYSdHAJ/ryfu/Rzw/yQ96KdeNJnDyZsqxTWAmjSMXq1JB3N6C1Fh1V4GfmAGEoZHbHaFkMZSrh/JyLl/KIPK5O4hFPXVhIpEF/bNejQGlG8hOeI7llP7YRkobqtNM2cPY=
+	t=1712547882; cv=none; b=jzCVd5vYZu2I1OrxBum2RFgmMcwfK8FDW/GvEO4DXRoIUZSKxINANgy/RmB5Oy59cVoYoRVI7keymYleBg2LdOFifQRi2rUY54rSwkPA5BY2k53Yfqvr4LuEdfuqRO2NBuuOUxjfeMwWaAfluU2Pm0slcgwcJL/HizdEJ20hNe8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712547880; c=relaxed/simple;
-	bh=FlKKvak3gW/xamFIUx6JWJHzjqlZgfllx0jrRr18NnM=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References; b=IG7tfOY0EPKY08mDlRGSfmQ4y4kpF8TnoFElv4Lg/mgfVP70IjkZWZTEDm9oDjUUVt27K6DnuL8DOyG95m/hOoCKOiFBbjJVhRD7UbnUW85iDpkte6FAs28mZHbp3Vdu/SyvgT1PcY5vZXXtol10J8qW5gpgyRP8pwX9btis++Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=EvWJmE51; arc=none smtp.client-ip=115.124.30.101
+	s=arc-20240116; t=1712547882; c=relaxed/simple;
+	bh=SWO0fVaWchjLFOPL6CaGCGri3NIRxlPUqkw9kX0BbOw=;
+	h=From:To:Cc:Subject:Date:Message-Id; b=bOdQ4fLOfeif/W2SeXDRNv8tkzDHkJwT/SNNYguhFI5sHeOBiiOH9lgM5Uwx2gFRCzg0z6+XHBE389j7cWuKf8Age3iiXrAX6mE+3zPnLep4hOcvgQtGq/ww7lNGOC9G6/WUGbQMBKY8tMkxXjEZ57otDNsa64s58LMon5o5bCI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=yCAEOCtn; arc=none smtp.client-ip=115.124.30.110
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="EvWJmE51"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="yCAEOCtn"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1712547875; h=From:To:Subject:Date:Message-Id;
-	bh=kpoOngaByRvectsngOJghtr0xxXXevY+L8PpYW6ecPU=;
-	b=EvWJmE51sln+23gE+ZUsNK3bpkAiHHRkOSNP3KykQpU68UqHyKEQe/LC/LKsDAMZBlMAdowVZ8wcVwZ5tcQMhakNLtzY1y29xuh1NEhB5PYAwM+l+GuzQ/Ga9hfcXQoC2yD/PZeZiKy9IacZpYxf1e2O9gHvufhd5XHrmpGb/xA=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R411e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0W41xIq2_1712547874;
-Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W41xIq2_1712547874)
+	t=1712547872; h=From:To:Subject:Date:Message-Id;
+	bh=tanDlrv6oLoOsI7+T+G+i7+SlpUnRod8vcHDadictDA=;
+	b=yCAEOCtnkTP3PCt9wzwJDVC3Iqhz7dNTCzXY4dKrsbEOzTGpgHRqrYrTH5cTojkvUOLLp+ByGtz2B3ZzZYhefnaVHyzaTRxACaI9TTJj7ChH2CAwNZqxOAVyBOAPjdVlOfmvCdnqULrAapbIv0I8WTfkmG7Ideg0HGVh6YUFb4g=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R731e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0W41ynly_1712547870;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W41ynly_1712547870)
           by smtp.aliyun-inc.com;
-          Mon, 08 Apr 2024 11:44:35 +0800
+          Mon, 08 Apr 2024 11:44:31 +0800
 From: Heng Qi <hengqi@linux.alibaba.com>
 To: netdev@vger.kernel.org,
 	virtualization@lists.linux.dev
@@ -36,133 +36,60 @@ Cc: "David S. Miller" <davem@davemloft.net>,
 	Ratheesh Kannoth <rkannoth@marvell.com>,
 	Alexander Lobakin <aleksander.lobakin@intel.com>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: [PATCH net-next v4 4/4] virtio-net: support dim profile fine-tuning
-Date: Mon,  8 Apr 2024 11:44:30 +0800
-Message-Id: <1712547870-112976-5-git-send-email-hengqi@linux.alibaba.com>
+Subject: [PATCH net-next v4 0/4] ethtool: provide the dim profile fine-tuning channel
+Date: Mon,  8 Apr 2024 11:44:26 +0800
+Message-Id: <1712547870-112976-1-git-send-email-hengqi@linux.alibaba.com>
 X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1712547870-112976-1-git-send-email-hengqi@linux.alibaba.com>
-References: <1712547870-112976-1-git-send-email-hengqi@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-Virtio-net has different types of back-end device
-implementations. In order to effectively optimize
-the dim library's gains for different device
-implementations, let's use the new interface params
-to fine-tune the profile list.
+The NetDIM library provides excellent acceleration for many modern
+network cards. However, the default profiles of DIM limits its maximum
+capabilities for different NICs, so providing a way which the NIC can
+be custom configured is necessary.
 
-Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
----
- drivers/net/virtio_net.c | 44 ++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 42 insertions(+), 2 deletions(-)
+Currently, interaction with the driver is still based on the commonly
+used "ethtool -C". The driver declares its supported parameters based
+on .supported_coalesce_params, and implements driver-related custom
+restrictions in .set_coalesce and .get_coalesce.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index cc3a281..24e8a59 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -57,6 +57,8 @@
- 
- #define VIRTNET_DRIVER_VERSION "1.0.0"
- 
-+static const struct dim_cq_moder rx_eqe_conf[] = NET_DIM_RX_EQE_PROFILES;
-+
- static const unsigned long guest_offloads[] = {
- 	VIRTIO_NET_F_GUEST_TSO4,
- 	VIRTIO_NET_F_GUEST_TSO6,
-@@ -330,6 +332,12 @@ struct virtnet_info {
- 	struct virtnet_interrupt_coalesce intr_coal_tx;
- 	struct virtnet_interrupt_coalesce intr_coal_rx;
- 
-+	/* DIM profile list for different queue mode */
-+	struct dim_cq_moder rx_eqe_conf[NET_DIM_PARAMS_NUM_PROFILES];
-+	struct dim_cq_moder rx_cqe_conf[NET_DIM_PARAMS_NUM_PROFILES];
-+	struct dim_cq_moder tx_eqe_conf[NET_DIM_PARAMS_NUM_PROFILES];
-+	struct dim_cq_moder tx_cqe_conf[NET_DIM_PARAMS_NUM_PROFILES];
-+
- 	unsigned long guest_offloads;
- 	unsigned long guest_offloads_capable;
- 
-@@ -3588,7 +3596,7 @@ static void virtnet_rx_dim_work(struct work_struct *work)
- 		if (!rq->dim_enabled)
- 			continue;
- 
--		update_moder = net_dim_get_rx_moderation(dim->mode, dim->profile_ix);
-+		update_moder = vi->rx_eqe_conf[dim->profile_ix];
- 		if (update_moder.usec != rq->intr_coal.max_usecs ||
- 		    update_moder.pkts != rq->intr_coal.max_packets) {
- 			err = virtnet_send_rx_ctrl_coal_vq_cmd(vi, qnum,
-@@ -3631,6 +3639,27 @@ static int virtnet_should_update_vq_weight(int dev_flags, int weight,
- 	return 0;
- }
- 
-+static int virtnet_update_profile(struct virtnet_info *vi,
-+				  struct kernel_ethtool_coalesce *kc)
-+{
-+	int i;
-+
-+	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL)) {
-+		for (i = 0; i < NET_DIM_PARAMS_NUM_PROFILES; i++)
-+			if (kc->rx_eqe_profs[i].comps)
-+				return -EINVAL;
-+	} else {
-+		return -EOPNOTSUPP;
-+	}
-+
-+	for (i = 0; i < NET_DIM_PARAMS_NUM_PROFILES; i++) {
-+		vi->rx_eqe_conf[i].usec = kc->rx_eqe_profs[i].usec;
-+		vi->rx_eqe_conf[i].pkts = kc->rx_eqe_profs[i].pkts;
-+	}
-+
-+	return 0;
-+}
-+
- static int virtnet_set_coalesce(struct net_device *dev,
- 				struct ethtool_coalesce *ec,
- 				struct kernel_ethtool_coalesce *kernel_coal,
-@@ -3657,6 +3686,10 @@ static int virtnet_set_coalesce(struct net_device *dev,
- 		}
- 	}
- 
-+	ret = virtnet_update_profile(vi, kernel_coal);
-+	if (ret)
-+		return ret;
-+
- 	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_NOTF_COAL))
- 		ret = virtnet_send_notf_coal_cmds(vi, ec);
- 	else
-@@ -3693,6 +3726,10 @@ static int virtnet_get_coalesce(struct net_device *dev,
- 			ec->tx_max_coalesced_frames = 1;
- 	}
- 
-+	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL))
-+		memcpy(kernel_coal->rx_eqe_profs, vi->rx_eqe_conf,
-+		       sizeof(vi->rx_eqe_conf));
-+
- 	return 0;
- }
- 
-@@ -3872,7 +3909,8 @@ static int virtnet_set_rxnfc(struct net_device *dev, struct ethtool_rxnfc *info)
- 
- static const struct ethtool_ops virtnet_ethtool_ops = {
- 	.supported_coalesce_params = ETHTOOL_COALESCE_MAX_FRAMES |
--		ETHTOOL_COALESCE_USECS | ETHTOOL_COALESCE_USE_ADAPTIVE_RX,
-+		ETHTOOL_COALESCE_USECS | ETHTOOL_COALESCE_USE_ADAPTIVE_RX |
-+		ETHTOOL_COALESCE_RX_EQE_PROFILE,
- 	.get_drvinfo = virtnet_get_drvinfo,
- 	.get_link = ethtool_op_get_link,
- 	.get_ringparam = virtnet_get_ringparam,
-@@ -4437,6 +4475,8 @@ static void virtnet_dim_init(struct virtnet_info *vi)
- 		INIT_WORK(&vi->rq[i].dim.work, virtnet_rx_dim_work);
- 		vi->rq[i].dim.mode = DIM_CQ_PERIOD_MODE_START_FROM_EQE;
- 	}
-+
-+	memcpy(vi->rx_eqe_conf, rx_eqe_conf, sizeof(vi->rx_eqe_conf));
- }
- 
- static int virtnet_alloc_queues(struct virtnet_info *vi)
+Please review, thank you very much!
+
+Changelog
+=====
+v3->v4:
+  - Some tiny updates and patch 1 only add a new comment.
+
+v2->v3:
+  - Break up the attributes to avoid the use of raw c structs.
+  - Use per-device profile instead of global profile in the driver.
+
+v1->v2:
+  - Use ethtool tool instead of net-sysfs
+
+V1 link:
+https://lore.kernel.org/all/1710421773-61277-1-git-send-email-hengqi@linux.alibaba.com/#r
+
+
+Heng Qi (4):
+  ethtool: provide customized dim profile management
+  linux/dim: move profiles from .c to .h file
+  virtio-net: refactor dim initialization/destruction
+  virtio-net: support dim profile fine-tuning
+
+ Documentation/netlink/specs/ethtool.yaml     |  29 +++++
+ Documentation/networking/ethtool-netlink.rst |   8 ++
+ drivers/net/virtio_net.c                     |  81 +++++++++++---
+ include/linux/dim.h                          |  45 ++++++++
+ include/linux/ethtool.h                      |  16 ++-
+ include/uapi/linux/ethtool_netlink.h         |  24 ++++
+ lib/dim/net_dim.c                            |  44 --------
+ net/ethtool/coalesce.c                       | 160 ++++++++++++++++++++++++++-
+ 8 files changed, 347 insertions(+), 60 deletions(-)
+
 -- 
 1.8.3.1
 
