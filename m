@@ -1,75 +1,75 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BDB844373
-	for <virtualization@lists.linux-foundation.org>; Mon,  8 Apr 2024 07:41:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6928629CEF
+	for <virtualization@lists.linux-foundation.org>; Mon,  8 Apr 2024 07:41:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712562077; cv=none; b=FxU4dhAPC0uWMcjXLEHHWYV/CvHhyjok1VE/3D8M/k62qepVgrFqOzNaurCne5gv441x8/IjY5xrsz+XTSOpIF2bkOW/STGJ0r0rLnRTmcbxpA1tM0mia2LdRcA2/k8Igcish0QRBY32aPwOsKcwhDEZ/PsndwaVKdnA/XAoe3U=
+	t=1712562082; cv=none; b=BMShuw+cspV6NwwjosTB2SEmDoBQxDVVBbS7VjELgYK6dKOK0Y9tO4/Q4kNo9k8cwYq7CmARazHWRiZzTaAS3wN/iye2gClkrmS3OA98gt25C++iG0WIMiGdUbdgbr+lP9NEcMHLfQ7DR3vYDS2hQiE+p8HVwkp543djrORlxXw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712562077; c=relaxed/simple;
-	bh=iKjQu5I5XlbEyI8tviReJ85sxcTJ+7YPkv/ktuPKMhM=;
+	s=arc-20240116; t=1712562082; c=relaxed/simple;
+	bh=HH1sJn4b3V30rPMVBuHlYzoyuDIoo8e0e1oZipDtD1M=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=q317zBX86vqePhp0KwSdvGOVZR3s4HbKidH1479krjkY4q7KC+pmdUrjdzWPI0dscWQHDyqAxCZ8NSxHRdCnQfRtuxVgAv/0/q5BtDn8FMPJGuBQ7g7zUXWBPwUs59Me7b3FtwxVn0vEHL555QzA3aHna4pfO5d1QsnWtrDNhj4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KvIXmQwA; arc=none smtp.client-ip=140.211.166.133
+	 MIME-Version; b=ZY2w3vPYVgkuqiy4rRhdLdcLj0S066NxkYqnG5cL8Xa9SiOPNRVveTN7BIbIj32+PINBTWBhfe7MEvHEJcgPP0i/qr+vDTMDVTY1y0YvJFtE28RUDgT+lCZHRS6yREkZSeVAERg270lYYZ4nI53ODJO5mrGmxCprlkRH+y6G6DY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iiI06n4H; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KvIXmQwA"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iiI06n4H"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 2BAE14037E
-	for <virtualization@lists.linux-foundation.org>; Mon,  8 Apr 2024 07:41:16 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 1454660A77
+	for <virtualization@lists.linux-foundation.org>; Mon,  8 Apr 2024 07:41:21 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -1.849
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id n0wEk1b6F8f7 for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Apr 2024 07:41:15 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::32a; helo=mail-wm1-x32a.google.com; envelope-from=vsntk18@gmail.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 34DF740510
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 34DF740510
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=KvIXmQwA
-Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 34DF740510
-	for <virtualization@lists.linux-foundation.org>; Mon,  8 Apr 2024 07:41:15 +0000 (UTC)
-Received: by mail-wm1-x32a.google.com with SMTP id 5b1f17b1804b1-415515178ceso26215015e9.0
-        for <virtualization@lists.linux-foundation.org>; Mon, 08 Apr 2024 00:41:15 -0700 (PDT)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id kImCl9w8sL4m for <virtualization@lists.linux-foundation.org>;
+ Mon,  8 Apr 2024 07:41:20 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::131; helo=mail-lf1-x131.google.com; envelope-from=vsntk18@gmail.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 20A2160A53
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 20A2160A53
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=iiI06n4H
+Received: from mail-lf1-x131.google.com (mail-lf1-x131.google.com [IPv6:2a00:1450:4864:20::131])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 20A2160A53
+	for <virtualization@lists.linux-foundation.org>; Mon,  8 Apr 2024 07:41:20 +0000 (UTC)
+Received: by mail-lf1-x131.google.com with SMTP id 2adb3069b0e04-516cbf3fd3dso4735157e87.2
+        for <virtualization@lists.linux-foundation.org>; Mon, 08 Apr 2024 00:41:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1712562073; x=1713166873; darn=lists.linux-foundation.org;
+        d=gmail.com; s=20230601; t=1712562078; x=1713166878; darn=lists.linux-foundation.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=FJpD29/pv52tcSTFE56JNh7gpAMmLYs2U80V4FBahpg=;
-        b=KvIXmQwAWMr/G7vw9tUbaodTW6Us9shyTTJyXoCoZ9HRt/hawb8+6o6Big6hDKWMIQ
-         Jb4ynrrLyfc5khmikT1syYNo1Wa/thuCFXR4iw1wbYHaG5hZKUr2njNy0gfUBOC/A0Qn
-         /mG2RtnSBwYdzBE+6e450cxo23b+uKOeWN1Ttze6wx6PXG/rZQOLlwcnko80u+sK4amJ
-         m16+jNVr7a1KtQ+qwFKVVNucyMszoRmj8f1bXndosoY/7CgdT4EdPmeSt4Y/Al2NPXkF
-         /vA4lpw/dQLxEraOHylhHGafBttQGadu3DotRXfKa0g32XC5Cgr/chtM0M7Cp+giVceZ
-         xqvA==
+        bh=AJPEklCzoS2DFb7f9ZXxyBC3nyK2AChPfFAIeZ8KZAI=;
+        b=iiI06n4HVMMxp1R/kHYZb49cxfPHQATiehQc02/HGlYdno62WISRbsyYBChS7MbjMe
+         WXVcyGOUIfj6ofg36bmbnZDXNjIDLHOebQwaMXH2I3o7YmzAcq53iJrJYFF+U08l1iqZ
+         dtv+s/GH8JMIJJXt8264sHKUKS8dLD73KFcMpH89f9D4YtUYCMC/Um8IW4aKotwFjxjn
+         kLhp/PScVX3tmEEElGoGAkXW8kFDRWVT/FwKfsAXVcZL6xUgSbMGil/wmVvvJApf+G+L
+         1gkyTED/rBe8Y/lHVvxaRcw9qXM3yiMipYVZu6ojYyu8e+XkhPeqIocSwu4bNHamKXpO
+         Cojw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712562073; x=1713166873;
+        d=1e100.net; s=20230601; t=1712562078; x=1713166878;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=FJpD29/pv52tcSTFE56JNh7gpAMmLYs2U80V4FBahpg=;
-        b=eqQZEWvJWveasppVV7tFBHmXVyUNxXB4bC2COuRX+Cg0GpOCUXGiu+7OhU3qgq5Ood
-         iL/FnnJtulvDkpdq/TCigW3LOWgbQ1StmacFvNvAqApUlMB0yR2oS2Pk8LgzDzXi+GOA
-         WKhWEVltWH7W75bIvNE69Sdan5F4v46xXdMP5LrUMRkjrbFXSSIukDuRxzCS4SPYU+AL
-         kIgJOywEy5C/DRjujr6SyL2BtV0s/SBqRv4LK4KcwndqfMnVDCTdUv1iaeTUUtnuTnm1
-         WceXMqr3xcqViOp6A4E4e3wToMcTED1WGEIvfTusFWyZ2z6//YfEi5lJfOGlFRQQ3ogl
-         wQ9w==
-X-Forwarded-Encrypted: i=1; AJvYcCWX3MuLeTEl6XddgiwbKYD5VUUyg8r669GjGRR7r7GPuXcZSOFzIdKTDKmXJHqtfQu1HygPYBZ+wFb7uOEerATZIgP6pXs0KB/x8+WeXuyNSdGpmmBjqlxWnQ==
-X-Gm-Message-State: AOJu0YwWap4zkBojKf8fbFTS3MILQkf2kWjPUvVahzdJBrAbKcAKJE14
-	jIYLj9i0ztAQVuCo/CGeVNXsC6vgnFRPgKEyc6BiMVnjZFfyTQVC
-X-Google-Smtp-Source: AGHT+IE8QCaOWgeggvX3bzfdgpzjd9AKZpVWk5t3o1rNmV0yg4I7I6xr4BI4sOPOf3U8/XIcokRopQ==
-X-Received: by 2002:a05:600c:350f:b0:416:7071:6eff with SMTP id h15-20020a05600c350f00b0041670716effmr1229085wmq.41.1712562073135;
-        Mon, 08 Apr 2024 00:41:13 -0700 (PDT)
+        bh=AJPEklCzoS2DFb7f9ZXxyBC3nyK2AChPfFAIeZ8KZAI=;
+        b=Mf/E2FVkXfyQBeqJ+hxkJWkZefaYwPTqObBElUjwkk31/4oXkHhJM7qyOcmHl1Gzia
+         XU2cJT6UvzjAoaBsI8DohbiK8mgKdi5G7sl6ps1ApMWxeppS5fIMb6Z44oO8Gyy+L7RF
+         JFvTBtSfk9tRTxcocdFKhP09dQVAF2MIW4ODfD2uVbGFY7oTfrqaJIdZATEpdf7NvGAd
+         id4bzVN2W6sbKMRgJ0J57Ljr2+OVb5gjVD9t9NcKGfEIN59R/iM+Gvux6b0+gXt5HeYb
+         c6b7O5eIMOaRF5+CwFSHfvFWPQMmW9QTairodQvl2w//AsSPzEiYKWyskL+GIYUb3gux
+         xWvg==
+X-Forwarded-Encrypted: i=1; AJvYcCVwoaAyW0iS5+tfPNK44N25JQyk/ecIo//Mudd5j9/op+I7uwRsBFuiYQ7+ofMj9Mk34h4tUz42E04Tn+3IpTONw0EDgnFyJVl0w7JggHJnem2uk2IvedIV7g==
+X-Gm-Message-State: AOJu0YwBna8qYF3gGDONbcjIfO5dE7ZMhnP2qHSOIezcjQc178ccKuGc
+	ac5E3KLlzf2522TCV1lyKJPXDwp+7lZo/BU5+njP153FIU492Cit
+X-Google-Smtp-Source: AGHT+IHpElUIChuykMsasXSoM3TJVl6Wfcb1bXJa6Q9tVjHiJv6DKDaFlFEqFX6ZTMlgVGGqgWRrag==
+X-Received: by 2002:a05:6512:3618:b0:513:d5ea:1d21 with SMTP id f24-20020a056512361800b00513d5ea1d21mr5855791lfs.69.1712562077693;
+        Mon, 08 Apr 2024 00:41:17 -0700 (PDT)
 Received: from vasant-suse.suse.cz ([2001:9e8:ab70:9c00:7f0b:c18e:56a6:4f2])
-        by smtp.gmail.com with ESMTPSA id j3-20020adfff83000000b00341e2146b53sm8271413wrr.106.2024.04.08.00.41.11
+        by smtp.gmail.com with ESMTPSA id j3-20020adfff83000000b00341e2146b53sm8271413wrr.106.2024.04.08.00.41.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Apr 2024 00:41:12 -0700 (PDT)
+        Mon, 08 Apr 2024 00:41:16 -0700 (PDT)
 From: vsntk18@gmail.com
 To: x86@kernel.org
 Cc: cfir@google.com,
@@ -102,9 +102,9 @@ Cc: cfir@google.com,
 	michael.roth@amd.com,
 	Borislav.Petkov@amd.com,
 	Dhaval.Giani@amd.com
-Subject: [PATCH v5 06/10] x86/sev: Use AP Jump Table blob to stop CPU
-Date: Mon,  8 Apr 2024 09:40:45 +0200
-Message-Id: <20240408074049.7049-7-vsntk18@gmail.com>
+Subject: [PATCH v5 08/10] x86/sev: Handle CLFLUSH MMIO events
+Date: Mon,  8 Apr 2024 09:40:47 +0200
+Message-Id: <20240408074049.7049-9-vsntk18@gmail.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20240408074049.7049-1-vsntk18@gmail.com>
 References: <20240408074049.7049-1-vsntk18@gmail.com>
@@ -118,101 +118,62 @@ Content-Transfer-Encoding: 8bit
 
 From: Joerg Roedel <jroedel@suse.de>
 
-To support kexec under SEV-ES the APs can't be parked with HLT. Upon
-wakeup the AP needs to find its way to execute at the reset vector set
-by the new kernel and in real-mode.
-
-This is what the AP jump table blob provides, so stop the APs the
-SEV-ES way by calling the AP-reset-hold VMGEXIT from the AP jump
-table.
+Handle CLFLUSH instruction to MMIO memory in the #VC handler. The
+instruction is ignored by the handler, as the Hypervisor is
+responsible for cache management of emulated MMIO memory.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Vasant Karasulli <vkarasulli@suse.de>
 ---
- arch/x86/include/asm/sev.h |  2 ++
- arch/x86/kernel/process.c  |  8 ++++++++
- arch/x86/kernel/sev.c      | 15 ++++++++++++++-
- 3 files changed, 24 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/insn-eval.h | 1 +
+ arch/x86/kernel/sev-shared.c     | 3 +++
+ arch/x86/lib/insn-eval-shared.c  | 7 +++++++
+ 3 files changed, 11 insertions(+)
 
-diff --git a/arch/x86/include/asm/sev.h b/arch/x86/include/asm/sev.h
-index 829650bdd455..dba6cad1f7d3 100644
---- a/arch/x86/include/asm/sev.h
-+++ b/arch/x86/include/asm/sev.h
-@@ -233,6 +233,7 @@ u64 snp_get_unsupported_features(u64 status);
- u64 sev_get_status(void);
- void kdump_sev_callback(void);
- void sev_show_status(void);
-+void sev_es_stop_this_cpu(void);
- #else
- static inline void sev_es_ist_enter(struct pt_regs *regs) { }
- static inline void sev_es_ist_exit(void) { }
-@@ -263,6 +264,7 @@ static inline u64 snp_get_unsupported_features(u64 status) { return 0; }
- static inline u64 sev_get_status(void) { return 0; }
- static inline void kdump_sev_callback(void) { }
- static inline void sev_show_status(void) { }
-+static inline void sev_es_stop_this_cpu(void) { }
- #endif
+diff --git a/arch/x86/include/asm/insn-eval.h b/arch/x86/include/asm/insn-eval.h
+index 54368a43abf6..3bcea641913a 100644
+--- a/arch/x86/include/asm/insn-eval.h
++++ b/arch/x86/include/asm/insn-eval.h
+@@ -40,6 +40,7 @@ enum insn_mmio_type {
+ 	INSN_MMIO_READ_ZERO_EXTEND,
+ 	INSN_MMIO_READ_SIGN_EXTEND,
+ 	INSN_MMIO_MOVS,
++	INSN_MMIO_IGNORE,
+ };
  
- #ifdef CONFIG_KVM_AMD_SEV
-diff --git a/arch/x86/kernel/process.c b/arch/x86/kernel/process.c
-index b8441147eb5e..0bc615d69c0e 100644
---- a/arch/x86/kernel/process.c
-+++ b/arch/x86/kernel/process.c
-@@ -52,6 +52,7 @@
- #include <asm/tdx.h>
- #include <asm/mmu_context.h>
- #include <asm/shstk.h>
-+#include <asm/sev.h>
+ enum insn_mmio_type insn_decode_mmio(struct insn *insn, int *bytes);
+diff --git a/arch/x86/kernel/sev-shared.c b/arch/x86/kernel/sev-shared.c
+index d769f80d0264..1bffc2205480 100644
+--- a/arch/x86/kernel/sev-shared.c
++++ b/arch/x86/kernel/sev-shared.c
+@@ -1171,6 +1171,9 @@ static enum es_result vc_handle_mmio(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
+ 	if (mmio == INSN_MMIO_DECODE_FAILED)
+ 		return ES_DECODE_FAILED;
  
- #include "process.h"
- 
-@@ -836,6 +837,13 @@ void __noreturn stop_this_cpu(void *dummy)
- 	cpumask_clear_cpu(cpu, &cpus_stop_mask);
- 
- 	for (;;) {
-+		/*
-+		 * SEV-ES guests need a special stop routine to support
-+		 * kexec. Try this first, if it fails the function will
-+		 * return and native_halt() is used.
-+		 */
-+		sev_es_stop_this_cpu();
++	if (mmio == INSN_MMIO_IGNORE)
++		return ES_OK;
 +
- 		/*
- 		 * Use native_halt() so that memory contents don't change
- 		 * (stack usage and variables) after possibly issuing the
-diff --git a/arch/x86/kernel/sev.c b/arch/x86/kernel/sev.c
-index 4c235e310487..17e4263cc7d7 100644
---- a/arch/x86/kernel/sev.c
-+++ b/arch/x86/kernel/sev.c
-@@ -1357,7 +1357,6 @@ void setup_ghcb(void)
- 		snp_register_ghcb_early(__pa(&boot_ghcb_page));
- }
- 
--#ifdef CONFIG_HOTPLUG_CPU
- void __noreturn sev_jumptable_ap_park(void)
- {
- 	local_irq_disable();
-@@ -1390,6 +1389,20 @@ void __noreturn sev_jumptable_ap_park(void)
- }
- STACK_FRAME_NON_STANDARD(sev_jumptable_ap_park);
- 
-+void sev_es_stop_this_cpu(void)
-+{
-+	if (!(cc_vendor == CC_VENDOR_AMD) ||
-+	    !cc_platform_has(CC_ATTR_GUEST_STATE_ENCRYPT))
-+		return;
-+
-+	/* Only park in the AP jump table when the code has been installed */
-+	if (!sev_ap_jumptable_blob_installed)
-+		return;
-+
-+	sev_jumptable_ap_park();
-+}
-+
-+#ifdef CONFIG_HOTPLUG_CPU
- static void sev_es_ap_hlt_loop(void)
- {
- 	struct ghcb_state state;
+ 	if (mmio != INSN_MMIO_WRITE_IMM && mmio != INSN_MMIO_MOVS) {
+ 		reg_data = insn_get_modrm_reg_ptr(insn, ctxt->regs);
+ 		if (!reg_data)
+diff --git a/arch/x86/lib/insn-eval-shared.c b/arch/x86/lib/insn-eval-shared.c
+index 02acdc2921ff..27fd347d84ae 100644
+--- a/arch/x86/lib/insn-eval-shared.c
++++ b/arch/x86/lib/insn-eval-shared.c
+@@ -906,6 +906,13 @@ enum insn_mmio_type insn_decode_mmio(struct insn *insn, int *bytes)
+ 				*bytes = 2;
+ 			type = INSN_MMIO_READ_SIGN_EXTEND;
+ 			break;
++		case 0xae: /* CLFLUSH */
++			/*
++			 * Ignore CLFLUSHes - those go to emulated MMIO anyway and the
++			 * hypervisor is responsible for cache management.
++			 */
++			type = INSN_MMIO_IGNORE;
++			break;
+ 		}
+ 		break;
+ 	}
 -- 
 2.34.1
 
