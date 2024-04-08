@@ -1,209 +1,192 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00A7029CE8
-	for <virtualization@lists.linux.dev>; Mon,  8 Apr 2024 08:03:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D93396CDDC
+	for <virtualization@lists.linux-foundation.org>; Mon,  8 Apr 2024 12:40:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712563384; cv=none; b=syXz4JapBZQUhLhhnbpXkusn1YM3yVDqGEjEe5bJNiw37OwA8ZkeDOqIDj8UVCYjqdIgBUmM7rDjRsl3MfalpDtQL0dccMCF8oZahbW1FTyGolhXaKAsP5TRTgHd8jmFiLBWkcU7HZaLxq61vu4nfTdoCTUEnWYCqiv/ldvZDFo=
+	t=1712580008; cv=none; b=N7qha74OGIEPVVND3VDIpp+qDikPUStrEGFsw8aO6+prcicY7DLzieaQtggOkcQgNdaKvPk49KDAsKUqQHo+RStAnq+OgWYhmDoj/093TiCNwxwLrAOjG5e0aRHc2T6boT8uJf0Cr2KkXzqizH+uNMbIRtJKQIYWby/YA60mJYk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712563384; c=relaxed/simple;
-	bh=iSQnLApd2E7/mWWPFFDprgT6eyI6Xo4+BLRHeBY2BEk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=eV7FNUV8JqE6NlVLrHOypnfhUl3sdMSGwPuDdvxZlyWR13vzDV2XYljKrmMXh3tSbIPVTjDKcof16MzrrYs13UWOypvdBzKtNKcwOZ2cak/qtTnxn+Hm1lC+DbMUGF0apu+kVM7s/qlRGe2+ltSOuxWDBAN2bDZC4E+TSEzDbAY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WByTyOMB; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1712580008; c=relaxed/simple;
+	bh=fxPXw2p77yhgVxO+9PcInO2jf4CRcklB5uKFPixrm8U=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=taFIpiFUD95gTMVouSeS0qExVp4XJ9+lwMXETviA6ri6SA9ZQsPDlMfz+2vD4I59DovdQgJ5N3yITtHzG8N+Fu9wqsFqNkC2m4MHTOASUKxaOKlUPk/DRs+e5Ma+cCgIDuZBYyc5iAvrhCvi+mxLp210hHF8AzVyvACdFTxL5I4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ICPX0NBP; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WByTyOMB"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ICPX0NBP"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 9306081799
+	for <virtualization@lists.linux-foundation.org>; Mon,  8 Apr 2024 12:40:06 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 920fLnkJ73Bz for <virtualization@lists.linux-foundation.org>;
+ Mon,  8 Apr 2024 12:40:06 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org A8457817A2
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A8457817A2
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ICPX0NBP
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id A8457817A2
+	for <virtualization@lists.linux-foundation.org>; Mon,  8 Apr 2024 12:40:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1712563382;
+	s=mimecast20190719; t=1712580003;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=q6E8GItKx7EN132AXTarzFdSpYHF7NOPdh1F9V4NL34=;
-	b=WByTyOMB/Deey0oVe1bkhfK2R1cIuDq61Y8L3e9aioJmFfSXqJxOuXrXCQ09BvssV/82QJ
-	3+bbV7tX2demzZUsBoMM0oQTedY4Sh3I6A5nnrei3ELcoPL1u4LvaoEv7t4KIwyc4q8lQF
-	BGcGgTZ9XiTt4oCVfnxLvK/xXlxokYQ=
-Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
- [209.85.208.200]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=Ae2COtjajtOOtS6X4ygU+qeHK/f9eu0OjppudYN/LXQ=;
+	b=ICPX0NBPIWiSzHv/qAZo0YcA8QGYQM63evZiJLFredajKRrV0BQkvoC549+haRafGyFbXw
+	4WmmFotLtu+SXRFFxoXJZ8Gd34iKQooRkXhFngPmBdRCgtZDBPri/dBWW7B+al21NlazXQ
+	S1+pEgv1ZyJ0uCTHeKNml9SnMMwdvbA=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-594-pU_S3wz3MOKvo_XlKPu-Pw-1; Mon, 08 Apr 2024 04:03:00 -0400
-X-MC-Unique: pU_S3wz3MOKvo_XlKPu-Pw-1
-Received: by mail-lj1-f200.google.com with SMTP id 38308e7fff4ca-2d86adb107eso17264371fa.3
-        for <virtualization@lists.linux.dev>; Mon, 08 Apr 2024 01:03:00 -0700 (PDT)
+ us-mta-108-hf6pT_ixNqK4DBHABKLglw-1; Mon, 08 Apr 2024 08:40:01 -0400
+X-MC-Unique: hf6pT_ixNqK4DBHABKLglw-1
+Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-a462e4d8c44so215013666b.1
+        for <virtualization@lists.linux-foundation.org>; Mon, 08 Apr 2024 05:40:01 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712563379; x=1713168179;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=q6E8GItKx7EN132AXTarzFdSpYHF7NOPdh1F9V4NL34=;
-        b=DxWCFgQY6U2yCWjni4ocoYWoq3MsLkh5DMtCRMeBsr3z3vCSACfIv8cDRG/Mc+rOBm
-         8Xyf6Zu5qZFKnlU8253Vam+u8c8qsenf7hsDdvrew8YxsN5Re7nVc0Sbg1IYaxZhUynJ
-         RpBHmDtxiIuTY4zkaUr6ioomPtR+UpZFpTtWooQq1aThy9JHJFwwka//xkCGRwse6G1x
-         s14blIrWnn+gIdK9+T85mW2wrFpSEzuN9Yi8kbfVu9pRxwxkmS+iQYJ3wZC6wfggXTxS
-         BE0QH6xMY7MLSOOPvMc/4SQSJZL7txyiFgrg3ne+tHP8w4hISgRCcwVlG37gkOz6ZyLv
-         Gjpw==
-X-Forwarded-Encrypted: i=1; AJvYcCVltVAbIry+VOrsGWWJ5WGK0ZYQ3zin3w9rk0RGgE3YAKYI9gGFDQ1qzpYnG5BQWG6VwNN8PJUqhAB2Z5sBKURmgbPxF4pMUakkRdCBei0=
-X-Gm-Message-State: AOJu0Yz32MUMfuMo6VOGHAKRcdB/WfPh122lIDVx/cFGS0uUV6Fd0eC7
-	A/wgIPAh9DQeRO7YZ0TFEgptw25OG2sJ7iBqRtH7UKlGbgpQCSMKl+/cWA0ePdXfChEl4hvi9VK
-	LwW/wQOe3GuAaAzba0kutIy2GXU0T451ZjvEFVKZ2uZpMkYqanu877wMnEPHXDq31J1TUuDSy
-X-Received: by 2002:a05:651c:b8c:b0:2d6:f96c:d84d with SMTP id bg12-20020a05651c0b8c00b002d6f96cd84dmr4740160ljb.16.1712563378667;
-        Mon, 08 Apr 2024 01:02:58 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHVOm56V+ijcwMGNqnuruxXGa0aHHJooBtndGYpq5tnW2yEqsqu6pSDMjmDG5tl0KD6S7bkBw==
-X-Received: by 2002:a05:651c:b8c:b0:2d6:f96c:d84d with SMTP id bg12-20020a05651c0b8c00b002d6f96cd84dmr4740153ljb.16.1712563378109;
-        Mon, 08 Apr 2024 01:02:58 -0700 (PDT)
-Received: from redhat.com ([2.52.152.188])
-        by smtp.gmail.com with ESMTPSA id q8-20020a05600c46c800b004146e58cc35sm16061938wmo.46.2024.04.08.01.02.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Apr 2024 01:02:57 -0700 (PDT)
-Date: Mon, 8 Apr 2024 04:02:54 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: "gavin.liu" <gavin.liu@jaguarmicro.com>
-Cc: jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
-	virtualization@lists.linux.dev, angus.chen@jaguarmicro.com,
-	yuxue.liu@jaguarmicro.com
-Subject: Re: [PATCH v2] vp_vdpa: fix the method of calculating vectors
-Message-ID: <20240408035346-mutt-send-email-mst@kernel.org>
-References: <20240318130008.1928-1-gavin.liu@jaguarmicro.com>
+        d=1e100.net; s=20230601; t=1712580001; x=1713184801;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Ae2COtjajtOOtS6X4ygU+qeHK/f9eu0OjppudYN/LXQ=;
+        b=NVlH5y9XrPA5ItjkVS0/LMAOVT+7rPq+2jrIek/uWsGT6+cW4ulLYXF3GriTIQ7uu2
+         4HCWH8bnQxq6t/ZTOUZ3MAp24sA7IIef8iQbVGR4Nj9nDQzHuqx0yzYrRWVkneONiPQT
+         jXMSUu+HnF45MgLhO7SyRuKHUu1zhl6joI81/QbuPmh/D+vTbxjrnFX9K21f4Puuv7g+
+         RdDFdw5peHOjrxPhc1OqDs7bG/ovXpPPOqqbFzM6vpRsbkWNHR3LGel6cy16ornIOHbA
+         b4B9bDlDZ3nFZGSwRAfVF37VUt9jPKv6KQEltBTWuflDumaoNEhFVCUrRLx37fWT4U5L
+         BnkA==
+X-Forwarded-Encrypted: i=1; AJvYcCWLC8xJbLHXzj7FUsnyULBx6XwBUn7c+wqq1g6f1pFtuFjxXzSBsH2AYsO85WxGBj/rMemBMLDBGiomwsBgKCFVyxNUzXmnj8KLB9BpCPz4fEHjAEOTbR/3dA==
+X-Gm-Message-State: AOJu0Yw0EH0iZW94bGkl4ctBORu/Y7CHFqRKOw0Ft7MBJG8/E1rw+7oX
+	d2C8FTdsoU5sw3koneDBLDl8RV8nSX4s/fO6tcPLHjfsOinbeTgP2gvbggBjAf9VYf49Da18N6S
+	ktZF8FWTprixGPCfn/fGwfP5g2Cpzwmn/gp71tEVzvo5r3OeLLhZaYk+329Uzl05tY3Kze9ssRx
+	7pqUTKQpFpfdr7DV/optWrGzjslU+0knrAlonNAlPWCbJ0QRD7teuE2Q==
+X-Received: by 2002:a17:907:9444:b0:a51:d70f:b5f2 with SMTP id dl4-20020a170907944400b00a51d70fb5f2mr2084583ejc.20.1712580000862;
+        Mon, 08 Apr 2024 05:40:00 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFg3MkKq/gJZBjDBVnAKe4jU7q9XkeS1BfnnkBObgzhdnwCFitOZa/DmVr4r6jMIn9yjc43uLBh88PkDhgd3Mk=
+X-Received: by 2002:a17:907:9444:b0:a51:d70f:b5f2 with SMTP id
+ dl4-20020a170907944400b00a51d70fb5f2mr2084571ejc.20.1712580000551; Mon, 08
+ Apr 2024 05:40:00 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240318130008.1928-1-gavin.liu@jaguarmicro.com>
+References: <20240404055635.316259-1-lulu@redhat.com> <20240408033804-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20240408033804-mutt-send-email-mst@kernel.org>
+From: Cindy Lu <lulu@redhat.com>
+Date: Mon, 8 Apr 2024 20:39:21 +0800
+Message-ID: <CACLfguUL=Kteorvyn=wRUWFJFvhvgRyp+V7GNBp2R33hK1vnSw@mail.gmail.com>
+Subject: Re: [PATCH v3] Documentation: Add reconnect process for VDUSE
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: jasowang@redhat.com, kvm@vger.kernel.org, 
+	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Mar 18, 2024 at 09:00:08PM +0800, gavin.liu wrote:
-> From: Yuxue Liu <yuxue.liu@jaguarmicro.com>
-> 
-> When there is a ctlq and it doesn't require interrupt
-> callbacks,the original method of calculating vectors
-> wastes hardware MSI or MSI-X resources as well as system
-> IRQ resources. Referencing the per_vq_vectors mode in the
-> vp_find_vqs_msix function, calculate the required number
-> of vectors based on whether the callback is set.
-> 
-> Signed-off-by: Yuxue Liu <yuxue.liu@jaguarmicro.com>
+On Mon, Apr 8, 2024 at 3:40=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com> =
+wrote:
+>
+> On Thu, Apr 04, 2024 at 01:56:31PM +0800, Cindy Lu wrote:
+> > Add a document explaining the reconnect process, including what the
+> > Userspace App needs to do and how it works with the kernel.
+> >
+> > Signed-off-by: Cindy Lu <lulu@redhat.com>
+> > ---
+> >  Documentation/userspace-api/vduse.rst | 41 +++++++++++++++++++++++++++
+> >  1 file changed, 41 insertions(+)
+> >
+> > diff --git a/Documentation/userspace-api/vduse.rst b/Documentation/user=
+space-api/vduse.rst
+> > index bdb880e01132..7faa83462e78 100644
+> > --- a/Documentation/userspace-api/vduse.rst
+> > +++ b/Documentation/userspace-api/vduse.rst
+> > @@ -231,3 +231,44 @@ able to start the dataplane processing as follows:
+> >     after the used ring is filled.
+> >
+> >  For more details on the uAPI, please see include/uapi/linux/vduse.h.
+> > +
+> > +HOW VDUSE devices reconnection works
+> > +------------------------------------
+> > +1. What is reconnection?
+> > +
+> > +   When the userspace application loads, it should establish a connect=
+ion
+> > +   to the vduse kernel device. Sometimes,the userspace application exi=
+sts,
+> > +   and we want to support its restart and connect to the kernel device=
+ again
+> > +
+> > +2. How can I support reconnection in a userspace application?
+> > +
+> > +2.1 During initialization, the userspace application should first veri=
+fy the
+> > +    existence of the device "/dev/vduse/vduse_name".
+> > +    If it doesn't exist, it means this is the first-time for connectio=
+n. goto step 2.2
+> > +    If it exists, it means this is a reconnection, and we should goto =
+step 2.3
+> > +
+> > +2.2 Create a new VDUSE instance with ioctl(VDUSE_CREATE_DEV) on
+> > +    /dev/vduse/control.
+> > +    When ioctl(VDUSE_CREATE_DEV) is called, kernel allocates memory fo=
+r
+> > +    the reconnect information. The total memory size is PAGE_SIZE*vq_m=
+umber.
+>
+> Confused. Where is that allocation, in code?
+>
+> Thanks!
+>
+this should allocated in function vduse_create_dev(), I will rewrite
+this part  to make it more clearer
+will send a new version soon
+Thanks
+cindy
 
-Overall, the patch makes sense. But you need to clean it up.
-Also, given previous versions were broken,
-pls document which configurations you tested, and how.
-
-> ---
-> 
-> V1 -> V2: fix when allocating IRQs, scan all queues.
-> V1: https://lore.kernel.org/all/20240318030121.1873-1-gavin.liu@jaguarmicro.com/
-> ---
->  drivers/vdpa/virtio_pci/vp_vdpa.c | 24 ++++++++++++++++++------
->  1 file changed, 18 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/vdpa/virtio_pci/vp_vdpa.c b/drivers/vdpa/virtio_pci/vp_vdpa.c
-> index 281287fae89f..87329d4358ce 100644
-> --- a/drivers/vdpa/virtio_pci/vp_vdpa.c
-> +++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
-> @@ -160,8 +160,15 @@ static int vp_vdpa_request_irq(struct vp_vdpa *vp_vdpa)
->  	struct pci_dev *pdev = mdev->pci_dev;
->  	int i, ret, irq;
->  	int queues = vp_vdpa->queues;
-> -	int vectors = queues + 1;
-> +	int allocated_vectors, vectors = 0;
-> +	u16 msix_vec;
-
-The names are messed up.
-What we allocate should be called allocated_vectors.
-So rename vectors -> allocated_vectors.
-The currect vector used for each vq can be called e.g. msix_vec.
-And it is pointless to make it u16 here IMHO - just int will do.
-
->  
-> +	for (i = 0; i < queues; i++) {
-> +		if (vp_vdpa->vring[i].cb.callback != NULL)
-
-
-I don't like != NULL style - just
-	if (vp_vdpa->vring[i].cb.callback)
-will do.
-
-> +			vectors++;
-> +	}
-> +	/*By default, config interrupts request a single vector*/
-
-bad coding style
-and what does "by default" mean here?
-
-> +	vectors = vectors + 1;
->  	ret = pci_alloc_irq_vectors(pdev, vectors, vectors, PCI_IRQ_MSIX);
->  	if (ret != vectors) {
->  		dev_err(&pdev->dev,
-> @@ -169,13 +176,17 @@ static int vp_vdpa_request_irq(struct vp_vdpa *vp_vdpa)
->  			vectors, ret);
->  		return ret;
->  	}
-> -
-
-why?
-
->  	vp_vdpa->vectors = vectors;
->  
->  	for (i = 0; i < queues; i++) {
-> +		if (vp_vdpa->vring[i].cb.callback == NULL)
-> +			continue;
-> +		else
-> +			msix_vec = allocated_vectors++;
-
-So just put replace allocated_vectors with msix_vec
-incrementing it at the end of the loop,
-and you will not need the allocated_vectors variable.
-
-
-
-
-> +
-
-Same here.
-	if (!vp_vdpa->vring[i].cb.callback)
-
-Also there's no need for else after continue.
-
-
->  		snprintf(vp_vdpa->vring[i].msix_name, VP_VDPA_NAME_SIZE,
->  			"vp-vdpa[%s]-%d\n", pci_name(pdev), i);
-> -		irq = pci_irq_vector(pdev, i);
-> +		irq = pci_irq_vector(pdev, msix_vec);
->  		ret = devm_request_irq(&pdev->dev, irq,
->  				       vp_vdpa_vq_handler,
->  				       0, vp_vdpa->vring[i].msix_name,
-> @@ -185,13 +196,14 @@ static int vp_vdpa_request_irq(struct vp_vdpa *vp_vdpa)
->  				"vp_vdpa: fail to request irq for vq %d\n", i);
->  			goto err;
->  		}
-> -		vp_modern_queue_vector(mdev, i, i);
-> +		vp_modern_queue_vector(mdev, i, msix_vec);
->  		vp_vdpa->vring[i].irq = irq;
->  	}
->  
-> +	msix_vec = allocated_vectors;
->  	snprintf(vp_vdpa->msix_name, VP_VDPA_NAME_SIZE, "vp-vdpa[%s]-config\n",
->  		 pci_name(pdev));
-> -	irq = pci_irq_vector(pdev, queues);
-> +	irq = pci_irq_vector(pdev, msix_vec);
->  	ret = devm_request_irq(&pdev->dev, irq,	vp_vdpa_config_handler, 0,
->  			       vp_vdpa->msix_name, vp_vdpa);
->  	if (ret) {
-> @@ -199,7 +211,7 @@ static int vp_vdpa_request_irq(struct vp_vdpa *vp_vdpa)
->  			"vp_vdpa: fail to request irq for vq %d\n", i);
->  			goto err;
->  	}
-> -	vp_modern_config_vector(mdev, queues);
-> +	vp_modern_config_vector(mdev, msix_vec);
->  	vp_vdpa->config_irq = irq;
->  
->  	return 0;
-> -- 
-> 2.43.0
+> > +2.3 Check if the information is suitable for reconnect
+> > +    If this is reconnection :
+> > +    Before attempting to reconnect, The userspace application needs to=
+ use the
+> > +    ioctl(VDUSE_DEV_GET_CONFIG, VDUSE_DEV_GET_STATUS, VDUSE_DEV_GET_FE=
+ATURES...)
+> > +    to get the information from kernel.
+> > +    Please review the information and confirm if it is suitable to rec=
+onnect.
+> > +
+> > +2.4 Userspace application needs to mmap the memory to userspace
+> > +    The userspace application requires mapping one page for every vq. =
+These pages
+> > +    should be used to save vq-related information during system runnin=
+g. Additionally,
+> > +    the application must define its own structure to store information=
+ for reconnection.
+> > +
+> > +2.5 Completed the initialization and running the application.
+> > +    While the application is running, it is important to store relevan=
+t information
+> > +    about reconnections in mapped pages. When calling the ioctl VDUSE_=
+VQ_GET_INFO to
+> > +    get vq information, it's necessary to check whether it's a reconne=
+ction. If it is
+> > +    a reconnection, the vq-related information must be get from the ma=
+pped pages.
+> > +
+> > +2.6 When the Userspace application exits, it is necessary to unmap all=
+ the
+> > +    pages for reconnection
+> > --
+> > 2.43.0
+>
 
