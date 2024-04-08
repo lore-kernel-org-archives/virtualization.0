@@ -1,111 +1,239 @@
-Received: from mail-ej1-f46.google.com (mail-ej1-f46.google.com [209.85.218.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 032E4290E
-	for <virtualization@lists.linux.dev>; Mon,  8 Apr 2024 06:35:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA3CA224C9
+	for <virtualization@lists.linux.dev>; Mon,  8 Apr 2024 06:37:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712558159; cv=none; b=plulsJWJhV4u6UkLlZLbb4Uz4ZAP7BjVlZgrx4ZXhzaFyRh9Mt5CVDTC4GXxq/kpEXPZJ1fL8AVCBMVDEH/g9G+9r1w0gLjE/jEI9H7Dw0v80ar7xq/0OaUXY6oMTlvgKizfU8sVV2pan4OPVLjce8W2i/kutUHpAAjwEbB1BIg=
+	t=1712558277; cv=none; b=hpEEKv1gSDnJl5vWsjYxA9FinnJtrhqP4HQY2SaK0l32DYJkR+zja8mSy6vlv7JvqWEvhMnAiskh4BkpnsLk+0LQo5/GmhwkwFvU3pto8biR7rGnRiQbtWM7+SxJQYiN+CKFHDopAhRMsyFt0+aSsxaIUqtVK66PA1ZBaLE7ArU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712558159; c=relaxed/simple;
-	bh=GB58bQle6/TE9XhpcBSQjj6cikX2bR8e+VuUWv1u+SE=;
+	s=arc-20240116; t=1712558277; c=relaxed/simple;
+	bh=TfJdkB5yl6go/ImD3Jt1aZ7iRc8UE3YZ3XaVQ0OB+L0=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=aLcWx+MfAlOgzqSnrxC+oq9rImNBtwFtXf6VdJp7CSBhNSwaZaktcGO1scRdtTTmiUJVC+GKRNZ9f+HB/udznEG9KCaLaxG3SI/AbpDachxeyzd/0F5DeIwZhFNvQeea/rusU40Hla311AiHggN8GvQH95J6up2DiC59tj8xcJ8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gooddata.com; spf=pass smtp.mailfrom=gooddata.com; dkim=pass (1024-bit key) header.d=gooddata.com header.i=@gooddata.com header.b=R2VjOaGH; arc=none smtp.client-ip=209.85.218.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gooddata.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gooddata.com
+	 To:Cc:Content-Type; b=jBcYNEUsA/vzbVatinXbTa8PtPIyhDwt+RtJ2MWkTkjfDdOA4CZXP1V2xFl1spB443dcE6DkG0M9Eb0VOGUyu8qqvJsZBtRNYtxUTFiA5Qq0O6ZWYFEEJvsVTIHhiQGmOIXDKbN8z8h8+i9zsnsjPSWuWBkNR7ic5KcWWk+GU5k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dnuJ+uVz; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=gooddata.com header.i=@gooddata.com header.b="R2VjOaGH"
-Received: by mail-ej1-f46.google.com with SMTP id a640c23a62f3a-a51d05c50b2so98543366b.0
-        for <virtualization@lists.linux.dev>; Sun, 07 Apr 2024 23:35:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gooddata.com; s=google; t=1712558156; x=1713162956; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=GB58bQle6/TE9XhpcBSQjj6cikX2bR8e+VuUWv1u+SE=;
-        b=R2VjOaGHWtymMHm769s5N6VYFGm0I33tjhad+riluWWBj7M1FbDXAzNL/hmdY8KurX
-         WXHztgV54BmlfTriMMCEXUvSA0Mc/5nK1H6jM7tvyngpBhJByqHSQLPIGIrW+TAG1Lks
-         0Ksa9PNL/ERDzi8bgIqUg9DekAyudhOkuR0F0=
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dnuJ+uVz"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1712558274;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=TfJdkB5yl6go/ImD3Jt1aZ7iRc8UE3YZ3XaVQ0OB+L0=;
+	b=dnuJ+uVzB2cJCX0Xko9nfDKzZLH3/0SbZ6G7/HFmrOaSeWsDiBarwczywM8QnwJZu62DFr
+	B5/GkkGeCfwZ4bIRT490UKxcj6fQmcplA5pmuzCngJXfP5N3p4+nDSsMmFFM8COMTImwRG
+	UDI7hEl5KvIHIDQmxsFjoSiEgbr9gVc=
+Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com
+ [209.85.215.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-46-U8QWmZzUNjqiqqnViXggIQ-1; Mon, 08 Apr 2024 02:37:53 -0400
+X-MC-Unique: U8QWmZzUNjqiqqnViXggIQ-1
+Received: by mail-pg1-f198.google.com with SMTP id 41be03b00d2f7-5cfda2f4716so2285366a12.3
+        for <virtualization@lists.linux.dev>; Sun, 07 Apr 2024 23:37:52 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712558156; x=1713162956;
+        d=1e100.net; s=20230601; t=1712558272; x=1713163072;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=GB58bQle6/TE9XhpcBSQjj6cikX2bR8e+VuUWv1u+SE=;
-        b=fRUe9MtZVyJQwHoKTiN9NHXJs7ji0BCbGNjvrkmlGAFW0Fc0m85aUecMal1Mmsj7fX
-         ledqpWGBUD9eI2iaF9U+ByWnv9DHkGqQKWURr02y7HH0GK1YYY80fUSLHDwnUv58OnWL
-         ddCbeEy2COvC3Yy9zXAh6NyXpx3Y2GglDoC8unQNaCNdU32ikqvMBHl6LQ28MQ+9tHFy
-         WfILVck/CSCkUwzpZyhlpKfbEqDZb9xklJfQedtL+YN3JWOGwSjMYa7SU93WsBfM+JUA
-         f+ft+FPQcaiftww+6fS5E0j/1GSPJuqcD+Y5ipVR4EEcTfsh9467miw1qw2BjoVDp+F7
-         21Pg==
-X-Forwarded-Encrypted: i=1; AJvYcCXMn03ddYhphEZ4mQB8uBEbcULCVs0a7K9RCLWXI+5lpB4RP9vtcnAupfmj8FcBZR/wkKZPZhU41hJfAobNuu2we9s/oW8kGLdKXRIBWFg=
-X-Gm-Message-State: AOJu0YxqyCsGlrI/tSMl1MfbdGLNptgY+kEQm0s7WPV6Cd5CCdHxpYOc
-	zBXZvwT356iXP3sxZXPLOx5x43WNn7CvvP1IbwLtfH8AMj+sF5tYhlo3x9j9TlHeKPcRbgYk4L0
-	iRKjVk8nh6ITSGCW7E52lQxQND8T4oRhfRzJE
-X-Google-Smtp-Source: AGHT+IHgOG1QFRsazaJJTQAM1OpfXlCUvvdH9XD6u9F4YJ8KIuAm8siPgnu/FFrnysbhWv7Ny+9JXK+VCjeK9WS7Rgs=
-X-Received: by 2002:a17:906:565a:b0:a51:9737:f23d with SMTP id
- v26-20020a170906565a00b00a519737f23dmr4595803ejr.70.1712558156369; Sun, 07
- Apr 2024 23:35:56 -0700 (PDT)
+        bh=TfJdkB5yl6go/ImD3Jt1aZ7iRc8UE3YZ3XaVQ0OB+L0=;
+        b=a/iBqy2Nl5amHvV5UUwUrxNvS8EH8e4j8Cx2FOInoFkWfk6Q2f9U+f1ug/JhBSbkDY
+         p1JHSAVdYAAxv3MS1YQcppJKOaCK4jEEwv78Z1/CDPrUnK/K6eZ+3G3CqIr+oecHFaom
+         zogiZAZrqST8vl38Jb4N276Xo/tjREem1OP6ag4cm7PHRbw68CpQDVJr/nGVKUIjIlkn
+         mwfGAUzLaPKdGa3r4RlGYfgQRz2Z6ePiIqbkAWP9MVLqyI+7P7mF1Jt1JwoyoCCwzTac
+         7lOnFQk4syVWiD6X51bNr3uT0UMw2HH4Ek3TOIC1cKA5KvM9rSTq0qZ1FNSgnpWMH3su
+         UqHA==
+X-Forwarded-Encrypted: i=1; AJvYcCVtbka9RK73NUMJu5LlCSGfteAE0/O1rmYw1Tqt/oxArrOlK/C3tFF6/ptVBj2qoc0ewl4k5VWAgshnXaAWp8cTDbeLXQ7bT8SFbPYCoss=
+X-Gm-Message-State: AOJu0YzqDJzJNKNPB+Ky3ObA8OSPoe65FA+coDi4INgQaBqNn8YdKATz
+	tncBo3vEF8rYx2/Cnk3HSRi3LkW0JpCwgi7jw9eeKNcEpXv3iHyn2p4AGWAicfxXBL/nGgEWEzq
+	vgmwr10CrfG65lQ19GnPu0u6grLTTnYDnJCb06WiHu+/8oNSu1RN2mg1hD0EDUcHTQU0sK9Hegn
+	YrBNtjxttdp112rP1vkz6Ig4W1nUo/SugTEFH3D7k=
+X-Received: by 2002:a05:6a20:c90c:b0:1a3:ae18:f1e4 with SMTP id gx12-20020a056a20c90c00b001a3ae18f1e4mr6736144pzb.34.1712558272043;
+        Sun, 07 Apr 2024 23:37:52 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEE++t+kDRwQTjzBUO1mfVfERd3l7rNbc0xIi9zTeBPMF1iq2N0XXvk4NSGNqvS3RADG9LQmO1bzc88Z/Zq0VA=
+X-Received: by 2002:a05:6a20:c90c:b0:1a3:ae18:f1e4 with SMTP id
+ gx12-20020a056a20c90c00b001a3ae18f1e4mr6736131pzb.34.1712558271762; Sun, 07
+ Apr 2024 23:37:51 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <CA+9S74hbTMxckB=HgRiqL6b8ChZMQfJ6-K9y_GQ0ZDiWkev_vA@mail.gmail.com>
- <20240319131207.GB1096131@fedora> <CA+9S74jMBbgrxaH2Nit50uDQsHES+e+VHnOXkxnq2TrUFtAQRA@mail.gmail.com>
- <CACGkMEvX2R+wKcH5V45Yd6CkgGhADVbpvfmWsHducN2zCS=OKw@mail.gmail.com>
- <CA+9S74g5fR=hBxWk1U2TyvW1uPmU3XgJnjw4Owov8LNwLiiOZw@mail.gmail.com>
- <CACGkMEt4MbyDgdqDGUqQ+0gV-1kmp6CWASDgwMpZnRU8dfPd2Q@mail.gmail.com>
- <CA+9S74hUt_aZCrgN3Yx9Y2OZtwHNan7gmbBa1TzBafW6=YLULQ@mail.gmail.com>
- <CA+9S74ia-vUag2QMo6zFL7r+wZyOZVmcpe317RdMbK-rpomn+Q@mail.gmail.com>
- <CA+9S74hs_1Ft9iyXOPU_vF_EFKuoG8LjDpSna0QSPMFnMywd_g@mail.gmail.com>
- <CACGkMEvHiAN7X_QBgihWX6zzEUOxhrV2Nqg1arw1sfYy2A5K0g@mail.gmail.com>
- <CAK8fFZ6P6e+6V6NUkc-H5SdkXqgHdZ-GEMEPp4hKZSJVaGbBYQ@mail.gmail.com>
- <20240404063737.7b6e3843@kernel.org> <CAK8fFZ5LHFMPAOFCKu-vr7JQJHKo9jshrgvCCP50d596nFiXUQ@mail.gmail.com>
-In-Reply-To: <CAK8fFZ5LHFMPAOFCKu-vr7JQJHKo9jshrgvCCP50d596nFiXUQ@mail.gmail.com>
-From: Jaroslav Pulchart <jaroslav.pulchart@gooddata.com>
-Date: Mon, 8 Apr 2024 08:35:30 +0200
-Message-ID: <CAK8fFZ74tj=u5HKfpFue1ejy_9V3xWdf-ekC0gLt8BmJs7Y5ZQ@mail.gmail.com>
-Subject: Re: REGRESSION: RIP: 0010:skb_release_data+0xb8/0x1e0 in vhost/tun
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: Jason Wang <jasowang@redhat.com>, Igor Raits <igor@gooddata.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>
+References: <20240320101912.28210-1-w_angrong@163.com> <20240321025920-mutt-send-email-mst@kernel.org>
+ <CACGkMEuHRf0ZfBiAYxyNHB3pxuzz=QCWt5VyHPLz-+-+LM=+bg@mail.gmail.com>
+ <CACGkMEuM9bdvgH7_v6F=HT-x10+0tCzG56iuU05guwqNN1+qKQ@mail.gmail.com>
+ <20240329051334-mutt-send-email-mst@kernel.org> <CACGkMEvdw4Yf2B1QGed0W7wLhOHU9+Vo_Z3h=4Yr9ReBfvuh=g@mail.gmail.com>
+ <17068236.8b8.18ea1d8622f.Coremail.w_angrong@163.com>
+In-Reply-To: <17068236.8b8.18ea1d8622f.Coremail.w_angrong@163.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 8 Apr 2024 14:37:40 +0800
+Message-ID: <CACGkMEtYPwhkDJFxiZZHUtVy3NTY_f3DWG7K_5ZJ7Yknu_y8cw@mail.gmail.com>
+Subject: Re: Re: [PATCH v3] vhost/vdpa: Add MSI translation tables to iommu
+ for software-managed MSI
+To: tab <w_angrong@163.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Cindy Lu <lulu@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-=C4=8Dt 4. 4. 2024 v 20:17 odes=C3=ADlatel Jaroslav Pulchart
-<jaroslav.pulchart@gooddata.com> napsal:
+On Wed, Apr 3, 2024 at 10:47=E2=80=AFAM tab <w_angrong@163.com> wrote:
 >
-> =C4=8Dt 4. 4. 2024 v 15:37 odes=C3=ADlatel Jakub Kicinski <kuba@kernel.or=
-g> napsal:
+> > >
+> > > On Fri, Mar 29, 2024 at 11:55:50AM +0800, Jason Wang wrote:
+> > > > On Wed, Mar 27, 2024 at 5:08=E2=80=AFPM Jason Wang <jasowang@redhat=
+.com> wrote:
+> > > > >
+> > > > > On Thu, Mar 21, 2024 at 3:00=E2=80=AFPM Michael S. Tsirkin <mst@r=
+edhat.com> wrote:
+> > > > > >
+> > > > > > On Wed, Mar 20, 2024 at 06:19:12PM +0800, Wang Rong wrote:
+> > > > > > > From: Rong Wang <w_angrong@163.com>
+> > > > > > >
+> > > > > > > Once enable iommu domain for one device, the MSI
+> > > > > > > translation tables have to be there for software-managed MSI.
+> > > > > > > Otherwise, platform with software-managed MSI without an
+> > > > > > > irq bypass function, can not get a correct memory write event
+> > > > > > > from pcie, will not get irqs.
+> > > > > > > The solution is to obtain the MSI phy base address from
+> > > > > > > iommu reserved region, and set it to iommu MSI cookie,
+> > > > > > > then translation tables will be created while request irq.
+> > > > > > >
+> > > > > > > Change log
+> > > > > > > ----------
+> > > > > > >
+> > > > > > > v1->v2:
+> > > > > > > - add resv iotlb to avoid overlap mapping.
+> > > > > > > v2->v3:
+> > > > > > > - there is no need to export the iommu symbol anymore.
+> > > > > > >
+> > > > > > > Signed-off-by: Rong Wang <w_angrong@163.com>
+> > > > > >
+> > > > > > There's in interest to keep extending vhost iotlb -
+> > > > > > we should just switch over to iommufd which supports
+> > > > > > this already.
+> > > > >
+> > > > > IOMMUFD is good but VFIO supports this before IOMMUFD. This patch
+> > > > > makes vDPA run without a backporting of full IOMMUFD in the produ=
+ction
+> > > > > environment. I think it's worth.
+> > > > >
+> > > > > If you worry about the extension, we can just use the vhost iotlb
+> > > > > existing facility to do this.
+> > > > >
+> > > > > Thanks
+> > > >
+> > > > Btw, Wang Rong,
+> > > >
+> > > > It looks that Cindy does have the bandwidth in working for IOMMUFD =
+support.
+> > >
+> > > I think you mean she does not.
 > >
-> > On Thu, 4 Apr 2024 07:42:45 +0200 Jaroslav Pulchart wrote:
-> > > We do not have much progress
+> > Yes, you are right.
 > >
-> > Random thought - do you have KFENCE enabled?
-> > It's sufficiently low overhead to run in production and maybe it could
-> > help catch the bug? You also hit some inexplicable bug in the Intel
-> > driver, IIRC, there may be something odd going on.. (it's not all
-> > happening on a single machine, right?)
+> > Thanks
 >
-> We have KFENCE enabled.
+> I need to discuss internally, and there may be someone else will do that.
 >
-> Issue was observed at multiple servers. It is not a problem to reproduce =
-it
-> everywhere where we deploy Loki service. The trigger is: I click
-> once/twice "run query" (LogQL) button by Grafana UI. the Loki is
-> starting to load data from the minio cluster at a speed of ~2GB/s and
-> almost immediately it crashes.
->
-> The Intel ICE driver is in my suspicion as well, it will not be for
-> the first time when we are hitting some bugs there. I will try one
-> testing server where we have different NIC vendor later.
+> Thanks.
 
-I run the setup on a server with a different network card than E810, I
-used BCM57414 NetXtreme-E + driver bnxt_en. The issue is not
-reproducible there. So it looks to be connected with Intel's ice
-driver for E810 network card and introduced in 6.3.
+Ok, please let us know if you have a conclusion.
+
+Thanks
+
+>
+> >
+> > >
+> > > > Do you have the will to do that?
+> > > >
+> > > > Thanks
+> > >
+>
+>
+>
+>
+> --
+> =E5=8F=91=E8=87=AA=E6=88=91=E7=9A=84=E7=BD=91=E6=98=93=E9=82=AE=E7=AE=B1=
+=E5=B9=B3=E6=9D=BF=E9=80=82=E9=85=8D=E7=89=88
+> <br/><br/><br/>
+>
+>
+> ----- Original Message -----
+> From: "Jason Wang" <jasowang@redhat.com>
+> To: "Michael S. Tsirkin" <mst@redhat.com>
+> Cc: "Wang Rong" <w_angrong@163.com>, kvm@vger.kernel.org, virtualization@=
+lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, "Cin=
+dy Lu" <lulu@redhat.com>
+> Sent: Fri, 29 Mar 2024 18:39:54 +0800
+> Subject: Re: [PATCH v3] vhost/vdpa: Add MSI translation tables to iommu f=
+or software-managed MSI
+>
+> On Fri, Mar 29, 2024 at 5:13=E2=80=AFPM Michael S. Tsirkin <mst@redhat.co=
+m> wrote:
+> >
+> > On Fri, Mar 29, 2024 at 11:55:50AM +0800, Jason Wang wrote:
+> > > On Wed, Mar 27, 2024 at 5:08=E2=80=AFPM Jason Wang <jasowang@redhat.c=
+om> wrote:
+> > > >
+> > > > On Thu, Mar 21, 2024 at 3:00=E2=80=AFPM Michael S. Tsirkin <mst@red=
+hat.com> wrote:
+> > > > >
+> > > > > On Wed, Mar 20, 2024 at 06:19:12PM +0800, Wang Rong wrote:
+> > > > > > From: Rong Wang <w_angrong@163.com>
+> > > > > >
+> > > > > > Once enable iommu domain for one device, the MSI
+> > > > > > translation tables have to be there for software-managed MSI.
+> > > > > > Otherwise, platform with software-managed MSI without an
+> > > > > > irq bypass function, can not get a correct memory write event
+> > > > > > from pcie, will not get irqs.
+> > > > > > The solution is to obtain the MSI phy base address from
+> > > > > > iommu reserved region, and set it to iommu MSI cookie,
+> > > > > > then translation tables will be created while request irq.
+> > > > > >
+> > > > > > Change log
+> > > > > > ----------
+> > > > > >
+> > > > > > v1->v2:
+> > > > > > - add resv iotlb to avoid overlap mapping.
+> > > > > > v2->v3:
+> > > > > > - there is no need to export the iommu symbol anymore.
+> > > > > >
+> > > > > > Signed-off-by: Rong Wang <w_angrong@163.com>
+> > > > >
+> > > > > There's in interest to keep extending vhost iotlb -
+> > > > > we should just switch over to iommufd which supports
+> > > > > this already.
+> > > >
+> > > > IOMMUFD is good but VFIO supports this before IOMMUFD. This patch
+> > > > makes vDPA run without a backporting of full IOMMUFD in the product=
+ion
+> > > > environment. I think it's worth.
+> > > >
+> > > > If you worry about the extension, we can just use the vhost iotlb
+> > > > existing facility to do this.
+> > > >
+> > > > Thanks
+> > >
+> > > Btw, Wang Rong,
+> > >
+> > > It looks that Cindy does have the bandwidth in working for IOMMUFD su=
+pport.
+> >
+> > I think you mean she does not.
+>
+> Yes, you are right.
+>
+> Thanks
+>
+> >
+> > > Do you have the will to do that?
+> > >
+> > > Thanks
+> >
+
