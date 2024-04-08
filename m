@@ -1,127 +1,227 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1154E522F
-	for <virtualization@lists.linux.dev>; Mon,  8 Apr 2024 04:15:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C40B63BF
+	for <virtualization@lists.linux.dev>; Mon,  8 Apr 2024 05:02:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712549738; cv=none; b=fcHqVHFJrd6cXn42R36GIBKekplJfB05mv+/sUtcc6rBDd/yHn3RyW+1+dcnSPfCFP4T35xjH0+ZEXbd0HMQt/DWDCmFdGpcbRE8NPAgruWaNGy8SRwxeVDOFFylG68aQd+Y40OJc4Grcin2G3QG46UNL/jofjTKolqzy9CzAMU=
+	t=1712552533; cv=none; b=h70wQBGTFP6g4RAPId/hR5yfNFqo80CdbSZO+PblQ9mXp2ZRxqOvi+WTesXUNtzbv6Xw3Ivqw+ZGZb80hq9Nxi4sYzO1TXyXe2S54xP0xKkgS/csPjty7B6uLtcqSf6pg13NYSbUEwz5FbDB68YqLI9Qi6DGPzSLK7QWqa4/zGE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712549738; c=relaxed/simple;
-	bh=HS6zRCwXRp8mHfW5n/V4KSKw4rQNg96xJBCGcj8rkBQ=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=OdKLIpnw5TAd/h9oTQN35QYCk42Q2N2Hu1pScLXFNyFRXCEjY20zbEIbgBDrFF3ci4AzPZnj3H8W9hckH1p5XOn8V/HP2cRWBp80zuveujlN9/fSq5TrJDQ8FFIravHdPDsecOOUnfL6G/3EYXhijAufkC+PalMEyeQZxfS73r0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FK4ACCUZ; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1712552533; c=relaxed/simple;
+	bh=fFakGqFXb7miUasdd8JwQHDshvxwKUJPropsziDPXJY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=BpgGDpRTkcJKK3JGWzJSzikRETkh286muQLPH1hREzY5UE4EW4wsvLqHL8HokdY8Vhs2QfSaPkxfo+gXeqcjkOCV8SpHAEa9RQvAL8fNEenv0UIgd+yPVVYTkM93bb7Mrk68krat1MEmFSbNAYCjvTHWzVJ+RvyX8W5sZtR5oY0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AtR6I2rU; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FK4ACCUZ"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AtR6I2rU"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1712549735;
+	s=mimecast20190719; t=1712552530;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=uMI9Rc+vz00z1+F9UYkKs5XZT6R+0Na57ZuSQun0rhU=;
-	b=FK4ACCUZiEwo7WcbACgKh/faTlo7uZI6Z65D6Nt8wQ9tQ9fvxt4zKHBOX+iaaOoanWhYhQ
-	2ookExPZ9zLvaFyFvJsvJaQeMQjkOSmuPti3kXa70cLOEt0NBKZveBSJAUoT7VVsQwFvJm
-	vaUdPfl55Z/76WxaHbSCNl2+pVrvIHk=
-Received: from mail-pg1-f197.google.com (mail-pg1-f197.google.com
- [209.85.215.197]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=fFakGqFXb7miUasdd8JwQHDshvxwKUJPropsziDPXJY=;
+	b=AtR6I2rUKH97IuEpdsvr5EbuDSQC/pi1vdTkBkUYfPu7hfQjOIkM2XhSTvuWvLvYbzx1cB
+	1Rjv9btBHI4nyH7QVhHUcgBCdhI+VzLzY2mHkmu5wff5GetuNRGlJBdpBBSaUaWFcvZP3n
+	clL9c371QMlM4tMwJ9dg5vz3eFzZKC0=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-192-XMatPC8uNm6q6yBtdSXWjg-1; Mon, 08 Apr 2024 00:15:32 -0400
-X-MC-Unique: XMatPC8uNm6q6yBtdSXWjg-1
-Received: by mail-pg1-f197.google.com with SMTP id 41be03b00d2f7-5f034b4db5bso2004470a12.0
-        for <virtualization@lists.linux.dev>; Sun, 07 Apr 2024 21:15:32 -0700 (PDT)
+ us-mta-694-m-9BpW8ZN4GFUw9VhPVt9A-1; Mon, 08 Apr 2024 01:02:09 -0400
+X-MC-Unique: m-9BpW8ZN4GFUw9VhPVt9A-1
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-2a2e6197371so3532384a91.3
+        for <virtualization@lists.linux.dev>; Sun, 07 Apr 2024 22:02:08 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712549731; x=1713154531;
-        h=content-transfer-encoding:in-reply-to:references:cc:to:from
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=uMI9Rc+vz00z1+F9UYkKs5XZT6R+0Na57ZuSQun0rhU=;
-        b=hbYbl2OoTxal+3PwqY4CVAVbl+RuKX3Z/eTZ+2uGv5A10UUJkQIyB/M9Ue0qAVsJ5B
-         QoTSfjwJoskJVEkhmFiJYz/P8YfcaEP7OvbtgH3OMmTqw71gYFIIsgZOFzgWksyIyRTw
-         kyVs9jj8s/GDKsMoiDZoJ/US9ujFbMBrFdsHj19dRpVQBS/fFnUiaiDABbWIf/AtaA+5
-         GhbMDDVqsr64wGwF55T7AwoGhD+yI0SGPEk4n44ZVk53VqsY2Ij1bmZGWniTtpZNlSdL
-         027QT8Jn6BpIiF6iFI/DwmuqsGvj4+rl8I1l6pBVtfNfiqoUSksq4Lginl/ix/09yYq/
-         EZUA==
-X-Gm-Message-State: AOJu0YwIHolCVIOcx7spqrrIy+f0KXABeMpJsiAWr+VkA/E5rabP+vxA
-	lIlX5A3042W9Diu2ypEDWZHd+T4xsSU76Wh3WyYaXpC1CbVZWfP4NPFRRgpdHF9Va/u25wX2D2D
-	WjQRou6AIYnTgaR35rJLdqWPMtRIF65Llf4Xsq8neUhGX0sG5iqonymTl/FCkFgje
-X-Received: by 2002:a05:6a20:2d28:b0:1a1:776d:15c with SMTP id g40-20020a056a202d2800b001a1776d015cmr8260139pzl.21.1712549731549;
-        Sun, 07 Apr 2024 21:15:31 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHA+NbFsEoe8HareLS7Zq9uR/kEBk9cR4T7P0ee0wsdTPqVFXoP5RW7T6CWr6sI/JI7rVhP3A==
-X-Received: by 2002:a05:6a20:2d28:b0:1a1:776d:15c with SMTP id g40-20020a056a202d2800b001a1776d015cmr8260127pzl.21.1712549731247;
-        Sun, 07 Apr 2024 21:15:31 -0700 (PDT)
-Received: from [192.168.68.51] ([43.252.115.31])
-        by smtp.gmail.com with ESMTPSA id 60-20020a17090a09c200b002a47e86fd5esm5126799pjo.4.2024.04.07.21.15.26
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 07 Apr 2024 21:15:30 -0700 (PDT)
-Message-ID: <b41d65de-dc43-45f6-ba6c-ae722fbb70a8@redhat.com>
-Date: Mon, 8 Apr 2024 14:15:24 +1000
+        d=1e100.net; s=20230601; t=1712552528; x=1713157328;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=fFakGqFXb7miUasdd8JwQHDshvxwKUJPropsziDPXJY=;
+        b=rI2uDzu7UWDVpDVqj+GHpeDAhqCXW39IzRU4PycS77fSueQK0OFu6AAJhyoa4p5zVY
+         oxOkoFmuXQGkdo1oW+WURr1SnRIlWeBbjF5JkZ3JKLqncurRuZ4Jf53loExcI2NJQElT
+         JRvG1xrD7XTNAUBm5zP6P1YmDH0c6wpAjT0nT0+a/2aEcONJg132oxvn+SDQ0zr97RoD
+         BtvLuVAZo3euxsg+MSDTy52HxvYoze39TQRtFyeSGwShRccuVrnsmirihek4pIsBOkHF
+         l2Jg2ofH5HarSZj0oZONZ/iN21dXhyZw4gkhys8fS318L/W1i+CHQ3/1k4dvIZjm+FFz
+         h13A==
+X-Gm-Message-State: AOJu0YzG3eqQR4Vu+fXxnTrDz4AyZl9LsT/j0upiBTJxc7GwNaoN5Qem
+	k/TI8A5Y4OMMo1JuzPXEliJPiFGO6vVyc3c7PbI3LWkpbQ+nUuo+evozxe1GKUAVho5/W1Ngh1g
+	UWCGbVY4VBnEiUFpRmJOLLMUZOXVaPJDH975pA0RkDfhypgxN7zsE1Vxaod5irw8j5Igx/EBx+K
+	3hc9V1Ss+kZ350U4Y5Ud+KhjKLTyefYK5NUOp6E9s=
+X-Received: by 2002:a17:90b:3ec1:b0:2a0:7758:31ac with SMTP id rm1-20020a17090b3ec100b002a0775831acmr6916461pjb.25.1712552527942;
+        Sun, 07 Apr 2024 22:02:07 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGbUCi6nAyv+gjv7m0lJyKJn2JoWGQlaDDt1AgepdxKDzzRtg0lSIxzBtaHwPEz0YASujEtj62UQK7o5fpC8Fo=
+X-Received: by 2002:a17:90b:3ec1:b0:2a0:7758:31ac with SMTP id
+ rm1-20020a17090b3ec100b002a0775831acmr6916444pjb.25.1712552527605; Sun, 07
+ Apr 2024 22:02:07 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 3/3] vhost: Improve vhost_get_avail_idx() with
- smp_rmb()
-From: Gavin Shan <gshan@redhat.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- jasowang@redhat.com, will@kernel.org, davem@davemloft.net,
- stefanha@redhat.com, sgarzare@redhat.com, keirf@google.com,
- yihyu@redhat.com, shan.gavin@gmail.com
-References: <20240328002149.1141302-1-gshan@redhat.com>
- <20240328002149.1141302-4-gshan@redhat.com>
- <20240328052814-mutt-send-email-mst@kernel.org>
- <8faa07aa-d330-4e3f-95b7-26437d448beb@redhat.com>
-In-Reply-To: <8faa07aa-d330-4e3f-95b7-26437d448beb@redhat.com>
+References: <20240327111430.108787-1-xuanzhuo@linux.alibaba.com>
+ <20240327111430.108787-10-xuanzhuo@linux.alibaba.com> <CACGkMEs=NZGkkA7ye0wY7YcPBPfbKkYq84KCRX1gS0e=bZDX-w@mail.gmail.com>
+ <1711614157.5913072-7-xuanzhuo@linux.alibaba.com> <CACGkMEuBhfMwrfaiburLG7gFw36GuVHSbRTtK+FycrGFVTgOcA@mail.gmail.com>
+ <1711935607.4691076-1-xuanzhuo@linux.alibaba.com> <1711940418.2573907-2-xuanzhuo@linux.alibaba.com>
+ <CACGkMEvPZKa-au=2XaXrjT4t1vpPF4mPRNYNZ6uTPNyUpT8dfA@mail.gmail.com> <1712469641.4145665-1-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1712469641.4145665-1-xuanzhuo@linux.alibaba.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 8 Apr 2024 13:01:56 +0800
+Message-ID: <CACGkMEvPy+5_x24MCn8xbSyEkhFG8iz=XQ9gpoHO5y49ORsQKA@mail.gmail.com>
+Subject: Re: [PATCH vhost v6 09/10] virtio_net: set premapped mode by find_vqs()
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi Michael,
+On Sun, Apr 7, 2024 at 2:03=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.co=
+m> wrote:
+>
+> On Sun, 7 Apr 2024 12:24:00 +0800, Jason Wang <jasowang@redhat.com> wrote=
+:
+> > On Mon, Apr 1, 2024 at 11:10=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.aliba=
+ba.com> wrote:
+> > >
+> > > On Mon, 1 Apr 2024 09:40:07 +0800, Xuan Zhuo <xuanzhuo@linux.alibaba.=
+com> wrote:
+> > > > On Fri, 29 Mar 2024 11:20:08 +0800, Jason Wang <jasowang@redhat.com=
+> wrote:
+> > > > > On Thu, Mar 28, 2024 at 4:27=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux=
+.alibaba.com> wrote:
+> > > > > >
+> > > > > > On Thu, 28 Mar 2024 16:05:02 +0800, Jason Wang <jasowang@redhat=
+.com> wrote:
+> > > > > > > On Wed, Mar 27, 2024 at 7:14=E2=80=AFPM Xuan Zhuo <xuanzhuo@l=
+inux.alibaba.com> wrote:
+> > > > > > > >
+> > > > > > > > Now, the virtio core can set the premapped mode by find_vqs=
+().
+> > > > > > > > If the premapped can be enabled, the dma array will not be
+> > > > > > > > allocated. So virtio-net use the api of find_vqs to enable =
+the
+> > > > > > > > premapped.
+> > > > > > > >
+> > > > > > > > Judge the premapped mode by the vq->premapped instead of sa=
+ving
+> > > > > > > > local variable.
+> > > > > > > >
+> > > > > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > > > > > ---
+> > > > > > >
+> > > > > > > I wonder what's the reason to keep a fallback when premapped =
+is not enabled?
+> > > > > >
+> > > > > > Rethink this.
+> > > > > >
+> > > > > > I think you are right. We can remove the fallback.
+> > > > > >
+> > > > > > Because we have the virtio dma apis that wrap all the cases.
+> > > > > > So I will remove the fallback from the virtio-net in next versi=
+on.
+> > > > >
+> > > > > Ok.
+> > > > >
+> > > > > >
+> > > > > > But we still need to export the premapped to the drivers.
+> > > > > > Because we can enable the AF_XDP only when premapped is true.
+> > > > >
+> > > > > I may miss something but it should work like
+> > > > >
+> > > > > enable AF_XDP -> enable remapping
+> > > > >
+> > > > > So can we fail during remapping enablement?
+> > > >
+> > > >
+> > > > YES.
+> > > >
+> > > > Enabling the premapped mode may fail, then we must stop to enable A=
+F_XDP.
+> > > >
+> > > > AF-XDP requires that we export the dma dev to the af-xdp.
+> > > > We can do that only when the virtio core works with use_dma_api.
+> > > > Other other side, if we support the page-pool in future, we may hav=
+e the
+> > > > same requirement.
+> > >
+> > > Rethink this.
+> > >
+> > > Enable premapped MUST NOT fail. No care the use_dma_api is true or no=
+t, because
+> > > we have the DMA APIs for virtio. Then the virtio-net rx will work wit=
+h
+> > > premapped (I will make the big mode work with premapped mode)
+> >
+> > Just to make sure we're at the same page. Rx will always work in the
+> > mode or pre mapping. So we can easily fail the probe if we fail to
+> > enable RX premapping?
+>
+>
+> NO, enabling premapped mode can not fail. So the rx will always work
+> in the premapping mode.
 
-On 3/30/24 19:02, Gavin Shan wrote:
-> On 3/28/24 19:31, Michael S. Tsirkin wrote:
->> On Thu, Mar 28, 2024 at 10:21:49AM +1000, Gavin Shan wrote:
->>> All the callers of vhost_get_avail_idx() are concerned to the memory
->>> barrier, imposed by smp_rmb() to ensure the order of the available
->>> ring entry read and avail_idx read.
->>>
->>> Improve vhost_get_avail_idx() so that smp_rmb() is executed when
->>> the avail_idx is advanced. With it, the callers needn't to worry
->>> about the memory barrier.
->>>
->>> Suggested-by: Michael S. Tsirkin <mst@redhat.com>
->>> Signed-off-by: Gavin Shan <gshan@redhat.com>
->>
->> Previous patches are ok. This one I feel needs more work -
->> first more code such as sanity checking should go into
->> this function, second there's actually a difference
->> between comparing to last_avail_idx and just comparing
->> to the previous value of avail_idx.
->> I will pick patches 1-2 and post a cleanup on top so you can
->> take a look, ok?
->>
-> 
-> Thanks, Michael. It's fine to me.
-> 
+Ok, kind of my understanding.
 
-A kindly ping.
+>
+>
+> >
+> > >
+> > > AF_XDP checks the virtqueue_dma_dev() when enabling.
+> > >
+> > > But disabling premapped mode may fail, because that virtio ring need =
+to
+> > > allocate memory for dma.
+> >
+> > That's kind of too tricky, what if we just allocate the memory for dma
+> > unconditionally?
+>
+> It's ok, but we waste the memory.
 
-If it's ok to you, could you please merge PATCH[1-2]? Our downstream
-9.4 need the fixes, especially for NVidia's grace-hopper and grace-grace
-platforms.
+Probably, but the point is to reduce the complexity of the codes for symmet=
+ry:
 
-For PATCH[3], I also can help with the improvement if you don't have time
-for it. Please let me know.
+We don't need to have and maintain codes for fallback mode when we
+fail to disable premapping.
 
-Thanks,
-Gavin
+Thanks
+
+>
+> Thanks.
+>
+>
+>
+> >
+> > Thanks
+> >
+> > >
+> > > Thanks.
+> > >
+> > >
+> > >
+> > > >
+> > > >
+> > > > Thanks.
+> > > >
+> > > >
+> > > > >
+> > > > > THanks
+> > > > >
+> > > > > >
+> > > > > > Thanks
+> > > > > >
+> > > > > >
+> > > > > > >
+> > > > > > > Thanks
+> > > > > > >
+> > > > > >
+> > > > >
+> > > >
+> > >
+> >
+>
 
