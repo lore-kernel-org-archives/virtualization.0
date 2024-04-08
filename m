@@ -1,282 +1,231 @@
-Received: from EUR04-DB3-obe.outbound.protection.outlook.com (mail-db3eur04olkn2066.outbound.protection.outlook.com [40.92.74.66])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3E4B12E1E5
-	for <virtualization@lists.linux.dev>; Mon,  8 Apr 2024 13:38:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.92.74.66
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35BEE80BE7
+	for <virtualization@lists.linux-foundation.org>; Mon,  8 Apr 2024 14:05:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.138
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712583486; cv=fail; b=YD6tCBco6kXnQWCrZWZre2hsgt8BeYfVA6MV7Gd9uRfh/Zft8zsXINlSYSk1451l10pQz/9v9TCBlkqKxMhoErEZ4aBN1NRqUlpvNLTYDGWgWFbeNA21d+hlJzbDOcnGa0MS1WRx1DpsYNypeU9nghJfuWJbKxQlSPxG2lmJhzY=
+	t=1712585159; cv=fail; b=EvsyxGrdoqEMbO2MM6I/nfG41EVJ4ZPzORQMnTQZaery5Zyr1lVHvHgzjl3naT5uWaM18RNa+zT3EjDHOioe4WVTS0gJlZRV0nV/g3VZDKc7ySxv2eR1pEbN00lPCL7G88O58UwsV3q/EpZq/hJlMqBcFgP3Nbp7HdN2Bw9MS4o=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712583486; c=relaxed/simple;
-	bh=kMkbuSouMVyfx9e17I2jia19HrSAMQA6Vxiyr4jC7TY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=ZC9H62q2bwU9QLTqzVdTV7+r/B7dgfylFoGEOj153xyQLlyKtu6aDqouG130fzwHNJT64TwNl3pCmP4Ex9fdCLmcD3Cux4nyFCeU82MGRoJRe0zdX4G/Y88KwlIbikwQw2t0+9s893tAgF3kTXKn3OAon0lIiNeLFvxitecY3UI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=KXtFA0Ss; arc=fail smtp.client-ip=40.92.74.66
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
+	s=arc-20240116; t=1712585159; c=relaxed/simple;
+	bh=vB0jZscvV8VEj9/e0tgK/akp773qIs6nuJoANSHRz/8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=uXWyk2bPGfRwdJh8C74C3pNrpoI7XSVej3gY5RAczsj5eYCp5zRvznQYzx2tGNk3LegYs92N3pyT8LLf6P/DvjTP8Q/y5gfoGrc76faF6DiAXZtgBoTT/uxv/8D/0nPxlRMcO2axp0WPpWA/ifloIYpSONShyndi5vXxf/4L7X8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=XRJGBqfa; arc=fail smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="KXtFA0Ss"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="XRJGBqfa"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id E527B81EF0
+	for <virtualization@lists.linux-foundation.org>; Mon,  8 Apr 2024 14:05:57 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.103
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id zieexBOC0tpE for <virtualization@lists.linux-foundation.org>;
+ Mon,  8 Apr 2024 14:05:57 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2416::701; helo=nam11-co1-obe.outbound.protection.outlook.com; envelope-from=jgg@nvidia.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org B530981EEE
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B530981EEE
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=XRJGBqfa
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on20701.outbound.protection.outlook.com [IPv6:2a01:111:f403:2416::701])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id B530981EEE
+	for <virtualization@lists.linux-foundation.org>; Mon,  8 Apr 2024 14:05:56 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Jt6uIzF/4h1kqkxkaJLVIb03TeuBpRLK0zlkGd1elnkDUyWhP1CnmXNgQP3KBjyCPuUfrKuoZBYXqpJh5tfinXuPcKLhFRmhXDOTIJmkriN1krxI2m0H3HSCujYf7KWskGN4lErJRVjcNaa/B2ybuRZyIMgSW+cKPtb5lkWocOBQeUaCaawj0OKSjF+IEwLhKD8VeibaQ7XoyaxywFj1BzNQvpn2QV8+ZpbrVBdE1YpzHVHphEr6M0UJUQsuk47kAqgwEx+hFl8pLkbP3MJPZfi+GgPOI/Zfmi7UBXxP1PexA5UYejMDZ2rPehcg5xbbUq6NscxvfDQ05ZWQZNCj9A==
+ b=Zpd8NxVt0mNtT4nYrReGRgFytpgJr/wahUstHQNQW8zxARUi2PH7VdLH/IV0ebr6PpkZoSYItLy3r3XifzEZT9eMHQNiSsiNYUZarih2ALhZG6wvgr88R1jMV6D61bsy6vwSsrcJHeNK0VT5ebCIz8MvHGSyKV8elGdGxL8wK5gX4/5BogUS80THEcG1nddcezConhWnYqfkheEv4gO3cF5ZgqYjeQRhCylkGEuEBnUgb5TGcYPZrqkofzSMVjseKEFDUXmuZcWi6gMizAy+qLVm8afF0fRzPpM9izCDZtGTNTVK6NB3CE1nJkMptJGd1s8uL+8VkMFIcarJFM+cmw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=7WJsOAcjdVDt7Vxd6SdrBgUI2q3HCWMcb42jSXmBoAI=;
- b=WdLB1+cppQ/dDZVjGhmxb0yLziLBQoDRsZVpOOkieq650v2dBfI5bbTKs80H6F7CiGV0JdTHHuPeVYsM+S5oOwXwLVo62gyYl+1k72/xCJSs/REZSpkAUpVIA7iDaWWA7iCjgZygFhZUXP4G5nxJ79OgDBMrmmyd22WIKHOpVzlhc6PKRQAs4XBV3xpKHr+K7+SWOdrfF5nOoDMU+awBPp5NmZH9o/ipThWiqL6UZQ1aqAacDeOW6NxH9jOIzr3Ns4Zzeu/uzSFOt+yf+VYkv/DFAhlwEQJrUPbCHihiFjkEHN0YkYsx35OyxTgQ7aLKHDdWo33x6n13tLymWbXbNw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
- s=selector1;
+ bh=NIZv46+iiO0BOLsyF5DPp6HnHSuS2U1T9oahVwb56uw=;
+ b=nIiw/DNnSByTosU2euJc8c5OwypjQ52db21qim4cLOoYufX0ynhOfYRKleASXxZQqMQFXYfmfbnasAPEWibsFaBcuaEozLiPAfYZLiiM1s8dYidn8m2uVAWqQtGuftZ9pV/yYLBrUYJn9bkSQRfG6Lx9ZV4y0z8MEGTtUyoHypQaMdY8JzyvsIwSMQQJE+RDENLbQDu/tscFQtx1ve23EfcLlZa+/IaWLfjfThPHNEoBVrL1TXp8upCAsyzAFCMCJdPlIps9eLCc/bF4ZEV74kTdQq84lUqMeXNhMw9rrQBH1mjNW/YRea+lZgzLe60SFXq4WRnOodd4ndtNQSzAVQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=7WJsOAcjdVDt7Vxd6SdrBgUI2q3HCWMcb42jSXmBoAI=;
- b=KXtFA0SsGemNrSCqoNB4Ghd/tVY31F9erv1IYXfI7JV9L4E7UTSHYi5R2l//fgJmMo6VvDMkWbxQ3Uk2a9n4UCfQbXO8QRnxS/4/nfCpVsL44dPKxXefUAinu58M9zQBtDSOFRycYyo+JrqSjI8pmt4x/9xSq5HwRpQP/oJHXB8Mv3rRElJPVBHf4rNcXp8OuwzVQ/SgmqG9bj6uksTfdwHm70T9MntA0jB48efRD19OJ6Rf2ZeGuRYJfhHZCZoPZ4jIexUCunzJaoraJKO+eM9kfFf21b8FUmRdMFF3I8EuFtNfwcZ/4VrfB/KTgGIsj4O3tx0DVMpMxTlRiHkx5Q==
-Received: from AS2P194MB2170.EURP194.PROD.OUTLOOK.COM (2603:10a6:20b:642::8)
- by AM8P194MB1662.EURP194.PROD.OUTLOOK.COM (2603:10a6:20b:321::19) with
+ bh=NIZv46+iiO0BOLsyF5DPp6HnHSuS2U1T9oahVwb56uw=;
+ b=XRJGBqfaxCTp0JQ5gEomjIoLUXUwv0byntC5mn5uQWEgcVa8BuKgUm1Q7BqHyU+lQXLuo9IoIUYBj+sxckUb9YWA8Ts2zO8UD/NU2GLeWsF3z97kJr3E8/y7ynApx0gbBU1Zq7tejPlLxogThyV8s5dMv0Tnx4FnWOuGjJaHiMVK7aQpXp4oZJ27OAC51nkGJPBSuSJAiSNN85ZrImmxAhZ16vuFZ69hDy2qigqQ7E53Dl0y9bxEuYJDGQwenccKZw2/VbYVIzMzm2TOFIifd3lF1eUR0fjjLefBPk1ITWBWdoAvlCChdTpyz1/H/7fXkxRFK/KufIE7VU2b9lR/Xg==
+Received: from DM6PR12MB3849.namprd12.prod.outlook.com (2603:10b6:5:1c7::26)
+ by PH8PR12MB7182.namprd12.prod.outlook.com (2603:10b6:510:229::21) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7409.47; Mon, 8 Apr
- 2024 13:37:58 +0000
-Received: from AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
- ([fe80::56f0:1717:f1a8:ea4e]) by AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
- ([fe80::56f0:1717:f1a8:ea4e%2]) with mapi id 15.20.7409.042; Mon, 8 Apr 2024
- 13:37:58 +0000
-From: Luigi Leonardi <luigi.leonardi@outlook.com>
-To: mst@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	virtualization@lists.linux.dev,
-	sgarzare@redhat.com,
-	netdev@vger.kernel.org,
-	kuba@kernel.org,
-	stefanha@redhat.com,
-	davem@davemloft.net,
-	pabeni@redhat.com,
-	edumazet@google.com,
-	kvm@vger.kernel.org,
-	jasowang@redhat.com
-Cc: Luigi Leonardi <luigi.leonardi@outlook.com>
-Subject: [PATCH net-next v2 3/3] test/vsock: add ioctl unsent bytes test
-Date: Mon,  8 Apr 2024 15:37:49 +0200
-Message-ID:
- <AS2P194MB217007992597CC2E1BF71D679A002@AS2P194MB2170.EURP194.PROD.OUTLOOK.COM>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20240408133749.510520-1-luigi.leonardi@outlook.com>
-References: <20240408133749.510520-1-luigi.leonardi@outlook.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-TMN: [dILONH51rufQGRaOkOyWZiPNRtnd5OWN]
-X-ClientProxiedBy: MI0P293CA0013.ITAP293.PROD.OUTLOOK.COM
- (2603:10a6:290:44::18) To AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
- (2603:10a6:20b:642::8)
-X-Microsoft-Original-Message-ID:
- <20240408133749.510520-4-luigi.leonardi@outlook.com>
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7409.32; Mon, 8 Apr
+ 2024 14:05:50 +0000
+Received: from DM6PR12MB3849.namprd12.prod.outlook.com
+ ([fe80::6aec:dbca:a593:a222]) by DM6PR12MB3849.namprd12.prod.outlook.com
+ ([fe80::6aec:dbca:a593:a222%5]) with mapi id 15.20.7409.053; Mon, 8 Apr 2024
+ 14:05:49 +0000
+Date: Mon, 8 Apr 2024 11:05:48 -0300
+From: Jason Gunthorpe <jgg@nvidia.com>
+To: Baolu Lu <baolu.lu@linux.intel.com>
+Cc: Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
+	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
+	Jean-Philippe Brucker <jean-philippe@linaro.org>,
+	Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
+	Jacob Pan <jacob.jun.pan@linux.intel.com>,
+	Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
+	virtualization@lists.linux-foundation.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4 1/9] iommu: Introduce domain attachment handle
+Message-ID: <20240408140548.GO5383@nvidia.com>
+References: <20240403011519.78512-1-baolu.lu@linux.intel.com>
+ <20240403011519.78512-2-baolu.lu@linux.intel.com>
+ <20240403115851.GA1723999@nvidia.com>
+ <3b740988-7fe6-4328-8ce2-d66d9a2ab497@linux.intel.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3b740988-7fe6-4328-8ce2-d66d9a2ab497@linux.intel.com>
+X-ClientProxiedBy: BLAPR03CA0052.namprd03.prod.outlook.com
+ (2603:10b6:208:32d::27) To DM6PR12MB3849.namprd12.prod.outlook.com
+ (2603:10b6:5:1c7::26)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: AS2P194MB2170:EE_|AM8P194MB1662:EE_
-X-MS-Office365-Filtering-Correlation-Id: cf91efde-5ae0-495c-9032-08dc57d11a9d
-X-MS-Exchange-SLBlob-MailProps:
-	znQPCv1HvwW17eFZrekaPBZuDTSQRy8lIpg5mhFRKw0dzIef8ex5pMt4k4PMUxPPmFkwPMy3AtVzRP7WjFRwAkckTI3gHEUIXuIjgJqWtPyLF2zlL2K6qCydptc1rmAOf/gqw5QaHcwwXvE0kL/kybgxJLw0x1AIlOOfhHOmDwA/cV9lmbHQf50rfglG/Xk6oish/+4Mx7O4T0BLluXhM4ufip09AuDGsX7DUTWn9niRBDwckLNw5V7I6dJUYiPf6FO30zNe60wtYKa8SN6iPOar3azooJC7i8uZYZXO/LbvJyjvAX/wlOW6jcfHK8QbQxm0BXEIWgouYqAI+ksrepXEqpcslmb+EV4rGrBDRMZ6VsxQFHcLzZKoRFoh8Gxnl0sw/8iHcqfkh9vj0dTPuXkU6G7Mv13LP+fChuc3haj2PTjvkL/EyRd27/G/m0/d8qpzB0TyuQBAbkzJ5Dctt0sy7x/uztwMdA0MpGlJG8eDObpETSRclHsqZDaa5Z463pj0vrvZ18/T28O5wJNQljTakeMMqsn2PrWUhU4xyr9ymACDpmLTcdKgU6wtg7o1tjXr+t+gZFgm6oDCNVWsQPye2A61u5yNy3cCyTamvq4GeHELP/q+AQyDvqPvOPt4y8BOAjC/ZwlfSvG4C/hWR/A/mjcvXrpkEuzdoyRLJRoN/qiGzMnTEEWClAtoZW5fnkGI4e/40xIQ0g9MOaDOXrlceKin2JmrJ1F03PlH2IEWr7oU+7aH3Bc3cUmXQCiFYyoCg7cKF1o=
+X-MS-TrafficTypeDiagnostic: DM6PR12MB3849:EE_|PH8PR12MB7182:EE_
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
 X-Microsoft-Antispam-Message-Info:
-	DTkg/jpp6AQDWuR1wTaWJN/QIgJnaPHc4PCI9k9501z5hGr1+l152pLieJmQ7L+hrI+pmaYj16q4/MPb1a2G+9yV/SWvWqdNnpoZpboL8d/Bmcdof3s6qGUBGSW4QsaCs1KULjgZ+NNAsjdIUCWqDw/qwJj/PwlnT7cfZyDnnJfYwQFSDqrR7OLucko7Dkk7+uFMGxrnaBmniiN16nr8Kp3cvK7y2QR5I577m1yFz4IWk7pOi5h0/V9MvP6KbKetcbUl51xN/J46mH6kjxpcOncMOCrjr1fQLb2F5+fy0w94upNXaatoh5TiVbo1FXRcNLsvbXob7pRU51DncJbZLSrGIC3uWCvYJfSRoQldqxgKmV8Foq50Qo1/0m8ohWUp/vMK7fMzoQEvX5FRUCpQkQgtOLwfT51sd57CcRx7qk+JMEhDPF64ZiiB1YmXpYqrHWoCiOYwvs0N9YvtJCIVIEFV4q0RmXHxx7MQbemkhqSSPkwjLxHchCqGUaoPN4wzC0XSZ/Dn6j6yL1pUGIqqx1FknRRjLvUh1J8MA4RI3+mk89ffXd4KZtoqMAmFzuuAsjkT+eUKYMorw2cjNrgOBD+MItr0j1jvHiJ7W/8WQTovgqTp9E4N+x/tczyibpy4
+	ciqdHZMdbrmWnDYSuDo4GHesya1jYF3hxtp6fCus0D6kv8lCjq7XmDxW1AWXWdnIlv3Mis2JxkNzPn4Yqi7wEfagrGLOcX8JPBBsO/q9VyHPPBJ9ONQ5+AQpBaBgRZ2nhrGRT1+OdVRoEXlUJJTCkDf40xF3k0a4gKKY6x8alL9AgeTa/Sce4iGscN8Ofl03JXGIDMPcnGJXspbbAW52is8/PbfQZGk4k8cNddG4+35KXQqGoVi3KlYYjpDTF+3kOnsu6FGng2mERIlBtHjvS0nQezENbF1ZSo6iq+8D9Vlp0aV4TsaQXChTpq6ZA6bUvT0N2MHAo58PxZ0B7J1AeCgfjM4lOPx+i6PlzlivnAH3cPYKzmzQwQo2CnRxPOj8bUaQ1WnbcQtLtQG/5xX1cp6I2UiY24SkoYlCw7RixVJob3Vy5qrS8ZVOa7gGWtlyEhcTAIGEWk0j+kMrjBd81JmAfxJTuugqBTchgSun7XCSmemmBGbjpli90+AL2J5Ek6dnNy7HvbOovgeo42s6JNMMTr7PWnVdK/c9mmW5zzaFScYUm7YISfeAk+AUlQPTmvNZX0RjJSWUIFB26uxOGPV/bZ6ssukBeR3be/k9AabrG1lZCg+Y5LZkvHThJKGBk+aTtAe/sGfybm5e6HqqnKCD/2/4gU0d/at1ltmUyMA=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR12MB3849.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(1800799015)(7416005)(376005)(366007);DIR:OUT;SFP:1102;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?x4g4wC0NHtL006aM8irss2E4QcP3OsY4oFZrhLwt9xH4AFejyBX7mRaQ01rC?=
- =?us-ascii?Q?MEzR877rFLQCUeOfGeoduUPA+gV4PcLzjW+CGHOncIe82k212yWaDFBp/g2O?=
- =?us-ascii?Q?K+3cN68wNRMfCu8dumShB89ZdZ5JnZ/sn/tiOvT7PRCwO8cepimoAk092VKI?=
- =?us-ascii?Q?G7lowW4SLsfX0ub0H0H+igV4L/TC2hYQ3Qcd2x2vD+yBfb869UwOSymAcucr?=
- =?us-ascii?Q?S6dppYvROIYEDr3d8JIMMPoRie9D3KwsvJ4Vf6nxNtM/glLkQ5qQ03uA2St0?=
- =?us-ascii?Q?YYmPid/AkLwdEZM/D33xGfbcqbF/cV8kAzJ4el9uHGLlyOC1HF1wz805VyCn?=
- =?us-ascii?Q?3+k7GvSB9EqKHaGy7+UCdywj7PaN/9sJIK1iSB26523S7AqYcKFI2aX0Eady?=
- =?us-ascii?Q?Iw3YfqbAvT6XAt/9jcnxgUYzmRK4yn+Vm2iaq4kJZ6bBevU17UC2VOHO5JK6?=
- =?us-ascii?Q?sC5nVPtW3AHZ/AHlaB5R0+dilfKE7ktcJFS2nzv49HZB1IsYX+Izd21ihWyk?=
- =?us-ascii?Q?jKazrUeTBqoRK02vMtWVUs/YB5TgL6zHhrwZral4f9cKoLmt+7t5Ody/ov/q?=
- =?us-ascii?Q?IsWIUSfdpNfs6ejDbbPnrUi4qhdVZnIJJf+oc7wDOYJfWbGTFC7AE1ClZ3T6?=
- =?us-ascii?Q?vIvvnwlxsUX5awBfv7Y4xOnSwq5bk8S3OQ3Mhqo4I6nSTcabRvoJGGYeln/X?=
- =?us-ascii?Q?/yvod23Ag/yhGZBD1ZljqkAeztj2ujhdVh8UcFHHFYi4tuDP6aqDR6/4q/xo?=
- =?us-ascii?Q?ONP0BW/m97Kf7Z+wMfGgKT69bcKHiF394Q9JWW316optm+qNBvJY7rTF01so?=
- =?us-ascii?Q?BW3XedBUrCKtSXGg2hSMb369wODoI1IVWN2ETax+elg4Um3CzIDmy/ViLgEe?=
- =?us-ascii?Q?hjH6G0sklz1g7VKZyJ19Rv3vdnOzLYzFv8+uJ3FCsZvMDW+/nCf+pKvInrV4?=
- =?us-ascii?Q?fwjEmKJGIaMwRL2m/gM/+rAbdWH0jhLgKgRr6Zfx+cMG0sSwlR1OtiuZm+IX?=
- =?us-ascii?Q?OMeQnnfTxOTMjrDZWIaQ8z4eetwDtGOsthY8O+84C875JA+TPPf6dAgEOWk6?=
- =?us-ascii?Q?HWG28IWs7Ew3WuDC2NGmG899NH98f2+PuU5T5z5Vnb7pxfJHhEx5RircpgW3?=
- =?us-ascii?Q?4aq5V6iMbsmiddEAWpuSIdr2ov8a8mXsHr+OThXgwVQ8mlJKlywf0hhBNK3b?=
- =?us-ascii?Q?pe9Q6FFBUIFDeIU2WIPwvp9bEq1ojIoczrsuDI3n+R/nyfCozLJQKzSRBUXt?=
- =?us-ascii?Q?icP2MCHSadPPhhZ9EP2C?=
-X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: cf91efde-5ae0-495c-9032-08dc57d11a9d
-X-MS-Exchange-CrossTenant-AuthSource: AS2P194MB2170.EURP194.PROD.OUTLOOK.COM
+	=?us-ascii?Q?ml/DAetkcEBfrQ/MV5G2GkMAZeVqCj+PZXT+neoQyThTM+XcS89uA/EPJ9QO?=
+ =?us-ascii?Q?LuADlJpRic7EXalNRZdsmbJrrVoXJiGCuumcL1pMiyDsLnh8OCUSU3UCVi5O?=
+ =?us-ascii?Q?c6hZTi5pFTAHvxgxhxEj5OQ9yGBqBG487ezWRPCNQ8wehpDUetwQwcFrnGP2?=
+ =?us-ascii?Q?+CXezgoEPeuYB7V4WU42/svMr0ruuE2ufPh5eO2Ju5NiZAZOPqKzYToet3Yu?=
+ =?us-ascii?Q?yIcLUbiVnD9ncuWzLy+Ixd+Jh3soBbJ+ikU9mAxSuiSKyQmM+wh8Nsx75qQC?=
+ =?us-ascii?Q?uMZv4c9Nh+anPqxJ8z+p2cyJRO62uOdIo+IZHA7KcR46Y1CJOAb05qizpbB6?=
+ =?us-ascii?Q?NKLFAGNR4uEGsN4YDBhpAHL63TtNtyDU/+HkEnJYUZ1jdui4qBlBZmq5aK+0?=
+ =?us-ascii?Q?thacEoxxWJiTe1nPxkLHzJ4/3dHm4W8n+0hRKuEpmwhe35cliS5pfVrqhpVP?=
+ =?us-ascii?Q?OSazelNnMfUDB3ot/eBQ0zgWaCE+Xqx3IwKdxSA0ZLsWcnOZ+FaQfwGMv4Cw?=
+ =?us-ascii?Q?SlL7B95n3OjbPegNUyH3HpOPrx0q7Bda4Fq7yWrF8UwtFpeBSZuliBobrWEP?=
+ =?us-ascii?Q?2BrqPdnbPCo6hU/e/phhCyLkgtu4S27uzGha/CVxL+zZXKG1bd93PMLfsHYh?=
+ =?us-ascii?Q?sx1//9/zrfs+5pOKx4GGmZxlCNf1ytINGNjSjvquuK8zkoipNOXKGrurgkd6?=
+ =?us-ascii?Q?u/Iithcz3rBfUu2Ltho+2WsW5vMUPHdqq09mHLcs9goD56HY6tzcNuZUEkmK?=
+ =?us-ascii?Q?eOYwjITHGDi47K+YV2wSiTaNf9OUaRrnD1fKQqKkRzX2SSvMrFFIFEnZJlP7?=
+ =?us-ascii?Q?o+g0qEN6QSt3BnP7eWIeP+9Tb8XzfMOCNxPPdlMygwIUh2d5WNxHTZ1krCS8?=
+ =?us-ascii?Q?R03jzx27+5mukySv8dRYcz7V3krBwmOTSbl/4RALR8TIrPRGl1nZhZwtmUJC?=
+ =?us-ascii?Q?E65wDoZH4/FskJ6JjiHUIfFV5HXrwestU2LA64z92+MKfsWAcjJSP2TseyXD?=
+ =?us-ascii?Q?DUuVUYf3U0eXGXbXaDoq+zj+5V2qSonL9VSeMegofsflMoOlJ/cdqLcVwGRj?=
+ =?us-ascii?Q?BibhzlXpT7kdUwhKTTRqruDz6SIQ5E0+Fzg03b/XSAn5x9XU8BFCE7m+Koa3?=
+ =?us-ascii?Q?zTHgXhuyD5W7RhSytOFW/06lSjD0YZt8h0gwldmk7frfhDlJ9r9EGz/Ret1c?=
+ =?us-ascii?Q?OmsuE3BvVVeVXwFB7POgeAUwaXR3T5L66liAxcO2E4qm+pDjc3kXN7pbSpUB?=
+ =?us-ascii?Q?mgDOZBNLlx9jkTKS/Xd3dbCKVtgQ4NnlHMbN8ukLT/yO/p96DYbjRonlbgIM?=
+ =?us-ascii?Q?hT8lXXZFHpf3EXaEagswFcvVVh5zFPcGCkfJfENdKWOCr4mQk3CY6G6Tt0o0?=
+ =?us-ascii?Q?xfrUaEw38CU7Cs6aOUWNa0XhPo8LqXnMlTssYWQpHrbKa69tjxzN0U8CFDHp?=
+ =?us-ascii?Q?L8nBNCFLu1c9IzM5Ak2zaGEE+LclHFugc5Md8iDP+3DrT+R/Z9KLbDHBeCW9?=
+ =?us-ascii?Q?/bVukoaWMBiH9zm74E9zubZynNmlAOK9RAq0WS8f6UiZkPJbYH0DHKQXvrUT?=
+ =?us-ascii?Q?VAr6SV7NkQzFBggeodU=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 098920d8-f9c9-4282-7a33-08dc57d4fe81
+X-MS-Exchange-CrossTenant-AuthSource: DM6PR12MB3849.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Apr 2024 13:37:58.8173
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Apr 2024 14:05:49.6061
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
-	00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM8P194MB1662
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: xIMnn0Kg87HcbmQimeO/WnX8oTvEcYF1j/Ow9aRs4gvgSOYBxdvlzEshQW7izr2N
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH8PR12MB7182
 
-This test that after a packet is delivered the number
-of unsent bytes is zero.
+On Sat, Apr 06, 2024 at 12:34:14PM +0800, Baolu Lu wrote:
+> On 4/3/24 7:58 PM, Jason Gunthorpe wrote:
+> > On Wed, Apr 03, 2024 at 09:15:11AM +0800, Lu Baolu wrote:
+> > > Currently, when attaching a domain to a device or its PASID, domain is
+> > > stored within the iommu group. It could be retrieved for use during the
+> > > window between attachment and detachment.
+> > > 
+> > > With new features introduced, there's a need to store more information
+> > > than just a domain pointer. This information essentially represents the
+> > > association between a domain and a device. For example, the SVA code
+> > > already has a custom struct iommu_sva which represents a bond between
+> > > sva domain and a PASID of a device. Looking forward, the IOMMUFD needs
+> > > a place to store the iommufd_device pointer in the core, so that the
+> > > device object ID could be quickly retrieved in the critical fault handling
+> > > path.
+> > > 
+> > > Introduce domain attachment handle that explicitly represents the
+> > > attachment relationship between a domain and a device or its PASID.
+> > > A caller-specific data field can be used by the caller to store additional
+> > > information beyond a domain pointer, depending on its specific use case.
+> > > 
+> > > Co-developed-by: Jason Gunthorpe<jgg@nvidia.com>
+> > > Signed-off-by: Jason Gunthorpe<jgg@nvidia.com>
+> > > Signed-off-by: Lu Baolu<baolu.lu@linux.intel.com>
+> > > ---
+> > >   drivers/iommu/iommu-priv.h |   9 +++
+> > >   drivers/iommu/iommu.c      | 158 +++++++++++++++++++++++++++++++++----
+> > >   2 files changed, 153 insertions(+), 14 deletions(-)
+> > > 
+> > > diff --git a/drivers/iommu/iommu-priv.h b/drivers/iommu/iommu-priv.h
+> > > index 5f731d994803..08c0667cef54 100644
+> > > --- a/drivers/iommu/iommu-priv.h
+> > > +++ b/drivers/iommu/iommu-priv.h
+> > > @@ -28,4 +28,13 @@ void iommu_device_unregister_bus(struct iommu_device *iommu,
+> > >   				 const struct bus_type *bus,
+> > >   				 struct notifier_block *nb);
+> > > +struct iommu_attach_handle {
+> > > +	struct iommu_domain		*domain;
+> > > +	refcount_t			users;
+> > I don't understand how the refcounting can be generally useful. There
+> > is no way to free this:
+> > 
+> > > +	void				*priv;
+> > When the refcount goes to zero.
+> 
+> This field is set by the caller, so the caller ensures that the pointer
+> can only be freed after iommu domain detachment. For iopf, the caller
+> should automatically respond to all outstanding iopf's in the domain
+> detach path.
+> 
+> In the sva case, which uses the workqueue to handle iopf,
+> flush_workqueue() is called in the domain detach path to ensure that all
+> outstanding iopf's are completed before detach completion.
 
-Signed-off-by: Luigi Leonardi <luigi.leonardi@outlook.com>
----
- tools/testing/vsock/util.c       |  6 +--
- tools/testing/vsock/util.h       |  3 ++
- tools/testing/vsock/vsock_test.c | 85 ++++++++++++++++++++++++++++++++
- 3 files changed, 91 insertions(+), 3 deletions(-)
+Which is back to what is the point of the refcount at all?
 
-diff --git a/tools/testing/vsock/util.c b/tools/testing/vsock/util.c
-index 554b290fefdc..a3d448a075e3 100644
---- a/tools/testing/vsock/util.c
-+++ b/tools/testing/vsock/util.c
-@@ -139,7 +139,7 @@ int vsock_bind_connect(unsigned int cid, unsigned int port, unsigned int bind_po
- }
- 
- /* Connect to <cid, port> and return the file descriptor. */
--static int vsock_connect(unsigned int cid, unsigned int port, int type)
-+int vsock_connect(unsigned int cid, unsigned int port, int type)
- {
- 	union {
- 		struct sockaddr sa;
-@@ -226,8 +226,8 @@ static int vsock_listen(unsigned int cid, unsigned int port, int type)
- /* Listen on <cid, port> and return the first incoming connection.  The remote
-  * address is stored to clientaddrp.  clientaddrp may be NULL.
-  */
--static int vsock_accept(unsigned int cid, unsigned int port,
--			struct sockaddr_vm *clientaddrp, int type)
-+int vsock_accept(unsigned int cid, unsigned int port,
-+		 struct sockaddr_vm *clientaddrp, int type)
- {
- 	union {
- 		struct sockaddr sa;
-diff --git a/tools/testing/vsock/util.h b/tools/testing/vsock/util.h
-index e95e62485959..fff22d4a14c0 100644
---- a/tools/testing/vsock/util.h
-+++ b/tools/testing/vsock/util.h
-@@ -39,6 +39,9 @@ struct test_case {
- void init_signals(void);
- unsigned int parse_cid(const char *str);
- unsigned int parse_port(const char *str);
-+int vsock_connect(unsigned int cid, unsigned int port, int type);
-+int vsock_accept(unsigned int cid, unsigned int port,
-+		 struct sockaddr_vm *clientaddrp, int type);
- int vsock_stream_connect(unsigned int cid, unsigned int port);
- int vsock_bind_connect(unsigned int cid, unsigned int port,
- 		       unsigned int bind_port, int type);
-diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
-index f851f8961247..c19ffbcca9dd 100644
---- a/tools/testing/vsock/vsock_test.c
-+++ b/tools/testing/vsock/vsock_test.c
-@@ -20,6 +20,8 @@
- #include <sys/mman.h>
- #include <poll.h>
- #include <signal.h>
-+#include <sys/ioctl.h>
-+#include <linux/sockios.h>
- 
- #include "vsock_test_zerocopy.h"
- #include "timeout.h"
-@@ -1238,6 +1240,79 @@ static void test_double_bind_connect_client(const struct test_opts *opts)
- 	}
- }
- 
-+#define MSG_BUF_IOCTL_LEN 64
-+static void test_unsent_bytes_server(const struct test_opts *opts, int type)
-+{
-+	unsigned char buf[MSG_BUF_IOCTL_LEN];
-+	int client_fd;
-+
-+	client_fd = vsock_accept(VMADDR_CID_ANY, 1234, NULL, type);
-+	if (client_fd < 0) {
-+		perror("accept");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	recv_buf(client_fd, buf, sizeof(buf), 0, sizeof(buf));
-+	control_writeln("RECEIVED");
-+
-+	close(client_fd);
-+}
-+
-+static void test_unsent_bytes_client(const struct test_opts *opts, int type)
-+{
-+	unsigned char buf[MSG_BUF_IOCTL_LEN];
-+	int ret, fd, sock_bytes_unsent;
-+
-+	fd = vsock_connect(opts->peer_cid, 1234, type);
-+	if (fd < 0) {
-+		perror("connect");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	for (int i = 0; i < sizeof(buf); i++)
-+		buf[i] = rand() & 0xFF;
-+
-+	send_buf(fd, buf, sizeof(buf), 0, sizeof(buf));
-+	control_expectln("RECEIVED");
-+
-+	ret = ioctl(fd, SIOCOUTQ, &sock_bytes_unsent);
-+	if (ret < 0) {
-+		perror("ioctl");
-+
-+		if (errno != EOPNOTSUPP)
-+			exit(EXIT_FAILURE);
-+
-+		fprintf(stderr, "Test skipped\n");
-+	} else if (ret == 0 && sock_bytes_unsent != 0) {
-+		fprintf(stderr,
-+			"Unexpected 'SIOCOUTQ' value, expected 0, got %i\n",
-+			sock_bytes_unsent);
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	close(fd);
-+}
-+
-+static void test_stream_unsent_bytes_client(const struct test_opts *opts)
-+{
-+	test_unsent_bytes_client(opts, SOCK_STREAM);
-+}
-+
-+static void test_stream_unsent_bytes_server(const struct test_opts *opts)
-+{
-+	test_unsent_bytes_server(opts, SOCK_STREAM);
-+}
-+
-+static void test_seqpacket_unsent_bytes_client(const struct test_opts *opts)
-+{
-+	test_unsent_bytes_client(opts, SOCK_SEQPACKET);
-+}
-+
-+static void test_seqpacket_unsent_bytes_server(const struct test_opts *opts)
-+{
-+	test_unsent_bytes_server(opts, SOCK_SEQPACKET);
-+}
-+
- #define RCVLOWAT_CREDIT_UPD_BUF_SIZE	(1024 * 128)
- /* This define is the same as in 'include/linux/virtio_vsock.h':
-  * it is used to decide when to send credit update message during
-@@ -1523,6 +1598,16 @@ static struct test_case test_cases[] = {
- 		.run_client = test_stream_rcvlowat_def_cred_upd_client,
- 		.run_server = test_stream_cred_upd_on_low_rx_bytes,
- 	},
-+	{
-+		.name = "SOCK_STREAM ioctl(SIOCOUTQ) 0 unsent bytes",
-+		.run_client = test_stream_unsent_bytes_client,
-+		.run_server = test_stream_unsent_bytes_server,
-+	},
-+	{
-+		.name = "SOCK_SEQPACKET ioctl(SIOCOUTQ) 0 unsent bytes",
-+		.run_client = test_seqpacket_unsent_bytes_client,
-+		.run_server = test_seqpacket_unsent_bytes_server,
-+	},
- 	{},
- };
- 
--- 
-2.34.1
+> +static void iommufd_auto_response_handle(struct iommufd_fault *fault,
+> +                                        struct iommu_attach_handle *handle)
+> +{
+> +       struct iommufd_device *idev = handle->priv;
 
+The caller already has the iommufd_device, don't need the handler.
+
+> +       struct iopf_group *group;
+> +       unsigned long index;
+> +
+> +       mutex_lock(&fault->mutex);
+> +       xa_for_each(&idev->faults, index, group) {
+> +               xa_erase(&idev->faults, index);
+> +               iopf_group_response(group, IOMMU_PAGE_RESP_INVALID);
+> +       }
+> +       mutex_unlock(&fault->mutex);
+
+This makes sense, yes..
+
+>  void iommufd_fault_domain_detach_dev(struct iommufd_hw_pagetable *hwpt,
+>                                      struct iommufd_device *idev)
+>  {
+> +       struct iommufd_fault *fault = hwpt->fault;
+> +       struct iommu_attach_handle *handle;
+> +
+>         if (WARN_ON(!hwpt->fault_capable))
+>                 return;
+> 
+> +       handle = iommu_attach_handle_get(idev->igroup->group,
+> IOMMU_NO_PASID);
+>         iommu_detach_group(hwpt->domain, idev->igroup->group);
+>         iommufd_fault_iopf_disable(idev);
+
+But is this right? Couldn't there be PASID's doing PRI?
+
+Jason
