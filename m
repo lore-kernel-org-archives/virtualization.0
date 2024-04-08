@@ -1,153 +1,209 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFE742B9C7
-	for <virtualization@lists.linux.dev>; Mon,  8 Apr 2024 07:45:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00A7029CE8
+	for <virtualization@lists.linux.dev>; Mon,  8 Apr 2024 08:03:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712562361; cv=none; b=mk3fZn7D4IkPg/highJy/i65sPjSFdTVsxfmfCwcBrfgzuN8YY59F8DQjhzpEa+9P20uw607Ec2MJA5h1we2KLvxH4Sxo/5RyF3hWdapH9YMs9hdx/PAeQ+/wz56JPBXXhXVDK2ctXthHKreOkVwh9lihgmPqoUh64o8lKXCuXk=
+	t=1712563384; cv=none; b=syXz4JapBZQUhLhhnbpXkusn1YM3yVDqGEjEe5bJNiw37OwA8ZkeDOqIDj8UVCYjqdIgBUmM7rDjRsl3MfalpDtQL0dccMCF8oZahbW1FTyGolhXaKAsP5TRTgHd8jmFiLBWkcU7HZaLxq61vu4nfTdoCTUEnWYCqiv/ldvZDFo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712562361; c=relaxed/simple;
-	bh=VszgEr7MX9Bl2vPJIeDpBUVK8TMsj9COmPwntop6Txk=;
+	s=arc-20240116; t=1712563384; c=relaxed/simple;
+	bh=iSQnLApd2E7/mWWPFFDprgT6eyI6Xo4+BLRHeBY2BEk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=oiSKxsNe99eM6lXr9sdMCeA/TTW2hWNGTtmjdA7Tl77pgBuOQk4qATGM4UwMsWD21JXTAzEPbsyd0ncgq3KBTC4zkDOih7YFBH/Z8LfFlyi55xMSVTdlwYTTLGNUk/M7nEhOu1wZAdBhuRhgh+COEi+Af1cozGpSIzq3PCCfxGw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=euL7Hdq7; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=eV7FNUV8JqE6NlVLrHOypnfhUl3sdMSGwPuDdvxZlyWR13vzDV2XYljKrmMXh3tSbIPVTjDKcof16MzrrYs13UWOypvdBzKtNKcwOZ2cak/qtTnxn+Hm1lC+DbMUGF0apu+kVM7s/qlRGe2+ltSOuxWDBAN2bDZC4E+TSEzDbAY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WByTyOMB; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="euL7Hdq7"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WByTyOMB"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1712562359;
+	s=mimecast20190719; t=1712563382;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=AHCuV/Z0bFdLFjkd4awKH8RSgNzsfw23wSDckJ9Dcr0=;
-	b=euL7Hdq7GvUtkj8veJZEBK6X8Fo87chEIc6BLAYVwqmEAQqVWSIlHvhpyI64oRl4jeCDzC
-	jKxWI3xmaUpqCo/QJbUuqkdB4ltIJqYE83LX21kI5cLoIokJ1JxXMx2flaN1w34+zCq+Cv
-	HsFHVdyHI8hspsYSwS1PQpMhzABgRx0=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=q6E8GItKx7EN132AXTarzFdSpYHF7NOPdh1F9V4NL34=;
+	b=WByTyOMB/Deey0oVe1bkhfK2R1cIuDq61Y8L3e9aioJmFfSXqJxOuXrXCQ09BvssV/82QJ
+	3+bbV7tX2demzZUsBoMM0oQTedY4Sh3I6A5nnrei3ELcoPL1u4LvaoEv7t4KIwyc4q8lQF
+	BGcGgTZ9XiTt4oCVfnxLvK/xXlxokYQ=
+Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
+ [209.85.208.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-654-GRJE_3t7MHWfOpxGtsVsrQ-1; Mon, 08 Apr 2024 03:45:57 -0400
-X-MC-Unique: GRJE_3t7MHWfOpxGtsVsrQ-1
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-416661bb85bso3601405e9.0
-        for <virtualization@lists.linux.dev>; Mon, 08 Apr 2024 00:45:57 -0700 (PDT)
+ us-mta-594-pU_S3wz3MOKvo_XlKPu-Pw-1; Mon, 08 Apr 2024 04:03:00 -0400
+X-MC-Unique: pU_S3wz3MOKvo_XlKPu-Pw-1
+Received: by mail-lj1-f200.google.com with SMTP id 38308e7fff4ca-2d86adb107eso17264371fa.3
+        for <virtualization@lists.linux.dev>; Mon, 08 Apr 2024 01:03:00 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712562356; x=1713167156;
+        d=1e100.net; s=20230601; t=1712563379; x=1713168179;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=AHCuV/Z0bFdLFjkd4awKH8RSgNzsfw23wSDckJ9Dcr0=;
-        b=FvKn+6CUBxz0qcZiqF10eVePoE6b3VPalol/Uemfa9UpNz61lOuv4slxzNdLxdUglj
-         Ea4t6tnd0a9rP0pqleM5rqVYnbQJ6StJHflyniaJJikL0PkCAYpuVxeooHHkvu+/WUGY
-         FEJbpSIX7rXHkGk4YNByHIRvnLaifOlCzp9efFLXVsU4lSZpgixGfbQe/I4fmPpn8syc
-         g1EDJ44DrLOm2h5vrIgGcGUwLbA7uG1Q710MCKtGmCeEyIW9Zvp5bAjHYJNpMUrv9lRy
-         R3fSsNPSB56/4WPpMg/lurTpuosW/ycNG5KMewJpEa0zdFPw0AxvoO4MfUpvI1HzA4I5
-         SZSQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVNcZJC5rZJHl79vgsxli3JJF16/oHUT77hY1VGgYp37ZFQ+Fm3DZDj4k+9kWgLOxbDlazpjiJgiQLXV4oDO91aV8SqkXhTOBG1i/yTSx0=
-X-Gm-Message-State: AOJu0YwqBKOma1INufog8LlLb8ZvmYu/chX0mrB1inNQJufyD1cMM2ER
-	XJFyesGSEBR+AtJsvWLQBs04JRYRwD33Alj/nI8MSNSJp4W9ECer6d87YOYiHaCzBbFGaoJkAbF
-	UkmvMzfUkcwLBKgiLc968MLMVKXM/DPt4xRhUwe8X2qZuG+TLbc1+f6X9u3/DKzaW
-X-Received: by 2002:a05:6000:1817:b0:343:9a9e:2ca5 with SMTP id m23-20020a056000181700b003439a9e2ca5mr6186007wrh.31.1712562356158;
-        Mon, 08 Apr 2024 00:45:56 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IELDNHAY++9+xbR5gGN9G3+TeVZ9hnW4qxcSDfW5yXkfKb3mXnJpHEKB2eSV6DN9J3ftBWvlg==
-X-Received: by 2002:a05:6000:1817:b0:343:9a9e:2ca5 with SMTP id m23-20020a056000181700b003439a9e2ca5mr6185983wrh.31.1712562355622;
-        Mon, 08 Apr 2024 00:45:55 -0700 (PDT)
+        bh=q6E8GItKx7EN132AXTarzFdSpYHF7NOPdh1F9V4NL34=;
+        b=DxWCFgQY6U2yCWjni4ocoYWoq3MsLkh5DMtCRMeBsr3z3vCSACfIv8cDRG/Mc+rOBm
+         8Xyf6Zu5qZFKnlU8253Vam+u8c8qsenf7hsDdvrew8YxsN5Re7nVc0Sbg1IYaxZhUynJ
+         RpBHmDtxiIuTY4zkaUr6ioomPtR+UpZFpTtWooQq1aThy9JHJFwwka//xkCGRwse6G1x
+         s14blIrWnn+gIdK9+T85mW2wrFpSEzuN9Yi8kbfVu9pRxwxkmS+iQYJ3wZC6wfggXTxS
+         BE0QH6xMY7MLSOOPvMc/4SQSJZL7txyiFgrg3ne+tHP8w4hISgRCcwVlG37gkOz6ZyLv
+         Gjpw==
+X-Forwarded-Encrypted: i=1; AJvYcCVltVAbIry+VOrsGWWJ5WGK0ZYQ3zin3w9rk0RGgE3YAKYI9gGFDQ1qzpYnG5BQWG6VwNN8PJUqhAB2Z5sBKURmgbPxF4pMUakkRdCBei0=
+X-Gm-Message-State: AOJu0Yz32MUMfuMo6VOGHAKRcdB/WfPh122lIDVx/cFGS0uUV6Fd0eC7
+	A/wgIPAh9DQeRO7YZ0TFEgptw25OG2sJ7iBqRtH7UKlGbgpQCSMKl+/cWA0ePdXfChEl4hvi9VK
+	LwW/wQOe3GuAaAzba0kutIy2GXU0T451ZjvEFVKZ2uZpMkYqanu877wMnEPHXDq31J1TUuDSy
+X-Received: by 2002:a05:651c:b8c:b0:2d6:f96c:d84d with SMTP id bg12-20020a05651c0b8c00b002d6f96cd84dmr4740160ljb.16.1712563378667;
+        Mon, 08 Apr 2024 01:02:58 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHVOm56V+ijcwMGNqnuruxXGa0aHHJooBtndGYpq5tnW2yEqsqu6pSDMjmDG5tl0KD6S7bkBw==
+X-Received: by 2002:a05:651c:b8c:b0:2d6:f96c:d84d with SMTP id bg12-20020a05651c0b8c00b002d6f96cd84dmr4740153ljb.16.1712563378109;
+        Mon, 08 Apr 2024 01:02:58 -0700 (PDT)
 Received: from redhat.com ([2.52.152.188])
-        by smtp.gmail.com with ESMTPSA id q1-20020adffec1000000b00345aa92fa1dsm2219980wrs.117.2024.04.08.00.45.53
+        by smtp.gmail.com with ESMTPSA id q8-20020a05600c46c800b004146e58cc35sm16061938wmo.46.2024.04.08.01.02.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Apr 2024 00:45:55 -0700 (PDT)
-Date: Mon, 8 Apr 2024 03:45:51 -0400
+        Mon, 08 Apr 2024 01:02:57 -0700 (PDT)
+Date: Mon, 8 Apr 2024 04:02:54 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Hou Tao <houtao@huaweicloud.com>
-Cc: linux-fsdevel@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>,
-	Vivek Goyal <vgoyal@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Bernd Schubert <bernd.schubert@fastmail.fm>,
-	Matthew Wilcox <willy@infradead.org>,
-	Benjamin Coddington <bcodding@redhat.com>,
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-	houtao1@huawei.com
-Subject: Re: [PATCH v2 0/6] virtiofs: fix the warning for ITER_KVEC dio
-Message-ID: <20240408034514-mutt-send-email-mst@kernel.org>
-References: <20240228144126.2864064-1-houtao@huaweicloud.com>
+To: "gavin.liu" <gavin.liu@jaguarmicro.com>
+Cc: jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+	virtualization@lists.linux.dev, angus.chen@jaguarmicro.com,
+	yuxue.liu@jaguarmicro.com
+Subject: Re: [PATCH v2] vp_vdpa: fix the method of calculating vectors
+Message-ID: <20240408035346-mutt-send-email-mst@kernel.org>
+References: <20240318130008.1928-1-gavin.liu@jaguarmicro.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240228144126.2864064-1-houtao@huaweicloud.com>
+In-Reply-To: <20240318130008.1928-1-gavin.liu@jaguarmicro.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Wed, Feb 28, 2024 at 10:41:20PM +0800, Hou Tao wrote:
-> From: Hou Tao <houtao1@huawei.com>
+On Mon, Mar 18, 2024 at 09:00:08PM +0800, gavin.liu wrote:
+> From: Yuxue Liu <yuxue.liu@jaguarmicro.com>
 > 
-> Hi,
+> When there is a ctlq and it doesn't require interrupt
+> callbacks,the original method of calculating vectors
+> wastes hardware MSI or MSI-X resources as well as system
+> IRQ resources. Referencing the per_vq_vectors mode in the
+> vp_find_vqs_msix function, calculate the required number
+> of vectors based on whether the callback is set.
 > 
-> The patch set aims to fix the warning related to an abnormal size
-> parameter of kmalloc() in virtiofs. The warning occurred when attempting
-> to insert a 10MB sized kernel module kept in a virtiofs with cache
-> disabled. As analyzed in patch #1, the root cause is that the length of
-> the read buffer is no limited, and the read buffer is passed directly to
-> virtiofs through out_args[0].value. Therefore patch #1 limits the
-> length of the read buffer passed to virtiofs by using max_pages. However
-> it is not enough, because now the maximal value of max_pages is 256.
-> Consequently, when reading a 10MB-sized kernel module, the length of the
-> bounce buffer in virtiofs will be 40 + (256 * 4096), and kmalloc will
-> try to allocate 2MB from memory subsystem. The request for 2MB of
-> physically contiguous memory significantly stress the memory subsystem
-> and may fail indefinitely on hosts with fragmented memory. To address
-> this, patch #2~#5 use scattered pages in a bio_vec to replace the
-> kmalloc-allocated bounce buffer when the length of the bounce buffer for
-> KVEC_ITER dio is larger than PAGE_SIZE. The final issue with the
-> allocation of the bounce buffer and sg array in virtiofs is that
-> GFP_ATOMIC is used even when the allocation occurs in a kworker context.
-> Therefore the last patch uses GFP_NOFS for the allocation of both sg
-> array and bounce buffer when initiated by the kworker. For more details,
-> please check the individual patches.
-> 
-> As usual, comments are always welcome.
-> 
-> Change Log:
+> Signed-off-by: Yuxue Liu <yuxue.liu@jaguarmicro.com>
 
-Bernd should I just merge the patchset as is?
-It seems to fix a real problem and no one has the
-time to work on a better fix .... WDYT?
+Overall, the patch makes sense. But you need to clean it up.
+Also, given previous versions were broken,
+pls document which configurations you tested, and how.
+
+> ---
+> 
+> V1 -> V2: fix when allocating IRQs, scan all queues.
+> V1: https://lore.kernel.org/all/20240318030121.1873-1-gavin.liu@jaguarmicro.com/
+> ---
+>  drivers/vdpa/virtio_pci/vp_vdpa.c | 24 ++++++++++++++++++------
+>  1 file changed, 18 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/vdpa/virtio_pci/vp_vdpa.c b/drivers/vdpa/virtio_pci/vp_vdpa.c
+> index 281287fae89f..87329d4358ce 100644
+> --- a/drivers/vdpa/virtio_pci/vp_vdpa.c
+> +++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
+> @@ -160,8 +160,15 @@ static int vp_vdpa_request_irq(struct vp_vdpa *vp_vdpa)
+>  	struct pci_dev *pdev = mdev->pci_dev;
+>  	int i, ret, irq;
+>  	int queues = vp_vdpa->queues;
+> -	int vectors = queues + 1;
+> +	int allocated_vectors, vectors = 0;
+> +	u16 msix_vec;
+
+The names are messed up.
+What we allocate should be called allocated_vectors.
+So rename vectors -> allocated_vectors.
+The currect vector used for each vq can be called e.g. msix_vec.
+And it is pointless to make it u16 here IMHO - just int will do.
+
+>  
+> +	for (i = 0; i < queues; i++) {
+> +		if (vp_vdpa->vring[i].cb.callback != NULL)
 
 
-> v2:
->   * limit the length of ITER_KVEC dio by max_pages instead of the
->     newly-introduced max_nopage_rw. Using max_pages make the ITER_KVEC
->     dio being consistent with other rw operations.
->   * replace kmalloc-allocated bounce buffer by using a bounce buffer
->     backed by scattered pages when the length of the bounce buffer for
->     KVEC_ITER dio is larger than PAG_SIZE, so even on hosts with
->     fragmented memory, the KVEC_ITER dio can be handled normally by
->     virtiofs. (Bernd Schubert)
->   * merge the GFP_NOFS patch [1] into this patch-set and use
->     memalloc_nofs_{save|restore}+GFP_KERNEL instead of GFP_NOFS
->     (Benjamin Coddington)
-> 
-> v1: https://lore.kernel.org/linux-fsdevel/20240103105929.1902658-1-houtao@huaweicloud.com/
-> 
-> [1]: https://lore.kernel.org/linux-fsdevel/20240105105305.4052672-1-houtao@huaweicloud.com/
-> 
-> Hou Tao (6):
->   fuse: limit the length of ITER_KVEC dio by max_pages
->   virtiofs: move alloc/free of argbuf into separated helpers
->   virtiofs: factor out more common methods for argbuf
->   virtiofs: support bounce buffer backed by scattered pages
->   virtiofs: use scattered bounce buffer for ITER_KVEC dio
->   virtiofs: use GFP_NOFS when enqueuing request through kworker
-> 
->  fs/fuse/file.c      |  12 +-
->  fs/fuse/virtio_fs.c | 336 +++++++++++++++++++++++++++++++++++++-------
->  2 files changed, 296 insertions(+), 52 deletions(-)
-> 
+I don't like != NULL style - just
+	if (vp_vdpa->vring[i].cb.callback)
+will do.
+
+> +			vectors++;
+> +	}
+> +	/*By default, config interrupts request a single vector*/
+
+bad coding style
+and what does "by default" mean here?
+
+> +	vectors = vectors + 1;
+>  	ret = pci_alloc_irq_vectors(pdev, vectors, vectors, PCI_IRQ_MSIX);
+>  	if (ret != vectors) {
+>  		dev_err(&pdev->dev,
+> @@ -169,13 +176,17 @@ static int vp_vdpa_request_irq(struct vp_vdpa *vp_vdpa)
+>  			vectors, ret);
+>  		return ret;
+>  	}
+> -
+
+why?
+
+>  	vp_vdpa->vectors = vectors;
+>  
+>  	for (i = 0; i < queues; i++) {
+> +		if (vp_vdpa->vring[i].cb.callback == NULL)
+> +			continue;
+> +		else
+> +			msix_vec = allocated_vectors++;
+
+So just put replace allocated_vectors with msix_vec
+incrementing it at the end of the loop,
+and you will not need the allocated_vectors variable.
+
+
+
+
+> +
+
+Same here.
+	if (!vp_vdpa->vring[i].cb.callback)
+
+Also there's no need for else after continue.
+
+
+>  		snprintf(vp_vdpa->vring[i].msix_name, VP_VDPA_NAME_SIZE,
+>  			"vp-vdpa[%s]-%d\n", pci_name(pdev), i);
+> -		irq = pci_irq_vector(pdev, i);
+> +		irq = pci_irq_vector(pdev, msix_vec);
+>  		ret = devm_request_irq(&pdev->dev, irq,
+>  				       vp_vdpa_vq_handler,
+>  				       0, vp_vdpa->vring[i].msix_name,
+> @@ -185,13 +196,14 @@ static int vp_vdpa_request_irq(struct vp_vdpa *vp_vdpa)
+>  				"vp_vdpa: fail to request irq for vq %d\n", i);
+>  			goto err;
+>  		}
+> -		vp_modern_queue_vector(mdev, i, i);
+> +		vp_modern_queue_vector(mdev, i, msix_vec);
+>  		vp_vdpa->vring[i].irq = irq;
+>  	}
+>  
+> +	msix_vec = allocated_vectors;
+>  	snprintf(vp_vdpa->msix_name, VP_VDPA_NAME_SIZE, "vp-vdpa[%s]-config\n",
+>  		 pci_name(pdev));
+> -	irq = pci_irq_vector(pdev, queues);
+> +	irq = pci_irq_vector(pdev, msix_vec);
+>  	ret = devm_request_irq(&pdev->dev, irq,	vp_vdpa_config_handler, 0,
+>  			       vp_vdpa->msix_name, vp_vdpa);
+>  	if (ret) {
+> @@ -199,7 +211,7 @@ static int vp_vdpa_request_irq(struct vp_vdpa *vp_vdpa)
+>  			"vp_vdpa: fail to request irq for vq %d\n", i);
+>  			goto err;
+>  	}
+> -	vp_modern_config_vector(mdev, queues);
+> +	vp_modern_config_vector(mdev, msix_vec);
+>  	vp_vdpa->config_irq = irq;
+>  
+>  	return 0;
 > -- 
-> 2.29.2
+> 2.43.0
 
