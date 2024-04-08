@@ -1,227 +1,111 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f46.google.com (mail-ej1-f46.google.com [209.85.218.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C40B63BF
-	for <virtualization@lists.linux.dev>; Mon,  8 Apr 2024 05:02:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 032E4290E
+	for <virtualization@lists.linux.dev>; Mon,  8 Apr 2024 06:35:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712552533; cv=none; b=h70wQBGTFP6g4RAPId/hR5yfNFqo80CdbSZO+PblQ9mXp2ZRxqOvi+WTesXUNtzbv6Xw3Ivqw+ZGZb80hq9Nxi4sYzO1TXyXe2S54xP0xKkgS/csPjty7B6uLtcqSf6pg13NYSbUEwz5FbDB68YqLI9Qi6DGPzSLK7QWqa4/zGE=
+	t=1712558159; cv=none; b=plulsJWJhV4u6UkLlZLbb4Uz4ZAP7BjVlZgrx4ZXhzaFyRh9Mt5CVDTC4GXxq/kpEXPZJ1fL8AVCBMVDEH/g9G+9r1w0gLjE/jEI9H7Dw0v80ar7xq/0OaUXY6oMTlvgKizfU8sVV2pan4OPVLjce8W2i/kutUHpAAjwEbB1BIg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712552533; c=relaxed/simple;
-	bh=fFakGqFXb7miUasdd8JwQHDshvxwKUJPropsziDPXJY=;
+	s=arc-20240116; t=1712558159; c=relaxed/simple;
+	bh=GB58bQle6/TE9XhpcBSQjj6cikX2bR8e+VuUWv1u+SE=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=BpgGDpRTkcJKK3JGWzJSzikRETkh286muQLPH1hREzY5UE4EW4wsvLqHL8HokdY8Vhs2QfSaPkxfo+gXeqcjkOCV8SpHAEa9RQvAL8fNEenv0UIgd+yPVVYTkM93bb7Mrk68krat1MEmFSbNAYCjvTHWzVJ+RvyX8W5sZtR5oY0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AtR6I2rU; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 To:Cc:Content-Type; b=aLcWx+MfAlOgzqSnrxC+oq9rImNBtwFtXf6VdJp7CSBhNSwaZaktcGO1scRdtTTmiUJVC+GKRNZ9f+HB/udznEG9KCaLaxG3SI/AbpDachxeyzd/0F5DeIwZhFNvQeea/rusU40Hla311AiHggN8GvQH95J6up2DiC59tj8xcJ8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gooddata.com; spf=pass smtp.mailfrom=gooddata.com; dkim=pass (1024-bit key) header.d=gooddata.com header.i=@gooddata.com header.b=R2VjOaGH; arc=none smtp.client-ip=209.85.218.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gooddata.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gooddata.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AtR6I2rU"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1712552530;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=fFakGqFXb7miUasdd8JwQHDshvxwKUJPropsziDPXJY=;
-	b=AtR6I2rUKH97IuEpdsvr5EbuDSQC/pi1vdTkBkUYfPu7hfQjOIkM2XhSTvuWvLvYbzx1cB
-	1Rjv9btBHI4nyH7QVhHUcgBCdhI+VzLzY2mHkmu5wff5GetuNRGlJBdpBBSaUaWFcvZP3n
-	clL9c371QMlM4tMwJ9dg5vz3eFzZKC0=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-694-m-9BpW8ZN4GFUw9VhPVt9A-1; Mon, 08 Apr 2024 01:02:09 -0400
-X-MC-Unique: m-9BpW8ZN4GFUw9VhPVt9A-1
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-2a2e6197371so3532384a91.3
-        for <virtualization@lists.linux.dev>; Sun, 07 Apr 2024 22:02:08 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=gooddata.com header.i=@gooddata.com header.b="R2VjOaGH"
+Received: by mail-ej1-f46.google.com with SMTP id a640c23a62f3a-a51d05c50b2so98543366b.0
+        for <virtualization@lists.linux.dev>; Sun, 07 Apr 2024 23:35:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gooddata.com; s=google; t=1712558156; x=1713162956; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=GB58bQle6/TE9XhpcBSQjj6cikX2bR8e+VuUWv1u+SE=;
+        b=R2VjOaGHWtymMHm769s5N6VYFGm0I33tjhad+riluWWBj7M1FbDXAzNL/hmdY8KurX
+         WXHztgV54BmlfTriMMCEXUvSA0Mc/5nK1H6jM7tvyngpBhJByqHSQLPIGIrW+TAG1Lks
+         0Ksa9PNL/ERDzi8bgIqUg9DekAyudhOkuR0F0=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712552528; x=1713157328;
+        d=1e100.net; s=20230601; t=1712558156; x=1713162956;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=fFakGqFXb7miUasdd8JwQHDshvxwKUJPropsziDPXJY=;
-        b=rI2uDzu7UWDVpDVqj+GHpeDAhqCXW39IzRU4PycS77fSueQK0OFu6AAJhyoa4p5zVY
-         oxOkoFmuXQGkdo1oW+WURr1SnRIlWeBbjF5JkZ3JKLqncurRuZ4Jf53loExcI2NJQElT
-         JRvG1xrD7XTNAUBm5zP6P1YmDH0c6wpAjT0nT0+a/2aEcONJg132oxvn+SDQ0zr97RoD
-         BtvLuVAZo3euxsg+MSDTy52HxvYoze39TQRtFyeSGwShRccuVrnsmirihek4pIsBOkHF
-         l2Jg2ofH5HarSZj0oZONZ/iN21dXhyZw4gkhys8fS318L/W1i+CHQ3/1k4dvIZjm+FFz
-         h13A==
-X-Gm-Message-State: AOJu0YzG3eqQR4Vu+fXxnTrDz4AyZl9LsT/j0upiBTJxc7GwNaoN5Qem
-	k/TI8A5Y4OMMo1JuzPXEliJPiFGO6vVyc3c7PbI3LWkpbQ+nUuo+evozxe1GKUAVho5/W1Ngh1g
-	UWCGbVY4VBnEiUFpRmJOLLMUZOXVaPJDH975pA0RkDfhypgxN7zsE1Vxaod5irw8j5Igx/EBx+K
-	3hc9V1Ss+kZ350U4Y5Ud+KhjKLTyefYK5NUOp6E9s=
-X-Received: by 2002:a17:90b:3ec1:b0:2a0:7758:31ac with SMTP id rm1-20020a17090b3ec100b002a0775831acmr6916461pjb.25.1712552527942;
-        Sun, 07 Apr 2024 22:02:07 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGbUCi6nAyv+gjv7m0lJyKJn2JoWGQlaDDt1AgepdxKDzzRtg0lSIxzBtaHwPEz0YASujEtj62UQK7o5fpC8Fo=
-X-Received: by 2002:a17:90b:3ec1:b0:2a0:7758:31ac with SMTP id
- rm1-20020a17090b3ec100b002a0775831acmr6916444pjb.25.1712552527605; Sun, 07
- Apr 2024 22:02:07 -0700 (PDT)
+        bh=GB58bQle6/TE9XhpcBSQjj6cikX2bR8e+VuUWv1u+SE=;
+        b=fRUe9MtZVyJQwHoKTiN9NHXJs7ji0BCbGNjvrkmlGAFW0Fc0m85aUecMal1Mmsj7fX
+         ledqpWGBUD9eI2iaF9U+ByWnv9DHkGqQKWURr02y7HH0GK1YYY80fUSLHDwnUv58OnWL
+         ddCbeEy2COvC3Yy9zXAh6NyXpx3Y2GglDoC8unQNaCNdU32ikqvMBHl6LQ28MQ+9tHFy
+         WfILVck/CSCkUwzpZyhlpKfbEqDZb9xklJfQedtL+YN3JWOGwSjMYa7SU93WsBfM+JUA
+         f+ft+FPQcaiftww+6fS5E0j/1GSPJuqcD+Y5ipVR4EEcTfsh9467miw1qw2BjoVDp+F7
+         21Pg==
+X-Forwarded-Encrypted: i=1; AJvYcCXMn03ddYhphEZ4mQB8uBEbcULCVs0a7K9RCLWXI+5lpB4RP9vtcnAupfmj8FcBZR/wkKZPZhU41hJfAobNuu2we9s/oW8kGLdKXRIBWFg=
+X-Gm-Message-State: AOJu0YxqyCsGlrI/tSMl1MfbdGLNptgY+kEQm0s7WPV6Cd5CCdHxpYOc
+	zBXZvwT356iXP3sxZXPLOx5x43WNn7CvvP1IbwLtfH8AMj+sF5tYhlo3x9j9TlHeKPcRbgYk4L0
+	iRKjVk8nh6ITSGCW7E52lQxQND8T4oRhfRzJE
+X-Google-Smtp-Source: AGHT+IHgOG1QFRsazaJJTQAM1OpfXlCUvvdH9XD6u9F4YJ8KIuAm8siPgnu/FFrnysbhWv7Ny+9JXK+VCjeK9WS7Rgs=
+X-Received: by 2002:a17:906:565a:b0:a51:9737:f23d with SMTP id
+ v26-20020a170906565a00b00a519737f23dmr4595803ejr.70.1712558156369; Sun, 07
+ Apr 2024 23:35:56 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240327111430.108787-1-xuanzhuo@linux.alibaba.com>
- <20240327111430.108787-10-xuanzhuo@linux.alibaba.com> <CACGkMEs=NZGkkA7ye0wY7YcPBPfbKkYq84KCRX1gS0e=bZDX-w@mail.gmail.com>
- <1711614157.5913072-7-xuanzhuo@linux.alibaba.com> <CACGkMEuBhfMwrfaiburLG7gFw36GuVHSbRTtK+FycrGFVTgOcA@mail.gmail.com>
- <1711935607.4691076-1-xuanzhuo@linux.alibaba.com> <1711940418.2573907-2-xuanzhuo@linux.alibaba.com>
- <CACGkMEvPZKa-au=2XaXrjT4t1vpPF4mPRNYNZ6uTPNyUpT8dfA@mail.gmail.com> <1712469641.4145665-1-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <1712469641.4145665-1-xuanzhuo@linux.alibaba.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 8 Apr 2024 13:01:56 +0800
-Message-ID: <CACGkMEvPy+5_x24MCn8xbSyEkhFG8iz=XQ9gpoHO5y49ORsQKA@mail.gmail.com>
-Subject: Re: [PATCH vhost v6 09/10] virtio_net: set premapped mode by find_vqs()
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
+References: <CA+9S74hbTMxckB=HgRiqL6b8ChZMQfJ6-K9y_GQ0ZDiWkev_vA@mail.gmail.com>
+ <20240319131207.GB1096131@fedora> <CA+9S74jMBbgrxaH2Nit50uDQsHES+e+VHnOXkxnq2TrUFtAQRA@mail.gmail.com>
+ <CACGkMEvX2R+wKcH5V45Yd6CkgGhADVbpvfmWsHducN2zCS=OKw@mail.gmail.com>
+ <CA+9S74g5fR=hBxWk1U2TyvW1uPmU3XgJnjw4Owov8LNwLiiOZw@mail.gmail.com>
+ <CACGkMEt4MbyDgdqDGUqQ+0gV-1kmp6CWASDgwMpZnRU8dfPd2Q@mail.gmail.com>
+ <CA+9S74hUt_aZCrgN3Yx9Y2OZtwHNan7gmbBa1TzBafW6=YLULQ@mail.gmail.com>
+ <CA+9S74ia-vUag2QMo6zFL7r+wZyOZVmcpe317RdMbK-rpomn+Q@mail.gmail.com>
+ <CA+9S74hs_1Ft9iyXOPU_vF_EFKuoG8LjDpSna0QSPMFnMywd_g@mail.gmail.com>
+ <CACGkMEvHiAN7X_QBgihWX6zzEUOxhrV2Nqg1arw1sfYy2A5K0g@mail.gmail.com>
+ <CAK8fFZ6P6e+6V6NUkc-H5SdkXqgHdZ-GEMEPp4hKZSJVaGbBYQ@mail.gmail.com>
+ <20240404063737.7b6e3843@kernel.org> <CAK8fFZ5LHFMPAOFCKu-vr7JQJHKo9jshrgvCCP50d596nFiXUQ@mail.gmail.com>
+In-Reply-To: <CAK8fFZ5LHFMPAOFCKu-vr7JQJHKo9jshrgvCCP50d596nFiXUQ@mail.gmail.com>
+From: Jaroslav Pulchart <jaroslav.pulchart@gooddata.com>
+Date: Mon, 8 Apr 2024 08:35:30 +0200
+Message-ID: <CAK8fFZ74tj=u5HKfpFue1ejy_9V3xWdf-ekC0gLt8BmJs7Y5ZQ@mail.gmail.com>
+Subject: Re: REGRESSION: RIP: 0010:skb_release_data+0xb8/0x1e0 in vhost/tun
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: Jason Wang <jasowang@redhat.com>, Igor Raits <igor@gooddata.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
+	netdev@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Apr 7, 2024 at 2:03=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.co=
-m> wrote:
+=C4=8Dt 4. 4. 2024 v 20:17 odes=C3=ADlatel Jaroslav Pulchart
+<jaroslav.pulchart@gooddata.com> napsal:
 >
-> On Sun, 7 Apr 2024 12:24:00 +0800, Jason Wang <jasowang@redhat.com> wrote=
-:
-> > On Mon, Apr 1, 2024 at 11:10=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.aliba=
-ba.com> wrote:
-> > >
-> > > On Mon, 1 Apr 2024 09:40:07 +0800, Xuan Zhuo <xuanzhuo@linux.alibaba.=
-com> wrote:
-> > > > On Fri, 29 Mar 2024 11:20:08 +0800, Jason Wang <jasowang@redhat.com=
-> wrote:
-> > > > > On Thu, Mar 28, 2024 at 4:27=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux=
-.alibaba.com> wrote:
-> > > > > >
-> > > > > > On Thu, 28 Mar 2024 16:05:02 +0800, Jason Wang <jasowang@redhat=
-.com> wrote:
-> > > > > > > On Wed, Mar 27, 2024 at 7:14=E2=80=AFPM Xuan Zhuo <xuanzhuo@l=
-inux.alibaba.com> wrote:
-> > > > > > > >
-> > > > > > > > Now, the virtio core can set the premapped mode by find_vqs=
-().
-> > > > > > > > If the premapped can be enabled, the dma array will not be
-> > > > > > > > allocated. So virtio-net use the api of find_vqs to enable =
-the
-> > > > > > > > premapped.
-> > > > > > > >
-> > > > > > > > Judge the premapped mode by the vq->premapped instead of sa=
-ving
-> > > > > > > > local variable.
-> > > > > > > >
-> > > > > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > > > > > ---
-> > > > > > >
-> > > > > > > I wonder what's the reason to keep a fallback when premapped =
-is not enabled?
-> > > > > >
-> > > > > > Rethink this.
-> > > > > >
-> > > > > > I think you are right. We can remove the fallback.
-> > > > > >
-> > > > > > Because we have the virtio dma apis that wrap all the cases.
-> > > > > > So I will remove the fallback from the virtio-net in next versi=
-on.
-> > > > >
-> > > > > Ok.
-> > > > >
-> > > > > >
-> > > > > > But we still need to export the premapped to the drivers.
-> > > > > > Because we can enable the AF_XDP only when premapped is true.
-> > > > >
-> > > > > I may miss something but it should work like
-> > > > >
-> > > > > enable AF_XDP -> enable remapping
-> > > > >
-> > > > > So can we fail during remapping enablement?
-> > > >
-> > > >
-> > > > YES.
-> > > >
-> > > > Enabling the premapped mode may fail, then we must stop to enable A=
-F_XDP.
-> > > >
-> > > > AF-XDP requires that we export the dma dev to the af-xdp.
-> > > > We can do that only when the virtio core works with use_dma_api.
-> > > > Other other side, if we support the page-pool in future, we may hav=
-e the
-> > > > same requirement.
-> > >
-> > > Rethink this.
-> > >
-> > > Enable premapped MUST NOT fail. No care the use_dma_api is true or no=
-t, because
-> > > we have the DMA APIs for virtio. Then the virtio-net rx will work wit=
-h
-> > > premapped (I will make the big mode work with premapped mode)
+> =C4=8Dt 4. 4. 2024 v 15:37 odes=C3=ADlatel Jakub Kicinski <kuba@kernel.or=
+g> napsal:
 > >
-> > Just to make sure we're at the same page. Rx will always work in the
-> > mode or pre mapping. So we can easily fail the probe if we fail to
-> > enable RX premapping?
->
->
-> NO, enabling premapped mode can not fail. So the rx will always work
-> in the premapping mode.
-
-Ok, kind of my understanding.
-
->
->
+> > On Thu, 4 Apr 2024 07:42:45 +0200 Jaroslav Pulchart wrote:
+> > > We do not have much progress
 > >
-> > >
-> > > AF_XDP checks the virtqueue_dma_dev() when enabling.
-> > >
-> > > But disabling premapped mode may fail, because that virtio ring need =
-to
-> > > allocate memory for dma.
-> >
-> > That's kind of too tricky, what if we just allocate the memory for dma
-> > unconditionally?
+> > Random thought - do you have KFENCE enabled?
+> > It's sufficiently low overhead to run in production and maybe it could
+> > help catch the bug? You also hit some inexplicable bug in the Intel
+> > driver, IIRC, there may be something odd going on.. (it's not all
+> > happening on a single machine, right?)
 >
-> It's ok, but we waste the memory.
+> We have KFENCE enabled.
+>
+> Issue was observed at multiple servers. It is not a problem to reproduce =
+it
+> everywhere where we deploy Loki service. The trigger is: I click
+> once/twice "run query" (LogQL) button by Grafana UI. the Loki is
+> starting to load data from the minio cluster at a speed of ~2GB/s and
+> almost immediately it crashes.
+>
+> The Intel ICE driver is in my suspicion as well, it will not be for
+> the first time when we are hitting some bugs there. I will try one
+> testing server where we have different NIC vendor later.
 
-Probably, but the point is to reduce the complexity of the codes for symmet=
-ry:
-
-We don't need to have and maintain codes for fallback mode when we
-fail to disable premapping.
-
-Thanks
-
->
-> Thanks.
->
->
->
-> >
-> > Thanks
-> >
-> > >
-> > > Thanks.
-> > >
-> > >
-> > >
-> > > >
-> > > >
-> > > > Thanks.
-> > > >
-> > > >
-> > > > >
-> > > > > THanks
-> > > > >
-> > > > > >
-> > > > > > Thanks
-> > > > > >
-> > > > > >
-> > > > > > >
-> > > > > > > Thanks
-> > > > > > >
-> > > > > >
-> > > > >
-> > > >
-> > >
-> >
->
-
+I run the setup on a server with a different network card than E810, I
+used BCM57414 NetXtreme-E + driver bnxt_en. The issue is not
+reproducible there. So it looks to be connected with Intel's ice
+driver for E810 network card and introduced in 6.3.
