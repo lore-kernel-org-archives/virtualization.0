@@ -1,59 +1,60 @@
-Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
+Received: from mail-pf1-f173.google.com (mail-pf1-f173.google.com [209.85.210.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FC7415A5
-	for <virtualization@lists.linux.dev>; Tue,  9 Apr 2024 00:33:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 995BC15A5
+	for <virtualization@lists.linux.dev>; Tue,  9 Apr 2024 00:37:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712622795; cv=none; b=tuk97rh6e5Qq89yaNnLdyfks+GG+Gzf5Pp9DK5s45BOfpbcPE+XefzNozU3Pt8OvWDddr34NcBcgJWBE1Yl1ja/cmLcYegLFCXfHCL0q3zvHeydToMC8fBctDb6IVmy9fGYvMN6MjWMZtUHjMtBiSE1xv5XPoFlPdRY1L9tPZkE=
+	t=1712623044; cv=none; b=IOdcF6W05uzheo7eI3wq7UASh0h/0OtaqPbxfl1yY/87cKxg5qdW723BWq71o1MrSWPNNBR30JAoyRiS18WHVPH/vRaj5usLGkEcK9ieY7oQMLVbF+9vtP06Yz2ElSVCyujQlCR/uCqnPU+kG5PixLsT2s0kvQHCtMWzaSXU4OQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712622795; c=relaxed/simple;
-	bh=DJ/hQ2jxsHQO4QqjkfXY3cUKzfZdwjLfN1fz+yoHqxE=;
+	s=arc-20240116; t=1712623044; c=relaxed/simple;
+	bh=vZmp0bx+mzP0lPzvsYZrDCEbUdzNeE9lYo4IHZ0/+q4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Rwiwo352xy0Oa8RKb9In0c1vo5vR1Mj42YjNEx6JsIULaJP7EBVHF+2DCfbRjVd4Rj9qh8bF51Fb2aCUpi5+MzDOa8uknI4goVnj7GhCtiRHkNn9p7kE4s+j281PIngHzwFH1lqAG7BfC9HTtcZVFnmqpSIAMU+gnK+OLdUnEtI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com; spf=pass smtp.mailfrom=rivosinc.com; dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b=BXmu9emh; arc=none smtp.client-ip=209.85.214.177
+	 In-Reply-To:Content-Type; b=EPhrFTnn7YhSOE1e6RnEYBOgAzWnQnP1s+y8b8Win3oi+MlJBUMruZm7da7xxcMAflC6EhWrn0PmUQA1l0K2dDclRdZjN4jCoQ9I9UZlOXj0ReRtEoMjt38XnuGsqzUY/kmbKR+vdpcx40pKVby0CPRrpatTiZbP2fMqzj5rL04=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com; spf=pass smtp.mailfrom=rivosinc.com; dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b=DWUYNUwH; arc=none smtp.client-ip=209.85.210.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rivosinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b="BXmu9emh"
-Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-1e455b630acso6991025ad.1
-        for <virtualization@lists.linux.dev>; Mon, 08 Apr 2024 17:33:13 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b="DWUYNUwH"
+Received: by mail-pf1-f173.google.com with SMTP id d2e1a72fcca58-6ecd957f949so4933177b3a.0
+        for <virtualization@lists.linux.dev>; Mon, 08 Apr 2024 17:37:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rivosinc-com.20230601.gappssmtp.com; s=20230601; t=1712622793; x=1713227593; darn=lists.linux.dev;
+        d=rivosinc-com.20230601.gappssmtp.com; s=20230601; t=1712623042; x=1713227842; darn=lists.linux.dev;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=f/CJmT3YaooE8CB2QIvUgCnYPke09ytqabQq9mjiodg=;
-        b=BXmu9emh9b+eeQ7G02MEKB7HsRBU2lgm9r4Gh1+UPSw2o6XnvhNdQtzn2LJ4Fy7uHu
-         ca2nC8Sa8sKmkkq5OQqMBVdVkvy1uzZiZ3kJlgrJ6YwDwlcsUQm34ly/79xlFmigAtwe
-         sf4ay0YLBKrj3QZC88I5DNNzrQTdA9xXX/3UaSOULaSBoou3wFENNfrKndYoNRCNJrNh
-         0LSc4X5D87y86Rm8WlpSTmaiZE1BJObYRh2OZgiFqUKz9KV+Bb79q9LtWzog4WuhjSDS
-         Gb0PyrOg/Q1bhX3RTJs7zizuIvffNodjDWweAPKhMjc7b6NYxGtB4G+xweDtH4mtOXVk
-         wjIg==
+        bh=4Vx/fAicKDWjQK8Xf/GodtuH9rKioxrSCP+le6IWBVk=;
+        b=DWUYNUwHwgHBkZRUQPQBGcE1F7WSZd8NZg7pxCfW3UW1X95uP+7b/HDefHza41XSjD
+         PyrfzlvOi333SnYPxFh6obULCm+wMRGao+Xr+1jtIUGxxRgSaa930jlhsth9r82vdPte
+         Lb+GbtM4oJSrMsgg9AOf9eD/meegwIo8sW0BYeATZvh1hdNJv+AQejQi3/J85ecOXSoP
+         8zCi/m+hMjDHQy0AR7q2jbHH3e4ZLOjN/cWLo6ieeAvJlLE9L521lRdpPdryX0J0jVRU
+         C80igs6AoWjw5CeSqYMv4upoNV+C46tb3o40h03+3q3RsbDkYnvkRrLZrRwqiohMIQ3d
+         il+Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712622793; x=1713227593;
+        d=1e100.net; s=20230601; t=1712623042; x=1713227842;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=f/CJmT3YaooE8CB2QIvUgCnYPke09ytqabQq9mjiodg=;
-        b=fj07wrow5bt93Nu+waWWfLdGVSPukPw5y2wDLlJ8Hhj7ng5KPMaKduArFrDxzeko8e
-         HGRm/qMMvO0c5kB1IzVW0XAOTDk0JtXzYJ9H+bJI6OV+HNUTWECXDVdx0CCzcYD8OcZy
-         5hGIwq27YPejg9H6q4Tbkl/KB6Prek6JjsIRqV0wQzf3Gy0rPhQm7h4Dnw+qAchpgQ33
-         nGtnRc0g2G5AUWn8Ym0RVrwoh6tsqMgl9zgaNY7KjMP2bdKqdXIxhiPCWcIK1D/+haEf
-         4OYPM6GzhryMImvhxD9UWTlg8g3BN+/r2aLSz42yQ4jdLJapD/j1Jz3oHLR4XodqtrGO
-         o4IQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUZHyQVuVifbwOJ90u8qhaq9qhVR6NrXvjal/2G2eEWS2Y6rlj/V3LymFB3+mULTNW8WS9wLVryoAFKiZ9BPqwzV8h9ToVO0Hz4eipGHU8=
-X-Gm-Message-State: AOJu0YzArK83OPpMERNaFCZZQexG3M0JizqNZAWz7MB+HcK+ffnoPsif
-	6gH9rYCg+X6NAvTCuMekm7a4IIchOoGjxoI48WddW3irne3a2bKJOum0jvhtSX0=
-X-Google-Smtp-Source: AGHT+IEvUCM8edq+BJU6njmxP2S88uAHY8Y4uoAWuaqv8e2rJW7YxBXFjZFMDPCzo+f8OYSJfA0hYA==
-X-Received: by 2002:a17:903:404b:b0:1e4:35b9:f150 with SMTP id n11-20020a170903404b00b001e435b9f150mr2977778pla.11.1712622792665;
-        Mon, 08 Apr 2024 17:33:12 -0700 (PDT)
+        bh=4Vx/fAicKDWjQK8Xf/GodtuH9rKioxrSCP+le6IWBVk=;
+        b=QzSj8zY1eujrdJoYBXXyWz+SNMbac8P77rCXc+zPH6pzVCyL70B5fElXF2QyZTmDQX
+         1lsLgf3a6QfBk+lXogCppuTmObbVGrfZsQ3W4N8uXLZ3Tl2nwqIzlLglfhtG+t80+KxY
+         elvRR6BLIJFtZnfM+C1v/fF1s4fy6RoGdDO42a4o2j+3m3t7CDnY3BJJNfgC863H+Do4
+         8YED2HFL9kDtfxQ/lqR4v2rxgrTvau15Tl/zvOy1Xe1wn57+WIMx00OPxWi92kkUbH+E
+         5QeFYAEqanHYQ32npslTwSlul5etAZKRDctFGWpeva04ebG44piKRug8fVZG3MopLUr2
+         hkDQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUj83ufX2367e07xCB2it7ZGhJnDQPKLd86H/V7v13nTYZhP5JGrVRrssSKk4/f54OIw9DRWbYfxxgE0Lfo/aMEq+mmZguYuZUH/OQmDpM=
+X-Gm-Message-State: AOJu0Yy6hRDiGde33+KDtCDHb0eipNxvDbSuKikC1a2m7dpfQyWqvebh
+	hvv8vR0dymJzoxct6gzCRxVBPv8O3tp6yk49n/Jx2sVUV3bWC685V80ZR8+mYm+xQ3Z7ozwIdZl
+	j
+X-Google-Smtp-Source: AGHT+IHr0Zo6nHVaV/pKfVqhANW/8W9ESaRusAuX8dauWvgSDh5Rc7uN98R5kCiiSEnkLb0cWYp8TA==
+X-Received: by 2002:a05:6a20:7355:b0:1a7:1e1c:3031 with SMTP id v21-20020a056a20735500b001a71e1c3031mr13412563pzc.36.1712623041952;
+        Mon, 08 Apr 2024 17:37:21 -0700 (PDT)
 Received: from ?IPV6:2601:647:4180:9630::e8c1? ([2601:647:4180:9630::e8c1])
-        by smtp.gmail.com with ESMTPSA id m10-20020a170902db0a00b001e0e977f655sm7621722plx.159.2024.04.08.17.33.11
+        by smtp.gmail.com with ESMTPSA id e7-20020a170902784700b001dd578121d4sm7786884pln.204.2024.04.08.17.37.20
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 08 Apr 2024 17:33:12 -0700 (PDT)
-Message-ID: <a50d426c-a7c0-49d9-8bdf-d15ba53ba40f@rivosinc.com>
-Date: Mon, 8 Apr 2024 17:33:10 -0700
+        Mon, 08 Apr 2024 17:37:21 -0700 (PDT)
+Message-ID: <976411ab-6ddf-4b10-8e13-1575928415ce@rivosinc.com>
+Date: Mon, 8 Apr 2024 17:37:19 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -61,7 +62,7 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 12/22] RISC-V: KVM: Implement SBI PMU Snapshot feature
+Subject: Re: [PATCH v5 20/22] KVM: riscv: selftests: Add SBI PMU selftest
 Content-Language: en-US
 To: Andrew Jones <ajones@ventanamicro.com>
 Cc: linux-kernel@vger.kernel.org, Anup Patel <anup@brainfault.org>,
@@ -77,129 +78,141 @@ Cc: linux-kernel@vger.kernel.org, Anup Patel <anup@brainfault.org>,
  VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
  Will Deacon <will@kernel.org>, x86@kernel.org
 References: <20240403080452.1007601-1-atishp@rivosinc.com>
- <20240403080452.1007601-13-atishp@rivosinc.com>
- <20240405-1060c986299eaac3528c7d4f@orel>
+ <20240403080452.1007601-21-atishp@rivosinc.com>
+ <20240405-d1a4cb9a441a05a9d2f8b1c8@orel>
 From: Atish Patra <atishp@rivosinc.com>
-In-Reply-To: <20240405-1060c986299eaac3528c7d4f@orel>
+In-Reply-To: <20240405-d1a4cb9a441a05a9d2f8b1c8@orel>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 4/5/24 04:23, Andrew Jones wrote:
-> On Wed, Apr 03, 2024 at 01:04:41AM -0700, Atish Patra wrote:
->> PMU Snapshot function allows to minimize the number of traps when the
->> guest access configures/access the hpmcounters. If the snapshot feature
->> is enabled, the hypervisor updates the shared memory with counter
->> data and state of overflown counters. The guest can just read the
->> shared memory instead of trap & emulate done by the hypervisor.
->>
->> This patch doesn't implement the counter overflow yet.
->>
->> Reviewed-by: Anup Patel <anup@brainfault.org>
->> Signed-off-by: Atish Patra <atishp@rivosinc.com>
->> ---
->>   arch/riscv/include/asm/kvm_vcpu_pmu.h |   7 ++
->>   arch/riscv/kvm/vcpu_pmu.c             | 121 +++++++++++++++++++++++++-
->>   arch/riscv/kvm/vcpu_sbi_pmu.c         |   3 +
->>   3 files changed, 130 insertions(+), 1 deletion(-)
->>
->> diff --git a/arch/riscv/include/asm/kvm_vcpu_pmu.h b/arch/riscv/include/asm/kvm_vcpu_pmu.h
->> index 395518a1664e..77a1fc4d203d 100644
->> --- a/arch/riscv/include/asm/kvm_vcpu_pmu.h
->> +++ b/arch/riscv/include/asm/kvm_vcpu_pmu.h
->> @@ -50,6 +50,10 @@ struct kvm_pmu {
->>   	bool init_done;
->>   	/* Bit map of all the virtual counter used */
->>   	DECLARE_BITMAP(pmc_in_use, RISCV_KVM_MAX_COUNTERS);
->> +	/* The address of the counter snapshot area (guest physical address) */
->> +	gpa_t snapshot_addr;
->> +	/* The actual data of the snapshot */
->> +	struct riscv_pmu_snapshot_data *sdata;
->>   };
->>   
->>   #define vcpu_to_pmu(vcpu) (&(vcpu)->arch.pmu_context)
->> @@ -85,6 +89,9 @@ int kvm_riscv_vcpu_pmu_ctr_cfg_match(struct kvm_vcpu *vcpu, unsigned long ctr_ba
->>   int kvm_riscv_vcpu_pmu_ctr_read(struct kvm_vcpu *vcpu, unsigned long cidx,
->>   				struct kvm_vcpu_sbi_return *retdata);
->>   void kvm_riscv_vcpu_pmu_init(struct kvm_vcpu *vcpu);
->> +int kvm_riscv_vcpu_pmu_snapshot_set_shmem(struct kvm_vcpu *vcpu, unsigned long saddr_low,
->> +				      unsigned long saddr_high, unsigned long flags,
->> +				      struct kvm_vcpu_sbi_return *retdata);
->>   void kvm_riscv_vcpu_pmu_deinit(struct kvm_vcpu *vcpu);
->>   void kvm_riscv_vcpu_pmu_reset(struct kvm_vcpu *vcpu);
->>   
->> diff --git a/arch/riscv/kvm/vcpu_pmu.c b/arch/riscv/kvm/vcpu_pmu.c
->> index 2d9929bbc2c8..f706c688b338 100644
->> --- a/arch/riscv/kvm/vcpu_pmu.c
->> +++ b/arch/riscv/kvm/vcpu_pmu.c
->> @@ -14,6 +14,7 @@
->>   #include <asm/csr.h>
->>   #include <asm/kvm_vcpu_sbi.h>
->>   #include <asm/kvm_vcpu_pmu.h>
->> +#include <asm/sbi.h>
->>   #include <linux/bitops.h>
->>   
->>   #define kvm_pmu_num_counters(pmu) ((pmu)->num_hw_ctrs + (pmu)->num_fw_ctrs)
->> @@ -311,6 +312,80 @@ int kvm_riscv_vcpu_pmu_read_hpm(struct kvm_vcpu *vcpu, unsigned int csr_num,
->>   	return ret;
->>   }
->>   
->> +static void kvm_pmu_clear_snapshot_area(struct kvm_vcpu *vcpu)
+On 4/5/24 05:50, Andrew Jones wrote:
+> On Wed, Apr 03, 2024 at 01:04:49AM -0700, Atish Patra wrote:
+> ...
+>> +static void test_pmu_basic_sanity(void)
 >> +{
->> +	struct kvm_pmu *kvpmu = vcpu_to_pmu(vcpu);
->> +	int snapshot_area_size = sizeof(struct riscv_pmu_snapshot_data);
+>> +	long out_val = 0;
+>> +	bool probe;
+>> +	struct sbiret ret;
+>> +	int num_counters = 0, i;
+>> +	union sbi_pmu_ctr_info ctrinfo;
 >> +
->> +	if (kvpmu->sdata) {
->> +		if (kvpmu->snapshot_addr != INVALID_GPA) {
->> +			memset(kvpmu->sdata, 0, snapshot_area_size);
->> +			kvm_vcpu_write_guest(vcpu, kvpmu->snapshot_addr,
->> +					     kvpmu->sdata, snapshot_area_size);
->> +		} else {
->> +			pr_warn("snapshot address invalid\n");
->> +		}
->> +		kfree(kvpmu->sdata);
->> +		kvpmu->sdata = NULL;
+>> +	probe = guest_sbi_probe_extension(SBI_EXT_PMU, &out_val);
+>> +	GUEST_ASSERT(probe && out_val == 1);
+>> +
+>> +	num_counters = get_num_counters();
+>> +
+>> +	for (i = 0; i < num_counters; i++) {
+>> +		ret = sbi_ecall(SBI_EXT_PMU, SBI_EXT_PMU_COUNTER_GET_INFO, i,
+>> +				0, 0, 0, 0, 0);
+>> +
+>> +		/* There can be gaps in logical counter indicies*/
+>> +		if (ret.error)
+>> +			continue;
+>> +		GUEST_ASSERT_NE(ret.value, 0);
+>> +
+>> +		ctrinfo.value = ret.value;
+>> +
+>> +		/**
+>> +		 * Accesibillity check of hardware and read capability of firmware counters.
+> 
+> Accessibility
+> 
+
+Fixed it.
+
+>> +		 * The spec doesn't mandate any initial value. No need to check any value.
+>> +		 */
+>> +		read_counter(i, ctrinfo);
 >> +	}
->> +	kvpmu->snapshot_addr = INVALID_GPA;
+>> +
+>> +	GUEST_DONE();
 >> +}
 >> +
->> +int kvm_riscv_vcpu_pmu_snapshot_set_shmem(struct kvm_vcpu *vcpu, unsigned long saddr_low,
->> +				      unsigned long saddr_high, unsigned long flags,
->> +				      struct kvm_vcpu_sbi_return *retdata)
+>> +static void run_vcpu(struct kvm_vcpu *vcpu)
 >> +{
->> +	struct kvm_pmu *kvpmu = vcpu_to_pmu(vcpu);
->> +	int snapshot_area_size = sizeof(struct riscv_pmu_snapshot_data);
->> +	int sbiret = 0;
->> +	gpa_t saddr;
->> +	unsigned long hva;
->> +	bool writable;
+>> +	struct ucall uc;
 >> +
->> +	if (!kvpmu || flags) {
->> +		sbiret = SBI_ERR_INVALID_PARAM;
->> +		goto out;
+>> +	vcpu_run(vcpu);
+>> +	switch (get_ucall(vcpu, &uc)) {
+>> +	case UCALL_ABORT:
+>> +		REPORT_GUEST_ASSERT(uc);
+>> +		break;
+>> +	case UCALL_DONE:
+>> +	case UCALL_SYNC:
+>> +		break;
+>> +	default:
+>> +		TEST_FAIL("Unknown ucall %lu", uc.cmd);
+>> +		break;
 >> +	}
+>> +}
 >> +
->> +	if (saddr_low == SBI_SHMEM_DISABLE && saddr_high == SBI_SHMEM_DISABLE) {
->> +		kvm_pmu_clear_snapshot_area(vcpu);
->> +		return 0;
->> +	}
+>> +void test_vm_destroy(struct kvm_vm *vm)
+>> +{
+>> +	memset(ctrinfo_arr, 0, sizeof(union sbi_pmu_ctr_info) * RISCV_MAX_PMU_COUNTERS);
+>> +	counter_mask_available = 0;
+>> +	kvm_vm_free(vm);
+>> +}
 >> +
->> +	saddr = saddr_low;
+>> +static void test_vm_basic_test(void *guest_code)
+>> +{
+>> +	struct kvm_vm *vm;
+>> +	struct kvm_vcpu *vcpu;
 >> +
->> +	if (saddr_high != 0) {
->> +		if (IS_ENABLED(CONFIG_32BIT))
->> +			saddr |= ((gpa_t)saddr << 32);
+>> +	vm = vm_create_with_one_vcpu(&vcpu, guest_code);
+>> +	__TEST_REQUIRE(__vcpu_has_sbi_ext(vcpu, KVM_RISCV_SBI_EXT_PMU),
+>> +				   "SBI PMU not available, skipping test");
+>> +	vm_init_vector_tables(vm);
+>> +	/* Illegal instruction handler is required to verify read access without configuration */
+>> +	vm_install_exception_handler(vm, EXC_INST_ILLEGAL, guest_illegal_exception_handler);
 > 
-> saddr |= ((gpa_t)saddr_high << 32)
+> I still don't see where the "verify" part is. The handler doesn't record
+> that it had to handle anything.
 > 
 
-Oops. Thanks for catching it. Fixed.
+The objective of the test is to ensure that we get an illegal 
+instruction without configuration. The presence of the registered 
+exception handler is sufficient for that.
+
+The verify part is that the test doesn't end up in a illegal instruction 
+exception when you try to access a counter without configuring.
+
+Let me know if you think we should more verbose comment to explain the 
+scenario.
 
 
->> +		else
->> +			sbiret = SBI_ERR_INVALID_ADDRESS;
->> +		goto out;
->> +	}
 >> +
+>> +	vcpu_init_vector_tables(vcpu);
+>> +	run_vcpu(vcpu);
+>> +
+>> +	test_vm_destroy(vm);
+>> +}
+>> +
+>> +static void test_vm_events_test(void *guest_code)
+>> +{
+>> +	struct kvm_vm *vm = NULL;
+>> +	struct kvm_vcpu *vcpu = NULL;
+>> +
+>> +	vm = vm_create_with_one_vcpu(&vcpu, guest_code);
+>> +	__TEST_REQUIRE(__vcpu_has_sbi_ext(vcpu, KVM_RISCV_SBI_EXT_PMU),
+>> +				   "SBI PMU not available, skipping test");
+>> +	run_vcpu(vcpu);
+>> +
+>> +	test_vm_destroy(vm);
+>> +}
+>> +
+>> +int main(void)
+>> +{
+>> +	test_vm_basic_test(test_pmu_basic_sanity);
+>> +	pr_info("SBI PMU basic test : PASS\n");
+>> +
+>> +	test_vm_events_test(test_pmu_events);
+>> +	pr_info("SBI PMU event verification test : PASS\n");
+>> +
+>> +	return 0;
+>> +}
+>> -- 
+>> 2.34.1
+>>
 > 
 > Thanks,
 > drew
