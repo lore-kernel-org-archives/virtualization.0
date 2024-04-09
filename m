@@ -1,243 +1,138 @@
-Received: from APC01-TYZ-obe.outbound.protection.outlook.com (mail-tyzapc01on2124.outbound.protection.outlook.com [40.107.117.124])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7A8B4F883
-	for <virtualization@lists.linux.dev>; Tue,  9 Apr 2024 01:49:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.117.124
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712627386; cv=fail; b=Ss77P+thWmpKuDKYfp5c0TvGChewT1rQ5Acmw/Aqoad+U692p6CWIGQUM05GVq2oQKPdGqUf0iOEFjTDTyDNTGbTzJT/ZlCYiFbwOFnBL2GSeeT26RhPIhTTh+srUP7QAcpKn83ErN3WwcwP4VmWWhp20slrqm9uVjgtYFFu9UU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712627386; c=relaxed/simple;
-	bh=J993L2IyB13upmbFKXLOsvcNWtm95aeqmsSMHI6h7jY=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=EVBQLXkAF3LpKU8iK9pMLmDg5BRJSG1EMTXqN/duGJAf4ECAcScj4yKghmfKuRKoytVwUBUO3MXCD69sxjlMWFd15yDMaPdCSQ6pOxV9W1x10Pj+CZMz+p2sgp1xnqytkdt36MIjdhQ7W0gXxYOEYDnXq3Yx9qnftuhO7QN9B3g=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=jaguarmicro.com; spf=pass smtp.mailfrom=jaguarmicro.com; dkim=pass (2048-bit key) header.d=jaguarmicro.com header.i=@jaguarmicro.com header.b=SMmxoNgk; arc=fail smtp.client-ip=40.107.117.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=jaguarmicro.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=jaguarmicro.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 918E34EB23
+	for <virtualization@lists.linux-foundation.org>; Tue,  9 Apr 2024 01:54:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1712627681; cv=none; b=YgaxSSD3tkxvg/u7o6Flz7CdrsBSSyEZQn3B8j94sWTwh/f77RTMKCFdxCZnE8dS/wJAfTeciact031iWz2647zSqndLf7V0RW+2+0Joav/AJ0BV5NotNOWRiPaWPTCgI3H4FWOF3T934SDc6IrVDKZolR9RNeWRiqFVX12ZLPw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1712627681; c=relaxed/simple;
+	bh=cP1SbuC4f3QZPYcto5RfNrOvo22XXm4PnBqKOlfeabw=;
+	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=mt/IvpA2ypyqFlYXWXJmu6X+xNQvYPcdRDotQoap2O101FicnwRgiN3OVcT8Y2T9L+srCxncwMS0P4qivRm9+MyBMsfbE5sxjL+rgE+GIulOOn/WvirD5M2CFMIQGWEwwLCJIP8o2yrKk5YZPtZMnjaiR6YlmrqZsHZfvVa8tEA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=XdeHlM6Y; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=jaguarmicro.com header.i=@jaguarmicro.com header.b="SMmxoNgk"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=PiooDFc/6bmPG47H8RQDZ7bLoAD0WkMRC09IKaYq+SnIa1YrVgXN2MXhIPoA4I0Zh5JnWcfgTYSo8g2X7aAQ9YwgbmXB2DAwFDl3ZH2FMrk984ODNSSwE9yowIMq1Wq9hkFneqkbflfibdLjOXZ/ChdHw4e/k8flSM0KCT7qQBfirZQDHAi1y2o2Id6N105Jn5P7URup+daCqJBZTN6czIVmjgj2Cm2Q/kLh82aS9AJ6mP9nqfz+RbdIpWO7hjh0HuLPA7AkAXxVLKMmLVReoEdQ5dlJy8B2kEmJd7k8YXQx+7Om82556XGdyKWZoJvRFiQ2h1Oec35bjtYiCBD9ew==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=q/2YvXX2cpa9YVQN1WupnEmpMqbJpGbmWaXiT/uRcd8=;
- b=gq1zlcXWkHucSGaeZehu6snDcOVOac1DFChoZGkiIJdYMHA57eL5+mqAN7BTHUGRnIr5mEFQsowMfkADZqgR0eu890DuRVYdfpotIGgH+GAi5olG77ATX1T6J2FKuiwaf/KCh+qdDEJmg434pBcP+hN0MrFggr/GLjeeOOeiw56cMlvOs8SBZ0V81yBOXx2G3Hv6QVP/oqib6Ku/U+dm+rRdDmAxWuY4eoNm6KKMvChDcCCMwUZtCfev7WxkH5WbtQUB/BOatAlDkKB9yHO023isF7z/TKSW+/sNwHrcmcg8XGexKsUfg6TJDMtHaQWaPyO/3RSHYiURwaQMJmC80A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=jaguarmicro.com; dmarc=pass action=none
- header.from=jaguarmicro.com; dkim=pass header.d=jaguarmicro.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=jaguarmicro.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=q/2YvXX2cpa9YVQN1WupnEmpMqbJpGbmWaXiT/uRcd8=;
- b=SMmxoNgkOAioQDCjINQSX7rTyn7FliXmJToYrSfAlHAn0CR8Eg9xukjruK28EUinY/vYhyH7wzLAhpGQSaZ/IGJl4GWBSUHDj1F1UJ6LVdrFqcxuBsTGapYEwHS02cbVDXRY11GQzxqlsCLvw78sbAD6Z1lazTXWX0vxIe5TVdpWgWSzQjqt/eBHacgsoBrJ+Dt+rDoRcAoB7HJu7loNQfuAmKjtrTbwqQL37LrNKf0s6XVc56xattb9O2ilu9TNLtPGomd2022pXL02n9zoyCx6CtkMJTzie6o2BVdWtS5w99ysFneCmcTW4/mZkcn+EGhNonryFtT9WLPym8I5VA==
-Received: from SEYPR06MB6756.apcprd06.prod.outlook.com (2603:1096:101:165::11)
- by TY0PR06MB6839.apcprd06.prod.outlook.com (2603:1096:405:10::5) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7409.46; Tue, 9 Apr
- 2024 01:49:39 +0000
-Received: from SEYPR06MB6756.apcprd06.prod.outlook.com
- ([fe80::922f:a649:adbf:6634]) by SEYPR06MB6756.apcprd06.prod.outlook.com
- ([fe80::922f:a649:adbf:6634%6]) with mapi id 15.20.7409.042; Tue, 9 Apr 2024
- 01:49:39 +0000
-From: lyx634449800 <yuxue.liu@jaguarmicro.com>
-To: mst@redhat.com,
-	jasowang@redhat.com
-Cc: angus.chen@jaguarmicro.com,
-	virtualization@lists.linux.dev,
-	xuanzhuo@linux.alibaba.com,
-	yuxue.liu@jaguarmicro.com,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v3] vp_vdpa: fix the method of calculating vectors
-Date: Tue,  9 Apr 2024 09:49:35 +0800
-Message-Id: <20240409014935.944-1-yuxue.liu@jaguarmicro.com>
-X-Mailer: git-send-email 2.33.0.windows.2
-In-Reply-To: <20240408035346-mutt-send-email-mst@kernel.org>
-References: <20240408035346-mutt-send-email-mst@kernel.org>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: TYCPR01CA0159.jpnprd01.prod.outlook.com
- (2603:1096:400:2b1::15) To SEYPR06MB6756.apcprd06.prod.outlook.com
- (2603:1096:101:165::11)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="XdeHlM6Y"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 362D881D02
+	for <virtualization@lists.linux-foundation.org>; Tue,  9 Apr 2024 01:54:40 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.699
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id g1q_lCDZoJTk for <virtualization@lists.linux-foundation.org>;
+ Tue,  9 Apr 2024 01:54:39 +0000 (UTC)
+Received-SPF: None (mailfrom) identity=mailfrom; client-ip=198.175.65.12; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 4CBC981A6A
+Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4CBC981A6A
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=XdeHlM6Y
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 4CBC981A6A
+	for <virtualization@lists.linux-foundation.org>; Tue,  9 Apr 2024 01:54:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1712627679; x=1744163679;
+  h=message-id:date:mime-version:cc:subject:to:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=cP1SbuC4f3QZPYcto5RfNrOvo22XXm4PnBqKOlfeabw=;
+  b=XdeHlM6YWIL9DNa9RrH6kzl4afUKa9WDFPD8iipwx960sPIa1nGA/6iE
+   lCbdJWANATZ33Qaku8walmeftlcPrTPmq5zeMeRGKy4LLKyeOHFP0q4Xm
+   NZDxuk7ZqfJW2i24SmmhgYTiDu+fq9CaXXcKSP8N8UTC//nbvOhBtoyir
+   SPolokqYXJU/n+063zoyVo5m5ZPE+BH/iTX7pCAPobpmjuJqshdZkYi6j
+   TSp0m/YNdwtzAqdiFqejhNh1trVAjTwuVVHl4r+sw6sTGEwyRKerxZlhv
+   ojkm8KUqHZEl6XqaHCCHBxUq1IsCefLcZYoQHKsjKKqlHpZZXbTJTRdQD
+   A==;
+X-CSE-ConnectionGUID: TnVnn7tvT1WWsDcaMjTt9Q==
+X-CSE-MsgGUID: STMi7xDxS7GlIEoOjSQvBQ==
+X-IronPort-AV: E=McAfee;i="6600,9927,11038"; a="19363446"
+X-IronPort-AV: E=Sophos;i="6.07,188,1708416000"; 
+   d="scan'208";a="19363446"
+Received: from orviesa004.jf.intel.com ([10.64.159.144])
+  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Apr 2024 18:54:38 -0700
+X-CSE-ConnectionGUID: XDdYf3l8Q4S5Rs0iB+gAcA==
+X-CSE-MsgGUID: APDLEsHJT3my+ORT1HG5+w==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.07,188,1708416000"; 
+   d="scan'208";a="24814545"
+Received: from unknown (HELO [10.239.159.127]) ([10.239.159.127])
+  by orviesa004.jf.intel.com with ESMTP; 08 Apr 2024 18:54:34 -0700
+Message-ID: <4c07d54f-6c6c-47be-9e5a-3cff8162dd3b@linux.intel.com>
+Date: Tue, 9 Apr 2024 09:53:26 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SEYPR06MB6756:EE_|TY0PR06MB6839:EE_
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info:
-	+HwAissD9KZA45SpjWOHCMadnG0T0sBC5VjW6us9OtO2CdWreDa4UtboMwgO6h++6+8IB/s2gVlWBILsqnqwQKdleKBU47NbIzgKpjHpKoRbiPeuwJ6WdJ5r47000n5lmj1YlShE8kFdY+mH3OQA55L8GMbmZhCYYx5AdWkujRGuAZWmlbbaWEHk86nUTPSCQD6sEvAsQTwAWGt7qiG7Lf7kIvS96X/UHMiX7dpHJmDm16Kll1hQUiIRiZJhrUysXDoNrg3RpzihTuehoD/jLdOeUTjFLA7ej9sgKeYd3oE3oGdb/MmI7odoG24pTd74be1x94WbFTNjiIvlj/kfui4n2AMjIrjV1w2/t1PzDowLllbdfeIzZ2WRS3h57y0TYHH7DtxOkfOaSK7Bv3rp+8ZzcNNSsk25sS0Uhr5ODdu5jMhuwYObmlJZx/SQYsvE4az3ITip7k2SbcQc7xAc8D1eT2ZCz5PdU8Dj7wnWN+IfVNG5zFrm3N4BqGRlFJI6o/lA3XLYPOgt1h042h3qr+Lw1ldcy6z2QYs3VPBhzCul3V8p6f9z05XETwGhkvkF6NkUnvsB1dKjOvGFwT8xmp98ZYBKXRWqO214fsKg0ktGKXBNxtGFmY5iKanfCOMsa3wmO/LUwR1/wMRYz+cNRECdPMAGqJcyrO+5km4LpRmq4hwMFBpceopxgV75hS0e
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SEYPR06MB6756.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(366007)(52116005)(376005)(1800799015)(38350700005)(43062008);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?TjrwEwRf8PR2NujH2pno/l4vXzSTep4i4uONJV31usTuNWQFfw6ikdmj7/eE?=
- =?us-ascii?Q?GHk8nYrfIwf9WtskYem5vo83ZqGC44ylUkxz4iClrPv1BtxWUlhPHnkCKhWk?=
- =?us-ascii?Q?3HrEWSDL8/7Bv+FWq1myAMzTwAGWz4452RA7KDKNMYSY1iE6uuph6TDU/uZs?=
- =?us-ascii?Q?xXWfO1YIxaCuxexARbya3MXc0aT5CyeHtkfljM57ffxDS7myXdANMyCVQ002?=
- =?us-ascii?Q?QcH9iDkiYRNDqrQTYyvQ7hxNCV4eQQyf1fMpJySh3R3Mb2oW8UjmOQ3RbPAL?=
- =?us-ascii?Q?t2Kj8saCoCWZy8Kp+KixFqNl6a/En94EUyGVmFmQDrecOD/wfdykcs63t5n/?=
- =?us-ascii?Q?2e35uF5XFWaXyMZqcgV+ybMFxOgwFyUzP+n9FndVyezAPChTjVZRGFGYe4NN?=
- =?us-ascii?Q?E4wU6SJFwxCa0ZwIWNkl1j8t/eXVv13mAVEeZeFN+9T8G2MGcFLP2Cp4sg0C?=
- =?us-ascii?Q?Yft+Hul9hUuNnS2zYvEKPmrIlw3oEz381/2v1dckQOhnaFSfrRvPqYyFBITi?=
- =?us-ascii?Q?RgSM/QokQosI9k2L9E9j8zCHY/hgzDlt7IzUk+gxJzFz6dpZuz7R8bmjp9+W?=
- =?us-ascii?Q?YGYtjSl7AC232wXlLPjRz1EIaQVX4RwPJaGQP2xxFIwi8VMmMieL6eoWanXq?=
- =?us-ascii?Q?gHPL1sZ9U/1RM0eCyr4HjJqMfbFyHud7U8LQ2UN525YY1NQrrH04/fHwXHcG?=
- =?us-ascii?Q?kNbqfiiqveAAAgOlAucbd+4na4b86CAVLYf5yIGuzaGf/zEip4OQiNN0MZuD?=
- =?us-ascii?Q?Ut1V9H4r9EdrJCpUxQVibXVqtU3FNRyQKCR94UjC/Y1DJ2yHPYEM2bimVi0n?=
- =?us-ascii?Q?7iOe2UWvlR0tugwbg/N/suGcjNoLWHa23J4b8c3zIup8mU6cYZKMia8cPAYL?=
- =?us-ascii?Q?agbJsyfUVwpsyjsqnXOzgFhuwRgPOHnqxPfh+lKmu0Mk+dgUCbctO+/+4en8?=
- =?us-ascii?Q?31A+btrtHVfFvy1KQLlPbFL4bOyhR2eqreWX5Yi/FjaA35mxyUOYANAbDKEg?=
- =?us-ascii?Q?zml0/9pAHwKfzwGTYE1UWoZX7i78ve5sGNyc4BwuLotkAyg7tWbNb3ZRffim?=
- =?us-ascii?Q?6Ja6JCevExgTcZf1X7sn59ru4h9puET7D8g7R+/30ddvIfSrCxFBXdgXLK4q?=
- =?us-ascii?Q?xN1heqN9/F9TjCRa6fLgkD36CkjjzQjI7QYTWGvPv7C1dsF/hWTIkf3b5Ud/?=
- =?us-ascii?Q?WSCT4xL+RUTI8GCBipUgOULnmKVcr8lW455uDJX9TZVeUbMz07f3MMvChVKF?=
- =?us-ascii?Q?OyYWb7HL6PwKCCQIvdeX5ITgZbGCvkS2W1ZhOTE54I47KGxNl6BbztOxZ/PI?=
- =?us-ascii?Q?kLp6iGffMF6cAM1Ljo0hu7ybhqCVzFnJ8uxAAlC4Xds/64wPjfxPlvgasz7D?=
- =?us-ascii?Q?aVkz2MeJ5Fiix/w45SkANNAuwI0kpMHaedXAFwG885Dwwt3XNBGedClBWl7A?=
- =?us-ascii?Q?jcIPN3FE3JVKtQd5nIpgL4pnYnprv3d5Ykx97V2fx95Tpuoy/Ku00CKO0ks8?=
- =?us-ascii?Q?O6ibRgmhi/I99azTSycN5F7WcPYwoZlx9ddKJ92runBgDXWGfzbXHL8a/HED?=
- =?us-ascii?Q?luePWpyLAUSNyncrDCBh+Yww/Vp02tx5coocR7Mt0NLgW9Bhy6D3G04leK/t?=
- =?us-ascii?Q?3A=3D=3D?=
-X-OriginatorOrg: jaguarmicro.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0102e1ac-1eab-4cbd-6085-08dc583751a6
-X-MS-Exchange-CrossTenant-AuthSource: SEYPR06MB6756.apcprd06.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Apr 2024 01:49:39.7978
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 1e45a5c2-d3e1-46b3-a0e6-c5ebf6d8ba7b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: jxfPuFJ2mGFi3D/kneuFVM/e4S8FSgNcNfxzQS3Labdhh9P4yxLMduntJLfWtuZLQaMwPm+a2AMhafbGW8FJiSOqGOoUYV5mR+UDfwErdYg=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: TY0PR06MB6839
+User-Agent: Mozilla Thunderbird
+Cc: baolu.lu@linux.intel.com, Kevin Tian <kevin.tian@intel.com>,
+ Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+ Robin Murphy <robin.murphy@arm.com>,
+ Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
+ Jacob Pan <jacob.jun.pan@linux.intel.com>,
+ Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
+ virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4 1/9] iommu: Introduce domain attachment handle
+To: Jason Gunthorpe <jgg@nvidia.com>
+References: <20240403011519.78512-1-baolu.lu@linux.intel.com>
+ <20240403011519.78512-2-baolu.lu@linux.intel.com>
+ <20240403115851.GA1723999@nvidia.com>
+ <3b740988-7fe6-4328-8ce2-d66d9a2ab497@linux.intel.com>
+ <20240408140548.GO5383@nvidia.com>
+Content-Language: en-US
+From: Baolu Lu <baolu.lu@linux.intel.com>
+In-Reply-To: <20240408140548.GO5383@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-When there is a ctlq and it doesn't require interrupt
-callbacks,the original method of calculating vectors
-wastes hardware msi or msix resources as well as system
-IRQ resources.
+On 4/8/24 10:05 PM, Jason Gunthorpe wrote:
+>> void iommufd_fault_domain_detach_dev(struct iommufd_hw_pagetable *hwpt,
+>>                                       struct iommufd_device *idev)
+>>   {
+>> +       struct iommufd_fault *fault = hwpt->fault;
+>> +       struct iommu_attach_handle *handle;
+>> +
+>>          if (WARN_ON(!hwpt->fault_capable))
+>>                  return;
+>>
+>> +       handle = iommu_attach_handle_get(idev->igroup->group,
+>> IOMMU_NO_PASID);
+>>          iommu_detach_group(hwpt->domain, idev->igroup->group);
+>>          iommufd_fault_iopf_disable(idev);
+> But is this right? Couldn't there be PASID's doing PRI?
 
-When conducting performance testing using testpmd in the
-guest os, it was found that the performance was lower compared
-to directly using vfio-pci to passthrough the device
+As far as I can see, there are two types of user PASID.
 
-In scenarios where the virtio device in the guest os does
-not utilize interrupts, the vdpa driver still configures
-the hardware's msix vector. Therefore, the hardware still
-sends interrupts to the host os. Because of this unnecessary
-action by the hardware, hardware performance decreases, and
-it also affects the performance of the host os.
+1. When a device is assigned to userspace, the PASID table is managed by
+    the userspace.
 
-Before modification:(interrupt mode)
- 32:  0   0  0  0 PCI-MSI 32768-edge    vp-vdpa[0000:00:02.0]-0
- 33:  0   0  0  0 PCI-MSI 32769-edge    vp-vdpa[0000:00:02.0]-1
- 34:  0   0  0  0 PCI-MSI 32770-edge    vp-vdpa[0000:00:02.0]-2
- 35:  0   0  0  0 PCI-MSI 32771-edge    vp-vdpa[0000:00:02.0]-config
+    Userspace doesn't need PASID attach/detach/replace uAPIs in this
+    scenario. All I/O page faults are directed to userspace through the
+    hw pagetable attached to the RID.
 
-After modification:(interrupt mode)
- 32:  0  0  1  7   PCI-MSI 32768-edge  vp-vdpa[0000:00:02.0]-0
- 33: 36  0  3  0   PCI-MSI 32769-edge  vp-vdpa[0000:00:02.0]-1
- 34:  0  0  0  0   PCI-MSI 32770-edge  vp-vdpa[0000:00:02.0]-config
+    If hw pagetable is detached from the RID, or a non-iopf-capable
+    hw pagetable is attached the RID, the PRI for user PASID is already
+    broken.
 
-Before modification:(virtio pmd mode for guest os)
- 32:  0   0  0  0 PCI-MSI 32768-edge    vp-vdpa[0000:00:02.0]-0
- 33:  0   0  0  0 PCI-MSI 32769-edge    vp-vdpa[0000:00:02.0]-1
- 34:  0   0  0  0 PCI-MSI 32770-edge    vp-vdpa[0000:00:02.0]-2
- 35:  0   0  0  0 PCI-MSI 32771-edge    vp-vdpa[0000:00:02.0]-config
+2. When a device is assigned to userspace, the PASID table is managed by
+    the host kernel. Userspace then needs PASID attach/detach/replace
+    uAPIs to manage the hw page table for each PASID. Each PASID has its
+    own hw page table for handling I/O page faults.
 
-After modification:(virtio pmd mode for guest os)
- 32: 0  0  0   0   PCI-MSI 32768-edge   vp-vdpa[0000:00:02.0]-config
+    Here, disabling PRI is only safe after all iopf-capable hw page
+    tables for both the RID and all PASIDs are detached.
 
-To verify the use of the virtio PMD mode in the guest operating
-system, the following patch needs to be applied to QEMU:
-https://lore.kernel.org/all/20240408073311.2049-1-yuxue.liu@jaguarmicro.com
+    The current code base doesn't yet support PASID attach/detach/replace
+    uAPIs. Therefore, above code is safe and reasonable. However, we will
+    need to revisit this code when those APIs become available.
 
-Signed-off-by: lyx634449800 <yuxue.liu@jaguarmicro.com>
----
+Please correct me if my understanding is incorrect.
 
-V3: delete unused variables and add validation records
-V2: fix when allocating IRQs, scan all queues
-
- drivers/vdpa/virtio_pci/vp_vdpa.c | 35 +++++++++++++++++++------------
- 1 file changed, 22 insertions(+), 13 deletions(-)
-
-diff --git a/drivers/vdpa/virtio_pci/vp_vdpa.c b/drivers/vdpa/virtio_pci/vp_vdpa.c
-index df5f4a3bccb5..cd3aeb3b8f21 100644
---- a/drivers/vdpa/virtio_pci/vp_vdpa.c
-+++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
-@@ -160,22 +160,31 @@ static int vp_vdpa_request_irq(struct vp_vdpa *vp_vdpa)
- 	struct pci_dev *pdev = mdev->pci_dev;
- 	int i, ret, irq;
- 	int queues = vp_vdpa->queues;
--	int vectors = queues + 1;
-+	int msix_vec, allocated_vectors = 0;
- 
--	ret = pci_alloc_irq_vectors(pdev, vectors, vectors, PCI_IRQ_MSIX);
--	if (ret != vectors) {
-+	for (i = 0; i < queues; i++) {
-+		if (vp_vdpa->vring[i].cb.callback)
-+			allocated_vectors++;
-+	}
-+	allocated_vectors = allocated_vectors + 1;
-+
-+	ret = pci_alloc_irq_vectors(pdev, allocated_vectors, allocated_vectors,
-+								PCI_IRQ_MSIX);
-+	if (ret != allocated_vectors) {
- 		dev_err(&pdev->dev,
- 			"vp_vdpa: fail to allocate irq vectors want %d but %d\n",
--			vectors, ret);
-+			allocated_vectors, ret);
- 		return ret;
- 	}
--
--	vp_vdpa->vectors = vectors;
-+	vp_vdpa->vectors = allocated_vectors;
- 
- 	for (i = 0; i < queues; i++) {
-+		if (!vp_vdpa->vring[i].cb.callback)
-+			continue;
-+
- 		snprintf(vp_vdpa->vring[i].msix_name, VP_VDPA_NAME_SIZE,
- 			"vp-vdpa[%s]-%d\n", pci_name(pdev), i);
--		irq = pci_irq_vector(pdev, i);
-+		irq = pci_irq_vector(pdev, msix_vec);
- 		ret = devm_request_irq(&pdev->dev, irq,
- 				       vp_vdpa_vq_handler,
- 				       0, vp_vdpa->vring[i].msix_name,
-@@ -185,23 +194,23 @@ static int vp_vdpa_request_irq(struct vp_vdpa *vp_vdpa)
- 				"vp_vdpa: fail to request irq for vq %d\n", i);
- 			goto err;
- 		}
--		vp_modern_queue_vector(mdev, i, i);
-+		vp_modern_queue_vector(mdev, i, msix_vec);
- 		vp_vdpa->vring[i].irq = irq;
-+		msix_vec++;
- 	}
- 
- 	snprintf(vp_vdpa->msix_name, VP_VDPA_NAME_SIZE, "vp-vdpa[%s]-config\n",
--		 pci_name(pdev));
--	irq = pci_irq_vector(pdev, queues);
-+			pci_name(pdev));
-+	irq = pci_irq_vector(pdev, msix_vec);
- 	ret = devm_request_irq(&pdev->dev, irq,	vp_vdpa_config_handler, 0,
- 			       vp_vdpa->msix_name, vp_vdpa);
- 	if (ret) {
- 		dev_err(&pdev->dev,
--			"vp_vdpa: fail to request irq for vq %d\n", i);
-+			"vp_vdpa: fail to request irq for config\n");
- 			goto err;
- 	}
--	vp_modern_config_vector(mdev, queues);
-+	vp_modern_config_vector(mdev, msix_vec);
- 	vp_vdpa->config_irq = irq;
--
- 	return 0;
- err:
- 	vp_vdpa_free_irq(vp_vdpa);
--- 
-2.43.0
-
+Best regards,
+baolu
