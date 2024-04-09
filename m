@@ -1,170 +1,153 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3168360260
-	for <virtualization@lists.linux.dev>; Tue,  9 Apr 2024 03:59:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E70D354776
+	for <virtualization@lists.linux-foundation.org>; Tue,  9 Apr 2024 04:16:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712635192; cv=none; b=kytQ6Cj98Gp0zBsl9ds8FCz8izXTl5PHNMeFrXufI14tqhW/vLp0YCEFuCt5LgtrrLKetFbG0lzsg+RofoaoNh6mjQHY8PxGaqa168E1SBW/pOiPEWjUbXef1l7784YTUErWUiPI8FIOlzZC2HSHxqJW56cpD1p0Hw0PvJwx+ak=
+	t=1712636218; cv=none; b=p5PYpQA4vDHEL6pLl9IIDmC7rKNj9/WPGG6o6fb6sgKptwCZDy8mrb26Y6n/BwDQdhbQo7FTeV37ET7vdAuouFkK6RzRgxlLIrbYHmPR/xWAwjuuf0b+kyfGE76+2tM64ijtpLJ28Ui9RCW3dsc7cyfyyMy+IfnNYPmrkxDpXXk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712635192; c=relaxed/simple;
-	bh=5FLP6vOlq11TgvbsYHRDLMLdOdFYzw0JyC9A9ixaDnU=;
+	s=arc-20240116; t=1712636218; c=relaxed/simple;
+	bh=undWhbOHVVyKh+HISuJKwZeZkWTJpaMwIH+vfP96f8Q=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=tiwqu34vMxmszcwxfOm8JYJyJxf0UAXngPN/+tcg9wpi02c422LWUJ8RT0QVDTf9dvHWs2+MoAMq6l6or13apXVyFo+oDWV6xsZK3dZK5aanZrGLPe9Uu8NpuhVJ8paEjrC6euBF1j4MNUgoQ90AxWMYG2j5P6+W1B4hAkfbPCs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GSKv0Den; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 To:Cc:Content-Type; b=ky3qRZpCTi8y9hR1xlqSXZw3jkoYBAKhHfW8BesA26ydDsBBu9UChix+iU7F7j/xeGisEHeAQDmFCq0fzwCIq1SVCpj0vB1r0Lc/GS1HpnzHpdQSybtftkdsYOvaoeOEBpS9nBe/1ydLacqmb9sIkgxxOkgwX2El6Xs7fmMwtys=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MXCTN7cq; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GSKv0Den"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MXCTN7cq"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 80EC960B74
+	for <virtualization@lists.linux-foundation.org>; Tue,  9 Apr 2024 04:16:56 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id Mu0_FvlYgif9 for <virtualization@lists.linux-foundation.org>;
+ Tue,  9 Apr 2024 04:16:53 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org CECAD60881
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CECAD60881
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=MXCTN7cq
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id CECAD60881
+	for <virtualization@lists.linux-foundation.org>; Tue,  9 Apr 2024 04:16:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1712635186;
+	s=mimecast20190719; t=1712636211;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=ESFjxmFELRVs+AuzBBwmEdBOCmT+SzELHtnXjIlCRYE=;
-	b=GSKv0DenFpA9OmHtm9c54ForX7NIvBs9EKTyi3lKZiljzcVwzt3CaizXCGjdIyc56Vxnrd
-	cPIGeeWsxhk1uNbsNaoTpDI0shixJJbLNvM5ldygpJXQNFEPWV2xXCrm5TRg1btCn864Q8
-	lMhXg7PBHp2JxYp8PAi+3MJuQnmzlc4=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=undWhbOHVVyKh+HISuJKwZeZkWTJpaMwIH+vfP96f8Q=;
+	b=MXCTN7cqaEOoG4Lsx7N9qFOlKXcWwqJhmjMlul+5Rf1MBFTDYFQ4ADbNDbwxNTF00eberm
+	zz6vqd4usy/CcPe06Qm94+w8eMhHTJCSkLt09OVVn0rMzaJ1uLgyDuXPBuHJ/KEn8SW2Kt
+	ThBdcxRSaZrP1gU86RvhJ/tHF2Mh/t4=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-330-APSXvHteO66fy9J8J8q0Ew-1; Mon, 08 Apr 2024 23:59:43 -0400
-X-MC-Unique: APSXvHteO66fy9J8J8q0Ew-1
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-2a2fe3c35a1so3163545a91.0
-        for <virtualization@lists.linux.dev>; Mon, 08 Apr 2024 20:59:41 -0700 (PDT)
+ us-mta-136-CeuM1kuMNt2niRYjtnWtpA-1; Tue, 09 Apr 2024 00:16:49 -0400
+X-MC-Unique: CeuM1kuMNt2niRYjtnWtpA-1
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-2a30dc503f3so3384223a91.0
+        for <virtualization@lists.linux-foundation.org>; Mon, 08 Apr 2024 21:16:49 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712635180; x=1713239980;
+        d=1e100.net; s=20230601; t=1712636208; x=1713241008;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ESFjxmFELRVs+AuzBBwmEdBOCmT+SzELHtnXjIlCRYE=;
-        b=kkbVsH7BWlW5YTtzvHXV7jzjFpeoEuG1B5FCmlrSvUwOnLMywUymSK7fD+lzm/qjHi
-         QXhh/MEfDV+6qgjN/sLfulHWAPyec/lFGSMXXhjmalzp0rUykOYYO5Z9wAw4+Zox/2i3
-         8KquwITjDR0WMej6PY6b0ISsujE/912UngY5oIgVgwu94B4k/891CvSuEaAuAGgEHlrw
-         Jpr1xrwN0iLUD7Nkm0xkQiVOc9VtbcfID0mvDgfVbHu2yd5gPbDgJ27cerjtvul0a3Ne
-         Joa0Qk3gAbHrQME500R4Jy2LCuAPYcX0K5TDmKULtAlXZpZizFS1RmR3JA6M2m6H+6VJ
-         iZmA==
-X-Forwarded-Encrypted: i=1; AJvYcCXlYQTnuWDa22Lex1baMwE2WuneQMt/0mZ9NAmBB4t0oaBY2U1iUr15GSBgXd6HYPsJ18wIaG93HbPvSS/hbWoAYU5Yj9sSs1caWbRmXMQ=
-X-Gm-Message-State: AOJu0YxMWMrRXKfOoxEEpZU0nZ3jcyeo4BVbXasKtzUGLZ+i/LTiODSc
-	QpoDOx/pdN5UBIN1Q0j3XD4/UPsvmuim2tMthvPclWkhzQ0f5BP7VPShz+cPX+xz1LRaOmG8iS7
-	PmU+uO9N+JGmWn64Te1INeqHOrUOCAiHwXnOHOKReNy2eSlQFnWWuEGcpzbe2MRond5wZ+y7IqD
-	HIoOUTazuVPO6X1BRjN6PXfomfqMsUfnLY+Lqaa/Y=
-X-Received: by 2002:a17:902:dac8:b0:1e2:8c12:aac0 with SMTP id q8-20020a170902dac800b001e28c12aac0mr13713178plx.28.1712635180672;
-        Mon, 08 Apr 2024 20:59:40 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IH9tu59WVehtU2mwCb0UaP2HnkqkQT/cJ0414esrTrtY6twmt+l2HIit7o5pyDKqDNa5/emeNwsfHJU5mgffHY=
-X-Received: by 2002:a17:902:dac8:b0:1e2:8c12:aac0 with SMTP id
- q8-20020a170902dac800b001e28c12aac0mr13713164plx.28.1712635180313; Mon, 08
- Apr 2024 20:59:40 -0700 (PDT)
+        bh=undWhbOHVVyKh+HISuJKwZeZkWTJpaMwIH+vfP96f8Q=;
+        b=cPcwn5Qgs2HYyEhJRsWISyXMVGms+vgFDVhmSvFjyWFe4HXzsyjb9hGEI6Cezdj+KV
+         5gjCuT6pL8cSZyJ13HDgef2dogOLehYLOJrCNSCdQydm+kJDaDBA1Olw3YtjwX34GiZy
+         p+g0kVnFWpkIgGhFktuvWvOvid8zOXFlbLFYC/JVjKroq9Xi8AagFaeYhLOQt/9wyGVK
+         RYRThlLUV3sGtt0T4O5WLMXdbgWEdAWWV49m+i+BPp7t2VtbJPsXbKnhMILEK6xesNiH
+         fP2deP+U5wyU2PQfRgVsxFak7rmednCxJAr/Rp3jGUzqIsAuyivJEAiDUxp7y7HpFGho
+         VVFA==
+X-Forwarded-Encrypted: i=1; AJvYcCXt2VIKIK2WTIymwZIL3uWxH7cZCDoFoPizfYL74gmN1mpcFrbdlE+7Vo+G/QLesmN2xXwAWvBlB2+V5X+qpU+GpPCDlHM4ZuebRt0hY42CeQK8l3zGSwP1sw==
+X-Gm-Message-State: AOJu0YxV3wCx08WgU88DpJqvP0qmd9ROI+/QZiRgR6zeOYIiiC32t85z
+	WbE2N7jiKOyt44OO11t96jm2ih9lTjTpJugksDk5evv9qkVFvwqh1DX2v4l8WB2LimknM+iPFTC
+	J+eL4FMJrVOwLflXkuA3MAGc7TgPp9fTYULqr3hAFg3/jCn0I5aDj1j0n8gw2jYjM021x3k9rB0
+	32tTxtdoPYfIjoDrIwW0UdgMs3t+v4sF9qW7IVBT+1+qhfO9jhab66xA==
+X-Received: by 2002:a17:90b:1c12:b0:2a5:3f9a:97ae with SMTP id oc18-20020a17090b1c1200b002a53f9a97aemr3096795pjb.38.1712636208306;
+        Mon, 08 Apr 2024 21:16:48 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGIQNAjdrFayTFv6a1MdsXW71wSs+AxDhRdGw9tDuT8VCitDV4Kif02Ccu2xp3SnWv2d4gmpB6Oqk50AgL8zUU=
+X-Received: by 2002:a17:90b:1c12:b0:2a5:3f9a:97ae with SMTP id
+ oc18-20020a17090b1c1200b002a53f9a97aemr3096786pjb.38.1712636208039; Mon, 08
+ Apr 2024 21:16:48 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240408170252.13566-1-ni_liqiang@126.com>
-In-Reply-To: <20240408170252.13566-1-ni_liqiang@126.com>
+References: <20240316004707.45557-1-michael.christie@oracle.com>
+In-Reply-To: <20240316004707.45557-1-michael.christie@oracle.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 9 Apr 2024 11:59:29 +0800
-Message-ID: <CACGkMEub7vekopiQ1jdh_tHyjOXCADZsouJevioLHEBU1VFOEg@mail.gmail.com>
-Subject: Re: [PATCH] drivers/virtio: delayed configuration descriptor flags
-To: "ni.liqiang" <ni_liqiang@126.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	"jin . qi" <jin.qi@zte.com.cn>, "ni . liqiang" <ni.liqiang@zte.com.cn>, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Date: Tue, 9 Apr 2024 12:16:36 +0800
+Message-ID: <CACGkMEszFm3LZ4Xf41nnPHrsk4xzUPW-7HZf0xAgoxW9D2Sm-Q@mail.gmail.com>
+Subject: Re: [PATCH 0/9] vhost: Support SIGKILL by flushing and exiting
+To: Mike Christie <michael.christie@oracle.com>
+Cc: oleg@redhat.com, ebiederm@xmission.com, 
+	virtualization@lists.linux-foundation.org, mst@redhat.com, 
+	sgarzare@redhat.com, stefanha@redhat.com, brauner@kernel.org, 
+	Laurent Vivier <lvivier@redhat.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Apr 9, 2024 at 1:27=E2=80=AFAM ni.liqiang <ni_liqiang@126.com> wrot=
-e:
+On Sat, Mar 16, 2024 at 8:47=E2=80=AFAM Mike Christie
+<michael.christie@oracle.com> wrote:
 >
-> In our testing of the virtio hardware accelerator, we found that
-> configuring the flags of the descriptor after addr and len,
-> as implemented in DPDK, seems to be more friendly to the hardware.
+> The following patches were made over Linus's tree and also apply over
+> mst's vhost branch. The patches add the ability for vhost_tasks to
+> handle SIGKILL by flushing queued works, stop new works from being
+> queued, and prepare the task for an early exit.
 >
-> In our Virtio hardware implementation tests, using the default
-> open-source code, the hardware's bulk reads ensure performance
-> but correctness is compromised. If we refer to the implementation code
-> of DPDK, placing the flags configuration of the descriptor
-> after addr and len, virtio backend can function properly based on
-> our hardware accelerator.
+> This removes the need for the signal/coredump hacks added in:
 >
-> I am somewhat puzzled by this. From a software process perspective,
-> it seems that there should be no difference whether
-> the flags configuration of the descriptor is before or after addr and len=
-.
-> However, this is not the case according to experimental test results.
-> We would like to know if such a change in the configuration order
-> is reasonable and acceptable?
+> Commit f9010dbdce91 ("fork, vhost: Use CLONE_THREAD to fix freezer/ps reg=
+ression")
+>
+> when the vhost_task patches were initially merged and fix the issue
+> in this thread:
+>
+> https://lore.kernel.org/all/000000000000a41b82060e875721@google.com/
+>
+> Long Background:
+>
+> The original vhost worker code didn't support any signals. If the
+> userspace application that owned the worker got a SIGKILL, the app/
+> process would exit dropping all references to the device and then the
+> file operation's release function would be called. From there we would
+> wait on running IO then cleanup the device's memory.
+>
+> When we switched to vhost_tasks being a thread in the owner's process we
+> added some hacks to the signal/coredump code so we could continue to
+> wait on running IO and process it from the vhost_task. The idea was that
+> we would eventually remove the hacks. We recently hit this bug:
+>
+> https://lore.kernel.org/all/000000000000a41b82060e875721@google.com/
+>
+> It turns out only vhost-scsi had an issue where it would send a command
+> to the block/LIO layer, wait for a response and then process in the vhost
+> task.
 
-Harmless but a hint that there's a bug in your hardware?
+Vhost-net TX zerocopy code did the same:
 
-More below
+It sends zerocopy packets to the under layer and waits for the
+underlayer. When the DMA is completed, vhost_zerocopy_callback will be
+called to schedule vq work for used ring updating.
 
->
-> Thanks.
->
-> Signed-off-by: ni.liqiang <ni_liqiang@126.com>
-> Reviewed-by: jin.qi <jin.qi@zte.com.cn>
-> Tested-by: jin.qi <jin.qi@zte.com.cn>
-> Cc: ni.liqiang <ni.liqiang@zte.com.cn>
-> ---
->  drivers/virtio/virtio_ring.c | 9 +++++----
->  1 file changed, 5 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 6f7e5010a673..bea2c2fb084e 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -1472,15 +1472,16 @@ static inline int virtqueue_add_packed(struct vir=
-tqueue *_vq,
->                         flags =3D cpu_to_le16(vq->packed.avail_used_flags=
- |
->                                     (++c =3D=3D total_sg ? 0 : VRING_DESC=
-_F_NEXT) |
->                                     (n < out_sgs ? 0 : VRING_DESC_F_WRITE=
-));
-> -                       if (i =3D=3D head)
-> -                               head_flags =3D flags;
-> -                       else
-> -                               desc[i].flags =3D flags;
->
->                         desc[i].addr =3D cpu_to_le64(addr);
->                         desc[i].len =3D cpu_to_le32(sg->length);
->                         desc[i].id =3D cpu_to_le16(id);
->
-> +                       if (i =3D=3D head)
-> +                               head_flags =3D flags;
-> +                       else
-> +                               desc[i].flags =3D flags;
-> +
-
-The head_flags are not updated at this time, so descriptors are not
-available, the device should not start to read the chain:
-
-        /*
-         * A driver MUST NOT make the first descriptor in the list
-         * available before all subsequent descriptors comprising
-         * the list are made available.
-         */
-        virtio_wmb(vq->weak_barriers);
-        vq->packed.vring.desc[head].flags =3D head_flags;
-        vq->num_added +=3D descs_used;
-
-It looks like your device does speculation reading on the descriptors
-that are not available?
+> So patches 1-5 prepares vhost-scsi to handle when the vhost_task
+> is killed while we still have commands outstanding. The next patches then
+> prepare and convert the vhost and vhost_task layers to handle SIGKILL
+> by flushing running works, marking the vhost_task as dead so there's
+> no future uses, then exiting.
 
 Thanks
 
->                         if (unlikely(vq->use_dma_api)) {
->                                 vq->packed.desc_extra[curr].addr =3D addr=
-;
->                                 vq->packed.desc_extra[curr].len =3D sg->l=
-ength;
-> --
-> 2.34.1
+>
 >
 >
 
