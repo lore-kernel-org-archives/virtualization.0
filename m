@@ -1,32 +1,49 @@
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Received: from smtp-fw-52003.amazon.com (smtp-fw-52003.amazon.com [52.119.213.152])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0FBB839E6
-	for <virtualization@lists.linux.dev>; Tue,  9 Apr 2024 09:56:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3281586AF4;
+	Tue,  9 Apr 2024 11:45:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.119.213.152
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712656616; cv=none; b=nDLjv5xnWV4RdcbzllZlJRP1NyWj0yw9AMcPiSjJ0eyrH6PW88kRLQPBqeqQBYxOcmky/dbBEBBsVPd0PVbN094ZPBC/SVqb4THrOzmuSh10EORsRtR+JeyvBD93WU1OVxBVEu7QY4G4Dx8E3auEgYjzZaqE6EhsAYKleXlGjvU=
+	t=1712663152; cv=none; b=fh1NBwGqho9YbKjaQLz/bYK/+6uH75ubXRKqL2aUOtZ9M7S1xP0poKVGhry7fVxtSMUmhcd79Gma0Dz74egnPtpaeKNoSmoHNFHgPDkIJJtgmuE5pTtp9rOMVaepKcdwDiM0mhPW5bJdD8vaACmo5LG4wg9LyAXXeN1iEmsjXyQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712656616; c=relaxed/simple;
-	bh=23riWL0Gd60rPfm/N+Bksf6fpUnyFPCyw8iYZCSbqm4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=AXrjRVu8FFDLX8kBK//yqsVoRk4MCMyKtKxPubHkvDegkl4rPeEDFYyPNRywvpJv5xM5t+yBZcpKCm+CXEL42cPunRiEm3dk5WBuuxuJ7wni0a2cumVWUflvyOv4aCwPRzuuGvfuDjC9lLOxQHv5iuZoLI8TulcsigME/XUYSkk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=fVvPcU0Z; arc=none smtp.client-ip=115.124.30.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1712663152; c=relaxed/simple;
+	bh=GFjr+qUI/xJlRfC49pDYbbQ+5mOHCUk/2gN5wZX0VPA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=hh55wpvHymdkrSEv2OdJtyWBeuRe9tpC3+b8hqL/f7AiN09ygLnhCRKoilSvVBRff2X5nDwCzU1mfpJ0bhjOxzdYhR9PqcC1kovil7n+lmvGNCBA+jFuxlM56/cH7FYnWAEMo4ZtkK6ATcjELv/T6PEoFqGZkoCovvWX9qOFShU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.de; dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b=Re2MZHX5; arc=none smtp.client-ip=52.119.213.152
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="fVvPcU0Z"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1712656605; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=OQGIdks+efdOpe57pVeyT82POjXjytrYc+w+BN9nedU=;
-	b=fVvPcU0ZviY6wU5aXzWT4UeS8viYIYGU0mWzvHF1X2n/f+bF8S+ISZm9gb4wyjzelg4JNjFUVE9oL1sqfa4Hfz6OA2ljl8pKzEwjjjX3T0XR34feP9awzBgwYvyS3az+nb+XCI3nXLxvRRRTqrnQSlUrCcCJVOxDa2b5SS9VuHc=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0W4E4QQU_1712656603;
-Received: from 30.221.146.5(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W4E4QQU_1712656603)
-          by smtp.aliyun-inc.com;
-          Tue, 09 Apr 2024 17:56:44 +0800
-Message-ID: <ffab38f0-2ec6-4ed2-b0f8-398f2829b71d@linux.alibaba.com>
-Date: Tue, 9 Apr 2024 17:56:43 +0800
+	dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b="Re2MZHX5"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1712663151; x=1744199151;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=GFjr+qUI/xJlRfC49pDYbbQ+5mOHCUk/2gN5wZX0VPA=;
+  b=Re2MZHX5GydCM8B6KilkbcXlSGPSLv0DHVNAFcmqvWsd0IZ1NH+wl46p
+   jp+rvzqYg9VvAX9wn3JpJghaHuXQWE2yPEhE8P08rq+2tVNxto7uD3tbV
+   QrLFtsNiMvuJGKG0kOuG7Rz2NIhkvDaaqqVhKqvF/2RhKVIbglEWBhS4x
+   g=;
+X-IronPort-AV: E=Sophos;i="6.07,189,1708387200"; 
+   d="scan'208";a="650727234"
+Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO smtpout.prod.us-west-2.prod.farcaster.email.amazon.dev) ([10.43.8.6])
+  by smtp-border-fw-52003.iad7.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Apr 2024 11:45:43 +0000
+Received: from EX19MTAUWC002.ant.amazon.com [10.0.21.151:49900]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.27.169:2525] with esmtp (Farcaster)
+ id 3f52ccb2-10c8-4639-a2de-4651f9e21034; Tue, 9 Apr 2024 11:45:42 +0000 (UTC)
+X-Farcaster-Flow-ID: 3f52ccb2-10c8-4639-a2de-4651f9e21034
+Received: from EX19D020UWC004.ant.amazon.com (10.13.138.149) by
+ EX19MTAUWC002.ant.amazon.com (10.250.64.143) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1258.28; Tue, 9 Apr 2024 11:45:38 +0000
+Received: from [0.0.0.0] (10.253.83.51) by EX19D020UWC004.ant.amazon.com
+ (10.13.138.149) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1258.28; Tue, 9 Apr
+ 2024 11:45:22 +0000
+Message-ID: <7c82670e-6063-4b0f-9bbf-805a0d949d84@amazon.com>
+Date: Tue, 9 Apr 2024 13:45:18 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -34,133 +51,68 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4] vp_vdpa: don't allocate unused msix vectors
-To: lyx634449800 <yuxue.liu@jaguarmicro.com>
-Cc: angus.chen@jaguarmicro.com, virtualization@lists.linux.dev,
- xuanzhuo@linux.alibaba.com, linux-kernel@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-References: <20240409013020-mutt-send-email-mst@kernel.org>
- <20240409085818.1242-1-yuxue.liu@jaguarmicro.com>
-From: Heng Qi <hengqi@linux.alibaba.com>
-In-Reply-To: <20240409085818.1242-1-yuxue.liu@jaguarmicro.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH v2 15/25] misc: nsm: drop owner assignment
+Content-Language: en-US
+To: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>, "Michael S. Tsirkin"
+	<mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
+	<xuanzhuo@linux.alibaba.com>, Jonathan Corbet <corbet@lwn.net>, "David
+ Hildenbrand" <david@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, "Richard
+ Weinberger" <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>, Paolo Bonzini
+	<pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Jens Axboe
+	<axboe@kernel.dk>, Marcel Holtmann <marcel@holtmann.org>, "Luiz Augusto von
+ Dentz" <luiz.dentz@gmail.com>, Olivia Mackall <olivia@selenic.com>, Herbert
+ Xu <herbert@gondor.apana.org.au>, Amit Shah <amit@kernel.org>, Arnd Bergmann
+	<arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Gonglei
+	<arei.gonglei@huawei.com>, "David S. Miller" <davem@davemloft.net>, "Sudeep
+ Holla" <sudeep.holla@arm.com>, Cristian Marussi <cristian.marussi@arm.com>,
+	Viresh Kumar <vireshk@kernel.org>, Linus Walleij <linus.walleij@linaro.org>,
+	Bartosz Golaszewski <brgl@bgdev.pl>, David Airlie <airlied@redhat.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard
+	<mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, Daniel Vetter
+	<daniel@ffwll.ch>, Jean-Philippe Brucker <jean-philippe@linaro.org>, "Joerg
+ Roedel" <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy
+	<robin.murphy@arm.com>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski
+	<kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Eric Van Hensbergen
+	<ericvh@kernel.org>, Latchesar Ionkov <lucho@ionkov.net>, Dominique Martinet
+	<asmadeus@codewreck.org>, Christian Schoenebeck <linux_oss@crudebyte.com>,
+	Stefano Garzarella <sgarzare@redhat.com>, Kalle Valo <kvalo@kernel.org>, "Dan
+ Williams" <dan.j.williams@intel.com>, Vishal Verma
+	<vishal.l.verma@intel.com>, Dave Jiang <dave.jiang@intel.com>, Ira Weiny
+	<ira.weiny@intel.com>, "Pankaj Gupta" <pankaj.gupta.linux@gmail.com>, Bjorn
+ Andersson <andersson@kernel.org>, Mathieu Poirier
+	<mathieu.poirier@linaro.org>, "James E.J. Bottomley" <jejb@linux.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>, Vivek Goyal
+	<vgoyal@redhat.com>, Miklos Szeredi <miklos@szeredi.hu>, "Anton Yakovlev"
+	<anton.yakovlev@opensynergy.com>, Jaroslav Kysela <perex@perex.cz>, Takashi
+ Iwai <tiwai@suse.com>
+CC: <virtualization@lists.linux.dev>, <linux-doc@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-um@lists.infradead.org>,
+	<linux-block@vger.kernel.org>, <linux-bluetooth@vger.kernel.org>,
+	<linux-crypto@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
+	<linux-gpio@vger.kernel.org>, <dri-devel@lists.freedesktop.org>,
+	<iommu@lists.linux.dev>, <netdev@vger.kernel.org>, <v9fs@lists.linux.dev>,
+	<kvm@vger.kernel.org>, <linux-wireless@vger.kernel.org>,
+	<nvdimm@lists.linux.dev>, <linux-remoteproc@vger.kernel.org>,
+	<linux-scsi@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
+	<alsa-devel@alsa-project.org>, <linux-sound@vger.kernel.org>
+References: <20240331-module-owner-virtio-v2-0-98f04bfaf46a@linaro.org>
+ <20240331-module-owner-virtio-v2-15-98f04bfaf46a@linaro.org>
+From: Alexander Graf <graf@amazon.com>
+In-Reply-To: <20240331-module-owner-virtio-v2-15-98f04bfaf46a@linaro.org>
+X-ClientProxiedBy: EX19D035UWA002.ant.amazon.com (10.13.139.60) To
+ EX19D020UWC004.ant.amazon.com (10.13.138.149)
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: base64
 
+Ck9uIDMxLjAzLjI0IDEwOjQ0LCBLcnp5c3p0b2YgS296bG93c2tpIHdyb3RlOgo+IHZpcnRpbyBj
+b3JlIGFscmVhZHkgc2V0cyB0aGUgLm93bmVyLCBzbyBkcml2ZXIgZG9lcyBub3QgbmVlZCB0by4K
+Pgo+IFNpZ25lZC1vZmYtYnk6IEtyenlzenRvZiBLb3psb3dza2kgPGtyenlzenRvZi5rb3psb3dz
+a2lAbGluYXJvLm9yZz4KCgpSZXZpZXdlZC1ieTogQWxleGFuZGVyIEdyYWYgPGdyYWZAYW1hem9u
+LmNvbT4KCgpBbGV4CgoKCgpBbWF6b24gRGV2ZWxvcG1lbnQgQ2VudGVyIEdlcm1hbnkgR21iSApL
+cmF1c2Vuc3RyLiAzOAoxMDExNyBCZXJsaW4KR2VzY2hhZWZ0c2Z1ZWhydW5nOiBDaHJpc3RpYW4g
+U2NobGFlZ2VyLCBKb25hdGhhbiBXZWlzcwpFaW5nZXRyYWdlbiBhbSBBbXRzZ2VyaWNodCBDaGFy
+bG90dGVuYnVyZyB1bnRlciBIUkIgMTQ5MTczIEIKU2l0ejogQmVybGluClVzdC1JRDogREUgMjg5
+IDIzNyA4NzkKCgo=
 
-
-在 2024/4/9 下午4:58, lyx634449800 写道:
-> From: Yuxue Liu <yuxue.liu@jaguarmicro.com>
->
-> When there is a ctlq and it doesn't require interrupt
-> callbacks,the original method of calculating vectors
-> wastes hardware msi or msix resources as well as system
-> IRQ resources.
->
-> When conducting performance testing using testpmd in the
-> guest os, it was found that the performance was lower compared
-> to directly using vfio-pci to passthrough the device
->
-> In scenarios where the virtio device in the guest os does
-> not utilize interrupts, the vdpa driver still configures
-> the hardware's msix vector. Therefore, the hardware still
-> sends interrupts to the host os. Because of this unnecessary
-> action by the hardware, hardware performance decreases, and
-> it also affects the performance of the host os.
->
-> Before modification:(interrupt mode)
->   32:  0   0  0  0 PCI-MSI 32768-edge    vp-vdpa[0000:00:02.0]-0
->   33:  0   0  0  0 PCI-MSI 32769-edge    vp-vdpa[0000:00:02.0]-1
->   34:  0   0  0  0 PCI-MSI 32770-edge    vp-vdpa[0000:00:02.0]-2
->   35:  0   0  0  0 PCI-MSI 32771-edge    vp-vdpa[0000:00:02.0]-config
->
-> After modification:(interrupt mode)
->   32:  0  0  1  7   PCI-MSI 32768-edge  vp-vdpa[0000:00:02.0]-0
->   33: 36  0  3  0   PCI-MSI 32769-edge  vp-vdpa[0000:00:02.0]-1
->   34:  0  0  0  0   PCI-MSI 32770-edge  vp-vdpa[0000:00:02.0]-config
->
-> Before modification:(virtio pmd mode for guest os)
->   32:  0   0  0  0 PCI-MSI 32768-edge    vp-vdpa[0000:00:02.0]-0
->   33:  0   0  0  0 PCI-MSI 32769-edge    vp-vdpa[0000:00:02.0]-1
->   34:  0   0  0  0 PCI-MSI 32770-edge    vp-vdpa[0000:00:02.0]-2
->   35:  0   0  0  0 PCI-MSI 32771-edge    vp-vdpa[0000:00:02.0]-config
->
-> After modification:(virtio pmd mode for guest os)
->   32: 0  0  0   0   PCI-MSI 32768-edge   vp-vdpa[0000:00:02.0]-config
->
-> To verify the use of the virtio PMD mode in the guest operating
-> system, the following patch needs to be applied to QEMU:
-> https://lore.kernel.org/all/20240408073311.2049-1-yuxue.liu@jaguarmicro.com
->
-> Signed-off-by: Yuxue Liu <yuxue.liu@jaguarmicro.com>
-> Acked-by: Jason Wang <jasowang@redhat.com>
-> ---
-> V4: Update the title and assign values to uninitialized variables
-> V3: delete unused variables and add validation records
-> V2: fix when allocating IRQs, scan all queues
->
->   drivers/vdpa/virtio_pci/vp_vdpa.c | 23 +++++++++++++++++------
->   1 file changed, 17 insertions(+), 6 deletions(-)
->
-> diff --git a/drivers/vdpa/virtio_pci/vp_vdpa.c b/drivers/vdpa/virtio_pci/vp_vdpa.c
-> index df5f4a3bccb5..74bc8adfc7e8 100644
-> --- a/drivers/vdpa/virtio_pci/vp_vdpa.c
-> +++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
-> @@ -160,7 +160,14 @@ static int vp_vdpa_request_irq(struct vp_vdpa *vp_vdpa)
->   	struct pci_dev *pdev = mdev->pci_dev;
->   	int i, ret, irq;
->   	int queues = vp_vdpa->queues;
-> -	int vectors = queues + 1;
-> +	int vectors = 0;
-> +	int msix_vec = 0;
-> +
-> +	for (i = 0; i < queues; i++) {
-> +		if (vp_vdpa->vring[i].cb.callback)
-> +			vectors++;
-> +	}
-> +	vectors++;
->   
->   	ret = pci_alloc_irq_vectors(pdev, vectors, vectors, PCI_IRQ_MSIX);
->   	if (ret != vectors) {
-> @@ -173,9 +180,12 @@ static int vp_vdpa_request_irq(struct vp_vdpa *vp_vdpa)
->   	vp_vdpa->vectors = vectors;
->   
->   	for (i = 0; i < queues; i++) {
-> +		if (!vp_vdpa->vring[i].cb.callback)
-> +			continue;
-> +
->   		snprintf(vp_vdpa->vring[i].msix_name, VP_VDPA_NAME_SIZE,
->   			"vp-vdpa[%s]-%d\n", pci_name(pdev), i);
-> -		irq = pci_irq_vector(pdev, i);
-> +		irq = pci_irq_vector(pdev, msix_vec);
->   		ret = devm_request_irq(&pdev->dev, irq,
->   				       vp_vdpa_vq_handler,
->   				       0, vp_vdpa->vring[i].msix_name,
-> @@ -185,21 +195,22 @@ static int vp_vdpa_request_irq(struct vp_vdpa *vp_vdpa)
->   				"vp_vdpa: fail to request irq for vq %d\n", i);
->   			goto err;
->   		}
-> -		vp_modern_queue_vector(mdev, i, i);
-> +		vp_modern_queue_vector(mdev, i, msix_vec);
->   		vp_vdpa->vring[i].irq = irq;
-> +		msix_vec++;
->   	}
->   
->   	snprintf(vp_vdpa->msix_name, VP_VDPA_NAME_SIZE, "vp-vdpa[%s]-config\n",
->   		 pci_name(pdev));
-> -	irq = pci_irq_vector(pdev, queues);
-> +	irq = pci_irq_vector(pdev, msix_vec);
->   	ret = devm_request_irq(&pdev->dev, irq,	vp_vdpa_config_handler, 0,
->   			       vp_vdpa->msix_name, vp_vdpa);
->   	if (ret) {
->   		dev_err(&pdev->dev,
-> -			"vp_vdpa: fail to request irq for vq %d\n", i);
-> +			"vp_vdpa: fail to request irq for config, ret %d\n", ret);
->   			goto err;
->   	}
-> -	vp_modern_config_vector(mdev, queues);
-> +	vp_modern_config_vector(mdev, msix_vec);
->   	vp_vdpa->config_irq = irq;
->   
->   	return 0;
-
-Reviewed-by: Heng Qi <hengqi@linux.alibaba.com>
