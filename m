@@ -1,387 +1,184 @@
-Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C06C37162
-	for <virtualization@lists.linux.dev>; Tue,  9 Apr 2024 22:52:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712703167; cv=none; b=E2hINzqYW8hYtdrS7P9VqTtIbvbZulTxWWLaidxbe32YrcGhNrb7drdRWtSaYax4nj2Z9QiVUkES2CuDtxcwgOmcOYhTGgVIT1+es5PA1bzhQVYC7UVzotLVW2Ter2iDd9ww2/7lgMsLCfIWAabV9swvH4gHRrikiZHbyWonFDs=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712703167; c=relaxed/simple;
-	bh=mAjayV0DPWOtmoPQbTOB12HW/zadj4FzkdoGwSXy7Cw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=JVPu0yN+HF9imeDiwR+ufgimMGKKjB9xcVlZqU5CO1ot6B6tTvK4a3AYrNFLo/2Vnqbhzq1IVqzoUIzLw6a2ch5V79W8+HhFmsrZXfi1G0YijDvGtMCnbFSNh6vgRVZyqUkivOE0VlpTg7zzFfnbmmRJrXXzwubv5EMCTSluFqg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com; spf=pass smtp.mailfrom=rivosinc.com; dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b=teK5Jh4p; arc=none smtp.client-ip=209.85.214.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rivosinc.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB4461E502
+	for <virtualization@lists.linux-foundation.org>; Tue,  9 Apr 2024 23:37:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.133
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1712705872; cv=fail; b=e3Y4D0yJR95d28TJPKPDGCzIyLPR6QAnJCMOd2SEitV8G41C+Bs59ZTo3zVktUFBTK8WMu5QfBDm6/Lfu/oCIvBNVbLI7GHiJn5CnRffaFxOdgwu+6krQTJqlfZfzSXp4kdxe9ooTsnEjJVXIFZHYKq7tkli8NSGEZprLoBhHZE=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1712705872; c=relaxed/simple;
+	bh=VTjtGelYoCQLE5heqSkcOSv7ZHzcgVeOzaWMXLe46vM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=YMAIMFMIwc4+BexF7dg28Donmh7s9LFJU63l6GEU0UZL3laTjfgH9VFribNVqkFLk8mEQj/hbb76y3bqKmCP3oZXPauR6FG7l3ckc+8KRqLlF51Ch3FKpUT/PxCtvQWj5nv/BxHOcVI1d22M3UttYMkRm+d8Q1+KkLVI0IVy7mA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=YGPBkQp5; arc=fail smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b="teK5Jh4p"
-Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-1e4149e7695so20921235ad.0
-        for <virtualization@lists.linux.dev>; Tue, 09 Apr 2024 15:52:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rivosinc-com.20230601.gappssmtp.com; s=20230601; t=1712703164; x=1713307964; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=8646Xh8g5yQ0wp4lvVkVKpM6tKaisldaAHvB1jCcuIM=;
-        b=teK5Jh4pUg4Pm5syQxN6QsnI0vsrFJqINTyxFAkIcoSF3/Pz6gIJvNm9kGfTUPfBYG
-         LVpueEj6DW0D8DSUjwhLtZ31p0u2YUQAHUbZxEu79p3E9Ts8WyMCTK6VdRiYF6e62XsO
-         Up/SqUfS2+Y7RaoDJYti8JMaRcmR7S4duHvtEq4f7NPObo7BFduf90IslhfR2DcynKMt
-         TBt1Ff0yo9USmdp3WmwMyuBT+Jbd5fFAKpphN8pA0d68zkLZCeMWFXNiYbpRXUw1RVFt
-         65ea0G+sC/vtnTREwSETv8NL2rEQCnmgqcmAIrRM1g7bPM/QC5hUJ37FApdqVvdn1Lsm
-         OiCw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712703164; x=1713307964;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=8646Xh8g5yQ0wp4lvVkVKpM6tKaisldaAHvB1jCcuIM=;
-        b=j1g5JBJpOa5fAKmUkuWV+rK+fL/CsvyIyfPbbPmOvYcCVihvuZRX//6SisehyMPOtY
-         jQW2Z46RHL+Jc9gFtr+kWoUSnmU85Xc3nIbWb53nzFPxzbJastfbB7xiJspNkwbu/XYd
-         /MA0Z3o875aKs0/B7Xl/HfgIwpu6xFjxTu2IBmzx9pspTiXTYr/phr9caidSmeTmYwMH
-         Gt7iBtl9yfUWHz6MRGJFmBt6d2SplM1qvwV/n/oh/qETfQjWI/3Y/XP4zqskCg2hK4aC
-         SYJLTr2ui4gdJ7r5eYW4vQ6187tFNGSSj02T7F50OcBw6SIXWOguTy/tDQQXKZLsMtyK
-         hzIg==
-X-Forwarded-Encrypted: i=1; AJvYcCWnKaNszZIfxBFum3mJS8CzcnGyK2KbyzW4pC9itdtVcj9DNoVkmBzW7p9QJWh/y/MiImWtuuyp3zEsPss5iwfxWPLYim7I3r2nLhu5Nsg=
-X-Gm-Message-State: AOJu0YyMTfNimA2Ke6VQe3Tm41Fh2mbXdGylk/1dtwDcp5Dr1bx1Mb2j
-	vV8eimWhd91HOc/ZcERupCEwNGjME7KytrmhY8u8KwY927+jsKzHu422DvMk53Y=
-X-Google-Smtp-Source: AGHT+IHPTK8LD9zQy/xLQpYsma/G3UlebQRk8nSskauRbNZ+/B4hgd1PN7d7FaruEdopv10/t5kwJg==
-X-Received: by 2002:a17:902:e548:b0:1e0:b9d0:f6b with SMTP id n8-20020a170902e54800b001e0b9d00f6bmr1177730plf.68.1712703163716;
-        Tue, 09 Apr 2024 15:52:43 -0700 (PDT)
-Received: from [10.0.16.226] ([50.145.13.30])
-        by smtp.gmail.com with ESMTPSA id q12-20020a170902e30c00b001e290812d49sm9463411plc.226.2024.04.09.15.52.41
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 09 Apr 2024 15:52:42 -0700 (PDT)
-Message-ID: <8748dbed-d105-4f26-a808-667c3b56c8ec@rivosinc.com>
-Date: Tue, 9 Apr 2024 15:52:40 -0700
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="YGPBkQp5"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 3C09B40153
+	for <virtualization@lists.linux-foundation.org>; Tue,  9 Apr 2024 23:37:51 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.103
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id B_RZwnOiMM7X for <virtualization@lists.linux-foundation.org>;
+ Tue,  9 Apr 2024 23:37:50 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2417::701; helo=nam12-dm6-obe.outbound.protection.outlook.com; envelope-from=jgg@nvidia.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 30F674012F
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 30F674012F
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=YGPBkQp5
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on20701.outbound.protection.outlook.com [IPv6:2a01:111:f403:2417::701])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 30F674012F
+	for <virtualization@lists.linux-foundation.org>; Tue,  9 Apr 2024 23:37:49 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=kcJGmg2kLPGVlGLFXvDqBppLzotdP6gGd9pcjS/YNJGxTRBWV6+VUaVXb6AhI9/QhdctN+3t0YUAooqMYAwDjjfOCb3AXDGycVPqrAYR30LH8jiBXICVEWUhkNdwkAZmCfB0O7OCTyHdsiIzEtjE3LaRlzaKZmu8gEATcq4pF/wDHO6r4bnfKLbESS88wNEpkPNVjzrnX5B3VJcQBBgo9P0nSwHHIH+zDeVQ2RRPWyWSuRb5Te6K3nWeor0QLfkO4C28F1xmU/1mDULOjehZe5HKtdOoARPGjVmJ75EIDqXADrSxnDLVViA/37UWcB6fp3RcFp/M2o3dUGvR4es5wg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=9IpGrnGO+L3WySjGonK20fSbPGCkpndthFhKCrYpGN8=;
+ b=U4qXDkkj34ofcdGZkN0txUYaLd7a2o7W17w+6tPqZaHe9ctoOYp0sC4KvRXeWe2efUCqxSNcLM2ZD+mG58mWckujq7xxKqEfwmWMOukha+R6Wf+mWPUDcLOJGDdtfhHA5sdiQl/5kmeVY762yVqF2YgMbMU/ryV56x7+N2wWRN94sKYiKBOFRF5JD4Iw5HNZ7HXM0hY3SxfEOAp3qwCxyPghaaiHEZPHtvrFgFzv+Y/ihmmP5Lep0spQ0CDlj0lRqbaNd2Qw9g9KU3L1ypiQiXrnMmj1VodEUc1NJxy/5UXm3jA+EaQlVEJpWZ2rz2I5l220Xuh6cXtseEoeIXxJow==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=9IpGrnGO+L3WySjGonK20fSbPGCkpndthFhKCrYpGN8=;
+ b=YGPBkQp5eHE9xV8JN9Oz0W5p44JyuGDYPKQ3zzxqAnK+8Bg4lb9DufDIAGehvljpOyxgOPY+BPTTySkEwEiIud8tsoUZzux1zuS284QaDRdK/9JUr2hZrMlwVsJ1GDsK6I0wINoAODoMjslG4CzWrwelwzx+D2kLWmqTxdHCi1APdpcJZmU0khM+IouF9+Z7ABCf2cMBtDaLfnJGyR2vsjaWU647EUUI7U2eMYjWBfcuEYb+0s6yPnwqoiwDkPjKu7CxTHyzL2Xp9/EQ1R3RFF/ZLqHQcDewgrCQHIa/IOjUzWcwZsJKCI1n618m6ZtkniIB+gGqLHP424zRePB0ew==
+Received: from DM6PR12MB3849.namprd12.prod.outlook.com (2603:10b6:5:1c7::26)
+ by CY5PR12MB6371.namprd12.prod.outlook.com (2603:10b6:930:f::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7409.55; Tue, 9 Apr
+ 2024 23:37:46 +0000
+Received: from DM6PR12MB3849.namprd12.prod.outlook.com
+ ([fe80::6aec:dbca:a593:a222]) by DM6PR12MB3849.namprd12.prod.outlook.com
+ ([fe80::6aec:dbca:a593:a222%5]) with mapi id 15.20.7409.053; Tue, 9 Apr 2024
+ 23:37:46 +0000
+Date: Tue, 9 Apr 2024 20:37:44 -0300
+From: Jason Gunthorpe <jgg@nvidia.com>
+To: Baolu Lu <baolu.lu@linux.intel.com>
+Cc: Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
+	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
+	Jean-Philippe Brucker <jean-philippe@linaro.org>,
+	Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
+	Jacob Pan <jacob.jun.pan@linux.intel.com>,
+	Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
+	virtualization@lists.linux-foundation.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4 1/9] iommu: Introduce domain attachment handle
+Message-ID: <20240409233744.GI5383@nvidia.com>
+References: <20240403011519.78512-1-baolu.lu@linux.intel.com>
+ <20240403011519.78512-2-baolu.lu@linux.intel.com>
+ <20240403115851.GA1723999@nvidia.com>
+ <3b740988-7fe6-4328-8ce2-d66d9a2ab497@linux.intel.com>
+ <20240408140548.GO5383@nvidia.com>
+ <4c07d54f-6c6c-47be-9e5a-3cff8162dd3b@linux.intel.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4c07d54f-6c6c-47be-9e5a-3cff8162dd3b@linux.intel.com>
+X-ClientProxiedBy: BL1P223CA0011.NAMP223.PROD.OUTLOOK.COM
+ (2603:10b6:208:2c4::16) To DM6PR12MB3849.namprd12.prod.outlook.com
+ (2603:10b6:5:1c7::26)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 21/22] KVM: riscv: selftests: Add a test for PMU
- snapshot functionality
-Content-Language: en-US
-To: Andrew Jones <ajones@ventanamicro.com>
-Cc: linux-kernel@vger.kernel.org, Anup Patel <anup@brainfault.org>,
- Ajay Kaher <akaher@vmware.com>, Alexandre Ghiti <alexghiti@rivosinc.com>,
- Alexey Makhalov <amakhalov@vmware.com>,
- Conor Dooley <conor.dooley@microchip.com>, Juergen Gross <jgross@suse.com>,
- kvm-riscv@lists.infradead.org, kvm@vger.kernel.org,
- linux-kselftest@vger.kernel.org, linux-riscv@lists.infradead.org,
- Mark Rutland <mark.rutland@arm.com>, Palmer Dabbelt <palmer@dabbelt.com>,
- Paolo Bonzini <pbonzini@redhat.com>, Paul Walmsley
- <paul.walmsley@sifive.com>, Shuah Khan <shuah@kernel.org>,
- virtualization@lists.linux.dev,
- VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
- Will Deacon <will@kernel.org>, x86@kernel.org
-References: <20240403080452.1007601-1-atishp@rivosinc.com>
- <20240403080452.1007601-22-atishp@rivosinc.com>
- <20240405-4e840120e8117c286cb593f9@orel>
-From: Atish Patra <atishp@rivosinc.com>
-In-Reply-To: <20240405-4e840120e8117c286cb593f9@orel>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DM6PR12MB3849:EE_|CY5PR12MB6371:EE_
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	t1ediwIX4ANJL3vcWopl0smM/O/rUl4aLn7NNcZzAO9kuti0HHMLH0KauexmOfIRGNoC1sAhxHOgfFw6fd3eoaA6bySr9y+RQsZ0LFoCUAsZMaPvS3VekTSHv2MHgbnA6IRHmpdck5ntV+8aLKKXswwVT0BeOAavPsLAteCqi12ect2e71f/k1kwcvKcClQt3UX/H6+V2iRtG8HFUc/Cz04Acoz+YEKvoMO6XBHkdiQ3EB/d/ykMdgZvFpGX+f7wQBwuJ+PrkJFFa7a9hqVIuXyYIFA7h0NnSuV/Y7t1EIFDHXHpWJSn6c2iHy63sTNVv+BcyU70ClXyqa6EbRH6lPEfdasE7rhiBM5PpivwseWa7M5ZbAdRaFwicrK/bNLdcXa++X9XdoZoT+Un0jC1i76lBDw3zj+RnqkPrw2IoV66JSsoUmFMeIz+Kn7cWAnti0wSPJHIvL/Q3rYykFOQRNBiIZwekirdilyTZc4HQki08Rwig4B/moNZasPE6zy6x4Gb50NuJiMUvEcmwmZ6J0EJKlcbyo765HX5r+33C73s1fUMrKxNXAEU9gn7xXVbfNlGlfkIh3nsOXKtk4AU40YkSIWAgWjbGUs5fEsudSADOWwBdHEzUb4ecS8ekwATlnW+K0/NGiDrTeTsF559Uxd0WA6v/6l9b8/h0bqEbL4=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR12MB3849.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(376005)(366007)(1800799015)(7416005);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?gdnTPGs6yjPbaMgLxztnVbO4b6odNVWLlZ8T6REwOzs0CMroZ3DqyGIg+miz?=
+ =?us-ascii?Q?kbxLyFDhsBNNM81qRE1b1eml8AT5f/M1G/p8uOhsygGrNEtPqecHAdemc959?=
+ =?us-ascii?Q?Kf4rS+nHRQPVcX3QWA0XpXciUFsPZqj53RiGg3sOkHTIJgfkc6HsElCPS0Gb?=
+ =?us-ascii?Q?QBlnhezdUcVRC4BpIopuiEPi5FZLurNhzGBzgtWOf5XIpX6PeRmX6/guDFtN?=
+ =?us-ascii?Q?prFTFiFLuxg9Bm1Lz12NhfqO4awGJWwGq8u967x6Ch1IQsUv3HKJR+VlSvHW?=
+ =?us-ascii?Q?4PlsoAxycDXuHmQ0XiL9jWPF8MExj9MUdKUzLJiKZKha6BF9b8NfRHmRyJtf?=
+ =?us-ascii?Q?k/D6YrecfsnjNDv//42i6Eag151fYwYGcqck0MMFrnCTB1Ot2EnRzapaEXVk?=
+ =?us-ascii?Q?MSqR072wtVqmslfuZRe9Vqlo/ZXg+aLjsTTOG6MRnjTs+ZzK0oKe5je/3kCL?=
+ =?us-ascii?Q?f7z3K9FyoX7Y2t7nzHzYyee5KLnLOhUnSnLsPXuwsBwUUktNUatY/hDjOeDO?=
+ =?us-ascii?Q?5akAoW3KqsjT+bszv59+dOKATPY1COjGZICdBnaI3yF5NYbOD4Wxn0cDIoeQ?=
+ =?us-ascii?Q?MRKfNY+jNC4HDX7RI2XJoPyp0jtVpqIc2HbNhr5OXXhumCJidw30DYmTFOvD?=
+ =?us-ascii?Q?5X0zFAeDZxkQW99RArA/xGHqm2iZIDnZ62RII6j0ZnAPCxHrAdrDBrYmthZu?=
+ =?us-ascii?Q?Rzjf5a4wUQQMKzJRHLXECgiJFk+xT1y29uJbI+5VRm+IsIApEO5vRfwyONO2?=
+ =?us-ascii?Q?dJHS3wXX4kNkvd6v8bcOW8UpFZvVZwQcJ6ZWNpjFjNhJoKGQt1TGBgj0eSsj?=
+ =?us-ascii?Q?9K4JKZJbiHdiO3JB3lwHgLQ3zBnuTXOppnweDrLxGJVGC2ESD3XxV33Ebw41?=
+ =?us-ascii?Q?+nknB/CmyMd5F4sy2POnRYBZFMAXmAezyVB95VQQMmRekjX2PY6QT/BjugOp?=
+ =?us-ascii?Q?F61WVLnFhQK/AwrVS8CKoeIxIeT7OQIQ6kNG3sphrgc2Bs2RR8c7t8EFnhxZ?=
+ =?us-ascii?Q?nU8POh2NQVZ1vjEyGDqFV41ADpWWkJZfLYSfbgx9TmyEj662m+rAn3UHIff+?=
+ =?us-ascii?Q?JEipNhTdGRpYRZkVOqPGtl2XZairir6qBo6EYI7P2KIdrSes8iB5EZHUIc72?=
+ =?us-ascii?Q?FPAFzLgR8zpsZ2SPkwGlFkdF98cDAQtTL6Q+LbcdEjCd2IO9LoGq/o3X790L?=
+ =?us-ascii?Q?5+FAr5hFQu95tdBQwIh6P+H1gm7ceXCmMqxJb7L7icNeCcKUh3x72hSdI4Ji?=
+ =?us-ascii?Q?DMKGenhQFQ3NAYideg7TaDjiPbeiqcyxs7RMIR06h0H09qVq38O2dr0hXkIU?=
+ =?us-ascii?Q?DrddzrMQAPBMUjL55EU68alYp/MxFSc4DCNJIrqRZ/2GGcksnS66VFzGJ8C+?=
+ =?us-ascii?Q?Ik/EziIp3YM3n8ccRMxa8lpahUXKlciZzcZG/6yM/MUA51ZFyDxuBOIX106G?=
+ =?us-ascii?Q?YXPjWwM1MwHvEDu/SsZKRInpD5eckXsGK3XzcONLEm68zLKEmE1MmxN6EznS?=
+ =?us-ascii?Q?kDtKcd5sVallVIHkoH66q2dt2Xp/WToqt4mrRRaO871fNMRYQZQEZNjYtYbD?=
+ =?us-ascii?Q?J7RhxqpT3viLbCsqR9ncjE0HXXSRFVz6xOnXoiLJ?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 57fa5fec-d664-4ba0-97ce-08dc58ee0f0f
+X-MS-Exchange-CrossTenant-AuthSource: DM6PR12MB3849.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Apr 2024 23:37:45.9422
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: GPVFPDowCpiH8rgD2z5RHkup52Llo4/hNKJWLyIa/Bc4pcAyrCj6+O9c+Rgg2eoC
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY5PR12MB6371
 
-On 4/5/24 06:11, Andrew Jones wrote:
-> On Wed, Apr 03, 2024 at 01:04:50AM -0700, Atish Patra wrote:
->> Verify PMU snapshot functionality by setting up the shared memory
->> correctly and reading the counter values from the shared memory
->> instead of the CSR.
->>
->> Reviewed-by: Anup Patel <anup@brainfault.org>
->> Signed-off-by: Atish Patra <atishp@rivosinc.com>
->> ---
->>   .../testing/selftests/kvm/include/riscv/sbi.h |  25 ++++
->>   .../selftests/kvm/lib/riscv/processor.c       |  12 ++
->>   .../selftests/kvm/riscv/sbi_pmu_test.c        | 127 ++++++++++++++++++
->>   3 files changed, 164 insertions(+)
->>
->> diff --git a/tools/testing/selftests/kvm/include/riscv/sbi.h b/tools/testing/selftests/kvm/include/riscv/sbi.h
->> index 6675ca673c77..8c98bd99d450 100644
->> --- a/tools/testing/selftests/kvm/include/riscv/sbi.h
->> +++ b/tools/testing/selftests/kvm/include/riscv/sbi.h
->> @@ -8,6 +8,12 @@
->>   #ifndef SELFTEST_KVM_SBI_H
->>   #define SELFTEST_KVM_SBI_H
->>   
->> +/* SBI spec version fields */
->> +#define SBI_SPEC_VERSION_DEFAULT	0x1
->> +#define SBI_SPEC_VERSION_MAJOR_SHIFT	24
->> +#define SBI_SPEC_VERSION_MAJOR_MASK	0x7f
->> +#define SBI_SPEC_VERSION_MINOR_MASK	0xffffff
->> +
->>   /* SBI return error codes */
->>   #define SBI_SUCCESS				 0
->>   #define SBI_ERR_FAILURE				-1
->> @@ -33,6 +39,9 @@ enum sbi_ext_id {
->>   };
->>   
->>   enum sbi_ext_base_fid {
->> +	SBI_EXT_BASE_GET_SPEC_VERSION = 0,
->> +	SBI_EXT_BASE_GET_IMP_ID,
->> +	SBI_EXT_BASE_GET_IMP_VERSION,
->>   	SBI_EXT_BASE_PROBE_EXT = 3,
->>   };
->>   enum sbi_ext_pmu_fid {
->> @@ -60,6 +69,12 @@ union sbi_pmu_ctr_info {
->>   	};
->>   };
->>   
->> +struct riscv_pmu_snapshot_data {
->> +	u64 ctr_overflow_mask;
->> +	u64 ctr_values[64];
->> +	u64 reserved[447];
->> +};
->> +
->>   struct sbiret {
->>   	long error;
->>   	long value;
->> @@ -113,4 +128,14 @@ struct sbiret sbi_ecall(int ext, int fid, unsigned long arg0,
->>   
->>   bool guest_sbi_probe_extension(int extid, long *out_val);
->>   
->> +/* Make SBI version */
->> +static inline unsigned long sbi_mk_version(unsigned long major,
->> +					    unsigned long minor)
->> +{
->> +	return ((major & SBI_SPEC_VERSION_MAJOR_MASK) <<
->> +		SBI_SPEC_VERSION_MAJOR_SHIFT) | minor;
+On Tue, Apr 09, 2024 at 09:53:26AM +0800, Baolu Lu wrote:
+> On 4/8/24 10:05 PM, Jason Gunthorpe wrote:
+> > > void iommufd_fault_domain_detach_dev(struct iommufd_hw_pagetable *hwpt,
+> > >                                       struct iommufd_device *idev)
+> > >   {
+> > > +       struct iommufd_fault *fault = hwpt->fault;
+> > > +       struct iommu_attach_handle *handle;
+> > > +
+> > >          if (WARN_ON(!hwpt->fault_capable))
+> > >                  return;
+> > > 
+> > > +       handle = iommu_attach_handle_get(idev->igroup->group,
+> > > IOMMU_NO_PASID);
+> > >          iommu_detach_group(hwpt->domain, idev->igroup->group);
+> > >          iommufd_fault_iopf_disable(idev);
+> > But is this right? Couldn't there be PASID's doing PRI?
 > 
-> Should also also mask 'minor'. I see this matches what we have in the
-> kernel so we should fix it there too.
+> As far as I can see, there are two types of user PASID.
 > 
-
-Nice catch. I fixed it in both places.
-
->> +}
->> +
->> +unsigned long get_host_sbi_spec_version(void);
->> +
->>   #endif /* SELFTEST_KVM_SBI_H */
->> diff --git a/tools/testing/selftests/kvm/lib/riscv/processor.c b/tools/testing/selftests/kvm/lib/riscv/processor.c
->> index e8211f5d6863..ccb35573749c 100644
->> --- a/tools/testing/selftests/kvm/lib/riscv/processor.c
->> +++ b/tools/testing/selftests/kvm/lib/riscv/processor.c
->> @@ -502,3 +502,15 @@ bool guest_sbi_probe_extension(int extid, long *out_val)
->>   
->>   	return true;
->>   }
->> +
->> +unsigned long get_host_sbi_spec_version(void)
->> +{
->> +	struct sbiret ret;
->> +
->> +	ret = sbi_ecall(SBI_EXT_BASE, SBI_EXT_BASE_GET_SPEC_VERSION, 0,
->> +		       0, 0, 0, 0, 0);
->> +
->> +	GUEST_ASSERT(!ret.error);
->> +
->> +	return ret.value;
->> +}
->> diff --git a/tools/testing/selftests/kvm/riscv/sbi_pmu_test.c b/tools/testing/selftests/kvm/riscv/sbi_pmu_test.c
->> index 8e7c7a3172d8..7d195be5c3d9 100644
->> --- a/tools/testing/selftests/kvm/riscv/sbi_pmu_test.c
->> +++ b/tools/testing/selftests/kvm/riscv/sbi_pmu_test.c
->> @@ -19,6 +19,11 @@
->>   #define RISCV_MAX_PMU_COUNTERS 64
->>   union sbi_pmu_ctr_info ctrinfo_arr[RISCV_MAX_PMU_COUNTERS];
->>   
->> +/* Snapshot shared memory data */
->> +#define PMU_SNAPSHOT_GPA_BASE		BIT(30)
->> +static void *snapshot_gva;
->> +static vm_paddr_t snapshot_gpa;
->> +
->>   /* Cache the available counters in a bitmask */
->>   static unsigned long counter_mask_available;
->>   
->> @@ -178,6 +183,32 @@ static unsigned long read_counter(int idx, union sbi_pmu_ctr_info ctrinfo)
->>   	return counter_val;
->>   }
->>   
->> +static inline void verify_sbi_requirement_assert(void)
->> +{
->> +	long out_val = 0;
->> +	bool probe;
->> +
->> +	probe = guest_sbi_probe_extension(SBI_EXT_PMU, &out_val);
->> +	GUEST_ASSERT(probe && out_val == 1);
->> +
->> +	if (get_host_sbi_spec_version() < sbi_mk_version(2, 0))
->> +		__GUEST_ASSERT(0, "SBI implementation version doesn't support PMU Snapshot");
->> +}
+> 1. When a device is assigned to userspace, the PASID table is managed by
+>    the userspace.
 > 
-> It's a pity we can't check the SBI spec version that KVM is advertising
-> from KVM userspace. Normally we'd want to check something like this at
-> the start of the test with TEST_REQUIRE() before running a VCPU in order
-> to generate a skip exit.
+>    Userspace doesn't need PASID attach/detach/replace uAPIs in this
+>    scenario. All I/O page faults are directed to userspace through the
+>    hw pagetable attached to the RID.
 > 
+>    If hw pagetable is detached from the RID, or a non-iopf-capable
+>    hw pagetable is attached the RID, the PRI for user PASID is already
+>    broken.
 
-Agreed. I will send a separate series for that as it is an ABI change.
+I would say in this case the special nesting HWPT should have an
+indication if PRI should be supported or not when it is created and
+that should drive the PRI enablement..
 
-> (We probably should allow reading and even writing the SBI spec version
-> from the VMM in order to better support migration.)
-> 
+>    The current code base doesn't yet support PASID attach/detach/replace
+>    uAPIs. Therefore, above code is safe and reasonable. However, we will
+>    need to revisit this code when those APIs become available.
 
-How that would work for SBI spec version write use case ? For migraiton, 
-you can't go back to older SBI versions in the host. Isn't it ?
+Okay, I see.
 
-Considering this case your VM is running with PMU snapshot as the host 
-has SBI v2.0. It can't be migrated to v1.0 and expecting it work. Correct ?
+Can we do the PASID iommufd stuff soon? What is the plan here?
 
-
->> +
->> +static void snapshot_set_shmem(vm_paddr_t gpa, unsigned long flags)
->> +{
->> +	unsigned long lo = (unsigned long)gpa;
->> +#if __riscv_xlen == 32
->> +	unsigned long hi = (unsigned long)(gpa >> 32);
->> +#else
->> +	unsigned long hi = gpa == -1 ? -1 : 0;
->> +#endif
->> +	struct sbiret ret = sbi_ecall(SBI_EXT_PMU, SBI_EXT_PMU_SNAPSHOT_SET_SHMEM,
->> +				      lo, hi, flags, 0, 0, 0);
->> +
->> +	GUEST_ASSERT(ret.value == 0 && ret.error == 0);
->> +}
->> +
->>   static void test_pmu_event(unsigned long event)
->>   {
->>   	unsigned long counter;
->> @@ -210,6 +241,41 @@ static void test_pmu_event(unsigned long event)
->>   	stop_reset_counter(counter, 0);
->>   }
->>   
->> +static void test_pmu_event_snapshot(unsigned long event)
->> +{
->> +	unsigned long counter;
->> +	unsigned long counter_value_pre, counter_value_post;
->> +	unsigned long counter_init_value = 100;
->> +	struct riscv_pmu_snapshot_data *snapshot_data = snapshot_gva;
->> +
->> +	counter = get_counter_index(0, counter_mask_available, 0, event);
->> +	counter_value_pre = read_counter(counter, ctrinfo_arr[counter]);
->> +
->> +	/* Do not set the initial value */
->> +	start_counter(counter, 0, 0);
->> +	dummy_func_loop(10000);
->> +	stop_counter(counter, SBI_PMU_STOP_FLAG_TAKE_SNAPSHOT);
->> +
->> +	/* The counter value is updated w.r.t relative index of cbase */
->> +	counter_value_post = READ_ONCE(snapshot_data->ctr_values[0]);
->> +	__GUEST_ASSERT(counter_value_post > counter_value_pre,
->> +		       "counter_value_post %lx counter_value_pre %lx\n",
->> +		       counter_value_post, counter_value_pre);
->> +
->> +	/* Now set the initial value and compare */
->> +	WRITE_ONCE(snapshot_data->ctr_values[0], counter_init_value);
->> +	start_counter(counter, SBI_PMU_START_FLAG_INIT_SNAPSHOT, 0);
->> +	dummy_func_loop(10000);
->> +	stop_counter(counter, SBI_PMU_STOP_FLAG_TAKE_SNAPSHOT);
->> +
->> +	counter_value_post = READ_ONCE(snapshot_data->ctr_values[0]);
->> +	__GUEST_ASSERT(counter_value_post > counter_init_value,
->> +		       "counter_value_post %lx counter_init_value %lx for counter\n",
->> +		       counter_value_post, counter_init_value);
->> +
->> +	stop_reset_counter(counter, 0);
->> +}
->> +
->>   static void test_invalid_event(void)
->>   {
->>   	struct sbiret ret;
->> @@ -272,6 +338,34 @@ static void test_pmu_basic_sanity(void)
->>   	GUEST_DONE();
->>   }
->>   
->> +static void test_pmu_events_snaphost(void)
->> +{
->> +	int num_counters = 0;
->> +	struct riscv_pmu_snapshot_data *snapshot_data = snapshot_gva;
->> +	int i;
->> +
->> +	/* Verify presence of SBI PMU and minimum requrired SBI version */
->> +	verify_sbi_requirement_assert();
->> +
->> +	snapshot_set_shmem(snapshot_gpa, 0);
->> +
->> +	/* Get the counter details */
->> +	num_counters = get_num_counters();
->> +	update_counter_info(num_counters);
->> +
->> +	/* Validate shared memory access */
->> +	GUEST_ASSERT_EQ(READ_ONCE(snapshot_data->ctr_overflow_mask), 0);
->> +	for (i = 0; i < num_counters; i++) {
->> +		if (counter_mask_available & (BIT(i)))
->> +			GUEST_ASSERT_EQ(READ_ONCE(snapshot_data->ctr_values[i]), 0);
->> +	}
->> +	/* Only these two events are guranteed to be present */
->> +	test_pmu_event_snapshot(SBI_PMU_HW_CPU_CYCLES);
->> +	test_pmu_event_snapshot(SBI_PMU_HW_INSTRUCTIONS);
->> +
->> +	GUEST_DONE();
->> +}
->> +
->>   static void run_vcpu(struct kvm_vcpu *vcpu)
->>   {
->>   	struct ucall uc;
->> @@ -328,13 +422,46 @@ static void test_vm_events_test(void *guest_code)
->>   	test_vm_destroy(vm);
->>   }
->>   
->> +static void test_vm_setup_snapshot_mem(struct kvm_vm *vm, struct kvm_vcpu *vcpu)
->> +{
->> +	/* PMU Snapshot requires single page only */
->> +	vm_userspace_mem_region_add(vm, VM_MEM_SRC_ANONYMOUS, PMU_SNAPSHOT_GPA_BASE, 1, 1, 0);
->> +	/* PMU_SNAPSHOT_GPA_BASE is identity mapped */
->> +	virt_map(vm, PMU_SNAPSHOT_GPA_BASE, PMU_SNAPSHOT_GPA_BASE, 1);
->> +
->> +	snapshot_gva = (void *)(PMU_SNAPSHOT_GPA_BASE);
->> +	snapshot_gpa = addr_gva2gpa(vcpu->vm, (vm_vaddr_t)snapshot_gva);
->> +	sync_global_to_guest(vcpu->vm, snapshot_gva);
->> +	sync_global_to_guest(vcpu->vm, snapshot_gpa);
->> +}
->> +
->> +static void test_vm_events_snapshot_test(void *guest_code)
->> +{
->> +	struct kvm_vm *vm = NULL;
->> +	struct kvm_vcpu *vcpu;
->> +
->> +	vm = vm_create_with_one_vcpu(&vcpu, guest_code);
->> +	__TEST_REQUIRE(__vcpu_has_sbi_ext(vcpu, KVM_RISCV_SBI_EXT_PMU),
->> +				   "SBI PMU not available, skipping test");
->> +
->> +	test_vm_setup_snapshot_mem(vm, vcpu);
->> +
->> +	run_vcpu(vcpu);
->> +
->> +	test_vm_destroy(vm);
->> +}
->> +
->>   int main(void)
->>   {
->> +	pr_info("SBI PMU basic test : starting\n");
->>   	test_vm_basic_test(test_pmu_basic_sanity);
->>   	pr_info("SBI PMU basic test : PASS\n");
->>   
->>   	test_vm_events_test(test_pmu_events);
->>   	pr_info("SBI PMU event verification test : PASS\n");
->>   
->> +	test_vm_events_snapshot_test(test_pmu_events_snaphost);
->> +	pr_info("SBI PMU event verification with snapshot test : PASS\n");
->> +
->>   	return 0;
->>   }
->> -- 
->> 2.34.1
->>
-> 
-> Since my comments are a bit out-of-scope for this patch,
-> 
-> Reviewed-by: Andrew Jones <ajones@ventanamicro.com>
-> 
-> Thanks,
-> drew
-
+Jason
