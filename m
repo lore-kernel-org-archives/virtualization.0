@@ -1,165 +1,143 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from dggsgout11.his.huawei.com (dggsgout11.his.huawei.com [45.249.212.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59938AD25
-	for <virtualization@lists.linux-foundation.org>; Tue,  9 Apr 2024 01:35:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D4544DA12
+	for <virtualization@lists.linux.dev>; Tue,  9 Apr 2024 01:48:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712626530; cv=none; b=ssq01YLHW5JLww7X2/oiQhr5oxadAjXGrD3fvj3cBe18F6a2P16YNxoTxrV1QLbmDBMB1wMQcjvQwGstzpC6q2rmWNanFjDH/bwTY9AMC+2xZdO3ZZrBJOIkwFdO6YT20sF/bVUmNJ8HH43Awc7Jg6IE8dAmgCYh4vO2zgFdrmA=
+	t=1712627306; cv=none; b=rh4ddHDi5xsVFOfPLXXAASF6uMQaUUhXo8L5C3PTAQDm9TsRWETvbuTzUZpXu2qy1Kn5Jy2Mddw+7S7CfeFzgYe/qT0+1biAPhbIb0RHlttrhBAwGXGuJ0GwCP3Vn/hypssUDMtLij/SKQ+CuUfogJJhst87jJGYjZtJ0Vjb1PI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712626530; c=relaxed/simple;
-	bh=IhuMnUPP6sRdUkY89cClHaimdn+5/NV34NjQx6c1MCI=;
-	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=Q0YSUsgbsUrxyAqAxzNjBg+8ulwi6Sost+6kc8q9qeMX7ZbgrmNY6EvQJDH0pC+or8vil+8gmcCs4wzTq3HyB1qq8OwjlmnP9gtw73+uWEfdOM5eiTC1eOFmRiylEIl4FrSB630th3MvOe8P86ZtQ/RiWwQfPjIm7xEFBUAkvr0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=f1USzH61; arc=none smtp.client-ip=140.211.166.133
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="f1USzH61"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id E100D403C7
-	for <virtualization@lists.linux-foundation.org>; Tue,  9 Apr 2024 01:35:28 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.699
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id H39oWSQztNxH for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Apr 2024 01:35:26 +0000 (UTC)
-Received-SPF: None (mailfrom) identity=mailfrom; client-ip=198.175.65.12; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 7F780400BF
-Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7F780400BF
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=f1USzH61
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 7F780400BF
-	for <virtualization@lists.linux-foundation.org>; Tue,  9 Apr 2024 01:35:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1712626527; x=1744162527;
-  h=message-id:date:mime-version:cc:subject:to:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=IhuMnUPP6sRdUkY89cClHaimdn+5/NV34NjQx6c1MCI=;
-  b=f1USzH61leVSZiT1dc4bXPiLTZghaz94hmLLU8VF478IwYXVhcKv7yfG
-   OlnDYv2NxAJU0W/LDC3QtYUO+8IaAtAiYhC/n4gx3v9WjGwmdGduCbs53
-   o8oWDSDnLPPZvSukNLOElMtsMHg+FtQwt3jRX4R5PzoS3QyB34/xoFO3A
-   8mftGWTGPKn+6W3ihXt2AcfPGT4QzJ8lEEC4yu502TqdKcSYLRdntsX4e
-   V6Mz6Ev/LbW2BPomPJZFRTSSC3TVRDrYdA9tUYi6+/ThGsbK6kF88RgF0
-   yS7VyAgAanutkyWopZn8PeHo6FlU1l9qhsr2oVCc7vUJQUNTC3Rlc/hZl
-   w==;
-X-CSE-ConnectionGUID: QOIRXTDkS72SQxBI8SQMTw==
-X-CSE-MsgGUID: zKCHxRNQQXSDvk5x1oYx7Q==
-X-IronPort-AV: E=McAfee;i="6600,9927,11038"; a="19361583"
-X-IronPort-AV: E=Sophos;i="6.07,188,1708416000"; 
-   d="scan'208";a="19361583"
-Received: from fmviesa004.fm.intel.com ([10.60.135.144])
-  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Apr 2024 18:35:25 -0700
-X-CSE-ConnectionGUID: 3zTA48w7Ql2n7NUmoEcYDg==
-X-CSE-MsgGUID: wn/ezkeaRKeE/7Q/ssGKEg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.07,188,1708416000"; 
-   d="scan'208";a="24706304"
-Received: from unknown (HELO [10.239.159.127]) ([10.239.159.127])
-  by fmviesa004.fm.intel.com with ESMTP; 08 Apr 2024 18:35:20 -0700
-Message-ID: <ff7ed901-fb4d-4bb1-adf1-8c83409b7a80@linux.intel.com>
-Date: Tue, 9 Apr 2024 09:34:12 +0800
+	s=arc-20240116; t=1712627306; c=relaxed/simple;
+	bh=9HFrFIth3R0zd7PPhTEec3H/FKVeAX/QIKtgfQNhbE4=;
+	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=cDAbdNvccudjnC6ZWhiHUF/pJxI6/Ek5/y5xGo6tQ8ebRULe/jm/tyrOT9f7k9d5zZ/8aCALsISedbi2qVsDXx8M7NcbVHKEGYFDo+1byFE0r3W3NnQX5Xs09upun3ud1k2aFmO5e/6K0Hk0IhIheW7czVDNnzFIo6LYtE5yJmg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com; spf=pass smtp.mailfrom=huaweicloud.com; arc=none smtp.client-ip=45.249.212.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huaweicloud.com
+Received: from mail.maildlp.com (unknown [172.19.163.235])
+	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4VD8454pBqz4f3lVw
+	for <virtualization@lists.linux.dev>; Tue,  9 Apr 2024 09:48:05 +0800 (CST)
+Received: from mail02.huawei.com (unknown [10.116.40.252])
+	by mail.maildlp.com (Postfix) with ESMTP id 443EE1A0572
+	for <virtualization@lists.linux.dev>; Tue,  9 Apr 2024 09:48:14 +0800 (CST)
+Received: from [10.174.176.117] (unknown [10.174.176.117])
+	by APP3 (Coremail) with SMTP id _Ch0CgA3955YnhRmd5ZhJQ--.9921S2;
+	Tue, 09 Apr 2024 09:48:12 +0800 (CST)
+Subject: Re: [PATCH v2 0/6] virtiofs: fix the warning for ITER_KVEC dio
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-fsdevel@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>,
+ Vivek Goyal <vgoyal@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
+ Bernd Schubert <bernd.schubert@fastmail.fm>,
+ Matthew Wilcox <willy@infradead.org>,
+ Benjamin Coddington <bcodding@redhat.com>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev, houtao1@huawei.com
+References: <20240228144126.2864064-1-houtao@huaweicloud.com>
+ <20240408034514-mutt-send-email-mst@kernel.org>
+From: Hou Tao <houtao@huaweicloud.com>
+Message-ID: <413bd868-a16b-f024-0098-3c70f7808d3c@huaweicloud.com>
+Date: Tue, 9 Apr 2024 09:48:08 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Cc: baolu.lu@linux.intel.com, Kevin Tian <kevin.tian@intel.com>,
- Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
- Robin Murphy <robin.murphy@arm.com>,
- Jean-Philippe Brucker <jean-philippe@linaro.org>,
- Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
- Jacob Pan <jacob.jun.pan@linux.intel.com>,
- Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4 1/9] iommu: Introduce domain attachment handle
-To: Jason Gunthorpe <jgg@nvidia.com>
-References: <20240403011519.78512-1-baolu.lu@linux.intel.com>
- <20240403011519.78512-2-baolu.lu@linux.intel.com>
- <20240403115851.GA1723999@nvidia.com>
- <3b740988-7fe6-4328-8ce2-d66d9a2ab497@linux.intel.com>
- <20240408140548.GO5383@nvidia.com>
-Content-Language: en-US
-From: Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <20240408140548.GO5383@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+In-Reply-To: <20240408034514-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-CM-TRANSID:_Ch0CgA3955YnhRmd5ZhJQ--.9921S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxAFW7tw17Jw13WF4DAF43Wrg_yoW5tFyxpr
+	Wftan0grsxXFy7Arnay3Z5Cr9akws3JF17WrZ3Xw1rCFW3X3WI9r1jkF4YgFy7Ary8AF18
+	tr1Fqas29ryqv37anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUvIb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k2
+	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+	vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7Cj
+	xVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x
+	0267AKxVW0oVCq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG
+	6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFV
+	Cjc4AY6r1j6r4UM4x0Y48IcVAKI48JM4IIrI8v6xkF7I0E8cxan2IY04v7Mxk0xIA0c2IE
+	e2xFo4CEbIxvr21l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxV
+	Aqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q
+	6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6x
+	kF7I0E14v26r4j6F4UMIIF0xvE42xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE
+	14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf
+	9x07UWE__UUUUU=
+X-CM-SenderInfo: xkrx3t3r6k3tpzhluzxrxghudrp/
 
-On 4/8/24 10:05 PM, Jason Gunthorpe wrote:
-> On Sat, Apr 06, 2024 at 12:34:14PM +0800, Baolu Lu wrote:
->> On 4/3/24 7:58 PM, Jason Gunthorpe wrote:
->>> On Wed, Apr 03, 2024 at 09:15:11AM +0800, Lu Baolu wrote:
->>>> Currently, when attaching a domain to a device or its PASID, domain is
->>>> stored within the iommu group. It could be retrieved for use during the
->>>> window between attachment and detachment.
->>>>
->>>> With new features introduced, there's a need to store more information
->>>> than just a domain pointer. This information essentially represents the
->>>> association between a domain and a device. For example, the SVA code
->>>> already has a custom struct iommu_sva which represents a bond between
->>>> sva domain and a PASID of a device. Looking forward, the IOMMUFD needs
->>>> a place to store the iommufd_device pointer in the core, so that the
->>>> device object ID could be quickly retrieved in the critical fault handling
->>>> path.
->>>>
->>>> Introduce domain attachment handle that explicitly represents the
->>>> attachment relationship between a domain and a device or its PASID.
->>>> A caller-specific data field can be used by the caller to store additional
->>>> information beyond a domain pointer, depending on its specific use case.
->>>>
->>>> Co-developed-by: Jason Gunthorpe<jgg@nvidia.com>
->>>> Signed-off-by: Jason Gunthorpe<jgg@nvidia.com>
->>>> Signed-off-by: Lu Baolu<baolu.lu@linux.intel.com>
->>>> ---
->>>>    drivers/iommu/iommu-priv.h |   9 +++
->>>>    drivers/iommu/iommu.c      | 158 +++++++++++++++++++++++++++++++++----
->>>>    2 files changed, 153 insertions(+), 14 deletions(-)
->>>>
->>>> diff --git a/drivers/iommu/iommu-priv.h b/drivers/iommu/iommu-priv.h
->>>> index 5f731d994803..08c0667cef54 100644
->>>> --- a/drivers/iommu/iommu-priv.h
->>>> +++ b/drivers/iommu/iommu-priv.h
->>>> @@ -28,4 +28,13 @@ void iommu_device_unregister_bus(struct iommu_device *iommu,
->>>>    				 const struct bus_type *bus,
->>>>    				 struct notifier_block *nb);
->>>> +struct iommu_attach_handle {
->>>> +	struct iommu_domain		*domain;
->>>> +	refcount_t			users;
->>> I don't understand how the refcounting can be generally useful. There
->>> is no way to free this:
->>>
->>>> +	void				*priv;
->>> When the refcount goes to zero.
->> This field is set by the caller, so the caller ensures that the pointer
->> can only be freed after iommu domain detachment. For iopf, the caller
->> should automatically respond to all outstanding iopf's in the domain
->> detach path.
+Hi,
+
+On 4/8/2024 3:45 PM, Michael S. Tsirkin wrote:
+> On Wed, Feb 28, 2024 at 10:41:20PM +0800, Hou Tao wrote:
+>> From: Hou Tao <houtao1@huawei.com>
 >>
->> In the sva case, which uses the workqueue to handle iopf,
->> flush_workqueue() is called in the domain detach path to ensure that all
->> outstanding iopf's are completed before detach completion.
-> Which is back to what is the point of the refcount at all?
+>> Hi,
+>>
+>> The patch set aims to fix the warning related to an abnormal size
+>> parameter of kmalloc() in virtiofs. The warning occurred when attempting
+>> to insert a 10MB sized kernel module kept in a virtiofs with cache
+>> disabled. As analyzed in patch #1, the root cause is that the length of
+>> the read buffer is no limited, and the read buffer is passed directly to
+>> virtiofs through out_args[0].value. Therefore patch #1 limits the
+>> length of the read buffer passed to virtiofs by using max_pages. However
+>> it is not enough, because now the maximal value of max_pages is 256.
+>> Consequently, when reading a 10MB-sized kernel module, the length of the
+>> bounce buffer in virtiofs will be 40 + (256 * 4096), and kmalloc will
+>> try to allocate 2MB from memory subsystem. The request for 2MB of
+>> physically contiguous memory significantly stress the memory subsystem
+>> and may fail indefinitely on hosts with fragmented memory. To address
+>> this, patch #2~#5 use scattered pages in a bio_vec to replace the
+>> kmalloc-allocated bounce buffer when the length of the bounce buffer for
+>> KVEC_ITER dio is larger than PAGE_SIZE. The final issue with the
+>> allocation of the bounce buffer and sg array in virtiofs is that
+>> GFP_ATOMIC is used even when the allocation occurs in a kworker context.
+>> Therefore the last patch uses GFP_NOFS for the allocation of both sg
+>> array and bounce buffer when initiated by the kworker. For more details,
+>> please check the individual patches.
+>>
+>> As usual, comments are always welcome.
+>>
+>> Change Log:
+> Bernd should I just merge the patchset as is?
+> It seems to fix a real problem and no one has the
+> time to work on a better fix .... WDYT?
 
-Yeah, refcount is not generally useful. It's context-specific, so it
-needs to move out of the core.
+Sorry for the long delay. I am just start to prepare for v3. In v3, I
+plan to avoid the unnecessary memory copy between fuse args and bio_vec.
+Will post it before next week.
+>
+>
+>> v2:
+>>   * limit the length of ITER_KVEC dio by max_pages instead of the
+>>     newly-introduced max_nopage_rw. Using max_pages make the ITER_KVEC
+>>     dio being consistent with other rw operations.
+>>   * replace kmalloc-allocated bounce buffer by using a bounce buffer
+>>     backed by scattered pages when the length of the bounce buffer for
+>>     KVEC_ITER dio is larger than PAG_SIZE, so even on hosts with
+>>     fragmented memory, the KVEC_ITER dio can be handled normally by
+>>     virtiofs. (Bernd Schubert)
+>>   * merge the GFP_NOFS patch [1] into this patch-set and use
+>>     memalloc_nofs_{save|restore}+GFP_KERNEL instead of GFP_NOFS
+>>     (Benjamin Coddington)
+>>
+>> v1: https://lore.kernel.org/linux-fsdevel/20240103105929.1902658-1-houtao@huaweicloud.com/
+>>
+>> [1]: https://lore.kernel.org/linux-fsdevel/20240105105305.4052672-1-houtao@huaweicloud.com/
+>>
+>> Hou Tao (6):
+>>   fuse: limit the length of ITER_KVEC dio by max_pages
+>>   virtiofs: move alloc/free of argbuf into separated helpers
+>>   virtiofs: factor out more common methods for argbuf
+>>   virtiofs: support bounce buffer backed by scattered pages
+>>   virtiofs: use scattered bounce buffer for ITER_KVEC dio
+>>   virtiofs: use GFP_NOFS when enqueuing request through kworker
+>>
+>>  fs/fuse/file.c      |  12 +-
+>>  fs/fuse/virtio_fs.c | 336 +++++++++++++++++++++++++++++++++++++-------
+>>  2 files changed, 296 insertions(+), 52 deletions(-)
+>>
+>> -- 
+>> 2.29.2
 
-The SVA code needs refcount because it allows multiple attachments
-between a SVA domain and a PASID. This is not a common case.
-
-> 
->> +static void iommufd_auto_response_handle(struct iommufd_fault *fault,
->> +                                        struct iommu_attach_handle *handle)
->> +{
->> +       struct iommufd_device *idev = handle->priv;
-> The caller already has the iommufd_device, don't need the handler.
-
-Yes.
-
-Best regards,
-baolu
