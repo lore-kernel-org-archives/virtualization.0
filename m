@@ -1,60 +1,68 @@
-Received: from mail-pf1-f173.google.com (mail-pf1-f173.google.com [209.85.210.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 995BC15A5
-	for <virtualization@lists.linux.dev>; Tue,  9 Apr 2024 00:37:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59938AD25
+	for <virtualization@lists.linux-foundation.org>; Tue,  9 Apr 2024 01:35:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712623044; cv=none; b=IOdcF6W05uzheo7eI3wq7UASh0h/0OtaqPbxfl1yY/87cKxg5qdW723BWq71o1MrSWPNNBR30JAoyRiS18WHVPH/vRaj5usLGkEcK9ieY7oQMLVbF+9vtP06Yz2ElSVCyujQlCR/uCqnPU+kG5PixLsT2s0kvQHCtMWzaSXU4OQ=
+	t=1712626530; cv=none; b=ssq01YLHW5JLww7X2/oiQhr5oxadAjXGrD3fvj3cBe18F6a2P16YNxoTxrV1QLbmDBMB1wMQcjvQwGstzpC6q2rmWNanFjDH/bwTY9AMC+2xZdO3ZZrBJOIkwFdO6YT20sF/bVUmNJ8HH43Awc7Jg6IE8dAmgCYh4vO2zgFdrmA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712623044; c=relaxed/simple;
-	bh=vZmp0bx+mzP0lPzvsYZrDCEbUdzNeE9lYo4IHZ0/+q4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=EPhrFTnn7YhSOE1e6RnEYBOgAzWnQnP1s+y8b8Win3oi+MlJBUMruZm7da7xxcMAflC6EhWrn0PmUQA1l0K2dDclRdZjN4jCoQ9I9UZlOXj0ReRtEoMjt38XnuGsqzUY/kmbKR+vdpcx40pKVby0CPRrpatTiZbP2fMqzj5rL04=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com; spf=pass smtp.mailfrom=rivosinc.com; dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b=DWUYNUwH; arc=none smtp.client-ip=209.85.210.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rivosinc.com
+	s=arc-20240116; t=1712626530; c=relaxed/simple;
+	bh=IhuMnUPP6sRdUkY89cClHaimdn+5/NV34NjQx6c1MCI=;
+	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=Q0YSUsgbsUrxyAqAxzNjBg+8ulwi6Sost+6kc8q9qeMX7ZbgrmNY6EvQJDH0pC+or8vil+8gmcCs4wzTq3HyB1qq8OwjlmnP9gtw73+uWEfdOM5eiTC1eOFmRiylEIl4FrSB630th3MvOe8P86ZtQ/RiWwQfPjIm7xEFBUAkvr0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=f1USzH61; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b="DWUYNUwH"
-Received: by mail-pf1-f173.google.com with SMTP id d2e1a72fcca58-6ecd957f949so4933177b3a.0
-        for <virtualization@lists.linux.dev>; Mon, 08 Apr 2024 17:37:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rivosinc-com.20230601.gappssmtp.com; s=20230601; t=1712623042; x=1713227842; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=4Vx/fAicKDWjQK8Xf/GodtuH9rKioxrSCP+le6IWBVk=;
-        b=DWUYNUwHwgHBkZRUQPQBGcE1F7WSZd8NZg7pxCfW3UW1X95uP+7b/HDefHza41XSjD
-         PyrfzlvOi333SnYPxFh6obULCm+wMRGao+Xr+1jtIUGxxRgSaa930jlhsth9r82vdPte
-         Lb+GbtM4oJSrMsgg9AOf9eD/meegwIo8sW0BYeATZvh1hdNJv+AQejQi3/J85ecOXSoP
-         8zCi/m+hMjDHQy0AR7q2jbHH3e4ZLOjN/cWLo6ieeAvJlLE9L521lRdpPdryX0J0jVRU
-         C80igs6AoWjw5CeSqYMv4upoNV+C46tb3o40h03+3q3RsbDkYnvkRrLZrRwqiohMIQ3d
-         il+Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712623042; x=1713227842;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=4Vx/fAicKDWjQK8Xf/GodtuH9rKioxrSCP+le6IWBVk=;
-        b=QzSj8zY1eujrdJoYBXXyWz+SNMbac8P77rCXc+zPH6pzVCyL70B5fElXF2QyZTmDQX
-         1lsLgf3a6QfBk+lXogCppuTmObbVGrfZsQ3W4N8uXLZ3Tl2nwqIzlLglfhtG+t80+KxY
-         elvRR6BLIJFtZnfM+C1v/fF1s4fy6RoGdDO42a4o2j+3m3t7CDnY3BJJNfgC863H+Do4
-         8YED2HFL9kDtfxQ/lqR4v2rxgrTvau15Tl/zvOy1Xe1wn57+WIMx00OPxWi92kkUbH+E
-         5QeFYAEqanHYQ32npslTwSlul5etAZKRDctFGWpeva04ebG44piKRug8fVZG3MopLUr2
-         hkDQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUj83ufX2367e07xCB2it7ZGhJnDQPKLd86H/V7v13nTYZhP5JGrVRrssSKk4/f54OIw9DRWbYfxxgE0Lfo/aMEq+mmZguYuZUH/OQmDpM=
-X-Gm-Message-State: AOJu0Yy6hRDiGde33+KDtCDHb0eipNxvDbSuKikC1a2m7dpfQyWqvebh
-	hvv8vR0dymJzoxct6gzCRxVBPv8O3tp6yk49n/Jx2sVUV3bWC685V80ZR8+mYm+xQ3Z7ozwIdZl
-	j
-X-Google-Smtp-Source: AGHT+IHr0Zo6nHVaV/pKfVqhANW/8W9ESaRusAuX8dauWvgSDh5Rc7uN98R5kCiiSEnkLb0cWYp8TA==
-X-Received: by 2002:a05:6a20:7355:b0:1a7:1e1c:3031 with SMTP id v21-20020a056a20735500b001a71e1c3031mr13412563pzc.36.1712623041952;
-        Mon, 08 Apr 2024 17:37:21 -0700 (PDT)
-Received: from ?IPV6:2601:647:4180:9630::e8c1? ([2601:647:4180:9630::e8c1])
-        by smtp.gmail.com with ESMTPSA id e7-20020a170902784700b001dd578121d4sm7786884pln.204.2024.04.08.17.37.20
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 08 Apr 2024 17:37:21 -0700 (PDT)
-Message-ID: <976411ab-6ddf-4b10-8e13-1575928415ce@rivosinc.com>
-Date: Mon, 8 Apr 2024 17:37:19 -0700
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="f1USzH61"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id E100D403C7
+	for <virtualization@lists.linux-foundation.org>; Tue,  9 Apr 2024 01:35:28 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.699
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id H39oWSQztNxH for <virtualization@lists.linux-foundation.org>;
+ Tue,  9 Apr 2024 01:35:26 +0000 (UTC)
+Received-SPF: None (mailfrom) identity=mailfrom; client-ip=198.175.65.12; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 7F780400BF
+Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7F780400BF
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=f1USzH61
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 7F780400BF
+	for <virtualization@lists.linux-foundation.org>; Tue,  9 Apr 2024 01:35:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1712626527; x=1744162527;
+  h=message-id:date:mime-version:cc:subject:to:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=IhuMnUPP6sRdUkY89cClHaimdn+5/NV34NjQx6c1MCI=;
+  b=f1USzH61leVSZiT1dc4bXPiLTZghaz94hmLLU8VF478IwYXVhcKv7yfG
+   OlnDYv2NxAJU0W/LDC3QtYUO+8IaAtAiYhC/n4gx3v9WjGwmdGduCbs53
+   o8oWDSDnLPPZvSukNLOElMtsMHg+FtQwt3jRX4R5PzoS3QyB34/xoFO3A
+   8mftGWTGPKn+6W3ihXt2AcfPGT4QzJ8lEEC4yu502TqdKcSYLRdntsX4e
+   V6Mz6Ev/LbW2BPomPJZFRTSSC3TVRDrYdA9tUYi6+/ThGsbK6kF88RgF0
+   yS7VyAgAanutkyWopZn8PeHo6FlU1l9qhsr2oVCc7vUJQUNTC3Rlc/hZl
+   w==;
+X-CSE-ConnectionGUID: QOIRXTDkS72SQxBI8SQMTw==
+X-CSE-MsgGUID: zKCHxRNQQXSDvk5x1oYx7Q==
+X-IronPort-AV: E=McAfee;i="6600,9927,11038"; a="19361583"
+X-IronPort-AV: E=Sophos;i="6.07,188,1708416000"; 
+   d="scan'208";a="19361583"
+Received: from fmviesa004.fm.intel.com ([10.60.135.144])
+  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Apr 2024 18:35:25 -0700
+X-CSE-ConnectionGUID: 3zTA48w7Ql2n7NUmoEcYDg==
+X-CSE-MsgGUID: wn/ezkeaRKeE/7Q/ssGKEg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.07,188,1708416000"; 
+   d="scan'208";a="24706304"
+Received: from unknown (HELO [10.239.159.127]) ([10.239.159.127])
+  by fmviesa004.fm.intel.com with ESMTP; 08 Apr 2024 18:35:20 -0700
+Message-ID: <ff7ed901-fb4d-4bb1-adf1-8c83409b7a80@linux.intel.com>
+Date: Tue, 9 Apr 2024 09:34:12 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -62,158 +70,96 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 20/22] KVM: riscv: selftests: Add SBI PMU selftest
+Cc: baolu.lu@linux.intel.com, Kevin Tian <kevin.tian@intel.com>,
+ Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+ Robin Murphy <robin.murphy@arm.com>,
+ Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
+ Jacob Pan <jacob.jun.pan@linux.intel.com>,
+ Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
+ virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4 1/9] iommu: Introduce domain attachment handle
+To: Jason Gunthorpe <jgg@nvidia.com>
+References: <20240403011519.78512-1-baolu.lu@linux.intel.com>
+ <20240403011519.78512-2-baolu.lu@linux.intel.com>
+ <20240403115851.GA1723999@nvidia.com>
+ <3b740988-7fe6-4328-8ce2-d66d9a2ab497@linux.intel.com>
+ <20240408140548.GO5383@nvidia.com>
 Content-Language: en-US
-To: Andrew Jones <ajones@ventanamicro.com>
-Cc: linux-kernel@vger.kernel.org, Anup Patel <anup@brainfault.org>,
- Ajay Kaher <akaher@vmware.com>, Alexandre Ghiti <alexghiti@rivosinc.com>,
- Alexey Makhalov <amakhalov@vmware.com>,
- Conor Dooley <conor.dooley@microchip.com>, Juergen Gross <jgross@suse.com>,
- kvm-riscv@lists.infradead.org, kvm@vger.kernel.org,
- linux-kselftest@vger.kernel.org, linux-riscv@lists.infradead.org,
- Mark Rutland <mark.rutland@arm.com>, Palmer Dabbelt <palmer@dabbelt.com>,
- Paolo Bonzini <pbonzini@redhat.com>, Paul Walmsley
- <paul.walmsley@sifive.com>, Shuah Khan <shuah@kernel.org>,
- virtualization@lists.linux.dev,
- VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
- Will Deacon <will@kernel.org>, x86@kernel.org
-References: <20240403080452.1007601-1-atishp@rivosinc.com>
- <20240403080452.1007601-21-atishp@rivosinc.com>
- <20240405-d1a4cb9a441a05a9d2f8b1c8@orel>
-From: Atish Patra <atishp@rivosinc.com>
-In-Reply-To: <20240405-d1a4cb9a441a05a9d2f8b1c8@orel>
+From: Baolu Lu <baolu.lu@linux.intel.com>
+In-Reply-To: <20240408140548.GO5383@nvidia.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 4/5/24 05:50, Andrew Jones wrote:
-> On Wed, Apr 03, 2024 at 01:04:49AM -0700, Atish Patra wrote:
-> ...
->> +static void test_pmu_basic_sanity(void)
->> +{
->> +	long out_val = 0;
->> +	bool probe;
->> +	struct sbiret ret;
->> +	int num_counters = 0, i;
->> +	union sbi_pmu_ctr_info ctrinfo;
->> +
->> +	probe = guest_sbi_probe_extension(SBI_EXT_PMU, &out_val);
->> +	GUEST_ASSERT(probe && out_val == 1);
->> +
->> +	num_counters = get_num_counters();
->> +
->> +	for (i = 0; i < num_counters; i++) {
->> +		ret = sbi_ecall(SBI_EXT_PMU, SBI_EXT_PMU_COUNTER_GET_INFO, i,
->> +				0, 0, 0, 0, 0);
->> +
->> +		/* There can be gaps in logical counter indicies*/
->> +		if (ret.error)
->> +			continue;
->> +		GUEST_ASSERT_NE(ret.value, 0);
->> +
->> +		ctrinfo.value = ret.value;
->> +
->> +		/**
->> +		 * Accesibillity check of hardware and read capability of firmware counters.
-> 
-> Accessibility
-> 
-
-Fixed it.
-
->> +		 * The spec doesn't mandate any initial value. No need to check any value.
->> +		 */
->> +		read_counter(i, ctrinfo);
->> +	}
->> +
->> +	GUEST_DONE();
->> +}
->> +
->> +static void run_vcpu(struct kvm_vcpu *vcpu)
->> +{
->> +	struct ucall uc;
->> +
->> +	vcpu_run(vcpu);
->> +	switch (get_ucall(vcpu, &uc)) {
->> +	case UCALL_ABORT:
->> +		REPORT_GUEST_ASSERT(uc);
->> +		break;
->> +	case UCALL_DONE:
->> +	case UCALL_SYNC:
->> +		break;
->> +	default:
->> +		TEST_FAIL("Unknown ucall %lu", uc.cmd);
->> +		break;
->> +	}
->> +}
->> +
->> +void test_vm_destroy(struct kvm_vm *vm)
->> +{
->> +	memset(ctrinfo_arr, 0, sizeof(union sbi_pmu_ctr_info) * RISCV_MAX_PMU_COUNTERS);
->> +	counter_mask_available = 0;
->> +	kvm_vm_free(vm);
->> +}
->> +
->> +static void test_vm_basic_test(void *guest_code)
->> +{
->> +	struct kvm_vm *vm;
->> +	struct kvm_vcpu *vcpu;
->> +
->> +	vm = vm_create_with_one_vcpu(&vcpu, guest_code);
->> +	__TEST_REQUIRE(__vcpu_has_sbi_ext(vcpu, KVM_RISCV_SBI_EXT_PMU),
->> +				   "SBI PMU not available, skipping test");
->> +	vm_init_vector_tables(vm);
->> +	/* Illegal instruction handler is required to verify read access without configuration */
->> +	vm_install_exception_handler(vm, EXC_INST_ILLEGAL, guest_illegal_exception_handler);
-> 
-> I still don't see where the "verify" part is. The handler doesn't record
-> that it had to handle anything.
-> 
-
-The objective of the test is to ensure that we get an illegal 
-instruction without configuration. The presence of the registered 
-exception handler is sufficient for that.
-
-The verify part is that the test doesn't end up in a illegal instruction 
-exception when you try to access a counter without configuring.
-
-Let me know if you think we should more verbose comment to explain the 
-scenario.
-
-
->> +
->> +	vcpu_init_vector_tables(vcpu);
->> +	run_vcpu(vcpu);
->> +
->> +	test_vm_destroy(vm);
->> +}
->> +
->> +static void test_vm_events_test(void *guest_code)
->> +{
->> +	struct kvm_vm *vm = NULL;
->> +	struct kvm_vcpu *vcpu = NULL;
->> +
->> +	vm = vm_create_with_one_vcpu(&vcpu, guest_code);
->> +	__TEST_REQUIRE(__vcpu_has_sbi_ext(vcpu, KVM_RISCV_SBI_EXT_PMU),
->> +				   "SBI PMU not available, skipping test");
->> +	run_vcpu(vcpu);
->> +
->> +	test_vm_destroy(vm);
->> +}
->> +
->> +int main(void)
->> +{
->> +	test_vm_basic_test(test_pmu_basic_sanity);
->> +	pr_info("SBI PMU basic test : PASS\n");
->> +
->> +	test_vm_events_test(test_pmu_events);
->> +	pr_info("SBI PMU event verification test : PASS\n");
->> +
->> +	return 0;
->> +}
->> -- 
->> 2.34.1
+On 4/8/24 10:05 PM, Jason Gunthorpe wrote:
+> On Sat, Apr 06, 2024 at 12:34:14PM +0800, Baolu Lu wrote:
+>> On 4/3/24 7:58 PM, Jason Gunthorpe wrote:
+>>> On Wed, Apr 03, 2024 at 09:15:11AM +0800, Lu Baolu wrote:
+>>>> Currently, when attaching a domain to a device or its PASID, domain is
+>>>> stored within the iommu group. It could be retrieved for use during the
+>>>> window between attachment and detachment.
+>>>>
+>>>> With new features introduced, there's a need to store more information
+>>>> than just a domain pointer. This information essentially represents the
+>>>> association between a domain and a device. For example, the SVA code
+>>>> already has a custom struct iommu_sva which represents a bond between
+>>>> sva domain and a PASID of a device. Looking forward, the IOMMUFD needs
+>>>> a place to store the iommufd_device pointer in the core, so that the
+>>>> device object ID could be quickly retrieved in the critical fault handling
+>>>> path.
+>>>>
+>>>> Introduce domain attachment handle that explicitly represents the
+>>>> attachment relationship between a domain and a device or its PASID.
+>>>> A caller-specific data field can be used by the caller to store additional
+>>>> information beyond a domain pointer, depending on its specific use case.
+>>>>
+>>>> Co-developed-by: Jason Gunthorpe<jgg@nvidia.com>
+>>>> Signed-off-by: Jason Gunthorpe<jgg@nvidia.com>
+>>>> Signed-off-by: Lu Baolu<baolu.lu@linux.intel.com>
+>>>> ---
+>>>>    drivers/iommu/iommu-priv.h |   9 +++
+>>>>    drivers/iommu/iommu.c      | 158 +++++++++++++++++++++++++++++++++----
+>>>>    2 files changed, 153 insertions(+), 14 deletions(-)
+>>>>
+>>>> diff --git a/drivers/iommu/iommu-priv.h b/drivers/iommu/iommu-priv.h
+>>>> index 5f731d994803..08c0667cef54 100644
+>>>> --- a/drivers/iommu/iommu-priv.h
+>>>> +++ b/drivers/iommu/iommu-priv.h
+>>>> @@ -28,4 +28,13 @@ void iommu_device_unregister_bus(struct iommu_device *iommu,
+>>>>    				 const struct bus_type *bus,
+>>>>    				 struct notifier_block *nb);
+>>>> +struct iommu_attach_handle {
+>>>> +	struct iommu_domain		*domain;
+>>>> +	refcount_t			users;
+>>> I don't understand how the refcounting can be generally useful. There
+>>> is no way to free this:
+>>>
+>>>> +	void				*priv;
+>>> When the refcount goes to zero.
+>> This field is set by the caller, so the caller ensures that the pointer
+>> can only be freed after iommu domain detachment. For iopf, the caller
+>> should automatically respond to all outstanding iopf's in the domain
+>> detach path.
 >>
-> 
-> Thanks,
-> drew
+>> In the sva case, which uses the workqueue to handle iopf,
+>> flush_workqueue() is called in the domain detach path to ensure that all
+>> outstanding iopf's are completed before detach completion.
+> Which is back to what is the point of the refcount at all?
 
+Yeah, refcount is not generally useful. It's context-specific, so it
+needs to move out of the core.
+
+The SVA code needs refcount because it allows multiple attachments
+between a SVA domain and a PASID. This is not a common case.
+
+> 
+>> +static void iommufd_auto_response_handle(struct iommufd_fault *fault,
+>> +                                        struct iommu_attach_handle *handle)
+>> +{
+>> +       struct iommufd_device *idev = handle->priv;
+> The caller already has the iommufd_device, don't need the handler.
+
+Yes.
+
+Best regards,
+baolu
