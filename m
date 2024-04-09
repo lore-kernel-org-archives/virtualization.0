@@ -1,59 +1,59 @@
-Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
+Received: from mail-io1-f45.google.com (mail-io1-f45.google.com [209.85.166.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57FD7370
-	for <virtualization@lists.linux.dev>; Tue,  9 Apr 2024 00:20:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FACD19B
+	for <virtualization@lists.linux.dev>; Tue,  9 Apr 2024 00:21:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712622006; cv=none; b=MePYDPB7VuCysfNFMDKAvtg6OF5m6KwfpmZulqWLwGolBgLuw+XQ8VNKKdnv9HQVnQ/S+Kga/TAd/rjvyKEcEYBEaBVUC+fllrKc7GgH1KnYgVyhb53f4xY29zHRGDbpZ738aPijwxQqnikzmjw91DwSF7zb4fHStj9cH69r2ss=
+	t=1712622117; cv=none; b=BHHEnVT3/k2ACI5XyUcWVaxBKFVJXbi54HaXC/pEmG+DFN98rre0/KDGP/s3AR3mFiNiu1kRGmxr0S2tAT60eNgmKJ8hcrcc4MShfv0tfmO1gT9YZV4OgNzvaz0WpQfuj2TcS+rruC3o2tmcfM2ptVAiVbW6c6lTA7H5lpSLDOI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712622006; c=relaxed/simple;
-	bh=7AyJE+Ynxw1W3Oop+jkW2MDTcjqw7F9xUTd+5z52JAI=;
+	s=arc-20240116; t=1712622117; c=relaxed/simple;
+	bh=y8+B3fBdv0+pwLEVFa2oRmsHTM6gfVbpXdHodVkQD0w=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=RHbILyShwhS01pyWDdAjAQSqsvyLyyoCTVK+m861DXhhXzzt8Jm9S08B7YTjdjfnsKUxixlF1+PWg7QUVp+tkftw52+T3GV+T2pUNjr/s3blFRNB0wKQ1007Jr1CryfyCtbtrBAYtHgfP1wUk6jdU6hLsFPlOPTh3QIEo1iIdRw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com; spf=pass smtp.mailfrom=rivosinc.com; dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b=O5bm40n1; arc=none smtp.client-ip=209.85.210.176
+	 In-Reply-To:Content-Type; b=Z/h7ZVwWbYJocww6b+YhvUrNPYJuPwJCtYOGrUn8h9/2yItpYz0O9OkYhKTVVUE+v6oUJIoUEgZbDaO+si6ZsZS+IxfV5YAvmZBUlIh8mArVU8VMWIK9nWRlbTrczQad1DWdSSs1HZErdyeIZro/NrKXVMs4QZMEXRS+FhiMqsg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com; spf=pass smtp.mailfrom=rivosinc.com; dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b=KKDcRLyq; arc=none smtp.client-ip=209.85.166.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rivosinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b="O5bm40n1"
-Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-6ecf8ebff50so3027315b3a.1
-        for <virtualization@lists.linux.dev>; Mon, 08 Apr 2024 17:20:04 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b="KKDcRLyq"
+Received: by mail-io1-f45.google.com with SMTP id ca18e2360f4ac-7d5e19d18fbso60251939f.2
+        for <virtualization@lists.linux.dev>; Mon, 08 Apr 2024 17:21:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rivosinc-com.20230601.gappssmtp.com; s=20230601; t=1712622004; x=1713226804; darn=lists.linux.dev;
+        d=rivosinc-com.20230601.gappssmtp.com; s=20230601; t=1712622115; x=1713226915; darn=lists.linux.dev;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=jJJm0YinR6Fz1JQTj6m9HJC7BJLubttssqp1IhI/OVY=;
-        b=O5bm40n1GsxVqtc0nYba5w3w1gcjcf+4ndMCfaXr95Dz4VmeauMatQJKdecp2nikQT
-         yEfWpW/REVBI4Ic6u2TsqIIENrjcY551wAVeKkAlWC5xe8eYQFRzn6+JRqbrYWism8gW
-         APTK7peMqpAzc5g9RW0rBObROeDui0EqL2rPamlczvCM8CHio+YCwPBGCOiJqP5rwtNv
-         JZxnwso+EAD85rsZ3JuLIxVkhKpwRHt66wmON2Gm9vXDVlojf47PVl+MTd1xUkmyv7vr
-         C/si6ugtkN6NLHcZYTcLo1g3ybsqnyfg2pzKydJqLQNt9Obd5Hs0vzrUaWSGYCEsoSaC
-         uFxQ==
+        bh=k4RWqXaWFwmiNP6pNOx5Yfz/MuJboItuSjd5cmtvGoo=;
+        b=KKDcRLyqBgQWsS1RBuJWvuKcjmnOcPNoFHopTXGaJq1l3MzxL+GenvLCRfG32ugY0H
+         N/EgWr2y/RIzGNnJAkW58o2lwu+JIDMyM9V7qcVBP9jzm1pzFS8SD1KVZGqwKbNi9vjS
+         zOpPCsco3mIrtcvXUxE0p/Lryyj+62vtch49g5bVah7LJeH4PNkdtuuKHgznWhg7cKqg
+         d6HJD6/LswPre8qxYFhyEMqk3pbMOIvuPKxPbMDi1saMYwAxSOnQki8QfURIQq7jSQY3
+         zMPMZzUBzMYbIklgt0u7ve8lYcwHQ2u3TB6fq8cLgz09qvH2lBbOmZufsLpFPWpbaWIq
+         ySAQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712622004; x=1713226804;
+        d=1e100.net; s=20230601; t=1712622115; x=1713226915;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=jJJm0YinR6Fz1JQTj6m9HJC7BJLubttssqp1IhI/OVY=;
-        b=soTtQkihU+4ZjfWcJ81+AfxHVrCN0Z9nrg7aGdbcPxo9wk0wNnwllqIgfL4j+aA3og
-         uZ0y+Nik03HlpthHkgPytER+6jxFkf96znzSqfVaQpftg4z67nL2Xjhgxpt3L8ZppXmS
-         3W/Di1Aofq4aEZDYoHqZBg/6RVF8aLeLB04ymV6VZzfDBC+XAURY4YkVswAIcCzLmh9E
-         mLJqPE8kOmPRB6Q2wvSDunHT6BgO4wa/cMShi5CI9uSqvWBohU6OmGM4GFsIPnMqS/YT
-         AHxwW4V21/zf6nUURpS4N2Jy71UEO8EggKAHXzKaxH/idwh4pPxqWZUXDLukWae6uCCj
-         2+VQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXYDfzCDsadtBnCoB2rzgO7VFc62OEilJKEpERpoKsNw046fgUe0C8daTe9l5CEw3cnPgErKissudjH8feFCZ2wEpnpp+BvWjC4EMe/O7A=
-X-Gm-Message-State: AOJu0YwIbhs0G4oVayItj00Qczw7QiFkSh6R2XQ10N6uOXyj96jR8vHp
-	GZBBdKAn6wMn9q+HN9F4NFjsMlMpIdf57dSasFBW8UrMQojqc61hJH3mCKLq2es=
-X-Google-Smtp-Source: AGHT+IHKlLChws6cu3BYTCJ7MCM6PzdBML/rgAzu6AAweXKWc1ZvRCFZaiBR3BYcpCZV7gSpWy06EQ==
-X-Received: by 2002:a05:6a21:199:b0:1a7:9e84:dc51 with SMTP id le25-20020a056a21019900b001a79e84dc51mr1952924pzb.7.1712622003695;
-        Mon, 08 Apr 2024 17:20:03 -0700 (PDT)
+        bh=k4RWqXaWFwmiNP6pNOx5Yfz/MuJboItuSjd5cmtvGoo=;
+        b=OMbbsVj7gQxtM0pLhoqnI9rSNkcN+8OjcMydhgl+Xx3R/my4K9OyyTNt4SMHPqfHCT
+         kewzDUCpa/XCt4q5lNYCfMdlMDoNBqg+kaTQNb6pClMYk3EYBbSzbprpwdXAW1OAPy+G
+         z85Yy/Ejgcqa+01ArVQ35HID45yr33miWfTlCfsUngDLTWGFXvChz8SWwN5NaKLNWqr3
+         M5Ne/p+vqxw0ZrklmMwFNDCoFqCIQ6Qu2/Kxc9ptiOBiHejYMjYhy09ZNEp1UD/dyOcp
+         OgoqGwFUOZtBzt2kHJ5eNE5YYc7koTh/fpRgwokgqeFQ4eLDKSTbkwTf4cwSfO1+XPn3
+         tK4g==
+X-Forwarded-Encrypted: i=1; AJvYcCUl/W1ANLyG+Xn8HfpJMj9AFJoRowXjf+KXHsUA1YmtgfHARd8JYa4h+0TKHrwDvfoJhiUYulwo0YolwGWSbOPc3UpZx1po4NkQ5nzv0LY=
+X-Gm-Message-State: AOJu0YwDOgRmq9oiFDipUh9eyz0LLnFvNICOZj2NJ1wJKYRaoNyzfkaC
+	e/bvH8cSLDh4A8rgkuVQyRb1CQoZn1qvokXzBgWvzKznGVD/5Gv/2LsqyP4VcWw=
+X-Google-Smtp-Source: AGHT+IGDn7RB5cU8iSXf8xntybKszf4HI5OoCRwBUHdVivfSY4dzeQk6+44VVtnK3iUR/Ypb1pjzqA==
+X-Received: by 2002:a05:6e02:20cb:b0:36a:203e:6433 with SMTP id 11-20020a056e0220cb00b0036a203e6433mr6545247ilq.9.1712622115407;
+        Mon, 08 Apr 2024 17:21:55 -0700 (PDT)
 Received: from ?IPV6:2601:647:4180:9630::e8c1? ([2601:647:4180:9630::e8c1])
-        by smtp.gmail.com with ESMTPSA id y22-20020a056a00181600b006ed0b798f1fsm5677375pfa.119.2024.04.08.17.20.01
+        by smtp.gmail.com with ESMTPSA id e1-20020a630f01000000b005f072084432sm7093745pgl.38.2024.04.08.17.21.53
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 08 Apr 2024 17:20:02 -0700 (PDT)
-Message-ID: <be088afd-923e-4aed-a786-5398e46c05f5@rivosinc.com>
-Date: Mon, 8 Apr 2024 17:20:01 -0700
+        Mon, 08 Apr 2024 17:21:55 -0700 (PDT)
+Message-ID: <c33b4da9-5759-4a1a-844d-c6dbad028d12@rivosinc.com>
+Date: Mon, 8 Apr 2024 17:21:53 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -61,14 +61,14 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 04/22] drivers/perf: riscv: Use BIT macro for shifting
- operations
+Subject: Re: [PATCH v5 06/22] drivers/perf: riscv: Implement SBI PMU snapshot
+ function
 Content-Language: en-US
 To: Andrew Jones <ajones@ventanamicro.com>
-Cc: linux-kernel@vger.kernel.org, Ajay Kaher <akaher@vmware.com>,
- Alexandre Ghiti <alexghiti@rivosinc.com>,
- Alexey Makhalov <amakhalov@vmware.com>, Anup Patel <anup@brainfault.org>,
- Conor Dooley <conor.dooley@microchip.com>, Juergen Gross <jgross@suse.com>,
+Cc: linux-kernel@vger.kernel.org, Palmer Dabbelt <palmer@rivosinc.com>,
+ Anup Patel <anup@brainfault.org>, Conor Dooley <conor.dooley@microchip.com>,
+ Ajay Kaher <akaher@vmware.com>, Alexandre Ghiti <alexghiti@rivosinc.com>,
+ Alexey Makhalov <amakhalov@vmware.com>, Juergen Gross <jgross@suse.com>,
  kvm-riscv@lists.infradead.org, kvm@vger.kernel.org,
  linux-kselftest@vger.kernel.org, linux-riscv@lists.infradead.org,
  Mark Rutland <mark.rutland@arm.com>, Palmer Dabbelt <palmer@dabbelt.com>,
@@ -78,87 +78,29 @@ Cc: linux-kernel@vger.kernel.org, Ajay Kaher <akaher@vmware.com>,
  VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
  Will Deacon <will@kernel.org>, x86@kernel.org
 References: <20240403080452.1007601-1-atishp@rivosinc.com>
- <20240403080452.1007601-5-atishp@rivosinc.com>
- <20240404-9a84f2090d00f6b994e1de7c@orel>
+ <20240403080452.1007601-7-atishp@rivosinc.com>
+ <20240404-bbfb02e3aec944f9e11745ae@orel>
 From: Atish Patra <atishp@rivosinc.com>
-In-Reply-To: <20240404-9a84f2090d00f6b994e1de7c@orel>
+In-Reply-To: <20240404-bbfb02e3aec944f9e11745ae@orel>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 4/4/24 04:08, Andrew Jones wrote:
-> On Wed, Apr 03, 2024 at 01:04:33AM -0700, Atish Patra wrote:
->> It is a good practice to use BIT() instead of (1UL << x).
+On 4/4/24 05:01, Andrew Jones wrote:
+> On Wed, Apr 03, 2024 at 01:04:35AM -0700, Atish Patra wrote:
+> ...
+>> +static int pmu_sbi_snapshot_disable(void)
+>> +{
+>> +	struct sbiret ret;
+>> +
+>> +	ret = sbi_ecall(SBI_EXT_PMU, SBI_EXT_PMU_SNAPSHOT_SET_SHMEM, -1,
+>> +			-1, 0, 0, 0, 0);
 > 
-> (1UL << x) isn't generally a problem. The problem is with (1 << x).
+> The "Rename the SBI_STA_SHMEM_DISABLE" patch should come before this
+> patch so SBI_SHMEM_DISABLE can be used instead of the -1's here.
 > 
 
-Yes. That's why, the commit message said it's good to have :)
-I improved the commit message to specify about 1 << x as well.
+Sure. Done.
 
->> Replace the current usages with BIT().
->>
->> Signed-off-by: Atish Patra <atishp@rivosinc.com>
->> ---
->>   arch/riscv/include/asm/sbi.h | 20 ++++++++++----------
->>   drivers/perf/riscv_pmu_sbi.c |  2 +-
->>   2 files changed, 11 insertions(+), 11 deletions(-)
->>
->> diff --git a/arch/riscv/include/asm/sbi.h b/arch/riscv/include/asm/sbi.h
->> index ef8311dafb91..4afa2cd01bae 100644
->> --- a/arch/riscv/include/asm/sbi.h
->> +++ b/arch/riscv/include/asm/sbi.h
->> @@ -233,20 +233,20 @@ enum sbi_pmu_ctr_type {
->>   #define SBI_PMU_EVENT_IDX_INVALID 0xFFFFFFFF
->>   
->>   /* Flags defined for config matching function */
->> -#define SBI_PMU_CFG_FLAG_SKIP_MATCH	(1 << 0)
->> -#define SBI_PMU_CFG_FLAG_CLEAR_VALUE	(1 << 1)
->> -#define SBI_PMU_CFG_FLAG_AUTO_START	(1 << 2)
->> -#define SBI_PMU_CFG_FLAG_SET_VUINH	(1 << 3)
->> -#define SBI_PMU_CFG_FLAG_SET_VSINH	(1 << 4)
->> -#define SBI_PMU_CFG_FLAG_SET_UINH	(1 << 5)
->> -#define SBI_PMU_CFG_FLAG_SET_SINH	(1 << 6)
->> -#define SBI_PMU_CFG_FLAG_SET_MINH	(1 << 7)
->> +#define SBI_PMU_CFG_FLAG_SKIP_MATCH	BIT(0)
->> +#define SBI_PMU_CFG_FLAG_CLEAR_VALUE	BIT(1)
->> +#define SBI_PMU_CFG_FLAG_AUTO_START	BIT(2)
->> +#define SBI_PMU_CFG_FLAG_SET_VUINH	BIT(3)
->> +#define SBI_PMU_CFG_FLAG_SET_VSINH	BIT(4)
->> +#define SBI_PMU_CFG_FLAG_SET_UINH	BIT(5)
->> +#define SBI_PMU_CFG_FLAG_SET_SINH	BIT(6)
->> +#define SBI_PMU_CFG_FLAG_SET_MINH	BIT(7)
->>   
->>   /* Flags defined for counter start function */
->> -#define SBI_PMU_START_FLAG_SET_INIT_VALUE (1 << 0)
->> +#define SBI_PMU_START_FLAG_SET_INIT_VALUE BIT(0)
->>   
->>   /* Flags defined for counter stop function */
->> -#define SBI_PMU_STOP_FLAG_RESET (1 << 0)
->> +#define SBI_PMU_STOP_FLAG_RESET BIT(0)
->>   
->>   enum sbi_ext_dbcn_fid {
->>   	SBI_EXT_DBCN_CONSOLE_WRITE = 0,
->> diff --git a/drivers/perf/riscv_pmu_sbi.c b/drivers/perf/riscv_pmu_sbi.c
->> index babf1b9a4dbe..a83ae82301e3 100644
->> --- a/drivers/perf/riscv_pmu_sbi.c
->> +++ b/drivers/perf/riscv_pmu_sbi.c
->> @@ -386,7 +386,7 @@ static int pmu_sbi_ctr_get_idx(struct perf_event *event)
->>   			cmask = 1;
->>   		} else if (event->attr.config == PERF_COUNT_HW_INSTRUCTIONS) {
->>   			cflags |= SBI_PMU_CFG_FLAG_SKIP_MATCH;
->> -			cmask = 1UL << (CSR_INSTRET - CSR_CYCLE);
->> +			cmask = BIT(CSR_INSTRET - CSR_CYCLE);
->>   		}
->>   	}
->>   
->> -- 
->> 2.34.1
->>
-> 
-> Other than the commit message,
-> 
-> Reviewed-by: Andrew Jones <ajones@ventanamicro.com>
-> 
 > Thanks,
 > drew
 
