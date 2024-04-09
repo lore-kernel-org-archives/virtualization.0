@@ -1,231 +1,159 @@
-Received: from mail-ej1-f42.google.com (mail-ej1-f42.google.com [209.85.218.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.16])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11D244EB41
-	for <virtualization@lists.linux.dev>; Tue,  9 Apr 2024 08:01:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 529E47E58C
+	for <virtualization@lists.linux.dev>; Tue,  9 Apr 2024 08:37:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712649713; cv=none; b=CtWU/t2qaSBecrOX3bZmq+Wqes7qVzPZ9atV2daKsMdMaC/t8vkDvoS5v8AAI4xFI+VA3+0F/gQll2DcQ7hRJFlQe4O2cNStANxkyX4q/yd1AX8F9MWcP1o2ZwAbNt5N/n+HdSCOml4HHKtY3ULhULa3WwgDI1sFQ8e83jvUZWU=
+	t=1712651844; cv=none; b=mZYv49MAjKN78RTLx+Y7l3A0EP95oTtKjiEYTtAZlr6gwxJE8IFEetrK/xxS9/PQzh4TSY5DQDJSLpw4O3E/62n7gzV9iFkv0yVb8B9Wxv/FJ9qUpiq36ve7pOL/xTgETf0aOCkxPtafLIxNI4NHvjJZQWFVyjvOFt5+MlosJcE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712649713; c=relaxed/simple;
-	bh=bMz8MjfIFsUyXV5WBM+KwspP/jmIVlkv1FepIQu2Qp4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RIpy3IhbrMJdhpZzptt3gxr53lSqK2xsOXox+Xkmpx6ZX2eh8VVlUHQpNgFsjbMMmSZcewe3w5JXqsfyw8emUCsAZmh2Zmj5FUjfLzAnYA4xHeloyeoPK/Z7+5ASrc3VMCL5DmMTMEhpTMdzHMHMMbnH3lzhY6eXai4HAsIiIbs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ventanamicro.com; spf=pass smtp.mailfrom=ventanamicro.com; dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b=UiDbeFMS; arc=none smtp.client-ip=209.85.218.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ventanamicro.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ventanamicro.com
+	s=arc-20240116; t=1712651844; c=relaxed/simple;
+	bh=SedDHtQxHwlMe+ftuWwMuJ7InOSuis1VajqtjEEo+0s=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=WDzwtI8oL7V2477PEdBNoYTVNstSBDSZChKvYoikoMA3LxXHqkWLMmM7PuaIggSp4h5bnDOX1cIcMc0w0UDZoMDajnjxgv8W0iEHZ4ZWUyP8mjXI3tkhA7h3WLnI5XzuH6z5VQUBbVzafO4NOTMxUUNB07Nk4OeUknqcqiFrcus=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=T2wp69V9; arc=none smtp.client-ip=198.175.65.16
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b="UiDbeFMS"
-Received: by mail-ej1-f42.google.com with SMTP id a640c23a62f3a-a51c37a5025so311677066b.1
-        for <virtualization@lists.linux.dev>; Tue, 09 Apr 2024 01:01:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ventanamicro.com; s=google; t=1712649710; x=1713254510; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=hCIVc0ToTPxKSHwFH39eeFiQ4Iaybjud05qpLdkE0so=;
-        b=UiDbeFMS3CiULaTbSF5Ma0WZbila/hihtTRLfNwZnmBNWWQoimmQ4UEv/21vMs2/Mp
-         gW+J42jSr1vz0RCPu1zZbewTAK9tRmYrqQ7I5blV8rYVYRhtVD/jRQ8ieYtsctFTuA+O
-         f8/fEMN1PWu9rjp9Koh/KC46C1SAqGazP6ixoSawB2T15zERAwIfXHzumE2WCRxMSX+V
-         16/28pa9hwlM8MZ9U2+XHOCUi16aqDNHXhhYF7+1XzHWmChCNI8L35+nyGGryCSJm+bV
-         RU/Bn4KJQ5WF23+sGZo+fxVfXmNgRTXy3Z8kPiNJRwL/77N5deeLEPHQ3Tm3UiuCf4mf
-         kD3w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712649710; x=1713254510;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=hCIVc0ToTPxKSHwFH39eeFiQ4Iaybjud05qpLdkE0so=;
-        b=vVr7+9JPWd+dl3cDFgdt6FTAUi8Xqqqtp5HqLalmpFlAztNaag99ZHwN1ap6I41YhK
-         x2QN8sXDGjeA6Wcx4Lcim0fnxTIn4YP267pasnfR+8X92g4Vifq7Su6S/EmTTNDCUt+r
-         u/N7sZ8H55BkhPvzT8KkQaAoF3ZDoee3u0h0y9fNUf6lvX8YMRreWe3DhdBbJ/GB/V+X
-         1hkO0Pmk7iDijkv2zRjlAGorbKCOiLbnmn5iMvC32CTm9o0Jpc7hui57JonbfDmVoFLj
-         mOnG6xVZXH4YR+wrAObqarukW+3P9aKodLeOT3pwSu4dux/L2un0xZfdZ/HkKF/eP40c
-         0EgQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUrYQ9CIkpajLJxE2cRer9WDiJSWNeJ1QHw7Ovhoqqr0CVEATgQ9yTsxhzoYl29uPbKdTdnavyCP1yJo6S/fH3oDy6nHjLXQi04my34ctg=
-X-Gm-Message-State: AOJu0YxLFydeoToEPXqQ5XqCKvGtmjsXteUPaWEFCeZ+CVY3uoN72Ax0
-	TAsUvikGzvWlLpiRw7jVRGyakwxOOvuDj+MO0ZyAl183WF+eWpmV/j0VGV+sO2g=
-X-Google-Smtp-Source: AGHT+IG/T7uaqwe5y6oCGXamr2sprW/wjX+aVwR61ApsAhhRf7ZUfXSB3xs49ZIPwF/ZvGx/GUAiPw==
-X-Received: by 2002:a17:906:c454:b0:a4d:f5e6:2e34 with SMTP id ck20-20020a170906c45400b00a4df5e62e34mr6793646ejb.19.1712649710207;
-        Tue, 09 Apr 2024 01:01:50 -0700 (PDT)
-Received: from localhost (2001-1ae9-1c2-4c00-20f-c6b4-1e57-7965.ip6.tmcz.cz. [2001:1ae9:1c2:4c00:20f:c6b4:1e57:7965])
-        by smtp.gmail.com with ESMTPSA id xh13-20020a170906da8d00b00a51c0c0cb86sm3775778ejb.22.2024.04.09.01.01.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Apr 2024 01:01:49 -0700 (PDT)
-Date: Tue, 9 Apr 2024 10:01:48 +0200
-From: Andrew Jones <ajones@ventanamicro.com>
-To: Atish Patra <atishp@rivosinc.com>
-Cc: linux-kernel@vger.kernel.org, Anup Patel <anup@brainfault.org>, 
-	Ajay Kaher <akaher@vmware.com>, Alexandre Ghiti <alexghiti@rivosinc.com>, 
-	Alexey Makhalov <amakhalov@vmware.com>, Conor Dooley <conor.dooley@microchip.com>, 
-	Juergen Gross <jgross@suse.com>, kvm-riscv@lists.infradead.org, kvm@vger.kernel.org, 
-	linux-kselftest@vger.kernel.org, linux-riscv@lists.infradead.org, 
-	Mark Rutland <mark.rutland@arm.com>, Palmer Dabbelt <palmer@dabbelt.com>, 
-	Paolo Bonzini <pbonzini@redhat.com>, Paul Walmsley <paul.walmsley@sifive.com>, 
-	Shuah Khan <shuah@kernel.org>, virtualization@lists.linux.dev, 
-	VMware PV-Drivers Reviewers <pv-drivers@vmware.com>, Will Deacon <will@kernel.org>, x86@kernel.org
-Subject: Re: [PATCH v5 20/22] KVM: riscv: selftests: Add SBI PMU selftest
-Message-ID: <20240409-dd055c3d08e027cf2a5cb4dc@orel>
-References: <20240403080452.1007601-1-atishp@rivosinc.com>
- <20240403080452.1007601-21-atishp@rivosinc.com>
- <20240405-d1a4cb9a441a05a9d2f8b1c8@orel>
- <976411ab-6ddf-4b10-8e13-1575928415ce@rivosinc.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="T2wp69V9"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1712651844; x=1744187844;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=SedDHtQxHwlMe+ftuWwMuJ7InOSuis1VajqtjEEo+0s=;
+  b=T2wp69V9JF116mXiC65hs6Cn7qPSFEm59dcg4lntnnfJMihAGcf9tePa
+   53kNabNF+zzoGkGRHuRjkXTt0RWye6gotBmCk8qTzCOhrQ1YaWFkVB3NG
+   DgeVD2VlIKXst5T6sgI3IsGKQqF6RCZy18GdZRAuv1LF1gGxOQWwZEUmo
+   HCN9pkK7V+dnALKtWwts1pvnrMuItUd6jNISe9AxWPnRT2UnM+tQfSCQQ
+   IzNNr2BhWC8sVTCs2W3uSMibe/ZcEBEpotAc2KBY2vV4lx+KBRo1BL1zL
+   1BOWxusViia28PyZRirLESDQi8Y+UutbvJdJn/w5Giau6GFu0Gcl2XUZc
+   Q==;
+X-CSE-ConnectionGUID: yqOUtoFDTUO/9ZCBLX1T5w==
+X-CSE-MsgGUID: zyGQFNDqQyCFHOJ1P9JY3g==
+X-IronPort-AV: E=McAfee;i="6600,9927,11038"; a="8080902"
+X-IronPort-AV: E=Sophos;i="6.07,189,1708416000"; 
+   d="scan'208";a="8080902"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Apr 2024 01:37:23 -0700
+X-CSE-ConnectionGUID: uomU7DyoRnynfvtonyI7og==
+X-CSE-MsgGUID: cSgh90yNQlyFRoDXP5qFHA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.07,189,1708416000"; 
+   d="scan'208";a="20724954"
+Received: from lingshan-mobl.ccr.corp.intel.com (HELO [10.124.249.198]) ([10.124.249.198])
+  by orviesa008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Apr 2024 01:37:22 -0700
+Message-ID: <a0672e72-5c17-4457-9f31-9f9db6f9f229@intel.com>
+Date: Tue, 9 Apr 2024 16:37:18 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <976411ab-6ddf-4b10-8e13-1575928415ce@rivosinc.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 09/10] vDPA: report virtio-block read-only info to user
+ space
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: jasowang@redhat.com, mst@redhat.com, virtualization@lists.linux.dev
+References: <20240218185606.13509-1-lingshan.zhu@intel.com>
+ <20240218185606.13509-10-lingshan.zhu@intel.com>
+ <ms2roqd326s5j5ynksciz4tdijqx4taeoyjvtzelbttkt4vich@b4geobrynwj5>
+Content-Language: en-US
+From: "Zhu, Lingshan" <lingshan.zhu@intel.com>
+In-Reply-To: <ms2roqd326s5j5ynksciz4tdijqx4taeoyjvtzelbttkt4vich@b4geobrynwj5>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Mon, Apr 08, 2024 at 05:37:19PM -0700, Atish Patra wrote:
-> On 4/5/24 05:50, Andrew Jones wrote:
-> > On Wed, Apr 03, 2024 at 01:04:49AM -0700, Atish Patra wrote:
-> > ...
-> > > +static void test_pmu_basic_sanity(void)
-> > > +{
-> > > +	long out_val = 0;
-> > > +	bool probe;
-> > > +	struct sbiret ret;
-> > > +	int num_counters = 0, i;
-> > > +	union sbi_pmu_ctr_info ctrinfo;
-> > > +
-> > > +	probe = guest_sbi_probe_extension(SBI_EXT_PMU, &out_val);
-> > > +	GUEST_ASSERT(probe && out_val == 1);
-> > > +
-> > > +	num_counters = get_num_counters();
-> > > +
-> > > +	for (i = 0; i < num_counters; i++) {
-> > > +		ret = sbi_ecall(SBI_EXT_PMU, SBI_EXT_PMU_COUNTER_GET_INFO, i,
-> > > +				0, 0, 0, 0, 0);
-> > > +
-> > > +		/* There can be gaps in logical counter indicies*/
-> > > +		if (ret.error)
-> > > +			continue;
-> > > +		GUEST_ASSERT_NE(ret.value, 0);
-> > > +
-> > > +		ctrinfo.value = ret.value;
-> > > +
-> > > +		/**
-> > > +		 * Accesibillity check of hardware and read capability of firmware counters.
-> > 
-> > Accessibility
-> > 
-> 
-> Fixed it.
-> 
-> > > +		 * The spec doesn't mandate any initial value. No need to check any value.
-> > > +		 */
-> > > +		read_counter(i, ctrinfo);
-> > > +	}
-> > > +
-> > > +	GUEST_DONE();
-> > > +}
-> > > +
-> > > +static void run_vcpu(struct kvm_vcpu *vcpu)
-> > > +{
-> > > +	struct ucall uc;
-> > > +
-> > > +	vcpu_run(vcpu);
-> > > +	switch (get_ucall(vcpu, &uc)) {
-> > > +	case UCALL_ABORT:
-> > > +		REPORT_GUEST_ASSERT(uc);
-> > > +		break;
-> > > +	case UCALL_DONE:
-> > > +	case UCALL_SYNC:
-> > > +		break;
-> > > +	default:
-> > > +		TEST_FAIL("Unknown ucall %lu", uc.cmd);
-> > > +		break;
-> > > +	}
-> > > +}
-> > > +
-> > > +void test_vm_destroy(struct kvm_vm *vm)
-> > > +{
-> > > +	memset(ctrinfo_arr, 0, sizeof(union sbi_pmu_ctr_info) * RISCV_MAX_PMU_COUNTERS);
-> > > +	counter_mask_available = 0;
-> > > +	kvm_vm_free(vm);
-> > > +}
-> > > +
-> > > +static void test_vm_basic_test(void *guest_code)
-> > > +{
-> > > +	struct kvm_vm *vm;
-> > > +	struct kvm_vcpu *vcpu;
-> > > +
-> > > +	vm = vm_create_with_one_vcpu(&vcpu, guest_code);
-> > > +	__TEST_REQUIRE(__vcpu_has_sbi_ext(vcpu, KVM_RISCV_SBI_EXT_PMU),
-> > > +				   "SBI PMU not available, skipping test");
-> > > +	vm_init_vector_tables(vm);
-> > > +	/* Illegal instruction handler is required to verify read access without configuration */
-> > > +	vm_install_exception_handler(vm, EXC_INST_ILLEGAL, guest_illegal_exception_handler);
-> > 
-> > I still don't see where the "verify" part is. The handler doesn't record
-> > that it had to handle anything.
-> > 
-> 
-> The objective of the test is to ensure that we get an illegal instruction
-> without configuration.
 
-This part I guessed.
 
-> The presence of the registered exception handler is
-> sufficient for that.
+On 3/20/2024 12:40 AM, Stefano Garzarella wrote:
+> On Mon, Feb 19, 2024 at 02:56:05AM +0800, Zhu Lingshan wrote:
+>> This commit report read-only information of
+>> virtio-blk devices to user space.
+>>
+>> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+>> ---
+>> drivers/vdpa/vdpa.c       | 14 ++++++++++++++
+>> include/uapi/linux/vdpa.h |  1 +
+>> 2 files changed, 15 insertions(+)
+>>
+>> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+>> index adbcbc7b18b2..d6fd3cadc44f 100644
+>> --- a/drivers/vdpa/vdpa.c
+>> +++ b/drivers/vdpa/vdpa.c
+>> @@ -1084,6 +1084,17 @@ vdpa_dev_blk_write_zeroes_config_fill(struct 
+>> sk_buff *msg, u64 features,
+>>     return 0;
+>> }
+>>
+>> +static int vdpa_dev_blk_ro_config_fill(struct sk_buff *msg, u64 
+>> features)
+>> +{
+>> +    u8 ro;
+>> +
+>> +    ro = ((features & BIT_ULL(VIRTIO_BLK_F_RO)) == 0) ? 0 : 1;
+>> +    if (nla_put_u8(msg, VDPA_ATTR_DEV_BLK_CFG_READ_ONLY, ro))
+>
+> This is not really related to the config space, what about renaming it
+> to VDPA_ATTR_DEV_BLK_READ_ONLY ?
+>
+> Also the type, maybe better to use "flag" and set it through
+> `nla_put_flag()`.
+Hi Stefano,
 
-This part I disagree with. The handler may not be necessary and not run if
-we don't get the ILL. Usually when I write tests like these I set a
-boolean in the handler and check it after the instruction which should
-have sent us there to make sure we did indeed go there.
+I am implementing this change.
+In my humble opinion, maybe using a boolean(the u8 above) is better?
+Because using the flag means we conditionally put a "0" into the 
+attribution,
+or the attribution does not exist, this is still a bool logic but
+a little vague.
 
-> 
-> The verify part is that the test doesn't end up in a illegal instruction
-> exception when you try to access a counter without configuring.
-> 
-> Let me know if you think we should more verbose comment to explain the
-> scenario.
-> 
+Thanks
+Lingshan
+>
+> Not a strong opinion on that, it just seems a little more consistent to
+> me.
+>
+> Thanks,
+> Stefano
+>
+>> +        return -EMSGSIZE;
+>> +
+>> +    return 0;
+>> +}
+>> +
+>> static int vdpa_dev_blk_config_fill(struct vdpa_device *vdev,
+>>                     struct sk_buff *msg)
+>> {
+>> @@ -1122,6 +1133,9 @@ static int vdpa_dev_blk_config_fill(struct 
+>> vdpa_device *vdev,
+>>     if (vdpa_dev_blk_write_zeroes_config_fill(msg, features_device, 
+>> &config))
+>>         return -EMSGSIZE;
+>>
+>> +    if (vdpa_dev_blk_ro_config_fill(msg, features_device))
+>> +        return -EMSGSIZE;
+>> +
+>>     return 0;
+>> }
+>>
+>> diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
+>> index 797d5708492f..4be8e3a15874 100644
+>> --- a/include/uapi/linux/vdpa.h
+>> +++ b/include/uapi/linux/vdpa.h
+>> @@ -70,6 +70,7 @@ enum vdpa_attr {
+>>     VDPA_ATTR_DEV_BLK_CFG_DISCARD_SEC_ALIGN,/* u32 */
+>>     VDPA_ATTR_DEV_BLK_CFG_MAX_WRITE_ZEROES_SEC,    /* u32 */
+>>     VDPA_ATTR_DEV_BLK_CFG_MAX_WRITE_ZEROES_SEG,    /* u32 */
+>> +    VDPA_ATTR_DEV_BLK_CFG_READ_ONLY,        /* u8 */
+>>
+>>     /* new attributes must be added above here */
+>>     VDPA_ATTR_MAX,
+>> -- 
+>> 2.39.3
+>>
+>>
+>
+>
 
-With a boolean the test code will be mostly self documenting, but a short
-comment saying why we expect the boolean to be set would be good too.
-
-Thanks,
-drew
-
-> 
-> > > +
-> > > +	vcpu_init_vector_tables(vcpu);
-> > > +	run_vcpu(vcpu);
-> > > +
-> > > +	test_vm_destroy(vm);
-> > > +}
-> > > +
-> > > +static void test_vm_events_test(void *guest_code)
-> > > +{
-> > > +	struct kvm_vm *vm = NULL;
-> > > +	struct kvm_vcpu *vcpu = NULL;
-> > > +
-> > > +	vm = vm_create_with_one_vcpu(&vcpu, guest_code);
-> > > +	__TEST_REQUIRE(__vcpu_has_sbi_ext(vcpu, KVM_RISCV_SBI_EXT_PMU),
-> > > +				   "SBI PMU not available, skipping test");
-> > > +	run_vcpu(vcpu);
-> > > +
-> > > +	test_vm_destroy(vm);
-> > > +}
-> > > +
-> > > +int main(void)
-> > > +{
-> > > +	test_vm_basic_test(test_pmu_basic_sanity);
-> > > +	pr_info("SBI PMU basic test : PASS\n");
-> > > +
-> > > +	test_vm_events_test(test_pmu_events);
-> > > +	pr_info("SBI PMU event verification test : PASS\n");
-> > > +
-> > > +	return 0;
-> > > +}
-> > > -- 
-> > > 2.34.1
-> > > 
-> > 
-> > Thanks,
-> > drew
-> 
