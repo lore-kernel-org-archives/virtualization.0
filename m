@@ -1,73 +1,73 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E0ED262A8
-	for <virtualization@lists.linux.dev>; Wed, 10 Apr 2024 06:09:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49BB829CFA
+	for <virtualization@lists.linux.dev>; Wed, 10 Apr 2024 06:09:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712729373; cv=none; b=bFNjvUfJptk/c2oy2ri+Qh275cSBJwR7JJL3tQ0+9gvisWabBoSJ53MmPBQDGoXoLQeyNPbtW8wXSa6F+Aq+Q7IKuMPVzkMjO4l7KcswNjSQs8KbACKbf8u6wGWQlwN75AotWuIBd3/8gmhViUBofzVH2DWLNDA+3Z1yuLvLxIg=
+	t=1712729376; cv=none; b=B/H5GL7XfZWTiafdEqvp4pERJzCTEcfGqu+T1YD8TCtvsXevnrljd0hRjHmPUoBDmzBURUomMga61EVdFdTXumnDgwjLzcGs1UTic+sYfSAeoHQCsKt09x5cTMfN/rXamMlpe0w0vUlNWihhtSFZfghZTdIVwQ7bezXzYXraD4M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712729373; c=relaxed/simple;
-	bh=TgEnH+juOE9q3+l0Iy/5OigfN5ANC+3jzENCinlc60M=;
+	s=arc-20240116; t=1712729376; c=relaxed/simple;
+	bh=fN93S+O/a4r8919HDaOpaGLyUFbfFTR4Yqdw+94Pp/g=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=D3yO6hDubn2xIfvtAcOXPmdX+vvgawaoMQEiQPktB4iV2OTVjD0n19DocS79E3jQXQaCm/CNlrMACMmU4UfvNfSuXOhy4r9+8J84INFIgqinpCp1jpJ9XsUSNSAsinTQyjj1acbznh3rIySy1oR8HMx29gAQx5EAISc0ktPKwp0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=J8FG5FY8; arc=none smtp.client-ip=170.10.129.124
+	 To:Cc:Content-Type; b=GIcD6hIqyyM9zb7XJKCgBI+QpXSveAM2Fty3YJZzuVNMgyo7yoqY7COEgpn16bh013WUnojolduIDtgFiusuL/dPe0P3FW7zkqL87cPQiP4nmtOVkGm4qkJ1xJF8ynN9cXDrc3Y8qPeTxF5LefHq+iP5yajq1aoUo4jFc+R2Y8Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Imv+P+xX; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="J8FG5FY8"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Imv+P+xX"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1712729371;
+	s=mimecast20190719; t=1712729374;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=TgEnH+juOE9q3+l0Iy/5OigfN5ANC+3jzENCinlc60M=;
-	b=J8FG5FY89TQS2x3QZOfSECo2JtHO3uzAk81JzlxR/1GRTfDbIlXXMU4jOZxdE9pIefsU+5
-	sAmC0qiHq06XPdUPReKx+hA5RgQtXieHsSKiVrn86Y0tVkFiYYws4dwBswmZkp7StwU+Yq
-	8KUQ59t/Zri3Aovq06NlElxMVih+RQU=
-Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
- [209.85.210.198]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=6b5vs9vSUGn8ADK8g0iw0wXboKE+rPl/OAO5DzwLqrA=;
+	b=Imv+P+xXEKusNE6CANfay3KP+9z8DS7KkRAJsXHcCY2cCIDtDj9YX7Gn0hq09zt3vDEx2B
+	zrn9sBxT52HB+G71rR4p07/Px18CaDTCCxUcA9LjEBShZq821RhCcakCbm3VY+vyPUdQfU
+	f6zDN+px9aMAXVcxWoj/144YHCpySQE=
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
+ [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-53-cECeuosZNgyxbk_ivZkaKw-1; Wed, 10 Apr 2024 02:09:29 -0400
-X-MC-Unique: cECeuosZNgyxbk_ivZkaKw-1
-Received: by mail-pf1-f198.google.com with SMTP id d2e1a72fcca58-6ed58bc3d23so1355522b3a.2
-        for <virtualization@lists.linux.dev>; Tue, 09 Apr 2024 23:09:29 -0700 (PDT)
+ us-mta-654-RA7FMnvfM9CCiRkYS_c8MA-1; Wed, 10 Apr 2024 02:09:33 -0400
+X-MC-Unique: RA7FMnvfM9CCiRkYS_c8MA-1
+Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-2a5c5e69461so376912a91.2
+        for <virtualization@lists.linux.dev>; Tue, 09 Apr 2024 23:09:33 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712729368; x=1713334168;
+        d=1e100.net; s=20230601; t=1712729372; x=1713334172;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=TgEnH+juOE9q3+l0Iy/5OigfN5ANC+3jzENCinlc60M=;
-        b=dKBl+R02jPfGbsmL1UxdRDy2ghgA1lGrolwCw4dAELbjGC9s4RrQZUzqGV/BLchQwu
-         JeeAac6rISTKF+xH8+WqbGLb2B4ePZhLSa1Y5vdJlPupQI53b9UKxCVt1P7OuSeubIgu
-         DizJMl3kJN2N6QbSyAOce52efPjmoxmwzcHi8Dsex/aoWf/TI27bSyQfJQLcOP7ueR4K
-         jl6NHMeZnLc6cJl2NRV4LU2U9zPgArye6brT6ovsyy0gK7fwwokgX8BO3ORuUokqAjew
-         pqsvzCmmyUGJqbWrd8sNEQUG4IWel3bGcc0++OvbJkfTmKW88BdKPg/SE+tbqvc6GYx1
-         hULA==
-X-Forwarded-Encrypted: i=1; AJvYcCWu/PPzOOZL9/HuAjFKJBtvl0hgywPxxX6I0s5/CQL7JIXXykQBg7mBbWUcWsyUO+EJrRQdY3bra0rndrx3Ua5qncxYHHI8jUhW3VYJmEM=
-X-Gm-Message-State: AOJu0YyH7VVE9Er63PLeov7PjLINpl1f5o004G2K/vwX1pG2AlPf3UZ6
-	zPxOlsxXO3DQpddJS3dYpYQxklfCiQQcInSsap7fXNTAS5kGQh4xBvDpzY4HqYQT118wx4nwLis
-	9tSrk4lIRLiOf8lKdIiuWs6fKIqgqy1PajGQKEfC6UdiYrzqJVUjsUIw/Bz9xg5Ded4NvBjbgC0
-	eMTIxNgArOQK/hF2ctfgjebdaQGNn2BCjS8cd2A90=
-X-Received: by 2002:a05:6a21:186:b0:1a7:912c:4a60 with SMTP id le6-20020a056a21018600b001a7912c4a60mr2157244pzb.4.1712729368460;
-        Tue, 09 Apr 2024 23:09:28 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFU6Br+y7ZLlNLo4KSKT8o6SK3mGKJFVCb2xmJ2+EI/QnRnzH+iDld5ZX3v968qQ7jPjyAIw5rA42aTXkGCrl8=
-X-Received: by 2002:a05:6a21:186:b0:1a7:912c:4a60 with SMTP id
- le6-20020a056a21018600b001a7912c4a60mr2157239pzb.4.1712729368160; Tue, 09 Apr
- 2024 23:09:28 -0700 (PDT)
+        bh=6b5vs9vSUGn8ADK8g0iw0wXboKE+rPl/OAO5DzwLqrA=;
+        b=QDtcitVHacZvjWfOhCUGy+0E1Hz79q1usb4WdQKysafPojQ94+MSo6P/zcyyzMM4be
+         5PrsoTfVK5+Q97bFKqXcdeZZ/hKe5K/OxFEQBg093FyIhdBS+74DnKJ+BdzZSjSbvAyF
+         gsJGbMOaEBpTTM35sN8YjtxEvH1yldwqW8cNAYjkU6/g2FwPktLLpp5HDZEi1Ryg/0gY
+         1FMcQATBbEWcSDqVQGQsa//bfAuYk2xVAyVLWwYzUA9SLAho7hMzjt56Jd9I6JMlEdtU
+         S49XsDLE0BdCMZd80K5pOwZpF4+KPyb7qayI9J6DZ9xOW85VqwQXzyGGfLjNE1Ii+5fM
+         DiAA==
+X-Forwarded-Encrypted: i=1; AJvYcCU2xRyfCOJgiAngvEms7AnFqG10AHymDicx0gOmr1TxNWM4BqFNRH9EitNWvMZoUgWlHUG4pVoAlNxMgdWe+7c3S2GVo/DnmNxVypRIZ3o=
+X-Gm-Message-State: AOJu0Yy4+YliD5SXv0EKwCxdkShtyGdWQRm2L/mPHx44sdcB5/kxvHdB
+	oXFMaF0F3mLDH9h1oPO/uFn6ZkqrhbMSYIsYK3aQ7luNxbnZDEbkTSBYZEXvBFnuM17ycBq3MHz
+	ZXj6Hb9Mw/APUf18hYBQjAmywT1cFKCToguh59dmrQk8t8xxS6q2fiA2ZAAwdiDwQP4I7OlwVAh
+	PvRkgq9tQ2r2gE+3ADM8dNB+GZZJ3sgneAg6OPoSc=
+X-Received: by 2002:a17:90a:f011:b0:2a5:decc:47e5 with SMTP id bt17-20020a17090af01100b002a5decc47e5mr325837pjb.38.1712729372254;
+        Tue, 09 Apr 2024 23:09:32 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE4OypenlPPbiCIKXCbwYuLlk6d1UE613DACQ8FfIH/rLE/xnrB/ReP5oeXLI6ZF1tM/VeXhwAWDVRBi1ckH5s=
+X-Received: by 2002:a17:90a:f011:b0:2a5:decc:47e5 with SMTP id
+ bt17-20020a17090af01100b002a5decc47e5mr325822pjb.38.1712729371974; Tue, 09
+ Apr 2024 23:09:31 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240318110602.37166-1-xuanzhuo@linux.alibaba.com> <20240318110602.37166-4-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <20240318110602.37166-4-xuanzhuo@linux.alibaba.com>
+References: <20240318110602.37166-1-xuanzhuo@linux.alibaba.com> <20240318110602.37166-8-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20240318110602.37166-8-xuanzhuo@linux.alibaba.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 10 Apr 2024 14:09:16 +0800
-Message-ID: <CACGkMEv=u19rOf_84rp3GP=FwxJ-5XAChyHwR_s_iao0xUma_Q@mail.gmail.com>
-Subject: Re: [PATCH net-next v5 3/9] virtio_net: remove "_queue" from ethtool -S
+Date: Wed, 10 Apr 2024 14:09:20 +0800
+Message-ID: <CACGkMEvd3cg_W64aMMvER03vNqkrxYM6VAMYTj7z3zAkfdaSVQ@mail.gmail.com>
+Subject: Re: [PATCH net-next v5 7/9] virtio_net: rename stat tx_timeout to timeout
 To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, 
 	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
@@ -76,7 +76,7 @@ Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
 	Stanislav Fomichev <sdf@google.com>, Amritha Nambiar <amritha.nambiar@intel.com>, 
 	Larysa Zaremba <larysa.zaremba@intel.com>, Sridhar Samudrala <sridhar.samudrala@intel.com>, 
 	Maciej Fijalkowski <maciej.fijalkowski@intel.com>, virtualization@lists.linux.dev, 
-	bpf@vger.kernel.org
+	bpf@vger.kernel.org, Jiri Pirko <jiri@nvidia.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
@@ -85,20 +85,75 @@ Content-Transfer-Encoding: quoted-printable
 On Mon, Mar 18, 2024 at 7:06=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
 om> wrote:
 >
-> The key size of ethtool -S is controlled by this macro.
+> Now, we have this:
 >
-> ETH_GSTRING_LEN 32
+>     tx_queue_0_tx_timeouts
 >
-> That includes the \0 at the end. So the max length of the key name must
-> is 31. But the length of the prefix "rx_queue_0_" is 11. If the queue
-> num is larger than 10, the length of the prefix is 12. So the
-> key name max is 19. That is too short. We will introduce some keys
-> such as "gso_packets_coalesced". So we should change the prefix
-> to "rx0_".
+> This is used to record the tx schedule timeout.
+> But this has two "tx". I think the below is enough.
+>
+>     tx_queue_0_timeouts
+>
+> So I rename this field.
 >
 > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+> ---
+>  drivers/net/virtio_net.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 12dc1d0d8d2b..a24cfde30d08 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -87,7 +87,7 @@ struct virtnet_sq_stats {
+>         u64_stats_t xdp_tx;
+>         u64_stats_t xdp_tx_drops;
+>         u64_stats_t kicks;
+> -       u64_stats_t tx_timeouts;
+> +       u64_stats_t timeouts;
+>  };
+>
+>  struct virtnet_rq_stats {
+> @@ -111,7 +111,7 @@ static const struct virtnet_stat_desc virtnet_sq_stat=
+s_desc[] =3D {
+>         VIRTNET_SQ_STAT("xdp_tx",       xdp_tx),
+>         VIRTNET_SQ_STAT("xdp_tx_drops", xdp_tx_drops),
+>         VIRTNET_SQ_STAT("kicks",        kicks),
+> -       VIRTNET_SQ_STAT("tx_timeouts",  tx_timeouts),
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+This is noticeable by userspace, not sure if it's too late.
 
 Thanks
+
+
+> +       VIRTNET_SQ_STAT("timeouts",     timeouts),
+>  };
+>
+>  static const struct virtnet_stat_desc virtnet_rq_stats_desc[] =3D {
+> @@ -2780,7 +2780,7 @@ static void virtnet_stats(struct net_device *dev,
+>                         start =3D u64_stats_fetch_begin(&sq->stats.syncp)=
+;
+>                         tpackets =3D u64_stats_read(&sq->stats.packets);
+>                         tbytes   =3D u64_stats_read(&sq->stats.bytes);
+> -                       terrors  =3D u64_stats_read(&sq->stats.tx_timeout=
+s);
+> +                       terrors  =3D u64_stats_read(&sq->stats.timeouts);
+>                 } while (u64_stats_fetch_retry(&sq->stats.syncp, start));
+>
+>                 do {
+> @@ -4568,7 +4568,7 @@ static void virtnet_tx_timeout(struct net_device *d=
+ev, unsigned int txqueue)
+>         struct netdev_queue *txq =3D netdev_get_tx_queue(dev, txqueue);
+>
+>         u64_stats_update_begin(&sq->stats.syncp);
+> -       u64_stats_inc(&sq->stats.tx_timeouts);
+> +       u64_stats_inc(&sq->stats.timeouts);
+>         u64_stats_update_end(&sq->stats.syncp);
+>
+>         netdev_err(dev, "TX timeout on queue: %u, sq: %s, vq: 0x%x, name:=
+ %s, %u usecs ago\n",
+> --
+> 2.32.0.3.g01195cf9f
+>
 
