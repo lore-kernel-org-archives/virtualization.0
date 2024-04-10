@@ -1,74 +1,73 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4ACE3C8DE
-	for <virtualization@lists.linux.dev>; Wed, 10 Apr 2024 06:09:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 212FBC129
+	for <virtualization@lists.linux.dev>; Wed, 10 Apr 2024 06:09:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712729365; cv=none; b=M5F+L5UcqeOvulSeH/am7vm2ZKdbjH17EfbL3ohS2dwuRE0uFSPn+5yq28H9Ep/vs35dp1GnWcOC3deOrPtoUfbuPZovW3PfcY6pvHALyRzchhR6LnSZJZCn5/jkOBlJOryL3pR4NHGL1LO1JqbldQEXPGSewtsKHcefr5+SWbA=
+	t=1712729369; cv=none; b=OdVyRx4/snOuZLpQf64FbmTR0czIC07UqLpoxrkVNyGsRwFrrMz7KQzA1QKZoWCjvPSiEWiTjqlhTSW6vhLwSLM9kwyZ2lgqlYi2sGPGEITi9ODmh97P2Ed+zFsddcffA4Q6azuQ9ShyN9r8pxMa8BblMQeRgk5NOpEnYhm97KQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712729365; c=relaxed/simple;
-	bh=pdL+Y7ykVNlw9tRl/D3HqOcFigRQwSpgo5w487bNlaM=;
+	s=arc-20240116; t=1712729369; c=relaxed/simple;
+	bh=dIQqCW4vXQ8LoM7WsnlboTXmHceZ6q4uVBsb5+MjBeI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=JzJ/k11v3QEcyDefjS+APcnEiueAtzXcUBm/5HWP9M8E8Vd36wpuUnFHYtxasUgiytakZFxgkGMo9fVC0qBi5CLuoeNOr/ctYoTFxdU9FHm2iDAt5ufPVeOCWuOflHzIhW9Xqh5meHqKFb9F0B+9SozqyOWc7hh4w02jcBJ3aQM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dJLM5oMU; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=NnF42wdw5BPnx4bQ+xke6PciCL1Lw1eiQel/3X9gnjaYAB20hC07+SgKgtcg9zPIxeh0S8noEMUEt4F68RxjXAHEtZJt6MUViFMmstK5tvrdqcn+jSzM4jIdxVzwMV4CYlLilia2yWu6giXEGPkrHMJNLg8QoN6JTiqwqFOT+9o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZRPwZ/tT; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dJLM5oMU"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZRPwZ/tT"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1712729362;
+	s=mimecast20190719; t=1712729367;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=pdL+Y7ykVNlw9tRl/D3HqOcFigRQwSpgo5w487bNlaM=;
-	b=dJLM5oMUkCUFDXCjCuTf0mWTjQtKFu7RP/kKUjRPDg663N2iWcRAU+dtW/9ZhvG0KCzhM8
-	NCu5A9UmSmLRntS+XbFB1p5SD1TuMCZ71zSyzjENMay374dEpy7umMxNDgnPba3siRBmOJ
-	fndvdRSZePfb4uN1YTIv55CpmQkSfUo=
-Received: from mail-pf1-f197.google.com (mail-pf1-f197.google.com
- [209.85.210.197]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=mpUDa2UySzZ6xNtAKKwlmJjaVp8SzowsTqBfpIs3GWw=;
+	b=ZRPwZ/tTxdt9xDZ70lFRFsckrCGvknIYouCv4nqaOFbYWq3pOMI84mvR7+BVEpS5kWIXxI
+	eJnrNRRG7A1nALbr+s1goZFw97q4PEs6JAbvhiySVurTujqAP4vzLSBBrr5nx4ICG2J5ks
+	RD4aOQv2FzCtJZofK65yy50AbMTgp8I=
+Received: from mail-oo1-f71.google.com (mail-oo1-f71.google.com
+ [209.85.161.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-568-_rb47PqcMxeYjVWEgUAPJg-1; Wed, 10 Apr 2024 02:09:20 -0400
-X-MC-Unique: _rb47PqcMxeYjVWEgUAPJg-1
-Received: by mail-pf1-f197.google.com with SMTP id d2e1a72fcca58-6ece02cfbf2so5893630b3a.2
-        for <virtualization@lists.linux.dev>; Tue, 09 Apr 2024 23:09:20 -0700 (PDT)
+ us-mta-674-TXp3UqesPjO0FgLyYqImqQ-1; Wed, 10 Apr 2024 02:09:25 -0400
+X-MC-Unique: TXp3UqesPjO0FgLyYqImqQ-1
+Received: by mail-oo1-f71.google.com with SMTP id 006d021491bc7-5aa33fd1935so4099074eaf.2
+        for <virtualization@lists.linux.dev>; Tue, 09 Apr 2024 23:09:25 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712729359; x=1713334159;
+        d=1e100.net; s=20230601; t=1712729365; x=1713334165;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=pdL+Y7ykVNlw9tRl/D3HqOcFigRQwSpgo5w487bNlaM=;
-        b=KFjVchQDWn/G+TWnIt7tsQVifwUAWHTzfOv/Suz8jpC39nFq5OfxroUW69WhbC7xOh
-         KFVllIgtZK858b2+RaMP6CP4G2eCvSnBV9bg42vmbxYO5akExISCd3pks7nFiuOISvSD
-         wRfu4b0OUgh0jMVJPpCoVe2U83OHLNas1huZ1ZpiubSZ6fP21lJQfIb60bqGLCmgoqaH
-         wkVHS2IzhY8LFV64sBOAHiLRjO/R2l75dlOtT1eCL1GTLSr8Sh1DagNTVY1x8C7hRzHi
-         5Zvfo4iE/6VfJ1H0g1KBc1Jxcsm1No2SUcHMHox2vCFwut/JDvEMMIw21/MeRTLpr2Rp
-         Aaiw==
-X-Forwarded-Encrypted: i=1; AJvYcCXSDA4qgo/2GUTW6gv25Da4Bci0yGy6+hWNM06qpkKss37P99CvxxUxpZiIDRHMezRFwFrR3bfqeehzCPezRz9HUyrQlWWnSjVqxPw7tRI=
-X-Gm-Message-State: AOJu0Yy66M+32ANPPUwdoMCy7RTgVefNi5na4xsQJnRjSO9gkfEC+Lor
-	9UC51PYpJugUIKDgZ7cqqBJBG2IDOOm1P9PW4lHG3aEv9Oyx3AujnPW5V6ChYLz57rT55fVM0eW
-	7HIQs1NSj5Bn4sHFhQvZB7RTvHAxR3MhzNHiuWnBzHUBQPpWu7tDWe9+uRy6LHgTlStMrnJD4E8
-	lX7bwc4+ZTfZdVtV4dbG33yAY4ndOtiTAiHV8Uzhk=
-X-Received: by 2002:a05:6a21:1707:b0:1a7:af88:486 with SMTP id nv7-20020a056a21170700b001a7af880486mr1953127pzb.9.1712729359652;
-        Tue, 09 Apr 2024 23:09:19 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IExWA7dtfa6ijnoDUCu1UfmNatwKbyCe84k67lqsG0ruoxaZc3zh2CUgoM4nLptDf+SMRE8btzrFCMB+Gqw878=
-X-Received: by 2002:a05:6a21:1707:b0:1a7:af88:486 with SMTP id
- nv7-20020a056a21170700b001a7af880486mr1953106pzb.9.1712729359357; Tue, 09 Apr
- 2024 23:09:19 -0700 (PDT)
+        bh=mpUDa2UySzZ6xNtAKKwlmJjaVp8SzowsTqBfpIs3GWw=;
+        b=a6F2gAWy/10lR3qZg49PAexVEtVVBxpFztiWr38t4fWbVo2234GKQ954albAvkgGQV
+         4sPkw4jPkVgMQG5njPV5QGLKK8V9AZMtgAPhJMpslwZNY6g1K3AeO3X7whVMeqo3P7Qq
+         BWa3AtrufwgMYNbnuIvBE/WDyqQ9RHmcA5dLstBbjgrLnvkErXVpOiMtnPKeTS4FnCVO
+         MGrywLmxCoxZCgHjmy/f6MfSIljizBKUgNp1OnDOnRAEMThh2BpBMzmP+V14WUp4horg
+         3fuqliXOcwUa8Ye2uIlgmBZS6H54mPA/ueueazfgLNazFDSZUIVd77QoCbmYouhJxkRK
+         IJ+w==
+X-Forwarded-Encrypted: i=1; AJvYcCWKICSKV8h3Hn7NS+w65l0iPAuix8yhafgvVvWZBNkG+4GFXnP5fgrlGxqc/vF7dd7BjigqlBOrtopzlAV54rodK4Mjm0E2Nk/jLbl0Hes=
+X-Gm-Message-State: AOJu0YycUaNC5+wVA6VBHmv/t8VWX/dJ2lmQncluspcsvO8CWIL0J7LJ
+	Qqsrhs0e8M85NQHs9lfCneW/5e3ZSHDmzVPlBaUBxAmXfinOWgYCLXXUM9+lSvYfa902TCse4Gj
+	g2eo9NzE4O3yaRocTrGh6blMRy5bg2ROGE5J3MLkbjcZuOxlrPsvUK8E8S1li2FMqCNU7srP9RM
+	PjhCrRhOF593K+9MuC/nJjUSWwpNWSLwG2inqa0YA=
+X-Received: by 2002:a05:6358:4b45:b0:183:9ea4:74ab with SMTP id ks5-20020a0563584b4500b001839ea474abmr2134339rwc.31.1712729365209;
+        Tue, 09 Apr 2024 23:09:25 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFd6cDUF6ppyja4kOtkluO3wddXwNXimvcjissix6p7JvRj9JHcaaOGJT1Jjj9iErmie7vMc+YqpALeBXrbmY0=
+X-Received: by 2002:a05:6358:4b45:b0:183:9ea4:74ab with SMTP id
+ ks5-20020a0563584b4500b001839ea474abmr2134319rwc.31.1712729364897; Tue, 09
+ Apr 2024 23:09:24 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240318110602.37166-1-xuanzhuo@linux.alibaba.com> <20240318110602.37166-2-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <20240318110602.37166-2-xuanzhuo@linux.alibaba.com>
+References: <20240318110602.37166-1-xuanzhuo@linux.alibaba.com> <20240318110602.37166-3-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20240318110602.37166-3-xuanzhuo@linux.alibaba.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 10 Apr 2024 14:09:08 +0800
-Message-ID: <CACGkMEsVeCS0ABNeDfSvRa0GVqFN9EhrB-47LJG0_NnsDN_mpg@mail.gmail.com>
-Subject: Re: [PATCH net-next v5 1/9] virtio_net: introduce device stats
- feature and structures
+Date: Wed, 10 Apr 2024 14:09:11 +0800
+Message-ID: <CACGkMEt_RYQMLpZOYe6MhhxeH8xpzKUJE-UCthBCr+7JgD6V1g@mail.gmail.com>
+Subject: Re: [PATCH net-next v5 2/9] virtio_net: virtnet_send_command supports command-specific-result
 To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, 
 	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
@@ -86,16 +85,84 @@ Content-Transfer-Encoding: quoted-printable
 On Mon, Mar 18, 2024 at 7:06=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
 om> wrote:
 >
-> The virtio-net device stats spec:
+> As the spec https://github.com/oasis-tcs/virtio-spec/commit/42f3899898230=
+39724f95bbbd243291ab0064f82
 >
-> https://github.com/oasis-tcs/virtio-spec/commit/42f389989823039724f95bbbd=
-243291ab0064f82
->
-> We introduce the relative feature and structures.
+> The virtnet cvq supports to get result from the device.
 >
 > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> ---
+>  drivers/net/virtio_net.c | 47 +++++++++++++++++++++++-----------------
+>  1 file changed, 27 insertions(+), 20 deletions(-)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index d7ce4a1011ea..af512d85cd5b 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -2512,10 +2512,11 @@ static int virtnet_tx_resize(struct virtnet_info =
+*vi,
+>   * never fail unless improperly formatted.
+>   */
+>  static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 c=
+md,
+> -                                struct scatterlist *out)
+> +                                struct scatterlist *out,
+> +                                struct scatterlist *in)
+>  {
+> -       struct scatterlist *sgs[4], hdr, stat;
+> -       unsigned out_num =3D 0, tmp;
+> +       struct scatterlist *sgs[5], hdr, stat;
+> +       u32 out_num =3D 0, tmp, in_num =3D 0;
+>         int ret;
+>
+>         /* Caller should know better */
+> @@ -2533,10 +2534,13 @@ static bool virtnet_send_command(struct virtnet_i=
+nfo *vi, u8 class, u8 cmd,
+>
+>         /* Add return status. */
+>         sg_init_one(&stat, &vi->ctrl->status, sizeof(vi->ctrl->status));
+> -       sgs[out_num] =3D &stat;
+> +       sgs[out_num + in_num++] =3D &stat;
+>
+> -       BUG_ON(out_num + 1 > ARRAY_SIZE(sgs));
+> -       ret =3D virtqueue_add_sgs(vi->cvq, sgs, out_num, 1, vi, GFP_ATOMI=
+C);
+> +       if (in)
+> +               sgs[out_num + in_num++] =3D in;
+> +
+> +       BUG_ON(out_num + in_num > ARRAY_SIZE(sgs));
+> +       ret =3D virtqueue_add_sgs(vi->cvq, sgs, out_num, in_num, vi, GFP_=
+ATOMIC);
+>         if (ret < 0) {
+>                 dev_warn(&vi->vdev->dev,
+>                          "Failed to add sgs for command vq: %d\n.", ret);
+> @@ -2578,7 +2582,8 @@ static int virtnet_set_mac_address(struct net_devic=
+e *dev, void *p)
+>         if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_MAC_ADDR)) {
+>                 sg_init_one(&sg, addr->sa_data, dev->addr_len);
+>                 if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_MAC,
+> -                                         VIRTIO_NET_CTRL_MAC_ADDR_SET, &=
+sg)) {
+> +                                         VIRTIO_NET_CTRL_MAC_ADDR_SET,
+> +                                         &sg, NULL)) {
+>                         dev_warn(&vdev->dev,
+>                                  "Failed to set mac address by vq command=
+.\n");
+>                         ret =3D -EINVAL;
+> @@ -2647,7 +2652,7 @@ static void virtnet_ack_link_announce(struct virtne=
+t_info *vi)
+>  {
+>         rtnl_lock();
+>         if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_ANNOUNCE,
+> -                                 VIRTIO_NET_CTRL_ANNOUNCE_ACK, NULL))
+> +                                 VIRTIO_NET_CTRL_ANNOUNCE_ACK, NULL, NUL=
+L))
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+Nit: It might be better to introduce a virtnet_send_command_reply()
+and let virtnet_send_command() call it as in=3DNULL to simplify the
+changes.
+
+Others look good.
 
 Thanks
 
