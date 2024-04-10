@@ -1,152 +1,198 @@
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6586A159211
-	for <virtualization@lists.linux-foundation.org>; Tue,  9 Apr 2024 23:48:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712706486; cv=none; b=ANS5B0879xwnpDdAM9kx8o9kIYF2y04VvQuAonlOyDyn2gyRKmz2Skxi1jOvUv30evzL98Apummz6uOYeIWUShMHn1qJUvJBMWmpRTxx8TRzHCRTt1S4uzAcPUJm8T8Nm+AA4WOUEcYx1S4Q/A6sE0vei+m8aEPhORP9T+4ZLss=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712706486; c=relaxed/simple;
-	bh=08qq5HCWlZ+kc23Un20MVp8h4gAK+quDdzQ4miFER2U=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HPvaV5xA8gp+YGUU9iaf9YkDY3LXyoGRDyIyuRC5ZF4/KeJ+ms2IT/k6oujgEn7D9WQQSPG8HLEiu3f6S5qAfDBD9uF14tn/5fQvAftbfLSe+fqtU+WcBWtILHeeyQYhD1lwHtv4VS7IGUdPkFYYfOa5Nx7YuSsVU/pj4HjTX7w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=Vs4bOr4J; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 648A8633
+	for <virtualization@lists.linux-foundation.org>; Wed, 10 Apr 2024 00:25:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.138
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1712708754; cv=fail; b=Li05MnjGY1kaye1j0l1Qt/MyrjDv0vscYvnHxsymq02Hr/zw13tlQWoD9jdanoRjKGTfOT46QLB0qxJ90tifasJbbXRx/eXUIobR+lqD5Ugu5TL+fipz7DXaoVnav6aCUJ0ou42scRejbMSs94uO5rbJw4krFXSn9iA2Gl8z7SQ=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1712708754; c=relaxed/simple;
+	bh=qJ3dzEDyyGpAGF8QBqcEb3YRyQ5kzgMRilRE9fLzlHU=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=XdTHbBmj5NX49NuCP3MvVed2UWmeZjwS3kpCY3EiFT48Uz9+rxKNPd0XFkpngZoaKg4Kwv4HoEUEAY612UVjm5VoYkHx+exV/SZ97zqvj0KthrTBeZis5sC8jQJRSP3S/IGo6eM71FGtum9xV2oFNGSfjxu3XRW9o4s7nrjGl5Q=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Q0aonGYq; arc=fail smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="Vs4bOr4J"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Q0aonGYq"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 12A5081A5F
-	for <virtualization@lists.linux-foundation.org>; Tue,  9 Apr 2024 23:48:05 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id F2309818C0
+	for <virtualization@lists.linux-foundation.org>; Wed, 10 Apr 2024 00:25:52 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.1
+X-Spam-Score: -2.801
 X-Spam-Level:
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id sdSlrAP2Dgjd for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Apr 2024 23:48:04 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::730; helo=mail-qk1-x730.google.com; envelope-from=jgg@ziepe.ca; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 6D87C81A3B
-Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6D87C81A3B
+ id Q_bKae4egzEc for <virtualization@lists.linux-foundation.org>;
+ Wed, 10 Apr 2024 00:25:52 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=198.175.65.15; helo=mgamail.intel.com; envelope-from=kevin.tian@intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 20E3A81456
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 20E3A81456
 Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=Vs4bOr4J
-Received: from mail-qk1-x730.google.com (mail-qk1-x730.google.com [IPv6:2607:f8b0:4864:20::730])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 6D87C81A3B
-	for <virtualization@lists.linux-foundation.org>; Tue,  9 Apr 2024 23:48:03 +0000 (UTC)
-Received: by mail-qk1-x730.google.com with SMTP id af79cd13be357-78d735b0756so84049385a.1
-        for <virtualization@lists.linux-foundation.org>; Tue, 09 Apr 2024 16:48:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1712706482; x=1713311282; darn=lists.linux-foundation.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=VhYxjqqqLEZ4NmXo+SZfv1SY139w6T7h5FSNcRUkNNQ=;
-        b=Vs4bOr4JcUiV99TDD0vHOSeGgCdzPwNZGU5EULtay/LT1kTfqT/02SIdIY5wlS8gi/
-         7gHG4Cza8w7OjTOEOr0ELrUb7RxoH9PyjdtAe9yIINEtIdZW0VYyj2AndkE/ui7jLfnV
-         lnuVtfE/u3tYz4C9vfaVD5L9gt5ES0DEjqyo69tEx1E8QDKaqXQkkDPrDl5w3/oJKvCU
-         y7vQDT1d8QZzp0XuDChCtu5kfqLVOHJ7b4gdU2y+0rFzphpA+x3YtKi1oE7pei3u4BaX
-         Q8fBfl3IryaCne8AtOx+qZQ8DDmTmDoPKksK6eg/G2OCqmnofpSJz57l13vOJFFWKw2T
-         NIow==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712706482; x=1713311282;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=VhYxjqqqLEZ4NmXo+SZfv1SY139w6T7h5FSNcRUkNNQ=;
-        b=fvdKQioHQo7wEJl4uVDEWRzSXJxDBYhEi4xrxkMjZHwL4t6nYcULUkUl7O4aijfxX6
-         0gmRhW8Zf/zRk+/Sh+GNf2E1to8GQwHZbGTfsuOf4cUIjgtLI04n6ttz4S1gb2eBzaMJ
-         Uki64w4sYOkQpdrpz1EMss216v5FDgIL8tACdXOnC1AU7lppTn+DCdo3YtU2WSqwbbKo
-         sQOQMg4BKcLTbDQzLCMZzS23aw6jO3olKb+w+2CECDTyFIP16EWUXLa2yTM2YkwPitF7
-         yr3/pGcNOlsJ8wNn3JPhnZ89du5gQ9ZcdA1SrCP/IbFPXscgXwHw2PwP8OAKRAz+LW79
-         bYug==
-X-Forwarded-Encrypted: i=1; AJvYcCXeCcx/ARcW2gE8gtdF82mc5RY80iwwzH76L8Z2zOtKiPrxt+kBbfl035vOkEX2MHPo71OUjB824guOnx592rye+8BhEKU7E9uFMSwA2tKwNqqVpLN3+Jjsbw==
-X-Gm-Message-State: AOJu0Yyrp/hfv411EdBG4blutff/NKNzY3YZGXzOgXCL3gOZJLqyJVZi
-	0PU+38ER9zU6K/NqMMQ3yxCqGVF2rAqBXMXt9eDNabWf6lEAOy+rJ4Csr2L4Nks=
-X-Google-Smtp-Source: AGHT+IF1pNgXaBW/Yn6UlU21y660oCrae0FfmY/a+9BPxXzGL3pwhOQklD3p33dxkbP8tOGj4Kgh6A==
-X-Received: by 2002:a05:620a:370b:b0:78d:37bf:74cf with SMTP id de11-20020a05620a370b00b0078d37bf74cfmr6318076qkb.5.1712706481980;
-        Tue, 09 Apr 2024 16:48:01 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-142-68-80-239.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.80.239])
-        by smtp.gmail.com with ESMTPSA id j26-20020ac84c9a000000b00434f880039asm428978qtv.70.2024.04.09.16.48.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Apr 2024 16:48:01 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.95)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1ruLC4-007GFW-Ju;
-	Tue, 09 Apr 2024 20:48:00 -0300
-Date: Tue, 9 Apr 2024 20:48:00 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Baolu Lu <baolu.lu@linux.intel.com>
-Cc: Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
-	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-	Jean-Philippe Brucker <jean-philippe@linaro.org>,
-	Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
-	Jacob Pan <jacob.jun.pan@linux.intel.com>,
-	Joel Granados <j.granados@samsung.com>, iommu@lists.linux.dev,
-	virtualization@lists.linux-foundation.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4 2/9] iommu: Replace sva_iommu with iommu_attach_handle
-Message-ID: <20240409234800.GD223006@ziepe.ca>
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=Q0aonGYq
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 20E3A81456
+	for <virtualization@lists.linux-foundation.org>; Wed, 10 Apr 2024 00:25:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1712708752; x=1744244752;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=qJ3dzEDyyGpAGF8QBqcEb3YRyQ5kzgMRilRE9fLzlHU=;
+  b=Q0aonGYqaa8nbq443Az79HavyMBIukRnCpSLPh6Gy+eelqUMKEKfMmR9
+   /ouIsBa+/A7QMYrTc9zFBDz95a7CSIDxUgI50IXd88dsolYaTZ4DwQF5J
+   HzXA/5B2UO5+/q7II8TlZAfveRqYRnrEUTdgiqEVVnDUmf1sbGR+Ny49g
+   eNRXpFW4JYIVMOx7iA8vzCQ811gn/w7vg7I2OpBpFccA0o4oV5m1iI0Zw
+   VuaUTIFuOws6+gPzLihjNdRPvcGuulgU2pETt+q5jybfM5lSWLwuIqbSc
+   fXDKRuIQwUkHq659ejHRXCNYZreoIzKRgiASZ8S7RZvF4JPpwLVb8gP+C
+   g==;
+X-CSE-ConnectionGUID: 5Qytgh7KTJu+bAI7qgPlGg==
+X-CSE-MsgGUID: /Q6X83MOSCeXwnPo6rmLKw==
+X-IronPort-AV: E=McAfee;i="6600,9927,11039"; a="11841243"
+X-IronPort-AV: E=Sophos;i="6.07,190,1708416000"; 
+   d="scan'208";a="11841243"
+Received: from fmviesa005.fm.intel.com ([10.60.135.145])
+  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Apr 2024 17:25:50 -0700
+X-CSE-ConnectionGUID: oVfj8MlUT0at4dLK5YGmGA==
+X-CSE-MsgGUID: 5Ojd+/DxTkirTR0UxHINVw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.07,190,1708416000"; 
+   d="scan'208";a="24874208"
+Received: from orsmsx601.amr.corp.intel.com ([10.22.229.14])
+  by fmviesa005.fm.intel.com with ESMTP/TLS/AES256-GCM-SHA384; 09 Apr 2024 17:25:49 -0700
+Received: from orsmsx611.amr.corp.intel.com (10.22.229.24) by
+ ORSMSX601.amr.corp.intel.com (10.22.229.14) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.35; Tue, 9 Apr 2024 17:25:48 -0700
+Received: from orsmsx611.amr.corp.intel.com (10.22.229.24) by
+ ORSMSX611.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.35; Tue, 9 Apr 2024 17:25:48 -0700
+Received: from ORSEDG602.ED.cps.intel.com (10.7.248.7) by
+ orsmsx611.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.35 via Frontend Transport; Tue, 9 Apr 2024 17:25:48 -0700
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (104.47.56.168)
+ by edgegateway.intel.com (134.134.137.103) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.35; Tue, 9 Apr 2024 17:25:48 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=GBXO1t5pdfciU76HmzDKqKD+kiDJe0KwprNfklaFkPAn50mWK4xoEWTNKMqDSNFEf6RyYtpNpAON26TU8gpF9C/Wve9rGuwWZdaBFQa6Wo0K3MAwiOL/+uybS1xizWEW5DRuniZBYnJUReUWeArB45mrcFysVTthOclk3OdPXyhhhIU2UzH/T6WGv3P2BlRW9g8M6HYMMSsfeN+N6BXmsEUzRpRHESc7RMzNBG3JXDCuN3zMjAJ6kyFyf/rGrnOgUNAREn+kwovJrcOHgisGniR0F4gZqri94STB6T/ZVdr+jG0AczF0T3vgZqmtE4Yd7UjwD5aky9jvlJJ053dJpw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=5khylKcbjAhazU1I++kQJYDebc9IjrcC04cEIsBKpbU=;
+ b=Cj1KDMWSaRRwEoPr23a9X4qZjJDBDGFdbq0Yq4flCNcpIJvM6rotj5myKKOp269cRptZqJ0KuN7tczA4SQBWJKPhpySE2Xt7rkmbzkJ0BXilGY+kVV0xxGBF6KaGDy8W6mBS2wGkbWtWapkeIEYnbsvtIq88DlvUvoABGHY7n4X55OX8sWU96VM7yKbjn4uptqELGRvLI/yxTrMDw9gXMcLJTLi+tfJtN81ReoWY8/BThN8vkGfJ0pWvt3eb/OnPqzifSXq5SidQBLAEb4Qx3Q0WIjt/cbvHCOyAJ9vRCvbT0E7UPzP2HcHYNizK7wwkUqHK19CahUlKqAP/Aa5aVQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
+ by BY1PR11MB7983.namprd11.prod.outlook.com (2603:10b6:a03:52b::8) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7430.46; Wed, 10 Apr
+ 2024 00:25:41 +0000
+Received: from BN9PR11MB5276.namprd11.prod.outlook.com
+ ([fe80::6c9f:86e:4b8e:8234]) by BN9PR11MB5276.namprd11.prod.outlook.com
+ ([fe80::6c9f:86e:4b8e:8234%6]) with mapi id 15.20.7452.019; Wed, 10 Apr 2024
+ 00:25:41 +0000
+From: "Tian, Kevin" <kevin.tian@intel.com>
+To: Jason Gunthorpe <jgg@nvidia.com>, Baolu Lu <baolu.lu@linux.intel.com>
+CC: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, "Robin
+ Murphy" <robin.murphy@arm.com>, Jean-Philippe Brucker
+	<jean-philippe@linaro.org>, Nicolin Chen <nicolinc@nvidia.com>, "Liu, Yi L"
+	<yi.l.liu@intel.com>, Jacob Pan <jacob.jun.pan@linux.intel.com>, "Joel
+ Granados" <j.granados@samsung.com>, "iommu@lists.linux.dev"
+	<iommu@lists.linux.dev>, "virtualization@lists.linux-foundation.org"
+	<virtualization@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH v4 1/9] iommu: Introduce domain attachment handle
+Thread-Topic: [PATCH v4 1/9] iommu: Introduce domain attachment handle
+Thread-Index: AQHahWSSnaztXeCebE6wTRmWhE7qM7FWccyAgAQ6xQCAA8RcAIAAxbYAgAFsagCAAAzioA==
+Date: Wed, 10 Apr 2024 00:25:41 +0000
+Message-ID: <BN9PR11MB52768E632932728FD41EB4038C062@BN9PR11MB5276.namprd11.prod.outlook.com>
 References: <20240403011519.78512-1-baolu.lu@linux.intel.com>
- <20240403011519.78512-3-baolu.lu@linux.intel.com>
- <20240403115913.GC1363414@ziepe.ca>
- <e3f526e3-6474-49ff-b8d6-995aaf1c1830@linux.intel.com>
- <20240408141946.GB223006@ziepe.ca>
- <86e723e7-c3be-41b1-95d8-dbdf86bbdab5@linux.intel.com>
+ <20240403011519.78512-2-baolu.lu@linux.intel.com>
+ <20240403115851.GA1723999@nvidia.com>
+ <3b740988-7fe6-4328-8ce2-d66d9a2ab497@linux.intel.com>
+ <20240408140548.GO5383@nvidia.com>
+ <4c07d54f-6c6c-47be-9e5a-3cff8162dd3b@linux.intel.com>
+ <20240409233744.GI5383@nvidia.com>
+In-Reply-To: <20240409233744.GI5383@nvidia.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: BN9PR11MB5276:EE_|BY1PR11MB7983:EE_
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: VOxNrsBlFw0RoNxfHr7MmmhVtVn4gkeI75E4F0jDRz8ao23vuSHOgOgEHd8jTpk96agoIOUOpKC5AwVAULb5SLs72wu3A23pULNKiCXGH0tV3thsgReOmPpT8DDXDpQEdDfaSGrUSX3V7vIiJHvMNCxwreXDQl6nKh8lViCSP1du9tdz/mP31eKjCxwrxjbImEQPO9rtWuCGBd3E26Ln7ZPlPKGOymppAUUpU8Rg2wzblDkU9bNzypA8kJshypsXgxyBPv8aHhJVwe/h7s9zRf7PgPl5nwIt8q7da5H4uClwl4s2IrlYjIwM4JBJKh1H6dmdhTaYqjWmzT+W1rxWa3XTNDUjMp1eGu94E+bILCuFKdiA3WLne9uAOLZsIQvvcv94Wl53xEezh1LAyVUmnj/NKg//XxqGebnzHhNHmrRgqhI1zomVqw5YiKO3GwPTv+dyxNor7iixeO2Br9cMCDjHXxkO42c8dpxwNtKfSY4GIQcl6fqyUOSZKmLv7F1YXqt6WnzsBcV4LZsksrMCOO6T5snUTjM+wLLU73YBxPU0/gznueUHUEdkgGAZA7gL8aKbzrZfYxsLtxoXqKC35lH7l479yISIzreyu4SL3Ltx3vIS0OjCm6HubwfS1Kg96461itGpv4vXXpct37hYBZJkmiSV1EyDb3Ch88cWFhU=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(376005)(7416005)(1800799015)(366007);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?ofLSb7peIi4Y9pOfihqgMI2i/416VwhfmQikZ4xtFYAbS8npTJEcmkTV9qcj?=
+ =?us-ascii?Q?ZoFja3lk2YFDtwIW+en+PxR1Zhv+2UdP+2LRi/wVvCs6bbno5lMXFoxGAu9T?=
+ =?us-ascii?Q?S/Igzhum7MuNUkvFJDUNzF0VXKk14ktxrvH8dVyI2OEAG+zRxzBpupO7YRyO?=
+ =?us-ascii?Q?SehlSmNbNtne5l1OahqkSNRb9OF0D2XyXzCA8PQg3I/y+6DATAxC4uqgQByH?=
+ =?us-ascii?Q?9pps3n7v4JBUSJx7kJdt/FayRnEBeBd09tYC8JcokT0UazTZg/8YZtZQUGFw?=
+ =?us-ascii?Q?8+kM99H1bSbQAc7ijJ6NXbTLrjvGwPGQRrEsSnbtCegtalVOWPEH4AjK8IJ+?=
+ =?us-ascii?Q?LR+3S52sP9tJHJ5uN/ZH5NfPlxMaXQ0vRZ4Y96a0ZgnDCdgNdOhqH4W7CJoY?=
+ =?us-ascii?Q?D0GJPnRfInqXcjJrzi7fb0EFRFu/s0rM55tSjQOQgZ7HldJmCBhLNRdllnQw?=
+ =?us-ascii?Q?xTX4yyNMsbmUevZ2Co+8KJ5q7KdUQHR/wt/aDnw2C/mnnJdEncle19TqvRlm?=
+ =?us-ascii?Q?gHQf84RyYYtnS3XiC7yW605ogjJYBInkMt7sHv6i3f9jd833pUGhNycjLb6h?=
+ =?us-ascii?Q?HJkfZsUmUBvrq/oqDEo7n5bHp564jweL7r0UBFqkjQ5wtnofKl7/HWuFaZ7m?=
+ =?us-ascii?Q?OJN6zCN6BN2EvQWrc9GeG4D40IemTet3Ku3ua2Hxpa7MraGcB2ddOogjohCk?=
+ =?us-ascii?Q?dahBkcKBqTfOWOW5aQ+9sKfMMqcybC3G6dYkt3434bMBkh1qGT2KZe1F4MUI?=
+ =?us-ascii?Q?sU8d7e24Z/dn6+LlLKEOnGRlmlLm/LEto3gGFAPkxVyv2Ml/yf7vCtr2GL30?=
+ =?us-ascii?Q?9zN43wwI+8YEfwPIKcABY1XePtxh+Joup0Nnffgfxbi7eC93YQQxjt5C6Qlt?=
+ =?us-ascii?Q?dfSOIPMRvuoGNmcsoXAhcAGrB/MNZZetd79WbDbAXnrEjCUdtdOCxB+1toHV?=
+ =?us-ascii?Q?eKcidGn/398V+Y4/7dalxtaTaMw55AhNDruvY9rgm6qW1ix8AfkXmMGvvOd/?=
+ =?us-ascii?Q?ntmS8PlV4gLjMnX7DuReOxYqrRV8phQ+MyphCy7QBxst5e0VcYaMI065gDuU?=
+ =?us-ascii?Q?8JI83sGoQfHOy9k1SXVMy6pQeLWklN0dqq3DTZvVcmw1BypzUDmXWXTINgl1?=
+ =?us-ascii?Q?InWNXPA4G9eaUHcLGj2pb7dEd1BMa4snMOKdSH7XUkvSyIzebXtX4nO7qBNm?=
+ =?us-ascii?Q?B5K+VbZXngIHeIOFxYuxxYOdQ2QjIaBO2DjpczGpidJMEPQox2NZ1QIL3tNe?=
+ =?us-ascii?Q?sF+fQQ6u9dblMm2lOy0Aw4z7vwnUtR+0cWO9LdZuFFQTmJvItFKDQOYXmG6b?=
+ =?us-ascii?Q?b2jgKF34/RKAHCmwxu6qoTo1KimLUIhpr4Hp2zzdVu9I9o+YEVXlOKVFe4ui?=
+ =?us-ascii?Q?gdnCQZChhLi1/Iqy97I5K6O129la0lQgAQx2cyjk47dP1UrILz08rScyQdIf?=
+ =?us-ascii?Q?Fe51RP0GuFcOqZBJSe8w5aoVRkexVXRfeEdfFgWqLODMx4CFBH6BdxjkCFam?=
+ =?us-ascii?Q?kRUUUNhTiYZjbpCKl/uMWb+/yCqXL/TwuK9G69HjBwx6bkc7XBRKxYpZFzNw?=
+ =?us-ascii?Q?9b3NNG7OY4h+GJFRRHeizhkLvvKaUOd6oBFx9tpR?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <86e723e7-c3be-41b1-95d8-dbdf86bbdab5@linux.intel.com>
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 85e75e54-a9d9-4f10-fba6-08dc58f4c0f0
+X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Apr 2024 00:25:41.1563
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: QTVvdFe1IlOdaX3rxTFwYlmC0h8LnwxY8yEmwt19Ez9QxrKIK2tA85LUajc1vv6xrd4dPwaNQLM0ucS98fyg5A==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY1PR11MB7983
+X-OriginatorOrg: intel.com
 
-On Tue, Apr 09, 2024 at 10:11:28AM +0800, Baolu Lu wrote:
-> On 4/8/24 10:19 PM, Jason Gunthorpe wrote:
-> > On Sat, Apr 06, 2024 at 02:09:34PM +0800, Baolu Lu wrote:
-> > > On 4/3/24 7:59 PM, Jason Gunthorpe wrote:
-> > > > On Wed, Apr 03, 2024 at 09:15:12AM +0800, Lu Baolu wrote:
-> > > > > +	/* A bond already exists, just take a reference`. */
-> > > > > +	handle = iommu_attach_handle_get(group, iommu_mm->pasid);
-> > > > > +	if (handle) {
-> > > > > +		mutex_unlock(&iommu_sva_lock);
-> > > > > +		return handle;
-> > > > >    	}
-> > > > At least in this context this is not enough we need to ensure that the
-> > > > domain on the PASID is actually an SVA domain and it was installed by
-> > > > this mechanism, not an iommufd domain for instance.
-> > > > 
-> > > > ie you probably need a type field in the iommu_attach_handle to tell
-> > > > what the priv is.
-> > > > 
-> > > > Otherwise this seems like a great idea!
-> > > Yes, you are right. For the SVA case, I will add the following changes.
-> > > The IOMMUFD path will also need such enhancement. I will update it in
-> > > the next version.
-> > The only use for this is the PRI callbacks right? Maybe instead of
-> > adding a handle type let's just check domain->iopf_handler  ?
-> > 
-> > Ie SVA will pass &ommu_sva_iopf_handler as its "type"
-> 
-> Sorry that I don't fully understand the proposal here.
+> From: Jason Gunthorpe <jgg@nvidia.com>
+> Sent: Wednesday, April 10, 2024 7:38 AM
+>=20
+> On Tue, Apr 09, 2024 at 09:53:26AM +0800, Baolu Lu wrote:
+>=20
+> >    The current code base doesn't yet support PASID attach/detach/replac=
+e
+> >    uAPIs. Therefore, above code is safe and reasonable. However, we wil=
+l
+> >    need to revisit this code when those APIs become available.
+>=20
+> Okay, I see.
+>=20
+> Can we do the PASID iommufd stuff soon? What is the plan here?
+>=20
 
-I was talking specifically about the type field you suggested adding
-to the handle struct.
-
-Instead of adding a type field check the domain->iopf_handler to
-determine the domain and thus handle type.
-
-> The problem is that the context code (SVA, IOMMUFD, etc.) needs to make
-> sure that the attach handle is really what it has installed during
-> domain attachment. The context code needs some mechanism to include some
-> kind of "owner cookie" in the attach handle, so that it could check
-> against it later for valid use.
-
-Right, you have a derived struct for each user and you need a way to
-check if casting from the general handle struct to the derived struct
-is OK.
-
-I'm suggesting using domain->iopf_handle as the type key.
-
-Jason
+Yi is working on that. He will send out once the last open about ida
+is handled.
