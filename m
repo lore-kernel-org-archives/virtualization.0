@@ -1,218 +1,280 @@
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9C08199A2
-	for <virtualization@lists.linux-foundation.org>; Wed, 10 Apr 2024 04:35:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41967168CC
+	for <virtualization@lists.linux-foundation.org>; Wed, 10 Apr 2024 05:28:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712723732; cv=none; b=agAJdvd409jlNlofCTFTrDqr5V0SoChXcLYW/Qj3XWoS6akQxchSlaa8QmPRpJySw3q/H6cDh6Ed/JWD9/4P7hZfg1SWZjwXcRmOTn8QXOg+GMJpDiAOYrmZHU9xPf2wbtby5UVen+BNIlO1fYCZu+OXxHFyRkwNejV28guYHkQ=
+	t=1712726907; cv=none; b=u1HWAQ/8g4MGlqt7IGMXE7XVBQqd3b4es+hbyYFbh1jqqX1BVTuhVKIVSLBGZgzVMGrmlU3bCJKkRYUuXUBg+JIQNFNIGc5hLMi9gmOuyzH2Xj9ygLK2xp1RBxazywO0q7px65GUgOtZtG+eHeqWjebrUSP+fGK803XhbDd4jo8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712723732; c=relaxed/simple;
-	bh=sDnn+yYCBm7ElRQy1ycc5UvcLwyRTYy3YNE8uqqDjiU=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=HGolASFqpT6H4tvvC2jmC6uDItqIfqJx+Gy2sPKEgtxImpvoUwjrFJIEwCJ4qoVm/XnAOm63vzRq31880y3Cy16UC5QCDWFDaeCcxs6XmSm1g/o57hR4WOzp56WNs3E2eS3zEo/D+hnOu8MNk8+2JSTXgfLWFJsvYSXeFx2v02s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=G+hYEsqS; arc=none smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1712726907; c=relaxed/simple;
+	bh=ljfQhHxBG2avO1cQTRbTF4VKrakPTE2h3jJfLV9OMik=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Content-Type; b=V1K4Z5Np0XxJWHcWpv+/Z2fR9Wb6VNHnJNP1a6gx9N3kyOyonOAdMjSdjCQuvhDhu3hcEZvyHcXutveVqnwUraUGfrREUAsiWItA5yeWE4NOuzLdvN0eEPYVGI447fxc2iQz0WB3uM6SfRbQPLbjCQ97Ek9783VbYtQPy/lNjMQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DLWpJ5q/; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="G+hYEsqS"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DLWpJ5q/"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 8577D819B4
-	for <virtualization@lists.linux-foundation.org>; Wed, 10 Apr 2024 04:35:30 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id B4E0781C11
+	for <virtualization@lists.linux-foundation.org>; Wed, 10 Apr 2024 05:28:25 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.099
 X-Spam-Level:
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 0QVogJvHILAZ for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Apr 2024 04:35:29 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 86B03817AE
+ id DgUd0-7K_7Mi for <virtualization@lists.linux-foundation.org>;
+ Wed, 10 Apr 2024 05:28:24 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org A9037819BE
 Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 86B03817AE
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A9037819BE
 Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=G+hYEsqS
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 86B03817AE
-	for <virtualization@lists.linux-foundation.org>; Wed, 10 Apr 2024 04:35:29 +0000 (UTC)
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=DLWpJ5q/
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id A9037819BE
+	for <virtualization@lists.linux-foundation.org>; Wed, 10 Apr 2024 05:28:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1712723728;
+	s=mimecast20190719; t=1712726903;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:
+	 to:to:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=5YBPkm0MVsrY4P8NrGpgwej+RiZZMRPoIxqpdijnhXw=;
-	b=G+hYEsqSxygNSUIdStfBxsJiQzOONOuKqBQKa9s+aPdgU+ahiRJ+pdexVO3u2G9mZYKjk8
-	rBynFEn868PCyVVXATm8xhKTIRoeoYZT2sjeSXCI8zh0AvlQTdqLlaq359rgOohlX8JHVi
-	rSH4i8upAh8Pst0b3TtdaCTGva7MXtI=
-Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
- by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-588-X0r9GjBfMNO4VACzome34A-1; Wed,
- 10 Apr 2024 00:35:22 -0400
-X-MC-Unique: X0r9GjBfMNO4VACzome34A-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 60CDF3C025C3;
-	Wed, 10 Apr 2024 04:35:22 +0000 (UTC)
-Received: from server.redhat.com (unknown [10.72.112.217])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id 6BF15490F9;
-	Wed, 10 Apr 2024 04:35:19 +0000 (UTC)
-From: Cindy Lu <lulu@redhat.com>
-To: lulu@redhat.com,
-	mst@redhat.com,
-	jasowang@redhat.com,
-	kvm@vger.kernel.org,
-	virtualization@lists.linux-foundation.org,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 1/1] virtio-pci: Fix the crash that the vector was used after released.
-Date: Wed, 10 Apr 2024 12:33:15 +0800
-Message-ID: <20240410043450.416752-2-lulu@redhat.com>
-In-Reply-To: <20240410043450.416752-1-lulu@redhat.com>
-References: <20240410043450.416752-1-lulu@redhat.com>
+	bh=Sr9Rs7tpVxHk2Cr9wlHh87gQfwKe/Tm3Gn6z29nHOVI=;
+	b=DLWpJ5q/xyb8bhKJMhuUC0dKlAKuNqFzQEreVF3eMDXvNGhytHHoEWPWmNr8pN18NnnK9y
+	LiUVoQ51FBKrUXqzhP3T++VgAUt5XBJ+lBDqAJ/sKh+H2FsZ5uoYFt5ChbefEc9uPtDKDA
+	n0h0zbmky49bWE3uOoaI6p9HZq6EbJY=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-683-Q907Q03aPuCxO4M99ZyLzw-1; Wed, 10 Apr 2024 01:28:21 -0400
+X-MC-Unique: Q907Q03aPuCxO4M99ZyLzw-1
+Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-a4698fc37dfso418086366b.2
+        for <virtualization@lists.linux-foundation.org>; Tue, 09 Apr 2024 22:28:21 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1712726900; x=1713331700;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Sr9Rs7tpVxHk2Cr9wlHh87gQfwKe/Tm3Gn6z29nHOVI=;
+        b=lFX0U5ulWie7nSS5T5p46hfvvMtEjgSNDbL+o5U29v/sxsnDi+d+YC/e+FidjkJCVf
+         Ch6y1iTRo1VvjmEbrFQx9tZ3eJDP1/Bi6qbnGIubz5u/9JpFhBVzS3sSxQ1ayqBp0mLQ
+         w3IBzUX1YGWdwwReXFus7Wcgh5iQmNi2ygi+c+/ea7WTRMoh9sgdfiMyT5Qm12Bm2TsT
+         zFOezEphibsB/77QMqwkDomq0twdaglYgg72ea+hM4jgc3YulyOCIDGp3U+8OTT1xaSr
+         OZl66YyMv1pCXYk8V5VTBH/JUWpQPBqLceuYvwN4EvOQK0XFaBxjWOynrFl8WDdqvouo
+         TROw==
+X-Forwarded-Encrypted: i=1; AJvYcCU2ZXaDQ1TiTg2KU5mb7/P37pzIaRmN3F4fIXtp+EKu0USTZNKKhirBEN4DKMifJU5TaUlN7DsON+/K9FYuRsshpU8HaVj9rSkVWSrXloe7vEx5qyryp+79NA==
+X-Gm-Message-State: AOJu0Yye4meXI/aQJemGRY1cKndWzu7Hn521mTP1Wovv7NGBU95tXA6z
+	1gFLpvPzfq14LvxhaNemCCmEo5gNlPLmbjyEf3UHF2BdJfZbybjR9/iswWBD8wQVs+oGivzUE4D
+	Ult9dAJa/th5vO1rGTMi0/ni/wCZPBlJcmAgzSX1jLo64KvVocTrQu9LT5LRyPCPAWHFarWzqVs
+	Th1WwXcxYdJxj83Pm69m6bWtgzKZnzLi2x2kym+onA1UxGSwbE4j9DWw==
+X-Received: by 2002:a17:906:2352:b0:a51:d7b1:daa5 with SMTP id m18-20020a170906235200b00a51d7b1daa5mr774354eja.65.1712726900469;
+        Tue, 09 Apr 2024 22:28:20 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IF8pwiTgzKOtUSldwHz23rg9QYCan+25MAnLvv9VFe4NzmZCAZ4eDVcFWQv+lL6uOF6amadPg/UdZaro5JfK6M=
+X-Received: by 2002:a17:906:2352:b0:a51:d7b1:daa5 with SMTP id
+ m18-20020a170906235200b00a51d7b1daa5mr774344eja.65.1712726900070; Tue, 09 Apr
+ 2024 22:28:20 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.1
+References: <20240410043450.416752-1-lulu@redhat.com> <20240410043450.416752-2-lulu@redhat.com>
+In-Reply-To: <20240410043450.416752-2-lulu@redhat.com>
+From: Cindy Lu <lulu@redhat.com>
+Date: Wed, 10 Apr 2024 13:27:42 +0800
+Message-ID: <CACLfguX-L_amTHz5+wvaFe9bObNAFQTxe+Q_en-ungcV8U4Jjg@mail.gmail.com>
+Subject: Re: [PATCH v2 1/1] virtio-pci: Fix the crash that the vector was used
+ after released.
+To: lulu@redhat.com, mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, 
+	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-When the guest triggers vhost_stop and then virtio_reset, the vector will the
-IRQFD for this vector will be released and change to VIRTIO_NO_VECTOR.
-After that, the guest called vhost_net_start,  (at this time, the configure
-vector is still VIRTIO_NO_VECTOR),  vector 0 still was not "init".
-The guest system continued to boot, set the vector back to 0, and then met the crash.
+Sorry, send to the wrong mail list, please ignore it
 
-To fix this, we need to call the function "kvm_virtio_pci_vector_use_one()"
-when the vector changes back from VIRTIO_NO_VECTOR
-
-(gdb) bt
-0  __pthread_kill_implementation (threadid=<optimized out>, signo=signo@entry=6, no_tid=no_tid@entry=0)
-    at pthread_kill.c:44
-1  0x00007fc87148ec53 in __pthread_kill_internal (signo=6, threadid=<optimized out>) at pthread_kill.c:78
-2  0x00007fc87143e956 in __GI_raise (sig=sig@entry=6) at ../sysdeps/posix/raise.c:26
-3  0x00007fc8714287f4 in __GI_abort () at abort.c:79
-4  0x00007fc87142871b in __assert_fail_base
-    (fmt=0x7fc8715bbde0 "%s%s%s:%u: %s%sAssertion `%s' failed.\n%n", assertion=0x5606413efd53 "ret == 0", file=0x5606413ef87d "../accel/kvm/kvm-all.c", line=1837, function=<optimized out>) at assert.c:92
-5  0x00007fc871437536 in __GI___assert_fail
-    (assertion=0x5606413efd53 "ret == 0", file=0x5606413ef87d "../accel/kvm/kvm-all.c", line=1837, function=0x5606413f06f0 <__PRETTY_FUNCTION__.19> "kvm_irqchip_commit_routes") at assert.c:101
-6  0x0000560640f884b5 in kvm_irqchip_commit_routes (s=0x560642cae1f0) at ../accel/kvm/kvm-all.c:1837
-7  0x0000560640c98f8e in virtio_pci_one_vector_unmask
-    (proxy=0x560643c65f00, queue_no=4294967295, vector=0, msg=..., n=0x560643c6e4c8)
-    at ../hw/virtio/virtio-pci.c:1005
-8  0x0000560640c99201 in virtio_pci_vector_unmask (dev=0x560643c65f00, vector=0, msg=...)
-    at ../hw/virtio/virtio-pci.c:1070
-9  0x0000560640bc402e in msix_fire_vector_notifier (dev=0x560643c65f00, vector=0, is_masked=false)
-    at ../hw/pci/msix.c:120
-10 0x0000560640bc40f1 in msix_handle_mask_update (dev=0x560643c65f00, vector=0, was_masked=true)
-    at ../hw/pci/msix.c:140
-11 0x0000560640bc4503 in msix_table_mmio_write (opaque=0x560643c65f00, addr=12, val=0, size=4)
-    at ../hw/pci/msix.c:231
-12 0x0000560640f26d83 in memory_region_write_accessor
-    (mr=0x560643c66540, addr=12, value=0x7fc86b7bc628, size=4, shift=0, mask=4294967295, attrs=...)
-    at ../system/memory.c:497
-13 0x0000560640f270a6 in access_with_adjusted_size
-
-     (addr=12, value=0x7fc86b7bc628, size=4, access_size_min=1, access_size_max=4, access_fn=0x560640f26c8d <memory_region_write_accessor>, mr=0x560643c66540, attrs=...) at ../system/memory.c:573
-14 0x0000560640f2a2b5 in memory_region_dispatch_write (mr=0x560643c66540, addr=12, data=0, op=MO_32, attrs=...)
-    at ../system/memory.c:1521
-15 0x0000560640f37bac in flatview_write_continue
-    (fv=0x7fc65805e0b0, addr=4273803276, attrs=..., ptr=0x7fc871e9c028, len=4, addr1=12, l=4, mr=0x560643c66540)
-    at ../system/physmem.c:2714
-16 0x0000560640f37d0f in flatview_write
-    (fv=0x7fc65805e0b0, addr=4273803276, attrs=..., buf=0x7fc871e9c028, len=4) at ../system/physmem.c:2756
-17 0x0000560640f380bf in address_space_write
-    (as=0x560642161ae0 <address_space_memory>, addr=4273803276, attrs=..., buf=0x7fc871e9c028, len=4)
-    at ../system/physmem.c:2863
-18 0x0000560640f3812c in address_space_rw
-    (as=0x560642161ae0 <address_space_memory>, addr=4273803276, attrs=..., buf=0x7fc871e9c028, len=4, is_write=true) at ../system/physmem.c:2873
---Type <RET> for more, q to quit, c to continue without paging--
-19 0x0000560640f8aa55 in kvm_cpu_exec (cpu=0x560642f205e0) at ../accel/kvm/kvm-all.c:2915
-20 0x0000560640f8d731 in kvm_vcpu_thread_fn (arg=0x560642f205e0) at ../accel/kvm/kvm-accel-ops.c:51
-21 0x00005606411949f4 in qemu_thread_start (args=0x560642f292b0) at ../util/qemu-thread-posix.c:541
-22 0x00007fc87148cdcd in start_thread (arg=<optimized out>) at pthread_create.c:442
-23 0x00007fc871512630 in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:81
-(gdb)
-Signed-off-by: Cindy Lu <lulu@redhat.com>
----
- hw/virtio/virtio-pci.c | 35 +++++++++++++++++++++++++++++++++++
- 1 file changed, 35 insertions(+)
-
-diff --git a/hw/virtio/virtio-pci.c b/hw/virtio/virtio-pci.c
-index 1a7039fb0c..344f4fb844 100644
---- a/hw/virtio/virtio-pci.c
-+++ b/hw/virtio/virtio-pci.c
-@@ -880,6 +880,7 @@ static int kvm_virtio_pci_vector_use_one(VirtIOPCIProxy *proxy, int queue_no)
-     int ret;
-     EventNotifier *n;
-     PCIDevice *dev = &proxy->pci_dev;
-+    VirtIOIRQFD *irqfd;
-     VirtIODevice *vdev = virtio_bus_get_device(&proxy->bus);
-     VirtioDeviceClass *k = VIRTIO_DEVICE_GET_CLASS(vdev);
- 
-@@ -890,10 +891,19 @@ static int kvm_virtio_pci_vector_use_one(VirtIOPCIProxy *proxy, int queue_no)
-     if (vector >= msix_nr_vectors_allocated(dev)) {
-         return 0;
-     }
-+    /*
-+     * if the irqfd still in use, means the irqfd was not
-+     * release before and don't need to set up
-+     */
-+    irqfd = &proxy->vector_irqfd[vector];
-+    if (irqfd->users != 0) {
-+        return 0;
-+    }
-     ret = kvm_virtio_pci_vq_vector_use(proxy, vector);
-     if (ret < 0) {
-         goto undo;
-     }
-+
-     /*
-      * If guest supports masking, set up irqfd now.
-      * Otherwise, delay until unmasked in the frontend.
-@@ -1570,7 +1580,19 @@ static void virtio_pci_common_write(void *opaque, hwaddr addr,
-         } else {
-             val = VIRTIO_NO_VECTOR;
-         }
-+        vector = vdev->config_vector;
-         vdev->config_vector = val;
-+        /*
-+         *if the val was change from NO_VECTOR, this means the vector maybe
-+         * release before, need to check if need to set up
-+         */
-+        if ((val != VIRTIO_NO_VECTOR) && (vector == VIRTIO_NO_VECTOR) &&
-+            (vdev->status & VIRTIO_CONFIG_S_DRIVER_OK)) {
-+            /* check if use irqfd*/
-+            if (msix_enabled(&proxy->pci_dev) && kvm_msi_via_irqfd_enabled()) {
-+                kvm_virtio_pci_vector_use_one(proxy, VIRTIO_CONFIG_IRQ_IDX);
-+            }
-+        }
-         break;
-     case VIRTIO_PCI_COMMON_STATUS:
-         if (!(val & VIRTIO_CONFIG_S_DRIVER_OK)) {
-@@ -1611,6 +1633,19 @@ static void virtio_pci_common_write(void *opaque, hwaddr addr,
-             val = VIRTIO_NO_VECTOR;
-         }
-         virtio_queue_set_vector(vdev, vdev->queue_sel, val);
-+
-+        /*
-+         *if the val was change from NO_VECTOR, this means the vector maybe
-+         * release before, need to check if need to set up
-+         */
-+
-+        if ((val != VIRTIO_NO_VECTOR) && (vector == VIRTIO_NO_VECTOR) &&
-+            (vdev->status & VIRTIO_CONFIG_S_DRIVER_OK)) {
-+            /* check if use irqfd*/
-+            if (msix_enabled(&proxy->pci_dev) && kvm_msi_via_irqfd_enabled()) {
-+                kvm_virtio_pci_vector_use_one(proxy, vdev->queue_sel);
-+            }
-+        }
-         break;
-     case VIRTIO_PCI_COMMON_Q_ENABLE:
-         if (val == 1) {
--- 
-2.43.0
+On Wed, Apr 10, 2024 at 12:35=E2=80=AFPM Cindy Lu <lulu@redhat.com> wrote:
+>
+> When the guest triggers vhost_stop and then virtio_reset, the vector will=
+ the
+> IRQFD for this vector will be released and change to VIRTIO_NO_VECTOR.
+> After that, the guest called vhost_net_start,  (at this time, the configu=
+re
+> vector is still VIRTIO_NO_VECTOR),  vector 0 still was not "init".
+> The guest system continued to boot, set the vector back to 0, and then me=
+t the crash.
+>
+> To fix this, we need to call the function "kvm_virtio_pci_vector_use_one(=
+)"
+> when the vector changes back from VIRTIO_NO_VECTOR
+>
+> (gdb) bt
+> 0  __pthread_kill_implementation (threadid=3D<optimized out>, signo=3Dsig=
+no@entry=3D6, no_tid=3Dno_tid@entry=3D0)
+>     at pthread_kill.c:44
+> 1  0x00007fc87148ec53 in __pthread_kill_internal (signo=3D6, threadid=3D<=
+optimized out>) at pthread_kill.c:78
+> 2  0x00007fc87143e956 in __GI_raise (sig=3Dsig@entry=3D6) at ../sysdeps/p=
+osix/raise.c:26
+> 3  0x00007fc8714287f4 in __GI_abort () at abort.c:79
+> 4  0x00007fc87142871b in __assert_fail_base
+>     (fmt=3D0x7fc8715bbde0 "%s%s%s:%u: %s%sAssertion `%s' failed.\n%n", as=
+sertion=3D0x5606413efd53 "ret =3D=3D 0", file=3D0x5606413ef87d "../accel/kv=
+m/kvm-all.c", line=3D1837, function=3D<optimized out>) at assert.c:92
+> 5  0x00007fc871437536 in __GI___assert_fail
+>     (assertion=3D0x5606413efd53 "ret =3D=3D 0", file=3D0x5606413ef87d "..=
+/accel/kvm/kvm-all.c", line=3D1837, function=3D0x5606413f06f0 <__PRETTY_FUN=
+CTION__.19> "kvm_irqchip_commit_routes") at assert.c:101
+> 6  0x0000560640f884b5 in kvm_irqchip_commit_routes (s=3D0x560642cae1f0) a=
+t ../accel/kvm/kvm-all.c:1837
+> 7  0x0000560640c98f8e in virtio_pci_one_vector_unmask
+>     (proxy=3D0x560643c65f00, queue_no=3D4294967295, vector=3D0, msg=3D...=
+, n=3D0x560643c6e4c8)
+>     at ../hw/virtio/virtio-pci.c:1005
+> 8  0x0000560640c99201 in virtio_pci_vector_unmask (dev=3D0x560643c65f00, =
+vector=3D0, msg=3D...)
+>     at ../hw/virtio/virtio-pci.c:1070
+> 9  0x0000560640bc402e in msix_fire_vector_notifier (dev=3D0x560643c65f00,=
+ vector=3D0, is_masked=3Dfalse)
+>     at ../hw/pci/msix.c:120
+> 10 0x0000560640bc40f1 in msix_handle_mask_update (dev=3D0x560643c65f00, v=
+ector=3D0, was_masked=3Dtrue)
+>     at ../hw/pci/msix.c:140
+> 11 0x0000560640bc4503 in msix_table_mmio_write (opaque=3D0x560643c65f00, =
+addr=3D12, val=3D0, size=3D4)
+>     at ../hw/pci/msix.c:231
+> 12 0x0000560640f26d83 in memory_region_write_accessor
+>     (mr=3D0x560643c66540, addr=3D12, value=3D0x7fc86b7bc628, size=3D4, sh=
+ift=3D0, mask=3D4294967295, attrs=3D...)
+>     at ../system/memory.c:497
+> 13 0x0000560640f270a6 in access_with_adjusted_size
+>
+>      (addr=3D12, value=3D0x7fc86b7bc628, size=3D4, access_size_min=3D1, a=
+ccess_size_max=3D4, access_fn=3D0x560640f26c8d <memory_region_write_accesso=
+r>, mr=3D0x560643c66540, attrs=3D...) at ../system/memory.c:573
+> 14 0x0000560640f2a2b5 in memory_region_dispatch_write (mr=3D0x560643c6654=
+0, addr=3D12, data=3D0, op=3DMO_32, attrs=3D...)
+>     at ../system/memory.c:1521
+> 15 0x0000560640f37bac in flatview_write_continue
+>     (fv=3D0x7fc65805e0b0, addr=3D4273803276, attrs=3D..., ptr=3D0x7fc871e=
+9c028, len=3D4, addr1=3D12, l=3D4, mr=3D0x560643c66540)
+>     at ../system/physmem.c:2714
+> 16 0x0000560640f37d0f in flatview_write
+>     (fv=3D0x7fc65805e0b0, addr=3D4273803276, attrs=3D..., buf=3D0x7fc871e=
+9c028, len=3D4) at ../system/physmem.c:2756
+> 17 0x0000560640f380bf in address_space_write
+>     (as=3D0x560642161ae0 <address_space_memory>, addr=3D4273803276, attrs=
+=3D..., buf=3D0x7fc871e9c028, len=3D4)
+>     at ../system/physmem.c:2863
+> 18 0x0000560640f3812c in address_space_rw
+>     (as=3D0x560642161ae0 <address_space_memory>, addr=3D4273803276, attrs=
+=3D..., buf=3D0x7fc871e9c028, len=3D4, is_write=3Dtrue) at ../system/physme=
+m.c:2873
+> --Type <RET> for more, q to quit, c to continue without paging--
+> 19 0x0000560640f8aa55 in kvm_cpu_exec (cpu=3D0x560642f205e0) at ../accel/=
+kvm/kvm-all.c:2915
+> 20 0x0000560640f8d731 in kvm_vcpu_thread_fn (arg=3D0x560642f205e0) at ../=
+accel/kvm/kvm-accel-ops.c:51
+> 21 0x00005606411949f4 in qemu_thread_start (args=3D0x560642f292b0) at ../=
+util/qemu-thread-posix.c:541
+> 22 0x00007fc87148cdcd in start_thread (arg=3D<optimized out>) at pthread_=
+create.c:442
+> 23 0x00007fc871512630 in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/c=
+lone3.S:81
+> (gdb)
+> Signed-off-by: Cindy Lu <lulu@redhat.com>
+> ---
+>  hw/virtio/virtio-pci.c | 35 +++++++++++++++++++++++++++++++++++
+>  1 file changed, 35 insertions(+)
+>
+> diff --git a/hw/virtio/virtio-pci.c b/hw/virtio/virtio-pci.c
+> index 1a7039fb0c..344f4fb844 100644
+> --- a/hw/virtio/virtio-pci.c
+> +++ b/hw/virtio/virtio-pci.c
+> @@ -880,6 +880,7 @@ static int kvm_virtio_pci_vector_use_one(VirtIOPCIPro=
+xy *proxy, int queue_no)
+>      int ret;
+>      EventNotifier *n;
+>      PCIDevice *dev =3D &proxy->pci_dev;
+> +    VirtIOIRQFD *irqfd;
+>      VirtIODevice *vdev =3D virtio_bus_get_device(&proxy->bus);
+>      VirtioDeviceClass *k =3D VIRTIO_DEVICE_GET_CLASS(vdev);
+>
+> @@ -890,10 +891,19 @@ static int kvm_virtio_pci_vector_use_one(VirtIOPCIP=
+roxy *proxy, int queue_no)
+>      if (vector >=3D msix_nr_vectors_allocated(dev)) {
+>          return 0;
+>      }
+> +    /*
+> +     * if the irqfd still in use, means the irqfd was not
+> +     * release before and don't need to set up
+> +     */
+> +    irqfd =3D &proxy->vector_irqfd[vector];
+> +    if (irqfd->users !=3D 0) {
+> +        return 0;
+> +    }
+>      ret =3D kvm_virtio_pci_vq_vector_use(proxy, vector);
+>      if (ret < 0) {
+>          goto undo;
+>      }
+> +
+>      /*
+>       * If guest supports masking, set up irqfd now.
+>       * Otherwise, delay until unmasked in the frontend.
+> @@ -1570,7 +1580,19 @@ static void virtio_pci_common_write(void *opaque, =
+hwaddr addr,
+>          } else {
+>              val =3D VIRTIO_NO_VECTOR;
+>          }
+> +        vector =3D vdev->config_vector;
+>          vdev->config_vector =3D val;
+> +        /*
+> +         *if the val was change from NO_VECTOR, this means the vector ma=
+ybe
+> +         * release before, need to check if need to set up
+> +         */
+> +        if ((val !=3D VIRTIO_NO_VECTOR) && (vector =3D=3D VIRTIO_NO_VECT=
+OR) &&
+> +            (vdev->status & VIRTIO_CONFIG_S_DRIVER_OK)) {
+> +            /* check if use irqfd*/
+> +            if (msix_enabled(&proxy->pci_dev) && kvm_msi_via_irqfd_enabl=
+ed()) {
+> +                kvm_virtio_pci_vector_use_one(proxy, VIRTIO_CONFIG_IRQ_I=
+DX);
+> +            }
+> +        }
+>          break;
+>      case VIRTIO_PCI_COMMON_STATUS:
+>          if (!(val & VIRTIO_CONFIG_S_DRIVER_OK)) {
+> @@ -1611,6 +1633,19 @@ static void virtio_pci_common_write(void *opaque, =
+hwaddr addr,
+>              val =3D VIRTIO_NO_VECTOR;
+>          }
+>          virtio_queue_set_vector(vdev, vdev->queue_sel, val);
+> +
+> +        /*
+> +         *if the val was change from NO_VECTOR, this means the vector ma=
+ybe
+> +         * release before, need to check if need to set up
+> +         */
+> +
+> +        if ((val !=3D VIRTIO_NO_VECTOR) && (vector =3D=3D VIRTIO_NO_VECT=
+OR) &&
+> +            (vdev->status & VIRTIO_CONFIG_S_DRIVER_OK)) {
+> +            /* check if use irqfd*/
+> +            if (msix_enabled(&proxy->pci_dev) && kvm_msi_via_irqfd_enabl=
+ed()) {
+> +                kvm_virtio_pci_vector_use_one(proxy, vdev->queue_sel);
+> +            }
+> +        }
+>          break;
+>      case VIRTIO_PCI_COMMON_Q_ENABLE:
+>          if (val =3D=3D 1) {
+> --
+> 2.43.0
+>
 
