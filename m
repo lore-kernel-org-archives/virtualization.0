@@ -1,102 +1,86 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70A1337C;
-	Wed, 10 Apr 2024 01:44:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12DD08F4E
+	for <virtualization@lists.linux.dev>; Wed, 10 Apr 2024 03:09:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712713442; cv=none; b=prdINOa/Kmq/mbTvEpVvH+qSsq9AMI6CtrOZhqSciuZSS3bQNpm8fQJS33Mayjf3SlPyMB2ZlW5XCt4elOT6lbOkr3OlRxt9AVXDnaHjCSwVfuOLbcL28n+/5OjCznvMYeBhm/qPEakjgSX7EUT63ackAvaaKpuI5wzCDW240jY=
+	t=1712718563; cv=none; b=GLp0thFbBTM9UN1oKCHYWbDVSsMR+y8Tj3mdf+iF+b4dbObUNi97ZxwalbvcOJ5pXaG8p5czhal0iO1yTmwP735oojMhH2aKsUyYE29gFOaWovDANEXbE7+aTLC1rriCnWSdpIbxfxEnxZ8fjXMLPbOe+cAKJjsTcr/C2tBi2Qs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712713442; c=relaxed/simple;
-	bh=qYOChTpajn74y/ZZBnjUt178KiphhdOmGOzkpms/EuI=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=I3D3iVYCR0zQ8MqUV6Oy6GyhLcl/bpJ8wsUvGfwookmGo7I/yUNFivNfSf8egbRYqnJhm9zFiHufMnpxTILjhSwCMjyKE67p7L0WxqY55pYkNT0BgWTq+B5HsQQica3uJV1miRBLoAAluhTb9KgeALJyuX1+ZFJBHFR3PPVdeZg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FjMP09ap; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1712718563; c=relaxed/simple;
+	bh=i+Qwmc3ebgy3LkQ5k9BmE2CUnRMXm2zPX4vB3Yk3muI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=tMtQSH2531TAQrs+RW5ZHOEEJ/pNXSms5yvGxqBgaPyRiTUktMZ+qg0hHUM553zE9A3AylweOYKBpIB07kfw+K46HPxIRmmeisfPBz8CoWw0VBw9Y8IK5yRkWtGkUPUB7DrQkelvKm2IheUdfsaz4U2ZVuuDYm5SkxxqyTslyy8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=r4l3EqMf; arc=none smtp.client-ip=115.124.30.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FjMP09ap"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FF63C433F1;
-	Wed, 10 Apr 2024 01:44:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1712713441;
-	bh=qYOChTpajn74y/ZZBnjUt178KiphhdOmGOzkpms/EuI=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=FjMP09apZsVxdvsmBWN6YnI5iMVkpxzqslSMg4L6m/MPNS9nbBQkfTx/W2OGz9Uze
-	 QyCj9cujnN0AJRt4k9lcR/jTnJfY94uufgoP8wqSVPiLhXwg6Q0YHV3guVYlmq/2Yz
-	 fE6Vgu3v3aW5eWtrXKgyziIwCCQMq37AfGXqcfV5Xu2j+OlY9qFYYYc/Ho+65JSA9M
-	 /7XA5Ke3D4BU4JyWded0V+5S6QJnxrZ9UhtkuYE2HoxfQJupPAlXPnnSkNozrrKk57
-	 0BoyXYfnNXHKm6ONjBS0fLfpeatlVBsdm91AY8At1W1PHOJaqeybhX6vmgw5U5e9u1
-	 +U9EdEpac1BNQ==
-Date: Tue, 9 Apr 2024 18:44:00 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Heng Qi <hengqi@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev, "David S.
- Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Paolo
- Abeni <pabeni@redhat.com>, Jason Wang <jasowang@redhat.com>, "Michael S.
- Tsirkin" <mst@redhat.com>, Ratheesh Kannoth <rkannoth@marvell.com>,
- Alexander Lobakin <aleksander.lobakin@intel.com>, Xuan Zhuo
- <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next v5 1/4] ethtool: provide customized dim profile
- management
-Message-ID: <20240409184400.4e5444f3@kernel.org>
-In-Reply-To: <1712664204-83147-2-git-send-email-hengqi@linux.alibaba.com>
-References: <1712664204-83147-1-git-send-email-hengqi@linux.alibaba.com>
-	<1712664204-83147-2-git-send-email-hengqi@linux.alibaba.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="r4l3EqMf"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1712718558; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=s6+adsjsfh6oPSqdZBglDLUkEKuB+B54n0/Ld9Q81W8=;
+	b=r4l3EqMfhHXaudpU4iJIQbp2Wx+DO0sXEUHV4h2+bjbn5sE9ew9IEtRy/hMJCujDpIm23zH1Rqow6qF2lqrUXRxZVeYI1S21AoFahHO2kwW9CuU5QgEMgnGUMnX7kKELz8YSHCBVXJ18mF1qQo+8F8M7cU/wRi4SxZYqFtWTVS4=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0W4GEmuq_1712718556;
+Received: from 30.221.148.212(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W4GEmuq_1712718556)
+          by smtp.aliyun-inc.com;
+          Wed, 10 Apr 2024 11:09:18 +0800
+Message-ID: <1cd6cd7d-5cf2-4f86-b084-6e88b0cbf229@linux.alibaba.com>
+Date: Wed, 10 Apr 2024 11:09:16 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v5 4/4] virtio-net: support dim profile
+ fine-tuning
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Paolo Abeni <pabeni@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Ratheesh Kannoth <rkannoth@marvell.com>,
+ Alexander Lobakin <aleksander.lobakin@intel.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+References: <1712664204-83147-1-git-send-email-hengqi@linux.alibaba.com>
+ <1712664204-83147-5-git-send-email-hengqi@linux.alibaba.com>
+ <20240409184020.648bc93c@kernel.org>
+From: Heng Qi <hengqi@linux.alibaba.com>
+In-Reply-To: <20240409184020.648bc93c@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Tue,  9 Apr 2024 20:03:21 +0800 Heng Qi wrote:
-> +/**
-> + * coalesce_put_profile - fill reply with a nla nest with four child nla nests.
-> + * @skb: socket buffer the message is stored in
-> + * @attr_type: nest attr type ETHTOOL_A_COALESCE_*X_*QE_PROFILE
-> + * @profile: data passed to userspace
-> + * @supported_params: modifiable parameters supported by the driver
-> + *
-> + * Put a dim profile nest attribute. Refer to ETHTOOL_A_MODERATIONS_MODERATION.
 
-unfortunately kdoc got more picky and it also wants us to document
-return values now, you gotta add something like
 
- * Returns: true if ..
+在 2024/4/10 上午9:40, Jakub Kicinski 写道:
+> On Tue,  9 Apr 2024 20:03:24 +0800 Heng Qi wrote:
+>> +	/* DIM profile list */
+>> +	struct dim_cq_moder rx_eqe_conf[NET_DIM_PARAMS_NUM_PROFILES];
+> Can you please wrap this into a structure with other necessary
+> information and add a pointer in struct net_device instead.
+>
+> What's the point of every single driver implementing the same
+> boilerplate memcpy() in its get_coalesce / set_coalesce callbacks?
 
-actually this functions seems to return negative error codes as bool..
+The point is that the driver may check whether the user has set 
+parameters that it does not want.
+For example, virtio may not want the modification of comps, and ice/idpf 
+may not want the modification
+of comps and pkts.
 
-> +static bool coalesce_put_profile(struct sk_buff *skb, u16 attr_type,
-> +				 const struct dim_cq_moder *profile,
-> +				 u32 supported_params)
-> +{
-> +	struct nlattr *profile_attr, *moder_attr;
-> +	bool valid = false;
-> +	int i;
-> +
-> +	for (i = 0; i < NET_DIM_PARAMS_NUM_PROFILES; i++) {
-> +		if (profile[i].usec || profile[i].pkts || profile[i].comps) {
-> +			valid = true;
-> +			break;
-> +		}
-> +	}
-> +
-> +	if (!valid || !(supported_params & attr_to_mask(attr_type)))
-> +		return false;
-> +
-> +	profile_attr = nla_nest_start(skb, attr_type);
-> +	if (!profile_attr)
-> +		return -EMSGSIZE;
-> +
-> +	for (i = 0; i < NET_DIM_PARAMS_NUM_PROFILES; i++) {
-> +		moder_attr = nla_nest_start(skb, ETHTOOL_A_MODERATIONS_MODERATION);
-> +		if (!moder_attr)
-> +			goto nla_cancel_profile;
-> +
-> +		if (nla_put_u16(skb, ETHTOOL_A_MODERATION_USEC, profile[i].usec) ||
-> +		    nla_put_u16(skb, ETHTOOL_A_MODERATION_PKTS, profile[i].pkts) ||
-> +		    nla_put_u16(skb, ETHTOOL_A_MODERATION_COMPS, profile[i].comps))
+But you inspired me to think from another perspective. If parameters are 
+placed in netdevice, the
+goal of user modification is to modify the profile of netdevice, and the 
+driver can obtain its own
+target parameters from it as needed. Do you like this?
 
-u16 in netlink is almost always the wrong choice, sizes are rounded 
-up to 4B, anyway, let's use u32 at netlink level.
+In addition, if the netdevice way is preferred, I would like to confirm 
+whether we still continue the
+"ethtool -C" way, that is, complete the modification of netdevice 
+profile in __ethnl_set_coalesce()?
+
+Thanks.
+
+
