@@ -1,155 +1,172 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0b-0016f401.pphosted.com (mx0a-0016f401.pphosted.com [67.231.148.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4443C154C04
-	for <virtualization@lists.linux.dev>; Wed, 10 Apr 2024 09:27:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712741236; cv=none; b=ZaMT8MsGStzpbh+aODnzV43KS9k545tX27KNWjBIdCAR7LKz953HEFQalweHfwjuM3pUjT20hNdUTSNvFkkFrAxvR8Of0OZaJV+HtUcL8qa6wR6dBYFxwiNrTNVAYB5da8pWJQL4Qo5wbrD9MH+19e02wsk4i1wLrv19mcAUtRk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712741236; c=relaxed/simple;
-	bh=fcElBr/fQ4jTUM/R9mh4OCeXuheb7dMyysRCnNaeaU0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=tEETXKFOwUz4vQEXZqbnTRKxWHBzhk+tNM27/XOY3W58DggPBG/uOyiyxESUboT3OVyjMavnOtxFNKTDFpmMw7QnhO2n9RbSkr3N346VObSKmg76FGPiM2yYQkflqEt9AMy7uPaiSFhXm96SRZuAfMqGg5c1n4DIh8buD4gNMgw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=f8zyFLBu; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 329A2158215
+	for <virtualization@lists.linux.dev>; Wed, 10 Apr 2024 10:16:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=67.231.148.174
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1712744168; cv=fail; b=Owjv8UzJVrvASZkshv/7uqAYBRLemo4t29nwCMruwapFc7E55BRmvGR/tYzX9zw4aSMjZGSikjyr6arSfcQmz+KyyQAndChT40YNAWW6i5ck1kM+2NvWiQm2APnFRFEbWLZey4Z3Vs9MwxEI/0Vk4rdkqAB/yVhEuxpyVMHKziM=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1712744168; c=relaxed/simple;
+	bh=lcZEHv4LNtdDj51RS0N1IHSvEnHhIfAEvA5R2Bp2PBo=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=XzJyQUKNzvEzG2LSE3L/UM7fY3pNkmm6RayAiSYmyPml11GPW9SSoD6gaVbFWPCs9NoCCg1R/nc+cs9WoJWMtZBQ0Ed79mh4HzrUK2Wex91fY85W0pnHfUo3VLxPWlDpiAuCQcJorIpGgxSeRSzY2B7YltGoBLE3UyOdfZ6HO9I=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (1024-bit key) header.d=marvell.com header.i=@marvell.com header.b=M/XReDo9; arc=fail smtp.client-ip=67.231.148.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="f8zyFLBu"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1712741233;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=nd8Bsk/tl0jIPK4UNvuIu/hIN0VvXZcDRh7sv/2CcB8=;
-	b=f8zyFLBuO8HWp46sLDfbupygK/kzj1ZlBEWcElAqmVIiPaEmlxIe6Ck3jXyEBDlu1yNQbl
-	rpiOPmog0fyWjXGABFx8z+1YUPPiOqsFJtDlojC2O82LL+JVPhBW8iXGJEgbkOiILOE+3C
-	Gdk6aI+q2IRU2kqxsbwoeDCWZ1Dbc6Q=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-82-QqP1wGP2PlSK6VrdqdPlUA-1; Wed, 10 Apr 2024 05:27:11 -0400
-X-MC-Unique: QqP1wGP2PlSK6VrdqdPlUA-1
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-343c6a990dbso2772055f8f.1
-        for <virtualization@lists.linux.dev>; Wed, 10 Apr 2024 02:27:11 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712741230; x=1713346030;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=nd8Bsk/tl0jIPK4UNvuIu/hIN0VvXZcDRh7sv/2CcB8=;
-        b=ZxPBXOkkUjCsYN7BylMPtPSHk3zczKVddTxcD3/IzGFmvf+9cRTagdTr955TN0kzAY
-         TsvcqWqFAuiDnLrHKDZvwInP0IR+Ycm/Ixk+EKdKNyl9QO5ObEb4bi94aOOmZJFE5XBi
-         AL09EwOauqTdrQjB3Y6TZ8wZVphV8BTeX74ArubQ2nJsteNWt1JakrhqlSPoF36+ZMlZ
-         AfrDJqHmuF7GDb3FNHOfsOb+qQLtGJEOJRzHf2lx37NuTO4f+agL/UzArmC3S7QffyDx
-         sNTMfEubw+qgRka8YwrvU/Is/Dv/a5BFcvT0f3oE7nXRjoR+6EA/EqLUsoSfBHmDzAYU
-         3usQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXWsJ0nbuKnjeK/U/rLvB0QoaZ39ZqXab2WyJYBxoTS50ADZdL+ZDoXejhvfcTpYMTCl7hIhwj4xP9nDgn3cdudzgsvi1ExYOVfzT/PaWQ=
-X-Gm-Message-State: AOJu0YyXvz0066Y2gWI58VzFXS6tVXrkMJnQu73nx4Shf0s65EG7qpaT
-	vYG6QwKmYDmyuGPYgS2A2VKJ629T49dyY4Wqj7nYKpKPgov7dPm7ARX0Jxsn691QtASzsegnKut
-	6na0Ng4wqSJHvLd6buX2FD0NuVj5lk3FI3E+GACVk2zegdTC1VDiqyh8etuCZPQBR
-X-Received: by 2002:a5d:6745:0:b0:345:a63d:4a2f with SMTP id l5-20020a5d6745000000b00345a63d4a2fmr1877944wrw.0.1712741230379;
-        Wed, 10 Apr 2024 02:27:10 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE3+y5ZERWEdESiEjio8GX2kelNJq0swIWK3VLPt2UUg+ayvq6dp08tl4HhVGaBB1GqEVjkmw==
-X-Received: by 2002:a5d:6745:0:b0:345:a63d:4a2f with SMTP id l5-20020a5d6745000000b00345a63d4a2fmr1877923wrw.0.1712741229842;
-        Wed, 10 Apr 2024 02:27:09 -0700 (PDT)
-Received: from redhat.com ([2a02:14f:179:8bde:8cd:63ff:6fae:3872])
-        by smtp.gmail.com with ESMTPSA id q23-20020adfab17000000b003437799a373sm13564087wrc.83.2024.04.10.02.27.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Apr 2024 02:27:09 -0700 (PDT)
-Date: Wed, 10 Apr 2024 05:27:05 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Zhu Lingshan <lingshan.zhu@intel.com>
-Cc: sgarzare@redhat.com, jasowang@redhat.com,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH] vDPA: code clean for vhost_vdpa uapi
-Message-ID: <20240410052059-mutt-send-email-mst@kernel.org>
-References: <20240410163716.699708-1-lingshan.zhu@intel.com>
+	dkim=pass (1024-bit key) header.d=marvell.com header.i=@marvell.com header.b="M/XReDo9"
+Received: from pps.filterd (m0045849.ppops.net [127.0.0.1])
+	by mx0a-0016f401.pphosted.com (8.17.1.24/8.17.1.24) with ESMTP id 43A9h3LV015614;
+	Wed, 10 Apr 2024 03:15:41 -0700
+Received: from nam04-mw2-obe.outbound.protection.outlook.com (mail-mw2nam04lp2169.outbound.protection.outlook.com [104.47.73.169])
+	by mx0a-0016f401.pphosted.com (PPS) with ESMTPS id 3xdrc6gc9d-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 10 Apr 2024 03:15:41 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=H4DJD5nfDm87upCfWdrLovLwWJA9VDIHsoViskcmQLvgHPya2QPm+JFuNbJil9Qpwq2VNaC0dPRG5MHLxtDvFTfQm3OSRsnEOnHLwRSfxaAgpLd3MZgjuNDDZ6H3zfgy9ZH8qlwxgAoYm/YkpnayvGtz+aol4oIcrwocJYYMnQYM4C4FZj47pF9z14jCNED2UqlAZSql3wW3lPuES9cV1YLAxfqQ/IBU3PuzyCT7ZEfB0xh6lGdy2A/3i8M2sZRxwuR5hkO1tglPyTZ4KkvdcQMpb4CsVznveXDPMRKvUmwP0+Z0+gj9dTI08fMh05sIq544UwbyZ3LbVmZsijSxvA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=lcZEHv4LNtdDj51RS0N1IHSvEnHhIfAEvA5R2Bp2PBo=;
+ b=Y2VVemphMvUG0gWM+Ls36FirPrTgH0AqyPAcQ85l9B00ow0kjvhLojnqJRINVSjCozRnTwg53MAj5rmy9393/982+/6PDsOrlJwxD4MewtT/jblN1yJ1cRmbYMnCu6vcrgX/om2Tumf3wTmRIK3LhWC+CF8a8dw+WZpybs72UQt0zKyk/3P5K9I7/ukeKmymDoYSAVfftpOhWkDPV54CqP7a7B4q7IimJG0xwFLg5EhTNPzC9XW+OSj6VaePb/2fFdXmyEVm7ljNUC7xs6GgJiFCyVimrBGbacCV13gBurVn4/y2K1/PTo1Gj6O0vC1B4VLr+oW2jMKgdFBJGAJk/Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=marvell.com; dmarc=pass action=none header.from=marvell.com;
+ dkim=pass header.d=marvell.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=lcZEHv4LNtdDj51RS0N1IHSvEnHhIfAEvA5R2Bp2PBo=;
+ b=M/XReDo9hqgA2NactZ+b/BlvlqGsAfOoJBoZWrtq6dq3jgG3Mcndkvzp2ahQNlIdeeKwelWHbh6gw7BZBLdCXDZoWdmgNZgVcknHy2tH0ie5HytyX/D8O5NBxj9f8Y7porHcWds5q9Ih6DnE0IQu1AGHmyXD5iT9yH7qCXzxuQY=
+Received: from DS0PR18MB5368.namprd18.prod.outlook.com (2603:10b6:8:12f::17)
+ by CH0PR18MB4179.namprd18.prod.outlook.com (2603:10b6:610:be::18) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7409.55; Wed, 10 Apr
+ 2024 10:15:38 +0000
+Received: from DS0PR18MB5368.namprd18.prod.outlook.com
+ ([fe80::9728:b607:b464:a2dc]) by DS0PR18MB5368.namprd18.prod.outlook.com
+ ([fe80::9728:b607:b464:a2dc%7]) with mapi id 15.20.7409.053; Wed, 10 Apr 2024
+ 10:15:38 +0000
+From: Srujana Challa <schalla@marvell.com>
+To: Jason Wang <jasowang@redhat.com>
+CC: "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+        "mst@redhat.com" <mst@redhat.com>,
+        "xuanzhuo@linux.alibaba.com"
+	<xuanzhuo@linux.alibaba.com>,
+        Vamsi Krishna Attunuru <vattunuru@marvell.com>,
+        Shijith Thotton <sthotton@marvell.com>,
+        Nithin Kumar Dabilpuram
+	<ndabilpuram@marvell.com>,
+        Jerin Jacob <jerinj@marvell.com>, eperezma
+	<eperezma@redhat.com>
+Subject: RE: [EXTERNAL] Re: [PATCH] virtio: vdpa: vDPA driver for Marvell
+ OCTEON DPU devices
+Thread-Topic: [EXTERNAL] Re: [PATCH] virtio: vdpa: vDPA driver for Marvell
+ OCTEON DPU devices
+Thread-Index: AQHagDj2SsvzR050EUWY0iVJi2EC1bFOIr+AgABzqcCADaIjAIAFJBEQ
+Date: Wed, 10 Apr 2024 10:15:37 +0000
+Message-ID: 
+ <DS0PR18MB5368C214A318C026C6A64E45A0062@DS0PR18MB5368.namprd18.prod.outlook.com>
+References: <20240327112136.2897479-1-schalla@marvell.com>
+ <CACGkMEuKhKOtqYUk4Sbv1QmVSuo3AJ1-tX13ZZxdbPmSSNYk9Q@mail.gmail.com>
+ <DS0PR18MB53686F5F53AF5D26B7CE37B6A03A2@DS0PR18MB5368.namprd18.prod.outlook.com>
+ <CACGkMEuAEsApX0ZT=FWVgtvYwpAVhzQGh_1yrUaN5f8A8K7iCw@mail.gmail.com>
+In-Reply-To: 
+ <CACGkMEuAEsApX0ZT=FWVgtvYwpAVhzQGh_1yrUaN5f8A8K7iCw@mail.gmail.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: DS0PR18MB5368:EE_|CH0PR18MB4179:EE_
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: 
+ /3eM2mkGsZP9MIgot+0lLRN7bEKyqIA1Y15/Xin1N+0xgxRMAeucFbGGG62Ta3PVFa3EF6JOW+jsScdfGiCBTqAaZXsHXuxIEYJi4Ek/+z7puwVBi4dJRd3b8b7LCEmhaFZecuq7rGsGGTTN3ZHfu5fqEn/Tc70hZRCb7oAoMV/nI0qwAT3aCPt9EgBnC2zDVvrlO7WxeUqpxNmeo0TFlE9IcFFZ1CF4bM8+h8DXXcEbLqKC0AORsNAJbvojnIfJTLuSS9CsW1+EVZx1/EqNuHAGPHIOQ9IvSK+bGdeuJVeoF9R/ZvOKeqH39UxG1dvj2yjUD8szpdBFoNNQ76y1B4lUDRZscDsHSeYtOeFRX5Gj6QbZ1EguDxrbJ/9JH3gJxKns1q7Ihr+Ufjh2H5TT8H0SV6VlFPBF9EHib6bZUmCL6Cz2EpLrm9WP/iFAzMFl5PKjj6I+NJcNLBCa3oU9ARSrxbzhUy9bt4ebbwNIxZ5dUqXXbo374Yb4grWQCYW/3Vl1KqCXS7FCWjmjeoZT9GAdp+D0v5Hw1g47U+dRUS9M8XTssy0Vd+sUyhl4Um0e2aWctgd0uOIq1BAv/Ds0LkL9UBjg6C2CBc9JRUTwKVnZPYsQYxaPTB3KhUXwut6NeRB1dtGKbU+fFmEM4fMJwcqkItSPlzL/pHpRNV3YTEI=
+x-forefront-antispam-report: 
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR18MB5368.namprd18.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(366007)(1800799015)(376005);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: 
+ =?utf-8?B?VHBrMkVhRjFNSlRZZ0c5T0dMdXNRTGI4bVdWYlM0cFVvVlJwdlFyc29XYk04?=
+ =?utf-8?B?Q09pYTJaTk5uSmw5S2pEZVJLdGxhSjNNOVNrcXF4cmF0OUZyNHBockRlbkJB?=
+ =?utf-8?B?NzVHQ29aZ3U4Q0NHd1cyMGJ4TUZXRk5NRW5Eblk3SVJOUmJvLy92VkhwRnBj?=
+ =?utf-8?B?em9pSXZHbnVyeDhVcTg5a0Yvd0Z4VUdQUFNvSXlxb1p4ZnQ3dEo4TnFrTWxn?=
+ =?utf-8?B?UERvSG4zSGN6cGJ6UWhza1lMM1ZxUHV4Qm1ZcHl4b2kyYitlZDNkNzUvNVJD?=
+ =?utf-8?B?RzR6Z1NULzArNENYN1NQN253WElySnM2Z2thQUwrTDZ4YjYzU3N0b0VWbVpW?=
+ =?utf-8?B?OUloTmdlaERSaXdWMncwbDZYZzVPYVpEYWVvaGwrRHVQZ2R0Tm4xNUJmekF1?=
+ =?utf-8?B?V09Da3ZyUjhMQWs0a0k3eXpIbG9LTFlIRWdXZUJTTmhOZ3VtTTRlcEFtSWxz?=
+ =?utf-8?B?WnA1SnRodU9YaExKL3VIdnVTMEtZdjI3WEprYVJyc052Zk83WTIvbjlSQjhT?=
+ =?utf-8?B?Vmd5elR1VnpFUGxMT2NjVEJ5UzZmQUJFRndhMDR4Nlc2cE00WDMvbnNDeGtT?=
+ =?utf-8?B?emhKSTJCQk5SdktpR1FleWp2blI0TWsvZlhRcXhTOGVsVGJTc1p3WC9nZHFH?=
+ =?utf-8?B?a0lNekJLbzNobnBtdDdnbTFseXhCZHR4MHJ2Q3Bpd3h2cnBzcWF5ZkJ6RWpi?=
+ =?utf-8?B?MUhrcDVYcEk5b0w1UEwrbEwvREswRWs0cU1jRmhTZElIQThLa0lBNGNCSUZs?=
+ =?utf-8?B?eWFacDZMVS9kUEdGTXBmTGUxVWVJY2pMSWxydDdrZXg4SVZSQ0RTUlRsNU5Y?=
+ =?utf-8?B?aThQWjJpSzlta3ErV1JBMnIzNGJaditkcXF0ZWs0VTRmb3lmVW8xM1F1TFhP?=
+ =?utf-8?B?VldpMmxQVXA2QWw5NFpZWFZrUnQwbHFpUXZDSkdQdEdqNUNiWU5oWEpUSzhi?=
+ =?utf-8?B?VE43a0tSTFdBVWN4aDlrVU5CVmp5VXJYcEVlTnY0MWxHenRYSEFBdW9FekVG?=
+ =?utf-8?B?dU4yeHlXVkMxKzcvK0NrcnZWQVUwdHZ1TG1KZzdUZjExZC9rL3ErSHpLdE54?=
+ =?utf-8?B?Z1FtU05vc2JmWjdaR0ozaEJ5TWRUeDFCWGJnS3dTcGcvQUxSeStxQUFUSmU1?=
+ =?utf-8?B?ZmtnQzdjSWhuVzhad1ZNNy9Sb2JsUk8xTWNVSlVvaVRUblpPQ0dhNnpYd3Zh?=
+ =?utf-8?B?NDVhSFNIK25rSCt6RE9lbzArS0FFN2FqSVNjTGhMaldHblNPVFpHWmFJVlR0?=
+ =?utf-8?B?a09RSFJYM0t3azlycVRYWDlhTWpvSHBGNWxKeU9lNGJJODUweHVBNzQvWEJR?=
+ =?utf-8?B?U2pBbG1RVk1zVEt3VHZGc1lVRk5KZ0tRNW83QlV2SGI1b1N0OVJUVGxmaEtH?=
+ =?utf-8?B?TC9tSUdkQXBKd0NaVGllcHExMEhudnA5d20reE9OY01ZRUwwSUQxblJrdTZx?=
+ =?utf-8?B?eUpDZEYyNWRXREFWMjZqUWNCTzYxN0hOWTNnNFc2MXNBUHVGTXJkUThmKzZp?=
+ =?utf-8?B?TlhRV09WSmwrcjVTeWlMVG5icW91T2lGZHF1UzltQWd2c2JCWkVBT1VTUVJU?=
+ =?utf-8?B?MkE2ZFJOUk5LM1oySkZ1NzZGM3BUWWdEZjJoODlxcVR0Y2FNZnRyc20wL3Bh?=
+ =?utf-8?B?RTNiczl4alA5cGQ2bXA3UlA4dWJQV0orYUt5cEtCbThzTHlkVDZCYit6aXh4?=
+ =?utf-8?B?aFVTQ1Ixc1IwbmpQcko0N251U0QwUk50WEN5ZElhQzI2Sk9NbnowUDdGN2RI?=
+ =?utf-8?B?N0NkT0NYalVDb3dyWGVlY1FGS0NjSG4vT2FJb1RqeFIyaTBjU1RKd1BMcUZi?=
+ =?utf-8?B?VnFvOWNsTjJac1VQU0pDTXdmZGlObzJOQVBBR1Q4djhRZlpKejZzL3NCV3Rs?=
+ =?utf-8?B?RzdvdjZpMDM2Y0VOb285TjZabGJFUWI2V2hOQUt3dkRmRXEwRmZSV2lNaWM3?=
+ =?utf-8?B?L0w1aDdmY3ZvYUhMNW5LYXBPUXJ3QklvZlhRMWphTEtTMUtvT0NpN1N3VklR?=
+ =?utf-8?B?b2c1NE9rMGtVeWQ1Nmp6MFg5R3FzNis3dUdOZFIwMnl2d2hMR01kbTcwTERS?=
+ =?utf-8?B?SlNVZDAzNUxyRWNsbnUvR293QlQvWVV3dzcyRTRmVFZQa3YvcXF5YUhVQk5z?=
+ =?utf-8?Q?cwiQ=3D?=
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240410163716.699708-1-lingshan.zhu@intel.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-OriginatorOrg: marvell.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: DS0PR18MB5368.namprd18.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a5fb1f98-75d1-445a-f42f-08dc59472b1e
+X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Apr 2024 10:15:38.0146
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 70e1fb47-1155-421d-87fc-2e58f638b6e0
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: b5sKAWL5FL4zH0AIWpipGO8CrhvLJSj9Vai186HdhHmZzCLhMQbQ8edekbsCjpUGs/FUTztrRV1Y3xcurDvFEA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH0PR18MB4179
+X-Proofpoint-GUID: KDJqmkNuUlSd2Tax_XRoyhrKG6qqBP-O
+X-Proofpoint-ORIG-GUID: KDJqmkNuUlSd2Tax_XRoyhrKG6qqBP-O
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-04-10_04,2024-04-09_01,2023-05-22_02
 
-On Thu, Apr 11, 2024 at 12:37:16AM +0800, Zhu Lingshan wrote:
-> This commit cleans up the upai for vhost_vdpa by
-> better naming some of the macros which report blk
-> information to user space.
-> 
-> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
-
-These are enums not macros.
-
-And tweaking UAPI is problematic as it can break userspace
-builds. If you do this you need a #define for the old name
-to avoid that issue.
-
-> ---
->  drivers/vdpa/vdpa.c       | 6 +++---
->  include/uapi/linux/vdpa.h | 6 +++---
->  2 files changed, 6 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
-> index b246067e074b..6cb96a1e8b7d 100644
-> --- a/drivers/vdpa/vdpa.c
-> +++ b/drivers/vdpa/vdpa.c
-> @@ -967,7 +967,7 @@ vdpa_dev_blk_seg_size_config_fill(struct sk_buff *msg, u64 features,
->  
->  	val_u32 = __virtio32_to_cpu(true, config->size_max);
->  
-> -	return nla_put_u32(msg, VDPA_ATTR_DEV_BLK_CFG_SEG_SIZE, val_u32);
-> +	return nla_put_u32(msg, VDPA_ATTR_DEV_BLK_CFG_SIZE_MAX, val_u32);
->  }
->  
->  /* fill the block size*/
-> @@ -1089,7 +1089,7 @@ static int vdpa_dev_blk_ro_config_fill(struct sk_buff *msg, u64 features)
->  	u8 ro;
->  
->  	ro = ((features & BIT_ULL(VIRTIO_BLK_F_RO)) == 0) ? 0 : 1;
-> -	if (nla_put_u8(msg, VDPA_ATTR_DEV_BLK_CFG_READ_ONLY, ro))
-> +	if (nla_put_u8(msg, VDPA_ATTR_DEV_BLK_READ_ONLY, ro))
->  		return -EMSGSIZE;
->  
->  	return 0;
-> @@ -1100,7 +1100,7 @@ static int vdpa_dev_blk_flush_config_fill(struct sk_buff *msg, u64 features)
->  	u8 flush;
->  
->  	flush = ((features & BIT_ULL(VIRTIO_BLK_F_FLUSH)) == 0) ? 0 : 1;
-> -	if (nla_put_u8(msg, VDPA_ATTR_DEV_BLK_CFG_FLUSH, flush))
-> +	if (nla_put_u8(msg, VDPA_ATTR_DEV_BLK_FLUSH, flush))
->  		return -EMSGSIZE;
->  
->  	return 0;
-> diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
-> index 43c51698195c..842bf1201ac4 100644
-> --- a/include/uapi/linux/vdpa.h
-> +++ b/include/uapi/linux/vdpa.h
-> @@ -57,7 +57,7 @@ enum vdpa_attr {
->  	VDPA_ATTR_DEV_FEATURES,                 /* u64 */
->  
->  	VDPA_ATTR_DEV_BLK_CFG_CAPACITY,		/* u64 */
-> -	VDPA_ATTR_DEV_BLK_CFG_SEG_SIZE,		/* u32 */
-> +	VDPA_ATTR_DEV_BLK_CFG_SIZE_MAX,		/* u32 */
->  	VDPA_ATTR_DEV_BLK_CFG_BLK_SIZE,		/* u32 */
->  	VDPA_ATTR_DEV_BLK_CFG_SEG_MAX,		/* u32 */
->  	VDPA_ATTR_DEV_BLK_CFG_NUM_QUEUES,	/* u16 */
-> @@ -70,8 +70,8 @@ enum vdpa_attr {
->  	VDPA_ATTR_DEV_BLK_CFG_DISCARD_SEC_ALIGN,/* u32 */
->  	VDPA_ATTR_DEV_BLK_CFG_MAX_WRITE_ZEROES_SEC,	/* u32 */
->  	VDPA_ATTR_DEV_BLK_CFG_MAX_WRITE_ZEROES_SEG,	/* u32 */
-> -	VDPA_ATTR_DEV_BLK_CFG_READ_ONLY,		/* u8 */
-> -	VDPA_ATTR_DEV_BLK_CFG_FLUSH,		/* u8 */
-> +	VDPA_ATTR_DEV_BLK_READ_ONLY,		/* u8 */
-> +	VDPA_ATTR_DEV_BLK_FLUSH,		/* u8 */
->  
->  	/* new attributes must be added above here */
->  	VDPA_ATTR_MAX,
-> -- 
-> 2.39.3
-
+PiA+ID4gPiArDQo+ID4gPiA+ICsgICAgICAgZG9tYWluID0gaW9tbXVfZ2V0X2RvbWFpbl9mb3Jf
+ZGV2KGRldik7DQo+ID4gPiA+ICsgICAgICAgaWYgKCFkb21haW4gfHwgZG9tYWluLT50eXBlID09
+IElPTU1VX0RPTUFJTl9JREVOVElUWSkgew0KPiA+ID4gPiArICAgICAgICAgICAgICAgZGV2X2lu
+Zm8oZGV2LCAiTk8tSU9NTVVcbiIpOw0KPiA+ID4gPiArICAgICAgICAgICAgICAgb2N0ZXBfdmRw
+YV9vcHMuc2V0X21hcCA9IG9jdGVwX3ZkcGFfc2V0X21hcDsNCj4gPiA+DQo+ID4gPiBJcyB0aGlz
+IGEgc2hvcnRjdXQgdG8gaGF2ZSBnZXQgYmV0dGVyIHBlcmZvcm1hbmNlPyBETUEgQVBJIHNob3Vs
+ZCBoYXZlDQo+ID4gPiB0aG9zZSBncmVhY2VmdWxseSBJIHRoaW5rLg0KPiA+IFdoZW4gSU9NTVUg
+aXMgZGlzYWJsZWQgb24gaG9zdCBhbmQgc2V0X21hcC9kbWFfbWFwIGlzIG5vdCBzZXQsDQo+ID4g
+dmhvc3QtdmRwYSBpcyByZXBvcnRpbmcgYW4gZXJyb3IgIkZhaWxlZCB0byBhbGxvY2F0ZSBkb21h
+aW4sIGRldmljZSBpcyBub3QNCj4gSU9NTVUgY2FjaGUgY29oZXJlbnQgY2FwYWJsZVxuIi4NCj4g
+PiBIZW5jZSB3ZSBhcmUgZG9pbmcgdGhpcyB3YXkgdG8gZ2V0IGJldHRlciBwZXJmb3JtYW5jZS4N
+Cj4gDQo+IFRoZSBwcm9ibGVtIGlzLCBhc3N1bWluZyB0aGUgZGV2aWNlIGRvZXMgbm90IGhhdmUg
+YW55IGludGVybmFsIElPTU1VLg0KPiANCj4gMSkgSWYgd2UgYWxsb3cgaXQgcnVubmluZyB3aXRo
+b3V0IElPTU1VLCBpdCBvcGVucyBhIHdpbmRvdyBmb3IgZ3Vlc3QNCj4gdG8gYXR0YWNrIHRoZSBo
+b3N0Lg0KPiAyKSBJZiB5b3Ugc2VlIHBlcmZvcmFtbmNlIGlzc3VlIHdpdGggSU9NTVVfRE9NQUlO
+X0lERU5USVRZLCBsZXQncw0KPiByZXBvcnQgaXQgdG8gRE1BL0lPTU1VIG1haW50aW5lciB0byBm
+aXggdGhhdA0KSXQgd2lsbCBiZSBoZWxwZnVsIGZvciBob3N0IG5ldHdvcmtpbmcgY2FzZSB3aGVu
+IGlvbW11IGlzIGRpc2FibGVkLiANCkNhbiB3ZSB0YWtlIHRoZSB2ZmlvIHBjaSBkcml2ZXIgYXBw
+cm9hY2ggYXMgYSByZWZlcmVuY2Ugd2hlcmUgdXNlciBleHBsaWNpdGx5IHNldCANCiJlbmFibGVf
+dW5zYWZlX25vaW9tbXVfbW9kZSIgdXNpbmcgbW9kdWxlIHBhcmFtPw0KDQo+IA0KPiBUaGFua3MN
+Cg0KVGhhbmtzLg0KDQo=
