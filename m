@@ -1,149 +1,182 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f174.google.com (mail-pg1-f174.google.com [209.85.215.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BFB7A32
-	for <virtualization@lists.linux-foundation.org>; Thu, 11 Apr 2024 08:40:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D77301411FE
+	for <virtualization@lists.linux.dev>; Thu, 11 Apr 2024 08:53:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712824807; cv=none; b=jC66iqBIsW+gzfolBOkubIeh1b5yFKe2kmvFdMvfz7TAHsF4fn8N76oFtppf4ONuKvrrd+4uPZTWwlNdjgIbPDqb7T7L/CpMF9vNF4RzqkJmNn16RsKNTkz/6lMnvEI6Aqf7nUMQx0mQSzfTyvsw78ar6zhjtTbY+i/8B5iDkTE=
+	t=1712825586; cv=none; b=SkvOfg35yZxqysXBwQ4JebD8a5P/asktTCVplzlnW4sN51ogUEBoEK1CayG8K+2tFQvl6l/DkIjF2YSnWW+ysAzpvQWGd6X5kvsIiJ1EgqZQkzO2zPetUN4dgD3HJLiipL8pSvGrxSRVZ2nM9mE14DIlu9Lis6W1Yk4J9m2WsEw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712824807; c=relaxed/simple;
-	bh=muBOoc16C2M4cMYszyiN6GAm+fVjP1NhBVJC8EpxLmo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=bmGB+23YfQHL+uC4H4ZXRzK8T4X8ssRkBnh79ZJj/gfqXwilhqO8enVDedYem++YS9CVAqHXusZkvMVsFul4dWCc4bk/+TIxRivDbV9Y+WoH202Q82RNyZNYyg4r7bu+XWPLUCwCHt4JHX7uRQGxP+G7fOtnf5ChH2KEkAe/iyg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=K+46rtyN; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1712825586; c=relaxed/simple;
+	bh=io9LKvvXimYbev4Iml4NKxNJy86/qa8clb83Jlhvc2M=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=G4EwgYbIpjKbfaP+2gMUGj3f4ax5/gdDPe/5jXFR7d0b5R85hm5xAv6HPXB4NtCmP3NsQHb+ngEiZBL2sTw3j99axNMOD8kzvk7p72Ednyu80jwGS9mxdkHzH0PHA8HuRGmn7nYGue5Qpwb6WWacDGt+P6D/ItS5mqHTUic4aGo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lmL2y0ko; arc=none smtp.client-ip=209.85.215.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="K+46rtyN"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 116406124E
-	for <virtualization@lists.linux-foundation.org>; Thu, 11 Apr 2024 08:40:06 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id NzGfltsFdDVj for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Apr 2024 08:40:05 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org B6E7160EB7
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B6E7160EB7
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=K+46rtyN
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id B6E7160EB7
-	for <virtualization@lists.linux-foundation.org>; Thu, 11 Apr 2024 08:40:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1712824803;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=muBOoc16C2M4cMYszyiN6GAm+fVjP1NhBVJC8EpxLmo=;
-	b=K+46rtyNrqz4ejulhnQkWxkfwwMo53Ut2lwxt85TovUVkQ0bFb6oJ0T6ZL3vWga49Ue+7H
-	9rVlV1XIxF6RNdagtlulAyHOxG0khLpaCUT1fcGGRHJtYaegQkPEfvkgWM1+2pwZNzNuCh
-	oJxT6mJsmi2EEvsAlOd3eieMANJurM0=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-616-Nu0k9wVjPM-JOj4HbMp4jA-1; Thu, 11 Apr 2024 04:40:01 -0400
-X-MC-Unique: Nu0k9wVjPM-JOj4HbMp4jA-1
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-2a5c5e69461so1488902a91.2
-        for <virtualization@lists.linux-foundation.org>; Thu, 11 Apr 2024 01:40:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lmL2y0ko"
+Received: by mail-pg1-f174.google.com with SMTP id 41be03b00d2f7-5dca1efad59so5470699a12.2
+        for <virtualization@lists.linux.dev>; Thu, 11 Apr 2024 01:53:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1712825584; x=1713430384; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=ya5I5hvjUcaAqlpM5swpRYtJfi5w+dWzk4Fz+t660Ec=;
+        b=lmL2y0kowKXbKJUwIzmgIXL4flKfRKGE750tMmABXju/bigtFVwJn2aEeSJYIG8/dt
+         K48ZuUjzYRxheJ9984kmGTwcCgiCSAEBhNsaqseK2hwYuHzKJtl5yWPObxn11KhOoCNM
+         1Akg1jkSjqScV6e3cb+0dn523LHiMD1xf0U7z/actvs1cEPvTHN3UtO0w+LBNuHj5pox
+         jEBPTxVrifY+z82ZE5y2ae6kYVWCOgJ/10HCd2HQMmpQZp9gupFW1H74zSsuurgkXxB6
+         1ld5vO21+jO7LQBs7bC0KVOM6NzJpe1YsBl59DobkV6H9mvqrXbmiwtL33R9a8iMht0e
+         pIiQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712824800; x=1713429600;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=muBOoc16C2M4cMYszyiN6GAm+fVjP1NhBVJC8EpxLmo=;
-        b=mzh2sDByFhZatkzQyAsNsm4AMlQJK8W9bg84gusBCnNfBR+5fm5NE9gdLTfzyjLgyf
-         aGaFpEtJ0plI8PQgiCsPXxctOSsHMQU9oULCozB8tONFZwYKGGV8kt0Xuc1wUSY/h1/F
-         TYhuCVzvV6xgc1+Fa1iQ2YERpkRi5ne/jsHrrrmZ3kACFqrd1U2OfsmBa6+XXXa1Xw2y
-         3IWUQsuBCI3cHRcWLqx3FpCs5ZwSEIAJ3/sVNZ7PnNSy9ArxtS0f8FiHzy2QsPTMa+v4
-         97M/mV4rMZEG0L89xhYqm6z47xFtje8NORE2bjPCmT8eick4qdDNAg//4mnQLwJCRrJo
-         YJmg==
-X-Forwarded-Encrypted: i=1; AJvYcCXMKXKNIKqjEkLw536Tw421kAEm3unwyAXGDLW6yM+a0Q1q3i+Fuj7xcmIUInpHAECv0oTOh/G5I4+AQP9cpzcoHiYvZAYwl1h5TxJJa6VXSHDS7wLV963gcg==
-X-Gm-Message-State: AOJu0YxV9L54jaNKbXDcROLH324r/HohjMF37QYa/bGMyKPPlfXjxape
-	CparSFQkL5QLvdJDBJwPkkgqhYzf22uyP6pqWGzjSRvaOL8uiBBtLllmS1B7RwUGpZFy7gUMM1V
-	kCujCPI1E3POFI3a7v7oBVlIpJp5Y97TtIInsvyHhucmm9y1bVaewLtr171I0XQj7St7p1KyY3N
-	O2ZEtewcpK/H3PKixs6rTmWYMCwrTyWv4h2f2+SNboH9wFXfdhFXZGJw==
-X-Received: by 2002:a17:90a:9102:b0:2a2:c127:5aed with SMTP id k2-20020a17090a910200b002a2c1275aedmr6264858pjo.0.1712824800198;
-        Thu, 11 Apr 2024 01:40:00 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEfm1m00HprmnilIhZs3mCiWEYYsSj4wn12JstZsao3hQUhU6L7QXSHGmnJQ3kk+Uywt19g1EzOVaQiwJrfsXY=
-X-Received: by 2002:a17:90a:9102:b0:2a2:c127:5aed with SMTP id
- k2-20020a17090a910200b002a2c1275aedmr6264846pjo.0.1712824799859; Thu, 11 Apr
- 2024 01:39:59 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1712825584; x=1713430384;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=ya5I5hvjUcaAqlpM5swpRYtJfi5w+dWzk4Fz+t660Ec=;
+        b=ZGIN+4kPsEgDNzocLEkrAYGdWpfFQg7jg1fnQFPoS27GkvTt5mmzV3ZeAneQDQhtkS
+         55kK5cfyNjyk3ATEFIYTRrErfyhWVGtoxveRlw0HQEo/P7iZrhAfz1u5pa+XO2ZBwHec
+         O4k1DHg+6sUtrH/lDFyT9PwhuIsKFeSVJLeI380Nr0aPj+C+hq0tWrySLQQjALpdud7W
+         CAX3MDRVNsbnxOQbYJ3Ku/XeZYCKu0ICPCuwkFTEAnwvYXpUvSTGT5d3p5AlEyuSu6uW
+         Wf5bUrjNy7r6/Z/ag78sVfZAr22C21widC0PiLq6WMKEN4ZXlZ5BsHI3q0AOzwnGQsEm
+         m0Fg==
+X-Forwarded-Encrypted: i=1; AJvYcCXsu4OU8nXvJt/5xYqY2rX+NspZb1E9FnXNQtjavaAbW0IdPHqHXt+d/20FbdekYsfIIz4TB8qUZ6uCArIXowSKlPEdIGxJpfQOEsKmYR8=
+X-Gm-Message-State: AOJu0YwMezEfj1Fq6ZkI+K1ajUualWnofO26ZJuL4B8oD6P4i/npnMMx
+	fsNZ5kePSHON7XIp4+nWHJvKXte+xJ/zKZohKlwKPwBFsWRgmyFj
+X-Google-Smtp-Source: AGHT+IG0RZWIYvC1TAdiHu4GiCufqpdvQrAKxYmpsyvNmU5fmkX4L1O0eJJwfz5elYuwUFstobv+qw==
+X-Received: by 2002:a17:90a:f40b:b0:2a5:d5b1:b99b with SMTP id ch11-20020a17090af40b00b002a5d5b1b99bmr3708871pjb.38.1712825584034;
+        Thu, 11 Apr 2024 01:53:04 -0700 (PDT)
+Received: from dell.. ([111.196.36.81])
+        by smtp.googlemail.com with ESMTPSA id y12-20020a17090a154c00b002a52c2d82f0sm4534844pja.1.2024.04.11.01.52.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 11 Apr 2024 01:53:02 -0700 (PDT)
+From: Liang Chen <liangchen.linux@gmail.com>
+To: mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	hengqi@linux.alibaba.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com
+Cc: netdev@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	bpf@vger.kernel.org,
+	john.fastabend@gmail.com,
+	hawk@kernel.org,
+	daniel@iogearbox.net,
+	ast@kernel.org,
+	liangchen.linux@gmail.com
+Subject: [PATCH net-next v6] virtio_net: Support RX hash XDP hint
+Date: Thu, 11 Apr 2024 16:52:16 +0800
+Message-Id: <20240411085216.361662-1-liangchen.linux@gmail.com>
+X-Mailer: git-send-email 2.40.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240316004707.45557-1-michael.christie@oracle.com>
-In-Reply-To: <20240316004707.45557-1-michael.christie@oracle.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 11 Apr 2024 16:39:48 +0800
-Message-ID: <CACGkMEs1KSdUOgLbwbR-S0v1jv8-N5cM5ZwrWyK8raF50MSRZg@mail.gmail.com>
-Subject: Re: [PATCH 0/9] vhost: Support SIGKILL by flushing and exiting
-To: Mike Christie <michael.christie@oracle.com>
-Cc: oleg@redhat.com, ebiederm@xmission.com, 
-	virtualization@lists.linux-foundation.org, mst@redhat.com, 
-	sgarzare@redhat.com, stefanha@redhat.com, brauner@kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Sat, Mar 16, 2024 at 8:47=E2=80=AFAM Mike Christie
-<michael.christie@oracle.com> wrote:
->
-> The following patches were made over Linus's tree and also apply over
-> mst's vhost branch. The patches add the ability for vhost_tasks to
-> handle SIGKILL by flushing queued works, stop new works from being
-> queued, and prepare the task for an early exit.
->
-> This removes the need for the signal/coredump hacks added in:
->
-> Commit f9010dbdce91 ("fork, vhost: Use CLONE_THREAD to fix freezer/ps reg=
-ression")
->
-> when the vhost_task patches were initially merged and fix the issue
-> in this thread:
->
-> https://lore.kernel.org/all/000000000000a41b82060e875721@google.com/
->
-> Long Background:
->
-> The original vhost worker code didn't support any signals. If the
-> userspace application that owned the worker got a SIGKILL, the app/
-> process would exit dropping all references to the device and then the
-> file operation's release function would be called. From there we would
-> wait on running IO then cleanup the device's memory.
+The RSS hash report is a feature that's part of the virtio specification.
+Currently, virtio backends like qemu, vdpa (mlx5), and potentially vhost
+(still a work in progress as per [1]) support this feature. While the
+capability to obtain the RSS hash has been enabled in the normal path,
+it's currently missing in the XDP path. Therefore, we are introducing
+XDP hints through kfuncs to allow XDP programs to access the RSS hash.
 
-A dumb question.
+1.
+https://lore.kernel.org/all/20231015141644.260646-1-akihiko.odaki@daynix.com/#r
 
-Is this a user space noticeable change? For example, with this series
-a SIGKILL may shutdown the datapath ...
+Signed-off-by: Liang Chen <liangchen.linux@gmail.com>
+---
+  Changes from v5:
+- Preservation of the hash value has been dropped, following the conclusion
+  from discussions in V3 reviews. The virtio_net driver doesn't
+  accessing/using the virtio_net_hdr after the XDP program execution, so
+  nothing tragic should happen. As to the xdp program, if it smashes the
+  entry in virtio header, it is likely buggy anyways. Additionally, looking
+  up the Intel IGC driver,  it also does not bother with this particular
+  aspect.
+---
+ drivers/net/virtio_net.c | 55 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 55 insertions(+)
 
-Thanks
-
->
-> When we switched to vhost_tasks being a thread in the owner's process we
-> added some hacks to the signal/coredump code so we could continue to
-> wait on running IO and process it from the vhost_task. The idea was that
-> we would eventually remove the hacks. We recently hit this bug:
->
-> https://lore.kernel.org/all/000000000000a41b82060e875721@google.com/
->
-> It turns out only vhost-scsi had an issue where it would send a command
-> to the block/LIO layer, wait for a response and then process in the vhost
-> task. So patches 1-5 prepares vhost-scsi to handle when the vhost_task
-> is killed while we still have commands outstanding. The next patches then
-> prepare and convert the vhost and vhost_task layers to handle SIGKILL
-> by flushing running works, marking the vhost_task as dead so there's
-> no future uses, then exiting.
->
->
->
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index c22d1118a133..abd07d479508 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -4621,6 +4621,60 @@ static void virtnet_set_big_packets(struct virtnet_info *vi, const int mtu)
+ 	}
+ }
+ 
++static int virtnet_xdp_rx_hash(const struct xdp_md *_ctx, u32 *hash,
++			   enum xdp_rss_hash_type *rss_type)
++{
++	const struct xdp_buff *xdp = (void *)_ctx;
++	struct virtio_net_hdr_v1_hash *hdr_hash;
++	struct virtnet_info *vi;
++
++	if (!(xdp->rxq->dev->features & NETIF_F_RXHASH))
++		return -ENODATA;
++
++	vi = netdev_priv(xdp->rxq->dev);
++	hdr_hash = (struct virtio_net_hdr_v1_hash *)(xdp->data - vi->hdr_len);
++
++	switch (__le16_to_cpu(hdr_hash->hash_report)) {
++		case VIRTIO_NET_HASH_REPORT_TCPv4:
++			*rss_type = XDP_RSS_TYPE_L4_IPV4_TCP;
++			break;
++		case VIRTIO_NET_HASH_REPORT_UDPv4:
++			*rss_type = XDP_RSS_TYPE_L4_IPV4_UDP;
++			break;
++		case VIRTIO_NET_HASH_REPORT_TCPv6:
++			*rss_type = XDP_RSS_TYPE_L4_IPV6_TCP;
++			break;
++		case VIRTIO_NET_HASH_REPORT_UDPv6:
++			*rss_type = XDP_RSS_TYPE_L4_IPV6_UDP;
++			break;
++		case VIRTIO_NET_HASH_REPORT_TCPv6_EX:
++			*rss_type = XDP_RSS_TYPE_L4_IPV6_TCP_EX;
++			break;
++		case VIRTIO_NET_HASH_REPORT_UDPv6_EX:
++			*rss_type = XDP_RSS_TYPE_L4_IPV6_UDP_EX;
++			break;
++		case VIRTIO_NET_HASH_REPORT_IPv4:
++			*rss_type = XDP_RSS_TYPE_L3_IPV4;
++			break;
++		case VIRTIO_NET_HASH_REPORT_IPv6:
++			*rss_type = XDP_RSS_TYPE_L3_IPV6;
++			break;
++		case VIRTIO_NET_HASH_REPORT_IPv6_EX:
++			*rss_type = XDP_RSS_TYPE_L3_IPV6_EX;
++			break;
++		case VIRTIO_NET_HASH_REPORT_NONE:
++		default:
++			*rss_type = XDP_RSS_TYPE_NONE;
++	}
++
++	*hash = __le32_to_cpu(hdr_hash->hash_value);
++	return 0;
++}
++
++static const struct xdp_metadata_ops virtnet_xdp_metadata_ops = {
++	.xmo_rx_hash			= virtnet_xdp_rx_hash,
++};
++
+ static int virtnet_probe(struct virtio_device *vdev)
+ {
+ 	int i, err = -ENOMEM;
+@@ -4747,6 +4801,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 				  VIRTIO_NET_RSS_HASH_TYPE_UDP_EX);
+ 
+ 		dev->hw_features |= NETIF_F_RXHASH;
++		dev->xdp_metadata_ops = &virtnet_xdp_metadata_ops;
+ 	}
+ 
+ 	if (vi->has_rss_hash_report)
+-- 
+2.40.1
 
