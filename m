@@ -1,211 +1,127 @@
-Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2BFC13B2AF
-	for <virtualization@lists.linux.dev>; Thu, 11 Apr 2024 02:51:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.113
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1032813CAA0
+	for <virtualization@lists.linux.dev>; Thu, 11 Apr 2024 05:59:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712803898; cv=none; b=KUiys98tm5Ir5exSgmZOxPyGJtYBg0IkuIEQPcsaiFJMBsoj8QsRgANDkLbzysq/QQ2jXLQDPfM1SMBcbWGkpynalh2zMC+42vx4tty9JLZWJDcucAsYjuyYBTJVTsXfoPyXya8yZG51FCxbIv6ciPHHIgmdo/Hc7Ltt5logGKQ=
+	t=1712815192; cv=none; b=HyJkvr7OSc0lj/SbWI4EmNfARAdxAIHJBCRDc8aakOXrbcpzvM8ibgpSU2BbiVzxO3PClNbLgSJE6/laKTluXOqFq25th8HY7S0t0V8cOvRuozZcgNbUacUnspbVjCmagRZyRh3raaWnGoaWKI0rYlqOEbB+6K+ose9nJDhAP9M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712803898; c=relaxed/simple;
-	bh=hbQdXdetvkD1rMzo70MKS8BzN+4SUqhXUqLCcxGqXPk=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=uxJx21jhfksT8DhFRmhTsGFdWEfOlJrTR4CnFZ7c6HWoH2L7TpFgo9k2zL7z4JLvvuQgFXpg8TOGArK0w/UBj5iSuZVdOdph7KmJdNRozijkgPOvHZl3IxozWgwQejKwZ7d7k5RBaxPYLttYXCGLrth5XHj4HGJFhaLiwFuu6Q0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=XC+KH93t; arc=none smtp.client-ip=115.124.30.113
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1712815192; c=relaxed/simple;
+	bh=56ijaC9NWy+pxjPGaLJoxJTcH8+Bvl0OAI4T1hVT8ok=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=CgD3L3MUoixy9LgBLu+o17MEW1nNn9C7R2jOT2jgpbEw9Gh5/dVLADcfVp8sCUngq+ODO3FcC2HZBBylis30BxfAjg6+b3/6dzKwGCTnXHTGQv8OhZh8UDgTUPI4VMNG9KYeTV4QGU2xpHoV7jzvPkXd5s/leJjGEN00q7VWS/0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bph5vfsq; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="XC+KH93t"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1712803893; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=kNuz5XWu77XKzI65pJnfjpG1siNRRZvenupSO7gTNu4=;
-	b=XC+KH93tQW8dv4yrxwGlwV3til9DeN+c0brEV02lYbL7JUuKOFtscttL/hRASoOKjP3L2Ux4ragZMqN3q+Uvn2eFh+vEZMBvQKrYRCw096U3qO1wqq1bcG4S9lpWrptg+X7gEuwNqT0fP1Q6uDGQNliKS+NW5QKi4/DiMfRXMII=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R921e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0W4JPoAr_1712803892;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W4JPoAr_1712803892)
-          by smtp.aliyun-inc.com;
-          Thu, 11 Apr 2024 10:51:33 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: virtualization@lists.linux.dev
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	netdev@vger.kernel.org
-Subject: [PATCH vhost 6/6] virtio_net: rx remove premapped failover code
-Date: Thu, 11 Apr 2024 10:51:27 +0800
-Message-Id: <20240411025127.51945-7-xuanzhuo@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20240411025127.51945-1-xuanzhuo@linux.alibaba.com>
-References: <20240411025127.51945-1-xuanzhuo@linux.alibaba.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bph5vfsq"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1712815189;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=UWCYn1ILaQSYW83xuRqKVLjSuCeoR+t+APClPv8AcFo=;
+	b=bph5vfsqdubRZYqSom3M82Je8HZmVRBIJdXZ0cG3r/1ZcFgwxSrUP3dmI5Ccmb6NqUA428
+	qCrEfaPIFK6bo6dEX7AHrBWMlDOyT/ovHfSwAHiJbRsa8fx7yPKnf3QSNZeazaZfCh1IYS
+	sooyvWwQuyCHfaTj8N0bHdBDYvnnTRg=
+Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com
+ [209.85.214.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-647-77tnnp4xNFqpX9lqz18lHA-1; Thu, 11 Apr 2024 01:59:45 -0400
+X-MC-Unique: 77tnnp4xNFqpX9lqz18lHA-1
+Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-1e2a5cb5455so78653705ad.2
+        for <virtualization@lists.linux.dev>; Wed, 10 Apr 2024 22:59:45 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1712815184; x=1713419984;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=UWCYn1ILaQSYW83xuRqKVLjSuCeoR+t+APClPv8AcFo=;
+        b=u+z/gNbmuJSG5oggXeQVwGF6NrC8yC4Nw+Gx1zcQxxwcH+VJxy/OQwXFbHErl3+U/+
+         kl/0unneVWuQE3ZrdX/FsHJQ0qhf6R0vPcSQhXgf+20C8K9h+sKWQOSp9Wa0yeJa69Kd
+         SLlHWIgqpqOmdpuw+VK3U72SnkoxVP73mjxTPs6YHAtkir1i2I3G7G9qGpYFb1WZh7Y0
+         cLjwW+D+qTNJH0E3w8St3io9ejCcExr2fL2EZCY//aC7iH/ZBwULh63TVILp284rcXfm
+         K1nPXtGsKSetqdwWFOHFnbDEMnfS1vk6DO5vE9m99dlEKx2vupJTOsFBnUsB85qmNBSI
+         goOA==
+X-Gm-Message-State: AOJu0YxZ2wv/06HeEdCP9GOjgaUwYb6rUjudC+EEh7ua9fq/VbqQvgwF
+	PblV9UUAZOoRkca+RK+5Qz18oP3uxFtemg3ITeHDBq+/c0ZCmfQJY5DrWZ2N1/4KgW1obTdbX5s
+	VMBBCm3RuGwPsRWzLYDjv1dvDqMRCM7F7C2xO8Q43+WOARXHLqDMNS39kheDaNbItuKP+0BxkAX
+	MMb3f2pXaA2v7O52CPVV1jjLURfTPW3NTojFiEM/U=
+X-Received: by 2002:a17:902:e84a:b0:1e3:e0ca:d8a3 with SMTP id t10-20020a170902e84a00b001e3e0cad8a3mr5193016plg.6.1712815184640;
+        Wed, 10 Apr 2024 22:59:44 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGyvxszWUaINeg0zfWxZvrV/6Ye7877/zPyBYzFcj2sUpA/d5DhetS9Q6CeFtXsMhSUGlCAbSpcjIVeV/tBn9c=
+X-Received: by 2002:a17:902:e84a:b0:1e3:e0ca:d8a3 with SMTP id
+ t10-20020a170902e84a00b001e3e0cad8a3mr5193006plg.6.1712815184374; Wed, 10 Apr
+ 2024 22:59:44 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Git-Hash: aa9dfb80fb4a
-Content-Transfer-Encoding: 8bit
+References: <20240327112136.2897479-1-schalla@marvell.com> <CACGkMEuKhKOtqYUk4Sbv1QmVSuo3AJ1-tX13ZZxdbPmSSNYk9Q@mail.gmail.com>
+ <DS0PR18MB53686F5F53AF5D26B7CE37B6A03A2@DS0PR18MB5368.namprd18.prod.outlook.com>
+ <CACGkMEuAEsApX0ZT=FWVgtvYwpAVhzQGh_1yrUaN5f8A8K7iCw@mail.gmail.com> <DS0PR18MB5368C214A318C026C6A64E45A0062@DS0PR18MB5368.namprd18.prod.outlook.com>
+In-Reply-To: <DS0PR18MB5368C214A318C026C6A64E45A0062@DS0PR18MB5368.namprd18.prod.outlook.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 11 Apr 2024 13:59:33 +0800
+Message-ID: <CACGkMEv9rB6HbuyGhxr+De8y+ndXJ4LnJWO0rXywqM_Ujj++Bw@mail.gmail.com>
+Subject: Re: [EXTERNAL] Re: [PATCH] virtio: vdpa: vDPA driver for Marvell
+ OCTEON DPU devices
+To: Srujana Challa <schalla@marvell.com>
+Cc: "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, "mst@redhat.com" <mst@redhat.com>, 
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>, Vamsi Krishna Attunuru <vattunuru@marvell.com>, 
+	Shijith Thotton <sthotton@marvell.com>, Nithin Kumar Dabilpuram <ndabilpuram@marvell.com>, 
+	Jerin Jacob <jerinj@marvell.com>, eperezma <eperezma@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Now, for the merge and small, the premapped mode can be enabled
-unconditionally.
+On Wed, Apr 10, 2024 at 6:16=E2=80=AFPM Srujana Challa <schalla@marvell.com=
+> wrote:
+>
+> > > > > +
+> > > > > +       domain =3D iommu_get_domain_for_dev(dev);
+> > > > > +       if (!domain || domain->type =3D=3D IOMMU_DOMAIN_IDENTITY)=
+ {
+> > > > > +               dev_info(dev, "NO-IOMMU\n");
+> > > > > +               octep_vdpa_ops.set_map =3D octep_vdpa_set_map;
+> > > >
+> > > > Is this a shortcut to have get better performance? DMA API should h=
+ave
+> > > > those greacefully I think.
+> > > When IOMMU is disabled on host and set_map/dma_map is not set,
+> > > vhost-vdpa is reporting an error "Failed to allocate domain, device i=
+s not
+> > IOMMU cache coherent capable\n".
+> > > Hence we are doing this way to get better performance.
+> >
+> > The problem is, assuming the device does not have any internal IOMMU.
+> >
+> > 1) If we allow it running without IOMMU, it opens a window for guest
+> > to attack the host.
+> > 2) If you see perforamnce issue with IOMMU_DOMAIN_IDENTITY, let's
+> > report it to DMA/IOMMU maintiner to fix that
+> It will be helpful for host networking case when iommu is disabled.
+> Can we take the vfio pci driver approach as a reference where user explic=
+itly set
+> "enable_unsafe_noiommu_mode" using module param?
 
-So we can remove the failover code.
+I prefer not, the "unsafe" is a hint that it should not be used in
+production environment due to security implications.
 
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
----
- drivers/net/virtio_net.c | 78 +++++++++++++++++-----------------------
- 1 file changed, 32 insertions(+), 46 deletions(-)
+How much degradation have you seen for IOMMU_DOMAIN_IDENTITY or IOMMU
+is disabled? Is that because of the DMA API?
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index f0faf7c0fe59..493e2fccd7b2 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -217,9 +217,6 @@ struct receive_queue {
- 
- 	/* Record the last dma info to free after new pages is allocated. */
- 	struct virtnet_rq_dma *last_dma;
--
--	/* Do dma by self */
--	bool do_dma;
- };
- 
- /* This structure can contain rss message with maximum settings for indirection table and keysize
-@@ -769,7 +766,7 @@ static void *virtnet_rq_get_buf(struct receive_queue *rq, u32 *len, void **ctx)
- 	void *buf;
- 
- 	buf = virtqueue_get_buf_ctx(rq->vq, len, ctx);
--	if (buf && rq->do_dma)
-+	if (buf)
- 		virtnet_rq_unmap(rq, buf, *len);
- 
- 	return buf;
-@@ -782,11 +779,6 @@ static void virtnet_rq_init_one_sg(struct receive_queue *rq, void *buf, u32 len)
- 	u32 offset;
- 	void *head;
- 
--	if (!rq->do_dma) {
--		sg_init_one(rq->sg, buf, len);
--		return;
--	}
--
- 	head = page_address(rq->alloc_frag.page);
- 
- 	offset = buf - head;
-@@ -812,44 +804,42 @@ static void *virtnet_rq_alloc(struct receive_queue *rq, u32 size, gfp_t gfp)
- 
- 	head = page_address(alloc_frag->page);
- 
--	if (rq->do_dma) {
--		dma = head;
--
--		/* new pages */
--		if (!alloc_frag->offset) {
--			if (rq->last_dma) {
--				/* Now, the new page is allocated, the last dma
--				 * will not be used. So the dma can be unmapped
--				 * if the ref is 0.
--				 */
--				virtnet_rq_unmap(rq, rq->last_dma, 0);
--				rq->last_dma = NULL;
--			}
-+	dma = head;
- 
--			dma->len = alloc_frag->size - sizeof(*dma);
-+	/* new pages */
-+	if (!alloc_frag->offset) {
-+		if (rq->last_dma) {
-+			/* Now, the new page is allocated, the last dma
-+			 * will not be used. So the dma can be unmapped
-+			 * if the ref is 0.
-+			 */
-+			virtnet_rq_unmap(rq, rq->last_dma, 0);
-+			rq->last_dma = NULL;
-+		}
- 
--			addr = virtqueue_dma_map_single_attrs(rq->vq, dma + 1,
--							      dma->len, DMA_FROM_DEVICE, 0);
--			if (virtqueue_dma_mapping_error(rq->vq, addr))
--				return NULL;
-+		dma->len = alloc_frag->size - sizeof(*dma);
- 
--			dma->addr = addr;
--			dma->need_sync = virtqueue_dma_need_sync(rq->vq, addr);
-+		addr = virtqueue_dma_map_single_attrs(rq->vq, dma + 1,
-+						      dma->len, DMA_FROM_DEVICE, 0);
-+		if (virtqueue_dma_mapping_error(rq->vq, addr))
-+			return NULL;
- 
--			/* Add a reference to dma to prevent the entire dma from
--			 * being released during error handling. This reference
--			 * will be freed after the pages are no longer used.
--			 */
--			get_page(alloc_frag->page);
--			dma->ref = 1;
--			alloc_frag->offset = sizeof(*dma);
-+		dma->addr = addr;
-+		dma->need_sync = virtqueue_dma_need_sync(rq->vq, addr);
- 
--			rq->last_dma = dma;
--		}
-+		/* Add a reference to dma to prevent the entire dma from
-+		 * being released during error handling. This reference
-+		 * will be freed after the pages are no longer used.
-+		 */
-+		get_page(alloc_frag->page);
-+		dma->ref = 1;
-+		alloc_frag->offset = sizeof(*dma);
- 
--		++dma->ref;
-+		rq->last_dma = dma;
- 	}
- 
-+	++dma->ref;
-+
- 	buf = head + alloc_frag->offset;
- 
- 	get_page(alloc_frag->page);
-@@ -867,8 +857,6 @@ static void virtnet_rq_set_premapped(struct virtnet_info *vi)
- 
- 		/* never happen */
- 		BUG_ON(err);
--
--		vi->rq[i].do_dma = true;
- 	}
- }
- 
-@@ -1946,8 +1934,7 @@ static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
- 
- 	err = virtqueue_add_inbuf_ctx(rq->vq, rq->sg, 1, buf, ctx, gfp);
- 	if (err < 0) {
--		if (rq->do_dma)
--			virtnet_rq_unmap(rq, buf, 0);
-+		virtnet_rq_unmap(rq, buf, 0);
- 		put_page(virt_to_head_page(buf));
- 	}
- 
-@@ -2062,8 +2049,7 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
- 	ctx = mergeable_len_to_ctx(len + room, headroom);
- 	err = virtqueue_add_inbuf_ctx(rq->vq, rq->sg, 1, buf, ctx, gfp);
- 	if (err < 0) {
--		if (rq->do_dma)
--			virtnet_rq_unmap(rq, buf, 0);
-+		virtnet_rq_unmap(rq, buf, 0);
- 		put_page(virt_to_head_page(buf));
- 	}
- 
-@@ -4336,7 +4322,7 @@ static void free_receive_page_frags(struct virtnet_info *vi)
- 	int i;
- 	for (i = 0; i < vi->max_queue_pairs; i++)
- 		if (vi->rq[i].alloc_frag.page) {
--			if (vi->rq[i].do_dma && vi->rq[i].last_dma)
-+			if (vi->rq[i].last_dma)
- 				virtnet_rq_unmap(&vi->rq[i], vi->rq[i].last_dma, 0);
- 			put_page(vi->rq[i].alloc_frag.page);
- 		}
--- 
-2.32.0.3.g01195cf9f
+Thanks
+
+>
+> >
+> > Thanks
+>
+> Thanks.
+>
 
