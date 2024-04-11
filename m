@@ -1,66 +1,66 @@
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
+Received: from mail-pf1-f171.google.com (mail-pf1-f171.google.com [209.85.210.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B163E2032C
-	for <virtualization@lists.linux.dev>; Thu, 11 Apr 2024 00:08:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D5AB2BB14
+	for <virtualization@lists.linux.dev>; Thu, 11 Apr 2024 00:08:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712794118; cv=none; b=l/t0ncicgGA/GzRMFgd1W6qXx6Qd+32ol8A7iOTJe2lFJ8TObJI36416jOioC/kfxwc06RMljnzyJr0x5OEojKzDnGur6z+xslGijdl3qr0bhsr+QMH/ag+BJFu1Gp+prSwBkUCCveFRe4wTFLrv76wpEjWmAQAcn460RGDo/+8=
+	t=1712794123; cv=none; b=VR3apRzHWUqaUqOG1pWQVKUXxb3VoHaAhaEy1+sPaHDmFBqyMk48mIsjNhDKAbF2Ih384GNHpER/82A6XKsHHrSGk5IMzY0LPEv0mNhB3PMVtXyBdCuWgw+V3196sqktGd0HjIshWcGNTyRg6BpAQbpwBbsouHF/981wf6IKGnw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712794118; c=relaxed/simple;
-	bh=+BS7mctHpN9iWLFPEwC2/74zIoWzY97OXSTjHAOIU1s=;
+	s=arc-20240116; t=1712794123; c=relaxed/simple;
+	bh=HvWaHaPle0cX5HGWWdRxWlP3z/kNux1E5mFj4+zTNsM=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=ZKC1vZ0fQlMJv0Fzfc+YyPYTyVc1VGIJa4CT6IaMmVds9oIp/0P6YeQU8/dd6isfC19UTATj2FZKxHsWVp8flovQrDRUSEg77C8FVjrSkeQie2a0kLCc4vV6ZJYzgEwVR2RjtQdmVAB4NP5Blbbb6dAsCnWiP0nPLM/vItuZMNE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com; spf=pass smtp.mailfrom=rivosinc.com; dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b=pphdGptA; arc=none smtp.client-ip=209.85.214.175
+	 MIME-Version; b=NyNyWmGLab+8Av9Jarvc6Rmj30q3jMoNnHUF5M/5ltesdphPvTnovC3iS9V+K2Vvrdeyf57/tb9BuXViSzR2WI09mmY0Y5ohE5yDInzudGC8a+ks/vilPJ1Bj9wJ59q6RFmrQhHhHNyhKLpH7vELV17thJPm2nK9GQgzRHuvEe8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com; spf=pass smtp.mailfrom=rivosinc.com; dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b=r5bot5H1; arc=none smtp.client-ip=209.85.210.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rivosinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b="pphdGptA"
-Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-1e419d203bdso26421665ad.1
-        for <virtualization@lists.linux.dev>; Wed, 10 Apr 2024 17:08:36 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b="r5bot5H1"
+Received: by mail-pf1-f171.google.com with SMTP id d2e1a72fcca58-6ed3cafd766so3099999b3a.0
+        for <virtualization@lists.linux.dev>; Wed, 10 Apr 2024 17:08:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rivosinc-com.20230601.gappssmtp.com; s=20230601; t=1712794116; x=1713398916; darn=lists.linux.dev;
+        d=rivosinc-com.20230601.gappssmtp.com; s=20230601; t=1712794120; x=1713398920; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=oLadZMY/1E+aj61iqE390ie32fUnJXqsMN5cFXtebck=;
-        b=pphdGptAM9bIsNAAgiexcv1/eE132N0PuHS4SdgAdZpz+m4NmC5ezQiNyXbZXn/3+P
-         iuhbJoxuN/NU261AfmKEBWnhCt43NQnlWKVa3CVW1vDEUrGPoc8B4gdNzXxWUuzPrUaN
-         FSnn3aZLCFEZF2zuHPFS5KpxUrjkbASdoiJNBMF9GUjuiZynCDb89lVdESZSeYCdOiwL
-         k2CqHD6fFJri5uzT4LCRyL09RQEW6nntbisjhIBRrEAMOKnX2TDersKjyi/U+QUrXN2F
-         0jAYtCwwES8HoZLRu4PxqUkrJY2bT6CluSPuY2xmhpLADl0O79ABhChl119JrMTy1kNe
-         TkLg==
+        bh=QIyaUvQe1Xat3Gv2wtXts1DoFv5C5UbopqhCGzslRuw=;
+        b=r5bot5H1o96PFCrSC0ffJGidNNSCtblS/NvqtiHQwxmCveKXLk4IlF9N4aafP07YdV
+         2LIjsAxSrRwk0FJ/ro4ZWR1iO0/MFlVrCl5y4hhLHV7aTYREw9nzqUG6RxdIBbiecaf5
+         8/CAKxYWmTj+J1oRL3iR7SCiv2NXejjdf8Wjt2JOd2OqxXkigyEGoAI+S5vnZnOoSVil
+         GDnNg4tMxmnarWHSn31IbjrMXo/zvrnFGBGSPEn7hVN3U4Y1Jg1yiGaj5+3/t6Q8nL+f
+         1XHF7cp0C37bKC0WmclXu+TvcDtghlgBF9Ast9UlsWboRwPE6A9NjG0dftq8R+BOA8nb
+         kJWw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712794116; x=1713398916;
+        d=1e100.net; s=20230601; t=1712794120; x=1713398920;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=oLadZMY/1E+aj61iqE390ie32fUnJXqsMN5cFXtebck=;
-        b=nJ2bPJ9TTvjhMUkZ4RxpVJNNhhy+jHxlkcOsMn8NxkbYyi1KvJ7ccTUCz1EiPbiHwE
-         gyP/jV6jOsSX7GpLUCqu8PkWvAUiv54rxqY0SNxnEk6kTrxLRbgWTSsJ7O7sVOGiz8Xy
-         wPp2ZZZpYIk3dV9r+IUDOegMn3oQRmMXM8O47Tadtt+fLjEw02nMfMicgD4S3dVppkUf
-         afeCRQ0Lw4tiVB1v9zP/6vvHsZS0GNdtOr8wh1/5D4nyN55VLT2ZJpm8A7qv3P4WLxFX
-         S7Qc6S8Qp+lbEga0qQkPt19f+U9NHjjQtuZzKKSHPE7MxE9P5QafJQkHChSrBh6046wR
-         UJlQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXJh9MR2PFK++uxYJ+aZtoCpftCcW5ZbAf7QP881abLLiwMYmVmpBJSW+f6fu4SA/LI62Fm+H6YLuyOwKQpL5EmnAKO0JVBeLCaQNLzhIc=
-X-Gm-Message-State: AOJu0Yx96n1qzgsfXpne1Vg1ZhgfmMPE5Y7EHj6rK0eqydlVESLDiBUF
-	Q2zDPWwgu/UmVKr0UZg6l4P37bVsE5sc2qgEYgLBCY30ks97CXz015Ndp37xs88=
-X-Google-Smtp-Source: AGHT+IHzUax2ZWhBgUrf+kjl8kX3eFwG3U4ev74//NPfPvOpyLG8kxL1HYpH/nLS8u5KiTb01/SP5A==
-X-Received: by 2002:a17:903:48c:b0:1e4:3f8d:12ca with SMTP id jj12-20020a170903048c00b001e43f8d12camr4120344plb.14.1712794116104;
-        Wed, 10 Apr 2024 17:08:36 -0700 (PDT)
+        bh=QIyaUvQe1Xat3Gv2wtXts1DoFv5C5UbopqhCGzslRuw=;
+        b=fIyHmVigYIRzSuzDC4GdHQ3kxICfHKDkDSdsid2RkxAP6YIWBsrBdJDUwadHxTGl1B
+         Mciwe10RRlFCUxorw8L6sPiKAe0IZ64dw4tut9Cmw+cYYHam3gSdc3qJpkjuUYxyHzjX
+         WQ5JMm+ORX6KRaODyNSeYpKnpsKaTCQ4cbdaE/yhQUud+NaU5un+zBrzzTM9hb36h2a7
+         9BYXHbFxjMlG76atqTGWNBZc+9mQ1NtRosu1JqHIkRQSIwibLx3LiyGqlnCM5SF4YaO7
+         nbAm//ScSZgL8+rEiU1PhtWXJojXneCq4ZUICns8ALbT/rJrQEpqnjYmgrUwgh/8J+gt
+         2JwA==
+X-Forwarded-Encrypted: i=1; AJvYcCXAEFtmy2AVm4/Ass2kFM/Kb1FX85OZjULov4cY/Y1DMhELyuSyNGy1HQToQfgIDB/8o6NRogeTXff2oscSFRTZ3xvnrYhPhmz9oYMyIi0=
+X-Gm-Message-State: AOJu0Yw7mewfNYtVHF+bGcnbV2HwwTF1SJJkRXzNDequcclIaVX1tDkY
+	ALS2plU08K9XIm28hMqimBrYSY0tXk8C8QmkLD3CkIz5nPmjU1CsLfCGj1Vchow=
+X-Google-Smtp-Source: AGHT+IF/iUH6j4wqYw+9KON4EcdThSC+Ra1ZyGUZbtrB63cmqdWgioWmkvLwZPQEH37uBSDgq6VsEQ==
+X-Received: by 2002:a05:6a20:96cc:b0:1a9:8152:511c with SMTP id hq12-20020a056a2096cc00b001a98152511cmr231480pzc.62.1712794119434;
+        Wed, 10 Apr 2024 17:08:39 -0700 (PDT)
 Received: from atishp.ba.rivosinc.com ([64.71.180.162])
-        by smtp.gmail.com with ESMTPSA id f7-20020a170902684700b001e3d8a70780sm130351pln.171.2024.04.10.17.08.34
+        by smtp.gmail.com with ESMTPSA id f7-20020a170902684700b001e3d8a70780sm130351pln.171.2024.04.10.17.08.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Apr 2024 17:08:35 -0700 (PDT)
+        Wed, 10 Apr 2024 17:08:37 -0700 (PDT)
 From: Atish Patra <atishp@rivosinc.com>
 To: linux-kernel@vger.kernel.org
 Cc: Atish Patra <atishp@rivosinc.com>,
 	Anup Patel <anup@brainfault.org>,
-	Andrew Jones <ajones@ventanamicro.com>,
 	Ajay Kaher <ajay.kaher@broadcom.com>,
 	Albert Ou <aou@eecs.berkeley.edu>,
 	Alexandre Ghiti <alexghiti@rivosinc.com>,
 	Alexey Makhalov <alexey.amakhalov@broadcom.com>,
+	Andrew Jones <ajones@ventanamicro.com>,
 	Atish Patra <atishp@atishpatra.org>,
 	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
 	Conor Dooley <conor.dooley@microchip.com>,
@@ -77,9 +77,9 @@ Cc: Atish Patra <atishp@rivosinc.com>,
 	virtualization@lists.linux.dev,
 	Will Deacon <will@kernel.org>,
 	x86@kernel.org
-Subject: [PATCH v6 11/24] RISC-V: KVM: No need to update the counter value during reset
-Date: Wed, 10 Apr 2024 17:07:39 -0700
-Message-Id: <20240411000752.955910-12-atishp@rivosinc.com>
+Subject: [PATCH v6 12/24] RISC-V: KVM: No need to exit to the user space if perf event failed
+Date: Wed, 10 Apr 2024 17:07:40 -0700
+Message-Id: <20240411000752.955910-13-atishp@rivosinc.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20240411000752.955910-1-atishp@rivosinc.com>
 References: <20240411000752.955910-1-atishp@rivosinc.com>
@@ -91,45 +91,77 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The virtual counter value is updated during pmu_ctr_read. There is no need
-to update it in reset case. Otherwise, it will be counted twice which is
-incorrect.
+Currently, we return a linux error code if creating a perf event failed
+in kvm. That shouldn't be necessary as guest can continue to operate
+without perf profiling or profiling with firmware counters.
+
+Return appropriate SBI error code to indicate that PMU configuration
+failed. An error message in kvm already describes the reason for failure.
 
 Fixes: 0cb74b65d2e5 ("RISC-V: KVM: Implement perf support without sampling")
 Reviewed-by: Anup Patel <anup@brainfault.org>
-Reviewed-by: Andrew Jones <ajones@ventanamicro.com>
 Signed-off-by: Atish Patra <atishp@rivosinc.com>
 ---
- arch/riscv/kvm/vcpu_pmu.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ arch/riscv/kvm/vcpu_pmu.c     | 14 +++++++++-----
+ arch/riscv/kvm/vcpu_sbi_pmu.c |  6 +++---
+ 2 files changed, 12 insertions(+), 8 deletions(-)
 
 diff --git a/arch/riscv/kvm/vcpu_pmu.c b/arch/riscv/kvm/vcpu_pmu.c
-index cee1b9ca4ec4..b5159ce4592d 100644
+index b5159ce4592d..2d9929bbc2c8 100644
 --- a/arch/riscv/kvm/vcpu_pmu.c
 +++ b/arch/riscv/kvm/vcpu_pmu.c
-@@ -397,7 +397,6 @@ int kvm_riscv_vcpu_pmu_ctr_stop(struct kvm_vcpu *vcpu, unsigned long ctr_base,
+@@ -229,8 +229,9 @@ static int kvm_pmu_validate_counter_mask(struct kvm_pmu *kvpmu, unsigned long ct
+ 	return 0;
+ }
+ 
+-static int kvm_pmu_create_perf_event(struct kvm_pmc *pmc, struct perf_event_attr *attr,
+-				     unsigned long flags, unsigned long eidx, unsigned long evtdata)
++static long kvm_pmu_create_perf_event(struct kvm_pmc *pmc, struct perf_event_attr *attr,
++				      unsigned long flags, unsigned long eidx,
++				      unsigned long evtdata)
  {
- 	struct kvm_pmu *kvpmu = vcpu_to_pmu(vcpu);
- 	int i, pmc_index, sbiret = 0;
--	u64 enabled, running;
- 	struct kvm_pmc *pmc;
- 	int fevent_code;
+ 	struct perf_event *event;
  
-@@ -432,12 +431,9 @@ int kvm_riscv_vcpu_pmu_ctr_stop(struct kvm_vcpu *vcpu, unsigned long ctr_base,
- 				sbiret = SBI_ERR_ALREADY_STOPPED;
- 			}
+@@ -454,7 +455,8 @@ int kvm_riscv_vcpu_pmu_ctr_cfg_match(struct kvm_vcpu *vcpu, unsigned long ctr_ba
+ 				     unsigned long eidx, u64 evtdata,
+ 				     struct kvm_vcpu_sbi_return *retdata)
+ {
+-	int ctr_idx, ret, sbiret = 0;
++	int ctr_idx, sbiret = 0;
++	long ret;
+ 	bool is_fevent;
+ 	unsigned long event_code;
+ 	u32 etype = kvm_pmu_get_perf_event_type(eidx);
+@@ -513,8 +515,10 @@ int kvm_riscv_vcpu_pmu_ctr_cfg_match(struct kvm_vcpu *vcpu, unsigned long ctr_ba
+ 			kvpmu->fw_event[event_code].started = true;
+ 	} else {
+ 		ret = kvm_pmu_create_perf_event(pmc, &attr, flags, eidx, evtdata);
+-		if (ret)
+-			return ret;
++		if (ret) {
++			sbiret = SBI_ERR_NOT_SUPPORTED;
++			goto out;
++		}
+ 	}
  
--			if (flags & SBI_PMU_STOP_FLAG_RESET) {
--				/* Relase the counter if this is a reset request */
--				pmc->counter_val += perf_event_read_value(pmc->perf_event,
--									  &enabled, &running);
-+			if (flags & SBI_PMU_STOP_FLAG_RESET)
-+				/* Release the counter if this is a reset request */
- 				kvm_pmu_release_perf_event(pmc);
--			}
- 		} else {
- 			sbiret = SBI_ERR_INVALID_PARAM;
- 		}
+ 	set_bit(ctr_idx, kvpmu->pmc_in_use);
+diff --git a/arch/riscv/kvm/vcpu_sbi_pmu.c b/arch/riscv/kvm/vcpu_sbi_pmu.c
+index 7eca72df2cbd..e1633606c98b 100644
+--- a/arch/riscv/kvm/vcpu_sbi_pmu.c
++++ b/arch/riscv/kvm/vcpu_sbi_pmu.c
+@@ -42,9 +42,9 @@ static int kvm_sbi_ext_pmu_handler(struct kvm_vcpu *vcpu, struct kvm_run *run,
+ #endif
+ 		/*
+ 		 * This can fail if perf core framework fails to create an event.
+-		 * Forward the error to userspace because it's an error which
+-		 * happened within the host kernel. The other option would be
+-		 * to convert to an SBI error and forward to the guest.
++		 * No need to forward the error to userspace and exit the guest.
++		 * The operation can continue without profiling. Forward the
++		 * appropriate SBI error to the guest.
+ 		 */
+ 		ret = kvm_riscv_vcpu_pmu_ctr_cfg_match(vcpu, cp->a0, cp->a1,
+ 						       cp->a2, cp->a3, temp, retdata);
 -- 
 2.34.1
 
