@@ -1,87 +1,126 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4234D1E526;
-	Thu, 11 Apr 2024 13:58:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1EFA8C09
+	for <virtualization@lists.linux.dev>; Thu, 11 Apr 2024 14:12:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712843888; cv=none; b=hRlaFksL6yphdH2QgdUTvXlCG1EqXZbRqMr5a46TztVsNaz3/cj+ftRSHoHFpcJiIjeBUWVrfwqSVCZvtRaT+X2x52jnqR5vv60bs78hhbFX3kVhSFx3kksvHbC2tHreg9oOjh8Ptw2GemuXN1Il/SE7IiTP5YFaPfy5Dv89lcY=
+	t=1712844760; cv=none; b=s+OGoQUFau+lZrQKbTQ51D/xLZZu5hlQspZkm21kPzKWsD2wFj7i+loxokFTXPIILvAfEJBFC9aROlwKLsI/iDaIdZkaWQcwIp7654CaF6ShqoHsfqWFv8ny8QizBpwFFRIulCeStG6uRX419VvopaIYVkHqePJNx3iqNtPaWgw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712843888; c=relaxed/simple;
-	bh=EkFAkZl6Mqm1RMJLa1ve/+JRLnko3CjF21aBW9Ldi7w=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=D5yn8ZrSDCVNHQ7loI9uV21I3UeXv4hIFgSyyquXt9Jn5+ME5sifiEBvZnk75LBdUsQhzYByeMYy1H24du3wrTpWFwLNcuJpvonfCbJvdZx1DEYjkAfFTIDuJXYYdxEq/0kHFKJoXkZNEWRgQcvCjIwMg+t+OIyPfuBmut4luzQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZQTiGcEP; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1712844760; c=relaxed/simple;
+	bh=HOL51QMzqy4o0iVUvh//ODu00l3fy1oegkYo5pstIlQ=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References; b=K2rTQz+gdw/Dy05JBexpBSP3kMlIGOQpNtur0r0UrS/Glq1JCOCtrTelAOhKtT5PgB+ZDFKcN1UCUiyboW913R88R4nmijyK4OO6Rqv3/tM1Is/i0mXWcF975t4FJRvOHB9tMNwelxxe+D4KhuquyCW3xNFpVjj0gSugMFq6VxM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=F4wa7cWf; arc=none smtp.client-ip=115.124.30.132
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZQTiGcEP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77FF5C072AA;
-	Thu, 11 Apr 2024 13:58:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1712843887;
-	bh=EkFAkZl6Mqm1RMJLa1ve/+JRLnko3CjF21aBW9Ldi7w=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=ZQTiGcEPoiDO5/KhX/ljS9VEBwK2bdXbhfjwUjCmBjyK7eU31bXHDbI0Nq4w2ZPXF
-	 BkFuIu6m00BoA2EkszwPxkvP4wXrKe/Yg1lq0A1sdnje5aperD06L9T3Uw2lRLqAQA
-	 wD9Lmc08WFxQA1dTEl9v/Ebb5l+6ACUw2Ztd45BhSuUg0vx6+Da2moE6AM80QM3S/3
-	 GM0+FQwlXMdMpxUnL5NG02ntaX5O6dT7vz7uIwCw5KQTqght+Oy/fpyhLLvbRhSoa7
-	 qF10qezf8K9hgrVZ5MyggjHkU9dXC7UycdlHUu0ueJwlqd/nIYbGSH3Uc/l1n+RmwY
-	 H6i4b1kjddiSQ==
-Date: Thu, 11 Apr 2024 14:58:03 +0100
-From: Simon Horman <horms@kernel.org>
-To: Heng Qi <hengqi@linux.alibaba.com>
-Cc: Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
-	virtualization@lists.linux.dev,
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="F4wa7cWf"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1712844754; h=From:To:Subject:Date:Message-Id;
+	bh=3VokuyaV5KZEWRa1fSfPza5p9DlDFFxj4djmwpyk59s=;
+	b=F4wa7cWfhioPpkR21A/Ahf4+OSdTghC/By3BXKnqlJa2mdtTLSLxwuVxxdAvFnW85k/2dHwtBaBJO290+RmRIb3vuV3s6ArBOm5gCOHYh0QJKMVzQMqx52sY05NJE09Hsmm4ytA8yPZwDWWwhOevFyZxBT9+yTdIIFdHw9hBS1A=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0W4LV1HI_1712844753;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W4LV1HI_1712844753)
+          by smtp.aliyun-inc.com;
+          Thu, 11 Apr 2024 22:12:33 +0800
+From: Heng Qi <hengqi@linux.alibaba.com>
+To: netdev@vger.kernel.org,
+	virtualization@lists.linux.dev
+Cc: Jakub Kicinski <kuba@kernel.org>,
 	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
+	Eric Dumazet <edumazet@google.com>,
+	Paolo Abeni <pabeni@redhat.com>,
 	Jason Wang <jasowang@redhat.com>,
 	"Michael S. Tsirkin" <mst@redhat.com>,
 	Ratheesh Kannoth <rkannoth@marvell.com>,
 	Alexander Lobakin <aleksander.lobakin@intel.com>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next v5 1/4] ethtool: provide customized dim profile
- management
-Message-ID: <20240411135803.GM514426@kernel.org>
-References: <1712664204-83147-1-git-send-email-hengqi@linux.alibaba.com>
- <1712664204-83147-2-git-send-email-hengqi@linux.alibaba.com>
- <20240409184400.4e5444f3@kernel.org>
- <a07d16d9-60cf-4263-abd5-a1adea0959ad@linux.alibaba.com>
+Subject: [PATCH net-next v6 1/4] linux/dim: move useful macros to .h file
+Date: Thu, 11 Apr 2024 22:12:28 +0800
+Message-Id: <1712844751-53514-2-git-send-email-hengqi@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1712844751-53514-1-git-send-email-hengqi@linux.alibaba.com>
+References: <1712844751-53514-1-git-send-email-hengqi@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <a07d16d9-60cf-4263-abd5-a1adea0959ad@linux.alibaba.com>
 
-On Wed, Apr 10, 2024 at 11:13:15AM +0800, Heng Qi wrote:
-> 
-> 
-> 在 2024/4/10 上午9:44, Jakub Kicinski 写道:
-> > On Tue,  9 Apr 2024 20:03:21 +0800 Heng Qi wrote:
-> > > +/**
-> > > + * coalesce_put_profile - fill reply with a nla nest with four child nla nests.
-> > > + * @skb: socket buffer the message is stored in
-> > > + * @attr_type: nest attr type ETHTOOL_A_COALESCE_*X_*QE_PROFILE
-> > > + * @profile: data passed to userspace
-> > > + * @supported_params: modifiable parameters supported by the driver
-> > > + *
-> > > + * Put a dim profile nest attribute. Refer to ETHTOOL_A_MODERATIONS_MODERATION.
-> > unfortunately kdoc got more picky and it also wants us to document
-> > return values now,
-> 
-> Will add it.
-> 
-> > you gotta add something like
-> > 
-> >   * Returns: true if ..
-> > 
-> > actually this functions seems to return negative error codes as bool..
-> 
-> This works, in its wrapper function its error will be passed.:)
+These will be used in subsequent patches, including
+newly declared profile arrays.
 
-Ok, but I think that in that case the function should return false on error.
+Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
+---
+ include/linux/dim.h | 13 +++++++++++++
+ lib/dim/net_dim.c   | 10 ++--------
+ 2 files changed, 15 insertions(+), 8 deletions(-)
 
-...
+diff --git a/include/linux/dim.h b/include/linux/dim.h
+index f343bc9..8149d2d 100644
+--- a/include/linux/dim.h
++++ b/include/linux/dim.h
+@@ -10,6 +10,13 @@
+ #include <linux/types.h>
+ #include <linux/workqueue.h>
+ 
++/* Number of DIM profiles and period mode. */
++#define NET_DIM_PARAMS_NUM_PROFILES 5
++#define NET_DIM_DEFAULT_RX_CQ_PKTS_FROM_EQE 256
++#define NET_DIM_DEFAULT_TX_CQ_PKTS_FROM_EQE 128
++#define NET_DIM_DEF_PROFILE_CQE 1
++#define NET_DIM_DEF_PROFILE_EQE 1
++
+ /*
+  * Number of events between DIM iterations.
+  * Causes a moderation of the algorithm run.
+@@ -127,6 +134,12 @@ enum dim_cq_period_mode {
+ 	DIM_CQ_PERIOD_NUM_MODES
+ };
+ 
++extern const struct dim_cq_moder
++rx_profile[DIM_CQ_PERIOD_NUM_MODES][NET_DIM_PARAMS_NUM_PROFILES];
++
++extern const struct dim_cq_moder
++tx_profile[DIM_CQ_PERIOD_NUM_MODES][NET_DIM_PARAMS_NUM_PROFILES];
++
+ /**
+  * enum dim_state - DIM algorithm states
+  *
+diff --git a/lib/dim/net_dim.c b/lib/dim/net_dim.c
+index 4e32f7a..a649d90 100644
+--- a/lib/dim/net_dim.c
++++ b/lib/dim/net_dim.c
+@@ -11,12 +11,6 @@
+  *        There are different set of profiles for RX/TX CQs.
+  *        Each profile size must be of NET_DIM_PARAMS_NUM_PROFILES
+  */
+-#define NET_DIM_PARAMS_NUM_PROFILES 5
+-#define NET_DIM_DEFAULT_RX_CQ_PKTS_FROM_EQE 256
+-#define NET_DIM_DEFAULT_TX_CQ_PKTS_FROM_EQE 128
+-#define NET_DIM_DEF_PROFILE_CQE 1
+-#define NET_DIM_DEF_PROFILE_EQE 1
+-
+ #define NET_DIM_RX_EQE_PROFILES { \
+ 	{.usec = 1,   .pkts = NET_DIM_DEFAULT_RX_CQ_PKTS_FROM_EQE,}, \
+ 	{.usec = 8,   .pkts = NET_DIM_DEFAULT_RX_CQ_PKTS_FROM_EQE,}, \
+@@ -49,13 +43,13 @@
+ 	{.usec = 64, .pkts = 32,}   \
+ }
+ 
+-static const struct dim_cq_moder
++const struct dim_cq_moder
+ rx_profile[DIM_CQ_PERIOD_NUM_MODES][NET_DIM_PARAMS_NUM_PROFILES] = {
+ 	NET_DIM_RX_EQE_PROFILES,
+ 	NET_DIM_RX_CQE_PROFILES,
+ };
+ 
+-static const struct dim_cq_moder
++const struct dim_cq_moder
+ tx_profile[DIM_CQ_PERIOD_NUM_MODES][NET_DIM_PARAMS_NUM_PROFILES] = {
+ 	NET_DIM_TX_EQE_PROFILES,
+ 	NET_DIM_TX_CQE_PROFILES,
+-- 
+1.8.3.1
+
