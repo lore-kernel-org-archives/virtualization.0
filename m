@@ -1,163 +1,124 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f49.google.com (mail-ed1-f49.google.com [209.85.208.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9120313E40B
-	for <virtualization@lists.linux.dev>; Thu, 11 Apr 2024 07:09:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0D0613E04A
+	for <virtualization@lists.linux.dev>; Thu, 11 Apr 2024 07:45:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712819399; cv=none; b=inZ9iP2LzDgFKIxzGLPaRL3f5mnECF6evkA9qnHpYPTXNRSELSdfXJ6+9E9RtTxXk2x0SqlVpR2WxZ0CvCfhBMm2Pufr4FrB+NxbgrvdUrAffor9R5pCaWnjkSdWZ4SK1DUYk93Yv48QVb3ZcK78M52fcAwtppn/uhjuJuRQPfU=
+	t=1712821524; cv=none; b=T3Ofc5cMS1ePmttt/3hPOtBTzXhc+/f7x43DfJ05+17kCkBMq7y3j21S3T+fCauMpvxLLaXwyVBmMDhd2ruOcu7AHGeVrGaib2LH4OX2UGWjdW8ijORNQie972B2aFlXAcsj+koD+N4No4yFdYcFBYdwZCNo9/Iba5Qvw+kKGKY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712819399; c=relaxed/simple;
-	bh=FUW0tsuLFbbK94Oi+UP58gkQ+f6EdN9bJKro1bgfk48=;
-	h=Message-ID:Subject:From:To:Date:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=TkyZH5b8uq0FkcEUyD+Q1/cpEOwCBspDoBX1A9fchUFzSZkI1Y+wnHarXIxP9Ne91kHKk9jhT7ky10EGypPd19CghvuXyHUEE6IAOLIu4zDs4C7/4iu/4KdgBnHi790hR5N4hKhleAqvM5K+h4DE2ANI5fwNrCxFifdQmJx3YBU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fsYT7lK4; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1712821524; c=relaxed/simple;
+	bh=jVTgERzLmYSTnbK6BX20guTVY29hU1wrqk54ruOXXcs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ckc2BVKRsB7bW6Dxf6+Q+UAsdWdkbquOdQMfx/GWCoJbvc01pzQjoN9ll9o7/7IcNyAEy7LoqCD4rWDh9LopGkWUZq/hsddEByQdycGFKvDYsmKkzOSGrR4z9YFf0nY2aFmcUq6TyFrgwPpze3Yphdxhntz+hn8i3d5SGl8WPxU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ventanamicro.com; spf=pass smtp.mailfrom=ventanamicro.com; dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b=n7ImQdQr; arc=none smtp.client-ip=209.85.208.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ventanamicro.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ventanamicro.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fsYT7lK4"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1712819395;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=lWMGTcnfYfaDpk/3m241d8QhoEFE8ajC0gHv6rosPok=;
-	b=fsYT7lK4cdTcL+/vfJhCy87H54GOKUCKUvKj4oYNJq1cOAEsNNeeNDKSVsL5+pNaXe04fB
-	yJKgdkiyh6N1/3i9ZrsCqqEBr0Ov6YAZYyX5TyY2DSopIR5ZW1yB8cl3g2LdEGNLrnFqyQ
-	PI5Ff/w9T2JQtdW1UkILwabNZUBY3nY=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-688-esPP1OUWPa-QTDpTIPL8KQ-1; Thu, 11 Apr 2024 03:09:53 -0400
-X-MC-Unique: esPP1OUWPa-QTDpTIPL8KQ-1
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-416640b7139so1219235e9.1
-        for <virtualization@lists.linux.dev>; Thu, 11 Apr 2024 00:09:52 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b="n7ImQdQr"
+Received: by mail-ed1-f49.google.com with SMTP id 4fb4d7f45d1cf-56e6f4ee104so4153629a12.2
+        for <virtualization@lists.linux.dev>; Thu, 11 Apr 2024 00:45:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ventanamicro.com; s=google; t=1712821521; x=1713426321; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=aH2Dc8j8I8xIvPcUDdCDU7Xxp8EkAEDRyp5XNqYeoic=;
+        b=n7ImQdQreOFAVKpKhkuMhQwHp2e0LcM3dseRTaI2gXkTUTMQBHXzNNYl0vePueRkUa
+         j+yPDciRhKAcKbdTePMvFLH1lxmQ7rMnbEVXotHRqcqGZie1iYd2OCt7WC3Wj+8vU+EO
+         k87vlU24bIVyMXh6o4AxfMIHlo3nCxF681lSR7w+4Fq4so4zJIYbCJWDegP8Fc0er9vW
+         w6CcxlVKGjgkj4R3y1Ofijrly4qQ1N70zIGYI+LYFzUqbhA32Q09M75cmVQjepFaaNOa
+         DMfMyjC+Afyqq3RWzmZVwk4k8JO4LkwrSX6JyJWWQ3JXsX1SzXjkzXoRBbho5HRLjwOk
+         a4Bw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712819392; x=1713424192;
-        h=mime-version:user-agent:content-transfer-encoding:autocrypt
-         :references:in-reply-to:date:to:from:subject:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=0gmv1ukviBDC/ktQ/wQsuMi8OWfH8M4G9g5yZPhC96s=;
-        b=YurBqzTEe06d0LK+mqELMgj7HRR3DDvYPa/Xn/8u8dtDw/A2ZhW/ERzD0bJBXHk8Qp
-         5sc24ypFy4/t/eetgGpaCebLsMuGjDUn2P/FK09tV4whSYLKVG8HjJLo6/vD/x3EnlZG
-         TiWLZooCK0KsBF7HyvYjU0iKAhcwqMvs6cNFD3BL1fElXVPy5KLAjZ82wXmPwDsYTIb0
-         XQD6scYQasXUKi+b0zmn33UGOsMypEh5LVDY5R/h4tI821CYwuWkJi9oz6Ep0uDF0bbb
-         /n9yf26EjAsZgFAyBuMQ/JbPR9L8g4jTxr11mDixRcQbGuSqpdu/iYBPjyYqLYww6tWY
-         YpBA==
-X-Forwarded-Encrypted: i=1; AJvYcCVETv2S+zH8AnWD6TaHaOVPHDC6mOijj1NA4MbSP8p2WJF1zAKAaaVhG4cSa39/ZhauIzhjJxSvF8Zv0iyJQHmeeoeHddE8zFMsgZwTyQU=
-X-Gm-Message-State: AOJu0Yyhexinq86OqMrAhXLCZ0F2e8JJSH6yKzuPudKg3NVbv9FTRqkL
-	nNZcXrRMmmXFULzLn72R3JjBcbZIEhK8B/E5lHw70NshBVdiIyUcoFQaQwYQx93uo/msI7ER4Wo
-	G3eQcuPNiiGXenJF4ZTgEYAu6SBMPy9BN44q7FyICyLgy7sHOsN0me0PVc+853LKA
-X-Received: by 2002:a05:600c:3b10:b0:416:a71f:6217 with SMTP id m16-20020a05600c3b1000b00416a71f6217mr3347420wms.0.1712819391893;
-        Thu, 11 Apr 2024 00:09:51 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFS6Q57FR563armd3KJAllSOx5ku85NAXtbGBdWsroJEtWP61OvPaA5aD2g/mn3CIbW0Nn7vw==
-X-Received: by 2002:a05:600c:3b10:b0:416:a71f:6217 with SMTP id m16-20020a05600c3b1000b00416a71f6217mr3347401wms.0.1712819391495;
-        Thu, 11 Apr 2024 00:09:51 -0700 (PDT)
-Received: from gerbillo.redhat.com (146-241-235-217.dyn.eolo.it. [146.241.235.217])
-        by smtp.gmail.com with ESMTPSA id m16-20020a05600c4f5000b00416c160ff88sm1424355wmq.1.2024.04.11.00.09.50
+        d=1e100.net; s=20230601; t=1712821521; x=1713426321;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=aH2Dc8j8I8xIvPcUDdCDU7Xxp8EkAEDRyp5XNqYeoic=;
+        b=E4lcyO3g/lxBDskYh5gOHUg9YntSBmRUIdL/V2IXagjSdxRWQxXJg5K8UsufzbaV2C
+         agZm91TIJZdfHW3odDivagb+KJ3xVVyuJ76yk1U2AZS8kVPeOIlWuj416Q+Jj8DGzpMp
+         T29p91RZKW4tc9yZMQOsUOamguP1oU5PYVhPc15KCH4z9EV3hrXUL7rJeR7k7X16yUwG
+         3G+LraYsvnROFKZF+X0GtMLuAhxvnKgkt556Fi3yg8pWe+iOzI541WvUBR8TtJllHCOx
+         yJOPmiOl7YJdr46GD8yQSCjS6yLTn+JFLLMwBRw9xgm4XVtTmEKLKVyM6AwemQDtlNAP
+         rV7w==
+X-Forwarded-Encrypted: i=1; AJvYcCVlI5CqcGudQ7fqP6In6myyvl3R91R94Iy9QofZYNVn/4FvXq9v1M0mHbdDjn/ySAV3o8B4a7GnViOsbGs5A2UVFyi1x3yxUONCm1V9In4=
+X-Gm-Message-State: AOJu0YxGp3JvboOEjcVSrwgIOaKqJ/sYDxibTAiVAXD/iAN/gN/cvTSL
+	R3AXPg/RMjnyuZWHqmMsfr7Za6i3h8ZPcoMb8to69PqUl88Gj/VO1mQNIld8RK0=
+X-Google-Smtp-Source: AGHT+IGXjQgcemnZ/eu1Pazqcv6W8xDCpaPihHKrZ7vRNQjLlX8nqWL204fGLinJDjejI9EZkPgjUg==
+X-Received: by 2002:a17:907:7f87:b0:a4e:6b81:49db with SMTP id qk7-20020a1709077f8700b00a4e6b8149dbmr3626235ejc.8.1712821520961;
+        Thu, 11 Apr 2024 00:45:20 -0700 (PDT)
+Received: from localhost (cst2-173-16.cust.vodafone.cz. [31.30.173.16])
+        by smtp.gmail.com with ESMTPSA id f25-20020a170906561900b00a5223233b4asm278978ejq.117.2024.04.11.00.45.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 Apr 2024 00:09:50 -0700 (PDT)
-Message-ID: <c18d4b9220a85f8087eda15526771dac5f8b4c0a.camel@redhat.com>
-Subject: Re: [PATCH net-next v2 2/3] vsock/virtio: add SIOCOUTQ support for
- all virtio based transports
-From: Paolo Abeni <pabeni@redhat.com>
-To: Luigi Leonardi <luigi.leonardi@outlook.com>, mst@redhat.com, 
- xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev,
- sgarzare@redhat.com,  netdev@vger.kernel.org, kuba@kernel.org,
- stefanha@redhat.com, davem@davemloft.net,  edumazet@google.com,
- kvm@vger.kernel.org, jasowang@redhat.com
-Date: Thu, 11 Apr 2024 09:09:49 +0200
-In-Reply-To: <AS2P194MB2170FDCADD288267B874B6AC9A002@AS2P194MB2170.EURP194.PROD.OUTLOOK.COM>
-References: <20240408133749.510520-1-luigi.leonardi@outlook.com>
-	 <AS2P194MB2170FDCADD288267B874B6AC9A002@AS2P194MB2170.EURP194.PROD.OUTLOOK.COM>
-Autocrypt: addr=pabeni@redhat.com; prefer-encrypt=mutual; keydata=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
-User-Agent: Evolution 3.50.4 (3.50.4-1.fc39)
+        Thu, 11 Apr 2024 00:45:20 -0700 (PDT)
+Date: Thu, 11 Apr 2024 09:45:19 +0200
+From: Andrew Jones <ajones@ventanamicro.com>
+To: Atish Patra <atishp@rivosinc.com>
+Cc: linux-kernel@vger.kernel.org, Palmer Dabbelt <palmer@rivosinc.com>, 
+	Anup Patel <anup@brainfault.org>, Conor Dooley <conor.dooley@microchip.com>, 
+	Ajay Kaher <akaher@vmware.com>, Alexandre Ghiti <alexghiti@rivosinc.com>, 
+	Alexey Makhalov <amakhalov@vmware.com>, Juergen Gross <jgross@suse.com>, kvm-riscv@lists.infradead.org, 
+	kvm@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-riscv@lists.infradead.org, 
+	Mark Rutland <mark.rutland@arm.com>, Palmer Dabbelt <palmer@dabbelt.com>, 
+	Paolo Bonzini <pbonzini@redhat.com>, Paul Walmsley <paul.walmsley@sifive.com>, 
+	Shuah Khan <shuah@kernel.org>, virtualization@lists.linux.dev, 
+	VMware PV-Drivers Reviewers <pv-drivers@vmware.com>, Will Deacon <will@kernel.org>, x86@kernel.org
+Subject: Re: [PATCH v5 06/22] drivers/perf: riscv: Implement SBI PMU snapshot
+ function
+Message-ID: <20240411-688dc97b08bb3b63511dcf6e@orel>
+References: <20240403080452.1007601-1-atishp@rivosinc.com>
+ <20240403080452.1007601-7-atishp@rivosinc.com>
+ <20240404-4303d1805800fad18b6d9768@orel>
+ <170cc87a-5b55-45be-a0de-213aabd852dc@rivosinc.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <170cc87a-5b55-45be-a0de-213aabd852dc@rivosinc.com>
 
-On Mon, 2024-04-08 at 15:37 +0200, Luigi Leonardi wrote:
-> This patch introduce support for stream_bytes_unsent and
-> seqpacket_bytes_unsent ioctl for virtio_transport, vhost_vsock
-> and vsock_loopback.
->=20
-> For all transports the unsent bytes counter is incremented
-> in virtio_transport_send_pkt_info.
->=20
-> In the virtio_transport (G2H) the counter is decremented each time the ho=
-st
-> notifies the guest that it consumed the skbuffs.
-> In vhost-vsock (H2G) the counter is decremented after the skbuff is queue=
-d
-> in the virtqueue.
-> In vsock_loopback the counter is decremented after the skbuff is
-> dequeued.
->=20
-> Signed-off-by: Luigi Leonardi <luigi.leonardi@outlook.com>
+On Wed, Apr 10, 2024 at 03:29:21PM -0700, Atish Patra wrote:
+> On 4/4/24 04:52, Andrew Jones wrote:
+> > On Wed, Apr 03, 2024 at 01:04:35AM -0700, Atish Patra wrote:
+...
+> > > +static int pmu_sbi_snapshot_disable(void)
+> > > +{
+> > > +	struct sbiret ret;
+> > > +
+> > > +	ret = sbi_ecall(SBI_EXT_PMU, SBI_EXT_PMU_SNAPSHOT_SET_SHMEM, -1,
+> > > +			-1, 0, 0, 0, 0);
+> > > +	if (ret.error) {
+> > > +		pr_warn("failed to disable snapshot shared memory\n");
+> > > +		return sbi_err_map_linux_errno(ret.error);
+> > > +	}
+> > 
+> > Also need to set snapshot_set_done to false, but I'm not yet convinced
+> 
+> Done.
+> 
+> > that we need snapshot_set_done, especially if we don't allow
+> > snapshot_addr_phys to be zero, since zero can then mean set-not-done,
+> > but ~0UL is probably a better invalid physical address choice than zero.
+> > 
+> 
+> Agreed. But I don't see any benefit either way. snapshot_set_done is just
+> more explicit way of doing the same thing without interpreting what zero
+> means.
+> 
+> If you think there is a benefit or you feel storngly about it, I can change
+> it you suggested approach.
+>
 
-I think this deserve an explicit ack from Stefano, and Stefano can't
-review patches in the next few weeks. If it's not urgent this will have
-to wait a bit.
+I don't have a strong opinion on it. I'm just reluctant to add redundant
+state, not only because it increases size, but also because we have to
+keep track of it, like in the example above, where we needed to remember
+to reset the extra state to false.
 
-> ---
->  drivers/vhost/vsock.c                   |  4 ++-
->  include/linux/virtio_vsock.h            |  7 ++++++
->  net/vmw_vsock/virtio_transport.c        |  4 ++-
->  net/vmw_vsock/virtio_transport_common.c | 33 +++++++++++++++++++++++++
->  net/vmw_vsock/vsock_loopback.c          |  7 ++++++
->  5 files changed, 53 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-> index ec20ecff85c7..dba8b3ea37bf 100644
-> --- a/drivers/vhost/vsock.c
-> +++ b/drivers/vhost/vsock.c
-> @@ -244,7 +244,7 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock=
-,
->  =09=09=09=09=09restart_tx =3D true;
->  =09=09=09}
-> =20
-> -=09=09=09consume_skb(skb);
-> +=09=09=09virtio_transport_consume_skb_sent(skb, true);
->  =09=09}
->  =09} while(likely(!vhost_exceeds_weight(vq, ++pkts, total_len)));
->  =09if (added)
-> @@ -451,6 +451,8 @@ static struct virtio_transport vhost_transport =3D {
->  =09=09.notify_buffer_size       =3D virtio_transport_notify_buffer_size,
->  =09=09.notify_set_rcvlowat      =3D virtio_transport_notify_set_rcvlowat=
-,
-> =20
-> +=09=09.unsent_bytes             =3D virtio_transport_bytes_unsent,
-> +
->  =09=09.read_skb =3D virtio_transport_read_skb,
->  =09},
-> =20
-> diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
-> index c82089dee0c8..dbb22d45d203 100644
-> --- a/include/linux/virtio_vsock.h
-> +++ b/include/linux/virtio_vsock.h
-> @@ -134,6 +134,8 @@ struct virtio_vsock_sock {
->  =09u32 peer_fwd_cnt;
->  =09u32 peer_buf_alloc;
-> =20
-> +=09atomic_t bytes_unsent;
+Of course, giving invalid addresses additional meanings also comes with
+its own code maintenance trade-offs, so either way...
 
-This will add 2 atomic operations per packet, possibly on contended
-cachelines. Have you considered leveraging the existing transport-level
-lock to protect the counter updates?
-
-
-Thanks
-
-Paolo
-
+Thanks,
+drew
