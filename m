@@ -1,83 +1,153 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF5E8629E6;
-	Thu, 11 Apr 2024 01:54:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D51B69944
+	for <virtualization@lists.linux.dev>; Thu, 11 Apr 2024 02:19:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712800485; cv=none; b=YWppFhQgd1a9Dos661XODXPABeARODmDf9AQ3/fkWtbrmYs8s+ZZ+/DZW9p8/9Syf9f9GaG/NtuoCNgJ0tVgp4Cvw7xCtco/CS3VLEHfUJ1eKI8D5VsTWgUvZVI0anZEBoVnpl9YxC1zqthvyzRtIB7ekWjtD1qvNg2Zifio+Jw=
+	t=1712801984; cv=none; b=EI0owBQL6jKLEtdyD0cs8FXt60zcJ+I03MLVN+fdxpiCEM/AW+VwXDO3r04RcM4W7sqonsXro7GNUEeLxdK6o2jMfL7icz4YQHg5IKaxFAKhRtfFS/GKareqVLpkIB2pCQCMbqYLXMydTmyUsUH/1AXWb/YDcpfvUkvmevAwgWs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712800485; c=relaxed/simple;
-	bh=AtfV+JHLU8oQZvTzDg2yxUrd2XeuBceS8icQY4Tvmng=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=D+crOQIcU1yFC+VsTrsy0Xi7JbWvpHKuJgmsIpAx5Va/WbMhiE0JvXAhWa6B/T8mi6dKC/V8Aj8b7D5m0cCsQNOiTZsZbY2SwUrTeUfNFN3eLaZaz+C7y4NmwzQwhwyyiyjaRBZ8CSFpprywBa9cAw1KFCQ75B/iZ/Rg4IJwseU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gJ5x3K4S; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1712801984; c=relaxed/simple;
+	bh=IWbiu2LbJygY4Wwia4cihFFqzvVJ9YE0qArlrWMM93M=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=iQD7qNm40Wwk0pam/Zzgm3XJMgd9VWOyvvwNpgw1qxJH0rLQu/oqpNvC2UMRvtns6UxSj6eR+lIFRNEcnUJTuLv6wvqt5HsPvlTV0Nv6nytqNrtuWRZufN2lehwdpIhFFWQQNZoEIBVLRQGT9nmlTY9MHl+k5OGqW9VJtzg93ag=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=CSMK6ZWB; arc=none smtp.client-ip=198.175.65.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gJ5x3K4S"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9006C433F1;
-	Thu, 11 Apr 2024 01:54:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1712800484;
-	bh=AtfV+JHLU8oQZvTzDg2yxUrd2XeuBceS8icQY4Tvmng=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=gJ5x3K4SmUkkXdhOSFzPOUSPlnY+xVhLkLrbZd16d1qgs5wqN3ZVmOyG06MThaNHj
-	 E2ERagnK/cEAnKZQR9TNPO2Vh7fyCZx/F4SQZsQdQ9qppMzCNTpWEeo5d5ID2132pt
-	 qmbGPy+/PeewsuykeqYn0OUj9rqMWVdHoeWfjzKCpn5wS6zD0KB1Vwhy4vymWxXSon
-	 TkN2gURTE8Ve3DPjeYKPGCXy4VrD4friUeNEsnLOPPhx+JdEgRbdnohSgs7Nm+Wt35
-	 0qXBbmQsQf1vCKDOHGZUR+/CaIYM6Cv9FKUFqTHkq0N0VNbXa1GKn3wqZe5SuHx/rq
-	 KHmih7TdvipuA==
-Date: Wed, 10 Apr 2024 18:54:42 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Heng Qi <hengqi@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev, "David S.
- Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Paolo
- Abeni <pabeni@redhat.com>, Jason Wang <jasowang@redhat.com>, "Michael S.
- Tsirkin" <mst@redhat.com>, Ratheesh Kannoth <rkannoth@marvell.com>,
- Alexander Lobakin <aleksander.lobakin@intel.com>, Xuan Zhuo
- <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next v5 4/4] virtio-net: support dim profile
- fine-tuning
-Message-ID: <20240410185442.7ff17c47@kernel.org>
-In-Reply-To: <1cd6cd7d-5cf2-4f86-b084-6e88b0cbf229@linux.alibaba.com>
-References: <1712664204-83147-1-git-send-email-hengqi@linux.alibaba.com>
-	<1712664204-83147-5-git-send-email-hengqi@linux.alibaba.com>
-	<20240409184020.648bc93c@kernel.org>
-	<1cd6cd7d-5cf2-4f86-b084-6e88b0cbf229@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="CSMK6ZWB"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1712801983; x=1744337983;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=IWbiu2LbJygY4Wwia4cihFFqzvVJ9YE0qArlrWMM93M=;
+  b=CSMK6ZWBkbMLx6abVezeS6Q5WJmQ+WOUkMc5XpDDR9yBJWK+uiuDsiig
+   vTJamZF9GKG1Xd+7oLC3XBichb/i49uGdPgDF+Z7yJskAjUhzM5d+zMKz
+   u/psQVdzXW/ni9iGUVYAlA3keqMB8uzmh7kQTNuXpgw4RBgV9d4uVLFbq
+   noNxVwzEkiuGrO6IAmLr+fpIoYc3suLE1lfwEeQxbFKXssP8eGHJDKK8h
+   /33N7ePkCGo3jjCk7cEhj4NyugkGfPC0agykyWKokKXz3v7yphpcNxUAF
+   C+ysdvgwumdjzhgESBaehUS8vQhMARe10fer6Zxxvb5tjhkc9F+b1aNxl
+   Q==;
+X-CSE-ConnectionGUID: zjLEXTGcQN25bRSVy+868w==
+X-CSE-MsgGUID: mVQCr9vDSCyIT9eKazowXQ==
+X-IronPort-AV: E=McAfee;i="6600,9927,11039"; a="8358331"
+X-IronPort-AV: E=Sophos;i="6.07,192,1708416000"; 
+   d="scan'208";a="8358331"
+Received: from orviesa004.jf.intel.com ([10.64.159.144])
+  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Apr 2024 19:19:42 -0700
+X-CSE-ConnectionGUID: iCltcCHuSmChmhWfii2Juw==
+X-CSE-MsgGUID: uGXfaHf6T3GAIk1kTPaRwQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.07,192,1708416000"; 
+   d="scan'208";a="25528137"
+Received: from lingshan-mobl.ccr.corp.intel.com (HELO [10.124.249.198]) ([10.124.249.198])
+  by orviesa004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Apr 2024 19:19:41 -0700
+Message-ID: <1d6a5761-3a5a-4de8-8472-9a4dbb2db6b6@intel.com>
+Date: Thu, 11 Apr 2024 10:19:38 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] vDPA: code clean for vhost_vdpa uapi
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: sgarzare@redhat.com, jasowang@redhat.com, virtualization@lists.linux.dev
+References: <20240410163716.699708-1-lingshan.zhu@intel.com>
+ <20240410052059-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+From: "Zhu, Lingshan" <lingshan.zhu@intel.com>
+In-Reply-To: <20240410052059-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On Wed, 10 Apr 2024 11:09:16 +0800 Heng Qi wrote:
-> The point is that the driver may check whether the user has set 
-> parameters that it does not want.
-> For example, virtio may not want the modification of comps, and ice/idpf 
-> may not want the modification
-> of comps and pkts.
 
-If it's simply about the fields, not the range of values, flags of
-what's supported would suffice. If we need more complicated checks
-you can treat the driver callback as a validation callback, and
-when driver returns success - copy in the core.
 
-> But you inspired me to think from another perspective. If parameters are 
-> placed in netdevice, the
-> goal of user modification is to modify the profile of netdevice, and the 
-> driver can obtain its own
-> target parameters from it as needed. Do you like this?
+On 4/10/2024 5:27 PM, Michael S. Tsirkin wrote:
+> On Thu, Apr 11, 2024 at 12:37:16AM +0800, Zhu Lingshan wrote:
+>> This commit cleans up the upai for vhost_vdpa by
+>> better naming some of the macros which report blk
+>> information to user space.
+>>
+>> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+> These are enums not macros.
+>
+> And tweaking UAPI is problematic as it can break userspace
+> builds. If you do this you need a #define for the old name
+> to avoid that issue.
+The enums are not in 6.9 official release yet, so we have a chance and 
+agreed
+to deliver a fix during RC stage.
 
-Yes, IIUC.
+https://lore.kernel.org/all/20240331160230-mutt-send-email-mst@kernel.org/
 
-> In addition, if the netdevice way is preferred, I would like to confirm 
-> whether we still continue the
-> "ethtool -C" way, that is, complete the modification of netdevice 
-> profile in __ethnl_set_coalesce()?
+Shall I post a V2 for better commit message: macros --> enums?
 
-That'd be great. If the driver validation is complex we can keep some
-form of the SET callback. But we definitely don't need to extend the
-GET callback since core will have the values, and can return them to
-the user.
+Thanks
+Zhu Lingshan
+>
+>> ---
+>>   drivers/vdpa/vdpa.c       | 6 +++---
+>>   include/uapi/linux/vdpa.h | 6 +++---
+>>   2 files changed, 6 insertions(+), 6 deletions(-)
+>>
+>> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+>> index b246067e074b..6cb96a1e8b7d 100644
+>> --- a/drivers/vdpa/vdpa.c
+>> +++ b/drivers/vdpa/vdpa.c
+>> @@ -967,7 +967,7 @@ vdpa_dev_blk_seg_size_config_fill(struct sk_buff *msg, u64 features,
+>>   
+>>   	val_u32 = __virtio32_to_cpu(true, config->size_max);
+>>   
+>> -	return nla_put_u32(msg, VDPA_ATTR_DEV_BLK_CFG_SEG_SIZE, val_u32);
+>> +	return nla_put_u32(msg, VDPA_ATTR_DEV_BLK_CFG_SIZE_MAX, val_u32);
+>>   }
+>>   
+>>   /* fill the block size*/
+>> @@ -1089,7 +1089,7 @@ static int vdpa_dev_blk_ro_config_fill(struct sk_buff *msg, u64 features)
+>>   	u8 ro;
+>>   
+>>   	ro = ((features & BIT_ULL(VIRTIO_BLK_F_RO)) == 0) ? 0 : 1;
+>> -	if (nla_put_u8(msg, VDPA_ATTR_DEV_BLK_CFG_READ_ONLY, ro))
+>> +	if (nla_put_u8(msg, VDPA_ATTR_DEV_BLK_READ_ONLY, ro))
+>>   		return -EMSGSIZE;
+>>   
+>>   	return 0;
+>> @@ -1100,7 +1100,7 @@ static int vdpa_dev_blk_flush_config_fill(struct sk_buff *msg, u64 features)
+>>   	u8 flush;
+>>   
+>>   	flush = ((features & BIT_ULL(VIRTIO_BLK_F_FLUSH)) == 0) ? 0 : 1;
+>> -	if (nla_put_u8(msg, VDPA_ATTR_DEV_BLK_CFG_FLUSH, flush))
+>> +	if (nla_put_u8(msg, VDPA_ATTR_DEV_BLK_FLUSH, flush))
+>>   		return -EMSGSIZE;
+>>   
+>>   	return 0;
+>> diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
+>> index 43c51698195c..842bf1201ac4 100644
+>> --- a/include/uapi/linux/vdpa.h
+>> +++ b/include/uapi/linux/vdpa.h
+>> @@ -57,7 +57,7 @@ enum vdpa_attr {
+>>   	VDPA_ATTR_DEV_FEATURES,                 /* u64 */
+>>   
+>>   	VDPA_ATTR_DEV_BLK_CFG_CAPACITY,		/* u64 */
+>> -	VDPA_ATTR_DEV_BLK_CFG_SEG_SIZE,		/* u32 */
+>> +	VDPA_ATTR_DEV_BLK_CFG_SIZE_MAX,		/* u32 */
+>>   	VDPA_ATTR_DEV_BLK_CFG_BLK_SIZE,		/* u32 */
+>>   	VDPA_ATTR_DEV_BLK_CFG_SEG_MAX,		/* u32 */
+>>   	VDPA_ATTR_DEV_BLK_CFG_NUM_QUEUES,	/* u16 */
+>> @@ -70,8 +70,8 @@ enum vdpa_attr {
+>>   	VDPA_ATTR_DEV_BLK_CFG_DISCARD_SEC_ALIGN,/* u32 */
+>>   	VDPA_ATTR_DEV_BLK_CFG_MAX_WRITE_ZEROES_SEC,	/* u32 */
+>>   	VDPA_ATTR_DEV_BLK_CFG_MAX_WRITE_ZEROES_SEG,	/* u32 */
+>> -	VDPA_ATTR_DEV_BLK_CFG_READ_ONLY,		/* u8 */
+>> -	VDPA_ATTR_DEV_BLK_CFG_FLUSH,		/* u8 */
+>> +	VDPA_ATTR_DEV_BLK_READ_ONLY,		/* u8 */
+>> +	VDPA_ATTR_DEV_BLK_FLUSH,		/* u8 */
+>>   
+>>   	/* new attributes must be added above here */
+>>   	VDPA_ATTR_MAX,
+>> -- 
+>> 2.39.3
+
