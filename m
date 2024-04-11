@@ -1,67 +1,66 @@
-Received: from mail-pg1-f176.google.com (mail-pg1-f176.google.com [209.85.215.176])
+Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE0F811702
-	for <virtualization@lists.linux.dev>; Thu, 11 Apr 2024 00:08:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4CD9171B6
+	for <virtualization@lists.linux.dev>; Thu, 11 Apr 2024 00:08:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712794103; cv=none; b=JtNtZINjPrG2pvDvS6eZlAR4mHtxiSvOwC/bybN5J7JdliD0xgSHyzOeHpeMUxoPQD+75C8hAcrLR07YSSC5xise2XIabgbKhLUPvWPAU98oy+ESaYqjx6J6dPnT1Ri0OOvKOLa7nNnygFQDJtsA9pwwDIdihAr2ttI4ySKnsFM=
+	t=1712794106; cv=none; b=PTpuhx4Tf4umMS275QSpX6JNeRdKwbCqhUPZnE4mGZrPI98pxZCK/5m/eS8uDw9HTVIJMZcCUw2SB3KDibjOJM+m4n8QMrqu5LGRVkAn7zMRXaYjd3VKffYU+mCr+vC16Mk8V/fhKaDfvQAgCQTnJ7qV8eaChq2dLzaUK/nybhk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712794103; c=relaxed/simple;
-	bh=Gs/9X2hzactn0W0hn5UFwracoeJp45KmCczLf6NHuME=;
+	s=arc-20240116; t=1712794106; c=relaxed/simple;
+	bh=akgdKSazpCJozBL9deA+0ximAc5a6b6WW9ag1TZQiU0=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=aYY1AMbEo/0jW+iWeTQQ+LTffhZ0SsOzCf4M1yXniBeQqw51Fuaghz8jH5c1fgfxBDijvzJRVygHShb/e7VqiGxSNgFVkMZfaAOhNktG3h3+XoE/Vxfa+nr46GuXO5eJEUaBfx3nBBZF9iCc99MVrld/RvHFTOx8ZMiAhinbqdQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com; spf=pass smtp.mailfrom=rivosinc.com; dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b=cIByaZQw; arc=none smtp.client-ip=209.85.215.176
+	 MIME-Version; b=mmTMd2ML60Cb4vV5rhHNq4ysJ01oRE3hIrZm/7VfWZmp5uJxac2qBc8t24OVfNZoIoKe5qkYAYNVK7fkwTB3Em5B8kO6ckrffPqAT1IiN3WjeLilwkbB+2yuPHKxn2SbO6elzp0gG+9K4F9FxeBhGRygdjyfyFj6KTKNnhUglg0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com; spf=pass smtp.mailfrom=rivosinc.com; dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b=BMQh3VJz; arc=none smtp.client-ip=209.85.214.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rivosinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b="cIByaZQw"
-Received: by mail-pg1-f176.google.com with SMTP id 41be03b00d2f7-5d4a1e66750so4486359a12.0
-        for <virtualization@lists.linux.dev>; Wed, 10 Apr 2024 17:08:20 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b="BMQh3VJz"
+Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-1e3ff14f249so2792305ad.1
+        for <virtualization@lists.linux.dev>; Wed, 10 Apr 2024 17:08:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rivosinc-com.20230601.gappssmtp.com; s=20230601; t=1712794100; x=1713398900; darn=lists.linux.dev;
+        d=rivosinc-com.20230601.gappssmtp.com; s=20230601; t=1712794103; x=1713398903; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Y0lXa0RA4+kQWkomLRJk1QW7kf666EFgaJ2j58l79bA=;
-        b=cIByaZQwMfopKpGMjCWgWmbBOxrelp7D7dy23tWEtHumC+da69sI1ZdFejPRpwTccC
-         4LUWL8YTPLMOXbLzkAONFu2gZi4dZhdJI2OjjL0hdoPfCngS7Wcws6HIbfWDiLkeFQza
-         pebpeH1qUztek1dPdH5+5OIR1o+rbntScXQ853JUYHxwqASb9azoRkx6G2C+ufdIugyY
-         ig8JN4LM5zyUAMjp9z5xcJAvlqy3HISFgbix73Xahe1gW/T3AmYvPd7gPgLKYqVPUWa2
-         hW7RQG1bUFblyjAq+bP/lUFgGaPzbe2FI32evsUUX/wg8fWcxyytwHgkVtEr5cSuPd+L
-         u4DA==
+        bh=CkMvEzo278xPIa/MSXztYs2ivQ6wYMeKBg/aNDTTbzU=;
+        b=BMQh3VJzXGk3rYcDaTSB7oQEOlNcckbh2jYT28XFIDPv6c9n+f6uk0z+dBr8eGcEOe
+         vXJgNHv1T8AAnHd2zAtO52ZP1XY5Cg8pgmQ9L6TxC436ns9WgSTa/6VLt+HFcvfpnHBD
+         3h4dc/lQAaUVobeRzHl3J6ZVuu6o4Fux1oX8PcAwgN6E6zVPSAN4TVZV1OWFbjeuS2JN
+         uBZhSft7zSju60XGJNWA8+OUBoWEUZqsGNwIAWRVflb6sIzGZviEh+LtAr8zkT/Com/2
+         h1JBZ9RIe+yyiqZJaR53sJkN4whIFNhGJE4awQQhOyvFS7z8h7CRPt+RQJvWg5Zw7VBL
+         ey+g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712794100; x=1713398900;
+        d=1e100.net; s=20230601; t=1712794103; x=1713398903;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Y0lXa0RA4+kQWkomLRJk1QW7kf666EFgaJ2j58l79bA=;
-        b=DoPDEGiuPB4WuBDxXe7oeES9cHfqjbbZgbeIFSOvieoGFAAWLFRDpM0W8ysVaxwtSi
-         SdsBxmTPu324bPrD//1rSIhx8uKFI0piDooBEMtB/TS0ns26jTDf2tAOwxHi3uDI3bYq
-         6hEi5ezuEegDWT3gp4i17D0n9u/m3rI1wpQhepR8Zsucpc0WlR8JYJu4JcDFATiyiNX6
-         IfNiQszcpiJ5mGj2oda9EmLU6rA8X34SdKdmTZHkkxEhzsZv5YT8TLmqfUFQPjEiSd9N
-         9LC4MhXKDdCC/2fXRaiJo6t2Zs8aapAk9n3865W+jr9QtQxSNv/6Bk9t1HuwZNhQXsnt
-         BGuA==
-X-Forwarded-Encrypted: i=1; AJvYcCVmAN9y01UuiC7xi0AL6pwv7NgVfKkJv00FPvCwKmXb4S87i+BXz90bi7XObhfNY6YdRKVoKGdkuk8ZrGXLjx4fjuj7ow9uW8zLY3Qz/+g=
-X-Gm-Message-State: AOJu0Yy/7xeql2IXTQfdcIYvniXE2XSy0mLJZuyXOZ20vuS4P/XcjdeA
-	w3r/3vy6BDy55Z1YrT+DJDjRLZgs71K4vptn8Ff3lV8aKA3nni42bqojeWmf+cE=
-X-Google-Smtp-Source: AGHT+IG4zwixXE+Dj2Z6xxpk3Mi1/VNCBH2ZloMZOp3yafHfcqNRvPGneczPVceqD8IMMcr1Pkob/w==
-X-Received: by 2002:a17:902:e886:b0:1e0:11a4:30e0 with SMTP id w6-20020a170902e88600b001e011a430e0mr5583510plg.19.1712794100294;
-        Wed, 10 Apr 2024 17:08:20 -0700 (PDT)
+        bh=CkMvEzo278xPIa/MSXztYs2ivQ6wYMeKBg/aNDTTbzU=;
+        b=n6oYwWeoOVsBoB+9m9V2LzLp5z0GkUY2jaIXKx0AnP1afDGVGLOTo3Cxu1eiyiSWIe
+         SHGAhHUXNHqUa3D/OGPkYeUrVCSAKYWfgNQGjDs5uCSheRmgv82imot1GNdHadU4jVWS
+         r/MmSqdZrkLB8xwf1UZbC3aDIJVj9EbX4yC27FGGIlskocBCKEugO7T6mGqUzjD5HZFS
+         OV/1Lt+j9JMbbdMBcoyseaQCmEGc1Lrq0OTSk7TWuCIue7L3Okd6M8QBkx98uxVEME0w
+         1XG6O3c+yUarM3NEp3nWzM/GhpxADPThxRefqnV4M60czoiQN2FxW/7WxSGgZvk2whIP
+         K0qQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXhkwt9Ep0mdGnGf2WjuOnG69+RpyiUTX6oVWNOYO4mFrsCDG4DOmUlXw7A3Fn46vRA4nKbwh3r9uTOohYt4wggRcKu8MxenjzIsYzdpMo=
+X-Gm-Message-State: AOJu0Yx3ZUXkvBrdo4v0HBkjwfhuHQL8boGVNuQjUKWG9OLKqyYvSuYJ
+	4Zqdzcy4mQqBdOITVb5b3/kBZCqjFl+4yeV41LmPu3aZQUbrXnqikoief4HJl6w=
+X-Google-Smtp-Source: AGHT+IGgRaxQYW8bBoO59l6g97lF6DWJlZ8qPVf66iIYAUNC2ixkF2eOsdNbKg8PB+Igg7J274SeEA==
+X-Received: by 2002:a17:902:ec8b:b0:1e2:bdef:3971 with SMTP id x11-20020a170902ec8b00b001e2bdef3971mr1459480plg.16.1712794103281;
+        Wed, 10 Apr 2024 17:08:23 -0700 (PDT)
 Received: from atishp.ba.rivosinc.com ([64.71.180.162])
-        by smtp.gmail.com with ESMTPSA id f7-20020a170902684700b001e3d8a70780sm130351pln.171.2024.04.10.17.08.18
+        by smtp.gmail.com with ESMTPSA id f7-20020a170902684700b001e3d8a70780sm130351pln.171.2024.04.10.17.08.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Apr 2024 17:08:19 -0700 (PDT)
+        Wed, 10 Apr 2024 17:08:22 -0700 (PDT)
 From: Atish Patra <atishp@rivosinc.com>
 To: linux-kernel@vger.kernel.org
 Cc: Atish Patra <atishp@rivosinc.com>,
 	Andrew Jones <ajones@ventanamicro.com>,
-	Anup Patel <anup@brainfault.org>,
-	Palmer Dabbelt <palmer@rivosinc.com>,
 	Ajay Kaher <ajay.kaher@broadcom.com>,
 	Albert Ou <aou@eecs.berkeley.edu>,
 	Alexandre Ghiti <alexghiti@rivosinc.com>,
 	Alexey Makhalov <alexey.amakhalov@broadcom.com>,
+	Anup Patel <anup@brainfault.org>,
 	Atish Patra <atishp@atishpatra.org>,
 	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
 	Conor Dooley <conor.dooley@microchip.com>,
@@ -78,9 +77,9 @@ Cc: Atish Patra <atishp@rivosinc.com>,
 	virtualization@lists.linux.dev,
 	Will Deacon <will@kernel.org>,
 	x86@kernel.org
-Subject: [PATCH v6 05/24] RISC-V: Add SBI PMU snapshot definitions
-Date: Wed, 10 Apr 2024 17:07:33 -0700
-Message-Id: <20240411000752.955910-6-atishp@rivosinc.com>
+Subject: [PATCH v6 06/24] RISC-V: KVM: Rename the SBI_STA_SHMEM_DISABLE to a generic name
+Date: Wed, 10 Apr 2024 17:07:34 -0700
+Message-Id: <20240411000752.955910-7-atishp@rivosinc.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20240411000752.955910-1-atishp@rivosinc.com>
 References: <20240411000752.955910-1-atishp@rivosinc.com>
@@ -92,65 +91,70 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-SBI PMU Snapshot function optimizes the number of traps to
-higher privilege mode by leveraging a shared memory between the S/VS-mode
-and the M/HS mode. Add the definitions for that extension and new error
-codes.
+SBI_STA_SHMEM_DISABLE is a macro to invoke disable shared memory
+commands. As this can be invoked from other SBI extension context
+as well, rename it to more generic name as SBI_SHMEM_DISABLE.
 
 Reviewed-by: Andrew Jones <ajones@ventanamicro.com>
-Reviewed-by: Anup Patel <anup@brainfault.org>
-Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Atish Patra <atishp@rivosinc.com>
 ---
- arch/riscv/include/asm/sbi.h | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ arch/riscv/include/asm/sbi.h  | 2 +-
+ arch/riscv/kernel/paravirt.c  | 6 +++---
+ arch/riscv/kvm/vcpu_sbi_sta.c | 4 ++--
+ 3 files changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/arch/riscv/include/asm/sbi.h b/arch/riscv/include/asm/sbi.h
-index 4afa2cd01bae..9aada4b9f7b5 100644
+index 9aada4b9f7b5..f31650b10899 100644
 --- a/arch/riscv/include/asm/sbi.h
 +++ b/arch/riscv/include/asm/sbi.h
-@@ -132,6 +132,7 @@ enum sbi_ext_pmu_fid {
- 	SBI_EXT_PMU_COUNTER_STOP,
- 	SBI_EXT_PMU_COUNTER_FW_READ,
- 	SBI_EXT_PMU_COUNTER_FW_READ_HI,
-+	SBI_EXT_PMU_SNAPSHOT_SET_SHMEM,
- };
+@@ -277,7 +277,7 @@ struct sbi_sta_struct {
+ 	u8 pad[47];
+ } __packed;
  
- union sbi_pmu_ctr_info {
-@@ -148,6 +149,13 @@ union sbi_pmu_ctr_info {
- 	};
- };
+-#define SBI_STA_SHMEM_DISABLE		-1
++#define SBI_SHMEM_DISABLE		-1
  
-+/* Data structure to contain the pmu snapshot data */
-+struct riscv_pmu_snapshot_data {
-+	u64 ctr_overflow_mask;
-+	u64 ctr_values[64];
-+	u64 reserved[447];
-+};
-+
- #define RISCV_PMU_RAW_EVENT_MASK GENMASK_ULL(47, 0)
- #define RISCV_PMU_RAW_EVENT_IDX 0x20000
+ /* SBI spec version fields */
+ #define SBI_SPEC_VERSION_DEFAULT	0x1
+diff --git a/arch/riscv/kernel/paravirt.c b/arch/riscv/kernel/paravirt.c
+index 0d6225fd3194..fa6b0339a65d 100644
+--- a/arch/riscv/kernel/paravirt.c
++++ b/arch/riscv/kernel/paravirt.c
+@@ -62,7 +62,7 @@ static int sbi_sta_steal_time_set_shmem(unsigned long lo, unsigned long hi,
+ 	ret = sbi_ecall(SBI_EXT_STA, SBI_EXT_STA_STEAL_TIME_SET_SHMEM,
+ 			lo, hi, flags, 0, 0, 0);
+ 	if (ret.error) {
+-		if (lo == SBI_STA_SHMEM_DISABLE && hi == SBI_STA_SHMEM_DISABLE)
++		if (lo == SBI_SHMEM_DISABLE && hi == SBI_SHMEM_DISABLE)
+ 			pr_warn("Failed to disable steal-time shmem");
+ 		else
+ 			pr_warn("Failed to set steal-time shmem");
+@@ -84,8 +84,8 @@ static int pv_time_cpu_online(unsigned int cpu)
  
-@@ -244,9 +252,11 @@ enum sbi_pmu_ctr_type {
+ static int pv_time_cpu_down_prepare(unsigned int cpu)
+ {
+-	return sbi_sta_steal_time_set_shmem(SBI_STA_SHMEM_DISABLE,
+-					    SBI_STA_SHMEM_DISABLE, 0);
++	return sbi_sta_steal_time_set_shmem(SBI_SHMEM_DISABLE,
++					    SBI_SHMEM_DISABLE, 0);
+ }
  
- /* Flags defined for counter start function */
- #define SBI_PMU_START_FLAG_SET_INIT_VALUE BIT(0)
-+#define SBI_PMU_START_FLAG_INIT_SNAPSHOT BIT(1)
+ static u64 pv_time_steal_clock(int cpu)
+diff --git a/arch/riscv/kvm/vcpu_sbi_sta.c b/arch/riscv/kvm/vcpu_sbi_sta.c
+index d8cf9ca28c61..5f35427114c1 100644
+--- a/arch/riscv/kvm/vcpu_sbi_sta.c
++++ b/arch/riscv/kvm/vcpu_sbi_sta.c
+@@ -93,8 +93,8 @@ static int kvm_sbi_sta_steal_time_set_shmem(struct kvm_vcpu *vcpu)
+ 	if (flags != 0)
+ 		return SBI_ERR_INVALID_PARAM;
  
- /* Flags defined for counter stop function */
- #define SBI_PMU_STOP_FLAG_RESET BIT(0)
-+#define SBI_PMU_STOP_FLAG_TAKE_SNAPSHOT BIT(1)
- 
- enum sbi_ext_dbcn_fid {
- 	SBI_EXT_DBCN_CONSOLE_WRITE = 0,
-@@ -285,6 +295,7 @@ struct sbi_sta_struct {
- #define SBI_ERR_ALREADY_AVAILABLE -6
- #define SBI_ERR_ALREADY_STARTED -7
- #define SBI_ERR_ALREADY_STOPPED -8
-+#define SBI_ERR_NO_SHMEM	-9
- 
- extern unsigned long sbi_spec_version;
- struct sbiret {
+-	if (shmem_phys_lo == SBI_STA_SHMEM_DISABLE &&
+-	    shmem_phys_hi == SBI_STA_SHMEM_DISABLE) {
++	if (shmem_phys_lo == SBI_SHMEM_DISABLE &&
++	    shmem_phys_hi == SBI_SHMEM_DISABLE) {
+ 		vcpu->arch.sta.shmem = INVALID_GPA;
+ 		return 0;
+ 	}
 -- 
 2.34.1
 
