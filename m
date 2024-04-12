@@ -1,53 +1,53 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.15])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BB39199B8;
-	Fri, 12 Apr 2024 03:56:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.15
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7E7A79FD;
+	Fri, 12 Apr 2024 04:40:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.17
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712894186; cv=none; b=oSv4j08iXbkxcAmUXUIDtnR6eRkL1iTGFEJq40DMQahvGw9SRP4NuBcnjVP5Of5anKHFwwWIDkSR/2OtB0RbBz7i7zHBBDUNBOJLNQBBITve7I42C/T9+DRWG2ZBTpvXUl/ICzjkfMXD0cLbjIb/hR9jAEwzzDRRhF01MJ2veHY=
+	t=1712896829; cv=none; b=aIWiEtMLwVNUjRYIPDp8GbDLDjWYzVjb1V+c6hNi4K3+5WZznCT3CzXAJhRqQyMmNQQlivyfnDV7xVa5vUpTp1pgmpBtyCzeKoO9unsnCfzVhYfjqFL/UH6QYWwc6swwm+2nr1ZC9UWkHPQMsiu66Cnp81/cww6YeHU1ig/EEjw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712894186; c=relaxed/simple;
-	bh=6bVxiN3USagUuzO5BLKsWlH28OHE2BRSci11hbQPqIE=;
+	s=arc-20240116; t=1712896829; c=relaxed/simple;
+	bh=5vcha2skKFg7homxabfBR6MOVSqWIbOUyiwXv0dSf/s=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=e7McK5U5D0/C48P/C9gnnP/+x8t9CD9PatwKvBBN7MVn8cD/Y8E1Jy2GBZIZwjWPfeABrsAcWVib250nh7frEOZTU9t096hPBh+tV4TF0SZsJ6sB7nBCSXE2BAbVTF7X6vD2q8Gk4nw0S46m8Jyh56876hp8VbbwN8YgX5ZhKoQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=KNpW/YIv; arc=none smtp.client-ip=192.198.163.15
+	 Content-Type:Content-Disposition:In-Reply-To; b=iV+1DCcG+j82JVHnuhMxDLpLc0AHFA5VmomfeySfEI5B8V358WwM/xVNLq0ZPeVhdIjtJ9fsgoWklrjB1laAevY5U1clsRlnu5GTWnS3BOd5wYaEQQaQXDpAfQeUzRABdhH1vq1/rBDUfCg5/7Cf65vP/aKJdBvEjTdGvFEw3O8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=dsmZUCpH; arc=none smtp.client-ip=198.175.65.17
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="KNpW/YIv"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="dsmZUCpH"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1712894184; x=1744430184;
+  t=1712896827; x=1744432827;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=6bVxiN3USagUuzO5BLKsWlH28OHE2BRSci11hbQPqIE=;
-  b=KNpW/YIvwRVcoGP42haUdIPpBD4Sg7aYMLrTxSTJQ6UO3p/aa3NIZwNA
-   JyvG8v9xfSB2TLQIm2K47BLDK3o1c8aRZIgFnenbWOuYijxsWqz5V8Z2t
-   4jHLWp3cPTpGRYliHz38lYKDFaMb/00UKPsDRsU7WRmEumouU0/siBV3s
-   Ffss89wkKcGuce6eM3Tol9R1T8o+jKC8s2dCd9A+1zm9y+RyO0dAeL73N
-   7XZwp5uLut8vc6+x1NN8WjtxWZeqqOzyYRb87TplZvGXsph1vsKFYE3jd
-   8hlzRLClBVPuuIeIZQC/cZCmeNH0oHWFCKVLMD59TNemx0pyLmd8uCJMI
-   g==;
-X-CSE-ConnectionGUID: Y+72orTeRKG/citLgszfJg==
-X-CSE-MsgGUID: HAf9cIt0TmCoyBrsBESv9g==
-X-IronPort-AV: E=McAfee;i="6600,9927,11041"; a="8513913"
+  bh=5vcha2skKFg7homxabfBR6MOVSqWIbOUyiwXv0dSf/s=;
+  b=dsmZUCpHQqw2mfsq3aE4VuvMYlWZ3O/RFuQQJXYChnK5HfgKdyutjiaq
+   RRRO598IhNmEKE5ezU66yJ6bBOBJ2EvIl/4O5SrdvacVE3qL/Ni9mEXh8
+   XWvc8VszrSCEJrQzbLoB+7wB6aWUTyk5T/UjA7klC2tHiTU/yR8ocuI04
+   Lh/vzES+sjPu5z8FKKgbjie3QbS1OrB9O/ThJwMiZUN7yMlq7Xhwu8wXz
+   Gl+8jMP+phtFJCSY8upTziubD/s0TUgzpLs8oXfuxiJCKun2T6AYQ8i8E
+   NX7w7+4OASpB8E9aO3wdq625FJvV7wut34LTin5HzdDSer4xs1FKx1juB
+   w==;
+X-CSE-ConnectionGUID: nPx6pl2qQAS060uEJYHF0A==
+X-CSE-MsgGUID: T9bcUz0rTOm7REY4ULK2jA==
+X-IronPort-AV: E=McAfee;i="6600,9927,11041"; a="8447803"
 X-IronPort-AV: E=Sophos;i="6.07,195,1708416000"; 
-   d="scan'208";a="8513913"
-Received: from fmviesa009.fm.intel.com ([10.60.135.149])
-  by fmvoesa109.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Apr 2024 20:56:23 -0700
-X-CSE-ConnectionGUID: vyANzUghRqmRw77D2sqeCQ==
-X-CSE-MsgGUID: GEcp8UnSTz224quQ9ev1vw==
+   d="scan'208";a="8447803"
+Received: from orviesa002.jf.intel.com ([10.64.159.142])
+  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Apr 2024 21:40:26 -0700
+X-CSE-ConnectionGUID: EN3bB6ZVSGSa/76hKno/XA==
+X-CSE-MsgGUID: nGb6v1mERgmh7PNYcabdeQ==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.07,195,1708416000"; 
-   d="scan'208";a="21166752"
+   d="scan'208";a="52087681"
 Received: from lkp-server01.sh.intel.com (HELO e61807b1d151) ([10.239.97.150])
-  by fmviesa009.fm.intel.com with ESMTP; 11 Apr 2024 20:56:20 -0700
+  by orviesa002.jf.intel.com with ESMTP; 11 Apr 2024 21:40:23 -0700
 Received: from kbuild by e61807b1d151 with local (Exim 4.96)
 	(envelope-from <lkp@intel.com>)
-	id 1rv81S-0009LZ-1H;
-	Fri, 12 Apr 2024 03:56:18 +0000
-Date: Fri, 12 Apr 2024 11:56:15 +0800
+	id 1rv8i4-0009ND-1m;
+	Fri, 12 Apr 2024 04:40:20 +0000
+Date: Fri, 12 Apr 2024 12:39:53 +0800
 From: kernel test robot <lkp@intel.com>
 To: Heng Qi <hengqi@linux.alibaba.com>, netdev@vger.kernel.org,
 	virtualization@lists.linux.dev
@@ -61,7 +61,7 @@ Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Subject: Re: [PATCH net-next v6 2/4] ethtool: provide customized dim profile
  management
-Message-ID: <202404121112.lymscQm1-lkp@intel.com>
+Message-ID: <202404121200.pplgT1xP-lkp@intel.com>
 References: <1712844751-53514-3-git-send-email-hengqi@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -75,99 +75,291 @@ In-Reply-To: <1712844751-53514-3-git-send-email-hengqi@linux.alibaba.com>
 
 Hi Heng,
 
-kernel test robot noticed the following build warnings:
+kernel test robot noticed the following build errors:
 
-[auto build test WARNING on net-next/main]
+[auto build test ERROR on net-next/main]
 
 url:    https://github.com/intel-lab-lkp/linux/commits/Heng-Qi/linux-dim-move-useful-macros-to-h-file/20240411-221400
 base:   net-next/main
 patch link:    https://lore.kernel.org/r/1712844751-53514-3-git-send-email-hengqi%40linux.alibaba.com
 patch subject: [PATCH net-next v6 2/4] ethtool: provide customized dim profile management
-config: riscv-defconfig (https://download.01.org/0day-ci/archive/20240412/202404121112.lymscQm1-lkp@intel.com/config)
-compiler: clang version 19.0.0git (https://github.com/llvm/llvm-project 8b3b4a92adee40483c27f26c478a384cd69c6f05)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240412/202404121112.lymscQm1-lkp@intel.com/reproduce)
+config: um-allnoconfig (https://download.01.org/0day-ci/archive/20240412/202404121200.pplgT1xP-lkp@intel.com/config)
+compiler: clang version 17.0.6 (https://github.com/llvm/llvm-project 6009708b4367171ccdbf4b5905cb6a803753fe18)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240412/202404121200.pplgT1xP-lkp@intel.com/reproduce)
 
 If you fix the issue in a separate patch/commit (i.e. not just a new version of
 the same patch/commit), kindly add following tags
 | Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202404121112.lymscQm1-lkp@intel.com/
+| Closes: https://lore.kernel.org/oe-kbuild-all/202404121200.pplgT1xP-lkp@intel.com/
 
-All warnings (new ones prefixed by >>):
+All errors (new ones prefixed by >>):
 
->> net/ethtool/coalesce.c:373: warning: Function parameter or struct member 'dev' not described in 'ethnl_update_profile'
->> net/ethtool/coalesce.c:373: warning: Excess function parameter 'mod' description in 'ethnl_update_profile'
+   In file included from net/core/dev.c:80:
+   In file included from include/linux/sched/isolation.h:7:
+   In file included from include/linux/tick.h:8:
+   In file included from include/linux/clockchips.h:14:
+   In file included from include/linux/clocksource.h:22:
+   In file included from arch/um/include/asm/io.h:24:
+   include/asm-generic/io.h:547:31: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+     547 |         val = __raw_readb(PCI_IOBASE + addr);
+         |                           ~~~~~~~~~~ ^
+   include/asm-generic/io.h:560:61: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+     560 |         val = __le16_to_cpu((__le16 __force)__raw_readw(PCI_IOBASE + addr));
+         |                                                         ~~~~~~~~~~ ^
+   include/uapi/linux/byteorder/little_endian.h:37:51: note: expanded from macro '__le16_to_cpu'
+      37 | #define __le16_to_cpu(x) ((__force __u16)(__le16)(x))
+         |                                                   ^
+   In file included from net/core/dev.c:80:
+   In file included from include/linux/sched/isolation.h:7:
+   In file included from include/linux/tick.h:8:
+   In file included from include/linux/clockchips.h:14:
+   In file included from include/linux/clocksource.h:22:
+   In file included from arch/um/include/asm/io.h:24:
+   include/asm-generic/io.h:573:61: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+     573 |         val = __le32_to_cpu((__le32 __force)__raw_readl(PCI_IOBASE + addr));
+         |                                                         ~~~~~~~~~~ ^
+   include/uapi/linux/byteorder/little_endian.h:35:51: note: expanded from macro '__le32_to_cpu'
+      35 | #define __le32_to_cpu(x) ((__force __u32)(__le32)(x))
+         |                                                   ^
+   In file included from net/core/dev.c:80:
+   In file included from include/linux/sched/isolation.h:7:
+   In file included from include/linux/tick.h:8:
+   In file included from include/linux/clockchips.h:14:
+   In file included from include/linux/clocksource.h:22:
+   In file included from arch/um/include/asm/io.h:24:
+   include/asm-generic/io.h:584:33: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+     584 |         __raw_writeb(value, PCI_IOBASE + addr);
+         |                             ~~~~~~~~~~ ^
+   include/asm-generic/io.h:594:59: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+     594 |         __raw_writew((u16 __force)cpu_to_le16(value), PCI_IOBASE + addr);
+         |                                                       ~~~~~~~~~~ ^
+   include/asm-generic/io.h:604:59: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+     604 |         __raw_writel((u32 __force)cpu_to_le32(value), PCI_IOBASE + addr);
+         |                                                       ~~~~~~~~~~ ^
+   include/asm-generic/io.h:692:20: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+     692 |         readsb(PCI_IOBASE + addr, buffer, count);
+         |                ~~~~~~~~~~ ^
+   include/asm-generic/io.h:700:20: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+     700 |         readsw(PCI_IOBASE + addr, buffer, count);
+         |                ~~~~~~~~~~ ^
+   include/asm-generic/io.h:708:20: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+     708 |         readsl(PCI_IOBASE + addr, buffer, count);
+         |                ~~~~~~~~~~ ^
+   include/asm-generic/io.h:717:21: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+     717 |         writesb(PCI_IOBASE + addr, buffer, count);
+         |                 ~~~~~~~~~~ ^
+   include/asm-generic/io.h:726:21: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+     726 |         writesw(PCI_IOBASE + addr, buffer, count);
+         |                 ~~~~~~~~~~ ^
+   include/asm-generic/io.h:735:21: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+     735 |         writesl(PCI_IOBASE + addr, buffer, count);
+         |                 ~~~~~~~~~~ ^
+>> net/core/dev.c:10235:58: error: no member named 'rx_eqe_profile' in 'struct net_device'
+    10235 |         int length = NET_DIM_PARAMS_NUM_PROFILES * sizeof(*dev->rx_eqe_profile);
+          |                                                            ~~~  ^
+   net/core/dev.c:10242:8: error: no member named 'rx_eqe_profile' in 'struct net_device'
+    10242 |                 dev->rx_eqe_profile = kzalloc(length, GFP_KERNEL);
+          |                 ~~~  ^
+   net/core/dev.c:10243:13: error: no member named 'rx_eqe_profile' in 'struct net_device'
+    10243 |                 if (!dev->rx_eqe_profile)
+          |                      ~~~  ^
+   net/core/dev.c:10245:15: error: no member named 'rx_eqe_profile' in 'struct net_device'
+    10245 |                 memcpy(dev->rx_eqe_profile, rx_profile[0], length);
+          |                        ~~~  ^
+>> net/core/dev.c:10248:8: error: no member named 'rx_cqe_profile' in 'struct net_device'
+    10248 |                 dev->rx_cqe_profile = kzalloc(length, GFP_KERNEL);
+          |                 ~~~  ^
+   net/core/dev.c:10249:13: error: no member named 'rx_cqe_profile' in 'struct net_device'
+    10249 |                 if (!dev->rx_cqe_profile)
+          |                      ~~~  ^
+   net/core/dev.c:10251:15: error: no member named 'rx_cqe_profile' in 'struct net_device'
+    10251 |                 memcpy(dev->rx_cqe_profile, rx_profile[1], length);
+          |                        ~~~  ^
+>> net/core/dev.c:10254:8: error: no member named 'tx_eqe_profile' in 'struct net_device'
+    10254 |                 dev->tx_eqe_profile = kzalloc(length, GFP_KERNEL);
+          |                 ~~~  ^
+   net/core/dev.c:10255:13: error: no member named 'tx_eqe_profile' in 'struct net_device'
+    10255 |                 if (!dev->tx_eqe_profile)
+          |                      ~~~  ^
+   net/core/dev.c:10257:15: error: no member named 'tx_eqe_profile' in 'struct net_device'
+    10257 |                 memcpy(dev->tx_eqe_profile, tx_profile[0], length);
+          |                        ~~~  ^
+>> net/core/dev.c:10260:8: error: no member named 'tx_cqe_profile' in 'struct net_device'
+    10260 |                 dev->tx_cqe_profile = kzalloc(length, GFP_KERNEL);
+          |                 ~~~  ^
+   net/core/dev.c:10261:13: error: no member named 'tx_cqe_profile' in 'struct net_device'
+    10261 |                 if (!dev->tx_cqe_profile)
+          |                      ~~~  ^
+   net/core/dev.c:10263:15: error: no member named 'tx_cqe_profile' in 'struct net_device'
+    10263 |                 memcpy(dev->tx_cqe_profile, tx_profile[1], length);
+          |                        ~~~  ^
+   net/core/dev.c:11063:14: error: no member named 'rx_eqe_profile' in 'struct net_device'
+    11063 |                 kfree(dev->rx_eqe_profile);
+          |                       ~~~  ^
+   net/core/dev.c:11066:14: error: no member named 'rx_cqe_profile' in 'struct net_device'
+    11066 |                 kfree(dev->rx_cqe_profile);
+          |                       ~~~  ^
+   net/core/dev.c:11069:14: error: no member named 'tx_eqe_profile' in 'struct net_device'
+    11069 |                 kfree(dev->tx_eqe_profile);
+          |                       ~~~  ^
+   net/core/dev.c:11072:14: error: no member named 'tx_cqe_profile' in 'struct net_device'
+    11072 |                 kfree(dev->tx_cqe_profile);
+          |                       ~~~  ^
+   12 warnings and 17 errors generated.
+--
+   In file included from net/ethtool/coalesce.c:3:
+   In file included from net/ethtool/netlink.h:6:
+   In file included from include/linux/ethtool_netlink.h:6:
+   In file included from include/uapi/linux/ethtool_netlink.h:12:
+   In file included from include/linux/ethtool.h:18:
+   In file included from include/linux/if_ether.h:19:
+   In file included from include/linux/skbuff.h:17:
+   In file included from include/linux/bvec.h:10:
+   In file included from include/linux/highmem.h:12:
+   In file included from include/linux/hardirq.h:11:
+   In file included from arch/um/include/asm/hardirq.h:5:
+   In file included from include/asm-generic/hardirq.h:17:
+   In file included from include/linux/irq.h:20:
+   In file included from include/linux/io.h:13:
+   In file included from arch/um/include/asm/io.h:24:
+   include/asm-generic/io.h:547:31: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+     547 |         val = __raw_readb(PCI_IOBASE + addr);
+         |                           ~~~~~~~~~~ ^
+   include/asm-generic/io.h:560:61: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+     560 |         val = __le16_to_cpu((__le16 __force)__raw_readw(PCI_IOBASE + addr));
+         |                                                         ~~~~~~~~~~ ^
+   include/uapi/linux/byteorder/little_endian.h:37:51: note: expanded from macro '__le16_to_cpu'
+      37 | #define __le16_to_cpu(x) ((__force __u16)(__le16)(x))
+         |                                                   ^
+   In file included from net/ethtool/coalesce.c:3:
+   In file included from net/ethtool/netlink.h:6:
+   In file included from include/linux/ethtool_netlink.h:6:
+   In file included from include/uapi/linux/ethtool_netlink.h:12:
+   In file included from include/linux/ethtool.h:18:
+   In file included from include/linux/if_ether.h:19:
+   In file included from include/linux/skbuff.h:17:
+   In file included from include/linux/bvec.h:10:
+   In file included from include/linux/highmem.h:12:
+   In file included from include/linux/hardirq.h:11:
+   In file included from arch/um/include/asm/hardirq.h:5:
+   In file included from include/asm-generic/hardirq.h:17:
+   In file included from include/linux/irq.h:20:
+   In file included from include/linux/io.h:13:
+   In file included from arch/um/include/asm/io.h:24:
+   include/asm-generic/io.h:573:61: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+     573 |         val = __le32_to_cpu((__le32 __force)__raw_readl(PCI_IOBASE + addr));
+         |                                                         ~~~~~~~~~~ ^
+   include/uapi/linux/byteorder/little_endian.h:35:51: note: expanded from macro '__le32_to_cpu'
+      35 | #define __le32_to_cpu(x) ((__force __u32)(__le32)(x))
+         |                                                   ^
+   In file included from net/ethtool/coalesce.c:3:
+   In file included from net/ethtool/netlink.h:6:
+   In file included from include/linux/ethtool_netlink.h:6:
+   In file included from include/uapi/linux/ethtool_netlink.h:12:
+   In file included from include/linux/ethtool.h:18:
+   In file included from include/linux/if_ether.h:19:
+   In file included from include/linux/skbuff.h:17:
+   In file included from include/linux/bvec.h:10:
+   In file included from include/linux/highmem.h:12:
+   In file included from include/linux/hardirq.h:11:
+   In file included from arch/um/include/asm/hardirq.h:5:
+   In file included from include/asm-generic/hardirq.h:17:
+   In file included from include/linux/irq.h:20:
+   In file included from include/linux/io.h:13:
+   In file included from arch/um/include/asm/io.h:24:
+   include/asm-generic/io.h:584:33: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+     584 |         __raw_writeb(value, PCI_IOBASE + addr);
+         |                             ~~~~~~~~~~ ^
+   include/asm-generic/io.h:594:59: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+     594 |         __raw_writew((u16 __force)cpu_to_le16(value), PCI_IOBASE + addr);
+         |                                                       ~~~~~~~~~~ ^
+   include/asm-generic/io.h:604:59: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+     604 |         __raw_writel((u32 __force)cpu_to_le32(value), PCI_IOBASE + addr);
+         |                                                       ~~~~~~~~~~ ^
+   include/asm-generic/io.h:692:20: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+     692 |         readsb(PCI_IOBASE + addr, buffer, count);
+         |                ~~~~~~~~~~ ^
+   include/asm-generic/io.h:700:20: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+     700 |         readsw(PCI_IOBASE + addr, buffer, count);
+         |                ~~~~~~~~~~ ^
+   include/asm-generic/io.h:708:20: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+     708 |         readsl(PCI_IOBASE + addr, buffer, count);
+         |                ~~~~~~~~~~ ^
+   include/asm-generic/io.h:717:21: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+     717 |         writesb(PCI_IOBASE + addr, buffer, count);
+         |                 ~~~~~~~~~~ ^
+   include/asm-generic/io.h:726:21: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+     726 |         writesw(PCI_IOBASE + addr, buffer, count);
+         |                 ~~~~~~~~~~ ^
+   include/asm-generic/io.h:735:21: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+     735 |         writesl(PCI_IOBASE + addr, buffer, count);
+         |                 ~~~~~~~~~~ ^
+>> net/ethtool/coalesce.c:268:11: error: no member named 'rx_eqe_profile' in 'struct net_device'
+     268 |                                  dev->rx_eqe_profile, supported) ||
+         |                                  ~~~  ^
+>> net/ethtool/coalesce.c:270:11: error: no member named 'rx_cqe_profile' in 'struct net_device'
+     270 |                                  dev->rx_cqe_profile, supported) ||
+         |                                  ~~~  ^
+>> net/ethtool/coalesce.c:272:11: error: no member named 'tx_eqe_profile' in 'struct net_device'
+     272 |                                  dev->tx_eqe_profile, supported) ||
+         |                                  ~~~  ^
+>> net/ethtool/coalesce.c:274:11: error: no member named 'tx_cqe_profile' in 'struct net_device'
+     274 |                                  dev->tx_cqe_profile, supported))
+         |                                  ~~~  ^
+   net/ethtool/coalesce.c:479:39: error: no member named 'rx_eqe_profile' in 'struct net_device'
+     479 |         ret = ethnl_update_profile(dev, dev->rx_eqe_profile,
+         |                                         ~~~  ^
+   net/ethtool/coalesce.c:484:39: error: no member named 'rx_cqe_profile' in 'struct net_device'
+     484 |         ret = ethnl_update_profile(dev, dev->rx_cqe_profile,
+         |                                         ~~~  ^
+   net/ethtool/coalesce.c:489:39: error: no member named 'tx_eqe_profile' in 'struct net_device'
+     489 |         ret = ethnl_update_profile(dev, dev->tx_eqe_profile,
+         |                                         ~~~  ^
+   net/ethtool/coalesce.c:494:39: error: no member named 'tx_cqe_profile' in 'struct net_device'
+     494 |         ret = ethnl_update_profile(dev, dev->tx_cqe_profile,
+         |                                         ~~~  ^
+   12 warnings and 8 errors generated.
 
 
-vim +373 net/ethtool/coalesce.c
+vim +10235 net/core/dev.c
 
-   347	
-   348	/**
-   349	 * ethnl_update_profile - get a nla nest with four child nla nests from userspace.
-   350	 * @dst: data get from the driver and modified by ethnl_update_profile.
-   351	 * @nests: nest attr ETHTOOL_A_COALESCE_*X_*QE_PROFILE to set driver's profile.
-   352	 * @mod: whether the data is modified
-   353	 * @extack: Netlink extended ack
-   354	 *
-   355	 * Layout of nests:
-   356	 *   Nested ETHTOOL_A_COALESCE_*X_*QE_PROFILE attr
-   357	 *     Nested ETHTOOL_A_MODERATIONS_MODERATION attr
-   358	 *       ETHTOOL_A_MODERATION_USEC attr
-   359	 *       ETHTOOL_A_MODERATION_PKTS attr
-   360	 *       ETHTOOL_A_MODERATION_COMPS attr
-   361	 *     ...
-   362	 *     Nested ETHTOOL_A_MODERATIONS_MODERATION attr
-   363	 *       ETHTOOL_A_MODERATION_USEC attr
-   364	 *       ETHTOOL_A_MODERATION_PKTS attr
-   365	 *       ETHTOOL_A_MODERATION_COMPS attr
-   366	 *
-   367	 * Returns 0 on success or a negative error code.
-   368	 */
-   369	static inline int ethnl_update_profile(struct net_device *dev,
-   370					       struct dim_cq_moder *dst,
-   371					       const struct nlattr *nests,
-   372					       struct netlink_ext_ack *extack)
- > 373	{
-   374		struct nlattr *tb_moder[ARRAY_SIZE(coalesce_set_profile_policy)];
-   375		struct dim_cq_moder profile[NET_DIM_PARAMS_NUM_PROFILES];
-   376		struct nlattr *nest;
-   377		int ret, rem, i = 0;
-   378	
-   379		if (!nests)
-   380			return 0;
-   381	
-   382		if (!dst)
-   383			return -EOPNOTSUPP;
-   384	
-   385		nla_for_each_nested_type(nest, ETHTOOL_A_MODERATIONS_MODERATION, nests, rem) {
-   386			ret = nla_parse_nested(tb_moder,
-   387					       ARRAY_SIZE(coalesce_set_profile_policy) - 1,
-   388					       nest, coalesce_set_profile_policy,
-   389					       extack);
-   390			if (ret)
-   391				return ret;
-   392	
-   393			if (NL_REQ_ATTR_CHECK(extack, nest, tb_moder, ETHTOOL_A_MODERATION_USEC) ||
-   394			    NL_REQ_ATTR_CHECK(extack, nest, tb_moder, ETHTOOL_A_MODERATION_PKTS) ||
-   395			    NL_REQ_ATTR_CHECK(extack, nest, tb_moder, ETHTOOL_A_MODERATION_COMPS))
-   396				return -EINVAL;
-   397	
-   398			profile[i].usec = nla_get_u16(tb_moder[ETHTOOL_A_MODERATION_USEC]);
-   399			profile[i].pkts = nla_get_u16(tb_moder[ETHTOOL_A_MODERATION_PKTS]);
-   400			profile[i].comps = nla_get_u16(tb_moder[ETHTOOL_A_MODERATION_COMPS]);
-   401	
-   402			if ((dst[i].usec != profile[i].usec && !(dev->priv_flags & IFF_PROFILE_USEC)) ||
-   403			    (dst[i].pkts != profile[i].pkts && !(dev->priv_flags & IFF_PROFILE_PKTS)) ||
-   404			    (dst[i].comps != profile[i].comps && !(dev->priv_flags & IFF_PROFILE_COMPS)))
-   405				return -EOPNOTSUPP;
-   406	
-   407			i++;
-   408		}
-   409	
-   410		memcpy(dst, profile, sizeof(profile));
-   411	
-   412		return 0;
-   413	}
-   414	
+ 10232	
+ 10233	static int dev_dim_profile_init(struct net_device *dev)
+ 10234	{
+ 10235		int length = NET_DIM_PARAMS_NUM_PROFILES * sizeof(*dev->rx_eqe_profile);
+ 10236		u32 supported = dev->ethtool_ops->supported_coalesce_params;
+ 10237	
+ 10238		if (!(dev->priv_flags & (IFF_PROFILE_USEC | IFF_PROFILE_PKTS | IFF_PROFILE_COMPS)))
+ 10239			return 0;
+ 10240	
+ 10241		if (supported & ETHTOOL_COALESCE_RX_EQE_PROFILE) {
+ 10242			dev->rx_eqe_profile = kzalloc(length, GFP_KERNEL);
+ 10243			if (!dev->rx_eqe_profile)
+ 10244				return -ENOMEM;
+ 10245			memcpy(dev->rx_eqe_profile, rx_profile[0], length);
+ 10246		}
+ 10247		if (supported & ETHTOOL_COALESCE_RX_CQE_PROFILE) {
+ 10248			dev->rx_cqe_profile = kzalloc(length, GFP_KERNEL);
+ 10249			if (!dev->rx_cqe_profile)
+ 10250				return -ENOMEM;
+ 10251			memcpy(dev->rx_cqe_profile, rx_profile[1], length);
+ 10252		}
+ 10253		if (supported & ETHTOOL_COALESCE_TX_EQE_PROFILE) {
+ 10254			dev->tx_eqe_profile = kzalloc(length, GFP_KERNEL);
+ 10255			if (!dev->tx_eqe_profile)
+ 10256				return -ENOMEM;
+ 10257			memcpy(dev->tx_eqe_profile, tx_profile[0], length);
+ 10258		}
+ 10259		if (supported & ETHTOOL_COALESCE_TX_CQE_PROFILE) {
+ 10260			dev->tx_cqe_profile = kzalloc(length, GFP_KERNEL);
+ 10261			if (!dev->tx_cqe_profile)
+ 10262				return -ENOMEM;
+ 10263			memcpy(dev->tx_cqe_profile, tx_profile[1], length);
+ 10264		}
+ 10265	
+ 10266		return 0;
+ 10267	}
+ 10268	
 
 -- 
 0-DAY CI Kernel Test Service
