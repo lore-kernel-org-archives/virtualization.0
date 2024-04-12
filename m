@@ -1,172 +1,192 @@
-Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE2251CA80
-	for <virtualization@lists.linux.dev>; Fri, 12 Apr 2024 06:03:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6DFD4DA09
+	for <virtualization@lists.linux.dev>; Fri, 12 Apr 2024 06:41:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712901806; cv=none; b=K4zgFi0fpZK0pb+Eh6RTd5hA7IHp7df+LTsm4HanLvqswTJBWSeuPdPpqiXwLXCi0Pg647qSGvyoxxRd7d35HVdag+3b1+n2RZ0afwjjnX0CuzzXT/tcdpaV8fhl6ivp8qRkNZtE6RCrZ5DNZT5wlMi+sSWhsD08JtVv4WiZCjQ=
+	t=1712904092; cv=none; b=pWTo2Nt/7/BO8Pv9Zts+7Us8rWZiUxbwhqD2OsRaAKDj9NaS1LqDXmD6jLbC1WxYKfpcW76U/SZFZCx4aUJaSVcDF/jcrVUj/r0ODaQSXIaKnpkwWUYdQ0H/LTdpdZqOZ/i9CTl/JjNRsfRwrjLZMtfDN6cB1uVWQVlOPpmP00o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712901806; c=relaxed/simple;
-	bh=z6QcHzE7h6wFf6b1Z+TzloXNQh60TXep+3g1tzvJ3io=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=kyGPSR/QJIdl++qpO/Dh372a6hXho3ovezdV47KG3mvDb1KkFJtshnpagwrr5OSZGtzrwD202bQarXs48ptUWm+YRMeUpG33R3J9o3cH8vWbmpj+N+D8LkeHQmOoyReVHiDUZgUqFXudXpw0PzoMJexJwFIteWy+LCfjpi3+8OE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=L6O17afr; arc=none smtp.client-ip=115.124.30.98
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1712904092; c=relaxed/simple;
+	bh=sLp9hsCiYP+NM4SfzGrD14i/8HilzsQZrHSsoSUYfFs=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ereHQB881oNjhOcnp3xbAmkupa+e3XARXYzUhtnt3wyKXycjGBdN8+tRITG83peDPY7quJQxCfcg/rgl+IY4IYvMir5U8plQiTQlwlsEQ5LtVQxjp1XzW6Mn2YqOiHbQqNzsueMKy47bXibWY4hENAkFU+MNbNKzTL/Ccj18DXw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ITk5dP2c; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="L6O17afr"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1712901796; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=SKN5uyIY4XejNu7YqRv//+bRntXAg0ww/QbASd8Jh3I=;
-	b=L6O17afrJQCYfbZGTcCHc/bzkxvddCKS5Qag3lLofSi1qglKbq/4Sfju4qThLKFMbH7XEnbkUwY11POqmS81wTgjsUsOgxaWdw8ZkuiihKn4/O/NW0IDatsIt+NGW8j1udFjACDpevIIdYCUEM7g5UHYXEHwsKBEKWQ0d9O4sdw=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0W4NHXsH_1712901794;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W4NHXsH_1712901794)
-          by smtp.aliyun-inc.com;
-          Fri, 12 Apr 2024 14:03:15 +0800
-Message-ID: <1712901766.7811587-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost 3/6] virtio_net: replace private by pp struct inside page
-Date: Fri, 12 Apr 2024 14:02:46 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux.dev,
- "Michael S. Tsirkin" <mst@redhat.com>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- netdev@vger.kernel.org
-References: <20240411025127.51945-1-xuanzhuo@linux.alibaba.com>
- <20240411025127.51945-4-xuanzhuo@linux.alibaba.com>
- <CACGkMEsC7AEi2SOmqNOo6KJDpx92raGWYwYzxZ_MVhmnco_LYQ@mail.gmail.com>
- <1712900153.3715405-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEvKC6JpsznW57GgxFBMhmMSk4eCZPvESpew9j5qfp9=RA@mail.gmail.com>
-In-Reply-To: <CACGkMEvKC6JpsznW57GgxFBMhmMSk4eCZPvESpew9j5qfp9=RA@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ITk5dP2c"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1712904089;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=eiuvxDVGvD48twNYSXKuRkkZdcslA+/22Kogef1EBwk=;
+	b=ITk5dP2cxruwtf4apA3e9drMsX8sweJ88MwYOFMlgg4zFStx6FuRaHvHhdDBovtCYBXjAm
+	7xUcxJAoxuSA+ds8+eQT42owPlTpp5s3rJU8rwhf0dhZA0LjjjVFLWnuHzhDnfKzK5tfxw
+	Wxpajrda5r9BwQ5lfYG7fPjdvgsLoq0=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-541-9dqcc4phOUChK3J6bWmDRQ-1; Fri, 12 Apr 2024 02:41:27 -0400
+X-MC-Unique: 9dqcc4phOUChK3J6bWmDRQ-1
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-2a2e6197371so572172a91.3
+        for <virtualization@lists.linux.dev>; Thu, 11 Apr 2024 23:41:27 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1712904086; x=1713508886;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=eiuvxDVGvD48twNYSXKuRkkZdcslA+/22Kogef1EBwk=;
+        b=iTxSVCJdO02sQR5FMYx5gMjb18U9GFp3N2zPxqaa6S5urdo8J3K5KqKti84d4ZckCo
+         1oNBFaTj9fwES6SrOp3ZwcQ2S0SOloOGYGeq3B4sCCYGjunLnrZy8mOPs+UoyP2qR5hG
+         G/xcXzEHC1de5ewgPFWlhvSSEt4PsJiTqZUECBr+n3C2DhfZehftHaeiOIWsZr4oRDoi
+         hSFPIaw+tjtiPDTQI3e2em7RF8eIJh1rXwSYBKnUHixaWbAr3YE1WCGgpgGxUVq9pK/0
+         Jow9Qe0qMLfySjsbO+ha69kJLpLjiipBp1EbRu30v/XbCy9tW21M1pwoQ0nS/CR5kmZR
+         3MfQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXgzMqdjqSxVJfZV/14BwA0ENI5J96il1F70mnvJbjJBioDeTYgY70n2dtMAL4IT1O7pHKDY2spgEAgFxdb9nlWzkoDT2rX2iQLODgB92M=
+X-Gm-Message-State: AOJu0YxLMB9LDOZAsVDYyvE4p+9XBGtJ/xcbYmAhMPub2gkU5r2JH23v
+	xNyMI0mfzP0/JSav7vCCTCtNWtAUSRfYBFFCiq4tGVuivgQ6tYV2eWdEa+wxQL7bCjzkvK78qpD
+	QoY+TfY1qAsSN/dzZVkJj21tB6VCHo7OceEP80/MnGhSKBWoh7DEjuMLNWc7v6bTrnQYrh0SkVO
+	vF60pLZdXNKX7un/jOix9ckfOtHKHQ5H+zNeVMaqQ=
+X-Received: by 2002:a17:90a:b307:b0:2a3:48a8:cf7b with SMTP id d7-20020a17090ab30700b002a348a8cf7bmr1788130pjr.18.1712904086596;
+        Thu, 11 Apr 2024 23:41:26 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGXYGIlI0yiSZbFLRNYjdq2Y4W1v6SXifZ1k3EZhZZK8wO/GV+6qZYbmQ7mBl3zq5iLq4IpdGjVl8RqYI6zmJI=
+X-Received: by 2002:a17:90a:b307:b0:2a3:48a8:cf7b with SMTP id
+ d7-20020a17090ab30700b002a348a8cf7bmr1788111pjr.18.1712904086276; Thu, 11 Apr
+ 2024 23:41:26 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+References: <20240327112136.2897479-1-schalla@marvell.com> <CACGkMEuKhKOtqYUk4Sbv1QmVSuo3AJ1-tX13ZZxdbPmSSNYk9Q@mail.gmail.com>
+ <DS0PR18MB53686F5F53AF5D26B7CE37B6A03A2@DS0PR18MB5368.namprd18.prod.outlook.com>
+ <CACGkMEuAEsApX0ZT=FWVgtvYwpAVhzQGh_1yrUaN5f8A8K7iCw@mail.gmail.com>
+ <DS0PR18MB5368C214A318C026C6A64E45A0062@DS0PR18MB5368.namprd18.prod.outlook.com>
+ <20240410071350-mutt-send-email-mst@kernel.org> <DS0PR18MB5368C21CDDE827AA2A496510A0062@DS0PR18MB5368.namprd18.prod.outlook.com>
+ <CACGkMEvYXPPp9Jbkx4ucXL7WYBkCMggCJJHVZUg2JuNc7DMJPw@mail.gmail.com> <DS0PR18MB53685690485AACEEFB8D766CA0042@DS0PR18MB5368.namprd18.prod.outlook.com>
+In-Reply-To: <DS0PR18MB53685690485AACEEFB8D766CA0042@DS0PR18MB5368.namprd18.prod.outlook.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 12 Apr 2024 14:41:15 +0800
+Message-ID: <CACGkMEvg1ng88-v+ih+LnKgfiSNjJQZTLBkbdM4Z+t9oOosxbw@mail.gmail.com>
+Subject: Re: [EXTERNAL] Re: [PATCH] virtio: vdpa: vDPA driver for Marvell
+ OCTEON DPU devices
+To: Srujana Challa <schalla@marvell.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, 
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>, Vamsi Krishna Attunuru <vattunuru@marvell.com>, 
+	Shijith Thotton <sthotton@marvell.com>, Nithin Kumar Dabilpuram <ndabilpuram@marvell.com>, 
+	Jerin Jacob <jerinj@marvell.com>, eperezma <eperezma@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, 12 Apr 2024 13:49:12 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Fri, Apr 12, 2024 at 1:39=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba=
-.com> wrote:
+On Fri, Apr 12, 2024 at 1:13=E2=80=AFPM Srujana Challa <schalla@marvell.com=
+> wrote:
+>
+>
+>
+> > -----Original Message-----
+> > From: Jason Wang <jasowang@redhat.com>
+> > Sent: Thursday, April 11, 2024 11:32 AM
+> > To: Srujana Challa <schalla@marvell.com>
+> > Cc: Michael S. Tsirkin <mst@redhat.com>; virtualization@lists.linux.dev=
+;
+> > xuanzhuo@linux.alibaba.com; Vamsi Krishna Attunuru
+> > <vattunuru@marvell.com>; Shijith Thotton <sthotton@marvell.com>; Nithin
+> > Kumar Dabilpuram <ndabilpuram@marvell.com>; Jerin Jacob
+> > <jerinj@marvell.com>; eperezma <eperezma@redhat.com>
+> > Subject: Re: [EXTERNAL] Re: [PATCH] virtio: vdpa: vDPA driver for Marve=
+ll
+> > OCTEON DPU devices
 > >
-> > On Fri, 12 Apr 2024 12:47:55 +0800, Jason Wang <jasowang@redhat.com> wr=
-ote:
-> > > On Thu, Apr 11, 2024 at 10:51=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.al=
-ibaba.com> wrote:
-> > > >
-> > > > Now, we chain the pages of big mode by the page's private variable.
-> > > > But a subsequent patch aims to make the big mode to support
-> > > > premapped mode. This requires additional space to store the dma add=
-r.
-> > > >
-> > > > Within the sub-struct that contains the 'private', there is no suit=
-able
-> > > > variable for storing the DMA addr.
-> > > >
-> > > >                 struct {        /* Page cache and anonymous pages */
-> > > >                         /**
-> > > >                          * @lru: Pageout list, eg. active_list prot=
-ected by
-> > > >                          * lruvec->lru_lock.  Sometimes used as a g=
-eneric list
-> > > >                          * by the page owner.
-> > > >                          */
-> > > >                         union {
-> > > >                                 struct list_head lru;
-> > > >
-> > > >                                 /* Or, for the Unevictable "LRU lis=
-t" slot */
-> > > >                                 struct {
-> > > >                                         /* Always even, to negate P=
-ageTail */
-> > > >                                         void *__filler;
-> > > >                                         /* Count page's or folio's =
-mlocks */
-> > > >                                         unsigned int mlock_count;
-> > > >                                 };
-> > > >
-> > > >                                 /* Or, free page */
-> > > >                                 struct list_head buddy_list;
-> > > >                                 struct list_head pcp_list;
-> > > >                         };
-> > > >                         /* See page-flags.h for PAGE_MAPPING_FLAGS =
-*/
-> > > >                         struct address_space *mapping;
-> > > >                         union {
-> > > >                                 pgoff_t index;          /* Our offs=
-et within mapping. */
-> > > >                                 unsigned long share;    /* share co=
-unt for fsdax */
-> > > >                         };
-> > > >                         /**
-> > > >                          * @private: Mapping-private opaque data.
-> > > >                          * Usually used for buffer_heads if PagePri=
-vate.
-> > > >                          * Used for swp_entry_t if PageSwapCache.
-> > > >                          * Indicates order in the buddy system if P=
-ageBuddy.
-> > > >                          */
-> > > >                         unsigned long private;
-> > > >                 };
-> > > >
-> > > > But within the page pool struct, we have a variable called
-> > > > dma_addr that is appropriate for storing dma addr.
-> > > > And that struct is used by netstack. That works to our advantage.
-> > > >
-> > > >                 struct {        /* page_pool used by netstack */
-> > > >                         /**
-> > > >                          * @pp_magic: magic value to avoid recyclin=
-g non
-> > > >                          * page_pool allocated pages.
-> > > >                          */
-> > > >                         unsigned long pp_magic;
-> > > >                         struct page_pool *pp;
-> > > >                         unsigned long _pp_mapping_pad;
-> > > >                         unsigned long dma_addr;
-> > > >                         atomic_long_t pp_ref_count;
-> > > >                 };
-> > > >
-> > > > On the other side, we should use variables from the same sub-struct.
-> > > > So this patch replaces the "private" with "pp".
-> > > >
-> > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > ---
+> > On Wed, Apr 10, 2024 at 8:35=E2=80=AFPM Srujana Challa <schalla@marvell=
+.com>
+> > wrote:
 > > >
-> > > Instead of doing a customized version of page pool, can we simply
-> > > switch to use page pool for big mode instead? Then we don't need to
-> > > bother the dma stuffs.
+> > > > Subject: Re: [EXTERNAL] Re: [PATCH] virtio: vdpa: vDPA driver for
+> > > > Marvell OCTEON DPU devices
+> > > >
+> > > > On Wed, Apr 10, 2024 at 10:15:37AM +0000, Srujana Challa wrote:
+> > > > > > > > > +
+> > > > > > > > > +       domain =3D iommu_get_domain_for_dev(dev);
+> > > > > > > > > +       if (!domain || domain->type =3D=3D IOMMU_DOMAIN_I=
+DENTITY)
+> > {
+> > > > > > > > > +               dev_info(dev, "NO-IOMMU\n");
+> > > > > > > > > +               octep_vdpa_ops.set_map =3D
+> > > > > > > > > + octep_vdpa_set_map;
+> > > > > > > >
+> > > > > > > > Is this a shortcut to have get better performance? DMA API
+> > > > > > > > should have those greacefully I think.
+> > > > > > > When IOMMU is disabled on host and set_map/dma_map is not set=
+,
+> > > > > > > vhost-vdpa is reporting an error "Failed to allocate domain,
+> > > > > > > device is not
+> > > > > > IOMMU cache coherent capable\n".
+> > > > > > > Hence we are doing this way to get better performance.
+> > > > > >
+> > > > > > The problem is, assuming the device does not have any internal
+> > IOMMU.
+> > > > > >
+> > > > > > 1) If we allow it running without IOMMU, it opens a window for
+> > > > > > guest to attack the host.
+> > > > > > 2) If you see perforamnce issue with IOMMU_DOMAIN_IDENTITY,
+> > > > > > let's report it to DMA/IOMMU maintiner to fix that
+> > > > > It will be helpful for host networking case when iommu is disable=
+d.
+> > > > > Can we take the vfio pci driver approach as a reference where use=
+r
+> > > > > explicitly set "enable_unsafe_noiommu_mode" using module param?
+> > > >
+> > > > vfio is a userspace driver so it's userspace's responsibility.
+> > > > what exactly ensures correctness here? does the device have an
+> > > > on-chip iommu?
+> > > >
+> > > Our device features an on-chip IOMMU, although it is not utilized for
+> > > host-side targeted DMA operations. We included no-iommu mode in our
+> > > driver to ensure that host applications, such as DPDK Virtio user PMD=
+,
+> > > continue to function even when operating in a no-IOMMU mode.
 > >
+> > I may miss something but set_map() is empty in this driver. How could s=
+uch
+> > isolation be done?
+>
+> In no-iommu case, there would be no domain right, and the user of vhost-v=
+dpa(DPDK virtio user pmd),
+> would create the mapping and pass the PA (=3D IOVA) to the device directl=
+y. So that, device can directly
+> DMA to the PA.
+
+Yes, but this doesn't differ too much from the case where DMA API is
+used with IOMMU disabled.
+
+Are you saying DMA API introduces overheads in this case?
+
+Thanks
+
+>
 > >
-> > The page pool needs to do the dma by the DMA APIs.
-> > So we can not use the page pool directly.
->
-> I found this:
->
-> define PP_FLAG_DMA_MAP         BIT(0) /* Should page_pool do the DMA
->                                         * map/unmap
-
-You are right. I missed this. I will try.
-
-Thanks.
-
-
->
-> It seems to work here?
->
-> Thanks
->
+> > > We observed performance impacts on
+> > > certain low-end x86 machines when IOMMU mode was enabled.
+> > > I think, correctness is Host userspace application's responsibility,
+> > > in this case when vhost-vdpa is used with Host application such as DP=
+DK
+> > Virtio user PMD.
 > >
-> > Thanks.
-> >
+> > Thanks
 > >
 > > >
-> > > Thanks
+> > > > > >
+> > > > > > Thanks
+> > > > >
+> > > > > Thanks.
+> > > > >
 > > >
-> >
 >
+
