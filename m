@@ -1,119 +1,123 @@
-Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B20156B9F
-	for <virtualization@lists.linux.dev>; Fri, 12 Apr 2024 12:29:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4404B824B5
+	for <virtualization@lists.linux-foundation.org>; Fri, 12 Apr 2024 13:30:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712924953; cv=none; b=dzRog8kdSlQbsVoXHK4ttlfauuxGymPMW3okGuDWKZ7qImcJn6h7iTvEBIZbQDvx3P2XfpqSOYymxrc2aH+9TqhfAldNnWr4vMxkuBF0v3/mxnhbEENSRbqBG909VtUlpli671xZSTXt3uYDQ0VIOFimlsVaEBLqWojNRhvn2Rk=
+	t=1712928655; cv=none; b=hR1qCPn0zGQ63q7Ew1vcb+tzvO4ruVDD4xhGl2y9N7pROEQCj36lcg8ZUL4ljiWqpuOpiXTvSaqrbKGQFJhncUJFTKJvMeY7sia3oAjuYwOay67lwOUsH10Cb9VTw3IerhqaLhoaFXKWQ8/xG0bRtehic+dNFLcBYRAxZ3h/pmA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712924953; c=relaxed/simple;
-	bh=jHNxvSQpxO59xfjT/gyQrb8cvyhAHCTGkRIauX5Hw2k=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GXmOpCPPYdwD4N4uxj6wCBpcrlc2BT/GVTnlVa/ue2dNJ4gkVzYKBG8L8I1JYQco+JobdRaf7e2+yqQnvEwTrqOLdKNn6Uwv1gWGIsaqbvJzss9hG7DbPMbIH5S90b+0nbeDTTADKOwP3APGrRuTgXVkZncIffoJ6vHZGHtNI4M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-	(Exim 4.92)
-	(envelope-from <ukl@pengutronix.de>)
-	id 1rvG1e-000701-VQ; Fri, 12 Apr 2024 14:29:02 +0200
-Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
-	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.94.2)
-	(envelope-from <ukl@pengutronix.de>)
-	id 1rvG1d-00BsDM-FF; Fri, 12 Apr 2024 14:29:01 +0200
-Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.96)
-	(envelope-from <ukl@pengutronix.de>)
-	id 1rvG1d-000AT0-1F;
-	Fri, 12 Apr 2024 14:29:01 +0200
-Date: Fri, 12 Apr 2024 14:29:01 +0200
-From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Jason Wang <jasowang@redhat.com>, virtualization@lists.linux.dev, kernel@pengutronix.de
-Subject: Re: [PATCH] virtio-mmio: Convert to platform remove callback
- returning void
-Message-ID: <pweeconqpltug34tocjnk2i3sdqljvucwmndqprnlfusrle2lq@4rytnwrmjsnc>
-References: <ef71f955531d5e41b20d801e1149bb08d155679a.1709886922.git.u.kleine-koenig@pengutronix.de>
- <20240308121725-mutt-send-email-mst@kernel.org>
- <jsfldiklmu45j72rp7rqlpxfrgzjvpjmz664zsuvaetz4t2h5f@2hiy3huvrukc>
+	s=arc-20240116; t=1712928655; c=relaxed/simple;
+	bh=dos5mFR7OGlo/0+OT1mBqy46jgg02Ze4GK+u8PA+3W4=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=A+zvoBhSV1xkGSsVO+mKrAC+BVOVCerGnRl0WVfHGJlDcIm3x9HYA6bsY8eatZK/6B8DQViquf3YnblwoEXNDDQyemMd1BoNqk8GR/GYucNCfSgesf93gcFDT1bP6IHU/1FScBs/VlHQ/+ZytUaYhkRkD7kWX9yuSakB9EzSw8s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VbXvTvV6; arc=none smtp.client-ip=140.211.166.136
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VbXvTvV6"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 027F560744
+	for <virtualization@lists.linux-foundation.org>; Fri, 12 Apr 2024 13:30:54 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id Im3RGq9yP3Dz for <virtualization@lists.linux-foundation.org>;
+ Fri, 12 Apr 2024 13:30:53 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 39F0B60743
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 39F0B60743
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VbXvTvV6
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 39F0B60743
+	for <virtualization@lists.linux-foundation.org>; Fri, 12 Apr 2024 13:30:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1712928651;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=vN5LU15jD5iu/2/mvrypQik1qqqlfRZO/11n/IoWnz0=;
+	b=VbXvTvV6mmoRge5+en3vrHyCueepo8qKpOmYd/po/uVot4wpBABIR9Ze26FwSpU5hHqmKr
+	Hz8f6YHiGAkJrhc2g5+DtEOKlrwhPE0lEGTyGzAyilJkTxMg4skoK0oErgk2rAV6O6ABgx
+	SxhJ6jvu5eckEpZ6sLDD3yFU5ggeIsw=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-594-mnuFJhWMNgacB_b7a-sh5Q-1; Fri, 12 Apr 2024 09:30:48 -0400
+X-MC-Unique: mnuFJhWMNgacB_b7a-sh5Q-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id A42FF104D503;
+	Fri, 12 Apr 2024 13:30:48 +0000 (UTC)
+Received: from server.redhat.com (unknown [10.72.112.22])
+	by smtp.corp.redhat.com (Postfix) with ESMTP id 3A74F40C6DAE;
+	Fri, 12 Apr 2024 13:30:45 +0000 (UTC)
+From: Cindy Lu <lulu@redhat.com>
+To: lulu@redhat.com,
+	jasowang@redhat.com,
+	mst@redhat.com,
+	linux-kernel@vger.kernel.org,
+	virtualization@lists.linux-foundation.org
+Subject: [PATCH v5 0/5] vduse: Add support for reconnection
+Date: Fri, 12 Apr 2024 21:28:20 +0800
+Message-ID: <20240412133017.483407-1-lulu@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="biob5otnyxfgqphy"
-Content-Disposition: inline
-In-Reply-To: <jsfldiklmu45j72rp7rqlpxfrgzjvpjmz664zsuvaetz4t2h5f@2hiy3huvrukc>
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: virtualization@lists.linux.dev
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.2
 
+Here is the reconnect support in vduse
 
---biob5otnyxfgqphy
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Kernel will allocate pages for reconnection.
+Userspace needs to use mmap to map the memory to userspace and use these pages to
+save the reconnect information.
 
-On Fri, Mar 08, 2024 at 07:46:30PM +0100, Uwe Kleine-K=F6nig wrote:
-> Hello Michael,
->=20
-> On Fri, Mar 08, 2024 at 12:18:26PM -0500, Michael S. Tsirkin wrote:
-> > On Fri, Mar 08, 2024 at 09:51:20AM +0100, Uwe Kleine-K=F6nig wrote:
-> > > The .remove() callback for a platform driver returns an int which mak=
-es
-> > > many driver authors wrongly assume it's possible to do error handling=
- by
-> > > returning an error code. However the value returned is ignored (apart
-> > > from emitting a warning) and this typically results in resource leaks.
-> > >=20
-> > > To improve here there is a quest to make the remove callback return
-> > > void. In the first step of this quest all drivers are converted to
-> > > .remove_new(), which already returns void. Eventually after all drive=
-rs
-> > > are converted, .remove_new() will be renamed to .remove().
-> > >=20
-> > > Trivially convert this driver from always returning zero in the remove
-> > > callback to the void returning variant.
-> > >=20
-> > > Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
-> >=20
-> > Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> >=20
-> > do u want me to merge this?
->=20
-> I have no merge plan, so if you take it, that would be great.
+test passd in vduse+dpdk-testpmd
 
-It seems you didn't merge it yet (at least the patch isn't in next). It
-would be great if this patch made it in during the next merge window as
-I intend to change struct platform_driver::remove in the merge window
-leading to 6.11.
+change in V2
+1. Address the comments from v1
+2. Add the document for reconnect process
 
-Best regards
-Uwe
+change in V3
+1. Move the vdpa_vq_state to the uAPI.  vduse will use this to synchronize the vq info between the kernel and userspace app.
+2. Add a new ioctl VDUSE_DEV_GET_CONFIG. userspace app use this to get config space
+3. Rewrite the commit message.
+4. Only save the address for the page address and remove the index.
+5. remove the ioctl VDUSE_GET_RECONNECT_INFO, userspace app will use uAPI VDUSE_RECONNCT_MMAP_SIZE to mmap
+6. Rewrite the document for the reconnect process to make it clearer.
 
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
-Industrial Linux Solutions                 | https://www.pengutronix.de/ |
+change in v4
+1. Change the number of map pages to VQ numbers. UserSpace APP can define and maintain the structure for saving reconnection information in userspace. The kernel will not maintain this information.
+2. Rewrite the document for the reconnect process to make it clearer.
+3. add the new ioctl for VDUSE_DEV_GET_CONFIG/VDUSE_DEV_GET_STATUS
 
---biob5otnyxfgqphy
-Content-Type: application/pgp-signature; name="signature.asc"
+change in V5
+1. update the Documentation for vduse reconnection 
+2. merge the patch from Dan Carpenter <dan.carpenter@linaro.org> vduse: Fix off by one in vduse_dev_mmap()
+3. fix the wrong comment in the code 
 
------BEGIN PGP SIGNATURE-----
+Signed-off-by: Cindy Lu <lulu@redhat.com>
 
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmYZKQwACgkQj4D7WH0S
-/k5dcAgAnRLSmV6NXK6Do6rU4y9teSnGyzqR0lWBFoEoN+MhjaHa/TGIhRv4q3rg
-K0m2Qvp4tSu6iJZ9ZD9RxcxmzmmOXIJ8b1eEzrHgA4B26ASyQpKlws2z1Nsw113f
-N5/PtlFK1k7aw/yGicTEh3dTkxz/UqMjE934ogLQFjHircgsXMNNFuAcDBGFPSvl
-zo4/RfK31pDdBdyYJn7F22Zs51OMwDZIHpMCeO6i6MePb69uMynWOqE8yGG1PJI3
-Nltr9c8LPeycbYIf0g9vk8orSkTlikxZfTnUbB/Rl4i9Mg+22/LRVHRlk3u1LQhG
-nWOi4ucNZRGvwAMahg25kRK306pXww==
-=AfDo
------END PGP SIGNATURE-----
+Cindy Lu (5):
+  vduse: Add new ioctl VDUSE_DEV_GET_CONFIG
+  vduse: Add new ioctl VDUSE_DEV_GET_STATUS
+  vduse: Add function to get/free the pages for reconnection
+  vduse: Add file operation for mmap
+  Documentation: Add reconnect process for VDUSE
 
---biob5otnyxfgqphy--
+ Documentation/userspace-api/vduse.rst |  41 +++++++++
+ drivers/vdpa/vdpa_user/vduse_dev.c    | 125 ++++++++++++++++++++++++++
+ include/uapi/linux/vduse.h            |   5 ++
+ 3 files changed, 171 insertions(+)
+
+-- 
+2.43.0
+
