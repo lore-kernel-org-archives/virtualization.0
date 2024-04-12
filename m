@@ -1,57 +1,57 @@
-Received: from mail-qt1-f179.google.com (mail-qt1-f179.google.com [209.85.160.179])
+Received: from mail-vk1-f170.google.com (mail-vk1-f170.google.com [209.85.221.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2955822EE0
-	for <virtualization@lists.linux.dev>; Fri, 12 Apr 2024 20:43:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89BB83F9E0
+	for <virtualization@lists.linux.dev>; Fri, 12 Apr 2024 20:47:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712954625; cv=none; b=rPVBpWDf3CVy5hu0NdCotjyyZ3cHgLh5HbleRCvqb9cnb3bEwlwWlcKGCM69JRasCrt3tvSUVIfWJFDQrUdsf0NxJ2ODtzahcQgHtm+cSH+RoHE8gxsU71UoN3zCl01bfxFSafGZb1Uf3tjZ73N1PNe8rjTukR8aaZYjKX7UItc=
+	t=1712954823; cv=none; b=HQ8uzblWmT9ApDhBcaedAfOB4+t/gQfZ7XMEpmGXkMigp97w+AZtGt61E2EJv/OJ4CYLbXD3h3P3HSdJ9kVdaLxwEhZRLVwIvD2DCm8sKuBibKJuj6yEWLRVfZw59lDp83toCU+OARDsh421p1kB9YG24GOhqFJfKiOdAQJ1FTc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712954625; c=relaxed/simple;
-	bh=a9drh6RDh/gc5LP0JJH2bApYl3sZg5E6LTjci3KDBS0=;
+	s=arc-20240116; t=1712954823; c=relaxed/simple;
+	bh=YbDtsX6Bxnl33uhn4lJTpEdXyZqFprD4LyrXiZo/sBo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=oBr81uBYdHbdmMZdGAlnG01Hs8kHrn4jd0mVif/q0gSy/n/fAQDUiJGzWwaYKLSFYHZfGtl5ldJxmqMLpLJ/qER4nzBisOVEgJ6jzIeDPTNyOLJZIDpC1qzMsxrZFqkerJpJj/+YPkHqRSHevxSLL5lqCc3Hrn1+dw/q2XpiyQc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VeyUBeEU; arc=none smtp.client-ip=209.85.160.179
+	 Content-Type:Content-Disposition:In-Reply-To; b=O+HGYyRbObI/b76ciGAknwq5hMybKdYqwhjOpt3H/6LgDoFIA0rYIgzCK5MR+oqYkqr9kdCJlXyqU5OiAEWn9PyoJL13EQ03NM1WZ1wDKuj6gc5ASaNSkaT7TJMr2agLQbCBjHR6kBBt06bGUep6zDWLQs13mSWjealwQSOotrk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Z4qGRmHM; arc=none smtp.client-ip=209.85.221.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VeyUBeEU"
-Received: by mail-qt1-f179.google.com with SMTP id d75a77b69052e-434c3d21450so4998861cf.0
-        for <virtualization@lists.linux.dev>; Fri, 12 Apr 2024 13:43:43 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Z4qGRmHM"
+Received: by mail-vk1-f170.google.com with SMTP id 71dfb90a1353d-4dac4791267so515442e0c.1
+        for <virtualization@lists.linux.dev>; Fri, 12 Apr 2024 13:47:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1712954623; x=1713559423; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1712954820; x=1713559620; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=n51BvZIT+WN9Wvb7bAXMMtFVvL7V11A9hSVIjwpajTo=;
-        b=VeyUBeEU5iSsiS/RN0I1Rm8YTwI36yY6bZgtoVyT3jBWF1okdcHhBbSNPqzQcaFI/A
-         HDBnBjJrZE3qpmP7+4E/eWeNLGf7Re2GD564uv0NuO0C2ulLniNumgkQjjGAWDMurHX+
-         rBS2qgg6/QP6bQWKbBBRRrYZyh8o+39G8t1K1pAH5ensw3zdim0cvUO/pzc3I15Brwio
-         bty/jh9DrSMKb5P4E126YFt0nGc89Wcz5ccVSOzk32wsZhvsop1ezGmwqWu0iieDOX71
-         VfMe8Dz2wdQegKuw/XrI0Mppzh2putR9A1J/86p37gNmFUOR8ssyO4vSt7okPcdX+QkP
-         DjEQ==
+        bh=8KmL2nyn4jWlGFSn8KqIuSl3GHAumDP1gAvaqPxNDoQ=;
+        b=Z4qGRmHM3pqsCPcXEPQ2mcKaRxK4ipV05q3VG2TEQwAWxoAn4wh02kzOuxfNfwHwos
+         Qw21Z0J5HwTWki69vC5AB8bh1Mm+PwbHAOPFJCsCwIaDWQvlLEy+R7rq8aZxcbM3jFh1
+         XjgSbolWNyWgxq42RXUiPsoBjFjROASP6Mjlm3GDg5yyZe7GkzPjU85MqU4NoofJT6sc
+         Y8xyHthvGy65/HwcjFfbu49K0n1QGm1uT0OVo/Os9UwLvFz+sKI9dvGgab1OGhCu4Gmi
+         OC95D7X50TnireiLFR94xD7oIPfin06zIBfZR9n/9BW5NgmfBccHuSs8Syfhp23SkBlL
+         GbJQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712954623; x=1713559423;
+        d=1e100.net; s=20230601; t=1712954820; x=1713559620;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=n51BvZIT+WN9Wvb7bAXMMtFVvL7V11A9hSVIjwpajTo=;
-        b=I9T8sWZrL6u4mUA+LbOaymiiMwdivB8532S8YMgpUei08La1PJMIkcxFwFl7V0YHWO
-         FBCI1bQzOYQcsHQZT5PA3vRySRUYTy5ZYfU3esa85K6UDSS711OLhs4p9SWfTzJ3evlW
-         PvseW9Hh3DrTxkTDw3xI+tz/AkH1hQP71tatX/7ZdNUaHHJTfN50gcdpnmoAL2OlDdRx
-         UN+kyaWAo33u9Z3swD1bvpNUuJarS9PwIv+w1Dj6BIx6+mgNej5KckooCvh0yNrD/3ND
-         Zq0HOcu3ieGTsRLZiKLEbsH6WxV/kNGHKNDbyTiddWLqF3zasPZVdzjjfWqaSZwyWA6r
-         6u5g==
-X-Forwarded-Encrypted: i=1; AJvYcCWR0PUOQGVD1HQxHoFNNasnYE4N/6wmhSZ8UCgD2rLq6vgHCCVcXQnOUUw8f1X3l1z1EsYIopfO2UbWveEQI4+J2zEktNFtdlAnMyh3OAc=
-X-Gm-Message-State: AOJu0YzM/X1DvtWItQ0Vu0ZptFJFpo02dQLgCVruYfQr2G39BTasnZ6Y
-	gjegX0nTDm/SiuLNxk1LAH3gRtQgM2G4UJbRayS3Emqk9mU3evLP
-X-Google-Smtp-Source: AGHT+IHZCGsvpaFveX/T5xCZgBDGCi4rgvJEU/PhlFJDpUHv1LskwNrc66A6TbKBWCp4fE9QMdzADw==
-X-Received: by 2002:ac8:598f:0:b0:435:bda5:483c with SMTP id e15-20020ac8598f000000b00435bda5483cmr4253599qte.62.1712954623068;
-        Fri, 12 Apr 2024 13:43:43 -0700 (PDT)
+        bh=8KmL2nyn4jWlGFSn8KqIuSl3GHAumDP1gAvaqPxNDoQ=;
+        b=kQ5nRwjTIvmo20oeUT4ee5IbnpnvOEfVVyQlE/PsSle3bUVojuD7Q50dw6mAZIJ8Zr
+         C9P/jxpNNMlW3RR1PskcOM7hcD80hlUnS/F9KzbINLBSCkbu6jtVJkrNQfHNcWJM6OD3
+         YQrDemw4RIueQpqGSl+4Ga/3HBx5HIhidHLIAl6eI0bYIzDhULiti3Apgl9CC2JmdMF1
+         jHBeytirg5JAxgAbzJyLBGGrioh5JUj28VRf/dqAxfJxNFH2CPVqa//n/RqTR4IU1Bts
+         pUEnOvUqufBzgRn1X1hSfsyoEQyZzUUCwz2brQAgoTabvL8KyGZDc+WmcAbhHEZpvLjf
+         wUiA==
+X-Forwarded-Encrypted: i=1; AJvYcCWs251rzj5HA1cssKRbpY9N+Bj/Yl+wuogbOW8h7KGx1kD0qTj3iXba8KnStn3r/jjFWhCAnF+exRBMz80Bp5gzQTajBGse6mtbsSuMiXs=
+X-Gm-Message-State: AOJu0YyFXyp45t6nDDovRyrTIuApwEeoVNFHJw2eb5P1/DCdhm8C+r6I
+	bJNtJ86lZ+yHeRBan0xT2SVlAK8uHFVB2vnwKhUQ7GKKOeJP4/rL
+X-Google-Smtp-Source: AGHT+IHM2miLX2tcVafyyhzFoWw8So4ETDOFnSZdLf8WCGGhlntQHz7m+UVucs06+uQ1URBh6HdI1A==
+X-Received: by 2002:a05:6122:2221:b0:4d4:32e1:e7b4 with SMTP id bb33-20020a056122222100b004d432e1e7b4mr3944460vkb.4.1712954820361;
+        Fri, 12 Apr 2024 13:47:00 -0700 (PDT)
 Received: from localhost ([142.169.16.165])
-        by smtp.gmail.com with ESMTPSA id v9-20020ac87289000000b00436b2135b51sm285562qto.64.2024.04.12.13.43.42
+        by smtp.gmail.com with ESMTPSA id ee2-20020a0562140a4200b0069b5839d26dsm1276761qvb.9.2024.04.12.13.46.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 12 Apr 2024 13:43:42 -0700 (PDT)
-Date: Fri, 12 Apr 2024 16:43:40 -0400
+        Fri, 12 Apr 2024 13:47:00 -0700 (PDT)
+Date: Fri, 12 Apr 2024 16:46:58 -0400
 From: Benjamin Poirier <benjamin.poirier@gmail.com>
 To: Jiri Pirko <jiri@resnulli.us>
 Cc: netdev@vger.kernel.org, kuba@kernel.org, pabeni@redhat.com,
@@ -60,11 +60,10 @@ Cc: netdev@vger.kernel.org, kuba@kernel.org, pabeni@redhat.com,
 	shuah@kernel.org, petrm@nvidia.com, liuhangbin@gmail.com,
 	vladimir.oltean@nxp.com, idosch@nvidia.com,
 	virtualization@lists.linux.dev
-Subject: Re: [patch net-next 5/6] selftests: forwarding: add wait_for_dev()
- helper
-Message-ID: <Zhmc_KsL__7noHWZ@f4>
+Subject: Re: [patch net-next 6/6] selftests: virtio_net: add initial tests
+Message-ID: <ZhmdwiGi-r6eDyB-@f4>
 References: <20240412151314.3365034-1-jiri@resnulli.us>
- <20240412151314.3365034-6-jiri@resnulli.us>
+ <20240412151314.3365034-7-jiri@resnulli.us>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -73,59 +72,70 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240412151314.3365034-6-jiri@resnulli.us>
+In-Reply-To: <20240412151314.3365034-7-jiri@resnulli.us>
 
 On 2024-04-12 17:13 +0200, Jiri Pirko wrote:
 > From: Jiri Pirko <jiri@nvidia.com>
 > 
-> The existing setup_wait*() helper family check the status of the
-> interface to be up. Introduce wait_for_dev() to wait for the netdevice
-> to appear, for example after test script does manual device bind.
+> Introduce initial tests for virtio_net driver. Focus on feature testing
+> leveraging previously introduced debugfs feature filtering
+> infrastructure. Add very basic ping and F_MAC feature tests.
+> 
+> To run this, do:
+> $ make -C tools/testing/selftests/ TARGETS=drivers/net/virtio_net/ run_tests
+> 
+> Run it on a system with 2 virtio_net devices connected back-to-back
+> on the hypervisor.
 > 
 > Signed-off-by: Jiri Pirko <jiri@nvidia.com>
 > ---
->  tools/testing/selftests/net/forwarding/lib.sh | 19 +++++++++++++++++++
->  1 file changed, 19 insertions(+)
+>  tools/testing/selftests/Makefile              |   1 +
+>  .../selftests/drivers/net/virtio_net/Makefile |   5 +
+>  .../drivers/net/virtio_net/basic_features.sh  | 127 ++++++++++++++++++
+>  .../net/virtio_net/virtio_net_common.sh       |  99 ++++++++++++++
+>  4 files changed, 232 insertions(+)
+>  create mode 100644 tools/testing/selftests/drivers/net/virtio_net/Makefile
+>  create mode 100755 tools/testing/selftests/drivers/net/virtio_net/basic_features.sh
+>  create mode 100644 tools/testing/selftests/drivers/net/virtio_net/virtio_net_common.sh
 > 
-> diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
-> index 959183b516ce..74859f969997 100644
-> --- a/tools/testing/selftests/net/forwarding/lib.sh
-> +++ b/tools/testing/selftests/net/forwarding/lib.sh
-> @@ -746,6 +746,25 @@ setup_wait()
->  	sleep $WAIT_TIME
->  }
->  
-> +wait_for_dev()
-> +{
-> +	local dev=$1; shift
-> +	local timeout=${1:-$WAIT_TIMEOUT}; shift
-> +	local max_iterations=$(($timeout * 10))
+> diff --git a/tools/testing/selftests/Makefile b/tools/testing/selftests/Makefile
+> index 6dab886d6f7a..a8e40599c65f 100644
+> --- a/tools/testing/selftests/Makefile
+> +++ b/tools/testing/selftests/Makefile
+> @@ -20,6 +20,7 @@ TARGETS += drivers/s390x/uvdevice
+>  TARGETS += drivers/net
+>  TARGETS += drivers/net/bonding
+>  TARGETS += drivers/net/team
+> +TARGETS += drivers/net/virtio
+>  TARGETS += dt
+>  TARGETS += efivarfs
+>  TARGETS += exec
+> diff --git a/tools/testing/selftests/drivers/net/virtio_net/Makefile b/tools/testing/selftests/drivers/net/virtio_net/Makefile
+> new file mode 100644
+> index 000000000000..c6edf5ddb0e4
+> --- /dev/null
+> +++ b/tools/testing/selftests/drivers/net/virtio_net/Makefile
+> @@ -0,0 +1,5 @@
+> +# SPDX-License-Identifier: GPL-2.0+ OR MIT
 > +
-> +	for ((i = 1; i <= $max_iterations; ++i)); do
-> +		ip link show dev $dev up &> /dev/null
-> +		if [[ $? -ne 0 ]]; then
-> +			sleep 0.1
-> +		else
-> +			return 0
-> +		fi
-> +	done
+> +TEST_PROGS = basic_features.sh
 > +
-> +	log_test wait_for_dev ": Interface $dev did not appear."
-> +	exit 1
-> +}
+> +include ../../../lib.mk
 
-How about rewriting the function to make use of the `slowwait` helper as
-follows:
+Makefile is missing something like
 
-wait_for_dev()
-{
-	local dev=$1; shift
-	local timeout=${1:-$WAIT_TIMEOUT}; shift
+TEST_FILES = \
+	virtio_net_common.sh \
+	#
 
-	slowwait $timeout ip link show dev $dev up &> /dev/null
-	if (( $? )); then
-		check_err 1
-		log_test wait_for_dev "Interface $dev did not appear."
-		exit $EXIT_STATUS
-	fi
-}
+TEST_INCLUDES = \
+	../../../net/forwarding/lib.sh \
+	../../../net/lib.sh \
+	#
+
+Without those, these files are missing when exporting the tests, such as
+with:
+
+cd tools/testing/selftests/
+make install TARGETS=drivers/net/virtio_net/
+./kselftest_install/run_kselftest.sh
