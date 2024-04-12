@@ -1,32 +1,32 @@
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A3054A2D
-	for <virtualization@lists.linux.dev>; Fri, 12 Apr 2024 02:07:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 500A633DD
+	for <virtualization@lists.linux.dev>; Fri, 12 Apr 2024 02:20:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712887668; cv=none; b=n+nSGJ8fzmaCtWfE2XzqFT9nFMsvcfSHhpNbNlAKeJJFmuEDNNZBERc9oGjEfPeNxE/jGD+qfapGSvzhxjz+7MOQqL3IezKG92f4Nsbgq304bRW1e8Z9G9blDvW0972JkAqSjfVdY5K6k1uFwnKYJrMzc+o/UdKiBis1cWWgdas=
+	t=1712888403; cv=none; b=rKUtM1gJPpNZv5ST3YUMYXAH1bzsolOuNqyW6ce40a+5QJ2DDnELzUCfr+nK1NIZglhTdi+EDD8/XCExliG8wsbg+dNl3evXRkuEkAVxX3Rl/xW5KYTbVkmEZYUzbrsnpdxD9n81MksZvnoyE62pPeSA5w85vn8D91naBXZ5Px4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712887668; c=relaxed/simple;
-	bh=BkDfFNA7J1ByNtzpfLSJf+/U9tIx97cssYvo7N9moX0=;
+	s=arc-20240116; t=1712888403; c=relaxed/simple;
+	bh=2jNnJCfDAPUEKRrpEthErV+KmzCGXFUSyGVzU5TBHK4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=H2MgEZkKcL3mYY+83dabxdBRFHOjG2wiyOqj7ff3o0zcDXsZrS5YPPsM6QiXs/3buSw5SSo06t+czUsQwfuseIZvqWecCzwtiPrPJKDH9LaoXm43ijz7fa9CmuGkYJG3rXxnie6aQBQBocVh/niJYLE1p0yE/xgA0l1AuPkH6Jo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=FYHD1ujS; arc=none smtp.client-ip=115.124.30.131
+	 In-Reply-To:Content-Type; b=km5pu3ld3PAFUxYDFZIDd6RMvo7N+AOt2J+WfQSBJJNtZg29SzEBdCxsRx1jnKEC/NkN7E2zht878pgTB+Zj53qQsE/E4d+OEBmRlEevjvtHABZHuuaQB4nAoNdxwH8XzzrbQ0OslpzSUXVOGopmsiFQXzDr0NCxADVQBP3tgoI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=vpTyff59; arc=none smtp.client-ip=115.124.30.110
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="FYHD1ujS"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="vpTyff59"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1712887658; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=1HXYgCRPnY66EoAYDKR7u7jnZJr1ayx55VURbxfmf04=;
-	b=FYHD1ujSGq7BGdjQ1IGh/q+dnymwhwg4UrKuNKFqk1IEBd5+0re05Dh8x7JMXHMMFEBJGmFMEddQdAMh/B18PQ7qcPm9uoYNRhuIxV9TqFwLwWXkvauc7dpX7fByjxUClBLAguCev7qC53P09lHBxqWtvAG1oS2+cpzvdbC6qWk=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0W4MeNlx_1712887656;
-Received: from 30.221.148.182(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W4MeNlx_1712887656)
+	t=1712888399; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=VgScfaw58Cz39APebosTdhMRMuFgoK011psxoN7p3Lo=;
+	b=vpTyff59B181HP0AdES/tWDU9OXe1ghT+fKMs2xiobz8gBxpcLVWa65fOb0Qmq1ppB3WEs5MfmTBIJZgT69DkNEYy8aG+7w0JAWRb1Ejhr+MnI2OIJR1zAVnmks7Dxrsjkl5WKJIrD+bTl5FN9mlWudKjlxGRZPAbGYJiNDUuuo=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R981e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0W4MZyfG_1712888397;
+Received: from 30.221.148.182(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W4MZyfG_1712888397)
           by smtp.aliyun-inc.com;
-          Fri, 12 Apr 2024 10:07:37 +0800
-Message-ID: <99bc7a22-6fa4-49e1-b98b-4b6a46f1b9b8@linux.alibaba.com>
-Date: Fri, 12 Apr 2024 10:07:35 +0800
+          Fri, 12 Apr 2024 10:19:58 +0800
+Message-ID: <207f4375-b9f5-4102-a905-ae5710c18d3f@linux.alibaba.com>
+Date: Fri, 12 Apr 2024 10:19:56 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -34,28 +34,29 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v6 2/4] ethtool: provide customized dim profile
- management
-To: Brett Creeley <bcreeley@amd.com>, netdev@vger.kernel.org,
- virtualization@lists.linux.dev
+Subject: Re: [PATCH net-next v6 4/4] virtio-net: support dim profile
+ fine-tuning
+To: Brett Creeley <bcreeley@amd.com>
 Cc: Jakub Kicinski <kuba@kernel.org>, "David S. Miller"
  <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
  Paolo Abeni <pabeni@redhat.com>, Jason Wang <jasowang@redhat.com>,
  "Michael S. Tsirkin" <mst@redhat.com>,
  Ratheesh Kannoth <rkannoth@marvell.com>,
  Alexander Lobakin <aleksander.lobakin@intel.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ "open list:NETWORKING DRIVERS" <netdev@vger.kernel.org>,
+ "open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>
 References: <1712844751-53514-1-git-send-email-hengqi@linux.alibaba.com>
- <1712844751-53514-3-git-send-email-hengqi@linux.alibaba.com>
- <b0c8d0a2-d6e5-4138-96c0-e9dbbc1c8b20@amd.com>
+ <1712844751-53514-5-git-send-email-hengqi@linux.alibaba.com>
+ <8bdcdf49-25fb-46d4-926c-6b0275164d97@amd.com>
 From: Heng Qi <hengqi@linux.alibaba.com>
-In-Reply-To: <b0c8d0a2-d6e5-4138-96c0-e9dbbc1c8b20@amd.com>
+In-Reply-To: <8bdcdf49-25fb-46d4-926c-6b0275164d97@amd.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
 
 
-在 2024/4/11 下午11:19, Brett Creeley 写道:
+在 2024/4/11 下午11:23, Brett Creeley 写道:
 >
 >
 > On 4/11/2024 7:12 AM, Heng Qi wrote:
@@ -63,81 +64,96 @@ Content-Transfer-Encoding: 8bit
 >> caution when opening attachments, clicking links, or responding.
 >>
 >>
->> The NetDIM library, currently leveraged by an array of NICs, delivers
->> excellent acceleration benefits. Nevertheless, NICs vary significantly
->> in their dim profile list prerequisites.
+>> Virtio-net has different types of back-end device
+>> implementations. In order to effectively optimize
+>> the dim library's gains for different device
+>> implementations, let's use the new interface params
+>> to fine-tune the profile list.
 >>
->> Specifically, virtio-net backends may present diverse sw or hw device
->> implementation, making a one-size-fits-all parameter list impractical.
->> On Alibaba Cloud, the virtio DPU's performance under the default DIM
->> profile falls short of expectations, partly due to a mismatch in
->> parameter configuration.
+>> Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
+>> ---
+>>   drivers/net/virtio_net.c | 8 ++++++--
+>>   1 file changed, 6 insertions(+), 2 deletions(-)
 >>
->> I also noticed that ice/idpf/ena and other NICs have customized
->> profilelist or placed some restrictions on dim capabilities.
+>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>> index a64656e..813d9ed 100644
+>> --- a/drivers/net/virtio_net.c
+>> +++ b/drivers/net/virtio_net.c
+>> @@ -3584,7 +3584,7 @@ static void virtnet_rx_dim_work(struct 
+>> work_struct *work)
+>>                  if (!rq->dim_enabled)
+>>                          continue;
 >>
->> Motivated by this, I tried adding new params for "ethtool -C" that 
->> provides
->> a per-device control to modify and access a device's interrupt 
->> parameters.
->>
->> Usage
->> ========
->> 1. Query the currently customized list of the device
->>
->> $ ethtool -c ethx
->> ...
->> rx-eqe-profile:
->> {.usec =   1, .pkts = 256, .comps =   0,},
->> {.usec =   8, .pkts = 256, .comps =   0,},
->> {.usec =  64, .pkts = 256, .comps =   0,},
->> {.usec = 128, .pkts = 256, .comps =   0,},
->> {.usec = 256, .pkts = 256, .comps =   0,}
->> rx-cqe-profile:   n/a
->> tx-eqe-profile:   n/a
->> tx-cqe-profile:   n/a
->>
->> 2. Tune
->> $ ethtool -C ethx rx-eqe-profile 1,1,0_2,2,0_3,3,0_4,4,0_5,5,0
->> $ ethtool -c ethx
->> ...
->> rx-eqe-profile:
->> {.usec =   1, .pkts =   1, .comps =   0,},
->> {.usec =   2, .pkts =   2, .comps =   0,},
->> {.usec =   3, .pkts =   3, .comps =   0,},
->> {.usec =   4, .pkts =   4, .comps =   0,},
->> {.usec =   5, .pkts =   5, .comps =   0,}
->> rx-cqe-profile:   n/a
->> tx-eqe-profile:   n/a
->> tx-cqe-profile:   n/a
->>
->> 3. Hint
->> If the device does not support some type of customized dim
->> profiles, the corresponding "n/a" will display.
+>> -               update_moder = net_dim_get_rx_moderation(dim->mode, 
+>> dim->profile_ix);
+>> +               update_moder = dev->rx_eqe_profile[dim->profile_ix];
 >
-> What if the user specifies a *-eqe-profile and *-cqe-profile for rx 
-> and/or tx? Is that supported? If so, which one is the active profile?
+> Looking at this it seems like the driver has to be aware of the active 
+> profile type, i.e. eqe or cqe. Why not continue to use the dim->mode 
+> and also the net_dim_get_rx_moderation() helper?
 
+At this point I plan to issue a patch set after this to clean up all 
+related drivers together,
+which I have mentioned in the cover-letter:
 
-I think you mean GET? GET currently does not support any parameters, the 
-working profile will be displayed.
+"
+Since the profile now exists in netdevice, adding a function similar
+to net_dim_get_rx_moderation_dev() with netdevice as argument is
+nice, but this would be better along with cleaning up the rest of
+the drivers, which we can get to very soon after this set.
+"
 
 >
-> Maybe I missed this, but it doesn't seem like the output from "ethtool 
-> -c ethX" shows the active profile it just dumps the profile 
-> configurations.
+> Does the dim->mode not get updated based on the ethtool command(s) 
+> setting up the new and active profile?
 
-Now it is required that dev->priv_flags is set to one of 
-IFF_PROFILE_{USEC, PKTS, COMPS} (which means that the
-driver supports configurable profiles) before the profile can be queried 
-or do you want to query without this restriction?
+This will not be updated.
 
-Thanks!
+Thanks.
 
 >
 > Thanks,
 >
 > Brett
 >
-> [snip]
+>>                  if (update_moder.usec != rq->intr_coal.max_usecs ||
+>>                      update_moder.pkts != rq->intr_coal.max_packets) {
+>>                          err = virtnet_send_rx_ctrl_coal_vq_cmd(vi, 
+>> qnum,
+>> @@ -3868,7 +3868,8 @@ static int virtnet_set_rxnfc(struct net_device 
+>> *dev, struct ethtool_rxnfc *info)
+>>
+>>   static const struct ethtool_ops virtnet_ethtool_ops = {
+>>          .supported_coalesce_params = ETHTOOL_COALESCE_MAX_FRAMES |
+>> -               ETHTOOL_COALESCE_USECS | 
+>> ETHTOOL_COALESCE_USE_ADAPTIVE_RX,
+>> +               ETHTOOL_COALESCE_USECS | 
+>> ETHTOOL_COALESCE_USE_ADAPTIVE_RX |
+>> +               ETHTOOL_COALESCE_RX_EQE_PROFILE,
+>>          .get_drvinfo = virtnet_get_drvinfo,
+>>          .get_link = ethtool_op_get_link,
+>>          .get_ringparam = virtnet_get_ringparam,
+>> @@ -4424,6 +4425,7 @@ static int virtnet_find_vqs(struct virtnet_info 
+>> *vi)
+>>
+>>   static void virtnet_dim_init(struct virtnet_info *vi)
+>>   {
+>> +       struct net_device *dev = vi->dev;
+>>          int i;
+>>
+>>          if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL))
+>> @@ -4433,6 +4435,8 @@ static void virtnet_dim_init(struct 
+>> virtnet_info *vi)
+>>                  INIT_WORK(&vi->rq[i].dim.work, virtnet_rx_dim_work);
+>>                  vi->rq[i].dim.mode = DIM_CQ_PERIOD_MODE_START_FROM_EQE;
+>>          }
+>> +
+>> +       dev->priv_flags |= IFF_PROFILE_USEC | IFF_PROFILE_PKTS;
+>>   }
+>>
+>>   static int virtnet_alloc_queues(struct virtnet_info *vi)
+>> -- 
+>> 1.8.3.1
+>>
+>>
 
