@@ -1,57 +1,57 @@
-Received: from mail-lj1-f180.google.com (mail-lj1-f180.google.com [209.85.208.180])
+Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com [209.85.167.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3E3814D28F
-	for <virtualization@lists.linux.dev>; Fri, 12 Apr 2024 15:13:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C7C814D28F
+	for <virtualization@lists.linux.dev>; Fri, 12 Apr 2024 15:13:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712934814; cv=none; b=oXBrzoQZ8L/bAlYGMGcMqAmRY2fsD9uOecxtlfS7A5BrozSTwrhKqPLpxzjnhQQfnocFkumqgQaGuotrd4UE05mlBaDdflWg/x67oaQbM+6Q2Gml2ELClP4UYA7sJT+ZGhp8YbtAWwTI6OLm1qu6NdeZJT0wjsRcgEAErEKa0qc=
+	t=1712934817; cv=none; b=JeFEdHKujrKDL29OaujBIHnWqFF/5uMbUmeo299xUXOx+r1Y6tHZWteJO+SZuaEd3RdW5v8r4dsHZsr7LpB9pC9AUrJLCxOnm29r693055CEWDqQEY6a4IiXgtWMdfC2v9HrLxrBQikZ3qZOkzU2wUrICedOERMF2FQxgS33YuE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712934814; c=relaxed/simple;
-	bh=QbEpVnMQr5FleQ181phGUo98xW1xM6Rbox9biz8EFFk=;
+	s=arc-20240116; t=1712934817; c=relaxed/simple;
+	bh=y4OsWKbOLTtBRExU+Hq2EPu4xoFPTa3O/91wuGNyqUA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=rBxdEnoI3YOWP2Qhdy0uu9vwR6a1b+JzU81uEoZWD0xuHQcLzrulI6kuecw7XQ6MeW53nKadlkrcgkcvrGY7a83ftvXyA+Gf1CdIedpTNTsIuOoTa69krCp2ZIrOHk7DsIOK+Pn/Zn04oH5iNQHAKRcTje8Twj3HSAgwJQArDj8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=hHqn9er2; arc=none smtp.client-ip=209.85.208.180
+	 MIME-Version; b=ne7QIU/FnEjrNTHLua1Vvg789b711zk1MVO7PMryPA4bZGBCeyFebUq1jgPB3onpib7To6hMjfEr4OGDFLVBUlgtPjtnFV6G/NqIjxCd3FeN3It9MT7lfpbMn0t/rv66NxMBIRKq8TXMaUh47c8YPRc36so3qz9POSctaBLNw6A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=MXNIg1Id; arc=none smtp.client-ip=209.85.167.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="hHqn9er2"
-Received: by mail-lj1-f180.google.com with SMTP id 38308e7fff4ca-2d8a24f8a3cso10254231fa.1
-        for <virtualization@lists.linux.dev>; Fri, 12 Apr 2024 08:13:31 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="MXNIg1Id"
+Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-516dbc36918so1336534e87.0
+        for <virtualization@lists.linux.dev>; Fri, 12 Apr 2024 08:13:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1712934810; x=1713539610; darn=lists.linux.dev;
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1712934812; x=1713539612; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=yRzBFs7nWe4OmdpxKyecIOsORdsbkwk80rMj+0LzMLM=;
-        b=hHqn9er2A5BZ+7I7jtnkxvTNx+0TozSHGPvb3ldQggsV18AfR6+0K4rv3sqtoEG+oZ
-         MZKp4uK/U5IzsoKGsQcBUGIBKyvx0maLhhh2AQV2VKcFzmcvoyHWWmIW5opqi/4d9DRM
-         z9c2VuTvbhpUkYG+/P1nOxTiQtG3Y2PxpZdeR0OMC06LYRDBwVIikUIso0R8NGImHetn
-         VuPZ2+Y9qKOfLVVxoYnTIGC5fLPFN23UNS1TcROZ6J6UE8NnWmJvHTayoQ/iNLG5h/5z
-         PCx8zeEeKlcaviOfh11N0JBjTsN6bhj32ULOxu13JuWhFbRK/IVkN6oQDwL4uGuFZlbA
-         FVYQ==
+        bh=8sErkhIGmhf5usWez5Xl4XZ9oQzpvBj57cN4AShWReY=;
+        b=MXNIg1IdZ0BD7LDQELQc60nCzgJUME9NuCUIuyhWrTNwafQBxHdIauCQy2yqX+veXe
+         /cebBKIvTolqAP8ZygYFWX1LlX7gzKTRvMcJcGclqsuCCn0HsD9ODc/DPVFzBd1MxRfs
+         bv9tlBTX0/ZETxmk7dS+T/zn4f/5CG2fLZrqD/Cw98584x9fc2SKKsDQOK94/59KwcWK
+         YsFFky+zxGx8vyrpOWmQZatuEAnzXSVmDzdV7H7f2HXZWspfplnVZ5DnFGik1CSzkWBk
+         AC7LspJtHCpOn6lVLvMosUyM1heyYSfRyO5fHVdkLFJ6r+p6mRnpZCME3tvL7SzYrSlt
+         2p6Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712934810; x=1713539610;
+        d=1e100.net; s=20230601; t=1712934812; x=1713539612;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=yRzBFs7nWe4OmdpxKyecIOsORdsbkwk80rMj+0LzMLM=;
-        b=su8odcz6HSHHgS7x7YS7q8Zf9Hq3d+UUyyi/rJyWJcH65NFpHvtpQq/bMTPq29Jr1S
-         fsVAyVVDtxLAWym2LmtiEK1smomKXNNWbjykYmprfCFRDKOiPDl3bCy792LyzWMSMa7t
-         74WilsYOLm5xH0PGpBS7RN9+vLLYIsyFJHbNf46vtOBE34fg5HOsnVfKoY+qf90vLFcG
-         TCXZIev/76Bm/3jxbqWARxxoVgUuSTOEJJCJCiRMju2au/aM/N4aNqieECK1Lsqe9eWy
-         nXr7MjZ0F1cxlC0TLEVQbOAT11lpZAOtQlafpB3IRvacMSPgkd1/m/bF/6qUi7e2TFtQ
-         6uvw==
-X-Forwarded-Encrypted: i=1; AJvYcCWsOjrCa0FpXYEWCg4Jil2I5IL2nhvocGzAQSHNdrrYWVCHO5vLnwNRtezpZuMI651X9+qfI+R+8DgkwutsiWibi7HJcMh3u25BUeacMz4=
-X-Gm-Message-State: AOJu0YwyB95g/Z67mUd7OnjobTtu/ZAm3GV8xy2N9PDgjm2A4QThHXXn
-	welMzfIfSckoKhhvhD8XgP2Mx/jVTJvyhd/jnbfyJsB097dgEQdAUbgcqyiclgo=
-X-Google-Smtp-Source: AGHT+IHjo69PdEvYDcnQbXnMCraCmXWHrBnaH7QnmydQNhJdAHZPMhXzQ804UbbE+RnVcalObrgcHA==
-X-Received: by 2002:a2e:b8c4:0:b0:2d8:10d3:1a0b with SMTP id s4-20020a2eb8c4000000b002d810d31a0bmr2023490ljp.39.1712934809842;
-        Fri, 12 Apr 2024 08:13:29 -0700 (PDT)
+        bh=8sErkhIGmhf5usWez5Xl4XZ9oQzpvBj57cN4AShWReY=;
+        b=i2SCYlEIYG0ouPNGf+8Uou4Gwp9vaAmkO/6csI7JH9vE2/mp5tyxZB9/AVmAvYYeq2
+         job0zfMUu2pwYwfd/+4DHLMm0U6VtPcRRYBqhDXSKk1l4ZhYuRs0EeZ7gguEjmUNUTdQ
+         pnf0IWP5ljxLTvHqUllF62ZAMVYEVtQ3WWm9J+cgyfeKvd4NcZ+MNc3EnlxH5ik3VSMc
+         ddUN5A/wYZ0w/1wLlKEmGck/5I41xMWXcZfwc+ZGQoXAR21BupFdnegwrt5h3+P7MtsI
+         vuBhcukRQwTKiA1TRXrf+IxNvvy5foUYuzTINpqV26wkdKCtjrS3EUZuEhGhb0UppeXR
+         RIQQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXxziASostlwf3tWLjz2DnhOOdpjVV2XGloMF82FYw+booqCLPUq6JHaajgbDl9/Q6o9IcW7T+DW1qU3zy909POCTcowy9IMwGLBWa8OKg=
+X-Gm-Message-State: AOJu0YzsQbocHmE2Inz64UedjW7lrz0jptDO693DHL4lFCRJpU8Kjwsx
+	7yQWiuR17rFes/Gs/AUNBGd7SNUukoLNbXKwVLrCF4mE5qVXcMKeW9AEy20t1Lg=
+X-Google-Smtp-Source: AGHT+IHwWGW3bNG9GA57M2WThwmdHi3AxEYStvc4TMRAgXH1eI+v60ijR149hFgbWIu61VtE9NGtsA==
+X-Received: by 2002:ac2:5502:0:b0:515:bf51:a533 with SMTP id j2-20020ac25502000000b00515bf51a533mr1829013lfk.23.1712934812639;
+        Fri, 12 Apr 2024 08:13:32 -0700 (PDT)
 Received: from localhost (host-213-179-129-39.customer.m-online.net. [213.179.129.39])
-        by smtp.gmail.com with ESMTPSA id k8-20020a05651c0a0800b002d85452f55csm536220ljq.47.2024.04.12.08.13.28
+        by smtp.gmail.com with ESMTPSA id u5-20020a056512094500b00516dabfa3ffsm532393lft.145.2024.04.12.08.13.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 12 Apr 2024 08:13:29 -0700 (PDT)
+        Fri, 12 Apr 2024 08:13:32 -0700 (PDT)
 From: Jiri Pirko <jiri@resnulli.us>
 To: netdev@vger.kernel.org
 Cc: kuba@kernel.org,
@@ -69,9 +69,9 @@ Cc: kuba@kernel.org,
 	bpoirier@nvidia.com,
 	idosch@nvidia.com,
 	virtualization@lists.linux.dev
-Subject: [patch net-next 4/6] selftests: forwarding: add check_driver() helper
-Date: Fri, 12 Apr 2024 17:13:12 +0200
-Message-ID: <20240412151314.3365034-5-jiri@resnulli.us>
+Subject: [patch net-next 5/6] selftests: forwarding: add wait_for_dev() helper
+Date: Fri, 12 Apr 2024 17:13:13 +0200
+Message-ID: <20240412151314.3365034-6-jiri@resnulli.us>
 X-Mailer: git-send-email 2.44.0
 In-Reply-To: <20240412151314.3365034-1-jiri@resnulli.us>
 References: <20240412151314.3365034-1-jiri@resnulli.us>
@@ -85,37 +85,45 @@ Content-Transfer-Encoding: 8bit
 
 From: Jiri Pirko <jiri@nvidia.com>
 
-Add a helper to be used to check if the netdevice is backed by specified
-driver.
+The existing setup_wait*() helper family check the status of the
+interface to be up. Introduce wait_for_dev() to wait for the netdevice
+to appear, for example after test script does manual device bind.
 
 Signed-off-by: Jiri Pirko <jiri@nvidia.com>
 ---
- tools/testing/selftests/net/forwarding/lib.sh | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ tools/testing/selftests/net/forwarding/lib.sh | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
 diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
-index 06633518b3aa..959183b516ce 100644
+index 959183b516ce..74859f969997 100644
 --- a/tools/testing/selftests/net/forwarding/lib.sh
 +++ b/tools/testing/selftests/net/forwarding/lib.sh
-@@ -308,6 +308,18 @@ check_port_mab_support()
- 	fi
+@@ -746,6 +746,25 @@ setup_wait()
+ 	sleep $WAIT_TIME
  }
  
-+check_driver()
++wait_for_dev()
 +{
 +	local dev=$1; shift
-+	local expected=$1; shift
-+	local driver_name=`driver_name_get $dev`
++	local timeout=${1:-$WAIT_TIMEOUT}; shift
++	local max_iterations=$(($timeout * 10))
 +
-+	if [[ $driver_name != $expected ]]; then
-+		echo "SKIP: expected driver $expected for $dev, got $driver_name instead"
-+		exit $ksft_skip
-+	fi
++	for ((i = 1; i <= $max_iterations; ++i)); do
++		ip link show dev $dev up &> /dev/null
++		if [[ $? -ne 0 ]]; then
++			sleep 0.1
++		else
++			return 0
++		fi
++	done
++
++	log_test wait_for_dev ": Interface $dev did not appear."
++	exit 1
 +}
 +
- if [[ "$CHECK_TC" = "yes" ]]; then
- 	check_tc_version
- fi
+ cmd_jq()
+ {
+ 	local cmd=$1
 -- 
 2.44.0
 
