@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06DFE4A33;
-	Sat, 13 Apr 2024 01:04:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EF031865C;
+	Sat, 13 Apr 2024 02:11:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712970271; cv=none; b=LlTIVIK6J6P28d5tvVsc4Ydnpyl5pvj1wjCwcARqCLU5YnsywO0htt0kNQukHsE/cMi5sk1+VYNvNkchx2D1tU9d5Uf6v6QdnhrJk4aMQ2MUZ6wO4ikgGgbqoDkDarVyGamNkP+5dpN1Ww0VAwAM9u+RWJ0d0EVpbbV4Q3SI9dY=
+	t=1712974288; cv=none; b=E/mSOAxpFg3T1pZDy8sdVRWMXdTjKKs4Htm9kmXmcXZW9jruBjIoLN81WtpdmLRf4igqKsrB7Kq5qyO4w6wxLV+iKTXYIbSxwoCeugzugNTQD3AIHsa1/8ZIh4Zjp5ngFsBpR3jEf4qXbGJ+JA0SsBoNxn7Q7ytnpohYjzm0oS8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712970271; c=relaxed/simple;
-	bh=t/hrfk8gw6w+H7AWvzCmqfaACl/d0GovfCMX+QoZ1Sw=;
+	s=arc-20240116; t=1712974288; c=relaxed/simple;
+	bh=K//9Hcjv/NtcL18GMBZ3/qLgmdN/uoN2Qy4xDwZxj8Y=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=hHw80Eb+iPDbOL+D5/0nNUZHWjOz5GkYNlK7qWH+27cJW5ZuesOkrZbKkUKP16XHMtNUFnqzI1oFX2HajkE8+kaxblMMOaJGo8V2p+6Y7bsnqfszVTpXUhcre7U2840R3ddZrX3dWx6llbvbRT22re5b6L6/tb9ipvh/BJLbyvg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=i0lOaZIJ; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=Z6KJy6ns36Li5Eb8jIo5sIDtUogvIe+KD3TWOqbq2tRp0Nsd1+S+J89ExiorQi/G4JOajM7yPJMKPvg4q2jJv2LJ/4BfBHVYIreaH3C3ZaYrBOLXAQAhlY3WVqx6jvFZQ8ZjUSgzLIui+qTAf1Uf9bI0pcr6vwS5Zcp6m9WBQyk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QJNKv5/N; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="i0lOaZIJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5546C113CC;
-	Sat, 13 Apr 2024 01:04:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QJNKv5/N"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E078C113CC;
+	Sat, 13 Apr 2024 02:11:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1712970270;
-	bh=t/hrfk8gw6w+H7AWvzCmqfaACl/d0GovfCMX+QoZ1Sw=;
+	s=k20201202; t=1712974288;
+	bh=K//9Hcjv/NtcL18GMBZ3/qLgmdN/uoN2Qy4xDwZxj8Y=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=i0lOaZIJFoVMIew2xMUuyqo2awhKqEWrttNdWm6aHDqX0pussogZ4tZDHRjjImMo3
-	 ubJvIrpJ/KH/uIW/ilgotDPgqavb0FpYa8dKXin+p4+cD7neyi1z3FybXUELX8hIXe
-	 t7lC71U6JNkvqCYhQOJPBXwtOiT+gPRwJqW/5RMHhGYPjf/7T0R2bvh506LaobSLiZ
-	 xwfg8wT1TtjDd2zzxDhhfvhxPhj/7bEJ87cxauOd4/zm+SwdXYvEkDAIxGkm4nZUfx
-	 V5d1UoEFUourIOXOFGnwgNaRV/9qx9+9aYWGdDkk4J2JqMuSZ695Xq2K0yk0KpfRJ1
-	 35i16ivOd3Amg==
-Date: Fri, 12 Apr 2024 18:04:28 -0700
+	b=QJNKv5/NPFXO9KmDBnsbYQHUSdlBDyLfy3jyB6xvOT8nK+StDPFXS1YDHMlhEZJX8
+	 MYDidoTYasOB9hUVhAQZp57dRh64VEPxQysn+xfryfy/0qtNP0XBeQdhpNh+R9kQ37
+	 qZHi4Q6Yeo0pzRjq44hG3FPmx/zl0fayJHBBbShLqIALr6/US8q0mAKiU+0dtZc7kx
+	 ybjI1O9Uv0R96WZrLGJ2sU+F+zIimEKVOhX7KKIZqJzpJlMr7bjQFEgrQBO0H1AkPj
+	 SPaZYCidt8Nluu3PWadUJzQCJd3gPMLzKNFh4NnWJ1P9lE41fGLsJdevaBgO+K9f7d
+	 nSEiFAg7gt7XQ==
+Date: Fri, 12 Apr 2024 19:11:26 -0700
 From: Jakub Kicinski <kuba@kernel.org>
-To: Jiri Pirko <jiri@resnulli.us>
-Cc: netdev@vger.kernel.org, pabeni@redhat.com, davem@davemloft.net,
- edumazet@google.com, parav@nvidia.com, mst@redhat.com, jasowang@redhat.com,
- xuanzhuo@linux.alibaba.com, shuah@kernel.org, petrm@nvidia.com,
- liuhangbin@gmail.com, vladimir.oltean@nxp.com, bpoirier@nvidia.com,
- idosch@nvidia.com, virtualization@lists.linux.dev
-Subject: Re: [patch net-next 0/6] selftests: virtio_net: introduce initial
- testing infrastructure
-Message-ID: <20240412180428.35b83923@kernel.org>
-In-Reply-To: <20240412151314.3365034-1-jiri@resnulli.us>
-References: <20240412151314.3365034-1-jiri@resnulli.us>
+To: Liang Chen <liangchen.linux@gmail.com>
+Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+ hengqi@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
+ pabeni@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, bpf@vger.kernel.org,
+ john.fastabend@gmail.com, hawk@kernel.org, daniel@iogearbox.net,
+ ast@kernel.org
+Subject: Re: [PATCH net-next v6] virtio_net: Support RX hash XDP hint
+Message-ID: <20240412191126.1526ce85@kernel.org>
+In-Reply-To: <20240411085216.361662-1-liangchen.linux@gmail.com>
+References: <20240411085216.361662-1-liangchen.linux@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -48,20 +48,12 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On Fri, 12 Apr 2024 17:13:08 +0200 Jiri Pirko wrote:
-> This patchset aims at introducing very basic initial infrastructure
-> for virtio_net testing, namely it focuses on virtio feature testing.
-> 
-> The first patch adds support for debugfs for virtio devices, allowing
-> user to filter features to pretend to be driver that is not capable
-> of the filtered feature.
+On Thu, 11 Apr 2024 16:52:16 +0800 Liang Chen wrote:
+> +	switch (__le16_to_cpu(hdr_hash->hash_report)) {
+> +		case VIRTIO_NET_HASH_REPORT_TCPv4:
 
-Two trivial points: MAINTAINERS should probably be updated to bestow
-the responsibility over these to virtio folks; there should probably
-be a config file. Admittedly anyone testing in a VM should have VIRTIO
-and anyone not in a VM won't test this... but it's a good practice.
+Please indent things according to the kernel coding style.
 
-Did you investigate how hard it would be to make virtme-ng pop out
-two virtio interfaces?  It's a pretty hackable Python code base and
-Andrea is very responsive so would be nice to get that done. And then
-its trivial to run those in our CI.
+Checkpatch finds 2 problems in this change.
+-- 
+pw-bot: cr
