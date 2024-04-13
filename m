@@ -1,184 +1,149 @@
-Received: from mail-oa1-f52.google.com (mail-oa1-f52.google.com [209.85.160.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp-relay-internal-0.canonical.com (smtp-relay-internal-0.canonical.com [185.125.188.122])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8F7F1BC41
-	for <virtualization@lists.linux.dev>; Sat, 13 Apr 2024 04:11:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7627C1B59A
+	for <virtualization@lists.linux.dev>; Sat, 13 Apr 2024 05:56:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.188.122
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712981491; cv=none; b=Kak8h3wzjKicDoPO51NcSlPOqyZmpauiiCaJvNUozj1Yf4C87Axtm9MO2VCoscgyXbjmP7W7SVKmUmFpca/LRd6XCpt9nGhNBGTCUoakfPVMSdVeHBFLUmyJXm6OGB4d9atuJYM3j9MZ1QqKphecayUsuq8TAKvKh1GHCyo6TfQ=
+	t=1712987777; cv=none; b=WbBdtni0FPoWrXurJpFHFbUIFyMKwgZ+TpFFPSqAMZWTgMOYYSR9rwyilgxrGVrn16bagM3NWc4oxyY8klAKu54Id/paRDsB/5JNdY8kerEQZ2b8egQUd3IcfpoFMXU1y8Yjl376NJcXfDsQ4AuqzU9SYKEssEr1+k3oHhpe4VI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712981491; c=relaxed/simple;
-	bh=AfPGdpoeXhVGR+SHbrTki7kqPG4xqSDp/j1KG2K2pxg=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=jfGPjEJICAs+Gzqw+6L3UwLntS7vGVVxVEt/QH6JyQeKP2y6fLDdbNVbTu0DQT1IRtI7RREYqlAv11MRzJqpelD9M2FE3jlqSs0/TKoSFZELuKuxEUdlh3k9KSj6PYHBUkA6DpHjoyAaIoVXhUM5O8J4OWvyxa7AIS/WqGwESkQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LG/KTMDI; arc=none smtp.client-ip=209.85.160.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1712987777; c=relaxed/simple;
+	bh=tErfojSvBbAQ9C9BGwiOGtk1VeqNiLa2qQlL1JQGIu4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Cf495fjYIaWk8N3W3Aue4VCNp2TAnJBVTbsehOEF39FJXEWx+cdwKfe2xQXQbWfpO3cnegwGdhy/dReWFaGlPiYiWk8Hl4QZMtjw2xCKkNTpBNwZgFklYprlyF0uSYNN+ol3rFpwrv+nZgoIq2462WgFkRMvmCOX6Ad2VyfSDKc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com; spf=pass smtp.mailfrom=canonical.com; dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b=JCknuYU3; arc=none smtp.client-ip=185.125.188.122
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=canonical.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LG/KTMDI"
-Received: by mail-oa1-f52.google.com with SMTP id 586e51a60fabf-23319017c4cso969752fac.2
-        for <virtualization@lists.linux.dev>; Fri, 12 Apr 2024 21:11:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1712981489; x=1713586289; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=EDhCSWEgnV+NzpnZC+839Wmob9VMoO2EjVmXGFw60QM=;
-        b=LG/KTMDIfE3mulL/bOZ/4nCRWmghdBCDKxGWjleai+ZRw98mHs00jMzecVUe8O8cWH
-         TxiUHdK8QVvsDn33Ko7fs4mXf4l54REENWV/U8LorTIVDCIx1M/+vV/igPwQl7t9BOD6
-         vztYRa2c1rCW/O3EJ+zzoJLNEG0Hsh50nkGSAdvzUJj54VWJJB5VAsFQNBB+yOoPqgR1
-         696X9+XLlSdxiFC00CSSoKP0mDir/CkMgiWCY/F64AE3zMAgLRkBjmSsva+9pU74/ZM4
-         b9P/3kIRcR04oMn1VrYVZF43yeRsut7JfUKIhSY56ATn6u4kJS2wGnq/Mc3ZB8Lzp9AD
-         8NBQ==
+	dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b="JCknuYU3"
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com [209.85.208.71])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id 0D0083F5CF
+	for <virtualization@lists.linux.dev>; Sat, 13 Apr 2024 05:56:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+	s=20210705; t=1712987772;
+	bh=6co6WqK46hAneJhs9iR9l95pDhdBJJcLR1uaJ+SJA+4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:In-Reply-To;
+	b=JCknuYU3bEoYeXBdrF0RA9I0O7nbpsnPZeJB5PnhK/TFkH5z1GUL/3/KvEnXwDGty
+	 Rp0klvRZ8uu+rTx0SQdswEPwMWBd14wzSWkPgNXeq1eFq8nLid4N1zFDnsjyfJfHlT
+	 8iTmS4iWRqzoHadKUepMYkbY0RFAlUbCEuOVsj++c2DP7arEKxbULZ58/32XEtD/it
+	 tfL39NSY7VGm3DYC+hc8OfcJm3TPENdiaU5iH3GPo6Qe5e35jY6EV74gH40g3grNJJ
+	 c3DOWogt9n8PzqRLIOUodTLrRpTCH5oGIeaZ8rvqy2IpzGyWKqQYrtEGQv5pTSSWHN
+	 4lXrRlzlwmmiw==
+Received: by mail-ed1-f71.google.com with SMTP id 4fb4d7f45d1cf-56e5309b4d6so957079a12.0
+        for <virtualization@lists.linux.dev>; Fri, 12 Apr 2024 22:56:12 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712981489; x=1713586289;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=EDhCSWEgnV+NzpnZC+839Wmob9VMoO2EjVmXGFw60QM=;
-        b=v9c9ah0LtYJYyhXq1U4v0jgnekRIXhbmB2Q2r9+U/v9LwshLrjn6q+rSTHSMOyuO2n
-         zAvgjsfddBUt8H782GG7T7mhccnQ92UneAHASyLgWVEfAhkJGpdbq0RMfVtdEh76Af8y
-         ODtgVWtx4Zi2CLRuRB6elF5ZbRwh5yHVbiWPa7o9cZY751HQUjeQjs5rUnV3i6FsZxDk
-         la/fcfzas6zsUx/c68TkLVzWxC6fAjwX8D8gvDRLc31aTEwqBT+k0W2oHP9e26y/fFT3
-         9a8AuEffrmmMugy+rgFpkaeRRlh2UfVDS88PDQYHXFAnTAK1lu3ZOKC+qUDgGLUvDpim
-         7XXw==
-X-Forwarded-Encrypted: i=1; AJvYcCWd7dMTeX5kMnVbA87/Je/KqGU3U4zllr69Fk22Kb40CkYMkOzmuhWN3YGRgNqGukSdYDw++AQI+pk3i6LK+ujmrIeScGVkVX1npQNdhlY=
-X-Gm-Message-State: AOJu0YwUCJSAVA+jwn76wOC6X9GkVv0NHgzcH15frW8SDYenK8NfJNAO
-	M1vOpzTzHu5nXGxhe/WUkuvkk1QkVHXvrt1/jDx6jQjPH92xWZHR
-X-Google-Smtp-Source: AGHT+IE+nEAWcd0+Z2P4/AV17wHWyQPGohLUz5foVK2JC1p4PEX3jDqCCzVk0FB1zWXVp5Fn7Jr8DQ==
-X-Received: by 2002:a05:6870:5488:b0:22e:cbfa:678d with SMTP id f8-20020a056870548800b0022ecbfa678dmr4605735oan.57.1712981488680;
-        Fri, 12 Apr 2024 21:11:28 -0700 (PDT)
-Received: from localhost.localdomain ([123.116.201.21])
-        by smtp.gmail.com with ESMTPSA id y22-20020aa78556000000b006ea81423c65sm3722131pfn.148.2024.04.12.21.11.21
+        d=1e100.net; s=20230601; t=1712987771; x=1713592571;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=6co6WqK46hAneJhs9iR9l95pDhdBJJcLR1uaJ+SJA+4=;
+        b=aWLvkkcXF9aD8wpegIMNyMtqTST1h5aqAhIGj4xfFWdeoo4NnKppFTjuPz6Tmp33+n
+         V5EomyW48NA5xFgoJp2hROnJB/DV8GMFaXw3wa2QRxLy50IKfY0lJM1BTXVdmaQypAKA
+         NdEBeTJb04hZZ/5vne04pAzdGr/9V0UAnJ+/r2/4mlFU+kMCIa3ji9tWMaAbNI58VvBe
+         kD1R6L81Fn6S/Gi20/+2fe/l5sai/9o9yCoMdMqIwfbMNNou1bDTYK4MoZfSYsJNMqIr
+         9YUmu2xgbPjjhPAizS1CRVvj+xPAsqGc8AhLNlpLRTy5Sk9mGR3LoV2HJ+fNj8hbD37M
+         2EnA==
+X-Gm-Message-State: AOJu0YzGAChg2f4em6FopZRo4gYvNZXgpUCGJYZ58zEescCqldgz9MfG
+	vFxA2vl/Gm05H/Yv4jxWz1Qp9smFZx/7HDklmGIGEryBp6kZ1oRzZjmiGtXnCUsYBIu+3m3jztc
+	P1aN7/5RBTAUreN8eHAKVXVkd241gDzD+Fd4GyaQsWQt45mJrPYw9f1ZF7f/u8PMLPi5ZLVIFO3
+	3pTVP4
+X-Received: by 2002:a50:8e17:0:b0:56e:dc5:e99 with SMTP id 23-20020a508e17000000b0056e0dc50e99mr2832419edw.24.1712987771062;
+        Fri, 12 Apr 2024 22:56:11 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEYVVe4i3c4R0w3v8yTkGiuwmtHQhRO2eHDY8jnw9RO2MnvJztJQMt2ADc3aKWv9EK+zK78Pw==
+X-Received: by 2002:a50:8e17:0:b0:56e:dc5:e99 with SMTP id 23-20020a508e17000000b0056e0dc50e99mr2832404edw.24.1712987770279;
+        Fri, 12 Apr 2024 22:56:10 -0700 (PDT)
+Received: from localhost (host-82-49-69-7.retail.telecomitalia.it. [82.49.69.7])
+        by smtp.gmail.com with ESMTPSA id a15-20020a50ff0f000000b0056fc72bb490sm2315475edu.61.2024.04.12.22.56.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 12 Apr 2024 21:11:27 -0700 (PDT)
-From: Liang Chen <liangchen.linux@gmail.com>
-To: mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	hengqi@linux.alibaba.com,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com
-Cc: netdev@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	bpf@vger.kernel.org,
-	john.fastabend@gmail.com,
-	hawk@kernel.org,
-	daniel@iogearbox.net,
-	ast@kernel.org,
-	liangchen.linux@gmail.com
-Subject: [PATCH net-next v7] virtio_net: Support RX hash XDP hint
-Date: Sat, 13 Apr 2024 12:10:35 +0800
-Message-Id: <20240413041035.7344-1-liangchen.linux@gmail.com>
-X-Mailer: git-send-email 2.31.1
+        Fri, 12 Apr 2024 22:56:09 -0700 (PDT)
+Date: Sat, 13 Apr 2024 07:56:09 +0200
+From: Andrea Righi <andrea.righi@canonical.com>
+To: Ricardo Ribalda <ribalda@google.com>
+Cc: virtualization@lists.linux.dev, stevensd@chromium.org,
+	"mst@redhat.com" <mst@redhat.com>
+Subject: Re: ACPI timeouts when enabling KASAN
+Message-ID: <Zhoeec0lfVEPmGj0@gpd>
+References: <CANiDSCtJKZDwSpy3RWW7FPQiJf+LqxrZJs=N7KrvCz0EFjh2wQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CANiDSCtJKZDwSpy3RWW7FPQiJf+LqxrZJs=N7KrvCz0EFjh2wQ@mail.gmail.com>
 
-The RSS hash report is a feature that's part of the virtio specification.
-Currently, virtio backends like qemu, vdpa (mlx5), and potentially vhost
-(still a work in progress as per [1]) support this feature. While the
-capability to obtain the RSS hash has been enabled in the normal path,
-it's currently missing in the XDP path. Therefore, we are introducing
-XDP hints through kfuncs to allow XDP programs to access the RSS hash.
+On Fri, Apr 12, 2024 at 11:43:22PM +0200, Ricardo Ribalda wrote:
+> Hi
 
-1.
-https://lore.kernel.org/all/20231015141644.260646-1-akihiko.odaki@daynix.com/#r
+Hi Ricardo,
 
-Signed-off-by: Liang Chen <liangchen.linux@gmail.com>
----
-  Changes from v6:
-- fix a coding style issue
-  Changes from v5:
-- Preservation of the hash value has been dropped, following the conclusion
-  from discussions in V3 reviews. The virtio_net driver doesn't
-  accessing/using the virtio_net_hdr after the XDP program execution, so
-  nothing tragic should happen. As to the xdp program, if it smashes the
-  entry in virtio header, it is likely buggy anyways. Additionally, looking
-  up the Intel IGC driver,  it also does not bother with this particular
-  aspect.
----
- drivers/net/virtio_net.c | 55 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 55 insertions(+)
+> 
+> I am using virtme to do some CI around linux-media.
+> 
+> Everything works as expected, but when I enable KASAN, I am starting
+> to get a lot of timeouts when the Method _PRT is executed. Eg:
+> 
+> [   56.335875] ACPI Error: Aborting method \_SB.PCI0._PRT due to
+> previous error (AE_AML_LOOP_TIMEOUT) (20230628/psparse-529)
+> [   56.529826] ACPI Error: Method execution failed \_SB.PCI0._PRT due
+> to previous error (AE_AML_LOOP_TIMEOUT) (20230628/uteval-68)
+> [   56.532391] virtio-pci 0000:00:02.0: can't derive routing for PCI INT A
+> [   56.532823] virtio-pci 0000:00:02.0: PCI INT A: no GSI
+> [   86.877471] ACPI Error: Aborting method \_SB.PCI0._PRT due to
+> previous error (AE_AML_LOOP_TIMEOUT) (20230628/psparse-529)
+> [   87.073854] ACPI Error: Method execution failed \_SB.PCI0._PRT due
+> to previous error (AE_AML_LOOP_TIMEOUT) (20230628/uteval-68)
+> [   87.075550] virtio-pci 0000:00:04.0: can't derive routing for PCI INT A
+> [   87.075810] virtio-pci 0000:00:04.0: PCI INT A: no GSI
+> 
+> 0000:00:04.0 and 0000:00:02.0 are virtio devices (console and 9p-filesystem)
+> 
+> If I increase the timeout (ACPI_MAX_LOOP_TIMEOUT), then the Method is
+> always executed, but it is very annoying that I have to wait more than
+> 5 minutes to start the vm.
+> 
+> Despite not having kvm enabled, the machine is quite decent, so I
+> would expect that it could run that method relatively fast.
+> 
+> Do you have any hint of what I should be looking at?
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index c22d1118a133..2a1892b7b8d3 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -4621,6 +4621,60 @@ static void virtnet_set_big_packets(struct virtnet_info *vi, const int mtu)
- 	}
- }
- 
-+static int virtnet_xdp_rx_hash(const struct xdp_md *_ctx, u32 *hash,
-+			       enum xdp_rss_hash_type *rss_type)
-+{
-+	const struct xdp_buff *xdp = (void *)_ctx;
-+	struct virtio_net_hdr_v1_hash *hdr_hash;
-+	struct virtnet_info *vi;
-+
-+	if (!(xdp->rxq->dev->features & NETIF_F_RXHASH))
-+		return -ENODATA;
-+
-+	vi = netdev_priv(xdp->rxq->dev);
-+	hdr_hash = (struct virtio_net_hdr_v1_hash *)(xdp->data - vi->hdr_len);
-+
-+	switch (__le16_to_cpu(hdr_hash->hash_report)) {
-+	case VIRTIO_NET_HASH_REPORT_TCPv4:
-+		*rss_type = XDP_RSS_TYPE_L4_IPV4_TCP;
-+		break;
-+	case VIRTIO_NET_HASH_REPORT_UDPv4:
-+		*rss_type = XDP_RSS_TYPE_L4_IPV4_UDP;
-+		break;
-+	case VIRTIO_NET_HASH_REPORT_TCPv6:
-+		*rss_type = XDP_RSS_TYPE_L4_IPV6_TCP;
-+		break;
-+	case VIRTIO_NET_HASH_REPORT_UDPv6:
-+		*rss_type = XDP_RSS_TYPE_L4_IPV6_UDP;
-+		break;
-+	case VIRTIO_NET_HASH_REPORT_TCPv6_EX:
-+		*rss_type = XDP_RSS_TYPE_L4_IPV6_TCP_EX;
-+		break;
-+	case VIRTIO_NET_HASH_REPORT_UDPv6_EX:
-+		*rss_type = XDP_RSS_TYPE_L4_IPV6_UDP_EX;
-+		break;
-+	case VIRTIO_NET_HASH_REPORT_IPv4:
-+		*rss_type = XDP_RSS_TYPE_L3_IPV4;
-+		break;
-+	case VIRTIO_NET_HASH_REPORT_IPv6:
-+		*rss_type = XDP_RSS_TYPE_L3_IPV6;
-+		break;
-+	case VIRTIO_NET_HASH_REPORT_IPv6_EX:
-+		*rss_type = XDP_RSS_TYPE_L3_IPV6_EX;
-+		break;
-+	case VIRTIO_NET_HASH_REPORT_NONE:
-+	default:
-+		*rss_type = XDP_RSS_TYPE_NONE;
-+	}
-+
-+	*hash = __le32_to_cpu(hdr_hash->hash_value);
-+	return 0;
-+}
-+
-+static const struct xdp_metadata_ops virtnet_xdp_metadata_ops = {
-+	.xmo_rx_hash			= virtnet_xdp_rx_hash,
-+};
-+
- static int virtnet_probe(struct virtio_device *vdev)
- {
- 	int i, err = -ENOMEM;
-@@ -4747,6 +4801,7 @@ static int virtnet_probe(struct virtio_device *vdev)
- 				  VIRTIO_NET_RSS_HASH_TYPE_UDP_EX);
- 
- 		dev->hw_features |= NETIF_F_RXHASH;
-+		dev->xdp_metadata_ops = &virtnet_xdp_metadata_ops;
- 	}
- 
- 	if (vi->has_rss_hash_report)
--- 
-2.40.1
+I'm wondering if it's a microvm-related issue...
 
+Can you try to add --disable-microvm to your virtme command line and see
+if it makes any difference?
+
+Thanks,
+-Andrea
+
+> 
+> Thanks!
+> 
+> ```
+> # virtme-ng --version
+> virtme-ng 1.23
+> # qemu-system-amd64 --version
+> QEMU emulator version 8.2.1 (Debian 1:8.2.1+ds-2)
+> Copyright (c) 2003-2023 Fabrice Bellard and the QEMU Project developers
+> # git describe
+> v6.9-rc3-208-g586b5dfb51b96
+> 
+> # virtme-configkernel --defconfig --arch x86_64
+> # scripts/config -e KASAN
+> # make olddefconfig
+> # make all -j 256
+> # virtme-run --kdir . --mods=auto --show-command --show-boot-console
+> --verbose  --cpus 2 --memory 4G --script-sh "echo HelloWorld"
+> ```
+> 
+> 
+> 
+> -- 
+> Ricardo Ribalda
+> Software Engineer
+> ribalda@google.com
