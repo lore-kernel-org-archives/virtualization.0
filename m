@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EF031865C;
-	Sat, 13 Apr 2024 02:11:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 493563233;
+	Sat, 13 Apr 2024 02:21:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712974288; cv=none; b=E/mSOAxpFg3T1pZDy8sdVRWMXdTjKKs4Htm9kmXmcXZW9jruBjIoLN81WtpdmLRf4igqKsrB7Kq5qyO4w6wxLV+iKTXYIbSxwoCeugzugNTQD3AIHsa1/8ZIh4Zjp5ngFsBpR3jEf4qXbGJ+JA0SsBoNxn7Q7ytnpohYjzm0oS8=
+	t=1712974873; cv=none; b=MWWkkLkfR6ya8/XOXtYdwt/QIVWcd/ReOw8KO4JrShzgriaEvvmC/x336qlqz6zul2LiDVjuUmVrroGMzkZlSiUvd4gSPlIItuUAthUa9OdZW3XcNkD16Mj0HpjrzL6FMTNDfxjIRSeUqqcStDXT7hXci7u40nUXmG83bX2A1HE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712974288; c=relaxed/simple;
-	bh=K//9Hcjv/NtcL18GMBZ3/qLgmdN/uoN2Qy4xDwZxj8Y=;
+	s=arc-20240116; t=1712974873; c=relaxed/simple;
+	bh=y+Zzs8AYFHabUfNjg7kTlPL7KV+priQgOo0WUYmaY18=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Z6KJy6ns36Li5Eb8jIo5sIDtUogvIe+KD3TWOqbq2tRp0Nsd1+S+J89ExiorQi/G4JOajM7yPJMKPvg4q2jJv2LJ/4BfBHVYIreaH3C3ZaYrBOLXAQAhlY3WVqx6jvFZQ8ZjUSgzLIui+qTAf1Uf9bI0pcr6vwS5Zcp6m9WBQyk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QJNKv5/N; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=d9yr/y868XPJGQYJ8iUkDkQmmaLlkTgf1+Qsj9uHt5/Ut81c/WNjksZuCsJ2f2S4hRYxCUu3n39SSKe657EQBA+SgccmZyI3oTNlxO6st64KpR+vVM6oYSxkZi/sipWzCPqP2YluOTQCsqVRbvwbBExgBRTqDJxs6IAQzwrozR8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Agbd0vkN; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QJNKv5/N"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E078C113CC;
-	Sat, 13 Apr 2024 02:11:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Agbd0vkN"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B44D0C113CC;
+	Sat, 13 Apr 2024 02:21:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1712974288;
-	bh=K//9Hcjv/NtcL18GMBZ3/qLgmdN/uoN2Qy4xDwZxj8Y=;
+	s=k20201202; t=1712974873;
+	bh=y+Zzs8AYFHabUfNjg7kTlPL7KV+priQgOo0WUYmaY18=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=QJNKv5/NPFXO9KmDBnsbYQHUSdlBDyLfy3jyB6xvOT8nK+StDPFXS1YDHMlhEZJX8
-	 MYDidoTYasOB9hUVhAQZp57dRh64VEPxQysn+xfryfy/0qtNP0XBeQdhpNh+R9kQ37
-	 qZHi4Q6Yeo0pzRjq44hG3FPmx/zl0fayJHBBbShLqIALr6/US8q0mAKiU+0dtZc7kx
-	 ybjI1O9Uv0R96WZrLGJ2sU+F+zIimEKVOhX7KKIZqJzpJlMr7bjQFEgrQBO0H1AkPj
-	 SPaZYCidt8Nluu3PWadUJzQCJd3gPMLzKNFh4NnWJ1P9lE41fGLsJdevaBgO+K9f7d
-	 nSEiFAg7gt7XQ==
-Date: Fri, 12 Apr 2024 19:11:26 -0700
+	b=Agbd0vkNzwlO6UbGfcbo5K41XAhVcMtJvjp0qDFlKWSVGjUufER9dt+ZjzwVptkBs
+	 IKoJ+cD24oiIgtzlPJsT/FTfO6866WqyyErYC5BUW0/SYMgyoD5EIjkLrOMbGi/40d
+	 oIULuWIQSKTmfq/Qn0Z0AxfCtOteZmxMcXfofVS7hSFzr8buv62UMXskw4NIhqzUum
+	 kr1IBNjopY7ygDCTgbkMpZxwWH88kNKEozKclimIKtYTb4HPGM2gf6AuYkhzA1b+DW
+	 864j+xOeWm/4D2fpDEwuCmwJYLPliD7lIoixH/+4j9kYRv6DItJcFzQ4BfR3Mw7Vd2
+	 nPfQlWGmC/sWw==
+Date: Fri, 12 Apr 2024 19:21:11 -0700
 From: Jakub Kicinski <kuba@kernel.org>
-To: Liang Chen <liangchen.linux@gmail.com>
-Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
- hengqi@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
- pabeni@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, bpf@vger.kernel.org,
- john.fastabend@gmail.com, hawk@kernel.org, daniel@iogearbox.net,
- ast@kernel.org
-Subject: Re: [PATCH net-next v6] virtio_net: Support RX hash XDP hint
-Message-ID: <20240412191126.1526ce85@kernel.org>
-In-Reply-To: <20240411085216.361662-1-liangchen.linux@gmail.com>
-References: <20240411085216.361662-1-liangchen.linux@gmail.com>
+To: Daniel Jurgens <danielj@nvidia.com>
+Cc: <netdev@vger.kernel.org>, <mst@redhat.com>, <jasowang@redhat.com>,
+ <xuanzhuo@linux.alibaba.com>, <virtualization@lists.linux.dev>,
+ <davem@davemloft.net>, <edumazet@google.com>, <pabeni@redhat.com>,
+ <jiri@nvidia.com>
+Subject: Re: [PATCH net-next v3 5/6] virtio_net: Add a lock for per queue RX
+ coalesce
+Message-ID: <20240412192111.7e0e1117@kernel.org>
+In-Reply-To: <20240412195309.737781-6-danielj@nvidia.com>
+References: <20240412195309.737781-1-danielj@nvidia.com>
+	<20240412195309.737781-6-danielj@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -48,12 +48,37 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On Thu, 11 Apr 2024 16:52:16 +0800 Liang Chen wrote:
-> +	switch (__le16_to_cpu(hdr_hash->hash_report)) {
-> +		case VIRTIO_NET_HASH_REPORT_TCPv4:
+On Fri, 12 Apr 2024 14:53:08 -0500 Daniel Jurgens wrote:
+> Once the RTNL locking around the control buffer is removed there can be
+> contention on the per queue RX interrupt coalescing data. Use a spin
+> lock per queue.
 
-Please indent things according to the kernel coding style.
+Does not compile on Clang.
 
-Checkpatch finds 2 problems in this change.
+> +			scoped_guard(spinlock, &vi->rq[i].intr_coal_lock) {
+> +				err = virtnet_send_rx_ctrl_coal_vq_cmd(vi, i,
+> +								       vi->intr_coal_rx.max_usecs,
+> +								       vi->intr_coal_rx.max_packets);
+> +				if (err)
+> +					return err;
+> +			}
+
+Do you really think this needs a scoped guard and 4th indentation level,
+instead of just:
+
+			..lock(..);
+			err = virtnet_send_rx_ctrl_coal_vq_cmd(vi, i,
+							       vi->intr_coal_rx.max_usecs,
+							       vi->intr_coal_rx.max_packets);
+			..unlock(..);
+			if (err)
+				return err;
+
+> +		scoped_guard(spinlock, &vi->rq[i].intr_coal_lock) {
+> +			vi->rq[i].intr_coal.max_usecs = ec->rx_coalesce_usecs;
+> +			vi->rq[i].intr_coal.max_packets = ec->rx_max_coalesced_frames;
+> +		}
+
+:-|
 -- 
 pw-bot: cr
