@@ -1,101 +1,86 @@
-Received: from smtp.smtpout.orange.fr (smtp-22.smtpout.orange.fr [80.12.242.22])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D87432421A
-	for <virtualization@lists.linux.dev>; Sun, 14 Apr 2024 10:04:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.12.242.22
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C577613665C
+	for <virtualization@lists.linux-foundation.org>; Sun, 14 Apr 2024 17:12:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713089083; cv=none; b=omcMTMfK/gm9LHybucsYXc4zp8GQtMVyVcRS5iePvrhEmGu9UxrZMGycRJzlcNhgesaodHEQv+NIctqJNOTSlbBH8GiluC1FVwl8qlZ1XhRnyYSTr8GJl+5zvWqhwoJTnQ9aB4PfRojscJWBAsltqISJ3U21DmsTKAtmsg5FPgk=
+	t=1713114776; cv=none; b=pcm2M7aEXUz84ziGy/ZuyLWkZnIWZ9DX2hIvK9Vq0GMlPm/VBLLKYKcpgHUpJobCzUf1pTnnuxXEmde88rp88PQ/5nlsj0I4Am1gyyqYKFmQ9AGUyuqbEPUaVdU3Q8avxJvBr7WOeWufdQc1Cor7UWIFhsawKq6RB7OpYWmkwGo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713089083; c=relaxed/simple;
-	bh=wTUGgeFPL6oQbMhkQ07Xn7K8s7vcqSJwRTRQoc9gkOk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=GH2R6uYZcfEAkpKBTgjrxGQ7R1u3xH5VD91uDLOdOmOM3PrLBl6/ULR8ntJETURQWNS/zgkIFlg7LR0sGTc3W9+cU0mJEQTlMnzXK7oX+HHA+mVkkIIg43tpYACT4EPE6bS/g1yOjooZ62mHr0qhBTvTmBOAntQ6abGP40yi65w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wanadoo.fr; spf=pass smtp.mailfrom=wanadoo.fr; dkim=pass (2048-bit key) header.d=wanadoo.fr header.i=@wanadoo.fr header.b=oibIlkcH; arc=none smtp.client-ip=80.12.242.22
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wanadoo.fr
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wanadoo.fr
+	s=arc-20240116; t=1713114776; c=relaxed/simple;
+	bh=DBvYJh2YC3326OOwmiISNvaZ8uqYe/EkC4jNLmlnPVI=;
+	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=NyYRCVqbEqJJT1EhkAJgFLWzn8WXvYPIIias+Xh2l3dbw85kzMIlD6R9Jlz/ok/Vkrl28j26P77wLKh3spQARdpjFdS5vZXVMENI3d99FmI1FD0uo45f4eUVYc89qF7uUm/DiKuxTNtVvMHhZZz4idtrQ7FmN+qFo0phA0VG4+U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=a3g9x0CZ; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wanadoo.fr header.i=@wanadoo.fr header.b="oibIlkcH"
-Received: from fedora.home ([86.243.17.157])
-	by smtp.orange.fr with ESMTPA
-	id vwiyrPARNVYR4vwiyrSi3R; Sun, 14 Apr 2024 12:04:38 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=wanadoo.fr;
-	s=t20230301; t=1713089078;
-	bh=Wu3eqlNZ33DIowcdMPCmbQIFZiK8nMriLzGayBQf0uE=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version;
-	b=oibIlkcH8xzA74tG14bNIc95dw9UMTiPq2/ZH1PEN04vNkXvakJMWi8NEYvyr8qMJ
-	 2sAG+CYsU3K8c5IDPPYvYUt2i1Sj1DFPLWueSs/HtN0ajbWqVCXQehJX3XheMAxS0y
-	 7D3HJ1rczDBOK4m8TBWsU/9CtIkehZJlaGCqgE6y+5hSGCiq35aDNXdfKiq+686Tj9
-	 b94OJw9qrzDAyNoHyy0tvWP+CwNpmEzyVp97ahEN5p5GT657VtTlSzIOfzbf6sTlHW
-	 M4O5dd0p4DHttexu8yM5AVwFdshbugyuzlJq6zzc8cUwg7pzFr6nhuhWIvGV4Ij1CF
-	 CWgLb9T6EHI1A==
-X-ME-Helo: fedora.home
-X-ME-Auth: Y2hyaXN0b3BoZS5qYWlsbGV0QHdhbmFkb28uZnI=
-X-ME-Date: Sun, 14 Apr 2024 12:04:38 +0200
-X-ME-IP: 86.243.17.157
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-To: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>
-Cc: linux-kernel@vger.kernel.org,
-	kernel-janitors@vger.kernel.org,
-	Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-	Simon Horman <horms@kernel.org>,
-	kvm@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org
-Subject: [PATCH v2] vhost-vdpa: Remove usage of the deprecated ida_simple_xx() API
-Date: Sun, 14 Apr 2024 12:04:26 +0200
-Message-ID: <67c2edf49788c27d5f7a49fc701520b9fcf739b5.1713088999.git.christophe.jaillet@wanadoo.fr>
-X-Mailer: git-send-email 2.44.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="a3g9x0CZ"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 60AA14070F
+	for <virtualization@lists.linux-foundation.org>; Sun, 14 Apr 2024 17:12:55 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -7.101
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id OAuuZVN6BFyb for <virtualization@lists.linux-foundation.org>;
+ Sun, 14 Apr 2024 17:12:54 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=pr-tracker-bot@kernel.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 57BD14070C
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=kernel.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 57BD14070C
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=a3g9x0CZ
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 57BD14070C
+	for <virtualization@lists.linux-foundation.org>; Sun, 14 Apr 2024 17:12:54 +0000 (UTC)
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by dfw.source.kernel.org (Postfix) with ESMTP id 1E0D160B2D;
+	Sun, 14 Apr 2024 17:12:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id B13C6C3277B;
+	Sun, 14 Apr 2024 17:12:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1713114772;
+	bh=DBvYJh2YC3326OOwmiISNvaZ8uqYe/EkC4jNLmlnPVI=;
+	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+	b=a3g9x0CZdfnd9JDdkd5ZXrgwaM6nmRB89VNlv2qMfHpl8eC1Tdgcn0MXmGbpk237F
+	 YY20SlVwLz6fdX8S7etIgSCYxBIAn2F3j2+aK2sFWRvXbSUI6KRAPXsoHtQaUWK7rP
+	 rijctqXn50ePDWhywgmITLglmQFB89AdFFofPLCk2iQauuJ7EVnYZ12NfWZQSe3GGE
+	 Hqhmh4hFzRY+NPhkOXBdy7tnc9zH5/FPzbD65q69X7VDKZDZUNlU213x5fA2x2anPK
+	 /c1KpNFGInHThlA0acJ6b4QoZwCUfQlRMLMXaYTQ3MYZ5ZRDZ/ueibdpqHLVNdEa3+
+	 RVhmZ3NlTrYuw==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id A5D04C43140;
+	Sun, 14 Apr 2024 17:12:52 +0000 (UTC)
+Subject: Re: [GIT PULL] virtio: bugfixes
+From: pr-tracker-bot@kernel.org
+In-Reply-To: <20240414042047-mutt-send-email-mst@kernel.org>
+References: <20240414042047-mutt-send-email-mst@kernel.org>
+X-PR-Tracked-List-Id: <netdev.vger.kernel.org>
+X-PR-Tracked-Message-Id: <20240414042047-mutt-send-email-mst@kernel.org>
+X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+X-PR-Tracked-Commit-Id: 76f408535aab39c33e0a1dcada9fba5631c65595
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 399f4dae683a719eeeca8f30d3871577b53ffcca
+Message-Id: <171311477267.23099.5771272291946432817.pr-tracker-bot@kernel.org>
+Date: Sun, 14 Apr 2024 17:12:52 +0000
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, acme@kernel.org, gshan@redhat.com, jasowang@redhat.com, jie.deng@intel.com, krzysztof.kozlowski@linaro.org, lingshan.zhu@intel.com, mst@redhat.com, namhyung@kernel.org, stable@kernel.org, xianting.tian@linux.alibaba.com, yihyu@redhat.com
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-ida_alloc() and ida_free() should be preferred to the deprecated
-ida_simple_get() and ida_simple_remove().
+The pull request you sent on Sun, 14 Apr 2024 04:20:47 -0400:
 
-Note that the upper limit of ida_simple_get() is exclusive, but the one of
-ida_alloc_max() is inclusive. So a -1 has been added when needed.
+> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Simon Horman <horms@kernel.org>
----
-Changes in V2:
-   - fix a typo in the commit message
-   - Add a R-b tag
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/399f4dae683a719eeeca8f30d3871577b53ffcca
 
-V1: https://lore.kernel.org/all/bd27d4066f7749997a75cf4111fbf51e11d5898d.1705350942.git.christophe.jaillet@wanadoo.fr/
----
- drivers/vhost/vdpa.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+Thank you!
 
-diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-index ba52d128aeb7..63a53680a85c 100644
---- a/drivers/vhost/vdpa.c
-+++ b/drivers/vhost/vdpa.c
-@@ -1548,7 +1548,7 @@ static void vhost_vdpa_release_dev(struct device *device)
- 	struct vhost_vdpa *v =
- 	       container_of(device, struct vhost_vdpa, dev);
- 
--	ida_simple_remove(&vhost_vdpa_ida, v->minor);
-+	ida_free(&vhost_vdpa_ida, v->minor);
- 	kfree(v->vqs);
- 	kfree(v);
- }
-@@ -1571,8 +1571,8 @@ static int vhost_vdpa_probe(struct vdpa_device *vdpa)
- 	if (!v)
- 		return -ENOMEM;
- 
--	minor = ida_simple_get(&vhost_vdpa_ida, 0,
--			       VHOST_VDPA_DEV_MAX, GFP_KERNEL);
-+	minor = ida_alloc_max(&vhost_vdpa_ida, VHOST_VDPA_DEV_MAX - 1,
-+			      GFP_KERNEL);
- 	if (minor < 0) {
- 		kfree(v);
- 		return minor;
 -- 
-2.44.0
-
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
