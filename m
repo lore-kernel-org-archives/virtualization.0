@@ -1,86 +1,137 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f169.google.com (mail-qk1-f169.google.com [209.85.222.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C577613665C
-	for <virtualization@lists.linux-foundation.org>; Sun, 14 Apr 2024 17:12:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6ABC7136671
+	for <virtualization@lists.linux.dev>; Sun, 14 Apr 2024 19:32:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713114776; cv=none; b=pcm2M7aEXUz84ziGy/ZuyLWkZnIWZ9DX2hIvK9Vq0GMlPm/VBLLKYKcpgHUpJobCzUf1pTnnuxXEmde88rp88PQ/5nlsj0I4Am1gyyqYKFmQ9AGUyuqbEPUaVdU3Q8avxJvBr7WOeWufdQc1Cor7UWIFhsawKq6RB7OpYWmkwGo=
+	t=1713123172; cv=none; b=h1t0nNRPczp6RCvsI5+/jxXniCl8IBYKDYgC1f8XTfw+0FEwI5T6SLcb6B51fIg9gcS+TPm6mNii/LecR7lIgkHedLK/zK/zjC727p3eGZ0I7SeZenPFwI+umU29jj0mrRBl0FGxxzDISjTdjO+k74gN6XjN7t1ZGMnSo1Vt2fo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713114776; c=relaxed/simple;
-	bh=DBvYJh2YC3326OOwmiISNvaZ8uqYe/EkC4jNLmlnPVI=;
-	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=NyYRCVqbEqJJT1EhkAJgFLWzn8WXvYPIIias+Xh2l3dbw85kzMIlD6R9Jlz/ok/Vkrl28j26P77wLKh3spQARdpjFdS5vZXVMENI3d99FmI1FD0uo45f4eUVYc89qF7uUm/DiKuxTNtVvMHhZZz4idtrQ7FmN+qFo0phA0VG4+U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=a3g9x0CZ; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1713123172; c=relaxed/simple;
+	bh=ZBDhr9CObo0gMu6LfQrcFEjO4OPJIORN3szFKgodQ+0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=NRK9SG4iKgLZrFUq8TGL1PnZThlKo8qYzAP2i6Qc53c/KuZpPSe0OnEgAD22cZF/kw8IJLux5rjQNEzZlsux0MmW3c5eEM6kvDdYfbZLOwd8YRLiHNlvWSlRHLGDOmsrezHwtNTqycksTeiwyrH5psHlsh0eki3DUGIMygC4m98=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WIyHahEL; arc=none smtp.client-ip=209.85.222.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="a3g9x0CZ"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 60AA14070F
-	for <virtualization@lists.linux-foundation.org>; Sun, 14 Apr 2024 17:12:55 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -7.101
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id OAuuZVN6BFyb for <virtualization@lists.linux-foundation.org>;
- Sun, 14 Apr 2024 17:12:54 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=pr-tracker-bot@kernel.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 57BD14070C
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=kernel.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 57BD14070C
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=a3g9x0CZ
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 57BD14070C
-	for <virtualization@lists.linux-foundation.org>; Sun, 14 Apr 2024 17:12:54 +0000 (UTC)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by dfw.source.kernel.org (Postfix) with ESMTP id 1E0D160B2D;
-	Sun, 14 Apr 2024 17:12:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id B13C6C3277B;
-	Sun, 14 Apr 2024 17:12:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1713114772;
-	bh=DBvYJh2YC3326OOwmiISNvaZ8uqYe/EkC4jNLmlnPVI=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-	b=a3g9x0CZdfnd9JDdkd5ZXrgwaM6nmRB89VNlv2qMfHpl8eC1Tdgcn0MXmGbpk237F
-	 YY20SlVwLz6fdX8S7etIgSCYxBIAn2F3j2+aK2sFWRvXbSUI6KRAPXsoHtQaUWK7rP
-	 rijctqXn50ePDWhywgmITLglmQFB89AdFFofPLCk2iQauuJ7EVnYZ12NfWZQSe3GGE
-	 Hqhmh4hFzRY+NPhkOXBdy7tnc9zH5/FPzbD65q69X7VDKZDZUNlU213x5fA2x2anPK
-	 /c1KpNFGInHThlA0acJ6b4QoZwCUfQlRMLMXaYTQ3MYZ5ZRDZ/ueibdpqHLVNdEa3+
-	 RVhmZ3NlTrYuw==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id A5D04C43140;
-	Sun, 14 Apr 2024 17:12:52 +0000 (UTC)
-Subject: Re: [GIT PULL] virtio: bugfixes
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <20240414042047-mutt-send-email-mst@kernel.org>
-References: <20240414042047-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-List-Id: <netdev.vger.kernel.org>
-X-PR-Tracked-Message-Id: <20240414042047-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-X-PR-Tracked-Commit-Id: 76f408535aab39c33e0a1dcada9fba5631c65595
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 399f4dae683a719eeeca8f30d3871577b53ffcca
-Message-Id: <171311477267.23099.5771272291946432817.pr-tracker-bot@kernel.org>
-Date: Sun, 14 Apr 2024 17:12:52 +0000
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, acme@kernel.org, gshan@redhat.com, jasowang@redhat.com, jie.deng@intel.com, krzysztof.kozlowski@linaro.org, lingshan.zhu@intel.com, mst@redhat.com, namhyung@kernel.org, stable@kernel.org, xianting.tian@linux.alibaba.com, yihyu@redhat.com
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WIyHahEL"
+Received: by mail-qk1-f169.google.com with SMTP id af79cd13be357-78d683c469dso260418485a.1
+        for <virtualization@lists.linux.dev>; Sun, 14 Apr 2024 12:32:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1713123169; x=1713727969; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=shhtOSZZ/L6/ysJnfcz7x/2mu05qd++QoRUPCCEdCz0=;
+        b=WIyHahELrEl2irrE5SsAvfn54PicR2zsQIrvjnEnNGu7LL8y+Lrf391FUwANvGJKgx
+         30VnTdDTcIlzb7gYZXEBJURQi0U/0yjOy4fh54pUvYEP/Ke6bf4bzeQ6n+iY4SScjaC+
+         VCakSumH1diuUg6FoSh7v5wyB9UM4MKZioYdtTlPPJNb6n6NVKZyu0hv6XElgs1EAyr5
+         MycYDP/GScfTC4hVjOHD6s81OCZLoVq8K6QHuy3nFX/pPamAWlpDpk+H2BEChrLeSXXC
+         hxkrv2cc6hn5J9UQov4w+ERj7PO/ILLKrjQybWWgkuRlpuKUvGavQibMKjFdPX1CSMVf
+         UvFA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713123169; x=1713727969;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=shhtOSZZ/L6/ysJnfcz7x/2mu05qd++QoRUPCCEdCz0=;
+        b=G2GfSfEgTiirpRJDnTuUTswVlFLubE4pmHlkmxKmLARbZYO/ixNT9n+KAUReqyAm0q
+         wvoT2C0v1Ld2xwuoyADd2zbUHI1DSf+JuEKBFsDTkEWzV7c3um/aK915A9C25Ipwu2An
+         nj2JuHFSpWE6Ix3BQ0KnvYvUjzreBrkF7dtUPS6zt2SGYxbkKpM2kbZ7Fmx+X5IqIsH8
+         3fDMi9/0FYVvmccLUDJClKYr26UwqNa+BHxHIcR5/+uUqxVQljRr5xyaNQPxr2qQNukr
+         1sPP1mjiYLY00Q8e0nAMIXGIAeunHWwZo+sPIjNec9u59gaiaZllKYw0I82vTBNzBJDu
+         SU7w==
+X-Forwarded-Encrypted: i=1; AJvYcCWDyph9vVuMwR5d63tx7Hdub5OVR5AQWYx06QUJPHcHSeBryFb0SEH0nnc9yH/GCTr0dUiD+da8aeBqKlroEXayMxqKLwLHaFpNzyTR5uc=
+X-Gm-Message-State: AOJu0YwaRtscLkZG3lC9WtBwJKLz/0b+739pQdJwbh9BONIj2Hw8jAlu
+	e8kARWYopXe9NRyAfPOTAQpNG0xJV8ZHiXU9UUpaiQqAh20uxsI5
+X-Google-Smtp-Source: AGHT+IE18qilwhT3qTku0Jo4p/dnCWrWErx3xvR9CEaq3Z9a6mLLdjMTQJeYdFl80JLzSa8uzEK/UQ==
+X-Received: by 2002:a05:620a:88f:b0:78e:9136:1063 with SMTP id b15-20020a05620a088f00b0078e91361063mr9033701qka.59.1713123169241;
+        Sun, 14 Apr 2024 12:32:49 -0700 (PDT)
+Received: from localhost ([2001:18c0:22:6700:503f:95a9:a73f:4ee8])
+        by smtp.gmail.com with ESMTPSA id z14-20020a05620a100e00b0078d60595ff8sm5313822qkj.59.2024.04.14.12.32.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 14 Apr 2024 12:32:48 -0700 (PDT)
+Date: Sun, 14 Apr 2024 15:32:46 -0400
+From: Benjamin Poirier <benjamin.poirier@gmail.com>
+To: Jiri Pirko <jiri@resnulli.us>
+Cc: netdev@vger.kernel.org, kuba@kernel.org, pabeni@redhat.com,
+	davem@davemloft.net, edumazet@google.com, parav@nvidia.com,
+	mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+	shuah@kernel.org, petrm@nvidia.com, liuhangbin@gmail.com,
+	vladimir.oltean@nxp.com, idosch@nvidia.com,
+	virtualization@lists.linux.dev
+Subject: Re: [patch net-next 3/6] selftests: forwarding: add ability to
+ assemble NETIFS array by driver name
+Message-ID: <ZhwvXgxEnHN8oJ5f@f4>
+References: <20240412151314.3365034-1-jiri@resnulli.us>
+ <20240412151314.3365034-4-jiri@resnulli.us>
+ <ZhmbxntSvXrsnEG1@f4>
+ <ZhqIXZYnHA0MZT3L@nanopsycho>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZhqIXZYnHA0MZT3L@nanopsycho>
 
-The pull request you sent on Sun, 14 Apr 2024 04:20:47 -0400:
+On 2024-04-13 15:27 +0200, Jiri Pirko wrote:
+> Fri, Apr 12, 2024 at 10:38:30PM CEST, benjamin.poirier@gmail.com wrote:
+> >On 2024-04-12 17:13 +0200, Jiri Pirko wrote:
+> >> From: Jiri Pirko <jiri@nvidia.com>
+> >> 
+> >> Allow driver tests to work without specifying the netdevice names.
+> >> Introduce a possibility to search for available netdevices according to
+> >> set driver name. Allow test to specify the name by setting
+> >> NETIF_FIND_DRIVER variable.
+> >> 
+> >> Note that user overrides this either by passing netdevice names on the
+> >> command line or by declaring NETIFS array in custom forwarding.config
+> >> configuration file.
+> >> 
+> >> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
+> >> ---
+> >>  tools/testing/selftests/net/forwarding/lib.sh | 39 +++++++++++++++++++
+> >>  1 file changed, 39 insertions(+)
+> >> 
+> >> diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
+> >> index 6f6a0f13465f..06633518b3aa 100644
+> >> --- a/tools/testing/selftests/net/forwarding/lib.sh
+> >> +++ b/tools/testing/selftests/net/forwarding/lib.sh
+> >> @@ -55,6 +55,9 @@ declare -A NETIFS=(
+> >>  : "${NETIF_CREATE:=yes}"
+> >>  : "${NETIF_TYPE:=veth}"
+> >>  
+> >> +# Whether to find netdevice according to the specified driver.
+> >> +: "${NETIF_FIND_DRIVER:=}"
+> >> +
+> >
+> >This section of the file sets default values for variables that can be
+> >set by users in forwarding.config. NETIF_FIND_DRIVER is more like
+> >NUM_NETIFS, it is set by tests, so I don't think it should be listed
+> >there.
+> 
+> Well, currently there is a mixture of config variables and test
+> definitions/requirements. For example REQUIRE_JQ, REQUIRE_MZ, REQUIRE_MTOOLS
+> are not forwarding.config configurable (they are, they should not be ;))
 
-> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+Yes, that's true. If you prefer to leave that statement there, go ahead.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/399f4dae683a719eeeca8f30d3871577b53ffcca
+> Where do you suggest to move NETIF_FIND_DRIVER?
 
-Thank you!
+I would make NETIF_FIND_DRIVER like NUM_NETIFS, ie. there's no statement
+setting a default value for it. And I would move the comment describing
+its purpose above this new part:
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+> +
+> +if [[ ! -z $NETIF_FIND_DRIVER ]]; then
+> +	unset NETIFS
+> +	declare -A NETIFS
+> +	find_netif
+> +fi
+> +
+
+BTW, '! -z' can be removed from that test. It's equivalent to:
+if [[ $NETIF_FIND_DRIVER ]]; then
