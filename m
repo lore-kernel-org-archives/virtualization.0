@@ -1,127 +1,142 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F74223741
-	for <virtualization@lists.linux.dev>; Sun, 14 Apr 2024 08:35:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09E4918AF4
+	for <virtualization@lists.linux.dev>; Sun, 14 Apr 2024 08:37:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713083712; cv=none; b=PyiSmltF4yjW76kH9VQxGqYCW/NtHtu5ry7aN4p4qgtRoahLxCtiUpKoDw3h9DtlQ7QRjxR4afTwOj8NZeEJooEgyKiWdKFRBRZ9830LNFJCFqABpn+O3JTU2pL6Xj6SAMdjcFHbnqPUGxR1erMjLA4NNV/I0/DG0n1nYtUeWF8=
+	t=1713083853; cv=none; b=F6UnZLcXvNoUMrYHlny1Ipi9WcldVTj8RYcNKiXpV/Zzt2ZsRbaifZER9lQdArEV2WUeW4HHDYSqjG7YkYdEVsCko9jdwL9ojyYr5eTRPbmo2Kv0yxv3DAFXUx//63J3C48RMJUA6zmtMqUuokh50uhXSlKGjiIOLAzLNdyvFHw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713083712; c=relaxed/simple;
-	bh=ZPYqqtyateQAglR+k6OVKvCAe8YRzI/MA8ssd/t5pbQ=;
+	s=arc-20240116; t=1713083853; c=relaxed/simple;
+	bh=yuFnvYtnvNNjnZNTCXgHUj4IvgWtR9BbExjVSI79/+g=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=RFcR12sG13AFtaqS+xageCkt4RL38fXFoXp7Wnfuisz2MG8E2ocCeDA3IgR0umTpvlXDqqzOPuVl2jihg0uxIITbYn1UwYDIoAK6HqWzxldNMjjDDr4O+jBwf+qBh5xPtwJI4dkVD3E3uX8LatFCKne9UBAd9M+1R3LBdNePVkM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VrcFMysy; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=nZOgSZDW4WL3R/ETrADChtMH2VA+iOp+XqNYI7V5i+7KdPX8ADdWTdi8r5a8o2iZLuEpNLX0nOKKcs7vpjvPLjvrBA0Rqpl0xgcP8zii1qxHIpi4auIdFbCejK7eAkBTEkFHk1aBqENw0P22tX5mNMj1g+SNmTjLxaiOjblwf8c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iDw0SeP2; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VrcFMysy"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iDw0SeP2"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1713083710;
+	s=mimecast20190719; t=1713083850;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=FmgfpCrRtCqNbVMsFXJuOmvk/MLLt9gA4dRZP1RBeX4=;
-	b=VrcFMysypTOei2Nx+OKdh1UuUdODAWgXQBp5ZKaipGgmQM2dUf2K4+ZhZXPzAthXn0yCsi
-	bepF8E951QSn8rrpZkag7YOJMZ0iejCnfUPirF54yOF2Cn5c4gqBrt/QrgS+Za+9YVNF2X
-	E2YUfUYxX8tHNOFl9e1w1FjD4/ZII+c=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=G/i6krDV1g9AR8pbuTOJvAWUEXMFk0ywujV4a8O3nVY=;
+	b=iDw0SeP26tRZQW2gNACuej0duWLIreT9lhZV1lFRei2n2tyNvQ/JQiMLwvWQsFpM1AV6OE
+	0gdigxcTS4movupmxb06bfvBJmxZQnmIGuETCetMb86EXj8+69/XY+tXnfLr/o3QVvbU19
+	a2L2BOPFSyrljpjcSbvmDFJhOAZeb0k=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-400-RWx39nmlNNijFu_p2THKBg-1; Sun, 14 Apr 2024 04:35:08 -0400
-X-MC-Unique: RWx39nmlNNijFu_p2THKBg-1
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-343d6732721so1350520f8f.2
-        for <virtualization@lists.linux.dev>; Sun, 14 Apr 2024 01:35:07 -0700 (PDT)
+ us-mta-467-W9q9uHUfOG-BatR5eUhXVg-1; Sun, 14 Apr 2024 04:37:29 -0400
+X-MC-Unique: W9q9uHUfOG-BatR5eUhXVg-1
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-41663c713b7so15760335e9.0
+        for <virtualization@lists.linux.dev>; Sun, 14 Apr 2024 01:37:29 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713083707; x=1713688507;
+        d=1e100.net; s=20230601; t=1713083848; x=1713688648;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=FmgfpCrRtCqNbVMsFXJuOmvk/MLLt9gA4dRZP1RBeX4=;
-        b=q47LswCj74M0uGTW5FPlgp0Eh8NBsjH8sW5uPAozdRymy9OFO+vPe5KNlyEiKO3XYx
-         5kjdszlB+U3hrt11TXkNEeY3i7gE64xPts4ywcRyVKbvkFPrnLqVd9aG0qRVgc+IvN26
-         7rMpvQ9VQcrw/TUFchGNvQ00AXtMuX4ssbNF5ABCCRa5ES1qztTc84aMjr88QgBqJt6A
-         uZBxsMlVblH5AVdS/BNCk57fROA9ejGkmyTMBXZcGts110/kRXN1haQ1HcI/CMfzooWV
-         VHOkKSLHN5RWHsGlaQzoQiPyFBo+Kv4D5xhbNSdwKY6h5CblNhM+pJVLtDJE+P+fjuRd
-         dDgg==
-X-Forwarded-Encrypted: i=1; AJvYcCXzYXPOvvifCsMli758vbukZcVQomrIB5Khj0aaM1jE3JMkZlcidCoZyfJ4aQ55mstj4ggmbALuC5g9fhaH8G5FVZEVEAtdFcn1b0o0JUU=
-X-Gm-Message-State: AOJu0YyJYz6NyqbsPCRqYOWMJp1INdZ+J742VNUJ0IMyuSMxCxgFRr3U
-	x30A8Yy5W0ivDMT+FxEB/Y2jcjAE17Y5EncA7u6CoCoklWAH/OkAKwnr76HALUf2YlMsFi57WF1
-	7d9Q4YjoqYKQsCLUm0al1FGxKJdRgyWpL7/1nhl6j8HxOQm9X9OXBrc4ClN07nEpc
-X-Received: by 2002:a05:6000:232:b0:345:663f:f0a1 with SMTP id l18-20020a056000023200b00345663ff0a1mr5215821wrz.55.1713083706780;
-        Sun, 14 Apr 2024 01:35:06 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEud3PzT7Nr9AygoJHk6xDRgJwZJGsPs20hazfYSLls12vM50Lh6SjxqeEIXzgG7uN3p2DHqQ==
-X-Received: by 2002:a05:6000:232:b0:345:663f:f0a1 with SMTP id l18-20020a056000023200b00345663ff0a1mr5215809wrz.55.1713083706195;
-        Sun, 14 Apr 2024 01:35:06 -0700 (PDT)
+        bh=G/i6krDV1g9AR8pbuTOJvAWUEXMFk0ywujV4a8O3nVY=;
+        b=sWuIBkLsyW9j5RQcZnNbP+ZcLGVoH2XhwnqP2+eQeZhGTenoD3dd0iKaGkoG7Xq8kt
+         PMYFwWIxzKYvwqLI3SaL9lBcFd7W2th4uckCxjJ6LqUrRZOe8QqTb8h91Xw6iRVkaBYc
+         XYf6ldQ5oBgmKiXe1SWDqp8BZXcRN3C0kBwLQU5kRzVlCj2Yt1p5l5GrMHHgHURhxzD/
+         daFPXcETUtaoiaCxBm5DV3ARflNSfMWFv84bylFRhIrVD9i6t1FmDWLQ4zaWy5ikQD6l
+         SShHuinrYNqHq5coEYyy1/nen6cCOnJTe4KY/H4BL/+JQu4u6ZpFu90HR2T+yELWi58Q
+         B//w==
+X-Forwarded-Encrypted: i=1; AJvYcCWRWxf4IiaO21JHGmlxxG+HqBztWkoSqjzwAvfrztvUjqfdB5TICnnaRtrhGKUL8rc/G8B8r1Gg+HzCrosWuuBPlptfVorHyPKcJtNr8D4=
+X-Gm-Message-State: AOJu0YwsXcUPLxIJ8BzAmIpi4N/B8JKyWnOrtCeEFLbG3Yp35O/st9/4
+	lIZQUoEGiwfeIlRvoSrx4x6rHeH1t+GfTqIaEQYf+9DhSvIr03/vUZz3ACs6ZIfC+2Nrzw9pGtX
+	LEOTYD48cKvmAnRR1V2HLctByKNbG5WJoxr2HjBbOIAbFHi/UGfkodEP2CjO8S1HhMkVKXCny
+X-Received: by 2002:a05:600c:5116:b0:418:42e2:f91e with SMTP id o22-20020a05600c511600b0041842e2f91emr893581wms.5.1713083847690;
+        Sun, 14 Apr 2024 01:37:27 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFHBRePobWjhSA4J5E9UMMqMx3oeXar185JqQ3RtQ9MjHZ5tg42MeVq6OUwgebYVh010dPfxA==
+X-Received: by 2002:a05:600c:5116:b0:418:42e2:f91e with SMTP id o22-20020a05600c511600b0041842e2f91emr893564wms.5.1713083847184;
+        Sun, 14 Apr 2024 01:37:27 -0700 (PDT)
 Received: from redhat.com ([31.187.78.68])
-        by smtp.gmail.com with ESMTPSA id k9-20020adfe3c9000000b00344a8f9cf18sm8576894wrm.7.2024.04.14.01.35.04
+        by smtp.gmail.com with ESMTPSA id n20-20020a05600c4f9400b004166a8ad81bsm14723278wmq.43.2024.04.14.01.37.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 14 Apr 2024 01:35:05 -0700 (PDT)
-Date: Sun, 14 Apr 2024 04:35:03 -0400
+        Sun, 14 Apr 2024 01:37:26 -0700 (PDT)
+Date: Sun, 14 Apr 2024 04:37:24 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Cc: Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org,
-	kernel-janitors@vger.kernel.org, kvm@vger.kernel.org,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org
-Subject: Re: [PATCH] vhost-vdpa: Remove usage of the deprecated
- ida_simple_xx() API
-Message-ID: <20240414043334-mutt-send-email-mst@kernel.org>
-References: <bd27d4066f7749997a75cf4111fbf51e11d5898d.1705350942.git.christophe.jaillet@wanadoo.fr>
+To: Ricardo Ribalda <ribalda@google.com>
+Cc: Andrea Righi <andrea.righi@canonical.com>,
+	virtualization@lists.linux.dev, stevensd@chromium.org,
+	Igor Mammedov <imammedo@redhat.com>
+Subject: Re: ACPI timeouts when enabling KASAN
+Message-ID: <20240414043707-mutt-send-email-mst@kernel.org>
+References: <CANiDSCtJKZDwSpy3RWW7FPQiJf+LqxrZJs=N7KrvCz0EFjh2wQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <bd27d4066f7749997a75cf4111fbf51e11d5898d.1705350942.git.christophe.jaillet@wanadoo.fr>
+In-Reply-To: <CANiDSCtJKZDwSpy3RWW7FPQiJf+LqxrZJs=N7KrvCz0EFjh2wQ@mail.gmail.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Mon, Jan 15, 2024 at 09:35:50PM +0100, Christophe JAILLET wrote:
-> ida_alloc() and ida_free() should be preferred to the deprecated
-> ida_simple_get() and ida_simple_remove().
+On Fri, Apr 12, 2024 at 11:43:22PM +0200, Ricardo Ribalda wrote:
+> Hi
 > 
-> Note that the upper limit of ida_simple_get() is exclusive, buInputt the one of
-
-What's buInputt? But?
-
-> ida_alloc_max() is inclusive. So a -1 has been added when needed.
+> I am using virtme to do some CI around linux-media.
 > 
-> Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-
-
-Jason, wanna ack?
-
-> ---
->  drivers/vhost/vdpa.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
+> Everything works as expected, but when I enable KASAN, I am starting
+> to get a lot of timeouts when the Method _PRT is executed. Eg:
 > 
-> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> index bc4a51e4638b..849b9d2dd51f 100644
-> --- a/drivers/vhost/vdpa.c
-> +++ b/drivers/vhost/vdpa.c
-> @@ -1534,7 +1534,7 @@ static void vhost_vdpa_release_dev(struct device *device)
->  	struct vhost_vdpa *v =
->  	       container_of(device, struct vhost_vdpa, dev);
->  
-> -	ida_simple_remove(&vhost_vdpa_ida, v->minor);
-> +	ida_free(&vhost_vdpa_ida, v->minor);
->  	kfree(v->vqs);
->  	kfree(v);
->  }
-> @@ -1557,8 +1557,8 @@ static int vhost_vdpa_probe(struct vdpa_device *vdpa)
->  	if (!v)
->  		return -ENOMEM;
->  
-> -	minor = ida_simple_get(&vhost_vdpa_ida, 0,
-> -			       VHOST_VDPA_DEV_MAX, GFP_KERNEL);
-> +	minor = ida_alloc_max(&vhost_vdpa_ida, VHOST_VDPA_DEV_MAX - 1,
-> +			      GFP_KERNEL);
->  	if (minor < 0) {
->  		kfree(v);
->  		return minor;
+> [   56.335875] ACPI Error: Aborting method \_SB.PCI0._PRT due to
+> previous error (AE_AML_LOOP_TIMEOUT) (20230628/psparse-529)
+> [   56.529826] ACPI Error: Method execution failed \_SB.PCI0._PRT due
+> to previous error (AE_AML_LOOP_TIMEOUT) (20230628/uteval-68)
+> [   56.532391] virtio-pci 0000:00:02.0: can't derive routing for PCI INT A
+> [   56.532823] virtio-pci 0000:00:02.0: PCI INT A: no GSI
+> [   86.877471] ACPI Error: Aborting method \_SB.PCI0._PRT due to
+> previous error (AE_AML_LOOP_TIMEOUT) (20230628/psparse-529)
+> [   87.073854] ACPI Error: Method execution failed \_SB.PCI0._PRT due
+> to previous error (AE_AML_LOOP_TIMEOUT) (20230628/uteval-68)
+> [   87.075550] virtio-pci 0000:00:04.0: can't derive routing for PCI INT A
+> [   87.075810] virtio-pci 0000:00:04.0: PCI INT A: no GSI
+> 
+> 0000:00:04.0 and 0000:00:02.0 are virtio devices (console and 9p-filesystem)
+> 
+> If I increase the timeout (ACPI_MAX_LOOP_TIMEOUT), then the Method is
+> always executed, but it is very annoying that I have to wait more than
+> 5 minutes to start the vm.
+> 
+> Despite not having kvm enabled, the machine is quite decent, so I
+> would expect that it could run that method relatively fast.
+> 
+> Do you have any hint of what I should be looking at?
+> 
+> Thanks!
+
+
+CC Igor.
+
+
+> ```
+> # virtme-ng --version
+> virtme-ng 1.23
+> # qemu-system-amd64 --version
+> QEMU emulator version 8.2.1 (Debian 1:8.2.1+ds-2)
+> Copyright (c) 2003-2023 Fabrice Bellard and the QEMU Project developers
+> # git describe
+> v6.9-rc3-208-g586b5dfb51b96
+> 
+> # virtme-configkernel --defconfig --arch x86_64
+> # scripts/config -e KASAN
+> # make olddefconfig
+> # make all -j 256
+> # virtme-run --kdir . --mods=auto --show-command --show-boot-console
+> --verbose  --cpus 2 --memory 4G --script-sh "echo HelloWorld"
+> ```
+> 
+> 
+> 
 > -- 
-> 2.43.0
+> Ricardo Ribalda
+> Software Engineer
+> ribalda@google.com
 
