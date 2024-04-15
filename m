@@ -1,137 +1,194 @@
-Received: from mail-qk1-f169.google.com (mail-qk1-f169.google.com [209.85.222.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6ABC7136671
-	for <virtualization@lists.linux.dev>; Sun, 14 Apr 2024 19:32:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8D7817BA4
+	for <virtualization@lists.linux.dev>; Mon, 15 Apr 2024 02:35:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713123172; cv=none; b=h1t0nNRPczp6RCvsI5+/jxXniCl8IBYKDYgC1f8XTfw+0FEwI5T6SLcb6B51fIg9gcS+TPm6mNii/LecR7lIgkHedLK/zK/zjC727p3eGZ0I7SeZenPFwI+umU29jj0mrRBl0FGxxzDISjTdjO+k74gN6XjN7t1ZGMnSo1Vt2fo=
+	t=1713148529; cv=none; b=Eyk+6OFIjjCHwunlFxHD64e1cgNjX97wqBU7ew7pc3ounrz+51uSXbu2nf8/kB94MEwWGgIft1dDz9haXPaNWzSsdGt1NBNaInB7eWNIGstu/CHQkBJnjv05fVW19D4tHn9Ttw8iWZ6F3hADSFRWwwLZtHaVfBJruRvVgR+hJUM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713123172; c=relaxed/simple;
-	bh=ZBDhr9CObo0gMu6LfQrcFEjO4OPJIORN3szFKgodQ+0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NRK9SG4iKgLZrFUq8TGL1PnZThlKo8qYzAP2i6Qc53c/KuZpPSe0OnEgAD22cZF/kw8IJLux5rjQNEzZlsux0MmW3c5eEM6kvDdYfbZLOwd8YRLiHNlvWSlRHLGDOmsrezHwtNTqycksTeiwyrH5psHlsh0eki3DUGIMygC4m98=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WIyHahEL; arc=none smtp.client-ip=209.85.222.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1713148529; c=relaxed/simple;
+	bh=CKEmjckkZ/5OhNODqPdHhtpmMdOSoGaB7CZyvoXPMA8=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
+	 Content-Type; b=rCk4tgD+aBjg81csTNy0Vw46iG4Dwbo5j5Wt2F3t4Y/DU0gHMTVcFwRC/g3WNIwOQT0HzcSgbOgLEo+yQ9WfmFriKlx+q2WUyJ+vEgiKkrkIQaby9lQmFfAA/W/ZzDOIUV3MQ3vS9kO+ia8d44r0DpiWTRPoH7gJ7RMkz6XTJeA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=uY4Jy9It; arc=none smtp.client-ip=115.124.30.118
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WIyHahEL"
-Received: by mail-qk1-f169.google.com with SMTP id af79cd13be357-78d683c469dso260418485a.1
-        for <virtualization@lists.linux.dev>; Sun, 14 Apr 2024 12:32:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1713123169; x=1713727969; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=shhtOSZZ/L6/ysJnfcz7x/2mu05qd++QoRUPCCEdCz0=;
-        b=WIyHahELrEl2irrE5SsAvfn54PicR2zsQIrvjnEnNGu7LL8y+Lrf391FUwANvGJKgx
-         30VnTdDTcIlzb7gYZXEBJURQi0U/0yjOy4fh54pUvYEP/Ke6bf4bzeQ6n+iY4SScjaC+
-         VCakSumH1diuUg6FoSh7v5wyB9UM4MKZioYdtTlPPJNb6n6NVKZyu0hv6XElgs1EAyr5
-         MycYDP/GScfTC4hVjOHD6s81OCZLoVq8K6QHuy3nFX/pPamAWlpDpk+H2BEChrLeSXXC
-         hxkrv2cc6hn5J9UQov4w+ERj7PO/ILLKrjQybWWgkuRlpuKUvGavQibMKjFdPX1CSMVf
-         UvFA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713123169; x=1713727969;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=shhtOSZZ/L6/ysJnfcz7x/2mu05qd++QoRUPCCEdCz0=;
-        b=G2GfSfEgTiirpRJDnTuUTswVlFLubE4pmHlkmxKmLARbZYO/ixNT9n+KAUReqyAm0q
-         wvoT2C0v1Ld2xwuoyADd2zbUHI1DSf+JuEKBFsDTkEWzV7c3um/aK915A9C25Ipwu2An
-         nj2JuHFSpWE6Ix3BQ0KnvYvUjzreBrkF7dtUPS6zt2SGYxbkKpM2kbZ7Fmx+X5IqIsH8
-         3fDMi9/0FYVvmccLUDJClKYr26UwqNa+BHxHIcR5/+uUqxVQljRr5xyaNQPxr2qQNukr
-         1sPP1mjiYLY00Q8e0nAMIXGIAeunHWwZo+sPIjNec9u59gaiaZllKYw0I82vTBNzBJDu
-         SU7w==
-X-Forwarded-Encrypted: i=1; AJvYcCWDyph9vVuMwR5d63tx7Hdub5OVR5AQWYx06QUJPHcHSeBryFb0SEH0nnc9yH/GCTr0dUiD+da8aeBqKlroEXayMxqKLwLHaFpNzyTR5uc=
-X-Gm-Message-State: AOJu0YwaRtscLkZG3lC9WtBwJKLz/0b+739pQdJwbh9BONIj2Hw8jAlu
-	e8kARWYopXe9NRyAfPOTAQpNG0xJV8ZHiXU9UUpaiQqAh20uxsI5
-X-Google-Smtp-Source: AGHT+IE18qilwhT3qTku0Jo4p/dnCWrWErx3xvR9CEaq3Z9a6mLLdjMTQJeYdFl80JLzSa8uzEK/UQ==
-X-Received: by 2002:a05:620a:88f:b0:78e:9136:1063 with SMTP id b15-20020a05620a088f00b0078e91361063mr9033701qka.59.1713123169241;
-        Sun, 14 Apr 2024 12:32:49 -0700 (PDT)
-Received: from localhost ([2001:18c0:22:6700:503f:95a9:a73f:4ee8])
-        by smtp.gmail.com with ESMTPSA id z14-20020a05620a100e00b0078d60595ff8sm5313822qkj.59.2024.04.14.12.32.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 14 Apr 2024 12:32:48 -0700 (PDT)
-Date: Sun, 14 Apr 2024 15:32:46 -0400
-From: Benjamin Poirier <benjamin.poirier@gmail.com>
-To: Jiri Pirko <jiri@resnulli.us>
-Cc: netdev@vger.kernel.org, kuba@kernel.org, pabeni@redhat.com,
-	davem@davemloft.net, edumazet@google.com, parav@nvidia.com,
-	mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
-	shuah@kernel.org, petrm@nvidia.com, liuhangbin@gmail.com,
-	vladimir.oltean@nxp.com, idosch@nvidia.com,
-	virtualization@lists.linux.dev
-Subject: Re: [patch net-next 3/6] selftests: forwarding: add ability to
- assemble NETIFS array by driver name
-Message-ID: <ZhwvXgxEnHN8oJ5f@f4>
-References: <20240412151314.3365034-1-jiri@resnulli.us>
- <20240412151314.3365034-4-jiri@resnulli.us>
- <ZhmbxntSvXrsnEG1@f4>
- <ZhqIXZYnHA0MZT3L@nanopsycho>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="uY4Jy9It"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1713148518; h=Message-ID:Subject:Date:From:To:Content-Type;
+	bh=LeyJmU6jakFyaJE2bOU0OfusitmyQM73vIi7eL5BGlo=;
+	b=uY4Jy9ItnH4KPgXaTRmyo6M4YwQ1abgIdQX/9qOD08AhtUws4FZxjFn5rtulWpzqMPVBtSdtykjkkh3gFunDxUdR3bMWqpCQ+UdT6SsVn208rP/0W2kJV68FB6Gr2NVR5g5m5rUSCZxzaahUYXL+TDQG7s3Z+9WQ+GMzL5I9azQ=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R531e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0W4TtE.-_1713148517;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W4TtE.-_1713148517)
+          by smtp.aliyun-inc.com;
+          Mon, 15 Apr 2024 10:35:18 +0800
+Message-ID: <1713146919.8867755-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH vhost 3/6] virtio_net: replace private by pp struct inside page
+Date: Mon, 15 Apr 2024 10:08:39 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: virtualization@lists.linux.dev,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>,
+ netdev@vger.kernel.org
+References: <20240411025127.51945-1-xuanzhuo@linux.alibaba.com>
+ <20240411025127.51945-4-xuanzhuo@linux.alibaba.com>
+ <CACGkMEsC7AEi2SOmqNOo6KJDpx92raGWYwYzxZ_MVhmnco_LYQ@mail.gmail.com>
+ <1712900153.3715405-1-xuanzhuo@linux.alibaba.com>
+ <CACGkMEvKC6JpsznW57GgxFBMhmMSk4eCZPvESpew9j5qfp9=RA@mail.gmail.com>
+In-Reply-To: <CACGkMEvKC6JpsznW57GgxFBMhmMSk4eCZPvESpew9j5qfp9=RA@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZhqIXZYnHA0MZT3L@nanopsycho>
 
-On 2024-04-13 15:27 +0200, Jiri Pirko wrote:
-> Fri, Apr 12, 2024 at 10:38:30PM CEST, benjamin.poirier@gmail.com wrote:
-> >On 2024-04-12 17:13 +0200, Jiri Pirko wrote:
-> >> From: Jiri Pirko <jiri@nvidia.com>
-> >> 
-> >> Allow driver tests to work without specifying the netdevice names.
-> >> Introduce a possibility to search for available netdevices according to
-> >> set driver name. Allow test to specify the name by setting
-> >> NETIF_FIND_DRIVER variable.
-> >> 
-> >> Note that user overrides this either by passing netdevice names on the
-> >> command line or by declaring NETIFS array in custom forwarding.config
-> >> configuration file.
-> >> 
-> >> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
-> >> ---
-> >>  tools/testing/selftests/net/forwarding/lib.sh | 39 +++++++++++++++++++
-> >>  1 file changed, 39 insertions(+)
-> >> 
-> >> diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
-> >> index 6f6a0f13465f..06633518b3aa 100644
-> >> --- a/tools/testing/selftests/net/forwarding/lib.sh
-> >> +++ b/tools/testing/selftests/net/forwarding/lib.sh
-> >> @@ -55,6 +55,9 @@ declare -A NETIFS=(
-> >>  : "${NETIF_CREATE:=yes}"
-> >>  : "${NETIF_TYPE:=veth}"
-> >>  
-> >> +# Whether to find netdevice according to the specified driver.
-> >> +: "${NETIF_FIND_DRIVER:=}"
-> >> +
+On Fri, 12 Apr 2024 13:49:12 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> On Fri, Apr 12, 2024 at 1:39=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba=
+.com> wrote:
 > >
-> >This section of the file sets default values for variables that can be
-> >set by users in forwarding.config. NETIF_FIND_DRIVER is more like
-> >NUM_NETIFS, it is set by tests, so I don't think it should be listed
-> >there.
-> 
-> Well, currently there is a mixture of config variables and test
-> definitions/requirements. For example REQUIRE_JQ, REQUIRE_MZ, REQUIRE_MTOOLS
-> are not forwarding.config configurable (they are, they should not be ;))
+> > On Fri, 12 Apr 2024 12:47:55 +0800, Jason Wang <jasowang@redhat.com> wr=
+ote:
+> > > On Thu, Apr 11, 2024 at 10:51=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.al=
+ibaba.com> wrote:
+> > > >
+> > > > Now, we chain the pages of big mode by the page's private variable.
+> > > > But a subsequent patch aims to make the big mode to support
+> > > > premapped mode. This requires additional space to store the dma add=
+r.
+> > > >
+> > > > Within the sub-struct that contains the 'private', there is no suit=
+able
+> > > > variable for storing the DMA addr.
+> > > >
+> > > >                 struct {        /* Page cache and anonymous pages */
+> > > >                         /**
+> > > >                          * @lru: Pageout list, eg. active_list prot=
+ected by
+> > > >                          * lruvec->lru_lock.  Sometimes used as a g=
+eneric list
+> > > >                          * by the page owner.
+> > > >                          */
+> > > >                         union {
+> > > >                                 struct list_head lru;
+> > > >
+> > > >                                 /* Or, for the Unevictable "LRU lis=
+t" slot */
+> > > >                                 struct {
+> > > >                                         /* Always even, to negate P=
+ageTail */
+> > > >                                         void *__filler;
+> > > >                                         /* Count page's or folio's =
+mlocks */
+> > > >                                         unsigned int mlock_count;
+> > > >                                 };
+> > > >
+> > > >                                 /* Or, free page */
+> > > >                                 struct list_head buddy_list;
+> > > >                                 struct list_head pcp_list;
+> > > >                         };
+> > > >                         /* See page-flags.h for PAGE_MAPPING_FLAGS =
+*/
+> > > >                         struct address_space *mapping;
+> > > >                         union {
+> > > >                                 pgoff_t index;          /* Our offs=
+et within mapping. */
+> > > >                                 unsigned long share;    /* share co=
+unt for fsdax */
+> > > >                         };
+> > > >                         /**
+> > > >                          * @private: Mapping-private opaque data.
+> > > >                          * Usually used for buffer_heads if PagePri=
+vate.
+> > > >                          * Used for swp_entry_t if PageSwapCache.
+> > > >                          * Indicates order in the buddy system if P=
+ageBuddy.
+> > > >                          */
+> > > >                         unsigned long private;
+> > > >                 };
+> > > >
+> > > > But within the page pool struct, we have a variable called
+> > > > dma_addr that is appropriate for storing dma addr.
+> > > > And that struct is used by netstack. That works to our advantage.
+> > > >
+> > > >                 struct {        /* page_pool used by netstack */
+> > > >                         /**
+> > > >                          * @pp_magic: magic value to avoid recyclin=
+g non
+> > > >                          * page_pool allocated pages.
+> > > >                          */
+> > > >                         unsigned long pp_magic;
+> > > >                         struct page_pool *pp;
+> > > >                         unsigned long _pp_mapping_pad;
+> > > >                         unsigned long dma_addr;
+> > > >                         atomic_long_t pp_ref_count;
+> > > >                 };
+> > > >
+> > > > On the other side, we should use variables from the same sub-struct.
+> > > > So this patch replaces the "private" with "pp".
+> > > >
+> > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > ---
+> > >
+> > > Instead of doing a customized version of page pool, can we simply
+> > > switch to use page pool for big mode instead? Then we don't need to
+> > > bother the dma stuffs.
+> >
+> >
+> > The page pool needs to do the dma by the DMA APIs.
+> > So we can not use the page pool directly.
+>
+> I found this:
+>
+> define PP_FLAG_DMA_MAP         BIT(0) /* Should page_pool do the DMA
+>                                         * map/unmap
+>
+> It seems to work here?
 
-Yes, that's true. If you prefer to leave that statement there, go ahead.
 
-> Where do you suggest to move NETIF_FIND_DRIVER?
+I have studied the page pool mechanism and believe that we cannot use it
+directly. We can make the page pool to bypass the DMA operations.
+This allows us to handle DMA within virtio-net for pages allocated from the=
+ page
+pool. Furthermore, we can utilize page pool helpers to associate the DMA ad=
+dress
+to the page.
 
-I would make NETIF_FIND_DRIVER like NUM_NETIFS, ie. there's no statement
-setting a default value for it. And I would move the comment describing
-its purpose above this new part:
+However, the critical issue pertains to unmapping. Ideally, we want to retu=
+rn
+the mapped pages to the page pool and reuse them. In doing so, we can omit =
+the
+unmapping and remapping steps.
 
-> +
-> +if [[ ! -z $NETIF_FIND_DRIVER ]]; then
-> +	unset NETIFS
-> +	declare -A NETIFS
-> +	find_netif
-> +fi
-> +
+Currently, there's a caveat: when the page pool cache is full, it disconnec=
+ts
+and releases the pages. When the pool hits its capacity, pages are relinqui=
+shed
+without a chance for unmapping. If we were to unmap pages each time before
+returning them to the pool, we would negate the benefits of bypassing the
+mapping and unmapping process altogether.
 
-BTW, '! -z' can be removed from that test. It's equivalent to:
-if [[ $NETIF_FIND_DRIVER ]]; then
+Thanks.
+
+
+
+>
+> Thanks
+>
+> >
+> > Thanks.
+> >
+> >
+> > >
+> > > Thanks
+> > >
+> >
+>
