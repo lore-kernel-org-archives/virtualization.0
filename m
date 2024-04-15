@@ -1,98 +1,114 @@
-Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6713982D98
-	for <virtualization@lists.linux.dev>; Mon, 15 Apr 2024 13:36:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98AC676C76
+	for <virtualization@lists.linux.dev>; Mon, 15 Apr 2024 13:36:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713188168; cv=none; b=m63ShoPMjZWGn9nxDXYE/vfitjicNHoSi1KmuEu06lg0ziXUc5oqB5GHHXBwi+Dpjolhc+bTo0vYzmfNGex3S3rBs+abrot9xrYm2aVcM/JJoLyiRnSENH1NhlajBlrl150bt8GoI+RoQ7mmj6FP9Wy8iwSgOxWpT1seQklHMqM=
+	t=1713188170; cv=none; b=J5MDNnfDuLjZLgzqKMOMa9Y3stKdTdOv/a3RC0yFWzqiVuEkMMb9KkYP9klhX3Q/6bZW7aANWLyNVppnnwwTIbPI2ieUy5FnwyKPGDN8+kMBd8YkzhOmd2/LxFIf0OOmlRNQLec2Ugiq2evBSWga18js9iQqFnq9ywAsEcRnMfI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713188168; c=relaxed/simple;
-	bh=ozqYEnii4rkQXzes4moBBaVstK2FV6J0b7MHvEFXy4A=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=a4RweSO5JpRPn6V5njBCsdCTNM5CRcP3IZV7uz+GngDP3JyAts05bfHuZ54JP6VmHQAWYL/sb/Um+wiNR/8cFr9s/0tQC2+G0ZsHhayW0PJHl5VI/ZW1TIRSLF/bcZeUZd5b1w1WbvRjIpbDogE37OWKjJUVJxq8DZoNT9uugS8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ventanamicro.com; spf=pass smtp.mailfrom=ventanamicro.com; dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b=YDGk5t4o; arc=none smtp.client-ip=209.85.208.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ventanamicro.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ventanamicro.com
+	s=arc-20240116; t=1713188170; c=relaxed/simple;
+	bh=wGaMa+KOfTiW5xuil3OgXn9uqy3fmWwe5sHpWq8sf9o=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=WeAsfttTlic90HQAyUK7D/E0KGIrXIcCYe8VlT36eJYkQch8/GPlYFPD5U2c/JHC7asV3UOBsHLRibmg3CPXoMbAM84jeKIsIBy2vwPwMeHsgolqZ+LOy4zBSPX9ug2G9mpp+6jsu6/HPrG9yQauy6EthAh9hSZJCY/9QkklKgo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=YY6VTf1h; arc=none smtp.client-ip=115.124.30.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b="YDGk5t4o"
-Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-5700a9caee0so2413784a12.2
-        for <virtualization@lists.linux.dev>; Mon, 15 Apr 2024 06:36:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ventanamicro.com; s=google; t=1713188164; x=1713792964; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=Ik1rd9kTZT4cDzsiZg8RCbbgRc5INy51wGM0TkC03wk=;
-        b=YDGk5t4ovfSgp19IIjCJ8T58kMqYxnBodkAZXg7npyiE7ocW6PAARVKE9CoUrQBYKy
-         hp7UuQsPUTZdRA20cmH+uAjWZq9ITBG4ippa8P0xpspSebFSLsQ1N94tp+zWLOm+Mmcs
-         GGgaC7BvCaOUze68ZXf/e15PJdUADo5JpjEWM+0BpQ6CRp4602YNXxoqMkCsHV8XFK2D
-         2r01cAS4d5KTbIrKHUE4tcYV1jiOuBbaXB3JA2NZtNt7L2v2UCMg+zeLZpgENCQGcnRm
-         fGsYJ4x2aIk4YhH5AHfM0kTJqJTph73JaWyKIbHWYieQrotBUaRlaSBxMM7mU2r05m2b
-         aFJA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713188164; x=1713792964;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Ik1rd9kTZT4cDzsiZg8RCbbgRc5INy51wGM0TkC03wk=;
-        b=w65X1iO/4EmK0triwf6KO8g7tZKSa3E5h33N/IxbMllWkteqtMRDpJqyMJUqtc1Nee
-         1ZxDKu41AD9ZgvsDRv7G4JRMI+aqxZGEm/FZCQvU5gk4P/lkYalIddNupIH46UQb0kIS
-         OmW5REXlbtARhcNM7Wku8OozOvTSiZ7mUCbHxsdLExP2jUmvlRe2CPOZB8Ip0nDfKBWu
-         nFXwd4At2mLP84KWnbY/utHQ3cBlUQdFyGyO1upVIPj5TE3b7JSbV/wJy4e5T4Hl9zzM
-         nnc6wjZYBZ2s3++fFjN43KTRLx/3aG/EHbJpEz38eDYVqCT7Q9OnBfTFW0TnExir5E/n
-         CLbg==
-X-Forwarded-Encrypted: i=1; AJvYcCU7WYBdLTV7qOvERy5L2PdcxOLbwdIOceQ2NjpRcE8ZlDbwyxbgTWumHjRcMykPzcM4lSOZSXlJ8aNYlJb40SP5yId7zHY1n9UD0jf28Is=
-X-Gm-Message-State: AOJu0YwK+D9ARPo/5FvswpCHccs2smZQJRX7GVRJr/H3gOilfmGp3sS+
-	BNFfwGJhVODJU9Q6Qz7fkfGMIDQKdB7Ckj5SrRSZP2f15kGj37s5tpHM3DFoKQ0=
-X-Google-Smtp-Source: AGHT+IEBkh8/VlmJkVNcbXTlR7xWxfl1Gb/HA9GDVYEQgXUvmj0tPoU+uxzOFA/Tf9vaZXoxYUtgyw==
-X-Received: by 2002:a50:8a92:0:b0:56c:3dfb:a1f5 with SMTP id j18-20020a508a92000000b0056c3dfba1f5mr7405106edj.22.1713188163639;
-        Mon, 15 Apr 2024 06:36:03 -0700 (PDT)
-Received: from localhost (cst2-173-16.cust.vodafone.cz. [31.30.173.16])
-        by smtp.gmail.com with ESMTPSA id fd23-20020a056402389700b0057021b811eesm1735813edb.67.2024.04.15.06.36.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Apr 2024 06:36:03 -0700 (PDT)
-Date: Mon, 15 Apr 2024 15:36:02 +0200
-From: Andrew Jones <ajones@ventanamicro.com>
-To: Atish Patra <atishp@rivosinc.com>
-Cc: linux-kernel@vger.kernel.org, Anup Patel <anup@brainfault.org>, 
-	Ajay Kaher <ajay.kaher@broadcom.com>, Albert Ou <aou@eecs.berkeley.edu>, 
-	Alexandre Ghiti <alexghiti@rivosinc.com>, Alexey Makhalov <alexey.amakhalov@broadcom.com>, 
-	Atish Patra <atishp@atishpatra.org>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, Conor Dooley <conor.dooley@microchip.com>, 
-	Juergen Gross <jgross@suse.com>, kvm-riscv@lists.infradead.org, kvm@vger.kernel.org, 
-	linux-kselftest@vger.kernel.org, linux-riscv@lists.infradead.org, 
-	Mark Rutland <mark.rutland@arm.com>, Palmer Dabbelt <palmer@dabbelt.com>, 
-	Paolo Bonzini <pbonzini@redhat.com>, Paul Walmsley <paul.walmsley@sifive.com>, 
-	Shuah Khan <shuah@kernel.org>, virtualization@lists.linux.dev, Will Deacon <will@kernel.org>, 
-	x86@kernel.org
-Subject: Re: [PATCH v6 23/24] KVM: riscv: selftests: Add a test for counter
- overflow
-Message-ID: <20240415-418eb2e18cfeb613d252fff0@orel>
-References: <20240411000752.955910-1-atishp@rivosinc.com>
- <20240411000752.955910-24-atishp@rivosinc.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="YY6VTf1h"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1713188161; h=Message-ID:Date:MIME-Version:Subject:From:To:Content-Type;
+	bh=onHUkSas/liov7LlRE6vK59DBrXH4QUKrvbWcxENMmk=;
+	b=YY6VTf1hxuUaJUbMNK7j8anFX8mXbltNEZW3Cv7cOe/avWau60RGEbvFy/1M17iQJXEpohQ36FKbHPOr6Al1Ap8aUqk/+IkgioexmIpEqEsVogvhklJ/qnR0WTzZAgXRB3k+9dmVZiIWyCykbDXs8HEzwbUIt/nj0ZIGT+TpKqU=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R901e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0W4eOLRG_1713188159;
+Received: from 30.221.148.177(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W4eOLRG_1713188159)
+          by smtp.aliyun-inc.com;
+          Mon, 15 Apr 2024 21:36:00 +0800
+Message-ID: <8f9f680b-c342-42b1-89be-b359ec6b8297@linux.alibaba.com>
+Date: Mon, 15 Apr 2024 21:35:59 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240411000752.955910-24-atishp@rivosinc.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v7 0/4] ethtool: provide the dim profile
+ fine-tuning channel
+From: Heng Qi <hengqi@linux.alibaba.com>
+To: netdev@vger.kernel.org, virtualization@lists.linux.dev
+Cc: Jakub Kicinski <kuba@kernel.org>, "David S . Miller"
+ <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Paolo Abeni <pabeni@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ "Michael S . Tsirkin" <mst@redhat.com>, Brett Creeley <bcreeley@amd.com>,
+ Ratheesh Kannoth <rkannoth@marvell.com>,
+ Alexander Lobakin <aleksander.lobakin@intel.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+References: <20240415093638.123962-1-hengqi@linux.alibaba.com>
+In-Reply-To: <20240415093638.123962-1-hengqi@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Wed, Apr 10, 2024 at 05:07:51PM -0700, Atish Patra wrote:
-> Add a test for verifying overflow interrupt. Currently, it relies on
-> overflow support on cycle/instret events. This test works for cycle/
-> instret events which support sampling via hpmcounters on the platform.
-> There are no ISA extensions to detect if a platform supports that. Thus,
-> this test will fail on platform with virtualization but doesn't
-> support overflow on these two events.
-> 
-> Reviewed-by: Anup Patel <anup@brainfault.org>
-> Signed-off-by: Atish Patra <atishp@rivosinc.com>
-> ---
->  .../selftests/kvm/riscv/sbi_pmu_test.c        | 113 ++++++++++++++++++
->  1 file changed, 113 insertions(+)
+Please ignore this set, "RESEND v7" will be used instead.
+
+在 2024/4/15 下午5:36, Heng Qi 写道:
+> The NetDIM library provides excellent acceleration for many modern
+> network cards. However, the default profiles of DIM limits its maximum
+> capabilities for different NICs, so providing a way which the NIC can
+> be custom configured is necessary.
+>
+> Currently, interaction with the driver is still based on the commonly
+> used "ethtool -C".
+>
+> Since the profile now exists in netdevice, adding a function similar
+> to net_dim_get_rx_moderation_dev() with netdevice as argument is
+> nice, but this would be better along with cleaning up the rest of
+> the drivers, which we can get to very soon after this set.
+>
+> Please review, thank you very much!
+>
+> Changelog
+> =====
+> v6->v7:
+>    - A new wrapper struct pointer is used in struct net_device.
+>    - Add IS_ENABLED(CONFIG_DIMLIB) to avoid compiler warnings.
+>    - Profile fields changed from u16 to u32.
+>
+> v5->v6:
+>    - Place the profile in netdevice to bypass the driver.
+>      The interaction code of ethtool <-> kernel has not changed at all,
+>      only the interaction part of kernel <-> driver has changed.
+>
+> v4->v5:
+>    - Update some snippets from Kuba, Thanks.
+>
+> v3->v4:
+>    - Some tiny updates and patch 1 only add a new comment.
+>
+> v2->v3:
+>    - Break up the attributes to avoid the use of raw c structs.
+>    - Use per-device profile instead of global profile in the driver.
+>
+> v1->v2:
+>    - Use ethtool tool instead of net-sysfs
+>
+> Heng Qi (4):
+>    linux/dim: move useful macros to .h file
+>    ethtool: provide customized dim profile management
+>    virtio-net: refactor dim initialization/destruction
+>    virtio-net: support dim profile fine-tuning
+>
+>   Documentation/netlink/specs/ethtool.yaml     |  33 +++
+>   Documentation/networking/ethtool-netlink.rst |   8 +
+>   drivers/net/virtio_net.c                     |  46 +++--
+>   include/linux/dim.h                          |  13 ++
+>   include/linux/ethtool.h                      |  11 +-
+>   include/linux/netdevice.h                    |  24 +++
+>   include/uapi/linux/ethtool_netlink.h         |  24 +++
+>   lib/dim/net_dim.c                            |  10 +-
+>   net/core/dev.c                               |  83 ++++++++
+>   net/ethtool/coalesce.c                       | 199 ++++++++++++++++++-
+>   10 files changed, 428 insertions(+), 23 deletions(-)
 >
 
-Reviewed-by: Andrew Jones <ajones@ventanamicro.com>
