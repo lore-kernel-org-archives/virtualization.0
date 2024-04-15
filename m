@@ -1,213 +1,180 @@
-Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
+Received: from mail-qk1-f175.google.com (mail-qk1-f175.google.com [209.85.222.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFEFB71737
-	for <virtualization@lists.linux.dev>; Mon, 15 Apr 2024 13:43:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2EC813D0D9
+	for <virtualization@lists.linux.dev>; Mon, 15 Apr 2024 14:18:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713188639; cv=none; b=E2j08yVVUF1QQdh5XdIwx8/MZkgDFNcAyih7LCU9QEq0Bo+hvBnscL6tBxZW5RgP4S5qEopRZz0ghJS0dTiaZEA0rR8QuNNIehkzQFgd7VBlk3pvjHlM848QorOE+p/i0WY+gfgaMFWB3/w3dj50dOitq/FY4v7jI0dPXO97CyA=
+	t=1713190722; cv=none; b=ZjyIXS1RkggcMIt0O1P74eaDYEGl/V5/UfGI9n9A/qdF+JDiBLRQ66bu/Mo8yeZisV6AHK8OvH21gXdtjTiiUr4VuRwyqJER+g6VcytzOganXZ8F3Mxwv+s6utvM7lAJ9NY1NrtINHDNJDj9NXykSd2z+nFx9QMPvpELVS0RkWw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713188639; c=relaxed/simple;
-	bh=wiZZBUwFBfFJ8JX5HoSa5Tz8CCR776e4YmB5I1+UeZQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=iTnhgn1eZhSM8/pKnHamY+qqf9QfGuc3fxgnrEyljn7MBDexcy+eiwpOhCr0T7rQmHzALMegSzjdya9h2kINEY6sogjecWAq1cwX6jtDEem8EslDMaztLUIjxqcMfsE/X2mAlbIZetIXeN+OZtwiuTHW+yNN9bm4oY5fbJMkSOs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ventanamicro.com; spf=pass smtp.mailfrom=ventanamicro.com; dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b=b0OWRApy; arc=none smtp.client-ip=209.85.128.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ventanamicro.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ventanamicro.com
+	s=arc-20240116; t=1713190722; c=relaxed/simple;
+	bh=aAXX4PziST+M8+lfz9r4dGwxs0b1HoLXxQVt4E44ceM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=DQ47kj8UQ9lyOLzZ2tk0lCH7+LTCN4nbb2s7xPtA+adV0EKneJK2BQAFmkTqQi9U/lZbacLGlBKKlg28obxgVjmygo7++u6FO37ExNSb2p1kxojpqC05VDd9bUb+Vzi392PJaSyLPHP9QvAK/ThCpW7gApRaJoOZX4xZTelJRgg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=171i3YUY; arc=none smtp.client-ip=209.85.222.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b="b0OWRApy"
-Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-41882c16930so786905e9.2
-        for <virtualization@lists.linux.dev>; Mon, 15 Apr 2024 06:43:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="171i3YUY"
+Received: by mail-qk1-f175.google.com with SMTP id af79cd13be357-78d743f3654so314537285a.0
+        for <virtualization@lists.linux.dev>; Mon, 15 Apr 2024 07:18:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ventanamicro.com; s=google; t=1713188634; x=1713793434; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=oBlw086cFKfVgD6m6+KXW8B1bVXOlMOqtJCrOvRcQ7k=;
-        b=b0OWRApyoeBcCl9K2S+GVXr/+wrJ09nM8uiqnapbyV4IsPoIGqUThx1PGSCUDRgFpO
-         rKdsUyNUPdhUmPg2W1ZmZJ7sBbDuqqSnl7Ll8RQYN7FSfoLP5XpJvTDljJsNBV+wMhkb
-         bdpRYG9sNGSgmRJP1tu2/YDpD7IO2xUnNcFKwMnjBNxe8Z3DOk0+56X3Hmf1EZCdM9z1
-         bH4wge7c9gN+4XHhdfI3xgRwk/jBu054IOVTyasJGYeVG7ItN9XILYTSIu/qeNKxv7Ts
-         z03oU7bwsvpA3jE/OBnu1p8KjpTKw9rNnU7I7Xw9ek/YA7PrGHtDxVfZ6Qln1I76PRxy
-         NZWQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713188634; x=1713793434;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+        d=google.com; s=20230601; t=1713190718; x=1713795518; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=oBlw086cFKfVgD6m6+KXW8B1bVXOlMOqtJCrOvRcQ7k=;
-        b=dlux5j6uxcMohJNIuqNf1NQletxpzgSHZLrqeBx3GbuJ/GxBGUF5FL5BbmRD/AmbZt
-         WIQc9Wdks35U4Qm6Kzee/0NFw9evLOO6e2pNoHdRud1dhM18lp/W5YulT2tV7657B58q
-         LyPKIoVdU7lDx+iEyV/nEe8yysVAv0LUL2gORagrKCOWC76vHOU+4RYsSAZHWYFQwkUg
-         iQYWj89jFcvhX8usOmYqPtOw0ErbkI90KuhF7XD6G9LqMm/MNEHaIFxMG7sD8LlOmzCg
-         Y8BDSBcsqkTkSM82s6AlKxgJfum9HcFPo8EKNNhsJSjyWaxUBbELrU8FiQ1qbFOpGkjH
-         pfqg==
-X-Forwarded-Encrypted: i=1; AJvYcCVQEGberJ2pRQyAaOUTVbvwNyNDOtAXubBXZMzcxlUhmErBIPl+YeYdpI5L8XciVa6TOk33JGnB/vTZY2PxLS0hpbuJVfpd3fUE2r4vL2o=
-X-Gm-Message-State: AOJu0Yz77VhK23/FZrQyDs/78kMDd5OFEkm636UV6e/BytulIL/Ay4VK
-	1fIi/pKH1S5vvbkA9hUTpaX39Fl/yDEcj5OVYMutVxmLa/4oo2B4F6vtkLsStxY=
-X-Google-Smtp-Source: AGHT+IFSJX/JAylOq7lyfTWV1n1rGtpOd6txYa80kvU3cra08zVigOgalF/jjTxDvlEfsaeWSmIeIQ==
-X-Received: by 2002:a05:600c:4ecb:b0:418:2d69:d978 with SMTP id g11-20020a05600c4ecb00b004182d69d978mr4057431wmq.10.1713188633673;
-        Mon, 15 Apr 2024 06:43:53 -0700 (PDT)
-Received: from localhost (cst2-173-16.cust.vodafone.cz. [31.30.173.16])
-        by smtp.gmail.com with ESMTPSA id l23-20020a05600c1d1700b004163ee3922csm19555595wms.38.2024.04.15.06.43.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Apr 2024 06:43:53 -0700 (PDT)
-Date: Mon, 15 Apr 2024 15:43:52 +0200
-From: Andrew Jones <ajones@ventanamicro.com>
-To: Atish Patra <atishp@rivosinc.com>
-Cc: linux-kernel@vger.kernel.org, Ajay Kaher <ajay.kaher@broadcom.com>, 
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alexghiti@rivosinc.com>, 
-	Alexey Makhalov <alexey.amakhalov@broadcom.com>, Anup Patel <anup@brainfault.org>, 
-	Atish Patra <atishp@atishpatra.org>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, Conor Dooley <conor.dooley@microchip.com>, 
-	Juergen Gross <jgross@suse.com>, kvm-riscv@lists.infradead.org, kvm@vger.kernel.org, 
-	linux-kselftest@vger.kernel.org, linux-riscv@lists.infradead.org, 
-	Mark Rutland <mark.rutland@arm.com>, Palmer Dabbelt <palmer@dabbelt.com>, 
-	Paolo Bonzini <pbonzini@redhat.com>, Paul Walmsley <paul.walmsley@sifive.com>, 
-	Shuah Khan <shuah@kernel.org>, virtualization@lists.linux.dev, Will Deacon <will@kernel.org>, 
-	x86@kernel.org
-Subject: Re: [PATCH v6 24/24] KVM: riscv: selftests: Add commandline option
- for SBI PMU test
-Message-ID: <20240415-8b9ad5a7e968b1808e99e3da@orel>
-References: <20240411000752.955910-1-atishp@rivosinc.com>
- <20240411000752.955910-25-atishp@rivosinc.com>
+        bh=+ZcZDqhMhvNCBCZ2KSS9DRM9FHJw7fnbW2bM1ENmavs=;
+        b=171i3YUYrhTtka7KPgy5oaTpqaOwJMIGq8CWaCpqX33YmyGeSJYrohYqiW2TkwGQbN
+         OR/xvvVWcex2nHhOZJ2SB9hJBk2GWl+DhIZnUB/Ntm7N2LaeF5MhrPsWjSy8faZvtAif
+         ToC0B59IwHCR1MntU+Y8ZOLWcpH6Bkm4DQpScMGwKPxe/NLFA/pcDhy1m/6c88QqjE1E
+         z/55Mb+pYe9M7+8dVwWDgPj6J4f1FYtIGgXI4aC8HM4KKhwgdb93xJtf195MAMlJvEKz
+         j2dNbxaExHjvqUVfjZXgi/X3HRNGHtI+eVNVHxZQZqICsfOlBPGwql83DZtlbBCKH70R
+         wcIw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713190718; x=1713795518;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=+ZcZDqhMhvNCBCZ2KSS9DRM9FHJw7fnbW2bM1ENmavs=;
+        b=chXVoSmH+8dt7lCgHfGvPGEez4wfFG9xrOAAGXhR42X2VRKk1GD5VgF7u7cE3+vjgk
+         mb3ZDSZj6P3ogCifs+QLQHucSZgyuriC5hNAp01WG91X/Ud8BxVg3wFtKiKpxsH0uqN9
+         DyWZ5OP7O+fgiazG7W5YlCVHly3sUfD6+ettuVlh5pxo97goDLJzVntm2oO5KFMS6dOL
+         bEtjTgjvhPs5aXf+kqaYzXeZRihOPvADri2lkAMTchN2g4pO8dH2iRA1CQEK/j8fom/E
+         9xCXCOJl/l90Z3wqRtRuypfcm8hRCIBfE2oc/TKxcCpbxILxYGq+Nugd3oN5EOotjl6b
+         6IFA==
+X-Forwarded-Encrypted: i=1; AJvYcCV8w2BedMKirsdEORlbIe5bBkuNTIn2lurrjMkndtgVlFY+O4Dtd9KUP2X6ln2ePPYGGyFnA4c55ExTDJ4X6mJKclXXWf+K47R2Edgpcso=
+X-Gm-Message-State: AOJu0YxltpjU5VIXwUexBXvacyYz8tKsAqWXAOfwrqCAmnRihaP3lK/q
+	6YLscmvHtgJXWLUKGnpASLK5u+Qva9EIxGgSfqrfsPV7HB2HaTlZJ63a+w+dvwlnhNg03hbZmjb
+	5eZlNVTUBo/h/pQ9/rjj39Z4xkEDZbgNGbQnw
+X-Google-Smtp-Source: AGHT+IGygygaHYRFPiOQvpjnwvf7Sj/h9DjcRq2z4h9J7oPSHpK01lp6p4iX8c7Xg/1lboFg81gRUJUdM4PxB+IP+bQ=
+X-Received: by 2002:a0c:ed41:0:b0:69b:a25:327b with SMTP id
+ v1-20020a0ced41000000b0069b0a25327bmr9572691qvq.37.1713190717865; Mon, 15 Apr
+ 2024 07:18:37 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240411000752.955910-25-atishp@rivosinc.com>
+References: <CANiDSCtJKZDwSpy3RWW7FPQiJf+LqxrZJs=N7KrvCz0EFjh2wQ@mail.gmail.com>
+ <20240414043707-mutt-send-email-mst@kernel.org> <20240415145153.21075173@imammedo.users.ipa.redhat.com>
+ <CAJZ5v0j3BVUKDFE-_Tdykt42zCiDfYMpSYN54JUqdr2O8a__1w@mail.gmail.com>
+In-Reply-To: <CAJZ5v0j3BVUKDFE-_Tdykt42zCiDfYMpSYN54JUqdr2O8a__1w@mail.gmail.com>
+From: Ricardo Ribalda <ribalda@google.com>
+Date: Mon, 15 Apr 2024 16:18:22 +0200
+Message-ID: <CANiDSCuvDQWam0v1b3adA=j6w+dA263QruBonsA6TJBvO9XsWQ@mail.gmail.com>
+Subject: Re: ACPI timeouts when enabling KASAN
+To: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Igor Mammedov <imammedo@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Andrea Righi <andrea.righi@canonical.com>, virtualization@lists.linux.dev, 
+	stevensd@chromium.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 10, 2024 at 05:07:52PM -0700, Atish Patra wrote:
-> SBI PMU test comprises of multiple tests and user may want to run
-> only a subset depending on the platform. The most common case would
-> be to run all to validate all the tests. However, some platform may
-> not support all events or all ISA extensions.
-> 
-> The commandline option allows user to disable particular test if they
-> want to.
-> 
-> Suggested-by: Andrew Jones <ajones@ventanamicro.com>
-> Signed-off-by: Atish Patra <atishp@rivosinc.com>
-> ---
->  .../selftests/kvm/riscv/sbi_pmu_test.c        | 77 ++++++++++++++++---
->  1 file changed, 68 insertions(+), 9 deletions(-)
-> 
-> diff --git a/tools/testing/selftests/kvm/riscv/sbi_pmu_test.c b/tools/testing/selftests/kvm/riscv/sbi_pmu_test.c
-> index 0fd9b76ae838..57025b07a403 100644
-> --- a/tools/testing/selftests/kvm/riscv/sbi_pmu_test.c
-> +++ b/tools/testing/selftests/kvm/riscv/sbi_pmu_test.c
-> @@ -33,6 +33,16 @@ static unsigned long counter_mask_available;
->  
->  static bool illegal_handler_invoked;
->  
-> +enum sbi_pmu_test_id {
-> +	SBI_PMU_TEST_BASIC = 0,
-> +	SBI_PMU_TEST_EVENTS,
-> +	SBI_PMU_TEST_SNAPSHOT,
-> +	SBI_PMU_TEST_OVERFLOW,
-> +	SBI_PMU_TEST_MAX,
-> +};
-> +
-> +static int disabled_test_id = SBI_PMU_TEST_MAX;
+Hi Igor, Hi Rafael
 
-I think we should allow specifying '-d' multiple times in case a user
-wants to disable more than one type of test. So we should set a bit
-in this variable instead of assigning it. We could also flip it
-around. If the user uses '-e' to enable test type then only type
-will be run, but then we'd probably want to allow multiple '-e'
-too so it doesn't gain anything.
+Yes, it seems that it is just KASAN being extremely slow.
+From a completely newbie here... Is there a reason why qemu generates
+the table vs returning a precomputed one?
 
-> +
->  unsigned long pmu_csr_read_num(int csr_num)
->  {
->  #define switchcase_csr_read(__csr_num, __val)		{\
-> @@ -608,19 +618,68 @@ static void test_vm_events_overflow(void *guest_code)
->  	test_vm_destroy(vm);
->  }
->  
-> -int main(void)
-> +static void test_print_help(char *name)
->  {
-> -	test_vm_basic_test(test_pmu_basic_sanity);
-> -	pr_info("SBI PMU basic test : PASS\n");
-> +	pr_info("Usage: %s [-h] [-d <test name>]\n", name);
-> +	pr_info("\t-d: Test to disable. Available tests are 'basic', 'events', 'snapshot', 'overflow'\n");
-> +	pr_info("\t-h: print this help screen\n");
-> +}
->  
-> -	test_vm_events_test(test_pmu_events);
-> -	pr_info("SBI PMU event verification test : PASS\n");
-> +static bool parse_args(int argc, char *argv[])
-> +{
-> +	int opt;
-> +
-> +	while ((opt = getopt(argc, argv, "hd:")) != -1) {
-> +		switch (opt) {
-> +		case 'd':
-> +			if (!strncmp("basic", optarg, 5))
-> +				disabled_test_id = SBI_PMU_TEST_BASIC;
-> +			else if (!strncmp("events", optarg, 6))
-> +				disabled_test_id = SBI_PMU_TEST_EVENTS;
-> +			else if (!strncmp("snapshot", optarg, 8))
-> +				disabled_test_id = SBI_PMU_TEST_SNAPSHOT;
-> +			else if (!strncmp("overflow", optarg, 8))
-> +				disabled_test_id = SBI_PMU_TEST_OVERFLOW;
-> +			else
-> +				goto done;
-> +			break;
-> +		break;
+This is the config file:
+https://gitlab.freedesktop.org/linux-media/media-ci/-/blob/main/testdata/vi=
+rtme/virtme.config?ref_type=3Dheads
 
-Extra 'break'
+And this is the qemu cli:
 
-> +		case 'h':
-> +		default:
-> +			goto done;
-> +		}
-> +	}
->  
-> -	test_vm_events_snapshot_test(test_pmu_events_snaphost);
-> -	pr_info("SBI PMU event verification with snapshot test : PASS\n");
-> +	return true;
-> +done:
-> +	test_print_help(argv[0]);
-> +	return false;
-> +}
->  
-> -	test_vm_events_overflow(test_pmu_events_overflow);
-> -	pr_info("SBI PMU event verification with overflow test : PASS\n");
-> +int main(int argc, char *argv[])
-> +{
-> +	if (!parse_args(argc, argv))
-> +		exit(KSFT_SKIP);
-> +
-> +	if (disabled_test_id != SBI_PMU_TEST_BASIC) {
-> +		test_vm_basic_test(test_pmu_basic_sanity);
-> +		pr_info("SBI PMU basic test : PASS\n");
-> +	}
-> +
-> +	if (disabled_test_id != SBI_PMU_TEST_EVENTS) {
-> +		test_vm_events_test(test_pmu_events);
-> +		pr_info("SBI PMU event verification test : PASS\n");
-> +	}
-> +
-> +	if (disabled_test_id != SBI_PMU_TEST_SNAPSHOT) {
-> +		test_vm_events_snapshot_test(test_pmu_events_snaphost);
-> +		pr_info("SBI PMU event verification with snapshot test : PASS\n");
-> +	}
-> +
-> +	if (disabled_test_id != SBI_PMU_TEST_OVERFLOW) {
-> +		test_vm_events_overflow(test_pmu_events_overflow);
-> +		pr_info("SBI PMU event verification with overflow test : PASS\n");
-> +	}
->  
->  	return 0;
->  }
-> -- 
-> 2.34.1
+/usr/bin/qemu-system-x86_64 -m 4G -fsdev
+local,id=3Dvirtfs3,path=3D/,security_model=3Dnone,readonly=3Don,multidevs=
+=3Dremap
+-device virtio-9p-pci,fsdev=3Dvirtfs3,mount_tag=3D/dev/root -device
+i6300esb,id=3Dwatchdog0 -parallel none -net none -smp 2 -vga none
+-display none -serial chardev:console -chardev
+file,id=3Dconsole,path=3D/proc/self/fd/2 -chardev
+stdio,id=3Dstdin,signal=3Don,mux=3Doff -device virtio-serial-pci -device
+virtserialport,name=3Dvirtme.stdin,chardev=3Dstdin -chardev
+file,id=3Dstdout,path=3D/proc/self/fd/1 -device virtio-serial-pci -device
+virtserialport,name=3Dvirtme.stdout,chardev=3Dstdout -chardev
+file,id=3Dstderr,path=3D/proc/self/fd/2 -device virtio-serial-pci -device
+virtserialport,name=3Dvirtme.stderr,chardev=3Dstderr -chardev
+file,id=3Ddev_stdout,path=3D/proc/self/fd/1 -device virtio-serial-pci
+-device virtserialport,name=3Dvirtme.dev_stdout,chardev=3Ddev_stdout
+-chardev file,id=3Ddev_stderr,path=3D/proc/self/fd/2 -device
+virtio-serial-pci -device
+virtserialport,name=3Dvirtme.dev_stderr,chardev=3Ddev_stderr -chardev
+file,id=3Dret,path=3D/tmp/virtme_retefeobj4f -device virtio-serial-pci
+-device virtserialport,name=3Dvirtme.ret,chardev=3Dret -no-reboot -kernel
+./arch/x86/boot/bzImage -append 'nr_open=3D1048576
+virtme_link_mods=3D/builds/linux-media/media-staging/.virtme_mods/lib/modul=
+es/0.0.0
+console=3DttyS0 earlyprintk=3Dserial,ttyS0,115200 panic=3D-1
+virtme.exec=3D`c2ggL21lZGlhLWNpL3Rlc3RkYXRhL3ZpcnRtZS90ZXN0LnNoIC9tZWRpYS1j=
+aS90aGlyZF9wYXJ0eS92NGwtdXRpbHMgLTMy`
+virtme_root_user=3D1 rootfstype=3D9p
+rootflags=3Dversion=3D9p2000.L,trans=3Dvirtio,access=3Dany raid=3Dnoautodet=
+ect
+ro init=3D/usr/lib/python3/dist-packages/virtme/guest/virtme-init'
+
+Regards!
+
+On Mon, 15 Apr 2024 at 14:55, Rafael J. Wysocki <rafael@kernel.org> wrote:
 >
+> On Mon, Apr 15, 2024 at 2:52=E2=80=AFPM Igor Mammedov <imammedo@redhat.co=
+m> wrote:
+> >
+> > On Sun, 14 Apr 2024 04:37:24 -0400
+> > "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> >
+> > > On Fri, Apr 12, 2024 at 11:43:22PM +0200, Ricardo Ribalda wrote:
+> > > > Hi
+> > > >
+> > > > I am using virtme to do some CI around linux-media.
+> > > >
+> > > > Everything works as expected, but when I enable KASAN, I am startin=
+g
+> > > > to get a lot of timeouts when the Method _PRT is executed. Eg:
+> > > >
+> > > > [   56.335875] ACPI Error: Aborting method \_SB.PCI0._PRT due to
+> > > > previous error (AE_AML_LOOP_TIMEOUT) (20230628/psparse-529)
+> > > > [   56.529826] ACPI Error: Method execution failed \_SB.PCI0._PRT d=
+ue
+> > > > to previous error (AE_AML_LOOP_TIMEOUT) (20230628/uteval-68)
+> > > > [   56.532391] virtio-pci 0000:00:02.0: can't derive routing for PC=
+I INT A
+> > > > [   56.532823] virtio-pci 0000:00:02.0: PCI INT A: no GSI
+> > > > [   86.877471] ACPI Error: Aborting method \_SB.PCI0._PRT due to
+> > > > previous error (AE_AML_LOOP_TIMEOUT) (20230628/psparse-529)
+> > > > [   87.073854] ACPI Error: Method execution failed \_SB.PCI0._PRT d=
+ue
+> > > > to previous error (AE_AML_LOOP_TIMEOUT) (20230628/uteval-68)
+> > > > [   87.075550] virtio-pci 0000:00:04.0: can't derive routing for PC=
+I INT A
+> > > > [   87.075810] virtio-pci 0000:00:04.0: PCI INT A: no GSI
+> > > >
+> > > > 0000:00:04.0 and 0000:00:02.0 are virtio devices (console and 9p-fi=
+lesystem)
+> > > >
+> > > > If I increase the timeout (ACPI_MAX_LOOP_TIMEOUT), then the Method =
+is
+> > > > always executed, but it is very annoying that I have to wait more t=
+han
+> > > > 5 minutes to start the vm.
+> > > >
+> > > > Despite not having kvm enabled, the machine is quite decent, so I
+> > > > would expect that it could run that method relatively fast.
+> > > >
+> > > > Do you have any hint of what I should be looking at?
+> >
+> > The way QEMU generates _PRT haven't been changed for ages,
+> > it's not likely to be a culprit.
+> >
+> > CCing Rafael who might have an idea why ACPI misbehaves.
+>
+> It looks like the method evaluation time increases with KASAN enabled
+> and it gets aborted due to exceeding the evaluation time limit.
+>
+> Thanks!
 
-Thanks,
-drew
+
+
+--=20
+Ricardo Ribalda
