@@ -1,145 +1,144 @@
-Received: from mail-lj1-f176.google.com (mail-lj1-f176.google.com [209.85.208.176])
+Received: from mail-il1-f182.google.com (mail-il1-f182.google.com [209.85.166.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF22339FE0
-	for <virtualization@lists.linux.dev>; Mon, 15 Apr 2024 08:40:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67E3636AF5
+	for <virtualization@lists.linux.dev>; Mon, 15 Apr 2024 08:41:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713170449; cv=none; b=BTfqpsAMkIF7vj5ODR0ObAJn5A/p5eixbGMQaeWp1S7YAb7Q4rqSCJHq/05z4rrrMApfjiuZxXHRk9rGut7qL3zNqmGC3wPJGDPP4wSRUJVv7XeSLVLd28Pv9riYuKuZqbhDmZO9PPG1SLQqv9vv4KljaDxMR5jyub1AY6gnP+Y=
+	t=1713170490; cv=none; b=oIvx4oTDEUPzZdCD9Gbux6dT5nS6y/X7vNaxWJLg9vKGaz3Kwn3DbwF0HMX2/dif4RQf9elMBk9jc9fnE4UE/Pw2nhuYN/bGZQLazVD+6gYpwCvP/LYC2o4E6bKQvEXaPtPv+z9YbFzPYWErz9I5YJg7O5BMk7ybw+Lffe6TH+c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713170449; c=relaxed/simple;
-	bh=7Qg+Cc85pc+w+f2K+Ou2xfL1RJ9qFFxcGgIDOESjcoI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BjvYvQwG2b80qvPQZgKEZbFswsG/YHEyIXEwxpWmfooZLj+rwA/l8BlaRIepSK9x5SB1O4YiZmXpQKI96AnvsN8uJgxd7D0IfZh0gIoTHR27JJWHrIi05It3Yz0kZw6k8PO/0jBbLVVG5RcJ1RVA5TNBz6DJWN9+j5Sc+dF4O9Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=pX0zDg9p; arc=none smtp.client-ip=209.85.208.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+	s=arc-20240116; t=1713170490; c=relaxed/simple;
+	bh=v7SDKoILYnL+Q07ZcGpDsCXHHRJob/yG3/+kL9fGKLc=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=OvXP50FcUhOfbpGWAFQHp6O73wIA4B6ScYSGBReeAJ0C4vMkwfbiWtL8KbAHjVDBNIirXyxYhSJYI0XmA8Jlm+dnLc4U3v7PNjx+viGbCwmZQ2eLpeh9G1tBbRxGhpdKLTgCGF6GPV6t4SauWmr0DDIKcMWW62PtANwef9K8JEI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=Rjs15EfR; arc=none smtp.client-ip=209.85.166.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="pX0zDg9p"
-Received: by mail-lj1-f176.google.com with SMTP id 38308e7fff4ca-2da01cb187cso52566501fa.0
-        for <virtualization@lists.linux.dev>; Mon, 15 Apr 2024 01:40:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="Rjs15EfR"
+Received: by mail-il1-f182.google.com with SMTP id e9e14a558f8ab-36a3b9bc797so14371895ab.2
+        for <virtualization@lists.linux.dev>; Mon, 15 Apr 2024 01:41:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1713170444; x=1713775244; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=giKkTelfq3BYsAFGZhixira6GIq9vSuoB3MA1iZ83Kk=;
-        b=pX0zDg9pMwyB32LMnuyIcuz6ZJ86n4osbFtuDi/S1o8WZnuwDaUp3PTWHokXadadBK
-         13QYLnQE5XF3ALPLHQ+Wp6u1c+TW1kabMJLEJHlPsLZQZMj7tUPQykJ7XAibK/Cb7w8K
-         y1cy7rsUsGqWIbEZWkAZ+GeRosneHQLcHtHrzRtfC7gILzSKBPzufORcDRuz6IjE7niI
-         i9y+DUNr3jC25BPSQRuMBZiI3JKfqv8ji0TS4wf66PAgL+sKzbF8VgLuV49+74x2RBnf
-         3RgyylU0j5kIhB8U3IRUH17IBlLFK7KZ7k3GWSvGmFGwkn2YGLyEjtKlt+iv2pp62b65
-         cpvQ==
+        d=bytedance.com; s=google; t=1713170487; x=1713775287; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=8wfjIlgO/QZNkC/nNAH/lmmSlY11ytftqlWP0lFvruo=;
+        b=Rjs15EfRXIKvzpEO2uJjCcisRn0ZL+9/CKUQP/ZI20Yke3D+7mD7S44CYeuDWs43Zh
+         GavftG5DLl/8KBjvj/kyTZrCYGpsYSnsj/W0jYDPDG9D2Ssq4n4rZEDzYdOgNT9NssqE
+         iGXGcmkMJFRd2G7wAKS5Wf+0oBwPnUmMnwmushHBR2pz9LM+b6J9LnrgUkW+y9Bg8lJP
+         yBA7MNKVh7nm9TLfY0LquCDjNJQTn9uh/h8XJFRJFAQd1jUfkM/B37ST4tFmHRIuAUWc
+         aitVtMagqR/aJVsclkyGgJtdMgg94HE4nmW1tYRIASt1xCW4P2O+aLzjfA96r+CiB2cK
+         BEFg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713170444; x=1713775244;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=giKkTelfq3BYsAFGZhixira6GIq9vSuoB3MA1iZ83Kk=;
-        b=bLix2bovxHjEGN8GFf2MsPVpE4qm5dAWe+gUCxKuSt6luccIYeI8VmsSluDfXhF5Nl
-         dGUZUlhiuMbJmvCxCmaWSiIOqGjU7lKFhGeMKVAVANlu2XkdGgbQl1K5DksYoAiS29G7
-         os6M7KwEe20XzaqVtnnz8rROq/DABFL2x2ZV58O37VtOic9ldlWpzaEx1nECcwuiksFE
-         fh2rxCH2QztGAPLCVhkOFJHHyjVUkCYP7D1UriXZEIcYQ32GKlzrlBPmJGfogEM6PVwc
-         0m0eA/4A+WIXbtunmzJVjWQMutCZGAHHXk5zAzcr8T8UTNkhea+N12XoS8FGjdraievQ
-         sqKw==
-X-Forwarded-Encrypted: i=1; AJvYcCUO1QI0gdDxhAHlfo1Vh2u216JV1lD8iALXwEvCObEs6SesjcEjoSsd9OSv7zuxhZh/K9kqMjpT1awTms+Rt0nu+zJYCTdQMw55IoxAYD4=
-X-Gm-Message-State: AOJu0YwIFdJ2Us/aEAf5pNAiAn8ksgWipGsXN9BMkNo22nOeu98H6pK2
-	PV5rZmFepM8gSWG+xOTFyzAb+pnl5FK+QVKHpM/nGNwiBc9+dy52v+xQ8Qx/usM=
-X-Google-Smtp-Source: AGHT+IEouBsRvNsGw2BBII7zCSX4R6hyekzhRCRfz+XWQvsollf7R1Urp0JmU2pLaPzlOmGbrP8bKg==
-X-Received: by 2002:a05:6512:4014:b0:518:7df6:d9e1 with SMTP id br20-20020a056512401400b005187df6d9e1mr8528376lfb.10.1713170443564;
-        Mon, 15 Apr 2024 01:40:43 -0700 (PDT)
-Received: from localhost (37-48-2-146.nat.epc.tmcz.cz. [37.48.2.146])
-        by smtp.gmail.com with ESMTPSA id jw24-20020a170906e95800b00a51adace6ebsm5216634ejb.79.2024.04.15.01.40.42
+        d=1e100.net; s=20230601; t=1713170487; x=1713775287;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=8wfjIlgO/QZNkC/nNAH/lmmSlY11ytftqlWP0lFvruo=;
+        b=HEUV0gfpUYSqVfOjFnpgHuJlx7RZMkMTbQwI4SVzw9BwXzejBN+h0XvKTqhSsBEvQ9
+         9ozfHueiSc4DMGZndf7v82U682fWpbNqUVzWRBLkWTROJ3qOCRAQZmGa25VqbhH9kpD/
+         Zuv3LsW6G4yOoF5FecvEDaiFHrukgM5wnFP8wBgMWoguVcQ8LIS34g2P1M5n3n7ZzpL7
+         wYvgoh8dxnmsEtonFmNUZSwzsarhHQjIj/MyeYOUG4IwUlkVDAvgUQTk903eESA/f6Yd
+         4xDxUpX2/71GZ4ypsTugOvNjOmdMfMQUYBqUUd3yZoKPZyYpQtQDjxuqDrE4nJXq24sl
+         73uw==
+X-Forwarded-Encrypted: i=1; AJvYcCVo51TFUaeX9es7Hud6Num3zGlw0BAl3QJ+YhW9LwV7q1GP9KNHxNZQUSR003vxXAOA918t/Y+YnVjMNUAb+f/QX4KIpUSpVGOV2Mjmdyg=
+X-Gm-Message-State: AOJu0YxZwOQxwIqu0/ODzA/FWwQatDeACfAHk4fBJrmVU2nYhfd7ZJfJ
+	Z4ma1u6Rp+bUOvTQ3oirmI8KnK/yz0+2GU+f8s2CEXf3N8b4dSiN5R0saO1Nm1U=
+X-Google-Smtp-Source: AGHT+IFVVhy+/eBfwZCCc946KkwERHHh+W5/607TDMXjGxAgcPrElcXF4+Vtf1WNq3+wczBthWoaiQ==
+X-Received: by 2002:a05:6e02:1e07:b0:36b:85e:7d69 with SMTP id g7-20020a056e021e0700b0036b085e7d69mr13433947ila.10.1713170487436;
+        Mon, 15 Apr 2024 01:41:27 -0700 (PDT)
+Received: from libai.bytedance.net ([61.213.176.11])
+        by smtp.gmail.com with ESMTPSA id k187-20020a636fc4000000b005d6a0b2efb3sm6575685pgc.21.2024.04.15.01.41.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Apr 2024 01:40:43 -0700 (PDT)
-Date: Mon, 15 Apr 2024 10:40:39 +0200
-From: Jiri Pirko <jiri@resnulli.us>
-To: Benjamin Poirier <benjamin.poirier@gmail.com>
-Cc: netdev@vger.kernel.org, kuba@kernel.org, pabeni@redhat.com,
-	davem@davemloft.net, edumazet@google.com, parav@nvidia.com,
-	mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
-	shuah@kernel.org, petrm@nvidia.com, liuhangbin@gmail.com,
-	vladimir.oltean@nxp.com, idosch@nvidia.com,
+        Mon, 15 Apr 2024 01:41:27 -0700 (PDT)
+From: zhenwei pi <pizhenwei@bytedance.com>
+To: linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org,
 	virtualization@lists.linux.dev
-Subject: Re: [patch net-next 3/6] selftests: forwarding: add ability to
- assemble NETIFS array by driver name
-Message-ID: <ZhzoB3x3cEAEyIXD@nanopsycho>
-References: <20240412151314.3365034-1-jiri@resnulli.us>
- <20240412151314.3365034-4-jiri@resnulli.us>
- <ZhmbxntSvXrsnEG1@f4>
- <ZhqIXZYnHA0MZT3L@nanopsycho>
- <ZhwvXgxEnHN8oJ5f@f4>
+Cc: mst@redhat.com,
+	david@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	akpm@linux-foundation.org,
+	zhenwei pi <pizhenwei@bytedance.com>
+Subject: [RFC 0/3] Improve memory statistics for virtio balloon
+Date: Mon, 15 Apr 2024 16:41:10 +0800
+Message-Id: <20240415084113.1203428-1-pizhenwei@bytedance.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZhwvXgxEnHN8oJ5f@f4>
+Content-Transfer-Encoding: 8bit
 
-Sun, Apr 14, 2024 at 09:32:46PM CEST, benjamin.poirier@gmail.com wrote:
->On 2024-04-13 15:27 +0200, Jiri Pirko wrote:
->> Fri, Apr 12, 2024 at 10:38:30PM CEST, benjamin.poirier@gmail.com wrote:
->> >On 2024-04-12 17:13 +0200, Jiri Pirko wrote:
->> >> From: Jiri Pirko <jiri@nvidia.com>
->> >> 
->> >> Allow driver tests to work without specifying the netdevice names.
->> >> Introduce a possibility to search for available netdevices according to
->> >> set driver name. Allow test to specify the name by setting
->> >> NETIF_FIND_DRIVER variable.
->> >> 
->> >> Note that user overrides this either by passing netdevice names on the
->> >> command line or by declaring NETIFS array in custom forwarding.config
->> >> configuration file.
->> >> 
->> >> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
->> >> ---
->> >>  tools/testing/selftests/net/forwarding/lib.sh | 39 +++++++++++++++++++
->> >>  1 file changed, 39 insertions(+)
->> >> 
->> >> diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
->> >> index 6f6a0f13465f..06633518b3aa 100644
->> >> --- a/tools/testing/selftests/net/forwarding/lib.sh
->> >> +++ b/tools/testing/selftests/net/forwarding/lib.sh
->> >> @@ -55,6 +55,9 @@ declare -A NETIFS=(
->> >>  : "${NETIF_CREATE:=yes}"
->> >>  : "${NETIF_TYPE:=veth}"
->> >>  
->> >> +# Whether to find netdevice according to the specified driver.
->> >> +: "${NETIF_FIND_DRIVER:=}"
->> >> +
->> >
->> >This section of the file sets default values for variables that can be
->> >set by users in forwarding.config. NETIF_FIND_DRIVER is more like
->> >NUM_NETIFS, it is set by tests, so I don't think it should be listed
->> >there.
->> 
->> Well, currently there is a mixture of config variables and test
->> definitions/requirements. For example REQUIRE_JQ, REQUIRE_MZ, REQUIRE_MTOOLS
->> are not forwarding.config configurable (they are, they should not be ;))
->
->Yes, that's true. If you prefer to leave that statement there, go ahead.
->
->> Where do you suggest to move NETIF_FIND_DRIVER?
->
->I would make NETIF_FIND_DRIVER like NUM_NETIFS, ie. there's no statement
->setting a default value for it. And I would move the comment describing
->its purpose above this new part:
+Hi,
 
-Ok.
+When the guest runs under critial memory pressure, the guest becomss
+too slow, even sshd turns D state(uninterruptible) on memory
+allocation. We can't login this VM to do any work on trouble shooting.
 
->
->> +
->> +if [[ ! -z $NETIF_FIND_DRIVER ]]; then
->> +	unset NETIFS
->> +	declare -A NETIFS
->> +	find_netif
->> +fi
->> +
->
->BTW, '! -z' can be removed from that test. It's equivalent to:
->if [[ $NETIF_FIND_DRIVER ]]; then
+Guest kernel log via virtual TTY(on host side) only provides a few
+necessary log after OOM. More detail memory statistics are required,
+then we can know explicit memory events and estimate the pressure.
 
-Ok.
+I'm going to introduce several VM counters for virtio balloon:
+- oom-kill
+- alloc-stall
+- scan-async
+- scan-direct
+- reclaim-async
+- reclaim-direct
+
+Then we have a metric to analyze the memory performance:
+[also describe this metric in patch
+ 'virtio_balloon: introduce memory scan/reclaim info']
+
+y: counter increases
+n: counter does not changes
+h: the rate of counter change is high
+l: the rate of counter change is low
+
+OOM: VIRTIO_BALLOON_S_OOM_KILL
+STALL: VIRTIO_BALLOON_S_ALLOC_STALL
+ASCAN: VIRTIO_BALLOON_S_SCAN_ASYNC
+DSCAN: VIRTIO_BALLOON_S_SCAN_DIRECT
+ARCLM: VIRTIO_BALLOON_S_RECLAIM_ASYNC
+DRCLM: VIRTIO_BALLOON_S_RECLAIM_DIRECT
+
+- OOM[y], STALL[*], ASCAN[*], DSCAN[*], ARCLM[*], DRCLM[*]:
+  the guest runs under really critial memory pressure
+
+- OOM[n], STALL[h], ASCAN[*], DSCAN[l], ARCLM[*], DRCLM[l]:
+  the memory allocation stalls due to cgroup, not the global memory
+  pressure.
+
+- OOM[n], STALL[h], ASCAN[*], DSCAN[h], ARCLM[*], DRCLM[h]:
+  the memory allocation stalls due to global memory pressure. The
+  performance gets hurt a lot. A high ratio between DRCLM/DSCAN shows
+  quite effective memory reclaiming.
+
+- OOM[n], STALL[h], ASCAN[*], DSCAN[h], ARCLM[*], DRCLM[l]:
+  the memory allocation stalls due to global memory pressure.
+  the ratio between DRCLM/DSCAN gets low, the guest OS is thrashing
+  heavily, the serious case leads poor performance and difficult
+  trouble shooting. Ex, sshd may block on memory allocation when
+  accepting new connections, a user can't login a VM by ssh command.
+
+- OOM[n], STALL[n], ASCAN[h], DSCAN[n], ARCLM[l], DRCLM[n]:
+  the low ratio between ARCLM/ASCAN shows that the guest tries to
+  reclaim more memory, but it can't. Once more memory is required in
+  future, it will struggle to reclaim memory.
+
+zhenwei pi (3):
+  virtio_balloon: introduce oom-kill invocations
+  virtio_balloon: introduce memory allocation stall counter
+  virtio_balloon: introduce memory scan/reclaim info
+
+ drivers/virtio/virtio_balloon.c     | 30 ++++++++++++++++++++++++++++-
+ include/uapi/linux/virtio_balloon.h | 16 +++++++++++++--
+ 2 files changed, 43 insertions(+), 3 deletions(-)
+
+-- 
+2.34.1
 
