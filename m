@@ -1,66 +1,66 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0504F7580D
-	for <virtualization@lists.linux.dev>; Mon, 15 Apr 2024 15:01:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 533F17E112
+	for <virtualization@lists.linux.dev>; Mon, 15 Apr 2024 15:04:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713193319; cv=none; b=fRQSsnPHoFNyYFEsG4Ib+KYCsByckLe7GeGlGoV6NrgqliJUhSAdWv1uGrudfdz0kb3E6z2UkPmz3XgMCCIMb2ZlgvlDAj/BERjSFN5tkz2C9ArX8SKvvdPqD4ScHBICeUHpuox6/AR/oKNs8zT8DkDnuUu5PgG8Ae0ndKoXKOw=
+	t=1713193472; cv=none; b=O9u740xogb2XfN49p5ZIDWipWcjHZFkAy3kdJQg6Zk82WGhsLBp2x0XDt8jBlYUnUNiSDocX+IBDr1vjIOFX8wkGsJOMuvy4/AbNkJh5bpOH7hkTgUM4cxsq9Xiq36b90UbGVHUl8N158V95hKm97B0phUXMImL9hKAVuuv62Mw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713193319; c=relaxed/simple;
-	bh=sIiFyXwqbhaN2h69y2E+rbEJLjROIneYsPH1WX9xh84=;
+	s=arc-20240116; t=1713193472; c=relaxed/simple;
+	bh=qV66wvvmOe5Fbswwf7hLeYtfxUDbv3GqqcFIcO2m1Mc=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=E6iU4c5cSd7HJ52f3rikXNosrCT0+k1k7of8W2rX5djCQ2KXiKecCUlYtPVDkWrOaRI9rZHyfLWf7LwRKieFQFqYoZxC07aWqA8gb347TZWCSfs+bx8qRM0GcvPClB2YeiWD0GX7rEjiNrdb1SLKjqqut9gamjrakP7uMln2Qkc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=d5wajOPE; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type; b=Tt6ek1Vpw8QY4DtatuI2m0tHjgY0/eElaIRL03O12kQTd8V4tzL9E8pgg01takBEj7daAK/hY4kpd7pcYtCrU3gITTzHoaKSz3eW+epPmPlkD67SyClrJW0BqqU3vh24i4/ajIWtn4nItd65r9IOR6FdX7vccC0xZLZcwEvgybA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bn2VxzQM; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="d5wajOPE"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bn2VxzQM"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1713193317;
+	s=mimecast20190719; t=1713193467;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=zwjBbQo6C7j6xP7+cDacBB/+QuPqifcUdRYibqKmYA0=;
-	b=d5wajOPEVoo6uacNunS7eMkH0GVSBfQjIgcsL3j+s/yRPu73KeCNvriGy7CHo/xXwNFlZZ
-	cVRZQTnXvgq0WzpPtz4R4yxJE1SfRIvGXAdEkQREskFlrc3wMwHJUSWE8P3VvFUSmWePud
-	58EWonEsEIC5+7UHADRMqrvHAwdWaAc=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=OnKKU4w8pIiCL4LleAZ3lUokUgFM4I1C3sXlHP3921Y=;
+	b=bn2VxzQMNFUYDXhShMTioixXmRmeamq6xeJGP0NbyQUIWfIO4wo+IJITP+FZM12LEHDO4y
+	WeAqO3Revh8a/1Bc18BTkHcrgOskXT/Gjm0ypFyDov2hBpmPPZL1Q6Bkjje14P9wPjZZGy
+	BciXcmu3mKS2hD3X65e+wa+NYeAXgjo=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-680-YTT_1DvoP_uyMu2Yzf6bhw-1; Mon, 15 Apr 2024 11:01:54 -0400
-X-MC-Unique: YTT_1DvoP_uyMu2Yzf6bhw-1
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-343c6bb1f21so2271257f8f.1
-        for <virtualization@lists.linux.dev>; Mon, 15 Apr 2024 08:01:53 -0700 (PDT)
+ us-mta-664-8quBl_FgMPG3Zb-XivPUQg-1; Mon, 15 Apr 2024 11:04:25 -0400
+X-MC-Unique: 8quBl_FgMPG3Zb-XivPUQg-1
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-416a844695dso15874625e9.2
+        for <virtualization@lists.linux.dev>; Mon, 15 Apr 2024 08:04:25 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713193312; x=1713798112;
+        d=1e100.net; s=20230601; t=1713193464; x=1713798264;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=zwjBbQo6C7j6xP7+cDacBB/+QuPqifcUdRYibqKmYA0=;
-        b=RjTBoTF1a6jSzVWNwVAggnioA0mq61QyS+TPGwk1F5YP6J6Ar2ssnDFcqRfi8E/gJt
-         u6LXOeq40QTEnTpnf0fwy/tNlXsLeJ8Ix7ifMZaAnT3my2ZVHRqv0LEV13lyT42ZKZZO
-         VOSNbt0iiWi+LsSA2TcLSe3OnGtPv/vfQsqiQHot+oFTmVP0Ye8YwMXvPtRjll59Nelv
-         mB9SH0hMCJB7DIlIifdes6B6U+Pj0DHOLCMtobQ4mnch+CPTMI6YEvInsCdL8q0i+y2J
-         2oJ2EAfjjt9EaWwn66maamBeDge+LtIbVB/rWDYhD9hLm/sML1zCWqYg8Ip9mZHBNnpg
-         C55Q==
-X-Forwarded-Encrypted: i=1; AJvYcCVCsUDzT3cRv2N3K5AurMF5+VCdslmzCvjibk0sXQXa/r9rIp94xgk8NmSPKaraYAlSQdIkgdPz0iJ22MoZ8k0uZ7Q/B4gTwEoPfjwyWBU=
-X-Gm-Message-State: AOJu0YzCaSsVdn7P+zmEV5jSi6fk24mQ/UAZhfZXtMkYSM+wMyQyGCDH
-	SbaRpFmwY9Ap1gZ8GxkAt2jAOXaW0r3s9ipqxf+UNwK5BMiBrfbh0wgdSIr6xy5rNrzysUSfX5/
-	bJwhBwXSAhahslOkaXVI8UuHyGqURYlppr0rxMacfEK31e3vn0Y25CMBT+peM0Lzn
-X-Received: by 2002:a5d:6749:0:b0:346:bb52:25a1 with SMTP id l9-20020a5d6749000000b00346bb5225a1mr7167266wrw.33.1713193311919;
-        Mon, 15 Apr 2024 08:01:51 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IESay4aKO0ZgPPO7ryxLsiEvDZn+lExNAZU8G+nuJuuajPSqAAIfF3Ob1/AhUDMhrDyLw/M9A==
-X-Received: by 2002:a5d:6749:0:b0:346:bb52:25a1 with SMTP id l9-20020a5d6749000000b00346bb5225a1mr7167243wrw.33.1713193311544;
-        Mon, 15 Apr 2024 08:01:51 -0700 (PDT)
+        bh=OnKKU4w8pIiCL4LleAZ3lUokUgFM4I1C3sXlHP3921Y=;
+        b=IT/KVKL270fTiEjl2v0HrFOariLxa1EzrYkqlyahgCKSdZvutWME6DAoPh/77wTNDz
+         wFvcvS22jQrzmiCpMyjnOZhbknzAYDiHhCw9Wt/mFlYyp8R50UvvZGmcifjtDMNLJyCq
+         o+Uix4mFAbnZahzJyXw1HbYEXM4lvgCp5j1yqxFbI3zbSQ5jj0VK8zn7cRJ7pUE01wYk
+         us11aerM8lmMXupfY8EvP8m5imPxm+assmHO3UuhlYYo+1qVZ0zMWi1XbggpqwydREI2
+         +//yUQEJ+vHDqWaErdVzvRY54mKhDDB36vkKmFHtZ15egAIyT0VGLJlYGnFgKwqV0o6V
+         w6sQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVRI/UoHQC6MSDww/W26NOmV+UrbZV7+oKZo6wcYUu9OBig2RSPrK16wbNVcCtnh4fYwsnHCUMHMvk6O6q0+Btx3vdTHgEF5ZE1tBic1eA=
+X-Gm-Message-State: AOJu0Yz9l5pUB0XSrOsgI1WtFBUw1XJX9qslBesjxw5u3DwMD1O/3LH6
+	rqNK6PFjLw9XAN5TPma83kKU8qpDEFUneFABnUT+2V74CMjnv7GnSZaVDpffq1QZw+M7Os1Vr/o
+	LO5b9ISL+dAxs9I61AyPb9qepRltk+maDFe1IwGu4w/d+/XUz7ofjz8PZ2UsdyoWl
+X-Received: by 2002:a05:600c:3d08:b0:418:7e61:762f with SMTP id bh8-20020a05600c3d0800b004187e61762fmr744177wmb.26.1713193464148;
+        Mon, 15 Apr 2024 08:04:24 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGLydcIkZiRaJCv52H2BR/Q3j6VmgZyP5JqyGLevERU0MOjR72uKIXKgdzGwrFjquGYcc9npg==
+X-Received: by 2002:a05:600c:3d08:b0:418:7e61:762f with SMTP id bh8-20020a05600c3d0800b004187e61762fmr744155wmb.26.1713193463683;
+        Mon, 15 Apr 2024 08:04:23 -0700 (PDT)
 Received: from ?IPV6:2003:cb:c706:d800:568a:6ea7:5272:797c? (p200300cbc706d800568a6ea75272797c.dip0.t-ipconnect.de. [2003:cb:c706:d800:568a:6ea7:5272:797c])
-        by smtp.gmail.com with ESMTPSA id b13-20020a5d4d8d000000b003432d61d6b7sm12232617wru.51.2024.04.15.08.01.50
+        by smtp.gmail.com with ESMTPSA id h15-20020a05600c314f00b00417ee886977sm14329551wmo.4.2024.04.15.08.04.22
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 15 Apr 2024 08:01:51 -0700 (PDT)
-Message-ID: <ee1ac0fb-daf7-4aea-b07e-f8879b6b860b@redhat.com>
-Date: Mon, 15 Apr 2024 17:01:49 +0200
+        Mon, 15 Apr 2024 08:04:23 -0700 (PDT)
+Message-ID: <9d13bfa5-cbdb-4942-937b-1793aaa85c58@redhat.com>
+Date: Mon, 15 Apr 2024 17:04:22 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -68,12 +68,13 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC 0/3] Improve memory statistics for virtio balloon
+Subject: Re: [RFC 1/3] virtio_balloon: introduce oom-kill invocations
 To: zhenwei pi <pizhenwei@bytedance.com>, linux-kernel@vger.kernel.org,
  linux-mm@kvack.org, virtualization@lists.linux.dev
 Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
  akpm@linux-foundation.org
 References: <20240415084113.1203428-1-pizhenwei@bytedance.com>
+ <20240415084113.1203428-2-pizhenwei@bytedance.com>
 From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -120,7 +121,7 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <20240415084113.1203428-1-pizhenwei@bytedance.com>
+In-Reply-To: <20240415084113.1203428-2-pizhenwei@bytedance.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Language: en-US
@@ -128,40 +129,58 @@ Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 15.04.24 10:41, zhenwei pi wrote:
-> Hi,
+> When the guest OS runs under critical memory pressure, the guest
+> starts to kill processes. A guest monitor agent may scan 'oom_kill'
+> from /proc/vmstat, and reports the OOM KILL event. However, the agent
+> may be killed and we will loss this critical event(and the later
+> events).
 > 
-> When the guest runs under critial memory pressure, the guest becomss
-> too slow, even sshd turns D state(uninterruptible) on memory
-> allocation. We can't login this VM to do any work on trouble shooting.
+> For now we can also grep for magic words in guest kernel log from host
+> side. Rather than this unstable way, virtio balloon reports OOM-KILL
+> invocations instead.
 > 
-> Guest kernel log via virtual TTY(on host side) only provides a few
-> necessary log after OOM. More detail memory statistics are required,
-> then we can know explicit memory events and estimate the pressure.
+> Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
+> ---
+>   drivers/virtio/virtio_balloon.c     | 2 ++
+>   include/uapi/linux/virtio_balloon.h | 6 ++++--
+>   2 files changed, 6 insertions(+), 2 deletions(-)
 > 
-> I'm going to introduce several VM counters for virtio balloon:
-> - oom-kill
-> - alloc-stall
-> - scan-async
-> - scan-direct
-> - reclaim-async
-> - reclaim-direct
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index 1f5b3dd31fcf..fd8daa742734 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -352,6 +352,8 @@ static unsigned int update_balloon_stats(struct virtio_balloon *vb)
+>   				pages_to_bytes(available));
+>   	update_stat(vb, idx++, VIRTIO_BALLOON_S_CACHES,
+>   				pages_to_bytes(caches));
+> +	update_stat(vb, idx++, VIRTIO_BALLOON_S_OOM_KILL,
+> +				events[OOM_KILL]);
+>   
+>   	return idx;
+>   }
+> diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
+> index ddaa45e723c4..cde5547e64a7 100644
+> --- a/include/uapi/linux/virtio_balloon.h
+> +++ b/include/uapi/linux/virtio_balloon.h
+> @@ -71,7 +71,8 @@ struct virtio_balloon_config {
+>   #define VIRTIO_BALLOON_S_CACHES   7   /* Disk caches */
+>   #define VIRTIO_BALLOON_S_HTLB_PGALLOC  8  /* Hugetlb page allocations */
+>   #define VIRTIO_BALLOON_S_HTLB_PGFAIL   9  /* Hugetlb page allocation failures */
+> -#define VIRTIO_BALLOON_S_NR       10
+> +#define VIRTIO_BALLOON_S_OOM_KILL      10 /* OOM killer invocations */
+> +#define VIRTIO_BALLOON_S_NR       11
+>   
+>   #define VIRTIO_BALLOON_S_NAMES_WITH_PREFIX(VIRTIO_BALLOON_S_NAMES_prefix) { \
+>   	VIRTIO_BALLOON_S_NAMES_prefix "swap-in", \
+> @@ -83,7 +84,8 @@ struct virtio_balloon_config {
+>   	VIRTIO_BALLOON_S_NAMES_prefix "available-memory", \
+>   	VIRTIO_BALLOON_S_NAMES_prefix "disk-caches", \
+>   	VIRTIO_BALLOON_S_NAMES_prefix "hugetlb-allocations", \
+> -	VIRTIO_BALLOON_S_NAMES_prefix "hugetlb-failures" \
+> +	VIRTIO_BALLOON_S_NAMES_prefix "hugetlb-failures", \
+> +	VIRTIO_BALLOON_S_NAMES_prefix "oom-kill" \
 
-IIUC, we're only exposing events that are already getting provided via 
-all_vm_events(), correct?
-
-In that case, I don't really see a major issue. Some considerations:
-
-(1) These new events are fairly Linux specific.
-
-PSWPIN and friends are fairly generic, but HGTLB is also already fairly 
-Linux specific already. OOM-kills don't really exist on Windows, for 
-example. We'll have to be careful of properly describing what the 
-semantics are.
-
-(2) How should we handle if Linux ever stops supporting a certain event 
-(e.g., major reclaim rework). I assume, simply return nothing like we 
-currently would for VIRTIO_BALLOON_S_HTLB_PGALLOC without 
-CONFIG_HUGETLB_PAGE.
+"oom-kills"
 
 -- 
 Cheers,
