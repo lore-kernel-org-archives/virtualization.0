@@ -1,57 +1,57 @@
-Received: from mail-oo1-f47.google.com (mail-oo1-f47.google.com [209.85.161.47])
+Received: from mail-ot1-f46.google.com (mail-ot1-f46.google.com [209.85.210.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55E523BBE1
-	for <virtualization@lists.linux.dev>; Mon, 15 Apr 2024 08:41:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9073538389
+	for <virtualization@lists.linux.dev>; Mon, 15 Apr 2024 08:41:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713170497; cv=none; b=EKD/zlc4GVYY7CPAw43l2jvnyqEgjtOWwihaFnw3lZLU5V0hjxf6TPAalBXnxIYLGH/7UNtv22W0d4bh3+z51dueSufgMB5MzVo3q6LtGI2Mr/X1LMH5zXv9rxbrndqf2RuLfj3c6zGGhAHc/Zf1G+ylS8niYLn35wLvEKuitac=
+	t=1713170500; cv=none; b=YYnBt7DF/YuTYpsyDsSZFrjiD2PlwHkDAQ4346NR76oWXuzJQkfEcz9ZS5IgPV6+NYlPIO0SdvwWs4P/dkr9D/iV2FgAV9v3od3JNBlAt24iS6SmKJ3Dhlu0tcDX1n3Ec1GCEN642rD3YwcyIBD9TKWydYXX3v3sjL/1CaJP0Ys=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713170497; c=relaxed/simple;
-	bh=vZqUoc3gYd+I/LHSXlUpLfccZsnhlmnxJYwDUfMYSzk=;
+	s=arc-20240116; t=1713170500; c=relaxed/simple;
+	bh=NFrR2exu6d6NexTbth3nKYMeBa96W+PF0xe/+85rGTE=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=NlZhZ6hcwXwQufmOYnTCbh5wMyzlar/Hl3rpHIBP+1m+D2ox5mV9+jTxbR4UKbfluvuOcczNNa60VlmYP6yqIC3QtlEkFeJ1X/UMR/qB7WNOPsOZ3Ygpuz1f08nzHexPLVJW0NsX4ymaUyuC7Z9OR08M4NlZHojB/TS5ozHLJwM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=R46R/xO+; arc=none smtp.client-ip=209.85.161.47
+	 MIME-Version; b=r4C/HOkGXgGaSBA/YF2h6HXF6m7U4PbUmDmoGo1OYywsB398SAxB8nKIOTjOwNDCGqABmeZ2DpmvgsLsiDr1r/uZ0AhTTlP7ZsiMvvGU58NmJpDGH+Ow9FHqQMYxtH8Xa/JFpzfyrs+qtPiQ6CfxksO6Vto8oJUH1lyh9JQDU64=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=DFLHiHop; arc=none smtp.client-ip=209.85.210.46
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="R46R/xO+"
-Received: by mail-oo1-f47.google.com with SMTP id 006d021491bc7-5a49261093cso1645963eaf.3
-        for <virtualization@lists.linux.dev>; Mon, 15 Apr 2024 01:41:35 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="DFLHiHop"
+Received: by mail-ot1-f46.google.com with SMTP id 46e09a7af769-6eb658ca1ceso1905642a34.2
+        for <virtualization@lists.linux.dev>; Mon, 15 Apr 2024 01:41:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1713170494; x=1713775294; darn=lists.linux.dev;
+        d=bytedance.com; s=google; t=1713170497; x=1713775297; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=gn/fmyyLOBGP9D7Ah7/te94Cqx4P0YQuEb1tR3Gfsk4=;
-        b=R46R/xO+9+KgKPekoht6jklCtTwVMhZbeE6mKi4hPxPK2+TslQiMGLYAQDBhrW4IoJ
-         TPzJxUBfsAsWpHeTukBt7yvXMk5f75ye0JUL/RwdZmPk1lfJ9fKqVoSDtOxZL+rnGGxQ
-         GvGvlwleMS81APakLWzXnNeyULfm28+eXQxk0BWAqfaarcpsC5LJU92lNxNWE/cdl2XW
-         8kXYoQjZuybKmh6zVLHI5uHxtkyAk5LQ1jHYzb1ZILwRVJSHl6ZsMqI4kT1n3OPXYDjY
-         C9C3joUxOHhijEEBWyNGpdKln7zMG7qceI1mWhzq1EkD3+ZentL7t/Ih9McZ/WLGL0m/
-         mmzg==
+        bh=jVSyUCsRBJHReEwHJLY9AUjYGa31t9M8IXFXE6DP2gA=;
+        b=DFLHiHopZ4HibdCNyoGSoTa4BeWZCso+2FImpkfvuI8m4QWaTpsY/zJgctLsjaBxEi
+         ywFL8XBEM3YmDB9MYsVPngl/4OXcWFEzmlk86zfQIcANtMHGuWKzNee/5/5GSLN7wP19
+         C50nlzSFZfsAFksIx2wdM8lyix8S3KEyuNCmv1h9bST/1CpPO+2RVOoVd8xVNK+a7cYE
+         J6Ux/2InOXFK9ofVZHyw+HDXVOnLPqX+nHWq2CG12imPXLWj2vQUInMPI26CCngnYMBQ
+         E8YbcVmRi35GnxA6PeiOw+mZccIZsUtJg3vFbxoaelFw1EZHnfCo2wPmMbnVFUeFk5iJ
+         auYA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713170494; x=1713775294;
+        d=1e100.net; s=20230601; t=1713170497; x=1713775297;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=gn/fmyyLOBGP9D7Ah7/te94Cqx4P0YQuEb1tR3Gfsk4=;
-        b=KBMvB7dAo5pllyE5859+1ooeQNBmRwiD9EKh0R6jdJx5BmUBzcuxTDN6zI3/IFRNts
-         ryQvnTw7rKGEK9qIB9z7MkTeskieERdru2uawwQEIVchmpCQQIY6inb0ZJrNi7iThcSw
-         VCkRDan1iqvXgW5h5P89de7tfPKZCixm0zNUo04uzQXQZMg2Mwf9RU7WedkNd9yUc+yC
-         M/6C5gzLYvgCUNVHhjRGndyl92qyYwi8L9ibY5cx2wAUTvpSRpAOrYsydDOX27LOexOh
-         fQNQC0PfyoBm/dHeYMND2Sb82ZJEVGcREAe63E9gekNgH1T8WIvjPtIE10Jj5JvX3ShV
-         O8AA==
-X-Forwarded-Encrypted: i=1; AJvYcCUXac65HjDfzlueGY0dIxGpJnGV8sQBCHe4s3OGBHg2tO9x8n1qMBvbZ2j3kOWD4WbXrusz8BytF88hMzf9D7ru8walYzZlz9wffbOGj6E=
-X-Gm-Message-State: AOJu0Yx30rGOB5FkOp6Fo0KksIHjCFjek6kw0md3Hh+wNgf4q9sToA2F
-	6oW2HSZyx5IfsUzHmmYYkeK8tKduFzpZarUWTpp893QiNnOmDJ8Lwkiw3LDtV8w=
-X-Google-Smtp-Source: AGHT+IETdp6r2QsgZsbcC8cYUyAoKu02zRWiFTX/N1oYt3Eg7GPbdngrRxjNkXqYCiCkcAyLjTOyFg==
-X-Received: by 2002:a05:6358:1396:b0:183:6427:10b6 with SMTP id n22-20020a056358139600b00183642710b6mr10637354rwi.19.1713170494297;
-        Mon, 15 Apr 2024 01:41:34 -0700 (PDT)
+        bh=jVSyUCsRBJHReEwHJLY9AUjYGa31t9M8IXFXE6DP2gA=;
+        b=SG5tCvPm0Pr/hIhkbwHvd/q3pbyKjK7YWRen68PF2SggDpptlGjDJQKkgKadO3Yiwe
+         psUw8tNrN9TB0W4u+wG56MAGbfG/d0KqVTdPMZUcq31uHlrmB/R/J/HW7z9pQrxpleg6
+         ipOQD17JI4y/Yqjmot5VmJ7r1hT8pIDti0rsCIUV1/cL78kHIyq4mRptIGO+YUOTyu4K
+         gTq6kx2y+yvdNp7GEVTBhl5nG5oOzv0zD6r2lA34s+S4mztLJECboVkKUtfDxJM7iseV
+         5JnHM3P9atgv3vCresMRR+MlA3LxOCPLrSbzPpGJ4p7D4xwpZu7E6uijvS3wwE1Y/mux
+         onKw==
+X-Forwarded-Encrypted: i=1; AJvYcCWmf/bmpE2+dEYoBbqfH/7ZJ1nyZHksZizkElVPVlHTlK69onCaUubbpQ1qbGZ8pPgNXhEJPQ8NqRR5Llt+FJ8+i0DuiXrac4aRKp5O13c=
+X-Gm-Message-State: AOJu0Yz/TihpuOJklziWPeWv61yUwnDPfaqwB/WGaZof2/CddSja5Ykk
+	+0bjnlpHDVJg7XTrdQdKEtCJcHVJ7TUbFsmvxz27atNznHYUwjJ3JCZPf588suQ=
+X-Google-Smtp-Source: AGHT+IFLEEPCt9VyzH/L1QCrMmvcBH5qldAmYAh+iqUObe92I/ilLOhZ5GsT6F60/+szU0KPLSFuSA==
+X-Received: by 2002:a05:6870:9113:b0:22f:7513:f20a with SMTP id o19-20020a056870911300b0022f7513f20amr11633580oae.55.1713170497684;
+        Mon, 15 Apr 2024 01:41:37 -0700 (PDT)
 Received: from libai.bytedance.net ([61.213.176.11])
-        by smtp.gmail.com with ESMTPSA id k187-20020a636fc4000000b005d6a0b2efb3sm6575685pgc.21.2024.04.15.01.41.31
+        by smtp.gmail.com with ESMTPSA id k187-20020a636fc4000000b005d6a0b2efb3sm6575685pgc.21.2024.04.15.01.41.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Apr 2024 01:41:33 -0700 (PDT)
+        Mon, 15 Apr 2024 01:41:37 -0700 (PDT)
 From: zhenwei pi <pizhenwei@bytedance.com>
 To: linux-kernel@vger.kernel.org,
 	linux-mm@kvack.org,
@@ -62,9 +62,9 @@ Cc: mst@redhat.com,
 	xuanzhuo@linux.alibaba.com,
 	akpm@linux-foundation.org,
 	zhenwei pi <pizhenwei@bytedance.com>
-Subject: [RFC 2/3] virtio_balloon: introduce memory allocation stall counter
-Date: Mon, 15 Apr 2024 16:41:12 +0800
-Message-Id: <20240415084113.1203428-3-pizhenwei@bytedance.com>
+Subject: [RFC 3/3] virtio_balloon: introduce memory scan/reclaim info
+Date: Mon, 15 Apr 2024 16:41:13 +0800
+Message-Id: <20240415084113.1203428-4-pizhenwei@bytedance.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20240415084113.1203428-1-pizhenwei@bytedance.com>
 References: <20240415084113.1203428-1-pizhenwei@bytedance.com>
@@ -76,74 +76,100 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Memory allocation stall counter represents the performance/latency of
-memory allocation, expose this counter to the host side by virtio
-balloon device via out-of-bound way.
+Expose memory scan/reclaim information to the host side via virtio
+balloon device.
+
+Now we have a metric to analyze the memory performance:
+
+y: counter increases
+n: counter does not changes
+h: the rate of counter change is high
+l: the rate of counter change is low
+
+OOM: VIRTIO_BALLOON_S_OOM_KILL
+STALL: VIRTIO_BALLOON_S_ALLOC_STALL
+ASCAN: VIRTIO_BALLOON_S_SCAN_ASYNC
+DSCAN: VIRTIO_BALLOON_S_SCAN_DIRECT
+ARCLM: VIRTIO_BALLOON_S_RECLAIM_ASYNC
+DRCLM: VIRTIO_BALLOON_S_RECLAIM_DIRECT
+
+- OOM[y], STALL[*], ASCAN[*], DSCAN[*], ARCLM[*], DRCLM[*]:
+  the guest runs under really critial memory pressure
+
+- OOM[n], STALL[h], ASCAN[*], DSCAN[l], ARCLM[*], DRCLM[l]:
+  the memory allocation stalls due to cgroup, not the global memory
+  pressure.
+
+- OOM[n], STALL[h], ASCAN[*], DSCAN[h], ARCLM[*], DRCLM[h]:
+  the memory allocation stalls due to global memory pressure. The
+  performance gets hurt a lot. A high ratio between DRCLM/DSCAN shows
+  quite effective memory reclaiming.
+
+- OOM[n], STALL[h], ASCAN[*], DSCAN[h], ARCLM[*], DRCLM[l]:
+  the memory allocation stalls due to global memory pressure.
+  the ratio between DRCLM/DSCAN gets low, the guest OS is thrashing
+  heavily, the serious case leads poor performance and difficult
+  trouble shooting. Ex, sshd may block on memory allocation when
+  accepting new connections, a user can't login a VM by ssh command.
+
+- OOM[n], STALL[n], ASCAN[h], DSCAN[n], ARCLM[l], DRCLM[n]:
+  the low ratio between ARCLM/ASCAN shows that the guest tries to
+  reclaim more memory, but it can't. Once more memory is required in
+  future, it will struggle to reclaim memory.
 
 Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
 ---
- drivers/virtio/virtio_balloon.c     | 19 ++++++++++++++++++-
- include/uapi/linux/virtio_balloon.h |  6 ++++--
- 2 files changed, 22 insertions(+), 3 deletions(-)
+ drivers/virtio/virtio_balloon.c     |  9 +++++++++
+ include/uapi/linux/virtio_balloon.h | 12 ++++++++++--
+ 2 files changed, 19 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index fd8daa742734..4b9c9569f6e5 100644
+index 4b9c9569f6e5..7b86514e99d4 100644
 --- a/drivers/virtio/virtio_balloon.c
 +++ b/drivers/virtio/virtio_balloon.c
-@@ -321,7 +321,7 @@ static unsigned int update_balloon_stats(struct virtio_balloon *vb)
- 	unsigned long events[NR_VM_EVENT_ITEMS];
- 	struct sysinfo i;
- 	unsigned int idx = 0;
--	long available;
-+	long available, stall = 0;
- 	unsigned long caches;
+@@ -372,6 +372,15 @@ static unsigned int update_balloon_stats(struct virtio_balloon *vb)
+ 	stall += events[ALLOCSTALL_MOVABLE];
+ 	update_stat(vb, idx++, VIRTIO_BALLOON_S_ALLOC_STALL, stall);
  
- 	all_vm_events(events);
-@@ -355,6 +355,23 @@ static unsigned int update_balloon_stats(struct virtio_balloon *vb)
- 	update_stat(vb, idx++, VIRTIO_BALLOON_S_OOM_KILL,
- 				events[OOM_KILL]);
- 
-+	/* sum all the stall event */
-+#ifdef CONFIG_ZONE_DMA
-+	stall += events[ALLOCSTALL_DMA];
-+#endif
-+#ifdef CONFIG_ZONE_DMA32
-+	stall += events[ALLOCSTALL_DMA32];
-+#endif
-+#ifdef CONFIG_HIGHMEM
-+	stall += events[ALLOCSTALL_HIGH];
-+#endif
-+#ifdef CONFIG_ZONE_DEVICE
-+	stall += events[ALLOCSTALL_DEVICE];
-+#endif
-+	stall += events[ALLOCSTALL_NORMAL];
-+	stall += events[ALLOCSTALL_MOVABLE];
-+	update_stat(vb, idx++, VIRTIO_BALLOON_S_ALLOC_STALL, stall);
++	update_stat(vb, idx++, VIRTIO_BALLOON_S_SCAN_ASYNC,
++				pages_to_bytes(events[PGSCAN_KSWAPD]));
++	update_stat(vb, idx++, VIRTIO_BALLOON_S_SCAN_DIRECT,
++				pages_to_bytes(events[PGSCAN_DIRECT]));
++	update_stat(vb, idx++, VIRTIO_BALLOON_S_RECLAIM_ASYNC,
++				pages_to_bytes(events[PGSTEAL_KSWAPD]));
++	update_stat(vb, idx++, VIRTIO_BALLOON_S_RECLAIM_DIRECT,
++				pages_to_bytes(events[PGSTEAL_DIRECT]));
 +
  	return idx;
  }
  
 diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
-index cde5547e64a7..13d0c32ba27c 100644
+index 13d0c32ba27c..0875a9cccb01 100644
 --- a/include/uapi/linux/virtio_balloon.h
 +++ b/include/uapi/linux/virtio_balloon.h
-@@ -72,7 +72,8 @@ struct virtio_balloon_config {
- #define VIRTIO_BALLOON_S_HTLB_PGALLOC  8  /* Hugetlb page allocations */
+@@ -73,7 +73,11 @@ struct virtio_balloon_config {
  #define VIRTIO_BALLOON_S_HTLB_PGFAIL   9  /* Hugetlb page allocation failures */
  #define VIRTIO_BALLOON_S_OOM_KILL      10 /* OOM killer invocations */
--#define VIRTIO_BALLOON_S_NR       11
-+#define VIRTIO_BALLOON_S_ALLOC_STALL   11 /* Stall count of memory allocatoin */
-+#define VIRTIO_BALLOON_S_NR       12
+ #define VIRTIO_BALLOON_S_ALLOC_STALL   11 /* Stall count of memory allocatoin */
+-#define VIRTIO_BALLOON_S_NR       12
++#define VIRTIO_BALLOON_S_SCAN_ASYNC    12 /* Amount of memory scanned asynchronously */
++#define VIRTIO_BALLOON_S_SCAN_DIRECT   13 /* Amount of memory scanned directly */
++#define VIRTIO_BALLOON_S_RECLAIM_ASYNC 14 /* Amount of memory reclaimed asynchronously */
++#define VIRTIO_BALLOON_S_RECLAIM_DIRECT 15 /* Amount of memory reclaimed directly */
++#define VIRTIO_BALLOON_S_NR       16
  
  #define VIRTIO_BALLOON_S_NAMES_WITH_PREFIX(VIRTIO_BALLOON_S_NAMES_prefix) { \
  	VIRTIO_BALLOON_S_NAMES_prefix "swap-in", \
-@@ -85,7 +86,8 @@ struct virtio_balloon_config {
- 	VIRTIO_BALLOON_S_NAMES_prefix "disk-caches", \
+@@ -87,7 +91,11 @@ struct virtio_balloon_config {
  	VIRTIO_BALLOON_S_NAMES_prefix "hugetlb-allocations", \
  	VIRTIO_BALLOON_S_NAMES_prefix "hugetlb-failures", \
--	VIRTIO_BALLOON_S_NAMES_prefix "oom-kill" \
-+	VIRTIO_BALLOON_S_NAMES_prefix "oom-kill", \
-+	VIRTIO_BALLOON_S_NAMES_prefix "alloc-stall" \
+ 	VIRTIO_BALLOON_S_NAMES_prefix "oom-kill", \
+-	VIRTIO_BALLOON_S_NAMES_prefix "alloc-stall" \
++	VIRTIO_BALLOON_S_NAMES_prefix "alloc-stall", \
++	VIRTIO_BALLOON_S_NAMES_prefix "scan-async", \
++	VIRTIO_BALLOON_S_NAMES_prefix "scan-direct", \
++	VIRTIO_BALLOON_S_NAMES_prefix "reclaim-async", \
++	VIRTIO_BALLOON_S_NAMES_prefix "reclaim-direct" \
  }
  
  #define VIRTIO_BALLOON_S_NAMES VIRTIO_BALLOON_S_NAMES_WITH_PREFIX("")
