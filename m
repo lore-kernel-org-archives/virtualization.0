@@ -1,429 +1,240 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2186F210E6
-	for <virtualization@lists.linux.dev>; Mon, 15 Apr 2024 06:45:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D2A120DC8
+	for <virtualization@lists.linux.dev>; Mon, 15 Apr 2024 06:49:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713163554; cv=none; b=cwPfrizn0YwStBp6jlnTZqSwQFfpwOr+AncZ0Q5KpYI3XeBdVqU0iZMPxDpQ7e62o7uNR8LyK8pO24edWWYS9hxdXi/029ZUjbNLmmN3XHFPCOOM9DPX/I5H/0kjTQ4obFbokAGEEoFv0PSGfW2bYoZLAvuT4D0q0e83vUc0BgM=
+	t=1713163759; cv=none; b=kgxjFtHMQUYRGyWYy3HfboO1Pqe5pBz9klFB8zROzppaAENaNdhTAJZtjJ+GwWmnR8PPL+ZWPeW/1GUad/nY8LUMGQFkzHET8+x+cSt1zonaY5Y6yCc55Gevn9JzAJxyezh92c1rHCVeCoBBhXK/iGSbaVyXt3FuAfARqFXdA60=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713163554; c=relaxed/simple;
-	bh=aK3Bjc84XQ2H7tYG7F3tleBd2ohfWRoIIBj3ruxtivA=;
+	s=arc-20240116; t=1713163759; c=relaxed/simple;
+	bh=SDBGUvSWm8QEDhgQVXK9WfbSigTTIP+FpPfR4nSAWuw=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=f2s/Q723AzgrysQxmh5QQBy2qBdFmesGKL2b77XXIMQKNCXYu6HIPwyg65Ogho5M07rYyFEmA9MAHj+E3KK08OztXvrD7RMhV0MHDGnwbpfPc1g+pLxzD+gSBGjxHxHHUUVy9fP9eImsJ+g85jBfvPRcyJrdlVkM1Z+2in7yZsg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SzXoV61Q; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=hZFirenRcPl1lw/sC177yWFgofZlM1Pciq/32h16SpwCoAk8m6loNeaGAKSeAMcXQ5DfDlVAdOKQl0oPdSIfMjG/Z2ZQUgn9yCy7Xzkf9sl8UKCjupyENi+cKWI/BAMn8beE87EyWt0mGUSmIhw6LfxqVW6SzpkSYFuW9lt06hE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=H17Uocso; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SzXoV61Q"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="H17Uocso"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1713163551;
+	s=mimecast20190719; t=1713163757;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=5L287S5aWP8W7IobbeQ4Ncs4Snay4WFb68+4we1zxhc=;
-	b=SzXoV61QS3o9fOp7POmztvAcz1Zxnqf0u4FlDtfUP9fgR0mS8GsvVGNBHpBIeOei1Eu9xh
-	7Jr5BxNhzAfWy0uWYgJe05rvzZuD+WjreKAt6ETs7FNjXhMGz7tvwv08vxYIauyTzxZMiP
-	w4FDNbi/Lhz1wyteZVZWrsiC/9ToOWE=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=8VjdQQ8EPfR431S1WFAg4xyVlpzqsdaNlPsYq+Vc/F4=;
+	b=H17UocsoPKHFMV0QM5gytjraVHL9S8QSVn0Uvpv8sgLlcPThXlMTLgQroWQNk0YHTxvYKD
+	hcXgOH1Nat17aU9u9yxcQAhN08yBzV2D7DEk10rWVCnmuv98LrE18TnRv7Di1qlbpXVxtD
+	/bIpzMzxmj4r3zGEHhWhz18FICk/Zx0=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-180-MKUSq1rnN3KKWw3HgjxsFg-1; Mon, 15 Apr 2024 02:45:49 -0400
-X-MC-Unique: MKUSq1rnN3KKWw3HgjxsFg-1
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-2a7dad5cdfeso1398317a91.1
-        for <virtualization@lists.linux.dev>; Sun, 14 Apr 2024 23:45:48 -0700 (PDT)
+ us-mta-526-g84qHwGIOiePnBcwqGSLLA-1; Mon, 15 Apr 2024 02:49:15 -0400
+X-MC-Unique: g84qHwGIOiePnBcwqGSLLA-1
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-2a53909676fso2732855a91.3
+        for <virtualization@lists.linux.dev>; Sun, 14 Apr 2024 23:49:15 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713163548; x=1713768348;
+        d=1e100.net; s=20230601; t=1713163754; x=1713768554;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=5L287S5aWP8W7IobbeQ4Ncs4Snay4WFb68+4we1zxhc=;
-        b=miZSNKVR4Loy6gyAKlbdGDf4QHnXhIXABfNz62DZbZFMm34GW6hrX+9tBQttKzW8BH
-         /eD/gdzSKszB76w0bqGpkVNxLIIJxdUMZBPOongq/SOPBkCc+ULyykelTY8OZVBs6VDS
-         TqqtWBmWWUbHGzTSyydm0ztIKtCSq6DU25O/qAFfkyHtSj+ZFZg08srLUqgqY/a06SNQ
-         Z+UsGH4B4CIs2+k5xZpNkwkDFZnlq3QEJb2qmew+tiJdguP/bUXnL46SxGhSP+ay/ZcY
-         k4HzzrXxTBhybI63AQGASpSOdVATquJTTk+zNEYiPYkqlaUtMXPkS9SoTTGTCYvyO018
-         d3YA==
-X-Forwarded-Encrypted: i=1; AJvYcCXhgnn5MZWVPrfGTkBPKVzwF1gC9rVPrfvZotNsIIlkV5zC77XyIyw6XcH9bbheHAhdJ9SJqb6koVbF96ZtaKMrPYCy10i+z2eflztTq4k=
-X-Gm-Message-State: AOJu0YyOktCI1jR7qCixRw3Ye8rYc4fNV8zd3V0YCiLp5Q56n0mViHkd
-	tl75OntXG/FHADe4KLLFJKiGBwVIxHWKRPHK0iQgaim5v14oiAS8P8Wx2dhwYAXNhFj3MCfSAuD
-	/EtgB2jrbdE9Jg9BACgkyfDUjGHGWmb8qIDpoqGufPcsWqeDtXjbtIKl4m0/HJF3ut106xB/J3G
-	zFlC29cZ8Lsy7rEv34xOC7exXlkmv5YUVyL4anTv8=
-X-Received: by 2002:a17:90a:4605:b0:2a5:3753:6050 with SMTP id w5-20020a17090a460500b002a537536050mr7421508pjg.46.1713163547931;
-        Sun, 14 Apr 2024 23:45:47 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEDeLMWpPOyySPiUb06db6AIvzCgw/6awX0B80M3M5PpFS4myrUX1UZ+G70Vxn4NGsYJyR8qHlLLkOWdfzAKuY=
-X-Received: by 2002:a17:90a:4605:b0:2a5:3753:6050 with SMTP id
- w5-20020a17090a460500b002a537536050mr7421491pjg.46.1713163547579; Sun, 14 Apr
- 2024 23:45:47 -0700 (PDT)
+        bh=8VjdQQ8EPfR431S1WFAg4xyVlpzqsdaNlPsYq+Vc/F4=;
+        b=P2hcVb/Uvb+g0allgPcSkKJV2M8g8FZ8ng54bPMNDGJ9no6UcnU4rV2+f1/EAJQV1w
+         8J2LWLBFIrpUuG6kvXSriQ+m06Ov4t/O+MmSUt87mw8qGPX/o8rFVPXmbn3Xk+OV51RW
+         /jCmUeTEIlK7SMwLuVUp1xdENWhMKpe0GxijrdyJQp0HAb1P0aWwfFqU1BUiUbjXMqqc
+         LxWfqeVxlhIVxIbqekNG5kwNvbMItWaEsx0MAN5/2GAXdXNqKAL9XCEHeB/27n+lAxV6
+         C5kEp2+cmhgtMujZctrp3K4gX8WHvNrk5rUcGoSGjdYcmxjFohrDBBb8GJv7W6N8SrJA
+         ClzQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWBHO3goVUgY4H8LOYCuQpy6B3MYL4TsArj3UZgfGCj14Y7+DiQf0cw8usazLBLeswZskGx/uSM5C1op2FcIEkmsY/QsyKjMsE3ZJTlTi8=
+X-Gm-Message-State: AOJu0YwmZ9lY3LHZlJYknFti21ncs03OXWfU7ncF8nuOF13qzId/jfzk
+	2eRXLa+eD9PnJjIM9V/fnT3m9FMICd8soVi31htcjY26H9gcbCKe9ThEeDfJLqV0/MmAfrnIEUI
+	OdFDhz3Gx+9dZkhL/Dj2bmpuqT4YO1M8i0XWxP9IWNlM0y8UyyvlWicuPTxJucb4uwExSfxFljP
+	Ay/l0P0WPlqdDRVJF3DrrvQmyDt5BFHy0PPhw1mC8=
+X-Received: by 2002:a17:90a:ca84:b0:2a6:4966:b50f with SMTP id y4-20020a17090aca8400b002a64966b50fmr6596470pjt.40.1713163754385;
+        Sun, 14 Apr 2024 23:49:14 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGb0jJLj0/DGojHwxiIhP4HOf1t/sptnTF7hKdkrhdN6RME5HREbelcHdpFaGogkZ0XEgF2ZjdPGgbaFLGUhYw=
+X-Received: by 2002:a17:90a:ca84:b0:2a6:4966:b50f with SMTP id
+ y4-20020a17090aca8400b002a64966b50fmr6596458pjt.40.1713163754019; Sun, 14 Apr
+ 2024 23:49:14 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240318110602.37166-1-xuanzhuo@linux.alibaba.com>
- <20240318110602.37166-5-xuanzhuo@linux.alibaba.com> <CACGkMEujuYh+Ups9jx5jEwe7bydtgCyurG5bPLe3X8jpSJhqvA@mail.gmail.com>
- <1712746366.8053942-2-xuanzhuo@linux.alibaba.com> <CACGkMEsvAUyk+h3e5SO5T4L8HuSGcViKj2WM2J33JOb7KTKjUw@mail.gmail.com>
- <1713148927.6675713-2-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <1713148927.6675713-2-xuanzhuo@linux.alibaba.com>
+References: <20240327112136.2897479-1-schalla@marvell.com> <CACGkMEuKhKOtqYUk4Sbv1QmVSuo3AJ1-tX13ZZxdbPmSSNYk9Q@mail.gmail.com>
+ <DS0PR18MB53686F5F53AF5D26B7CE37B6A03A2@DS0PR18MB5368.namprd18.prod.outlook.com>
+ <CACGkMEuAEsApX0ZT=FWVgtvYwpAVhzQGh_1yrUaN5f8A8K7iCw@mail.gmail.com>
+ <DS0PR18MB5368C214A318C026C6A64E45A0062@DS0PR18MB5368.namprd18.prod.outlook.com>
+ <20240410071350-mutt-send-email-mst@kernel.org> <DS0PR18MB5368C21CDDE827AA2A496510A0062@DS0PR18MB5368.namprd18.prod.outlook.com>
+ <CACGkMEvYXPPp9Jbkx4ucXL7WYBkCMggCJJHVZUg2JuNc7DMJPw@mail.gmail.com>
+ <DS0PR18MB53685690485AACEEFB8D766CA0042@DS0PR18MB5368.namprd18.prod.outlook.com>
+ <CACGkMEvg1ng88-v+ih+LnKgfiSNjJQZTLBkbdM4Z+t9oOosxbw@mail.gmail.com> <DS0PR18MB53684432E58CC810569D62D8A0042@DS0PR18MB5368.namprd18.prod.outlook.com>
+In-Reply-To: <DS0PR18MB53684432E58CC810569D62D8A0042@DS0PR18MB5368.namprd18.prod.outlook.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 15 Apr 2024 14:45:36 +0800
-Message-ID: <CACGkMEvbLvQUppO6nnp0DCxACco7S=2QLgge4ZhARo9Ov_fJKQ@mail.gmail.com>
-Subject: Re: [PATCH net-next v5 4/9] virtio_net: support device stats
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
-	Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend <john.fastabend@gmail.com>, 
-	Stanislav Fomichev <sdf@google.com>, Amritha Nambiar <amritha.nambiar@intel.com>, 
-	Larysa Zaremba <larysa.zaremba@intel.com>, Sridhar Samudrala <sridhar.samudrala@intel.com>, 
-	Maciej Fijalkowski <maciej.fijalkowski@intel.com>, virtualization@lists.linux.dev, 
-	bpf@vger.kernel.org
+Date: Mon, 15 Apr 2024 14:49:02 +0800
+Message-ID: <CACGkMEtR-eEc3-MEMMvixZ4w93wNoJjeuqhgNsP=62oZfZHd5A@mail.gmail.com>
+Subject: Re: [EXTERNAL] Re: [PATCH] virtio: vdpa: vDPA driver for Marvell
+ OCTEON DPU devices
+To: Srujana Challa <schalla@marvell.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, 
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>, Vamsi Krishna Attunuru <vattunuru@marvell.com>, 
+	Shijith Thotton <sthotton@marvell.com>, Nithin Kumar Dabilpuram <ndabilpuram@marvell.com>, 
+	Jerin Jacob <jerinj@marvell.com>, eperezma <eperezma@redhat.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Apr 15, 2024 at 10:51=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alibaba.=
-com> wrote:
+On Fri, Apr 12, 2024 at 5:49=E2=80=AFPM Srujana Challa <schalla@marvell.com=
+> wrote:
 >
-> On Thu, 11 Apr 2024 14:09:24 +0800, Jason Wang <jasowang@redhat.com> wrot=
-e:
-> > On Wed, Apr 10, 2024 at 6:55=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.aliba=
-ba.com> wrote:
-> > >
-> > > On Wed, 10 Apr 2024 14:09:23 +0800, Jason Wang <jasowang@redhat.com> =
-wrote:
-> > > > On Mon, Mar 18, 2024 at 7:06=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.a=
-libaba.com> wrote:
-> > > > >
-> > > > > As the spec https://github.com/oasis-tcs/virtio-spec/commit/42f38=
-9989823039724f95bbbd243291ab0064f82
-> > > > >
-> > > > > make virtio-net support getting the stats from the device by etht=
-ool -S
-> > > > > <eth0>.
-> > > > >
-> > > > > Due to the numerous descriptors stats, an organization method is
-> > > > > required. For this purpose, I have introduced the "virtnet_stats_=
-map".
-> > > > > Utilizing this array simplifies coding tasks such as generating f=
-ield
-> > > > > names, calculating buffer sizes for requests and responses, and p=
-arsing
-> > > > > replies from the device. By iterating over the "virtnet_stats_map=
-,"
-> > > > > these operations become more streamlined and efficient.
-> > > > >
-> > > > > NIC statistics:
-> > > > >      rx0_packets: 582951
-> > > > >      rx0_bytes: 155307077
-> > > > >      rx0_drops: 0
-> > > > >      rx0_xdp_packets: 0
-> > > > >      rx0_xdp_tx: 0
-> > > > >      rx0_xdp_redirects: 0
-> > > > >      rx0_xdp_drops: 0
-> > > > >      rx0_kicks: 17007
-> > > > >      rx0_hw_packets: 2179409
-> > > > >      rx0_hw_bytes: 510015040
-> > > > >      rx0_hw_notifications: 0
-> > > > >      rx0_hw_interrupts: 0
-> > > > >      rx0_hw_drops: 12964
-> > > > >      rx0_hw_drop_overruns: 0
-> > > > >      rx0_hw_csum_valid: 2179409
-> > > > >      rx0_hw_csum_none: 0
-> > > > >      rx0_hw_csum_bad: 0
-> > > > >      rx0_hw_needs_csum: 2179409
-> > > > >      rx0_hw_ratelimit_packets: 0
-> > > > >      rx0_hw_ratelimit_bytes: 0
-> > > > >      tx0_packets: 15361
-> > > > >      tx0_bytes: 1918970
-> > > > >      tx0_xdp_tx: 0
-> > > > >      tx0_xdp_tx_drops: 0
-> > > > >      tx0_kicks: 15361
-> > > > >      tx0_timeouts: 0
-> > > > >      tx0_hw_packets: 32272
-> > > > >      tx0_hw_bytes: 4311698
-> > > > >      tx0_hw_notifications: 0
-> > > > >      tx0_hw_interrupts: 0
-> > > > >      tx0_hw_drops: 0
-> > > > >      tx0_hw_drop_malformed: 0
-> > > > >      tx0_hw_csum_none: 0
-> > > > >      tx0_hw_needs_csum: 32272
-> > > > >      tx0_hw_ratelimit_packets: 0
-> > > > >      tx0_hw_ratelimit_bytes: 0
-> > > > >
-> > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > > ---
-> > > > >  drivers/net/virtio_net.c | 401 +++++++++++++++++++++++++++++++++=
-+++++-
-> > > > >  1 file changed, 397 insertions(+), 4 deletions(-)
-> > > > >
-> > > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > > > index 8cb5bdd7ad91..70c1d4e850e0 100644
-> > > > > --- a/drivers/net/virtio_net.c
-> > > > > +++ b/drivers/net/virtio_net.c
-> > > > > @@ -128,6 +128,129 @@ static const struct virtnet_stat_desc virtn=
-et_rq_stats_desc[] =3D {
-> > > > >  #define VIRTNET_SQ_STATS_LEN   ARRAY_SIZE(virtnet_sq_stats_desc)
-> > > > >  #define VIRTNET_RQ_STATS_LEN   ARRAY_SIZE(virtnet_rq_stats_desc)
-> > > > >
-> > > > > +#define VIRTNET_STATS_DESC_CQ(name) \
-> > > > > +       {#name, offsetof(struct virtio_net_stats_cvq, name)}
-> > > > > +
-> > > > > +#define VIRTNET_STATS_DESC_RX(class, name) \
-> > > > > +       {#name, offsetof(struct virtio_net_stats_rx_ ## class, rx=
-_ ## name)}
-> > > > > +
-> > > > > +#define VIRTNET_STATS_DESC_TX(class, name) \
-> > > > > +       {#name, offsetof(struct virtio_net_stats_tx_ ## class, tx=
-_ ## name)}
-> > > > > +
-> > > > > +static const struct virtnet_stat_desc virtnet_stats_cvq_desc[] =
-=3D {
-> > > > > +       VIRTNET_STATS_DESC_CQ(command_num),
-> > > > > +       VIRTNET_STATS_DESC_CQ(ok_num),
-> > > > > +};
-> > > > > +
-> > > > > +static const struct virtnet_stat_desc virtnet_stats_rx_basic_des=
-c[] =3D {
-> > > > > +       VIRTNET_STATS_DESC_RX(basic, packets),
-> > > > > +       VIRTNET_STATS_DESC_RX(basic, bytes),
-> > > > > +
-> > > > > +       VIRTNET_STATS_DESC_RX(basic, notifications),
-> > > > > +       VIRTNET_STATS_DESC_RX(basic, interrupts),
-> > > > > +
-> > > > > +       VIRTNET_STATS_DESC_RX(basic, drops),
-> > > > > +       VIRTNET_STATS_DESC_RX(basic, drop_overruns),
-> > > > > +};
-> > > > > +
-> > > > > +static const struct virtnet_stat_desc virtnet_stats_tx_basic_des=
-c[] =3D {
-> > > > > +       VIRTNET_STATS_DESC_TX(basic, packets),
-> > > > > +       VIRTNET_STATS_DESC_TX(basic, bytes),
-> > > > > +
-> > > > > +       VIRTNET_STATS_DESC_TX(basic, notifications),
-> > > > > +       VIRTNET_STATS_DESC_TX(basic, interrupts),
-> > > > > +
-> > > > > +       VIRTNET_STATS_DESC_TX(basic, drops),
-> > > > > +       VIRTNET_STATS_DESC_TX(basic, drop_malformed),
-> > > > > +};
-> > > > > +
-> > > > > +static const struct virtnet_stat_desc virtnet_stats_rx_csum_desc=
-[] =3D {
-> > > > > +       VIRTNET_STATS_DESC_RX(csum, csum_valid),
-> > > > > +       VIRTNET_STATS_DESC_RX(csum, needs_csum),
-> > > > > +
-> > > > > +       VIRTNET_STATS_DESC_RX(csum, csum_none),
-> > > > > +       VIRTNET_STATS_DESC_RX(csum, csum_bad),
-> > > > > +};
-> > > > > +
-> > > > > +static const struct virtnet_stat_desc virtnet_stats_tx_csum_desc=
-[] =3D {
-> > > > > +       VIRTNET_STATS_DESC_TX(csum, needs_csum),
-> > > > > +       VIRTNET_STATS_DESC_TX(csum, csum_none),
-> > > > > +};
-> > > > > +
-> > > > > +static const struct virtnet_stat_desc virtnet_stats_rx_gso_desc[=
-] =3D {
-> > > > > +       VIRTNET_STATS_DESC_RX(gso, gso_packets),
-> > > > > +       VIRTNET_STATS_DESC_RX(gso, gso_bytes),
-> > > > > +       VIRTNET_STATS_DESC_RX(gso, gso_packets_coalesced),
-> > > > > +       VIRTNET_STATS_DESC_RX(gso, gso_bytes_coalesced),
-> > > > > +};
-> > > > > +
-> > > > > +static const struct virtnet_stat_desc virtnet_stats_tx_gso_desc[=
-] =3D {
-> > > > > +       VIRTNET_STATS_DESC_TX(gso, gso_packets),
-> > > > > +       VIRTNET_STATS_DESC_TX(gso, gso_bytes),
-> > > > > +       VIRTNET_STATS_DESC_TX(gso, gso_segments),
-> > > > > +       VIRTNET_STATS_DESC_TX(gso, gso_segments_bytes),
-> > > > > +       VIRTNET_STATS_DESC_TX(gso, gso_packets_noseg),
-> > > > > +       VIRTNET_STATS_DESC_TX(gso, gso_bytes_noseg),
-> > > > > +};
-> > > > > +
-> > > > > +static const struct virtnet_stat_desc virtnet_stats_rx_speed_des=
-c[] =3D {
-> > > > > +       VIRTNET_STATS_DESC_RX(speed, ratelimit_packets),
-> > > > > +       VIRTNET_STATS_DESC_RX(speed, ratelimit_bytes),
-> > > > > +};
-> > > > > +
-> > > > > +static const struct virtnet_stat_desc virtnet_stats_tx_speed_des=
-c[] =3D {
-> > > > > +       VIRTNET_STATS_DESC_TX(speed, ratelimit_packets),
-> > > > > +       VIRTNET_STATS_DESC_TX(speed, ratelimit_bytes),
-> > > > > +};
-> > > > > +
-> > > > > +#define VIRTNET_Q_TYPE_RX 0
-> > > > > +#define VIRTNET_Q_TYPE_TX 1
-> > > > > +#define VIRTNET_Q_TYPE_CQ 2
-> > > > > +
-> > > > > +struct virtnet_stats_map {
-> > > > > +       /* The stat type in bitmap. */
-> > > > > +       u64 stat_type;
-> > > > > +
-> > > > > +       /* The bytes of the response for the stat. */
-> > > > > +       u32 len;
-> > > > > +
-> > > > > +       /* The num of the response fields for the stat. */
-> > > > > +       u32 num;
-> > > > > +
-> > > > > +       /* The type of queue corresponding to the statistics. (cq=
-, rq, sq) */
-> > > > > +       u32 queue_type;
-> > > > > +
-> > > > > +       /* The reply type of the stat. */
-> > > > > +       u8 reply_type;
-> > > > > +
-> > > > > +       /* Describe the name and the offset in the response. */
-> > > > > +       const struct virtnet_stat_desc *desc;
-> > > > > +};
-> > > > > +
-> > > > > +#define VIRTNET_DEVICE_STATS_MAP_ITEM(TYPE, type, queue_type)  \
-> > > > > +       {                                                       \
-> > > > > +               VIRTIO_NET_STATS_TYPE_##TYPE,                   \
-> > > > > +               sizeof(struct virtio_net_stats_ ## type),       \
-> > > > > +               ARRAY_SIZE(virtnet_stats_ ## type ##_desc),     \
-> > > > > +               VIRTNET_Q_TYPE_##queue_type,                    \
-> > > > > +               VIRTIO_NET_STATS_TYPE_REPLY_##TYPE,             \
-> > > > > +               &virtnet_stats_##type##_desc[0]                 \
-> > > > > +       }
-> > > > > +
-> > > > > +static struct virtnet_stats_map virtio_net_stats_map[] =3D {
-> > > > > +       VIRTNET_DEVICE_STATS_MAP_ITEM(CVQ, cvq, CQ),
-> > > > > +
-> > > > > +       VIRTNET_DEVICE_STATS_MAP_ITEM(RX_BASIC, rx_basic, RX),
-> > > > > +       VIRTNET_DEVICE_STATS_MAP_ITEM(RX_CSUM,  rx_csum,  RX),
-> > > > > +       VIRTNET_DEVICE_STATS_MAP_ITEM(RX_GSO,   rx_gso,   RX),
-> > > > > +       VIRTNET_DEVICE_STATS_MAP_ITEM(RX_SPEED, rx_speed, RX),
-> > > > > +
-> > > > > +       VIRTNET_DEVICE_STATS_MAP_ITEM(TX_BASIC, tx_basic, TX),
-> > > > > +       VIRTNET_DEVICE_STATS_MAP_ITEM(TX_CSUM,  tx_csum,  TX),
-> > > > > +       VIRTNET_DEVICE_STATS_MAP_ITEM(TX_GSO,   tx_gso,   TX),
-> > > > > +       VIRTNET_DEVICE_STATS_MAP_ITEM(TX_SPEED, tx_speed, TX),
-> > > > > +};
-> > > >
-> > > > I think the reason you did this is to ease the future extensions bu=
-t
-> > > > multiple levels of nested macros makes the code hard to review. Any
-> > > > way to eliminate this?
-> > >
-> > >
-> > > NOT only for the future extensions.
-> > >
-> > > When we parse the reply from the device, we need to check the reply s=
-tats
-> > > one by one, we need the stats info to help parse the stats.
+> > Subject: Re: [EXTERNAL] Re: [PATCH] virtio: vdpa: vDPA driver for Marve=
+ll
+> > OCTEON DPU devices
 > >
-> > Yes, but I meant for example any reason why it can't be done by
-> > extending virtnet_stat_desc ?
+> > On Fri, Apr 12, 2024 at 1:13=E2=80=AFPM Srujana Challa <schalla@marvell=
+.com> wrote:
+> > >
+> > >
+> > >
+> > > > -----Original Message-----
+> > > > From: Jason Wang <jasowang@redhat.com>
+> > > > Sent: Thursday, April 11, 2024 11:32 AM
+> > > > To: Srujana Challa <schalla@marvell.com>
+> > > > Cc: Michael S. Tsirkin <mst@redhat.com>;
+> > > > virtualization@lists.linux.dev; xuanzhuo@linux.alibaba.com; Vamsi
+> > > > Krishna Attunuru <vattunuru@marvell.com>; Shijith Thotton
+> > > > <sthotton@marvell.com>; Nithin Kumar Dabilpuram
+> > > > <ndabilpuram@marvell.com>; Jerin Jacob <jerinj@marvell.com>;
+> > > > eperezma <eperezma@redhat.com>
+> > > > Subject: Re: [EXTERNAL] Re: [PATCH] virtio: vdpa: vDPA driver for
+> > > > Marvell OCTEON DPU devices
+> > > >
+> > > > On Wed, Apr 10, 2024 at 8:35=E2=80=AFPM Srujana Challa <schalla@mar=
+vell.com>
+> > > > wrote:
+> > > > >
+> > > > > > Subject: Re: [EXTERNAL] Re: [PATCH] virtio: vdpa: vDPA driver
+> > > > > > for Marvell OCTEON DPU devices
+> > > > > >
+> > > > > > On Wed, Apr 10, 2024 at 10:15:37AM +0000, Srujana Challa wrote:
+> > > > > > > > > > > +
+> > > > > > > > > > > +       domain =3D iommu_get_domain_for_dev(dev);
+> > > > > > > > > > > +       if (!domain || domain->type =3D=3D
+> > > > > > > > > > > + IOMMU_DOMAIN_IDENTITY)
+> > > > {
+> > > > > > > > > > > +               dev_info(dev, "NO-IOMMU\n");
+> > > > > > > > > > > +               octep_vdpa_ops.set_map =3D
+> > > > > > > > > > > + octep_vdpa_set_map;
+> > > > > > > > > >
+> > > > > > > > > > Is this a shortcut to have get better performance? DMA
+> > > > > > > > > > API should have those greacefully I think.
+> > > > > > > > > When IOMMU is disabled on host and set_map/dma_map is not
+> > > > > > > > > set, vhost-vdpa is reporting an error "Failed to allocate
+> > > > > > > > > domain, device is not
+> > > > > > > > IOMMU cache coherent capable\n".
+> > > > > > > > > Hence we are doing this way to get better performance.
+> > > > > > > >
+> > > > > > > > The problem is, assuming the device does not have any
+> > > > > > > > internal
+> > > > IOMMU.
+> > > > > > > >
+> > > > > > > > 1) If we allow it running without IOMMU, it opens a window
+> > > > > > > > for guest to attack the host.
+> > > > > > > > 2) If you see perforamnce issue with IOMMU_DOMAIN_IDENTITY,
+> > > > > > > > let's report it to DMA/IOMMU maintiner to fix that
+> > > > > > > It will be helpful for host networking case when iommu is dis=
+abled.
+> > > > > > > Can we take the vfio pci driver approach as a reference where
+> > > > > > > user explicitly set "enable_unsafe_noiommu_mode" using module
+> > param?
+> > > > > >
+> > > > > > vfio is a userspace driver so it's userspace's responsibility.
+> > > > > > what exactly ensures correctness here? does the device have an
+> > > > > > on-chip iommu?
+> > > > > >
+> > > > > Our device features an on-chip IOMMU, although it is not utilized
+> > > > > for host-side targeted DMA operations. We included no-iommu mode
+> > > > > in our driver to ensure that host applications, such as DPDK
+> > > > > Virtio user PMD, continue to function even when operating in a no=
+-
+> > IOMMU mode.
+> > > >
+> > > > I may miss something but set_map() is empty in this driver. How
+> > > > could such isolation be done?
+> > >
+> > > In no-iommu case, there would be no domain right, and the user of
+> > > vhost-vdpa(DPDK virtio user pmd), would create the mapping and pass
+> > > the PA (=3D IOVA) to the device directly. So that, device can directl=
+y DMA to the
+> > PA.
+> >
+> > Yes, but this doesn't differ too much from the case where DMA API is us=
+ed
+> > with IOMMU disabled.
+> >
+> > Are you saying DMA API introduces overheads in this case?
+> No actually, current vhost-vdpa code is not allowing IOMMU disabled mode,
+> If set_map/dma_map op is not set. Hence, we are setting set_map with dumm=
+y
+> api to allow IOMMU disabled mode.
 >
+> Following is the code snippet from drivers/vhost/vdpa.c
 >
+>       /* Device want to do DMA by itself */
+>         if (ops->set_map || ops->dma_map)
+>                 return 0;
 >
-> You know, virtio_net_stats_map is way to organize the descs.
+>         bus =3D dma_dev->bus;
+>         if (!bus)
+>                 return -EFAULT;
 >
-> This is used to avoid the big if-else when parsing the replys from the de=
-vice.
->
-> If no this map, we will have a big if-else like:
->
->  if (reply.type =3D=3D rx_basic) {
->          /* do the same something */
->  }
->  if (reply.type =3D=3D tx_basic) {
->          /* do the same something */
->  }
->  if (reply.type =3D=3D rx_csum) {
->          /* do the same something */
->  }
->  if (reply.type =3D=3D tx_csum) {
->          /* do the same something */
->  }
->  if (reply.type =3D=3D rx_gso) {
->          /* do the same something */
->  }
->  if (reply.type =3D=3D tx_gso) {
->          /* do the same something */
->  }
->  if (reply.type =3D=3D rx_speed) {
->          /* do the same something */
->  }
->  if (reply.type =3D=3D tx_speed) {
->          /* do the same something */
->  }
->
-> I want to avoid this, so introducing this map.
+>        if (!device_iommu_capable(dma_dev, IOMMU_CAP_CACHE_COHERENCY))
+>                 return -ENOTSUPP;
 
-Could we have a function pointers array indexed by the type?
+Right, so here's the question.
+
+When IOMMU is disabled, if there's no isolation from the device
+on-chip IOMMU. It might have security implications. For example if
+we're using PA, userspace could attack the kernel.
+
+So there should be some logic in the set_map() to program the on-chip
+IOMMU to isolate DMA in that case but I don't see such implementation
+done in set_map().
+
+>
+> Performance degradation when iommu enabled is not with DMA API but the x8=
+6 HW IOMMU
+> translation performance on certain low end x86 machines.
+
+This might be true but it's not specific to vDPA I think?
 
 Thanks
 
 >
-> YES. I noticed other comments, but I think we should
-> fix this problem firstly.
->
-> Thanks.
->
->
-> >
-> > >
-> > >         static void virtnet_fill_stats(struct virtnet_info *vi, u32 q=
-id,
-> > >                                       struct virtnet_stats_ctx *ctx,
-> > >                                       const u8 *base, u8 type)
-> > >         {
-> > >                u32 queue_type, num_rx, num_tx, num_cq;
-> > >                struct virtnet_stats_map *m;
-> > >                u64 offset, bitmap;
-> > >                const __le64 *v;
-> > >                int i, j;
-> > >
-> > >                num_rx =3D VIRTNET_RQ_STATS_LEN + ctx->desc_num[VIRTNE=
-T_Q_TYPE_RX];
-> > >                num_tx =3D VIRTNET_SQ_STATS_LEN + ctx->desc_num[VIRTNE=
-T_Q_TYPE_TX];
-> > >                num_cq =3D ctx->desc_num[VIRTNET_Q_TYPE_CQ];
-> > >
-> > >                queue_type =3D vq_type(vi, qid);
-> > >                bitmap =3D ctx->bitmap[queue_type];
-> > >                offset =3D 0;
-> > >
-> > >                if (queue_type =3D=3D VIRTNET_Q_TYPE_TX) {
-> > >                        offset =3D num_cq + num_rx * vi->curr_queue_pa=
-irs + num_tx * (qid / 2);
-> > >                        offset +=3D VIRTNET_SQ_STATS_LEN;
-> > >                } else if (queue_type =3D=3D VIRTNET_Q_TYPE_RX) {
-> > >                        offset =3D num_cq + num_rx * (qid / 2) + VIRTN=
-ET_RQ_STATS_LEN;
-> > >                }
-> > >
-> > >                for (i =3D 0; i < ARRAY_SIZE(virtio_net_stats_map); ++=
-i) {
-> > >                        m =3D &virtio_net_stats_map[i];
-> > >
-> > > ->                     if (m->stat_type & bitmap)
-> > >                                offset +=3D m->num;
-> > >
-> > > ->                     if (type !=3D m->reply_type)
-> > >                                continue;
-> > >
-> > >                        for (j =3D 0; j < m->num; ++j) {
-> > >                                v =3D (const __le64 *)(base + m->desc[=
-j].offset);
-> > >                                ctx->data[offset + j] =3D le64_to_cpu(=
-*v);
-> > >                        }
-> > >
-> > >                        break;
-> > >                }
-> > >         }
-> > >
-> > > Thanks.
-> >
-> > Btw, just a reminder, there are other comments for this patch.
 > >
 > > Thanks
 > >
+> > >
+> > > >
+> > > > > We observed performance impacts on certain low-end x86 machines
+> > > > > when IOMMU mode was enabled.
+> > > > > I think, correctness is Host userspace application's
+> > > > > responsibility, in this case when vhost-vdpa is used with Host
+> > > > > application such as DPDK
+> > > > Virtio user PMD.
+> > > >
+> > > > Thanks
+> > > >
+> > > > >
+> > > > > > > >
+> > > > > > > > Thanks
+> > > > > > >
+> > > > > > > Thanks.
+> > > > > > >
+> > > > >
+> > >
 >
 
