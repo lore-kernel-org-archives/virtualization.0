@@ -1,97 +1,163 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABE52224D0
-	for <virtualization@lists.linux.dev>; Mon, 15 Apr 2024 06:58:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40E9928DA4;
+	Mon, 15 Apr 2024 07:36:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713164302; cv=none; b=ew0gjKmCgMt+Hnd1BhUHhmoCAx9hyecQiTOdEviaGjAkjvwu6Ju+ojm4rmgWyimAdBvfIu6JGD2jPmQpQYovIHd4peXPhowJflahkDwxnhwPbjthl5R0QlrrJ+FPH/CW1Rd2A4tUv9AEZxQTy/zIFZ8DpmoKxvrkylPiEZFYx6I=
+	t=1713166590; cv=none; b=eJN3Qt5iOgeDhPR0PUb49PI+BkaUw7seR+Mze4abKk7MMFponb1/qLc2kyopzU6DZnAeLkhw6WtsExSxlX+/Y36E4GrKh01YuNl11vdgpmjMCm2+lk9WrywlKpsPVXP9WEr1AVqGWswMcpMp/fuSlgxUbNSkPfkLXPgz1Z5YQC8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713164302; c=relaxed/simple;
-	bh=8zRocQO/rRgL1qKa5DTF7pfCxE7+mgM0HcYZDkfYtek=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=En8LjEYsntTsd3q60/hcMlK5xmllnPfZ+gA6sed+7mhxOBXZPrnYLRSOgqWwywcRR4ACLrw2V607Jh2kpMIHkM6O4DRUYzZ7a64YKEgEDH90hMMifPMe94rlkb+vU+ZkngBoknEreG83kEShy4wF80pyOdM2mDdO4dYZe+uWCsQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OvTdNNNx; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1713166590; c=relaxed/simple;
+	bh=QEw7la3k+1B4uCDc5JgoVTPpyYgSenrHp3AkQ1ZVoJU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=bSyCdcw0LAnGgSFuwhA5FBXrLBvQTRXIJYwAVi8hgpthfYuaeTyAkQuFzfsdSok8p48/taJVyPle90Eqjapww5cmyObmimlrasBBqOatlsZ1JtXhos0DnHuVZOaoZZWhZc0a36V+NuK1ZHBnR8VITt+V4zn53ujZxB4z+08woYk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YyRLmHiy; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OvTdNNNx"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1713164298;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=8zRocQO/rRgL1qKa5DTF7pfCxE7+mgM0HcYZDkfYtek=;
-	b=OvTdNNNxLhZpNDTjZF1SBowRw4BS9Z9Um1+gGgHhHR7LIV2k2cfIE3AQW4S235iX74eXNx
-	3bziquNTan0AinX8K4Yzfr1AsSLQ2eAnzAT3HjWFUQW2+zbbUMfxLI5ac49Y/lsKuZ1mRJ
-	LkKLdE6Y0iumk0H4GH5mRb6x5PSGBOQ=
-Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com
- [209.85.215.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-632-kzNhs8mJM2WxcRg5YnvC-Q-1; Mon, 15 Apr 2024 02:58:17 -0400
-X-MC-Unique: kzNhs8mJM2WxcRg5YnvC-Q-1
-Received: by mail-pg1-f198.google.com with SMTP id 41be03b00d2f7-5cfc2041cdfso1890930a12.2
-        for <virtualization@lists.linux.dev>; Sun, 14 Apr 2024 23:58:17 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713164296; x=1713769096;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=8zRocQO/rRgL1qKa5DTF7pfCxE7+mgM0HcYZDkfYtek=;
-        b=Nt+NRGrNlyClfxlLLKU7xs3wYB/zenQFcQLx2OFl/4G6CqnU2na8Srm21ItBfUN/Zb
-         yQQ2CU5UZ/d+g4GZTnkYWvRy4aS2LvtQkiPza4y/tLhJxMXu0Fv+K3qRxauP8aW16mf2
-         f9T1zWyOHV3ZOAFBO0Y/8f8QcbJjA8+mNThzhbesGHN+14innAQ+Nb0E3z8LZoqbQmG4
-         EK9QAowLesXwiaA0vPJk+NtiNpCp1kzkg2XW5gxz9WXzb0hfohKnpfwaYJf1Qv3LYLUY
-         TkF7pt9lT6j+Sh9K0nCBmrxG+IvSYLHF5hUT1zWKhMxf1N9S1gmvSTo1ET8kyktzY9Nm
-         072A==
-X-Forwarded-Encrypted: i=1; AJvYcCV4cIoSP4GLmC+ygOKgFarW91aBqZG45CKkwTwGWS/t5QCdD90pLs0OnQanBaV9SUHtF6jIk5Af0ItHAGkWlDTs00Sdj5hAGLvxdn+o1u8=
-X-Gm-Message-State: AOJu0YwFoADSK5oIJul5I01jZBDu6+q1TsRXVJA3OCvFeyL6bFO0Pxi1
-	zmfNgVnnIskzaX6IurhOQKO7/hIu6BVFHkzjez/I9tDfJaJzTMvBa4uznK1Ux+tFQ5WT3eHcP+K
-	/5BfQpHOfLCraNNMBn0WxaLgKG3NtKvf2G4KrxMzZHAfAV1DX4mvzHLJ9HwwioiVQa9Y4+E5EdS
-	UdidmtEsuLA90hTCPfVMXiSBkla+LCqxfEnMSk7uA=
-X-Received: by 2002:a05:6a21:191:b0:1a9:6d96:c700 with SMTP id le17-20020a056a21019100b001a96d96c700mr8932587pzb.48.1713164296249;
-        Sun, 14 Apr 2024 23:58:16 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEfCe10Cxttrxe8F4OkPc7KjxC+SFTe/Z0SKvR0xbdRbE8/iQQiMdWF3kDr6DPf/3wtsnu4W5Rb/yh0o2uaUZk=
-X-Received: by 2002:a05:6a21:191:b0:1a9:6d96:c700 with SMTP id
- le17-20020a056a21019100b001a96d96c700mr8932578pzb.48.1713164295965; Sun, 14
- Apr 2024 23:58:15 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YyRLmHiy"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBFF7C113CC;
+	Mon, 15 Apr 2024 07:36:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1713166589;
+	bh=QEw7la3k+1B4uCDc5JgoVTPpyYgSenrHp3AkQ1ZVoJU=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=YyRLmHiyug+86g4mlvEV92WKvQWj+LlNyCyjYn5muAT8/zLjDAb59Hv0bmqyWxrS4
+	 rV+0tP4dKrzcp6qN9fwibJ0+Ol/j+n8lSLPYtdKvjBvAoxm4gqX/5agtxIPm95FGhx
+	 QQXBXMCKyVsJy5GF1jz6fLxB4af0/yZ2DRukpSd1JvHd2RhC0pK4ZKfvyuZ17mbfdf
+	 XooX7dDXA7p/RONR4G6I1x/dQ6aDeUGFiNC6Ep3IZ9yuVRYjGpk7xzJ530pcsW3Yha
+	 ZhNOT1v5UnD5NZOLhQBySfy4NPVr7HJ/Q/nadoj+zG03v+C69+zLxrBB3KVQ+asp2j
+	 bRIvoNGTRXjrg==
+Message-ID: <01c82cfb-e215-4929-9540-484378275ec3@kernel.org>
+Date: Mon, 15 Apr 2024 09:36:25 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <67c2edf49788c27d5f7a49fc701520b9fcf739b5.1713088999.git.christophe.jaillet@wanadoo.fr>
-In-Reply-To: <67c2edf49788c27d5f7a49fc701520b9fcf739b5.1713088999.git.christophe.jaillet@wanadoo.fr>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 15 Apr 2024 14:58:04 +0800
-Message-ID: <CACGkMEtufa6MqWkcsZqHW8eQzj4b2wCh8zFMSAuHkxpWowLmdQ@mail.gmail.com>
-Subject: Re: [PATCH v2] vhost-vdpa: Remove usage of the deprecated
- ida_simple_xx() API
-To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, 
-	kernel-janitors@vger.kernel.org, Simon Horman <horms@kernel.org>, kvm@vger.kernel.org, 
-	virtualization@lists.linux.dev, netdev@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v7] virtio_net: Support RX hash XDP hint
+To: Liang Chen <liangchen.linux@gmail.com>, mst@redhat.com,
+ jasowang@redhat.com, xuanzhuo@linux.alibaba.com, hengqi@linux.alibaba.com,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, bpf@vger.kernel.org, john.fastabend@gmail.com,
+ daniel@iogearbox.net, ast@kernel.org
+References: <20240413041035.7344-1-liangchen.linux@gmail.com>
+Content-Language: en-US
+From: Jesper Dangaard Brouer <hawk@kernel.org>
+In-Reply-To: <20240413041035.7344-1-liangchen.linux@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Sun, Apr 14, 2024 at 6:04=E2=80=AFPM Christophe JAILLET
-<christophe.jaillet@wanadoo.fr> wrote:
->
-> ida_alloc() and ida_free() should be preferred to the deprecated
-> ida_simple_get() and ida_simple_remove().
->
-> Note that the upper limit of ida_simple_get() is exclusive, but the one o=
-f
-> ida_alloc_max() is inclusive. So a -1 has been added when needed.
->
-> Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-> Reviewed-by: Simon Horman <horms@kernel.org>
 
-Acked-by: Jason Wang <jasowang@redhat.com>
 
-Thanks
+On 13/04/2024 06.10, Liang Chen wrote:
+> The RSS hash report is a feature that's part of the virtio specification.
+> Currently, virtio backends like qemu, vdpa (mlx5), and potentially vhost
+> (still a work in progress as per [1]) support this feature. While the
+> capability to obtain the RSS hash has been enabled in the normal path,
+> it's currently missing in the XDP path. Therefore, we are introducing
+> XDP hints through kfuncs to allow XDP programs to access the RSS hash.
+> 
+> 1.
+> https://lore.kernel.org/all/20231015141644.260646-1-akihiko.odaki@daynix.com/#r
+> 
+> Signed-off-by: Liang Chen <liangchen.linux@gmail.com>
+> ---
+>    Changes from v6:
+> - fix a coding style issue
+>    Changes from v5:
+> - Preservation of the hash value has been dropped, following the conclusion
+>    from discussions in V3 reviews. The virtio_net driver doesn't
+>    accessing/using the virtio_net_hdr after the XDP program execution, so
+>    nothing tragic should happen. As to the xdp program, if it smashes the
+>    entry in virtio header, it is likely buggy anyways. Additionally, looking
+>    up the Intel IGC driver,  it also does not bother with this particular
+>    aspect.
+> ---
+>   drivers/net/virtio_net.c | 55 ++++++++++++++++++++++++++++++++++++++++
+>   1 file changed, 55 insertions(+)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index c22d1118a133..2a1892b7b8d3 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -4621,6 +4621,60 @@ static void virtnet_set_big_packets(struct virtnet_info *vi, const int mtu)
+>   	}
+>   }
+>   
+> +static int virtnet_xdp_rx_hash(const struct xdp_md *_ctx, u32 *hash,
+> +			       enum xdp_rss_hash_type *rss_type)
+> +{
+> +	const struct xdp_buff *xdp = (void *)_ctx;
+> +	struct virtio_net_hdr_v1_hash *hdr_hash;
+> +	struct virtnet_info *vi;
+> +
+> +	if (!(xdp->rxq->dev->features & NETIF_F_RXHASH))
+> +		return -ENODATA;
+> +
+> +	vi = netdev_priv(xdp->rxq->dev);
+> +	hdr_hash = (struct virtio_net_hdr_v1_hash *)(xdp->data - vi->hdr_len);
+> +
+> +	switch (__le16_to_cpu(hdr_hash->hash_report)) {
+> +	case VIRTIO_NET_HASH_REPORT_TCPv4:
+> +		*rss_type = XDP_RSS_TYPE_L4_IPV4_TCP;
+> +		break;
+> +	case VIRTIO_NET_HASH_REPORT_UDPv4:
+> +		*rss_type = XDP_RSS_TYPE_L4_IPV4_UDP;
+> +		break;
+> +	case VIRTIO_NET_HASH_REPORT_TCPv6:
+> +		*rss_type = XDP_RSS_TYPE_L4_IPV6_TCP;
+> +		break;
+> +	case VIRTIO_NET_HASH_REPORT_UDPv6:
+> +		*rss_type = XDP_RSS_TYPE_L4_IPV6_UDP;
+> +		break;
+> +	case VIRTIO_NET_HASH_REPORT_TCPv6_EX:
+> +		*rss_type = XDP_RSS_TYPE_L4_IPV6_TCP_EX;
+> +		break;
+> +	case VIRTIO_NET_HASH_REPORT_UDPv6_EX:
+> +		*rss_type = XDP_RSS_TYPE_L4_IPV6_UDP_EX;
+> +		break;
+> +	case VIRTIO_NET_HASH_REPORT_IPv4:
+> +		*rss_type = XDP_RSS_TYPE_L3_IPV4;
+> +		break;
+> +	case VIRTIO_NET_HASH_REPORT_IPv6:
+> +		*rss_type = XDP_RSS_TYPE_L3_IPV6;
+> +		break;
+> +	case VIRTIO_NET_HASH_REPORT_IPv6_EX:
+> +		*rss_type = XDP_RSS_TYPE_L3_IPV6_EX;
+> +		break;
+> +	case VIRTIO_NET_HASH_REPORT_NONE:
+> +	default:
+> +		*rss_type = XDP_RSS_TYPE_NONE;
+> +	}
 
+Why is this not implemented as a table lookup?
+
+Like:
+ 
+https://elixir.bootlin.com/linux/v6.9-rc4/source/drivers/net/ethernet/intel/igc/igc_main.c#L6652
+  https://elixir.bootlin.com/linux/latest/A/ident/xdp_rss_hash_type
+
+--Jesper
+
+> +
+> +	*hash = __le32_to_cpu(hdr_hash->hash_value);
+> +	return 0;
+> +}
+> +
+> +static const struct xdp_metadata_ops virtnet_xdp_metadata_ops = {
+> +	.xmo_rx_hash			= virtnet_xdp_rx_hash,
+> +};
+> +
+>   static int virtnet_probe(struct virtio_device *vdev)
+>   {
+>   	int i, err = -ENOMEM;
+> @@ -4747,6 +4801,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+>   				  VIRTIO_NET_RSS_HASH_TYPE_UDP_EX);
+>   
+>   		dev->hw_features |= NETIF_F_RXHASH;
+> +		dev->xdp_metadata_ops = &virtnet_xdp_metadata_ops;
+>   	}
+>   
+>   	if (vi->has_rss_hash_report)
