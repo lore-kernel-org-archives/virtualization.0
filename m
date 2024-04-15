@@ -1,247 +1,305 @@
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91D6F3BBCE
-	for <virtualization@lists.linux.dev>; Mon, 15 Apr 2024 08:49:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB44A2110F
+	for <virtualization@lists.linux-foundation.org>; Mon, 15 Apr 2024 08:53:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713170996; cv=none; b=cAQvL39O1e+HnN7OLtcDwaZ9mvEZs6FIZ7Rqtvsw0VBq/cRClv/OjB6XtsfoTu2aABi4AuN1Ra6Nqbj9kx1mejntLaKjhFWTAl0tARQl17GOd1bjkBGWcKIiXQFUSrHcM4yCKB7J+Hd8WBNLfs1ohBL3je8AbiRKKAzrN0afIBA=
+	t=1713171183; cv=none; b=VoJDKc9Hgt4Z8TmFDAf7WLA3zZegq6STFgqEOTM0mZcG91+sJ0Ja+vV9iW/jfVS3/cSfte0Xl0K0Xb8ExAEu/si09s3wwQyGbMg9ic4MsuAonCIK7M9Wb8UEccUwO9dLBhe8WTBWbF30iZS3WR4TRAzwaFJmOT3X7WdHCJv30AQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713170996; c=relaxed/simple;
-	bh=lLt5r88o8LAtphS3/PGZVZ6F3+WFfNtfQ3Y6Y+3qncM=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=lfTurUcryIe828+sG2wMMQEWNzl3gKlGI1de6+/0GvmsY/B0QtRN3ucoJ7Ah4J36z25oVcocnZFKhuKTrWRs3GXTaojzvz3KoVyeaRpXV7PgKqycAOYTXt7LkJIXmFRwnwNHxCRNdrFfSLMopRjAtjjzu4wtEQQYkJH4fdZpUMo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=RJdJ/9Br; arc=none smtp.client-ip=115.124.30.99
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1713171183; c=relaxed/simple;
+	bh=1+5G1Q4K1ZeMh9XO6Aj8qPpHNTeWMI+17QBkNex+l5M=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=WXKGAf5x2WPhmPbfBkK6v8720GXSRLeSi8ctksa/kKNfLDua5gs4EOnt/xKIxGzP0xuUcsY95O8f57ehfHfAyRv7+EReekI5cyExJ+/ntR/L9vgk8rtvuHMa+cJ+QmfNkv5HZvYUF2YLoIeRvOtfE8Q5WAOL77Ov2C9nMxaONKk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iWkVbxHD; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="RJdJ/9Br"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1713170990; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=uMkhS7BsxeL4oglM0pwFdRZ0sutgkDQPGrAjxBhZbGc=;
-	b=RJdJ/9Brf1Eodle+w8l5WihnOFSfnlantX8hAc6KFjswVg6s/nd3LMwIj6xo9oEA9e7z+K8HXe+QA3Bf3Ha1gux14QQ11EOMKbJ4Ihs10azxiky/viv4Wxjvs+9UpdIHJowqyifd/ISSwhPWfXqGd4jWUhZVpFt+qXMXVtlC7Qw=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0W4YrqFd_1713170988;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W4YrqFd_1713170988)
-          by smtp.aliyun-inc.com;
-          Mon, 15 Apr 2024 16:49:49 +0800
-Message-ID: <1713170201.06163-2-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost 3/6] virtio_net: replace private by pp struct inside page
-Date: Mon, 15 Apr 2024 16:36:41 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux.dev,
- "Michael S. Tsirkin" <mst@redhat.com>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- netdev@vger.kernel.org
-References: <20240411025127.51945-1-xuanzhuo@linux.alibaba.com>
- <20240411025127.51945-4-xuanzhuo@linux.alibaba.com>
- <CACGkMEsC7AEi2SOmqNOo6KJDpx92raGWYwYzxZ_MVhmnco_LYQ@mail.gmail.com>
- <1712900153.3715405-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEvKC6JpsznW57GgxFBMhmMSk4eCZPvESpew9j5qfp9=RA@mail.gmail.com>
- <1713146919.8867755-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEvmaH9NE-5VDBPpZOpAAg4bX39Lf0-iGiYzxdV5JuZWww@mail.gmail.com>
-In-Reply-To: <CACGkMEvmaH9NE-5VDBPpZOpAAg4bX39Lf0-iGiYzxdV5JuZWww@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iWkVbxHD"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 5133C81A58
+	for <virtualization@lists.linux-foundation.org>; Mon, 15 Apr 2024 08:53:02 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 0Rg5frvmsY8W for <virtualization@lists.linux-foundation.org>;
+ Mon, 15 Apr 2024 08:53:01 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 08F0D8187F
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 08F0D8187F
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=iWkVbxHD
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 08F0D8187F
+	for <virtualization@lists.linux-foundation.org>; Mon, 15 Apr 2024 08:53:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1713171179;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=QAlm8htNNWhFreVH94mgAL2MHshARVWyDJDsMB55FXU=;
+	b=iWkVbxHDIj65zn16H5M67bTNnWStgBijmN98OalBpy0GCkxNV/OgkLOOzHYZF97I64hfSN
+	mhRsbdW6dfgcApJibDpPnPNLa4tpnuyf3keFbtVPMEyP6MdRgoeBBwJNH1VAANuPGmn2Cu
+	Kp+eB8roaKTS1VF97a/o5N1E0FK9eUw=
+Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com
+ [209.85.215.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-422-C_d1Iun1MYi4UkEtPDL42g-1; Mon, 15 Apr 2024 04:52:57 -0400
+X-MC-Unique: C_d1Iun1MYi4UkEtPDL42g-1
+Received: by mail-pg1-f200.google.com with SMTP id 41be03b00d2f7-5ce67a3f275so2008531a12.0
+        for <virtualization@lists.linux-foundation.org>; Mon, 15 Apr 2024 01:52:57 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713171177; x=1713775977;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=QAlm8htNNWhFreVH94mgAL2MHshARVWyDJDsMB55FXU=;
+        b=gXQgGpg2hf+EGgbLAi/Nw7RSsbRO7JJVQXC/GHVc4QgO7cOzlGFA4cBb+IlnrwYweD
+         MOAV3gD/zbrgLmZeoLBebZBaQp5zgA0/CGalqas7Y7sQLPyH9EZflfeI65ERqw6uCG+1
+         Gao1EfULskdgUkTn0W20XVQk+8ACVS57Ra1dhCtKYt2O5IMG41c/pe/djof4gq/6bIqo
+         iq+gGFskzFjmP7EI5hyfCN3PJqh6YnSbH4OJxDg/4hak4LIDU1Qi1DQUbUcrl1yH7K10
+         PwPj6FNWhoWk1Hwvlg8wxrsIRApmDmf9HKKTuMRfGdu4V0MN1X30NERISRFhLYIDtp/d
+         1m6g==
+X-Forwarded-Encrypted: i=1; AJvYcCXv60HL/GtdOS6xbr6eFDwr5g/t86eGE21F3KCVHD8cvW7bEJenj5RiueT4g9Y0MAea5N3PMqBKlBNYZs4AkKD86hWAopu5DPcRVGG5//0uswQcgzqTUYikSw==
+X-Gm-Message-State: AOJu0YxexpVFKtmcXsQ/LLXKp44BlPTaSZ9ZUtvP8wDhrQ8VDvfxkLbU
+	O6/3CD9YA32X2xiuyttQIHSXYWdChT77JU2zOFk3dETzl/7ddNSgLxJvXPAGz5gpZHMv9w3Rpr7
+	9DBSLqjqX8t0MHcyfuX1HIC2NKB8DUpskm8KOmMAGiZ8WawLm479L1ijSisovckFWlPtYF4lCOz
+	u7F7b+aQrZOstIhVkjBTAJMVIM5TAG7f8sbisUfPT/D15YQvLTic7vNQ==
+X-Received: by 2002:a05:6a20:729c:b0:1a7:50e6:2f54 with SMTP id o28-20020a056a20729c00b001a750e62f54mr8245904pzk.42.1713171176715;
+        Mon, 15 Apr 2024 01:52:56 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEEvFh92RItIU2s/CejKrTzFbb9MeCrqS82E3Atroe+DwnOWVmvagTOrzMNmTgl+yd9+T+A/G0As1iW8ZJpHL0=
+X-Received: by 2002:a05:6a20:729c:b0:1a7:50e6:2f54 with SMTP id
+ o28-20020a056a20729c00b001a750e62f54mr8245889pzk.42.1713171176371; Mon, 15
+ Apr 2024 01:52:56 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+References: <20240316004707.45557-1-michael.christie@oracle.com>
+ <CACGkMEs1KSdUOgLbwbR-S0v1jv8-N5cM5ZwrWyK8raF50MSRZg@mail.gmail.com>
+ <9f75952f-c1a4-4483-8ec7-beddf022a821@oracle.com> <CACGkMEuY9cyCb+myzscHDetbfmDLZN-_JAFvZaAfrO0-Mc0FTA@mail.gmail.com>
+ <06369c2c-c363-4def-9ce0-f018a9e10e8d@oracle.com>
+In-Reply-To: <06369c2c-c363-4def-9ce0-f018a9e10e8d@oracle.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 15 Apr 2024 16:52:44 +0800
+Message-ID: <CACGkMEtm=YwQ6ZVyPGz+T=H2E8u6etv9OKbibtfMdzA7K6GibQ@mail.gmail.com>
+Subject: Re: [PATCH 0/9] vhost: Support SIGKILL by flushing and exiting
+To: michael.christie@oracle.com
+Cc: oleg@redhat.com, ebiederm@xmission.com, 
+	virtualization@lists.linux-foundation.org, mst@redhat.com, 
+	sgarzare@redhat.com, stefanha@redhat.com, brauner@kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, 15 Apr 2024 14:43:24 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Mon, Apr 15, 2024 at 10:35=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alibab=
-a.com> wrote:
-> >
-> > On Fri, 12 Apr 2024 13:49:12 +0800, Jason Wang <jasowang@redhat.com> wr=
-ote:
-> > > On Fri, Apr 12, 2024 at 1:39=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.ali=
-baba.com> wrote:
-> > > >
-> > > > On Fri, 12 Apr 2024 12:47:55 +0800, Jason Wang <jasowang@redhat.com=
-> wrote:
-> > > > > On Thu, Apr 11, 2024 at 10:51=E2=80=AFAM Xuan Zhuo <xuanzhuo@linu=
-x.alibaba.com> wrote:
-> > > > > >
-> > > > > > Now, we chain the pages of big mode by the page's private varia=
-ble.
-> > > > > > But a subsequent patch aims to make the big mode to support
-> > > > > > premapped mode. This requires additional space to store the dma=
- addr.
-> > > > > >
-> > > > > > Within the sub-struct that contains the 'private', there is no =
-suitable
-> > > > > > variable for storing the DMA addr.
-> > > > > >
-> > > > > >                 struct {        /* Page cache and anonymous pag=
-es */
-> > > > > >                         /**
-> > > > > >                          * @lru: Pageout list, eg. active_list =
-protected by
-> > > > > >                          * lruvec->lru_lock.  Sometimes used as=
- a generic list
-> > > > > >                          * by the page owner.
-> > > > > >                          */
-> > > > > >                         union {
-> > > > > >                                 struct list_head lru;
-> > > > > >
-> > > > > >                                 /* Or, for the Unevictable "LRU=
- list" slot */
-> > > > > >                                 struct {
-> > > > > >                                         /* Always even, to nega=
-te PageTail */
-> > > > > >                                         void *__filler;
-> > > > > >                                         /* Count page's or foli=
-o's mlocks */
-> > > > > >                                         unsigned int mlock_coun=
-t;
-> > > > > >                                 };
-> > > > > >
-> > > > > >                                 /* Or, free page */
-> > > > > >                                 struct list_head buddy_list;
-> > > > > >                                 struct list_head pcp_list;
-> > > > > >                         };
-> > > > > >                         /* See page-flags.h for PAGE_MAPPING_FL=
-AGS */
-> > > > > >                         struct address_space *mapping;
-> > > > > >                         union {
-> > > > > >                                 pgoff_t index;          /* Our =
-offset within mapping. */
-> > > > > >                                 unsigned long share;    /* shar=
-e count for fsdax */
-> > > > > >                         };
-> > > > > >                         /**
-> > > > > >                          * @private: Mapping-private opaque dat=
-a.
-> > > > > >                          * Usually used for buffer_heads if Pag=
-ePrivate.
-> > > > > >                          * Used for swp_entry_t if PageSwapCach=
-e.
-> > > > > >                          * Indicates order in the buddy system =
-if PageBuddy.
-> > > > > >                          */
-> > > > > >                         unsigned long private;
-> > > > > >                 };
-> > > > > >
-> > > > > > But within the page pool struct, we have a variable called
-> > > > > > dma_addr that is appropriate for storing dma addr.
-> > > > > > And that struct is used by netstack. That works to our advantag=
-e.
-> > > > > >
-> > > > > >                 struct {        /* page_pool used by netstack */
-> > > > > >                         /**
-> > > > > >                          * @pp_magic: magic value to avoid recy=
-cling non
-> > > > > >                          * page_pool allocated pages.
-> > > > > >                          */
-> > > > > >                         unsigned long pp_magic;
-> > > > > >                         struct page_pool *pp;
-> > > > > >                         unsigned long _pp_mapping_pad;
-> > > > > >                         unsigned long dma_addr;
-> > > > > >                         atomic_long_t pp_ref_count;
-> > > > > >                 };
-> > > > > >
-> > > > > > On the other side, we should use variables from the same sub-st=
-ruct.
-> > > > > > So this patch replaces the "private" with "pp".
-> > > > > >
-> > > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > > > ---
-> > > > >
-> > > > > Instead of doing a customized version of page pool, can we simply
-> > > > > switch to use page pool for big mode instead? Then we don't need =
-to
-> > > > > bother the dma stuffs.
-> > > >
-> > > >
-> > > > The page pool needs to do the dma by the DMA APIs.
-> > > > So we can not use the page pool directly.
-> > >
-> > > I found this:
-> > >
-> > > define PP_FLAG_DMA_MAP         BIT(0) /* Should page_pool do the DMA
-> > >                                         * map/unmap
-> > >
-> > > It seems to work here?
-> >
-> >
-> > I have studied the page pool mechanism and believe that we cannot use it
-> > directly. We can make the page pool to bypass the DMA operations.
-> > This allows us to handle DMA within virtio-net for pages allocated from=
- the page
-> > pool. Furthermore, we can utilize page pool helpers to associate the DM=
-A address
-> > to the page.
-> >
-> > However, the critical issue pertains to unmapping. Ideally, we want to =
-return
-> > the mapped pages to the page pool and reuse them. In doing so, we can o=
-mit the
-> > unmapping and remapping steps.
-> >
-> > Currently, there's a caveat: when the page pool cache is full, it disco=
-nnects
-> > and releases the pages. When the pool hits its capacity, pages are reli=
-nquished
-> > without a chance for unmapping.
+On Sat, Apr 13, 2024 at 12:53=E2=80=AFAM <michael.christie@oracle.com> wrot=
+e:
 >
-> Technically, when ptr_ring is full there could be a fallback, but then
-> it requires expensive synchronization between producer and consumer.
-> For virtio-net, it might not be a problem because add/get has been
-> synchronized. (It might be relaxed in the future, actually we've
-> already seen a requirement in the past for virito-blk).
+> On 4/11/24 10:28 PM, Jason Wang wrote:
+> > On Fri, Apr 12, 2024 at 12:19=E2=80=AFAM Mike Christie
+> > <michael.christie@oracle.com> wrote:
+> >>
+> >> On 4/11/24 3:39 AM, Jason Wang wrote:
+> >>> On Sat, Mar 16, 2024 at 8:47=E2=80=AFAM Mike Christie
+> >>> <michael.christie@oracle.com> wrote:
+> >>>>
+> >>>> The following patches were made over Linus's tree and also apply ove=
+r
+> >>>> mst's vhost branch. The patches add the ability for vhost_tasks to
+> >>>> handle SIGKILL by flushing queued works, stop new works from being
+> >>>> queued, and prepare the task for an early exit.
+> >>>>
+> >>>> This removes the need for the signal/coredump hacks added in:
+> >>>>
+> >>>> Commit f9010dbdce91 ("fork, vhost: Use CLONE_THREAD to fix freezer/p=
+s regression")
+> >>>>
+> >>>> when the vhost_task patches were initially merged and fix the issue
+> >>>> in this thread:
+> >>>>
+> >>>> https://lore.kernel.org/all/000000000000a41b82060e875721@google.com/
+> >>>>
+> >>>> Long Background:
+> >>>>
+> >>>> The original vhost worker code didn't support any signals. If the
+> >>>> userspace application that owned the worker got a SIGKILL, the app/
+> >>>> process would exit dropping all references to the device and then th=
+e
+> >>>> file operation's release function would be called. From there we wou=
+ld
+> >>>> wait on running IO then cleanup the device's memory.
+> >>>
+> >>> A dumb question.
+> >>>
+> >>> Is this a user space noticeable change? For example, with this series
+> >>> a SIGKILL may shutdown the datapath ...
+> >>
+> >> It already changed in 6.4. We basically added a new interface to shutd=
+own
+> >> everything (userspace and vhost kernel parts). So we won't just shutdo=
+wn
+> >> the data path while userspace is still running. We will shutdown every=
+thing
+> >> now if you send a SIGKILL to a vhost worker's thread.
+> >
+> > If I understand correctly, for example Qemu can still live is SIGKILL
+> > is just send to vhost thread.
+>
+> Pre-6.4 qemu could still survive if only the vhost thread got a SIGKILL.
+> We used kthreads which are special and can ignore it like how userspace
+> can ignore SIGHUP.
+>
+> 6.4 and newer kernels cannot survive. Even if the vhost thread sort of
+> ignores it like I described below where, the signal is still delivered
+> to the other qemu threads due to the shared signal handler. Userspace
+> can't ignore SIGKILL. It doesn't have any say in the matter, and the
+> kernel forces them to exit.
 
-The point is that the page will be released by page pool directly,
-we will have no change to unmap that, if we work with page pool.
+Ok, I see, so the reason is that vhost belongs to the same thread
+group as the owner now.
 
 >
-> > If we were to unmap pages each time before
-> > returning them to the pool, we would negate the benefits of bypassing t=
+> >
+> > If this is correct, guests may detect this (for example virtio-net has
+> > a watchdog).
+> >
+>
+> What did you mean by that part? Do you mean if the vhost thread were to
+> exit, so drivers/vhost/net.c couldn't process IO, then the watchdog in
+> the guest (virtio-net driver in the guest kernel) would detect that?
+
+I meant this one. But since we are using CLONE_THREAD, we won't see these.
+
+> Or
+> are you saying the watchdog in the guest can detect signals that the
+> host gets?
+>
+>
+> >>
+> >> Here are a lots of details:
+> >>
+> >> - Pre-6.4 kernel, when vhost workers used kthreads, if you sent any si=
+gnal
+> >> to a vhost worker, we ignore it. Nothing happens. kthreads are special=
+ and
+> >> can ignore all signals.
+> >>
+> >> You could think of it as the worker is a completely different process =
+than
+> >> qemu/userspace so they have completely different signal handlers. The
+> >> vhost worker signal handler ignores all signals even SIGKILL.
+> >
+> > Yes.
+> >
+> >>
+> >> If you send a SIGKILL to a qemu thread, then it just exits right away.=
+ We
+> >> don't get to do an explicit close() on the vhost device and we don't g=
+et
+> >> to do ioctls like VHOST_NET_SET_BACKEND to clear backends. The kernel =
+exit
+> >> code runs and releases refcounts on the device/file, then the vhost de=
+vice's
+> >> file_operations->release function is called. vhost_dev_cleanup then st=
+ops
+> >> the vhost worker.
+> >
+> > Right.
+> >
+> >>
+> >> - In 6.4 and newer kernels, vhost workers use vhost_tasks, so the work=
+er
+> >> can be thought of as a thread within the userspace process. With that
+> >> change we have the same signal handler as the userspace process.
+> >>
+> >> If you send a SIGKILL to a qemu thread then it works like above.
+> >>
+> >> If you send a SIGKILL to a vhost worker, the vhost worker still sort o=
+f
+> >> ignores it (that is the hack that I mentioned at the beginning of this
+> >> thread). kernel/vhost_task.c:vhost_task_fn will see the signal and
+> >> then just continue to process works until file_operations->release
+> >> calls
+> >
+> > Yes, so this sticks to the behaviour before vhost_tasks.
+>
+> Not exactly. The vhost_task stays alive temporarily.
+>
+> The signal is still delivered to the userspace threads and they will
+> exit due to getting the SIGKILL also. SIGKILL goes to all the threads in
+> the process and all userspace threads exit like normal because the vhost
+> task and normal old userspace threads share a signal handler. When
+> userspace exits, the kernel force drops the refcounts on the vhost
+> devices and that runs the release function so the vhost_task will then ex=
+it.
+>
+> So what I'm trying to say is that in 6.4 we already changed the behavior.
+
+Yes. To say the truth, it looks even worse but it might be too late to fix.
+
+>
+> >
+> >>
+> >> However, the change in behavior is that because the worker is just a
+> >> thread within qemu, qemu is going to exit since they share a signal
+> >> handler and userspace can't ignore SIGKILL.
+> >> We then run perform the
+> >> steps above like in the pre-6.4 kernel description as if you sent a
+> >> SIGKILL directly to a userspace thread.
+> >>
+> >> - With the patches in this thread there is no major difference in beha=
+vior
+> >> with 6.4 and newer kernels. We might exit a little faster. Instead of =
+the
+> >> vhost thread trying to do it's hacked up version of ignoring the signa=
+l
+> >> and waiting for userspace to exit and call file_operations->release, t=
 he
-> > mapping and unmapping process altogether.
+> >> vhost worker thread will exit after it flushes works and stops new one=
+s.
+> >> So now, you can have the vhost thread exiting in parallel with the
+> >> userspace thread.
+> >
+> > Everything would be fine if Qemu wanted to quit but I meant there
+> > could be a case where SIGKILL was sent to the vhost thread but not
+> > Qemu.
 >
-> Yes, but the problem in this approach is that it creates a corner
-> exception where dma_addr is used outside the page pool.
+>
+> Yeah, in the last mail, I was trying to say that behavior already
+> changed in 6.4. In 6.4 we basically added a new interface to the vhost
+> layer that uses signals/SIGKILL to tell the vhost layer and userspace to
+> completely shutdown.
+>
+> This patchset is just removing the hacks Eric and Oleg allowed for us in
+> 6.4. That code where we do our hacked up version of ignoring signals
+> (clear it and just go on) combined with the signals/coredump related
+> hacks done in this patch:
+>
+> commit f9010dbdce911ee1f1af1398a24b1f9f992e0080
+> Author: Mike Christie <michael.christie@oracle.com>
+> Date:   Thu Jun 1 13:32:32 2023 -0500
+>
+>     fork, vhost: Use CLONE_THREAD to fix freezer/ps regression
+>
+>
+> is causing this bug:
+>
+> https://lore.kernel.org/all/000000000000a41b82060e875721@google.com/
+>
+> Basically, as Eric mentions in that thread the signal/kernel developers
+> considered the signal/coredump hacks were meant to be temp, and we were
+> supposed to convert to work more like io_uring's io_worker_exit. That's
+> what I'm doing in this patchset. Patch 9/9 in this set then removes the
+> hacks from the core kernel/signal code.
+>
 
-YES. This is a corner exception. We need to introduce this case to the page
-pool.
-
-So for introducing the page-pool to virtio-net(not only for big mode),
-we may need to push the page-pool to support dma by drivers.
-
-Back to this patch set, I think we should keep the virtio-net to manage
-the pages.
-
-What do you think?
+Ok.
 
 Thanks
 
->
-> Maybe for big mode it doesn't matter too much if there's no
-> performance improvement.
->
-> Thanks
->
-> >
-> > Thanks.
-> >
-> >
-> >
-> > >
-> > > Thanks
-> > >
-> > > >
-> > > > Thanks.
-> > > >
-> > > >
-> > > > >
-> > > > > Thanks
-> > > > >
-> > > >
-> > >
-> >
->
