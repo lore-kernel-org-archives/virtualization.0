@@ -1,134 +1,248 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B6951C11
-	for <virtualization@lists.linux.dev>; Mon, 15 Apr 2024 03:10:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.14
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D3A579F3
+	for <virtualization@lists.linux.dev>; Mon, 15 Apr 2024 06:43:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713150649; cv=none; b=eAS8IAXWAjqFPTNcYyVZZm3UYTcGgGP2Rvoe5/WLdCpM7U2tOaqNkzApPeGUfkGDZHKpa5i/a9hnt5yiCs4UDGflcIxp34xCbkvixiWOzymCP8Xx7u3bMmCronorBhUV+Aoker+68SBI/r9ecxIa8TNWvq683bIHEiLS42xVBtg=
+	t=1713163423; cv=none; b=rUGW4Xi1Ino6MwJEE9Ukjk/DtqnwWiGtHhTMqdZXMzNKYWes2piaIus28H8KYsxdx/c2EJGB98WZqyPECPhP41hi5gJaVs6uNwO4fbeDKk7EaynPuITBombt6llL4fJ5t/6xnLzIw7EWPyNe2A9RWkQBu4Gn/713u/yIup6m9zE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713150649; c=relaxed/simple;
-	bh=Aozkls0v/ko4ZVKoOZY7LTnx3V5ue5duDFqxBNYb7u0=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=Rh7xrAM51ZuZZIwKFszWse0cl5dkS7QaqvVZAIyJMSgZxhg3SeF1CtIYU+PvD7Id+QW0XgeIwU+FE5zoBAQErV8vTttIrU8fBu1prT2qmEuixETrepQTtm1dz8evkPQhMuUjND60ZyD4+khnrW4MlUu96ILMcInBH8JK4SVci4o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=bSTYUFCH; arc=none smtp.client-ip=198.175.65.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1713163423; c=relaxed/simple;
+	bh=RdIcOgcyiT6r7xyimlOz033BkAjT325a724NR+BTJDg=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=KiAKNLnL9UnVVAqyCWeHVBR+LA8l50dJgNd++OX/v6ZFsxC/qD7fst7oa2AQpTMqeVhcZaqIkmO2S2+YJXF4jyutsAmakR85AurpU+JVk+TAl9PGRPAyoJukDjIHhrd4n4QeklQIwPzskV5NYsh0oi+jvy7ONq0uUNnbnGbZzcQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iOTW6ne2; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="bSTYUFCH"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1713150646; x=1744686646;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=Aozkls0v/ko4ZVKoOZY7LTnx3V5ue5duDFqxBNYb7u0=;
-  b=bSTYUFCHZuDEHc53n/Mhpu4e2tSYeOHcsdwmIa6BiPWJyZTL9XoKkI0m
-   Bb6Mc17jCT8OSFi0vdXorVZV+uAVE07tapTzo/MuYJx4KFscMSYDYFkEM
-   u9xZnGrT4F4ef5lrsD36I1rcOEVLBgEt72Mx+P6p467bnVLImG1+dfcnw
-   togvScacaDToSkbkJtgniyOxJvZfClMseFQka4xBNCtepqot5IMvDuheH
-   5HYiD/T3uW8jBt8IJURur86EzwIBLLN0YSAKkrQ+FAHcrYKXYxQgFMY6x
-   CFOLv2k71NqVesFZr2JUjEyrWUfd3LuFhpyeYg6mKO8pzAqAVbyOCFFce
-   A==;
-X-CSE-ConnectionGUID: yymXRHZDRV+xpBvPWQYwgg==
-X-CSE-MsgGUID: OBP6/sLsQEu9VyuV6nMfag==
-X-IronPort-AV: E=McAfee;i="6600,9927,11044"; a="12369253"
-X-IronPort-AV: E=Sophos;i="6.07,202,1708416000"; 
-   d="scan'208";a="12369253"
-Received: from orviesa005.jf.intel.com ([10.64.159.145])
-  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Apr 2024 20:10:46 -0700
-X-CSE-ConnectionGUID: 6yLEAbs/TFWztiA2UjMzuQ==
-X-CSE-MsgGUID: 5eEJm03iSTqgPLFnqvFErA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.07,202,1708416000"; 
-   d="scan'208";a="26578612"
-Received: from lingshan-icx.bj.intel.com ([10.240.192.125])
-  by orviesa005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Apr 2024 20:10:44 -0700
-From: Zhu Lingshan <lingshan.zhu@intel.com>
-To: sgarzare@redhat.com,
-	jasowang@redhat.com,
-	mst@redhat.com
-Cc: virtualization@lists.linux.dev,
-	Zhu Lingshan <lingshan.zhu@intel.com>
-Subject: [PATCH V2] vDPA: code clean for vhost_vdpa uapi
-Date: Mon, 15 Apr 2024 19:10:47 +0800
-Message-Id: <20240415111047.1047774-1-lingshan.zhu@intel.com>
-X-Mailer: git-send-email 2.39.3
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iOTW6ne2"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1713163420;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=y0FkEixV1SMoS6JyP0TAohi0iz3dd2viGE7qnjR2PVE=;
+	b=iOTW6ne2rCX1T3GE1+NnwdToxJP+044Y1Z5N58IYV9h1XcBdZr809/ecxj9Qre28zcvrnW
+	5sL+YXxYxpvrIQKtR/JgF2+NZURg6kJiQzjRS5yG0V91IqBn0d12yp2KUCr2TINmCPvSgf
+	lkDgvr7X0fh52mrGDXx2kyXsMImbaoE=
+Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com
+ [209.85.215.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-284--0Q-XL9oMRe-Q8BMkpFeuw-1; Mon, 15 Apr 2024 02:43:37 -0400
+X-MC-Unique: -0Q-XL9oMRe-Q8BMkpFeuw-1
+Received: by mail-pg1-f198.google.com with SMTP id 41be03b00d2f7-5c66a69ec8eso2221208a12.3
+        for <virtualization@lists.linux.dev>; Sun, 14 Apr 2024 23:43:37 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713163416; x=1713768216;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=y0FkEixV1SMoS6JyP0TAohi0iz3dd2viGE7qnjR2PVE=;
+        b=td+yKtqEIdXNR1ag3GE1P4AuGobQLsgVY0zmdSPc/Ur7h6eh5X7hV24FYOgDzNKk9d
+         V5uv5JhNCHbQ7bwgrgesWZ6TOUtE4n621TwjsQt6Vruu1SAxjdIdb1G+9KzEjUumUQXj
+         n2R3yfm3J4Uy30DRGt/yU1EErh+9bBIJqcAw8AYyHpp1UFnevucqJzBBHtdt196XMPVs
+         OCIepC0N6v2gLAk4xmLhNaBR1/3N2ahchSbm0s6NC3mmnKd+6LOdgXdemWTxl6o6Sbfj
+         tnqR3ryaUFLJF0uZlyZx71lVEGbLF+BzkJysHcDZSJPVZgMo+HKJ8KAT/caBeBfZ5tyQ
+         oeNw==
+X-Gm-Message-State: AOJu0YwkUiYvgabKk7hi2zzShHiXmlwkaGjolkjMWWCROmUg6R0hzVik
+	0f8VpymTZMGuVm5Hoi+B9bwlLaUOd4mF7vBVCaVGjVgK0fZxIVWnrMipC3X9QRwc7E1zydxQhWr
+	itUIWqkAc7CKdR/uY/PI9FfH/3zZMKvSvxZyY3//Cd9F3/7vLA6WElNaqM9tbC8sQTNwtP9VpuT
+	/v+hstkuKfkRJ+hW8wkgcJBjM9ev1+BH9pfrOcO+E=
+X-Received: by 2002:a05:6a21:3a48:b0:1a7:88c3:85ed with SMTP id zu8-20020a056a213a4800b001a788c385edmr14550804pzb.1.1713163416526;
+        Sun, 14 Apr 2024 23:43:36 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGUyo+zFu6fYAaRPwm/zOTfDzl7Vl14Ykftwb8RTn2Y4Y7aLacbTxtUkyTSDzmwFgYIej6ULDJqX0cFq2ZnkoE=
+X-Received: by 2002:a05:6a21:3a48:b0:1a7:88c3:85ed with SMTP id
+ zu8-20020a056a213a4800b001a788c385edmr14550792pzb.1.1713163416259; Sun, 14
+ Apr 2024 23:43:36 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20240411025127.51945-1-xuanzhuo@linux.alibaba.com>
+ <20240411025127.51945-4-xuanzhuo@linux.alibaba.com> <CACGkMEsC7AEi2SOmqNOo6KJDpx92raGWYwYzxZ_MVhmnco_LYQ@mail.gmail.com>
+ <1712900153.3715405-1-xuanzhuo@linux.alibaba.com> <CACGkMEvKC6JpsznW57GgxFBMhmMSk4eCZPvESpew9j5qfp9=RA@mail.gmail.com>
+ <1713146919.8867755-1-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1713146919.8867755-1-xuanzhuo@linux.alibaba.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 15 Apr 2024 14:43:24 +0800
+Message-ID: <CACGkMEvmaH9NE-5VDBPpZOpAAg4bX39Lf0-iGiYzxdV5JuZWww@mail.gmail.com>
+Subject: Re: [PATCH vhost 3/6] virtio_net: replace private by pp struct inside page
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-This commit cleans up the upai for vhost_vdpa by
-better naming some of the enums which report blk
-information to user space, and they are not
-in any official releases yet.
+On Mon, Apr 15, 2024 at 10:35=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alibaba.=
+com> wrote:
+>
+> On Fri, 12 Apr 2024 13:49:12 +0800, Jason Wang <jasowang@redhat.com> wrot=
+e:
+> > On Fri, Apr 12, 2024 at 1:39=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.aliba=
+ba.com> wrote:
+> > >
+> > > On Fri, 12 Apr 2024 12:47:55 +0800, Jason Wang <jasowang@redhat.com> =
+wrote:
+> > > > On Thu, Apr 11, 2024 at 10:51=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.=
+alibaba.com> wrote:
+> > > > >
+> > > > > Now, we chain the pages of big mode by the page's private variabl=
+e.
+> > > > > But a subsequent patch aims to make the big mode to support
+> > > > > premapped mode. This requires additional space to store the dma a=
+ddr.
+> > > > >
+> > > > > Within the sub-struct that contains the 'private', there is no su=
+itable
+> > > > > variable for storing the DMA addr.
+> > > > >
+> > > > >                 struct {        /* Page cache and anonymous pages=
+ */
+> > > > >                         /**
+> > > > >                          * @lru: Pageout list, eg. active_list pr=
+otected by
+> > > > >                          * lruvec->lru_lock.  Sometimes used as a=
+ generic list
+> > > > >                          * by the page owner.
+> > > > >                          */
+> > > > >                         union {
+> > > > >                                 struct list_head lru;
+> > > > >
+> > > > >                                 /* Or, for the Unevictable "LRU l=
+ist" slot */
+> > > > >                                 struct {
+> > > > >                                         /* Always even, to negate=
+ PageTail */
+> > > > >                                         void *__filler;
+> > > > >                                         /* Count page's or folio'=
+s mlocks */
+> > > > >                                         unsigned int mlock_count;
+> > > > >                                 };
+> > > > >
+> > > > >                                 /* Or, free page */
+> > > > >                                 struct list_head buddy_list;
+> > > > >                                 struct list_head pcp_list;
+> > > > >                         };
+> > > > >                         /* See page-flags.h for PAGE_MAPPING_FLAG=
+S */
+> > > > >                         struct address_space *mapping;
+> > > > >                         union {
+> > > > >                                 pgoff_t index;          /* Our of=
+fset within mapping. */
+> > > > >                                 unsigned long share;    /* share =
+count for fsdax */
+> > > > >                         };
+> > > > >                         /**
+> > > > >                          * @private: Mapping-private opaque data.
+> > > > >                          * Usually used for buffer_heads if PageP=
+rivate.
+> > > > >                          * Used for swp_entry_t if PageSwapCache.
+> > > > >                          * Indicates order in the buddy system if=
+ PageBuddy.
+> > > > >                          */
+> > > > >                         unsigned long private;
+> > > > >                 };
+> > > > >
+> > > > > But within the page pool struct, we have a variable called
+> > > > > dma_addr that is appropriate for storing dma addr.
+> > > > > And that struct is used by netstack. That works to our advantage.
+> > > > >
+> > > > >                 struct {        /* page_pool used by netstack */
+> > > > >                         /**
+> > > > >                          * @pp_magic: magic value to avoid recycl=
+ing non
+> > > > >                          * page_pool allocated pages.
+> > > > >                          */
+> > > > >                         unsigned long pp_magic;
+> > > > >                         struct page_pool *pp;
+> > > > >                         unsigned long _pp_mapping_pad;
+> > > > >                         unsigned long dma_addr;
+> > > > >                         atomic_long_t pp_ref_count;
+> > > > >                 };
+> > > > >
+> > > > > On the other side, we should use variables from the same sub-stru=
+ct.
+> > > > > So this patch replaces the "private" with "pp".
+> > > > >
+> > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > > ---
+> > > >
+> > > > Instead of doing a customized version of page pool, can we simply
+> > > > switch to use page pool for big mode instead? Then we don't need to
+> > > > bother the dma stuffs.
+> > >
+> > >
+> > > The page pool needs to do the dma by the DMA APIs.
+> > > So we can not use the page pool directly.
+> >
+> > I found this:
+> >
+> > define PP_FLAG_DMA_MAP         BIT(0) /* Should page_pool do the DMA
+> >                                         * map/unmap
+> >
+> > It seems to work here?
+>
+>
+> I have studied the page pool mechanism and believe that we cannot use it
+> directly. We can make the page pool to bypass the DMA operations.
+> This allows us to handle DMA within virtio-net for pages allocated from t=
+he page
+> pool. Furthermore, we can utilize page pool helpers to associate the DMA =
+address
+> to the page.
+>
+> However, the critical issue pertains to unmapping. Ideally, we want to re=
+turn
+> the mapped pages to the page pool and reuse them. In doing so, we can omi=
+t the
+> unmapping and remapping steps.
+>
+> Currently, there's a caveat: when the page pool cache is full, it disconn=
+ects
+> and releases the pages. When the pool hits its capacity, pages are relinq=
+uished
+> without a chance for unmapping.
 
-Fixes: 1ac61ddfee93 ("vDPA: report virtio-blk flush info to user space")
-Fixes: ae1374b7f72c ("vDPA: report virtio-block read-only info to user space")
-Fixes: 330b8aea6924 ("vDPA: report virtio-block max segment size to user space")
-Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
----
- drivers/vdpa/vdpa.c       | 6 +++---
- include/uapi/linux/vdpa.h | 6 +++---
- 2 files changed, 6 insertions(+), 6 deletions(-)
+Technically, when ptr_ring is full there could be a fallback, but then
+it requires expensive synchronization between producer and consumer.
+For virtio-net, it might not be a problem because add/get has been
+synchronized. (It might be relaxed in the future, actually we've
+already seen a requirement in the past for virito-blk).
 
-diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
-index b246067e074b..6cb96a1e8b7d 100644
---- a/drivers/vdpa/vdpa.c
-+++ b/drivers/vdpa/vdpa.c
-@@ -967,7 +967,7 @@ vdpa_dev_blk_seg_size_config_fill(struct sk_buff *msg, u64 features,
- 
- 	val_u32 = __virtio32_to_cpu(true, config->size_max);
- 
--	return nla_put_u32(msg, VDPA_ATTR_DEV_BLK_CFG_SEG_SIZE, val_u32);
-+	return nla_put_u32(msg, VDPA_ATTR_DEV_BLK_CFG_SIZE_MAX, val_u32);
- }
- 
- /* fill the block size*/
-@@ -1089,7 +1089,7 @@ static int vdpa_dev_blk_ro_config_fill(struct sk_buff *msg, u64 features)
- 	u8 ro;
- 
- 	ro = ((features & BIT_ULL(VIRTIO_BLK_F_RO)) == 0) ? 0 : 1;
--	if (nla_put_u8(msg, VDPA_ATTR_DEV_BLK_CFG_READ_ONLY, ro))
-+	if (nla_put_u8(msg, VDPA_ATTR_DEV_BLK_READ_ONLY, ro))
- 		return -EMSGSIZE;
- 
- 	return 0;
-@@ -1100,7 +1100,7 @@ static int vdpa_dev_blk_flush_config_fill(struct sk_buff *msg, u64 features)
- 	u8 flush;
- 
- 	flush = ((features & BIT_ULL(VIRTIO_BLK_F_FLUSH)) == 0) ? 0 : 1;
--	if (nla_put_u8(msg, VDPA_ATTR_DEV_BLK_CFG_FLUSH, flush))
-+	if (nla_put_u8(msg, VDPA_ATTR_DEV_BLK_FLUSH, flush))
- 		return -EMSGSIZE;
- 
- 	return 0;
-diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
-index 43c51698195c..842bf1201ac4 100644
---- a/include/uapi/linux/vdpa.h
-+++ b/include/uapi/linux/vdpa.h
-@@ -57,7 +57,7 @@ enum vdpa_attr {
- 	VDPA_ATTR_DEV_FEATURES,                 /* u64 */
- 
- 	VDPA_ATTR_DEV_BLK_CFG_CAPACITY,		/* u64 */
--	VDPA_ATTR_DEV_BLK_CFG_SEG_SIZE,		/* u32 */
-+	VDPA_ATTR_DEV_BLK_CFG_SIZE_MAX,		/* u32 */
- 	VDPA_ATTR_DEV_BLK_CFG_BLK_SIZE,		/* u32 */
- 	VDPA_ATTR_DEV_BLK_CFG_SEG_MAX,		/* u32 */
- 	VDPA_ATTR_DEV_BLK_CFG_NUM_QUEUES,	/* u16 */
-@@ -70,8 +70,8 @@ enum vdpa_attr {
- 	VDPA_ATTR_DEV_BLK_CFG_DISCARD_SEC_ALIGN,/* u32 */
- 	VDPA_ATTR_DEV_BLK_CFG_MAX_WRITE_ZEROES_SEC,	/* u32 */
- 	VDPA_ATTR_DEV_BLK_CFG_MAX_WRITE_ZEROES_SEG,	/* u32 */
--	VDPA_ATTR_DEV_BLK_CFG_READ_ONLY,		/* u8 */
--	VDPA_ATTR_DEV_BLK_CFG_FLUSH,		/* u8 */
-+	VDPA_ATTR_DEV_BLK_READ_ONLY,		/* u8 */
-+	VDPA_ATTR_DEV_BLK_FLUSH,		/* u8 */
- 
- 	/* new attributes must be added above here */
- 	VDPA_ATTR_MAX,
--- 
-2.39.3
+> If we were to unmap pages each time before
+> returning them to the pool, we would negate the benefits of bypassing the
+> mapping and unmapping process altogether.
+
+Yes, but the problem in this approach is that it creates a corner
+exception where dma_addr is used outside the page pool.
+
+Maybe for big mode it doesn't matter too much if there's no
+performance improvement.
+
+Thanks
+
+>
+> Thanks.
+>
+>
+>
+> >
+> > Thanks
+> >
+> > >
+> > > Thanks.
+> > >
+> > >
+> > > >
+> > > > Thanks
+> > > >
+> > >
+> >
+>
 
