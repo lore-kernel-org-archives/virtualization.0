@@ -1,202 +1,175 @@
-Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2087.outbound.protection.outlook.com [40.107.93.87])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 513F9145FF5
-	for <virtualization@lists.linux.dev>; Tue, 16 Apr 2024 18:45:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713293117; cv=none; b=Is2ytbDXiZi3KdX2u1nl1MYvIKzdbmF8+1L7eQkpwcINGJD/C/hRzzUDTOuSn29skv70xkatwAt3QpCuuqQTfwHJtK/fGVhwYAoge5t9EUOXR4NiUFGeJOzNleytvG1Q+ccoZDdWCYzcioTjh1esbNsSQKan7i9cIk8FbBhAmGE=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713293117; c=relaxed/simple;
-	bh=4h0IzOtLBFbHmqIztYQtJnRQ5i+JxAIa21rlgcy6DFI=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=MQVXEdoj1d1hEfEc7FAyLzLm/BAmSzQnxgE0Lo1jkszxAJG4CR6ETNnYhsnl7xWXJuUlCabgR8lij8qNAdsFvnmh3L3oAmcKlT8ifQ+RVbpOz86Z0JD9tUA7MPmvzDTaQA8/x2mv6+Q/zzaR7EFHJtUq0bW+rjcKL+BnoEZ7dnM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com; spf=pass smtp.mailfrom=rivosinc.com; dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b=za+1S4+f; arc=none smtp.client-ip=209.85.216.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rivosinc.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72EC713541F
+	for <virtualization@lists.linux.dev>; Tue, 16 Apr 2024 19:24:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.93.87
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1713295495; cv=fail; b=EiOHW+K3Yug8MjkS7Ijrdd/Wa0mz8WdMJsCCki/XOPqERgrp3HZuu6uY5hy7u8NJauWJEP3tlBITKDm11MBDb7TfS8Yraumx9btRqXk7Uu/MH0vjyea4X9LVIJEYpQ1IL9H2Pz27DP1vAjgXXXxONdsSae70OQwK5sMe1Q68tSw=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1713295495; c=relaxed/simple;
+	bh=LxPUUM+NFXvsoTx8x9+o51qfekoI0M/qXzFwnhjoyeU=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=UA5JE4VfapUWm28CRRGIH4U4kszrWMBikfq4ZI8JZgJBv0Asufq2LWikb1LvzptM1gIaI4bVLY9D/OMuvxkcZeBZEjjMyqXAKhcreNatxiWMHt/JCO7+lZWU+fKqsoBYQwMA2ts/AXPaTw/9/5Sg1Ez3OcA2OMJOJuUaVe47BsE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=mIxrHwKo; arc=fail smtp.client-ip=40.107.93.87
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b="za+1S4+f"
-Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-2a2d248a2e1so48782a91.0
-        for <virtualization@lists.linux.dev>; Tue, 16 Apr 2024 11:45:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rivosinc-com.20230601.gappssmtp.com; s=20230601; t=1713293116; x=1713897916; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=k8dppvgVnh54sEjPJluz+VPGn0XVIgbI5aDFYcuHKMk=;
-        b=za+1S4+ftyEtZaXOID/VaLX9x6aEnCTRZivlnlZtp3Eol+QW67uFDzDyO51SJMeFN4
-         4wLLu/81ozQ0nmC5JRSIlT1Rq7EKkURoB1JguyTdi5/kJtNqKuX6ZKdro1z+qG95k+/p
-         7JgzD8ZHexMRjt4smFSmfSLU7nRvUHkZrzHegFk801Cko+7ha87gm5lThwnegF5iZ4hb
-         bRLtjbQOd/KRefpeaJrj5uanb+X4j+MLsOKC99I02mAgt8suWFKoKENnIWLOslzfqFwY
-         Mx6UZ0/p6XUXuuW5R52tDhaaGE1VwwY6H6JbeQsY2+TZ8gyBBM318kCrH0BLTUQtbr6s
-         yu1w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713293116; x=1713897916;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=k8dppvgVnh54sEjPJluz+VPGn0XVIgbI5aDFYcuHKMk=;
-        b=hjqB00xDiKm6k3AnrKlhv88Q7ekoxiD+i1ggy9hyJAqe3VFyI9fzKRhDmez6PANfpJ
-         8KwpaJBChh3Pom+t6VdfhU9fJcnqhXgOtpPfR6tVk9LeJ9uz5x/hbxhZ03fe0ed9rhQ5
-         g3H+VPmyt7i9AlHTTbB5Spfk52QVUIxaUwucq8v/4vcb+xjynM3NYjNtoP4Ud5UsQtVk
-         I6gmXBx6B4R4YHvchOWE6eShTBf5+/pCeov+CJhr0WZV77FuYX/fVmqDSx+kB1D+kpGq
-         7AzPBDuV8OuWad2HuHwMCWAbQYSND8Y4EjeyiZwH5OR2qBGJfMUFLVz2kwnED2T0XDvq
-         LWVQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVfopwEHdToBAtXf4jyE412Lg2xxkCs18MyXrcD74stuw4NyDZkr2oaIDfYfob/qI5F5t7OlYzbm5isEnBlBVzwlE8tV7rYeTihO1Aacr4=
-X-Gm-Message-State: AOJu0YxBaGZ5AIy+lldF4G9HA9WI9XyKyPUkAo5QnH7VTmlcyxFqCbRM
-	3ak8A13QROAY0zdLr7FETsIY1rVXBBeO6JbLSpWHJMEHkgpwsna60ZyVD/iXT+A=
-X-Google-Smtp-Source: AGHT+IHzc2MYBxQtrmJtlm+A3Ba+b1xBo3biutdeONIY5AZoPZgv68J1XHzbTpk7PKvAcyeeK8RTRQ==
-X-Received: by 2002:a17:90b:1a88:b0:2a2:faf4:71da with SMTP id ng8-20020a17090b1a8800b002a2faf471damr4887452pjb.10.1713293115724;
-        Tue, 16 Apr 2024 11:45:15 -0700 (PDT)
-Received: from atishp.ba.rivosinc.com ([64.71.180.162])
-        by smtp.gmail.com with ESMTPSA id o19-20020a17090aac1300b002a269828bb8sm8883645pjq.40.2024.04.16.11.45.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Apr 2024 11:45:15 -0700 (PDT)
-From: Atish Patra <atishp@rivosinc.com>
-To: linux-kernel@vger.kernel.org
-Cc: Atish Patra <atishp@rivosinc.com>,
-	Andrew Jones <ajones@ventanamicro.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Alexandre Ghiti <alexghiti@rivosinc.com>,
-	Anup Patel <anup@brainfault.org>,
-	Conor Dooley <conor.dooley@microchip.com>,
-	Juergen Gross <jgross@suse.com>,
-	kvm-riscv@lists.infradead.org,
-	kvm@vger.kernel.org,
-	linux-kselftest@vger.kernel.org,
-	linux-riscv@lists.infradead.org,
-	Mark Rutland <mark.rutland@arm.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Paul Walmsley <paul.walmsley@sifive.com>,
-	Shuah Khan <shuah@kernel.org>,
-	virtualization@lists.linux.dev,
-	Will Deacon <will@kernel.org>,
-	x86@kernel.org
-Subject: [PATCH v7 24/24] KVM: riscv: selftests: Add commandline option for SBI PMU test
-Date: Tue, 16 Apr 2024 11:44:21 -0700
-Message-Id: <20240416184421.3693802-25-atishp@rivosinc.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20240416184421.3693802-1-atishp@rivosinc.com>
-References: <20240416184421.3693802-1-atishp@rivosinc.com>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="mIxrHwKo"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=UmIvzcPjXUoh9t8bPpEXGFRt2nVRZCoqAUWDEQua1ydPKJV5Dq61V/5hoxhYVky8KSnAaEC5davoIAmsnPdLY1q8SSQq0YWvFh6bmRAZvy+A3XrjoSY4RUvYE0IjTpEuMLYk4LrAiWJpLyXJAFnBIhyytrWKEdfE/ka7zdHpwWyuMSAbJPa2RyA9u04X7SSqvbVUPjPcJ5Jr59QHEuh2x+oTV+p9BvX4ya+0DPs+wYvzCZrKDzMh58TgPDnDDfSLO5XDQDda4ZNg8rshtNodcJu4O1DD9sl+g0qvjrPk5lyY+7KT2T5uXl58iS0CBq5+CKNG0srlLaTtIK2n2Hv6+A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=MQK+fIjueO1ZgiQFUM1wY01cMxF/xdGcdOlUTHYA7z0=;
+ b=LWo6C+7FVzIJjkio891e9TKuP0YVYe+NXKtNByzJ5b1cEkuXP2jDzo+LKg81ATCyna/m7go6HZPsXcBlbzZrUMAmwqZRDtgN4lIyRMOxVAR4IQ3gC7jEH2DEA+DMEZldiggmF0ykCJQVDfW0F152AjT1iuQR/t5C1t0sPwd3YkoqcVY2mewZJDDwXEbyiAFYpPWymijrkxoJ3HVheAosaeG/zxfhcMC4V/krSzGpUU4YnxcKtG9XVgHiisqg+93x4ZxbTf1OOR3DpQLaPZrTM0dnidRQV40mmpLVPVBR3+bY2+Aco7LY5xFF4OhqtMet9cnrE4jTAOsXTtk3ahjJpw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=MQK+fIjueO1ZgiQFUM1wY01cMxF/xdGcdOlUTHYA7z0=;
+ b=mIxrHwKoGOyAw/PDFIlz21/zspgBklQah7OysmFBkS7p9BGQbuDz88QvCpqPyYC5OJjVbrO1aQmVGerIjo69yKC6sGpDDHjjG4o0lFtE3LD4d+Z9a/NJ7HxXqhcAOgGgRUBpce4wRMLQ+8hxsK7ZSOiv9Kb6ReiWx9oVzF329qAd70JdyAUBThgf+k0rvBqpbUja4d83itaXSF54PYOsQrdZ3qmH4eUNdmEk3EKLw2lC1VhRBSjEwKTu8oUTW4u8+1v8ChvexQQAScnud2pG6pHhn92d59O2/ncJkv1F3u8lT6h4ENv8hxVU9ruPD2fmRBa/ToBovfCnpZxr3HiqQw==
+Received: from CH0PR12MB8580.namprd12.prod.outlook.com (2603:10b6:610:192::6)
+ by PH0PR12MB7886.namprd12.prod.outlook.com (2603:10b6:510:26e::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7452.50; Tue, 16 Apr
+ 2024 19:24:48 +0000
+Received: from CH0PR12MB8580.namprd12.prod.outlook.com
+ ([fe80::ff67:b47c:7721:3cd4]) by CH0PR12MB8580.namprd12.prod.outlook.com
+ ([fe80::ff67:b47c:7721:3cd4%4]) with mapi id 15.20.7452.049; Tue, 16 Apr 2024
+ 19:24:48 +0000
+From: Dan Jurgens <danielj@nvidia.com>
+To: Jakub Kicinski <kuba@kernel.org>
+CC: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "mst@redhat.com"
+	<mst@redhat.com>, "jasowang@redhat.com" <jasowang@redhat.com>,
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"davem@davemloft.net" <davem@davemloft.net>, "edumazet@google.com"
+	<edumazet@google.com>, "pabeni@redhat.com" <pabeni@redhat.com>, Jiri Pirko
+	<jiri@nvidia.com>
+Subject: RE: [PATCH net-next v3 5/6] virtio_net: Add a lock for per queue RX
+ coalesce
+Thread-Topic: [PATCH net-next v3 5/6] virtio_net: Add a lock for per queue RX
+ coalesce
+Thread-Index: AQHajRMmdbHwvvoxokersDJY/cIzq7FleFqAgATEznCAAL0JAIAAUtig
+Date: Tue, 16 Apr 2024 19:24:48 +0000
+Message-ID:
+ <CH0PR12MB8580D594577B515A12E0B134C9082@CH0PR12MB8580.namprd12.prod.outlook.com>
+References: <20240412195309.737781-1-danielj@nvidia.com>
+	<20240412195309.737781-6-danielj@nvidia.com>
+	<20240412192111.7e0e1117@kernel.org>
+	<CH0PR12MB85808460795C1BC5FE4EF6A7C9082@CH0PR12MB8580.namprd12.prod.outlook.com>
+ <20240416072712.757d7baf@kernel.org>
+In-Reply-To: <20240416072712.757d7baf@kernel.org>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: CH0PR12MB8580:EE_|PH0PR12MB7886:EE_
+x-ms-office365-filtering-correlation-id: cc6fc45e-2281-461e-3cf9-08dc5e4ae16f
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info:
+ XBnt32aQxD7YuqFCgST5p4IZBdV8mGdbnnILweqknm9NfrLl43fkbed5MUxM46/91D8v0m9oe63t++IY3TJZGf0Jwd4ndyNx6fhH9+hLg1ypZ6unRRKAD2h7a0nRxLOA9eY2C7NjbnTubDcac8Tvk2vOkDMvHqaBlB3ttmTom/rDfbw0qE9We0gVx8h/lggqbetXW/dRf9ApFO1ElfAwRylXVe7Lfpt7Ga7OfSLGPpQ2WejdbKUdLX3d2TB/ftifEKroxSBxUjxSwkVQxLS8Ug77wIxbyshUqB2D04stkgmxBdmeyxJwaD+DBeSWBIzFGywgVInphblvss59A/LPOnjxk8EqJyyvUHlQIszJdrKvRTDlpkPPWpGvWOwjZn4OE31YJiBsgTA5s3bHXz2QOxZAmLl/2KX8ONW96oGkmEes9c92Vn4+I4x0S9+YR0LdcnXj1oVdc8LcoY82Qu7HbsgAWeQCRCpvuJxMQbtHypUIFL6Kd5ZoJmCdSj2omoJtFbdegxrKi3BTm+CmHZXMP7UkzJvudK9yWUcbQUETpbEs7hVvR7mZHcRL82ekeeybdDAZtqh+NCxzmIRQuj7DLPXgxbGpl5lU+bL9RvyqYYeYvNsNDXT/KrX/usZhSfdnY5gmZMpZKzznkIdzJH4dAAB/WzzZ5aYSM+MhYuA4y5af1OYKzVlLZIMqtm45N8tyO4vREeO7YOnWMc6C3Q4/Og==
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH0PR12MB8580.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(376005)(1800799015)(366007)(38070700009);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?fFkO+ju1WaOopHK+Y7U7GQeaIsEDdwic2f4w712Wam2EQOb5b5nW9aFNRCDK?=
+ =?us-ascii?Q?9ZVTa3FphYdDQSg/ZX305uCOkCn0AQ1YzGv86X7l2mG3ow52BKL3ERdPnj4M?=
+ =?us-ascii?Q?YacKvxKR51vJ5TzLVM4YlEPvmVdAWVTjCPCZHJ2XAH9B3H/g9d4Ikz5HWQCV?=
+ =?us-ascii?Q?RivobsueXuH0vUKFeHMl21Kk4YPUXuVFd9SebEmmAy5BVhR42Vc6lMtpbUHK?=
+ =?us-ascii?Q?FHI/XPZ+UPChglCpg/PdsLmRKRJmoUKJP/OSipSV1bgw2rpdSvrWwF7TejfA?=
+ =?us-ascii?Q?3L6oJloJ/D7eHP4VboflKwuTcdhEtNEVqrwP6DCUStx2tF+2QaxocBZrzcHe?=
+ =?us-ascii?Q?Bj4RTShy4DH5woInmBQtOQPolbCmckpR0nkFeqCMgzQrqbbUxrTi+Wjb7Bce?=
+ =?us-ascii?Q?jzAN8mpLV78bF2sXNzfWcRlSEFr0RGIFnvQokKAHZjAsPoR/6xpSryyV5Y3l?=
+ =?us-ascii?Q?o9kFblQgbO8cwsJaAWw9ApZqPcU7MwJK+vCuxhBJTAzp+YcltFkgtyJV4o+t?=
+ =?us-ascii?Q?ul1I5VtANvd59MER2sUwPad71nfjHlLUmd5AG7mj9zoPzeLRvwd5hs0/My0J?=
+ =?us-ascii?Q?OhBnPuTRRuiT1nbx08Ahto3WwlrNMruML0YzUnWrbMtbHvz5yJyDGyxXmrKi?=
+ =?us-ascii?Q?5aeHSdP+8pm3ScdMit2DjT5ubysAu8vynV+tR8jb9YGp5lp31jAhltkdMjDz?=
+ =?us-ascii?Q?4TSX6ePwiHJbiIq5ZVdQXV/ky4QmAbB40FmO4CKBjDnB2AVTIcD6uS/v3aUc?=
+ =?us-ascii?Q?4xsrlvDVrsdLQV8JuR4Y5/vPTya72VtOHE7vonUugF8++yk0Hd2BzJiePJxX?=
+ =?us-ascii?Q?Idb3c5PCOL34bMzyCd69d6ZJQ+MCK3c+qq5dN88VVqvkBfV0iI6sTyvtLh4v?=
+ =?us-ascii?Q?Jc2mnY9tWaykQw5qnDeO9V+zJnl0bURJe3JoChqxIBBAUyo+4IBi/4z52bnt?=
+ =?us-ascii?Q?QZ9oHw7tQKIShFKRc8v4AUpAei5jsMcNRN3P+0B+1ITGSE8MegpFivYDCnOD?=
+ =?us-ascii?Q?2Ol+UW7yuQQaoOA1bYo6kMk0IB6SWOuHVniU6fkYNLOjcXc+afOS8mYzL6Aq?=
+ =?us-ascii?Q?zMAr/G45OmIcUaeO9DhX55PAYrckhKNVOYx4/RtDUTVPtXqFu5owUaTYviTQ?=
+ =?us-ascii?Q?9+WvGZeCluXp7DAyOHpG8FXgmqa4QDJ67LvDfcoZk2HREhwyJrLGDl6qooqs?=
+ =?us-ascii?Q?UG2vQHojzBSDek1u1eChyor/UsHP+9h7DkvRWIJQPSxJX9YsQq+VjVjJR6iW?=
+ =?us-ascii?Q?OfwAv2DOfP3vmAyoux2q6B/hDhHLQUUq5DDNhVTzg7mlTzf5SNyKig7CAa3k?=
+ =?us-ascii?Q?qrBn73UGNj7mX5UbBOQx8ovdp6IGedsKfxhEzzEMMYJJFhlJ6HXpWTr1dZ+i?=
+ =?us-ascii?Q?OItz/ZBIm8O/KNOU0hmGKipsN4oOt0cDty6viyOBcfVgwdFRrbqlTi+iUODB?=
+ =?us-ascii?Q?bheCXoDeRBE0U+Zk9JXufpmWcjkEBKJ4d3MSRhmU9UafWTja+LMfhODBvBXR?=
+ =?us-ascii?Q?BPwgjZ7pokDfanaSUFkGHotH+kTcvAvCWwMlZLmtvczTnxtCehAG7QdykCs+?=
+ =?us-ascii?Q?85XU2ai0SD7uypYMXWI=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: CH0PR12MB8580.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: cc6fc45e-2281-461e-3cf9-08dc5e4ae16f
+X-MS-Exchange-CrossTenant-originalarrivaltime: 16 Apr 2024 19:24:48.2328
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: cvheQuuvTx9QIIvezwRZhlmLf9sw5VdqBnB7ideyapsDKi4/Hnf5kxlI6X/rWTmD82JN7hedbcP7+xEVDkKJsg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR12MB7886
 
-SBI PMU test comprises of multiple tests and user may want to run
-only a subset depending on the platform. The most common case would
-be to run all to validate all the tests. However, some platform may
-not support all events or all ISA extensions.
+> From: Jakub Kicinski <kuba@kernel.org>
+> Sent: Tuesday, April 16, 2024 9:27 AM
+> To: Dan Jurgens <danielj@nvidia.com>
+> On Tue, 16 Apr 2024 03:15:34 +0000 Dan Jurgens wrote:
+> > Which version? It compiles for me with:
+> > $ clang -v
+> > clang version 15.0.7 (Fedora 15.0.7-2.fc37)
+>=20
+> clang version 17.0.6 (Fedora 17.0.6-2.fc39)
+>=20
 
-The commandline option allows user to disable any set of tests if
-they want to.
+Thanks, I was able to see this with the newer version. The changes to addre=
+ss Heng's comment resolves it as well.
 
-Suggested-by: Andrew Jones <ajones@ventanamicro.com>
-Signed-off-by: Atish Patra <atishp@rivosinc.com>
----
- .../selftests/kvm/riscv/sbi_pmu_test.c        | 73 ++++++++++++++++---
- 1 file changed, 64 insertions(+), 9 deletions(-)
-
-diff --git a/tools/testing/selftests/kvm/riscv/sbi_pmu_test.c b/tools/testing/selftests/kvm/riscv/sbi_pmu_test.c
-index 0fd9b76ae838..69bb94e6b227 100644
---- a/tools/testing/selftests/kvm/riscv/sbi_pmu_test.c
-+++ b/tools/testing/selftests/kvm/riscv/sbi_pmu_test.c
-@@ -33,6 +33,13 @@ static unsigned long counter_mask_available;
- 
- static bool illegal_handler_invoked;
- 
-+#define SBI_PMU_TEST_BASIC	BIT(0)
-+#define SBI_PMU_TEST_EVENTS	BIT(1)
-+#define SBI_PMU_TEST_SNAPSHOT	BIT(2)
-+#define SBI_PMU_TEST_OVERFLOW	BIT(3)
-+
-+static int disabled_tests;
-+
- unsigned long pmu_csr_read_num(int csr_num)
- {
- #define switchcase_csr_read(__csr_num, __val)		{\
-@@ -608,19 +615,67 @@ static void test_vm_events_overflow(void *guest_code)
- 	test_vm_destroy(vm);
- }
- 
--int main(void)
-+static void test_print_help(char *name)
-+{
-+	pr_info("Usage: %s [-h] [-d <test name>]\n", name);
-+	pr_info("\t-d: Test to disable. Available tests are 'basic', 'events', 'snapshot', 'overflow'\n");
-+	pr_info("\t-h: print this help screen\n");
-+}
-+
-+static bool parse_args(int argc, char *argv[])
-+{
-+	int opt;
-+
-+	while ((opt = getopt(argc, argv, "hd:")) != -1) {
-+		switch (opt) {
-+		case 'd':
-+			if (!strncmp("basic", optarg, 5))
-+				disabled_tests |= SBI_PMU_TEST_BASIC;
-+			else if (!strncmp("events", optarg, 6))
-+				disabled_tests |= SBI_PMU_TEST_EVENTS;
-+			else if (!strncmp("snapshot", optarg, 8))
-+				disabled_tests |= SBI_PMU_TEST_SNAPSHOT;
-+			else if (!strncmp("overflow", optarg, 8))
-+				disabled_tests |= SBI_PMU_TEST_OVERFLOW;
-+			else
-+				goto done;
-+			break;
-+		case 'h':
-+		default:
-+			goto done;
-+		}
-+	}
-+
-+	return true;
-+done:
-+	test_print_help(argv[0]);
-+	return false;
-+}
-+
-+int main(int argc, char *argv[])
- {
--	test_vm_basic_test(test_pmu_basic_sanity);
--	pr_info("SBI PMU basic test : PASS\n");
-+	if (!parse_args(argc, argv))
-+		exit(KSFT_SKIP);
-+
-+	if (!(disabled_tests & SBI_PMU_TEST_BASIC)) {
-+		test_vm_basic_test(test_pmu_basic_sanity);
-+		pr_info("SBI PMU basic test : PASS\n");
-+	}
- 
--	test_vm_events_test(test_pmu_events);
--	pr_info("SBI PMU event verification test : PASS\n");
-+	if (!(disabled_tests & SBI_PMU_TEST_EVENTS)) {
-+		test_vm_events_test(test_pmu_events);
-+		pr_info("SBI PMU event verification test : PASS\n");
-+	}
- 
--	test_vm_events_snapshot_test(test_pmu_events_snaphost);
--	pr_info("SBI PMU event verification with snapshot test : PASS\n");
-+	if (!(disabled_tests & SBI_PMU_TEST_SNAPSHOT)) {
-+		test_vm_events_snapshot_test(test_pmu_events_snaphost);
-+		pr_info("SBI PMU event verification with snapshot test : PASS\n");
-+	}
- 
--	test_vm_events_overflow(test_pmu_events_overflow);
--	pr_info("SBI PMU event verification with overflow test : PASS\n");
-+	if (!(disabled_tests & SBI_PMU_TEST_OVERFLOW)) {
-+		test_vm_events_overflow(test_pmu_events_overflow);
-+		pr_info("SBI PMU event verification with overflow test : PASS\n");
-+	}
- 
- 	return 0;
- }
--- 
-2.34.1
-
+> allmodconfig
+>=20
+> The combination of UNIQUE() goto and guard seems to make it unhappy:
+>=20
+> ../drivers/net/virtio_net.c:3613:3: error: cannot jump from this goto
+> statement to its label 3613 |                 goto out; |                =
+ ^
+> ../drivers/net/virtio_net.c:3615:2: note: jump bypasses initialization of
+> variable with __attribute__((cleanup))
+>  3615 |         guard(spinlock)(&rq->intr_coal_lock);
+>       |         ^
+> ../include/linux/cleanup.h:164:15: note: expanded from macro 'guard'
+>   164 |         CLASS(_name, __UNIQUE_ID(guard))
+>       |                      ^
+> ../include/linux/compiler.h:189:29: note: expanded from macro
+> '__UNIQUE_ID'
+>   189 | #define __UNIQUE_ID(prefix) __PASTE(__PASTE(__UNIQUE_ID_,
+> prefix), __COUNTER__)
+>       |                             ^
+> ./../include/linux/compiler_types.h:84:22: note: expanded from macro
+> '__PASTE'
+>    84 | #define __PASTE(a,b) ___PASTE(a,b)
+>       |                      ^
+> ./../include/linux/compiler_types.h:83:23: note: expanded from macro
+> '___PASTE'
+>    83 | #define ___PASTE(a,b) a##b
+>       |                       ^
+> <scratch space>:18:1: note: expanded from here
+>    18 | __UNIQUE_ID_guard2044
+>       | ^
+> 1 error generated.
