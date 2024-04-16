@@ -1,87 +1,122 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F9EF129A72;
-	Tue, 16 Apr 2024 14:27:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE773130E40
+	for <virtualization@lists.linux.dev>; Tue, 16 Apr 2024 16:12:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713277634; cv=none; b=UdcEjm6IRGt3vCeob133b4zRsJoUiFyHJZm1ZiIu8pcwHe94ohC57HZcUp1KZuT/hGGrjBNhtQqZTWNqEg342T+ICsll+9eaaOEBmCwfhWLInc2FTNtR9OziRlcwrh6AeolGAa8wrYjv1S9W30b/FzXSAGwoa73/ORzVksILLG0=
+	t=1713283937; cv=none; b=DUlK9zb0IEx1T4jCaKP0hdYyZd+qI/DSAmqOP2KSA1VcafhdASZgEoGoUgDGOOC9BDQ3DMsDOPikEMfMgfeOp5BpDXPEe+dyq4u3MWxKsk5SoDA1/PcBzBPa6GeqmuiFqU4AN6rnhWfX5uZwG9anUU3AC/PKMKLeQtJzALAKc4g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713277634; c=relaxed/simple;
-	bh=v4Q/ozGudiVH3c9ZsVw3827ceHm3OFHthkW82ZvcGsU=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=tIcH4GtlNqKhZChkVF+q01jX+eMX5vlHMF7xnFHmLtVllfA+VERBQF+q9vzj9AtNhDKM58Hgu1o0jI1t6CrfC4xlbHS9KM2KWSMtqTplC1JTg5jJ4NOalGosc0ELOI3s03QNJ4pNo60Yt1oTa3a3qOE1sGr1jBWhSw2KJ7aaYwQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QJI4lRz6; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1713283937; c=relaxed/simple;
+	bh=EKrDgIJgNXo/R8quzpUy0yW7erzp8PxvHvcTe/50ujU=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=TA5HpanLI76mHkuRBQ4ewabp/Jldey6ccmJ/IwBLeA91DizUJEjWQENCEoCPGnGZbJ9torl0UKp7zn7uOtSK5/9IRbrapxbwvY3aZYHNsz4/+lKRRYvFXsYFxu4BZGhCcbqZPR9aniB6Z5QPSA7BB14hgB0cho8zuoxuXSxgEnY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WjG/IWAF; arc=none smtp.client-ip=209.85.214.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QJI4lRz6"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71A04C113CE;
-	Tue, 16 Apr 2024 14:27:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1713277634;
-	bh=v4Q/ozGudiVH3c9ZsVw3827ceHm3OFHthkW82ZvcGsU=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=QJI4lRz6Mn/iWctwTJTO1HBgkVxvuazJcXsI0z1+ljWedhsGgjNACjxQ0xRXE4/0d
-	 4bzi7Vo/W6igHAhID4FfIxFl/NrKCHMSH/sVfPztWb8ULTHUnznPXoPbqCN6IeQlYF
-	 sbBommH8Yhi9Ejnhk/D5mgBYiPH2Y1iqJghOfElBBDUqMyWAkDnoA2RieaZYh1ezfZ
-	 929UuWw81+T1owdknyiz37auaxr2J7LB9bC5VXUWetXhiyqB4uTpIGo1JnGN2oGg0D
-	 NQsT3xAAdBbx/8YbYtrc3zKfc7FL/oL0n9+dZSBshMdm6NCQjl79WL2v0rJNE/nWRn
-	 byoqvWbuxnbpA==
-Date: Tue, 16 Apr 2024 07:27:12 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Dan Jurgens <danielj@nvidia.com>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "mst@redhat.com"
- <mst@redhat.com>, "jasowang@redhat.com" <jasowang@redhat.com>,
- "xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
- "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
- "davem@davemloft.net" <davem@davemloft.net>, "edumazet@google.com"
- <edumazet@google.com>, "pabeni@redhat.com" <pabeni@redhat.com>, Jiri Pirko
- <jiri@nvidia.com>
-Subject: Re: [PATCH net-next v3 5/6] virtio_net: Add a lock for per queue RX
- coalesce
-Message-ID: <20240416072712.757d7baf@kernel.org>
-In-Reply-To: <CH0PR12MB85808460795C1BC5FE4EF6A7C9082@CH0PR12MB8580.namprd12.prod.outlook.com>
-References: <20240412195309.737781-1-danielj@nvidia.com>
-	<20240412195309.737781-6-danielj@nvidia.com>
-	<20240412192111.7e0e1117@kernel.org>
-	<CH0PR12MB85808460795C1BC5FE4EF6A7C9082@CH0PR12MB8580.namprd12.prod.outlook.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WjG/IWAF"
+Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-1e5715a9ebdso36956285ad.2
+        for <virtualization@lists.linux.dev>; Tue, 16 Apr 2024 09:12:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1713283935; x=1713888735; darn=lists.linux.dev;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=EKrDgIJgNXo/R8quzpUy0yW7erzp8PxvHvcTe/50ujU=;
+        b=WjG/IWAFw4apeiKBBCpDCoSxZIXfFdZyTJCt0nXL7HdKNejLvMJLDIFkyrCN/OV3Ej
+         sTCmZJyOu1IaME6D+VjXuGWrmjrd4FHiYdh4YaG630odFECdkGMK7mDHrUy+fKZrclkt
+         mh5oqPi8nGxUcLJmpcnrs+kSSJ2D5R4nc0Mp0RL96yN1hZgZjWQ+2eY0tuyV/CF6DG+H
+         6lLuFz4JUbINJBjncYZwb/QtfPtLqVqjRxllVO+sM2ILXODgRjXIp/CZ9GlLIeftfLTk
+         cj0OJXJFbnwfFWKi3gvCAM5F8gaww03doTb2L6TqC1oD1zTa8SD2q6tXLPIYVwse6M7N
+         nc8A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713283935; x=1713888735;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=EKrDgIJgNXo/R8quzpUy0yW7erzp8PxvHvcTe/50ujU=;
+        b=tIYlme+rAfOWaFZw96FshIewdxoeRFajydlobUy4FX/x8IpBhxQN7RgjJRcBcB9Pf7
+         oUgHgP7m5b1s3Cikbjra2sFYSAe29LgwZaedED/HnhEkKOSuX5Npbhpa0f8LfwNdsRap
+         SoiOk0ZHPTJcla/fAqQBlfFrASsafHnj/TYQhyLdg9rBhNlY9saKaziyvdqaQSrFqRHq
+         zvXpSsdNjytI2TvlGwY6pNzM/b/Y8cNubr0YKuVxUpHilKPpMlZ8Ipe7dSao843bBmZ8
+         mQIVrd97ZSS4rvEIW8D2anSwOPftqTLjy38NW/t2StDOqxVJzWIXjJ5bfFi5nYyqkhld
+         kntA==
+X-Forwarded-Encrypted: i=1; AJvYcCWF/IiEUsXUrLezVgvuvrStU/Db98+mpCzPzM2n6GT7k8mEj5TrRQ708X+rDn92GcHeSSDUMxpImjk00cwejhlBrp7XN5jnDYwdKRWn0GE=
+X-Gm-Message-State: AOJu0YyaOKsQ4xyiZoiULeKuykRTQRtXLF2CbMCdc+N+JcRgowfDnWpy
+	eMPYEJnatOpmSyge1gYnN2HUTti2PXdP206JPRDfDbTg7K4RIv0/
+X-Google-Smtp-Source: AGHT+IEaBhKQrtE4y17EN+JRfoZ0nAtlgq9TOIgtvD46kDZyqFoPetYC3y2iMwccARAF9quBrezxcQ==
+X-Received: by 2002:a17:903:595:b0:1e3:e4ff:7054 with SMTP id jv21-20020a170903059500b001e3e4ff7054mr10328895plb.38.1713283934861;
+        Tue, 16 Apr 2024 09:12:14 -0700 (PDT)
+Received: from ?IPv6:2605:59c8:43f:400:82ee:73ff:fe41:9a02? ([2605:59c8:43f:400:82ee:73ff:fe41:9a02])
+        by smtp.googlemail.com with ESMTPSA id lf16-20020a170902fb5000b001e5119c1923sm10005822plb.71.2024.04.16.09.12.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 16 Apr 2024 09:12:14 -0700 (PDT)
+Message-ID: <18ca19fa64267b84bee10473a81cbc63f53104a0.camel@gmail.com>
+Subject: Re: [PATCH net-next v2 07/15] mm: page_frag: add '_va' suffix to
+ page_frag API
+From: Alexander H Duyck <alexander.duyck@gmail.com>
+To: Yunsheng Lin <linyunsheng@huawei.com>, davem@davemloft.net,
+ kuba@kernel.org,  pabeni@redhat.com
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Jeroen de Borst
+ <jeroendb@google.com>, Praveen Kaligineedi <pkaligineedi@google.com>, 
+ Shailend Chand <shailend@google.com>, Eric Dumazet <edumazet@google.com>,
+ Jesse Brandeburg <jesse.brandeburg@intel.com>, Tony Nguyen
+ <anthony.l.nguyen@intel.com>,  Sunil Goutham <sgoutham@marvell.com>, Geetha
+ sowjanya <gakula@marvell.com>, Subbaraya Sundeep <sbhatta@marvell.com>,
+ hariprasad <hkelam@marvell.com>, Felix Fietkau <nbd@nbd.name>, Sean Wang
+ <sean.wang@mediatek.com>, Mark Lee <Mark-MC.Lee@mediatek.com>, Lorenzo
+ Bianconi <lorenzo@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Keith
+ Busch <kbusch@kernel.org>,  Jens Axboe <axboe@kernel.dk>, Christoph Hellwig
+ <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>,  Chaitanya Kulkarni
+ <kch@nvidia.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
+ <jasowang@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Alexei
+ Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend
+ <john.fastabend@gmail.com>, Andrii Nakryiko <andrii@kernel.org>, Martin
+ KaFai Lau <martin.lau@linux.dev>, Eduard Zingerman <eddyz87@gmail.com>,
+ Song Liu <song@kernel.org>, Yonghong Song <yonghong.song@linux.dev>, KP
+ Singh <kpsingh@kernel.org>, Stanislav Fomichev <sdf@google.com>, Hao Luo
+ <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,  David Howells
+ <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>, Chuck Lever
+ <chuck.lever@oracle.com>, Jeff Layton <jlayton@kernel.org>, Neil Brown
+ <neilb@suse.de>, Olga Kornievskaia <kolga@netapp.com>, Dai Ngo
+ <Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>, Trond Myklebust
+ <trond.myklebust@hammerspace.com>, Anna Schumaker <anna@kernel.org>, 
+ intel-wired-lan@lists.osuosl.org, linux-arm-kernel@lists.infradead.org, 
+ linux-mediatek@lists.infradead.org, linux-nvme@lists.infradead.org, 
+ kvm@vger.kernel.org, virtualization@lists.linux.dev, linux-mm@kvack.org, 
+ bpf@vger.kernel.org, linux-afs@lists.infradead.org,
+ linux-nfs@vger.kernel.org
+Date: Tue, 16 Apr 2024 09:12:01 -0700
+In-Reply-To: <20240415131941.51153-8-linyunsheng@huawei.com>
+References: <20240415131941.51153-1-linyunsheng@huawei.com>
+	 <20240415131941.51153-8-linyunsheng@huawei.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 
-On Tue, 16 Apr 2024 03:15:34 +0000 Dan Jurgens wrote:
-> Which version? It compiles for me with:
-> $ clang -v
-> clang version 15.0.7 (Fedora 15.0.7-2.fc37)
+On Mon, 2024-04-15 at 21:19 +0800, Yunsheng Lin wrote:
+> Currently most of the API for page_frag API is returning
+> 'virtual address' as output or expecting 'virtual address'
+> as input, in order to differentiate the API handling between
+> 'virtual address' and 'struct page', add '_va' suffix to the
+> corresponding API mirroring the page_pool_alloc_va() API of
+> the page_pool.
+>=20
+> Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
 
-clang version 17.0.6 (Fedora 17.0.6-2.fc39)
+This patch is a total waste of time. By that logic we should be
+renaming __get_free_pages since it essentially does the same thing.
 
-allmodconfig
+This just seems like more code changes for the sake of adding code
+changes rather than fixing anything. In my opinion it should be dropped
+from the set.
 
-The combination of UNIQUE() goto and guard seems to make it unhappy:
-
-../drivers/net/virtio_net.c:3613:3: error: cannot jump from this goto
-statement to its label 3613 |                 goto out; |                 ^
-../drivers/net/virtio_net.c:3615:2: note: jump bypasses initialization of variable with __attribute__((cleanup))
- 3615 |         guard(spinlock)(&rq->intr_coal_lock);
-      |         ^
-../include/linux/cleanup.h:164:15: note: expanded from macro 'guard'
-  164 |         CLASS(_name, __UNIQUE_ID(guard))
-      |                      ^
-../include/linux/compiler.h:189:29: note: expanded from macro '__UNIQUE_ID'
-  189 | #define __UNIQUE_ID(prefix) __PASTE(__PASTE(__UNIQUE_ID_, prefix), __COUNTER__)
-      |                             ^
-./../include/linux/compiler_types.h:84:22: note: expanded from macro '__PASTE'
-   84 | #define __PASTE(a,b) ___PASTE(a,b)
-      |                      ^
-./../include/linux/compiler_types.h:83:23: note: expanded from macro '___PASTE'
-   83 | #define ___PASTE(a,b) a##b
-      |                       ^
-<scratch space>:18:1: note: expanded from here
-   18 | __UNIQUE_ID_guard2044
-      | ^
-1 error generated.
