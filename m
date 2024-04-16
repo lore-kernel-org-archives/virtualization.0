@@ -1,187 +1,280 @@
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2089.outbound.protection.outlook.com [40.107.243.89])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A20B1803D
-	for <virtualization@lists.linux.dev>; Tue, 16 Apr 2024 03:15:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.243.89
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713237341; cv=fail; b=SwnSTNkHPlZbQpme2NU/zBm9fpfv8Clo414HVf6jEd5ym9fyZ/1I1Y+1GedhG9zgaw6V5zHgmShuae8Y7POqH7sR/JZ9JbA8SjmniJZegGbylmZzsDMeClbK6F6pXswOvhegEP6LUfgQIdDYZTVpdHCr4IeUXcAhZCSPnrLmGk4=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713237341; c=relaxed/simple;
-	bh=eiUjVPXeSEKQ458CW4XlSVh7Hf2MEK/2C7N6f0AK3wU=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=tIkbO5aqxTOabXCQEJ/r4fm9JlOXcOZhKMz0FzlaEtlF7r/m2Q5gkv7A6E5t3OeVXgFzur4pgulfhTfBFND7WIaSCTEn+eoXfmModUZe1wW2BuFkONrNciJpz6U9aF4k+KVzkyPF9VsUtTYLwE6xepoOiK2lcVt/wP5ldZpP8pc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=EnhmCxA3; arc=fail smtp.client-ip=40.107.243.89
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D6423771E
+	for <virtualization@lists.linux.dev>; Tue, 16 Apr 2024 03:18:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1713237487; cv=none; b=J2+QJgxNdu7iB8IoFS19fiqGM4JOXQyos6Lw3BQaGeOIYbaU6gMjWqghlTJE1sDem5JvO9IJ3RUdXQ7YcYbGlKGoKsh8uG1bJIFwiR6n2F15b+HFUARN2pRzGrtKDAzXE1O2ZedHaUW/IPmrVEsuIZae7GL4rCJEXRjpK/zO8kM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1713237487; c=relaxed/simple;
+	bh=o2U5u+XWP753D92tZ34TPHsPkRo8qrpjr2ko1JhCmes=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=rG4/oMimhytC977mcajmjBe+TXoAF9B0oi99gPu4d32yBgG3Hdypgr6U3IFTEha1DuCYBvjzdoWCEW7cjYtO2leNxSuxEpjGqASv1MtkvWdQICKDh71zvqeqNQESNzNOydYja3w/ysm4gwXvBhraTwzJ5YYzw5dlqOPUOmxOMlc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GV4Tm+Xg; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="EnhmCxA3"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=IB+Kt5b9YeZJcfBjG8VQfVac3a1Cs4rqx6NZlJJHdXpyb7Zn2zaR4bq7yYusbBPVH/m3pLWiT+aPnt1FYdAfbOwQO0SjVzmQkLGiiuDe9wYAn8WfwID0Jk1vYuC26LBBxFYWKs0ymC7to5Mku9in9WpGyAiavdjfI3lI1srC+tI5k/YKI4OcI3/rehVaNKkgMx96IfgyO+zu8bdthBUqRzsuFt1lk65Ftjv6pkKyoorTy9JfaL91eeXCXFx/fhSogXcDARmSiTWDGVwOR3BTM5jjP1+L2U2Kj5+S+UuoBPUzN7Dr1Uja+I9EfPGdpD9cORfsKsAFnsvJ0oXfpt1qaw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=rSlfIzMn5LaSBfa0FCCcc2bBItXmUpogAU6ZAIsecvA=;
- b=GzN3yarJwEx03xOaZydr8o6mh042wjrz5QCGY2dN8w77JrsZtT4XgK9wBDXjvfg0mYoJplc18yae01Uo+P65Y0B6+SRcZ8EEfc8FZrKFU/VF4RL/2TAM2fYLLT+uFNf80aRJ1cNPdIxYVbFDmdVs0qZYvxsXmACMjZFPKjg+63xLHoyXalnLnlwToUwqM+cGYO8cdh4Kl68AK1CnDBqZS1kDyZMPgoiQ8vuuDCrpwiX66UWpt5W4LzfrM6tRldLi+Wqb6b7lFvH0puNubPpR7vB4xV+7MHVvoJF3UhGgSYCPaNs8GUZEWiFbqF2X74V3FW6ggw0GAd9ljl4KUjBn7g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=rSlfIzMn5LaSBfa0FCCcc2bBItXmUpogAU6ZAIsecvA=;
- b=EnhmCxA3fUvpWPuMlOhweUyWoy+TOuKWVm4PzEL+1Xj/iCLaX1ndbi0DRYQWrPU2Jxu+QDtmr5XIeDVBFoq1zfcvEVTyUWdudOqrc4kEIdSsoxY1pUD/wn1xNtjIzvrsRbooZtd0lQzu4cDCtvkJg746R5PrVPD1MOot0rFXmun8l5mPNJEFQ2LKorS2I9Liq2EmV84YpV0/13v1l9I8FybZdqsnMV2UDC9NHNurZYKr3jxnuu6T2D6SmARcYzIZilFYV6FXjrTe6OxvLuDnMyFO0S8D+KUzFUVdxdxNuQD0gOpnP8bJ72/j4N3aD9tJU877/41Cb7omfu4KCZKzUA==
-Received: from CH0PR12MB8580.namprd12.prod.outlook.com (2603:10b6:610:192::6)
- by PH7PR12MB6490.namprd12.prod.outlook.com (2603:10b6:510:1f5::6) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7452.50; Tue, 16 Apr
- 2024 03:15:35 +0000
-Received: from CH0PR12MB8580.namprd12.prod.outlook.com
- ([fe80::ff67:b47c:7721:3cd4]) by CH0PR12MB8580.namprd12.prod.outlook.com
- ([fe80::ff67:b47c:7721:3cd4%4]) with mapi id 15.20.7452.049; Tue, 16 Apr 2024
- 03:15:34 +0000
-From: Dan Jurgens <danielj@nvidia.com>
-To: Jakub Kicinski <kuba@kernel.org>
-CC: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "mst@redhat.com"
-	<mst@redhat.com>, "jasowang@redhat.com" <jasowang@redhat.com>,
-	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"davem@davemloft.net" <davem@davemloft.net>, "edumazet@google.com"
-	<edumazet@google.com>, "pabeni@redhat.com" <pabeni@redhat.com>, Jiri Pirko
-	<jiri@nvidia.com>
-Subject: RE: [PATCH net-next v3 5/6] virtio_net: Add a lock for per queue RX
- coalesce
-Thread-Topic: [PATCH net-next v3 5/6] virtio_net: Add a lock for per queue RX
- coalesce
-Thread-Index: AQHajRMmdbHwvvoxokersDJY/cIzq7FleFqAgATEznA=
-Date: Tue, 16 Apr 2024 03:15:34 +0000
-Message-ID:
- <CH0PR12MB85808460795C1BC5FE4EF6A7C9082@CH0PR12MB8580.namprd12.prod.outlook.com>
-References: <20240412195309.737781-1-danielj@nvidia.com>
-	<20240412195309.737781-6-danielj@nvidia.com>
- <20240412192111.7e0e1117@kernel.org>
-In-Reply-To: <20240412192111.7e0e1117@kernel.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: CH0PR12MB8580:EE_|PH7PR12MB6490:EE_
-x-ms-office365-filtering-correlation-id: 85a1e335-e3a0-4ad0-a82b-08dc5dc37b50
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info:
- Z5Ss378xvYak/vP1G6DKu51tpzt2nDTL+nWn2nDfEgaGkEkPsKvDDd2oT3f+6ZJpqK3MT3iFFwX2192vF5zVIMI1yC191xv3/2ZCE9G5kqkJDlzemuRHjjnKtldr1FoGHPIHzN5dWjbQI/1pQl1e3EKgMXJKWdf8Yvi0AOJBkumerJypudTSg44hk/w8q7+82k1UKOxVTNv7OvifXorQb2dUXMRV9EYzOA+YqXbGarZGBg0sOVioL1SWj9E7+CbG0XCcFF8AWRCpWoZ2zSVOU2JM5ZPNtb9eh6jHo1Zdkl7oIkehYvPwQqdDT7N9sTUumgSZ2qsGgLJ5kFGufq9/oRgqDFdC17xFaXeUXr/DmqqUQBbf52eNr4jFDqmC9tXlVF6kMlbzLlYOC+KL7cMgHI46yFWRJLli72LCh5nKxZcILU4RXAVqGX3e9slsrpARmWHpKcZvMLBPtXn0WUGU/Qw8Oik/yOiDwAbBvQmwB2rLS/c9Mv51E8ihuc7+VR7HLcgjcZb4NJC4WdWLPkD31VDYQ2kyCQz/Fsuwo9O0HuiOtOkP8lqzgTvEP70946nm1Nj/zzAa41fmhjwZASmCampnHObxvds4LCO6MI2P+zhcLut4fb8+X5H2ZQazD3VlOYpGVpQ/kLjdvPZ0yePUVloEs3u9ZD5P5saASXJcsJE6KKyX+SrnFn5w7lA6+N1BA4BPIt7/vvXaNR1zckazE+4fBc+96dp8cr6+6CYYXoA=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH0PR12MB8580.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(1800799015)(366007)(376005)(38070700009);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?us-ascii?Q?+r3kSe5Z5p2I/AcY7BBEIU4q7V0hTh2tf7duwyy8wpxCtj1kRTCa83dmhakw?=
- =?us-ascii?Q?vCVrBPSonl6k5gCk4MPGOQfNVE5nl9EO/Jfawi59L0PVWYeePb0+kHYMW7KA?=
- =?us-ascii?Q?VLrTZMlMnPktMRRxKb9Pwe57Sg9NlsPtTW8y0BpSkIZeO2VOWMBzNNzQwRdY?=
- =?us-ascii?Q?E4ovKZEwCJgfos0tuPFFQY9HJf5/UDUs3LK0GgZengnl1cW0vR6CXMOiJGIK?=
- =?us-ascii?Q?CuUgv4MoggiGfI2slzs5VMEzYwDeuEgV/NQN8B6wQKJdv4Jxgv5JHJ521STX?=
- =?us-ascii?Q?72Y+c6SsvAb61uJqdJG0ONiAC2pzh/klZNuMZ1uvDWl1eGj5dR5LvNhr34py?=
- =?us-ascii?Q?/NxECIeH8i3pE1hiI/ozW8vr6i5pdQmSuuOtU50jRK5YQXA1PhPMifI4FAlU?=
- =?us-ascii?Q?k2+UzSs18egGWGk4+jEBZZfVcZK1fD3Sqau7JSE3ozlCiB8XWpoZf2NPHPcA?=
- =?us-ascii?Q?LBl4BHZks6I/uUilreqJ4DoW61bWqIJZnlfah5RYT3eHyg/D90/QBdnrDc31?=
- =?us-ascii?Q?iPcOUoKr4bHF2WETXDyUWjiLwg7lhczszWeOQXBHcLfGAw0o2zdOvpYucd4c?=
- =?us-ascii?Q?MHSvyfngm+bAy9LeSN0N5z0WkflrkxbcDke9sUVgW47e/k5luQxZI2hBHTdG?=
- =?us-ascii?Q?5DuYGghJg+PWUTJjFrOXvNcX+m4e0HFX6cbRd4HUBpCFtmmeGwX1rEMcVwBb?=
- =?us-ascii?Q?MBibnesIsQRHjwOfCA7UHI7R3gFetRE6a4kEaSdAEu64bRlWYPrM953TrNKr?=
- =?us-ascii?Q?EaDCF+uVy7SBf4entwmtK9iC7yl5bV2NvIdGNNTz8oNN0Ikrk1UAtkh+RfJB?=
- =?us-ascii?Q?1P4ZGVgXggLeZvDyOjwCyD2eLBe0u4VPr0tfLBPbUgCkgV+LTE6H0cJabpJl?=
- =?us-ascii?Q?XJTz8c0OlZ5IAHNLi3YVtZoDbkEUjoQZymfzCN6iukbuxzu/zZGm/UF3Scmb?=
- =?us-ascii?Q?+Cdmz+Xhw+dB3bWYeJSBCBeRj9k/1RPusHodhj1KfNdbLvhIoqSBMJjLKTFw?=
- =?us-ascii?Q?6LaF7eSqdfLEQ1dBujyS86aE1k7qgod8YU+Xev0ZfvrEM1TlTQkPaJ4ITnrj?=
- =?us-ascii?Q?50vdmSj1/6NDYT2OoHBxudouHzS/hyl8iK2jnPUI1P7Iog+Ouu8mUtit3gjZ?=
- =?us-ascii?Q?TiQ8kAv+Mm3mJFPBMxrrLRmlHXrV6EtA+VIipTXBVrkGTyRugBpqh5RYnG2T?=
- =?us-ascii?Q?bIOFX2J/I4MQCy6szD+NQqfGGqqqlj16CmNj/Z5LR8kGrsPm/NZqNzlSifUT?=
- =?us-ascii?Q?dyArCoGSl4esobDESjUQRe0rcNVxhB4Usliu7xHsJc8aRY20DLYtaWFgf1wW?=
- =?us-ascii?Q?r2UfBXDxdqM206VZXFcOq+4L6r2iYHMvDEOo7CFDyY73bNgT0kNg6TJDks2d?=
- =?us-ascii?Q?6ZCCk1OeIL+PqchkyPowz9rABIAz5yGG5Yn8dHI8zmQ3Bu0nnRDbOk7zycJ4?=
- =?us-ascii?Q?5sdr3tGqg85Pjw0HHcUgXAPfMz6te4lASM051tyCwQO+2WQpXoCkoF8Jd8Jc?=
- =?us-ascii?Q?rkDImZdOaiZZvLHu8Jr1oUAG/CS5u1Jw4boqY/um7hwY5IEv49T3j527OZ8l?=
- =?us-ascii?Q?jWaG0sx3QgPIpVqLH9A=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GV4Tm+Xg"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1713237484;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=HanHGIwy160qTJhJLx1YqIJsuf6cM52V3/skkv+xCCA=;
+	b=GV4Tm+XgqEU9Yw4BqM+2osSDjofQjsi/Q8GYbS2j676mj4uSGkrn+NNqu30gi/mLDH6ss+
+	JDsBlzW7lToeKD+2IvaORGZ+QaVNAiMemnJ+SoIDflqD/7g7Tjzk//I3GDQbqXOSzhYz39
+	cC0n3KRHW+6IZEDD3DfQOtnc2mRfa44=
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
+ [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-190-6e0y__6UMf6Szm5bc6cnLQ-1; Mon, 15 Apr 2024 23:18:01 -0400
+X-MC-Unique: 6e0y__6UMf6Szm5bc6cnLQ-1
+Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-2a4fc4cf54dso4066955a91.1
+        for <virtualization@lists.linux.dev>; Mon, 15 Apr 2024 20:18:01 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713237480; x=1713842280;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=HanHGIwy160qTJhJLx1YqIJsuf6cM52V3/skkv+xCCA=;
+        b=GE/AIsSqxsBC99ELRkS9SlNJ1A7tmuYdvxHQFtWcSB1GJBgIhXsydcUmNaV6CbwDV0
+         yo0scHy6OtslXejzDXLZM6GB7BzcilEaUAOumqNTy4+UfucqmXOOQII0vAU4vgx0zcRb
+         gFsmd8VS6w3s++oB51ejuqgMIzFuXDZgm1dKwdWmkGZC0EQpFH9AV7NJvSlhIG8r0y2E
+         +nwSWnraRTEY5xrcfR/01cJvnxBy/WL/icvylLAWu8AejcSJFImPQXtTVgq6NAtXL3y0
+         rP/O4t2G4fmP8yJT5JD22ZmW9VfFaMHNL7IGLV8/M/oKjXAzGo9xiNFshkw0wZBtwOjQ
+         CjEA==
+X-Gm-Message-State: AOJu0Yyum44+1REWosXa4sJsPA6xwanuBztf5APxrDVcHnTwQ+42oHCY
+	+390nQGZbwtCI2wv7HajaT4OkijRCxw/7TTfne7eRZVX3bGiXuTJiCN2iuI5D+dDc9iisWWeXQj
+	lkKApSuESPAUiB6kyTROjqMBgzU14HJCHxxoYwnua1zeMQMyOeEsYczwYIxywfYmwAzpPGm2VPY
+	rIhD+25WZvgCHurpSmky6Fah1elSp0BDAeHysWy3s=
+X-Received: by 2002:a17:90b:1b4b:b0:2a2:73e9:c3bf with SMTP id nv11-20020a17090b1b4b00b002a273e9c3bfmr11030513pjb.20.1713237480409;
+        Mon, 15 Apr 2024 20:18:00 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IF8qoJhQbPW9pRVskW959ZliuL1EIsKjXK9+B/o0bagawEXOafJ/4cr8Bn0K9ttDEek8Hpj8WX4CllPdhQQ5Ys=
+X-Received: by 2002:a17:90b:1b4b:b0:2a2:73e9:c3bf with SMTP id
+ nv11-20020a17090b1b4b00b002a273e9c3bfmr11030503pjb.20.1713237480125; Mon, 15
+ Apr 2024 20:18:00 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: CH0PR12MB8580.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 85a1e335-e3a0-4ad0-a82b-08dc5dc37b50
-X-MS-Exchange-CrossTenant-originalarrivaltime: 16 Apr 2024 03:15:34.8136
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: UTnOmnmvbU3Qqwsd8dNdQE/kmrFiAxnKh9CccrHCxbDMKvkqhGmgFiM46kgMGi2ROn0li/8Lfp988Kxwn6PB0g==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB6490
+References: <20240327112136.2897479-1-schalla@marvell.com> <CACGkMEuKhKOtqYUk4Sbv1QmVSuo3AJ1-tX13ZZxdbPmSSNYk9Q@mail.gmail.com>
+ <DS0PR18MB53686F5F53AF5D26B7CE37B6A03A2@DS0PR18MB5368.namprd18.prod.outlook.com>
+ <CACGkMEuAEsApX0ZT=FWVgtvYwpAVhzQGh_1yrUaN5f8A8K7iCw@mail.gmail.com>
+ <DS0PR18MB5368C214A318C026C6A64E45A0062@DS0PR18MB5368.namprd18.prod.outlook.com>
+ <20240410071350-mutt-send-email-mst@kernel.org> <DS0PR18MB5368C21CDDE827AA2A496510A0062@DS0PR18MB5368.namprd18.prod.outlook.com>
+ <CACGkMEvYXPPp9Jbkx4ucXL7WYBkCMggCJJHVZUg2JuNc7DMJPw@mail.gmail.com>
+ <DS0PR18MB53685690485AACEEFB8D766CA0042@DS0PR18MB5368.namprd18.prod.outlook.com>
+ <CACGkMEvg1ng88-v+ih+LnKgfiSNjJQZTLBkbdM4Z+t9oOosxbw@mail.gmail.com>
+ <DS0PR18MB53684432E58CC810569D62D8A0042@DS0PR18MB5368.namprd18.prod.outlook.com>
+ <CACGkMEtR-eEc3-MEMMvixZ4w93wNoJjeuqhgNsP=62oZfZHd5A@mail.gmail.com> <PH7PR18MB535426965C489176FA9D8281A0092@PH7PR18MB5354.namprd18.prod.outlook.com>
+In-Reply-To: <PH7PR18MB535426965C489176FA9D8281A0092@PH7PR18MB5354.namprd18.prod.outlook.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Tue, 16 Apr 2024 11:17:48 +0800
+Message-ID: <CACGkMEtMvb6HOebVxjn8070+PvtPp=9FAvuNA6uKd4NK+L996Q@mail.gmail.com>
+Subject: Re: [EXTERNAL] Re: [PATCH] virtio: vdpa: vDPA driver for Marvell
+ OCTEON DPU devices
+To: Srujana Challa <schalla@marvell.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>, Vamsi Krishna Attunuru <vattunuru@marvell.com>, 
+	Shijith Thotton <sthotton@marvell.com>, Nithin Kumar Dabilpuram <ndabilpuram@marvell.com>, 
+	Jerin Jacob <jerinj@marvell.com>, eperezma <eperezma@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-> From: Jakub Kicinski <kuba@kernel.org>
-> Sent: Friday, April 12, 2024 9:21 PM
-> To: Dan Jurgens <danielj@nvidia.com>
-> Cc: netdev@vger.kernel.org; mst@redhat.com; jasowang@redhat.com;
-> xuanzhuo@linux.alibaba.com; virtualization@lists.linux.dev;
-> davem@davemloft.net; edumazet@google.com; pabeni@redhat.com; Jiri
-> Pirko <jiri@nvidia.com>
-> Subject: Re: [PATCH net-next v3 5/6] virtio_net: Add a lock for per queue=
- RX
-> coalesce
->=20
-> On Fri, 12 Apr 2024 14:53:08 -0500 Daniel Jurgens wrote:
-> > Once the RTNL locking around the control buffer is removed there can
-> > be contention on the per queue RX interrupt coalescing data. Use a
-> > spin lock per queue.
->=20
-> Does not compile on Clang.
+On Mon, Apr 15, 2024 at 8:42=E2=80=AFPM Srujana Challa <schalla@marvell.com=
+> wrote:
+>
+> > Subject: Re: [EXTERNAL] Re: [PATCH] virtio: vdpa: vDPA driver for Marve=
+ll
+> > OCTEON DPU devices
+> >
+> > On Fri, Apr 12, 2024 at 5:49=E2=80=AFPM Srujana Challa <schalla@marvell=
+.com> wrote:
+> > >
+> > > > Subject: Re: [EXTERNAL] Re: [PATCH] virtio: vdpa: vDPA driver for
+> > > > Marvell OCTEON DPU devices
+> > > >
+> > > > On Fri, Apr 12, 2024 at 1:13=E2=80=AFPM Srujana Challa <schalla@mar=
+vell.com>
+> > wrote:
+> > > > >
+> > > > >
+> > > > >
+> > > > > > -----Original Message-----
+> > > > > > From: Jason Wang <jasowang@redhat.com>
+> > > > > > Sent: Thursday, April 11, 2024 11:32 AM
+> > > > > > To: Srujana Challa <schalla@marvell.com>
+> > > > > > Cc: Michael S. Tsirkin <mst@redhat.com>;
+> > > > > > virtualization@lists.linux.dev; xuanzhuo@linux.alibaba.com;
+> > > > > > Vamsi Krishna Attunuru <vattunuru@marvell.com>; Shijith Thotton
+> > > > > > <sthotton@marvell.com>; Nithin Kumar Dabilpuram
+> > > > > > <ndabilpuram@marvell.com>; Jerin Jacob <jerinj@marvell.com>;
+> > > > > > eperezma <eperezma@redhat.com>
+> > > > > > Subject: Re: [EXTERNAL] Re: [PATCH] virtio: vdpa: vDPA driver
+> > > > > > for Marvell OCTEON DPU devices
+> > > > > >
+> > > > > > On Wed, Apr 10, 2024 at 8:35=E2=80=AFPM Srujana Challa
+> > > > > > <schalla@marvell.com>
+> > > > > > wrote:
+> > > > > > >
+> > > > > > > > Subject: Re: [EXTERNAL] Re: [PATCH] virtio: vdpa: vDPA
+> > > > > > > > driver for Marvell OCTEON DPU devices
+> > > > > > > >
+> > > > > > > > On Wed, Apr 10, 2024 at 10:15:37AM +0000, Srujana Challa wr=
+ote:
+> > > > > > > > > > > > > +
+> > > > > > > > > > > > > +       domain =3D iommu_get_domain_for_dev(dev);
+> > > > > > > > > > > > > +       if (!domain || domain->type =3D=3D
+> > > > > > > > > > > > > + IOMMU_DOMAIN_IDENTITY)
+> > > > > > {
+> > > > > > > > > > > > > +               dev_info(dev, "NO-IOMMU\n");
+> > > > > > > > > > > > > +               octep_vdpa_ops.set_map =3D
+> > > > > > > > > > > > > + octep_vdpa_set_map;
+> > > > > > > > > > > >
+> > > > > > > > > > > > Is this a shortcut to have get better performance?
+> > > > > > > > > > > > DMA API should have those greacefully I think.
+> > > > > > > > > > > When IOMMU is disabled on host and set_map/dma_map is
+> > > > > > > > > > > not set, vhost-vdpa is reporting an error "Failed to
+> > > > > > > > > > > allocate domain, device is not
+> > > > > > > > > > IOMMU cache coherent capable\n".
+> > > > > > > > > > > Hence we are doing this way to get better performance=
+.
+> > > > > > > > > >
+> > > > > > > > > > The problem is, assuming the device does not have any
+> > > > > > > > > > internal
+> > > > > > IOMMU.
+> > > > > > > > > >
+> > > > > > > > > > 1) If we allow it running without IOMMU, it opens a
+> > > > > > > > > > window for guest to attack the host.
+> > > > > > > > > > 2) If you see perforamnce issue with
+> > > > > > > > > > IOMMU_DOMAIN_IDENTITY, let's report it to DMA/IOMMU
+> > > > > > > > > > maintiner to fix that
+> > > > > > > > > It will be helpful for host networking case when iommu is=
+ disabled.
+> > > > > > > > > Can we take the vfio pci driver approach as a reference
+> > > > > > > > > where user explicitly set "enable_unsafe_noiommu_mode"
+> > > > > > > > > using module
+> > > > param?
+> > > > > > > >
+> > > > > > > > vfio is a userspace driver so it's userspace's responsibili=
+ty.
+> > > > > > > > what exactly ensures correctness here? does the device have
+> > > > > > > > an on-chip iommu?
+> > > > > > > >
+> > > > > > > Our device features an on-chip IOMMU, although it is not
+> > > > > > > utilized for host-side targeted DMA operations. We included
+> > > > > > > no-iommu mode in our driver to ensure that host applications,
+> > > > > > > such as DPDK Virtio user PMD, continue to function even when
+> > > > > > > operating in a no-
+> > > > IOMMU mode.
+> > > > > >
+> > > > > > I may miss something but set_map() is empty in this driver. How
+> > > > > > could such isolation be done?
+> > > > >
+> > > > > In no-iommu case, there would be no domain right, and the user of
+> > > > > vhost-vdpa(DPDK virtio user pmd), would create the mapping and
+> > > > > pass the PA (=3D IOVA) to the device directly. So that, device ca=
+n
+> > > > > directly DMA to the
+> > > > PA.
+> > > >
+> > > > Yes, but this doesn't differ too much from the case where DMA API i=
+s
+> > > > used with IOMMU disabled.
+> > > >
+> > > > Are you saying DMA API introduces overheads in this case?
+> > > No actually, current vhost-vdpa code is not allowing IOMMU disabled
+> > > mode, If set_map/dma_map op is not set. Hence, we are setting set_map
+> > > with dummy api to allow IOMMU disabled mode.
+> > >
+> > > Following is the code snippet from drivers/vhost/vdpa.c
+> > >
+> > >       /* Device want to do DMA by itself */
+> > >         if (ops->set_map || ops->dma_map)
+> > >                 return 0;
+> > >
+> > >         bus =3D dma_dev->bus;
+> > >         if (!bus)
+> > >                 return -EFAULT;
+> > >
+> > >        if (!device_iommu_capable(dma_dev,
+> > IOMMU_CAP_CACHE_COHERENCY))
+> > >                 return -ENOTSUPP;
+> >
+> > Right, so here's the question.
+> >
+> > When IOMMU is disabled, if there's no isolation from the device on-chip
+> > IOMMU. It might have security implications. For example if we're using =
+PA,
+> > userspace could attack the kernel.
+> >
+> > So there should be some logic in the set_map() to program the on-chip
+> > IOMMU to isolate DMA in that case but I don't see such implementation d=
+one
+> > in set_map().
+>
+> Our chip lacks support for on-chip IOMMU for host-side targeted DMA opera=
+tions.
+> When using the DPDK virtio user PMD, we=E2=80=99ve noticed a significant =
+80% performance
+> improvement when IOMMU is disabled on specific x86 machines. This perform=
+ance
+> improvement can be leveraged by embedded platforms where applications run=
+ in
+> controlled environment.
+> May be it's a trade-off between security and performance.
+>
+> We can disable the no-iommu support by default and enable it through some=
+ module
+> parameter and taint the kernel similar to VFIO driver(enable_unsafe_noiom=
+mu_mode) right?
 
-Which version? It compiles for me with:
-$ clang -v
-clang version 15.0.7 (Fedora 15.0.7-2.fc37)
+Could be one way.
 
->=20
-> > +			scoped_guard(spinlock, &vi->rq[i].intr_coal_lock) {
-> > +				err =3D virtnet_send_rx_ctrl_coal_vq_cmd(vi, i,
-> > +								       vi-
-> >intr_coal_rx.max_usecs,
-> > +								       vi-
-> >intr_coal_rx.max_packets);
-> > +				if (err)
-> > +					return err;
-> > +			}
->=20
-> Do you really think this needs a scoped guard and 4th indentation level,
-> instead of just:
->=20
-> 			..lock(..);
-> 			err =3D virtnet_send_rx_ctrl_coal_vq_cmd(vi, i,
-> 							       vi-
-> >intr_coal_rx.max_usecs,
-> 							       vi-
-> >intr_coal_rx.max_packets);
-> 			..unlock(..);
+Michael, any thoughts on this?
 
-I'll change it in the next version.
+Thanks
 
-> 			if (err)
-> 				return err;
->=20
-> > +		scoped_guard(spinlock, &vi->rq[i].intr_coal_lock) {
-> > +			vi->rq[i].intr_coal.max_usecs =3D ec-
-> >rx_coalesce_usecs;
-> > +			vi->rq[i].intr_coal.max_packets =3D ec-
-> >rx_max_coalesced_frames;
-> > +		}
->=20
-> :-|
-> --
-> pw-bot: cr
+> >
+> > >
+> > > Performance degradation when iommu enabled is not with DMA API but th=
+e
+> > > x86 HW IOMMU translation performance on certain low end x86 machines.
+> >
+> > This might be true but it's not specific to vDPA I think?
+> >
+> > Thanks
+> >
+> > >
+> > > >
+> > > > Thanks
+> > > >
+> > > > >
+> > > > > >
+> > > > > > > We observed performance impacts on certain low-end x86
+> > > > > > > machines when IOMMU mode was enabled.
+> > > > > > > I think, correctness is Host userspace application's
+> > > > > > > responsibility, in this case when vhost-vdpa is used with Hos=
+t
+> > > > > > > application such as DPDK
+> > > > > > Virtio user PMD.
+> > > > > >
+> > > > > > Thanks
+> > > > > >
+> > > > > > >
+> > > > > > > > > >
+> > > > > > > > > > Thanks
+> > > > > > > > >
+> > > > > > > > > Thanks.
+> > > > > > > > >
+> > > > > > >
+> > > > >
+> > >
+>
+
