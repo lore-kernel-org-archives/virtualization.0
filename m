@@ -1,119 +1,132 @@
-Received: from mail-yw1-f178.google.com (mail-yw1-f178.google.com [209.85.128.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34AB1157469
-	for <virtualization@lists.linux.dev>; Mon, 15 Apr 2024 21:39:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2A3213AF9
+	for <virtualization@lists.linux.dev>; Tue, 16 Apr 2024 02:27:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713217186; cv=none; b=XTT1JMMabAq030+ZJZBgbpbMWMuIWRml7DA5dHLmOzLOT71flik32s2SU1CjnlfGcK/IqZMIlHw6wPEf0GD11exOR4xY68NUo8LGwvf5C33hkC4Cp0w/UhghhyZA1rdlvRZBABU+GvvoI3xuCJUfoDNKwz85XgCkmMZ3qPYJlTY=
+	t=1713234449; cv=none; b=eluNEidI4z7ZzLYARUyac1R7Y1VV5erhiD2Zlm0wpd+4uSYJEX/mERB6uWccXykwzmMjdGxLi8rv/gUbuVj0Sv8KMLYYS7lqKN/jB/hRIHRwvgGKCtxOLZsrFn6bbhPRU4XQC/0lIuguwycri6urCRJm4SjIoh8dDFu7XzzgYIg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713217186; c=relaxed/simple;
-	bh=Ou+FvOs1B0WuJzy4wjnTiHrS07o3mwtSQsNGZnNkSo4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=U4uFbh5DJqUgusN4clcuvdFoDuJtGIlqpAJNs8szAbKfKddwq85wJl3R+h65PzIy5AEkxVo0sZMvIjW9BK0knlvYRKuzkJjfe2fSe4aUct8iVk6BkT4zwZX0IaaRaydy/cRk71xlDvFEH+fh9JnGrFlwU1KEIFMzvmitI8J/8xA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G+JMXU1f; arc=none smtp.client-ip=209.85.128.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1713234449; c=relaxed/simple;
+	bh=klJSczXd7a5izXPTzPLWa4oItlqlCgcuCGH5GqNNFSk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=PSwRLCIwWWImaZ3UlW8rgdI190M2tGlJsOy9nYpetUWyCFJWiNWDDAelHu2hsD3pig1PvAUpzEpKA3Ov3Yd2nh3ENhdREDkxuvNeqTWFiMruKsOWVmUIdzvUH0zT+kRH9At5dhVxablpGh7NKClLahE27rLpMF56bM7VncETHZo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=a5WIioG/; arc=none smtp.client-ip=115.124.30.100
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G+JMXU1f"
-Received: by mail-yw1-f178.google.com with SMTP id 00721157ae682-61ad5f2c231so15808837b3.2
-        for <virtualization@lists.linux.dev>; Mon, 15 Apr 2024 14:39:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1713217184; x=1713821984; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=O4Igzsw7nTVFssFguk/Rbj2YFohqP9KtmCQuZOOHSCU=;
-        b=G+JMXU1fEh1N0hSPQzMEqvLy/Ls8t8scvXIZx1Pw0QC2g77DElgDhC60a0/e3iL9c5
-         Ulq1fg07FOcz+Xx5bUfAk3Th1Z4SUJjjLJYC7x6Q8LUKQLRJwUP1gTR2Xewnglv21/Ln
-         D4UHXIhZ8f3Y/SPBjNoDCtAVAwdik+XNlxkSEQpogPcS01QdOYMO3fTpkxOiFI8VDdyZ
-         Vy9dfzexMl2yazchki34bvIrP9CycsFifwCTssHZ2cKFLKW/apGp7aE7S8QxCznlZ0OK
-         RZaoypdoBuHeV3B97Zc1NfXfODtNwLsV2fo4UfIUr2ddoiIyv3SBFVcL0y12AtUQucEe
-         b8hA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713217184; x=1713821984;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=O4Igzsw7nTVFssFguk/Rbj2YFohqP9KtmCQuZOOHSCU=;
-        b=tJ0nKFvAN+bbhaIFzCc4wt+8kmWwU4lMf+VE+fdTmncg5rkb0hQ/YGjFwPhcs3O244
-         ZxEzvrWRzr+0Q5cUUbQWN6oKcGxdE+C6cewmVbD/yXe0MOnlqrvN34/vhALI1bAjk6eH
-         QKNQe8hRfxhlTv9nV8i14HhPnzTNjcEJMJGOTAwXnNH+xughhELsc/IPnx0GSYq4wX9l
-         LOPAveYHaBS+TtNABh+EGPBO4mFUYxnxR29YuLBocOaVWn1o1Ycx/AjRssHnb6bdY5yG
-         wVrh0rckzDkcS4Q+WsqKNU5rnt7V2P2vrzq21/AIshy7nf/GwdiXB8BjpkvN/be4xjhQ
-         YLFg==
-X-Forwarded-Encrypted: i=1; AJvYcCUnsqLfJuSTCcu3To9HTjVudM/UM5UI5UKjaX39aAJDep6bk3MPb395bNHYtnjvhMLHFLvPKcaZptnY+Z5MhabXsBwLRaOmqKWiH98y2uI=
-X-Gm-Message-State: AOJu0YzGNM9FsHV3TBPLU90PGgtKfmFVT4J5W981OrEqa6OKvN5kbFsg
-	OkJ1T1Va7CfdphY6yO+Fqd8JmMe7ZvqEapvb1zrsSonwsU8LS7Y2
-X-Google-Smtp-Source: AGHT+IEuBFvQdGq8XC+xGsXmOG6swS+A7y4Wz4C+E83HgqZ7NES/HexAlN3tWxT3W9BaCURm0cI74g==
-X-Received: by 2002:a0d:f584:0:b0:618:8a27:f26 with SMTP id e126-20020a0df584000000b006188a270f26mr8434646ywf.48.1713217184009;
-        Mon, 15 Apr 2024 14:39:44 -0700 (PDT)
-Received: from localhost ([2001:18c0:22:6700:503f:95a9:a73f:4ee8])
-        by smtp.gmail.com with ESMTPSA id l25-20020a05620a211900b0078d67d40c49sm6825704qkl.70.2024.04.15.14.39.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Apr 2024 14:39:43 -0700 (PDT)
-Date: Mon, 15 Apr 2024 17:39:42 -0400
-From: Benjamin Poirier <benjamin.poirier@gmail.com>
-To: Jiri Pirko <jiri@resnulli.us>
-Cc: netdev@vger.kernel.org, kuba@kernel.org, pabeni@redhat.com,
-	davem@davemloft.net, edumazet@google.com, parav@nvidia.com,
-	mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
-	shuah@kernel.org, petrm@nvidia.com, liuhangbin@gmail.com,
-	vladimir.oltean@nxp.com, idosch@nvidia.com,
-	virtualization@lists.linux.dev
-Subject: Re: [patch net-next v2 5/6] selftests: forwarding: add
- wait_for_dev() helper
-Message-ID: <Zh2enn9ArVKDrdIy@f4>
-References: <20240415162530.3594670-1-jiri@resnulli.us>
- <20240415162530.3594670-6-jiri@resnulli.us>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="a5WIioG/"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1713234444; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=Ur6dE2kveXQmyC8klKyeWxv9058DN9W2YwUV0NRk0Mc=;
+	b=a5WIioG/96wfKoQxoGu4rmOgkngVy/2vGAw3S0B4XtXtl2kzTjsqwGDmWUgg3duRJhQGTU2+gUVsA/LNH7V7G433KMQE/znUUta6xP99kcIK0ey9gax6ZryjOawFmxrNTnT/CQvjeWz6n12YZOw1VS55zzaSfOtOZjIpzgDyces=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0W4fosp8_1713234442;
+Received: from 30.221.148.212(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W4fosp8_1713234442)
+          by smtp.aliyun-inc.com;
+          Tue, 16 Apr 2024 10:27:23 +0800
+Message-ID: <e8d84e95-cab4-447c-b8f2-54444e80e556@linux.alibaba.com>
+Date: Tue, 16 Apr 2024 10:27:21 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240415162530.3594670-6-jiri@resnulli.us>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v7 2/4] ethtool: provide customized dim profile
+ management
+To: Simon Horman <horms@kernel.org>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
+ Jakub Kicinski <kuba@kernel.org>, "David S . Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, "Michael S . Tsirkin" <mst@redhat.com>,
+ Brett Creeley <bcreeley@amd.com>, Ratheesh Kannoth <rkannoth@marvell.com>,
+ Alexander Lobakin <aleksander.lobakin@intel.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+References: <20240415093638.123962-1-hengqi@linux.alibaba.com>
+ <20240415093638.123962-3-hengqi@linux.alibaba.com>
+ <20240415200343.GG2320920@kernel.org>
+From: Heng Qi <hengqi@linux.alibaba.com>
+In-Reply-To: <20240415200343.GG2320920@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On 2024-04-15 18:25 +0200, Jiri Pirko wrote:
-> From: Jiri Pirko <jiri@nvidia.com>
-> 
-> The existing setup_wait*() helper family check the status of the
-> interface to be up. Introduce wait_for_dev() to wait for the netdevice
-> to appear, for example after test script does manual device bind.
-> 
-> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
-> ---
-> v1->v2:
-> - reworked wait_for_dev() helper to use slowwait() helper
-> ---
->  tools/testing/selftests/net/forwarding/lib.sh | 13 +++++++++++++
->  1 file changed, 13 insertions(+)
-> 
-> diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
-> index 254698c6ba56..e85b361dc85d 100644
-> --- a/tools/testing/selftests/net/forwarding/lib.sh
-> +++ b/tools/testing/selftests/net/forwarding/lib.sh
-> @@ -746,6 +746,19 @@ setup_wait()
->  	sleep $WAIT_TIME
->  }
->  
-> +wait_for_dev()
-> +{
-> +        local dev=$1; shift
-> +        local timeout=${1:-$WAIT_TIMEOUT}; shift
-> +
-> +        slowwait $timeout ip link show dev $dev up &> /dev/null
 
-Sorry, I just noticed that this includes the "up" flag. I was confused
-for a while until I realized that `ip` returns success even if the
-interface is not up:
 
-# ip link set dev eth1 down
-# ip link show dev eth1 up
-# echo $?
-0
+在 2024/4/16 上午4:03, Simon Horman 写道:
+> On Mon, Apr 15, 2024 at 05:36:36PM +0800, Heng Qi wrote:
+>
+> ...
+>
+>> @@ -10229,6 +10230,61 @@ static void netdev_do_free_pcpu_stats(struct net_device *dev)
+>>   	}
+>>   }
+>>   
+>> +static int dev_dim_profile_init(struct net_device *dev)
+>> +{
+>> +#if IS_ENABLED(CONFIG_DIMLIB)
+>> +	u32 supported = dev->ethtool_ops->supported_coalesce_params;
+>> +	struct netdev_profile_moder *moder;
+>> +	int length;
+>> +
+>> +	dev->moderation = kzalloc(sizeof(*dev->moderation), GFP_KERNEL);
+>> +	if (!dev->moderation)
+>> +		goto err_moder;
+>> +
+>> +	moder = dev->moderation;
+>> +	length = NET_DIM_PARAMS_NUM_PROFILES * sizeof(*moder->rx_eqe_profile);
+>> +
+>> +	if (supported & ETHTOOL_COALESCE_RX_EQE_PROFILE) {
+>> +		moder->rx_eqe_profile = kzalloc(length, GFP_KERNEL);
+>> +		if (!moder->rx_eqe_profile)
+>> +			goto err_rx_eqe;
+>> +		memcpy(moder->rx_eqe_profile, rx_profile[0], length);
+>> +	}
+>> +	if (supported & ETHTOOL_COALESCE_RX_CQE_PROFILE) {
+>> +		moder->rx_cqe_profile = kzalloc(length, GFP_KERNEL);
+>> +		if (!moder->rx_cqe_profile)
+>> +			goto err_rx_cqe;
+>> +		memcpy(moder->rx_cqe_profile, rx_profile[1], length);
+>> +	}
+>> +	if (supported & ETHTOOL_COALESCE_TX_EQE_PROFILE) {
+>> +		moder->tx_eqe_profile = kzalloc(length, GFP_KERNEL);
+>> +		if (!moder->tx_eqe_profile)
+>> +			goto err_tx_eqe;
+>> +		memcpy(moder->tx_eqe_profile, tx_profile[0], length);
+>> +	}
+>> +	if (supported & ETHTOOL_COALESCE_TX_CQE_PROFILE) {
+>> +		moder->tx_cqe_profile = kzalloc(length, GFP_KERNEL);
+>> +		if (!moder->tx_cqe_profile)
+>> +			goto err_tx_cqe;
+>> +		memcpy(moder->tx_cqe_profile, tx_profile[1], length);
+>> +	}
+> nit: Coccinelle suggests that the kzalloc()/memcpy() pattern above
+>       could be replaced with calls to kmemdup()
 
-So wait_for_dev() really does just wait for the device to appear, not
-for it to be up. If you agree, please remove the 'up' keyword to avoid
-confusion.
+Good idea.
+
+Thanks.
+
+>> +#endif
+>> +	return 0;
+>> +
+>> +#if IS_ENABLED(CONFIG_DIMLIB)
+>> +err_tx_cqe:
+>> +	kfree(moder->tx_eqe_profile);
+>> +err_tx_eqe:
+>> +	kfree(moder->rx_cqe_profile);
+>> +err_rx_cqe:
+>> +	kfree(moder->rx_eqe_profile);
+>> +err_rx_eqe:
+>> +	kfree(moder);
+>> +err_moder:
+>> +	return -ENOMEM;
+>> +#endif
+>> +}
+>> +
+>>   /**
+>>    * register_netdevice() - register a network device
+>>    * @dev: device to register
+> ...
+
