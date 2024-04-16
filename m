@@ -1,121 +1,145 @@
-Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 047D61292D7
-	for <virtualization@lists.linux.dev>; Tue, 16 Apr 2024 13:03:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A396212BF24
+	for <virtualization@lists.linux.dev>; Tue, 16 Apr 2024 13:23:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713272595; cv=none; b=O1SuSh1+bbZtApqUz8HhzqAvZtxLGPYA/icZUsoSL5C5K+wfxgRz+OREpsqZo/GM4NErBj+lkbQ7RCueMqWRjpRvUX+IE0rwcYiNMFF4nIAycCnV4cl3WqYvWC466G9SEXVzEbHhA1Sb0VNqekwRQv6+6bjFijLD9gLn6+r3g1I=
+	t=1713273814; cv=none; b=tfNNAGgrqsBlyZtkDDqOA8xn4jUpTq0tq054nvxkbEWNLuE7DJWU//uZwENbHspt5+i2qWD5eRe4B3GTmdWfKehj8sdcloMIAiAnjx7QjoT8TVj9HStJO0UFEH/OS8P3ITYLTagClZc1ueS2LDhnznEnazC2Tja1DIPYDOGyMtk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713272595; c=relaxed/simple;
-	bh=dhYROQg4XWteWDYZ5krf2keKG/9XCEg89sGPS1DTzsI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DJJok6oRME+A3k7Cx4S5LirlHWK6qySCSt8cshb2bSdrsXZtlzQ3EMhyze19FNbVJp1JqOV391PF8y897JhiZcegmwdB6bj4LwheC04c8h0E59BTS8La6f5xVxBXS/EuHNnuVRnTXndXiXRtMRUoB0JFeT5MhQbWDLF5FcdqL3c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=lS8IKxyO; arc=none smtp.client-ip=209.85.128.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+	s=arc-20240116; t=1713273814; c=relaxed/simple;
+	bh=RZB0tOlpCYjyljswPyZbVq66p3GCBqf824wF8Y+BCjw=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=qwovj0gXBR8GjR6Nu7t0qqXQ/pD9wh14dMpnFBAiPyGjSaPTlq0S4Jdfw2yZ4ZJLihoCDq2zMR+laENLeVYlgpx0XYfJBc1AbGjoSOZwRNAovXOmGGJPA0bZUHIl/eUCns+3auFgVN9gz2xapftlueRboDIuk6RbJHosXkZH/wY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=IxW0+zY5; arc=none smtp.client-ip=198.175.65.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="lS8IKxyO"
-Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-41881bce4b5so11966025e9.2
-        for <virtualization@lists.linux.dev>; Tue, 16 Apr 2024 06:03:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1713272591; x=1713877391; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=/6q7NOzAqjEGHCoFf5Mh990/OZO+Hd3GsoPPU2va58A=;
-        b=lS8IKxyOX2Sdnv7BWI3gnKDKeqs87RRDYlPIpEjnkepdlKBkkWorVNqoJNIVHvwvhD
-         BV5M8MGM9PpWX6rP0Rwlex4FUS3Jxj6Oox2ALE7h/UeSVZdhx42hc7BKyobpwFjubSsx
-         LIWJR5qZUhCxpYprH8qwT4GzYwRimmmAEpuGUFpKoU0LopjVxwphqlTht9G/3tCWRVU0
-         n5tejhe+JXOfsqmcG+KBWckJW3BmULoZMdcC+7A6pfnccVmLPesg418ifb64+LibWPZi
-         HxHwuRD9d9f9a+E+Y7z2l+AG+bSaREIWpYoga3Wq3fsyGvOa1LMvG+7cL0xiUwtVn0Vt
-         rUxA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713272591; x=1713877391;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=/6q7NOzAqjEGHCoFf5Mh990/OZO+Hd3GsoPPU2va58A=;
-        b=TVuCciy/oCnls2qvPSjYWh4Wqal71JyjlEfJ7hOID4HO4r9aT/wl56ihQPuyfz5emE
-         xCpY/P5KKgBmpssgBMWxNvejVVKa5smdJKfB8lIrbulGKiZfbiGI+lkwmYCIQbNPCTvH
-         wKhDJyXxph0vmmtLrKU9bVhijO5dVnOJAEchtz/LDbe+0hR52vNoycY2gRxvdpGTbbRI
-         qVlxV8kDCVKVxtcFQ6uSDlfgvUjvoQpiGbcfNnOdDWeOlE2vB5G4B6ra5gn1bAwLzc3P
-         z2YuAV0YM8vSfmawefJ0hrEVp7M59EvSQnZm1nOudSa9IgyVjm48u6zQudVRZX0UUda7
-         XCXw==
-X-Forwarded-Encrypted: i=1; AJvYcCU1PNIVrZtk1BGVpXBJ+UDGeHmS2WGY0PE81UsWYoJrcSJicHkxlUe765Qf6ulhVI+SGOOlKlbLNahDbvgpIJBvCQ6DfR/7HOZH7D27Ugw=
-X-Gm-Message-State: AOJu0YwTHRx6cmJAcKbRp3YUN0eHAmHxbJSTNG1VW7FC1oyvEOOXGWBq
-	/efR5CpmzsclKJZgTq79JwtkvyerWWT7otrLl2MMnGyPK7sGYSL1joMUft+uPRo=
-X-Google-Smtp-Source: AGHT+IE43qjBRyIW7+rvy620e+DWtCVePv+9ozMyupytb5Sixra3d6zzt0fBg5YAaNnNdTW6D/PGkQ==
-X-Received: by 2002:a05:600c:4fd6:b0:418:9dd2:fd04 with SMTP id o22-20020a05600c4fd600b004189dd2fd04mr1100873wmq.13.1713272591043;
-        Tue, 16 Apr 2024 06:03:11 -0700 (PDT)
-Received: from localhost (78-80-105-131.customers.tmcz.cz. [78.80.105.131])
-        by smtp.gmail.com with ESMTPSA id e22-20020a05600c4e5600b00418980a1ce5sm1987106wmq.7.2024.04.16.06.03.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Apr 2024 06:03:10 -0700 (PDT)
-Date: Tue, 16 Apr 2024 15:03:09 +0200
-From: Jiri Pirko <jiri@resnulli.us>
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: netdev@vger.kernel.org, pabeni@redhat.com, davem@davemloft.net,
-	edumazet@google.com, parav@nvidia.com, mst@redhat.com,
-	jasowang@redhat.com, xuanzhuo@linux.alibaba.com, shuah@kernel.org,
-	petrm@nvidia.com, liuhangbin@gmail.com, vladimir.oltean@nxp.com,
-	bpoirier@nvidia.com, idosch@nvidia.com,
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="IxW0+zY5"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1713273812; x=1744809812;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=RZB0tOlpCYjyljswPyZbVq66p3GCBqf824wF8Y+BCjw=;
+  b=IxW0+zY5y61bPeFgrWzTu4mJrrus64IT6q6cB1wRh7iUgRuWNSLf7ziq
+   nFtCGDzK7vlzr7MLIY801Hpz00ejHfNQgOGvo+Adqwy4Vw/CLEM0PszWX
+   V6KS1berquOHsvBSCIVPXK1d/GJwlH0Uq70EdHM/30DqESDd5ssiu4kqP
+   g1rHumBKTmZfEt99UMKyR5+t4mgXFpC3233ann5MSAZhnoZFIDgtlRP/o
+   TEgiSc7zCUxxdhpx6fSSFsmMWbLNXXuanYxEDAwjLF+MtLXz5l26KnBVO
+   kOuG/WaaTy0A8DUq+ascmqIPMMPvazl4Y5M96f0Uh+ROnkYCQa1De6JWm
+   Q==;
+X-CSE-ConnectionGUID: aU8ZV5iXQaG/9Xe8CXO9Jw==
+X-CSE-MsgGUID: 08WOhIuHTlyBWGn6DJa0vw==
+X-IronPort-AV: E=McAfee;i="6600,9927,11046"; a="20131365"
+X-IronPort-AV: E=Sophos;i="6.07,206,1708416000"; 
+   d="scan'208";a="20131365"
+Received: from orviesa005.jf.intel.com ([10.64.159.145])
+  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Apr 2024 06:23:31 -0700
+X-CSE-ConnectionGUID: V9TmDB/kREKuWnmuqOaqCg==
+X-CSE-MsgGUID: zpQgh7s7Q8WnmcsUAz4Dow==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.07,206,1708416000"; 
+   d="scan'208";a="27055414"
+Received: from martakit-mobl.ger.corp.intel.com (HELO localhost) ([10.252.44.100])
+  by orviesa005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Apr 2024 06:23:29 -0700
+From: Jani Nikula <jani.nikula@intel.com>
+To: dri-devel@lists.freedesktop.org
+Cc: Jani Nikula <jani.nikula@intel.com>,
+	Gerd Hoffmann <kraxel@redhat.com>,
 	virtualization@lists.linux.dev
-Subject: Re: [patch net-next 0/6] selftests: virtio_net: introduce initial
- testing infrastructure
-Message-ID: <Zh53DaJkqxPC4_ZX@nanopsycho>
-References: <20240412151314.3365034-1-jiri@resnulli.us>
- <20240412180428.35b83923@kernel.org>
- <ZhqHadH3G5kfGO8H@nanopsycho>
- <20240415102659.7f72ae8d@kernel.org>
- <Zh5Kn5OnDdzgB6Rm@nanopsycho>
+Subject: [PATCH 11/15] drm/bochs: switch to struct drm_edid
+Date: Tue, 16 Apr 2024 16:22:25 +0300
+Message-Id: <281496d257f8efa830d1facaa260684001aa7158.1713273659.git.jani.nikula@intel.com>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <cover.1713273659.git.jani.nikula@intel.com>
+References: <cover.1713273659.git.jani.nikula@intel.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Zh5Kn5OnDdzgB6Rm@nanopsycho>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Content-Transfer-Encoding: 8bit
 
-Tue, Apr 16, 2024 at 11:53:35AM CEST, jiri@resnulli.us wrote:
->Mon, Apr 15, 2024 at 07:26:59PM CEST, kuba@kernel.org wrote:
->>On Sat, 13 Apr 2024 15:23:53 +0200 Jiri Pirko wrote:
->>> That is a goal. Currently I do it with:
->>> vng --qemu-opts="-nic tap,id=nd0,ifname=xtap0,model=virtio-net-pci,script=no,downscript=no,mac=52:54:00:12:34:57 -nic tap,id=nd1,ifname=xtap1,model=virtio-net-pci,script=no,downscript=no,mac=52:54:00:12:34:58"
->>> 
->>> and setting loop manually with tc-matchall-mirred
->>> 
->>> Implementing virtio loop instantiation in vng is on the todo list for
->>> this.
->>
->>Just to be clear - I think the loop configuration is better off outside
->>vng. It may need SUID and such. We just need to make vng spawn the two
->>interfaces with a less verbose syntax. --network-count 2 ?
->
->Well, you ask vng for network device by:
->--net=user/bridge
->
->Currently putting the option multiple times is ignored, but I don't see
->why that can't work.
->
->Regarding the loop configuration, I would like to make this as
->convenient for the user as possible, I was thinking about something like
->--net=loop which would create the tc-based loop.
->
->How to do this without root, I'm not sure. Perhaps something similar
->like qemu-bridge-helper could be used.
+Prefer struct drm_edid based functions over struct edid.
 
-Ha, qemu knows how to solve this already:
-       -netdev hubport,id=id,hubid=hubid[,netdev=nd]
-              Create a hub port on the emulated hub with ID hubid.
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 
-              The hubport netdev lets you connect a NIC to a QEMU emulated hub
-              instead of a single netdev. Alternatively, you can also  connect
-              the  hubport to another netdev with ID nd by using the netdev=nd
-              option.
+---
 
-I cooked-up a testing vng patch, so the user can pass "--net=loop":
-https://github.com/arighi/virtme-ng/commit/84a26ba92c9834c09d16fc1a4dc3a69c4d758236
+Cc: Gerd Hoffmann <kraxel@redhat.com>
+Cc: virtualization@lists.linux.dev
+---
+ drivers/gpu/drm/tiny/bochs.c | 23 ++++++++++-------------
+ 1 file changed, 10 insertions(+), 13 deletions(-)
 
+diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
+index c23c9f0cf49c..1ea3c4de07af 100644
+--- a/drivers/gpu/drm/tiny/bochs.c
++++ b/drivers/gpu/drm/tiny/bochs.c
+@@ -85,7 +85,7 @@ struct bochs_device {
+ 	u16 yres_virtual;
+ 	u32 stride;
+ 	u32 bpp;
+-	struct edid *edid;
++	const struct drm_edid *drm_edid;
+ 
+ 	/* drm */
+ 	struct drm_device *dev;
+@@ -199,10 +199,10 @@ static int bochs_hw_load_edid(struct bochs_device *bochs)
+ 	if (drm_edid_header_is_valid(header) != 8)
+ 		return -1;
+ 
+-	kfree(bochs->edid);
+-	bochs->edid = drm_do_get_edid(&bochs->connector,
+-				      bochs_get_edid_block, bochs);
+-	if (bochs->edid == NULL)
++	drm_edid_free(bochs->drm_edid);
++	bochs->drm_edid = drm_edid_read_custom(&bochs->connector,
++					       bochs_get_edid_block, bochs);
++	if (bochs->drm_edid == NULL)
+ 		return -1;
+ 
+ 	return 0;
+@@ -303,7 +303,7 @@ static void bochs_hw_fini(struct drm_device *dev)
+ 	if (bochs->fb_map)
+ 		iounmap(bochs->fb_map);
+ 	pci_release_regions(to_pci_dev(dev->dev));
+-	kfree(bochs->edid);
++	drm_edid_free(bochs->drm_edid);
+ }
+ 
+ static void bochs_hw_blank(struct bochs_device *bochs, bool blank)
+@@ -471,12 +471,9 @@ static const struct drm_simple_display_pipe_funcs bochs_pipe_funcs = {
+ 
+ static int bochs_connector_get_modes(struct drm_connector *connector)
+ {
+-	struct bochs_device *bochs =
+-		container_of(connector, struct bochs_device, connector);
+-	int count = 0;
++	int count;
+ 
+-	if (bochs->edid)
+-		count = drm_add_edid_modes(connector, bochs->edid);
++	count = drm_edid_connector_add_modes(connector);
+ 
+ 	if (!count) {
+ 		count = drm_add_modes_noedid(connector, 8192, 8192);
+@@ -507,10 +504,10 @@ static void bochs_connector_init(struct drm_device *dev)
+ 	drm_connector_helper_add(connector, &bochs_connector_connector_helper_funcs);
+ 
+ 	bochs_hw_load_edid(bochs);
+-	if (bochs->edid) {
++	if (bochs->drm_edid) {
+ 		DRM_INFO("Found EDID data blob.\n");
+ 		drm_connector_attach_edid_property(connector);
+-		drm_connector_update_edid_property(connector, bochs->edid);
++		drm_edid_connector_update(&bochs->connector, bochs->drm_edid);
+ 	}
+ }
+ 
+-- 
+2.39.2
 
