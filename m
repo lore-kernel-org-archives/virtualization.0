@@ -1,129 +1,105 @@
-Received: from mail-ed1-f54.google.com (mail-ed1-f54.google.com [209.85.208.54])
+Received: from mail-ed1-f42.google.com (mail-ed1-f42.google.com [209.85.208.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10BBD86243
-	for <virtualization@lists.linux.dev>; Tue, 16 Apr 2024 09:37:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C0E6127B52
+	for <virtualization@lists.linux.dev>; Tue, 16 Apr 2024 09:53:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713260248; cv=none; b=DfpXr2KW/i+zHkRhJSTndZe9hBZ2YZrbBAkaGqI7MAkx2fL3BjTjTIpNXrUhZpwPWvM/OlnZ0AaaJr78wAZSjz5mXwQVMCxKv/n/eAk3Q5hi1W0qe5zn4VYNksTkt9SytnJzRKL0utqZFJG7ADNxzeIPlfiNB35iowYWL1J5yfM=
+	t=1713261221; cv=none; b=anUbGLENAfhEMoCoLhyGttFeV2MSiZQjtQhMwm8Gq1mHrqUlkL+lh2/RG4dkDIIOzRo/EhyAe8mBWkx+k1YuyUoOTGjRXwYeFDcTshqF04x5weGAo8PXqHyc0qj8TsiJ1irgat7UKNCzTwo94iIBQWbioB+Q8dY3arj63h/udzI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713260248; c=relaxed/simple;
-	bh=ffWk3OdR6v/Mse52x1zn4+xDjJA19hq7H0Mp+dTmZ6A=;
+	s=arc-20240116; t=1713261221; c=relaxed/simple;
+	bh=iIEonw6NbxRylvPksI0bLcfKTL65JpeWOssN5KniBYA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=rmgLTHlN+jFsqGFFD9n6Sdfi4ny2E9TUqGXGpPnP7+1gFTdnZYVMruRershHPS3tOoNeupvm1+pAUeYf3VjgKNTdLauPuy+tUU85B4CkWkYzLMX4wGb0gyNoO2Pqrta+wd2/2MiyaAiyuqICpXFpFwgEBUulq/g7lDtJxfYTr6w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=KQSpl4rW; arc=none smtp.client-ip=209.85.208.54
+	 Content-Type:Content-Disposition:In-Reply-To; b=A8RUl1wTqY2AGKCjuy+MMj8Qm97xoQbIUGK7GNnl0gTBleb3a0X2pa3ZddBfyQyuRm/eWq/zDfYo8X2mdxkfXXtkSVEdrdbh1PpBl7TAqW69Tzr0o2w2Ojdc/w3cbD/JFbsPYnTNEdhlk+ilxvzJk9H2ZWSuNmTXhHDZ+50KhTI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=tW7GKk1a; arc=none smtp.client-ip=209.85.208.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="KQSpl4rW"
-Received: by mail-ed1-f54.google.com with SMTP id 4fb4d7f45d1cf-56c5d05128dso4437261a12.0
-        for <virtualization@lists.linux.dev>; Tue, 16 Apr 2024 02:37:26 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="tW7GKk1a"
+Received: by mail-ed1-f42.google.com with SMTP id 4fb4d7f45d1cf-563cb3ba9daso4102023a12.3
+        for <virtualization@lists.linux.dev>; Tue, 16 Apr 2024 02:53:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1713260245; x=1713865045; darn=lists.linux.dev;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=/3DPvUKeMNgOHBMbHiy5cwD4zIVoi8D7XJtZoI1Ak70=;
-        b=KQSpl4rWfolLFFGVjdrU+3sEE2438OXO2dmA+R3l91bbWnzywPmc7ym+yw07kp8pCs
-         qSxQTlQES2XWUTfmLL/654kcW5iXz+WYsab1wiyaRRKBAQC040bjTSe3eX7mImesEe5k
-         qm/jAfR+4wikhTzKp0kA6+4AQ8IiMb+nrpDPE8uYh3KgEFRgrigfCO+Rx0BqUIIjiwpV
-         /XX5UUKeEQb6b/MpdjqgCHosPFjZxLxOx+GxNrBeonLH14GzqZQ+KvdbliMZiAuEOeVI
-         nt25URzuYmL7QgB9F3dAX8uVuf/9i6G0ToNkKjUXcYhngxRPmRz/+SezZQvk93r1Z0Ae
-         XNsA==
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1713261219; x=1713866019; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=xyOljcBoxRZtBlXPwq1twMKjVMaHbywxijMJdFOzxMA=;
+        b=tW7GKk1aNec/InaYUyDtOf1OfgKtO/OpC2geO9Tt4CgQ4bH6HeOwnoAhyyTwKMwXqi
+         WLcjfDr2D+g/wLesBsBD2vZXgFqIH9cQLJb03qIHUT0o73jWpfBRFCbNmMDaJc48Sqpp
+         0DFCHiqcr1iLWZXC8G5bi+0pCABw9WP1D8CLfwBbEDSxnfUpOqUhYOW9hBcL0iO/w838
+         oOzvxqMGEfwZYM2Gv1c0A5JEM6/6CIAKsBBlU3rhHWgKtqVr4oCcF6Q8E91etEoGCV74
+         gi+ooOX8RKvUb2109ZIa7YC1it7vxzqCCb3VmHJzJ9dDKx8+UwP44pyIrPcY/GhELeQE
+         9Dqg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713260245; x=1713865045;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=/3DPvUKeMNgOHBMbHiy5cwD4zIVoi8D7XJtZoI1Ak70=;
-        b=uomvBwU7uFktvKImTkz+B/VhUB1iCF6ZGBOXDFAfH7GI332Fj8dNt6RpL8A+bc3ZH+
-         S0zg0xjvGOHRaRzAb1SbQMUtwnhhpeoulpSJR+b70vgcEpI0zJ+KHg+xNYhuSdAslQCC
-         OlBocLnhox4BeL7BwdSSHaJci3hTiqMHZ53YHXA1PBn5ogVbYYQmR5Z3ZubtG0+j3Nrx
-         ItrvUremBiXWxk89fpiA6xB6fDZz8aTgMvxtiMdoZ4lxIy/2FBUCzCRqxlc1fdzVJg7y
-         70ypKIHMUUoiQ8VAnlZT8ygdLXH47aR3LI4avxweZget4W0krsNgYnz8145/f1ICUeNJ
-         uI2A==
-X-Forwarded-Encrypted: i=1; AJvYcCVcBHjcasUtPnw4jJjnZvuZDYVeoyTgQ2eB8HgS8dl6UHo5f16aqTYnf/rfMJ0odhLt5tuKh5M7avxff5FFyiQ+9LOm1LX6QEvH+sNFY34=
-X-Gm-Message-State: AOJu0YzPe+NniByF/n66XP1+91iMbakbPuWGxTuXHbnNiKO36seoInyR
-	GWdv+DUMdgyxNUwj2LxBS4W3mF76zB4D4ZSKtLRIDr5BpSqbGjtXe50kqfowuIo=
-X-Google-Smtp-Source: AGHT+IFvrj+8thE7TmHUgLSpaAVmqDEMlhBPdSlqMtVJZFoiX03aKmhBk17QQ+Nc1niwn/fjwRo85w==
-X-Received: by 2002:a50:baa4:0:b0:568:b622:f225 with SMTP id x33-20020a50baa4000000b00568b622f225mr9062152ede.30.1713260245215;
-        Tue, 16 Apr 2024 02:37:25 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1713261219; x=1713866019;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=xyOljcBoxRZtBlXPwq1twMKjVMaHbywxijMJdFOzxMA=;
+        b=rAzR+nHsE08wqdkqy0+Yj3h2Hxs3tX1oVi+4Cvr62OO7pR9LOnKz7GggYkTySain2D
+         yGYaszjjpmRkOHD3GA0rfzDGTRWQEyqWvmHT3BxYxzBnRSXD7g8CZ4RqsmNP0YgE3aAg
+         C5kAcN1B2F6ItZyH8FIj2sKkLXUy97jF6Vd427TFb8ZfVjRSUSucyNsDpTkN4nBmoPi9
+         YQsr8l23qXKHZr0DcpiFbLQJH1J2tyvxsVZxwdSr0dph9hrincJdZFeCskG17H01f+YW
+         pbelPGjuC2+siW835XUDLkJQmuJ/I99MOnm7rxXX/cAtbUWWxDId/jNesUnT1dRQcQ1d
+         lEYw==
+X-Forwarded-Encrypted: i=1; AJvYcCXqIOprFRsmCaK7MF2cmV/oDfg7EpWi5loVXGoNHjqauUqk5Zrys5YBXj3q8D9LySTMlz3wORqSwvoCrDh50pvHUgzBfROZ94giNzie2/Y=
+X-Gm-Message-State: AOJu0YxEgLG/JPLa5QQ5a0DXqtlzJiPMycB4DXTWMyRM12KtpUD2MIMW
+	Ol9sW4QbBFAtO1g6nlNVGeoIHA+rkXzwsjWVvUeerOrSso61Txwp9yRAEMq4cVY=
+X-Google-Smtp-Source: AGHT+IGPXttzg9aeuCAj6911eurDwuoGohgiWyCghHh4Uj9hzK08/0+nOrj6kSaE/gRrPbhckX7Srw==
+X-Received: by 2002:a50:cd5b:0:b0:56e:d9e:f4d3 with SMTP id d27-20020a50cd5b000000b0056e0d9ef4d3mr10605693edj.18.1713261218408;
+        Tue, 16 Apr 2024 02:53:38 -0700 (PDT)
 Received: from localhost (37-48-42-173.nat.epc.tmcz.cz. [37.48.42.173])
-        by smtp.gmail.com with ESMTPSA id h6-20020aa7c946000000b005702fc1f92asm1835336edt.53.2024.04.16.02.37.24
+        by smtp.gmail.com with ESMTPSA id ew14-20020a056402538e00b0056fe8f3eec6sm5678489edb.62.2024.04.16.02.53.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Apr 2024 02:37:24 -0700 (PDT)
-Date: Tue, 16 Apr 2024 11:37:22 +0200
+        Tue, 16 Apr 2024 02:53:37 -0700 (PDT)
+Date: Tue, 16 Apr 2024 11:53:35 +0200
 From: Jiri Pirko <jiri@resnulli.us>
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, kuba@kernel.org, pabeni@redhat.com,
-	davem@davemloft.net, edumazet@google.com, parav@nvidia.com,
-	mst@redhat.com, xuanzhuo@linux.alibaba.com, shuah@kernel.org,
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org, pabeni@redhat.com, davem@davemloft.net,
+	edumazet@google.com, parav@nvidia.com, mst@redhat.com,
+	jasowang@redhat.com, xuanzhuo@linux.alibaba.com, shuah@kernel.org,
 	petrm@nvidia.com, liuhangbin@gmail.com, vladimir.oltean@nxp.com,
 	bpoirier@nvidia.com, idosch@nvidia.com,
 	virtualization@lists.linux.dev
-Subject: Re: [patch net-next v2 1/6] virtio: add debugfs infrastructure to
- allow to debug virtio features
-Message-ID: <Zh5G0sh62hZtOM0J@nanopsycho>
-References: <20240415162530.3594670-1-jiri@resnulli.us>
- <20240415162530.3594670-2-jiri@resnulli.us>
- <CACGkMEtpSPFSpikcrsZZBtXOgpAukjCwFRcF79xfzDG-s8_SyQ@mail.gmail.com>
+Subject: Re: [patch net-next 0/6] selftests: virtio_net: introduce initial
+ testing infrastructure
+Message-ID: <Zh5Kn5OnDdzgB6Rm@nanopsycho>
+References: <20240412151314.3365034-1-jiri@resnulli.us>
+ <20240412180428.35b83923@kernel.org>
+ <ZhqHadH3G5kfGO8H@nanopsycho>
+ <20240415102659.7f72ae8d@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CACGkMEtpSPFSpikcrsZZBtXOgpAukjCwFRcF79xfzDG-s8_SyQ@mail.gmail.com>
+In-Reply-To: <20240415102659.7f72ae8d@kernel.org>
 
-Tue, Apr 16, 2024 at 05:52:41AM CEST, jasowang@redhat.com wrote:
->On Tue, Apr 16, 2024 at 12:25 AM Jiri Pirko <jiri@resnulli.us> wrote:
->>
->> From: Jiri Pirko <jiri@nvidia.com>
->>
->> Currently there is no way for user to set what features the driver
->> should obey or not, it is hard wired in the code.
->>
->> In order to be able to debug the device behavior in case some feature is
->> disabled, introduce a debugfs infrastructure with couple of files
->> allowing user to see what features the device advertises and
->> to set filter for features used by driver.
->>
->> Example:
->> $cat /sys/bus/virtio/devices/virtio0/features
->> 1110010111111111111101010000110010000000100000000000000000000000
->> $ echo "5" >/sys/kernel/debug/virtio/virtio0/filter_feature_add
->> $ cat /sys/kernel/debug/virtio/virtio0/filter_features
->> 5
->> $ echo "virtio0" > /sys/bus/virtio/drivers/virtio_net/unbind
->> $ echo "virtio0" > /sys/bus/virtio/drivers/virtio_net/bind
->> $ cat /sys/bus/virtio/devices/virtio0/features
->> 1110000111111111111101010000110010000000100000000000000000000000
->>
->> Note that sysfs "features" know already exists, this patch does not
->> touch it.
->>
->> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
->> ---
+Mon, Apr 15, 2024 at 07:26:59PM CEST, kuba@kernel.org wrote:
+>On Sat, 13 Apr 2024 15:23:53 +0200 Jiri Pirko wrote:
+>> That is a goal. Currently I do it with:
+>> vng --qemu-opts="-nic tap,id=nd0,ifname=xtap0,model=virtio-net-pci,script=no,downscript=no,mac=52:54:00:12:34:57 -nic tap,id=nd1,ifname=xtap1,model=virtio-net-pci,script=no,downscript=no,mac=52:54:00:12:34:58"
+>> 
+>> and setting loop manually with tc-matchall-mirred
+>> 
+>> Implementing virtio loop instantiation in vng is on the todo list for
+>> this.
 >
->Note that this can be done already with vp_vdpa feature provisioning:
->
->commit c1ca352d371f724f7fb40f016abdb563aa85fe55
->Author: Jason Wang <jasowang@redhat.com>
->Date:   Tue Sep 27 15:48:10 2022 +0800
->
->    vp_vdpa: support feature provisioning
->
->For example:
->
->vdpa dev add name dev1 mgmtdev pci/0000:02:00.0 device_features 0x300020000
+>Just to be clear - I think the loop configuration is better off outside
+>vng. It may need SUID and such. We just need to make vng spawn the two
+>interfaces with a less verbose syntax. --network-count 2 ?
 
-Sure. My intension was to make the testing possible on any virtio
-device. Narrowing the testing for vpda would be limitting.
+Well, you ask vng for network device by:
+--net=user/bridge
 
+Currently putting the option multiple times is ignored, but I don't see
+why that can't work.
 
->
->Thanks
->
+Regarding the loop configuration, I would like to make this as
+convenient for the user as possible, I was thinking about something like
+--net=loop which would create the tc-based loop.
+
+How to do this without root, I'm not sure. Perhaps something similar
+like qemu-bridge-helper could be used.
