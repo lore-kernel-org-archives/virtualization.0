@@ -1,159 +1,87 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDF1312BF29
-	for <virtualization@lists.linux.dev>; Tue, 16 Apr 2024 13:23:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F9EF129A72;
+	Tue, 16 Apr 2024 14:27:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713273828; cv=none; b=fYqvnJAakeWKRouMQS1lVeJLWbSivtBRoFSAsLEAlsRwaYYaqJCuTqI6yukLzNfsKB61uubudqhHGWiVAFD5V0hdlLYBresmBBCNzlGdFHzpyElBLvk8SzrQaVwYSgiPA+xTxrbyEa7qZisx1DfSCEuptA1TMaN4A4cgq1D2MCs=
+	t=1713277634; cv=none; b=UdcEjm6IRGt3vCeob133b4zRsJoUiFyHJZm1ZiIu8pcwHe94ohC57HZcUp1KZuT/hGGrjBNhtQqZTWNqEg342T+ICsll+9eaaOEBmCwfhWLInc2FTNtR9OziRlcwrh6AeolGAa8wrYjv1S9W30b/FzXSAGwoa73/ORzVksILLG0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713273828; c=relaxed/simple;
-	bh=DQTcuRJ6jV+KHtqCB34fEC2WDqRthotEQh0eyz/EF8M=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=ZOqnnKoAFmLZLXkEsPnZup/sGVroCwKZBKjcYI+UxmheZKr/+bD811Q8P2egklMVpigpBsmvqutiNwmGZmvutjxBd1Jo/6SDKdv3DD6cmAENvp//V7y/8zmGhV7BvMXGd/Bbv+jIxHvaPwJ395uL1zaVOBIjPeoLvjUhQEJOhCI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=RJIU8Y9e; arc=none smtp.client-ip=198.175.65.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1713277634; c=relaxed/simple;
+	bh=v4Q/ozGudiVH3c9ZsVw3827ceHm3OFHthkW82ZvcGsU=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=tIcH4GtlNqKhZChkVF+q01jX+eMX5vlHMF7xnFHmLtVllfA+VERBQF+q9vzj9AtNhDKM58Hgu1o0jI1t6CrfC4xlbHS9KM2KWSMtqTplC1JTg5jJ4NOalGosc0ELOI3s03QNJ4pNo60Yt1oTa3a3qOE1sGr1jBWhSw2KJ7aaYwQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QJI4lRz6; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="RJIU8Y9e"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1713273824; x=1744809824;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=DQTcuRJ6jV+KHtqCB34fEC2WDqRthotEQh0eyz/EF8M=;
-  b=RJIU8Y9eM7OiNReXOh+O8823fNojPUXb5nW4wM7tw97S6CMqHnz60HQB
-   D9TkIO9r/cEkr+a6meWWnbehNTkRfkhiuxvVDXIjvdkMXgOXQBO+4AaBF
-   7euN8CGA7rtcnTRC3E9F0Ugc+NXoRNZx5Ul8tcWToK+OxIyi4HMh2eyjB
-   bkrdRr3YkgSG2yNEhC7Dkw7f7s6e+ovgM/aQqsnVlJhKAtSmj5VhZeq+f
-   M29BT9vpULJvKRnZosJCZczRqKEmnojafAa/6v/9zsy+HAMaEOZzhFmib
-   8nJMmq6yY+s9GZIgECwf6jsvVVYLDtGvZp1AeHBdolRP+RvzFQ37XlPQk
-   g==;
-X-CSE-ConnectionGUID: hZ6bFXiUSLqlwSw6yasu7A==
-X-CSE-MsgGUID: O5ku0ldySyW2HLRyD2sPKQ==
-X-IronPort-AV: E=McAfee;i="6600,9927,11046"; a="20131387"
-X-IronPort-AV: E=Sophos;i="6.07,206,1708416000"; 
-   d="scan'208";a="20131387"
-Received: from orviesa005.jf.intel.com ([10.64.159.145])
-  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Apr 2024 06:23:37 -0700
-X-CSE-ConnectionGUID: 1xc1femGRAePKAA0l8lx+A==
-X-CSE-MsgGUID: WqLxD0ocTQGn6nwSGdbxWQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.07,206,1708416000"; 
-   d="scan'208";a="27055436"
-Received: from martakit-mobl.ger.corp.intel.com (HELO localhost) ([10.252.44.100])
-  by orviesa005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Apr 2024 06:23:34 -0700
-From: Jani Nikula <jani.nikula@intel.com>
-To: dri-devel@lists.freedesktop.org
-Cc: Jani Nikula <jani.nikula@intel.com>,
-	David Airlie <airlied@redhat.com>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	virtualization@lists.linux.dev
-Subject: [PATCH 12/15] drm/virtio: switch to struct drm_edid
-Date: Tue, 16 Apr 2024 16:22:26 +0300
-Message-Id: <086654def37e8d45ea110e3a228fc42f2066e123.1713273659.git.jani.nikula@intel.com>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <cover.1713273659.git.jani.nikula@intel.com>
-References: <cover.1713273659.git.jani.nikula@intel.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QJI4lRz6"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71A04C113CE;
+	Tue, 16 Apr 2024 14:27:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1713277634;
+	bh=v4Q/ozGudiVH3c9ZsVw3827ceHm3OFHthkW82ZvcGsU=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=QJI4lRz6Mn/iWctwTJTO1HBgkVxvuazJcXsI0z1+ljWedhsGgjNACjxQ0xRXE4/0d
+	 4bzi7Vo/W6igHAhID4FfIxFl/NrKCHMSH/sVfPztWb8ULTHUnznPXoPbqCN6IeQlYF
+	 sbBommH8Yhi9Ejnhk/D5mgBYiPH2Y1iqJghOfElBBDUqMyWAkDnoA2RieaZYh1ezfZ
+	 929UuWw81+T1owdknyiz37auaxr2J7LB9bC5VXUWetXhiyqB4uTpIGo1JnGN2oGg0D
+	 NQsT3xAAdBbx/8YbYtrc3zKfc7FL/oL0n9+dZSBshMdm6NCQjl79WL2v0rJNE/nWRn
+	 byoqvWbuxnbpA==
+Date: Tue, 16 Apr 2024 07:27:12 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: Dan Jurgens <danielj@nvidia.com>
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "mst@redhat.com"
+ <mst@redhat.com>, "jasowang@redhat.com" <jasowang@redhat.com>,
+ "xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+ "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+ "davem@davemloft.net" <davem@davemloft.net>, "edumazet@google.com"
+ <edumazet@google.com>, "pabeni@redhat.com" <pabeni@redhat.com>, Jiri Pirko
+ <jiri@nvidia.com>
+Subject: Re: [PATCH net-next v3 5/6] virtio_net: Add a lock for per queue RX
+ coalesce
+Message-ID: <20240416072712.757d7baf@kernel.org>
+In-Reply-To: <CH0PR12MB85808460795C1BC5FE4EF6A7C9082@CH0PR12MB8580.namprd12.prod.outlook.com>
+References: <20240412195309.737781-1-danielj@nvidia.com>
+	<20240412195309.737781-6-danielj@nvidia.com>
+	<20240412192111.7e0e1117@kernel.org>
+	<CH0PR12MB85808460795C1BC5FE4EF6A7C9082@CH0PR12MB8580.namprd12.prod.outlook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Prefer struct drm_edid based functions over struct edid.
+On Tue, 16 Apr 2024 03:15:34 +0000 Dan Jurgens wrote:
+> Which version? It compiles for me with:
+> $ clang -v
+> clang version 15.0.7 (Fedora 15.0.7-2.fc37)
 
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+clang version 17.0.6 (Fedora 17.0.6-2.fc39)
 
----
+allmodconfig
 
-Cc: David Airlie <airlied@redhat.com>
-Cc: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Gurchetan Singh <gurchetansingh@chromium.org>
-Cc: Chia-I Wu <olvaffe@gmail.com>
-Cc: virtualization@lists.linux.dev
----
- drivers/gpu/drm/virtio/virtgpu_display.c | 10 ++++------
- drivers/gpu/drm/virtio/virtgpu_drv.h     |  2 +-
- drivers/gpu/drm/virtio/virtgpu_vq.c      | 12 ++++++------
- 3 files changed, 11 insertions(+), 13 deletions(-)
+The combination of UNIQUE() goto and guard seems to make it unhappy:
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index ad924a8502e9..64baf2f22d9f 100644
---- a/drivers/gpu/drm/virtio/virtgpu_display.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -164,11 +164,9 @@ static int virtio_gpu_conn_get_modes(struct drm_connector *connector)
- 	struct drm_display_mode *mode = NULL;
- 	int count, width, height;
- 
--	if (output->edid) {
--		count = drm_add_edid_modes(connector, output->edid);
--		if (count)
--			return count;
--	}
-+	count = drm_edid_connector_add_modes(connector);
-+	if (count)
-+		return count;
- 
- 	width  = le32_to_cpu(output->info.r.width);
- 	height = le32_to_cpu(output->info.r.height);
-@@ -369,5 +367,5 @@ void virtio_gpu_modeset_fini(struct virtio_gpu_device *vgdev)
- 		return;
- 
- 	for (i = 0 ; i < vgdev->num_scanouts; ++i)
--		kfree(vgdev->outputs[i].edid);
-+		drm_edid_free(vgdev->outputs[i].drm_edid);
- }
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index bb7d86a0c6a1..64c236169db8 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -179,7 +179,7 @@ struct virtio_gpu_output {
- 	struct drm_encoder enc;
- 	struct virtio_gpu_display_one info;
- 	struct virtio_gpu_update_cursor cursor;
--	struct edid *edid;
-+	const struct drm_edid *drm_edid;
- 	int cur_x;
- 	int cur_y;
- 	bool needs_modeset;
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index b1a00c0c25a7..0d3d0d09f39b 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -741,21 +741,21 @@ static void virtio_gpu_cmd_get_edid_cb(struct virtio_gpu_device *vgdev,
- 		(struct virtio_gpu_resp_edid *)vbuf->resp_buf;
- 	uint32_t scanout = le32_to_cpu(cmd->scanout);
- 	struct virtio_gpu_output *output;
--	struct edid *new_edid, *old_edid;
-+	const struct drm_edid *new_edid, *old_edid;
- 
- 	if (scanout >= vgdev->num_scanouts)
- 		return;
- 	output = vgdev->outputs + scanout;
- 
--	new_edid = drm_do_get_edid(&output->conn, virtio_get_edid_block, resp);
--	drm_connector_update_edid_property(&output->conn, new_edid);
-+	new_edid = drm_edid_read_custom(&output->conn, virtio_get_edid_block, resp);
-+	drm_edid_connector_update(&output->conn, new_edid);
- 
- 	spin_lock(&vgdev->display_info_lock);
--	old_edid = output->edid;
--	output->edid = new_edid;
-+	old_edid = output->drm_edid;
-+	output->drm_edid = new_edid;
- 	spin_unlock(&vgdev->display_info_lock);
- 
--	kfree(old_edid);
-+	drm_edid_free(old_edid);
- 	wake_up(&vgdev->resp_wq);
- }
- 
--- 
-2.39.2
-
+../drivers/net/virtio_net.c:3613:3: error: cannot jump from this goto
+statement to its label 3613 |                 goto out; |                 ^
+../drivers/net/virtio_net.c:3615:2: note: jump bypasses initialization of variable with __attribute__((cleanup))
+ 3615 |         guard(spinlock)(&rq->intr_coal_lock);
+      |         ^
+../include/linux/cleanup.h:164:15: note: expanded from macro 'guard'
+  164 |         CLASS(_name, __UNIQUE_ID(guard))
+      |                      ^
+../include/linux/compiler.h:189:29: note: expanded from macro '__UNIQUE_ID'
+  189 | #define __UNIQUE_ID(prefix) __PASTE(__PASTE(__UNIQUE_ID_, prefix), __COUNTER__)
+      |                             ^
+./../include/linux/compiler_types.h:84:22: note: expanded from macro '__PASTE'
+   84 | #define __PASTE(a,b) ___PASTE(a,b)
+      |                      ^
+./../include/linux/compiler_types.h:83:23: note: expanded from macro '___PASTE'
+   83 | #define ___PASTE(a,b) a##b
+      |                       ^
+<scratch space>:18:1: note: expanded from here
+   18 | __UNIQUE_ID_guard2044
+      | ^
+1 error generated.
