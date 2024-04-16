@@ -1,209 +1,270 @@
-Received: from NAM04-MW2-obe.outbound.protection.outlook.com (mail-mw2nam04on2046.outbound.protection.outlook.com [40.107.101.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f173.google.com (mail-pf1-f173.google.com [209.85.210.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 453A7139CEF
-	for <virtualization@lists.linux.dev>; Tue, 16 Apr 2024 19:31:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.101.46
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713295892; cv=fail; b=TJEMHOwVinCKt4UE4whmc8+WEHLJcsie1KE7Ngu2IeFFdxdWSuM2g7D6hqhifijy0oA5LSH6MkXrIHd6XI/jXau2fgd1ouCrnwRMSs3MGzXx0KgiVXBqqk8oz0O0i3e1Bi8nJwwMmdexQm5sCQui6cuhMHvuR6W5tUuvVx29Oio=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713295892; c=relaxed/simple;
-	bh=TX7mPY/ogWWuH+bbw/OFtDzCp1gNVlI7ygZ1Q6nW1Zg=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=qPWPRvy9xBVzigpFqXP1vxWJAZXpH5yHMekkAXAIh0UE6my/6z0lMX5hDbNlLDJrABIlCkaybvnoFJvoA0mMHdYhm0TkROQGSUWN3hil6xIM8GZmh4bfKnxT9g+EYwHb6gYStJ37/V1hQhSv+9WXDkJK7FL4jPRq61hhvTYht5U=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=umYV7qdR; arc=fail smtp.client-ip=40.107.101.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1468838FA6
+	for <virtualization@lists.linux.dev>; Tue, 16 Apr 2024 20:54:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.173
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1713300872; cv=none; b=tcUu31MgQ76hsNOfzj6rHtI6C1RvVzSER+i0H66Ebt6k+m/Q+uNTfX+uofdyln3fqSKaKr16MWOIdP4dltQOtiMGhZcjRI5wLPWbe2tHUqtzIXuFgsUKmQcvJ9DMINi5euBHiSdi8g4oUW7xwvgSEjc6gZ4/JwGJUw/6a3AsJI8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1713300872; c=relaxed/simple;
+	bh=rk9/WMK6rg2PuJHP1LdCdlQ+ZmZ8HS3n1dyaptPd+9E=;
+	h=Date:Subject:In-Reply-To:CC:From:To:Message-ID:Mime-Version:
+	 Content-Type; b=dA+FE+79UzQDcKAxVVbjTyv9fOOUsQppbLvUkuG3ssa+QpW3RCJVJ69yvR2QEt/S3UrM83s9nfyXmRfY/huzI2dS/9vJO1HniPduRjQ0T6tQlUIzSn/DiITjH1it68DOJS8wmeTVNxrovPFa9fO2hD9fntDYfMFPDeLgR6wfydo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=dabbelt.com; spf=pass smtp.mailfrom=dabbelt.com; dkim=pass (2048-bit key) header.d=dabbelt-com.20230601.gappssmtp.com header.i=@dabbelt-com.20230601.gappssmtp.com header.b=NNC57I9g; arc=none smtp.client-ip=209.85.210.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=dabbelt.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=dabbelt.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="umYV7qdR"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=hfWMXsH5SfjwZIEFn/ytbSXBIplztAv9MtRp3MbNn9fVCao/K6oEsEmihVW2JGEcZjI0fm1bUONX6NwdmB8DYkbcj6kaXJpF/9G0ZnAwtFN9bY8SRJfrBKf15dLzq3KCdoKVeVDRZRMSaVSAtWtogaxCuhrZwa6MuWeIzuf3mkli0fgdZHADSm/n3b/7EI0QZVJiMiEffrtX2j6XWx5SK4ZuiWy5mWsT4Zg5OEHkF3FuSEtnCtTjsy3uZnUVV/MOX/DkSur8QgUdlBWwOaqNRD0VnG/q3wrb0o7q7QHn/1hncgYoKLpeMr5y9OMNuMjlCQjGfjtzbPZFcGFi+jZFdA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=HPy7j0u1Cl+rc0qtA3mC2mfzUeEXxidOChAAqfJU0tA=;
- b=EAVdpLpoJM9HmvhMTVKRz5djreANzTbE6oe1oFKa14RmfoGkX7IgsTnNUathguejWMGwjQZPYTDlNe3faqJO9v/IbRwJkMWPOw1UIOPDGhaTYco4ydedI9ftWq2IcnszOXDGAPOSPlDG+o8qVse9xIVilIrmKA1Nud5vQHNkr2+ae7HeCjHXabS78INskpzA/ty2dyAcWS3nUZONWofDF+i9KzuyStwyI7SEF+apofL3ioR0XJK0AtBShzD5vxHTIWkUOJHn6KlM3VeE/+W0zby51e+t6JFcBQ+OQp+LiEYQgCFxpUbdJaj6ZUj1Jp+s17s7nTSps309OCBF2PPVtQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.118.232) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=HPy7j0u1Cl+rc0qtA3mC2mfzUeEXxidOChAAqfJU0tA=;
- b=umYV7qdR2ewYAIb+wMPPf/ulW9261/w6q1D6Y/HxxyZbCSl33JvhYCbqj1x4YEv4/zfQ4Fo7zwvm1tUr0O11JTr216gEhBFc+0+ahqE7GK1mQvvJFjHlfdowVTay6PKYBvPA4RBA2RNHdGsXT//QTQ43kAePb34VYkuJ2i7q0KLscrA6Ndm6HrhLwi7vYWUQSMknQeFdLVnYAI3an6WlUvqfj3VGiul8IT3CLsG1w2isx3rok6LWMwfqtpumJy75tQpOjfV6HyiRwDT1RwThZYZWUPnj2Md0P9e5iDOzT9GrQPvVXylKSFXB09oPO0zUSbK9KwQpq48RGk2sGp0kYQ==
-Received: from BL1P222CA0012.NAMP222.PROD.OUTLOOK.COM (2603:10b6:208:2c7::17)
- by DS7PR12MB8084.namprd12.prod.outlook.com (2603:10b6:8:ef::5) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.7452.50; Tue, 16 Apr 2024 19:31:26 +0000
-Received: from BL6PEPF0001AB78.namprd02.prod.outlook.com
- (2603:10b6:208:2c7:cafe::2) by BL1P222CA0012.outlook.office365.com
- (2603:10b6:208:2c7::17) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7495.20 via Frontend
- Transport; Tue, 16 Apr 2024 19:31:26 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.232)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.118.232 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.118.232; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.118.232) by
- BL6PEPF0001AB78.mail.protection.outlook.com (10.167.242.171) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.7452.22 via Frontend Transport; Tue, 16 Apr 2024 19:31:25 +0000
-Received: from drhqmail201.nvidia.com (10.126.190.180) by mail.nvidia.com
- (10.127.129.5) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Tue, 16 Apr
- 2024 12:30:54 -0700
-Received: from drhqmail201.nvidia.com (10.126.190.180) by
- drhqmail201.nvidia.com (10.126.190.180) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.4; Tue, 16 Apr 2024 12:30:53 -0700
-Received: from vdi.nvidia.com (10.127.8.11) by mail.nvidia.com
- (10.126.190.180) with Microsoft SMTP Server id 15.2.1544.4 via Frontend
- Transport; Tue, 16 Apr 2024 12:30:53 -0700
-From: Daniel Jurgens <danielj@nvidia.com>
-To: <netdev@vger.kernel.org>
-CC: <mst@redhat.com>, <jasowang@redhat.com>, <xuanzhuo@linux.alibaba.com>,
-	<virtualization@lists.linux.dev>, <davem@davemloft.net>,
-	<edumazet@google.com>, <kuba@kernel.org>, <pabeni@redhat.com>,
-	<jiri@nvidia.com>, Daniel Jurgens <danielj@nvidia.com>
-Subject: [PATCH net-next v4 6/6] virtio_net: Remove rtnl lock protection of command buffers
-Date: Tue, 16 Apr 2024 22:30:39 +0300
-Message-ID: <20240416193039.272997-7-danielj@nvidia.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20240416193039.272997-1-danielj@nvidia.com>
-References: <20240416193039.272997-1-danielj@nvidia.com>
+	dkim=pass (2048-bit key) header.d=dabbelt-com.20230601.gappssmtp.com header.i=@dabbelt-com.20230601.gappssmtp.com header.b="NNC57I9g"
+Received: by mail-pf1-f173.google.com with SMTP id d2e1a72fcca58-6ed691fb83eso4011715b3a.1
+        for <virtualization@lists.linux.dev>; Tue, 16 Apr 2024 13:54:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=dabbelt-com.20230601.gappssmtp.com; s=20230601; t=1713300869; x=1713905669; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:to:from:cc
+         :in-reply-to:subject:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=pSH0oKR3vMqxy1mrb/RHsaXrIsB5nauYz3qJ8CX17MI=;
+        b=NNC57I9gPYU51xahu9dGNa+QSXq2BGbD+RfQ3kdmIMnHDxobBNvpiiImCzwX/3cwTp
+         5u4xjTI+inf7FA+iA6V4AO7NrazH07gtNQD6GoQ/rp0hhkSPlIXhhCffLAVhxkfjnRhu
+         svszgVV2Q/maN6KiXyT01JK7GFijMwGKQcmyklG8+bwwuPvIOnmJ2Af+E5/l3BXU7Gqy
+         c+I5dLaYkLtuoBOenakhx7pgX4TtSC6ThtciEzjspb4OCms7LRUWpk92DwJCFcMLI7CQ
+         ltVKMI5QMUyDZOGLKwV4q1IdmD7xRd6spgvWi5S0Liav2WRsSVdZ5/noIFEf9zFtSLu2
+         2R0Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713300869; x=1713905669;
+        h=content-transfer-encoding:mime-version:message-id:to:from:cc
+         :in-reply-to:subject:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=pSH0oKR3vMqxy1mrb/RHsaXrIsB5nauYz3qJ8CX17MI=;
+        b=U/7WTaPnRoD6E3lgvyU37ppV05u8zJvo0COk+8EfJv1RMi8Xhocg2o8FH7oJ3c2sV9
+         91/n95jFEG+mJ0w+o7n+QWtgf0vz4xpTPE67O/xMSHuhAJe3DQgalBY7+io3kupj/J0T
+         UNFo3FC2EIrIFi3nDi1Z7bc5cq/Te15ons6HgBqPJxNAG33CcprboSs+HucrpqFUtlfO
+         KzLkDs6m6ZCeEiUb9q+hma0fa1QJAxSjlYwfrAQiZML3sjxdjtHvXD0y8tu2GZDCBn+M
+         v9bUXzNDE0ucrq6nQzx7ZVFGA/+vyVDubksHv3RUdvZjSj4lHN6dHWqzmOt8ptTfFCqH
+         zOmQ==
+X-Forwarded-Encrypted: i=1; AJvYcCW8ki1bjtldmuhPDr7twffxIGDD9coNJLQ5oHcYOv1mSErGqefLUiyaWIOvNn9lgOCbpINhrT+WwGRVs53oECyTNgVrDezkqJp3zUcXhv0=
+X-Gm-Message-State: AOJu0YxT9+vabPVV4evauJ27a2ukVZyWig0gF4SIIAvciE0+BK/biVCa
+	MA9U6fDvY/ZOyqx077cwT6myzcrnbRGZXbocJsURThb0Mo0erZK7Z4E9wh8MJNw=
+X-Google-Smtp-Source: AGHT+IEaoFFX6WKh90/e6oL2zfKnlJjY8MbSC7LBgPoSZpaJ91GSoA8Wk3SBjtokrGWQGTcakUOoSA==
+X-Received: by 2002:a05:6a21:3286:b0:1a9:7ad8:79f with SMTP id yt6-20020a056a21328600b001a97ad8079fmr14768410pzb.13.1713300869049;
+        Tue, 16 Apr 2024 13:54:29 -0700 (PDT)
+Received: from localhost ([50.145.13.30])
+        by smtp.gmail.com with ESMTPSA id r4-20020a056a00216400b006edd05e3751sm9680856pff.176.2024.04.16.13.54.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 16 Apr 2024 13:54:28 -0700 (PDT)
+Date: Tue, 16 Apr 2024 13:54:28 -0700 (PDT)
+X-Google-Original-Date: Tue, 16 Apr 2024 13:54:21 PDT (-0700)
+Subject:     Re: [PATCH v7 00/24] RISC-V SBI v2.0 PMU improvements and Perf sampling in KVM guest
+In-Reply-To: <20240416184421.3693802-1-atishp@rivosinc.com>
+CC: linux-kernel@vger.kernel.org, Atish Patra <atishp@rivosinc.com>,
+  ajay.kaher@broadcom.com, aou@eecs.berkeley.edu, alexghiti@rivosinc.com, ajones@ventanamicro.com,
+  anup@brainfault.org, Conor Dooley <conor.dooley@microchip.com>, jgross@suse.com,
+  kvm-riscv@lists.infradead.org, kvm@vger.kernel.org, linux-kselftest@vger.kernel.org,
+  linux-riscv@lists.infradead.org, Mark Rutland <mark.rutland@arm.com>, pbonzini@redhat.com,
+  Paul Walmsley <paul.walmsley@sifive.com>, shuah@kernel.org, virtualization@lists.linux.dev,
+  Will Deacon <will@kernel.org>, x86@kernel.org
+From: Palmer Dabbelt <palmer@dabbelt.com>
+To: Atish Patra <atishp@rivosinc.com>
+Message-ID: <mhng-5383b817-4803-47fa-9076-e8a1c8044bc3@palmer-ri-x1c9a>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
+Mime-Version: 1.0 (MHng)
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-NV-OnPremToCloud: ExternallySecured
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BL6PEPF0001AB78:EE_|DS7PR12MB8084:EE_
-X-MS-Office365-Filtering-Correlation-Id: 5efadc3b-0824-4416-f365-08dc5e4bce8e
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info:
-	hlrc++24fJC3L3p11pn0EGL0MftyqrhtBL1K4vOrdXAlug8G4X5BZdKmOu90FEz1ajXWo3CVIya5bO6CUM8FeVVTm4/ajZhhR5OT1/2BivGBuBD3Vgo95e6kvuWbxTZZQv9sZ990S/dQ4Faa9h31iyvMpLeUSi4h1uEmdfVw11/brQl3OvkOQcc6P0mDDSGWO1er/+E0gWhEeQ4cX47JMmhMMw4axTgKGjQD9v9faYy4vKXAIXb8HJG76fCjUm3KYKjA8CwgjHUysftQQLm+L1uZFKDI50M1rGHoqTH4eqRoaqiXy8hZCHYmDMS8Sg4Qz00RkoCpwIkRpJO3o8wwDmMlnQD0MG+CKMoin2EFZ/qCgnBbJK8mdChAXZY5XmQuz7I8yRguc9YHhLP4Pvj3L3P8llcgAK/TsAP47B7hQPqHUmRfgcc8wapz61ZFvgcLQRjRmib128Mzn22tHOWsSGzD5Ar31/2M56rcQbbxwaAmd3xlvLsfukU4X7cTF2RKHXwrij1BmcgR4F3/Hkvq60tRc+LVLpvMVaDz9wb856O0TYX5LK328I3494FTNy0txArON3R9bJ7CTjjQM6h8W53xDgLYko2tOyHgk3/EHVRuvdsXz+EoR/3IwQY+eC+bHxLOwZQjRbPMB2z3Qp0hQUrFsgmn6UkHAF2coC4U7q61j5vdeWntl32va5HbuVmqHXHwrw5uJEFViI8nlLTXM05rpKVCNQ7G18Tw9pz2xuimd2BRHOFgJMx2zifbH3jK
-X-Forefront-Antispam-Report:
-	CIP:216.228.118.232;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge1.nvidia.com;CAT:NONE;SFS:(13230031)(36860700004)(376005)(82310400014)(1800799015);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Apr 2024 19:31:25.8925
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5efadc3b-0824-4416-f365-08dc5e4bce8e
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.232];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	BL6PEPF0001AB78.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR12MB8084
 
-The rtnl lock is no longer needed to protect the control buffer and
-command VQ.
+On Tue, 16 Apr 2024 11:43:57 PDT (-0700), Atish Patra wrote:
+> This series implements SBI PMU improvements done in SBI v2.0[1] i.e. PMU snapshot
+> and fw_read_hi() functions.
+>
+> SBI v2.0 introduced PMU snapshot feature which allows the SBI implementation
+> to provide counter information (i.e. values/overflow status) via a shared
+> memory between the SBI implementation and supervisor OS. This allows to minimize
+> the number of traps in when perf being used inside a kvm guest as it relies on
+> SBI PMU + trap/emulation of the counters.
+>
+> The current set of ratified RISC-V specification also doesn't allow scountovf
+> to be trap/emulated by the hypervisor. The SBI PMU snapshot bridges the gap
+> in ISA as well and enables perf sampling in the guest. However, LCOFI in the
+> guest only works via IRQ filtering in AIA specification. That's why, AIA
+> has to be enabled in the hardware (at least the Ssaia extension) in order to
+> use the sampling support in the perf.
+>
+> Here are the patch wise implementation details.
+>
+> PATCH 1,4,7,8,9,10,11,15 : Generic cleanups/improvements.
+> PATCH 2,3,14 : FW_READ_HI function implementation
+> PATCH 5-6: Add PMU snapshot feature in sbi pmu driver
+> PATCH 12-13: KVM implementation for snapshot and sampling in kvm guests
+> PATCH 16-17: Generic improvements for kvm selftests
+> PATCH 18-22: KVM selftests for SBI PMU extension
+>
+> The series is based on v6.9-rc4 and is available at:
+>
+> https://github.com/atishp04/linux/tree/kvm_pmu_snapshot_v7
+>
+> The kvmtool patch is also available at:
+> https://github.com/atishp04/kvmtool/tree/sscofpmf
+>
+> It also requires Ssaia ISA extension to be present in the hardware in order to
+> get perf sampling support in the guest. In Qemu virt machine, it can be done
+> by the following config.
+>
+> ```
+> -cpu rv64,sscofpmf=true,x-ssaia=true
+> ```
+>
+> There is no other dependencies on AIA apart from that. Thus, Ssaia must be disabled
+> for the guest if AIA patches are not available. Here is the example command.
+>
+> ```
+> ./lkvm-static run -m 256 -c2 --console serial -p "console=ttyS0 earlycon" --disable-ssaia -k ./Image --debug
+> ```
+>
+> The series has been tested only in Qemu.
+> Here is the snippet of the perf running inside a kvm guest.
+>
+> ===================================================
+> $ perf record -e cycles -e instructions perf bench sched messaging -g 5
+> ...
+> $ Running 'sched/messaging' benchmark:
+> ...
+> [   45.928723] perf_duration_warn: 2 callbacks suppressed
+> [   45.929000] perf: interrupt took too long (484426 > 483186), lowering kernel.perf_event_max_sample_rate to 250
+> $ 20 sender and receiver processes per group
+> $ 5 groups == 200 processes run
+>
+>      Total time: 14.220 [sec]
+> [ perf record: Woken up 1 times to write data ]
+> [ perf record: Captured and wrote 0.117 MB perf.data (1942 samples) ]
+> $ perf report --stdio
+> $ To display the perf.data header info, please use --header/--header-only optio>
+> $
+> $
+> $ Total Lost Samples: 0
+> $
+> $ Samples: 943  of event 'cycles'
+> $ Event count (approx.): 5128976844
+> $
+> $ Overhead  Command          Shared Object                Symbol               >
+> $ ........  ...............  ...........................  .....................>
+> $
+>      7.59%  sched-messaging  [kernel.kallsyms]            [k] memcpy
+>      5.48%  sched-messaging  [kernel.kallsyms]            [k] percpu_counter_ad>
+>      5.24%  sched-messaging  [kernel.kallsyms]            [k] __sbi_rfence_v02_>
+>      4.00%  sched-messaging  [kernel.kallsyms]            [k] _raw_spin_unlock_>
+>      3.79%  sched-messaging  [kernel.kallsyms]            [k] set_pte_range
+>      3.72%  sched-messaging  [kernel.kallsyms]            [k] next_uptodate_fol>
+>      3.46%  sched-messaging  [kernel.kallsyms]            [k] filemap_map_pages
+>      3.31%  sched-messaging  [kernel.kallsyms]            [k] handle_mm_fault
+>      3.20%  sched-messaging  [kernel.kallsyms]            [k] finish_task_switc>
+>      3.16%  sched-messaging  [kernel.kallsyms]            [k] clear_page
+>      3.03%  sched-messaging  [kernel.kallsyms]            [k] mtree_range_walk
+>      2.42%  sched-messaging  [kernel.kallsyms]            [k] flush_icache_pte
+>
+> ===================================================
+>
+> [1] https://github.com/riscv-non-isa/riscv-sbi-doc
+>
+> Changes from v6->v7:
+> 1. Used SBI_SHMEM_DISABLE in the driver.
+> 2. Added RB Tags.
+> 3. Improved the sbi_pmu_test commandline to allow disabling multiple
+>    tests.
+>
+> Changes from v5->v6:
+> 1. Added a patch for command line option for the sbi pmu tests.
+> 2. Removed redundant prints and restructure the code little bit.
+> 3. Added a patch for computing the sbi minor version correctly.
+> 4. Addressed all other comments on v5.
+>
+> Changes from v4->v5:
+> 1. Moved sbi related definitions to its own header file from processor.h
+> 2. Added few helper functions for selftests.
+> 3. Improved firmware counter read and RV32 start/stop functions.
+> 4. Converted all the shifting operations to use BIT macro
+> 5. Addressed all other comments on v4.
+>
+> Changes from v3->v4:
+> 1. Added selftests.
+> 2. Fixed an issue to clear the interrupt pending bits.
+> 3. Fixed the counter index in snapshot memory start function.
+>
+> Changes from v2->v3:
+> 1. Fixed a patchwork warning on patch6.
+> 2. Fixed a comment formatting & nit fix in PATCH 3 & 5.
+> 3. Moved the hvien update and sscofpmf enabling to PATCH 9 from PATCH 8.
+>
+> Changes from v1->v2:
+> 1. Fixed warning/errors from patchwork CI.
+> 2. Rebased on top of kvm-next.
+> 3. Added Acked-by tags.
+>
+> Changes from RFC->v1:
+> 1. Addressed all the comments on RFC series.
+> 2. Removed PATCH2 and merged into later patches.
+> 3. Added 2 more patches for minor fixes.
+> 4. Fixed KVM boot issue without Ssaia and made sscofpmf in guest dependent on
+>    Ssaia in the host.
+>
+> Atish Patra (24):
+> RISC-V: Fix the typo in Scountovf CSR name
+> RISC-V: Add FIRMWARE_READ_HI definition
+> drivers/perf: riscv: Read upper bits of a firmware counter
+> drivers/perf: riscv: Use BIT macro for shifting operations
+> RISC-V: Add SBI PMU snapshot definitions
+> RISC-V: KVM: Rename the SBI_STA_SHMEM_DISABLE to a generic name
+> RISC-V: Use the minor version mask while computing sbi version
+> drivers/perf: riscv: Implement SBI PMU snapshot function
+> drivers/perf: riscv: Fix counter mask iteration for RV32
+> RISC-V: KVM: Fix the initial sample period value
+> RISC-V: KVM: No need to update the counter value during reset
+> RISC-V: KVM: No need to exit to the user space if perf event failed
+> RISC-V: KVM: Implement SBI PMU Snapshot feature
+> RISC-V: KVM: Add perf sampling support for guests
+> RISC-V: KVM: Support 64 bit firmware counters on RV32
+> RISC-V: KVM: Improve firmware counter read function
+> KVM: riscv: selftests: Move sbi definitions to its own header file
+> KVM: riscv: selftests: Add helper functions for extension checks
+> KVM: riscv: selftests: Add Sscofpmf to get-reg-list test
+> KVM: riscv: selftests: Add SBI PMU extension definitions
+> KVM: riscv: selftests: Add SBI PMU selftest
+> KVM: riscv: selftests: Add a test for PMU snapshot functionality
+> KVM: riscv: selftests: Add a test for counter overflow
+> KVM: riscv: selftests: Add commandline option for SBI PMU test
+>
+> arch/riscv/include/asm/csr.h                  |   5 +-
+> arch/riscv/include/asm/kvm_vcpu_pmu.h         |  16 +-
+> arch/riscv/include/asm/sbi.h                  |  38 +-
+> arch/riscv/include/uapi/asm/kvm.h             |   1 +
+> arch/riscv/kernel/paravirt.c                  |   6 +-
+> arch/riscv/kvm/aia.c                          |   5 +
+> arch/riscv/kvm/vcpu.c                         |  15 +-
+> arch/riscv/kvm/vcpu_onereg.c                  |   6 +
+> arch/riscv/kvm/vcpu_pmu.c                     | 260 ++++++-
+> arch/riscv/kvm/vcpu_sbi_pmu.c                 |  17 +-
+> arch/riscv/kvm/vcpu_sbi_sta.c                 |   4 +-
+> drivers/perf/riscv_pmu.c                      |   1 +
+> drivers/perf/riscv_pmu_sbi.c                  | 272 ++++++-
+> include/linux/perf/riscv_pmu.h                |   6 +
+> tools/testing/selftests/kvm/Makefile          |   1 +
+> .../selftests/kvm/include/riscv/processor.h   |  49 +-
+> .../testing/selftests/kvm/include/riscv/sbi.h | 141 ++++
+> .../selftests/kvm/include/riscv/ucall.h       |   1 +
+> .../selftests/kvm/lib/riscv/processor.c       |  12 +
+> .../testing/selftests/kvm/riscv/arch_timer.c  |   2 +-
+> .../selftests/kvm/riscv/get-reg-list.c        |   4 +
+> .../selftests/kvm/riscv/sbi_pmu_test.c        | 681 ++++++++++++++++++
+> tools/testing/selftests/kvm/steal_time.c      |   4 +-
+> 23 files changed, 1433 insertions(+), 114 deletions(-)
+> create mode 100644 tools/testing/selftests/kvm/include/riscv/sbi.h
+> create mode 100644 tools/testing/selftests/kvm/riscv/sbi_pmu_test.c
 
-Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
----
- drivers/net/virtio_net.c | 27 +++++----------------------
- 1 file changed, 5 insertions(+), 22 deletions(-)
+Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index bae5beafe1a1..5825775af8f8 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -2664,14 +2664,12 @@ static void virtnet_stats(struct net_device *dev,
- 
- static void virtnet_ack_link_announce(struct virtnet_info *vi)
- {
--	rtnl_lock();
- 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_ANNOUNCE,
- 				  VIRTIO_NET_CTRL_ANNOUNCE_ACK, NULL))
- 		dev_warn(&vi->dev->dev, "Failed to ack link announce.\n");
--	rtnl_unlock();
- }
- 
--static int _virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
-+static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
- {
- 	struct virtio_net_ctrl_mq *mq __free(kfree) = NULL;
- 	struct scatterlist sg;
-@@ -2702,16 +2700,6 @@ static int _virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
- 	return 0;
- }
- 
--static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
--{
--	int err;
--
--	rtnl_lock();
--	err = _virtnet_set_queues(vi, queue_pairs);
--	rtnl_unlock();
--	return err;
--}
--
- static int virtnet_close(struct net_device *dev)
- {
- 	u8 *promisc_allmulti  __free(kfree) = NULL;
-@@ -3317,7 +3305,7 @@ static int virtnet_set_channels(struct net_device *dev,
- 		return -EINVAL;
- 
- 	cpus_read_lock();
--	err = _virtnet_set_queues(vi, queue_pairs);
-+	err = virtnet_set_queues(vi, queue_pairs);
- 	if (err) {
- 		cpus_read_unlock();
- 		goto err;
-@@ -3621,14 +3609,11 @@ static void virtnet_rx_dim_work(struct work_struct *work)
- 	struct dim_cq_moder update_moder;
- 	int qnum, err;
- 
--	if (!rtnl_trylock())
--		return;
--
- 	qnum = rq - vi->rq;
- 
- 	guard(spinlock)(&rq->dim_lock);
- 	if (!rq->dim_enabled)
--		goto out;
-+		return;
- 
- 	update_moder = net_dim_get_rx_moderation(dim->mode, dim->profile_ix);
- 	if (update_moder.usec != rq->intr_coal.max_usecs ||
-@@ -3641,8 +3626,6 @@ static void virtnet_rx_dim_work(struct work_struct *work)
- 				 dev->name, qnum);
- 		dim->state = DIM_START_MEASURE;
- 	}
--out:
--	rtnl_unlock();
- }
- 
- static int virtnet_coal_params_supported(struct ethtool_coalesce *ec)
-@@ -4110,7 +4093,7 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
- 		synchronize_net();
- 	}
- 
--	err = _virtnet_set_queues(vi, curr_qp + xdp_qp);
-+	err = virtnet_set_queues(vi, curr_qp + xdp_qp);
- 	if (err)
- 		goto err;
- 	netif_set_real_num_rx_queues(dev, curr_qp + xdp_qp);
-@@ -4932,7 +4915,7 @@ static int virtnet_probe(struct virtio_device *vdev)
- 
- 	virtio_device_ready(vdev);
- 
--	_virtnet_set_queues(vi, vi->curr_queue_pairs);
-+	virtnet_set_queues(vi, vi->curr_queue_pairs);
- 
- 	/* a random MAC address has been assigned, notify the device.
- 	 * We don't fail probe if VIRTIO_NET_F_CTRL_MAC_ADDR is not there
--- 
-2.34.1
-
+I assume you guys want to take this through the riscv-kvm tree?  That's 
+fine with me, just LMK if you want to do a shared tag or something as we 
+might end up with merge conflicts since it touches so many little 
+things.
