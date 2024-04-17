@@ -1,176 +1,152 @@
-Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
+Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0AE540850
-	for <virtualization@lists.linux.dev>; Wed, 17 Apr 2024 07:20:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BC006A8BA
+	for <virtualization@lists.linux.dev>; Wed, 17 Apr 2024 07:22:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713338415; cv=none; b=sIF6C4O78U3XcTpOxmk6w1lNQFAQvOee3yiZZ+Hvuk9zQ2EzkHfCAYvVYJYhfdLniiBLrs+nlrhGRmr77zjt7SxXDBNz0fwY0KTGE8EFPd3MlFPOqJVfdFfUMNyCI0hDqEqDfNrXc9iCQ7jdCuYpti5OIdoX9D9/4nf8czT+AVE=
+	t=1713338579; cv=none; b=Js+dWWYAVdMPDMU3lFpeqr0o4KiSZVEiMQCHIwy3Lk4mU7zOqP+AhbjYGz7cYY/gr1BnrfQvarpMbJSCR6DQyyf4pLs7BwmQ7gomVPIcK5klcmt/YXR22kDIX3sWT2nLiMKJyuC+k4cRGzYVOsEiTcWHqjxrhZsgnoXk6SwqNKM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713338415; c=relaxed/simple;
-	bh=wL4iIM5J0lis2TMQWRGN6ToXbEhEI/er1H554XBUZ90=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=teVSf9DMNzBeAle9fHun+PUDipf6ENmrAtfzaKjcYO2PQ4200/smij8HTc4+RVn7SZrs4gq9iYFGe6YgcAV/K/LqtuCilevG/VG7oX5Bce/MhcC04+itpPV57mpWmRiFc7tFUilvCGFCCJ5jZawcaa/+h0i5FVqyfeV1W/6dVQ4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=i0XpDhQT; arc=none smtp.client-ip=209.85.210.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1713338579; c=relaxed/simple;
+	bh=A9w0TNw8xOwwO7aK3Yc6awMgv37h3KiP86rdJZ3sluo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Pt83ONzpAglhU92CGfeIyh1ISSsbaYF3ypb86WNhpzAz+ZtnnrqO72GwmjNoJo5A1VFurda1YryAK/7lBuHVQ5VegFWKd7MWNdQYK5t97K6d1hFtqvTExbbVa81joNPKrjgK843pWyTfPws4PqSZMLjH+gtAD4PdvAeVBiSm9/0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=YsSOfdqK; arc=none smtp.client-ip=209.85.128.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="i0XpDhQT"
-Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-6ed2dc03df6so4651397b3a.1
-        for <virtualization@lists.linux.dev>; Wed, 17 Apr 2024 00:20:13 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="YsSOfdqK"
+Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-418bbc68f7cso1933325e9.0
+        for <virtualization@lists.linux.dev>; Wed, 17 Apr 2024 00:22:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1713338413; x=1713943213; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=pt1487gYTWW2TmxI/onbKRtkT21ZsZOQ+ApdIXHw+fc=;
-        b=i0XpDhQTqXU8fvSnAsud7tKRemYHZWspYHeRmNgl2FDmvOXMJO/SGOcba3qsxS4xgx
-         wI4tDQj/nTBfHQrK0go8vI2Dhv6v8Uh66MYLI1lCrwaYVE8fVpK7pRAtdbBG9tA8OEAA
-         grxgAl3HUygmZVuusKjJLZPN6c+xIaj2i+vMwsjDuQrPXnlDeF0ENguuG0JyernNld9C
-         64+RZU24crq5qauu8T9bTgBcJpn/UvBqzG08YmWZopxYuUXer0ZEIxjWefkPclVrneFu
-         +slDgad71r8DKsa+2WvJ+slDQ9fzsnIMl1JfCTf+3jq7IlPYrUSfrmy2ZcZEIAFT8jU7
-         DS3A==
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1713338575; x=1713943375; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=x1fZRmtUCzpag8fleysfaO/F+gV8nCRc5HsAwDzsIyo=;
+        b=YsSOfdqKFrxisnIP27hhdEDwH02AosFKccV2rcWFtOBBJA7kq1lfvgo2B2zRCtiPfa
+         pzKZDoPzLmH3/LVyAbzLhv9OshonNaXCWk8Fc/aJbL7pgwVnH4oPf/gBTh1M2uSkp6Ec
+         +Hy1XfrN3i+JwUBlK9ZOLLruhw0whmv5uYHFYZvOXhQa+hnxDntkQOfLmovjrzjiQa0H
+         glepSAmhuk7U3IC6URQMsqE4ZrmJ4R2cLnr8CphARHUN1y3oHzrRAX9BLs2Tg+H2f8xM
+         lDbzGcYgDm9AcQHwWJwciWZoytOILZly2AfyT4pDk2+TEAcQl9zEpr0okhF2KMFqiZYO
+         GuMw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713338413; x=1713943213;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=pt1487gYTWW2TmxI/onbKRtkT21ZsZOQ+ApdIXHw+fc=;
-        b=KulBs1LspAIwBMfiKSqKnOEe+xKWPQ7C4fTi7tmqS705uc/MiT9ziEF2ukoVhHpJjc
-         uEdd/LC6AV/10dU9vE3hT7MKycJ67fEcJlTks205QqUFNdcxk0yV00PJGKOl2LR7jZLh
-         E0/NYIPpRsW+068f6jEDiHRHq0ZZDh2PSTV2UmTs5eqminC3PpMwVtuW0/W3/yqL5sf/
-         atGy7mN7N77kA/vImy049AVqRANx33KnS5VaF60x6OfQ/u6d9RL+7wsV6H3JgsJxtG3J
-         GmkQuT5ZDs/kMbwDq5qJXOcw/JNrqxbatKFOsZQtD0HvjF0vrt1k69Bt5J/Q0xfoQFyJ
-         rwXA==
-X-Forwarded-Encrypted: i=1; AJvYcCWPO8b72bfpoC/bkdARBS/Mez67sQi3AbjyrfxaZv278+xvdDtPmFO6ryeioFZ3mtJh+yXyh85HPuCKaS5qj10bjGPMzXGmhuDlT6cVccg=
-X-Gm-Message-State: AOJu0YzW/pR5mcwiyGw8z6Gne8aoC994oY7Xt5HFm5v+4p8BcmkStMly
-	iLbeJLbEP8pk7vPrfWrboohV3MK740ZUOtkqsx9bMiR2oJ7qvzuw
-X-Google-Smtp-Source: AGHT+IF8czx7WcbMRIyaPpnPne+jCia1Zgf1JHtt4BZARNuBM3xT75gCXDwNrt6TdoCdhSJBzPML4w==
-X-Received: by 2002:a05:6a21:2791:b0:1a8:4266:3d02 with SMTP id rn17-20020a056a21279100b001a842663d02mr17049898pzb.30.1713338413105;
-        Wed, 17 Apr 2024 00:20:13 -0700 (PDT)
-Received: from localhost.localdomain ([123.116.201.21])
-        by smtp.gmail.com with ESMTPSA id z3-20020aa78883000000b006e5571be110sm10007768pfe.214.2024.04.17.00.20.08
+        d=1e100.net; s=20230601; t=1713338575; x=1713943375;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=x1fZRmtUCzpag8fleysfaO/F+gV8nCRc5HsAwDzsIyo=;
+        b=ssc5asn51B4e1qX0Cp9LtwEk1/A8Oak5PrO0mSxHWqL0iQFq72C8+Ns+7eBLypL+8W
+         ujrSFe8vbTyko8rnmBYYi9HkxT6Ar2GEmBrPPqXbBqO257qtPYrI5ad4D1Vpk51OeoDe
+         /FJC/CbTM5cchKwERu1kqXzqIXMyurnUvjew0OneBrnUUwtR+rim0GGOVSAHigW9UJS3
+         nz/Hsm88HmTmRRUR+wB/GqNQWV9Le2+MQ6YPljBeBMKquMn5YBoi1a5XAOIZS80iPqil
+         KAyYvnIhqOjzKcbTqBkq01YYBLo1BkZyznQ5sfcCZzO782YhI2Mh3FsReTV4O4MX/+0B
+         xTFA==
+X-Forwarded-Encrypted: i=1; AJvYcCXwsDaBheSEh7yBjznL9IH+XMp5L28CCFjcSpOyOL4uyCVSml2RDWSvOw2clTKcFXFrqa0TDpQqn6gqKC0zxz6TlxpYOX512Ru7prYLsgE=
+X-Gm-Message-State: AOJu0YxVkiv/14MzmXFil+S9bUCHALDrx6gvTH1KfpYdzQITBQqMzRIf
+	7MhRIvjVmsDnsUvo2xXIB25egH3TAt7bJ6zgXNjdJqLPvp+a2RU808zel+Ps2o4=
+X-Google-Smtp-Source: AGHT+IHOMJ6tvg51q7LMCwZaW8Psh5Qlr9UINCBTzEN2w/aV4BJkd1soo+fKHO3Uwy83GP++CdPA3w==
+X-Received: by 2002:a05:600c:4f07:b0:414:726:87d9 with SMTP id l7-20020a05600c4f0700b00414072687d9mr13509829wmq.12.1713338575493;
+        Wed, 17 Apr 2024 00:22:55 -0700 (PDT)
+Received: from localhost (78-80-105-131.customers.tmcz.cz. [78.80.105.131])
+        by smtp.gmail.com with ESMTPSA id s4-20020a5d5104000000b00346f9071405sm14418312wrt.21.2024.04.17.00.22.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 Apr 2024 00:20:11 -0700 (PDT)
-From: Liang Chen <liangchen.linux@gmail.com>
-To: mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	hengqi@linux.alibaba.com,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	hawk@kernel.org,
-	john.fastabend@gmail.com
-Cc: netdev@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	bpf@vger.kernel.org,
-	daniel@iogearbox.net,
-	ast@kernel.org,
-	liangchen.linux@gmail.com
-Subject: [PATCH net-next v9] virtio_net: Support RX hash XDP hint
-Date: Wed, 17 Apr 2024 15:18:22 +0800
-Message-Id: <20240417071822.27831-1-liangchen.linux@gmail.com>
-X-Mailer: git-send-email 2.31.1
+        Wed, 17 Apr 2024 00:22:55 -0700 (PDT)
+Date: Wed, 17 Apr 2024 09:22:53 +0200
+From: Jiri Pirko <jiri@resnulli.us>
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, kuba@kernel.org, pabeni@redhat.com,
+	davem@davemloft.net, edumazet@google.com, parav@nvidia.com,
+	mst@redhat.com, xuanzhuo@linux.alibaba.com, shuah@kernel.org,
+	petrm@nvidia.com, liuhangbin@gmail.com, vladimir.oltean@nxp.com,
+	bpoirier@nvidia.com, idosch@nvidia.com,
+	virtualization@lists.linux.dev
+Subject: Re: [patch net-next v2 1/6] virtio: add debugfs infrastructure to
+ allow to debug virtio features
+Message-ID: <Zh94zX-oQs96tuKk@nanopsycho>
+References: <20240415162530.3594670-1-jiri@resnulli.us>
+ <20240415162530.3594670-2-jiri@resnulli.us>
+ <CACGkMEtpSPFSpikcrsZZBtXOgpAukjCwFRcF79xfzDG-s8_SyQ@mail.gmail.com>
+ <Zh5G0sh62hZtOM0J@nanopsycho>
+ <CACGkMEvRMGvx0jTqFK2WH1iuPMUZJ0LfW1jDLgt-iQd2+AT=+g@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <CACGkMEvRMGvx0jTqFK2WH1iuPMUZJ0LfW1jDLgt-iQd2+AT=+g@mail.gmail.com>
 
-The RSS hash report is a feature that's part of the virtio specification.
-Currently, virtio backends like qemu, vdpa (mlx5), and potentially vhost
-(still a work in progress as per [1]) support this feature. While the
-capability to obtain the RSS hash has been enabled in the normal path,
-it's currently missing in the XDP path. Therefore, we are introducing
-XDP hints through kfuncs to allow XDP programs to access the RSS hash.
+Wed, Apr 17, 2024 at 06:37:30AM CEST, jasowang@redhat.com wrote:
+>On Tue, Apr 16, 2024 at 5:37 PM Jiri Pirko <jiri@resnulli.us> wrote:
+>>
+>> Tue, Apr 16, 2024 at 05:52:41AM CEST, jasowang@redhat.com wrote:
+>> >On Tue, Apr 16, 2024 at 12:25 AM Jiri Pirko <jiri@resnulli.us> wrote:
+>> >>
+>> >> From: Jiri Pirko <jiri@nvidia.com>
+>> >>
+>> >> Currently there is no way for user to set what features the driver
+>> >> should obey or not, it is hard wired in the code.
+>> >>
+>> >> In order to be able to debug the device behavior in case some feature is
+>> >> disabled, introduce a debugfs infrastructure with couple of files
+>> >> allowing user to see what features the device advertises and
+>> >> to set filter for features used by driver.
+>> >>
+>> >> Example:
+>> >> $cat /sys/bus/virtio/devices/virtio0/features
+>> >> 1110010111111111111101010000110010000000100000000000000000000000
+>> >> $ echo "5" >/sys/kernel/debug/virtio/virtio0/filter_feature_add
+>> >> $ cat /sys/kernel/debug/virtio/virtio0/filter_features
+>> >> 5
+>> >> $ echo "virtio0" > /sys/bus/virtio/drivers/virtio_net/unbind
+>> >> $ echo "virtio0" > /sys/bus/virtio/drivers/virtio_net/bind
+>> >> $ cat /sys/bus/virtio/devices/virtio0/features
+>> >> 1110000111111111111101010000110010000000100000000000000000000000
+>> >>
+>> >> Note that sysfs "features" know already exists, this patch does not
+>> >> touch it.
+>> >>
+>> >> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
+>> >> ---
+>> >
+>> >Note that this can be done already with vp_vdpa feature provisioning:
+>> >
+>> >commit c1ca352d371f724f7fb40f016abdb563aa85fe55
+>> >Author: Jason Wang <jasowang@redhat.com>
+>> >Date:   Tue Sep 27 15:48:10 2022 +0800
+>> >
+>> >    vp_vdpa: support feature provisioning
+>> >
+>> >For example:
+>> >
+>> >vdpa dev add name dev1 mgmtdev pci/0000:02:00.0 device_features 0x300020000
+>>
+>> Sure. My intension was to make the testing possible on any virtio
+>> device.
+>
+>It did that actually, vp_vdpa bridge virtio-pci device into vDPA bus
+>with mediation layer (like feature filtering etc). So it can only run
+>on top of standard virtio-pci device.
+>
+>> Narrowing the testing for vpda would be limitting.
+>
+>Unless you want to use other transport like virtio-mmio.
 
-1.
-https://lore.kernel.org/all/20231015141644.260646-1-akihiko.odaki@daynix.com/#r
+Also, the goal is to test virtio_net emulated devices. There are couple
+of implementation. Non-vdpa.
 
-Signed-off-by: Liang Chen <liangchen.linux@gmail.com>
----
-  Changes from v8:
-- move max table macro out of uAPI
-  Changes from v7:
-- use table lookup for rss hash type
-  Changes from v6:
-- fix a coding style issue
-  Changes from v5:
-- Preservation of the hash value has been dropped, following the conclusion
-  from discussions in V3 reviews. The virtio_net driver doesn't
-  accessing/using the virtio_net_hdr after the XDP program execution, so
-  nothing tragic should happen. As to the xdp program, if it smashes the
-  entry in virtio header, it is likely buggy anyways. Additionally, looking
-  up the Intel IGC driver,  it also does not bother with this particular
-  aspect.
----
- drivers/net/virtio_net.c | 43 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 43 insertions(+)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index c22d1118a133..eb99bf6c555e 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -4621,6 +4621,48 @@ static void virtnet_set_big_packets(struct virtnet_info *vi, const int mtu)
- 	}
- }
- 
-+#define VIRTIO_NET_HASH_REPORT_MAX_TABLE      10
-+static enum xdp_rss_hash_type
-+virtnet_xdp_rss_type[VIRTIO_NET_HASH_REPORT_MAX_TABLE] = {
-+	[VIRTIO_NET_HASH_REPORT_NONE] = XDP_RSS_TYPE_NONE,
-+	[VIRTIO_NET_HASH_REPORT_IPv4] = XDP_RSS_TYPE_L3_IPV4,
-+	[VIRTIO_NET_HASH_REPORT_TCPv4] = XDP_RSS_TYPE_L4_IPV4_TCP,
-+	[VIRTIO_NET_HASH_REPORT_UDPv4] = XDP_RSS_TYPE_L4_IPV4_UDP,
-+	[VIRTIO_NET_HASH_REPORT_IPv6] = XDP_RSS_TYPE_L3_IPV6,
-+	[VIRTIO_NET_HASH_REPORT_TCPv6] = XDP_RSS_TYPE_L4_IPV6_TCP,
-+	[VIRTIO_NET_HASH_REPORT_UDPv6] = XDP_RSS_TYPE_L4_IPV6_UDP,
-+	[VIRTIO_NET_HASH_REPORT_IPv6_EX] = XDP_RSS_TYPE_L3_IPV6_EX,
-+	[VIRTIO_NET_HASH_REPORT_TCPv6_EX] = XDP_RSS_TYPE_L4_IPV6_TCP_EX,
-+	[VIRTIO_NET_HASH_REPORT_UDPv6_EX] = XDP_RSS_TYPE_L4_IPV6_UDP_EX
-+};
-+
-+static int virtnet_xdp_rx_hash(const struct xdp_md *_ctx, u32 *hash,
-+			       enum xdp_rss_hash_type *rss_type)
-+{
-+	const struct xdp_buff *xdp = (void *)_ctx;
-+	struct virtio_net_hdr_v1_hash *hdr_hash;
-+	struct virtnet_info *vi;
-+	u16 hash_report;
-+
-+	if (!(xdp->rxq->dev->features & NETIF_F_RXHASH))
-+		return -ENODATA;
-+
-+	vi = netdev_priv(xdp->rxq->dev);
-+	hdr_hash = (struct virtio_net_hdr_v1_hash *)(xdp->data - vi->hdr_len);
-+	hash_report = __le16_to_cpu(hdr_hash->hash_report);
-+
-+	if (hash_report >= VIRTIO_NET_HASH_REPORT_MAX_TABLE)
-+		hash_report = VIRTIO_NET_HASH_REPORT_NONE;
-+
-+	*rss_type = virtnet_xdp_rss_type[hash_report];
-+	*hash = __le32_to_cpu(hdr_hash->hash_value);
-+	return 0;
-+}
-+
-+static const struct xdp_metadata_ops virtnet_xdp_metadata_ops = {
-+	.xmo_rx_hash			= virtnet_xdp_rx_hash,
-+};
-+
- static int virtnet_probe(struct virtio_device *vdev)
- {
- 	int i, err = -ENOMEM;
-@@ -4747,6 +4789,7 @@ static int virtnet_probe(struct virtio_device *vdev)
- 				  VIRTIO_NET_RSS_HASH_TYPE_UDP_EX);
- 
- 		dev->hw_features |= NETIF_F_RXHASH;
-+		dev->xdp_metadata_ops = &virtnet_xdp_metadata_ops;
- 	}
- 
- 	if (vi->has_rss_hash_report)
--- 
-2.40.1
-
+>
+>Thanks
+>
+>>
+>>
+>> >
+>> >Thanks
+>> >
+>>
+>
