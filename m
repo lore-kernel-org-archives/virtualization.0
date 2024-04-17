@@ -1,32 +1,32 @@
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B936C43AC5
-	for <virtualization@lists.linux.dev>; Wed, 17 Apr 2024 07:59:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 964077C0B7
+	for <virtualization@lists.linux.dev>; Wed, 17 Apr 2024 08:04:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713340798; cv=none; b=g++yisrlrESxEm0zrtjtLP37PRd1zXOFmWrxRz98EoYm6HW9/1ikZbtYvRbPVzZvhka0O5GqcMYaz7iBZCncvbJQZPy0I3wm8mAiBHdgfXVJV+gjKun3hDw/yI/GgrBl+6FCGijLTUg+r8lyX6dkNeDT5FfT2Gc4EMZvdw8jFJk=
+	t=1713341065; cv=none; b=DxdtlIkYk9yg2Q/zbm5nnWPkqUYTYDDRedWEbU7Cl/Mje9BK9cGwlOw7ZFlftuFy7NqMTTEQjNeXN+mBcnEC4GHsKNxeg2kbZsZAQu7rJE4g61yw90NHfYCseXnYRb0/3BIhO/11MD3w6rD5kwXIA4tcmZrvu03mItrZkR1IORk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713340798; c=relaxed/simple;
-	bh=36MTnlcp33XwHHxLO/m8OsWJKQx4HmShuAbNDoPWRD0=;
+	s=arc-20240116; t=1713341065; c=relaxed/simple;
+	bh=OP/OKFQgQXSFhzk6tuYsbkhWUFquoztiZgjoCeKsBcY=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=TbiWtsC9HTbf83sZrEcYe0Z9EfcuGT9lmmxmC3xf7en1RXnc40s3tr2i2UkYLsVVJvHXn5k58T5u2hZ/Wt0YTYGoH4ibL4Ofoy+6N2oxAsj4Wi7z1mtXyjSy2kbNiFckaxuA6qb36fXuVOyHvHiOkSZCLF+OxLJVV0nHL92Lu7E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=PO9CzE0M; arc=none smtp.client-ip=115.124.30.132
+	 In-Reply-To:Content-Type; b=hE+G9lQQCgNohYbQztchfb1nU3MX+iOhBupehCQDuDrZhePIGa/Eum7zrvrtJYExculf2hIyku5Mg2F44nmX/Eh94ZxXil1JtLbiIcxMl5FKRLXSUTLtwVabGE2FVJJ7Akt2Qkc0KrKX1TTdYUep8cT14OLKT4l/gDXpV5Jq364=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=t28ytio7; arc=none smtp.client-ip=115.124.30.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="PO9CzE0M"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="t28ytio7"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1713340788; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=00eV10aYqBSEYTxuhgv4GNMQMHte1deFn+CrhZCt04s=;
-	b=PO9CzE0MtThqBFm7kEd50KI8xVy8cOpYteK+r5faAoWuVd1p6SZiOfDDO//BKhfIofUBPj1DvOC0WZ5mDwTtKs8pWfv8zZ0VsysnjhZPTorzhnk+WdQ/EiPswo22BWUWomrUJaNQ8q9gJz0J5YaySea/00IWMrqXXSVNyrsxbBI=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R681e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=16;SR=0;TI=SMTPD_---0W4kiWz7_1713340784;
-Received: from 30.221.148.177(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W4kiWz7_1713340784)
+	t=1713341059; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=zZZMoIYCZzum0CbFS+uoL0WalJhrJ++b9N2kNAwtdSg=;
+	b=t28ytio7MH3darsNXb9EVrdxYd9SrvXXb+LNdjbwOUYXkinpStGkHRKB3X4bx9oz2vIrD17eDFSQlDa80+vGZEo2kTKHyusaktDAZ+45lj3qLD0Xzpg0lxIrMOMzSSIOJIJ97H0nKRg1Iqj8TSdmK3SI2f8MU61b0xmTE8bz23U=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W4kiYj._1713341057;
+Received: from 30.221.148.177(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W4kiYj._1713341057)
           by smtp.aliyun-inc.com;
-          Wed, 17 Apr 2024 15:59:46 +0800
-Message-ID: <ae00d109-403f-46f5-9b70-19fd7a94d3cf@linux.alibaba.com>
-Date: Wed, 17 Apr 2024 15:59:44 +0800
+          Wed, 17 Apr 2024 16:04:18 +0800
+Message-ID: <29266e64-5810-417d-9a01-ad01e86a70d3@linux.alibaba.com>
+Date: Wed, 17 Apr 2024 16:04:17 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -34,119 +34,92 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v9] virtio_net: Support RX hash XDP hint
-To: Liang Chen <liangchen.linux@gmail.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, bpf@vger.kernel.org, daniel@iogearbox.net,
- ast@kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- "David S . Miller" <davem@davemloft.net>, Eric Dumazet
- <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>
-References: <20240417071822.27831-1-liangchen.linux@gmail.com>
+Subject: Re: [PATCH net-next v8 0/4] ethtool: provide the dim profile
+ fine-tuning channel
+To: Jason Xing <kerneljasonxing@gmail.com>
+Cc: Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
+ virtualization@lists.linux.dev, "David S . Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, "Michael S . Tsirkin" <mst@redhat.com>,
+ Simon Horman <horms@kernel.org>, Brett Creeley <bcreeley@amd.com>,
+ Ratheesh Kannoth <rkannoth@marvell.com>,
+ Alexander Lobakin <aleksander.lobakin@intel.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+References: <20240416122950.39046-1-hengqi@linux.alibaba.com>
+ <20240416173836.307a3246@kernel.org>
+ <1abdb66a-a080-424e-847d-1d2f5837bbc4@linux.alibaba.com>
+ <20240416192952.1e740891@kernel.org>
+ <CAL+tcoDj11Y7o2f0Eh8-FMk0BxjtAwCupWaW7n7bOXTUVgAWSQ@mail.gmail.com>
+ <26755c1e-566b-402c-a709-eeebe11352aa@linux.alibaba.com>
+ <CAL+tcoAS81uW_aikoWrDhO-qF-aFD5rU4GsEAy2hHbC9ex2q5w@mail.gmail.com>
 From: Heng Qi <hengqi@linux.alibaba.com>
-In-Reply-To: <20240417071822.27831-1-liangchen.linux@gmail.com>
+In-Reply-To: <CAL+tcoAS81uW_aikoWrDhO-qF-aFD5rU4GsEAy2hHbC9ex2q5w@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
 
 
-在 2024/4/17 下午3:18, Liang Chen 写道:
-> The RSS hash report is a feature that's part of the virtio specification.
-> Currently, virtio backends like qemu, vdpa (mlx5), and potentially vhost
-> (still a work in progress as per [1]) support this feature. While the
-> capability to obtain the RSS hash has been enabled in the normal path,
-> it's currently missing in the XDP path. Therefore, we are introducing
-> XDP hints through kfuncs to allow XDP programs to access the RSS hash.
->
-> 1.
-> https://lore.kernel.org/all/20231015141644.260646-1-akihiko.odaki@daynix.com/#r
->
-> Signed-off-by: Liang Chen <liangchen.linux@gmail.com>
+在 2024/4/17 下午2:52, Jason Xing 写道:
+> On Wed, Apr 17, 2024 at 2:35 PM Heng Qi <hengqi@linux.alibaba.com> wrote:
+>>
+>>
+>> 在 2024/4/17 上午10:53, Jason Xing 写道:
+>>> Hello Jakub,
+>>>
+>>> On Wed, Apr 17, 2024 at 10:30 AM Jakub Kicinski <kuba@kernel.org> wrote:
+>>>> On Wed, 17 Apr 2024 10:22:52 +0800 Heng Qi wrote:
+>>>>> Have you encountered compilation problems in v8?
+>>>> Yes, please try building allmodconfig:
+>>>>
+>>>> make allmodconfig
+>>>> make ..
+>>>>
+>>>> there's many drivers using this API, you gotta build the full kernel..
+>>>>
+>>> About compiling the kernel, I would like to ask one question: what
+>>> parameters of 'make' do you recommend just like the netdev/build_32bit
+>>> [1] does?
+>> Hi Jason,
+>>
+>> I founded and checked the use of nipa[1] made from Kuba today. I used
+>> run.sh in the ./nipa/docker
+>> directory locally to run full compilation.
+>> If there are additional errors or warnings after applying our own
+>> patches than before, we will be given
+>> information in the results directory.
+>>
+>> [1] https://github.com/linux-netdev/nipa/tree/main
+> Great! Thanks for the information:) I'll try it locally.
 
-Reviewed-by: Heng Qi <hengqi@linux.alibaba.com>
+To update more information, I checked the source code of nipa.
+All its test items are located at:
 
-Thanks.
+   1. nipa/tests/patch, such as build_32bit, build_allmodconfig_war
+   2. nipa/tests/series, such as fixes_present
 
-> ---
->    Changes from v8:
-> - move max table macro out of uAPI
->    Changes from v7:
-> - use table lookup for rss hash type
->    Changes from v6:
-> - fix a coding style issue
->    Changes from v5:
-> - Preservation of the hash value has been dropped, following the conclusion
->    from discussions in V3 reviews. The virtio_net driver doesn't
->    accessing/using the virtio_net_hdr after the XDP program execution, so
->    nothing tragic should happen. As to the xdp program, if it smashes the
->    entry in virtio header, it is likely buggy anyways. Additionally, looking
->    up the Intel IGC driver,  it also does not bother with this particular
->    aspect.
-> ---
->   drivers/net/virtio_net.c | 43 ++++++++++++++++++++++++++++++++++++++++
->   1 file changed, 43 insertions(+)
+We can edit the "include" and "exclude" items of [tests] section
+in the nipa/docker/nipa.config file to specify the specific items we 
+want to test.
+
+Regards,
+Heng
+
 >
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index c22d1118a133..eb99bf6c555e 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -4621,6 +4621,48 @@ static void virtnet_set_big_packets(struct virtnet_info *vi, const int mtu)
->   	}
->   }
->   
-> +#define VIRTIO_NET_HASH_REPORT_MAX_TABLE      10
-> +static enum xdp_rss_hash_type
-> +virtnet_xdp_rss_type[VIRTIO_NET_HASH_REPORT_MAX_TABLE] = {
-> +	[VIRTIO_NET_HASH_REPORT_NONE] = XDP_RSS_TYPE_NONE,
-> +	[VIRTIO_NET_HASH_REPORT_IPv4] = XDP_RSS_TYPE_L3_IPV4,
-> +	[VIRTIO_NET_HASH_REPORT_TCPv4] = XDP_RSS_TYPE_L4_IPV4_TCP,
-> +	[VIRTIO_NET_HASH_REPORT_UDPv4] = XDP_RSS_TYPE_L4_IPV4_UDP,
-> +	[VIRTIO_NET_HASH_REPORT_IPv6] = XDP_RSS_TYPE_L3_IPV6,
-> +	[VIRTIO_NET_HASH_REPORT_TCPv6] = XDP_RSS_TYPE_L4_IPV6_TCP,
-> +	[VIRTIO_NET_HASH_REPORT_UDPv6] = XDP_RSS_TYPE_L4_IPV6_UDP,
-> +	[VIRTIO_NET_HASH_REPORT_IPv6_EX] = XDP_RSS_TYPE_L3_IPV6_EX,
-> +	[VIRTIO_NET_HASH_REPORT_TCPv6_EX] = XDP_RSS_TYPE_L4_IPV6_TCP_EX,
-> +	[VIRTIO_NET_HASH_REPORT_UDPv6_EX] = XDP_RSS_TYPE_L4_IPV6_UDP_EX
-> +};
-> +
-> +static int virtnet_xdp_rx_hash(const struct xdp_md *_ctx, u32 *hash,
-> +			       enum xdp_rss_hash_type *rss_type)
-> +{
-> +	const struct xdp_buff *xdp = (void *)_ctx;
-> +	struct virtio_net_hdr_v1_hash *hdr_hash;
-> +	struct virtnet_info *vi;
-> +	u16 hash_report;
-> +
-> +	if (!(xdp->rxq->dev->features & NETIF_F_RXHASH))
-> +		return -ENODATA;
-> +
-> +	vi = netdev_priv(xdp->rxq->dev);
-> +	hdr_hash = (struct virtio_net_hdr_v1_hash *)(xdp->data - vi->hdr_len);
-> +	hash_report = __le16_to_cpu(hdr_hash->hash_report);
-> +
-> +	if (hash_report >= VIRTIO_NET_HASH_REPORT_MAX_TABLE)
-> +		hash_report = VIRTIO_NET_HASH_REPORT_NONE;
-> +
-> +	*rss_type = virtnet_xdp_rss_type[hash_report];
-> +	*hash = __le32_to_cpu(hdr_hash->hash_value);
-> +	return 0;
-> +}
-> +
-> +static const struct xdp_metadata_ops virtnet_xdp_metadata_ops = {
-> +	.xmo_rx_hash			= virtnet_xdp_rx_hash,
-> +};
-> +
->   static int virtnet_probe(struct virtio_device *vdev)
->   {
->   	int i, err = -ENOMEM;
-> @@ -4747,6 +4789,7 @@ static int virtnet_probe(struct virtio_device *vdev)
->   				  VIRTIO_NET_RSS_HASH_TYPE_UDP_EX);
->   
->   		dev->hw_features |= NETIF_F_RXHASH;
-> +		dev->xdp_metadata_ops = &virtnet_xdp_metadata_ops;
->   	}
->   
->   	if (vi->has_rss_hash_report)
+> Thanks,
+> Jason
+>
+>> Thanks.
+>>
+>>> If I run the normal 'make' command without parameters, there is no
+>>> warning even if the file is not compiled. If running with '-Oline -j
+>>> 16 W=1 C=1', it will print lots of warnings which makes it very hard
+>>> to see the useful information related to the commits I just wrote.
+>>>
+>>> I want to build and then print all the warnings which are only related
+>>> to my patches locally, but I cannot find a good way :(
+>>>
+>>> [1]: https://netdev.bots.linux.dev/static/nipa/845020/13631720/build_32bit/stderr
+>>>
+>>> Thanks,
+>>> Jason
 
