@@ -1,211 +1,278 @@
-Received: from mail-ed1-f45.google.com (mail-ed1-f45.google.com [209.85.208.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3435EAD2
-	for <virtualization@lists.linux.dev>; Wed, 17 Apr 2024 03:18:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A513543AAE
+	for <virtualization@lists.linux-foundation.org>; Wed, 17 Apr 2024 03:50:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713323888; cv=none; b=qj+csAP4c1aMwThDbMSRT1ASR9peP0U+IiMGtOlsMVwmp3qrbdEUsRV93lB+CdMt6MhGKKzqdiAMFcEzii677svkFBoqDRub8M/DX+8vipWQFezofqPGo73er8kQjqReOLzlyYgPqq1Y2JpII4CIl41XuWlgYDeMyBpyaQ6xcUU=
+	t=1713325833; cv=none; b=ENauVU1/kbrkaDCOVr1mZHUqHFrnJUuPwQ5/gjyq2WUGp2vsYC0pilSliodxWRXq9v3EezO/oY6XYwLU4x9hjoW+Br0a/TCz41+G39CF4soNq0wUCsdlQk6v5O7W8G8cWe0zzCBmc3Mpetq90WGcI9PxZEQ4ToeafpbUkEIUD+A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713323888; c=relaxed/simple;
-	bh=DYdbJMQPWHNdCa/t4xKHn7Ep23nVCFUDURsn3OIzBkc=;
+	s=arc-20240116; t=1713325833; c=relaxed/simple;
+	bh=1GTLaaKKQhGDVYYknUjD/txVKBNAGnMEnvBTEjPLUYI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Y0ht/gD2DRdgz+RfKuhVW9HlsE9WTgu2M5jWWdYcUklsch+AmqkndZ9dlsBqXzeN10Cp0FsfDLCv5wpb1RUxk6TUUlaguUkSmEdMAif2Us7itCuQQPS5hXtqGRVX3eMMz9D1U/7qRxbe5DmeaRHswKrw+ppJsxAS4Ef8Bh02Ij8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lz/Gyt5P; arc=none smtp.client-ip=209.85.208.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=qQQor4ntUcCKd0Rdr1jP6z29r9HgsZSuzPvAoZPNKJYwbJy4GjqhcIOKzE8b9fCuCYtqUgGqub1mYjjFiZTjFhXfHqMVjnYWmeqhpY68qfhCQQcHIuNQfzzK67HnysIqa0+XC0W8yzElXH3OFNAj6oI4jPxD8sUagTtxZR9YwcU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hK1vLBpo; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lz/Gyt5P"
-Received: by mail-ed1-f45.google.com with SMTP id 4fb4d7f45d1cf-56e136cbcecso6157852a12.3
-        for <virtualization@lists.linux.dev>; Tue, 16 Apr 2024 20:18:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1713323885; x=1713928685; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=MVriCNTb+EDSZWCxPrVyKNj5dSkX49V39Dhl38sLFSg=;
-        b=lz/Gyt5Ph/mROnEVRjAjTCkW/whGc/IcwN4l36wiLdWVB/ok7KxsTyqm3Gni1e+Kst
-         bz6OKuTl60boW2HKrgGm8tErA9lC3RcVoUMasCp5BqvJN+e9MFyIJtcYtHlSSPT9PypU
-         l8Riwd/E7stNF3MCF82oENdJtAugOmsk084cyum3HDAjm/e1V2kJC9LXnH+oNOHSOfsq
-         vXKDpQuGfLVdGvWzdm58JfHGGusGDUxJiBqwblmqGP4eHawumTN5y00/wypo0ots3MJb
-         MHhJu1uN6OrCewDiTCb2BHBTFjmWC6e/78Ti5wYfGLyNxT2OTg2yZa8zsoJIdtlTJ301
-         gkAA==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hK1vLBpo"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 2CCEF40497
+	for <virtualization@lists.linux-foundation.org>; Wed, 17 Apr 2024 03:50:31 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -0.599
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id JhjgOT00fBvI for <virtualization@lists.linux-foundation.org>;
+ Wed, 17 Apr 2024 03:50:30 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org E060540116
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E060540116
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=hK1vLBpo
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id E060540116
+	for <virtualization@lists.linux-foundation.org>; Wed, 17 Apr 2024 03:50:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1713325828;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=1GTLaaKKQhGDVYYknUjD/txVKBNAGnMEnvBTEjPLUYI=;
+	b=hK1vLBpocLddBjbdvw9dp9LOFMYH+UqC9DdJfF7gvPl4gStAubnFtfzrorbo5/qWkWXpjI
+	VCDYSQElb6hW3/dOG+eE/i17nfTL5g7BK6Y3Cv9tVONLufOUKp1xRJHClPCESndTsenK6Q
+	OQYp42HB0S2qCTQeTi4L/hgtI9jOc7A=
+Received: from mail-pg1-f197.google.com (mail-pg1-f197.google.com
+ [209.85.215.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-519-GM8Mk8KgOJi86PnKJJYFpA-1; Tue, 16 Apr 2024 23:50:24 -0400
+X-MC-Unique: GM8Mk8KgOJi86PnKJJYFpA-1
+Received: by mail-pg1-f197.google.com with SMTP id 41be03b00d2f7-5d8dc8f906aso2949389a12.2
+        for <virtualization@lists.linux-foundation.org>; Tue, 16 Apr 2024 20:50:24 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713323885; x=1713928685;
+        d=1e100.net; s=20230601; t=1713325823; x=1713930623;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=MVriCNTb+EDSZWCxPrVyKNj5dSkX49V39Dhl38sLFSg=;
-        b=iZGOLjybu/Ab9qJBshhnfnYMqIN52NWYy471b2s07BNIvpi+wZL4YACx5PVpEU8jt/
-         pZuJOU6ELEZOHC7BTYPPD0ZU0BvZQLQylIRyl+HZYVGA9ynW0+x6AtxxuQx5Fx1kOLUW
-         oDGhV2s5LCRkhFRH24p+6IpDCGZ/tu0/p9Cc/Clqlk/vJurjgN7XiM1GfMZp42OXyOw8
-         kJeSIf3LxV4FRRzbUgkQIVDa8Niz40Ti4xA0zCaNLqD77EjImqubXY3uvMEikldC31/O
-         AUSFqRmqpenojWZVfIezuxMPaWfAS6PtoQT7qWLy6oGGFu64soDrrWRuyM6pANFfdpcZ
-         zWuQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWHp7YVa5Lc8LA9IOAM9GMke3wT32OLU5uxdGEs3MS7AeZk8V1aCrakEwLnatBMcpJEHAkyYdWtVryNWG8241mulFXtpj5F5i+3EYTA/TQ=
-X-Gm-Message-State: AOJu0Yx2WErThWc4Ko4fAdOcZSqG4S/ZbVTgBUrWf62u0bUil6hT5Qzp
-	SvR62uvzfhZfzNAaWgu8CsOf4LFp8PrRfCnnW1AZRM/2BXwtfDGiZZ1txrF+uVQxoxuEUUgocng
-	VArIqoOqi1HjiROQMgWVt5Xtm8F4=
-X-Google-Smtp-Source: AGHT+IHG+tfTL+nJaNRUJwWP+LAGchmm89LD6lkmQtWHddA8bSL6nbjLM+KQAVWxzh0DA73fYqGhDXzbvvTHz6c6F6k=
-X-Received: by 2002:a50:d642:0:b0:56d:fdb3:bcc5 with SMTP id
- c2-20020a50d642000000b0056dfdb3bcc5mr9491339edj.12.1713323884627; Tue, 16 Apr
- 2024 20:18:04 -0700 (PDT)
+        bh=1GTLaaKKQhGDVYYknUjD/txVKBNAGnMEnvBTEjPLUYI=;
+        b=AW9/vVfZ/49xoNlvLbv15Fr63oH/H2cWJBDkGBNM40KyjeihvVCEY6ihBZdBrNbuHL
+         OqJjYKzuq4YBjbxbGqOiBEhTEIqjyeaJ48Wt+ZXs2aDeuZF9VvlyIhoLdrso2LlSO674
+         Qa9/kECL4C1/Iy9QVvirc3TltKsNDARarBp6MNlWK5NKMCFWZMesxAU9pJOf1ClSNCDe
+         /HkAoEs2SC2By0789m+JFh/Cjuav/BcMsMS7DlJDbJNHFtmpuevHAXG2FdNlxIHwhufK
+         5dQ9MYP22oQi5THoS6KWhKRQa1zQi0Q1HsTEoSqkS4aahz0XphL1uuKL1BG84CDELOR1
+         Fx1g==
+X-Forwarded-Encrypted: i=1; AJvYcCXp+PBy02SXCQlYp71iBeXVKzvesdVAegfrTXCNEOfCRbG1sDIvVI6QxVRJD3v9Y7PYwvuBBViVENx2xoGOw0F9SdWVkFoDgHOmXf26z/ilpls8ivu/pAN4yw==
+X-Gm-Message-State: AOJu0YybvonkiG/kvNuuQ8himU6IZI737ZGQzfIRW5nSv5m/S0k/ZRWA
+	AGnPplcY63vm3ac6JPJWLfNvdE2qUKLYdeZXLPc3e5d64VGi+2p2PlIusv7pEyg1Ct1ZJTglmH8
+	cPf0a6Bcm/98Mo1ulN57//Rmwlobo0HHDAb/MQqi3gSjUjDFHhp0+uk1VCZB0s0bPLB18yKgHAc
+	GfbUyeAzZGVrM84jj3bUk3ckoGuEXoHH4tB4XDFECsBTM1OfzJ0RBERA==
+X-Received: by 2002:a05:6a21:1505:b0:1aa:5e21:17ac with SMTP id nq5-20020a056a21150500b001aa5e2117acmr3123047pzb.6.1713325823332;
+        Tue, 16 Apr 2024 20:50:23 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEe/BTJkUbo5DpHAkeHCLvlKSzQYEBGMJ+4giVK7BlNv1xmn3tKl4WBcdiRNMzCC1BKBbdheJ76DNyn8jqyGZk=
+X-Received: by 2002:a05:6a21:1505:b0:1aa:5e21:17ac with SMTP id
+ nq5-20020a056a21150500b001aa5e2117acmr3123039pzb.6.1713325822958; Tue, 16 Apr
+ 2024 20:50:22 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240416061943.407082-1-liangchen.linux@gmail.com> <04dcbbcd-7079-42d4-b77c-3bbf55cfc823@linux.alibaba.com>
-In-Reply-To: <04dcbbcd-7079-42d4-b77c-3bbf55cfc823@linux.alibaba.com>
-From: Liang Chen <liangchen.linux@gmail.com>
-Date: Wed, 17 Apr 2024 11:17:51 +0800
-Message-ID: <CAKhg4tJwB+xQ3H7YZGF0VRR6cMdQMz3g_3kf5uqkT=j0uR8dnw@mail.gmail.com>
-Subject: Re: [PATCH net-next v8] virtio_net: Support RX hash XDP hint
-To: Heng Qi <hengqi@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, bpf@vger.kernel.org, daniel@iogearbox.net, 
-	ast@kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, "David S . Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend <john.fastabend@gmail.com>
+References: <20240316004707.45557-1-michael.christie@oracle.com>
+ <CACGkMEs1KSdUOgLbwbR-S0v1jv8-N5cM5ZwrWyK8raF50MSRZg@mail.gmail.com>
+ <9f75952f-c1a4-4483-8ec7-beddf022a821@oracle.com> <CACGkMEuY9cyCb+myzscHDetbfmDLZN-_JAFvZaAfrO0-Mc0FTA@mail.gmail.com>
+ <06369c2c-c363-4def-9ce0-f018a9e10e8d@oracle.com> <CACGkMEtm=YwQ6ZVyPGz+T=H2E8u6etv9OKbibtfMdzA7K6GibQ@mail.gmail.com>
+In-Reply-To: <CACGkMEtm=YwQ6ZVyPGz+T=H2E8u6etv9OKbibtfMdzA7K6GibQ@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 17 Apr 2024 11:50:11 +0800
+Message-ID: <CACGkMEumEd+5bEjKosK3jY8TxveEas+QAOVSCEiYsR56Ag3C0w@mail.gmail.com>
+Subject: Re: [PATCH 0/9] vhost: Support SIGKILL by flushing and exiting
+To: michael.christie@oracle.com
+Cc: oleg@redhat.com, ebiederm@xmission.com, 
+	virtualization@lists.linux-foundation.org, mst@redhat.com, 
+	sgarzare@redhat.com, stefanha@redhat.com, brauner@kernel.org, 
+	Andreas Karis <akaris@redhat.com>, Laurent Vivier <lvivier@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Apr 16, 2024 at 3:35=E2=80=AFPM Heng Qi <hengqi@linux.alibaba.com> =
-wrote:
+On Mon, Apr 15, 2024 at 4:52=E2=80=AFPM Jason Wang <jasowang@redhat.com> wr=
+ote:
 >
+> On Sat, Apr 13, 2024 at 12:53=E2=80=AFAM <michael.christie@oracle.com> wr=
+ote:
+> >
+> > On 4/11/24 10:28 PM, Jason Wang wrote:
+> > > On Fri, Apr 12, 2024 at 12:19=E2=80=AFAM Mike Christie
+> > > <michael.christie@oracle.com> wrote:
+> > >>
+> > >> On 4/11/24 3:39 AM, Jason Wang wrote:
+> > >>> On Sat, Mar 16, 2024 at 8:47=E2=80=AFAM Mike Christie
+> > >>> <michael.christie@oracle.com> wrote:
+> > >>>>
+> > >>>> The following patches were made over Linus's tree and also apply o=
+ver
+> > >>>> mst's vhost branch. The patches add the ability for vhost_tasks to
+> > >>>> handle SIGKILL by flushing queued works, stop new works from being
+> > >>>> queued, and prepare the task for an early exit.
+> > >>>>
+> > >>>> This removes the need for the signal/coredump hacks added in:
+> > >>>>
+> > >>>> Commit f9010dbdce91 ("fork, vhost: Use CLONE_THREAD to fix freezer=
+/ps regression")
+> > >>>>
+> > >>>> when the vhost_task patches were initially merged and fix the issu=
+e
+> > >>>> in this thread:
+> > >>>>
+> > >>>> https://lore.kernel.org/all/000000000000a41b82060e875721@google.co=
+m/
+> > >>>>
+> > >>>> Long Background:
+> > >>>>
+> > >>>> The original vhost worker code didn't support any signals. If the
+> > >>>> userspace application that owned the worker got a SIGKILL, the app=
+/
+> > >>>> process would exit dropping all references to the device and then =
+the
+> > >>>> file operation's release function would be called. From there we w=
+ould
+> > >>>> wait on running IO then cleanup the device's memory.
+> > >>>
+> > >>> A dumb question.
+> > >>>
+> > >>> Is this a user space noticeable change? For example, with this seri=
+es
+> > >>> a SIGKILL may shutdown the datapath ...
+> > >>
+> > >> It already changed in 6.4. We basically added a new interface to shu=
+tdown
+> > >> everything (userspace and vhost kernel parts). So we won't just shut=
+down
+> > >> the data path while userspace is still running. We will shutdown eve=
+rything
+> > >> now if you send a SIGKILL to a vhost worker's thread.
+> > >
+> > > If I understand correctly, for example Qemu can still live is SIGKILL
+> > > is just send to vhost thread.
+> >
+> > Pre-6.4 qemu could still survive if only the vhost thread got a SIGKILL=
+.
+> > We used kthreads which are special and can ignore it like how userspace
+> > can ignore SIGHUP.
+> >
+> > 6.4 and newer kernels cannot survive. Even if the vhost thread sort of
+> > ignores it like I described below where, the signal is still delivered
+> > to the other qemu threads due to the shared signal handler. Userspace
+> > can't ignore SIGKILL. It doesn't have any say in the matter, and the
+> > kernel forces them to exit.
 >
+> Ok, I see, so the reason is that vhost belongs to the same thread
+> group as the owner now.
 >
-> =E5=9C=A8 2024/4/16 =E4=B8=8B=E5=8D=882:19, Liang Chen =E5=86=99=E9=81=93=
-:
-> > The RSS hash report is a feature that's part of the virtio specificatio=
-n.
-> > Currently, virtio backends like qemu, vdpa (mlx5), and potentially vhos=
+> >
+> > >
+> > > If this is correct, guests may detect this (for example virtio-net ha=
+s
+> > > a watchdog).
+> > >
+> >
+> > What did you mean by that part? Do you mean if the vhost thread were to
+> > exit, so drivers/vhost/net.c couldn't process IO, then the watchdog in
+> > the guest (virtio-net driver in the guest kernel) would detect that?
+>
+> I meant this one. But since we are using CLONE_THREAD, we won't see these=
+.
+>
+> > Or
+> > are you saying the watchdog in the guest can detect signals that the
+> > host gets?
+> >
+> >
+> > >>
+> > >> Here are a lots of details:
+> > >>
+> > >> - Pre-6.4 kernel, when vhost workers used kthreads, if you sent any =
+signal
+> > >> to a vhost worker, we ignore it. Nothing happens. kthreads are speci=
+al and
+> > >> can ignore all signals.
+> > >>
+> > >> You could think of it as the worker is a completely different proces=
+s than
+> > >> qemu/userspace so they have completely different signal handlers. Th=
+e
+> > >> vhost worker signal handler ignores all signals even SIGKILL.
+> > >
+> > > Yes.
+> > >
+> > >>
+> > >> If you send a SIGKILL to a qemu thread, then it just exits right awa=
+y. We
+> > >> don't get to do an explicit close() on the vhost device and we don't=
+ get
+> > >> to do ioctls like VHOST_NET_SET_BACKEND to clear backends. The kerne=
+l exit
+> > >> code runs and releases refcounts on the device/file, then the vhost =
+device's
+> > >> file_operations->release function is called. vhost_dev_cleanup then =
+stops
+> > >> the vhost worker.
+> > >
+> > > Right.
+> > >
+> > >>
+> > >> - In 6.4 and newer kernels, vhost workers use vhost_tasks, so the wo=
+rker
+> > >> can be thought of as a thread within the userspace process. With tha=
 t
-> > (still a work in progress as per [1]) support this feature. While the
-> > capability to obtain the RSS hash has been enabled in the normal path,
-> > it's currently missing in the XDP path. Therefore, we are introducing
-> > XDP hints through kfuncs to allow XDP programs to access the RSS hash.
+> > >> change we have the same signal handler as the userspace process.
+> > >>
+> > >> If you send a SIGKILL to a qemu thread then it works like above.
+> > >>
+> > >> If you send a SIGKILL to a vhost worker, the vhost worker still sort=
+ of
+> > >> ignores it (that is the hack that I mentioned at the beginning of th=
+is
+> > >> thread). kernel/vhost_task.c:vhost_task_fn will see the signal and
+> > >> then just continue to process works until file_operations->release
+> > >> calls
+> > >
+> > > Yes, so this sticks to the behaviour before vhost_tasks.
 > >
-> > 1.
-> > https://lore.kernel.org/all/20231015141644.260646-1-akihiko.odaki@dayni=
-x.com/#r
+> > Not exactly. The vhost_task stays alive temporarily.
 > >
-> > Signed-off-by: Liang Chen <liangchen.linux@gmail.com>
-> > ---
-> >    Changes from v7:
-> > - use table lookup for rss hash type
-> >    Changes from v6:
-> > - fix a coding style issue
-> >    Changes from v5:
-> > - Preservation of the hash value has been dropped, following the conclu=
-sion
-> >    from discussions in V3 reviews. The virtio_net driver doesn't
-> >    accessing/using the virtio_net_hdr after the XDP program execution, =
-so
-> >    nothing tragic should happen. As to the xdp program, if it smashes t=
-he
-> >    entry in virtio header, it is likely buggy anyways. Additionally, lo=
-oking
-> >    up the Intel IGC driver,  it also does not bother with this particul=
-ar
-> >    aspect.
-> > ---
-> >   drivers/net/virtio_net.c        | 42 ++++++++++++++++++++++++++++++++=
-+
-> >   include/uapi/linux/virtio_net.h |  1 +
-> >   2 files changed, 43 insertions(+)
+> > The signal is still delivered to the userspace threads and they will
+> > exit due to getting the SIGKILL also. SIGKILL goes to all the threads i=
+n
+> > the process and all userspace threads exit like normal because the vhos=
+t
+> > task and normal old userspace threads share a signal handler. When
+> > userspace exits, the kernel force drops the refcounts on the vhost
+> > devices and that runs the release function so the vhost_task will then =
+exit.
 > >
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index c22d1118a133..1d750009f615 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -4621,6 +4621,47 @@ static void virtnet_set_big_packets(struct virtn=
-et_info *vi, const int mtu)
-> >       }
-> >   }
-> >
-> > +static enum xdp_rss_hash_type
-> > +virtnet_xdp_rss_type[VIRTIO_NET_HASH_REPORT_MAX_TABLE] =3D {
-> > +     [VIRTIO_NET_HASH_REPORT_NONE] =3D XDP_RSS_TYPE_NONE,
-> > +     [VIRTIO_NET_HASH_REPORT_IPv4] =3D XDP_RSS_TYPE_L3_IPV4,
-> > +     [VIRTIO_NET_HASH_REPORT_TCPv4] =3D XDP_RSS_TYPE_L4_IPV4_TCP,
-> > +     [VIRTIO_NET_HASH_REPORT_UDPv4] =3D XDP_RSS_TYPE_L4_IPV4_UDP,
-> > +     [VIRTIO_NET_HASH_REPORT_IPv6] =3D XDP_RSS_TYPE_L3_IPV6,
-> > +     [VIRTIO_NET_HASH_REPORT_TCPv6] =3D XDP_RSS_TYPE_L4_IPV6_TCP,
-> > +     [VIRTIO_NET_HASH_REPORT_UDPv6] =3D XDP_RSS_TYPE_L4_IPV6_UDP,
-> > +     [VIRTIO_NET_HASH_REPORT_IPv6_EX] =3D XDP_RSS_TYPE_L3_IPV6_EX,
-> > +     [VIRTIO_NET_HASH_REPORT_TCPv6_EX] =3D XDP_RSS_TYPE_L4_IPV6_TCP_EX=
-,
-> > +     [VIRTIO_NET_HASH_REPORT_UDPv6_EX] =3D XDP_RSS_TYPE_L4_IPV6_UDP_EX
-> > +};
-> > +
-> > +static int virtnet_xdp_rx_hash(const struct xdp_md *_ctx, u32 *hash,
-> > +                            enum xdp_rss_hash_type *rss_type)
-> > +{
-> > +     const struct xdp_buff *xdp =3D (void *)_ctx;
-> > +     struct virtio_net_hdr_v1_hash *hdr_hash;
-> > +     struct virtnet_info *vi;
-> > +     u16 hash_report;
-> > +
-> > +     if (!(xdp->rxq->dev->features & NETIF_F_RXHASH))
-> > +             return -ENODATA;
-> > +
-> > +     vi =3D netdev_priv(xdp->rxq->dev);
-> > +     hdr_hash =3D (struct virtio_net_hdr_v1_hash *)(xdp->data - vi->hd=
-r_len);
-> > +     hash_report =3D __le16_to_cpu(hdr_hash->hash_report);
-> > +
-> > +     if (hash_report >=3D VIRTIO_NET_HASH_REPORT_MAX_TABLE)
-> > +             hash_report =3D VIRTIO_NET_HASH_REPORT_NONE;
+> > So what I'm trying to say is that in 6.4 we already changed the behavio=
+r.
 >
-> When this happens, it may mean an error or user modification of the
-> header occurred.
-> Should the following *hash* value be cleared to 0?
->
+> Yes. To say the truth, it looks even worse but it might be too late to fi=
+x.
 
-Referring to the igc and mlx5 drivers, the hash value is not cleared
-to 0 in such cases either. This is because if the rss type is
-XDP_RSS_TYPE_NONE, the hash value is considered to be not relevant.
-Thanks!
+Andres (cced) has identified two other possible changes:
 
-> Thanks,
-> Heng
->
-> > +
-> > +     *rss_type =3D virtnet_xdp_rss_type[hash_report];
-> > +     *hash =3D __le32_to_cpu(hdr_hash->hash_value);
-> > +     return 0;
-> > +}
-> > +
-> > +static const struct xdp_metadata_ops virtnet_xdp_metadata_ops =3D {
-> > +     .xmo_rx_hash                    =3D virtnet_xdp_rx_hash,
-> > +};
-> > +
-> >   static int virtnet_probe(struct virtio_device *vdev)
-> >   {
-> >       int i, err =3D -ENOMEM;
-> > @@ -4747,6 +4788,7 @@ static int virtnet_probe(struct virtio_device *vd=
-ev)
-> >                                 VIRTIO_NET_RSS_HASH_TYPE_UDP_EX);
-> >
-> >               dev->hw_features |=3D NETIF_F_RXHASH;
-> > +             dev->xdp_metadata_ops =3D &virtnet_xdp_metadata_ops;
-> >       }
-> >
-> >       if (vi->has_rss_hash_report)
-> > diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virti=
-o_net.h
-> > index cc65ef0f3c3e..3ee695450096 100644
-> > --- a/include/uapi/linux/virtio_net.h
-> > +++ b/include/uapi/linux/virtio_net.h
-> > @@ -176,6 +176,7 @@ struct virtio_net_hdr_v1_hash {
-> >   #define VIRTIO_NET_HASH_REPORT_IPv6_EX         7
-> >   #define VIRTIO_NET_HASH_REPORT_TCPv6_EX        8
-> >   #define VIRTIO_NET_HASH_REPORT_UDPv6_EX        9
-> > +#define VIRTIO_NET_HASH_REPORT_MAX_TABLE      10
-> >       __le16 hash_report;
-> >       __le16 padding;
-> >   };
->
+1) doesn't run in the global PID namespace but run in the namespace of owne=
+r
+2) doesn't inherit kthreadd's scheduling attributes but the owner
+
+Though such a change makes more sense for some use cases, it may break othe=
+rs.
+
+I wonder if we need to introduce a new flag and bring the old kthread
+codes if the flag is not set? Then we would not end up trying to align
+the behaviour?
+
+Thanks
+
