@@ -1,125 +1,419 @@
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 964077C0B7
-	for <virtualization@lists.linux.dev>; Wed, 17 Apr 2024 08:04:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC570128369
+	for <virtualization@lists.linux.dev>; Wed, 17 Apr 2024 08:43:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713341065; cv=none; b=DxdtlIkYk9yg2Q/zbm5nnWPkqUYTYDDRedWEbU7Cl/Mje9BK9cGwlOw7ZFlftuFy7NqMTTEQjNeXN+mBcnEC4GHsKNxeg2kbZsZAQu7rJE4g61yw90NHfYCseXnYRb0/3BIhO/11MD3w6rD5kwXIA4tcmZrvu03mItrZkR1IORk=
+	t=1713343428; cv=none; b=WPiiFVumNVEapUfjiSOshEl5nqQ3gjWbYAE2qrYwAmVqJcYnonidWBByNilzmrN3Z7tMRQnIsZ2Vl2xOG6sRfhSWFfDkldAvtAKaWjC9AhQjY2LaBvP6Jn/VNwX3OJy69ys2eMvDHmyhrLptQHZROL2S3P4y6FFSek7r7+Ob/1k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713341065; c=relaxed/simple;
-	bh=OP/OKFQgQXSFhzk6tuYsbkhWUFquoztiZgjoCeKsBcY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=hE+G9lQQCgNohYbQztchfb1nU3MX+iOhBupehCQDuDrZhePIGa/Eum7zrvrtJYExculf2hIyku5Mg2F44nmX/Eh94ZxXil1JtLbiIcxMl5FKRLXSUTLtwVabGE2FVJJ7Akt2Qkc0KrKX1TTdYUep8cT14OLKT4l/gDXpV5Jq364=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=t28ytio7; arc=none smtp.client-ip=115.124.30.130
+	s=arc-20240116; t=1713343428; c=relaxed/simple;
+	bh=SOXPVTmdIjLElqi0N/V3VvsZR5YPltP9iAFDZBVYaKw=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
+	 Content-Type; b=J5sDT2520uTIf2ncXH9o2IcHT33MVJ8+NF795YtuSjTO4LrE/yUZG/4ZvLcCBkgCAg8aRD5TYDCXLlWlLmaRcoN0jgAtlQqwHdYGqrbK5cbxesoVfmBPRw6IBX41XgvXO91tTigdSr3AOPTIknjHvSTM1s2nZ8WcDSTv8nfrjPA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=EMy0QAdP; arc=none smtp.client-ip=115.124.30.133
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="t28ytio7"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="EMy0QAdP"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1713341059; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=zZZMoIYCZzum0CbFS+uoL0WalJhrJ++b9N2kNAwtdSg=;
-	b=t28ytio7MH3darsNXb9EVrdxYd9SrvXXb+LNdjbwOUYXkinpStGkHRKB3X4bx9oz2vIrD17eDFSQlDa80+vGZEo2kTKHyusaktDAZ+45lj3qLD0Xzpg0lxIrMOMzSSIOJIJ97H0nKRg1Iqj8TSdmK3SI2f8MU61b0xmTE8bz23U=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W4kiYj._1713341057;
-Received: from 30.221.148.177(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W4kiYj._1713341057)
+	t=1713343418; h=Message-ID:Subject:Date:From:To:Content-Type;
+	bh=y85km5+HMurzqVXhju9N5x2VHlJebnvhG955a1BKfUk=;
+	b=EMy0QAdP8qKyMUjLiQ+ua9RkFmeoSF5d/EHX5lKDQHbUJDIuleRewgRvBx0Z5w8Z2nTvUxIOaS+3LDypveegBDYgTUWXpkB7viqFQpIH7Jcyo7EJsO80FQIIfcBwlH3p6jzzYLgH+ELmGR6VVaXaou5NCjgvXfYyFWZy4F47P3k=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0W4kxH6M_1713343416;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W4kxH6M_1713343416)
           by smtp.aliyun-inc.com;
-          Wed, 17 Apr 2024 16:04:18 +0800
-Message-ID: <29266e64-5810-417d-9a01-ad01e86a70d3@linux.alibaba.com>
-Date: Wed, 17 Apr 2024 16:04:17 +0800
+          Wed, 17 Apr 2024 16:43:37 +0800
+Message-ID: <1713342055.436048-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH vhost 3/6] virtio_net: replace private by pp struct inside page
+Date: Wed, 17 Apr 2024 16:20:55 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: virtualization@lists.linux.dev,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>,
+ netdev@vger.kernel.org,
+ Jesper Dangaard Brouer <hawk@kernel.org>
+References: <20240411025127.51945-1-xuanzhuo@linux.alibaba.com>
+ <20240411025127.51945-4-xuanzhuo@linux.alibaba.com>
+ <CACGkMEsC7AEi2SOmqNOo6KJDpx92raGWYwYzxZ_MVhmnco_LYQ@mail.gmail.com>
+ <1712900153.3715405-1-xuanzhuo@linux.alibaba.com>
+ <CACGkMEvKC6JpsznW57GgxFBMhmMSk4eCZPvESpew9j5qfp9=RA@mail.gmail.com>
+ <1713146919.8867755-1-xuanzhuo@linux.alibaba.com>
+ <CACGkMEvmaH9NE-5VDBPpZOpAAg4bX39Lf0-iGiYzxdV5JuZWww@mail.gmail.com>
+ <1713170201.06163-2-xuanzhuo@linux.alibaba.com>
+ <CACGkMEvsXN+7HpeirxzR2qek_znHp8GtjiT+8hmt3tHHM9Zbgg@mail.gmail.com>
+ <1713171554.2423792-1-xuanzhuo@linux.alibaba.com>
+ <CACGkMEuK0VkqtNfZ1BUw+SW=gdasEegTMfufS-47NV4bCh3Seg@mail.gmail.com>
+ <1713317444.7698638-1-xuanzhuo@linux.alibaba.com>
+ <CACGkMEvjwXpF_mLR3H8ZW9PUE+3spcxKMQV1VvUARb0-Lt7NKQ@mail.gmail.com>
+In-Reply-To: <CACGkMEvjwXpF_mLR3H8ZW9PUE+3spcxKMQV1VvUARb0-Lt7NKQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v8 0/4] ethtool: provide the dim profile
- fine-tuning channel
-To: Jason Xing <kerneljasonxing@gmail.com>
-Cc: Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
- virtualization@lists.linux.dev, "David S . Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
- Jason Wang <jasowang@redhat.com>, "Michael S . Tsirkin" <mst@redhat.com>,
- Simon Horman <horms@kernel.org>, Brett Creeley <bcreeley@amd.com>,
- Ratheesh Kannoth <rkannoth@marvell.com>,
- Alexander Lobakin <aleksander.lobakin@intel.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-References: <20240416122950.39046-1-hengqi@linux.alibaba.com>
- <20240416173836.307a3246@kernel.org>
- <1abdb66a-a080-424e-847d-1d2f5837bbc4@linux.alibaba.com>
- <20240416192952.1e740891@kernel.org>
- <CAL+tcoDj11Y7o2f0Eh8-FMk0BxjtAwCupWaW7n7bOXTUVgAWSQ@mail.gmail.com>
- <26755c1e-566b-402c-a709-eeebe11352aa@linux.alibaba.com>
- <CAL+tcoAS81uW_aikoWrDhO-qF-aFD5rU4GsEAy2hHbC9ex2q5w@mail.gmail.com>
-From: Heng Qi <hengqi@linux.alibaba.com>
-In-Reply-To: <CAL+tcoAS81uW_aikoWrDhO-qF-aFD5rU4GsEAy2hHbC9ex2q5w@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+
+On Wed, 17 Apr 2024 12:08:10 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> On Wed, Apr 17, 2024 at 9:38=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alibaba=
+.com> wrote:
+> >
+> > On Tue, 16 Apr 2024 11:24:53 +0800, Jason Wang <jasowang@redhat.com> wr=
+ote:
+> > > On Mon, Apr 15, 2024 at 5:04=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.ali=
+baba.com> wrote:
+> > > >
+> > > > On Mon, 15 Apr 2024 16:56:45 +0800, Jason Wang <jasowang@redhat.com=
+> wrote:
+> > > > > On Mon, Apr 15, 2024 at 4:50=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux=
+.alibaba.com> wrote:
+> > > > > >
+> > > > > > On Mon, 15 Apr 2024 14:43:24 +0800, Jason Wang <jasowang@redhat=
+.com> wrote:
+> > > > > > > On Mon, Apr 15, 2024 at 10:35=E2=80=AFAM Xuan Zhuo <xuanzhuo@=
+linux.alibaba.com> wrote:
+> > > > > > > >
+> > > > > > > > On Fri, 12 Apr 2024 13:49:12 +0800, Jason Wang <jasowang@re=
+dhat.com> wrote:
+> > > > > > > > > On Fri, Apr 12, 2024 at 1:39=E2=80=AFPM Xuan Zhuo <xuanzh=
+uo@linux.alibaba.com> wrote:
+> > > > > > > > > >
+> > > > > > > > > > On Fri, 12 Apr 2024 12:47:55 +0800, Jason Wang <jasowan=
+g@redhat.com> wrote:
+> > > > > > > > > > > On Thu, Apr 11, 2024 at 10:51=E2=80=AFAM Xuan Zhuo <x=
+uanzhuo@linux.alibaba.com> wrote:
+> > > > > > > > > > > >
+> > > > > > > > > > > > Now, we chain the pages of big mode by the page's p=
+rivate variable.
+> > > > > > > > > > > > But a subsequent patch aims to make the big mode to=
+ support
+> > > > > > > > > > > > premapped mode. This requires additional space to s=
+tore the dma addr.
+> > > > > > > > > > > >
+> > > > > > > > > > > > Within the sub-struct that contains the 'private', =
+there is no suitable
+> > > > > > > > > > > > variable for storing the DMA addr.
+> > > > > > > > > > > >
+> > > > > > > > > > > >                 struct {        /* Page cache and a=
+nonymous pages */
+> > > > > > > > > > > >                         /**
+> > > > > > > > > > > >                          * @lru: Pageout list, eg. =
+active_list protected by
+> > > > > > > > > > > >                          * lruvec->lru_lock.  Somet=
+imes used as a generic list
+> > > > > > > > > > > >                          * by the page owner.
+> > > > > > > > > > > >                          */
+> > > > > > > > > > > >                         union {
+> > > > > > > > > > > >                                 struct list_head lr=
+u;
+> > > > > > > > > > > >
+> > > > > > > > > > > >                                 /* Or, for the Unev=
+ictable "LRU list" slot */
+> > > > > > > > > > > >                                 struct {
+> > > > > > > > > > > >                                         /* Always e=
+ven, to negate PageTail */
+> > > > > > > > > > > >                                         void *__fil=
+ler;
+> > > > > > > > > > > >                                         /* Count pa=
+ge's or folio's mlocks */
+> > > > > > > > > > > >                                         unsigned in=
+t mlock_count;
+> > > > > > > > > > > >                                 };
+> > > > > > > > > > > >
+> > > > > > > > > > > >                                 /* Or, free page */
+> > > > > > > > > > > >                                 struct list_head bu=
+ddy_list;
+> > > > > > > > > > > >                                 struct list_head pc=
+p_list;
+> > > > > > > > > > > >                         };
+> > > > > > > > > > > >                         /* See page-flags.h for PAG=
+E_MAPPING_FLAGS */
+> > > > > > > > > > > >                         struct address_space *mappi=
+ng;
+> > > > > > > > > > > >                         union {
+> > > > > > > > > > > >                                 pgoff_t index;     =
+     /* Our offset within mapping. */
+> > > > > > > > > > > >                                 unsigned long share=
+;    /* share count for fsdax */
+> > > > > > > > > > > >                         };
+> > > > > > > > > > > >                         /**
+> > > > > > > > > > > >                          * @private: Mapping-privat=
+e opaque data.
+> > > > > > > > > > > >                          * Usually used for buffer_=
+heads if PagePrivate.
+> > > > > > > > > > > >                          * Used for swp_entry_t if =
+PageSwapCache.
+> > > > > > > > > > > >                          * Indicates order in the b=
+uddy system if PageBuddy.
+> > > > > > > > > > > >                          */
+> > > > > > > > > > > >                         unsigned long private;
+> > > > > > > > > > > >                 };
+> > > > > > > > > > > >
+> > > > > > > > > > > > But within the page pool struct, we have a variable=
+ called
+> > > > > > > > > > > > dma_addr that is appropriate for storing dma addr.
+> > > > > > > > > > > > And that struct is used by netstack. That works to =
+our advantage.
+> > > > > > > > > > > >
+> > > > > > > > > > > >                 struct {        /* page_pool used b=
+y netstack */
+> > > > > > > > > > > >                         /**
+> > > > > > > > > > > >                          * @pp_magic: magic value t=
+o avoid recycling non
+> > > > > > > > > > > >                          * page_pool allocated page=
+s.
+> > > > > > > > > > > >                          */
+> > > > > > > > > > > >                         unsigned long pp_magic;
+> > > > > > > > > > > >                         struct page_pool *pp;
+> > > > > > > > > > > >                         unsigned long _pp_mapping_p=
+ad;
+> > > > > > > > > > > >                         unsigned long dma_addr;
+> > > > > > > > > > > >                         atomic_long_t pp_ref_count;
+> > > > > > > > > > > >                 };
+> > > > > > > > > > > >
+> > > > > > > > > > > > On the other side, we should use variables from the=
+ same sub-struct.
+> > > > > > > > > > > > So this patch replaces the "private" with "pp".
+> > > > > > > > > > > >
+> > > > > > > > > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.co=
+m>
+> > > > > > > > > > > > ---
+> > > > > > > > > > >
+> > > > > > > > > > > Instead of doing a customized version of page pool, c=
+an we simply
+> > > > > > > > > > > switch to use page pool for big mode instead? Then we=
+ don't need to
+> > > > > > > > > > > bother the dma stuffs.
+> > > > > > > > > >
+> > > > > > > > > >
+> > > > > > > > > > The page pool needs to do the dma by the DMA APIs.
+> > > > > > > > > > So we can not use the page pool directly.
+> > > > > > > > >
+> > > > > > > > > I found this:
+> > > > > > > > >
+> > > > > > > > > define PP_FLAG_DMA_MAP         BIT(0) /* Should page_pool=
+ do the DMA
+> > > > > > > > >                                         * map/unmap
+> > > > > > > > >
+> > > > > > > > > It seems to work here?
+> > > > > > > >
+> > > > > > > >
+> > > > > > > > I have studied the page pool mechanism and believe that we =
+cannot use it
+> > > > > > > > directly. We can make the page pool to bypass the DMA opera=
+tions.
+> > > > > > > > This allows us to handle DMA within virtio-net for pages al=
+located from the page
+> > > > > > > > pool. Furthermore, we can utilize page pool helpers to asso=
+ciate the DMA address
+> > > > > > > > to the page.
+> > > > > > > >
+> > > > > > > > However, the critical issue pertains to unmapping. Ideally,=
+ we want to return
+> > > > > > > > the mapped pages to the page pool and reuse them. In doing =
+so, we can omit the
+> > > > > > > > unmapping and remapping steps.
+> > > > > > > >
+> > > > > > > > Currently, there's a caveat: when the page pool cache is fu=
+ll, it disconnects
+> > > > > > > > and releases the pages. When the pool hits its capacity, pa=
+ges are relinquished
+> > > > > > > > without a chance for unmapping.
+> > > > > > >
+> > > > > > > Technically, when ptr_ring is full there could be a fallback,=
+ but then
+> > > > > > > it requires expensive synchronization between producer and co=
+nsumer.
+> > > > > > > For virtio-net, it might not be a problem because add/get has=
+ been
+> > > > > > > synchronized. (It might be relaxed in the future, actually we=
+'ve
+> > > > > > > already seen a requirement in the past for virito-blk).
+> > > > > >
+> > > > > > The point is that the page will be released by page pool direct=
+ly,
+> > > > > > we will have no change to unmap that, if we work with page pool.
+> > > > >
+> > > > > I mean if we have a fallback, there would be no need to release t=
+hese
+> > > > > pages but put them into a link list.
+> > > >
+> > > >
+> > > > What fallback?
+> > >
+> > > https://lore.kernel.org/netdev/1519607771-20613-1-git-send-email-mst@=
+redhat.com/
+> > >
+> > > >
+> > > > If we put the pages to the link list, why we use the page pool?
+> > >
+> > > The size of the cache and ptr_ring needs to be fixed.
+> > >
+> > > Again, as explained above, it needs more benchmarks and looks like a
+> > > separate topic.
+> > >
+> > > >
+> > > >
+> > > > >
+> > > > > >
+> > > > > > >
+> > > > > > > > If we were to unmap pages each time before
+> > > > > > > > returning them to the pool, we would negate the benefits of=
+ bypassing the
+> > > > > > > > mapping and unmapping process altogether.
+> > > > > > >
+> > > > > > > Yes, but the problem in this approach is that it creates a co=
+rner
+> > > > > > > exception where dma_addr is used outside the page pool.
+> > > > > >
+> > > > > > YES. This is a corner exception. We need to introduce this case=
+ to the page
+> > > > > > pool.
+> > > > > >
+> > > > > > So for introducing the page-pool to virtio-net(not only for big=
+ mode),
+> > > > > > we may need to push the page-pool to support dma by drivers.
+> > > > >
+> > > > > Adding Jesper for some comments.
+> > > > >
+> > > > > >
+> > > > > > Back to this patch set, I think we should keep the virtio-net t=
+o manage
+> > > > > > the pages.
+> > > > > >
+> > > > > > What do you think?
+> > > > >
+> > > > > I might be wrong, but I think if we need to either
+> > > > >
+> > > > > 1) seek a way to manage the pages by yourself but not touching pa=
+ge
+> > > > > pool metadata (or Jesper is fine with this)
+> > > >
+> > > > Do you mean working with page pool or not?
+> > > >
+> > >
+> > > I meant if Jesper is fine with reusing page pool metadata like this p=
+atch.
+> > >
+> > > > If we manage the pages by self(no page pool), we do not care the me=
+tadata is for
+> > > > page pool or not. We just use the space of pages like the "private".
+> > >
+> > > That's also fine.
+> > >
+> > > >
+> > > >
+> > > > > 2) optimize the unmap for page pool
+> > > > >
+> > > > > or even
+> > > > >
+> > > > > 3) just do dma_unmap before returning the page back to the page p=
+ool,
+> > > > > we don't get all the benefits of page pool but we end up with sim=
+ple
+> > > > > codes (no fallback for premapping).
+> > > >
+> > > > I am ok for this.
+> > >
+> > > Right, we just need to make sure there's no performance regression,
+> > > then it would be fine.
+> > >
+> > > I see for example mana did this as well.
+> >
+> > I think we should not use page pool directly now,
+> > because the mana does not need a space to store the dma address.
+> > We need to store the dma address for unmapping.
+> >
+> > If we use page pool without PP_FLAG_DMA_MAP, then store the dma address=
+ by
+> > page.dma_addr, I think that is not safe.
+>
+> Jesper, could you comment on this?
+>
+> >
+> > I think the way of this patch set is fine.
+>
+> So it reuses page pool structure in the page structure for another use ca=
+se.
+>
+> > We just use the
+> > space of the page whatever it is page pool or not to store
+> > the link and dma address.
+>
+> Probably because we've already "abused" page->private. I would leave
+> it for other maintainers to decide.
+
+If we do not want to use the elements of the page directly,
+the page pool is a good way.
+
+But we must make the page pool to work without PP_FLAG_DMA_MAP, because the
+virtio-net must use the DMA APIs wrapped by virtio core.
+
+And we still need to store the dma address, because virtio-net
+can not access the descs directly.
+
+@Jesper can we setup the page pool without PP_FLAG_DMA_MAP,
+and call page_pool_set_dma_addr() from the virtio-net driver?
+
+Thanks.
 
 
-
-在 2024/4/17 下午2:52, Jason Xing 写道:
-> On Wed, Apr 17, 2024 at 2:35 PM Heng Qi <hengqi@linux.alibaba.com> wrote:
->>
->>
->> 在 2024/4/17 上午10:53, Jason Xing 写道:
->>> Hello Jakub,
->>>
->>> On Wed, Apr 17, 2024 at 10:30 AM Jakub Kicinski <kuba@kernel.org> wrote:
->>>> On Wed, 17 Apr 2024 10:22:52 +0800 Heng Qi wrote:
->>>>> Have you encountered compilation problems in v8?
->>>> Yes, please try building allmodconfig:
->>>>
->>>> make allmodconfig
->>>> make ..
->>>>
->>>> there's many drivers using this API, you gotta build the full kernel..
->>>>
->>> About compiling the kernel, I would like to ask one question: what
->>> parameters of 'make' do you recommend just like the netdev/build_32bit
->>> [1] does?
->> Hi Jason,
->>
->> I founded and checked the use of nipa[1] made from Kuba today. I used
->> run.sh in the ./nipa/docker
->> directory locally to run full compilation.
->> If there are additional errors or warnings after applying our own
->> patches than before, we will be given
->> information in the results directory.
->>
->> [1] https://github.com/linux-netdev/nipa/tree/main
-> Great! Thanks for the information:) I'll try it locally.
-
-To update more information, I checked the source code of nipa.
-All its test items are located at:
-
-   1. nipa/tests/patch, such as build_32bit, build_allmodconfig_war
-   2. nipa/tests/series, such as fixes_present
-
-We can edit the "include" and "exclude" items of [tests] section
-in the nipa/docker/nipa.config file to specify the specific items we 
-want to test.
-
-Regards,
-Heng
 
 >
-> Thanks,
-> Jason
+> Thanks
 >
->> Thanks.
->>
->>> If I run the normal 'make' command without parameters, there is no
->>> warning even if the file is not compiled. If running with '-Oline -j
->>> 16 W=1 C=1', it will print lots of warnings which makes it very hard
->>> to see the useful information related to the commits I just wrote.
->>>
->>> I want to build and then print all the warnings which are only related
->>> to my patches locally, but I cannot find a good way :(
->>>
->>> [1]: https://netdev.bots.linux.dev/static/nipa/845020/13631720/build_32bit/stderr
->>>
->>> Thanks,
->>> Jason
-
+> >
+> > Thanks.
+> >
+> > >
+> > > Thanks
+> > >
+> > > >
+> > > >
+> > > > Thanks.
+> > > >
+> > > > >
+> > > > > Thanks
+> > > > >
+> > > > >
+> > > > > >
+> > > > > > Thanks
+> > > > > >
+> > > > > > >
+> > > > > > > Maybe for big mode it doesn't matter too much if there's no
+> > > > > > > performance improvement.
+> > > > > > >
+> > > > > > > Thanks
+> > > > > > >
+> > > > > > > >
+> > > > > > > > Thanks.
+> > > > > > > >
+> > > > > > > >
+> > > > > > > >
+> > > > > > > > >
+> > > > > > > > > Thanks
+> > > > > > > > >
+> > > > > > > > > >
+> > > > > > > > > > Thanks.
+> > > > > > > > > >
+> > > > > > > > > >
+> > > > > > > > > > >
+> > > > > > > > > > > Thanks
+> > > > > > > > > > >
+> > > > > > > > > >
+> > > > > > > > >
+> > > > > > > >
+> > > > > > >
+> > > > > >
+> > > > >
+> > > >
+> > >
+> > >
+> >
+>
