@@ -1,128 +1,116 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f52.google.com (mail-ej1-f52.google.com [209.85.218.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22E0454BE2
-	for <virtualization@lists.linux.dev>; Thu, 18 Apr 2024 06:13:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DB5B8C11
+	for <virtualization@lists.linux.dev>; Thu, 18 Apr 2024 06:16:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713420841; cv=none; b=Cy47AoeKQiDd2wdhaBGIoqhhRG01KYN8fOqaxnpqZ4aCWqEyGEZNPrSz2HuKnLQ8fvmlBOUvhiVcFZgLfmMaBiKAeUUugOPwsQqSCKSXS8gGknyUgL5Nj6JKKe0MzvRqoxsRwlG6WIg8NSEDO/UntGyTU+cAmkyiSsV527I1C8o=
+	t=1713420981; cv=none; b=TVT6xBNVyqe2NXNWhvJZHUO+nuekbpN15Uci94z+t5ohM06A18E+z5A5OQbHmb4Y7kJTnYwiW9F2RLYs2lxdFXtFrY+rM2e7FVT/rVo8XR1GOs3MAM0+2/vcj0V4Q+HCEVu5HqeSsWpzEhTHXvNNQqczw6FXamCS/rra1SigrVU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713420841; c=relaxed/simple;
-	bh=DzHtYet7xw33U75FxEw5lUmOXI3xG0fMjLZjCs81rD0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=nXPdfT/wL0dPa2nD6v0OsaeNxWx82lLjmfCx1KA9gtddfnjiuY1hUCfJzElnY7do9XDytsJQb1lMkk76wojL6aDXxJG/1LRUaRI2qB/Hw9MYnYMVAx+pg1et/bDkqFvtpyKSEzDX9CyKhFGNDiKfCSUzsq53jXnAN+HsMX5H8qg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DYaVT3Az; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1713420981; c=relaxed/simple;
+	bh=HH0x58aeITczEaoOTmgbXQZRHs2VvH12CDc1gcImzfQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=jkZdukv2LrtWmx/KZnByHxKjtiMmJgrKfyhN8WNz5j3c50CWWyEjXU4haotwh42JWaTqWha1Bo90gpOoc2EGZ6QWQD1wHIDer8VY59A2P7KFirwFSpfEADyx4G8ExeASXURXt01GrL9ocXkgOCF+l3Fd/ohC7NwhCB6/kJueLws=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=Koj1J13x; arc=none smtp.client-ip=209.85.218.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DYaVT3Az"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1713420838;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=cyAsixzg/C7NuM2YrjqrwtUhaKllzlyI1uPLxkOcmsM=;
-	b=DYaVT3AzM3eLdPQRYMhQIDOIAtwT/u/WrgoBaD1TMJDIiUBYe9eKNmxT0Go9Irwas14gL6
-	O0guuClzcWtQhjGPQ6MrzJTy/6hlWqGIJIiTSdVcU9fg0+NpBlGS7NktEoFn/SCybY42lK
-	xGYYWJdvO2cXsHQAu8TRIfy55qJIX3E=
-Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
- [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-550-G61E1gMDOn6TONJ2od-LKw-1; Thu, 18 Apr 2024 02:13:56 -0400
-X-MC-Unique: G61E1gMDOn6TONJ2od-LKw-1
-Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-2a2bc796cf4so724255a91.0
-        for <virtualization@lists.linux.dev>; Wed, 17 Apr 2024 23:13:56 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="Koj1J13x"
+Received: by mail-ej1-f52.google.com with SMTP id a640c23a62f3a-a526d0b2349so42789866b.3
+        for <virtualization@lists.linux.dev>; Wed, 17 Apr 2024 23:16:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1713420977; x=1714025777; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=zM+AwiIA7FKrgS/Ytacnt1rsdmjxxW5sRnLCAiG5Ajk=;
+        b=Koj1J13xnXJQCu/hPeUX2AF6dMqd48t1FTcfoZnD717Rmvt0JUqXd3vfhM8slHSJcK
+         YTyBWJnGwT1R84LBuJwFJINOtnbC/H0zMb4swAl2plyJFWfzQrbW5DS0tmm2E2fX+x7N
+         HiY+1IR6X0guiSAZ4C/I+KYfXO6xszTW+3vEZq27oE4RNqKl7LURxOD7f0UUsXGm/qMP
+         ECgFGb5/zg0UuCArohIo87d9iV6JX15mT7V+LMgkp4x+iSjSgtqJfERWknEzYPqmTvyd
+         qYA7lA29eqI+VxpdJj2F5oGZZCB2Cr04U93F9AFUibWNwcePo2GWeBynhVCuBD9KYG/j
+         FMdA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713420836; x=1714025636;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=cyAsixzg/C7NuM2YrjqrwtUhaKllzlyI1uPLxkOcmsM=;
-        b=MI8nCvxIRUqsPd6y+lDML3rb9xEF5w7MlMNjW6KdUfAzqGeXKpCKdjU8cSw3eYdFU6
-         LzQ8dLy+LLdwEVu6ETo81bg4sQvKnuGEG/2wB5FeW8LDVmKSacUyfugH0M0mEDHt+4Mq
-         lfUultxp4P4HfnK2zUHf8IBkZfk4It/RzC66veJtUi+8YtUv9hS2DMhJ8bTfZN2W/5gt
-         GEF8RGB3RWBToCV3umJ73khNQQCLmE1MN/Ml0dgNh0sN2jWcwpe6uycAHiDdM4MmQ6Eb
-         1rN/MmeLTq+xhgqMQ2X8bPsfW2Zblz8SrRNHSTXvmWpctXCCXS3Hk+d4jXNzi6YmZVfj
-         Aokg==
-X-Gm-Message-State: AOJu0Yzcn0aj+KUtlnjiZmgU9IHt86smzY+QZ0RYQsanZhk3iyXrgLZZ
-	SpUFO4A4gaNpC8pnis8Al37gvKJiVORQagSfssJFbJSv1R5+M/9c8VWUjRtW7G3zOSW5L88foQC
-	H/pcRvk0FvZijL3wWx8OEnlgFxOPjFje3coao3w3NyXFb5ymLbZ4FM94dB+neYOegFqR/SAQl7s
-	JamzxkYBnHdFdvi8Ttxj7eZaBr8Chm13LeGfMdiZ4=
-X-Received: by 2002:a17:90b:253:b0:29b:b3fa:b7a5 with SMTP id fz19-20020a17090b025300b0029bb3fab7a5mr1690933pjb.7.1713420835843;
-        Wed, 17 Apr 2024 23:13:55 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHVdzu9+TyIRaPXKFdcEi9FoNx1ow6iyhMtDgpvTH0oQRz2sSRKXwXqslukumyf5i3Aw/86PTvEgHH+60ZGtgs=
-X-Received: by 2002:a17:90b:253:b0:29b:b3fa:b7a5 with SMTP id
- fz19-20020a17090b025300b0029bb3fab7a5mr1690925pjb.7.1713420835550; Wed, 17
- Apr 2024 23:13:55 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1713420977; x=1714025777;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=zM+AwiIA7FKrgS/Ytacnt1rsdmjxxW5sRnLCAiG5Ajk=;
+        b=j3iySEAVHab/3RzPqq7fNtuoWcnWC0k4JLxdaMnCrBAhMv0H0z/m3UHSO6BmdLQ0/M
+         J6Ot5GTz/dvwefGSRfyLDEhj7F+QcE1/ZhuSt25kIrvMj895X4TDvnlTS99XvqVLdJIk
+         Lu/n/YGfltcwKYe/vuIWZdQygrIgmVpvy4xMh2MCKV+T2C+iUbXgYs1Z/tFTF9bEkpfB
+         jkp/OFw/doWsiL20/j+8xabaqXmJqIorvBlWxKqwt2thpPBFYgbdh+0IOWXAMjgU618F
+         60cvYmw+UTvOA+54UjNrl+MdbUl9wWpocjNIzdIDklyW3ti4Wcayzy3z1Ix4ULHaa9s4
+         7Tzg==
+X-Forwarded-Encrypted: i=1; AJvYcCVseac3wvMaDL585CImp4aY3G/SdwtLMFMS98jSMmkLVhTFLLviPwRqG9Y9zBnqnAEu+OydPQxY6mThwwr9eMl5epJkNSVjMenZt53idns=
+X-Gm-Message-State: AOJu0YyGJaXnzyQXss/wVlBbzZcLybbZNo6YnE+yAhBgAhyRcmqvVkOW
+	o/OkH2zKamXJZRZQgJ2Ja0iPujXeGO7J903T1cQuRvuZXCaQ0GwOF5gXKj7w48w=
+X-Google-Smtp-Source: AGHT+IGizIdXTx/CsZk8PbZxvqVwV8yCfAEfxtPRXxseAeb1ekCj2GMLjSLWgN3RIojVrXMq1Sz58A==
+X-Received: by 2002:a17:906:c0d1:b0:a52:6535:d15f with SMTP id bn17-20020a170906c0d100b00a526535d15fmr887865ejb.61.1713420976631;
+        Wed, 17 Apr 2024 23:16:16 -0700 (PDT)
+Received: from localhost (78-80-105-131.customers.tmcz.cz. [78.80.105.131])
+        by smtp.gmail.com with ESMTPSA id t7-20020a1709066bc700b00a5556cd0fd5sm436991ejs.183.2024.04.17.23.16.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 17 Apr 2024 23:16:16 -0700 (PDT)
+Date: Thu, 18 Apr 2024 08:16:14 +0200
+From: Jiri Pirko <jiri@resnulli.us>
+To: Benjamin Poirier <benjamin.poirier@gmail.com>
+Cc: netdev@vger.kernel.org, kuba@kernel.org, pabeni@redhat.com,
+	davem@davemloft.net, edumazet@google.com, parav@nvidia.com,
+	mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+	shuah@kernel.org, petrm@nvidia.com, liuhangbin@gmail.com,
+	vladimir.oltean@nxp.com, idosch@nvidia.com,
+	virtualization@lists.linux.dev
+Subject: Re: [patch net-next v3 2/6] selftests: forwarding: move couple of
+ initial check to the beginning
+Message-ID: <ZiC6rpgScGzYyJZb@nanopsycho>
+References: <20240417164554.3651321-1-jiri@resnulli.us>
+ <20240417164554.3651321-3-jiri@resnulli.us>
+ <ZiAb0wZcWDSozCoq@f4>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240411025127.51945-1-xuanzhuo@linux.alibaba.com> <20240411025127.51945-3-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <20240411025127.51945-3-xuanzhuo@linux.alibaba.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 18 Apr 2024 14:13:44 +0800
-Message-ID: <CACGkMEt8hZ3UdMwuANu2KwMFAeZ3DvD9n5UcqJTbZE+eQtM=ow@mail.gmail.com>
-Subject: Re: [PATCH vhost 2/6] virtio_ring: enable premapped mode whatever use_dma_api
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZiAb0wZcWDSozCoq@f4>
 
-On Thu, Apr 11, 2024 at 10:51=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alibaba.=
-com> wrote:
+Wed, Apr 17, 2024 at 08:58:27PM CEST, benjamin.poirier@gmail.com wrote:
+>On 2024-04-17 18:45 +0200, Jiri Pirko wrote:
+>> From: Jiri Pirko <jiri@nvidia.com>
+>> 
+>> These two check can be done at he very beginning of the script.
+>> As the follow up patch needs to add early code that needs to be executed
+>> after the checks, move them.
+>> 
+>> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
+>> ---
+>>  tools/testing/selftests/net/forwarding/lib.sh | 15 ++++++++++-----
+>>  1 file changed, 10 insertions(+), 5 deletions(-)
+>> 
+>> diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
+>> index 7913c6ee418d..2e7695b94b6b 100644
+>> --- a/tools/testing/selftests/net/forwarding/lib.sh
+>> +++ b/tools/testing/selftests/net/forwarding/lib.sh
+>> @@ -84,6 +84,16 @@ declare -A NETIFS=(
+>>  # e.g. a low-power board.
+>>  : "${KSFT_MACHINE_SLOW:=no}"
+>>  
+>> +if [[ "$(id -u)" -ne 0 ]]; then
+>> +	echo "SKIP: need root privileges"
+>> +	exit $ksft_skip
+>> +fi
+>> +
+>> +if [[ ! -v NUM_NETIFS ]]; then
+>> +	echo "SKIP: importer does not define \"NUM_NETIFS\""
+>> +	exit $ksft_skip
+>> +fi
+>> +
 >
-> Now, we have virtio DMA APIs, the driver can be the premapped
-> mode whatever the virtio core uses dma api or not.
->
-> So remove the limit of checking use_dma_api from
-> virtqueue_set_dma_premapped().
->
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> ---
->  drivers/virtio/virtio_ring.c | 7 +------
->  1 file changed, 1 insertion(+), 6 deletions(-)
->
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 1b9fb680cff3..72c438c5f7d7 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -2730,7 +2730,7 @@ EXPORT_SYMBOL_GPL(virtqueue_resize);
->   *
->   * Returns zero or a negative error.
->   * 0: success.
-> - * -EINVAL: vring does not use the dma api, so we can not enable premapp=
-ed mode.
-> + * -EINVAL: NOT called immediately.
+>I noticed that this part conflicts with the recently merged commit
+>2291752fae3d ("selftests: forwarding: lib.sh: Validate NETIFS"). Can you
+>please verify that the conflict was fixed correctly? The above check is
+>now duplicated in the file.
 
-Let's tweak the comment here, for example, we can say the vq is in use.
-
-Thanks
-
->   */
->  int virtqueue_set_dma_premapped(struct virtqueue *_vq)
->  {
-> @@ -2746,11 +2746,6 @@ int virtqueue_set_dma_premapped(struct virtqueue *=
-_vq)
->                 return -EINVAL;
->         }
->
-> -       if (!vq->use_dma_api) {
-> -               END_USE(vq);
-> -               return -EINVAL;
-> -       }
-> -
->         vq->premapped =3D true;
->         vq->do_unmap =3D false;
->
-> --
-> 2.32.0.3.g01195cf9f
->
-
+Right, will remove the duplicate. Thanks!
