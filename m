@@ -1,163 +1,288 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45A552D057
-	for <virtualization@lists.linux-foundation.org>; Thu, 18 Apr 2024 07:10:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F28893B79F
+	for <virtualization@lists.linux-foundation.org>; Thu, 18 Apr 2024 07:14:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713424255; cv=none; b=gJFJMB8vPXOV9MxEVzOfrTh7DXLyVNQ0EP+nVbecpPLSv84BnZAjLZRty5IryBfo7R80/pUfI7GR1hDSZDiKyC6raZ2aOQ/jFYZPFWnmt7Ue59rl3vAI5cC1zkI6t3krBBFBVCE7OWTA4myvEJG61aX3aCyv6tZ0ZBevYtr6Ry4=
+	t=1713424488; cv=none; b=pnlKUk3fjT0H7gEuMX78GHvp3mVfkKDOgsFIK13c/IYLEAwg1MAkTfU94jPErq8t9cmLoBVQyKcJ2I/d5EtYE/QI0gL3ox/GCtNuTtouJW3/DSDNMvlHNVW/Q2+MixFDZpWAk+vHxOlk8LqKA4d06DI4+Wr0SU8r6Oyl36oBhpU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713424255; c=relaxed/simple;
-	bh=grRz8MGSynNxFk4jLSZzRqB0D5NlA4y9FMdj0w7qTC0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=FkB2So/N6Nh/vOwPBhsCe1nqnSNs6OFVb53TK0AOQAPLXV/A3sPSGRRv7Dp5TlCzsHgDeElVs7LOq2pDKBDdzvereY+UFP0EPiGo4nle/GKC7vuJADcM8J6eYih76oG2AYGySbQRv5K76Q/QDQEbAm5w3RDZz0kbr1FELPBdumc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=EIbnTwnd; arc=none smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1713424488; c=relaxed/simple;
+	bh=cbIMRI+x+AE/hoz/da/ZJt9M4223DOG5M56T+jFdBnM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=FT/fWm+wZu55PWpV7oBXbhT2nJ2khfsQE1c4JnYJ0xmx28QgK0bNX1EfuyXGAoyMXssFFqDOhW3C1jzNv8H3/qlPVyBS3uHfjqbc2/C5zo8pMO1YSHp5PHi6CqiIGHlnPtavQBzs/BH2ZduMkWl+PAnEAptYgfCd9Xd74U7IWoA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=kvXcs8+N; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EIbnTwnd"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="kvXcs8+N"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id E3713813F8
-	for <virtualization@lists.linux-foundation.org>; Thu, 18 Apr 2024 07:10:53 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 81CA6404EF
+	for <virtualization@lists.linux-foundation.org>; Thu, 18 Apr 2024 07:14:46 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.099
+X-Spam-Score: -4.401
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 9FfKT5EIUgaE for <virtualization@lists.linux-foundation.org>;
- Thu, 18 Apr 2024 07:10:53 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org BFA27812C8
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BFA27812C8
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=EIbnTwnd
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id BFA27812C8
-	for <virtualization@lists.linux-foundation.org>; Thu, 18 Apr 2024 07:10:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1713424250;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=DXuNqL/ceExdhMKWNZ4A4O9zeEkuVX94IXCtvFH2AcM=;
-	b=EIbnTwndkLUsTZwekM3WtVNij6efrbnYKLE/FufJl4+HaOTODk1MiggIqKbt7SQEjl9R7G
-	5SDZTquk5I9x0RwUCs9MOwuLHzRfVBH1BIrMY0TMtlhCVYB8d6BDUHLALxNX8ZnGzroH6v
-	QmtdCR2IX5armcsUiI7NS5/WMdtm2mI=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-219-8Ihyb9zdMiap-Dm5uwokgQ-1; Thu, 18 Apr 2024 03:10:49 -0400
-X-MC-Unique: 8Ihyb9zdMiap-Dm5uwokgQ-1
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-343c6a990dbso208807f8f.1
-        for <virtualization@lists.linux-foundation.org>; Thu, 18 Apr 2024 00:10:49 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713424248; x=1714029048;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=DXuNqL/ceExdhMKWNZ4A4O9zeEkuVX94IXCtvFH2AcM=;
-        b=HZNcKLkFNvngNXtaYwMf/JWwtoqNLkrG6fYA86uGGxODC/WnYBEUy0oVurb2pUrP3Y
-         N/qJzP3MDHNtKkb51TQSNV+w0/Ohmo5SSXaO27Kb3gaQkNVJ84+5gNUd7PoDYOVxyJP+
-         tMUa61yMacBY8CcKd+UIJmWJmds+0ruDUHQmGIEMx4nPN9GoOc8CjKii5BuLzQY6oFjA
-         U9zEar4qSOi8vQSHUMPuZt65HT215brQr66K5xVS0NjHRD2UZhFeEWmdJ5NlCOC5aD6o
-         G/7i8AhcwMbuG0I1r3MUWRkkHYKqMxRpw3JD895uUrZs41vLCjIvEK9PEy8QbHwCEyMU
-         H1rg==
-X-Forwarded-Encrypted: i=1; AJvYcCWz4VHlV4mJ73jeAx3mwsh3SNhg0HHluyUT1Z7IUN+Zv7vRqCM7O+VCE/BtwsCa80UuGUr6qCf5YR2i0MBfRXW/YYcA7ALQXAkVCwETgNuA90aPX5x9b1jl9Q==
-X-Gm-Message-State: AOJu0YzFt6+r3MWrLSs16ryShBobE71tNN6Kq+9WTOYhkiiIi4hacUSR
-	pmTHbsVsTDQOj880FHP1ZbP/9Mky44ole1HP3mUXR0H6M7vc+HFq/V/uvQsAiWWSRKaieV+uqDl
-	OsaUA82YhUcFlD3t79kIxOkiBYQtf4pQL91f0xMT4KUkL6zQQwZCwXNjLid88bXQ7/E0Iar2q3Z
-	l23Pc=
-X-Received: by 2002:a5d:4a8e:0:b0:343:ce15:fd3f with SMTP id o14-20020a5d4a8e000000b00343ce15fd3fmr1130775wrq.29.1713424248076;
-        Thu, 18 Apr 2024 00:10:48 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHNwMqV/DfHKY5Um1gJPK0oQBCHB+7oNlU62eSSvEH7W4fEUcxAc7EoBYl9IV/23pEY3150bg==
-X-Received: by 2002:a5d:4a8e:0:b0:343:ce15:fd3f with SMTP id o14-20020a5d4a8e000000b00343ce15fd3fmr1130739wrq.29.1713424247522;
-        Thu, 18 Apr 2024 00:10:47 -0700 (PDT)
-Received: from redhat.com ([2a02:14f:1fc:1e9b:54cd:34ea:3dbb:5a75])
-        by smtp.gmail.com with ESMTPSA id bg40-20020a05600c3ca800b0041624ddff48sm5320517wmb.28.2024.04.18.00.10.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Apr 2024 00:10:47 -0700 (PDT)
-Date: Thu, 18 Apr 2024 03:10:41 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: Mike Christie <michael.christie@oracle.com>, oleg@redhat.com,
-	ebiederm@xmission.com, virtualization@lists.linux-foundation.org,
-	sgarzare@redhat.com, stefanha@redhat.com, brauner@kernel.org,
-	Laurent Vivier <lvivier@redhat.com>
-Subject: Re: [PATCH 0/9] vhost: Support SIGKILL by flushing and exiting
-Message-ID: <20240418030931-mutt-send-email-mst@kernel.org>
-References: <20240316004707.45557-1-michael.christie@oracle.com>
- <CACGkMEszFm3LZ4Xf41nnPHrsk4xzUPW-7HZf0xAgoxW9D2Sm-Q@mail.gmail.com>
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id TWRcCCpy6p2e for <virtualization@lists.linux-foundation.org>;
+ Thu, 18 Apr 2024 07:14:45 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=198.175.65.20; helo=mgamail.intel.com; envelope-from=lingshan.zhu@intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 3F341404E8
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3F341404E8
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=kvXcs8+N
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.20])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 3F341404E8
+	for <virtualization@lists.linux-foundation.org>; Thu, 18 Apr 2024 07:14:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1713424486; x=1744960486;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=cbIMRI+x+AE/hoz/da/ZJt9M4223DOG5M56T+jFdBnM=;
+  b=kvXcs8+NkqoB8Nb9krJcms7aDjpZN9W7OEsHZ1Y9qdMzCCHgWeLSQqOj
+   /hJcclvpKoVWHsvgn83k1juthpLQ0mZF6qbyLgDxOALeLN5I13I4zP3AC
+   3UFYAcpqJzfuW4jk6W7GPcv9DMdCd/o3H/L7pfWo2CQjDwTriXzeCjL7g
+   UMWinLHsVnPQAAv9jnw4ugvsCAnP7lJztKuWBVMpnpGxOadF0Ae7zpeh3
+   M+kecOGEe7d6FcKKSv0zW0bOyNpdTkHklyGJfK5C14iN5lzYQp/Ry25rf
+   9XMH4N8qBDRr3tSKw9Cc7n4xN/Fobb6rKFmQZs8hOCZ1Bxm3jz9WW+grV
+   w==;
+X-CSE-ConnectionGUID: o/kzTy3pQtG0scwYdYjfZw==
+X-CSE-MsgGUID: uvRPwaZZQsyMtLlNgd7UFQ==
+X-IronPort-AV: E=McAfee;i="6600,9927,11047"; a="8787061"
+X-IronPort-AV: E=Sophos;i="6.07,211,1708416000"; 
+   d="scan'208";a="8787061"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by orvoesa112.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Apr 2024 00:14:44 -0700
+X-CSE-ConnectionGUID: 2+sjzn6+TUy9wxZxV5tZKw==
+X-CSE-MsgGUID: ZyqcBl9rQ+CnlU9ZiIIxBw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.07,211,1708416000"; 
+   d="scan'208";a="23492978"
+Received: from lingshan-mobl.ccr.corp.intel.com (HELO [10.124.226.64]) ([10.124.226.64])
+  by orviesa008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Apr 2024 00:14:40 -0700
+Message-ID: <a123f8da-a6b9-4923-95ff-7814804cdabb@intel.com>
+Date: Thu, 18 Apr 2024 15:14:37 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEszFm3LZ4Xf41nnPHrsk4xzUPW-7HZf0xAgoxW9D2Sm-Q@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/1] virtio: Add support for the virtio suspend feature
+To: David Stevens <stevensd@chromium.org>,
+ "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Cornelia Huck <cohuck@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>
+Cc: Eugenio Perez <eperezma@redhat.com>, virtio-dev@lists.oasis-open.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+References: <20240417085440.4036535-1-stevensd@chromium.org>
+ <20240417085440.4036535-2-stevensd@chromium.org>
+Content-Language: en-US
+From: "Zhu, Lingshan" <lingshan.zhu@intel.com>
+In-Reply-To: <20240417085440.4036535-2-stevensd@chromium.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Tue, Apr 09, 2024 at 12:16:36PM +0800, Jason Wang wrote:
-> On Sat, Mar 16, 2024 at 8:47 AM Mike Christie
-> <michael.christie@oracle.com> wrote:
-> >
-> > The following patches were made over Linus's tree and also apply over
-> > mst's vhost branch. The patches add the ability for vhost_tasks to
-> > handle SIGKILL by flushing queued works, stop new works from being
-> > queued, and prepare the task for an early exit.
-> >
-> > This removes the need for the signal/coredump hacks added in:
-> >
-> > Commit f9010dbdce91 ("fork, vhost: Use CLONE_THREAD to fix freezer/ps regression")
-> >
-> > when the vhost_task patches were initially merged and fix the issue
-> > in this thread:
-> >
-> > https://lore.kernel.org/all/000000000000a41b82060e875721@google.com/
-> >
-> > Long Background:
-> >
-> > The original vhost worker code didn't support any signals. If the
-> > userspace application that owned the worker got a SIGKILL, the app/
-> > process would exit dropping all references to the device and then the
-> > file operation's release function would be called. From there we would
-> > wait on running IO then cleanup the device's memory.
-> >
-> > When we switched to vhost_tasks being a thread in the owner's process we
-> > added some hacks to the signal/coredump code so we could continue to
-> > wait on running IO and process it from the vhost_task. The idea was that
-> > we would eventually remove the hacks. We recently hit this bug:
-> >
-> > https://lore.kernel.org/all/000000000000a41b82060e875721@google.com/
-> >
-> > It turns out only vhost-scsi had an issue where it would send a command
-> > to the block/LIO layer, wait for a response and then process in the vhost
-> > task.
-> 
-> Vhost-net TX zerocopy code did the same:
-> 
-> It sends zerocopy packets to the under layer and waits for the
-> underlayer. When the DMA is completed, vhost_zerocopy_callback will be
-> called to schedule vq work for used ring updating.
 
-Yea. It's still experimental though so I'm not sure how
-stressed to be about it. I guess we can ignore it for now -
-but yes it was one of the big issues with tx zerocopy
-and this patchset opens the path to productizing it.
 
-> > So patches 1-5 prepares vhost-scsi to handle when the vhost_task
-> > is killed while we still have commands outstanding. The next patches then
-> > prepare and convert the vhost and vhost_task layers to handle SIGKILL
-> > by flushing running works, marking the vhost_task as dead so there's
-> > no future uses, then exiting.
-> 
-> Thanks
-> 
-> >
-> >
-> >
+On 4/17/2024 4:54 PM, David Stevens wrote:
+> Add support for the VIRTIO_F_SUSPEND feature. When this feature is
+> negotiated, power management can use it to suspend virtio devices
+> instead of resorting to resetting the devices entirely.
+>
+> Signed-off-by: David Stevens <stevensd@chromium.org>
+> ---
+>   drivers/virtio/virtio.c            | 32 ++++++++++++++++++++++++++++++
+>   drivers/virtio/virtio_pci_common.c | 29 +++++++++++----------------
+>   drivers/virtio/virtio_pci_modern.c | 19 ++++++++++++++++++
+>   include/linux/virtio.h             |  2 ++
+>   include/uapi/linux/virtio_config.h | 10 +++++++++-
+>   5 files changed, 74 insertions(+), 18 deletions(-)
+>
+> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> index f4080692b351..cd11495a5098 100644
+> --- a/drivers/virtio/virtio.c
+> +++ b/drivers/virtio/virtio.c
+> @@ -1,5 +1,6 @@
+>   // SPDX-License-Identifier: GPL-2.0-only
+>   #include <linux/virtio.h>
+> +#include <linux/delay.h>
+>   #include <linux/spinlock.h>
+>   #include <linux/virtio_config.h>
+>   #include <linux/virtio_anchor.h>
+> @@ -580,6 +581,37 @@ int virtio_device_restore(struct virtio_device *dev)
+>   	return ret;
+>   }
+>   EXPORT_SYMBOL_GPL(virtio_device_restore);
+> +
+> +static int virtio_device_set_suspend_bit(struct virtio_device *dev, bool enabled)
+> +{
+> +	u8 status, target;
+> +
+> +	status = dev->config->get_status(dev);
+> +	if (enabled)
+> +		target = status | VIRTIO_CONFIG_S_SUSPEND;
+> +	else
+> +		target = status & ~VIRTIO_CONFIG_S_SUSPEND;
+> +	dev->config->set_status(dev, target);
+I think it is better to verify whether the device SUSPEND bit is
+already set or clear, we can just return if status == target.
+
+Thanks
+Zhu Lingshan
+> +
+> +	while ((status = dev->config->get_status(dev)) != target) {
+> +		if (status & VIRTIO_CONFIG_S_NEEDS_RESET)
+> +			return -EIO;
+> +		mdelay(10);
+> +	}
+> +	return 0;
+> +}
+> +
+> +int virtio_device_suspend(struct virtio_device *dev)
+> +{
+> +	return virtio_device_set_suspend_bit(dev, true);
+> +}
+> +EXPORT_SYMBOL_GPL(virtio_device_suspend);
+> +
+> +int virtio_device_resume(struct virtio_device *dev)
+> +{
+> +	return virtio_device_set_suspend_bit(dev, false);
+> +}
+> +EXPORT_SYMBOL_GPL(virtio_device_resume);
+>   #endif
+>   
+>   static int virtio_init(void)
+> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+> index b655fccaf773..4d542de05970 100644
+> --- a/drivers/virtio/virtio_pci_common.c
+> +++ b/drivers/virtio/virtio_pci_common.c
+> @@ -495,31 +495,26 @@ static int virtio_pci_restore(struct device *dev)
+>   	return virtio_device_restore(&vp_dev->vdev);
+>   }
+>   
+> -static bool vp_supports_pm_no_reset(struct device *dev)
+> +static int virtio_pci_suspend(struct device *dev)
+>   {
+>   	struct pci_dev *pci_dev = to_pci_dev(dev);
+> -	u16 pmcsr;
+> -
+> -	if (!pci_dev->pm_cap)
+> -		return false;
+> -
+> -	pci_read_config_word(pci_dev, pci_dev->pm_cap + PCI_PM_CTRL, &pmcsr);
+> -	if (PCI_POSSIBLE_ERROR(pmcsr)) {
+> -		dev_err(dev, "Unable to query pmcsr");
+> -		return false;
+> -	}
+> +	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
+>   
+> -	return pmcsr & PCI_PM_CTRL_NO_SOFT_RESET;
+> -}
+> +	if (virtio_has_feature(&vp_dev->vdev, VIRTIO_F_SUSPEND))
+> +		return virtio_device_suspend(&vp_dev->vdev);
+>   
+> -static int virtio_pci_suspend(struct device *dev)
+> -{
+> -	return vp_supports_pm_no_reset(dev) ? 0 : virtio_pci_freeze(dev);
+> +	return virtio_pci_freeze(dev);
+>   }
+>   
+>   static int virtio_pci_resume(struct device *dev)
+>   {
+> -	return vp_supports_pm_no_reset(dev) ? 0 : virtio_pci_restore(dev);
+> +	struct pci_dev *pci_dev = to_pci_dev(dev);
+> +	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
+> +
+> +	if (virtio_has_feature(&vp_dev->vdev, VIRTIO_F_SUSPEND))
+> +		return virtio_device_resume(&vp_dev->vdev);
+> +
+> +	return virtio_pci_restore(dev);
+>   }
+>   
+>   static const struct dev_pm_ops virtio_pci_pm_ops = {
+> diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+> index f62b530aa3b5..ac8734526b8d 100644
+> --- a/drivers/virtio/virtio_pci_modern.c
+> +++ b/drivers/virtio/virtio_pci_modern.c
+> @@ -209,6 +209,22 @@ static void vp_modern_avq_deactivate(struct virtio_device *vdev)
+>   	__virtqueue_break(admin_vq->info.vq);
+>   }
+>   
+> +static bool vp_supports_pm_no_reset(struct pci_dev *pci_dev)
+> +{
+> +	u16 pmcsr;
+> +
+> +	if (!pci_dev->pm_cap)
+> +		return false;
+> +
+> +	pci_read_config_word(pci_dev, pci_dev->pm_cap + PCI_PM_CTRL, &pmcsr);
+> +	if (PCI_POSSIBLE_ERROR(pmcsr)) {
+> +		dev_err(&pci_dev->dev, "Unable to query pmcsr");
+> +		return false;
+> +	}
+> +
+> +	return pmcsr & PCI_PM_CTRL_NO_SOFT_RESET;
+> +}
+> +
+>   static void vp_transport_features(struct virtio_device *vdev, u64 features)
+>   {
+>   	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+> @@ -223,6 +239,9 @@ static void vp_transport_features(struct virtio_device *vdev, u64 features)
+>   
+>   	if (features & BIT_ULL(VIRTIO_F_ADMIN_VQ))
+>   		__virtio_set_bit(vdev, VIRTIO_F_ADMIN_VQ);
+> +
+> +	if (features & BIT_ULL(VIRTIO_F_SUSPEND) && vp_supports_pm_no_reset(pci_dev))
+> +		__virtio_set_bit(vdev, VIRTIO_F_SUSPEND);
+>   }
+>   
+>   static int __vp_check_common_size_one_feature(struct virtio_device *vdev, u32 fbit,
+> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> index b0201747a263..8e456b04114e 100644
+> --- a/include/linux/virtio.h
+> +++ b/include/linux/virtio.h
+> @@ -160,6 +160,8 @@ void virtio_config_changed(struct virtio_device *dev);
+>   #ifdef CONFIG_PM_SLEEP
+>   int virtio_device_freeze(struct virtio_device *dev);
+>   int virtio_device_restore(struct virtio_device *dev);
+> +int virtio_device_suspend(struct virtio_device *dev);
+> +int virtio_device_resume(struct virtio_device *dev);
+>   #endif
+>   void virtio_reset_device(struct virtio_device *dev);
+>   
+> diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
+> index 2445f365bce7..4a6e2c28ea76 100644
+> --- a/include/uapi/linux/virtio_config.h
+> +++ b/include/uapi/linux/virtio_config.h
+> @@ -40,6 +40,8 @@
+>   #define VIRTIO_CONFIG_S_DRIVER_OK	4
+>   /* Driver has finished configuring features */
+>   #define VIRTIO_CONFIG_S_FEATURES_OK	8
+> +/* Driver has suspended the device */
+> +#define VIRTIO_CONFIG_S_SUSPEND		0x10
+>   /* Device entered invalid state, driver must reset it */
+>   #define VIRTIO_CONFIG_S_NEEDS_RESET	0x40
+>   /* We've given up on this device. */
+> @@ -52,7 +54,7 @@
+>    * rest are per-device feature bits.
+>    */
+>   #define VIRTIO_TRANSPORT_F_START	28
+> -#define VIRTIO_TRANSPORT_F_END		42
+> +#define VIRTIO_TRANSPORT_F_END		43
+>   
+>   #ifndef VIRTIO_CONFIG_NO_LEGACY
+>   /* Do we get callbacks when the ring is completely used, even if we've
+> @@ -120,4 +122,10 @@
+>    */
+>   #define VIRTIO_F_ADMIN_VQ		41
+>   
+> +/*
+> + * This feature indicates that the driver can suspend the device via the
+> + * suspend bit in the device status byte.
+> + */
+> +#define VIRTIO_F_SUSPEND		42
+> +
+>   #endif /* _UAPI_LINUX_VIRTIO_CONFIG_H */
 
