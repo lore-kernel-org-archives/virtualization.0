@@ -1,127 +1,113 @@
-Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2062.outbound.protection.outlook.com [40.107.236.62])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f176.google.com (mail-qk1-f176.google.com [209.85.222.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D23015FA92
-	for <virtualization@lists.linux.dev>; Thu, 18 Apr 2024 17:02:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.236.62
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713459773; cv=fail; b=Bk+GJnoTu5SdFpYgP5T5Q8b6UW5zgjsDQ/0GDmGd6R4RCgQCwwkGiCsRmz/hzmG4E7S+4CG1SdWzo5RHw8jbXJQqStGt8tYQINOFS6a7zuG22oCGSzIqH2E52J0N5geYUwJ0K+Ik51+CANDPn7k1lzL9URhm3jTsapGTiLPQGCQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713459773; c=relaxed/simple;
-	bh=2LkoGl4IiOIxtk+gcZjxkFUfRFSzLOQ8UdsHWjw1YQ0=;
-	h=References:From:To:CC:Subject:Date:In-Reply-To:Message-ID:
-	 MIME-Version:Content-Type; b=Bi4ptbb8dex3jUAY1BE4nPnZgPHXKgLDs6du71LO4pGWH/aeVeUSiBBYKX4zNxDyhRr4PIuvTdoJ2wQVt+H6230gP6eJtkKxGQcYOVsnHbj0AiYuuJmwwVXs9rvDRgRfqh3WyxoujacF6mqx9hEGyK1HiggB1o+j1RI3Xkq8gZ0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=oij5gfnu; arc=fail smtp.client-ip=40.107.236.62
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EE0917AD68
+	for <virtualization@lists.linux.dev>; Thu, 18 Apr 2024 18:48:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.176
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1713466105; cv=none; b=MrXs1+pErTaLkMlTCTT9+vQ6meI5dFypwur2MHj6Klep4XAzSIWcgseyoXCOfLTXcg5R29ZacGhhSTXzNSn1tMw/SkpDVCDw9hn4bZtuOlvcb5aXXybyov1C700nm1coAW4ThV66U6Si/EEGZ41sf9zV0CDP8lRFAL+3j80FkOk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1713466105; c=relaxed/simple;
+	bh=XBzE4LuWccTnTw0r9CwnNxtwEK7las0u5c0J1TpM5mI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gMNd2l879YZP6WkGCXce93sHxsvQOVYI0bG6+b6bZ6e+skAaXzP2o77NrGXqQieZUzWO1WSunXJ9cnybvkp4mvnX/Km4b+xUcAaHABd+D+S/obc0VV2i5rlapeC9rgROLH/uKGteg3Vj6IgPV3Vo3BQHKJXOk4qfC8FMLro4FPI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=d2k7duA7; arc=none smtp.client-ip=209.85.222.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="oij5gfnu"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=UjgVnJ4CCNI2HuSiDGagXJUj/Zln0HDbfYBu+5x3j9RDBXvfyh/+etP9IqXep6zH46C4lGnc9Nym0tLiQpABtcDbIR2KwKmMXn+voTmyF6j8w5ZSkpeBJySFAkjnh+R/MmOq2keKvmtTaKTX5lDca32fAcNqxWh5xlWR3ubXhsjANRxstJ+rDP6V8MwhNyJTtJ1rQbdGZQKQDmoinggA65sis7W/iZxyaP7euYmdq2BqFQwqIM9Ahi1rLuyR7eOlFzvVCJMFEwq4as81ziDJiKtaGlgoG0vjVyQZhshpT0oMkhGI6hBv4OCsJNiu0BBgLTv8f+dwbEab+cuaAc4Ovw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=2LkoGl4IiOIxtk+gcZjxkFUfRFSzLOQ8UdsHWjw1YQ0=;
- b=DMNxVgRVnKP38MU9VOM0bVTEylnMQojrKOju1q4OorlCdZyQaotzek5tiSCkrr8FlFvT8I/k/ehkP12GObERZm6P/r7w00lA1rbb0Zw5TkN/lPvNNsbqdlqFD4uFMa4eiIh2MdkAU7k+4b4XEgZegObdNdRqnDdZ/DJyWX8rZjtzb9Lk2TUVxLhh3O9opsoHOLh++KB1/lWZUfoVDh2j102m1yP0Ly1CVcbT1jTLcazrS4+lsEgAl4E7uP3mPFxNv5KqFX1fzvK1DeHZTcVQyZK9/ZNptvXLrckMiz3/7Odw4LG4yFaT/CYY11M5ESg6+6wTCBrRaxXA5q4onqjp5A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.161) smtp.rcpttodomain=lists.linux.dev smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=2LkoGl4IiOIxtk+gcZjxkFUfRFSzLOQ8UdsHWjw1YQ0=;
- b=oij5gfnuJfAI4YgqU70A78+q0dW91PpHiLdtGfItWI7KDgbIJCav8Z8GCGnmU7xZeksixzZoJaUflMhuWiCcIKHrxaIGOIEV0kTNYhfz4bo/yoX3NIK+BM5UVNwgbxeczKdbK5+fSjngXOC2qhAOH4TSVzowWrZdFQfRVfyIokKSPmu3XYuQYXYloW2xZlAWmyhUlK57K42vJK2u2okuG9Kof150XrUjBEy2+PggKvTpp8hQvE3eFWihTuu69pfp3Dwrb8r+Vgn/WLeUu3wClzhyUj21i0RH1PubQR2C2NpzXYt+Uc+Jib5GlNoXiaHAn/yvLb9+iUZGJXHZp1N3gQ==
-Received: from MN2PR11CA0022.namprd11.prod.outlook.com (2603:10b6:208:23b::27)
- by LV8PR12MB9182.namprd12.prod.outlook.com (2603:10b6:408:192::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7452.53; Thu, 18 Apr
- 2024 17:02:49 +0000
-Received: from BL02EPF0001A102.namprd05.prod.outlook.com
- (2603:10b6:208:23b:cafe::46) by MN2PR11CA0022.outlook.office365.com
- (2603:10b6:208:23b::27) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7495.29 via Frontend
- Transport; Thu, 18 Apr 2024 17:02:49 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.161) by
- BL02EPF0001A102.mail.protection.outlook.com (10.167.241.134) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.7452.22 via Frontend Transport; Thu, 18 Apr 2024 17:02:48 +0000
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
- (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Thu, 18 Apr
- 2024 10:02:11 -0700
-Received: from yaviefel (10.126.231.35) by rnnvmail201.nvidia.com
- (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Thu, 18 Apr
- 2024 10:02:05 -0700
-References: <20240418160830.3751846-1-jiri@resnulli.us>
- <20240418160830.3751846-7-jiri@resnulli.us>
-User-agent: mu4e 1.8.11; emacs 28.3
-From: Petr Machata <petrm@nvidia.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="d2k7duA7"
+Received: by mail-qk1-f176.google.com with SMTP id af79cd13be357-78f02c96c52so71332285a.1
+        for <virtualization@lists.linux.dev>; Thu, 18 Apr 2024 11:48:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1713466101; x=1714070901; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=wGqXvxMT176mzoL51bvY92OUP3ZIq2PqZ3NYN+MASaQ=;
+        b=d2k7duA74vBZsATo5JxSPoPwKzBtixWeVtVOSFreGLmIo3/D7BisOrKyoGRbgiEGI9
+         x16i1rXv1jOqCMPRRIHF/pFUwjdBETT5jOe0TlbObw9H1FFrkZl47fTDfibFlcBnHf8A
+         IOHzuhR6WU2Dsol84OQu1hpYN2sCyyyQYq+3rbpIi3FinuEWzkwknN63MhTESEs2FupW
+         p0zT+/Bo2nwDRzYes4Um8AVGGJ4wU7i8JEITMzhnc82QAEdQpICRY/3LSRAKmZNqqrCK
+         j84+sY9MvIwB5Ot6Z8wnskcefzK9Cqkue+qlD3TZ8Tm9t7Ao/B1oShleg0Sz085zOCpm
+         Ptpg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713466101; x=1714070901;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=wGqXvxMT176mzoL51bvY92OUP3ZIq2PqZ3NYN+MASaQ=;
+        b=GgIEJc60JQE6c3bLTjuqAXBKN8tYpswDMh4VbSY7Lf1wywSAJFAmAtLASMg/5lkcKO
+         e48zu4gbd3dvRoqTd9TgIitPgPUGjRlRyKUmeUV/VsJiUayMSuU+Rla5HNjfNOonJi2W
+         wCKqTQndJ+kYGQDSemrwvEIM/cKEkdiw0s6nS4lwkYbqUTI5LZGVT/81UDTwVJIVh4d9
+         kbm3LjXXkTFTBY2uovQkbgcf1HaiTyn9mPHPwXIo6AlPQl+Td0mIvm7Fp5XVNzr4eOpa
+         vuNAJor8W/rLa2GasXMyAPftbCUZV53YXMr8TzApK5HNpjWvWZGCM0HtmyozQa4BSF3c
+         Czag==
+X-Forwarded-Encrypted: i=1; AJvYcCUjCcVYwG6SYVy+yH4Byl83aTv2UNboBaJ5e5YsII0M6XgW1bK8F71bBW2Kuww2RW7+Ysu1C/OrrKD9DZUDA+yL+1XloODdrY+jgc0sX6o=
+X-Gm-Message-State: AOJu0YxKcoamVcUHe2zeKXVqFsVhTqy7F3BFIZ8xSZyWlLRa9mJzKoVq
+	vjWNWW6du86gkAGExS8wyQxk+heSaSw1giaRBQ60+1gXIS0ivA1y
+X-Google-Smtp-Source: AGHT+IH8Rc/y4Ihr2A346pTfATwDYMHDYG0p+qLnc9wkbwEVdKnVQuewL9jhIZiURjOP/SLnA9ri+w==
+X-Received: by 2002:a05:620a:40cc:b0:78d:36e0:2b5b with SMTP id g12-20020a05620a40cc00b0078d36e02b5bmr4335137qko.68.1713466101519;
+        Thu, 18 Apr 2024 11:48:21 -0700 (PDT)
+Received: from localhost (24-122-67-147.resi.cgocable.ca. [24.122.67.147])
+        by smtp.gmail.com with ESMTPSA id o20-20020a05620a22d400b0078d61f145desm881261qki.13.2024.04.18.11.48.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 18 Apr 2024 11:48:21 -0700 (PDT)
+Date: Thu, 18 Apr 2024 14:48:20 -0400
+From: Benjamin Poirier <benjamin.poirier@gmail.com>
 To: Jiri Pirko <jiri@resnulli.us>
-CC: <netdev@vger.kernel.org>, <kuba@kernel.org>, <pabeni@redhat.com>,
-	<davem@davemloft.net>, <edumazet@google.com>, <parav@nvidia.com>,
-	<mst@redhat.com>, <jasowang@redhat.com>, <xuanzhuo@linux.alibaba.com>,
-	<shuah@kernel.org>, <petrm@nvidia.com>, <liuhangbin@gmail.com>,
-	<vladimir.oltean@nxp.com>, <bpoirier@nvidia.com>, <idosch@nvidia.com>,
-	<virtualization@lists.linux.dev>
-Subject: Re: [patch net-next v4 6/6] selftests: virtio_net: add initial tests
-Date: Thu, 18 Apr 2024 19:01:08 +0200
-In-Reply-To: <20240418160830.3751846-7-jiri@resnulli.us>
-Message-ID: <878r1abo52.fsf@nvidia.com>
+Cc: netdev@vger.kernel.org, kuba@kernel.org, pabeni@redhat.com,
+	davem@davemloft.net, edumazet@google.com, parav@nvidia.com,
+	mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+	shuah@kernel.org, petrm@nvidia.com, liuhangbin@gmail.com,
+	vladimir.oltean@nxp.com, idosch@nvidia.com,
+	virtualization@lists.linux.dev
+Subject: Re: [patch net-next v4 2/6] selftests: forwarding: move initial root
+ check to the beginning
+Message-ID: <ZiFq9EmbGZ3psdho@f4>
+References: <20240418160830.3751846-1-jiri@resnulli.us>
+ <20240418160830.3751846-3-jiri@resnulli.us>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-ClientProxiedBy: rnnvmail202.nvidia.com (10.129.68.7) To
- rnnvmail201.nvidia.com (10.129.68.8)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BL02EPF0001A102:EE_|LV8PR12MB9182:EE_
-X-MS-Office365-Filtering-Correlation-Id: 99d87672-5d99-4af8-4d50-08dc5fc96073
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info:
-	xwZjvE6w5MxwQY7/Y86GqJL8e9NDLACEjJ8bR1hAXR4GJmSZncelVh3RfS/RRnmrPNpxDrTwtICT/LQ0MpbLb94RfRp4+Y4Zai9ttHnDudfnmCNSIB524QGIC/zYI9EPibEDleF3NTTaKuyYtTy9+0BJArGn1J2Eq+IYK9+U87p6mC7endrqDUC1FqzOy1lWBKyGcBwE1ReFv6c6blzAel8h185SBaXGQhEhBrA1bSh3sZZEr+Xdg8cd3Qtn5w8XrU5p/DUPYqGR4dwb0DKLkTf6n1OB2l87x6THG2u3eVOTN3HCO0YLKlgpXlAMIWWW8MdHzFS7N3mdHg8npftYpQ1svHz7dqokCG7e9V3fYmkhqgb46GmI97jQhJ3uWLLp8kmsVg8MV5uZPAvdE+mECOwLKyjNgkC3PLUStv4/FiZlTCuvkY1dEqkgc8UoYeF2enN5wSvFK76E/LrnjAVsETzPKY/Y2wjLQIEMFSy4amKMyKW/6YbJ6ZXlq4RdsPzmc3YyE9PMUxoPLTdAQcGkeTbInUa0DuC09wqmIsBCeAp9MefiVYawcp39Ha7Ss6Wy3QHDk7+EEmJZLrJZeZ4Nk/BOatodpSM9YFMShKC0k+BIh6DBUdhJ4Q/i+MOzjY9/bMiBs8N0t/jozSrKgu+f0TX6TLCSBVCi7ZPXdUE9H0mMSkUWsQuKh5mTbFMKwO1AUO0hHYjTkGBA0LOksAZcB4rRkCROOiWOhPZht1g8/d7BML1mZ+087j80JqX7zhYj
-X-Forefront-Antispam-Report:
-	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230031)(7416005)(36860700004)(376005)(82310400014)(1800799015);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Apr 2024 17:02:48.8970
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 99d87672-5d99-4af8-4d50-08dc5fc96073
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	BL02EPF0001A102.namprd05.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV8PR12MB9182
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240418160830.3751846-3-jiri@resnulli.us>
 
-
-Jiri Pirko <jiri@resnulli.us> writes:
-
+On 2024-04-18 18:08 +0200, Jiri Pirko wrote:
 > From: Jiri Pirko <jiri@nvidia.com>
->
-> Introduce initial tests for virtio_net driver. Focus on feature testing
-> leveraging previously introduced debugfs feature filtering
-> infrastructure. Add very basic ping and F_MAC feature tests.
->
-> To run this, do:
-> $ make -C tools/testing/selftests/ TARGETS=drivers/net/virtio_net/ run_tests
->
-> Run it on a system with 2 virtio_net devices connected back-to-back
-> on the hypervisor.
->
+> 
+> This check can be done at the very beginning of the script.
+> As the follow up patch needs to add early code that needs to be executed
+> after the check, move it.
+> 
 > Signed-off-by: Jiri Pirko <jiri@nvidia.com>
+> ---
+> v3->v4:
+> - removed NUM_NETIFS mode, rephrased the patch subject and description
+>   accordingly
+> ---
+>  tools/testing/selftests/net/forwarding/lib.sh | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
+> 
+> diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
+> index 7913c6ee418d..b63a5866ce97 100644
+> --- a/tools/testing/selftests/net/forwarding/lib.sh
+> +++ b/tools/testing/selftests/net/forwarding/lib.sh
+> @@ -84,6 +84,11 @@ declare -A NETIFS=(
+>  # e.g. a low-power board.
+>  : "${KSFT_MACHINE_SLOW:=no}"
+>  
+> +if [[ "$(id -u)" -ne 0 ]]; then
+> +	echo "SKIP: need root privileges"
+> +	exit $ksft_skip
+> +fi
+> +
 
-Reviewed-by: Petr Machata <petrm@nvidia.com>
+There's a small problem here. ksft_skip is defined in net/lib.sh which
+hasn't yet been imported at this point.
+
+Also, on my system at least, the code in the next patch can run
+successfully as an unprivileged user. So what is this patch needed for
+exactly?
