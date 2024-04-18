@@ -1,57 +1,57 @@
-Received: from mail-lf1-f53.google.com (mail-lf1-f53.google.com [209.85.167.53])
+Received: from mail-lf1-f41.google.com (mail-lf1-f41.google.com [209.85.167.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C168316F855
-	for <virtualization@lists.linux.dev>; Thu, 18 Apr 2024 16:08:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57C1716F8E5
+	for <virtualization@lists.linux.dev>; Thu, 18 Apr 2024 16:09:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713456539; cv=none; b=DvebRQaPDmEmpiRIivptu+IX3eI41/g4J325LetfPBx0s0l6yS/R72r1L/N4Rle+UKIPdibK3Yj6aXJ/KctS2leimSRvWW/DGpiMWs/tcdRsPnb8zG0pyuh8KtvdOP5crSKnXKy/qzakz4S7AtBZdaQV9ldF604chHT0R50t9Nc=
+	t=1713456545; cv=none; b=LV2EzAw4ZRw26iGzIEF/qYYgpK0Ith/sLRuamem+9+TjeYLn0/JHjxF/XowL6id97c5TwWU26cRCj7tJMZB7rQlfVZOs/ppGmNZHzNDX0B1MAKuk7XoVtPVSEmOXjSpUtba0M0tsemLeb6M44qoFUtTv/kVHuu2KCDV096D/s/o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713456539; c=relaxed/simple;
-	bh=b0IPPzC2gZPsxNRT1JsNB/IxxUT5lL5pQHIYy4fkYB8=;
+	s=arc-20240116; t=1713456545; c=relaxed/simple;
+	bh=iaWNrh24nqZc9pYnieoq726QZmpfdpBdYZQKiS7PUr0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=KsiEOyXsQXjtXApGpmrJBV3ikZEknQ1Dq7FP51N42eYRWWPZnF5wPUP+9wFBi2A/p9NiXhdusK0cQwG79Brg9AIOAt8LpnTS9NaPkyhZwek8TPl2veLCoiXckW4D9eWdDcrv13D+aOsVMT5+2dEQFm09iOTVc8jwRyH78D8nFvk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=fda1zuo+; arc=none smtp.client-ip=209.85.167.53
+	 MIME-Version; b=QADAu+zxC7XY2Iq5VfZOPyJ/2sMXfIqV2N4DqyhDt5Ymq2clTHfT3Sc4JfI24mBjUarH/KPWeRRPlUMvYIrGmO3e447JfTeXKRrbf3wewq+j33MYPOqB+KvJHH5FoDc29y7Hp7hBVUHLf5t+E4dHiDE2jIarYdpfx+h8664gOso=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=tPcJ/ZP1; arc=none smtp.client-ip=209.85.167.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="fda1zuo+"
-Received: by mail-lf1-f53.google.com with SMTP id 2adb3069b0e04-5194cebd6caso1276170e87.0
-        for <virtualization@lists.linux.dev>; Thu, 18 Apr 2024 09:08:57 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="tPcJ/ZP1"
+Received: by mail-lf1-f41.google.com with SMTP id 2adb3069b0e04-5196c755e82so1325056e87.0
+        for <virtualization@lists.linux.dev>; Thu, 18 Apr 2024 09:09:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1713456536; x=1714061336; darn=lists.linux.dev;
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1713456540; x=1714061340; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=4iDht4R3VqRW+yPNRz+ghqd2WBxn7y+zWhn1SiVJ1ZI=;
-        b=fda1zuo+JuKVLKQAjpfp7tgjsOARhP6oM81rsWSpAO1bOspBrG3wJaoSjDCVl+Gqsk
-         UPHMgehsZkC7PziKBQSBHxv8k8s1HyapQ+9qik95LNrKG8iLL8ECbTi8+CWRozo9m7BN
-         3F7CROmDA6o97DhRN/CzNKoWmdpYeFa4Aajyan2q/j6MLa3wJmS/hL+LiC99clJ9Cii6
-         b0VKDsY/jON7llASNLJ/SARfd5OC0kUMtdk98MWEFhxpVfMehzmUyZRH9EV5nOTZztC4
-         ZX4UCypwtaFQeNjlEgH8o9MWOSdy9bM63omy/E8NTdNDn6T3aF+WoYGAelxYFYQILZrv
-         xKSg==
+        bh=GbQQKTOc2Dd2SDG5X0E70w6+TkbO55QMG305rwdw+l8=;
+        b=tPcJ/ZP1ruJ1oy5f8hqR/pDL8wZnWZZc0GOSk5We5rjwBZR/BI8wrzwqef8af0n7Ik
+         z1NIy51og3AGZ7r7jXlXxL8in1N6jHeLj0vTYYo6rFeVhNl7UBknELpenMJGQQtro9tk
+         dNR4g+pc98KpgsnGmUL57kT9XHQISdLhYmvVmwouVEOqJHZKVkO8ugfM7RsLmWal051U
+         G0FCatCjjZuMjMyTwgtyMnP/q7ww3cz+GbuN4bZpMIlsgMFwTy9G7vCIsMReUCB7gTWr
+         WK2Lak+t+HxKewybhdZaKKCOXN+U/s0aDZ5IqnP5zR7HsapXPUN3NdAwoxcrM/rMZuip
+         eLsg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713456536; x=1714061336;
+        d=1e100.net; s=20230601; t=1713456540; x=1714061340;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=4iDht4R3VqRW+yPNRz+ghqd2WBxn7y+zWhn1SiVJ1ZI=;
-        b=H2D8MpEhhrzvVh+nc7X8q/Sre8x19HqiMYJYt9PVJ4jO2UzoYB/W1//MYkQfQqWet4
-         qud3nFVQuF5cL5lZ0rkE1NzV5p3rfw9rlBnGwsUeeutUIS3/ed1m2W0u7gyXQNKtNRA7
-         RhJW/lKTundcwr6C59GuDkLR8qS9ueWZcXSy3C+UAslT5fmn+X4t8HDYsIJjpuUeWYiK
-         LQ19Bgw3uxSQsZADUsjnMm8nTLrJKsvKyK8V3YnlOtb50q5RlXiblUR9D1cqwTBoW/37
-         dtLCNEZxHgP57dilJWft+b/XQ5cGS6w2hTTe38Lof8ZfA/YIrMQsJ4zd+gaS7YPEspGC
-         o4kg==
-X-Forwarded-Encrypted: i=1; AJvYcCVrASjUbIDoVtuHByRwoHxK7uImfdqsUq2Ai7vSAfle6Zwtm3ghRq9LvIywexqix2DGkRoupalIjFzDE/UB5qRVaBCJci24h/r/18wiKQQ=
-X-Gm-Message-State: AOJu0YwfUwAKo3pivzMkHM9vrcSMNTIybLSI8I+ggDetC/w+PjjzMnKO
-	OUOAIPAKILu69hQPxgnatlWyTBb1GlVongZQyk2rz6Seui5/2+DN0xFj0GR9Z44=
-X-Google-Smtp-Source: AGHT+IHN1LuBKkkhmIVKUWQfuW1mI3eS+gdV3HtAN4KpyOxEft8HB8VKerh5b0bPC/3GBlEH8c1Y+A==
-X-Received: by 2002:a19:7707:0:b0:518:d079:ffd9 with SMTP id s7-20020a197707000000b00518d079ffd9mr1878748lfc.13.1713456535870;
-        Thu, 18 Apr 2024 09:08:55 -0700 (PDT)
+        bh=GbQQKTOc2Dd2SDG5X0E70w6+TkbO55QMG305rwdw+l8=;
+        b=vlynH/FWO1PD0HBh9Ja3FRWImeLBiYDC05Hr0XNGdUxfns1tfYVIWea8NnBAs5KLkQ
+         fukItUBYrUw9mSb+netqL1HC3UZrNc20zJ6ZZ1dHGLc/FcS1eDpOVQOhXxlowUtLBKSo
+         /lXYW8+O+UcW8bUxooWHHjUZamneqEupIOMUvcrCj2jHTeZecrBJpuFyzQqd9cG3MT5P
+         SS2QqjTAee3uRdv7T3KN2341Vl5+SQCfEU5f0VBnwvx/fS2loSYK6yPd8gb13ynqeALR
+         ukMV37kHBGCTeVdrA73mG493bSlR50TN5L9ltLncflVSHX0apYr5nn/MF1RYlCf1fjQM
+         N1Lg==
+X-Forwarded-Encrypted: i=1; AJvYcCXa7PzMdhxiNNHQQzLtlctXLR16jpEt7PUQ37StiU1yKECM0TuKGWXJ6SpDVKjtZ3JSK7DO9pX2S3zFhA8cpIOii+OXighlRy3Sj29dSbY=
+X-Gm-Message-State: AOJu0YzOI/BRz+Fferu/pfP9uvXg9QnBh1YvOYSH48Pf3AQ2B3IGJ1go
+	T0Q+qLN5446q/QlBNtXtmPHr2U7UiqWTYUIqwW2HfQvvhBYG0k6GY+0whAXc554=
+X-Google-Smtp-Source: AGHT+IE/ovW0YoLY3D/J75a2QLXFTJHxiE2QBsrQR4xSiTMiCJxc/V0hJE9FGCT986Ggjq6We2/9mQ==
+X-Received: by 2002:a19:7516:0:b0:516:d219:3779 with SMTP id y22-20020a197516000000b00516d2193779mr1881237lfe.58.1713456540345;
+        Thu, 18 Apr 2024 09:09:00 -0700 (PDT)
 Received: from localhost ([193.47.165.251])
-        by smtp.gmail.com with ESMTPSA id l20-20020a170906795400b00a466af74ef2sm1077572ejo.2.2024.04.18.09.08.54
+        by smtp.gmail.com with ESMTPSA id ek5-20020a056402370500b005701eb9441fsm1044816edb.75.2024.04.18.09.08.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Apr 2024 09:08:55 -0700 (PDT)
+        Thu, 18 Apr 2024 09:08:59 -0700 (PDT)
 From: Jiri Pirko <jiri@resnulli.us>
 To: netdev@vger.kernel.org
 Cc: kuba@kernel.org,
@@ -69,9 +69,9 @@ Cc: kuba@kernel.org,
 	bpoirier@nvidia.com,
 	idosch@nvidia.com,
 	virtualization@lists.linux.dev
-Subject: [patch net-next v4 5/6] selftests: forwarding: add wait_for_dev() helper
-Date: Thu, 18 Apr 2024 18:08:29 +0200
-Message-ID: <20240418160830.3751846-6-jiri@resnulli.us>
+Subject: [patch net-next v4 6/6] selftests: virtio_net: add initial tests
+Date: Thu, 18 Apr 2024 18:08:30 +0200
+Message-ID: <20240418160830.3751846-7-jiri@resnulli.us>
 X-Mailer: git-send-email 2.44.0
 In-Reply-To: <20240418160830.3751846-1-jiri@resnulli.us>
 References: <20240418160830.3751846-1-jiri@resnulli.us>
@@ -85,44 +85,334 @@ Content-Transfer-Encoding: 8bit
 
 From: Jiri Pirko <jiri@nvidia.com>
 
-The existing setup_wait*() helper family check the status of the
-interface to be up. Introduce wait_for_dev() to wait for the netdevice
-to appear, for example after test script does manual device bind.
+Introduce initial tests for virtio_net driver. Focus on feature testing
+leveraging previously introduced debugfs feature filtering
+infrastructure. Add very basic ping and F_MAC feature tests.
+
+To run this, do:
+$ make -C tools/testing/selftests/ TARGETS=drivers/net/virtio_net/ run_tests
+
+Run it on a system with 2 virtio_net devices connected back-to-back
+on the hypervisor.
 
 Signed-off-by: Jiri Pirko <jiri@nvidia.com>
 ---
 v3->v4:
-- removed "up" from ip link command line
+- s/cleanup/setup_cleanup/
+- moved pre_cleanup call to cleanup() to be called only once on exit
 v1->v2:
-- reworked wait_for_dev() helper to use slowwait() helper
+- added TEST_FILES and TEST_INCLUDES in the Makefile
+- fixed directory name in selftests/Makefile
+- added MAINTAINERS entry
+- added config file with kernel config options
 ---
- tools/testing/selftests/net/forwarding/lib.sh | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ MAINTAINERS                                   |   1 +
+ tools/testing/selftests/Makefile              |   1 +
+ .../selftests/drivers/net/virtio_net/Makefile |  15 ++
+ .../drivers/net/virtio_net/basic_features.sh  | 131 ++++++++++++++++++
+ .../selftests/drivers/net/virtio_net/config   |   2 +
+ .../net/virtio_net/virtio_net_common.sh       |  99 +++++++++++++
+ 6 files changed, 249 insertions(+)
+ create mode 100644 tools/testing/selftests/drivers/net/virtio_net/Makefile
+ create mode 100755 tools/testing/selftests/drivers/net/virtio_net/basic_features.sh
+ create mode 100644 tools/testing/selftests/drivers/net/virtio_net/config
+ create mode 100644 tools/testing/selftests/drivers/net/virtio_net/virtio_net_common.sh
 
-diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
-index 17f8b6b9ab9f..e81507686870 100644
---- a/tools/testing/selftests/net/forwarding/lib.sh
-+++ b/tools/testing/selftests/net/forwarding/lib.sh
-@@ -738,6 +738,19 @@ setup_wait()
- 	sleep $WAIT_TIME
- }
+diff --git a/MAINTAINERS b/MAINTAINERS
+index f22698a7859f..5655fc89f3e5 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -23450,6 +23450,7 @@ F:	include/linux/virtio*.h
+ F:	include/linux/vringh.h
+ F:	include/uapi/linux/virtio_*.h
+ F:	tools/virtio/
++F:	tools/testing/selftests/drivers/net/virtio_net/
  
-+wait_for_dev()
-+{
-+        local dev=$1; shift
-+        local timeout=${1:-$WAIT_TIMEOUT}; shift
+ VIRTIO CRYPTO DRIVER
+ M:	Gonglei <arei.gonglei@huawei.com>
+diff --git a/tools/testing/selftests/Makefile b/tools/testing/selftests/Makefile
+index c785b6256a45..2c940e9c4ced 100644
+--- a/tools/testing/selftests/Makefile
++++ b/tools/testing/selftests/Makefile
+@@ -20,6 +20,7 @@ TARGETS += drivers/s390x/uvdevice
+ TARGETS += drivers/net
+ TARGETS += drivers/net/bonding
+ TARGETS += drivers/net/team
++TARGETS += drivers/net/virtio_net
+ TARGETS += dt
+ TARGETS += efivarfs
+ TARGETS += exec
+diff --git a/tools/testing/selftests/drivers/net/virtio_net/Makefile b/tools/testing/selftests/drivers/net/virtio_net/Makefile
+new file mode 100644
+index 000000000000..7ec7cd3ab2cc
+--- /dev/null
++++ b/tools/testing/selftests/drivers/net/virtio_net/Makefile
+@@ -0,0 +1,15 @@
++# SPDX-License-Identifier: GPL-2.0+ OR MIT
 +
-+        slowwait $timeout ip link show dev $dev &> /dev/null
-+        if (( $? )); then
-+                check_err 1
-+                log_test wait_for_dev "Interface $dev did not appear."
-+                exit $EXIT_STATUS
-+        fi
++TEST_PROGS = basic_features.sh \
++        #
++
++TEST_FILES = \
++        virtio_net_common.sh \
++        #
++
++TEST_INCLUDES = \
++        ../../../net/forwarding/lib.sh \
++        ../../../net/lib.sh \
++        #
++
++include ../../../lib.mk
+diff --git a/tools/testing/selftests/drivers/net/virtio_net/basic_features.sh b/tools/testing/selftests/drivers/net/virtio_net/basic_features.sh
+new file mode 100755
+index 000000000000..cf8cf816ed48
+--- /dev/null
++++ b/tools/testing/selftests/drivers/net/virtio_net/basic_features.sh
+@@ -0,0 +1,131 @@
++#!/bin/bash
++# SPDX-License-Identifier: GPL-2.0
++
++# See virtio_net_common.sh comments for more details about assumed setup
++
++ALL_TESTS="
++	initial_ping_test
++	f_mac_test
++"
++
++source virtio_net_common.sh
++
++lib_dir=$(dirname "$0")
++source "$lib_dir"/../../../net/forwarding/lib.sh
++
++h1=${NETIFS[p1]}
++h2=${NETIFS[p2]}
++
++h1_create()
++{
++	simple_if_init $h1 $H1_IPV4/24 $H1_IPV6/64
 +}
 +
- cmd_jq()
- {
- 	local cmd=$1
++h1_destroy()
++{
++	simple_if_fini $h1 $H1_IPV4/24 $H1_IPV6/64
++}
++
++h2_create()
++{
++	simple_if_init $h2 $H2_IPV4/24 $H2_IPV6/64
++}
++
++h2_destroy()
++{
++	simple_if_fini $h2 $H2_IPV4/24 $H2_IPV6/64
++}
++
++initial_ping_test()
++{
++	setup_cleanup
++	setup_prepare
++	ping_test $h1 $H2_IPV4 " simple"
++}
++
++f_mac_test()
++{
++	RET=0
++	local test_name="mac feature filtered"
++
++	virtio_feature_present $h1 $VIRTIO_NET_F_MAC
++	if [ $? -ne 0 ]; then
++		log_test_skip "$test_name" "Device $h1 is missing feature $VIRTIO_NET_F_MAC."
++		return 0
++	fi
++	virtio_feature_present $h1 $VIRTIO_NET_F_MAC
++	if [ $? -ne 0 ]; then
++		log_test_skip "$test_name" "Device $h2 is missing feature $VIRTIO_NET_F_MAC."
++		return 0
++	fi
++
++	setup_cleanup
++	setup_prepare
++
++	grep -q 0 /sys/class/net/$h1/addr_assign_type
++	check_err $? "Permanent address assign type for $h1 is not set"
++	grep -q 0 /sys/class/net/$h2/addr_assign_type
++	check_err $? "Permanent address assign type for $h2 is not set"
++
++	setup_cleanup
++	virtio_filter_feature_add $h1 $VIRTIO_NET_F_MAC
++	virtio_filter_feature_add $h2 $VIRTIO_NET_F_MAC
++	setup_prepare
++
++	grep -q 0 /sys/class/net/$h1/addr_assign_type
++	check_fail $? "Permanent address assign type for $h1 is set when F_MAC feature is filtered"
++	grep -q 0 /sys/class/net/$h2/addr_assign_type
++	check_fail $? "Permanent address assign type for $h2 is set when F_MAC feature is filtered"
++
++	ping_do $h1 $H2_IPV4
++	check_err $? "Ping failed"
++
++	log_test "$test_name"
++}
++
++setup_prepare()
++{
++	virtio_device_rebind $h1
++	virtio_device_rebind $h2
++	wait_for_dev $h1
++	wait_for_dev $h2
++
++	vrf_prepare
++
++	h1_create
++	h2_create
++}
++
++setup_cleanup()
++{
++	h2_destroy
++	h1_destroy
++
++	vrf_cleanup
++
++	virtio_filter_features_clear $h1
++	virtio_filter_features_clear $h2
++	virtio_device_rebind $h1
++	virtio_device_rebind $h2
++	wait_for_dev $h1
++	wait_for_dev $h2
++}
++
++cleanup()
++{
++	pre_cleanup
++	setup_cleanup
++}
++
++check_driver $h1 "virtio_net"
++check_driver $h2 "virtio_net"
++check_virtio_debugfs $h1
++check_virtio_debugfs $h2
++
++trap cleanup EXIT
++
++setup_prepare
++
++tests_run
++
++exit "$EXIT_STATUS"
+diff --git a/tools/testing/selftests/drivers/net/virtio_net/config b/tools/testing/selftests/drivers/net/virtio_net/config
+new file mode 100644
+index 000000000000..f35de0542b60
+--- /dev/null
++++ b/tools/testing/selftests/drivers/net/virtio_net/config
+@@ -0,0 +1,2 @@
++CONFIG_VIRTIO_NET=y
++CONFIG_VIRTIO_DEBUG=y
+diff --git a/tools/testing/selftests/drivers/net/virtio_net/virtio_net_common.sh b/tools/testing/selftests/drivers/net/virtio_net/virtio_net_common.sh
+new file mode 100644
+index 000000000000..57bd8055e2e5
+--- /dev/null
++++ b/tools/testing/selftests/drivers/net/virtio_net/virtio_net_common.sh
+@@ -0,0 +1,99 @@
++#!/bin/bash
++# SPDX-License-Identifier: GPL-2.0
++
++# This assumes running on a host with two virtio interfaces connected
++# back to back. Example script to do such wire-up of tap devices would
++# look like this:
++#
++# =======================================================================================================
++# #!/bin/bash
++#
++# DEV1="$1"
++# DEV2="$2"
++#
++# sudo tc qdisc add dev $DEV1 clsact
++# sudo tc qdisc add dev $DEV2 clsact
++# sudo tc filter add dev $DEV1 ingress protocol all pref 1 matchall action mirred egress redirect dev $DEV2
++# sudo tc filter add dev $DEV2 ingress protocol all pref 1 matchall action mirred egress redirect dev $DEV1
++# sudo ip link set $DEV1 up
++# sudo ip link set $DEV2 up
++# =======================================================================================================
++
++REQUIRE_MZ="no"
++NETIF_CREATE="no"
++NETIF_FIND_DRIVER="virtio_net"
++NUM_NETIFS=2
++
++H1_IPV4="192.0.2.1"
++H2_IPV4="192.0.2.2"
++H1_IPV6="2001:db8:1::1"
++H2_IPV6="2001:db8:1::2"
++
++VIRTIO_NET_F_MAC=5
++
++virtio_device_get()
++{
++	local dev=$1; shift
++	local device_path="/sys/class/net/$dev/device/"
++
++	basename `realpath $device_path`
++}
++
++virtio_device_rebind()
++{
++	local dev=$1; shift
++	local device=`virtio_device_get $dev`
++
++	echo "$device" > /sys/bus/virtio/drivers/virtio_net/unbind
++	echo "$device" > /sys/bus/virtio/drivers/virtio_net/bind
++}
++
++virtio_debugfs_get()
++{
++	local dev=$1; shift
++	local device=`virtio_device_get $dev`
++
++	echo /sys/kernel/debug/virtio/$device/
++}
++
++check_virtio_debugfs()
++{
++	local dev=$1; shift
++	local debugfs=`virtio_debugfs_get $dev`
++
++	if [ ! -f "$debugfs/device_features" ] ||
++	   [ ! -f "$debugfs/filter_feature_add"  ] ||
++	   [ ! -f "$debugfs/filter_feature_del"  ] ||
++	   [ ! -f "$debugfs/filter_features"  ] ||
++	   [ ! -f "$debugfs/filter_features_clear"  ]; then
++		echo "SKIP: not possible to access debugfs for $dev"
++		exit $ksft_skip
++	fi
++}
++
++virtio_feature_present()
++{
++	local dev=$1; shift
++	local feature=$1; shift
++	local debugfs=`virtio_debugfs_get $dev`
++
++	cat $debugfs/device_features |grep "^$feature$" &> /dev/null
++	return $?
++}
++
++virtio_filter_features_clear()
++{
++	local dev=$1; shift
++	local debugfs=`virtio_debugfs_get $dev`
++
++	echo "1" > $debugfs/filter_features_clear
++}
++
++virtio_filter_feature_add()
++{
++	local dev=$1; shift
++	local feature=$1; shift
++	local debugfs=`virtio_debugfs_get $dev`
++
++	echo "$feature" > $debugfs/filter_feature_add
++}
 -- 
 2.44.0
 
