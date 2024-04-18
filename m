@@ -1,119 +1,79 @@
-Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com [209.85.208.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19A9015FA61
-	for <virtualization@lists.linux.dev>; Thu, 18 Apr 2024 12:00:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AE0615FA73;
+	Thu, 18 Apr 2024 12:00:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713441622; cv=none; b=Hbh+RYCilC7FKte6siRcdu/sx0jrk45w1eN0X921VO/cMvzKt8Y5Nb5RP5Vu4wuzdlU+llhNsa+/JUTYlOJmssXqd35FoVPhy6VLWtFqKx+CEG3O4nKAw+n5oKl5n/cyC9OoXNZQ+KT4qfKkYT+EERV4h2bjXByse6rLemQ7RsY=
+	t=1713441627; cv=none; b=L3hDqzDSTjFkTc03J0PUBLtJ/GcPwhUoHgq/4rXsb93QOOuNAuUsl45JWLLj5EerF0z016yhOYs+b2ju6RW0RJYkHs4mWVrleC5bL9LvjPz8wiIg+0GIBcFR4xEocvP8+S7ucJA3S9abPGI3J9NtBQUKpgL9NXii0a6tHAEbnik=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713441622; c=relaxed/simple;
-	bh=a7rhft9+f6E6CZaHtNcPSvmrUhAZnSV0d1mIll7g2Y4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kssg80XoW6uI2ZYACchtHHNKHFMpsrX3E6dNo5RN4KPi1MSh4bdvLCsuyODf5iCexXwrm2nrKVVFOfbm0sGDo8yGRf8AxkWbcw983ub4NCfJV/r1UR+PKQBjk5sLfjwN9lQty6engU5MWJUQwcJOffEI1HPF00SPukGUPhHEmL0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=JS94/vU6; arc=none smtp.client-ip=209.85.208.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+	s=arc-20240116; t=1713441627; c=relaxed/simple;
+	bh=rPo9TthMK0P4N7lbHMc8ZTypT0fcxu/5EakHFagFdPw=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=KMHv/Wfkv8Cs1Wv8xdBWc/3rgPr7qgjDBBJ33ebXXjaARBIWWuV7DtU9u9XbB8wKGeCyezsi95xN3IEmSXDz0Gp9zumNIZmiTbIfpu6brofxBZOxPSydVH117UDLFiyZuOT5swi4dornUPDn6E68ftqRTdedKVHcFF+3YXWG4k0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SsE8oFd8; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="JS94/vU6"
-Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-571c25a329eso289166a12.0
-        for <virtualization@lists.linux.dev>; Thu, 18 Apr 2024 05:00:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1713441612; x=1714046412; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=lwUqdIuY+eDu/EcFyYGUaTkLl+Kne1AA8UMhkE5/9Sw=;
-        b=JS94/vU63hLBePiRuGV6dDRVOSTgKsZtT+TvU81o4mJNsLPCXnCrzBZRemV+yi4s2b
-         CPLXRTaKxg2bEeJsNg5sTm7t+NzC+VgLWVWeDfwfn3UgnoPW7u6+pN+TYGvqEBNlj0PM
-         EST237ZS0dZC7K9i0V952KXuoLGaZJvoG+F4MKlDIfGVLiaMnQ0MQp/VD0pyBA5KIwQ+
-         +nWVtx1ppo20BLonBNL+er7fhajlmAA6njpWYEH7BmLA+mwXFQpgi4V8qlqQ8HYb+7Q4
-         SBT/s9Zgne8x877eRily1Dfke4NjllAiqOoXu1clIVdeAyDD0EFseZfPGBFJx+0B+jJz
-         j9ug==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713441612; x=1714046412;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=lwUqdIuY+eDu/EcFyYGUaTkLl+Kne1AA8UMhkE5/9Sw=;
-        b=UMcV23jHR3EPYsiMWAF6UfQEX7y5tDQwMQsyfo1bFWIPNS6R+UBdUNaA7H4e8nEICe
-         Rg+XqsSRQJsJx1uklz+oPAOO/KCOvfAaXAE1zSQG+iIClXnkrwssSJyttTBdDQQCFl63
-         Eve+J+UUl47+dcRQkQNumJwoPtJJFAW3nz8XHw//O+8kAHkoWFNbX9Of4/e0ZCAqJ908
-         eWsLtA2ZIuINAyMAFPCSHG/cHZ5ZLrsss2z8kmluVCPvNUjucrqoQNi+OqoxwmK6jV+f
-         RRQDi+LdmzQHir0RhdIpDfzB5SIsO+yfrbNWT4ARrso57NYSo3HU6/YzMUCqbWJIISiv
-         u2dw==
-X-Forwarded-Encrypted: i=1; AJvYcCWtK7TFmqNUqQE9q+Z4YksQzTnaq00RFo9CBGPDyYK4VySNljcx+ZP3Ty7Syguz2L075RCMnsE9CPqjuYw2jsRfRh9K+KOmTg6KlMRyKb0=
-X-Gm-Message-State: AOJu0YyrInt1e4J2htvTurmV56KtqWYuZ1q+xBawkqBEWRhpzu4p1eLx
-	/DHAvapIIq82eaE0+VhScCk5IM/UhuXBLfjxStco8eu5wTy+uhrPSfXomEb6JYY=
-X-Google-Smtp-Source: AGHT+IGthP8iEGCeNaOf9TDh2tPZaTJPryMHFc//F72pGlW0keYCltfl498SG97CDYoIpJt8o9hsjQ==
-X-Received: by 2002:a50:fa85:0:b0:571:b9c7:2541 with SMTP id w5-20020a50fa85000000b00571b9c72541mr1532066edr.11.1713441611778;
-        Thu, 18 Apr 2024 05:00:11 -0700 (PDT)
-Received: from localhost (78-80-105-131.customers.tmcz.cz. [78.80.105.131])
-        by smtp.gmail.com with ESMTPSA id q29-20020a50cc9d000000b0056ff4faa0b9sm821264edi.6.2024.04.18.05.00.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Apr 2024 05:00:11 -0700 (PDT)
-Date: Thu, 18 Apr 2024 14:00:09 +0200
-From: Jiri Pirko <jiri@resnulli.us>
-To: Petr Machata <petrm@nvidia.com>
-Cc: netdev@vger.kernel.org, kuba@kernel.org, pabeni@redhat.com,
-	davem@davemloft.net, edumazet@google.com, parav@nvidia.com,
-	mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
-	shuah@kernel.org, liuhangbin@gmail.com, vladimir.oltean@nxp.com,
-	bpoirier@nvidia.com, idosch@nvidia.com,
-	virtualization@lists.linux.dev
-Subject: Re: [patch net-next v3 6/6] selftests: virtio_net: add initial tests
-Message-ID: <ZiELSaMVEuYJmeaB@nanopsycho>
-References: <20240417164554.3651321-1-jiri@resnulli.us>
- <20240417164554.3651321-7-jiri@resnulli.us>
- <87ttjzawhd.fsf@nvidia.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SsE8oFd8"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 98EC7C3277B;
+	Thu, 18 Apr 2024 12:00:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1713441626;
+	bh=rPo9TthMK0P4N7lbHMc8ZTypT0fcxu/5EakHFagFdPw=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=SsE8oFd838ll1K02ZjVTbqrQJOkzGmjzz06UHcj2iPQUd4gA7FMHMk6VUKJPuiSxM
+	 kIhur93C12Kl/w3VWURjhSkahh/MRNb/dv/86fDtc7dzNptizPL5L0YjZS1BVDQTiA
+	 90O0UWENFnBlzIUVmAHmjLjqH6WtQEmC5WUvR0rQ+b6LkpR8BtozpbjUHzJwpuPFrf
+	 oZy256On18Rk/dLKYys5F7xA727mNbF79QgiXj69YzLMSnU+zhHbrsJG9ur4Ei20O9
+	 zGR8H/E5SMR+ng/r4O3iMXnbKlkYxIdA7wAs5nO9FlT1CPnfLUHyUJ3nALkf0HA3p/
+	 bQw2jKgQ7Ll4g==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 80884C4361B;
+	Thu, 18 Apr 2024 12:00:26 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87ttjzawhd.fsf@nvidia.com>
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net-next v9] virtio_net: Support RX hash XDP hint
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <171344162652.14598.2419133299959560356.git-patchwork-notify@kernel.org>
+Date: Thu, 18 Apr 2024 12:00:26 +0000
+References: <20240417071822.27831-1-liangchen.linux@gmail.com>
+In-Reply-To: <20240417071822.27831-1-liangchen.linux@gmail.com>
+To: Liang Chen <liangchen.linux@gmail.com>
+Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+ hengqi@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, hawk@kernel.org,
+ john.fastabend@gmail.com, netdev@vger.kernel.org,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+ bpf@vger.kernel.org, daniel@iogearbox.net, ast@kernel.org
 
-Thu, Apr 18, 2024 at 10:39:49AM CEST, petrm@nvidia.com wrote:
->
->Jiri Pirko <jiri@resnulli.us> writes:
->
->> From: Jiri Pirko <jiri@nvidia.com>
->>
->> Introduce initial tests for virtio_net driver. Focus on feature testing
->> leveraging previously introduced debugfs feature filtering
->> infrastructure. Add very basic ping and F_MAC feature tests.
->>
->> To run this, do:
->> $ make -C tools/testing/selftests/ TARGETS=drivers/net/virtio_net/ run_tests
->>
->> Run it on a system with 2 virtio_net devices connected back-to-back
->> on the hypervisor.
->>
->> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
->
->> +h2_destroy()
->> +{
->> +	simple_if_fini $h2 $H2_IPV4/24 $H2_IPV6/64
->> +}
->> +
->> +initial_ping_test()
->> +{
->> +	cleanup
->
->All these cleanup() calls will end up possibly triggering
->PAUSE_ON_CLEANUP. Not sure that's intended.
+Hello:
 
-Okay, will change that.
+This patch was applied to netdev/net-next.git (main)
+by Paolo Abeni <pabeni@redhat.com>:
 
-Thanks!
+On Wed, 17 Apr 2024 15:18:22 +0800 you wrote:
+> The RSS hash report is a feature that's part of the virtio specification.
+> Currently, virtio backends like qemu, vdpa (mlx5), and potentially vhost
+> (still a work in progress as per [1]) support this feature. While the
+> capability to obtain the RSS hash has been enabled in the normal path,
+> it's currently missing in the XDP path. Therefore, we are introducing
+> XDP hints through kfuncs to allow XDP programs to access the RSS hash.
+> 
+> [...]
 
->
->> +	setup_prepare
->> +	ping_test $h1 $H2_IPV4 " simple"
->> +}
->
->Other than this nit, LGTM.
->
->Reviewed-by: Petr Machata <petrm@nvidia.com>
+Here is the summary with links:
+  - [net-next,v9] virtio_net: Support RX hash XDP hint
+    https://git.kernel.org/netdev/net-next/c/aa37f8916d20
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
