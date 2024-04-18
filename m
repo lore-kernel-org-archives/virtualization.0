@@ -1,418 +1,139 @@
-Received: from mail-lf1-f41.google.com (mail-lf1-f41.google.com [209.85.167.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57C1716F8E5
-	for <virtualization@lists.linux.dev>; Thu, 18 Apr 2024 16:09:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5858E23D7
+	for <virtualization@lists.linux.dev>; Thu, 18 Apr 2024 16:12:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.113
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713456545; cv=none; b=LV2EzAw4ZRw26iGzIEF/qYYgpK0Ith/sLRuamem+9+TjeYLn0/JHjxF/XowL6id97c5TwWU26cRCj7tJMZB7rQlfVZOs/ppGmNZHzNDX0B1MAKuk7XoVtPVSEmOXjSpUtba0M0tsemLeb6M44qoFUtTv/kVHuu2KCDV096D/s/o=
+	t=1713456772; cv=none; b=sfQZZC8DPO8vJ/QkRR6fxLGDq8W7b6x5+sJO3LCgKobL2Ukww63KSfcMQyzFf+bYsfJpWNCfj36xCaRl8th97xLN3KT1XQKSRGho/h9K5S0b0dpH4rZhWUAM/BBDz9M/PCGdzSS9eUWFZZD1KDE1QYaNkvbUvIotrUVZagMx1do=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713456545; c=relaxed/simple;
-	bh=iaWNrh24nqZc9pYnieoq726QZmpfdpBdYZQKiS7PUr0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=QADAu+zxC7XY2Iq5VfZOPyJ/2sMXfIqV2N4DqyhDt5Ymq2clTHfT3Sc4JfI24mBjUarH/KPWeRRPlUMvYIrGmO3e447JfTeXKRrbf3wewq+j33MYPOqB+KvJHH5FoDc29y7Hp7hBVUHLf5t+E4dHiDE2jIarYdpfx+h8664gOso=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=tPcJ/ZP1; arc=none smtp.client-ip=209.85.167.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+	s=arc-20240116; t=1713456772; c=relaxed/simple;
+	bh=DzP2+Rou1vBke4fg3Es7yZqkGcEs7wwaqusD7F504LI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=MToJzKkmsT0jPIQReTNbZBn/9O/CJL8v4j2F4z4Z8D1pIAIbcgBLA4Zy6h03/1ZF7KnaI2KY9pM+v/BQYwgLsm0Z9c/9USFIuBmY4txQ5yYSjloCz/DPgHS+I/AdO+QctBF0X8ydYl1FkkpLdQT5Xo28QPmRmlBTIW+FMhZY8G8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=nnf1K6FF; arc=none smtp.client-ip=115.124.30.113
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="tPcJ/ZP1"
-Received: by mail-lf1-f41.google.com with SMTP id 2adb3069b0e04-5196c755e82so1325056e87.0
-        for <virtualization@lists.linux.dev>; Thu, 18 Apr 2024 09:09:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1713456540; x=1714061340; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=GbQQKTOc2Dd2SDG5X0E70w6+TkbO55QMG305rwdw+l8=;
-        b=tPcJ/ZP1ruJ1oy5f8hqR/pDL8wZnWZZc0GOSk5We5rjwBZR/BI8wrzwqef8af0n7Ik
-         z1NIy51og3AGZ7r7jXlXxL8in1N6jHeLj0vTYYo6rFeVhNl7UBknELpenMJGQQtro9tk
-         dNR4g+pc98KpgsnGmUL57kT9XHQISdLhYmvVmwouVEOqJHZKVkO8ugfM7RsLmWal051U
-         G0FCatCjjZuMjMyTwgtyMnP/q7ww3cz+GbuN4bZpMIlsgMFwTy9G7vCIsMReUCB7gTWr
-         WK2Lak+t+HxKewybhdZaKKCOXN+U/s0aDZ5IqnP5zR7HsapXPUN3NdAwoxcrM/rMZuip
-         eLsg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713456540; x=1714061340;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=GbQQKTOc2Dd2SDG5X0E70w6+TkbO55QMG305rwdw+l8=;
-        b=vlynH/FWO1PD0HBh9Ja3FRWImeLBiYDC05Hr0XNGdUxfns1tfYVIWea8NnBAs5KLkQ
-         fukItUBYrUw9mSb+netqL1HC3UZrNc20zJ6ZZ1dHGLc/FcS1eDpOVQOhXxlowUtLBKSo
-         /lXYW8+O+UcW8bUxooWHHjUZamneqEupIOMUvcrCj2jHTeZecrBJpuFyzQqd9cG3MT5P
-         SS2QqjTAee3uRdv7T3KN2341Vl5+SQCfEU5f0VBnwvx/fS2loSYK6yPd8gb13ynqeALR
-         ukMV37kHBGCTeVdrA73mG493bSlR50TN5L9ltLncflVSHX0apYr5nn/MF1RYlCf1fjQM
-         N1Lg==
-X-Forwarded-Encrypted: i=1; AJvYcCXa7PzMdhxiNNHQQzLtlctXLR16jpEt7PUQ37StiU1yKECM0TuKGWXJ6SpDVKjtZ3JSK7DO9pX2S3zFhA8cpIOii+OXighlRy3Sj29dSbY=
-X-Gm-Message-State: AOJu0YzOI/BRz+Fferu/pfP9uvXg9QnBh1YvOYSH48Pf3AQ2B3IGJ1go
-	T0Q+qLN5446q/QlBNtXtmPHr2U7UiqWTYUIqwW2HfQvvhBYG0k6GY+0whAXc554=
-X-Google-Smtp-Source: AGHT+IE/ovW0YoLY3D/J75a2QLXFTJHxiE2QBsrQR4xSiTMiCJxc/V0hJE9FGCT986Ggjq6We2/9mQ==
-X-Received: by 2002:a19:7516:0:b0:516:d219:3779 with SMTP id y22-20020a197516000000b00516d2193779mr1881237lfe.58.1713456540345;
-        Thu, 18 Apr 2024 09:09:00 -0700 (PDT)
-Received: from localhost ([193.47.165.251])
-        by smtp.gmail.com with ESMTPSA id ek5-20020a056402370500b005701eb9441fsm1044816edb.75.2024.04.18.09.08.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Apr 2024 09:08:59 -0700 (PDT)
-From: Jiri Pirko <jiri@resnulli.us>
-To: netdev@vger.kernel.org
-Cc: kuba@kernel.org,
-	pabeni@redhat.com,
-	davem@davemloft.net,
-	edumazet@google.com,
-	parav@nvidia.com,
-	mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	shuah@kernel.org,
-	petrm@nvidia.com,
-	liuhangbin@gmail.com,
-	vladimir.oltean@nxp.com,
-	bpoirier@nvidia.com,
-	idosch@nvidia.com,
-	virtualization@lists.linux.dev
-Subject: [patch net-next v4 6/6] selftests: virtio_net: add initial tests
-Date: Thu, 18 Apr 2024 18:08:30 +0200
-Message-ID: <20240418160830.3751846-7-jiri@resnulli.us>
-X-Mailer: git-send-email 2.44.0
-In-Reply-To: <20240418160830.3751846-1-jiri@resnulli.us>
-References: <20240418160830.3751846-1-jiri@resnulli.us>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="nnf1K6FF"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1713456762; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=sbRtelo6/hK6s0/wj/48pFdnZmrztc3yweXzaicZPiw=;
+	b=nnf1K6FFLkm1TX4uMvVlUp4YNtyBjXC4tUhUrEnGnO2I20e7GdqLoLGL1edoXOtHF52hPP0C2XyI4AmC49GgGGk06zT0DFhoZHnRyKOu1ZMyjtYJoeYeGe/H4rg61P3D8XRF87dCAuPqs1zcW2v8dl45ZoG4BHfTWIm3+JbGHxY=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0W4p4NLF_1713456759;
+Received: from 30.13.151.155(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W4p4NLF_1713456759)
+          by smtp.aliyun-inc.com;
+          Fri, 19 Apr 2024 00:12:41 +0800
+Message-ID: <a8ffbe97-22d1-4afe-bc6a-b4f9e7a8089a@linux.alibaba.com>
+Date: Fri, 19 Apr 2024 00:12:39 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v4 3/6] virtio_net: Add a lock for the command
+ VQ.
+To: Paolo Abeni <pabeni@redhat.com>
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+ "mst@redhat.com" <mst@redhat.com>,
+ "xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+ "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+ "davem@davemloft.net" <davem@davemloft.net>,
+ "edumazet@google.com" <edumazet@google.com>,
+ "kuba@kernel.org" <kuba@kernel.org>, Jiri Pirko <jiri@nvidia.com>,
+ Dan Jurgens <danielj@nvidia.com>, Jason Wang <jasowang@redhat.com>
+References: <20240416193039.272997-1-danielj@nvidia.com>
+ <20240416193039.272997-4-danielj@nvidia.com>
+ <CACGkMEsCm3=7FtnsTRx5QJo3ZM0Ko1OEvssWew_tfxm5V=MXvQ@mail.gmail.com>
+ <28e45768-5091-484d-b09e-4a63bc72a549@linux.alibaba.com>
+ <ad9f7b83e48cfd7f1463d8c728061c30a4509076.camel@redhat.com>
+ <CH0PR12MB85802CBD3808B483876F8C77C90E2@CH0PR12MB8580.namprd12.prod.outlook.com>
+ <72f6c8a55adac52ad17dfe11a579b5b3d5dc3cec.camel@redhat.com>
+From: Heng Qi <hengqi@linux.alibaba.com>
+In-Reply-To: <72f6c8a55adac52ad17dfe11a579b5b3d5dc3cec.camel@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-From: Jiri Pirko <jiri@nvidia.com>
 
-Introduce initial tests for virtio_net driver. Focus on feature testing
-leveraging previously introduced debugfs feature filtering
-infrastructure. Add very basic ping and F_MAC feature tests.
 
-To run this, do:
-$ make -C tools/testing/selftests/ TARGETS=drivers/net/virtio_net/ run_tests
+在 2024/4/18 下午11:48, Paolo Abeni 写道:
+> On Thu, 2024-04-18 at 15:38 +0000, Dan Jurgens wrote:
+>>> From: Paolo Abeni <pabeni@redhat.com>
+>>> Sent: Thursday, April 18, 2024 5:57 AM
+>>> On Thu, 2024-04-18 at 15:36 +0800, Heng Qi wrote:
+>>>> 在 2024/4/18 下午2:42, Jason Wang 写道:
+>>>>> On Wed, Apr 17, 2024 at 3:31 AM Daniel Jurgens <danielj@nvidia.com>
+>>> wrote:
+>>>>>> The command VQ will no longer be protected by the RTNL lock. Use a
+>>>>>> spinlock to protect the control buffer header and the VQ.
+>>>>>>
+>>>>>> Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
+>>>>>> Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+>>>>>> ---
+>>>>>>    drivers/net/virtio_net.c | 6 +++++-
+>>>>>>    1 file changed, 5 insertions(+), 1 deletion(-)
+>>>>>>
+>>>>>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>>>>>> index 0ee192b45e1e..d02f83a919a7 100644
+>>>>>> --- a/drivers/net/virtio_net.c
+>>>>>> +++ b/drivers/net/virtio_net.c
+>>>>>> @@ -282,6 +282,7 @@ struct virtnet_info {
+>>>>>>
+>>>>>>           /* Has control virtqueue */
+>>>>>>           bool has_cvq;
+>>>>>> +       spinlock_t cvq_lock;
+>>>>> Spinlock is instead of mutex which is problematic as there's no
+>>>>> guarantee on when the driver will get a reply. And it became even
+>>>>> more serious after 0d197a147164 ("virtio-net: add cond_resched() to
+>>>>> the command waiting loop").
+>>>>>
+>>>>> Any reason we can't use mutex?
+>>>> Hi Jason,
+>>>>
+>>>> I made a patch set to enable ctrlq's irq on top of this patch set,
+>>>> which removes cond_resched().
+>>>>
+>>>> But I need a little time to test, this is close to fast. So could the
+>>>> topic about cond_resched + spin lock or mutex lock be wait?
+>>> The big problem is that until the cond_resched() is there, replacing the
+>>> mutex with a spinlock can/will lead to scheduling while atomic splats. We
+>>> can't intentionally introduce such scenario.
+>> When I created the series set_rx_mode wasn't moved to a work queue,
+>> and the cond_resched wasn't there.
+> Unfortunately cond_resched() is there right now.
 
-Run it on a system with 2 virtio_net devices connected back-to-back
-on the hypervisor.
+YES.
 
-Signed-off-by: Jiri Pirko <jiri@nvidia.com>
----
-v3->v4:
-- s/cleanup/setup_cleanup/
-- moved pre_cleanup call to cleanup() to be called only once on exit
-v1->v2:
-- added TEST_FILES and TEST_INCLUDES in the Makefile
-- fixed directory name in selftests/Makefile
-- added MAINTAINERS entry
-- added config file with kernel config options
----
- MAINTAINERS                                   |   1 +
- tools/testing/selftests/Makefile              |   1 +
- .../selftests/drivers/net/virtio_net/Makefile |  15 ++
- .../drivers/net/virtio_net/basic_features.sh  | 131 ++++++++++++++++++
- .../selftests/drivers/net/virtio_net/config   |   2 +
- .../net/virtio_net/virtio_net_common.sh       |  99 +++++++++++++
- 6 files changed, 249 insertions(+)
- create mode 100644 tools/testing/selftests/drivers/net/virtio_net/Makefile
- create mode 100755 tools/testing/selftests/drivers/net/virtio_net/basic_features.sh
- create mode 100644 tools/testing/selftests/drivers/net/virtio_net/config
- create mode 100644 tools/testing/selftests/drivers/net/virtio_net/virtio_net_common.sh
+>
+>> Mutex wasn't possible, then. If the CVQ is made to be event driven, then
+>> the lock can be released right after posting the work to the VQ.
+> That should work.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index f22698a7859f..5655fc89f3e5 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -23450,6 +23450,7 @@ F:	include/linux/virtio*.h
- F:	include/linux/vringh.h
- F:	include/uapi/linux/virtio_*.h
- F:	tools/virtio/
-+F:	tools/testing/selftests/drivers/net/virtio_net/
- 
- VIRTIO CRYPTO DRIVER
- M:	Gonglei <arei.gonglei@huawei.com>
-diff --git a/tools/testing/selftests/Makefile b/tools/testing/selftests/Makefile
-index c785b6256a45..2c940e9c4ced 100644
---- a/tools/testing/selftests/Makefile
-+++ b/tools/testing/selftests/Makefile
-@@ -20,6 +20,7 @@ TARGETS += drivers/s390x/uvdevice
- TARGETS += drivers/net
- TARGETS += drivers/net/bonding
- TARGETS += drivers/net/team
-+TARGETS += drivers/net/virtio_net
- TARGETS += dt
- TARGETS += efivarfs
- TARGETS += exec
-diff --git a/tools/testing/selftests/drivers/net/virtio_net/Makefile b/tools/testing/selftests/drivers/net/virtio_net/Makefile
-new file mode 100644
-index 000000000000..7ec7cd3ab2cc
---- /dev/null
-+++ b/tools/testing/selftests/drivers/net/virtio_net/Makefile
-@@ -0,0 +1,15 @@
-+# SPDX-License-Identifier: GPL-2.0+ OR MIT
-+
-+TEST_PROGS = basic_features.sh \
-+        #
-+
-+TEST_FILES = \
-+        virtio_net_common.sh \
-+        #
-+
-+TEST_INCLUDES = \
-+        ../../../net/forwarding/lib.sh \
-+        ../../../net/lib.sh \
-+        #
-+
-+include ../../../lib.mk
-diff --git a/tools/testing/selftests/drivers/net/virtio_net/basic_features.sh b/tools/testing/selftests/drivers/net/virtio_net/basic_features.sh
-new file mode 100755
-index 000000000000..cf8cf816ed48
---- /dev/null
-+++ b/tools/testing/selftests/drivers/net/virtio_net/basic_features.sh
-@@ -0,0 +1,131 @@
-+#!/bin/bash
-+# SPDX-License-Identifier: GPL-2.0
-+
-+# See virtio_net_common.sh comments for more details about assumed setup
-+
-+ALL_TESTS="
-+	initial_ping_test
-+	f_mac_test
-+"
-+
-+source virtio_net_common.sh
-+
-+lib_dir=$(dirname "$0")
-+source "$lib_dir"/../../../net/forwarding/lib.sh
-+
-+h1=${NETIFS[p1]}
-+h2=${NETIFS[p2]}
-+
-+h1_create()
-+{
-+	simple_if_init $h1 $H1_IPV4/24 $H1_IPV6/64
-+}
-+
-+h1_destroy()
-+{
-+	simple_if_fini $h1 $H1_IPV4/24 $H1_IPV6/64
-+}
-+
-+h2_create()
-+{
-+	simple_if_init $h2 $H2_IPV4/24 $H2_IPV6/64
-+}
-+
-+h2_destroy()
-+{
-+	simple_if_fini $h2 $H2_IPV4/24 $H2_IPV6/64
-+}
-+
-+initial_ping_test()
-+{
-+	setup_cleanup
-+	setup_prepare
-+	ping_test $h1 $H2_IPV4 " simple"
-+}
-+
-+f_mac_test()
-+{
-+	RET=0
-+	local test_name="mac feature filtered"
-+
-+	virtio_feature_present $h1 $VIRTIO_NET_F_MAC
-+	if [ $? -ne 0 ]; then
-+		log_test_skip "$test_name" "Device $h1 is missing feature $VIRTIO_NET_F_MAC."
-+		return 0
-+	fi
-+	virtio_feature_present $h1 $VIRTIO_NET_F_MAC
-+	if [ $? -ne 0 ]; then
-+		log_test_skip "$test_name" "Device $h2 is missing feature $VIRTIO_NET_F_MAC."
-+		return 0
-+	fi
-+
-+	setup_cleanup
-+	setup_prepare
-+
-+	grep -q 0 /sys/class/net/$h1/addr_assign_type
-+	check_err $? "Permanent address assign type for $h1 is not set"
-+	grep -q 0 /sys/class/net/$h2/addr_assign_type
-+	check_err $? "Permanent address assign type for $h2 is not set"
-+
-+	setup_cleanup
-+	virtio_filter_feature_add $h1 $VIRTIO_NET_F_MAC
-+	virtio_filter_feature_add $h2 $VIRTIO_NET_F_MAC
-+	setup_prepare
-+
-+	grep -q 0 /sys/class/net/$h1/addr_assign_type
-+	check_fail $? "Permanent address assign type for $h1 is set when F_MAC feature is filtered"
-+	grep -q 0 /sys/class/net/$h2/addr_assign_type
-+	check_fail $? "Permanent address assign type for $h2 is set when F_MAC feature is filtered"
-+
-+	ping_do $h1 $H2_IPV4
-+	check_err $? "Ping failed"
-+
-+	log_test "$test_name"
-+}
-+
-+setup_prepare()
-+{
-+	virtio_device_rebind $h1
-+	virtio_device_rebind $h2
-+	wait_for_dev $h1
-+	wait_for_dev $h2
-+
-+	vrf_prepare
-+
-+	h1_create
-+	h2_create
-+}
-+
-+setup_cleanup()
-+{
-+	h2_destroy
-+	h1_destroy
-+
-+	vrf_cleanup
-+
-+	virtio_filter_features_clear $h1
-+	virtio_filter_features_clear $h2
-+	virtio_device_rebind $h1
-+	virtio_device_rebind $h2
-+	wait_for_dev $h1
-+	wait_for_dev $h2
-+}
-+
-+cleanup()
-+{
-+	pre_cleanup
-+	setup_cleanup
-+}
-+
-+check_driver $h1 "virtio_net"
-+check_driver $h2 "virtio_net"
-+check_virtio_debugfs $h1
-+check_virtio_debugfs $h2
-+
-+trap cleanup EXIT
-+
-+setup_prepare
-+
-+tests_run
-+
-+exit "$EXIT_STATUS"
-diff --git a/tools/testing/selftests/drivers/net/virtio_net/config b/tools/testing/selftests/drivers/net/virtio_net/config
-new file mode 100644
-index 000000000000..f35de0542b60
---- /dev/null
-+++ b/tools/testing/selftests/drivers/net/virtio_net/config
-@@ -0,0 +1,2 @@
-+CONFIG_VIRTIO_NET=y
-+CONFIG_VIRTIO_DEBUG=y
-diff --git a/tools/testing/selftests/drivers/net/virtio_net/virtio_net_common.sh b/tools/testing/selftests/drivers/net/virtio_net/virtio_net_common.sh
-new file mode 100644
-index 000000000000..57bd8055e2e5
---- /dev/null
-+++ b/tools/testing/selftests/drivers/net/virtio_net/virtio_net_common.sh
-@@ -0,0 +1,99 @@
-+#!/bin/bash
-+# SPDX-License-Identifier: GPL-2.0
-+
-+# This assumes running on a host with two virtio interfaces connected
-+# back to back. Example script to do such wire-up of tap devices would
-+# look like this:
-+#
-+# =======================================================================================================
-+# #!/bin/bash
-+#
-+# DEV1="$1"
-+# DEV2="$2"
-+#
-+# sudo tc qdisc add dev $DEV1 clsact
-+# sudo tc qdisc add dev $DEV2 clsact
-+# sudo tc filter add dev $DEV1 ingress protocol all pref 1 matchall action mirred egress redirect dev $DEV2
-+# sudo tc filter add dev $DEV2 ingress protocol all pref 1 matchall action mirred egress redirect dev $DEV1
-+# sudo ip link set $DEV1 up
-+# sudo ip link set $DEV2 up
-+# =======================================================================================================
-+
-+REQUIRE_MZ="no"
-+NETIF_CREATE="no"
-+NETIF_FIND_DRIVER="virtio_net"
-+NUM_NETIFS=2
-+
-+H1_IPV4="192.0.2.1"
-+H2_IPV4="192.0.2.2"
-+H1_IPV6="2001:db8:1::1"
-+H2_IPV6="2001:db8:1::2"
-+
-+VIRTIO_NET_F_MAC=5
-+
-+virtio_device_get()
-+{
-+	local dev=$1; shift
-+	local device_path="/sys/class/net/$dev/device/"
-+
-+	basename `realpath $device_path`
-+}
-+
-+virtio_device_rebind()
-+{
-+	local dev=$1; shift
-+	local device=`virtio_device_get $dev`
-+
-+	echo "$device" > /sys/bus/virtio/drivers/virtio_net/unbind
-+	echo "$device" > /sys/bus/virtio/drivers/virtio_net/bind
-+}
-+
-+virtio_debugfs_get()
-+{
-+	local dev=$1; shift
-+	local device=`virtio_device_get $dev`
-+
-+	echo /sys/kernel/debug/virtio/$device/
-+}
-+
-+check_virtio_debugfs()
-+{
-+	local dev=$1; shift
-+	local debugfs=`virtio_debugfs_get $dev`
-+
-+	if [ ! -f "$debugfs/device_features" ] ||
-+	   [ ! -f "$debugfs/filter_feature_add"  ] ||
-+	   [ ! -f "$debugfs/filter_feature_del"  ] ||
-+	   [ ! -f "$debugfs/filter_features"  ] ||
-+	   [ ! -f "$debugfs/filter_features_clear"  ]; then
-+		echo "SKIP: not possible to access debugfs for $dev"
-+		exit $ksft_skip
-+	fi
-+}
-+
-+virtio_feature_present()
-+{
-+	local dev=$1; shift
-+	local feature=$1; shift
-+	local debugfs=`virtio_debugfs_get $dev`
-+
-+	cat $debugfs/device_features |grep "^$feature$" &> /dev/null
-+	return $?
-+}
-+
-+virtio_filter_features_clear()
-+{
-+	local dev=$1; shift
-+	local debugfs=`virtio_debugfs_get $dev`
-+
-+	echo "1" > $debugfs/filter_features_clear
-+}
-+
-+virtio_filter_feature_add()
-+{
-+	local dev=$1; shift
-+	local feature=$1; shift
-+	local debugfs=`virtio_debugfs_get $dev`
-+
-+	echo "$feature" > $debugfs/filter_feature_add
-+}
--- 
-2.44.0
+Yes, I will test my new patches (ctrlq with irq enabled) soon, then the 
+combination
+of the this set and mine MAY make deciding between mutex or spin lock 
+easier.
+
+Thanks.
+
+>
+>>> Side note: the compiler apparently does not like guard() construct, leading to
+>>> new warning, here and in later patches. I'm unsure if the code simplification
+>>> is worthy.
+>> I didn't see any warnings with GCC or clang. This is used other places in the kernel as well.
+>> gcc version 13.2.1 20230918 (Red Hat 13.2.1-3) (GCC)
+>> clang version 17.0.6 (Fedora 17.0.6-2.fc39)
+>>
+> See:
+>
+> https://patchwork.kernel.org/project/netdevbpf/patch/20240416193039.272997-4-danielj@nvidia.com/
+> https://netdev.bots.linux.dev/static/nipa/845178/13632442/build_32bit/stderr
+> https://netdev.bots.linux.dev/static/nipa/845178/13632442/build_allmodconfig_warn/stderr
+>
+> Cheers,
+>
+> Paolo
 
