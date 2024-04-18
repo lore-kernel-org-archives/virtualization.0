@@ -1,172 +1,203 @@
-Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com [209.85.208.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from NAM04-BN8-obe.outbound.protection.outlook.com (mail-bn8nam04on2085.outbound.protection.outlook.com [40.107.100.85])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AC8512A171
-	for <virtualization@lists.linux.dev>; Thu, 18 Apr 2024 08:28:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.52
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713428927; cv=none; b=NRHwxwNlDegJLrq7EpOGSrX7H3n12TKOtVGcMhizgRwWeXxEB/Njyd9hWHFv2RQp2qi0dNJWvbwhY90/TNNaNN58GFufGd9WmNpcdeE2uBbjxOE/0GfkvvxFJyg5zxLjKPXqhAuX8I1peD+ONO/VEMdULaH7Nw4sd5EeDtl7Dew=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713428927; c=relaxed/simple;
-	bh=ZQlNvuxU1Ruuhia4AiY+CRXdS6bFMo/TL73YQJTuopc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=F3uogvSXtvVTU3XBvVuqGzMr9HN4rCXTST/tGdQX0+rJ0A7QKOz7+AzQxo2h656EncZu0gK1ZqHZN0PDfw3rHI6adCb0mmvmr2sxspieGY192vTpeP6pkAO/6QEhxjWaprLd7TOdpKdGx5EnJGyPWarCmRlKKcqzYlWn2SZDkW8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=OoxOBmrw; arc=none smtp.client-ip=209.85.208.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B98214A08F
+	for <virtualization@lists.linux.dev>; Thu, 18 Apr 2024 08:30:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.100.85
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1713429044; cv=fail; b=dNyHNsEJrGWRBan8pi6Ly461fdL1mxTc4cEgAwT1P3yGMs2vBEVtbbImVerBJ52YYZdcvrGDgHxCla/nE9/wxUmyHhUwIyNGfdoaJzFPV+y7ll7X/jb67t6yBvf7qwKSIlay4uco1LhMuHDPhY3lnc9qVUyjnn1iiJh1JHiYdiU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1713429044; c=relaxed/simple;
+	bh=9ToJMWPCYIcYW8l/Mmvruuy7OUayYiFS2IFza17ubrc=;
+	h=References:From:To:CC:Subject:Date:In-Reply-To:Message-ID:
+	 MIME-Version:Content-Type; b=NvoK/MGR0zx+5usJVjO3IajwDMurgyDN97yIetVW3LhKXlnH76XtN+dllemS77uVsNzYMpEj0YIhSDp07HbKAH7HCCqXkT07/5xBxuMOTdl6wLGLpAG2Rnqozd0XPYyX3VKqBOU+6y36IvPsIyEr97GOA7SQdas7je+A4xSb7c4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=YOOkZ2sy; arc=fail smtp.client-ip=40.107.100.85
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="OoxOBmrw"
-Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-56e6acb39d4so714075a12.1
-        for <virtualization@lists.linux.dev>; Thu, 18 Apr 2024 01:28:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1713428923; x=1714033723; darn=lists.linux.dev;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=00EHNLIhtTOTMUZiuikNl15VWRGSekrYgAUwPrFoFtQ=;
-        b=OoxOBmrwYym69Ww7r3PIcp22BP4bOrbvbmDeHe5qODdPNHeWdCDsDVv+w8chv6pPqS
-         qnU4LRGr1pZjyPg5THznS78gy6ovESAZUuwuv3lRyUrq65N9V/7bZD5QBK59efX2cOeZ
-         NlzOXczfytz3pHanDND5vWLPXOGSvuO+HervqcokQmrPHeflp5t+n+EBe+BQGQQtn0Ke
-         wkvqHn3RpOiCfcOBbnzkXbL8m/n2vWEQvMffE6vIftdgXtOu47A8ztrhHadxLRwAtC9O
-         IY44ZmXF9tdMCxXVeAB4CW/MFjI1zderc3LEWK3m5IbhbIy0C2gsP8Q3Cb0NZlrctVSa
-         mLTg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713428923; x=1714033723;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=00EHNLIhtTOTMUZiuikNl15VWRGSekrYgAUwPrFoFtQ=;
-        b=XYUNxUXTY7dYOrTtqyxQi7M7sKez+hEi9iEKxP+xLpASQI3EZm7bxVPJzyugAMUdiU
-         OohRpvxcyYP3aslMqusehdjkB8bcK3Q61NpNigWhnIoth2jJKVfSVnt4Vhx/QSkn9CSv
-         yXxt4HW0NFey1Kgz+CcOwyXfWYyySc+q0rtHtv6qnaclfrPaU5VgwbfcU99offRITs6X
-         5SLImsLQEhkBHTF0qdfisLPKo99KLUh/os7fHpwyxrFRTuAp6nFw1h0LzyPwTYFbLu9s
-         3SIsbcy0TN8RbZVXbZPsaQzEjYNoVLapsOk2iC/wi+z5tNw6q2R1MaBdKWy0a6yCUjwb
-         MISA==
-X-Forwarded-Encrypted: i=1; AJvYcCW+U8D6mSZbDiQYadz0romXICICAx1H7lvT2tuVRYJEEoKoGtlrZvBAV8SUTBvmjsjFArVPBHSEI5OvRH+I9iouldsY8+6v9ltWh7yNE1w=
-X-Gm-Message-State: AOJu0YyxnkHjzytNkg3D9EpP2CaYdoxONL/+GvvDMZu0CKl4O4I6ZppH
-	qrKg8tEiHSeZ6W/f2dVHhx/UxIAGb20V+fnHo2YKRzbL9jSOkiu9p/CL0dNI49A=
-X-Google-Smtp-Source: AGHT+IELCQfsKbAJfRd6jWQR9/DGdQt4Kz33gV1dBsN0EjytMayF4FnnyYOWYDum+jCtoh41R8zKHg==
-X-Received: by 2002:a17:906:cb95:b0:a52:3ff0:4a12 with SMTP id mf21-20020a170906cb9500b00a523ff04a12mr1295937ejb.18.1713428923382;
-        Thu, 18 Apr 2024 01:28:43 -0700 (PDT)
-Received: from localhost (78-80-105-131.customers.tmcz.cz. [78.80.105.131])
-        by smtp.gmail.com with ESMTPSA id k14-20020a17090627ce00b00a525669000csm576040ejc.154.2024.04.18.01.28.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Apr 2024 01:28:42 -0700 (PDT)
-Date: Thu, 18 Apr 2024 10:28:41 +0200
-From: Jiri Pirko <jiri@resnulli.us>
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, kuba@kernel.org, pabeni@redhat.com,
-	davem@davemloft.net, edumazet@google.com, parav@nvidia.com,
-	mst@redhat.com, xuanzhuo@linux.alibaba.com, shuah@kernel.org,
-	petrm@nvidia.com, liuhangbin@gmail.com, vladimir.oltean@nxp.com,
-	bpoirier@nvidia.com, idosch@nvidia.com,
-	virtualization@lists.linux.dev
-Subject: Re: [patch net-next v2 1/6] virtio: add debugfs infrastructure to
- allow to debug virtio features
-Message-ID: <ZiDZudK3PuSF_3sZ@nanopsycho>
-References: <20240415162530.3594670-1-jiri@resnulli.us>
- <20240415162530.3594670-2-jiri@resnulli.us>
- <CACGkMEtpSPFSpikcrsZZBtXOgpAukjCwFRcF79xfzDG-s8_SyQ@mail.gmail.com>
- <Zh5G0sh62hZtOM0J@nanopsycho>
- <CACGkMEvRMGvx0jTqFK2WH1iuPMUZJ0LfW1jDLgt-iQd2+AT=+g@mail.gmail.com>
- <Zh94zX-oQs96tuKk@nanopsycho>
- <CACGkMEtqJL1+D9byRLSFdFmo0aqoWAeHqmqyq+KEzoC8xhnEFA@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="YOOkZ2sy"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=QpsFAE1oJegT2BHv2/qVErWLY6YuWNvCDJiCCs7usrlOaSYr/+HCzjy7md6/C9R8lpvFCEtB05ioXjCfkFA7OOv7X+Q9jCBPRbYPmMb1q1Iy7/z9KraVRf4DIhYellfOVX4+GHcjj+hRY/mP1aWnxz6nhfVzXvgPEB6vpiWo/a4PKjX3gfHN0DjgHWJ6rf7kl1NXIwSaNfT4c99BZvT+8g5q6CUGZ/I3qstyquENLLqh8Yqnn17jH6g+u7X+nDKS7rpevgcwtJZFpm67vNQpblB542r7+xd00ArQburIeGuZwOAxIzrx08b+zYYnotJBDEDvq+K/ZPScYoONykEigQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=9Gs7TeDiKMeMjYaOJKrLAM/8oP+DdseUvT55r3vVG5o=;
+ b=TtiO9WdNcViL8Kd3PQrn6TeQ9X/V5ADgcp4LQqWnHQoUh3ow5zh6kSs6wp7nzj/MO8NXnVdky76SfPRK8HZeycgxVP3eVyp4i+Ne7t9Bzt0IwZqXp5k9bXvTA3iLgJl8Zitd202jIAfxewGMp2x8fbPPkNIFWl6CoRbmqJXGP8g55/P05nqwi85osx2UvTfcz4bV1WYhIs1mKTe1GY8lrzfwun+EXx/cUgg1P7f99iqd/5wJxsh+lo6uPcYmj8ZXOOGZdu+q2xE9OS3allbIWRt1Q3pvRh4OReEweS3RMxtZPpTJTPrwJJSanWoHG6ZP9lC0EGbIXd1mbwWtCDFUFQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.161) smtp.rcpttodomain=lists.linux.dev smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=9Gs7TeDiKMeMjYaOJKrLAM/8oP+DdseUvT55r3vVG5o=;
+ b=YOOkZ2syqJWJUGD1MlqFPd4EU0KycozSNyRNLB9Utjn2btHXnBqaXDw/jOYsgun6tRPbuz+Bq81x5viw1hTE+O6xbw0xSKPGcK92V44iKGQm3PX7EAQMTUyq63j9nwGl83xgCmJEIBoq+G9TAHbVoZvroYCHW0qVjAdLLSUhe2aR+WrpDRaTzrIKa5q8jQmZ1D88C1eXfm6PJQiLZzMW0S/TTUDs1en7pPa0jN4xEns3qn5+hnItwwEKdIisKjcFnaVH8sddYFudf261HOsIUfDdn3X+wbqlARhnPcaJe+W/6wLDQJvvdvbBfD6GNmFSk31tjHlNexT+qgJsx1vgQw==
+Received: from MW4PR03CA0186.namprd03.prod.outlook.com (2603:10b6:303:b8::11)
+ by CY8PR12MB7291.namprd12.prod.outlook.com (2603:10b6:930:54::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7452.50; Thu, 18 Apr
+ 2024 08:30:39 +0000
+Received: from MWH0EPF000971E5.namprd02.prod.outlook.com
+ (2603:10b6:303:b8:cafe::eb) by MW4PR03CA0186.outlook.office365.com
+ (2603:10b6:303:b8::11) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7472.33 via Frontend
+ Transport; Thu, 18 Apr 2024 08:30:39 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.161) by
+ MWH0EPF000971E5.mail.protection.outlook.com (10.167.243.73) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.7452.22 via Frontend Transport; Thu, 18 Apr 2024 08:30:38 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
+ (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Thu, 18 Apr
+ 2024 01:30:20 -0700
+Received: from yaviefel (10.126.231.35) by rnnvmail201.nvidia.com
+ (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Thu, 18 Apr
+ 2024 01:30:10 -0700
+References: <20240417164554.3651321-1-jiri@resnulli.us>
+ <20240417164554.3651321-4-jiri@resnulli.us>
+User-agent: mu4e 1.8.11; emacs 28.3
+From: Petr Machata <petrm@nvidia.com>
+To: Jiri Pirko <jiri@resnulli.us>
+CC: <netdev@vger.kernel.org>, <kuba@kernel.org>, <pabeni@redhat.com>,
+	<davem@davemloft.net>, <edumazet@google.com>, <parav@nvidia.com>,
+	<mst@redhat.com>, <jasowang@redhat.com>, <xuanzhuo@linux.alibaba.com>,
+	<shuah@kernel.org>, <petrm@nvidia.com>, <liuhangbin@gmail.com>,
+	<vladimir.oltean@nxp.com>, <bpoirier@nvidia.com>, <idosch@nvidia.com>,
+	<virtualization@lists.linux.dev>
+Subject: Re: [patch net-next v3 3/6] selftests: forwarding: add ability to
+ assemble NETIFS array by driver name
+Date: Thu, 18 Apr 2024 10:11:12 +0200
+In-Reply-To: <20240417164554.3651321-4-jiri@resnulli.us>
+Message-ID: <87bk67cbuc.fsf@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CACGkMEtqJL1+D9byRLSFdFmo0aqoWAeHqmqyq+KEzoC8xhnEFA@mail.gmail.com>
-
-Thu, Apr 18, 2024 at 02:59:41AM CEST, jasowang@redhat.com wrote:
->On Wed, Apr 17, 2024 at 3:23 PM Jiri Pirko <jiri@resnulli.us> wrote:
->>
->> Wed, Apr 17, 2024 at 06:37:30AM CEST, jasowang@redhat.com wrote:
->> >On Tue, Apr 16, 2024 at 5:37 PM Jiri Pirko <jiri@resnulli.us> wrote:
->> >>
->> >> Tue, Apr 16, 2024 at 05:52:41AM CEST, jasowang@redhat.com wrote:
->> >> >On Tue, Apr 16, 2024 at 12:25 AM Jiri Pirko <jiri@resnulli.us> wrote:
->> >> >>
->> >> >> From: Jiri Pirko <jiri@nvidia.com>
->> >> >>
->> >> >> Currently there is no way for user to set what features the driver
->> >> >> should obey or not, it is hard wired in the code.
->> >> >>
->> >> >> In order to be able to debug the device behavior in case some feature is
->> >> >> disabled, introduce a debugfs infrastructure with couple of files
->> >> >> allowing user to see what features the device advertises and
->> >> >> to set filter for features used by driver.
->> >> >>
->> >> >> Example:
->> >> >> $cat /sys/bus/virtio/devices/virtio0/features
->> >> >> 1110010111111111111101010000110010000000100000000000000000000000
->> >> >> $ echo "5" >/sys/kernel/debug/virtio/virtio0/filter_feature_add
->> >> >> $ cat /sys/kernel/debug/virtio/virtio0/filter_features
->> >> >> 5
->> >> >> $ echo "virtio0" > /sys/bus/virtio/drivers/virtio_net/unbind
->> >> >> $ echo "virtio0" > /sys/bus/virtio/drivers/virtio_net/bind
->> >> >> $ cat /sys/bus/virtio/devices/virtio0/features
->> >> >> 1110000111111111111101010000110010000000100000000000000000000000
->> >> >>
->> >> >> Note that sysfs "features" know already exists, this patch does not
->> >> >> touch it.
->> >> >>
->> >> >> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
->> >> >> ---
->> >> >
->> >> >Note that this can be done already with vp_vdpa feature provisioning:
->> >> >
->> >> >commit c1ca352d371f724f7fb40f016abdb563aa85fe55
->> >> >Author: Jason Wang <jasowang@redhat.com>
->> >> >Date:   Tue Sep 27 15:48:10 2022 +0800
->> >> >
->> >> >    vp_vdpa: support feature provisioning
->> >> >
->> >> >For example:
->> >> >
->> >> >vdpa dev add name dev1 mgmtdev pci/0000:02:00.0 device_features 0x300020000
->> >>
->> >> Sure. My intension was to make the testing possible on any virtio
->> >> device.
->> >
->> >It did that actually, vp_vdpa bridge virtio-pci device into vDPA bus
->> >with mediation layer (like feature filtering etc). So it can only run
->> >on top of standard virtio-pci device.
->> >
->> >> Narrowing the testing for vpda would be limitting.
->> >
->> >Unless you want to use other transport like virtio-mmio.
->>
->> Also, the goal is to test virtio_net emulated devices.
->> There are couple
->> of implementation. Non-vdpa.
->
->So what I want to say is, vp_vdpa works for all types of virtio-pci
->devices no matter if it is emulated or hardware.
-
-Sure, but I wanted to have a simple generic way, working on all virtio
-devices, even the ones backed by a different transport, and without need
-of extra vdpa layer.
+Content-Type: text/plain
+X-ClientProxiedBy: rnnvmail201.nvidia.com (10.129.68.8) To
+ rnnvmail201.nvidia.com (10.129.68.8)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: MWH0EPF000971E5:EE_|CY8PR12MB7291:EE_
+X-MS-Office365-Filtering-Correlation-Id: 9f8ab4d1-34c5-4ad8-3393-08dc5f81d3e7
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	8odM6bbB+PEo231rDDzcuLpaDN1+JarifJtrlS4ladSuyZNhbm1gb9Cfk1lf9NEY+ckebS1x6SqVTBzl4ekfaxsANJhpnkukIUgKvxM7T6BSCzI6pI5L7+28/n+7bwGKRvqBptScFKhX41i6BluhjgTzSZmHRoJ8//1SNxAWff4BFuCcsMtaMnWvqmmiJz0jOwS+3EB7tjM3fwq6j8uVl46uZ8mmcWrP8VAf3h8HBI7wu102jkTXEb+cwsL0YxTT0QlM9t0zFFUO87hUnsVYmT429FCkpwHvLVIlYioLlSW81vbjTIqi8Y/cZRT33MXsip9Fjvc0n9R+r2S4YHwT7z3BLXntQjyhzvyvQsEnidU2xDZWpp+XSRxhRN5pAw9QeMOkAmDrRJsdacJoopTkxkBwsbfXxTyk0bO3uuiUZnRGIY67fRW3w3ywLBvYp19bBcgAbgeNHsXmofvQOMIUnODUk2IWNTztyT5TLu0aRryx4QvUXqHYho/yB8UYoUGGw+0YrzXSCz4tq6aTNUmuYdYDuA23GyzNqJd5OJ6pvSFNs7m183NIZMEErXhGK3rxAUIzzGY3iZ8s7d5CIHjK+RAAccvAgq4gXGdm+zhETUPW+MVPfb980bmB6FQRyod/6FZl8nC21Ula660zQAUbaYkx3F8n4nWaJTYsu2ynqKWzMVTryuCP85N57ZTtz6EhBABl+Zhq2bzdVPET+um2Yvyb6mwdhWBxENVhVBvK5gp0ZvdGlOTJGZBrxTpHVd72
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230031)(82310400014)(36860700004)(376005)(7416005)(1800799015);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Apr 2024 08:30:38.8769
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9f8ab4d1-34c5-4ad8-3393-08dc5f81d3e7
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	MWH0EPF000971E5.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY8PR12MB7291
 
 
+Jiri Pirko <jiri@resnulli.us> writes:
+
+> From: Jiri Pirko <jiri@nvidia.com>
 >
->Thanks
+> Allow driver tests to work without specifying the netdevice names.
+> Introduce a possibility to search for available netdevices according to
+> set driver name. Allow test to specify the name by setting
+> NETIF_FIND_DRIVER variable.
 >
->>
->>
->> >
->> >Thanks
->> >
->> >>
->> >>
->> >> >
->> >> >Thanks
->> >> >
->> >>
->> >
->>
+> Note that user overrides this either by passing netdevice names on the
+> command line or by declaring NETIFS array in custom forwarding.config
+> configuration file.
 >
+> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
+> ---
+> v1->v2:
+> - removed unnecessary "-p" and "-e" options
+> - removed unnecessary "! -z" from the check
+> - moved NETIF_FIND_DRIVER declaration from the config options
+> ---
+>  tools/testing/selftests/net/forwarding/lib.sh | 39 +++++++++++++++++++
+>  1 file changed, 39 insertions(+)
+>
+> diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
+> index 2e7695b94b6b..b3fd0f052d71 100644
+> --- a/tools/testing/selftests/net/forwarding/lib.sh
+> +++ b/tools/testing/selftests/net/forwarding/lib.sh
+> @@ -94,6 +94,45 @@ if [[ ! -v NUM_NETIFS ]]; then
+>  	exit $ksft_skip
+>  fi
+>  
+> +##############################################################################
+> +# Find netifs by test-specified driver name
+> +
+> +driver_name_get()
+> +{
+> +	local dev=$1; shift
+> +	local driver_path="/sys/class/net/$dev/device/driver"
+> +
+> +	if [ ! -L $driver_path ]; then
+> +		echo ""
+> +	else
+> +		basename `realpath $driver_path`
+> +	fi
+
+This is just:
+
+	if [[ -L $driver_path ]]; then
+		basename `realpath $driver_path`
+	fi
+
+> +}
+> +
+> +find_netif()
+
+Maybe name it find_driver_netif? find_netif sounds super generic.
+
+Also consider having it take an argument instead of accessing
+environment NETIF_FIND_DRIVER directly.
+
+> +{
+> +	local ifnames=`ip -j link show | jq -r ".[].ifname"`
+> +	local count=0
+> +
+> +	for ifname in $ifnames
+> +	do
+> +		local driver_name=`driver_name_get $ifname`
+> +		if [[ ! -z $driver_name && $driver_name == $NETIF_FIND_DRIVER ]]; then
+> +			count=$((count + 1))
+> +			NETIFS[p$count]="$ifname"
+> +		fi
+> +	done
+> +}
+> +
+> +# Whether to find netdevice according to the specified driver.
+> +: "${NETIF_FIND_DRIVER:=}"
+
+This would be better placed up there in the Topology description
+section. Together with NETIFS and NETIF_NO_CABLE, as it concerns
+specification of which interfaces to use.
+
+> +
+> +if [[ $NETIF_FIND_DRIVER ]]; then
+> +	unset NETIFS
+> +	declare -A NETIFS
+> +	find_netif
+> +fi
+> +
+>  net_forwarding_dir=$(dirname "$(readlink -e "${BASH_SOURCE[0]}")")
+>  
+>  if [[ -f $net_forwarding_dir/forwarding.config ]]; then
+
