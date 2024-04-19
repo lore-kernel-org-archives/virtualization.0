@@ -1,141 +1,117 @@
-Received: from mail-lf1-f47.google.com (mail-lf1-f47.google.com [209.85.167.47])
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F87F8120C
-	for <virtualization@lists.linux.dev>; Fri, 19 Apr 2024 11:21:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 001081292DC
+	for <virtualization@lists.linux.dev>; Fri, 19 Apr 2024 13:51:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713525688; cv=none; b=Rn6f5ujWDVyylUusWyoXuD0GChHZl3v0JEfyGUYyD2fkgi/BC0xLPzOelXBE5dOWdCnGbPLwdnlmQmMZ0QAq7YBl+w/TDvLFzvM3HIeiR0ux488RLjIyaFh1x8OWMZlWgLSM3cK9lcv1ZS7zufO4HbXJkoutDplhaKwhMshCVQQ=
+	t=1713534684; cv=none; b=r48Q18CwATUA8xBtv5u32QwhDX2DVxX1BUe2vgmmZUtqZPgWlPi9XjSIVXidrhBb+590hHLgI3WbbY4kA+5f7bMis1GK7lPLafRHReA33wR3xTzkj2FNl6Mac8pNUgHGdymyp1VQ8VtAL37r6X53ip/O2XfUSuzXm36dtl+FYkA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713525688; c=relaxed/simple;
-	bh=k9VcYFgyShcG1dhWPBt43rKEUHdDgANKGFJsHKd2Uok=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=fN8sNM5ZFuEYXlXkd2+D9lSPDrAL+BAg+w7Gv6dbOxxTfCsLzFNoucNUmiJdm5URsfaLdauqqft84NN2qf/U5CY9FC9IuKlpPIjL8VSDU3CzBHRAOzzG3llR7g1b8U9xCf+ToFxmtHABGAHuU+WWvxB0VwVdWQGTl/5iVDhasuE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Rx5bNxEN; arc=none smtp.client-ip=209.85.167.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1713534684; c=relaxed/simple;
+	bh=mi6XnFalf9EtQ/ENxG+jKIfTecVDeLfY3D2+zCxoRBc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=JI4qhrgb7mW23qI6aodFw/fqVsaadIdOeiakk/41+6LcOLkEA3V1tfzVT6XPUOgzbNUStUu2TuiAb82+U2V1smdw6A/5yjkDaWP7bz866vkiQ3xN/H628qtCHwkOrxXAnv0SoVCyhBac9Poi9kTkazq21BA2Hofn+ylz3BnpFNY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=HA7pGsmb; arc=none smtp.client-ip=209.85.128.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Rx5bNxEN"
-Received: by mail-lf1-f47.google.com with SMTP id 2adb3069b0e04-516d4d80d00so2402262e87.0
-        for <virtualization@lists.linux.dev>; Fri, 19 Apr 2024 04:21:26 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="HA7pGsmb"
+Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-418bbc690e1so17407915e9.2
+        for <virtualization@lists.linux.dev>; Fri, 19 Apr 2024 06:51:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1713525685; x=1714130485; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=Oo5xMgK7A43edaSEKnYiqm0AuchtwStkZ/R1A6SoZFQ=;
-        b=Rx5bNxEN9kwxMeNyJdrwdAbtCW2oArdQv53wK+evxGJrS7sD1PD74BtdxSrK8he5GW
-         xuCHS460V/+u5yxZFxIFP1lR4eqxpc7ibgt1oo0dO0xPlCwjL/q9KDgNPTFfSSaUgDAT
-         YDnCnvsxEa9CqdHGx5DpqodLzSg+2YQ+en7qG4diAarSTiJj3659KquUt58u92I/Z2Hh
-         +lFRknfRnOSj2UwrnrzStNocqOIVbXksTH6y9C2x4wq8wFweOdnEtfb+ncqosij0Io3K
-         LpaD/p2fcKj04vH9PfwnYQNBg8wuoe4SB9To7JLCljraYp61/EIILHtUTgAK6YmXTPFg
-         kCPA==
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1713534680; x=1714139480; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=bdhA12ApYJzVjqZj6OB/MpvC9ZtmrqHdwY8N+5n/lLM=;
+        b=HA7pGsmbDcASLrACMuB6FcLZaZrOgSSsxGtS6GJ0y35zaVi4K0xiw58ctE37T4kj2g
+         i/ZLvyyf3AGpNcWzWQaxEqA0M7q+17y7lSoWF5CF0CLA9Ox3aMYezOciYYiZb3+QKDAx
+         C7VbEnUjQQv386ZU3xFOBnTT/ms8LOKW3xRZOhCyzPCgddnZz9fnHXWlfhV9WgODVyGs
+         dzFq1gHHZd2fbfW7t40Xs2p0CenIzohxtx78lEjSoXH8GZGIRloZVifCH3bipBBITvVp
+         DrrotoUg/rTKWwiVce/R25+OW3oGcT//UDzpwLBjGKxCCjuw8YQE69UXhfSuyMLOnPaT
+         bPZw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713525685; x=1714130485;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Oo5xMgK7A43edaSEKnYiqm0AuchtwStkZ/R1A6SoZFQ=;
-        b=IAtynjJ+pGgbKa1AwP4afFVu/Y9F0RgI9UVnU0lMZMtdlQLV+THB+twPnhNx4YowPw
-         GJ+5kiyXk7kH9C5f2Prnflv2BkOHre+hkKLS1pPme39hN0zIz0NTXLDMXjstvqi1e/V6
-         6D0KrUYnaJ0obwUGarfrnM2CFTQQc1oqxdBznd2sP78i4vStwfni08BZxbXFNPFZPKoc
-         h+lcA06Te+tzo5aNz2CaVGVUIru9ZZd2hjgyAgWWflyfw1aNIIJi9jOSiJvXD6DsHKnJ
-         P/4rWGKhUyaAU/UlaE3FrjVoEmEHsV4LJZhJTdHnsxs+SV19/J82Ox+7fSFFK/owLUr5
-         FD4Q==
-X-Forwarded-Encrypted: i=1; AJvYcCWvOVCi/g07nY2EiPtbIcB2EVTSkztB9O+VWxru0EbHS9Z+Rt1sE92NVjuUF/DJOkja+gk0P0VLqMDZC3gdt0I9e4bTcgYvf6q4RDA3U5M=
-X-Gm-Message-State: AOJu0YxCAwnZ9MlFCxbGQhpxo8iRaQjSBJaIObBcXViYzxux6jUhsTjA
-	Wuj/+2ZyeUeZfsrDyEYPao/woMsMJb+zN/DN0OOinAYy4/l5TCvm
-X-Google-Smtp-Source: AGHT+IEFY1gjmCiW7j8xVLYIyr8i8P2p4D1KfDmvOJjtfOhFv2qZUrBCLs8x/0cxV2+TI3RJGn8Yug==
-X-Received: by 2002:a05:6512:ba0:b0:51a:b955:4014 with SMTP id b32-20020a0565120ba000b0051ab9554014mr1557073lfv.18.1713525685086;
-        Fri, 19 Apr 2024 04:21:25 -0700 (PDT)
-Received: from [192.168.42.27] ([163.114.131.193])
-        by smtp.gmail.com with ESMTPSA id hx11-20020a170906846b00b00a46d2e9fd73sm2076372ejc.222.2024.04.19.04.21.24
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 19 Apr 2024 04:21:24 -0700 (PDT)
-Message-ID: <0f6355d6-b563-458e-9671-ea7e047073e1@gmail.com>
-Date: Fri, 19 Apr 2024 12:21:30 +0100
+        d=1e100.net; s=20230601; t=1713534680; x=1714139480;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=bdhA12ApYJzVjqZj6OB/MpvC9ZtmrqHdwY8N+5n/lLM=;
+        b=JDRJyg8XHWRxZOfD0V9I3LDjQXIsFoRQEXJs350ikLS5Zap7tWAaszWKUavKgMA2h6
+         91GspfgQLiNw4FNhjgGAOgTTdvhnBsx3yB4/L9rjMmSkyP+KBtFWcD/uXjgiQ+V9a9mh
+         a+yGn1YA0BD5STWsLHmlLg4IE+d8PK9LR91EvfV5zVzAqAWbd/wCtfnR/7jO/cbPk58A
+         sCHc6azm1gsaBeFVeA+g7EcVD+RMe2P5CfdZLCEtUEUSYrQRD766FO2ALi7cqoBoWYqd
+         Yt+JULNAxhUtUZELygewtfZfe/1QGwoQ9YKplmZ/hyHMEpVKJG4J6HD1G0W+yBs5DiKA
+         I/4g==
+X-Forwarded-Encrypted: i=1; AJvYcCXgKTctYILo90mGgwJmEN3NY7gvisI/s4lGO17X9nVY/+LcuwLLrJxxZgjS6eVsIGjj3nPZvkZi/TG0zvXK340VVrQlXnvISzHwAOct/c0=
+X-Gm-Message-State: AOJu0YyZ4+chPRQBVY7lxF5CoRFUFLzPOiMOTL2zwDtmUwp+akgTeY9X
+	tN8YclmfGiJpwsSc6lKo0GPWNA9EEaNOBlu0J79kbBqggOb5mXwtYsjaKUAq/MM=
+X-Google-Smtp-Source: AGHT+IGXzjcSLJNod0+4HL4Ih6pp20uZOLo+tZhLBwZQD5QFrAyhVsfR1DSp8c+sjOb8Yj00NhB9bA==
+X-Received: by 2002:a05:600c:3b06:b0:418:df5a:3fba with SMTP id m6-20020a05600c3b0600b00418df5a3fbamr1474289wms.32.1713534679953;
+        Fri, 19 Apr 2024 06:51:19 -0700 (PDT)
+Received: from localhost ([193.47.165.251])
+        by smtp.gmail.com with ESMTPSA id a12-20020a056000050c00b00349ac818326sm4463206wrf.43.2024.04.19.06.51.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 19 Apr 2024 06:51:19 -0700 (PDT)
+Date: Fri, 19 Apr 2024 15:51:16 +0200
+From: Jiri Pirko <jiri@resnulli.us>
+To: Benjamin Poirier <benjamin.poirier@gmail.com>
+Cc: netdev@vger.kernel.org, kuba@kernel.org, pabeni@redhat.com,
+	davem@davemloft.net, edumazet@google.com, parav@nvidia.com,
+	mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+	shuah@kernel.org, petrm@nvidia.com, liuhangbin@gmail.com,
+	vladimir.oltean@nxp.com, idosch@nvidia.com,
+	virtualization@lists.linux.dev
+Subject: Re: [patch net-next v4 2/6] selftests: forwarding: move initial root
+ check to the beginning
+Message-ID: <ZiJ21Pz0Pa1bo0KJ@nanopsycho>
+References: <20240418160830.3751846-1-jiri@resnulli.us>
+ <20240418160830.3751846-3-jiri@resnulli.us>
+ <ZiFq9EmbGZ3psdho@f4>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH io_uring-next/net-next v2 0/4] implement io_uring
- notification (ubuf_info) stacking
-To: io-uring@vger.kernel.org, netdev@vger.kernel.org
-Cc: Jens Axboe <axboe@kernel.dk>, "David S . Miller" <davem@davemloft.net>,
- Jakub Kicinski <kuba@kernel.org>, David Ahern <dsahern@kernel.org>,
- Eric Dumazet <edumazet@google.com>,
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
- Jason Wang <jasowang@redhat.com>, Wei Liu <wei.liu@kernel.org>,
- Paul Durrant <paul@xen.org>, xen-devel@lists.xenproject.org,
- "Michael S . Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev,
- kvm@vger.kernel.org
-References: <cover.1713369317.git.asml.silence@gmail.com>
-Content-Language: en-US
-From: Pavel Begunkov <asml.silence@gmail.com>
-In-Reply-To: <cover.1713369317.git.asml.silence@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZiFq9EmbGZ3psdho@f4>
 
-On 4/19/24 12:08, Pavel Begunkov wrote:
-> Please, don't take directly, conflicts with io_uring.
+Thu, Apr 18, 2024 at 08:48:20PM CEST, benjamin.poirier@gmail.com wrote:
+>On 2024-04-18 18:08 +0200, Jiri Pirko wrote:
+>> From: Jiri Pirko <jiri@nvidia.com>
+>> 
+>> This check can be done at the very beginning of the script.
+>> As the follow up patch needs to add early code that needs to be executed
+>> after the check, move it.
+>> 
+>> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
+>> ---
+>> v3->v4:
+>> - removed NUM_NETIFS mode, rephrased the patch subject and description
+>>   accordingly
+>> ---
+>>  tools/testing/selftests/net/forwarding/lib.sh | 10 +++++-----
+>>  1 file changed, 5 insertions(+), 5 deletions(-)
+>> 
+>> diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
+>> index 7913c6ee418d..b63a5866ce97 100644
+>> --- a/tools/testing/selftests/net/forwarding/lib.sh
+>> +++ b/tools/testing/selftests/net/forwarding/lib.sh
+>> @@ -84,6 +84,11 @@ declare -A NETIFS=(
+>>  # e.g. a low-power board.
+>>  : "${KSFT_MACHINE_SLOW:=no}"
+>>  
+>> +if [[ "$(id -u)" -ne 0 ]]; then
+>> +	echo "SKIP: need root privileges"
+>> +	exit $ksft_skip
+>> +fi
+>> +
+>
+>There's a small problem here. ksft_skip is defined in net/lib.sh which
+>hasn't yet been imported at this point.
+>
+>Also, on my system at least, the code in the next patch can run
+>successfully as an unprivileged user. So what is this patch needed for
+>exactly?
 
-When everyone is happy with the patches, Jens and Jakub will hopefully
-help to merge them. E.g. first staging net/ specific changes [1] and then
-handling all conflicts on the io_uring side.
-
-[1] https://github.com/isilence/linux.git iou-sendzc/notif-stacking-v2-netonly
-
-
-> To have per request buffer notifications each zerocopy io_uring send
-> request allocates a new ubuf_info. However, as an skb can carry only
-> one uarg, it may force the stack to create many small skbs hurting
-> performance in many ways.
-> 
-> The patchset implements notification, i.e. an io_uring's ubuf_info
-> extension, stacking. It attempts to link ubuf_info's into a list,
-> allowing to have multiple of them per skb.
-> 
-> liburing/examples/send-zerocopy shows up 6 times performance improvement
-> for TCP with 4KB bytes per send, and levels it with MSG_ZEROCOPY. Without
-> the patchset it requires much larger sends to utilise all potential.
-> 
-> bytes  | before | after (Kqps)
-> 1200   | 195    | 1023
-> 4000   | 193    | 1386
-> 8000   | 154    | 1058
-> 
-> The patches are on top of net-next + io_uring-next:
-> 
-> https://github.com/isilence/linux.git iou-sendzc/notif-stacking-v2
-> 
-> First two patches based on net-next:
-> 
-> https://github.com/isilence/linux.git iou-sendzc/notif-stacking-v2-netonly
-> 
-> v2: convert xen-netback to ubuf_info_ops (patch 1)
->      drop two separately merged io_uring patches
-> 
-> Pavel Begunkov (4):
->    net: extend ubuf_info callback to ops structure
->    net: add callback for setting a ubuf_info to skb
->    io_uring/notif: simplify io_notif_flush()
->    io_uring/notif: implement notification stacking
-> 
->   drivers/net/tap.c                   |  2 +-
->   drivers/net/tun.c                   |  2 +-
->   drivers/net/xen-netback/common.h    |  5 +-
->   drivers/net/xen-netback/interface.c |  2 +-
->   drivers/net/xen-netback/netback.c   | 11 ++--
->   drivers/vhost/net.c                 |  8 ++-
->   include/linux/skbuff.h              | 21 +++++---
->   io_uring/notif.c                    | 83 +++++++++++++++++++++++++----
->   io_uring/notif.h                    | 12 ++---
->   net/core/skbuff.c                   | 36 ++++++++-----
->   10 files changed, 134 insertions(+), 48 deletions(-)
-> 
-
--- 
-Pavel Begunkov
+Okay, you are right. Will remove this patch.
