@@ -1,398 +1,143 @@
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-io1-f70.google.com (mail-io1-f70.google.com [209.85.166.70])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32F6D4E1AD
-	for <virtualization@lists.linux.dev>; Fri, 19 Apr 2024 08:15:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B566478676
+	for <virtualization@lists.linux.dev>; Fri, 19 Apr 2024 09:39:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.70
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713514514; cv=none; b=OlV7OXYdoQqPBX2TvrI5CY/6Tr0d96FtEc+oMaVVY3H/Rhwjk5HzV4bOwIVRp9laG+ZDiqM5RTSbMAuxcHDVZ2A7bB7kIBMgP5ruh5TIfq5e6jpfzwAVxLKQzTZhaUVkKkjqbrJnLz/qlJZ7cPI+u050aytGiCtFXXZUmGrJkr8=
+	t=1713519563; cv=none; b=V60cYHP2Xs6iUKirmFLb47UnG5OK7ws2omd4ikFNUx5A1MDMCj32ADdtemd4C82vmGzbIZYzTBJxIcxWhKJLbpPaV5m4D7w8GsNtbNzP2H7tCNhMdJdr/Qo2E/Y0nBXZKr1jKQoaqaGRoAeWF6MF5NgY4SluvFvMv8eh9eVfj18=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713514514; c=relaxed/simple;
-	bh=W6O1N8q8160ivDtBwYT5ybDM6oi1sXpWvlup6bOebvo=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=qyueUZZ8pyK/2DKGbDrnIQBhlUd6jtpTIHbu6dfnWXIeMLm8DrZJ16CTiMB9Hl/Kjw7UX8CmAiNksbxGJ6u2MPimmfZ1pVPsK3wbabYExzzooPgRQC6rDosx+RnOU9QygsU1ptveaDxl9zuktr3xN6r33KtUUrF0sW8i/1+cqDA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=oP9YQ3EF; arc=none smtp.client-ip=115.124.30.99
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="oP9YQ3EF"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1713514504; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=SsTvPpb3tY0YMGgwwpXAnb7QNWsQY/02fECcwa2Vi/w=;
-	b=oP9YQ3EF01Cpy9fcijrP2slPcti6ggP25JQ3kPmISvIdJ+NbfUu5qefx6wNbhqnUyB0QMxdJYWHdCTHc5utZRO8/1YUEaceVHDX0FIzwQGfChaP978H3Za5Ed3RgDakNlCiudJplI99sVszSI0YHOMJqZlWR/mX6cJTsLx0afl8=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R701e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0W4rWc88_1713514501;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W4rWc88_1713514501)
-          by smtp.aliyun-inc.com;
-          Fri, 19 Apr 2024 16:15:02 +0800
-Message-ID: <1713514442.7951615-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost 4/6] virtio_net: big mode support premapped
-Date: Fri, 19 Apr 2024 16:14:02 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux.dev,
- "Michael S. Tsirkin" <mst@redhat.com>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- netdev@vger.kernel.org
-References: <20240411025127.51945-1-xuanzhuo@linux.alibaba.com>
- <20240411025127.51945-5-xuanzhuo@linux.alibaba.com>
- <CACGkMEvhejnVM=x2+PxnKXcyC4W4nAbhkt4-reWb-7=fYQ6qKw@mail.gmail.com>
- <1713428960.80807-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEvDQ1Zs3Ya0TR1O8SANDEmBQ-+_2iFt7dpBDeE=i+PExQ@mail.gmail.com>
- <1713500472.3614385-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEsDB+tMFEvRtyDAz83dkd9fpuh51u=KyUZkgh+gizmK7g@mail.gmail.com>
- <1713510204.1357317-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEvconuYjrg1Oi6mgLAWCw5Pq=i_CrivnzTJ+ONavV8Rzw@mail.gmail.com>
- <1713511597.5359378-4-xuanzhuo@linux.alibaba.com>
- <CACGkMEu-SXDrnUX2jcVepxOo-QYo7QhwDRs-4_Rrc3Pf1K1Q6g@mail.gmail.com>
-In-Reply-To: <CACGkMEu-SXDrnUX2jcVepxOo-QYo7QhwDRs-4_Rrc3Pf1K1Q6g@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+	s=arc-20240116; t=1713519563; c=relaxed/simple;
+	bh=6jZSfvpaaCKq0bj6HshxiI6mvjEzGREzydJPX5Hx7QA=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=ddAaYBMgzG2BNyFrhFQ1yhop4E2uR8H29KOM7pBHpD1DXaJRK5/nW8qaWkXQhTKZ3DRXMCCk75Z/mCSJithD1n0XEBWEbQ8cY2Q+We7VuPKzobzk2PPdd8M99YfaFsvZbyEhyRWGDhJGT2q6Ht3B9UaaZREDoS4yqRnyE6nX348=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.70
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-io1-f70.google.com with SMTP id ca18e2360f4ac-7da41c4b1eeso115933139f.2
+        for <virtualization@lists.linux.dev>; Fri, 19 Apr 2024 02:39:21 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713519561; x=1714124361;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=ODz03erUT5lzWIHfBAq/6sw2VW7YfSONQgBGKH/0fxg=;
+        b=thF88YKLePlACx7ZHtRsUiSDPgS0FV3xe55QDB1njswsAg19t+7bmT7woVv5dkYxPZ
+         doWpXw2gv+4tj0QvYMi5azIFJuQeDup6ORwXz5UqO5lqLKdcPN5/6WRc+jMDINagvop9
+         j/JP3KTnoh/wUrj9EsgehpNL9CJuP2WwPTdQC5esk7Ore9rtzb5xiWyUD/NT0I1dke4f
+         ghOOeohWeh7oat6rVJqkgqGzrh8SOlKMik1FgA6pjS7SjTY7Sg4A3aMqMjkuuU82A537
+         7jcgbK5aWEKmmh3Bf4Ad9lEG3H+r85fMgVMh/6DaYyG/ibjtBPSLIG1yCcJRcECbfnzE
+         vknA==
+X-Forwarded-Encrypted: i=1; AJvYcCWIeROCfvpYsdNvID9EwS/mAxTON9LvpTNzv2WW2g8Uvo2I3piwPN9xN+X/ykLbt6FauUYDRLTpW180kf9VS23iHsiMrYTLWsKCBUmpqVI=
+X-Gm-Message-State: AOJu0YywAuUdwz4TP5hTcn2vBUh0+6b+4m1YnFjnLiA8AHe5WDSqSve9
+	AAbSiKDUXhBWODapOf/DklvEEuNJp9qwSM+hyA2MHavYVl8IACS5+91/uRndquLCCaAJDyQyI3e
+	YMH40pZQQ0yw7lypGUEnU9Cgk0EObFLBlPbkJZ9FsNU0V06I65PxvI1k=
+X-Google-Smtp-Source: AGHT+IEJ9Ehw0UhWltGbzxsJAftrUeesQISQsqjJJIr8Psi97w8LN8Pw9FgIykxBpjSAzIn1CZxAdiJtph5FMolLQC/uEHB4vBX4
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+X-Received: by 2002:a05:6602:f0a:b0:7cc:2522:f5fd with SMTP id
+ hl10-20020a0566020f0a00b007cc2522f5fdmr24643iob.1.1713519560898; Fri, 19 Apr
+ 2024 02:39:20 -0700 (PDT)
+Date: Fri, 19 Apr 2024 02:39:20 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <000000000000be4e1c06166fdc85@google.com>
+Subject: [syzbot] [virt?] [net?] KMSAN: uninit-value in vsock_assign_transport (2)
+From: syzbot <syzbot+6c21aeb59d0e82eb2782@syzkaller.appspotmail.com>
+To: davem@davemloft.net, edumazet@google.com, kuba@kernel.org, 
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org, pabeni@redhat.com, 
+	sgarzare@redhat.com, syzkaller-bugs@googlegroups.com, 
+	virtualization@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
 
-On Fri, 19 Apr 2024 16:12:15 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Fri, Apr 19, 2024 at 3:28=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba=
-.com> wrote:
-> >
-> > On Fri, 19 Apr 2024 15:24:25 +0800, Jason Wang <jasowang@redhat.com> wr=
-ote:
-> > > On Fri, Apr 19, 2024 at 3:07=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.ali=
-baba.com> wrote:
-> > > >
-> > > > On Fri, 19 Apr 2024 13:46:25 +0800, Jason Wang <jasowang@redhat.com=
-> wrote:
-> > > > > On Fri, Apr 19, 2024 at 12:23=E2=80=AFPM Xuan Zhuo <xuanzhuo@linu=
-x.alibaba.com> wrote:
-> > > > > >
-> > > > > > On Fri, 19 Apr 2024 08:43:43 +0800, Jason Wang <jasowang@redhat=
-.com> wrote:
-> > > > > > > On Thu, Apr 18, 2024 at 4:35=E2=80=AFPM Xuan Zhuo <xuanzhuo@l=
-inux.alibaba.com> wrote:
-> > > > > > > >
-> > > > > > > > On Thu, 18 Apr 2024 14:25:06 +0800, Jason Wang <jasowang@re=
-dhat.com> wrote:
-> > > > > > > > > On Thu, Apr 11, 2024 at 10:51=E2=80=AFAM Xuan Zhuo <xuanz=
-huo@linux.alibaba.com> wrote:
-> > > > > > > > > >
-> > > > > > > > > > In big mode, pre-mapping DMA is beneficial because if t=
-he pages are not
-> > > > > > > > > > used, we can reuse them without needing to unmap and re=
-map.
-> > > > > > > > > >
-> > > > > > > > > > We require space to store the DMA address. I use the pa=
-ge.dma_addr to
-> > > > > > > > > > store the DMA address from the pp structure inside the =
-page.
-> > > > > > > > > >
-> > > > > > > > > > Every page retrieved from get_a_page() is mapped, and i=
-ts DMA address is
-> > > > > > > > > > stored in page.dma_addr. When a page is returned to the=
- chain, we check
-> > > > > > > > > > the DMA status; if it is not mapped (potentially having=
- been unmapped),
-> > > > > > > > > > we remap it before returning it to the chain.
-> > > > > > > > > >
-> > > > > > > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > > > > > > > ---
-> > > > > > > > > >  drivers/net/virtio_net.c | 98 ++++++++++++++++++++++++=
-+++++++++-------
-> > > > > > > > > >  1 file changed, 81 insertions(+), 17 deletions(-)
-> > > > > > > > > >
-> > > > > > > > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/vir=
-tio_net.c
-> > > > > > > > > > index 4446fb54de6d..7ea7e9bcd5d7 100644
-> > > > > > > > > > --- a/drivers/net/virtio_net.c
-> > > > > > > > > > +++ b/drivers/net/virtio_net.c
-> > > > > > > > > > @@ -50,6 +50,7 @@ module_param(napi_tx, bool, 0644);
-> > > > > > > > > >
-> > > > > > > > > >  #define page_chain_next(p)     ((struct page *)((p)->p=
-p))
-> > > > > > > > > >  #define page_chain_add(p, n)   ((p)->pp =3D (void *)n)
-> > > > > > > > > > +#define page_dma_addr(p)       ((p)->dma_addr)
-> > > > > > > > > >
-> > > > > > > > > >  /* RX packet size EWMA. The average packet size is use=
-d to determine the packet
-> > > > > > > > > >   * buffer size when refilling RX rings. As the entire =
-RX ring may be refilled
-> > > > > > > > > > @@ -434,6 +435,46 @@ skb_vnet_common_hdr(struct sk_buff=
- *skb)
-> > > > > > > > > >         return (struct virtio_net_common_hdr *)skb->cb;
-> > > > > > > > > >  }
-> > > > > > > > > >
-> > > > > > > > > > +static void sg_fill_dma(struct scatterlist *sg, dma_ad=
-dr_t addr, u32 len)
-> > > > > > > > > > +{
-> > > > > > > > > > +       sg->dma_address =3D addr;
-> > > > > > > > > > +       sg->length =3D len;
-> > > > > > > > > > +}
-> > > > > > > > > > +
-> > > > > > > > > > +static void page_chain_unmap(struct receive_queue *rq,=
- struct page *p)
-> > > > > > > > > > +{
-> > > > > > > > > > +       virtqueue_dma_unmap_page_attrs(rq->vq, page_dma=
-_addr(p), PAGE_SIZE,
-> > > > > > > > > > +                                      DMA_FROM_DEVICE,=
- 0);
-> > > > > > > > > > +
-> > > > > > > > > > +       page_dma_addr(p) =3D DMA_MAPPING_ERROR;
-> > > > > > > > > > +}
-> > > > > > > > > > +
-> > > > > > > > > > +static int page_chain_map(struct receive_queue *rq, st=
-ruct page *p)
-> > > > > > > > > > +{
-> > > > > > > > > > +       dma_addr_t addr;
-> > > > > > > > > > +
-> > > > > > > > > > +       addr =3D virtqueue_dma_map_page_attrs(rq->vq, p=
-, 0, PAGE_SIZE, DMA_FROM_DEVICE, 0);
-> > > > > > > > > > +       if (virtqueue_dma_mapping_error(rq->vq, addr))
-> > > > > > > > > > +               return -ENOMEM;
-> > > > > > > > > > +
-> > > > > > > > > > +       page_dma_addr(p) =3D addr;
-> > > > > > > > > > +       return 0;
-> > > > > > > > > > +}
-> > > > > > > > > > +
-> > > > > > > > > > +static void page_chain_release(struct receive_queue *r=
-q)
-> > > > > > > > > > +{
-> > > > > > > > > > +       struct page *p, *n;
-> > > > > > > > > > +
-> > > > > > > > > > +       for (p =3D rq->pages; p; p =3D n) {
-> > > > > > > > > > +               n =3D page_chain_next(p);
-> > > > > > > > > > +
-> > > > > > > > > > +               page_chain_unmap(rq, p);
-> > > > > > > > > > +               __free_pages(p, 0);
-> > > > > > > > > > +       }
-> > > > > > > > > > +
-> > > > > > > > > > +       rq->pages =3D NULL;
-> > > > > > > > > > +}
-> > > > > > > > > > +
-> > > > > > > > > >  /*
-> > > > > > > > > >   * put the whole most recent used list in the beginnin=
-g for reuse
-> > > > > > > > > >   */
-> > > > > > > > > > @@ -441,6 +482,13 @@ static void give_pages(struct rece=
-ive_queue *rq, struct page *page)
-> > > > > > > > > >  {
-> > > > > > > > > >         struct page *end;
-> > > > > > > > > >
-> > > > > > > > > > +       if (page_dma_addr(page) =3D=3D DMA_MAPPING_ERRO=
-R) {
-> > > > > > > > >
-> > > > > > > > > This looks strange, the map should be done during allocat=
-ion. Under
-> > > > > > > > > which condition could we hit this?
-> > > > > > > >
-> > > > > > > > This first page is umapped before we call page_to_skb().
-> > > > > > > > The page can be put back to the link in case of failure.
-> > > > > > >
-> > > > > > > See below.
-> > > > > > >
-> > > > > > > >
-> > > > > > > >
-> > > > > > > > >
-> > > > > > > > > > +               if (page_chain_map(rq, page)) {
-> > > > > > > > > > +                       __free_pages(page, 0);
-> > > > > > > > > > +                       return;
-> > > > > > > > > > +               }
-> > > > > > > > > > +       }
-> > > > > > > > > > +
-> > > > > > > > > >         /* Find end of list, sew whole thing into vi->r=
-q.pages. */
-> > > > > > > > > >         for (end =3D page; page_chain_next(end); end =
-=3D page_chain_next(end));
-> > > > > > > > > >
-> > > > > > > > > > @@ -456,8 +504,15 @@ static struct page *get_a_page(str=
-uct receive_queue *rq, gfp_t gfp_mask)
-> > > > > > > > > >                 rq->pages =3D page_chain_next(p);
-> > > > > > > > > >                 /* clear chain here, it is used to chai=
-n pages */
-> > > > > > > > > >                 page_chain_add(p, NULL);
-> > > > > > > > > > -       } else
-> > > > > > > > > > +       } else {
-> > > > > > > > > >                 p =3D alloc_page(gfp_mask);
-> > > > > > > > > > +
-> > > > > > > > > > +               if (page_chain_map(rq, p)) {
-> > > > > > > > > > +                       __free_pages(p, 0);
-> > > > > > > > > > +                       return NULL;
-> > > > > > > > > > +               }
-> > > > > > > > > > +       }
-> > > > > > > > > > +
-> > > > > > > > > >         return p;
-> > > > > > > > > >  }
-> > > > > > > > > >
-> > > > > > > > > > @@ -613,8 +668,6 @@ static struct sk_buff *page_to_skb(=
-struct virtnet_info *vi,
-> > > > > > > > > >                         return NULL;
-> > > > > > > > > >
-> > > > > > > > > >                 page =3D page_chain_next(page);
-> > > > > > > > > > -               if (page)
-> > > > > > > > > > -                       give_pages(rq, page);
-> > > > > > > > > >                 goto ok;
-> > > > > > > > > >         }
-> > > > > > > > > >
-> > > > > > > > > > @@ -640,6 +693,7 @@ static struct sk_buff *page_to_skb(=
-struct virtnet_info *vi,
-> > > > > > > > > >                         skb_add_rx_frag(skb, 0, page, o=
-ffset, len, truesize);
-> > > > > > > > > >                 else
-> > > > > > > > > >                         page_to_free =3D page;
-> > > > > > > > > > +               page =3D NULL;
-> > > > > > > > > >                 goto ok;
-> > > > > > > > > >         }
-> > > > > > > > > >
-> > > > > > > > > > @@ -657,6 +711,11 @@ static struct sk_buff *page_to_skb=
-(struct virtnet_info *vi,
-> > > > > > > > > >         BUG_ON(offset >=3D PAGE_SIZE);
-> > > > > > > > > >         while (len) {
-> > > > > > > > > >                 unsigned int frag_size =3D min((unsigne=
-d)PAGE_SIZE - offset, len);
-> > > > > > > > > > +
-> > > > > > > > > > +               /* unmap the page before using it. */
-> > > > > > > > > > +               if (!offset)
-> > > > > > > > > > +                       page_chain_unmap(rq, page);
-> > > > > > > > > > +
-> > > > > > > > >
-> > > > > > > > > This sounds strange, do we need a virtqueue_sync_for_cpu(=
-) helper here?
-> > > > > > > >
-> > > > > > > > I think we do not need that. Because the umap api does it.
-> > > > > > > > We do not work with DMA_SKIP_SYNC;
-> > > > > > >
-> > > > > > > Well, the problem is unmap is too heavyweight and it reduces =
-the
-> > > > > > > effort of trying to avoid map/umaps as much as possible.
-> > > > > > >
-> > > > > > > For example, for most of the case DMA sync is just a nop. And=
- such
-> > > > > > > unmap() cause strange code in give_pages() as we discuss abov=
-e?
-> > > > > >
-> > > > > > YES. You are right. For the first page, we just need to sync fo=
-r cpu.
-> > > > > > And we do not need to check the dma status.
-> > > > > > But here (in page_to_skb), we need to call unmap, because this =
-page is put
-> > > > > > to the skb.
-> > > > >
-> > > > > Right, but issue still,
-> > > > >
-> > > > > The only case that we may hit
-> > > > >
-> > > > >         if (page_dma_addr(page) =3D=3D DMA_MAPPING_ERROR)
-> > > > >
-> > > > > is when the packet is smaller than GOOD_COPY_LEN.
-> > > > >
-> > > > > So if we sync_for_cpu for the head page, we don't do:
-> > > > >
-> > > > > 1) unmap in the receive_big()
-> > > > > 2) do snyc_for_cpu() just before skb_put_data(), so the page coul=
-d be
-> > > > > recycled to the pool without unmapping?
-> > > >
-> > > >
-> > > > I do not get.
-> > >
-> > > I meant something like e1000_copybreak().
-> > >
-> > > >
-> > > > I think we can remove the code "if (page_dma_addr(page) =3D=3D DMA_=
-MAPPING_ERROR)"
-> > > > from give_pages(). We just do unmap when the page is leaving virtio=
--net.
-> > >
-> > > That's the point.
-> > >
-> > > >
-> > > > >
-> > > > > And I think we should do something similar for the mergeable case?
-> > > >
-> > > > Do what?
-> > > >
-> > > > We have used the sync api for mergeable case.
-> > >
-> > > Where?
-> > >
-> > > I see virtnet_rq_get_buf which did sync but it is done after the page=
-_to_skb().
-> >
-> > What means "done"?
-> >
-> > Do you want to reuse the buffer?
->
-> Nope, I think I misread the code. Mergeable buffers should be fine as
-> the unmap were during virtnet_receive().
->
-> But the code might needs some tweak in the future
->
-> in virtnet_receive() we had:
->
-> if (!vi->big_packets || vi->mergeable_rx_bufs) {
->         virtnet_rq_get_buf
->         receive_buf()
-> } else {
->         virtqueue_get_buf()
-> }
->
-> but there's another switch in receive_buf():
->
-> if (vi->mergeable_rx_bufs)
-> else if (vi->big_packets)
-> else
-> ...
->
-> Which is kind of a mess somehow.
+Hello,
 
-YES. I will change this in the AF_XDP patch set.
+syzbot found the following issue on:
 
-Thanks.
+HEAD commit:    8cd26fd90c1a Merge tag 'for-6.9-rc4-tag' of git://git.kern..
+git tree:       upstream
+console+strace: https://syzkaller.appspot.com/x/log.txt?x=102d27cd180000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=87a805e655619c64
+dashboard link: https://syzkaller.appspot.com/bug?extid=6c21aeb59d0e82eb2782
+compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=16e38c3b180000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=10e62fed180000
+
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/488822aee24a/disk-8cd26fd9.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/ba40e322ba00/vmlinux-8cd26fd9.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/f30af1dfbc30/bzImage-8cd26fd9.xz
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+6c21aeb59d0e82eb2782@syzkaller.appspotmail.com
+
+=====================================================
+BUG: KMSAN: uninit-value in vsock_assign_transport+0xb2a/0xb90 net/vmw_vsock/af_vsock.c:500
+ vsock_assign_transport+0xb2a/0xb90 net/vmw_vsock/af_vsock.c:500
+ vsock_connect+0x544/0x1560 net/vmw_vsock/af_vsock.c:1393
+ __sys_connect_file net/socket.c:2048 [inline]
+ __sys_connect+0x606/0x690 net/socket.c:2065
+ __do_sys_connect net/socket.c:2075 [inline]
+ __se_sys_connect net/socket.c:2072 [inline]
+ __x64_sys_connect+0x91/0xe0 net/socket.c:2072
+ x64_sys_call+0x3356/0x3b50 arch/x86/include/generated/asm/syscalls_64.h:43
+ do_syscall_x64 arch/x86/entry/common.c:52 [inline]
+ do_syscall_64+0xcf/0x1e0 arch/x86/entry/common.c:83
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+
+Uninit was created at:
+ __kmalloc_large_node+0x231/0x370 mm/slub.c:3921
+ __do_kmalloc_node mm/slub.c:3954 [inline]
+ __kmalloc_node+0xb07/0x1060 mm/slub.c:3973
+ kmalloc_node include/linux/slab.h:648 [inline]
+ kvmalloc_node+0xc0/0x2d0 mm/util.c:634
+ kvmalloc include/linux/slab.h:766 [inline]
+ vhost_vsock_dev_open+0x44/0x510 drivers/vhost/vsock.c:659
+ misc_open+0x66b/0x760 drivers/char/misc.c:165
+ chrdev_open+0xa5f/0xb80 fs/char_dev.c:414
+ do_dentry_open+0x11f1/0x2120 fs/open.c:955
+ vfs_open+0x7e/0xa0 fs/open.c:1089
+ do_open fs/namei.c:3642 [inline]
+ path_openat+0x4a3c/0x5b00 fs/namei.c:3799
+ do_filp_open+0x20e/0x590 fs/namei.c:3826
+ do_sys_openat2+0x1bf/0x2f0 fs/open.c:1406
+ do_sys_open fs/open.c:1421 [inline]
+ __do_sys_openat fs/open.c:1437 [inline]
+ __se_sys_openat fs/open.c:1432 [inline]
+ __x64_sys_openat+0x2a1/0x310 fs/open.c:1432
+ x64_sys_call+0x3a64/0x3b50 arch/x86/include/generated/asm/syscalls_64.h:258
+ do_syscall_x64 arch/x86/entry/common.c:52 [inline]
+ do_syscall_64+0xcf/0x1e0 arch/x86/entry/common.c:83
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+
+CPU: 1 PID: 5021 Comm: syz-executor390 Not tainted 6.9.0-rc4-syzkaller-00038-g8cd26fd90c1a #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 03/27/2024
+=====================================================
 
 
->
-> Thanks
-> >
-> > Thanks.
-> >
-> > >
-> > > >
-> > > >
-> > > > >
-> > > > > Btw, I found one the misleading comment introduced by f80bd740cb7=
-c9
-> > > > >
-> > > > >         /* copy small packet so we can reuse these pages */
-> > > > >         if (!NET_IP_ALIGN && len > GOOD_COPY_LEN && tailroom >=3D=
- shinfo_size) {
-> > > > >
-> > > > > We're not copying but building skb around the head page.
-> > > >
-> > > > Will fix.
-> > > >
-> > > > Thanks.
-> > >
-> > > Thanks
-> > >
-> > > >
-> > > >
-> > > > >
-> > > > > Thanks
-> > > > >
-> > > > > >
-> > > > > > Thanks.
-> > > > > >
-> > > > > >
-> > > > > > >
-> > > > > > > Thanks
-> > > > > > >
-> > > > > >
-> > > > >
-> > > >
-> > >
-> >
->
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
+
+If you want syzbot to run the reproducer, reply with:
+#syz test: git://repo/address.git branch-or-commit-hash
+If you attach or paste a git patch, syzbot will apply it before testing.
+
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup
