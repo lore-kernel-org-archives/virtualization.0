@@ -1,33 +1,33 @@
-Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A023E4087F
-	for <virtualization@lists.linux.dev>; Fri, 19 Apr 2024 07:28:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F146A4779E
+	for <virtualization@lists.linux.dev>; Fri, 19 Apr 2024 07:54:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713511715; cv=none; b=XT3es7i0SAaBvHnJQ4W42gBQbJoGEcL2xErBuQVW53jQRq7ITTcE9naMvLcl4Bg5g+o1rXapHciloCuJObDu8facoZr2Myx15HXLrLDX5wnezP7eHwIQwyB4AxlS/68+qtBIGCHY5oDwqs4ktuRA1UWkDKk+Ff9FR9Wzeay6RnA=
+	t=1713513266; cv=none; b=pmdt7eU9PAfpK8x7zYqLRUt3MDCZ2+oVcGu2ITLitwVOjKUKQ4D3mTm1m1uh36EV8pJxjlRvgL+jHYj1AmC8M2M8n+ksIT3z1S1Ai9kRZHrbzAtFkcO6XZ7ap3txdX6SSPN480f42q1+/egHgCtkXLB4/KIptrT/KxVZjzn6Tcc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713511715; c=relaxed/simple;
-	bh=lVTYc4VOiyx/cqqXhS6iZBE2cLvEKwD6ROgL0V7AjGI=;
+	s=arc-20240116; t=1713513266; c=relaxed/simple;
+	bh=hE6IOg9TTq0sR7n+5ssuOTGZax13XDkS0jFD7Ss9jjg=;
 	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=CN70Fl8kdj7bBdpy7Y6h8Q8xU5UigaM5KCsLDyiX+r5TdO9hi/r52wa8VF9E5amt3ztMIkhq4zbRgA4n7M+2VGoH46v0n5xyD0IUHJ8PGavIdZbIR2l0Ct1xXOgobdeIDp34lm1rpCk7hGQMGVuFeRmVTBPQIP6hG95Q+Z7hvVE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=WHWNMnt+; arc=none smtp.client-ip=115.124.30.98
+	 Content-Type; b=Pa+Gq3ChQZ7yTcjYb7fkGMLnOEtgRlcCmuZfy0mTsW4X3yKHNEANEAi14DteNSL5qWdVwuOMcFGcE9QOG/pyieFTCcZ9l/zogsvI5LPbhoCDnuJjz3jm8NgVKxH/NoG7CmhorRlktIUUEN9ndChUcgduacEABdysvPPAqPM1jeI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=DqEeOwm7; arc=none smtp.client-ip=115.124.30.132
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="WHWNMnt+"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="DqEeOwm7"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1713511708; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=SYcIJw+/assk4znZ1IN7wRsNxaKuoZQRs7RrrZRKzKg=;
-	b=WHWNMnt+tozqRvQMpIqT4t3IuEYy7r+lrfE5q8QYP0+z3xRe1+WI1iRlT4emFktWQ8AUvTy4WBe8qE1CYDWqR6KSJBA7NYhuT3mGvNxqGNm9eS4awS/u+sr/qc1oH0lpaqS7feRKzcFUizKMQIfYXalYvo1Grq8JGs1naXjUVQM=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0W4rWht._1713511706;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W4rWht._1713511706)
+	t=1713513260; h=Message-ID:Subject:Date:From:To:Content-Type;
+	bh=mPzHzIZ9Zp8tAG4asTZs7uUmkA98R+O7wM/rtEBIJ+I=;
+	b=DqEeOwm77obsTFhxMGH661x0NGBgWWi5huCZkh1H2G/HY7lCOw5GmYdGJiqi4KkbDO3uvNz9VIzYiYNsDwX84rxqFeX9MpDDglZplrUlbmxW/8nfH5v45ZWaAMz2dVs3KmLOICInOCuHySMasFEOWt2p96PipJj9z7f7F+FA6PA=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0W4rWqk._1713513257;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W4rWqk._1713513257)
           by smtp.aliyun-inc.com;
-          Fri, 19 Apr 2024 15:28:27 +0800
-Message-ID: <1713511597.5359378-4-xuanzhuo@linux.alibaba.com>
+          Fri, 19 Apr 2024 15:54:19 +0800
+Message-ID: <1713513178.3479838-5-xuanzhuo@linux.alibaba.com>
 Subject: Re: [PATCH vhost 4/6] virtio_net: big mode support premapped
-Date: Fri, 19 Apr 2024 15:26:37 +0800
+Date: Fri, 19 Apr 2024 15:52:58 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: Jason Wang <jasowang@redhat.com>
 Cc: virtualization@lists.linux.dev,
@@ -304,11 +304,12 @@ ING_ERROR)"
 > I see virtnet_rq_get_buf which did sync but it is done after the page_to_=
 skb().
 
-What means "done"?
+Do you want to refill the buffer to vq?
 
-Do you want to reuse the buffer?
+But the page_frag doest not support to recycle buffer.
 
 Thanks.
+
 
 >
 > >
