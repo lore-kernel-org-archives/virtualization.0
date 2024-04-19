@@ -1,57 +1,57 @@
-Received: from mail-ed1-f44.google.com (mail-ed1-f44.google.com [209.85.208.44])
+Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 371D680618
-	for <virtualization@lists.linux.dev>; Fri, 19 Apr 2024 11:08:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB05781754
+	for <virtualization@lists.linux.dev>; Fri, 19 Apr 2024 11:08:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713524927; cv=none; b=upjoNcNo0yxobunrrm79BLrefK5a073vK28B0BNyUxqOCwZ4GIm941hvRrIFMXg44n9S3Aonyf4i2nitR2kT2HhwlOQKXkY+IMWlmZcxMOUje4cF98DTu7z79gj4FS5cE3Mkmer/qPEST6At+qaqgC8R/m7PxVnhkDfAds0YPdY=
+	t=1713524929; cv=none; b=rlg+9IKi57gwaqzv2we678C5UOxK8m1TyupMdlTbzd0YOLardmCVV/uiLo2KUn1aUbAlRz8m6BS/oD5TRwG4xwnHpE2at/0AYNyqs0IMFDhPb1OUdtYGpnn0wCsh7ykX/HXEeD71w25Jl2BPxP65ZgxUIWOCp8/INa2BcVdSmiU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713524927; c=relaxed/simple;
-	bh=1eVlmu4WPqTzS1vEzdsZXLCBN4erb9MBcCXhDGVcS9s=;
+	s=arc-20240116; t=1713524929; c=relaxed/simple;
+	bh=5Ihm49/gOZVBFXJiRL0zEQqhoh6Us3hM99ueJay4DGY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=W53XwZuZCDMdROgm23fs/vIMyfTb11x3EMHIjsbzJLwsUOByN8zTQ+7MGl4X1Ltts4DHS/2jEhZQ0DneqCoV9Ryw6qGriC3jpO1PZPCmCD2bt6mwbsvROJPoaNcMGIpN3xOonD6uQ4duk+KoUIzULR0VFiYIytWJCo58uxFTmaY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IR+twSVw; arc=none smtp.client-ip=209.85.208.44
+	 MIME-Version; b=sEI4hmHNilJ9kNQEwXUMPxDh58dPlITmh4XCS+vUGES37Oc8ccEvea0QMCTjZDbTRWLKU46cHRcHI8fqqwEI3PMSxE6ElwQr8CDHNrdUmizsQ1KyuXgVOy+ra1hTklsObbFoenMbENvNuWvHfH5iIquFvM/Ggfli2MyIzQsUsdY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LvMJtKSD; arc=none smtp.client-ip=209.85.208.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IR+twSVw"
-Received: by mail-ed1-f44.google.com with SMTP id 4fb4d7f45d1cf-56e477db7fbso3145759a12.3
-        for <virtualization@lists.linux.dev>; Fri, 19 Apr 2024 04:08:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LvMJtKSD"
+Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-565c6cf4819so5287336a12.1
+        for <virtualization@lists.linux.dev>; Fri, 19 Apr 2024 04:08:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1713524924; x=1714129724; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1713524926; x=1714129726; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=gztq7q+tVBfKfiFB41TR2uivJxMSmSRECNayk7q9P5o=;
-        b=IR+twSVwwOoaKT3dXUSNtkys8+ToHaG6E/e3oTclzr3NsKgbM62hUmBIUEd80wI9uQ
-         GZmrOQAXM+RSiQsbJzxvi2eerupCKBqwaHxQG8cPbIqOno6tcskt3SKSkV3kltRmEElH
-         d+TYJlt/+GGcrYX0j2nYb+200gOUFn54y+q+Dfhol2bupGL4i2Y3Wxh+ovVu8Hf7Q3en
-         Cts7aJaRaxbp4TE/4G5bI39sgHPEBtP7tb6zAvCUbbB8XYMSUjGwUzNy+uaQ+JnzzuNl
-         cqJeZOrP9eyomThh28QCeGvfML2HqlZCU6P3s1oqMqSffaRY274iOKcYIAz9yY2UABvM
-         M5Bg==
+        bh=vg0pL2CVxV49Fgeqn+qahTZ1Z4PbsN7awrFUvCLM+ng=;
+        b=LvMJtKSDa04/ywAtGFh/rPHnqnHuY7RP4+szd+xf9t/p1pM3sht/Ehq2nvYjwRMLdQ
+         9Oyn2hKXDQad2LWqRXq+0x3bRexU3HyvMkoHRQmSCxnfwSVRaM63w4aNJjt71OidnSZQ
+         bn80IUC8kEhrNEWaxcG6oqcuTp7xGEIF8cXGm+YVENMkBgTd6vdvjYcihrkCPIRtv4C7
+         Un+77WHB4pRLDi8qA2wHpPX5bIIGEIsWg/h0LDVn65vTK34lgikDRtO48CBu1EPaLuYf
+         7gubcTFzSxftocSdG80s+o213lgJ4eAzXbMXnteK9F6q+Ovjr/Bm4/bW8Smvj+EVFE3M
+         u1hg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713524924; x=1714129724;
+        d=1e100.net; s=20230601; t=1713524926; x=1714129726;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=gztq7q+tVBfKfiFB41TR2uivJxMSmSRECNayk7q9P5o=;
-        b=tJOPvQkTDtpHfu4CiU9CFxF3z+XuO8UKMkXC2Czz1FbRYSM0FwU9bdNzKAFaWAJ25R
-         ADwNjIEXGqzKPLva3tSBi7ucEv10jfrktaf0l3lwF4ojPVo5Z0Xfyh1yVC5YpTlbv1rG
-         7zsSxoSAu6QtfeRZ9TWSaZkgiOSoLJIKdvCev880Ied5hWzYYYp4Yptu2sBe6spqtr83
-         R0zp1mBIBPABgT5UmVmLBhm+8imQr91R2lQP6G8WSsN13/+a5ck2suuO0ldkebEaRo+J
-         tfxDxWRZRJR2CZ6K6KYGTmLdKBGHjMj23ny7i5XzjyGFxGIuSSNGLaErgg5HR4OsDX+f
-         B+Fw==
-X-Forwarded-Encrypted: i=1; AJvYcCVVvCH13U+ho11Iq3xubh0nhkTVoXg64s0Q3gvQG4+iQAtkF4+CLU2PauFFYsZSyDSK5Tr+ZPweyYLEm2LAdqJ0T3kmUew+Jy5ilegFrys=
-X-Gm-Message-State: AOJu0YxHknPUCsaoHE1/f/eBSx/wuH8v2AYnZctVVFzGskrzb0s9AyFL
-	JDENBa01LVCaz4XtmTGNLUpvP8n0sOE7SkkiayIaHalKdMiw/I/kiwBa5Q==
-X-Google-Smtp-Source: AGHT+IFLPp89/CqqYt/oDY9TsD6MpTpW+WHomUzd8c9Q6sFQ45RxeiYZXRR2f3kaQNaQYK9HhlusCw==
-X-Received: by 2002:a17:907:9624:b0:a52:2a36:38bf with SMTP id gb36-20020a170907962400b00a522a3638bfmr1634494ejc.55.1713524924521;
-        Fri, 19 Apr 2024 04:08:44 -0700 (PDT)
+        bh=vg0pL2CVxV49Fgeqn+qahTZ1Z4PbsN7awrFUvCLM+ng=;
+        b=Gn3zhc3stg09WNyM40L4KcbxtEtQSqfllAQw/jVaTq68aS5WeahwDF00RmnzEl/gVO
+         KhXL843s7ZhA/pG5K8qkux5ZVk2/vbZ1vqRi9c0HNgUKyyjf6KutXCqUqQ+H8bDq4Lmx
+         DkhPhIql5/3CCSDIRkToP42F/JYqBwNIBErd53h092igCIDEpVGE1JDel6EKuGl3IAYy
+         2+58QDZHgtPEf4XlNmK68ZEADA0Zjcp/LS4mAIuwT0mQlTAly0NqNypRx3hKpXNNAh85
+         NHx3g0ecQxLxM1mzz0UsjwPejV2rvQ5IDYFrfRIWxdTR6fzXbNH0xcUU456Rxn03Oe5E
+         ZGDg==
+X-Forwarded-Encrypted: i=1; AJvYcCVVtQcPMKMndwqJ7g30SxXacJ30yQmSlzwcYw7ZqzoC0WB/8RjtkkKLFuOpXnzk6T1JgEKJzG8YLbl25l4QJTBHqQLR/YcFbR21HQPpygI=
+X-Gm-Message-State: AOJu0Yyn/VbrNRhgnxXp4g79LNVimLR+WD/gEAngQHpmURI03h4xQgX0
+	3haWF96A0fhctR9cpPATRNKuYdVFt4ZPHld7rGqbxWMkU250E9Bk
+X-Google-Smtp-Source: AGHT+IGlNNpKG3wGDzOQc1RYm8RL9LY87wF61Oxy7BMYiyIn9QMexWxwwOK9pfN0OrWYDJl4d93LDw==
+X-Received: by 2002:a17:907:7215:b0:a55:75f7:42fb with SMTP id dr21-20020a170907721500b00a5575f742fbmr4895587ejc.24.1713524926172;
+        Fri, 19 Apr 2024 04:08:46 -0700 (PDT)
 Received: from 127.0.0.1localhost ([163.114.131.193])
-        by smtp.gmail.com with ESMTPSA id z13-20020a17090655cd00b00a4739efd7cesm2082525ejp.60.2024.04.19.04.08.42
+        by smtp.gmail.com with ESMTPSA id z13-20020a17090655cd00b00a4739efd7cesm2082525ejp.60.2024.04.19.04.08.44
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 19 Apr 2024 04:08:43 -0700 (PDT)
+        Fri, 19 Apr 2024 04:08:45 -0700 (PDT)
 From: Pavel Begunkov <asml.silence@gmail.com>
 To: io-uring@vger.kernel.org,
 	netdev@vger.kernel.org
@@ -69,9 +69,9 @@ Cc: Jens Axboe <axboe@kernel.dk>,
 	"Michael S . Tsirkin" <mst@redhat.com>,
 	virtualization@lists.linux.dev,
 	kvm@vger.kernel.org
-Subject: [PATCH io_uring-next/net-next v2 2/4] net: add callback for setting a ubuf_info to skb
-Date: Fri, 19 Apr 2024 12:08:40 +0100
-Message-ID: <b7918aadffeb787c84c9e72e34c729dc04f3a45d.1713369317.git.asml.silence@gmail.com>
+Subject: [PATCH io_uring-next/net-next v2 3/4] io_uring/notif: simplify io_notif_flush()
+Date: Fri, 19 Apr 2024 12:08:41 +0100
+Message-ID: <19e41652c16718b946a5c80d2ad409df7682e47e.1713369317.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.44.0
 In-Reply-To: <cover.1713369317.git.asml.silence@gmail.com>
 References: <cover.1713369317.git.asml.silence@gmail.com>
@@ -83,78 +83,67 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-At the moment an skb can only have one ubuf_info associated with it,
-which might be a performance problem for zerocopy sends in cases like
-TCP via io_uring. Add a callback for assigning ubuf_info to skb, this
-way we will implement smarter assignment later like linking ubuf_info
-together.
-
-Note, it's an optional callback, which should be compatible with
-skb_zcopy_set(), that's because the net stack might potentially decide
-to clone an skb and take another reference to ubuf_info whenever it
-wishes. Also, a correct implementation should always be able to bind to
-an skb without prior ubuf_info, otherwise we could end up in a situation
-when the send would not be able to progress.
+io_notif_flush() is partially duplicating io_tx_ubuf_complete(), so
+instead of duplicating it, make the flush call io_tx_ubuf_complete.
 
 Reviewed-by: Jens Axboe <axboe@kernel.dk>
-Reviewed-by: David Ahern <dsahern@kernel.org>
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- include/linux/skbuff.h |  2 ++
- net/core/skbuff.c      | 20 ++++++++++++++------
- 2 files changed, 16 insertions(+), 6 deletions(-)
+ io_uring/notif.c | 6 +++---
+ io_uring/notif.h | 9 +++------
+ 2 files changed, 6 insertions(+), 9 deletions(-)
 
-diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
-index a44954264746..f76825e5b92a 100644
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -530,6 +530,8 @@ enum {
- struct ubuf_info_ops {
- 	void (*complete)(struct sk_buff *, struct ubuf_info *,
- 			 bool zerocopy_success);
-+	/* has to be compatible with skb_zcopy_set() */
-+	int (*link_skb)(struct sk_buff *skb, struct ubuf_info *uarg);
+diff --git a/io_uring/notif.c b/io_uring/notif.c
+index 53532d78a947..26680176335f 100644
+--- a/io_uring/notif.c
++++ b/io_uring/notif.c
+@@ -9,7 +9,7 @@
+ #include "notif.h"
+ #include "rsrc.h"
+ 
+-void io_notif_tw_complete(struct io_kiocb *notif, struct io_tw_state *ts)
++static void io_notif_tw_complete(struct io_kiocb *notif, struct io_tw_state *ts)
+ {
+ 	struct io_notif_data *nd = io_notif_to_data(notif);
+ 
+@@ -23,8 +23,8 @@ void io_notif_tw_complete(struct io_kiocb *notif, struct io_tw_state *ts)
+ 	io_req_task_complete(notif, ts);
+ }
+ 
+-static void io_tx_ubuf_complete(struct sk_buff *skb, struct ubuf_info *uarg,
+-				bool success)
++void io_tx_ubuf_complete(struct sk_buff *skb, struct ubuf_info *uarg,
++			 bool success)
+ {
+ 	struct io_notif_data *nd = container_of(uarg, struct io_notif_data, uarg);
+ 	struct io_kiocb *notif = cmd_to_io_kiocb(nd);
+diff --git a/io_uring/notif.h b/io_uring/notif.h
+index 2e25a2fc77d1..2cf9ff6abd7a 100644
+--- a/io_uring/notif.h
++++ b/io_uring/notif.h
+@@ -21,7 +21,8 @@ struct io_notif_data {
  };
  
- /*
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index 0f4cc759824b..0c8b82750000 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -1824,11 +1824,18 @@ int skb_zerocopy_iter_stream(struct sock *sk, struct sk_buff *skb,
- 	struct ubuf_info *orig_uarg = skb_zcopy(skb);
- 	int err, orig_len = skb->len;
+ struct io_kiocb *io_alloc_notif(struct io_ring_ctx *ctx);
+-void io_notif_tw_complete(struct io_kiocb *notif, struct io_tw_state *ts);
++void io_tx_ubuf_complete(struct sk_buff *skb, struct ubuf_info *uarg,
++			 bool success);
  
--	/* An skb can only point to one uarg. This edge case happens when
--	 * TCP appends to an skb, but zerocopy_realloc triggered a new alloc.
--	 */
--	if (orig_uarg && uarg != orig_uarg)
--		return -EEXIST;
-+	if (uarg->ops->link_skb) {
-+		err = uarg->ops->link_skb(skb, uarg);
-+		if (err)
-+			return err;
-+	} else {
-+		/* An skb can only point to one uarg. This edge case happens
-+		 * when TCP appends to an skb, but zerocopy_realloc triggered
-+		 * a new alloc.
-+		 */
-+		if (orig_uarg && uarg != orig_uarg)
-+			return -EEXIST;
-+	}
+ static inline struct io_notif_data *io_notif_to_data(struct io_kiocb *notif)
+ {
+@@ -33,11 +34,7 @@ static inline void io_notif_flush(struct io_kiocb *notif)
+ {
+ 	struct io_notif_data *nd = io_notif_to_data(notif);
  
- 	err = __zerocopy_sg_from_iter(msg, sk, skb, &msg->msg_iter, len);
- 	if (err == -EFAULT || (err == -EMSGSIZE && skb->len == orig_len)) {
-@@ -1842,7 +1849,8 @@ int skb_zerocopy_iter_stream(struct sock *sk, struct sk_buff *skb,
- 		return err;
- 	}
- 
--	skb_zcopy_set(skb, uarg, NULL);
-+	if (!uarg->ops->link_skb)
-+		skb_zcopy_set(skb, uarg, NULL);
- 	return skb->len - orig_len;
+-	/* drop slot's master ref */
+-	if (refcount_dec_and_test(&nd->uarg.refcnt)) {
+-		notif->io_task_work.func = io_notif_tw_complete;
+-		__io_req_task_work_add(notif, IOU_F_TWQ_LAZY_WAKE);
+-	}
++	io_tx_ubuf_complete(NULL, &nd->uarg, true);
  }
- EXPORT_SYMBOL_GPL(skb_zerocopy_iter_stream);
+ 
+ static inline int io_notif_account_mem(struct io_kiocb *notif, unsigned len)
 -- 
 2.44.0
 
