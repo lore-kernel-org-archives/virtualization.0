@@ -1,187 +1,329 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 278BC7F
-	for <virtualization@lists.linux.dev>; Fri, 19 Apr 2024 00:28:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C701384
+	for <virtualization@lists.linux-foundation.org>; Fri, 19 Apr 2024 00:34:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713486499; cv=none; b=mlqzw5drp471CxZa54R/h9XmtVw2vDjZlW6FSupGxCkc6Fqbeloz/ZSqHiq3sbfudMdZcOOuudQRtkwJMUoLkx+UjnzGwiRdh6jC2AXfu4pMpMp/LqR5gbZft4tpr4neIhyziaP5bhkkiGw22GG6sZj4nAukvZ0nE4tgDYXWTTc=
+	t=1713486862; cv=none; b=gqKmQuxxKMmhwUpl/qLN2L04aK6sJ5/C8+xACOH4BCxp/h8MCeXZdk+AiImH5sBRSL0e3vuF7s5y+0g39D64aeSxnq+3J5Jj7ZKVR2kCzeQkplZ9+0vZEm5M6M3L/yOf4N7OcXyczJTd2vm9q4BCqrRklTwsSubt6aLzC9goOgQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713486499; c=relaxed/simple;
-	bh=dSZNehnN9r5CezmIltdPA0VTrCS53EGh0PlQ+urRr+Y=;
+	s=arc-20240116; t=1713486862; c=relaxed/simple;
+	bh=UFxUK64tBqd5siOt60UEs3n5Tcj3NoKbRpvCN+BaYj4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Ol1265hIWuUEXojtcAbSnIjgxs3h1QA/KAHWkti6Go0/THyCBZ7iHHp3ljOjv66xK7gf+KX7X/Dmc92/GZ3nhQJGCjPxFV3s3UL7TbKozPkC7HJn7U8zROVQLLN7MkUhYPUJjoI/3/eJKseDUE2ENNvWZJ8FZh7+kb+j9ep7gPU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eDsN4QwJ; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 To:Cc:Content-Type; b=Dvc816opNXsuqglp3g06w4xYspm8xhuEyPwC0Tsueebz+/AgOSx5ucG5cY0mFpeRmw3aE6HfYotuiY416JiJsIgz+RhkH10JihmXT3t7fdnFS47ahdeix66Rj3CyhjQOty9SjO9O6scrNGVAcFxaTZdoBj7BS/tfV1xfQJJ4Kmc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=C9jf/t+E; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eDsN4QwJ"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="C9jf/t+E"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 0613640541
+	for <virtualization@lists.linux-foundation.org>; Fri, 19 Apr 2024 00:34:21 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id KUuHHeeCzh_B for <virtualization@lists.linux-foundation.org>;
+ Fri, 19 Apr 2024 00:34:19 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org BEDE040540
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BEDE040540
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=C9jf/t+E
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id BEDE040540
+	for <virtualization@lists.linux-foundation.org>; Fri, 19 Apr 2024 00:34:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1713486497;
+	s=mimecast20190719; t=1713486856;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=ixM43eKD6HyWWzLCviaitbDO8X0Exu4KtEmuOhFK9A4=;
-	b=eDsN4QwJrwyiDZkkwcUYVLFfWWOCiIryxf4Mt+b/vEZyrnHpstcTBBjoMi9Iy0mp2iqHzX
-	YVAay1q/5di5t40TbHQPf7AHiQ01rNsRcr1dPGBMGnsYs2TbTfxyzb6Zc7DxcwJgZNgiko
-	uGHqMvsVkBwp7qiSN/f3AaNJyQutkn8=
-Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
- [209.85.210.198]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=UFxUK64tBqd5siOt60UEs3n5Tcj3NoKbRpvCN+BaYj4=;
+	b=C9jf/t+EkbUlVtiNhMeW/3jwpk8SK8gN+evxom7uuPo+scRP8IDyqIy9HC9H9LTeEfKAVU
+	51YFC4D2egc/RS31CTR4phdUIs9TWXEQdyeylSUXMT98JyQdW9GjG3ScanXwflwzPL9Q4A
+	3t7M/kPwhZiyu8t2zSqfKfBW61/YHIw=
+Received: from mail-pf1-f200.google.com (mail-pf1-f200.google.com
+ [209.85.210.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-149-aDeHJ0qCNT64vBD7eQhBWw-1; Thu, 18 Apr 2024 20:28:15 -0400
-X-MC-Unique: aDeHJ0qCNT64vBD7eQhBWw-1
-Received: by mail-pf1-f198.google.com with SMTP id d2e1a72fcca58-6ed2e00aa22so1818671b3a.0
-        for <virtualization@lists.linux.dev>; Thu, 18 Apr 2024 17:28:15 -0700 (PDT)
+ us-mta-176-CXMzpYyuO4i7cnflzKvaFw-1; Thu, 18 Apr 2024 20:34:12 -0400
+X-MC-Unique: CXMzpYyuO4i7cnflzKvaFw-1
+Received: by mail-pf1-f200.google.com with SMTP id d2e1a72fcca58-6ece02cfbf2so1795437b3a.2
+        for <virtualization@lists.linux-foundation.org>; Thu, 18 Apr 2024 17:34:12 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713486494; x=1714091294;
+        d=1e100.net; s=20230601; t=1713486851; x=1714091651;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ixM43eKD6HyWWzLCviaitbDO8X0Exu4KtEmuOhFK9A4=;
-        b=DlJZnEAdzP45O3NcFDaO3+yaxRtAGapdBeRSvL4IGrf2tzRVBrE/0BrdLEUn39SkTz
-         ss171zxgZzvksnaZjtxdIf32DE9vMtLPt1mWh+2i0NKCg24CIWSII2O1IgSqzvnjA+hI
-         KHklOyr0Tno+w960qxgMBWoyzlHge872D4QzFWnZydhV/HPJYffjgkIvbHxbVl9hK7NV
-         1AddKRvYUFj4roFjcHYGeIqP1YiVIGSerC8MvDh0E8NzfKyLc97nLJDLthH6OaGpwQTW
-         uhQ6BcJySQFZvRt23S/bbiE1ogDljm2ksp+Uunps8SzmET7CfB+DI23MAAYJL8K+z0n4
-         0gmg==
-X-Forwarded-Encrypted: i=1; AJvYcCWUz4WZDf6kf2Y1wsftAXuhO29EsgtVwa39+8Mg0yMraAEUAN4a/ZjtoaJ8HjKCWfHOzuz/oH3Pt2rSuvUJ48trNXlFuq/1p5APaj/qcB0=
-X-Gm-Message-State: AOJu0YyhqDFabJoDYqISp9XXVFU/30cKkGwi5XZjoPYqmy9MB02vLcn3
-	wliHbEsLwFwUlO6xRSVYEsL5Vj48xgQEtqZ1mxg1IMRjVidIUgu5nMCjoQFuDF2JlSTuVHiYzHc
-	N0K0YA3fh3sN8oVPQTA+jZZwzhuMpe1C/178yhOj6PiERxppaghrOQhXJmgqeSDkTlJM6dnzVbj
-	dBdCNhOwJI8t6Uo7i49+YQFhcvYQQlxz0BBcV9/K0=
-X-Received: by 2002:a05:6a20:8415:b0:1a9:5ba1:3b1b with SMTP id c21-20020a056a20841500b001a95ba13b1bmr1121614pzd.9.1713486494596;
-        Thu, 18 Apr 2024 17:28:14 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IG3Jx6OWwhEuYt8SWfOjpP++d37DU+JdGZ54PDsqtZcYg5DtQuOhWM39nlaCkspQD0TH6XPuJAOobZoJsJP6/E=
-X-Received: by 2002:a05:6a20:8415:b0:1a9:5ba1:3b1b with SMTP id
- c21-20020a056a20841500b001a95ba13b1bmr1121597pzd.9.1713486494248; Thu, 18 Apr
- 2024 17:28:14 -0700 (PDT)
+        bh=UFxUK64tBqd5siOt60UEs3n5Tcj3NoKbRpvCN+BaYj4=;
+        b=ctR3tCyRsrIwxAObYMM+oeddq3PRt+u4f96UPVpHHKETECYsNMgxZex9rsO745R+MC
+         na3DFokhTAGtdxDfkXcIYDoTiwp7P+qYbkNCpBzzgejnNO75DoV61BGLFkII884wta+F
+         zm+QmnQKQhZAyAwM0EsswJslhbkIvgdRPtRBq8Nt3nE3XYsT863pf5ZKViCWt4Cr3Mvf
+         8ZWGwMi14bZdD8Fjeuf6dYEA9Sz6uzuCMCjQjKVCWbf+2Hc7JUfzRXvYB3gyO3mntHC+
+         thWGIfYoYi2LaF0zgfT72559IK/Q2SXMLmnlyNK3Zt8gWK5+jmMLGUdOT3VDEQAodzja
+         tFsQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVEXjua+OxMozqBwVMvgXaJr7K6PsDDEP/vRNphM0CNWWbQFM7kVrzbiVI9gz4Bb/tp4vt3UfWNPBCo4n0WbRAaneCY/q+H7a6iSv7mJs2W/1vx7hqdmtkVuQ==
+X-Gm-Message-State: AOJu0YwjKDzk3CRM5urcvy8XONNNjnVMTx1D/4YKDScYuVcADPKGgwgB
+	tgGdQeMx6ou119fx9LwbtgIqMB5PN9CkTsT49Bvl5gly/k3DNNMKYoILNITrAB82lbi+kZCAXJN
+	FKXf+WXUmVa6+qUEFRGm4kjXXGJqtzAp6UTwAXyQreHsOIxZpU3w0JTMlZf7oMOeCj+qSafF1sc
+	uTSPIOa3ioXzQYLapn3IZZFQ9ippOoK42lZhYJTKz5f22clk+9+9vwXQ==
+X-Received: by 2002:a05:6a20:d492:b0:1a7:c67:82ff with SMTP id im18-20020a056a20d49200b001a70c6782ffmr1102099pzb.13.1713486851527;
+        Thu, 18 Apr 2024 17:34:11 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHtiR9B2D1bmnqBAbJjf/swNXSeZpJMaisn+kA7kwEQz3FVsDCfagr1+SV1cv6Qh73gaJxBf9bqzM+H3I/CAGc=
+X-Received: by 2002:a05:6a20:d492:b0:1a7:c67:82ff with SMTP id
+ im18-20020a056a20d49200b001a70c6782ffmr1102084pzb.13.1713486851159; Thu, 18
+ Apr 2024 17:34:11 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240416193039.272997-1-danielj@nvidia.com> <20240416193039.272997-4-danielj@nvidia.com>
- <CACGkMEsCm3=7FtnsTRx5QJo3ZM0Ko1OEvssWew_tfxm5V=MXvQ@mail.gmail.com>
- <28e45768-5091-484d-b09e-4a63bc72a549@linux.alibaba.com> <ad9f7b83e48cfd7f1463d8c728061c30a4509076.camel@redhat.com>
- <CH0PR12MB85802CBD3808B483876F8C77C90E2@CH0PR12MB8580.namprd12.prod.outlook.com>
- <72f6c8a55adac52ad17dfe11a579b5b3d5dc3cec.camel@redhat.com> <a8ffbe97-22d1-4afe-bc6a-b4f9e7a8089a@linux.alibaba.com>
-In-Reply-To: <a8ffbe97-22d1-4afe-bc6a-b4f9e7a8089a@linux.alibaba.com>
+References: <20240316004707.45557-1-michael.christie@oracle.com>
+ <CACGkMEs1KSdUOgLbwbR-S0v1jv8-N5cM5ZwrWyK8raF50MSRZg@mail.gmail.com>
+ <9f75952f-c1a4-4483-8ec7-beddf022a821@oracle.com> <CACGkMEuY9cyCb+myzscHDetbfmDLZN-_JAFvZaAfrO0-Mc0FTA@mail.gmail.com>
+ <06369c2c-c363-4def-9ce0-f018a9e10e8d@oracle.com> <CACGkMEtm=YwQ6ZVyPGz+T=H2E8u6etv9OKbibtfMdzA7K6GibQ@mail.gmail.com>
+ <CACGkMEumEd+5bEjKosK3jY8TxveEas+QAOVSCEiYsR56Ag3C0w@mail.gmail.com>
+ <edc792c4-30c9-4065-bf09-657bd7766d04@oracle.com> <CACGkMEsH=+e+E234KymEdvZT-4K37X3iEmTKpvqGpMvSPkzRLQ@mail.gmail.com>
+ <20240418030112-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20240418030112-mutt-send-email-mst@kernel.org>
 From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 19 Apr 2024 08:28:03 +0800
-Message-ID: <CACGkMEsy54akTSCEeOqFiC39097F82kARmZv3F42xf2Xmq0-pA@mail.gmail.com>
-Subject: Re: [PATCH net-next v4 3/6] virtio_net: Add a lock for the command VQ.
-To: Heng Qi <hengqi@linux.alibaba.com>
-Cc: Paolo Abeni <pabeni@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, 
-	"mst@redhat.com" <mst@redhat.com>, "xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>, 
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
-	"davem@davemloft.net" <davem@davemloft.net>, "edumazet@google.com" <edumazet@google.com>, 
-	"kuba@kernel.org" <kuba@kernel.org>, Jiri Pirko <jiri@nvidia.com>, Dan Jurgens <danielj@nvidia.com>
+Date: Fri, 19 Apr 2024 08:33:59 +0800
+Message-ID: <CACGkMEtQes1-OhboEPKTBVKurkTqraZOKxvucMByc+HS_bFzjQ@mail.gmail.com>
+Subject: Re: [PATCH 0/9] vhost: Support SIGKILL by flushing and exiting
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Mike Christie <michael.christie@oracle.com>, oleg@redhat.com, ebiederm@xmission.com, 
+	virtualization@lists.linux-foundation.org, sgarzare@redhat.com, 
+	stefanha@redhat.com, brauner@kernel.org, Andreas Karis <akaris@redhat.com>, 
+	Laurent Vivier <lvivier@redhat.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Apr 19, 2024 at 12:12=E2=80=AFAM Heng Qi <hengqi@linux.alibaba.com>=
+On Thu, Apr 18, 2024 at 3:07=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
  wrote:
 >
->
->
-> =E5=9C=A8 2024/4/18 =E4=B8=8B=E5=8D=8811:48, Paolo Abeni =E5=86=99=E9=81=
-=93:
-> > On Thu, 2024-04-18 at 15:38 +0000, Dan Jurgens wrote:
-> >>> From: Paolo Abeni <pabeni@redhat.com>
-> >>> Sent: Thursday, April 18, 2024 5:57 AM
-> >>> On Thu, 2024-04-18 at 15:36 +0800, Heng Qi wrote:
-> >>>> =E5=9C=A8 2024/4/18 =E4=B8=8B=E5=8D=882:42, Jason Wang =E5=86=99=E9=
-=81=93:
-> >>>>> On Wed, Apr 17, 2024 at 3:31=E2=80=AFAM Daniel Jurgens <danielj@nvi=
-dia.com>
-> >>> wrote:
-> >>>>>> The command VQ will no longer be protected by the RTNL lock. Use a
-> >>>>>> spinlock to protect the control buffer header and the VQ.
-> >>>>>>
-> >>>>>> Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
-> >>>>>> Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-> >>>>>> ---
-> >>>>>>    drivers/net/virtio_net.c | 6 +++++-
-> >>>>>>    1 file changed, 5 insertions(+), 1 deletion(-)
-> >>>>>>
-> >>>>>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> >>>>>> index 0ee192b45e1e..d02f83a919a7 100644
-> >>>>>> --- a/drivers/net/virtio_net.c
-> >>>>>> +++ b/drivers/net/virtio_net.c
-> >>>>>> @@ -282,6 +282,7 @@ struct virtnet_info {
-> >>>>>>
-> >>>>>>           /* Has control virtqueue */
-> >>>>>>           bool has_cvq;
-> >>>>>> +       spinlock_t cvq_lock;
-> >>>>> Spinlock is instead of mutex which is problematic as there's no
-> >>>>> guarantee on when the driver will get a reply. And it became even
-> >>>>> more serious after 0d197a147164 ("virtio-net: add cond_resched() to
-> >>>>> the command waiting loop").
-> >>>>>
-> >>>>> Any reason we can't use mutex?
-> >>>> Hi Jason,
-> >>>>
-> >>>> I made a patch set to enable ctrlq's irq on top of this patch set,
-> >>>> which removes cond_resched().
-> >>>>
-> >>>> But I need a little time to test, this is close to fast. So could th=
-e
-> >>>> topic about cond_resched + spin lock or mutex lock be wait?
-> >>> The big problem is that until the cond_resched() is there, replacing =
+> On Thu, Apr 18, 2024 at 12:08:52PM +0800, Jason Wang wrote:
+> > On Thu, Apr 18, 2024 at 12:10=E2=80=AFAM Mike Christie
+> > <michael.christie@oracle.com> wrote:
+> > >
+> > > On 4/16/24 10:50 PM, Jason Wang wrote:
+> > > > On Mon, Apr 15, 2024 at 4:52=E2=80=AFPM Jason Wang <jasowang@redhat=
+.com> wrote:
+> > > >>
+> > > >> On Sat, Apr 13, 2024 at 12:53=E2=80=AFAM <michael.christie@oracle.=
+com> wrote:
+> > > >>>
+> > > >>> On 4/11/24 10:28 PM, Jason Wang wrote:
+> > > >>>> On Fri, Apr 12, 2024 at 12:19=E2=80=AFAM Mike Christie
+> > > >>>> <michael.christie@oracle.com> wrote:
+> > > >>>>>
+> > > >>>>> On 4/11/24 3:39 AM, Jason Wang wrote:
+> > > >>>>>> On Sat, Mar 16, 2024 at 8:47=E2=80=AFAM Mike Christie
+> > > >>>>>> <michael.christie@oracle.com> wrote:
+> > > >>>>>>>
+> > > >>>>>>> The following patches were made over Linus's tree and also ap=
+ply over
+> > > >>>>>>> mst's vhost branch. The patches add the ability for vhost_tas=
+ks to
+> > > >>>>>>> handle SIGKILL by flushing queued works, stop new works from =
+being
+> > > >>>>>>> queued, and prepare the task for an early exit.
+> > > >>>>>>>
+> > > >>>>>>> This removes the need for the signal/coredump hacks added in:
+> > > >>>>>>>
+> > > >>>>>>> Commit f9010dbdce91 ("fork, vhost: Use CLONE_THREAD to fix fr=
+eezer/ps regression")
+> > > >>>>>>>
+> > > >>>>>>> when the vhost_task patches were initially merged and fix the=
+ issue
+> > > >>>>>>> in this thread:
+> > > >>>>>>>
+> > > >>>>>>> https://lore.kernel.org/all/000000000000a41b82060e875721@goog=
+le.com/
+> > > >>>>>>>
+> > > >>>>>>> Long Background:
+> > > >>>>>>>
+> > > >>>>>>> The original vhost worker code didn't support any signals. If=
+ the
+> > > >>>>>>> userspace application that owned the worker got a SIGKILL, th=
+e app/
+> > > >>>>>>> process would exit dropping all references to the device and =
+then the
+> > > >>>>>>> file operation's release function would be called. From there=
+ we would
+> > > >>>>>>> wait on running IO then cleanup the device's memory.
+> > > >>>>>>
+> > > >>>>>> A dumb question.
+> > > >>>>>>
+> > > >>>>>> Is this a user space noticeable change? For example, with this=
+ series
+> > > >>>>>> a SIGKILL may shutdown the datapath ...
+> > > >>>>>
+> > > >>>>> It already changed in 6.4. We basically added a new interface t=
+o shutdown
+> > > >>>>> everything (userspace and vhost kernel parts). So we won't just=
+ shutdown
+> > > >>>>> the data path while userspace is still running. We will shutdow=
+n everything
+> > > >>>>> now if you send a SIGKILL to a vhost worker's thread.
+> > > >>>>
+> > > >>>> If I understand correctly, for example Qemu can still live is SI=
+GKILL
+> > > >>>> is just send to vhost thread.
+> > > >>>
+> > > >>> Pre-6.4 qemu could still survive if only the vhost thread got a S=
+IGKILL.
+> > > >>> We used kthreads which are special and can ignore it like how use=
+rspace
+> > > >>> can ignore SIGHUP.
+> > > >>>
+> > > >>> 6.4 and newer kernels cannot survive. Even if the vhost thread so=
+rt of
+> > > >>> ignores it like I described below where, the signal is still deli=
+vered
+> > > >>> to the other qemu threads due to the shared signal handler. Users=
+pace
+> > > >>> can't ignore SIGKILL. It doesn't have any say in the matter, and =
 the
-> >>> mutex with a spinlock can/will lead to scheduling while atomic splats=
-. We
-> >>> can't intentionally introduce such scenario.
-> >> When I created the series set_rx_mode wasn't moved to a work queue,
-> >> and the cond_resched wasn't there.
-> > Unfortunately cond_resched() is there right now.
->
-> YES.
->
+> > > >>> kernel forces them to exit.
+> > > >>
+> > > >> Ok, I see, so the reason is that vhost belongs to the same thread
+> > > >> group as the owner now.
+> > > >>
+> > > >>>
+> > > >>>>
+> > > >>>> If this is correct, guests may detect this (for example virtio-n=
+et has
+> > > >>>> a watchdog).
+> > > >>>>
+> > > >>>
+> > > >>> What did you mean by that part? Do you mean if the vhost thread w=
+ere to
+> > > >>> exit, so drivers/vhost/net.c couldn't process IO, then the watchd=
+og in
+> > > >>> the guest (virtio-net driver in the guest kernel) would detect th=
+at?
+> > > >>
+> > > >> I meant this one. But since we are using CLONE_THREAD, we won't se=
+e these.
+> > > >>
+> > > >>> Or
+> > > >>> are you saying the watchdog in the guest can detect signals that =
+the
+> > > >>> host gets?
+> > > >>>
+> > > >>>
+> > > >>>>>
+> > > >>>>> Here are a lots of details:
+> > > >>>>>
+> > > >>>>> - Pre-6.4 kernel, when vhost workers used kthreads, if you sent=
+ any signal
+> > > >>>>> to a vhost worker, we ignore it. Nothing happens. kthreads are =
+special and
+> > > >>>>> can ignore all signals.
+> > > >>>>>
+> > > >>>>> You could think of it as the worker is a completely different p=
+rocess than
+> > > >>>>> qemu/userspace so they have completely different signal handler=
+s. The
+> > > >>>>> vhost worker signal handler ignores all signals even SIGKILL.
+> > > >>>>
+> > > >>>> Yes.
+> > > >>>>
+> > > >>>>>
+> > > >>>>> If you send a SIGKILL to a qemu thread, then it just exits righ=
+t away. We
+> > > >>>>> don't get to do an explicit close() on the vhost device and we =
+don't get
+> > > >>>>> to do ioctls like VHOST_NET_SET_BACKEND to clear backends. The =
+kernel exit
+> > > >>>>> code runs and releases refcounts on the device/file, then the v=
+host device's
+> > > >>>>> file_operations->release function is called. vhost_dev_cleanup =
+then stops
+> > > >>>>> the vhost worker.
+> > > >>>>
+> > > >>>> Right.
+> > > >>>>
+> > > >>>>>
+> > > >>>>> - In 6.4 and newer kernels, vhost workers use vhost_tasks, so t=
+he worker
+> > > >>>>> can be thought of as a thread within the userspace process. Wit=
+h that
+> > > >>>>> change we have the same signal handler as the userspace process=
+.
+> > > >>>>>
+> > > >>>>> If you send a SIGKILL to a qemu thread then it works like above=
+.
+> > > >>>>>
+> > > >>>>> If you send a SIGKILL to a vhost worker, the vhost worker still=
+ sort of
+> > > >>>>> ignores it (that is the hack that I mentioned at the beginning =
+of this
+> > > >>>>> thread). kernel/vhost_task.c:vhost_task_fn will see the signal =
+and
+> > > >>>>> then just continue to process works until file_operations->rele=
+ase
+> > > >>>>> calls
+> > > >>>>
+> > > >>>> Yes, so this sticks to the behaviour before vhost_tasks.
+> > > >>>
+> > > >>> Not exactly. The vhost_task stays alive temporarily.
+> > > >>>
+> > > >>> The signal is still delivered to the userspace threads and they w=
+ill
+> > > >>> exit due to getting the SIGKILL also. SIGKILL goes to all the thr=
+eads in
+> > > >>> the process and all userspace threads exit like normal because th=
+e vhost
+> > > >>> task and normal old userspace threads share a signal handler. Whe=
+n
+> > > >>> userspace exits, the kernel force drops the refcounts on the vhos=
+t
+> > > >>> devices and that runs the release function so the vhost_task will=
+ then exit.
+> > > >>>
+> > > >>> So what I'm trying to say is that in 6.4 we already changed the b=
+ehavior.
+> > > >>
+> > > >> Yes. To say the truth, it looks even worse but it might be too lat=
+e to fix.
+> > > >
+> > > > Andres (cced) has identified two other possible changes:
+> > > >
+> > > > 1) doesn't run in the global PID namespace but run in the namespace=
+ of owner
+> > >
+> > > Yeah, I mentioned that one in vhost.h like it's a feature and when po=
+sting
+> > > the patches I mentioned it as a possible fix. I mean I thought we wan=
+ted it
+> > > to work like qemu and iothreads where the iothread would inherit all =
+those
+> > > values automatically.
 > >
-> >> Mutex wasn't possible, then. If the CVQ is made to be event driven, th=
-en
-> >> the lock can be released right after posting the work to the VQ.
-> > That should work.
+> > Right, but it could be noticed by the userspace, especially for the
+> > one that tries to do tweak on the performance.
+> >
+> > The root cause is the that now we do copy_processs() in the process of
+> > Qemu instead of the kthreadd. Which result of the the differences of
+> > namespace (I think PID namespace is not the only one we see
+> > difference) and others for the vhost task.
 >
-> Yes, I will test my new patches (ctrlq with irq enabled) soon, then the
-> combination
-> of the this set and mine MAY make deciding between mutex or spin lock
-> easier.
->
-> Thanks.
+> Leaking things out of a namespace looks more like a bug.
 
-So I guess the plan is to let your series come first?
+Well, not sure if it's a bug as kthread inherits the namespace of it's
+parent which is kthreadd. It follows the semantics of copy_process and
+there are plenty of users now. The problem is that it's too late to
+judge if it is a bug as it has been noticed by the userspace. And
+namespace is not the only thing that could be noticed by the
+userspace. Any assumption for the kthreadd attributes will break.
+
+Instead of waiting for complaints for the new behaviour, why not
+simply stick to the old behaviour and use the flag for the new one?
 
 Thanks
-
->
-> >
-> >>> Side note: the compiler apparently does not like guard() construct, l=
-eading to
-> >>> new warning, here and in later patches. I'm unsure if the code simpli=
-fication
-> >>> is worthy.
-> >> I didn't see any warnings with GCC or clang. This is used other places=
- in the kernel as well.
-> >> gcc version 13.2.1 20230918 (Red Hat 13.2.1-3) (GCC)
-> >> clang version 17.0.6 (Fedora 17.0.6-2.fc39)
-> >>
-> > See:
-> >
-> > https://patchwork.kernel.org/project/netdevbpf/patch/20240416193039.272=
-997-4-danielj@nvidia.com/
-> > https://netdev.bots.linux.dev/static/nipa/845178/13632442/build_32bit/s=
-tderr
-> > https://netdev.bots.linux.dev/static/nipa/845178/13632442/build_allmodc=
-onfig_warn/stderr
-> >
-> > Cheers,
-> >
-> > Paolo
->
 
