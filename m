@@ -1,174 +1,104 @@
-Received: from mail-lf1-f51.google.com (mail-lf1-f51.google.com [209.85.167.51])
+Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B318C7FD
-	for <virtualization@lists.linux.dev>; Sat, 20 Apr 2024 01:08:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF6CD134BF
+	for <virtualization@lists.linux.dev>; Sat, 20 Apr 2024 08:57:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713575308; cv=none; b=FXC29e0MA99EUYVy/Wps2EeVlnlY0grBpN9N7N08jcWKemHfSJ6FOjDbSQW6wZvbUVCiUebx2kxhb4kr3nb8gBNdmu42wAgzvXuHXSWFXAWwmAIuo1tIC/LsezEi7QBylPGx3ukfewBcbCVq3FvJqcXxFS3//QtGlwtzRZMos9k=
+	t=1713603479; cv=none; b=pIjsQwcxrZv5XgOIdPsEvGXq0njPkZbptHJbIBtw/DnE7EY0zjh7GRmdXRfKX9dmH6ZhljQOCNkF9ziPY7y9f7Us6UZ0Vu2zXHi3AU94UFOVk2wvFgs4oLSEfNFWkiu4t5z/zyD3nQnFICmKgA9/YeV4KB3OmRxl5JzxHs8hZE8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713575308; c=relaxed/simple;
-	bh=/v5DF/yr70RSo2cPlpFendzuWaxo1OWbch7DeiC/1po=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=g1oPF95KH1hSfn0ObhOsHvKmX6uwf5xeqatV/gTm+S7cPV8Xv43ByusSNpSwOEdo2sVcjOT5nOwLV42lAvVvNwQ+8mrLW7kdDots2HDjQqNRj5V5KSlqjNejEHI+pEj3QH0I1BynO0BE+Z5P3CchS9VlFJBIKo1c42VT044vja4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com; spf=pass smtp.mailfrom=rivosinc.com; dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b=tUkoTmVP; arc=none smtp.client-ip=209.85.167.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rivosinc.com
+	s=arc-20240116; t=1713603479; c=relaxed/simple;
+	bh=9SRG5NGgAQWbJ7b1PO89EyFuba/zQaF5gPA0aAKRqE8=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=fIpHTkuyXmnniU7Eplz6hst4HJoCihmLUKjbikA/o0zT5gSBbdBd9n8maNqtwWyuqUvWSqdeJoqeWy46u5agdAI9Gro4mIBFA4TVx2osW+7TXf7qwZzlvDyXCp2nI5qdl5LiZrii7kqt2JFzSEG33ccwdsOpSLAegUPERT3fwo4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RQn/33wg; arc=none smtp.client-ip=209.85.214.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b="tUkoTmVP"
-Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-51967f75729so3084072e87.0
-        for <virtualization@lists.linux.dev>; Fri, 19 Apr 2024 18:08:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RQn/33wg"
+Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-1e0bec01232so22977205ad.3
+        for <virtualization@lists.linux.dev>; Sat, 20 Apr 2024 01:57:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rivosinc-com.20230601.gappssmtp.com; s=20230601; t=1713575304; x=1714180104; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1713603477; x=1714208277; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=FopOoJVqlKLyitM+vV+llThPHlvMlGI12SmtWJmmk/0=;
-        b=tUkoTmVP91AEqMiIdLP59OnVyMkLy4Cubuuu5GTMWLUe1USyaw96GcJDHHMlv+ziuY
-         ND5BDeTlH8kR8QmdH3LCRO/yEx3KLiDjHBZYswOIvd6ItBVZor1SgEuZMxYPr+SrVWuF
-         ylr0SaQj7mSBs5qBzwT8yBMKNd7jZ2xiIM/yAB9XF85SKV6P9gqDfPE0+rRhCWcdjHaO
-         V9wuKdtKBtrdzoDNNc9JhGlFBhTD69S6MNCkZ99/i3uB7OWie5GPwHil6XG0LTL12+j5
-         l2lkhQQD8dYEehX0h/72nzoYoibojBtgC9lXOdcfTUeFQM7S7QcqRjY1EDj+U0NVqRUU
-         Ae2Q==
+        bh=48Iq+30cR26jwufNHZ2YfXYM/ol31EjO7UuID9EN8+c=;
+        b=RQn/33wgzWdQefV+wTn7+HCRb6nHzKotJIOBpAyCXg3dwssstCkYDL7umfJif3KZSF
+         xKlkJNIFNrVfNr6ktq+QrB944kNV2ERkfB9ql4wBKfzHzdeynMprQnLKx3K3BqVBIwwQ
+         CJ7E/ACgvCLLGl+DVmtYGdzQpmegELxYe+88u8MZ5DhvIHGQWz80s3Lkdv2dSqRCCtDc
+         VpHx6mTWRJurIXTnDEabD32x+fv4hkGMjpQ/sqtaSNrCp2Y51pe88FG6PZqzjwnuVLAu
+         Qtki542fbW9WuKgrorlahfF4h6/5tE+wuEBtW5Zc77e8cDx0KddLASA0sms/kGdHBm5i
+         Lyfg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713575304; x=1714180104;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1713603477; x=1714208277;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=FopOoJVqlKLyitM+vV+llThPHlvMlGI12SmtWJmmk/0=;
-        b=hQXcDsGjneJYmTiCe20p98F5BANugb1v/sjKuMcNppzflqyy79xZPpCzba+tkf/Y+S
-         UKKixiVS521kdB1dPBWU3AhEoEFVeBAT72FGfYVj0+UQPH822AK+8BsPdNXLeYEBV9vB
-         dscQudeGZMY1LSKGFP7bpZ3BForxZ9p5x45kNV6rOXCMyTCshk5iQgYySRagf4hruUzd
-         ODIVgJRsfyhXUaSuEG04RhGxuIrbm8D7TbNZQ94PtT19YbJBRuufKRC4wUE1A+EANAEX
-         CDmhU628aYMZOEheGUU4bg1II97EPAUSWMuIGXILrPOsXuPAjN3+7ExEbdIiZd9qJb/1
-         LBQA==
-X-Forwarded-Encrypted: i=1; AJvYcCU1lsh+MU+z0xfbCfHk/7GsSSeY6s8FWk+OT4UkP5Pr7GsOFL9Uy/QOU7G24GHtf24GbWAGN3GBCtH5Wlnpam3n28cVSYUu6v7CW9OjQ8I=
-X-Gm-Message-State: AOJu0Yzu5WlWl9UinzX+gWUdmIAsWJhplh2R/kovhuzv3KxFkzmwVHrn
-	ULFmd2r40gvvx6IQcKqotkq8M1o+mSxGKZWi87vzak92ssTgz/WB4iq+TOQXJhM8+Z8QnTJz8g6
-	xy+mJWfzlg9dYmAIPoKUbqpBp5NszI7wrdVqzTg==
-X-Google-Smtp-Source: AGHT+IEogPfnlgAs9tR0qh0PAukDsFCglg4IjcLIKZzaVYr+8YdRMjPXcvRvV/A0KI3X5O1GyN/90pSnjyS/BTYsdl8=
-X-Received: by 2002:ac2:5a1e:0:b0:519:296e:2c80 with SMTP id
- q30-20020ac25a1e000000b00519296e2c80mr1893557lfn.15.1713575303793; Fri, 19
- Apr 2024 18:08:23 -0700 (PDT)
+        bh=48Iq+30cR26jwufNHZ2YfXYM/ol31EjO7UuID9EN8+c=;
+        b=iseAJpUrlevqV8aW7+lfFwttVV3TCYz6oFjQ2yVt/o0nax4wg/l7rcSi3FwVpBXqdJ
+         BqpPyxraZFeRWakOqOLARuF9mk+m85gWZ7IkslS9EUxdthNCDZosnK4uXoi7XXohXMyY
+         o/LVMAzECNpOJXCBEntNg48BfNSBSyb4KCIAoj6RQU64RB1ePtj8jynM35VgdTnqYNHT
+         v9GUz6g6V3cTimw4nC06U4fMMttUOLF1RoQ5U4tlHB7UcJ5KDCAFkVaHkunW/T4+Vc+t
+         yUn2aBN1ex8ITIvBCr2CYVHnuol+t80qwypnOYXaakrfkTrt1ASxYYqZmi9oEvp2CtyR
+         YF0Q==
+X-Forwarded-Encrypted: i=1; AJvYcCUhzr3L24vBfbdEkmuBmNNjGD/t4qDtxXwLZS0JqJL4Q3vzJauFJ8J2umRUCRE5IlJxqFLROjLaG4qrUiQlI0oc5rGU3c6lDTbdoqtFvJA=
+X-Gm-Message-State: AOJu0YyqxSNbPGiIr/cqNCwKQzidgDfT/oLQ5GYJCCfZbAGXRxU8ynkW
+	DGjAQiJkmisb0xXIaVhhp+jTZeeoh2HuWNtTgj0osCU5fEgvg4A5
+X-Google-Smtp-Source: AGHT+IG8EU9aw+RsorFWmCwNnDqhjyjrO+DrkR5PkJw3blIHTNDCMPTP7m8lFUkodGAIDAyljL2Ckw==
+X-Received: by 2002:a17:903:191:b0:1e4:4125:806f with SMTP id z17-20020a170903019100b001e44125806fmr5617293plg.11.1713603477162;
+        Sat, 20 Apr 2024 01:57:57 -0700 (PDT)
+Received: from kernelexploit-virtual-machine.localdomain ([121.185.186.233])
+        by smtp.gmail.com with ESMTPSA id mp6-20020a170902fd0600b001e256cb48f7sm4653132plb.197.2024.04.20.01.57.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 20 Apr 2024 01:57:56 -0700 (PDT)
+From: Jeongjun Park <aha310510@gmail.com>
+To: syzbot+6c21aeb59d0e82eb2782@syzkaller.appspotmail.com
+Cc: stefanha@redhat.com,
+	sgarzare@redhat.com,
+	mst@redhat.com,
+	jasowang@redhat.com,
+	kvm@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	syzkaller-bugs@googlegroups.com,
+	Jeongjun Park <aha310510@gmail.com>
+Subject: [PATCH virt] virt: fix uninit-value in vhost_vsock_dev_open
+Date: Sat, 20 Apr 2024 17:57:50 +0900
+Message-Id: <20240420085750.64274-1-aha310510@gmail.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <000000000000be4e1c06166fdc85@google.com>
+References: <000000000000be4e1c06166fdc85@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240420151741.962500-1-atishp@rivosinc.com> <20240420151741.962500-9-atishp@rivosinc.com>
- <6fa06233-d572-48a7-a8ef-73a7c5879c06@sifive.com>
-In-Reply-To: <6fa06233-d572-48a7-a8ef-73a7c5879c06@sifive.com>
-From: Atish Kumar Patra <atishp@rivosinc.com>
-Date: Fri, 19 Apr 2024 18:08:12 -0700
-Message-ID: <CAHBxVyHZ81G7yaMkV25RBwS=ric=MA92MePaPtQaOXuR+C70YA@mail.gmail.com>
-Subject: Re: [PATCH v8 08/24] drivers/perf: riscv: Fix counter mask iteration
- for RV32
-To: Samuel Holland <samuel.holland@sifive.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Jones <ajones@ventanamicro.com>, 
-	Ajay Kaher <ajay.kaher@broadcom.com>, Albert Ou <aou@eecs.berkeley.edu>, 
-	Alexandre Ghiti <alexghiti@rivosinc.com>, Anup Patel <anup@brainfault.org>, 
-	Conor Dooley <conor.dooley@microchip.com>, Juergen Gross <jgross@suse.com>, 
-	kvm-riscv@lists.infradead.org, kvm@vger.kernel.org, 
-	linux-kselftest@vger.kernel.org, linux-riscv@lists.infradead.org, 
-	Mark Rutland <mark.rutland@arm.com>, Palmer Dabbelt <palmer@dabbelt.com>, 
-	Paolo Bonzini <pbonzini@redhat.com>, Paul Walmsley <paul.walmsley@sifive.com>, 
-	Shuah Khan <shuah@kernel.org>, virtualization@lists.linux.dev, 
-	Will Deacon <will@kernel.org>, x86@kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Fri, Apr 19, 2024 at 5:37=E2=80=AFPM Samuel Holland
-<samuel.holland@sifive.com> wrote:
->
-> Hi Atish,
->
-> On 2024-04-20 10:17 AM, Atish Patra wrote:
-> > For RV32, used_hw_ctrs can have more than 1 word if the firmware choose=
-s
-> > to interleave firmware/hardware counters indicies. Even though it's a
-> > unlikely scenario, handle that case by iterating over all the words
-> > instead of just using the first word.
-> >
-> > Reviewed-by: Andrew Jones <ajones@ventanamicro.com>
-> > Signed-off-by: Atish Patra <atishp@rivosinc.com>
-> > ---
-> >  drivers/perf/riscv_pmu_sbi.c | 21 ++++++++++++---------
-> >  1 file changed, 12 insertions(+), 9 deletions(-)
-> >
-> > diff --git a/drivers/perf/riscv_pmu_sbi.c b/drivers/perf/riscv_pmu_sbi.=
-c
-> > index f23501898657..4eacd89141a9 100644
-> > --- a/drivers/perf/riscv_pmu_sbi.c
-> > +++ b/drivers/perf/riscv_pmu_sbi.c
-> > @@ -652,10 +652,12 @@ static inline void pmu_sbi_stop_all(struct riscv_=
-pmu *pmu)
-> >  static inline void pmu_sbi_stop_hw_ctrs(struct riscv_pmu *pmu)
-> >  {
-> >       struct cpu_hw_events *cpu_hw_evt =3D this_cpu_ptr(pmu->hw_events)=
-;
-> > +     int i;
-> >
-> > -     /* No need to check the error here as we can't do anything about =
-the error */
-> > -     sbi_ecall(SBI_EXT_PMU, SBI_EXT_PMU_COUNTER_STOP, 0,
-> > -               cpu_hw_evt->used_hw_ctrs[0], 0, 0, 0, 0);
-> > +     for (i =3D 0; i < BITS_TO_LONGS(RISCV_MAX_COUNTERS); i++)
-> > +             /* No need to check the error here as we can't do anythin=
-g about the error */
-> > +             sbi_ecall(SBI_EXT_PMU, SBI_EXT_PMU_COUNTER_STOP, i * BITS=
-_PER_LONG,
-> > +                       cpu_hw_evt->used_hw_ctrs[i], 0, 0, 0, 0);
-> >  }
-> >
-> >  /*
-> > @@ -667,7 +669,7 @@ static inline void pmu_sbi_stop_hw_ctrs(struct risc=
-v_pmu *pmu)
-> >  static inline void pmu_sbi_start_overflow_mask(struct riscv_pmu *pmu,
-> >                                              unsigned long ctr_ovf_mask=
-)
-> >  {
-> > -     int idx =3D 0;
-> > +     int idx =3D 0, i;
-> >       struct cpu_hw_events *cpu_hw_evt =3D this_cpu_ptr(pmu->hw_events)=
-;
-> >       struct perf_event *event;
-> >       unsigned long flag =3D SBI_PMU_START_FLAG_SET_INIT_VALUE;
-> > @@ -676,11 +678,12 @@ static inline void pmu_sbi_start_overflow_mask(st=
-ruct riscv_pmu *pmu,
-> >       struct hw_perf_event *hwc;
-> >       u64 init_val =3D 0;
-> >
-> > -     ctr_start_mask =3D cpu_hw_evt->used_hw_ctrs[0] & ~ctr_ovf_mask;
-> > -
-> > -     /* Start all the counters that did not overflow in a single shot =
-*/
-> > -     sbi_ecall(SBI_EXT_PMU, SBI_EXT_PMU_COUNTER_START, 0, ctr_start_ma=
-sk,
-> > -               0, 0, 0, 0);
-> > +     for (i =3D 0; i < BITS_TO_LONGS(RISCV_MAX_COUNTERS); i++) {
-> > +             ctr_start_mask =3D cpu_hw_evt->used_hw_ctrs[i] & ~ctr_ovf=
-_mask;
->
-> This is applying the mask for the first 32 logical counters to the both s=
-ets of
-> 32 logical counters. ctr_ovf_mask needs to be 64 bits wide here, so each =
-loop
-> iteration can apply the correct half of the mask.
->
+Change vhost_vsock_dev_open() to use kvzalloc() instead of kvmalloc()
+to avoid uninit state.
 
-The 64bit wide support for ctr_ovf_mask is added in the next patch.
+Reported-by: syzbot+6c21aeb59d0e82eb2782@syzkaller.appspotmail.com
+Fixes: dcda9b04713c ("mm, tree wide: replace __GFP_REPEAT by __GFP_RETRY_MAYFAIL with more useful semantic")
+Signed-off-by: Jeongjun Park <aha310510@gmail.com>
+---
+ drivers/vhost/vsock.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> Regards,
-> Samuel
->
-> > +             /* Start all the counters that did not overflow in a sing=
-le shot */
-> > +             sbi_ecall(SBI_EXT_PMU, SBI_EXT_PMU_COUNTER_START, i * BIT=
-S_PER_LONG, ctr_start_mask,
-> > +                     0, 0, 0, 0);
-> > +     }
-> >
-> >       /* Reinitialize and start all the counter that overflowed */
-> >       while (ctr_ovf_mask) {
->
+diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+index ec20ecff85c7..652ef97a444b 100644
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -656,7 +656,7 @@ static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
+ 	/* This struct is large and allocation could fail, fall back to vmalloc
+ 	 * if there is no other way.
+ 	 */
+-	vsock = kvmalloc(sizeof(*vsock), GFP_KERNEL | __GFP_RETRY_MAYFAIL);
++	vsock = kvzalloc(sizeof(*vsock), GFP_KERNEL | __GFP_RETRY_MAYFAIL);
+ 	if (!vsock)
+ 		return -ENOMEM;
+ 
+-- 
+2.34.1
