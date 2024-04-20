@@ -1,202 +1,154 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-io1-f53.google.com (mail-io1-f53.google.com [209.85.166.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73C1D13D8B3;
-	Fri, 19 Apr 2024 23:53:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6AB0A48
+	for <virtualization@lists.linux.dev>; Sat, 20 Apr 2024 00:37:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713570802; cv=none; b=r1j4jXying6qvJTbzlrB5wmWPF2y1q0kKbf6HaMWKAtrXiIQjaiHFIkv98B5nvhlPWrUHkIxtNoXN4Dn7tRBuG5Mk37KSt3RnzOANKwD+TSsrCpfk0bKKI+tA5QKyPE0Lr+DDlFFC/NDdc1IoEZFyACPPuQIZBxtkPAwBwJsBtg=
+	t=1713573429; cv=none; b=B4KcBLLJsA7UtbnhNZ9/U2B0EuJ7yLFMIwIxra6eSl1kY6v1FqHp5KgvpNPoSsThfW5gdIT6zYosh0guyFoaD1JC/y+FoFwAVBvqdDYS/q0O0u4eCJloFH4efglVD+AvWaGy/MFAPM7nkNmJVgUhijLhXK+Ik9vAr/dPn3p6vDU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713570802; c=relaxed/simple;
-	bh=GLvDsVBBrETnc/EVOJI/JbZ5XgczOx7boHuUhQdlcYk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=gkjyjOIX8rZ8XwBUA50NrID4WEZvr3Y0yfkaerPFvpEfHgWBVdMYViA+pG6uAns9ztdcusCMTgRiQo7BQbXpujZOKxeByF3b5FRa8uWWZP8jsCmlXq9CSjumbW4jH9GwV2aUl1O3+AbfXYcV3zEFABP7wffLL4De9dt9HLr9FII=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=WjqtHtqZ; arc=none smtp.client-ip=198.175.65.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1713573429; c=relaxed/simple;
+	bh=JY998qjQNWwNGLXf2WAsCwsRZCjmE+YbFTuIjSuy7XA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=h4CB5F2UlxKlBK/WEuKW3djPr96I81fOcuCF4ZjOJLi8AmgUnjNndBjH8NO46boVWHo4uRIzGh8JspGJCvITSd9v2N/ars1DI/qYq2KVRql0sVVyEo4Zh3GH8eBw+nepR/nsyeMwkQIQeJSVIcRU91Hi5ESOAIXtooQ8dDisLh0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=sifive.com; spf=pass smtp.mailfrom=sifive.com; dkim=pass (2048-bit key) header.d=sifive.com header.i=@sifive.com header.b=PciF5FtQ; arc=none smtp.client-ip=209.85.166.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=sifive.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sifive.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="WjqtHtqZ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1713570800; x=1745106800;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=GLvDsVBBrETnc/EVOJI/JbZ5XgczOx7boHuUhQdlcYk=;
-  b=WjqtHtqZgTmKyjlaZQt97XF1JSC8EIOSCPq2S0KIQQqn9WZmC/ch/UDY
-   HKhwbZawhQMqjJh5bYBJY1rJiA6dtgcBRhepKoXcrPTxYkJjcYlpqT/pF
-   eb0jVBjXH4z9empHa9ofF9Jnb9IdhnQNeSeWDcarp3aK73F+3f22fvbX+
-   8p9oGfUXk94Z+j+CHZqLxtg9ZB0JrCWxuMVRl2WK2tt8HPVUj/ESNsTzC
-   U+MBjU1KqBSFHpJZAJyR86wjJ3mPy/04PZ+TGhbZFeOvsu8wGoZ3ASpMs
-   /elCWPyOKZih8m+sbyREcBBGYIU7V9ICMKhQHA5D7RBQqgQQP+xxKaQPC
-   w==;
-X-CSE-ConnectionGUID: 2/RGtq8VTdmHNRklv9V0Gg==
-X-CSE-MsgGUID: eaSYBQDcQEugl2xzY85glw==
-X-IronPort-AV: E=McAfee;i="6600,9927,11049"; a="20614776"
-X-IronPort-AV: E=Sophos;i="6.07,215,1708416000"; 
-   d="scan'208";a="20614776"
-Received: from orviesa001.jf.intel.com ([10.64.159.141])
-  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Apr 2024 16:53:20 -0700
-X-CSE-ConnectionGUID: Fh4y3afkTVWr9clDu+msQg==
-X-CSE-MsgGUID: +brg9LJaRZKrR1TsNadywQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.07,215,1708416000"; 
-   d="scan'208";a="60919839"
-Received: from unknown (HELO 23c141fc0fd8) ([10.239.97.151])
-  by orviesa001.jf.intel.com with ESMTP; 19 Apr 2024 16:53:15 -0700
-Received: from kbuild by 23c141fc0fd8 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1rxy2Z-000AYy-2S;
-	Fri, 19 Apr 2024 23:53:11 +0000
-Date: Sat, 20 Apr 2024 07:52:59 +0800
-From: kernel test robot <lkp@intel.com>
-To: Jiri Pirko <jiri@resnulli.us>, netdev@vger.kernel.org
-Cc: oe-kbuild-all@lists.linux.dev, kuba@kernel.org, pabeni@redhat.com,
-	davem@davemloft.net, edumazet@google.com, parav@nvidia.com,
-	mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
-	shuah@kernel.org, petrm@nvidia.com, liuhangbin@gmail.com,
-	vladimir.oltean@nxp.com, bpoirier@nvidia.com, idosch@nvidia.com,
-	virtualization@lists.linux.dev
-Subject: Re: [patch net-next v4 1/6] virtio: add debugfs infrastructure to
- allow to debug virtio features
-Message-ID: <202404200721.zDtvSZST-lkp@intel.com>
-References: <20240418160830.3751846-2-jiri@resnulli.us>
+	dkim=pass (2048-bit key) header.d=sifive.com header.i=@sifive.com header.b="PciF5FtQ"
+Received: by mail-io1-f53.google.com with SMTP id ca18e2360f4ac-7d5e19d18fbso94286539f.2
+        for <virtualization@lists.linux.dev>; Fri, 19 Apr 2024 17:37:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=sifive.com; s=google; t=1713573427; x=1714178227; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=vhcLlrujCFL5jsjyr5K82BE+eIjl1NtlFO4BV5YJoss=;
+        b=PciF5FtQnqcUTlY7ERtuqSp3KRzlp5fOVVuX4um3DTPWh3eOcTqxBbNdmUtHSVuyAu
+         fj/0Dw2s3T+Xslch5wwBZB4f2V/1bZv6uT8fDl95iAyb3SZH5BrhOcXmlbcXfq0WKhvl
+         oDwhhH7pC4MdmUCOTXMTKgUHDcW4M+qJ6+8P1iHx+jOBrYVDeoPvpt6oHaDlJ2er3get
+         gZ2MILax5Yh7cDZP4dVC3tdacAFyWThTosBU6g0YGcXuCMvjahAUml10AuzZcPZfgYao
+         IK3G4E6afmaJKt5NAlH1YxtYSQmVMJAkS1Zbf8UYzpA0/KbdaNOHXCOiTLzoAALTDVpm
+         4B7g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713573427; x=1714178227;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=vhcLlrujCFL5jsjyr5K82BE+eIjl1NtlFO4BV5YJoss=;
+        b=W0FMI4l1cZ4WHa5GF1wOAZ4GDDssENM5Wb0RNz77nq6bRYeI3sePc8tGmMmLbvL+IC
+         /ebTmz0lVwHH0u8/xdeFy5uczQpc278xOx8BNNJ/sX/Q0k0Xbqbb8UyT0qKwlbJ9YXNd
+         BBI5E7ljQ9tbHGU6N9gAJ8+9wggV0iK35l0yUaE40REivQcimLbmvVo0Ug1eZ+EzeJkd
+         fs92L7Zib4yzNCzDkpLMCqhjM9rM+I00sMhn6W1sKPUrpXYKlIyMIoAy9nbyzsxmGuFy
+         itluMjO71tdjAEnmIy8uene1zb3RKkLIv1A1KPKXsPReRc0MSb7EsBkjrWmfP/k2/WTC
+         Ct5w==
+X-Forwarded-Encrypted: i=1; AJvYcCVzhx1BFmSW/Jp4q8xyNHfYpGsceBNujIvPMF1QgBcHY3cgAXxPJFbEbRH8dgH6I02kaXkznNJ31+4mhS7GSU3T3BSUpg70kwvRWYMtYeA=
+X-Gm-Message-State: AOJu0YwadR4pp3YtFXiKIbjViDtkYXF8SxsEKvc5OcEIFD8tefouD00C
+	5hZbse2LHpemp7W8TXIrR3aFBaMnz/vcjKpZswDkMc66QNDSbfMlT29BfpAonQ0=
+X-Google-Smtp-Source: AGHT+IHtrgB69K59tQny2VA0fIN2p3RzbXA0ZFndyB8V2oCD/yBJA3LSTlidjs+c33/HgDrnv1SH7A==
+X-Received: by 2002:a05:6e02:1588:b0:36b:12f5:14dc with SMTP id m8-20020a056e02158800b0036b12f514dcmr4475746ilu.32.1713573426742;
+        Fri, 19 Apr 2024 17:37:06 -0700 (PDT)
+Received: from [100.64.0.1] ([170.85.6.197])
+        by smtp.gmail.com with ESMTPSA id u4-20020a056638134400b00484c44cf9cbsm953419jad.168.2024.04.19.17.37.04
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 19 Apr 2024 17:37:06 -0700 (PDT)
+Message-ID: <6fa06233-d572-48a7-a8ef-73a7c5879c06@sifive.com>
+Date: Fri, 19 Apr 2024 19:37:03 -0500
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240418160830.3751846-2-jiri@resnulli.us>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v8 08/24] drivers/perf: riscv: Fix counter mask iteration
+ for RV32
+To: Atish Patra <atishp@rivosinc.com>, linux-kernel@vger.kernel.org
+Cc: Andrew Jones <ajones@ventanamicro.com>,
+ Ajay Kaher <ajay.kaher@broadcom.com>, Albert Ou <aou@eecs.berkeley.edu>,
+ Alexandre Ghiti <alexghiti@rivosinc.com>, Anup Patel <anup@brainfault.org>,
+ Conor Dooley <conor.dooley@microchip.com>, Juergen Gross <jgross@suse.com>,
+ kvm-riscv@lists.infradead.org, kvm@vger.kernel.org,
+ linux-kselftest@vger.kernel.org, linux-riscv@lists.infradead.org,
+ Mark Rutland <mark.rutland@arm.com>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Paolo Bonzini <pbonzini@redhat.com>, Paul Walmsley
+ <paul.walmsley@sifive.com>, Shuah Khan <shuah@kernel.org>,
+ virtualization@lists.linux.dev, Will Deacon <will@kernel.org>, x86@kernel.org
+References: <20240420151741.962500-1-atishp@rivosinc.com>
+ <20240420151741.962500-9-atishp@rivosinc.com>
+Content-Language: en-US
+From: Samuel Holland <samuel.holland@sifive.com>
+In-Reply-To: <20240420151741.962500-9-atishp@rivosinc.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Hi Jiri,
+Hi Atish,
 
-kernel test robot noticed the following build errors:
+On 2024-04-20 10:17 AM, Atish Patra wrote:
+> For RV32, used_hw_ctrs can have more than 1 word if the firmware chooses
+> to interleave firmware/hardware counters indicies. Even though it's a
+> unlikely scenario, handle that case by iterating over all the words
+> instead of just using the first word.
+> 
+> Reviewed-by: Andrew Jones <ajones@ventanamicro.com>
+> Signed-off-by: Atish Patra <atishp@rivosinc.com>
+> ---
+>  drivers/perf/riscv_pmu_sbi.c | 21 ++++++++++++---------
+>  1 file changed, 12 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/perf/riscv_pmu_sbi.c b/drivers/perf/riscv_pmu_sbi.c
+> index f23501898657..4eacd89141a9 100644
+> --- a/drivers/perf/riscv_pmu_sbi.c
+> +++ b/drivers/perf/riscv_pmu_sbi.c
+> @@ -652,10 +652,12 @@ static inline void pmu_sbi_stop_all(struct riscv_pmu *pmu)
+>  static inline void pmu_sbi_stop_hw_ctrs(struct riscv_pmu *pmu)
+>  {
+>  	struct cpu_hw_events *cpu_hw_evt = this_cpu_ptr(pmu->hw_events);
+> +	int i;
+>  
+> -	/* No need to check the error here as we can't do anything about the error */
+> -	sbi_ecall(SBI_EXT_PMU, SBI_EXT_PMU_COUNTER_STOP, 0,
+> -		  cpu_hw_evt->used_hw_ctrs[0], 0, 0, 0, 0);
+> +	for (i = 0; i < BITS_TO_LONGS(RISCV_MAX_COUNTERS); i++)
+> +		/* No need to check the error here as we can't do anything about the error */
+> +		sbi_ecall(SBI_EXT_PMU, SBI_EXT_PMU_COUNTER_STOP, i * BITS_PER_LONG,
+> +			  cpu_hw_evt->used_hw_ctrs[i], 0, 0, 0, 0);
+>  }
+>  
+>  /*
+> @@ -667,7 +669,7 @@ static inline void pmu_sbi_stop_hw_ctrs(struct riscv_pmu *pmu)
+>  static inline void pmu_sbi_start_overflow_mask(struct riscv_pmu *pmu,
+>  					       unsigned long ctr_ovf_mask)
+>  {
+> -	int idx = 0;
+> +	int idx = 0, i;
+>  	struct cpu_hw_events *cpu_hw_evt = this_cpu_ptr(pmu->hw_events);
+>  	struct perf_event *event;
+>  	unsigned long flag = SBI_PMU_START_FLAG_SET_INIT_VALUE;
+> @@ -676,11 +678,12 @@ static inline void pmu_sbi_start_overflow_mask(struct riscv_pmu *pmu,
+>  	struct hw_perf_event *hwc;
+>  	u64 init_val = 0;
+>  
+> -	ctr_start_mask = cpu_hw_evt->used_hw_ctrs[0] & ~ctr_ovf_mask;
+> -
+> -	/* Start all the counters that did not overflow in a single shot */
+> -	sbi_ecall(SBI_EXT_PMU, SBI_EXT_PMU_COUNTER_START, 0, ctr_start_mask,
+> -		  0, 0, 0, 0);
+> +	for (i = 0; i < BITS_TO_LONGS(RISCV_MAX_COUNTERS); i++) {
+> +		ctr_start_mask = cpu_hw_evt->used_hw_ctrs[i] & ~ctr_ovf_mask;
 
-[auto build test ERROR on net-next/main]
+This is applying the mask for the first 32 logical counters to the both sets of
+32 logical counters. ctr_ovf_mask needs to be 64 bits wide here, so each loop
+iteration can apply the correct half of the mask.
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Jiri-Pirko/virtio-add-debugfs-infrastructure-to-allow-to-debug-virtio-features/20240419-004913
-base:   net-next/main
-patch link:    https://lore.kernel.org/r/20240418160830.3751846-2-jiri%40resnulli.us
-patch subject: [patch net-next v4 1/6] virtio: add debugfs infrastructure to allow to debug virtio features
-config: sparc-randconfig-002-20240420 (https://download.01.org/0day-ci/archive/20240420/202404200721.zDtvSZST-lkp@intel.com/config)
-compiler: sparc64-linux-gcc (GCC) 13.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240420/202404200721.zDtvSZST-lkp@intel.com/reproduce)
+Regards,
+Samuel
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202404200721.zDtvSZST-lkp@intel.com/
+> +		/* Start all the counters that did not overflow in a single shot */
+> +		sbi_ecall(SBI_EXT_PMU, SBI_EXT_PMU_COUNTER_START, i * BITS_PER_LONG, ctr_start_mask,
+> +			0, 0, 0, 0);
+> +	}
+>  
+>  	/* Reinitialize and start all the counter that overflowed */
+>  	while (ctr_ovf_mask) {
 
-All errors (new ones prefixed by >>, old ones prefixed by <<):
-
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/mediatek/clk-mt8188-vdo1.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/mediatek/clk-mt8192.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/mediatek/clk-mt8192-aud.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/mediatek/clk-mt8192-cam.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/mediatek/clk-mt8192-imp_iic_wrap.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/mediatek/clk-mt8192-ipe.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/mediatek/clk-mt8192-mdp.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/mediatek/clk-mt8192-mm.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/mediatek/clk-mt8192-msdc.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/mediatek/clk-mt8192-scp_adsp.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/mediatek/clk-mt8192-venc.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/sunxi-ng/sunxi-ccu.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/sunxi-ng/sun20i-d1-ccu.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/sunxi-ng/sun50i-a64-ccu.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/sunxi-ng/sun50i-a100-ccu.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/sunxi-ng/sun50i-a100-r-ccu.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/sunxi-ng/sun50i-h6-r-ccu.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/sunxi-ng/sun50i-h616-ccu.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/sunxi-ng/sun4i-a10-ccu.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/sunxi-ng/sun6i-a31-ccu.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/sunxi-ng/sun8i-a23-ccu.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/sunxi-ng/sun8i-a33-ccu.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/sunxi-ng/sun8i-a83t-ccu.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/sunxi-ng/sun8i-h3-ccu.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/sunxi-ng/sun8i-r40-ccu.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/sunxi-ng/sun8i-v3s-ccu.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/sunxi-ng/sun8i-de2-ccu.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/sunxi-ng/sun9i-a80-ccu.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/sunxi-ng/sun9i-a80-de-ccu.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/sunxi-ng/sun9i-a80-usb-ccu.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/clk_test.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/clk/clk-fractional-divider_test.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/dma/qcom/hdma_mgmt.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/dma/qcom/hdma.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/dma/dmatest.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/soc/ixp4xx/ixp4xx-npe.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/soc/qcom/spm.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/virtio/virtio.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/virtio/virtio_ring.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/virtio/virtio_dma_buf.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/regulator/da9121-regulator.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/regulator/rt4831-regulator.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/tty/serial/esp32_uart.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/tty/serial/esp32_acm.o
-WARNING: modpost: drivers/char/hw_random/mxc-rnga: section mismatch in reference: mxc_rnga_driver+0x10 (section: .data) -> mxc_rnga_remove (section: .exit.text)
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/char/lp.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/char/ppdev.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/gpu/drm/panel/panel-newvision-nv3052c.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/gpu/drm/panel/panel-novatek-nt39016.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/gpu/drm/bridge/lontium-lt9611.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/gpu/drm/bridge/sii9234.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/gpu/drm/gud/gud.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/gpu/drm/drm_panel_orientation_quirks.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/gpu/drm/drm_mipi_dbi.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/base/regmap/regmap-kunit.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/base/regmap/regmap-i2c.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/base/regmap/regmap-ram.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/base/regmap/regmap-raw-ram.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/base/regmap/regmap-spmi.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/base/regmap/regmap-w1.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/block/floppy.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/block/loop.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/misc/fastrpc.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/mfd/arizona.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/mfd/rt4831.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/mfd/qcom-pm8008.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/spi/spi-bitbang.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/cdrom/cdrom.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/usb/host/ohci-exynos.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/usb/host/xhci-pci-renesas.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/usb/class/usbtmc.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/usb/misc/yurex.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/usb/gadget/function/usb_f_mass_storage.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/usb/gadget/legacy/g_dbgp.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/usb/mon/usbmon.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/usb/chipidea/ci_hdrc_msm.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/input/tests/input_test.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/rtc/lib_test.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/rtc/rtc-goldfish.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/i2c/busses/i2c-pxa.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/media/rc/rc-core.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/firmware/google/memconsole.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/firmware/google/memconsole-coreboot.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/perf/arm-ccn.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/perf/fsl_imx8_ddr_perf.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/perf/marvell_cn10k_ddr_pmu.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/perf/arm_cspmu/arm_cspmu_module.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/perf/arm_cspmu/nvidia_cspmu.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/perf/arm_cspmu/ampere_cspmu.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/hwtracing/intel_th/intel_th_msu_sink.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/interconnect/imx/imx-interconnect.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/interconnect/imx/imx8mq-interconnect.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/parport/parport.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/spmi/hisi-spmi-controller.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/pcmcia/pcmcia_rsrc.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/fsi/fsi-core.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/fsi/fsi-master-hub.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/fsi/fsi-master-gpio.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/fsi/fsi-scom.o
-WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/siox/siox-bus-gpio.o
->> ERROR: modpost: "virtio_debug_device_exit" [drivers/virtio/virtio.ko] undefined!
->> ERROR: modpost: "virtio_debug_init" [drivers/virtio/virtio.ko] undefined!
->> ERROR: modpost: "virtio_debug_exit" [drivers/virtio/virtio.ko] undefined!
->> ERROR: modpost: "virtio_debug_device_init" [drivers/virtio/virtio.ko] undefined!
->> ERROR: modpost: "virtio_debug_device_filter_features" [drivers/virtio/virtio.ko] undefined!
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
