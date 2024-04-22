@@ -1,57 +1,57 @@
-Received: from mail-ed1-f41.google.com (mail-ed1-f41.google.com [209.85.208.41])
+Received: from mail-ej1-f41.google.com (mail-ej1-f41.google.com [209.85.218.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2976153561
-	for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 15:33:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1C26153580
+	for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 15:33:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713799992; cv=none; b=PNbR61ZjUPsL5hlVqD1qZOYpTJ3R5ArYLwMzBEvlNmUecAk6dn6kS9VrNjCzzhUXtD5p/2M058WzF3p6nC687SZWg2OCPG6y5QB/EIcg26RBoklasgXy8EDbzpoY9UXqq8zQGXggXH/BO8PQ3AhMuKueJIKFdsNuuwFxdnQ1v3I=
+	t=1713799994; cv=none; b=GKlKs8dHa3oh8e0OfJqPdClwzdBt9FbjM5u5ndurG6c3/zuFFUMNhtxtrkIN6mUJfN9kpprRiuGA1y4Ad8wrLa7qjphE9KGpEjV/fjTVTbECBOeIK+PiqPAy5rq0kPOdNA+wTrbNpZ+FiGXwaacYTI4oi6Nl3w5K9Wca80z+4ow=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713799992; c=relaxed/simple;
-	bh=skJZVZU2JBI8WGJ+4NhCiFRl3ZLQsAGK0b5U2Pn3qOM=;
+	s=arc-20240116; t=1713799994; c=relaxed/simple;
+	bh=b3s3lonKXCUontl27cidtmw2bRxAlU6LH2RDIq6KhXc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=B2kWuXd+NvnDGZNqmurw8R1cAZfhUGkDBpw3aDMaa9jq9zo+74346okqs/KGkCPXOf8bl/cjkkS245W5t7XgCoqnTDOCO/pF6Hp8OhVb1+qQy3wNDhquo+e76ulQdpFW9fqrWrxgQJT97JFWMpPnPpkQqtiuHECalXWpW4ADvTA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=ymgT8een; arc=none smtp.client-ip=209.85.208.41
+	 MIME-Version; b=j1gmess15RHrW22JRFeiSFD1ErQnwgW9WjvQEt2GPT1pHxAfbyGkFngMqD6QfGEuotXSg3Cg4bfjNZhM0/rX2IkWpjX7q8pKItYgGrAueatQdi8LK5y03Anx9Lp4NAr7sEgLi2QXUxr8DhogHPDol/+Z2k5cMbPOMbjMhpLc2J4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=Bh1nO3Ly; arc=none smtp.client-ip=209.85.218.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="ymgT8een"
-Received: by mail-ed1-f41.google.com with SMTP id 4fb4d7f45d1cf-571c22d9de4so6061587a12.3
-        for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 08:33:10 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="Bh1nO3Ly"
+Received: by mail-ej1-f41.google.com with SMTP id a640c23a62f3a-a5872b74c44so27136366b.3
+        for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 08:33:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1713799989; x=1714404789; darn=lists.linux.dev;
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1713799991; x=1714404791; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=+PEW2sq1fZZcUdcYFCd5NXPg9CZPy+bkUUV4EmPfc9U=;
-        b=ymgT8eenQnF2gi6tziZc2jOXxH5EJUQuKmxw2uWuTo+Q4voEE8Bc258VEReZU7kQef
-         5lBO3Q+1jROcXdusxZylTX35FJzgdki6yK1GHY28Hs1hnYuUYsURodzgNM7q6W5A3FPY
-         gwGXzRn/g3Meu2JsiGYHtE1xWLpit/Rt8w6UsbR9y3Y5FWDybN5Wm9l8mG7RN8CvFJSJ
-         qMuFlh2uQNhuRnPhOE+youBcqblZxQ1ZOxPM7ywa5eGK/7UJp0jPCbfjvEI7nBiYJWmQ
-         denc2JeNR3vsEnQ8nhCJyyYPH2oBr0d+hUt90+vzQRGyGF+3ulvnq+Z/iVGXM3LkzZ0w
-         MByw==
+        bh=l+SvETYZqEpQzbp95WnLsYBk6au1WM6Aqn9bo14n4zs=;
+        b=Bh1nO3LynkKBgoGWz8nVPHFCGhXF8qbWJnWSijgm79RSrFLQrvEhaqpLZIvX+GZTeA
+         UILOTLDWl0g1r7PcQcBIJxLxWG1TAOTgPklCxs3uPo6kKGWksb0KfOifc1tj4KrkOOLh
+         2+PnDXTdpvYFc4RmeKnmR3o/c6CooPZvrkPiWHMv86h2uk003T0IjczuCyiZgrXnsWWx
+         sF2AzZwlSo6wmQWade/jbKApR+v/A6tc1puIMWiEGWMjVnmrpcc9k0XbiYIgyno+kVy4
+         7OSGTCdkjyzeqtDMlo1uXHoZT1yTYRrAHpZjr8ff1jdylL8WW5m3ypk26az/BPgq04OJ
+         CwQQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713799989; x=1714404789;
+        d=1e100.net; s=20230601; t=1713799991; x=1714404791;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=+PEW2sq1fZZcUdcYFCd5NXPg9CZPy+bkUUV4EmPfc9U=;
-        b=cQzF/v3Tp6jaodySlCGljvoOk2ouxgIIzzDT0qyWBTRkP50LqKj4LgAnbSgEvFQHZ6
-         AApbo06R7hRUkhsJY+V0nHjf2wBhQopFV/LtlFrGPH5fOSjnyEwnl/GrhQY0COH8Ckap
-         YkPvCjUkWHY3AMhCNST43B/8cf5fr7rSbnTwRy+E5XZoDQoqPEitRASr0u5185PWMioq
-         qXL9kmxk/HC0ZoQcmDAs3oe9iwlOGSGa3cMMHvJy+x4u2xp3+qWb/xNTIUBEMJNcQg2f
-         gGWJR+di5ZaGP0Ax2fadxN9G4qq9bkpNXEKckLnoTVLUXmadGP4J9LMuYjD3o+yLv+aL
-         WRUg==
-X-Forwarded-Encrypted: i=1; AJvYcCXOrC1XcyMswB1qT7yH32Pbz9DCssxOT/da9vQUiH5FS8XSA0zlyzgWqinpSU54qP3AIOrNLjVQDS2hyaVcg12YGU1EC7wAUyUM+Z3AjIE=
-X-Gm-Message-State: AOJu0YyyXvO53rBX2jgPv3zaUxN4D8wx1PegFZoyEhAkbT/Cn+kaXdC5
-	P/mCWCXBt/q0+DZ/ybLaRbPx9cmZSv+WLfnHxh93Fon+Nv28edFL2fSVOfmUf0Y=
-X-Google-Smtp-Source: AGHT+IHiS8PFHdDPbSER4uV1DnQ3cF2U5SMqkAyux8sxGiCt0YEkFKykDoxzO5Jsq4lWpSkPyp+UBQ==
-X-Received: by 2002:a50:d4d9:0:b0:56e:2452:f864 with SMTP id e25-20020a50d4d9000000b0056e2452f864mr7375041edj.35.1713799989283;
-        Mon, 22 Apr 2024 08:33:09 -0700 (PDT)
+        bh=l+SvETYZqEpQzbp95WnLsYBk6au1WM6Aqn9bo14n4zs=;
+        b=OEatpMhxmJ/ETtHDi5jc6jtXOoeB34VqrZcqqtlL0elYl+GM0YXq7hOyw2YBR2MOqt
+         D6HBkXt7EPCvYrMm61ljmG62z49SYHKPvdUQHMCAInqZ0AYvRBRhwtaf9idLRDlB1uAH
+         vm8OV+cBB7xYbcLSxwY+vnvfAnKZdt6MUJnm5QzKnIoRhsQuFMqiJwtq8y/RHumrtDL8
+         zD7/bhowf7xoroyJbfxo50P+hME2e85k9ljbfoFenr1dWHFhnwRUkDtTkziRNyQ7Jwof
+         ls3BFVsm2NJbZxJWAo9pkpZB/GfF9qsTBOKvqvfq9uLeDYXJWi37YYuz4B5FADvTCVhN
+         BCOw==
+X-Forwarded-Encrypted: i=1; AJvYcCX+6wsp8t0O1ELMRQeSlN1D2jkSRZ5jPKjKQiWkVY8t8Ewv0YHIsflkHebdXVlR6FnOFvc6s62Shaeh/e8nhMafdtuxk5oSFSW+sIOtJAk=
+X-Gm-Message-State: AOJu0YwJ54YSaJdkJduYUAYNszowRwZD0u6vSIpz/1qEqsqZ88Xz5CVD
+	2/Y9W6zr7T6ZV07njr+LTiYyHNGr0TCBaRz1GXMBFV54IHQ9sddsPiEFQpDpGBY=
+X-Google-Smtp-Source: AGHT+IHIEgOcibr9ucENpjaIIreAlXyqBrgAOhJK7PyeduoRLSEwUOBWPtvHYKh7djNpkMZpKeHA3g==
+X-Received: by 2002:a17:907:86a5:b0:a55:ac7d:af14 with SMTP id qa37-20020a17090786a500b00a55ac7daf14mr3872553ejc.40.1713799991109;
+        Mon, 22 Apr 2024 08:33:11 -0700 (PDT)
 Received: from localhost (78-80-105-131.customers.tmcz.cz. [78.80.105.131])
-        by smtp.gmail.com with ESMTPSA id ij6-20020a056402158600b005705bfeeb27sm5619252edb.66.2024.04.22.08.33.08
+        by smtp.gmail.com with ESMTPSA id m24-20020a17090607d800b00a524216fe78sm5887199ejc.64.2024.04.22.08.33.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Apr 2024 08:33:08 -0700 (PDT)
+        Mon, 22 Apr 2024 08:33:10 -0700 (PDT)
 From: Jiri Pirko <jiri@resnulli.us>
 To: netdev@vger.kernel.org
 Cc: kuba@kernel.org,
@@ -69,9 +69,9 @@ Cc: kuba@kernel.org,
 	bpoirier@nvidia.com,
 	idosch@nvidia.com,
 	virtualization@lists.linux.dev
-Subject: [patch net-next v5 3/5] selftests: forwarding: add check_driver() helper
-Date: Mon, 22 Apr 2024 17:32:58 +0200
-Message-ID: <20240422153303.3860947-3-jiri@resnulli.us>
+Subject: [patch net-next v5 4/5] selftests: forwarding: add wait_for_dev() helper
+Date: Mon, 22 Apr 2024 17:32:59 +0200
+Message-ID: <20240422153303.3860947-4-jiri@resnulli.us>
 X-Mailer: git-send-email 2.44.0
 In-Reply-To: <20240418160830.3751846-1-jiri@resnulli.us>
 References: <20240418160830.3751846-1-jiri@resnulli.us>
@@ -85,41 +85,45 @@ Content-Transfer-Encoding: 8bit
 
 From: Jiri Pirko <jiri@nvidia.com>
 
-Add a helper to be used to check if the netdevice is backed by specified
-driver.
+The existing setup_wait*() helper family check the status of the
+interface to be up. Introduce wait_for_dev() to wait for the netdevice
+to appear, for example after test script does manual device bind.
 
 Signed-off-by: Jiri Pirko <jiri@nvidia.com>
 Reviewed-by: Petr Machata <petrm@nvidia.com>
 ---
- tools/testing/selftests/net/forwarding/lib.sh | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+v3->v4:
+- removed "up" from ip link command line
+v1->v2:
+- reworked wait_for_dev() helper to use slowwait() helper
+---
+ tools/testing/selftests/net/forwarding/lib.sh | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
 diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
-index 9d6802c6c023..00e089dd951d 100644
+index 00e089dd951d..94751993321c 100644
 --- a/tools/testing/selftests/net/forwarding/lib.sh
 +++ b/tools/testing/selftests/net/forwarding/lib.sh
-@@ -278,10 +278,17 @@ check_port_mab_support()
- 	fi
+@@ -733,6 +733,19 @@ setup_wait()
+ 	sleep $WAIT_TIME
  }
  
--if [[ "$(id -u)" -ne 0 ]]; then
--	echo "SKIP: need root privileges"
--	exit $ksft_skip
--fi
-+check_driver()
++wait_for_dev()
 +{
-+	local dev=$1; shift
-+	local expected=$1; shift
-+	local driver_name=`driver_name_get $dev`
++        local dev=$1; shift
++        local timeout=${1:-$WAIT_TIMEOUT}; shift
 +
-+	if [[ $driver_name != $expected ]]; then
-+		echo "SKIP: expected driver $expected for $dev, got $driver_name instead"
-+		exit $ksft_skip
-+	fi
++        slowwait $timeout ip link show dev $dev &> /dev/null
++        if (( $? )); then
++                check_err 1
++                log_test wait_for_dev "Interface $dev did not appear."
++                exit $EXIT_STATUS
++        fi
 +}
- 
- if [[ "$CHECK_TC" = "yes" ]]; then
- 	check_tc_version
++
+ cmd_jq()
+ {
+ 	local cmd=$1
 -- 
 2.44.0
 
