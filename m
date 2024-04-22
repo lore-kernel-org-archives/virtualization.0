@@ -1,187 +1,124 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oo1-f53.google.com (mail-oo1-f53.google.com [209.85.161.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C8BC1474D3;
-	Mon, 22 Apr 2024 18:39:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F518155305
+	for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 18:47:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713811185; cv=none; b=blot/KQZtwhpY7H+G5AdWBR5egtInQoHpGrn9IvK7wqYCVfXzxp8lnCjC2muCXM7CDEhYIM6539dmviQoVSBxXuc/qMsEY8C1/bXb8ZAWDAOc5GmZ4Yt+J2AEv50T4f5wC1srGlIIhk3xcNRM8nN3QkQSPgCu3EPR2o0AcW0NLw=
+	t=1713811662; cv=none; b=qOdcQujo4GwkrmpvZ0p3x2JGfcBBBi/q94uwkh1VjWVGdhvu6Iph2PBIqm+cucAC7oDOV2abryWoQstRC3aAXBbYAmGuBVmHrLpOujumBgcPkRbphuAv/ZUCWPgRaqb97YzklxKdpBMUIeKUO4kdIRwERbtxbI/8fZmlDkosR3w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713811185; c=relaxed/simple;
-	bh=IFiRNpxgUNoHitTE7w4Z1nq+NF3oVpObrju4/HCt3x8=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=smOXzUEknorsIgTXm+x33p19bfdqq3k+rajNkyd1fVPthl7dO9AbymPvmgyzzNIedwsKFNB+r8ErmhHk8Oqx/5mVHXFpEKW/eg17S0IeEmQcsu60pDG3OcqUZT/9ZWISxjhtvQDCm6yF6IBv6/WoSccBe+lCV7ATDoPE2lnnCbs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TEaSWtlM; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1713811662; c=relaxed/simple;
+	bh=RjC+01ZDFE6MNxd2eykgAq+nbbFDAvXeRdNuyVLRIsU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=jGSFW6ZHd7Xm5jSePnUfhH2hBqnWnLzSGUi6/CNhm4paQ/ruzDtW99u2qi59Nq3G0lSm9qN8zd/TUMzBKsHlhnQe4oxglX8+NSoz+IKUB+NXmPlNbM9QLVQz3KEHGAuNlAIb2SwzmyyAPemxoGER4qUc9Y3Z51dblWo1sAnAixE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nqtCyCvT; arc=none smtp.client-ip=209.85.161.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TEaSWtlM"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37580C113CC;
-	Mon, 22 Apr 2024 18:39:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1713811185;
-	bh=IFiRNpxgUNoHitTE7w4Z1nq+NF3oVpObrju4/HCt3x8=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=TEaSWtlM8zy/X2vpq45kKgoeKYOBiAdp8FND7HHns99ixyqEsNNhCDNd3IpWbpQjx
-	 2gGPGunyYQNum/S49J8fPkho2T27scEDb58DIe2fdz+ZW9O1Ger2ZPgA+UPfragorK
-	 pbE3xUlwCBGLaMY+K6qenFmKPDyBezPLZdd8jLQ4AQKs2OtGN6sdyDoLs9FNPfjuHS
-	 f2FL/uPhVZHgZN4l3+M8aYv1WKqsHcgwFRhWNztEWPeGq4MmOn4JPtsVhKKlJ73gIE
-	 zQEV4l7cylX1BozmpRoPFRsQaYYIkhJsEGAfHIIbqCydyQ910VvNJAcZRDLKKxkhUs
-	 FMYxVlYr2eD8A==
-Date: Mon, 22 Apr 2024 11:39:43 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Heng Qi <hengqi@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev, "David S .
- Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Paolo
- Abeni <pabeni@redhat.com>, Jason Wang <jasowang@redhat.com>, "Michael S .
- Tsirkin" <mst@redhat.com>, Brett Creeley <bcreeley@amd.com>, Ratheesh
- Kannoth <rkannoth@marvell.com>, Alexander Lobakin
- <aleksander.lobakin@intel.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Tal
- Gilboa <talgi@nvidia.com>, Jonathan Corbet <corbet@lwn.net>,
- linux-doc@vger.kernel.org, Maxime Chevallier
- <maxime.chevallier@bootlin.com>, Jiri Pirko <jiri@resnulli.us>, Paul
- Greenwalt <paul.greenwalt@intel.com>, Ahmed Zaki <ahmed.zaki@intel.com>,
- Vladimir Oltean <vladimir.oltean@nxp.com>, Kory Maincent
- <kory.maincent@bootlin.com>, Andrew Lunn <andrew@lunn.ch>,
- "justinstitt@google.com" <justinstitt@google.com>
-Subject: Re: [PATCH net-next v9 2/4] ethtool: provide customized dim profile
- management
-Message-ID: <20240422113943.736861fc@kernel.org>
-In-Reply-To: <96b59800-85e6-4a9e-ad9b-7ad3fa56fff4@linux.alibaba.com>
-References: <20240417155546.25691-1-hengqi@linux.alibaba.com>
-	<20240417155546.25691-3-hengqi@linux.alibaba.com>
-	<20240418174843.492078d5@kernel.org>
-	<96b59800-85e6-4a9e-ad9b-7ad3fa56fff4@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nqtCyCvT"
+Received: by mail-oo1-f53.google.com with SMTP id 006d021491bc7-5ad2da2196bso1205574eaf.3
+        for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 11:47:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1713811660; x=1714416460; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=owEYz5PcX2V/77HEBhhtfv3jinwHJK/SDFDfp/Sqt3w=;
+        b=nqtCyCvThg52w3KrndNX9wA44XwaytUEfeMhWaalZre1BTsHJnYHepMy10s4jIKLPu
+         CAxr4MibPimEQW6YKyoapuLPw0tlo6BDGFrgAqoQNCcmxO0hLoWv1hYUHeKEWqjc8ORD
+         TK0kzjmrwIUORxSne6ED9gamBUcpWS5xUmfMF4DQnJCmDYd+hk91p5w5dLMULEPT9e10
+         ovHz3aqeoN8SoYNLjljI2lVSEfbpA9kqPsnSIIKuuF7bbFylL4cfAYm1gpQBRC0HwRtb
+         QG5+TysbPlSmqsMzb+BcZDCO0cdS5p4IQTpg0nVXJAH5PQdC4lNPkB8zvphm/qc1s4dW
+         Cx4w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713811660; x=1714416460;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=owEYz5PcX2V/77HEBhhtfv3jinwHJK/SDFDfp/Sqt3w=;
+        b=GJDIpq8QeNuQlc1pOxzFg72NGS3FmyA5ruKed8hOTAVan+17hO9SWrDVRHCsrr8ORw
+         /DVuSbS0LsZiG34Ce6mlFol8IWShNMTa4yqMvWDEKJZDE+KfhTpYEVhJu5wgTYmwTjQr
+         09aR0CQsXdAKfYa1wIKnbDyczyH1SusqGLUUC+o6ZA2nokQCx3bNx151k5z3Av+GquCn
+         SMlXXhwb2520pfWL+/jLsQfeIJfPHqfiXjVN0qk4rn5YfXoUsaoqbCTkRJ8JvjSx/2Yj
+         6z1b+qD8LogQSCpsgWBUy36XLV69YemJdSzZwuY24jZc2ZjmNdX6eam9OOS10aebfTJA
+         XIqA==
+X-Forwarded-Encrypted: i=1; AJvYcCXzLS9jubb0R84vG0mhP1M0UMHEev+YseP/51EexsjDpddt5wwVt3DR6ZYsoWMctLV7yXWCrVmNWQ9eEIa9UUXTb6E8dEi4xH+SjtNHzjw=
+X-Gm-Message-State: AOJu0YzKY/Mrrn1YIsIjjSZarxk1UnbUeFTlx3suSiHZrgOAQE+GekYx
+	zWPxUItUt4m6pcNLR6ROT31umCvVbf8hmp9ovReU5rnMlzCUpzu5
+X-Google-Smtp-Source: AGHT+IEjbIqLnAxfDcJjgknmPb5GWL+5HQ/C36pYtthEjpOFT0Ql7t5dq/2XIjAVrzgHR4C5YbOq5g==
+X-Received: by 2002:a05:6359:760d:b0:18a:9bba:972a with SMTP id wg13-20020a056359760d00b0018a9bba972amr5822611rwc.32.1713811660340;
+        Mon, 22 Apr 2024 11:47:40 -0700 (PDT)
+Received: from localhost (24-122-67-147.resi.cgocable.ca. [24.122.67.147])
+        by smtp.gmail.com with ESMTPSA id j18-20020ac86652000000b00437392f1c20sm4467829qtp.76.2024.04.22.11.47.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 22 Apr 2024 11:47:40 -0700 (PDT)
+Date: Mon, 22 Apr 2024 14:47:39 -0400
+From: Benjamin Poirier <benjamin.poirier@gmail.com>
+To: Jiri Pirko <jiri@resnulli.us>
+Cc: netdev@vger.kernel.org, kuba@kernel.org, pabeni@redhat.com,
+	davem@davemloft.net, edumazet@google.com, parav@nvidia.com,
+	mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+	shuah@kernel.org, petrm@nvidia.com, liuhangbin@gmail.com,
+	vladimir.oltean@nxp.com, idosch@nvidia.com,
+	virtualization@lists.linux.dev
+Subject: Re: [patch net-next v5 3/5] selftests: forwarding: add
+ check_driver() helper
+Message-ID: <ZiawyyOY-6radvXV@f4>
+References: <20240418160830.3751846-1-jiri@resnulli.us>
+ <20240422153303.3860947-3-jiri@resnulli.us>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240422153303.3860947-3-jiri@resnulli.us>
 
-On Mon, 22 Apr 2024 17:00:25 +0800 Heng Qi wrote:
-> =E5=9C=A8 2024/4/19 =E4=B8=8A=E5=8D=888:48, Jakub Kicinski =E5=86=99=E9=
-=81=93:
-> > On Wed, 17 Apr 2024 23:55:44 +0800 Heng Qi wrote: =20
-> >> $ ethtool -c ethx
-> >> ...
-> >> rx-eqe-profile:
-> >> {.usec =3D   1, .pkts =3D 256, .comps =3D   0,},
-> >> {.usec =3D   8, .pkts =3D 256, .comps =3D   0,},
-> >> {.usec =3D  64, .pkts =3D 256, .comps =3D   0,},
-> >> {.usec =3D 128, .pkts =3D 256, .comps =3D   0,},
-> >> {.usec =3D 256, .pkts =3D 256, .comps =3D   0,}
-> >> rx-cqe-profile:   n/a
-> >> tx-eqe-profile:   n/a
-> >> tx-cqe-profile:   n/a =20
-> > I don't think that exposing CQE vs EQE mode makes much sense here.
-> > We enable the right mode via:
-> >
-> > struct kernel_ethtool_coalesce {
-> > 	u8 use_cqe_mode_tx;
-> > 	u8 use_cqe_mode_rx; =20
->=20
-> I think it is reasonable to use 4 types:
->=20
-> dim lib itself is designed with 4 independent arrays, which are queried=20
-> by dim->mode and
-> dim->profile_ix. This way allows users to manually modify the cqe mode=20
-> of tx or rx, and the
-> dim interface can automatically match the profile of the corresponding=20
-> mode when obtaining
-> the results.
+On 2024-04-22 17:32 +0200, Jiri Pirko wrote:
+> From: Jiri Pirko <jiri@nvidia.com>
+> 
+> Add a helper to be used to check if the netdevice is backed by specified
+> driver.
+> 
+> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
+> Reviewed-by: Petr Machata <petrm@nvidia.com>
+> ---
+>  tools/testing/selftests/net/forwarding/lib.sh | 15 +++++++++++----
+>  1 file changed, 11 insertions(+), 4 deletions(-)
+> 
+> diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
+> index 9d6802c6c023..00e089dd951d 100644
+> --- a/tools/testing/selftests/net/forwarding/lib.sh
+> +++ b/tools/testing/selftests/net/forwarding/lib.sh
+> @@ -278,10 +278,17 @@ check_port_mab_support()
+>  	fi
+>  }
+>  
+> -if [[ "$(id -u)" -ne 0 ]]; then
+> -	echo "SKIP: need root privileges"
+> -	exit $ksft_skip
+> -fi
 
-I'm guessing that DIM has 4 profiles because it was easier to implement
-for profiles hardcoded by DIM itself(!) Even for driver-declared
-profiles the distinction is a hack.
+Why is the check being removed entirely? This change was not in v4 of
+this patch. Did it happen unintentionally when removing "selftests:
+forwarding: move initial root check to the beginning"?
 
-> Merely exposing rx_profile and tx_profile does not seem to make the=20
-> interface and code clearer.
->=20
-> > the user needs to set the packets and usecs in an educated way
-> > (matching the mode). =20
->=20
-> I think this is acceptable. In addition to the above reasons, users can=20
-> already set the cqe
-> mode of tx and rx in user mode, which means that they have been educated.
->=20
-> > The kernel never changes the mode. =20
->=20
-> Sorry, I don't seem to understand what this means.
-
-Kernel never changes the mode for its own reasons.
-Only user can change the mode.
-So we don't have to always have both CQE and EQE mode tables ready.
-If the kernel changed the mode for some reason we'd have to get both
-from the user, in case kernel wanted to switch.
-
-> >>   /**
-> >>    * register_netdevice() - register a network device
-> >>    * @dev: device to register
-> >> @@ -10258,6 +10310,10 @@ int register_netdevice(struct net_device *dev)
-> >>   	if (ret)
-> >>   		return ret;
-> >>  =20
-> >> +	ret =3D dev_dim_profile_init(dev);
-> >> +	if (ret)
-> >> +		return ret; =20
-> > This is fine but the driver still has to manually do bunch of init:
-> >
-> > 		INIT_WORK(&vi->rq[i].dim.work, virtnet_rx_dim_work);
-> > 		vi->rq[i].dim.mode =3D DIM_CQ_PERIOD_MODE_START_FROM_EQE;
-> >
-> > It'd be better to collect all this static info (flags, mode, work func)
-> > in one place / struct, attached to netdev or netdev_ops. Then the
-> > driver can call a helper like which only needs to take netdev and dim
-> > as arguments. =20
->=20
-> If mode is put into netdev, then use_cqe_mode_rx and use_cqe_mode_tx=20
-> need to be moved into netdev too.
-> Then dim->mode is no longer required when dim obtain its results.
-> We need to transform the way all drivers with dim currently behave.
-
-Hopefully that won't be too hard.
-
-> But why should work be put into netdev?
-> The driver still requires a for loop to initialize dim work for a=20
-> driver-specific queues.
-
-It's easier to refactor and extend the API when there's an explicit
-call done to the core by the driver, rather than driver poking values
-into random fields of the core structure.
-
-> >> + * coalesce_put_profile - fill reply with a nla nest with four child =
-nla nests.
-> >> + * @skb: socket buffer the message is stored in
-> >> + * @attr_type: nest attr type ETHTOOL_A_COALESCE_*X_*QE_PROFILE
-> >> + * @profile: data passed to userspace
-> >> + * @supported_params: modifiable parameters supported by the driver
-> >> + *
-> >> + * Put a dim profile nest attribute. Refer to ETHTOOL_A_MODERATIONS_M=
-ODERATION.
-> >> + *
-> >> + * Return: false to indicate successful placement or no placement, and
-> >> + * true to pass the -EMSGSIZE error to the wrapper. =20
-> > Why the bool? Doesn't most of the similar code return the error? =20
->=20
-> Its wrapper function ethnl_default_doit only recognizes the EMSGSIZE code.
-
-Not sure what you mean.
-
-> >> @@ -227,7 +315,19 @@ const struct nla_policy ethnl_coalesce_set_policy=
-[] =3D {
-> >>   	[ETHTOOL_A_COALESCE_TX_AGGR_MAX_BYTES] =3D { .type =3D NLA_U32 },
-> >>   	[ETHTOOL_A_COALESCE_TX_AGGR_MAX_FRAMES] =3D { .type =3D NLA_U32 },
-> >>   	[ETHTOOL_A_COALESCE_TX_AGGR_TIME_USECS] =3D { .type =3D NLA_U32 },
-> >> +	[ETHTOOL_A_COALESCE_RX_EQE_PROFILE]     =3D { .type =3D NLA_NESTED },
-> >> +	[ETHTOOL_A_COALESCE_RX_CQE_PROFILE]     =3D { .type =3D NLA_NESTED },
-> >> +	[ETHTOOL_A_COALESCE_TX_EQE_PROFILE]     =3D { .type =3D NLA_NESTED },
-> >> +	[ETHTOOL_A_COALESCE_TX_CQE_PROFILE]     =3D { .type =3D NLA_NESTED }=
-, =20
-> > NLA_POLICY_NESTED(coalesce_set_profile_policy) =20
->=20
-> This doesn't work because the first level of sub-nesting of
-> ETHTOOL_A_COALESCE_RX_CQE_PROFILE is ETHTOOL_A_PROFILE_IRQ_MODERATION.
-
-So declare a policy for IRQ_MODERATION which has one entry -> nested
-profile policy?
+> +check_driver()
+> +{
+> +	local dev=$1; shift
+> +	local expected=$1; shift
+> +	local driver_name=`driver_name_get $dev`
+> +
+> +	if [[ $driver_name != $expected ]]; then
+> +		echo "SKIP: expected driver $expected for $dev, got $driver_name instead"
+> +		exit $ksft_skip
+> +	fi
+> +}
+>  
+>  if [[ "$CHECK_TC" = "yes" ]]; then
+>  	check_tc_version
+> -- 
+> 2.44.0
+> 
+> 
