@@ -1,221 +1,300 @@
-Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2080.outbound.protection.outlook.com [40.107.237.80])
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0944018C1A
-	for <virtualization@lists.linux.dev>; Sun, 21 Apr 2024 15:54:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.237.80
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713714865; cv=fail; b=SbtdYMFGKWD0sfXBUASWf9Ds1mIk/c1JIPC+sSDoqdLmF2N2lVc3+Nek9dxPVPShlGGwvYsqsOCo2Ya6DEqMwD7CbqBh12IGHAach6RzCcJmzY7JoN96Hdf0JHhUfwKLw3z02xLT534RtPb2hBbV6nvyxmrP75ZjnJzs5uOhqWg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713714865; c=relaxed/simple;
-	bh=5YJH/cSQKuuvDeoFcfGwFWn/qWBrF0/X6Sm8y2gfHWE=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=SIaTnuby6L8YZtPncOU78nisl0iSqjQ6fMbpGvZu8vggdk+X2hCL7Evvjtbu/lrlkAl0qnqWG2rmkk6J0w1djQUqU33Aa1gcQvFUWj2a8kD37snQRXt2vG8ZGG/FdSJlwp1pCsYeP/5Rake8Y4fEhsma9noXpbfwVXAQ/rs11bg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=j7MSXqS6; arc=fail smtp.client-ip=40.107.237.80
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6922F46BA
+	for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 01:54:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1713750856; cv=none; b=HozldZwGhxp5bjd4FkASPPd2UaH5yP6m8xPOp1aHdtXIDVscmP99/2OHCYXBMn8n2jdAbA230nbUS6kada7nD/x2lRuOD99r0f94f2GbEGSqd8k/EplW1TiPawsxrb0yk6ZjQwckREdfaBALZ5pVjTqa5vMQLY/RFmTPJ6bGVZ4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1713750856; c=relaxed/simple;
+	bh=I/+Xr4SwTRUKrw6dXxPpOB8kt+CmoEbFuJXC//NNkUs=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=dwmAxoJpwV3JfXzeUjK4gP/Jti8/owUOHRZLMuJ663dJ7jgbVLl9bRF4Ij0NhjoU528O3/uTG/ZVn4LXwhKyVxNk0kHSAQGZs0XZoj+6Ew9b4TGBp+uYwMSvWQ2ZyqrnZl4oVKPGh+kAWKK2z7MJgLld0N8oUYf578HvPcUxcIs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=PjP+2u4U; arc=none smtp.client-ip=115.124.30.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="j7MSXqS6"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=AhTw3OVljFWap1h9RAx5rQ4VRkPlP1U6nedhm73Q3L//iNMvooCBvUBCpxz+vormxQDhi4xJl6RPk+7lazuaVaaAo9LwRDjEGNo98iznlclV057lSss5B49eFk5FYzU5oVzOXMaPuq0UCo0Xw2e1KbQyLMsuueE2xzFOBkklkRsxkwQLY3C/u+Y84mlKcwltsUMlGTs7EXHm4+XCJF1gF7m4oJV/iuotVK+6zG7vstvvEhFYR8EgriPsjv1hEw1yGtDLxM7hV5R3zmtHdsGuqW8Tl97pXcVU8d+E0najfFdLW6eIyVEFzNAb9Y1OcaJ3hR491i8KXLsmpK8BhLaQZw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=unmoy4Wsvt3UkWmR7+LT5t4K4bdocTyCkzSH9AynAk8=;
- b=InkifdfL/G3Bb9UA873v55Cgr1bNIXtx6M2/Q5ydgDycADsAMD8KylAugRTPwMGvIO8/6FRA2Dl+Z/eVgVlN2WybMbzhvBCoTNmoWYty9uoJ9+cpGycCUEa4Jr5gYx+q1cPRvUXoDevlMyM6+unjPOqJnMBM5ZmjZ+QxNV2c8KDfpTXMZtHbZEgzu9hFg8DQ9E+EcSPGnOeuZe2dcSXpogtP5Xz2NAonfQ6HHhQDsbQqcCKdIvNPW9xH605FtCDiF0CcFaAhXZ2Q6x+3yih/LlZ45qeZzucauhO31U3PQF6Odu3qrcZptjPCO4AiO5BoKqERwpoLWKl+Ha6zrAdr/g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=unmoy4Wsvt3UkWmR7+LT5t4K4bdocTyCkzSH9AynAk8=;
- b=j7MSXqS64ATzePGe5qFROtMc+vHbmot3h1APqyodqLFegyEkgzcZwsDsl5QUN+KpUjYxIA0bHPGYRII4Ue+V3Jmn/gh9l3kL7Hc24nkMqrQDuK0YKFOGLsM2zBKidSWmCeX5EobhYrpB6x/F9kPAqK7UEYyaI2+J1MFK9UJc4Oc=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from PH0PR12MB7982.namprd12.prod.outlook.com (2603:10b6:510:28d::5)
- by CH0PR12MB8507.namprd12.prod.outlook.com (2603:10b6:610:189::5) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7472.44; Sun, 21 Apr
- 2024 15:54:17 +0000
-Received: from PH0PR12MB7982.namprd12.prod.outlook.com
- ([fe80::2466:719a:448:694f]) by PH0PR12MB7982.namprd12.prod.outlook.com
- ([fe80::2466:719a:448:694f%3]) with mapi id 15.20.7472.044; Sun, 21 Apr 2024
- 15:54:17 +0000
-Message-ID: <c59ebd40-fe9c-477f-9ed5-958163470f03@amd.com>
-Date: Sun, 21 Apr 2024 08:53:53 -0700
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v9 2/4] ethtool: provide customized dim profile
- management
-To: Heng Qi <hengqi@linux.alibaba.com>, netdev@vger.kernel.org,
- virtualization@lists.linux.dev
-Cc: Jakub Kicinski <kuba@kernel.org>, "David S . Miller"
- <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Paolo Abeni <pabeni@redhat.com>, Jason Wang <jasowang@redhat.com>,
- "Michael S . Tsirkin" <mst@redhat.com>,
- Ratheesh Kannoth <rkannoth@marvell.com>,
- Alexander Lobakin <aleksander.lobakin@intel.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Tal Gilboa <talgi@nvidia.com>,
- Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org,
- Maxime Chevallier <maxime.chevallier@bootlin.com>,
- Jiri Pirko <jiri@resnulli.us>, Paul Greenwalt <paul.greenwalt@intel.com>,
- Ahmed Zaki <ahmed.zaki@intel.com>, Vladimir Oltean
- <vladimir.oltean@nxp.com>, Kory Maincent <kory.maincent@bootlin.com>,
- Andrew Lunn <andrew@lunn.ch>, "justinstitt@google.com"
- <justinstitt@google.com>
-References: <20240417155546.25691-1-hengqi@linux.alibaba.com>
- <20240417155546.25691-3-hengqi@linux.alibaba.com>
-Content-Language: en-US
-From: Brett Creeley <bcreeley@amd.com>
-In-Reply-To: <20240417155546.25691-3-hengqi@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: BYAPR06CA0016.namprd06.prod.outlook.com
- (2603:10b6:a03:d4::29) To PH0PR12MB7982.namprd12.prod.outlook.com
- (2603:10b6:510:28d::5)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="PjP+2u4U"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1713750850; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=o/+s6E4oLCFARZjkowI+SIEK/fKiji8BVFsnIAFrzV0=;
+	b=PjP+2u4U6nZwxzE6rL6g9/8KCb6LKi8+FymrPw5t2RiiUAh45+AAqURJrXC9Jum5rW1prNSE5nZ2OhjD1Mxi33l8LD7owG5RrNxe3nCBh/WNrxqWaFtd77yfmkC+jUypyEj4qpGMF15hq0t/BaNHy2Ah4pBF+kAY8bjCLOQC1gU=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R621e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0W4y5bsl_1713750848;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W4y5bsl_1713750848)
+          by smtp.aliyun-inc.com;
+          Mon, 22 Apr 2024 09:54:10 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: virtualization@lists.linux.dev
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	netdev@vger.kernel.org
+Subject: [PATCH vhost v1 4/7] virtio_net: big mode support premapped
+Date: Mon, 22 Apr 2024 09:54:00 +0800
+Message-Id: <20240422015403.72526-5-xuanzhuo@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+In-Reply-To: <20240422015403.72526-1-xuanzhuo@linux.alibaba.com>
+References: <20240422015403.72526-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH0PR12MB7982:EE_|CH0PR12MB8507:EE_
-X-MS-Office365-Filtering-Correlation-Id: 3382d50b-0b21-446b-eda4-08dc621b4ce2
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?U3ozMyt5cmN3S1BEaDNld0tFczQvQzh5SDNLa3QvMFNCajBmd20zam9yVW9r?=
- =?utf-8?B?MXZLZk15S1RDb2RyRVBBRE5NTjkrTFp4RjFzSGEydWpYckRsOTdWTjZIMlRZ?=
- =?utf-8?B?NUFLVDVhVzIrQVRFTSt2K3l1RGUxUnhwSm5vVEJCSitaemJpMWFGVVFYOThq?=
- =?utf-8?B?NVorU3FoRGpROG96WHpxMnpCcDk3UWltU2Y5ZzdPL0JVWkowK2VHQi8zS3gy?=
- =?utf-8?B?cDRRcEZxVFVvWElvOXVNelYxUkhuMm5POUJncEI4U1U5RTc3MWJvWGRvc0dE?=
- =?utf-8?B?bkRDMGlBNlpFSy9MbjZaTXBzZkNqTTUyQzR3Q3k5MUl4RjNpUVg1M0pXbWFu?=
- =?utf-8?B?bzgrQTJBK0FrZWh4aENQa2ZuZmlUUDdkbFVLZTF2QlB6c2dHRWZLMmFsUGE0?=
- =?utf-8?B?QkdrZFNEbE5uQ04rWTdiNVJsQUE4c1pPREJFTUpHamEyOEYxL0VmdjByM21i?=
- =?utf-8?B?MWxHMk9xSGxISmU3RUprcnFpcVAyNUFoZm1MTC9ybVE0N002eDVnMUpIWEpK?=
- =?utf-8?B?WmM5d0loTjNRMXJRbEpQdHpjRGh1YWliWlVDZkN5akJSWUNodzBkMENNMm04?=
- =?utf-8?B?RTNhYWFYYVdQWVpSbHFMYUlPYkFZREZaVkE4SW4wUFVOandQMUFrTElnRWRv?=
- =?utf-8?B?VU9SZldCWFlxZmovU21XVkwzL1pSTWNVY05URC9SS3R0UEdCcllFb0tEd1Ar?=
- =?utf-8?B?V2tjNnhhL3BPenMwZXNudS9tYXJOdmJxa0N1ZS81QTlNSTVTUzhlRHBpOU1s?=
- =?utf-8?B?QndKMWY5VG94RnFTOWNmMHlGc2NNL1dWMTRVTHlGMjFVK0RxSHdsQ3phY3JV?=
- =?utf-8?B?U25wVWwzT3g5K2RiZFJUZDBIRm9rQTdoeWJCbC9tcHBZdGF2YjB4d3ZuNlYy?=
- =?utf-8?B?elRwcU1iMFlMbkRpRE9hSUliOUZnNWI3Wi9lM3cxODEvNjRYZ0s0NTNNbDNH?=
- =?utf-8?B?d2F4ZEpNMkhtZ3RicDJhWUVtL09lSW8rTG5yeXZCMmVKb1FmcUIrV0dUTW9G?=
- =?utf-8?B?TzcvbzBjSmMrTEJLTkJ6QTJiUTdLaVV1b2M2WmRSOHlna1NneDJJSkkxbEJZ?=
- =?utf-8?B?ZlhkQm1iVlB3dlZEVG1udVJjSlBzdW1Eeno4eWJ3QkduOFZqZkpTNWdzZmtT?=
- =?utf-8?B?akQxbVduS1BNUHJPRTErR0tXQlpHcWE1SUtHZW05NG9xOGtoZ09sNDI0cTBx?=
- =?utf-8?B?b3FLcG0yaTlqdG9SN3pwOWpyckVqdTUrTmFJMnRodzgyd29pVmVSb2EvN0hv?=
- =?utf-8?B?TmFZMmt2SXFhMW5LazhPN0JCaDJWMW9zVHRZQ2pYdXdsZU9kdGgxVVNRMzY0?=
- =?utf-8?B?bU1teUdVRjk2ZWluYzk1R2tnZmRnVXd3bzJzditzMVVuMWl3MFdVeHZrZ2VR?=
- =?utf-8?B?TDg5VGxGTnpXcGxSa0E1U1pvNEh2T3R1VFArUjBxNDhCcTcrdzNHNUo4cEVR?=
- =?utf-8?B?V1c0WmFhSjZhZkhUcjR2dk1NaC9mVHc0VjNLbzZrUG1rK0FrS0p0aWJ1Z0NH?=
- =?utf-8?B?aUJkWmo3R1V1VFUyME1hNElaODB3dFJLaVBSNzhNTjFmR2lBbS9ZUzlyZUtl?=
- =?utf-8?B?OUlIQ2I0L1V0eDVvTk10Z1grT2FjLzU0WFl3aDl4eCt6ZFYrbE1LeVFJYzBt?=
- =?utf-8?B?blRjQ2JSN3NjWnRuOGVvNEdPRFlaeEpxajRBWVdJaWI2a0RvekFqSGRHb0J3?=
- =?utf-8?B?MEI5dTc4QUNMS240S0RCRzBhNWJIM2hheWNNT2hqRCt3b09oa1NlOW1nPT0=?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR12MB7982.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(366007)(1800799015)(7416005)(376005);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?OWNqZTF2Qjhha3J1SFNqRlNPRnVaTlZRZHpSKytWSjVGdGdUbE5xczZaYmtJ?=
- =?utf-8?B?TnpmOXlYV3crczFMaTN5TGdHYmdYeTdFSnRoQ0hObnFhcGFleDRVVzczSVZS?=
- =?utf-8?B?aXptdmplRjJPVDhuZ2NyTTF4RlpCWFVMVEpXOE4ySitjb1NHWHpFTU8xN1dC?=
- =?utf-8?B?MEdLWDhoL3JqSllLR3MwbW9LVzNHZjJxcmhjeVE0dk91NitLUGNWeVVPZmd2?=
- =?utf-8?B?MzEwRCtDN1JFU2p3eWpTV3NoaytEOE44RU1JM1NhOUE1c2l4a01mMnl4a29N?=
- =?utf-8?B?OTBrQ3JFd1Q3MXYzVWFXOEpUUVBZSjdzVkFrQ1ZnNVMvdnJxS3c5eFpSUmdE?=
- =?utf-8?B?QkZiZXN5MjFBRTgrTEdXV0MzcnpOL1F6M3ZXOXI5SklRWFErdUxMOTRsbm9k?=
- =?utf-8?B?ZGE4OWtUSzlQSHRwdVZ5eVh1UDdvS2FoUUZKTjJ3Rk03UUwwUWNGNkRwV3pX?=
- =?utf-8?B?VDlzRnZEcnlpRytUVDNGNlRiM3FkYURXb1ZLdGdXMEdkdkpYWHQ1Zk1OQUlF?=
- =?utf-8?B?bW43My9SdmpmaEIyZ0dxU2U5cmVlbTVrV2pwcFBGK243K2J2THcvR042cDJp?=
- =?utf-8?B?N3Z6YnhDL1FJa2lUWXJuN0ZsTHVoOW1aNGlKeFRzd0hYYnFxVkhjWGtHWnE4?=
- =?utf-8?B?ME5pdU5DNWROVkk1VDJxazlnNTJRZkdPeDJBMmNNZC8vblcyVWF1VytZU1lI?=
- =?utf-8?B?b0VwWmlDZlZZQ01vMUZhZE5NSWNPZGR3dFlDbDBtUXl0d3FiZFAzKzhlc0NN?=
- =?utf-8?B?NmRRSWo1ZXcyRm9pbmE3bURHYlhsaTJJMGNNR2tLdUpCMVMwTFBDT2k1WDRV?=
- =?utf-8?B?K3JQL0FsQmFxRnE5bXBBbDV4Qktrdk1yaFhkNEZHNFJpMDhqaGdyUk5xUjJX?=
- =?utf-8?B?aHZqMTVMS1p2OWExZ0w4WDRrRkx2My9vTWtyazBZSmhuMFR1RHI5bS92WHZ2?=
- =?utf-8?B?WUJHWE5YWU14ZEh6NlVxN2tiWXN3MnhqU1BDc0t3M1VvVm9jR1lPQ1Q0WEJk?=
- =?utf-8?B?UzZPZVUvUjdPUEZTTGNuZlZ3QzBnalFUeWtoMW4welpwekZselgvZitNaU82?=
- =?utf-8?B?aGRBQW5oY1lVQXh4VzNFemlreDIrQUoyWU12a0VSYml4OHpGUHJ6S2NWdjNj?=
- =?utf-8?B?QmU5OXBlMWdYNXRCWkFsMDZRbUdNT3I2RGd2STBxZnJ0T0RKZTZjM05nd0hJ?=
- =?utf-8?B?N0tjd3AxRjh2Uk12L2dCOWZhU0RwSjEybjRsSmN6dUZVQjRURjBhZ2pwUlh0?=
- =?utf-8?B?Tm9pVGprVnQ0L3lVcUlOMXk0M0JOOFhOTnJqUkU0R3hrbCt1cDVtQ1RaOE0z?=
- =?utf-8?B?RkFtTk1DVmFqQUNHbTZ1bDVTOHlGbnJqWFljTllISklyLytxVjBJMkR0RTBK?=
- =?utf-8?B?dHNqdndETG96emNkNkFSS0tWTGNoY2sxbVdXZnFtSWVSUGhQOHd1RjI2OUQv?=
- =?utf-8?B?UC80MHFGaXdKQllpbUZ4RWU4cUZvUktKcVViWTF2NU5EbWE0Ym1CMmpMQ0ts?=
- =?utf-8?B?ZDdQQk5CQUhMWjRoS3I5Qnl4ZmI3MklXbWNBSzArOG5CT1ZQbExDL3p5bTEy?=
- =?utf-8?B?VW9IY2trM1NxRjkrUW1mdHhVeURwTE5PQy9kZTJ4VFJETGprMlpWaWlHMkxS?=
- =?utf-8?B?NnZQYzlWSTVUVjNZVTR4eUdIUUMyU0pTei9xUVdMRTNhWnloV2NEbTV4ZE04?=
- =?utf-8?B?Y2FwYmFJaHJxUC9PZUVwLzdZdnQ5UUFBalRXU3FTelFLV0NBRTFqWi9TYW9X?=
- =?utf-8?B?dzQwQ1dnUXpTUGZmYnhXZGpRSm5QRXFZUUJhNVBWM2JpUU1LUFZwMXh5bi9y?=
- =?utf-8?B?Z1dVTVNUcnd1bnZNbjFwYmlqN3pmbUpRdW1XTTIrVWRSd1J5cWtwSEtRb3E4?=
- =?utf-8?B?SXFqMWJVejJZRnovZEVaNW55OTB1Q0hHWmM5MEV5Q0s1R3NsRHFMcmF4ekl5?=
- =?utf-8?B?b3BNV1ovMDV2QlVVTTNpOGJuT0R2dW4zUDNTWURyeGI4enZGSndBcElTb1Vt?=
- =?utf-8?B?WnVKeXBaYXdzNFFEMlYxZ3Y5T2tFMmxTMjFrSG9wWVEzYi94Yy90Y1k1Q3ZV?=
- =?utf-8?B?R25KZVdpSW9zbndKbForYlhaUmpPcnNKb3d5UmgyYTh5UWxoMlRwWmVmUkdt?=
- =?utf-8?Q?7+YnE6JFtxP61LMhYjkj+uDnr?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3382d50b-0b21-446b-eda4-08dc621b4ce2
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB7982.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Apr 2024 15:54:17.4533
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: NsO94Sk24NZ5F1QL4P3QEhcL8wbN5kYX1wAAcA7of5igOmU7RXib2Rn1QwM3kOyvFsnxuFNKoObk1VSqdhbpTQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH0PR12MB8507
+X-Git-Hash: 2c089e81de7e
+Content-Transfer-Encoding: 8bit
 
-On 4/17/2024 8:55 AM, Heng Qi wrote:
-> Caution: This message originated from an External Source. Use proper caution when opening attachments, clicking links, or responding.
-> 
-> 
-> The NetDIM library, currently leveraged by an array of NICs, delivers
-> excellent acceleration benefits. Nevertheless, NICs vary significantly
-> in their dim profile list prerequisites.
-> 
-> Specifically, virtio-net backends may present diverse sw or hw device
-> implementation, making a one-size-fits-all parameter list impractical.
-> On Alibaba Cloud, the virtio DPU's performance under the default DIM
-> profile falls short of expectations, partly due to a mismatch in
-> parameter configuration.
-> 
-> I also noticed that ice/idpf/ena and other NICs have customized
-> profilelist or placed some restrictions on dim capabilities.
-> 
-> Motivated by this, I tried adding new params for "ethtool -C" that provides
-> a per-device control to modify and access a device's interrupt parameters.
-> 
-> Usage
-> ========
-> The target NIC is named ethx.
-> 
-> Assume that ethx only declares support for ETHTOOL_COALESCE_RX_EQE_PROFILE
-> in ethtool_ops->supported_coalesce_params.
-> 
-> 1. Query the currently customized list of the device
-> 
-> $ ethtool -c ethx
-> ...
-> rx-eqe-profile:
-> {.usec =   1, .pkts = 256, .comps =   0,},
-> {.usec =   8, .pkts = 256, .comps =   0,},
-> {.usec =  64, .pkts = 256, .comps =   0,},
-> {.usec = 128, .pkts = 256, .comps =   0,},
-> {.usec = 256, .pkts = 256, .comps =   0,}
-> rx-cqe-profile:   n/a
-> tx-eqe-profile:   n/a
-> tx-cqe-profile:   n/a
-> 
-> 2. Tune
-> $ ethtool -C ethx rx-eqe-profile 1,1,0_2,2,0_3,3,0_4,4,0_5,5,0
+In big mode, pre-mapping DMA is beneficial because if the pages are not
+used, we can reuse them without needing to unmap and remap.
 
-With all of this work to support custom dim profiles (which I think is a 
-great idea FWIW), I wonder if it would be worth supporting a dynamic 
-number of profile entries instead of being hard-coded to 5?
+We require space to store the DMA address. I use the page.dma_addr to
+store the DMA address from the pp structure inside the page.
 
-Thanks,
+Every page retrieved from get_a_page() is mapped, and its DMA address is
+stored in page.dma_addr. When a page is returned to the chain, we check
+the DMA status; if it is not mapped (potentially having been unmapped),
+we remap it before returning it to the chain.
 
-Brett
+Based on the following points, we do not use page pool to manage these
+pages:
 
-<snip>
+1. virtio-net uses the DMA APIs wrapped by virtio core. Therefore,
+   we can only prevent the page pool from performing DMA operations, and
+   let the driver perform DMA operations on the allocated pages.
+2. But when the page pool releases the page, we have no chance to
+   execute dma unmap.
+3. A solution to #2 is to execute dma unmap every time before putting
+   the page back to the page pool. (This is actually a waste, we don't
+   execute unmap so frequently.)
+4. But there is another problem, we still need to use page.dma_addr to
+   save the dma address. Using page.dma_addr while using page pool is
+   unsafe behavior.
+
+More:
+    https://lore.kernel.org/all/CACGkMEu=Aok9z2imB_c5qVuujSh=vjj1kx12fy9N7hqyi+M5Ow@mail.gmail.com/
+
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+---
+ drivers/net/virtio_net.c | 123 ++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 108 insertions(+), 15 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 2c7a67ad4789..75f33bbfd5fa 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -439,6 +439,81 @@ skb_vnet_common_hdr(struct sk_buff *skb)
+ 	return (struct virtio_net_common_hdr *)skb->cb;
+ }
+ 
++static void sg_fill_dma(struct scatterlist *sg, dma_addr_t addr, u32 len)
++{
++	sg->dma_address = addr;
++	sg->length = len;
++}
++
++/* For pages submitted to the ring, we need to record its dma for unmap.
++ * Here, we use the page.dma_addr and page.pp_magic to store the dma
++ * address.
++ */
++static void page_chain_set_dma(struct page *p, dma_addr_t addr)
++{
++	if (sizeof(dma_addr_t) > sizeof(unsigned long)) {
++		p->dma_addr = lower_32_bits(addr);
++		p->pp_magic = upper_32_bits(addr);
++	} else {
++		p->dma_addr = addr;
++	}
++}
++
++static dma_addr_t page_chain_get_dma(struct page *p)
++{
++	dma_addr_t addr;
++
++	if (sizeof(dma_addr_t) > sizeof(unsigned long)) {
++		addr = p->pp_magic;
++		return (addr << 32) + p->dma_addr;
++	} else {
++		return p->dma_addr;
++	}
++}
++
++static void page_chain_sync_for_cpu(struct receive_queue *rq, struct page *p)
++{
++	virtqueue_dma_sync_single_range_for_cpu(rq->vq, page_chain_get_dma(p),
++						0, PAGE_SIZE, DMA_FROM_DEVICE);
++}
++
++static void page_chain_unmap(struct receive_queue *rq, struct page *p, bool sync)
++{
++	int attr = 0;
++
++	if (!sync)
++		attr = DMA_ATTR_SKIP_CPU_SYNC;
++
++	virtqueue_dma_unmap_page_attrs(rq->vq, page_chain_get_dma(p), PAGE_SIZE,
++				       DMA_FROM_DEVICE, attr);
++}
++
++static int page_chain_map(struct receive_queue *rq, struct page *p)
++{
++	dma_addr_t addr;
++
++	addr = virtqueue_dma_map_page_attrs(rq->vq, p, 0, PAGE_SIZE, DMA_FROM_DEVICE, 0);
++	if (virtqueue_dma_mapping_error(rq->vq, addr))
++		return -ENOMEM;
++
++	page_chain_set_dma(p, addr);
++	return 0;
++}
++
++static void page_chain_release(struct receive_queue *rq)
++{
++	struct page *p, *n;
++
++	for (p = rq->pages; p; p = n) {
++		n = page_chain_next(p);
++
++		page_chain_unmap(rq, p, true);
++		__free_pages(p, 0);
++	}
++
++	rq->pages = NULL;
++}
++
+ /*
+  * put the whole most recent used list in the beginning for reuse
+  */
+@@ -461,8 +536,15 @@ static struct page *get_a_page(struct receive_queue *rq, gfp_t gfp_mask)
+ 		rq->pages = page_chain_next(p);
+ 		/* clear chain here, it is used to chain pages */
+ 		page_chain_add(p, NULL);
+-	} else
++	} else {
+ 		p = alloc_page(gfp_mask);
++
++		if (page_chain_map(rq, p)) {
++			__free_pages(p, 0);
++			return NULL;
++		}
++	}
++
+ 	return p;
+ }
+ 
+@@ -617,9 +699,12 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
+ 		if (unlikely(!skb))
+ 			return NULL;
+ 
+-		page = page_chain_next(page);
+-		if (page)
+-			give_pages(rq, page);
++		if (!vi->mergeable_rx_bufs) {
++			page_chain_unmap(rq, page, false);
++			page = page_chain_next(page);
++			if (page)
++				give_pages(rq, page);
++		}
+ 		goto ok;
+ 	}
+ 
+@@ -662,6 +747,9 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
+ 	BUG_ON(offset >= PAGE_SIZE);
+ 	while (len) {
+ 		unsigned int frag_size = min((unsigned)PAGE_SIZE - offset, len);
++
++		page_chain_unmap(rq, page, !offset);
++
+ 		skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags, page, offset,
+ 				frag_size, truesize);
+ 		len -= frag_size;
+@@ -828,7 +916,8 @@ static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *buf)
+ 
+ 	rq = &vi->rq[i];
+ 
+-	if (rq->do_dma)
++	/* Skip the unmap for big mode. */
++	if (!vi->big_packets || vi->mergeable_rx_bufs)
+ 		virtnet_rq_unmap(rq, buf, 0);
+ 
+ 	virtnet_rq_free_buf(vi, rq, buf);
+@@ -1351,8 +1440,12 @@ static struct sk_buff *receive_big(struct net_device *dev,
+ 				   struct virtnet_rq_stats *stats)
+ {
+ 	struct page *page = buf;
+-	struct sk_buff *skb =
+-		page_to_skb(vi, rq, page, 0, len, PAGE_SIZE, 0);
++	struct sk_buff *skb;
++
++	/* sync first page. The follow code may read this page. */
++	page_chain_sync_for_cpu(rq, page);
++
++	skb = page_to_skb(vi, rq, page, 0, len, PAGE_SIZE, 0);
+ 
+ 	u64_stats_add(&stats->bytes, len - vi->hdr_len);
+ 	if (unlikely(!skb))
+@@ -1901,7 +1994,7 @@ static int add_recvbuf_big(struct virtnet_info *vi, struct receive_queue *rq,
+ 			   gfp_t gfp)
+ {
+ 	struct page *first, *list = NULL;
+-	char *p;
++	dma_addr_t p;
+ 	int i, err, offset;
+ 
+ 	sg_init_table(rq->sg, vi->big_packets_num_skbfrags + 2);
+@@ -1914,7 +2007,7 @@ static int add_recvbuf_big(struct virtnet_info *vi, struct receive_queue *rq,
+ 				give_pages(rq, list);
+ 			return -ENOMEM;
+ 		}
+-		sg_set_buf(&rq->sg[i], page_address(first), PAGE_SIZE);
++		sg_fill_dma(&rq->sg[i], page_chain_get_dma(first), PAGE_SIZE);
+ 
+ 		/* chain new page in list head to match sg */
+ 		page_chain_add(first, list);
+@@ -1926,15 +2019,16 @@ static int add_recvbuf_big(struct virtnet_info *vi, struct receive_queue *rq,
+ 		give_pages(rq, list);
+ 		return -ENOMEM;
+ 	}
+-	p = page_address(first);
++
++	p = page_chain_get_dma(first);
+ 
+ 	/* rq->sg[0], rq->sg[1] share the same page */
+ 	/* a separated rq->sg[0] for header - required in case !any_header_sg */
+-	sg_set_buf(&rq->sg[0], p, vi->hdr_len);
++	sg_fill_dma(&rq->sg[0], p, vi->hdr_len);
+ 
+ 	/* rq->sg[1] for data packet, from offset */
+ 	offset = sizeof(struct padded_vnet_hdr);
+-	sg_set_buf(&rq->sg[1], p + offset, PAGE_SIZE - offset);
++	sg_fill_dma(&rq->sg[1], p + offset, PAGE_SIZE - offset);
+ 
+ 	/* chain first in list head */
+ 	page_chain_add(first, list);
+@@ -2136,7 +2230,7 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
+ 		}
+ 	} else {
+ 		while (packets < budget &&
+-		       (buf = virtnet_rq_get_buf(rq, &len, NULL)) != NULL) {
++		       (buf = virtqueue_get_buf(rq->vq, &len)) != NULL) {
+ 			receive_buf(vi, rq, buf, len, NULL, xdp_xmit, &stats);
+ 			packets++;
+ 		}
+@@ -4257,8 +4351,7 @@ static void _free_receive_bufs(struct virtnet_info *vi)
+ 	int i;
+ 
+ 	for (i = 0; i < vi->max_queue_pairs; i++) {
+-		while (vi->rq[i].pages)
+-			__free_pages(get_a_page(&vi->rq[i], GFP_KERNEL), 0);
++		page_chain_release(&vi->rq[i]);
+ 
+ 		old_prog = rtnl_dereference(vi->rq[i].xdp_prog);
+ 		RCU_INIT_POINTER(vi->rq[i].xdp_prog, NULL);
+-- 
+2.32.0.3.g01195cf9f
+
