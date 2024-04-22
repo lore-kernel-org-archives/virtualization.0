@@ -1,153 +1,180 @@
-Received: from wfout1-smtp.messagingengine.com (wfout1-smtp.messagingengine.com [64.147.123.144])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13D6B1C69A
-	for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 21:11:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=64.147.123.144
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9043E208C7
+	for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 22:57:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713820286; cv=none; b=Pf9RRZfb2x8AwmC70+z/JUI+Dld65QaYg3EF7BUtKxbwYP0woQEwhwMomiCOVTKvL/uCDif4lZNDsBdgVZ5a27afDcsPAXTQXI074FzXMGu6U4I0E1M+njl+WQi1YY3P5XH1jL3dzaPXVZDueGTQuay4oHFUW5cRAVwQhzj7ero=
+	t=1713826630; cv=none; b=hXEenHjPn1F2sVBEoto0c5gM3dorAfYJZAxNbbVwQ7ynMOSHQPLY4pIqeb6WaLNkCjD5BZH0qXwz7WnMmMGxjqbOQlJaXiyS+LSyJyw/cy+4mNGShMCOQLKiT/FPXxSCtCJDDZ8uFc5jA1QPijXY3s5nFD9rIrunDpS7saWWgjg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713820286; c=relaxed/simple;
-	bh=JremFJQlcOycUj3IWF8+0zR7mZGxiktyLy+sOHQkuRI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=QKawCTFu3wq1wSeCeqEadX7RVdOCC1ozb0/QiOIFZZXUmTqIhyHogjtLfUEQjNTSFl1qNx/vyiNVVbT273mN66/TZcW4tejX2FjwX6pgl1fPtiKwykq+PkJdYYO5G5e+A+BN3PAHPfW6K0WVBtmeQl5PndjtK/KbPzKKJ4qBC9A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fastmail.fm; spf=pass smtp.mailfrom=fastmail.fm; dkim=pass (2048-bit key) header.d=fastmail.fm header.i=@fastmail.fm header.b=ovU/hRCR; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=CSmuglbr; arc=none smtp.client-ip=64.147.123.144
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fastmail.fm
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fastmail.fm
+	s=arc-20240116; t=1713826630; c=relaxed/simple;
+	bh=RrrYRTkkswf/gjOqFjZlaogI7ruiGe39kkmwqnMOSP4=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=Dx0ZXBbMFM4CP6c1BuKce6207NoJfxh97sT2A4CJGr3ZfabnOVAijwUjXwa8iLYK0Ba3YE4tvtzDy9T8Sz3BKjRbobUy199+fd13SvVz3JUOqTek2/555C8JRlsFDbJ4sqiNkVTpeMvrnjmXSMSPlF2oKeMSpkwkcNJgKd0oytA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=gh5N3iaH; arc=none smtp.client-ip=209.85.210.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fastmail.fm header.i=@fastmail.fm header.b="ovU/hRCR";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="CSmuglbr"
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-	by mailfout.west.internal (Postfix) with ESMTP id 83D371C0013A;
-	Mon, 22 Apr 2024 17:11:23 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 22 Apr 2024 17:11:24 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fastmail.fm; h=
-	cc:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm3; t=1713820283;
-	 x=1713906683; bh=zynBXuiznSHueeqTUMZQW6b1yBwXJrIR8wvuZJWgyZw=; b=
-	ovU/hRCRt6s3phg2P+miYakfvB98/CrKECAybIJZ+kVhxN/L6CkGX0kypfRue0gf
-	8nEy3VQdGoYZGylYcjMSzGCPwTByIayGsk3tHAucPgcrgbQIrdoErOBJ26nsW/+h
-	11+onvSh8cIhaz7Rp7VUKM8oVl7Xd1GJDbbey9BpnaHnG8p2Fw2u/eK9HbwFrjzh
-	vroEfSIqGZ7Gq5UBDurRogQITbAnSiQO6oR26BQs3MiVJfExJTdevMBSjVl0SBfx
-	3q/OQDdx/uqIULxZBogHmFe+Yw9x31hhPULfk4RuoqaOORMQ0fg0R7dMGS6xdRLp
-	PuFMOlVx4QG2tNFSLW9IWg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1713820283; x=
-	1713906683; bh=zynBXuiznSHueeqTUMZQW6b1yBwXJrIR8wvuZJWgyZw=; b=C
-	Smuglbr/MqGuFnxmxOIvyMD4c7ZiCmP99cjG/V39e2b2j5y34AoNnqxz/6T1oj4m
-	aH68Od4rauo0U+T14nRULmNbSPD9Chk0uc8KZ5FKcoPavR8Lufxtf1mSGTXROWQb
-	HSMiHxjziHmu/xE7I2ukiMov1dGbZbdfywVtdoapePacS3V04LQG/qdOY7YFqkLs
-	nUTgY5OcvrhgnNQhQ4fpvGWvAF70KahCCLx2u3i8vO5X+FPENw0+mhUU3NcoYImN
-	0OtAqW3PE0i89yPG6kYNAekHz6pWqgR3llNXCzvpjiH/y1o9YaoQy+b2fuii4fYm
-	l04d+HobPxCGVBBiQFXdw==
-X-ME-Sender: <xms:edImZt2j7U1QaRy-tk7psjPR9IIzu9WUpc2nn273lZAnOSswynZPBQ>
-    <xme:edImZkFvGa1OxIw3vle-1nPJyuC7MOwq6xHV5TWPs7NVfAptcwVclbjZN5ucYxm1o
-    khhlzdACIIRY4DT>
-X-ME-Received: <xmr:edImZt4cFXNN_Ef-y07hUsxZ8LyXZpyh_cmNpw6ajQ9MakVzs6eIE1dUrl_Wzdwnn3SbC7KRoiDKaNas916WBXxLCx0zWGO6ykuolLdh35gtWJykFWrF>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvledrudekledgudehlecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpefkffggfgfuvfevfhfhjggtgfesthejredttddvjeenucfhrhhomhepuegv
-    rhhnugcuufgthhhusggvrhhtuceosggvrhhnugdrshgthhhusggvrhhtsehfrghsthhmrg
-    hilhdrfhhmqeenucggtffrrghtthgvrhhnpeevhffgvdeltddugfdtgfegleefvdehfeei
-    veejieefveeiteeggffggfeulefgjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrh
-    grmhepmhgrihhlfhhrohhmpegsvghrnhgurdhstghhuhgsvghrthesfhgrshhtmhgrihhl
-    rdhfmh
-X-ME-Proxy: <xmx:edImZq0qeF3cwb5QaydRo8o7FaRjr3ucOMy5epNirVub-saYFsTS2g>
-    <xmx:edImZgFeQVyqw9CGtDuOouza7DJUlWgvB5f-FBw-yHFCd4ZSxeS68w>
-    <xmx:edImZr-IHArdw9A3GupXG9tHqnnVBL-SB3IOZVyw3pQfEJsrdNa4yg>
-    <xmx:edImZtlksxXrsvPQKWiMObTWAhKw-12s41RTgSI4JZuPSM6jOUsq4g>
-    <xmx:e9ImZj9Jcp924CfbGk4fKPxLwVRjyNag_hPxmcyG0cgdjI2U2C_O2EQS>
-Feedback-ID: id8a24192:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 22 Apr 2024 17:11:20 -0400 (EDT)
-Message-ID: <dd4f9563-9a4e-4d37-8e83-89b442c39dbc@fastmail.fm>
-Date: Mon, 22 Apr 2024 23:11:18 +0200
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="gh5N3iaH"
+Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-6ed3cafd766so4071840b3a.0
+        for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 15:57:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google; t=1713826628; x=1714431428; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=uQbI2isQrIeFdi3NSj8YhWPg4Ob4QiVW/wigPh5fM2E=;
+        b=gh5N3iaHyfzd0PQRSYyh6N43Q8DpCUJoFvWBzaqnm8sOVrBk3TPPShOos/Pn9NrVBf
+         heqwg7/qk7OhTCufp/P8PkB5bCzWPrPXUGAD5RFRGoHaxQVjRgHZFHDEsUe+ZB7YNfJZ
+         Vy95AfLV1lQQaDwyhY46aiWxhuzRAsY8Ad7Fw=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713826628; x=1714431428;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=uQbI2isQrIeFdi3NSj8YhWPg4Ob4QiVW/wigPh5fM2E=;
+        b=KW7McWmq25YT2efOabZ5j4lth67qBjSNhKCsKUgnikIz9dn1UjaeoLTV2V98rpPCLN
+         9f6pl+gk+5lnxAiHlvybMfK9x7xrvjjUP45lQU6sHSyhx4o3CBNfCSzzXyx8TLiX4qtq
+         BvACJKCXwOYeFQc2J76xkP43tliQBZ143JjaNq+0FrZijPgEFwPUyoQHwWZUJHJc71RH
+         4qWMFGHWY7usUWl3anJdb9teyFeNrA3wb8598WkrPOnKApaJp8bGTO8jPd83PPZSoW8V
+         yRNIJPEzCSOWS8CiCbz9VFvMO4ENxpZn0/TaIiWtH/lrHMkQgl+sYf5S9e7ejLCxc3x6
+         4LSQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVDDTha57vr2WJd85Ieq3BI5U8bKQPKHr4+C526j+TKlRADcDiKEcOZFP7Xcsvr7Cn8sNzQ7R9ws1Q0rjjtUYodvVumYGj5N2Xq0/wPWNg=
+X-Gm-Message-State: AOJu0Ywcg96LbRQKSysfJ5CvDaWTAfXRPh0NvM8mTS2cUi1V5hi7oIAh
+	YDNxUBmSyQtwFSsowoaYmqYczFkyVx6aCJpv7qMMtcoclpQQ5luGAPd4LVCcRw==
+X-Google-Smtp-Source: AGHT+IHoQIjxOX9Ar02IvVZtYDFrS78a9YsPclc2gjJ3AAG9FEHisboEyDHDvj6Ddco66aGsKCkrLg==
+X-Received: by 2002:a05:6300:8081:b0:1a9:5a2a:7e51 with SMTP id ap1-20020a056300808100b001a95a2a7e51mr10402501pzc.24.1713826627745;
+        Mon, 22 Apr 2024 15:57:07 -0700 (PDT)
+Received: from amakhalov-build-vm.eng.vmware.com ([128.177.82.146])
+        by smtp.gmail.com with ESMTPSA id e131-20020a636989000000b005e43cce33f8sm8093597pgc.88.2024.04.22.15.57.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 22 Apr 2024 15:57:07 -0700 (PDT)
+From: Alexey Makhalov <alexey.makhalov@broadcom.com>
+To: linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	bp@alien8.de,
+	hpa@zytor.com,
+	dave.hansen@linux.intel.com,
+	mingo@redhat.com,
+	tglx@linutronix.de
+Cc: x86@kernel.org,
+	netdev@vger.kernel.org,
+	richardcochran@gmail.com,
+	linux-input@vger.kernel.org,
+	dmitry.torokhov@gmail.com,
+	zackr@vmware.com,
+	linux-graphics-maintainer@vmware.com,
+	pv-drivers@vmware.com,
+	timothym@vmware.com,
+	akaher@vmware.com,
+	dri-devel@lists.freedesktop.org,
+	daniel@ffwll.ch,
+	airlied@gmail.com,
+	tzimmermann@suse.de,
+	mripard@kernel.org,
+	maarten.lankhorst@linux.intel.com,
+	horms@kernel.org,
+	kirill.shutemov@linux.intel.com,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>
+Subject: [PATCH v8 0/7] VMware hypercalls enhancements
+Date: Mon, 22 Apr 2024 15:56:49 -0700
+Message-Id: <20240422225656.10309-1-alexey.makhalov@broadcom.com>
+X-Mailer: git-send-email 2.39.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 0/6] virtiofs: fix the warning for ITER_KVEC dio
-To: "Michael S. Tsirkin" <mst@redhat.com>, Hou Tao <houtao@huaweicloud.com>
-Cc: linux-fsdevel@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>,
- Vivek Goyal <vgoyal@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
- Matthew Wilcox <willy@infradead.org>,
- Benjamin Coddington <bcodding@redhat.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev, houtao1@huawei.com
-References: <20240228144126.2864064-1-houtao@huaweicloud.com>
- <20240408034514-mutt-send-email-mst@kernel.org>
- <413bd868-a16b-f024-0098-3c70f7808d3c@huaweicloud.com>
- <20240422160615-mutt-send-email-mst@kernel.org>
-From: Bernd Schubert <bernd.schubert@fastmail.fm>
-Content-Language: en-US, de-DE, fr
-In-Reply-To: <20240422160615-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+
+No functional changes from version 7. Peter please consider reviewing
+patch 7 where we addressed your comments from version 6. Thanks!
+
+VMware hypercalls invocations were all spread out across the kernel
+implementing same ABI as in-place asm-inline. With encrypted memory
+and confidential computing it became harder to maintain every changes
+in these hypercall implementations.
+
+Intention of this patchset is to introduce arch independent VMware
+hypercall API layer other subsystems such as device drivers can call
+to, while hiding architecture specific implementation behind.
+
+Second patch introduces the vmware_hypercall low and high bandwidth
+families of functions, with little enhancements there.
+Sixth patch adds tdx hypercall support
+
+arm64 implementation of vmware_hypercalls is in drivers/gpu/drm/
+vmwgfx/vmwgfx_msg_arm64.h and going to be moved to arch/arm64 with
+a separate patchset with the introduction of VMware Linux guest
+support for arm64.
+
+No functional changes in drivers/input/mouse/vmmouse.c and
+drivers/ptp/ptp_vmw.c
+
+v7->v8 no functional changes. Updated authors and reviewers emails to
+@broadcom.com
+
+v6->v7 changes (only in patch 7):
+- Addressed comments from H. Peter Anvin:
+  1. Removed vmware_tdx_hypercall_args(), moved args handling inside
+     vmware_tdx_hypercall().
+  2. Added pr_warn_once() for !hypervisor_is_type(X86_HYPER_VMWARE) case.
+- Added ack by Dave Hansen.
+
+v5->v6 change:
+- Added ack by Kirill A. Shutemov in patch 7. 
+
+v4->v5 changes:
+  [patch 2]:
+- Fixed the problem reported by Simon Horman where build fails after
+  patch 2 application. Do not undefine VMWARE_HYPERCALL for now, and
+  update vmwgfx, vmmouse and ptp_vmw code for new VMWARE_HYPERCALL macro.
+- Introduce new patch 6 to undefine VMWARE_HYPERCALL, which is safe to do
+  after patches 3 to 5.
+- [patch 7 (former patch 6)]: Add missing r15 (CPL) initialization.
+
+v3->v4 changes: (no functional changes in patches 1-5)
+  [patch 2]:
+- Added the comment with VMware hypercall ABI description.
+  [patch 6]:
+- vmware_tdx_hypercall_args remove in6/out6 arguments as excessive.
+- vmware_tdx_hypercall return ULONG_MAX on error to mimic bad hypercall
+  command error from the hypervisor.
+- Replaced pr_warn by pr_warn_once as pointed by Kirill Shutemov.
+- Fixed the warning reported by Intel's kernel test robot.
+- Added the comment describing VMware TDX hypercall ABI.
+
+v2->v3 changes: (no functional changes in patches 1-5)
+- Improved commit message in patches 1, 2 and 5 as was suggested by
+  Borislav Petkov.
+- To address Dave Hansen's concern, patch 6 was reorganized to avoid
+  exporting bare __tdx_hypercall and to make exported vmware_tdx_hypercall
+  VMWare guest specific.
+
+v1->v2 changes (no functional changes):
+- Improved commit message in patches 2 and 5.
+- Added Reviewed-by for all patches.
+- Added Ack from Dmitry Torokhov in patch 4. No fixes regarding reported
+  by Simon Horman gcc error in this patch.
 
 
+Alexey Makhalov (7):
+  x86/vmware: Move common macros to vmware.h
+  x86/vmware: Introduce VMware hypercall API
+  ptp/vmware: Use VMware hypercall API
+  input/vmmouse: Use VMware hypercall API
+  drm/vmwgfx: Use VMware hypercall API
+  x86/vmware: Undefine VMWARE_HYPERCALL
+  x86/vmware: Add TDX hypercall support
 
-On 4/22/24 22:06, Michael S. Tsirkin wrote:
-> On Tue, Apr 09, 2024 at 09:48:08AM +0800, Hou Tao wrote:
->> Hi,
->>
->> On 4/8/2024 3:45 PM, Michael S. Tsirkin wrote:
->>> On Wed, Feb 28, 2024 at 10:41:20PM +0800, Hou Tao wrote:
->>>> From: Hou Tao <houtao1@huawei.com>
->>>>
->>>> Hi,
->>>>
->>>> The patch set aims to fix the warning related to an abnormal size
->>>> parameter of kmalloc() in virtiofs. The warning occurred when attempting
->>>> to insert a 10MB sized kernel module kept in a virtiofs with cache
->>>> disabled. As analyzed in patch #1, the root cause is that the length of
->>>> the read buffer is no limited, and the read buffer is passed directly to
->>>> virtiofs through out_args[0].value. Therefore patch #1 limits the
->>>> length of the read buffer passed to virtiofs by using max_pages. However
->>>> it is not enough, because now the maximal value of max_pages is 256.
->>>> Consequently, when reading a 10MB-sized kernel module, the length of the
->>>> bounce buffer in virtiofs will be 40 + (256 * 4096), and kmalloc will
->>>> try to allocate 2MB from memory subsystem. The request for 2MB of
->>>> physically contiguous memory significantly stress the memory subsystem
->>>> and may fail indefinitely on hosts with fragmented memory. To address
->>>> this, patch #2~#5 use scattered pages in a bio_vec to replace the
->>>> kmalloc-allocated bounce buffer when the length of the bounce buffer for
->>>> KVEC_ITER dio is larger than PAGE_SIZE. The final issue with the
->>>> allocation of the bounce buffer and sg array in virtiofs is that
->>>> GFP_ATOMIC is used even when the allocation occurs in a kworker context.
->>>> Therefore the last patch uses GFP_NOFS for the allocation of both sg
->>>> array and bounce buffer when initiated by the kworker. For more details,
->>>> please check the individual patches.
->>>>
->>>> As usual, comments are always welcome.
->>>>
->>>> Change Log:
->>> Bernd should I just merge the patchset as is?
->>> It seems to fix a real problem and no one has the
->>> time to work on a better fix .... WDYT?
->>
->> Sorry for the long delay. I am just start to prepare for v3. In v3, I
->> plan to avoid the unnecessary memory copy between fuse args and bio_vec.
->> Will post it before next week.
-> 
-> Didn't happen before this week apparently.
+ arch/x86/include/asm/vmware.h             | 331 +++++++++++++++++++---
+ arch/x86/kernel/cpu/vmware.c              | 144 +++++-----
+ drivers/gpu/drm/vmwgfx/vmwgfx_msg.c       | 173 ++++-------
+ drivers/gpu/drm/vmwgfx/vmwgfx_msg_arm64.h | 197 +++++++++----
+ drivers/gpu/drm/vmwgfx/vmwgfx_msg_x86.h   | 185 ------------
+ drivers/input/mouse/vmmouse.c             |  76 ++---
+ drivers/ptp/ptp_vmw.c                     |  12 +-
+ 7 files changed, 593 insertions(+), 525 deletions(-)
 
-Hi Michael,
+-- 
+2.39.0
 
-sorry for my later reply, I had been totally busy for the last weeks as
-well. Also I can't decide to merge it - I'm not the official fuse
-maintainer...
-From my point of view, patch 1 is just missing to set the actual limit
-and then would be clear and easy back-portable bug fix.
-Not promised, I will try it out if I find a bit time tomorrow.
-
-
-Bernd
