@@ -1,32 +1,66 @@
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F8DD13F442
-	for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 09:04:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDD9A52F96
+	for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 09:10:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713776679; cv=none; b=Rux6RV0TAN7sym+vPnvlHRfjpvQ330KkvmuhwnksABVeHJFp7yWcg48YC8L/KUnU/WPAziuExhcGwec5NTXx1im3VBpMhTjte4Z+AZQXKI+PRKJXyQ3T6TLtmQLsDuZxfIa2A2yOuYLWRNsrR2Ob5An6FZhkAeQW3oC02tBhi2E=
+	t=1713777002; cv=none; b=RD1NjL8svVqEdMsWfTn3wtCOyv1Kk0ypsRpSm8UXgzfW1ZkdA+LOQNmpeVBZ7fFc2iScxBA6apI+WNvmmlsudB1vlhTjfSxBRA5m/E5epEm571TczAHEMmi2vmMIDdGepAQIDw0em1sSe9fVk3cYDUL9AByz8BuOsPNKcb7l/LU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713776679; c=relaxed/simple;
-	bh=VCDi0b6H9++Q/mdIE6+PmeVSPcSFlEcG/DW7KI2h1Uc=;
+	s=arc-20240116; t=1713777002; c=relaxed/simple;
+	bh=z2nE+vxm4z+0y30mt+F2gBSosy9BgCjH8KeavwHv+qg=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=VWhhxSJiWweFqG4oiaLi4aNdBtq8rH1bN9RLh8W67mCboW7kQbhq7I1teRTM31XPzgzOysoMA1kV6+qSE3mXo7EjmDXtaz2GpISzt/4+s26X4YXZmi4FCV5Knnh8S0i8nmfpMT2WwCx4ebXav+SU42pWY2FL2vskMwcBHmh1GGU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=GhNBU6X/; arc=none smtp.client-ip=115.124.30.101
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	 In-Reply-To:Content-Type; b=TjFbFalnqiKlBR1fwnrjqiLZ/5w2keVGiTl2qfNwKfZzn+tNUTXBnwohMkl4plB63shQlOJldGlR5Rbnrkl1Gllml5WCWe6NGjZlNcLoIoR5VTzcit91ErcLvV8dC1dif+s/86jRB8BVGseIJX9UW6KxYav50IKwy4Nm3IzEMF8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CCMtv9TB; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="GhNBU6X/"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1713776649; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=YBdh3d4NG7zhEjgVLeaTSgMeUhDFAFZPUPg3nLFAOF8=;
-	b=GhNBU6X/eUB1NraWdMc9rSx8PohH+mmbCgcmyqt+8dgXaBHJKbudY1ce4kf8SAt5tAen9yknCgeHkbvoGM3lR6QQPw97MY+znbdMwAZwPziarJd24nyPVAnzq2+C1hY8mbedqkmqR8W+zB1O8efALD0crlpo7YCV1iaZ9QrFSso=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R911e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=23;SR=0;TI=SMTPD_---0W50qzB3_1713776646;
-Received: from 30.221.148.142(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W50qzB3_1713776646)
-          by smtp.aliyun-inc.com;
-          Mon, 22 Apr 2024 17:04:08 +0800
-Message-ID: <6509d9f4-09b1-43ee-ab38-8949f51a806d@linux.alibaba.com>
-Date: Mon, 22 Apr 2024 17:04:06 +0800
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CCMtv9TB"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1713776999;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=jPrpW76zmoMcet4ts7Mcq0G5yVz2e8Ls/phfxBbKBQU=;
+	b=CCMtv9TBZ1alJ8BmiXblbW7JWNx+FsfXSALbCpMTL0DKmRC2ElqTWDv2oPjXMfC7tXDHZQ
+	oY/cOm8HdUDgti/GF6OpiVX9E1/tOn/DnaW9n/WtVI5nf9vTD/OPYFOgw7YXbY9AwpGga4
+	EOI1tstHwbvtGMYDO/H+BdpIkxIXLUc=
+Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
+ [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-596-0iGaqgg0MMuM66D4_AWhUg-1; Mon, 22 Apr 2024 05:09:56 -0400
+X-MC-Unique: 0iGaqgg0MMuM66D4_AWhUg-1
+Received: by mail-lj1-f199.google.com with SMTP id 38308e7fff4ca-2dc8418e64cso32357031fa.1
+        for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 02:09:55 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713776994; x=1714381794;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=jPrpW76zmoMcet4ts7Mcq0G5yVz2e8Ls/phfxBbKBQU=;
+        b=i0m/c+T7G4srPbn/ptMhEnIxg0AY8e03W85U5cf5rdga0lELbpZLFfYpNBZFaWaDpI
+         X5MT26obG6GhqTo8SLwalkHlPJXWPwTDdKiuKXIkNiBXH6/fJh7TA0e7fiJQM/tR2h0b
+         ICs+whGK+kQ+dLuBnWhr4fuVTTXyJJ9OjgRFjVwgxjQOqIVjAjNaZOpF3LGQxamywzuU
+         zi+weyl9uKj0EEUxMYBhL/JzASx8V0LsgQ5BfJ7GBhU/rfdeKpwYItEyy77Q0xGv8BQV
+         1mSqfjNoTSrM0R/5bDzLPkQSRa1OwEqe66nNpW9axnVwo1fJyQCjIcWg9E10Sze9/PFr
+         E3bA==
+X-Forwarded-Encrypted: i=1; AJvYcCW83+veLCswf8Yth/KQxo3N19d0QSH/E6+p+rWmKujTNWj2EZV+GdW7dEc1HF0tQJO0xGDkmhi4k+3Lhb1ribg8udj/sOBlWkCNOnGhwcw=
+X-Gm-Message-State: AOJu0YwBUUCioyz00wc9xm3qY2I8XTMIO01Di2K4vaIuuTHKpIjCWK3Y
+	pH7xRsLFwTr90w673wiuEh2PT0UzNmtbTcMucLHIzVuyJFGrrWGEUl5W+irlkvaWr1bwBF8tDeR
+	c4pbekFPbFOCymrUbOzPG249ZxJp1vhUehAskO/04+3SX1B6q2+m8sBUsvT+4cRPR
+X-Received: by 2002:a05:651c:1a06:b0:2d8:8b44:8ce with SMTP id by6-20020a05651c1a0600b002d88b4408cemr7539295ljb.46.1713776994762;
+        Mon, 22 Apr 2024 02:09:54 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGYGdb2JfDgXUyhaukwTa/RvYLRmjHY6G3d0aA9ciHGkOqy9/rMM0nIB5E8N2UXm6TDzYEVZg==
+X-Received: by 2002:a05:651c:1a06:b0:2d8:8b44:8ce with SMTP id by6-20020a05651c1a0600b002d88b4408cemr7539277ljb.46.1713776994322;
+        Mon, 22 Apr 2024 02:09:54 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c739:600:d2fb:3a8a:9944:7910? (p200300cbc7390600d2fb3a8a99447910.dip0.t-ipconnect.de. [2003:cb:c739:600:d2fb:3a8a:9944:7910])
+        by smtp.gmail.com with ESMTPSA id f17-20020a05600c155100b00418db9e4228sm16013913wmg.29.2024.04.22.02.09.53
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 22 Apr 2024 02:09:53 -0700 (PDT)
+Message-ID: <17615a07-f9fb-49bd-ad56-df6691c3d362@redhat.com>
+Date: Mon, 22 Apr 2024 11:09:52 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -34,97 +68,127 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v9 2/4] ethtool: provide customized dim profile
- management
-To: Brett Creeley <bcreeley@amd.com>
-Cc: Jakub Kicinski <kuba@kernel.org>, "David S . Miller"
- <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Paolo Abeni <pabeni@redhat.com>, Jason Wang <jasowang@redhat.com>,
- "Michael S . Tsirkin" <mst@redhat.com>,
- Ratheesh Kannoth <rkannoth@marvell.com>,
- Alexander Lobakin <aleksander.lobakin@intel.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Tal Gilboa <talgi@nvidia.com>,
- Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org,
- Maxime Chevallier <maxime.chevallier@bootlin.com>,
- Jiri Pirko <jiri@resnulli.us>, Paul Greenwalt <paul.greenwalt@intel.com>,
- Ahmed Zaki <ahmed.zaki@intel.com>, Vladimir Oltean
- <vladimir.oltean@nxp.com>, Kory Maincent <kory.maincent@bootlin.com>,
- Andrew Lunn <andrew@lunn.ch>, "justinstitt@google.com"
- <justinstitt@google.com>,
- "open list:NETWORKING DRIVERS" <netdev@vger.kernel.org>,
- "open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>
-References: <20240417155546.25691-1-hengqi@linux.alibaba.com>
- <20240417155546.25691-3-hengqi@linux.alibaba.com>
- <c59ebd40-fe9c-477f-9ed5-958163470f03@amd.com>
-From: Heng Qi <hengqi@linux.alibaba.com>
-In-Reply-To: <c59ebd40-fe9c-477f-9ed5-958163470f03@amd.com>
+Subject: Re: [PATCH v2 1/4] virtio_balloon: separate vm events into a function
+To: zhenwei pi <pizhenwei@bytedance.com>, linux-kernel@vger.kernel.org,
+ linux-mm@kvack.org, virtualization@lists.linux.dev
+Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+ akpm@linux-foundation.org
+References: <20240422074254.1440457-1-pizhenwei@bytedance.com>
+ <20240422074254.1440457-2-pizhenwei@bytedance.com>
+ <6a182645-1f7f-4b7d-a16a-36e9b1684c58@redhat.com>
+ <537ac244-74b2-42ad-97a7-475ec27f2134@bytedance.com>
+From: David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; keydata=
+ xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
+ dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
+ QZLQMzNE74ap+GDK0wnacPQFpcG1AE9RMq3aeErY5tujekBS32jfC/7AnH7I0v1v1TbbK3Gp
+ XNeiN4QroO+5qaSr0ID2sz5jtBLRb15RMre27E1ImpaIv2Jw8NJgW0k/D1RyKCwaTsgRdwuK
+ Kx/Y91XuSBdz0uOyU/S8kM1+ag0wvsGlpBVxRR/xw/E8M7TEwuCZQArqqTCmkG6HGcXFT0V9
+ PXFNNgV5jXMQRwU0O/ztJIQqsE5LsUomE//bLwzj9IVsaQpKDqW6TAPjcdBDPLHvriq7kGjt
+ WhVhdl0qEYB8lkBEU7V2Yb+SYhmhpDrti9Fq1EsmhiHSkxJcGREoMK/63r9WLZYI3+4W2rAc
+ UucZa4OT27U5ZISjNg3Ev0rxU5UH2/pT4wJCfxwocmqaRr6UYmrtZmND89X0KigoFD/XSeVv
+ jwBRNjPAubK9/k5NoRrYqztM9W6sJqrH8+UWZ1Idd/DdmogJh0gNC0+N42Za9yBRURfIdKSb
+ B3JfpUqcWwE7vUaYrHG1nw54pLUoPG6sAA7Mehl3nd4pZUALHwARAQABzSREYXZpZCBIaWxk
+ ZW5icmFuZCA8ZGF2aWRAcmVkaGF0LmNvbT7CwZgEEwEIAEICGwMGCwkIBwMCBhUIAgkKCwQW
+ AgMBAh4BAheAAhkBFiEEG9nKrXNcTDpGDfzKTd4Q9wD/g1oFAl8Ox4kFCRKpKXgACgkQTd4Q
+ 9wD/g1oHcA//a6Tj7SBNjFNM1iNhWUo1lxAja0lpSodSnB2g4FCZ4R61SBR4l/psBL73xktp
+ rDHrx4aSpwkRP6Epu6mLvhlfjmkRG4OynJ5HG1gfv7RJJfnUdUM1z5kdS8JBrOhMJS2c/gPf
+ wv1TGRq2XdMPnfY2o0CxRqpcLkx4vBODvJGl2mQyJF/gPepdDfcT8/PY9BJ7FL6Hrq1gnAo4
+ 3Iv9qV0JiT2wmZciNyYQhmA1V6dyTRiQ4YAc31zOo2IM+xisPzeSHgw3ONY/XhYvfZ9r7W1l
+ pNQdc2G+o4Di9NPFHQQhDw3YTRR1opJaTlRDzxYxzU6ZnUUBghxt9cwUWTpfCktkMZiPSDGd
+ KgQBjnweV2jw9UOTxjb4LXqDjmSNkjDdQUOU69jGMUXgihvo4zhYcMX8F5gWdRtMR7DzW/YE
+ BgVcyxNkMIXoY1aYj6npHYiNQesQlqjU6azjbH70/SXKM5tNRplgW8TNprMDuntdvV9wNkFs
+ 9TyM02V5aWxFfI42+aivc4KEw69SE9KXwC7FSf5wXzuTot97N9Phj/Z3+jx443jo2NR34XgF
+ 89cct7wJMjOF7bBefo0fPPZQuIma0Zym71cP61OP/i11ahNye6HGKfxGCOcs5wW9kRQEk8P9
+ M/k2wt3mt/fCQnuP/mWutNPt95w9wSsUyATLmtNrwccz63XOwU0EVcufkQEQAOfX3n0g0fZz
+ Bgm/S2zF/kxQKCEKP8ID+Vz8sy2GpDvveBq4H2Y34XWsT1zLJdvqPI4af4ZSMxuerWjXbVWb
+ T6d4odQIG0fKx4F8NccDqbgHeZRNajXeeJ3R7gAzvWvQNLz4piHrO/B4tf8svmRBL0ZB5P5A
+ 2uhdwLU3NZuK22zpNn4is87BPWF8HhY0L5fafgDMOqnf4guJVJPYNPhUFzXUbPqOKOkL8ojk
+ CXxkOFHAbjstSK5Ca3fKquY3rdX3DNo+EL7FvAiw1mUtS+5GeYE+RMnDCsVFm/C7kY8c2d0G
+ NWkB9pJM5+mnIoFNxy7YBcldYATVeOHoY4LyaUWNnAvFYWp08dHWfZo9WCiJMuTfgtH9tc75
+ 7QanMVdPt6fDK8UUXIBLQ2TWr/sQKE9xtFuEmoQGlE1l6bGaDnnMLcYu+Asp3kDT0w4zYGsx
+ 5r6XQVRH4+5N6eHZiaeYtFOujp5n+pjBaQK7wUUjDilPQ5QMzIuCL4YjVoylWiBNknvQWBXS
+ lQCWmavOT9sttGQXdPCC5ynI+1ymZC1ORZKANLnRAb0NH/UCzcsstw2TAkFnMEbo9Zu9w7Kv
+ AxBQXWeXhJI9XQssfrf4Gusdqx8nPEpfOqCtbbwJMATbHyqLt7/oz/5deGuwxgb65pWIzufa
+ N7eop7uh+6bezi+rugUI+w6DABEBAAHCwXwEGAEIACYCGwwWIQQb2cqtc1xMOkYN/MpN3hD3
+ AP+DWgUCXw7HsgUJEqkpoQAKCRBN3hD3AP+DWrrpD/4qS3dyVRxDcDHIlmguXjC1Q5tZTwNB
+ boaBTPHSy/Nksu0eY7x6HfQJ3xajVH32Ms6t1trDQmPx2iP5+7iDsb7OKAb5eOS8h+BEBDeq
+ 3ecsQDv0fFJOA9ag5O3LLNk+3x3q7e0uo06XMaY7UHS341ozXUUI7wC7iKfoUTv03iO9El5f
+ XpNMx/YrIMduZ2+nd9Di7o5+KIwlb2mAB9sTNHdMrXesX8eBL6T9b+MZJk+mZuPxKNVfEQMQ
+ a5SxUEADIPQTPNvBewdeI80yeOCrN+Zzwy/Mrx9EPeu59Y5vSJOx/z6OUImD/GhX7Xvkt3kq
+ Er5KTrJz3++B6SH9pum9PuoE/k+nntJkNMmQpR4MCBaV/J9gIOPGodDKnjdng+mXliF3Ptu6
+ 3oxc2RCyGzTlxyMwuc2U5Q7KtUNTdDe8T0uE+9b8BLMVQDDfJjqY0VVqSUwImzTDLX9S4g/8
+ kC4HRcclk8hpyhY2jKGluZO0awwTIMgVEzmTyBphDg/Gx7dZU1Xf8HFuE+UZ5UDHDTnwgv7E
+ th6RC9+WrhDNspZ9fJjKWRbveQgUFCpe1sa77LAw+XFrKmBHXp9ZVIe90RMe2tRL06BGiRZr
+ jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <537ac244-74b2-42ad-97a7-475ec27f2134@bytedance.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
+On 22.04.24 10:04, zhenwei pi wrote:
+> 
+> 
+> On 4/22/24 15:47, David Hildenbrand wrote:
+>> On 22.04.24 09:42, zhenwei pi wrote:
+>>> All the VM events related statistics have dependence on
+>>> 'CONFIG_VM_EVENT_COUNTERS', once any stack variable is required by any
+>>> VM events in future, we would have codes like:
+>>>    #ifdef CONFIG_VM_EVENT_COUNTERS
+>>>         unsigned long foo;
+>>>    #endif
+>>>         ...
+>>>    #ifdef CONFIG_VM_EVENT_COUNTERS
+>>>         foo = events[XXX] + events[YYY];
+>>>         update_stat(vb, idx++, VIRTIO_BALLOON_S_XXX, foo);
+>>>    #endif
+>>>
+>>> Separate vm events into a single function, also remove
+>>
+>> Why not simply use __maybe_unused for that variable?
+>>
+> 
+> 1>
+> static unsigned int update_balloon_stats()
+> {
+>       unsigned __maybe_unused long foo;
+> 
+>       ...
+> #ifdef CONFIG_VM_EVENT_COUNTERS
+>       foo = events[XXX] + events[YYY];
+>       update_stat(vb, idx++, VIRTIO_BALLOON_S_XXX, foo);
+> #endif
+> }
+> 
+> 2>
+> static inline unsigned int update_balloon_vm_stats()
+> {
+> #ifdef CONFIG_VM_EVENT_COUNTERS
+>       unsigned long foo;
+> 
+>       foo = events[XXX] + events[YYY];
+>       update_stat(vb, idx++, VIRTIO_BALLOON_S_XXX, foo);
+> #endif
+> }
+> 
+>   From the point of my view, I don't need to compile code in my brain
+> when reading codes for case 2. :)
 
+But for #1? :)
 
-在 2024/4/21 下午11:53, Brett Creeley 写道:
-> On 4/17/2024 8:55 AM, Heng Qi wrote:
->> Caution: This message originated from an External Source. Use proper 
->> caution when opening attachments, clicking links, or responding.
->>
->>
->> The NetDIM library, currently leveraged by an array of NICs, delivers
->> excellent acceleration benefits. Nevertheless, NICs vary significantly
->> in their dim profile list prerequisites.
->>
->> Specifically, virtio-net backends may present diverse sw or hw device
->> implementation, making a one-size-fits-all parameter list impractical.
->> On Alibaba Cloud, the virtio DPU's performance under the default DIM
->> profile falls short of expectations, partly due to a mismatch in
->> parameter configuration.
->>
->> I also noticed that ice/idpf/ena and other NICs have customized
->> profilelist or placed some restrictions on dim capabilities.
->>
->> Motivated by this, I tried adding new params for "ethtool -C" that 
->> provides
->> a per-device control to modify and access a device's interrupt 
->> parameters.
->>
->> Usage
->> ========
->> The target NIC is named ethx.
->>
->> Assume that ethx only declares support for 
->> ETHTOOL_COALESCE_RX_EQE_PROFILE
->> in ethtool_ops->supported_coalesce_params.
->>
->> 1. Query the currently customized list of the device
->>
->> $ ethtool -c ethx
->> ...
->> rx-eqe-profile:
->> {.usec =   1, .pkts = 256, .comps =   0,},
->> {.usec =   8, .pkts = 256, .comps =   0,},
->> {.usec =  64, .pkts = 256, .comps =   0,},
->> {.usec = 128, .pkts = 256, .comps =   0,},
->> {.usec = 256, .pkts = 256, .comps =   0,}
->> rx-cqe-profile:   n/a
->> tx-eqe-profile:   n/a
->> tx-cqe-profile:   n/a
->>
->> 2. Tune
->> $ ethtool -C ethx rx-eqe-profile 1,1,0_2,2,0_3,3,0_4,4,0_5,5,0
->
-> With all of this work to support custom dim profiles (which I think is 
-> a great idea FWIW), I wonder if it would be worth supporting a dynamic 
-> number of profile entries instead of being hard-coded to 5?
->
+I mean, you didn't compile the code in your brain when you sent out v1 :P
 
-In my practice, I have not found that fewer or more profile entries lead 
-to better performance.
+But I agree that moving that to a separate function ins cleaner, staring 
+at resulting update_balloon_stats().
 
-Thanks.
+Let me comment on some nits as a fresh reply.
 
-> Thanks,
->
-> Brett
->
-> <snip>
+-- 
+Cheers,
+
+David / dhildenb
 
