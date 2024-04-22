@@ -1,58 +1,58 @@
-Received: from mail-qk1-f172.google.com (mail-qk1-f172.google.com [209.85.222.172])
+Received: from mail-qk1-f175.google.com (mail-qk1-f175.google.com [209.85.222.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2626A1DDE9
-	for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 16:59:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAD6A15383B
+	for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 17:01:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713805170; cv=none; b=BfptGfbZPQBL7G6TPYH77qYAYkkk2OhQSkepOZ67uHYQloOp06UAbSnjAPPM2TL1lnuR/rZVzRr+KSzK7TUpUgt5WlkWqfE1lI5VaeMcC37MV+j090SjS2a+Srtg0W7cFPcoqdJV2TO9Hy159jwmjj1ffJMZODWWydX3fECqxmk=
+	t=1713805266; cv=none; b=nGY7uI2Y7fNLEtI9eQVajKNcPSX6W1F2Fy4xtE+q3nJmCr7iQQ5jwMkKECOzFc/WPt5EAcm5QzmB52glpfU69iD4Es3/lhQrJNxIrY9ymh0bTNTLv2OsVBU/grFFlMPTwzXAR46rROZ07uXhYFnfTJOBTcQdV0gUSRgyT/lIj08=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713805170; c=relaxed/simple;
-	bh=HJMGmF3SYu4yTESElcXXrvUpfg3wITeaCnIFmbGW8Ww=;
+	s=arc-20240116; t=1713805266; c=relaxed/simple;
+	bh=unovcmM/F2dhfHKF77+gvQUVhbqPaiyizesMAyFjp2s=;
 	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 Mime-Version:Content-Type; b=OYRO3fNhR9lxmtZgT+5OWoHskuF/YaKzDucbyPLr4PLP/xaYvp8zocdp1GvghZzdN47UGOCTfCNnNleGUGrG1H1TDqMVkbVcTPqYtVQWTJu7H95bn0yUK5FYD6liB0KeWnizWq0Efq0mVEkXvNVzXmok122G8bQNVKHOLcyBU2c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ph4emm8g; arc=none smtp.client-ip=209.85.222.172
+	 Mime-Version:Content-Type; b=GyhaB70undLyC9Ispob06pKVHpQ+voV9YXDOLf4P2aFaJFLA5eIKjqYiK6xY0eC5Clyg90kuW+ym7OTLJdtKLxWaa0ojHmLwOI00cSt7Jy78P9O6H4a1rxip35IeDG/GmPcTrQn/T6w4x4azD7sC3rUch2Dp+1SsgwtarPezvGE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=br4lIDxR; arc=none smtp.client-ip=209.85.222.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ph4emm8g"
-Received: by mail-qk1-f172.google.com with SMTP id af79cd13be357-78f05b62602so308305785a.0
-        for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 09:59:28 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="br4lIDxR"
+Received: by mail-qk1-f175.google.com with SMTP id af79cd13be357-78f049fefd5so307845385a.1
+        for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 10:01:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1713805168; x=1714409968; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1713805264; x=1714410064; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:subject:references
          :in-reply-to:message-id:cc:to:from:date:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=mrIzzRd5SEQLFvdzQYqOFzNQkQZWaPc3JGD8u2+BkdA=;
-        b=Ph4emm8gXczCFxo59L6RUwWGt7wmKSRsLJUGPzBVLDiS9LIiG39P6e/F5IXqJy6IAf
-         kxRsJ2aLg9Rb1pq1ZQfxrhrf2sayFtEvQZBkKDg4hU+XvfhYbr7V5bZ9/E25ipD/0/o8
-         nZc2xmm5NvnGF4q+AH21tm6gt0gpiOv0j26HN+a/lGT+pP+rPeooYggU41vxazi0/EEl
-         exZFS6Ghy33HBRWU5B23hE5jUZYzGCm/pqQSo69aGeqaU3e2lFWHEKXVLHXq0BWVWPx2
-         kkb2McLaOqXSMRTTE7lf1lGbck+s9urrxoyQROxxwgSjgcfqIJrI8y3iap4eax+wSUUT
-         1BeA==
+        bh=qanenk0rOwdnK1RUZMGAjBSg7F/9gtEp8HpQbOgYLJw=;
+        b=br4lIDxRTpjFYGQ38MM6gA8UgYGD27oDPdaX/yijUZhYiUKyxj5grQPQZ/2zMG2Is1
+         QcfLEVR7d5YmfJQWZf60OrCMKmG3+14gxnut/qAtxszuRBABTS5IhOaoZyEOpcXwMGkc
+         beM7iYp6Jfb1J3cYPAtdnQeFnzcexBMe6y95pYmqOph1eDaUeSCFer7y1djdSu2BcuEr
+         A7W3Xni9fN6PPJSdYAZomS46BzjfekjeQvG3OesX068U74odpn5UvXi0dmM+M1CBnGus
+         AXNaSyHOaPmz89Y43SW1s8vOiyZIF1HDdfjQwOTlHNJ3WYVidTG518BLpIkckhAl0IiE
+         /S4A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713805168; x=1714409968;
+        d=1e100.net; s=20230601; t=1713805264; x=1714410064;
         h=content-transfer-encoding:mime-version:subject:references
          :in-reply-to:message-id:cc:to:from:date:x-gm-message-state:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=mrIzzRd5SEQLFvdzQYqOFzNQkQZWaPc3JGD8u2+BkdA=;
-        b=a/rhw7TRTKhDd3+s99jyVNgOge1jmVqLWUd8jABClyCa2gI1nyrjMr58Iv3Vqc1jZC
-         fh0AazSjAZTqrRuSIiS0bP9F62f9hEf5QqPThvWCGNlZ1B/QNz85fgJ4vXSOGwX96C9h
-         11lnY22dsjQ4UBD/kZ31R2j+C+rjwuTX48inCEyGIoFdh1yH+g6oX7fsYBdlHjd0Wnnx
-         ohYfNysiRBow4Mea4r/adcB/Q8eOA0QVi2EfvP9sjoop0dhXePzheA7L5hBwJU1S9jsJ
-         nuO21X2bar+CB+8x+1AMfGduucuoUBu3L6ArMHdRsyP7YOH5KduEZNzwMTxqtoYhjzWo
-         1R3A==
-X-Forwarded-Encrypted: i=1; AJvYcCVPnO6tiFVKYe3hrflAxi4N+vtUbizJYJIbH7G06rhhYQU1SivacGcV2Vh0/6P4fzsNOrWgBWcb1a7efnkNFoVxvpxRPZy1CUUi1gPr2wI=
-X-Gm-Message-State: AOJu0Yxsq1ZGBFDCsrX5otWkMmLekkv2U3JCRKRrJzQU8qTn9XX7Z+LY
-	rid1Mgv7rUMpwOQCtWxN8ErT9qggbMBwOHWXpNHNsJEPtNRC5FE1
-X-Google-Smtp-Source: AGHT+IHHhU+Nvb87eCaQ76wWE1qXHzhzlsCm3OuWWbw2sH1hLhYIGaE9ghQG7Vrg+ndmJ6yOx+FQnA==
-X-Received: by 2002:ad4:524f:0:b0:69b:12a0:296f with SMTP id s15-20020ad4524f000000b0069b12a0296fmr10630701qvq.54.1713805168003;
-        Mon, 22 Apr 2024 09:59:28 -0700 (PDT)
+        bh=qanenk0rOwdnK1RUZMGAjBSg7F/9gtEp8HpQbOgYLJw=;
+        b=bm4Dq4WgqL/O/3f3/3Tu/UfVHTfTJpkyGuUIOJO+TZ+0nSG/SMkxHysp8GV/K14jG9
+         kP5+fNYuJ1FLgvjALtQ4ug8j+L6CUbdSCiy5pWq3QrpSCWJy7EorXXWcxPJTTOsQAumf
+         JT7nFFhoFFXW9Pbwqs0TsOOrr3MjOh7nA8bpX+aXAIQuiD+SWmnC0PkzlpG7RClTSaI5
+         nC+8xytRL7Zzefcnj5TR3nuQIORDRD/6vAdzCc4cCkyEs/WKc6jKcqYSdSpMRWR9T66P
+         ZtrcIR2zbOYjRnm6zLbTyAKexfvaHBmr7JLPAdAM4YOBCGTI6vz2Zh1zXAjjHDb9tU0J
+         kNqg==
+X-Forwarded-Encrypted: i=1; AJvYcCUWWiKKXISezFjP4/kRnnhQfSEfueD1AeH5JFD9xVN02ToNb34e0oWRk21RVCdG58hJMza5fvNBbcnbgkqKbn1ujbMFrsRZ0/iRYql3Vng=
+X-Gm-Message-State: AOJu0YxffiJOtMSB4kINqxLeztCKVYTGXtTNQyvVGbgJHQbGKVbQ7ctx
+	kYlLpqK4DzzEn0l284Pont1L1gi8HEHIhCLam+XRFWIbrnrOO6FV
+X-Google-Smtp-Source: AGHT+IFCpIo7/SLWyIv8N6OtBqSGdbVdoaFQ0NI9Dz45ssmy5gm1tR1kWrL5XUahomCwRIDa2Lt9fA==
+X-Received: by 2002:a05:620a:4ac5:b0:78d:66b6:a786 with SMTP id sq5-20020a05620a4ac500b0078d66b6a786mr12207280qkn.35.1713805263653;
+        Mon, 22 Apr 2024 10:01:03 -0700 (PDT)
 Received: from localhost (164.146.150.34.bc.googleusercontent.com. [34.150.146.164])
-        by smtp.gmail.com with ESMTPSA id s16-20020a0cdc10000000b006a0426f2bdasm4405853qvk.57.2024.04.22.09.59.27
+        by smtp.gmail.com with ESMTPSA id j12-20020a05620a0a4c00b0078d6120fad0sm4468257qka.108.2024.04.22.10.01.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Apr 2024 09:59:27 -0700 (PDT)
-Date: Mon, 22 Apr 2024 12:59:27 -0400
+        Mon, 22 Apr 2024 10:01:03 -0700 (PDT)
+Date: Mon, 22 Apr 2024 13:01:03 -0400
 From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
 To: Pavel Begunkov <asml.silence@gmail.com>, 
  io-uring@vger.kernel.org, 
@@ -71,12 +71,12 @@ Cc: Jens Axboe <axboe@kernel.dk>,
  "Michael S . Tsirkin" <mst@redhat.com>, 
  virtualization@lists.linux.dev, 
  kvm@vger.kernel.org
-Message-ID: <6626976f4e91a_75392949e@willemb.c.googlers.com.notmuch>
-In-Reply-To: <a62015541de49c0e2a8a0377a1d5d0a5aeb07016.1713369317.git.asml.silence@gmail.com>
+Message-ID: <662697cf21177_753929488@willemb.c.googlers.com.notmuch>
+In-Reply-To: <b7918aadffeb787c84c9e72e34c729dc04f3a45d.1713369317.git.asml.silence@gmail.com>
 References: <cover.1713369317.git.asml.silence@gmail.com>
- <a62015541de49c0e2a8a0377a1d5d0a5aeb07016.1713369317.git.asml.silence@gmail.com>
-Subject: Re: [PATCH io_uring-next/net-next v2 1/4] net: extend ubuf_info
- callback to ops structure
+ <b7918aadffeb787c84c9e72e34c729dc04f3a45d.1713369317.git.asml.silence@gmail.com>
+Subject: Re: [PATCH io_uring-next/net-next v2 2/4] net: add callback for
+ setting a ubuf_info to skb
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -88,11 +88,18 @@ Content-Type: text/plain;
 Content-Transfer-Encoding: 7bit
 
 Pavel Begunkov wrote:
-> We'll need to associate additional callbacks with ubuf_info, introduce
-> a structure holding ubuf_info callbacks. Apart from a more smarter
-> io_uring notification management introduced in next patches, it can be
-> used to generalise msg_zerocopy_put_abort() and also store
-> ->sg_from_iter, which is currently passed in struct msghdr.
+> At the moment an skb can only have one ubuf_info associated with it,
+> which might be a performance problem for zerocopy sends in cases like
+> TCP via io_uring. Add a callback for assigning ubuf_info to skb, this
+> way we will implement smarter assignment later like linking ubuf_info
+> together.
+> 
+> Note, it's an optional callback, which should be compatible with
+> skb_zcopy_set(), that's because the net stack might potentially decide
+> to clone an skb and take another reference to ubuf_info whenever it
+> wishes. Also, a correct implementation should always be able to bind to
+> an skb without prior ubuf_info, otherwise we could end up in a situation
+> when the send would not be able to progress.
 > 
 > Reviewed-by: Jens Axboe <axboe@kernel.dk>
 > Reviewed-by: David Ahern <dsahern@kernel.org>
