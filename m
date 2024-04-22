@@ -1,29 +1,30 @@
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1E942114
-	for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 01:59:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91A984C7D
+	for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 01:59:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713751169; cv=none; b=tm+aHGkNszOoyTeq16L0JDoVAmPUICR7azlCtZ/DGsQ+PbYRBjuEGPhNgxzBib1THQh1nCA5NFC3uZoziuvgj3qRMtnqeEZ8OdKzzmKb/6JssZ6lVIBQw0+z64E2M71vnbYiOiPNluubI3S0FuSkH+jdUQZCdVr9DIpv44+qsK0=
+	t=1713751174; cv=none; b=iO+PwWMHkHHdCBzuDquaK2oWUQ9BsVd5ZZtpdJiSSony9vdxz3JcDVL2Tg1/ZmDBcFHO6N5ToTULF+UxfN8Hr++b3p0LWB2MWl7/AF3qrRP2Qt0wAgdIFFM6Ws7qNem74Q52HS0UJJeMuPRWZUkiPdWjbj0wxfQruHVbVBoegmE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713751169; c=relaxed/simple;
-	bh=ZSd37NZmwRJpjHAS9ajLmdk+WDKEomc1d5hGfAfOCQU=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=rE23BmELkhwebYoSX7cYJL2NBegRfGjFG5PvrTux27ZCV3PLjKdmrH1e973aGDf0ANCDgoTcJYM1iGALd633QXiBa6mzSyL7+1PkRMBmeP7GZQE0bms6xrv0cyeb+QalVDx8sfKr8cBwaHnbT/P9uGrEsmB5Xfsr7yZNQpVXCRE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=UB9ygYh0; arc=none smtp.client-ip=115.124.30.101
+	s=arc-20240116; t=1713751174; c=relaxed/simple;
+	bh=P5umtN9FvvVvUJkHRB8kXDg/Bg+wdfzapjJoBBic0/A=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=XF45le64JKJL3HtYy7brUeHELvFvJb4C6kq9kckXcm9AdgZZqzZv0OAmgpG8qOW0g2O0mryMZyWG1O1ov1yCBodEUqmR4OPKTCyuvfonaCBBgOaXrx/c50QJkA4DbvlZZfCdDC+j2dcrLdcosJ5p9IMltIu7uS+sgXB3tX4gdDU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=HZ8x/5/A; arc=none smtp.client-ip=115.124.30.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="UB9ygYh0"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="HZ8x/5/A"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1713751164; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=qfFyaumVlpjGsrE/xHi1bO0ootxsSU/JVlrBiwyRb2Y=;
-	b=UB9ygYh0YLrjvv3KMZ23wg5UrjqHta+BY9GijltiB2z+VPKuyihI70Z8IRg7Q/Ma61RImGyKPgbwxiDOToSZJ0pzdr/wrnvIsgcqTnxFvoAbu5N0W4ilym8FvJ+TH0ygCEeGqKnbTe76kQ4CVtQqbUespHvYbaZujYzyu/Ry0e0=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0W4y4sJ2_1713750843;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W4y4sJ2_1713750843)
+	t=1713751170; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=/s/ZnJtiq2qk0tlKq+wYYri/0DfW8iPl3s++ybYuvbg=;
+	b=HZ8x/5/AomFFTT3WFBemdjU6aeyJCjE0BTzyjNjLGzfKrltMK/O5wKKPy0Z2FNInK+lZE2wfxaRB12DvL6wJ5Jixfj8Qzs8IyFteCkcNECvnGmKyu1QxaBxd8RHde8Zq2PGjZpVc+vGzV6gpHuB0JicIcDXxFwjVLeFlwImJj8Q=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0W4yCK4K_1713750851;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W4yCK4K_1713750851)
           by smtp.aliyun-inc.com;
-          Mon, 22 Apr 2024 09:54:04 +0800
+          Mon, 22 Apr 2024 09:54:12 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: virtualization@lists.linux.dev
 Cc: "Michael S. Tsirkin" <mst@redhat.com>,
@@ -34,10 +35,12 @@ Cc: "Michael S. Tsirkin" <mst@redhat.com>,
 	Jakub Kicinski <kuba@kernel.org>,
 	Paolo Abeni <pabeni@redhat.com>,
 	netdev@vger.kernel.org
-Subject: [PATCH vhost v1 0/7] virtio_net: rx enable premapped mode by default
-Date: Mon, 22 Apr 2024 09:53:56 +0800
-Message-Id: <20240422015403.72526-1-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH vhost v1 6/7] virtio_net: rx remove premapped failover code
+Date: Mon, 22 Apr 2024 09:54:02 +0800
+Message-Id: <20240422015403.72526-7-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+In-Reply-To: <20240422015403.72526-1-xuanzhuo@linux.alibaba.com>
+References: <20240422015403.72526-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -47,55 +50,167 @@ MIME-Version: 1.0
 X-Git-Hash: 2c089e81de7e
 Content-Transfer-Encoding: 8bit
 
-Actually, for the virtio drivers, we can enable premapped mode whatever
-the value of use_dma_api. Because we provide the virtio dma apis.
-So the driver can enable premapped mode unconditionally.
+Now, the premapped mode can be enabled unconditionally.
 
-This patch set makes the big mode of virtio-net to support premapped mode.
-And enable premapped mode for rx by default.
+So we can remove the failover code.
 
-Based on the following points, we do not use page pool to manage these
-    pages:
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/net/virtio_net.c | 81 ++++++++++++++++------------------------
+ 1 file changed, 33 insertions(+), 48 deletions(-)
 
-    1. virtio-net uses the DMA APIs wrapped by virtio core. Therefore,
-       we can only prevent the page pool from performing DMA operations, and
-       let the driver perform DMA operations on the allocated pages.
-    2. But when the page pool releases the page, we have no chance to
-       execute dma unmap.
-    3. A solution to #2 is to execute dma unmap every time before putting
-       the page back to the page pool. (This is actually a waste, we don't
-       execute unmap so frequently.)
-    4. But there is another problem, we still need to use page.dma_addr to
-       save the dma address. Using page.dma_addr while using page pool is
-       unsafe behavior.
-
-    More:
-        https://lore.kernel.org/all/CACGkMEu=Aok9z2imB_c5qVuujSh=vjj1kx12fy9N7hqyi+M5Ow@mail.gmail.com/
-
-Please review.
-
-
-v1:
-    1. discussed for using page pool
-    2. use dma sync to replace the unmap for the first page
-
-Thanks.
-
-
-Xuan Zhuo (7):
-  virtio_ring: introduce dma map api for page
-  virtio_ring: enable premapped mode whatever use_dma_api
-  virtio_net: replace private by pp struct inside page
-  virtio_net: big mode support premapped
-  virtio_net: enable premapped by default
-  virtio_net: rx remove premapped failover code
-  virtio_net: remove the misleading comment
-
- drivers/net/virtio_net.c     | 243 +++++++++++++++++++++++------------
- drivers/virtio/virtio_ring.c |  59 ++++++++-
- include/linux/virtio.h       |   7 +
- 3 files changed, 222 insertions(+), 87 deletions(-)
-
---
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 1bf49956dce8..eff8f16a9fe0 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -221,9 +221,6 @@ struct receive_queue {
+ 
+ 	/* Record the last dma info to free after new pages is allocated. */
+ 	struct virtnet_rq_dma *last_dma;
+-
+-	/* Do dma by self */
+-	bool do_dma;
+ };
+ 
+ /* This structure can contain rss message with maximum settings for indirection table and keysize
+@@ -803,7 +800,7 @@ static void *virtnet_rq_get_buf(struct receive_queue *rq, u32 *len, void **ctx)
+ 	void *buf;
+ 
+ 	buf = virtqueue_get_buf_ctx(rq->vq, len, ctx);
+-	if (buf && rq->do_dma)
++	if (buf)
+ 		virtnet_rq_unmap(rq, buf, *len);
+ 
+ 	return buf;
+@@ -816,11 +813,6 @@ static void virtnet_rq_init_one_sg(struct receive_queue *rq, void *buf, u32 len)
+ 	u32 offset;
+ 	void *head;
+ 
+-	if (!rq->do_dma) {
+-		sg_init_one(rq->sg, buf, len);
+-		return;
+-	}
+-
+ 	head = page_address(rq->alloc_frag.page);
+ 
+ 	offset = buf - head;
+@@ -846,44 +838,42 @@ static void *virtnet_rq_alloc(struct receive_queue *rq, u32 size, gfp_t gfp)
+ 
+ 	head = page_address(alloc_frag->page);
+ 
+-	if (rq->do_dma) {
+-		dma = head;
+-
+-		/* new pages */
+-		if (!alloc_frag->offset) {
+-			if (rq->last_dma) {
+-				/* Now, the new page is allocated, the last dma
+-				 * will not be used. So the dma can be unmapped
+-				 * if the ref is 0.
+-				 */
+-				virtnet_rq_unmap(rq, rq->last_dma, 0);
+-				rq->last_dma = NULL;
+-			}
++	dma = head;
+ 
+-			dma->len = alloc_frag->size - sizeof(*dma);
++	/* new pages */
++	if (!alloc_frag->offset) {
++		if (rq->last_dma) {
++			/* Now, the new page is allocated, the last dma
++			 * will not be used. So the dma can be unmapped
++			 * if the ref is 0.
++			 */
++			virtnet_rq_unmap(rq, rq->last_dma, 0);
++			rq->last_dma = NULL;
++		}
+ 
+-			addr = virtqueue_dma_map_single_attrs(rq->vq, dma + 1,
+-							      dma->len, DMA_FROM_DEVICE, 0);
+-			if (virtqueue_dma_mapping_error(rq->vq, addr))
+-				return NULL;
++		dma->len = alloc_frag->size - sizeof(*dma);
+ 
+-			dma->addr = addr;
+-			dma->need_sync = virtqueue_dma_need_sync(rq->vq, addr);
++		addr = virtqueue_dma_map_single_attrs(rq->vq, dma + 1,
++						      dma->len, DMA_FROM_DEVICE, 0);
++		if (virtqueue_dma_mapping_error(rq->vq, addr))
++			return NULL;
+ 
+-			/* Add a reference to dma to prevent the entire dma from
+-			 * being released during error handling. This reference
+-			 * will be freed after the pages are no longer used.
+-			 */
+-			get_page(alloc_frag->page);
+-			dma->ref = 1;
+-			alloc_frag->offset = sizeof(*dma);
++		dma->addr = addr;
++		dma->need_sync = virtqueue_dma_need_sync(rq->vq, addr);
+ 
+-			rq->last_dma = dma;
+-		}
++		/* Add a reference to dma to prevent the entire dma from
++		 * being released during error handling. This reference
++		 * will be freed after the pages are no longer used.
++		 */
++		get_page(alloc_frag->page);
++		dma->ref = 1;
++		alloc_frag->offset = sizeof(*dma);
+ 
+-		++dma->ref;
++		rq->last_dma = dma;
+ 	}
+ 
++	++dma->ref;
++
+ 	buf = head + alloc_frag->offset;
+ 
+ 	get_page(alloc_frag->page);
+@@ -896,12 +886,9 @@ static void virtnet_rq_set_premapped(struct virtnet_info *vi)
+ {
+ 	int i;
+ 
+-	for (i = 0; i < vi->max_queue_pairs; i++) {
++	for (i = 0; i < vi->max_queue_pairs; i++)
+ 		/* error never happen */
+ 		BUG_ON(virtqueue_set_dma_premapped(vi->rq[i].vq));
+-
+-		vi->rq[i].do_dma = true;
+-	}
+ }
+ 
+ static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *buf)
+@@ -1978,8 +1965,7 @@ static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
+ 
+ 	err = virtqueue_add_inbuf_ctx(rq->vq, rq->sg, 1, buf, ctx, gfp);
+ 	if (err < 0) {
+-		if (rq->do_dma)
+-			virtnet_rq_unmap(rq, buf, 0);
++		virtnet_rq_unmap(rq, buf, 0);
+ 		put_page(virt_to_head_page(buf));
+ 	}
+ 
+@@ -2094,8 +2080,7 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
+ 	ctx = mergeable_len_to_ctx(len + room, headroom);
+ 	err = virtqueue_add_inbuf_ctx(rq->vq, rq->sg, 1, buf, ctx, gfp);
+ 	if (err < 0) {
+-		if (rq->do_dma)
+-			virtnet_rq_unmap(rq, buf, 0);
++		virtnet_rq_unmap(rq, buf, 0);
+ 		put_page(virt_to_head_page(buf));
+ 	}
+ 
+@@ -4368,7 +4353,7 @@ static void free_receive_page_frags(struct virtnet_info *vi)
+ 	int i;
+ 	for (i = 0; i < vi->max_queue_pairs; i++)
+ 		if (vi->rq[i].alloc_frag.page) {
+-			if (vi->rq[i].do_dma && vi->rq[i].last_dma)
++			if (vi->rq[i].last_dma)
+ 				virtnet_rq_unmap(&vi->rq[i], vi->rq[i].last_dma, 0);
+ 			put_page(vi->rq[i].alloc_frag.page);
+ 		}
+-- 
 2.32.0.3.g01195cf9f
 
