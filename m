@@ -1,229 +1,165 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1D241553A2
-	for <virtualization@lists.linux-foundation.org>; Mon, 22 Apr 2024 20:05:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBEC6155382
+	for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 20:06:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713816318; cv=none; b=Pkdxz0WvVOBGbbrxY7aeF73lvWGrIicjM1IlPVjpOoerIQJ7ZjKtRPjETONTcYqN5MeS8I58iTksiQffqpQH8o41thsa8LbmQQ2QNPNuVpBa5O7TFM18/Y9JBEjo7qA4Y/d1AqizLhjXv7mp2hJBBG3d8UTOOKhIupkh/+uNhjk=
+	t=1713816401; cv=none; b=AUFWkiJE7w7jV/JugE1JCdfEj5muoRtc527rO2zp1JCV0tEhaofIp4lyh5HR3Ahs5qcHdqArHITctwspAo4+MSSnhTPSBZYcr7PCRPuRw5UZCqLPEDWVNuWsHKhhqolMeHw5B5GKJwvPHez/7gPg7o+tykQ92XvDXi6NEh3LTRo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713816318; c=relaxed/simple;
-	bh=n5uIrr770JPV6GuY2AOplyzbO/isWDPuTA3wIXzCBHg=;
+	s=arc-20240116; t=1713816401; c=relaxed/simple;
+	bh=2/7JJY4Qu5L4+OdjNSuo6CjRPPVe2dKcAMrnefj0VM8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=EqSoeL4wWlfEh+vsFSk8ylGN5ZfqVfquuH3sN2yFER3e8JsKg33YEDbahM1tUezQlZEBEUbd4+O6WQAjz5fOavA94N7fk7VsaVDozTw8xJscc3TbRx6DehE4e8QMHBiEqQZbf9dKEAQBonaI9csNjnk+6zr32idUHco5n2QpP3s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IRrLRobi; arc=none smtp.client-ip=140.211.166.138
+	 In-Reply-To:Content-Type:Content-Disposition; b=EOrQniuqPt/bbyhKgLFhEnQR0YPgduzpg/QAgm9qtepPcDnA+J7Co7zG1FzRT/V0rUsz7qMox+kCmaW4Nc9kq1219zP5OhsytfjldRS93lYXxid8/zicc4/D4aop3TgQjl9gAV5J6B8KFu8Fn3ActRKLPftVJo8YP3c/pXPCbZI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eUR+HEre; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IRrLRobi"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 60F9E820C7
-	for <virtualization@lists.linux-foundation.org>; Mon, 22 Apr 2024 20:05:17 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 69pP6RnwnlDe for <virtualization@lists.linux-foundation.org>;
- Mon, 22 Apr 2024 20:05:16 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 981DD82305
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 981DD82305
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=IRrLRobi
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 981DD82305
-	for <virtualization@lists.linux-foundation.org>; Mon, 22 Apr 2024 20:05:15 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eUR+HEre"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1713816313;
+	s=mimecast20190719; t=1713816398;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=3xwnCN3v0hOU8LktPickNEtFG3k1rFXHPQihbXeDdGs=;
-	b=IRrLRobir83iMB9ZcXabztFSvmn8S4fCthxpcIwS582LY8mH4IbLbqieY/loQZkkekUrxB
-	AuIrEj7bh53AKnxHJyJzFTXIjZOI/8GGHARFTEjJm9Oh+BF48Q25dtc2IK/2S1kn944DfB
-	WzOskATqLBTUOGtQTag4DfgAbco1IZE=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=0lIPjvLLe8W5yhs9jb7Hopq3RJaIntEtybS+M9hbeM8=;
+	b=eUR+HEreYKRM6Vargnu6s5flzQRXB7Y6qFtXwUu7xQeSwWYrz7xnraO0jrG6/trlAmjspv
+	5uw9CEpzjSiepF72JSs3zKa/fvwSNSJUlhcsY4KWOumvHFCi20NdQjaZU4r0U3PAgdoipT
+	VseuqedxYXXmyJ1qwnni8cehHYgvPsw=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-455-xhBEca-BOH20q853ZUgBBQ-1; Mon, 22 Apr 2024 16:05:11 -0400
-X-MC-Unique: xhBEca-BOH20q853ZUgBBQ-1
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-418a673c191so22933115e9.0
-        for <virtualization@lists.linux-foundation.org>; Mon, 22 Apr 2024 13:05:11 -0700 (PDT)
+ us-mta-194-TnTB5JyeNcWMFDy2U-SOGA-1; Mon, 22 Apr 2024 16:06:37 -0400
+X-MC-Unique: TnTB5JyeNcWMFDy2U-SOGA-1
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-349cf13db2fso2971920f8f.0
+        for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 13:06:37 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713816311; x=1714421111;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=3xwnCN3v0hOU8LktPickNEtFG3k1rFXHPQihbXeDdGs=;
-        b=G6yMGR9JlYMnRfeT/pUasnlsddkfZYTt9YCyT7JEUjhA4SUEIKj+eW/NiizktzXs7j
-         7iONQ1TSu0X8usZNf0gLs6z9TRqcKcSo9yu4CqsPK5uadSQ3o7useWuNHxgrz0EI9Kk+
-         9tN+jbqFi3yMrZite+nxiARgr/k4OvncY+QPZF5TfP4lttnjONx2xYBmTM+OKS3RQ+Mo
-         6AkmG9nMuaCunXKZ7XjvPRf0UrWHFi5BcNaGwc2HkdhMMTeNTd77oV4Jj0Qvwmt9pLHT
-         MWw4iUo3WvkewIbAj01wHiBVjzJtpfb98dsi5ngatW0i982Be7LC7NymwqHCmmyTbK9l
-         DrbQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVfJDnNAoabonRyBIZQeBty19GIvtodga63JHqSKYUAH0J5t7a9MF/X96MoGaqp3KLMYkO2+CRbXLcWmm0JleuLPwjHYB6E9a4pparAdbv/yhtFsLfm3oc9bQ==
-X-Gm-Message-State: AOJu0YzWHWXsfuVUsXlqyMi4i2CWzxygvqZtK4B24Pw96HRUJv76PWDy
-	h7MJ2UbS0p8TFhwOA1B/T+iAXtd++poCuHGx6HyT6CoDqjq4O5j/J8aogzcUA5p+UEANrXrIq69
-	nJ//+VJrUsZHtFAMw4GkJihMRV3I0FqQ/2Q4Kr5YU64frXR//g7JdorLK2f5EHSJOsolr2oWg6C
-	wIqPo=
-X-Received: by 2002:a05:600c:1554:b0:418:a620:15a1 with SMTP id f20-20020a05600c155400b00418a62015a1mr7620680wmg.30.1713816310649;
-        Mon, 22 Apr 2024 13:05:10 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEJrcxstD6w10mAE3B1Bou1FLczqnWqc3tQiXTtd/rag2Kfxir5RyTm6J9FFY7JxJfwChH3qQ==
-X-Received: by 2002:a05:600c:1554:b0:418:a620:15a1 with SMTP id f20-20020a05600c155400b00418a62015a1mr7620642wmg.30.1713816309507;
-        Mon, 22 Apr 2024 13:05:09 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1713816396; x=1714421196;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=0lIPjvLLe8W5yhs9jb7Hopq3RJaIntEtybS+M9hbeM8=;
+        b=EBgGazamMyOCnfEUBAy2KRUsXvjqIWFK3gJJNEeEj9/tsfDrpVzqnUxEvJVtkXZNvP
+         WWvVaunH+5nD7OJUWxG1ClT7TjwyJx8sE5NKMItahSTogXMD3dfo8z5vNOCn0MHQXOo7
+         +lY2ysLSJbcJBC1E0SBUUKA/mZwykiMqqRXQ/USFG6Zd/cZAO1JaGIZE6pAynt6QWuvq
+         FkAOe6iEIJDBjq23LcGJBdfbbrdLkqCosVvQAXchtj42wQlyrSw09ykO2tH2v1xV36RA
+         og8Rn3SGv6oiF5um7MQZQbv3IZ8nyDfAzZhMXF4bfv/ynWGZtfgWry/VAScadbPasBWd
+         p/8A==
+X-Forwarded-Encrypted: i=1; AJvYcCWYWwW+FeH70K7rzCN6I4Qfl/yveTw0KUND95a5xJOagw3qvaHQAUa+OP6wYzbTfkuSpy90lpfCRAqYjknk9ikwKBfH6GssFlUZcRE89eI=
+X-Gm-Message-State: AOJu0Ywaw0CF6SOP2piDOAXSLQUrS8FaaeA19DsBvaWZDk8tyzIcjIuO
+	nctCAN3O4OT+zPR30YrQ1tZorbWXhvxKlA3RDR/dbvsZ3/Z3xn+DmHTI25k5VOCAnRAR8wGXkHV
+	tFddwFCUdOK0HVhkq0UO0ypKU/sigool44kxpSCsfT+1hOiWP/gCMH8h1ALYQft6H
+X-Received: by 2002:adf:f18b:0:b0:34a:1a7a:9d60 with SMTP id h11-20020adff18b000000b0034a1a7a9d60mr7640301wro.62.1713816395861;
+        Mon, 22 Apr 2024 13:06:35 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHND6Vh2XDHMA3jWgmPOvHXsu3zVgYNWXES4lL4e0odswgf6F1OyS6srhg0vHCgMCGs6pJ3TA==
+X-Received: by 2002:adf:f18b:0:b0:34a:1a7a:9d60 with SMTP id h11-20020adff18b000000b0034a1a7a9d60mr7640282wro.62.1713816395286;
+        Mon, 22 Apr 2024 13:06:35 -0700 (PDT)
 Received: from redhat.com ([2a06:c701:7429:3c00:dc4a:cd5:7b1c:f7c2])
-        by smtp.gmail.com with ESMTPSA id h16-20020adffd50000000b00346d3a626b8sm13004737wrs.3.2024.04.22.13.05.08
+        by smtp.gmail.com with ESMTPSA id o12-20020a5d62cc000000b00349c42f2559sm12839263wrv.11.2024.04.22.13.06.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Apr 2024 13:05:08 -0700 (PDT)
-Date: Mon, 22 Apr 2024 16:05:06 -0400
+        Mon, 22 Apr 2024 13:06:34 -0700 (PDT)
+Date: Mon, 22 Apr 2024 16:06:31 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: Cindy Lu <lulu@redhat.com>, linux-kernel@vger.kernel.org,
-	virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH v5 3/5] vduse: Add function to get/free the pages for
- reconnection
-Message-ID: <20240422160348-mutt-send-email-mst@kernel.org>
-References: <20240412133017.483407-1-lulu@redhat.com>
- <20240412133017.483407-4-lulu@redhat.com>
- <20240417052723-mutt-send-email-mst@kernel.org>
- <CACGkMEtv56TSaA=W337hFU3VALfbrGMcEdu25O4Ecx7guUacyQ@mail.gmail.com>
+To: Hou Tao <houtao@huaweicloud.com>
+Cc: linux-fsdevel@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>,
+	Vivek Goyal <vgoyal@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Bernd Schubert <bernd.schubert@fastmail.fm>,
+	Matthew Wilcox <willy@infradead.org>,
+	Benjamin Coddington <bcodding@redhat.com>,
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+	houtao1@huawei.com
+Subject: Re: [PATCH v2 0/6] virtiofs: fix the warning for ITER_KVEC dio
+Message-ID: <20240422160615-mutt-send-email-mst@kernel.org>
+References: <20240228144126.2864064-1-houtao@huaweicloud.com>
+ <20240408034514-mutt-send-email-mst@kernel.org>
+ <413bd868-a16b-f024-0098-3c70f7808d3c@huaweicloud.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEtv56TSaA=W337hFU3VALfbrGMcEdu25O4Ecx7guUacyQ@mail.gmail.com>
+In-Reply-To: <413bd868-a16b-f024-0098-3c70f7808d3c@huaweicloud.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 
-On Thu, Apr 18, 2024 at 08:57:51AM +0800, Jason Wang wrote:
-> On Wed, Apr 17, 2024 at 5:29 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > On Fri, Apr 12, 2024 at 09:28:23PM +0800, Cindy Lu wrote:
-> > > Add the function vduse_alloc_reconnnect_info_mem
-> > > and vduse_alloc_reconnnect_info_mem
-> > > These functions allow vduse to allocate and free memory for reconnection
-> > > information. The amount of memory allocated is vq_num pages.
-> > > Each VQS will map its own page where the reconnection information will be saved
-> > >
-> > > Signed-off-by: Cindy Lu <lulu@redhat.com>
-> > > ---
-> > >  drivers/vdpa/vdpa_user/vduse_dev.c | 40 ++++++++++++++++++++++++++++++
-> > >  1 file changed, 40 insertions(+)
-> > >
-> > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > index ef3c9681941e..2da659d5f4a8 100644
-> > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > @@ -65,6 +65,7 @@ struct vduse_virtqueue {
-> > >       int irq_effective_cpu;
-> > >       struct cpumask irq_affinity;
-> > >       struct kobject kobj;
-> > > +     unsigned long vdpa_reconnect_vaddr;
-> > >  };
-> > >
-> > >  struct vduse_dev;
-> > > @@ -1105,6 +1106,38 @@ static void vduse_vq_update_effective_cpu(struct vduse_virtqueue *vq)
-> > >
-> > >       vq->irq_effective_cpu = curr_cpu;
-> > >  }
-> > > +static int vduse_alloc_reconnnect_info_mem(struct vduse_dev *dev)
-> > > +{
-> > > +     unsigned long vaddr = 0;
-> > > +     struct vduse_virtqueue *vq;
-> > > +
-> > > +     for (int i = 0; i < dev->vq_num; i++) {
-> > > +             /*page 0~ vq_num save the reconnect info for vq*/
-> > > +             vq = dev->vqs[i];
-> > > +             vaddr = get_zeroed_page(GFP_KERNEL);
-> >
-> >
-> > I don't get why you insist on stealing kernel memory for something
-> > that is just used by userspace to store data for its own use.
-> > Userspace does not lack ways to persist data, for example,
-> > create a regular file anywhere in the filesystem.
+On Tue, Apr 09, 2024 at 09:48:08AM +0800, Hou Tao wrote:
+> Hi,
 > 
-> Good point. So the motivation here is to:
+> On 4/8/2024 3:45 PM, Michael S. Tsirkin wrote:
+> > On Wed, Feb 28, 2024 at 10:41:20PM +0800, Hou Tao wrote:
+> >> From: Hou Tao <houtao1@huawei.com>
+> >>
+> >> Hi,
+> >>
+> >> The patch set aims to fix the warning related to an abnormal size
+> >> parameter of kmalloc() in virtiofs. The warning occurred when attempting
+> >> to insert a 10MB sized kernel module kept in a virtiofs with cache
+> >> disabled. As analyzed in patch #1, the root cause is that the length of
+> >> the read buffer is no limited, and the read buffer is passed directly to
+> >> virtiofs through out_args[0].value. Therefore patch #1 limits the
+> >> length of the read buffer passed to virtiofs by using max_pages. However
+> >> it is not enough, because now the maximal value of max_pages is 256.
+> >> Consequently, when reading a 10MB-sized kernel module, the length of the
+> >> bounce buffer in virtiofs will be 40 + (256 * 4096), and kmalloc will
+> >> try to allocate 2MB from memory subsystem. The request for 2MB of
+> >> physically contiguous memory significantly stress the memory subsystem
+> >> and may fail indefinitely on hosts with fragmented memory. To address
+> >> this, patch #2~#5 use scattered pages in a bio_vec to replace the
+> >> kmalloc-allocated bounce buffer when the length of the bounce buffer for
+> >> KVEC_ITER dio is larger than PAGE_SIZE. The final issue with the
+> >> allocation of the bounce buffer and sg array in virtiofs is that
+> >> GFP_ATOMIC is used even when the allocation occurs in a kworker context.
+> >> Therefore the last patch uses GFP_NOFS for the allocation of both sg
+> >> array and bounce buffer when initiated by the kworker. For more details,
+> >> please check the individual patches.
+> >>
+> >> As usual, comments are always welcome.
+> >>
+> >> Change Log:
+> > Bernd should I just merge the patchset as is?
+> > It seems to fix a real problem and no one has the
+> > time to work on a better fix .... WDYT?
 > 
-> 1) be self contained, no dependency for high speed persist data
-> storage like tmpfs
+> Sorry for the long delay. I am just start to prepare for v3. In v3, I
+> plan to avoid the unnecessary memory copy between fuse args and bio_vec.
+> Will post it before next week.
 
-No idea what this means.
+Didn't happen before this week apparently.
 
-> 2) standardize the format in uAPI which allows reconnection from
-> arbitrary userspace, unfortunately, such effort was removed in new
-> versions
-
-And I don't see why that has to live in the kernel tree either.
-
-> If the above doesn't make sense, we don't need to offer those pages by VDUSE.
-> 
-> Thanks
-> 
-> 
 > >
 > >
-> >
-> > > +             if (vaddr == 0)
-> > > +                     return -ENOMEM;
-> > > +
-> > > +             vq->vdpa_reconnect_vaddr = vaddr;
-> > > +     }
-> > > +
-> > > +     return 0;
-> > > +}
-> > > +
-> > > +static int vduse_free_reconnnect_info_mem(struct vduse_dev *dev)
-> > > +{
-> > > +     struct vduse_virtqueue *vq;
-> > > +
-> > > +     for (int i = 0; i < dev->vq_num; i++) {
-> > > +             vq = dev->vqs[i];
-> > > +
-> > > +             if (vq->vdpa_reconnect_vaddr)
-> > > +                     free_page(vq->vdpa_reconnect_vaddr);
-> > > +             vq->vdpa_reconnect_vaddr = 0;
-> > > +     }
-> > > +
-> > > +     return 0;
-> > > +}
-> > >
-> > >  static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
-> > >                           unsigned long arg)
-> > > @@ -1672,6 +1705,8 @@ static int vduse_destroy_dev(char *name)
-> > >               mutex_unlock(&dev->lock);
-> > >               return -EBUSY;
-> > >       }
-> > > +     vduse_free_reconnnect_info_mem(dev);
-> > > +
-> > >       dev->connected = true;
-> > >       mutex_unlock(&dev->lock);
-> > >
-> > > @@ -1855,12 +1890,17 @@ static int vduse_create_dev(struct vduse_dev_config *config,
-> > >       ret = vduse_dev_init_vqs(dev, config->vq_align, config->vq_num);
-> > >       if (ret)
-> > >               goto err_vqs;
-> > > +     ret = vduse_alloc_reconnnect_info_mem(dev);
-> > > +     if (ret < 0)
-> > > +             goto err_mem;
-> > >
-> > >       __module_get(THIS_MODULE);
-> > >
-> > >       return 0;
-> > >  err_vqs:
-> > >       device_destroy(&vduse_class, MKDEV(MAJOR(vduse_major), dev->minor));
-> > > +err_mem:
-> > > +     vduse_free_reconnnect_info_mem(dev);
-> > >  err_dev:
-> > >       idr_remove(&vduse_idr, dev->minor);
-> > >  err_idr:
-> > > --
-> > > 2.43.0
-> >
+> >> v2:
+> >>   * limit the length of ITER_KVEC dio by max_pages instead of the
+> >>     newly-introduced max_nopage_rw. Using max_pages make the ITER_KVEC
+> >>     dio being consistent with other rw operations.
+> >>   * replace kmalloc-allocated bounce buffer by using a bounce buffer
+> >>     backed by scattered pages when the length of the bounce buffer for
+> >>     KVEC_ITER dio is larger than PAG_SIZE, so even on hosts with
+> >>     fragmented memory, the KVEC_ITER dio can be handled normally by
+> >>     virtiofs. (Bernd Schubert)
+> >>   * merge the GFP_NOFS patch [1] into this patch-set and use
+> >>     memalloc_nofs_{save|restore}+GFP_KERNEL instead of GFP_NOFS
+> >>     (Benjamin Coddington)
+> >>
+> >> v1: https://lore.kernel.org/linux-fsdevel/20240103105929.1902658-1-houtao@huaweicloud.com/
+> >>
+> >> [1]: https://lore.kernel.org/linux-fsdevel/20240105105305.4052672-1-houtao@huaweicloud.com/
+> >>
+> >> Hou Tao (6):
+> >>   fuse: limit the length of ITER_KVEC dio by max_pages
+> >>   virtiofs: move alloc/free of argbuf into separated helpers
+> >>   virtiofs: factor out more common methods for argbuf
+> >>   virtiofs: support bounce buffer backed by scattered pages
+> >>   virtiofs: use scattered bounce buffer for ITER_KVEC dio
+> >>   virtiofs: use GFP_NOFS when enqueuing request through kworker
+> >>
+> >>  fs/fuse/file.c      |  12 +-
+> >>  fs/fuse/virtio_fs.c | 336 +++++++++++++++++++++++++++++++++++++-------
+> >>  2 files changed, 296 insertions(+), 52 deletions(-)
+> >>
+> >> -- 
+> >> 2.29.2
 
