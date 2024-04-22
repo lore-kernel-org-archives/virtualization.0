@@ -1,108 +1,187 @@
-Received: from mail-qk1-f175.google.com (mail-qk1-f175.google.com [209.85.222.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAD6A15383B
-	for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 17:01:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C8BC1474D3;
+	Mon, 22 Apr 2024 18:39:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713805266; cv=none; b=nGY7uI2Y7fNLEtI9eQVajKNcPSX6W1F2Fy4xtE+q3nJmCr7iQQ5jwMkKECOzFc/WPt5EAcm5QzmB52glpfU69iD4Es3/lhQrJNxIrY9ymh0bTNTLv2OsVBU/grFFlMPTwzXAR46rROZ07uXhYFnfTJOBTcQdV0gUSRgyT/lIj08=
+	t=1713811185; cv=none; b=blot/KQZtwhpY7H+G5AdWBR5egtInQoHpGrn9IvK7wqYCVfXzxp8lnCjC2muCXM7CDEhYIM6539dmviQoVSBxXuc/qMsEY8C1/bXb8ZAWDAOc5GmZ4Yt+J2AEv50T4f5wC1srGlIIhk3xcNRM8nN3QkQSPgCu3EPR2o0AcW0NLw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713805266; c=relaxed/simple;
-	bh=unovcmM/F2dhfHKF77+gvQUVhbqPaiyizesMAyFjp2s=;
-	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 Mime-Version:Content-Type; b=GyhaB70undLyC9Ispob06pKVHpQ+voV9YXDOLf4P2aFaJFLA5eIKjqYiK6xY0eC5Clyg90kuW+ym7OTLJdtKLxWaa0ojHmLwOI00cSt7Jy78P9O6H4a1rxip35IeDG/GmPcTrQn/T6w4x4azD7sC3rUch2Dp+1SsgwtarPezvGE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=br4lIDxR; arc=none smtp.client-ip=209.85.222.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1713811185; c=relaxed/simple;
+	bh=IFiRNpxgUNoHitTE7w4Z1nq+NF3oVpObrju4/HCt3x8=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=smOXzUEknorsIgTXm+x33p19bfdqq3k+rajNkyd1fVPthl7dO9AbymPvmgyzzNIedwsKFNB+r8ErmhHk8Oqx/5mVHXFpEKW/eg17S0IeEmQcsu60pDG3OcqUZT/9ZWISxjhtvQDCm6yF6IBv6/WoSccBe+lCV7ATDoPE2lnnCbs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TEaSWtlM; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="br4lIDxR"
-Received: by mail-qk1-f175.google.com with SMTP id af79cd13be357-78f049fefd5so307845385a.1
-        for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 10:01:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1713805264; x=1714410064; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:subject:references
-         :in-reply-to:message-id:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=qanenk0rOwdnK1RUZMGAjBSg7F/9gtEp8HpQbOgYLJw=;
-        b=br4lIDxRTpjFYGQ38MM6gA8UgYGD27oDPdaX/yijUZhYiUKyxj5grQPQZ/2zMG2Is1
-         QcfLEVR7d5YmfJQWZf60OrCMKmG3+14gxnut/qAtxszuRBABTS5IhOaoZyEOpcXwMGkc
-         beM7iYp6Jfb1J3cYPAtdnQeFnzcexBMe6y95pYmqOph1eDaUeSCFer7y1djdSu2BcuEr
-         A7W3Xni9fN6PPJSdYAZomS46BzjfekjeQvG3OesX068U74odpn5UvXi0dmM+M1CBnGus
-         AXNaSyHOaPmz89Y43SW1s8vOiyZIF1HDdfjQwOTlHNJ3WYVidTG518BLpIkckhAl0IiE
-         /S4A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713805264; x=1714410064;
-        h=content-transfer-encoding:mime-version:subject:references
-         :in-reply-to:message-id:cc:to:from:date:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=qanenk0rOwdnK1RUZMGAjBSg7F/9gtEp8HpQbOgYLJw=;
-        b=bm4Dq4WgqL/O/3f3/3Tu/UfVHTfTJpkyGuUIOJO+TZ+0nSG/SMkxHysp8GV/K14jG9
-         kP5+fNYuJ1FLgvjALtQ4ug8j+L6CUbdSCiy5pWq3QrpSCWJy7EorXXWcxPJTTOsQAumf
-         JT7nFFhoFFXW9Pbwqs0TsOOrr3MjOh7nA8bpX+aXAIQuiD+SWmnC0PkzlpG7RClTSaI5
-         nC+8xytRL7Zzefcnj5TR3nuQIORDRD/6vAdzCc4cCkyEs/WKc6jKcqYSdSpMRWR9T66P
-         ZtrcIR2zbOYjRnm6zLbTyAKexfvaHBmr7JLPAdAM4YOBCGTI6vz2Zh1zXAjjHDb9tU0J
-         kNqg==
-X-Forwarded-Encrypted: i=1; AJvYcCUWWiKKXISezFjP4/kRnnhQfSEfueD1AeH5JFD9xVN02ToNb34e0oWRk21RVCdG58hJMza5fvNBbcnbgkqKbn1ujbMFrsRZ0/iRYql3Vng=
-X-Gm-Message-State: AOJu0YxffiJOtMSB4kINqxLeztCKVYTGXtTNQyvVGbgJHQbGKVbQ7ctx
-	kYlLpqK4DzzEn0l284Pont1L1gi8HEHIhCLam+XRFWIbrnrOO6FV
-X-Google-Smtp-Source: AGHT+IFCpIo7/SLWyIv8N6OtBqSGdbVdoaFQ0NI9Dz45ssmy5gm1tR1kWrL5XUahomCwRIDa2Lt9fA==
-X-Received: by 2002:a05:620a:4ac5:b0:78d:66b6:a786 with SMTP id sq5-20020a05620a4ac500b0078d66b6a786mr12207280qkn.35.1713805263653;
-        Mon, 22 Apr 2024 10:01:03 -0700 (PDT)
-Received: from localhost (164.146.150.34.bc.googleusercontent.com. [34.150.146.164])
-        by smtp.gmail.com with ESMTPSA id j12-20020a05620a0a4c00b0078d6120fad0sm4468257qka.108.2024.04.22.10.01.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Apr 2024 10:01:03 -0700 (PDT)
-Date: Mon, 22 Apr 2024 13:01:03 -0400
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-To: Pavel Begunkov <asml.silence@gmail.com>, 
- io-uring@vger.kernel.org, 
- netdev@vger.kernel.org
-Cc: Jens Axboe <axboe@kernel.dk>, 
- asml.silence@gmail.com, 
- "David S . Miller" <davem@davemloft.net>, 
- Jakub Kicinski <kuba@kernel.org>, 
- David Ahern <dsahern@kernel.org>, 
- Eric Dumazet <edumazet@google.com>, 
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
- Jason Wang <jasowang@redhat.com>, 
- Wei Liu <wei.liu@kernel.org>, 
- Paul Durrant <paul@xen.org>, 
- xen-devel@lists.xenproject.org, 
- "Michael S . Tsirkin" <mst@redhat.com>, 
- virtualization@lists.linux.dev, 
- kvm@vger.kernel.org
-Message-ID: <662697cf21177_753929488@willemb.c.googlers.com.notmuch>
-In-Reply-To: <b7918aadffeb787c84c9e72e34c729dc04f3a45d.1713369317.git.asml.silence@gmail.com>
-References: <cover.1713369317.git.asml.silence@gmail.com>
- <b7918aadffeb787c84c9e72e34c729dc04f3a45d.1713369317.git.asml.silence@gmail.com>
-Subject: Re: [PATCH io_uring-next/net-next v2 2/4] net: add callback for
- setting a ubuf_info to skb
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TEaSWtlM"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37580C113CC;
+	Mon, 22 Apr 2024 18:39:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1713811185;
+	bh=IFiRNpxgUNoHitTE7w4Z1nq+NF3oVpObrju4/HCt3x8=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=TEaSWtlM8zy/X2vpq45kKgoeKYOBiAdp8FND7HHns99ixyqEsNNhCDNd3IpWbpQjx
+	 2gGPGunyYQNum/S49J8fPkho2T27scEDb58DIe2fdz+ZW9O1Ger2ZPgA+UPfragorK
+	 pbE3xUlwCBGLaMY+K6qenFmKPDyBezPLZdd8jLQ4AQKs2OtGN6sdyDoLs9FNPfjuHS
+	 f2FL/uPhVZHgZN4l3+M8aYv1WKqsHcgwFRhWNztEWPeGq4MmOn4JPtsVhKKlJ73gIE
+	 zQEV4l7cylX1BozmpRoPFRsQaYYIkhJsEGAfHIIbqCydyQ910VvNJAcZRDLKKxkhUs
+	 FMYxVlYr2eD8A==
+Date: Mon, 22 Apr 2024 11:39:43 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: Heng Qi <hengqi@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev, "David S .
+ Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Paolo
+ Abeni <pabeni@redhat.com>, Jason Wang <jasowang@redhat.com>, "Michael S .
+ Tsirkin" <mst@redhat.com>, Brett Creeley <bcreeley@amd.com>, Ratheesh
+ Kannoth <rkannoth@marvell.com>, Alexander Lobakin
+ <aleksander.lobakin@intel.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Tal
+ Gilboa <talgi@nvidia.com>, Jonathan Corbet <corbet@lwn.net>,
+ linux-doc@vger.kernel.org, Maxime Chevallier
+ <maxime.chevallier@bootlin.com>, Jiri Pirko <jiri@resnulli.us>, Paul
+ Greenwalt <paul.greenwalt@intel.com>, Ahmed Zaki <ahmed.zaki@intel.com>,
+ Vladimir Oltean <vladimir.oltean@nxp.com>, Kory Maincent
+ <kory.maincent@bootlin.com>, Andrew Lunn <andrew@lunn.ch>,
+ "justinstitt@google.com" <justinstitt@google.com>
+Subject: Re: [PATCH net-next v9 2/4] ethtool: provide customized dim profile
+ management
+Message-ID: <20240422113943.736861fc@kernel.org>
+In-Reply-To: <96b59800-85e6-4a9e-ad9b-7ad3fa56fff4@linux.alibaba.com>
+References: <20240417155546.25691-1-hengqi@linux.alibaba.com>
+	<20240417155546.25691-3-hengqi@linux.alibaba.com>
+	<20240418174843.492078d5@kernel.org>
+	<96b59800-85e6-4a9e-ad9b-7ad3fa56fff4@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Pavel Begunkov wrote:
-> At the moment an skb can only have one ubuf_info associated with it,
-> which might be a performance problem for zerocopy sends in cases like
-> TCP via io_uring. Add a callback for assigning ubuf_info to skb, this
-> way we will implement smarter assignment later like linking ubuf_info
-> together.
-> 
-> Note, it's an optional callback, which should be compatible with
-> skb_zcopy_set(), that's because the net stack might potentially decide
-> to clone an skb and take another reference to ubuf_info whenever it
-> wishes. Also, a correct implementation should always be able to bind to
-> an skb without prior ubuf_info, otherwise we could end up in a situation
-> when the send would not be able to progress.
-> 
-> Reviewed-by: Jens Axboe <axboe@kernel.dk>
-> Reviewed-by: David Ahern <dsahern@kernel.org>
-> Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+On Mon, 22 Apr 2024 17:00:25 +0800 Heng Qi wrote:
+> =E5=9C=A8 2024/4/19 =E4=B8=8A=E5=8D=888:48, Jakub Kicinski =E5=86=99=E9=
+=81=93:
+> > On Wed, 17 Apr 2024 23:55:44 +0800 Heng Qi wrote: =20
+> >> $ ethtool -c ethx
+> >> ...
+> >> rx-eqe-profile:
+> >> {.usec =3D   1, .pkts =3D 256, .comps =3D   0,},
+> >> {.usec =3D   8, .pkts =3D 256, .comps =3D   0,},
+> >> {.usec =3D  64, .pkts =3D 256, .comps =3D   0,},
+> >> {.usec =3D 128, .pkts =3D 256, .comps =3D   0,},
+> >> {.usec =3D 256, .pkts =3D 256, .comps =3D   0,}
+> >> rx-cqe-profile:   n/a
+> >> tx-eqe-profile:   n/a
+> >> tx-cqe-profile:   n/a =20
+> > I don't think that exposing CQE vs EQE mode makes much sense here.
+> > We enable the right mode via:
+> >
+> > struct kernel_ethtool_coalesce {
+> > 	u8 use_cqe_mode_tx;
+> > 	u8 use_cqe_mode_rx; =20
+>=20
+> I think it is reasonable to use 4 types:
+>=20
+> dim lib itself is designed with 4 independent arrays, which are queried=20
+> by dim->mode and
+> dim->profile_ix. This way allows users to manually modify the cqe mode=20
+> of tx or rx, and the
+> dim interface can automatically match the profile of the corresponding=20
+> mode when obtaining
+> the results.
 
-Reviewed-by: Willem de Bruijn <willemb@google.com>
+I'm guessing that DIM has 4 profiles because it was easier to implement
+for profiles hardcoded by DIM itself(!) Even for driver-declared
+profiles the distinction is a hack.
+
+> Merely exposing rx_profile and tx_profile does not seem to make the=20
+> interface and code clearer.
+>=20
+> > the user needs to set the packets and usecs in an educated way
+> > (matching the mode). =20
+>=20
+> I think this is acceptable. In addition to the above reasons, users can=20
+> already set the cqe
+> mode of tx and rx in user mode, which means that they have been educated.
+>=20
+> > The kernel never changes the mode. =20
+>=20
+> Sorry, I don't seem to understand what this means.
+
+Kernel never changes the mode for its own reasons.
+Only user can change the mode.
+So we don't have to always have both CQE and EQE mode tables ready.
+If the kernel changed the mode for some reason we'd have to get both
+from the user, in case kernel wanted to switch.
+
+> >>   /**
+> >>    * register_netdevice() - register a network device
+> >>    * @dev: device to register
+> >> @@ -10258,6 +10310,10 @@ int register_netdevice(struct net_device *dev)
+> >>   	if (ret)
+> >>   		return ret;
+> >>  =20
+> >> +	ret =3D dev_dim_profile_init(dev);
+> >> +	if (ret)
+> >> +		return ret; =20
+> > This is fine but the driver still has to manually do bunch of init:
+> >
+> > 		INIT_WORK(&vi->rq[i].dim.work, virtnet_rx_dim_work);
+> > 		vi->rq[i].dim.mode =3D DIM_CQ_PERIOD_MODE_START_FROM_EQE;
+> >
+> > It'd be better to collect all this static info (flags, mode, work func)
+> > in one place / struct, attached to netdev or netdev_ops. Then the
+> > driver can call a helper like which only needs to take netdev and dim
+> > as arguments. =20
+>=20
+> If mode is put into netdev, then use_cqe_mode_rx and use_cqe_mode_tx=20
+> need to be moved into netdev too.
+> Then dim->mode is no longer required when dim obtain its results.
+> We need to transform the way all drivers with dim currently behave.
+
+Hopefully that won't be too hard.
+
+> But why should work be put into netdev?
+> The driver still requires a for loop to initialize dim work for a=20
+> driver-specific queues.
+
+It's easier to refactor and extend the API when there's an explicit
+call done to the core by the driver, rather than driver poking values
+into random fields of the core structure.
+
+> >> + * coalesce_put_profile - fill reply with a nla nest with four child =
+nla nests.
+> >> + * @skb: socket buffer the message is stored in
+> >> + * @attr_type: nest attr type ETHTOOL_A_COALESCE_*X_*QE_PROFILE
+> >> + * @profile: data passed to userspace
+> >> + * @supported_params: modifiable parameters supported by the driver
+> >> + *
+> >> + * Put a dim profile nest attribute. Refer to ETHTOOL_A_MODERATIONS_M=
+ODERATION.
+> >> + *
+> >> + * Return: false to indicate successful placement or no placement, and
+> >> + * true to pass the -EMSGSIZE error to the wrapper. =20
+> > Why the bool? Doesn't most of the similar code return the error? =20
+>=20
+> Its wrapper function ethnl_default_doit only recognizes the EMSGSIZE code.
+
+Not sure what you mean.
+
+> >> @@ -227,7 +315,19 @@ const struct nla_policy ethnl_coalesce_set_policy=
+[] =3D {
+> >>   	[ETHTOOL_A_COALESCE_TX_AGGR_MAX_BYTES] =3D { .type =3D NLA_U32 },
+> >>   	[ETHTOOL_A_COALESCE_TX_AGGR_MAX_FRAMES] =3D { .type =3D NLA_U32 },
+> >>   	[ETHTOOL_A_COALESCE_TX_AGGR_TIME_USECS] =3D { .type =3D NLA_U32 },
+> >> +	[ETHTOOL_A_COALESCE_RX_EQE_PROFILE]     =3D { .type =3D NLA_NESTED },
+> >> +	[ETHTOOL_A_COALESCE_RX_CQE_PROFILE]     =3D { .type =3D NLA_NESTED },
+> >> +	[ETHTOOL_A_COALESCE_TX_EQE_PROFILE]     =3D { .type =3D NLA_NESTED },
+> >> +	[ETHTOOL_A_COALESCE_TX_CQE_PROFILE]     =3D { .type =3D NLA_NESTED }=
+, =20
+> > NLA_POLICY_NESTED(coalesce_set_profile_policy) =20
+>=20
+> This doesn't work because the first level of sub-nesting of
+> ETHTOOL_A_COALESCE_RX_CQE_PROFILE is ETHTOOL_A_PROFILE_IRQ_MODERATION.
+
+So declare a policy for IRQ_MODERATION which has one entry -> nested
+profile policy?
