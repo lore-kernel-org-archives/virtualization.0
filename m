@@ -1,321 +1,285 @@
-Received: from mail-il1-f170.google.com (mail-il1-f170.google.com [209.85.166.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from SINPR02CU002.outbound.protection.outlook.com (mail-southeastasiaazon11021007.outbound.protection.outlook.com [52.101.133.7])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7089083CD0
-	for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 10:00:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.170
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713780015; cv=none; b=iJF1qjkHIqGbihj1rqL/pfLyPSoMoDVtIqKSkPRa1cBs0QxUonJgrE/Egy8EJYIS0d/p+dq787kM4vQyjLbUmf5nTfnHXBi+NITuV2pq1qaufJhDWeplms4P1kXHgRebXCu7KNuVt8XOWaB+oPcAhReBfOjXBaNlxVfKnWPPYYM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713780015; c=relaxed/simple;
-	bh=NFexd1u1uO+WfIG7yqJtZ7HrUS6ZJnEfH04BiOdzLyE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=uJDf71rwvypfgE1Mrp/RxBTgr43bKXJ4O2FGz0pBNOSYKNTImAyRj+rGU9hXjSBB+I1yWeGE/E508uXyaUCuMsUhXkKMEZCxunqCvEJMPeFUDrvTpaKs7IQlhYaITTcPDFD8EiwIlOVsAxa0DH/gaR2G+2prG4ACC0IODAwOA/Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=brainfault.org; spf=none smtp.mailfrom=brainfault.org; dkim=pass (2048-bit key) header.d=brainfault-org.20230601.gappssmtp.com header.i=@brainfault-org.20230601.gappssmtp.com header.b=eokV65r2; arc=none smtp.client-ip=209.85.166.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=brainfault.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=brainfault.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68F5114659B
+	for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 10:59:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.133.7
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1713783568; cv=fail; b=Kqa9GtRQVT1Op+a1N11m4tJ2+U00p6vcbpp+OrITvZMpMgZ1zvgNvMojKv4EZb9XDHqsA1KCQTv4SOiR4rxmPgiTrlvT+S/2Hc9Z+ixRg6DTV6G2M9lGcI8KgONCxkHvYRjLPm9kfXm9fGp88uPXeMPsNN8CRyoOHFD0aUtU3pg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1713783568; c=relaxed/simple;
+	bh=MMrxo/RAibIPsCOLUtaE+89ULAldgh0GdDuDbkj4tnk=;
+	h=From:To:CC:Subject:Date:Message-ID:Content-Type:MIME-Version; b=JeB8LdrLSZySa50/YyjYa5c9TR2eiHh0LeBmjTrgcp5y8hqUBnLrHAItqR4rPFmvp7kKPAbmkeh3LvEat0ydlZE2UJadNgHBr070sKrgucZ7vcC3DMrRTwNY2hF5QjDQ2khfWgp4lcALaSSDrruU22OXmJE4qlRGe1LWSX/SLlw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=jaguarmicro.com; spf=pass smtp.mailfrom=jaguarmicro.com; dkim=pass (2048-bit key) header.d=jaguarmicro.com header.i=@jaguarmicro.com header.b=J8tWQqB9; arc=fail smtp.client-ip=52.101.133.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=jaguarmicro.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=jaguarmicro.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=brainfault-org.20230601.gappssmtp.com header.i=@brainfault-org.20230601.gappssmtp.com header.b="eokV65r2"
-Received: by mail-il1-f170.google.com with SMTP id e9e14a558f8ab-36a15df0f8cso18724995ab.1
-        for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 03:00:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=brainfault-org.20230601.gappssmtp.com; s=20230601; t=1713780011; x=1714384811; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=LugDwOC1uyIQuTcuiObmKZIYdWbI8Ojo+Itov+Dc6WE=;
-        b=eokV65r2lRpQ3kxlypfRAMqAwhDvX3g3YxVLCg1dM7bhVd6oaA0+BCG6ZiqW9OCbx2
-         jIJ2GnP244K+R0nl8lT63tVDOMcVlxUv5NGv1r3SJln3V47c8SytTDO4Kof6eDdLkXMN
-         JWgCnSCVTvBBu/MfrQ0m/yXIlof/ZB+dAa+FECzapSEJqdjiTLGmwFucIL2DKR8OQ/Id
-         SsCuPQGIqkBHuvIeFJ+3CLjCQ1JVAq7f+oxfIqVDP+wcYTMnJ9cIxs2ugkpknWkqPBCZ
-         S7Nu9ArMHgGecbpInyZb+F/kjhdtp/jyVdKloZVRy+HVk8n1XRFwvIyC1kWIWfCyZ+JK
-         LVwg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713780011; x=1714384811;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=LugDwOC1uyIQuTcuiObmKZIYdWbI8Ojo+Itov+Dc6WE=;
-        b=tixmMKVKOlAVImHfO4uvmfqy8Ms/eGshwmrMs1Ld2pg2H43AlGHH5EXVq4RLwbulBW
-         Qfw2xK7NaASURG25+5L8GUtVKJ8kPwIv++fxIdllULtbKuVaX9eq6fY2svFKfSuGLggI
-         xl2usTdhaMi2gqf4PAZ870Y0Cp1PyPtbRMFhPhjZJXJKCoh3Nk+4t7acT0OwABs8W7So
-         V0dszbfyN9aN/SttbRAElph9E3oI47oBb9+jJr4UkOMdP44GbtYhCDXy8EzSpE+hPbYm
-         VN4Af6Dm7xiM8taXy5JIll0PbJe6Rh/shx6fm2oxlVFuAS0HOB7C5a4d5RV3AyD/+Itq
-         Edzg==
-X-Forwarded-Encrypted: i=1; AJvYcCUbUE7P1/5OsS32Y9nRJOQQEkDIzvDKN9smgVCHRelO+7fVnlSShCYFd1bRCIuLYnjeJ+3eXv+JOQf/6BnGd7JMl3LnsRUJaiVZeq+Rfoo=
-X-Gm-Message-State: AOJu0YyvQg/U4N9T7xl5P4bQbHH472vINlBo9ALfmP3rE4GX2vw03x+T
-	M/qWyC/+nGzO4wpgaT0oToMpDRqatytvN36SY6sNag6tz1FXHvsRlslI1tY+QXJGOTofP0ZfplV
-	v2uerDrO6bUoq5b2ggi0sckUgxQIsMe0trU3NUw==
-X-Google-Smtp-Source: AGHT+IHkuU6rJ/XqGm7fmDmDW8HzxQBFeytzbeGNvhXipCnXDJjhdmK6Os8B+uvQNQCUQx6sc3Q3gngW5RZcF3ztM1I=
-X-Received: by 2002:a05:6e02:1384:b0:36a:f9e8:5e4a with SMTP id
- d4-20020a056e02138400b0036af9e85e4amr14406107ilo.15.1713780011455; Mon, 22
- Apr 2024 03:00:11 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=jaguarmicro.com header.i=@jaguarmicro.com header.b="J8tWQqB9"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Oupdsy33T2YUwJpiKUAxa0YS17Kq+WmKEizRKpUBb9CJGAYigK4Eu8E2Zfd6I63jU2ygNZ07VlZo1/3dpjJkr+N0yjsvoQ1qPuU/SqUkK26SFsSrOfxt4Anoq93sCVOQKT4koCrzWn5EjL1sQFD1V08Uw+fkDE87WnRhJhLGZMWsETPesHftE0StPPQ/ZMhdPlZKMDs50f1zU2y4pt+0DMNwlvxu8qlTkCbhi6uORUCtwPeC8qqzYyE65x1gur0iNmORTzSc0MfButGBdnRSZn/QRMBQRJGovO5nIOdXOM2SFqnLdh8RXC9egYq3VufgDXxrrmMguOqOfloAO5P+Sw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=ikF+eNpWtCTyvA/oXGtBlCS6VQ9aLcH7XvYfCiYIqJw=;
+ b=NrEjFgqat2yhGGbK2KH25xaHXaTV3vgT+xZEenhjKfDQ/uc+L/3ErA+UUYBLkrmd+jAl7yiRy8G0/hT9WlKmlZsUUoE2ONNrFDQZUNVg8bcHHio4U7BrEJygjHpid986115GPUD+yX5f8x7NjVDegbqj5yxLdyLhjYUA5X9yeC1jxJAe9wp/2R//vNMqIO6iy72CyjZQzyvzF6QP/KXBcG0RRBaGAgj+093c+U6QzXl80piUjqQBIAk1j7ql1V6C9GFh4IIEYn3hf+FIqpUfYin+O5qbluRUB1osz+YxGvBDRdczoRqxA7QIdJVVzc1gTeazokcd37V3agGtTGPJmQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=jaguarmicro.com; dmarc=pass action=none
+ header.from=jaguarmicro.com; dkim=pass header.d=jaguarmicro.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=jaguarmicro.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ikF+eNpWtCTyvA/oXGtBlCS6VQ9aLcH7XvYfCiYIqJw=;
+ b=J8tWQqB9RTIj8Z2vkRs6W/DrFV0xablp4f3ptVi4KcP/v8RI9EstD3yenl9by2lp9iyKrbhbLUmCyfnCz50o04Y6or1u729yfXyKr0V84FYiBcnwmlOh9s3tjk0Ilo9lh2T7CvnNmMeRF+8aPfpU84LvJicMMwfIBMKYKKjoCMlKDHLCm15EewjC/ngJKDyp8VTWHne4bIHdt4+u7zG+1cv58IT/Jw/XtEF1vBcSB2jXQEiPTxd/5kxNT4O7XIIII0mi8+iyGOCBoq/EAmhpioO22elOPbMbny7q0WhY3ayPmHVIBURWJ7qCgiQXFmY+W5DfFopP/eKIA+GnShbbGQ==
+Received: from SEYPR06MB6756.apcprd06.prod.outlook.com (2603:1096:101:165::11)
+ by TYZPR06MB6216.apcprd06.prod.outlook.com (2603:1096:400:332::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7472.44; Mon, 22 Apr
+ 2024 10:59:21 +0000
+Received: from SEYPR06MB6756.apcprd06.prod.outlook.com
+ ([fe80::922f:a649:adbf:6634]) by SEYPR06MB6756.apcprd06.prod.outlook.com
+ ([fe80::922f:a649:adbf:6634%3]) with mapi id 15.20.7472.044; Mon, 22 Apr 2024
+ 10:59:21 +0000
+From: Gavin Liu <gavin.liu@jaguarmicro.com>
+To: "mst@redhat.com" <mst@redhat.com>
+CC: "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Heng Qi
+	<hengqi@linux.alibaba.com>, "jasowang@redhat.com" <jasowang@redhat.com>
+Subject: Re: [PATCH v5] vp_vdpa: don't allocate unused msix vectors
+Thread-Topic: [PATCH v5] vp_vdpa: don't allocate unused msix vectors
+Thread-Index: AdqUpADC1B8M7m7DRdW1tgCt/+fxkQ==
+Date: Mon, 22 Apr 2024 10:59:21 +0000
+Message-ID:
+ <SEYPR06MB6756E76E1CEA58CC8FDD15F3EC122@SEYPR06MB6756.apcprd06.prod.outlook.com>
+Accept-Language: zh-CN, en-US
+Content-Language: zh-CN
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=jaguarmicro.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: SEYPR06MB6756:EE_|TYZPR06MB6216:EE_
+x-ms-office365-filtering-correlation-id: d01d4966-e76b-4e49-0a4b-08dc62bb4397
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info:
+ =?us-ascii?Q?ibyekG4uUC2ctCY0lIA8F3puf8qtv9HzBfUC9vZ9NTGh9FBygny/1RG460sY?=
+ =?us-ascii?Q?tMrBvHpVDAr3OXZIgJPFWKoFbc4Z6+AvufwUw4rvOq3m4Mfxi81DUiNgzvg8?=
+ =?us-ascii?Q?LhCTGUTeWv0Q/lATylxrB9f4uEljDFzxGhYtEDY6YE2MIt1zvIc+CGPpjyOP?=
+ =?us-ascii?Q?PxQwM//AgYeWRTCYMwLmeh0tdl7RfreVGSncBKujYlYH0csOWjwFsExagkBH?=
+ =?us-ascii?Q?C4em9EQKVMIvEbNaIej2nUn0ICmGRn/XDIjWxGggZwrs4l7u0ycPcfud9Upq?=
+ =?us-ascii?Q?13oFYDZN/M9c+BX6R3yL/kRGYY/w0+7akrAxzLZwuLNJl2dvEgsi1txj1KPB?=
+ =?us-ascii?Q?dXwxMoXmlByp7RnXKVnuKMk6CMAHemeI2Z5b1d3v7R4kXk2qEE4JDnzRj0O0?=
+ =?us-ascii?Q?1f2u49h02eScLLJntXB/8DdLMG6A7Z7xZNiLyyxKFGcuXQQL0Kp7AdQfd+qf?=
+ =?us-ascii?Q?0fmAnRZCEMld6BmxsZQGkd1+46DmAjdas/5sIZX+POhZKT3jw3/uXmmWbtD8?=
+ =?us-ascii?Q?u5NTL6uReanuelYG8Gmmzk4odCCO0/OUwx+X4npLGEMjMoSMW4lvfoOZKRfc?=
+ =?us-ascii?Q?tg+YFU37jtQKI8sdlzQAe+XsSZ/rP48ZHyQ4mqYZRor3G9Urpqc2eDxehpHB?=
+ =?us-ascii?Q?Bdn4vcYdoEqPVFm0S6f6ngmboaemPrB0TVDgjGllFRijTmCmS9/v8HFoEolX?=
+ =?us-ascii?Q?1iorTvfWt/SszRO9hlZWAExiI2NLWzCReQbJGGxtLFnOp+xAVrGg6iaIMUwG?=
+ =?us-ascii?Q?c3ZjLDFW7+pqgXdkyd+dFqWSH2ONqHS5Yv9laArAmrFiTT5SJJ3NLm4K/Vxk?=
+ =?us-ascii?Q?xydoh2b7dSxB18nVXj0u0Hyq3uAQ1RjsQwufKgRYgMCaGGNMkIV1nmXQoAnp?=
+ =?us-ascii?Q?5OmM7+s7mIuMfltoyJA6VrVNghTyONB+Iy8m6YbfUZafnmV9XyeATV67bxo0?=
+ =?us-ascii?Q?24RTCEpZPVeCsskq4Vz3Yx86JtDYNHyABRciz9DPwfG61vkVJs+oWgrOafJB?=
+ =?us-ascii?Q?szuUzQDhcLvrzicCMFi9MO0MHxZD0rdesdG5uK3/XaSdRByqS0YWTZc682IC?=
+ =?us-ascii?Q?A6ZxGTGWsh1mqLblgAGZ743iME8wm/IZvBuQqvh3J3pjPkn1bK1ve6oNGGiO?=
+ =?us-ascii?Q?wc7ejnEZtnp6apfuGGk3RCw2fnV6X2Ga73hzvDvxfrU1nMIcfGefhMb1jDAV?=
+ =?us-ascii?Q?W3Thu0DOsyDP0Mj+vFxvwyW69CsbWuFeVunES5qTNc+6w0t2Sxv1WOX0dS3O?=
+ =?us-ascii?Q?VffiKpy93x0MIiJmxAnsU6kqhpbHMVyxEZG8wcWGETz4ql/32fc7DSlyeOEI?=
+ =?us-ascii?Q?hC/LJgC6GAyHiCmgYat4DU92XsZMQ4YgybPhctWStWFDIA=3D=3D?=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SEYPR06MB6756.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(1800799015)(376005)(366007)(38070700009);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?Q3xc8iag0AjY9nKuKpYlp3ftT4znf2kVJqzp3ZC8xSeH6Z4SB3bfIzkoBcYR?=
+ =?us-ascii?Q?UphP5O0+ccuYZt2JZw7P5A/x7VF/QhTlrrKLeUT2wEqjMhQXXkZFgYBPOFbJ?=
+ =?us-ascii?Q?a5O/QN1CYYbiUe0PB1f1n6mRd2Kart0mJ9RI2IJpnzBSelO2eFKmCM3WEIGM?=
+ =?us-ascii?Q?lPSO0Rnqowhimp/LiPBpW8Alfqbm9fYMK+d6onDrKFeZee8WCqZGZqFcjghX?=
+ =?us-ascii?Q?WFKr6vhKX/nXg0Du07UVyYEfCLjqqlIMVyZkOKlfbHleb9CD43WMPL2Fgn3F?=
+ =?us-ascii?Q?T/3xtkYNujp7rRtSKY5QDMTZRFuDaZXiaQFu1yTi025rXvFm07hzLleB5WKS?=
+ =?us-ascii?Q?Edz5FT8W/IOV+KE68KzRKeHg3zJ1Z8kfNit9QXlnjJ3ihh/npOAF4Uz4osN8?=
+ =?us-ascii?Q?5v/+BLrHw7kNzSshuchXAgudhB5YA9HJ4vpSssy2DlKFeUQOB5ZDW25zAdUS?=
+ =?us-ascii?Q?vnsnVuEcSGC70Qi/ONICFlj9jD/TZ8GrbEBZqtUcpLEhyHf+VFygqe2UX1gn?=
+ =?us-ascii?Q?p26umoZnbR69CFhkzCcaDaumqjww9Q98ledgIetCm8mqw1LETFdHYixJ6f8o?=
+ =?us-ascii?Q?0pquZ+n8wnSFDw8X8G7PM/hPSn3kQrx06OScHIJPdwYDCIjVh1lfSmRVbzP6?=
+ =?us-ascii?Q?24a3dAI4fWyNa9m9erVGzac3Eal8f+slpSscQFBR7TDHWe6Xu4RIUbXx6p7J?=
+ =?us-ascii?Q?2X7YALNy50sbh5eORBcQPKWiRbndjAF4I+op0gh+TvDS0Bc34YMc/RxEI5+J?=
+ =?us-ascii?Q?IoxGhLWKFH2FxgRg6xFQhylXluBuQxRQwzQwKgVdwaTpu4eXyPLG0/UjVIu2?=
+ =?us-ascii?Q?M0XxpzK2DPkCaRkb9N9epR3jiWFUqp6lUfbO4KLbPS/vdJzTi6mrb9UyK4Wy?=
+ =?us-ascii?Q?xWY/YCJjzHLhy7gI8wt9/kn89mFcrYA8TBxDLCQULpjbe1xI3NsJv7zwdWGa?=
+ =?us-ascii?Q?YDGMGbToW+iHfnNJJ1Sm9Yzm5m0mNFO9GtI0LFablqZCUCn4oSCThPA4b7Dz?=
+ =?us-ascii?Q?wXC2nej93GFnDk3wnXnLGDcpSAicMSHZccyKFMaNF+NyX3VPkfZ/Hsvv7j0t?=
+ =?us-ascii?Q?UtET1m98ydv6BOt0VlFGQ6C5W72U2bMREKAQ17zgeTeRbtWtiZtOy8ok5i3n?=
+ =?us-ascii?Q?Bm/XAp32nVLCFkfpC4LAtw9Nr46X+URE0L9MvUo6xva1WXs4sWG+V2KCxHMw?=
+ =?us-ascii?Q?BYV+jCchEw67XvRqdXPj2rdMHSk31B/QTvLPnkoe5EbhzUeHzFGeJ/ZB+ZWk?=
+ =?us-ascii?Q?ZlzmxbemHTxc0hAKx1ZPnssa3vTrD3oXaaUNl/lB2Ztu90sDSV9bU7ukFVKk?=
+ =?us-ascii?Q?kADhk7CAjhHebZUrQ/jd9Oj2Wr3MUCnXnftY82W6djKm5zCdRFbyRLdWjDgN?=
+ =?us-ascii?Q?vd7AnYSKKhnI58UTNGnp5OsfwL46FaYt0RIKKoPouelrDNin7W1w5b2Z/rSl?=
+ =?us-ascii?Q?S1TmNLTbH/Sb4YGyFGdSFjZpLPtJLGuQi8VcXqfybP0fdwWEScUOTEmpEHh1?=
+ =?us-ascii?Q?Sm+37TqG1hZ1zyxGPGlqLzRL/ll0cfSnCojm0Llu7jryABCQCzdWA9hNGZI9?=
+ =?us-ascii?Q?BYRTHOTcJLlccdZxWPMdZUrED5J2HMrdibMnLuC6?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240420151741.962500-1-atishp@rivosinc.com>
-In-Reply-To: <20240420151741.962500-1-atishp@rivosinc.com>
-From: Anup Patel <anup@brainfault.org>
-Date: Mon, 22 Apr 2024 15:29:58 +0530
-Message-ID: <CAAhSdy2tw1vy-vS3u8-Eq92d=TS_wFENTTrAFG7ked1aEfpkGA@mail.gmail.com>
-Subject: Re: [PATCH v8 00/24] RISC-V SBI v2.0 PMU improvements and Perf
- sampling in KVM guest
-To: Atish Patra <atishp@rivosinc.com>
-Cc: linux-kernel@vger.kernel.org, Ajay Kaher <ajay.kaher@broadcom.com>, 
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alexghiti@rivosinc.com>, 
-	Andrew Jones <ajones@ventanamicro.com>, samuel.holland@sifive.com, 
-	Conor Dooley <conor.dooley@microchip.com>, Juergen Gross <jgross@suse.com>, 
-	kvm-riscv@lists.infradead.org, kvm@vger.kernel.org, 
-	linux-kselftest@vger.kernel.org, linux-riscv@lists.infradead.org, 
-	Mark Rutland <mark.rutland@arm.com>, Palmer Dabbelt <palmer@dabbelt.com>, 
-	Paolo Bonzini <pbonzini@redhat.com>, Paul Walmsley <paul.walmsley@sifive.com>, 
-	Shuah Khan <shuah@kernel.org>, virtualization@lists.linux.dev, 
-	Will Deacon <will@kernel.org>, x86@kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-OriginatorOrg: jaguarmicro.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SEYPR06MB6756.apcprd06.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: d01d4966-e76b-4e49-0a4b-08dc62bb4397
+X-MS-Exchange-CrossTenant-originalarrivaltime: 22 Apr 2024 10:59:21.1558
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 1e45a5c2-d3e1-46b3-a0e6-c5ebf6d8ba7b
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: tVj35/A3bM3+khKgYdk+xzxKLpEXI8Nekyr4aMZ1BvRwVX4pyPW2P1JzYZ+cfSeOYjub2sBIyt7t+WmtCzOrPDwN7EkjGaQAcnTMJ/65QSY=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: TYZPR06MB6216
 
-On Sat, Apr 20, 2024 at 5:17=E2=80=AFAM Atish Patra <atishp@rivosinc.com> w=
-rote:
->
-> This series implements SBI PMU improvements done in SBI v2.0[1] i.e. PMU =
-snapshot
-> and fw_read_hi() functions.
->
-> SBI v2.0 introduced PMU snapshot feature which allows the SBI implementat=
-ion
-> to provide counter information (i.e. values/overflow status) via a shared
-> memory between the SBI implementation and supervisor OS. This allows to m=
-inimize
-> the number of traps in when perf being used inside a kvm guest as it reli=
-es on
-> SBI PMU + trap/emulation of the counters.
->
-> The current set of ratified RISC-V specification also doesn't allow scoun=
-tovf
-> to be trap/emulated by the hypervisor. The SBI PMU snapshot bridges the g=
-ap
-> in ISA as well and enables perf sampling in the guest. However, LCOFI in =
-the
-> guest only works via IRQ filtering in AIA specification. That's why, AIA
-> has to be enabled in the hardware (at least the Ssaia extension) in order=
- to
-> use the sampling support in the perf.
->
-> Here are the patch wise implementation details.
->
-> PATCH 1,4,7,8,9,10,11,15 : Generic cleanups/improvements.
-> PATCH 2,3,14 : FW_READ_HI function implementation
-> PATCH 5-6: Add PMU snapshot feature in sbi pmu driver
-> PATCH 12-13: KVM implementation for snapshot and sampling in kvm guests
-> PATCH 16-17: Generic improvements for kvm selftests
-> PATCH 18-22: KVM selftests for SBI PMU extension
->
-> The series is based on v6.9-rc4 and is available at:
->
-> https://github.com/atishp04/linux/tree/kvm_pmu_snapshot_v8
->
-> The kvmtool patch is also available at:
-> https://github.com/atishp04/kvmtool/tree/sscofpmf
->
-> It also requires Ssaia ISA extension to be present in the hardware in ord=
-er to
-> get perf sampling support in the guest. In Qemu virt machine, it can be d=
-one
-> by the following config.
->
-> ```
-> -cpu rv64,sscofpmf=3Dtrue,x-ssaia=3Dtrue
-> ```
->
-> There is no other dependencies on AIA apart from that. Thus, Ssaia must b=
-e disabled
-> for the guest if AIA patches are not available. Here is the example comma=
-nd.
->
-> ```
-> ./lkvm-static run -m 256 -c2 --console serial -p "console=3DttyS0 earlyco=
-n" --disable-ssaia -k ./Image --debug
-> ```
->
-> The series has been tested only in Qemu.
-> Here is the snippet of the perf running inside a kvm guest.
->
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D
-> $ perf record -e cycles -e instructions perf bench sched messaging -g 5
-> ...
-> $ Running 'sched/messaging' benchmark:
-> ...
-> [   45.928723] perf_duration_warn: 2 callbacks suppressed
-> [   45.929000] perf: interrupt took too long (484426 > 483186), lowering =
-kernel.perf_event_max_sample_rate to 250
-> $ 20 sender and receiver processes per group
-> $ 5 groups =3D=3D 200 processes run
->
->      Total time: 14.220 [sec]
-> [ perf record: Woken up 1 times to write data ]
-> [ perf record: Captured and wrote 0.117 MB perf.data (1942 samples) ]
-> $ perf report --stdio
-> $ To display the perf.data header info, please use --header/--header-only=
- optio>
-> $
-> $
-> $ Total Lost Samples: 0
-> $
-> $ Samples: 943  of event 'cycles'
-> $ Event count (approx.): 5128976844
-> $
-> $ Overhead  Command          Shared Object                Symbol         =
-      >
-> $ ........  ...............  ...........................  ...............=
-......>
-> $
->      7.59%  sched-messaging  [kernel.kallsyms]            [k] memcpy
->      5.48%  sched-messaging  [kernel.kallsyms]            [k] percpu_coun=
-ter_ad>
->      5.24%  sched-messaging  [kernel.kallsyms]            [k] __sbi_rfenc=
-e_v02_>
->      4.00%  sched-messaging  [kernel.kallsyms]            [k] _raw_spin_u=
-nlock_>
->      3.79%  sched-messaging  [kernel.kallsyms]            [k] set_pte_ran=
-ge
->      3.72%  sched-messaging  [kernel.kallsyms]            [k] next_uptoda=
-te_fol>
->      3.46%  sched-messaging  [kernel.kallsyms]            [k] filemap_map=
-_pages
->      3.31%  sched-messaging  [kernel.kallsyms]            [k] handle_mm_f=
-ault
->      3.20%  sched-messaging  [kernel.kallsyms]            [k] finish_task=
-_switc>
->      3.16%  sched-messaging  [kernel.kallsyms]            [k] clear_page
->      3.03%  sched-messaging  [kernel.kallsyms]            [k] mtree_range=
-_walk
->      2.42%  sched-messaging  [kernel.kallsyms]            [k] flush_icach=
-e_pte
->
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D
->
-> [1] https://github.com/riscv-non-isa/riscv-sbi-doc
->
-> Changes from v7->v8:
-> 1. Updated event states so that shared memory is updated only during stop
->    operations.
-> 2. Avoid clobbering lower XLEN counter/overflow values in shared memory
->    by maintaining a temporary copy for RV32.
-> 3. Improved overflow handling in snapshot case by supporting all 64 value=
-s.
-> 4. Minor cleanups based on suggestions on v7.
->
-> Changes from v6->v7:
-> 1. Used SBI_SHMEM_DISABLE in the driver.
-> 2. Added RB Tags.
-> 3. Improved the sbi_pmu_test commandline to allow disabling multiple
->    tests.
->
-> Changes from v5->v6:
-> 1. Added a patch for command line option for the sbi pmu tests.
-> 2. Removed redundant prints and restructure the code little bit.
-> 3. Added a patch for computing the sbi minor version correctly.
-> 4. Addressed all other comments on v5.
->
-> Changes from v4->v5:
-> 1. Moved sbi related definitions to its own header file from processor.h
-> 2. Added few helper functions for selftests.
-> 3. Improved firmware counter read and RV32 start/stop functions.
-> 4. Converted all the shifting operations to use BIT macro
-> 5. Addressed all other comments on v4.
->
-> Changes from v3->v4:
-> 1. Added selftests.
-> 2. Fixed an issue to clear the interrupt pending bits.
-> 3. Fixed the counter index in snapshot memory start function.
->
-> Changes from v2->v3:
-> 1. Fixed a patchwork warning on patch6.
-> 2. Fixed a comment formatting & nit fix in PATCH 3 & 5.
-> 3. Moved the hvien update and sscofpmf enabling to PATCH 9 from PATCH 8.
->
-> Changes from v1->v2:
-> 1. Fixed warning/errors from patchwork CI.
-> 2. Rebased on top of kvm-next.
-> 3. Added Acked-by tags.
->
-> Changes from RFC->v1:
-> 1. Addressed all the comments on RFC series.
-> 2. Removed PATCH2 and merged into later patches.
-> 3. Added 2 more patches for minor fixes.
-> 4. Fixed KVM boot issue without Ssaia and made sscofpmf in guest dependen=
-t on
->    Ssaia in the host.
->
-> Atish Patra (24):
-> RISC-V: Fix the typo in Scountovf CSR name
-> RISC-V: Add FIRMWARE_READ_HI definition
-> drivers/perf: riscv: Read upper bits of a firmware counter
-> drivers/perf: riscv: Use BIT macro for shifting operations
-> RISC-V: Add SBI PMU snapshot definitions
-> RISC-V: KVM: Rename the SBI_STA_SHMEM_DISABLE to a generic name
-> RISC-V: Use the minor version mask while computing sbi version
-> drivers/perf: riscv: Fix counter mask iteration for RV32
-> drivers/perf: riscv: Implement SBI PMU snapshot function
-> RISC-V: KVM: Fix the initial sample period value
-> RISC-V: KVM: No need to update the counter value during reset
-> RISC-V: KVM: No need to exit to the user space if perf event failed
-> RISC-V: KVM: Implement SBI PMU Snapshot feature
-> RISC-V: KVM: Add perf sampling support for guests
-> RISC-V: KVM: Support 64 bit firmware counters on RV32
-> RISC-V: KVM: Improve firmware counter read function
-> KVM: riscv: selftests: Move sbi definitions to its own header file
-> KVM: riscv: selftests: Add helper functions for extension checks
-> KVM: riscv: selftests: Add Sscofpmf to get-reg-list test
-> KVM: riscv: selftests: Add SBI PMU extension definitions
-> KVM: riscv: selftests: Add SBI PMU selftest
-> KVM: riscv: selftests: Add a test for PMU snapshot functionality
-> KVM: riscv: selftests: Add a test for counter overflow
-> KVM: riscv: selftests: Add commandline option for SBI PMU test
+Dear Michael,
 
-Queued this series for Linux-6.10
+	I hope this email finds you well. I am reaching out to request your assist=
+ance in reviewing a patch.
 
-If new issues are discovered then send patches based on
-the KVM riscv queue.
+	The patch in question is titled "[PATCH v5] vp_vdpa: don't allocate unused=
+ msix vectors". I believe your expertise and insights would be invaluable i=
+n ensuring the quality and effectiveness of this patch.
 
-Thanks,
-Anup
+	Your feedback and review are highly appreciated. Please let me know if you=
+ have any questions or require further information.
 
->
-> arch/riscv/include/asm/csr.h                  |   5 +-
-> arch/riscv/include/asm/kvm_vcpu_pmu.h         |  16 +-
-> arch/riscv/include/asm/sbi.h                  |  38 +-
-> arch/riscv/include/uapi/asm/kvm.h             |   1 +
-> arch/riscv/kernel/paravirt.c                  |   6 +-
-> arch/riscv/kvm/aia.c                          |   5 +
-> arch/riscv/kvm/vcpu.c                         |  15 +-
-> arch/riscv/kvm/vcpu_onereg.c                  |   6 +
-> arch/riscv/kvm/vcpu_pmu.c                     | 260 ++++++-
-> arch/riscv/kvm/vcpu_sbi_pmu.c                 |  17 +-
-> arch/riscv/kvm/vcpu_sbi_sta.c                 |   4 +-
-> drivers/perf/riscv_pmu.c                      |   1 +
-> drivers/perf/riscv_pmu_sbi.c                  | 309 +++++++-
-> include/linux/perf/riscv_pmu.h                |   6 +
-> tools/testing/selftests/kvm/Makefile          |   1 +
-> .../selftests/kvm/include/riscv/processor.h   |  49 +-
-> .../testing/selftests/kvm/include/riscv/sbi.h | 141 ++++
-> .../selftests/kvm/include/riscv/ucall.h       |   1 +
-> .../selftests/kvm/lib/riscv/processor.c       |  12 +
-> .../testing/selftests/kvm/riscv/arch_timer.c  |   2 +-
-> .../selftests/kvm/riscv/get-reg-list.c        |   4 +
-> .../selftests/kvm/riscv/sbi_pmu_test.c        | 681 ++++++++++++++++++
-> tools/testing/selftests/kvm/steal_time.c      |   4 +-
-> 23 files changed, 1467 insertions(+), 117 deletions(-)
-> create mode 100644 tools/testing/selftests/kvm/include/riscv/sbi.h
-> create mode 100644 tools/testing/selftests/kvm/riscv/sbi_pmu_test.c
->
-> --
-> 2.34.1
->
+	Thank you for your time and consideration.
+
+Best regards,
+Yuxue Liu
+
+
+
+-----Original Message-----
+From: Gavin Liu
+Sent: April 10, 2024 11:31
+To: mst@redhat.com; jasowang@redhat.com
+Cc: Angus Chen angus.chen@jaguarmicro.com; virtualization@lists.linux.dev; =
+xuanzhuo@linux.alibaba.com; Gavin Liu gavin.liu@jaguarmicro.com; linux-kern=
+el@vger.kernel.org; Heng Qi hengqi@linux.alibaba.com
+Subject: [PATCH v5] vp_vdpa: don't allocate unused msix vectors
+From: Yuxue Liu <yuxue.liu@jaguarmicro.com>
+
+When there is a ctlq and it doesn't require interrupt callbacks,the origina=
+l method of calculating vectors wastes hardware msi or msix resources as we=
+ll as system IRQ resources.
+
+When conducting performance testing using testpmd in the guest os, it was f=
+ound that the performance was lower compared to directly using vfio-pci to =
+passthrough the device
+
+In scenarios where the virtio device in the guest os does not utilize inter=
+rupts, the vdpa driver still configures the hardware's msix vector. Therefo=
+re, the hardware still sends interrupts to the host os. Because of this unn=
+ecessary action by the hardware, hardware performance decreases, and it als=
+o affects the performance of the host os.
+
+Before modification:(interrupt mode)
+ 32:  0   0  0  0 PCI-MSI 32768-edge    vp-vdpa[0000:00:02.0]-0
+ 33:  0   0  0  0 PCI-MSI 32769-edge    vp-vdpa[0000:00:02.0]-1
+ 34:  0   0  0  0 PCI-MSI 32770-edge    vp-vdpa[0000:00:02.0]-2
+ 35:  0   0  0  0 PCI-MSI 32771-edge    vp-vdpa[0000:00:02.0]-config
+
+After modification:(interrupt mode)
+ 32:  0  0  1  7   PCI-MSI 32768-edge  vp-vdpa[0000:00:02.0]-0
+ 33: 36  0  3  0   PCI-MSI 32769-edge  vp-vdpa[0000:00:02.0]-1
+ 34:  0  0  0  0   PCI-MSI 32770-edge  vp-vdpa[0000:00:02.0]-config
+
+Before modification:(virtio pmd mode for guest os)
+ 32:  0   0  0  0 PCI-MSI 32768-edge    vp-vdpa[0000:00:02.0]-0
+ 33:  0   0  0  0 PCI-MSI 32769-edge    vp-vdpa[0000:00:02.0]-1
+ 34:  0   0  0  0 PCI-MSI 32770-edge    vp-vdpa[0000:00:02.0]-2
+ 35:  0   0  0  0 PCI-MSI 32771-edge    vp-vdpa[0000:00:02.0]-config
+
+After modification:(virtio pmd mode for guest os)
+ 32: 0  0  0   0   PCI-MSI 32768-edge   vp-vdpa[0000:00:02.0]-config
+
+To verify the use of the virtio PMD mode in the guest operating system, the=
+ following patch needs to be applied to QEMU:
+https://lore.kernel.org/all/20240408073311.2049-1-yuxue.liu@jaguarmicro.com
+
+Signed-off-by: Yuxue Liu <yuxue.liu@jaguarmicro.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Reviewed-by: Heng Qi <hengqi@linux.alibaba.com>
+---
+V5: modify the description of the printout when an exception occurs
+V4: update the title and assign values to uninitialized variables
+V3: delete unused variables and add validation records
+V2: fix when allocating IRQs, scan all queues
+
+ drivers/vdpa/virtio_pci/vp_vdpa.c | 22 ++++++++++++++++------
+ 1 file changed, 16 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/vdpa/virtio_pci/vp_vdpa.c b/drivers/vdpa/virtio_pci/vp=
+_vdpa.c
+index df5f4a3bccb5..8de0224e9ec2 100644
+--- a/drivers/vdpa/virtio_pci/vp_vdpa.c
++++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
+@@ -160,7 +160,13 @@ static int vp_vdpa_request_irq(struct vp_vdpa *vp_vdpa=
+)
+ 	struct pci_dev *pdev =3D mdev->pci_dev;
+ 	int i, ret, irq;
+ 	int queues =3D vp_vdpa->queues;
+-	int vectors =3D queues + 1;
++	int vectors =3D 1;
++	int msix_vec =3D 0;
++
++	for (i =3D 0; i < queues; i++) {
++		if (vp_vdpa->vring[i].cb.callback)
++			vectors++;
++	}
+=20
+ 	ret =3D pci_alloc_irq_vectors(pdev, vectors, vectors, PCI_IRQ_MSIX);
+ 	if (ret !=3D vectors) {
+@@ -173,9 +179,12 @@ static int vp_vdpa_request_irq(struct vp_vdpa *vp_vdpa=
+)
+ 	vp_vdpa->vectors =3D vectors;
+=20
+ 	for (i =3D 0; i < queues; i++) {
++		if (!vp_vdpa->vring[i].cb.callback)
++			continue;
++
+ 		snprintf(vp_vdpa->vring[i].msix_name, VP_VDPA_NAME_SIZE,
+ 			"vp-vdpa[%s]-%d\n", pci_name(pdev), i);
+-		irq =3D pci_irq_vector(pdev, i);
++		irq =3D pci_irq_vector(pdev, msix_vec);
+ 		ret =3D devm_request_irq(&pdev->dev, irq,
+ 				       vp_vdpa_vq_handler,
+ 				       0, vp_vdpa->vring[i].msix_name, @@ -185,21 +194,22 @@ static in=
+t vp_vdpa_request_irq(struct vp_vdpa *vp_vdpa)
+ 				"vp_vdpa: fail to request irq for vq %d\n", i);
+ 			goto err;
+ 		}
+-		vp_modern_queue_vector(mdev, i, i);
++		vp_modern_queue_vector(mdev, i, msix_vec);
+ 		vp_vdpa->vring[i].irq =3D irq;
++		msix_vec++;
+ 	}
+=20
+ 	snprintf(vp_vdpa->msix_name, VP_VDPA_NAME_SIZE, "vp-vdpa[%s]-config\n",
+ 		 pci_name(pdev));
+-	irq =3D pci_irq_vector(pdev, queues);
++	irq =3D pci_irq_vector(pdev, msix_vec);
+ 	ret =3D devm_request_irq(&pdev->dev, irq,	vp_vdpa_config_handler, 0,
+ 			       vp_vdpa->msix_name, vp_vdpa);
+ 	if (ret) {
+ 		dev_err(&pdev->dev,
+-			"vp_vdpa: fail to request irq for vq %d\n", i);
++			"vp_vdpa: fail to request irq for config: %d\n", ret);
+ 			goto err;
+ 	}
+-	vp_modern_config_vector(mdev, queues);
++	vp_modern_config_vector(mdev, msix_vec);
+ 	vp_vdpa->config_irq =3D irq;
+=20
+ 	return 0;
+--
+2.43.0
+
