@@ -1,178 +1,181 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 563CB1514C7
-	for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 14:18:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B4E61509B9
+	for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 14:20:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713795534; cv=none; b=J/avJbuLjmTaDA0pTkekGJmY0/LbPWqxEzN9dGRbH/ijNIRh1ZoMvj4DkI9rmlDxniZjhrMifjkU0axlcvDiS95fFINIX6L2XvFLmRm3yMM+Q4KxOiwPfh4PVcZOinbBIgqj0i5TvUvkAi/u5p/l7B8pjrcTbnGHexjA0zudIlw=
+	t=1713795655; cv=none; b=oc70umGHr1a9uTaTqaBKudDLTEEKR05s4ofDzilEnJnvTavY0IzJO5Y4jagjNYRe5uLt6XmQWP3aHRI06B2spXkxSGXwhAEeNqTksEkh4wO3y1OH/eNIh2VaVVHhGnPRSj9aNESA5Ba2M5Wohyh2k4j9UOGsIIPzYxY4l1m6eCM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713795534; c=relaxed/simple;
-	bh=5NebA/A3MQ0RArecgWlr/xbum8+gfgz73lLHgMGOtBA=;
+	s=arc-20240116; t=1713795655; c=relaxed/simple;
+	bh=/kXm2iITa7mixbm/BI6s4K3kvavVlcOxT5iq3POX+yA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Ag61MTMPEug3DjFcqq+5rmgMiyG88t4UfWxMLv/ZWVsGG9pm9VxD5fXExjddYFwuKm7rsbP+aVuL3JKaDUOq5ezlghTKPLbvqFFD4FlyUUmYXyddX6E0pl61Fa6YMB8cFG+16z+7H7sKK/jPa8XvqLUZZHsiIVsJH0pS9jviU7A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OR3fmfvE; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=CEbQGbB78DcA1GXrgw0ojIhgX1ICMZKEOehqC2JQrokjZyqMW9OIe7T3I9NdWMj8aDfAumDcq23Zjv/oGnPlIJbsQ4dYFdVOdN0Dk8OrVuaF7g14IcuZSs9NFFgHBCWoyeGfHzJn9CRI/HfJAVmQsyfd7k/x7riFaB4xC652NZw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fvIbJIEN; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OR3fmfvE"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fvIbJIEN"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1713795532;
+	s=mimecast20190719; t=1713795653;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=RuEWgRbov+iY+KqOCft+xN2s/HWnJOwqATFyKi7m/SE=;
-	b=OR3fmfvERacI/lSmv7ufApwIwWVk1MbYeei6qT15IR2Il48nIxT3Mh+oKIv8uRwzOd06Tz
-	elWQ9ukZWMdG7hZvBRgb5KN3gjMzm6bscGWTCH6Eymi/YBZGJVSBNfIqhcilZTDJX0nVx+
-	P5l4N10LM8uF21nwrIk2y8UJPhf5TTc=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=E6+FiyOvOBZ7UuUE5Up8WqG0I1zHgf4s1LLzpA3im1U=;
+	b=fvIbJIENdn/FdOpJjYdxQsHpx9vST9BhneujySDbwOk1VFaIc8UFNU+mZkJ0AMBjq8349d
+	SlcfnQ/vbSqlBG7/GbwTqpp0+o47GSVMDGcD+8lJP4lBKVWt25xyWG546dtLEz9mfeyg+R
+	a7G26TPYadbPVi5zKVJnZ2Q5P/EPf0Y=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-537-pVYG2WNuPq2QNkiewT1CnA-1; Mon, 22 Apr 2024 10:18:48 -0400
-X-MC-Unique: pVYG2WNuPq2QNkiewT1CnA-1
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-34b40e8482aso454071f8f.0
-        for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 07:18:48 -0700 (PDT)
+ us-mta-471-HADbWjtQMdSxG0JymGRKqQ-1; Mon, 22 Apr 2024 10:20:50 -0400
+X-MC-Unique: HADbWjtQMdSxG0JymGRKqQ-1
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-346b8ef7e10so2845562f8f.3
+        for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 07:20:50 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713795527; x=1714400327;
+        d=1e100.net; s=20230601; t=1713795649; x=1714400449;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=RuEWgRbov+iY+KqOCft+xN2s/HWnJOwqATFyKi7m/SE=;
-        b=Dog57wh0cnizVCxokopqrDIAHfL6YYbnWTh/6t1Tqcitz0UeYK3x5nPJYjy1JZB4NO
-         M8xSVpyr9LLClCuLOvhQfM/1ML9JfoaUd8fiTzWySLJgX4e8JmIMeufRk04Q2RQl4wmq
-         yuVKK7ne8WNTaDUFS3TNsY1meBkk+T9aJBz905q2Cz6VdkpHUYFypNdX+G3/dsj9/weD
-         Nutv/94eTKjAj6kweLFNfBZ1MunlzpX0CqP9/4nP4emqvd7Noi1Azh7xuZ2FDJlZ93LJ
-         8zREHWF5I0r51qdbWePSAnan+HGTxRiZdfm0CyIoIu/NZa5pdMfdVki4HxoB9MbhXkOq
-         aedg==
-X-Forwarded-Encrypted: i=1; AJvYcCXihuEjVvWTzDzsPDX1kyl5QDxfDciPvtCBC8D5ony9aKp9a4ZI+2vbo31aOrTJs5QUga3L3YEGRKkKiUjFGgUXYIWhl/gWXBB3Q+5SNHs=
-X-Gm-Message-State: AOJu0YxCTuYUpp9ppPeLYmdR+yNQEVQMYrK3q8/zbyQPMaSuzfsk4EyP
-	TacADawPu4k86eKy70gsfaUofN8T9AN9F9TbrWOKy/9cD9VQsQDeQyENgT6cGt6t/nNuYG1WzHh
-	OhLrPsZyy/jns+gxvJsaFVlkm8Bndvs0lR72MoZt2wnGVlherNVXgUZm9L/UaOgNN
-X-Received: by 2002:adf:ce91:0:b0:34b:58a2:dead with SMTP id r17-20020adfce91000000b0034b58a2deadmr209867wrn.33.1713795527116;
-        Mon, 22 Apr 2024 07:18:47 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGr5x0koTy4iow6GLkNZgdwaMcdEjJgD3/LWvrvM95SfAaGPPm7kmwZu+TuEABqDb/EvhKg4Q==
-X-Received: by 2002:adf:ce91:0:b0:34b:58a2:dead with SMTP id r17-20020adfce91000000b0034b58a2deadmr209834wrn.33.1713795526513;
-        Mon, 22 Apr 2024 07:18:46 -0700 (PDT)
+        bh=E6+FiyOvOBZ7UuUE5Up8WqG0I1zHgf4s1LLzpA3im1U=;
+        b=b8OGy0OXYvs1lx1NbrgJvAKxlzbMXXsi+wDahfq/4PirPSEpfc4/wZAA4nDkdAmMeb
+         PWZnas9ktZqLibNozirSjq+OwFWXHgaBRKxjg7dRTMOqedobDB5GT5V/usIxNuGsuyZk
+         Zn+7TyTLGrDC1fHlGBtypUCudZs0wY17JTOEdsXI9pRLN6r+bSAVx18lp10uZeUjAVAZ
+         Bzb1gkVcc4OfhGlMqAvFSpJICJlvtD1qS3RSHD3SdNdUzQYezPQuKkeo0qC6wdn2KD70
+         Gw0LyP0rIIDtnlhqVh7LZSD5vvK5qgxSoAgFfNw06qGxtCrr07Hbyv29igR3fjtEAYZm
+         2GcA==
+X-Forwarded-Encrypted: i=1; AJvYcCUTdsEzz052XWr18YSs3kGbGxzI70libYvyaLX4cH+1M6RPmtHMAdHJ6rp1EI3UlYC53KIoPohL0OT0M3t4sojFshlj+pNhFKoVfHFvhhc=
+X-Gm-Message-State: AOJu0YxeuMGs74fzRdtoGglQlvKJet1WhkjnlRHEIujLP9bSwztw+8XT
+	ZXf2msoq043/xxCQC3SrpiJg0aQDe19XboIVupA9fELFSAnF4T+KxuLserm+9ac2tYG/fVcOUfu
+	i0e3BgjzfAaC58s97hq97N72SgY4fJi2QdEUEnZ4TjwsVIpRpsLY02q8WGtmMjAyd
+X-Received: by 2002:a5d:63cf:0:b0:343:eb6c:ae80 with SMTP id c15-20020a5d63cf000000b00343eb6cae80mr6747961wrw.28.1713795649153;
+        Mon, 22 Apr 2024 07:20:49 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEbTr9mNnSCZAdnGEG64hBhgMW1R+/LrCJEgrrihxGXhKjlIV3VfLADvpLX4fg/B6JyXt4zGg==
+X-Received: by 2002:a5d:63cf:0:b0:343:eb6c:ae80 with SMTP id c15-20020a5d63cf000000b00343eb6cae80mr6747923wrw.28.1713795648480;
+        Mon, 22 Apr 2024 07:20:48 -0700 (PDT)
 Received: from redhat.com ([2a06:c701:7429:3c00:dc4a:cd5:7b1c:f7c2])
-        by smtp.gmail.com with ESMTPSA id d4-20020a5d6dc4000000b00341ce80ea66sm12114246wrz.82.2024.04.22.07.18.45
+        by smtp.gmail.com with ESMTPSA id l18-20020a5d5612000000b0034a62e51429sm9041921wrv.112.2024.04.22.07.20.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Apr 2024 07:18:46 -0700 (PDT)
-Date: Mon, 22 Apr 2024 10:18:41 -0400
+        Mon, 22 Apr 2024 07:20:48 -0700 (PDT)
+Date: Mon, 22 Apr 2024 10:20:43 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: syzbot <syzbot+6c21aeb59d0e82eb2782@syzkaller.appspotmail.com>
-Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-	pabeni@redhat.com, sgarzare@redhat.com,
-	syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev
-Subject: Re: [syzbot] [virt?] [net?] KMSAN: uninit-value in
- vsock_assign_transport (2)
-Message-ID: <20240422101622-mutt-send-email-mst@kernel.org>
-References: <000000000000be4e1c06166fdc85@google.com>
+To: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: Jeongjun Park <aha310510@gmail.com>, jasowang@redhat.com,
+	kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+	sgarzare@redhat.com,
+	syzbot+6c21aeb59d0e82eb2782@syzkaller.appspotmail.com,
+	syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev,
+	Arseny Krasnov <arseny.krasnov@kaspersky.com>
+Subject: Re: [PATCH virt] virt: fix uninit-value in vhost_vsock_dev_open
+Message-ID: <20240422100010-mutt-send-email-mst@kernel.org>
+References: <20240420060450-mutt-send-email-mst@kernel.org>
+ <20240421030606.80385-1-aha310510@gmail.com>
+ <20240422130031.GA77895@fedora>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <000000000000be4e1c06166fdc85@google.com>
-X-Mimecast-Spam-Score: 1
+In-Reply-To: <20240422130031.GA77895@fedora>
+X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Fri, Apr 19, 2024 at 02:39:20AM -0700, syzbot wrote:
-> Hello,
+On Mon, Apr 22, 2024 at 09:00:31AM -0400, Stefan Hajnoczi wrote:
+> On Sun, Apr 21, 2024 at 12:06:06PM +0900, Jeongjun Park wrote:
+> > static bool vhost_transport_seqpacket_allow(u32 remote_cid)
+> > {
+> > ....
+> > 	vsock = vhost_vsock_get(remote_cid);
+> > 
+> > 	if (vsock)
+> > 		seqpacket_allow = vsock->seqpacket_allow;
+> > ....
+> > }
+> > 
+> > I think this is due to reading a previously created uninitialized 
+> > vsock->seqpacket_allow inside vhost_transport_seqpacket_allow(), 
+> > which is executed by the function pointer present in the if statement.
 > 
-> syzbot found the following issue on:
+> CCing Arseny, author of commit ced7b713711f ("vhost/vsock: support
+> SEQPACKET for transport").
 > 
-> HEAD commit:    8cd26fd90c1a Merge tag 'for-6.9-rc4-tag' of git://git.kern..
-> git tree:       upstream
-> console+strace: https://syzkaller.appspot.com/x/log.txt?x=102d27cd180000
-> kernel config:  https://syzkaller.appspot.com/x/.config?x=87a805e655619c64
-> dashboard link: https://syzkaller.appspot.com/bug?extid=6c21aeb59d0e82eb2782
-> compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
-> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=16e38c3b180000
-> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=10e62fed180000
+> Looks like a genuine bug in the commit. vhost_vsock_set_features() sets
+> seqpacket_allow to true when the feature is negotiated. The assumption
+> is that the field defaults to false.
 > 
-> Downloadable assets:
-> disk image: https://storage.googleapis.com/syzbot-assets/488822aee24a/disk-8cd26fd9.raw.xz
-> vmlinux: https://storage.googleapis.com/syzbot-assets/ba40e322ba00/vmlinux-8cd26fd9.xz
-> kernel image: https://storage.googleapis.com/syzbot-assets/f30af1dfbc30/bzImage-8cd26fd9.xz
+> The rest of the vhost_vsock.ko code is written to initialize the
+> vhost_vsock fields, so you could argue seqpacket_allow should just be
+> explicitly initialized to false.
 > 
-> IMPORTANT: if you fix the issue, please add the following tag to the commit:
-> Reported-by: syzbot+6c21aeb59d0e82eb2782@syzkaller.appspotmail.com
+> However, eliminating this class of errors by zeroing seems reasonable in
+> this code path. vhost_vsock_dev_open() is not performance-critical.
 > 
-> =====================================================
-> BUG: KMSAN: uninit-value in vsock_assign_transport+0xb2a/0xb90 net/vmw_vsock/af_vsock.c:500
->  vsock_assign_transport+0xb2a/0xb90 net/vmw_vsock/af_vsock.c:500
->  vsock_connect+0x544/0x1560 net/vmw_vsock/af_vsock.c:1393
->  __sys_connect_file net/socket.c:2048 [inline]
->  __sys_connect+0x606/0x690 net/socket.c:2065
->  __do_sys_connect net/socket.c:2075 [inline]
->  __se_sys_connect net/socket.c:2072 [inline]
->  __x64_sys_connect+0x91/0xe0 net/socket.c:2072
->  x64_sys_call+0x3356/0x3b50 arch/x86/include/generated/asm/syscalls_64.h:43
->  do_syscall_x64 arch/x86/entry/common.c:52 [inline]
->  do_syscall_64+0xcf/0x1e0 arch/x86/entry/common.c:83
->  entry_SYSCALL_64_after_hwframe+0x77/0x7f
-> 
-> Uninit was created at:
->  __kmalloc_large_node+0x231/0x370 mm/slub.c:3921
->  __do_kmalloc_node mm/slub.c:3954 [inline]
->  __kmalloc_node+0xb07/0x1060 mm/slub.c:3973
->  kmalloc_node include/linux/slab.h:648 [inline]
->  kvmalloc_node+0xc0/0x2d0 mm/util.c:634
->  kvmalloc include/linux/slab.h:766 [inline]
->  vhost_vsock_dev_open+0x44/0x510 drivers/vhost/vsock.c:659
->  misc_open+0x66b/0x760 drivers/char/misc.c:165
->  chrdev_open+0xa5f/0xb80 fs/char_dev.c:414
->  do_dentry_open+0x11f1/0x2120 fs/open.c:955
->  vfs_open+0x7e/0xa0 fs/open.c:1089
->  do_open fs/namei.c:3642 [inline]
->  path_openat+0x4a3c/0x5b00 fs/namei.c:3799
->  do_filp_open+0x20e/0x590 fs/namei.c:3826
->  do_sys_openat2+0x1bf/0x2f0 fs/open.c:1406
->  do_sys_open fs/open.c:1421 [inline]
->  __do_sys_openat fs/open.c:1437 [inline]
->  __se_sys_openat fs/open.c:1432 [inline]
->  __x64_sys_openat+0x2a1/0x310 fs/open.c:1432
->  x64_sys_call+0x3a64/0x3b50 arch/x86/include/generated/asm/syscalls_64.h:258
->  do_syscall_x64 arch/x86/entry/common.c:52 [inline]
->  do_syscall_64+0xcf/0x1e0 arch/x86/entry/common.c:83
->  entry_SYSCALL_64_after_hwframe+0x77/0x7f
-> 
-> CPU: 1 PID: 5021 Comm: syz-executor390 Not tainted 6.9.0-rc4-syzkaller-00038-g8cd26fd90c1a #0
-> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 03/27/2024
-> =====================================================
-> 
-> 
-> ---
-> This report is generated by a bot. It may contain errors.
-> See https://goo.gl/tpsmEJ for more information about syzbot.
-> syzbot engineers can be reached at syzkaller@googlegroups.com.
-> 
-> syzbot will keep track of this issue. See:
-> https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-> 
-> If the report is already addressed, let syzbot know by replying with:
-> #syz fix: exact-commit-title
-> 
-> If you want syzbot to run the reproducer, reply with:
-> #syz test: git://repo/address.git branch-or-commit-hash
-> If you attach or paste a git patch, syzbot will apply it before testing.
-> 
-> If you want to overwrite report's subsystems, reply with:
-> #syz set subsystems: new-subsystem
-> (See the list of subsystem names on the web dashboard)
-> 
-> If the report is a duplicate of another one, reply with:
-> #syz dup: exact-subject-of-another-report
-> 
-> If you want to undo deduplication, reply with:
-> #syz undup
+> Acked-by: Stefan Hajnoczi <stefanha@redhat.com>
 
 
-#syz test: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git bcc17a060d93b198d8a17a9b87b593f41337ee28
+
+But now that it's explained, the bugfix as proposed is incomplete:
+userspace can set features twice and the second time will leak
+old VIRTIO_VSOCK_F_SEQPACKET bit value.
+
+And I am pretty sure the Fixes tag is wrong.
+
+So I wrote this, but I actually don't have a set for
+seqpacket to test this. Arseny could you help test maybe?
+Thanks!
 
 
+commit bcc17a060d93b198d8a17a9b87b593f41337ee28
+Author: Michael S. Tsirkin <mst@redhat.com>
+Date:   Mon Apr 22 10:03:13 2024 -0400
+
+vhost/vsock: always initialize seqpacket_allow
+
+There are two issues around seqpacket_allow:
+1. seqpacket_allow is not initialized when socket is
+created. Thus if features are never set, it will be
+read uninitialized.
+2. if VIRTIO_VSOCK_F_SEQPACKET is set and then cleared,
+then seqpacket_allow will not be cleared appropriately
+(existing apps I know about don't usually do this but
+it's legal and there's no way to be sure no one relies
+on this).
+
+To fix:
+    - initialize seqpacket_allow after allocation
+    - set it unconditionally in set_features
+
+Reported-by: syzbot+6c21aeb59d0e82eb2782@syzkaller.appspotmail.com
+Reported-by: Jeongjun Park <aha310510@gmail.com>
+Fixes: ced7b713711f ("vhost/vsock: support SEQPACKET for transport").
+Cc: Arseny Krasnov <arseny.krasnov@kaspersky.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+index ec20ecff85c7..bf664ec9341b 100644
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -667,6 +667,7 @@ static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
+ 	}
+ 
+ 	vsock->guest_cid = 0; /* no CID assigned yet */
++	vsock->seqpacket_allow = false;
+ 
+ 	atomic_set(&vsock->queued_replies, 0);
+ 
+@@ -810,8 +811,7 @@ static int vhost_vsock_set_features(struct vhost_vsock *vsock, u64 features)
+ 			goto err;
+ 	}
+ 
+-	if (features & (1ULL << VIRTIO_VSOCK_F_SEQPACKET))
+-		vsock->seqpacket_allow = true;
++	vsock->seqpacket_allow = features & (1ULL << VIRTIO_VSOCK_F_SEQPACKET);
+ 
+ 	for (i = 0; i < ARRAY_SIZE(vsock->vqs); i++) {
+ 		vq = &vsock->vqs[i];
 
