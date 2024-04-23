@@ -1,153 +1,181 @@
-Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com [209.85.208.43])
+Received: from mail-ej1-f54.google.com (mail-ej1-f54.google.com [209.85.218.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 304DA60B95
-	for <virtualization@lists.linux.dev>; Tue, 23 Apr 2024 10:18:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4ED3864CF2
+	for <virtualization@lists.linux.dev>; Tue, 23 Apr 2024 10:41:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713867487; cv=none; b=PQ5yTBNLIM9adBvBo+j8kIiJb3usFozh7gx5ku0xoWawfUJET/UDOByoOlCBaPflf39qLzao/4tYW6xnRj36jLLW5XqKMc0PX6yPu6v8ox1revh8tfMSUYg5tYV3FUN1xzt2UVR4cZZDG+xSrq7GWsNFW/343ZBMn4f1EAjtj7w=
+	t=1713868877; cv=none; b=M09zS2vyM1PvGg97Umw5moABdP9DuegXf6Nq8Yi5a0K/1RzOluPW4ft1r+de/BTr7QR+3uCHte+mkaI1zfYR6HQv8TbYxc53SW1XOrFsBLQ2jApxtfhulHMb5LQFqAuiXZyow1AmPyb4rGZhwuUoOzF68QUJGh2Z2ZOT2RXfV3o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713867487; c=relaxed/simple;
-	bh=kkqIE0Y4DRPtCUs/sSOoUIPS1FebsbAyD8enDcphis0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=uyAy3WK4a5NzaY1UVMb++fdeZ+H4+YjEb7IfJes4V0JLWkVGBe491LG6vhfONDybrfxfHawSkSUBZyY5dyz0UDgjWTj+kiktH6UGWS5pzEMts5XJYCYx2Oafj7zgQMBWtHk1iM4leimwoYiZw/g4UIqGVvfa+NKG11aojEoEWVE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=aW9/adHZ; arc=none smtp.client-ip=209.85.208.43
+	s=arc-20240116; t=1713868877; c=relaxed/simple;
+	bh=9q6ouA56yQo0k0bb4TWu0djK4ncNb5Fdytp5WSkJTYM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=LU6U19JIUqy+2W1qPk62rZvumJ4oWa9KffE02yrpiisFv1eZrTXUMHxYhZl8MrshBifdelBWMoEBVdRV4fzkrpHtEaS0QhtXVdYSQZVzV5qmP1y25AK3iFGLZ5oKqGhc8i7GOGUi7rgdkygX+ZJn18QRIFIHZB6HhFEVvZLsQl0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=2ClJwXTo; arc=none smtp.client-ip=209.85.218.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="aW9/adHZ"
-Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-572256b1636so117598a12.0
-        for <virtualization@lists.linux.dev>; Tue, 23 Apr 2024 03:18:04 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="2ClJwXTo"
+Received: by mail-ej1-f54.google.com with SMTP id a640c23a62f3a-a52223e004dso521419066b.2
+        for <virtualization@lists.linux.dev>; Tue, 23 Apr 2024 03:41:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1713867483; x=1714472283; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=qjAI/u9aTsfeTNEAGphzTSvRCRRtKSx3dGfB1X7fHEM=;
-        b=aW9/adHZ08WzXp+e8++Ji2ASq8Z5+Z++FRFPQq24UuSaxHsdTz41Vf/J3fED3Vimbb
-         /V7eXdpzG8nOmdsfvWzZTnKrfNeo66R4CR7mckgyt6Ull5GZvGKFjxKn6t6f6rfVuVaI
-         h2vJEy7Tu6WJPFrMHvd0451qKxEHbvrBt8u8NUBsIYYZOCP0AEdSqPefnpJaeGTmgiyr
-         Ouh9yE4SRT3xonJr6tbLpgRyX5Dy3rMwQ/RZNBwNnkqYAphDSoQNUR3nT7jVyVOxTWoP
-         Leg59AGQHEhNj08/X3DlwNy6RMYwHUbBM/jNOQT31VhwNNaWiWcYFIY0elts6jcO6lPr
-         EQgA==
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1713868873; x=1714473673; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=EMOlDHcF7Ts4yl1h3F9FfhqEWMlZGrfkCOKfoDXKBRk=;
+        b=2ClJwXToT6Xz2qthoklX2jcm7QZN0QUA3rP4jB0Ci5L6iRQRRQI2xbCCgqgVanY2um
+         xzhjkT8j82Dp4++n28st72T1FQkxWyfNslTvpBxYS6OSsUpbqNuq7/egI0vGnVPx3ceY
+         XUL7o1Yt3pp2YcX5eEmtDBxw8U1eX7W46vDOQQNki92eGkkC+qL+uY8k7Zmpl1P534gN
+         SNegvtIKUCy4MExQLM0r/M/LxCR6R/UFeBoCB5+QjyKeQ/TZLQaGN8xkuBhcf5wE/wte
+         DcZ1rcDUADkVYynozJ4PjzlMyzuwfcc8rpJGn+0ClBwahOYK9rdiVhRAOAkqS/AycXYz
+         du1A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713867483; x=1714472283;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=qjAI/u9aTsfeTNEAGphzTSvRCRRtKSx3dGfB1X7fHEM=;
-        b=oA+joTZphZf88BWpI3m/ynrtNiPduVtvoXIffQLCrbWWO08acV4VfY6l3LN5aI3xyK
-         4MCfE581cTeM22wsnHcCMPuQnjivPaIJtSdCVld6nWVK/37fVll1BbkojQFUtYw754Vh
-         aqIz+xUTauVutKDSXrj/PSRdWr5uVBO0dwoo05CjNrA5Cvy4d1m21C/H3srL6swJm4HA
-         sjEV8Ip4cpPuCi0zp26TP3nQJtARidgKNJwnLicesaO0zGouCT/bfgzAcOXkGxmDUJmT
-         hlmqx1vkbZvJINOgQEWHwgFie2N17xgSptZ7X80DfB5aVSpdbqExSa/KNFaBqMOgO2mz
-         OOHQ==
-X-Forwarded-Encrypted: i=1; AJvYcCViIlkaQmqDgU7wFNmHUVVq6YqMRIBpsW2eOI3wx3mlJrYs7zym8Cju5ye4krSLGkJWKgUMKuQDCzWL9CNkKdL3znrPYpPe6AetbvCaFIM=
-X-Gm-Message-State: AOJu0YxmPPUAo3u2596TVXHA1nUVRtMG9DUorGgnP1HI6+n7p8PfU6V4
-	Zbvtjn+REOl9jeYKGX/IyqXK3/YVjdcWkZOwoeyx+VaZdTJY+kcBp/87YH6nEba6wmFyW3lcfKG
-	b
-X-Google-Smtp-Source: AGHT+IFrpUA9BGDfzOFgMoFt6BOHOhg8GKgTOgeY0r+LlC7dYpKajZym1moY/r+ox+cVnvAc2GZjxA==
-X-Received: by 2002:a50:8ad1:0:b0:56e:428d:77c1 with SMTP id k17-20020a508ad1000000b0056e428d77c1mr8244269edk.36.1713867483066;
-        Tue, 23 Apr 2024 03:18:03 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1713868873; x=1714473673;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=EMOlDHcF7Ts4yl1h3F9FfhqEWMlZGrfkCOKfoDXKBRk=;
+        b=JtO+l77cBnlws/S4CeDNvkWCooagMS3gqLPdYkIkeOqw1tNXX9W0AmBipSxcCZm4oK
+         cEp6i6BkT7bGGD6nsl5bAywvMIYq5RI6XerCoKvmusBcDtaZDQH2V+S8wGhBusYKNxnM
+         epQSO9EGWPrWEs+uYnWQOB409VBYzQ776txGrIfMrV7IEpIn3zfXDx+d7z7fnIJ/zt/i
+         6lE0KzBy02CVINQE4r5bakJ66qnwPmQSt4Fn7AKg/u9mWg3z94bqqW9MZvpwHQ/z0Y4u
+         74zAk6AsgnDprw+LfweuLCIcrpLtrNAESbPQJiFIW5aaVeb4MvJ5hY9fFVVFvIy7bxBt
+         73zQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWcNTd7b/wLMPjq6gq/td8TsdyIwx8iR6p7Il5jL6nbzQE8J38mJi7cFpX7OL+Xjd0Bxak6K+9mYCU51xpfqYAH7ZhzVzD8xN5mLcIaZYI=
+X-Gm-Message-State: AOJu0Yy/aBH57v4nDUSXktaP6G1cFwi3Psbtv7iVgk4bOLv2lYhBRejK
+	sPc8hvCST4SZ1kFKi7OX4pd87tR4eCkof6h5YMO/drFIdj8xV/Qf0e8RzoLN+iI=
+X-Google-Smtp-Source: AGHT+IF5yOlbCc3XuxtrjYBUXSuLIg6HpzDJP0wTP9amMXONrnEggK9yId+H/FpOrFLl6HvVzkVi7A==
+X-Received: by 2002:a17:906:5592:b0:a58:7c50:84e4 with SMTP id y18-20020a170906559200b00a587c5084e4mr1734096ejp.2.1713868873364;
+        Tue, 23 Apr 2024 03:41:13 -0700 (PDT)
 Received: from localhost (78-80-105-131.customers.tmcz.cz. [78.80.105.131])
-        by smtp.gmail.com with ESMTPSA id h4-20020a0564020e0400b00571f140e6b6sm3548863edh.97.2024.04.23.03.18.00
+        by smtp.gmail.com with ESMTPSA id qy1-20020a170907688100b00a558be8bc03sm5203755ejc.150.2024.04.23.03.41.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Apr 2024 03:18:01 -0700 (PDT)
-Date: Tue, 23 Apr 2024 12:17:58 +0200
+        Tue, 23 Apr 2024 03:41:12 -0700 (PDT)
 From: Jiri Pirko <jiri@resnulli.us>
-To: Heng Qi <hengqi@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eric Dumazet <edumazet@google.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
-Subject: Re: [PATCH net-next 1/2] virtio_net: virtnet_send_command supports
- command-specific-result
-Message-ID: <ZieK1lmc0czcEXWk@nanopsycho>
-References: <20240423084226.25440-1-hengqi@linux.alibaba.com>
- <20240423084226.25440-2-hengqi@linux.alibaba.com>
+To: netdev@vger.kernel.org
+Cc: kuba@kernel.org,
+	pabeni@redhat.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	parav@nvidia.com,
+	mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	shuah@kernel.org,
+	petrm@nvidia.com,
+	liuhangbin@gmail.com,
+	vladimir.oltean@nxp.com,
+	bpoirier@nvidia.com,
+	idosch@nvidia.com,
+	virtualization@lists.linux.dev
+Subject: [patch net-next v5 repost 0/5] selftests: virtio_net: introduce initial testing infrastructure
+Date: Tue, 23 Apr 2024 12:41:04 +0200
+Message-ID: <20240423104109.3880713-1-jiri@resnulli.us>
+X-Mailer: git-send-email 2.44.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240423084226.25440-2-hengqi@linux.alibaba.com>
+Content-Transfer-Encoding: 8bit
 
-Tue, Apr 23, 2024 at 10:42:25AM CEST, hengqi@linux.alibaba.com wrote:
->From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
->
->As the spec https://github.com/oasis-tcs/virtio-spec/commit/42f389989823039724f95bbbd243291ab0064f82
->
->The virtnet cvq supports to get result from the device.
+From: Jiri Pirko <jiri@nvidia.com>
 
-Is this a statement about current status, cause it sounds so. Could you
-make it clear by changing the patch subject and description to use
-imperative mood please. Command the codebase what to do.
+This patchset aims at introducing very basic initial infrastructure
+for virtio_net testing, namely it focuses on virtio feature testing.
 
-Thanks!
+The first patch adds support for debugfs for virtio devices, allowing
+user to filter features to pretend to be driver that is not capable
+of the filtered feature.
 
->
->Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
->---
-> drivers/net/virtio_net.c | 24 +++++++++++++++++-------
-> 1 file changed, 17 insertions(+), 7 deletions(-)
->
->diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
->index 7176b956460b..3bc9b1e621db 100644
->--- a/drivers/net/virtio_net.c
->+++ b/drivers/net/virtio_net.c
->@@ -2527,11 +2527,12 @@ static int virtnet_tx_resize(struct virtnet_info *vi,
->  * supported by the hypervisor, as indicated by feature bits, should
->  * never fail unless improperly formatted.
->  */
->-static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
->-				 struct scatterlist *out)
->+static bool virtnet_send_command_reply(struct virtnet_info *vi, u8 class, u8 cmd,
->+				       struct scatterlist *out,
->+				       struct scatterlist *in)
-> {
->-	struct scatterlist *sgs[4], hdr, stat;
->-	unsigned out_num = 0, tmp;
->+	struct scatterlist *sgs[5], hdr, stat;
->+	u32 out_num = 0, tmp, in_num = 0;
-> 	int ret;
-> 
-> 	/* Caller should know better */
->@@ -2549,10 +2550,13 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
-> 
-> 	/* Add return status. */
-> 	sg_init_one(&stat, &vi->ctrl->status, sizeof(vi->ctrl->status));
->-	sgs[out_num] = &stat;
->+	sgs[out_num + in_num++] = &stat;
-> 
->-	BUG_ON(out_num + 1 > ARRAY_SIZE(sgs));
->-	ret = virtqueue_add_sgs(vi->cvq, sgs, out_num, 1, vi, GFP_ATOMIC);
->+	if (in)
->+		sgs[out_num + in_num++] = in;
->+
->+	BUG_ON(out_num + in_num > ARRAY_SIZE(sgs));
->+	ret = virtqueue_add_sgs(vi->cvq, sgs, out_num, in_num, vi, GFP_ATOMIC);
-> 	if (ret < 0) {
-> 		dev_warn(&vi->vdev->dev,
-> 			 "Failed to add sgs for command vq: %d\n.", ret);
->@@ -2574,6 +2578,12 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
-> 	return vi->ctrl->status == VIRTIO_NET_OK;
-> }
-> 
->+static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
->+				 struct scatterlist *out)
->+{
->+	return virtnet_send_command_reply(vi, class, cmd, out, NULL);
->+}
->+
-> static int virtnet_set_mac_address(struct net_device *dev, void *p)
-> {
-> 	struct virtnet_info *vi = netdev_priv(dev);
->-- 
->2.32.0.3.g01195cf9f
->
->
+Example:
+$ cat /sys/bus/virtio/devices/virtio0/features
+1110010111111111111101010000110010000000100000000000000000000000
+$ echo "5" >/sys/kernel/debug/virtio/virtio0/filter_feature_add
+$ cat /sys/kernel/debug/virtio/virtio0/filter_features
+5
+$ echo "virtio0" > /sys/bus/virtio/drivers/virtio_net/unbind
+$ echo "virtio0" > /sys/bus/virtio/drivers/virtio_net/bind
+$ cat /sys/bus/virtio/devices/virtio0/features
+1110000111111111111101010000110010000000100000000000000000000000
+
+Leverage that in the last patch that lays ground for virtio_net
+selftests testing, including very basic F_MAC feature test.
+
+To run this, do:
+$ make -C tools/testing/selftests/ TARGETS=drivers/net/virtio_net/ run_tests
+
+It is assumed, as with lot of other selftests in the net group,
+that there are netdevices connected back-to-back. In this case,
+two virtio_net devices connected back to back. If you use "tap" qemu
+netdevice type, to configure this loop on a hypervisor, one may use
+this script:
+#!/bin/bash
+
+DEV1="$1"
+DEV2="$2"
+
+sudo tc qdisc add dev $DEV1 clsact
+sudo tc qdisc add dev $DEV2 clsact
+sudo tc filter add dev $DEV1 ingress protocol all pref 1 matchall action mirred egress redirect dev $DEV2
+sudo tc filter add dev $DEV2 ingress protocol all pref 1 matchall action mirred egress redirect dev $DEV1
+sudo ip link set $DEV1 up
+sudo ip link set $DEV2 up
+
+Another possibility is to use virtme-ng like this:
+$ vng --network=loop
+or directly:
+$ vng --network=loop -- make -C tools/testing/selftests/ TARGETS=drivers/net/virtio_net/ run_tests
+
+"loop" network type will take care of creating two "hubport" qemu netdevs
+putting them into a single hub.
+
+To do it manually with qemu, pass following command line options:
+-nic hubport,hubid=1,id=nd0,model=virtio-net-pci
+-nic hubport,hubid=1,id=nd1,model=virtio-net-pci
+
+---
+v4->v5:
+- added exported symbols into patch #1
+- remove original patch #2
+v3->v4:
+- addressed comments from Petr and Benjamin, more or less cosmetical
+  issues. See individual patches changelog for details.
+- extended cover letter by vng usage
+v2->v3:
+- added forgotten kdoc entry in patch #1.
+v1->v2:
+- addressed comments from Jakub and Benjamin, see individual
+  patches #3, #5 and #6 for details.
+
+
+Jiri Pirko (5):
+  virtio: add debugfs infrastructure to allow to debug virtio features
+  selftests: forwarding: add ability to assemble NETIFS array by driver
+    name
+  selftests: forwarding: add check_driver() helper
+  selftests: forwarding: add wait_for_dev() helper
+  selftests: virtio_net: add initial tests
+
+ MAINTAINERS                                   |   1 +
+ drivers/virtio/Kconfig                        |  10 ++
+ drivers/virtio/Makefile                       |   1 +
+ drivers/virtio/virtio.c                       |   8 ++
+ drivers/virtio/virtio_debug.c                 | 114 +++++++++++++++
+ include/linux/virtio.h                        |  35 +++++
+ tools/testing/selftests/Makefile              |   1 +
+ .../selftests/drivers/net/virtio_net/Makefile |  15 ++
+ .../drivers/net/virtio_net/basic_features.sh  | 131 ++++++++++++++++++
+ .../selftests/drivers/net/virtio_net/config   |   2 +
+ .../net/virtio_net/virtio_net_common.sh       |  99 +++++++++++++
+ tools/testing/selftests/net/forwarding/lib.sh |  65 ++++++++-
+ 12 files changed, 478 insertions(+), 4 deletions(-)
+ create mode 100644 drivers/virtio/virtio_debug.c
+ create mode 100644 tools/testing/selftests/drivers/net/virtio_net/Makefile
+ create mode 100755 tools/testing/selftests/drivers/net/virtio_net/basic_features.sh
+ create mode 100644 tools/testing/selftests/drivers/net/virtio_net/config
+ create mode 100644 tools/testing/selftests/drivers/net/virtio_net/virtio_net_common.sh
+
+-- 
+2.44.0
+
