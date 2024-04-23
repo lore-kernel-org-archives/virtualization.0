@@ -1,134 +1,131 @@
-Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCEED65E20
-	for <virtualization@lists.linux.dev>; Tue, 23 Apr 2024 10:59:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 176C767A0D
+	for <virtualization@lists.linux.dev>; Tue, 23 Apr 2024 11:03:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713869950; cv=none; b=FxP+N+EGr0DjzN1KeQBHBjFH32gUVaGjKuACMUFdYWZ5Jc9doXH552gmcrw4I+A/cxwIeoumo1MFZOQssk2S36et2RBm+Lgfdlx0kTVCbEld1bcW08EU5oqsSdQGeJpz2L+73RAmoM5kQkDp52krFyMSskdq7sgkwvZA/m44Yqc=
+	t=1713870195; cv=none; b=hJH+/HrVNritEh8aCSsPitYezj2BjmsXPJho74Lrrkt4qqgjP5DDoae6UXyLSEY55fLrReB8Zwjb0crQ3hGTAFjLUdSILCuCDoictGwY3NjhqHeWg7bm05Wq4q/M1gRKcukoN97MQYNaCcNcbMSXRGUmnFsWzIjH4HH+foKrLU8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713869950; c=relaxed/simple;
-	bh=VCIM8fphpg2wx5wS1Ev8Yru7L2gGj5YRS2RiKLz4gO4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=R73eLtntVeWG6TxOu0Mj8uT2PFLi6GBpqmKA68Jm2W2er8qdDRzebcZ40kvdtsHu0y/usKZFVOu3DdWxuMrwAg4wrn0OUolSP33DCZeZO5B2l933yRre3HIcL/sr1sQtujeyjmYxaMCZ32OJj1vUaRq4VeskbGor8/HZDs793lg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=j0sgoxZL; arc=none smtp.client-ip=209.85.128.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+	s=arc-20240116; t=1713870195; c=relaxed/simple;
+	bh=XVamdcRVYCVsZGkPVKNqOgjiNe7NUzWCSLeSXHaRMd4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=PgDOuQiB7GkbWFFFacJGBZUEqQLjRVQ2KX9Sj5cq9qXcnfz4L9p5ALXM4cxzwLdbSQ09H/ykCdBpaQQoAhts4iJ1sbN0JH/8Ogz16m/MXfj8m+BUyYFZY5I8inox2r2xnNYiJ773IFgLK3Bpx9DxsUCIbXIdetjb8dfWAKsIiQk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=J9xuHobn; arc=none smtp.client-ip=115.124.30.111
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="j0sgoxZL"
-Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-41a4f291f60so15784525e9.3
-        for <virtualization@lists.linux.dev>; Tue, 23 Apr 2024 03:59:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1713869947; x=1714474747; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=v9eYSffLutyekkUg16FuXfR9J3J44OlThKKHWZXllQ8=;
-        b=j0sgoxZLJEEp6MLaKBxfTYT4HwnFSD7FoOGuDO2+SoJ65mqdwIzpwkhVWMeNp6EKui
-         UXBd+a/LG+G3XvO4LHVh0BhWHVPho005Acg3seao6/uH3fTevrlSP+xIoVVPjCWPKnNl
-         3EoQF0KwcWuD2I85sYAcmoZmPY7Y4I6uJyq6sHBXrjuPLlh3RjL0BnSkCvAeOxr2Q2yO
-         1yndr2frxOmAwr8D+8HjEu1r//34XaHFAjr+dbHl++PWTp/EFwoyOD0PGRf2EUCs7WxH
-         hP470wo7KyaHNGCEbrkZjoqibKFCAwBGQnZBoCByQAaHbgcaOUHnns7d0GM57Q6ia3Ya
-         7pTw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713869947; x=1714474747;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=v9eYSffLutyekkUg16FuXfR9J3J44OlThKKHWZXllQ8=;
-        b=MVaifFRYKKFO55tvjuq0OsT11TmmDxz9JmsIo7NiLZSk7+IeKt4o/5If6o71DzK9L0
-         hPegCpQpFsum14FUZrKScPOMA/2pmYYkZ3KHFmpAV73FyOmQCFzjxiXbNhaFFM3Gznv7
-         dmMO/1nwBY2u2PYzwEl1UZh/EWvH6FrpYS1W99pOB2pUn7mcXo4KtlUOOa81sUjUp/3A
-         WvIHmZ/X9iXoGY1TUbIAiSsh1bOjQuyWDytu8a3bvYzJX32XvMW5K7RoVbECpNC3dvtQ
-         xnpzGIQdMTTnJpF/TPGEoau/dSJvm4HqkWVsoqYcADONhpt43pRlEQY4o5l3fsDKsE+M
-         IDWQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWitsD6/ltwjTrACyBJjz8TcxEuIe6zv8FswudF5exX0iHsLWkIoItyBBEYcYRYHVVSGiWRT7zVV7bPWlHeaO9gqkdn59M6MyzrCul9ks0=
-X-Gm-Message-State: AOJu0YwZ6XaYyhDfWGj5y2Mrs2asP28pc8i5fKncVMaRlcLlBZsxg2qO
-	cOQX1O2RVbEttOc/qzCMZ3hGLPluTnnywVHhZtOVQsr+Is3gfpfxRCT99eSrRIQ=
-X-Google-Smtp-Source: AGHT+IGOlfmMGQYqlQ7v0Cu9gVXAoL7wHOkkoQIclnh6f8TpYdXA81OomiP0mJ8qvvgvGacWsTBnKA==
-X-Received: by 2002:a05:600c:4508:b0:418:95a1:1975 with SMTP id t8-20020a05600c450800b0041895a11975mr9197041wmo.20.1713869946943;
-        Tue, 23 Apr 2024 03:59:06 -0700 (PDT)
-Received: from localhost (78-80-105-131.customers.tmcz.cz. [78.80.105.131])
-        by smtp.gmail.com with ESMTPSA id w9-20020a05600c474900b0041a81ece2a7sm4800735wmo.19.2024.04.23.03.59.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Apr 2024 03:59:06 -0700 (PDT)
-Date: Tue, 23 Apr 2024 12:59:05 +0200
-From: Jiri Pirko <jiri@resnulli.us>
-To: Benjamin Poirier <benjamin.poirier@gmail.com>
-Cc: netdev@vger.kernel.org, kuba@kernel.org, pabeni@redhat.com,
-	davem@davemloft.net, edumazet@google.com, parav@nvidia.com,
-	mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
-	shuah@kernel.org, petrm@nvidia.com, liuhangbin@gmail.com,
-	vladimir.oltean@nxp.com, idosch@nvidia.com,
-	virtualization@lists.linux.dev
-Subject: Re: [patch net-next v5 3/5] selftests: forwarding: add
- check_driver() helper
-Message-ID: <ZieUeciv-0dmmPLQ@nanopsycho>
-References: <20240418160830.3751846-1-jiri@resnulli.us>
- <20240422153303.3860947-3-jiri@resnulli.us>
- <ZiawyyOY-6radvXV@f4>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="J9xuHobn"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1713870190; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=1Qy5JS1oLG695lpDQ8ENP7HAFr0YTA6hwVQ5C4STsdY=;
+	b=J9xuHobniGQnCgsJ0koODQR4JR6EkqbWzoAfXDWJHv/mT3cgJZuxULT4bxDOoDtF2rpnL6PvM0+6VNtEjqX1QrnJU1V6faebokndqJUJnMxAb+4LgLbLJ4RcgJk1r6upSgUcWnvnCV8ZyyW/eR87TKcgy9Wljh1wAuYTB1dSDEc=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0W591OMf_1713870188;
+Received: from 30.221.149.17(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W591OMf_1713870188)
+          by smtp.aliyun-inc.com;
+          Tue, 23 Apr 2024 19:03:10 +0800
+Message-ID: <cab1ae8d-00b8-40e3-a5a6-31f231966a7b@linux.alibaba.com>
+Date: Tue, 23 Apr 2024 19:03:08 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZiawyyOY-6radvXV@f4>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next 1/2] virtio_net: virtnet_send_command supports
+ command-specific-result
+To: Jiri Pirko <jiri@resnulli.us>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eric Dumazet <edumazet@google.com>,
+ "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>
+References: <20240423084226.25440-1-hengqi@linux.alibaba.com>
+ <20240423084226.25440-2-hengqi@linux.alibaba.com>
+ <ZieK1lmc0czcEXWk@nanopsycho>
+From: Heng Qi <hengqi@linux.alibaba.com>
+In-Reply-To: <ZieK1lmc0czcEXWk@nanopsycho>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Mon, Apr 22, 2024 at 08:47:39PM CEST, benjamin.poirier@gmail.com wrote:
->On 2024-04-22 17:32 +0200, Jiri Pirko wrote:
->> From: Jiri Pirko <jiri@nvidia.com>
->> 
->> Add a helper to be used to check if the netdevice is backed by specified
->> driver.
->> 
->> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
->> Reviewed-by: Petr Machata <petrm@nvidia.com>
+
+
+在 2024/4/23 下午6:17, Jiri Pirko 写道:
+> Tue, Apr 23, 2024 at 10:42:25AM CEST, hengqi@linux.alibaba.com wrote:
+>> From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+>>
+>> As the spec https://github.com/oasis-tcs/virtio-spec/commit/42f389989823039724f95bbbd243291ab0064f82
+>>
+>> The virtnet cvq supports to get result from the device.
+> Is this a statement about current status, cause it sounds so. Could you
+> make it clear by changing the patch subject and description to use
+> imperative mood please. Command the codebase what to do.
+
+Sure. Will add more text in v2.
+
+>
+> Thanks!
+>
+>> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 >> ---
->>  tools/testing/selftests/net/forwarding/lib.sh | 15 +++++++++++----
->>  1 file changed, 11 insertions(+), 4 deletions(-)
->> 
->> diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
->> index 9d6802c6c023..00e089dd951d 100644
->> --- a/tools/testing/selftests/net/forwarding/lib.sh
->> +++ b/tools/testing/selftests/net/forwarding/lib.sh
->> @@ -278,10 +278,17 @@ check_port_mab_support()
->>  	fi
->>  }
->>  
->> -if [[ "$(id -u)" -ne 0 ]]; then
->> -	echo "SKIP: need root privileges"
->> -	exit $ksft_skip
->> -fi
->
->Why is the check being removed entirely? This change was not in v4 of
->this patch. Did it happen unintentionally when removing "selftests:
->forwarding: move initial root check to the beginning"?
-
-Oh, a mistake.
-
-I messed up the v5 submission, repost couple minutes ago but I missed
-this comment. I will send v6 tomorrow.
-
-Sorry!
-
->
->> +check_driver()
->> +{
->> +	local dev=$1; shift
->> +	local expected=$1; shift
->> +	local driver_name=`driver_name_get $dev`
+>> drivers/net/virtio_net.c | 24 +++++++++++++++++-------
+>> 1 file changed, 17 insertions(+), 7 deletions(-)
+>>
+>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>> index 7176b956460b..3bc9b1e621db 100644
+>> --- a/drivers/net/virtio_net.c
+>> +++ b/drivers/net/virtio_net.c
+>> @@ -2527,11 +2527,12 @@ static int virtnet_tx_resize(struct virtnet_info *vi,
+>>   * supported by the hypervisor, as indicated by feature bits, should
+>>   * never fail unless improperly formatted.
+>>   */
+>> -static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
+>> -				 struct scatterlist *out)
+>> +static bool virtnet_send_command_reply(struct virtnet_info *vi, u8 class, u8 cmd,
+>> +				       struct scatterlist *out,
+>> +				       struct scatterlist *in)
+>> {
+>> -	struct scatterlist *sgs[4], hdr, stat;
+>> -	unsigned out_num = 0, tmp;
+>> +	struct scatterlist *sgs[5], hdr, stat;
+>> +	u32 out_num = 0, tmp, in_num = 0;
+>> 	int ret;
+>>
+>> 	/* Caller should know better */
+>> @@ -2549,10 +2550,13 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
+>>
+>> 	/* Add return status. */
+>> 	sg_init_one(&stat, &vi->ctrl->status, sizeof(vi->ctrl->status));
+>> -	sgs[out_num] = &stat;
+>> +	sgs[out_num + in_num++] = &stat;
+>>
+>> -	BUG_ON(out_num + 1 > ARRAY_SIZE(sgs));
+>> -	ret = virtqueue_add_sgs(vi->cvq, sgs, out_num, 1, vi, GFP_ATOMIC);
+>> +	if (in)
+>> +		sgs[out_num + in_num++] = in;
 >> +
->> +	if [[ $driver_name != $expected ]]; then
->> +		echo "SKIP: expected driver $expected for $dev, got $driver_name instead"
->> +		exit $ksft_skip
->> +	fi
+>> +	BUG_ON(out_num + in_num > ARRAY_SIZE(sgs));
+>> +	ret = virtqueue_add_sgs(vi->cvq, sgs, out_num, in_num, vi, GFP_ATOMIC);
+>> 	if (ret < 0) {
+>> 		dev_warn(&vi->vdev->dev,
+>> 			 "Failed to add sgs for command vq: %d\n.", ret);
+>> @@ -2574,6 +2578,12 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
+>> 	return vi->ctrl->status == VIRTIO_NET_OK;
+>> }
+>>
+>> +static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
+>> +				 struct scatterlist *out)
+>> +{
+>> +	return virtnet_send_command_reply(vi, class, cmd, out, NULL);
 >> +}
->>  
->>  if [[ "$CHECK_TC" = "yes" ]]; then
->>  	check_tc_version
+>> +
+>> static int virtnet_set_mac_address(struct net_device *dev, void *p)
+>> {
+>> 	struct virtnet_info *vi = netdev_priv(dev);
 >> -- 
->> 2.44.0
->> 
->> 
+>> 2.32.0.3.g01195cf9f
+>>
+>>
+
