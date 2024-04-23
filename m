@@ -1,356 +1,132 @@
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE83685287
-	for <virtualization@lists.linux.dev>; Tue, 23 Apr 2024 11:32:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D606784DFF
+	for <virtualization@lists.linux-foundation.org>; Tue, 23 Apr 2024 12:23:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713871924; cv=none; b=DQPKD7kFCPLq+9V5FsdWnlPs6C7qVluE40v2rCdqwzs5I+A265lNz/Hs1wO8zzSbgHw8EP0vn3Z3h6DFqIcVvklh2FB75McZlLKR+VMRqCxbl2/vR7bBm1xygBRGSx76e4oYQhJskdmXrlttsKQc6tVx3O8I7qBXu3XNL1IUNUM=
+	t=1713875001; cv=none; b=fst3PIzBsQepCHpWuEPJ4U5TZWy9DwWk7sUmr0GdFQZjnlxb3ypZCXNaizRFbBumUdbOjqefLNfDeCXAyXiRaz8Aq7UJB++uU1s5Bn+5FItTqvRMdWTnwnR/4a179l9gKycFjeX06PbHr0mhe2NhRrNtFsm58yXmucRvvbrY/PI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713871924; c=relaxed/simple;
-	bh=7Mr/4ivr3Y/mLeJHyrMzIgpQgY7W1JKx1wFWQ8Z1leU=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=sEKks1MUOEEfrZftWK0K02FkEIHnk2gWtA+CWEdznTs7n5K2lUG1ZIpjEjAyzpQJa8GMBwzLmquE6xxPlu7P59sFwbcUCd4/139kCUA03//pdKo+56o7znkumwFei/ZM27M9jKH4/FMUOVIb6oqjb3NzRmU2drxeMDD27LXEwik=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=VZlumKBG; arc=none smtp.client-ip=115.124.30.132
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1713875001; c=relaxed/simple;
+	bh=zdEuS8XRlyMWs8i+nahfC/xh1vWX2u7uUNV94NmtyxI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=adBiLarVW4SaSg3dl3U7+v9x4TEH7YeDDisRvx2zn2cSK8+lMSNHe/GLUAcUr3IbnNoE5FH54B8C21gF6+qCIgsV+1sNMcwU+RqQBtTCEYouPlj7YNV8NrNcLaut72V3nINxEI64Q2kdtGA6yC9b5gZpxl/Qx1WfieWGToo4iRM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=ZhKD8zgQ; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="VZlumKBG"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1713871915; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=G2ylAct8v28rDflvY+HwznLPnqQmZx6wEikbnF/lZBY=;
-	b=VZlumKBGGxkMmkcSytrtFlgUgW2FRKy6yYJk4bXtd4TguiWYBJNirjVPX0MwIcR7Yv7IId32ddlvyrWOHlBY3eAQIlla8zPIqv9A91g7kcshAMcHKrfZU+/SiaDgRmZg7/vfEpvXARmhceEiKX4qfoBc7nRjkmWOGBw2HFNItxw=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033068173054;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0W592gT._1713871912;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W592gT._1713871912)
-          by smtp.aliyun-inc.com;
-          Tue, 23 Apr 2024 19:31:53 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: netdev@vger.kernel.org
-Cc: "David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>,
-	Stanislav Fomichev <sdf@google.com>,
-	Amritha Nambiar <amritha.nambiar@intel.com>,
-	Larysa Zaremba <larysa.zaremba@intel.com>,
-	Sridhar Samudrala <sridhar.samudrala@intel.com>,
-	Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-	virtualization@lists.linux.dev,
-	bpf@vger.kernel.org
-Subject: [PATCH net-next v6 7/8] netdev: add queue stats
-Date: Tue, 23 Apr 2024 19:31:40 +0800
-Message-Id: <20240423113141.1752-8-xuanzhuo@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20240423113141.1752-1-xuanzhuo@linux.alibaba.com>
-References: <20240423113141.1752-1-xuanzhuo@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="ZhKD8zgQ"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 657F440542
+	for <virtualization@lists.linux-foundation.org>; Tue, 23 Apr 2024 12:23:20 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 0hOLhAia6Ddg for <virtualization@lists.linux-foundation.org>;
+ Tue, 23 Apr 2024 12:23:19 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::b32; helo=mail-yb1-xb32.google.com; envelope-from=dmitry.baryshkov@linaro.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org DCAFB4052D
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DCAFB4052D
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=ZhKD8zgQ
+Received: from mail-yb1-xb32.google.com (mail-yb1-xb32.google.com [IPv6:2607:f8b0:4864:20::b32])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id DCAFB4052D
+	for <virtualization@lists.linux-foundation.org>; Tue, 23 Apr 2024 12:23:18 +0000 (UTC)
+Received: by mail-yb1-xb32.google.com with SMTP id 3f1490d57ef6-de54c2a4145so892009276.0
+        for <virtualization@lists.linux-foundation.org>; Tue, 23 Apr 2024 05:23:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1713874997; x=1714479797; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=zdEuS8XRlyMWs8i+nahfC/xh1vWX2u7uUNV94NmtyxI=;
+        b=ZhKD8zgQNI/lx/YVCYfP2T8TqOuLnUFUvwIjNWJUILAcjOOeCl5OElQPKVVZmSnSGg
+         UCELJWduXySvmQzI3W64P961RwZazEhqdCXH6UBPTjb3dQNV6uzLxJwe014XO6QAoMN2
+         b1NM2EAC4uMB3AXIgaD80r2OGaZ+bfsjnTZo+EaZxGpIVrzvPM1IDmJdaWwV1hRJbyW3
+         noYNLYV0uQjtEwdIrPXXseLjWVINk3Mzw1xpUJrKdTqkT+WWmk50ENliUCf/VSHWgT1u
+         /nhQKntTk0RAwjOzBD1Ccr1fUE/LSAuu3vH01dogv4gy+7Uw9aJvsz/HTSl8MXK6V9/G
+         R8TA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713874997; x=1714479797;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=zdEuS8XRlyMWs8i+nahfC/xh1vWX2u7uUNV94NmtyxI=;
+        b=fgUyWbaZbKn3lajXT9O+gHUv8nqU7G1AXz1loJD8NepXiLMMxE7GO4tvXWJYSoTwBQ
+         tkhMEQV4dPH+zOl0jBqHRIoQwvPgs2e0Xw1spZWmO+p+1zaUh0TKn0HoJPzeGpqDvoGz
+         8IeKV1iOicIGVHAwM5+tBFSHY8lUtHvl6An5SyYFOeYXP3wBifxJK6+kcDqRgS1cYSdf
+         SgYqglsLQx6C1ielVrcdfmqmf+d9YsF1CSdqe6JNQI6gAdH4yno/169Omy85/jtmyJeF
+         QaP0f9fJp1XAXtY27+rPhT1wHXQ+sTLhC3yTs26shph46TYcPZQJRDFu5GV96FRQz94I
+         VQyQ==
+X-Forwarded-Encrypted: i=1; AJvYcCU480smoBZJtJLNuC6e3f6Khln66n5+qsyJM/EB9AfgoKDJpvwJsplKlMV0S51d7SHXULSjxTgNvBw85SHAUkh063YMZmSrpjEOotuTQkGkYDCb6hdiKdH/sQ==
+X-Gm-Message-State: AOJu0YwLH2eAUgrvs+nbLzQLBaPSNgPh4BmG+IiriztM3vlsobVI92Rw
+	gbK7JENSL5uW8M9ETG3tCae3UxZpGuWlymXXq9tYXKw89RBT6yDwLYqwmGqxqkLLZD1rtCKU5wB
+	a7B2Wn2rPRKpat0lhygPrfuz73xulLMJFXD/Scg==
+X-Google-Smtp-Source: AGHT+IFGEmHXL5CwAkBYa70XCoYWKwe8UnjgAcbc2h7iJmpsycDinZVPrwrOVKWCKX5O935DZ/QH6hClp73iSys2pzI=
+X-Received: by 2002:a25:8251:0:b0:dc7:4067:9f85 with SMTP id
+ d17-20020a258251000000b00dc740679f85mr12766959ybn.58.1713874997608; Tue, 23
+ Apr 2024 05:23:17 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Git-Hash: 75c95ace5f2d
-Content-Transfer-Encoding: 8bit
+References: <20240423040243.448091-1-vignesh.raman@collabora.com>
+ <20240423040243.448091-4-vignesh.raman@collabora.com> <e3a0ea8f-d306-488c-a69c-aa18078e5e03@igalia.com>
+In-Reply-To: <e3a0ea8f-d306-488c-a69c-aa18078e5e03@igalia.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Date: Tue, 23 Apr 2024 15:23:06 +0300
+Message-ID: <CAA8EJppaaitcXkXSFTB4-S2CbBcrAVHouB0wWiU5Nw2FvpagqA@mail.gmail.com>
+Subject: Re: [PATCH v1 3/4] drm/ci: uprev IGT and generate testlist from build
+To: =?UTF-8?B?TWHDrXJhIENhbmFs?= <mcanal@igalia.com>
+Cc: Vignesh Raman <vignesh.raman@collabora.com>, dri-devel@lists.freedesktop.org, 
+	daniels@collabora.com, helen.koike@collabora.com, airlied@gmail.com, 
+	daniel@ffwll.ch, robdclark@gmail.com, david.heidelberg@collabora.com, 
+	guilherme.gallo@collabora.com, sergi.blanch.torne@collabora.com, 
+	linux-mediatek@lists.infradead.org, linux-amlogic@lists.infradead.org, 
+	linux-rockchip@lists.infradead.org, amd-gfx@lists.freedesktop.org, 
+	linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, 
+	virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-These stats are commonly. Support reporting those via netdev-genl queue
-stats.
+On Tue, 23 Apr 2024 at 13:24, Ma=C3=ADra Canal <mcanal@igalia.com> wrote:
+>
+> On 4/23/24 01:02, Vignesh Raman wrote:
+> > Uprev IGT to the latest version and stop vendoring the
+> > testlist into the kernel. Instead, use the testlist from
+> > the IGT build to ensure we do not miss renamed or newly
+> > added tests.
+>
+> Nitpick: wouldn't it be better to (1) stop vendoring the
+> testlist into the kernel in one patch and then (2) uprev
+> IGT to the latest version? I feel that this patch is changing
+> a lot of different stuff.
 
-name: rx-hw-drops
-name: rx-hw-drop-overruns
-name: rx-csum-unnecessary
-name: rx-csum-none
-name: rx-csum-bad
-name: rx-hw-gro-packets
-name: rx-hw-gro-bytes
-name: rx-hw-gro-wire-packets
-name: rx-hw-gro-wire-bytes
-name: rx-hw-drop-ratelimits
-name: tx-hw-drops
-name: tx-hw-drop-errors
-name: tx-csum-none
-name: tx-needs-csum
-name: tx-hw-gso-packets
-name: tx-hw-gso-bytes
-name: tx-hw-gso-wire-packets
-name: tx-hw-gso-wire-bytes
-name: tx-hw-drop-ratelimits
+Definitely. Otherwise it's hard to understand whether a change to
+fails/flakes is caused by the uprev or by the testlist change. E.g. in
+several cases the list of failing subtests seems to be replaced with
+the test itself.
 
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
----
- Documentation/netlink/specs/netdev.yaml | 104 ++++++++++++++++++++++++
- include/net/netdev_queues.h             |  27 ++++++
- include/uapi/linux/netdev.h             |  19 +++++
- net/core/netdev-genl.c                  |  23 +++++-
- tools/include/uapi/linux/netdev.h       |  19 +++++
- 5 files changed, 190 insertions(+), 2 deletions(-)
+>
+> Best Regards,
+> - Ma=C3=ADra
+>
+> >
+> > Skip kms tests for panfrost driver since it is not a kms
+> > driver and skip driver-specific tests. Update xfails with
+> > the latest testlist.
+> >
+> > Increase the timoout of i915 jobs to 2h30m since some jobs
+> > takes more than 2 hours to complete.
+> >
+> > Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
+> > ---
 
-diff --git a/Documentation/netlink/specs/netdev.yaml b/Documentation/netlink/specs/netdev.yaml
-index 76352dbd2be4..31b51b60ef13 100644
---- a/Documentation/netlink/specs/netdev.yaml
-+++ b/Documentation/netlink/specs/netdev.yaml
-@@ -335,6 +335,110 @@ attribute-sets:
-           Allocation failure may, or may not result in a packet drop, depending
-           on driver implementation and whether system recovers quickly.
-         type: uint
-+      -
-+        name: rx-hw-drops
-+        doc: |
-+          Number of all packets which entered the device, but never left it,
-+          including but not limited to: packets dropped due to lack of buffer
-+          space, processing errors, explicit or implicit policies and packet
-+          filters.
-+        type: uint
-+      -
-+        name: rx-hw-drop-overruns
-+        doc: |
-+          Number of packets dropped due to transient lack of resources, such as
-+          buffer space, host descriptors etc.
-+        type: uint
-+      -
-+        name: rx-csum-unnecessary
-+        doc: Number of packets that were marked as CHECKSUM_UNNECESSARY.
-+        type: uint
-+      -
-+        name: rx-csum-none
-+        doc: Number of packets that were not checksummed by device.
-+        type: uint
-+      -
-+        name: rx-csum-bad
-+        doc: |
-+          Number of packets with bad checksum. The packets are not discarded,
-+          but still delivered to the stack.
-+        type: uint
-+      -
-+        name: rx-hw-gro-packets
-+        doc: |
-+          Number of packets that were coalesced from smaller packets by the device.
-+          Counts only packets coalesced with the HW-GRO netdevice feature,
-+          LRO-coalesced packets are not counted.
-+        type: uint
-+      -
-+        name: rx-hw-gro-bytes
-+        doc: See `rx-hw-gro-packets`.
-+        type: uint
-+      -
-+        name: rx-hw-gro-wire-packets
-+        doc: |
-+          Number of packets that were coalesced to bigger packetss with the HW-GRO
-+          netdevice feature. LRO-coalesced packets are not counted.
-+        type: uint
-+      -
-+        name: rx-hw-gro-wire-bytes
-+        doc: See `rx-hw-gro-wire-packets`.
-+        type: uint
-+      -
-+        name: rx-hw-drop-ratelimits
-+        doc: |
-+          Number of the packets dropped by the device due to the received
-+          packets bitrate exceeding the device rate limit.
-+        type: uint
-+      -
-+        name: tx-hw-drops
-+        doc: |
-+          Number of packets that arrived at the device but never left it,
-+          encompassing packets dropped for reasons such as processing errors, as
-+          well as those affected by explicitly defined policies and packet
-+          filtering criteria.
-+        type: uint
-+      -
-+        name: tx-hw-drop-errors
-+        doc: Number of packets dropped because they were invalid or malformed.
-+        type: uint
-+      -
-+        name: tx-csum-none
-+        doc: |
-+          Number of packets that did not require the device to calculate the
-+          checksum.
-+        type: uint
-+      -
-+        name: tx-needs-csum
-+        doc: |
-+          Number of packets that required the device to calculate the checksum.
-+        type: uint
-+      -
-+        name: tx-hw-gso-packets
-+        doc: |
-+          Number of packets that necessitated segmentation into smaller packets
-+          by the device.
-+        type: uint
-+      -
-+        name: tx-hw-gso-bytes
-+        doc: See `tx-hw-gso-packets`.
-+        type: uint
-+      -
-+        name: tx-hw-gso-wire-packets
-+        doc: |
-+          Number of wire-sized packets generated by processing
-+          `tx-hw-gso-packets`
-+        type: uint
-+      -
-+        name: tx-hw-gso-wire-bytes
-+        doc: See `tx-hw-gso-wire-packets`.
-+        type: uint
-+      -
-+        name: tx-hw-drop-ratelimits
-+        doc: |
-+          Number of the packets dropped by the device due to the transmit
-+          packets bitrate exceeding the device rate limit.
-+        type: uint
- 
- operations:
-   list:
-diff --git a/include/net/netdev_queues.h b/include/net/netdev_queues.h
-index 1ec408585373..c7ac4539eafc 100644
---- a/include/net/netdev_queues.h
-+++ b/include/net/netdev_queues.h
-@@ -9,11 +9,38 @@ struct netdev_queue_stats_rx {
- 	u64 bytes;
- 	u64 packets;
- 	u64 alloc_fail;
-+
-+	u64 hw_drops;
-+	u64 hw_drop_overruns;
-+
-+	u64 csum_unnecessary;
-+	u64 csum_none;
-+	u64 csum_bad;
-+
-+	u64 hw_gro_packets;
-+	u64 hw_gro_bytes;
-+	u64 hw_gro_wire_packets;
-+	u64 hw_gro_wire_bytes;
-+
-+	u64 hw_drop_ratelimits;
- };
- 
- struct netdev_queue_stats_tx {
- 	u64 bytes;
- 	u64 packets;
-+
-+	u64 hw_drops;
-+	u64 hw_drop_errors;
-+
-+	u64 csum_none;
-+	u64 needs_csum;
-+
-+	u64 hw_gso_packets;
-+	u64 hw_gso_bytes;
-+	u64 hw_gso_wire_packets;
-+	u64 hw_gso_wire_bytes;
-+
-+	u64 hw_drop_ratelimits;
- };
- 
- /**
-diff --git a/include/uapi/linux/netdev.h b/include/uapi/linux/netdev.h
-index bb65ee840cda..cf24f1d9adf8 100644
---- a/include/uapi/linux/netdev.h
-+++ b/include/uapi/linux/netdev.h
-@@ -146,6 +146,25 @@ enum {
- 	NETDEV_A_QSTATS_TX_PACKETS,
- 	NETDEV_A_QSTATS_TX_BYTES,
- 	NETDEV_A_QSTATS_RX_ALLOC_FAIL,
-+	NETDEV_A_QSTATS_RX_HW_DROPS,
-+	NETDEV_A_QSTATS_RX_HW_DROP_OVERRUNS,
-+	NETDEV_A_QSTATS_RX_CSUM_UNNECESSARY,
-+	NETDEV_A_QSTATS_RX_CSUM_NONE,
-+	NETDEV_A_QSTATS_RX_CSUM_BAD,
-+	NETDEV_A_QSTATS_RX_HW_GRO_PACKETS,
-+	NETDEV_A_QSTATS_RX_HW_GRO_BYTES,
-+	NETDEV_A_QSTATS_RX_HW_GRO_WIRE_PACKETS,
-+	NETDEV_A_QSTATS_RX_HW_GRO_WIRE_BYTES,
-+	NETDEV_A_QSTATS_RX_HW_DROP_RATELIMITS,
-+	NETDEV_A_QSTATS_TX_HW_DROPS,
-+	NETDEV_A_QSTATS_TX_HW_DROP_ERRORS,
-+	NETDEV_A_QSTATS_TX_CSUM_NONE,
-+	NETDEV_A_QSTATS_TX_NEEDS_CSUM,
-+	NETDEV_A_QSTATS_TX_HW_GSO_PACKETS,
-+	NETDEV_A_QSTATS_TX_HW_GSO_BYTES,
-+	NETDEV_A_QSTATS_TX_HW_GSO_WIRE_PACKETS,
-+	NETDEV_A_QSTATS_TX_HW_GSO_WIRE_BYTES,
-+	NETDEV_A_QSTATS_TX_HW_DROP_RATELIMITS,
- 
- 	__NETDEV_A_QSTATS_MAX,
- 	NETDEV_A_QSTATS_MAX = (__NETDEV_A_QSTATS_MAX - 1)
-diff --git a/net/core/netdev-genl.c b/net/core/netdev-genl.c
-index 7004b3399c2b..a2bf9af2dcf6 100644
---- a/net/core/netdev-genl.c
-+++ b/net/core/netdev-genl.c
-@@ -489,7 +489,17 @@ netdev_nl_stats_write_rx(struct sk_buff *rsp, struct netdev_queue_stats_rx *rx)
- {
- 	if (netdev_stat_put(rsp, NETDEV_A_QSTATS_RX_PACKETS, rx->packets) ||
- 	    netdev_stat_put(rsp, NETDEV_A_QSTATS_RX_BYTES, rx->bytes) ||
--	    netdev_stat_put(rsp, NETDEV_A_QSTATS_RX_ALLOC_FAIL, rx->alloc_fail))
-+	    netdev_stat_put(rsp, NETDEV_A_QSTATS_RX_ALLOC_FAIL, rx->alloc_fail) ||
-+	    netdev_stat_put(rsp, NETDEV_A_QSTATS_RX_HW_DROPS, rx->hw_drops) ||
-+	    netdev_stat_put(rsp, NETDEV_A_QSTATS_RX_HW_DROP_OVERRUNS, rx->hw_drop_overruns) ||
-+	    netdev_stat_put(rsp, NETDEV_A_QSTATS_RX_CSUM_UNNECESSARY, rx->csum_unnecessary) ||
-+	    netdev_stat_put(rsp, NETDEV_A_QSTATS_RX_CSUM_NONE, rx->csum_none) ||
-+	    netdev_stat_put(rsp, NETDEV_A_QSTATS_RX_CSUM_BAD, rx->csum_bad) ||
-+	    netdev_stat_put(rsp, NETDEV_A_QSTATS_RX_HW_GRO_PACKETS, rx->hw_gro_packets) ||
-+	    netdev_stat_put(rsp, NETDEV_A_QSTATS_RX_HW_GRO_BYTES, rx->hw_gro_bytes) ||
-+	    netdev_stat_put(rsp, NETDEV_A_QSTATS_RX_HW_GRO_WIRE_PACKETS, rx->hw_gro_wire_packets) ||
-+	    netdev_stat_put(rsp, NETDEV_A_QSTATS_RX_HW_GRO_WIRE_BYTES, rx->hw_gro_wire_bytes) ||
-+	    netdev_stat_put(rsp, NETDEV_A_QSTATS_RX_HW_DROP_RATELIMITS, rx->hw_drop_ratelimits))
- 		return -EMSGSIZE;
- 	return 0;
- }
-@@ -498,7 +508,16 @@ static int
- netdev_nl_stats_write_tx(struct sk_buff *rsp, struct netdev_queue_stats_tx *tx)
- {
- 	if (netdev_stat_put(rsp, NETDEV_A_QSTATS_TX_PACKETS, tx->packets) ||
--	    netdev_stat_put(rsp, NETDEV_A_QSTATS_TX_BYTES, tx->bytes))
-+	    netdev_stat_put(rsp, NETDEV_A_QSTATS_TX_BYTES, tx->bytes) ||
-+	    netdev_stat_put(rsp, NETDEV_A_QSTATS_TX_HW_DROPS, tx->hw_drops) ||
-+	    netdev_stat_put(rsp, NETDEV_A_QSTATS_TX_HW_DROP_ERRORS, tx->hw_drop_errors) ||
-+	    netdev_stat_put(rsp, NETDEV_A_QSTATS_TX_CSUM_NONE, tx->csum_none) ||
-+	    netdev_stat_put(rsp, NETDEV_A_QSTATS_TX_NEEDS_CSUM, tx->needs_csum) ||
-+	    netdev_stat_put(rsp, NETDEV_A_QSTATS_TX_HW_GSO_PACKETS, tx->hw_gso_packets) ||
-+	    netdev_stat_put(rsp, NETDEV_A_QSTATS_TX_HW_GSO_BYTES, tx->hw_gso_bytes) ||
-+	    netdev_stat_put(rsp, NETDEV_A_QSTATS_TX_HW_GSO_WIRE_PACKETS, tx->hw_gso_wire_packets) ||
-+	    netdev_stat_put(rsp, NETDEV_A_QSTATS_TX_HW_GSO_WIRE_BYTES, tx->hw_gso_wire_bytes) ||
-+	    netdev_stat_put(rsp, NETDEV_A_QSTATS_TX_HW_DROP_RATELIMITS, tx->hw_drop_ratelimits))
- 		return -EMSGSIZE;
- 	return 0;
- }
-diff --git a/tools/include/uapi/linux/netdev.h b/tools/include/uapi/linux/netdev.h
-index bb65ee840cda..cf24f1d9adf8 100644
---- a/tools/include/uapi/linux/netdev.h
-+++ b/tools/include/uapi/linux/netdev.h
-@@ -146,6 +146,25 @@ enum {
- 	NETDEV_A_QSTATS_TX_PACKETS,
- 	NETDEV_A_QSTATS_TX_BYTES,
- 	NETDEV_A_QSTATS_RX_ALLOC_FAIL,
-+	NETDEV_A_QSTATS_RX_HW_DROPS,
-+	NETDEV_A_QSTATS_RX_HW_DROP_OVERRUNS,
-+	NETDEV_A_QSTATS_RX_CSUM_UNNECESSARY,
-+	NETDEV_A_QSTATS_RX_CSUM_NONE,
-+	NETDEV_A_QSTATS_RX_CSUM_BAD,
-+	NETDEV_A_QSTATS_RX_HW_GRO_PACKETS,
-+	NETDEV_A_QSTATS_RX_HW_GRO_BYTES,
-+	NETDEV_A_QSTATS_RX_HW_GRO_WIRE_PACKETS,
-+	NETDEV_A_QSTATS_RX_HW_GRO_WIRE_BYTES,
-+	NETDEV_A_QSTATS_RX_HW_DROP_RATELIMITS,
-+	NETDEV_A_QSTATS_TX_HW_DROPS,
-+	NETDEV_A_QSTATS_TX_HW_DROP_ERRORS,
-+	NETDEV_A_QSTATS_TX_CSUM_NONE,
-+	NETDEV_A_QSTATS_TX_NEEDS_CSUM,
-+	NETDEV_A_QSTATS_TX_HW_GSO_PACKETS,
-+	NETDEV_A_QSTATS_TX_HW_GSO_BYTES,
-+	NETDEV_A_QSTATS_TX_HW_GSO_WIRE_PACKETS,
-+	NETDEV_A_QSTATS_TX_HW_GSO_WIRE_BYTES,
-+	NETDEV_A_QSTATS_TX_HW_DROP_RATELIMITS,
- 
- 	__NETDEV_A_QSTATS_MAX,
- 	NETDEV_A_QSTATS_MAX = (__NETDEV_A_QSTATS_MAX - 1)
--- 
-2.32.0.3.g01195cf9f
 
+--=20
+With best wishes
+Dmitry
