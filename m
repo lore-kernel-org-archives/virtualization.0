@@ -1,56 +1,56 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BFC71CA9C
-	for <virtualization@lists.linux-foundation.org>; Tue, 23 Apr 2024 04:10:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47EAB20330
+	for <virtualization@lists.linux-foundation.org>; Tue, 23 Apr 2024 04:10:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713845419; cv=none; b=T4SAKvOyo6TLwfxhc8baqsKV+ZIe4px1ovFt54xb8Y1fdgshKcF3+60/7U8VwRMGP86RUxpNsjPaaItHMYOrN6LE2ik530Tf84aws+3IIZEL9/ulRff9JIi2dum3rx67ydderejsL/eCfmKCGIPRLSfrjD26QLRrGT4oNVtLSjU=
+	t=1713845422; cv=none; b=ZPUBesxlR85ctk/XELBNUxG/W02E5B8tGivmHQVSVuQo4n3/Ub8rAz1Z+goxsvF7mfpTimHXKgBXg/xcepSoil8coSzEMaDEYQJQsohsqlRU7EdeQcCxNsAE0GuFHQm/ao3eFH5zTD/tD0iNJY/E0jzWZ8BmKP8aitth/F2BVIY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713845419; c=relaxed/simple;
-	bh=l6t0+xD5cSLXuFjrlw0rQ9CpJFqmCCNFNWDGh7hNpkA=;
+	s=arc-20240116; t=1713845422; c=relaxed/simple;
+	bh=VAaKLzzCKwuE52HpbPyhCXEtgH470macmRPpN1oVxeE=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=qAa5gFGfqqxAxGT3THIrMT4Wyuz9qzL5yJZRGd+caTVPh4uy5nPFesS96kWGX8q8y1zxb4mxeVVpsY+SvIb0ChqdaXX41YKtNN2F1VUfy5g5jdK0cY/sR5UX3uYAfjSlrY0MYGKd2QGnADJgGLvtanjw4GzsIuQZmsLVOwUmo5k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=4XsyYzwu; arc=none smtp.client-ip=140.211.166.133
+	 MIME-Version; b=q9CzPStyoRi5ieD4EH2xZqdeReqOZ6uYV2myilXlf2Mgoh/ljGpX66H9TBonPro0p1lfHrihOVsZChgOKFigdxxyJrRtUM/FmRB7KZuF6PpiPbljl0pAhKxeEDsA5DzTmond1UKgTd2FWWviWCUrJKECluheAyYrDdr+36HK7bY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=U57xcu3J; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="4XsyYzwu"
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="U57xcu3J"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id AFF4F400D1
-	for <virtualization@lists.linux-foundation.org>; Tue, 23 Apr 2024 04:10:17 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id D8794606E5
+	for <virtualization@lists.linux-foundation.org>; Tue, 23 Apr 2024 04:10:18 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.1
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id eoIOFJGW7LJC for <virtualization@lists.linux-foundation.org>;
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id V1jFFTD7QHH4 for <virtualization@lists.linux-foundation.org>;
  Tue, 23 Apr 2024 04:10:14 +0000 (UTC)
 Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a00:1098:ed:100::25; helo=madrid.collaboradmins.com; envelope-from=vignesh.raman@collabora.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 9626740BE6
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9626740BE6
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=4XsyYzwu
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org A19AA60708
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A19AA60708
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=U57xcu3J
 Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [IPv6:2a00:1098:ed:100::25])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 9626740BE6
+	by smtp3.osuosl.org (Postfix) with ESMTPS id A19AA60708
 	for <virtualization@lists.linux-foundation.org>; Tue, 23 Apr 2024 04:10:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1713845026;
-	bh=l6t0+xD5cSLXuFjrlw0rQ9CpJFqmCCNFNWDGh7hNpkA=;
+	s=mail; t=1713845010;
+	bh=VAaKLzzCKwuE52HpbPyhCXEtgH470macmRPpN1oVxeE=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=4XsyYzwucvqBuyJMDYP8LXUELDCmgdHWbKuzwCH6eBuAzupLP/oJ2lp2ykRFDY4f2
-	 NeCqTinxvSG0tCj2S1m0EINGGsClZQ+9qGsjsozL64dizgAiEs9zBIs8comJUSrYfk
-	 gkRBA0im9jR998RbatWbofnBFznf19sRJdDInE5IRPWVia3zwPJdJkEZj4GWPeRvKK
-	 xX29zwbVdmUQxQ4pTrusvYCKTqwuYrW3cRpwtuqC4k5UXQYEb6dCQL1rgoMY1i2DsR
-	 oO9rQr2OXNITSAg+C89qOMGmxSeFcuSD/OedOvbsGTk2OLrZ0DE7iAQCjUeRVVb5Xb
-	 zd5w0kKbNbnWA==
+	b=U57xcu3J8Fa/jrun+mUzvvs4lHrJV3mSGeUz/H2Tdg7YOf3Xh5W65jfnhh9yCbN9J
+	 iTWTnM6XA413yj7Pz7mYEzYYCmesX03US3uX9dsyiQum4WKtrM9YaONEDMNPwAHJiU
+	 MWijXuQ93eWSgpCvT59tkAAnz3dI73h9fvvMkguYdMM+ET8WNWUVh4auy+HT9XzXPs
+	 B+hiP1ouTr0snNO+QeOjbZdjrl16Fwoq6kSKGRk7ShC9TbmmkV8V67vTFo3F3C6etX
+	 pIdXsZM47OT85D8Qid38sWWncVi1fPEq7hJTmkvL2TgxBNg+yzp6a3AV1vjPwe6uRI
+	 LySB6xqv1bDDQ==
 Received: from localhost.localdomain (cola.collaboradmins.com [195.201.22.229])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
 	(Authenticated sender: vignesh)
-	by madrid.collaboradmins.com (Postfix) with ESMTPSA id EBFA3378213F;
-	Tue, 23 Apr 2024 04:03:42 +0000 (UTC)
+	by madrid.collaboradmins.com (Postfix) with ESMTPSA id B6A843780C21;
+	Tue, 23 Apr 2024 04:03:26 +0000 (UTC)
 From: Vignesh Raman <vignesh.raman@collabora.com>
 To: dri-devel@lists.freedesktop.org
 Cc: daniels@collabora.com,
@@ -71,9 +71,9 @@ Cc: daniels@collabora.com,
 	intel-gfx@lists.freedesktop.org,
 	virtualization@lists.linux-foundation.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v1 4/4] drm/ci: add tests on vkms
-Date: Tue, 23 Apr 2024 09:32:43 +0530
-Message-Id: <20240423040243.448091-5-vignesh.raman@collabora.com>
+Subject: [PATCH v1 1/4] drm/ci: uprev mesa version
+Date: Tue, 23 Apr 2024 09:32:40 +0530
+Message-Id: <20240423040243.448091-2-vignesh.raman@collabora.com>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20240423040243.448091-1-vignesh.raman@collabora.com>
 References: <20240423040243.448091-1-vignesh.raman@collabora.com>
@@ -83,252 +83,167 @@ List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Add job that runs igt on top of vkms.
+zlib.net is not allowing tarball download anymore and results
+in below error in kernel+rootfs_arm32 container build,
+urllib.error.HTTPError: HTTP Error 403: Forbidden
+urllib.error.HTTPError: HTTP Error 415: Unsupported Media Type
 
-Acked-by: Maíra Canal <mcanal@igalia.com>
-Acked-by: Helen Koike <helen.koike@collabora.com>
+Uprev mesa to latest version which includes a fix for this issue.
+https://gitlab.freedesktop.org/mesa/mesa/-/commit/908f444e
+
+Also copy helper scripts to install, so that the ci jobs can
+use these scripts for logging.
+
 Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
-Acked-by: Jessica Zhang <quic_jesszhan@quicinc.com>
-Tested-by: Jessica Zhang <quic_jesszhan@quicinc.com>
-Acked-by: Maxime Ripard <mripard@kernel.org>
-Signed-off-by: Helen Koike <helen.koike@collabora.com>
 ---
- MAINTAINERS                                   |  1 +
- drivers/gpu/drm/ci/gitlab-ci.yml              |  1 +
- drivers/gpu/drm/ci/igt_runner.sh              |  2 +-
- drivers/gpu/drm/ci/image-tags.yml             |  4 +-
- drivers/gpu/drm/ci/test.yml                   | 24 +++++++++-
- drivers/gpu/drm/ci/x86_64.config              |  1 +
- drivers/gpu/drm/ci/xfails/vkms-none-fails.txt | 46 +++++++++++++++++++
- .../gpu/drm/ci/xfails/vkms-none-flakes.txt    | 21 +++++++++
- drivers/gpu/drm/ci/xfails/vkms-none-skips.txt | 30 ++++++++++++
- 9 files changed, 126 insertions(+), 4 deletions(-)
- create mode 100644 drivers/gpu/drm/ci/xfails/vkms-none-fails.txt
- create mode 100644 drivers/gpu/drm/ci/xfails/vkms-none-flakes.txt
- create mode 100644 drivers/gpu/drm/ci/xfails/vkms-none-skips.txt
+ drivers/gpu/drm/ci/build.sh       |  1 +
+ drivers/gpu/drm/ci/container.yml  | 12 ++++--------
+ drivers/gpu/drm/ci/gitlab-ci.yml  | 11 ++++++++---
+ drivers/gpu/drm/ci/image-tags.yml |  3 ++-
+ drivers/gpu/drm/ci/test.yml       |  2 ++
+ 5 files changed, 17 insertions(+), 12 deletions(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index c97d79d0b2b4..19ad9375d7cd 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -7035,6 +7035,7 @@ L:	dri-devel@lists.freedesktop.org
- S:	Maintained
- T:	git https://gitlab.freedesktop.org/drm/misc/kernel.git
- F:	Documentation/gpu/vkms.rst
-+F:	drivers/gpu/drm/ci/xfails/vkms*
- F:	drivers/gpu/drm/vkms/
+diff --git a/drivers/gpu/drm/ci/build.sh b/drivers/gpu/drm/ci/build.sh
+index 106f2d40d222..8a3baa003904 100644
+--- a/drivers/gpu/drm/ci/build.sh
++++ b/drivers/gpu/drm/ci/build.sh
+@@ -128,6 +128,7 @@ fi
+ # Pass needed files to the test stage
+ mkdir -p install
+ cp -rfv .gitlab-ci/* install/.
++cp -rfv ci/*  install/.
+ cp -rfv install/common install/ci-common
+ cp -rfv drivers/gpu/drm/ci/* install/.
  
- DRM DRIVER FOR VIRTUALBOX VIRTUAL GPU
+diff --git a/drivers/gpu/drm/ci/container.yml b/drivers/gpu/drm/ci/container.yml
+index 9764e7921a4f..d6edf3635b23 100644
+--- a/drivers/gpu/drm/ci/container.yml
++++ b/drivers/gpu/drm/ci/container.yml
+@@ -36,15 +36,15 @@ debian/android_build:
+   rules:
+     - when: never
+ 
+-debian/x86_64_test-android:
++.debian/x86_64_test-android:
+   rules:
+     - when: never
+ 
+-windows_build_vs2019:
++windows_build_msvc:
+   rules:
+     - when: never
+ 
+-windows_test_vs2019:
++windows_test_msvc:
+   rules:
+     - when: never
+ 
+@@ -56,10 +56,6 @@ rustfmt:
+    rules:
+     - when: never
+ 
+-windows_vs2019:
+-   rules:
+-    - when: never
+-
+-clang-format:
++windows_msvc:
+    rules:
+     - when: never
+\ No newline at end of file
 diff --git a/drivers/gpu/drm/ci/gitlab-ci.yml b/drivers/gpu/drm/ci/gitlab-ci.yml
-index 6cc94747d8d5..6dac7ae98419 100644
+index 084e3ff8e3f4..9bf5190604a7 100644
 --- a/drivers/gpu/drm/ci/gitlab-ci.yml
 +++ b/drivers/gpu/drm/ci/gitlab-ci.yml
-@@ -112,6 +112,7 @@ stages:
+@@ -1,6 +1,6 @@
+ variables:
+   DRM_CI_PROJECT_PATH: &drm-ci-project-path mesa/mesa
+-  DRM_CI_COMMIT_SHA: &drm-ci-commit-sha 9d162de9a05155e1c4041857a5848842749164cf
++  DRM_CI_COMMIT_SHA: &drm-ci-commit-sha e5f133ccc426a197c48a4e88f5377f943f078180
+ 
+   UPSTREAM_REPO: git://anongit.freedesktop.org/drm/drm
+   TARGET_BRANCH: drm-next
+@@ -26,10 +26,13 @@ variables:
+   JOB_ARTIFACTS_BASE: ${PIPELINE_ARTIFACTS_BASE}/${CI_JOB_ID}
+   # default kernel for rootfs before injecting the current kernel tree
+   KERNEL_REPO: "gfx-ci/linux"
+-  KERNEL_TAG: "v6.6.4-for-mesa-ci-e4f4c500f7fb"
++  KERNEL_TAG: "v6.6.21-mesa-19fc"
+   KERNEL_IMAGE_BASE: https://${S3_HOST}/mesa-lava/${KERNEL_REPO}/${KERNEL_TAG}
+   LAVA_TAGS: subset-1-gfx
+   LAVA_JOB_PRIORITY: 30
++  ARTIFACTS_BASE_URL: https://${CI_PROJECT_ROOT_NAMESPACE}.${CI_PAGES_DOMAIN}/-/${CI_PROJECT_NAME}/-/jobs/${CI_JOB_ID}/artifacts
++  # Python scripts for structured logger
++  PYTHONPATH: "$PYTHONPATH:$CI_PROJECT_DIR/install"
+ 
+ default:
+   before_script:
+@@ -46,6 +49,7 @@ default:
+     - cd $CI_PROJECT_DIR
+     - curl --output - $DRM_CI_PROJECT_URL/-/archive/$DRM_CI_COMMIT_SHA/mesa-$DRM_CI_COMMIT_SHA.tar.gz | tar -xz
+     - mv mesa-$DRM_CI_COMMIT_SHA/.gitlab-ci* .
++    - mv mesa-$DRM_CI_COMMIT_SHA/bin/ci .
+     - rm -rf mesa-$DRM_CI_COMMIT_SHA/
+     - echo -e "\e[0Ksection_end:$(date +%s):drm_ci_download_section\r\e[0K"
+ 
+@@ -98,6 +102,7 @@ include:
+ stages:
+   - sanity
+   - container
++  - code-validation
+   - git-archive
+   - build
+   - amdgpu
+@@ -107,7 +112,6 @@ stages:
    - msm
    - rockchip
    - virtio-gpu
-+  - software-driver
+-  - lint
  
  # YAML anchors for rule conditions
  # --------------------------------
-diff --git a/drivers/gpu/drm/ci/igt_runner.sh b/drivers/gpu/drm/ci/igt_runner.sh
-index 0fd7d67f91e3..2538f29fcb2c 100755
---- a/drivers/gpu/drm/ci/igt_runner.sh
-+++ b/drivers/gpu/drm/ci/igt_runner.sh
-@@ -30,7 +30,7 @@ case "$DRIVER_NAME" in
-             export IGT_FORCE_DRIVER="panfrost"
-         fi
-         ;;
--    amdgpu|virtio_gpu)
-+    amdgpu|virtio_gpu|vkms)
-         # Cannot use HWCI_KERNEL_MODULES as at that point we don't have the module in /lib
-         mv /install/modules/lib/modules/* /lib/modules/. || true
-         modprobe --first-time $DRIVER_NAME
+@@ -218,6 +222,7 @@ make git archive:
+   script:
+     # Remove drm-ci files we just added
+     - rm -rf .gitlab-ci.*
++    - rm -rf ci
+ 
+     # Compactify the .git directory
+     - git gc --aggressive
 diff --git a/drivers/gpu/drm/ci/image-tags.yml b/drivers/gpu/drm/ci/image-tags.yml
-index fd1cb6061166..43bd871c2e60 100644
+index 7ab4f2514da8..d8f72b82c938 100644
 --- a/drivers/gpu/drm/ci/image-tags.yml
 +++ b/drivers/gpu/drm/ci/image-tags.yml
-@@ -4,9 +4,9 @@ variables:
+@@ -1,5 +1,5 @@
+ variables:
+-   CONTAINER_TAG: "2023-10-11-mesa-uprev"
++   CONTAINER_TAG: "2024-04-22-mesa-uprev"
+    DEBIAN_X86_64_BUILD_BASE_IMAGE: "debian/x86_64_build-base"
     DEBIAN_BASE_TAG: "${CONTAINER_TAG}"
  
-    DEBIAN_X86_64_BUILD_IMAGE_PATH: "debian/x86_64_build"
--   DEBIAN_BUILD_TAG: "2024-04-22-virtio"
-+   DEBIAN_BUILD_TAG: "2024-04-22-vkms"
+@@ -7,6 +7,7 @@ variables:
+    DEBIAN_BUILD_TAG: "2023-10-08-config"
  
--   KERNEL_ROOTFS_TAG: "2024-04-22-virtio"
-+   KERNEL_ROOTFS_TAG: "2024-04-22-vkms"
-    PKG_REPO_REV: "3cc12a2a"
+    KERNEL_ROOTFS_TAG: "2023-10-06-amd"
++   PKG_REPO_REV: "3cc12a2a"
  
     DEBIAN_X86_64_TEST_BASE_IMAGE: "debian/x86_64_test-base"
+    DEBIAN_X86_64_TEST_IMAGE_GL_PATH: "debian/x86_64_test-gl"
 diff --git a/drivers/gpu/drm/ci/test.yml b/drivers/gpu/drm/ci/test.yml
-index 1f8cc17f2ad1..745716920ffc 100644
+index 8bc63912fddb..612c9ede3507 100644
 --- a/drivers/gpu/drm/ci/test.yml
 +++ b/drivers/gpu/drm/ci/test.yml
-@@ -333,7 +333,7 @@ meson:g12b:
-     RUNNER_TAG: mesa-ci-x86-64-lava-meson-g12b-a311d-khadas-vim3
+@@ -150,6 +150,8 @@ msm:sdm845:
+     BM_KERNEL: https://${PIPELINE_ARTIFACTS_BASE}/arm64/cheza-kernel
+     GPU_VERSION: sdm845
+     RUNNER_TAG: google-freedreno-cheza
++    DEVICE_TYPE: sdm845-cheza-r3
++    FARM: google
+   script:
+     - ./install/bare-metal/cros-servo.sh
  
- virtio_gpu:none:
--  stage: virtio-gpu
-+  stage: software-driver
-   variables:
-     CROSVM_GALLIUM_DRIVER: llvmpipe
-     DRIVER_NAME: virtio_gpu
-@@ -354,3 +354,25 @@ virtio_gpu:none:
-     - debian/x86_64_test-gl
-     - testing:x86_64
-     - igt:x86_64
-+
-+vkms:none:
-+  stage: software-driver
-+  variables:
-+    DRIVER_NAME: vkms
-+    GPU_VERSION: none
-+  extends:
-+    - .test-gl
-+    - .test-rules
-+  tags:
-+    - kvm
-+  script:
-+    - ln -sf $CI_PROJECT_DIR/install /install
-+    - mv install/bzImage /lava-files/bzImage
-+    - mkdir -p /lib/modules
-+    - mkdir -p $CI_PROJECT_DIR/results
-+    - ln -sf $CI_PROJECT_DIR/results /results
-+    - ./install/crosvm-runner.sh ./install/igt_runner.sh
-+  needs:
-+    - debian/x86_64_test-gl
-+    - testing:x86_64
-+    - igt:x86_64
-diff --git a/drivers/gpu/drm/ci/x86_64.config b/drivers/gpu/drm/ci/x86_64.config
-index 78479f063e8e..66c6f67dfdd6 100644
---- a/drivers/gpu/drm/ci/x86_64.config
-+++ b/drivers/gpu/drm/ci/x86_64.config
-@@ -24,6 +24,7 @@ CONFIG_DRM=y
- CONFIG_DRM_PANEL_SIMPLE=y
- CONFIG_PWM_CROS_EC=y
- CONFIG_BACKLIGHT_PWM=y
-+CONFIG_DRM_VKMS=m
- 
- # Strip out some stuff we don't need for graphics testing, to reduce
- # the build.
-diff --git a/drivers/gpu/drm/ci/xfails/vkms-none-fails.txt b/drivers/gpu/drm/ci/xfails/vkms-none-fails.txt
-new file mode 100644
-index 000000000000..c015e4a96810
---- /dev/null
-+++ b/drivers/gpu/drm/ci/xfails/vkms-none-fails.txt
-@@ -0,0 +1,46 @@
-+core_hotunplug@hotrebind,Fail
-+core_hotunplug@hotrebind-lateclose,Fail
-+core_hotunplug@hotreplug,Fail
-+core_hotunplug@hotreplug-lateclose,Fail
-+core_hotunplug@hotunbind-rebind,Fail
-+core_hotunplug@hotunplug-rescan,Fail
-+core_hotunplug@unbind-rebind,Fail
-+core_hotunplug@unplug-rescan,Fail
-+device_reset@cold-reset-bound,Fail
-+device_reset@reset-bound,Fail
-+device_reset@unbind-cold-reset-rebind,Fail
-+device_reset@unbind-reset-rebind,Fail
-+dumb_buffer@invalid-bpp,Fail
-+kms_content_protection@atomic,Crash
-+kms_content_protection@atomic-dpms,Crash
-+kms_content_protection@content-type-change,Crash
-+kms_content_protection@lic-type-0,Crash
-+kms_content_protection@lic-type-1,Crash
-+kms_content_protection@srm,Crash
-+kms_content_protection@type1,Crash
-+kms_content_protection@uevent,Crash
-+kms_cursor_legacy@basic-flip-before-cursor-atomic,Fail
-+kms_cursor_legacy@basic-flip-before-cursor-legacy,Fail
-+kms_cursor_legacy@cursor-vs-flip-atomic,Fail
-+kms_cursor_legacy@cursor-vs-flip-legacy,Fail
-+kms_cursor_legacy@cursor-vs-flip-toggle,Fail
-+kms_cursor_legacy@cursor-vs-flip-varying-size,Fail
-+kms_cursor_legacy@flip-vs-cursor-atomic,Fail
-+kms_cursor_legacy@flip-vs-cursor-crc-atomic,Fail
-+kms_cursor_legacy@flip-vs-cursor-crc-legacy,Fail
-+kms_cursor_legacy@flip-vs-cursor-legacy,Fail
-+kms_flip@basic-flip-vs-wf_vblank,Fail
-+kms_flip@flip-vs-absolute-wf_vblank,Fail
-+kms_flip@flip-vs-blocking-wf-vblank,Fail
-+kms_flip@flip-vs-modeset-vs-hang,Fail
-+kms_flip@flip-vs-panning-vs-hang,Fail
-+kms_flip@flip-vs-wf_vblank-interruptible,Fail
-+kms_lease@lease-uevent,Fail
-+kms_writeback@writeback-check-output,Fail
-+kms_writeback@writeback-check-output-XRGB2101010,Fail
-+kms_writeback@writeback-fb-id,Fail
-+kms_writeback@writeback-fb-id-XRGB2101010,Fail
-+kms_writeback@writeback-invalid-parameters,Fail
-+kms_writeback@writeback-pixel-formats,Fail
-+perf@i915-ref-count,Fail
-+tools_test@tools_test,Fail
-diff --git a/drivers/gpu/drm/ci/xfails/vkms-none-flakes.txt b/drivers/gpu/drm/ci/xfails/vkms-none-flakes.txt
-new file mode 100644
-index 000000000000..ab61e9a62d38
---- /dev/null
-+++ b/drivers/gpu/drm/ci/xfails/vkms-none-flakes.txt
-@@ -0,0 +1,21 @@
-+# Board Name: vkms
-+# Bug Report: https://lore.kernel.org/dri-devel/005da8f1-8050-bffd-653c-2a87ae6376f7@collabora.com/T/#u
-+# Failure Rate: 50
-+# IGT Version: 1.28-g7d1841317
-+# Linux Version: 6.9.0-rc4
-+# Reported by deqp-runner
-+kms_flip@blocking-wf_vblank
-+kms_flip@flip-vs-expired-vblank
-+kms_flip@plain-flip-fb-recreate
-+kms_flip@plain-flip-fb-recreate-interruptible
-+kms_flip@plain-flip-ts-check
-+kms_flip@plain-flip-ts-check-interruptible
-+kms_pipe_crc_basic@nonblocking-crc
-+kms_pipe_crc_basic@nonblocking-crc-frame-sequence
-+kms_flip@flip-vs-absolute-wf_vblank
-+
-+# The below test shows inconsistency across multiple runs, giving
-+# results of Pass and Fail.
-+kms_flip@basic-flip-vs-wf_vblank
-+kms_flip@flip-vs-blocking-wf-vblank
-+kms_flip@flip-vs-wf_vblank-interruptible
-diff --git a/drivers/gpu/drm/ci/xfails/vkms-none-skips.txt b/drivers/gpu/drm/ci/xfails/vkms-none-skips.txt
-new file mode 100644
-index 000000000000..4c351e332fc7
---- /dev/null
-+++ b/drivers/gpu/drm/ci/xfails/vkms-none-skips.txt
-@@ -0,0 +1,30 @@
-+# Hits:
-+# rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
-+# rcu: 	Tasks blocked on level-0 rcu_node (CPUs 0-1): P749/1:b..l
-+kms_prop_blob@invalid-get-prop
-+
-+# keeps printing vkms_vblank_simulate: vblank timer overrun and never ends
-+kms_invalid_mode@int-max-clock
-+
-+# Suspend seems to be broken
-+.*suspend.*
-+
-+# Hangs machine and timeout occurs
-+kms_flip@flip-vs-absolute-wf_vblank-interruptible
-+kms_invalid_mode@zero-hdisplay
-+kms_invalid_mode@bad-vtotal
-+kms_cursor_crc.*
-+
-+# Skip driver specific tests
-+^amdgpu.*
-+msm_.*
-+nouveau_.*
-+panfrost_.*
-+^v3d.*
-+^vc4.*
-+^vmwgfx*
-+
-+# Skip intel specific tests
-+gem_.*
-+i915_.*
-+xe_.*
 -- 
 2.40.1
 
