@@ -1,73 +1,77 @@
-Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2042.outbound.protection.outlook.com [40.107.223.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D9B9224CE
-	for <virtualization@lists.linux.dev>; Tue, 23 Apr 2024 03:41:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.178
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713843692; cv=none; b=lg1JfR5RbCwcZHRp4VcgRDVIpMdhMp0XD43kOOvaty5Qwl/VdAQxlvLt/cUDLcP1ET941lzcPeKhpIuv6HMfZGrjhYUbFs/016gLYnPsvdA9R7iGx4HqdpeiWtVhxVOPIQUWGqj79TO7SVm+M76u/jxrOajVC/bJvXv9yj5opyQ=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713843692; c=relaxed/simple;
-	bh=T2mh8rRfGjxk++iQjwyZbxgJDDwtHaHq4Lo1WcLQsh8=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=kgnpSk6upBUDAgQTzamB9n033ArX357MJ7rGiDQotRaZsr5hVRKxRo2qfmmO/cQ4nx6jPEPf/sX6ZKUBuiz6u/mfi7SadkMbWbgM2amgOWKVIcp6tUgXKIA1LUxAOhwf1lGC1Ay+jHpF+w6sq+bMQW8cPJZu21dN8w2+xLjvwVA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=Kz2JywRR; arc=none smtp.client-ip=209.85.210.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 665EB1CA82
+	for <virtualization@lists.linux.dev>; Tue, 23 Apr 2024 03:58:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.223.42
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1713844689; cv=fail; b=qXYGnkD+6d5iwACLC0gcMx+fjFFgMeiVPXxjbFM4+zY1D4CZCEoEW4bv2OTPtVCpdAOD2m8FECw2uPzmAy+9YNkCZHtVraIdbfMg0yOm3Fmgl2tOh74n9ThQcjSLr6Im0cvGHGu343cPWc8/VVjv66g0zgkzLENvhJ6aFo6hWnk=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1713844689; c=relaxed/simple;
+	bh=1pcffGuiAFD87BI+wnosNUb0v468/Pzmq6t5SXyiy24=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=JKaWhSwxBRq5g4be9zHZ65viQ0CViO2azurnxcAUmTidGdV6uY48TGFxPm0DC19vz8MzZPrp6zLPPjEYE86uNgtGKNpZ0EQCX3HfU8HJHofV8HO7n+dzXZpEbwNQON1Pzfv7OBdvQ/T+AbniXoCEz62OFoPGoIrH3JwwpsrG2CU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=Z+QppvQV; arc=fail smtp.client-ip=40.107.223.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="Kz2JywRR"
-Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-6ed2170d89fso4016067b3a.1
-        for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 20:41:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1713843690; x=1714448490; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=P0uuoQxJ0kINjaQgEP7wqVGQ+5rr3s87tkW4G+81Ziw=;
-        b=Kz2JywRRL3CjSZbHf67536D3iCK1USWv8tCEEXcoNz7iBd4ISi9pMe2LdMHWhmiKV9
-         ZuVH7xLZERIiq/sIDP0l42CaWI5Y4I3UDo0/CpqRRYOEBGLKQP6JADtQVNLQaHAt35EB
-         iv+4DD2LY30c7lsFmZH3bi9/wAvnG/A6zRl7s4cTNDOArZSnoHRCi182PBf1bnPrMFmw
-         wvqq994/Q/9ku96CMs3OLTnJ4u0wxVcSy6BECFSpno1tMijWrPoRrWI21HgXk1N2kjr7
-         LUGB1cLPYab5TQLXGA/ltI8nZkW/Jns4uaD+mFLMgq+PkvyvJ/3SFQi/3YHaiSxVjP81
-         D4yg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713843690; x=1714448490;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=P0uuoQxJ0kINjaQgEP7wqVGQ+5rr3s87tkW4G+81Ziw=;
-        b=oEeaRJS0WRQpNt08fDBeLI+Uj2nAaWN5Ki5NF+jkiPkihc6pJgPwic4ZcdZMUmtLXc
-         W/J66zRudz1SL8jJvkzmE11I/PuLI/6gbr1b5P5izCY8L0ZG3EUn2zPN+ek2j8rqjtIr
-         75+mvPZoIslsPuUDYOGpAAiiAZiDf+EfrIGqAc3GU410dVvnH5Cz8sQAP/f/54mj9+tD
-         e47PeIRPdbMMbOc35XUPxgHtKvhjYATCBcAY8eX4LMZcD9O7SFWiyGmYiv+jRucWs0pP
-         65hOsZyjlT+5WIeCgErLPahOBxru8+Ipq9it8KuYa8bxpFTKOf7tbXtEoNIw0C2d1gWb
-         GnOw==
-X-Forwarded-Encrypted: i=1; AJvYcCUPDpzaqt5FnNSjUA87TqvyiuTF3CGgSNIvGNEeY4M0V6ep/vxSoq47ND0HWSqpWxLJNKsvntBbP1R2bl9V8DyLiYMUdNKKHjq59DMsYx4=
-X-Gm-Message-State: AOJu0YwXLXHvEw49TMYEi8B4GTvejvr/IvSVv3e8gl9w5ByUJSNPhLLq
-	DaY36yyoObnXccbOlKlOv1AkpfXlvAq6zuRbM/Tnnmzq5HEb4t6PojvMxaRRo8c=
-X-Google-Smtp-Source: AGHT+IH3OpN2sFYi3GvJfqyxhabzuW3WUwrv+oQUG4aXzn7ZEeGp3bOQixCyYcifZfO95/rYrfTxJA==
-X-Received: by 2002:a05:6a20:841b:b0:1a9:54fe:b9b7 with SMTP id c27-20020a056a20841b00b001a954feb9b7mr2176395pzd.21.1713843690300;
-        Mon, 22 Apr 2024 20:41:30 -0700 (PDT)
-Received: from libai.bytedance.net ([61.213.176.11])
-        by smtp.gmail.com with ESMTPSA id b16-20020a63d810000000b005e438fe702dsm8266980pgh.65.2024.04.22.20.41.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Apr 2024 20:41:30 -0700 (PDT)
-From: zhenwei pi <pizhenwei@bytedance.com>
-To: linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org,
-	virtualization@lists.linux.dev
-Cc: mst@redhat.com,
-	david@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	akpm@linux-foundation.org,
-	zhenwei pi <pizhenwei@bytedance.com>
-Subject: [PATCH v3 4/4] virtio_balloon: introduce memory scan/reclaim info
-Date: Tue, 23 Apr 2024 11:41:09 +0800
-Message-Id: <20240423034109.1552866-5-pizhenwei@bytedance.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20240423034109.1552866-1-pizhenwei@bytedance.com>
-References: <20240423034109.1552866-1-pizhenwei@bytedance.com>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="Z+QppvQV"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=LMR4YWttY4X8ROaRHjs45sVGmcq0RsqmJJbGnJLHNc2ZhD3vkJOSxx3A12qXlEWpt371rUxyoaYoZIMmOTNIom223tD4ZA6DMe9FfQQJE30OPJ4pmHZmQHOk4OjHecBNHp42JMEHVCx3FEo4kU0qRT05KAQIjpezf8LjvPh8m5ICpE3U7TpHU4njYrtWfPHwEO7fOFj42gQr/5DOe8KzuMkwqKRtatpCWWo7qrfZEpP0QWPxubfQV0xc+UrfUxEv10VsFTkkdrehJK4KtXiiBvmg047ZfYjuRpPZn0c4WXZ/vfozRcwQSFZubVhg/h6YlfwrZqyqnxJsprol1JtOxQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=nNTt3sPbYWix/wsTwVbyBG1MhZXy/KHdLcZwIaIwi8s=;
+ b=E60jOWbqU7FnkJ6ISXa7OQKrhpQ+3vhgNvzxfh4kZZBkbZKIOrDhc8A9bshIVWtCQ0C0YDZzHbKFNuAybvXE5uoGKWvumrdedMwdRc1X9jkU0RL8USo67MScQorb9aSFzspgagtil902SraQwuwc0R44mVARfVhugeNOjQkhO+Ax2qkGxGEQyph7peXypVoBp4rUOQq3dVPFTrrkvI3iBXnrUvo5OviaSf7Nzz+WoIcY8+9dEhIhmmMR+8hlI+eiO2WS3PrZ0fNMoMgyCH3HwebMAmLgKcvEBxF1eyYb96/wj/DgKxmisqau7IOPsv4RYrU03i2v5RqwxanXtJ/7uQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.161) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=nNTt3sPbYWix/wsTwVbyBG1MhZXy/KHdLcZwIaIwi8s=;
+ b=Z+QppvQVdNHow0x3h88iuBXgVJsUO3hKfwwBovMTR8atDZBp2mBJEaA556Nb2mZrUaH6shf8sLWbIh/jDEKU2j31Zss9zX7iz3S1Jbs3Fs+NfTc9KI4Njmfzu1IiIzftF6M7Q4BxHmgqwJyLsg6/x9mD+qggurcxKZa0dTNNbJSvMNN930CeQwtN+pPmkef6XalvZjmgkWhfpwXEF7gr6dLrLhmHH8NRRLviYzmg39T4t1lCbL/7xKwm3SKokEvbDw3soJYHZOklb3G7VPm6K8Kp2WpdbrPCCeKbewNjsiE85TbCizzgdv20JoUWGIrvN2pgtYn3ZCKZijfgk3XfhA==
+Received: from MW4PR04CA0237.namprd04.prod.outlook.com (2603:10b6:303:87::32)
+ by CY5PR12MB6429.namprd12.prod.outlook.com (2603:10b6:930:3b::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7472.44; Tue, 23 Apr
+ 2024 03:58:06 +0000
+Received: from CO1PEPF000044F8.namprd21.prod.outlook.com
+ (2603:10b6:303:87:cafe::b2) by MW4PR04CA0237.outlook.office365.com
+ (2603:10b6:303:87::32) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7495.34 via Frontend
+ Transport; Tue, 23 Apr 2024 03:58:05 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.161) by
+ CO1PEPF000044F8.mail.protection.outlook.com (10.167.241.198) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.7519.0 via Frontend Transport; Tue, 23 Apr 2024 03:58:05 +0000
+Received: from rnnvmail204.nvidia.com (10.129.68.6) by mail.nvidia.com
+ (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Mon, 22 Apr
+ 2024 20:57:53 -0700
+Received: from rnnvmail203.nvidia.com (10.129.68.9) by rnnvmail204.nvidia.com
+ (10.129.68.6) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Mon, 22 Apr
+ 2024 20:57:52 -0700
+Received: from vdi.nvidia.com (10.127.8.11) by mail.nvidia.com (10.129.68.9)
+ with Microsoft SMTP Server id 15.2.1544.4 via Frontend Transport; Mon, 22 Apr
+ 2024 20:57:51 -0700
+From: Daniel Jurgens <danielj@nvidia.com>
+To: <netdev@vger.kernel.org>
+CC: <mst@redhat.com>, <jasowang@redhat.com>, <xuanzhuo@linux.alibaba.com>,
+	<virtualization@lists.linux.dev>, <davem@davemloft.net>,
+	<edumazet@google.com>, <kuba@kernel.org>, <pabeni@redhat.com>,
+	<jiri@nvidia.com>, Daniel Jurgens <danielj@nvidia.com>
+Subject: [PATCH net-next v5 0/6] Remove RTNL lock protection of CVQ
+Date: Tue, 23 Apr 2024 06:57:40 +0300
+Message-ID: <20240423035746.699466-1-danielj@nvidia.com>
+X-Mailer: git-send-email 2.27.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -75,105 +79,93 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CO1PEPF000044F8:EE_|CY5PR12MB6429:EE_
+X-MS-Office365-Filtering-Correlation-Id: d2820918-e9a4-4385-5832-08dc634994a2
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?aFDkSrA40t7m5QMvmiWk5bgowPpkuRBVMPOTbRExCjFCSUrmC6gAVrTfdPGf?=
+ =?us-ascii?Q?FdRpEaSS7t0yEJX8COTS7fBtXV9JH8v36dK77lGwdydIQ2oif9zIfSmgDaK5?=
+ =?us-ascii?Q?FG2b+dDIWfgTqAAOJ2gKAcW7k/3wOcfYo+ZztLNCBDKmtBpzkFNbnCnAywBl?=
+ =?us-ascii?Q?fQ7VCY8EkmOwDMSCulWA7AQLuX3rbtb+Ilh14opckyc5+YpJEOu9rox9hwvX?=
+ =?us-ascii?Q?VzmVZydC1oTzOH7/h6LH/8s4iwF3oTFbBjMesl8bw8f14/bhOaQBzv3+eMv9?=
+ =?us-ascii?Q?ie4ySL6aHOsFnADQmErOBog+WPe+b2HXSzLWD2iia4w2d/3g8K6JX+5hqDjC?=
+ =?us-ascii?Q?HfdkjCEhGX5Bf8nKE7LaSUu+X2haaTJADK5OITd3Hl95u3oqg2MVSbvO01b2?=
+ =?us-ascii?Q?21/XL1kLC9SbtXwWUQZ2pg4qSOm1xFnJCxj8Y3vue1TCd4hGhqGSr9Q1waa3?=
+ =?us-ascii?Q?pyufRFXCCxtRs94s+Cf6WTtDciiV2IdcXDWEclVGRll6NldfAiiQZikV3+by?=
+ =?us-ascii?Q?iBhAvgrqutlhzuua1CNyPy4hEJXw/7JiWQulA56maBYLdCD+Zq7/n6cBMWM5?=
+ =?us-ascii?Q?V4o+W97rHxB1UVCFcOwXjJXdhHx6A51GzolrbtXdzFMyjfcS/UDOjBWNMtC1?=
+ =?us-ascii?Q?Ea+QW4wLG+OIYqy7SNKdMjfJYF+CkklzqF42UIvMxp1ch+qtJGDyD9fDY0Kt?=
+ =?us-ascii?Q?TpZpls9rFZdYmxsgQaWPxLozckcTJiUVamkLhHaL8vL+uTmm1+vBEDyGdWd5?=
+ =?us-ascii?Q?C2qlepPnfzXoH5LrrBz0sMPzFETcTKszT9SPxg7oSSsYWNtQkMktaSThqmqK?=
+ =?us-ascii?Q?q8XzO3WDPU9VKiGjJ93xD703NlwBsnmUBlIY9TZYMWXCmWSnpQLqzQPc3zuV?=
+ =?us-ascii?Q?pIDHW4H0Z62deHW1F+LpTcEf2RgWNW8GRkeecYNpBdyi8aK7Iba9Thk/bnUz?=
+ =?us-ascii?Q?B/T9AlUAVsOViuGGl7FhhZwpneAP2861ZeJYLfruTGt7DPbK1PLPOQUQQ1V7?=
+ =?us-ascii?Q?UWP5Wd2ZNIaVs5pPR9zS57tSlC196QdnjxwxdnEdT77Wy9OuKAUMXUYnrQm9?=
+ =?us-ascii?Q?IifLMvEvTMKXrCWZgFNEsgtZiamphxLTzOScr0KFf/ZVzO/Rx2G5fquuowtx?=
+ =?us-ascii?Q?Gfd3lJiDuKYLg91JOXx45bU2W3nBWZvItMOgOjWwd68AbC1e+HeQ6q3L4Xad?=
+ =?us-ascii?Q?o14pStD9De4/v3MPBkHtQ7keZIqyFZdHDP11TEXspW7PqmFa7PckT0L2WNPe?=
+ =?us-ascii?Q?eUmDI+F75k547gxMTkO3PVJpZim7slw09d5suDTbrQ5zHyAxWcKADvCztTSu?=
+ =?us-ascii?Q?aY+h8yf8l4EG5AL7EKiRoPJZTXlJuFCywioGGhaZj2PI1gSwvUHzDlG8tveb?=
+ =?us-ascii?Q?vnD0ud8=3D?=
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230031)(82310400014)(1800799015)(376005)(36860700004);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Apr 2024 03:58:05.5635
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: d2820918-e9a4-4385-5832-08dc634994a2
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	CO1PEPF000044F8.namprd21.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY5PR12MB6429
 
-Expose memory scan/reclaim information to the host side via virtio
-balloon device.
+Currently the buffer used for control VQ commands is protected by the
+RTNL lock. Previously this wasn't a major concern because the control VQ
+was only used during device setup and user interaction. With the recent
+addition of dynamic interrupt moderation the control VQ may be used
+frequently during normal operation.
 
-Now we have a metric to analyze the memory performance:
+This series removes the RNTL lock dependency by introducing a mutex
+to protect the control buffer and writing SGs to the control VQ.
 
-y: counter increases
-n: counter does not changes
-h: the rate of counter change is high
-l: the rate of counter change is low
+v5:
+	- Changed cvq_lock to a mutex.
+	- Changed dim_lock to mutex, because it's held taking
+	  the cvq_lock.
+	- Use spin/mutex_lock/unlock vs guard macros.
+v4:
+	- Protect dim_enabled with same lock as well intr_coal.
+	- Rename intr_coal_lock to dim_lock.
+	- Remove some scoped_guard where the error path doesn't
+	  have to be in the lock.
+v3:
+	- Changed type of _offloads to __virtio16 to fix static
+	  analysis warning.
+	- Moved a misplaced hunk to the correct patch.
+v2:
+	- New patch to only process the provided queue in
+	  virtnet_dim_work
+	- New patch to lock per queue rx coalescing structure.
 
-OOM: VIRTIO_BALLOON_S_OOM_KILL
-STALL: VIRTIO_BALLOON_S_ALLOC_STALL
-ASCAN: VIRTIO_BALLOON_S_SCAN_ASYNC
-DSCAN: VIRTIO_BALLOON_S_SCAN_DIRECT
-ARCLM: VIRTIO_BALLOON_S_RECLAIM_ASYNC
-DRCLM: VIRTIO_BALLOON_S_RECLAIM_DIRECT
+Daniel Jurgens (6):
+  virtio_net: Store RSS setting in virtnet_info
+  virtio_net: Remove command data from control_buf
+  virtio_net: Add a lock for the command VQ.
+  virtio_net: Do DIM update for specified queue only
+  virtio_net: Add a lock for per queue RX coalesce
+  virtio_net: Remove rtnl lock protection of command buffers
 
-- OOM[y], STALL[*], ASCAN[*], DSCAN[*], ARCLM[*], DRCLM[*]:
-  the guest runs under really critial memory pressure
+ drivers/net/virtio_net.c | 276 +++++++++++++++++++++++----------------
+ 1 file changed, 163 insertions(+), 113 deletions(-)
 
-- OOM[n], STALL[h], ASCAN[*], DSCAN[l], ARCLM[*], DRCLM[l]:
-  the memory allocation stalls due to cgroup, not the global memory
-  pressure.
-
-- OOM[n], STALL[h], ASCAN[*], DSCAN[h], ARCLM[*], DRCLM[h]:
-  the memory allocation stalls due to global memory pressure. The
-  performance gets hurt a lot. A high ratio between DRCLM/DSCAN shows
-  quite effective memory reclaiming.
-
-- OOM[n], STALL[h], ASCAN[*], DSCAN[h], ARCLM[*], DRCLM[l]:
-  the memory allocation stalls due to global memory pressure.
-  the ratio between DRCLM/DSCAN gets low, the guest OS is thrashing
-  heavily, the serious case leads poor performance and difficult
-  trouble shooting. Ex, sshd may block on memory allocation when
-  accepting new connections, a user can't login a VM by ssh command.
-
-- OOM[n], STALL[n], ASCAN[h], DSCAN[n], ARCLM[l], DRCLM[n]:
-  the low ratio between ARCLM/ASCAN shows that the guest tries to
-  reclaim more memory, but it can't. Once more memory is required in
-  future, it will struggle to reclaim memory.
-
-Acked-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
----
- drivers/virtio/virtio_balloon.c     |  9 +++++++++
- include/uapi/linux/virtio_balloon.h | 12 ++++++++++--
- 2 files changed, 19 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index e6229e548832..225662358221 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -340,6 +340,15 @@ static inline unsigned int update_balloon_vm_stats(struct virtio_balloon *vb)
- 
- 	update_stat(vb, idx++, VIRTIO_BALLOON_S_ALLOC_STALL, stall);
- 
-+	update_stat(vb, idx++, VIRTIO_BALLOON_S_ASYNC_SCAN,
-+		    pages_to_bytes(events[PGSCAN_KSWAPD]));
-+	update_stat(vb, idx++, VIRTIO_BALLOON_S_DIRECT_SCAN,
-+		    pages_to_bytes(events[PGSCAN_DIRECT]));
-+	update_stat(vb, idx++, VIRTIO_BALLOON_S_ASYNC_RECLAIM,
-+		    pages_to_bytes(events[PGSTEAL_KSWAPD]));
-+	update_stat(vb, idx++, VIRTIO_BALLOON_S_DIRECT_RECLAIM,
-+		    pages_to_bytes(events[PGSTEAL_DIRECT]));
-+
- #ifdef CONFIG_HUGETLB_PAGE
- 	update_stat(vb, idx++, VIRTIO_BALLOON_S_HTLB_PGALLOC,
- 		    events[HTLB_BUDDY_PGALLOC]);
-diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
-index 487b893a160e..ee35a372805d 100644
---- a/include/uapi/linux/virtio_balloon.h
-+++ b/include/uapi/linux/virtio_balloon.h
-@@ -73,7 +73,11 @@ struct virtio_balloon_config {
- #define VIRTIO_BALLOON_S_HTLB_PGFAIL   9  /* Hugetlb page allocation failures */
- #define VIRTIO_BALLOON_S_OOM_KILL      10 /* OOM killer invocations */
- #define VIRTIO_BALLOON_S_ALLOC_STALL   11 /* Stall count of memory allocatoin */
--#define VIRTIO_BALLOON_S_NR       12
-+#define VIRTIO_BALLOON_S_ASYNC_SCAN    12 /* Amount of memory scanned asynchronously */
-+#define VIRTIO_BALLOON_S_DIRECT_SCAN   13 /* Amount of memory scanned directly */
-+#define VIRTIO_BALLOON_S_ASYNC_RECLAIM 14 /* Amount of memory reclaimed asynchronously */
-+#define VIRTIO_BALLOON_S_DIRECT_RECLAIM 15 /* Amount of memory reclaimed directly */
-+#define VIRTIO_BALLOON_S_NR       16
- 
- #define VIRTIO_BALLOON_S_NAMES_WITH_PREFIX(VIRTIO_BALLOON_S_NAMES_prefix) { \
- 	VIRTIO_BALLOON_S_NAMES_prefix "swap-in", \
-@@ -87,7 +91,11 @@ struct virtio_balloon_config {
- 	VIRTIO_BALLOON_S_NAMES_prefix "hugetlb-allocations", \
- 	VIRTIO_BALLOON_S_NAMES_prefix "hugetlb-failures", \
- 	VIRTIO_BALLOON_S_NAMES_prefix "oom-kills", \
--	VIRTIO_BALLOON_S_NAMES_prefix "alloc-stalls" \
-+	VIRTIO_BALLOON_S_NAMES_prefix "alloc-stalls", \
-+	VIRTIO_BALLOON_S_NAMES_prefix "async-scans", \
-+	VIRTIO_BALLOON_S_NAMES_prefix "direct-scans", \
-+	VIRTIO_BALLOON_S_NAMES_prefix "async-reclaims", \
-+	VIRTIO_BALLOON_S_NAMES_prefix "direct-reclaims" \
- }
- 
- #define VIRTIO_BALLOON_S_NAMES VIRTIO_BALLOON_S_NAMES_WITH_PREFIX("")
 -- 
 2.34.1
 
