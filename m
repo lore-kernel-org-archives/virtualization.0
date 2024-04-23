@@ -1,125 +1,152 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from dggsgout11.his.huawei.com (unknown [45.249.212.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B096978C6E
-	for <virtualization@lists.linux-foundation.org>; Tue, 23 Apr 2024 12:57:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4149045BFD
+	for <virtualization@lists.linux.dev>; Tue, 23 Apr 2024 13:25:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713877025; cv=none; b=ku5nUMxLmw5rAQetje4h34DZU5wRKiope62zWAQbv8jon7YJlR2lhq2ZwgfrEvciiOK91AqPZdrKVWm2KHZNqLroATCV1h5X7ZBufKDQqduBkpuP6iAqi6fehs5q04LUMD/Md3h8MQ8wOkhcXMZlQpI8RNAKF4PKFQ3xzODYmek=
+	t=1713878745; cv=none; b=Wh0wJcltBfZJUIb6UAAcMAsVjWE0JjxyqsWXBmtkgCO2CVWSY566TXemUaN8M+lcZrovHagnW2u/bFY2tttHXaJgSKVAWV6IsOsHSAX0KqWEEStpeJOSP8tfJWkUXz/OdUp8jgEHU23VQA8PPPVuJGGHtWwtB2cRncerh2ZXIcE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713877025; c=relaxed/simple;
-	bh=XeZycoklrbmIsGAeu98uH0HIylfGOQJCx4GR355GWBc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=EfdRYwncBlQxR7ZjLNFGtHl4cDkpuWRWlfQTOFV8i0/ipbnzRuQ5xHE2EeBS6aaCzDFCnvVoIe0o0vy5bF622xPKCVU+DCWf47jwNzN6l+SXMqU9Q9J5koV2KOyJCJPMuAfSELPdmAGE8ej3Jpou3fPHVcARy/j5DkaXDko0BaY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=xRziz0Gy; arc=none smtp.client-ip=140.211.166.137
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="xRziz0Gy"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 61C8E40425
-	for <virtualization@lists.linux-foundation.org>; Tue, 23 Apr 2024 12:57:03 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.1
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id hOPNyqg8ciph for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Apr 2024 12:57:02 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a00:1098:ed:100::25; helo=madrid.collaboradmins.com; envelope-from=vignesh.raman@collabora.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org C4753403C5
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C4753403C5
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=xRziz0Gy
-Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [IPv6:2a00:1098:ed:100::25])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id C4753403C5
-	for <virtualization@lists.linux-foundation.org>; Tue, 23 Apr 2024 12:57:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1713877019;
-	bh=XeZycoklrbmIsGAeu98uH0HIylfGOQJCx4GR355GWBc=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=xRziz0GyVrPt2dhtiBiqNDXqczIeDLuZbHnEOWJSrlHm36b7jLx7WJlA/NnNyYz+O
-	 ILQ5AxoCCF584XC6at4Ovw7VG6IZUkYx2hcSU4LJTCUGclhXqLyOelc6ejocD9iQE9
-	 ycHEPJjr5Z1dDU4MQAjBDjumEXasMAR4WwmZ4XII0SdqTIJvWCyiBMWY9gkqTTuKHH
-	 g8Xdo9I4ALXJxJU0+jh5uZmA3T1BqHogZP/oCoSlUCAb5X+JS2pJqTZQ1G7PtkePVv
-	 2ZfpAJAYcPdPKlUtCWGitWSX/IzjmIfxI5mmr6ld3MWC4bsdYgChfIPWTxwQ5z+5km
-	 WKkdXlDaRIXeQ==
-Received: from [100.66.96.193] (cola.collaboradmins.com [195.201.22.229])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: vignesh)
-	by madrid.collaboradmins.com (Postfix) with ESMTPSA id 6AF5937813A2;
-	Tue, 23 Apr 2024 12:56:55 +0000 (UTC)
-Message-ID: <c8a7744c-2225-4fd8-9ee7-bd513a4668cd@collabora.com>
-Date: Tue, 23 Apr 2024 18:26:53 +0530
+	s=arc-20240116; t=1713878745; c=relaxed/simple;
+	bh=5a4bb9B//8XIDmTV7hGB8eIJiBmSaKE7suGLchtgKZU=;
+	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=jazUUvFHKy3UmkkQ4Ql3rbdwL9sUlTIYJHiF73kxkgkxvbPlkNGtRddRT+M3wubp37uNa+RbcT55EeYbSbjtLa/x8Phn027efbWdjo7462l3HbFhP/aWNmpX29Cj+IBWvwcn3HDleOYq/ruDAArr3YeF8sWURCpsa0Z7ZFRxhZI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com; spf=pass smtp.mailfrom=huaweicloud.com; arc=none smtp.client-ip=45.249.212.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huaweicloud.com
+Received: from mail.maildlp.com (unknown [172.19.163.216])
+	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4VP2tK4Cz7z4f3nJq
+	for <virtualization@lists.linux.dev>; Tue, 23 Apr 2024 21:25:29 +0800 (CST)
+Received: from mail02.huawei.com (unknown [10.116.40.75])
+	by mail.maildlp.com (Postfix) with ESMTP id BDA281A08D4
+	for <virtualization@lists.linux.dev>; Tue, 23 Apr 2024 21:25:38 +0800 (CST)
+Received: from [10.174.176.117] (unknown [10.174.176.117])
+	by APP2 (Coremail) with SMTP id Syh0CgCH6v3NtidmQDz9Kw--.51257S2;
+	Tue, 23 Apr 2024 21:25:37 +0800 (CST)
+Subject: Re: [PATCH v2 0/6] virtiofs: fix the warning for ITER_KVEC dio
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-fsdevel@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>,
+ Vivek Goyal <vgoyal@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
+ Bernd Schubert <bernd.schubert@fastmail.fm>,
+ Matthew Wilcox <willy@infradead.org>,
+ Benjamin Coddington <bcodding@redhat.com>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev, houtao1@huawei.com
+References: <20240228144126.2864064-1-houtao@huaweicloud.com>
+ <20240408034514-mutt-send-email-mst@kernel.org>
+ <413bd868-a16b-f024-0098-3c70f7808d3c@huaweicloud.com>
+ <20240422160615-mutt-send-email-mst@kernel.org>
+From: Hou Tao <houtao@huaweicloud.com>
+Message-ID: <3a287e9b-55ad-dda9-5f53-c12536bad31d@huaweicloud.com>
+Date: Tue, 23 Apr 2024 21:25:33 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 3/4] drm/ci: uprev IGT and generate testlist from build
-To: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
- =?UTF-8?Q?Ma=C3=ADra_Canal?= <mcanal@igalia.com>
-Cc: dri-devel@lists.freedesktop.org, daniels@collabora.com,
- helen.koike@collabora.com, airlied@gmail.com, daniel@ffwll.ch,
- robdclark@gmail.com, david.heidelberg@collabora.com,
- guilherme.gallo@collabora.com, sergi.blanch.torne@collabora.com,
- linux-mediatek@lists.infradead.org, linux-amlogic@lists.infradead.org,
- linux-rockchip@lists.infradead.org, amd-gfx@lists.freedesktop.org,
- linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-References: <20240423040243.448091-1-vignesh.raman@collabora.com>
- <20240423040243.448091-4-vignesh.raman@collabora.com>
- <e3a0ea8f-d306-488c-a69c-aa18078e5e03@igalia.com>
- <CAA8EJppaaitcXkXSFTB4-S2CbBcrAVHouB0wWiU5Nw2FvpagqA@mail.gmail.com>
+In-Reply-To: <20240422160615-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Content-Language: en-US
-From: Vignesh Raman <vignesh.raman@collabora.com>
-In-Reply-To: <CAA8EJppaaitcXkXSFTB4-S2CbBcrAVHouB0wWiU5Nw2FvpagqA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:Syh0CgCH6v3NtidmQDz9Kw--.51257S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxGryfKrWUZFy7GFWDWFy5twb_yoWrXry5pr
+	Wftan8trsrXFy3Arn2y3Z5urnakws3JFy7Wr9xXw1ruFZIq3Wxur47tFyY9Fy7Ary8AFy8
+	tr1FqasF9r1qv3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUv2b4IE77IF4wAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k2
+	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+	vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7Cj
+	xVAFwI0_Cr0_Gr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I
+	0E14v26rxl6s0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
+	x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
+	0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1lc7I2V7IY0VAS
+	07AlzVAYIcxG8wCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c
+	02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_
+	GFylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7
+	CjxVAFwI0_Gr0_Cr1lIxAIcVCF04k26cxKx2IYs7xG6rW3Jr0E3s1lIxAIcVC2z280aVAF
+	wI0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa
+	7IU1zuWJUUUUU==
+X-CM-SenderInfo: xkrx3t3r6k3tpzhluzxrxghudrp/
 
-Hi,
 
-On 23/04/24 17:53, Dmitry Baryshkov wrote:
-> On Tue, 23 Apr 2024 at 13:24, Maíra Canal <mcanal@igalia.com> wrote:
+
+On 4/23/2024 4:06 AM, Michael S. Tsirkin wrote:
+> On Tue, Apr 09, 2024 at 09:48:08AM +0800, Hou Tao wrote:
+>> Hi,
 >>
->> On 4/23/24 01:02, Vignesh Raman wrote:
->>> Uprev IGT to the latest version and stop vendoring the
->>> testlist into the kernel. Instead, use the testlist from
->>> the IGT build to ensure we do not miss renamed or newly
->>> added tests.
->>
->> Nitpick: wouldn't it be better to (1) stop vendoring the
->> testlist into the kernel in one patch and then (2) uprev
->> IGT to the latest version? I feel that this patch is changing
->> a lot of different stuff.
-> 
-> Definitely. Otherwise it's hard to understand whether a change to
-> fails/flakes is caused by the uprev or by the testlist change. E.g. in
-> several cases the list of failing subtests seems to be replaced with
-> the test itself.
-> 
+>> On 4/8/2024 3:45 PM, Michael S. Tsirkin wrote:
+>>> On Wed, Feb 28, 2024 at 10:41:20PM +0800, Hou Tao wrote:
+>>>> From: Hou Tao <houtao1@huawei.com>
+>>>>
+>>>> Hi,
+>>>>
+>>>> The patch set aims to fix the warning related to an abnormal size
+>>>> parameter of kmalloc() in virtiofs. The warning occurred when attempting
+>>>> to insert a 10MB sized kernel module kept in a virtiofs with cache
+>>>> disabled. As analyzed in patch #1, the root cause is that the length of
+>>>> the read buffer is no limited, and the read buffer is passed directly to
+>>>> virtiofs through out_args[0].value. Therefore patch #1 limits the
+>>>> length of the read buffer passed to virtiofs by using max_pages. However
+>>>> it is not enough, because now the maximal value of max_pages is 256.
+>>>> Consequently, when reading a 10MB-sized kernel module, the length of the
+>>>> bounce buffer in virtiofs will be 40 + (256 * 4096), and kmalloc will
+>>>> try to allocate 2MB from memory subsystem. The request for 2MB of
+>>>> physically contiguous memory significantly stress the memory subsystem
+>>>> and may fail indefinitely on hosts with fragmented memory. To address
+>>>> this, patch #2~#5 use scattered pages in a bio_vec to replace the
+>>>> kmalloc-allocated bounce buffer when the length of the bounce buffer for
+>>>> KVEC_ITER dio is larger than PAGE_SIZE. The final issue with the
+>>>> allocation of the bounce buffer and sg array in virtiofs is that
+>>>> GFP_ATOMIC is used even when the allocation occurs in a kworker context.
+>>>> Therefore the last patch uses GFP_NOFS for the allocation of both sg
+>>>> array and bounce buffer when initiated by the kworker. For more details,
+>>>> please check the individual patches.
+>>>>
+>>>> As usual, comments are always welcome.
+>>>>
+>>>> Change Log:
+>>> Bernd should I just merge the patchset as is?
+>>> It seems to fix a real problem and no one has the
+>>> time to work on a better fix .... WDYT?
+>> Sorry for the long delay. I am just start to prepare for v3. In v3, I
+>> plan to avoid the unnecessary memory copy between fuse args and bio_vec.
+>> Will post it before next week.
+> Didn't happen before this week apparently.
 
-Yes, will follow the below approach.
-1) Use the testlist from build and update fails/flakes/skips
-2) Uprev IGT and update fails/flakes/skips
+Sorry for failing to make it this week. Being busy these two weeks. Hope
+to send v3 out before the end of April.
+>
+>>>
+>>>> v2:
+>>>>   * limit the length of ITER_KVEC dio by max_pages instead of the
+>>>>     newly-introduced max_nopage_rw. Using max_pages make the ITER_KVEC
+>>>>     dio being consistent with other rw operations.
+>>>>   * replace kmalloc-allocated bounce buffer by using a bounce buffer
+>>>>     backed by scattered pages when the length of the bounce buffer for
+>>>>     KVEC_ITER dio is larger than PAG_SIZE, so even on hosts with
+>>>>     fragmented memory, the KVEC_ITER dio can be handled normally by
+>>>>     virtiofs. (Bernd Schubert)
+>>>>   * merge the GFP_NOFS patch [1] into this patch-set and use
+>>>>     memalloc_nofs_{save|restore}+GFP_KERNEL instead of GFP_NOFS
+>>>>     (Benjamin Coddington)
+>>>>
+>>>> v1: https://lore.kernel.org/linux-fsdevel/20240103105929.1902658-1-houtao@huaweicloud.com/
+>>>>
+>>>> [1]: https://lore.kernel.org/linux-fsdevel/20240105105305.4052672-1-houtao@huaweicloud.com/
+>>>>
+>>>> Hou Tao (6):
+>>>>   fuse: limit the length of ITER_KVEC dio by max_pages
+>>>>   virtiofs: move alloc/free of argbuf into separated helpers
+>>>>   virtiofs: factor out more common methods for argbuf
+>>>>   virtiofs: support bounce buffer backed by scattered pages
+>>>>   virtiofs: use scattered bounce buffer for ITER_KVEC dio
+>>>>   virtiofs: use GFP_NOFS when enqueuing request through kworker
+>>>>
+>>>>  fs/fuse/file.c      |  12 +-
+>>>>  fs/fuse/virtio_fs.c | 336 +++++++++++++++++++++++++++++++++++++-------
+>>>>  2 files changed, 296 insertions(+), 52 deletions(-)
+>>>>
+>>>> -- 
+>>>> 2.29.2
 
-Regards,
-Vignesh
-
->>
->>>
->>> Skip kms tests for panfrost driver since it is not a kms
->>> driver and skip driver-specific tests. Update xfails with
->>> the latest testlist.
->>>
->>> Increase the timoout of i915 jobs to 2h30m since some jobs
->>> takes more than 2 hours to complete.
->>>
->>> Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
->>> ---
-> 
-> 
