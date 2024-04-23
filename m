@@ -1,159 +1,254 @@
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C039C58ABF
-	for <virtualization@lists.linux.dev>; Tue, 23 Apr 2024 08:42:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65D2F5CDE6
+	for <virtualization@lists.linux-foundation.org>; Tue, 23 Apr 2024 08:42:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713861764; cv=none; b=TLTNdF+RLdY+hMEmec3q6jSPrvJlyOoIUZHhDPeSuci5YRVeFu4aiiSktqBnM5NBMUKx54A5LNNA4ZwubfU2ZbjGUhv9kPGn41tIe5RDgP8QGAUK4umRTkkyvKAAWiJa068NcBocSU+xykV3hL2hv2TAaz5P/Yq+wE6LXF6DtIg=
+	t=1713861775; cv=none; b=nGOfizQLTYXZ655rPZBRbxhGN+pOaraYZnAliFJrKs9bbV/NzNhZMi3kEGKxpWmZnNwAx8is/6agFH448HcDy765Up72Q18+41+xdcrCT+bqGEEOexu/+hLTxbfXOA69cI8TjyMmu71FeJSN+hLvN7zhfzUqDVwKm+DNKxeR4zY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713861764; c=relaxed/simple;
-	bh=TGYFaIai2Z0dam9L8nAVwO8TpywOklb2AgAye2mg+Xc=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=BFieHwypFEX9/+vXvSLtWgqhWNUN+vr6RUUE0QziCQQsinhLQG/VjIu5beI94Z/2rrQQxeq3t9IdMfC5dNQqjJddPbpQnNf7GHMEfulAHZK8vnralnIzzs1zB84Y3pcwf5K4e879lGHzsxC2tlOEkbVwV2QuvgLjkT19zn9kmQk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=N1ygQ5Bu; arc=none smtp.client-ip=115.124.30.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1713861775; c=relaxed/simple;
+	bh=2fDjVbeuUBzTnztgsVGjQmQS5y0ZjQkAUa5V+c2zvzw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=srHZ6lpC2ZDMyk3G2v3hNoKj+DpTQSvHRU6XwPvk7lVHpP6Z84GF/ZK+yj7eWX79fAeHBxMz72t8P5yM4lZwaYwH61j989iNwG0o/CPRGIyVch3OR9dtvacpG6nSvqJp0YNA7eqz43nYZ7D0T5pQbiuw0A5JrvhlFNmJA3Xx85A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=M2yz/MN/; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="N1ygQ5Bu"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1713861753; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=CZkfS1T+3iklRYyYG/M6nVAjZnl0ZNjEuysnrUnFU68=;
-	b=N1ygQ5BuyJupjipQr+yQF31zhRUkUdnLBH/iw+rypSNpl+vutB3hPa5J97Ew9BUTsJJch9TwKjZ5dl1DaHIQicoOrsV9kcXSl5YQShCJiE7Bam/GsRuEJ5t/2RbqXO2j5iFGp7vAFHyeTFyN82Z8WiMlvBwn/POwG9h2Prqld3U=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0W58UuWL_1713861750;
-Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W58UuWL_1713861750)
-          by smtp.aliyun-inc.com;
-          Tue, 23 Apr 2024 16:42:31 +0800
-From: Heng Qi <hengqi@linux.alibaba.com>
-To: netdev@vger.kernel.org,
-	virtualization@lists.linux.dev
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eric Dumazet <edumazet@google.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH net-next 2/2] virtio_net: get init coalesce value when probe
-Date: Tue, 23 Apr 2024 16:42:26 +0800
-Message-Id: <20240423084226.25440-3-hengqi@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20240423084226.25440-1-hengqi@linux.alibaba.com>
-References: <20240423084226.25440-1-hengqi@linux.alibaba.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="M2yz/MN/"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 0D7BF40118
+	for <virtualization@lists.linux-foundation.org>; Tue, 23 Apr 2024 08:42:54 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id v-HtxGgnkF_L for <virtualization@lists.linux-foundation.org>;
+ Tue, 23 Apr 2024 08:42:52 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 8C206400F4
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8C206400F4
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=M2yz/MN/
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 8C206400F4
+	for <virtualization@lists.linux-foundation.org>; Tue, 23 Apr 2024 08:42:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1713861771;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ps+xzWTYxFd7OS06+PYtb6cxlk6Hy0GmNF9fJOn63Zo=;
+	b=M2yz/MN/BSKrPw268Jf7EhhRdSS4cMuhmVL0fQLZbOO/u2iTnt/atuDC2iOdZVjhSoPh56
+	huR0R8gnvCp67yIdf8fQyk8n6WWcGLGZTW48llYDRADx0YI9Q8Vb5ki2gSBfdy1ze+4BiN
+	lIRgGy/EI891/AnxdWrKTz8G7T26TFw=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-28-0ZEZINNDNcORXKt294pPyQ-1; Tue, 23 Apr 2024 04:42:49 -0400
+X-MC-Unique: 0ZEZINNDNcORXKt294pPyQ-1
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-41a3369659eso9383395e9.1
+        for <virtualization@lists.linux-foundation.org>; Tue, 23 Apr 2024 01:42:49 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713861768; x=1714466568;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ps+xzWTYxFd7OS06+PYtb6cxlk6Hy0GmNF9fJOn63Zo=;
+        b=oeFTL9esjyxEbUGkHrZNLsOig8ryzk5QPNNmBwaV6KmgUw+Y4PxHdaAPx5n3nXJ8Rv
+         hVa06SRhdu+e/HNUe7gIyOCF8ZRh4udf/qEBf4+KRWdwvSS644ii138JjZoFGh66NvTr
+         JmZvE2OFO8jkTa55ZG/GxTGHMKfHE7YnBAFg5tnNj/sJqXRweoSWzzDnuRR4gf95WcqV
+         LhPUpiOQ/VPoxlkvn37PCOfyy1LBTWTpI5kT29Lp9clMpOs/OlAW/WCgd6B4sfnEMSzO
+         BbgQW2ZhETKW4ofrxtYnhYS62+VrdTbj13i3mJo/uNxqm2wOMrazVdZkCzQMiWo3jW6i
+         C+pA==
+X-Forwarded-Encrypted: i=1; AJvYcCU3sLZmK6ulNZRSM27+w88Km3ihuVCz4ksyYXSjwEPr21lZ+jERiAxQS+6qadvYfB/Zi48fLB+MlkoI7OXIR+GXcU6I/ghH8jHJ1kP4XlaGmYf4WXv3ujeM+g==
+X-Gm-Message-State: AOJu0YyVFhpt64PJb0Y53KwpyAeHbkFbkb/JrY+JNpmsnWVEeLCJUgZC
+	lhKINDHU42ZvxzyYObBxGqRaJ0Gh9yFpi2d8YQoHrIBb6NqPDb6vGSYEwAcD/HlIvhDZ2dD65qa
+	DcIqaNveT3e719XnWFwLEWiPbfp5OATdktZi0z4C8hymkTi4PF42dx5pFoCJ7WMM4etbvS2SnUj
+	AdNlA=
+X-Received: by 2002:adf:db47:0:b0:34b:6240:3467 with SMTP id f7-20020adfdb47000000b0034b62403467mr1428316wrj.3.1713861768547;
+        Tue, 23 Apr 2024 01:42:48 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IG5lBC1PGR2u/FH3l6COzzBqmrDWV109EY8m+4UpFCe4iQbYF4ViweNueYxZykEpRxLbBYujg==
+X-Received: by 2002:adf:db47:0:b0:34b:6240:3467 with SMTP id f7-20020adfdb47000000b0034b62403467mr1428290wrj.3.1713861767997;
+        Tue, 23 Apr 2024 01:42:47 -0700 (PDT)
+Received: from redhat.com ([2a06:c701:7429:3c00:dc4a:cd5:7b1c:f7c2])
+        by smtp.gmail.com with ESMTPSA id t4-20020a5d4604000000b00343826878e8sm13993177wrq.38.2024.04.23.01.42.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 23 Apr 2024 01:42:47 -0700 (PDT)
+Date: Tue, 23 Apr 2024 04:42:45 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: Cindy Lu <lulu@redhat.com>, linux-kernel@vger.kernel.org,
+	virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH v5 3/5] vduse: Add function to get/free the pages for
+ reconnection
+Message-ID: <20240423043538-mutt-send-email-mst@kernel.org>
+References: <20240412133017.483407-1-lulu@redhat.com>
+ <20240412133017.483407-4-lulu@redhat.com>
+ <20240417052723-mutt-send-email-mst@kernel.org>
+ <CACGkMEtv56TSaA=W337hFU3VALfbrGMcEdu25O4Ecx7guUacyQ@mail.gmail.com>
+ <20240422160348-mutt-send-email-mst@kernel.org>
+ <CACGkMEsj1aYBBO+kh5wmTk9vh=QRj50FHPFZ6QX3gs1Jh+XQdA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <CACGkMEsj1aYBBO+kh5wmTk9vh=QRj50FHPFZ6QX3gs1Jh+XQdA@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 
-Currently, virtio-net lacks a way to obtain the default coalesce
-values of the device during the probe phase. That is, the device
-may have default experience values, but the user uses "ethtool -c"
-to query that the values are still 0.
+On Tue, Apr 23, 2024 at 11:09:59AM +0800, Jason Wang wrote:
+> On Tue, Apr 23, 2024 at 4:05 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+> >
+> > On Thu, Apr 18, 2024 at 08:57:51AM +0800, Jason Wang wrote:
+> > > On Wed, Apr 17, 2024 at 5:29 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > >
+> > > > On Fri, Apr 12, 2024 at 09:28:23PM +0800, Cindy Lu wrote:
+> > > > > Add the function vduse_alloc_reconnnect_info_mem
+> > > > > and vduse_alloc_reconnnect_info_mem
+> > > > > These functions allow vduse to allocate and free memory for reconnection
+> > > > > information. The amount of memory allocated is vq_num pages.
+> > > > > Each VQS will map its own page where the reconnection information will be saved
+> > > > >
+> > > > > Signed-off-by: Cindy Lu <lulu@redhat.com>
+> > > > > ---
+> > > > >  drivers/vdpa/vdpa_user/vduse_dev.c | 40 ++++++++++++++++++++++++++++++
+> > > > >  1 file changed, 40 insertions(+)
+> > > > >
+> > > > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > > > index ef3c9681941e..2da659d5f4a8 100644
+> > > > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > > > @@ -65,6 +65,7 @@ struct vduse_virtqueue {
+> > > > >       int irq_effective_cpu;
+> > > > >       struct cpumask irq_affinity;
+> > > > >       struct kobject kobj;
+> > > > > +     unsigned long vdpa_reconnect_vaddr;
+> > > > >  };
+> > > > >
+> > > > >  struct vduse_dev;
+> > > > > @@ -1105,6 +1106,38 @@ static void vduse_vq_update_effective_cpu(struct vduse_virtqueue *vq)
+> > > > >
+> > > > >       vq->irq_effective_cpu = curr_cpu;
+> > > > >  }
+> > > > > +static int vduse_alloc_reconnnect_info_mem(struct vduse_dev *dev)
+> > > > > +{
+> > > > > +     unsigned long vaddr = 0;
+> > > > > +     struct vduse_virtqueue *vq;
+> > > > > +
+> > > > > +     for (int i = 0; i < dev->vq_num; i++) {
+> > > > > +             /*page 0~ vq_num save the reconnect info for vq*/
+> > > > > +             vq = dev->vqs[i];
+> > > > > +             vaddr = get_zeroed_page(GFP_KERNEL);
+> > > >
+> > > >
+> > > > I don't get why you insist on stealing kernel memory for something
+> > > > that is just used by userspace to store data for its own use.
+> > > > Userspace does not lack ways to persist data, for example,
+> > > > create a regular file anywhere in the filesystem.
+> > >
+> > > Good point. So the motivation here is to:
+> > >
+> > > 1) be self contained, no dependency for high speed persist data
+> > > storage like tmpfs
+> >
+> > No idea what this means.
+> 
+> I mean a regular file may slow down the datapath performance, so
+> usually the application will try to use tmpfs and other which is a
+> dependency for implementing the reconnection.
 
-Therefore, we reuse VIRTIO_NET_CTRL_NOTF_COAL_VQ_GET to complete the goal.
+Are we worried about systems without tmpfs now?
 
-Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
----
- drivers/net/virtio_net.c | 68 +++++++++++++++++++++++++++++++++++-----
- 1 file changed, 61 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 3bc9b1e621db..fe0c15819dd3 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -4623,6 +4623,46 @@ static int virtnet_validate(struct virtio_device *vdev)
- 	return 0;
- }
- 
-+static int virtnet_get_coal_init_value(struct virtnet_info *vi,
-+				       u16 _vqn, bool is_tx)
-+{
-+	struct virtio_net_ctrl_coal *coal = &vi->ctrl->coal_vq.coal;
-+	__le16 *vqn = &vi->ctrl->coal_vq.vqn;
-+	struct scatterlist sgs_in, sgs_out;
-+	u32 usecs, pkts, i;
-+	bool ret;
-+
-+	*vqn = cpu_to_le16(_vqn);
-+
-+	sg_init_one(&sgs_out, vqn, sizeof(*vqn));
-+	sg_init_one(&sgs_in, coal, sizeof(*coal));
-+	ret = virtnet_send_command_reply(vi, VIRTIO_NET_CTRL_NOTF_COAL,
-+					 VIRTIO_NET_CTRL_NOTF_COAL_VQ_GET,
-+					 &sgs_out, &sgs_in);
-+	if (!ret)
-+		return ret;
-+
-+	usecs = le32_to_cpu(coal->max_usecs);
-+	pkts = le32_to_cpu(coal->max_packets);
-+	if (is_tx) {
-+		vi->intr_coal_tx.max_usecs = usecs;
-+		vi->intr_coal_tx.max_packets = pkts;
-+		for (i = 0; i < vi->max_queue_pairs; i++) {
-+			vi->sq[i].intr_coal.max_usecs = usecs;
-+			vi->sq[i].intr_coal.max_packets = pkts;
-+		}
-+	} else {
-+		vi->intr_coal_rx.max_usecs = usecs;
-+		vi->intr_coal_rx.max_packets = pkts;
-+		for (i = 0; i < vi->max_queue_pairs; i++) {
-+			vi->rq[i].intr_coal.max_usecs = usecs;
-+			vi->rq[i].intr_coal.max_packets = pkts;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
- static bool virtnet_check_guest_gso(const struct virtnet_info *vi)
- {
- 	return virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_TSO4) ||
-@@ -4885,13 +4925,6 @@ static int virtnet_probe(struct virtio_device *vdev)
- 			vi->intr_coal_tx.max_packets = 0;
- 	}
- 
--	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL)) {
--		/* The reason is the same as VIRTIO_NET_F_NOTF_COAL. */
--		for (i = 0; i < vi->max_queue_pairs; i++)
--			if (vi->sq[i].napi.weight)
--				vi->sq[i].intr_coal.max_packets = 1;
--	}
--
- #ifdef CONFIG_SYSFS
- 	if (vi->mergeable_rx_bufs)
- 		dev->sysfs_rx_queue_group = &virtio_net_mrg_rx_group;
-@@ -4926,6 +4959,27 @@ static int virtnet_probe(struct virtio_device *vdev)
- 
- 	virtio_device_ready(vdev);
- 
-+	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL)) {
-+		/* The reason is the same as VIRTIO_NET_F_NOTF_COAL. */
-+		for (i = 0; i < vi->max_queue_pairs; i++)
-+			if (vi->sq[i].napi.weight)
-+				vi->sq[i].intr_coal.max_packets = 1;
-+
-+		/* The loop exits if the default value from any
-+		 * queue is successfully read.
-+		 */
-+		for (i = 0; i < vi->max_queue_pairs; i++) {
-+			err = virtnet_get_coal_init_value(vi, rxq2vq(i), false);
-+			if (!err)
-+				break;
-+		}
-+		for (i = 0; i < vi->max_queue_pairs; i++) {
-+			err = virtnet_get_coal_init_value(vi, txq2vq(i), true);
-+			if (!err)
-+				break;
-+		}
-+	}
-+
- 	_virtnet_set_queues(vi, vi->curr_queue_pairs);
- 
- 	/* a random MAC address has been assigned, notify the device.
--- 
-2.32.0.3.g01195cf9f
+> >
+> > > 2) standardize the format in uAPI which allows reconnection from
+> > > arbitrary userspace, unfortunately, such effort was removed in new
+> > > versions
+> >
+> > And I don't see why that has to live in the kernel tree either.
+> 
+> I can't find a better place, any idea?
+> 
+> Thanks
+
+
+Well anywhere on github really. with libvhost-user maybe?
+It's harmless enough in Documentation
+if you like but ties you to the kernel release cycle in a way that
+is completely unnecessary.
+
+> >
+> > > If the above doesn't make sense, we don't need to offer those pages by VDUSE.
+> > >
+> > > Thanks
+> > >
+> > >
+> > > >
+> > > >
+> > > >
+> > > > > +             if (vaddr == 0)
+> > > > > +                     return -ENOMEM;
+> > > > > +
+> > > > > +             vq->vdpa_reconnect_vaddr = vaddr;
+> > > > > +     }
+> > > > > +
+> > > > > +     return 0;
+> > > > > +}
+> > > > > +
+> > > > > +static int vduse_free_reconnnect_info_mem(struct vduse_dev *dev)
+> > > > > +{
+> > > > > +     struct vduse_virtqueue *vq;
+> > > > > +
+> > > > > +     for (int i = 0; i < dev->vq_num; i++) {
+> > > > > +             vq = dev->vqs[i];
+> > > > > +
+> > > > > +             if (vq->vdpa_reconnect_vaddr)
+> > > > > +                     free_page(vq->vdpa_reconnect_vaddr);
+> > > > > +             vq->vdpa_reconnect_vaddr = 0;
+> > > > > +     }
+> > > > > +
+> > > > > +     return 0;
+> > > > > +}
+> > > > >
+> > > > >  static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
+> > > > >                           unsigned long arg)
+> > > > > @@ -1672,6 +1705,8 @@ static int vduse_destroy_dev(char *name)
+> > > > >               mutex_unlock(&dev->lock);
+> > > > >               return -EBUSY;
+> > > > >       }
+> > > > > +     vduse_free_reconnnect_info_mem(dev);
+> > > > > +
+> > > > >       dev->connected = true;
+> > > > >       mutex_unlock(&dev->lock);
+> > > > >
+> > > > > @@ -1855,12 +1890,17 @@ static int vduse_create_dev(struct vduse_dev_config *config,
+> > > > >       ret = vduse_dev_init_vqs(dev, config->vq_align, config->vq_num);
+> > > > >       if (ret)
+> > > > >               goto err_vqs;
+> > > > > +     ret = vduse_alloc_reconnnect_info_mem(dev);
+> > > > > +     if (ret < 0)
+> > > > > +             goto err_mem;
+> > > > >
+> > > > >       __module_get(THIS_MODULE);
+> > > > >
+> > > > >       return 0;
+> > > > >  err_vqs:
+> > > > >       device_destroy(&vduse_class, MKDEV(MAJOR(vduse_major), dev->minor));
+> > > > > +err_mem:
+> > > > > +     vduse_free_reconnnect_info_mem(dev);
+> > > > >  err_dev:
+> > > > >       idr_remove(&vduse_idr, dev->minor);
+> > > > >  err_idr:
+> > > > > --
+> > > > > 2.43.0
+> > > >
+> >
 
