@@ -1,131 +1,77 @@
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f52.google.com (mail-ej1-f52.google.com [209.85.218.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 176C767A0D
-	for <virtualization@lists.linux.dev>; Tue, 23 Apr 2024 11:03:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2631077F1B
+	for <virtualization@lists.linux.dev>; Tue, 23 Apr 2024 11:05:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713870195; cv=none; b=hJH+/HrVNritEh8aCSsPitYezj2BjmsXPJho74Lrrkt4qqgjP5DDoae6UXyLSEY55fLrReB8Zwjb0crQ3hGTAFjLUdSILCuCDoictGwY3NjhqHeWg7bm05Wq4q/M1gRKcukoN97MQYNaCcNcbMSXRGUmnFsWzIjH4HH+foKrLU8=
+	t=1713870343; cv=none; b=oSE6H89aO9IOFwGsXa+xouj7TxLqw42rCvGvz49/zytIdGDWkh6P2DtcfjELUfVucRD8Lg2oeipvwJL0FghRYVA8rIc0mSMBFry++q3aKp0dTZ7ka4f1L7t4UzPCsN70kbXx+qhioaOjSHTmwHH0WI+viivbOcnjW+H/AzUrgMY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713870195; c=relaxed/simple;
-	bh=XVamdcRVYCVsZGkPVKNqOgjiNe7NUzWCSLeSXHaRMd4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=PgDOuQiB7GkbWFFFacJGBZUEqQLjRVQ2KX9Sj5cq9qXcnfz4L9p5ALXM4cxzwLdbSQ09H/ykCdBpaQQoAhts4iJ1sbN0JH/8Ogz16m/MXfj8m+BUyYFZY5I8inox2r2xnNYiJ773IFgLK3Bpx9DxsUCIbXIdetjb8dfWAKsIiQk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=J9xuHobn; arc=none smtp.client-ip=115.124.30.111
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1713870343; c=relaxed/simple;
+	bh=FHeGv2YLNVirWB6r1WEf+deKuxbcZlAeA3VH07AC2js=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=NaVlgzJzMgrPEouE1t9/D7sTyYrUZgqSV3qDdcSIUui0oJfSCB+UFDBWdTU5KaCT6Ziir/T5Ugz15wLsQy8zLg3RVLJhFgTSSzRXiIPPZbdBHyfMfNIN7QKB2H9n3lfzkA3O/GmRP8PkMnLXcpSIAVKuIKfiTDON9/cZvkiTcAs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=FaxCvhD4; arc=none smtp.client-ip=209.85.218.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="J9xuHobn"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1713870190; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=1Qy5JS1oLG695lpDQ8ENP7HAFr0YTA6hwVQ5C4STsdY=;
-	b=J9xuHobniGQnCgsJ0koODQR4JR6EkqbWzoAfXDWJHv/mT3cgJZuxULT4bxDOoDtF2rpnL6PvM0+6VNtEjqX1QrnJU1V6faebokndqJUJnMxAb+4LgLbLJ4RcgJk1r6upSgUcWnvnCV8ZyyW/eR87TKcgy9Wljh1wAuYTB1dSDEc=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0W591OMf_1713870188;
-Received: from 30.221.149.17(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W591OMf_1713870188)
-          by smtp.aliyun-inc.com;
-          Tue, 23 Apr 2024 19:03:10 +0800
-Message-ID: <cab1ae8d-00b8-40e3-a5a6-31f231966a7b@linux.alibaba.com>
-Date: Tue, 23 Apr 2024 19:03:08 +0800
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="FaxCvhD4"
+Received: by mail-ej1-f52.google.com with SMTP id a640c23a62f3a-a524ecaf215so559236666b.2
+        for <virtualization@lists.linux.dev>; Tue, 23 Apr 2024 04:05:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1713870340; x=1714475140; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=FHeGv2YLNVirWB6r1WEf+deKuxbcZlAeA3VH07AC2js=;
+        b=FaxCvhD4DFOS04IsbDYV8l96nd9aJ4ro/BQi2MoAWpMDn8TQbApAJu/7bDBhb6l8UJ
+         s/ZqgERsvAGSsMohr44W90WMTu00QVCZmEpk3Db3RkOKHaiFwdHJCpcH19RB0jnO1ums
+         VBGOjhCb3jvOpvzsmmZvT6CPWKU1UWqoOzK2f5eK0FPQsgGSzmkgVQaeVcvdSx0WcjyC
+         ZqxgEIwv2ttvOVzBP6MBYs4lZsu9LVKf1ghuhYIXoPHzvnyyNE43NFgC6bDWNtKwIGjM
+         sFpOhnmwY5JB/pxdEsyoLfkmHlgYNGY8j58hXP0TXFj+X7g20+rLWyEaEasIbXmfT5oY
+         YNOw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713870340; x=1714475140;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=FHeGv2YLNVirWB6r1WEf+deKuxbcZlAeA3VH07AC2js=;
+        b=Qu88ckSrvtCMH34Hit/kquWO8RvUNfEO1LrNdardkryo1IWNgfPxMZS6IuTfT9S6lK
+         tQUU0lJU11jnKOL24/+5AdXuf89ceVwGzK3+haHyNcs/0CsyqXexLP1HZqMER+UDM5NE
+         BrrOF1sxCli4LQAD0p70x18fV+WFjLwF24hfRIPR6SggaL/2R2Y1/sAm0GHcNkOTfIRL
+         uEaELQ2a4ug9EN1aF/ucYgzu8s4MuAZGhewzHf8pO4+H+fPfov/Hm0SV8yfVt/oSn+nq
+         xnkLZpnTs34kljKyiwoFG4Gd0tidMihk/yvX0uwJMULmuyrXGuZYRizpxeXyhYzldf3j
+         dk1A==
+X-Forwarded-Encrypted: i=1; AJvYcCUSMC5S0iI0FsI1YG0oGeh3mU8jaP3xN57IUPDg2dIZYu4/nb1PG8sv4zc2GADw5rMSy9dXjccAdE5kAqd3vtcdwecuwFfX8MR160B0Iwk=
+X-Gm-Message-State: AOJu0Yy5dS3/w84BCHdimM077KRUtO77xAAsJStTKA9i/At30TBsyGEm
+	HBOxwsBwFJTNySP489Vrjfr/T6RiZ1UOFLV5lfj0ZAmeQoFR8wvJ85nedGU8Q14=
+X-Google-Smtp-Source: AGHT+IEMcFz/QSj8GzY/L5b8JyCjXa2e5imQLO79iWsFiejOl6cuc6LfL+IZRllbwNiKhQ7f03Q4yw==
+X-Received: by 2002:a17:906:3897:b0:a52:42ce:7da6 with SMTP id q23-20020a170906389700b00a5242ce7da6mr6837988ejd.10.1713870340375;
+        Tue, 23 Apr 2024 04:05:40 -0700 (PDT)
+Received: from localhost (78-80-105-131.customers.tmcz.cz. [78.80.105.131])
+        by smtp.gmail.com with ESMTPSA id c26-20020a170906d19a00b00a55662919c1sm7049435ejz.172.2024.04.23.04.05.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 23 Apr 2024 04:05:39 -0700 (PDT)
+Date: Tue, 23 Apr 2024 13:05:37 +0200
+From: Jiri Pirko <jiri@resnulli.us>
+To: netdev@vger.kernel.org
+Cc: kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net,
+	edumazet@google.com, parav@nvidia.com, mst@redhat.com,
+	jasowang@redhat.com, xuanzhuo@linux.alibaba.com, shuah@kernel.org,
+	petrm@nvidia.com, liuhangbin@gmail.com, vladimir.oltean@nxp.com,
+	bpoirier@nvidia.com, idosch@nvidia.com,
+	virtualization@lists.linux.dev
+Subject: Re: [patch net-next v5 repost 0/5] selftests: virtio_net: introduce
+ initial testing infrastructure
+Message-ID: <ZieWAdmg8xfIyKiu@nanopsycho>
+References: <20240423104109.3880713-1-jiri@resnulli.us>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next 1/2] virtio_net: virtnet_send_command supports
- command-specific-result
-To: Jiri Pirko <jiri@resnulli.us>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eric Dumazet <edumazet@google.com>,
- "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>
-References: <20240423084226.25440-1-hengqi@linux.alibaba.com>
- <20240423084226.25440-2-hengqi@linux.alibaba.com>
- <ZieK1lmc0czcEXWk@nanopsycho>
-From: Heng Qi <hengqi@linux.alibaba.com>
-In-Reply-To: <ZieK1lmc0czcEXWk@nanopsycho>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240423104109.3880713-1-jiri@resnulli.us>
 
-
-
-在 2024/4/23 下午6:17, Jiri Pirko 写道:
-> Tue, Apr 23, 2024 at 10:42:25AM CEST, hengqi@linux.alibaba.com wrote:
->> From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
->>
->> As the spec https://github.com/oasis-tcs/virtio-spec/commit/42f389989823039724f95bbbd243291ab0064f82
->>
->> The virtnet cvq supports to get result from the device.
-> Is this a statement about current status, cause it sounds so. Could you
-> make it clear by changing the patch subject and description to use
-> imperative mood please. Command the codebase what to do.
-
-Sure. Will add more text in v2.
-
->
-> Thanks!
->
->> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
->> ---
->> drivers/net/virtio_net.c | 24 +++++++++++++++++-------
->> 1 file changed, 17 insertions(+), 7 deletions(-)
->>
->> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
->> index 7176b956460b..3bc9b1e621db 100644
->> --- a/drivers/net/virtio_net.c
->> +++ b/drivers/net/virtio_net.c
->> @@ -2527,11 +2527,12 @@ static int virtnet_tx_resize(struct virtnet_info *vi,
->>   * supported by the hypervisor, as indicated by feature bits, should
->>   * never fail unless improperly formatted.
->>   */
->> -static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
->> -				 struct scatterlist *out)
->> +static bool virtnet_send_command_reply(struct virtnet_info *vi, u8 class, u8 cmd,
->> +				       struct scatterlist *out,
->> +				       struct scatterlist *in)
->> {
->> -	struct scatterlist *sgs[4], hdr, stat;
->> -	unsigned out_num = 0, tmp;
->> +	struct scatterlist *sgs[5], hdr, stat;
->> +	u32 out_num = 0, tmp, in_num = 0;
->> 	int ret;
->>
->> 	/* Caller should know better */
->> @@ -2549,10 +2550,13 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
->>
->> 	/* Add return status. */
->> 	sg_init_one(&stat, &vi->ctrl->status, sizeof(vi->ctrl->status));
->> -	sgs[out_num] = &stat;
->> +	sgs[out_num + in_num++] = &stat;
->>
->> -	BUG_ON(out_num + 1 > ARRAY_SIZE(sgs));
->> -	ret = virtqueue_add_sgs(vi->cvq, sgs, out_num, 1, vi, GFP_ATOMIC);
->> +	if (in)
->> +		sgs[out_num + in_num++] = in;
->> +
->> +	BUG_ON(out_num + in_num > ARRAY_SIZE(sgs));
->> +	ret = virtqueue_add_sgs(vi->cvq, sgs, out_num, in_num, vi, GFP_ATOMIC);
->> 	if (ret < 0) {
->> 		dev_warn(&vi->vdev->dev,
->> 			 "Failed to add sgs for command vq: %d\n.", ret);
->> @@ -2574,6 +2578,12 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
->> 	return vi->ctrl->status == VIRTIO_NET_OK;
->> }
->>
->> +static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
->> +				 struct scatterlist *out)
->> +{
->> +	return virtnet_send_command_reply(vi, class, cmd, out, NULL);
->> +}
->> +
->> static int virtnet_set_mac_address(struct net_device *dev, void *p)
->> {
->> 	struct virtnet_info *vi = netdev_priv(dev);
->> -- 
->> 2.32.0.3.g01195cf9f
->>
->>
-
+Please ignore, I messed-up. Will send v6 tomorrow. Sigh.
