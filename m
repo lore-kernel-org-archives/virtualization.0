@@ -1,247 +1,112 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B7DD17C66
-	for <virtualization@lists.linux-foundation.org>; Tue, 23 Apr 2024 03:10:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D665B18032
+	for <virtualization@lists.linux.dev>; Tue, 23 Apr 2024 03:12:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713841819; cv=none; b=TyAIt3z/gLYP4vKju6y7WoyAHO4TJrr4TVzyczUGDqz2yCGX8+UvXTVUWOEZUb6QBD0O39uwjb/lJPiv665m3AfAv8RgURpmAcBgVCCOPbjfhg8lt9c2qPdoIy7vnF5Oq7jK7wrgLCmP+VEY29EbfEcLB7ZPoYwNo9fBq0Z7Vls=
+	t=1713841928; cv=none; b=AS+ndMsSKCYnccrP3gZm/BTcmHfQS0MPuDkuG6GPpFGUVGPtuxGtF9rbyeoBrERzzpx0PlSRVeTeQkiQgJZa9JfQLRE8MaSKM6DHGQ8mRkh+0CYXcs5TqNXcuCstIotQAYK4ElAcLfa/BEwupTNdBPbbZD+PO74Z9yBtHJ7jR8Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713841819; c=relaxed/simple;
-	bh=wXNHc5PiarQzMsw9YBToa7rRkxIOn05fejmLy8UMDd4=;
+	s=arc-20240116; t=1713841928; c=relaxed/simple;
+	bh=T/ufC5uEstpX7JOyLrRfGUXFoGcTxcoqu+hG9uSdM3U=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Sa+7AxsBla0hdkeoyFMZjGim7HOc2xxe6IBCufnfxLr4SZLhO9nKh3WEJvsKSAbb8lygMLeu0jo9QmNtBc4nFaJ14eok7wOkBqXEWocPtyxQQ1cQ+6gW9Azo+CIvAmgFSgKOiGB/WdLdCVIGo+9zRQo9x0NP+lpn1YYKRzaZfe4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=jM07YvYq; arc=none smtp.client-ip=140.211.166.138
+	 To:Cc:Content-Type; b=jTP5uha/vv6wLik5BJVnzI+MZfjVbbWhdlbO1pj1k/eqtGOY2YDwM3SzIN83YgMy84xDRfvcCUnATTczOUrJOU9peUL4EBlsKQAaEtETqDlDJTuIWAgmu90Ua1HeIIK90ktLdabI4h1d3csDf3aN9/hmVX0yqQogDdgzlGVdqEU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HnCzNk2s; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="jM07YvYq"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id BC35981EAB
-	for <virtualization@lists.linux-foundation.org>; Tue, 23 Apr 2024 03:10:17 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id GhTBSkpgGGdo for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Apr 2024 03:10:16 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 53E2F81E71
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 53E2F81E71
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=jM07YvYq
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 53E2F81E71
-	for <virtualization@lists.linux-foundation.org>; Tue, 23 Apr 2024 03:10:15 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HnCzNk2s"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1713841814;
+	s=mimecast20190719; t=1713841925;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=xGOzBYTBEU4Vx1BmqOXWbqCplxuBx3Gn5FBEe57Uzsg=;
-	b=jM07YvYqQEsqVGmd4rz5il0XTf50QZN+QGJWXeULPnFPHFKFnVr5DQpBuczqtf4UUB3Wfw
-	vtW0x6dN6lWd5OqaX1bVS7Ycw+pCSepgEW3CPd65YcTPr03A/Zo2h5ij/CvnfevZEe85M8
-	maEMXFrq9Pnd/mGbLX/9z367CubOPJ8=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=P6Hud8ZwYGV/pvpEAsvmgKYrOtwj2IKB6XpISxJlVG0=;
+	b=HnCzNk2sIQXPVd1hAazhb3iOJ6KE+miEn6CqknmgGwFzb5M/Ky0PXQ6gYEYsdBwLdLwsvp
+	hzUh2x7sSwUXMzmsFQ9JKA5RlG27hoFcn7tecFqz+D8F5qhdTUCgVRUOIy6Hn5/cwD4m1X
+	WT9XoEC/cITuxlQrRQNcGUvW5ErA8Vk=
+Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com
+ [209.85.215.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-251-XIr-nuzkPQujtEhxauTwfA-1; Mon, 22 Apr 2024 23:10:12 -0400
-X-MC-Unique: XIr-nuzkPQujtEhxauTwfA-1
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-2a7dad5cdfeso6692326a91.1
-        for <virtualization@lists.linux-foundation.org>; Mon, 22 Apr 2024 20:10:12 -0700 (PDT)
+ us-mta-519-AozW72w_OySy2p3m79qDkQ-1; Mon, 22 Apr 2024 23:12:04 -0400
+X-MC-Unique: AozW72w_OySy2p3m79qDkQ-1
+Received: by mail-pg1-f198.google.com with SMTP id 41be03b00d2f7-5fff61c9444so1633043a12.2
+        for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 20:12:04 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713841811; x=1714446611;
+        d=1e100.net; s=20230601; t=1713841923; x=1714446723;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=xGOzBYTBEU4Vx1BmqOXWbqCplxuBx3Gn5FBEe57Uzsg=;
-        b=iyZQbkrb+zV+FfKo40+exwPQOikqc4qNlcWqxjwXczy2+IYGvrPQ9WP/Oxxh4ZsfOx
-         Xyvc8PU/GlUwgLnzp7IBEdcykoaGIvjUF0AMmjnzz39HlBt5wl9mv4YWdWMINhtBwzAX
-         E7YDBTXp0AdANhKJAKp+6JOhB2/ilBRbnqcKuTncdqvYfQrBltI16UeaawhbV1NtLfw7
-         ujfP/SeV9YpylUL6+rkAMwp8dicXVVKtVLWGaBhAVXE4LQ3whJ9Zzltq9nT8zpOvZnlM
-         EIzJLsLMZ+V10YOcRYJZ75174bhSlfD4dPAckGxZDffja1cFF0U5NNFRwACEdscgP94q
-         vzjw==
-X-Forwarded-Encrypted: i=1; AJvYcCXLSK844RiKvG12ck6kAJIvGU9ReBs5zVMt34QqK1kIVZdGknUan5xtBjdBRyVWRHEYyMBHvdrsgZ4pxgufgYJblxwiOEGyQ+mD22Pm82VX3mgRE5zh4tH6sw==
-X-Gm-Message-State: AOJu0YxILYKxvnA5YyMWC6dxKWMkphHMWUDHTS8dnX4E7nOvXDWapo2Y
-	4w+1NJlk6ufEwSGiSgCjJhCJ+qiDUhSS4oyjN/PK5PyXhOvPonwFFWqXBlINN+zUzlpnAV3QsVW
-	COxM+/aiJtgwd1Zm990AXYGduWsayQiBhR81Kt1h0CMVZfl82iJqdlojJ8+2NuHCbWfxMLtqE5e
-	u2WUnp4U349+uyUWIDjDOwpLmIcgbysRyD2vfq9DHOozdwd2lfTVPPiQ==
-X-Received: by 2002:a17:90a:d990:b0:2ab:ca7d:658b with SMTP id d16-20020a17090ad99000b002abca7d658bmr10112314pjv.4.1713841811371;
-        Mon, 22 Apr 2024 20:10:11 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGgWUZxEIFiEErm5ahPVsmlGOlQL1BmJvl5wL68pDzSmIyeZFBW5KI0sV7sfwyMQHO929OZbhQnJ8VHOn5ptBY=
-X-Received: by 2002:a17:90a:d990:b0:2ab:ca7d:658b with SMTP id
- d16-20020a17090ad99000b002abca7d658bmr10112304pjv.4.1713841811015; Mon, 22
- Apr 2024 20:10:11 -0700 (PDT)
+        bh=P6Hud8ZwYGV/pvpEAsvmgKYrOtwj2IKB6XpISxJlVG0=;
+        b=v0IY2rv6pdnBG0xC/+F43f+jdSorfTJR0g4sgKYkYF37HC1CdDLmFhyu0hNqBE+O+P
+         eIdiWsIgPaGsgJ3GxNABe7jAQf5+QJKcvnW7NOtScEvUAiaY057lYQUCce8Px9g1rbvJ
+         0ecQOmpR17ni0WzXArbiZ21HnhUSW/fDsqklfzuKCbUsK8xZet+b2Znfq60sjkr+9FRd
+         0ZulWx6BujtOkVoPmdu8L6LTCFHttj36+ef5Iba5Yb128LhYU0a3ZsXY1uEInd/P+5Al
+         ZbN9ke+/5SSLqklQGrhN+WQhdUOQhiXzhDkiZBIaeBK5NKsgOpcKh5LCLMCfVjAnCFoT
+         kWzA==
+X-Gm-Message-State: AOJu0Yy3kBWZB+wBJy1sc9fc8oVPy4mB0CWuiOyjPSFF9oWU2J3rIgEV
+	RflCVm/NkGGHee9dAtihhFwtXd1aF7r+kbuotGlJfoXC/gwZRxc7rNGCwlBjPXshycqaLalcPlO
+	han538+R7sv6/QTf3qoChah4I4P8dxxNijXQwNY0keDhNobvSJbFze0M8F+lKkldBrS9guQ3F9z
+	A6BlJCt5mAWg3IHmGXTLtV7nHWblDRR1NWi/EIOj8=
+X-Received: by 2002:a05:6a20:3256:b0:1a7:5721:7011 with SMTP id hm22-20020a056a20325600b001a757217011mr11311678pzc.41.1713841923312;
+        Mon, 22 Apr 2024 20:12:03 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFL/9rAZIQKEhE2sGik3GY4VP6E6ML0Uuq+/eQz4r9cyQjK8L0BsWvQoRqid/ZT5JNaJAJMTO7IM8KdyetjUHA=
+X-Received: by 2002:a05:6a20:3256:b0:1a7:5721:7011 with SMTP id
+ hm22-20020a056a20325600b001a757217011mr11311674pzc.41.1713841923041; Mon, 22
+ Apr 2024 20:12:03 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240412133017.483407-1-lulu@redhat.com> <20240412133017.483407-4-lulu@redhat.com>
- <20240417052723-mutt-send-email-mst@kernel.org> <CACGkMEtv56TSaA=W337hFU3VALfbrGMcEdu25O4Ecx7guUacyQ@mail.gmail.com>
- <20240422160348-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20240422160348-mutt-send-email-mst@kernel.org>
+References: <20240422072408.126821-1-xuanzhuo@linux.alibaba.com> <20240422072408.126821-8-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20240422072408.126821-8-xuanzhuo@linux.alibaba.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 23 Apr 2024 11:09:59 +0800
-Message-ID: <CACGkMEsj1aYBBO+kh5wmTk9vh=QRj50FHPFZ6QX3gs1Jh+XQdA@mail.gmail.com>
-Subject: Re: [PATCH v5 3/5] vduse: Add function to get/free the pages for reconnection
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Cindy Lu <lulu@redhat.com>, linux-kernel@vger.kernel.org, 
-	virtualization@lists.linux-foundation.org
+Date: Tue, 23 Apr 2024 11:11:51 +0800
+Message-ID: <CACGkMEubWOFq8Bj1Kk02Om8DnbhFyNtAD_Lk8mXL4c2GSZgabA@mail.gmail.com>
+Subject: Re: [PATCH vhost v2 7/7] virtio_net: remove the misleading comment
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Apr 23, 2024 at 4:05=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com>=
- wrote:
+On Mon, Apr 22, 2024 at 3:24=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
+om> wrote:
 >
-> On Thu, Apr 18, 2024 at 08:57:51AM +0800, Jason Wang wrote:
-> > On Wed, Apr 17, 2024 at 5:29=E2=80=AFPM Michael S. Tsirkin <mst@redhat.=
-com> wrote:
-> > >
-> > > On Fri, Apr 12, 2024 at 09:28:23PM +0800, Cindy Lu wrote:
-> > > > Add the function vduse_alloc_reconnnect_info_mem
-> > > > and vduse_alloc_reconnnect_info_mem
-> > > > These functions allow vduse to allocate and free memory for reconne=
-ction
-> > > > information. The amount of memory allocated is vq_num pages.
-> > > > Each VQS will map its own page where the reconnection information w=
-ill be saved
-> > > >
-> > > > Signed-off-by: Cindy Lu <lulu@redhat.com>
-> > > > ---
-> > > >  drivers/vdpa/vdpa_user/vduse_dev.c | 40 ++++++++++++++++++++++++++=
-++++
-> > > >  1 file changed, 40 insertions(+)
-> > > >
-> > > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa=
-_user/vduse_dev.c
-> > > > index ef3c9681941e..2da659d5f4a8 100644
-> > > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > > @@ -65,6 +65,7 @@ struct vduse_virtqueue {
-> > > >       int irq_effective_cpu;
-> > > >       struct cpumask irq_affinity;
-> > > >       struct kobject kobj;
-> > > > +     unsigned long vdpa_reconnect_vaddr;
-> > > >  };
-> > > >
-> > > >  struct vduse_dev;
-> > > > @@ -1105,6 +1106,38 @@ static void vduse_vq_update_effective_cpu(st=
-ruct vduse_virtqueue *vq)
-> > > >
-> > > >       vq->irq_effective_cpu =3D curr_cpu;
-> > > >  }
-> > > > +static int vduse_alloc_reconnnect_info_mem(struct vduse_dev *dev)
-> > > > +{
-> > > > +     unsigned long vaddr =3D 0;
-> > > > +     struct vduse_virtqueue *vq;
-> > > > +
-> > > > +     for (int i =3D 0; i < dev->vq_num; i++) {
-> > > > +             /*page 0~ vq_num save the reconnect info for vq*/
-> > > > +             vq =3D dev->vqs[i];
-> > > > +             vaddr =3D get_zeroed_page(GFP_KERNEL);
-> > >
-> > >
-> > > I don't get why you insist on stealing kernel memory for something
-> > > that is just used by userspace to store data for its own use.
-> > > Userspace does not lack ways to persist data, for example,
-> > > create a regular file anywhere in the filesystem.
-> >
-> > Good point. So the motivation here is to:
-> >
-> > 1) be self contained, no dependency for high speed persist data
-> > storage like tmpfs
+> We call the build_skb() actually without copying data.
+> The comment is misleading. So remove it.
 >
-> No idea what this means.
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
-I mean a regular file may slow down the datapath performance, so
-usually the application will try to use tmpfs and other which is a
-dependency for implementing the reconnection.
-
->
-> > 2) standardize the format in uAPI which allows reconnection from
-> > arbitrary userspace, unfortunately, such effort was removed in new
-> > versions
->
-> And I don't see why that has to live in the kernel tree either.
-
-I can't find a better place, any idea?
+Acked-by: Jason Wang <jasowang@redhat.com>
 
 Thanks
 
+> ---
+>  drivers/net/virtio_net.c | 1 -
+>  1 file changed, 1 deletion(-)
 >
-> > If the above doesn't make sense, we don't need to offer those pages by =
-VDUSE.
-> >
-> > Thanks
-> >
-> >
-> > >
-> > >
-> > >
-> > > > +             if (vaddr =3D=3D 0)
-> > > > +                     return -ENOMEM;
-> > > > +
-> > > > +             vq->vdpa_reconnect_vaddr =3D vaddr;
-> > > > +     }
-> > > > +
-> > > > +     return 0;
-> > > > +}
-> > > > +
-> > > > +static int vduse_free_reconnnect_info_mem(struct vduse_dev *dev)
-> > > > +{
-> > > > +     struct vduse_virtqueue *vq;
-> > > > +
-> > > > +     for (int i =3D 0; i < dev->vq_num; i++) {
-> > > > +             vq =3D dev->vqs[i];
-> > > > +
-> > > > +             if (vq->vdpa_reconnect_vaddr)
-> > > > +                     free_page(vq->vdpa_reconnect_vaddr);
-> > > > +             vq->vdpa_reconnect_vaddr =3D 0;
-> > > > +     }
-> > > > +
-> > > > +     return 0;
-> > > > +}
-> > > >
-> > > >  static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
-> > > >                           unsigned long arg)
-> > > > @@ -1672,6 +1705,8 @@ static int vduse_destroy_dev(char *name)
-> > > >               mutex_unlock(&dev->lock);
-> > > >               return -EBUSY;
-> > > >       }
-> > > > +     vduse_free_reconnnect_info_mem(dev);
-> > > > +
-> > > >       dev->connected =3D true;
-> > > >       mutex_unlock(&dev->lock);
-> > > >
-> > > > @@ -1855,12 +1890,17 @@ static int vduse_create_dev(struct vduse_de=
-v_config *config,
-> > > >       ret =3D vduse_dev_init_vqs(dev, config->vq_align, config->vq_=
-num);
-> > > >       if (ret)
-> > > >               goto err_vqs;
-> > > > +     ret =3D vduse_alloc_reconnnect_info_mem(dev);
-> > > > +     if (ret < 0)
-> > > > +             goto err_mem;
-> > > >
-> > > >       __module_get(THIS_MODULE);
-> > > >
-> > > >       return 0;
-> > > >  err_vqs:
-> > > >       device_destroy(&vduse_class, MKDEV(MAJOR(vduse_major), dev->m=
-inor));
-> > > > +err_mem:
-> > > > +     vduse_free_reconnnect_info_mem(dev);
-> > > >  err_dev:
-> > > >       idr_remove(&vduse_idr, dev->minor);
-> > > >  err_idr:
-> > > > --
-> > > > 2.43.0
-> > >
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 848e93ccf2ef..ae15254a673b 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -690,7 +690,6 @@ static struct sk_buff *page_to_skb(struct virtnet_inf=
+o *vi,
+>
+>         shinfo_size =3D SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
+>
+> -       /* copy small packet so we can reuse these pages */
+>         if (!NET_IP_ALIGN && len > GOOD_COPY_LEN && tailroom >=3D shinfo_=
+size) {
+>                 skb =3D virtnet_build_skb(buf, truesize, p - buf, len);
+>                 if (unlikely(!skb))
+> --
+> 2.32.0.3.g01195cf9f
 >
 
