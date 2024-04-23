@@ -1,46 +1,47 @@
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D56F20323
-	for <virtualization@lists.linux.dev>; Tue, 23 Apr 2024 05:48:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DA9A1F94C
+	for <virtualization@lists.linux.dev>; Tue, 23 Apr 2024 05:54:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713851286; cv=none; b=ecSkW/fnGcv/xhPFzU7zb5bD1Njhs6l8wp8VukqB1PKrJjgHuzeqyaA7f39gdlgWPeeP4NEcdky1xl4wbJG3Oi1e7aLnDbssUfQuuR0E9i0b+XEvIsH2yRkIgtEsPgNCxJdmxZimnnfDj5fSI7HjeE+lajsK3pqe64VlYE5z2hs=
+	t=1713851677; cv=none; b=VZ1DkrLwWQ8erTg+cERfDy7VTXiiw+O0NxJqZy1/9S+lM3imvRgFZ2cOTNJ49uMiyQD0QbzDZW94Cddk2RaiyKZrPgUOjXZbwFl4/DOK2Zd9+QJoL4qCY7VFUROg0SQaZ8v0sqN5ARPeC743dO1N8vI9g3FMqy4ibX8YvL+3tK8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713851286; c=relaxed/simple;
-	bh=ev8X/18Ecb+sz0DOl6ifvds5rlCeW5uGZn3WDcmtBuA=;
+	s=arc-20240116; t=1713851677; c=relaxed/simple;
+	bh=oHJaPwu+1MrlP9savi4dmj4yo0rmVTG87IxUghRrskQ=;
 	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=HESNhi5Pk8Wzt4xqtgiASWJNxWSWn4UXGIidPuiXs5qBVQbiFZu4B+TRsjsqe1uKvbCBAH17aN5RDqrKr3yXlbJHHR+JLtl4LDhqM6WpUQ+hZCzwgYpjDNxC8SnzCER6+7sx1FMlYVMh2h2uP/1BIgYJFvfmj/fq41nbeySBbRk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=iEJ0gaNE; arc=none smtp.client-ip=115.124.30.111
+	 Content-Type; b=J5yM1RjYgWlAs6SgWM1thkzT2Lh4wD/EvTA/WNsQYlMuERdVcjlB+HGqmQoHfxNk74Q3YJSurpJa48xUHVJ8fv4mGHSSuaKnJpkvsnw+dvqHcZtRYtxe2FcFrpGTOkJfMpyxU6IzbWp24fNLunwDIE34dBxJ4scVjEriYKnTHB8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=QT+zOS0O; arc=none smtp.client-ip=115.124.30.119
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="iEJ0gaNE"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="QT+zOS0O"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1713851275; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=9T8+X9V6C7conzkUFeYvyiHt10I144MHOTOHwzEQEy8=;
-	b=iEJ0gaNEyyEUD3lTTf3118e/NuNDUWSMIkMMGN2yQsqfyWMHnUUKn9YwcPEYtBsnVJq/TEDfOfWuWt3OivF6zAWa17UpJxchFj5s4bCRfKj5VP8UWE27w4somhcMbB7banxc5iMMMlT4+zjyHrEq+oND6TVK1bq8In7SozO6KMA=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R851e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0W57roUW_1713851273;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W57roUW_1713851273)
+	t=1713851672; h=Message-ID:Subject:Date:From:To:Content-Type;
+	bh=Cic5HLQvD7g1K6EqFZ3bBVYuQ25WV9OCvTHntcPpXtM=;
+	b=QT+zOS0OZJl2i6j29xOhWtMxEk7Gv8y+zjFZG7JikR55eh1MiGQQLhdxWLatwNt1zOgoClLlFAWjMJF6nL4TlK5YePI2zxaN0vFBr4YvWNAaWXIsKu7IXl6MGPL7R4M8zfXzXvzBWeAIck8DJH+8srf9mPfl47dlEj6bMcuoNFA=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0W57uP-X_1713851668;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W57uP-X_1713851668)
           by smtp.aliyun-inc.com;
-          Tue, 23 Apr 2024 13:47:54 +0800
-Message-ID: <1713851247.7967803-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost v2 4/7] virtio_net: big mode support premapped
-Date: Tue, 23 Apr 2024 13:47:27 +0800
+          Tue, 23 Apr 2024 13:54:30 +0800
+Message-ID: <1713851629.1603248-2-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH vhost] virtio_net: update the hdr_len calculation for xmit
+Date: Tue, 23 Apr 2024 13:53:49 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux.dev,
- "Michael S. Tsirkin" <mst@redhat.com>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- netdev@vger.kernel.org
-References: <20240422072408.126821-1-xuanzhuo@linux.alibaba.com>
- <20240422072408.126821-5-xuanzhuo@linux.alibaba.com>
- <CACGkMEuEYwR_QE-hhnD0KYujD6MVEArz3FPyjsfmJ-jk_02hZw@mail.gmail.com>
-In-Reply-To: <CACGkMEuEYwR_QE-hhnD0KYujD6MVEArz3FPyjsfmJ-jk_02hZw@mail.gmail.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>,
+ virtualization@lists.linux.dev,
+ Spike Du <spiked@nvidia.com>
+References: <20240320102025.11327-1-xuanzhuo@linux.alibaba.com>
+ <CACGkMEs-x-W2DHh8U=+0ORnq7=kjw9SJNNtDFfGNjC2KqqPZeA@mail.gmail.com>
+ <1711074462.3244817-3-xuanzhuo@linux.alibaba.com>
+ <CACGkMEtOjPYuPi7MQcnp+TroxLKa4YtpTdsP4bNUSxUV8rgq3A@mail.gmail.com>
+ <1711086351.5199406-1-xuanzhuo@linux.alibaba.com>
+ <CACGkMEv7XsRVLSgOu8=VPvLwQZf5rAXrUFD2v9mCvLiV4PRCSw@mail.gmail.com>
+ <1711087705.9262164-4-xuanzhuo@linux.alibaba.com>
+ <20240422163048-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20240422163048-mutt-send-email-mst@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
@@ -49,85 +50,266 @@ List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-On Tue, 23 Apr 2024 12:36:42 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Mon, Apr 22, 2024 at 3:24=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba=
+On Mon, 22 Apr 2024 16:31:03 -0400, "Michael S. Tsirkin" <mst@redhat.com> w=
+rote:
+> On Fri, Mar 22, 2024 at 02:08:25PM +0800, Xuan Zhuo wrote:
+> > On Fri, 22 Mar 2024 13:57:36 +0800, Jason Wang <jasowang@redhat.com> wr=
+ote:
+> > > On Fri, Mar 22, 2024 at 1:51=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.ali=
+baba.com> wrote:
+> > > >
+> > > > On Fri, 22 Mar 2024 13:04:48 +0800, Jason Wang <jasowang@redhat.com=
+> wrote:
+> > > > > On Fri, Mar 22, 2024 at 10:29=E2=80=AFAM Xuan Zhuo <xuanzhuo@linu=
+x.alibaba.com> wrote:
+> > > > > >
+> > > > > > On Thu, 21 Mar 2024 12:17:54 +0800, Jason Wang <jasowang@redhat=
 .com> wrote:
+> > > > > > > On Wed, Mar 20, 2024 at 6:20=E2=80=AFPM Xuan Zhuo <xuanzhuo@l=
+inux.alibaba.com> wrote:
+> > > > > > > >
+> > > > > > > > The virtio spec says:
+> > > > > > > >     If one of the VIRTIO_NET_F_HOST_TSO4, TSO6, USO or UFO =
+options have
+> > > > > > > >     been negotiated:
+> > > > > > > >         If the VIRTIO_NET_F_GUEST_HDRLEN feature has been n=
+egotiated,
+> > > > > > > >         and gso_type differs from VIRTIO_NET_HDR_GSO_NONE, =
+the driver
+> > > > > > > >         MUST set hdr_len to a value equal to the length of =
+the headers,
+> > > > > > > >         including the transport header.
+> > > > > > > >
+> > > > > > > >         If the VIRTIO_NET_F_GUEST_HDRLEN feature has not be=
+en negotiated,
+> > > > > > > >         or gso_type is VIRTIO_NET_HDR_GSO_NONE, the driver =
+SHOULD set
+> > > > > > > >         hdr_len to a value not less than the length of the =
+headers,
+> > > > > > > >         including the transport header.
+> > > > > > > >
+> > > > > > > > So if the VIRTIO_NET_F_GUEST_HDRLEN feature has been negoti=
+ated, the
+> > > > > > > > hdr->hdr_len should be eth header + ip header + tcp/udp hea=
+der.
+> > > > > > > >
+> > > > > > > > But now:
+> > > > > > > >     hdr->hdr_len =3D __cpu_to_virtio15(little_endian, skb_h=
+eadlen(skb));
+> > > > > > > >
+> > > > > > > > The skb_headlen() returns the linear space of the skb, not =
+the header
+> > > > > > > > size that only match the case the VIRTIO_NET_F_GUEST_HDRLEN=
+ feature has
+> > > > > > > > not been negotiated, or gso_type is VIRTIO_NET_HDR_GSO_NONE.
+> > > > > > > >
+> > > > > > > > We do not check the feature of the device. This function is=
+ a common
+> > > > > > > > function used by many places. So we do more stricter work w=
+hatever
+> > > > > > > > the features is negotiated.
+> > > > > > > >
+> > > > > > > > For the case skb_is_gso(skb) is false, if none of the
+> > > > > > > > VIRTIO_NET_F_HOST_TSO4, TSO6, USO or UFO options have been =
+negotiated,
+> > > > > > > > the spec not define the action of setting hdr_len. Here I s=
+et it to
+> > > > > > > > skb_headlen(). If one of the above features have been negot=
+iated, we
+> > > > > > > > should set a value not less than the length of "eth header =
++ ip header +
+> > > > > > > > tcp/udp header". So the skb_headlen() also is a valid value.
+> > > > > > > >
+> > > > > > > > For the case skb_is_gso(skb) is true, it implies that one of
+> > > > > > > > VIRTIO_NET_F_HOST_TSO4, TSO6, USO or UFO options MUST have =
+been
+> > > > > > > > negotiated. If the VIRTIO_NET_F_GUEST_HDRLEN is negotiated,=
+ we MUST set
+> > > > > > > > it to the length of "eth header + ip header + tcp/udp heade=
+r".
+> > > > > > > > If the VIRTIO_NET_F_GUEST_HDRLEN is not negotiated, that st=
+ill be a
+> > > > > > > > valid value.
+> > > > > > > >
+> > > > > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > > > > > Reported-by: Spike Du <spiked@nvidia.com>
+> > > > > > > > ---
+> > > > > > > >  include/linux/virtio_net.h | 41 ++++++++++++++++++++++++++=
+++----------
+> > > > > > > >  1 file changed, 31 insertions(+), 10 deletions(-)
+> > > > > > > >
+> > > > > > > > diff --git a/include/linux/virtio_net.h b/include/linux/vir=
+tio_net.h
+> > > > > > > > index 4dfa9b69ca8d..51d93f9762d7 100644
+> > > > > > > > --- a/include/linux/virtio_net.h
+> > > > > > > > +++ b/include/linux/virtio_net.h
+> > > > > > > > @@ -201,24 +201,45 @@ static inline int virtio_net_hdr_from=
+_skb(const struct sk_buff *skb,
+> > > > > > > >
+> > > > > > > >         if (skb_is_gso(skb)) {
+> > > > > > > >                 struct skb_shared_info *sinfo =3D skb_shinf=
+o(skb);
+> > > > > > > > +               u32 hdrlen;
+> > > > > > > >
+> > > > > > > > -               /* This is a hint as to how much should be =
+linear. */
+> > > > > > > > -               hdr->hdr_len =3D __cpu_to_virtio16(little_e=
+ndian,
+> > > > > > > > -                                                skb_headle=
+n(skb));
+> > > > > > > > -               hdr->gso_size =3D __cpu_to_virtio16(little_=
+endian,
+> > > > > > > > -                                                 sinfo->gs=
+o_size);
+> > > > > > > > -               if (sinfo->gso_type & SKB_GSO_TCPV4)
+> > > > > > > > +               if (sinfo->gso_type & SKB_GSO_TCPV4) {
+> > > > > > > >                         hdr->gso_type =3D VIRTIO_NET_HDR_GS=
+O_TCPV4;
+> > > > > > > > -               else if (sinfo->gso_type & SKB_GSO_TCPV6)
+> > > > > > > > +                       hdrlen =3D tcp_hdrlen(skb) + skb_tr=
+ansport_offset(skb);
+> > > > > > >
+> > > > > > > So could evil guests give us a 0 hdrlen through this. If yes,=
+ it seems
+> > > > > > > much more dangerous than headlen or we need harden the value =
+as
+> > > > > > > 9181d6f8a2bb32d158de66a84164fac05e3ddd18 did.
+> > > > > >
+> > > > > > Spec says:
+> > > > > >         If the VIRTIO_NET_F_GUEST_HDRLEN feature has been negot=
+iated, and
+> > > > > >         gso_type differs from VIRTIO_NET_HDR_GSO_NONE, the devi=
+ce MAY use
+> > > > > >         hdr_len as the transport header size. Note: Caution sho=
+uld be taken by
+> > > > > >         the implementation so as to prevent a malicious driver =
+from attacking
+> > > > > >         the device by setting an incorrect hdr_len.
+> > > > > >
+> > > > > >         If the VIRTIO_NET_F_GUEST_HDRLEN feature has not been n=
+egotiated, or
+> > > > > >         gso_type is VIRTIO_NET_HDR_GSO_NONE, the device MAY use=
+ hdr_len only as
+> > > > > >         a hint about the transport header size. The device MUST=
+ NOT rely on
+> > > > > >         hdr_len to be correct. Note: This is due to various bug=
+s in
+> > > > > >         implementations.
+> > > > > >
+> > > > > > The device nerver trust the hdr_len completely.
+> > > > > > So I think that is safe.
+> > > > >
+> > > > > It doesn't, there's no way to audit all the existing implementati=
+ons of virtio.
+> > > > >
+> > > > > For example, have you seen the commit I've pointed to you?
+> > > >
+> > > > I haven seen it.
+> > > >
+> > > > But here, this is driver, the device should handen the check.
+> > >
+> > > Unfortunately not. We can't audit all device implementations.
+> > >
+> > > > For the driver, we should do as the spec.
+> > > > Do you mean that some evil driver pass 0 to device?
+> > > > Now we fix that.
+> > >
+> > > hdrlen =3D tcp_hdrlen(skb) + skb_transport_offset(skb)
+> > >
+> > > Did you mean hdrlen can't be zero here? I guess it is done by the
+> > > DODGY checking in the GSO path?
 > >
-> > In big mode, pre-mapping DMA is beneficial because if the pages are not
-> > used, we can reuse them without needing to unmap and remap.
+> > Do you mean tcp_hdrlen(skb) + skb_transport_offset(skb) maybe zero?
+> > I think so indeed. I will to check the logic of DODGY.
 > >
-> > We require space to store the DMA address. I use the page.dma_addr to
-> > store the DMA address from the pp structure inside the page.
-> >
-> > Every page retrieved from get_a_page() is mapped, and its DMA address is
-> > stored in page.dma_addr. When a page is returned to the chain, we check
-> > the DMA status; if it is not mapped (potentially having been unmapped),
-> > we remap it before returning it to the chain.
-> >
-> > Based on the following points, we do not use page pool to manage these
-> > pages:
-> >
-> > 1. virtio-net uses the DMA APIs wrapped by virtio core. Therefore,
-> >    we can only prevent the page pool from performing DMA operations, and
-> >    let the driver perform DMA operations on the allocated pages.
-> > 2. But when the page pool releases the page, we have no chance to
-> >    execute dma unmap.
-> > 3. A solution to #2 is to execute dma unmap every time before putting
-> >    the page back to the page pool. (This is actually a waste, we don't
-> >    execute unmap so frequently.)
-> > 4. But there is another problem, we still need to use page.dma_addr to
-> >    save the dma address. Using page.dma_addr while using page pool is
-> >    unsafe behavior.
-> >
-> > More:
-> >     https://lore.kernel.org/all/CACGkMEu=3DAok9z2imB_c5qVuujSh=3Dvjj1kx=
-12fy9N7hqyi+M5Ow@mail.gmail.com/
-> >
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > ---
-> >  drivers/net/virtio_net.c | 123 ++++++++++++++++++++++++++++++++++-----
-> >  1 file changed, 108 insertions(+), 15 deletions(-)
-> >
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index 2c7a67ad4789..d4f5e65b247e 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -439,6 +439,81 @@ skb_vnet_common_hdr(struct sk_buff *skb)
-> >         return (struct virtio_net_common_hdr *)skb->cb;
-> >  }
-> >
-> > +static void sg_fill_dma(struct scatterlist *sg, dma_addr_t addr, u32 l=
-en)
-> > +{
-> > +       sg->dma_address =3D addr;
-> > +       sg->length =3D len;
-> > +}
-> > +
-> > +/* For pages submitted to the ring, we need to record its dma for unma=
-p.
-> > + * Here, we use the page.dma_addr and page.pp_magic to store the dma
-> > + * address.
-> > + */
-> > +static void page_chain_set_dma(struct page *p, dma_addr_t addr)
-> > +{
-> > +       if (sizeof(dma_addr_t) > sizeof(unsigned long)) {
+> > Thanks.
 >
-> Need a macro like PAGE_POOL_32BIT_ARCH_WITH_64BIT_DMA.
->
-> > +               p->dma_addr =3D lower_32_bits(addr);
-> > +               p->pp_magic =3D upper_32_bits(addr);
->
-> And this uses three fields on page_pool which I'm not sure the other
-> maintainers are happy with. For example, re-using pp_maing might be
-> dangerous. See c07aea3ef4d40 ("mm: add a signature in struct page").
->
-> I think a more safe way is to reuse page pool, for example introducing
-> a new flag with dma callbacks?
+> Was any conclusion reached?
 
-Let me try.
+No, I am currently more focused on other work.
 
 Thanks.
 
 >
-> Thanks
+> > >
+> > > Then, let's explain it here.
+> > >
+> > > >
+> > > >
+> > > > >
+> > > > > >
+> > > > > >
+> > > > > > >
+> > > > > > > > +
+> > > > > > > > +               } else if (sinfo->gso_type & SKB_GSO_TCPV6)=
+ {
+> > > > > > > >                         hdr->gso_type =3D VIRTIO_NET_HDR_GS=
+O_TCPV6;
+> > > > > > > > -               else if (sinfo->gso_type & SKB_GSO_UDP_L4)
+> > > > > > > > +                       hdrlen =3D tcp_hdrlen(skb) + skb_tr=
+ansport_offset(skb);
+> > > > > > > > +
+> > > > > > > > +               } else if (sinfo->gso_type & SKB_GSO_UDP_L4=
+) {
+> > > > > > > >                         hdr->gso_type =3D VIRTIO_NET_HDR_GS=
+O_UDP_L4;
+> > > > > > > > -               else
+> > > > > > > > +                       hdrlen =3D sizeof(struct udphdr) + =
+skb_transport_offset(skb);
+> > > > > > > > +
+> > > > > > > > +               } else {
+> > > > > > > >                         return -EINVAL;
+> > > > > > > > +               }
+> > > > > > > > +
+> > > > > > > > +               /* One of VIRTIO_NET_F_HOST_TSO4, TSO6, USO=
+ or UFO options MUST
+> > > > > > > > +                * have been negotiated. If the VIRTIO_NET_=
+F_GUEST_HDRLEN is
+> > > > > > > > +                * negotiated, we MUST set it to the length=
+ of "eth header + ip
+> > > > > > > > +                * header + tcp/udp header".  If the VIRTIO=
+_NET_F_GUEST_HDRLEN
+> > > > > > > > +                * is not negotiated, that still be a valid=
+ value.
+> > > > > > > > +                */
+> > > > > > >
+> > > > > > > I'd stick the headlen for deivce without GUEST_HDRLEN. It see=
+ms much
+> > > > > > > more safe as we don't want to break legacy devices.
+> > > > > >
+> > > > > > I do not get it.
+> > > > >
+> > > > > if (GUEST_HDRLEN)
+> > > > >     tell the offset of the payload
+> > > > > else
+> > > > >     tell the headlen (stick to the old behaviour)
+> > > >
+> > > >
+> > > > I am ok. Then we need to pass the features of the device to this fu=
+nction.
+> > >
+> > > Yes, a boolean probably.
+> > >
+> > > Thanks
+> > >
+> > > >
+> > > > Thanks
+> > > >
+> > > >
+> > > >
+> > > > >
+> > > > > Thanks
+> > > > >
+> > > > > >
+> > > > > > Thanks.
+> > > > > >
+> > > > > >
+> > > > > > >
+> > > > > > > Thanks
+> > > > > > >
+> > > > > > >
+> > > > > >
+> > > > >
+> > > >
+> > >
 >
