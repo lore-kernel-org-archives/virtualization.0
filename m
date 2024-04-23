@@ -1,146 +1,74 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-io1-f70.google.com (mail-io1-f70.google.com [209.85.166.70])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2085EEA9
-	for <virtualization@lists.linux.dev>; Tue, 23 Apr 2024 01:02:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 615FF168BE
+	for <virtualization@lists.linux.dev>; Tue, 23 Apr 2024 01:31:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.70
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713834138; cv=none; b=ej6uBxpZqXTjBhEovn+pzrrxGechxMeuCSfTcfUoM1nSFDo6H9i1c4j7+tQhA+LbHix9UrQ0L9DakScPWcQ5i6DFb/0wgPTUKPVyLbfaKSTlypsp8zqsoFfotICL912YGQQWGv+LY30Um6F/3s14qm3Yy6vODAtAVUqBLO/4Ncg=
+	t=1713835865; cv=none; b=WSMXLmmKIOgLkXB1358L3j0y6Gg8/CmLvJiJ5rUzp4Z41UJWBcPwY72ZHmWyKtD/nPpwGOPMA8S8Dd1pCDHfaVrFTOSlH2LD5VyAD+Tv0TIOFsrUdJdK4V1PctsUWNG8S4/C4NjWXdrs09rRffsya1D3WuDSP8WX429OEg7pe34=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713834138; c=relaxed/simple;
-	bh=uWpj90WzaivTpwV3wRAddW6tg90OKeaqEUAm2vDazMg=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=eQ8YmxGljNdqJiNwG5V/hdhtQlf1TOLQUVKFmABimv643XEJyUYnSnIeiTX/RHeV6xxG0vBE2AVhcYzWCmYzuch4n1Hlr6fsdP3ovE/NypRalOWrEfW6YKUedTz+rCkOqR0hiFXg2RA4aLGVU9uM7bk2kL/3IJSdojAIu1ctda0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=By5tKlFv; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=UR4ID+jk; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="By5tKlFv";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="UR4ID+jk"
-From: Thomas Gleixner <tglx@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1713834135;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=G9dZh/zkbcqMryMT4S/DkvJjtqvfHQKiNRTkLprSWL8=;
-	b=By5tKlFvILbXDv5rNI7WxSK8H0hWIUveJ/O0Lw1WwMcwMkQKDi1aqBLtFoy31jwX5z+ue5
-	NGlk5KA8EPNLP3u74AUWTnqyVAUx0yRqjne1znNISad4/1lmHkd1q91h5Ly0Ln6lfKkgvH
-	lX38xr08oQgpwokdIgHWGaPaVwdOYorPX8gjwXujMUNQxA69F3Sa4wI2VTE8vQTQfz5wRv
-	nthjKkEUmCioncEkhG7UQrqUhuAVrkgHU0kJaxhg1cNhnnIyJumFXVSYALV9ISb1fOlvwq
-	kjKsCd2/0bth3BaJLbstS62O66j3lmTqxw0Slkw4rXjzuWUNrOimVI6qplI9jA==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1713834135;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=G9dZh/zkbcqMryMT4S/DkvJjtqvfHQKiNRTkLprSWL8=;
-	b=UR4ID+jkokw2iZXPOchoRTOKnavwHuT/2JbUHVWbEc5ISAK1C990M0U+CFDVSTB/CYfeS5
-	UfCkZfZT3CZr1PCg==
-To: Dongli Zhang <dongli.zhang@oracle.com>
-Cc: virtualization@lists.linux.dev, joe.jin@oracle.com,
- linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/1] genirq/cpuhotplug: retry with online CPUs on
- irq_do_set_affinity failure
-In-Reply-To: <240e09fb-257f-d32c-64c8-559430b06a2a@oracle.com>
-References: <20240419013322.58500-1-dongli.zhang@oracle.com>
- <20240419013322.58500-2-dongli.zhang@oracle.com> <87ttjtunbx.ffs@tglx>
- <240e09fb-257f-d32c-64c8-559430b06a2a@oracle.com>
-Date: Tue, 23 Apr 2024 03:02:11 +0200
-Message-ID: <87bk60vqlo.ffs@tglx>
+	s=arc-20240116; t=1713835865; c=relaxed/simple;
+	bh=22JucIr333S5hWoQojYq8sDzxWaVqwg8jNiaohfDBE8=;
+	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
+	 Content-Type; b=SJFW2xNbUViebnsUD5viB7GjOpPn6mT40U/I3jiThIqCaAyz+NImrAR+cf/uXqEe1ZFVL6ViTBIQNhu/PUxHV8G1Nzw5zCmGhN0BPprLEgPvHVz6AoThMbOpODedYXMsMkohBGvm3UhwvuFO4D6pd2qJkXnRbyQvjmssYzxZxy8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.70
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-io1-f70.google.com with SMTP id ca18e2360f4ac-7da7d4ccb67so364876639f.0
+        for <virtualization@lists.linux.dev>; Mon, 22 Apr 2024 18:31:04 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713835863; x=1714440663;
+        h=to:from:subject:message-id:in-reply-to:date:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Cz3oNrlg/tZ0pVKzc2WrDO3+pRPfzflWiDsR/M727fk=;
+        b=N2lzzN7pWw1a+CR31jKyZK53LqfNtbE8ci4q5P2/TuNsnbHB09wy4AiQoPfcFq9zhi
+         Uu+r5dM0k1c5vOwVUusVBzlTXxZnV0kb0ARAm6gqsJ6IEB95HCQdNpYRv3Us/wWAreB7
+         ufAspWb/H9hGTK6GB+7V50K3MWqEXtEJZsrVb0Jd3J6SlF5eTXldEuvqNGQN/Z93fxsx
+         vbQDbgIdQgdOPMwajOOwvgEvUP3d3qdt6ir+f+V2ENx7B07Y5YjItoidcnSpoBqS8+Tf
+         +ZCe1/G6hsaHQzO3Mpj+MbuwPiwFMRYfGfSxRG4J60BswmGdnBNMVUlXkJgXaS/7/yG1
+         OYJg==
+X-Forwarded-Encrypted: i=1; AJvYcCWx+8CChLUlhqH81q7uKe4K32+B0lmksGIDH/hCiqF+Rf21dEkV5rQQwzKiGX5E8kR9St6PIaBIKG1I0XTR0gDnxvksEYpYyVFHCUrG1LE=
+X-Gm-Message-State: AOJu0YyAelkKKpfhqUUDZF66DDzRLyYa33y7MhFVmDWkVFTa7ySOKlfE
+	ULepIJlCYBmzFf0qIalm7LY9IqOZpTHFpSgncBLHxWTVfTdBUbAor3e1T+75r+FSpRsX6AqZFCV
+	2eP8StSHQJD7uTAPWYgmaZlfKsMGLYFPjojSmLXf19affIrNMu6noSkI=
+X-Google-Smtp-Source: AGHT+IHodPS3M1cJI0kzh6PKVQhHFuy5lI2gp/FKCQIK5MUvSHRJwKXkmGBl7t3+5hguQZybcRaW0A0Oqr+8oMCpedZQCN1uEESx
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain
+X-Received: by 2002:a05:6638:4126:b0:485:6cb9:9a79 with SMTP id
+ ay38-20020a056638412600b004856cb99a79mr103537jab.0.1713835863671; Mon, 22 Apr
+ 2024 18:31:03 -0700 (PDT)
+Date: Mon, 22 Apr 2024 18:31:03 -0700
+In-Reply-To: <20240422101622-mutt-send-email-mst@kernel.org>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <000000000000db97ee0616b981a2@google.com>
+Subject: Re: [syzbot] [virt?] [net?] KMSAN: uninit-value in
+ vsock_assign_transport (2)
+From: syzbot <syzbot+6c21aeb59d0e82eb2782@syzkaller.appspotmail.com>
+To: davem@davemloft.net, edumazet@google.com, kuba@kernel.org, 
+	linux-kernel@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, 
+	pabeni@redhat.com, sgarzare@redhat.com, syzkaller-bugs@googlegroups.com, 
+	virtualization@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
 
-On Mon, Apr 22 2024 at 16:09, Dongli Zhang wrote:
-> On 4/22/24 13:58, Thomas Gleixner wrote:
->> On Thu, Apr 18 2024 at 18:33, Dongli Zhang wrote:
-> Would you mind suggesting if the below commit message is fine to you?
->
->
-> genirq/cpuhotplug: retry with cpu_online_mask when irq_do_set_affinity return
-> -ENOSPC
->
-> When a CPU goes offline, the interrupts pinned to that CPU are
-> re-configured.
->
-> Its managed interrupts undergo either migration to other CPUs or shutdown
-> if all CPUs listed in the affinity are offline. This patch doesn't affect
-> managed interrupts.
->
-> For regular interrupts, they are migrated to other selected online CPUs.
-> The target CPUs are chosen from either desc->pending_mask (suppose
-> CONFIG_GENERIC_PENDING_IRQ) or d->common->affinity (suppose CONFIG_SMP).
-> The cpu_online_mask is used as target CPUs only when CPUs in both
-> desc->pending_mask and d->common->affinity are offline.
->
-> However, there is a bad corner case, when desc->pending_mask or
-> d->common->affinity is selected as the target cpumask, but none of their
-> CPUs has any available vectors.
+Hello,
 
-Up to here it's fine.
+syzbot has tested the proposed patch and the reproducer did not trigger any issue:
 
-> As a result, an -ENOSPC error happens:
->
->   "IRQ151: set affinity failed(-28)."
->
-> This is from the debugfs. The allocation fails although other online CPUs
-> (except CPU=2) have many free vectors.
+Reported-and-tested-by: syzbot+6c21aeb59d0e82eb2782@syzkaller.appspotmail.com
 
-The debugfs output is not really providing more information than the
-last sentence. It just occupies space :)
+Tested on:
 
-> The steps to reproduce the issue are in [1]. The core idea is:
->
-> 1. Create a KVM guest with many virtio-net PCI devices, each configured
-> with a very large number of queues/vectors.
->
-> 2. Set the affinity of all virtio-net interrupts to "2,3".
+commit:         bcc17a06 vhost/vsock: always initialize seqpacket_allow
+git tree:       https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git
+console output: https://syzkaller.appspot.com/x/log.txt?x=12b58abb180000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=87a805e655619c64
+dashboard link: https://syzkaller.appspot.com/bug?extid=6c21aeb59d0e82eb2782
+compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
 
-That makes absolutely no sense at all. :)
-
-But yes, I can see the non-real world problem with that.
-
-> For regular interrupts, if irq_do_set_affinity() returns -ENOSPC, retry it
-> with all online CPUs. The issue does not happen for managed interrupts
-> because the vectors are always reserved (in cm->managed_map) before the CPU
-> offline operation.
->
-> [1]
-> https://lore.kernel.org/all/20240419013322.58500-1-dongli.zhang@oracle.com/
-
-The reproduction instructions are just additional information and not
-necessarily change log material.
-
-So I'd just say after the above:
-> However, there is a bad corner case, when desc->pending_mask or
-> d->common->affinity is selected as the target cpumask, but none of their
-> CPUs has any available vectors.
-
-   In this case the migration fails and the device interrupt becomes
-   stale. This is not any different from the case where the affinity
-   mask does not contain any online CPU, but there is no fallback
-   operation for this.
-
-   Instead of giving up retry the migration attempt with the online CPU
-   mask if the interrupt is not managed as managed interrupts cannot be
-   affected by this problem.
-
-Hmm?
-
-> I will change it to a single line.
->
-> Would you mind suggesting which is preferred? !cpumask_equal(affinity,
-> cpu_online_mask) or (affinity != cpu_online_mask)?
-
-If at all you want !cpumask_subset(cpu_online_mask, affinity), but as
-this is a corner case 'affinity != cpu_online_mask' should be good
-enough.
-
-Thanks,
-
-        tglx
+Note: no patches were applied.
+Note: testing is done by a robot and is best-effort only.
