@@ -1,177 +1,125 @@
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66BFB13473E
-	for <virtualization@lists.linux.dev>; Tue, 23 Apr 2024 12:38:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B096978C6E
+	for <virtualization@lists.linux-foundation.org>; Tue, 23 Apr 2024 12:57:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713875926; cv=none; b=bZ7okZf1HPbThq1cAl3qv39CtN4I9DkS3k+7bYzaIjLmwhaLpQUntXg9PI/8IyvtWI8MY9S4qwzdfQeGoPiPoRaJH3PZ1758Y76T9nRc8OwMIYy+tZXyGRw74HRrac0pD1zB6pWJFnRGI/XAEq3M7IOW9p6qYkyFbVQQ8NhvYUE=
+	t=1713877025; cv=none; b=ku5nUMxLmw5rAQetje4h34DZU5wRKiope62zWAQbv8jon7YJlR2lhq2ZwgfrEvciiOK91AqPZdrKVWm2KHZNqLroATCV1h5X7ZBufKDQqduBkpuP6iAqi6fehs5q04LUMD/Md3h8MQ8wOkhcXMZlQpI8RNAKF4PKFQ3xzODYmek=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713875926; c=relaxed/simple;
-	bh=VEivHfRBE5PagdBkYDmej9luvUWSDrVWwBvEwkxb/J4=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=p0vUz613VpqCz105qCt7DZGaFKL01LMZ5I8P41UfNSmu9tcI8aa76Xd4/GPOtlIiIJkN2PaeEgcRNMtbfQyHLxRd6qOnK6skjpKN7FNWK/stgcNa0Fx53uJkcR4OBjPc62XDdN4KgWpcFuNPR0U6RH/+1fP1QLqB9iy6p/NfeUc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=mJvLaQiw; arc=none smtp.client-ip=115.124.30.99
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1713877025; c=relaxed/simple;
+	bh=XeZycoklrbmIsGAeu98uH0HIylfGOQJCx4GR355GWBc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=EfdRYwncBlQxR7ZjLNFGtHl4cDkpuWRWlfQTOFV8i0/ipbnzRuQ5xHE2EeBS6aaCzDFCnvVoIe0o0vy5bF622xPKCVU+DCWf47jwNzN6l+SXMqU9Q9J5koV2KOyJCJPMuAfSELPdmAGE8ej3Jpou3fPHVcARy/j5DkaXDko0BaY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=xRziz0Gy; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="mJvLaQiw"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1713875919; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=IMcT9AbhGnJybY+mmUrN8SjqJH5jnYogREWe+tzfovQ=;
-	b=mJvLaQiw0B67cWBeIRObCAmlyCIUFJ7lupFAP+PgZry3FcdUNcpEoT1JQRh+L0ucNmg0lduvaPAkkdLwT9b00Wof+PhAZ0Fr3qOh8yws2oBMk7gRDfGy8WMcSCndnSYWXnyec9YghGgI5pt4hWwPmZEAOfmHya6QQ6Yr2uAALKI=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R431e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0W59BIl._1713875917;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W59BIl._1713875917)
-          by smtp.aliyun-inc.com;
-          Tue, 23 Apr 2024 20:38:38 +0800
-Message-ID: <1713875473.8690095-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost v2 4/7] virtio_net: big mode support premapped
-Date: Tue, 23 Apr 2024 20:31:13 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux.dev,
- "Michael S. Tsirkin" <mst@redhat.com>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- netdev@vger.kernel.org
-References: <20240422072408.126821-1-xuanzhuo@linux.alibaba.com>
- <20240422072408.126821-5-xuanzhuo@linux.alibaba.com>
- <CACGkMEuEYwR_QE-hhnD0KYujD6MVEArz3FPyjsfmJ-jk_02hZw@mail.gmail.com>
-In-Reply-To: <CACGkMEuEYwR_QE-hhnD0KYujD6MVEArz3FPyjsfmJ-jk_02hZw@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="xRziz0Gy"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 61C8E40425
+	for <virtualization@lists.linux-foundation.org>; Tue, 23 Apr 2024 12:57:03 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id hOPNyqg8ciph for <virtualization@lists.linux-foundation.org>;
+ Tue, 23 Apr 2024 12:57:02 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a00:1098:ed:100::25; helo=madrid.collaboradmins.com; envelope-from=vignesh.raman@collabora.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org C4753403C5
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C4753403C5
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=xRziz0Gy
+Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [IPv6:2a00:1098:ed:100::25])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id C4753403C5
+	for <virtualization@lists.linux-foundation.org>; Tue, 23 Apr 2024 12:57:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1713877019;
+	bh=XeZycoklrbmIsGAeu98uH0HIylfGOQJCx4GR355GWBc=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=xRziz0GyVrPt2dhtiBiqNDXqczIeDLuZbHnEOWJSrlHm36b7jLx7WJlA/NnNyYz+O
+	 ILQ5AxoCCF584XC6at4Ovw7VG6IZUkYx2hcSU4LJTCUGclhXqLyOelc6ejocD9iQE9
+	 ycHEPJjr5Z1dDU4MQAjBDjumEXasMAR4WwmZ4XII0SdqTIJvWCyiBMWY9gkqTTuKHH
+	 g8Xdo9I4ALXJxJU0+jh5uZmA3T1BqHogZP/oCoSlUCAb5X+JS2pJqTZQ1G7PtkePVv
+	 2ZfpAJAYcPdPKlUtCWGitWSX/IzjmIfxI5mmr6ld3MWC4bsdYgChfIPWTxwQ5z+5km
+	 WKkdXlDaRIXeQ==
+Received: from [100.66.96.193] (cola.collaboradmins.com [195.201.22.229])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: vignesh)
+	by madrid.collaboradmins.com (Postfix) with ESMTPSA id 6AF5937813A2;
+	Tue, 23 Apr 2024 12:56:55 +0000 (UTC)
+Message-ID: <c8a7744c-2225-4fd8-9ee7-bd513a4668cd@collabora.com>
+Date: Tue, 23 Apr 2024 18:26:53 +0530
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 3/4] drm/ci: uprev IGT and generate testlist from build
+To: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+ =?UTF-8?Q?Ma=C3=ADra_Canal?= <mcanal@igalia.com>
+Cc: dri-devel@lists.freedesktop.org, daniels@collabora.com,
+ helen.koike@collabora.com, airlied@gmail.com, daniel@ffwll.ch,
+ robdclark@gmail.com, david.heidelberg@collabora.com,
+ guilherme.gallo@collabora.com, sergi.blanch.torne@collabora.com,
+ linux-mediatek@lists.infradead.org, linux-amlogic@lists.infradead.org,
+ linux-rockchip@lists.infradead.org, amd-gfx@lists.freedesktop.org,
+ linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+References: <20240423040243.448091-1-vignesh.raman@collabora.com>
+ <20240423040243.448091-4-vignesh.raman@collabora.com>
+ <e3a0ea8f-d306-488c-a69c-aa18078e5e03@igalia.com>
+ <CAA8EJppaaitcXkXSFTB4-S2CbBcrAVHouB0wWiU5Nw2FvpagqA@mail.gmail.com>
+Content-Language: en-US
+From: Vignesh Raman <vignesh.raman@collabora.com>
+In-Reply-To: <CAA8EJppaaitcXkXSFTB4-S2CbBcrAVHouB0wWiU5Nw2FvpagqA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Tue, 23 Apr 2024 12:36:42 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Mon, Apr 22, 2024 at 3:24=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba=
-.com> wrote:
-> >
-> > In big mode, pre-mapping DMA is beneficial because if the pages are not
-> > used, we can reuse them without needing to unmap and remap.
-> >
-> > We require space to store the DMA address. I use the page.dma_addr to
-> > store the DMA address from the pp structure inside the page.
-> >
-> > Every page retrieved from get_a_page() is mapped, and its DMA address is
-> > stored in page.dma_addr. When a page is returned to the chain, we check
-> > the DMA status; if it is not mapped (potentially having been unmapped),
-> > we remap it before returning it to the chain.
-> >
-> > Based on the following points, we do not use page pool to manage these
-> > pages:
-> >
-> > 1. virtio-net uses the DMA APIs wrapped by virtio core. Therefore,
-> >    we can only prevent the page pool from performing DMA operations, and
-> >    let the driver perform DMA operations on the allocated pages.
-> > 2. But when the page pool releases the page, we have no chance to
-> >    execute dma unmap.
-> > 3. A solution to #2 is to execute dma unmap every time before putting
-> >    the page back to the page pool. (This is actually a waste, we don't
-> >    execute unmap so frequently.)
-> > 4. But there is another problem, we still need to use page.dma_addr to
-> >    save the dma address. Using page.dma_addr while using page pool is
-> >    unsafe behavior.
-> >
-> > More:
-> >     https://lore.kernel.org/all/CACGkMEu=3DAok9z2imB_c5qVuujSh=3Dvjj1kx=
-12fy9N7hqyi+M5Ow@mail.gmail.com/
-> >
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > ---
-> >  drivers/net/virtio_net.c | 123 ++++++++++++++++++++++++++++++++++-----
-> >  1 file changed, 108 insertions(+), 15 deletions(-)
-> >
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index 2c7a67ad4789..d4f5e65b247e 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -439,6 +439,81 @@ skb_vnet_common_hdr(struct sk_buff *skb)
-> >         return (struct virtio_net_common_hdr *)skb->cb;
-> >  }
-> >
-> > +static void sg_fill_dma(struct scatterlist *sg, dma_addr_t addr, u32 l=
-en)
-> > +{
-> > +       sg->dma_address =3D addr;
-> > +       sg->length =3D len;
-> > +}
-> > +
-> > +/* For pages submitted to the ring, we need to record its dma for unma=
-p.
-> > + * Here, we use the page.dma_addr and page.pp_magic to store the dma
-> > + * address.
-> > + */
-> > +static void page_chain_set_dma(struct page *p, dma_addr_t addr)
-> > +{
-> > +       if (sizeof(dma_addr_t) > sizeof(unsigned long)) {
->
-> Need a macro like PAGE_POOL_32BIT_ARCH_WITH_64BIT_DMA.
->
-> > +               p->dma_addr =3D lower_32_bits(addr);
-> > +               p->pp_magic =3D upper_32_bits(addr);
->
-> And this uses three fields on page_pool which I'm not sure the other
-> maintainers are happy with. For example, re-using pp_maing might be
-> dangerous. See c07aea3ef4d40 ("mm: add a signature in struct page").
->
-> I think a more safe way is to reuse page pool, for example introducing
-> a new flag with dma callbacks?
+Hi,
 
-If we use page pool, how can we chain the pages allocated for a packet?
+On 23/04/24 17:53, Dmitry Baryshkov wrote:
+> On Tue, 23 Apr 2024 at 13:24, Maíra Canal <mcanal@igalia.com> wrote:
+>>
+>> On 4/23/24 01:02, Vignesh Raman wrote:
+>>> Uprev IGT to the latest version and stop vendoring the
+>>> testlist into the kernel. Instead, use the testlist from
+>>> the IGT build to ensure we do not miss renamed or newly
+>>> added tests.
+>>
+>> Nitpick: wouldn't it be better to (1) stop vendoring the
+>> testlist into the kernel in one patch and then (2) uprev
+>> IGT to the latest version? I feel that this patch is changing
+>> a lot of different stuff.
+> 
+> Definitely. Otherwise it's hard to understand whether a change to
+> fails/flakes is caused by the uprev or by the testlist change. E.g. in
+> several cases the list of failing subtests seems to be replaced with
+> the test itself.
+> 
 
-Yon know the "private" can not be used.
+Yes, will follow the below approach.
+1) Use the testlist from build and update fails/flakes/skips
+2) Uprev IGT and update fails/flakes/skips
 
+Regards,
+Vignesh
 
-If the pp struct inside the page is not safe, how about:
-
-		struct {	/* Page cache and anonymous pages */
-			/**
-			 * @lru: Pageout list, eg. active_list protected by
-			 * lruvec->lru_lock.  Sometimes used as a generic list
-			 * by the page owner.
-			 */
-			union {
-				struct list_head lru;
-
-				/* Or, for the Unevictable "LRU list" slot */
-				struct {
-					/* Always even, to negate PageTail */
-					void *__filler;
-					/* Count page's or folio's mlocks */
-					unsigned int mlock_count;
-				};
-
-				/* Or, free page */
-				struct list_head buddy_list;
-				struct list_head pcp_list;
-			};
-			/* See page-flags.h for PAGE_MAPPING_FLAGS */
-			struct address_space *mapping;
-			union {
-				pgoff_t index;		/* Our offset within mapping. */
-				unsigned long share;	/* share count for fsdax */
-			};
-			/**
-			 * @private: Mapping-private opaque data.
-			 * Usually used for buffer_heads if PagePrivate.
-			 * Used for swp_entry_t if PageSwapCache.
-			 * Indicates order in the buddy system if PageBuddy.
-			 */
-			unsigned long private;
-		};
-
-Or, we can map the private space of the page as a new structure.
-
-Thanks.
-
-
->
-> Thanks
->
+>>
+>>>
+>>> Skip kms tests for panfrost driver since it is not a kms
+>>> driver and skip driver-specific tests. Update xfails with
+>>> the latest testlist.
+>>>
+>>> Increase the timoout of i915 jobs to 2h30m since some jobs
+>>> takes more than 2 hours to complete.
+>>>
+>>> Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
+>>> ---
+> 
+> 
