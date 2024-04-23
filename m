@@ -1,143 +1,109 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78DA921345
-	for <virtualization@lists.linux.dev>; Tue, 23 Apr 2024 09:13:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECC9E56451
+	for <virtualization@lists.linux.dev>; Tue, 23 Apr 2024 09:21:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713863641; cv=none; b=WH9nqesDxVXkTmnold4bf/nxpK7gCMz3x9qrB7MoQSiYuaW6ZH1PGPnxLsCan6Lz6G0GZ+e29RVjdQGjavqM0Lk/yLPkd8nXNOkl/cjQntf0KLexIpKn71vz+XctaVkR3viCPhOfDGb5df9fnIAxheHGdSIgcf+xQv633lZ6ed8=
+	t=1713864115; cv=none; b=gOvcVzbyckkx9l1MEp4of8KTJVT/gv04T+EO69f5kTqGAH5lU/v5oy5hsaMwAFAGAjMD3v7CZnt1RPg1Ie3nwc7cbzMuAnbL01baAYOOE63ie9JY51VHuO1Sj4RHtMl2C4L5hb+M7w6uRPv4kxNlY/ODkBcMWzyR8tcN5GhUQtw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713863641; c=relaxed/simple;
-	bh=+HYC9r8wTCRmGIBMgAS0O5zj7Qmlb2jFg4GebaRKIp4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=FP6DDPPgR0IUXfRYA2bIRwvlkTCjixHcUCNS9eKY4GyIZ/8Q8JFDoHqG6NayagGH39JYJVt3PtMLwe0SKImrhDlworaW/+V3Yekm+ngQE2qqdfYJWyEfQgqaAtfOOXeBeyOsNKW22ymmuAqhIKBkVohKP9MObViT8E1g2QXkGCg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CWiYY/s3; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1713864115; c=relaxed/simple;
+	bh=DdkrLe1RT9id5XgPQKF0YRBkxxjwVH7gEzkXmC6vFnk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=DpGPkrV1sc2hNcW3KTYTzKsyb6lBpmlVJIWnDQ1T6F5mbANA+PHt+hBYiw7W/oyzCa06kOgKEWHSMP8Lw0nkgAoLlLA9KJJV8jYbFfwFgAyutQHKscxmalfbDXB2W7OuEsdH2WF3jYK2duiu1CcDPjLBtAsNkHTnSOTEMeZUKlM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=jz1C3/AZ; arc=none smtp.client-ip=209.85.214.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CWiYY/s3"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1713863638;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=1xckAbIaUxfV2U1fI0YjievZgsT18mecVG8rOgbjUb8=;
-	b=CWiYY/s36hHtEL67Bm+5EWyU+LCfEG1UpfLWnEVIbXz0KuWAko7PgPVD3dk4UJWqNe6Cy8
-	pipte2Mok/ZysRZpH8n9oy09LCjzYr+mUm9XpGEmOY9faaMhPiWTv3NELmf1vqiUg0UCrj
-	XVldl4laWxKDdJksranNVMNeFhmUpjQ=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-563-6kq0LUnTMhSl7D6FCB9AQw-1; Tue, 23 Apr 2024 05:13:56 -0400
-X-MC-Unique: 6kq0LUnTMhSl7D6FCB9AQw-1
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-34a4ded7d49so4635687f8f.1
-        for <virtualization@lists.linux.dev>; Tue, 23 Apr 2024 02:13:56 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="jz1C3/AZ"
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-1e4c4fb6af3so36345575ad.0
+        for <virtualization@lists.linux.dev>; Tue, 23 Apr 2024 02:21:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance.com; s=google; t=1713864113; x=1714468913; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=2HQB5x5/Geh4QesSHMQ6J5Oee4AS8dKYNPWzhQc0IWE=;
+        b=jz1C3/AZtLBsNfBnHwJ8L97CgnDwAr09CI0G7kEeo/HYiH5K1sWrg7v1QybRB5aOQk
+         5RQC45xnIdj/c6Ls6mwpZ4cKXe66+npC5ZgniBgXHTZhhCYsUXchV0OFRDAb4NbMDLDF
+         4E7gWyCsZBo3taB+MJu+RQ8eOberaRTQXwSzgvQIWShk5v+1wFpHxXrptiy2+DbVkMmg
+         vKV6Z/MhFLp3eMdlHdjd0GoeI8YmXq8R0Z1luADHkQqgZplDb+uaPn5XGiOUCVvTh//s
+         WP9hn/zuYhTp+PHuGySNoVaUOEPDDkgQO9kb6hQDWg9vArORlE2GiSwQSxJ38Iwnpg2A
+         t9hg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713863635; x=1714468435;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=1xckAbIaUxfV2U1fI0YjievZgsT18mecVG8rOgbjUb8=;
-        b=wZT0fB6Hdr5mhK4O1dE1/6VqDclLSKYS/kM6lCkwokGqzOlRhZB4830DhRuuxktFbS
-         bKyDlQ6luoVLoVqJ9SVz3Zgjyqk5owOkpbeFeQdAAUcpXrCCd/c5yH0fcXIC3RJVvFaS
-         AEHm21n4MYo/LUvKfRiLlQEu59pyNcQKQMO1QTyzuVZ5few/7PLdvtBoN8PL/yBh1Nyc
-         FjYmg8rag96vQhc0HbnA+ODt+m525H8mfk8dGNqijzUnWrVqhbNOnPrwWlHpiNBuPiVn
-         Mycggl16vWxvBp2+bnTc/BvFN+4eW0T+ZqCEdYP0EaDDwDYD99YrPytJsqr7kNi/B0rg
-         L+8A==
-X-Forwarded-Encrypted: i=1; AJvYcCV7xHntB8uoGoMB7h8UFbd/CHQ7GC+W2Ug0p+jyQxGFnHzGtUbK9dO8jYMr25Rfl47cXUvdg9TG1kMA6rtHI+CeAAvdq5URBDrzXQYimZ4=
-X-Gm-Message-State: AOJu0YykJBQOY3azevX8E2bhtPr/MYUU2XzS28rzlk4fY4wjvLKOrjz2
-	PeB6vJs75s0+OyzGSqwVii67JwiDjL3VrD/D3gwSRcvvw4Mp8DoV7iz6KwCUn5yNoeztoiO4Trh
-	OfWKoCqpVAKVMhZe3cqIHGjnZMtDxz9MRpE0AjbP3iIweZTMKpivHF1BkOyK+2Lod
-X-Received: by 2002:a5d:6d8d:0:b0:343:f335:2489 with SMTP id l13-20020a5d6d8d000000b00343f3352489mr9334361wrs.59.1713863635399;
-        Tue, 23 Apr 2024 02:13:55 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGrpMdpbG8FFAw85brCrIe+xZ/QGNjBiBptgCa0RJlLmPxE7ErKfP7eMNOPOzyyRh2eNOA1Bg==
-X-Received: by 2002:a5d:6d8d:0:b0:343:f335:2489 with SMTP id l13-20020a5d6d8d000000b00343f3352489mr9334339wrs.59.1713863634871;
-        Tue, 23 Apr 2024 02:13:54 -0700 (PDT)
-Received: from redhat.com ([2a06:c701:7429:3c00:dc4a:cd5:7b1c:f7c2])
-        by smtp.gmail.com with ESMTPSA id z2-20020adff742000000b00343ca138924sm14071319wrp.39.2024.04.23.02.13.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Apr 2024 02:13:53 -0700 (PDT)
-Date: Tue, 23 Apr 2024 05:13:50 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: zhenwei pi <pizhenwei@bytedance.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-	virtualization@lists.linux.dev, david@redhat.com,
-	jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
-	akpm@linux-foundation.org
-Subject: Re: [PATCH v3 2/4] virtio_balloon: introduce oom-kill invocations
-Message-ID: <20240423051151-mutt-send-email-mst@kernel.org>
-References: <20240423034109.1552866-1-pizhenwei@bytedance.com>
- <20240423034109.1552866-3-pizhenwei@bytedance.com>
+        d=1e100.net; s=20230601; t=1713864113; x=1714468913;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=2HQB5x5/Geh4QesSHMQ6J5Oee4AS8dKYNPWzhQc0IWE=;
+        b=DHfDmdsdQmL3pB6KVvAazGg/Qvpj9Jdw0z8eQPT4kILC2f9RqN/GCo3kv1d1V3CXj8
+         g6XfwX3hiXClUYIDnPPiJLKWgI0CrPS7iOs8j0bjx32RUngstrUcMuQX4aAPh2s+5u2S
+         H3qV6YOXmolGPSQ4DCy6hbqfdR5Oyf5XiLO9zy26x4s86iD1W0qh6Sdt1USyogCKFzq6
+         qtONjoZDZI0BAnOr6feFU5xv/DnpjsTAyJCBWPi671cHFwVi8oHlQG4eFm+PRSftMcpI
+         wU7laAfpTNreLz+YalwebLPhZ+vge+w+FGiNHIvAri95OxFlNlLqyuJ+9lmhQcS8puCR
+         XlOA==
+X-Forwarded-Encrypted: i=1; AJvYcCXk8vQzegK/YZ0eEhQNYW7+bRRM5hKuUxyvKLINKtS2RJI7df3NxdpvRnZhInsvSMMFCiti2XBDktwSoJbp0irK/pAZvUNuocsuCjxQj0o=
+X-Gm-Message-State: AOJu0YzgIDWpiCkt2+keVbTbt40MEv/0Yyg96bpuE/L94vXkCEB/J0vt
+	Nl64D1+Y7sqXFrPGjz1pfCcQzyX7hllU39ASW7zZXSjcynNJBxTLTl+IrHFS/50=
+X-Google-Smtp-Source: AGHT+IGNbPUgoPFYpHt28v7DULAEOmvD5VLEYjWmHxgKiyi3KxYYlHK+lL1oHrJ3+ZdleSTJCgMaQA==
+X-Received: by 2002:a17:903:1206:b0:1e4:53b6:6be with SMTP id l6-20020a170903120600b001e453b606bemr2926772plh.1.1713864113257;
+        Tue, 23 Apr 2024 02:21:53 -0700 (PDT)
+Received: from [10.3.43.196] ([61.213.176.14])
+        by smtp.gmail.com with ESMTPSA id h15-20020a170902680f00b001e89e7b2b74sm8884164plk.235.2024.04.23.02.21.50
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 23 Apr 2024 02:21:52 -0700 (PDT)
+Message-ID: <6e9d6af5-74bc-4e97-84c0-2ba8a6499da9@bytedance.com>
+Date: Tue, 23 Apr 2024 17:21:48 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240423034109.1552866-3-pizhenwei@bytedance.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: Re: [PATCH v3 2/4] virtio_balloon: introduce oom-kill invocations
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ virtualization@lists.linux.dev, david@redhat.com, jasowang@redhat.com,
+ xuanzhuo@linux.alibaba.com, akpm@linux-foundation.org
+References: <20240423034109.1552866-1-pizhenwei@bytedance.com>
+ <20240423034109.1552866-3-pizhenwei@bytedance.com>
+ <20240423051151-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+From: zhenwei pi <pizhenwei@bytedance.com>
+In-Reply-To: <20240423051151-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Tue, Apr 23, 2024 at 11:41:07AM +0800, zhenwei pi wrote:
-> When the guest OS runs under critical memory pressure, the guest
-> starts to kill processes. A guest monitor agent may scan 'oom_kill'
-> from /proc/vmstat, and reports the OOM KILL event. However, the agent
-> may be killed and we will loss this critical event(and the later
-> events).
+
+
+On 4/23/24 17:13, Michael S. Tsirkin wrote:
+> On Tue, Apr 23, 2024 at 11:41:07AM +0800, zhenwei pi wrote:
+
+[snip]
+>>   #define VIRTIO_BALLOON_S_NAMES_WITH_PREFIX(VIRTIO_BALLOON_S_NAMES_prefix) { \
+>>   	VIRTIO_BALLOON_S_NAMES_prefix "swap-in", \
 > 
-> For now we can also grep for magic words in guest kernel log from host
-> side. Rather than this unstable way, virtio balloon reports OOM-KILL
-> invocations instead.
+> Looks like a useful extension. But
+> any UAPI extension has to go to virtio spec first.
 > 
-> Acked-by: David Hildenbrand <david@redhat.com>
-> Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
-> ---
->  drivers/virtio/virtio_balloon.c     | 1 +
->  include/uapi/linux/virtio_balloon.h | 6 ++++--
->  2 files changed, 5 insertions(+), 2 deletions(-)
+
+Sure, I'll send related virtio spec changes once virtio comment mail 
+list gets ready.
+
+>> @@ -83,7 +84,8 @@ struct virtio_balloon_config {
+>>   	VIRTIO_BALLOON_S_NAMES_prefix "available-memory", \
+>>   	VIRTIO_BALLOON_S_NAMES_prefix "disk-caches", \
+>>   	VIRTIO_BALLOON_S_NAMES_prefix "hugetlb-allocations", \
+>> -	VIRTIO_BALLOON_S_NAMES_prefix "hugetlb-failures" \
+>> +	VIRTIO_BALLOON_S_NAMES_prefix "hugetlb-failures", \
+>> +	VIRTIO_BALLOON_S_NAMES_prefix "oom-kills" \
+>>   }
+>>   
+>>   #define VIRTIO_BALLOON_S_NAMES VIRTIO_BALLOON_S_NAMES_WITH_PREFIX("")
+>> -- 
+>> 2.34.1
 > 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 1710e3098ecd..f7a47eaa0936 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -330,6 +330,7 @@ static inline unsigned int update_balloon_vm_stats(struct virtio_balloon *vb)
->  		    pages_to_bytes(events[PSWPOUT]));
->  	update_stat(vb, idx++, VIRTIO_BALLOON_S_MAJFLT, events[PGMAJFAULT]);
->  	update_stat(vb, idx++, VIRTIO_BALLOON_S_MINFLT, events[PGFAULT]);
-> +	update_stat(vb, idx++, VIRTIO_BALLOON_S_OOM_KILL, events[OOM_KILL]);
->  
->  #ifdef CONFIG_HUGETLB_PAGE
->  	update_stat(vb, idx++, VIRTIO_BALLOON_S_HTLB_PGALLOC,
-> diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
-> index ddaa45e723c4..b17bbe033697 100644
-> --- a/include/uapi/linux/virtio_balloon.h
-> +++ b/include/uapi/linux/virtio_balloon.h
-> @@ -71,7 +71,8 @@ struct virtio_balloon_config {
->  #define VIRTIO_BALLOON_S_CACHES   7   /* Disk caches */
->  #define VIRTIO_BALLOON_S_HTLB_PGALLOC  8  /* Hugetlb page allocations */
->  #define VIRTIO_BALLOON_S_HTLB_PGFAIL   9  /* Hugetlb page allocation failures */
-> -#define VIRTIO_BALLOON_S_NR       10
-> +#define VIRTIO_BALLOON_S_OOM_KILL      10 /* OOM killer invocations */
-> +#define VIRTIO_BALLOON_S_NR       11
->  
->  #define VIRTIO_BALLOON_S_NAMES_WITH_PREFIX(VIRTIO_BALLOON_S_NAMES_prefix) { \
->  	VIRTIO_BALLOON_S_NAMES_prefix "swap-in", \
 
-Looks like a useful extension. But
-any UAPI extension has to go to virtio spec first.
-
-> @@ -83,7 +84,8 @@ struct virtio_balloon_config {
->  	VIRTIO_BALLOON_S_NAMES_prefix "available-memory", \
->  	VIRTIO_BALLOON_S_NAMES_prefix "disk-caches", \
->  	VIRTIO_BALLOON_S_NAMES_prefix "hugetlb-allocations", \
-> -	VIRTIO_BALLOON_S_NAMES_prefix "hugetlb-failures" \
-> +	VIRTIO_BALLOON_S_NAMES_prefix "hugetlb-failures", \
-> +	VIRTIO_BALLOON_S_NAMES_prefix "oom-kills" \
->  }
->  
->  #define VIRTIO_BALLOON_S_NAMES VIRTIO_BALLOON_S_NAMES_WITH_PREFIX("")
-> -- 
-> 2.34.1
-
+-- 
+zhenwei pi
