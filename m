@@ -1,80 +1,82 @@
-Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2054.outbound.protection.outlook.com [40.107.237.54])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7724420B33
-	for <virtualization@lists.linux.dev>; Tue, 23 Apr 2024 03:58:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.237.54
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713844699; cv=fail; b=FGp5fuxOV/qSFK0pUYAl66WeImhiqT96YkJAmlUvRAYML3BNSWzICOrxnwTznvpPdTv1DxcrqWIJ6YWczOsz9LA1qSOQYfWONxzp8eyOFEjG/mX83AAoM7YJkHMqx67wsjAtBUbe51MyV6DIaNd+r8v0LInVcI5ihy2NafLmwys=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713844699; c=relaxed/simple;
-	bh=XstW/MQvGSHDxiLI60FgQNykK94EKIWwDoliVUChLug=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=YPpkhyhTM93GsqO7D6cmA+mnSKAaY14p5BzV1ruere8w/hWTeaig5LqTG3f1v8mBsQ4IUtZXgThhdst2iSPev5LAhIZdgE4XBdI+i/HvCf9tUr6TXupX0Ui1IcYZBIR3+bMZ+sjoZEycGEUoIOQ/zUH3n/F5i5sIc5/xt1Asllo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=WOZgkgV7; arc=fail smtp.client-ip=40.107.237.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 149F41CA96
+	for <virtualization@lists.linux-foundation.org>; Tue, 23 Apr 2024 04:10:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1713845419; cv=none; b=hCEw0SRk9u7Oz2oTP8iYeH2zD5+XgPNOWmySw7ZRxQzw757kpDm241tTqLlpgkGrBvy3JFGI/G9chZP/c34rgvsBBcQhM5C9DiGFsv/hPe87U5BHkF9RHseMViF+DoKUctggB0cgRY1zcDHvke6mODuT+0WesmftsPH+rWff1bc=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1713845419; c=relaxed/simple;
+	bh=0It0Qs3oLGL49eT+4lgJbtyH9jMymo8SfQKGBHrJpCU=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=R5ieNMP3tAKt0pPMZXSavKEXDb41DFCyRQV1iIgCd6HbNRJEnuqSPtCzeGYeM+XVkt88MvbKTPFLNYziX3SN3do+IKqbTOPsxstikwSbtN/NpVP+B5OlLNGMcPma8vVsz5Ic7P/+8A2dbZBpLMuTay58O2drGBPtAP064DtRHhM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=ZeZIBc5J; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="WOZgkgV7"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=l0Lg226gdZ+OK+XvBxsPrTvFGKnGcalhc9xFmxTveOlsPad1x7aDcEcCcAIbagfAqhMfxOGYagdnvW7cBWZnYBS2Opuc7q81aH41k24/AC3zDeLYzlgFHS6uRGVbRvZroBsuRhPApmb/9CGtDEcWS69c0K0wcA2/TmZY8kedVdd3AcuD+GUX2KQ/zCIDUzsF7fWeQXxUyeBKcUzchZ5+sEC+x4m+NvnSOMLX9AGvOenJU1nLh+OiW/xBldsmUzvn4AVMoYrLeCfJsezIBP10VAgsTOZcOUffnNoJKrQRoA+78dJbsUZfkURdKWIZovWJ0nYoeD4HD0NIBoV2UYOh2g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=2/8QLAmuSPgLAaJmfMTllpe9B641KaO0vQMvxO3nbI4=;
- b=KnbmkCyRwW0CjLMvTqyD1as/e3ESkkI72S9UE0sAcTduIqT4q3CD/CLc+58ZvEZZTBy1gz/YaAUvQVRGpx0X8/+N/W1Ab/fZLptstGJNYNDApPys103oyNPkLmIxyi+z9b2SluDuQt5aqsEuvd+L47RC8RJbbWcd6kyg7YGLzJwECgaJgMcZHKtAw0EMzxLOW61LcD1zieGYxbPJ5LQJdQ8/6Ytmo+OoZt/0kRukx44cAeGvQSqhHEXYZOL2J2q9kUziY039vYL48kugMYKoK5aah51J9yONMOM6eEjW8WuG5c9vA8mPITsxWFYygyLuO9se7MGxzC+vSGGor6ElLg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.160) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=2/8QLAmuSPgLAaJmfMTllpe9B641KaO0vQMvxO3nbI4=;
- b=WOZgkgV7FivDeSmTzCU0MtFj3CjBnNhu6AiIlyiiSBLtNG3G6s6TnTHO3ZqQgPf/U3ju2HaUcUAY0nKROlndstDzmH+MeUC3ltrGoSP0W/teKiweRyAojbzVlnEbfwaybNWTRGOJgxW7L0JhYkvhrspGB/1IOL9Rprw91vHgWjMM5KXDyHhJS1U1oZ8coeMwByZnh+49op9omN7WAwJSsFbWizFUmFfhW6jFRyncN6dyD4llw3zCKwT7E/Jho+xe2drLhLhrKMomVunM+nTC3fZ6Z2fhIDCKzoO0e2+K3gO/aNbjyXcxQYgqYv6niYUmaDjancy8bjo2oUuW+iIq+Q==
-Received: from BYAPR01CA0014.prod.exchangelabs.com (2603:10b6:a02:80::27) by
- SA1PR12MB7175.namprd12.prod.outlook.com (2603:10b6:806:2b2::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7472.44; Tue, 23 Apr
- 2024 03:58:11 +0000
-Received: from SN1PEPF00036F43.namprd05.prod.outlook.com
- (2603:10b6:a02:80:cafe::94) by BYAPR01CA0014.outlook.office365.com
- (2603:10b6:a02:80::27) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7495.33 via Frontend
- Transport; Tue, 23 Apr 2024 03:58:11 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.160) by
- SN1PEPF00036F43.mail.protection.outlook.com (10.167.248.27) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.7519.19 via Frontend Transport; Tue, 23 Apr 2024 03:58:10 +0000
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
- (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Mon, 22 Apr
- 2024 20:58:00 -0700
-Received: from rnnvmail203.nvidia.com (10.129.68.9) by rnnvmail201.nvidia.com
- (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Mon, 22 Apr
- 2024 20:58:00 -0700
-Received: from vdi.nvidia.com (10.127.8.11) by mail.nvidia.com (10.129.68.9)
- with Microsoft SMTP Server id 15.2.1544.4 via Frontend Transport; Mon, 22 Apr
- 2024 20:57:59 -0700
-From: Daniel Jurgens <danielj@nvidia.com>
-To: <netdev@vger.kernel.org>
-CC: <mst@redhat.com>, <jasowang@redhat.com>, <xuanzhuo@linux.alibaba.com>,
-	<virtualization@lists.linux.dev>, <davem@davemloft.net>,
-	<edumazet@google.com>, <kuba@kernel.org>, <pabeni@redhat.com>,
-	<jiri@nvidia.com>, Daniel Jurgens <danielj@nvidia.com>
-Subject: [PATCH net-next v5 5/6] virtio_net: Add a lock for per queue RX coalesce
-Date: Tue, 23 Apr 2024 06:57:45 +0300
-Message-ID: <20240423035746.699466-6-danielj@nvidia.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20240423035746.699466-1-danielj@nvidia.com>
-References: <20240423035746.699466-1-danielj@nvidia.com>
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="ZeZIBc5J"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 9F58A400D5
+	for <virtualization@lists.linux-foundation.org>; Tue, 23 Apr 2024 04:10:17 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id VT8ZVRtqpIN0 for <virtualization@lists.linux-foundation.org>;
+ Tue, 23 Apr 2024 04:10:14 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a00:1098:ed:100::25; helo=madrid.collaboradmins.com; envelope-from=vignesh.raman@collabora.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 9A115400DF
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9A115400DF
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=ZeZIBc5J
+Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [IPv6:2a00:1098:ed:100::25])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 9A115400DF
+	for <virtualization@lists.linux-foundation.org>; Tue, 23 Apr 2024 04:10:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1713845013;
+	bh=0It0Qs3oLGL49eT+4lgJbtyH9jMymo8SfQKGBHrJpCU=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=ZeZIBc5JysaPy/PnEnBfnE2xNj0uu2J6vUStlJoGCPdy6PgfC4MoLsB8oaWRQoObn
+	 X+5F5KoFPB8SM3mopPx/P/tW/cQeFb4pLZYyfnfv4TOuzrtMcMe3RSD1+RT6mCxysv
+	 pXLPzAdhPCZsgIlx0yr7pD1Yi8YvRE90sGCTn6ZUPuQpfEFmxtU+u3APPqYpCBItJk
+	 VFE0umprzOLddFppeuB2JQp1dIBcH8pcFnBZVtzUOk0jHwBlUi4cHRAqfYzRKP86lE
+	 BR8hB28Ql2w0LMmMjrzH3A56jkIN7qLInnNhtQZbPnEFwoCu7K7e0XL8VuSJyN1RwV
+	 P29m8QFbCwCjQ==
+Received: from localhost.localdomain (cola.collaboradmins.com [195.201.22.229])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: vignesh)
+	by madrid.collaboradmins.com (Postfix) with ESMTPSA id 64D67378212B;
+	Tue, 23 Apr 2024 04:03:30 +0000 (UTC)
+From: Vignesh Raman <vignesh.raman@collabora.com>
+To: dri-devel@lists.freedesktop.org
+Cc: daniels@collabora.com,
+	helen.koike@collabora.com,
+	airlied@gmail.com,
+	daniel@ffwll.ch,
+	robdclark@gmail.com,
+	david.heidelberg@collabora.com,
+	guilherme.gallo@collabora.com,
+	sergi.blanch.torne@collabora.com,
+	dmitry.baryshkov@linaro.org,
+	mcanal@igalia.com,
+	linux-mediatek@lists.infradead.org,
+	linux-amlogic@lists.infradead.org,
+	linux-rockchip@lists.infradead.org,
+	amd-gfx@lists.freedesktop.org,
+	linux-arm-msm@vger.kernel.org,
+	intel-gfx@lists.freedesktop.org,
+	virtualization@lists.linux-foundation.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v1 2/4] drm/ci: build virtual GPU driver as module
+Date: Tue, 23 Apr 2024 09:32:41 +0530
+Message-Id: <20240423040243.448091-3-vignesh.raman@collabora.com>
+X-Mailer: git-send-email 2.40.1
+In-Reply-To: <20240423040243.448091-1-vignesh.raman@collabora.com>
+References: <20240423040243.448091-1-vignesh.raman@collabora.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -82,238 +84,121 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-NV-OnPremToCloud: ExternallySecured
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SN1PEPF00036F43:EE_|SA1PR12MB7175:EE_
-X-MS-Office365-Filtering-Correlation-Id: 4683f3be-0a3e-407c-aaf2-08dc634997c7
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?udE3H/VlDsn8l94nVPPzN+VjLnKktKId0bq3Uc0LbAfE/QODtF2meHNZWfmL?=
- =?us-ascii?Q?YfR8xpuNThOlEXZtA4KDdd35ROBKumq8cV+WqLWILnWGRzSNuD02L094jNlD?=
- =?us-ascii?Q?LhEU0B6JnL/RDfDB61sUCicrjVvVYKKuOYmsD49mKs1b+q6bj5lxI+cZXyA8?=
- =?us-ascii?Q?1dqNXE9PQmYMxQlHthkSLE1RZY1hkwlDD2fQPHRLkrco6Rs65j0FsgcKFkLR?=
- =?us-ascii?Q?NxoUpTIL2SLkiZHgNoQSRWwQqA0iejHXVBHqWBrt2WoliSGXzwhLBlE4SjcR?=
- =?us-ascii?Q?/Pyl2RbAEqySMjR0WWZOqwiwDyj/rPwydvRoV0pAekHaMrj2i4ORqzK5SXCp?=
- =?us-ascii?Q?bPsPiDPUTARI21I1HpBvoCoQdlabJlIL3PifgsAZRHazUwAd0QlI3H1pvErn?=
- =?us-ascii?Q?+FcrsJJ2xJEzune9hRbe5xaGX9bslxP3pQnHifIo6JPLZC0aLAFOp3MbIHsg?=
- =?us-ascii?Q?RAjkN9XGFCNlHJnKC8gBN5fij5W3RHx0FQH4p0E3LtUirdM7XsyO7+U2Bi9o?=
- =?us-ascii?Q?IvlHizdQT0jxUTxq+mt1odFuZ8/91oJl5OTzIAfgTRK3ICY/8QQnbnfpMQ3a?=
- =?us-ascii?Q?e7mcxpwxdO4eJ8j8f3RLqCQls4+EkwdF2TVxJMtvp1oxkNVlTeagCQRaPSNZ?=
- =?us-ascii?Q?hTfGtB+FLp4O9LDsIGKE8ZPgwhTBAmS3FsgBDdOX5BXK4cqp7THFh24kHvyw?=
- =?us-ascii?Q?3nh0CeD6apotb0hbuTD44eodTgI/cXvNQSSBzLE3uCfUCSLShBuneY9Ac0oV?=
- =?us-ascii?Q?ijpqGGVFCvInc+2vZS/mgQ45KIQa/TVbGdGE6SfV3/zOrXsYbyd2G9qT1qsw?=
- =?us-ascii?Q?4cHgpUGJQARHgYzAxRKIZxvozu5wXdPnR3gXKEkYMiAV7Uca+Xff1zqRsOml?=
- =?us-ascii?Q?qFrp1U+XW4x7pLLqd3VeeZn2arwqgk2AlByJHWc+nHPByriO98Ond54Pt3Cn?=
- =?us-ascii?Q?dr4/rrw0WiK4x+SUfofkep9ObP1bIpAyEgUxvrO7w6TeHqPxZ7EzfDEpvH7/?=
- =?us-ascii?Q?V8hwa04LFmRXb98PYi1pqh16vheD5XyRDX7gekiB2MoifXK9vwVFLOGpgu+x?=
- =?us-ascii?Q?u4kwEKWersFnWkztRkrMkZqKu4YJkDRL7fB/eZtdW/TRlgDDGuepLpYR1fSM?=
- =?us-ascii?Q?tp10teihb93mRhQ5KZHTK1/Gibi3qdtMcfM827IHyqtvoXv7tgSFbPWNVB8M?=
- =?us-ascii?Q?MVvkURv3Q+zNSMMyrdhPLxXB5iSr0RW/3l5afYlu1pmoogf0u+VQeN7l+9sX?=
- =?us-ascii?Q?ibZes9++9NFDgZnQEeHI5StvdItlSeii5eMfBMWF/uFZcJxApTuSUnbtA1Od?=
- =?us-ascii?Q?wlET4vqNhynavTE0Cjav2xxVFY4umdnbMVLTmecWFdm+roPO89BCtj1ZM4Ay?=
- =?us-ascii?Q?tv2V7IK1fagCsHnpcVuXdSysPgLF?=
-X-Forefront-Antispam-Report:
-	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230031)(1800799015)(376005)(82310400014)(36860700004);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Apr 2024 03:58:10.8569
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4683f3be-0a3e-407c-aaf2-08dc634997c7
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	SN1PEPF00036F43.namprd05.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR12MB7175
 
-Once the RTNL locking around the control buffer is removed there can be
-contention on the per queue RX interrupt coalescing data. Use a mutex
-per queue. A mutex is required because virtnet_send_command can sleep.
+With latest IGT, the tests tries to load the module and it
+fails. So build the virtual GPU driver for virtio as module.
 
-Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
+Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
 ---
- drivers/net/virtio_net.c | 53 +++++++++++++++++++++++++++++++---------
- 1 file changed, 41 insertions(+), 12 deletions(-)
+ drivers/gpu/drm/ci/build.sh                       |  1 -
+ drivers/gpu/drm/ci/igt_runner.sh                  |  6 +++---
+ drivers/gpu/drm/ci/image-tags.yml                 |  4 ++--
+ drivers/gpu/drm/ci/test.yml                       |  1 +
+ drivers/gpu/drm/ci/x86_64.config                  |  2 +-
+ .../gpu/drm/ci/xfails/virtio_gpu-none-fails.txt   | 15 +++++++++++++++
+ 6 files changed, 22 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index af9048ddc3c1..033e1d6ea31b 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -184,6 +184,9 @@ struct receive_queue {
- 	/* Is dynamic interrupt moderation enabled? */
- 	bool dim_enabled;
+diff --git a/drivers/gpu/drm/ci/build.sh b/drivers/gpu/drm/ci/build.sh
+index 8a3baa003904..95493df9cdc2 100644
+--- a/drivers/gpu/drm/ci/build.sh
++++ b/drivers/gpu/drm/ci/build.sh
+@@ -156,7 +156,6 @@ fi
  
-+	/* Used to protect dim_enabled and inter_coal */
-+	struct mutex dim_lock;
-+
- 	/* Dynamic Interrupt Moderation */
- 	struct dim dim;
+ mkdir -p artifacts/install/lib
+ mv install/* artifacts/install/.
+-rm -rf artifacts/install/modules
+ ln -s common artifacts/install/ci-common
+ cp .config artifacts/${CI_JOB_NAME}_config
  
-@@ -2218,6 +2221,10 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
- 	/* Out of packets? */
- 	if (received < budget) {
- 		napi_complete = virtqueue_napi_complete(napi, rq->vq, received);
-+		/* Intentionally not taking dim_lock here. This could result
-+		 * in a net_dim call with dim now disabled. But virtnet_rx_dim_work
-+		 * will take the lock not update settings if dim is now disabled.
-+		 */
- 		if (napi_complete && rq->dim_enabled)
- 			virtnet_rx_dim_update(vi, rq);
- 	}
-@@ -3091,9 +3098,11 @@ static int virtnet_set_ringparam(struct net_device *dev,
- 				return err;
+diff --git a/drivers/gpu/drm/ci/igt_runner.sh b/drivers/gpu/drm/ci/igt_runner.sh
+index f1a08b9b146f..7d2ba69294dd 100755
+--- a/drivers/gpu/drm/ci/igt_runner.sh
++++ b/drivers/gpu/drm/ci/igt_runner.sh
+@@ -30,10 +30,10 @@ case "$DRIVER_NAME" in
+             export IGT_FORCE_DRIVER="panfrost"
+         fi
+         ;;
+-    amdgpu)
++    amdgpu|virtio_gpu)
+         # Cannot use HWCI_KERNEL_MODULES as at that point we don't have the module in /lib
+-        mv /install/modules/lib/modules/* /lib/modules/.
+-        modprobe amdgpu
++        mv /install/modules/lib/modules/* /lib/modules/. || true
++        modprobe --first-time $DRIVER_NAME
+         ;;
+ esac
  
- 			/* The reason is same as the transmit virtqueue reset */
-+			mutex_lock(&vi->rq[i].dim_lock);
- 			err = virtnet_send_rx_ctrl_coal_vq_cmd(vi, i,
- 							       vi->intr_coal_rx.max_usecs,
- 							       vi->intr_coal_rx.max_packets);
-+			mutex_unlock(&vi->rq[i].dim_lock);
- 			if (err)
- 				return err;
- 		}
-@@ -3472,6 +3481,7 @@ static int virtnet_send_rx_notf_coal_cmds(struct virtnet_info *vi,
- 	struct virtio_net_ctrl_coal_rx *coal_rx __free(kfree) = NULL;
- 	bool rx_ctrl_dim_on = !!ec->use_adaptive_rx_coalesce;
- 	struct scatterlist sgs_rx;
-+	int ret = 0;
- 	int i;
+diff --git a/drivers/gpu/drm/ci/image-tags.yml b/drivers/gpu/drm/ci/image-tags.yml
+index d8f72b82c938..fd1cb6061166 100644
+--- a/drivers/gpu/drm/ci/image-tags.yml
++++ b/drivers/gpu/drm/ci/image-tags.yml
+@@ -4,9 +4,9 @@ variables:
+    DEBIAN_BASE_TAG: "${CONTAINER_TAG}"
  
- 	if (rx_ctrl_dim_on && !virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL))
-@@ -3481,16 +3491,22 @@ static int virtnet_send_rx_notf_coal_cmds(struct virtnet_info *vi,
- 			       ec->rx_max_coalesced_frames != vi->intr_coal_rx.max_packets))
- 		return -EINVAL;
+    DEBIAN_X86_64_BUILD_IMAGE_PATH: "debian/x86_64_build"
+-   DEBIAN_BUILD_TAG: "2023-10-08-config"
++   DEBIAN_BUILD_TAG: "2024-04-22-virtio"
  
-+	/* Acquire all queues dim_locks */
-+	for (i = 0; i < vi->max_queue_pairs; i++)
-+		mutex_lock(&vi->rq[i].dim_lock);
-+
- 	if (rx_ctrl_dim_on && !vi->rx_dim_enabled) {
- 		vi->rx_dim_enabled = true;
- 		for (i = 0; i < vi->max_queue_pairs; i++)
- 			vi->rq[i].dim_enabled = true;
--		return 0;
-+		goto unlock;
- 	}
+-   KERNEL_ROOTFS_TAG: "2023-10-06-amd"
++   KERNEL_ROOTFS_TAG: "2024-04-22-virtio"
+    PKG_REPO_REV: "3cc12a2a"
  
- 	coal_rx = kzalloc(sizeof(*coal_rx), GFP_KERNEL);
--	if (!coal_rx)
--		return -ENOMEM;
-+	if (!coal_rx) {
-+		ret = -ENOMEM;
-+		goto unlock;
-+	}
- 
- 	if (!rx_ctrl_dim_on && vi->rx_dim_enabled) {
- 		vi->rx_dim_enabled = false;
-@@ -3508,8 +3524,10 @@ static int virtnet_send_rx_notf_coal_cmds(struct virtnet_info *vi,
- 
- 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_NOTF_COAL,
- 				  VIRTIO_NET_CTRL_NOTF_COAL_RX_SET,
--				  &sgs_rx))
--		return -EINVAL;
-+				  &sgs_rx)) {
-+		ret = -EINVAL;
-+		goto unlock;
-+	}
- 
- 	vi->intr_coal_rx.max_usecs = ec->rx_coalesce_usecs;
- 	vi->intr_coal_rx.max_packets = ec->rx_max_coalesced_frames;
-@@ -3517,8 +3535,11 @@ static int virtnet_send_rx_notf_coal_cmds(struct virtnet_info *vi,
- 		vi->rq[i].intr_coal.max_usecs = ec->rx_coalesce_usecs;
- 		vi->rq[i].intr_coal.max_packets = ec->rx_max_coalesced_frames;
- 	}
-+unlock:
-+	for (i = vi->max_queue_pairs - 1; i >= 0; i--)
-+		mutex_unlock(&vi->rq[i].dim_lock);
- 
--	return 0;
-+	return ret;
- }
- 
- static int virtnet_send_notf_coal_cmds(struct virtnet_info *vi,
-@@ -3542,19 +3563,24 @@ static int virtnet_send_rx_notf_coal_vq_cmds(struct virtnet_info *vi,
- 					     u16 queue)
- {
- 	bool rx_ctrl_dim_on = !!ec->use_adaptive_rx_coalesce;
--	bool cur_rx_dim = vi->rq[queue].dim_enabled;
- 	u32 max_usecs, max_packets;
-+	bool cur_rx_dim;
- 	int err;
- 
-+	mutex_lock(&vi->rq[queue].dim_lock);
-+	cur_rx_dim = vi->rq[queue].dim_enabled;
- 	max_usecs = vi->rq[queue].intr_coal.max_usecs;
- 	max_packets = vi->rq[queue].intr_coal.max_packets;
- 
- 	if (rx_ctrl_dim_on && (ec->rx_coalesce_usecs != max_usecs ||
--			       ec->rx_max_coalesced_frames != max_packets))
-+			       ec->rx_max_coalesced_frames != max_packets)) {
-+		mutex_unlock(&vi->rq[queue].dim_lock);
- 		return -EINVAL;
-+	}
- 
- 	if (rx_ctrl_dim_on && !cur_rx_dim) {
- 		vi->rq[queue].dim_enabled = true;
-+		mutex_unlock(&vi->rq[queue].dim_lock);
- 		return 0;
- 	}
- 
-@@ -3567,10 +3593,8 @@ static int virtnet_send_rx_notf_coal_vq_cmds(struct virtnet_info *vi,
- 	err = virtnet_send_rx_ctrl_coal_vq_cmd(vi, queue,
- 					       ec->rx_coalesce_usecs,
- 					       ec->rx_max_coalesced_frames);
--	if (err)
--		return err;
--
--	return 0;
-+	mutex_unlock(&vi->rq[queue].dim_lock);
-+	return err;
- }
- 
- static int virtnet_send_notf_coal_vq_cmds(struct virtnet_info *vi,
-@@ -3607,6 +3631,7 @@ static void virtnet_rx_dim_work(struct work_struct *work)
- 
- 	qnum = rq - vi->rq;
- 
-+	mutex_lock(&rq->dim_lock);
- 	if (!rq->dim_enabled)
- 		goto out;
- 
-@@ -3622,6 +3647,7 @@ static void virtnet_rx_dim_work(struct work_struct *work)
- 		dim->state = DIM_START_MEASURE;
- 	}
- out:
-+	mutex_unlock(&rq->dim_lock);
- 	rtnl_unlock();
- }
- 
-@@ -3760,11 +3786,13 @@ static int virtnet_get_per_queue_coalesce(struct net_device *dev,
- 		return -EINVAL;
- 
- 	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL)) {
-+		mutex_lock(&vi->rq[queue].dim_lock);
- 		ec->rx_coalesce_usecs = vi->rq[queue].intr_coal.max_usecs;
- 		ec->tx_coalesce_usecs = vi->sq[queue].intr_coal.max_usecs;
- 		ec->tx_max_coalesced_frames = vi->sq[queue].intr_coal.max_packets;
- 		ec->rx_max_coalesced_frames = vi->rq[queue].intr_coal.max_packets;
- 		ec->use_adaptive_rx_coalesce = vi->rq[queue].dim_enabled;
-+		mutex_unlock(&vi->rq[queue].dim_lock);
- 	} else {
- 		ec->rx_max_coalesced_frames = 1;
- 
-@@ -4505,6 +4533,7 @@ static int virtnet_alloc_queues(struct virtnet_info *vi)
- 
- 		u64_stats_init(&vi->rq[i].stats.syncp);
- 		u64_stats_init(&vi->sq[i].stats.syncp);
-+		mutex_init(&vi->rq[i].dim_lock);
- 	}
- 
- 	return 0;
+    DEBIAN_X86_64_TEST_BASE_IMAGE: "debian/x86_64_test-base"
+diff --git a/drivers/gpu/drm/ci/test.yml b/drivers/gpu/drm/ci/test.yml
+index 612c9ede3507..864ac3809d84 100644
+--- a/drivers/gpu/drm/ci/test.yml
++++ b/drivers/gpu/drm/ci/test.yml
+@@ -350,6 +350,7 @@ virtio_gpu:none:
+   script:
+     - ln -sf $CI_PROJECT_DIR/install /install
+     - mv install/bzImage /lava-files/bzImage
++    - mkdir -p /lib/modules
+     - mkdir -p $CI_PROJECT_DIR/results
+     - ln -sf $CI_PROJECT_DIR/results /results
+     - install/crosvm-runner.sh install/igt_runner.sh
+diff --git a/drivers/gpu/drm/ci/x86_64.config b/drivers/gpu/drm/ci/x86_64.config
+index 1cbd49a5b23a..78479f063e8e 100644
+--- a/drivers/gpu/drm/ci/x86_64.config
++++ b/drivers/gpu/drm/ci/x86_64.config
+@@ -91,7 +91,7 @@ CONFIG_KVM=y
+ CONFIG_KVM_GUEST=y
+ CONFIG_VIRT_DRIVERS=y
+ CONFIG_VIRTIO_FS=y
+-CONFIG_DRM_VIRTIO_GPU=y
++CONFIG_DRM_VIRTIO_GPU=m
+ CONFIG_SERIAL_8250_CONSOLE=y
+ CONFIG_VIRTIO_NET=y
+ CONFIG_VIRTIO_CONSOLE=y
+diff --git a/drivers/gpu/drm/ci/xfails/virtio_gpu-none-fails.txt b/drivers/gpu/drm/ci/xfails/virtio_gpu-none-fails.txt
+index 007f21e56d89..5b8cbb28b25c 100644
+--- a/drivers/gpu/drm/ci/xfails/virtio_gpu-none-fails.txt
++++ b/drivers/gpu/drm/ci/xfails/virtio_gpu-none-fails.txt
+@@ -68,6 +68,7 @@ kms_plane_scaling@upscale-with-rotation-20x20,Fail
+ kms_selftest@drm_format,Timeout
+ kms_selftest@drm_format_helper,Timeout
+ kms_setmode@basic,Fail
++kms_vblank@accuracy-idle,Fail
+ kms_vblank@crtc-id,Fail
+ kms_vblank@invalid,Fail
+ kms_vblank@pipe-A-accuracy-idle,Fail
+@@ -82,3 +83,17 @@ kms_vblank@pipe-A-wait-busy,Fail
+ kms_vblank@pipe-A-wait-forked,Fail
+ kms_vblank@pipe-A-wait-forked-busy,Fail
+ kms_vblank@pipe-A-wait-idle,Fail
++kms_vblank@query-busy,Fail
++kms_vblank@query-forked,Fail
++kms_vblank@query-forked-busy,Fail
++kms_vblank@query-idle,Fail
++kms_vblank@ts-continuation-dpms-rpm,Fail
++kms_vblank@ts-continuation-dpms-suspend,Fail
++kms_vblank@ts-continuation-idle,Fail
++kms_vblank@ts-continuation-modeset,Fail
++kms_vblank@ts-continuation-modeset-rpm,Fail
++kms_vblank@ts-continuation-suspend,Fail
++kms_vblank@wait-busy,Fail
++kms_vblank@wait-forked,Fail
++kms_vblank@wait-forked-busy,Fail
++kms_vblank@wait-idle,Fail
 -- 
-2.34.1
+2.40.1
 
