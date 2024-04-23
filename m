@@ -1,230 +1,256 @@
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A079C1CAA2;
-	Tue, 23 Apr 2024 07:37:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.177.32
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713857834; cv=fail; b=f5hUwoUC6yAA94qsoyHd0lgk9NCCAazrLL1tJkrum5JG2k2Kd8b0iZw4/O44WKeoBr/0wkcJ3rHx30Kiz3Fi2Jnva6wl43pNe5QI7t0vM06crzusVvMnKmIxYb3mSVLabV9V/3QWSn79rlZxhVjk8VJUjmSE3W4S0kOO5Nsgq1M=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713857834; c=relaxed/simple;
-	bh=ZUGwO5b2E35AmWm/FW9sd+Vj2etEgX+s7zrG9UKBPec=;
-	h=From:To:Cc:Subject:Date:Message-Id:Content-Type:MIME-Version; b=NAzraXaxfIfaUso39S8A98NGkcZOMvzz/w/NSyjEqBdl8BjqqoZgUpfcdFBAe+3PinZIvqAh91onNhy8mEMHP+bOKz22Hhmcx23rNNj3zkMAl1Mre+XgvMiEZeElXYUH8tNL+nyHolBCcOoIo3ol32Yf66jOC0g8+K2S0G+SlFc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=Jc3W2q5e; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=JzHUVGhX; arc=fail smtp.client-ip=205.220.177.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=oracle.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DF81320E
+	for <virtualization@lists.linux.dev>; Tue, 23 Apr 2024 08:35:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1713861329; cv=none; b=fgSw5k1CcL68iAs0cH/jl8gYc8HEF/5+xnSPv7xVqG7mzc4zhFHdxtwpskP0XzN30PmH4Yw39DPITIrrdRiVZqf6a3R2PY6j9txeYvUiyrcmx+9cwoZlHh2Fjy7pjDiP3aRlsjw38NH4STl09QTSD6KUfgf6XMXOkEtVh7dVxik=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1713861329; c=relaxed/simple;
+	bh=QhvqyhIsTHNTsZQVv5LUhXm64Ffg94gJwiDYosBvGdQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=Xk7AdJgBkCHIk+OmulYNkLeQora7CaX3iy1tlnjVJEehjfySwz86w7U3Vwd6L5y3fx7fhqf/xoXJ/2xr8UXe696jF5yWMqwQfhqbuzA+BPTmwKChqk69dAerQNhcMmNmEBdy3GguEDg3jSxQEdSbCnQxw4GPVz2A8I4jbyobuEQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=a27nDfNC; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="Jc3W2q5e";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="JzHUVGhX"
-Received: from pps.filterd (m0333520.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43N7Y4RF031878;
-	Tue, 23 Apr 2024 07:37:01 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : content-transfer-encoding : content-type :
- mime-version; s=corp-2023-11-20;
- bh=kgRiGMvrFMq587P25flP711KNbI4dAVkM0T00rOvcWQ=;
- b=Jc3W2q5eeoyyV+lKFS1urBOTeSds7YJJjLrnmfF/kXRcLWU8FhD5ZRN+FOVzaoCRBxxr
- 7IqnlH9eW3GztHhdlGHVpUzQFGxEFkTd21Xm89WdoVZZkPB46DdmNE7lV94KBDA3waGz
- S70j9vmyXtnkEuCaQcnicRUM2b3IHRgPxh9tpRAFvPxVchpasvy43wWphVyxUs2GqBOV
- NGktMT/NkLfeA7c3d1ECW5ZllQI8FBJOztndXdZT3u0fCnzSWbz1FFnB4NkyC4l6+qtZ
- u0fVMA4vj1N1DrwQMAcqvi2tFASUztCOIq7lE6roNTpsBrSHgTAJ/qhvX+JPtrOOS8DD iw== 
-Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta03.appoci.oracle.com [130.35.103.27])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3xm5rdvh7p-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 23 Apr 2024 07:37:00 +0000
-Received: from pps.filterd (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-	by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 43N6nVYK007752;
-	Tue, 23 Apr 2024 07:37:00 GMT
-Received: from nam11-bn8-obe.outbound.protection.outlook.com (mail-bn8nam11lp2173.outbound.protection.outlook.com [104.47.58.173])
-	by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3xm456ta0x-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 23 Apr 2024 07:37:00 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=iHr+7el0rC/5S/fcMdwX8hcsR69Kiq0c4arw+zxX1orMq7+F7Rbr5TY10x56OizQPdQkL1Z17lZvx7UdzxW2dn4lQZOkenhdfkLsMAMKc0j/9yBwHZU32WM48Fxjlu42w4tI1Z45b03WibSlMPzuLCQGb6nbj04//xOf18qSVad8mY9JSp1j4D2XLxEwzafwS97f7/AysgdLllnd54zA2kfy1DYMDnmkITywno5dHEbUI/4EjDWYoBHrHRz3/YWe+2gzk9uy3Vud7jSV9k0nxHg6iLF17PZCYSkYCIGFkpPQjKhgHPzjRBfK1fXH21tevguc4bQai/X9kX+eWQmpAA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=kgRiGMvrFMq587P25flP711KNbI4dAVkM0T00rOvcWQ=;
- b=IlgqPhw4AchJ/yAjuHoYSAjc9j6jM/9RTYkD8EGRohzpdG36g79OpNBOOgMtpFiOf8jP03GC7TP9AIh4ahyHxhc6IIz4ldU1tINyahBZIg3qeqfiUXAc5hyt+dAHcTBbwn2uyj3+4zZsQRTtEN9zT8SllYwcBceQLRLN5Rog2ZicqrMWH29uYQ8hCTIVMitjGv+KciqLbhrpNAhtho53ikO9vTs4gtd82vwap3OKlfLRwt/oinCXQUt5ZQ/5lGUNVFwFKxdHryFr52CQs8nEAO5FP7Vnk4bzN68PYW44Lpq2SD3m/sbATPsniI0OCcVM1ZV3/VPJ7cNJP5+Jk5AJzQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=kgRiGMvrFMq587P25flP711KNbI4dAVkM0T00rOvcWQ=;
- b=JzHUVGhXeIbTOw+pPRieg1ldF4IBSviGj5t9vUU6MzTxVJzDv7ZRpdrGVWwbOOA/JKSwmTcwW+LtLxzViEPXW8WAjy239pyMDMt0oGtvsJxr+btrCAa1R3MV3ffGFS/U3g0VS5pX94Iycd1ucrF0O/PNlaOzbh5eGyxFpb8+SiU=
-Received: from SA0PR10MB6425.namprd10.prod.outlook.com (2603:10b6:806:2c0::8)
- by SN4PR10MB5798.namprd10.prod.outlook.com (2603:10b6:806:20d::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7472.44; Tue, 23 Apr
- 2024 07:36:58 +0000
-Received: from SA0PR10MB6425.namprd10.prod.outlook.com
- ([fe80::894:70b7:573e:da46]) by SA0PR10MB6425.namprd10.prod.outlook.com
- ([fe80::894:70b7:573e:da46%5]) with mapi id 15.20.7472.044; Tue, 23 Apr 2024
- 07:36:58 +0000
-From: Dongli Zhang <dongli.zhang@oracle.com>
-To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux.dev, tglx@linutronix.de, joe.jin@oracle.com
-Subject: [PATCH v2 1/1] genirq/cpuhotplug: retry with cpu_online_mask when irq_do_set_affinity return -ENOSPC
-Date: Tue, 23 Apr 2024 00:34:13 -0700
-Message-Id: <20240423073413.79625-1-dongli.zhang@oracle.com>
-X-Mailer: git-send-email 2.34.1
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: SJ0PR05CA0197.namprd05.prod.outlook.com
- (2603:10b6:a03:330::22) To SA0PR10MB6425.namprd10.prod.outlook.com
- (2603:10b6:806:2c0::8)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="a27nDfNC"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1713861327;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=+vJaKEAfDiE8wRROjPB/46PERXPjfD/eS5OLTnH5/nA=;
+	b=a27nDfNCvFStSwmOUAjh8w9rmR4kme2eIa1hq8QoABbZO5KKfVVaAtgnbrj3VsNA8FrOna
+	xqtES0yN8JOgm1DA7soc70n4YYPaAGtsq743vaM3br27y8jXoSeGc9XlUV8Dll2b1VrtmZ
+	j1tcSHnYQfyFEDkBbVQFQSSftEfCKg4=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-672-_EBDMIXyM8udvKtX5B9TXw-1; Tue, 23 Apr 2024 04:35:23 -0400
+X-MC-Unique: _EBDMIXyM8udvKtX5B9TXw-1
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-343d02b62ddso3818849f8f.1
+        for <virtualization@lists.linux.dev>; Tue, 23 Apr 2024 01:35:23 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713861322; x=1714466122;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=+vJaKEAfDiE8wRROjPB/46PERXPjfD/eS5OLTnH5/nA=;
+        b=LKJWdcvJx7y2qg4oq3wtJxtNFBx5BIHURzdmEvYh+pmwYo1B4nMhy8rXeRnGF/ou/C
+         JMs84PYfFLP2YEfn3EDYq6mFF7HEfRkL8UlVdmrBwqtqgEJNI2ZjFK2JgAReKRAMIb32
+         EScnBSeGFyDlFkHHTvBvVz7ObcNiK41ErAveevEWI/GcHogixiy4ncPhT65PL5n1ylhf
+         mwt1dXee2k2snEYB2OR1NzUZh3HhvmSYP7wJcnhIzNAJBeqRUdU1lznmIs0+QnXGPxNU
+         0w/mT/HRYN7QFxC8TJXoLkvgv6qCCqhnWyBlAQB0LovDyGR8aoroyVecxpOOW0b5aTVD
+         bsZA==
+X-Forwarded-Encrypted: i=1; AJvYcCXW+Ub0+NIngrisGtVtH7gqx5Oy8P/RR7EPW3eloB2oXS89gTgsvGBtQMB4pSK58D2tFg+36i534lly5GXt+9qmvooGnzz16T5lvnlpS6M=
+X-Gm-Message-State: AOJu0YwRlJFldosAR6u4cIK2hRCHxRqhS3guoLLHRyuxTgc8KqvV+eNk
+	3G9VAbGklclclQIIGNfXDWHO9zFnzGDwwJoRpPosNVfa2jaPbFJeV/51dFk8dDsb8QfFU5Me+Hq
+	MSrO9aY/rdJwfUi4ps9iWWavnvllzKTd+xjxo4HMZPevzq76/qNwa8AeT5qH/q4yX
+X-Received: by 2002:a05:6000:dc3:b0:34b:3660:e2a9 with SMTP id dw3-20020a0560000dc300b0034b3660e2a9mr2764019wrb.11.1713861322121;
+        Tue, 23 Apr 2024 01:35:22 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEX4SaLtyioB9h3624ku7UiJ/Wtf/loc9Olj195YLr4+j8FwgrH++GD+muge83O5ZK3GOZNOw==
+X-Received: by 2002:a05:6000:dc3:b0:34b:3660:e2a9 with SMTP id dw3-20020a0560000dc300b0034b3660e2a9mr2763997wrb.11.1713861321532;
+        Tue, 23 Apr 2024 01:35:21 -0700 (PDT)
+Received: from redhat.com ([2a06:c701:7429:3c00:dc4a:cd5:7b1c:f7c2])
+        by smtp.gmail.com with ESMTPSA id f18-20020adff592000000b00343a0e2375esm13854101wro.27.2024.04.23.01.35.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 23 Apr 2024 01:35:20 -0700 (PDT)
+Date: Tue, 23 Apr 2024 04:35:18 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Gavin Liu <gavin.liu@jaguarmicro.com>
+Cc: "jasowang@redhat.com" <jasowang@redhat.com>,
+	Angus Chen <angus.chen@jaguarmicro.com>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Heng Qi <hengqi@linux.alibaba.com>
+Subject: Re: =?utf-8?B?5Zue5aSN?= =?utf-8?Q?=3A?= [PATCH v5] vp_vdpa: don't
+ allocate unused msix vectors
+Message-ID: <20240423043424-mutt-send-email-mst@kernel.org>
+References: <ffab38f0-2ec6-4ed2-b0f8-398f2829b71d@linux.alibaba.com>
+ <20240410033020.1310-1-yuxue.liu@jaguarmicro.com>
+ <20240422080729-mutt-send-email-mst@kernel.org>
+ <SEYPR06MB6756E87AE40D93704A0614A9EC112@SEYPR06MB6756.apcprd06.prod.outlook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SA0PR10MB6425:EE_|SN4PR10MB5798:EE_
-X-MS-Office365-Filtering-Correlation-Id: e062ca41-9148-4f50-5fa4-08dc6368287d
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 
-	=?us-ascii?Q?adCPCgX/mNn5PvQ7f6ouAinqD003i/q5AeG0Pg3UU6SQ2BWQyVwx1h9RwboV?=
- =?us-ascii?Q?1DAHLApwcjEX0Y8xY+jmOKmNW1aMXLE1sXeje1FP7c1uP8ei9P8B5iL/YkgF?=
- =?us-ascii?Q?aoGtz0Yg+aiml7B9qsMqe/mbhFYFEmuoovnZODMOKbX665E6HzLqW+0bBCxw?=
- =?us-ascii?Q?hAciCrxxa9/CfzWMuERNzTIlcQ6YwCREDfmpEMlm/Njny6/GZjsq6UVNzR3O?=
- =?us-ascii?Q?50XVcvrvWL5RSl+EBpU28moqfOuVh9b9Vvxi3MmnPsOM3iziJAZ6BcFmALOP?=
- =?us-ascii?Q?87PNPuAAk7Z+X5VwlPlgdfYTu43wYF41YcEQaqQAmgfAIYlmJ5Hg74Wg5ecb?=
- =?us-ascii?Q?FnOAU1bqOVJtv1SJfnJQheYROquihf//4YCcdgPl/zhcbLS5lAgyLdyxT0Zl?=
- =?us-ascii?Q?wYuVmTAoTK09d30zoZyL0MdQDKab5NWNg0PkCZviXPNakE4+mS2OPkwREndh?=
- =?us-ascii?Q?+MZXSCTQkeDLtamwb/luKHEHvPBnT7zhZwZFcXDCrJrht6bitS9Wc8+wLx4p?=
- =?us-ascii?Q?jMkKgdgZuc7IqZwehfGy1+/fKrhF4H6ohCl7m2JKehYxkcS99X06yhLea79e?=
- =?us-ascii?Q?HsZJr55wYernhHBjIka9GaOIzW1zn9Xs6aCfcPX0cgKw7JLyvuu43/Lj9lAT?=
- =?us-ascii?Q?PpSSarCEDvTHMW6dDtSb7jrOXf/xbpBsnGaCQXSa+8lYISerYfSx7pR+pKRy?=
- =?us-ascii?Q?i4XrqI0ZMFC5IugZaxrngJLoc6bTVSKR/iw7JB4ctitJcoZPew7V/AVwyLuz?=
- =?us-ascii?Q?6fdpNvdKsE/rBvuhLi3msmSejNaSmtMcniQsBXHO6aEn0wvDNtdSNTAPvt3v?=
- =?us-ascii?Q?C6jFcOO6giYW0Y6BScAm294lAVP7JhJEB+XktDXw5+7ma97BvT8qFbn0yUXA?=
- =?us-ascii?Q?fc7syQWIYBbGN6jmEP/59y5Xaw2FqByRyEIKqUWtVCaR4kG70twFCRwNid+h?=
- =?us-ascii?Q?H4ATvO0e1llXCrIeyXrCEzsL7eIReS9RaHGKnTYMt7g79OOjTr6P7/4WMJR2?=
- =?us-ascii?Q?OvoxPtN6bRDqS9sUWUZkgiaA1Up3xrO9jmynIzd3NSdbM5lQgB5A+2diPhKg?=
- =?us-ascii?Q?u+q5V+IT3gOnG8cH38JtDEM4Jht6BlvT8STKaAoACJY7kZyqzt3eYZSP4VsP?=
- =?us-ascii?Q?jlqOt2UB4cMPd5/oNRSMLMCDybN6bJj2yLnbLrGp2FIkjMjpekdgPfnVPpkA?=
- =?us-ascii?Q?3RHSEIM/66P3MNJ9In3mBhr+mKE6L1I3Zq0IOy8BIykIwX316iUqVg+UAKFz?=
- =?us-ascii?Q?Jau5H3cnG3nq8sdCNwVFotZOapYyu0lWRuFcQ9Cj9Q=3D=3D?=
-X-Forefront-Antispam-Report: 
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA0PR10MB6425.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(376005)(366007)(1800799015);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: 
-	=?us-ascii?Q?OO5CWzPqn3YPhL+eRpraWd6LbMBfOYtKaLrWDO3KHAXXIrBYej07X3mlACyV?=
- =?us-ascii?Q?0ZDFkMgudcI1myC2cWkBpt+kMQ/wNSlHWLyrc2RSvBARsqlqbkjS6KwAV61x?=
- =?us-ascii?Q?kJvJNF8/u9dKrkTKqlwm5Hcit9GXnIn3ePEPAZivz2z9PbyQ3bYeV2k8E562?=
- =?us-ascii?Q?8njd9mqVgfITgPxUi4eYhHKi1bF3R9e+DCFTL/M8tv44+MuJSkEFWAS099TB?=
- =?us-ascii?Q?qSdfvdW5Enka1n/933J/mzWaDD9S/rr26hnUnlfiTI5gWF05DROWoqX951V+?=
- =?us-ascii?Q?jthgTe6jH8yGpRj8P2SDOtAEl9tpVBQMrZbxu30SOngOpfL2SQqCg8R6mhjX?=
- =?us-ascii?Q?3uSy2EaEbA/tIPlSrkgzdyXnYlVvzW7vL7JBjmALR1CcbEX0N1hqArNDrzXb?=
- =?us-ascii?Q?CagX/9B17CY8hgmXHSg7SCiTFJBLmV+ZeFM8w4NC15dPeLmxghcyYFsNDTJU?=
- =?us-ascii?Q?pNJPppMNUyFuD9X5w99yLm279UULiZcKBBuxhjq/sZYfKQBwIkJRQ12NRCkQ?=
- =?us-ascii?Q?RC4EdJgczEO5Z9CB3gqnLTYamie7NAJ6Di5qxkWbro47kul7p7RcNTCfC3Sa?=
- =?us-ascii?Q?8k1fAUo4pA6PLlkh68BnGnCOwn8aeJns3oCQjCpFz45atE0l2npR3gyxAtqF?=
- =?us-ascii?Q?MFUJuW4N9xxC4adDvZ5LhaTy0wMVrHSLQ3rFaPV/mKgUOz9q6Icm0amgh2ee?=
- =?us-ascii?Q?vB38l5yurhlemmglTWRt6clGYy8KYiEkjCrMYt/WDkZca+RyinQkti3MQ0DI?=
- =?us-ascii?Q?IPzx6Djac32aqj6UV/dL0CRqA2kLGFCv0NGHzq21re9jYEJGJaGKD4N0yEdT?=
- =?us-ascii?Q?L8HYNyX7eiNb7mOb82gUB6iuhtAb06bYY9L+bPS/7/WZAhrPN7XlYfiXH6MQ?=
- =?us-ascii?Q?f7NDyYKLXW8EymkJ2RaCyWxhYrep6hI+zi0iv6fwWQIHHO+5sJMQckxSkTOW?=
- =?us-ascii?Q?frCxdXL7j0fZSawe8ykCuv7/sMdvxkPzVBFBW4aQBX4+Le77GA0Lx5yThApL?=
- =?us-ascii?Q?QDcpuMugoRkzYJzezQBbN19efL8IC26W3rIZxM8IuhYBQbn3y8bOWQuFtldn?=
- =?us-ascii?Q?dPVuiUiVxQc+wOFYOdQZsv726qquBQa3NsVbNFrBmlHWLtI+LxUOWnJJ2Od1?=
- =?us-ascii?Q?8bjvlcg9crxGB4igOoKmH+/Dh0PES4lRkCOmpYteb3aiE/GPtLJAl28b8jcj?=
- =?us-ascii?Q?iRPrN4t7+fXIFyFRWRnKB10zVwev7imS2/ubF+aYIVH86yydwH0q+N8QF35H?=
- =?us-ascii?Q?VXEWMSkzNZ+N4Oz8SHIUmew9OAcqcUiGC8zVgeNiOxUEtGr1aFBySn4wS9Ly?=
- =?us-ascii?Q?fbdxrKJUP0/5NmVevKsLnlxtXKlw5Y2DpooEj8iAPssH3AKhcsWFHTDswrMq?=
- =?us-ascii?Q?LBjX4wKcdVSY2vRjukiQfusUu147kxx378x4KWydH6qkIlt5lIVVjSBuVXGh?=
- =?us-ascii?Q?sSJUhi+8fXSsrss3vLUmL38gwiyzvsls6TC/oVqV/MpuGZpW4RMqgxSGmMDe?=
- =?us-ascii?Q?3xW5JeA/DKKxnzyWMkt3r9cnx8YFOujXjZQCjgEDLOMqPeTcfgePLA2Rj8vO?=
- =?us-ascii?Q?i+MHNc0MD/juKO7iuy5SDqLO3BR31jtl4ume7+Uk?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: 
-	j6bm/aurQSfal1zDMu5iBReDQlJtrGBmU8SHRdCV9Z9rfuZtCihBrw9rFx/hLXYQvd8hQC2xfQcgm7D6ErHDihZbyC9A9hTnvdOqGcKql1IySpelfWIgVbQLG6+hVkIDCgyHh/1qHu4qlMgkOMFS9Xuj3oKq9IITQzCkQvJ5HkSP8fg0Lln2TJAByqZu4PDkVovGjzRfnpKotJlndntGK72uYD+NwKo1sR0c5ZVbTv2mqYbHtsI29i0+457Xi9yt/2DpcHZ4q8QvE+QlzW47y+/UZpYk+tJRHqahqYqmfPxCU5F432dcEeno0nBnFwG/Tw0GNsZ5Mlv/FgTRO0nH5XSztPkvEuRLCvm585IrI2HZC+CZ6CMMPDCu89QuRZ1qfDitEkK3poFnVTf0T9VGATN9BgNoBDtEmQHsbIAijiN2FfLuPwuHV5qkZx0pmO4c/TTxYtgHI5OOt0o6LugplahdY/Wg5YWkQmEepuNEW6Ncd8iv7GCYM+01oEGWcrs+y00prn25L50rtHuZ8BeZ4RG1l8mVofsK40ztZCwavXsHmnHh5DhO6zYaFjSc+AhWfuOjU3TC5dD1oPVsficBEPRXV/Jotgfw405YvUNhb/Y=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: e062ca41-9148-4f50-5fa4-08dc6368287d
-X-MS-Exchange-CrossTenant-AuthSource: SA0PR10MB6425.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Apr 2024 07:36:58.7897
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: cKgj8fWxskbgUwZ4F0mwYJkjbT90ufm3jBDPI3Yf6ffhObkd0oYX7qOb24R3QnPKfQnw411Gy3dihvCC0h8Oyw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN4PR10MB5798
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-04-23_04,2024-04-22_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 mlxscore=0 spamscore=0
- bulkscore=0 suspectscore=0 mlxlogscore=999 adultscore=0 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2404010000
- definitions=main-2404230021
-X-Proofpoint-ORIG-GUID: mNZaVbk5gsvYW9pX0NW6ypriaSXny78Y
-X-Proofpoint-GUID: mNZaVbk5gsvYW9pX0NW6ypriaSXny78Y
+In-Reply-To: <SEYPR06MB6756E87AE40D93704A0614A9EC112@SEYPR06MB6756.apcprd06.prod.outlook.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-When a CPU goes offline, the interrupts pinned to that CPU are
-re-configured.
+On Tue, Apr 23, 2024 at 01:39:17AM +0000, Gavin Liu wrote:
+> On Wed, Apr 10, 2024 at 11:30:20AM +0800, lyx634449800 wrote:
+> > From: Yuxue Liu <yuxue.liu@jaguarmicro.com>
+> >
+> > When there is a ctlq and it doesn't require interrupt callbacks,the 
+> > original method of calculating vectors wastes hardware msi or msix 
+> > resources as well as system IRQ resources.
+> >
+> > When conducting performance testing using testpmd in the guest os, it 
+> > was found that the performance was lower compared to directly using 
+> > vfio-pci to passthrough the device
+> >
+> > In scenarios where the virtio device in the guest os does not utilize 
+> > interrupts, the vdpa driver still configures the hardware's msix 
+> > vector. Therefore, the hardware still sends interrupts to the host os.
+> 
+> >I just have a question on this part. How come hardware sends interrupts does not guest driver disable them?
+>                
+>    1：Assuming the guest OS's Virtio device is using PMD mode, QEMU sets the call fd to -1
+>    2：On the host side, the vhost_vdpa program will set vp_vdpa->vring[i].cb.callback to invalid
+>    3：Before the modification, the vp_vdpa_request_irq function does not check whether 
+>       vp_vdpa->vring[i].cb.callback is valid. Instead, it enables the hardware's MSIX
+> 	  interrupts based on the number of queues of the device
+> 
 
-Its managed interrupts undergo either migration to other CPUs or shutdown
-if all CPUs listed in the affinity are offline. This patch doesn't affect
-managed interrupts.
+So MSIX is enabled but why would it trigger? virtio PMD in poll mode
+presumably suppresses interrupts after all.
 
-For regular interrupts, they are migrated to other selected online CPUs.
-The target CPUs are chosen from either desc->pending_mask (suppose
-CONFIG_GENERIC_PENDING_IRQ) or d->common->affinity (suppose CONFIG_SMP).
-The cpu_online_mask is used as target CPUs only when CPUs in both
-desc->pending_mask and d->common->affinity are offline.
-
-However, there is a bad corner case, when desc->pending_mask or
-d->common->affinity is selected as the target cpumask, but none of their
-CPUs has any available vectors.
-
-In this case the migration fails and the device interrupt becomes
-stale. This is not any different from the case where the affinity
-mask does not contain any online CPU, but there is no fallback
-operation for this.
-
-Instead of giving up, retry the migration attempt with the online CPU
-mask if the interrupt is not managed, as managed interrupts cannot be
-affected by this problem.
-
-Cc: Joe Jin <joe.jin@oracle.com>
-Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
-[tglx: massage some changelog]
----
-Changed since v1:
-  - Re-work the commit message
-  - Move pr_debug before setting affinity
-  - Remove 'all' from pr_debug message
-
- kernel/irq/cpuhotplug.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
-
-diff --git a/kernel/irq/cpuhotplug.c b/kernel/irq/cpuhotplug.c
-index 1ed2b1739363..19babb914949 100644
---- a/kernel/irq/cpuhotplug.c
-+++ b/kernel/irq/cpuhotplug.c
-@@ -130,6 +130,17 @@ static bool migrate_one_irq(struct irq_desc *desc)
- 	 * CPU.
- 	 */
- 	err = irq_do_set_affinity(d, affinity, false);
-+
-+	if (err == -ENOSPC && !irqd_affinity_is_managed(d) && affinity != cpu_online_mask) {
-+		pr_debug("IRQ%u: set affinity failed for %*pbl, re-try with online CPUs\n",
-+			 d->irq, cpumask_pr_args(affinity));
-+
-+		affinity = cpu_online_mask;
-+		brokeaff = true;
-+
-+		err = irq_do_set_affinity(d, affinity, false);
-+	}
-+
- 	if (err) {
- 		pr_warn_ratelimited("IRQ%u: set affinity failed(%d).\n",
- 				    d->irq, err);
--- 
-2.34.1
+> 
+> 
+> ----- Original Message -----
+> From: Michael S. Tsirkin mst@redhat.com
+> Sent: April 22, 2024 20:09
+> To: Gavin Liu gavin.liu@jaguarmicro.com
+> Cc: jasowang@redhat.com; Angus Chen angus.chen@jaguarmicro.com; virtualization@lists.linux.dev; xuanzhuo@linux.alibaba.com; linux-kernel@vger.kernel.org; Heng Qi hengqi@linux.alibaba.com
+> Subject: Re: [PATCH v5] vp_vdpa: don't allocate unused msix vectors
+> 
+> 
+> 
+> External Mail: This email originated from OUTSIDE of the organization!
+> Do not click links, open attachments or provide ANY information unless you recognize the sender and know the content is safe.
+> 
+> 
+> On Wed, Apr 10, 2024 at 11:30:20AM +0800, lyx634449800 wrote:
+> > From: Yuxue Liu <yuxue.liu@jaguarmicro.com>
+> >
+> > When there is a ctlq and it doesn't require interrupt callbacks,the 
+> > original method of calculating vectors wastes hardware msi or msix 
+> > resources as well as system IRQ resources.
+> >
+> > When conducting performance testing using testpmd in the guest os, it 
+> > was found that the performance was lower compared to directly using 
+> > vfio-pci to passthrough the device
+> >
+> > In scenarios where the virtio device in the guest os does not utilize 
+> > interrupts, the vdpa driver still configures the hardware's msix 
+> > vector. Therefore, the hardware still sends interrupts to the host os.
+> 
+> I just have a question on this part. How come hardware sends interrupts does not guest driver disable them?
+> 
+> > Because of this unnecessary
+> > action by the hardware, hardware performance decreases, and it also 
+> > affects the performance of the host os.
+> >
+> > Before modification:(interrupt mode)
+> >  32:  0   0  0  0 PCI-MSI 32768-edge    vp-vdpa[0000:00:02.0]-0
+> >  33:  0   0  0  0 PCI-MSI 32769-edge    vp-vdpa[0000:00:02.0]-1
+> >  34:  0   0  0  0 PCI-MSI 32770-edge    vp-vdpa[0000:00:02.0]-2
+> >  35:  0   0  0  0 PCI-MSI 32771-edge    vp-vdpa[0000:00:02.0]-config
+> >
+> > After modification:(interrupt mode)
+> >  32:  0  0  1  7   PCI-MSI 32768-edge  vp-vdpa[0000:00:02.0]-0
+> >  33: 36  0  3  0   PCI-MSI 32769-edge  vp-vdpa[0000:00:02.0]-1
+> >  34:  0  0  0  0   PCI-MSI 32770-edge  vp-vdpa[0000:00:02.0]-config
+> >
+> > Before modification:(virtio pmd mode for guest os)
+> >  32:  0   0  0  0 PCI-MSI 32768-edge    vp-vdpa[0000:00:02.0]-0
+> >  33:  0   0  0  0 PCI-MSI 32769-edge    vp-vdpa[0000:00:02.0]-1
+> >  34:  0   0  0  0 PCI-MSI 32770-edge    vp-vdpa[0000:00:02.0]-2
+> >  35:  0   0  0  0 PCI-MSI 32771-edge    vp-vdpa[0000:00:02.0]-config
+> >
+> > After modification:(virtio pmd mode for guest os)
+> >  32: 0  0  0   0   PCI-MSI 32768-edge   vp-vdpa[0000:00:02.0]-config
+> >
+> > To verify the use of the virtio PMD mode in the guest operating 
+> > system, the following patch needs to be applied to QEMU:
+> > https://lore.kernel.org/all/20240408073311.2049-1-yuxue.liu@jaguarmicr
+> > o.com
+> >
+> > Signed-off-by: Yuxue Liu <yuxue.liu@jaguarmicro.com>
+> > Acked-by: Jason Wang <jasowang@redhat.com>
+> > Reviewed-by: Heng Qi <hengqi@linux.alibaba.com>
+> > ---
+> > V5: modify the description of the printout when an exception occurs
+> > V4: update the title and assign values to uninitialized variables
+> > V3: delete unused variables and add validation records
+> > V2: fix when allocating IRQs, scan all queues
+> >
+> >  drivers/vdpa/virtio_pci/vp_vdpa.c | 22 ++++++++++++++++------
+> >  1 file changed, 16 insertions(+), 6 deletions(-)
+> >
+> > diff --git a/drivers/vdpa/virtio_pci/vp_vdpa.c 
+> > b/drivers/vdpa/virtio_pci/vp_vdpa.c
+> > index df5f4a3bccb5..8de0224e9ec2 100644
+> > --- a/drivers/vdpa/virtio_pci/vp_vdpa.c
+> > +++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
+> > @@ -160,7 +160,13 @@ static int vp_vdpa_request_irq(struct vp_vdpa *vp_vdpa)
+> >       struct pci_dev *pdev = mdev->pci_dev;
+> >       int i, ret, irq;
+> >       int queues = vp_vdpa->queues;
+> > -     int vectors = queues + 1;
+> > +     int vectors = 1;
+> > +     int msix_vec = 0;
+> > +
+> > +     for (i = 0; i < queues; i++) {
+> > +             if (vp_vdpa->vring[i].cb.callback)
+> > +                     vectors++;
+> > +     }
+> >
+> >       ret = pci_alloc_irq_vectors(pdev, vectors, vectors, PCI_IRQ_MSIX);
+> >       if (ret != vectors) {
+> > @@ -173,9 +179,12 @@ static int vp_vdpa_request_irq(struct vp_vdpa *vp_vdpa)
+> >       vp_vdpa->vectors = vectors;
+> >
+> >       for (i = 0; i < queues; i++) {
+> > +             if (!vp_vdpa->vring[i].cb.callback)
+> > +                     continue;
+> > +
+> >               snprintf(vp_vdpa->vring[i].msix_name, VP_VDPA_NAME_SIZE,
+> >                       "vp-vdpa[%s]-%d\n", pci_name(pdev), i);
+> > -             irq = pci_irq_vector(pdev, i);
+> > +             irq = pci_irq_vector(pdev, msix_vec);
+> >               ret = devm_request_irq(&pdev->dev, irq,
+> >                                      vp_vdpa_vq_handler,
+> >                                      0, vp_vdpa->vring[i].msix_name, 
+> > @@ -185,21 +194,22 @@ static int vp_vdpa_request_irq(struct vp_vdpa *vp_vdpa)
+> >                               "vp_vdpa: fail to request irq for vq %d\n", i);
+> >                       goto err;
+> >               }
+> > -             vp_modern_queue_vector(mdev, i, i);
+> > +             vp_modern_queue_vector(mdev, i, msix_vec);
+> >               vp_vdpa->vring[i].irq = irq;
+> > +             msix_vec++;
+> >       }
+> >
+> >       snprintf(vp_vdpa->msix_name, VP_VDPA_NAME_SIZE, "vp-vdpa[%s]-config\n",
+> >                pci_name(pdev));
+> > -     irq = pci_irq_vector(pdev, queues);
+> > +     irq = pci_irq_vector(pdev, msix_vec);
+> >       ret = devm_request_irq(&pdev->dev, irq, vp_vdpa_config_handler, 0,
+> >                              vp_vdpa->msix_name, vp_vdpa);
+> >       if (ret) {
+> >               dev_err(&pdev->dev,
+> > -                     "vp_vdpa: fail to request irq for vq %d\n", i);
+> > +                     "vp_vdpa: fail to request irq for config: %d\n", 
+> > + ret);
+> >                       goto err;
+> >       }
+> > -     vp_modern_config_vector(mdev, queues);
+> > +     vp_modern_config_vector(mdev, msix_vec);
+> >       vp_vdpa->config_irq = irq;
+> >
+> >       return 0;
+> > --
+> > 2.43.0
+> 
 
