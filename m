@@ -1,242 +1,257 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2169D16130D;
-	Wed, 24 Apr 2024 16:18:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECDF816D309
+	for <virtualization@lists.linux.dev>; Wed, 24 Apr 2024 16:49:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.113
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713975505; cv=none; b=uJi9WUdD6e/IPOEyJDGUu3pGLfleDnSCoOONSZqdLe/w3tYZYWXe1AMv1Sl4VnEKvH0dLB9eYb2SxaUHq1Fpr+bsa8K2zYSOBmTQygRYyvhY3iwvRM88NKDtykUCKskdV4Scjm0jjR78/umNOrlAXVOaOyaHcCtPZWUmkv7WGcs=
+	t=1713977379; cv=none; b=cPrSUPwU/BQCXKTG+P+oxi6fpPoIQBlvcTUQsFTByg5Qv6Uivu0qJvEvocs/QS28Hke5IjKKQTkh4EapD2fKQQq+0LggIyFMtOnBo7Klv0SOqswFLQ7aqbhcN+H6YQv8JVz6f+Wv5u4ZXDRvPZz2IyUCeAoyHTU/8ZJPk56y57Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713975505; c=relaxed/simple;
-	bh=WOCA64wLURkzbX3ikbDOkLsxKLSUsfx9997T2RUaXbM=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=bPzUeDW8P0S3QoXv5pnjsMlIkGI992h93iSO2L6CTYQWeV4xo201Euq/yTCGMCpKjjNnDYMJBHrln8BSiLpRnhxv/T9l5/NVWwPsXaWSoM2f0pYXGcw/TW4wCd6a4z56vGoPAu+2kVGJyKYZTw+Eg/lZUGEVG8AHNWcAaQbSGto=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eeyyFl7i; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1713977379; c=relaxed/simple;
+	bh=BeuHAPFHOzgLj7bcwamrKQ0nWHsiW0duK0tmhO0g0NU=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=Ml+4kYl9n49tSEEtcUVMxSaM46/0q9N8cww1jLwH8Ves18jC6VAQG742b5VPO+AmqRwx9AZWjP9vwVrFBD1Ik65c1k7P7jKjVvnYCTl2JFH3LynC/hOtUi8LCbEuOgyu7RA0wYgzYDwoS2N5Ls0NsXwjYssg6kr0mavkdcWDml0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Sx6fcl5P; arc=none smtp.client-ip=115.124.30.113
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eeyyFl7i"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE9F2C113CD;
-	Wed, 24 Apr 2024 16:18:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1713975504;
-	bh=WOCA64wLURkzbX3ikbDOkLsxKLSUsfx9997T2RUaXbM=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=eeyyFl7imnDTYm5iLmD+lfkzycscZRdTB3YQ5BjHvvnx/JTn2+ih4dK2Y0nBgNHNk
-	 jXYoIAm0t0G7YJJXE5GeCZrcAuXmW5B4nQsZ8pgxDJwkPceZyEDKhsRL5E6XTsBzsF
-	 xlZ3NlDVSDHJgARljvXjFbfWRv9NWfVwemQ35UbsF2bnnYRNEj4LL3D5cHRKI9TdVO
-	 /SuR/vWxiX+oltGFkUv2KKKaSBJOPHn3auoY2dJzbWwUcaTowfYBac55W07hboInSe
-	 7SVLiIEB/BTW3gh602Uy6/H2YDR4P2bc9MVmNCnq33mQZSp52fnHO9GgsCQLCnSyts
-	 lW0NbiE0kKJ3A==
-Date: Wed, 24 Apr 2024 09:18:23 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Heng Qi <hengqi@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev, "David S .
- Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Paolo
- Abeni <pabeni@redhat.com>, Jason Wang <jasowang@redhat.com>, "Michael S .
- Tsirkin" <mst@redhat.com>, Brett Creeley <bcreeley@amd.com>, Ratheesh
- Kannoth <rkannoth@marvell.com>, Alexander Lobakin
- <aleksander.lobakin@intel.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Tal
- Gilboa <talgi@nvidia.com>, Jonathan Corbet <corbet@lwn.net>,
- linux-doc@vger.kernel.org, Maxime Chevallier
- <maxime.chevallier@bootlin.com>, Jiri Pirko <jiri@resnulli.us>, Paul
- Greenwalt <paul.greenwalt@intel.com>, Ahmed Zaki <ahmed.zaki@intel.com>,
- Vladimir Oltean <vladimir.oltean@nxp.com>, Kory Maincent
- <kory.maincent@bootlin.com>, Andrew Lunn <andrew@lunn.ch>,
- "justinstitt@google.com" <justinstitt@google.com>
-Subject: Re: [PATCH net-next v9 2/4] ethtool: provide customized dim profile
- management
-Message-ID: <20240424091823.4e9b008b@kernel.org>
-In-Reply-To: <640292b7-5fcd-44c2-bdd1-03702b7e60a1@linux.alibaba.com>
-References: <20240417155546.25691-1-hengqi@linux.alibaba.com>
-	<20240417155546.25691-3-hengqi@linux.alibaba.com>
-	<20240418174843.492078d5@kernel.org>
-	<96b59800-85e6-4a9e-ad9b-7ad3fa56fff4@linux.alibaba.com>
-	<640292b7-5fcd-44c2-bdd1-03702b7e60a1@linux.alibaba.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Sx6fcl5P"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1713977369; h=Message-ID:Date:MIME-Version:From:Subject:To:Content-Type;
+	bh=8KMQJzU1aMbtALFenO9YraP0j/CgdS9fdFoFzB32RZY=;
+	b=Sx6fcl5PAaY9toUbJ6UsC2ZPA+2rVfoRbANpZ9krAJOnTSLYYPzS8Vf3EtULzGLKEjnbnDLJ5BBBcLKr0Sow45Z87bp3cw9Etz3sRf2L1/dFh79No2dF3/L2F9jTq49uPA+g1pduOiaxx5DzHSsOzaBRb/AyJ2YoSZRHcCLdJcY=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R591e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032014016;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=23;SR=0;TI=SMTPD_---0W5Ck5Xj_1713977366;
+Received: from 30.39.150.89(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W5Ck5Xj_1713977366)
+          by smtp.aliyun-inc.com;
+          Thu, 25 Apr 2024 00:49:28 +0800
+Message-ID: <df6163de-d82c-458d-b298-1eaf406e6b3d@linux.alibaba.com>
+Date: Thu, 25 Apr 2024 00:49:26 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+From: Heng Qi <hengqi@linux.alibaba.com>
+Subject: Re: [PATCH net-next v9 2/4] ethtool: provide customized dim profile
+ management
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
+ "David S . Miller" <davem@davemloft.net>, Eric Dumazet
+ <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, "Michael S . Tsirkin" <mst@redhat.com>,
+ Brett Creeley <bcreeley@amd.com>, Ratheesh Kannoth <rkannoth@marvell.com>,
+ Alexander Lobakin <aleksander.lobakin@intel.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Tal Gilboa <talgi@nvidia.com>,
+ Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org,
+ Maxime Chevallier <maxime.chevallier@bootlin.com>,
+ Jiri Pirko <jiri@resnulli.us>, Paul Greenwalt <paul.greenwalt@intel.com>,
+ Ahmed Zaki <ahmed.zaki@intel.com>, Vladimir Oltean
+ <vladimir.oltean@nxp.com>, Kory Maincent <kory.maincent@bootlin.com>,
+ Andrew Lunn <andrew@lunn.ch>, "justinstitt@google.com"
+ <justinstitt@google.com>
+References: <20240417155546.25691-1-hengqi@linux.alibaba.com>
+ <20240417155546.25691-3-hengqi@linux.alibaba.com>
+ <20240418174843.492078d5@kernel.org>
+ <96b59800-85e6-4a9e-ad9b-7ad3fa56fff4@linux.alibaba.com>
+ <640292b7-5fcd-44c2-bdd1-03702b7e60a1@linux.alibaba.com>
+ <20240424091823.4e9b008b@kernel.org>
+In-Reply-To: <20240424091823.4e9b008b@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Wed, 24 Apr 2024 21:41:55 +0800 Heng Qi wrote:
-> +struct dim_irq_moder {
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 /* See DIM_PROFILE_* */
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 u8 profile_flags;
-> +
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 /* See DIM_COALESCE_* for Rx and Tx=
- */
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 u8 coal_flags;
-> +
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 /* Rx DIM period count mode: CQE or=
- EQE */
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 u8 dim_rx_mode;
-> +
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 /* Tx DIM period count mode: CQE or=
- EQE */
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 u8 dim_tx_mode;
-> +
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 /* DIM profile list for Rx */
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 struct dim_cq_moder *rx_profile;
-> +
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 /* DIM profile list for Tx */
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 struct dim_cq_moder *tx_profile;
-> +
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 /* Rx DIM worker function scheduled=
- by net_dim() */
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 void (*rx_dim_work)(struct work_str=
-uct *work);
-> +
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 /* Tx DIM worker function scheduled=
- by net_dim() */
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 void (*tx_dim_work)(struct work_str=
-uct *work);
-> +};
-> +
->=20
-> .....
->=20
->=20
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 .ndo_init_irq_moder=C2=A0=C2=A0=C2=
-=A0=C2=A0 =3D virtnet_init_irq_moder,
 
-The init callback mostly fills in static data, can we not
-declare the driver information statically and move the init
-code into the core?
+在 2024/4/25 上午12:18, Jakub Kicinski 写道:
+> On Wed, 24 Apr 2024 21:41:55 +0800 Heng Qi wrote:
+>> +struct dim_irq_moder {
+>> +       /* See DIM_PROFILE_* */
+>> +       u8 profile_flags;
+>> +
+>> +       /* See DIM_COALESCE_* for Rx and Tx */
+>> +       u8 coal_flags;
+>> +
+>> +       /* Rx DIM period count mode: CQE or EQE */
+>> +       u8 dim_rx_mode;
+>> +
+>> +       /* Tx DIM period count mode: CQE or EQE */
+>> +       u8 dim_tx_mode;
+>> +
+>> +       /* DIM profile list for Rx */
+>> +       struct dim_cq_moder *rx_profile;
+>> +
+>> +       /* DIM profile list for Tx */
+>> +       struct dim_cq_moder *tx_profile;
+>> +
+>> +       /* Rx DIM worker function scheduled by net_dim() */
+>> +       void (*rx_dim_work)(struct work_struct *work);
+>> +
+>> +       /* Tx DIM worker function scheduled by net_dim() */
+>> +       void (*tx_dim_work)(struct work_struct *work);
+>> +};
+>> +
+>>
+>> .....
+>>
+>>
+>> +       .ndo_init_irq_moder     = virtnet_init_irq_moder,
+> The init callback mostly fills in static data, can we not
+> declare the driver information statically and move the init
+> code into the core?
 
-> ....
->=20
->=20
-> +static int virtnet_init_irq_moder(struct net_device *dev)
-> +{
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 struct virtnet_info *vi =3D n=
-etdev_priv(dev);
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 struct dim_irq_moder *moder;
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 int len;
-> +
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!virtio_has_feature(vi->v=
-dev, VIRTIO_NET_F_VQ_NOTF_COAL))
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0 return 0;
-> +
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 dev->irq_moder =3D kzalloc(si=
-zeof(*dev->irq_moder), GFP_KERNEL);
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!dev->irq_moder)
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0 goto err_moder;
-> +
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 moder =3D dev->irq_moder;
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 len =3D NET_DIM_PARAMS_NUM_PR=
-OFILES * sizeof(*moder->rx_profile);
-> +
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 moder->profile_flags |=3D DIM=
-_PROFILE_RX;
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 moder->coal_flags |=3D DIM_CO=
-ALESCE_USEC | DIM_COALESCE_PKTS;
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 moder->dim_rx_mode =3D DIM_CQ=
-_PERIOD_MODE_START_FROM_EQE;
-> +
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 moder->rx_dim_work =3D virtne=
-t_rx_dim_work;
-> +
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 moder->rx_profile =3D kmemdup=
-(dim_rx_profile[moder->dim_rx_mode],
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 len, GFP_KERNEL);
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!moder->rx_profile)
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0 goto err_profile;
-> +
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return 0;
-> +
-> +err_profile:
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 kfree(moder);
-> +err_moder:
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return -ENOMEM;
-> +}
-> +
->=20
-> ......
->=20
-> +void net_dim_setting(struct net_device *dev, struct dim *dim, bool is_tx)
-> +{
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 struct dim_irq_moder *irq_moder =3D=
- dev->irq_moder;
-> +
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!irq_moder)
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0 return;
-> +
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (is_tx) {
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0 INIT_WORK(&dim->work, irq_moder->tx_dim_work);
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0 dim->mode =3D irq_moder->dim_tx_mode;
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0 return;
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 }
-> +
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 INIT_WORK(&dim->work, irq_moder->rx=
-_dim_work);
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 dim->mode =3D irq_moder->dim_rx_mod=
-e;
-> +}
->=20
-> .....
->=20
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 for (i =3D 0; i < vi->max_queue_pai=
-rs; i++)
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0 net_dim_setting(vi->dev, &vi->rq[i].dim, false);
->=20
-> .....
->=20
->  =C2=A0=C2=A0=C2=A0 ETHTOOL_A_COALESCE_TX_AGGR_MAX_FRAMES,=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 /* u32 */
->=20
->  =C2=A0=C2=A0=C2=A0 ETHTOOL_A_COALESCE_TX_AGGR_TIME_USECS,=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 /* u32 */
->=20
-> + /* nest - _A_PROFILE_IRQ_MODERATION */
->=20
-> +=C2=A0 ETHTOOL_A_COALESCE_RX_PROFILE,
->=20
-> +=C2=A0=C2=A0 /* nest - _A_PROFILE_IRQ_MODERATION */
-> +=C2=A0 ETHTOOL_A_COALESCE_TX_PROFILE,
->=20
-> ......
->=20
->=20
-> Almost clear implementation, but the only problem is when I want to
-> reuse "ethtool -C" and append ETHTOOL_A_COALESCE_RX_PROFILE
-> and ETHTOOL_A_COALESCE_TX_PROFILE, *ethnl_set_coalesce_validate()
-> will report an error because there are no ETHTOOL_COALESCE_RX_PROFILE
-> and ETHTOOL_COALESCE_TX_PROFILE, because they are replaced by
-> DIM_PROFILE_RX and DIM_PROFILE_TX in the field profile_flags.*
+Now the init callback is used as following
 
-I see.
+In dim.c:
 
-> Should I reuse ETHTOOL_COALESCE_RX_PROFILE and
-> ETHTOOL_A_COALESCE_TX_PROFILE in ethtool_ops->.supported_coalesce_params
-> and remove the field profile_flags from struct dim_irq_moder?
-> Or let ethnl_set_coalesce_validate not verify these two flags?
-> Is there a better solution?
++int net_dim_init_irq_moder(struct net_device *dev)
++{
++       if (dev->netdev_ops && dev->netdev_ops->ndo_init_irq_moder)
++               return dev->netdev_ops->ndo_init_irq_moder(dev);
++
++       return 0;
++}
++EXPORT_SYMBOL(net_dim_init_irq_moder);
 
-Maybe create the bits but automatically add them for the driver?
 
-diff --git a/net/ethtool/coalesce.c b/net/ethtool/coalesce.c
-index 83112c1a71ae..56777d36f7f1 100644
---- a/net/ethtool/coalesce.c
-+++ b/net/ethtool/coalesce.c
-@@ -243,6 +243,8 @@ ethnl_set_coalesce_validate(struct ethnl_req_info *req_=
-info,
-=20
- 	/* make sure that only supported parameters are present */
- 	supported_params =3D ops->supported_coalesce_params;
-+	if (dev->moder->coal_flags ...)
-+		supported_params |=3D ETHTOOL_COALESCE_...;
- 	for (a =3D ETHTOOL_A_COALESCE_RX_USECS; a < __ETHTOOL_A_COALESCE_CNT; a++)
- 		if (tb[a] && !(supported_params & attr_to_mask(a))) {
- 			NL_SET_ERR_MSG_ATTR(info->extack, tb[a],
+In dev.c
+
+@@ -10258,6 +10259,10 @@ int register_netdevice(struct net_device *dev)
+         if (ret)
+                 return ret;
+
++       ret = net_dim_init_irq_moder(dev);
++       if (ret)
++               return ret;
++
+         spin_lock_init(&dev->addr_list_lock);
+         netdev_set_addr_lockdep_class(dev);
+
+
+The collected flags, mode, and work must obtain driver-specific
+
+values from the driver. If I'm not wrong, you don't want an interface
+
+like .ndo_init_irq_moder, but instead provide a generic interface in
+
+dim.c (e.g. net_dim_init_irq_moder() with parameters dev and struct
+
+dim_irq_moder or separate flags,mode,work). Then this func is called
+
+by the driver in the probe phase?
+
+
+>> ....
+>>
+>>
+>> +static int virtnet_init_irq_moder(struct net_device *dev)
+>> +{
+>> +        struct virtnet_info *vi = netdev_priv(dev);
+>> +        struct dim_irq_moder *moder;
+>> +        int len;
+>> +
+>> +        if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL))
+>> +                return 0;
+>> +
+>> +        dev->irq_moder = kzalloc(sizeof(*dev->irq_moder), GFP_KERNEL);
+>> +        if (!dev->irq_moder)
+>> +                goto err_moder;
+>> +
+>> +        moder = dev->irq_moder;
+>> +        len = NET_DIM_PARAMS_NUM_PROFILES * sizeof(*moder->rx_profile);
+>> +
+>> +        moder->profile_flags |= DIM_PROFILE_RX;
+>> +        moder->coal_flags |= DIM_COALESCE_USEC | DIM_COALESCE_PKTS;
+>> +        moder->dim_rx_mode = DIM_CQ_PERIOD_MODE_START_FROM_EQE;
+>> +
+>> +        moder->rx_dim_work = virtnet_rx_dim_work;
+>> +
+>> +        moder->rx_profile = kmemdup(dim_rx_profile[moder->dim_rx_mode],
+>> +                                   len, GFP_KERNEL);
+>> +        if (!moder->rx_profile)
+>> +                goto err_profile;
+>> +
+>> +        return 0;
+>> +
+>> +err_profile:
+>> +        kfree(moder);
+>> +err_moder:
+>> +        return -ENOMEM;
+>> +}
+>> +
+>>
+>> ......
+>>
+>> +void net_dim_setting(struct net_device *dev, struct dim *dim, bool is_tx)
+>> +{
+>> +       struct dim_irq_moder *irq_moder = dev->irq_moder;
+>> +
+>> +       if (!irq_moder)
+>> +               return;
+>> +
+>> +       if (is_tx) {
+>> +               INIT_WORK(&dim->work, irq_moder->tx_dim_work);
+>> +               dim->mode = irq_moder->dim_tx_mode;
+>> +               return;
+>> +       }
+>> +
+>> +       INIT_WORK(&dim->work, irq_moder->rx_dim_work);
+>> +       dim->mode = irq_moder->dim_rx_mode;
+>> +}
+>>
+>> .....
+>>
+>> +       for (i = 0; i < vi->max_queue_pairs; i++)
+>> +               net_dim_setting(vi->dev, &vi->rq[i].dim, false);
+>>
+>> .....
+>>
+>>       ETHTOOL_A_COALESCE_TX_AGGR_MAX_FRAMES,          /* u32 */
+>>
+>>       ETHTOOL_A_COALESCE_TX_AGGR_TIME_USECS,           /* u32 */
+>>
+>> + /* nest - _A_PROFILE_IRQ_MODERATION */
+>>
+>> +  ETHTOOL_A_COALESCE_RX_PROFILE,
+>>
+>> +   /* nest - _A_PROFILE_IRQ_MODERATION */
+>> +  ETHTOOL_A_COALESCE_TX_PROFILE,
+>>
+>> ......
+>>
+>>
+>> Almost clear implementation, but the only problem is when I want to
+>> reuse "ethtool -C" and append ETHTOOL_A_COALESCE_RX_PROFILE
+>> and ETHTOOL_A_COALESCE_TX_PROFILE, *ethnl_set_coalesce_validate()
+>> will report an error because there are no ETHTOOL_COALESCE_RX_PROFILE
+>> and ETHTOOL_COALESCE_TX_PROFILE, because they are replaced by
+>> DIM_PROFILE_RX and DIM_PROFILE_TX in the field profile_flags.*
+> I see.
+>
+>> Should I reuse ETHTOOL_COALESCE_RX_PROFILE and
+>> ETHTOOL_A_COALESCE_TX_PROFILE in ethtool_ops->.supported_coalesce_params
+>> and remove the field profile_flags from struct dim_irq_moder?
+>> Or let ethnl_set_coalesce_validate not verify these two flags?
+>> Is there a better solution?
+> Maybe create the bits but automatically add them for the driver?
+
+
+Ok. I think it works.
+
+
+Thanks!
+
+
+> diff --git a/net/ethtool/coalesce.c b/net/ethtool/coalesce.c
+> index 83112c1a71ae..56777d36f7f1 100644
+> --- a/net/ethtool/coalesce.c
+> +++ b/net/ethtool/coalesce.c
+> @@ -243,6 +243,8 @@ ethnl_set_coalesce_validate(struct ethnl_req_info *req_info,
+>   
+>   	/* make sure that only supported parameters are present */
+>   	supported_params = ops->supported_coalesce_params;
+> +	if (dev->moder->coal_flags ...)
+> +		supported_params |= ETHTOOL_COALESCE_...;
+>   	for (a = ETHTOOL_A_COALESCE_RX_USECS; a < __ETHTOOL_A_COALESCE_CNT; a++)
+>   		if (tb[a] && !(supported_params & attr_to_mask(a))) {
+>   			NL_SET_ERR_MSG_ATTR(info->extack, tb[a],
