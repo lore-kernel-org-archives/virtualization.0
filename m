@@ -1,463 +1,271 @@
-Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5A4E159215
-	for <virtualization@lists.linux.dev>; Wed, 24 Apr 2024 09:15:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86068158DC7
+	for <virtualization@lists.linux-foundation.org>; Wed, 24 Apr 2024 09:51:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713950152; cv=none; b=Wkzfb/1/JvRLlvdJ/gtiIJavuAMOCVlXq4CZJGsHAsg4zVZCBoOPXixnN2bYU817FGNtVigX2FGMBCxwWfrUs7ZU8/K6LE+7fMHjgq/77zUuQ81d20D1FZUblKd2JYSN7UedL+wHzfkhcQWssXBVfttNzPtRAowXfekAOivHEdc=
+	t=1713952295; cv=none; b=deK+FhpezI3Gv+6/Ne9SE0fdYg8Agtv1KkJrMNOWHuPAFXxLFtrQQ4ginWg7XjeCldGtAk7tXb4d7HHTiANJHS9s5hrhaV+MpyjhwUtOVp619fgrtFkhzcZmUOkCwW6GWFX4+0tMBvzomXb8y09hUptCjbPdm6SWV5YrmHQo8c0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713950152; c=relaxed/simple;
-	bh=XLECIL635mNFvPXSbud8pZg98Q/+eikRN/6SS1RTZHk=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Tjc2bJCltcKI2cPe/HFxnCnzUG8s2r9jCZuLs2e7f3D3fMDXu7jSy8x2u6NBW+O9SMjiT2tI/SxZVDzkyXySabn3/H+gU47CmJDhhXnKZ7y7/ehKRNvKJdjd3dWEcEIn8UM5KyOLqLiT1L/rJh6fkn103RT+uepnr1eYd9ogKFw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=CT9QU5vc; arc=none smtp.client-ip=115.124.30.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1713952295; c=relaxed/simple;
+	bh=DEXpHeXxlKLGtBABA81i9UYmTJHW63GkAg+T90z+zW4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=WgpbBEyUguz4EU65n1BB/L1Q7Wfb1CIeKrFpRZHW9efcjtRK252vpA5yeuvdwIk6iRd7h+x7TFtHKBU1Cq8OrvDd0JhqR7oocBoK/GjSPTqNLL5FOWINtD38UKIFA5UOy9UzJQYQDTrpvtAAAIpyUvNT00kckG/rh6eIJCMEKN8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ClI3KNjp; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="CT9QU5vc"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1713950142; h=From:To:Subject:Date:Message-Id:MIME-Version:Content-Type;
-	bh=xUOQ2U1EXCYLXy5Xuo5Q5mpqIWI+y7CXI/IpF3FXkRw=;
-	b=CT9QU5vclehdStzjMCrHqAv939+26sWRCsYNXqOjEysIHEZ36Zvc38aggzPK+oNSpmgS0IveZ+6NsdK11AutwTppdbCpAi2G59cDPHmvDDL0e/1RhweTD0jZQI2vZAlWyEai4si2EyiIRAFA3pMY6laGbgihVWxLGGcftRRpZ4k=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033068173054;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=26;SR=0;TI=SMTPD_---0W5BmFzI_1713950140;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W5BmFzI_1713950140)
-          by smtp.aliyun-inc.com;
-          Wed, 24 Apr 2024 17:15:41 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: virtualization@lists.linux.dev
-Cc: Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Hans de Goede <hdegoede@redhat.com>,
-	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	Vadim Pasternak <vadimp@nvidia.com>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Mathieu Poirier <mathieu.poirier@linaro.org>,
-	Cornelia Huck <cohuck@redhat.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	Eric Farman <farman@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	David Hildenbrand <david@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	linux-um@lists.infradead.org,
-	platform-driver-x86@vger.kernel.org,
-	linux-remoteproc@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	kvm@vger.kernel.org
-Subject: [PATCH vhost v9 4/6] virtio: vring_create_virtqueue: pass struct instead of multi parameters
-Date: Wed, 24 Apr 2024 17:15:31 +0800
-Message-Id: <20240424091533.86949-5-xuanzhuo@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20240424091533.86949-1-xuanzhuo@linux.alibaba.com>
-References: <20240424091533.86949-1-xuanzhuo@linux.alibaba.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ClI3KNjp"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 1E62781F5E
+	for <virtualization@lists.linux-foundation.org>; Wed, 24 Apr 2024 09:51:34 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id YLcGkhG9MfuB for <virtualization@lists.linux-foundation.org>;
+ Wed, 24 Apr 2024 09:51:33 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org F058381F56
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F058381F56
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ClI3KNjp
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id F058381F56
+	for <virtualization@lists.linux-foundation.org>; Wed, 24 Apr 2024 09:51:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1713952291;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Mv8cjYcXwwXBVKkdVfh0gXFti8JhCIGV3qOrwaSd90k=;
+	b=ClI3KNjpr+KHq0gEWNFJ6fjzPG+loAXn8pR5ShL1d9DdJRuQ+PdHkWCBQW5y1kerffzeKa
+	tNXFfNurD3bSwlsTpeHvj87hZqZ6cdE1UkIHUV3rwPKjbfGalHdE6NFSmKtP4BlCc0viZv
+	Dm7LCQ606pDxBNGP1QlFEHI+bl19x9g=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-623-G_t8ptR_PRyjxQLiBSueTA-1; Wed, 24 Apr 2024 05:51:30 -0400
+X-MC-Unique: G_t8ptR_PRyjxQLiBSueTA-1
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-416ac21981dso3518245e9.1
+        for <virtualization@lists.linux-foundation.org>; Wed, 24 Apr 2024 02:51:30 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713952289; x=1714557089;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Mv8cjYcXwwXBVKkdVfh0gXFti8JhCIGV3qOrwaSd90k=;
+        b=aNwLBMAKRKdxK9M9gG++ajoFpWmTEhrc1719eYjyPp4eNLTCMxUjmLYAWR0aFe2eyc
+         EFovKCOOouDwNdzgU/smi50IhlSkaKKv2eY3OqDLILUnn2cAZNuGM9Yb7PTIyeCFvK0k
+         8W4tL0D81aNRFLEgIakEIfbm5Aa0Q2sGReMhuUn3cwpDf8wdhdYD6bsquwYdJKncqche
+         5GKI+jk5PKNjAMKo7/N6qpB4TV+fbQj9XLfr2Z1XJ4pRk5oqBM3SxtexgD6gP/3j7+Gw
+         A2wpgx9CnG7YvHb88HpwHHFEPO1E8spKh01j7uFaI+bilDhudupcAE6npAWz4rXuNTvg
+         WUUw==
+X-Forwarded-Encrypted: i=1; AJvYcCV9oEi0VxkhraWM/sjJp/EPYGk/2UuL+WejoQ+S+kSqKDUrNQrqTpfrQQFdfahV6AkhD2EB3rvvFNDfIlzxwvQefqnK3V7R7IjKATHsJ9zvJzZ6HEoqHagLrA==
+X-Gm-Message-State: AOJu0YyaKd0kOnXH/5BJXRa3IfOEJ+65s7nksbd43RwRUVT91b1obCfq
+	pw+J8J/CjCbghgyadMYhcMPqro3uce0OMr8zwKVj61x2bGkM/Ik2GCK80TxD9BPEBxa8xvUHr8t
+	l1wOWhqq7TwCqazS/nm+3QgfVdfNB5LTF7RgyA1cNL2lWeS5ANNjC0R/nUp5k6Fh0G9rQqXx2UI
+	2WPZA=
+X-Received: by 2002:a05:600c:358a:b0:41a:410b:fe9e with SMTP id p10-20020a05600c358a00b0041a410bfe9emr1364080wmq.12.1713952288943;
+        Wed, 24 Apr 2024 02:51:28 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE8IqubQ4pRsFqO6DbDOa+rGyhzaTafu1jLoU5U7uacX0Oi4qm5g6J2rAWDSdfJ4KhyRZzAqw==
+X-Received: by 2002:a05:600c:358a:b0:41a:410b:fe9e with SMTP id p10-20020a05600c358a00b0041a410bfe9emr1364061wmq.12.1713952288374;
+        Wed, 24 Apr 2024 02:51:28 -0700 (PDT)
+Received: from redhat.com ([2a06:c701:7429:3c00:dc4a:cd5:7b1c:f7c2])
+        by smtp.gmail.com with ESMTPSA id u20-20020a05600c139400b0041906397ab7sm19477548wmf.3.2024.04.24.02.51.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 24 Apr 2024 02:51:27 -0700 (PDT)
+Date: Wed, 24 Apr 2024 05:51:25 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: Cindy Lu <lulu@redhat.com>, linux-kernel@vger.kernel.org,
+	virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH v5 3/5] vduse: Add function to get/free the pages for
+ reconnection
+Message-ID: <20240424055108-mutt-send-email-mst@kernel.org>
+References: <20240412133017.483407-1-lulu@redhat.com>
+ <20240412133017.483407-4-lulu@redhat.com>
+ <20240417052723-mutt-send-email-mst@kernel.org>
+ <CACGkMEtv56TSaA=W337hFU3VALfbrGMcEdu25O4Ecx7guUacyQ@mail.gmail.com>
+ <20240422160348-mutt-send-email-mst@kernel.org>
+ <CACGkMEsj1aYBBO+kh5wmTk9vh=QRj50FHPFZ6QX3gs1Jh+XQdA@mail.gmail.com>
+ <20240423043538-mutt-send-email-mst@kernel.org>
+ <CACGkMEvbrH-ERbr-4DVpvK6+V_8Bh79YdYTdfWKhk5ziwcLDjg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-Git-Hash: bdb00f35db89
+In-Reply-To: <CACGkMEvbrH-ERbr-4DVpvK6+V_8Bh79YdYTdfWKhk5ziwcLDjg@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 
-Now, we pass multi parameters to vring_create_virtqueue. These parameters
-may from transport or from driver.
+On Wed, Apr 24, 2024 at 08:44:10AM +0800, Jason Wang wrote:
+> On Tue, Apr 23, 2024 at 4:42 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> >
+> > On Tue, Apr 23, 2024 at 11:09:59AM +0800, Jason Wang wrote:
+> > > On Tue, Apr 23, 2024 at 4:05 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > >
+> > > > On Thu, Apr 18, 2024 at 08:57:51AM +0800, Jason Wang wrote:
+> > > > > On Wed, Apr 17, 2024 at 5:29 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > > > >
+> > > > > > On Fri, Apr 12, 2024 at 09:28:23PM +0800, Cindy Lu wrote:
+> > > > > > > Add the function vduse_alloc_reconnnect_info_mem
+> > > > > > > and vduse_alloc_reconnnect_info_mem
+> > > > > > > These functions allow vduse to allocate and free memory for reconnection
+> > > > > > > information. The amount of memory allocated is vq_num pages.
+> > > > > > > Each VQS will map its own page where the reconnection information will be saved
+> > > > > > >
+> > > > > > > Signed-off-by: Cindy Lu <lulu@redhat.com>
+> > > > > > > ---
+> > > > > > >  drivers/vdpa/vdpa_user/vduse_dev.c | 40 ++++++++++++++++++++++++++++++
+> > > > > > >  1 file changed, 40 insertions(+)
+> > > > > > >
+> > > > > > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > > > > > index ef3c9681941e..2da659d5f4a8 100644
+> > > > > > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > > > > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > > > > > @@ -65,6 +65,7 @@ struct vduse_virtqueue {
+> > > > > > >       int irq_effective_cpu;
+> > > > > > >       struct cpumask irq_affinity;
+> > > > > > >       struct kobject kobj;
+> > > > > > > +     unsigned long vdpa_reconnect_vaddr;
+> > > > > > >  };
+> > > > > > >
+> > > > > > >  struct vduse_dev;
+> > > > > > > @@ -1105,6 +1106,38 @@ static void vduse_vq_update_effective_cpu(struct vduse_virtqueue *vq)
+> > > > > > >
+> > > > > > >       vq->irq_effective_cpu = curr_cpu;
+> > > > > > >  }
+> > > > > > > +static int vduse_alloc_reconnnect_info_mem(struct vduse_dev *dev)
+> > > > > > > +{
+> > > > > > > +     unsigned long vaddr = 0;
+> > > > > > > +     struct vduse_virtqueue *vq;
+> > > > > > > +
+> > > > > > > +     for (int i = 0; i < dev->vq_num; i++) {
+> > > > > > > +             /*page 0~ vq_num save the reconnect info for vq*/
+> > > > > > > +             vq = dev->vqs[i];
+> > > > > > > +             vaddr = get_zeroed_page(GFP_KERNEL);
+> > > > > >
+> > > > > >
+> > > > > > I don't get why you insist on stealing kernel memory for something
+> > > > > > that is just used by userspace to store data for its own use.
+> > > > > > Userspace does not lack ways to persist data, for example,
+> > > > > > create a regular file anywhere in the filesystem.
+> > > > >
+> > > > > Good point. So the motivation here is to:
+> > > > >
+> > > > > 1) be self contained, no dependency for high speed persist data
+> > > > > storage like tmpfs
+> > > >
+> > > > No idea what this means.
+> > >
+> > > I mean a regular file may slow down the datapath performance, so
+> > > usually the application will try to use tmpfs and other which is a
+> > > dependency for implementing the reconnection.
+> >
+> > Are we worried about systems without tmpfs now?
+> 
+> Yes.
 
-vring_create_virtqueue is called by many places.
-Every time, we try to add a new parameter, that is difficult.
+Why? Who ships these?
 
-If parameters from the driver, that should directly be passed to vring.
-Then the vring can access the config from driver directly.
 
-If parameters from the transport, we squish the parameters to a
-structure. That will be helpful to add new parameter.
-
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Acked-by: Johannes Berg <johannes@sipsolutions.net>
-Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Acked-by: Eric Farman <farman@linux.ibm.com> # s390
-Acked-by: Halil Pasic <pasic@linux.ibm.com>
----
- arch/um/drivers/virtio_uml.c       | 14 +++++---
- drivers/s390/virtio/virtio_ccw.c   | 14 ++++----
- drivers/virtio/virtio_mmio.c       | 14 ++++----
- drivers/virtio/virtio_pci_legacy.c | 15 ++++----
- drivers/virtio/virtio_pci_modern.c | 15 ++++----
- drivers/virtio/virtio_ring.c       | 57 ++++++++++++------------------
- drivers/virtio/virtio_vdpa.c       | 21 +++++------
- include/linux/virtio_ring.h        | 51 +++++++++++++-------------
- 8 files changed, 101 insertions(+), 100 deletions(-)
-
-diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
-index adc619362cc0..1ac8904b53c7 100644
---- a/arch/um/drivers/virtio_uml.c
-+++ b/arch/um/drivers/virtio_uml.c
-@@ -942,6 +942,7 @@ static struct virtqueue *vu_setup_vq(struct virtio_device *vdev,
- {
- 	struct virtio_uml_device *vu_dev = to_virtio_uml_device(vdev);
- 	struct platform_device *pdev = vu_dev->pdev;
-+	struct vq_transport_config tp_cfg = {};
- 	struct virtio_uml_vq_info *info;
- 	struct virtqueue *vq;
- 	int num = MAX_SUPPORTED_QUEUE_SIZE;
-@@ -955,10 +956,15 @@ static struct virtqueue *vu_setup_vq(struct virtio_device *vdev,
- 	snprintf(info->name, sizeof(info->name), "%s.%d-%s", pdev->name,
- 		 pdev->id, cfg->names[index]);
- 
--	vq = vring_create_virtqueue(index, num, PAGE_SIZE, vdev, true, true,
--				    cfg->ctx ? cfg->ctx[index] : false,
--				    vu_notify,
--				    cfg->callbacks[index], info->name);
-+	tp_cfg.num = num;
-+	tp_cfg.vring_align = PAGE_SIZE;
-+	tp_cfg.weak_barriers = true;
-+	tp_cfg.may_reduce_num = true;
-+	tp_cfg.notify = vu_notify;
-+
-+	cfg->names[index] = info->name;
-+
-+	vq = vring_create_virtqueue(vdev, index, &tp_cfg, cfg);
- 	if (!vq) {
- 		rc = -ENOMEM;
- 		goto error_create;
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index 4d94d20b253a..638129c619e0 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -540,6 +540,7 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
- 					     struct virtio_vq_config *cfg)
- {
- 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
-+	struct vq_transport_config tp_cfg = {};
- 	bool (*notify)(struct virtqueue *vq);
- 	int err;
- 	struct virtqueue *vq = NULL;
-@@ -574,13 +575,14 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
- 		goto out_err;
- 	}
- 	may_reduce = vcdev->revision > 0;
--	vq = vring_create_virtqueue(i, info->num, KVM_VIRTIO_CCW_RING_ALIGN,
--				    vdev, true, may_reduce,
--				    cfg->ctx ? cfg->ctx[i] : false,
--				    notify,
--				    cfg->callbacks[i],
--				    cfg->names[i]);
- 
-+	tp_cfg.num = info->num;
-+	tp_cfg.vring_align = KVM_VIRTIO_CCW_RING_ALIGN;
-+	tp_cfg.weak_barriers = true;
-+	tp_cfg.may_reduce_num = may_reduce;
-+	tp_cfg.notify = notify;
-+
-+	vq = vring_create_virtqueue(vdev, i, &tp_cfg, cfg);
- 	if (!vq) {
- 		/* For now, we fail if we can't get the requested size. */
- 		dev_warn(&vcdev->cdev->dev, "no vq\n");
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 4ebb28b6b0ec..a00d7f271c68 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -373,6 +373,7 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int in
- 				     struct virtio_vq_config *cfg)
- {
- 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
-+	struct vq_transport_config tp_cfg = {};
- 	bool (*notify)(struct virtqueue *vq);
- 	struct virtio_mmio_vq_info *info;
- 	struct virtqueue *vq;
-@@ -408,13 +409,14 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int in
- 		goto error_new_virtqueue;
- 	}
- 
-+	tp_cfg.num = num;
-+	tp_cfg.vring_align = VIRTIO_MMIO_VRING_ALIGN;
-+	tp_cfg.weak_barriers = true;
-+	tp_cfg.may_reduce_num = true;
-+	tp_cfg.notify = notify;
-+
- 	/* Create the vring */
--	vq = vring_create_virtqueue(index, num, VIRTIO_MMIO_VRING_ALIGN, vdev,
--				    true, true,
--				    cfg->ctx ? cfg->ctx[index] : false,
--				    notify,
--				    cfg->callbacks[index],
--				    cfg->names[index]);
-+	vq = vring_create_virtqueue(vdev, index, &tp_cfg, cfg);
- 	if (!vq) {
- 		err = -ENOMEM;
- 		goto error_new_virtqueue;
-diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
-index a8de653dd7a7..6fe675b2a5e5 100644
---- a/drivers/virtio/virtio_pci_legacy.c
-+++ b/drivers/virtio/virtio_pci_legacy.c
-@@ -113,6 +113,7 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
- 				  struct virtio_vq_config *cfg,
- 				  u16 msix_vec)
- {
-+	struct vq_transport_config tp_cfg = {};
- 	struct virtqueue *vq;
- 	u16 num;
- 	int err;
-@@ -125,14 +126,14 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
- 
- 	info->msix_vector = msix_vec;
- 
-+	tp_cfg.num = num;
-+	tp_cfg.vring_align = VIRTIO_PCI_VRING_ALIGN;
-+	tp_cfg.weak_barriers = true;
-+	tp_cfg.may_reduce_num = false;
-+	tp_cfg.notify = vp_notify;
-+
- 	/* create the vring */
--	vq = vring_create_virtqueue(index, num,
--				    VIRTIO_PCI_VRING_ALIGN, &vp_dev->vdev,
--				    true, false,
--				    cfg->ctx ? cfg->ctx[index] : false,
--				    vp_notify,
--				    cfg->callbacks[index],
--				    cfg->names[index]);
-+	vq = vring_create_virtqueue(&vp_dev->vdev, index, &tp_cfg, cfg);
- 	if (!vq)
- 		return ERR_PTR(-ENOMEM);
- 
-diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-index bcb829ffec64..12130027d0c0 100644
---- a/drivers/virtio/virtio_pci_modern.c
-+++ b/drivers/virtio/virtio_pci_modern.c
-@@ -535,6 +535,7 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
- {
- 
- 	struct virtio_pci_modern_device *mdev = &vp_dev->mdev;
-+	struct vq_transport_config tp_cfg = {};
- 	bool (*notify)(struct virtqueue *vq);
- 	struct virtqueue *vq;
- 	bool is_avq;
-@@ -558,14 +559,14 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
- 
- 	info->msix_vector = msix_vec;
- 
-+	tp_cfg.num = num;
-+	tp_cfg.vring_align = SMP_CACHE_BYTES;
-+	tp_cfg.weak_barriers = true;
-+	tp_cfg.may_reduce_num = true;
-+	tp_cfg.notify = notify;
-+
- 	/* create the vring */
--	vq = vring_create_virtqueue(index, num,
--				    SMP_CACHE_BYTES, &vp_dev->vdev,
--				    true, true,
--				    cfg->ctx ? cfg->ctx[index] : false,
--				    notify,
--				    cfg->callbacks[index],
--				    cfg->names[index]);
-+	vq = vring_create_virtqueue(&vp_dev->vdev, index, &tp_cfg, cfg);
- 	if (!vq)
- 		return ERR_PTR(-ENOMEM);
- 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 947098b6a65e..d42554f9d9bd 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -2662,43 +2662,32 @@ static struct virtqueue *__vring_new_virtqueue(unsigned int index,
- 	return &vq->vq;
- }
- 
--struct virtqueue *vring_create_virtqueue(
--	unsigned int index,
--	unsigned int num,
--	unsigned int vring_align,
--	struct virtio_device *vdev,
--	bool weak_barriers,
--	bool may_reduce_num,
--	bool context,
--	bool (*notify)(struct virtqueue *),
--	void (*callback)(struct virtqueue *),
--	const char *name)
-+struct virtqueue *vring_create_virtqueue(struct virtio_device *vdev,
-+					 unsigned int index,
-+					 struct vq_transport_config *tp_cfg,
-+					 struct virtio_vq_config *cfg)
- {
-+	struct device *dma_dev;
-+	unsigned int num;
-+	unsigned int vring_align;
-+	bool weak_barriers;
-+	bool may_reduce_num;
-+	bool context;
-+	bool (*notify)(struct virtqueue *_);
-+	void (*callback)(struct virtqueue *_);
-+	const char *name;
- 
--	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED))
--		return vring_create_virtqueue_packed(index, num, vring_align,
--				vdev, weak_barriers, may_reduce_num,
--				context, notify, callback, name, vdev->dev.parent);
-+	dma_dev = tp_cfg->dma_dev ? : vdev->dev.parent;
- 
--	return vring_create_virtqueue_split(index, num, vring_align,
--			vdev, weak_barriers, may_reduce_num,
--			context, notify, callback, name, vdev->dev.parent);
--}
--EXPORT_SYMBOL_GPL(vring_create_virtqueue);
-+	num            = tp_cfg->num;
-+	vring_align    = tp_cfg->vring_align;
-+	weak_barriers  = tp_cfg->weak_barriers;
-+	may_reduce_num = tp_cfg->may_reduce_num;
-+	notify         = tp_cfg->notify;
- 
--struct virtqueue *vring_create_virtqueue_dma(
--	unsigned int index,
--	unsigned int num,
--	unsigned int vring_align,
--	struct virtio_device *vdev,
--	bool weak_barriers,
--	bool may_reduce_num,
--	bool context,
--	bool (*notify)(struct virtqueue *),
--	void (*callback)(struct virtqueue *),
--	const char *name,
--	struct device *dma_dev)
--{
-+	name     = cfg->names[index];
-+	callback = cfg->callbacks[index];
-+	context  = cfg->ctx ? cfg->ctx[index] : false;
- 
- 	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED))
- 		return vring_create_virtqueue_packed(index, num, vring_align,
-@@ -2709,7 +2698,7 @@ struct virtqueue *vring_create_virtqueue_dma(
- 			vdev, weak_barriers, may_reduce_num,
- 			context, notify, callback, name, dma_dev);
- }
--EXPORT_SYMBOL_GPL(vring_create_virtqueue_dma);
-+EXPORT_SYMBOL_GPL(vring_create_virtqueue);
- 
- /**
-  * virtqueue_resize - resize the vring of vq
-diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
-index 6e7aafb42100..965936771645 100644
---- a/drivers/virtio/virtio_vdpa.c
-+++ b/drivers/virtio/virtio_vdpa.c
-@@ -146,8 +146,8 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
- {
- 	struct virtio_vdpa_device *vd_dev = to_virtio_vdpa_device(vdev);
- 	struct vdpa_device *vdpa = vd_get_vdpa(vdev);
--	struct device *dma_dev;
- 	const struct vdpa_config_ops *ops = vdpa->config;
-+	struct vq_transport_config tp_cfg = {};
- 	struct virtio_vdpa_vq_info *info;
- 	bool (*notify)(struct virtqueue *vq) = virtio_vdpa_notify;
- 	struct vdpa_callback cb;
-@@ -198,16 +198,17 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
- 	align = ops->get_vq_align(vdpa);
- 
- 	if (ops->get_vq_dma_dev)
--		dma_dev = ops->get_vq_dma_dev(vdpa, index);
-+		tp_cfg.dma_dev = ops->get_vq_dma_dev(vdpa, index);
- 	else
--		dma_dev = vdpa_get_dma_dev(vdpa);
--	vq = vring_create_virtqueue_dma(index, max_num, align, vdev,
--					true, may_reduce_num,
--					cfg->ctx ? cfg->ctx[index] : false,
--					notify,
--					cfg->callbacks[index],
--					cfg->names[index],
--					dma_dev);
-+		tp_cfg.dma_dev = vdpa_get_dma_dev(vdpa);
-+
-+	tp_cfg.num = max_num;
-+	tp_cfg.vring_align = align;
-+	tp_cfg.weak_barriers = true;
-+	tp_cfg.may_reduce_num = may_reduce_num;
-+	tp_cfg.notify = notify;
-+
-+	vq = vring_create_virtqueue(vdev, index, &tp_cfg, cfg);
- 	if (!vq) {
- 		err = -ENOMEM;
- 		goto error_new_virtqueue;
-diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-index 9b33df741b63..0a81f7f025ce 100644
---- a/include/linux/virtio_ring.h
-+++ b/include/linux/virtio_ring.h
-@@ -5,6 +5,7 @@
- #include <asm/barrier.h>
- #include <linux/irqreturn.h>
- #include <uapi/linux/virtio_ring.h>
-+#include <linux/virtio_config.h>
- 
- /*
-  * Barriers in virtio are tricky.  Non-SMP virtio guests can't assume
-@@ -60,38 +61,36 @@ struct virtio_device;
- struct virtqueue;
- struct device;
- 
-+/**
-+ * struct vq_transport_config - Configuration for creating a new virtqueue (vq)
-+ * @num: Number of descriptors in this virtqueue.
-+ * @vring_align: Alignment size of this virtqueue's ring.
-+ * @weak_barriers: Memory barrier strategy used within virtio_[rw]mb() to
-+ *	enforce ordering of memory operations.
-+ * @may_reduce_num: Indicates whether the number of descriptors can be reduced
-+ *	if vring allocation fails.
-+ * @notify: Callback function used to notify the device of certain events.
-+ * @dma_dev: DMA device associated with this virtqueue, used by the DMA API.
-+ */
-+struct vq_transport_config {
-+	unsigned int num;
-+	unsigned int vring_align;
-+	bool weak_barriers;
-+	bool may_reduce_num;
-+	bool (*notify)(struct virtqueue *vq);
-+	struct device *dma_dev;
-+};
-+
- /*
-  * Creates a virtqueue and allocates the descriptor ring.  If
-  * may_reduce_num is set, then this may allocate a smaller ring than
-  * expected.  The caller should query virtqueue_get_vring_size to learn
-  * the actual size of the ring.
-  */
--struct virtqueue *vring_create_virtqueue(unsigned int index,
--					 unsigned int num,
--					 unsigned int vring_align,
--					 struct virtio_device *vdev,
--					 bool weak_barriers,
--					 bool may_reduce_num,
--					 bool ctx,
--					 bool (*notify)(struct virtqueue *vq),
--					 void (*callback)(struct virtqueue *vq),
--					 const char *name);
--
--/*
-- * Creates a virtqueue and allocates the descriptor ring with per
-- * virtqueue DMA device.
-- */
--struct virtqueue *vring_create_virtqueue_dma(unsigned int index,
--					     unsigned int num,
--					     unsigned int vring_align,
--					     struct virtio_device *vdev,
--					     bool weak_barriers,
--					     bool may_reduce_num,
--					     bool ctx,
--					     bool (*notify)(struct virtqueue *vq),
--					     void (*callback)(struct virtqueue *vq),
--					     const char *name,
--					     struct device *dma_dev);
-+struct virtqueue *vring_create_virtqueue(struct virtio_device *vdev,
-+					 unsigned int index,
-+					 struct vq_transport_config *tp_cfg,
-+					 struct virtio_vq_config *cfg);
- 
- /*
-  * Creates a virtqueue with a standard layout but a caller-allocated
--- 
-2.32.0.3.g01195cf9f
+> >
+> >
+> > > >
+> > > > > 2) standardize the format in uAPI which allows reconnection from
+> > > > > arbitrary userspace, unfortunately, such effort was removed in new
+> > > > > versions
+> > > >
+> > > > And I don't see why that has to live in the kernel tree either.
+> > >
+> > > I can't find a better place, any idea?
+> > >
+> > > Thanks
+> >
+> >
+> > Well anywhere on github really. with libvhost-user maybe?
+> > It's harmless enough in Documentation
+> > if you like but ties you to the kernel release cycle in a way that
+> > is completely unnecessary.
+> 
+> Ok.
+> 
+> Thanks
+> 
+> >
+> > > >
+> > > > > If the above doesn't make sense, we don't need to offer those pages by VDUSE.
+> > > > >
+> > > > > Thanks
+> > > > >
+> > > > >
+> > > > > >
+> > > > > >
+> > > > > >
+> > > > > > > +             if (vaddr == 0)
+> > > > > > > +                     return -ENOMEM;
+> > > > > > > +
+> > > > > > > +             vq->vdpa_reconnect_vaddr = vaddr;
+> > > > > > > +     }
+> > > > > > > +
+> > > > > > > +     return 0;
+> > > > > > > +}
+> > > > > > > +
+> > > > > > > +static int vduse_free_reconnnect_info_mem(struct vduse_dev *dev)
+> > > > > > > +{
+> > > > > > > +     struct vduse_virtqueue *vq;
+> > > > > > > +
+> > > > > > > +     for (int i = 0; i < dev->vq_num; i++) {
+> > > > > > > +             vq = dev->vqs[i];
+> > > > > > > +
+> > > > > > > +             if (vq->vdpa_reconnect_vaddr)
+> > > > > > > +                     free_page(vq->vdpa_reconnect_vaddr);
+> > > > > > > +             vq->vdpa_reconnect_vaddr = 0;
+> > > > > > > +     }
+> > > > > > > +
+> > > > > > > +     return 0;
+> > > > > > > +}
+> > > > > > >
+> > > > > > >  static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
+> > > > > > >                           unsigned long arg)
+> > > > > > > @@ -1672,6 +1705,8 @@ static int vduse_destroy_dev(char *name)
+> > > > > > >               mutex_unlock(&dev->lock);
+> > > > > > >               return -EBUSY;
+> > > > > > >       }
+> > > > > > > +     vduse_free_reconnnect_info_mem(dev);
+> > > > > > > +
+> > > > > > >       dev->connected = true;
+> > > > > > >       mutex_unlock(&dev->lock);
+> > > > > > >
+> > > > > > > @@ -1855,12 +1890,17 @@ static int vduse_create_dev(struct vduse_dev_config *config,
+> > > > > > >       ret = vduse_dev_init_vqs(dev, config->vq_align, config->vq_num);
+> > > > > > >       if (ret)
+> > > > > > >               goto err_vqs;
+> > > > > > > +     ret = vduse_alloc_reconnnect_info_mem(dev);
+> > > > > > > +     if (ret < 0)
+> > > > > > > +             goto err_mem;
+> > > > > > >
+> > > > > > >       __module_get(THIS_MODULE);
+> > > > > > >
+> > > > > > >       return 0;
+> > > > > > >  err_vqs:
+> > > > > > >       device_destroy(&vduse_class, MKDEV(MAJOR(vduse_major), dev->minor));
+> > > > > > > +err_mem:
+> > > > > > > +     vduse_free_reconnnect_info_mem(dev);
+> > > > > > >  err_dev:
+> > > > > > >       idr_remove(&vduse_idr, dev->minor);
+> > > > > > >  err_idr:
+> > > > > > > --
+> > > > > > > 2.43.0
+> > > > > >
+> > > >
+> >
 
