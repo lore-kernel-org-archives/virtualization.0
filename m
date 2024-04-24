@@ -1,77 +1,113 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mail.alien8.de (mail.alien8.de [65.109.113.108])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E97C16079C;
-	Wed, 24 Apr 2024 15:52:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC41715EFAC
+	for <virtualization@lists.linux.dev>; Wed, 24 Apr 2024 16:06:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.109.113.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713973971; cv=none; b=CJ9EE+9vU9hXVbMOJ8iCIC8V+Y8o4PPsCJ5I+5Jj4VnYJsvgXEL8OI1G9m3tfHLXFxTLYm935KD4xkwek5aB3YF5iRikbQOfbGdibA+MUSxdUWQZ933FBvPZKdN7IUBfIurDxY000H64Wy3XISZhHBD/jf+fq+erzmRHaCF7B10=
+	t=1713974811; cv=none; b=NOI0qQ83BBhGNZpzjQx0ypvnXsoSLoUNeLp5xhxgK96l7wCAkWvL7Qf/u+P41JeGBZ67XSiAf2+OpPgAjaPRkOBrqDBKOEBIE+T1hp7VaMOsFIERPWr18uw2790wTc7aXvKBheE85JQ4UUaPsLFZtO5pt+iRgc8lobXK1z2G/VA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713973971; c=relaxed/simple;
-	bh=NMNO+e0grFGj/Q+x2O81Y6xcTdzYQaELAi7w0CoWizo=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=c4Xbo5FvAOW2Dz/jp7UeYDvUaamqNQhn+TGJiTvA7vUMdLj6oSkFzF0LeVjcRUvZSB8PO7DnXu+zYdoGpKLZIEnt9z//IRKTOSxN+8P9/NUUoh5rFE6pggIpU7J+OAOlnv8ot0Lnizy2keH3IR/gtPhMHYeoYi0h3V4L1Nqien8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Kjy12Kar; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1713974811; c=relaxed/simple;
+	bh=pV+VrxGvpBc3cztS2k/grcbxt+d6cI6f1QkR7t0g/z8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=qVPvVP8uAV1MgfmWujzQTQ/8O1TucS9Sjra3NCIhs95qJChoh0Hg4YDkc4hmlRm6s/3tb/CpmypVMJiFQtsPZwBFNCVObF9iabNVa10P0m8+sCcSR/4ZQvkjeKEu8z63pAFId8qod+YiKVo3rEgGJi7Ohlp+RI7DWI7H8tnkeiQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de; spf=pass smtp.mailfrom=alien8.de; dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b=QWF3TD5D; arc=none smtp.client-ip=65.109.113.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alien8.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Kjy12Kar"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66689C113CD;
-	Wed, 24 Apr 2024 15:52:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1713973971;
-	bh=NMNO+e0grFGj/Q+x2O81Y6xcTdzYQaELAi7w0CoWizo=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=Kjy12Kar1wvr+8bc/ZCUaiX63Vn+sNMs5+IpzzoWHkwAbfzA0J4oR0iip2ldQalsx
-	 ZLiNJONbhjuUuIc1llh195a/twQGCn7IiCDjWK6/u3xkFqkTX9jiDPz4BJcsKYPqs9
-	 CXtNGLhk3JjUWIdOJ8sAIQLZl1WE6ubTN3kBns9JYMsSdW0qpQNurRwgx13LEN7nPx
-	 TyvXwLt8SIcDoJBf4wZJsq54kUAuASXvYKqeLb9AC6BavOJ3okiu/nDCthxHxSQ+Do
-	 XbihOjHmVmlqBrnW411qgZTME3rHvx7Gdy34dX99yL1DvTacCQEWR3erjUkgUpv1Ba
-	 dFV2sk1+amIUg==
-Date: Wed, 24 Apr 2024 08:52:49 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Heng Qi <hengqi@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev, "David S .
- Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Paolo
- Abeni <pabeni@redhat.com>, Jason Wang <jasowang@redhat.com>, "Michael S .
- Tsirkin" <mst@redhat.com>, Brett Creeley <bcreeley@amd.com>, Ratheesh
- Kannoth <rkannoth@marvell.com>, Alexander Lobakin
- <aleksander.lobakin@intel.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Tal
- Gilboa <talgi@nvidia.com>, Jonathan Corbet <corbet@lwn.net>,
- linux-doc@vger.kernel.org, Maxime Chevallier
- <maxime.chevallier@bootlin.com>, Jiri Pirko <jiri@resnulli.us>, Paul
- Greenwalt <paul.greenwalt@intel.com>, Ahmed Zaki <ahmed.zaki@intel.com>,
- Vladimir Oltean <vladimir.oltean@nxp.com>, Kory Maincent
- <kory.maincent@bootlin.com>, Andrew Lunn <andrew@lunn.ch>,
- "justinstitt@google.com" <justinstitt@google.com>
-Subject: Re: [PATCH net-next v9 2/4] ethtool: provide customized dim profile
- management
-Message-ID: <20240424085249.6d67882b@kernel.org>
-In-Reply-To: <76b75fcc-aa2f-4c75-b28f-7f7a513a2cf1@linux.alibaba.com>
-References: <20240417155546.25691-1-hengqi@linux.alibaba.com>
-	<20240417155546.25691-3-hengqi@linux.alibaba.com>
-	<20240418174843.492078d5@kernel.org>
-	<96b59800-85e6-4a9e-ad9b-7ad3fa56fff4@linux.alibaba.com>
-	<20240422113943.736861fc@kernel.org>
-	<76b75fcc-aa2f-4c75-b28f-7f7a513a2cf1@linux.alibaba.com>
+	dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b="QWF3TD5D"
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTP id 3C07440E0177;
+	Wed, 24 Apr 2024 16:06:44 +0000 (UTC)
+X-Virus-Scanned: Debian amavisd-new at mail.alien8.de
+Authentication-Results: mail.alien8.de (amavisd-new); dkim=pass (4096-bit key)
+	header.d=alien8.de
+Received: from mail.alien8.de ([127.0.0.1])
+	by localhost (mail.alien8.de [127.0.0.1]) (amavisd-new, port 10026)
+	with ESMTP id a1whXnU_urG2; Wed, 24 Apr 2024 16:06:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=alien8;
+	t=1713974800; bh=eT/sJrq6XNpXYldhLxOFeSR6n1DYq3NDJUftCdjBaNE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=QWF3TD5DfjsDxjpmOqQmkDBvJqmy2ArfExGwOQxTl1ZUOlBsHM9dtYnlQhG69Fb/7
+	 iE8KAkqTm0OoHa0sqEnqNWcuhISoAq6YJGJLh2CTI2HJoTz0gwL3sxig0eL2t+XY2M
+	 7wcaIOfeHdUmZE9oVDfrIbgjpsMl6j0NStBevpmYsILuDiK2NinFpnprFt/Kj8uVA+
+	 CgGjjZ6BKlhY91FWBu4lXYHoICXTM/XrlbZghwGMPwi39FaWBenySPfMaq7snqnjLK
+	 DHGyOx9XcOjdHxhTvqrGTHO6iAOOp87i4FR5e4l8X/niXuR8947AHiBMYDsv+0p+ie
+	 t5by9FFOxn4v6FEVb6CCDgwFRUmOGmr9k5AGdoH/POcu1MD+4/6NYOsUNYV5EDjOg5
+	 PPfjXhZSgcHT6hAu1FyqGHmnFr86tOFQDX/vQ0hzX5nqQ/zkc40g+B1+8fLb8NhoeS
+	 sgaTO3Iq/7BGdS5CLYN1eCV/iCM3MzN8rlDKiRcnn3IIlulziuBtI2Sv48bI4kC/Xl
+	 AOXtU65xrJi/MHNBROsVykmeh3rLJlX0/ypKzomYRUxao3j+puNaybZVeElC4NGJWW
+	 ciPuepgMBQQkbIYhb89WOO2YsKOgl5TanEh8YSI9J8FxddQFkWw/8nsJP1lF9kclVP
+	 nGSR16o2/oCj2/GI5CzL2t9k=
+Received: from zn.tnic (pd953020b.dip0.t-ipconnect.de [217.83.2.11])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (P-256) server-signature ECDSA (P-256) server-digest SHA256)
+	(No client certificate requested)
+	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id C440840E0192;
+	Wed, 24 Apr 2024 16:06:13 +0000 (UTC)
+Date: Wed, 24 Apr 2024 18:06:08 +0200
+From: Borislav Petkov <bp@alien8.de>
+To: Alexey Makhalov <alexey.makhalov@broadcom.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+	hpa@zytor.com, dave.hansen@linux.intel.com, mingo@redhat.com,
+	tglx@linutronix.de, x86@kernel.org, netdev@vger.kernel.org,
+	richardcochran@gmail.com, linux-input@vger.kernel.org,
+	dmitry.torokhov@gmail.com, zackr@vmware.com,
+	linux-graphics-maintainer@vmware.com, pv-drivers@vmware.com,
+	timothym@vmware.com, akaher@vmware.com,
+	dri-devel@lists.freedesktop.org, daniel@ffwll.ch, airlied@gmail.com,
+	tzimmermann@suse.de, mripard@kernel.org,
+	maarten.lankhorst@linux.intel.com, horms@kernel.org,
+	kirill.shutemov@linux.intel.com, Nadav Amit <nadav.amit@gmail.com>
+Subject: Re: [PATCH v8 1/7] x86/vmware: Move common macros to vmware.h
+Message-ID: <20240424160608.GFZikt8JLrTN4M5PG2@fat_crate.local>
+References: <20240422225656.10309-1-alexey.makhalov@broadcom.com>
+ <20240422225656.10309-2-alexey.makhalov@broadcom.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20240422225656.10309-2-alexey.makhalov@broadcom.com>
 
-On Wed, 24 Apr 2024 21:10:55 +0800 Heng Qi wrote:
-> >> This doesn't work because the first level of sub-nesting of
-> >> ETHTOOL_A_COALESCE_RX_CQE_PROFILE is ETHTOOL_A_PROFILE_IRQ_MODERATION.  
-> > So declare a policy for IRQ_MODERATION which has one entry -> nested
-> > profile policy?  
-> 
-> Still doesn't work because one profile corresponds to 5 IRQ_MODERATION sub-nests.
+On Mon, Apr 22, 2024 at 03:56:50PM -0700, Alexey Makhalov wrote:
+> Move VMware hypercall macros to vmware.h. This is a prerequisite for
+> the introduction of vmware_hypercall API. No functional changes besides
+> exporting vmware_hypercall_mode symbol.
 
-I don't get it. Can you show the code you used and the failure / error
-you get?
+Well, I see more.
 
-> In the same example, strset also uses NLA_NESTED.
+So code movement patches should be done this way:
 
-Likely just because it's older code.
+* first patch: sole code movement, no changes whatsoever
+
+* follow-on patches: add changes and explain them
+
+Because... (follow me down)...
+
+> @@ -476,8 +431,8 @@ static bool __init vmware_legacy_x2apic_available(void)
+>  {
+>  	uint32_t eax, ebx, ecx, edx;
+>  	VMWARE_CMD(GETVCPU_INFO, eax, ebx, ecx, edx);
+> -	return !(eax & BIT(VMWARE_CMD_VCPU_RESERVED)) &&
+> -		(eax & BIT(VMWARE_CMD_LEGACY_X2APIC));
+> +	return !(eax & BIT(VCPU_RESERVED)) &&
+> +		(eax & BIT(VCPU_LEGACY_X2APIC));
+
+... what is that change for?
+
+Those bit definitions are clearly vmware-specific. So why are you
+changing them to something generic-ish?
+
+In any case, this patch needs to be split as outlined above.
+
+Thx.
+
+-- 
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
