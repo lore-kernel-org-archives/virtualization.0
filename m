@@ -1,271 +1,183 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f48.google.com (mail-lf1-f48.google.com [209.85.167.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86068158DC7
-	for <virtualization@lists.linux-foundation.org>; Wed, 24 Apr 2024 09:51:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 118CF159579
+	for <virtualization@lists.linux.dev>; Wed, 24 Apr 2024 10:40:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713952295; cv=none; b=deK+FhpezI3Gv+6/Ne9SE0fdYg8Agtv1KkJrMNOWHuPAFXxLFtrQQ4ginWg7XjeCldGtAk7tXb4d7HHTiANJHS9s5hrhaV+MpyjhwUtOVp619fgrtFkhzcZmUOkCwW6GWFX4+0tMBvzomXb8y09hUptCjbPdm6SWV5YrmHQo8c0=
+	t=1713955259; cv=none; b=Jiq8sr6BWRLzubMKWKb1UOrSeEKA0Jfs9UvJeuwLCw0HBEaDfB4N23i4ZnHvJgW2VqpYoxCofpgPPgvoYhS4LlKGQM5niEFKNYb7rdXM7Oe7mormdqtsZLdb6lYPlBtmfAaVZnjDhufrpzqCt45xC/lAvVLjehhyhi9ar2LqfDA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713952295; c=relaxed/simple;
-	bh=DEXpHeXxlKLGtBABA81i9UYmTJHW63GkAg+T90z+zW4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=WgpbBEyUguz4EU65n1BB/L1Q7Wfb1CIeKrFpRZHW9efcjtRK252vpA5yeuvdwIk6iRd7h+x7TFtHKBU1Cq8OrvDd0JhqR7oocBoK/GjSPTqNLL5FOWINtD38UKIFA5UOy9UzJQYQDTrpvtAAAIpyUvNT00kckG/rh6eIJCMEKN8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ClI3KNjp; arc=none smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1713955259; c=relaxed/simple;
+	bh=9JcMIim2AxGlmts+KkFUqqLwHcgOQ7OvJ2AwErYMn/U=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=AYlTZUjGsiebzV+IdsProFhqgHOuFyGp8jqmmrKbBNNKovLFs4hSiFewReAyYuHqJ2RkylX7Pzm9HtjvmxIgNlcWJwIjAcbyjRbu4s1Gj4+4e8A7wl9YTU2QTs7TVEr3WO+Z6lAhV+wdMpNuAujJS22CbjudyurOHxo1y+hmyPE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=AW3tTILj; arc=none smtp.client-ip=209.85.167.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ClI3KNjp"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 1E62781F5E
-	for <virtualization@lists.linux-foundation.org>; Wed, 24 Apr 2024 09:51:34 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id YLcGkhG9MfuB for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Apr 2024 09:51:33 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org F058381F56
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F058381F56
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ClI3KNjp
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id F058381F56
-	for <virtualization@lists.linux-foundation.org>; Wed, 24 Apr 2024 09:51:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1713952291;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Mv8cjYcXwwXBVKkdVfh0gXFti8JhCIGV3qOrwaSd90k=;
-	b=ClI3KNjpr+KHq0gEWNFJ6fjzPG+loAXn8pR5ShL1d9DdJRuQ+PdHkWCBQW5y1kerffzeKa
-	tNXFfNurD3bSwlsTpeHvj87hZqZ6cdE1UkIHUV3rwPKjbfGalHdE6NFSmKtP4BlCc0viZv
-	Dm7LCQ606pDxBNGP1QlFEHI+bl19x9g=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-623-G_t8ptR_PRyjxQLiBSueTA-1; Wed, 24 Apr 2024 05:51:30 -0400
-X-MC-Unique: G_t8ptR_PRyjxQLiBSueTA-1
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-416ac21981dso3518245e9.1
-        for <virtualization@lists.linux-foundation.org>; Wed, 24 Apr 2024 02:51:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="AW3tTILj"
+Received: by mail-lf1-f48.google.com with SMTP id 2adb3069b0e04-51b09c3a111so5388137e87.1
+        for <virtualization@lists.linux.dev>; Wed, 24 Apr 2024 03:40:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1713955255; x=1714560055; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=N4+OySXqohdnDZrtl87O33OEWoDiUo7Nu55zUTWNpdQ=;
+        b=AW3tTILjmntA5Xpt3q2CcLoF5NxNaExcvLVPkqYSDWbRovkke+4QpCDHvg1MwJLEUs
+         SridPQW8iH9+Sm1fNCVJYKOne6iRBSMaho7vB6tHrWGVbLsu+iDqnCjLxjstE1xcJXNn
+         dTTZyKNmIDk2+06owpfMGiZWi3MHNsQXBSvkbj10ukaq2LV/8BSw4LmobdUqx+BDh2uG
+         N593kHFlRyoli9mj88C3Gxygu3xf3dVCNV/tCXSYnGqEjiM/0aUbMdqZSRmr8rJDWJ8u
+         KgO9EaC9X2nSDxjSNFRe9AXvy9JQTxFolAGl1F20CRbwYmwBKQLSU7ORLGfPIU2BC+C4
+         mrpQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713952289; x=1714557089;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Mv8cjYcXwwXBVKkdVfh0gXFti8JhCIGV3qOrwaSd90k=;
-        b=aNwLBMAKRKdxK9M9gG++ajoFpWmTEhrc1719eYjyPp4eNLTCMxUjmLYAWR0aFe2eyc
-         EFovKCOOouDwNdzgU/smi50IhlSkaKKv2eY3OqDLILUnn2cAZNuGM9Yb7PTIyeCFvK0k
-         8W4tL0D81aNRFLEgIakEIfbm5Aa0Q2sGReMhuUn3cwpDf8wdhdYD6bsquwYdJKncqche
-         5GKI+jk5PKNjAMKo7/N6qpB4TV+fbQj9XLfr2Z1XJ4pRk5oqBM3SxtexgD6gP/3j7+Gw
-         A2wpgx9CnG7YvHb88HpwHHFEPO1E8spKh01j7uFaI+bilDhudupcAE6npAWz4rXuNTvg
-         WUUw==
-X-Forwarded-Encrypted: i=1; AJvYcCV9oEi0VxkhraWM/sjJp/EPYGk/2UuL+WejoQ+S+kSqKDUrNQrqTpfrQQFdfahV6AkhD2EB3rvvFNDfIlzxwvQefqnK3V7R7IjKATHsJ9zvJzZ6HEoqHagLrA==
-X-Gm-Message-State: AOJu0YyaKd0kOnXH/5BJXRa3IfOEJ+65s7nksbd43RwRUVT91b1obCfq
-	pw+J8J/CjCbghgyadMYhcMPqro3uce0OMr8zwKVj61x2bGkM/Ik2GCK80TxD9BPEBxa8xvUHr8t
-	l1wOWhqq7TwCqazS/nm+3QgfVdfNB5LTF7RgyA1cNL2lWeS5ANNjC0R/nUp5k6Fh0G9rQqXx2UI
-	2WPZA=
-X-Received: by 2002:a05:600c:358a:b0:41a:410b:fe9e with SMTP id p10-20020a05600c358a00b0041a410bfe9emr1364080wmq.12.1713952288943;
-        Wed, 24 Apr 2024 02:51:28 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE8IqubQ4pRsFqO6DbDOa+rGyhzaTafu1jLoU5U7uacX0Oi4qm5g6J2rAWDSdfJ4KhyRZzAqw==
-X-Received: by 2002:a05:600c:358a:b0:41a:410b:fe9e with SMTP id p10-20020a05600c358a00b0041a410bfe9emr1364061wmq.12.1713952288374;
-        Wed, 24 Apr 2024 02:51:28 -0700 (PDT)
-Received: from redhat.com ([2a06:c701:7429:3c00:dc4a:cd5:7b1c:f7c2])
-        by smtp.gmail.com with ESMTPSA id u20-20020a05600c139400b0041906397ab7sm19477548wmf.3.2024.04.24.02.51.27
+        d=1e100.net; s=20230601; t=1713955255; x=1714560055;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=N4+OySXqohdnDZrtl87O33OEWoDiUo7Nu55zUTWNpdQ=;
+        b=ZuKjm4TKIhxONg/14WgvzqLsW961kHctxkWWmaid+J12/es69u1QnJfgaPvt34hV7O
+         C2EeR8zkFSAen/GgeL0NZwAC28n6uI7LTfZc/C7wFkKZ9YHFYEUZBhKo5yQj2Cu6dV5m
+         pLBDV724oDUiOy0WKomn5QzVZJhT3C7s5sDG+5UOm96ir5mbiZ/BvBe+OoSnLz2YrEWu
+         TQyGbP0ilr/pgixUuJhV284J/l9X2zGTqORXUY6V2tod5+SLn8QzuSjPoU+CIzsjWsmr
+         f/CyfhvGpXpC47pkoNLdJ861tFgHZP6lGcjFvXOHK48SspUGdFH2P+E6zaUamakqa3qu
+         +Edg==
+X-Forwarded-Encrypted: i=1; AJvYcCXndgCZQiteucZcmps2+cAepZN8VbAJzgRn3GPnmoRRxrMBQgEO3Z0qoDA95VJq3m3KJoYSs4ETqFkanncmj0Sd+Cx2g9M2vqWQvwZGoE4=
+X-Gm-Message-State: AOJu0Yy7qyeet41aaClL1uImyhutPtUy3GiyX5FhEB9FKF0LFCfjuosR
+	j5CzKynL1mBVUUtvZOIi4K/E3/qoCNVIiD8dhuOsQhP9y6yQbD2rAWcxgbIEzsJ5AcIm7KQmeR+
+	zO8I=
+X-Google-Smtp-Source: AGHT+IEVnEntDH1vJfp87AhxZXLdAyKx0mTX7w/yogKylLbcds/KRI+5bBmfwFbUvWc2d5luW9bLrQ==
+X-Received: by 2002:ac2:5e2b:0:b0:516:a6ff:2467 with SMTP id o11-20020ac25e2b000000b00516a6ff2467mr1413194lfg.0.1713955254731;
+        Wed, 24 Apr 2024 03:40:54 -0700 (PDT)
+Received: from localhost ([193.47.165.251])
+        by smtp.gmail.com with ESMTPSA id kx18-20020a170907775200b00a57e2d39d56sm2730454ejc.223.2024.04.24.03.40.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 24 Apr 2024 02:51:27 -0700 (PDT)
-Date: Wed, 24 Apr 2024 05:51:25 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: Cindy Lu <lulu@redhat.com>, linux-kernel@vger.kernel.org,
-	virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH v5 3/5] vduse: Add function to get/free the pages for
- reconnection
-Message-ID: <20240424055108-mutt-send-email-mst@kernel.org>
-References: <20240412133017.483407-1-lulu@redhat.com>
- <20240412133017.483407-4-lulu@redhat.com>
- <20240417052723-mutt-send-email-mst@kernel.org>
- <CACGkMEtv56TSaA=W337hFU3VALfbrGMcEdu25O4Ecx7guUacyQ@mail.gmail.com>
- <20240422160348-mutt-send-email-mst@kernel.org>
- <CACGkMEsj1aYBBO+kh5wmTk9vh=QRj50FHPFZ6QX3gs1Jh+XQdA@mail.gmail.com>
- <20240423043538-mutt-send-email-mst@kernel.org>
- <CACGkMEvbrH-ERbr-4DVpvK6+V_8Bh79YdYTdfWKhk5ziwcLDjg@mail.gmail.com>
+        Wed, 24 Apr 2024 03:40:54 -0700 (PDT)
+From: Jiri Pirko <jiri@resnulli.us>
+To: netdev@vger.kernel.org
+Cc: kuba@kernel.org,
+	pabeni@redhat.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	parav@nvidia.com,
+	mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	shuah@kernel.org,
+	petrm@nvidia.com,
+	liuhangbin@gmail.com,
+	vladimir.oltean@nxp.com,
+	bpoirier@nvidia.com,
+	idosch@nvidia.com,
+	virtualization@lists.linux.dev
+Subject: [patch net-next v6 0/5] selftests: virtio_net: introduce initial testing infrastructure
+Date: Wed, 24 Apr 2024 12:40:44 +0200
+Message-ID: <20240424104049.3935572-1-jiri@resnulli.us>
+X-Mailer: git-send-email 2.44.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEvbrH-ERbr-4DVpvK6+V_8Bh79YdYTdfWKhk5ziwcLDjg@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 
-On Wed, Apr 24, 2024 at 08:44:10AM +0800, Jason Wang wrote:
-> On Tue, Apr 23, 2024 at 4:42 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > On Tue, Apr 23, 2024 at 11:09:59AM +0800, Jason Wang wrote:
-> > > On Tue, Apr 23, 2024 at 4:05 AM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > >
-> > > > On Thu, Apr 18, 2024 at 08:57:51AM +0800, Jason Wang wrote:
-> > > > > On Wed, Apr 17, 2024 at 5:29 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > > > >
-> > > > > > On Fri, Apr 12, 2024 at 09:28:23PM +0800, Cindy Lu wrote:
-> > > > > > > Add the function vduse_alloc_reconnnect_info_mem
-> > > > > > > and vduse_alloc_reconnnect_info_mem
-> > > > > > > These functions allow vduse to allocate and free memory for reconnection
-> > > > > > > information. The amount of memory allocated is vq_num pages.
-> > > > > > > Each VQS will map its own page where the reconnection information will be saved
-> > > > > > >
-> > > > > > > Signed-off-by: Cindy Lu <lulu@redhat.com>
-> > > > > > > ---
-> > > > > > >  drivers/vdpa/vdpa_user/vduse_dev.c | 40 ++++++++++++++++++++++++++++++
-> > > > > > >  1 file changed, 40 insertions(+)
-> > > > > > >
-> > > > > > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > > > > > index ef3c9681941e..2da659d5f4a8 100644
-> > > > > > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > > > > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > > > > > @@ -65,6 +65,7 @@ struct vduse_virtqueue {
-> > > > > > >       int irq_effective_cpu;
-> > > > > > >       struct cpumask irq_affinity;
-> > > > > > >       struct kobject kobj;
-> > > > > > > +     unsigned long vdpa_reconnect_vaddr;
-> > > > > > >  };
-> > > > > > >
-> > > > > > >  struct vduse_dev;
-> > > > > > > @@ -1105,6 +1106,38 @@ static void vduse_vq_update_effective_cpu(struct vduse_virtqueue *vq)
-> > > > > > >
-> > > > > > >       vq->irq_effective_cpu = curr_cpu;
-> > > > > > >  }
-> > > > > > > +static int vduse_alloc_reconnnect_info_mem(struct vduse_dev *dev)
-> > > > > > > +{
-> > > > > > > +     unsigned long vaddr = 0;
-> > > > > > > +     struct vduse_virtqueue *vq;
-> > > > > > > +
-> > > > > > > +     for (int i = 0; i < dev->vq_num; i++) {
-> > > > > > > +             /*page 0~ vq_num save the reconnect info for vq*/
-> > > > > > > +             vq = dev->vqs[i];
-> > > > > > > +             vaddr = get_zeroed_page(GFP_KERNEL);
-> > > > > >
-> > > > > >
-> > > > > > I don't get why you insist on stealing kernel memory for something
-> > > > > > that is just used by userspace to store data for its own use.
-> > > > > > Userspace does not lack ways to persist data, for example,
-> > > > > > create a regular file anywhere in the filesystem.
-> > > > >
-> > > > > Good point. So the motivation here is to:
-> > > > >
-> > > > > 1) be self contained, no dependency for high speed persist data
-> > > > > storage like tmpfs
-> > > >
-> > > > No idea what this means.
-> > >
-> > > I mean a regular file may slow down the datapath performance, so
-> > > usually the application will try to use tmpfs and other which is a
-> > > dependency for implementing the reconnection.
-> >
-> > Are we worried about systems without tmpfs now?
-> 
-> Yes.
+From: Jiri Pirko <jiri@nvidia.com>
 
-Why? Who ships these?
+This patchset aims at introducing very basic initial infrastructure
+for virtio_net testing, namely it focuses on virtio feature testing.
 
+The first patch adds support for debugfs for virtio devices, allowing
+user to filter features to pretend to be driver that is not capable
+of the filtered feature.
 
-> >
-> >
-> > > >
-> > > > > 2) standardize the format in uAPI which allows reconnection from
-> > > > > arbitrary userspace, unfortunately, such effort was removed in new
-> > > > > versions
-> > > >
-> > > > And I don't see why that has to live in the kernel tree either.
-> > >
-> > > I can't find a better place, any idea?
-> > >
-> > > Thanks
-> >
-> >
-> > Well anywhere on github really. with libvhost-user maybe?
-> > It's harmless enough in Documentation
-> > if you like but ties you to the kernel release cycle in a way that
-> > is completely unnecessary.
-> 
-> Ok.
-> 
-> Thanks
-> 
-> >
-> > > >
-> > > > > If the above doesn't make sense, we don't need to offer those pages by VDUSE.
-> > > > >
-> > > > > Thanks
-> > > > >
-> > > > >
-> > > > > >
-> > > > > >
-> > > > > >
-> > > > > > > +             if (vaddr == 0)
-> > > > > > > +                     return -ENOMEM;
-> > > > > > > +
-> > > > > > > +             vq->vdpa_reconnect_vaddr = vaddr;
-> > > > > > > +     }
-> > > > > > > +
-> > > > > > > +     return 0;
-> > > > > > > +}
-> > > > > > > +
-> > > > > > > +static int vduse_free_reconnnect_info_mem(struct vduse_dev *dev)
-> > > > > > > +{
-> > > > > > > +     struct vduse_virtqueue *vq;
-> > > > > > > +
-> > > > > > > +     for (int i = 0; i < dev->vq_num; i++) {
-> > > > > > > +             vq = dev->vqs[i];
-> > > > > > > +
-> > > > > > > +             if (vq->vdpa_reconnect_vaddr)
-> > > > > > > +                     free_page(vq->vdpa_reconnect_vaddr);
-> > > > > > > +             vq->vdpa_reconnect_vaddr = 0;
-> > > > > > > +     }
-> > > > > > > +
-> > > > > > > +     return 0;
-> > > > > > > +}
-> > > > > > >
-> > > > > > >  static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
-> > > > > > >                           unsigned long arg)
-> > > > > > > @@ -1672,6 +1705,8 @@ static int vduse_destroy_dev(char *name)
-> > > > > > >               mutex_unlock(&dev->lock);
-> > > > > > >               return -EBUSY;
-> > > > > > >       }
-> > > > > > > +     vduse_free_reconnnect_info_mem(dev);
-> > > > > > > +
-> > > > > > >       dev->connected = true;
-> > > > > > >       mutex_unlock(&dev->lock);
-> > > > > > >
-> > > > > > > @@ -1855,12 +1890,17 @@ static int vduse_create_dev(struct vduse_dev_config *config,
-> > > > > > >       ret = vduse_dev_init_vqs(dev, config->vq_align, config->vq_num);
-> > > > > > >       if (ret)
-> > > > > > >               goto err_vqs;
-> > > > > > > +     ret = vduse_alloc_reconnnect_info_mem(dev);
-> > > > > > > +     if (ret < 0)
-> > > > > > > +             goto err_mem;
-> > > > > > >
-> > > > > > >       __module_get(THIS_MODULE);
-> > > > > > >
-> > > > > > >       return 0;
-> > > > > > >  err_vqs:
-> > > > > > >       device_destroy(&vduse_class, MKDEV(MAJOR(vduse_major), dev->minor));
-> > > > > > > +err_mem:
-> > > > > > > +     vduse_free_reconnnect_info_mem(dev);
-> > > > > > >  err_dev:
-> > > > > > >       idr_remove(&vduse_idr, dev->minor);
-> > > > > > >  err_idr:
-> > > > > > > --
-> > > > > > > 2.43.0
-> > > > > >
-> > > >
-> >
+Example:
+$ cat /sys/bus/virtio/devices/virtio0/features
+1110010111111111111101010000110010000000100000000000000000000000
+$ echo "5" >/sys/kernel/debug/virtio/virtio0/filter_feature_add
+$ cat /sys/kernel/debug/virtio/virtio0/filter_features
+5
+$ echo "virtio0" > /sys/bus/virtio/drivers/virtio_net/unbind
+$ echo "virtio0" > /sys/bus/virtio/drivers/virtio_net/bind
+$ cat /sys/bus/virtio/devices/virtio0/features
+1110000111111111111101010000110010000000100000000000000000000000
+
+Leverage that in the last patch that lays ground for virtio_net
+selftests testing, including very basic F_MAC feature test.
+
+To run this, do:
+$ make -C tools/testing/selftests/ TARGETS=drivers/net/virtio_net/ run_tests
+
+It is assumed, as with lot of other selftests in the net group,
+that there are netdevices connected back-to-back. In this case,
+two virtio_net devices connected back to back. If you use "tap" qemu
+netdevice type, to configure this loop on a hypervisor, one may use
+this script:
+#!/bin/bash
+
+DEV1="$1"
+DEV2="$2"
+
+sudo tc qdisc add dev $DEV1 clsact
+sudo tc qdisc add dev $DEV2 clsact
+sudo tc filter add dev $DEV1 ingress protocol all pref 1 matchall action mirred egress redirect dev $DEV2
+sudo tc filter add dev $DEV2 ingress protocol all pref 1 matchall action mirred egress redirect dev $DEV1
+sudo ip link set $DEV1 up
+sudo ip link set $DEV2 up
+
+Another possibility is to use virtme-ng like this:
+$ vng --network=loop
+or directly:
+$ vng --network=loop -- make -C tools/testing/selftests/ TARGETS=drivers/net/virtio_net/ run_tests
+
+"loop" network type will take care of creating two "hubport" qemu netdevs
+putting them into a single hub.
+
+To do it manually with qemu, pass following command line options:
+-nic hubport,hubid=1,id=nd0,model=virtio-net-pci
+-nic hubport,hubid=1,id=nd1,model=virtio-net-pci
+
+---
+v5->v6:
+- fixed a rebase mistake in patch #3
+v4->v5:
+- added exported symbols into patch #1
+- remove original patch #2
+v3->v4:
+- addressed comments from Petr and Benjamin, more or less cosmetical
+  issues. See individual patches changelog for details.
+- extended cover letter by vng usage
+v2->v3:
+- added forgotten kdoc entry in patch #1.
+v1->v2:
+- addressed comments from Jakub and Benjamin, see individual
+  patches #3, #5 and #6 for details.
+
+Jiri Pirko (5):
+  virtio: add debugfs infrastructure to allow to debug virtio features
+  selftests: forwarding: add ability to assemble NETIFS array by driver
+    name
+  selftests: forwarding: add check_driver() helper
+  selftests: forwarding: add wait_for_dev() helper
+  selftests: virtio_net: add initial tests
+
+ MAINTAINERS                                   |   1 +
+ drivers/virtio/Kconfig                        |  10 ++
+ drivers/virtio/Makefile                       |   1 +
+ drivers/virtio/virtio.c                       |   8 ++
+ drivers/virtio/virtio_debug.c                 | 114 +++++++++++++++
+ include/linux/virtio.h                        |  35 +++++
+ tools/testing/selftests/Makefile              |   1 +
+ .../selftests/drivers/net/virtio_net/Makefile |  15 ++
+ .../drivers/net/virtio_net/basic_features.sh  | 131 ++++++++++++++++++
+ .../selftests/drivers/net/virtio_net/config   |   2 +
+ .../net/virtio_net/virtio_net_common.sh       |  99 +++++++++++++
+ tools/testing/selftests/net/forwarding/lib.sh |  62 +++++++++
+ 12 files changed, 479 insertions(+)
+ create mode 100644 drivers/virtio/virtio_debug.c
+ create mode 100644 tools/testing/selftests/drivers/net/virtio_net/Makefile
+ create mode 100755 tools/testing/selftests/drivers/net/virtio_net/basic_features.sh
+ create mode 100644 tools/testing/selftests/drivers/net/virtio_net/config
+ create mode 100644 tools/testing/selftests/drivers/net/virtio_net/virtio_net_common.sh
+
+-- 
+2.44.0
 
