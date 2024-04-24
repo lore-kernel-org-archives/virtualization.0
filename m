@@ -1,29 +1,30 @@
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF87C1586CD
-	for <virtualization@lists.linux.dev>; Wed, 24 Apr 2024 08:16:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D6CC158869
+	for <virtualization@lists.linux.dev>; Wed, 24 Apr 2024 08:16:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713946604; cv=none; b=ZpjTfDMZKay9KrP8AkjR0Vq/5lTVTQQPDsG1fNTi5N1vLfuMprhlC9c9WdbOq5rnYpiHZ50/SdAuiPDo7y1Y+jwT25eK1exE8aJhK47usy2ClA6UAXXv+elUGZwLvd0bsNASbvFNMYz9Q/9lIbOH9Vt17g1VP+Rvb/xvRt3QHKg=
+	t=1713946606; cv=none; b=Fvabn9rayJb1nYyEfCyQRngrR2y8QT5ijQE4MZ8hB+RzrHGfslehxg4ZMOJrYcg/tnYyMfjaCLIf2Kkq8Ab9XRI3b4ILcz5VgjaF6EDxrNR2kRTq5q4rmzP/DPtJzTlQwwMpC+epwsxPYQWRsGo17Zm9zojiI3j5Zdld8HJ/1P8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713946604; c=relaxed/simple;
-	bh=h+HWLUrAW5e7xBsvzKTtlyoQXQ7HQM/LgpA6NCvHAtQ=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=lDGPOC/hrOPqmlLBb10+x3Okg/Y+LEfw2dZQzQeTyBdCKd4ycxFd6Gy8oMcURTSNrReuOSYcB0ZYnEn0Q1/1kP3Ocbp9MWQUlRkcH9xgZ0kpd/qaXQMX0Pc0Yt7hy/gzUY/khDn4YOvj56/j5FOgbcirDvfsq/BOuquynntyV3M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=gjjd6eKU; arc=none smtp.client-ip=115.124.30.99
+	s=arc-20240116; t=1713946606; c=relaxed/simple;
+	bh=P5b0K6KZflTZeSl43mhWXdlifhE5pyKdTUPP7/8Lboo=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=kPoev+VL+bGBnoPxiAVWKS8zNdR3OZXU5m1gZ95ErHek+rl4rMwwKV8kQ883QOcofd0fpTK1g9mabQ2rJ8Mbt8XGWi0VNpPmhAljypU0wplZ5hGROkF84tsqxq3yBeF8hgT41e5KUEyM7FJFkoq6emD2Fb/81nCckt6h7cwpiYo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=E+L0UBfl; arc=none smtp.client-ip=115.124.30.132
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="gjjd6eKU"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="E+L0UBfl"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1713946598; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=7lHN09cekx6TYYRu7A9/mXzw2lcd+cr9qiKnNTZ3WYY=;
-	b=gjjd6eKUpvd/bdsrR3KWM68LEhf1GlWHqpXy7hrkoFVpihHHnvLl31LuToFd/ByWQ+SbMOnDqMiA06NvcIfXXyhWtmNUSY0kYV9WjHC/MOW6vnAwQKhGNwIIngNe5p19Y+Hc3Tgjxh9qYfzb1FzTtPmrutpp5/2ngVGkw+spP58=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R291e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032014016;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0W5BlXn6_1713946596;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W5BlXn6_1713946596)
+	t=1713946601; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=7i4V7NWPrYoul3sd48hjn2e81AN+49jmbU0ySJ9TOO0=;
+	b=E+L0UBflC/2re1cSezkOBy6LkiFhayJe0Mwcz2E3welNhJCaLAk4ZVfRa15jdJjrb7FuNImuLN/Eh6nmX4ksj7bWsn6LL+btGP9Hgo4p30MyrS7QwLbLwlugVHLX14E7Xl724dbrnpXVLV++DojMbnORfnq53UqEt/A0eXJCkzs=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067110;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0W5BlAUA_1713946599;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W5BlAUA_1713946599)
           by smtp.aliyun-inc.com;
-          Wed, 24 Apr 2024 16:16:37 +0800
+          Wed, 24 Apr 2024 16:16:40 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: virtualization@lists.linux.dev
 Cc: "Michael S. Tsirkin" <mst@redhat.com>,
@@ -34,10 +35,12 @@ Cc: "Michael S. Tsirkin" <mst@redhat.com>,
 	Jakub Kicinski <kuba@kernel.org>,
 	Paolo Abeni <pabeni@redhat.com>,
 	netdev@vger.kernel.org
-Subject: [PATCH vhost v3 0/4] virtio_net: rx enable premapped mode by default
-Date: Wed, 24 Apr 2024 16:16:32 +0800
-Message-Id: <20240424081636.124029-1-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH vhost v3 2/4] virtio_net: big mode skip the unmap check
+Date: Wed, 24 Apr 2024 16:16:34 +0800
+Message-Id: <20240424081636.124029-3-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+In-Reply-To: <20240424081636.124029-1-xuanzhuo@linux.alibaba.com>
+References: <20240424081636.124029-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -47,63 +50,39 @@ MIME-Version: 1.0
 X-Git-Hash: 55c7001bc45b
 Content-Transfer-Encoding: 8bit
 
-Actually, for the virtio drivers, we can enable premapped mode whatever
-the value of use_dma_api. Because we provide the virtio dma apis.
-So the driver can enable premapped mode unconditionally.
+The virtio-net big mode did not enable premapped mode,
+so we did not need to check the unmap. And the subsequent
+commit will remove the failover code for failing enable
+premapped for merge and small mode. So we need to remove
+the checking do_dma code in the big mode path.
 
-This patch set makes the big mode of virtio-net to support premapped mode.
-And enable premapped mode for rx by default.
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+---
+ drivers/net/virtio_net.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Based on the following points, we do not use page pool to manage these
-    pages:
-
-    1. virtio-net uses the DMA APIs wrapped by virtio core. Therefore,
-       we can only prevent the page pool from performing DMA operations, and
-       let the driver perform DMA operations on the allocated pages.
-    2. But when the page pool releases the page, we have no chance to
-       execute dma unmap.
-    3. A solution to #2 is to execute dma unmap every time before putting
-       the page back to the page pool. (This is actually a waste, we don't
-       execute unmap so frequently.)
-    4. But there is another problem, we still need to use page.dma_addr to
-       save the dma address. Using page.dma_addr while using page pool is
-       unsafe behavior.
-    5. And we need space the chain the pages submitted once to virtio core.
-
-    More:
-        https://lore.kernel.org/all/CACGkMEu=Aok9z2imB_c5qVuujSh=vjj1kx12fy9N7hqyi+M5Ow@mail.gmail.com/
-
-Why we do not use the page space to store the dma?
-    http://lore.kernel.org/all/CACGkMEuyeJ9mMgYnnB42=hw6umNuo=agn7VBqBqYPd7GN=+39Q@mail.gmail.com
-
-Please review.
-
-v3:
-    1. big mode still use the mode that virtio core does the dma map/unmap
-
-v2:
-    1. make gcc happy in page_chain_get_dma()
-        http://lore.kernel.org/all/202404221325.SX5ChRGP-lkp@intel.com
-
-v1:
-    1. discussed for using page pool
-    2. use dma sync to replace the unmap for the first page
-
-Thanks.
-
-
-
-
-Xuan Zhuo (4):
-  virtio_ring: enable premapped mode whatever use_dma_api
-  virtio_net: big mode skip the unmap check
-  virtio_net: rx remove premapped failover code
-  virtio_net: remove the misleading comment
-
- drivers/net/virtio_net.c     | 90 +++++++++++++++---------------------
- drivers/virtio/virtio_ring.c |  7 +--
- 2 files changed, 38 insertions(+), 59 deletions(-)
-
---
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index c22d1118a133..16d84c95779c 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -820,7 +820,7 @@ static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *buf)
+ 
+ 	rq = &vi->rq[i];
+ 
+-	if (rq->do_dma)
++	if (!vi->big_packets || vi->mergeable_rx_bufs)
+ 		virtnet_rq_unmap(rq, buf, 0);
+ 
+ 	virtnet_rq_free_buf(vi, rq, buf);
+@@ -2128,7 +2128,7 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
+ 		}
+ 	} else {
+ 		while (packets < budget &&
+-		       (buf = virtnet_rq_get_buf(rq, &len, NULL)) != NULL) {
++		       (buf = virtqueue_get_buf(rq->vq, &len)) != NULL) {
+ 			receive_buf(vi, rq, buf, len, NULL, xdp_xmit, &stats);
+ 			packets++;
+ 		}
+-- 
 2.32.0.3.g01195cf9f
 
