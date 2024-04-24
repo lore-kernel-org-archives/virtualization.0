@@ -1,95 +1,151 @@
-Received: from mail-pf1-f193.google.com (mail-pf1-f193.google.com [209.85.210.193])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AACE6157489
-	for <virtualization@lists.linux.dev>; Wed, 24 Apr 2024 09:06:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.193
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 312B9158D83
+	for <virtualization@lists.linux.dev>; Wed, 24 Apr 2024 09:15:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713949614; cv=none; b=EgpLjqXhpJkg3uPPmw+rnNlbSujMdUy6EZtmgcpTTQORwHMu4Q6FzRaKjupeyZ7onf97FdmLQwv3TvMTKEF2uRCiMW6rtIceQuubXFLHHLEWnmAQDnNunmOVpdylG0KCIsNuG/kBhuCk/Ss8HPJFL1QL3PldbVupAzyK5zHPhY0=
+	t=1713950140; cv=none; b=TJl8oLr1ortcSOTuoPqjPm+qOMPvmixb914Rr27ka9LQwHlNTKnxVuGjDKobCQUeLH89f1Sa5AAhgyKCaLJhoYXPf1NbGc3B+IztCralFNb2woJhNr3hdiZxPalrwMh8WpKIrFj1EA3mSFYNU+HqnopR7IzpMNalKW1JEutrOis=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713949614; c=relaxed/simple;
-	bh=PIWDBeJBTJ8nI6deAO9S/CefLEHkMF1CEvSU9ILhtCU=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=jkoamwGMz53O0UHV753qRHBFNXOyN7pM5E8eAmaoMG8k18gaPQvQWjJZ5swTXHF9RlD+XLQEzoUGdh1M8SFuw5PJqJaefnFZJOovzUXVaPB0XIQ4/ygKOXyvTeL6Z1sJB50S6/MHyx3wQWAW33QgLj85l19vri2g5DUzJcdl8to=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SZ4AtYMq; arc=none smtp.client-ip=209.85.210.193
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1713950140; c=relaxed/simple;
+	bh=b0rc4smgJ1P6nbK75FXOGPdUyAPn30OCb1hAbfz8OYk=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=dS9NmutlNNJwNr4VzqAk9A8ylf8/dk/+yiORp7kR6d7auppYPQIse8RRrUNgcRQzyGuSPFrUURjbemlrqvvvl0/UD8HCMJCoERcL4OjJjJ/wT9PnQt52SmR7G6wjoFFIqxuwrGAtnrENafLDt2jdIWN5+uRxj50tMpXD8fY1FBY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=vj8z1SbZ; arc=none smtp.client-ip=115.124.30.98
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SZ4AtYMq"
-Received: by mail-pf1-f193.google.com with SMTP id d2e1a72fcca58-6ed627829e6so7381213b3a.1
-        for <virtualization@lists.linux.dev>; Wed, 24 Apr 2024 02:06:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1713949611; x=1714554411; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=5/BejucCQJg/1a61zK573V93gjIoiZEwubJ52BTIMU0=;
-        b=SZ4AtYMqs4udzgywRzUUGUiyY7CrV0sQm2DU1wYvdNlV7KZjRoRzxvQS9cvCm5qJlU
-         v33vq2RR0yo1S9Ww3Cx4c79+IvEMhmfa0os0eHdnEWehFqgbxV/irRZNQ/PNvPLUX0++
-         XO97eUbOIwhvM6Hfik1dX/wMVryqvHpM479bWXkPo6jmCKfy6l9ikKT/N45U0ZDa9jNb
-         z5UslPs67hRAqTefE+DsHgRcYGtwz9FFdWAAPgqXQwmgh1GzFEGyoyHVuB9Tzk2c/kIj
-         j78Bh68+g+G2Y//ccD6RFUZl8abl3u+6oUO2XM7+YCDzec0j6r3v6hOjl3u+iwitCL+O
-         4oSQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713949611; x=1714554411;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=5/BejucCQJg/1a61zK573V93gjIoiZEwubJ52BTIMU0=;
-        b=Jw5j5FeDOzNeSwLYZFE4VIEj7rirz0iMBDd5N945llJeX9SHGTqKOZy1JlrYcTrrql
-         a+Ce/IbsSjSR5R97Ul19iQWJoXXfww19wR7OVo7G7DnUConVVII+G4Ede2jJu0oF5gkj
-         muT0HX/Eajda5HndvPjAZE97CIkWllmqFSP9PNPEtHkjU8fc0xweANdfXTfczE3/a4df
-         t00yEjEPF7V2wLt4BoBT58dBzBDpg/gedTc0rseSIzdF9zcDm28Ut3O2cF6RvREYPTeG
-         w2D58sJUyDkT6vYV90whClPowDUsRWJYH9TDL8GMzQQYy+0voigh/U00FqME7uSGHT6l
-         gNuQ==
-X-Gm-Message-State: AOJu0YykPHsiqW8dNELT3YRAn0NwQZo2hf69leufgxQawkH01CwxubLk
-	J1Bu6u0z+lXZPnDOAobQ6AmfBzp5khZ+5W6/XWumS+WpMsvXXOkb
-X-Google-Smtp-Source: AGHT+IFKRzyx9snJqmoMOtX6aAXFm0HExvHrUY7JVErkB9slUDmbicNo+zAy+Vth61McqB3ocB3b5w==
-X-Received: by 2002:a05:6a20:7faa:b0:1a9:3cf2:508d with SMTP id d42-20020a056a207faa00b001a93cf2508dmr2047738pzj.38.1713949611015;
-        Wed, 24 Apr 2024 02:06:51 -0700 (PDT)
-Received: from localhost.localdomain ([14.116.239.33])
-        by smtp.gmail.com with ESMTPSA id u2-20020a170902e5c200b001e556734814sm11408569plf.134.2024.04.24.02.06.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 24 Apr 2024 02:06:50 -0700 (PDT)
-From: Xinghui Li <korantwork@gmail.com>
-X-Google-Original-From: Xinghui Li <korantli@tencent.com>
-To: airlied@redhat.com,
-	kraxel@redhat.com,
-	wander@redhat.com
-Cc: virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Xinghui Li <korantli@tencent.com>
-Subject: [PATCH] drm/qxl: fix comment typo
-Date: Wed, 24 Apr 2024 17:06:13 +0800
-Message-Id: <20240424090613.2630952-1-korantli@tencent.com>
-X-Mailer: git-send-email 2.39.3
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="vj8z1SbZ"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1713950135; h=From:To:Subject:Date:Message-Id:MIME-Version:Content-Type;
+	bh=cYH6nuPV+ukxc4q3ctbCjioUc9rbgmodHni+uxe6ecQ=;
+	b=vj8z1SbZKeeKGLD5sP0EPj/IgGshGVX3H1NcgfY6pHbSAhHozeNgR+4/fFt76zkS1DM7zYh4Xgpjfu5tCXWcLRT56puhDkVpicafwoQZDPzQjYtmaoKbiV66x890cNAi1I5vv7y2iLF9paoz3+4sIlA05VJhf6lEKG0B2UZAGEA=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R491e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033022160150;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=26;SR=0;TI=SMTPD_---0W5BsEmF_1713950133;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W5BsEmF_1713950133)
+          by smtp.aliyun-inc.com;
+          Wed, 24 Apr 2024 17:15:34 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: virtualization@lists.linux.dev
+Cc: Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Hans de Goede <hdegoede@redhat.com>,
+	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	Vadim Pasternak <vadimp@nvidia.com>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Mathieu Poirier <mathieu.poirier@linaro.org>,
+	Cornelia Huck <cohuck@redhat.com>,
+	Halil Pasic <pasic@linux.ibm.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	David Hildenbrand <david@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	linux-um@lists.infradead.org,
+	platform-driver-x86@vger.kernel.org,
+	linux-remoteproc@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	kvm@vger.kernel.org
+Subject: [PATCH vhost v9 0/6] refactor the params of find_vqs()
+Date: Wed, 24 Apr 2024 17:15:27 +0800
+Message-Id: <20240424091533.86949-1-xuanzhuo@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+X-Git-Hash: bdb00f35db89
 Content-Transfer-Encoding: 8bit
 
-There is one typo in drivers/gpu/drm/qxl/qxl_gem.c's comment, which
-'acess' should be 'access'. So fix it.
+This pathset is splited from the
 
-Signed-off-by: Xinghui Li <korantli@tencent.com>
----
- drivers/gpu/drm/qxl/qxl_gem.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+     http://lore.kernel.org/all/20240229072044.77388-1-xuanzhuo@linux.alibaba.com
 
-diff --git a/drivers/gpu/drm/qxl/qxl_gem.c b/drivers/gpu/drm/qxl/qxl_gem.c
-index fc5e3763c359..2cfe29d72d81 100644
---- a/drivers/gpu/drm/qxl/qxl_gem.c
-+++ b/drivers/gpu/drm/qxl/qxl_gem.c
-@@ -74,7 +74,7 @@ int qxl_gem_object_create(struct qxl_device *qdev, int size,
- 
- /*
-  * If the caller passed a valid gobj pointer, it is responsible to call
-- * drm_gem_object_put() when it no longer needs to acess the object.
-+ * drm_gem_object_put() when it no longer needs to access the object.
-  *
-  * If gobj is NULL, it is handled internally.
-  */
+That may needs some cycles to discuss. But that notifies too many people.
+
+But just the four commits need to notify so many people.
+And four commits are independent. So I split that patch set,
+let us review these first.
+
+The patch set try to  refactor the params of find_vqs().
+Then we can just change the structure, when introducing new
+features.
+
+Thanks.
+
+v8:
+  1. rebase the vhost branch
+
+v7:
+  1. fix two bugs. @Jason
+
+v6:
+  1. virtio_balloon: a single variable for both purposes.
+  2. if names[i] is null, return error
+
+v5:
+  1. virtio_balloon: follow David Hildenbrand's suggest
+    http://lore.kernel.org/all/3620be9c-e288-4ff2-a7be-1fcf806e6e6e@redhat.com
+  2. fix bug of the reference of "cfg_idx"
+    http://lore.kernel.org/all/202403222227.Sdp23Lcb-lkp@intel.com
+
+v4:
+  1. remove support for names array entries being null
+  2. remove cfg_idx from virtio_vq_config
+
+v3:
+  1. fix the bug: "assignment of read-only location '*cfg.names'"
+
+v2:
+  1. add kerneldoc for "struct vq_transport_config" @ilpo.jarvinen
+
+v1:
+  1. fix some comments from ilpo.jarvinen@linux.intel.com
+
+
+
+
+
+
+
+
+
+Xuan Zhuo (6):
+  virtio_balloon: remove the dependence where names[] is null
+  virtio: remove support for names array entries being null.
+  virtio: find_vqs: pass struct instead of multi parameters
+  virtio: vring_create_virtqueue: pass struct instead of multi
+    parameters
+  virtio: vring_new_virtqueue(): pass struct instead of multi parameters
+  virtio_ring: simplify the parameters of the funcs related to
+    vring_create/new_virtqueue()
+
+ arch/um/drivers/virtio_uml.c             |  36 +++--
+ drivers/platform/mellanox/mlxbf-tmfifo.c |  23 +--
+ drivers/remoteproc/remoteproc_virtio.c   |  37 +++--
+ drivers/s390/virtio/virtio_ccw.c         |  38 ++---
+ drivers/virtio/virtio_balloon.c          |  48 +++---
+ drivers/virtio/virtio_mmio.c             |  36 +++--
+ drivers/virtio/virtio_pci_common.c       |  69 ++++-----
+ drivers/virtio/virtio_pci_common.h       |   9 +-
+ drivers/virtio/virtio_pci_legacy.c       |  16 +-
+ drivers/virtio/virtio_pci_modern.c       |  37 +++--
+ drivers/virtio/virtio_ring.c             | 177 ++++++++---------------
+ drivers/virtio/virtio_vdpa.c             |  51 +++----
+ include/linux/virtio_config.h            |  76 +++++++---
+ include/linux/virtio_ring.h              |  93 +++++++-----
+ tools/virtio/virtio_test.c               |   4 +-
+ tools/virtio/vringh_test.c               |  28 ++--
+ 16 files changed, 384 insertions(+), 394 deletions(-)
+
 -- 
-2.39.3
+2.32.0.3.g01195cf9f
 
