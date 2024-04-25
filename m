@@ -1,163 +1,101 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10D2D3BBF1
-	for <virtualization@lists.linux.dev>; Thu, 25 Apr 2024 06:04:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD8AB5A7AB
+	for <virtualization@lists.linux.dev>; Thu, 25 Apr 2024 07:14:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714025097; cv=none; b=QJ+YMJL9Y/ucM3cjGgGleiAucTG00H9qZi7MdlryIJ8zrBDZEv4GDteoVJAuYpdnmLAM/vYBg2hyNdPkoJ3QFiMO/rIRr7ffseatOa4bXP3cA83gJNpmY5TOY5vTpE+U5+RQPi2gxVA3rYt/3AEzFpBlcU5eznNejtc8N1dgHkc=
+	t=1714029301; cv=none; b=ZGd89SFjs62vLus8FI2yqx+lj+R2ocvw6R4QhOirUoAFzTbHGUxPGlXkXC6Q/teP+9I6JC07bBxXpxLKAu8gK/Vzx3GPmV5sRIFvatR++YZLHyEl7/H9RyfalR2lLgx+NCWbnsOKto9AixkQXEOiaETFy0sI3dikNdlmk99M8XM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714025097; c=relaxed/simple;
-	bh=yoyDuhImaFYk6MfODe7FWOzq5lPz3/6sKseHfzmm3YU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=QzUOZdHCZyijkZ1i7zZS4mwSquKI51AJbuTm6Z29d32O+slNvkeYmCtsfBq/8v1NLkvZAYVFaMtOEw3nKqMn9q28PpaTBHdvH72Cmqd4B4blXu7edQiqBRa4V6ck/uGeDIk8zjcGGJktkJQsUVyveae4p72Bjf5gxV9x+tficdU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=EjU6S75R; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1714029301; c=relaxed/simple;
+	bh=FbcAIXFHTd/izhlpV83BqQBvkx5ULx32o2W4s4yEuAg=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=fmXPxf7P2Zg3an4JBluP1G1Bq5jFIOcfXh5aZlkw0y4cGcUDaBHtxyqcnuAwUuZf4Ht7Q4Jrgu7Fnd8vUP4mW5CamBTuKnM1mnXfjtX5okGcwZC5kuEtY+Z4QjDgWpi96XrMqy6az9h49juWsfIvXtAKAMpZQBOG80WzLrmNrp0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=bSrZgZUZ; arc=none smtp.client-ip=115.124.30.100
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EjU6S75R"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1714025094;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=2VqVkXo1lE+9fpUNrU4aH8DrBoZjKZt/x6xACkTCsDc=;
-	b=EjU6S75ReSb9jLeEsput9CxNRYDU1MoTHMe89y1rgYm6Tzb2Fh7DdwEophmCByRqdOSi4b
-	+TjuZkrVaDJkTzFee+ay11C32H926gy8KJCXcllgVW+w6NO31YfvDhRkEHDjArT4a5tomk
-	SeHWAQPMJPPXDqs157tnWt1HTDk1Hbs=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-125-fz7y-kPVO4K9rFGjik18yg-1; Thu, 25 Apr 2024 02:04:51 -0400
-X-MC-Unique: fz7y-kPVO4K9rFGjik18yg-1
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-2a2f7048a7fso769321a91.2
-        for <virtualization@lists.linux.dev>; Wed, 24 Apr 2024 23:04:51 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1714025090; x=1714629890;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=2VqVkXo1lE+9fpUNrU4aH8DrBoZjKZt/x6xACkTCsDc=;
-        b=R+wKI9Ab7LaovbQe0s8AOUmEX/PqtXXnoDps1afqXgiL/+bnCcXRrymjQpy+4OtY8y
-         buvh0vV0dTdbldt1BUie5sEvh0PehQH76PLLkhfo4TLVNF+2YFbtAzVLzt8aaYloUika
-         jhvRFTopqvNwvCubLmqbkftdj+sVvMJyYyoUzcbi82ltyWGiRR/UAWz1yWzwsSJ/cfVr
-         P1awPkkc1ysdnOeRE1mdBAZ8SOC8Rtc9tI8sjemmE6sssGaefIc1YiT8zW8jSoTAINuu
-         tZXOskzsLDJQc0qCUo3PA2MV0TviBdCtxP5WGjk/735Aloi1MSM+SQy+IL3tHIaIGs8C
-         RCLw==
-X-Gm-Message-State: AOJu0Yz4En7TfVrhs2GAG+6cYgEmAzXN//mOHNRb8dSgxrH9uh5qYsOD
-	QkAs11LrcjADbj6o6Eln5gr6DmfoZDd4607a0ojTc4KGP6L5m+Je9QOn/LRZ3VG2u+mXv8/BwKF
-	L0NJ0505gc0R0qni6az07BpxolS0SuR2WfhHXu0D3uJI5r7wrwk31Uy/2eJEszr2eYVS9SAOjCW
-	u+mcVq1NH+JGpUsvBjOe7C8q9vTygGeqiAiEoUAAU=
-X-Received: by 2002:a17:90a:744f:b0:2ac:257d:3e7c with SMTP id o15-20020a17090a744f00b002ac257d3e7cmr4850607pjk.9.1714025090184;
-        Wed, 24 Apr 2024 23:04:50 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGk1Zk4n8BNQN3/HiN3DwbEZl719SLEOZEGJXMcEDPIdNVxRJ8DswGiPqBmV3wMyKxXlJmav9ONmNVL2nM68TU=
-X-Received: by 2002:a17:90a:744f:b0:2ac:257d:3e7c with SMTP id
- o15-20020a17090a744f00b002ac257d3e7cmr4850590pjk.9.1714025089840; Wed, 24 Apr
- 2024 23:04:49 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="bSrZgZUZ"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1714029290; h=Message-ID:Subject:Date:From:To;
+	bh=shE6b0fVd04Boa5BpyRyRzFXzf9tW9katGzdX6PJz7E=;
+	b=bSrZgZUZhF80ynHUG8RoR9cUJQEwvpIT8CSZ06Qe/jz4vtjyKGOrsdgnimDOR/TNZuQwp2ZB8lnS3zcZpe42ey1jfWUdKdxjQh8yd5G2i7SZAxrbKzJgGUi8hlS1mBxxSUcEAwRRk3WJJ86R4fIoIwA7pbrJg4is2+S6HReKDcQ=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067111;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0W5Efo1Z_1714029287;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W5Efo1Z_1714029287)
+          by smtp.aliyun-inc.com;
+          Thu, 25 Apr 2024 15:14:49 +0800
+Message-ID: <1714029274.2610173-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next v6 8/8] virtio-net: support queue stat
+Date: Thu, 25 Apr 2024 15:14:34 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric  Dumazet <edumazet@google.com>,
+ Paolo Abeni <pabeni@redhat.com>,
+ "Michael S.  Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>,
+ Alexei  Starovoitov <ast@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>,
+ Stanislav Fomichev <sdf@google.com>,
+ Amritha  Nambiar <amritha.nambiar@intel.com>,
+ Larysa Zaremba <larysa.zaremba@intel.com>,
+ Sridhar Samudrala <sridhar.samudrala@intel.com>,
+ Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+ virtualization@lists.linux.dev,
+ bpf@vger.kernel.org
+References: <20240423113141.1752-1-xuanzhuo@linux.alibaba.com>
+ <20240423113141.1752-9-xuanzhuo@linux.alibaba.com>
+ <20240424204422.71c20b3f@kernel.org>
+In-Reply-To: <20240424204422.71c20b3f@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-References: <20240424081636.124029-1-xuanzhuo@linux.alibaba.com>
- <20240424081636.124029-3-xuanzhuo@linux.alibaba.com> <CACGkMEtf9twxTSGpGpmcR4LYS_k1g=NRO78NhkG4uLJ3d+TqAA@mail.gmail.com>
- <1714012507.44893-1-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <1714012507.44893-1-xuanzhuo@linux.alibaba.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 25 Apr 2024 14:04:38 +0800
-Message-ID: <CACGkMEu3M8_izh837Z5Eg7uJTVUGNAKcdGRcF=7FAu_REZ1tyA@mail.gmail.com>
-Subject: Re: [PATCH vhost v3 2/4] virtio_net: big mode skip the unmap check
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: virtualization@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, Apr 25, 2024 at 10:37=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alibaba.=
-com> wrote:
+On Wed, 24 Apr 2024 20:44:22 -0700, Jakub Kicinski <kuba@kernel.org> wrote:
+> On Tue, 23 Apr 2024 19:31:41 +0800 Xuan Zhuo wrote:
+> > +static void virtnet_get_base_stats(struct net_device *dev,
+> > +				   struct netdev_queue_stats_rx *rx,
+> > +				   struct netdev_queue_stats_tx *tx)
+> > +{
+> > +	/* The queue stats of the virtio-net will not be reset. So here we
+> > +	 * return 0.
+> > +	 */
+> > +	rx->bytes = 0;
+> > +	rx->packets = 0;
+> > +	rx->alloc_fail = 0;
+> > +	rx->hw_drops = 0;
+> > +	rx->hw_drop_overruns = 0;
+> > +	rx->csum_unnecessary = 0;
+> > +	rx->csum_none = 0;
+> > +	rx->csum_bad = 0;
+> > +	rx->hw_gro_packets = 0;
+> > +	rx->hw_gro_bytes = 0;
+> > +	rx->hw_gro_wire_packets = 0;
+> > +	rx->hw_gro_wire_bytes = 0;
+> > +	rx->hw_drop_ratelimits = 0;
+> > +
+> > +	tx->bytes = 0;
+> > +	tx->packets = 0;
+> > +	tx->hw_drops = 0;
+> > +	tx->hw_drop_errors = 0;
+> > +	tx->csum_none = 0;
+> > +	tx->needs_csum = 0;
+> > +	tx->hw_gso_packets = 0;
+> > +	tx->hw_gso_bytes = 0;
+> > +	tx->hw_gso_wire_packets = 0;
+> > +	tx->hw_gso_wire_bytes = 0;
+> > +	tx->hw_drop_ratelimits = 0;
 >
-> On Thu, 25 Apr 2024 10:11:55 +0800, Jason Wang <jasowang@redhat.com> wrot=
-e:
-> > On Wed, Apr 24, 2024 at 4:17=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.aliba=
-ba.com> wrote:
-> > >
-> > > The virtio-net big mode did not enable premapped mode,
-> > > so we did not need to check the unmap. And the subsequent
-> > > commit will remove the failover code for failing enable
-> > > premapped for merge and small mode. So we need to remove
-> > > the checking do_dma code in the big mode path.
-> > >
-> > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > ---
-> > >  drivers/net/virtio_net.c | 4 ++--
-> > >  1 file changed, 2 insertions(+), 2 deletions(-)
-> > >
-> > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > index c22d1118a133..16d84c95779c 100644
-> > > --- a/drivers/net/virtio_net.c
-> > > +++ b/drivers/net/virtio_net.c
-> > > @@ -820,7 +820,7 @@ static void virtnet_rq_unmap_free_buf(struct virt=
-queue *vq, void *buf)
-> > >
-> > >         rq =3D &vi->rq[i];
-> > >
-> > > -       if (rq->do_dma)
-> > > +       if (!vi->big_packets || vi->mergeable_rx_bufs)
-> >
-> > This seems to be equivalent to
-> >
-> > if (!vi->big_packets)
->
->
-> If VIRTIO_NET_F_MRG_RXBUF and guest_gso are coexisting,
-> big_packets and mergeable_rx_bufs are all true.
-> !vi->big_packets only means the small.
->
-> Did I miss something?
+> Doesn't this need to be conditional based on device capabilities?
+> We should only assign the stats that the device is collecting
+> (both in base stats and per-queue).
 
-Nope, you are right.
 
-The big_packets are kind of misleading as it doesn't mean big mode.
+Will be fixed in next version.
 
-Acked-by: Jason Wang <jasowang@redhat.com>
-
-Thanks
-
->
-> Thanks.
->
->
-> >
-> >
-> > >                 virtnet_rq_unmap(rq, buf, 0);
-> > >
-> > >         virtnet_rq_free_buf(vi, rq, buf);
-> > > @@ -2128,7 +2128,7 @@ static int virtnet_receive(struct receive_queue=
- *rq, int budget,
-> > >                 }
-> > >         } else {
-> > >                 while (packets < budget &&
-> > > -                      (buf =3D virtnet_rq_get_buf(rq, &len, NULL)) !=
-=3D NULL) {
-> > > +                      (buf =3D virtqueue_get_buf(rq->vq, &len)) !=3D=
- NULL) {
-> > >                         receive_buf(vi, rq, buf, len, NULL, xdp_xmit,=
- &stats);
-> > >                         packets++;
-> > >                 }
-> >
-> > Other part looks good.
-> >
-> > Thanks
-> >
-> > > --
-> > > 2.32.0.3.g01195cf9f
-> > >
-> >
->
-
+Thanks.
