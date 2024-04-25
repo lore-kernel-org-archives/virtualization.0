@@ -1,29 +1,30 @@
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE57E1494C8
-	for <virtualization@lists.linux.dev>; Thu, 25 Apr 2024 12:59:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BE02149C41
+	for <virtualization@lists.linux.dev>; Thu, 25 Apr 2024 12:59:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714049944; cv=none; b=k1uORU20zJ3719kR9sg51SUHYKydZDDXQsAsSEXzgO+FIaNOXHN8E1iRkgyw8cG5yBwfCZvxjDY+kvy8ylDkIbazUC7aYHawcq3MeWo2VH3MlyofFHvBBlbqODGxccmlF3h50gZfon318RVnymwOK5ZUXrnOC/1LWru2FnMO7co=
+	t=1714049944; cv=none; b=add7ykLVuBiFKa0zAKLa892jAErTIdkKBXoEhacwwLu6UeIxPjwWNKa4+p/cnjD2rS46kX7pEpqs+FgpaDpeGzdDo2hxDsU/2yeySH91URuN8XA1Yt7IiRwkoeY9e46HiFa2+T2Gr4N8BsKycz0/dsATvPOKF6FH/H0Cjorkm4g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1714049944; c=relaxed/simple;
-	bh=tyVjat1rjW2MAao+7FrJyWEzcCabOzU4xQ5JCwwV9uQ=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=Pzm6/zp9Vc3/HYoGQxYQMELbYeYTcv+BmtDCRpF/BVpe34vQVV3RJGCp+6069WaZAMVo4R4enF5N3uXhJ5hGmH2vuZxLMrE/dfXe/iz+3cQdUN+TC/1PlYgwknhEyNWnUaI3ys8M2zLqMIv6RG9KOl/6vEdurANgJNKgr6sLUHI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=awYLGZyc; arc=none smtp.client-ip=115.124.30.101
+	bh=M6SmxO5/6HWUBjl3LCU40SGHS4eWuCP5wqLJO/TeQ+c=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=L7AAo08SS77Ei1kDt7BpbpboprMBmJvJDerCk+ECRxpqFPelqph5jCb21WlG1200IAoUDK7csIOiWkI3q3jIvsNp650CcynpcNz88zGHkkO7ge9d1JOtvegRHFfohrnLonzIa9tSTxtHGTKj5cVtY0u4dFtm/DzxJ1QO2kyTkrM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=BbbESW/R; arc=none smtp.client-ip=115.124.30.118
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="awYLGZyc"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="BbbESW/R"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1714049938; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=WLs6Yn5APuAIgojgCyiuTy7J9kuBh6CD/M/N8iA90a0=;
-	b=awYLGZycH64e5vse6LrGqgJLCngkW4hxFrilST8m9ymcASkz1yIcaW1ivguqXCz5unK0X66hJKAgPHa8mG43Qd28Kowbq/hzaltsBSUXGPonATTLBYjXUuWjFfMO2qv104MB6oDra9BHJHRZLsnjyp9eBGZZczB6CT9/BTo0njQ=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R531e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032014016;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0W5FRGNX_1714049935;
-Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W5FRGNX_1714049935)
+	t=1714049940; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=tJge7rhA7eFJ/ScRh9Cw+FRMa1b17ZVyKgD8pV+Xg+8=;
+	b=BbbESW/RnNXvHJGslQCQGDX4KCMlzowjHkpzPrHc0MoVQ6lbvTSSwZL4rDU25tEymnPAXULmodPnTZaR6qBLR3tyib3x6dmFIer0xaj5Ce3X7Sxrs+heoKJaccXPrKT1wqI6a2A2n2eya7+zWflJGE8Bgl6HVriSQA8wEl0r2y0=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067109;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0W5FZNMk_1714049938;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W5FZNMk_1714049938)
           by smtp.aliyun-inc.com;
-          Thu, 25 Apr 2024 20:58:56 +0800
+          Thu, 25 Apr 2024 20:58:59 +0800
 From: Heng Qi <hengqi@linux.alibaba.com>
 To: netdev@vger.kernel.org,
 	virtualization@lists.linux.dev
@@ -34,10 +35,12 @@ Cc: "Michael S . Tsirkin" <mst@redhat.com>,
 	"David S . Miller" <davem@davemloft.net>,
 	Jakub Kicinski <kuba@kernel.org>,
 	Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH net-next 0/3] virtio_net: enable the irq for ctrlq
-Date: Thu, 25 Apr 2024 20:58:52 +0800
-Message-Id: <20240425125855.87025-1-hengqi@linux.alibaba.com>
+Subject: [PATCH net-next 2/3] virtio_net: fix possible dim status unrecoverable
+Date: Thu, 25 Apr 2024 20:58:54 +0800
+Message-Id: <20240425125855.87025-3-hengqi@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+In-Reply-To: <20240425125855.87025-1-hengqi@linux.alibaba.com>
+References: <20240425125855.87025-1-hengqi@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -46,23 +49,39 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Ctrlq in polling mode may cause the virtual machine to hang and
-occupy additional CPU resources. Enabling the irq for ctrlq
-alleviates this problem and allows commands to be requested
-concurrently.
+When the dim worker is scheduled, if it no longer needs to issue
+commands, dim may not be able to return to the working state later.
 
-This patch set is on top of
-https://lore.kernel.org/all/20240423035746.699466-1-danielj@nvidia.com/ ,
-so patchwork may cause warnings.
+For example, the following single queue scenario:
+  1. The dim worker of rxq0 is scheduled, and the dim status is
+     changed to DIM_APPLY_NEW_PROFILE;
+  2. dim is disabled or parameters have not been modified;
+  3. virtnet_rx_dim_work exits directly;
 
-Heng Qi (3):
-  virtio_net: enable irq for the control vq
-  virtio_net: fix possible dim status unrecoverable
-  virtio_net: improve dim command request efficiency
+Then, even if net_dim is invoked again, it cannot work because the
+state is not restored to DIM_START_MEASURE.
 
- drivers/net/virtio_net.c | 268 +++++++++++++++++++++++++++++++++++----
- 1 file changed, 240 insertions(+), 28 deletions(-)
+Fixes: 6208799553a8 ("virtio-net: support rx netdim")
+Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
+---
+ drivers/net/virtio_net.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 79a1b30c173c..8f05bcf1d37d 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -3650,9 +3650,9 @@ static void virtnet_rx_dim_work(struct work_struct *work)
+ 		if (err)
+ 			pr_debug("%s: Failed to send dim parameters on rxq%d\n",
+ 				 dev->name, qnum);
+-		dim->state = DIM_START_MEASURE;
+ 	}
+ out:
++	dim->state = DIM_START_MEASURE;
+ 	mutex_unlock(&rq->dim_lock);
+ }
+ 
 -- 
 2.32.0.3.g01195cf9f
 
