@@ -1,182 +1,174 @@
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f172.google.com (mail-pf1-f172.google.com [209.85.210.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD91D14D707
-	for <virtualization@lists.linux.dev>; Thu, 25 Apr 2024 17:00:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B3C614E2F6
+	for <virtualization@lists.linux.dev>; Thu, 25 Apr 2024 17:27:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714064411; cv=none; b=FfPdDtXilxdB26XQEu/c8rc+lIdbSqliO/1wHhg7jrDEsDwo2+9dh4K2Y5/niIhKYrOr1OlMe2tQH+l3ZEJcCRTOAStn8kAcXocUcrslJ3ilKf+2QdKsER206XVvXo7qTe6423Is+/Mw+947anWxDXIXhZsS/2DSh4IWdGXeeyY=
+	t=1714066074; cv=none; b=cGrfbT9/zdRDco+aJDZb2/2jGH/n5ePg4fni2Vfk/3XNSP99LYrHvBpY3mI7sFfG6+J3cscru3ozxOb2K26ZmpQSxZM+L3Tau6K+5X2v/10deV/jUtGI2RISTnEgTEHV1LhfQ8GBvtU1IZ4Om997xEQpn5gcak+RPOS/sXChp94=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714064411; c=relaxed/simple;
-	bh=HALBBjMFmRS8IUIFD4VH3CjArjgjdAp/v9UtJr6i4WU=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=agRZ0wLH71/oPTnvrQTyEOIsnxDsgaX+ls5zs9HOl7itr9mlAcO/z3JEmAWeUk8GGhau/VPZL688iHZtS/YIYfLbG9LKRa0mqKNnv6i508eZ1xazlQQaOUFdjQ6Y37izzsWcl8NAgNlGar8BAjk9LACRbkyDeWwY2GTk5Ntkbvo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Z9H8oKZX; arc=none smtp.client-ip=115.124.30.110
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1714066074; c=relaxed/simple;
+	bh=ucctMWTxaxZbiTCOKrWgMO9r0QtqypX2GQdfC7kk5CQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Qe3jo8kVjv/b0NPuGdzC3Nxb7xwRSocyRVURkMFG7kEp4TQPXlMo3arx6iNnBGiqHcgSB6YsMEtxPrLT8o9o9uq1nC1pkpW8zbHrbDPDO42UED6Ti1IS92fHy16JWKv1LxCcfdt5hvRvN/KIGlg2rMmktTxnFxoCqx+0m78BWa8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=KMi+KDQq; arc=none smtp.client-ip=209.85.210.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Z9H8oKZX"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1714064400; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=9nfTJYx4KeahF9oLGxnXvf+iSTr/iZ/wJU0KqAKFO7Y=;
-	b=Z9H8oKZXdE6st1g8SL7kWcZ7omRxjUmI9XIvocwbxvNKg8oRNqjVVeKoks+M0ekqEwMsb1uhgKbRiGCZ8bajyO+D04oWQLBUKUfuzruXkIMEW2UILCP9lR7SuvM8IX2hrmu7KhJl6BCE+ym4bi6uJZudsXr+wGizcgEgULHKf6A=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R341e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045046011;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=23;SR=0;TI=SMTPD_---0W5G09op_1714064395;
-Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W5G09op_1714064395)
-          by smtp.aliyun-inc.com;
-          Fri, 26 Apr 2024 00:59:56 +0800
-From: Heng Qi <hengqi@linux.alibaba.com>
-To: netdev@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	Jakub Kicinski <kuba@kernel.org>
-Cc: "David S . Miller" <davem@davemloft.net>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Jason Wang <jasowang@redhat.com>,
-	"Michael S . Tsirkin" <mst@redhat.com>,
-	Brett Creeley <bcreeley@amd.com>,
-	Ratheesh Kannoth <rkannoth@marvell.com>,
-	Alexander Lobakin <aleksander.lobakin@intel.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Tal Gilboa <talgi@nvidia.com>,
-	Jonathan Corbet <corbet@lwn.net>,
-	linux-doc@vger.kernel.org,
-	Maxime Chevallier <maxime.chevallier@bootlin.com>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Paul Greenwalt <paul.greenwalt@intel.com>,
-	Ahmed Zaki <ahmed.zaki@intel.com>,
-	Vladimir Oltean <vladimir.oltean@nxp.com>,
-	Kory Maincent <kory.maincent@bootlin.com>,
-	Andrew Lunn <andrew@lunn.ch>,
-	"justinstitt @ google . com" <justinstitt@google.com>
-Subject: [PATCH net-next v10 4/4] virtio-net: support dim profile fine-tuning
-Date: Fri, 26 Apr 2024 00:59:48 +0800
-Message-Id: <20240425165948.111269-5-hengqi@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20240425165948.111269-1-hengqi@linux.alibaba.com>
-References: <20240425165948.111269-1-hengqi@linux.alibaba.com>
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="KMi+KDQq"
+Received: by mail-pf1-f172.google.com with SMTP id d2e1a72fcca58-6ee0642f718so1784223b3a.0
+        for <virtualization@lists.linux.dev>; Thu, 25 Apr 2024 10:27:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google; t=1714066073; x=1714670873; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=OOqmW9EMXSCXAzKPIqERIeQh9xbCR10AzpPSejSv1nY=;
+        b=KMi+KDQq+d4aMEZ6Ffpin4T/vw6LHRsWxMhJIgjAFaRTcIKkkImChTyEARDKDF637r
+         YAkg6m3xkuAXHeekCKp+9swGG92+vqvjJ19RToUlSAvgooc8L9us0+0PZ2BWAQkzYjgz
+         bcxJwIYJYes6fvm/kFl2xgRgUqGxeEpSfKrn0=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1714066073; x=1714670873;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=OOqmW9EMXSCXAzKPIqERIeQh9xbCR10AzpPSejSv1nY=;
+        b=Zfc4AmfPPoyGt6+TxBktFhBxICyVx1Q7DoKwuINlfK5OfLfRY30/WpNhodshBW+w28
+         mJ52zbtbynV48KMIX7LYNROxrHWJs/YsGA0dcbEKN/h1cI3JbndApvP6J7jdVEl+zuPr
+         RnY1zTekAz/wS5SO17pzwnspzSCmcbecdRWH+M2DUTitVW6SpSXN7iyVbUGCzi8dciky
+         YjCkoNHLoyp8BalWrLL8qPQGO+DtqvhjUMnLz6farYJceX+NMvw7+fECsiM6wAAItS2S
+         EEbt4goVOh1WLebpYaAXrTIpjyFNioFTT45JnkHuUzymrry+kgyr1uNOHpAIfrWAsH9y
+         KYQg==
+X-Forwarded-Encrypted: i=1; AJvYcCU1lYsDA0wEOLfEFQIZT8dls8chn11pr8jRym9ZsW4ErbRIOS1OdjqecYK1K72YKwaH1VQIZ2O/YP8WNWEzN3RQX4Eh4IlIZoM8PdnLKok=
+X-Gm-Message-State: AOJu0YymQuOPNNUbxnsk1aznJ1EqRiZG9OsXKLUV20BauFl7vicqEhRR
+	YHb41vMpuQxUZ1xRYJJg0HjsKYH95nEvkX+pb4PqUaGM+TE6mEtd22WHNd1flw==
+X-Google-Smtp-Source: AGHT+IEyj9gBxZv62LFLgGLraFFkbznKTsTduDdrNLHM9g1XxKCbQgndWqkDDmR8l5zO3xGctaJgyw==
+X-Received: by 2002:a05:6a20:2454:b0:1a9:509c:eba6 with SMTP id t20-20020a056a20245400b001a9509ceba6mr594000pzc.25.1714066072683;
+        Thu, 25 Apr 2024 10:27:52 -0700 (PDT)
+Received: from [192.168.1.162] ([50.35.46.55])
+        by smtp.gmail.com with ESMTPSA id i22-20020aa78b56000000b006f095e6b702sm13095672pfd.73.2024.04.25.10.27.49
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 25 Apr 2024 10:27:52 -0700 (PDT)
+Message-ID: <8356c1a0-4a4d-42e6-94dc-97abad2f8e04@broadcom.com>
+Date: Thu, 25 Apr 2024 10:27:48 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v9 1/8] x86/vmware: Correct macro names
+To: Borislav Petkov <bp@alien8.de>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+ hpa@zytor.com, dave.hansen@linux.intel.com, mingo@redhat.com,
+ tglx@linutronix.de, x86@kernel.org, netdev@vger.kernel.org,
+ richardcochran@gmail.com, linux-input@vger.kernel.org,
+ dmitry.torokhov@gmail.com, zackr@vmware.com,
+ linux-graphics-maintainer@vmware.com, pv-drivers@vmware.com,
+ timothym@vmware.com, akaher@vmware.com, dri-devel@lists.freedesktop.org,
+ daniel@ffwll.ch, airlied@gmail.com, tzimmermann@suse.de, mripard@kernel.org,
+ maarten.lankhorst@linux.intel.com, horms@kernel.org,
+ kirill.shutemov@linux.intel.com
+References: <adcbfb9a-a4e1-4a32-b786-6c204d941e9f@broadcom.com>
+ <20240424231407.14098-1-alexey.makhalov@broadcom.com>
+ <20240425152130.GJZip0-l040XCyUapN@fat_crate.local>
+Content-Language: en-US
+From: Alexey Makhalov <alexey.makhalov@broadcom.com>
+Autocrypt: addr=alexey.makhalov@broadcom.com; keydata=
+ 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 EuY0
+In-Reply-To: <20240425152130.GJZip0-l040XCyUapN@fat_crate.local>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Virtio-net has different types of back-end device implementations.
-In order to effectively optimize the dim library's gains for different
-device implementations, let's use the new interface params to
-initialize and query dim results from a customized profile list.
 
-Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
----
- drivers/net/virtio_net.c | 44 +++++++++++++++++++++++++++++++++-------
- 1 file changed, 37 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 115c3c5414f2..555e6c9761da 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -2300,7 +2300,7 @@ static int virtnet_open(struct net_device *dev)
- 
- 	for (i--; i >= 0; i--) {
- 		virtnet_disable_queue_pair(vi, i);
--		cancel_work_sync(&vi->rq[i].dim.work);
-+		net_dim_work_cancel(&vi->rq[i].dim);
- 	}
- 
- 	return err;
-@@ -2466,7 +2466,7 @@ static int virtnet_rx_resize(struct virtnet_info *vi,
- 
- 	if (running) {
- 		napi_disable(&rq->napi);
--		cancel_work_sync(&rq->dim.work);
-+		net_dim_work_cancel(&rq->dim);
- 	}
- 
- 	err = virtqueue_resize(rq->vq, ring_num, virtnet_rq_unmap_free_buf);
-@@ -2718,7 +2718,7 @@ static int virtnet_close(struct net_device *dev)
- 
- 	for (i = 0; i < vi->max_queue_pairs; i++) {
- 		virtnet_disable_queue_pair(vi, i);
--		cancel_work_sync(&vi->rq[i].dim.work);
-+		net_dim_work_cancel(&vi->rq[i].dim);
- 	}
- 
- 	return 0;
-@@ -3580,7 +3580,7 @@ static void virtnet_rx_dim_work(struct work_struct *work)
- 		if (!rq->dim_enabled)
- 			continue;
- 
--		update_moder = net_dim_get_rx_moderation(dim->mode, dim->profile_ix);
-+		update_moder = net_dim_get_rx_irq_moder(dev, dim);
- 		if (update_moder.usec != rq->intr_coal.max_usecs ||
- 		    update_moder.pkts != rq->intr_coal.max_packets) {
- 			err = virtnet_send_rx_ctrl_coal_vq_cmd(vi, qnum,
-@@ -4182,6 +4182,33 @@ static void virtnet_tx_timeout(struct net_device *dev, unsigned int txqueue)
- 		   jiffies_to_usecs(jiffies - READ_ONCE(txq->trans_start)));
- }
- 
-+static int virtnet_init_irq_moder(struct virtnet_info *vi)
-+{
-+	u8 profile_flags = 0, coal_flags = 0;
-+	struct net_device *dev = vi->dev;
-+	int ret, i;
-+
-+	profile_flags |= DIM_PROFILE_RX;
-+	coal_flags |= DIM_COALESCE_USEC | DIM_COALESCE_PKTS;
-+	ret = net_dim_init_irq_moder(dev, profile_flags, coal_flags,
-+				     DIM_CQ_PERIOD_MODE_START_FROM_EQE,
-+				     0, virtnet_rx_dim_work, NULL);
-+
-+	if (ret)
-+		return ret;
-+
-+	for (i = 0; i < vi->max_queue_pairs; i++)
-+		net_dim_setting(vi->dev, &vi->rq[i].dim, false);
-+
-+	return 0;
-+}
-+
-+static void virtnet_free_irq_moder(struct virtnet_info *vi)
-+{
-+	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL))
-+		net_dim_free_irq_moder(vi->dev);
-+}
-+
- static const struct net_device_ops virtnet_netdev = {
- 	.ndo_open            = virtnet_open,
- 	.ndo_stop   	     = virtnet_close,
-@@ -4461,9 +4488,6 @@ static int virtnet_alloc_queues(struct virtnet_info *vi)
- 					 virtnet_poll_tx,
- 					 napi_tx ? napi_weight : 0);
- 
--		INIT_WORK(&vi->rq[i].dim.work, virtnet_rx_dim_work);
--		vi->rq[i].dim.mode = DIM_CQ_PERIOD_MODE_START_FROM_EQE;
--
- 		sg_init_table(vi->rq[i].sg, ARRAY_SIZE(vi->rq[i].sg));
- 		ewma_pkt_len_init(&vi->rq[i].mrg_avg_pkt_len);
- 		sg_init_table(vi->sq[i].sg, ARRAY_SIZE(vi->sq[i].sg));
-@@ -4837,6 +4861,10 @@ static int virtnet_probe(struct virtio_device *vdev)
- 		for (i = 0; i < vi->max_queue_pairs; i++)
- 			if (vi->sq[i].napi.weight)
- 				vi->sq[i].intr_coal.max_packets = 1;
-+
-+		err = virtnet_init_irq_moder(vi);
-+		if (err)
-+			goto free;
- 	}
- 
- #ifdef CONFIG_SYSFS
-@@ -4961,6 +4989,8 @@ static void virtnet_remove(struct virtio_device *vdev)
- 	disable_rx_mode_work(vi);
- 	flush_work(&vi->rx_mode_work);
- 
-+	virtnet_free_irq_moder(vi);
-+
- 	unregister_netdev(vi->dev);
- 
- 	net_failover_destroy(vi->failover);
--- 
-2.32.0.3.g01195cf9f
+On 4/25/24 8:21 AM, Borislav Petkov wrote:
+> On Wed, Apr 24, 2024 at 04:14:06PM -0700, Alexey Makhalov wrote:
+>> VCPU_RESERVED and LEGACY_X2APIC are not VMware hypercall commands.
+>> These are bits in return value of VMWARE_CMD_GETVCPU_INFO command.
+>> Change VMWARE_CMD_ prefix to GETVCPU_INFO_ one. And move bit-shift
+>> operation to the macro body.
+> 
+> I don't understand:
+> 
+> $ git grep GETVCPU_INFO
+> arch/x86/kernel/cpu/vmware.c:51:#define VMWARE_CMD_GETVCPU_INFO  68
+> arch/x86/kernel/cpu/vmware.c:478:       VMWARE_CMD(GETVCPU_INFO, eax, ebx, ecx, edx);
+> 
+> so that's a VMWARE_CMD 68, at least the prefix says so.
+> 
+> And those two are *bits* in that eax which that hypercall returns.
+> 
+> Or are those two bits generic but defined in a vmware-specific
+> hypercall?
+> 
+> Hm.
+> 
 
+These are VMware hypercall commands:
+#define VMWARE_CMD_GETVERSION    10
+#define VMWARE_CMD_GETHZ         45
+#define VMWARE_CMD_GETVCPU_INFO  68
+#define VMWARE_CMD_STEALCLOCK    91
+
+
+These are VMware-specific macros to analyze return values of 
+corresponding commands. They are prefixed with command name.
+#define GETVCPU_INFO_LEGACY_X2APIC           BIT(3)
+#define GETVCPU_INFO_VCPU_RESERVED           BIT(31)
+
+#define STEALCLOCK_NOT_AVAILABLE (-1)
+#define STEALCLOCK_DISABLED        0
+#define STEALCLOCK_ENABLED         1
+
+
+Name VMWARE_CMD_LEGACY_X2APIC was not correct as LEGACY_X2APIC is not a 
+command but the meaning of 3rd bit of a return value of 
+VMWARE_CMD_GETVCPU_INFO. So, change it to GETVCPU_INFO_LEGACY_X2APIC.
+The same change with GETVCPU_INFO_VCPU_RESERVED.
+Both these bits are not generic.
+
+--Alexey
