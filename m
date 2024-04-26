@@ -1,200 +1,220 @@
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2058.outbound.protection.outlook.com [40.107.223.58])
+Received: from dggsgout11.his.huawei.com (unknown [45.249.212.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B261785624
-	for <virtualization@lists.linux.dev>; Fri, 26 Apr 2024 13:16:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.223.58
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714137377; cv=fail; b=kdRuWp2Ogk1Lzm4mmI1dscuFQuQSSiX3LObxvITkbcyYdtovpWRdHQkG87ChYw0W1t+LVT/71lE1wyG4A7/mKHPYwJ0XSjEp68gi+ozbuF3EQxm8jyyGOr70ul6X4dmmKC0klS/yNv7xanLv6K90p2Z9xLHE1xGgIjGk8e8AeyU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714137377; c=relaxed/simple;
-	bh=JKkpSN50qwvMDzlQn0smjXSd9dch3IcQGshjAhioT+A=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=SGHYKeoR8FNQuY/BgYxjTVjC6lt03Zo0VzHrAO1VwEp64b86PVllzBQQO0s65hs5dkECHyanHqmBznnGMTrGijHhzBUwCQpNUmh08T84JJtbzyFEAbX6RC6IcOJ9aCSpZFIB0wtWUkpQLwSRRbPrxpSCJt70qx1SZQ3yxQ4FVwI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=aIJBR8jE; arc=fail smtp.client-ip=40.107.223.58
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="aIJBR8jE"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=bCLJQ4/lavPkCa06Qfa8T+euCOOKvJ0QTJt4YIE+Dm9OGzyJz/XFRbkUB81G9YXRgvRCPEUE4w4R7L7pEOU8obZOBgVre59HufIUWoQZGAGADuiTdvBpqbemXCncdqAVDMfPSXHS1gLSDx9zVpRCRoqXde8dHOWitTdnzH+MRZ7Nbz9R0KW8aAJPtujeKRQS1+ls45rp//JyuFp2GKM9NsThSdDGyeOurF+YiVEXiiHJYwvD/dahUf9ekoMv2/fLpv2/okQMC3BanWlkJPYerHrs55QXh67s7Ju/iYj06sqXgA6+btjZmzP7JIUokPHF6W75NbD4m/oO/RPWKZ+i3g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=JKkpSN50qwvMDzlQn0smjXSd9dch3IcQGshjAhioT+A=;
- b=Ji6UvSv+3QWMmrk/uudgSochpoMDImKLC0gIzYmo6NG8R8QNKRN3UZMrxN2so6zwt1epq6SHEPGpOW6n3pOj2aY07fwM47eFQsoaLLGs59avmIYWO4w/Niow2GdAlzWntr8Tkk3WhY6oMbNnex0n2svTO8giFS6At7gLmvlXT6Snr2JoZXFmDXdjaY/PBzRCJcfNF7uz+pzkU/g6z5jzjyv+fcdzVGhhL5ZMNg311XW3Lr6ssDdjjihdTm2jdbDc9kyLkdkDtB85IRrucQfuyStvlLXlqE63u9cvryevWII7LT2I+jit1WtbAHeb7L4A6miCeUzPtXBMF/esERFrzQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=JKkpSN50qwvMDzlQn0smjXSd9dch3IcQGshjAhioT+A=;
- b=aIJBR8jEhsCYxobK61vFW/Ot9YxnZ2Ux1AzLTiLTmIrR1FAQ4EqDhTFrBPUTzGp8zYT2n4zGWg45/IMy5afBQx8ybuXqptl124M0lqjrpLQLeRBvnNbC0eBcugfjIZcpRNllv4pRlzkgm3Ry/W3bXQ6YSRxC/7weWQMLBvHLYwWTnOcWbf9eS1XXPHK5tcDKhtixEgIZURONqNgPjR+6JTICEiHy0eOwfDDcaSWlO0FMay6B0evf5CLPu6lWvSlPdTR4Zi5Coo0SBGPPzBFiW+XFmN0EGaRUV1E0iXr1cpgfKJRzXdXEyPXaG8vgy0hzkilM2p5xAgXDbvqcG9T/ww==
-Received: from CH0PR12MB8580.namprd12.prod.outlook.com (2603:10b6:610:192::6)
- by IA0PR12MB7775.namprd12.prod.outlook.com (2603:10b6:208:431::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7472.46; Fri, 26 Apr
- 2024 13:16:13 +0000
-Received: from CH0PR12MB8580.namprd12.prod.outlook.com
- ([fe80::ff67:b47c:7721:3cd4]) by CH0PR12MB8580.namprd12.prod.outlook.com
- ([fe80::ff67:b47c:7721:3cd4%4]) with mapi id 15.20.7472.045; Fri, 26 Apr 2024
- 13:16:12 +0000
-From: Dan Jurgens <danielj@nvidia.com>
-To: Paolo Abeni <pabeni@redhat.com>, "netdev@vger.kernel.org"
-	<netdev@vger.kernel.org>, "jasowang@redhat.com" <jasowang@redhat.com>,
-	"mst@redhat.com" <mst@redhat.com>
-CC: "xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"davem@davemloft.net" <davem@davemloft.net>, "edumazet@google.com"
-	<edumazet@google.com>, "kuba@kernel.org" <kuba@kernel.org>, Jiri Pirko
-	<jiri@nvidia.com>
-Subject: RE: [PATCH net-next v5 0/6] Remove RTNL lock protection of CVQ
-Thread-Topic: [PATCH net-next v5 0/6] Remove RTNL lock protection of CVQ
-Thread-Index: AQHalTJzRZrcxWFwSk6x4nm7jiFIWbF6VMuAgAA4TuA=
-Date: Fri, 26 Apr 2024 13:16:12 +0000
-Message-ID:
- <CH0PR12MB85809DEB2B232B4628A795A6C9162@CH0PR12MB8580.namprd12.prod.outlook.com>
-References: <20240423035746.699466-1-danielj@nvidia.com>
- <20148f24e2e35e711dc47878e19fb6bd118dce29.camel@redhat.com>
-In-Reply-To: <20148f24e2e35e711dc47878e19fb6bd118dce29.camel@redhat.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: CH0PR12MB8580:EE_|IA0PR12MB7775:EE_
-x-ms-office365-filtering-correlation-id: 3338b172-04e7-4fa4-d4a5-08dc65f30ba8
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info:
- =?utf-8?B?NWEyOWZGZTdWOWZFeU9tQVpmK3Bvd1MzUk1GVy9iN3RMVnMyNXJSNEhiWHA3?=
- =?utf-8?B?d3pIUU9PbUV2ZFdvQTd0YkpGai85bWhLVnFmd3RWYjF1WkY1SUNXWWRmNjh2?=
- =?utf-8?B?cElkZFBud3RrR2EwQ0UvNFRxRlBsMGtqSlVoaGFlYmlQeFM2ZWx6WWcvRSta?=
- =?utf-8?B?cnBJQ2F0WkR1NUUyajdyMVVxYnJHNng0dUgydTV0MmU4eGRLaXdOZU5WRy9l?=
- =?utf-8?B?cmNSOXVyemhVcFVsRlRlTDlndnJ2dTYwZE0zdHRjT28xWnBXTzRodTd2T1hw?=
- =?utf-8?B?YjNkSmhWNmdiZzBabW95Q3V6YlBRMGpTdHIxMU1IR2w0bHZZcDJSNEZhNXp4?=
- =?utf-8?B?T0ZyN0JxZHhSdDJSM1BISHNGcUFzY251cXZEcXExS0tJNm9oM2EyQVhubFZY?=
- =?utf-8?B?RkxrTkNFV3pIVGxEdHRaN2FQZjhwVlZjTWFNL2JrMm5YNTVpT1g1NXF5dVQv?=
- =?utf-8?B?cGNWSXM3QlZJTUpGNlJyYWFmbUc4ZjNqQ3loQWhGc0djNVRMREZuUEs5VWY1?=
- =?utf-8?B?WUhRbzdRUC9NaFV0YmZrUjYyNmxVWU5IMUNHcEYveVk0Q3dpSCtnYWppZ1h5?=
- =?utf-8?B?bFgrOW9acnQ1QXFHRW5yS2Nka09NTld2bmIxNFdyWG9UWWNtYWhyY2Z5QnlJ?=
- =?utf-8?B?RzN2T0tHWlNPNWI0RHFGSHVhZzFqNzhHWC9uTDNTSGJkNjFmcWR6Z0hQVG85?=
- =?utf-8?B?cFJNL01DTHZWYU81bkhWQW1VTTByYm53VHRXRnp2ek1lMDRrSUhxWHBkaE5U?=
- =?utf-8?B?TitYK2RiSmZMdmpGSUZFVnc2UHRScHdSNnJWNHg5d0ppd01NYzNqZmNTV3dq?=
- =?utf-8?B?Y3BvbWl0MEt3Rjg1Zlh1dUJOUEFJZ25uM0dNOTNZdVduSy9ZU3JDZ3dpeTZt?=
- =?utf-8?B?cjZCVWtjQ0pmL1pvREZHeE8yOWc3TldUdjAwQ1B3NzlmM2ZNZXNtQTdkaUNz?=
- =?utf-8?B?NWhYZ2dGcWM4VnpQbFZqUU40OVdtTTFwMFM3cGN5RXFQS2N0Qms2UnhJM3FX?=
- =?utf-8?B?bFZpd295cHBmTmN3ZXVhbEJQT2V0dUphVGxnYnNEVkRNRHNnQ3ErRXJlbmxQ?=
- =?utf-8?B?T0g4dWU2WjV0NTZ5ZGVVakNKb0c2MFVpOUlXMXY3S3d1RWMyWmJyWG8yR3VX?=
- =?utf-8?B?dDRDbGlPWUpKSWI1QWcyMm9EL2dLbEJQUDF5aG0yU1Zya2hqMWFNdTROV2lL?=
- =?utf-8?B?SUZmd0o3ODh3V1lURktuRTR5L3JRZ1BwZWRiUGIyUjJGaDRjNHo1TDRMUFZl?=
- =?utf-8?B?dVpjU3NBa2tCMnA4Qzk0eENuZlpkN3JWemxYand4aUtJRzBnL1lyR3BaWDdY?=
- =?utf-8?B?R0wxQS8vYU5pWVc0d25GVFdYZ0NJY0M5TDMyK2FIakFIUjhZSkFvaVRUWUw0?=
- =?utf-8?B?VnRHRWRXU2JRT1NyZVQrdEg1VHRnU2llN1ROVGFVZnNubklIZUpnOG5taUdk?=
- =?utf-8?B?NDFyVUVUUjFzZlZSQkYyVG9zTVI4cm9Oc2pkalh3VlFIOEVHZHkxSlVrT0U4?=
- =?utf-8?B?MmdjeVcvdHdaTXIyRXhwWEhHNXRHa3pxeVFPcCswTzRjOGVFWHBNaGxMcGM0?=
- =?utf-8?B?M0MvRU1MQXBpTUFobDBGN08rY2FvKzdtcm43U2l1aDlKWDlTWHlYbUZvSzl5?=
- =?utf-8?B?QlJ3K1ZIdWcxbU1QaGR1VFZoU0NycTBONGhiL0JCaUV2dlpSMDJJOXExT25E?=
- =?utf-8?B?V3Rna0VrRWNPRW9ZNWNZZ0tVb200U21Hd0VIZHQzQVhIandvRCt4S1dJRGVN?=
- =?utf-8?B?NVg0TngzNW9XNnhZb1hsT3doVkdkdTJyTVpFUmtQV09RaDhFenF4WUlEcVc3?=
- =?utf-8?B?MGxWRDhQVmZTRXBkMVcvZz09?=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH0PR12MB8580.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(366007)(376005)(1800799015)(38070700009);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?utf-8?B?MWhlMVo0Rnp2Qld0U0pPbzh3Z25yY3BsMnhiUmcrRmNKZjd3eTNoR2ZDUm5t?=
- =?utf-8?B?bnJ0eEk1UFQ0cHA0T0I5N2ozMXVJZ1RoZ3RycHlodk8vOWFFMFRhT0Ztc0o1?=
- =?utf-8?B?bmwydlUwMGJZOHVndlB3c1lBRGxzTGZJdU80Rk52M0JENENURnhsRU1HNVVr?=
- =?utf-8?B?MDlZbmROQ1lacXAyTU5hK1FQRHJDY3gyQ3FOblRObkpSendmZUp3WTJFTTZQ?=
- =?utf-8?B?VHNUSXA5dXBDQ2tWMTZaejVuV2ZtTVRMOVE2YjVqa0xVZHp0ZTdpUTZHRWZn?=
- =?utf-8?B?UFVvbVhoQ3ZIcDdqNDZWL2JIZ2o1ODBUdUNpbURoQVAzTlBiMitvUDVKNHdk?=
- =?utf-8?B?MUkzUDFWRnExNFoyTzJMdkMrNEFLQUU1Tm02Y0Q5TFo1Vnh0Rm8xWUdiK2wz?=
- =?utf-8?B?dmJFUk9VU2F5ZkY3RXh3UXYxbngxVUZsZno3SHcxZHlWUjRLYW0yV080bEFt?=
- =?utf-8?B?dG5ZcjlvSnREdFRjcFR6ME5VNzhVRnB4Ry9sMjR5TVM1UU5SRGpPczMxblVF?=
- =?utf-8?B?UGZrdDMySzJJK1VONGtJK3RnL2FEK2dmK1phZU9KUm5sdE4zNVR3ZDdWZWw3?=
- =?utf-8?B?UnpodUhhcTlJbElpbXVxM3NLdEZKSVk5VnE4K1NGRkhKOUlkZnhXYzVPNG1K?=
- =?utf-8?B?czZ3dTZqQUxyNm5rbVV2WVdRZ0l4K2dwV1B3aEtseXVEU2dKbktqOXBqTHUw?=
- =?utf-8?B?ZHNpLzhjbGM4cExhL01LK05VZVUwWDU0MTgzNVk2MitTcDlCaWRGS1VaYTJZ?=
- =?utf-8?B?cDlJbUIydmw5KzVXWTMwVHk0R3d1Q2w4ODdNZ242VUtLR2MwRVAydEROZ2NG?=
- =?utf-8?B?SEdnTkhFa0pnQkN5WFE5dmxKeW5WdXMvdkpueUFMdVp4VFE4clZvVE5kT2RR?=
- =?utf-8?B?OXRZTHdXVVdUK0g5ait6RnZWdzR4VVpuZ1RLZFVSOWZkSyttQk1EN2wyWE4z?=
- =?utf-8?B?aVFPVHVJZlpSdXY5YUFxWEY5THJWTURKVEtEMk9mZldBS0JXelZWWjdaeFFL?=
- =?utf-8?B?ZWdFU1hQTmw0bFBlNERyTXE0cFBMdjMvVnF5YmxrYUxiSk5UYmd4ZzJSRTZt?=
- =?utf-8?B?SGpMVjRzSUlHL3VVcnlQZ2tTWFZzdjd6azRmZDF5anlBaER5VFFCMHVWSWhq?=
- =?utf-8?B?eUpYcm5LV21Bbm1mMXA5cWxleUpoM2Q1ci9CV2hVZ3BzbXBleW1GUCtHYlhO?=
- =?utf-8?B?STcreCtaS08vQjQ1Sk1YYWdHandWM1hOMzVPZHJON3N2VGJmY2FrOUszN0FE?=
- =?utf-8?B?WkRmVmV3eWtoUW1WOXFJN3NYR3JiQ3FGajZ6SEdHWFpPM05kV0EzdUROS2E0?=
- =?utf-8?B?ZVlLK0dqVWpDNmJpdWRUbEN1Zk5FWlJkdThZUkIvczJ6NWl0bElLWmd5ckhz?=
- =?utf-8?B?cm52REZKOFdpY01VU29sVWtXL3V3anNUYmJCT0d5SWxuTmgxOWRyTmM1Qnlt?=
- =?utf-8?B?OTVRTHRINDJwR2pIVnlTK3c0QjlOWkFUWmNucVZld2ErcHZ2bWJmYzZmWGIv?=
- =?utf-8?B?NVVkaWNpaCs2eGZTaTFCekVIWCt3bHNkcExFdnEyT3FtV0oxLzRYcXl4c3Ux?=
- =?utf-8?B?V3VoY1BUQnpucy9pYVFlRVVuRUNVdjlPRFVNMkxoYlJVUVJ1T0VNY2c0NjJi?=
- =?utf-8?B?L2syOGYraGZUVkJkUjE2b2tnVFlDNFBzQnhGbHNoMnorQzZDd3lFSlVEMlh6?=
- =?utf-8?B?Q2g3ME5pMVRkTDZNNC93OC96clphRzhQS3ZqZG44VzhDSVI4aWxZb2l5WXlV?=
- =?utf-8?B?cmJJbXdFeDZieEFqUk5oamliSEFzTDhLUGNBaDF1cjdlRGZlVGxnTHB3U2Jy?=
- =?utf-8?B?OFAxUnJIemd2UzFXbDlxbENabGljZFd0ZHJKQmk3Z1kyQW5XMnpyYjc1V1RU?=
- =?utf-8?B?ZTRxa3VyRjV4TlVGZkQyczk0Q2N2Si9DOXYvQ2R0NkQxbVBQeEtqQ2JpYldJ?=
- =?utf-8?B?cE1jRzBpaVI0K1prTTlTYTVibm5HdFd6S0tRQnhBbDAwSXFoaTBpRnF6MkJh?=
- =?utf-8?B?dTRlVDBHZDVvcWtQVEpYZTZndTh2QXZpQmNCUWhZdGo1MlYwbEVSRTd3MGtw?=
- =?utf-8?B?MDhQVGV3LzA2cjFFQjJmdkZHUVVNbTRWSERuMCtNMUJnZ25QL3NZZnZ4alBV?=
- =?utf-8?Q?2rvk=3D?=
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B14A3D69
+	for <virtualization@lists.linux.dev>; Fri, 26 Apr 2024 14:38:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.51
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1714142317; cv=none; b=K+l9BMslfp+LlVYsZunxEdtV85Fz00i/dFHOSOl/b1zlB3C44nvARvEHQU6rnOoKnF9lw2XJSJ2GkkpT0hVBO21/xq/ai+u4bS54N8j11X5MtCyxGOkJ1LmDDj52N+WglwDwt05ZHD2iv+e8tGQf2NE+tO6KO2INMIpNE4YX+iw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1714142317; c=relaxed/simple;
+	bh=Qd5gSaCdGK5d5Hzl6jhOhlcU5fmdXpAq9K7L2Zxq930=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=KMUdb32CSV8Kh5vZdPDUbFOc49TAF8oZkbuVpEuzkL7v4vTS5zWIwfOK4eL+aL0u/sgR9gN2NWINovqgq0vVpbXE+OIYKq0NuPL+O76UIQWQfUg3sivW+OV1M8O1UBjOKsATCgtYB/ZIUSoiozOyGQj3CxIN9IGxN/5FnTMrGtc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com; spf=pass smtp.mailfrom=huaweicloud.com; arc=none smtp.client-ip=45.249.212.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huaweicloud.com
+Received: from mail.maildlp.com (unknown [172.19.163.216])
+	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4VQwM61sJ6z4f3jZc
+	for <virtualization@lists.linux.dev>; Fri, 26 Apr 2024 22:38:26 +0800 (CST)
+Received: from mail02.huawei.com (unknown [10.116.40.112])
+	by mail.maildlp.com (Postfix) with ESMTP id 31A3E1A1000
+	for <virtualization@lists.linux.dev>; Fri, 26 Apr 2024 22:38:31 +0800 (CST)
+Received: from huaweicloud.com (unknown [10.175.124.27])
+	by APP1 (Coremail) with SMTP id cCh0CgAX5g5gvCtmAU4WLA--.35655S5;
+	Fri, 26 Apr 2024 22:38:31 +0800 (CST)
+From: Hou Tao <houtao@huaweicloud.com>
+To: linux-fsdevel@vger.kernel.org
+Cc: Miklos Szeredi <miklos@szeredi.hu>,
+	Vivek Goyal <vgoyal@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Bernd Schubert <bernd.schubert@fastmail.fm>,
+	"Michael S . Tsirkin" <mst@redhat.com>,
+	Matthew Wilcox <willy@infradead.org>,
+	Benjamin Coddington <bcodding@redhat.com>,
+	linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	houtao1@huawei.com
+Subject: [PATCH v3 1/2] virtiofs: use pages instead of pointer for kernel direct IO
+Date: Fri, 26 Apr 2024 22:39:02 +0800
+Message-Id: <20240426143903.1305919-2-houtao@huaweicloud.com>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20240426143903.1305919-1-houtao@huaweicloud.com>
+References: <20240426143903.1305919-1-houtao@huaweicloud.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: CH0PR12MB8580.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3338b172-04e7-4fa4-d4a5-08dc65f30ba8
-X-MS-Exchange-CrossTenant-originalarrivaltime: 26 Apr 2024 13:16:12.6680
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: BAFRsBP3w0ywnrP0B+eZoJCE7f6Zva3oRBhUQYcdluoBYEnAFk4lDwMoL4HmEvTo3BO78pAiaLM0ExOUvAQVoQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA0PR12MB7775
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:cCh0CgAX5g5gvCtmAU4WLA--.35655S5
+X-Coremail-Antispam: 1UD129KBjvJXoW3AF4UWF1Utw4DuFWfAFW5Jrb_yoW7tFy7pF
+	W5KF4q9rs7XrW7Can7CF1UuFyxAwn3AF47WrZ5Ww1fur17Xry2kFyjya4YgFW7ZrWkArs2
+	qrs0yw42qw4qvaUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUB0b4IE77IF4wAFF20E14v26ryj6rWUM7CY07I20VC2zVCF04k2
+	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI8067AKxVWUGw
+	A2048vs2IY020Ec7CjxVAFwI0_Gr0_Xr1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxS
+	w2x7M28EF7xvwVC0I7IYx2IY67AKxVW7JVWDJwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxV
+	W8Jr0_Cr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v2
+	6rxl6s0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMc
+	Ij6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_
+	Jr0_Gr1lF7xvr2IYc2Ij64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij64
+	vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8G
+	jcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2I
+	x0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42xK
+	8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I
+	0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjxU2CD7DUUUU
+X-CM-SenderInfo: xkrx3t3r6k3tpzhluzxrxghudrp/
 
-PiBGcm9tOiBQYW9sbyBBYmVuaSA8cGFiZW5pQHJlZGhhdC5jb20+DQo+IFNlbnQ6IEZyaWRheSwg
-QXByaWwgMjYsIDIwMjQgNDo1NCBBTQ0KPiBUbzogRGFuIEp1cmdlbnMgPGRhbmllbGpAbnZpZGlh
-LmNvbT47IG5ldGRldkB2Z2VyLmtlcm5lbC5vcmc7DQo+IGphc293YW5nQHJlZGhhdC5jb207IG1z
-dEByZWRoYXQuY29tDQo+IENjOiB4dWFuemh1b0BsaW51eC5hbGliYWJhLmNvbTsgdmlydHVhbGl6
-YXRpb25AbGlzdHMubGludXguZGV2Ow0KPiBkYXZlbUBkYXZlbWxvZnQubmV0OyBlZHVtYXpldEBn
-b29nbGUuY29tOyBrdWJhQGtlcm5lbC5vcmc7IEppcmkgUGlya28NCj4gPGppcmlAbnZpZGlhLmNv
-bT4NCj4gU3ViamVjdDogUmU6IFtQQVRDSCBuZXQtbmV4dCB2NSAwLzZdIFJlbW92ZSBSVE5MIGxv
-Y2sgcHJvdGVjdGlvbiBvZiBDVlENCj4gDQo+IE9uIFR1ZSwgMjAyNC0wNC0yMyBhdCAwNjo1NyAr
-MDMwMCwgRGFuaWVsIEp1cmdlbnMgd3JvdGU6DQo+ID4gQ3VycmVudGx5IHRoZSBidWZmZXIgdXNl
-ZCBmb3IgY29udHJvbCBWUSBjb21tYW5kcyBpcyBwcm90ZWN0ZWQgYnkgdGhlDQo+ID4gUlROTCBs
-b2NrLiBQcmV2aW91c2x5IHRoaXMgd2Fzbid0IGEgbWFqb3IgY29uY2VybiBiZWNhdXNlIHRoZSBj
-b250cm9sDQo+ID4gVlEgd2FzIG9ubHkgdXNlZCBkdXJpbmcgZGV2aWNlIHNldHVwIGFuZCB1c2Vy
-IGludGVyYWN0aW9uLiBXaXRoIHRoZQ0KPiA+IHJlY2VudCBhZGRpdGlvbiBvZiBkeW5hbWljIGlu
-dGVycnVwdCBtb2RlcmF0aW9uIHRoZSBjb250cm9sIFZRIG1heSBiZQ0KPiA+IHVzZWQgZnJlcXVl
-bnRseSBkdXJpbmcgbm9ybWFsIG9wZXJhdGlvbi4NCj4gPg0KPiA+IFRoaXMgc2VyaWVzIHJlbW92
-ZXMgdGhlIFJOVEwgbG9jayBkZXBlbmRlbmN5IGJ5IGludHJvZHVjaW5nIGEgbXV0ZXggdG8NCj4g
-PiBwcm90ZWN0IHRoZSBjb250cm9sIGJ1ZmZlciBhbmQgd3JpdGluZyBTR3MgdG8gdGhlIGNvbnRy
-b2wgVlEuDQo+ID4NCj4gPiB2NToNCj4gPiAJLSBDaGFuZ2VkIGN2cV9sb2NrIHRvIGEgbXV0ZXgu
-DQo+ID4gCS0gQ2hhbmdlZCBkaW1fbG9jayB0byBtdXRleCwgYmVjYXVzZSBpdCdzIGhlbGQgdGFr
-aW5nDQo+ID4gCSAgdGhlIGN2cV9sb2NrLg0KPiA+IAktIFVzZSBzcGluL211dGV4X2xvY2svdW5s
-b2NrIHZzIGd1YXJkIG1hY3Jvcy4NCj4gPiB2NDoNCj4gPiAJLSBQcm90ZWN0IGRpbV9lbmFibGVk
-IHdpdGggc2FtZSBsb2NrIGFzIHdlbGwgaW50cl9jb2FsLg0KPiA+IAktIFJlbmFtZSBpbnRyX2Nv
-YWxfbG9jayB0byBkaW1fbG9jay4NCj4gPiAJLSBSZW1vdmUgc29tZSBzY29wZWRfZ3VhcmQgd2hl
-cmUgdGhlIGVycm9yIHBhdGggZG9lc24ndA0KPiA+IAkgIGhhdmUgdG8gYmUgaW4gdGhlIGxvY2su
-DQo+ID4gdjM6DQo+ID4gCS0gQ2hhbmdlZCB0eXBlIG9mIF9vZmZsb2FkcyB0byBfX3ZpcnRpbzE2
-IHRvIGZpeCBzdGF0aWMNCj4gPiAJICBhbmFseXNpcyB3YXJuaW5nLg0KPiA+IAktIE1vdmVkIGEg
-bWlzcGxhY2VkIGh1bmsgdG8gdGhlIGNvcnJlY3QgcGF0Y2guDQo+ID4gdjI6DQo+ID4gCS0gTmV3
-IHBhdGNoIHRvIG9ubHkgcHJvY2VzcyB0aGUgcHJvdmlkZWQgcXVldWUgaW4NCj4gPiAJICB2aXJ0
-bmV0X2RpbV93b3JrDQo+ID4gCS0gTmV3IHBhdGNoIHRvIGxvY2sgcGVyIHF1ZXVlIHJ4IGNvYWxl
-c2Npbmcgc3RydWN0dXJlLg0KPiANCj4gSSBoYWQgb25seSBzb21lIG1pbm9yIGNvbW1lbnRzLCBw
-b3NzaWJseSBvdmVyYWxsIHdvcnRoIGFub3RoZXIgaXRlcmF0aW9uLg0KPiANCj4gTW9yZSBpbXBv
-cnRhbnRseSwgdGhpcyBkZXNlcnZlcyBhbiBleHBsaWNpdCBhY2sgZnJvbSB0aGUgdmlydGlvIGNy
-ZXcuDQo+IEBKYXNvbiwgQE1pY2hhZWw6IGNvdWxkIHlvdSBwbGVhc2UgaGF2ZSBhIGxvb2s/DQoN
-ClRoYW5rcyBmb3IgdGhlIHJldmlldywgUGFvbG8uIEknbGwgZ2l2ZSBKYXNvIGFuZCBNaWNoYWVs
-IGEgY2hhbmNlIHRvIHJlc3BvbmQgYmVmb3JlIHNlbmRpbmcgYWdhaW4gdG8gYWRkcmVzcyB5b3Vy
-IGNvbW1lbnRzLg0KDQo+IA0KPiBUaGFua3MhDQo+IA0KPiBQYW9sbw0KDQo=
+From: Hou Tao <houtao1@huawei.com>
+
+When trying to insert a 10MB kernel module kept in a virtio-fs with cache
+disabled, the following warning was reported:
+
+  ------------[ cut here ]------------
+  WARNING: CPU: 1 PID: 404 at mm/page_alloc.c:4551 ......
+  Modules linked in:
+  CPU: 1 PID: 404 Comm: insmod Not tainted 6.9.0-rc5+ #123
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996) ......
+  RIP: 0010:__alloc_pages+0x2bf/0x380
+  ......
+  Call Trace:
+   <TASK>
+   ? __warn+0x8e/0x150
+   ? __alloc_pages+0x2bf/0x380
+   __kmalloc_large_node+0x86/0x160
+   __kmalloc+0x33c/0x480
+   virtio_fs_enqueue_req+0x240/0x6d0
+   virtio_fs_wake_pending_and_unlock+0x7f/0x190
+   queue_request_and_unlock+0x55/0x60
+   fuse_simple_request+0x152/0x2b0
+   fuse_direct_io+0x5d2/0x8c0
+   fuse_file_read_iter+0x121/0x160
+   __kernel_read+0x151/0x2d0
+   kernel_read+0x45/0x50
+   kernel_read_file+0x1a9/0x2a0
+   init_module_from_file+0x6a/0xe0
+   idempotent_init_module+0x175/0x230
+   __x64_sys_finit_module+0x5d/0xb0
+   x64_sys_call+0x1c3/0x9e0
+   do_syscall_64+0x3d/0xc0
+   entry_SYSCALL_64_after_hwframe+0x4b/0x53
+   ......
+   </TASK>
+  ---[ end trace 0000000000000000 ]---
+
+The warning is triggered as follows:
+
+1) syscall finit_module() handles the module insertion and it invokes
+kernel_read_file() to read the content of the module first.
+
+2) kernel_read_file() allocates a 10MB buffer by using vmalloc() and
+passes it to kernel_read(). kernel_read() constructs a kvec iter by
+using iov_iter_kvec() and passes it to fuse_file_read_iter().
+
+3) virtio-fs disables the cache, so fuse_file_read_iter() invokes
+fuse_direct_io(). As for now, the maximal read size for kvec iter is
+only limited by fc->max_read. For virtio-fs, max_read is UINT_MAX, so
+fuse_direct_io() doesn't split the 10MB buffer. It saves the address and
+the size of the 10MB-sized buffer in out_args[0] of a fuse request and
+passes the fuse request to virtio_fs_wake_pending_and_unlock().
+
+4) virtio_fs_wake_pending_and_unlock() uses virtio_fs_enqueue_req() to
+queue the request. Because virtiofs need DMA-able address, so
+virtio_fs_enqueue_req() uses kmalloc() to allocate a bounce buffer for
+all fuse args, copies these args into the bounce buffer and passed the
+physical address of the bounce buffer to virtiofsd. The total length of
+these fuse args for the passed fuse request is about 10MB, so
+copy_args_to_argbuf() invokes kmalloc() with a 10MB size parameter and
+it triggers the warning in __alloc_pages():
+
+	if (WARN_ON_ONCE_GFP(order > MAX_PAGE_ORDER, gfp))
+		return NULL;
+
+5) virtio_fs_enqueue_req() will retry the memory allocation in a
+kworker, but it won't help, because kmalloc() will always return NULL
+due to the abnormal size and finit_module() will hang forever.
+
+A feasible solution is to limit the value of max_read for virtio-fs, so
+the length passed to kmalloc() will be limited. However it will affect
+the maximal read size for normal read. And for virtio-fs write initiated
+from kernel, it has the similar problem but now there is no way to limit
+fc->max_write in kernel.
+
+So instead of limiting both the values of max_read and max_write in
+kernel, introducing use_pages_for_kvec_io in fuse_conn and setting it as
+true in virtiofs. When use_pages_for_kvec_io is enabled, fuse will use
+pages instead of pointer to pass the KVEC_IO data.
+
+Fixes: a62a8ef9d97d ("virtio-fs: add virtiofs filesystem")
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+---
+ fs/fuse/file.c      | 12 ++++++++----
+ fs/fuse/fuse_i.h    |  3 +++
+ fs/fuse/virtio_fs.c |  1 +
+ 3 files changed, 12 insertions(+), 4 deletions(-)
+
+diff --git a/fs/fuse/file.c b/fs/fuse/file.c
+index b57ce41576407..82b77c5d8c643 100644
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -1471,13 +1471,17 @@ static inline size_t fuse_get_frag_size(const struct iov_iter *ii,
+ 
+ static int fuse_get_user_pages(struct fuse_args_pages *ap, struct iov_iter *ii,
+ 			       size_t *nbytesp, int write,
+-			       unsigned int max_pages)
++			       unsigned int max_pages,
++			       bool use_pages_for_kvec_io)
+ {
+ 	size_t nbytes = 0;  /* # bytes already packed in req */
+ 	ssize_t ret = 0;
+ 
+-	/* Special case for kernel I/O: can copy directly into the buffer */
+-	if (iov_iter_is_kvec(ii)) {
++	/* Special case for kernel I/O: can copy directly into the buffer.
++	 * However if the implementation of fuse_conn requires pages instead of
++	 * pointer (e.g., virtio-fs), use iov_iter_extract_pages() instead.
++	 */
++	if (iov_iter_is_kvec(ii) && !use_pages_for_kvec_io) {
+ 		unsigned long user_addr = fuse_get_user_addr(ii);
+ 		size_t frag_size = fuse_get_frag_size(ii, *nbytesp);
+ 
+@@ -1585,7 +1589,7 @@ ssize_t fuse_direct_io(struct fuse_io_priv *io, struct iov_iter *iter,
+ 		size_t nbytes = min(count, nmax);
+ 
+ 		err = fuse_get_user_pages(&ia->ap, iter, &nbytes, write,
+-					  max_pages);
++					  max_pages, fc->use_pages_for_kvec_io);
+ 		if (err && !nbytes)
+ 			break;
+ 
+diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
+index f239196103137..d4f04e19058c1 100644
+--- a/fs/fuse/fuse_i.h
++++ b/fs/fuse/fuse_i.h
+@@ -860,6 +860,9 @@ struct fuse_conn {
+ 	/** Passthrough support for read/write IO */
+ 	unsigned int passthrough:1;
+ 
++	/* Use pages instead of pointer for kernel I/O */
++	unsigned int use_pages_for_kvec_io:1;
++
+ 	/** Maximum stack depth for passthrough backing files */
+ 	int max_stack_depth;
+ 
+diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+index 322af827a2329..36984c0e23d14 100644
+--- a/fs/fuse/virtio_fs.c
++++ b/fs/fuse/virtio_fs.c
+@@ -1512,6 +1512,7 @@ static int virtio_fs_get_tree(struct fs_context *fsc)
+ 	fc->delete_stale = true;
+ 	fc->auto_submounts = true;
+ 	fc->sync_fs = true;
++	fc->use_pages_for_kvec_io = true;
+ 
+ 	/* Tell FUSE to split requests that exceed the virtqueue's size */
+ 	fc->max_pages_limit = min_t(unsigned int, fc->max_pages_limit,
+-- 
+2.29.2
+
