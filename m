@@ -1,30 +1,29 @@
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87BF278C7E
-	for <virtualization@lists.linux.dev>; Fri, 26 Apr 2024 03:39:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8806276F17
+	for <virtualization@lists.linux.dev>; Fri, 26 Apr 2024 03:39:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714102779; cv=none; b=aPeCcFExNmOwDbZZdL7GaqqYuiwvTIqCo9ZwX7gaHF96cso24MECFhZTe5lPPCmHrENj93YTkne83q64XqIyhpcUbpRUkWm4cYvtdmWyZqwlY/GLwwM/pOohpVhCE8UvUb84J3RUO3AJXc1tZVY21fFiduZEIj2sAJzf9wZ6AQE=
+	t=1714102780; cv=none; b=Lo7n3J3T6wHziqkUiA4yE3DO5UN44mNCpkchcgVa4r1yrFcoclO0o1fRAQya/lTwSVDy7ZNAMnbIspG1EzF9Be8kACHqqDh7D7JWpvXnYIhbMl8nrVUqU6DyyNkH6/6Zov75xzeYQDNWDGq4bcV43HbJ0eFyq4xGZQtNeYDBhVk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714102779; c=relaxed/simple;
-	bh=xLtm8dXxF6BJ1LExmMurLPtBZcyitBt5lsiSWVTnbJc=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=ldSUL1r7otc7rbaQVxcw1+oExoJfxY+aNdKW38yGiYd22TtSmzKx7LNy11+9Io95IPbSYdHkInUAYGyVtcKqzOLY+dneYIc/B6G5MYuDTVkqK8/M6k+u6Aae3sVNGD+PCMHimoXMytmS3elI+H3RRYFkO/VKcR1JlfzVuchec0Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=L/YHtgJ/; arc=none smtp.client-ip=115.124.30.133
+	s=arc-20240116; t=1714102780; c=relaxed/simple;
+	bh=/ASHD4Wyz3SZUjAXn/LgSh11JoymE3SKlDvfYthl1Is=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=l2bhbtG91m/ZfwIFXKlE2ydP9xyT37VIkGINATzWwVUUw7mT/f2QKHv3b1MxTHl0g09UPurv0s26DA0zyn0hLRMUoExW7tmUJOVgz1uj92GuhP5HppKBREVjYmoWcGNffnbmDVqSejdFSvOfdVwPpwmsTvYYfVHwoJ8GJIKN/QI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=J9+ASLv7; arc=none smtp.client-ip=115.124.30.132
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="L/YHtgJ/"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="J9+ASLv7"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1714102775; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=Xa9VbW5IwfAC2YERlSMaByqxHGgwyE2WfygYL/+cYAw=;
-	b=L/YHtgJ/CX18MqMaclNAw7LCFgykJXspv+AvrsDR1I6gZfqtoRMNFJ5gXr0HOaE+qC9eLy7zk7+ZdBBQUA0nyjQnXeHzCSyEvLz9ddf5hh9lJ7tNYIH5DgL8s9t071RJmuqcPGg5/UrdQPZkBzUVnu0aqHVtnbzb7SrJCKN0HZk=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045046011;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0W5Hk9dF_1714102773;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W5Hk9dF_1714102773)
+	t=1714102770; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=CxlEd6LZH3PpraUX+0MZs/PrnMfei86AI7BjU1vvbt4=;
+	b=J9+ASLv7PDFc6pX0crSMS8cknV0kF4e0IYMOWZ9470vWcOnH2Xt+cxpYFi5IsbaJEnMRb0usWT+tGVm2SvphkQmkieIqZ3SSNq1FLamGxrDSiOv2LyjL+Uf/a0u/av2buEf0/rivvNnhc9a53u3CnXlv2JEfPIb0/O0k1LrHbag=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032014016;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0W5HSYRX_1714102768;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W5HSYRX_1714102768)
           by smtp.aliyun-inc.com;
-          Fri, 26 Apr 2024 11:39:34 +0800
+          Fri, 26 Apr 2024 11:39:29 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: netdev@vger.kernel.org
 Cc: "David S. Miller" <davem@davemloft.net>,
@@ -45,12 +44,10 @@ Cc: "David S. Miller" <davem@davemloft.net>,
 	Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
 	virtualization@lists.linux.dev,
 	bpf@vger.kernel.org
-Subject: [PATCH net-next v7 3/8] virtio_net: remove "_queue" from ethtool -S
-Date: Fri, 26 Apr 2024 11:39:23 +0800
-Message-Id: <20240426033928.77778-4-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH net-next v7 0/8] virtio-net: support device stats
+Date: Fri, 26 Apr 2024 11:39:20 +0800
+Message-Id: <20240426033928.77778-1-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20240426033928.77778-1-xuanzhuo@linux.alibaba.com>
-References: <20240426033928.77778-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -60,43 +57,64 @@ MIME-Version: 1.0
 X-Git-Hash: 435b736161fa
 Content-Transfer-Encoding: 8bit
 
-The key size of ethtool -S is controlled by this macro.
+As the spec:
 
-ETH_GSTRING_LEN 32
+https://github.com/oasis-tcs/virtio-spec/commit/42f389989823039724f95bbbd243291ab0064f82
 
-That includes the \0 at the end. So the max length of the key name must
-is 31. But the length of the prefix "rx_queue_0_" is 11. If the queue
-num is larger than 10, the length of the prefix is 12. So the
-key name max is 19. That is too short. We will introduce some keys
-such as "gso_packets_coalesced". So we should change the prefix
-to "rx0_".
+The virtio net supports to get device stats.
 
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
----
- drivers/net/virtio_net.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Please review.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 3bc9b1e621db..8aa03625ab6c 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -3317,13 +3317,13 @@ static void virtnet_get_strings(struct net_device *dev, u32 stringset, u8 *data)
- 	case ETH_SS_STATS:
- 		for (i = 0; i < vi->curr_queue_pairs; i++) {
- 			for (j = 0; j < VIRTNET_RQ_STATS_LEN; j++)
--				ethtool_sprintf(&p, "rx_queue_%u_%s", i,
-+				ethtool_sprintf(&p, "rx%u_%s", i,
- 						virtnet_rq_stats_desc[j].desc);
- 		}
- 
- 		for (i = 0; i < vi->curr_queue_pairs; i++) {
- 			for (j = 0; j < VIRTNET_SQ_STATS_LEN; j++)
--				ethtool_sprintf(&p, "tx_queue_%u_%s", i,
-+				ethtool_sprintf(&p, "tx%u_%s", i,
- 						virtnet_sq_stats_desc[j].desc);
- 		}
- 		break;
+Thanks.
+
+v6:
+    1. remove 'maps'. check stats by if-else.
+
+v5:
+    1. Fix some small problems in last version
+    2. Not report stats that will be reported by netlink
+    3. remove "_queue" from  ethtool -S
+
+v4:
+    1. Support per-queue statistics API
+    2. Fix some small problems in last version
+
+v3:
+    1. rebase net-next
+
+v2:
+    1. fix the usage of the leXX_to_cpu()
+    2. add comment to the structure virtnet_stats_map
+
+v1:
+    1. fix some definitions of the marco and the struct
+
+
+
+
+
+
+
+
+Xuan Zhuo (8):
+  virtio_net: introduce ability to get reply info from device
+  virtio_net: introduce device stats feature and structures
+  virtio_net: remove "_queue" from ethtool -S
+  virtio_net: support device stats
+  virtio_net: device stats helpers support driver stats
+  virtio_net: add the total stats field
+  netdev: add queue stats
+  virtio-net: support queue stat
+
+ Documentation/netlink/specs/netdev.yaml |  104 +++
+ drivers/net/virtio_net.c                | 1010 +++++++++++++++++++++--
+ include/net/netdev_queues.h             |   27 +
+ include/uapi/linux/netdev.h             |   19 +
+ include/uapi/linux/virtio_net.h         |  143 ++++
+ net/core/netdev-genl.c                  |   23 +-
+ tools/include/uapi/linux/netdev.h       |   19 +
+ 7 files changed, 1284 insertions(+), 61 deletions(-)
+
 -- 
 2.32.0.3.g01195cf9f
 
