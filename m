@@ -1,46 +1,64 @@
-Received: from dggsgout11.his.huawei.com (unknown [45.249.212.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B17F1DFFC
-	for <virtualization@lists.linux.dev>; Fri, 26 Apr 2024 14:38:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC21A1482F5
+	for <virtualization@lists.linux.dev>; Fri, 26 Apr 2024 15:08:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714142318; cv=none; b=EkwuRNR7Tntj31aVlpMtGDBHj+WxkUI+AsaFRgUwGWf2gXnSfUQOMKOYItjnJNHYvkTJJupYpZkQWxbIyPDS8Uz8dxgcgTDG58UTqwfp/qDJCKodgiraeBKtIkY9X+NPCESXzYBRdn6ok3tfe/QDtJGndOrVkKL4YoAWkSLOL08=
+	t=1714144133; cv=none; b=M5KjJaUF3uTOeV9vU3nkxmjl8XGue/dkP1V4ztaxkRdFGmw8VNn4MVEkdjQUbGi7u1a7AiaC9cSPuljcCJjXPkzvmMf2BFHY08JkWOAr620+DRMfbN/70n3+ShciEOHSQxzx6NpHUnroQb2Dnton5Wc9/vHO+/g9GEHgDR6ECsE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714142318; c=relaxed/simple;
-	bh=JMSxd5BKXqrS2nIQ7JUSZYFhBSpIng25jtbCRriXoyc=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=im0E+xbtckmf6WBmWCvdHk+IQKYNdLypBEEQkzEItpoTLYDsfOc9leJNPc1fgD6R8FtMgYOV5QWcfHKFkyiArLdOgLAiRA/8gD9ERkhpR9UuDauq4/Q3Et4mM64fHPqOUMhJRifZBEUE1fLPzYBgbT5sAspKJ4Wsva+0kn0TItY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com; spf=pass smtp.mailfrom=huaweicloud.com; arc=none smtp.client-ip=45.249.212.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huaweicloud.com
-Received: from mail.maildlp.com (unknown [172.19.163.235])
-	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4VQwM22F8Hz4f3m6y
-	for <virtualization@lists.linux.dev>; Fri, 26 Apr 2024 22:38:22 +0800 (CST)
-Received: from mail02.huawei.com (unknown [10.116.40.112])
-	by mail.maildlp.com (Postfix) with ESMTP id 9A3B71A0572
-	for <virtualization@lists.linux.dev>; Fri, 26 Apr 2024 22:38:31 +0800 (CST)
-Received: from huaweicloud.com (unknown [10.175.124.27])
-	by APP1 (Coremail) with SMTP id cCh0CgAX5g5gvCtmAU4WLA--.35655S6;
-	Fri, 26 Apr 2024 22:38:31 +0800 (CST)
-From: Hou Tao <houtao@huaweicloud.com>
-To: linux-fsdevel@vger.kernel.org
-Cc: Miklos Szeredi <miklos@szeredi.hu>,
-	Vivek Goyal <vgoyal@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Bernd Schubert <bernd.schubert@fastmail.fm>,
-	"Michael S . Tsirkin" <mst@redhat.com>,
-	Matthew Wilcox <willy@infradead.org>,
-	Benjamin Coddington <bcodding@redhat.com>,
-	linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	houtao1@huawei.com
-Subject: [PATCH v3 2/2] virtiofs: use GFP_NOFS when enqueuing request through kworker
-Date: Fri, 26 Apr 2024 22:39:03 +0800
-Message-Id: <20240426143903.1305919-3-houtao@huaweicloud.com>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20240426143903.1305919-1-houtao@huaweicloud.com>
-References: <20240426143903.1305919-1-houtao@huaweicloud.com>
+	s=arc-20240116; t=1714144133; c=relaxed/simple;
+	bh=ds2lT/PGNEw95k2LLV4Fz32hL3nhmLENtpvxxMkvbtE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=POCdEps4jJ9evLK4+r9KVjHz6Gqb5V9hLc1UyXeXXhlGdc9km1SeCbz7VwSf3V3a3f39AOhGhvWrG1DHd8rB3HBz9fzv1DuUheZWpx3owPOYanzpS2EhfvtsuIQ8vLkDoyHkmH8nCWtCKLKdmJ43yvUfRRJVjGGPiovFWbHl6OY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=ebJHG/h5; arc=none smtp.client-ip=209.85.128.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="ebJHG/h5"
+Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-418e4cd2196so17770425e9.1
+        for <virtualization@lists.linux.dev>; Fri, 26 Apr 2024 08:08:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1714144128; x=1714748928; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=1tCCJLZp3I1TSGfvKd4jndrvV9LX9C6tnE0dEa2yccE=;
+        b=ebJHG/h55l80INuItl69NYhmWs1S2vhaWTNrXJmf/5K4WIoyVfuGWqDfdfvLXH0wBd
+         UHWdwgCpJgr3zc0QQ3DUMz1J8NU0I2zzcBAvzoGHas1A9d1LzNUKT+ezs2YzQD3nnNjT
+         HsILxw9X0fqht5ZRr78IerdZhBCxa23cJD78A5jaRe4oHfhddHe94t6az263ZvVGIhrp
+         GGQxekDkVNxcMcozwtDErhCo0AOWiv2lmZbT6NWOShbluxwWXv2CKe/p2kF6Vv5n5oKI
+         ojIxsGoExrppLOJKyL9CXEV0Ax6qFEkbqdGSyxEyJRFD0Wc+awuog27iO4fZy3abcyLn
+         uZEw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1714144128; x=1714748928;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=1tCCJLZp3I1TSGfvKd4jndrvV9LX9C6tnE0dEa2yccE=;
+        b=gN5ICiRN+x5adgNR+eNZheH3R46dVYHRedRUFt71nbg/RF1cPWLzzJl3E4ERJvcvYc
+         E5ZHeiQRSJ3tMEiDjXSTOejDyN5SA6p4/bGQw3n9Vf1gkYsJWi4yIKST/vzZ7gcFUGwI
+         +5idfQNF2nuj/jM2oe8NOiW5rK5EnOu5cdQCbAifC4Or1vpBS5DEIMat9dt37T5HqG+h
+         MOpDaSVfAt8nzZUxX8zGXer5l37qiyJM/AAenmRrwvkjVdjrLEDwG6Rx6m3/2/DZhw3Z
+         A9WZJejhlId0K+voJB9aaBIxao9/6ma9MJeLeu4/cfPyDWlyoV8hXoiv5eXj7QnS8WZw
+         HrXg==
+X-Gm-Message-State: AOJu0Yy8j38WuVWrXjyrS73SbTFipthI12oMFP4hFIwDOPmnT7HRhOlz
+	Mq6WzqCZ9sNnf5dJN3uGBzSRDVUHzEIBFApt7rp++ueKTh4T2fhAFfv7uvCWMZxDnj90xCFFDe2
+	i
+X-Google-Smtp-Source: AGHT+IEqn5tBbLbmva6ofwML/0b0ztg6WpdjyMLiSd1myY5jIPVwixGmAhbmfygyRt1qo/BWCOwlOg==
+X-Received: by 2002:a05:600c:444d:b0:41b:935:249c with SMTP id v13-20020a05600c444d00b0041b0935249cmr1811296wmn.28.1714144127662;
+        Fri, 26 Apr 2024 08:08:47 -0700 (PDT)
+Received: from localhost (89-24-35-126.nat.epc.tmcz.cz. [89.24.35.126])
+        by smtp.gmail.com with ESMTPSA id fj3-20020a05600c0c8300b00416b2cbad06sm35133358wmb.41.2024.04.26.08.08.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 26 Apr 2024 08:08:47 -0700 (PDT)
+From: Jiri Pirko <jiri@resnulli.us>
+To: virtualization@lists.linux.dev
+Cc: mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com
+Subject: [patch virtio] virtio: delete vq in vp_find_vqs_msix() when request_irq() fails
+Date: Fri, 26 Apr 2024 17:08:45 +0200
+Message-ID: <20240426150845.3999481-1-jiri@resnulli.us>
+X-Mailer: git-send-email 2.44.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -48,131 +66,88 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:cCh0CgAX5g5gvCtmAU4WLA--.35655S6
-X-Coremail-Antispam: 1UD129KBjvJXoWxGF4kXrW3Cr4UArykJrWUArb_yoWrXFWDpr
-	WDAa15GFWrJrW2gFWkGF4UCw4Yk3sakFy7Ja4fX34akr1Yqw17CF18ZFy0qrZavrykAF1x
-	Wr4Fqr4DuF47Zw7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUB0b4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
-	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI8067AKxVWUXw
-	A2048vs2IY020Ec7CjxVAFwI0_Xr0E3s1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxS
-	w2x7M28EF7xvwVC0I7IYx2IY67AKxVW7JVWDJwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxV
-	W8Jr0_Cr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v2
-	6rxl6s0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMc
-	Ij6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_
-	Jr0_Gr1lF7xvr2IYc2Ij64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij64
-	vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8G
-	jcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2I
-	x0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42xK
-	8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I
-	0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjxUFa9-UUUUU
-X-CM-SenderInfo: xkrx3t3r6k3tpzhluzxrxghudrp/
 
-From: Hou Tao <houtao1@huawei.com>
+From: Jiri Pirko <jiri@nvidia.com>
 
-When invoking virtio_fs_enqueue_req() through kworker, both the
-allocation of the sg array and the bounce buffer still use GFP_ATOMIC.
-Considering the size of the sg array may be greater than PAGE_SIZE, use
-GFP_NOFS instead of GFP_ATOMIC to lower the possibility of memory
-allocation failure and to avoid unnecessarily depleting the atomic
-reserves. GFP_NOFS is not passed to virtio_fs_enqueue_req() directly,
-GFP_KERNEL and memalloc_nofs_{save|restore} helpers are used instead.
+When request_irq() fails, error path calls vp_del_vqs(). There, as vq is
+present in the list, free_irq() is called for the same vector. That
+causes following splat:
 
-Signed-off-by: Hou Tao <houtao1@huawei.com>
+[    0.414355] Trying to free already-free IRQ 27
+[    0.414403] WARNING: CPU: 1 PID: 1 at kernel/irq/manage.c:1899 free_irq+0x1a1/0x2d0
+[    0.414510] Modules linked in:
+[    0.414540] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 6.9.0-rc4+ #27
+[    0.414540] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.16.3-1.fc39 04/01/2014
+[    0.414540] RIP: 0010:free_irq+0x1a1/0x2d0
+[    0.414540] Code: 1e 00 48 83 c4 08 48 89 e8 5b 5d 41 5c 41 5d 41 5e 41 5f c3 cc cc cc cc 90 8b 74 24 04 48 c7 c7 98 80 6c b1 e8 00 c9 f7 ff 90 <0f> 0b 90 90 48 89 ee 4c 89 ef e8 e0 20 b8 00 49 8b 47 40 48 8b 40
+[    0.414540] RSP: 0000:ffffb71480013ae0 EFLAGS: 00010086
+[    0.414540] RAX: 0000000000000000 RBX: ffffa099c2722000 RCX: 0000000000000000
+[    0.414540] RDX: 0000000000000000 RSI: ffffb71480013998 RDI: 0000000000000001
+[    0.414540] RBP: 0000000000000246 R08: 00000000ffffdfff R09: 0000000000000001
+[    0.414540] R10: 00000000ffffdfff R11: ffffffffb18729c0 R12: ffffa099c1c91760
+[    0.414540] R13: ffffa099c1c916a4 R14: ffffa099c1d2f200 R15: ffffa099c1c91600
+[    0.414540] FS:  0000000000000000(0000) GS:ffffa099fec40000(0000) knlGS:0000000000000000
+[    0.414540] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    0.414540] CR2: 0000000000000000 CR3: 0000000008e3e001 CR4: 0000000000370ef0
+[    0.414540] Call Trace:
+[    0.414540]  <TASK>
+[    0.414540]  ? __warn+0x80/0x120
+[    0.414540]  ? free_irq+0x1a1/0x2d0
+[    0.414540]  ? report_bug+0x164/0x190
+[    0.414540]  ? handle_bug+0x3b/0x70
+[    0.414540]  ? exc_invalid_op+0x17/0x70
+[    0.414540]  ? asm_exc_invalid_op+0x1a/0x20
+[    0.414540]  ? free_irq+0x1a1/0x2d0
+[    0.414540]  vp_del_vqs+0xc1/0x220
+[    0.414540]  vp_find_vqs_msix+0x305/0x470
+[    0.414540]  vp_find_vqs+0x3e/0x1a0
+[    0.414540]  vp_modern_find_vqs+0x1b/0x70
+[    0.414540]  init_vqs+0x387/0x600
+[    0.414540]  virtnet_probe+0x50a/0xc80
+[    0.414540]  virtio_dev_probe+0x1e0/0x2b0
+[    0.414540]  really_probe+0xc0/0x2c0
+[    0.414540]  ? __pfx___driver_attach+0x10/0x10
+[    0.414540]  __driver_probe_device+0x73/0x120
+[    0.414540]  driver_probe_device+0x1f/0xe0
+[    0.414540]  __driver_attach+0x88/0x180
+[    0.414540]  bus_for_each_dev+0x85/0xd0
+[    0.414540]  bus_add_driver+0xec/0x1f0
+[    0.414540]  driver_register+0x59/0x100
+[    0.414540]  ? __pfx_virtio_net_driver_init+0x10/0x10
+[    0.414540]  virtio_net_driver_init+0x90/0xb0
+[    0.414540]  do_one_initcall+0x58/0x230
+[    0.414540]  kernel_init_freeable+0x1a3/0x2d0
+[    0.414540]  ? __pfx_kernel_init+0x10/0x10
+[    0.414540]  kernel_init+0x1a/0x1c0
+[    0.414540]  ret_from_fork+0x31/0x50
+[    0.414540]  ? __pfx_kernel_init+0x10/0x10
+[    0.414540]  ret_from_fork_asm+0x1a/0x30
+[    0.414540]  </TASK>
+
+Fix this by calling deleting the current vq when request_irq() fails.
+
+Fixes: 0b0f9dc52ed0 ("Revert "virtio_pci: use shared interrupts for virtqueues"")
+Signed-off-by: Jiri Pirko <jiri@nvidia.com>
 ---
- fs/fuse/virtio_fs.c | 24 +++++++++++++++---------
- 1 file changed, 15 insertions(+), 9 deletions(-)
+ drivers/virtio/virtio_pci_common.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-index 36984c0e23d14..096b589ed2fcc 100644
---- a/fs/fuse/virtio_fs.c
-+++ b/fs/fuse/virtio_fs.c
-@@ -91,7 +91,8 @@ struct virtio_fs_req_work {
- };
- 
- static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
--				 struct fuse_req *req, bool in_flight);
-+				 struct fuse_req *req, bool in_flight,
-+				 gfp_t gfp);
- 
- static const struct constant_table dax_param_enums[] = {
- 	{"always",	FUSE_DAX_ALWAYS },
-@@ -430,6 +431,8 @@ static void virtio_fs_request_dispatch_work(struct work_struct *work)
- 
- 	/* Dispatch pending requests */
- 	while (1) {
-+		unsigned int flags;
-+
- 		spin_lock(&fsvq->lock);
- 		req = list_first_entry_or_null(&fsvq->queued_reqs,
- 					       struct fuse_req, list);
-@@ -440,7 +443,9 @@ static void virtio_fs_request_dispatch_work(struct work_struct *work)
- 		list_del_init(&req->list);
- 		spin_unlock(&fsvq->lock);
- 
--		ret = virtio_fs_enqueue_req(fsvq, req, true);
-+		flags = memalloc_nofs_save();
-+		ret = virtio_fs_enqueue_req(fsvq, req, true, GFP_KERNEL);
-+		memalloc_nofs_restore(flags);
- 		if (ret < 0) {
- 			if (ret == -ENOMEM || ret == -ENOSPC) {
- 				spin_lock(&fsvq->lock);
-@@ -545,7 +550,7 @@ static void virtio_fs_hiprio_dispatch_work(struct work_struct *work)
- }
- 
- /* Allocate and copy args into req->argbuf */
--static int copy_args_to_argbuf(struct fuse_req *req)
-+static int copy_args_to_argbuf(struct fuse_req *req, gfp_t gfp)
- {
- 	struct fuse_args *args = req->args;
- 	unsigned int offset = 0;
-@@ -559,7 +564,7 @@ static int copy_args_to_argbuf(struct fuse_req *req)
- 	len = fuse_len_args(num_in, (struct fuse_arg *) args->in_args) +
- 	      fuse_len_args(num_out, args->out_args);
- 
--	req->argbuf = kmalloc(len, GFP_ATOMIC);
-+	req->argbuf = kmalloc(len, gfp);
- 	if (!req->argbuf)
- 		return -ENOMEM;
- 
-@@ -1183,7 +1188,8 @@ static unsigned int sg_init_fuse_args(struct scatterlist *sg,
- 
- /* Add a request to a virtqueue and kick the device */
- static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
--				 struct fuse_req *req, bool in_flight)
-+				 struct fuse_req *req, bool in_flight,
-+				 gfp_t gfp)
- {
- 	/* requests need at least 4 elements */
- 	struct scatterlist *stack_sgs[6];
-@@ -1204,8 +1210,8 @@ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
- 	/* Does the sglist fit on the stack? */
- 	total_sgs = sg_count_fuse_req(req);
- 	if (total_sgs > ARRAY_SIZE(stack_sgs)) {
--		sgs = kmalloc_array(total_sgs, sizeof(sgs[0]), GFP_ATOMIC);
--		sg = kmalloc_array(total_sgs, sizeof(sg[0]), GFP_ATOMIC);
-+		sgs = kmalloc_array(total_sgs, sizeof(sgs[0]), gfp);
-+		sg = kmalloc_array(total_sgs, sizeof(sg[0]), gfp);
- 		if (!sgs || !sg) {
- 			ret = -ENOMEM;
- 			goto out;
-@@ -1213,7 +1219,7 @@ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index b655fccaf773..584af7816532 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -348,8 +348,10 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned int nvqs,
+ 				  vring_interrupt, 0,
+ 				  vp_dev->msix_names[msix_vec],
+ 				  vqs[i]);
+-		if (err)
++		if (err) {
++			vp_del_vq(vqs[i]);
+ 			goto error_find;
++		}
  	}
+ 	return 0;
  
- 	/* Use a bounce buffer since stack args cannot be mapped */
--	ret = copy_args_to_argbuf(req);
-+	ret = copy_args_to_argbuf(req, gfp);
- 	if (ret < 0)
- 		goto out;
- 
-@@ -1309,7 +1315,7 @@ __releases(fiq->lock)
- 		 fuse_len_args(req->args->out_numargs, req->args->out_args));
- 
- 	fsvq = &fs->vqs[queue_id];
--	ret = virtio_fs_enqueue_req(fsvq, req, false);
-+	ret = virtio_fs_enqueue_req(fsvq, req, false, GFP_ATOMIC);
- 	if (ret < 0) {
- 		if (ret == -ENOMEM || ret == -ENOSPC) {
- 			/*
 -- 
-2.29.2
+2.44.0
 
