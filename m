@@ -1,75 +1,75 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69B4414388F
-	for <virtualization@lists.linux.dev>; Fri, 26 Apr 2024 09:34:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69DB113F01A
+	for <virtualization@lists.linux.dev>; Fri, 26 Apr 2024 09:38:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714124052; cv=none; b=nMLLT5GnYEC+M4GmJhfNOFOMt2OJ1jXtQOlXtekd+90NLTIgoV2foOh2IydVhyQwVNjlewsNpUEFV0KluwhCDiI2MeNfUYzDv7eKD6OJPMLFVIIoggnVoyz0Mbk3olwOMVDewkJgbSPCuL3sWJwxp3Y5MKL+t3Bq1YJB8IXEFws=
+	t=1714124322; cv=none; b=BCi+Y6G4pvK42z94itagRMl4ocC/YVj4rcLT7aYRtHLXWHeEZ87BDTBW5YzU7thJh7+1tprA6ZlhOVz4KhM3UiBSQQ9hMz3/YYBvCBgP+BCl0a76Vh7aP7GqgGeLykfpUF2gaWTKqxXrQ5F/dgc3AA40X7tTp6Jp1u2wD3tstEI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714124052; c=relaxed/simple;
-	bh=RQ6woi85gw4qLIzei2PLjndUkuwHxa3Srvvg0Dvyk2w=;
+	s=arc-20240116; t=1714124322; c=relaxed/simple;
+	bh=YM/xUICHt1Jn9teapYHqjaXP3Ksx6L943GJoFyblDoE=;
 	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=XGeuZ8HJ2uynIPH+w0BDxYI0BZVjkNhDaMKwk5vm+rkzgSlxmsBwFRRDTI1V6N87wVKH2Gx7U+TqWY0Tygg5SdbYSSlFxuUQPNa+SiKH23IQbdlMCBbov//rTzlWf18FDDZ8olhUCgsRCXWrFHv7Pdh1s7Da/7Et5W97JJj+nsg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bJbjzZOn; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version:Content-Type; b=gf7LD/g+gmOlFeubSloBNpuM3jPhu7DNc2WslRT0UCW6fH8TePpc0LkUI2Msi3vC9rRp9m6GlQjbthzxswLvWDaqqdHNwkvgDhEHZIO8O344gm1XCC9i7NedBls9wqoxpg8iDLOpYwhtQ6PmmSJNb4BSg53BqH5VtOSM/6JzBSk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HWumjuoG; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bJbjzZOn"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HWumjuoG"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1714124050;
+	s=mimecast20190719; t=1714124319;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=+5gSDiXXx19qBIFWwSlDQIfYsIaB/p4PVVkImpAFSKg=;
-	b=bJbjzZOnOFHMfYZqy25xaL4UavI3ClrR1gTA+3MMa90iPtOPTpcZUi+Lpub566fLSXDNWM
-	vMcNeu+4rURwvy2ewnXic55XoEMkKW1kNKXroSdZ6IFjuuq6yrGgaoCghEVWbwLInSKirE
-	RGu7622aoUY6fWXTuEKHFpB6ndbpnmY=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=LxOIgjHX10eyusRk6hfWhQ1Cd7tFWrsMuZYlYOoH184=;
+	b=HWumjuoGXth+GN5QogFvSATRVragpO2ffKGkQz/sUCBZfPREWw4Dp8yc5gcUu5f0Mcdtgm
+	wt2zBKKN0Ks1SbVI24ujgohOLyJw9sUzZqg6fsXJLAKcmmKDSUYicwqXDaCaT98J4BQI2t
+	8Bek3WJKh01XrqW9mYnl6M0pRWtHrzs=
+Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
+ [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-592-j8vOCAlIMpSAoPcIZv75fA-1; Fri, 26 Apr 2024 05:34:08 -0400
-X-MC-Unique: j8vOCAlIMpSAoPcIZv75fA-1
-Received: by mail-ed1-f70.google.com with SMTP id 4fb4d7f45d1cf-5723f3db7a2so196529a12.3
-        for <virtualization@lists.linux.dev>; Fri, 26 Apr 2024 02:34:08 -0700 (PDT)
+ us-mta-670-5UsQhqtiPUu-KM148AHN8g-1; Fri, 26 Apr 2024 05:38:37 -0400
+X-MC-Unique: 5UsQhqtiPUu-KM148AHN8g-1
+Received: by mail-lf1-f69.google.com with SMTP id 2adb3069b0e04-516ce9afcabso243867e87.0
+        for <virtualization@lists.linux.dev>; Fri, 26 Apr 2024 02:38:37 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1714124048; x=1714728848;
+        d=1e100.net; s=20230601; t=1714124316; x=1714729116;
         h=mime-version:user-agent:content-transfer-encoding:autocrypt
          :references:in-reply-to:date:cc:to:from:subject:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=+5gSDiXXx19qBIFWwSlDQIfYsIaB/p4PVVkImpAFSKg=;
-        b=SPRaYKwR4Z2+pfD2OFmVrKJqjoF4gtR5fyDxNGh4Hy70uovLhJC+5JAXX7BGGG5+LL
-         C1lpNHUy9FBIbRbSjwCRpD5b7GHHQOdL2HGbxl8L770MehaFBNSUEh5NKUhBRdiKKEEp
-         wPRdZul7JCI70sW1GwDEkuxHvxVibZXcbfV8OFPpi/RSTkiha5NNWX7ZMr9v/VlAUlXc
-         drv3u5/l16ijfiqwiEEKRFBWCbsysEqKA7M25eoth9U7PE8gKngIVb39t/Ww3sKJCLj3
-         38a1in/cwAU6QtFDxMN6Afa+LbOi8+Q9SvrNoO5AuBVD7iEwPbzyMHzvrCTAoXaiosFP
-         +nkA==
-X-Forwarded-Encrypted: i=1; AJvYcCU4iFwTrfW2AkbjMFzc5ikRTfFQ2NenWvbc9gSFvTAjEx2SEuWje/NM1FkO/I1ieKBcqfPPxTyODgzH9dcRCqA802p3DJYizrfLEBEdarI=
-X-Gm-Message-State: AOJu0Yw1zCg2zwVK4Z8SEzFAorekLXoduowLWtUOHW97/y/tO5Av+wdw
-	9gTBjzQUdIyyOu+lIxwSzsBxuDewegCcCbL0BuR8ywRkaKqALlJ6IwA4Cs7o7bRBenpCvr5/0p6
-	LYQnU0BfRxI8uW0Qr+7mDTGfhc8Jm5fGeii1nuy7Xg4A96yLCbHf6PGz2N+YDeOKq
-X-Received: by 2002:a17:906:8312:b0:a58:be00:7e88 with SMTP id j18-20020a170906831200b00a58be007e88mr1263751ejx.2.1714124047799;
-        Fri, 26 Apr 2024 02:34:07 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFp5ht+oApyDbpznfxVly5cAfzBn9xYEuY/T4P3W646T8scZotXQsopA65XIGPo55np4nxLEQ==
-X-Received: by 2002:a17:906:8312:b0:a58:be00:7e88 with SMTP id j18-20020a170906831200b00a58be007e88mr1263738ejx.2.1714124047449;
-        Fri, 26 Apr 2024 02:34:07 -0700 (PDT)
+        bh=YU6Awx91uEd0fhHdAhRSF/jDv9V7XVOFJ5HFPl2ijFI=;
+        b=EB0Pis+yXsDS+CAPaPiRzUo1zAk+179Q9M5rbLKFgZ2F9+EGIzoiFIZJdr/qdyw/oy
+         CVLdsLvQzFoRYpD0Qmbp1Q3dbXjrrNdOfdjkVLPK1CHSVwUKhAQDhF7EzkeCW1dm+u9w
+         YSCr7jZ51lGC6EU8z7iqrXhdnStX3ugTfkRl8VD+dtPOe9mq4ZEfVtNopBXgtIfAQcZn
+         0YbuQz1feyfCf9WC/nL2+MiBFiSxSyjjowO92J4MaTNrqsOaYwxp9z0PNcdfbX6WaQ3G
+         YzdApNxxvNCQfKlRseWOn2zArw5MbEleofYgqE5Xhlb86JjEvDtJD2Z9/UqDOBoSJ1FH
+         igZg==
+X-Forwarded-Encrypted: i=1; AJvYcCVmr/vg1N5Sne20yjUnlFmiuQVfK2zVgEgvUR1rS+RmxtsHq1aNQYpLvhxt1iRa013ihdWGithnrudJzuCqxM03navhDUOSBvAhiJafP3A=
+X-Gm-Message-State: AOJu0Yw99rMHofikNh98ZQJgXfLvvqDaWpOlz83GMP3Xzi2i0P+7RmKS
+	9QVvIfsB0jUa1u6OsSqxTVAEDC18XsgSGQztf3bm/U4JXb38u/gk1sbfkVIE+C8zFWrmY47DZMV
+	SKb+hLwfUih9ShfMn4xIeH5tU5xHfFlV6ymBpX2v3Uj9Zk6T0U68unmAQLOsh77AA
+X-Received: by 2002:a05:651c:10a3:b0:2df:4bad:cb7f with SMTP id k3-20020a05651c10a300b002df4badcb7fmr855139ljn.2.1714124315987;
+        Fri, 26 Apr 2024 02:38:35 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFeJjqnv5w0izlNbNJudktCo2QCp3nsMsfhzDoRgclEPJZvGzidJagSLjfc2lu9aRqPQwHS7A==
+X-Received: by 2002:a05:651c:10a3:b0:2df:4bad:cb7f with SMTP id k3-20020a05651c10a300b002df4badcb7fmr855133ljn.2.1714124315604;
+        Fri, 26 Apr 2024 02:38:35 -0700 (PDT)
 Received: from gerbillo.redhat.com ([2a0d:3344:171d:a510::f71])
-        by smtp.gmail.com with ESMTPSA id f7-20020a05600c154700b004190d7126c0sm25645991wmg.38.2024.04.26.02.34.05
+        by smtp.gmail.com with ESMTPSA id t13-20020a05600001cd00b0034c66bddea3sm679600wrx.37.2024.04.26.02.38.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 26 Apr 2024 02:34:07 -0700 (PDT)
-Message-ID: <d1ff9e85ee4bf1b6347e2ebbf28490645e0cd8b7.camel@redhat.com>
-Subject: Re: [PATCH net-next v5 2/6] virtio_net: Remove command data from
- control_buf
+        Fri, 26 Apr 2024 02:38:35 -0700 (PDT)
+Message-ID: <d2359b1cc8a89234f1130db83e07963ecd1270c9.camel@redhat.com>
+Subject: Re: [PATCH net-next v5 3/6] virtio_net: Add a lock for the command
+ VQ.
 From: Paolo Abeni <pabeni@redhat.com>
 To: Daniel Jurgens <danielj@nvidia.com>, netdev@vger.kernel.org
 Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com, 
 	virtualization@lists.linux.dev, davem@davemloft.net, edumazet@google.com, 
 	kuba@kernel.org, jiri@nvidia.com
-Date: Fri, 26 Apr 2024 11:34:05 +0200
-In-Reply-To: <20240423035746.699466-3-danielj@nvidia.com>
+Date: Fri, 26 Apr 2024 11:38:33 +0200
+In-Reply-To: <20240423035746.699466-4-danielj@nvidia.com>
 References: <20240423035746.699466-1-danielj@nvidia.com>
-	 <20240423035746.699466-3-danielj@nvidia.com>
+	 <20240423035746.699466-4-danielj@nvidia.com>
 Autocrypt: addr=pabeni@redhat.com; prefer-encrypt=mutual; keydata=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
@@ -87,13 +87,86 @@ Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
 On Tue, 2024-04-23 at 06:57 +0300, Daniel Jurgens wrote:
-> Allocate memory for the data when it's used. Ideally the could be on the
+> The command VQ will no longer be protected by the RTNL lock. Use a
+> mutex to protect the control buffer header and the VQ.
+>=20
+> Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
+> Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+> ---
+>  drivers/net/virtio_net.c | 12 ++++++++++--
+>  1 file changed, 10 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 0ee192b45e1e..d752c8ac5cd3 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -282,6 +282,7 @@ struct virtnet_info {
+> =20
+>  =09/* Has control virtqueue */
+>  =09bool has_cvq;
+> +=09struct mutex cvq_lock;
 
-Minor nit: 'buffer' or 'struct' is missing here          ^^^^
+Minor nit: checkpatch complains this lock needs a comment
 
-No need to repost just for this.
+> =20
+>  =09/* Host can handle any s/g split between our header and packet data *=
+/
+>  =09bool any_header_sg;
+> @@ -2529,6 +2530,7 @@ static bool virtnet_send_command(struct virtnet_inf=
+o *vi, u8 class, u8 cmd,
+>  =09/* Caller should know better */
+>  =09BUG_ON(!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ));
+> =20
+> +=09mutex_lock(&vi->cvq_lock);
+>  =09vi->ctrl->status =3D ~0;
+>  =09vi->ctrl->hdr.class =3D class;
+>  =09vi->ctrl->hdr.cmd =3D cmd;
+> @@ -2548,11 +2550,14 @@ static bool virtnet_send_command(struct virtnet_i=
+nfo *vi, u8 class, u8 cmd,
+>  =09if (ret < 0) {
+>  =09=09dev_warn(&vi->vdev->dev,
+>  =09=09=09 "Failed to add sgs for command vq: %d\n.", ret);
+> +=09=09mutex_unlock(&vi->cvq_lock);
+>  =09=09return false;
+>  =09}
+> =20
+> -=09if (unlikely(!virtqueue_kick(vi->cvq)))
+> +=09if (unlikely(!virtqueue_kick(vi->cvq))) {
+> +=09=09mutex_unlock(&vi->cvq_lock);
+>  =09=09return vi->ctrl->status =3D=3D VIRTIO_NET_OK;
 
-Thank,
+or:
+=09=09goto unlock;
+
+> +=09}
+> =20
+>  =09/* Spin for a response, the kick causes an ioport write, trapping
+>  =09 * into the hypervisor, so the request should be handled immediately.
+> @@ -2563,6 +2568,7 @@ static bool virtnet_send_command(struct virtnet_inf=
+o *vi, u8 class, u8 cmd,
+>  =09=09cpu_relax();
+>  =09}
+> =20
+
+unlock:
+> +=09mutex_unlock(&vi->cvq_lock);
+>  =09return vi->ctrl->status =3D=3D VIRTIO_NET_OK;
+>  }
+> =20
+> @@ -4818,8 +4824,10 @@ static int virtnet_probe(struct virtio_device *vde=
+v)
+>  =09    virtio_has_feature(vdev, VIRTIO_F_VERSION_1))
+>  =09=09vi->any_header_sg =3D true;
+> =20
+> -=09if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_VQ))
+> +=09if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_VQ)) {
+>  =09=09vi->has_cvq =3D true;
+> +=09=09mutex_init(&vi->cvq_lock);
+
+I'm wondering if syzkaller will be able to touch the lock in some
+unexpected path? possibly worth always initializing it?
+
+Thanks,
 
 Paolo
 
