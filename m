@@ -1,125 +1,206 @@
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 235728479
-	for <virtualization@lists.linux.dev>; Mon, 29 Apr 2024 03:10:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F39CD51C
+	for <virtualization@lists.linux-foundation.org>; Mon, 29 Apr 2024 05:08:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714360226; cv=none; b=QNd+6a/lNl05fIOaJGtOIIDVsmeLK+oEKKJFqY7iun+EbZm9ipjPkXcsriQwSZ5knZwP8QBXi2w6NxaBW3ZeaBUTvXxz9v4enPqUabMqvEZtZMXDfh/5pLQGebuEgGmqKSbQk29C15KxhxUol6dO72fLN8G+xhVwetHoCRgFRlE=
+	t=1714367329; cv=none; b=IMviBfYOP7QwgSePSvo5t3P3r1nHtgILE7Sws2y2Fvvy0Y2VCgBxs3s0tKEvegXxteghkpejVuSt9fExfOhMsvBSi2XeToesJiZJr3okiMgrZn94oYY+fPPeH5kNORV8+MVWJeJ4VhgsR2rMtFycwX4Pt63OJhuqcLYNpoF8Urs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714360226; c=relaxed/simple;
-	bh=0xWnBySin3hvFWM+Gg+lPth7dwJaIqmVEkA7v93kco4=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=lPI9tnIejoufqYOV53WALHqkH7YebLOCiBvr6PVwYcEyQWc8k4d64ZiBanVLza/BsJNW1fwzQ71PqldVAQsjvpKHotQgSNulK7zG+eswvTvnwa2KPzC0cKCTjVC7cZJrfeKPpSsi6dlvr/zKj40h7aju3p/ijrl+TELsR4qVPRw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: 44d8254c05d511ef9305a59a3cc225df-20240429
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.1.37,REQID:e55886f0-59a4-4474-9cc4-478929e21d55,IP:10,
-	URL:0,TC:0,Content:0,EDM:0,RT:0,SF:-3,FILE:0,BULK:0,RULE:Release_Ham,ACTIO
-	N:release,TS:7
-X-CID-INFO: VERSION:1.1.37,REQID:e55886f0-59a4-4474-9cc4-478929e21d55,IP:10,UR
-	L:0,TC:0,Content:0,EDM:0,RT:0,SF:-3,FILE:0,BULK:0,RULE:Release_Ham,ACTION:
-	release,TS:7
-X-CID-META: VersionHash:6f543d0,CLOUDID:7313eae06029394b1295c53706b3a94b,BulkI
-	D:240429110502VVCX1UY7,BulkQuantity:0,Recheck:0,SF:66|25|100|17|19|43|101|
-	74|102,TC:nil,Content:0,EDM:-3,IP:-2,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil
-	,BEC:nil,COL:0,OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0
-X-CID-BVR: 0
-X-CID-BAS: 0,_,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR,TF_CID_SPAM_FAS,TF_CID_SPAM_FSD,TF_CID_SPAM_FSI
-X-CTIC-Tags:
-	HR_CC_COUNT, HR_CC_DOMAIN_COUNT, HR_CC_NO_NAME, HR_CTE_8B, HR_CTT_TXT
-	HR_DATE_H, HR_DATE_WKD, HR_DATE_ZONE, HR_FROM_NAME, HR_SJ_LANG
-	HR_SJ_LEN, HR_SJ_LETTER, HR_SJ_NOR_SYM, HR_SJ_PHRASE, HR_SJ_PHRASE_LEN
-	HR_SJ_WS, HR_TO_AS_FROM, HR_TO_COUNT, HR_TO_DOMAIN_COUNT, HR_TO_NO_NAME
-	DN_TRUSTED, SRC_TRUSTED, SA_UNTRUSTED, SA_LOWREP, SA_EXISTED
-	SN_UNTRUSTED, SN_LOWREP, SN_EXISTED, SPF_NOPASS, DKIM_NOPASS
-	DMARC_NOPASS, CIE_BAD, CIE_GOOD, CIE_GOOD_SPF, GTI_FG_BS
-	GTI_RG_INFO, GTI_C_BU, AMN_T1, AMN_GOOD, AMN_C_TI
-	AMN_C_BU, ABX_MISS_RDNS
-X-UUID: 44d8254c05d511ef9305a59a3cc225df-20240429
-X-User: liweishi@kylinos.cn
-Received: from localhost.localdomain [(116.128.244.169)] by mailgw.kylinos.cn
-	(envelope-from <liweishi@kylinos.cn>)
-	(Generic MTA)
-	with ESMTP id 277750069; Mon, 29 Apr 2024 11:05:01 +0800
-From: Weishi Li <liweishi@kylinos.cn>
-To: liweishi@kylinos.cn
-Cc: airlied@redhat.com,
-	daniel@ffwll.ch,
-	dri-devel@lists.freedesktop.org,
-	gurchetansingh@chromium.org,
-	kraxel@redhat.com,
-	linux-kernel@vger.kernel.org,
-	maarten.lankhorst@linux.intel.com,
-	mripard@kernel.org,
-	olvaffe@gmail.com,
-	tzimmermann@suse.de,
-	virtualization@lists.linux.dev
-Subject: [PATCH] [PATCH RESEND] drm/virtio: fix memory leak of vbuf
-Date: Mon, 29 Apr 2024 11:05:41 +0800
-Message-Id: <20240429030541.56702-1-liweishi@kylinos.cn>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20240402093922.268368-1-liweishi@kylinos.cn>
-References: <20240402093922.268368-1-liweishi@kylinos.cn>
+	s=arc-20240116; t=1714367329; c=relaxed/simple;
+	bh=mxVSpiVc3CFUOue6xPqdNIQrLke23NOIAqrrjzMXkAs=;
+	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=XJuJ+w7yp4q5hpj9IJopchepDMUHonfgtVHCrHRWbrIMPWyBfgLYpNhx6OvqpDvWXqrGxCpTDTGPr3sLJRTGgMWgBjyzH51Ji6TNRGnH9kBhBqdjxC1GjojBvnxfMSMPMOF5pzN7Bkic5/cblJkPTIfvqmZOmAeU700gya8TPME=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=RSgnFO13; arc=none smtp.client-ip=140.211.166.133
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="RSgnFO13"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id C6B0240119
+	for <virtualization@lists.linux-foundation.org>; Mon, 29 Apr 2024 05:08:47 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -4.299
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id x6QUTBtEXp5j for <virtualization@lists.linux-foundation.org>;
+ Mon, 29 Apr 2024 05:08:47 +0000 (UTC)
+Received-SPF: None (mailfrom) identity=mailfrom; client-ip=192.198.163.14; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 77953400A4
+Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 77953400A4
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=RSgnFO13
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 77953400A4
+	for <virtualization@lists.linux-foundation.org>; Mon, 29 Apr 2024 05:08:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1714367326; x=1745903326;
+  h=message-id:date:mime-version:cc:subject:to:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=mxVSpiVc3CFUOue6xPqdNIQrLke23NOIAqrrjzMXkAs=;
+  b=RSgnFO13ARYXb53RfTbpwSDxxgiO2+ENe43FvZGhQJQuXl/EqmKzwNYz
+   0U4gjJ8UsGC7uctSIkDrVWQtO9cw4EeuxztEGrRRVa3Ixk4EHDmTHQZ7t
+   gRUf5ASczeZry/v1PM+n6p1Vl0m+lMWpOMjFhnH+5tblU8AcvMLDxuFJC
+   QzekCmwBtdm5Ki3u8gFawzvEGEtCCtwTEnerUre9Kb3LG5xp7JZvJenkX
+   Ac+oW0iGM4UfkCcBiq8zg1N4lKYpcd4kUM7dVeYRyBnot2UMPwEOQwRVD
+   hZeJ2WoH0doSa3EsDlqXwF+ZxqUe60/FEJe3DUn60YpigtIcjPiny8x0E
+   w==;
+X-CSE-ConnectionGUID: vdnwyEHERXiCFS1viCF3WA==
+X-CSE-MsgGUID: vGfrpiL6SouJ9xoRMHehHw==
+X-IronPort-AV: E=McAfee;i="6600,9927,11057"; a="10231757"
+X-IronPort-AV: E=Sophos;i="6.07,238,1708416000"; 
+   d="scan'208";a="10231757"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Apr 2024 22:08:44 -0700
+X-CSE-ConnectionGUID: mvNirE5RSEyXwSzpR9HIbw==
+X-CSE-MsgGUID: lTA8GHIvRQ+tyNNKpDF9ag==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.07,238,1708416000"; 
+   d="scan'208";a="26630786"
+Received: from unknown (HELO [10.239.159.127]) ([10.239.159.127])
+  by orviesa008.jf.intel.com with ESMTP; 28 Apr 2024 22:08:42 -0700
+Message-ID: <001d6fa8-d2f5-4011-988d-d2bc4f43a1aa@linux.intel.com>
+Date: Mon, 29 Apr 2024 13:07:14 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Cc: baolu.lu@linux.intel.com, Joerg Roedel <joro@8bytes.org>,
+ Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
+ Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Nicolin Chen <nicolinc@nvidia.com>, "Liu, Yi L" <yi.l.liu@intel.com>,
+ Jacob Pan <jacob.jun.pan@linux.intel.com>,
+ Joel Granados <j.granados@samsung.com>,
+ "iommu@lists.linux.dev" <iommu@lists.linux.dev>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v4 2/9] iommu: Replace sva_iommu with iommu_attach_handle
+To: "Tian, Kevin" <kevin.tian@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>
+References: <20240403011519.78512-1-baolu.lu@linux.intel.com>
+ <20240403011519.78512-3-baolu.lu@linux.intel.com>
+ <20240403115913.GC1363414@ziepe.ca>
+ <e3f526e3-6474-49ff-b8d6-995aaf1c1830@linux.intel.com>
+ <20240408141946.GB223006@ziepe.ca>
+ <86e723e7-c3be-41b1-95d8-dbdf86bbdab5@linux.intel.com>
+ <20240409234800.GD223006@ziepe.ca>
+ <5871aaec-b81a-4ad4-8eb1-656a04d04bda@linux.intel.com>
+ <BN9PR11MB5276F89C1C21BD03207A044F8C1B2@BN9PR11MB5276.namprd11.prod.outlook.com>
+Content-Language: en-US
+From: Baolu Lu <baolu.lu@linux.intel.com>
+In-Reply-To: <BN9PR11MB5276F89C1C21BD03207A044F8C1B2@BN9PR11MB5276.namprd11.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Both virtio_gpu_queue_ctrl_buffer and virtio_gpu_queue_cursor use
-virtqueue_add_sgs to upload the structure virtio_gpu_vbuffer * vbuf
-to virtqueue. However, when virtqueue_add_sgs returns -EIO or -ENOMEM,
-it means vbuf upload failed, and vbuf will not be able to be
-free by virtio_gpu_dequeue_*_func, resulting in a continuous increase
-in memory allocated to vgdev ->vbufs.
+On 4/29/24 10:39 AM, Tian, Kevin wrote:
+>> From: Baolu Lu <baolu.lu@linux.intel.com>
+>> Sent: Sunday, April 28, 2024 6:22 PM
+>>
+>> On 2024/4/10 7:48, Jason Gunthorpe wrote:
+>>> On Tue, Apr 09, 2024 at 10:11:28AM +0800, Baolu Lu wrote:
+>>>> On 4/8/24 10:19 PM, Jason Gunthorpe wrote:
+>>>>> On Sat, Apr 06, 2024 at 02:09:34PM +0800, Baolu Lu wrote:
+>>>>>> On 4/3/24 7:59 PM, Jason Gunthorpe wrote:
+>>>>>>> On Wed, Apr 03, 2024 at 09:15:12AM +0800, Lu Baolu wrote:
+>>>>>>>> +	/* A bond already exists, just take a reference`. */
+>>>>>>>> +	handle = iommu_attach_handle_get(group, iommu_mm-
+>>> pasid);
+>>>>>>>> +	if (handle) {
+>>>>>>>> +		mutex_unlock(&iommu_sva_lock);
+>>>>>>>> +		return handle;
+>>>>>>>>      	}
+>>>>>>> At least in this context this is not enough we need to ensure that the
+>>>>>>> domain on the PASID is actually an SVA domain and it was installed by
+>>>>>>> this mechanism, not an iommufd domain for instance.
+>>>>>>>
+>>>>>>> ie you probably need a type field in the iommu_attach_handle to tell
+>>>>>>> what the priv is.
+>>>>>>>
+>>>>>>> Otherwise this seems like a great idea!
+>>>>>> Yes, you are right. For the SVA case, I will add the following changes.
+>>>>>> The IOMMUFD path will also need such enhancement. I will update it in
+>>>>>> the next version.
+>>>>> The only use for this is the PRI callbacks right? Maybe instead of
+>>>>> adding a handle type let's just check domain->iopf_handler  ?
+>>>>>
+>>>>> Ie SVA will pass &ommu_sva_iopf_handler as its "type"
+>>>> Sorry that I don't fully understand the proposal here.
+>>> I was talking specifically about the type field you suggested adding
+>>> to the handle struct.
+>>>
+>>> Instead of adding a type field check the domain->iopf_handler to
+>>> determine the domain and thus handle type.
+>>>
+>>>> The problem is that the context code (SVA, IOMMUFD, etc.) needs to
+>> make
+>>>> sure that the attach handle is really what it has installed during
+>>>> domain attachment. The context code needs some mechanism to include
+>> some
+>>>> kind of "owner cookie" in the attach handle, so that it could check
+>>>> against it later for valid use.
+>>> Right, you have a derived struct for each user and you need a way to
+>>> check if casting from the general handle struct to the derived struct
+>>> is OK.
+>>>
+>>> I'm suggesting using domain->iopf_handle as the type key.
+>>
+>> After removing the refcount from the attach handle, I am trying to make
+>> the code look like this,
+>>
+>>           /* A bond already exists, just take a reference`. */
+>>           handle = iommu_attach_handle_get(group, iommu_mm->pasid);
+>>           if (handle) {
+>>                   if (handle->domain->iopf_handler !=
+>> iommu_sva_iopf_handler) {
+>>                           ret = -EBUSY;
+>>                           goto out_unlock;
+>>                   }
+>>
+>>                   refcount_inc(&handle->users);
+>>                   mutex_unlock(&iommu_sva_lock);
+>>                   return handle;
+>>           }
+>>
+>> But it appears that this code is not lock safe. If the domain on the
+>> PASID is not a SVA domain, the check of "handle->domain->iopf_handler !=
+>> iommu_sva_iopf_handler" could result in a use-after-free issue as the
+>> other thread might detach the domain in between the fetch and check
+>> lines.
+>>
+>> Probably we still need to keep the refcount in the attach handle?
+>>
+> 
+> What about Jason's another comment in his original replies?
+> 
+> "
+> Though I'm not convinced the refcount should be elevated into the core
+> structure. The prior patch I showed you where the caller can provide
+> the memory for the handle and we don't have a priv would make it easy
+> to put the refcount in a SVA dervied handle struct without more
+> allocation. Then we don't need this weirdness.
+> "
+> 
+> That sounds like we'll need a iommu_sva like structure to hold
+> its own refcnt. Then we don't need this type check and refcnt
+> in the core.
 
-Therefore, when upload fails，vbuf needs to be free directly.
+The problem I'm facing isn't about who allocates the handle memory.
+Instead, there's no mechanism to synchronize access between two threads.
+One thread might remove the handle while another fetches and reads a
+member of its structure.
 
-Signed-off-by: Weishi Li <liweishi@kylinos.cn>
----
- drivers/gpu/drm/virtio/virtgpu_vq.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+A similar issue exists with iommu_get_domain_for_dev_pasid(). It fetches
+and returns a domain, but there's no guarantee that the domain will
+*not* be freed while the caller is still using it.
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index b1a00c0c25a7..26f2e45635c1 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -356,12 +356,14 @@ static int virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
- 
- 	ret = virtqueue_add_sgs(vq, sgs, outcnt, incnt, vbuf, GFP_ATOMIC);
- 	WARN_ON(ret);
-+	if (ret < 0 && ret != -ENOSPC) {
-+		free_vbuf(vgdev, vbuf);
-+	} else {
-+		vbuf->seqno = ++vgdev->ctrlq.seqno;
-+		trace_virtio_gpu_cmd_queue(vq, virtio_gpu_vbuf_ctrl_hdr(vbuf), vbuf->seqno);
- 
--	vbuf->seqno = ++vgdev->ctrlq.seqno;
--	trace_virtio_gpu_cmd_queue(vq, virtio_gpu_vbuf_ctrl_hdr(vbuf), vbuf->seqno);
--
--	atomic_inc(&vgdev->pending_commands);
--
-+		atomic_inc(&vgdev->pending_commands);
-+	}
- 	spin_unlock(&vgdev->ctrlq.qlock);
- 
- 	drm_dev_exit(idx);
-@@ -469,6 +471,8 @@ static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
- 		wait_event(vgdev->cursorq.ack_queue, vq->num_free >= outcnt);
- 		spin_lock(&vgdev->cursorq.qlock);
- 		goto retry;
-+	else if (ret < 0) {
-+		free_vbuf(vgdev, vbuf);
- 	} else {
- 		vbuf->seqno = ++vgdev->cursorq.seqno;
- 		trace_virtio_gpu_cmd_queue(vq,
--- 
-2.25.1
+One reason I introduced the reference count for attach handles is to
+potentially replace iommu_get_domain_for_dev_pasid(), allowing the
+domain to be accessible without any potential UAF issue.
 
+Best regards,
+baolu
