@@ -1,155 +1,109 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26ACA3D96A
-	for <virtualization@lists.linux.dev>; Mon, 29 Apr 2024 10:14:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E33992C86A
+	for <virtualization@lists.linux.dev>; Mon, 29 Apr 2024 10:18:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714385670; cv=none; b=a81dvd3SdQVEcq1gygwVFfvHxXjyu6SQtigP3fsmBAhKp489vqdQJHv/NAuw/U3fmjNksVqHOPiAeUfC4pL+6Dy3QQmYGoa5Qd/Xi6oZeBWE9ufKKBkV7BSfdzIhmXLRAzfZ30jgj7c+1HOJY5/XkiW8rnh+7zY3JnJqM+T7OAY=
+	t=1714385889; cv=none; b=e7fcmZdWldImDDf2vb2C9QQbvc4YCuCWhd32XWBI7qL4/2TM6+Hi3yS7dYiYNu8hrlCBnKS1es06+puZT+LiHGcn2flGYmsJE5vNZacrrYe/WkQFQYFcwPHs4RihbLGslWMNUT8hKQHMM+flZ/53nvVWoxsCzpp21N0FCepY8vg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714385670; c=relaxed/simple;
-	bh=wPCxHih6c1vg4MIhCKlt1UClyyDOfohtXqvQUkMZ+Pk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=iB8rPxQBGPvt5tq47qZhPYAtcbr/nmemphJSwzXRJ12GkYS1KhpsrKewAedOr8oMJU+9k8roBwW9mSeH0jFDbMPV6g3MTL5TcxT8porlOs+hRAQb8xvasZb/5UXpM1dfVE25Fswlojhxg/JPJq6GyhDYARDAcC1GLRKV0EQth40=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BdaL0bgJ; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1714385889; c=relaxed/simple;
+	bh=Dp4WhcAEm3LjoebX3QhKlSxpYfp26vcYnT3xltjPvdc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=uCGUi1Z6wEORIirA41zzKPMA07c/vpaHQ9tZgqWN9YE7/R2KxRAHHY5RUVI7rocLcAIyzpLjjaN6FwVcHQfbquA14LE1B6Rq/aFXd82jxDladb+/2WWRp9VzdHQnFpy05bPEFlXmRCrykqSRx5MfszWGJNwIJKsN+G0/atDGe/g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fL+hftWD; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BdaL0bgJ"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fL+hftWD"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1714385668;
+	s=mimecast20190719; t=1714385886;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=UVxg8KMA7vvgaacJi4UzbU3rBDHOjF9aejTpYpkSnrY=;
-	b=BdaL0bgJbGQttAXI9rgdJa1cVrlEVOIv/78cNezd/+Z/BK4m8x7M7isGqLbMMdkDvJCQkM
-	nXFewo7gsxds62qS497ujvgYhBawfQFPAZc7yb9dsEup8sg6nf3rJhvBiFUIEDjAAptjHq
-	kEL30qiAFUgAU9dCOgfquZbmTzrdATw=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=U3aeDuQ2ScmwkduPqNuDpZ1kq3jr/gZ/7h6UWkDfJo4=;
+	b=fL+hftWDo4reqtaDorl3jcfhFpHAJqQxFWgW4ti8G25hefsqv8cGst1friQWehXroDjJIB
+	oKPNUQQu291hjUGhtSO+24dDovRGGDwmEUxYgBzmb7cVDDmKTQUhAk1WS0XwNJMfBUB7Ab
+	V1mIT9U9Pd1LVwm5F9wbW6JL+kEOZqY=
+Received: from mail-pf1-f197.google.com (mail-pf1-f197.google.com
+ [209.85.210.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-17-1Oyf9mrDPxefgbDRlG6VsQ-1; Mon, 29 Apr 2024 06:14:24 -0400
-X-MC-Unique: 1Oyf9mrDPxefgbDRlG6VsQ-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 75E8F8032FA;
-	Mon, 29 Apr 2024 10:14:24 +0000 (UTC)
-Received: from gshan-thinkpadx1nanogen2.remote.csb (unknown [10.64.136.30])
-	by smtp.corp.redhat.com (Postfix) with ESMTPS id 7A6111C060D0;
-	Mon, 29 Apr 2024 10:14:22 +0000 (UTC)
-From: Gavin Shan <gshan@redhat.com>
-To: virtualization@lists.linux.dev
-Cc: linux-kernel@vger.kernel.org,
-	mst@redhat.com,
-	jasowang@redhat.com,
-	shan.gavin@gmail.com
-Subject: [PATCH v2 4/4] vhost: Reformat vhost_{get, put}_user()
-Date: Mon, 29 Apr 2024 20:14:00 +1000
-Message-ID: <20240429101400.617007-5-gshan@redhat.com>
-In-Reply-To: <20240429101400.617007-1-gshan@redhat.com>
-References: <20240429101400.617007-1-gshan@redhat.com>
+ us-mta-528-W8_CX7IsOzykZ-ZcqhDKdQ-1; Mon, 29 Apr 2024 06:18:05 -0400
+X-MC-Unique: W8_CX7IsOzykZ-ZcqhDKdQ-1
+Received: by mail-pf1-f197.google.com with SMTP id d2e1a72fcca58-6ed2e00aa22so4018337b3a.0
+        for <virtualization@lists.linux.dev>; Mon, 29 Apr 2024 03:18:05 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1714385884; x=1714990684;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=U3aeDuQ2ScmwkduPqNuDpZ1kq3jr/gZ/7h6UWkDfJo4=;
+        b=lldX8H/92H93zHMHF8CXz1TEJk64qAurTqvQalT1TSiDqZABnxxsZfTQsTJY0FgRPm
+         yz2fqSHOQgIt6sy0TqXYiVx7QgEwUKaHsZzmf314qMV6pvLidTwmUk7EI/J+g5s43gZI
+         brZJWDFA03NpV8P+Ei93YDd/3I0OIvLqrKY2wMpGu9DgMezpTFjvC3/Nptczeh3gZonL
+         yDsyyB1B4Z0+/XyQhNZsNmKpmDcs6+WHqO549GM21khQKSVfSmkhznb4MEgGzo6NtQEQ
+         pa3RDRZWVg4HYJLIWlmriZX2iGcAtgew+eM/ob9OJUFa3CfkRhWCsbXHqs/9UrleXGk7
+         Ur4w==
+X-Gm-Message-State: AOJu0Yy9pzkDbEq93m+k56xshnhGw+INKth3dlE5p371m0xyn7LzFnvg
+	eobErViULB/iqGreCyziAB9teNiy0Xu1vfEIkVLk7LBSZ9z1ec0aQaaS915FM+AEaVbZRyvUVvT
+	PI7/lwq60BJAIoyxcF7qleVkVLZU1FdLgMHU8tWnsvWvmt1Nkctdq7xvBeVgk/4tU
+X-Received: by 2002:a05:6a00:181a:b0:6f0:28a4:a871 with SMTP id y26-20020a056a00181a00b006f028a4a871mr12925342pfa.19.1714385883774;
+        Mon, 29 Apr 2024 03:18:03 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IG7eC24ZKymDj34tQBxNz7Rb3a/lZm4YtKpVZG+eZcQITmkeRVRNQMXKkPx9ADzN0m+zHz5eQ==
+X-Received: by 2002:a05:6a00:181a:b0:6f0:28a4:a871 with SMTP id y26-20020a056a00181a00b006f028a4a871mr12925319pfa.19.1714385883454;
+        Mon, 29 Apr 2024 03:18:03 -0700 (PDT)
+Received: from [192.168.68.50] ([43.252.112.88])
+        by smtp.gmail.com with ESMTPSA id a15-20020aa780cf000000b006f0830a298dsm18919959pfn.156.2024.04.29.03.18.00
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 29 Apr 2024 03:18:02 -0700 (PDT)
+Message-ID: <aedb7cd5-56b3-4efe-b62c-ac3d7a9be740@redhat.com>
+Date: Mon, 29 Apr 2024 20:17:57 +1000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.7
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 0/4] vhost: Cleanup
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+ jasowang@redhat.com, shan.gavin@gmail.com
+References: <20240423032407.262329-1-gshan@redhat.com>
+ <20240429025750-mutt-send-email-mst@kernel.org>
+From: Gavin Shan <gshan@redhat.com>
+In-Reply-To: <20240429025750-mutt-send-email-mst@kernel.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Reformat the macros to use tab as the terminator for each line so
-that it looks clean.
+On 4/29/24 17:02, Michael S. Tsirkin wrote:
+> On Tue, Apr 23, 2024 at 01:24:03PM +1000, Gavin Shan wrote:
+>> This is suggested by Michael S. Tsirkin according to [1] and the goal
+>> is to apply smp_rmb() inside vhost_get_avail_idx() if needed. With it,
+>> the caller of the function needn't to worry about memory barriers. Since
+>> we're here, other cleanups are also applied.
+> 
+> 
+> Gavin I suggested another approach.
+> 1. Start with the patch I sent (vhost: order avail ring reads after
+>     index updates) just do a diff against latest.
+>     simplify error handling a bit.
+> 2. Do any other cleanups on top.
+> 
 
-No functional change intended.
+My apologies, Michael. I didn't see your patch until now [1]
 
-Signed-off-by: Gavin Shan <gshan@redhat.com>
----
- drivers/vhost/vhost.c | 60 +++++++++++++++++++++----------------------
- 1 file changed, 30 insertions(+), 30 deletions(-)
+   [1] https://lore.kernel.org/virtualization/20240327155750-mutt-send-email-mst@kernel.org/
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 4ddb9ec2fe46..c1ed5e750521 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -1207,21 +1207,22 @@ static inline void __user *__vhost_get_user(struct vhost_virtqueue *vq,
- 	return __vhost_get_user_slow(vq, addr, size, type);
- }
- 
--#define vhost_put_user(vq, x, ptr)		\
--({ \
--	int ret; \
--	if (!vq->iotlb) { \
--		ret = __put_user(x, ptr); \
--	} else { \
--		__typeof__(ptr) to = \
-+#define vhost_put_user(vq, x, ptr)					\
-+({									\
-+	int ret;							\
-+	if (!vq->iotlb) {						\
-+		ret = __put_user(x, ptr);				\
-+	} else {							\
-+		__typeof__(ptr) to =					\
- 			(__typeof__(ptr)) __vhost_get_user(vq, ptr,	\
--					  sizeof(*ptr), VHOST_ADDR_USED); \
--		if (to != NULL) \
--			ret = __put_user(x, to); \
--		else \
--			ret = -EFAULT;	\
--	} \
--	ret; \
-+						sizeof(*ptr),		\
-+						VHOST_ADDR_USED);	\
-+		if (to != NULL)						\
-+			ret = __put_user(x, to);			\
-+		else							\
-+			ret = -EFAULT;					\
-+	}								\
-+	ret;								\
- })
- 
- static inline int vhost_put_avail_event(struct vhost_virtqueue *vq)
-@@ -1252,22 +1253,21 @@ static inline int vhost_put_used_idx(struct vhost_virtqueue *vq)
- 			      &vq->used->idx);
- }
- 
--#define vhost_get_user(vq, x, ptr, type)		\
--({ \
--	int ret; \
--	if (!vq->iotlb) { \
--		ret = __get_user(x, ptr); \
--	} else { \
--		__typeof__(ptr) from = \
--			(__typeof__(ptr)) __vhost_get_user(vq, ptr, \
--							   sizeof(*ptr), \
--							   type); \
--		if (from != NULL) \
--			ret = __get_user(x, from); \
--		else \
--			ret = -EFAULT; \
--	} \
--	ret; \
-+#define vhost_get_user(vq, x, ptr, type)				\
-+({									\
-+	int ret;							\
-+	if (!vq->iotlb) {						\
-+		ret = __get_user(x, ptr);				\
-+	} else {							\
-+		__typeof__(ptr) from =					\
-+			(__typeof__(ptr)) __vhost_get_user(vq, ptr,	\
-+						sizeof(*ptr), type);	\
-+		if (from != NULL)					\
-+			ret = __get_user(x, from);			\
-+		else							\
-+			ret = -EFAULT;					\
-+	}								\
-+	ret;								\
- })
- 
- #define vhost_get_avail(vq, x, ptr) \
--- 
-2.44.0
+v2 was sent with your changes integrated and other cleanup are applied on
+top of it. Please take a look when you getting a chance.
+
+   v2: https://lore.kernel.org/virtualization/20240429101400.617007-1-gshan@redhat.com/T/#t
+
+Thanks,
+Gavin
 
