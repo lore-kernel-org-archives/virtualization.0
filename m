@@ -1,175 +1,122 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3ABF8612C
-	for <virtualization@lists.linux.dev>; Mon, 29 Apr 2024 18:49:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44651127E2D
+	for <virtualization@lists.linux.dev>; Mon, 29 Apr 2024 18:50:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714416598; cv=none; b=R2yovuox9a/bzQre9y0MRdUU40q1QJxJFDlJflgRt/1A52g8lNWcLUvFOS/A5shJl3eTyiw+F92/2yslRVRBV8sTmRXfXxU5+e44DGRGlIwRfDOoHbMxErq6zKOTpLO6+ATakb7mtbpT4hdemA/9U1Ti2eEF9vP1atiV6De3wf8=
+	t=1714416633; cv=none; b=NvwIS2uoiwke3u/NByf5GABI7xqiUutCyD0tE4S5H9n8rclUqo6Idk2YVGIPVOHNhdYjkrLrvn0XdK/ZcIeROemIQK+7Pluo5nz4ycXYwaKfDUbN8wFWiqm1rl/IjI9QFvM4dwm8ok7icbbiElATE00X1JRM71p2Qed44TTJjxM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714416598; c=relaxed/simple;
-	bh=ibS47OzWKnXsrz/clEM8WXST7kYkQMIbx8DG7ht8SUg=;
+	s=arc-20240116; t=1714416633; c=relaxed/simple;
+	bh=4BM15V5T8ZCJlfeNEJbWlVWcJsEzsXEXtP5ugGZF6aQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=mW30iadtuEOjdazQIqeDyebFke0xdMwlGXtUypDUC8YnRy/4BOEmJXGFaCEQRoEcxTyb87zmk0w97JJsxuKaUaupflyDxhmacS5ZMDLqbqeVocMWG/aNXHCuX/zqU9tU8oor0BQFRwy3JspKYZhQcuY8g4Y1an65gt5qR8yCYBk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MqadV/dl; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=R3QkNnVx8RgzIhSerR7sNkeAE/v5L6xT6olSg1DZi/qicKjjuYceCR5csuBJ77kwdkpMe08ZAnNtZIlM8s9hzBoPn6bjnFPNjhvu4L0PvoOkhLHkkieywxpe8eZIUB8NzasSxWkwzb64k82XF5GkNLSwWmcBG51PwoMQFdCaK6w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cRKRu19V; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MqadV/dl"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cRKRu19V"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1714416595;
+	s=mimecast20190719; t=1714416631;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Cri9wJQIMuiWfyMRh8o3fAPmxNnbcSXNHzgldLoV4IA=;
-	b=MqadV/dlW3kQsqkTbA0W1rkhQQl4zk3cN85JPNvMC5Bnz7GU20pImE96uF/69WKv3duz14
-	Nk/QktB3Zg+wGt0Rq+h2jowhxbvuS4MlLBI1+RM/3ue29naccB+zyDE0teNBE8lMRSDRoZ
-	pLPRc7Yvj27u8Iwcp4q7AkPV+ztf1Ng=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=/isLP1aYjVL55Cg0kF6I/0JVsi7H8eKx3IvIq+SH1r4=;
+	b=cRKRu19VbqSMm5ae7cxlxcFu4h3uJdv5eZrmPeuOzvWKDItmvwUwKQPEgI6yMeDgNYOwOB
+	4wa81Hek45lbV4SHIp6f4QSxYe5kUqhOBDQRpKiTOWJMu0WdFyX3++yNV2wTDJWQxHRTC8
+	6uVkTi+VisbPGAE/n4RnVjjfJYr7w7c=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-534-bvJviUDnP56b__lmo4NZVw-1; Mon, 29 Apr 2024 14:49:54 -0400
-X-MC-Unique: bvJviUDnP56b__lmo4NZVw-1
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-41a38f6e371so21491965e9.2
-        for <virtualization@lists.linux.dev>; Mon, 29 Apr 2024 11:49:54 -0700 (PDT)
+ us-mta-397-Ya1jLSo8NAqViXzZRrhT7w-1; Mon, 29 Apr 2024 14:50:30 -0400
+X-MC-Unique: Ya1jLSo8NAqViXzZRrhT7w-1
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-34d1089a3feso710318f8f.2
+        for <virtualization@lists.linux.dev>; Mon, 29 Apr 2024 11:50:29 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1714416593; x=1715021393;
+        d=1e100.net; s=20230601; t=1714416628; x=1715021428;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Cri9wJQIMuiWfyMRh8o3fAPmxNnbcSXNHzgldLoV4IA=;
-        b=qm6klLg2NGLP03wsaX8N1YwVdQlMfCy2LfbZl+F9GLuFb8SFjvrrQPIxUlld5HHWFT
-         CneAlDR8FmMHblNVyvee3OZPzt9vkXFSj65MtZZjELqE77fPGiC7LCP+WImPfrWM1OE2
-         b1krVFgk6UOzVhszRDvqPlt9ZhD7qU+wDvLrRmTBcG5fqDIENJF03XZI3AZ103vvOTPz
-         CEzrfihO8H+0fyKiSVKKOqGvzkLlEhDofg98YKWgtUsf/G54SEXy3qnw475UiuLRkGt6
-         iI1jSvR5nTf/JWMTe4Yf5UsI7zOQYIBaNRpY0m0nMhkfoLuc1IgK10UFuCXvVMyhEzAJ
-         MYZw==
-X-Gm-Message-State: AOJu0YwByfUK4GP9Y9/9s8bcJCiZgUrANAinayIIWRK4PtRImCp8NILq
-	gizNnNVCrLOp3VYsLau4KYXmjXSTz6jaQejEP9UXmvbLjBKlGP0KdeGzQEUukWISiY2XPhZNioP
-	IW4duIF4NOSiiO8EBBQOrPVaCOz4VFwYyDUF19U3lf56n1sQH603yBNetF8wSHmwF
-X-Received: by 2002:a05:600c:46ce:b0:41c:2313:da92 with SMTP id q14-20020a05600c46ce00b0041c2313da92mr3567507wmo.4.1714416593039;
-        Mon, 29 Apr 2024 11:49:53 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGkkesKdP7YY8chM377hZx4GvhLIFpBn1K2lrDyPtS5lNinYq8rzhwIkb7IwxxwcLnNiSC0Rg==
-X-Received: by 2002:a05:600c:46ce:b0:41c:2313:da92 with SMTP id q14-20020a05600c46ce00b0041c2313da92mr3567486wmo.4.1714416592241;
-        Mon, 29 Apr 2024 11:49:52 -0700 (PDT)
+        bh=/isLP1aYjVL55Cg0kF6I/0JVsi7H8eKx3IvIq+SH1r4=;
+        b=caHE4avIabn9URCtTaavL/j8g+DokXZkhIJ03IvkyQ4CpkS/iKE7GkZiuuteIcsZdS
+         QRgRGYhnPSIxOEKPf0COl7OqCwVKpc5sfqLhUL8n93C/aoxsy/jP6P4FC7g4zD7Qk8Wi
+         Avg51zF0+b+AIagHzzAOb+UDriG7whA4lgD98D4JBWxBXmp/4kkNFo/ReK1yAw+MzjvQ
+         WQW10KuKTBCoNcsVbBSyGfS1Ee3nz4BQ6Cd3YNIjhTeQVhmigSlFM4IE6hNaQoxovKep
+         inAR0BAAuz6W5BFX3+AKBBj4qPPst9lbjD1QlTj+PNqESNqHpfG13d2KgEzxpX9NkcWo
+         uXEg==
+X-Gm-Message-State: AOJu0Yw9aFszOmuDNudpHw7zMDV7aHD9Qv34jz8U0AwWoat17d4AVZmC
+	UvBkUcCtqk+OfpluQ5uO3LW2Y3/gSWrvi/jtnsGdBhkA8cfEWhODPC6HuZxcpPyj2We6nMjy5x0
+	G2VhdjDJPmacQBktPPOz0QWkgvLxaVnRMeRSWXb1UOkGj/jXMofyL+LtJbA5+acHp4wMVnLf8
+X-Received: by 2002:a5d:47c1:0:b0:34d:1d09:f06d with SMTP id o1-20020a5d47c1000000b0034d1d09f06dmr3471559wrc.13.1714416628184;
+        Mon, 29 Apr 2024 11:50:28 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGCS6P+mXwyMYwBiy2uI9J8aurHOzbMg8kg0FzOrjkGy8BER+E7fyt9B9XmUL3CPWbTmJMWgw==
+X-Received: by 2002:a5d:47c1:0:b0:34d:1d09:f06d with SMTP id o1-20020a5d47c1000000b0034d1d09f06dmr3471538wrc.13.1714416627641;
+        Mon, 29 Apr 2024 11:50:27 -0700 (PDT)
 Received: from redhat.com ([2a02:14f:174:67cc:7d0:12ee:4f8f:484f])
-        by smtp.gmail.com with ESMTPSA id y7-20020a5d6207000000b00346f9071405sm30250181wru.21.2024.04.29.11.49.50
+        by smtp.gmail.com with ESMTPSA id s11-20020adf978b000000b0034d0a64ed0bsm3592659wrb.77.2024.04.29.11.50.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 29 Apr 2024 11:49:51 -0700 (PDT)
-Date: Mon, 29 Apr 2024 14:49:48 -0400
+        Mon, 29 Apr 2024 11:50:27 -0700 (PDT)
+Date: Mon, 29 Apr 2024 14:50:23 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Gavin Shan <gshan@redhat.com>
 Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
 	jasowang@redhat.com, shan.gavin@gmail.com
-Subject: Re: [PATCH v2 4/4] vhost: Reformat vhost_{get, put}_user()
-Message-ID: <20240429144908-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH v2 0/4] vhost: Cleanup
+Message-ID: <20240429144955-mutt-send-email-mst@kernel.org>
 References: <20240429101400.617007-1-gshan@redhat.com>
- <20240429101400.617007-5-gshan@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240429101400.617007-5-gshan@redhat.com>
+In-Reply-To: <20240429101400.617007-1-gshan@redhat.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Mon, Apr 29, 2024 at 08:14:00PM +1000, Gavin Shan wrote:
-> Reformat the macros to use tab as the terminator for each line so
-> that it looks clean.
+On Mon, Apr 29, 2024 at 08:13:56PM +1000, Gavin Shan wrote:
+> This is suggested by Michael S. Tsirkin according to [1] and the goal
+> is to apply smp_rmb() inside vhost_get_avail_idx() if needed. With it,
+> the caller of the function needn't to worry about memory barriers. Since
+> we're here, other cleanups are also applied.
 > 
-> No functional change intended.
-> 
-> Signed-off-by: Gavin Shan <gshan@redhat.com>
+> [1] https://lore.kernel.org/virtualization/20240327155750-mutt-send-email-mst@kernel.org/
 
-Just messes up history for no real gain.
 
-> ---
->  drivers/vhost/vhost.c | 60 +++++++++++++++++++++----------------------
->  1 file changed, 30 insertions(+), 30 deletions(-)
+Patch 1 makes some sense, gave some comments. Rest I think we should
+just drop.
+
+> PATCH[1] improves vhost_get_avail_idx() so that smp_rmb() is applied if
+>          needed. Besides, the sanity checks on the retrieved available
+>          queue index are also squeezed to vhost_get_avail_idx()
+> PATCH[2] drops the local variable @last_avail_idx since it's equivalent
+>          to vq->last_avail_idx
+> PATCH[3] improves vhost_get_avail_head(), similar to what we're doing
+>          for vhost_get_avail_idx(), so that the relevant sanity checks
+>          on the head are squeezed to vhost_get_avail_head()
+> PATCH[4] Reformat vhost_{get, put}_user() by using tab instead of space
+>          as the terminator for each line
 > 
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index 4ddb9ec2fe46..c1ed5e750521 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -1207,21 +1207,22 @@ static inline void __user *__vhost_get_user(struct vhost_virtqueue *vq,
->  	return __vhost_get_user_slow(vq, addr, size, type);
->  }
->  
-> -#define vhost_put_user(vq, x, ptr)		\
-> -({ \
-> -	int ret; \
-> -	if (!vq->iotlb) { \
-> -		ret = __put_user(x, ptr); \
-> -	} else { \
-> -		__typeof__(ptr) to = \
-> +#define vhost_put_user(vq, x, ptr)					\
-> +({									\
-> +	int ret;							\
-> +	if (!vq->iotlb) {						\
-> +		ret = __put_user(x, ptr);				\
-> +	} else {							\
-> +		__typeof__(ptr) to =					\
->  			(__typeof__(ptr)) __vhost_get_user(vq, ptr,	\
-> -					  sizeof(*ptr), VHOST_ADDR_USED); \
-> -		if (to != NULL) \
-> -			ret = __put_user(x, to); \
-> -		else \
-> -			ret = -EFAULT;	\
-> -	} \
-> -	ret; \
-> +						sizeof(*ptr),		\
-> +						VHOST_ADDR_USED);	\
-> +		if (to != NULL)						\
-> +			ret = __put_user(x, to);			\
-> +		else							\
-> +			ret = -EFAULT;					\
-> +	}								\
-> +	ret;								\
->  })
->  
->  static inline int vhost_put_avail_event(struct vhost_virtqueue *vq)
-> @@ -1252,22 +1253,21 @@ static inline int vhost_put_used_idx(struct vhost_virtqueue *vq)
->  			      &vq->used->idx);
->  }
->  
-> -#define vhost_get_user(vq, x, ptr, type)		\
-> -({ \
-> -	int ret; \
-> -	if (!vq->iotlb) { \
-> -		ret = __get_user(x, ptr); \
-> -	} else { \
-> -		__typeof__(ptr) from = \
-> -			(__typeof__(ptr)) __vhost_get_user(vq, ptr, \
-> -							   sizeof(*ptr), \
-> -							   type); \
-> -		if (from != NULL) \
-> -			ret = __get_user(x, from); \
-> -		else \
-> -			ret = -EFAULT; \
-> -	} \
-> -	ret; \
-> +#define vhost_get_user(vq, x, ptr, type)				\
-> +({									\
-> +	int ret;							\
-> +	if (!vq->iotlb) {						\
-> +		ret = __get_user(x, ptr);				\
-> +	} else {							\
-> +		__typeof__(ptr) from =					\
-> +			(__typeof__(ptr)) __vhost_get_user(vq, ptr,	\
-> +						sizeof(*ptr), type);	\
-> +		if (from != NULL)					\
-> +			ret = __get_user(x, from);			\
-> +		else							\
-> +			ret = -EFAULT;					\
-> +	}								\
-> +	ret;								\
->  })
->  
->  #define vhost_get_avail(vq, x, ptr) \
+> Gavin Shan (3):
+>   vhost: Drop variable last_avail_idx in vhost_get_vq_desc()
+>   vhost: Improve vhost_get_avail_head()
+>   vhost: Reformat vhost_{get, put}_user()
+> 
+> Michael S. Tsirkin (1):
+>   vhost: Improve vhost_get_avail_idx() with smp_rmb()
+> 
+>  drivers/vhost/vhost.c | 215 +++++++++++++++++++-----------------------
+>  1 file changed, 97 insertions(+), 118 deletions(-)
+> 
+> Changelog
+> =========
+> v2:
+>   * Improve vhost_get_avail_idx() as Michael suggested in [1]
+>     as above                                                     (Michael)
+>   * Correct @head's type from 'unsigned int' to 'int'            (ltp@intel.com)
+> 
 > -- 
 > 2.44.0
 
