@@ -1,198 +1,206 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from out162-62-57-49.mail.qq.com (out162-62-57-49.mail.qq.com [162.62.57.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D08F412B176;
-	Tue, 30 Apr 2024 10:50:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A64D9171640
+	for <virtualization@lists.linux.dev>; Tue, 30 Apr 2024 13:18:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.57.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714474237; cv=none; b=SgxwXiKzgPd2qPYCeXI1CUgmd5hdw2LGXPbJHRH3a/D5bG/7Col/2EgvccBrCLqO94l1vy59xGSlMUpdw6S6PYTyN8fuE6j69RGkSwoUn13bzi5H+eBQbcQ0zzQWJnQ4IObpJxaH62eCilKfsTNNwq+xv5U+aAJ+4TdzgCHluQg=
+	t=1714483117; cv=none; b=s0fbRFBKyt6OhgtUGWGTSR4ozPmRg5WC/eSRTkBrHfa49JH7q5gwvU2g7hKIJokxSPjFLRS8035p8XwCNi/loEgrV5Rh0NaLlQPpm7foDPzeVRL6KqSLLmZwUhkEnJ1fwB7MELxBL9+9N4C8RRH/S11TOABTQT3FcNOt18j/bO0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714474237; c=relaxed/simple;
-	bh=TCc3/P/vb2bKsNgh0DMGDkw3+VtZMF32Qljv9aV8fpg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=Ei9dQGsCNhnT+2aothfTw0yYiOTNHnCSkxECMoBdE8qiIBwqr/+r3z/qcxm/OOPH2Wa8UY2DvI7+8eh178ibDiKzQSTmPXkDrPXHDHDAHigfYNiOR8vs7blB/zBqqlhUPHXgvFGL10ePEhuKd5TLL8WTTCEQ44wDLx5/jSugj1Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=C+X0FFdj; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1714483117; c=relaxed/simple;
+	bh=Upd0uZ+rILIoqrP7UwNwjenI04CLhFcHiFAA6RSjlpQ=;
+	h=Message-ID:From:To:Cc:Subject:Date:In-Reply-To:References:
+	 MIME-Version; b=aP06kHsHlB0ca8RKcVDu+7mbkReGIYLQ70h/SakUTXWalJCKD2Vj8mkMuOBEKcZDphMFtPYGWxsQlzE6FIRZ5i8LfGU7Z+B3fcCZHKDC+9dq7l6FVjv4tESh3gmhLtCzMF9BZ3ycagTdiqwFx+SwI6k631KO+WLS24uV7ogS5fo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com; spf=pass smtp.mailfrom=qq.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=nK4NacSo; arc=none smtp.client-ip=162.62.57.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="C+X0FFdj"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43UAjsB9009165;
-	Tue, 30 Apr 2024 10:50:14 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to :
- mime-version; s=pp1; bh=KIXZsXA38DEVkkC2fzxHMp+LuAzjui54oRUIHYvigdE=;
- b=C+X0FFdjvbC0a9Dm1DdNFSnKzLhE36e41tYMxbL+q1wYYnb1FIB8ZYD4QTPrjaZhHnuy
- DAHQsk2IumldqJlT42G4sUClFnHKrd2CQCZzgCvIjXfLfHTal3hNHL+jiq/wh3Pdrxxi
- PJE1Wqi3Rq6KI7Kv85WEHcQGwCr2SiAMl249bqqaKiSm96chaQoxD7d4Sbovs0NfLc9l
- hYFPN/mxmu2A+KG+XtBbLB7ptCZ9OHAcxO5K6ASMVwtpdl3YqsACl5r3BnfSJBBCkNo/
- Ky1MHqYOL9LnusTjoKzEpx73p/+1D5bOXpfa7j7vka7Z64crbKvGQo8oHGA33g4yxg+3 rQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xty1yg0h6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 30 Apr 2024 10:50:14 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 43UAoD1G017171;
-	Tue, 30 Apr 2024 10:50:13 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xty1yg0h3-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 30 Apr 2024 10:50:13 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43U7E7aa022334;
-	Tue, 30 Apr 2024 10:50:12 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xsd6mme8t-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 30 Apr 2024 10:50:12 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43UAo6NZ4456976
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 30 Apr 2024 10:50:08 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9E2282004E;
-	Tue, 30 Apr 2024 10:50:06 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4E9C420040;
-	Tue, 30 Apr 2024 10:50:06 +0000 (GMT)
-Received: from DESKTOP-2CCOB1S. (unknown [9.171.161.140])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 30 Apr 2024 10:50:06 +0000 (GMT)
-Date: Tue, 30 Apr 2024 12:50:05 +0200
-From: Tobias Huschle <huschle@linux.ibm.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Luis Machado <luis.machado@arm.com>, Jason Wang <jasowang@redhat.com>,
-        Abel Wu <wuyun.abel@bytedance.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Linux Kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
-        virtualization@lists.linux.dev, netdev@vger.kernel.org,
-        nd <nd@arm.com>, borntraeger@linux.ibm.com
-Subject: Re: EEVDF/vhost regression (bisected to 86bfbb7ce4f6 sched/fair: Add
- lag based placement)
-Message-ID: <ZjDM3SsZ3NkZuphP@DESKTOP-2CCOB1S.>
-References: <89460.124020106474400877@us-mta-475.us.mimecast.lan>
- <20240311130446-mutt-send-email-mst@kernel.org>
- <cf813f92-9806-4449-b099-1bb2bd492b3c@arm.com>
- <73123.124031407552500165@us-mta-156.us.mimecast.lan>
- <20240314110649-mutt-send-email-mst@kernel.org>
- <84704.124031504335801509@us-mta-515.us.mimecast.lan>
- <20240315062839-mutt-send-email-mst@kernel.org>
- <b3fd680c675208370fc4560bb3b4d5b8@linux.ibm.com>
- <20240319042829-mutt-send-email-mst@kernel.org>
- <4808eab5fc5c85f12fe7d923de697a78@linux.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4808eab5fc5c85f12fe7d923de697a78@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: OWDcAJbU4IsjSsDQmPO3kNj-5XcYWDnZ
-X-Proofpoint-ORIG-GUID: IscbDflkXN5EgID7BfMaWZI85fn9JhIq
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="nK4NacSo"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
+	t=1714483104; bh=pZTVlx2s1vNyEH6TmvcHFEZALJwqesPQAcM4Ml3108o=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=nK4NacSoFFcRKNPqEE8SvSQyelml0cjfEETrdGrQT00ZcMB5utQMqXhcjIPNYfK6M
+	 MtL0OX6CwcJMrM+NrIj7xpct8ptUYO2cuPX32/eyNvEAbyp5FBJ5U7GwWo/jkhcpZM
+	 mLnonbaD/z7f8UEVNeHXarUhw1WxrQHRb+296ryA=
+Received: from pek-lxu-l1.wrs.com ([111.198.228.153])
+	by newxmesmtplogicsvrsza29-0.qq.com (NewEsmtp) with SMTP
+	id 145262F5; Tue, 30 Apr 2024 21:05:05 +0800
+X-QQ-mid: xmsmtpt1714482305tgjwejboe
+Message-ID: <tencent_4271296B83A6E4413776576946DAB374E305@qq.com>
+X-QQ-XMAILINFO: ND42uzdxTIzrMsG1rW4qAKlH+bvUst3osNeAf4kpH86R3LvT/OrDnMAtDwuURB
+	 b0s/cURRHUiOF8+oLulDl9Lb23y3KpWSwcTUKretVrG72SNzY0U4YxRTKgyK54PGOT1u6eBOf+aO
+	 +7Q8kljhpERzVuWa+Jm63VLgan+FeMxQehR6eT8GzIjVjvd2vSCBkRNkbEwJJf/nL9mEc7Qhh370
+	 aXl0iaZVUqbZv9hUqLhANcRhOktwhtmhiexbkWoxaDWZRjNq2keT8IAZCtjVlqgWCeiZAfHjG6Us
+	 CaBt+cLifksGk4TKl1S63SfLb/sjWlvH+YaqXIXFAGQnig9wVmNyovv1nHOv9pjRNVfi/7dUrl5b
+	 ohu03S7WStP723qCQyDXBT/ZFhe295cDqAxhkmqpCQGGWCJtjiRPlG/cSf1+n0p/sQwIUx0xV2V7
+	 8OjxYdv59ZAlic0HlUVO/Hn9FcSTWhywlztVAQx8j5I6z4bctXYuOojbypIoANM0BxHYUZOsYr1I
+	 CJmtKhrPsP+wCAhxmwh/NhnEhcN/OE0/6TOI6Q5FjnO4P4zKOcYkvEmA6o6gBBroBBo5JsvDVRVl
+	 tTQ6rfmY+3uuCNfjWykJDJ5Xx9YhmUXasDDOBZVkuIp9xLL4hPzWPSDAIt0SXJz6aYkT443lyJoY
+	 n6FiCSjRFteG/r+CRDk/+bnKDsK7LICu4THuSfFzrki/bbrr83trgXP3EIlC1lXvV6RK05mXH7is
+	 J6BDvn8mc8DZ7H+T3UpAF2kX/L7UtuWH1gLmMaGfW12SK3aNr2PmvT2mE6RE3Ov+oeXTg2+v/HM0
+	 lI78MJYa8wlGMPJifAYwwnwfvf+csWqHhwryqaRwx6MEvRbRezgy+5Umo/zT/lQ7MhIikXMsU9Sx
+	 QsSsUjDCIQBbz3dqf+ELwVK9lDJxUMikqDtwaRQnn8vqdO0BhGt7m52R3hxRDPyhUv94KKKCMiXo
+	 6oxi2RkeI=
+X-QQ-XMRINFO: Mp0Kj//9VHAxr69bL5MkOOs=
+From: Edward Adam Davis <eadavis@qq.com>
+To: syzbot+98edc2df894917b3431f@syzkaller.appspotmail.com
+Cc: jasowang@redhat.com,
+	kvm@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	michael.christie@oracle.com,
+	mst@redhat.com,
+	netdev@vger.kernel.org,
+	syzkaller-bugs@googlegroups.com,
+	virtualization@lists.linux.dev
+Subject: [PATCH next] vhost_task: after freeing vhost_task it should not be accessed in vhost_task_fn
+Date: Tue, 30 Apr 2024 21:05:06 +0800
+X-OQ-MSGID: <20240430130505.1040283-2-eadavis@qq.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <000000000000a9613006174c1c4c@google.com>
+References: <000000000000a9613006174c1c4c@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.650,FMLib:17.11.176.26
- definitions=2024-04-30_04,2024-04-29_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxlogscore=999
- mlxscore=0 spamscore=0 lowpriorityscore=0 clxscore=1011 impostorscore=0
- phishscore=0 malwarescore=0 adultscore=0 priorityscore=1501 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2404010000
- definitions=main-2404300077
+Content-Transfer-Encoding: 8bit
 
-It took me a while, but I was able to figure out why EEVDF behaves 
-different then CFS does. I'm still waiting for some official confirmation
-of my assumptions but it all seems very plausible to me.
+[syzbot reported]
+BUG: KASAN: slab-use-after-free in instrument_atomic_read include/linux/instrumented.h:68 [inline]
+BUG: KASAN: slab-use-after-free in atomic_long_read include/linux/atomic/atomic-instrumented.h:3188 [inline]
+BUG: KASAN: slab-use-after-free in __mutex_unlock_slowpath+0xef/0x750 kernel/locking/mutex.c:921
+Read of size 8 at addr ffff888023632880 by task vhost-5104/5105
 
-Leaving aside all the specifics of vhost and kworkers, a more general
-description of the scenario would be as follows:
+CPU: 0 PID: 5105 Comm: vhost-5104 Not tainted 6.9.0-rc5-next-20240426-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 03/27/2024
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0x241/0x360 lib/dump_stack.c:114
+ print_address_description mm/kasan/report.c:377 [inline]
+ print_report+0x169/0x550 mm/kasan/report.c:488
+ kasan_report+0x143/0x180 mm/kasan/report.c:601
+ kasan_check_range+0x282/0x290 mm/kasan/generic.c:189
+ instrument_atomic_read include/linux/instrumented.h:68 [inline]
+ atomic_long_read include/linux/atomic/atomic-instrumented.h:3188 [inline]
+ __mutex_unlock_slowpath+0xef/0x750 kernel/locking/mutex.c:921
+ vhost_task_fn+0x3bc/0x3f0 kernel/vhost_task.c:65
+ ret_from_fork+0x4b/0x80 arch/x86/kernel/process.c:147
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:244
+ </TASK>
 
-Assume that we have two tasks taking turns on a single CPU. 
-Task 1 does something and wakes up Task 2.
-Task 2 does something and goes to sleep.
-And we're just repeating that.
-Task 1 and task 2 only run for very short amounts of time, i.e. much 
-shorter than a regular time slice (vhost = task1, kworker = task2).
+Allocated by task 5104:
+ kasan_save_stack mm/kasan/common.c:47 [inline]
+ kasan_save_track+0x3f/0x80 mm/kasan/common.c:68
+ poison_kmalloc_redzone mm/kasan/common.c:370 [inline]
+ __kasan_kmalloc+0x98/0xb0 mm/kasan/common.c:387
+ kasan_kmalloc include/linux/kasan.h:211 [inline]
+ kmalloc_trace_noprof+0x19c/0x2b0 mm/slub.c:4146
+ kmalloc_noprof include/linux/slab.h:660 [inline]
+ kzalloc_noprof include/linux/slab.h:778 [inline]
+ vhost_task_create+0x149/0x300 kernel/vhost_task.c:134
+ vhost_worker_create+0x17b/0x3f0 drivers/vhost/vhost.c:667
+ vhost_dev_set_owner+0x563/0x940 drivers/vhost/vhost.c:945
+ vhost_dev_ioctl+0xda/0xda0 drivers/vhost/vhost.c:2108
+ vhost_vsock_dev_ioctl+0x2bb/0xfa0 drivers/vhost/vsock.c:875
+ vfs_ioctl fs/ioctl.c:51 [inline]
+ __do_sys_ioctl fs/ioctl.c:907 [inline]
+ __se_sys_ioctl+0xfc/0x170 fs/ioctl.c:893
+ do_syscall_x64 arch/x86/entry/common.c:52 [inline]
+ do_syscall_64+0xf5/0x240 arch/x86/entry/common.c:83
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
 
-Let's further assume, that task 1 runs longer than task 2. 
-In CFS, this means, that vruntime of task 1 starts to outrun the vruntime
-of task 2. This means that vruntime(task2) < vruntime(task1). Hence, task 2
-always gets picked on wake up because it has the smaller vruntime. 
-In EEVDF, this would translate to a permanent positive lag, which also 
-causes task 2 to get consistently scheduled on wake up.
+Freed by task 5104:
+ kasan_save_stack mm/kasan/common.c:47 [inline]
+ kasan_save_track+0x3f/0x80 mm/kasan/common.c:68
+ kasan_save_free_info+0x40/0x50 mm/kasan/generic.c:579
+ poison_slab_object+0xe0/0x150 mm/kasan/common.c:240
+ __kasan_slab_free+0x37/0x60 mm/kasan/common.c:256
+ kasan_slab_free include/linux/kasan.h:184 [inline]
+ slab_free_hook mm/slub.c:2190 [inline]
+ slab_free mm/slub.c:4430 [inline]
+ kfree+0x149/0x350 mm/slub.c:4551
+ vhost_worker_destroy drivers/vhost/vhost.c:629 [inline]
+ vhost_workers_free drivers/vhost/vhost.c:648 [inline]
+ vhost_dev_cleanup+0x9b0/0xba0 drivers/vhost/vhost.c:1051
+ vhost_vsock_dev_release+0x3aa/0x410 drivers/vhost/vsock.c:751
+ __fput+0x406/0x8b0 fs/file_table.c:422
+ __do_sys_close fs/open.c:1555 [inline]
+ __se_sys_close fs/open.c:1540 [inline]
+ __x64_sys_close+0x7f/0x110 fs/open.c:1540
+ do_syscall_x64 arch/x86/entry/common.c:52 [inline]
+ do_syscall_64+0xf5/0x240 arch/x86/entry/common.c:83
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+[Fix]
+Delete the member exit_mutex from the struct vhost_task and replace it with a
+declared global static mutex.
 
-Let's now assume, that ocassionally, task 2 runs a little bit longer than
-task 1. In CFS, this means, that task 2 can close the vruntime gap by a
-bit, but, it can easily remain below the value of task 1. Task 2 would 
-still get picked on wake up.
-With EEVDF, in its current form, task 2 will now get a negative lag, which
-in turn, will cause it not being picked on the next wake up.
+Fixes: a3df30984f4f ("vhost_task: Handle SIGKILL by flushing work and exiting")
+Reported--by: syzbot+98edc2df894917b3431f@syzkaller.appspotmail.com
+Signed-off-by: Edward Adam Davis <eadavis@qq.com>
+---
+ kernel/vhost_task.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-So, it seems we have a change in the level of how far the both variants look 
-into the past. CFS being willing to take more history into account, whereas
-EEVDF does not (with update_entity_lag setting the lag value from scratch, 
-and place_entity not taking the original vruntime into account).
-
-All of this can be seen as correct by design, a task consumes more time
-than the others, so it has to give way to others. The big difference
-is now, that CFS allowed a task to collect some bonus by constantly using 
-less CPU time than others and trading that time against ocassionally taking
-more CPU time. EEVDF could do the same thing, by allowing the accumulation
-of positive lag, which can then be traded against the one time the task
-would get negative lag. This might clash with other EEVDF assumptions though.
-
-The patch below fixes the degredation, but is not at all aligned with what 
-EEVDF wants to achieve, but it helps as an indicator that my hypothesis is
-correct.
-
-So, what does this now mean for the vhost regression we were discussing?
-
-1. The behavior of the scheduler changed with regard to wake-up scenarios.
-2. vhost in its current form relies on the way how CFS works by assuming 
-   that the kworker always gets scheduled.
-
-I would like to argue that it therefore makes sense to reconsider the vhost
-implementation to make it less dependent on the internals of the scheduler.
-As proposed earlier in this thread, I see two options:
-
-1. Do an explicit schedule() after every iteration across the vhost queues
-2. Set the need_resched flag after writing to the socket that would trigger
-   eventfd and the underlying kworker
-
-Both options would make sure that the vhost gives up the CPU as it cannot
-continue anyway without the kworker handling the event. Option 1 will give
-up the CPU regardless of whether something was found in the queues, whereas
-option 2 would only give up the CPU if there is.
-
-It shall be noted, that we encountered similar behavior when running some
-fio benchmarks. From a brief glance at the code, I was seeing similar
-intentions: Loop over queues, then trigger an action through some event
-mechanism. Applying the same patch as mentioned above also fixes this issue.
-
-It could be argued, that this is still something that needs to be somehow
-addressed by the scheduler since it might affect others as well and there 
-are in fact patches coming in. Will they address our issue here? Not sure yet.
-On the other hand, it might just be beneficial to make vhost more resilient
-towards the scheduler's algorithm by not relying on a certain behavior in
-the wakeup path.
-Further discussion on additional commits to make EEVDF work correctly can 
-be found here: 
-https://lore.kernel.org/lkml/20240408090639.GD21904@noisy.programming.kicks-ass.net/T/
-So far these patches do not fix the degredation.
-
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 03be0d1330a6..b83a72311d2a 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -701,7 +701,7 @@ static void update_entity_lag(struct cfs_rq *cfs_rq, struct sched_entity *se)
-        s64 lag, limit;
+diff --git a/kernel/vhost_task.c b/kernel/vhost_task.c
+index 48c289947b99..375356499867 100644
+--- a/kernel/vhost_task.c
++++ b/kernel/vhost_task.c
+@@ -20,10 +20,10 @@ struct vhost_task {
+ 	struct completion exited;
+ 	unsigned long flags;
+ 	struct task_struct *task;
+-	/* serialize SIGKILL and vhost_task_stop calls */
+-	struct mutex exit_mutex;
+ };
  
-        SCHED_WARN_ON(!se->on_rq);
--       lag = avg_vruntime(cfs_rq) - se->vruntime;
-+       lag = se->vlag + avg_vruntime(cfs_rq) - se->vruntime;
++static DEFINE_MUTEX(exit_mutex); //serialize SIGKILL and vhost_task_stop calls
++
+ static int vhost_task_fn(void *data)
+ {
+ 	struct vhost_task *vtsk = data;
+@@ -51,7 +51,7 @@ static int vhost_task_fn(void *data)
+ 			schedule();
+ 	}
  
-        limit = calc_delta_fair(max_t(u64, 2*se->slice, TICK_NSEC), se);
-        se->vlag = clamp(lag, -limit, limit);
+-	mutex_lock(&vtsk->exit_mutex);
++	mutex_lock(&exit_mutex);
+ 	/*
+ 	 * If a vhost_task_stop and SIGKILL race, we can ignore the SIGKILL.
+ 	 * When the vhost layer has called vhost_task_stop it's already stopped
+@@ -62,7 +62,7 @@ static int vhost_task_fn(void *data)
+ 		vtsk->handle_sigkill(vtsk->data);
+ 	}
+ 	complete(&vtsk->exited);
+-	mutex_unlock(&vtsk->exit_mutex);
++	mutex_unlock(&exit_mutex);
+ 
+ 	do_exit(0);
+ }
+@@ -88,12 +88,12 @@ EXPORT_SYMBOL_GPL(vhost_task_wake);
+  */
+ void vhost_task_stop(struct vhost_task *vtsk)
+ {
+-	mutex_lock(&vtsk->exit_mutex);
++	mutex_lock(&exit_mutex);
+ 	if (!test_bit(VHOST_TASK_FLAGS_KILLED, &vtsk->flags)) {
+ 		set_bit(VHOST_TASK_FLAGS_STOP, &vtsk->flags);
+ 		vhost_task_wake(vtsk);
+ 	}
+-	mutex_unlock(&vtsk->exit_mutex);
++	mutex_unlock(&exit_mutex);
+ 
+ 	/*
+ 	 * Make sure vhost_task_fn is no longer accessing the vhost_task before
+@@ -135,7 +135,6 @@ struct vhost_task *vhost_task_create(bool (*fn)(void *),
+ 	if (!vtsk)
+ 		return NULL;
+ 	init_completion(&vtsk->exited);
+-	mutex_init(&vtsk->exit_mutex);
+ 	vtsk->data = arg;
+ 	vtsk->fn = fn;
+ 	vtsk->handle_sigkill = handle_sigkill;
+-- 
+2.43.0
 
