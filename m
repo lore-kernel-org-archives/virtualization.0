@@ -1,66 +1,129 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7978205E3C;
-	Tue, 30 Apr 2024 01:48:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C75BBE5D
+	for <virtualization@lists.linux.dev>; Tue, 30 Apr 2024 02:13:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714441737; cv=none; b=COOv379kfHAI15R8R41uHxZNlsYMS8LZgO8GQWpYwza3x5J7SX5fdzClo4oAl8JaJfofufwfxfPWmKbmhspPnOr2r4bam/RN6yfK079pVepDuOcaWA/1a2EbhzGZeGLntaKoL7zt4DclCHmUObPPnWMFusvtmNGnf2PSXHMeno4=
+	t=1714443237; cv=none; b=mVtPxotjsGfWMrsOGO85DoZjRWjSdKq2cXKToetKE7xnIn3OrDIP4j+iRQix3pDjTft6Qd5DN6HMx9zi3hbKYzsp8pdQD1VryureOeG2v0ncbx9Fte1XYDLadVPiV0y2zbn6WK1pdmlpG3RyaAnZycQk/RN+/pqpWfbH649aUk4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714441737; c=relaxed/simple;
-	bh=c7QzoCOujtAxbTC0elHaSUaFysScZ8hXHLPiQh+BjXQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Q7zSb7F4hFGhwuQM4Njne79Dv9SuM3r3To6SalnxWSdGWngAQ6QMjkhkDZ1MVbRQoePjmceiKlVwzNO1+5AaT/p7ch+UnLP3P3sxJqhYJQmCMSRQft356O1RpkjyZH4/3ixWp6NyEgikufkhqIV0yJSMyybfae0obEkf6yytlv8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Rwk/plWi; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1714443237; c=relaxed/simple;
+	bh=8sbxx22xmGWgECxkXVi/5b28FpNr1fg/fRLgHhiSgQE=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=HBCWbz072rfaM7XUER86iZFMBJZiSbTvSHdW9ox/x0yuSvmSXo3/9pOib17s/mvykCTFMhoqL8jFJrV0q7kkqIPRomnavcizxsO0RNibT9Huzx6kyZbA7nMQXu8KV9PWGB08kHgqKvn2RggHeN/xDO+raG0fPMRq6VdHr1qe048=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=jR7ss1x8; arc=none smtp.client-ip=115.124.30.101
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Rwk/plWi"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A77E1C116B1;
-	Tue, 30 Apr 2024 01:48:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1714441737;
-	bh=c7QzoCOujtAxbTC0elHaSUaFysScZ8hXHLPiQh+BjXQ=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=Rwk/plWivRvxtyN78BMVb2XoOsELsLIR+aErjqj2rVheUi/FaWJxTgvxW0/T+8fSH
-	 6jIcT+QXtvW2LOxlHcr8p69xdyPZrFDNjY8JA1JsIbUZb1f8s5GH1V81fb+1BlbqOr
-	 mNBOYdU2q53f4YUuGN+eOdtxlBF4CbqDYCA2caP+aMy8RqIveNGubW6RLKSGxRYyjd
-	 tzh2UcP0tIfGT+rJ39pn58yns306motc80r4Egy3kPgDkrKGRvFdAG8svOcjTE9Wix
-	 GdV6V2niZodhkgH9enJ5XQaOYJOhEhzaa5NqgK+yMKKy8hhHPytu7pRlCap0Weyo8Y
-	 gCv7a2VynhYng==
-Date: Mon, 29 Apr 2024 18:48:55 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Eric
- Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, "Michael S.
- Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Alexei
- Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend
- <john.fastabend@gmail.com>, Stanislav Fomichev <sdf@google.com>, Amritha
- Nambiar <amritha.nambiar@intel.com>, Larysa Zaremba
- <larysa.zaremba@intel.com>, Sridhar Samudrala
- <sridhar.samudrala@intel.com>, Maciej Fijalkowski
- <maciej.fijalkowski@intel.com>, virtualization@lists.linux.dev,
- bpf@vger.kernel.org, Heng Qi <hengqi@linux.alibaba.com>
-Subject: Re: [PATCH net-next v7 0/8] virtio-net: support device stats
-Message-ID: <20240429184855.0d8d1eef@kernel.org>
-In-Reply-To: <20240426033928.77778-1-xuanzhuo@linux.alibaba.com>
-References: <20240426033928.77778-1-xuanzhuo@linux.alibaba.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="jR7ss1x8"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1714443226; h=Message-ID:Subject:Date:From:To;
+	bh=y6BHbK1lWejK17N+PEG4y4GRz35g2lrll3r6j9O47ps=;
+	b=jR7ss1x8W2IhDOj5wVyNruSp8SKQzWTPAgUfHAhXFGT944oCEtDT1DUI2E+BnQE5WNPXxZR7ZGv1QJjXFsTmRH48vSt/HJzVib8NbXtQ+CoRf4PPaFSvoUQxQflUrDuNNJJc6IUaB6eRlilsEWEvMYwANECW/oHabvUPa3A73Rs=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R601e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067111;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=23;SR=0;TI=SMTPD_---0W5ae2VQ_1714443224;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W5ae2VQ_1714443224)
+          by smtp.aliyun-inc.com;
+          Tue, 30 Apr 2024 10:13:44 +0800
+Message-ID: <1714442379.4695537-1-hengqi@linux.alibaba.com>
+Subject: Re: [PATCH net-next v10 2/4] ethtool: provide customized dim profile management
+Date: Tue, 30 Apr 2024 09:59:39 +0800
+From: Heng Qi <hengqi@linux.alibaba.com>
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org,
+ virtualization@lists.linux.dev,
+ "David S .  Miller" <davem@davemloft.net>,
+ Paolo Abeni <pabeni@redhat.com>,
+ Eric  Dumazet <edumazet@google.com>,
+ Jason Wang <jasowang@redhat.com>,
+ "Michael S  . Tsirkin" <mst@redhat.com>,
+ Brett Creeley <bcreeley@amd.com>,
+ Ratheesh  Kannoth <rkannoth@marvell.com>,
+ Alexander Lobakin <aleksander.lobakin@intel.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ Tal  Gilboa <talgi@nvidia.com>,
+ Jonathan Corbet <corbet@lwn.net>,
+ linux-doc@vger.kernel.org,
+ Maxime Chevallier <maxime.chevallier@bootlin.com>,
+ Jiri Pirko <jiri@resnulli.us>,
+ Paul  Greenwalt <paul.greenwalt@intel.com>,
+ Ahmed Zaki <ahmed.zaki@intel.com>,
+ Vladimir Oltean <vladimir.oltean@nxp.com>,
+ Kory Maincent <kory.maincent@bootlin.com>,
+ Andrew Lunn <andrew@lunn.ch>,
+ "justinstitt @  google . com" <justinstitt@google.com>
+References: <20240425165948.111269-1-hengqi@linux.alibaba.com>
+ <20240425165948.111269-3-hengqi@linux.alibaba.com>
+ <20240426183333.257ccae5@kernel.org>
+ <98ea9d4d-1a90-45b9-a4e0-6941969295be@linux.alibaba.com>
+ <20240429104741.3a628fe6@kernel.org>
+In-Reply-To: <20240429104741.3a628fe6@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 
-On Fri, 26 Apr 2024 11:39:20 +0800 Xuan Zhuo wrote:
-> As the spec:
+On Mon, 29 Apr 2024 10:47:41 -0700, Jakub Kicinski <kuba@kernel.org> wrote:
+> On Sun, 28 Apr 2024 22:49:09 +0800 Heng Qi wrote:
+> > >> +	nla_for_each_nested_type(nest, ETHTOOL_A_PROFILE_IRQ_MODERATION, nests, rem) {
+> > >> +		ret = nla_parse_nested(moder,
+> > >> +				       ARRAY_SIZE(coalesce_irq_moderation_policy) - 1,
+> > >> +				       nest, coalesce_irq_moderation_policy,
+> > >> +				       extack);
+> > >> +		if (ret)
+> > >> +			return ret;
+> > >> +
+> > >> +		if (!NL_REQ_ATTR_CHECK(extack, nest, moder, ETHTOOL_A_IRQ_MODERATION_USEC)) {
+> > >> +			if (irq_moder->coal_flags & DIM_COALESCE_USEC)  
+> > > There are 3 options here, not 2:
+> > >
+> > > 	if (irq_moder->coal_flags & flag) {
+> > > 		if (NL_REQ_ATTR_CHECK())
+> > > 			val = nla_get_u32(...);
+> > > 		else
+> > > 			return -EINVAL;
+> > > 	} else {
+> > > 		if (moder[attr_type)) {
+> > > 			BAD_ATTR()
+> > > 			return -EOPNOTSUPP;
+> > > 		}
+> > > 	}  
+> > 
+> > Maybe we missed something.
+> > 
+> > As shown in the commit log, the user is allowed to modify only
+> > a certain fields in irq-moderation. It is assumed that the driver
+> > supports modification of usec and pkts, but the user may only
+> > modify usec and only fill in the usec attr.
+> > 
+> > Therefore, the kernel only gets usec attr here. Of course, the user
+> > may have passed in 5 groups of "n, n, n", which means that nothing
+> > is modified, and rx_profile and irq_moderation attrs are all empty.
 > 
-> https://github.com/oasis-tcs/virtio-spec/commit/42f389989823039724f95bbbd243291ab0064f82
-> 
-> The virtio net supports to get device stats.
+> What you describe sounds good, but it's not what the code seems to be
+> doing. NL_REQ_ATTR_CHECK() will set an error attribute if the attr is
+> not present.
 
-These got marked as "not applicable" in netdev pw over the weekend, but
-I think net-next is the right target here. So unless someone disagrees
-or we need more reviews we shall apply these tomorrow.
+So here we can use:
 
++ if (moder[ETHTOOL_A_IRQ_MODERATION_USEC]) {
++ 	if (irq_moder->coal_flags & DIM_COALESCE_USEC)
++ 		new_profile[i].usec =
++ 			nla_get_u32(moder[ETHTOOL_A_IRQ_MODERATION_USEC]);
++ 	else
++ 		return -EOPNOTSUPP;
++ }
+
+instead of:
+
++ if (!NL_REQ_ATTR_CHECK(extack, nest, moder, ETHTOOL_A_IRQ_MODERATION_USEC)) {
++ 	if (irq_moder->coal_flags & DIM_COALESCE_USEC)
++ 		new_profile[i].usec =
++ 			nla_get_u32(moder[ETHTOOL_A_IRQ_MODERATION_USEC]);
++ 	else
++ 		return -EOPNOTSUPP;
++ }
+
+to avoid missing information set in extack?
+
+Thanks.
