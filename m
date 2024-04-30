@@ -1,95 +1,134 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7084A22618;
-	Tue, 30 Apr 2024 09:40:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9FC01292EE
+	for <virtualization@lists.linux-foundation.org>; Tue, 30 Apr 2024 10:09:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714470033; cv=none; b=dBKxhO5GoStztb+J70VxhW0TqxfWd9Gv0Z5QBb3Gekh3v6+DQUX5PkJ9FjU/LQW+aplesh+4bS7Gh1L0PrNrctd/WcTp8UWaiUM7FiVhztaC0jhxyBtmh2moR0aHhrQHVeVgDC6jB90h2HahG50jvxV0J46e5Y6AZRl9rtiFMKU=
+	t=1714471799; cv=none; b=h5youSmScauRmfnIt6V8GqUKQmK2exosO1oChiZOEmO2V5b2NKoASCIqN+7BBWB8sE6k0xJmTA7eaIof/6POllOs6WwZcW0nWRwJkVM72Nd3Qh/hYecKlwgPJLApBAtkiu/bBpQJPuC2BWPWeWmSOTDuJdYWYbOQdtn+bU0EZ/k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714470033; c=relaxed/simple;
-	bh=xR8ABvK2FjKgC5HeLW0NTCb2SyyQtugwt+6zGS947s4=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=G3SKDkWlwGQG6ieXRgapo3U+9ZpUi0GIZFvfZ2rDqZyrRSVDKCUbqiqvk86vyRNxB6PjflfbSZjjkLH/VURqDsgG9gl+yYnhYeNLusVXiVs4hhDzEHpcudO5xdvbCNHuF/WM0CmC7Z1MXd8XpmLd+qPFyGLyEzu8ajr0JibZSaM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qJfpqiGd; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1714471799; c=relaxed/simple;
+	bh=mNpTAbsh1hHbVBOwdxXS11hKaRI+rocDAKPjlm5GISQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=UC3Z2d3YgI4ykMKUCKDShDd92LZaCzU9k3DZgwfzKaIYEgLOxmwxCPMH15Pb978KN3pqnqzYesLBvYA4Xiq+6Oy6CIcWEopW2KPoynFVdPv8BR9gPXExSoXYbwWxSwjL5O01H6UA8BBvNdNcXPtFfFRHHNfaET/VdyIcq+2Rc/I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=AXQYeWCC; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qJfpqiGd"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id D9CA7C4AF14;
-	Tue, 30 Apr 2024 09:40:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1714470031;
-	bh=xR8ABvK2FjKgC5HeLW0NTCb2SyyQtugwt+6zGS947s4=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=qJfpqiGd2YHRjq49mU+llr8tzBXvTG0jTK+84tcRCW7HpTsLf7cohBrwk9vW7ujNu
-	 j4F/2khs/YjvDg3p2sojX4qtqFsMWavNspP9Bu1aMatm+U1kx1VhBLpENj+C2rL6nI
-	 SnJc0h2cvb9DPdzYKqRwVLMKkBzfax7PnozH2fklAtK346zqrcTh95Q6x2d3sBwWrC
-	 5Piy7avmZ0Zapm+az+m/xFfIeyme36CmGDFIQ8Pdwatx6zolCR75SacyfKLpSLbeZI
-	 eg9cM8J5ONJ/rC0UoWk1N3vcGZITGQj+ZXifYTkxfOt5eEKkMYPRdRj5xqOz1SbRGA
-	 Y4F0Ouk+9dw4Q==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id C70C8C433E9;
-	Tue, 30 Apr 2024 09:40:31 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="AXQYeWCC"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 4DB99400F8
+	for <virtualization@lists.linux-foundation.org>; Tue, 30 Apr 2024 10:09:58 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id hsuCxaO9_4yz for <virtualization@lists.linux-foundation.org>;
+ Tue, 30 Apr 2024 10:09:57 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::135; helo=mail-lf1-x135.google.com; envelope-from=dmitry.baryshkov@linaro.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org E6413400F3
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E6413400F3
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=AXQYeWCC
+Received: from mail-lf1-x135.google.com (mail-lf1-x135.google.com [IPv6:2a00:1450:4864:20::135])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id E6413400F3
+	for <virtualization@lists.linux-foundation.org>; Tue, 30 Apr 2024 10:09:56 +0000 (UTC)
+Received: by mail-lf1-x135.google.com with SMTP id 2adb3069b0e04-51b526f0fc4so6897526e87.1
+        for <virtualization@lists.linux-foundation.org>; Tue, 30 Apr 2024 03:09:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1714471794; x=1715076594; darn=lists.linux-foundation.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=5mbwpFJFih7RIT1NY26n8+loi/ZJwnp9wrw9uANwmIA=;
+        b=AXQYeWCCzH7m9M25flffWJ3xg3tdT7gZNjtBpkU6upbI8brvlZHWzSXWEUQupKbHZa
+         zAGjb4wde5ZErO6pjSK8lEOJPieI2QzVMwrSp7CUukQ8RZHMOVMCHqrNoZT5mpTpRn+v
+         ZDTKStBqCnPsBvyuB+rqbKtP+30tQGUbflI8C71ArD0kFKJELCRoiq7uxOnbCV+2Nleb
+         krwV+0O+dAoqhnb0lUHCwL27hzsx5DraYT1fxhxD1ZTBSM9X3v7LH65egAgLzYfd4uhx
+         /gFYU116QswFvwe1Ab3bIKCT0dagZ3j6Elk4uTL8CKViXuG/RoG7EgMSiiBgCjGVQyKB
+         GpSg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1714471794; x=1715076594;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=5mbwpFJFih7RIT1NY26n8+loi/ZJwnp9wrw9uANwmIA=;
+        b=rVks1bINYGS7B71RuoH9J2s4eIJFpUpJHFoexKq3qIlvQEfavrzdDJktpsmL2bqCMT
+         LTTSVT0bIA/rxCvB7YfNRmABA+rVcR6znm79XcBjXtoV8FOTDPIsufieeOzQC4D4dxrf
+         x01x75bFLtSa2d59XHnaD/KV8Q1JjxWtiqh0l40pe6gQcFeOtvep+XZHye2bGyA4/1Yp
+         w4mqwRObHiChzqPTx95d8Lf+uxoqfm/HLg0vlnBqYSP80nvW9kxUpld+YhOUB+fAejZR
+         nClbbPFVlCEXfcvJAysaa/zEsJHNpvTAvQVlbQVAa244k54RQ9Gb5JgymbNOu88U+amr
+         yg5A==
+X-Forwarded-Encrypted: i=1; AJvYcCXVuWrYrJ6y0KZMCC1tBPfr3YzM5KQBJO/oLAb+J8tggvfjPF++b4n31lV14UO4c8jt7rtGbemcypZg0+0LzK3R50sZCEMmAjuwxCTwkmuFxTk8BvHRWfO9Tw==
+X-Gm-Message-State: AOJu0YwLP9E0SlZSDHnXrUhqhl+xMti/j0nM05EXBFtolm1+VUDySyWl
+	DlaijF5JYtri3VjbAsDdRPUERdDkWwbX2ehdsLEMQemQemxoLQEMlMP+DjzaZuY=
+X-Google-Smtp-Source: AGHT+IHLFfBk+3bT5MCPiG0Sy+oXtj7PLWqAxH1nSKl7+nAmTFj46bAxdYE1eFckW76M0RQSsj0nqA==
+X-Received: by 2002:ac2:5607:0:b0:51a:f596:9d53 with SMTP id v7-20020ac25607000000b0051af5969d53mr1449277lfd.42.1714471794305;
+        Tue, 30 Apr 2024 03:09:54 -0700 (PDT)
+Received: from eriador.lumag.spb.ru (dzdbxzyyyyyyyyyyyykxt-3.rev.dnainternet.fi. [2001:14ba:a0c3:3a00::227])
+        by smtp.gmail.com with ESMTPSA id b30-20020a056512025e00b0051bc39ef08esm2453377lfo.10.2024.04.30.03.09.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 30 Apr 2024 03:09:53 -0700 (PDT)
+Date: Tue, 30 Apr 2024 13:09:52 +0300
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+To: Vignesh Raman <vignesh.raman@collabora.com>
+Cc: dri-devel@lists.freedesktop.org, daniels@collabora.com, 
+	helen.koike@collabora.com, airlied@gmail.com, daniel@ffwll.ch, robdclark@gmail.com, 
+	david.heidelberg@collabora.com, guilherme.gallo@collabora.com, sergi.blanch.torne@collabora.com, 
+	mcanal@igalia.com, linux-mediatek@lists.infradead.org, 
+	linux-amlogic@lists.infradead.org, linux-rockchip@lists.infradead.org, 
+	amd-gfx@lists.freedesktop.org, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, 
+	virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v1 4/5] drm/ci: skip driver specific tests
+Message-ID: <esplx2t6yfrarxflxo5kq2lstx7uiy2atzcxtwf7kugsctnkat@ameojtgtpopj>
+References: <20240430091121.508099-1-vignesh.raman@collabora.com>
+ <20240430091121.508099-5-vignesh.raman@collabora.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next v7 0/8] virtio-net: support device stats
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <171447003181.1656.10069538136883769865.git-patchwork-notify@kernel.org>
-Date: Tue, 30 Apr 2024 09:40:31 +0000
-References: <20240426033928.77778-1-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <20240426033928.77778-1-xuanzhuo@linux.alibaba.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, mst@redhat.com, jasowang@redhat.com,
- ast@kernel.org, daniel@iogearbox.net, hawk@kernel.org,
- john.fastabend@gmail.com, sdf@google.com, amritha.nambiar@intel.com,
- larysa.zaremba@intel.com, sridhar.samudrala@intel.com,
- maciej.fijalkowski@intel.com, virtualization@lists.linux.dev,
- bpf@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240430091121.508099-5-vignesh.raman@collabora.com>
 
-Hello:
-
-This series was applied to netdev/net-next.git (main)
-by Paolo Abeni <pabeni@redhat.com>:
-
-On Fri, 26 Apr 2024 11:39:20 +0800 you wrote:
-> As the spec:
+On Tue, Apr 30, 2024 at 02:41:20PM +0530, Vignesh Raman wrote:
+> Skip driver specific tests and skip kms tests for
+> panfrost driver since it is not a kms driver.
 > 
-> https://github.com/oasis-tcs/virtio-spec/commit/42f389989823039724f95bbbd243291ab0064f82
-> 
-> The virtio net supports to get device stats.
-> 
-> Please review.
-> 
-> [...]
+> Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
+> ---
+>  .../gpu/drm/ci/xfails/amdgpu-stoney-skips.txt   | 14 +++++++++++++-
+>  drivers/gpu/drm/ci/xfails/i915-amly-skips.txt   | 14 +++++++++++++-
+>  drivers/gpu/drm/ci/xfails/i915-apl-skips.txt    | 14 +++++++++++++-
+>  drivers/gpu/drm/ci/xfails/i915-cml-skips.txt    | 12 ++++++++++++
+>  drivers/gpu/drm/ci/xfails/i915-glk-skips.txt    | 14 +++++++++++++-
+>  drivers/gpu/drm/ci/xfails/i915-kbl-skips.txt    | 14 +++++++++++++-
+>  drivers/gpu/drm/ci/xfails/i915-tgl-skips.txt    | 14 +++++++++++++-
+>  drivers/gpu/drm/ci/xfails/i915-whl-skips.txt    | 14 +++++++++++++-
+>  .../gpu/drm/ci/xfails/mediatek-mt8173-skips.txt | 12 ++++++++++++
+>  .../gpu/drm/ci/xfails/mediatek-mt8183-skips.txt | 14 ++++++++++++++
+>  drivers/gpu/drm/ci/xfails/meson-g12b-skips.txt  | 14 ++++++++++++++
+>  drivers/gpu/drm/ci/xfails/msm-apq8016-skips.txt | 14 ++++++++++++++
+>  drivers/gpu/drm/ci/xfails/msm-apq8096-skips.txt | 14 +++++++++++++-
 
-Here is the summary with links:
-  - [net-next,v7,1/8] virtio_net: introduce ability to get reply info from device
-    https://git.kernel.org/netdev/net-next/c/aff5b0e605b0
-  - [net-next,v7,2/8] virtio_net: introduce device stats feature and structures
-    https://git.kernel.org/netdev/net-next/c/34cfe8722136
-  - [net-next,v7,3/8] virtio_net: remove "_queue" from ethtool -S
-    https://git.kernel.org/netdev/net-next/c/de6df26ffced
-  - [net-next,v7,4/8] virtio_net: support device stats
-    https://git.kernel.org/netdev/net-next/c/941168f8b40e
-  - [net-next,v7,5/8] virtio_net: device stats helpers support driver stats
-    https://git.kernel.org/netdev/net-next/c/d86769b9d23c
-  - [net-next,v7,6/8] virtio_net: add the total stats field
-    https://git.kernel.org/netdev/net-next/c/d806e1ff79e6
-  - [net-next,v7,7/8] netdev: add queue stats
-    https://git.kernel.org/netdev/net-next/c/0cfe71f45f42
-  - [net-next,v7,8/8] virtio-net: support queue stat
-    https://git.kernel.org/netdev/net-next/c/d888f04c09bb
 
-You are awesome, thank you!
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org> # msm skips
+
+
+>  .../msm-sc7180-trogdor-kingoftown-skips.txt     | 15 +++++++++++++++
+>  .../msm-sc7180-trogdor-lazor-limozeen-skips.txt | 15 +++++++++++++++
+>  drivers/gpu/drm/ci/xfails/msm-sdm845-skips.txt  | 15 +++++++++++++++
+>  .../gpu/drm/ci/xfails/rockchip-rk3288-skips.txt | 17 ++++++++++++++++-
+>  .../gpu/drm/ci/xfails/rockchip-rk3399-skips.txt | 15 +++++++++++++++
+>  .../gpu/drm/ci/xfails/virtio_gpu-none-skips.txt | 15 ++++++++++++++-
+>  19 files changed, 260 insertions(+), 10 deletions(-)
+>  create mode 100644 drivers/gpu/drm/ci/xfails/mediatek-mt8173-skips.txt
+>  create mode 100644 drivers/gpu/drm/ci/xfails/mediatek-mt8183-skips.txt
+>  create mode 100644 drivers/gpu/drm/ci/xfails/meson-g12b-skips.txt
+>  create mode 100644 drivers/gpu/drm/ci/xfails/msm-apq8016-skips.txt
+> 
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+With best wishes
+Dmitry
