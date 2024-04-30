@@ -1,193 +1,342 @@
-Received: from m15.mail.163.com (m15.mail.163.com [45.254.50.220])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 9829A1BC4B;
-	Tue, 30 Apr 2024 06:31:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.254.50.220
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F33B03BB21;
+	Tue, 30 Apr 2024 08:23:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714458711; cv=none; b=DhoYN63W9cBYPuh0NwjS3+fzuWLpw1CHybZT7tCSyBnJ+fWuuO2L3CzGHOK7i+7aYKSEF7Yj6YguJ+xqUXvNYRPY7LbiLs/oyNunZ39LRZj4BndoJHFN7bnceOseChlF7q5RxJ3PjdFRfV3L8InaO+HCXdlIynC4Vv0t/s+2sGY=
+	t=1714465437; cv=none; b=hZenWd+QKbxc1eL89BOHMJPGAM1EYiZC3PN37PN+qkjzOpsfw7RGZcFX9DEUNBW1khE+xCRKgZw6nbABV9WHQU6DRMoIRtL7AqTod5WQGYfzEXX4ClpeU6cqYCIYlL77+GWX+3GK9DI9xvoUB8VH2PdKX/HnebZY1vIYivFIddo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714458711; c=relaxed/simple;
-	bh=ERTc2l5kU1GMYxtzdHJN1SeKinqluPnbKrRIhtd5mSo=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=OlqvAyl49yP9WyEHV3II/mbaM845ojvbzZYoHAKhissUGqVFP5G14joknOvkhUQ/ZdcqK9sDuZ60LGpONkqvafc95e/AZh+cu87+fryFc2CNPlV8gqNnkGn1PMLuewsI4lOD8JKjqOjlHY3KNv46eJLlhpD/Ka7Tjppqwq+Lwvc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=Mk/i/Cpo; arc=none smtp.client-ip=45.254.50.220
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1714465437; c=relaxed/simple;
+	bh=VsyOloioIfesdDNLYyvwCXpx/Xt5uokNkCcw7EG/nSY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=fbJKMsZ1mJOo3r/RJQPWM11IuM7VguqvaWeVLTvmoQ5ELGoDqE3MK2sUr39qenI8hjXBSJhZny1th0h9eTGS6fWLwlDK1T46R66WLc7F6js3lMFx3jS7VXSJzRXVnH97IdaU2JLgnlTjs+CRA58aEq85MaFWumaCFl2YEW5+4Bg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=sNVu0QQO; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="Mk/i/Cpo"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:Subject:Date:Message-Id:MIME-Version; bh=OykVS
-	bzCv4+d4dPQLDypPadwOtIhxe1BrterZQ+EVfc=; b=Mk/i/CporQhNjM1Pb4Fxn
-	JzDrNc4n/H6i6Uz/6EZ+8yQgmt26tYyrfSqBhYGHAu/ubD170GE/f2+fQ2XzKy8k
-	+t995s0ICyjIoM/UQJktZ4tYUBOt7rgYAcT5UU020DHxF6e+CgfTL2v5iQ8GwkiH
-	TGxBUVX71rndtgrfXtIBus=
-Received: from localhost.localdomain (unknown [111.35.187.227])
-	by gzga-smtp-mta-g0-3 (Coremail) with SMTP id _____wD3v3dtjDBmw0B8Cw--.43676S4;
-	Tue, 30 Apr 2024 14:15:18 +0800 (CST)
-From: David Wang <00107082@163.com>
-To: dreaming.about.electric.sheep@gmail.com,
-	airlied@redhat.com,
-	kraxel@redhat.com,
-	maarten.lankhorst@linux.intel.com,
-	mripard@kernel.org,
-	tzimmermann@suse.de,
-	airlied@gmail.com,
-	daniel@ffwll.ch
-Cc: virtualization@lists.linux.dev,
-	spice-devel@lists.freedesktop.org,
-	dri-devel@lists.freedesktop.org,
-	linux-kernel@vger.kernel.org,
-	regressions@lists.linux.dev,
-	David Wang <00107082@163.com>
-Subject: [Regression] 6.9.0: WARNING: workqueue: WQ_MEM_RECLAIM ttm:ttm_bo_delayed_delete [ttm] is flushing !WQ_MEM_RECLAIM events:qxl_gc_work [qxl]
-Date: Tue, 30 Apr 2024 14:13:37 +0800
-Message-Id: <20240430061337.764633-1-00107082@163.com>
-X-Mailer: git-send-email 2.39.2
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="sNVu0QQO"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83CD5C2BBFC;
+	Tue, 30 Apr 2024 08:23:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1714465436;
+	bh=VsyOloioIfesdDNLYyvwCXpx/Xt5uokNkCcw7EG/nSY=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=sNVu0QQOKZMI8vbNb/fmhAo8COt9XIKGi4NoeDAF4mthlIlpnhHbiryC0yKzPJrab
+	 ZmH0v6rhXRt1k9lftjKA/OlqnfU9LX+Q9uisRRfSrSDxDodYbLYw85mBa8GUrsnxDM
+	 BvWzS4VcFFVrIsLNpyYiughM5l41wnqeCrBt8PeFRLgPIHruP+tTWV99uC25WfuOxk
+	 p+TFiuLHBBU9GqZjbo/cxUJNpadJdX+TAwcxUgClqyYpEEZ+wWBydBUlQYtVzri+Hq
+	 sNg3nuNpH781p71npC7QZUzHS+8uwhE3of0J4Nw/0M5wjGKFamrL9ZiXDrX7q7nhvi
+	 +K6UPMbH3WxTw==
+Received: by mail-ej1-f43.google.com with SMTP id a640c23a62f3a-a58a36008ceso629832766b.0;
+        Tue, 30 Apr 2024 01:23:56 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCVLVqmSMh71k9usHxAywS5sQbhgnvKR32f+NDKUqigJM09WcWV6mxqIdsZPbdus3/dzsj63cgddw39AfvnWQJ/UoVFjNNAS8gt61RU+jrEx15ppMZ9xMQjcpT+FQtYc8xlpv32jn83BBuo=
+X-Gm-Message-State: AOJu0Yx0qgSnk6mLvXSxe1ickZtGe2MaXw5AdTJchQVYytkTsnBdnZ1c
+	15N1vb5gImOTeqUrDD5ydOUV0jT4aF1L0j/WHG+P+urJ9UvT6T22Xm95LKsRG/KA4KN9B7Mrtv8
+	S5joWXNxdBqjozIYZipFnTQpKh7s=
+X-Google-Smtp-Source: AGHT+IEw2cZHZLMb8FkqhXvYx5WJlkmaBw01K6YpVQYCne8PPhCZ1Mk6XfNcMI1nStR3UeFDQdJ+EjegwAp1pEddjnA=
+X-Received: by 2002:a17:907:9694:b0:a58:bb3e:937b with SMTP id
+ hd20-20020a170907969400b00a58bb3e937bmr11731440ejc.63.1714465435014; Tue, 30
+ Apr 2024 01:23:55 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+References: <20240430014505.2102631-1-maobibo@loongson.cn> <20240430014505.2102631-3-maobibo@loongson.cn>
+In-Reply-To: <20240430014505.2102631-3-maobibo@loongson.cn>
+From: Huacai Chen <chenhuacai@kernel.org>
+Date: Tue, 30 Apr 2024 16:23:42 +0800
+X-Gmail-Original-Message-ID: <CAAhV-H4xN9rdBkSA4PJafr5MNqEiCbNHTgim_bj89YNaB4PFjw@mail.gmail.com>
+Message-ID: <CAAhV-H4xN9rdBkSA4PJafr5MNqEiCbNHTgim_bj89YNaB4PFjw@mail.gmail.com>
+Subject: Re: [PATCH v2 2/2] LoongArch: Add steal time support in guest side
+To: Bibo Mao <maobibo@loongson.cn>
+Cc: Tianrui Zhao <zhaotianrui@loongson.cn>, Juergen Gross <jgross@suse.com>, kvm@vger.kernel.org, 
+	loongarch@lists.linux.dev, linux-kernel@vger.kernel.org, x86@kernel.org, 
+	virtualization@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-CM-TRANSID:_____wD3v3dtjDBmw0B8Cw--.43676S4
-X-Coremail-Antispam: 1Uf129KBjvJXoW3JrWkWF4kWry3AFWrKw13CFg_yoWxuF1Dpr
-	yYyF109FWrJw1qya1kJr1Fyws2qFsF9FWUZFyfGr10k3W5XF1rJa13Ga43KrWUCr9rJFW7
-	Awnrta4YyFnrAaDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0JUUhL8UUUUU=
-X-CM-SenderInfo: qqqrilqqysqiywtou0bp/1tbiMw7PqmXAk7vy7wABsJ
 
-Hi,
-I got following kernel WARNING when the my 2-core KVM(6.9.0-rc6) is under h=
-igh cpu load.
+Hi, Bibo,
 
-	[Mon Apr 29 21:36:04 2024] ------------[ cut here ]------------
-	[Mon Apr 29 21:36:04 2024] workqueue: WQ_MEM_RECLAIM ttm:ttm_bo_delayed_de=
-lete [ttm] is flushing !WQ_MEM_RECLAIM events:qxl_gc_work [qxl]
-	[Mon Apr 29 21:36:04 2024] WARNING: CPU: 1 PID: 792 at kernel/workqueue.c:=
-3728 check_flush_dependency+0xfd/0x120
-	[Mon Apr 29 21:36:04 2024] Modules linked in: xt_conntrack(E) nft_chain_na=
-t(E) xt_MASQUERADE(E) nf_nat(E) nf_conntrack_netlink(E) xfrm_user(E) xfrm_a=
-lgo(E) xt_addrtype(E) nft_compat(E) nf_tables(E) br_netfilter(E) bridge(E) =
-stp(E) llc(E) ip_set(E) nfnetlink(E) ip_vs_sh(E) ip_vs_wrr(E) ip_vs_rr(E) i=
-p_vs(E) nf_conntrack(E) nf_defrag_ipv6(E) nf_defrag_ipv4(E) intel_rapl_msr(=
-E) intel_rapl_common(E) crct10dif_pclmul(E) ghash_clmulni_intel(E) snd_hda_=
-codec_generic(E) snd_hda_intel(E) snd_intel_dspcfg(E) sha512_ssse3(E) snd_h=
-da_codec(E) sha512_generic(E) sha256_ssse3(E) overlay(E) sha1_ssse3(E) snd_=
-hda_core(E) snd_hwdep(E) aesni_intel(E) snd_pcm(E) crypto_simd(E) pcspkr(E)=
- cryptd(E) joydev(E) qxl(E) snd_timer(E) drm_ttm_helper(E) ttm(E) evdev(E) =
-snd(E) iTCO_wdt(E) serio_raw(E) sg(E) virtio_balloon(E) virtio_console(E) i=
-TCO_vendor_support(E) soundcore(E) qemu_fw_cfg(E) drm_kms_helper(E) button(=
-E) binfmt_misc(E) fuse(E) drm(E) configfs(E) virtio_rng(E) rng_core(E) ip_t=
-ables(E) x_tables(E) autofs4(E) ext4(E) crc16(E) mbcache(E) jbd2(E)
-	[Mon Apr 29 21:36:04 2024]  hid_generic(E) usbhid(E) hid(E) sr_mod(E) cdro=
-m(E) ahci(E) libahci(E) virtio_net(E) net_failover(E) failover(E) virtio_bl=
-k(E) libata(E) xhci_pci(E) crc32_pclmul(E) crc32c_intel(E) scsi_mod(E) scsi=
-_common(E) lpc_ich(E) i2c_i801(E) xhci_hcd(E) psmouse(E) i2c_smbus(E) virti=
-o_pci(E) usbcore(E) virtio_pci_legacy_dev(E) virtio_pci_modern_dev(E) usb_c=
-ommon(E) virtio(E) mfd_core(E) virtio_ring(E)
-	[Mon Apr 29 21:36:04 2024] CPU: 1 PID: 792 Comm: kworker/u13:4 Tainted: G =
-           E      6.9.0-rc6-linan-5 #197
-	[Mon Apr 29 21:36:04 2024] Hardware name: QEMU Standard PC (Q35 + ICH9, 20=
-09), BIOS 1.16.2-debian-1.16.2-1 04/01/2014
-	[Mon Apr 29 21:36:04 2024] Workqueue: ttm ttm_bo_delayed_delete [ttm]
-	[Mon Apr 29 21:36:04 2024] RIP: 0010:check_flush_dependency+0xfd/0x120
-	[Mon Apr 29 21:36:04 2024] Code: 8b 45 18 48 8d b2 c0 00 00 00 49 89 e8 48=
- 8d 8b c0 00 00 00 48 c7 c7 68 30 a4 a7 c6 05 9b 12 6e 01 01 48 89 c2 e8 53=
- b9 fd ff <0f> 0b e9 1e ff ff ff 80 3d 86 12 6e 01 00 75 93 e9 4a ff ff ff =
-66
-	[Mon Apr 29 21:36:04 2024] RSP: 0018:ffff9d31805abce8 EFLAGS: 00010086
-	[Mon Apr 29 21:36:04 2024] RAX: 0000000000000000 RBX: ffff8c8c4004ee00 RCX=
-: 0000000000000000
-	[Mon Apr 29 21:36:04 2024] RDX: 0000000000000003 RSI: 0000000000000027 RDI=
-: 00000000ffffffff
-	[Mon Apr 29 21:36:04 2024] RBP: ffffffffc0b53570 R08: 0000000000000000 R09=
-: 0000000000000003
-	[Mon Apr 29 21:36:04 2024] R10: ffff9d31805abb80 R11: ffffffffa7cc1108 R12=
-: ffff8c8c42eb8000
-	[Mon Apr 29 21:36:04 2024] R13: ffff8c8c48077900 R14: ffff8c8cbbd30b80 R15=
-: 0000000000000001
-	[Mon Apr 29 21:36:04 2024] FS:  0000000000000000(0000) GS:ffff8c8cbbd00000=
-(0000) knlGS:0000000000000000
-	[Mon Apr 29 21:36:04 2024] CS:  0010 DS: 0000 ES: 0000 CR0: 00000000800500=
-33
-	[Mon Apr 29 21:36:04 2024] CR2: 00007ffd38bb3ff8 CR3: 000000010217a000 CR4=
-: 0000000000350ef0
-	[Mon Apr 29 21:36:04 2024] Call Trace:
-	[Mon Apr 29 21:36:04 2024]  <TASK>
-	[Mon Apr 29 21:36:04 2024]  ? __warn+0x7c/0x120
-	[Mon Apr 29 21:36:04 2024]  ? check_flush_dependency+0xfd/0x120
-	[Mon Apr 29 21:36:04 2024]  ? report_bug+0x18d/0x1c0
-	[Mon Apr 29 21:36:04 2024]  ? srso_return_thunk+0x5/0x5f
-	[Mon Apr 29 21:36:04 2024]  ? handle_bug+0x3c/0x80
-	[Mon Apr 29 21:36:04 2024]  ? exc_invalid_op+0x13/0x60
-	[Mon Apr 29 21:36:04 2024]  ? asm_exc_invalid_op+0x16/0x20
-	[Mon Apr 29 21:36:04 2024]  ? __pfx_qxl_gc_work+0x10/0x10 [qxl]
-	[Mon Apr 29 21:36:04 2024]  ? check_flush_dependency+0xfd/0x120
-	[Mon Apr 29 21:36:04 2024]  ? check_flush_dependency+0xfd/0x120
-	[Mon Apr 29 21:36:04 2024]  __flush_work.isra.0+0xc0/0x270
-	[Mon Apr 29 21:36:04 2024]  ? srso_return_thunk+0x5/0x5f
-	[Mon Apr 29 21:36:04 2024]  ? srso_return_thunk+0x5/0x5f
-	[Mon Apr 29 21:36:04 2024]  ? __queue_work.part.0+0x18b/0x3d0
-	[Mon Apr 29 21:36:04 2024]  ? srso_return_thunk+0x5/0x5f
-	[Mon Apr 29 21:36:04 2024]  qxl_queue_garbage_collect+0x7f/0x90 [qxl]
-	[Mon Apr 29 21:36:04 2024]  qxl_fence_wait+0x9c/0x180 [qxl]
-	[Mon Apr 29 21:36:04 2024]  dma_fence_wait_timeout+0x61/0x130
-	[Mon Apr 29 21:36:04 2024]  dma_resv_wait_timeout+0x6d/0xd0
-	[Mon Apr 29 21:36:04 2024]  ttm_bo_delayed_delete+0x26/0x80 [ttm]
-	[Mon Apr 29 21:36:04 2024]  process_one_work+0x18c/0x3b0
-	[Mon Apr 29 21:36:04 2024]  worker_thread+0x273/0x390
-	[Mon Apr 29 21:36:04 2024]  ? __pfx_worker_thread+0x10/0x10
-	[Mon Apr 29 21:36:04 2024]  kthread+0xdd/0x110
-	[Mon Apr 29 21:36:04 2024]  ? __pfx_kthread+0x10/0x10
-	[Mon Apr 29 21:36:04 2024]  ret_from_fork+0x30/0x50
-	[Mon Apr 29 21:36:04 2024]  ? __pfx_kthread+0x10/0x10
-	[Mon Apr 29 21:36:04 2024]  ret_from_fork_asm+0x1a/0x30
-	[Mon Apr 29 21:36:04 2024]  </TASK>
-	[Mon Apr 29 21:36:04 2024] ---[ end trace 0000000000000000 ]---
+On Tue, Apr 30, 2024 at 9:45=E2=80=AFAM Bibo Mao <maobibo@loongson.cn> wrot=
+e:
+>
+> Percpu struct kvm_steal_time is added here, its size is 64 bytes and
+> also defined as 64 bytes, so that the whole structure is in one physical
+> page.
+>
+> When vcpu is onlined, function pv_enable_steal_time() is called. This
+> function will pass guest physical address of struct kvm_steal_time and
+> tells hypervisor to enable steal time. When vcpu is offline, physical
+> address is set as 0 and tells hypervisor to disable steal time.
+>
+> Here is output of vmstat on guest when there is workload on both host
+> and guest. It includes steal time stat information.
+>
+> procs -----------memory---------- -----io---- -system-- ------cpu-----
+>  r  b   swpd   free  inact active   bi    bo   in   cs us sy id wa st
+> 15  1      0 7583616 184112  72208    20    0  162   52 31  6 43  0 20
+> 17  0      0 7583616 184704  72192    0     0 6318 6885  5 60  8  5 22
+> 16  0      0 7583616 185392  72144    0     0 1766 1081  0 49  0  1 50
+> 16  0      0 7583616 184816  72304    0     0 6300 6166  4 62 12  2 20
+> 18  0      0 7583632 184480  72240    0     0 2814 1754  2 58  4  1 35
+>
+> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
+> ---
+>  arch/loongarch/Kconfig                |  11 +++
+>  arch/loongarch/include/asm/paravirt.h |   5 +
+>  arch/loongarch/kernel/paravirt.c      | 131 ++++++++++++++++++++++++++
+>  arch/loongarch/kernel/time.c          |   2 +
+>  4 files changed, 149 insertions(+)
+>
+> diff --git a/arch/loongarch/Kconfig b/arch/loongarch/Kconfig
+> index 0a1540a8853e..f3a03c33a052 100644
+> --- a/arch/loongarch/Kconfig
+> +++ b/arch/loongarch/Kconfig
+> @@ -592,6 +592,17 @@ config PARAVIRT
+>           over full virtualization.  However, when run without a hypervis=
+or
+>           the kernel is theoretically slower and slightly larger.
+>
+> +config PARAVIRT_TIME_ACCOUNTING
+> +       bool "Paravirtual steal time accounting"
+> +       select PARAVIRT
+> +       help
+> +         Select this option to enable fine granularity task steal time
+> +         accounting. Time spent executing other tasks in parallel with
+> +         the current vCPU is discounted from the vCPU power. To account =
+for
+> +         that, there can be a small performance impact.
+> +
+> +         If in doubt, say N here.
+> +
+Can we use a hidden selection manner, which means:
 
-I find that the exact warning message mentioned in
- https://lore.kernel.org/lkml/20240404181448.1643-1-dreaming.about.electric=
-.sheep@gmail.com/T/#m8c2ecc83ebba8717b1290ec28d4dc15f2fa595d5
-And confirmed that the warning is caused by 07ed11afb68d94eadd4ffc082b97c23=
-31307c5ea and reverting it can fix.
+config PARAVIRT_TIME_ACCOUNTING
+       def_bool PARAVIRT
 
+Because I think we needn't give too many choices to users (and bring
+much more effort to test).
 
-It seems that under heavy load, qxl_queue_garbage_collect would be called w=
-ithin
-a WQ_MEM_RECLAIM worker, and flush qxl_gc_work which is a
-!WQ_MEM_RECLAIM worker. This will trigger the kernel WARNING by
-check_flush_dependency.
+PowerPC even hide all the PARAVIRT config options...
+see arch/powerpc/platforms/pseries/Kconfig
 
-And I tried following changes, setting flush flag to false.
-The warning is gone, but I am not sure whether there is any other side-effe=
-ct,
-especially the issue mentioned in=20
-https://lore.kernel.org/lkml/20240404181448.1643-2-dreaming.about.electric.=
-sheep@gmail.com/T/#m988ffad2000c794dcfdab7e60b03db93d8726391
+Huacai
 
-Signed-off-by: David Wang <00107082@163.com>
----
- drivers/gpu/drm/qxl/qxl_release.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/gpu/drm/qxl/qxl_release.c b/drivers/gpu/drm/qxl/qxl_re=
-lease.c
-index 9febc8b73f09..f372085c5aad 100644
---- a/drivers/gpu/drm/qxl/qxl_release.c
-+++ b/drivers/gpu/drm/qxl/qxl_release.c
-@@ -76,7 +76,7 @@ static long qxl_fence_wait(struct dma_fence *fence, bool =
-intr,
- 	qxl_io_notify_oom(qdev);
-=20
- 	for (count =3D 0; count < 11; count++) {
--		if (!qxl_queue_garbage_collect(qdev, true))
-+		if (!qxl_queue_garbage_collect(qdev, false))
- 			break;
-=20
- 		if (dma_fence_is_signaled(fence))
---=20
-2.39.2
-
-
-
-David
-
+>  config ARCH_SUPPORTS_KEXEC
+>         def_bool y
+>
+> diff --git a/arch/loongarch/include/asm/paravirt.h b/arch/loongarch/inclu=
+de/asm/paravirt.h
+> index 58f7b7b89f2c..fe27fb5e82b8 100644
+> --- a/arch/loongarch/include/asm/paravirt.h
+> +++ b/arch/loongarch/include/asm/paravirt.h
+> @@ -17,11 +17,16 @@ static inline u64 paravirt_steal_clock(int cpu)
+>  }
+>
+>  int pv_ipi_init(void);
+> +int __init pv_time_init(void);
+>  #else
+>  static inline int pv_ipi_init(void)
+>  {
+>         return 0;
+>  }
+>
+> +static inline int pv_time_init(void)
+> +{
+> +       return 0;
+> +}
+>  #endif // CONFIG_PARAVIRT
+>  #endif
+> diff --git a/arch/loongarch/kernel/paravirt.c b/arch/loongarch/kernel/par=
+avirt.c
+> index 9044ed62045c..3f83afc7e2d2 100644
+> --- a/arch/loongarch/kernel/paravirt.c
+> +++ b/arch/loongarch/kernel/paravirt.c
+> @@ -5,10 +5,13 @@
+>  #include <linux/jump_label.h>
+>  #include <linux/kvm_para.h>
+>  #include <asm/paravirt.h>
+> +#include <linux/reboot.h>
+>  #include <linux/static_call.h>
+>
+>  struct static_key paravirt_steal_enabled;
+>  struct static_key paravirt_steal_rq_enabled;
+> +static DEFINE_PER_CPU(struct kvm_steal_time, steal_time) __aligned(64);
+> +static int has_steal_clock;
+>
+>  static u64 native_steal_clock(int cpu)
+>  {
+> @@ -17,6 +20,57 @@ static u64 native_steal_clock(int cpu)
+>
+>  DEFINE_STATIC_CALL(pv_steal_clock, native_steal_clock);
+>
+> +static bool steal_acc =3D true;
+> +static int __init parse_no_stealacc(char *arg)
+> +{
+> +       steal_acc =3D false;
+> +       return 0;
+> +}
+> +early_param("no-steal-acc", parse_no_stealacc);
+> +
+> +static u64 para_steal_clock(int cpu)
+> +{
+> +       u64 steal;
+> +       struct kvm_steal_time *src;
+> +       int version;
+> +
+> +       src =3D &per_cpu(steal_time, cpu);
+> +       do {
+> +
+> +               version =3D src->version;
+> +               /* Make sure that the version is read before the steal */
+> +               virt_rmb();
+> +               steal =3D src->steal;
+> +               /* Make sure that the steal is read before the next versi=
+on */
+> +               virt_rmb();
+> +
+> +       } while ((version & 1) || (version !=3D src->version));
+> +       return steal;
+> +}
+> +
+> +static int pv_enable_steal_time(void)
+> +{
+> +       int cpu =3D smp_processor_id();
+> +       struct kvm_steal_time *st;
+> +       unsigned long addr;
+> +
+> +       if (!has_steal_clock)
+> +               return -EPERM;
+> +
+> +       st =3D &per_cpu(steal_time, cpu);
+> +       addr =3D per_cpu_ptr_to_phys(st);
+> +
+> +       /* The whole structure kvm_steal_time should be one page */
+> +       if (PFN_DOWN(addr) !=3D PFN_DOWN(addr + sizeof(*st))) {
+> +               pr_warn("Illegal PV steal time addr %lx\n", addr);
+> +               return -EFAULT;
+> +       }
+> +
+> +       addr |=3D KVM_STEAL_PHYS_VALID;
+> +       kvm_hypercall2(KVM_HCALL_FUNC_NOTIFY, KVM_FEATURE_STEAL_TIME, add=
+r);
+> +       return 0;
+> +}
+> +
+>  #ifdef CONFIG_SMP
+>  static void pv_send_ipi_single(int cpu, unsigned int action)
+>  {
+> @@ -110,6 +164,32 @@ static void pv_init_ipi(void)
+>         if (r < 0)
+>                 panic("SWI0 IRQ request failed\n");
+>  }
+> +
+> +static void pv_disable_steal_time(void)
+> +{
+> +       if (has_steal_clock)
+> +               kvm_hypercall2(KVM_HCALL_FUNC_NOTIFY, KVM_FEATURE_STEAL_T=
+IME, 0);
+> +}
+> +
+> +static int pv_time_cpu_online(unsigned int cpu)
+> +{
+> +       unsigned long flags;
+> +
+> +       local_irq_save(flags);
+> +       pv_enable_steal_time();
+> +       local_irq_restore(flags);
+> +       return 0;
+> +}
+> +
+> +static int pv_time_cpu_down_prepare(unsigned int cpu)
+> +{
+> +       unsigned long flags;
+> +
+> +       local_irq_save(flags);
+> +       pv_disable_steal_time();
+> +       local_irq_restore(flags);
+> +       return 0;
+> +}
+>  #endif
+>
+>  static bool kvm_para_available(void)
+> @@ -149,3 +229,54 @@ int __init pv_ipi_init(void)
+>
+>         return 1;
+>  }
+> +
+> +static void pv_cpu_reboot(void *unused)
+> +{
+> +       pv_disable_steal_time();
+> +}
+> +
+> +static int pv_reboot_notify(struct notifier_block *nb, unsigned long cod=
+e,
+> +               void *unused)
+> +{
+> +       on_each_cpu(pv_cpu_reboot, NULL, 1);
+> +       return NOTIFY_DONE;
+> +}
+> +
+> +static struct notifier_block pv_reboot_nb =3D {
+> +       .notifier_call  =3D pv_reboot_notify,
+> +};
+> +
+> +int __init pv_time_init(void)
+> +{
+> +       int feature;
+> +
+> +       if (!cpu_has_hypervisor)
+> +               return 0;
+> +       if (!kvm_para_available())
+> +               return 0;
+> +
+> +       feature =3D read_cpucfg(CPUCFG_KVM_FEATURE);
+> +       if (!(feature & KVM_FEATURE_STEAL_TIME))
+> +               return 0;
+> +
+> +       has_steal_clock =3D 1;
+> +       if (pv_enable_steal_time()) {
+> +               has_steal_clock =3D 0;
+> +               return 0;
+> +       }
+> +
+> +       register_reboot_notifier(&pv_reboot_nb);
+> +       static_call_update(pv_steal_clock, para_steal_clock);
+> +       static_key_slow_inc(&paravirt_steal_enabled);
+> +       if (steal_acc)
+> +               static_key_slow_inc(&paravirt_steal_rq_enabled);
+> +
+> +#ifdef CONFIG_SMP
+> +       if (cpuhp_setup_state_nocalls(CPUHP_AP_ONLINE_DYN,
+> +                       "loongarch/pvi_time:online",
+> +                       pv_time_cpu_online, pv_time_cpu_down_prepare) < 0=
+)
+> +               pr_err("Failed to install cpu hotplug callbacks\n");
+> +#endif
+> +       pr_info("Using stolen time PV\n");
+> +       return 0;
+> +}
+> diff --git a/arch/loongarch/kernel/time.c b/arch/loongarch/kernel/time.c
+> index fd5354f9be7c..46d7d40c87e3 100644
+> --- a/arch/loongarch/kernel/time.c
+> +++ b/arch/loongarch/kernel/time.c
+> @@ -15,6 +15,7 @@
+>
+>  #include <asm/cpu-features.h>
+>  #include <asm/loongarch.h>
+> +#include <asm/paravirt.h>
+>  #include <asm/time.h>
+>
+>  u64 cpu_clock_freq;
+> @@ -214,4 +215,5 @@ void __init time_init(void)
+>
+>         constant_clockevent_init();
+>         constant_clocksource_init();
+> +       pv_time_init();
+>  }
+> --
+> 2.39.3
+>
+>
