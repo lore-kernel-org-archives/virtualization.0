@@ -1,309 +1,230 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E46B8143749
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Apr 2024 14:59:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714489183; cv=none; b=oMMyjSP+t3vUuyTjfnmk5PUjkM5z2vpaUHa0Wj+J3GGQtvG47Y7CnpHB0KdR1/mwGpf09piEjONM4/dZWgELfdCrGTZyRuXUHySFffGTW8BoYEQ6iPMbdKXGPNioFxZjgbZeIDdPyQxD8NOR5wacb5VP7xaSqDaA7yImBAhDWjY=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714489183; c=relaxed/simple;
-	bh=neT7HYgXLCtrbErknLj1hAcQ6/k/SrXq7wSzsrM+fa4=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=W/SzF0iaMAuvEP78G7kx51J5ECE5WSsnlVaiRsxnuI42JRAvxwZf6f2hXrYFmIrI81ByrZtG+SPrC8VrCtO1Jjl6Lllb6aOIZ+Gbcw6ORb9/7GXgYHFYV/GNObdng0yNVhV8X4clsvYHxWuC4dV6/zhZXq5+C/zOT+m+5SYnByI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=AefIwW+z; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5208D177992
+	for <virtualization@lists.linux.dev>; Tue, 30 Apr 2024 16:23:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.165.32
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1714494193; cv=fail; b=CKBsqQKTAeQ143Zr2vd+Vgh5lcDfP+7mgIJKHtH70Z2bCB8+iaiEoc0xzbs+fqyiPuxrZ54FU/mFAKAVivqeSxreus2YWXZuqdVv/SUuzD6hu3d9eHsSeht9KMBLvVu11n0R82STf4Z4gnqc7urFOB2+MKFpkvr4xVimytw1+38=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1714494193; c=relaxed/simple;
+	bh=HMBU9g8ngWZJlgBAVMj8Z7dmUBQD39DNQ95PSqusIEA=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=ayAj0MSEJrCu7mnI5wMTYuTXvbHNWwj9rQT7WHEAzT/uUb3Z+2kCGpbIvpOE1DIzRrRmjhTjcI7+XcjV9C4VKnqUQ5VNSeusMrPR7fPTnYKcL0vl5d8hVz5XtXFh9+1CgWxEbErJ7mzgCAC6WfDuLLmFNm6zy0XQtlDO7yCnA2Q=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=mgQVG5VZ; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=wD7w3Gnp; arc=fail smtp.client-ip=205.220.165.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="AefIwW+z"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 87E6F60AB1
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Apr 2024 14:59:41 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -4.299
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id Lp1THBR3XF73 for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Apr 2024 14:59:40 +0000 (UTC)
-Received-SPF: None (mailfrom) identity=mailfrom; client-ip=198.175.65.19; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 7C7E260AB9
-Authentication-Results: smtp3.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7C7E260AB9
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=AefIwW+z
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 7C7E260AB9
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Apr 2024 14:59:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1714489181; x=1746025181;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=neT7HYgXLCtrbErknLj1hAcQ6/k/SrXq7wSzsrM+fa4=;
-  b=AefIwW+zVMJ3+Of5w/L07Wvg5boTK/Vxmp4vCQwm9Coklcd3VJkC420K
-   bpCnrzHvMrGWsuJk9B0osUQNLoW4iQi/f6K6g015OmQVVz4gyg3Fd9rpw
-   oj4uVqrOFGb+QuWXO+qrZkPYehjL9/oudlpYSF6EWM53H+ZAPMadKey4q
-   WJe/VUY9eWInR+ca8aQ+ulD66X9RMpjuCvRPJ7hDK5p6YRq0Iev/PxZ4U
-   rLsuBn5K2X1BRmyL5xgE1uaDvDzlGk8KjcgYW/MW7dSDd66Xclt8xR+t0
-   lZNampuDwzArocuqGr2ORvSu8Vt1cgsxAqi+WawOIEEJ8LLACGeJh3ne8
-   g==;
-X-CSE-ConnectionGUID: f77QxtX0TfKMtp3FfikD4w==
-X-CSE-MsgGUID: qckLN1TOQiuJ3PimERoENA==
-X-IronPort-AV: E=McAfee;i="6600,9927,11060"; a="10059998"
-X-IronPort-AV: E=Sophos;i="6.07,242,1708416000"; 
-   d="scan'208";a="10059998"
-Received: from orviesa004.jf.intel.com ([10.64.159.144])
-  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Apr 2024 07:59:23 -0700
-X-CSE-ConnectionGUID: U6iU6JpeTga/SAk13G013w==
-X-CSE-MsgGUID: VSS2H2M7Tj6k8GbYlU/rvA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.07,242,1708416000"; 
-   d="scan'208";a="31282256"
-Received: from unknown (HELO allen-box.sh.intel.com) ([10.239.159.127])
-  by orviesa004.jf.intel.com with ESMTP; 30 Apr 2024 07:59:19 -0700
-From: Lu Baolu <baolu.lu@linux.intel.com>
-To: Jason Gunthorpe <jgg@ziepe.ca>,
-	Kevin Tian <kevin.tian@intel.com>,
-	Joerg Roedel <joro@8bytes.org>,
-	Will Deacon <will@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Jean-Philippe Brucker <jean-philippe@linaro.org>,
-	Nicolin Chen <nicolinc@nvidia.com>,
-	Yi Liu <yi.l.liu@intel.com>,
-	Jacob Pan <jacob.jun.pan@linux.intel.com>,
-	Joel Granados <j.granados@samsung.com>
-Cc: iommu@lists.linux.dev,
-	virtualization@lists.linux-foundation.org,
-	linux-kernel@vger.kernel.org,
-	Lu Baolu <baolu.lu@linux.intel.com>
-Subject: [PATCH v5 9/9] iommufd/selftest: Add coverage for IOPF test
-Date: Tue, 30 Apr 2024 22:57:10 +0800
-Message-Id: <20240430145710.68112-10-baolu.lu@linux.intel.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20240430145710.68112-1-baolu.lu@linux.intel.com>
-References: <20240430145710.68112-1-baolu.lu@linux.intel.com>
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="mgQVG5VZ";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="wD7w3Gnp"
+Received: from pps.filterd (m0333521.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43UCRNH7018326;
+	Tue, 30 Apr 2024 16:23:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=corp-2023-11-20;
+ bh=W+ueri5/LEGbnpbK7fDORcNPVHnTBEDSqKLTo8t34HY=;
+ b=mgQVG5VZRfM2RfZUVufHfzTpus/i8u3Bo3jfbHU1lOO+3pg+/FOVyeZuLJUvuFWGyZ8S
+ UJI8FiHuvmMRFJPwNa98Ni/xESlPNBqqe2yGJBkOUPtKttcYtuBkB/fU3udRhHtHl8ur
+ L2Mnx/oCcyE5lomkqwx1PTpr9iYBN7RQ/4AN0bKM5b3pJE4iY+MxC995o9xzdMimf0WU
+ 6ff6RnxeOgh78bFuxB2dqIcw04kFKfs9QNeRRu7fHg2oax6pBH9uN8010RuvpIOsgmvx
+ vizxNp1wVM/OX+hH2qj7Ybs/oYtOkLIjnLyz1gp1yRgygIfav7IR9I+np87pxcto6QOZ eQ== 
+Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta03.appoci.oracle.com [138.1.37.129])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3xrr9cnmj2-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 30 Apr 2024 16:23:10 +0000
+Received: from pps.filterd (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 43UG1KmP008453;
+	Tue, 30 Apr 2024 16:23:09 GMT
+Received: from nam10-bn7-obe.outbound.protection.outlook.com (mail-bn7nam10lp2101.outbound.protection.outlook.com [104.47.70.101])
+	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3xrqt86et6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 30 Apr 2024 16:23:09 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=D9IoezH/wqJYd2+Zy8ViSiQ6CkJh2uwLIuUKFGNDZVXJcsGaxjsEKF6raKuAriO2Fki5R3v7QlIUM0GgB8z1PhV1VOsxqFN2bP76+01wB0E+Sc+9Ogs24XYyviauU34CnhpPde6cYkBQ7IJfhMxAXKkBKnF6a3tw011C77O5OxHyFAmnSpvamc0VoysBdeCFKWfRNnIhikcZ4bu34A4tgbTxkzbh8p4jzGcGx0l9or4lLqmkVPzUqiopeZIyNhsnofI7tg6ERP1KMxzz7eWexg0TzJZZGxKtMRMuBi0empS0euQJYbG6XpKUwvsr46VaPX5ANC5ItGYra3HW1Kh4Wg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=W+ueri5/LEGbnpbK7fDORcNPVHnTBEDSqKLTo8t34HY=;
+ b=IeYpjlQW4qWTZvv4r6u9Ot+GZ3+G/X5nVFEjZ4Z5h7xLb/R5so+PKkpQhglzNeww9Z5JPFz4anspB+nUaCl46ZRAYJ77b05pr7AVTDx3Vj4esiVJh5F54B4XZyyhLj/3/51LzNZDCawCF0W1/gqoOeWI7yB2Tabwh6yL1uilbFRN8J26lOPjuzCXiHngvW7C8VfAMh4SdyNxmL1zfx8Od6foZ1QruBcTVxls6xmmc51t9ZehAmMUJtvXLCZDuB2ZDEzwYgtyCfRhfTndqpV4yJLW+nKC7aR/RW7+wSFfr7ZvB0UTsXgR+AMxKEodSX22owgXBa6O3ZClQOfrq836uw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=W+ueri5/LEGbnpbK7fDORcNPVHnTBEDSqKLTo8t34HY=;
+ b=wD7w3GnpkXGaTJMBL5EpjzZDh8rW5FKl+Hh4+3ApN3yj32ecYUL3C8LRFhXl6fi2l0GSaK3W6Y9bj/DXhZAoPIzAn4i+E3hrRsxKquv+8kwvas5EslotzqhH/HuD1/CUzBAG910VzEwH6AgGtbjQH73bTfOuyeDmJ+tGdWI9BTY=
+Received: from CY8PR10MB7243.namprd10.prod.outlook.com (2603:10b6:930:7c::10)
+ by PH7PR10MB6602.namprd10.prod.outlook.com (2603:10b6:510:206::9) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7544.25; Tue, 30 Apr
+ 2024 16:23:07 +0000
+Received: from CY8PR10MB7243.namprd10.prod.outlook.com
+ ([fe80::b779:d0be:9e3a:34f0]) by CY8PR10MB7243.namprd10.prod.outlook.com
+ ([fe80::b779:d0be:9e3a:34f0%7]) with mapi id 15.20.7519.031; Tue, 30 Apr 2024
+ 16:23:07 +0000
+Message-ID: <b959b82a-510f-45c0-9e06-acf526c2f4a1@oracle.com>
+Date: Tue, 30 Apr 2024 11:23:04 -0500
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH next] vhost_task: after freeing vhost_task it should not
+ be accessed in vhost_task_fn
+To: Edward Adam Davis <eadavis@qq.com>,
+        syzbot+98edc2df894917b3431f@syzkaller.appspotmail.com
+Cc: jasowang@redhat.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        mst@redhat.com, netdev@vger.kernel.org,
+        syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev
+References: <000000000000a9613006174c1c4c@google.com>
+ <tencent_4271296B83A6E4413776576946DAB374E305@qq.com>
+Content-Language: en-US
+From: Mike Christie <michael.christie@oracle.com>
+In-Reply-To: <tencent_4271296B83A6E4413776576946DAB374E305@qq.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: CH2PR19CA0029.namprd19.prod.outlook.com
+ (2603:10b6:610:4d::39) To CY8PR10MB7243.namprd10.prod.outlook.com
+ (2603:10b6:930:7c::10)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CY8PR10MB7243:EE_|PH7PR10MB6602:EE_
+X-MS-Office365-Filtering-Correlation-Id: 6933d01c-03f3-42fc-ff0a-08dc6931d195
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230031|376005|366007|1800799015;
+X-Microsoft-Antispam-Message-Info: 
+	=?utf-8?B?dlFualRKRVpQajJNbDg2VTE2SG5uTlRuVzVrbldVRHdNUWVzbkMzZlQvRE5D?=
+ =?utf-8?B?NDdoNnVGNFZMN25MSStZdlNZMEN4TGgvbUJjUWc2dnAvUVdPWDdCa3VYWngz?=
+ =?utf-8?B?SXdTOWlVYktETTJyWGZFLzNWQm0zb25sRmNGcUFJNGxzcnJtL3FyOCtMOTBE?=
+ =?utf-8?B?NElUalVzZURtaHF3TDN5Ny9GejhwTGUxRGJYVWxwMllZYk85Y3Q4UktTU01w?=
+ =?utf-8?B?L1RkS2J2cDBqTjhPVC92ajZQZFRzdi80QlpnOWtDeFlaK3RoZzNIUnVFYUJ2?=
+ =?utf-8?B?cU5KZ1ZJUm9YY3pWNVpXOXZrSVdORkJmcmJweUU2TUJtMWNlaDRZKzV4VG9R?=
+ =?utf-8?B?NE55VlhRdGJEYTVWaWF1Wi9DdHFWaWlPRXVNTlk1VWp3WEZkWTFVQ0lRVzhq?=
+ =?utf-8?B?d2wySnJnd21oWlVHZVg3aTlrT1RvZGd6NkVvMGdWeUVQOStTOUtOMlNBZVpT?=
+ =?utf-8?B?S3UzWE93Z29hUFZ5bzdHNURTS3ZkdXI1TEZUL1JTRWNxdWlRdFJDWHNDTUE0?=
+ =?utf-8?B?dVY4SXo4V2ZWMldpc01LUUFoY0JnQi9tK041LzV2QS9KOGdmSXBoNXdEN1Zj?=
+ =?utf-8?B?K0podGZwSGFqeTdRSEEwSGp5dFE1b0xlWE1HQ2VDZGt1bVgzem1PYm5Ma0RN?=
+ =?utf-8?B?enRqc0s1Z3ljc2tmYXpaQ1o3V0dhTnBpcUJBSjFSSy9aMDNCUVgrNjB4bmRM?=
+ =?utf-8?B?SXZsN0pRYVJTUzJndm5tY2VodGE3VE5tSGdPbzlFbTdTZGZPVlpETUlJT2xs?=
+ =?utf-8?B?WHd0cTBuRHRJeXZ0UzF1V0NNZTFYbHlYSzB6Z1RqR1g5RUdTdVBjc3pYMjlF?=
+ =?utf-8?B?SkR5OHNjdUVEZFJYMmNHeXNyazEwaWlhVDREREVIbGs2eEd6TXFVTmFqSmls?=
+ =?utf-8?B?SytVR09TT3pIQ1o3N2RXSUVCc0RpVzJFTjFBUDdoWTRRU0FGZjU4Z1Vnc1JL?=
+ =?utf-8?B?Zmx6eUwyU3hwNUgzR1FjZ2cwVVlwdlZJM3dJM2lkU3RKK3JkZHVqNVVrc1ZT?=
+ =?utf-8?B?aG5RbHFCaXF4OGxYU0g0TFkxVGlQQ1k1T1hRTWkvSmppMXE5UVp6YU1hNzNs?=
+ =?utf-8?B?L1RJWFF2SDk4TEorWGxMWDJwQXliL2E5YnptWkdUVzFhSzU0VXUvMDZHenNl?=
+ =?utf-8?B?Z2xQbGY0cEg4ZEYwTGlqZXRsM3d3RGwrdE9sS2ZoQzdoZ0N1WmJZZEVPZkR1?=
+ =?utf-8?B?TVNxMFIxdldjQ3JBU0x3ZUFpSG5ZaTBPMlRzbjkrbElia0NEbW1sTzVkbWRV?=
+ =?utf-8?B?S1RxS0xMVXYrRGVTSTRVYmM3aFhLZk95UWRWVEhaSmVaWlJBU2dVejlpK0F5?=
+ =?utf-8?B?ZTEwNmRIK3FNallOSXlIKy9NdmpDN0hLdmh0NzRJVUtmSzZWTHA3c3VVNTFC?=
+ =?utf-8?B?bTZTbTJ0YnNWL2xQWDhudlJhZzBvVVFWUlpDeWU0MUhmRTJTN2Q4R2F3T1dn?=
+ =?utf-8?B?bzBVdDhQOE5QT2FjNG5WTkNQb2FZUGdmeE8xcTRlYXV2L1c2RktoYzdNZmxN?=
+ =?utf-8?B?MEpoOSsyV0xIbWY0TUJ4UEwxVmtBTjk1MTVuZDBlc0pwUTRIZ3BJNzNNRjVB?=
+ =?utf-8?B?OXZVcFhvYzg5aTJpV0hHTjRhbURSY3lWRGw1OUVnblc1NU42SHN0UkJXTHNZ?=
+ =?utf-8?B?RTFWTUhpdzZ2cVFodlZaNklkVWdIZmFzQTZyOUw5Ynh3L3BKTW8xaXBUWFZm?=
+ =?utf-8?B?YkhJN1ZPT0Q3ZFZ1dFlRNk01TXdGRVIwd1lLZW9BYzFIYTZpMHlDQ2hRPT0=?=
+X-Forefront-Antispam-Report: 
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR10MB7243.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(376005)(366007)(1800799015);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: 
+	=?utf-8?B?ZXB3dUxxUS9lcDNndzlnNjI2akN1Y081V2lKQ1BBYWJvQVRzWG9WYmxGU3FS?=
+ =?utf-8?B?SGp0WXVvcm9UZUR5N1ViZlZxMkRQUzNENk9QVm9ZdW5WSnNVbTRwNFA5cm9Y?=
+ =?utf-8?B?RlU2ZzdlZ1M2QUxBSnNHMEowcks5NmUwQ0gxWWF3dkZNaUtGNTgrWlgzdmlx?=
+ =?utf-8?B?NkpiSzBidm5KM2ZjQzBBMVZuR3lzWjV2RTFwL2FoZHM4YURmQjZxR0ZMd3lq?=
+ =?utf-8?B?aXp6d05jV0tLUEh2cmoxQkJBUzhXMEVNTFJ2QkFMZDkyZm5xSUhtd2FtTk0w?=
+ =?utf-8?B?emZ6UndwR21nY3ZrUXpvWkZHSVgrSHFDNVJBSDZLemxnZ2JWSnBISmdkWFg3?=
+ =?utf-8?B?Z1p4VFBHOUFQRHd6d1hSSjc1cjhNUjN5NkE4OTQrcjRQRlZTRDZSVFYvUWF4?=
+ =?utf-8?B?MEVHQnlqZE9nVExoSm9teUF2eUlaQmJFelZvTlVGWjRSdWtuRmtwQ0VUbWtl?=
+ =?utf-8?B?YnAzclRwR1UwRHE5S3BOY2ZMUVorb2tUeHlQQ3pkSTZNZDNVNkZlbXk1ZEI3?=
+ =?utf-8?B?QUdlaFRoSk4xU0Z0cEhGd0JsbTdHWGlUeXd6ZERTaGJ5NHptMVowTDR0emk0?=
+ =?utf-8?B?amJUSmR1T2E4ZUxZSkV6b3lwRGpxYlRTalA2OWhUQjJVcWlnL0JhNnRub29B?=
+ =?utf-8?B?THRJYWF5VHlRaUxHa3JEMnJCR3N6L2ZkN0Zsci9TdTJGNS9YOVNuSjQwY3BV?=
+ =?utf-8?B?bjl3QStlT2ZTTWMxUU5mcFhhYTZrVGorNjRPWUhpVkRCT0hXS2wrQ1VnZjJl?=
+ =?utf-8?B?azRyZWhjRmUwRHF4WDY4Rll3ZTJ6eXJYbnFGdzFVbUxFR21vQk1LMWNBanEw?=
+ =?utf-8?B?WkRrL08zRDlZOXFxaU5HK1JFNUxab1FRcTZPMThvMS9vMCtpTE5rcnlzZlZm?=
+ =?utf-8?B?dVJ1NGJ3L2ZiZzNsMUttc2l3cnBpOHhqK1hwK0F4cC9lNDdpRHZWRFpzS2lz?=
+ =?utf-8?B?ZEtyY3NReVNZVVpya1NRT00rQUVOYUF4d2tKeEZMVlNrV3JVUkUzb0JyQ1JF?=
+ =?utf-8?B?andHK1hDcGlnZUZjKzBQc3NEcVpvN2J1NkNUR3BxZE5aNUNzMWw2RVUyR1NY?=
+ =?utf-8?B?eldTUVJXYXdSeVpGeGJ0Z2ZjbXBvZElVYTN6U2VhYVVhVlI0QS9NdVhHOWpj?=
+ =?utf-8?B?ZXB0NlYwNGEwUEV6WGZUNHRScGl4TzRIdVpPZldzNGdSYjh4VmNaOWM0OFVa?=
+ =?utf-8?B?YUNua0lVazZkNzBSZERHZThBcm1rQ2RIbU5EaDVrMUtVSitTTzJ6NkJJV3E3?=
+ =?utf-8?B?TEdkblFCSmVtRDBDOWxVVHNOWXhPV0ZOR2ErZXZ2RTVOdU1MY0ZjUkFtRWxX?=
+ =?utf-8?B?cU1lUUtXQ0ptZWhtQTdHQzBGYjdWUzJ3akx6cm9FRUNqNjBMU3VPSm00bnpy?=
+ =?utf-8?B?Z0R6NG9MdktHckFvQjI0aHo4WlJ2K3ZDb1ltRmtxVkIzd2dLdjFTUzM2K3o1?=
+ =?utf-8?B?RkNHalhxY21HajVvNThiS2dLN2thRzgvQ3lUbXRKS1F1UGdOOFhEbnRhNkJi?=
+ =?utf-8?B?clB5UzZ5SGRRNXdscTJuUDlPT1JCOEJlZDBhUnIxY3hPYkUzVWR1ZFA4RWR0?=
+ =?utf-8?B?d3dMY3Fwc0pUUmt1T0tRdXFmeVZnOWZwNWUxcWQ0cnkxeWFUVXJDTkNRSDRK?=
+ =?utf-8?B?bG9aWGwwdklaWDNKdndHSG1IZm1FZlNXWjJZMWo3MGNKVXZpbyt4Zkk3by9V?=
+ =?utf-8?B?U055MVJFQVZKTUlKODh1Q01yOG5tQm9jeUlCdll0Rk85clRTQXZjK3FnaHhs?=
+ =?utf-8?B?Sm1sZkd1RlhrOWJuK2xROThlQllVRlZWRjdIWlJyTUJzVWl1KzBtUEI1eksr?=
+ =?utf-8?B?bDFyYnp0VDNOZDZxeXIzT2gvUHRuMjdvMWF4U1dIcGVOTnU4cjY3TkY5eW5i?=
+ =?utf-8?B?Zy9Sbnk0ZzJTMTB3dFFFL3pXZ1VwdGhPT0dGY0Z5NHpnZXA0UVNKQzcrQ3d4?=
+ =?utf-8?B?SlMyOERJWm9XT3pmK2pmd0ZvYi9JV1o0LytRWk5mVHp3ekc3YllUL1AxWWY1?=
+ =?utf-8?B?Y2hVRko0MkFWU0krVW5HbWgyZEtGaXVtTVk3WGRPcmFvclpqUWt4cnB1Z01Z?=
+ =?utf-8?B?RTM1R20yWThBaGZwYkh6ajBmQWlOL2paVmJEb25lMlZtS3laM3VjZFdsWm5S?=
+ =?utf-8?B?cTRZYnZlenkrUGRtQ2o5QVdkYmV0eVBERTZCcHlvaVBib3MwUHVyblZHNjhQ?=
+ =?utf-8?B?b1E9PQ==?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: 
+	Eb0hKEEYMUsr+0Sbg+WKmS2RrdNjPWbp4oMmgMhRRSA46Sa/iIesooN6pY8K2J9EGcKbh/ZRasmhCJVBk0vXaX1X3/PxfZ4jZq8XP+PElc+YZ9/2UR2dHbsCFVt4wDXm+ofFp8fYyEMys213k1E/r1USMe05o8J1fb2fa3tMeqlqERIF+vXOLSe1V/CGZZyhUxL9zbaYmAuHWoyqB37qHwhT65v3HK5uCk7aJiK7xfKJtzY2GahJwnIaflnR7DHySnDNggqJlBWak0LWBjI6u5fHVUTbhmAqHjuwdMTfXoO04HJxBW5nU02RLjkIPNy1SNE2iMwleBAM4VL1KhekaRaQyGnZDan4tMDYjEx9vuiemVyQF0AWybKyNlP+jS7W5f5zug0v+FeF8FcYJl74rCxf/m6LuFL2zWe3nvy7K59AJKn6I6b+GDwQZ81hhGcOdPjZoxnLKZAIwAt8T6VHSlrkKE0MbekEXhymAeBjeTIfvHWlAXksrhKmtkM/qZ66pysSxRv/TlaU5iXfw7UMe6pDheJw7vKCcS3F09/dW66mWkM4x231niA6/89NLiFM020Ty0EpaxxivBka59I6XOiZsnzHzKeMAWmGxlXLD2U=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6933d01c-03f3-42fc-ff0a-08dc6931d195
+X-MS-Exchange-CrossTenant-AuthSource: CY8PR10MB7243.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Apr 2024 16:23:07.1998
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: fnXwGy7c+9qp0AbgTq+RKRaod4UDF1c19q78AKdr2Ww0Y5brDzI7btC5NbRJBBrQ3IgyEry5DxUsg9Iu6pUXspcaaOO2c/vZ/b9tCO3MR3Q=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR10MB6602
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.650,FMLib:17.11.176.26
+ definitions=2024-04-30_09,2024-04-30_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 malwarescore=0
+ mlxlogscore=966 bulkscore=0 suspectscore=0 adultscore=0 phishscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2404010000 definitions=main-2404300116
+X-Proofpoint-GUID: 2gaTvJm7JAc2feNsQVmz12u2RfIkURaH
+X-Proofpoint-ORIG-GUID: 2gaTvJm7JAc2feNsQVmz12u2RfIkURaH
 
-Extend the selftest tool to add coverage of testing IOPF handling. This
-would include the following tests:
+On 4/30/24 8:05 AM, Edward Adam Davis wrote:
+>  static int vhost_task_fn(void *data)
+>  {
+>  	struct vhost_task *vtsk = data;
+> @@ -51,7 +51,7 @@ static int vhost_task_fn(void *data)
+>  			schedule();
+>  	}
+>  
+> -	mutex_lock(&vtsk->exit_mutex);
+> +	mutex_lock(&exit_mutex);
+>  	/*
+>  	 * If a vhost_task_stop and SIGKILL race, we can ignore the SIGKILL.
+>  	 * When the vhost layer has called vhost_task_stop it's already stopped
+> @@ -62,7 +62,7 @@ static int vhost_task_fn(void *data)
+>  		vtsk->handle_sigkill(vtsk->data);
+>  	}
+>  	complete(&vtsk->exited);
+> -	mutex_unlock(&vtsk->exit_mutex);
+> +	mutex_unlock(&exit_mutex);
+>  
 
-- Allocating and destroying an iommufd fault object.
-- Allocating and destroying an IOPF-capable HWPT.
-- Attaching/detaching/replacing an IOPF-capable HWPT on a device.
-- Triggering an IOPF on the mock device.
-- Retrieving and responding to the IOPF through the file interface.
+Edward, thanks for the patch. I think though I just needed to swap the
+order of the calls above.
 
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
----
- tools/testing/selftests/iommu/iommufd_utils.h | 84 +++++++++++++++++--
- tools/testing/selftests/iommu/iommufd.c       | 18 ++++
- .../selftests/iommu/iommufd_fail_nth.c        |  2 +-
- 3 files changed, 98 insertions(+), 6 deletions(-)
+Instead of:
 
-diff --git a/tools/testing/selftests/iommu/iommufd_utils.h b/tools/testing/selftests/iommu/iommufd_utils.h
-index 8d2b46b2114d..7f33389e070c 100644
---- a/tools/testing/selftests/iommu/iommufd_utils.h
-+++ b/tools/testing/selftests/iommu/iommufd_utils.h
-@@ -153,7 +153,7 @@ static int _test_cmd_mock_domain_replace(int fd, __u32 stdev_id, __u32 pt_id,
- 	EXPECT_ERRNO(_errno, _test_cmd_mock_domain_replace(self->fd, stdev_id, \
- 							   pt_id, NULL))
- 
--static int _test_cmd_hwpt_alloc(int fd, __u32 device_id, __u32 pt_id,
-+static int _test_cmd_hwpt_alloc(int fd, __u32 device_id, __u32 pt_id, __u32 ft_id,
- 				__u32 flags, __u32 *hwpt_id, __u32 data_type,
- 				void *data, size_t data_len)
- {
-@@ -165,6 +165,7 @@ static int _test_cmd_hwpt_alloc(int fd, __u32 device_id, __u32 pt_id,
- 		.data_type = data_type,
- 		.data_len = data_len,
- 		.data_uptr = (uint64_t)data,
-+		.fault_id = ft_id,
- 	};
- 	int ret;
- 
-@@ -177,24 +178,30 @@ static int _test_cmd_hwpt_alloc(int fd, __u32 device_id, __u32 pt_id,
- }
- 
- #define test_cmd_hwpt_alloc(device_id, pt_id, flags, hwpt_id)                  \
--	ASSERT_EQ(0, _test_cmd_hwpt_alloc(self->fd, device_id, pt_id, flags,   \
-+	ASSERT_EQ(0, _test_cmd_hwpt_alloc(self->fd, device_id, pt_id, 0, flags,   \
- 					  hwpt_id, IOMMU_HWPT_DATA_NONE, NULL, \
- 					  0))
- #define test_err_hwpt_alloc(_errno, device_id, pt_id, flags, hwpt_id)   \
- 	EXPECT_ERRNO(_errno, _test_cmd_hwpt_alloc(                      \
--				     self->fd, device_id, pt_id, flags, \
-+				     self->fd, device_id, pt_id, 0, flags, \
- 				     hwpt_id, IOMMU_HWPT_DATA_NONE, NULL, 0))
- 
- #define test_cmd_hwpt_alloc_nested(device_id, pt_id, flags, hwpt_id,         \
- 				   data_type, data, data_len)                \
--	ASSERT_EQ(0, _test_cmd_hwpt_alloc(self->fd, device_id, pt_id, flags, \
-+	ASSERT_EQ(0, _test_cmd_hwpt_alloc(self->fd, device_id, pt_id, 0, flags, \
- 					  hwpt_id, data_type, data, data_len))
- #define test_err_hwpt_alloc_nested(_errno, device_id, pt_id, flags, hwpt_id, \
- 				   data_type, data, data_len)                \
- 	EXPECT_ERRNO(_errno,                                                 \
--		     _test_cmd_hwpt_alloc(self->fd, device_id, pt_id, flags, \
-+		     _test_cmd_hwpt_alloc(self->fd, device_id, pt_id, 0, flags, \
- 					  hwpt_id, data_type, data, data_len))
- 
-+#define test_cmd_hwpt_alloc_iopf(device_id, pt_id, fault_id, flags, hwpt_id,    \
-+				   data_type, data, data_len)                   \
-+	ASSERT_EQ(0, _test_cmd_hwpt_alloc(self->fd, device_id, pt_id, fault_id, \
-+					  flags, hwpt_id, data_type, data,      \
-+					  data_len))
-+
- #define test_cmd_hwpt_check_iotlb(hwpt_id, iotlb_id, expected)                 \
- 	({                                                                     \
- 		struct iommu_test_cmd test_cmd = {                             \
-@@ -684,3 +691,70 @@ static int _test_cmd_get_hw_info(int fd, __u32 device_id, void *data,
- 
- #define test_cmd_get_hw_capabilities(device_id, caps, mask) \
- 	ASSERT_EQ(0, _test_cmd_get_hw_info(self->fd, device_id, NULL, 0, &caps))
-+
-+static int _test_ioctl_fault_alloc(int fd, __u32 *fault_id, __u32 *fault_fd)
-+{
-+	struct iommu_fault_alloc cmd = {
-+		.size = sizeof(cmd),
-+	};
-+	int ret;
-+
-+	ret = ioctl(fd, IOMMU_FAULT_ALLOC, &cmd);
-+	if (ret)
-+		return ret;
-+	*fault_id = cmd.out_fault_id;
-+	*fault_fd = cmd.out_fault_fd;
-+	return 0;
-+}
-+
-+#define test_ioctl_fault_alloc(fault_id, fault_fd)                       \
-+	({                                                               \
-+		ASSERT_EQ(0, _test_ioctl_fault_alloc(self->fd, fault_id, \
-+						     fault_fd));         \
-+		ASSERT_NE(0, *(fault_id));                               \
-+		ASSERT_NE(0, *(fault_fd));                               \
-+	})
-+
-+static int _test_cmd_trigger_iopf(int fd, __u32 device_id, __u32 fault_fd)
-+{
-+	struct iommu_test_cmd trigger_iopf_cmd = {
-+		.size = sizeof(trigger_iopf_cmd),
-+		.op = IOMMU_TEST_OP_TRIGGER_IOPF,
-+		.trigger_iopf = {
-+			.dev_id = device_id,
-+			.pasid = 0x1,
-+			.grpid = 0x2,
-+			.perm = IOMMU_PGFAULT_PERM_READ | IOMMU_PGFAULT_PERM_WRITE,
-+			.addr = 0xdeadbeaf,
-+		},
-+	};
-+	struct iommu_hwpt_page_response response = {
-+		.size = sizeof(struct iommu_hwpt_page_response),
-+		.dev_id = device_id,
-+		.pasid = 0x1,
-+		.grpid = 0x2,
-+		.code = 0,
-+	};
-+	struct iommu_hwpt_pgfault fault = {};
-+	ssize_t bytes;
-+	int ret;
-+
-+	ret = ioctl(fd, _IOMMU_TEST_CMD(IOMMU_TEST_OP_TRIGGER_IOPF), &trigger_iopf_cmd);
-+	if (ret)
-+		return ret;
-+
-+	bytes = read(fault_fd, &fault, sizeof(fault));
-+	if (bytes <= 0)
-+		return -EIO;
-+
-+	response.cookie = fault.cookie;
-+
-+	bytes = write(fault_fd, &response, sizeof(response));
-+	if (bytes <= 0)
-+		return -EIO;
-+
-+	return 0;
-+}
-+
-+#define test_cmd_trigger_iopf(device_id, fault_fd) \
-+	ASSERT_EQ(0, _test_cmd_trigger_iopf(self->fd, device_id, fault_fd))
-diff --git a/tools/testing/selftests/iommu/iommufd.c b/tools/testing/selftests/iommu/iommufd.c
-index edf1c99c9936..5b0169875a4d 100644
---- a/tools/testing/selftests/iommu/iommufd.c
-+++ b/tools/testing/selftests/iommu/iommufd.c
-@@ -279,6 +279,9 @@ TEST_F(iommufd_ioas, alloc_hwpt_nested)
- 	uint32_t parent_hwpt_id = 0;
- 	uint32_t parent_hwpt_id_not_work = 0;
- 	uint32_t test_hwpt_id = 0;
-+	uint32_t iopf_hwpt_id;
-+	uint32_t fault_id;
-+	uint32_t fault_fd;
- 
- 	if (self->device_id) {
- 		/* Negative tests */
-@@ -326,6 +329,7 @@ TEST_F(iommufd_ioas, alloc_hwpt_nested)
- 					   sizeof(data));
- 
- 		/* Allocate two nested hwpts sharing one common parent hwpt */
-+		test_ioctl_fault_alloc(&fault_id, &fault_fd);
- 		test_cmd_hwpt_alloc_nested(self->device_id, parent_hwpt_id, 0,
- 					   &nested_hwpt_id[0],
- 					   IOMMU_HWPT_DATA_SELFTEST, &data,
-@@ -334,6 +338,10 @@ TEST_F(iommufd_ioas, alloc_hwpt_nested)
- 					   &nested_hwpt_id[1],
- 					   IOMMU_HWPT_DATA_SELFTEST, &data,
- 					   sizeof(data));
-+		test_cmd_hwpt_alloc_iopf(self->device_id, parent_hwpt_id, fault_id,
-+					 IOMMU_HWPT_FAULT_ID_VALID, &iopf_hwpt_id,
-+					 IOMMU_HWPT_DATA_SELFTEST, &data,
-+					 sizeof(data));
- 		test_cmd_hwpt_check_iotlb_all(nested_hwpt_id[0],
- 					      IOMMU_TEST_IOTLB_DEFAULT);
- 		test_cmd_hwpt_check_iotlb_all(nested_hwpt_id[1],
-@@ -504,14 +512,24 @@ TEST_F(iommufd_ioas, alloc_hwpt_nested)
- 			     _test_ioctl_destroy(self->fd, nested_hwpt_id[1]));
- 		test_ioctl_destroy(nested_hwpt_id[0]);
- 
-+		/* Switch from nested_hwpt_id[1] to iopf_hwpt_id */
-+		test_cmd_mock_domain_replace(self->stdev_id, iopf_hwpt_id);
-+		EXPECT_ERRNO(EBUSY,
-+			     _test_ioctl_destroy(self->fd, iopf_hwpt_id));
-+		/* Trigger an IOPF on the device */
-+		test_cmd_trigger_iopf(self->device_id, fault_fd);
-+
- 		/* Detach from nested_hwpt_id[1] and destroy it */
- 		test_cmd_mock_domain_replace(self->stdev_id, parent_hwpt_id);
- 		test_ioctl_destroy(nested_hwpt_id[1]);
-+		test_ioctl_destroy(iopf_hwpt_id);
- 
- 		/* Detach from the parent hw_pagetable and destroy it */
- 		test_cmd_mock_domain_replace(self->stdev_id, self->ioas_id);
- 		test_ioctl_destroy(parent_hwpt_id);
- 		test_ioctl_destroy(parent_hwpt_id_not_work);
-+		close(fault_fd);
-+		test_ioctl_destroy(fault_id);
- 	} else {
- 		test_err_hwpt_alloc(ENOENT, self->device_id, self->ioas_id, 0,
- 				    &parent_hwpt_id);
-diff --git a/tools/testing/selftests/iommu/iommufd_fail_nth.c b/tools/testing/selftests/iommu/iommufd_fail_nth.c
-index f590417cd67a..c5d5e69452b0 100644
---- a/tools/testing/selftests/iommu/iommufd_fail_nth.c
-+++ b/tools/testing/selftests/iommu/iommufd_fail_nth.c
-@@ -615,7 +615,7 @@ TEST_FAIL_NTH(basic_fail_nth, device)
- 	if (_test_cmd_get_hw_info(self->fd, idev_id, &info, sizeof(info), NULL))
- 		return -1;
- 
--	if (_test_cmd_hwpt_alloc(self->fd, idev_id, ioas_id, 0, &hwpt_id,
-+	if (_test_cmd_hwpt_alloc(self->fd, idev_id, ioas_id, 0, 0, &hwpt_id,
- 				 IOMMU_HWPT_DATA_NONE, 0, 0))
- 		return -1;
- 
--- 
-2.34.1
+complete(&vtsk->exited);
+mutex_unlock(&vtsk->exit_mutex);
+
+it should have been:
+
+mutex_unlock(&vtsk->exit_mutex);
+complete(&vtsk->exited);
+
+If my analysis is correct, then Michael do you want me to resubmit a
+patch on top of your vhost branch or resubmit the entire patchset?
 
