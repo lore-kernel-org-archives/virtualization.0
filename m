@@ -1,230 +1,134 @@
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5208D177992
-	for <virtualization@lists.linux.dev>; Tue, 30 Apr 2024 16:23:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.165.32
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714494193; cv=fail; b=CKBsqQKTAeQ143Zr2vd+Vgh5lcDfP+7mgIJKHtH70Z2bCB8+iaiEoc0xzbs+fqyiPuxrZ54FU/mFAKAVivqeSxreus2YWXZuqdVv/SUuzD6hu3d9eHsSeht9KMBLvVu11n0R82STf4Z4gnqc7urFOB2+MKFpkvr4xVimytw1+38=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714494193; c=relaxed/simple;
-	bh=HMBU9g8ngWZJlgBAVMj8Z7dmUBQD39DNQ95PSqusIEA=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=ayAj0MSEJrCu7mnI5wMTYuTXvbHNWwj9rQT7WHEAzT/uUb3Z+2kCGpbIvpOE1DIzRrRmjhTjcI7+XcjV9C4VKnqUQ5VNSeusMrPR7fPTnYKcL0vl5d8hVz5XtXFh9+1CgWxEbErJ7mzgCAC6WfDuLLmFNm6zy0XQtlDO7yCnA2Q=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=mgQVG5VZ; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=wD7w3Gnp; arc=fail smtp.client-ip=205.220.165.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=oracle.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FE4C180A8E
+	for <virtualization@lists.linux.dev>; Tue, 30 Apr 2024 17:31:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1714498309; cv=none; b=KGp5uSQxBayF4RMbast8YtONlD359xjxxTLxaBA8Elyb3YtRcYvWK+Ksw6Xlwn6/W1lQgVt26jC7CRoIuQzR76W8rfe9GuP8mlF8Y5ndFI6ObvFqx+EkdtSq5YjGiFPr65+FQJe1macMjLcJs8Aa00IMTC7fzxFWdszc1OgHdRk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1714498309; c=relaxed/simple;
+	bh=35wJNzCtc3YlHo7W5Fcjr+gnMzorolWtmPw4Tagx2O8=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=mblivAx2uVD+EgWAazTnbRKOkAL1MwFw78RYE3RxaU62YITCfsUCLQl32TXGbkqkrK0nlrFAdqXPrV/njhd2/C8wDEL7YArD1ovuhfxQkNxSquA7K+kuydjJZQcPexPjja7k0s75UQNq1qVoYNgv3wmA8NYlKoIkUPWi0POCxII=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Tah33pe4; arc=none smtp.client-ip=115.124.30.98
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="mgQVG5VZ";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="wD7w3Gnp"
-Received: from pps.filterd (m0333521.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43UCRNH7018326;
-	Tue, 30 Apr 2024 16:23:10 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2023-11-20;
- bh=W+ueri5/LEGbnpbK7fDORcNPVHnTBEDSqKLTo8t34HY=;
- b=mgQVG5VZRfM2RfZUVufHfzTpus/i8u3Bo3jfbHU1lOO+3pg+/FOVyeZuLJUvuFWGyZ8S
- UJI8FiHuvmMRFJPwNa98Ni/xESlPNBqqe2yGJBkOUPtKttcYtuBkB/fU3udRhHtHl8ur
- L2Mnx/oCcyE5lomkqwx1PTpr9iYBN7RQ/4AN0bKM5b3pJE4iY+MxC995o9xzdMimf0WU
- 6ff6RnxeOgh78bFuxB2dqIcw04kFKfs9QNeRRu7fHg2oax6pBH9uN8010RuvpIOsgmvx
- vizxNp1wVM/OX+hH2qj7Ybs/oYtOkLIjnLyz1gp1yRgygIfav7IR9I+np87pxcto6QOZ eQ== 
-Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta03.appoci.oracle.com [138.1.37.129])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3xrr9cnmj2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 30 Apr 2024 16:23:10 +0000
-Received: from pps.filterd (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 43UG1KmP008453;
-	Tue, 30 Apr 2024 16:23:09 GMT
-Received: from nam10-bn7-obe.outbound.protection.outlook.com (mail-bn7nam10lp2101.outbound.protection.outlook.com [104.47.70.101])
-	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3xrqt86et6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 30 Apr 2024 16:23:09 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=D9IoezH/wqJYd2+Zy8ViSiQ6CkJh2uwLIuUKFGNDZVXJcsGaxjsEKF6raKuAriO2Fki5R3v7QlIUM0GgB8z1PhV1VOsxqFN2bP76+01wB0E+Sc+9Ogs24XYyviauU34CnhpPde6cYkBQ7IJfhMxAXKkBKnF6a3tw011C77O5OxHyFAmnSpvamc0VoysBdeCFKWfRNnIhikcZ4bu34A4tgbTxkzbh8p4jzGcGx0l9or4lLqmkVPzUqiopeZIyNhsnofI7tg6ERP1KMxzz7eWexg0TzJZZGxKtMRMuBi0empS0euQJYbG6XpKUwvsr46VaPX5ANC5ItGYra3HW1Kh4Wg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=W+ueri5/LEGbnpbK7fDORcNPVHnTBEDSqKLTo8t34HY=;
- b=IeYpjlQW4qWTZvv4r6u9Ot+GZ3+G/X5nVFEjZ4Z5h7xLb/R5so+PKkpQhglzNeww9Z5JPFz4anspB+nUaCl46ZRAYJ77b05pr7AVTDx3Vj4esiVJh5F54B4XZyyhLj/3/51LzNZDCawCF0W1/gqoOeWI7yB2Tabwh6yL1uilbFRN8J26lOPjuzCXiHngvW7C8VfAMh4SdyNxmL1zfx8Od6foZ1QruBcTVxls6xmmc51t9ZehAmMUJtvXLCZDuB2ZDEzwYgtyCfRhfTndqpV4yJLW+nKC7aR/RW7+wSFfr7ZvB0UTsXgR+AMxKEodSX22owgXBa6O3ZClQOfrq836uw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=W+ueri5/LEGbnpbK7fDORcNPVHnTBEDSqKLTo8t34HY=;
- b=wD7w3GnpkXGaTJMBL5EpjzZDh8rW5FKl+Hh4+3ApN3yj32ecYUL3C8LRFhXl6fi2l0GSaK3W6Y9bj/DXhZAoPIzAn4i+E3hrRsxKquv+8kwvas5EslotzqhH/HuD1/CUzBAG910VzEwH6AgGtbjQH73bTfOuyeDmJ+tGdWI9BTY=
-Received: from CY8PR10MB7243.namprd10.prod.outlook.com (2603:10b6:930:7c::10)
- by PH7PR10MB6602.namprd10.prod.outlook.com (2603:10b6:510:206::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7544.25; Tue, 30 Apr
- 2024 16:23:07 +0000
-Received: from CY8PR10MB7243.namprd10.prod.outlook.com
- ([fe80::b779:d0be:9e3a:34f0]) by CY8PR10MB7243.namprd10.prod.outlook.com
- ([fe80::b779:d0be:9e3a:34f0%7]) with mapi id 15.20.7519.031; Tue, 30 Apr 2024
- 16:23:07 +0000
-Message-ID: <b959b82a-510f-45c0-9e06-acf526c2f4a1@oracle.com>
-Date: Tue, 30 Apr 2024 11:23:04 -0500
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH next] vhost_task: after freeing vhost_task it should not
- be accessed in vhost_task_fn
-To: Edward Adam Davis <eadavis@qq.com>,
-        syzbot+98edc2df894917b3431f@syzkaller.appspotmail.com
-Cc: jasowang@redhat.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        mst@redhat.com, netdev@vger.kernel.org,
-        syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev
-References: <000000000000a9613006174c1c4c@google.com>
- <tencent_4271296B83A6E4413776576946DAB374E305@qq.com>
-Content-Language: en-US
-From: Mike Christie <michael.christie@oracle.com>
-In-Reply-To: <tencent_4271296B83A6E4413776576946DAB374E305@qq.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: CH2PR19CA0029.namprd19.prod.outlook.com
- (2603:10b6:610:4d::39) To CY8PR10MB7243.namprd10.prod.outlook.com
- (2603:10b6:930:7c::10)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Tah33pe4"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1714498298; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=WQP0KNwV8WJxKA5ty6Apja/BByTogFld6Sod7EGrQNI=;
+	b=Tah33pe4ebKX60EsCZbrg7xmYJpKA82pCeIrdy+f3lf2vV1M9vSa5zUC+gRgYOqRuu3/+RIqLSGyiyYC5B5GiYAsdHDCFxoYgFoXxz/rHWkbGCLgWNGavyLdUXolmdbnb/uxbfpSD/wdgG9GzsrolXCt1dPXgrqCUD8h4P8Tv0Q=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R961e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067110;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=23;SR=0;TI=SMTPD_---0W5coJt0_1714498296;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W5coJt0_1714498296)
+          by smtp.aliyun-inc.com;
+          Wed, 01 May 2024 01:31:37 +0800
+From: Heng Qi <hengqi@linux.alibaba.com>
+To: netdev@vger.kernel.org,
+	virtualization@lists.linux.dev
+Cc: Jakub Kicinski <kuba@kernel.org>,
+	"David S . Miller" <davem@davemloft.net>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Eric Dumazet <edumazet@google.com>,
+	Jason Wang <jasowang@redhat.com>,
+	"Michael S . Tsirkin" <mst@redhat.com>,
+	Brett Creeley <bcreeley@amd.com>,
+	Ratheesh Kannoth <rkannoth@marvell.com>,
+	Alexander Lobakin <aleksander.lobakin@intel.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Tal Gilboa <talgi@nvidia.com>,
+	Jonathan Corbet <corbet@lwn.net>,
+	linux-doc@vger.kernel.org,
+	Maxime Chevallier <maxime.chevallier@bootlin.com>,
+	Jiri Pirko <jiri@resnulli.us>,
+	Paul Greenwalt <paul.greenwalt@intel.com>,
+	Ahmed Zaki <ahmed.zaki@intel.com>,
+	Vladimir Oltean <vladimir.oltean@nxp.com>,
+	Kory Maincent <kory.maincent@bootlin.com>,
+	Andrew Lunn <andrew@lunn.ch>,
+	justinstitt@google.com
+Subject: [PATCH net-next v11 0/4] ethtool: provide the dim profile fine-tuning channel
+Date: Wed,  1 May 2024 01:31:32 +0800
+Message-Id: <20240430173136.15807-1-hengqi@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY8PR10MB7243:EE_|PH7PR10MB6602:EE_
-X-MS-Office365-Filtering-Correlation-Id: 6933d01c-03f3-42fc-ff0a-08dc6931d195
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230031|376005|366007|1800799015;
-X-Microsoft-Antispam-Message-Info: 
-	=?utf-8?B?dlFualRKRVpQajJNbDg2VTE2SG5uTlRuVzVrbldVRHdNUWVzbkMzZlQvRE5D?=
- =?utf-8?B?NDdoNnVGNFZMN25MSStZdlNZMEN4TGgvbUJjUWc2dnAvUVdPWDdCa3VYWngz?=
- =?utf-8?B?SXdTOWlVYktETTJyWGZFLzNWQm0zb25sRmNGcUFJNGxzcnJtL3FyOCtMOTBE?=
- =?utf-8?B?NElUalVzZURtaHF3TDN5Ny9GejhwTGUxRGJYVWxwMllZYk85Y3Q4UktTU01w?=
- =?utf-8?B?L1RkS2J2cDBqTjhPVC92ajZQZFRzdi80QlpnOWtDeFlaK3RoZzNIUnVFYUJ2?=
- =?utf-8?B?cU5KZ1ZJUm9YY3pWNVpXOXZrSVdORkJmcmJweUU2TUJtMWNlaDRZKzV4VG9R?=
- =?utf-8?B?NE55VlhRdGJEYTVWaWF1Wi9DdHFWaWlPRXVNTlk1VWp3WEZkWTFVQ0lRVzhq?=
- =?utf-8?B?d2wySnJnd21oWlVHZVg3aTlrT1RvZGd6NkVvMGdWeUVQOStTOUtOMlNBZVpT?=
- =?utf-8?B?S3UzWE93Z29hUFZ5bzdHNURTS3ZkdXI1TEZUL1JTRWNxdWlRdFJDWHNDTUE0?=
- =?utf-8?B?dVY4SXo4V2ZWMldpc01LUUFoY0JnQi9tK041LzV2QS9KOGdmSXBoNXdEN1Zj?=
- =?utf-8?B?K0podGZwSGFqeTdRSEEwSGp5dFE1b0xlWE1HQ2VDZGt1bVgzem1PYm5Ma0RN?=
- =?utf-8?B?enRqc0s1Z3ljc2tmYXpaQ1o3V0dhTnBpcUJBSjFSSy9aMDNCUVgrNjB4bmRM?=
- =?utf-8?B?SXZsN0pRYVJTUzJndm5tY2VodGE3VE5tSGdPbzlFbTdTZGZPVlpETUlJT2xs?=
- =?utf-8?B?WHd0cTBuRHRJeXZ0UzF1V0NNZTFYbHlYSzB6Z1RqR1g5RUdTdVBjc3pYMjlF?=
- =?utf-8?B?SkR5OHNjdUVEZFJYMmNHeXNyazEwaWlhVDREREVIbGs2eEd6TXFVTmFqSmls?=
- =?utf-8?B?SytVR09TT3pIQ1o3N2RXSUVCc0RpVzJFTjFBUDdoWTRRU0FGZjU4Z1Vnc1JL?=
- =?utf-8?B?Zmx6eUwyU3hwNUgzR1FjZ2cwVVlwdlZJM3dJM2lkU3RKK3JkZHVqNVVrc1ZT?=
- =?utf-8?B?aG5RbHFCaXF4OGxYU0g0TFkxVGlQQ1k1T1hRTWkvSmppMXE5UVp6YU1hNzNs?=
- =?utf-8?B?L1RJWFF2SDk4TEorWGxMWDJwQXliL2E5YnptWkdUVzFhSzU0VXUvMDZHenNl?=
- =?utf-8?B?Z2xQbGY0cEg4ZEYwTGlqZXRsM3d3RGwrdE9sS2ZoQzdoZ0N1WmJZZEVPZkR1?=
- =?utf-8?B?TVNxMFIxdldjQ3JBU0x3ZUFpSG5ZaTBPMlRzbjkrbElia0NEbW1sTzVkbWRV?=
- =?utf-8?B?S1RxS0xMVXYrRGVTSTRVYmM3aFhLZk95UWRWVEhaSmVaWlJBU2dVejlpK0F5?=
- =?utf-8?B?ZTEwNmRIK3FNallOSXlIKy9NdmpDN0hLdmh0NzRJVUtmSzZWTHA3c3VVNTFC?=
- =?utf-8?B?bTZTbTJ0YnNWL2xQWDhudlJhZzBvVVFWUlpDeWU0MUhmRTJTN2Q4R2F3T1dn?=
- =?utf-8?B?bzBVdDhQOE5QT2FjNG5WTkNQb2FZUGdmeE8xcTRlYXV2L1c2RktoYzdNZmxN?=
- =?utf-8?B?MEpoOSsyV0xIbWY0TUJ4UEwxVmtBTjk1MTVuZDBlc0pwUTRIZ3BJNzNNRjVB?=
- =?utf-8?B?OXZVcFhvYzg5aTJpV0hHTjRhbURSY3lWRGw1OUVnblc1NU42SHN0UkJXTHNZ?=
- =?utf-8?B?RTFWTUhpdzZ2cVFodlZaNklkVWdIZmFzQTZyOUw5Ynh3L3BKTW8xaXBUWFZm?=
- =?utf-8?B?YkhJN1ZPT0Q3ZFZ1dFlRNk01TXdGRVIwd1lLZW9BYzFIYTZpMHlDQ2hRPT0=?=
-X-Forefront-Antispam-Report: 
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR10MB7243.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(376005)(366007)(1800799015);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: 
-	=?utf-8?B?ZXB3dUxxUS9lcDNndzlnNjI2akN1Y081V2lKQ1BBYWJvQVRzWG9WYmxGU3FS?=
- =?utf-8?B?SGp0WXVvcm9UZUR5N1ViZlZxMkRQUzNENk9QVm9ZdW5WSnNVbTRwNFA5cm9Y?=
- =?utf-8?B?RlU2ZzdlZ1M2QUxBSnNHMEowcks5NmUwQ0gxWWF3dkZNaUtGNTgrWlgzdmlx?=
- =?utf-8?B?NkpiSzBidm5KM2ZjQzBBMVZuR3lzWjV2RTFwL2FoZHM4YURmQjZxR0ZMd3lq?=
- =?utf-8?B?aXp6d05jV0tLUEh2cmoxQkJBUzhXMEVNTFJ2QkFMZDkyZm5xSUhtd2FtTk0w?=
- =?utf-8?B?emZ6UndwR21nY3ZrUXpvWkZHSVgrSHFDNVJBSDZLemxnZ2JWSnBISmdkWFg3?=
- =?utf-8?B?Z1p4VFBHOUFQRHd6d1hSSjc1cjhNUjN5NkE4OTQrcjRQRlZTRDZSVFYvUWF4?=
- =?utf-8?B?MEVHQnlqZE9nVExoSm9teUF2eUlaQmJFelZvTlVGWjRSdWtuRmtwQ0VUbWtl?=
- =?utf-8?B?YnAzclRwR1UwRHE5S3BOY2ZMUVorb2tUeHlQQ3pkSTZNZDNVNkZlbXk1ZEI3?=
- =?utf-8?B?QUdlaFRoSk4xU0Z0cEhGd0JsbTdHWGlUeXd6ZERTaGJ5NHptMVowTDR0emk0?=
- =?utf-8?B?amJUSmR1T2E4ZUxZSkV6b3lwRGpxYlRTalA2OWhUQjJVcWlnL0JhNnRub29B?=
- =?utf-8?B?THRJYWF5VHlRaUxHa3JEMnJCR3N6L2ZkN0Zsci9TdTJGNS9YOVNuSjQwY3BV?=
- =?utf-8?B?bjl3QStlT2ZTTWMxUU5mcFhhYTZrVGorNjRPWUhpVkRCT0hXS2wrQ1VnZjJl?=
- =?utf-8?B?azRyZWhjRmUwRHF4WDY4Rll3ZTJ6eXJYbnFGdzFVbUxFR21vQk1LMWNBanEw?=
- =?utf-8?B?WkRrL08zRDlZOXFxaU5HK1JFNUxab1FRcTZPMThvMS9vMCtpTE5rcnlzZlZm?=
- =?utf-8?B?dVJ1NGJ3L2ZiZzNsMUttc2l3cnBpOHhqK1hwK0F4cC9lNDdpRHZWRFpzS2lz?=
- =?utf-8?B?ZEtyY3NReVNZVVpya1NRT00rQUVOYUF4d2tKeEZMVlNrV3JVUkUzb0JyQ1JF?=
- =?utf-8?B?andHK1hDcGlnZUZjKzBQc3NEcVpvN2J1NkNUR3BxZE5aNUNzMWw2RVUyR1NY?=
- =?utf-8?B?eldTUVJXYXdSeVpGeGJ0Z2ZjbXBvZElVYTN6U2VhYVVhVlI0QS9NdVhHOWpj?=
- =?utf-8?B?ZXB0NlYwNGEwUEV6WGZUNHRScGl4TzRIdVpPZldzNGdSYjh4VmNaOWM0OFVa?=
- =?utf-8?B?YUNua0lVazZkNzBSZERHZThBcm1rQ2RIbU5EaDVrMUtVSitTTzJ6NkJJV3E3?=
- =?utf-8?B?TEdkblFCSmVtRDBDOWxVVHNOWXhPV0ZOR2ErZXZ2RTVOdU1MY0ZjUkFtRWxX?=
- =?utf-8?B?cU1lUUtXQ0ptZWhtQTdHQzBGYjdWUzJ3akx6cm9FRUNqNjBMU3VPSm00bnpy?=
- =?utf-8?B?Z0R6NG9MdktHckFvQjI0aHo4WlJ2K3ZDb1ltRmtxVkIzd2dLdjFTUzM2K3o1?=
- =?utf-8?B?RkNHalhxY21HajVvNThiS2dLN2thRzgvQ3lUbXRKS1F1UGdOOFhEbnRhNkJi?=
- =?utf-8?B?clB5UzZ5SGRRNXdscTJuUDlPT1JCOEJlZDBhUnIxY3hPYkUzVWR1ZFA4RWR0?=
- =?utf-8?B?d3dMY3Fwc0pUUmt1T0tRdXFmeVZnOWZwNWUxcWQ0cnkxeWFUVXJDTkNRSDRK?=
- =?utf-8?B?bG9aWGwwdklaWDNKdndHSG1IZm1FZlNXWjJZMWo3MGNKVXZpbyt4Zkk3by9V?=
- =?utf-8?B?U055MVJFQVZKTUlKODh1Q01yOG5tQm9jeUlCdll0Rk85clRTQXZjK3FnaHhs?=
- =?utf-8?B?Sm1sZkd1RlhrOWJuK2xROThlQllVRlZWRjdIWlJyTUJzVWl1KzBtUEI1eksr?=
- =?utf-8?B?bDFyYnp0VDNOZDZxeXIzT2gvUHRuMjdvMWF4U1dIcGVOTnU4cjY3TkY5eW5i?=
- =?utf-8?B?Zy9Sbnk0ZzJTMTB3dFFFL3pXZ1VwdGhPT0dGY0Z5NHpnZXA0UVNKQzcrQ3d4?=
- =?utf-8?B?SlMyOERJWm9XT3pmK2pmd0ZvYi9JV1o0LytRWk5mVHp3ekc3YllUL1AxWWY1?=
- =?utf-8?B?Y2hVRko0MkFWU0krVW5HbWgyZEtGaXVtTVk3WGRPcmFvclpqUWt4cnB1Z01Z?=
- =?utf-8?B?RTM1R20yWThBaGZwYkh6ajBmQWlOL2paVmJEb25lMlZtS3laM3VjZFdsWm5S?=
- =?utf-8?B?cTRZYnZlenkrUGRtQ2o5QVdkYmV0eVBERTZCcHlvaVBib3MwUHVyblZHNjhQ?=
- =?utf-8?B?b1E9PQ==?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: 
-	Eb0hKEEYMUsr+0Sbg+WKmS2RrdNjPWbp4oMmgMhRRSA46Sa/iIesooN6pY8K2J9EGcKbh/ZRasmhCJVBk0vXaX1X3/PxfZ4jZq8XP+PElc+YZ9/2UR2dHbsCFVt4wDXm+ofFp8fYyEMys213k1E/r1USMe05o8J1fb2fa3tMeqlqERIF+vXOLSe1V/CGZZyhUxL9zbaYmAuHWoyqB37qHwhT65v3HK5uCk7aJiK7xfKJtzY2GahJwnIaflnR7DHySnDNggqJlBWak0LWBjI6u5fHVUTbhmAqHjuwdMTfXoO04HJxBW5nU02RLjkIPNy1SNE2iMwleBAM4VL1KhekaRaQyGnZDan4tMDYjEx9vuiemVyQF0AWybKyNlP+jS7W5f5zug0v+FeF8FcYJl74rCxf/m6LuFL2zWe3nvy7K59AJKn6I6b+GDwQZ81hhGcOdPjZoxnLKZAIwAt8T6VHSlrkKE0MbekEXhymAeBjeTIfvHWlAXksrhKmtkM/qZ66pysSxRv/TlaU5iXfw7UMe6pDheJw7vKCcS3F09/dW66mWkM4x231niA6/89NLiFM020Ty0EpaxxivBka59I6XOiZsnzHzKeMAWmGxlXLD2U=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6933d01c-03f3-42fc-ff0a-08dc6931d195
-X-MS-Exchange-CrossTenant-AuthSource: CY8PR10MB7243.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Apr 2024 16:23:07.1998
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: fnXwGy7c+9qp0AbgTq+RKRaod4UDF1c19q78AKdr2Ww0Y5brDzI7btC5NbRJBBrQ3IgyEry5DxUsg9Iu6pUXspcaaOO2c/vZ/b9tCO3MR3Q=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR10MB6602
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.650,FMLib:17.11.176.26
- definitions=2024-04-30_09,2024-04-30_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 malwarescore=0
- mlxlogscore=966 bulkscore=0 suspectscore=0 adultscore=0 phishscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2404010000 definitions=main-2404300116
-X-Proofpoint-GUID: 2gaTvJm7JAc2feNsQVmz12u2RfIkURaH
-X-Proofpoint-ORIG-GUID: 2gaTvJm7JAc2feNsQVmz12u2RfIkURaH
+Content-Transfer-Encoding: 8bit
 
-On 4/30/24 8:05 AM, Edward Adam Davis wrote:
->  static int vhost_task_fn(void *data)
->  {
->  	struct vhost_task *vtsk = data;
-> @@ -51,7 +51,7 @@ static int vhost_task_fn(void *data)
->  			schedule();
->  	}
->  
-> -	mutex_lock(&vtsk->exit_mutex);
-> +	mutex_lock(&exit_mutex);
->  	/*
->  	 * If a vhost_task_stop and SIGKILL race, we can ignore the SIGKILL.
->  	 * When the vhost layer has called vhost_task_stop it's already stopped
-> @@ -62,7 +62,7 @@ static int vhost_task_fn(void *data)
->  		vtsk->handle_sigkill(vtsk->data);
->  	}
->  	complete(&vtsk->exited);
-> -	mutex_unlock(&vtsk->exit_mutex);
-> +	mutex_unlock(&exit_mutex);
->  
+The NetDIM library provides excellent acceleration for many modern
+network cards. However, the default profiles of DIM limits its maximum
+capabilities for different NICs, so providing a way which the NIC can
+be custom configured is necessary.
 
-Edward, thanks for the patch. I think though I just needed to swap the
-order of the calls above.
+Currently, the way is based on the commonly used "ethtool -C".
 
-Instead of:
+Please review, thank you very much!
 
-complete(&vtsk->exited);
-mutex_unlock(&vtsk->exit_mutex);
+Changelog
+=====
+v10->v11:
+  - Fix and clean up some issues from Kuba, thanks.
+  - Rebase net-next/main
 
-it should have been:
+v9->v10:
+  - Collect dim related flags/mode/work into one place.
+  - Use rx_profile + tx_profile instead of four profiles.
+  - Add several helps.
+  - Update commit logs.
 
-mutex_unlock(&vtsk->exit_mutex);
-complete(&vtsk->exited);
+v8->v9:
+  - Fix the compilation error of conflicting names of rx_profile in
+    dim.h and ice driver: in dim.h, rx_profile is replaced with
+    dim_rx_profile. So does tx_profile.
 
-If my analysis is correct, then Michael do you want me to resubmit a
-patch on top of your vhost branch or resubmit the entire patchset?
+v7->v8:
+  - Use kmemdup() instead of kzalloc()/memcpy() in dev_dim_profile_init().
+
+v6->v7:
+  - A new wrapper struct pointer is used in struct net_device.
+  - Add IS_ENABLED(CONFIG_DIMLIB) to avoid compiler warnings.
+  - Profile fields changed from u16 to u32.
+
+v5->v6:
+  - Place the profile in netdevice to bypass the driver.
+    The interaction code of ethtool <-> kernel has not changed at all,
+    only the interaction part of kernel <-> driver has changed.
+
+v4->v5:
+  - Update some snippets from Kuba.
+
+v3->v4:
+  - Some tiny updates and patch 1 only add a new comment.
+
+v2->v3:
+  - Break up the attributes to avoid the use of raw c structs.
+  - Use per-device profile instead of global profile in the driver.
+
+v1->v2:
+  - Use ethtool tool instead of net-sysfs.
+
+Heng Qi (4):
+  linux/dim: move useful macros to .h file
+  ethtool: provide customized dim profile management
+  dim: add new interfaces for initialization and getting results
+  virtio-net: support dim profile fine-tuning
+
+ Documentation/netlink/specs/ethtool.yaml     |  31 +++
+ Documentation/networking/ethtool-netlink.rst |   4 +
+ drivers/net/virtio_net.c                     |  48 +++-
+ include/linux/dim.h                          | 117 ++++++++
+ include/linux/ethtool.h                      |   7 +-
+ include/linux/netdevice.h                    |   5 +
+ include/uapi/linux/ethtool_netlink.h         |  22 ++
+ lib/dim/net_dim.c                            | 145 +++++++++-
+ net/ethtool/coalesce.c                       | 278 ++++++++++++++++++-
+ 9 files changed, 642 insertions(+), 15 deletions(-)
+
+-- 
+2.32.0.3.g01195cf9f
 
