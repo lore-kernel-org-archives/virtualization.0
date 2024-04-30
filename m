@@ -1,66 +1,66 @@
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08172172767
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Apr 2024 14:59:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DF67172BB4
+	for <virtualization@lists.linux-foundation.org>; Tue, 30 Apr 2024 14:59:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714489142; cv=none; b=RBYmcHmrWSZOEmD5t2s2LNJj1oKq7kHLj8LMLZ8/oN557ZuTp+AUF96xnHj1ict0V/7AzgcauKFYaxqO3bM0sSVAPqkuC0052GV4Ut+oqC+BmEWkidGMiBzwfiAvzYd+bjxAXNvkMjEIwFdV2odvExF9gpkuuRZ89mlLFGcZ6c0=
+	t=1714489146; cv=none; b=iB5KCZ/udnh8ccGZHwR2opWH3I8MJP5tgDabC8/Q9VL86be4TCwehte6uOhoyIpp2eyw9xKJIN7R+buwNjodTEUKZ9IE0bufC9xQ2/kHBVaTrKB0U0AHfWVxbRoJfbQl7tQ87zg+aiuIks3HazZir2xrbXYs9kS+ozUVS5ifcJY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714489142; c=relaxed/simple;
-	bh=H+AJrUc9ZCkByr7T1GCK++YEnrHUWVMDktf/LRmmeCw=;
+	s=arc-20240116; t=1714489146; c=relaxed/simple;
+	bh=tvoic8JEg5iwsCj9YBFoEAx3/4HZliI5/5DJbrdIfjQ=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=gp6yRem7jSc5VWTBwsXIYjQOe1Y07xG3MeZZ9/S6y6ut2fUbDzMlgR2KWjO3U6NGT/MzlfXS2jKQoS2eo9oYvDdY6mM+P31qzAmGyuhtIDHkjrlHha5TTm/Ah/07fP8tq7ghiP5XiT0mMNVgocoN2MDDpJcGTavBO+8FJiQuxs0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=jP10sAtg; arc=none smtp.client-ip=140.211.166.138
+	 MIME-Version; b=rFQDA+lxNk0GALZfaFuYv6Bi1KqWMkM3ybXC+NJWDheu3RCA6/yjfFtaEiarkqvH3b9PwrpxHTq7T9zE2QavfxsQKsBWW+jY/nzQ29CcAtBKjd4BQZnsGw127MDq3C0I+0XGkfAqB+mghPIldFGTIzPa425+MQA5FmX7HQ+RiC0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=W/7Fhh0h; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="jP10sAtg"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="W/7Fhh0h"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id DAC3480C25
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Apr 2024 14:59:00 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id A1F0F80C25
+	for <virtualization@lists.linux-foundation.org>; Tue, 30 Apr 2024 14:59:04 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -4.299
 X-Spam-Level:
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id FXmchDYQcq-I for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Apr 2024 14:59:00 +0000 (UTC)
+ id HgekG5sxNYCD for <virtualization@lists.linux-foundation.org>;
+ Tue, 30 Apr 2024 14:59:04 +0000 (UTC)
 Received-SPF: None (mailfrom) identity=mailfrom; client-ip=198.175.65.19; helo=mgamail.intel.com; envelope-from=baolu.lu@linux.intel.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 10EDB80C14
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org C23ED80C14
 Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=linux.intel.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 10EDB80C14
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C23ED80C14
 Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=jP10sAtg
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=W/7Fhh0h
 Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 10EDB80C14
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Apr 2024 14:58:59 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id C23ED80C14
+	for <virtualization@lists.linux-foundation.org>; Tue, 30 Apr 2024 14:59:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1714489140; x=1746025140;
+  t=1714489144; x=1746025144;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=H+AJrUc9ZCkByr7T1GCK++YEnrHUWVMDktf/LRmmeCw=;
-  b=jP10sAtg+6HCcCvOF701rKVOcplrohFmK3OJ4VgbEfNvqtSoDQKnrnYE
-   pl1+T/GbY1LGA6qQ4Ey2DfvXS4uXnBGmiDsQ393BE+pa6Y5Ve7Qn3XjHX
-   FbMFvlhrAz/JTt4VmlL/YZUcDHMynM7PyuG/pMiLpTTKyqc/D91RCXW7y
-   DoIgmTKST4ZDOsDSn4hfmrQpOedCZvEHEldBYbMPAl3ZpHYYCFoJorYiA
-   qd3PdaXBSUVu7bAJgTfLgj/by+dvoeYo4oy0myqlDrzRIAADbRYrhzsZp
-   jISqgqNDsN+FzVQp6PUITS37CkOfN+uj6fOYfeST+Ln5sU1/YWwv9+ytk
+  bh=tvoic8JEg5iwsCj9YBFoEAx3/4HZliI5/5DJbrdIfjQ=;
+  b=W/7Fhh0hXjRgiTBXMz8u+ASSvqJiIfEU086C71E3ovDubaDgOEa8k+jh
+   CEH+rQgr7vLhg+c2csGGa6Dgc+6isAPUR+68b9GMsWH332/G9yR96/OFr
+   D013wDB78B0f6t7ePOPaR9IOz9HWLwC419lvwjFGU65tFa8bsWNxELxPn
+   fhYSMPGzZiWmBD3+b+JVMkGDUC8OwDt/pAFzZsyCsloXiB0fd9JqmM+Vq
+   5iLBXykBb7gzF8GZnhgi4DVLthHbjCoGb9PnJT0LoTVF15s+25Ht4fKlO
+   w8TxxjBov3X1g0VdG2a65jE7r4BvsRU67Rh6+b9NQMYA1zEg6ltfWc173
    w==;
-X-CSE-ConnectionGUID: jJKr18XKRL2X6iwxJLeQxQ==
-X-CSE-MsgGUID: N91kXy9lR5GkUb2v0gXFIw==
-X-IronPort-AV: E=McAfee;i="6600,9927,11060"; a="10059873"
+X-CSE-ConnectionGUID: PqEcrws5RaS603YaaH9r1g==
+X-CSE-MsgGUID: rLOPB8csSfyQWoXm0q4DAQ==
+X-IronPort-AV: E=McAfee;i="6600,9927,11060"; a="10059887"
 X-IronPort-AV: E=Sophos;i="6.07,242,1708416000"; 
-   d="scan'208";a="10059873"
+   d="scan'208";a="10059887"
 Received: from orviesa004.jf.intel.com ([10.64.159.144])
-  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Apr 2024 07:59:00 -0700
-X-CSE-ConnectionGUID: KfyaQy1YRHSL8PrqPvEEdg==
-X-CSE-MsgGUID: P4r+VsbnSnGfOXnmSJh19Q==
+  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Apr 2024 07:59:04 -0700
+X-CSE-ConnectionGUID: zOA9IU/KTNumW79bdtW+wg==
+X-CSE-MsgGUID: sQV7gGqkQOOMppzb/u/Seg==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.07,242,1708416000"; 
-   d="scan'208";a="31282179"
+   d="scan'208";a="31282202"
 Received: from unknown (HELO allen-box.sh.intel.com) ([10.239.159.127])
-  by orviesa004.jf.intel.com with ESMTP; 30 Apr 2024 07:58:56 -0700
+  by orviesa004.jf.intel.com with ESMTP; 30 Apr 2024 07:59:00 -0700
 From: Lu Baolu <baolu.lu@linux.intel.com>
 To: Jason Gunthorpe <jgg@ziepe.ca>,
 	Kevin Tian <kevin.tian@intel.com>,
@@ -76,9 +76,9 @@ Cc: iommu@lists.linux.dev,
 	virtualization@lists.linux-foundation.org,
 	linux-kernel@vger.kernel.org,
 	Lu Baolu <baolu.lu@linux.intel.com>
-Subject: [PATCH v5 3/9] iommu: Add attachment handle to struct iopf_group
-Date: Tue, 30 Apr 2024 22:57:04 +0800
-Message-Id: <20240430145710.68112-4-baolu.lu@linux.intel.com>
+Subject: [PATCH v5 4/9] iommufd: Add fault and response message definitions
+Date: Tue, 30 Apr 2024 22:57:05 +0800
+Message-Id: <20240430145710.68112-5-baolu.lu@linux.intel.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20240430145710.68112-1-baolu.lu@linux.intel.com>
 References: <20240430145710.68112-1-baolu.lu@linux.intel.com>
@@ -90,94 +90,128 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Previously, the domain that a page fault targets is stored in an
-iopf_group, which represents a minimal set of page faults. With the
-introduction of attachment handle, replace the domain with the handle
-so that the fault handler can obtain more information as needed
-when handling the faults.
+iommu_hwpt_pgfaults represent fault messages that the userspace can
+retrieve. Multiple iommu_hwpt_pgfaults might be put in an iopf group,
+with the IOMMU_PGFAULT_FLAGS_LAST_PAGE flag set only for the last
+iommu_hwpt_pgfault.
 
-iommu_report_device_fault() is currently used for SVA page faults,
-which handles the page fault in an internal cycle. The domain is retrieved
-with iommu_get_domain_for_dev_pasid() if the pasid in the fault message
-is valid. This doesn't work in IOMMUFD case, where if the pasid table of
-a device is wholly managed by user space, there is no domain attached to
-the PASID of the device. Improve this code to try fetching the attachment
-handle on a PASID if possible, otherwise try it on the RID.
+An iommu_hwpt_page_response is a response message that the userspace
+should send to the kernel after finishing handling a group of fault
+messages. The @dev_id, @pasid, and @grpid fields in the message
+identify an outstanding iopf group for a device. The @cookie field,
+which matches the cookie field of the last fault in the group, will
+be used by the kernel to look up the pending message.
 
 Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
 ---
- include/linux/iommu.h      |  1 +
- drivers/iommu/io-pgfault.c | 34 ++++++++++++++--------------------
- 2 files changed, 15 insertions(+), 20 deletions(-)
+ include/uapi/linux/iommufd.h | 96 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 96 insertions(+)
 
-diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-index be9c9a10169d..4ff68d50ae39 100644
---- a/include/linux/iommu.h
-+++ b/include/linux/iommu.h
-@@ -128,6 +128,7 @@ struct iopf_group {
- 	struct list_head pending_node;
- 	struct work_struct work;
- 	struct iommu_domain *domain;
-+	struct iommu_attach_handle *attach_handle;
- 	/* The device's fault data parameter. */
- 	struct iommu_fault_param *fault_param;
+diff --git a/include/uapi/linux/iommufd.h b/include/uapi/linux/iommufd.h
+index 1dfeaa2e649e..83b45dce94a4 100644
+--- a/include/uapi/linux/iommufd.h
++++ b/include/uapi/linux/iommufd.h
+@@ -692,4 +692,100 @@ struct iommu_hwpt_invalidate {
+ 	__u32 __reserved;
  };
-diff --git a/drivers/iommu/io-pgfault.c b/drivers/iommu/io-pgfault.c
-index 06d78fcc79fd..f19215d4ffa2 100644
---- a/drivers/iommu/io-pgfault.c
-+++ b/drivers/iommu/io-pgfault.c
-@@ -59,28 +59,19 @@ void iopf_free_group(struct iopf_group *group)
- }
- EXPORT_SYMBOL_GPL(iopf_free_group);
- 
--static struct iommu_domain *get_domain_for_iopf(struct device *dev,
--						struct iommu_fault *fault)
-+static int get_attach_handle_for_iopf(struct device *dev, ioasid_t pasid,
-+				      struct iopf_group *group)
- {
--	struct iommu_domain *domain;
-+	struct iommu_attach_handle *handle;
- 
--	if (fault->prm.flags & IOMMU_FAULT_PAGE_REQUEST_PASID_VALID) {
--		domain = iommu_get_domain_for_dev_pasid(dev, fault->prm.pasid, 0);
--		if (IS_ERR(domain))
--			domain = NULL;
--	} else {
--		domain = iommu_get_domain_for_dev(dev);
--	}
-+	handle = iommu_attach_handle_get(dev->iommu_group, pasid, 0);
-+	if (IS_ERR(handle))
-+		return PTR_ERR(handle);
- 
--	if (!domain || !domain->iopf_handler) {
--		dev_warn_ratelimited(dev,
--			"iopf (pasid %d) without domain attached or handler installed\n",
--			 fault->prm.pasid);
-+	group->attach_handle = handle;
-+	group->domain = handle->domain;
- 
--		return NULL;
--	}
--
--	return domain;
-+	return 0;
- }
- 
- /* Non-last request of a group. Postpone until the last one. */
-@@ -206,8 +197,11 @@ void iommu_report_device_fault(struct device *dev, struct iopf_fault *evt)
- 	if (group == &abort_group)
- 		goto err_abort;
- 
--	group->domain = get_domain_for_iopf(dev, fault);
--	if (!group->domain)
-+	if (!(fault->prm.flags & IOMMU_FAULT_PAGE_REQUEST_PASID_VALID) ||
-+	    get_attach_handle_for_iopf(dev, fault->prm.pasid, group))
-+		get_attach_handle_for_iopf(dev, IOMMU_NO_PASID, group);
+ #define IOMMU_HWPT_INVALIDATE _IO(IOMMUFD_TYPE, IOMMUFD_CMD_HWPT_INVALIDATE)
 +
-+	if (!group->attach_handle || !group->domain->iopf_handler)
- 		goto err_abort;
- 
- 	/*
++/**
++ * enum iommu_hwpt_pgfault_flags - flags for struct iommu_hwpt_pgfault
++ * @IOMMU_PGFAULT_FLAGS_PASID_VALID: The pasid field of the fault data is
++ *                                   valid.
++ * @IOMMU_PGFAULT_FLAGS_LAST_PAGE: It's the last fault of a fault group.
++ */
++enum iommu_hwpt_pgfault_flags {
++	IOMMU_PGFAULT_FLAGS_PASID_VALID		= (1 << 0),
++	IOMMU_PGFAULT_FLAGS_LAST_PAGE		= (1 << 1),
++};
++
++/**
++ * enum iommu_hwpt_pgfault_perm - perm bits for struct iommu_hwpt_pgfault
++ * @IOMMU_PGFAULT_PERM_READ: request for read permission
++ * @IOMMU_PGFAULT_PERM_WRITE: request for write permission
++ * @IOMMU_PGFAULT_PERM_EXEC: (PCIE 10.4.1) request with a PASID that has the
++ *                           Execute Requested bit set in PASID TLP Prefix.
++ * @IOMMU_PGFAULT_PERM_PRIV: (PCIE 10.4.1) request with a PASID that has the
++ *                           Privileged Mode Requested bit set in PASID TLP
++ *                           Prefix.
++ */
++enum iommu_hwpt_pgfault_perm {
++	IOMMU_PGFAULT_PERM_READ			= (1 << 0),
++	IOMMU_PGFAULT_PERM_WRITE		= (1 << 1),
++	IOMMU_PGFAULT_PERM_EXEC			= (1 << 2),
++	IOMMU_PGFAULT_PERM_PRIV			= (1 << 3),
++};
++
++/**
++ * struct iommu_hwpt_pgfault - iommu page fault data
++ * @size: sizeof(struct iommu_hwpt_pgfault)
++ * @flags: Combination of enum iommu_hwpt_pgfault_flags
++ * @dev_id: id of the originated device
++ * @pasid: Process Address Space ID
++ * @grpid: Page Request Group Index
++ * @perm: Combination of enum iommu_hwpt_pgfault_perm
++ * @addr: Page address
++ * @length: a hint of how much data the requestor is expecting to fetch. For
++ *          example, if the PRI initiator knows it is going to do a 10MB
++ *          transfer, it could fill in 10MB and the OS could pre-fault in
++ *          10MB of IOVA. It's default to 0 if there's no such hint.
++ * @cookie: kernel-managed cookie identifying a group of fault messages. The
++ *          cookie number encoded in the last page fault of the group should
++ *          be echoed back in the response message.
++ */
++struct iommu_hwpt_pgfault {
++	__u32 size;
++	__u32 flags;
++	__u32 dev_id;
++	__u32 pasid;
++	__u32 grpid;
++	__u32 perm;
++	__u64 addr;
++	__u32 length;
++	__u32 cookie;
++};
++
++/**
++ * enum iommufd_page_response_code - Return status of fault handlers
++ * @IOMMUFD_PAGE_RESP_SUCCESS: Fault has been handled and the page tables
++ *                             populated, retry the access. This is the
++ *                             "Success" defined in PCI 10.4.2.1.
++ * @IOMMUFD_PAGE_RESP_INVALID: General error. Drop all subsequent faults
++ *                             from this device if possible. This is the
++ *                             "Response Failure" in PCI 10.4.2.1.
++ * @IOMMUFD_PAGE_RESP_FAILURE: Could not handle this fault, don't retry the
++ *                             access. This is the "Invalid Request" in PCI
++ *                             10.4.2.1.
++ */
++enum iommufd_page_response_code {
++	IOMMUFD_PAGE_RESP_SUCCESS = 0,
++	IOMMUFD_PAGE_RESP_INVALID,
++	IOMMUFD_PAGE_RESP_FAILURE,
++};
++
++/**
++ * struct iommu_hwpt_page_response - IOMMU page fault response
++ * @size: sizeof(struct iommu_hwpt_page_response)
++ * @flags: Must be set to 0
++ * @dev_id: device ID of target device for the response
++ * @pasid: Process Address Space ID
++ * @grpid: Page Request Group Index
++ * @code: One of response code in enum iommufd_page_response_code.
++ * @cookie: The kernel-managed cookie reported in the fault message.
++ */
++struct iommu_hwpt_page_response {
++	__u32 size;
++	__u32 flags;
++	__u32 dev_id;
++	__u32 pasid;
++	__u32 grpid;
++	__u32 code;
++	__u32 cookie;
++	__u32 reserved;
++};
+ #endif
 -- 
 2.34.1
 
