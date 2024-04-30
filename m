@@ -1,128 +1,100 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f178.google.com (mail-qk1-f178.google.com [209.85.222.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FCDF175560
-	for <virtualization@lists.linux.dev>; Tue, 30 Apr 2024 18:06:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7547D199E8C
+	for <virtualization@lists.linux.dev>; Tue, 30 Apr 2024 19:35:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714500405; cv=none; b=EAjov/sFsx63VqSQ7Fg0VngLmKAB+8g6ofUL1AUrHLsEL05VFp9BaE8z0AxsC/tH4CNOnzVaZhbMEi37BpvufmOQDS1JtVWX5Fzvj8QHzftjgx9hRhq52BzTq1LQn3D4wXFODYXO4SNobKsf9ceo6oMMPKWtteUJ4ITSnw8XuBA=
+	t=1714505718; cv=none; b=RnkvRT4vDygm704X77jC9thULlX5vcVTTBf0NgTT5cK4zf4LS+vRXLEcunrBsPsybk2ixyvfXD4LwUhQIrxLnJN8js6g4zARm3ZQGMgWLjbyDm6A3xJSubs1G04UMjF/9kTAyxijCnB0ZgTbf9mV5Y2IdSbBVVJnfqalQSABJ0I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714500405; c=relaxed/simple;
-	bh=qJioFQM6gatzhNfw88pAwDEH8AUYC7rqX3dJnAvMfM0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=gASHvyD0PYPJX5mJP8kpx5UMrp+ox5yN3s30DR27HWKiNFNI+2WUMgfOZwXTtvniCVBcrajx4tVbzJnorcKdkwSFG2w75cf8nKHjZi186Aw0JYD3WbPbE1n/cXPz8ZjB1yZldQiMXCJz10MUnyNlE/LpSrpC23a8ARI4rqJ5eSY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Qv+kOX9G; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1714505718; c=relaxed/simple;
+	bh=8VoMAvq3zO3JVqiphTJGZqYC0YcLa4T9AVNVLehqUQQ=;
+	h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=A/37PYDLYP+U4dWxKn9tKCOaUTEc+XeEyVgw2fIS4Smlkcui+N8umJkw96p7taKivrQXptohSkgQRPtBfYxNJKrkbB8M8uumuB1P8lIrPR8BPdX4Vj7FLeVJYJyTFmjzOpRGJqyakXoIyQVJshmmYOFoONu88hrqwkDJBiODSqc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bluespec.com; spf=fail smtp.mailfrom=bluespec.com; dkim=pass (2048-bit key) header.d=bluespec-com.20230601.gappssmtp.com header.i=@bluespec-com.20230601.gappssmtp.com header.b=CQNvknXs; arc=none smtp.client-ip=209.85.222.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bluespec.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=bluespec.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Qv+kOX9G"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1714500402;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=F5zx7cpE5g24SyrILpVbFuVBHG+ow92d4f3RUXTPOCU=;
-	b=Qv+kOX9G/hX1VU0NvIFhavWeqMZRKyJto7tJy74t39zBiLpiL2ArPnvBmAzax6MkhYlm5V
-	TEwxPEbFifiIEvRSF6AmGDfmveMvnjTKKn0t6vuxPYS3r53eogjWRRGarOpN/7RS3svr7c
-	z4U6HfKuAmK4DBvkAbySq5/Ri4Rv/UY=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-317-OL7c8g04Piy8wgWTae5uqg-1; Tue, 30 Apr 2024 14:06:41 -0400
-X-MC-Unique: OL7c8g04Piy8wgWTae5uqg-1
-Received: by mail-ed1-f70.google.com with SMTP id 4fb4d7f45d1cf-56c1ac93679so4882583a12.2
-        for <virtualization@lists.linux.dev>; Tue, 30 Apr 2024 11:06:40 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=bluespec-com.20230601.gappssmtp.com header.i=@bluespec-com.20230601.gappssmtp.com header.b="CQNvknXs"
+Received: by mail-qk1-f178.google.com with SMTP id af79cd13be357-78f103d9f64so13622585a.0
+        for <virtualization@lists.linux.dev>; Tue, 30 Apr 2024 12:35:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bluespec-com.20230601.gappssmtp.com; s=20230601; t=1714505714; x=1715110514; darn=lists.linux.dev;
+        h=content-disposition:mime-version:message-id:subject:to:from:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=rkIPuP+CuWN9tKCMSVVGNkNWpD1n57mvYpOJRL642BE=;
+        b=CQNvknXsLacrYly/VWd6hdJaHD5mcOpPQ3eVtHyQsK5ezuaqt6bswJ2TUGb50at3Cj
+         42tM3MqN7QWEIqJP7XQzZZ1SitswD5VspAtViQONQVlD4Z6BLzWAmvoT5NbvJyQ4uW+3
+         obgeIRb+awwlnYl+9mkLv1RoTmBtibgy5AsAxdZ+Cpi0+S3Cczh2R+hwv+07IMs5oGEJ
+         ApEoqeHJBoyPCaQdzdwUImRhu6/A14Yygw58ja9lhXfJfN92G2uc2WJEZbZ1CCUuyPys
+         2OqtLcjTc0HIt/ZHwyDSXVcAekILcw8mRpi2S4cUYAf/RNd0UWnuaEgGYawt3lNJKOqt
+         TGOw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1714500399; x=1715105199;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=F5zx7cpE5g24SyrILpVbFuVBHG+ow92d4f3RUXTPOCU=;
-        b=E6HRS5uSb1uvnmhEK6RWtLuHAYlcFz2HpRNMGFiJTirSiCS2tFz2vr8+rJmi6xqtnq
-         lTPrENdST/RxaM8xTfPfhxt8sM+CopyPEPYUNH1fyuTUiOSTaXDvvZHu3X9g3DLoLEUf
-         cFT7l0QtrGaK3OCk9M+o5tXdhp4+XKsTSLkF6LH/DUn8MoXr8jBLGUsPkcGdhAVFaK9e
-         AA/3mMxnnY7AiEtaNgRyzT1fw1AOFQnj5Z+CRidnaJwj4yKBwM3ycrU4ZTN/h8QcHkNg
-         hKEkdQE4emLM0tI4kJRc2Nj8QhtKXcsb1rrZnvQNChmeZIRVCUyWMnIaPWYMWQWXFVI2
-         5w4g==
-X-Forwarded-Encrypted: i=1; AJvYcCWacDds1zvvH8llDYj9F2zGAYXR4f18gpYnoy7YHJaAdDBb9gwDYQvJWZj3dPIEdTxJUuA1dpIybg1N0gw85gWIvnuYtR9ksLVFpnXOI1E=
-X-Gm-Message-State: AOJu0Yy9nhJK1JpSeJqLItQCVUSWX+Jxxc0IjZZi+yKgVn9nPIFZl+YT
-	iPrx8yD8uBdwN8B9kTRyyCOrULpmFXIAOna5ATeqoaMN2uOm/gAVMb4AMbnz1M3gbxylfUFIA8I
-	roTlpl0T23ruVwkqx1ysXSvtndWb5A3Genf2hSdRuBElnuZrEVCA3q3CCwQxBmxrMYWkheaIW
-X-Received: by 2002:a17:906:dffa:b0:a58:bd8e:f24 with SMTP id lc26-20020a170906dffa00b00a58bd8e0f24mr301836ejc.39.1714500399318;
-        Tue, 30 Apr 2024 11:06:39 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEAMU+eVyJELNlfDZqGybmwpL1icWgq7FgiEnNy2tDXnkcVLH1RcMMycitIzluk5myVZUO69Q==
-X-Received: by 2002:a17:906:dffa:b0:a58:bd8e:f24 with SMTP id lc26-20020a170906dffa00b00a58bd8e0f24mr301804ejc.39.1714500398788;
-        Tue, 30 Apr 2024 11:06:38 -0700 (PDT)
-Received: from redhat.com ([2.55.56.94])
-        by smtp.gmail.com with ESMTPSA id cd19-20020a170906b35300b00a4673706b4dsm15347234ejb.78.2024.04.30.11.06.35
+        d=1e100.net; s=20230601; t=1714505714; x=1715110514;
+        h=content-disposition:mime-version:message-id:subject:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=rkIPuP+CuWN9tKCMSVVGNkNWpD1n57mvYpOJRL642BE=;
+        b=pW8ZWlquIZSvlfxN2Tlp4BwrbsN5gvR0aiBlCbHbmxYjhLOdqZ4P6V6QDKFJDJTyFP
+         4XHo9UhW03Kgud9GRCW2TIMywX1sX1a7yi5c8zHqbTjRup19z4O6pMi82WKqGmQKddA2
+         4YR7od6sZiPaBRwnDrnze49k2JyEikAVHxCn9zSCR5X3YpqVCvyXGLSsGFWy3aSN/xhg
+         mB/CgcaXmtx8JF/8rqOY9ZKxL1IXa+F7sv2FccmBLfdH99GjI/0Z0yI2QO2i+ZzWW5YX
+         PwgcHHj1GtNH6G/FAaFG70REo/sSZ7IVze0wdmbkyEvlKV1baLhSoy+mu01Tou8LMeZ8
+         XCzg==
+X-Forwarded-Encrypted: i=1; AJvYcCV6Gd25vyc2F3hZmVYG9D73aIixZYSQ8/mfQ+Ejt3Ia1J1oZiQIjhCwzTz/k1w9vtY2kCoZJ5W1FfFGPpTRolnt9WIoVo3xnGp2Nm6D4wQ=
+X-Gm-Message-State: AOJu0YwIecmoIAgwrxKMLmRz3NN6qNEgptYZwcS/+gxlO85Kkc6eopJZ
+	zaNLQto4d5/yBNpeeP9/y3vsKXcARJbwb6kWNbfSuBlDQU06slSr8kikbigq
+X-Google-Smtp-Source: AGHT+IGBKXU/7tRSFz93Y1xzcjPZPQaoRweolkwmfOyZ1X1BJG2s1+KA1acju3jrin1dLUxC2l0LEA==
+X-Received: by 2002:ad4:4ee4:0:b0:69b:6b28:f941 with SMTP id dv4-20020ad44ee4000000b0069b6b28f941mr7236867qvb.20.1714505714112;
+        Tue, 30 Apr 2024 12:35:14 -0700 (PDT)
+Received: from localhost.localdomain ([102.129.235.205])
+        by smtp.gmail.com with ESMTPSA id mg20-20020a056214561400b006a0cf4808dfsm2100850qvb.45.2024.04.30.12.35.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Apr 2024 11:06:38 -0700 (PDT)
-Date: Tue, 30 Apr 2024 14:06:33 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Mike Christie <michael.christie@oracle.com>
-Cc: Edward Adam Davis <eadavis@qq.com>,
-	syzbot+98edc2df894917b3431f@syzkaller.appspotmail.com,
-	jasowang@redhat.com, kvm@vger.kernel.org,
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-	syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev
-Subject: Re: [PATCH next] vhost_task: after freeing vhost_task it should not
- be accessed in vhost_task_fn
-Message-ID: <20240430140613-mutt-send-email-mst@kernel.org>
-References: <000000000000a9613006174c1c4c@google.com>
- <tencent_4271296B83A6E4413776576946DAB374E305@qq.com>
- <b959b82a-510f-45c0-9e06-acf526c2f4a1@oracle.com>
+        Tue, 30 Apr 2024 12:35:13 -0700 (PDT)
+Date: Tue, 30 Apr 2024 15:35:09 -0400
+From: Darius Rad <darius@bluespec.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] virtio_net: Warn if insufficient queue length for
+ transmitting
+Message-ID: <ZjFH7Xb5gyTtOpWd@localhost.localdomain>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <b959b82a-510f-45c0-9e06-acf526c2f4a1@oracle.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 
-On Tue, Apr 30, 2024 at 11:23:04AM -0500, Mike Christie wrote:
-> On 4/30/24 8:05 AM, Edward Adam Davis wrote:
-> >  static int vhost_task_fn(void *data)
-> >  {
-> >  	struct vhost_task *vtsk = data;
-> > @@ -51,7 +51,7 @@ static int vhost_task_fn(void *data)
-> >  			schedule();
-> >  	}
-> >  
-> > -	mutex_lock(&vtsk->exit_mutex);
-> > +	mutex_lock(&exit_mutex);
-> >  	/*
-> >  	 * If a vhost_task_stop and SIGKILL race, we can ignore the SIGKILL.
-> >  	 * When the vhost layer has called vhost_task_stop it's already stopped
-> > @@ -62,7 +62,7 @@ static int vhost_task_fn(void *data)
-> >  		vtsk->handle_sigkill(vtsk->data);
-> >  	}
-> >  	complete(&vtsk->exited);
-> > -	mutex_unlock(&vtsk->exit_mutex);
-> > +	mutex_unlock(&exit_mutex);
-> >  
-> 
-> Edward, thanks for the patch. I think though I just needed to swap the
-> order of the calls above.
-> 
-> Instead of:
-> 
-> complete(&vtsk->exited);
-> mutex_unlock(&vtsk->exit_mutex);
-> 
-> it should have been:
-> 
-> mutex_unlock(&vtsk->exit_mutex);
-> complete(&vtsk->exited);
-> 
-> If my analysis is correct, then Michael do you want me to resubmit a
-> patch on top of your vhost branch or resubmit the entire patchset?
+The transmit queue is stopped when the number of free queue entries is less
+than 2+MAX_SKB_FRAGS, in start_xmit().  If the queue length (QUEUE_NUM_MAX)
+is less than then this, transmission will immediately trigger a netdev
+watchdog timeout.  Report this condition earlier and more directly.
 
-Resubmit all please.
+Signed-off-by: Darius Rad <darius@bluespec.com>
+---
+ drivers/net/virtio_net.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 115c3c5414f2..72ee8473b61c 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -4917,6 +4917,9 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 			set_bit(guest_offloads[i], &vi->guest_offloads);
+ 	vi->guest_offloads_capable = vi->guest_offloads;
+ 
++	if (virtqueue_get_vring_size(vi->sq->vq) < 2 + MAX_SKB_FRAGS)
++		netdev_warn_once(dev, "not enough queue entries, expect xmit timeout\n");
++
+ 	pr_debug("virtnet: registered device %s with %d RX and TX vq's\n",
+ 		 dev->name, max_queue_pairs);
+ 
 -- 
-MST
+2.39.2
 
