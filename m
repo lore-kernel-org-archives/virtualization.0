@@ -1,28 +1,28 @@
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2053.outbound.protection.outlook.com [40.107.223.53])
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2069.outbound.protection.outlook.com [40.107.223.69])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AC4D12F59D
-	for <virtualization@lists.linux.dev>; Wed,  1 May 2024 15:39:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.223.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCC5E5024E
+	for <virtualization@lists.linux.dev>; Wed,  1 May 2024 15:39:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.223.69
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714577944; cv=fail; b=p3HGmUZSZQtG11DurErNztYKK/jRvsTAcAm+CkcTHhG0i/yJMf1TmkYwszmLVruZB1nkhh3AFXIB7G5OyFrVERUj7LL0qsujMbg5qI5tPxg31lZtr560klT7IapyZte8iaJ3wq6MvVhci7z/6nSokb23RLor6Kf93OYbnia5mlM=
+	t=1714577949; cv=fail; b=tBA5d+D8JPTwLxR3RErmVGqEt0yHLpQs18OxhyLxZIFTI62M6a/abLHR2PNgNHryrX0YlVTgmkWSsyu+1A7l3XyCWAVJWTc31yQo2AluJmZu61sGfqKi18la8Aia08LWKTrP7cnSu85qLKT4RjisXWUydwnEIPSbkFPupcz77wQ=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714577944; c=relaxed/simple;
-	bh=1CgaeeW48V/Q+10QFEdZ2ho3/1V0E6kqtGsmSEL7DGY=;
+	s=arc-20240116; t=1714577949; c=relaxed/simple;
+	bh=ZX//uzkxy1G0QoqUPyU+KQ1hBx/+TYNf/Te6CQ+3Yqk=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=YYHK2pCjm4HCkEUyKOEwCqAUxwMZ2XcaSfPlkkYzzyrw9JV4uMl+/KDQ9DEtG31cOZDTMDPUn20DbdyvzxU/0sFMls5+5obF2J1KZXPKzgrzzgYcbwRmz2OTfTh8Tmpj48KwlSZ8j/uteiXRrOdQS7FOHwTON6vT+hYhxy0Dges=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=dTcZvv0f; arc=fail smtp.client-ip=40.107.223.53
+	 MIME-Version:Content-Type; b=Xt2NKDo9+1hQwvcg3WNLZEhG8C101VrgR8Jy0+CcCiBXPWG/8925lHrNVsEHCarkJXIUcBJUUj5oFyUit5CC3DWLaqthqKyiWctiOGEFRzQMuMwWWtQfsbOy3/DOprDul14wsoB7QtHF/S/2Q3ZHU5a4mpuLaKxIUKUypZboILo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=R2OaR+DX; arc=fail smtp.client-ip=40.107.223.69
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="dTcZvv0f"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="R2OaR+DX"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=QgA+G/vYUEFyMdlUN3raFzcAd+RSgHXSq0dX19dfp1Xq4DZmTA5PQJMVR+po7cp39z4dxlwaHM2UgYyzqe+JXvD9YUV1gZyr9uOO13/B6k5m76yIsWkka5cgYYeZno8N8xIosAEWWAUijBeU7DQBE3+k7NIymwaqE2YEDdCesuN1+zeJaDiX4eODNpQI5HJ96Pw2kuNjAVFmx6tA9aFCfsatSO7IQivttaiNIuIt0X7DqXv6z44gGHmk1TPHVsKFBZutBOp3NfYePcAQimhtlsXhzcgbZt94dwHs8DHHlk1IAGGZNvi7AEXhyo1dVQq0R1sU+qHBYVCLvE5Kpy9nBA==
+ b=ImV3YTCcLytc5+Yrq+1rGWQW4YpmJE24bGbTIc/ca/G4R6cU4yVsB5ldrfpVNGUbH0zICLC+BXhv3u1WpJy1ZxayRS+XB3CwfO3pEVTs76IgyPq+Tx/ij77xEfSNissH2I3XJWyxK2W4yMvdDatV8YcP9jNzgNftr7ddCY3688am3CjCxn9MNwW4rquyQ+bjgAOepBPoZnBazx8q2PPV0ggyZw7MM9ChzpqUxqlOOI5g1/vgqAEA8a0CjKOZK7AoyIBqFLZtwU1FNlZ5bBw+BLvRv5v+q08AZmEjzvPriM4NV8jM5YUKrkB+YuPXHTMmFZkk01Zm+RC0TUnZ2+5qxQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=7OigB+zNLOWQtdfVDhsSiCs6D2w6Rvh/OUkQwvF9T8g=;
- b=NyhyRamkbtcLwv4K7OWxI0dEP4V2Na5sx9PukM4slKrwQCO1BVYJ9138BUX7UvJBcXnrtK6CBl7KYYPuKkWpajxwsoiRS2n0xxwCbyd9ySFqm3eiGxBilZrgV2mEdtoQlrGYOuGW3PuSuEQBZ8CB2uT+HWotsm/kyNKzypYaS3LOVBaJ/tUZE0Dx0pxwEu3KetIYEn66N62xtVof1JVszopFLmEb6wiUlZ0puuKkQ2myRhkrLq8XC9riC5iPrRJNEzIm/Hwrr38Iq8V9PSvmLZosDIiiz3nTTr9XJhO3eZpGlB6yKk+vkXQhDzRDMl/xD3weRL71DOvv43BLZG8zXA==
+ bh=pjhlJ2KwjB1uSq5cuM/kqPW54d1Ph5xMubJmkwKYHoY=;
+ b=HsS/Wpu4b0fzi5z+VsgETtlCfRES1gMx5tAGNC+6YGvmWMTDfR2jlYTR6pn9N6pVmzJuxeVvGGSCeXOGxegOZ0w6reosHKHOdGKoQvePA1kIhJJXd8f0UM20D9z9qfervb7JzN8F/fR3qsBZZwPPaIt4BoPatMcvV5DHHeSUSFXjOPHCYtjyxYiw54RdpU9X8UkmYsJ/EcnTLjM+WZlQBzA5vtBbmBrcpmu868QXoXhWtKzUAMskznbr/gms67sp5F5UtCXNNt5FHPZRKFbVrh178olFHEmgiFL8vJ9BYspqTmadzMDfU/Xc3rn5X5USl1HsbXDZGu55r3QmIaONwA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  216.228.118.233) smtp.rcpttodomain=lists.linux.dev smtp.mailfrom=nvidia.com;
  dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
@@ -30,18 +30,18 @@ ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=7OigB+zNLOWQtdfVDhsSiCs6D2w6Rvh/OUkQwvF9T8g=;
- b=dTcZvv0fu6HLDPVmtz/xwpaZbWJWF2VwQfaWOae/134tAHuB2vvT9/qLnYuBS4MeM94ns2bWG3D+I96ubDnlr13TBaw/s4rzo0TAHB8CypNeoJssHOQhTet5jvnQkP/ZfI9POCN3RJmHpDKw/Lb2tIRFECYpVr8WtEl0sWIngeixO0kqoUpjjbNsrjQ1Gv03f9k6ADJ4FynkOjj+hHi27Tk6Fyix3WUmXxT2tA0JNoaXekz1XUp2XsU5q8fGkQB2lRRVoJLkGlU3xk0irjtVVVl9KFM+bhABNb+en/UtEILi+KZ6x6AzI7oz/mGZHQsvXH/UJHz/pZJF7wWYNW44ag==
-Received: from PH7PR13CA0001.namprd13.prod.outlook.com (2603:10b6:510:174::7)
- by BY1PR12MB8448.namprd12.prod.outlook.com (2603:10b6:a03:534::15) with
+ bh=pjhlJ2KwjB1uSq5cuM/kqPW54d1Ph5xMubJmkwKYHoY=;
+ b=R2OaR+DXLEHCW5UyVpyFtr05TkYORUVMqo9Jiiv54L6AYy9KyBfeTwdLifY414Q9Dt3yZYCzeUKNuRPqfUg8MGn7NnygNnyMBBybcPHYrISynQBxqRd5jzxIXlUkGDBPxoFLCI7vCmBaFM+6A5ykNZA2jyJvkazc1Dxz1Pj3j5tZNwfbGvELgn3mZmEkSlfsGmQtW6qmqhRBGXYfOdnYhj4xWOdFbDE0h5Nx/9IK+/n9Ngq0kt8vSVeBJ6B7qIQ4I+1Yu5MeqHdv8zdtuAvRlftQG79mCu8hJgWZueNMNCXc/Ns35Fkm96h3TsEcOuimTj1RXO3tIjeAxDSqYEzHfg==
+Received: from PH7PR13CA0006.namprd13.prod.outlook.com (2603:10b6:510:174::19)
+ by BL3PR12MB6427.namprd12.prod.outlook.com (2603:10b6:208:3b6::11) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7519.35; Wed, 1 May
- 2024 15:38:59 +0000
+ 2024 15:39:04 +0000
 Received: from MWH0EPF000A6733.namprd04.prod.outlook.com
- (2603:10b6:510:174:cafe::c4) by PH7PR13CA0001.outlook.office365.com
- (2603:10b6:510:174::7) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7544.28 via Frontend
- Transport; Wed, 1 May 2024 15:38:59 +0000
+ (2603:10b6:510:174:cafe::97) by PH7PR13CA0006.outlook.office365.com
+ (2603:10b6:510:174::19) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7544.29 via Frontend
+ Transport; Wed, 1 May 2024 15:39:03 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.233)
  smtp.mailfrom=nvidia.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=nvidia.com;
@@ -51,27 +51,27 @@ Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
 Received: from mail.nvidia.com (216.228.118.233) by
  MWH0EPF000A6733.mail.protection.outlook.com (10.167.249.25) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.7544.18 via Frontend Transport; Wed, 1 May 2024 15:38:58 +0000
+ 15.20.7544.18 via Frontend Transport; Wed, 1 May 2024 15:39:03 +0000
 Received: from drhqmail203.nvidia.com (10.126.190.182) by mail.nvidia.com
  (10.127.129.6) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Wed, 1 May 2024
- 08:38:39 -0700
+ 08:38:43 -0700
 Received: from drhqmail202.nvidia.com (10.126.190.181) by
  drhqmail203.nvidia.com (10.126.190.182) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.4; Wed, 1 May 2024 08:38:39 -0700
+ 15.2.1544.4; Wed, 1 May 2024 08:38:43 -0700
 Received: from localhost.localdomain (10.127.8.9) by mail.nvidia.com
  (10.126.190.181) with Microsoft SMTP Server id 15.2.1544.4 via Frontend
- Transport; Wed, 1 May 2024 08:38:35 -0700
+ Transport; Wed, 1 May 2024 08:38:39 -0700
 From: Peter-Jan Gootzen <pgootzen@nvidia.com>
 To: <virtualization@lists.linux.dev>, <vgoyal@redhat.com>,
 	<stefanha@redhat.com>, <miklos@szeredi.hu>
 CC: <mst@redhat.com>, <dgilbert@redhat.com>, <yorayz@nvidia.comm>,
 	<gurtovoy@nvidia.com>, Peter-Jan Gootzen <pgootzen@nvidia.com>, Yoray Zack
 	<yorayz@nvidia.com>, Max Gurtovoy <mgurtovoy@nvidia.com>
-Subject: [PATCH 1/2] virtio-fs: limit number of request queues
-Date: Wed, 1 May 2024 17:38:16 +0200
-Message-ID: <20240501153817.540855-2-pgootzen@nvidia.com>
+Subject: [PATCH 2/2] virtio-fs: add multi-queue support
+Date: Wed, 1 May 2024 17:38:17 +0200
+Message-ID: <20240501153817.540855-3-pgootzen@nvidia.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20240501153817.540855-1-pgootzen@nvidia.com>
 References: <20240501153817.540855-1-pgootzen@nvidia.com>
@@ -86,82 +86,254 @@ Content-Type: text/plain
 X-NV-OnPremToCloud: ExternallySecured
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MWH0EPF000A6733:EE_|BY1PR12MB8448:EE_
-X-MS-Office365-Filtering-Correlation-Id: 641794bd-62cd-40cd-3d4f-08dc69f4d19d
+X-MS-TrafficTypeDiagnostic: MWH0EPF000A6733:EE_|BL3PR12MB6427:EE_
+X-MS-Office365-Filtering-Correlation-Id: ae47ae38-46a7-4209-57ea-08dc69f4d461
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230031|1800799015|82310400014|376005|36860700004;
+	BCL:0;ARA:13230031|36860700004|1800799015|82310400014|376005;
 X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?coJGNmShaudQRjHvotfVqLA4YzFYvDN1ifTEprtjKsf2lLEr/9jEqhH20urt?=
- =?us-ascii?Q?wHmkcg4cCKcTk8HCQTQlj2/Ukl0lqjoZUhlqwRE8tBD6Lifg4cLxZzBi5VsC?=
- =?us-ascii?Q?VtMfoLsGI/f5pLx0FAubFBRwBD80Vdupu6BJTRzwV713kK/GMnKOTRFI5flv?=
- =?us-ascii?Q?VwE2+OGP4ayALCyrJmkI7e0HxqC3EgTDZvtKMPtoOD2dMyBdYfpFHRNsyKbr?=
- =?us-ascii?Q?BlBt8FndZnPIwaZu6qsL3ELsjeYLJWPFAQKhEEY+NSLueP/B2g/wlLf6rQDt?=
- =?us-ascii?Q?wL3J1k7ank2kGvObfc+hIMtYgAHvZZxT+8HC297IQL7+NvrUUIb4NyM+rVqi?=
- =?us-ascii?Q?2D6apTKLyxcqu3p2HIJ8xi2XAFd/cCKOu++bcMTDsSvOtj7QwsQ+c0Slsh5x?=
- =?us-ascii?Q?LR4t4uvBFyOyHjbFSIGooiiRWJZvBl1kjkxq1oX2HMZ9qM1ItUc0wskvx1Lq?=
- =?us-ascii?Q?7guJuwlwWCLY6gVnKQbDReXBEhI9xd9+OWgSj4Hig56ForbJ1aHtoiuhMAaX?=
- =?us-ascii?Q?AfeRyTOOnCIHY6sRXUV5YBinjfu6sGBt0dff3CtlVqlsYwOpiEBnsKQ2Icla?=
- =?us-ascii?Q?uV3rOU+u7ZJTR9+OcO82hX7Zfv9ErD3aSt0XChs2oad9P7rPVti0W6HWHORZ?=
- =?us-ascii?Q?faT7/XJMMWUQPX/0wFA29Iqgok1rNQZcxouCUKKvNlcQK0Aie3OIVO1pBBF0?=
- =?us-ascii?Q?ic49fwaAzgKn5HGbqAjfcsQmJYtfS9UNjjDGUDlED5UezT9S789jMQ44c0q3?=
- =?us-ascii?Q?5pkE+oR2AQCjiY8IErQbRRlVOqqi/42184C51Ffa5UXrOMcOpWErW5WGu5oV?=
- =?us-ascii?Q?6HkODO7/A4Otu9ZD0/eZc/SoAqme8yAGFGXUWl/az9/Ous0TZuF7rog/+W30?=
- =?us-ascii?Q?zcFIxo+X+g1EwzhmFU5bQijQesrdEAWuyYcewecqv1WhINVyjnn+D+B6IYAD?=
- =?us-ascii?Q?LiN8chfEUSA/TPDqTBM8h8ajX3/4ZAhF+jsfHvIN8qk6a550dCetcbOqGaqi?=
- =?us-ascii?Q?4x1OJqMDLXTkHjQdIs0CaU7Vn8Lc+qDIrv5pIxOthQoaGYUR64IOoKfYEn/3?=
- =?us-ascii?Q?7I89302pZYP4hQgwbmWil/LHHrZQ6yMmGQDolGFZWPVA5VB6ZjbatmUfsWBL?=
- =?us-ascii?Q?2zSOrIEwaazuCnCfpDwMhjIq5yQPATKuG1ELoP3H0taHFfDMIAOysfdSZImY?=
- =?us-ascii?Q?E7FqunhPmochwefukK9d+MDPvro5aiOGhFleoUTRo6B7dpq3AfuvwbbUhoRH?=
- =?us-ascii?Q?v8mAFdYXRTyeVAOIMPkvItTa97NDWwUkOLlFaSZ6lZ4YRYvvJmOKr7hib9/L?=
- =?us-ascii?Q?LeKUALYNNtnulvHmBE49HX6SBIaqW5soOGMiIdjoWTaIWgQ0yr7sVDi4aF8j?=
- =?us-ascii?Q?dSy8p4N9MwqVP+Gcou11s68/cv/y?=
+	=?us-ascii?Q?43k1fiNrBFQYJsRVxUNFOXstWHV+L/ec+2Yn9GjNHel/gUSIARURfIlGT9Iz?=
+ =?us-ascii?Q?Hz1zXp9crcTvGr2fyMN3dRYunj1mfMp47tQZzsFSkSGCLt509OA7D8ILoXkL?=
+ =?us-ascii?Q?xd7PiQbzT+1SImJgMFjWsxpmubuqaj2FAUGdJeG1xEnOB3RFqWbe8fIwH0v6?=
+ =?us-ascii?Q?fzUkPvZm3MEf8c6I5nJXF4XMElmXHZbSXGmd9vD0e0hit7OiQGSjGSDLo43i?=
+ =?us-ascii?Q?n9OYoiuhOxs4t8eZoirRbCVi2mFk3R7hNs63GorrzU/F3iY0CNvRduH+VIMT?=
+ =?us-ascii?Q?TfA0Ueybd4CjRDKbhIb/5F08iFJTg/FToDne4x53LjDxnuN6T4XqayQxmsT9?=
+ =?us-ascii?Q?AvPnVCighb58+qtuNQ6DnSoU3fCAvQY2ngJ3ZpRzdqNQP3slaSSNeVXDZYl4?=
+ =?us-ascii?Q?VprORovaw09N+F1ncE5SmEfflZXeXA1Fhx6p/S2jJghqfShDX0S43Rrm7RHY?=
+ =?us-ascii?Q?tI4eWK0HBTugQKLBS6xLZJF8CRX6T3CtapHQDmF7RBkYvG0FXIIjW1yd19pQ?=
+ =?us-ascii?Q?ojcN15L95WTw8rLhd0e6SUhBfmnxfIYwB5ssTVlNUxSqCTB8azIRjagSLrzf?=
+ =?us-ascii?Q?tzbAbKaJPgnNmoJQOudwjK/Q9ns0F/YXkU8yS7OZI4A1ZEhs8DAw+TbyAQxZ?=
+ =?us-ascii?Q?lJek5nmiodh/VroL9JW7bzeDqhunpyyUcG3fQYjKtozNI9JFPIppnTYqzA3/?=
+ =?us-ascii?Q?/iT+ck+/M+n0y6oIRXYI241/+8OksxAxRnIaFksSkAErU/TEIMbkdZEyXUfR?=
+ =?us-ascii?Q?SydxMv3tRDQATtSVumBlzjxjob5FdZ6RSVXCtye9du7KF1MPHRZX7cxNBpWe?=
+ =?us-ascii?Q?LN1DuIEQ9JA7HJ/T7bndKLzCEtq9PKh53fSclEDvV1qD1UYQgINVd5mjq/kc?=
+ =?us-ascii?Q?Vx6EyfyRTUysV7NpTEUU2eHoNL+hl37NMi0ULiJU9QXJJhxiEFuzyQSpqtwg?=
+ =?us-ascii?Q?sefOoy/lKrIYN93k6nUTVPGaJioqau/iThOZbJ4mlSkx0g52HY0ddqzjaVdn?=
+ =?us-ascii?Q?WvhxKHAFrGZwOt4dPDZFMIEJiHWyWzw3i3WhjHsyVe0XS4E5JDJQvmM1uvhR?=
+ =?us-ascii?Q?3ohJQy4YJVwXA/nn3mAM7OvzI0KBjURIDAmmAPBYBSzY6dsbe0PGeZJ5ZeDF?=
+ =?us-ascii?Q?qXug7GikV1SQjSla48C75ml2ZVm/LFBZ7UKzCZ7f58xW39sgNDxmjH3btsIy?=
+ =?us-ascii?Q?X1WmeRdak9copmM0I/S4EvCq5hrQL9womW+84Sfd3jc2wJAvmULBshEAWoGP?=
+ =?us-ascii?Q?m3mFT67BiiAWDHEVAUk4mRS7KEUm7MnW+pAEdwVCcw9osxD4tzekw0jQ7vIr?=
+ =?us-ascii?Q?f+ht/VII+u+6JGwAq64PE5J34ED57bVKCxDMmMlSheFdlDAnClFyVDQ1PMjb?=
+ =?us-ascii?Q?W03JsZid8ljIm5NH3Szzi1ej7nXx?=
 X-Forefront-Antispam-Report:
-	CIP:216.228.118.233;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge2.nvidia.com;CAT:NONE;SFS:(13230031)(1800799015)(82310400014)(376005)(36860700004);DIR:OUT;SFP:1101;
+	CIP:216.228.118.233;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge2.nvidia.com;CAT:NONE;SFS:(13230031)(36860700004)(1800799015)(82310400014)(376005);DIR:OUT;SFP:1101;
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 May 2024 15:38:58.8666
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 May 2024 15:39:03.5072
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 641794bd-62cd-40cd-3d4f-08dc69f4d19d
+X-MS-Exchange-CrossTenant-Network-Message-Id: ae47ae38-46a7-4209-57ea-08dc69f4d461
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.233];Helo=[mail.nvidia.com]
 X-MS-Exchange-CrossTenant-AuthSource:
 	MWH0EPF000A6733.namprd04.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY1PR12MB8448
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL3PR12MB6427
 
-Virtio-fs devices might allocate significant resources to virtio queues
-such as CPU cores that busy poll on the queue. The device indicates how
-many request queues it can support and the driver should initialize the
-number of queues that they want to utilize.
+This commit creates a multi-queue mapping at device bring-up.
+The driver first attempts to use the existing MSI-X interrupt
+affinities (previously disabled), and if not present, will distribute
+the request queues evenly over the CPUs.
+If the latter fails as well, all CPUs are mapped to request queue zero.
 
-In this patch we limit the number of initialized request queues to the
-number of CPUs, to limit the resource consumption on the device-side
-and to prepare for the upcoming multi-queue patch.
+When a request is handed from FUSE to the virtio-fs device driver, the
+driver will use the current CPU to index into the multi-queue mapping
+and determine the optimal request queue to use.
+
+We measured the performance of this patch with the fio benchmarking
+tool, increasing the number of queues results in a significant speedup
+for both read and write operations, demonstrating the effectiveness
+of multi-queue support.
+
+Host:
+  - Dell PowerEdge R760
+  - CPU: Intel(R) Xeon(R) Gold 6438M, 128 cores
+  - VM: KVM with 32 cores
+Virtio-fs device:
+  - BlueField-3 DPU
+  - CPU: ARM Cortex-A78AE, 16 cores
+  - One thread per queue, each busy polling on one request queue
+  - Each queue is 1024 descriptors deep
+Workload:
+  - fio, sequential read or write, ioengine=libaio, numjobs=32,
+    4GiB file per job, iodepth=8, bs=256KiB, runtime=30s
+Performance Results:
++===========================+==========+===========+
+|     Number of queues      | Fio read | Fio write |
++===========================+==========+===========+
+| 1 request queue (GiB/s)   | 6.1     | 4.6        |
++---------------------------+----------+-----------+
+| 8 request queues (GiB/s)  | 25.8    | 10.3       |
++---------------------------+----------+-----------+
+| 16 request queues (GiB/s) | 30.9    | 19.5       |
++---------------------------+----------+-----------+
+| 32 request queue (GiB/s)  | 33.2    | 22.6       |
++---------------------------+----------+-----------+
+| Speedup                   | 5.5x    | 5x         |
++---------------=-----------+----------+-----------+
 
 Signed-off-by: Peter-Jan Gootzen <pgootzen@nvidia.com>
 Signed-off-by: Yoray Zack <yorayz@nvidia.com>
-Suggested-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
 ---
- fs/fuse/virtio_fs.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/fuse/virtio_fs.c | 70 +++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 62 insertions(+), 8 deletions(-)
 
 diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-index 322af827a232..2745fa484dcb 100644
+index 2745fa484dcb..ed50a5096e74 100644
 --- a/fs/fuse/virtio_fs.c
 +++ b/fs/fuse/virtio_fs.c
-@@ -751,6 +751,9 @@ static int virtio_fs_setup_vqs(struct virtio_device *vdev,
- 	if (fs->num_request_queues == 0)
- 		return -EINVAL;
+@@ -7,6 +7,8 @@
+ #include <linux/fs.h>
+ #include <linux/dax.h>
+ #include <linux/pci.h>
++#include <linux/interrupt.h>
++#include <linux/group_cpus.h>
+ #include <linux/pfn_t.h>
+ #include <linux/memremap.h>
+ #include <linux/module.h>
+@@ -67,6 +69,8 @@ struct virtio_fs {
+ 	unsigned int num_request_queues; /* number of request queues */
+ 	struct dax_device *dax_dev;
  
-+	/* Truncate nr of request queues to nr_cpu_id */
-+	fs->num_request_queues = min_t(unsigned int, fs->num_request_queues,
-+					nr_cpu_ids);
- 	fs->nvqs = VQ_REQUEST + fs->num_request_queues;
- 	fs->vqs = kcalloc(fs->nvqs, sizeof(fs->vqs[VQ_HIPRIO]), GFP_KERNEL);
- 	if (!fs->vqs)
++	unsigned int *mq_map; /* index = cpu id, value = request vq id */
++
+ 	/* DAX memory window where file contents are mapped */
+ 	void *window_kaddr;
+ 	phys_addr_t window_phys_addr;
+@@ -185,6 +189,7 @@ static void virtio_fs_ktype_release(struct kobject *kobj)
+ {
+ 	struct virtio_fs *vfs = container_of(kobj, struct virtio_fs, kobj);
+ 
++	kfree(vfs->mq_map);
+ 	kfree(vfs->vqs);
+ 	kfree(vfs);
+ }
+@@ -706,6 +711,44 @@ static void virtio_fs_requests_done_work(struct work_struct *work)
+ 	}
+ }
+ 
++static void virtio_fs_map_queues(struct virtio_device *vdev, struct virtio_fs *fs)
++{
++	const struct cpumask *mask, *masks;
++	unsigned int q, cpu;
++
++	/* First attempt to map using existing transport layer affinities
++	 * e.g. PCIe MSI-X
++	 */
++	if (!vdev->config->get_vq_affinity)
++		goto fallback;
++
++	for (q = 0; q < fs->num_request_queues; q++) {
++		mask = vdev->config->get_vq_affinity(vdev, VQ_REQUEST + q);
++		if (!mask)
++			goto fallback;
++
++		for_each_cpu(cpu, mask)
++			fs->mq_map[cpu] = q;
++	}
++
++	return;
++fallback:
++	/* Attempt to map evenly in groups over the CPUs */
++	masks = group_cpus_evenly(fs->num_request_queues);
++	/* If even this fails we default to all CPUs use queue zero */
++	if (!masks) {
++		for_each_possible_cpu(cpu)
++			fs->mq_map[cpu] = 0;
++		return;
++	}
++
++	for (q = 0; q < fs->num_request_queues; q++) {
++		for_each_cpu(cpu, &masks[q])
++			fs->mq_map[cpu] = q;
++	}
++	kfree(masks);
++}
++
+ /* Virtqueue interrupt handler */
+ static void virtio_fs_vq_done(struct virtqueue *vq)
+ {
+@@ -742,6 +785,11 @@ static int virtio_fs_setup_vqs(struct virtio_device *vdev,
+ {
+ 	struct virtqueue **vqs;
+ 	vq_callback_t **callbacks;
++	/* Specify pre_vectors to ensure that the queues before the
++	 * request queues (e.g. hiprio) don't claim any of the CPUs in
++	 * the multi-queue mapping and interrupt affinities
++	 */
++	struct irq_affinity desc = { .pre_vectors = VQ_REQUEST };
+ 	const char **names;
+ 	unsigned int i;
+ 	int ret = 0;
+@@ -763,7 +811,9 @@ static int virtio_fs_setup_vqs(struct virtio_device *vdev,
+ 	callbacks = kmalloc_array(fs->nvqs, sizeof(callbacks[VQ_HIPRIO]),
+ 					GFP_KERNEL);
+ 	names = kmalloc_array(fs->nvqs, sizeof(names[VQ_HIPRIO]), GFP_KERNEL);
+-	if (!vqs || !callbacks || !names) {
++	fs->mq_map = kcalloc_node(nr_cpu_ids, sizeof(*fs->mq_map), GFP_KERNEL,
++					dev_to_node(&vdev->dev));
++	if (!vqs || !callbacks || !names || !fs->mq_map) {
+ 		ret = -ENOMEM;
+ 		goto out;
+ 	}
+@@ -783,7 +833,7 @@ static int virtio_fs_setup_vqs(struct virtio_device *vdev,
+ 		names[i] = fs->vqs[i].name;
+ 	}
+ 
+-	ret = virtio_find_vqs(vdev, fs->nvqs, vqs, callbacks, names, NULL);
++	ret = virtio_find_vqs(vdev, fs->nvqs, vqs, callbacks, names, &desc);
+ 	if (ret < 0)
+ 		goto out;
+ 
+@@ -795,8 +845,10 @@ static int virtio_fs_setup_vqs(struct virtio_device *vdev,
+ 	kfree(names);
+ 	kfree(callbacks);
+ 	kfree(vqs);
+-	if (ret)
++	if (ret) {
+ 		kfree(fs->vqs);
++		kfree(fs->mq_map);
++	}
+ 	return ret;
+ }
+ 
+@@ -942,7 +994,7 @@ static int virtio_fs_probe(struct virtio_device *vdev)
+ 	if (ret < 0)
+ 		goto out;
+ 
+-	/* TODO vq affinity */
++	virtio_fs_map_queues(vdev, fs);
+ 
+ 	ret = virtio_fs_setup_dax(vdev, fs);
+ 	if (ret < 0)
+@@ -1291,7 +1343,7 @@ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
+ static void virtio_fs_wake_pending_and_unlock(struct fuse_iqueue *fiq)
+ __releases(fiq->lock)
+ {
+-	unsigned int queue_id = VQ_REQUEST; /* TODO multiqueue */
++	unsigned int queue_id;
+ 	struct virtio_fs *fs;
+ 	struct fuse_req *req;
+ 	struct virtio_fs_vq *fsvq;
+@@ -1305,11 +1357,13 @@ __releases(fiq->lock)
+ 	spin_unlock(&fiq->lock);
+ 
+ 	fs = fiq->priv;
++	queue_id = VQ_REQUEST + fs->mq_map[raw_smp_processor_id()];
+ 
+-	pr_debug("%s: opcode %u unique %#llx nodeid %#llx in.len %u out.len %u\n",
+-		  __func__, req->in.h.opcode, req->in.h.unique,
++	pr_debug("%s: opcode %u unique %#llx nodeid %#llx in.len %u out.len %u queue_id %u\n",
++		 __func__, req->in.h.opcode, req->in.h.unique,
+ 		 req->in.h.nodeid, req->in.h.len,
+-		 fuse_len_args(req->args->out_numargs, req->args->out_args));
++		 fuse_len_args(req->args->out_numargs, req->args->out_args),
++		 queue_id);
+ 
+ 	fsvq = &fs->vqs[queue_id];
+ 	ret = virtio_fs_enqueue_req(fsvq, req, false);
 -- 
 2.34.1
 
