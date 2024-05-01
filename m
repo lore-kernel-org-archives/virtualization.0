@@ -1,247 +1,131 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4710C4AEC6
-	for <virtualization@lists.linux.dev>; Wed,  1 May 2024 05:56:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 433D9D2E5
+	for <virtualization@lists.linux.dev>; Wed,  1 May 2024 06:01:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714542961; cv=none; b=Me77t3/iBWA+kIndq7rLJUUmI2PydNr4yM+0C7FT3jaTvQdM80ngaOvNaXiIUDCg1Ft3LszjZYYPk2gmU97j3w7AnvDgrfQNHd284x5sBsOQq5djI4KQWiQXAzYaP16sqZxEGCRZTT9aKeVYPl2j6kvKLihCmUWgnWuh5Wgq5dw=
+	t=1714543291; cv=none; b=rFcI1YAUXRQz8rarD1zVNa+9gPfxHq0447U+Eztx75zK96ZX9kItk1UC3mLyY+WZ+zyjltBdUrFr5l7B8Nv1CdTs6PMNsF0r8rRchCp/c2sTO8l2qLj1E7IQxJERM4EZYQNe17U/bRZpPBz4ary85XPKIpdDiTGKUjGieEU39sM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714542961; c=relaxed/simple;
-	bh=aadMEr8ariBi8eE4O8hPmKJnX3oge4KGG35B7N3ApoE=;
+	s=arc-20240116; t=1714543291; c=relaxed/simple;
+	bh=826e6puMm6zzTrxffD62gEQ3vdQCaEKJUlUGOq1Xpv4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=uzezMla4ETP5uneoFMfv1YZha2deW8H8VpWtaaPz4vNpntY/L5uhblXnaZdSURDmjjoDHlvDe1PGD6NjoP+BSe+Ew77rR28wI6ZgwWQCBZT8r8X8v7kALvZKlNAKm1hZj5M7IV2nn41mDSZb45MoDJtygQYia8UYOlWoZRYmf0g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BmgMcEwZ; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=puYS7rxgjJJD3NkfIIgxUURnRa4TWI5E4bh2daOvo5DG1lprz9BtK7Oq2u3yTmHFSoVYOzkKihWee4bQDAguTXVVbhDPqrur8fkYuDz6DGUciJd0TNiKMeftFjskdGJ3UT1k2M9XwshSAwlOM6lhV1y9jaXpiN5vA9qDBnISiXw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ajEg7ubJ; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BmgMcEwZ"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ajEg7ubJ"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1714542959;
+	s=mimecast20190719; t=1714543289;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=HcKow0zmruCffk3bO4H/bFhUq98xWg7lQzKYw8TpCpk=;
-	b=BmgMcEwZwTfIxPGkX7vuPuC9qe7Bx1lInvNsBx9IfDuNwKCvib0MCw42Phhp4r1yyDBMlQ
-	4fGGSiKfWxeIZoD6ngN8YlZRAAsM3HVWrM2l4IpyuF87hOL7RcYcVLQMJoZYKbRrLO3DqV
-	YAJcEMMbPdBHHahV/6VxvyWuMRhokMI=
+	bh=ACs9fP8UeUOFIH6gYeB8LpBxm1NZNbq1XOuqsdPyK04=;
+	b=ajEg7ubJC1R8JoNBH/k+PrEQTuLplizrn5KCfr9FmJG5+4jYyjVSOHai6rZtuLQxJr8RJj
+	Lcq7Z8NdnFpUfmFna1TYuY2t5qRSGRZQYtF/SvjjMgegQybcyA4J6FBiBXUATCjUZAwrP3
+	eFwcSHi+di81pSsOeAPlRlzwQWAgHF8=
 Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
  [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-491-lNg3frEPPlarGcV-Vz-9jA-1; Wed, 01 May 2024 01:55:57 -0400
-X-MC-Unique: lNg3frEPPlarGcV-Vz-9jA-1
-Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-a55709e5254so316637866b.3
-        for <virtualization@lists.linux.dev>; Tue, 30 Apr 2024 22:55:57 -0700 (PDT)
+ us-mta-122-nzS3P5ivMOSii5O5bOQh4Q-1; Wed, 01 May 2024 02:01:28 -0400
+X-MC-Unique: nzS3P5ivMOSii5O5bOQh4Q-1
+Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-a59324b5fb3so84119566b.0
+        for <virtualization@lists.linux.dev>; Tue, 30 Apr 2024 23:01:27 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1714542956; x=1715147756;
+        d=1e100.net; s=20230601; t=1714543287; x=1715148087;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=HcKow0zmruCffk3bO4H/bFhUq98xWg7lQzKYw8TpCpk=;
-        b=VIpkQsLFgARwyTg3AtZIHAObi/5mcSJx/wnZThNHh8IhzHK0J3BIaxB2cODBk2mIIm
-         HqOR5HlTJgwgvkV8aum03aAlGBDk1nBUFytTYzKGidieI1/uFw6yFr10gnipzdmSY4hr
-         F39Sk8PBEKOJ1x79YgUB7wulx6FMq5wTho7Lm7aBhpC+ZxPkqe4JwTmtfWXDpabQMMYu
-         X/AicTfUBFF5jNf7DgIBI1tKr0ZBXV4V5vC3hwCyxZQLaJa5ipyCqK4d3iDZ3NSv3AIM
-         ZyY7DA/eMZQ8BV15Oi/rJ25yB01OqWkjbQHU5Ym7UOqCzwD0p3smvJp3PsZkiCZpG2E5
-         F7sg==
-X-Forwarded-Encrypted: i=1; AJvYcCVnETP0wMX1TJ1ixWmIbQPLIQHrWORKSwMIlsNIf9pA9MJkIo0+kPyjUL93BnZCHDMDNrrz4jBlcNJP3YQK5irRuzBquXaUo5l5gEYi+Jg=
-X-Gm-Message-State: AOJu0Yy5uraz3lAGoBCrOJHX5tE41Jp+qNKgWr3EC6QvGIXnkfMxNCWb
-	jNJt0IVWG27kN5ypqDOgCEz0QCnqsTTgcpMdF+aHmj4r+9gKooHkhOlsBfnNMtQ4MmsQx1U0AMO
-	a1pd/H55zQwSAVA7ZgZBJ5FnkiFfrl/ZXXIjS0t6+tSFn+bnWp4aqRS6DoTcq0oAo
-X-Received: by 2002:a17:906:e4d:b0:a55:9a35:5e9d with SMTP id q13-20020a1709060e4d00b00a559a355e9dmr977262eji.42.1714542956237;
-        Tue, 30 Apr 2024 22:55:56 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGC1QkCHaw0iBBvM1x7ORwvPKI+KKZASL1NToTNqfz++XpK/I5PdrIKLQ0RzET8wTmc4DTiIQ==
-X-Received: by 2002:a17:906:e4d:b0:a55:9a35:5e9d with SMTP id q13-20020a1709060e4d00b00a559a355e9dmr977237eji.42.1714542955599;
-        Tue, 30 Apr 2024 22:55:55 -0700 (PDT)
+        bh=ACs9fP8UeUOFIH6gYeB8LpBxm1NZNbq1XOuqsdPyK04=;
+        b=Rtt2ZCv92/VmVWaQZgUJENINjQqCeMPa1uj9vWte+3RqkTqSOJS8pu+NijkNizWLhO
+         2DrEE4mrLRi99Ufho1WtDZx8KTi5hi4naW+TX3x4Yj4pcY4ftuu1UO1easil16GUJNA4
+         04Tlu9Wv4OVoLZXbv57wWgZ0tA1brYjhhzfWcgw80pfFVed2SxDhHqCGcms3/slh4nT7
+         PfJyZobM1DStu36/yT4neqkcrlZnwWZN/+U4LU2IenqWiyfLs14tRq6GNI768dpyqFLA
+         tIBc8iR/o4Sls6cnCa5UWKRsGPK1B7VhOiPEpgeSM9pvZBHAJK3hq72C0jrT/CufYXtx
+         LRTg==
+X-Forwarded-Encrypted: i=1; AJvYcCXyNcxI4PDMroAPMMRSrzahsmYL8gSpg3AdYyZm7bh7bvWRxMW/nSsXtRqnQcwYkExsgcYc4dsJajkz2CApap6QCCDCrXLbIqMKXfqKy/0=
+X-Gm-Message-State: AOJu0YyA2Ygu1PTVZnLvXnyHBzjNnvLoTkkGGfFIySH7RWqZNxyc6Fbs
+	uoL+nkZG9PWYjSLQe0nYuwIBuKlF55guViK+JeUeLccEbeH9b+2djlmrySem43o70n1hYcQ8F+0
+	2+cHbolGrP0sHq4jard+K818VB/W/NXEONkcvr1ZUauqagJeS0E4VCx3zOqkXHBmS
+X-Received: by 2002:a17:906:e219:b0:a58:f186:192 with SMTP id gf25-20020a170906e21900b00a58f1860192mr1224397ejb.0.1714543286388;
+        Tue, 30 Apr 2024 23:01:26 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHSlMxEoUZ88OBzUnW9OSy6mbDeqVmGiKA+13uWDb7mOt6quE44mzfAWkhW9+s6sFw1/mZ2+A==
+X-Received: by 2002:a17:906:e219:b0:a58:f186:192 with SMTP id gf25-20020a170906e21900b00a58f1860192mr1224363ejb.0.1714543285807;
+        Tue, 30 Apr 2024 23:01:25 -0700 (PDT)
 Received: from redhat.com ([2a0d:6fc7:346:6a42:bb79:449b:3f0b:a228])
-        by smtp.gmail.com with ESMTPSA id cb6-20020a170906a44600b00a58864c88aesm9121150ejb.225.2024.04.30.22.55.50
+        by smtp.gmail.com with ESMTPSA id e20-20020a170906249400b00a5910978816sm2187459ejb.121.2024.04.30.23.01.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Apr 2024 22:55:54 -0700 (PDT)
-Date: Wed, 1 May 2024 01:55:47 -0400
+        Tue, 30 Apr 2024 23:01:25 -0700 (PDT)
+Date: Wed, 1 May 2024 02:01:20 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Heng Qi <hengqi@linux.alibaba.com>
-Cc: kernel test robot <lkp@intel.com>, oe-kbuild-all@lists.linux.dev,
-	Jakub Kicinski <kuba@kernel.org>,
-	"David S . Miller" <davem@davemloft.net>,
-	Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>,
-	Jason Wang <jasowang@redhat.com>, Brett Creeley <bcreeley@amd.com>,
-	Ratheesh Kannoth <rkannoth@marvell.com>,
-	Alexander Lobakin <aleksander.lobakin@intel.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Tal Gilboa <talgi@nvidia.com>, Jonathan Corbet <corbet@lwn.net>,
-	linux-doc@vger.kernel.org,
-	Maxime Chevallier <maxime.chevallier@bootlin.com>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Paul Greenwalt <paul.greenwalt@intel.com>,
-	Ahmed Zaki <ahmed.zaki@intel.com>,
-	Vladimir Oltean <vladimir.oltean@nxp.com>,
-	Kory Maincent <kory.maincent@bootlin.com>,
-	Andrew Lunn <andrew@lunn.ch>, justinstitt@google.com,
-	netdev@vger.kernel.org, virtualization@lists.linux.dev
-Subject: Re: [PATCH net-next v11 2/4] ethtool: provide customized dim profile
- management
-Message-ID: <20240501015303-mutt-send-email-mst@kernel.org>
-References: <20240430173136.15807-1-hengqi@linux.alibaba.com>
- <20240430173136.15807-3-hengqi@linux.alibaba.com>
- <202405011004.Rkw6IrSl-lkp@intel.com>
- <1714538736.2472136-1-hengqi@linux.alibaba.com>
+To: Hillf Danton <hdanton@sina.com>
+Cc: Mike Christie <michael.christie@oracle.com>,
+	Edward Adam Davis <eadavis@qq.com>,
+	syzbot+98edc2df894917b3431f@syzkaller.appspotmail.com,
+	jasowang@redhat.com, kvm@vger.kernel.org,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+	syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev
+Subject: Re: [PATCH next] vhost_task: after freeing vhost_task it should not
+ be accessed in vhost_task_fn
+Message-ID: <20240501020057-mutt-send-email-mst@kernel.org>
+References: <b959b82a-510f-45c0-9e06-acf526c2f4a1@oracle.com>
+ <20240501001544.1606-1-hdanton@sina.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <1714538736.2472136-1-hengqi@linux.alibaba.com>
+In-Reply-To: <20240501001544.1606-1-hdanton@sina.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Wed, May 01, 2024 at 12:45:36PM +0800, Heng Qi wrote:
-> On Wed, 1 May 2024 10:36:03 +0800, kernel test robot <lkp@intel.com> wrote:
-> > Hi Heng,
+On Wed, May 01, 2024 at 08:15:44AM +0800, Hillf Danton wrote:
+> On Tue, Apr 30, 2024 at 11:23:04AM -0500, Mike Christie wrote:
+> > On 4/30/24 8:05 AM, Edward Adam Davis wrote:
+> > >  static int vhost_task_fn(void *data)
+> > >  {
+> > >  	struct vhost_task *vtsk = data;
+> > > @@ -51,7 +51,7 @@ static int vhost_task_fn(void *data)
+> > >  			schedule();
+> > >  	}
+> > >  
+> > > -	mutex_lock(&vtsk->exit_mutex);
+> > > +	mutex_lock(&exit_mutex);
+> > >  	/*
+> > >  	 * If a vhost_task_stop and SIGKILL race, we can ignore the SIGKILL.
+> > >  	 * When the vhost layer has called vhost_task_stop it's already stopped
+> > > @@ -62,7 +62,7 @@ static int vhost_task_fn(void *data)
+> > >  		vtsk->handle_sigkill(vtsk->data);
+> > >  	}
+> > >  	complete(&vtsk->exited);
+> > > -	mutex_unlock(&vtsk->exit_mutex);
+> > > +	mutex_unlock(&exit_mutex);
+> > >  
 > > 
-> > kernel test robot noticed the following build warnings:
+> > Edward, thanks for the patch. I think though I just needed to swap the
+> > order of the calls above.
 > > 
-> > [auto build test WARNING on net-next/main]
+> > Instead of:
 > > 
-> > url:    https://github.com/intel-lab-lkp/linux/commits/Heng-Qi/linux-dim-move-useful-macros-to-h-file/20240501-013413
-> > base:   net-next/main
-> > patch link:    https://lore.kernel.org/r/20240430173136.15807-3-hengqi%40linux.alibaba.com
-> > patch subject: [PATCH net-next v11 2/4] ethtool: provide customized dim profile management
-> > config: openrisc-defconfig (https://download.01.org/0day-ci/archive/20240501/202405011004.Rkw6IrSl-lkp@intel.com/config)
-> > compiler: or1k-linux-gcc (GCC) 13.2.0
-> > reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240501/202405011004.Rkw6IrSl-lkp@intel.com/reproduce)
+> > complete(&vtsk->exited);
+> > mutex_unlock(&vtsk->exit_mutex);
 > > 
-> > If you fix the issue in a separate patch/commit (i.e. not just a new version of
-> > the same patch/commit), kindly add following tags
-> > | Reported-by: kernel test robot <lkp@intel.com>
-> > | Closes: https://lore.kernel.org/oe-kbuild-all/202405011004.Rkw6IrSl-lkp@intel.com/
+> > it should have been:
 > > 
-> > All warnings (new ones prefixed by >>):
-> > 
-> >    net/ethtool/coalesce.c: In function 'ethnl_update_profile':
-> >    net/ethtool/coalesce.c:453:46: error: 'struct net_device' has no member named 'irq_moder'
-> >      453 |         struct dim_irq_moder *irq_moder = dev->irq_moder;
-> >          |                                              ^~
-> >    net/ethtool/coalesce.c: At top level:
-> > >> net/ethtool/coalesce.c:446:12: warning: 'ethnl_update_profile' defined but not used [-Wunused-function]
-> >      446 | static int ethnl_update_profile(struct net_device *dev,
-> >          |            ^~~~~~~~~~~~~~~~~~~~
-> > >> net/ethtool/coalesce.c:151:12: warning: 'coalesce_put_profile' defined but not used [-Wunused-function]
-> >      151 | static int coalesce_put_profile(struct sk_buff *skb, u16 attr_type,
-> >          |            ^~~~~~~~~~~~~~~~~~~~
-> > 
+> > mutex_unlock(&vtsk->exit_mutex);
+> > complete(&vtsk->exited);
 > 
-> This is a known minor issue,
-> to reduce the use of 'IS_ENABLED(CONFIG_DIMLIB)'
-> mentioned in v10. Since the calls of ethnl_update_profile() and
-> coalesce_put_profile() will only occur when IS_ENABLED(CONFIG_DIMLIB) returns
-> true, the robot's warning can be ignored the code is safe.
+> JFYI Edward did it [1]
+> 
+> [1] https://lore.kernel.org/lkml/tencent_546DA49414E876EEBECF2C78D26D242EE50A@qq.com/
 
-I don't get it. The build seems to fail. How is this a minor issue?
+and then it failed testing.
 
-
-> All NIPA test cases running on my local pass successfully on V11.
-> 
-> Alternatively, I remake the series to have IS_ENABLED(CONFIG_DIMLIB) back,
-> up to Kuba (and others). :)
-> 
-> Thanks.
-> 
 > > 
-> > vim +/ethnl_update_profile +446 net/ethtool/coalesce.c
-> > 
-> >    424	
-> >    425	/**
-> >    426	 * ethnl_update_profile - get a profile nest with child nests from userspace.
-> >    427	 * @dev: netdevice to update the profile
-> >    428	 * @dst: profile get from the driver and modified by ethnl_update_profile.
-> >    429	 * @nests: nest attr ETHTOOL_A_COALESCE_*X_PROFILE to set profile.
-> >    430	 * @extack: Netlink extended ack
-> >    431	 *
-> >    432	 * Layout of nests:
-> >    433	 *   Nested ETHTOOL_A_COALESCE_*X_PROFILE attr
-> >    434	 *     Nested ETHTOOL_A_PROFILE_IRQ_MODERATION attr
-> >    435	 *       ETHTOOL_A_IRQ_MODERATION_USEC attr
-> >    436	 *       ETHTOOL_A_IRQ_MODERATION_PKTS attr
-> >    437	 *       ETHTOOL_A_IRQ_MODERATION_COMPS attr
-> >    438	 *     ...
-> >    439	 *     Nested ETHTOOL_A_PROFILE_IRQ_MODERATION attr
-> >    440	 *       ETHTOOL_A_IRQ_MODERATION_USEC attr
-> >    441	 *       ETHTOOL_A_IRQ_MODERATION_PKTS attr
-> >    442	 *       ETHTOOL_A_IRQ_MODERATION_COMPS attr
-> >    443	 *
-> >    444	 * Return: 0 on success or a negative error code.
-> >    445	 */
-> >  > 446	static int ethnl_update_profile(struct net_device *dev,
-> >    447					struct dim_cq_moder __rcu **dst,
-> >    448					const struct nlattr *nests,
-> >    449					struct netlink_ext_ack *extack)
-> >    450	{
-> >    451		int len_irq_moder = ARRAY_SIZE(coalesce_irq_moderation_policy);
-> >    452		struct nlattr *tb[ARRAY_SIZE(coalesce_irq_moderation_policy)];
-> >  > 453		struct dim_irq_moder *irq_moder = dev->irq_moder;
-> >    454		struct dim_cq_moder *new_profile, *old_profile;
-> >    455		int ret, rem, i = 0, len;
-> >    456		struct nlattr *nest;
-> >    457	
-> >    458		if (!nests)
-> >    459			return 0;
-> >    460	
-> >    461		if (!*dst)
-> >    462			return -EOPNOTSUPP;
-> >    463	
-> >    464		old_profile = rtnl_dereference(*dst);
-> >    465		len = NET_DIM_PARAMS_NUM_PROFILES * sizeof(*old_profile);
-> >    466		new_profile = kmemdup(old_profile, len, GFP_KERNEL);
-> >    467		if (!new_profile)
-> >    468			return -ENOMEM;
-> >    469	
-> >    470		nla_for_each_nested_type(nest, ETHTOOL_A_PROFILE_IRQ_MODERATION,
-> >    471					 nests, rem) {
-> >    472			ret = nla_parse_nested(tb, len_irq_moder - 1, nest,
-> >    473					       coalesce_irq_moderation_policy,
-> >    474					       extack);
-> >    475			if (ret)
-> >    476				goto err_out;
-> >    477	
-> >    478			ret = ethnl_update_irq_moder(irq_moder, &new_profile[i].usec,
-> >    479						     ETHTOOL_A_IRQ_MODERATION_USEC,
-> >    480						     tb, DIM_COALESCE_USEC,
-> >    481						     extack);
-> >    482			if (ret)
-> >    483				goto err_out;
-> >    484	
-> >    485			ret = ethnl_update_irq_moder(irq_moder, &new_profile[i].pkts,
-> >    486						     ETHTOOL_A_IRQ_MODERATION_PKTS,
-> >    487						     tb, DIM_COALESCE_PKTS,
-> >    488						     extack);
-> >    489			if (ret)
-> >    490				goto err_out;
-> >    491	
-> >    492			ret = ethnl_update_irq_moder(irq_moder, &new_profile[i].comps,
-> >    493						     ETHTOOL_A_IRQ_MODERATION_COMPS,
-> >    494						     tb, DIM_COALESCE_COMPS,
-> >    495						     extack);
-> >    496			if (ret)
-> >    497				goto err_out;
-> >    498	
-> >    499			i++;
-> >    500		}
-> >    501	
-> >    502		rcu_assign_pointer(*dst, new_profile);
-> >    503		kfree_rcu(old_profile, rcu);
-> >    504	
-> >    505		return 0;
-> >    506	
-> >    507	err_out:
-> >    508		kfree(new_profile);
-> >    509		return ret;
-> >    510	}
-> >    511	
-> > 
-> > -- 
-> > 0-DAY CI Kernel Test Service
-> > https://github.com/intel/lkp-tests/wiki
+> > If my analysis is correct, then Michael do you want me to resubmit a
+> > patch on top of your vhost branch or resubmit the entire patchset?
 
