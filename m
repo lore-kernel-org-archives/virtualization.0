@@ -1,241 +1,314 @@
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0787F646
-	for <virtualization@lists.linux.dev>; Wed,  1 May 2024 01:01:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.165.32
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714525282; cv=fail; b=aY2jNeEA6C5tNsJzCChx+g8YkPlUcYnEPq91rE3Y+5hXQxZDBTexBtY4eLohHcmfdmQg00gy1N6KysTSG015X3zbuTa3umX6yS/TcMCbSTYE6RyMjK5noij2mqBWxdNmYpgElpJ579fSwaDS0O29QjMx7CS8Mr9+hkejME0LMvE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714525282; c=relaxed/simple;
-	bh=/XIP6Azm1vAnPhhYlEG1WJZhwHDDmE1SZMLllQD9oVE=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=R1m/oDD4aBHx7ssETJ4UDhmL/S3TXp7Ja3yU4hQlS6jx5O+BsU/StWuagDzi8lH/MO1gNe0gmee56HBiA0IvR7RVIZabom0Dbc4SEE7n3bVnZwCkX9+XB9byT5rf6kvUkG6XW/Ht1GwU+B9LGsBN0fPXAUcK8xZgRoEUqlI7o9I=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=QvkQ7AMB; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=OfysmQi7; arc=fail smtp.client-ip=205.220.165.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=oracle.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2350B4437
+	for <virtualization@lists.linux.dev>; Wed,  1 May 2024 02:25:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1714530337; cv=none; b=JIBfrKZiIqsRfujg3R2lpYeJi9GifE9DmZnVs74iNKGmVi7205mXvk1npl2RoZbUa0h3xy3XH+Uu5UGY/V4dALW5ynXbgpIq0GR6YIOr/QwG8n3VvieGe1yZU99yWCh79EyTzduM+PZK3ImBoAlxmpqpQSNyAG06tSlbnBUH7/g=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1714530337; c=relaxed/simple;
+	bh=Co6/QgXgK3gwRjvKiz0r7BVqBfj4a9CRJWGg0I3Q+RI=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=oaCOrWs8S5l8OTsIEPwLJ80nWbJVH8LXiS/f2jGkafvEjvaVByJchrsKmW9beu9XetQ/XwBwtCc7yXGCY1Lmac5nzKkFpGUvTndUEqTQn6tI8DAGouO9fR8wfWaFvHI1WyKTD+Ds+CxCshQGkEBqdPdqi3p4mw9dJeYoMXwR6xE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=sar+UtNa; arc=none smtp.client-ip=115.124.30.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="QvkQ7AMB";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="OfysmQi7"
-Received: from pps.filterd (m0333521.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43UKTuIj014020;
-	Wed, 1 May 2024 01:01:18 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2023-11-20;
- bh=7j7ZsO/QauoxLggwG3cX2XqDCx0/r/4BsVa3+g03Egk=;
- b=QvkQ7AMBSj26CyStlj470Dyj0KNb7O+0gZWKIsfGTRwXI3uOJvC4Wu4pM08qH9eHTJyF
- HunloaisqVdj+jKGnc0W/xikqfSgG9oB8CRFdPS3CQtUmiGxXqafTIYEICH1p4MRyRSY
- IevoIKgil/NcZ7Rk86mPCFIn890kZyi9DkB2M1DqwiizbaTWkrCvhutYu08gFk++v+CD
- pD3BcxcKSSjr5YiULOwrm0asQ+fE5196scJ73wkxiAEHbkt96ZLQxTQ9Ll61oku2+fgs
- ldwMXxzjEn9FZFcdhfCXF5Ca2yNu4sKAe4ZIwdNEs0nzRNlrzOl0vBnfe+3lgOiN9QkR Sg== 
-Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta03.appoci.oracle.com [130.35.103.27])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3xrr9cpgjf-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 01 May 2024 01:01:17 +0000
-Received: from pps.filterd (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-	by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 44101uWL016713;
-	Wed, 1 May 2024 01:01:15 GMT
-Received: from nam10-bn7-obe.outbound.protection.outlook.com (mail-bn7nam10lp2101.outbound.protection.outlook.com [104.47.70.101])
-	by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3xrqtertqg-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 01 May 2024 01:01:15 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=l4B1IPBK0G+98VfbnmOFcCGGKp4AJIzz45fWDEgXOSV7pIR4p++O3uAc72RDJECGNYEeHYrR2Ve3VWZxYIClZph46xyR1yxMpcD9ica62JVxqA43vTE9NVaKq8yBcWmpRV0v2XkYHWJ/itzqm0CxeVpIKFcalB4W9bJxIgk/hU0uXyd48waurQqtyYrTuXdU7C64AH6WJUX+MpVZNLsMFUDlP0p3fotY27l6G2BZay2mUm8v/StMMxQNVREVx31SB3qh/H6MmGzIe9abC2mYe2oDcxUFFIL4iVTAORbkc2O9SNckFC55bEFIYp0rGzwTEn6vnnETnnR2W5BaadQAEw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=7j7ZsO/QauoxLggwG3cX2XqDCx0/r/4BsVa3+g03Egk=;
- b=alRmCeb+uMVurO3zkBRvduUz/pVuFFZRxL1uO1bjEx245povwhnQQdfXcwMenFUvCMpLoSJA5Qo/i1qQUNqe7j35Qh5Z+fPo7DGk+/emP8BZ15GT2oqQDSVy+2gylr7PYcGptGSXSgZOdLKCsoY3Z2TLt51kQm1PGXzwg/Seev70sGu4rzvi7eDpjwBIgRvDVpgMcoj6cp6ML0rtUnNtM5fn1KgOYH365XsUupZJ6W+pQ72nxA6ohdBX/Qefvfpxar4x9pZQjca5DFffIDPk3ohF7UoTKwdUspP/wQXFSfGUALS7RyUJe8Itr5GvPnNPUm/4A7vFzRB9kafXTfFKnw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=7j7ZsO/QauoxLggwG3cX2XqDCx0/r/4BsVa3+g03Egk=;
- b=OfysmQi7RkZCtV+kSEXxdC9clIxURvP/xAcam8+yx1ykmTBH2NepOupiS/kCX67coJRbTU9NK5/1T4QjLEcnkvlIj3QHvC4HoqO2jKoJ/D+Roh7iKKlIYStU0sDkCK7w5+JHuINEFrlEackcou+srGoqyRRivDlttMjb5nJ3ASw=
-Received: from CY8PR10MB7243.namprd10.prod.outlook.com (2603:10b6:930:7c::10)
- by DM6PR10MB4121.namprd10.prod.outlook.com (2603:10b6:5:21d::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7519.34; Wed, 1 May
- 2024 01:01:13 +0000
-Received: from CY8PR10MB7243.namprd10.prod.outlook.com
- ([fe80::b779:d0be:9e3a:34f0]) by CY8PR10MB7243.namprd10.prod.outlook.com
- ([fe80::b779:d0be:9e3a:34f0%7]) with mapi id 15.20.7519.031; Wed, 1 May 2024
- 01:01:13 +0000
-Message-ID: <59d61db8-8d3a-44f1-b664-d4649615afc7@oracle.com>
-Date: Tue, 30 Apr 2024 20:01:11 -0500
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH next] vhost_task: after freeing vhost_task it should not
- be accessed in vhost_task_fn
-To: Hillf Danton <hdanton@sina.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Edward Adam Davis
- <eadavis@qq.com>,
-        syzbot+98edc2df894917b3431f@syzkaller.appspotmail.com,
-        jasowang@redhat.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com,
-        virtualization@lists.linux.dev
-References: <20240501001544.1606-1-hdanton@sina.com>
-Content-Language: en-US
-From: Mike Christie <michael.christie@oracle.com>
-In-Reply-To: <20240501001544.1606-1-hdanton@sina.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: CH2PR16CA0022.namprd16.prod.outlook.com
- (2603:10b6:610:50::32) To CY8PR10MB7243.namprd10.prod.outlook.com
- (2603:10b6:930:7c::10)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="sar+UtNa"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1714530331; h=Message-ID:Subject:Date:From:To;
+	bh=olWaF8ImN/d9b/PDr3bc/b75qVo9e0+R4o2a4x1KaB0=;
+	b=sar+UtNaVjR2f2Ks6IqVeHeGRjl0NiZjuKWzpz1upgR+QTOeYwnr/8Yo/Y+wi/Kr6uH5nsNLx0urpEX/bKODjM/0eRRrpkFqhZrhX7toO6ljhVKhrN2bM53tGhuQ6dzdd67U7x+hDnP/yZXhlssbXaLLc1192z/OGKx4OQkyElU=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033022160150;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0W5dhl1V_1714530329;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W5dhl1V_1714530329)
+          by smtp.aliyun-inc.com;
+          Wed, 01 May 2024 10:25:30 +0800
+Message-ID: <1714530132.167469-2-hengqi@linux.alibaba.com>
+Subject: Re: [PATCH net-next v5 2/6] virtio_net: Remove command data from control_buf
+Date: Wed, 1 May 2024 10:22:12 +0800
+From: Heng Qi <hengqi@linux.alibaba.com>
+To: Daniel Jurgens <danielj@nvidia.com>
+Cc: <mst@redhat.com>,
+ <jasowang@redhat.com>,
+ <xuanzhuo@linux.alibaba.com>,
+ <virtualization@lists.linux.dev>,
+ <davem@davemloft.net>,
+ <edumazet@google.com>,
+ <kuba@kernel.org>,
+ <pabeni@redhat.com>,
+ <jiri@nvidia.com>,
+ Daniel Jurgens <danielj@nvidia.com>,
+ <netdev@vger.kernel.org>
+References: <20240423035746.699466-1-danielj@nvidia.com>
+ <20240423035746.699466-3-danielj@nvidia.com>
+In-Reply-To: <20240423035746.699466-3-danielj@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY8PR10MB7243:EE_|DM6PR10MB4121:EE_
-X-MS-Office365-Filtering-Correlation-Id: ed262578-b212-4d51-74e3-08dc697a3238
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230031|7416005|1800799015|376005|366007;
-X-Microsoft-Antispam-Message-Info: 
-	=?utf-8?B?aDFQb1dBem5DRWJqUXJnaVpBblYvbUErSjVlZ2E4R1o1Ry95UUIzWlB5bHkx?=
- =?utf-8?B?dTNTTUc0UGdmRzRERXhleSs0eGVLczZuZGFvVkphUXNEQkFlZ05GclZSR1FD?=
- =?utf-8?B?ekVsaXZ4QUsyd2xtNVFFSXFFbFo0M2tvVUl2T1RtOXdsYkI0cWRuSEJSZ05N?=
- =?utf-8?B?U2hPeVY2enlhMDFIMzI0ZnpnRUJnNWJsNWxaRnNUdVRLenZyZEtQY3ZNbHNH?=
- =?utf-8?B?WlQ2dWtjdXFuVGV2aGR3Z0JCK3lkQnhLcnVQcHJ2RjVYVG8ySHN5NE5KakZw?=
- =?utf-8?B?Tk9PQnhKUGxLWVRiUWl2a1hOWWY0aDRaVUtjYmdlUlBaZWN2eXh1Rk03SFll?=
- =?utf-8?B?dXVFZ1gvOFRrZXpkMjVUWi82SEZ3UjIrcms0MEw2U1JSeVJKMUxib0FjOHJG?=
- =?utf-8?B?VGdBMktkYU9CRDVudjhVSE0vVlg1MDB3RFRpNmdSOGZZQUFTVXNOdEMzRkV2?=
- =?utf-8?B?UDJCUkZQQjc1S3FhczhCYkRYdy9xamVTT0V3eStLNGd2RTJ1OFd3THd6UVpS?=
- =?utf-8?B?ekc2WEdxdkNjaEZNa3ZicTdjYjBjMitnaWpKNDUyc0dJSzlCaElSTVBQKzZE?=
- =?utf-8?B?VzBNZzUxNll4V2JLZWtvTWgveE9wU3ljRXM1ZmJFSmVteXVmMVBzSm5UVFNk?=
- =?utf-8?B?d3VOZGhGM0tKLytrWTQ2Q3ErRlRGWE1TNDUxKyt4dmZWd2RSeTZUQzF3SHpk?=
- =?utf-8?B?S2VmaGRJT0FPb3JrcjBzN2ZUTjRmWG1vV09RZ2tYblowM0l5RnkzeXZVZWo1?=
- =?utf-8?B?NElOdzBKS0R3MDNDR25OR0FjZ1QveGErYk92b3pnTitqM1NVaU1KdXlGZU0x?=
- =?utf-8?B?NGtSSmRobHI5TnJZRHdGRmplQ3JTTFNGS2JVdWV2K09aa2hWc3U1Q2Y0ZGhO?=
- =?utf-8?B?ZVhQSkJCdkluK3RWS0trQUQ4ckM1S28xeWtod012RVBxKytWb3BmTVpHN0tj?=
- =?utf-8?B?T0ZsWDJ3ckFFODU1YzJwQWYwOFhYQ1pvYmdVRkZrTmNrZklHcng0Y0hMNk5O?=
- =?utf-8?B?eEV3UzJDaDdZdVZxc2tYSFdDQURuM2ZQOWt6QWVpRzhnT1hQSGIxT2VrTDJG?=
- =?utf-8?B?aHFyV1Y4RFB1aE9WaEhYNXhHYmZRcC83R0ErTUVLS1JFWklaQnNoTnlqVndj?=
- =?utf-8?B?Z25SY24xa0tBc2JGY2dXNGFVZzBTaVRCS3M4Q0xnYk5YOEZBakdLMmQ5N2FM?=
- =?utf-8?B?U29aTXdPb2VJQmxUZmJXRks3OHhJcCsrWDFoWnpyQzg4RXFYVE8zR0RGalQr?=
- =?utf-8?B?Y0Z6aS9SQmpjU2hRdmsvakpkQWljRXNPMzFZeGtjLzEwWldYVSs5Z0RhUUlk?=
- =?utf-8?B?bHUyRkJHMHdlQ1BTMkMrN1dHcytnUW1UTnZHUmJXRE9wUkVZMFJiZSthTStD?=
- =?utf-8?B?K3BpeHo5allnSVNEaGpDSzNpQ2tVZ215eEp1SjQzVWdUMC9pUjRlbmpNZUhx?=
- =?utf-8?B?WmZ6cDdPSDlaVVkwV3VBd1htZlY0V3VjY3pRdWFIQW1JSnlWTXhFMHFQdkll?=
- =?utf-8?B?dFJIRGM3OG5ESzNSeXpGbFhaa2JaYXNEMndyWU5Oa2RaaW1qZmpnWW1aaW40?=
- =?utf-8?B?clBLY0k0UHNpQ1hZem5objVJa1RXQVM3c0NXVy9aeDVwU2UvZ2NWMkxrQTg0?=
- =?utf-8?B?S1ZIVHJXN3ppQyt0Y3FPQXZ0WWR5eG1BZzA0UDZjTHl4UVpWTmN3NDZpS1E0?=
- =?utf-8?B?VTBpdk5aZVBkWHcrRG42eEpRN0Y3WjVZV1EwYlJvWVRLUWlIT093d3ZnPT0=?=
-X-Forefront-Antispam-Report: 
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY8PR10MB7243.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(7416005)(1800799015)(376005)(366007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: 
-	=?utf-8?B?MVFkbG1KbG02WDBXbTVKZ3Rab3hvWU5sWWdPSmg1Nlp3OTA1eEc1Vm9aVWpX?=
- =?utf-8?B?bFFDc3cyQkN2T0lFUHd2cjc2WFVPd3lSeWlGQkd6aFU0MWlhUGJ6aTFldEtv?=
- =?utf-8?B?TjB0eS9zeU83UHVTL1RIMVZYWDBaWE9hbFZkSGZuYk5KSDlSeDlqR2E0Wmls?=
- =?utf-8?B?T2RBNGNjSGVwVUdVMHNMaXlPcjMwbWIxY2NKUUc3TjY4eDdmZXlmMmNnLy92?=
- =?utf-8?B?bGxldVVrOHZFdXBKMXM2NE9ub1djNXFXSmpsNkFEWVNNME03aktRYkRjbjlv?=
- =?utf-8?B?V0N1Y2YwOHFtZHZvb1FUUUhqSUppdXdmbVhaYk5TMDNMcmFlTGVjU0Zjb3FW?=
- =?utf-8?B?SlBYZFRBcHVIZGNHaWQ4VEtkcVJjcFJXUk04cjZiYlNCbFRFaU4xeGtqVGpn?=
- =?utf-8?B?S0xiS05vdnBoTnJlcnFnRHJJcG5aZldWMmVyd0laa3FSZnBjYVhsTU5ZaUIr?=
- =?utf-8?B?K09lMTJhRUNiQVFGSVJMOEhMWGlOUit0bG1yRlV6bHZUcS93OGZVRDh3QXh5?=
- =?utf-8?B?VFhnZDExSlc5S1lYTmtBb2w1N2tISk8reUNVUVBIVDhxNmdKeHJUQVRlK0Fm?=
- =?utf-8?B?TEphVUcwZm43YWRpck1wY0ExTWlZWHJ2Z3BUME1DMjUybm1xWHgvMUd0eUlM?=
- =?utf-8?B?bEtNRmwxaHpsLzFFRjc3WGRsaTFldk50VnB3cmQrZVBGNUdaZzdwZEwvUDZR?=
- =?utf-8?B?ekRMcThjZ080L0FEZGU5ZjFxLzJ2VlZzN1NiOVl4d3B2czNNZlA5OGxGNGlI?=
- =?utf-8?B?b2toU1FTSlU4cjhVaG5EZytJZ3NXcjFTOGNXQnYxWUs1SUkxUW05ZGUwejBu?=
- =?utf-8?B?YjdwbHduTmwvWEZKcEpGM2NGcExyVU43Y3gzMitDRnMza2xCQVhYUlVPN2No?=
- =?utf-8?B?RXpuNmZkTm5YS3RQc09TVFN1dFFBZW9BUFBFdlA5akljdjhNN3JDaEhiZUZ5?=
- =?utf-8?B?bmpnL1dMb3RtNVloWENGdHVueFFrckVBcGFuRTZVQUJHYTZLTVVPdUpDT3gz?=
- =?utf-8?B?aWRoVm91YVFxbHNhcCtNQm02OWMyZ3hPMXliVlJwMmhINkJKMDNhaEdtSVpu?=
- =?utf-8?B?b3kzVG9SMTl1SnZOMk8xaFp1ZWc0T3Q3R1VIeTdZR0p5NjJINGtzMzN5L2du?=
- =?utf-8?B?aTE3OWwvaXEyb00yMWVEVkpLOTVmQ3BwUDFkYmZiMVgrZXpLQkIyWHFGZDBO?=
- =?utf-8?B?T1RjSjRPYTl1R2Mrd0VlZEp6THRKRytVb1hHVG1JWVRSQVZ6cFpMdGpsR0Jx?=
- =?utf-8?B?NGNXODBnMUhOMFQ5ck5rc1RKY0tZd25vUUJPZ1J6TDBydURCTlRra0c1OUpN?=
- =?utf-8?B?eDdEZ29NQkFlWHcxRHFTRS9TUTZvZDdJUmpJOVoyOFV1YjZMSjlCYmdsMnNu?=
- =?utf-8?B?RWVsM0xnR2NNd0Q3YTFEdjNZWXFTSHMyWWNUZW40M0RxOWxyM1dLUEt0Qlp3?=
- =?utf-8?B?Q3FWVXh3TWRnOEVzSkdPbG1BMGlOWGVOcFVkUm9Rd0cvbTBWelgxZHMydlYv?=
- =?utf-8?B?ZURqWGo4VTRpR3dMMnhBY2s2N3c1dzR6cFNIV2lRWlpKL3cxa0hLT1ZkUnhO?=
- =?utf-8?B?clNQVUJONGZBWkE5OWw1WDB4RW13eVJKZzFuUVVkbGpobTFKNktuYWZPQzdv?=
- =?utf-8?B?bC9lU0lEam1ZQnlzU2NFbXNVMjF1YkpJL0hmK0xGN2x2R0Z0eUwzS0xNdnNM?=
- =?utf-8?B?RmdYUDhPVW9TN25XclV6OFc1SSswdTZseUpUM0VsaHBYMkZlYTZ4b1Q3WURP?=
- =?utf-8?B?SDFEYlFYdDJBU1hockt0WTNmdUtaSS9SRWZmN3p2VWQwejZnY09ZVkZCVDA1?=
- =?utf-8?B?cnRiL3FmaEJzSGtYTlZvbGNnUWN1VUYxd2VwcE1Zc1ZtUktHc2JPVUx6VldO?=
- =?utf-8?B?VUJ3N1A3TUMrZHJZUHlVYjB1UzlveUlXNTBBNEFnV0J5OVFBYm1CZDdWejYw?=
- =?utf-8?B?L2NDTDBMT21wRE1MRXZLeGwrUFFCdEJTK096YjBIVDV4QjNLTjk1YStCY0o1?=
- =?utf-8?B?cHUxeDdHZFl2b2J0YTF5cUFCbVJyM0Z3alMyNG1pVTYzN2VHbE9WaVBtT3By?=
- =?utf-8?B?b1lnS0ZLRUVCT0R2UksvNHFQdlM0QnU2QzVkNm9ZS2JTWHdKenZBbWRvN3Z0?=
- =?utf-8?B?MTBTMDRGd3lCbFZGbkhvYUJva25ML09TcVIzMThDREN5U3JjUTFFbHdkR3BO?=
- =?utf-8?B?R1E9PQ==?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: 
-	5hpH5pofg8DqW+MKKW6qn6HT81r/Znq0ddZ1KD1TpfwXJftQBFoZRHtd+CRHtO7kQKPwy5oFMn6PABcxxhXdvsItSxeT+7KA2DOGNP6ay0stvWh15a0ZXs0KnttKez/F4o1ousp+V3mXATYFdNeT2hfMtzRjO9oejDV6u1LxIy8kYzAmEKSR6GDFhv9ku/XlXh8SGiUKNL8KJR5uklswreuc42gjSURqFHjkXXouN8ZGG54x7BWTeTcPWUnGNP0ksyL7mZ8Brs/+2u9LvyM1U23y0U47rzXnLpXxevjzxyvJkbKByxTeuXpoBUtTWzMZpDwyeij7th/TBgqv8mHV6LkrpZQdLh6/cv8cTltevVJEyXKFLtUrdsSFBZhoi4OCix0g2f8DhHnlixTtcHBaf1eq6sNYCQQOp7ov/AzYtuX1m5p3EcKFNKizTHjr2DU5OR3nMatNxtZCAAkbd8UyZj1VunyHmRr5EGlnX8za7GsdJcSUPJiCfGLD9zJHJIcWB69V5AHYI67idiUn9LitQYThUkigvc5KuSIqGDa4B6rtEWbYLmM4Sgq/jJAnJDCFkvWahfExmDh+e1Kxw2TYN3ik0gMnRzyg4j4jdSoNYo0=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: ed262578-b212-4d51-74e3-08dc697a3238
-X-MS-Exchange-CrossTenant-AuthSource: CY8PR10MB7243.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 May 2024 01:01:13.0320
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: tvGGTU62/X993kLjOtbXQ/YhnSyT6XmvG/5jyfbtLD8LpCe1NY1Wb2GfDNCx5UF8WX6dATXe5hzChLYpoCycabeVMR2waLEp3FSPyxI2aJM=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR10MB4121
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.650,FMLib:17.11.176.26
- definitions=2024-04-30_16,2024-04-30_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 malwarescore=0
- phishscore=0 spamscore=0 bulkscore=0 suspectscore=0 adultscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2404010000 definitions=main-2405010006
-X-Proofpoint-GUID: IitefCj1Idr92CnS7ZbmtkHTA-_AGIHe
-X-Proofpoint-ORIG-GUID: IitefCj1Idr92CnS7ZbmtkHTA-_AGIHe
 
-On 4/30/24 7:15 PM, Hillf Danton wrote:
-> On Tue, Apr 30, 2024 at 11:23:04AM -0500, Mike Christie wrote:
->> On 4/30/24 8:05 AM, Edward Adam Davis wrote:
->>>  static int vhost_task_fn(void *data)
->>>  {
->>>  	struct vhost_task *vtsk = data;
->>> @@ -51,7 +51,7 @@ static int vhost_task_fn(void *data)
->>>  			schedule();
->>>  	}
->>>  
->>> -	mutex_lock(&vtsk->exit_mutex);
->>> +	mutex_lock(&exit_mutex);
->>>  	/*
->>>  	 * If a vhost_task_stop and SIGKILL race, we can ignore the SIGKILL.
->>>  	 * When the vhost layer has called vhost_task_stop it's already stopped
->>> @@ -62,7 +62,7 @@ static int vhost_task_fn(void *data)
->>>  		vtsk->handle_sigkill(vtsk->data);
->>>  	}
->>>  	complete(&vtsk->exited);
->>> -	mutex_unlock(&vtsk->exit_mutex);
->>> +	mutex_unlock(&exit_mutex);
->>>  
->>
->> Edward, thanks for the patch. I think though I just needed to swap the
->> order of the calls above.
->>
->> Instead of:
->>
->> complete(&vtsk->exited);
->> mutex_unlock(&vtsk->exit_mutex);
->>
->> it should have been:
->>
->> mutex_unlock(&vtsk->exit_mutex);
->> complete(&vtsk->exited);
+On Tue, 23 Apr 2024 06:57:42 +0300, Daniel Jurgens <danielj@nvidia.com> wrote:
+> Allocate memory for the data when it's used. Ideally the could be on the
+> stack, but we can't DMA stack memory. With this change only the header
+> and status memory are shared between commands, which will allow using a
+> tighter lock than RTNL.
 > 
-> JFYI Edward did it [1]
+> Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
+> Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+> ---
+>  drivers/net/virtio_net.c | 111 ++++++++++++++++++++++++++-------------
+>  1 file changed, 75 insertions(+), 36 deletions(-)
 > 
-> [1] https://lore.kernel.org/lkml/tencent_546DA49414E876EEBECF2C78D26D242EE50A@qq.com/
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 7248dae54e1c..0ee192b45e1e 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -240,14 +240,6 @@ struct virtio_net_ctrl_rss {
+>  struct control_buf {
+>  	struct virtio_net_ctrl_hdr hdr;
+>  	virtio_net_ctrl_ack status;
+> -	struct virtio_net_ctrl_mq mq;
+> -	u8 promisc;
+> -	u8 allmulti;
+> -	__virtio16 vid;
+> -	__virtio64 offloads;
+> -	struct virtio_net_ctrl_coal_tx coal_tx;
+> -	struct virtio_net_ctrl_coal_rx coal_rx;
+> -	struct virtio_net_ctrl_coal_vq coal_vq;
 
-Thanks.
+Since Xuan's device-stats series was merged before, please remember
+to rebase the net-next branch in the next version.
 
-I tested the code with that change and it no longer triggers the UAF.
+Thanks!
 
-I've fixed up the original patch that had the bug and am going to
-resubmit the patchset like how Michael requested.
-
+>  };
+>  
+>  struct virtnet_info {
+> @@ -2672,14 +2664,19 @@ static void virtnet_ack_link_announce(struct virtnet_info *vi)
+>  
+>  static int _virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
+>  {
+> +	struct virtio_net_ctrl_mq *mq __free(kfree) = NULL;
+>  	struct scatterlist sg;
+>  	struct net_device *dev = vi->dev;
+>  
+>  	if (!vi->has_cvq || !virtio_has_feature(vi->vdev, VIRTIO_NET_F_MQ))
+>  		return 0;
+>  
+> -	vi->ctrl->mq.virtqueue_pairs = cpu_to_virtio16(vi->vdev, queue_pairs);
+> -	sg_init_one(&sg, &vi->ctrl->mq, sizeof(vi->ctrl->mq));
+> +	mq = kzalloc(sizeof(*mq), GFP_KERNEL);
+> +	if (!mq)
+> +		return -ENOMEM;
+> +
+> +	mq->virtqueue_pairs = cpu_to_virtio16(vi->vdev, queue_pairs);
+> +	sg_init_one(&sg, mq, sizeof(*mq));
+>  
+>  	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_MQ,
+>  				  VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET, &sg)) {
+> @@ -2708,6 +2705,7 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
+>  
+>  static int virtnet_close(struct net_device *dev)
+>  {
+> +	u8 *promisc_allmulti  __free(kfree) = NULL;
+>  	struct virtnet_info *vi = netdev_priv(dev);
+>  	int i;
+>  
+> @@ -2732,6 +2730,7 @@ static void virtnet_rx_mode_work(struct work_struct *work)
+>  	struct scatterlist sg[2];
+>  	struct virtio_net_ctrl_mac *mac_data;
+>  	struct netdev_hw_addr *ha;
+> +	u8 *promisc_allmulti;
+>  	int uc_count;
+>  	int mc_count;
+>  	void *buf;
+> @@ -2743,22 +2742,27 @@ static void virtnet_rx_mode_work(struct work_struct *work)
+>  
+>  	rtnl_lock();
+>  
+> -	vi->ctrl->promisc = ((dev->flags & IFF_PROMISC) != 0);
+> -	vi->ctrl->allmulti = ((dev->flags & IFF_ALLMULTI) != 0);
+> +	promisc_allmulti = kzalloc(sizeof(*promisc_allmulti), GFP_ATOMIC);
+> +	if (!promisc_allmulti) {
+> +		dev_warn(&dev->dev, "Failed to set RX mode, no memory.\n");
+> +		return;
+> +	}
+>  
+> -	sg_init_one(sg, &vi->ctrl->promisc, sizeof(vi->ctrl->promisc));
+> +	*promisc_allmulti = !!(dev->flags & IFF_PROMISC);
+> +	sg_init_one(sg, promisc_allmulti, sizeof(*promisc_allmulti));
+>  
+>  	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_RX,
+>  				  VIRTIO_NET_CTRL_RX_PROMISC, sg))
+>  		dev_warn(&dev->dev, "Failed to %sable promisc mode.\n",
+> -			 vi->ctrl->promisc ? "en" : "dis");
+> +			 *promisc_allmulti ? "en" : "dis");
+>  
+> -	sg_init_one(sg, &vi->ctrl->allmulti, sizeof(vi->ctrl->allmulti));
+> +	*promisc_allmulti = !!(dev->flags & IFF_ALLMULTI);
+> +	sg_init_one(sg, promisc_allmulti, sizeof(*promisc_allmulti));
+>  
+>  	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_RX,
+>  				  VIRTIO_NET_CTRL_RX_ALLMULTI, sg))
+>  		dev_warn(&dev->dev, "Failed to %sable allmulti mode.\n",
+> -			 vi->ctrl->allmulti ? "en" : "dis");
+> +			 *promisc_allmulti ? "en" : "dis");
+>  
+>  	netif_addr_lock_bh(dev);
+>  
+> @@ -2819,10 +2823,15 @@ static int virtnet_vlan_rx_add_vid(struct net_device *dev,
+>  				   __be16 proto, u16 vid)
+>  {
+>  	struct virtnet_info *vi = netdev_priv(dev);
+> +	__virtio16 *_vid __free(kfree) = NULL;
+>  	struct scatterlist sg;
+>  
+> -	vi->ctrl->vid = cpu_to_virtio16(vi->vdev, vid);
+> -	sg_init_one(&sg, &vi->ctrl->vid, sizeof(vi->ctrl->vid));
+> +	_vid = kzalloc(sizeof(*_vid), GFP_KERNEL);
+> +	if (!_vid)
+> +		return -ENOMEM;
+> +
+> +	*_vid = cpu_to_virtio16(vi->vdev, vid);
+> +	sg_init_one(&sg, _vid, sizeof(*_vid));
+>  
+>  	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_VLAN,
+>  				  VIRTIO_NET_CTRL_VLAN_ADD, &sg))
+> @@ -2834,10 +2843,15 @@ static int virtnet_vlan_rx_kill_vid(struct net_device *dev,
+>  				    __be16 proto, u16 vid)
+>  {
+>  	struct virtnet_info *vi = netdev_priv(dev);
+> +	__virtio16 *_vid __free(kfree) = NULL;
+>  	struct scatterlist sg;
+>  
+> -	vi->ctrl->vid = cpu_to_virtio16(vi->vdev, vid);
+> -	sg_init_one(&sg, &vi->ctrl->vid, sizeof(vi->ctrl->vid));
+> +	_vid = kzalloc(sizeof(*_vid), GFP_KERNEL);
+> +	if (!_vid)
+> +		return -ENOMEM;
+> +
+> +	*_vid = cpu_to_virtio16(vi->vdev, vid);
+> +	sg_init_one(&sg, _vid, sizeof(*_vid));
+>  
+>  	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_VLAN,
+>  				  VIRTIO_NET_CTRL_VLAN_DEL, &sg))
+> @@ -2950,12 +2964,17 @@ static void virtnet_cpu_notif_remove(struct virtnet_info *vi)
+>  static int virtnet_send_ctrl_coal_vq_cmd(struct virtnet_info *vi,
+>  					 u16 vqn, u32 max_usecs, u32 max_packets)
+>  {
+> +	struct virtio_net_ctrl_coal_vq *coal_vq __free(kfree) = NULL;
+>  	struct scatterlist sgs;
+>  
+> -	vi->ctrl->coal_vq.vqn = cpu_to_le16(vqn);
+> -	vi->ctrl->coal_vq.coal.max_usecs = cpu_to_le32(max_usecs);
+> -	vi->ctrl->coal_vq.coal.max_packets = cpu_to_le32(max_packets);
+> -	sg_init_one(&sgs, &vi->ctrl->coal_vq, sizeof(vi->ctrl->coal_vq));
+> +	coal_vq = kzalloc(sizeof(*coal_vq), GFP_KERNEL);
+> +	if (!coal_vq)
+> +		return -ENOMEM;
+> +
+> +	coal_vq->vqn = cpu_to_le16(vqn);
+> +	coal_vq->coal.max_usecs = cpu_to_le32(max_usecs);
+> +	coal_vq->coal.max_packets = cpu_to_le32(max_packets);
+> +	sg_init_one(&sgs, coal_vq, sizeof(*coal_vq));
+>  
+>  	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_NOTF_COAL,
+>  				  VIRTIO_NET_CTRL_NOTF_COAL_VQ_SET,
+> @@ -3101,11 +3120,15 @@ static bool virtnet_commit_rss_command(struct virtnet_info *vi)
+>  
+>  	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_MQ,
+>  				  vi->has_rss ? VIRTIO_NET_CTRL_MQ_RSS_CONFIG
+> -				  : VIRTIO_NET_CTRL_MQ_HASH_CONFIG, sgs)) {
+> -		dev_warn(&dev->dev, "VIRTIONET issue with committing RSS sgs\n");
+> -		return false;
+> -	}
+> +				  : VIRTIO_NET_CTRL_MQ_HASH_CONFIG, sgs))
+> +		goto err;
+> +
+>  	return true;
+> +
+> +err:
+> +	dev_warn(&dev->dev, "VIRTIONET issue with committing RSS sgs\n");
+> +	return false;
+> +
+>  }
+>  
+>  static void virtnet_init_default_rss(struct virtnet_info *vi)
+> @@ -3410,12 +3433,17 @@ static int virtnet_get_link_ksettings(struct net_device *dev,
+>  static int virtnet_send_tx_notf_coal_cmds(struct virtnet_info *vi,
+>  					  struct ethtool_coalesce *ec)
+>  {
+> +	struct virtio_net_ctrl_coal_tx *coal_tx __free(kfree) = NULL;
+>  	struct scatterlist sgs_tx;
+>  	int i;
+>  
+> -	vi->ctrl->coal_tx.tx_usecs = cpu_to_le32(ec->tx_coalesce_usecs);
+> -	vi->ctrl->coal_tx.tx_max_packets = cpu_to_le32(ec->tx_max_coalesced_frames);
+> -	sg_init_one(&sgs_tx, &vi->ctrl->coal_tx, sizeof(vi->ctrl->coal_tx));
+> +	coal_tx = kzalloc(sizeof(*coal_tx), GFP_KERNEL);
+> +	if (!coal_tx)
+> +		return -ENOMEM;
+> +
+> +	coal_tx->tx_usecs = cpu_to_le32(ec->tx_coalesce_usecs);
+> +	coal_tx->tx_max_packets = cpu_to_le32(ec->tx_max_coalesced_frames);
+> +	sg_init_one(&sgs_tx, coal_tx, sizeof(*coal_tx));
+>  
+>  	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_NOTF_COAL,
+>  				  VIRTIO_NET_CTRL_NOTF_COAL_TX_SET,
+> @@ -3435,6 +3463,7 @@ static int virtnet_send_tx_notf_coal_cmds(struct virtnet_info *vi,
+>  static int virtnet_send_rx_notf_coal_cmds(struct virtnet_info *vi,
+>  					  struct ethtool_coalesce *ec)
+>  {
+> +	struct virtio_net_ctrl_coal_rx *coal_rx __free(kfree) = NULL;
+>  	bool rx_ctrl_dim_on = !!ec->use_adaptive_rx_coalesce;
+>  	struct scatterlist sgs_rx;
+>  	int i;
+> @@ -3453,6 +3482,10 @@ static int virtnet_send_rx_notf_coal_cmds(struct virtnet_info *vi,
+>  		return 0;
+>  	}
+>  
+> +	coal_rx = kzalloc(sizeof(*coal_rx), GFP_KERNEL);
+> +	if (!coal_rx)
+> +		return -ENOMEM;
+> +
+>  	if (!rx_ctrl_dim_on && vi->rx_dim_enabled) {
+>  		vi->rx_dim_enabled = false;
+>  		for (i = 0; i < vi->max_queue_pairs; i++)
+> @@ -3463,9 +3496,9 @@ static int virtnet_send_rx_notf_coal_cmds(struct virtnet_info *vi,
+>  	 * we need apply the global new params even if they
+>  	 * are not updated.
+>  	 */
+> -	vi->ctrl->coal_rx.rx_usecs = cpu_to_le32(ec->rx_coalesce_usecs);
+> -	vi->ctrl->coal_rx.rx_max_packets = cpu_to_le32(ec->rx_max_coalesced_frames);
+> -	sg_init_one(&sgs_rx, &vi->ctrl->coal_rx, sizeof(vi->ctrl->coal_rx));
+> +	coal_rx->rx_usecs = cpu_to_le32(ec->rx_coalesce_usecs);
+> +	coal_rx->rx_max_packets = cpu_to_le32(ec->rx_max_coalesced_frames);
+> +	sg_init_one(&sgs_rx, coal_rx, sizeof(*coal_rx));
+>  
+>  	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_NOTF_COAL,
+>  				  VIRTIO_NET_CTRL_NOTF_COAL_RX_SET,
+> @@ -3951,10 +3984,16 @@ static int virtnet_restore_up(struct virtio_device *vdev)
+>  
+>  static int virtnet_set_guest_offloads(struct virtnet_info *vi, u64 offloads)
+>  {
+> +	__virtio64 *_offloads __free(kfree) = NULL;
+>  	struct scatterlist sg;
+> -	vi->ctrl->offloads = cpu_to_virtio64(vi->vdev, offloads);
+>  
+> -	sg_init_one(&sg, &vi->ctrl->offloads, sizeof(vi->ctrl->offloads));
+> +	_offloads = kzalloc(sizeof(*_offloads), GFP_KERNEL);
+> +	if (!_offloads)
+> +		return -ENOMEM;
+> +
+> +	*_offloads = cpu_to_virtio64(vi->vdev, offloads);
+> +
+> +	sg_init_one(&sg, _offloads, sizeof(*_offloads));
+>  
+>  	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_GUEST_OFFLOADS,
+>  				  VIRTIO_NET_CTRL_GUEST_OFFLOADS_SET, &sg)) {
+> -- 
+> 2.34.1
+> 
+> 
