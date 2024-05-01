@@ -1,107 +1,72 @@
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-io1-f71.google.com (mail-io1-f71.google.com [209.85.166.71])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9B88130A68;
-	Wed,  1 May 2024 16:20:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC665134B1
+	for <virtualization@lists.linux.dev>; Wed,  1 May 2024 16:56:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.71
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714580447; cv=none; b=RjGqnabI4SDgzmvd9ZJfwF6ettkFxcy1dqqataz7cQwpiwpbCmMJ8XUn3DBLG4H8xMhoAN7dukFq1/PqkDGvH5mbUdTnj4sE0w6HGfwRznWPwTTl+SPeB3fIAwumV/zUO1RIgml2jkxNyyS7eo4LXqoBl+2I3wFxrpxr86Rv2cY=
+	t=1714582566; cv=none; b=D+Grsu6d6lR5D9snctQ9Oe88244l/6WVJIifepqfBpq3lVBTjIeGAu+/m+FZ6sNkF9jftBPB9QeyVR1rR2HveNXq39uD3lL3CK4fuLllSpprPa+5Vin9JjhBdEXhX93PWOR9YJKae+78ElaAFJToyGo7VompoOpZ/SkGlflRug0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714580447; c=relaxed/simple;
-	bh=aZNcstz5TBxo+7M7A4J8BxMJ0DLGaT9dj0p3s/4FNPk=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=pIcvG8B7hgBVaJjG2KXPt3XDF7Eldo9WHjDZJX6lMxe+etEoTuS17IjrH1ddItiUpofm7TcOWHEwmBVAiycaraul3Bso7JEJ1BYFfgShccC5PbFCnZ3t1n6hTWhfIV0fivr9gVBkU3UbvpFV3omwzuoJPCwIotbGWqSAHo7h5lc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=MW0hfKb5; arc=none smtp.client-ip=115.124.30.110
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="MW0hfKb5"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1714580436; h=Message-ID:Subject:Date:From:To;
-	bh=LdU5Mtmhz1JVgGDzcEcbbmWJA6Ubb0BUWuMIm7lrfYQ=;
-	b=MW0hfKb5XC6vYes7kbtInb4+HXWj3A5BelPVzpL0umwkZAipGmcq96AHpxwVwwaijHJVZLlCyZtZfAVNlAPhiLlITPNGt3Aqo0aNcyjJ6P03c2RUR3Zknzv54fP1uSNogCUo4bP3+HLbs2zjpJey43nO42AXBEIGkJzM5FYKRsA=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067109;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=25;SR=0;TI=SMTPD_---0W5f2lZW_1714580432;
-Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W5f2lZW_1714580432)
-          by smtp.aliyun-inc.com;
-          Thu, 02 May 2024 00:20:33 +0800
-Message-ID: <1714580352.6371188-3-hengqi@linux.alibaba.com>
-Subject: Re: [PATCH net-next v11 2/4] ethtool: provide customized dim profile management
-Date: Thu, 2 May 2024 00:19:12 +0800
-From: Heng Qi <hengqi@linux.alibaba.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jakub Kicinski <kuba@kernel.org>,
- kernel test robot <lkp@intel.com>,
- oe-kbuild-all@lists.linux.dev,
- "David S . Miller" <davem@davemloft.net>,
- Paolo Abeni <pabeni@redhat.com>,
- Eric Dumazet <edumazet@google.com>,
- Jason Wang <jasowang@redhat.com>,
- Brett Creeley <bcreeley@amd.com>,
- Ratheesh Kannoth <rkannoth@marvell.com>,
- Alexander Lobakin <aleksander.lobakin@intel.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- Tal Gilboa <talgi@nvidia.com>,
- Jonathan Corbet <corbet@lwn.net>,
- linux-doc@vger.kernel.org,
- Maxime Chevallier <maxime.chevallier@bootlin.com>,
- Jiri Pirko <jiri@resnulli.us>,
- Paul Greenwalt <paul.greenwalt@intel.com>,
- Ahmed Zaki <ahmed.zaki@intel.com>,
- Vladimir Oltean <vladimir.oltean@nxp.com>,
- Kory Maincent <kory.maincent@bootlin.com>,
- Andrew Lunn <andrew@lunn.ch>,
- justinstitt@google.com,
- netdev@vger.kernel.org,
- virtualization@lists.linux.dev
-References: <20240430173136.15807-1-hengqi@linux.alibaba.com>
- <20240430173136.15807-3-hengqi@linux.alibaba.com>
- <202405011004.Rkw6IrSl-lkp@intel.com>
- <1714538736.2472136-1-hengqi@linux.alibaba.com>
- <20240501074420.1b5e5e69@kernel.org>
- <1714576307.2126026-2-hengqi@linux.alibaba.com>
- <20240501114754-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20240501114754-mutt-send-email-mst@kernel.org>
+	s=arc-20240116; t=1714582566; c=relaxed/simple;
+	bh=1XZHi0YzBLS47mbettJ83dDPGL16uhOqOK1tJN4dlpw=;
+	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
+	 Content-Type; b=Z+y/EA18J6u89HXxiaux52nLbh+Qr3eqPdrG+AdXu4BemL0j8ASJWmuD/+wxJySMDngqbYRCrfVabRYkGUgQQuxM5C/4BiMnV70bv6JJo3wb9T/41ezUdMQ/FKuUWzLIQJ6uvudiRluleLAgLxshMOgc1Ras5W4Oywbr2qO8VOE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.71
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-io1-f71.google.com with SMTP id ca18e2360f4ac-7def44d6078so723639f.1
+        for <virtualization@lists.linux.dev>; Wed, 01 May 2024 09:56:04 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1714582564; x=1715187364;
+        h=to:from:subject:message-id:in-reply-to:date:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=zL5zLFLZ9/A+euis3e08Nm55+lvX3+T3wPrxtwGnFpQ=;
+        b=cgPr2rXO3S7p+ZBwPKsxk59r2v3m/5yBNdoybGZKSDAC/+1SCqB3/DEvacgq/QaR76
+         7Hu7B68o0pQwV4qEXTxoi7SUZGeYavpCTpk1e+r5gyiwS4sytNrOBpTABEQQUNYzwtLx
+         EI4p/gfpI5lpfowYtomVHTzT3CpYYF4n9/szSM/p5bfI63Vdc+9XW3ik1MHkgW6kWata
+         ZLVDBRctghcuvN5Ic8/TZZYXZp7Qbr9CV6l4Vi8IuXe3bfhmM7FClz0IZW71JQ1yloKe
+         N61BNShfJPY1hxQRVRaEQnPeMRLkOHEShY8t0jDA8TTg7MIvnvBQn1pvxT8ne+og9rwB
+         RbrQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVsM1rvxDuQXhNZVXakxEiajRlEgC851I6gUesPCyNtf/eaTAOQPVbrsm/rARJhGIiZANYawivCAOwJ2FhfEVK/Gz/Rb1SYVfmVmUMmDF0=
+X-Gm-Message-State: AOJu0Yx99sqKKbX1Ij9IzWOWzTuoX18NWtMfmOf5m3MmBBhfwLCI/38F
+	NLCR7F8RISQHRmgZR1vgYXG2pqckYN3+IDu92ZkKGT7eFwJ9nrQn2DhD4H9vyaAp5MEhDROF8XV
+	InANml5o4jyR77U6ZIHJY5UiWBR7fq/ZCc0xmLWvm1T412GZTCsZlmiU=
+X-Google-Smtp-Source: AGHT+IEBjXreViAye+0kXgWGM8QAOQnK+EHu2cHJMy66fdP74jLwDb6XfrE99WN2U9+ggleDVkBLcX+2gumyBDoVt+kvePoHzc8o
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+X-Received: by 2002:a05:6638:8684:b0:487:5dce:65ab with SMTP id
+ iv4-20020a056638868400b004875dce65abmr6872jab.0.1714582564003; Wed, 01 May
+ 2024 09:56:04 -0700 (PDT)
+Date: Wed, 01 May 2024 09:56:03 -0700
+In-Reply-To: <20240501121200-mutt-send-email-mst@kernel.org>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <000000000000aa73d50617675ca3@google.com>
+Subject: Re: [syzbot] [net?] [virt?] [kvm?] KASAN: slab-use-after-free Read in vhost_task_fn
+From: syzbot <syzbot+98edc2df894917b3431f@syzkaller.appspotmail.com>
+To: jasowang@redhat.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	michael.christie@oracle.com, mst@redhat.com, netdev@vger.kernel.org, 
+	syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
 
-On Wed, 1 May 2024 11:48:23 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Wed, May 01, 2024 at 11:11:47PM +0800, Heng Qi wrote:
-> > On Wed, 1 May 2024 07:44:20 -0700, Jakub Kicinski <kuba@kernel.org> wrote:
-> > > On Wed, 1 May 2024 12:45:36 +0800 Heng Qi wrote:
-> > > > >    net/ethtool/coalesce.c: At top level:  
-> > > >  [...]  
-> > > > >      446 | static int ethnl_update_profile(struct net_device *dev,
-> > > > >          |            ^~~~~~~~~~~~~~~~~~~~  
-> > > >  [...]  
-> > > > >      151 | static int coalesce_put_profile(struct sk_buff *skb, u16 attr_type,
-> > > > >          |            ^~~~~~~~~~~~~~~~~~~~
-> > > > >   
-> > > > 
-> > > > This is a known minor issue, to reduce the use of 'IS_ENABLED(CONFIG_DIMLIB)'
-> > > > mentioned in v10. Since the calls of ethnl_update_profile() and
-> > > > coalesce_put_profile() will only occur when IS_ENABLED(CONFIG_DIMLIB) returns
-> > > > true, the robot's warning can be ignored the code is safe.
-> > > > 
-> > > > All NIPA test cases running on my local pass successfully on V11.
-> > > > 
-> > > > Alternatively, I remake the series to have IS_ENABLED(CONFIG_DIMLIB) back,
-> > > > up to Kuba (and others). :)
-> > > 
-> > > You should remove the ifdef around the member in struct net_device.
-> > > It's too much code complication to save one pointer in the struct.
-> > 
-> > Makes sense.
-> > 
-> > Thanks.
-> 
-> if you really want to you can add a comment
->  /* only used if IS_ENABLED(CONFIG_DIMLIB) */
-> 
+Hello,
 
-Ok, I'll add this.
+syzbot has tested the proposed patch and the reproducer did not trigger any issue:
 
-Thanks.
+Reported-and-tested-by: syzbot+98edc2df894917b3431f@syzkaller.appspotmail.com
 
+Tested on:
+
+commit:         f138e94c KASAN: slab-use-after-free Read in vhost_task..
+git tree:       https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git
+console output: https://syzkaller.appspot.com/x/log.txt?x=10a152a7180000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=3714fc09f933e505
+dashboard link: https://syzkaller.appspot.com/bug?extid=98edc2df894917b3431f
+compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
+
+Note: no patches were applied.
+Note: testing is done by a robot and is best-effort only.
