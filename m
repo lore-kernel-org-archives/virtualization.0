@@ -1,131 +1,61 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mail115-100.sinamail.sina.com.cn (mail115-100.sinamail.sina.com.cn [218.30.115.100])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 433D9D2E5
-	for <virtualization@lists.linux.dev>; Wed,  1 May 2024 06:01:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EB0650278
+	for <virtualization@lists.linux.dev>; Wed,  1 May 2024 07:51:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=218.30.115.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714543291; cv=none; b=rFcI1YAUXRQz8rarD1zVNa+9gPfxHq0447U+Eztx75zK96ZX9kItk1UC3mLyY+WZ+zyjltBdUrFr5l7B8Nv1CdTs6PMNsF0r8rRchCp/c2sTO8l2qLj1E7IQxJERM4EZYQNe17U/bRZpPBz4ary85XPKIpdDiTGKUjGieEU39sM=
+	t=1714549867; cv=none; b=b8OXr6u+J+wdPhB6tfj0Tf5B/Ys0VG3gDJkmof4AKNquMCHinaS1WpGsQO8AupRxZbTW59pVrhsX2xd6gmzCVoR27CCXUKD2tnsYnE/kbYkIcn3rhzThg/pKXHzLHg5X4GCPSZodVCmVq2O3ZWjEO8Q/qhM2r7zMF/qeQ9Dvxs4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714543291; c=relaxed/simple;
-	bh=826e6puMm6zzTrxffD62gEQ3vdQCaEKJUlUGOq1Xpv4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=puYS7rxgjJJD3NkfIIgxUURnRa4TWI5E4bh2daOvo5DG1lprz9BtK7Oq2u3yTmHFSoVYOzkKihWee4bQDAguTXVVbhDPqrur8fkYuDz6DGUciJd0TNiKMeftFjskdGJ3UT1k2M9XwshSAwlOM6lhV1y9jaXpiN5vA9qDBnISiXw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ajEg7ubJ; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ajEg7ubJ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1714543289;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ACs9fP8UeUOFIH6gYeB8LpBxm1NZNbq1XOuqsdPyK04=;
-	b=ajEg7ubJC1R8JoNBH/k+PrEQTuLplizrn5KCfr9FmJG5+4jYyjVSOHai6rZtuLQxJr8RJj
-	Lcq7Z8NdnFpUfmFna1TYuY2t5qRSGRZQYtF/SvjjMgegQybcyA4J6FBiBXUATCjUZAwrP3
-	eFwcSHi+di81pSsOeAPlRlzwQWAgHF8=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-122-nzS3P5ivMOSii5O5bOQh4Q-1; Wed, 01 May 2024 02:01:28 -0400
-X-MC-Unique: nzS3P5ivMOSii5O5bOQh4Q-1
-Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-a59324b5fb3so84119566b.0
-        for <virtualization@lists.linux.dev>; Tue, 30 Apr 2024 23:01:27 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1714543287; x=1715148087;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ACs9fP8UeUOFIH6gYeB8LpBxm1NZNbq1XOuqsdPyK04=;
-        b=Rtt2ZCv92/VmVWaQZgUJENINjQqCeMPa1uj9vWte+3RqkTqSOJS8pu+NijkNizWLhO
-         2DrEE4mrLRi99Ufho1WtDZx8KTi5hi4naW+TX3x4Yj4pcY4ftuu1UO1easil16GUJNA4
-         04Tlu9Wv4OVoLZXbv57wWgZ0tA1brYjhhzfWcgw80pfFVed2SxDhHqCGcms3/slh4nT7
-         PfJyZobM1DStu36/yT4neqkcrlZnwWZN/+U4LU2IenqWiyfLs14tRq6GNI768dpyqFLA
-         tIBc8iR/o4Sls6cnCa5UWKRsGPK1B7VhOiPEpgeSM9pvZBHAJK3hq72C0jrT/CufYXtx
-         LRTg==
-X-Forwarded-Encrypted: i=1; AJvYcCXyNcxI4PDMroAPMMRSrzahsmYL8gSpg3AdYyZm7bh7bvWRxMW/nSsXtRqnQcwYkExsgcYc4dsJajkz2CApap6QCCDCrXLbIqMKXfqKy/0=
-X-Gm-Message-State: AOJu0YyA2Ygu1PTVZnLvXnyHBzjNnvLoTkkGGfFIySH7RWqZNxyc6Fbs
-	uoL+nkZG9PWYjSLQe0nYuwIBuKlF55guViK+JeUeLccEbeH9b+2djlmrySem43o70n1hYcQ8F+0
-	2+cHbolGrP0sHq4jard+K818VB/W/NXEONkcvr1ZUauqagJeS0E4VCx3zOqkXHBmS
-X-Received: by 2002:a17:906:e219:b0:a58:f186:192 with SMTP id gf25-20020a170906e21900b00a58f1860192mr1224397ejb.0.1714543286388;
-        Tue, 30 Apr 2024 23:01:26 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHSlMxEoUZ88OBzUnW9OSy6mbDeqVmGiKA+13uWDb7mOt6quE44mzfAWkhW9+s6sFw1/mZ2+A==
-X-Received: by 2002:a17:906:e219:b0:a58:f186:192 with SMTP id gf25-20020a170906e21900b00a58f1860192mr1224363ejb.0.1714543285807;
-        Tue, 30 Apr 2024 23:01:25 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc7:346:6a42:bb79:449b:3f0b:a228])
-        by smtp.gmail.com with ESMTPSA id e20-20020a170906249400b00a5910978816sm2187459ejb.121.2024.04.30.23.01.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Apr 2024 23:01:25 -0700 (PDT)
-Date: Wed, 1 May 2024 02:01:20 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Hillf Danton <hdanton@sina.com>
+	s=arc-20240116; t=1714549867; c=relaxed/simple;
+	bh=Nvscq/NT9/+j/DykFVg7/tQ7d07STWFJVXZA2SanBcQ=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=TyWx26Umeza9ovOBrpF009vPJe8vHl47rFbOBYPH0I5e6micSGnMJcnxGvXKeYtRA9+hDNcteIZ7uMPSUYDPcyG2+SslJojQnP+GHuEzGjpOa86/r8OSBqJXuO/b9zr+9I17PzuN3/AvdLVo96gYMdE/xkIONZ+oy9dW0jujp/w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sina.com; spf=pass smtp.mailfrom=sina.com; arc=none smtp.client-ip=218.30.115.100
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sina.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sina.com
+X-SMAIL-HELO: localhost.localdomain
+Received: from unknown (HELO localhost.localdomain)([116.24.11.115])
+	by sina.com (172.16.235.24) with ESMTP
+	id 6631F45C00003840; Wed, 1 May 2024 15:50:54 +0800 (CST)
+X-Sender: hdanton@sina.com
+X-Auth-ID: hdanton@sina.com
+Authentication-Results: sina.com;
+	 spf=none smtp.mailfrom=hdanton@sina.com;
+	 dkim=none header.i=none;
+	 dmarc=none action=none header.from=hdanton@sina.com
+X-SMAIL-MID: 99969545089450
+X-SMAIL-UIID: 6B92299AF328438ABAD25F19B01E92F2-20240501-155054-1
+From: Hillf Danton <hdanton@sina.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Mike Christie <michael.christie@oracle.com>,
 	Edward Adam Davis <eadavis@qq.com>,
 	syzbot+98edc2df894917b3431f@syzkaller.appspotmail.com,
-	jasowang@redhat.com, kvm@vger.kernel.org,
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-	syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev
-Subject: Re: [PATCH next] vhost_task: after freeing vhost_task it should not
- be accessed in vhost_task_fn
-Message-ID: <20240501020057-mutt-send-email-mst@kernel.org>
-References: <b959b82a-510f-45c0-9e06-acf526c2f4a1@oracle.com>
- <20240501001544.1606-1-hdanton@sina.com>
+	jasowang@redhat.com,
+	kvm@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	netdev@vger.kernel.org,
+	syzkaller-bugs@googlegroups.com,
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH next] vhost_task: after freeing vhost_task it should not be accessed in vhost_task_fn
+Date: Wed,  1 May 2024 15:50:57 +0800
+Message-Id: <20240501075057.1670-1-hdanton@sina.com>
+In-Reply-To: <20240501020057-mutt-send-email-mst@kernel.org>
+References: <b959b82a-510f-45c0-9e06-acf526c2f4a1@oracle.com> <20240501001544.1606-1-hdanton@sina.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240501001544.1606-1-hdanton@sina.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Wed, May 01, 2024 at 08:15:44AM +0800, Hillf Danton wrote:
-> On Tue, Apr 30, 2024 at 11:23:04AM -0500, Mike Christie wrote:
-> > On 4/30/24 8:05 AM, Edward Adam Davis wrote:
-> > >  static int vhost_task_fn(void *data)
-> > >  {
-> > >  	struct vhost_task *vtsk = data;
-> > > @@ -51,7 +51,7 @@ static int vhost_task_fn(void *data)
-> > >  			schedule();
-> > >  	}
-> > >  
-> > > -	mutex_lock(&vtsk->exit_mutex);
-> > > +	mutex_lock(&exit_mutex);
-> > >  	/*
-> > >  	 * If a vhost_task_stop and SIGKILL race, we can ignore the SIGKILL.
-> > >  	 * When the vhost layer has called vhost_task_stop it's already stopped
-> > > @@ -62,7 +62,7 @@ static int vhost_task_fn(void *data)
-> > >  		vtsk->handle_sigkill(vtsk->data);
-> > >  	}
-> > >  	complete(&vtsk->exited);
-> > > -	mutex_unlock(&vtsk->exit_mutex);
-> > > +	mutex_unlock(&exit_mutex);
-> > >  
-> > 
-> > Edward, thanks for the patch. I think though I just needed to swap the
-> > order of the calls above.
-> > 
-> > Instead of:
-> > 
-> > complete(&vtsk->exited);
-> > mutex_unlock(&vtsk->exit_mutex);
-> > 
-> > it should have been:
-> > 
-> > mutex_unlock(&vtsk->exit_mutex);
-> > complete(&vtsk->exited);
+On Wed, 1 May 2024 02:01:20 -0400 Michael S. Tsirkin <mst@redhat.com>
 > 
-> JFYI Edward did it [1]
+> and then it failed testing.
 > 
-> [1] https://lore.kernel.org/lkml/tencent_546DA49414E876EEBECF2C78D26D242EE50A@qq.com/
+So did my patch [1] but then the reason was spotted [2,3]
 
-and then it failed testing.
-
-> > 
-> > If my analysis is correct, then Michael do you want me to resubmit a
-> > patch on top of your vhost branch or resubmit the entire patchset?
-
+[1] https://lore.kernel.org/lkml/20240430110209.4310-1-hdanton@sina.com/
+[2] https://lore.kernel.org/lkml/20240430225005.4368-1-hdanton@sina.com/
+[3] https://lore.kernel.org/lkml/000000000000a7f8470617589ff2@google.com/
