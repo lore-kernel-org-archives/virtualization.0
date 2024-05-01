@@ -1,79 +1,62 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F33544F8BB;
-	Wed,  1 May 2024 08:28:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.15
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B89B53F8D1;
+	Wed,  1 May 2024 10:52:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714552110; cv=none; b=Uy86RrXMlTrVcBOBohBCS4Sk/8CCLJtGh5raEVC2QCzrdXn8/QIiIdPiNQ0O18+JLrvRCYnGFchdpc9voN3pBVDW1CmMPYcnYVo0ixZ/penj3nRXq2xmkfl1QYDwVEi65LSbc8XIvvWOrOayFuoHa5Y4UAtGSV+4soI3+HJu/Ic=
+	t=1714560722; cv=none; b=lCubaKELX7rTT//SbCfVYkC9ESKIFLCy2OzXm5bFLJqHDXaEiqXLiAUkkZf9T7d4MIMt4bfOEle9leUFazJaK9kTI/LzKr5eJNjVdwiRliPy0OogmSGPs5UIiInjHlaVKQ7kCEiO8RMjDrl5ujYsZoxqBDUhPsDAsHUXMFsifRk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714552110; c=relaxed/simple;
-	bh=56AxXogpxFKhh8f1HjGkA7OqFSCTJhvPZmPtVivTpdc=;
+	s=arc-20240116; t=1714560722; c=relaxed/simple;
+	bh=H9WqSZOqtRfzy4RtuozjQWiXJCn9SisEFqmEAatQ/gc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JplWgyXoVGB86bmyOKwdouS7LsEwYUZKgRramKLCauf/Y5kRhW5RUu88XC0KQKDjQZen/TeT+bQ0lghDs7eV/wSgODtwYOJDwDu0j7HfUDalVi2WY7L/fGWiMjSI/hOEhNuJaIXI80xCK60xgaeqf4bWGJ66Y9FnAQ8AEx1jUE0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=iAuj5UpH; arc=none smtp.client-ip=198.175.65.15
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=VWcXG6oMOrBAxznE/qv+Uep/oiac0NxlB/Ml5KPZSxzkxJtBXoEnr/X3wl7nl9a2zMlnj/BPiuGcx5EChUgriEPCuucxwEPvjPflGO4q1xlwX9DFGEf/B10umcOJ84GXDWdJ/bWmKIzGb937AnwyprCPZkTIvCVaswsnmKgKt1U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=IAUqktMw; arc=none smtp.client-ip=90.155.92.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="iAuj5UpH"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1714552108; x=1746088108;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=56AxXogpxFKhh8f1HjGkA7OqFSCTJhvPZmPtVivTpdc=;
-  b=iAuj5UpHK8GWGdGELrh4/J8NnCKEJkKS/aU0lo2jeeIuS9O5RYwo2ok0
-   gO5z1jPSWXbCjy5MCglZRhNH9aD6vjw1Y/Jk3g/EFfviEgXDGylB06F2F
-   JdtKvlANQcNkCU8nXggePpMCINn4FaikjRaaY61leGqvlOCy7BV0OfsY1
-   nhN21/QpP15IDztNXUKJpkRblusfOYWz2/clxwDiR+U+IqDX8S8sV/KPV
-   ATHytSEtH0scj1W9Vlqa0482i0h+guSfB8ikn3Cqn0eqpOSGCmcD9CsZ0
-   FFDF2nY0D9cA4eB+zG1WKhTyuOyk/YrBJlu+L7swxkA3k4ukRf3vpnpKg
-   A==;
-X-CSE-ConnectionGUID: 5+zvi8KeQb+MkSIy5zcLSw==
-X-CSE-MsgGUID: XzqZK4Q5QY6yccBWhAawFg==
-X-IronPort-AV: E=McAfee;i="6600,9927,11060"; a="14055931"
-X-IronPort-AV: E=Sophos;i="6.07,244,1708416000"; 
-   d="scan'208";a="14055931"
-Received: from fmviesa004.fm.intel.com ([10.60.135.144])
-  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 May 2024 01:28:27 -0700
-X-CSE-ConnectionGUID: hvc6ldjUT2ajfHjFR9pZFA==
-X-CSE-MsgGUID: NQQhXkt5QWG/nOARfEMwHQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.07,244,1708416000"; 
-   d="scan'208";a="31335521"
-Received: from lkp-server01.sh.intel.com (HELO e434dd42e5a1) ([10.239.97.150])
-  by fmviesa004.fm.intel.com with ESMTP; 01 May 2024 01:28:22 -0700
-Received: from kbuild by e434dd42e5a1 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1s25K7-0009EE-0y;
-	Wed, 01 May 2024 08:28:19 +0000
-Date: Wed, 1 May 2024 16:27:25 +0800
-From: kernel test robot <lkp@intel.com>
-To: Heng Qi <hengqi@linux.alibaba.com>, netdev@vger.kernel.org,
-	virtualization@lists.linux.dev
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	Jakub Kicinski <kuba@kernel.org>,
-	"David S . Miller" <davem@davemloft.net>,
-	Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>,
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="IAUqktMw"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=39xyfPxcNlhzacIDUm5Fs67pXqssMxpzb5P1AtXdGo8=; b=IAUqktMwmBHKZOdlYNZEwT8FaI
+	c1p7iZYrLw5llHtfw4tXWiv/LgJujZPwq9s4LO6XRwU/9eI3HDcsoorrlR5nq70wA/nvxhKUdKX3I
+	zor453KPTHP0nDTgl0sQ4+ws8acW02qLUJQ/kWDt8/TjgNlpPCv8ta+oJh4rRlek6KwrLZ8oguOh2
+	9uEfILrX+8PaaIXN9miMNQivKl+QE+6qXFvRsdbWWmg+BwFzIj9gzUnAkgZX7TgyY5hyXV1K8BpeC
+	G8adPmYoCUBEuPkxle8OjQegx9f+xVVC5G9E6JeugPTEr0ljci/DUme/wcwBFAdfjMHyq7YDcVXUA
+	qwPNIBEQ==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+	by desiato.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1s27Z1-0000000HM0F-44xc;
+	Wed, 01 May 2024 10:51:52 +0000
+Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
+	id A21E1300362; Wed,  1 May 2024 12:51:51 +0200 (CEST)
+Date: Wed, 1 May 2024 12:51:51 +0200
+From: Peter Zijlstra <peterz@infradead.org>
+To: Tobias Huschle <huschle@linux.ibm.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	Luis Machado <luis.machado@arm.com>,
 	Jason Wang <jasowang@redhat.com>,
-	"Michael S . Tsirkin" <mst@redhat.com>,
-	Brett Creeley <bcreeley@amd.com>,
-	Ratheesh Kannoth <rkannoth@marvell.com>,
-	Alexander Lobakin <aleksander.lobakin@intel.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Tal Gilboa <talgi@nvidia.com>, Jonathan Corbet <corbet@lwn.net>,
-	linux-doc@vger.kernel.org,
-	Maxime Chevallier <maxime.chevallier@bootlin.com>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Paul Greenwalt <paul.greenwalt@intel.com>,
-	Ahmed Zaki <ahmed.zaki@intel.com>,
-	Vladimir Oltean <vladimir.oltean@nxp.com>,
-	Kory Maincent <kory.maincent@bootlin.com>,
-	Andrew Lunn <andrew@lunn.ch>, justinstitt@google.com
-Subject: Re: [PATCH net-next v11 2/4] ethtool: provide customized dim profile
- management
-Message-ID: <202405011500.J5qSgquf-lkp@intel.com>
-References: <20240430173136.15807-3-hengqi@linux.alibaba.com>
+	Abel Wu <wuyun.abel@bytedance.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	nd <nd@arm.com>, borntraeger@linux.ibm.com,
+	Ingo Molnar <mingo@kernel.org>,
+	Mike Galbraith <umgwanakikbuti@gmail.com>
+Subject: Re: EEVDF/vhost regression (bisected to 86bfbb7ce4f6 sched/fair: Add
+ lag based placement)
+Message-ID: <20240501105151.GG40213@noisy.programming.kicks-ass.net>
+References: <20240311130446-mutt-send-email-mst@kernel.org>
+ <cf813f92-9806-4449-b099-1bb2bd492b3c@arm.com>
+ <73123.124031407552500165@us-mta-156.us.mimecast.lan>
+ <20240314110649-mutt-send-email-mst@kernel.org>
+ <84704.124031504335801509@us-mta-515.us.mimecast.lan>
+ <20240315062839-mutt-send-email-mst@kernel.org>
+ <b3fd680c675208370fc4560bb3b4d5b8@linux.ibm.com>
+ <20240319042829-mutt-send-email-mst@kernel.org>
+ <4808eab5fc5c85f12fe7d923de697a78@linux.ibm.com>
+ <ZjDM3SsZ3NkZuphP@DESKTOP-2CCOB1S.>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -82,221 +65,177 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240430173136.15807-3-hengqi@linux.alibaba.com>
+In-Reply-To: <ZjDM3SsZ3NkZuphP@DESKTOP-2CCOB1S.>
 
-Hi Heng,
+On Tue, Apr 30, 2024 at 12:50:05PM +0200, Tobias Huschle wrote:
+> It took me a while, but I was able to figure out why EEVDF behaves 
+> different then CFS does. I'm still waiting for some official confirmation
+> of my assumptions but it all seems very plausible to me.
+> 
+> Leaving aside all the specifics of vhost and kworkers, a more general
+> description of the scenario would be as follows:
+> 
+> Assume that we have two tasks taking turns on a single CPU. 
+> Task 1 does something and wakes up Task 2.
+> Task 2 does something and goes to sleep.
+> And we're just repeating that.
+> Task 1 and task 2 only run for very short amounts of time, i.e. much 
+> shorter than a regular time slice (vhost = task1, kworker = task2).
+> 
+> Let's further assume, that task 1 runs longer than task 2. 
+> In CFS, this means, that vruntime of task 1 starts to outrun the vruntime
+> of task 2. This means that vruntime(task2) < vruntime(task1). Hence, task 2
+> always gets picked on wake up because it has the smaller vruntime. 
+> In EEVDF, this would translate to a permanent positive lag, which also 
+> causes task 2 to get consistently scheduled on wake up.
+> 
+> Let's now assume, that ocassionally, task 2 runs a little bit longer than
+> task 1. In CFS, this means, that task 2 can close the vruntime gap by a
+> bit, but, it can easily remain below the value of task 1. Task 2 would 
+> still get picked on wake up.
+> With EEVDF, in its current form, task 2 will now get a negative lag, which
+> in turn, will cause it not being picked on the next wake up.
 
-kernel test robot noticed the following build errors:
+Right, so I've been working on changes where tasks will be able to
+'earn' credit when sleeping. Specifically, keeping dequeued tasks on the
+runqueue will allow them to burn off negative lag. Once they get picked
+again they are guaranteed to have zero (or more) lag. If by that time
+they've not been woken up again, they get dequeued with 0-lag.
 
-[auto build test ERROR on net-next/main]
+(placement with 0-lag will ensure eligibility doesn't inhibit the pick,
+but is not sufficient to ensure a pick)
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Heng-Qi/linux-dim-move-useful-macros-to-h-file/20240501-013413
-base:   net-next/main
-patch link:    https://lore.kernel.org/r/20240430173136.15807-3-hengqi%40linux.alibaba.com
-patch subject: [PATCH net-next v11 2/4] ethtool: provide customized dim profile management
-config: um-allmodconfig (https://download.01.org/0day-ci/archive/20240501/202405011500.J5qSgquf-lkp@intel.com/config)
-compiler: clang version 19.0.0git (https://github.com/llvm/llvm-project 37ae4ad0eef338776c7e2cffb3896153d43dcd90)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240501/202405011500.J5qSgquf-lkp@intel.com/reproduce)
+However, this alone will not be sufficient to get the behaviour you
+want. Notably, even at 0-lag the virtual deadline will still be after
+the virtual deadline of the already running task -- assuming they have
+equal request sizes.
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202405011500.J5qSgquf-lkp@intel.com/
+That is, IIUC, you want your task 2 (kworker) to always preempt task 1
+(vhost), right? So even if tsak 2 were to have 0-lag, placing it would
+be something like:
 
-All errors (new ones prefixed by >>):
+t1      |---------<    
+t2        |---------<
+V    -----|-----------------------------
 
-   In file included from net/ethtool/coalesce.c:3:
-   In file included from include/linux/dim.h:12:
-   In file included from include/linux/netdevice.h:38:
-   In file included from include/net/net_namespace.h:43:
-   In file included from include/linux/skbuff.h:17:
-   In file included from include/linux/bvec.h:10:
-   In file included from include/linux/highmem.h:8:
-   In file included from include/linux/cacheflush.h:5:
-   In file included from arch/um/include/asm/cacheflush.h:4:
-   In file included from arch/um/include/asm/tlbflush.h:9:
-   In file included from include/linux/mm.h:2208:
-   include/linux/vmstat.h:522:36: warning: arithmetic between different enumeration types ('enum node_stat_item' and 'enum lru_list') [-Wenum-enum-conversion]
-     522 |         return node_stat_name(NR_LRU_BASE + lru) + 3; // skip "nr_"
-         |                               ~~~~~~~~~~~ ^ ~~~
-   In file included from net/ethtool/coalesce.c:3:
-   In file included from include/linux/dim.h:12:
-   In file included from include/linux/netdevice.h:38:
-   In file included from include/net/net_namespace.h:43:
-   In file included from include/linux/skbuff.h:17:
-   In file included from include/linux/bvec.h:10:
-   In file included from include/linux/highmem.h:12:
-   In file included from include/linux/hardirq.h:11:
-   In file included from arch/um/include/asm/hardirq.h:5:
-   In file included from include/asm-generic/hardirq.h:17:
-   In file included from include/linux/irq.h:20:
-   In file included from include/linux/io.h:13:
-   In file included from arch/um/include/asm/io.h:24:
-   include/asm-generic/io.h:547:31: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-     547 |         val = __raw_readb(PCI_IOBASE + addr);
-         |                           ~~~~~~~~~~ ^
-   include/asm-generic/io.h:560:61: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-     560 |         val = __le16_to_cpu((__le16 __force)__raw_readw(PCI_IOBASE + addr));
-         |                                                         ~~~~~~~~~~ ^
-   include/uapi/linux/byteorder/little_endian.h:37:51: note: expanded from macro '__le16_to_cpu'
-      37 | #define __le16_to_cpu(x) ((__force __u16)(__le16)(x))
-         |                                                   ^
-   In file included from net/ethtool/coalesce.c:3:
-   In file included from include/linux/dim.h:12:
-   In file included from include/linux/netdevice.h:38:
-   In file included from include/net/net_namespace.h:43:
-   In file included from include/linux/skbuff.h:17:
-   In file included from include/linux/bvec.h:10:
-   In file included from include/linux/highmem.h:12:
-   In file included from include/linux/hardirq.h:11:
-   In file included from arch/um/include/asm/hardirq.h:5:
-   In file included from include/asm-generic/hardirq.h:17:
-   In file included from include/linux/irq.h:20:
-   In file included from include/linux/io.h:13:
-   In file included from arch/um/include/asm/io.h:24:
-   include/asm-generic/io.h:573:61: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-     573 |         val = __le32_to_cpu((__le32 __force)__raw_readl(PCI_IOBASE + addr));
-         |                                                         ~~~~~~~~~~ ^
-   include/uapi/linux/byteorder/little_endian.h:35:51: note: expanded from macro '__le32_to_cpu'
-      35 | #define __le32_to_cpu(x) ((__force __u32)(__le32)(x))
-         |                                                   ^
-   In file included from net/ethtool/coalesce.c:3:
-   In file included from include/linux/dim.h:12:
-   In file included from include/linux/netdevice.h:38:
-   In file included from include/net/net_namespace.h:43:
-   In file included from include/linux/skbuff.h:17:
-   In file included from include/linux/bvec.h:10:
-   In file included from include/linux/highmem.h:12:
-   In file included from include/linux/hardirq.h:11:
-   In file included from arch/um/include/asm/hardirq.h:5:
-   In file included from include/asm-generic/hardirq.h:17:
-   In file included from include/linux/irq.h:20:
-   In file included from include/linux/io.h:13:
-   In file included from arch/um/include/asm/io.h:24:
-   include/asm-generic/io.h:584:33: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-     584 |         __raw_writeb(value, PCI_IOBASE + addr);
-         |                             ~~~~~~~~~~ ^
-   include/asm-generic/io.h:594:59: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-     594 |         __raw_writew((u16 __force)cpu_to_le16(value), PCI_IOBASE + addr);
-         |                                                       ~~~~~~~~~~ ^
-   include/asm-generic/io.h:604:59: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-     604 |         __raw_writel((u32 __force)cpu_to_le32(value), PCI_IOBASE + addr);
-         |                                                       ~~~~~~~~~~ ^
-   include/asm-generic/io.h:692:20: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-     692 |         readsb(PCI_IOBASE + addr, buffer, count);
-         |                ~~~~~~~~~~ ^
-   include/asm-generic/io.h:700:20: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-     700 |         readsw(PCI_IOBASE + addr, buffer, count);
-         |                ~~~~~~~~~~ ^
-   include/asm-generic/io.h:708:20: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-     708 |         readsl(PCI_IOBASE + addr, buffer, count);
-         |                ~~~~~~~~~~ ^
-   include/asm-generic/io.h:717:21: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-     717 |         writesb(PCI_IOBASE + addr, buffer, count);
-         |                 ~~~~~~~~~~ ^
-   include/asm-generic/io.h:726:21: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-     726 |         writesw(PCI_IOBASE + addr, buffer, count);
-         |                 ~~~~~~~~~~ ^
-   include/asm-generic/io.h:735:21: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-     735 |         writesl(PCI_IOBASE + addr, buffer, count);
-         |                 ~~~~~~~~~~ ^
->> net/ethtool/coalesce.c:453:41: error: no member named 'irq_moder' in 'struct net_device'
-     453 |         struct dim_irq_moder *irq_moder = dev->irq_moder;
-         |                                           ~~~  ^
-   13 warnings and 1 error generated.
+So t1 has started at | with a virtual deadline at <. Then a short
+while later -- V will have advanced a little -- it wakes t2 with 0-lag,
+but as you can observe, its virtual deadline will be later than t1's and
+as such it will never get picked, even though they're both eligible.
 
+> So, it seems we have a change in the level of how far the both variants look 
+> into the past. CFS being willing to take more history into account, whereas
+> EEVDF does not (with update_entity_lag setting the lag value from scratch, 
+> and place_entity not taking the original vruntime into account).
+>
+> All of this can be seen as correct by design, a task consumes more time
+> than the others, so it has to give way to others. The big difference
+> is now, that CFS allowed a task to collect some bonus by constantly using 
+> less CPU time than others and trading that time against ocassionally taking
+> more CPU time. EEVDF could do the same thing, by allowing the accumulation
+> of positive lag, which can then be traded against the one time the task
+> would get negative lag. This might clash with other EEVDF assumptions though.
 
-vim +453 net/ethtool/coalesce.c
+Right, so CFS was a pure virtual runtime based scheduler, while EEVDF
+considers both virtual runtime (for eligibility, which ties to fairness)
+but primarily virtual deadline (for timeliness).
 
-   424	
-   425	/**
-   426	 * ethnl_update_profile - get a profile nest with child nests from userspace.
-   427	 * @dev: netdevice to update the profile
-   428	 * @dst: profile get from the driver and modified by ethnl_update_profile.
-   429	 * @nests: nest attr ETHTOOL_A_COALESCE_*X_PROFILE to set profile.
-   430	 * @extack: Netlink extended ack
-   431	 *
-   432	 * Layout of nests:
-   433	 *   Nested ETHTOOL_A_COALESCE_*X_PROFILE attr
-   434	 *     Nested ETHTOOL_A_PROFILE_IRQ_MODERATION attr
-   435	 *       ETHTOOL_A_IRQ_MODERATION_USEC attr
-   436	 *       ETHTOOL_A_IRQ_MODERATION_PKTS attr
-   437	 *       ETHTOOL_A_IRQ_MODERATION_COMPS attr
-   438	 *     ...
-   439	 *     Nested ETHTOOL_A_PROFILE_IRQ_MODERATION attr
-   440	 *       ETHTOOL_A_IRQ_MODERATION_USEC attr
-   441	 *       ETHTOOL_A_IRQ_MODERATION_PKTS attr
-   442	 *       ETHTOOL_A_IRQ_MODERATION_COMPS attr
-   443	 *
-   444	 * Return: 0 on success or a negative error code.
-   445	 */
-   446	static int ethnl_update_profile(struct net_device *dev,
-   447					struct dim_cq_moder __rcu **dst,
-   448					const struct nlattr *nests,
-   449					struct netlink_ext_ack *extack)
-   450	{
-   451		int len_irq_moder = ARRAY_SIZE(coalesce_irq_moderation_policy);
-   452		struct nlattr *tb[ARRAY_SIZE(coalesce_irq_moderation_policy)];
- > 453		struct dim_irq_moder *irq_moder = dev->irq_moder;
-   454		struct dim_cq_moder *new_profile, *old_profile;
-   455		int ret, rem, i = 0, len;
-   456		struct nlattr *nest;
-   457	
-   458		if (!nests)
-   459			return 0;
-   460	
-   461		if (!*dst)
-   462			return -EOPNOTSUPP;
-   463	
-   464		old_profile = rtnl_dereference(*dst);
-   465		len = NET_DIM_PARAMS_NUM_PROFILES * sizeof(*old_profile);
-   466		new_profile = kmemdup(old_profile, len, GFP_KERNEL);
-   467		if (!new_profile)
-   468			return -ENOMEM;
-   469	
-   470		nla_for_each_nested_type(nest, ETHTOOL_A_PROFILE_IRQ_MODERATION,
-   471					 nests, rem) {
-   472			ret = nla_parse_nested(tb, len_irq_moder - 1, nest,
-   473					       coalesce_irq_moderation_policy,
-   474					       extack);
-   475			if (ret)
-   476				goto err_out;
-   477	
-   478			ret = ethnl_update_irq_moder(irq_moder, &new_profile[i].usec,
-   479						     ETHTOOL_A_IRQ_MODERATION_USEC,
-   480						     tb, DIM_COALESCE_USEC,
-   481						     extack);
-   482			if (ret)
-   483				goto err_out;
-   484	
-   485			ret = ethnl_update_irq_moder(irq_moder, &new_profile[i].pkts,
-   486						     ETHTOOL_A_IRQ_MODERATION_PKTS,
-   487						     tb, DIM_COALESCE_PKTS,
-   488						     extack);
-   489			if (ret)
-   490				goto err_out;
-   491	
-   492			ret = ethnl_update_irq_moder(irq_moder, &new_profile[i].comps,
-   493						     ETHTOOL_A_IRQ_MODERATION_COMPS,
-   494						     tb, DIM_COALESCE_COMPS,
-   495						     extack);
-   496			if (ret)
-   497				goto err_out;
-   498	
-   499			i++;
-   500		}
-   501	
-   502		rcu_assign_pointer(*dst, new_profile);
-   503		kfree_rcu(old_profile, rcu);
-   504	
-   505		return 0;
-   506	
-   507	err_out:
-   508		kfree(new_profile);
-   509		return ret;
-   510	}
-   511	
+If you want to make EEVDF force pick a task by modifying vruntime you
+have to place it with lag > request (slice) such that the virtual
+deadline of the newly placed task is before the already running task,
+yielding both eligibility and earliest deadline.
 
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Consistently placing tasks with such large (positive) lag will affect
+fairness though, they're basically always runnable, so barring external
+throttling, they'll starve you.
+
+> The patch below fixes the degredation, but is not at all aligned with what 
+> EEVDF wants to achieve, but it helps as an indicator that my hypothesis is
+> correct.
+> 
+> So, what does this now mean for the vhost regression we were discussing?
+> 
+> 1. The behavior of the scheduler changed with regard to wake-up scenarios.
+> 2. vhost in its current form relies on the way how CFS works by assuming 
+>    that the kworker always gets scheduled.
+
+How does it assume this? Also, this is a performance issue, not a
+correctness issue, right?
+
+> I would like to argue that it therefore makes sense to reconsider the vhost
+> implementation to make it less dependent on the internals of the scheduler.
+
+I think I'll propose the opposite :-) Much of the problems we have are
+because the scheduler simply doesn't know anything and we're playing a
+mutual guessing game.
+
+The trick is finding things to tell the scheduler it can actually do
+something with though..
+
+> As proposed earlier in this thread, I see two options:
+> 
+> 1. Do an explicit schedule() after every iteration across the vhost queues
+> 2. Set the need_resched flag after writing to the socket that would trigger
+>    eventfd and the underlying kworker
+
+Neither of these options will get you what you want. Specifically in the
+example above, t1 doing an explicit reschedule will result in t1 being
+picked.
+
+> Both options would make sure that the vhost gives up the CPU as it cannot
+> continue anyway without the kworker handling the event. Option 1 will give
+> up the CPU regardless of whether something was found in the queues, whereas
+> option 2 would only give up the CPU if there is.
+
+Incorrect, neither schedule() nor marking things with TIF_NEED_RESCHED
+(which has more issues) will make t2 run. In that scenario you have to
+make t1 block, such that t2 is the only possible choice. As long as you
+keep t1 on the runqueue, it will be the most eligible pick at that time.
+
+Now, there is an easy option... but I hate to mention it because I've
+spend a lifetime telling people not to use it (for really good reasons):
+yield().
+
+With EEVDF yield() will move the virtual deadline ahead by one request.
+That is, given the above scenario:
+
+t1      |---------<    
+t2        |---------<
+V    -----|-----------------------------
+
+t1 doing yield(), would result in:
+
+t1      |-------------------<    
+t2        |---------<
+V    -----|-----------------------------
+
+And at that point, you'll find that all of a sudden t2 will be picked.
+On the flip side, you might find that when t2 completes another task is
+more likely to run than return to t1 -- because of that elongated
+deadline. Ofc. if t1 and t2 are the only tasks on the CPU this doesn't
+matter.
+
+> It shall be noted, that we encountered similar behavior when running some
+> fio benchmarks. From a brief glance at the code, I was seeing similar
+> intentions: Loop over queues, then trigger an action through some event
+> mechanism. Applying the same patch as mentioned above also fixes this issue.
+> 
+> It could be argued, that this is still something that needs to be somehow
+> addressed by the scheduler since it might affect others as well and there 
+> are in fact patches coming in. Will they address our issue here? Not sure yet.
+
+> On the other hand, it might just be beneficial to make vhost more resilient
+> towards the scheduler's algorithm by not relying on a certain behavior in
+> the wakeup path.
+
+So the 'advantage' of EEVDF over CFS is that it has 2 parameters to play
+with: weight and slice. Slice being the new toy in town.
+
+Specifically in your example you would ideally have task 2 have a
+shorter slice. Except of course its a kworker and you can't very well
+set a kworker with a short slice because you never know wth it will end
+up doing.
+
+I'm still wondering why exactly it is imperative for t2 to preempt t1.
+Is there some unexpressed serialization / spin-waiting ?
+
