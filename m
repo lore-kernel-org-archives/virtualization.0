@@ -1,72 +1,93 @@
-Received: from mail-io1-f71.google.com (mail-io1-f71.google.com [209.85.166.71])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC665134B1
-	for <virtualization@lists.linux.dev>; Wed,  1 May 2024 16:56:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.71
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52364524D4;
+	Thu,  2 May 2024 09:16:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714582566; cv=none; b=D+Grsu6d6lR5D9snctQ9Oe88244l/6WVJIifepqfBpq3lVBTjIeGAu+/m+FZ6sNkF9jftBPB9QeyVR1rR2HveNXq39uD3lL3CK4fuLllSpprPa+5Vin9JjhBdEXhX93PWOR9YJKae+78ElaAFJToyGo7VompoOpZ/SkGlflRug0=
+	t=1714641387; cv=none; b=UVIl49wCeM72CAUPVSD5cJwdz3T01f8mwdmO2r+c/U606WIHP8GEh2vJa6r4/Ij3g9K/qQ/UMvs/e9nQbghhf7lG6Bm3jlg442dOLaRBMcXI/SUC5mwVZ8VG95vw0DmeSDoTIQhqjmOCVV/eqOdS5LllRVKVvYKdH7AFEI/55RQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714582566; c=relaxed/simple;
-	bh=1XZHi0YzBLS47mbettJ83dDPGL16uhOqOK1tJN4dlpw=;
-	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
-	 Content-Type; b=Z+y/EA18J6u89HXxiaux52nLbh+Qr3eqPdrG+AdXu4BemL0j8ASJWmuD/+wxJySMDngqbYRCrfVabRYkGUgQQuxM5C/4BiMnV70bv6JJo3wb9T/41ezUdMQ/FKuUWzLIQJ6uvudiRluleLAgLxshMOgc1Ras5W4Oywbr2qO8VOE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.71
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-io1-f71.google.com with SMTP id ca18e2360f4ac-7def44d6078so723639f.1
-        for <virtualization@lists.linux.dev>; Wed, 01 May 2024 09:56:04 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1714582564; x=1715187364;
-        h=to:from:subject:message-id:in-reply-to:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=zL5zLFLZ9/A+euis3e08Nm55+lvX3+T3wPrxtwGnFpQ=;
-        b=cgPr2rXO3S7p+ZBwPKsxk59r2v3m/5yBNdoybGZKSDAC/+1SCqB3/DEvacgq/QaR76
-         7Hu7B68o0pQwV4qEXTxoi7SUZGeYavpCTpk1e+r5gyiwS4sytNrOBpTABEQQUNYzwtLx
-         EI4p/gfpI5lpfowYtomVHTzT3CpYYF4n9/szSM/p5bfI63Vdc+9XW3ik1MHkgW6kWata
-         ZLVDBRctghcuvN5Ic8/TZZYXZp7Qbr9CV6l4Vi8IuXe3bfhmM7FClz0IZW71JQ1yloKe
-         N61BNShfJPY1hxQRVRaEQnPeMRLkOHEShY8t0jDA8TTg7MIvnvBQn1pvxT8ne+og9rwB
-         RbrQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVsM1rvxDuQXhNZVXakxEiajRlEgC851I6gUesPCyNtf/eaTAOQPVbrsm/rARJhGIiZANYawivCAOwJ2FhfEVK/Gz/Rb1SYVfmVmUMmDF0=
-X-Gm-Message-State: AOJu0Yx99sqKKbX1Ij9IzWOWzTuoX18NWtMfmOf5m3MmBBhfwLCI/38F
-	NLCR7F8RISQHRmgZR1vgYXG2pqckYN3+IDu92ZkKGT7eFwJ9nrQn2DhD4H9vyaAp5MEhDROF8XV
-	InANml5o4jyR77U6ZIHJY5UiWBR7fq/ZCc0xmLWvm1T412GZTCsZlmiU=
-X-Google-Smtp-Source: AGHT+IEBjXreViAye+0kXgWGM8QAOQnK+EHu2cHJMy66fdP74jLwDb6XfrE99WN2U9+ggleDVkBLcX+2gumyBDoVt+kvePoHzc8o
+	s=arc-20240116; t=1714641387; c=relaxed/simple;
+	bh=XpgtUboWUY4K6D8ln7r4Kd9Dv08JhYX+E7YkIpI3eo4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=oyt4LOdExWE8Avd3+POYrvR/y0GPC41Z3W2GKnpRx7elJRued7kdvymIH7Stm/BTpVxMK4/wC5vDe/lCQyb4eM9dX1cv6wXNxvkoWq6zNETorC5GgVsIa552EqPiQJyBN3rhsfMohRXOFo69hCi7e4z11/92ieJQmCg70T8H18E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=VlFbWNta; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="VlFbWNta"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=zdfrErG2WKK57Kqg0tDJeJKezf1hsqRf679zsJ01Sx8=; b=VlFbWNta+BWffxnbEWRjYv+8ar
+	0mSAZEi/5K7GE5WmbbDT+r4ARA9iQeFFKkzCACPe/gwvSf/LmUcAlJNX/ZoW8bwgnYR9QDAGNKCRl
+	LzUKo6XjLhjBfyI4SmA0ITYpIXJydjEMOIR5DsW+FpCgValTn4WKP1/mCF21xbM9WHcwZgrRyRpU3
+	FiEPtEuWLxgIvsZuc6BZmNuqB9C27xGU6sZ+HHCefx17Ax1NXRdpTkAdW+Lul7YwDGf4y9Ll5M8Pf
+	tKmEV2OKo3OjFdHTXGjEEinxeVzjqku1MmncoJ0aeBuJXe50y5tEKJEF/VvmaENEvgQqxyQgc0DNI
+	6DxwtawA==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+	by casper.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1s2SY5-00000001KYe-3aFr;
+	Thu, 02 May 2024 09:16:18 +0000
+Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
+	id 82B8B30057A; Thu,  2 May 2024 11:16:17 +0200 (CEST)
+Date: Thu, 2 May 2024 11:16:17 +0200
+From: Peter Zijlstra <peterz@infradead.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Tobias Huschle <huschle@linux.ibm.com>,
+	Luis Machado <luis.machado@arm.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Abel Wu <wuyun.abel@bytedance.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	nd <nd@arm.com>, borntraeger@linux.ibm.com,
+	Ingo Molnar <mingo@kernel.org>,
+	Mike Galbraith <umgwanakikbuti@gmail.com>
+Subject: Re: EEVDF/vhost regression (bisected to 86bfbb7ce4f6 sched/fair: Add
+ lag based placement)
+Message-ID: <20240502091617.GZ30852@noisy.programming.kicks-ass.net>
+References: <73123.124031407552500165@us-mta-156.us.mimecast.lan>
+ <20240314110649-mutt-send-email-mst@kernel.org>
+ <84704.124031504335801509@us-mta-515.us.mimecast.lan>
+ <20240315062839-mutt-send-email-mst@kernel.org>
+ <b3fd680c675208370fc4560bb3b4d5b8@linux.ibm.com>
+ <20240319042829-mutt-send-email-mst@kernel.org>
+ <4808eab5fc5c85f12fe7d923de697a78@linux.ibm.com>
+ <ZjDM3SsZ3NkZuphP@DESKTOP-2CCOB1S.>
+ <20240501105151.GG40213@noisy.programming.kicks-ass.net>
+ <20240501112830-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6638:8684:b0:487:5dce:65ab with SMTP id
- iv4-20020a056638868400b004875dce65abmr6872jab.0.1714582564003; Wed, 01 May
- 2024 09:56:04 -0700 (PDT)
-Date: Wed, 01 May 2024 09:56:03 -0700
-In-Reply-To: <20240501121200-mutt-send-email-mst@kernel.org>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <000000000000aa73d50617675ca3@google.com>
-Subject: Re: [syzbot] [net?] [virt?] [kvm?] KASAN: slab-use-after-free Read in vhost_task_fn
-From: syzbot <syzbot+98edc2df894917b3431f@syzkaller.appspotmail.com>
-To: jasowang@redhat.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	michael.christie@oracle.com, mst@redhat.com, netdev@vger.kernel.org, 
-	syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240501112830-mutt-send-email-mst@kernel.org>
 
-Hello,
+On Wed, May 01, 2024 at 11:31:02AM -0400, Michael S. Tsirkin wrote:
+> On Wed, May 01, 2024 at 12:51:51PM +0200, Peter Zijlstra wrote:
 
-syzbot has tested the proposed patch and the reproducer did not trigger any issue:
+> > I'm still wondering why exactly it is imperative for t2 to preempt t1.
+> > Is there some unexpressed serialization / spin-waiting ?
+> 
+> 
+> I am not sure but I think the point is that t2 is a kworker. It is
+> much cheaper to run it right now when we are already in the kernel
+> than return to userspace, let it run for a bit then interrupt it
+> and then run t2.
+> Right, Tobias?
 
-Reported-and-tested-by: syzbot+98edc2df894917b3431f@syzkaller.appspotmail.com
+So that is fundamentally a consequence of using a kworker.
 
-Tested on:
+So I tried to have a quick peek at vhost to figure out why you're using
+kworkers... but no luck :/
 
-commit:         f138e94c KASAN: slab-use-after-free Read in vhost_task..
-git tree:       https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git
-console output: https://syzkaller.appspot.com/x/log.txt?x=10a152a7180000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=3714fc09f933e505
-dashboard link: https://syzkaller.appspot.com/bug?extid=98edc2df894917b3431f
-compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
+Also, when I look at drivers/vhost/ it seems to implement it's own
+worker and not use normal workqueues or even kthread_worker. Did we
+really need yet another copy of all that?
 
-Note: no patches were applied.
-Note: testing is done by a robot and is best-effort only.
+Anyway, I tried to have a quick look at the code, but I can't seem to
+get a handle on what and why it's doing things.
