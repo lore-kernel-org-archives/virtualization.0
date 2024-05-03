@@ -1,122 +1,269 @@
-Received: from smtp-relay-canonical-1.canonical.com (smtp-relay-canonical-1.canonical.com [185.125.188.121])
+Received: from NAM04-BN8-obe.outbound.protection.outlook.com (mail-bn8nam04on2048.outbound.protection.outlook.com [40.107.100.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 585721586C0
-	for <virtualization@lists.linux.dev>; Fri,  3 May 2024 18:10:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.188.121
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714759805; cv=none; b=VVnOJ9gsJkfusTBUz/GxJwvkqcS1yzKGCJnwX1Rb6wkZ9nctpy+iQniLIM0rd9AP2gqnmhsq46QN+dU9/S6jBenS7YO3/VZXs+pqMaH3UFz5rUSUGL5s33L8ZgXcEj2Tcjq5Aghsj44leRBI/uS+QhFN39BVADSTV+oQ30PC8CY=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714759805; c=relaxed/simple;
-	bh=wJ+uBv/wX/vo61wzvb3PQeA8VkSUo17ntPJi8sED9Lg=;
-	h=Message-ID:Date:MIME-Version:To:Cc:From:Subject:Content-Type; b=GM1GabMON8Go1m6TEwqteQvLbYmPpucz8fpChadXGq1wjVI2t4M8tVGWIKKtALQ8Tty+K2qtXdNADZIi4jfvY1yC+tKT3yIulHE+30140g7a8boohUpqXKak6ydgh4yzsWnQXQ9THccV3bs8NRVe94cMwThgBq848BEaF/k5txQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com; spf=pass smtp.mailfrom=canonical.com; dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b=pO+kjq5U; arc=none smtp.client-ip=185.125.188.121
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=canonical.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52EEE155303
+	for <virtualization@lists.linux.dev>; Fri,  3 May 2024 20:25:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.100.48
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1714767906; cv=fail; b=r74zuZs3FWhff+l4xomBwNAcZFnaWRSl3leNnSI7VY7atcw7OUfWSkXudLVgylMGtTwgq+5aYHNZgoBgzpoGI/02w6hmg+2Igr0tDfGkQehGGdN/eAqPaQsCFBvvx6kc8NlDuNrgCyf+2JFFV9OuzV0hCXHHwQ2COqRHRdCYNm8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1714767906; c=relaxed/simple;
+	bh=xwfSIKUWJW9K8R5YOy8ukLE+4O8qgQzdfIDxI5gWOsY=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=nQ7CcFV68GuEr5WDC/pqgbwfTWrKeb+tO35sYJyJy0U/jRcrYK00gZpLNj6vPpbU9c2YW26P1vNOP8gBWo663jh/1Dka4EOOAE4EQmrrs4JirCqupvug6vR6a2q5VmiSf+9bS7YU3cfD9BBwIE6/coYueAq2r4HOK5Z0nVHqpAE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=iKEtoG6n; arc=fail smtp.client-ip=40.107.100.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b="pO+kjq5U"
-Received: from [10.172.66.188] (1.general.jsalisbury.us.vpn [10.172.66.188])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-relay-canonical-1.canonical.com (Postfix) with ESMTPSA id A7AEF3FBEE;
-	Fri,  3 May 2024 18:03:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-	s=20210705; t=1714759398;
-	bh=Eg32torTebOLS3ecLTVBViDy2uWfhL7HpAo4K9ZaGEw=;
-	h=Message-ID:Date:MIME-Version:To:Cc:From:Subject:Content-Type;
-	b=pO+kjq5UJuvp3F5p0eosPGIy5cB8/oaFL3RORHiUYiQZOIhyPs+NH52kKAboxNWdD
-	 biBw3LDymGTaCYiIIQXQIbqIICQDpSSXbtiEFjhhSunkB54ilqj1qQQGnfSFaQ4s3K
-	 yd0qbiFiYDyvc1lT43g4+fw6vnuYJUJg4IBjuoYPYeQLk4fyNKXDDE0w/RFy/lfQ26
-	 zI8/gWHxVfqQQTDIagV7Nbi1+d2ShUt7yStomAeDffvAsdmZML7olBlMDwJ96happk
-	 o5katOTVrQ0Ef8UYeom72GZh6KyuXJwBNefnpftFa6jsngDMCJnlAA9rwX/je93LtC
-	 k02ejVNd4dlCQ==
-Message-ID: <13a313c7-c214-4d49-9029-c79b503c17dd@canonical.com>
-Date: Fri, 3 May 2024 14:03:15 -0400
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="iKEtoG6n"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=efhI6yPninIEkFwmcdYTKfuq3tfvry3BwPw+2KrgDcmdyOtbpUnsvPZOQxPpPEBhMonrJrboYYEv8mQs4mooR2HOv9rctHUK8WaJJLURyNrRnSvxM99RHGnYrJQQzOPMxlRhbPfgM9w3JKEgTyvBIXusAj5uiZCS+wTKVwxtedtpjLbpRh7ZkVP7QtxN6D9Aq9zW/1PcPGKG84llhbj126IyBmqyOG5xsNWfcMn2JoJJGUL3yBHmBUKyQe1twBrDpKnfeDeeaWNvC3YW/jr5ztfLBM4JX4fDjX0yYkHoJod3bMZCgEcjN+EDqK58JuaHlmU2X3p3hff9BRM1e8ze7Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=L9NEw8amvh1H1Szsm+DPBP0ymEB4Bv9ioYlM8BttYuI=;
+ b=FAYGj6HpTt6qUOH0HkbCaf0Sc25eN/xIdvMVc1ActL/vOQWhB0X2pdOZXBWyQomKH4zzXV9bD94h15W2T1wK9mrTqmq3vAAKPGBob/B9TFcoBaWmgnIB+EAXbhKBsl9Ev/nluYKvWjdq7SqDCa6RsAfFlAaj5TsIf75fhk+zc0pVgFXE0YoMCRa3jkT/k+1NX6PkWYQ4ktRCsyOvTNyeiPdqfEYgr36NFzA12jwuHH2eh+xRFSIo1OkUnliUtwWRT/kWyKCGDr3OATth+3Nt4jVSpO4FvvVItkSXou1kFoGWc39EK/n7GBHTQUIs+K7lBGLrJEws1trc1TPB7N1k4A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.118.232) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=L9NEw8amvh1H1Szsm+DPBP0ymEB4Bv9ioYlM8BttYuI=;
+ b=iKEtoG6npkyMTN1JNfKqjr4ooLFkpo+hmvm2B4cGQtCBBqDZHpGbtZ3euIN51h7uv3AdcNLqY9B5BWv7Pv4Sw8Ncu0Dk1VimjZ5bfuEW44zWfRq1O2F2JGftbAPYRXL3Im/4JEJPfP4NTSX5vt4a8/BmU/cJiWCIx8s0zBKZljyM+gTNCnwzyswleXJrMJRYJRlSSEtT3M8Ku+eoCMO2eEccSUkRZE+rsMga7kpWW6D3QbfaMcVvw3WToGlPOfatwcIoYLVuHJH8txfuTGXSwaUu5cCcqj2xbcY+KdNQ2mGZkgXgaeOMTBpjN3PIyS1VisJ1LIUIPXzNFEZgP40BpQ==
+Received: from SN6PR05CA0028.namprd05.prod.outlook.com (2603:10b6:805:de::41)
+ by CY8PR12MB7708.namprd12.prod.outlook.com (2603:10b6:930:87::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7544.30; Fri, 3 May
+ 2024 20:25:00 +0000
+Received: from SN1PEPF00036F41.namprd05.prod.outlook.com
+ (2603:10b6:805:de:cafe::e1) by SN6PR05CA0028.outlook.office365.com
+ (2603:10b6:805:de::41) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7544.32 via Frontend
+ Transport; Fri, 3 May 2024 20:25:00 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.232)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.118.232 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.118.232; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.118.232) by
+ SN1PEPF00036F41.mail.protection.outlook.com (10.167.248.25) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.7544.18 via Frontend Transport; Fri, 3 May 2024 20:25:00 +0000
+Received: from drhqmail203.nvidia.com (10.126.190.182) by mail.nvidia.com
+ (10.127.129.5) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Fri, 3 May 2024
+ 13:24:51 -0700
+Received: from drhqmail202.nvidia.com (10.126.190.181) by
+ drhqmail203.nvidia.com (10.126.190.182) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.4; Fri, 3 May 2024 13:24:50 -0700
+Received: from vdi.nvidia.com (10.127.8.11) by mail.nvidia.com
+ (10.126.190.181) with Microsoft SMTP Server id 15.2.1544.4 via Frontend
+ Transport; Fri, 3 May 2024 13:24:50 -0700
+From: Daniel Jurgens <danielj@nvidia.com>
+To: <netdev@vger.kernel.org>
+CC: <mst@redhat.com>, <jasowang@redhat.com>, <xuanzhuo@linux.alibaba.com>,
+	<virtualization@lists.linux.dev>, <davem@davemloft.net>,
+	<edumazet@google.com>, <kuba@kernel.org>, <pabeni@redhat.com>,
+	<jiri@nvidia.com>, Daniel Jurgens <danielj@nvidia.com>
+Subject: [PATCH net-next v6 1/6] virtio_net: Store RSS setting in virtnet_info
+Date: Fri, 3 May 2024 23:24:40 +0300
+Message-ID: <20240503202445.1415560-2-danielj@nvidia.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20240503202445.1415560-1-danielj@nvidia.com>
+References: <20240503202445.1415560-1-danielj@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Content-Language: en-US
-To: feliu@nvidia.com
-Cc: parav@nvidia.com, jiri@nvidia.com, mst@redhat.com, yishaih@nvidia.com,
- alex.williamson@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- Francis Ginther <francis.ginther@canonical.com>,
- John Cabaj <john.cabaj@canonical.com>,
- Catherine Redfield <catherine.redfield@canonical.com>,
- Ankush Pathak <ankush.pathak@canonical.com>,
- Chlo Smith <chloe.smith@canonical.com>
-From: Joseph Salisbury <joseph.salisbury@canonical.com>
-Autocrypt: addr=joseph.salisbury@canonical.com; keydata=
- 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
- p24lPxLL08SuCEzuBw==
-Subject: [REGRESSION][v6.8-rc1] virtio-pci: Introduce admin virtqueue
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SN1PEPF00036F41:EE_|CY8PR12MB7708:EE_
+X-MS-Office365-Filtering-Correlation-Id: 4fab17a3-29ba-4098-b35c-08dc6baf1b85
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230031|1800799015|36860700004|376005;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?2tA29RsnQNhcdvl+7VHaturi3w5hB4atDJylYctTsQbP8lneWLNrFx84KhtU?=
+ =?us-ascii?Q?5I9sNxZZVvgVMOnIt3BFK6XZeIgq0OLBjMkaz0F0o5x4DlqyyX6Xg7s4CEIj?=
+ =?us-ascii?Q?YF6kn2+Bx1C3tjpqmTmHfnC+sZwbq85gBDTr0aZKdZ8GfzWxrZUS3DvZmPMP?=
+ =?us-ascii?Q?k3lUsQeSdpBPZYtpO0cmczw+g2g74vGGnBbRWPEWFHYROh38HB1acqJebDap?=
+ =?us-ascii?Q?1PPDIrG6c3SeybppqhCeVTFB+tl8Mmj9VMP+gqS9HmMG/PzoSfbmNsF5NS4V?=
+ =?us-ascii?Q?TafcMcgM9hrwMFChXTZXthNJfJa9SngYxYVbPTzvLez2IFegs/At4HtsZDXW?=
+ =?us-ascii?Q?JghbZ3x0CeVCUFSkM3lvZpE/aiEWEydQ8pJN4Zg1B3CX3HFWQBsUCn9JHwvo?=
+ =?us-ascii?Q?rjJ5nNUvYgX3V8MMkPV2ZmBeMWIqnAtUMR/+DXWU+VdkXGOB/4SjiO8f+YfK?=
+ =?us-ascii?Q?+lTSgDrsHgLgCdFf1msVwbp9NNrNm8uxIxGvRd8kTyWeeGIqPrSkW6Rhfiek?=
+ =?us-ascii?Q?/LnAsrs8HX2LAd1WE8ofdBSiUhvXev9v7gB6XonoTJ/vnF/Ek4wVxSXUyuVc?=
+ =?us-ascii?Q?n8sO0RtIIM54Cf0SKS9Y3JCKomGfJHpXwDfMAw0zmYpw22DzamuMlDx+YT5q?=
+ =?us-ascii?Q?HjemdfWfuVuCRkeiVHDqpp93fR2ZiZPWigPXNflqzYr9mbhECDlDR3e7SSSq?=
+ =?us-ascii?Q?uc5VK9BL9Rk66GAAV97F7quQJTHwUdS7m/51hhjyYt/v8crUUPFEvoa+R04s?=
+ =?us-ascii?Q?HrrnYPDgsosPGMcFnMKAsOjFhqNAuKEX8TEMUcdbow2z58bmsX6VqUQkoBVr?=
+ =?us-ascii?Q?q6Be/v1fkNbjSMMhf0W0avPPnD53AQ178IZd/3hIZlRACsq3KhPXpYWgNROb?=
+ =?us-ascii?Q?aNje0xf3SU4EqDUbvq1ywdSe6XZTFj4Tr9PnM6syw1BmWbztL5EaLznfI0sj?=
+ =?us-ascii?Q?7tc1gb7uGYcZABZQ81J9AIbB2eoL1r9d1hkPAaaMnC7TxsBvXRn7HysQ0t5k?=
+ =?us-ascii?Q?7qNxcKOVCVTczCA0AcwaE6qWYXrQUsG6PvVxn8JQpyWLcxIvkK/MlFmw+Hre?=
+ =?us-ascii?Q?y9Ot+6GMeRITRXjjSboI7YpTlrDdTjrj33q45XyLMLFZgqj/5tQ3VJIAbBW/?=
+ =?us-ascii?Q?dYhVsJo7iXHFka4kPvHt2hNfKQYJkeC9mCLG9FWMC/qV4DFKQH5BzRtsp+Ki?=
+ =?us-ascii?Q?X32DXM+aIxxYh0rNXhgT2AZi9pON9usSuDs27bzDA+VwEdWvZybREwbZjfOM?=
+ =?us-ascii?Q?JKzpOxaGXavwOpIWlNhyQWFKltBwz9b+ftY6GZD0L9GXug4sn2Yiu9YD4qrY?=
+ =?us-ascii?Q?wZqBxk7hnbgZj3XlGdjkpuEyh/Y856PeDproXbAvEs9t+2S/9prWVx1iZuWm?=
+ =?us-ascii?Q?hI1PPtM=3D?=
+X-Forefront-Antispam-Report:
+	CIP:216.228.118.232;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge1.nvidia.com;CAT:NONE;SFS:(13230031)(1800799015)(36860700004)(376005);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 May 2024 20:25:00.3713
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4fab17a3-29ba-4098-b35c-08dc6baf1b85
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.232];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	SN1PEPF00036F41.namprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY8PR12MB7708
 
-Hi Feng,
+Stop storing RSS setting in the control buffer. This is prep work for
+removing RTNL lock protection of the control buffer.
 
-During testing, a kernel bug was identified with the suspend/resume 
-functionality on instances running in a public cloud [0].  This bug is a 
-regression introduced in v6.8-rc1.  After a kernel bisect, the following 
-commit was identified as the cause of the regression:
+Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+---
+ drivers/net/virtio_net.c | 40 ++++++++++++++++++++--------------------
+ 1 file changed, 20 insertions(+), 20 deletions(-)
 
-        fd27ef6b44be  ("virtio-pci: Introduce admin virtqueue")
-
-I was hoping to get your feedback, since you are the patch author. Do 
-you think gathering any additional data will help diagnose this issue?  
-This commit is depended upon by other virtio commits, so a revert test 
-is not really straight forward without reverting all the dependencies.   
-Any ideas you have would be greatly appreciated.
-
-
-Thanks,
-
-Joe
-
-http://pad.lv/2063315
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 1fa84790041b..9cf93a8a4446 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -373,7 +373,6 @@ struct control_buf {
+ 	u8 allmulti;
+ 	__virtio16 vid;
+ 	__virtio64 offloads;
+-	struct virtio_net_ctrl_rss rss;
+ 	struct virtio_net_ctrl_coal_tx coal_tx;
+ 	struct virtio_net_ctrl_coal_rx coal_rx;
+ 	struct virtio_net_ctrl_coal_vq coal_vq;
+@@ -416,6 +415,7 @@ struct virtnet_info {
+ 	u16 rss_indir_table_size;
+ 	u32 rss_hash_types_supported;
+ 	u32 rss_hash_types_saved;
++	struct virtio_net_ctrl_rss rss;
+ 
+ 	/* Has control virtqueue */
+ 	bool has_cvq;
+@@ -3243,17 +3243,17 @@ static bool virtnet_commit_rss_command(struct virtnet_info *vi)
+ 	sg_init_table(sgs, 4);
+ 
+ 	sg_buf_size = offsetof(struct virtio_net_ctrl_rss, indirection_table);
+-	sg_set_buf(&sgs[0], &vi->ctrl->rss, sg_buf_size);
++	sg_set_buf(&sgs[0], &vi->rss, sg_buf_size);
+ 
+-	sg_buf_size = sizeof(uint16_t) * (vi->ctrl->rss.indirection_table_mask + 1);
+-	sg_set_buf(&sgs[1], vi->ctrl->rss.indirection_table, sg_buf_size);
++	sg_buf_size = sizeof(uint16_t) * (vi->rss.indirection_table_mask + 1);
++	sg_set_buf(&sgs[1], vi->rss.indirection_table, sg_buf_size);
+ 
+ 	sg_buf_size = offsetof(struct virtio_net_ctrl_rss, key)
+ 			- offsetof(struct virtio_net_ctrl_rss, max_tx_vq);
+-	sg_set_buf(&sgs[2], &vi->ctrl->rss.max_tx_vq, sg_buf_size);
++	sg_set_buf(&sgs[2], &vi->rss.max_tx_vq, sg_buf_size);
+ 
+ 	sg_buf_size = vi->rss_key_size;
+-	sg_set_buf(&sgs[3], vi->ctrl->rss.key, sg_buf_size);
++	sg_set_buf(&sgs[3], vi->rss.key, sg_buf_size);
+ 
+ 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_MQ,
+ 				  vi->has_rss ? VIRTIO_NET_CTRL_MQ_RSS_CONFIG
+@@ -3269,21 +3269,21 @@ static void virtnet_init_default_rss(struct virtnet_info *vi)
+ 	u32 indir_val = 0;
+ 	int i = 0;
+ 
+-	vi->ctrl->rss.hash_types = vi->rss_hash_types_supported;
++	vi->rss.hash_types = vi->rss_hash_types_supported;
+ 	vi->rss_hash_types_saved = vi->rss_hash_types_supported;
+-	vi->ctrl->rss.indirection_table_mask = vi->rss_indir_table_size
++	vi->rss.indirection_table_mask = vi->rss_indir_table_size
+ 						? vi->rss_indir_table_size - 1 : 0;
+-	vi->ctrl->rss.unclassified_queue = 0;
++	vi->rss.unclassified_queue = 0;
+ 
+ 	for (; i < vi->rss_indir_table_size; ++i) {
+ 		indir_val = ethtool_rxfh_indir_default(i, vi->curr_queue_pairs);
+-		vi->ctrl->rss.indirection_table[i] = indir_val;
++		vi->rss.indirection_table[i] = indir_val;
+ 	}
+ 
+-	vi->ctrl->rss.max_tx_vq = vi->has_rss ? vi->curr_queue_pairs : 0;
+-	vi->ctrl->rss.hash_key_length = vi->rss_key_size;
++	vi->rss.max_tx_vq = vi->has_rss ? vi->curr_queue_pairs : 0;
++	vi->rss.hash_key_length = vi->rss_key_size;
+ 
+-	netdev_rss_key_fill(vi->ctrl->rss.key, vi->rss_key_size);
++	netdev_rss_key_fill(vi->rss.key, vi->rss_key_size);
+ }
+ 
+ static void virtnet_get_hashflow(const struct virtnet_info *vi, struct ethtool_rxnfc *info)
+@@ -3394,7 +3394,7 @@ static bool virtnet_set_hashflow(struct virtnet_info *vi, struct ethtool_rxnfc *
+ 
+ 	if (new_hashtypes != vi->rss_hash_types_saved) {
+ 		vi->rss_hash_types_saved = new_hashtypes;
+-		vi->ctrl->rss.hash_types = vi->rss_hash_types_saved;
++		vi->rss.hash_types = vi->rss_hash_types_saved;
+ 		if (vi->dev->features & NETIF_F_RXHASH)
+ 			return virtnet_commit_rss_command(vi);
+ 	}
+@@ -4574,11 +4574,11 @@ static int virtnet_get_rxfh(struct net_device *dev,
+ 
+ 	if (rxfh->indir) {
+ 		for (i = 0; i < vi->rss_indir_table_size; ++i)
+-			rxfh->indir[i] = vi->ctrl->rss.indirection_table[i];
++			rxfh->indir[i] = vi->rss.indirection_table[i];
+ 	}
+ 
+ 	if (rxfh->key)
+-		memcpy(rxfh->key, vi->ctrl->rss.key, vi->rss_key_size);
++		memcpy(rxfh->key, vi->rss.key, vi->rss_key_size);
+ 
+ 	rxfh->hfunc = ETH_RSS_HASH_TOP;
+ 
+@@ -4602,7 +4602,7 @@ static int virtnet_set_rxfh(struct net_device *dev,
+ 			return -EOPNOTSUPP;
+ 
+ 		for (i = 0; i < vi->rss_indir_table_size; ++i)
+-			vi->ctrl->rss.indirection_table[i] = rxfh->indir[i];
++			vi->rss.indirection_table[i] = rxfh->indir[i];
+ 		update = true;
+ 	}
+ 
+@@ -4614,7 +4614,7 @@ static int virtnet_set_rxfh(struct net_device *dev,
+ 		if (!vi->has_rss && !vi->has_rss_hash_report)
+ 			return -EOPNOTSUPP;
+ 
+-		memcpy(vi->ctrl->rss.key, rxfh->key, vi->rss_key_size);
++		memcpy(vi->rss.key, rxfh->key, vi->rss_key_size);
+ 		update = true;
+ 	}
+ 
+@@ -5028,9 +5028,9 @@ static int virtnet_set_features(struct net_device *dev,
+ 
+ 	if ((dev->features ^ features) & NETIF_F_RXHASH) {
+ 		if (features & NETIF_F_RXHASH)
+-			vi->ctrl->rss.hash_types = vi->rss_hash_types_saved;
++			vi->rss.hash_types = vi->rss_hash_types_saved;
+ 		else
+-			vi->ctrl->rss.hash_types = VIRTIO_NET_HASH_REPORT_NONE;
++			vi->rss.hash_types = VIRTIO_NET_HASH_REPORT_NONE;
+ 
+ 		if (!virtnet_commit_rss_command(vi))
+ 			return -EINVAL;
+-- 
+2.44.0
 
