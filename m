@@ -1,51 +1,52 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD66115357F
-	for <virtualization@lists.linux-foundation.org>; Fri,  3 May 2024 13:25:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E91915358F
+	for <virtualization@lists.linux-foundation.org>; Fri,  3 May 2024 13:25:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714742747; cv=none; b=UdBX24aLi2UJYvCYQt5YykAgNCIEtMLntIw2qMLAtart2p9JzNmyyqdypTVa2Cwia4u1lxi/ri9LTAjOG+eyiYQChOr2PAceJUtFUOpeIXM/WD0Wm7ClUUT6QyeiSG7LhNiWJPXTB0GgWAjJWejltP5b/FYDjJ+rb8kVwi+cpgQ=
+	t=1714742748; cv=none; b=D7tyF0Ss3mlnmOmFCQ4Jzts1rocjaJMbjKE2WNy9NSNXAK6aMpyomv8IBnV+yCcWZ3bhDVjdeMBU0uvb9iEluhlLTdDWgu7vmNBpCN+TYxWvYbz/w8zPhswIE/8oPBbVIalD2JGb7ephDT4glLGmhhAxiXKoypxQrgUPtWfJGjM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714742747; c=relaxed/simple;
-	bh=UoeYf5nSk52yPkAQOPZ4IYRYsP6lzs+qv6PV8R5PQV8=;
+	s=arc-20240116; t=1714742748; c=relaxed/simple;
+	bh=4ONNBgWSam9aJRjdro/4dfXdqBvgud7e8GDkEnOey/s=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=fm9LoLz8hfAj6zm1nBsDVJiK3Erwyf00ey0gdHetYvm0zqrt8RhkAbVn/tWeF1qtYKBVEDuIMJCI582V2PqtHdUpWKHLdCPpbw7xEfKcYMfOlSIlzlWoYuF3DGfztESV/ilA4wun6Kta8Zyre5qxGzL43CSxNEUiEUN+cerrh5Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b=HFWITQU/; arc=none smtp.client-ip=140.211.166.137
+	 MIME-Version:Content-Type; b=mK4TCQiKYnUKJbcXQHT+z3aA5AL+gTS9oaSmqX44KKcMyNaX/IsY6Q1wkfJgt4Q6TY4QHdHoc7aFQjXhpUlzczJ5s63V7J2kC86IN0U60Y37BbF/XbfDgz7DPUOakiYQeXWZA95YojuEvPgzQjCZSW8kF5qZ2xkh9IDqOwqDbLQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b=KMEY6pkE; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="HFWITQU/"
+	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="KMEY6pkE"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id A9A0841E68
-	for <virtualization@lists.linux-foundation.org>; Fri,  3 May 2024 13:25:43 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id E988D41D3C
+	for <virtualization@lists.linux-foundation.org>; Fri,  3 May 2024 13:25:45 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.802
+X-Spam-Score: -2.8
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id af4UBogIrcj2 for <virtualization@lists.linux-foundation.org>;
- Fri,  3 May 2024 13:25:42 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2001:1600:4:17::8fac; helo=smtp-8fac.mail.infomaniak.ch; envelope-from=mic@digikod.net; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org C79D84160F
-Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=digikod.net
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C79D84160F
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.a=rsa-sha256 header.s=20191114 header.b=HFWITQU/
-Received: from smtp-8fac.mail.infomaniak.ch (smtp-8fac.mail.infomaniak.ch [IPv6:2001:1600:4:17::8fac])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id C79D84160F
-	for <virtualization@lists.linux-foundation.org>; Fri,  3 May 2024 13:25:41 +0000 (UTC)
-Received: from smtp-4-0000.mail.infomaniak.ch (smtp-4-0000.mail.infomaniak.ch [10.7.10.107])
-	by smtp-3-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4VWBGg1gbwzQgV;
-	Fri,  3 May 2024 15:19:23 +0200 (CEST)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 9QbwdqKyHC7i for <virtualization@lists.linux-foundation.org>;
+ Fri,  3 May 2024 13:25:44 +0000 (UTC)
+X-Greylist: delayed 376 seconds by postgrey-1.37 at util1.osuosl.org; Fri, 03 May 2024 13:25:44 UTC
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 9F7BA40378
+Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=digikod.net
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9F7BA40378
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.a=rsa-sha256 header.s=20191114 header.b=KMEY6pkE
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=84.16.66.171; helo=smtp-42ab.mail.infomaniak.ch; envelope-from=mic@digikod.net; receiver=<UNKNOWN> 
+Received: from smtp-42ab.mail.infomaniak.ch (smtp-42ab.mail.infomaniak.ch [84.16.66.171])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 9F7BA40378
+	for <virtualization@lists.linux-foundation.org>; Fri,  3 May 2024 13:25:44 +0000 (UTC)
+Received: from smtp-3-0001.mail.infomaniak.ch (smtp-3-0001.mail.infomaniak.ch [10.4.36.108])
+	by smtp-4-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4VWBGk08rZzRxX;
+	Fri,  3 May 2024 15:19:26 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=digikod.net;
-	s=20191114; t=1714742363;
-	bh=UoeYf5nSk52yPkAQOPZ4IYRYsP6lzs+qv6PV8R5PQV8=;
+	s=20191114; t=1714742365;
+	bh=4ONNBgWSam9aJRjdro/4dfXdqBvgud7e8GDkEnOey/s=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=HFWITQU/9X3b9ffsqT8cXmFLNi73I0373rD/PFtktQpoOH+2zmgwV5Yfw+E/F3R8K
-	 ZQMa5hgDHaXOz1twAAsinnIZ+pVrQ6lX74KgknaVZVKex/5MbuFdKHrG4JhjfAKeSk
-	 26YP9U0qWz7UdHB+iwnqs+toDdVpb4+HaghZoTfY=
-Received: from unknown by smtp-4-0000.mail.infomaniak.ch (Postfix) with ESMTPA id 4VWBGf1DjgzGSs;
-	Fri,  3 May 2024 15:19:22 +0200 (CEST)
+	b=KMEY6pkEAKgoExfEmKVQNyCUEruknH1ap7Ou5Y419jIaRi8bmkoHU2rC0/FMv7d7x
+	 rFR+BO0giuToCc4a3wUUdcvtmQ+cooljaMVQXO/XQSIZria32QbPa/X8LojG8X9+C1
+	 h838ru/DHL68SkgW/jHR0XIi48e+6J+Z2qvxBa4k=
+Received: from unknown by smtp-3-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4VWBGj1GSJzcWL;
+	Fri,  3 May 2024 15:19:25 +0200 (CEST)
 From: =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
 To: Borislav Petkov <bp@alien8.de>,
 	Dave Hansen <dave.hansen@linux.intel.com>,
@@ -87,9 +88,9 @@ Cc: =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>,
 	virtualization@lists.linux-foundation.org,
 	x86@kernel.org,
 	xen-devel@lists.xenproject.org
-Subject: [RFC PATCH v3 3/5] KVM: x86: Add notifications for Heki policy configuration and violation
-Date: Fri,  3 May 2024 15:19:08 +0200
-Message-ID: <20240503131910.307630-4-mic@digikod.net>
+Subject: [RFC PATCH v3 5/5] virt: Add Heki KUnit tests
+Date: Fri,  3 May 2024 15:19:10 +0200
+Message-ID: <20240503131910.307630-6-mic@digikod.net>
 In-Reply-To: <20240503131910.307630-1-mic@digikod.net>
 References: <20240503131910.307630-1-mic@digikod.net>
 Precedence: bulk
@@ -102,361 +103,284 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Infomaniak-Routing: alpha
 
-Add an interface for user space to be notified about guests' Heki policy
-and related violations.
+The new CONFIG_HEKI_KUNIT_TEST option enables to run tests in a a kernel
+module.  The minimal required configuration is listed in the
+virt/heki-test/.kunitconfig file.
 
-Extend the KVM_ENABLE_CAP IOCTL with KVM_CAP_HEKI_CONFIGURE and
-KVM_CAP_HEKI_DENIAL. Each one takes a bitmask as first argument that can
-contains KVM_HEKI_EXIT_REASON_CR0 and KVM_HEKI_EXIT_REASON_CR4. The
-returned value is the bitmask of known Heki exit reasons, for now:
-KVM_HEKI_EXIT_REASON_CR0 and KVM_HEKI_EXIT_REASON_CR4.
+test_cr_disable_smep checks control-register pinning by trying to
+disable SMEP.  This test should then failed on a non-protected kernel,
+and only succeed with a kernel protected by Heki.
 
-If KVM_CAP_HEKI_CONFIGURE is set, a VM exit will be triggered for each
-KVM_HC_LOCK_CR_UPDATE hypercalls according to the requested control
-register. This enables to enlighten the VMM with the guest
-auto-restrictions.
+This test doesn't rely on native_write_cr4() because of the
+cr4_pinned_mask hardening, which means that this *test* module loads a
+valid kernel code to arbitrary change CR4.  This simulate an attack
+scenario where an attaker would use ROP to directly jump to the related
+cr4 instruction.
 
-If KVM_CAP_HEKI_DENIAL is set, a VM exit will be triggered for each
-pinned CR violation. This enables the VMM to react to a policy
-violation.
+As for any KUnit test, the kernel is tainted with TAINT_TEST when the
+test is executed.
 
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Madhavan T. Venkataraman <madvenka@linux.microsoft.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Sean Christopherson <seanjc@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc: Wanpeng Li <wanpengli@tencent.com>
+It is interesting to create new KUnit tests instead of extending KVM's
+Kselftests because Heki is design to be hypervisor-agnostic, it relies
+on a set of hypercalls (for KVM or others), and we also want to test
+kernel's configuration (actual pinned CR).  However, new KVM's
+Kselftests would be useful to test KVM's interface with the host.
+
+When using Qemu, we need to pass the following arguments: -cpu host
+-enable-kvm
+
+For now, it is not possible to run these tests as built-in but we are
+working on that [1].  If tests are built-in anyway, they will just be
+skipped because Heki would not be enabled.
+
+Run Heki tests with:
+  insmod heki-test.ko
+
+  KTAP version 1
+  1..1
+      KTAP version 1
+      # Subtest: heki_x86
+      # module: heki_test
+      1..1
+      ok 1 test_cr_disable_smep
+  ok 1 heki_x86
+
+Link: https://lore.kernel.org/r/20240229170409.365386-2-mic@digikod.net [1]
 Signed-off-by: Mickaël Salaün <mic@digikod.net>
-Link: https://lore.kernel.org/r/20240503131910.307630-4-mic@digikod.net
+Link: https://lore.kernel.org/r/20240503131910.307630-6-mic@digikod.net
 ---
+
+Changes since v2:
+* Make tests standalone (e.g. don't depends on CONFIG_HEKI).
+* Enable to create a test kernel module.
+* Don't rely on private kernel symbols.
+* Handle GP fault for CR-pinning test case.
+* Rename option to CONFIG_HEKI_KUNIT_TEST.
+* Add the list of required kernel options.
+* Move tests to virt/heki-test/ [FIXME]
+* Only keep CR pinning test.
+* Restore previous state (with SMEP enabled).
+* Add a Kconfig menu for Heki and update the description.
+* Skip tests if Heki is not protecting the running kernel.
 
 Changes since v1:
-* New patch. Making user space aware of Heki properties was requested by
-  Sean Christopherson.
+* Move all tests to virt/heki/tests.c
 ---
- arch/x86/kvm/vmx/vmx.c   |   5 +-
- arch/x86/kvm/x86.c       | 114 +++++++++++++++++++++++++++++++++++----
- arch/x86/kvm/x86.h       |   7 +--
- include/linux/kvm_host.h |   2 +
- include/uapi/linux/kvm.h |  22 ++++++++
- 5 files changed, 136 insertions(+), 14 deletions(-)
+ include/linux/heki.h   |   1 +
+ virt/heki/.kunitconfig |   9 ++++
+ virt/heki/Kconfig      |  12 +++++
+ virt/heki/Makefile     |   1 +
+ virt/heki/heki-test.c  | 114 +++++++++++++++++++++++++++++++++++++++++
+ virt/heki/main.c       |  10 ++++
+ 6 files changed, 147 insertions(+)
+ create mode 100644 virt/heki/.kunitconfig
+ create mode 100644 virt/heki/heki-test.c
 
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 7ba970b525f7..5869a1ed7866 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -5445,6 +5445,7 @@ static int handle_cr(struct kvm_vcpu *vcpu)
- 	int reg;
- 	int err;
- 	int ret;
-+	bool exit = false;
+diff --git a/include/linux/heki.h b/include/linux/heki.h
+index 96ccb17657e5..3294c4d583e5 100644
+--- a/include/linux/heki.h
++++ b/include/linux/heki.h
+@@ -35,6 +35,7 @@ struct heki {
  
- 	exit_qualification = vmx_get_exit_qual(vcpu);
- 	cr = exit_qualification & 15;
-@@ -5454,8 +5455,8 @@ static int handle_cr(struct kvm_vcpu *vcpu)
- 		val = kvm_register_read(vcpu, reg);
- 		trace_kvm_cr_write(cr, val);
+ extern struct heki heki;
+ extern bool heki_enabled;
++extern bool heki_enforcing;
  
--		ret = heki_check_cr(vcpu, cr, val);
--		if (ret)
-+		ret = heki_check_cr(vcpu, cr, val, &exit);
-+		if (exit)
- 			return ret;
+ void heki_early_init(void);
+ void heki_late_init(void);
+diff --git a/virt/heki/.kunitconfig b/virt/heki/.kunitconfig
+new file mode 100644
+index 000000000000..ad4454800579
+--- /dev/null
++++ b/virt/heki/.kunitconfig
+@@ -0,0 +1,9 @@
++CONFIG_HEKI=y
++CONFIG_HEKI_KUNIT_TEST=m
++CONFIG_HEKI_MENU=y
++CONFIG_HIGH_RES_TIMERS=y
++CONFIG_HYPERVISOR_GUEST=y
++CONFIG_KUNIT=y
++CONFIG_KVM=y
++CONFIG_KVM_GUEST=y
++CONFIG_PARAVIRT=y
+diff --git a/virt/heki/Kconfig b/virt/heki/Kconfig
+index 0c764e342f48..18895a81a9af 100644
+--- a/virt/heki/Kconfig
++++ b/virt/heki/Kconfig
+@@ -28,4 +28,16 @@ config HEKI
+ 	  This feature is helpful in maintaining guest virtual machine security
+ 	  even after the guest kernel has been compromised.
  
- 		switch (cr) {
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index a5f47be59abc..865e88f2b0fc 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -119,6 +119,10 @@ static u64 __read_mostly cr4_reserved_bits = CR4_RESERVED_BITS;
- 
- #define KVM_CAP_PMU_VALID_MASK KVM_PMU_CAP_DISABLE
- 
-+#define KVM_HEKI_EXIT_REASON_VALID_MASK ( \
-+	KVM_HEKI_EXIT_REASON_CR0 | \
-+	KVM_HEKI_EXIT_REASON_CR4)
++config HEKI_KUNIT_TEST
++	tristate "KUnit tests for Heki" if !KUNIT_ALL_TESTS
++	depends on KUNIT
++	depends on X86
++	default KUNIT_ALL_TESTS
++	help
++	  Build KUnit tests for Landlock.
 +
- #define KVM_X2APIC_API_VALID_FLAGS (KVM_X2APIC_API_USE_32BIT_IDS | \
-                                     KVM_X2APIC_API_DISABLE_BROADCAST_QUIRK)
++	  See the KUnit documentation in Documentation/dev-tools/kunit
++
++	  If you are unsure how to answer this question, answer N.
++
+ endif
+diff --git a/virt/heki/Makefile b/virt/heki/Makefile
+index 8b10e73a154b..7133545eb5ae 100644
+--- a/virt/heki/Makefile
++++ b/virt/heki/Makefile
+@@ -1,3 +1,4 @@
+ # SPDX-License-Identifier: GPL-2.0-only
  
-@@ -4836,6 +4840,10 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
- 		if (kvm_is_vm_type_supported(KVM_X86_SW_PROTECTED_VM))
- 			r |= BIT(KVM_X86_SW_PROTECTED_VM);
- 		break;
-+	case KVM_CAP_HEKI_CONFIGURE:
-+	case KVM_CAP_HEKI_DENIAL:
-+		r = KVM_HEKI_EXIT_REASON_VALID_MASK;
-+		break;
- 	default:
- 		break;
- 	}
-@@ -6729,6 +6737,22 @@ int kvm_vm_ioctl_enable_cap(struct kvm *kvm,
- 		}
- 		mutex_unlock(&kvm->lock);
- 		break;
-+#ifdef CONFIG_HEKI
-+	case KVM_CAP_HEKI_CONFIGURE:
-+		r = -EINVAL;
-+		if (cap->args[0] & ~KVM_HEKI_EXIT_REASON_VALID_MASK)
-+			break;
-+		kvm->heki_configure_exit_reason = cap->args[0];
-+		r = 0;
-+		break;
-+	case KVM_CAP_HEKI_DENIAL:
-+		r = -EINVAL;
-+		if (cap->args[0] & ~KVM_HEKI_EXIT_REASON_VALID_MASK)
-+			break;
-+		kvm->heki_denial_exit_reason = cap->args[0];
-+		r = 0;
-+		break;
-+#endif
- 	default:
- 		r = -EINVAL;
- 		break;
-@@ -8283,11 +8307,60 @@ static unsigned long emulator_get_cr(struct x86_emulate_ctxt *ctxt, int cr)
- 
- #ifdef CONFIG_HEKI
- 
-+static int complete_heki_configure_exit(struct kvm_vcpu *const vcpu)
-+{
-+	kvm_rax_write(vcpu, 0);
-+	++vcpu->stat.hypercalls;
-+	return kvm_skip_emulated_instruction(vcpu);
-+}
-+
-+static int complete_heki_denial_exit(struct kvm_vcpu *const vcpu)
-+{
-+	kvm_inject_gp(vcpu, 0);
-+	return 1;
-+}
-+
-+/* Returns true if the @exit_reason is handled by @vcpu->kvm. */
-+static bool heki_exit_cr(struct kvm_vcpu *const vcpu, const __u32 exit_reason,
-+			 const u64 heki_reason, unsigned long value)
-+{
-+	switch (exit_reason) {
-+	case KVM_EXIT_HEKI_CONFIGURE:
-+		if (!(vcpu->kvm->heki_configure_exit_reason & heki_reason))
-+			return false;
-+
-+		vcpu->run->heki_configure.reason = heki_reason;
-+		memset(vcpu->run->heki_configure.reserved, 0,
-+		       sizeof(vcpu->run->heki_configure.reserved));
-+		vcpu->run->heki_configure.cr_pinned = value;
-+		vcpu->arch.complete_userspace_io = complete_heki_configure_exit;
-+		break;
-+	case KVM_EXIT_HEKI_DENIAL:
-+		if (!(vcpu->kvm->heki_denial_exit_reason & heki_reason))
-+			return false;
-+
-+		vcpu->run->heki_denial.reason = heki_reason;
-+		memset(vcpu->run->heki_denial.reserved, 0,
-+		       sizeof(vcpu->run->heki_denial.reserved));
-+		vcpu->run->heki_denial.cr_value = value;
-+		vcpu->arch.complete_userspace_io = complete_heki_denial_exit;
-+		break;
-+	default:
-+		WARN_ON_ONCE(1);
-+		return false;
-+	}
-+
-+	vcpu->run->exit_reason = exit_reason;
-+	return true;
-+}
-+
- #define HEKI_ABI_VERSION 1
- 
- static int heki_lock_cr(struct kvm_vcpu *const vcpu, const unsigned long cr,
--			unsigned long pin, unsigned long flags)
-+			unsigned long pin, unsigned long flags, bool *exit)
- {
-+	*exit = false;
-+
- 	if (flags) {
- 		if ((flags == KVM_LOCK_CR_UPDATE_VERSION) && !cr && !pin)
- 			return HEKI_ABI_VERSION;
-@@ -8307,6 +8380,8 @@ static int heki_lock_cr(struct kvm_vcpu *const vcpu, const unsigned long cr,
- 			return -KVM_EINVAL;
- 
- 		atomic_long_or(pin, &vcpu->kvm->heki_pinned_cr0);
-+		*exit = heki_exit_cr(vcpu, KVM_EXIT_HEKI_CONFIGURE,
-+				     KVM_HEKI_EXIT_REASON_CR0, pin);
- 		return 0;
- 	case 4:
- 		/* Checks for irrelevant bits. */
-@@ -8316,24 +8391,37 @@ static int heki_lock_cr(struct kvm_vcpu *const vcpu, const unsigned long cr,
- 		/* Ignores bits not present in host. */
- 		pin &= __read_cr4();
- 		atomic_long_or(pin, &vcpu->kvm->heki_pinned_cr4);
-+		*exit = heki_exit_cr(vcpu, KVM_EXIT_HEKI_CONFIGURE,
-+				     KVM_HEKI_EXIT_REASON_CR4, pin);
- 		return 0;
- 	}
- 	return -KVM_EINVAL;
- }
- 
+ obj-$(CONFIG_HEKI) += main.o
++obj-$(CONFIG_HEKI_KUNIT_TEST) += heki-test.o
+diff --git a/virt/heki/heki-test.c b/virt/heki/heki-test.c
+new file mode 100644
+index 000000000000..b4e11c21ac5d
+--- /dev/null
++++ b/virt/heki/heki-test.c
+@@ -0,0 +1,114 @@
++// SPDX-License-Identifier: GPL-2.0-only
 +/*
-+ * Sets @exit to true if the caller must exit (i.e. denied access) with the
-+ * returned value:
-+ * - 0 when kvm_run is configured;
-+ * - 1 when there is no user space handler.
++ * Hypervisor Enforced Kernel Integrity (Heki) - Tests
++ *
++ * Copyright © 2023-2024 Microsoft Corporation
 + */
- int heki_check_cr(struct kvm_vcpu *const vcpu, const unsigned long cr,
--		  const unsigned long val)
-+		  const unsigned long val, bool *exit)
- {
- 	unsigned long pinned;
- 
-+	*exit = false;
 +
- 	switch (cr) {
- 	case 0:
- 		pinned = atomic_long_read(&vcpu->kvm->heki_pinned_cr0);
- 		if ((val & pinned) != pinned) {
- 			pr_warn_ratelimited(
- 				"heki: Blocked CR0 update: 0x%lx\n", val);
--			kvm_inject_gp(vcpu, 0);
--			return 1;
-+			*exit = true;
-+			if (heki_exit_cr(vcpu, KVM_EXIT_HEKI_DENIAL,
-+					 KVM_HEKI_EXIT_REASON_CR0, val))
-+				return 0;
-+			return complete_heki_denial_exit(vcpu);
- 		}
- 		return 0;
- 	case 4:
-@@ -8341,8 +8429,11 @@ int heki_check_cr(struct kvm_vcpu *const vcpu, const unsigned long cr,
- 		if ((val & pinned) != pinned) {
- 			pr_warn_ratelimited(
- 				"heki: Blocked CR4 update: 0x%lx\n", val);
--			kvm_inject_gp(vcpu, 0);
--			return 1;
-+			*exit = true;
-+			if (heki_exit_cr(vcpu, KVM_EXIT_HEKI_DENIAL,
-+					 KVM_HEKI_EXIT_REASON_CR4, val))
-+				return 0;
-+			return complete_heki_denial_exit(vcpu);
- 		}
- 		return 0;
- 	}
-@@ -8356,9 +8447,10 @@ static int emulator_set_cr(struct x86_emulate_ctxt *ctxt, int cr, ulong val)
- {
- 	struct kvm_vcpu *vcpu = emul_to_vcpu(ctxt);
- 	int res = 0;
-+	bool exit = false;
- 
--	res = heki_check_cr(vcpu, cr, val);
--	if (res)
-+	res = heki_check_cr(vcpu, cr, val, &exit);
-+	if (exit)
- 		return res;
- 
- 	switch (cr) {
-@@ -10222,7 +10314,11 @@ int kvm_emulate_hypercall(struct kvm_vcpu *vcpu)
- 		if (a0 > U32_MAX) {
- 			ret = -KVM_EINVAL;
- 		} else {
--			ret = heki_lock_cr(vcpu, a0, a1, a2);
-+			bool exit = false;
++#include <asm/asm.h>
++#include <asm/processor.h>
++#include <asm/special_insns.h>
++#include <kunit/test.h>
++#include <linux/heki.h>
 +
-+			ret = heki_lock_cr(vcpu, a0, a1, a2, &exit);
-+			if (exit)
-+				return ret;
- 		}
- 		break;
- #endif /* CONFIG_HEKI */
-diff --git a/arch/x86/kvm/x86.h b/arch/x86/kvm/x86.h
-index ade7d68ddaff..2740b74ab583 100644
---- a/arch/x86/kvm/x86.h
-+++ b/arch/x86/kvm/x86.h
-@@ -292,18 +292,19 @@ static inline bool kvm_check_has_quirk(struct kvm *kvm, u64 quirk)
++/* Returns true on error (i.e. GP fault), false otherwise. */
++static __always_inline bool set_cr4(unsigned long value)
++{
++	int err = 0;
++
++	might_sleep();
++	/* clang-format off */
++	asm volatile("1: mov %[value],%%cr4 \n"
++		     "2: \n"
++		     _ASM_EXTABLE_TYPE_REG(1b, 2b, EX_TYPE_ONE_REG, %[err])
++		     : [value] "+r" (value), [err] "+r" (err)
++		     :);
++	/* clang-format on */
++	return err;
++}
++
++/* Control register pinning tests with SMEP check. */
++static void test_cr_disable_smep(struct kunit *const test)
++{
++	bool is_vme_set;
++
++	/* SMEP should be initially enabled. */
++	KUNIT_ASSERT_TRUE(test, __read_cr4() & X86_CR4_SMEP);
++
++	/*
++	 * Trying to disable SMEP, bypassing kernel self-protection by not
++	 * using cr4_clear_bits(X86_CR4_SMEP), and checking GP fault.
++	 */
++	KUNIT_EXPECT_TRUE(test, set_cr4(__read_cr4() & ~X86_CR4_SMEP));
++
++	/* SMEP should still be enabled. */
++	KUNIT_EXPECT_TRUE(test, __read_cr4() & X86_CR4_SMEP);
++
++	/* Re-enabling SMEP doesn't throw a GP fault. */
++	KUNIT_EXPECT_FALSE(test, set_cr4(__read_cr4() | X86_CR4_SMEP));
++	KUNIT_EXPECT_TRUE(test, __read_cr4() & X86_CR4_SMEP);
++
++	/* We are allowed to set and unset VME. */
++	is_vme_set = __read_cr4() & X86_CR4_VME;
++	KUNIT_EXPECT_FALSE(test, set_cr4(__read_cr4() | X86_CR4_VME));
++	KUNIT_EXPECT_TRUE(test, __read_cr4() & X86_CR4_VME);
++
++	KUNIT_EXPECT_FALSE(test, set_cr4(__read_cr4() & ~X86_CR4_VME));
++	KUNIT_EXPECT_FALSE(test, __read_cr4() & X86_CR4_VME);
++
++	KUNIT_EXPECT_FALSE(test, set_cr4(__read_cr4() | X86_CR4_VME));
++	KUNIT_EXPECT_TRUE(test, __read_cr4() & X86_CR4_VME);
++
++	/* SMEP and VME changes should be consistent when setting both. */
++	KUNIT_EXPECT_TRUE(test, set_cr4(__read_cr4() &
++					~(X86_CR4_SMEP | X86_CR4_VME)));
++	KUNIT_EXPECT_TRUE(test, __read_cr4() & X86_CR4_SMEP);
++	KUNIT_EXPECT_TRUE(test, __read_cr4() & X86_CR4_VME);
++
++	/* Unset VME. */
++	KUNIT_EXPECT_FALSE(test, set_cr4(__read_cr4() & ~X86_CR4_VME));
++	KUNIT_EXPECT_FALSE(test, __read_cr4() & X86_CR4_VME);
++
++	/* SMEP and VME changes should be consistent when only setting SMEP. */
++	KUNIT_EXPECT_TRUE(test, set_cr4(__read_cr4() &
++					~(X86_CR4_SMEP | X86_CR4_VME)));
++	KUNIT_EXPECT_TRUE(test, __read_cr4() & X86_CR4_SMEP);
++	KUNIT_EXPECT_FALSE(test, __read_cr4() & X86_CR4_VME);
++
++	/* Restores VME. */
++	if (is_vme_set)
++		KUNIT_EXPECT_FALSE(test, set_cr4(__read_cr4() | X86_CR4_VME));
++	else
++		KUNIT_EXPECT_FALSE(test, set_cr4(__read_cr4() & ~X86_CR4_VME));
++}
++
++/* clang-format off */
++static struct kunit_case test_cases_x86[] = {
++	KUNIT_CASE(test_cr_disable_smep),
++	{}
++};
++/* clang-format on */
++
++static int test_init(struct kunit *test)
++{
++#ifdef CONFIG_HEKI
++	if (heki_enforcing)
++		return 0;
++#else /* CONFIG_HEKI */
++	kunit_skip(test, "Heki is not enforced");
++#endif /* CONFIG_HEKI */
++
++	return 0;
++}
++
++static struct kunit_suite test_suite_x86 = {
++	.name = "heki_x86",
++	.init = test_init,
++	.test_cases = test_cases_x86,
++};
++
++kunit_test_suite(test_suite_x86);
++
++MODULE_IMPORT_NS(HEKI_KUNIT_TEST);
++MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("Tests for Hypervisor Enforced Kernel Integrity (Heki)");
+diff --git a/virt/heki/main.c b/virt/heki/main.c
+index ef0530a03e09..dcc89befaf66 100644
+--- a/virt/heki/main.c
++++ b/virt/heki/main.c
+@@ -11,6 +11,12 @@
+ #include "common.h"
  
- #ifdef CONFIG_HEKI
+ bool heki_enabled __ro_after_init = true;
++
++#if IS_ENABLED(CONFIG_KUNIT)
++bool heki_enforcing = false;
++EXPORT_SYMBOL_NS_GPL(heki_enforcing, HEKI_KUNIT_TEST);
++#endif /* IS_ENABLED(CONFIG_KUNIT) */
++
+ struct heki heki;
  
--int heki_check_cr(struct kvm_vcpu *vcpu, unsigned long cr, unsigned long val);
-+int heki_check_cr(struct kvm_vcpu *vcpu, unsigned long cr, unsigned long val,
-+		  bool *exit);
+ /*
+@@ -47,6 +53,10 @@ void heki_late_init(void)
+ 		return;
  
- #else /* CONFIG_HEKI */
- 
- static inline int heki_check_cr(struct kvm_vcpu *vcpu, unsigned long cr,
--				unsigned long val)
-+				unsigned long val, bool *exit)
- {
- 	return 0;
+ 	pr_warn("Control registers locked\n");
++
++#if IS_ENABLED(CONFIG_KUNIT)
++	heki_enforcing = true;
++#endif /* IS_ENABLED(CONFIG_KUNIT) */
  }
  
- static inline int heki_lock_cr(struct kvm_vcpu *const vcpu, unsigned long cr,
--			       unsigned long pin)
-+			       unsigned long pin, bool *exit)
- {
- 	return 0;
- }
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index 6ff13937929a..cf8e271d47aa 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -839,6 +839,8 @@ struct kvm {
- #ifdef CONFIG_HEKI
- 	atomic_long_t heki_pinned_cr0;
- 	atomic_long_t heki_pinned_cr4;
-+	u64 heki_configure_exit_reason;
-+	u64 heki_denial_exit_reason;
- #endif /* CONFIG_HEKI */
- 
- #ifdef CONFIG_HAVE_KVM_PM_NOTIFIER
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index 2190adbe3002..1051c2f817ba 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -178,6 +178,8 @@ struct kvm_xen_exit {
- #define KVM_EXIT_NOTIFY           37
- #define KVM_EXIT_LOONGARCH_IOCSR  38
- #define KVM_EXIT_MEMORY_FAULT     39
-+#define KVM_EXIT_HEKI_CONFIGURE   40
-+#define KVM_EXIT_HEKI_DENIAL      41
- 
- /* For KVM_EXIT_INTERNAL_ERROR */
- /* Emulate instruction failed. */
-@@ -433,6 +435,24 @@ struct kvm_run {
- 			__u64 gpa;
- 			__u64 size;
- 		} memory_fault;
-+		/* KVM_EXIT_HEKI_CONFIGURE */
-+		struct {
-+#define KVM_HEKI_EXIT_REASON_CR0	(1ULL << 0)
-+#define KVM_HEKI_EXIT_REASON_CR4	(1ULL << 1)
-+			__u64 reason;
-+			union {
-+				__u64 cr_pinned;
-+				__u64 reserved[7]; /* ignored */
-+			};
-+		} heki_configure;
-+		/* KVM_EXIT_HEKI_DENIAL */
-+		struct {
-+			__u64 reason;
-+			union {
-+				__u64 cr_value;
-+				__u64 reserved[7]; /* ignored */
-+			};
-+		} heki_denial;
- 		/* Fix the size of the union. */
- 		char padding[256];
- 	};
-@@ -917,6 +937,8 @@ struct kvm_enable_cap {
- #define KVM_CAP_MEMORY_ATTRIBUTES 233
- #define KVM_CAP_GUEST_MEMFD 234
- #define KVM_CAP_VM_TYPES 235
-+#define KVM_CAP_HEKI_CONFIGURE 236
-+#define KVM_CAP_HEKI_DENIAL 237
- 
- struct kvm_irq_routing_irqchip {
- 	__u32 irqchip;
+ static int __init heki_parse_config(char *str)
 -- 
 2.45.0
 
