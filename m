@@ -1,194 +1,189 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26C63154446;
-	Fri,  3 May 2024 13:52:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BC8115442B
+	for <virtualization@lists.linux-foundation.org>; Fri,  3 May 2024 14:03:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714744372; cv=none; b=pGLDdeUwBCQfkwzb3oqLanTEg+y2p0hw6eCj9NOnQmMkfJWyfAktRIT6ueyrLhCTjjIoMNslcFXvX00L1Q0Di/J8MAZcoadsUHJbs+7adVVoEX8cdNGoCDDaXjtx7tyjoujasppAC8AhM/79fIWOdgmdmYNX2lkTLVFmcq/WlOM=
+	t=1714745007; cv=none; b=m93mR01/wC+sbNtpp/xcygJxTZ3TyD2iAYpPQhxXIqWrkn6hTl8qs90zBVnKt3DN6lSvmIXLwm7knwKKLPeMaRHTAU6wx26qAIFN5vdXdeecwFn468ba7q2GEW7ixIFuiM4jtS8YtHCUWVyorN7At1DwAZXTQdGZXEHfSALEekk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714744372; c=relaxed/simple;
-	bh=1/sEbkKVzr1sl9rpqMBPxOBN56nWkciK2TSQEX52IVw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=UL/7H2TgkCf3xN7YS0cRORWqTaCkClJMBlYZJS0K5xrsW7+nYmlo54RDY4HtD4+VSSNIfqPIpKLijuzqCXKb/5Imzu+6wBQygjvgZZ2RIWd3oZMY4FS+Gi/8NkwGN3pzSKHFCMYClGTNh/ft/CuV9aq5uORhJWTbJe8V5hTaPvA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=i58uEv04; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1714745007; c=relaxed/simple;
+	bh=7+85l5gtG9BMCJsXUhbIe6mJsJUfD1GuV0eeYeZs6G4=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=GEuMhTm8unvHDdkWNtuNU3EVkmXmnP4gxT4cK5gvP1EJCLFCdw2j7q8zDbb+8HMb0o3DAgtfeFFOsWS72CrRnwLxTYfwzFg2e1eWzwcffgPG6P4k6OG2x0+5TmPFHFYUy4Vd3U7VvZRu3RRKYizRrpioV6BtR4vFMkLMfvLrlpw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=eedEyfGg; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="i58uEv04"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3464C2BBFC;
-	Fri,  3 May 2024 13:52:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1714744371;
-	bh=1/sEbkKVzr1sl9rpqMBPxOBN56nWkciK2TSQEX52IVw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=i58uEv04qUG5DAgLpocPjF3sinBvQely/LrKAIf5mxbVLYZ5uFWE+Jn+8LPmmVMkp
-	 dEHNPmB09phulo90CmfqeS0ZobiViN470dScFLCDlQnroBGKxWb1TyQc18vhWblSwJ
-	 0nQglDytYII8DIjGdgOw6bPtFRwmxbjDM43ws7e+L+f7iWdmXC3ZexyCoq7LYY1Obr
-	 ooocTlSSLUr3zJcsg4WdBC3JOOdIfvP8oOu6Yb1S5XF+a/hTyW+Ck9vRVTg6PWqPXc
-	 +Lu1YBcg8a22e9f/fU9sRTU/bzy+63yhGB/7uvJjAYUqnoFF7PlZ4mZrfEh26LCXYx
-	 pdyeERfnr3nMQ==
-Date: Fri, 3 May 2024 14:52:44 +0100
-From: Simon Horman <horms@kernel.org>
-To: Heng Qi <hengqi@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
-	Jakub Kicinski <kuba@kernel.org>,
-	"David S . Miller" <davem@davemloft.net>,
-	Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>,
-	Jason Wang <jasowang@redhat.com>,
-	"Michael S . Tsirkin" <mst@redhat.com>,
-	Brett Creeley <bcreeley@amd.com>,
-	Ratheesh Kannoth <rkannoth@marvell.com>,
-	Alexander Lobakin <aleksander.lobakin@intel.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Tal Gilboa <talgi@nvidia.com>, Jonathan Corbet <corbet@lwn.net>,
-	linux-doc@vger.kernel.org,
-	Maxime Chevallier <maxime.chevallier@bootlin.com>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Paul Greenwalt <paul.greenwalt@intel.com>,
-	Ahmed Zaki <ahmed.zaki@intel.com>,
-	Vladimir Oltean <vladimir.oltean@nxp.com>,
-	Kory Maincent <kory.maincent@bootlin.com>,
-	Andrew Lunn <andrew@lunn.ch>, justinstitt@google.com
-Subject: Re: [PATCH net-next v11 2/4] ethtool: provide customized dim profile
- management
-Message-ID: <20240503135244.GV2821784@kernel.org>
-References: <20240430173136.15807-1-hengqi@linux.alibaba.com>
- <20240430173136.15807-3-hengqi@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="eedEyfGg"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id EBE9241D42
+	for <virtualization@lists.linux-foundation.org>; Fri,  3 May 2024 14:03:25 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -9.601
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id Apx0tCCKTcKW for <virtualization@lists.linux-foundation.org>;
+ Fri,  3 May 2024 14:03:25 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::b4a; helo=mail-yb1-xb4a.google.com; envelope-from=3q-40zgykajqg2yb704cc492.0ca@flex--seanjc.bounces.google.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org D124141D3C
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=reject dis=none) header.from=google.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D124141D3C
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20230601 header.b=eedEyfGg
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id D124141D3C
+	for <virtualization@lists.linux-foundation.org>; Fri,  3 May 2024 14:03:24 +0000 (UTC)
+Received: by mail-yb1-xb4a.google.com with SMTP id 3f1490d57ef6-dcc0bcf9256so15285773276.3
+        for <virtualization@lists.linux-foundation.org>; Fri, 03 May 2024 07:03:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1714745003; x=1715349803; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:cc:to:from:subject:message-id:references
+         :mime-version:in-reply-to:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=a136SOKV90n/XcmvCvD6zgQKrJ5kR/Q+OhiUt3FbOiE=;
+        b=eedEyfGgsDgt1TcEysl4hat0uKz/jcBHxsxQ3o6r5VsYnJlPUaeVhQkBf5uCp3uLjS
+         j21vA/kQheTKgSdmziFsJopOJ5kINFKyDQx6VnmPKP5+8RqvDfF0NdyddxYcG66ZQ2/q
+         bwJfr0seFn0EmWv6rNPqOeuvQFIBEX+6DP08N+K7UeFzUaUlyX5l5Y1BS9LVy3BrNGVt
+         uMOi3k0lnqdzZ/gVcK6k2EqyIpFvZr5Qu3jW9F94xj/m7V6e0rM1mwsiJVmchI/zH8J7
+         FhGNoYOVEISmvbKNl35+cLxyr2GlIDlVuG1+z+fUu7J9O95fvf+5liaJBe+ZrJC8eIjG
+         /iBw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1714745003; x=1715349803;
+        h=content-transfer-encoding:cc:to:from:subject:message-id:references
+         :mime-version:in-reply-to:date:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=a136SOKV90n/XcmvCvD6zgQKrJ5kR/Q+OhiUt3FbOiE=;
+        b=qBmlw2/wvUQZ9EAhpLOj6Ds7sQ4f+fe2+A+UtoL4gUDY63spSG6rFV3/kzmf+HUQau
+         p6mw0GjQXCQ6o7pAcG3VgByEP4Y5cGoHSRxiy3HSbr9PZVtPgPvPLAZJM3kHm5g479/7
+         FiBXb/NNzGK8Nsb8ZxQiGgwyU4ksRC89CMamBR4Ad98jtepO+iS9OznNwTCATYFIFBRO
+         kgmPpFfASI8WcdP9kagVSHgTDlZNuD1IYaFchxMh3xFKiBXw0HGWQgoG8F2N66d67jNW
+         +Om2U/jtLlb4Fc7P/9nxe+KmO9HZD7X91iHLX5HvZHLiI/vU+BnejcOvZ2aFbaI5aXOP
+         mmyg==
+X-Forwarded-Encrypted: i=1; AJvYcCXoOM+a9zHhS/zccrQUavd+6fVxwxFQ9UBIZYE8zbJV8S9FNqq6MEkv62VpN45oDw7T1DK4eursAa5YW8s/0o8XcdeXNP0FqjAX04Xj2L8fizGSWf3ThpZ+6Q==
+X-Gm-Message-State: AOJu0YyJmi0n23BzvKC/OZeDrr40EYwoENPf5FbPqG8xTpAj9mu0FzFM
+	geevREVxYFB+fYnyV2M/AB/gekvbuAQIYYdKM/cq8zssyon1/EuZxhxTY+mPRHuy7qmXIqw8MwO
+	sgA==
+X-Google-Smtp-Source: AGHT+IG8Se+FDx3icVQiBS8y3Ql+XygTIGhFwTldpFeLgMxDQJNLd2QsRcCHI+DmhaCm9MeTHgIbmJIbKcw=
+X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
+ (user=seanjc job=sendgmr) by 2002:a05:6902:1201:b0:de6:141a:b0de with SMTP id
+ s1-20020a056902120100b00de6141ab0demr337561ybu.10.1714745003300; Fri, 03 May
+ 2024 07:03:23 -0700 (PDT)
+Date: Fri, 3 May 2024 07:03:21 -0700
+In-Reply-To: <20240503131910.307630-4-mic@digikod.net>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240430173136.15807-3-hengqi@linux.alibaba.com>
+Mime-Version: 1.0
+References: <20240503131910.307630-1-mic@digikod.net> <20240503131910.307630-4-mic@digikod.net>
+Message-ID: <ZjTuqV-AxQQRWwUW@google.com>
+Subject: Re: [RFC PATCH v3 3/5] KVM: x86: Add notifications for Heki policy
+ configuration and violation
+From: Sean Christopherson <seanjc@google.com>
+To: "=?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?=" <mic@digikod.net>
+Cc: Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
+	"H . Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>, Kees Cook <keescook@chromium.org>, 
+	Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, 
+	Vitaly Kuznetsov <vkuznets@redhat.com>, Wanpeng Li <wanpengli@tencent.com>, 
+	Rick P Edgecombe <rick.p.edgecombe@intel.com>, Alexander Graf <graf@amazon.com>, 
+	Angelina Vu <angelinavu@linux.microsoft.com>, 
+	Anna Trikalinou <atrikalinou@microsoft.com>, Chao Peng <chao.p.peng@linux.intel.com>, 
+	Forrest Yuan Yu <yuanyu@google.com>, James Gowans <jgowans@amazon.com>, 
+	James Morris <jamorris@linux.microsoft.com>, John Andersen <john.s.andersen@intel.com>, 
+	"Madhavan T . Venkataraman" <madvenka@linux.microsoft.com>, Marian Rotariu <marian.c.rotariu@gmail.com>, 
+	"Mihai =?utf-8?B?RG9uyJt1?=" <mdontu@bitdefender.com>, 
+	"=?utf-8?B?TmljdciZb3IgQ8OuyJt1?=" <nicu.citu@icloud.com>, Thara Gopinath <tgopinath@microsoft.com>, 
+	Trilok Soni <quic_tsoni@quicinc.com>, Wei Liu <wei.liu@kernel.org>, 
+	Will Deacon <will@kernel.org>, Yu Zhang <yu.c.zhang@linux.intel.com>, 
+	"=?utf-8?Q?=C8=98tefan_=C8=98icleru?=" <ssicleru@bitdefender.com>, dev@lists.cloudhypervisor.org, 
+	kvm@vger.kernel.org, linux-hardening@vger.kernel.org, 
+	linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, qemu-devel@nongnu.org, 
+	virtualization@lists.linux-foundation.org, x86@kernel.org, 
+	xen-devel@lists.xenproject.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, May 01, 2024 at 01:31:34AM +0800, Heng Qi wrote:
+On Fri, May 03, 2024, Micka=C3=ABl Sala=C3=BCn wrote:
+> Add an interface for user space to be notified about guests' Heki policy
+> and related violations.
+>=20
+> Extend the KVM_ENABLE_CAP IOCTL with KVM_CAP_HEKI_CONFIGURE and
+> KVM_CAP_HEKI_DENIAL. Each one takes a bitmask as first argument that can
+> contains KVM_HEKI_EXIT_REASON_CR0 and KVM_HEKI_EXIT_REASON_CR4. The
+> returned value is the bitmask of known Heki exit reasons, for now:
+> KVM_HEKI_EXIT_REASON_CR0 and KVM_HEKI_EXIT_REASON_CR4.
+>=20
+> If KVM_CAP_HEKI_CONFIGURE is set, a VM exit will be triggered for each
+> KVM_HC_LOCK_CR_UPDATE hypercalls according to the requested control
+> register. This enables to enlighten the VMM with the guest
+> auto-restrictions.
+>=20
+> If KVM_CAP_HEKI_DENIAL is set, a VM exit will be triggered for each
+> pinned CR violation. This enables the VMM to react to a policy
+> violation.
+>=20
+> Cc: Borislav Petkov <bp@alien8.de>
+> Cc: Dave Hansen <dave.hansen@linux.intel.com>
+> Cc: H. Peter Anvin <hpa@zytor.com>
+> Cc: Ingo Molnar <mingo@redhat.com>
+> Cc: Kees Cook <keescook@chromium.org>
+> Cc: Madhavan T. Venkataraman <madvenka@linux.microsoft.com>
+> Cc: Paolo Bonzini <pbonzini@redhat.com>
+> Cc: Sean Christopherson <seanjc@google.com>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
+> Cc: Wanpeng Li <wanpengli@tencent.com>
+> Signed-off-by: Micka=C3=ABl Sala=C3=BCn <mic@digikod.net>
+> Link: https://lore.kernel.org/r/20240503131910.307630-4-mic@digikod.net
+> ---
+>=20
+> Changes since v1:
+> * New patch. Making user space aware of Heki properties was requested by
+>   Sean Christopherson.
 
-...
+No, I suggested having userspace _control_ the pinning[*], not merely be no=
+tified
+of pinning.
 
-> diff --git a/include/linux/dim.h b/include/linux/dim.h
+ : IMO, manipulation of protections, both for memory (this patch) and CPU s=
+tate
+ : (control registers in the next patch) should come from userspace.  I hav=
+e no
+ : objection to KVM providing plumbing if necessary, but I think userspace =
+needs to
+ : to have full control over the actual state.
+ :=20
+ : One of the things that caused Intel's control register pinning series to=
+ stall
+ : out was how to handle edge cases like kexec() and reboot.  Deferring to =
+userspace
+ : means the kernel doesn't need to define policy, e.g. when to unprotect m=
+emory,
+ : and avoids questions like "should userspace be able to overwrite pinned =
+control
+ : registers".
+ :=20
+ : And like the confidential VM use case, keeping userspace in the loop is =
+a big
+ : beneifit, e.g. the guest can't circumvent protections by coercing usersp=
+ace into
+ : writing to protected memory.
 
-...
+I stand by that suggestion, because I don't see a sane way to handle things=
+ like
+kexec() and reboot without having a _much_ more sophisticated policy than w=
+ould
+ever be acceptable in KVM.
 
-> @@ -198,6 +234,32 @@ enum dim_step_result {
->  	DIM_ON_EDGE,
->  };
->  
-> +/**
-> + * net_dim_init_irq_moder - collect information to initialize irq moderation
-> + * @dev: target network device
-> + * @profile_flags: Rx or Tx profile modification capability
-> + * @coal_flags: irq moderation params flags
-> + * @rx_mode: CQ period mode for Rx
-> + * @tx_mode: CQ period mode for Tx
-> + * @rx_dim_work: Rx worker called after dim decision
-> + *    void (*rx_dim_work)(struct work_struct *work);
-> + *
-> + * @tx_dim_work: Tx worker called after dim decision
-> + *    void (*tx_dim_work)(struct work_struct *work);
-> + *
+I think that can be done without KVM having any awareness of CR pinning wha=
+tsoever.
+E.g. userspace just needs to ability to intercept CR writes and inject #GPs=
+.  Off
+the cuff, I suspect the uAPI could look very similar to MSR filtering.  E.g=
+. I bet
+userspace could enforce MSR pinning without any new KVM uAPI at all.
 
-Hi Heng Qi,
-
-The above seems to result in make htmldocs issuing the following warnings:
-
- .../net_dim:175: ./include/linux/dim.h:244: WARNING: Inline emphasis start-string without end-string.
- .../net_dim:175: ./include/linux/dim.h:244: WARNING: Inline emphasis start-string without end-string.
- .../net_dim:175: ./include/linux/dim.h:247: WARNING: Inline emphasis start-string without end-string.
- .../net_dim:175: ./include/linux/dim.h:247: WARNING: Inline emphasis start-string without end-string.
-
-I suggest the following alternative:
-
- * @rx_dim_work: Rx worker called after dim decision
- * @tx_dim_work: Tx worker called after dim decision
-
-Exercised using Sphinx 7.2.6
-
-...
-
-> diff --git a/net/ethtool/coalesce.c b/net/ethtool/coalesce.c
-
-...
-
-> @@ -134,6 +212,12 @@ static int coalesce_fill_reply(struct sk_buff *skb,
->  	const struct coalesce_reply_data *data = COALESCE_REPDATA(reply_base);
->  	const struct kernel_ethtool_coalesce *kcoal = &data->kernel_coalesce;
->  	const struct ethtool_coalesce *coal = &data->coalesce;
-> +#if IS_ENABLED(CONFIG_DIMLIB)
-> +	struct net_device *dev = req_base->dev;
-> +	struct dim_irq_moder *moder = dev->irq_moder;
-> +	u8 coal_flags;
-> +	int ret;
-> +#endif
->  	u32 supported = data->supported_params;
-
-It's a minor nit, but here goes: please consider using reverse xmas tree
-order - longest line to shortest - for local variable declarations in
-Networking code.
-
-In this case, I appreciate that it's not strictly possible without
-introducing more than one IS_ENABLED condition, which seems worse.
-So, as that condition breaks the visual flow, what I suggest in this
-case is having a second block of local variable declarations, like this:
-
-	const struct coalesce_reply_data *data = COALESCE_REPDATA(reply_base);
-	const struct kernel_ethtool_coalesce *kcoal = &data->kernel_coalesce;
-	const struct ethtool_coalesce *coal = &data->coalesce;
-	u32 supported = data->supported_params;                  
-
-#if IS_ENABLED(CONFIG_DIMLIB)
-	struct dim_irq_moder *moder = dev->irq_moder;
-	struct net_device *dev = req_base->dev;
-	u8 coal_flags;
-	int ret;
-#endif 
-
-Or better still, if it can be done cleanly, moving all the IS_ENABLED()
-code in this function into a separate function, with an no-op
-implementation in the case that CONFIG_DIMLIB is not enabled. In general
-I'd recommend that approach over sprinkling IS_ENABLED or #ifdef inside
-functions. Because in my experience it tends to lead to more readable code.
-
-In any case, the following tool is helpful for isolating
-reverse xmas tree issues.
-
-https://github.com/ecree-solarflare/xmastree
-
-
->  	if (coalesce_put_u32(skb, ETHTOOL_A_COALESCE_RX_USECS,
-> @@ -192,11 +276,49 @@ static int coalesce_fill_reply(struct sk_buff *skb,
->  			     kcoal->tx_aggr_time_usecs, supported))
->  		return -EMSGSIZE;
->  
-> +#if IS_ENABLED(CONFIG_DIMLIB)
-> +	if (!moder)
-> +		return 0;
-> +
-> +	coal_flags = moder->coal_flags;
-> +	rcu_read_lock();
-> +	if (moder->profile_flags & DIM_PROFILE_RX) {
-> +		ret = coalesce_put_profile(skb, ETHTOOL_A_COALESCE_RX_PROFILE,
-> +					   rcu_dereference(moder->rx_profile),
-> +					   coal_flags);
-> +		if (ret) {
-> +			rcu_read_unlock();
-> +			return ret;
-> +		}
-> +	}
-> +
-> +	if (moder->profile_flags & DIM_PROFILE_TX) {
-> +		ret = coalesce_put_profile(skb, ETHTOOL_A_COALESCE_TX_PROFILE,
-> +					   rcu_dereference(moder->tx_profile),
-> +					   coal_flags);
-> +		if (ret) {
-> +			rcu_read_unlock();
-> +			return ret;
-> +		}
-> +	}
-> +	rcu_read_unlock();
-> +#endif
->  	return 0;
->  }
-
-...
+[*] https://lore.kernel.org/all/ZFUyhPuhtMbYdJ76@google.com
