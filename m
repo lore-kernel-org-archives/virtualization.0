@@ -1,133 +1,122 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp-relay-canonical-1.canonical.com (smtp-relay-canonical-1.canonical.com [185.125.188.121])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31DD3155343
-	for <virtualization@lists.linux-foundation.org>; Fri,  3 May 2024 16:23:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 585721586C0
+	for <virtualization@lists.linux.dev>; Fri,  3 May 2024 18:10:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.188.121
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714753403; cv=none; b=raooBaHVzcRp2BvvS3NVG/VbUBI2OiABl59+Ii8hmn1ylpO2823d0jtN3aHgtL/2QLfx1f7tScgUEYSgtchg1VUmScEtiDpExLfnRSjHDdY/YOFfQgJ4FY2JQQOg1XJZPTewINc9oeP0u+PGpE94I3Ma0GVj7L8BzpLYYJpGNnE=
+	t=1714759805; cv=none; b=VVnOJ9gsJkfusTBUz/GxJwvkqcS1yzKGCJnwX1Rb6wkZ9nctpy+iQniLIM0rd9AP2gqnmhsq46QN+dU9/S6jBenS7YO3/VZXs+pqMaH3UFz5rUSUGL5s33L8ZgXcEj2Tcjq5Aghsj44leRBI/uS+QhFN39BVADSTV+oQ30PC8CY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714753403; c=relaxed/simple;
-	bh=uRsf89PYPNNB+MDH2jhxz1s0c6RGa/OSvDNRlwMEnsc=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 MIME-Version:Content-Type; b=H3M5a8G/7qC3Ae3Qbt13/35OI5Nl0VNOzF/BagHNa+xciq4rETnKo81ZWthH1ljQljKoSJYK2M2kAhBOcTO0jONbYmeA5nK2dXPd7jKRlZEJKXMl19RliU5kv8GZIFyU6WaDcmQtXJSgWpIdOL+3nCQwavF/FOu1h/4a47Lsw6M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id D5B6C83BE3
-	for <virtualization@lists.linux-foundation.org>; Fri,  3 May 2024 16:23:21 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -1.898
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id Tx9IuEKrCIEK for <virtualization@lists.linux-foundation.org>;
- Fri,  3 May 2024 16:23:20 +0000 (UTC)
-X-Greylist: delayed 311 seconds by postgrey-1.37 at util1.osuosl.org; Fri, 03 May 2024 16:23:19 UTC
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 1240683ACF
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=ACULAB.COM
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1240683ACF
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=185.58.86.151; helo=eu-smtp-delivery-151.mimecast.com; envelope-from=david.laight@aculab.com; receiver=<UNKNOWN> 
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 1240683ACF
-	for <virtualization@lists.linux-foundation.org>; Fri,  3 May 2024 16:23:19 +0000 (UTC)
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with both STARTTLS and AUTH (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-136-6zAZYStTPmWnjs5bkxLi4w-1; Fri, 03 May 2024 17:16:52 +0100
-X-MC-Unique: 6zAZYStTPmWnjs5bkxLi4w-1
-Received: from AcuMS.Aculab.com (10.202.163.6) by AcuMS.aculab.com
- (10.202.163.6) with Microsoft SMTP Server (TLS) id 15.0.1497.48; Fri, 3 May
- 2024 17:16:22 +0100
-Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
- id 15.00.1497.048; Fri, 3 May 2024 17:16:22 +0100
-From: David Laight <David.Laight@ACULAB.COM>
-To: 'Waiman Long' <longman@redhat.com>, "'linux-kernel@vger.kernel.org'"
-	<linux-kernel@vger.kernel.org>, "'peterz@infradead.org'"
-	<peterz@infradead.org>
-CC: "'mingo@redhat.com'" <mingo@redhat.com>, "'will@kernel.org'"
-	<will@kernel.org>, "'boqun.feng@gmail.com'" <boqun.feng@gmail.com>, "'Linus
- Torvalds'" <torvalds@linux-foundation.org>,
-	"'virtualization@lists.linux-foundation.org'"
-	<virtualization@lists.linux-foundation.org>, 'Zeng Heng'
-	<zengheng4@huawei.com>
-Subject: RE: [PATCH next v2 5/5] locking/osq_lock: Optimise decode_cpu() and
- per_cpu_ptr().
-Thread-Topic: [PATCH next v2 5/5] locking/osq_lock: Optimise decode_cpu() and
- per_cpu_ptr().
-Thread-Index: Ado8NCf0vtha6NqURtGgfE7//QxHexhPrXlAAACWziA=
-Date: Fri, 3 May 2024 16:16:21 +0000
-Message-ID: <a4b3b3a260b94bfdb46a4b5d57b36f01@AcuMS.aculab.com>
-References: <2b4e8a5816a742d2bd23fdbaa8498e80@AcuMS.aculab.com>
- <7c1148fe64fb46a7a81c984776cd91df@AcuMS.aculab.com>
- <9d4024ba-6422-4775-b934-bfa80a72a858@redhat.com>
- <16557e30-8353-4cd1-995b-23ec763d2b07@redhat.com>
-In-Reply-To: <16557e30-8353-4cd1-995b-23ec763d2b07@redhat.com>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
+	s=arc-20240116; t=1714759805; c=relaxed/simple;
+	bh=wJ+uBv/wX/vo61wzvb3PQeA8VkSUo17ntPJi8sED9Lg=;
+	h=Message-ID:Date:MIME-Version:To:Cc:From:Subject:Content-Type; b=GM1GabMON8Go1m6TEwqteQvLbYmPpucz8fpChadXGq1wjVI2t4M8tVGWIKKtALQ8Tty+K2qtXdNADZIi4jfvY1yC+tKT3yIulHE+30140g7a8boohUpqXKak6ydgh4yzsWnQXQ9THccV3bs8NRVe94cMwThgBq848BEaF/k5txQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com; spf=pass smtp.mailfrom=canonical.com; dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b=pO+kjq5U; arc=none smtp.client-ip=185.125.188.121
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=canonical.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b="pO+kjq5U"
+Received: from [10.172.66.188] (1.general.jsalisbury.us.vpn [10.172.66.188])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-relay-canonical-1.canonical.com (Postfix) with ESMTPSA id A7AEF3FBEE;
+	Fri,  3 May 2024 18:03:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+	s=20210705; t=1714759398;
+	bh=Eg32torTebOLS3ecLTVBViDy2uWfhL7HpAo4K9ZaGEw=;
+	h=Message-ID:Date:MIME-Version:To:Cc:From:Subject:Content-Type;
+	b=pO+kjq5UJuvp3F5p0eosPGIy5cB8/oaFL3RORHiUYiQZOIhyPs+NH52kKAboxNWdD
+	 biBw3LDymGTaCYiIIQXQIbqIICQDpSSXbtiEFjhhSunkB54ilqj1qQQGnfSFaQ4s3K
+	 yd0qbiFiYDyvc1lT43g4+fw6vnuYJUJg4IBjuoYPYeQLk4fyNKXDDE0w/RFy/lfQ26
+	 zI8/gWHxVfqQQTDIagV7Nbi1+d2ShUt7yStomAeDffvAsdmZML7olBlMDwJ96happk
+	 o5katOTVrQ0Ef8UYeom72GZh6KyuXJwBNefnpftFa6jsngDMCJnlAA9rwX/je93LtC
+	 k02ejVNd4dlCQ==
+Message-ID: <13a313c7-c214-4d49-9029-c79b503c17dd@canonical.com>
+Date: Fri, 3 May 2024 14:03:15 -0400
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
+User-Agent: Mozilla Thunderbird
 Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+To: feliu@nvidia.com
+Cc: parav@nvidia.com, jiri@nvidia.com, mst@redhat.com, yishaih@nvidia.com,
+ alex.williamson@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+ Francis Ginther <francis.ginther@canonical.com>,
+ John Cabaj <john.cabaj@canonical.com>,
+ Catherine Redfield <catherine.redfield@canonical.com>,
+ Ankush Pathak <ankush.pathak@canonical.com>,
+ Chlo Smith <chloe.smith@canonical.com>
+From: Joseph Salisbury <joseph.salisbury@canonical.com>
+Autocrypt: addr=joseph.salisbury@canonical.com; keydata=
+ xsFNBE8KtKMBEADJ3sa+47aMnk7RF/fn4a7IvRDV19Z1L2Qq1c6dxcvtXP9Mq0i95hBgPnNB
+ 2FFJJ4QvJUJ6hYaniqgX3VkvKvjOcOwKz78NYF0HuIZqTTwd2qWpECXqtxPSOstvEGwY0nEC
+ QE7e1kELFiQo/2GYwFn2sAGKKPEHCxO7lon1fLbP0Y262GxITgBL6/G6zLg+jxCRH/8INXYE
+ lPOF9w+wY6rifwwtkax7NO/S56BNH/9ld7u4GT76g1csYlYP2G+mnkSmQODYojmz5CZ3c8J7
+ E1qSGnOrdx3+gJRak1YByXVn/2IuK22yS5gbXGnEW4Zb7Atf9mnvn6QlCNCaSOtk8jeMe0V3
+ Ma6CURGnjr+En8kVOXr/z/Jaj62kkmM+qj3Nwt7vqqH/2uLeOY2waFeIEjnV8pResPFFkpCY
+ 7HU4eOLBKhkP6hP9SjGELOM4RO2PCP4hZCxmLq4VELrdJaWolv6FzFqgfkSHo/9xxeEwPNkS
+ k90DNxVL49+Zwpbs/dVE24w7Nq8FQ3kDJoUNnm8sdTUFcH9Jp1gstGXutEga6VMsgiz1gaJ4
+ BtaWoCfvvMUqDRZTnsHjWgfKr3TIhmSyzDZozAf2rOSJPTMjOYIFYhxnR7uPo7c95bsDB/TL
+ Rm38dJ2h5c0jJZ5r4nEQMAOPYxa+xtNi64hQUQv+E3WhSS4oXwARAQABzTFKb3NlcGggU2Fs
+ aXNidXJ5IDxqb3NlcGguc2FsaXNidXJ5QGNhbm9uaWNhbC5jb20+wsF7BBMBAgAlAhsDBgsJ
+ CAcDAgYVCAIJCgsEFgIDAQIeAQIXgAUCWc1buAIZAQAKCRBs7z0nylsUHmq2EACuSuxq7/Mw
+ skF27JihJ/up9Px8zgpTPUdv+2LHpr+VlL8C3sgiwbyDtq9MOGkKuFbEEhxBerLNnpOxDp3T
+ fNWXeogQDJVM3bqpjxPoTSlcvLuGwtp6yO+klv81td1Yy/mrd9OvW3n2z6te+r1QBSbO/gHO
+ rcORQjskxuE7Og0t6RKweVEH5VqNc/kWIYjaylBA9pycvQmhzy+MMxPwFrTOE/T/nY86rJbm
+ Nf9DSGryMvjPiLCBCkberVl6RExmP4yogI6fljvzwUqVktuOfWmvAFacOkg2/Ov5SIGZMUCP
+ J1rxqKDfPOS54rptZ/czF0L1W8D2FNta8+DOKMgZQKjSh/ZvJsJ5ShbzXfij3Covz8ILi9WH
+ IjX+vT7mKKhgMoVkxLELEDfxRTlisZAjtu+IiEa6ZhL0W8AEItl7e8OTqNqxguzY4mVVESzJ
+ hrDgtnHZf52dZDPxlXgM7jVpBA+b2OQaahmWnBFewc6+7wxHSmw3uctkJB6qmgh5+lxVK9Cl
+ 5jVs97wup4b6TvRB0vxo6Jg+y9HYSltTeJAL5uQZthR884rxvKFsuDNwi7GO7X/X7+EiFUy+
+ yrdFPuzcEKgOeaqpFLcwzoS1PP9Mp8rfdVs6mUsYrTdZEa/I/a7sTBYulV3fZocJdb0n7aW0
+ OJxB5Ytm+qhWGoWj/kJq3Ikkts7BTQRPCrXUARAAzu5JEmGNouz/aQZZyt/lOGqhyKNskDO5
+ VqfOpWCyAwQfCE44WZniobNyA6XJbcSMGXbsdSFJn2aJDl9STD1nY3XKi4bxiE0e6XzAA4XW
+ 15DtrEi7pvkd7FMTppVHtpsmNrSMN/yWzsHNlnXfDP0S972SGyHGv+XNzCUqtiQngGTuY8NJ
+ 3+BzQk4lgCIH3c/6nIiinqNUOGCwLgBwiE8IiHSm+RUj0foGAkdcuLjt9ufR8G5Hw7KWjI98
+ lg0R/JXLQFWgufheYMSEMJeElY0XcZ1c/iwL4TBeU5wu/qbgxd5jYTAKB2vRWAhrx5pOAEHv
+ nOSKk06phE72TT2cQB2IgjtZDC96IorI6VPJsuEuser+E8gfswY+9Zfi97ltkZ3xwmM6JF4y
+ JUl5vK04xkxPXTdQsdnQlXWyTsJsZORT96msBm3GNwrqp/xhvoGetDlzH8SOKBMNiQbR73Ul
+ 5RP1er9n2Qp7wpg+S8Zq8NcVVBvLi17J845szP6YmakwCyb6X8Z0BBOnF4+MTNhKqEf/b2Fg
+ ycj4vTn866usCMm8Hp3/0W+MyjKF52hz8MIe87c+GQKKDbovRGCXNvJ4fowLxV9MKMtftdOk
+ TzwsAuk0FjkzPjo+d1p5UPruq47kZF1PUEx0Hetyt5frAmZaq4QV6jvC2V67kf1oWtlmfXiC
+ hN0AEQEAAcLBXwQYAQgACQUCTwq11AIbDAAKCRBs7z0nylsUHuinEACUdbNijh6kynNNR0d2
+ onIcd5/XfkX0eCZhSDUJyawcB65iURjuLP6mvMVtjG0N7W5eKd4qqFBYWiN8fSwyOK4/FhZB
+ 7FuBlaKxKLUlyR+U17LoHkT69JHVEuf17/zwbuiwjD1JF1RrK3PAdfj88jwrAavc6KNduPbB
+ HJ6eXCq7wBr1Gh2dP4ALiVloAG0aCyZPrCklJ/+krs8O5gC3l/gzBgj8pj3eASARUpvi5rJp
+ SBGaklNfCmlnTLTajTi5oWCf0mdHOuZXlmJZI7FMJ0RncBHlFCzDi5oOQ2k561SOgyYISq1G
+ nfxdONJJqXy51bFdteX/Z2JtVzdi+eS7LhoGo0e7o7Ht2mXkcAOFqJ3QNMUdv8bujme+q8pY
+ jL0bDYNanrccNNXCH7PrnQ26e1b41XdrzdOLFt07jbzNEfp5UPz5zz3F9/th4AElQjv4F9YJ
+ kwXVQyINxu3f/F6dre8a1p4zGmqzgBSbLDDriFYjoXESWKdTXs79wmCuutBKnj2bAZ4+nSVt
+ Xlz7bDhQT9knp59txei2Z9rWsLbLTpS2ZuRcy3KovqY93u3QHPSlRe7z8TdXzCwkqcGw0LEm
+ Qu4cewutDo+3U3cY+lRPoPed+HevHlkmy1DAbYzFD3b7UUEZ5f4chuewWhpwQ2uC1fCfFMU0
+ p24lPxLL08SuCEzuBw==
+Subject: [REGRESSION][v6.8-rc1] virtio-pci: Introduce admin virtqueue
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-RnJvbTogV2FpbWFuIExvbmcNCj4gU2VudDogMDMgTWF5IDIwMjQgMTc6MDANCj4gVG86IERhdmlk
-IExhaWdodCA8RGF2aWQuTGFpZ2h0QEFDVUxBQi5DT00+OyAnbGludXgta2VybmVsQHZnZXIua2Vy
-bmVsLm9yZycgPGxpbnV4LQ0KPiBrZXJuZWxAdmdlci5rZXJuZWwub3JnPjsgJ3BldGVyekBpbmZy
-YWRlYWQub3JnJyA8cGV0ZXJ6QGluZnJhZGVhZC5vcmc+DQo+IENjOiAnbWluZ29AcmVkaGF0LmNv
-bScgPG1pbmdvQHJlZGhhdC5jb20+OyAnd2lsbEBrZXJuZWwub3JnJyA8d2lsbEBrZXJuZWwub3Jn
-PjsgJ2JvcXVuLmZlbmdAZ21haWwuY29tJw0KPiA8Ym9xdW4uZmVuZ0BnbWFpbC5jb20+OyAnTGlu
-dXMgVG9ydmFsZHMnIDx0b3J2YWxkc0BsaW51eC1mb3VuZGF0aW9uLm9yZz47ICd2aXJ0dWFsaXph
-dGlvbkBsaXN0cy5saW51eC0NCj4gZm91bmRhdGlvbi5vcmcnIDx2aXJ0dWFsaXphdGlvbkBsaXN0
-cy5saW51eC1mb3VuZGF0aW9uLm9yZz47ICdaZW5nIEhlbmcnIDx6ZW5naGVuZzRAaHVhd2VpLmNv
-bT4NCj4gU3ViamVjdDogUmU6IFtQQVRDSCBuZXh0IHYyIDUvNV0gbG9ja2luZy9vc3FfbG9jazog
-T3B0aW1pc2UgZGVjb2RlX2NwdSgpIGFuZCBwZXJfY3B1X3B0cigpLg0KPiANCj4gDQo+IE9uIDEy
-LzMxLzIzIDIzOjE0LCBXYWltYW4gTG9uZyB3cm90ZToNCj4gPg0KPiA+IE9uIDEyLzMxLzIzIDE2
-OjU1LCBEYXZpZCBMYWlnaHQgd3JvdGU6DQo+ID4+IHBlcl9jcHVfcHRyKCkgaW5kZXhlcyBfX3Bl
-cl9jcHVfb2Zmc2V0W10gd2l0aCB0aGUgY3B1IG51bWJlci4NCj4gPj4gVGhpcyByZXF1aXJlcyB0
-aGUgY3B1IG51bWJlciBiZSA2NGJpdC4NCj4gPj4gSG93ZXZlciB0aGUgdmFsdWUgaXMgb3NxX2xv
-Y2soKSBjb21lcyBmcm9tIGEgMzJiaXQgeGNoZygpIGFuZCB0aGVyZQ0KPiA+PiBpc24ndCBhIHdh
-eSBvZiB0ZWxsaW5nIGdjYyB0aGUgaGlnaCBiaXRzIGFyZSB6ZXJvICh0aGV5IGFyZSkgc28NCj4g
-Pj4gdGhlcmUgd2lsbCBhbHdheXMgYmUgYW4gaW5zdHJ1Y3Rpb24gdG8gY2xlYXIgdGhlIGhpZ2gg
-Yml0cy4NCj4gPj4NCj4gPj4gVGhlIGNwdSBudW1iZXIgaXMgYWxzbyBvZmZzZXQgYnkgb25lICh0
-byBtYWtlIHRoZSBpbml0aWFsaXNlciAwKQ0KPiA+PiBJdCBzZWVtcyB0byBiZSBpbXBvc3NpYmxl
-IHRvIGdldCBnY2MgdG8gY29udmVydA0KPiA+PiBfX3Blcl9jcHVfb2Zmc2V0W2NwdV9wMSAtIDFd
-DQo+ID4+IGludG8gKF9fcGVyX2NwdV9vZmZzZXQgLSAxKVtjcHVfcDFdICh0cmFuc2ZlcnJpbmcg
-dGhlIG9mZnNldCB0byB0aGUNCj4gPj4gYWRkcmVzcykuDQo+ID4+DQo+ID4+IENvbnZlcnRpbmcg
-dGhlIGNwdSBudW1iZXIgdG8gMzJiaXQgdW5zaWduZWQgcHJpb3IgdG8gdGhlIGRlY3JlbWVudCBt
-ZWFucw0KPiA+PiB0aGF0IGdjYyBrbm93cyB0aGUgZGVjcmVtZW50IGhhcyBzZXQgdGhlIGhpZ2gg
-Yml0cyB0byB6ZXJvIGFuZCBkb2Vzbid0DQo+ID4+IGFkZCBhIHJlZ2lzdGVyLXJlZ2lzdGVyIG1v
-dmUgKG9yIGNsdHEpIHRvIHplcm8vc2lnbiBleHRlbmQgdGhlIHZhbHVlLg0KPiA+Pg0KPiA+PiBO
-b3QgbWFzc2l2ZSBidXQgc2F2ZXMgdHdvIGluc3RydWN0aW9ucy4NCj4gPj4NCj4gPj4gU2lnbmVk
-LW9mZi1ieTogRGF2aWQgTGFpZ2h0IDxkYXZpZC5sYWlnaHRAYWN1bGFiLmNvbT4NCj4gPj4gLS0t
-DQo+ID4+IMKgIGtlcm5lbC9sb2NraW5nL29zcV9sb2NrLmMgfCA2ICsrLS0tLQ0KPiA+PiDCoCAx
-IGZpbGUgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspLCA0IGRlbGV0aW9ucygtKQ0KPiA+Pg0KPiA+
-PiBkaWZmIC0tZ2l0IGEva2VybmVsL2xvY2tpbmcvb3NxX2xvY2suYyBiL2tlcm5lbC9sb2NraW5n
-L29zcV9sb2NrLmMNCj4gPj4gaW5kZXggMzViYjk5ZTk2Njk3Li4zN2E0ZmE4NzI5ODkgMTAwNjQ0
-DQo+ID4+IC0tLSBhL2tlcm5lbC9sb2NraW5nL29zcV9sb2NrLmMNCj4gPj4gKysrIGIva2VybmVs
-L2xvY2tpbmcvb3NxX2xvY2suYw0KPiA+PiBAQCAtMjksMTEgKzI5LDkgQEAgc3RhdGljIGlubGlu
-ZSBpbnQgZW5jb2RlX2NwdShpbnQgY3B1X25yKQ0KPiA+PiDCoMKgwqDCoMKgIHJldHVybiBjcHVf
-bnIgKyAxOw0KPiA+PiDCoCB9DQo+ID4+IMKgIC1zdGF0aWMgaW5saW5lIHN0cnVjdCBvcHRpbWlz
-dGljX3NwaW5fbm9kZSAqZGVjb2RlX2NwdShpbnQNCj4gPj4gZW5jb2RlZF9jcHVfdmFsKQ0KPiA+
-PiArc3RhdGljIGlubGluZSBzdHJ1Y3Qgb3B0aW1pc3RpY19zcGluX25vZGUgKmRlY29kZV9jcHUo
-dW5zaWduZWQgaW50DQo+ID4+IGVuY29kZWRfY3B1X3ZhbCkNCj4gPj4gwqAgew0KPiA+PiAtwqDC
-oMKgIGludCBjcHVfbnIgPSBlbmNvZGVkX2NwdV92YWwgLSAxOw0KPiA+PiAtDQo+ID4+IC3CoMKg
-wqAgcmV0dXJuIHBlcl9jcHVfcHRyKCZvc3Ffbm9kZSwgY3B1X25yKTsNCj4gPj4gK8KgwqDCoCBy
-ZXR1cm4gcGVyX2NwdV9wdHIoJm9zcV9ub2RlLCBlbmNvZGVkX2NwdV92YWwgLSAxKTsNCj4gPj4g
-wqAgfQ0KPiA+PiDCoCDCoCAvKg0KPiA+DQo+ID4gWW91IHJlYWxseSBsaWtlIG1pY3JvLW9wdGlt
-aXphdGlvbi4NCj4gPg0KPiA+IEFueXdheSwNCj4gPg0KPiA+IFJldmlld2VkLWJ5OiBXYWltYW4g
-TG9uZyA8bG9uZ21hbkByZWRoYXQuY29tPg0KPiA+DQo+IERhdmlkLA0KPiANCj4gQ291bGQgeW91
-IHJlc3BpbiB0aGUgc2VyaWVzIGJhc2VkIG9uIHRoZSBsYXRlc3QgdXBzdHJlYW0gY29kZT8NCg0K
-TG9va3MgbGlrZSBhIHdldCBiYW5rIGhvbGlkYXkgd2Vla2VuZC4uLi4uDQoNCglEYXZpZA0KDQot
-DQpSZWdpc3RlcmVkIEFkZHJlc3MgTGFrZXNpZGUsIEJyYW1sZXkgUm9hZCwgTW91bnQgRmFybSwg
-TWlsdG9uIEtleW5lcywgTUsxIDFQVCwgVUsNClJlZ2lzdHJhdGlvbiBObzogMTM5NzM4NiAoV2Fs
-ZXMpDQo=
+Hi Feng,
+
+During testing, a kernel bug was identified with the suspend/resume 
+functionality on instances running in a public cloud [0].  This bug is a 
+regression introduced in v6.8-rc1.  After a kernel bisect, the following 
+commit was identified as the cause of the regression:
+
+        fd27ef6b44be  ("virtio-pci: Introduce admin virtqueue")
+
+I was hoping to get your feedback, since you are the patch author. Do 
+you think gathering any additional data will help diagnose this issue?  
+This commit is depended upon by other virtio commits, so a revert test 
+is not really straight forward without reverting all the dependencies.   
+Any ideas you have would be greatly appreciated.
+
+
+Thanks,
+
+Joe
+
+http://pad.lv/2063315
 
