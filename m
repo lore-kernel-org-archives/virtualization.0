@@ -1,158 +1,187 @@
-Received: from smtp-relay-internal-0.canonical.com (smtp-relay-internal-0.canonical.com [185.125.188.122])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 612B214F9C4
-	for <virtualization@lists.linux.dev>; Fri,  3 May 2024 08:41:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.188.122
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9CED153565
+	for <virtualization@lists.linux.dev>; Fri,  3 May 2024 12:18:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714725706; cv=none; b=bXnACbmkVQC8+NYDoxPSsZxmCVCS2Iq/Cmvvi7zj1LPb6PpP/ihrNjUb0ZXY8HtVolIRfch2i+xUnJaufj/IBgLPSESwz0qy/P5VUji+d41EDeUjctnDQVA6gesiBKC+FxjPp7Xtzdf9Gyocl4kZibTSaRPtv3uRvaHREHtpnyI=
+	t=1714738705; cv=none; b=MI2XvV4sw8T+swt8BrWIjQuqWg/07WUGbRefZe2NKSFxbTxKieTRzPiDNQJu5JQsnAvsToqAkqReVf69kSDQkDAb9iRDrD/1u6Wtl8lXnptm4NqYvHyfynNsm1Hr9UTnRHmitmw2QgBAjxhfDKN9sbuY0ys/FSi9h+QyQRvOqq4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714725706; c=relaxed/simple;
-	bh=UVlVTMXTLw6RvOzSuoVTlX0sQGNjYzgASvrJB3JYJkU=;
+	s=arc-20240116; t=1714738705; c=relaxed/simple;
+	bh=ns+ZEOsJIivrYrWML6q5m1uxPpbcL1z/6PzwKwIKrvI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=SagsmXAA6hkzvbXcoB3C3gdxWTCSDIIlBp1ZIdtJZok3lgcEpsf2FlOvycesc7M7BrqYE9v6jGmXISm3mEULZ2kCbjvMeAWbMD8TT+msFe4m0tI4jxdliBbZVhb2MOKtAOckZPgUBhPc7wNNrPfV8qhOQT522khSUuFJ9VKRH5Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com; spf=pass smtp.mailfrom=canonical.com; dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b=lFOhJ+Uj; arc=none smtp.client-ip=185.125.188.122
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=canonical.com
+	 In-Reply-To:Content-Type:Content-Disposition; b=k227jt0OMS7xtw+K7QmUMuhTP5KrZAdghcCvnC19Sx9VC2dd2bAXmg+8dU1u6SMls5nliZJ8GPTyvSNi19nxhqMppztiVrIOF8W8oV5gBk6kn4ZveH38X/+hFkbOoMyCEVxGnzuEEsNx0dRzAx5GqH+qsDGWIHnjF5t6bojWXEc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IW2A3UFs; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b="lFOhJ+Uj"
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com [209.85.208.70])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id 7480F3F29F
-	for <virtualization@lists.linux.dev>; Fri,  3 May 2024 08:41:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-	s=20210705; t=1714725701;
-	bh=AlJo1okllW+Gooq+iCi8WFoUidjFb7UUNaY7qhrlJOY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:In-Reply-To;
-	b=lFOhJ+UjXogCS5bwOf7G0euhuTW8a73BWlLclvCwAr8S3SQHzcyIVyyTLufsHkvf9
-	 nzrUeABzomiaiISqZoI24OUMtMC7XvGLrvCI+OwGJJrHv6ve4ZCBxzmp57u01cQqdm
-	 4ZxL3kxaug0Z95gHIS3BUt0mbsCyx1GxMhp9deSwojl1ajh6v1LNR8x9VpKUcCp1Wf
-	 GDV/8VsQPnFEoXVsqDEIftplRbdiRH5et8eEi8v1WKli6ogFo8PFdwWsUYWBtXOwrt
-	 lQk/G+tGSJQsG4BKNl345u3q1H3Nn9hhwq0BZuRQ/wSdG7ee72NxHG4rUkmPZ+KL9H
-	 U9yd1J6IdtDlw==
-Received: by mail-ed1-f70.google.com with SMTP id 4fb4d7f45d1cf-5725715b9beso2107482a12.1
-        for <virtualization@lists.linux.dev>; Fri, 03 May 2024 01:41:41 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IW2A3UFs"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1714738702;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=yxDtTn4KG4gCeJ+R3KY9xlVy0Q16/vMhQbZ2Pi0wIi4=;
+	b=IW2A3UFsW6uoDrq20ODNgIh+MJ6NHGoNkk8uHDguKufifEYlpl5/+XkHKca2I73rDyFch+
+	rI0LhGbtdqmnpNl2pvkxOZHWZvi4AxZNm7zix0Lu/Hm9Lu7o1cMKMjncJhhzrQnmHtrBM0
+	OxOWEWrOEdwR+NsY2hf6auV+O+FE65w=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-186-3gqm5GDFON-njAM7tNEyRA-1; Fri, 03 May 2024 08:18:19 -0400
+X-MC-Unique: 3gqm5GDFON-njAM7tNEyRA-1
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-41bf6751b28so28367935e9.2
+        for <virtualization@lists.linux.dev>; Fri, 03 May 2024 05:18:19 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1714725701; x=1715330501;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=AlJo1okllW+Gooq+iCi8WFoUidjFb7UUNaY7qhrlJOY=;
-        b=aLo6s3rsEeqDgH/9Oy0mAjk8kDwlI2Puvm0+WjC5HXY4plnzXfwCTxKQtzUzRCMm5r
-         AjVU/w+jvdiuDcvDucfO80z0l8kM+D71gQpVxe5JCwj37FV4JOJqDYW+gdW3er75Ebh9
-         tZM9Umo3E0Hcc6ugWWK+EYP/i87wTl/3fu5iYJajVU09UsOXWCiEh9Il0sM56cYhoEl4
-         0lQfxq4MfkXo/Y9jzubx9loBWO9x9iOV+DxmTW+xR3RdZ7CGg9Ai9RGhB2kIA151KJ/1
-         YxpxN4+f1fVGG9PN4EN7U0FTIl3ODgHSck4Dgfywm9ujrD6fuwPni3eRNnumc+AHp4wr
-         QfWg==
-X-Forwarded-Encrypted: i=1; AJvYcCVg6Oae8D9wpkeOsp7/NxcYLU0oYEeq1vOurEecgih5TKh4RZi+0IMEjzvkHnrAta0Zw/bW8mcSXXqY8Ha4WStTjhmb6ZFMebyH1bTcijI=
-X-Gm-Message-State: AOJu0Yy2Cb2y52FAtrqC5xNQN1Fb4lbSB3AjqFuiscnMnby4A7xl+nGw
-	+QvkRwYOEsocfOP7hhiglHTi68VcsvBZr69yG5zeLJu8CeE3/ZW9BAGjwzImLStCyGS0gziQNTU
-	ysb09J84+c9nLCx1S82V9+vrK0D5ezGI4OP3sRa4a/U4eZwxEy5NbNpGp7z2zxTDWtj3UqOPi++
-	KUH94x
-X-Received: by 2002:a50:8ad6:0:b0:571:da40:22d9 with SMTP id k22-20020a508ad6000000b00571da4022d9mr3885260edk.10.1714725700957;
-        Fri, 03 May 2024 01:41:40 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHBuV/ajKla/mGXugVGzrUJzKdU39g+p8pvY2kW+73IngbMk+LI6dFP+gITXBDAPHIyVKjFag==
-X-Received: by 2002:a50:8ad6:0:b0:571:da40:22d9 with SMTP id k22-20020a508ad6000000b00571da4022d9mr3885243edk.10.1714725700481;
-        Fri, 03 May 2024 01:41:40 -0700 (PDT)
-Received: from localhost (host-82-49-69-7.retail.telecomitalia.it. [82.49.69.7])
-        by smtp.gmail.com with ESMTPSA id x15-20020a05640226cf00b00572a0550acbsm1447983edd.55.2024.05.03.01.41.39
+        d=1e100.net; s=20230601; t=1714738698; x=1715343498;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=yxDtTn4KG4gCeJ+R3KY9xlVy0Q16/vMhQbZ2Pi0wIi4=;
+        b=EL7GB4Fl9KfqFWQF95exCOhoBg9rPatKZ70XEIwNCC07gNsYPtLBoatzvTV7WOOmIc
+         TloWQ1UVwxaZy98a+AFSep0iM456hsJz6LrsCpuBd/tiziqExm01L3jFzu0ZLXGBD6Hj
+         Ri9WHdP7J/kbwREyfcWp44TvnTW7vLlPGS/TU6ch0xZ83UqWbV+obkoHmqmxvCHRhsRZ
+         oR1tlqw+2es2HdBgXb+LcOC/rbTTLbSmo79w7APVh4XOWb/tWR3XzOfACaYcJMrgOxDm
+         EmIsiT5/TlW5CZjSz3IepoNFJp0oluQOQxNnnu1dobn1Epe8W59kEh5kpCIAgaUvyBxM
+         3vQg==
+X-Forwarded-Encrypted: i=1; AJvYcCXPK+LC2zUzVmDSBCui9ncnIQsQ6Vo0UeJ8imjAKx2nlQvMlTFDBFqv6tCKCjV8v03UP6wKOsV+tag7eqMi9hyE/G5nOf8OnD25oQnpqV0=
+X-Gm-Message-State: AOJu0Yy4ok0dVxkKH6gG6ydHwdlCKj4ZjG7goF/lbKyX73AlORk3DfZn
+	8LtXGrFzl07pLsrQcPCHOMxSWaMQZK8VKX9w0wXK9HNwkKTdGuGIZvtCfYnre66kbwSKeAMyGEv
+	tGRodtnOTrIOAOQymXTkNhZxcb547se9NlYKBH46iagLByUkH+U1dUR4b7nCagwS+
+X-Received: by 2002:a05:600c:3516:b0:41a:9c33:9c25 with SMTP id h22-20020a05600c351600b0041a9c339c25mr1917857wmq.13.1714738698146;
+        Fri, 03 May 2024 05:18:18 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFpmNBdrGdRmMckz/gHSnp/lRLlkszQGP+r54DPSa8tX9rl+61pCeoQhjN/AnkQuqRTRoqjCQ==
+X-Received: by 2002:a05:600c:3516:b0:41a:9c33:9c25 with SMTP id h22-20020a05600c351600b0041a9c339c25mr1917842wmq.13.1714738697745;
+        Fri, 03 May 2024 05:18:17 -0700 (PDT)
+Received: from sgarzare-redhat (c-115-213.cust-q.wadsl.it. [212.43.115.213])
+        by smtp.gmail.com with ESMTPSA id r8-20020a5d4988000000b0034cceee9051sm3622412wrq.105.2024.05.03.05.18.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 May 2024 01:41:39 -0700 (PDT)
-Date: Fri, 3 May 2024 10:41:38 +0200
-From: Andrea Righi <andrea.righi@canonical.com>
-To: Ricardo Ribalda <ribalda@google.com>
-Cc: Igor Mammedov <imammedo@redhat.com>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	virtualization@lists.linux.dev, stevensd@chromium.org
-Subject: Re: ACPI timeouts when enabling KASAN
-Message-ID: <ZjSjQh-deMr5IDM8@gpd>
-References: <20240415145153.21075173@imammedo.users.ipa.redhat.com>
- <CAJZ5v0j3BVUKDFE-_Tdykt42zCiDfYMpSYN54JUqdr2O8a__1w@mail.gmail.com>
- <CANiDSCuvDQWam0v1b3adA=j6w+dA263QruBonsA6TJBvO9XsWQ@mail.gmail.com>
- <20240416133309.6d09ac3b@imammedo.users.ipa.redhat.com>
- <CANiDSCv=E4j0C3R_pCYMxqxe8Xep6LKQGAqJ3PC0x1kFAMq5mg@mail.gmail.com>
- <Zh5p7ILwQYEoUR8l@gpd>
- <20240417145544.38d7b482@imammedo.users.ipa.redhat.com>
- <Zh_e_t7TBUdYdtyc@gpd>
- <CANiDSCvjf1eQmYgoOOfMqPkXcDG2pocXAXGxqwg3Cx4Mba99DQ@mail.gmail.com>
- <ZiAlMHdNVQo0zjqi@gpd>
+        Fri, 03 May 2024 05:18:16 -0700 (PDT)
+Date: Fri, 3 May 2024 14:18:05 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: "Zhu, Lingshan" <lingshan.zhu@intel.com>
+Cc: jasowang@redhat.com, mst@redhat.com, virtualization@lists.linux.dev
+Subject: Re: [PATCH 09/10] vDPA: report virtio-block read-only info to user
+ space
+Message-ID: <2tzq7nfmcsfxh37mrwkkl25ok3lrn4blj3le5fvzbrcl6w4h4z@22geh32s4bfq>
+References: <20240218185606.13509-1-lingshan.zhu@intel.com>
+ <20240218185606.13509-10-lingshan.zhu@intel.com>
+ <ms2roqd326s5j5ynksciz4tdijqx4taeoyjvtzelbttkt4vich@b4geobrynwj5>
+ <a0672e72-5c17-4457-9f31-9f9db6f9f229@intel.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <a0672e72-5c17-4457-9f31-9f9db6f9f229@intel.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
 Content-Disposition: inline
-In-Reply-To: <ZiAlMHdNVQo0zjqi@gpd>
+Content-Transfer-Encoding: 8bit
 
-On Wed, Apr 17, 2024 at 09:38:26PM +0200, Andrea Righi wrote:
-> On Wed, Apr 17, 2024 at 06:12:10PM +0200, Ricardo Ribalda wrote:
-> ...
-> > > Doing the proper comparison (disabling kvm), adding '-cpu max' to the
-> > > equation and measuring the boot time of multiple virtme-ng runs, gives
-> > > me the following result (average of 10 runs):
-> > >
-> > >                      machine
-> > >               +----------------
-> > >               | default     q35
-> > >      ---------+----------------
-> > > cpu  |default |     13s     11s
-> > >      |max     |     15s     14s
-> > >
-> > > I've tried a couple of kernel configs and I get similar results.
-> > >
-> > > In the scope of virtme-ng (optimize boot time) I'd say that it'd makes
-> > > sense to use '-machine q35' and default cpu settings when kvm is
-> > > unavailable.
-> > >
-> > > Ricardo, do you see similar results?
-> > 
-> > I see even more difference between q35 and default.
-> > These are my kernel options:
-> > https://gitlab.freedesktop.org/linux-media/media-ci/-/blob/main/test-virtme.sh?ref_type=heads#L27
-> 
-> Ok, I'll run some tests with these options as well.
-> 
-> > I see an issue to automatically set the machine and it is that  we
-> > would not be able to override it with something like:
-> > 
-> > virtme-run .......... --qemu-opts -machine q35
-> 
-> If I'm not wrong the last one should override the previous ones,
-> so --qemu-opts should still win over the default.
-> 
-> > 
-> > If this patch lands in qemu we might be able to ignore all these:
-> > https://lore.kernel.org/qemu-devel/20240417135608.2613586-1-ribalda@chromium.org/T/#u
-> 
-> Yep, this is much better, thanks for this fix. Let's keep the defaults
-> for now in virtme-ng, I'll just add a note to the troubleshooting
-> section.
+On Tue, Apr 09, 2024 at 04:37:18PM GMT, Zhu, Lingshan wrote:
+>
+>
+>On 3/20/2024 12:40 AM, Stefano Garzarella wrote:
+>>On Mon, Feb 19, 2024 at 02:56:05AM +0800, Zhu Lingshan wrote:
+>>>This commit report read-only information of
+>>>virtio-blk devices to user space.
+>>>
+>>>Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+>>>---
+>>>drivers/vdpa/vdpa.c       | 14 ++++++++++++++
+>>>include/uapi/linux/vdpa.h |  1 +
+>>>2 files changed, 15 insertions(+)
+>>>
+>>>diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+>>>index adbcbc7b18b2..d6fd3cadc44f 100644
+>>>--- a/drivers/vdpa/vdpa.c
+>>>+++ b/drivers/vdpa/vdpa.c
+>>>@@ -1084,6 +1084,17 @@ 
+>>>vdpa_dev_blk_write_zeroes_config_fill(struct sk_buff *msg, u64 
+>>>features,
+>>>    return 0;
+>>>}
+>>>
+>>>+static int vdpa_dev_blk_ro_config_fill(struct sk_buff *msg, u64 
+>>>features)
+>>>+{
+>>>+    u8 ro;
+>>>+
+>>>+    ro = ((features & BIT_ULL(VIRTIO_BLK_F_RO)) == 0) ? 0 : 1;
+>>>+    if (nla_put_u8(msg, VDPA_ATTR_DEV_BLK_CFG_READ_ONLY, ro))
+>>
+>>This is not really related to the config space, what about renaming it
+>>to VDPA_ATTR_DEV_BLK_READ_ONLY ?
+>>
+>>Also the type, maybe better to use "flag" and set it through
+>>`nla_put_flag()`.
+>Hi Stefano,
+>
+>I am implementing this change.
+>In my humble opinion, maybe using a boolean(the u8 above) is better?
 
-I actually changed my mind and merged this in virtme-ng:
-https://github.com/arighi/virtme-ng/pull/110
+If boolean is available, I agree that could be better.
+I did just a fast search when I commented.
 
-I did more tests and in terms of boot time using the q35 arch really
-seems to systematically improve performance (I tested this across
-multiple hardware and kernel configs).
+BTW, sorry for the late reply, I was on PTO.
 
-It also seems to improve the CI run test (that is executed as a github
-workflow, where kvm isn't available). As we can see here:
+Stefano
 
- - default arch, run test 34s:
-   https://github.com/arighi/virtme-ng/actions/runs/8935862788/job/24545125258
+>Because using the flag means we conditionally put a "0" into the 
+>attribution,
+>or the attribution does not exist, this is still a bool logic but
+>a little vague.
+>
+>Thanks
+>Lingshan
+>>
+>>Not a strong opinion on that, it just seems a little more consistent to
+>>me.
+>>
+>>Thanks,
+>>Stefano
+>>
+>>>+        return -EMSGSIZE;
+>>>+
+>>>+    return 0;
+>>>+}
+>>>+
+>>>static int vdpa_dev_blk_config_fill(struct vdpa_device *vdev,
+>>>                    struct sk_buff *msg)
+>>>{
+>>>@@ -1122,6 +1133,9 @@ static int vdpa_dev_blk_config_fill(struct 
+>>>vdpa_device *vdev,
+>>>    if (vdpa_dev_blk_write_zeroes_config_fill(msg, 
+>>>features_device, &config))
+>>>        return -EMSGSIZE;
+>>>
+>>>+    if (vdpa_dev_blk_ro_config_fill(msg, features_device))
+>>>+        return -EMSGSIZE;
+>>>+
+>>>    return 0;
+>>>}
+>>>
+>>>diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
+>>>index 797d5708492f..4be8e3a15874 100644
+>>>--- a/include/uapi/linux/vdpa.h
+>>>+++ b/include/uapi/linux/vdpa.h
+>>>@@ -70,6 +70,7 @@ enum vdpa_attr {
+>>>    VDPA_ATTR_DEV_BLK_CFG_DISCARD_SEC_ALIGN,/* u32 */
+>>>    VDPA_ATTR_DEV_BLK_CFG_MAX_WRITE_ZEROES_SEC,    /* u32 */
+>>>    VDPA_ATTR_DEV_BLK_CFG_MAX_WRITE_ZEROES_SEG,    /* u32 */
+>>>+    VDPA_ATTR_DEV_BLK_CFG_READ_ONLY,        /* u8 */
+>>>
+>>>    /* new attributes must be added above here */
+>>>    VDPA_ATTR_MAX,
+>>>-- 
+>>>2.39.3
+>>>
+>>>
+>>
+>>
+>
 
- - q35 arch, run test 28s:
-   https://github.com/arighi/virtme-ng/actions/runs/8936234891/job/24546173523
-
-Ricardo's fix can help to mitigate the issue with ACPI, but for now I
-think using q35 when kvm isn't available can help to speed up tests in
-similar CI environments.
-
-Thanks,
--Andrea
