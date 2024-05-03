@@ -1,187 +1,350 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9CED153565
-	for <virtualization@lists.linux.dev>; Fri,  3 May 2024 12:18:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1092915357F
+	for <virtualization@lists.linux-foundation.org>; Fri,  3 May 2024 13:25:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714738705; cv=none; b=MI2XvV4sw8T+swt8BrWIjQuqWg/07WUGbRefZe2NKSFxbTxKieTRzPiDNQJu5JQsnAvsToqAkqReVf69kSDQkDAb9iRDrD/1u6Wtl8lXnptm4NqYvHyfynNsm1Hr9UTnRHmitmw2QgBAjxhfDKN9sbuY0ys/FSi9h+QyQRvOqq4=
+	t=1714742744; cv=none; b=UCvraVCTEXdw5z1vSAhz3tYItmy/lHIRE3cjlQSLrCafc2avNoBGkIlLDp8OPnaDSYEW7Wj8sAKu3+GJjo2BMO9rvLPMU41FbMRanGmhQdWE6pxA5hZmit2Q0KRUINkqIACSL1WOe6zUcn8OylJzQfhgJLqkK7ojr+BNKgNA7dA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714738705; c=relaxed/simple;
-	bh=ns+ZEOsJIivrYrWML6q5m1uxPpbcL1z/6PzwKwIKrvI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=k227jt0OMS7xtw+K7QmUMuhTP5KrZAdghcCvnC19Sx9VC2dd2bAXmg+8dU1u6SMls5nliZJ8GPTyvSNi19nxhqMppztiVrIOF8W8oV5gBk6kn4ZveH38X/+hFkbOoMyCEVxGnzuEEsNx0dRzAx5GqH+qsDGWIHnjF5t6bojWXEc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IW2A3UFs; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1714742744; c=relaxed/simple;
+	bh=tHNEADY7nUlqkaLY/BU1vFawJAcOU9Jd1B14MfEsU3g=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Go44tJH5jPHcnG7/3dQngk/LTxVjyw9QqLnVEdvqk9Xi31GfNARgm3kGvtFt3MBODkkSsSNkHKSpjn2cdQNWASpdLO38MIsFoe2OGzBZG4OQn0IKprjPUZCiWNg5mrbFfn/7+po3e7M4OZqUn4/dxQborLu8T7XcaOmAL+nzV6o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b=pqC5bnOX; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IW2A3UFs"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1714738702;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=yxDtTn4KG4gCeJ+R3KY9xlVy0Q16/vMhQbZ2Pi0wIi4=;
-	b=IW2A3UFsW6uoDrq20ODNgIh+MJ6NHGoNkk8uHDguKufifEYlpl5/+XkHKca2I73rDyFch+
-	rI0LhGbtdqmnpNl2pvkxOZHWZvi4AxZNm7zix0Lu/Hm9Lu7o1cMKMjncJhhzrQnmHtrBM0
-	OxOWEWrOEdwR+NsY2hf6auV+O+FE65w=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-186-3gqm5GDFON-njAM7tNEyRA-1; Fri, 03 May 2024 08:18:19 -0400
-X-MC-Unique: 3gqm5GDFON-njAM7tNEyRA-1
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-41bf6751b28so28367935e9.2
-        for <virtualization@lists.linux.dev>; Fri, 03 May 2024 05:18:19 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1714738698; x=1715343498;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=yxDtTn4KG4gCeJ+R3KY9xlVy0Q16/vMhQbZ2Pi0wIi4=;
-        b=EL7GB4Fl9KfqFWQF95exCOhoBg9rPatKZ70XEIwNCC07gNsYPtLBoatzvTV7WOOmIc
-         TloWQ1UVwxaZy98a+AFSep0iM456hsJz6LrsCpuBd/tiziqExm01L3jFzu0ZLXGBD6Hj
-         Ri9WHdP7J/kbwREyfcWp44TvnTW7vLlPGS/TU6ch0xZ83UqWbV+obkoHmqmxvCHRhsRZ
-         oR1tlqw+2es2HdBgXb+LcOC/rbTTLbSmo79w7APVh4XOWb/tWR3XzOfACaYcJMrgOxDm
-         EmIsiT5/TlW5CZjSz3IepoNFJp0oluQOQxNnnu1dobn1Epe8W59kEh5kpCIAgaUvyBxM
-         3vQg==
-X-Forwarded-Encrypted: i=1; AJvYcCXPK+LC2zUzVmDSBCui9ncnIQsQ6Vo0UeJ8imjAKx2nlQvMlTFDBFqv6tCKCjV8v03UP6wKOsV+tag7eqMi9hyE/G5nOf8OnD25oQnpqV0=
-X-Gm-Message-State: AOJu0Yy4ok0dVxkKH6gG6ydHwdlCKj4ZjG7goF/lbKyX73AlORk3DfZn
-	8LtXGrFzl07pLsrQcPCHOMxSWaMQZK8VKX9w0wXK9HNwkKTdGuGIZvtCfYnre66kbwSKeAMyGEv
-	tGRodtnOTrIOAOQymXTkNhZxcb547se9NlYKBH46iagLByUkH+U1dUR4b7nCagwS+
-X-Received: by 2002:a05:600c:3516:b0:41a:9c33:9c25 with SMTP id h22-20020a05600c351600b0041a9c339c25mr1917857wmq.13.1714738698146;
-        Fri, 03 May 2024 05:18:18 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFpmNBdrGdRmMckz/gHSnp/lRLlkszQGP+r54DPSa8tX9rl+61pCeoQhjN/AnkQuqRTRoqjCQ==
-X-Received: by 2002:a05:600c:3516:b0:41a:9c33:9c25 with SMTP id h22-20020a05600c351600b0041a9c339c25mr1917842wmq.13.1714738697745;
-        Fri, 03 May 2024 05:18:17 -0700 (PDT)
-Received: from sgarzare-redhat (c-115-213.cust-q.wadsl.it. [212.43.115.213])
-        by smtp.gmail.com with ESMTPSA id r8-20020a5d4988000000b0034cceee9051sm3622412wrq.105.2024.05.03.05.18.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 May 2024 05:18:16 -0700 (PDT)
-Date: Fri, 3 May 2024 14:18:05 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: "Zhu, Lingshan" <lingshan.zhu@intel.com>
-Cc: jasowang@redhat.com, mst@redhat.com, virtualization@lists.linux.dev
-Subject: Re: [PATCH 09/10] vDPA: report virtio-block read-only info to user
- space
-Message-ID: <2tzq7nfmcsfxh37mrwkkl25ok3lrn4blj3le5fvzbrcl6w4h4z@22geh32s4bfq>
-References: <20240218185606.13509-1-lingshan.zhu@intel.com>
- <20240218185606.13509-10-lingshan.zhu@intel.com>
- <ms2roqd326s5j5ynksciz4tdijqx4taeoyjvtzelbttkt4vich@b4geobrynwj5>
- <a0672e72-5c17-4457-9f31-9f9db6f9f229@intel.com>
+	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="pqC5bnOX"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 8D4DC4171C
+	for <virtualization@lists.linux-foundation.org>; Fri,  3 May 2024 13:25:41 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.802
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 96bZEd_kRmRL for <virtualization@lists.linux-foundation.org>;
+ Fri,  3 May 2024 13:25:39 +0000 (UTC)
+X-Greylist: delayed 375 seconds by postgrey-1.37 at util1.osuosl.org; Fri, 03 May 2024 13:25:39 UTC
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 71D0C4160F
+Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=digikod.net
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 71D0C4160F
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.a=rsa-sha256 header.s=20191114 header.b=pqC5bnOX
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2001:1600:4:17::42aa; helo=smtp-42aa.mail.infomaniak.ch; envelope-from=mic@digikod.net; receiver=<UNKNOWN> 
+Received: from smtp-42aa.mail.infomaniak.ch (smtp-42aa.mail.infomaniak.ch [IPv6:2001:1600:4:17::42aa])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 71D0C4160F
+	for <virtualization@lists.linux-foundation.org>; Fri,  3 May 2024 13:25:38 +0000 (UTC)
+Received: from smtp-4-0001.mail.infomaniak.ch (smtp-4-0001.mail.infomaniak.ch [10.7.10.108])
+	by smtp-3-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4VWBGb01yhzPm8;
+	Fri,  3 May 2024 15:19:19 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=digikod.net;
+	s=20191114; t=1714742358;
+	bh=tHNEADY7nUlqkaLY/BU1vFawJAcOU9Jd1B14MfEsU3g=;
+	h=From:To:Cc:Subject:Date:From;
+	b=pqC5bnOXSMYl6cDukE7A0UKRhT7LQYSKJf2OTKKA1+szdGStmWJsMTAeo8dyxqnpg
+	 QwcAnPcYKS+divRw8dAghSFyO/xO9AmY+H03rDDSeG3bCQA3YIqzsYijS39CyKQSg+
+	 TI9U6B0vwRusuOQxqe43g5kbuVsb+pRQFz/+RSE8=
+Received: from unknown by smtp-4-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4VWBGX3sC9zSyt;
+	Fri,  3 May 2024 15:19:16 +0200 (CEST)
+From: =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
+To: Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"H . Peter Anvin" <hpa@zytor.com>,
+	Ingo Molnar <mingo@redhat.com>,
+	Kees Cook <keescook@chromium.org>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Sean Christopherson <seanjc@google.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Vitaly Kuznetsov <vkuznets@redhat.com>,
+	Wanpeng Li <wanpengli@tencent.com>
+Cc: =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>,
+	"Edgecombe, Rick P" <rick.p.edgecombe@intel.com>,
+	Alexander Graf <graf@amazon.com>,
+	Angelina Vu <angelinavu@linux.microsoft.com>,
+	Anna Trikalinou <atrikalinou@microsoft.com>,
+	Chao Peng <chao.p.peng@linux.intel.com>,
+	Forrest Yuan Yu <yuanyu@google.com>,
+	James Gowans <jgowans@amazon.com>,
+	James Morris <jamorris@linux.microsoft.com>,
+	John Andersen <john.s.andersen@intel.com>,
+	"Madhavan T . Venkataraman" <madvenka@linux.microsoft.com>,
+	Marian Rotariu <marian.c.rotariu@gmail.com>,
+	=?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>,
+	=?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <nicu.citu@icloud.com>,
+	Thara Gopinath <tgopinath@microsoft.com>,
+	Trilok Soni <quic_tsoni@quicinc.com>,
+	Wei Liu <wei.liu@kernel.org>,
+	Will Deacon <will@kernel.org>,
+	Yu Zhang <yu.c.zhang@linux.intel.com>,
+	=?UTF-8?q?=C8=98tefan=20=C8=98icleru?= <ssicleru@bitdefender.com>,
+	dev@lists.cloudhypervisor.org,
+	kvm@vger.kernel.org,
+	linux-hardening@vger.kernel.org,
+	linux-hyperv@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-security-module@vger.kernel.org,
+	qemu-devel@nongnu.org,
+	virtualization@lists.linux-foundation.org,
+	x86@kernel.org,
+	xen-devel@lists.xenproject.org
+Subject: [RFC PATCH v3 0/5] Hypervisor-Enforced Kernel Integrity - CR pinning
+Date: Fri,  3 May 2024 15:19:05 +0200
+Message-ID: <20240503131910.307630-1-mic@digikod.net>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <a0672e72-5c17-4457-9f31-9f9db6f9f229@intel.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-Infomaniak-Routing: alpha
 
-On Tue, Apr 09, 2024 at 04:37:18PM GMT, Zhu, Lingshan wrote:
->
->
->On 3/20/2024 12:40 AM, Stefano Garzarella wrote:
->>On Mon, Feb 19, 2024 at 02:56:05AM +0800, Zhu Lingshan wrote:
->>>This commit report read-only information of
->>>virtio-blk devices to user space.
->>>
->>>Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
->>>---
->>>drivers/vdpa/vdpa.c       | 14 ++++++++++++++
->>>include/uapi/linux/vdpa.h |  1 +
->>>2 files changed, 15 insertions(+)
->>>
->>>diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
->>>index adbcbc7b18b2..d6fd3cadc44f 100644
->>>--- a/drivers/vdpa/vdpa.c
->>>+++ b/drivers/vdpa/vdpa.c
->>>@@ -1084,6 +1084,17 @@ 
->>>vdpa_dev_blk_write_zeroes_config_fill(struct sk_buff *msg, u64 
->>>features,
->>>    return 0;
->>>}
->>>
->>>+static int vdpa_dev_blk_ro_config_fill(struct sk_buff *msg, u64 
->>>features)
->>>+{
->>>+    u8 ro;
->>>+
->>>+    ro = ((features & BIT_ULL(VIRTIO_BLK_F_RO)) == 0) ? 0 : 1;
->>>+    if (nla_put_u8(msg, VDPA_ATTR_DEV_BLK_CFG_READ_ONLY, ro))
->>
->>This is not really related to the config space, what about renaming it
->>to VDPA_ATTR_DEV_BLK_READ_ONLY ?
->>
->>Also the type, maybe better to use "flag" and set it through
->>`nla_put_flag()`.
->Hi Stefano,
->
->I am implementing this change.
->In my humble opinion, maybe using a boolean(the u8 above) is better?
+Hi,
 
-If boolean is available, I agree that could be better.
-I did just a fast search when I commented.
+This patch series implements control-register (CR) pinning for KVM and
+provides an hypervisor-agnostic API to protect guests.  It includes the
+guest interface, the host interface, and the KVM implementation.
 
-BTW, sorry for the late reply, I was on PTO.
+It's not ready for mainline yet (see the current limitations), but we
+think the overall design and interfaces are good and we'd like to have
+some feedback on that.
 
-Stefano
+# Changes since previous version
 
->Because using the flag means we conditionally put a "0" into the 
->attribution,
->or the attribution does not exist, this is still a bool logic but
->a little vague.
->
->Thanks
->Lingshan
->>
->>Not a strong opinion on that, it just seems a little more consistent to
->>me.
->>
->>Thanks,
->>Stefano
->>
->>>+        return -EMSGSIZE;
->>>+
->>>+    return 0;
->>>+}
->>>+
->>>static int vdpa_dev_blk_config_fill(struct vdpa_device *vdev,
->>>                    struct sk_buff *msg)
->>>{
->>>@@ -1122,6 +1133,9 @@ static int vdpa_dev_blk_config_fill(struct 
->>>vdpa_device *vdev,
->>>    if (vdpa_dev_blk_write_zeroes_config_fill(msg, 
->>>features_device, &config))
->>>        return -EMSGSIZE;
->>>
->>>+    if (vdpa_dev_blk_ro_config_fill(msg, features_device))
->>>+        return -EMSGSIZE;
->>>+
->>>    return 0;
->>>}
->>>
->>>diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
->>>index 797d5708492f..4be8e3a15874 100644
->>>--- a/include/uapi/linux/vdpa.h
->>>+++ b/include/uapi/linux/vdpa.h
->>>@@ -70,6 +70,7 @@ enum vdpa_attr {
->>>    VDPA_ATTR_DEV_BLK_CFG_DISCARD_SEC_ALIGN,/* u32 */
->>>    VDPA_ATTR_DEV_BLK_CFG_MAX_WRITE_ZEROES_SEC,    /* u32 */
->>>    VDPA_ATTR_DEV_BLK_CFG_MAX_WRITE_ZEROES_SEG,    /* u32 */
->>>+    VDPA_ATTR_DEV_BLK_CFG_READ_ONLY,        /* u8 */
->>>
->>>    /* new attributes must be added above here */
->>>    VDPA_ATTR_MAX,
->>>-- 
->>>2.39.3
->>>
->>>
->>
->>
->
+We choose to remove as much as possible from the previous version of
+this patch series to only keep the CR pinning feature and the API.  This
+makes the patches simpler and brings the foundation for future
+enhancement.  This will also enables us to quickly iterate on new
+versions.  We are still working on memory protection but that should be
+part of another patch series, if possible once this one land.
+
+We implemented proper KUnit tests and we are also improving the test
+framework to make it easier to run tests (and another series is planed):
+https://lore.kernel.org/r/20240408074625.65017-1-mic@digikod.net
+It makes sense to use KUnit for hypervisor-agnostic features.
+
+This series is rebased on top of v6.9-rc6 . guest_memfd is now merged
+in mainline, which will help upcoming memory-related changes.
+
+# Overview
+
+The main idea being that kernel self-protection mechanisms should be
+delegated to a more privileged part of the system, that is the
+hypervisor (see the Threat model below for more details).  It is still
+the role of the guest kernel to request such restrictions according to
+its configuration. The high-level security guarantees provided by the
+hypervisor are semantically the same as a subset of those the kernel
+already enforces on itself (CR pinning hardening), but with much strong
+guarantees.
+
+The guest kernel API layer contains a global struct heki_hypervisor to
+share data and functions between the common code and the hypervisor
+support code.  The struct heki_hypervisor enables to plug in different
+backend implementations that are initialized with the heki_early_init()
+and heki_late_init() calls.
+
+We took inspiration from previous patches, mainly the KVMI [1] [2] and
+KVM CR-pinning [3] series, revamped and simplified relevant parts to fit
+well with our goal, added one hypercall, and created a kernel API for
+VMs to request protection in a generic way that can be leveraged by any
+hypervisor.
+
+When a guest request to change one of its previously protected CR, KVM
+creates a GP fault.
+
+Because the VMM needs to be involved and know the guests' requested
+memory permissions, we implemented two new kind of VM exits to be able
+to notify the VMM about guests' Heki configurations and policy
+violations.  Indeed, forwarding such signals to the VMM could help
+improve attack detection, and react to such attempt (e.g. log events,
+stop the VM).  Giving visibility to the VMM would also enable us to
+migrate VMs.
+
+# Threat model
+
+The main threat model is a malicious user space process exploiting a
+kernel vulnerability to gain more privileges or to bypass the
+access-control system.  This threat also covers attacks coming from
+network or storage data (e.g., malformed network packet, inconsistent
+drive content).
+
+Considering all potential ways to compromise a kernel, Heki's goal is to
+harden a sane kernel before a runtime attack to make it more difficult,
+and potentially to cause such an attack to fail. Because current attack
+mitigations are only mitigations, we consider the kernel itself to be
+partially malicious during its lifetime e.g., because a ROP attack that
+could disable kernel self-protection mechanisms and make kernel
+exploitation much easier. Indeed, an exploit is often split into several
+stages, each bypassing some security measures (including CFI).
+
+CR pinning should already be enforced by the guest kernel and the reason
+to pin such registers is the same.  With this patch series it
+significantly improve such protection.
+
+Getting the guarantee that these control registers cannot be changed
+increases the cost of an attack.
+
+# Prerequisites
+
+For this new security layer to be effective, guest kernels must be
+trusted by the VM owners at boot time, before launching any user space
+processes nor receiving potentially malicious network packets. It is
+then required to have a security mechanism to provide or check this
+initial trust (e.g., secure boot, kernel module signing).  To protect
+against persistent attacks, complementary security mechanisms should be
+used (e.g., IMA, IPE, Lockdown).
+
+# How does it work?
+
+The KVM_HC_LOCK_CR_UPDATE hypercall enables guests to pin some of its
+CPU control register flags (e.g., X86_CR0_WP, X86_CR4_SMEP,
+X86_CR4_SMAP).
+
+Two new kinds of VM exits are implemented: one for a guest Heki request
+(i.e. hypercall), and another for a guest attempt to change its pinned
+CRs.  When the guest attempts to update pinned CRs or to access memory
+in a way that is not allowed, the VMM can then be notified and react to
+such attack attempt. After that, if the VM is still running, KVM sends
+a GP fault to the guest. The guest could then send a signal to the user
+space process that triggered this policy violation (not implemented).
+
+Heki can be enabled with the heki=1 boot command argument.
+
+# Similar implementations
+
+Here is a non-exhaustive list of similar implementations that we looked
+at and took some ideas from. Linux mainline doesn't support such
+security features, let's change that!
+
+Windows's Virtualization-Based Security is a proprietary technology
+that provides a superset of this kind of security mechanism, relying on
+Hyper-V and Virtual Trust Levels which enables to have light and secure
+VM enforcing restrictions on a full guest VM. This includes several
+components such as HVCI for code authenticity, or HyperGuard for
+monitoring and protecting kernel code and data.
+
+Samsung's Real-time Kernel Protection (RKP) and Huawei Hypervisor
+Execution Environment (HHEE) rely on proprietary hypervisors to protect
+some Android devices. They monitor critical kernel data (e.g., page
+tables, credentials, selinux_enforcing).
+
+The iOS Kernel Patch Protection (KPP/Watchtower) is a proprietary
+solution running in EL3 that monitors and protects critical parts of the
+kernel. It is now replaced with a hardware-based mechanism: KTTR/RoRgn.
+
+Bitdefender's Hypervisor Memory Introspection (HVMI) is an open-source
+(but out of tree) set of components leveraging virtualization. HVMI
+implementation is very complex, and this approach implies potential
+semantic gap issues (i.e., kernel data structures may change from one
+version to another).
+
+Linux Kernel Runtime Guard is an open-source kernel module that can
+detect some kernel data illegitimate modifications. Because it is the
+same kernel as the compromised one, an attacker could also bypass or
+disable these checks.
+
+Intel's Virtualization Based Hardening [4] [5] is an open-source
+proof-of-concept of a thin hypervisor dedicated to guest protection. As
+such, it cannot be used to manage several VMs.
+
+# Similar Linux patches
+
+Paravirtualized Control Register pinning [3] added a set of KVM IOCTLs
+to restrict some flags to be set. Heki doesn't implement such user space
+interface, but only a dedicated hypercall to lock such registers. A
+superset of these flags is configurable with Heki.
+
+The Hypervisor Based Integrity patches [6] [7] only contain a generic
+IPC mechanism (KVM_HC_UCALL hypercall) to request protection to the VMM.
+The idea was to extend the KVM_SET_USER_MEMORY_REGION IOCTL to support
+more permission than read-only.
+
+# Current limitations
+
+This patch series doesn't handle VM reboot, kexec, nor hybernate yet.
+We'd like to leverage the realated feature from KVM CR-pinning patch
+series [3].  Help appreciated!
+
+We noticed that the KUnit tests don't work on AMD because the exception
+table seems to not be properly handled (i.e. a double fault is
+received).  Any reason why this would differ from an Intel's CPU?
+
+What about extending register pinning to MSRs?  This should first be
+implemented as a kernel self-protection though.
+
+This patch series is also a call for collaboration. There is a lot to
+do, either on hypervisors, guest kernels or VMMs sides.
+
+# Resources
+
+You can find related resources, including previous versions, and
+conference talks about this work and the related LVBS project here:
+https://github.com/heki-linux
+
+[1] https://lore.kernel.org/all/20211006173113.26445-1-alazar@bitdefender.com/
+[2] https://www.linux-kvm.org/images/7/72/KVMForum2017_Introspection.pdf
+[3] https://lore.kernel.org/all/20200617190757.27081-1-john.s.andersen@intel.com/
+[4] https://github.com/intel/vbh
+[5] https://sched.co/TmwN
+[6] https://sched.co/eE3f
+[7] https://lore.kernel.org/all/20200501185147.208192-1-yuanyu@google.com/
+
+Please reach out to us by replying to this thread, we're looking for
+people to join and collaborate on this project!
+
+Previous versions:
+v2: https://lore.kernel.org/r/20231113022326.24388-1-mic@digikod.net
+v1: https://lore.kernel.org/r/20230505152046.6575-1-mic@digikod.net
+
+Regards,
+
+Madhavan T. Venkataraman (1):
+  virt: Introduce Hypervisor Enforced Kernel Integrity (Heki)
+
+MickaÃ«l SalaÃ¼n (4):
+  KVM: x86: Add new hypercall to lock control registers
+  KVM: x86: Add notifications for Heki policy configuration and
+    violation
+  heki: Lock guest control registers at the end of guest kernel init
+  virt: Add Heki KUnit tests
+
+ Documentation/virt/kvm/x86/hypercalls.rst |  17 ++
+ Kconfig                                   |   2 +
+ arch/x86/Kconfig                          |   1 +
+ arch/x86/include/asm/x86_init.h           |   1 +
+ arch/x86/include/uapi/asm/kvm_para.h      |   2 +
+ arch/x86/kernel/cpu/common.c              |   7 +-
+ arch/x86/kernel/cpu/hypervisor.c          |   1 +
+ arch/x86/kernel/kvm.c                     |  56 +++++++
+ arch/x86/kvm/Kconfig                      |   1 +
+ arch/x86/kvm/vmx/vmx.c                    |   6 +
+ arch/x86/kvm/x86.c                        | 180 ++++++++++++++++++++++
+ arch/x86/kvm/x86.h                        |  23 +++
+ include/linux/heki.h                      |  54 +++++++
+ include/linux/kvm_host.h                  |   7 +
+ include/uapi/linux/kvm.h                  |  22 +++
+ include/uapi/linux/kvm_para.h             |   1 +
+ init/main.c                               |   3 +
+ mm/mm_init.c                              |   1 +
+ virt/Makefile                             |   1 +
+ virt/heki/.kunitconfig                    |   9 ++
+ virt/heki/Kconfig                         |  43 ++++++
+ virt/heki/Makefile                        |   4 +
+ virt/heki/common.h                        |  16 ++
+ virt/heki/heki-test.c                     | 114 ++++++++++++++
+ virt/heki/main.c                          |  68 ++++++++
+ 25 files changed, 638 insertions(+), 2 deletions(-)
+ create mode 100644 include/linux/heki.h
+ create mode 100644 virt/heki/.kunitconfig
+ create mode 100644 virt/heki/Kconfig
+ create mode 100644 virt/heki/Makefile
+ create mode 100644 virt/heki/common.h
+ create mode 100644 virt/heki/heki-test.c
+ create mode 100644 virt/heki/main.c
+
+
+base-commit: e67572cd2204894179d89bd7b984072f19313b03
+-- 
+2.45.0
 
