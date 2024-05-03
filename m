@@ -1,86 +1,85 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp-relay-internal-0.canonical.com (smtp-relay-internal-0.canonical.com [185.125.188.122])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 604867C09E;
-	Thu,  2 May 2024 12:23:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 612B214F9C4
+	for <virtualization@lists.linux.dev>; Fri,  3 May 2024 08:41:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.188.122
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714652639; cv=none; b=n6LdXntr+jwM8PnpqbfqxDHRScLe827cqVeOOH4grdkg1tn8f85iiC8hpHelodKEKkXPurz63y0iMTWeHI9b6K80uoVUn5rSiTMlY2f3U3kKoJjqvYOvcOpfeVG4Q3vdgVV0Axkkqlv6tT3b6VQj3fgB265WTgQthi+x6o8hLWg=
+	t=1714725706; cv=none; b=bXnACbmkVQC8+NYDoxPSsZxmCVCS2Iq/Cmvvi7zj1LPb6PpP/ihrNjUb0ZXY8HtVolIRfch2i+xUnJaufj/IBgLPSESwz0qy/P5VUji+d41EDeUjctnDQVA6gesiBKC+FxjPp7Xtzdf9Gyocl4kZibTSaRPtv3uRvaHREHtpnyI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714652639; c=relaxed/simple;
-	bh=7GnW3L0UewFa21PxmF5jDVBd/1UxVNTKfDWfygZy/mg=;
+	s=arc-20240116; t=1714725706; c=relaxed/simple;
+	bh=UVlVTMXTLw6RvOzSuoVTlX0sQGNjYzgASvrJB3JYJkU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Pf6hQ0KKYkus3HGCFXhm8jD86Dq2HoZtctiMxVc3X3Etmx70j/LeN31/96k6NpLuBDQPKZm3BzN7CI91fZnwBSJ4tbaNIGFveeverdd4PmhlgeekhF755SH21QmKbeXXZu6o9FebCfl25G0gEzd7sTzDL2BfVVgmpRdanpQHOdY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=SEGXKGk5; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=SagsmXAA6hkzvbXcoB3C3gdxWTCSDIIlBp1ZIdtJZok3lgcEpsf2FlOvycesc7M7BrqYE9v6jGmXISm3mEULZ2kCbjvMeAWbMD8TT+msFe4m0tI4jxdliBbZVhb2MOKtAOckZPgUBhPc7wNNrPfV8qhOQT522khSUuFJ9VKRH5Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com; spf=pass smtp.mailfrom=canonical.com; dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b=lFOhJ+Uj; arc=none smtp.client-ip=185.125.188.122
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=canonical.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="SEGXKGk5"
-Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 442C8iFM000348;
-	Thu, 2 May 2024 12:23:41 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=9IiB2rmnnc0DMtL9pSUSRkL32DSpalMr9dFB/bMDr94=;
- b=SEGXKGk58zZplNiG0PHDKBbsg0APlNvPQ2jcSaCyeZc7gKErDDYQibbBJVIpbH06qyIo
- itba+mhkE4yjjbZthBY34bkW5RLci0ppJmo7Y4AE8aOyEMIzrNDDKgJplIBQ/q/zJFRp
- 1EJXsyXAE3DTY+tx7Vr3w7kDiVL8bfoVob5fX6W03VIztlf76+52eMfWPl3BOziZDBUG
- 7Tl5bPWrmtFBvEqB/n06C8Yyj91eYka+CP8YUPcY914n+kU8WZXZGlgvd59PsvW7KIlM
- W0s2fwdNszuZc2gjVZa1rcjTNxPh+ssocIwvYdn/osIPmB3gqz5ZYEI2+oQTXekwotx4 Sg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xvajr810d-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 02 May 2024 12:23:41 +0000
-Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 442CNeUi022471;
-	Thu, 2 May 2024 12:23:40 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xvajr8109-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 02 May 2024 12:23:40 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 4429iej9015592;
-	Thu, 2 May 2024 12:23:39 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3xsed37esy-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 02 May 2024 12:23:39 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 442CNYvF51904862
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 2 May 2024 12:23:36 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5678820063;
-	Thu,  2 May 2024 12:23:34 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 14DDE20049;
-	Thu,  2 May 2024 12:23:34 +0000 (GMT)
-Received: from DESKTOP-2CCOB1S. (unknown [9.171.162.63])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu,  2 May 2024 12:23:34 +0000 (GMT)
-Date: Thu, 2 May 2024 14:23:33 +0200
-From: Tobias Huschle <huschle@linux.ibm.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>, Luis Machado <luis.machado@arm.com>,
-        Jason Wang <jasowang@redhat.com>, Abel Wu <wuyun.abel@bytedance.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
-        virtualization@lists.linux.dev, netdev@vger.kernel.org,
-        nd <nd@arm.com>, borntraeger@linux.ibm.com,
-        Ingo Molnar <mingo@kernel.org>,
-        Mike Galbraith <umgwanakikbuti@gmail.com>
-Subject: Re: EEVDF/vhost regression (bisected to 86bfbb7ce4f6 sched/fair: Add
- lag based placement)
-Message-ID: <ZjOFxbsHuQZ+Zltu@DESKTOP-2CCOB1S.>
-References: <73123.124031407552500165@us-mta-156.us.mimecast.lan>
- <20240314110649-mutt-send-email-mst@kernel.org>
- <84704.124031504335801509@us-mta-515.us.mimecast.lan>
- <20240315062839-mutt-send-email-mst@kernel.org>
- <b3fd680c675208370fc4560bb3b4d5b8@linux.ibm.com>
- <20240319042829-mutt-send-email-mst@kernel.org>
- <4808eab5fc5c85f12fe7d923de697a78@linux.ibm.com>
- <ZjDM3SsZ3NkZuphP@DESKTOP-2CCOB1S.>
- <20240501105151.GG40213@noisy.programming.kicks-ass.net>
- <20240501112830-mutt-send-email-mst@kernel.org>
+	dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b="lFOhJ+Uj"
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com [209.85.208.70])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id 7480F3F29F
+	for <virtualization@lists.linux.dev>; Fri,  3 May 2024 08:41:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+	s=20210705; t=1714725701;
+	bh=AlJo1okllW+Gooq+iCi8WFoUidjFb7UUNaY7qhrlJOY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:In-Reply-To;
+	b=lFOhJ+UjXogCS5bwOf7G0euhuTW8a73BWlLclvCwAr8S3SQHzcyIVyyTLufsHkvf9
+	 nzrUeABzomiaiISqZoI24OUMtMC7XvGLrvCI+OwGJJrHv6ve4ZCBxzmp57u01cQqdm
+	 4ZxL3kxaug0Z95gHIS3BUt0mbsCyx1GxMhp9deSwojl1ajh6v1LNR8x9VpKUcCp1Wf
+	 GDV/8VsQPnFEoXVsqDEIftplRbdiRH5et8eEi8v1WKli6ogFo8PFdwWsUYWBtXOwrt
+	 lQk/G+tGSJQsG4BKNl345u3q1H3Nn9hhwq0BZuRQ/wSdG7ee72NxHG4rUkmPZ+KL9H
+	 U9yd1J6IdtDlw==
+Received: by mail-ed1-f70.google.com with SMTP id 4fb4d7f45d1cf-5725715b9beso2107482a12.1
+        for <virtualization@lists.linux.dev>; Fri, 03 May 2024 01:41:41 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1714725701; x=1715330501;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=AlJo1okllW+Gooq+iCi8WFoUidjFb7UUNaY7qhrlJOY=;
+        b=aLo6s3rsEeqDgH/9Oy0mAjk8kDwlI2Puvm0+WjC5HXY4plnzXfwCTxKQtzUzRCMm5r
+         AjVU/w+jvdiuDcvDucfO80z0l8kM+D71gQpVxe5JCwj37FV4JOJqDYW+gdW3er75Ebh9
+         tZM9Umo3E0Hcc6ugWWK+EYP/i87wTl/3fu5iYJajVU09UsOXWCiEh9Il0sM56cYhoEl4
+         0lQfxq4MfkXo/Y9jzubx9loBWO9x9iOV+DxmTW+xR3RdZ7CGg9Ai9RGhB2kIA151KJ/1
+         YxpxN4+f1fVGG9PN4EN7U0FTIl3ODgHSck4Dgfywm9ujrD6fuwPni3eRNnumc+AHp4wr
+         QfWg==
+X-Forwarded-Encrypted: i=1; AJvYcCVg6Oae8D9wpkeOsp7/NxcYLU0oYEeq1vOurEecgih5TKh4RZi+0IMEjzvkHnrAta0Zw/bW8mcSXXqY8Ha4WStTjhmb6ZFMebyH1bTcijI=
+X-Gm-Message-State: AOJu0Yy2Cb2y52FAtrqC5xNQN1Fb4lbSB3AjqFuiscnMnby4A7xl+nGw
+	+QvkRwYOEsocfOP7hhiglHTi68VcsvBZr69yG5zeLJu8CeE3/ZW9BAGjwzImLStCyGS0gziQNTU
+	ysb09J84+c9nLCx1S82V9+vrK0D5ezGI4OP3sRa4a/U4eZwxEy5NbNpGp7z2zxTDWtj3UqOPi++
+	KUH94x
+X-Received: by 2002:a50:8ad6:0:b0:571:da40:22d9 with SMTP id k22-20020a508ad6000000b00571da4022d9mr3885260edk.10.1714725700957;
+        Fri, 03 May 2024 01:41:40 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHBuV/ajKla/mGXugVGzrUJzKdU39g+p8pvY2kW+73IngbMk+LI6dFP+gITXBDAPHIyVKjFag==
+X-Received: by 2002:a50:8ad6:0:b0:571:da40:22d9 with SMTP id k22-20020a508ad6000000b00571da4022d9mr3885243edk.10.1714725700481;
+        Fri, 03 May 2024 01:41:40 -0700 (PDT)
+Received: from localhost (host-82-49-69-7.retail.telecomitalia.it. [82.49.69.7])
+        by smtp.gmail.com with ESMTPSA id x15-20020a05640226cf00b00572a0550acbsm1447983edd.55.2024.05.03.01.41.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 03 May 2024 01:41:39 -0700 (PDT)
+Date: Fri, 3 May 2024 10:41:38 +0200
+From: Andrea Righi <andrea.righi@canonical.com>
+To: Ricardo Ribalda <ribalda@google.com>
+Cc: Igor Mammedov <imammedo@redhat.com>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	virtualization@lists.linux.dev, stevensd@chromium.org
+Subject: Re: ACPI timeouts when enabling KASAN
+Message-ID: <ZjSjQh-deMr5IDM8@gpd>
+References: <20240415145153.21075173@imammedo.users.ipa.redhat.com>
+ <CAJZ5v0j3BVUKDFE-_Tdykt42zCiDfYMpSYN54JUqdr2O8a__1w@mail.gmail.com>
+ <CANiDSCuvDQWam0v1b3adA=j6w+dA263QruBonsA6TJBvO9XsWQ@mail.gmail.com>
+ <20240416133309.6d09ac3b@imammedo.users.ipa.redhat.com>
+ <CANiDSCv=E4j0C3R_pCYMxqxe8Xep6LKQGAqJ3PC0x1kFAMq5mg@mail.gmail.com>
+ <Zh5p7ILwQYEoUR8l@gpd>
+ <20240417145544.38d7b482@imammedo.users.ipa.redhat.com>
+ <Zh_e_t7TBUdYdtyc@gpd>
+ <CANiDSCvjf1eQmYgoOOfMqPkXcDG2pocXAXGxqwg3Cx4Mba99DQ@mail.gmail.com>
+ <ZiAlMHdNVQo0zjqi@gpd>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -89,36 +88,71 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240501112830-mutt-send-email-mst@kernel.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: kVN33WdBekBnhviasqzgZSNBnf04Rs00
-X-Proofpoint-GUID: D_B28lHPTZQArId0hWuIiQe6jqQ3ViYp
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.650,FMLib:17.11.176.26
- definitions=2024-05-02_01,2024-05-02_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0 mlxscore=0
- suspectscore=0 phishscore=0 spamscore=0 bulkscore=0 impostorscore=0
- mlxlogscore=605 priorityscore=1501 malwarescore=0 clxscore=1015
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2404010000 definitions=main-2405020078
+In-Reply-To: <ZiAlMHdNVQo0zjqi@gpd>
 
-On Wed, May 01, 2024 at 11:31:02AM -0400, Michael S. Tsirkin wrote:
-> On Wed, May 01, 2024 at 12:51:51PM +0200, Peter Zijlstra wrote:
-> > On Tue, Apr 30, 2024 at 12:50:05PM +0200, Tobias Huschle wrote:
-<...>
+On Wed, Apr 17, 2024 at 09:38:26PM +0200, Andrea Righi wrote:
+> On Wed, Apr 17, 2024 at 06:12:10PM +0200, Ricardo Ribalda wrote:
+> ...
+> > > Doing the proper comparison (disabling kvm), adding '-cpu max' to the
+> > > equation and measuring the boot time of multiple virtme-ng runs, gives
+> > > me the following result (average of 10 runs):
+> > >
+> > >                      machine
+> > >               +----------------
+> > >               | default     q35
+> > >      ---------+----------------
+> > > cpu  |default |     13s     11s
+> > >      |max     |     15s     14s
+> > >
+> > > I've tried a couple of kernel configs and I get similar results.
+> > >
+> > > In the scope of virtme-ng (optimize boot time) I'd say that it'd makes
+> > > sense to use '-machine q35' and default cpu settings when kvm is
+> > > unavailable.
+> > >
+> > > Ricardo, do you see similar results?
 > > 
-> > I'm still wondering why exactly it is imperative for t2 to preempt t1.
-> > Is there some unexpressed serialization / spin-waiting ?
+> > I see even more difference between q35 and default.
+> > These are my kernel options:
+> > https://gitlab.freedesktop.org/linux-media/media-ci/-/blob/main/test-virtme.sh?ref_type=heads#L27
 > 
+> Ok, I'll run some tests with these options as well.
 > 
-> I am not sure but I think the point is that t2 is a kworker. It is
-> much cheaper to run it right now when we are already in the kernel
-> than return to userspace, let it run for a bit then interrupt it
-> and then run t2.
-> Right, Tobias?
+> > I see an issue to automatically set the machine and it is that  we
+> > would not be able to override it with something like:
+> > 
+> > virtme-run .......... --qemu-opts -machine q35
 > 
+> If I'm not wrong the last one should override the previous ones,
+> so --qemu-opts should still win over the default.
+> 
+> > 
+> > If this patch lands in qemu we might be able to ignore all these:
+> > https://lore.kernel.org/qemu-devel/20240417135608.2613586-1-ribalda@chromium.org/T/#u
+> 
+> Yep, this is much better, thanks for this fix. Let's keep the defaults
+> for now in virtme-ng, I'll just add a note to the troubleshooting
+> section.
 
-That would be correct, the optimal scenario would be that t1, the vhost
-does its thing, wakes up t2, the kworker, makes sure t2 executes immediately,
-then gets control again and continues watching its loops without ever 
-leaving kernel space.
+I actually changed my mind and merged this in virtme-ng:
+https://github.com/arighi/virtme-ng/pull/110
+
+I did more tests and in terms of boot time using the q35 arch really
+seems to systematically improve performance (I tested this across
+multiple hardware and kernel configs).
+
+It also seems to improve the CI run test (that is executed as a github
+workflow, where kvm isn't available). As we can see here:
+
+ - default arch, run test 34s:
+   https://github.com/arighi/virtme-ng/actions/runs/8935862788/job/24545125258
+
+ - q35 arch, run test 28s:
+   https://github.com/arighi/virtme-ng/actions/runs/8936234891/job/24546173523
+
+Ricardo's fix can help to mitigate the issue with ACPI, but for now I
+think using q35 when kvm isn't available can help to speed up tests in
+similar CI environments.
+
+Thanks,
+-Andrea
