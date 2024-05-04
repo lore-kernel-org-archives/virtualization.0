@@ -1,118 +1,212 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC9DF59162
-	for <virtualization@lists.linux-foundation.org>; Fri,  3 May 2024 22:13:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70FDC46BF
+	for <virtualization@lists.linux.dev>; Sat,  4 May 2024 06:41:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714774427; cv=none; b=b2DyoP37VpukCmuJOyNDP4DW5u58LultebNHXmpYSJvbotyvAtJk+Y4VsHCpUnX9Dpf9q9kOifyWzwga9fnAvzeSJ/wrzzbkOphMTDrfDf4qRjqwG+pQaXwi2GUKe9RF5+haAyxgMKgxbbO3beEfwZfxKyBGEXBx8mXp9+YOgK0=
+	t=1714804922; cv=none; b=JLErmvAlhkV4lPoo855DVpBciogNRi33TxTWq05CCddkDhoEyrWzntaNo1nZrtvFTIwywxzyIuqIiDI7Bkd9ocUTprdoiXQgz4WwmZ4WruoDp7ltmg8FPOrjZS7e9VN3vZxMKJT85hCJN4HOaruVPPhYI4u4PP6OqMzVTcBfhh4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714774427; c=relaxed/simple;
-	bh=HbGa2OPDrW1btTMtK6Lox9/dGpxHQnDUa2fRGEVQEH8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=knQ4+H72jDenMoEUduCRmmZhz7qvP1nUvdH4csUUBc8hY6KaECYfrhSiO/0dp9ZZ2gocUwnHi+CRIc1sYO3nHbUMzTvLd9BN80yAg6f2EWs+GtO7SP4xYwxmO8mQDjJrrhiZcsW1r1Q+gtSMIs2QDJfGw57r9amnf0Vqtk6vwnM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=V6krOpFy; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1714804922; c=relaxed/simple;
+	bh=uV0LJSID+R0gchn39+HEynwC5xW+dxbJ4FYEUMiKNrM=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=mlb87xXjJPqMiEt5WPpk7T3U7IkM0HIdrmYrunwgvV0TYzqqjcJw7/vRSDFtYNLVFzwSLDsrq+Lmn5i6+iCxu72neQ3KqG5p2QdNjpJaD0+RQF/fu/8eryXpSt+PVKST7Zv8DqpBit283bEJKfC0gz4WiHhMJI+t/M/sPzRLQnQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=KR5THNZq; arc=none smtp.client-ip=115.124.30.98
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="V6krOpFy"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 73A2F606A8
-	for <virtualization@lists.linux-foundation.org>; Fri,  3 May 2024 22:13:46 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id H6Ay1kuoApbh for <virtualization@lists.linux-foundation.org>;
- Fri,  3 May 2024 22:13:46 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=longman@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org C6DB6606A7
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C6DB6606A7
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=V6krOpFy
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id C6DB6606A7
-	for <virtualization@lists.linux-foundation.org>; Fri,  3 May 2024 22:13:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1714774423;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=SXJGg6Yv+cev4+++4ag1dpaYqLQ1DRjklZr5exWF9PQ=;
-	b=V6krOpFy7CNhCwUnfYutkbDGHI1z9mhJRGYKYiZKeonkaXCQ91s6ME8lyShXRp1HQC2IYh
-	7lSx9x30JDL21caZb5F+2FZ9ZAj4OAcEuD0HXVXSLhX5T1UQvZLXiaFh9LaZQH0sP55J4U
-	9CXJOuffv8wD2w8HS8ZmBuqnqgnfrWc=
-Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
- by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-342-ZoJOM9MwNsKw103QBC28Mw-1; Fri,
- 03 May 2024 18:13:39 -0400
-X-MC-Unique: ZoJOM9MwNsKw103QBC28Mw-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 23E9B29AB3F5;
-	Fri,  3 May 2024 22:13:39 +0000 (UTC)
-Received: from [10.22.34.156] (unknown [10.22.34.156])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id 67F5540C140B;
-	Fri,  3 May 2024 22:13:38 +0000 (UTC)
-Message-ID: <8373c730-2e08-4abb-8d21-fd9a76116d2c@redhat.com>
-Date: Fri, 3 May 2024 18:13:38 -0400
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="KR5THNZq"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1714804911; h=Message-ID:Subject:Date:From:To;
+	bh=jFazqI/3JXT8wRCfnlNfMfUz2mLwm6uGeeP6zZyNSQk=;
+	b=KR5THNZqvxc1SZlNm/P2pG9vooIGNnOsmdzUNhj3hKnYLh0G0GFJZ1eOV9RqGc10cxI5PUPHOfGXDi/7mu8FLjxBc5hF37yiYd+mRa2ZswAyV+y/IlSOxmqHnO1FLLo219tgWvXR95Ikk3kbUf5TaXaqZzKalwSNXvGmwbpa8Xk=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067111;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=24;SR=0;TI=SMTPD_---0W5luBzi_1714804907;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W5luBzi_1714804907)
+          by smtp.aliyun-inc.com;
+          Sat, 04 May 2024 14:41:49 +0800
+Message-ID: <1714804375.4746933-1-hengqi@linux.alibaba.com>
+Subject: Re: [PATCH net-next v11 2/4] ethtool: provide customized dim profile management
+Date: Sat, 4 May 2024 14:32:55 +0800
+From: Heng Qi <hengqi@linux.alibaba.com>
+To: Simon Horman <horms@kernel.org>
+Cc: netdev@vger.kernel.org,
+ virtualization@lists.linux.dev,
+ Jakub Kicinski <kuba@kernel.org>,
+ "David S . Miller" <davem@davemloft.net>,
+ Paolo Abeni <pabeni@redhat.com>,
+ Eric Dumazet <edumazet@google.com>,
+ Jason Wang <jasowang@redhat.com>,
+ "Michael S . Tsirkin" <mst@redhat.com>,
+ Brett Creeley <bcreeley@amd.com>,
+ Ratheesh Kannoth <rkannoth@marvell.com>,
+ Alexander Lobakin <aleksander.lobakin@intel.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ Tal Gilboa <talgi@nvidia.com>,
+ Jonathan Corbet <corbet@lwn.net>,
+ linux-doc@vger.kernel.org,
+ Maxime Chevallier <maxime.chevallier@bootlin.com>,
+ Jiri Pirko <jiri@resnulli.us>,
+ Paul Greenwalt <paul.greenwalt@intel.com>,
+ Ahmed Zaki <ahmed.zaki@intel.com>,
+ Vladimir Oltean <vladimir.oltean@nxp.com>,
+ Kory Maincent <kory.maincent@bootlin.com>,
+ Andrew Lunn <andrew@lunn.ch>,
+ justinstitt@google.com
+References: <20240430173136.15807-1-hengqi@linux.alibaba.com>
+ <20240430173136.15807-3-hengqi@linux.alibaba.com>
+ <20240503135244.GV2821784@kernel.org>
+In-Reply-To: <20240503135244.GV2821784@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH next v2 5/5] locking/osq_lock: Optimise decode_cpu() and
- per_cpu_ptr().
-To: David Laight <David.Laight@ACULAB.COM>,
- "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
- "'peterz@infradead.org'" <peterz@infradead.org>
-Cc: "'mingo@redhat.com'" <mingo@redhat.com>,
- "'will@kernel.org'" <will@kernel.org>,
- "'boqun.feng@gmail.com'" <boqun.feng@gmail.com>,
- 'Linus Torvalds' <torvalds@linux-foundation.org>,
- "'virtualization@lists.linux-foundation.org'"
- <virtualization@lists.linux-foundation.org>,
- 'Zeng Heng' <zengheng4@huawei.com>
-References: <2b4e8a5816a742d2bd23fdbaa8498e80@AcuMS.aculab.com>
- <7c1148fe64fb46a7a81c984776cd91df@AcuMS.aculab.com>
- <9d4024ba-6422-4775-b934-bfa80a72a858@redhat.com>
- <16557e30-8353-4cd1-995b-23ec763d2b07@redhat.com>
- <a2c35933c3de481faec0b201ab1a0c16@AcuMS.aculab.com>
-Content-Language: en-US
-From: Waiman Long <longman@redhat.com>
-In-Reply-To: <a2c35933c3de481faec0b201ab1a0c16@AcuMS.aculab.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.2
 
-
-On 5/3/24 17:10, David Laight wrote:
-> From: Waiman Long
->> Sent: 03 May 2024 17:00
+On Fri, 3 May 2024 14:52:44 +0100, Simon Horman <horms@kernel.org> wrote:
+> On Wed, May 01, 2024 at 01:31:34AM +0800, Heng Qi wrote:
+> 
 > ...
->> David,
->>
->> Could you respin the series based on the latest upstream code?
-> I've just reapplied the patches to 'master' and they all apply
-> cleanly and diffing the new patches to the old ones gives no differences.
-> So I think they should still apply.
->
-> Were you seeing a specific problem?
->
-> I don't remember any suggested changed either.
-> (Apart from a very local variable I used to keep a patch isolated.)
+> 
+> > diff --git a/include/linux/dim.h b/include/linux/dim.h
+> 
+> ...
+> 
+> > @@ -198,6 +234,32 @@ enum dim_step_result {
+> >  	DIM_ON_EDGE,
+> >  };
+> >  
+> > +/**
+> > + * net_dim_init_irq_moder - collect information to initialize irq moderation
+> > + * @dev: target network device
+> > + * @profile_flags: Rx or Tx profile modification capability
+> > + * @coal_flags: irq moderation params flags
+> > + * @rx_mode: CQ period mode for Rx
+> > + * @tx_mode: CQ period mode for Tx
+> > + * @rx_dim_work: Rx worker called after dim decision
+> > + *    void (*rx_dim_work)(struct work_struct *work);
+> > + *
+> > + * @tx_dim_work: Tx worker called after dim decision
+> > + *    void (*tx_dim_work)(struct work_struct *work);
+> > + *
+> 
+> Hi Heng Qi,
 
-No, I just want to make sure that your patches will still apply. Anyway, 
-it will be easier for the maintainer to merge your remaining patches if 
-you can send out a new version even if they are almost the same as the 
-old ones.
+Hi Simon,
 
-Thanks,
-Longman
+> 
+> The above seems to result in make htmldocs issuing the following warnings:
+> 
+>  .../net_dim:175: ./include/linux/dim.h:244: WARNING: Inline emphasis start-string without end-string.
+>  .../net_dim:175: ./include/linux/dim.h:244: WARNING: Inline emphasis start-string without end-string.
+>  .../net_dim:175: ./include/linux/dim.h:247: WARNING: Inline emphasis start-string without end-string.
+>  .../net_dim:175: ./include/linux/dim.h:247: WARNING: Inline emphasis start-string without end-string.
+> 
+> I suggest the following alternative:
+> 
+>  * @rx_dim_work: Rx worker called after dim decision
+>  * @tx_dim_work: Tx worker called after dim decision
 
+Will update this.
+
+> 
+> Exercised using Sphinx 7.2.6
+> 
+> ...
+> 
+> > diff --git a/net/ethtool/coalesce.c b/net/ethtool/coalesce.c
+> 
+> ...
+> 
+> > @@ -134,6 +212,12 @@ static int coalesce_fill_reply(struct sk_buff *skb,
+> >  	const struct coalesce_reply_data *data = COALESCE_REPDATA(reply_base);
+> >  	const struct kernel_ethtool_coalesce *kcoal = &data->kernel_coalesce;
+> >  	const struct ethtool_coalesce *coal = &data->coalesce;
+> > +#if IS_ENABLED(CONFIG_DIMLIB)
+> > +	struct net_device *dev = req_base->dev;
+> > +	struct dim_irq_moder *moder = dev->irq_moder;
+> > +	u8 coal_flags;
+> > +	int ret;
+> > +#endif
+> >  	u32 supported = data->supported_params;
+> 
+> It's a minor nit, but here goes: please consider using reverse xmas tree
+> order - longest line to shortest - for local variable declarations in
+> Networking code.
+> 
+> In this case, I appreciate that it's not strictly possible without
+> introducing more than one IS_ENABLED condition, which seems worse.
+> So, as that condition breaks the visual flow, what I suggest in this
+> case is having a second block of local variable declarations, like this:
+> 
+> 	const struct coalesce_reply_data *data = COALESCE_REPDATA(reply_base);
+> 	const struct kernel_ethtool_coalesce *kcoal = &data->kernel_coalesce;
+> 	const struct ethtool_coalesce *coal = &data->coalesce;
+> 	u32 supported = data->supported_params;                  
+> 
+> #if IS_ENABLED(CONFIG_DIMLIB)
+> 	struct dim_irq_moder *moder = dev->irq_moder;
+> 	struct net_device *dev = req_base->dev;
+
+Note: The line above depends on the line below. :)
+
+However, even so, I will try to make a change to keep "xmas tree order".
+
+> 	u8 coal_flags;
+> 	int ret;
+> #endif 
+> 
+> Or better still, if it can be done cleanly, moving all the IS_ENABLED()
+> code in this function into a separate function, with an no-op
+> implementation in the case that CONFIG_DIMLIB is not enabled. In general
+> I'd recommend that approach over sprinkling IS_ENABLED or #ifdef inside
+> functions. Because in my experience it tends to lead to more readable code.
+> 
+
+As discussed in the previous replies, IS_ENABLED(CONFIG_DIMLIB) will be removed
+in the next version, so we'll do not have this problem, but your suggestion is
+good.
+
+Thanks.
+
+> In any case, the following tool is helpful for isolating
+> reverse xmas tree issues.
+> 
+> https://github.com/ecree-solarflare/xmastree
+> 
+> 
+> >  	if (coalesce_put_u32(skb, ETHTOOL_A_COALESCE_RX_USECS,
+> > @@ -192,11 +276,49 @@ static int coalesce_fill_reply(struct sk_buff *skb,
+> >  			     kcoal->tx_aggr_time_usecs, supported))
+> >  		return -EMSGSIZE;
+> >  
+> > +#if IS_ENABLED(CONFIG_DIMLIB)
+> > +	if (!moder)
+> > +		return 0;
+> > +
+> > +	coal_flags = moder->coal_flags;
+> > +	rcu_read_lock();
+> > +	if (moder->profile_flags & DIM_PROFILE_RX) {
+> > +		ret = coalesce_put_profile(skb, ETHTOOL_A_COALESCE_RX_PROFILE,
+> > +					   rcu_dereference(moder->rx_profile),
+> > +					   coal_flags);
+> > +		if (ret) {
+> > +			rcu_read_unlock();
+> > +			return ret;
+> > +		}
+> > +	}
+> > +
+> > +	if (moder->profile_flags & DIM_PROFILE_TX) {
+> > +		ret = coalesce_put_profile(skb, ETHTOOL_A_COALESCE_TX_PROFILE,
+> > +					   rcu_dereference(moder->tx_profile),
+> > +					   coal_flags);
+> > +		if (ret) {
+> > +			rcu_read_unlock();
+> > +			return ret;
+> > +		}
+> > +	}
+> > +	rcu_read_unlock();
+> > +#endif
+> >  	return 0;
+> >  }
+> 
+> ...
