@@ -1,104 +1,153 @@
-Received: from mail.alien8.de (mail.alien8.de [65.109.113.108])
+Received: from mx1.sberdevices.ru (mx2.sberdevices.ru [45.89.224.132])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37508374CC
-	for <virtualization@lists.linux.dev>; Sun,  5 May 2024 18:29:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.109.113.108
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 083856DCE8
+	for <virtualization@lists.linux.dev>; Sun,  5 May 2024 20:04:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.89.224.132
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714933755; cv=none; b=T23qKoHyGyR18YONUZTwFfH7BsKiJDPJSY7Nbye9od35Q127VJ427Kmwk+ObtAaDGUBPqTYam9kjpapeJmNITLO2O4HXzRUCUempPxi5vtR+KcjOzAUDLSGKTX1atmLwYuWRylL5nJYDULM8iCtht9qQNVN5T2SrBQgFoaIVDgM=
+	t=1714939477; cv=none; b=g2AlhNeGWKdEKOBY0g/PMAP07suj5eNMKQ6mbqkJ5oWWztT1OD4yEJllAhtbYq1u55gAXlzqeyHuxDRBFWgQT2LGKk8a892TsAPE3ht+aWFBl4YVhO9e8vQVKt2Cmiiz+JOhKNqdviQMTUgupeaKWpaj1NqyOIka9jEgVUugDQU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714933755; c=relaxed/simple;
-	bh=kmr0tE/cFUeLPazltcKBsWdavSb2gYZMg29IrTBr15A=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=REoQQIDXYz1gcnJh5MvEkyccEx5eA8tRR40U/uOU8xalNeaByMZz07xgyX2PYJ2danmnhUwZyk5bIdCkWXnMb0dULGIn+sWan20ZXj4MNhbeYVHxg/F7yDMTHWF0aN+DIWLuGo9NK9FiyJ1ULUGZvNH5gmRdBg9vbhUiREQ6By0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de; spf=pass smtp.mailfrom=alien8.de; dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b=R0l1QcHP; arc=none smtp.client-ip=65.109.113.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alien8.de
+	s=arc-20240116; t=1714939477; c=relaxed/simple;
+	bh=Pi2/TNVByX0JP5w+l9K3hAIMKCPKrqUeoG/wzKmCyy8=;
+	h=Message-ID:Date:MIME-Version:In-Reply-To:To:CC:From:Subject:
+	 Content-Type; b=BUt1+DY0QUDlwjWwDZ80Wvexjg01U0Ozd2gXFuITbuZzKJUvHaz4hNOgPhTZthfLjV2qE0+dMmYVrHielVzvyu0Bp+lzgw3jzHyNrNFQvwFa70QLeGDvL6kOmQxxRifjbFi3lBvb/1W6oBwaUNn1mx9couW1m1yYIhTvr9aazck=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=salutedevices.com; spf=pass smtp.mailfrom=salutedevices.com; dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b=QZVeGXm2; arc=none smtp.client-ip=45.89.224.132
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=salutedevices.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=salutedevices.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b="R0l1QcHP"
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTP id 5AC9A40E024C;
-	Sun,  5 May 2024 18:29:04 +0000 (UTC)
-X-Virus-Scanned: Debian amavisd-new at mail.alien8.de
-Authentication-Results: mail.alien8.de (amavisd-new); dkim=pass (4096-bit key)
-	header.d=alien8.de
-Received: from mail.alien8.de ([127.0.0.1])
-	by localhost (mail.alien8.de [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id T-3NwLK1gWyt; Sun,  5 May 2024 18:29:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=alien8;
-	t=1714933740; bh=2c3rsJd5+C9gOUqICAJkWhmVm4gYvJcQn1yN6aN3iuo=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=R0l1QcHPcURtc+luuPBnrsq8jO1czQN5/BzhAxRPkLw36GkYIe8a519flkhX/PJP4
-	 JSG8xL7YZPfCL7hklEE8y2UdGecuylXI9rUVaRRK6jPPVjlWTkw+v2O7jVoGI1VeGX
-	 F3D9o7yELJP04bHX9q1ECpQwLDHdpw65XghukIJNfDYuJvO56DoExK2f7VDsFKUdJA
-	 hcfcwDAUmwp78SfTZrYtsJO9N676Vm+UVnEzZqgFH3DGGSDK6PGRARyFZz9CJKEMUk
-	 OnT+Qf3xjiQns4jKyL3KAvzB8GftOm3KGEc3yiNB9W07whKTmRClNOR4XnTTTO+OG1
-	 50ekC/avKv6+M3b78bfc6Id6vD2Iq2SlEln54H1Sg4BIOamC2yidcIDjsb32kLbJXy
-	 hqiF9ca5RU5Smg/3ugEj1STdtoYwj4lgUmvsxVVNhBK3PJbCOutXCyaKOhm4yy5Xoe
-	 1gPzWKeR+bJXtJyjbxQ2SwPYTfdv0rFnkDpaREAnt8J2R1NjvfNssf+CzPuE4ggfQ5
-	 OgwNDcIeMCk9KmNJD0xJjKBtX5svvHPY/Ci9RHqcFnKIryPkEacccnDRgsCiWz+els
-	 5uLzMLm6EGGDj8yDUA1h6bzlztrgLnUcMNCqIbe+TT7J0O9WPWBRhE3xzdqTYES9WK
-	 9l3IMFoVPT9iJN58SgHOlHWI=
-Received: from zn.tnic (pd953020b.dip0.t-ipconnect.de [217.83.2.11])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature ECDSA (P-256) server-digest SHA256)
+	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="QZVeGXm2"
+Received: from p-infra-ksmg-sc-msk02 (localhost [127.0.0.1])
+	by mx1.sberdevices.ru (Postfix) with ESMTP id 71468120004;
+	Sun,  5 May 2024 23:04:24 +0300 (MSK)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru 71468120004
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
+	s=mail; t=1714939464;
+	bh=baxPYAOBKBIEZGlkQCQ94G4LWTk3/f2RFWo2CGnbI50=;
+	h=Message-ID:Date:MIME-Version:To:From:Subject:Content-Type:From;
+	b=QZVeGXm2O0TvVnYhTRgVcbUbOlA10QH3bYpOUDTG6g3ocuKRiTu/Cak1yHQ4IkB0M
+	 Swu+zNMXwo5hrIv7NjSLcwEwSmzDWOOZHgi8gMiKEWiPOqGVXMJyhRohreoLZ9lwP3
+	 dkZEFig6YIuH95ABNnmpvVkWWp3tBs5xUavLMTMZxkm3aelrbMMWGC3cbu9lm31aHn
+	 rNzFrX2NBMyKjUAFbClx0JOEbFfuLZhbXEPksySpQRTaf8ozhAtH38IQpAvD3gWQkb
+	 OEY2VcPaYL5hkLYHGpsoxVFrCGuGwMk/SK8srzcJ9ynuwu8sI5vPFaafEjF9T4JKkV
+	 0BNR+8cZm5AtQ==
+Received: from smtp.sberdevices.ru (p-i-exch-sc-m02.sberdevices.ru [172.16.192.103])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 6E30340E0187;
-	Sun,  5 May 2024 18:28:34 +0000 (UTC)
-Date: Sun, 5 May 2024 20:28:29 +0200
-From: Borislav Petkov <bp@alien8.de>
-To: Alexey Makhalov <alexey.makhalov@broadcom.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-	hpa@zytor.com, dave.hansen@linux.intel.com, mingo@redhat.com,
-	tglx@linutronix.de, x86@kernel.org, netdev@vger.kernel.org,
-	richardcochran@gmail.com, linux-input@vger.kernel.org,
-	dmitry.torokhov@gmail.com, zackr@vmware.com,
-	linux-graphics-maintainer@vmware.com, pv-drivers@vmware.com,
-	timothym@vmware.com, akaher@vmware.com,
-	dri-devel@lists.freedesktop.org, daniel@ffwll.ch, airlied@gmail.com,
-	tzimmermann@suse.de, mripard@kernel.org,
-	maarten.lankhorst@linux.intel.com, horms@kernel.org,
-	kirill.shutemov@linux.intel.com, Nadav Amit <nadav.amit@gmail.com>
-Subject: Re: [PATCH v9 2/8] x86/vmware: Move common macros to vmware.h
-Message-ID: <20240505182829.GBZjfPzeEijTsBUth5@fat_crate.local>
-References: <adcbfb9a-a4e1-4a32-b786-6c204d941e9f@broadcom.com>
- <20240424231407.14098-1-alexey.makhalov@broadcom.com>
- <20240424231407.14098-2-alexey.makhalov@broadcom.com>
+	by mx1.sberdevices.ru (Postfix) with ESMTPS;
+	Sun,  5 May 2024 23:04:24 +0300 (MSK)
+Received: from [192.168.0.106] (100.64.160.123) by
+ p-i-exch-sc-m02.sberdevices.ru (172.16.192.103) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.40; Sun, 5 May 2024 23:04:23 +0300
+Message-ID: <d0550fea-58b6-3aa5-a8ac-27308183d6f8@salutedevices.com>
+Date: Sun, 5 May 2024 22:53:39 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20240424231407.14098-2-alexey.makhalov@broadcom.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.7.1
+Content-Language: en-US
+In-Reply-To: <20240422100010-mutt-send-email-mst@kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+CC: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella
+	<sgarzare@redhat.com>, Jeongjun Park <aha310510@gmail.com>, Jason Wang
+	<jasowang@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, LKML
+	<linux-kernel@vger.kernel.org>, <virtualization@lists.linux.dev>,
+	<syzbot+6c21aeb59d0e82eb2782@syzkaller.appspotmail.com>,
+	<syzkaller-bugs@googlegroups.com>, Krasnov Arseniy <oxffffaa@gmail.com>
+From: Arseniy Krasnov <avkrasnov@salutedevices.com>
+Subject: Re: [PATCH virt] virt: fix uninit-value in vhost_vsock_dev_open
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) To
+ p-i-exch-sc-m02.sberdevices.ru (172.16.192.103)
+X-KSMG-Rule-ID: 10
+X-KSMG-Message-Action: clean
+X-KSMG-AntiSpam-Lua-Profiles: 185060 [May 05 2024]
+X-KSMG-AntiSpam-Version: 6.1.0.4
+X-KSMG-AntiSpam-Envelope-From: avkrasnov@salutedevices.com
+X-KSMG-AntiSpam-Rate: 0
+X-KSMG-AntiSpam-Status: not_detected
+X-KSMG-AntiSpam-Method: none
+X-KSMG-AntiSpam-Auth: dkim=none
+X-KSMG-AntiSpam-Info: LuaCore: 19 0.3.19 07c7fa124d1a1dc9662cdc5aace418c06ae99d2b, {Tracking_from_domain_doesnt_match_to}, salutedevices.com:7.1.1;100.64.160.123:7.1.2;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;smtp.sberdevices.ru:7.1.1,5.0.1;127.0.0.199:7.1.2, FromAlignment: s, ApMailHostAddress: 100.64.160.123
+X-MS-Exchange-Organization-SCL: -1
+X-KSMG-AntiSpam-Interceptor-Info: scan successful
+X-KSMG-AntiPhishing: Clean
+X-KSMG-LinksScanning: Clean
+X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2024/05/05 18:13:00 #25098537
+X-KSMG-AntiVirus-Status: Clean, skipped
 
-On Wed, Apr 24, 2024 at 04:14:07PM -0700, Alexey Makhalov wrote:
-> +#define VMWARE_CMD_GETVERSION		10
-> +#define VMWARE_CMD_GETHZ		45
-> +#define VMWARE_CMD_GETVCPU_INFO		68
-> +#define VMWARE_CMD_STEALCLOCK		91
+> But now that it's explained, the bugfix as proposed is incomplete:
+> userspace can set features twice and the second time will leak
+> old VIRTIO_VSOCK_F_SEQPACKET bit value.
+> 
+> And I am pretty sure the Fixes tag is wrong.
+> 
+> So I wrote this, but I actually don't have a set for
+> seqpacket to test this. Arseny could you help test maybe?
+> Thanks!
 
-Ok, what part in
+Hi! Sorry for late reply! Just run vsock test suite with this patch -
+seems everything is ok!
 
-"* first patch: sole code movement, no changes whatsoever"
+> 
+> 
+> commit bcc17a060d93b198d8a17a9b87b593f41337ee28
+> Author: Michael S. Tsirkin <mst@redhat.com>
+> Date:   Mon Apr 22 10:03:13 2024 -0400
+> 
+> vhost/vsock: always initialize seqpacket_allow
+> 
+> There are two issues around seqpacket_allow:
+> 1. seqpacket_allow is not initialized when socket is
+> created. Thus if features are never set, it will be
+> read uninitialized.
+> 2. if VIRTIO_VSOCK_F_SEQPACKET is set and then cleared,
+> then seqpacket_allow will not be cleared appropriately
+> (existing apps I know about don't usually do this but
+> it's legal and there's no way to be sure no one relies
+> on this).
+> 
+> To fix:
+>     - initialize seqpacket_allow after allocation
+>     - set it unconditionally in set_features
+> 
+> Reported-by: syzbot+6c21aeb59d0e82eb2782@syzkaller.appspotmail.com
+> Reported-by: Jeongjun Park <aha310510@gmail.com>
+> Fixes: ced7b713711f ("vhost/vsock: support SEQPACKET for transport").
+> Cc: Arseny Krasnov <arseny.krasnov@kaspersky.com>
+> Cc: David S. Miller <davem@davemloft.net>
+> Cc: Stefan Hajnoczi <stefanha@redhat.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-wasn't clear?
+Acked-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
 
-You're adding those macros above to a patch which claims that it does
-code movement only. Don't do that.
+> 
+> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+> index ec20ecff85c7..bf664ec9341b 100644
+> --- a/drivers/vhost/vsock.c
+> +++ b/drivers/vhost/vsock.c
+> @@ -667,6 +667,7 @@ static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
+>  	}
+>  
+>  	vsock->guest_cid = 0; /* no CID assigned yet */
+> +	vsock->seqpacket_allow = false;
+>  
+>  	atomic_set(&vsock->queued_replies, 0);
+>  
+> @@ -810,8 +811,7 @@ static int vhost_vsock_set_features(struct vhost_vsock *vsock, u64 features)
+>  			goto err;
+>  	}
+>  
+> -	if (features & (1ULL << VIRTIO_VSOCK_F_SEQPACKET))
+> -		vsock->seqpacket_allow = true;
+> +	vsock->seqpacket_allow = features & (1ULL << VIRTIO_VSOCK_F_SEQPACKET);
+>  
+>  	for (i = 0; i < ARRAY_SIZE(vsock->vqs); i++) {
+>  		vq = &vsock->vqs[i];
 
-Let me try again:
 
-* first patch: *ONLY* code movement. No new code, no new defines, no new
-functions, no nada! Only move code and do fixups so that it still builds
-like the export you're doing.
-
-* follow-on patches: other changes.
-
--- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
