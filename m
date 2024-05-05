@@ -1,105 +1,104 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from mail.alien8.de (mail.alien8.de [65.109.113.108])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C56C5FB9A
-	for <virtualization@lists.linux-foundation.org>; Sat,  4 May 2024 20:26:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37508374CC
+	for <virtualization@lists.linux.dev>; Sun,  5 May 2024 18:29:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.109.113.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714854409; cv=none; b=nBSKhOYdalleW0VB2Vda48TiRZ7IylVhz+8FkD7livgnQSztAVYHFhhX320QY9oeXb7DS0sbtWu2ZwDMkCSy+gEMj9AGcbAd5ktParowR9RGuMAtBkQOcAEQDyVMd++4YQ7Lw5119AS2+MFFWQ5Kuf41YVaI1JEFIWnGs6muX7k=
+	t=1714933755; cv=none; b=T23qKoHyGyR18YONUZTwFfH7BsKiJDPJSY7Nbye9od35Q127VJ427Kmwk+ObtAaDGUBPqTYam9kjpapeJmNITLO2O4HXzRUCUempPxi5vtR+KcjOzAUDLSGKTX1atmLwYuWRylL5nJYDULM8iCtht9qQNVN5T2SrBQgFoaIVDgM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714854409; c=relaxed/simple;
-	bh=a7k/F1PKwS/4p3POLuiedXV28zFTkH7Y4HJyhJXdOLs=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 MIME-Version:Content-Type; b=mxo5MnWtDfiIqCtktyciom3T/tzrPNlVbRSQv7CZRlkdmDKF1WcnT6roWEABo2U+eMvQrVxKMsDN/gL5Yu04gZgvrn/l/0IFxFv1GErLJqspzN9/xyi7qdph0wTDL7v/oVVdkpySz5O2DXteIf7dQuPO+4o5SlYWoGg4yBh0LQQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 87215408A1
-	for <virtualization@lists.linux-foundation.org>; Sat,  4 May 2024 20:26:45 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -1.898
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id v14Z9R7jE1d7 for <virtualization@lists.linux-foundation.org>;
- Sat,  4 May 2024 20:26:44 +0000 (UTC)
-X-Greylist: delayed 101387 seconds by postgrey-1.37 at util1.osuosl.org; Sat, 04 May 2024 20:26:42 UTC
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 8F0AA4089F
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=ACULAB.COM
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8F0AA4089F
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=185.58.85.151; helo=eu-smtp-delivery-151.mimecast.com; envelope-from=david.laight@aculab.com; receiver=<UNKNOWN> 
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 8F0AA4089F
-	for <virtualization@lists.linux-foundation.org>; Sat,  4 May 2024 20:26:42 +0000 (UTC)
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with both STARTTLS and AUTH (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-74-R6kMj-4qPjKWBI3Zp6dTjQ-1; Sat, 04 May 2024 21:26:38 +0100
-X-MC-Unique: R6kMj-4qPjKWBI3Zp6dTjQ-1
-Received: from AcuMS.Aculab.com (10.202.163.4) by AcuMS.aculab.com
- (10.202.163.4) with Microsoft SMTP Server (TLS) id 15.0.1497.48; Sat, 4 May
- 2024 21:26:07 +0100
-Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
- id 15.00.1497.048; Sat, 4 May 2024 21:26:07 +0100
-From: David Laight <David.Laight@ACULAB.COM>
-To: 'Waiman Long' <longman@redhat.com>, "'linux-kernel@vger.kernel.org'"
-	<linux-kernel@vger.kernel.org>, "'peterz@infradead.org'"
-	<peterz@infradead.org>
-CC: "'mingo@redhat.com'" <mingo@redhat.com>, "'will@kernel.org'"
-	<will@kernel.org>, "'boqun.feng@gmail.com'" <boqun.feng@gmail.com>, "'Linus
- Torvalds'" <torvalds@linux-foundation.org>,
-	"'virtualization@lists.linux-foundation.org'"
-	<virtualization@lists.linux-foundation.org>, 'Zeng Heng'
-	<zengheng4@huawei.com>
-Subject: RE: [PATCH next v2 5/5] locking/osq_lock: Optimise decode_cpu() and
- per_cpu_ptr().
-Thread-Topic: [PATCH next v2 5/5] locking/osq_lock: Optimise decode_cpu() and
- per_cpu_ptr().
-Thread-Index: Ado8NCf0vtha6NqURtGgfE7//QxHexhPrXlAAAq+3cAAADquAAAwkN2g
-Date: Sat, 4 May 2024 20:26:07 +0000
-Message-ID: <3078b5f07e3e4dc0a3e18aa08af2c9f1@AcuMS.aculab.com>
-References: <2b4e8a5816a742d2bd23fdbaa8498e80@AcuMS.aculab.com>
- <7c1148fe64fb46a7a81c984776cd91df@AcuMS.aculab.com>
- <9d4024ba-6422-4775-b934-bfa80a72a858@redhat.com>
- <16557e30-8353-4cd1-995b-23ec763d2b07@redhat.com>
- <a2c35933c3de481faec0b201ab1a0c16@AcuMS.aculab.com>
- <8373c730-2e08-4abb-8d21-fd9a76116d2c@redhat.com>
-In-Reply-To: <8373c730-2e08-4abb-8d21-fd9a76116d2c@redhat.com>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
+	s=arc-20240116; t=1714933755; c=relaxed/simple;
+	bh=kmr0tE/cFUeLPazltcKBsWdavSb2gYZMg29IrTBr15A=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=REoQQIDXYz1gcnJh5MvEkyccEx5eA8tRR40U/uOU8xalNeaByMZz07xgyX2PYJ2danmnhUwZyk5bIdCkWXnMb0dULGIn+sWan20ZXj4MNhbeYVHxg/F7yDMTHWF0aN+DIWLuGo9NK9FiyJ1ULUGZvNH5gmRdBg9vbhUiREQ6By0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de; spf=pass smtp.mailfrom=alien8.de; dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b=R0l1QcHP; arc=none smtp.client-ip=65.109.113.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alien8.de
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b="R0l1QcHP"
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTP id 5AC9A40E024C;
+	Sun,  5 May 2024 18:29:04 +0000 (UTC)
+X-Virus-Scanned: Debian amavisd-new at mail.alien8.de
+Authentication-Results: mail.alien8.de (amavisd-new); dkim=pass (4096-bit key)
+	header.d=alien8.de
+Received: from mail.alien8.de ([127.0.0.1])
+	by localhost (mail.alien8.de [127.0.0.1]) (amavisd-new, port 10026)
+	with ESMTP id T-3NwLK1gWyt; Sun,  5 May 2024 18:29:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=alien8;
+	t=1714933740; bh=2c3rsJd5+C9gOUqICAJkWhmVm4gYvJcQn1yN6aN3iuo=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=R0l1QcHPcURtc+luuPBnrsq8jO1czQN5/BzhAxRPkLw36GkYIe8a519flkhX/PJP4
+	 JSG8xL7YZPfCL7hklEE8y2UdGecuylXI9rUVaRRK6jPPVjlWTkw+v2O7jVoGI1VeGX
+	 F3D9o7yELJP04bHX9q1ECpQwLDHdpw65XghukIJNfDYuJvO56DoExK2f7VDsFKUdJA
+	 hcfcwDAUmwp78SfTZrYtsJO9N676Vm+UVnEzZqgFH3DGGSDK6PGRARyFZz9CJKEMUk
+	 OnT+Qf3xjiQns4jKyL3KAvzB8GftOm3KGEc3yiNB9W07whKTmRClNOR4XnTTTO+OG1
+	 50ekC/avKv6+M3b78bfc6Id6vD2Iq2SlEln54H1Sg4BIOamC2yidcIDjsb32kLbJXy
+	 hqiF9ca5RU5Smg/3ugEj1STdtoYwj4lgUmvsxVVNhBK3PJbCOutXCyaKOhm4yy5Xoe
+	 1gPzWKeR+bJXtJyjbxQ2SwPYTfdv0rFnkDpaREAnt8J2R1NjvfNssf+CzPuE4ggfQ5
+	 OgwNDcIeMCk9KmNJD0xJjKBtX5svvHPY/Ci9RHqcFnKIryPkEacccnDRgsCiWz+els
+	 5uLzMLm6EGGDj8yDUA1h6bzlztrgLnUcMNCqIbe+TT7J0O9WPWBRhE3xzdqTYES9WK
+	 9l3IMFoVPT9iJN58SgHOlHWI=
+Received: from zn.tnic (pd953020b.dip0.t-ipconnect.de [217.83.2.11])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (P-256) server-signature ECDSA (P-256) server-digest SHA256)
+	(No client certificate requested)
+	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 6E30340E0187;
+	Sun,  5 May 2024 18:28:34 +0000 (UTC)
+Date: Sun, 5 May 2024 20:28:29 +0200
+From: Borislav Petkov <bp@alien8.de>
+To: Alexey Makhalov <alexey.makhalov@broadcom.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+	hpa@zytor.com, dave.hansen@linux.intel.com, mingo@redhat.com,
+	tglx@linutronix.de, x86@kernel.org, netdev@vger.kernel.org,
+	richardcochran@gmail.com, linux-input@vger.kernel.org,
+	dmitry.torokhov@gmail.com, zackr@vmware.com,
+	linux-graphics-maintainer@vmware.com, pv-drivers@vmware.com,
+	timothym@vmware.com, akaher@vmware.com,
+	dri-devel@lists.freedesktop.org, daniel@ffwll.ch, airlied@gmail.com,
+	tzimmermann@suse.de, mripard@kernel.org,
+	maarten.lankhorst@linux.intel.com, horms@kernel.org,
+	kirill.shutemov@linux.intel.com, Nadav Amit <nadav.amit@gmail.com>
+Subject: Re: [PATCH v9 2/8] x86/vmware: Move common macros to vmware.h
+Message-ID: <20240505182829.GBZjfPzeEijTsBUth5@fat_crate.local>
+References: <adcbfb9a-a4e1-4a32-b786-6c204d941e9f@broadcom.com>
+ <20240424231407.14098-1-alexey.makhalov@broadcom.com>
+ <20240424231407.14098-2-alexey.makhalov@broadcom.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20240424231407.14098-2-alexey.makhalov@broadcom.com>
 
-RnJvbTogV2FpbWFuIExvbmcNCj4gU2VudDogMDMgTWF5IDIwMjQgMjM6MTQNCj4gDQo+IA0KPiBP
-biA1LzMvMjQgMTc6MTAsIERhdmlkIExhaWdodCB3cm90ZToNCj4gPiBGcm9tOiBXYWltYW4gTG9u
-Zw0KPiA+PiBTZW50OiAwMyBNYXkgMjAyNCAxNzowMA0KPiA+IC4uLg0KPiA+PiBEYXZpZCwNCj4g
-Pj4NCj4gPj4gQ291bGQgeW91IHJlc3BpbiB0aGUgc2VyaWVzIGJhc2VkIG9uIHRoZSBsYXRlc3Qg
-dXBzdHJlYW0gY29kZT8NCj4gPiBJJ3ZlIGp1c3QgcmVhcHBsaWVkIHRoZSBwYXRjaGVzIHRvICdt
-YXN0ZXInIGFuZCB0aGV5IGFsbCBhcHBseQ0KPiA+IGNsZWFubHkgYW5kIGRpZmZpbmcgdGhlIG5l
-dyBwYXRjaGVzIHRvIHRoZSBvbGQgb25lcyBnaXZlcyBubyBkaWZmZXJlbmNlcy4NCj4gPiBTbyBJ
-IHRoaW5rIHRoZXkgc2hvdWxkIHN0aWxsIGFwcGx5Lg0KPiA+DQo+ID4gV2VyZSB5b3Ugc2VlaW5n
-IGEgc3BlY2lmaWMgcHJvYmxlbT8NCj4gPg0KPiA+IEkgZG9uJ3QgcmVtZW1iZXIgYW55IHN1Z2dl
-c3RlZCBjaGFuZ2VkIGVpdGhlci4NCj4gPiAoQXBhcnQgZnJvbSBhIHZlcnkgbG9jYWwgdmFyaWFi
-bGUgSSB1c2VkIHRvIGtlZXAgYSBwYXRjaCBpc29sYXRlZC4pDQo+IA0KPiBObywgSSBqdXN0IHdh
-bnQgdG8gbWFrZSBzdXJlIHRoYXQgeW91ciBwYXRjaGVzIHdpbGwgc3RpbGwgYXBwbHkuIEFueXdh
-eSwNCj4gaXQgd2lsbCBiZSBlYXNpZXIgZm9yIHRoZSBtYWludGFpbmVyIHRvIG1lcmdlIHlvdXIg
-cmVtYWluaW5nIHBhdGNoZXMgaWYNCj4geW91IGNhbiBzZW5kIG91dCBhIG5ldyB2ZXJzaW9uIGV2
-ZW4gaWYgdGhleSBhcmUgYWxtb3N0IHRoZSBzYW1lIGFzIHRoZQ0KPiBvbGQgb25lcy4NCg0KSSBk
-b24ndCB0aGluayBhbnkgY2hhbmdlcyBhcmUgbmVlZGVkLg0KU28gdGhlIGV4aXN0aW5nIHZlcnNp
-b25zIGFyZSBmaW5lLg0KVGhleSBhcHBsaWVkICh3ZWxsIG15IGNvcHkgb2Ygd2hhdCBJIHRoaW5r
-IEkgc2VudCBhcHBsaWVkKSBhbmQgYnVpbHQuDQpTbyB0aGVyZSBzaG91bGRuJ3QgYmUgYW55IGlz
-c3Vlcy4NCg0KCURhdmlkDQoNCi0NClJlZ2lzdGVyZWQgQWRkcmVzcyBMYWtlc2lkZSwgQnJhbWxl
-eSBSb2FkLCBNb3VudCBGYXJtLCBNaWx0b24gS2V5bmVzLCBNSzEgMVBULCBVSw0KUmVnaXN0cmF0
-aW9uIE5vOiAxMzk3Mzg2IChXYWxlcykNCg==
+On Wed, Apr 24, 2024 at 04:14:07PM -0700, Alexey Makhalov wrote:
+> +#define VMWARE_CMD_GETVERSION		10
+> +#define VMWARE_CMD_GETHZ		45
+> +#define VMWARE_CMD_GETVCPU_INFO		68
+> +#define VMWARE_CMD_STEALCLOCK		91
 
+Ok, what part in
+
+"* first patch: sole code movement, no changes whatsoever"
+
+wasn't clear?
+
+You're adding those macros above to a patch which claims that it does
+code movement only. Don't do that.
+
+Let me try again:
+
+* first patch: *ONLY* code movement. No new code, no new defines, no new
+functions, no nada! Only move code and do fixups so that it still builds
+like the export you're doing.
+
+* follow-on patches: other changes.
+
+-- 
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
