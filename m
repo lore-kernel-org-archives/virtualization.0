@@ -1,65 +1,165 @@
-Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.4])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 07D3F13C80B;
-	Mon,  6 May 2024 14:30:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.4
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 852B3157E7A
+	for <virtualization@lists.linux-foundation.org>; Mon,  6 May 2024 17:50:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715005842; cv=none; b=bCVbz8aF2PGEAwx9fTXk29qcS0LzceAyTHfkZRbY/q3D0dtkn+QBxW1FYoXcliAu7zW1IsiPj+Pw38qSQ/PKP0v9iD0rA/3ITNVegV6ziT9LOUhu1R5AiRg/nxZjQV2QtOQEQrziuNCNFfaC8vbxRE2Ir5oVS01T4DGy/Jxkvd4=
+	t=1715017824; cv=none; b=qS54HvhgB+iYP5ijwFiwrxgdz2xzTQBfWUKJkiU8G1gLBdYdq0sdIdAMsTtjwZVDrWijyIulL7TMl0a90PqKNUht4o4j5iM6e+5GN3WyyuOJrSjLaarqi8iFeSa6SEncISbQ5ReqP6jiCZcZPcl76RG++IeLXc90xZIcFUDyxB8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715005842; c=relaxed/simple;
-	bh=74avidpj6lHrcnz5DWt9tVaHKTbGh3voPFwrs+2HjNg=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=keAB9BPqxgyVu/LGNkl5B4a+sy++C3WW11nRjo+smgYwOIHlISBDd8sPIcoxVOk2w/s3oVOx2PctM6WX/VfotU7XsSFErRqx8oIfo0wS5YJUORBSkRYGzhkNXgFwaOz5U5FkZk9RR/u4l60wCNYCYqIqgq0rKb510cO5i/QGUPM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=EXx4/WGx; arc=none smtp.client-ip=220.197.31.4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1715017824; c=relaxed/simple;
+	bh=FeafhCaExu57qsacTj62dWRUdrBXKjPBuLT9vOLipXU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Jmm6dPdS4xnKnNl+lkWYZRbmrWYcLPjyz+TOm+Ci2to9fs85F8p4NXdvPaisCNkKy8b8QRDzP2Uphz2nI701piYf7CWa8swLtTS0LkXN4hn93p+3Ze7ZCKkTddA5J3/eo4DI/4UpGAKS5Yu7mP8PEhQ7n44e4vPRzJgzVFDyO+8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b=mGwJTwDH; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="EXx4/WGx"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:Subject:Date:Message-Id:MIME-Version; bh=74avi
-	dpj6lHrcnz5DWt9tVaHKTbGh3voPFwrs+2HjNg=; b=EXx4/WGxoek2QHnlkBoTc
-	jRTT0OXc0BvIlIVVgO4dT8CHDkcMpwiNeUaEzYExIs9yWALPn7/aDuzvWZ9Y6hRX
-	HDS/r3IY8rE8LFipmebk2F6XSCDnHIVRI1EC0jT7tkmEtYmi8SpI+gNRCAxHLuHh
-	Q9yvqf/kUyr/KaAeMjbyu4=
-Received: from localhost.localdomain (unknown [111.35.187.227])
-	by gzga-smtp-mta-g2-4 (Coremail) with SMTP id _____wDXL_Fr6ThmQiFiBA--.17029S4;
-	Mon, 06 May 2024 22:30:09 +0800 (CST)
-From: David Wang <00107082@163.com>
-To: 00107082@163.com
-Cc: airlied@gmail.com,
-	airlied@redhat.com,
-	daniel@ffwll.ch,
-	dreaming.about.electric.sheep@gmail.com,
-	dri-devel@lists.freedesktop.org,
-	kraxel@redhat.com,
-	linux-kernel@vger.kernel.org,
-	maarten.lankhorst@linux.intel.com,
-	mripard@kernel.org,
-	regressions@lists.linux.dev,
-	spice-devel@lists.freedesktop.org,
-	tzimmermann@suse.de,
-	virtualization@lists.linux.dev
-Subject: Re: [Regression] 6.9.0: WARNING: workqueue: WQ_MEM_RECLAIM ttm:ttm_bo_delayed_delete [ttm] is flushing !WQ_MEM_RECLAIM events:qxl_gc_work [qxl]
-Date: Mon,  6 May 2024 22:30:03 +0800
-Message-Id: <20240506143003.4855-1-00107082@163.com>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20240430061337.764633-1-00107082@163.com>
-References: <20240430061337.764633-1-00107082@163.com>
+	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="mGwJTwDH"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 1952981F59
+	for <virtualization@lists.linux-foundation.org>; Mon,  6 May 2024 17:50:22 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.102
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id MIf5CDCUAGfb for <virtualization@lists.linux-foundation.org>;
+ Mon,  6 May 2024 17:50:21 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2001:1600:7:10::bc0b; helo=smtp-bc0b.mail.infomaniak.ch; envelope-from=mic@digikod.net; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org B83EF81F48
+Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=digikod.net
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B83EF81F48
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.a=rsa-sha256 header.s=20191114 header.b=mGwJTwDH
+Received: from smtp-bc0b.mail.infomaniak.ch (smtp-bc0b.mail.infomaniak.ch [IPv6:2001:1600:7:10::bc0b])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id B83EF81F48
+	for <virtualization@lists.linux-foundation.org>; Mon,  6 May 2024 17:50:19 +0000 (UTC)
+Received: from smtp-3-0001.mail.infomaniak.ch (smtp-3-0001.mail.infomaniak.ch [10.4.36.108])
+	by smtp-4-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4VY87s1JrnzP8k;
+	Mon,  6 May 2024 19:50:17 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=digikod.net;
+	s=20191114; t=1715017816;
+	bh=FeafhCaExu57qsacTj62dWRUdrBXKjPBuLT9vOLipXU=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=mGwJTwDHmCYyRVABfvivVlR645+s55YE3ikqtGU8J06uhEpc53bUE7Ls8lVECmSJY
+	 ZoGZR6nkUaCWIF86rf6UUOQ30vsnFTU+oyKVa5juk1cYq6aZPMMxOD7Adtf6s6Qe8Z
+	 /vj4j5MGtH+BC89lqOLDnwO6/+q161VQ+b28m63o=
+Received: from unknown by smtp-3-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4VY87p5F0GzB95;
+	Mon,  6 May 2024 19:50:14 +0200 (CEST)
+Date: Mon, 6 May 2024 19:50:13 +0200
+From: =?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>
+To: Sean Christopherson <seanjc@google.com>
+Cc: Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, "H . Peter Anvin" <hpa@zytor.com>, 
+	Ingo Molnar <mingo@redhat.com>, Kees Cook <keescook@chromium.org>, 
+	Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, 
+	Vitaly Kuznetsov <vkuznets@redhat.com>, Wanpeng Li <wanpengli@tencent.com>, 
+	Rick P Edgecombe <rick.p.edgecombe@intel.com>, Alexander Graf <graf@amazon.com>, 
+	Angelina Vu <angelinavu@linux.microsoft.com>, Anna Trikalinou <atrikalinou@microsoft.com>, 
+	Chao Peng <chao.p.peng@linux.intel.com>, Forrest Yuan Yu <yuanyu@google.com>, 
+	James Gowans <jgowans@amazon.com>, James Morris <jamorris@linux.microsoft.com>, 
+	John Andersen <john.s.andersen@intel.com>, "Madhavan T . Venkataraman" <madvenka@linux.microsoft.com>, 
+	Marian Rotariu <marian.c.rotariu@gmail.com>, Mihai =?utf-8?B?RG9uyJt1?= <mdontu@bitdefender.com>, 
+	=?utf-8?B?TmljdciZb3IgQ8OuyJt1?= <nicu.citu@icloud.com>, Thara Gopinath <tgopinath@microsoft.com>, 
+	Trilok Soni <quic_tsoni@quicinc.com>, Wei Liu <wei.liu@kernel.org>, Will Deacon <will@kernel.org>, 
+	Yu Zhang <yu.c.zhang@linux.intel.com>, =?utf-8?Q?=C8=98tefan_=C8=98icleru?= <ssicleru@bitdefender.com>, 
+	dev@lists.cloudhypervisor.org, kvm@vger.kernel.org, linux-hardening@vger.kernel.org, 
+	linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, 
+	x86@kernel.org, xen-devel@lists.xenproject.org
+Subject: Re: [RFC PATCH v3 3/5] KVM: x86: Add notifications for Heki policy
+ configuration and violation
+Message-ID: <20240506.ohwe7eewu0oB@digikod.net>
+References: <20240503131910.307630-1-mic@digikod.net>
+ <20240503131910.307630-4-mic@digikod.net>
+ <ZjTuqV-AxQQRWwUW@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wDXL_Fr6ThmQiFiBA--.17029S4
-X-Coremail-Antispam: 1Uf129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7v73
-	VFW2AGmfu7bjvjm3AaLaJ3UbIYCTnIWIevJa73UjIFyTuYvjfUngAwUUUUU
-X-CM-SenderInfo: qqqrilqqysqiywtou0bp/xtbBEBPWqmVODy8hSgAAsf
+In-Reply-To: <ZjTuqV-AxQQRWwUW@google.com>
+X-Infomaniak-Routing: alpha
 
-The kernel warning still shows up in 6.9.0-rc7.
+On Fri, May 03, 2024 at 07:03:21AM GMT, Sean Christopherson wrote:
+> On Fri, May 03, 2024, Mickaël Salaün wrote:
+> > Add an interface for user space to be notified about guests' Heki policy
+> > and related violations.
+> > 
+> > Extend the KVM_ENABLE_CAP IOCTL with KVM_CAP_HEKI_CONFIGURE and
+> > KVM_CAP_HEKI_DENIAL. Each one takes a bitmask as first argument that can
+> > contains KVM_HEKI_EXIT_REASON_CR0 and KVM_HEKI_EXIT_REASON_CR4. The
+> > returned value is the bitmask of known Heki exit reasons, for now:
+> > KVM_HEKI_EXIT_REASON_CR0 and KVM_HEKI_EXIT_REASON_CR4.
+> > 
+> > If KVM_CAP_HEKI_CONFIGURE is set, a VM exit will be triggered for each
+> > KVM_HC_LOCK_CR_UPDATE hypercalls according to the requested control
+> > register. This enables to enlighten the VMM with the guest
+> > auto-restrictions.
+> > 
+> > If KVM_CAP_HEKI_DENIAL is set, a VM exit will be triggered for each
+> > pinned CR violation. This enables the VMM to react to a policy
+> > violation.
+> > 
+> > Cc: Borislav Petkov <bp@alien8.de>
+> > Cc: Dave Hansen <dave.hansen@linux.intel.com>
+> > Cc: H. Peter Anvin <hpa@zytor.com>
+> > Cc: Ingo Molnar <mingo@redhat.com>
+> > Cc: Kees Cook <keescook@chromium.org>
+> > Cc: Madhavan T. Venkataraman <madvenka@linux.microsoft.com>
+> > Cc: Paolo Bonzini <pbonzini@redhat.com>
+> > Cc: Sean Christopherson <seanjc@google.com>
+> > Cc: Thomas Gleixner <tglx@linutronix.de>
+> > Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
+> > Cc: Wanpeng Li <wanpengli@tencent.com>
+> > Signed-off-by: Mickaël Salaün <mic@digikod.net>
+> > Link: https://lore.kernel.org/r/20240503131910.307630-4-mic@digikod.net
+> > ---
+> > 
+> > Changes since v1:
+> > * New patch. Making user space aware of Heki properties was requested by
+> >   Sean Christopherson.
+> 
+> No, I suggested having userspace _control_ the pinning[*], not merely be notified
+> of pinning.
+> 
+>  : IMO, manipulation of protections, both for memory (this patch) and CPU state
+>  : (control registers in the next patch) should come from userspace.  I have no
+>  : objection to KVM providing plumbing if necessary, but I think userspace needs to
+>  : to have full control over the actual state.
+>  : 
+>  : One of the things that caused Intel's control register pinning series to stall
+>  : out was how to handle edge cases like kexec() and reboot.  Deferring to userspace
+>  : means the kernel doesn't need to define policy, e.g. when to unprotect memory,
+>  : and avoids questions like "should userspace be able to overwrite pinned control
+>  : registers".
+>  : 
+>  : And like the confidential VM use case, keeping userspace in the loop is a big
+>  : beneifit, e.g. the guest can't circumvent protections by coercing userspace into
+>  : writing to protected memory.
+> 
+> I stand by that suggestion, because I don't see a sane way to handle things like
+> kexec() and reboot without having a _much_ more sophisticated policy than would
+> ever be acceptable in KVM.
+> 
+> I think that can be done without KVM having any awareness of CR pinning whatsoever.
+> E.g. userspace just needs to ability to intercept CR writes and inject #GPs.  Off
+> the cuff, I suspect the uAPI could look very similar to MSR filtering.  E.g. I bet
+> userspace could enforce MSR pinning without any new KVM uAPI at all.
+> 
+> [*] https://lore.kernel.org/all/ZFUyhPuhtMbYdJ76@google.com
 
-(I think 4 high load processes on a 2-Core VM could easily trigger the kernel warning.)
+OK, I had concern about the control not directly coming from the guest,
+especially in the case of pKVM and confidential computing, but I get you
+point.  It should indeed be quite similar to the MSR filtering on the
+userspace side, except that we need another interface for the guest to
+request such change (i.e. self-protection).
 
-Thanks
-David
-
+Would it be OK to keep this new KVM_HC_LOCK_CR_UPDATE hypercall but
+forward the request to userspace with a VM exit instead?  That would
+also enable userspace to get the request and directly configure the CR
+pinning with the same VM exit.
