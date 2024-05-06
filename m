@@ -1,107 +1,245 @@
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00E8D42ABD
-	for <virtualization@lists.linux.dev>; Mon,  6 May 2024 06:20:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 3885D1DA3A;
+	Mon,  6 May 2024 06:32:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714976410; cv=none; b=fNLzYkzKsBn0JqnRG4Ue7m5MpYMHg4Q8kmFLtssORRemQYrBPDFrtCHOW8rUu6ApGBZtuASA470tATZwSfFTSvisO5fXta1pH87bKmIOBcl2ikkHznVf9l+vWOqrJcFzNt0WZipT919to1nMHjGkI3I+qzEC5M1osetUr7Xg5us=
+	t=1714977135; cv=none; b=rbbUXEK4NOFGUYoMFWQZYlIWzXtTQbVjwc4oSp2SAnDvLRhmW15Ue39FbXT03WDcTO1aVAZlMUnCupQteXbhHW2D4DUFTXEW5NEzpRVErL7uo5XanDYLYGnwxSbQhet0OYnvK+9tauz5rkU2UyLjxvUMTdTEtPgjt5xylm6h3xI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714976410; c=relaxed/simple;
-	bh=AVjbTUGpKRQ6U4ng9sm41977TejPRgiG9hUHDRveGsY=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=F+ZUiH/bdiHnHrMsUt9iHDidF/4wYkrqzQELvhbXRraOSMLldxBABLLmtq6rwfd6i/YIBYaRnqD5thVBRbSJ2H6EtR6zga4trAgwuxdEM3m8Z5kREThdB+ro0SveaMo6aQMqPDr7MpAnhLwATE5mx5nJLUK+fPxu9jdfiB/mozw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=w2TjSS2z; arc=none smtp.client-ip=115.124.30.119
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="w2TjSS2z"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1714976400; h=Message-ID:Subject:Date:From:To;
-	bh=ykX1DBvAThRCu1cGX79eKGfjSaN3hhiA4FeO5nFGe9o=;
-	b=w2TjSS2zWU1zSWAhWlfNx5+6WY5ImhTRuZCq/6DBSIW6HcPG83mL4XKlD+CeCEXKu3yueDVmPH7Yst3Tkd4IBXED6mqTPHHdy4LsoEEzuNuM3ZoXkWlQ7S5M1pa1DsBBLOEgMkrR5NMb4AbsKruCfRgSkHzDk9HnMhFyIbE87BY=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R241e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045075189;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0W5ufZZc_1714976398;
-Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W5ufZZc_1714976398)
-          by smtp.aliyun-inc.com;
-          Mon, 06 May 2024 14:19:59 +0800
-Message-ID: <1714976172.0470116-1-hengqi@linux.alibaba.com>
-Subject: Re: [PATCH net-next v6 0/6] Remove RTNL lock protection of CVQ
-Date: Mon, 6 May 2024 14:16:12 +0800
-From: Heng Qi <hengqi@linux.alibaba.com>
-To: Daniel Jurgens <danielj@nvidia.com>
-Cc: <mst@redhat.com>,
- <jasowang@redhat.com>,
- <xuanzhuo@linux.alibaba.com>,
- <virtualization@lists.linux.dev>,
- <davem@davemloft.net>,
- <edumazet@google.com>,
- <kuba@kernel.org>,
- <pabeni@redhat.com>,
- <jiri@nvidia.com>,
- Daniel Jurgens <danielj@nvidia.com>,
- <netdev@vger.kernel.org>
-References: <20240503202445.1415560-1-danielj@nvidia.com>
-In-Reply-To: <20240503202445.1415560-1-danielj@nvidia.com>
+	s=arc-20240116; t=1714977135; c=relaxed/simple;
+	bh=ps3bfPlOGnscXXGNpZRI1HTSPZ1kzyMnphRxw5lw+jI=;
+	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=HIC7XtLI0i526KsV9u/90eE4nAUYlAwLcuMCEn3H3u/ej6KEDuYCD5g0iXfnNFvjWPMiTjEX7bPU8zZNzrz/R7ooHWhZQma0we70T8IswzpNwQ1GSRd57NDJsIC4+na5HjUVUVaUvBOzVsRBfzzXeDfQ9+l2TvB7D2Mo5iJBCwY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.20.42.173])
+	by gateway (Coremail) with SMTP id _____8AxiPBmeThm6vsHAA--.22375S3;
+	Mon, 06 May 2024 14:32:07 +0800 (CST)
+Received: from [10.20.42.173] (unknown [10.20.42.173])
+	by localhost.localdomain (Coremail) with SMTP id AQAAf8Cxyt1ieThmqzUSAA--.36589S3;
+	Mon, 06 May 2024 14:32:04 +0800 (CST)
+Subject: Re: [PATCH v8 0/6] LoongArch: Add pv ipi support on LoongArch VM
+To: Huacai Chen <chenhuacai@kernel.org>
+Cc: Tianrui Zhao <zhaotianrui@loongson.cn>, Juergen Gross <jgross@suse.com>,
+ Paolo Bonzini <pbonzini@redhat.com>, Jonathan Corbet <corbet@lwn.net>,
+ loongarch@lists.linux.dev, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org
+References: <20240428100518.1642324-1-maobibo@loongson.cn>
+ <CAAhV-H6c2Wym4w5WchP=K1fHv8uVFDp59CATYKcH3mGYDxnKmA@mail.gmail.com>
+From: maobibo <maobibo@loongson.cn>
+Message-ID: <0640effb-5c65-5f52-a58f-4a12104b189b@loongson.cn>
+Date: Mon, 6 May 2024 14:32:00 +0800
+User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+In-Reply-To: <CAAhV-H6c2Wym4w5WchP=K1fHv8uVFDp59CATYKcH3mGYDxnKmA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:AQAAf8Cxyt1ieThmqzUSAA--.36589S3
+X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
+X-Coremail-Antispam: 1Uk129KBj93XoWxtF47Ar17WFWkKr4fKFWUKFX_yoWxtFWUpF
+	W5AFn5Crs5Gr1fCwnFv3sxWr1DJw4xGr1aq3WayrW0krsFqFy7Zr48trZ5ua48Jws5JFW0
+	qFyrGw1Y93WUAagCm3ZEXasCq-sJn29KB7ZKAUJUUUU5529EdanIXcx71UUUUU7KY7ZEXa
+	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
+	0xBIdaVrnRJUUUv2b4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
+	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
+	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
+	0_Jr0_Gr1l84ACjcxK6I8E87Iv67AKxVWxJVW8Jr1l84ACjcxK6I8E87Iv6xkF7I0E14v2
+	6r4UJVWxJr1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqjxCEc2xF0cIa020Ex4CE44I27w
+	Aqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jrv_JF1lYx0Ex4A2jsIE
+	14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvEwIxGrwCYjI0SjxkI62AI1c
+	AE67vIY487MxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8C
+	rVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8Zw
+	CIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x02
+	67AKxVWUJVW8JwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Gr
+	0_Cr1lIxAIcVC2z280aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7IU8vA
+	pUUUUUU==
 
-On Fri, 3 May 2024 23:24:39 +0300, Daniel Jurgens <danielj@nvidia.com> wrote:
-> Currently the buffer used for control VQ commands is protected by the
-> RTNL lock. Previously this wasn't a major concern because the control VQ
-> was only used during device setup and user interaction. With the recent
-> addition of dynamic interrupt moderation the control VQ may be used
-> frequently during normal operation.
-> 
-> This series removes the RNTL lock dependency by introducing a mutex
-> to protect the control buffer and writing SGs to the control VQ.
-> 
-
-For the series, keep tags:
-
-Reviewed-by: Heng Qi <hengqi@linux.alibaba.com>
-Tested-by: Heng Qi <hengqi@linux.alibaba.com>
 
 
-> v6:
-> 	- Rebased over new stats code.
-> 	- Added comment to cvq_lock, init the mutex unconditionally,
-> 	  and replaced some duplicate code with a goto.
-> 	- Fixed minor grammer errors, checkpatch warnings, and clarified
-> 	  a comment.
-> v5:
-> 	- Changed cvq_lock to a mutex.
-> 	- Changed dim_lock to mutex, because it's held taking
-> 	  the cvq_lock.
-> 	- Use spin/mutex_lock/unlock vs guard macros.
-> v4:
-> 	- Protect dim_enabled with same lock as well intr_coal.
-> 	- Rename intr_coal_lock to dim_lock.
-> 	- Remove some scoped_guard where the error path doesn't
-> 	  have to be in the lock.
-> v3:
-> 	- Changed type of _offloads to __virtio16 to fix static
-> 	  analysis warning.
-> 	- Moved a misplaced hunk to the correct patch.
-> v2:
-> 	- New patch to only process the provided queue in
-> 	  virtnet_dim_work
-> 	- New patch to lock per queue rx coalescing structure.
+On 2024/5/6 上午9:45, Huacai Chen wrote:
+> Hi, Bibo,
 > 
-> Daniel Jurgens (6):
->   virtio_net: Store RSS setting in virtnet_info
->   virtio_net: Remove command data from control_buf
->   virtio_net: Add a lock for the command VQ.
->   virtio_net: Do DIM update for specified queue only
->   virtio_net: Add a lock for per queue RX coalesce
->   virtio_net: Remove rtnl lock protection of command buffers
+> I have done an off-list discussion with some KVM experts, and they
+> think user-space have its right to know PV features, so cpucfg
+> solution is acceptable.
 > 
->  drivers/net/virtio_net.c | 288 +++++++++++++++++++++++----------------
->  1 file changed, 173 insertions(+), 115 deletions(-)
+> And I applied this series with some modifications at
+> https://git.kernel.org/pub/scm/linux/kernel/git/chenhuacai/linux-loongson.git/log/?h=loongarch-kvm
+> You can test it now. But it seems the upstream qemu cannot enable PV IPI now.
+VM with 128/256 vcpus boots with this series in loongarch-kvm branch. 
+And pv ipi works by information "cat /proc/interrupts". There need small 
+modification with qemu like this, and we
+will submit the patch to qemu after it is merged.
+
+diff --git a/hw/loongarch/virt.c b/hw/loongarch/virt.c
+index 441d764843..9f7556cd93 100644
+--- a/hw/loongarch/virt.c
++++ b/hw/loongarch/virt.c
+@@ -15,6 +15,8 @@
+  #include "sysemu/runstate.h"
+  #include "sysemu/reset.h"
+  #include "sysemu/rtc.h"
++#include "sysemu/tcg.h"
++#include "sysemu/kvm.h"
+  #include "hw/loongarch/virt.h"
+  #include "exec/address-spaces.h"
+  #include "hw/irq.h"
+@@ -786,12 +788,18 @@ static void loongarch_qemu_write(void *opaque, 
+hwaddr addr,
+
+  static uint64_t loongarch_qemu_read(void *opaque, hwaddr addr, 
+unsigned size)
+  {
++    uint64_t ret = 0;
++
+      switch (addr) {
+      case VERSION_REG:
+          return 0x11ULL;
+      case FEATURE_REG:
+-        return 1ULL << IOCSRF_MSI | 1ULL << IOCSRF_EXTIOI |
++        ret =1ULL << IOCSRF_MSI | 1ULL << IOCSRF_EXTIOI |
+                 1ULL << IOCSRF_CSRIPI;
++        if (kvm_enabled()) {
++            ret |= 1ULL << IOCSRF_VM;
++        }
++       return ret;
+      case VENDOR_REG:
+          return 0x6e6f73676e6f6f4cULL; /* "Loongson" */
+      case CPUNAME_REG:
+
+
+Regards
+Bibo Mao
 > 
-> -- 
-> 2.44.0
+> I will reply to other patches about my modifications.
 > 
+> Huacai
 > 
+> On Sun, Apr 28, 2024 at 6:05 PM Bibo Mao <maobibo@loongson.cn> wrote:
+>>
+>> On physical machine, ipi HW uses IOCSR registers, however there is trap
+>> into hypervisor when vcpu accesses IOCSR registers if system is in VM
+>> mode. SWI is a interrupt mechanism like SGI on ARM, software can send
+>> interrupt to CPU, only that on LoongArch SWI can only be sent to local CPU
+>> now. So SWI can not used for IPI on real HW system, however it can be used
+>> on VM when combined with hypercall method. IPI can be sent with hypercall
+>> method and SWI interrupt is injected to vcpu, vcpu can treat SWI
+>> interrupt as IPI.
+>>
+>> With PV IPI supported, there is one trap with IPI sending, however with IPI
+>> receiving there is no trap. with IOCSR HW ipi method, there will be one
+>> trap with IPI sending and two trap with ipi receiving.
+>>
+>> Also IPI multicast support is added for VM, the idea comes from x86 PV ipi.
+>> IPI can be sent to 128 vcpus in one time. With IPI multicast support, trap
+>> will be reduced greatly.
+>>
+>> Here is the microbenchmarck data with "perf bench futex wake" testcase on
+>> 3C5000 single-way machine, there are 16 cpus on 3C5000 single-way machine,
+>> VM has 16 vcpus also. The benchmark data is ms time unit to wakeup 16
+>> threads, the performance is better if data is smaller.
+>>
+>> physical machine                     0.0176 ms
+>> VM original                          0.1140 ms
+>> VM with pv ipi patch                 0.0481 ms
+>>
+>> It passes to boot with 128/256 vcpus, and passes to run runltp command
+>> with package ltp-20230516.
+>>
+>> ---
+>> v7 --- v8:
+>>   1. Remove kernel PLV mode checking with cpucfg emulation for hypervisor
+>> feature inquiry.
+>>   2. Remove document about loongarch hypercall ABI per request of huacai,
+>> will add English/Chinese doc at the same time in later.
+>>
+>> v6 --- v7:
+>>    1. Refine LoongArch virt document by review comments.
+>>    2. Add function kvm_read_reg()/kvm_write_reg() in hypercall emulation,
+>> and later it can be used for other trap emulations.
+>>
+>> v5 --- v6:
+>>    1. Add privilege checking when emulating cpucfg at index 0x4000000 --
+>> 0x400000FF, return 0 if not executed at kernel mode.
+>>    2. Add document about LoongArch pv ipi with new creatly directory
+>> Documentation/virt/kvm/loongarch/
+>>    3. Fix pv ipi handling in kvm backend function kvm_pv_send_ipi(),
+>> where min should plus BITS_PER_LONG with second bitmap, otherwise
+>> VM with more than 64 vpus fails to boot.
+>>    4. Adjust patch order and code refine with review comments.
+>>
+>> v4 --- v5:
+>>    1. Refresh function/macro name from review comments.
+>>
+>> v3 --- v4:
+>>    1. Modfiy pv ipi hook function name call_func_ipi() and
+>> call_func_single_ipi() with send_ipi_mask()/send_ipi_single(), since pv
+>> ipi is used for both remote function call and reschedule notification.
+>>    2. Refresh changelog.
+>>
+>> v2 --- v3:
+>>    1. Add 128 vcpu ipi multicast support like x86
+>>    2. Change cpucfg base address from 0x10000000 to 0x40000000, in order
+>> to avoid confliction with future hw usage
+>>    3. Adjust patch order in this patchset, move patch
+>> Refine-ipi-ops-on-LoongArch-platform to the first one.
+>>
+>> v1 --- v2:
+>>    1. Add hw cpuid map support since ipi routing uses hw cpuid
+>>    2. Refine changelog description
+>>    3. Add hypercall statistic support for vcpu
+>>    4. Set percpu pv ipi message buffer aligned with cacheline
+>>    5. Refine pv ipi send logic, do not send ipi message with if there is
+>> pending ipi message.
+>> ---
+>> Bibo Mao (6):
+>>    LoongArch/smp: Refine some ipi functions on LoongArch platform
+>>    LoongArch: KVM: Add hypercall instruction emulation support
+>>    LoongArch: KVM: Add cpucfg area for kvm hypervisor
+>>    LoongArch: KVM: Add vcpu search support from physical cpuid
+>>    LoongArch: KVM: Add pv ipi support on kvm side
+>>    LoongArch: Add pv ipi support on guest kernel side
+>>
+>>   arch/loongarch/Kconfig                        |   9 +
+>>   arch/loongarch/include/asm/Kbuild             |   1 -
+>>   arch/loongarch/include/asm/hardirq.h          |   5 +
+>>   arch/loongarch/include/asm/inst.h             |   1 +
+>>   arch/loongarch/include/asm/irq.h              |  10 +-
+>>   arch/loongarch/include/asm/kvm_host.h         |  27 +++
+>>   arch/loongarch/include/asm/kvm_para.h         | 155 ++++++++++++++++++
+>>   arch/loongarch/include/asm/kvm_vcpu.h         |  11 ++
+>>   arch/loongarch/include/asm/loongarch.h        |  11 ++
+>>   arch/loongarch/include/asm/paravirt.h         |  27 +++
+>>   .../include/asm/paravirt_api_clock.h          |   1 +
+>>   arch/loongarch/include/asm/smp.h              |  31 ++--
+>>   arch/loongarch/include/uapi/asm/Kbuild        |   2 -
+>>   arch/loongarch/kernel/Makefile                |   1 +
+>>   arch/loongarch/kernel/irq.c                   |  24 +--
+>>   arch/loongarch/kernel/paravirt.c              | 151 +++++++++++++++++
+>>   arch/loongarch/kernel/perf_event.c            |  14 +-
+>>   arch/loongarch/kernel/smp.c                   |  62 ++++---
+>>   arch/loongarch/kernel/time.c                  |  12 +-
+>>   arch/loongarch/kvm/exit.c                     | 132 +++++++++++++--
+>>   arch/loongarch/kvm/vcpu.c                     |  94 ++++++++++-
+>>   arch/loongarch/kvm/vm.c                       |  11 ++
+>>   22 files changed, 690 insertions(+), 102 deletions(-)
+>>   create mode 100644 arch/loongarch/include/asm/kvm_para.h
+>>   create mode 100644 arch/loongarch/include/asm/paravirt.h
+>>   create mode 100644 arch/loongarch/include/asm/paravirt_api_clock.h
+>>   delete mode 100644 arch/loongarch/include/uapi/asm/Kbuild
+>>   create mode 100644 arch/loongarch/kernel/paravirt.c
+>>
+>>
+>> base-commit: 5eb4573ea63d0c83bf58fb7c243fc2c2b6966c02
+>> --
+>> 2.39.3
+>>
+>>
+
