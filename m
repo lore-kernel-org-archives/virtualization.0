@@ -1,150 +1,107 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5ED473D962
-	for <virtualization@lists.linux.dev>; Mon,  6 May 2024 03:24:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00E8D42ABD
+	for <virtualization@lists.linux.dev>; Mon,  6 May 2024 06:20:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714965883; cv=none; b=R6P9xJkuDtMcMYncI2mHjmnOJibOE91O1pe1GhvElLjMOSkNqPdQPOklbolS9lR8Dmo4wHj/E6vfWAL338KJQfgQ87WHY15oocI0q53CQXHzZpWuza3FJ8/x+HRsNgvPc05byXhREK//0+ibKKd0E5L2POFvZCixegK7JKdLP4g=
+	t=1714976410; cv=none; b=fNLzYkzKsBn0JqnRG4Ue7m5MpYMHg4Q8kmFLtssORRemQYrBPDFrtCHOW8rUu6ApGBZtuASA470tATZwSfFTSvisO5fXta1pH87bKmIOBcl2ikkHznVf9l+vWOqrJcFzNt0WZipT919to1nMHjGkI3I+qzEC5M1osetUr7Xg5us=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714965883; c=relaxed/simple;
-	bh=bBHRYR+zXOeAjZ6EPCrBlhNWwq4VARwBFLo2xTUGLZU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=NlanfcaY7ycE/DTdPLDgRKKn/1ZQXEwtJjE8hKcZcUUyHJwBWKFLsmoD9uyI4BWRorjMLilYbktu2QaGSsdW43HAF1ftRJdQBArzE+6LBodRkVwyIS3yR0Cfp+lSVC8NW4ix+8efW9JH1FjsectT9b66stmFMJYO26SbSfA7v+8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WXJq8JDl; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1714976410; c=relaxed/simple;
+	bh=AVjbTUGpKRQ6U4ng9sm41977TejPRgiG9hUHDRveGsY=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=F+ZUiH/bdiHnHrMsUt9iHDidF/4wYkrqzQELvhbXRraOSMLldxBABLLmtq6rwfd6i/YIBYaRnqD5thVBRbSJ2H6EtR6zga4trAgwuxdEM3m8Z5kREThdB+ro0SveaMo6aQMqPDr7MpAnhLwATE5mx5nJLUK+fPxu9jdfiB/mozw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=w2TjSS2z; arc=none smtp.client-ip=115.124.30.119
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WXJq8JDl"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1714965880;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=BXECy0j7At+OptqnyBfrJG9H7LKgIkADB2rySsLldvo=;
-	b=WXJq8JDlWzX2RreasT/YGBM98hdl/Ps6Nslp+qsHicoB3wDUpJVbd28NgUA3uM2svU9kWM
-	1bF5ZbqLs7sMebBejVEygyQYgHl/StRkfX0QWPz0Vz4ndVVRF/XohxGAqpAuFGakyU3aHD
-	wlbKwPhLpS6D+aU4vQdMHqkdfAz/pUs=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-691-h1At8un-OUiVxIb3dc0UVw-1; Sun, 05 May 2024 23:24:38 -0400
-X-MC-Unique: h1At8un-OUiVxIb3dc0UVw-1
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-2b38f3e2919so2768730a91.0
-        for <virtualization@lists.linux.dev>; Sun, 05 May 2024 20:24:38 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1714965878; x=1715570678;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=BXECy0j7At+OptqnyBfrJG9H7LKgIkADB2rySsLldvo=;
-        b=HrMNZjReKfRJqBQ3gkyDvsV3ZrTXQkKKsfSg4zgG7dHQUZTTupcglsWl7K+wz3Y4f4
-         Ytf8/CuF9rOc2gi0+QykVWxZ5Er0B/iuqNgyAK1FbQXro+nQ6NgVod+1r5I5sPePnEd1
-         28rCK7k6d16s4ka+pEGuBeNGU/88pa1JBG5YFKgpYEqy1RKd1qtPNJPJPLb+Xdrlk04k
-         /CuJIQR3p8RoIU3ml5EKuboHcfS2Eab8TtixmVkrQoaHYoqrj3W+J/UrG8wsMCtXiNQC
-         V8+0JAucLQGVp+WGHqX/SSNeenueoTk9Ft06njpMZeJk8xRD/zgLgzt1+YztIjKtUdCx
-         43lQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWeZ7Dj90nbWFJBFEAz7sXNNLToJxweCSB+r5FUvrESdrOwtEoqCSW81uod3+X/xLjYejMZ9XYTAnGW/kiPOcFQzAXWOG3iLZBylnIlEOo=
-X-Gm-Message-State: AOJu0YxRHbzwKf3clPmclLoCMvonWifrkYS4IvFZQnnm9/5+NlmavAFJ
-	Mg1khtemSlf0ERj/5JfvOcNSMwUV6GNvmFKi0QZs1DaXsBcR64OF3lYbDIIMTl3R/hxgpmzNhSQ
-	+KxAin576AV5iHRyuwu2jWUTu6cJ8fSO+Ni9d6bWxo41zLc97erLZjqUJS9gWIaCYuFzzqHz2fE
-	2nUVkPMaPFCfiU6PixmlfMJml/8hucHbyC0skvkFc=
-X-Received: by 2002:a17:90b:19cc:b0:2b2:da7:2c83 with SMTP id nm12-20020a17090b19cc00b002b20da72c83mr12511968pjb.4.1714965877808;
-        Sun, 05 May 2024 20:24:37 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHsgR09huJq7794Kr7Va7gw9HzoZRK/fRVHd00z788cM7NjAkL3DywsEKb+A/xOZDmoDbwkRNX9xodgt7fyblY=
-X-Received: by 2002:a17:90b:19cc:b0:2b2:da7:2c83 with SMTP id
- nm12-20020a17090b19cc00b002b20da72c83mr12511949pjb.4.1714965877400; Sun, 05
- May 2024 20:24:37 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="w2TjSS2z"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1714976400; h=Message-ID:Subject:Date:From:To;
+	bh=ykX1DBvAThRCu1cGX79eKGfjSaN3hhiA4FeO5nFGe9o=;
+	b=w2TjSS2zWU1zSWAhWlfNx5+6WY5ImhTRuZCq/6DBSIW6HcPG83mL4XKlD+CeCEXKu3yueDVmPH7Yst3Tkd4IBXED6mqTPHHdy4LsoEEzuNuM3ZoXkWlQ7S5M1pa1DsBBLOEgMkrR5NMb4AbsKruCfRgSkHzDk9HnMhFyIbE87BY=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R241e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045075189;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0W5ufZZc_1714976398;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W5ufZZc_1714976398)
+          by smtp.aliyun-inc.com;
+          Mon, 06 May 2024 14:19:59 +0800
+Message-ID: <1714976172.0470116-1-hengqi@linux.alibaba.com>
+Subject: Re: [PATCH net-next v6 0/6] Remove RTNL lock protection of CVQ
+Date: Mon, 6 May 2024 14:16:12 +0800
+From: Heng Qi <hengqi@linux.alibaba.com>
+To: Daniel Jurgens <danielj@nvidia.com>
+Cc: <mst@redhat.com>,
+ <jasowang@redhat.com>,
+ <xuanzhuo@linux.alibaba.com>,
+ <virtualization@lists.linux.dev>,
+ <davem@davemloft.net>,
+ <edumazet@google.com>,
+ <kuba@kernel.org>,
+ <pabeni@redhat.com>,
+ <jiri@nvidia.com>,
+ Daniel Jurgens <danielj@nvidia.com>,
+ <netdev@vger.kernel.org>
+References: <20240503202445.1415560-1-danielj@nvidia.com>
+In-Reply-To: <20240503202445.1415560-1-danielj@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-References: <ZjFH7Xb5gyTtOpWd@localhost.localdomain> <20240430121730-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20240430121730-mutt-send-email-mst@kernel.org>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 6 May 2024 11:24:25 +0800
-Message-ID: <CACGkMEsFMXdswxgguH1P_TkY9wnKgE8RbhUdw_Pd+niSp2UjSg@mail.gmail.com>
-Subject: Re: [PATCH] virtio_net: Warn if insufficient queue length for transmitting
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Darius Rad <darius@bluespec.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, May 1, 2024 at 4:07=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com> =
-wrote:
->
-> On Tue, Apr 30, 2024 at 03:35:09PM -0400, Darius Rad wrote:
-> > The transmit queue is stopped when the number of free queue entries is =
-less
-> > than 2+MAX_SKB_FRAGS, in start_xmit().  If the queue length (QUEUE_NUM_=
-MAX)
-> > is less than then this, transmission will immediately trigger a netdev
-> > watchdog timeout.  Report this condition earlier and more directly.
-> >
-> > Signed-off-by: Darius Rad <darius@bluespec.com>
-> > ---
-> >  drivers/net/virtio_net.c | 3 +++
-> >  1 file changed, 3 insertions(+)
-> >
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index 115c3c5414f2..72ee8473b61c 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -4917,6 +4917,9 @@ static int virtnet_probe(struct virtio_device *vd=
-ev)
-> >                       set_bit(guest_offloads[i], &vi->guest_offloads);
-> >       vi->guest_offloads_capable =3D vi->guest_offloads;
-> >
-> > +     if (virtqueue_get_vring_size(vi->sq->vq) < 2 + MAX_SKB_FRAGS)
-> > +             netdev_warn_once(dev, "not enough queue entries, expect x=
-mit timeout\n");
-> > +
->
-> How about actually fixing it though? E.g. by linearizing...
+On Fri, 3 May 2024 23:24:39 +0300, Daniel Jurgens <danielj@nvidia.com> wrote:
+> Currently the buffer used for control VQ commands is protected by the
+> RTNL lock. Previously this wasn't a major concern because the control VQ
+> was only used during device setup and user interaction. With the recent
+> addition of dynamic interrupt moderation the control VQ may be used
+> frequently during normal operation.
+> 
+> This series removes the RNTL lock dependency by introducing a mutex
+> to protect the control buffer and writing SGs to the control VQ.
+> 
 
-Actually, the linearing is only needed for the case when the indirect
-descriptor is not supported.
+For the series, keep tags:
 
->
-> It also bothers me that there's practically
-> /proc/sys/net/core/max_skb_frags
-> and if that's low then things could actually work.
+Reviewed-by: Heng Qi <hengqi@linux.alibaba.com>
+Tested-by: Heng Qi <hengqi@linux.alibaba.com>
 
-Probably not as it won't exceed MAX_SKB_FRAGS.
 
->
-> Finally, while originally it was just 17 typically, now it's
-> configurable. So it's possible that you change the config to make big
-> tcp
-
-Note that virtio-net doesn't fully support big TCP.
-
-> work better and device stops working while it worked fine
-> previously.
-
-For this patch, I guess not as we had:
-
-        if (sq->vq->num_free < 2+MAX_SKB_FRAGS)
-
-in the tx path. So it won't even work before this patch.
-
-Thanks
-
->
->
-> >       pr_debug("virtnet: registered device %s with %d RX and TX vq's\n"=
-,
-> >                dev->name, max_queue_pairs);
-> >
-> > --
-> > 2.39.2
->
-
+> v6:
+> 	- Rebased over new stats code.
+> 	- Added comment to cvq_lock, init the mutex unconditionally,
+> 	  and replaced some duplicate code with a goto.
+> 	- Fixed minor grammer errors, checkpatch warnings, and clarified
+> 	  a comment.
+> v5:
+> 	- Changed cvq_lock to a mutex.
+> 	- Changed dim_lock to mutex, because it's held taking
+> 	  the cvq_lock.
+> 	- Use spin/mutex_lock/unlock vs guard macros.
+> v4:
+> 	- Protect dim_enabled with same lock as well intr_coal.
+> 	- Rename intr_coal_lock to dim_lock.
+> 	- Remove some scoped_guard where the error path doesn't
+> 	  have to be in the lock.
+> v3:
+> 	- Changed type of _offloads to __virtio16 to fix static
+> 	  analysis warning.
+> 	- Moved a misplaced hunk to the correct patch.
+> v2:
+> 	- New patch to only process the provided queue in
+> 	  virtnet_dim_work
+> 	- New patch to lock per queue rx coalescing structure.
+> 
+> Daniel Jurgens (6):
+>   virtio_net: Store RSS setting in virtnet_info
+>   virtio_net: Remove command data from control_buf
+>   virtio_net: Add a lock for the command VQ.
+>   virtio_net: Do DIM update for specified queue only
+>   virtio_net: Add a lock for per queue RX coalesce
+>   virtio_net: Remove rtnl lock protection of command buffers
+> 
+>  drivers/net/virtio_net.c | 288 +++++++++++++++++++++++----------------
+>  1 file changed, 173 insertions(+), 115 deletions(-)
+> 
+> -- 
+> 2.44.0
+> 
+> 
