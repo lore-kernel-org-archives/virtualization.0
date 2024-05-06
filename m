@@ -1,165 +1,186 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 852B3157E7A
-	for <virtualization@lists.linux-foundation.org>; Mon,  6 May 2024 17:50:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B93D15B57D
+	for <virtualization@lists.linux.dev>; Mon,  6 May 2024 21:53:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715017824; cv=none; b=qS54HvhgB+iYP5ijwFiwrxgdz2xzTQBfWUKJkiU8G1gLBdYdq0sdIdAMsTtjwZVDrWijyIulL7TMl0a90PqKNUht4o4j5iM6e+5GN3WyyuOJrSjLaarqi8iFeSa6SEncISbQ5ReqP6jiCZcZPcl76RG++IeLXc90xZIcFUDyxB8=
+	t=1715032416; cv=none; b=VDQ/sOXLrliclSBFnKIalBf7VQFGCPj9NJy5+xP9zUzP2YWX12H8YG4ePd2JC+O2p3YLE/zguFcNO/+XN4GanpqEBb5q8IzPCkPV0O8f9oc9H8iS2gt1gVuL+ZlZBvNPW9QgaN49IR4CL/guuLGQU5TvZX1q+bUG8yh/v4kNUa4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715017824; c=relaxed/simple;
-	bh=FeafhCaExu57qsacTj62dWRUdrBXKjPBuLT9vOLipXU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Jmm6dPdS4xnKnNl+lkWYZRbmrWYcLPjyz+TOm+Ci2to9fs85F8p4NXdvPaisCNkKy8b8QRDzP2Uphz2nI701piYf7CWa8swLtTS0LkXN4hn93p+3Ze7ZCKkTddA5J3/eo4DI/4UpGAKS5Yu7mP8PEhQ7n44e4vPRzJgzVFDyO+8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b=mGwJTwDH; arc=none smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1715032416; c=relaxed/simple;
+	bh=2O+wP4vBQozHsluR1vc78YidgtjsHnoZsO3a7SO9cjQ=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=R2VFOtLZZ5+MIFQpcxhTVH7ITRtLaX7jyi0vz0GEHirf6wYeY26U0dNkQ2I5sV5MOrggID9judijtqzO8wPgTpU3AHvYXyhZF+VpmQb49FqWNOnumDHFDWnwFgTTHgdEhHnM6UhfLw5vtPAZJw+jGMOEq4YeOaYfOS1R91wxHZM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=CKothR3Z; arc=none smtp.client-ip=209.85.214.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="mGwJTwDH"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 1952981F59
-	for <virtualization@lists.linux-foundation.org>; Mon,  6 May 2024 17:50:22 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.102
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id MIf5CDCUAGfb for <virtualization@lists.linux-foundation.org>;
- Mon,  6 May 2024 17:50:21 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2001:1600:7:10::bc0b; helo=smtp-bc0b.mail.infomaniak.ch; envelope-from=mic@digikod.net; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org B83EF81F48
-Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=digikod.net
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B83EF81F48
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.a=rsa-sha256 header.s=20191114 header.b=mGwJTwDH
-Received: from smtp-bc0b.mail.infomaniak.ch (smtp-bc0b.mail.infomaniak.ch [IPv6:2001:1600:7:10::bc0b])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id B83EF81F48
-	for <virtualization@lists.linux-foundation.org>; Mon,  6 May 2024 17:50:19 +0000 (UTC)
-Received: from smtp-3-0001.mail.infomaniak.ch (smtp-3-0001.mail.infomaniak.ch [10.4.36.108])
-	by smtp-4-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4VY87s1JrnzP8k;
-	Mon,  6 May 2024 19:50:17 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=digikod.net;
-	s=20191114; t=1715017816;
-	bh=FeafhCaExu57qsacTj62dWRUdrBXKjPBuLT9vOLipXU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=mGwJTwDHmCYyRVABfvivVlR645+s55YE3ikqtGU8J06uhEpc53bUE7Ls8lVECmSJY
-	 ZoGZR6nkUaCWIF86rf6UUOQ30vsnFTU+oyKVa5juk1cYq6aZPMMxOD7Adtf6s6Qe8Z
-	 /vj4j5MGtH+BC89lqOLDnwO6/+q161VQ+b28m63o=
-Received: from unknown by smtp-3-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4VY87p5F0GzB95;
-	Mon,  6 May 2024 19:50:14 +0200 (CEST)
-Date: Mon, 6 May 2024 19:50:13 +0200
-From: =?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>
-To: Sean Christopherson <seanjc@google.com>
-Cc: Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, "H . Peter Anvin" <hpa@zytor.com>, 
-	Ingo Molnar <mingo@redhat.com>, Kees Cook <keescook@chromium.org>, 
-	Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, 
-	Vitaly Kuznetsov <vkuznets@redhat.com>, Wanpeng Li <wanpengli@tencent.com>, 
-	Rick P Edgecombe <rick.p.edgecombe@intel.com>, Alexander Graf <graf@amazon.com>, 
-	Angelina Vu <angelinavu@linux.microsoft.com>, Anna Trikalinou <atrikalinou@microsoft.com>, 
-	Chao Peng <chao.p.peng@linux.intel.com>, Forrest Yuan Yu <yuanyu@google.com>, 
-	James Gowans <jgowans@amazon.com>, James Morris <jamorris@linux.microsoft.com>, 
-	John Andersen <john.s.andersen@intel.com>, "Madhavan T . Venkataraman" <madvenka@linux.microsoft.com>, 
-	Marian Rotariu <marian.c.rotariu@gmail.com>, Mihai =?utf-8?B?RG9uyJt1?= <mdontu@bitdefender.com>, 
-	=?utf-8?B?TmljdciZb3IgQ8OuyJt1?= <nicu.citu@icloud.com>, Thara Gopinath <tgopinath@microsoft.com>, 
-	Trilok Soni <quic_tsoni@quicinc.com>, Wei Liu <wei.liu@kernel.org>, Will Deacon <will@kernel.org>, 
-	Yu Zhang <yu.c.zhang@linux.intel.com>, =?utf-8?Q?=C8=98tefan_=C8=98icleru?= <ssicleru@bitdefender.com>, 
-	dev@lists.cloudhypervisor.org, kvm@vger.kernel.org, linux-hardening@vger.kernel.org, 
-	linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, 
-	x86@kernel.org, xen-devel@lists.xenproject.org
-Subject: Re: [RFC PATCH v3 3/5] KVM: x86: Add notifications for Heki policy
- configuration and violation
-Message-ID: <20240506.ohwe7eewu0oB@digikod.net>
-References: <20240503131910.307630-1-mic@digikod.net>
- <20240503131910.307630-4-mic@digikod.net>
- <ZjTuqV-AxQQRWwUW@google.com>
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="CKothR3Z"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-1ec69e3dbcfso16753025ad.0
+        for <virtualization@lists.linux.dev>; Mon, 06 May 2024 14:53:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google; t=1715032414; x=1715637214; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=XYUTFxlPB4t5BYAahm504Iew6H7+QkCuTotTXWPeyzI=;
+        b=CKothR3ZTQ2fFtmFpRBVeBMdjKARUqdt0sIY8ZOukbZCN7qvA7SmxMSiJWlyr8pXh0
+         fiBnhCcexnq6eHcnvtLOKZf+78smhPiRU0FRpzckjPVnSc4Q22SvaOdmUDr4c2356OMD
+         J6/O74tno7g7yoB3bXlx2lJoIgK47HTvr0UQo=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1715032414; x=1715637214;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=XYUTFxlPB4t5BYAahm504Iew6H7+QkCuTotTXWPeyzI=;
+        b=IKUEudeY5bzir1jc5QykhO/eOvXGqphBmVMUfhzOJZ5Usa8nNuyHkHlzrgUTmw7/kM
+         S3rthb7R1I6Agk4TCUrtwEhrpMojt823uv39L/Wfxf7dk+ZGqjWUbr+36dG8rNvd+BaV
+         sz+mbZX2ioW1GjOJn5yNuv0TyVwS40x1QmyKCwBbOX90wQTrrw9usu8NyIcVyliq/yki
+         PAuujoIkKkj+osgTUCfZTd/H0y/bXxz+5HHkokSpOV+pgvRa5Iz+gWqK3tPabOwKWYLw
+         ToXfqguqFT/uvrxYBV5HVFxfCRmD5/0ee6KPtHWBCddVF4aGCuwZazaiGKgMIVMnEYv3
+         K0vw==
+X-Forwarded-Encrypted: i=1; AJvYcCUGrhCzo1FGm0cQQ/5cD1P0IfzNG8GMrxccIKckXik4U7UthXwPiJbo1ULYyWIJbQPIaxTQVXEecNRxQKMkWwSpkqzRbz4iOPSIDrr2XJ0=
+X-Gm-Message-State: AOJu0Yxhq6M+8dReKBg6E2aLfoGbhOA/MLoSpoTS+FJg9+hwGBNa9YSl
+	3iJ6N1Rh34p4igG+Xl0ofwMy6rSy8GXepY4vk4t08hCEuEjz8d8Dp/xkGti/Mg==
+X-Google-Smtp-Source: AGHT+IHL5cRDZJngyMmvBrgy59n1mJBgkULgJqoOpSace5UDEB2m1G8X4xIxLf9cVYD04RkFRqN71A==
+X-Received: by 2002:a17:902:6bcc:b0:1e4:200e:9c2b with SMTP id m12-20020a1709026bcc00b001e4200e9c2bmr10847177plt.21.1715032414110;
+        Mon, 06 May 2024 14:53:34 -0700 (PDT)
+Received: from amakhalov-build-vm.eng.vmware.com ([128.177.82.146])
+        by smtp.gmail.com with ESMTPSA id h8-20020a170902f54800b001ed6868e257sm5664008plf.123.2024.05.06.14.53.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 06 May 2024 14:53:33 -0700 (PDT)
+From: Alexey Makhalov <alexey.makhalov@broadcom.com>
+To: linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	bp@alien8.de,
+	hpa@zytor.com,
+	dave.hansen@linux.intel.com,
+	mingo@redhat.com,
+	tglx@linutronix.de
+Cc: x86@kernel.org,
+	netdev@vger.kernel.org,
+	richardcochran@gmail.com,
+	linux-input@vger.kernel.org,
+	dmitry.torokhov@gmail.com,
+	zackr@vmware.com,
+	linux-graphics-maintainer@vmware.com,
+	pv-drivers@vmware.com,
+	timothym@vmware.com,
+	akaher@vmware.com,
+	dri-devel@lists.freedesktop.org,
+	daniel@ffwll.ch,
+	airlied@gmail.com,
+	tzimmermann@suse.de,
+	mripard@kernel.org,
+	maarten.lankhorst@linux.intel.com,
+	horms@kernel.org,
+	kirill.shutemov@linux.intel.com,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>
+Subject: [PATCH v9 0/8] VMware hypercalls enhancements
+Date: Mon,  6 May 2024 14:52:57 -0700
+Message-Id: <20240506215305.30756-1-alexey.makhalov@broadcom.com>
+X-Mailer: git-send-email 2.39.0
+In-Reply-To: <20240505182829.GBZjfPzeEijTsBUth5@fat_crate.local>
+References: <20240505182829.GBZjfPzeEijTsBUth5@fat_crate.local>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <ZjTuqV-AxQQRWwUW@google.com>
-X-Infomaniak-Routing: alpha
 
-On Fri, May 03, 2024 at 07:03:21AM GMT, Sean Christopherson wrote:
-> On Fri, May 03, 2024, Mickaël Salaün wrote:
-> > Add an interface for user space to be notified about guests' Heki policy
-> > and related violations.
-> > 
-> > Extend the KVM_ENABLE_CAP IOCTL with KVM_CAP_HEKI_CONFIGURE and
-> > KVM_CAP_HEKI_DENIAL. Each one takes a bitmask as first argument that can
-> > contains KVM_HEKI_EXIT_REASON_CR0 and KVM_HEKI_EXIT_REASON_CR4. The
-> > returned value is the bitmask of known Heki exit reasons, for now:
-> > KVM_HEKI_EXIT_REASON_CR0 and KVM_HEKI_EXIT_REASON_CR4.
-> > 
-> > If KVM_CAP_HEKI_CONFIGURE is set, a VM exit will be triggered for each
-> > KVM_HC_LOCK_CR_UPDATE hypercalls according to the requested control
-> > register. This enables to enlighten the VMM with the guest
-> > auto-restrictions.
-> > 
-> > If KVM_CAP_HEKI_DENIAL is set, a VM exit will be triggered for each
-> > pinned CR violation. This enables the VMM to react to a policy
-> > violation.
-> > 
-> > Cc: Borislav Petkov <bp@alien8.de>
-> > Cc: Dave Hansen <dave.hansen@linux.intel.com>
-> > Cc: H. Peter Anvin <hpa@zytor.com>
-> > Cc: Ingo Molnar <mingo@redhat.com>
-> > Cc: Kees Cook <keescook@chromium.org>
-> > Cc: Madhavan T. Venkataraman <madvenka@linux.microsoft.com>
-> > Cc: Paolo Bonzini <pbonzini@redhat.com>
-> > Cc: Sean Christopherson <seanjc@google.com>
-> > Cc: Thomas Gleixner <tglx@linutronix.de>
-> > Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
-> > Cc: Wanpeng Li <wanpengli@tencent.com>
-> > Signed-off-by: Mickaël Salaün <mic@digikod.net>
-> > Link: https://lore.kernel.org/r/20240503131910.307630-4-mic@digikod.net
-> > ---
-> > 
-> > Changes since v1:
-> > * New patch. Making user space aware of Heki properties was requested by
-> >   Sean Christopherson.
-> 
-> No, I suggested having userspace _control_ the pinning[*], not merely be notified
-> of pinning.
-> 
->  : IMO, manipulation of protections, both for memory (this patch) and CPU state
->  : (control registers in the next patch) should come from userspace.  I have no
->  : objection to KVM providing plumbing if necessary, but I think userspace needs to
->  : to have full control over the actual state.
->  : 
->  : One of the things that caused Intel's control register pinning series to stall
->  : out was how to handle edge cases like kexec() and reboot.  Deferring to userspace
->  : means the kernel doesn't need to define policy, e.g. when to unprotect memory,
->  : and avoids questions like "should userspace be able to overwrite pinned control
->  : registers".
->  : 
->  : And like the confidential VM use case, keeping userspace in the loop is a big
->  : beneifit, e.g. the guest can't circumvent protections by coercing userspace into
->  : writing to protected memory.
-> 
-> I stand by that suggestion, because I don't see a sane way to handle things like
-> kexec() and reboot without having a _much_ more sophisticated policy than would
-> ever be acceptable in KVM.
-> 
-> I think that can be done without KVM having any awareness of CR pinning whatsoever.
-> E.g. userspace just needs to ability to intercept CR writes and inject #GPs.  Off
-> the cuff, I suspect the uAPI could look very similar to MSR filtering.  E.g. I bet
-> userspace could enforce MSR pinning without any new KVM uAPI at all.
-> 
-> [*] https://lore.kernel.org/all/ZFUyhPuhtMbYdJ76@google.com
+VMware hypercalls invocations were all spread out across the kernel
+implementing same ABI as in-place asm-inline. With encrypted memory
+and confidential computing it became harder to maintain every changes
+in these hypercall implementations.
 
-OK, I had concern about the control not directly coming from the guest,
-especially in the case of pKVM and confidential computing, but I get you
-point.  It should indeed be quite similar to the MSR filtering on the
-userspace side, except that we need another interface for the guest to
-request such change (i.e. self-protection).
+Intention of this patchset is to introduce arch independent VMware
+hypercall API layer other subsystems such as device drivers can call
+to, while hiding architecture specific implementation behind.
 
-Would it be OK to keep this new KVM_HC_LOCK_CR_UPDATE hypercall but
-forward the request to userspace with a VM exit instead?  That would
-also enable userspace to get the request and directly configure the CR
-pinning with the same VM exit.
+Second patch introduces the vmware_hypercall low and high bandwidth
+families of functions, with little enhancements there.
+Sixth patch adds tdx hypercall support
+
+arm64 implementation of vmware_hypercalls is in drivers/gpu/drm/
+vmwgfx/vmwgfx_msg_arm64.h and going to be moved to arch/arm64 with
+a separate patchset with the introduction of VMware Linux guest
+support for arm64.
+
+No functional changes in drivers/input/mouse/vmmouse.c and
+drivers/ptp/ptp_vmw.c
+
+v8->v9 change:
+First patch "x86/vmware: Move common macros to vmware.h" was split on 2 pieces:
+  "x86/vmware: Move common macros to vmware.h" - just code movement, and
+  "x86/vmware: Correct macro names" - macro renaming.
+
+v7->v8 no functional changes. Updated authors and reviewers emails to
+@broadcom.com
+
+v6->v7 changes (only in patch 7):
+- Addressed comments from H. Peter Anvin:
+  1. Removed vmware_tdx_hypercall_args(), moved args handling inside
+     vmware_tdx_hypercall().
+  2. Added pr_warn_once() for !hypervisor_is_type(X86_HYPER_VMWARE) case.
+- Added ack by Dave Hansen.
+
+v5->v6 change:
+- Added ack by Kirill A. Shutemov in patch 7. 
+
+v4->v5 changes:
+  [patch 2]:
+- Fixed the problem reported by Simon Horman where build fails after
+  patch 2 application. Do not undefine VMWARE_HYPERCALL for now, and
+  update vmwgfx, vmmouse and ptp_vmw code for new VMWARE_HYPERCALL macro.
+- Introduce new patch 6 to undefine VMWARE_HYPERCALL, which is safe to do
+  after patches 3 to 5.
+- [patch 7 (former patch 6)]: Add missing r15 (CPL) initialization.
+
+v3->v4 changes: (no functional changes in patches 1-5)
+  [patch 2]:
+- Added the comment with VMware hypercall ABI description.
+  [patch 6]:
+- vmware_tdx_hypercall_args remove in6/out6 arguments as excessive.
+- vmware_tdx_hypercall return ULONG_MAX on error to mimic bad hypercall
+  command error from the hypervisor.
+- Replaced pr_warn by pr_warn_once as pointed by Kirill Shutemov.
+- Fixed the warning reported by Intel's kernel test robot.
+- Added the comment describing VMware TDX hypercall ABI.
+
+v2->v3 changes: (no functional changes in patches 1-5)
+- Improved commit message in patches 1, 2 and 5 as was suggested by
+  Borislav Petkov.
+- To address Dave Hansen's concern, patch 6 was reorganized to avoid
+  exporting bare __tdx_hypercall and to make exported vmware_tdx_hypercall
+  VMWare guest specific.
+
+v1->v2 changes (no functional changes):
+- Improved commit message in patches 2 and 5.
+- Added Reviewed-by for all patches.
+- Added Ack from Dmitry Torokhov in patch 4. No fixes regarding reported
+  by Simon Horman gcc error in this patch.
+
+Alexey Makhalov (8):
+  x86/vmware: Move common macros to vmware.h
+  x86/vmware: Correct macro names
+  x86/vmware: Introduce VMware hypercall API
+  ptp/vmware: Use VMware hypercall API
+  input/vmmouse: Use VMware hypercall API
+  drm/vmwgfx: Use VMware hypercall API
+  x86/vmware: Undefine VMWARE_HYPERCALL
+  x86/vmware: Add TDX hypercall support
+
+ arch/x86/include/asm/vmware.h             | 331 +++++++++++++++++++---
+ arch/x86/kernel/cpu/vmware.c              | 144 +++++-----
+ drivers/gpu/drm/vmwgfx/vmwgfx_msg.c       | 173 ++++-------
+ drivers/gpu/drm/vmwgfx/vmwgfx_msg_arm64.h | 197 +++++++++----
+ drivers/gpu/drm/vmwgfx/vmwgfx_msg_x86.h   | 185 ------------
+ drivers/input/mouse/vmmouse.c             |  76 ++---
+ drivers/ptp/ptp_vmw.c                     |  12 +-
+ 7 files changed, 593 insertions(+), 525 deletions(-)
+
+-- 
+2.39.0
+
