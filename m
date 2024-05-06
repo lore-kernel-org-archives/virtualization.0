@@ -1,153 +1,202 @@
-Received: from mx1.sberdevices.ru (mx2.sberdevices.ru [45.89.224.132])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 083856DCE8
-	for <virtualization@lists.linux.dev>; Sun,  5 May 2024 20:04:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.89.224.132
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36A4E1FC4;
+	Mon,  6 May 2024 01:45:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714939477; cv=none; b=g2AlhNeGWKdEKOBY0g/PMAP07suj5eNMKQ6mbqkJ5oWWztT1OD4yEJllAhtbYq1u55gAXlzqeyHuxDRBFWgQT2LGKk8a892TsAPE3ht+aWFBl4YVhO9e8vQVKt2Cmiiz+JOhKNqdviQMTUgupeaKWpaj1NqyOIka9jEgVUugDQU=
+	t=1714959921; cv=none; b=T5tmUu9NNR6rONjx7LpunXq+fWLxq6qyVcfYHTKncQ5oepneDdA/omMh1GtU0B0t3lMD44eL7zQpjjmBExHRL+YM2UH9D3gpUmQyDb893gjcVWLz3HAm3aEgi8y/KQ2Oade4N1UwnNucydgvutGHsxu5RAeK7isGKJa7Q7TgpE4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714939477; c=relaxed/simple;
-	bh=Pi2/TNVByX0JP5w+l9K3hAIMKCPKrqUeoG/wzKmCyy8=;
-	h=Message-ID:Date:MIME-Version:In-Reply-To:To:CC:From:Subject:
-	 Content-Type; b=BUt1+DY0QUDlwjWwDZ80Wvexjg01U0Ozd2gXFuITbuZzKJUvHaz4hNOgPhTZthfLjV2qE0+dMmYVrHielVzvyu0Bp+lzgw3jzHyNrNFQvwFa70QLeGDvL6kOmQxxRifjbFi3lBvb/1W6oBwaUNn1mx9couW1m1yYIhTvr9aazck=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=salutedevices.com; spf=pass smtp.mailfrom=salutedevices.com; dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b=QZVeGXm2; arc=none smtp.client-ip=45.89.224.132
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=salutedevices.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=salutedevices.com
+	s=arc-20240116; t=1714959921; c=relaxed/simple;
+	bh=CpeTkL00XI5p8XOXv0IJrxVoS2FK/cvm+CcUs8j3DwY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ajDhGRuIgviaiwJYwKeSA9cKWeMcpVIjlEHFrJZWmr+/5vgVoLMmI6rwvQmRQsJcikBut1VxFZWgCTz5kD8lGQ7CAxd0GAK3KvI0PRN/Eoge6X/sQ0uQz9ZacPpW54Nc6K6gtxXwUPN5fno4wafLqGs0VmEkzsl7SfCKjnLGkmk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=tg/TaYks; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="QZVeGXm2"
-Received: from p-infra-ksmg-sc-msk02 (localhost [127.0.0.1])
-	by mx1.sberdevices.ru (Postfix) with ESMTP id 71468120004;
-	Sun,  5 May 2024 23:04:24 +0300 (MSK)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru 71468120004
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
-	s=mail; t=1714939464;
-	bh=baxPYAOBKBIEZGlkQCQ94G4LWTk3/f2RFWo2CGnbI50=;
-	h=Message-ID:Date:MIME-Version:To:From:Subject:Content-Type:From;
-	b=QZVeGXm2O0TvVnYhTRgVcbUbOlA10QH3bYpOUDTG6g3ocuKRiTu/Cak1yHQ4IkB0M
-	 Swu+zNMXwo5hrIv7NjSLcwEwSmzDWOOZHgi8gMiKEWiPOqGVXMJyhRohreoLZ9lwP3
-	 dkZEFig6YIuH95ABNnmpvVkWWp3tBs5xUavLMTMZxkm3aelrbMMWGC3cbu9lm31aHn
-	 rNzFrX2NBMyKjUAFbClx0JOEbFfuLZhbXEPksySpQRTaf8ozhAtH38IQpAvD3gWQkb
-	 OEY2VcPaYL5hkLYHGpsoxVFrCGuGwMk/SK8srzcJ9ynuwu8sI5vPFaafEjF9T4JKkV
-	 0BNR+8cZm5AtQ==
-Received: from smtp.sberdevices.ru (p-i-exch-sc-m02.sberdevices.ru [172.16.192.103])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mx1.sberdevices.ru (Postfix) with ESMTPS;
-	Sun,  5 May 2024 23:04:24 +0300 (MSK)
-Received: from [192.168.0.106] (100.64.160.123) by
- p-i-exch-sc-m02.sberdevices.ru (172.16.192.103) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.40; Sun, 5 May 2024 23:04:23 +0300
-Message-ID: <d0550fea-58b6-3aa5-a8ac-27308183d6f8@salutedevices.com>
-Date: Sun, 5 May 2024 22:53:39 +0300
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="tg/TaYks"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D96EBC113CC;
+	Mon,  6 May 2024 01:45:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1714959920;
+	bh=CpeTkL00XI5p8XOXv0IJrxVoS2FK/cvm+CcUs8j3DwY=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=tg/TaYkszAjtYXC8JAyxTHDcez48kwp0UwJmHXcoKp7v7aFx9mEFjymBjdqwWLIMm
+	 lsxUtJkx9D1rdWXst909Ksv0gYIDmBIO1lKJ4LkcmMQ3nNAGOVEG1Froo/UwF4cRq+
+	 FoE64WOVbHVG21P/BNhFp+vC2lR8hvV+0M8cdkr8akD7NgOeJTzaW3u3uF7qWgrbCa
+	 wRKUzKss3g6bQrVyMOKbE3TSwkm2pcoNHZLphADI+HzQHvJ+43rp+pE+gItSYDAcMu
+	 37q4QMFjLUoJzo9PnamOEu0OxQHb8I57yvUvxbp6txwl+807Yot8tnU+CjqdE2aJ3Q
+	 onYUM579g/2dA==
+Received: by mail-ej1-f49.google.com with SMTP id a640c23a62f3a-a59c448b44aso143705466b.2;
+        Sun, 05 May 2024 18:45:20 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCWpMq/nwD3zeub5UmG7HUzk1M2uuIQgMjE4gPrwCw4usxejcgdfChRiMgPmLoQQtbVF+ZCsh8w4TPre7WIjLG/iiMDImR7Fi8be+KJGO++bIVdEExPtG6g1N6B/eVyXDF7sAtU/+C4Hczw=
+X-Gm-Message-State: AOJu0Yy3BMSV+QLRUqxSPHpIB9Mfra8GT6aWwi/M48rLA9DMWRFLbLBv
+	rmWnwWgRNmIWD31YwWlBMoTNsBa9ySdQsWrNvsxq3TJXaHfhHwPSaGPEG6G06NPPtfgp3GJqEnc
+	6/DtUSxYy2zHHa83lGB90UO+j4G8=
+X-Google-Smtp-Source: AGHT+IEHL/Rd2Ivrj03R56osKN5biZdcJ05JD1oXZPm7WgO/Z3n+UAmeiWepgvHWc4P8S3s6KrRNFDemhWa8vwiLbLc=
+X-Received: by 2002:a17:906:3bd5:b0:a59:afdd:590f with SMTP id
+ v21-20020a1709063bd500b00a59afdd590fmr2638734ejf.58.1714959919437; Sun, 05
+ May 2024 18:45:19 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Content-Language: en-US
-In-Reply-To: <20240422100010-mutt-send-email-mst@kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-CC: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella
-	<sgarzare@redhat.com>, Jeongjun Park <aha310510@gmail.com>, Jason Wang
-	<jasowang@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, LKML
-	<linux-kernel@vger.kernel.org>, <virtualization@lists.linux.dev>,
-	<syzbot+6c21aeb59d0e82eb2782@syzkaller.appspotmail.com>,
-	<syzkaller-bugs@googlegroups.com>, Krasnov Arseniy <oxffffaa@gmail.com>
-From: Arseniy Krasnov <avkrasnov@salutedevices.com>
-Subject: Re: [PATCH virt] virt: fix uninit-value in vhost_vsock_dev_open
+References: <20240428100518.1642324-1-maobibo@loongson.cn>
+In-Reply-To: <20240428100518.1642324-1-maobibo@loongson.cn>
+From: Huacai Chen <chenhuacai@kernel.org>
+Date: Mon, 6 May 2024 09:45:10 +0800
+X-Gmail-Original-Message-ID: <CAAhV-H6c2Wym4w5WchP=K1fHv8uVFDp59CATYKcH3mGYDxnKmA@mail.gmail.com>
+Message-ID: <CAAhV-H6c2Wym4w5WchP=K1fHv8uVFDp59CATYKcH3mGYDxnKmA@mail.gmail.com>
+Subject: Re: [PATCH v8 0/6] LoongArch: Add pv ipi support on LoongArch VM
+To: Bibo Mao <maobibo@loongson.cn>
+Cc: Tianrui Zhao <zhaotianrui@loongson.cn>, Juergen Gross <jgross@suse.com>, 
+	Paolo Bonzini <pbonzini@redhat.com>, Jonathan Corbet <corbet@lwn.net>, loongarch@lists.linux.dev, 
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
+	kvm@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) To
- p-i-exch-sc-m02.sberdevices.ru (172.16.192.103)
-X-KSMG-Rule-ID: 10
-X-KSMG-Message-Action: clean
-X-KSMG-AntiSpam-Lua-Profiles: 185060 [May 05 2024]
-X-KSMG-AntiSpam-Version: 6.1.0.4
-X-KSMG-AntiSpam-Envelope-From: avkrasnov@salutedevices.com
-X-KSMG-AntiSpam-Rate: 0
-X-KSMG-AntiSpam-Status: not_detected
-X-KSMG-AntiSpam-Method: none
-X-KSMG-AntiSpam-Auth: dkim=none
-X-KSMG-AntiSpam-Info: LuaCore: 19 0.3.19 07c7fa124d1a1dc9662cdc5aace418c06ae99d2b, {Tracking_from_domain_doesnt_match_to}, salutedevices.com:7.1.1;100.64.160.123:7.1.2;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;smtp.sberdevices.ru:7.1.1,5.0.1;127.0.0.199:7.1.2, FromAlignment: s, ApMailHostAddress: 100.64.160.123
-X-MS-Exchange-Organization-SCL: -1
-X-KSMG-AntiSpam-Interceptor-Info: scan successful
-X-KSMG-AntiPhishing: Clean
-X-KSMG-LinksScanning: Clean
-X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2024/05/05 18:13:00 #25098537
-X-KSMG-AntiVirus-Status: Clean, skipped
+Content-Transfer-Encoding: quoted-printable
 
-> But now that it's explained, the bugfix as proposed is incomplete:
-> userspace can set features twice and the second time will leak
-> old VIRTIO_VSOCK_F_SEQPACKET bit value.
-> 
-> And I am pretty sure the Fixes tag is wrong.
-> 
-> So I wrote this, but I actually don't have a set for
-> seqpacket to test this. Arseny could you help test maybe?
-> Thanks!
+Hi, Bibo,
 
-Hi! Sorry for late reply! Just run vsock test suite with this patch -
-seems everything is ok!
+I have done an off-list discussion with some KVM experts, and they
+think user-space have its right to know PV features, so cpucfg
+solution is acceptable.
 
-> 
-> 
-> commit bcc17a060d93b198d8a17a9b87b593f41337ee28
-> Author: Michael S. Tsirkin <mst@redhat.com>
-> Date:   Mon Apr 22 10:03:13 2024 -0400
-> 
-> vhost/vsock: always initialize seqpacket_allow
-> 
-> There are two issues around seqpacket_allow:
-> 1. seqpacket_allow is not initialized when socket is
-> created. Thus if features are never set, it will be
-> read uninitialized.
-> 2. if VIRTIO_VSOCK_F_SEQPACKET is set and then cleared,
-> then seqpacket_allow will not be cleared appropriately
-> (existing apps I know about don't usually do this but
-> it's legal and there's no way to be sure no one relies
-> on this).
-> 
-> To fix:
->     - initialize seqpacket_allow after allocation
->     - set it unconditionally in set_features
-> 
-> Reported-by: syzbot+6c21aeb59d0e82eb2782@syzkaller.appspotmail.com
-> Reported-by: Jeongjun Park <aha310510@gmail.com>
-> Fixes: ced7b713711f ("vhost/vsock: support SEQPACKET for transport").
-> Cc: Arseny Krasnov <arseny.krasnov@kaspersky.com>
-> Cc: David S. Miller <davem@davemloft.net>
-> Cc: Stefan Hajnoczi <stefanha@redhat.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+And I applied this series with some modifications at
+https://git.kernel.org/pub/scm/linux/kernel/git/chenhuacai/linux-loongson.g=
+it/log/?h=3Dloongarch-kvm
+You can test it now. But it seems the upstream qemu cannot enable PV IPI no=
+w.
 
-Acked-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
+I will reply to other patches about my modifications.
 
-> 
-> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-> index ec20ecff85c7..bf664ec9341b 100644
-> --- a/drivers/vhost/vsock.c
-> +++ b/drivers/vhost/vsock.c
-> @@ -667,6 +667,7 @@ static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
->  	}
->  
->  	vsock->guest_cid = 0; /* no CID assigned yet */
-> +	vsock->seqpacket_allow = false;
->  
->  	atomic_set(&vsock->queued_replies, 0);
->  
-> @@ -810,8 +811,7 @@ static int vhost_vsock_set_features(struct vhost_vsock *vsock, u64 features)
->  			goto err;
->  	}
->  
-> -	if (features & (1ULL << VIRTIO_VSOCK_F_SEQPACKET))
-> -		vsock->seqpacket_allow = true;
-> +	vsock->seqpacket_allow = features & (1ULL << VIRTIO_VSOCK_F_SEQPACKET);
->  
->  	for (i = 0; i < ARRAY_SIZE(vsock->vqs); i++) {
->  		vq = &vsock->vqs[i];
+Huacai
 
-
+On Sun, Apr 28, 2024 at 6:05=E2=80=AFPM Bibo Mao <maobibo@loongson.cn> wrot=
+e:
+>
+> On physical machine, ipi HW uses IOCSR registers, however there is trap
+> into hypervisor when vcpu accesses IOCSR registers if system is in VM
+> mode. SWI is a interrupt mechanism like SGI on ARM, software can send
+> interrupt to CPU, only that on LoongArch SWI can only be sent to local CP=
+U
+> now. So SWI can not used for IPI on real HW system, however it can be use=
+d
+> on VM when combined with hypercall method. IPI can be sent with hypercall
+> method and SWI interrupt is injected to vcpu, vcpu can treat SWI
+> interrupt as IPI.
+>
+> With PV IPI supported, there is one trap with IPI sending, however with I=
+PI
+> receiving there is no trap. with IOCSR HW ipi method, there will be one
+> trap with IPI sending and two trap with ipi receiving.
+>
+> Also IPI multicast support is added for VM, the idea comes from x86 PV ip=
+i.
+> IPI can be sent to 128 vcpus in one time. With IPI multicast support, tra=
+p
+> will be reduced greatly.
+>
+> Here is the microbenchmarck data with "perf bench futex wake" testcase on
+> 3C5000 single-way machine, there are 16 cpus on 3C5000 single-way machine=
+,
+> VM has 16 vcpus also. The benchmark data is ms time unit to wakeup 16
+> threads, the performance is better if data is smaller.
+>
+> physical machine                     0.0176 ms
+> VM original                          0.1140 ms
+> VM with pv ipi patch                 0.0481 ms
+>
+> It passes to boot with 128/256 vcpus, and passes to run runltp command
+> with package ltp-20230516.
+>
+> ---
+> v7 --- v8:
+>  1. Remove kernel PLV mode checking with cpucfg emulation for hypervisor
+> feature inquiry.
+>  2. Remove document about loongarch hypercall ABI per request of huacai,
+> will add English/Chinese doc at the same time in later.
+>
+> v6 --- v7:
+>   1. Refine LoongArch virt document by review comments.
+>   2. Add function kvm_read_reg()/kvm_write_reg() in hypercall emulation,
+> and later it can be used for other trap emulations.
+>
+> v5 --- v6:
+>   1. Add privilege checking when emulating cpucfg at index 0x4000000 --
+> 0x400000FF, return 0 if not executed at kernel mode.
+>   2. Add document about LoongArch pv ipi with new creatly directory
+> Documentation/virt/kvm/loongarch/
+>   3. Fix pv ipi handling in kvm backend function kvm_pv_send_ipi(),
+> where min should plus BITS_PER_LONG with second bitmap, otherwise
+> VM with more than 64 vpus fails to boot.
+>   4. Adjust patch order and code refine with review comments.
+>
+> v4 --- v5:
+>   1. Refresh function/macro name from review comments.
+>
+> v3 --- v4:
+>   1. Modfiy pv ipi hook function name call_func_ipi() and
+> call_func_single_ipi() with send_ipi_mask()/send_ipi_single(), since pv
+> ipi is used for both remote function call and reschedule notification.
+>   2. Refresh changelog.
+>
+> v2 --- v3:
+>   1. Add 128 vcpu ipi multicast support like x86
+>   2. Change cpucfg base address from 0x10000000 to 0x40000000, in order
+> to avoid confliction with future hw usage
+>   3. Adjust patch order in this patchset, move patch
+> Refine-ipi-ops-on-LoongArch-platform to the first one.
+>
+> v1 --- v2:
+>   1. Add hw cpuid map support since ipi routing uses hw cpuid
+>   2. Refine changelog description
+>   3. Add hypercall statistic support for vcpu
+>   4. Set percpu pv ipi message buffer aligned with cacheline
+>   5. Refine pv ipi send logic, do not send ipi message with if there is
+> pending ipi message.
+> ---
+> Bibo Mao (6):
+>   LoongArch/smp: Refine some ipi functions on LoongArch platform
+>   LoongArch: KVM: Add hypercall instruction emulation support
+>   LoongArch: KVM: Add cpucfg area for kvm hypervisor
+>   LoongArch: KVM: Add vcpu search support from physical cpuid
+>   LoongArch: KVM: Add pv ipi support on kvm side
+>   LoongArch: Add pv ipi support on guest kernel side
+>
+>  arch/loongarch/Kconfig                        |   9 +
+>  arch/loongarch/include/asm/Kbuild             |   1 -
+>  arch/loongarch/include/asm/hardirq.h          |   5 +
+>  arch/loongarch/include/asm/inst.h             |   1 +
+>  arch/loongarch/include/asm/irq.h              |  10 +-
+>  arch/loongarch/include/asm/kvm_host.h         |  27 +++
+>  arch/loongarch/include/asm/kvm_para.h         | 155 ++++++++++++++++++
+>  arch/loongarch/include/asm/kvm_vcpu.h         |  11 ++
+>  arch/loongarch/include/asm/loongarch.h        |  11 ++
+>  arch/loongarch/include/asm/paravirt.h         |  27 +++
+>  .../include/asm/paravirt_api_clock.h          |   1 +
+>  arch/loongarch/include/asm/smp.h              |  31 ++--
+>  arch/loongarch/include/uapi/asm/Kbuild        |   2 -
+>  arch/loongarch/kernel/Makefile                |   1 +
+>  arch/loongarch/kernel/irq.c                   |  24 +--
+>  arch/loongarch/kernel/paravirt.c              | 151 +++++++++++++++++
+>  arch/loongarch/kernel/perf_event.c            |  14 +-
+>  arch/loongarch/kernel/smp.c                   |  62 ++++---
+>  arch/loongarch/kernel/time.c                  |  12 +-
+>  arch/loongarch/kvm/exit.c                     | 132 +++++++++++++--
+>  arch/loongarch/kvm/vcpu.c                     |  94 ++++++++++-
+>  arch/loongarch/kvm/vm.c                       |  11 ++
+>  22 files changed, 690 insertions(+), 102 deletions(-)
+>  create mode 100644 arch/loongarch/include/asm/kvm_para.h
+>  create mode 100644 arch/loongarch/include/asm/paravirt.h
+>  create mode 100644 arch/loongarch/include/asm/paravirt_api_clock.h
+>  delete mode 100644 arch/loongarch/include/uapi/asm/Kbuild
+>  create mode 100644 arch/loongarch/kernel/paravirt.c
+>
+>
+> base-commit: 5eb4573ea63d0c83bf58fb7c243fc2c2b6966c02
+> --
+> 2.39.3
+>
+>
