@@ -1,182 +1,150 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 57D761096F;
-	Mon,  6 May 2024 02:41:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5ED473D962
+	for <virtualization@lists.linux.dev>; Mon,  6 May 2024 03:24:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714963277; cv=none; b=cN1gEn9+KkS0X0aOH9zyuy72q2tPd4yxrvcb5zHr0X7EE2RV+amzr94uszh7MA7H1jXWyEHBfrCup48EzzV8dypec6vvjssrAlkVxjJj20cDhphavv6NbwZIIqw+MTBhn9CtPVMvXmLLbzUUB6183Rtl4KSYXC7zPMzwBvgT6EU=
+	t=1714965883; cv=none; b=R6P9xJkuDtMcMYncI2mHjmnOJibOE91O1pe1GhvElLjMOSkNqPdQPOklbolS9lR8Dmo4wHj/E6vfWAL338KJQfgQ87WHY15oocI0q53CQXHzZpWuza3FJ8/x+HRsNgvPc05byXhREK//0+ibKKd0E5L2POFvZCixegK7JKdLP4g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714963277; c=relaxed/simple;
-	bh=FrQ3Q4c+zpCTWdWoQPf9Jye9fRyoe4zWRs8w0j8CC9Y=;
-	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=o3xTgAsstEwtkLphEWw8nYlPnZBo7Rpxm9wJ/0hJSYLDwbyriIgrxLDlwfKRBF3bkL8OOWrbtZV+7jdHZwQmjoVdpD/WgFrudqWBkF/4hk/WOsqPI2DPbH/XGeJ3iITj+fTvQ9YNtm7ji1VhZpWBSrR5QZ4ShxiVcgdMbYEnwo4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [10.20.42.173])
-	by gateway (Coremail) with SMTP id _____8BxeOlDQzhmk98HAA--.9997S3;
-	Mon, 06 May 2024 10:41:08 +0800 (CST)
-Received: from [10.20.42.173] (unknown [10.20.42.173])
-	by localhost.localdomain (Coremail) with SMTP id AQAAf8BxU1ZAQzhms_MRAA--.19845S3;
-	Mon, 06 May 2024 10:41:06 +0800 (CST)
-Subject: Re: [PATCH v8 2/6] LoongArch: KVM: Add hypercall instruction
- emulation support
-To: Huacai Chen <chenhuacai@kernel.org>
-Cc: Tianrui Zhao <zhaotianrui@loongson.cn>, Juergen Gross <jgross@suse.com>,
- Paolo Bonzini <pbonzini@redhat.com>, Jonathan Corbet <corbet@lwn.net>,
- loongarch@lists.linux.dev, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev, kvm@vger.kernel.org
-References: <20240428100518.1642324-1-maobibo@loongson.cn>
- <20240428100518.1642324-3-maobibo@loongson.cn>
- <CAAhV-H5xVP0+aUyq2+_XHW0=25zxuG53o=+vUV4MfKn=4tiwxA@mail.gmail.com>
-From: maobibo <maobibo@loongson.cn>
-Message-ID: <dab88e08-5d56-3a65-df35-47842111a8dc@loongson.cn>
-Date: Mon, 6 May 2024 10:41:02 +0800
-User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+	s=arc-20240116; t=1714965883; c=relaxed/simple;
+	bh=bBHRYR+zXOeAjZ6EPCrBlhNWwq4VARwBFLo2xTUGLZU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=NlanfcaY7ycE/DTdPLDgRKKn/1ZQXEwtJjE8hKcZcUUyHJwBWKFLsmoD9uyI4BWRorjMLilYbktu2QaGSsdW43HAF1ftRJdQBArzE+6LBodRkVwyIS3yR0Cfp+lSVC8NW4ix+8efW9JH1FjsectT9b66stmFMJYO26SbSfA7v+8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WXJq8JDl; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WXJq8JDl"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1714965880;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=BXECy0j7At+OptqnyBfrJG9H7LKgIkADB2rySsLldvo=;
+	b=WXJq8JDlWzX2RreasT/YGBM98hdl/Ps6Nslp+qsHicoB3wDUpJVbd28NgUA3uM2svU9kWM
+	1bF5ZbqLs7sMebBejVEygyQYgHl/StRkfX0QWPz0Vz4ndVVRF/XohxGAqpAuFGakyU3aHD
+	wlbKwPhLpS6D+aU4vQdMHqkdfAz/pUs=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-691-h1At8un-OUiVxIb3dc0UVw-1; Sun, 05 May 2024 23:24:38 -0400
+X-MC-Unique: h1At8un-OUiVxIb3dc0UVw-1
+Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-2b38f3e2919so2768730a91.0
+        for <virtualization@lists.linux.dev>; Sun, 05 May 2024 20:24:38 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1714965878; x=1715570678;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=BXECy0j7At+OptqnyBfrJG9H7LKgIkADB2rySsLldvo=;
+        b=HrMNZjReKfRJqBQ3gkyDvsV3ZrTXQkKKsfSg4zgG7dHQUZTTupcglsWl7K+wz3Y4f4
+         Ytf8/CuF9rOc2gi0+QykVWxZ5Er0B/iuqNgyAK1FbQXro+nQ6NgVod+1r5I5sPePnEd1
+         28rCK7k6d16s4ka+pEGuBeNGU/88pa1JBG5YFKgpYEqy1RKd1qtPNJPJPLb+Xdrlk04k
+         /CuJIQR3p8RoIU3ml5EKuboHcfS2Eab8TtixmVkrQoaHYoqrj3W+J/UrG8wsMCtXiNQC
+         V8+0JAucLQGVp+WGHqX/SSNeenueoTk9Ft06njpMZeJk8xRD/zgLgzt1+YztIjKtUdCx
+         43lQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWeZ7Dj90nbWFJBFEAz7sXNNLToJxweCSB+r5FUvrESdrOwtEoqCSW81uod3+X/xLjYejMZ9XYTAnGW/kiPOcFQzAXWOG3iLZBylnIlEOo=
+X-Gm-Message-State: AOJu0YxRHbzwKf3clPmclLoCMvonWifrkYS4IvFZQnnm9/5+NlmavAFJ
+	Mg1khtemSlf0ERj/5JfvOcNSMwUV6GNvmFKi0QZs1DaXsBcR64OF3lYbDIIMTl3R/hxgpmzNhSQ
+	+KxAin576AV5iHRyuwu2jWUTu6cJ8fSO+Ni9d6bWxo41zLc97erLZjqUJS9gWIaCYuFzzqHz2fE
+	2nUVkPMaPFCfiU6PixmlfMJml/8hucHbyC0skvkFc=
+X-Received: by 2002:a17:90b:19cc:b0:2b2:da7:2c83 with SMTP id nm12-20020a17090b19cc00b002b20da72c83mr12511968pjb.4.1714965877808;
+        Sun, 05 May 2024 20:24:37 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHsgR09huJq7794Kr7Va7gw9HzoZRK/fRVHd00z788cM7NjAkL3DywsEKb+A/xOZDmoDbwkRNX9xodgt7fyblY=
+X-Received: by 2002:a17:90b:19cc:b0:2b2:da7:2c83 with SMTP id
+ nm12-20020a17090b19cc00b002b20da72c83mr12511949pjb.4.1714965877400; Sun, 05
+ May 2024 20:24:37 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CAAhV-H5xVP0+aUyq2+_XHW0=25zxuG53o=+vUV4MfKn=4tiwxA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:AQAAf8BxU1ZAQzhms_MRAA--.19845S3
-X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
-X-Coremail-Antispam: 1Uk129KBj93XoWxGF17Cw18XrWrCF13AFyruFX_yoWrXFW3pF
-	ykCrn5Ga18KryxCF13t3Z0grnxArs5Kr129Fy7K34jyFsFqr18tr4kKrZ8uFy5Gw4rZF1S
-	qFyFqw13uF4UtacCm3ZEXasCq-sJn29KB7ZKAUJUUUUx529EdanIXcx71UUUUU7KY7ZEXa
-	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
-	0xBIdaVrnRJUUUPFb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
-	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
-	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Gr0_Xr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
-	0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_
-	Gr0_Gr1UM2kKe7AKxVWUAVWUtwAS0I0E0xvYzxvE52x082IY62kv0487Mc804VCY07AIYI
-	kI8VC2zVCFFI0UMc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUtVWr
-	XwAv7VC2z280aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI48JMx
-	k0xIA0c2IEe2xFo4CEbIxvr21lc7CjxVAaw2AFwI0_JF0_Jw1l42xK82IYc2Ij64vIr41l
-	4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1l4IxYO2xFxVAFwI0_JF0_Jw1lx2IqxVAqx4xG67AKxV
-	WUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI
-	7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Gr0_Xr1lIxAIcVC0I7IYx2IY6xkF7I0E14v26r
-	4j6F4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVW8JVWxJwCI
-	42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjxUcYiiDUUUU
+References: <ZjFH7Xb5gyTtOpWd@localhost.localdomain> <20240430121730-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20240430121730-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 6 May 2024 11:24:25 +0800
+Message-ID: <CACGkMEsFMXdswxgguH1P_TkY9wnKgE8RbhUdw_Pd+niSp2UjSg@mail.gmail.com>
+Subject: Re: [PATCH] virtio_net: Warn if insufficient queue length for transmitting
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Darius Rad <darius@bluespec.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, virtualization@lists.linux.dev, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+On Wed, May 1, 2024 at 4:07=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com> =
+wrote:
+>
+> On Tue, Apr 30, 2024 at 03:35:09PM -0400, Darius Rad wrote:
+> > The transmit queue is stopped when the number of free queue entries is =
+less
+> > than 2+MAX_SKB_FRAGS, in start_xmit().  If the queue length (QUEUE_NUM_=
+MAX)
+> > is less than then this, transmission will immediately trigger a netdev
+> > watchdog timeout.  Report this condition earlier and more directly.
+> >
+> > Signed-off-by: Darius Rad <darius@bluespec.com>
+> > ---
+> >  drivers/net/virtio_net.c | 3 +++
+> >  1 file changed, 3 insertions(+)
+> >
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index 115c3c5414f2..72ee8473b61c 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -4917,6 +4917,9 @@ static int virtnet_probe(struct virtio_device *vd=
+ev)
+> >                       set_bit(guest_offloads[i], &vi->guest_offloads);
+> >       vi->guest_offloads_capable =3D vi->guest_offloads;
+> >
+> > +     if (virtqueue_get_vring_size(vi->sq->vq) < 2 + MAX_SKB_FRAGS)
+> > +             netdev_warn_once(dev, "not enough queue entries, expect x=
+mit timeout\n");
+> > +
+>
+> How about actually fixing it though? E.g. by linearizing...
 
+Actually, the linearing is only needed for the case when the indirect
+descriptor is not supported.
 
-On 2024/5/6 上午9:54, Huacai Chen wrote:
-> Hi, Bibo,
-> 
-> On Sun, Apr 28, 2024 at 6:05 PM Bibo Mao <maobibo@loongson.cn> wrote:
->>
->> On LoongArch system, there is hypercall instruction special for
->> virtualization. When system executes this instruction on host side,
->> there is illegal instruction exception reported, however it will
->> trap into host when it is executed in VM mode.
->>
->> When hypercall is emulated, A0 register is set with value
->> KVM_HCALL_INVALID_CODE, rather than inject EXCCODE_INE invalid
->> instruction exception. So VM can continue to executing the next code.
->>
->> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
->> ---
->>   arch/loongarch/include/asm/Kbuild      |  1 -
->>   arch/loongarch/include/asm/kvm_para.h  | 26 ++++++++++++++++++++++++++
->>   arch/loongarch/include/uapi/asm/Kbuild |  2 --
->>   arch/loongarch/kvm/exit.c              | 10 ++++++++++
->>   4 files changed, 36 insertions(+), 3 deletions(-)
->>   create mode 100644 arch/loongarch/include/asm/kvm_para.h
->>   delete mode 100644 arch/loongarch/include/uapi/asm/Kbuild
->>
->> diff --git a/arch/loongarch/include/asm/Kbuild b/arch/loongarch/include/asm/Kbuild
->> index 2dbec7853ae8..c862672ed953 100644
->> --- a/arch/loongarch/include/asm/Kbuild
->> +++ b/arch/loongarch/include/asm/Kbuild
->> @@ -26,4 +26,3 @@ generic-y += poll.h
->>   generic-y += param.h
->>   generic-y += posix_types.h
->>   generic-y += resource.h
->> -generic-y += kvm_para.h
->> diff --git a/arch/loongarch/include/asm/kvm_para.h b/arch/loongarch/include/asm/kvm_para.h
->> new file mode 100644
->> index 000000000000..d48f993ae206
->> --- /dev/null
->> +++ b/arch/loongarch/include/asm/kvm_para.h
->> @@ -0,0 +1,26 @@
->> +/* SPDX-License-Identifier: GPL-2.0 */
->> +#ifndef _ASM_LOONGARCH_KVM_PARA_H
->> +#define _ASM_LOONGARCH_KVM_PARA_H
->> +
->> +/*
->> + * LoongArch hypercall return code
->> + */
->> +#define KVM_HCALL_STATUS_SUCCESS       0
->> +#define KVM_HCALL_INVALID_CODE         -1UL
->> +#define KVM_HCALL_INVALID_PARAMETER    -2UL
->> +
->> +static inline unsigned int kvm_arch_para_features(void)
->> +{
->> +       return 0;
->> +}
->> +
->> +static inline unsigned int kvm_arch_para_hints(void)
->> +{
->> +       return 0;
->> +}
->> +
->> +static inline bool kvm_check_and_clear_guest_paused(void)
->> +{
->> +       return false;
->> +}
->> +#endif /* _ASM_LOONGARCH_KVM_PARA_H */
->> diff --git a/arch/loongarch/include/uapi/asm/Kbuild b/arch/loongarch/include/uapi/asm/Kbuild
->> deleted file mode 100644
->> index 4aa680ca2e5f..000000000000
->> --- a/arch/loongarch/include/uapi/asm/Kbuild
->> +++ /dev/null
->> @@ -1,2 +0,0 @@
->> -# SPDX-License-Identifier: GPL-2.0
->> -generic-y += kvm_para.h
-> This file shouldn't be removed.
-yes, uapi kvm_param.h is needed for Loongarch, and there will be problem 
-if it is removed. And it should kept unchanged.
+>
+> It also bothers me that there's practically
+> /proc/sys/net/core/max_skb_frags
+> and if that's low then things could actually work.
 
-Regards
-Bibo Mao
-> 
-> Huacai
-> 
->> diff --git a/arch/loongarch/kvm/exit.c b/arch/loongarch/kvm/exit.c
->> index ed1d89d53e2e..923bbca9bd22 100644
->> --- a/arch/loongarch/kvm/exit.c
->> +++ b/arch/loongarch/kvm/exit.c
->> @@ -685,6 +685,15 @@ static int kvm_handle_lasx_disabled(struct kvm_vcpu *vcpu)
->>          return RESUME_GUEST;
->>   }
->>
->> +static int kvm_handle_hypercall(struct kvm_vcpu *vcpu)
->> +{
->> +       update_pc(&vcpu->arch);
->> +
->> +       /* Treat it as noop intruction, only set return value */
->> +       vcpu->arch.gprs[LOONGARCH_GPR_A0] = KVM_HCALL_INVALID_CODE;
->> +       return RESUME_GUEST;
->> +}
->> +
->>   /*
->>    * LoongArch KVM callback handling for unimplemented guest exiting
->>    */
->> @@ -716,6 +725,7 @@ static exit_handle_fn kvm_fault_tables[EXCCODE_INT_START] = {
->>          [EXCCODE_LSXDIS]                = kvm_handle_lsx_disabled,
->>          [EXCCODE_LASXDIS]               = kvm_handle_lasx_disabled,
->>          [EXCCODE_GSPR]                  = kvm_handle_gspr,
->> +       [EXCCODE_HVC]                   = kvm_handle_hypercall,
->>   };
->>
->>   int kvm_handle_fault(struct kvm_vcpu *vcpu, int fault)
->> --
->> 2.39.3
->>
->>
+Probably not as it won't exceed MAX_SKB_FRAGS.
+
+>
+> Finally, while originally it was just 17 typically, now it's
+> configurable. So it's possible that you change the config to make big
+> tcp
+
+Note that virtio-net doesn't fully support big TCP.
+
+> work better and device stops working while it worked fine
+> previously.
+
+For this patch, I guess not as we had:
+
+        if (sq->vq->num_free < 2+MAX_SKB_FRAGS)
+
+in the tx path. So it won't even work before this patch.
+
+Thanks
+
+>
+>
+> >       pr_debug("virtnet: registered device %s with %d RX and TX vq's\n"=
+,
+> >                dev->name, max_queue_pairs);
+> >
+> > --
+> > 2.39.2
+>
 
