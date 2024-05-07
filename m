@@ -1,33 +1,33 @@
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 121DC374F9
-	for <virtualization@lists.linux.dev>; Tue,  7 May 2024 06:33:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86D5B78C85
+	for <virtualization@lists.linux.dev>; Tue,  7 May 2024 06:56:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715063593; cv=none; b=eWYPqeXe24KtNWShlBR2aQt3Fu7RhScctCNpchVupoUG9COMQasUHdpdWfLLKYh4hUveoylOZSD57ea5IkrtIGvFpfMEuvYFaYp5Bl4j0wuH23QqabaLaG014UimqdyngZlZKVBvkrL3IT2b7hFRzYlFi3HplF9lhuroESWNvjI=
+	t=1715064981; cv=none; b=ByyrUtC+4aDnHINbDZPmIhPyDuiQjGAYUW+L9NPGHtJRwrWF7QakWJLC15ji+oXVmjd2IaH5AKXyuC0MXYUAyVpq2HImPGyYKN630IB1FUjd6scOTDZoRazVxlQEPqBmADnfpTrdFxNpXg2YjdxCNETKNFijFfYQDQELpAR0Ick=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715063593; c=relaxed/simple;
-	bh=TCs5bWBO4oWPiZ3yE5ZW8aKTDdC6cKyWnXjWUeWLwv8=;
+	s=arc-20240116; t=1715064981; c=relaxed/simple;
+	bh=KH6ACOTgTjSB1d1+lm9Rz8k7+kG6Gz3KQydCW5OErMY=;
 	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=eNVsWefEmMkl+M+UgoqkShfvJ17QM8LPjriW0QUpTdOdzjq2MLWkynJma1OW/WMznyOcEqWpVmP5r+TQVorKAp6lPvPNlJg5Wvt/yGQ9Ste8CJD1tSdxHvOMPgO3oOa/iLgxrrwVhdDeTI13Jf2uceRLP/UohduoPHHSNbr/A1M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Nj0p8wDm; arc=none smtp.client-ip=115.124.30.119
+	 Content-Type; b=TAneL+rrz07x5k9B0e117NYODNSmv/XVHLa1zwdtmxI/bw5o2XYfNYx+T0SxtSJ8bPqiWbfN+ouJYhhPTIvxUudGQXbsD1dLWll6kx2LkWVjs7jx7SDg/c727Sg2HghazydKIvOGSjqI5hHzYzCIOMunqFvPP7tDPUBIklO/mJQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Zo2NgYWK; arc=none smtp.client-ip=115.124.30.112
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Nj0p8wDm"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Zo2NgYWK"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1715063582; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=A0ZyRMjx8osXcizU0zL7P6RNYV3bBnrlZr+wQuJpxms=;
-	b=Nj0p8wDmYjzd5S4aGHqh/+y+gmeHFKp9tCAhP88hsPkLNTXMqh1J92ga3z5aE4lIBFEtdEAZW6rzvWyrjGbe5M5rmoICBAN2oW3UMf/m2JzZEsTGa9LVAuV7Lv9S1O5Jvfz7ik/VCtrr+pP/BdzRX68gPFAUXT3uFU9FgqoxiBk=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067111;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0W6.3vP-_1715063580;
-Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W6.3vP-_1715063580)
+	t=1715064975; h=Message-ID:Subject:Date:From:To:Content-Type;
+	bh=YW16j1lwlf/HRa23fUoHKr1EAS+k2nsG9B0DwUSB+qk=;
+	b=Zo2NgYWKPURVNzqWGgS1j/4jTbzqD+ZklsCanRbGlWWeQNBRdcJu7mvYnAXRXh1vTR6hg0vcOSi19tx3PTrVV4lTo5U/2B0p45MsbUJf+531mLMEsmxgZ67wE3HYFvZlQPnFUcjPxMf3SRB052UI0zWteXPblDwCEx1WBQOpm7c=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037067112;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0W6.Am9D_1715064972;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W6.Am9D_1715064972)
           by smtp.aliyun-inc.com;
-          Tue, 07 May 2024 14:33:01 +0800
-Message-ID: <1715063231.736974-2-hengqi@linux.alibaba.com>
-Subject: Re: [PATCH net-next 1/3] virtio_net: enable irq for the control vq
-Date: Tue, 7 May 2024 14:27:11 +0800
+          Tue, 07 May 2024 14:56:14 +0800
+Message-ID: <1715064795.2147572-1-hengqi@linux.alibaba.com>
+Subject: Re: [PATCH net-next v2 1/2] virtio_net: introduce ability to get reply info from device
+Date: Tue, 7 May 2024 14:53:15 +0800
 From: Heng Qi <hengqi@linux.alibaba.com>
 To: Jason Wang <jasowang@redhat.com>
 Cc: netdev@vger.kernel.org,
@@ -38,12 +38,10 @@ Cc: netdev@vger.kernel.org,
  "David S . Miller" <davem@davemloft.net>,
  Jakub Kicinski <kuba@kernel.org>,
  Paolo Abeni <pabeni@redhat.com>
-References: <20240425125855.87025-1-hengqi@linux.alibaba.com>
- <20240425125855.87025-2-hengqi@linux.alibaba.com>
- <CACGkMEtpy0ZDcGQReaPVtJy4hDcqdKQwEF2Uhf5W4+7g=jts-Q@mail.gmail.com>
- <1715054136.4593592-1-hengqi@linux.alibaba.com>
- <CACGkMEtkH+O+cQQ_3Ar=6-tJyRurzr6ZrGf6mtWZW4VjAt4Hfw@mail.gmail.com>
-In-Reply-To: <CACGkMEtkH+O+cQQ_3Ar=6-tJyRurzr6ZrGf6mtWZW4VjAt4Hfw@mail.gmail.com>
+References: <20240426065441.120710-1-hengqi@linux.alibaba.com>
+ <20240426065441.120710-2-hengqi@linux.alibaba.com>
+ <CACGkMEvUT_uyLaqi533BUOqCYW1dYZTqdW_CC3-LgQXhhdJYFw@mail.gmail.com>
+In-Reply-To: <CACGkMEvUT_uyLaqi533BUOqCYW1dYZTqdW_CC3-LgQXhhdJYFw@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
@@ -52,136 +50,39 @@ List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-On Tue, 7 May 2024 14:24:16 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Tue, May 7, 2024 at 12:03=E2=80=AFPM Heng Qi <hengqi@linux.alibaba.com=
+On Tue, 7 May 2024 14:24:19 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> On Fri, Apr 26, 2024 at 2:54=E2=80=AFPM Heng Qi <hengqi@linux.alibaba.com=
 > wrote:
 > >
-> > On Tue, 7 May 2024 11:15:22 +0800, Jason Wang <jasowang@redhat.com> wro=
-te:
-> > > On Thu, Apr 25, 2024 at 8:59=E2=80=AFPM Heng Qi <hengqi@linux.alibaba=
-.com> wrote:
-> > > >
-> > > > Control vq polling request results consume more CPU.
-> > > > Especially when dim issues more control requests to the device,
-> > > > it's beneficial to the guest to enable control vq's irq.
-> > > >
-> > > > Suggested-by: Jason Wang <jasowang@redhat.com>
-> > > > Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
-> > > > ---
-> > > >  drivers/net/virtio_net.c | 45 ++++++++++++++++++++++++++++++------=
-----
-> > > >  1 file changed, 34 insertions(+), 11 deletions(-)
-> > > >
-> > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > > index a4d3c76654a4..79a1b30c173c 100644
-> > > > --- a/drivers/net/virtio_net.c
-> > > > +++ b/drivers/net/virtio_net.c
-> > > > @@ -287,6 +287,12 @@ struct virtnet_info {
-> > > >         bool has_cvq;
-> > > >         struct mutex cvq_lock;
-> > > >
-> > > > +       /* Wait for the device to complete the request */
-> > > > +       struct completion completion;
-> > > > +
-> > > > +       /* Work struct for acquisition of cvq processing results. */
-> > > > +       struct work_struct get_cvq;
-> > > > +
-> > > >         /* Host can handle any s/g split between our header and pac=
-ket data */
-> > > >         bool any_header_sg;
-> > > >
-> > > > @@ -520,6 +526,13 @@ static bool virtqueue_napi_complete(struct nap=
-i_struct *napi,
-> > > >         return false;
-> > > >  }
-> > > >
-> > > > +static void virtnet_cvq_done(struct virtqueue *cvq)
-> > > > +{
-> > > > +       struct virtnet_info *vi =3D cvq->vdev->priv;
-> > > > +
-> > > > +       schedule_work(&vi->get_cvq);
-> > > > +}
-> > > > +
-> > > >  static void skb_xmit_done(struct virtqueue *vq)
-> > > >  {
-> > > >         struct virtnet_info *vi =3D vq->vdev->priv;
-> > > > @@ -2036,6 +2049,20 @@ static bool try_fill_recv(struct virtnet_inf=
-o *vi, struct receive_queue *rq,
-> > > >         return !oom;
-> > > >  }
-> > > >
-> > > > +static void virtnet_get_cvq_work(struct work_struct *work)
-> > > > +{
-> > > > +       struct virtnet_info *vi =3D
-> > > > +               container_of(work, struct virtnet_info, get_cvq);
-> > > > +       unsigned int tmp;
-> > > > +       void *res;
-> > > > +
-> > > > +       mutex_lock(&vi->cvq_lock);
-> > > > +       res =3D virtqueue_get_buf(vi->cvq, &tmp);
-> > > > +       if (res)
-> > > > +               complete(&vi->completion);
-> > > > +       mutex_unlock(&vi->cvq_lock);
-> > > > +}
-> > > > +
-> > > >  static void skb_recv_done(struct virtqueue *rvq)
-> > > >  {
-> > > >         struct virtnet_info *vi =3D rvq->vdev->priv;
-> > > > @@ -2531,7 +2558,7 @@ static bool virtnet_send_command(struct virtn=
-et_info *vi, u8 class, u8 cmd,
-> > > >                                  struct scatterlist *out)
-> > > >  {
-> > > >         struct scatterlist *sgs[4], hdr, stat;
-> > > > -       unsigned out_num =3D 0, tmp;
-> > > > +       unsigned out_num =3D 0;
-> > > >         int ret;
-> > > >
-> > > >         /* Caller should know better */
-> > > > @@ -2566,16 +2593,10 @@ static bool virtnet_send_command(struct vir=
-tnet_info *vi, u8 class, u8 cmd,
-> > > >                 return vi->ctrl->status =3D=3D VIRTIO_NET_OK;
-> > > >         }
-> > > >
-> > > > -       /* Spin for a response, the kick causes an ioport write, tr=
-apping
-> > > > -        * into the hypervisor, so the request should be handled im=
-mediately.
-> > > > -        */
-> > > > -       while (!virtqueue_get_buf(vi->cvq, &tmp) &&
-> > > > -              !virtqueue_is_broken(vi->cvq)) {
-> > > > -               cond_resched();
-> > > > -               cpu_relax();
-> > > > -       }
-> > > > -
-> > > >         mutex_unlock(&vi->cvq_lock);
-> > > > +
-> > > > +       wait_for_completion(&vi->completion);
-> > > > +
-> > >
-> > > A question here, can multiple cvq requests be submitted to the device?
-> > > If yes, what happens if the device completes them out of order?
+> > From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 > >
-> > For user commands (such as ethtool cmds), multiple cvq requests is not =
-allowed.
-> > because it holds the netlink lock when waiting for the response.
+> > As the spec https://github.com/oasis-tcs/virtio-spec/commit/42f38998982=
+3039724f95bbbd243291ab0064f82
 > >
-> > For multiple dim commands and a user command allowed to be sent simulta=
-neously
-> > , the corresponding command-specific information(desc_state) will be us=
-ed to
-> > distinguish different responses.
+> > Based on the description provided in the above specification, we have
+> > enabled the virtio-net driver to support acquiring some response
+> > information from the device via the CVQ (Control Virtqueue).
+> >
+> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 >=20
-> Just to make sure we are on the same page. I meant at least we are
-> still use the global completion which seems to be problematic.
+> I wonder if we need to tweak the spec as it has:
 >=20
-> wait_for_completion(&vi->completion);
+> """
+> Upon disabling and re-enabling a transmit virtqueue, the device MUST
+> set the coalescing parameters of the virtqueue
+> to those configured through the VIRTIO_NET_CTRL_NOTF_COAL_TX_SET
+> command, or, if the driver did not set any TX coalescing parameters,
+> to 0.
+> """
+>=20
+> So for reset, this patch tells us the device would have a non-zero
+> default value.
+>=20
+> But spec tolds us after vq reset, it has a zero default value ...
 
-
-This completion is only used by the ethtool command, so it is the global on=
-e.
-
-dim commands use specific coal_free_list and coal_wait_list to complete
-multiple command issuance (please see patch 3).
+Maybe we add a bool or flag for driver to mark whether the user has actively
+configured interrupt coalescing parameters. Then we can take actions when
+vq reset occurs?
 
 Thanks.
 
@@ -189,39 +90,71 @@ Thanks.
 > Thanks
 >=20
 >=20
+> > ---
+> >  drivers/net/virtio_net.c | 24 +++++++++++++++++-------
+> >  1 file changed, 17 insertions(+), 7 deletions(-)
 > >
-> > Thanks.
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index 7176b956460b..3bc9b1e621db 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -2527,11 +2527,12 @@ static int virtnet_tx_resize(struct virtnet_inf=
+o *vi,
+> >   * supported by the hypervisor, as indicated by feature bits, should
+> >   * never fail unless improperly formatted.
+> >   */
+> > -static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8=
+ cmd,
+> > -                                struct scatterlist *out)
+> > +static bool virtnet_send_command_reply(struct virtnet_info *vi, u8 cla=
+ss, u8 cmd,
+> > +                                      struct scatterlist *out,
+> > +                                      struct scatterlist *in)
+> >  {
+> > -       struct scatterlist *sgs[4], hdr, stat;
+> > -       unsigned out_num =3D 0, tmp;
+> > +       struct scatterlist *sgs[5], hdr, stat;
+> > +       u32 out_num =3D 0, tmp, in_num =3D 0;
+> >         int ret;
 > >
-> > >
-> > > Thanks
-> > >
-> > > >         return vi->ctrl->status =3D=3D VIRTIO_NET_OK;
-> > > >  }
-> > > >
-> > > > @@ -4433,7 +4454,7 @@ static int virtnet_find_vqs(struct virtnet_in=
-fo *vi)
-> > > >
-> > > >         /* Parameters for control virtqueue, if any */
-> > > >         if (vi->has_cvq) {
-> > > > -               callbacks[total_vqs - 1] =3D NULL;
-> > > > +               callbacks[total_vqs - 1] =3D virtnet_cvq_done;
-> > > >                 names[total_vqs - 1] =3D "control";
-> > > >         }
-> > > >
-> > > > @@ -4952,6 +4973,8 @@ static int virtnet_probe(struct virtio_device=
- *vdev)
-> > > >         if (vi->has_rss || vi->has_rss_hash_report)
-> > > >                 virtnet_init_default_rss(vi);
-> > > >
-> > > > +       INIT_WORK(&vi->get_cvq, virtnet_get_cvq_work);
-> > > > +       init_completion(&vi->completion);
-> > > >         enable_rx_mode_work(vi);
-> > > >
-> > > >         /* serialize netdev register + virtio_device_ready() with n=
-do_open() */
-> > > > --
-> > > > 2.32.0.3.g01195cf9f
-> > > >
-> > >
+> >         /* Caller should know better */
+> > @@ -2549,10 +2550,13 @@ static bool virtnet_send_command(struct virtnet=
+_info *vi, u8 class, u8 cmd,
+> >
+> >         /* Add return status. */
+> >         sg_init_one(&stat, &vi->ctrl->status, sizeof(vi->ctrl->status));
+> > -       sgs[out_num] =3D &stat;
+> > +       sgs[out_num + in_num++] =3D &stat;
+> >
+> > -       BUG_ON(out_num + 1 > ARRAY_SIZE(sgs));
+> > -       ret =3D virtqueue_add_sgs(vi->cvq, sgs, out_num, 1, vi, GFP_ATO=
+MIC);
+> > +       if (in)
+> > +               sgs[out_num + in_num++] =3D in;
+> > +
+> > +       BUG_ON(out_num + in_num > ARRAY_SIZE(sgs));
+> > +       ret =3D virtqueue_add_sgs(vi->cvq, sgs, out_num, in_num, vi, GF=
+P_ATOMIC);
+> >         if (ret < 0) {
+> >                 dev_warn(&vi->vdev->dev,
+> >                          "Failed to add sgs for command vq: %d\n.", ret=
+);
+> > @@ -2574,6 +2578,12 @@ static bool virtnet_send_command(struct virtnet_=
+info *vi, u8 class, u8 cmd,
+> >         return vi->ctrl->status =3D=3D VIRTIO_NET_OK;
+> >  }
+> >
+> > +static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8=
+ cmd,
+> > +                                struct scatterlist *out)
+> > +{
+> > +       return virtnet_send_command_reply(vi, class, cmd, out, NULL);
+> > +}
+> > +
+> >  static int virtnet_set_mac_address(struct net_device *dev, void *p)
+> >  {
+> >         struct virtnet_info *vi =3D netdev_priv(dev);
+> > --
+> > 2.32.0.3.g01195cf9f
 > >
 >=20
