@@ -1,121 +1,197 @@
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7060F4C94
-	for <virtualization@lists.linux.dev>; Tue,  7 May 2024 03:37:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FF3C40BE6
+	for <virtualization@lists.linux.dev>; Tue,  7 May 2024 04:03:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715053081; cv=none; b=djzMeYCkZBNw4RBOLUlw4v0HVnlWxC2rtZ37gKjyO0Cspk9dNsmo/HWTOqd5eqdWxi0DcAKjo1exzdiOpzXBkyojNBNCjO/1kbXj55mGzgVfinuczIGPFe2zwDmiaWN+5l1mOo0R5xx+jch26fjE7znefGmzMnmOBLlLWSWZtLA=
+	t=1715054607; cv=none; b=TA4psPaNUlt8HY2SFl6X2q1qllu9ccf2TgPPg/VQaJQDUs0gy3SRcVJhkP6skaN1s7qHMO1DA1cI9WjAgW1s5stpQcLylPu+C7qDtg844eX5mUg7WzXlzW3Ocl3hEQ2HHJBZdxwZJ++OgElwUiinf9xLoKiLIjZV9GJBoArixVY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715053081; c=relaxed/simple;
-	bh=9sWrn5PGtwLfkUZbew0fDDmmTJ2xh7Bx1beKJx9CeNM=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=feVUfcsxElG7xwo4SvR92ESYMjsa6ZXohW3R4VCRINe/nDQvtMkJxrlvJD6ANZN4CUdD5HO83KHoGRJaf05jYLlM1dj2Qjn+9OtSshwRe7mPu2vYJhBWZ7+CzlCHk2SqQa/37Wvia4dKb+RZYq3gIBo2/ACBkV7+ne2STLc31IQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: 2f3460e40c2311ef9305a59a3cc225df-20240507
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.1.37,REQID:8d3dde92-39c0-42cf-be35-07d152472bb0,IP:10,
-	URL:0,TC:0,Content:0,EDM:25,RT:0,SF:-11,FILE:0,BULK:0,RULE:Release_Ham,ACT
-	ION:release,TS:24
-X-CID-INFO: VERSION:1.1.37,REQID:8d3dde92-39c0-42cf-be35-07d152472bb0,IP:10,UR
-	L:0,TC:0,Content:0,EDM:25,RT:0,SF:-11,FILE:0,BULK:0,RULE:Release_Ham,ACTIO
-	N:release,TS:24
-X-CID-META: VersionHash:6f543d0,CLOUDID:a7f1be296293f0ea6ea28dab44b48c3f,BulkI
-	D:240429110502VVCX1UY7,BulkQuantity:1,Recheck:0,SF:19|44|66|38|25|17|102,T
-	C:nil,Content:0,EDM:5,IP:-2,URL:0,File:nil,RT:nil,Bulk:40,QS:nil,BEC:nil,C
-	OL:0,OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0
-X-CID-BVR: 0
-X-CID-BAS: 0,_,0,_
-X-CID-FACTOR: TF_CID_SPAM_FAS,TF_CID_SPAM_FSD,TF_CID_SPAM_FSI,TF_CID_SPAM_SNR
-X-CTIC-Tags:
-	HR_CC_COUNT, HR_CC_DOMAIN_COUNT, HR_CC_NO_NAME, HR_CTE_8B, HR_CTT_MISS
-	HR_DATE_H, HR_DATE_WKD, HR_DATE_ZONE, HR_FROM_NAME, HR_SJ_LANG
-	HR_SJ_LEN, HR_SJ_LETTER, HR_SJ_NOR_SYM, HR_SJ_PHRASE, HR_SJ_PHRASE_LEN
-	HR_SJ_WS, HR_TO_COUNT, HR_TO_DOMAIN_COUNT, HR_TO_NO_NAME, DN_TRUSTED
-	SRC_TRUSTED, SA_EXISTED, SN_EXISTED, SPF_NOPASS, DKIM_NOPASS
-	DMARC_NOPASS, CIE_BAD, CIE_GOOD, CIE_GOOD_SPF, GTI_FG_BS
-	GTI_RG_INFO, GTI_C_BU, AMN_T1, AMN_GOOD, AMN_C_TI
-	AMN_C_BU, ABX_MISS_RDNS
-X-UUID: 2f3460e40c2311ef9305a59a3cc225df-20240507
-X-User: liweishi@kylinos.cn
-Received: from localhost.localdomain [(116.128.244.169)] by mailgw.kylinos.cn
-	(envelope-from <liweishi@kylinos.cn>)
-	(Generic MTA)
-	with ESMTP id 953568615; Tue, 07 May 2024 11:37:52 +0800
-From: Weishi Li <liweishi@kylinos.cn>
-To: airlied@redhat.com,
-	kraxel@redhat.com,
-	gurchetansingh@chromium.org,
-	olvaffe@gmail.com,
-	maarten.lankhorst@linux.intel.com,
-	mripard@kernel.org,
-	tzimmermann@suse.de,
-	daniel@ffwll.ch
-Cc: dri-devel@lists.freedesktop.org,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	liweishi@kylinos.cn
-Subject: [PATCH] [PATCH RESEND] drm/virtio: fix memory leak of vbuf
-Date: Tue,  7 May 2024 11:38:14 +0800
-Message-Id: <20240507033814.57906-1-liweishi@kylinos.cn>
-X-Mailer: git-send-email 2.25.1
+	s=arc-20240116; t=1715054607; c=relaxed/simple;
+	bh=FqV3AbKlccRXCFqRxRE8vsbribJLrStV4+LVYDVI3FQ=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
+	 Content-Type; b=h1iCSpzspKt92qJETZUEKpv52JslXf/iEQNXTzx0uxfCO8ld+qUJ7YOGVGQQRZwrjpyiFUiZ3wJVjFRoyDIHpcy1APAGvasaZIiBtNgkiwEbsRJDIJiR4RPVfWIK5cqYuyPeXPIpnNbw+vxv92DTWMpLto5JDWm1dlE0PQ2FBBo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=SY1sZnWI; arc=none smtp.client-ip=115.124.30.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="SY1sZnWI"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1715054596; h=Message-ID:Subject:Date:From:To:Content-Type;
+	bh=drFKTC1lCB74URextnlQhzXn22hNILgXybh4fhLMzaA=;
+	b=SY1sZnWIjQEDAJdBSrBqiGKTMM8n5HVcV1+86h03kFq4OVQbRRUiixlJTn4aZg/6H3m/MUxE9LEz9Ct8mf6/Y3zNKhSPg0pNirLoqFc9ZeSwAmMPt8p+YJIiVM1F5rV/uZp4pxzR38M5VO/BoFYYlCb/kDTQT9+TfX9fw/2dVfI=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R381e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033068173054;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0W6-mMtE_1715054594;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0W6-mMtE_1715054594)
+          by smtp.aliyun-inc.com;
+          Tue, 07 May 2024 12:03:15 +0800
+Message-ID: <1715054136.4593592-1-hengqi@linux.alibaba.com>
+Subject: Re: [PATCH net-next 1/3] virtio_net: enable irq for the control vq
+Date: Tue, 7 May 2024 11:55:36 +0800
+From: Heng Qi <hengqi@linux.alibaba.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org,
+ virtualization@lists.linux.dev,
+ "Michael S . Tsirkin" <mst@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ Eric Dumazet <edumazet@google.com>,
+ "David S . Miller" <davem@davemloft.net>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>
+References: <20240425125855.87025-1-hengqi@linux.alibaba.com>
+ <20240425125855.87025-2-hengqi@linux.alibaba.com>
+ <CACGkMEtpy0ZDcGQReaPVtJy4hDcqdKQwEF2Uhf5W4+7g=jts-Q@mail.gmail.com>
+In-Reply-To: <CACGkMEtpy0ZDcGQReaPVtJy4hDcqdKQwEF2Uhf5W4+7g=jts-Q@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Both virtio_gpu_queue_ctrl_buffer and virtio_gpu_queue_cursor use
-virtqueue_add_sgs to upload the structure virtio_gpu_vbuffer * vbuf
-to virtqueue. However, when the vbuf fails to upload and virtqueue_add_sgs
-returns -EIO or -ENOMEM, the vbuf will not be able to be free by
-virtio_gpu_dequeue_*_func, resulting in a continuous increase
-in memory allocated to vgdev ->vbufs.
+On Tue, 7 May 2024 11:15:22 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> On Thu, Apr 25, 2024 at 8:59=E2=80=AFPM Heng Qi <hengqi@linux.alibaba.com=
+> wrote:
+> >
+> > Control vq polling request results consume more CPU.
+> > Especially when dim issues more control requests to the device,
+> > it's beneficial to the guest to enable control vq's irq.
+> >
+> > Suggested-by: Jason Wang <jasowang@redhat.com>
+> > Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
+> > ---
+> >  drivers/net/virtio_net.c | 45 ++++++++++++++++++++++++++++++----------
+> >  1 file changed, 34 insertions(+), 11 deletions(-)
+> >
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index a4d3c76654a4..79a1b30c173c 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -287,6 +287,12 @@ struct virtnet_info {
+> >         bool has_cvq;
+> >         struct mutex cvq_lock;
+> >
+> > +       /* Wait for the device to complete the request */
+> > +       struct completion completion;
+> > +
+> > +       /* Work struct for acquisition of cvq processing results. */
+> > +       struct work_struct get_cvq;
+> > +
+> >         /* Host can handle any s/g split between our header and packet =
+data */
+> >         bool any_header_sg;
+> >
+> > @@ -520,6 +526,13 @@ static bool virtqueue_napi_complete(struct napi_st=
+ruct *napi,
+> >         return false;
+> >  }
+> >
+> > +static void virtnet_cvq_done(struct virtqueue *cvq)
+> > +{
+> > +       struct virtnet_info *vi =3D cvq->vdev->priv;
+> > +
+> > +       schedule_work(&vi->get_cvq);
+> > +}
+> > +
+> >  static void skb_xmit_done(struct virtqueue *vq)
+> >  {
+> >         struct virtnet_info *vi =3D vq->vdev->priv;
+> > @@ -2036,6 +2049,20 @@ static bool try_fill_recv(struct virtnet_info *v=
+i, struct receive_queue *rq,
+> >         return !oom;
+> >  }
+> >
+> > +static void virtnet_get_cvq_work(struct work_struct *work)
+> > +{
+> > +       struct virtnet_info *vi =3D
+> > +               container_of(work, struct virtnet_info, get_cvq);
+> > +       unsigned int tmp;
+> > +       void *res;
+> > +
+> > +       mutex_lock(&vi->cvq_lock);
+> > +       res =3D virtqueue_get_buf(vi->cvq, &tmp);
+> > +       if (res)
+> > +               complete(&vi->completion);
+> > +       mutex_unlock(&vi->cvq_lock);
+> > +}
+> > +
+> >  static void skb_recv_done(struct virtqueue *rvq)
+> >  {
+> >         struct virtnet_info *vi =3D rvq->vdev->priv;
+> > @@ -2531,7 +2558,7 @@ static bool virtnet_send_command(struct virtnet_i=
+nfo *vi, u8 class, u8 cmd,
+> >                                  struct scatterlist *out)
+> >  {
+> >         struct scatterlist *sgs[4], hdr, stat;
+> > -       unsigned out_num =3D 0, tmp;
+> > +       unsigned out_num =3D 0;
+> >         int ret;
+> >
+> >         /* Caller should know better */
+> > @@ -2566,16 +2593,10 @@ static bool virtnet_send_command(struct virtnet=
+_info *vi, u8 class, u8 cmd,
+> >                 return vi->ctrl->status =3D=3D VIRTIO_NET_OK;
+> >         }
+> >
+> > -       /* Spin for a response, the kick causes an ioport write, trappi=
+ng
+> > -        * into the hypervisor, so the request should be handled immedi=
+ately.
+> > -        */
+> > -       while (!virtqueue_get_buf(vi->cvq, &tmp) &&
+> > -              !virtqueue_is_broken(vi->cvq)) {
+> > -               cond_resched();
+> > -               cpu_relax();
+> > -       }
+> > -
+> >         mutex_unlock(&vi->cvq_lock);
+> > +
+> > +       wait_for_completion(&vi->completion);
+> > +
+>=20
+> A question here, can multiple cvq requests be submitted to the device?
+> If yes, what happens if the device completes them out of order?
 
-Therefore, make virtio_gpu_queue_ctrl_sgs and virtio_gpu_queue_cursor
-free vbuf directly after virtqueue_add_sgs returns -EIO or -ENOMEM.
+For user commands (such as ethtool cmds), multiple cvq requests is not allo=
+wed.
+because it holds the netlink lock when waiting for the response.
 
-Signed-off-by: Weishi Li <liweishi@kylinos.cn>
----
- drivers/gpu/drm/virtio/virtgpu_vq.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+For multiple dim commands and a user command allowed to be sent simultaneou=
+sly
+, the corresponding command-specific information(desc_state) will be used to
+distinguish different responses.
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index b1a00c0c25a7..e90751cc97f2 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -356,12 +356,14 @@ static int virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
- 
- 	ret = virtqueue_add_sgs(vq, sgs, outcnt, incnt, vbuf, GFP_ATOMIC);
- 	WARN_ON(ret);
-+	if (ret < 0 && ret != -ENOSPC) {
-+		free_vbuf(vgdev, vbuf);
-+	} else {
-+		vbuf->seqno = ++vgdev->ctrlq.seqno;
-+		trace_virtio_gpu_cmd_queue(vq, virtio_gpu_vbuf_ctrl_hdr(vbuf), vbuf->seqno);
- 
--	vbuf->seqno = ++vgdev->ctrlq.seqno;
--	trace_virtio_gpu_cmd_queue(vq, virtio_gpu_vbuf_ctrl_hdr(vbuf), vbuf->seqno);
--
--	atomic_inc(&vgdev->pending_commands);
--
-+		atomic_inc(&vgdev->pending_commands);
-+	}
- 	spin_unlock(&vgdev->ctrlq.qlock);
- 
- 	drm_dev_exit(idx);
-@@ -469,6 +471,8 @@ static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
- 		wait_event(vgdev->cursorq.ack_queue, vq->num_free >= outcnt);
- 		spin_lock(&vgdev->cursorq.qlock);
- 		goto retry;
-+	} else if (ret < 0) {
-+		free_vbuf(vgdev, vbuf);
- 	} else {
- 		vbuf->seqno = ++vgdev->cursorq.seqno;
- 		trace_virtio_gpu_cmd_queue(vq,
--- 
-2.25.1
+Thanks.
 
+>=20
+> Thanks
+>=20
+> >         return vi->ctrl->status =3D=3D VIRTIO_NET_OK;
+> >  }
+> >
+> > @@ -4433,7 +4454,7 @@ static int virtnet_find_vqs(struct virtnet_info *=
+vi)
+> >
+> >         /* Parameters for control virtqueue, if any */
+> >         if (vi->has_cvq) {
+> > -               callbacks[total_vqs - 1] =3D NULL;
+> > +               callbacks[total_vqs - 1] =3D virtnet_cvq_done;
+> >                 names[total_vqs - 1] =3D "control";
+> >         }
+> >
+> > @@ -4952,6 +4973,8 @@ static int virtnet_probe(struct virtio_device *vd=
+ev)
+> >         if (vi->has_rss || vi->has_rss_hash_report)
+> >                 virtnet_init_default_rss(vi);
+> >
+> > +       INIT_WORK(&vi->get_cvq, virtnet_get_cvq_work);
+> > +       init_completion(&vi->completion);
+> >         enable_rx_mode_work(vi);
+> >
+> >         /* serialize netdev register + virtio_device_ready() with ndo_o=
+pen() */
+> > --
+> > 2.32.0.3.g01195cf9f
+> >
+>=20
