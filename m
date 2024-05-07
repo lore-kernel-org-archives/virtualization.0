@@ -1,205 +1,207 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBA5B6D1C8
-	for <virtualization@lists.linux-foundation.org>; Tue,  7 May 2024 06:07:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3050E6F08B
+	for <virtualization@lists.linux.dev>; Tue,  7 May 2024 06:24:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715062075; cv=none; b=X2SFQkEgafLJtRWacast2PS0+mPuSPwWvjeHU4xJS9+vSeM06wY6iR6S+1ie2zwqaHj0wnFqhaiFJYJU2mxvdQmntCf7CbIxmTkX7WrNgc9DVaFqejeEtY7UyN49u/3sIRDMbKyBc7mLsmV0BSJdelHh93sHoSZfocLb7egeZX8=
+	t=1715063069; cv=none; b=QTClBWHjB5Y5lcnviBs/2uY8AfvA4SH0xhNEqKB8gIomgSHbxWR96CKlgIzefkM4bOikPOANTkhQgyrlMbuoMCJN/N81nuLOnoFjI4q4IdRA2ICQtilAAU2gGCsSH5fLWiV3tfcxyLxy67xce+5fax1MBLf5GWMshxCf8qEg+Nk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715062075; c=relaxed/simple;
-	bh=PlQSgc+9IxLV0sJ6C1/5bvFwcWpttEUfHiGgnmdu6Dw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=aikqDznvCIW8EyrxQ76alV8GfEjFQ540hdfAxxqzRKrHsN3ARlxaiV1MYpylC0QHPxKlOCdcb/6S7osnnRGenaevZDg4F3lM1rS7c4PXLe0WKfOBYBTvoOlSGdLWyB5xekpq2Yp8HvpQyci1xFeywCMDJYnmM/jENpTIE+8Gu68=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=ipqF4hl/; arc=none smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1715063069; c=relaxed/simple;
+	bh=vUfM/NkCP8N5v/pvw9FjoT29XEqwm5fGlonlyZC4kpI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Lf6RM9IgRA1lPqhEvkjZ0ZL+Uacw52cX8EQpt5//f/muJViCJefOOKZELx2d+wUppjQigv7v8h332FYthTm+wxDjDmoVWzwz8NweQtDhSEMvpfAkdYRxesQhlnJaVpyYDzdU7M0L5ts39ykrRNrY2YmYms969e6Ew9iWjMfQi5g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JGgikeYt; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="ipqF4hl/"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 7D7C18232E
-	for <virtualization@lists.linux-foundation.org>; Tue,  7 May 2024 06:07:53 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.1
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id kAnygjPi5y0w for <virtualization@lists.linux-foundation.org>;
- Tue,  7 May 2024 06:07:52 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a00:1098:ed:100::25; helo=madrid.collaboradmins.com; envelope-from=vignesh.raman@collabora.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 8479F82154
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8479F82154
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=ipqF4hl/
-Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [IPv6:2a00:1098:ed:100::25])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 8479F82154
-	for <virtualization@lists.linux-foundation.org>; Tue,  7 May 2024 06:07:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1715062070;
-	bh=PlQSgc+9IxLV0sJ6C1/5bvFwcWpttEUfHiGgnmdu6Dw=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=ipqF4hl/Rcm2Qj/XN/NVqODYOMJ6wZnkt9fpAiy98aO/tLdRWOib8pnJYQu2KXfWq
-	 nFr9SSNAWgzhhZuIWGSvUbIYAO3FvKoBHBqvJcyZBCP/fAIb4S6dQZaDrSko8AHZqe
-	 ghJQ7o3IXG0a9eGDBLCZwXNawWI6oRa3DmJwCkCXzBbR/7dWsX3lp1irUIqgJGy56w
-	 TexPPvhiblZgrBX8xS3O/wsGBqPYX/pE8IZridNeFfqFuDPqcoxiSga7I59V3jjvEV
-	 wKTl9+sm3eXksZXwIrDdEevFXuH8R4SHwP+g9TCVBVD8PFDssxfR112SS9CSE0ZrQ2
-	 EErlUtRQ5weZw==
-Received: from [100.66.96.193] (cola.collaboradmins.com [195.201.22.229])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: vignesh)
-	by madrid.collaboradmins.com (Postfix) with ESMTPSA id 19B6D3782112;
-	Tue,  7 May 2024 06:07:46 +0000 (UTC)
-Message-ID: <b143f1e8-e595-4f09-b6ab-d7e5743d586e@collabora.com>
-Date: Tue, 7 May 2024 11:37:45 +0530
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JGgikeYt"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1715063067;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=cZ+ETUzNZvss8ggWS16XFwJ2hi3V3nobv2GAVfr5owc=;
+	b=JGgikeYtLXP/VeeTXjFxGjjzdBTol7RSz6MMxdqQULiekhe1sxuRwxd7ljOfLhPM4UxN/A
+	BsJEuft+TBw+xz/DQxI8XBL19rzPW3kvo2kakjQGuiqHc7StbatqHbaKM0UPpfICCIFtMD
+	8qtWpkUrqCdiNLvROKV1+OMpKpmorSE=
+Received: from mail-pf1-f200.google.com (mail-pf1-f200.google.com
+ [209.85.210.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-283-KmFkLx7uOIuH6HGb2GYodQ-1; Tue, 07 May 2024 02:24:25 -0400
+X-MC-Unique: KmFkLx7uOIuH6HGb2GYodQ-1
+Received: by mail-pf1-f200.google.com with SMTP id d2e1a72fcca58-6f475e364b7so912143b3a.3
+        for <virtualization@lists.linux.dev>; Mon, 06 May 2024 23:24:25 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1715063064; x=1715667864;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=cZ+ETUzNZvss8ggWS16XFwJ2hi3V3nobv2GAVfr5owc=;
+        b=cQI0eiatGKon7MnpEo1LRxTzezZjQerfYsybOzIpFqgRtDPRJbUE+0AkE87dD84uQN
+         oN11hlqhojKo5m4KJkgW31KsOYEiBrO1EJeCiAdeR7WQy4R32MuqmfwxXLfZXXWtDTxI
+         yzYKbVk1S1eyl5Ca66NDlcjofr/LvwDWOSRtMhDBc1EvAhQB7ZxKpUtYxi6J7NDRgr2P
+         YDqquNxds5vLrD3nN7IGoUJzupkGXaPZ5hAaWCcDKw0+8OIca13tIBbhn/tRusSxLNIX
+         1BEZhwU3dm9LLShl/jzuAE/hYtINOO0YDTZgABS9oe/GZ/8TSZeNtbDKvACNc5y5SIUK
+         IWDw==
+X-Forwarded-Encrypted: i=1; AJvYcCVUVhQy2gK83GajjyabfGhrKtZ7d6W/nocxby7BDwtJypo+duBVTrvDW6SzPzawvBaDS9PMt7mJXIYgX1BpRV5Py6UUElpLyALjMERUFaM=
+X-Gm-Message-State: AOJu0Yy+y7ggwoQr5oMmFFzgrXq7XYEfowYC1W0fuN/p/AVcf7/iDILD
+	ZGFedBNv91Nf0gIrs3hQGNNqiKO2SYyi1K4q861nITlttsCKBGPwd3mkg7vTP7oHx3kfH9dxYCE
+	FKmATkls0OMN8tSPTdEZ/Z1mGztdPLWHD38GvhzjL98jJL1KiYjGMlcYK4PFR371WOi7DcpmKO/
+	6Nb4dkyyN/3/dzFiamhR+Mm7BFjqWsQal11BQFO7F1JWEZK6A=
+X-Received: by 2002:a05:6a20:6f0e:b0:1ae:a5bf:341b with SMTP id gt14-20020a056a206f0e00b001aea5bf341bmr11876034pzb.6.1715063064174;
+        Mon, 06 May 2024 23:24:24 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEKzr00JmO2nNOhi+vF4ygtl0LFmkgSLokWL69VRVrP0t/pz3CegSzwo6TR9dRXxnkss/lGqXK3XNbsg6ffDW4=
+X-Received: by 2002:a05:6a20:6f0e:b0:1ae:a5bf:341b with SMTP id
+ gt14-20020a056a206f0e00b001aea5bf341bmr11876027pzb.6.1715063063837; Mon, 06
+ May 2024 23:24:23 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 5/5] drm/ci: update xfails for the new testlist
-Content-Language: en-US
-To: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Cc: dri-devel@lists.freedesktop.org, daniels@collabora.com,
- helen.koike@collabora.com, airlied@gmail.com, daniel@ffwll.ch,
- robdclark@gmail.com, david.heidelberg@collabora.com,
- guilherme.gallo@collabora.com, sergi.blanch.torne@collabora.com,
- mcanal@igalia.com, linux-mediatek@lists.infradead.org,
- linux-amlogic@lists.infradead.org, linux-rockchip@lists.infradead.org,
- amd-gfx@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
- intel-gfx@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
- linux-kernel@vger.kernel.org
-References: <20240430091121.508099-1-vignesh.raman@collabora.com>
- <20240430091121.508099-6-vignesh.raman@collabora.com>
- <hon4klkoaouuxhtvm3qb3qstsrdcibihksyrmvxkt3taijl6wb@ubitr6namryw>
-From: Vignesh Raman <vignesh.raman@collabora.com>
-In-Reply-To: <hon4klkoaouuxhtvm3qb3qstsrdcibihksyrmvxkt3taijl6wb@ubitr6namryw>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20240426065441.120710-1-hengqi@linux.alibaba.com> <20240426065441.120710-3-hengqi@linux.alibaba.com>
+In-Reply-To: <20240426065441.120710-3-hengqi@linux.alibaba.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Tue, 7 May 2024 14:24:12 +0800
+Message-ID: <CACGkMEs9nrFTjLa18XN9ZAokgLsw4MtXM3O3kVmQv=ofP49coA@mail.gmail.com>
+Subject: Re: [PATCH net-next v2 2/2] virtio_net: get init coalesce value when probe
+To: Heng Qi <hengqi@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev, 
+	"Michael S . Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Eric Dumazet <edumazet@google.com>, "David S . Miller" <davem@davemloft.net>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi Dmitry,
+On Fri, Apr 26, 2024 at 2:54=E2=80=AFPM Heng Qi <hengqi@linux.alibaba.com> =
+wrote:
+>
+> Currently, virtio-net lacks a way to obtain the default coalesce
+> values of the device during the probe phase. That is, the device
+> may have default experience values, but the user uses "ethtool -c"
+> to query that the values are still 0.
+>
+> Therefore, we reuse VIRTIO_NET_CTRL_NOTF_COAL_VQ_GET to complete the goal=
+.
+>
+> Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
+> ---
+>  drivers/net/virtio_net.c | 68 +++++++++++++++++++++++++++++++++++-----
+>  1 file changed, 61 insertions(+), 7 deletions(-)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 3bc9b1e621db..fe0c15819dd3 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -4623,6 +4623,46 @@ static int virtnet_validate(struct virtio_device *=
+vdev)
+>         return 0;
+>  }
+>
+> +static int virtnet_get_coal_init_value(struct virtnet_info *vi,
+> +                                      u16 _vqn, bool is_tx)
+> +{
+> +       struct virtio_net_ctrl_coal *coal =3D &vi->ctrl->coal_vq.coal;
+> +       __le16 *vqn =3D &vi->ctrl->coal_vq.vqn;
+> +       struct scatterlist sgs_in, sgs_out;
+> +       u32 usecs, pkts, i;
+> +       bool ret;
+> +
+> +       *vqn =3D cpu_to_le16(_vqn);
+> +
+> +       sg_init_one(&sgs_out, vqn, sizeof(*vqn));
+> +       sg_init_one(&sgs_in, coal, sizeof(*coal));
+> +       ret =3D virtnet_send_command_reply(vi, VIRTIO_NET_CTRL_NOTF_COAL,
+> +                                        VIRTIO_NET_CTRL_NOTF_COAL_VQ_GET=
+,
+> +                                        &sgs_out, &sgs_in);
+> +       if (!ret)
+> +               return ret;
+> +
+> +       usecs =3D le32_to_cpu(coal->max_usecs);
+> +       pkts =3D le32_to_cpu(coal->max_packets);
+> +       if (is_tx) {
+> +               vi->intr_coal_tx.max_usecs =3D usecs;
+> +               vi->intr_coal_tx.max_packets =3D pkts;
+> +               for (i =3D 0; i < vi->max_queue_pairs; i++) {
+> +                       vi->sq[i].intr_coal.max_usecs =3D usecs;
+> +                       vi->sq[i].intr_coal.max_packets =3D pkts;
+> +               }
+> +       } else {
+> +               vi->intr_coal_rx.max_usecs =3D usecs;
+> +               vi->intr_coal_rx.max_packets =3D pkts;
+> +               for (i =3D 0; i < vi->max_queue_pairs; i++) {
+> +                       vi->rq[i].intr_coal.max_usecs =3D usecs;
+> +                       vi->rq[i].intr_coal.max_packets =3D pkts;
+> +               }
+> +       }
+> +
+> +       return 0;
+> +}
+> +
+>  static bool virtnet_check_guest_gso(const struct virtnet_info *vi)
+>  {
+>         return virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_TSO4) ||
+> @@ -4885,13 +4925,6 @@ static int virtnet_probe(struct virtio_device *vde=
+v)
+>                         vi->intr_coal_tx.max_packets =3D 0;
+>         }
+>
+> -       if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL)) {
+> -               /* The reason is the same as VIRTIO_NET_F_NOTF_COAL. */
+> -               for (i =3D 0; i < vi->max_queue_pairs; i++)
+> -                       if (vi->sq[i].napi.weight)
+> -                               vi->sq[i].intr_coal.max_packets =3D 1;
+> -       }
+> -
+>  #ifdef CONFIG_SYSFS
+>         if (vi->mergeable_rx_bufs)
+>                 dev->sysfs_rx_queue_group =3D &virtio_net_mrg_rx_group;
+> @@ -4926,6 +4959,27 @@ static int virtnet_probe(struct virtio_device *vde=
+v)
+>
+>         virtio_device_ready(vdev);
+>
+> +       if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL)) {
+> +               /* The reason is the same as VIRTIO_NET_F_NOTF_COAL. */
+> +               for (i =3D 0; i < vi->max_queue_pairs; i++)
+> +                       if (vi->sq[i].napi.weight)
+> +                               vi->sq[i].intr_coal.max_packets =3D 1;
+> +
+> +               /* The loop exits if the default value from any
+> +                * queue is successfully read.
+> +                */
 
-On 30/04/24 15:45, Dmitry Baryshkov wrote:
-> On Tue, Apr 30, 2024 at 02:41:21PM +0530, Vignesh Raman wrote:
->> Now the testlist is used from IGT build, so update
->> xfails with the new testlist.
->>
->> Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
->> ---
->>   .../gpu/drm/ci/xfails/amdgpu-stoney-fails.txt | 47 +++++++----
->>   .../drm/ci/xfails/amdgpu-stoney-flakes.txt    |  8 +-
->>   .../gpu/drm/ci/xfails/amdgpu-stoney-skips.txt | 15 ++++
->>   drivers/gpu/drm/ci/xfails/i915-amly-fails.txt | 22 ++++-
->>   .../gpu/drm/ci/xfails/i915-amly-flakes.txt    |  8 ++
->>   drivers/gpu/drm/ci/xfails/i915-amly-skips.txt |  8 ++
->>   drivers/gpu/drm/ci/xfails/i915-apl-fails.txt  | 45 +++++-----
->>   drivers/gpu/drm/ci/xfails/i915-apl-flakes.txt |  5 ++
->>   drivers/gpu/drm/ci/xfails/i915-apl-skips.txt  | 12 +++
->>   drivers/gpu/drm/ci/xfails/i915-cml-fails.txt  | 26 +++++-
->>   drivers/gpu/drm/ci/xfails/i915-cml-flakes.txt |  6 ++
->>   drivers/gpu/drm/ci/xfails/i915-cml-skips.txt  |  8 ++
->>   drivers/gpu/drm/ci/xfails/i915-glk-fails.txt  | 28 +++++--
->>   drivers/gpu/drm/ci/xfails/i915-glk-skips.txt  | 12 +++
->>   drivers/gpu/drm/ci/xfails/i915-kbl-fails.txt  | 39 ++++-----
->>   drivers/gpu/drm/ci/xfails/i915-kbl-flakes.txt | 10 ++-
->>   drivers/gpu/drm/ci/xfails/i915-kbl-skips.txt  | 21 +++++
->>   drivers/gpu/drm/ci/xfails/i915-tgl-fails.txt  | 75 +++++++++--------
->>   drivers/gpu/drm/ci/xfails/i915-tgl-skips.txt  | 13 +++
->>   drivers/gpu/drm/ci/xfails/i915-whl-fails.txt  | 46 +++++------
->>   drivers/gpu/drm/ci/xfails/i915-whl-skips.txt  |  8 ++
->>   .../drm/ci/xfails/mediatek-mt8173-fails.txt   | 47 +++--------
->>   .../drm/ci/xfails/mediatek-mt8183-fails.txt   | 17 +---
->>   .../drm/ci/xfails/mediatek-mt8183-flakes.txt  |  5 ++
->>   .../gpu/drm/ci/xfails/meson-g12b-fails.txt    | 20 +----
->>   .../gpu/drm/ci/xfails/meson-g12b-flakes.txt   |  5 ++
->>   .../gpu/drm/ci/xfails/msm-apq8016-fails.txt   | 26 ++----
->>   .../gpu/drm/ci/xfails/msm-apq8016-flakes.txt  |  5 ++
->>   .../gpu/drm/ci/xfails/msm-apq8096-fails.txt   |  5 +-
->>   .../gpu/drm/ci/xfails/msm-apq8096-flakes.txt  |  5 ++
->>   .../gpu/drm/ci/xfails/msm-apq8096-skips.txt   | 67 +++++++++++++++
->>   .../msm-sc7180-trogdor-kingoftown-fails.txt   | 34 ++++----
->>   .../msm-sc7180-trogdor-kingoftown-flakes.txt  |  5 ++
->>   ...sm-sc7180-trogdor-lazor-limozeen-fails.txt | 34 ++++----
->>   ...m-sc7180-trogdor-lazor-limozeen-flakes.txt |  5 ++
->>   .../gpu/drm/ci/xfails/msm-sdm845-fails.txt    | 75 ++++-------------
->>   .../gpu/drm/ci/xfails/msm-sdm845-flakes.txt   | 26 ++----
->>   .../drm/ci/xfails/rockchip-rk3288-fails.txt   | 54 ------------
->>   .../drm/ci/xfails/rockchip-rk3399-fails.txt   | 80 ++----------------
->>   .../drm/ci/xfails/rockchip-rk3399-flakes.txt  |  7 --
->>   .../drm/ci/xfails/virtio_gpu-none-fails.txt   | 82 +++++++++++++------
->>   .../drm/ci/xfails/virtio_gpu-none-skips.txt   |  3 +
->>   42 files changed, 574 insertions(+), 495 deletions(-)
->>   create mode 100644 drivers/gpu/drm/ci/xfails/i915-amly-flakes.txt
->>   create mode 100644 drivers/gpu/drm/ci/xfails/i915-apl-flakes.txt
->>   create mode 100644 drivers/gpu/drm/ci/xfails/i915-cml-flakes.txt
->>   create mode 100644 drivers/gpu/drm/ci/xfails/mediatek-mt8183-flakes.txt
->>   create mode 100644 drivers/gpu/drm/ci/xfails/meson-g12b-flakes.txt
->>   create mode 100644 drivers/gpu/drm/ci/xfails/msm-apq8016-flakes.txt
->>   create mode 100644 drivers/gpu/drm/ci/xfails/msm-apq8096-flakes.txt
->>   create mode 100644 drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-kingoftown-flakes.txt
->>   create mode 100644 drivers/gpu/drm/ci/xfails/msm-sc7180-trogdor-lazor-limozeen-flakes.txt
->>   delete mode 100644 drivers/gpu/drm/ci/xfails/rockchip-rk3288-fails.txt
->>   delete mode 100644 drivers/gpu/drm/ci/xfails/rockchip-rk3399-flakes.txt
->>
-> 
-> [skipped]
-> 
->> diff --git a/drivers/gpu/drm/ci/xfails/msm-apq8016-fails.txt b/drivers/gpu/drm/ci/xfails/msm-apq8016-fails.txt
->> index 44a5c62dedad..96e9faf0e607 100644
->> --- a/drivers/gpu/drm/ci/xfails/msm-apq8016-fails.txt
->> +++ b/drivers/gpu/drm/ci/xfails/msm-apq8016-fails.txt
->> @@ -1,19 +1,9 @@
->> +core_setmaster_vs_auth,Fail
->> +device_reset,Fail
->> +dumb_buffer,Fail
-> 
-> This doesn't look correct, core tests should be passing.
-> 
->>   kms_3d,Fail
->> -kms_addfb_basic@addfb25-bad-modifier,Fail
->> -kms_cursor_legacy@all-pipes-forked-bo,Fail
->> -kms_cursor_legacy@all-pipes-forked-move,Fail
->> -kms_cursor_legacy@all-pipes-single-bo,Fail
->> -kms_cursor_legacy@all-pipes-single-move,Fail
->> -kms_cursor_legacy@all-pipes-torture-bo,Fail
->> -kms_cursor_legacy@all-pipes-torture-move,Fail
->> -kms_cursor_legacy@pipe-A-forked-bo,Fail
->> -kms_cursor_legacy@pipe-A-forked-move,Fail
->> -kms_cursor_legacy@pipe-A-single-bo,Fail
->> -kms_cursor_legacy@pipe-A-single-move,Fail
->> -kms_cursor_legacy@pipe-A-torture-bo,Fail
->> -kms_cursor_legacy@pipe-A-torture-move,Fail
->> -kms_force_connector_basic@force-edid,Fail
->> -kms_hdmi_inject@inject-4k,Fail
->> -kms_selftest@drm_format,Timeout
->> -kms_selftest@drm_format_helper,Timeout
-> 
-> Fine, kms_cursor_legacy tests were migrated to -flakes. But what
-> happened with the rest of the failures? >
->> -msm_mapping@ring,Fail
->> +kms_force_connector_basic,Fail
->> +kms_lease,Fail
->> +msm_mapping,Fail
->> +msm_submit,Fail
->> +tools_test,Fail
->> diff --git a/drivers/gpu/drm/ci/xfails/msm-apq8016-flakes.txt b/drivers/gpu/drm/ci/xfails/msm-apq8016-flakes.txt
->> new file mode 100644
->> index 000000000000..3cc361b3d3b3
->> --- /dev/null
->> +++ b/drivers/gpu/drm/ci/xfails/msm-apq8016-flakes.txt
->> @@ -0,0 +1,5 @@
->> +# Board Name: apq8016-sbc-usb-host
->> +# Bug Report: TBD
->> +# IGT Version: 1.28-gd2af13d9f
->> +# Linux Version: 6.9.0-rc4
->> +kms_cursor_legacy
-> 
-> It looks like one of the scripts has lost subtest granularity. It should
-> be fixed before the patchset can be merged
-I will recheck these files with the script fix. Thanks.
+So this assumes the default values are the same. Is this something
+required by the spec? If not, we probably need to iterate all the
+queues.
 
-Regards,
-Vignesh
+Thanks
+
+
+> +               for (i =3D 0; i < vi->max_queue_pairs; i++) {
+> +                       err =3D virtnet_get_coal_init_value(vi, rxq2vq(i)=
+, false);
+> +                       if (!err)
+> +                               break;
+> +               }
+> +               for (i =3D 0; i < vi->max_queue_pairs; i++) {
+> +                       err =3D virtnet_get_coal_init_value(vi, txq2vq(i)=
+, true);
+> +                       if (!err)
+> +                               break;
+> +               }
+> +       }
+> +
+>         _virtnet_set_queues(vi, vi->curr_queue_pairs);
+>
+>         /* a random MAC address has been assigned, notify the device.
+> --
+> 2.32.0.3.g01195cf9f
+>
+
