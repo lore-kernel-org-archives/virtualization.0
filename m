@@ -1,290 +1,272 @@
-Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 561E615EFDE
-	for <virtualization@lists.linux.dev>; Mon,  6 May 2024 21:53:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBBCF4A3E
+	for <virtualization@lists.linux-foundation.org>; Tue,  7 May 2024 01:34:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715032439; cv=none; b=J8m4bfhQzf+zglWYv7XOqDxS+8tTqHBZVeokBENANQ9RshSnf2pKfxkxmttMYVD91pwHsZja9c8UO5KxntfWxdNvXldi1wrywxyYFHkMBkSTnulf78CCMKPuEgwAG9eoo8V+aw3HaXgJ2B5kQs/9OGXut63OTTeIvgiXEHL0F8s=
+	t=1715045700; cv=none; b=gY1VJ0A/vuvvQUV30VK1+U3Khc8ugdohb+3Dcw1UUoiLIFKET1PnN0BM6ipeFhEUInvv/hgAUk+kapCwTT4IKroDp96Ok8cLQ4UTeAs5DdDAMa6GyDJNEIVqXPMm8/XHoxwfff3fQDw/Qf9RXt4bbCOnWRJJI9Jn58Wbp51eWOI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715032439; c=relaxed/simple;
-	bh=a8ZkZmnVhcIQK/jNpksKkemF2Tz85TXnflbv4oGRDGs=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=E34NbaCt2m0zPMhmYGiXTko3WrUD6kiWvJ5WVzu0exHQdRrZHsafGODHEmQXjR1hJzDglhbY70olFUhcIb04hA/uRi4Y51rAF6sVbKmnDLFilczNGGspUA3f78RZi5bh4X5iY75FZJ90Mj7ERYiCz80orRVxGZdAOQIZoo9zJAo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=Ox2vl+NY; arc=none smtp.client-ip=209.85.214.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
+	s=arc-20240116; t=1715045700; c=relaxed/simple;
+	bh=nflotAw23OF8DzsvPikj7Zp6lbojRMt3XmZ/DkGkNJg=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=CfWNSP4ICdes3y0y7uh0YzpxWxCg/QJ1Ble3vUSUOgGPpxN9mSTbhgwswu1uEs7oTQXyctzFwruLrT7QWStomMyxfBhwJ4Bxu7krbQ0BvevfalRA2Q/PHLKfNVLPBqr4+cQt76phl7CYHa72LZKIlw3o4Wvxhqxq/GAzAYB5Sw8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=fVDLd2c2; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="Ox2vl+NY"
-Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-1eb24e3a2d9so23610345ad.1
-        for <virtualization@lists.linux.dev>; Mon, 06 May 2024 14:53:58 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="fVDLd2c2"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 64B1E4033F
+	for <virtualization@lists.linux-foundation.org>; Tue,  7 May 2024 01:34:58 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -9.601
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id ng7s4d-a8R9l for <virtualization@lists.linux-foundation.org>;
+ Tue,  7 May 2024 01:34:57 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::114a; helo=mail-yw1-x114a.google.com; envelope-from=3p4u5zgykaggykgtpimuumrk.ius@flex--seanjc.bounces.google.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org EB99A40156
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=reject dis=none) header.from=google.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EB99A40156
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20230601 header.b=fVDLd2c2
+Received: from mail-yw1-x114a.google.com (mail-yw1-x114a.google.com [IPv6:2607:f8b0:4864:20::114a])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id EB99A40156
+	for <virtualization@lists.linux-foundation.org>; Tue,  7 May 2024 01:34:56 +0000 (UTC)
+Received: by mail-yw1-x114a.google.com with SMTP id 00721157ae682-6204c4f4240so32337647b3.3
+        for <virtualization@lists.linux-foundation.org>; Mon, 06 May 2024 18:34:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1715032438; x=1715637238; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=kh0mykQw2I5Qf0he3/MzjGti1lWApBZCerfJYGXXmog=;
-        b=Ox2vl+NYbdw/5WlHALRimp5l2ly1cZw0o9paQNuJYNdeRDg53XQggIUElDj/gKX3NC
-         /Z5UfBhcFMeC/toVV9GK2yxi+qFYaoM65c5MFWvvl/KdJxN6C5R0r5Ndq0UoT+YbP3KN
-         BtbUOXFeqssEnnkSLZlZLr3R/VlgH2XQLhxJc=
+        d=google.com; s=20230601; t=1715045695; x=1715650495; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:cc:to:from:subject:message-id:references
+         :mime-version:in-reply-to:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=VvGkjH9SPvsjHvBH/WrCy4dSbt+wcqHhkwU5LfzuS0Q=;
+        b=fVDLd2c2fx1KhgbX6XeEVpm+51Yt2l3/ZDMpWSwi2bQliOxZkBf34uEaarKF5vcjBr
+         jlIcaUBJGcYD4EohUP+zziH/RRXvjPFRiSMiZGk1gV6PEIOAOvZnBQAcUH4w6RrrXZuP
+         VdRLcR1pskCBkcF/JW4ZOBRGRNe+snyvJOuN2L5nvuWBaAL7/LnbXhfr75qgnKxYJCAp
+         K9BMlFO26ROkFL4xTmTDIUq4E7uIrvUzTfX6q9/tPrtjx30o2Lddjy7HcUv5iXj/ibux
+         BhWkMvwiVMuWyqEegaXSZOvVGbDnDF5hGYjya5B/xwQRiM2Y9JcYagLdiSc8cDVbItmH
+         q03A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1715032438; x=1715637238;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=kh0mykQw2I5Qf0he3/MzjGti1lWApBZCerfJYGXXmog=;
-        b=bs+cmcgDcWbc+LKWMO2QZ2kMgLYI9oV+Z9C0MyNkaUnyCqirYTJZhanf3t2nbprTXA
-         l5aWCDI/TXGm7El4MQq2TCfpEXS86PJi8KqlqaNi0DraS7i6Hsna6zqtL39O6rFCFZwC
-         3YAftdbbMoYy+WDZOz0qOioL5Px4oMzYOoAoy8HoI0ONvknu31BhFJJjSMx7rXxcEUvS
-         tOMDZfX09FS+X4bn8sywPl+huaIEMh8g//QYGOxfhgAucy923KMGd4v+kVbrqkIRlmRc
-         kMF42j+EQ+C+RE3XuUIMBdPf8iz70gycbUR1Q/I0zNVRwo1hEpKKURKvUwbLfkHAjkS4
-         9Wsw==
-X-Forwarded-Encrypted: i=1; AJvYcCUZ0TtqQ3ByOWaVeQna5NhHt+fZwyPE7zodCCv+Rui7n3gNcTyrunO00W4qpl+WXylLejb/q51yAzBTDcN3z67CZeZtAme6fkyajTtDDFI=
-X-Gm-Message-State: AOJu0YzQhcN64XEDhMOTO6sqLVfszArXrFL3Z+NEeOxt63NOP5sHoQU4
-	xic1rxaGxXQwUJJrlT3oOzroqkIezg+4MRNx566MtLucz3g0/DsQvo1D5aUyVA==
-X-Google-Smtp-Source: AGHT+IFEptUNjmsklm4J4DZ4uzX5bfeaxoJuEOtnFKzuMnc/LL0XLHVulWZDog2TBLVE9vODFynM1Q==
-X-Received: by 2002:a17:902:ea11:b0:1e2:adce:9139 with SMTP id s17-20020a170902ea1100b001e2adce9139mr16091891plg.44.1715032437559;
-        Mon, 06 May 2024 14:53:57 -0700 (PDT)
-Received: from amakhalov-build-vm.eng.vmware.com ([128.177.82.146])
-        by smtp.gmail.com with ESMTPSA id h8-20020a170902f54800b001ed6868e257sm5664008plf.123.2024.05.06.14.53.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 May 2024 14:53:57 -0700 (PDT)
-From: Alexey Makhalov <alexey.makhalov@broadcom.com>
-To: linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	bp@alien8.de,
-	hpa@zytor.com,
-	dave.hansen@linux.intel.com,
-	mingo@redhat.com,
-	tglx@linutronix.de
-Cc: x86@kernel.org,
-	netdev@vger.kernel.org,
-	richardcochran@gmail.com,
-	linux-input@vger.kernel.org,
-	dmitry.torokhov@gmail.com,
-	zackr@vmware.com,
-	linux-graphics-maintainer@vmware.com,
-	pv-drivers@vmware.com,
-	timothym@vmware.com,
-	akaher@vmware.com,
-	dri-devel@lists.freedesktop.org,
-	daniel@ffwll.ch,
-	airlied@gmail.com,
-	tzimmermann@suse.de,
-	mripard@kernel.org,
-	maarten.lankhorst@linux.intel.com,
-	horms@kernel.org,
-	kirill.shutemov@linux.intel.com,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Tim Merrifield <tim.merrifield@broadcom.com>,
-	Nadav Amit <nadav.amit@gmail.com>
-Subject: [PATCH v9 8/8] x86/vmware: Add TDX hypercall support
-Date: Mon,  6 May 2024 14:53:05 -0700
-Message-Id: <20240506215305.30756-9-alexey.makhalov@broadcom.com>
-X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20240506215305.30756-1-alexey.makhalov@broadcom.com>
-References: <20240505182829.GBZjfPzeEijTsBUth5@fat_crate.local>
- <20240506215305.30756-1-alexey.makhalov@broadcom.com>
+        d=1e100.net; s=20230601; t=1715045695; x=1715650495;
+        h=content-transfer-encoding:cc:to:from:subject:message-id:references
+         :mime-version:in-reply-to:date:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=VvGkjH9SPvsjHvBH/WrCy4dSbt+wcqHhkwU5LfzuS0Q=;
+        b=ue5065dNBpwBfoeJl2sn7fc0U+f8muVFpvZSJJ+rr2BeNmx1um+qR469PlnQKXbAAH
+         jF3ypfpTo9oZdu5eAJpiB7NFz736sT29+vFdyKs6wYbmQmdOocD5FOBdfOBDG9SsIcKF
+         XAqlJRIzmfpvUuDwKQu2vvj/Bozpz+HaLD7gYi6e8Af3K08aigkTMr+6U/lEA88kBgDR
+         8s43H8/3/IitwA/yHXxBvLCPmyaV+0YksvFlOmn15xzNXjCnnvNPonyipcTsNQXDw6MG
+         I76PKXEZHuJQuvwUOFotX+Yjz750nzFYN9lTstCA7PTPNXKzn8IKut3laF5B5viTx+l6
+         OIqQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVj4dBR0g7XZkq/L8Po6gvnJaE4nc6gaUPMSzBrDA9HKmHTpEYzkcXnAeBDqAE8l9UMi+sAqSyJGg5iBiN5V+P0gHgKNMRQ85dAGfzafQiujUR0UDwobVOj5A==
+X-Gm-Message-State: AOJu0Yw12PPc8UP8ZTy5CRxTjw3rLs4M7+HYRddLloOrlh3qYn0Yzrl3
+	RSjkHJArJO6QpOreihfjwsk/RADv3U4TYD0naWyM3DsQwlYi3I5xM6E/6fNzql4ZqWBbLaWBfSU
+	JPQ==
+X-Google-Smtp-Source: AGHT+IEuRRNgC6bmH2Ym7Hdh0kKkoS5NCGgVEW4kTiZkpma4/j2gQOn7KVKqRXFpAim0ldEq7Pn05YmuCaI=
+X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
+ (user=seanjc job=sendgmr) by 2002:a05:6902:1893:b0:de4:67d9:a2c6 with SMTP id
+ cj19-20020a056902189300b00de467d9a2c6mr1291648ybb.2.1715045695256; Mon, 06
+ May 2024 18:34:55 -0700 (PDT)
+Date: Mon, 6 May 2024 18:34:53 -0700
+In-Reply-To: <20240506.ohwe7eewu0oB@digikod.net>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+References: <20240503131910.307630-1-mic@digikod.net> <20240503131910.307630-4-mic@digikod.net>
+ <ZjTuqV-AxQQRWwUW@google.com> <20240506.ohwe7eewu0oB@digikod.net>
+Message-ID: <ZjmFPZd5q_hEBdBz@google.com>
+Subject: Re: [RFC PATCH v3 3/5] KVM: x86: Add notifications for Heki policy
+ configuration and violation
+From: Sean Christopherson <seanjc@google.com>
+To: "=?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?=" <mic@digikod.net>
+Cc: Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
+	"H . Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>, Kees Cook <keescook@chromium.org>, 
+	Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, 
+	Vitaly Kuznetsov <vkuznets@redhat.com>, Wanpeng Li <wanpengli@tencent.com>, 
+	Rick P Edgecombe <rick.p.edgecombe@intel.com>, Alexander Graf <graf@amazon.com>, 
+	Angelina Vu <angelinavu@linux.microsoft.com>, 
+	Anna Trikalinou <atrikalinou@microsoft.com>, Chao Peng <chao.p.peng@linux.intel.com>, 
+	Forrest Yuan Yu <yuanyu@google.com>, James Gowans <jgowans@amazon.com>, 
+	James Morris <jamorris@linux.microsoft.com>, John Andersen <john.s.andersen@intel.com>, 
+	"Madhavan T . Venkataraman" <madvenka@linux.microsoft.com>, Marian Rotariu <marian.c.rotariu@gmail.com>, 
+	"Mihai =?utf-8?B?RG9uyJt1?=" <mdontu@bitdefender.com>, 
+	"=?utf-8?B?TmljdciZb3IgQ8OuyJt1?=" <nicu.citu@icloud.com>, Thara Gopinath <tgopinath@microsoft.com>, 
+	Trilok Soni <quic_tsoni@quicinc.com>, Wei Liu <wei.liu@kernel.org>, 
+	Will Deacon <will@kernel.org>, Yu Zhang <yu.c.zhang@linux.intel.com>, 
+	"=?utf-8?Q?=C8=98tefan_=C8=98icleru?=" <ssicleru@bitdefender.com>, dev@lists.cloudhypervisor.org, 
+	kvm@vger.kernel.org, linux-hardening@vger.kernel.org, 
+	linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, qemu-devel@nongnu.org, 
+	virtualization@lists.linux-foundation.org, x86@kernel.org, 
+	xen-devel@lists.xenproject.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-VMware hypercalls use I/O port, VMCALL or VMMCALL instructions.
-Add __tdx_hypercall path to support TDX guests.
+On Mon, May 06, 2024, Micka=C3=ABl Sala=C3=BCn wrote:
+> On Fri, May 03, 2024 at 07:03:21AM GMT, Sean Christopherson wrote:
+> > > ---
+> > >=20
+> > > Changes since v1:
+> > > * New patch. Making user space aware of Heki properties was requested=
+ by
+> > >   Sean Christopherson.
+> >=20
+> > No, I suggested having userspace _control_ the pinning[*], not merely b=
+e notified
+> > of pinning.
+> >=20
+> >  : IMO, manipulation of protections, both for memory (this patch) and C=
+PU state
+> >  : (control registers in the next patch) should come from userspace.  I=
+ have no
+> >  : objection to KVM providing plumbing if necessary, but I think usersp=
+ace needs to
+> >  : to have full control over the actual state.
+> >  :=20
+> >  : One of the things that caused Intel's control register pinning serie=
+s to stall
+> >  : out was how to handle edge cases like kexec() and reboot.  Deferring=
+ to userspace
+> >  : means the kernel doesn't need to define policy, e.g. when to unprote=
+ct memory,
+> >  : and avoids questions like "should userspace be able to overwrite pin=
+ned control
+> >  : registers".
+> >  :=20
+> >  : And like the confidential VM use case, keeping userspace in the loop=
+ is a big
+> >  : beneifit, e.g. the guest can't circumvent protections by coercing us=
+erspace into
+> >  : writing to protected memory.
+> >=20
+> > I stand by that suggestion, because I don't see a sane way to handle th=
+ings like
+> > kexec() and reboot without having a _much_ more sophisticated policy th=
+an would
+> > ever be acceptable in KVM.
+> >=20
+> > I think that can be done without KVM having any awareness of CR pinning=
+ whatsoever.
+> > E.g. userspace just needs to ability to intercept CR writes and inject =
+#GPs.  Off
+> > the cuff, I suspect the uAPI could look very similar to MSR filtering. =
+ E.g. I bet
+> > userspace could enforce MSR pinning without any new KVM uAPI at all.
+> >=20
+> > [*] https://lore.kernel.org/all/ZFUyhPuhtMbYdJ76@google.com
+>=20
+> OK, I had concern about the control not directly coming from the guest,
+> especially in the case of pKVM and confidential computing, but I get you
 
-No change in high bandwidth hypercalls, as only low bandwidth
-ones are supported for TDX guests.
+Hardware-based CoCo is completely out of scope, because KVM has zero visibi=
+lity
+into the guest (well, SNP technically allows trapping CR0/CR4, but KVM real=
+ly
+shouldn't intercept CR0/CR4 for SNP guests).
 
-Co-developed-by: Tim Merrifield <tim.merrifield@broadcom.com>
-Signed-off-by: Tim Merrifield <tim.merrifield@broadcom.com>
-Signed-off-by: Alexey Makhalov <alexey.makhalov@broadcom.com>
-Reviewed-by: Nadav Amit <nadav.amit@gmail.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
----
- arch/x86/include/asm/vmware.h | 46 +++++++++++++++++++++++++++++++
- arch/x86/kernel/cpu/vmware.c  | 52 +++++++++++++++++++++++++++++++++++
- 2 files changed, 98 insertions(+)
+And more importantly, _KVM_ doesn't define any policies for CoCo VMs.  KVM =
+might
+help enforce policies that are defined by hardware/firmware, but KVM doesn'=
+t
+define any of its own.
 
-diff --git a/arch/x86/include/asm/vmware.h b/arch/x86/include/asm/vmware.h
-index 84a31f579a30..cc79c14d1ac2 100644
---- a/arch/x86/include/asm/vmware.h
-+++ b/arch/x86/include/asm/vmware.h
-@@ -18,6 +18,12 @@
-  * arg2 - Hypercall command
-  * arg3 bits [15:0] - Port number, LB and direction flags
-  *
-+ * - Low bandwidth TDX hypercalls (x86_64 only) are similar to LB
-+ * hypercalls. They also have up to 6 input and 6 output on registers
-+ * arguments, with different argument to register mapping:
-+ * %r12 (arg0), %rbx (arg1), %r13 (arg2), %rdx (arg3),
-+ * %rsi (arg4), %rdi (arg5).
-+ *
-  * - High bandwidth (HB) hypercalls are I/O port based only. They have
-  * up to 7 input and 7 output arguments passed and returned using
-  * registers: %eax (arg0), %ebx (arg1), %ecx (arg2), %edx (arg3),
-@@ -54,12 +60,28 @@
- #define VMWARE_CMD_GETHZ		45
- #define VMWARE_CMD_GETVCPU_INFO		68
- #define VMWARE_CMD_STEALCLOCK		91
-+/*
-+ * Hypercall command mask:
-+ *   bits [6:0] command, range [0, 127]
-+ *   bits [19:16] sub-command, range [0, 15]
-+ */
-+#define VMWARE_CMD_MASK			0xf007fU
- 
- #define CPUID_VMWARE_FEATURES_ECX_VMMCALL	BIT(0)
- #define CPUID_VMWARE_FEATURES_ECX_VMCALL	BIT(1)
- 
- extern u8 vmware_hypercall_mode;
- 
-+#define VMWARE_TDX_VENDOR_LEAF 0x1af7e4909ULL
-+#define VMWARE_TDX_HCALL_FUNC  1
-+
-+extern unsigned long vmware_tdx_hypercall(unsigned long cmd,
-+					  unsigned long in1, unsigned long in3,
-+					  unsigned long in4, unsigned long in5,
-+					  uint32_t *out1, uint32_t *out2,
-+					  uint32_t *out3, uint32_t *out4,
-+					  uint32_t *out5);
-+
- /*
-  * The low bandwidth call. The low word of %edx is presumed to have OUT bit
-  * set. The high word of %edx may contain input data from the caller.
-@@ -87,6 +109,10 @@ unsigned long vmware_hypercall1(unsigned long cmd, unsigned long in1)
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall(cmd, in1, 0, 0, 0,
-+					    NULL, NULL, NULL, NULL, NULL);
-+
- 	asm_inline volatile (VMWARE_HYPERCALL
- 		: "=a" (out0)
- 		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-@@ -105,6 +131,10 @@ unsigned long vmware_hypercall3(unsigned long cmd, unsigned long in1,
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall(cmd, in1, 0, 0, 0,
-+					    out1, out2, NULL, NULL, NULL);
-+
- 	asm_inline volatile (VMWARE_HYPERCALL
- 		: "=a" (out0), "=b" (*out1), "=c" (*out2)
- 		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-@@ -124,6 +154,10 @@ unsigned long vmware_hypercall4(unsigned long cmd, unsigned long in1,
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall(cmd, in1, 0, 0, 0,
-+					    out1, out2, out3, NULL, NULL);
-+
- 	asm_inline volatile (VMWARE_HYPERCALL
- 		: "=a" (out0), "=b" (*out1), "=c" (*out2), "=d" (*out3)
- 		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-@@ -143,6 +177,10 @@ unsigned long vmware_hypercall5(unsigned long cmd, unsigned long in1,
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall(cmd, in1, in3, in4, in5,
-+					    NULL, out2, NULL, NULL, NULL);
-+
- 	asm_inline volatile (VMWARE_HYPERCALL
- 		: "=a" (out0), "=c" (*out2)
- 		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-@@ -165,6 +203,10 @@ unsigned long vmware_hypercall6(unsigned long cmd, unsigned long in1,
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall(cmd, in1, in3, 0, 0,
-+					    NULL, out2, out3, out4, out5);
-+
- 	asm_inline volatile (VMWARE_HYPERCALL
- 		: "=a" (out0), "=c" (*out2), "=d" (*out3), "=S" (*out4),
- 		  "=D" (*out5)
-@@ -186,6 +228,10 @@ unsigned long vmware_hypercall7(unsigned long cmd, unsigned long in1,
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall(cmd, in1, in3, in4, in5,
-+					    out1, out2, out3, NULL, NULL);
-+
- 	asm_inline volatile (VMWARE_HYPERCALL
- 		: "=a" (out0), "=b" (*out1), "=c" (*out2), "=d" (*out3)
- 		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index 3ec14a5fa4ac..7511ef706d48 100644
---- a/arch/x86/kernel/cpu/vmware.c
-+++ b/arch/x86/kernel/cpu/vmware.c
-@@ -428,6 +428,58 @@ static bool __init vmware_legacy_x2apic_available(void)
- 		(eax & GETVCPU_INFO_LEGACY_X2APIC);
- }
- 
-+#ifdef CONFIG_INTEL_TDX_GUEST
-+/*
-+ * TDCALL[TDG.VP.VMCALL] uses %rax (arg0) and %rcx (arg2). Therefore,
-+ * we remap those registers to %r12 and %r13, respectively.
-+ */
-+unsigned long vmware_tdx_hypercall(unsigned long cmd,
-+				   unsigned long in1, unsigned long in3,
-+				   unsigned long in4, unsigned long in5,
-+				   uint32_t *out1, uint32_t *out2,
-+				   uint32_t *out3, uint32_t *out4,
-+				   uint32_t *out5)
-+{
-+	struct tdx_module_args args;
-+
-+	if (!hypervisor_is_type(X86_HYPER_VMWARE)) {
-+		pr_warn_once("Incorrect usage\n");
-+		return ULONG_MAX;
-+	}
-+
-+	if (cmd & ~VMWARE_CMD_MASK) {
-+		pr_warn_once("Out of range command %lx\n", cmd);
-+		return ULONG_MAX;
-+	}
-+
-+	args.rbx = in1;
-+	args.rdx = in3;
-+	args.rsi = in4;
-+	args.rdi = in5;
-+	args.r10 = VMWARE_TDX_VENDOR_LEAF;
-+	args.r11 = VMWARE_TDX_HCALL_FUNC;
-+	args.r12 = VMWARE_HYPERVISOR_MAGIC;
-+	args.r13 = cmd;
-+	args.r15 = 0; /* CPL */
-+
-+	__tdx_hypercall(&args);
-+
-+	if (out1)
-+		*out1 = args.rbx;
-+	if (out2)
-+		*out2 = args.r13;
-+	if (out3)
-+		*out3 = args.rdx;
-+	if (out4)
-+		*out4 = args.rsi;
-+	if (out5)
-+		*out5 = args.rdi;
-+
-+	return args.r12;
-+}
-+EXPORT_SYMBOL_GPL(vmware_tdx_hypercall);
-+#endif
-+
- #ifdef CONFIG_AMD_MEM_ENCRYPT
- static void vmware_sev_es_hcall_prepare(struct ghcb *ghcb,
- 					struct pt_regs *regs)
--- 
-2.39.0
+If pKVM on x86 comes along, then KVM will likely get in the business of def=
+ining
+policy, but until that happens, KVM needs to stay firmly out of the picture=
+.
 
+> point.  It should indeed be quite similar to the MSR filtering on the
+> userspace side, except that we need another interface for the guest to
+> request such change (i.e. self-protection).
+>=20
+> Would it be OK to keep this new KVM_HC_LOCK_CR_UPDATE hypercall but
+> forward the request to userspace with a VM exit instead?  That would
+> also enable userspace to get the request and directly configure the CR
+> pinning with the same VM exit.
+
+No?  Maybe?  I strongly suspect that full support will need a richer set of=
+ APIs
+than a single hypercall.  E.g. to handle kexec(), suspend+resume, emulated =
+SMM,
+and so on and so forth.  And that's just for CR pinning.
+
+And hypercalls are hampered by the fact that VMCALL/VMMCALL don't allow for
+delegation or restriction, i.e. there's no way for the guest to communicate=
+ to
+the hypervisor that a less privileged component is allowed to perform some =
+action,
+nor is there a way for the guest to say some chunk of CPL0 code *isn't* all=
+owed
+to request transition.  Delegation and restriction all has to be done out-o=
+f-band.
+
+It'd probably be more annoying to setup initially, but I think a synthetic =
+device
+with an MMIO-based interface would be more powerful and flexible in the lon=
+g run.
+Then userspace can evolve without needing to wait for KVM to catch up.
+
+Actually, potential bad/crazy idea.  Why does the _host_ need to define pol=
+icy?
+Linux already knows what assets it wants to (un)protect and when.  What's m=
+issing
+is a way for the guest kernel to effectively deprivilege and re-authenticat=
+e
+itself as needed.  We've been tossing around the idea of paired VMs+vCPUs t=
+o
+support VTLs and SEV's VMPLs, what if we usurped/piggybacked those ideas, w=
+ith a
+bit of pKVM mixed in?
+
+Borrowing VTL terminology, where VTL0 is the least privileged, userspace la=
+unches
+the VM at VTL0.  At some point, the guest triggers the deprivileging sequen=
+ce and
+userspace creates VTL1.  Userpace also provides a way for VTL0 restrict acc=
+ess to
+its memory, e.g. to effectively make the page tables for the kernel's direc=
+t map
+writable only from VTL1, to make kernel text RO (or XO), etc.  And VTL0 cou=
+ld then
+also completely remove its access to code that changes CR0/CR4.
+
+It would obviously require a _lot_ more upfront work, e.g. to isolate the k=
+ernel
+text that modifies CR0/CR4 so that it can be removed from VTL0, but that sh=
+ould
+be doable with annotations, e.g. tag relevant functions with __magic or wha=
+tever,
+throw them in a dedicated section, and then free/protect the section(s) at =
+the
+appropriate time.
+
+KVM would likely need to provide the ability to switch VTLs (or whatever th=
+ey get
+called), and host userspace would need to provide a decent amount of the ba=
+ckend
+mechanisms and "core" policies, e.g. to manage VTL0 memory, teardown (turn =
+off?)
+VTL1 on kexec(), etc.  But everything else could live in the guest kernel i=
+tself.
+E.g. to have CR pinning play nice with kexec(), toss the relevant kexec() c=
+ode into
+VTL1.  That way VTL1 can verify the kexec() target and tear itself down bef=
+ore
+jumping into the new kernel.=20
+
+This is very off the cuff and have-wavy, e.g. I don't have much of an idea =
+what
+it would take to harden kernel text patching, but keeping the policy in the=
+ guest
+seems like it'd make everything more tractable than trying to define an ABI
+between Linux and a VMM that is rich and flexible enough to support all the
+fancy things Linux does (and will do in the future).
+
+Am I crazy?  Or maybe reinventing whatever that McAfee thing was that led t=
+o
+Intel implementing EPTP switching?
