@@ -1,535 +1,507 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 906A746A4;
-	Tue,  7 May 2024 02:06:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id ED4BB4A12;
+	Tue,  7 May 2024 03:06:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715047571; cv=none; b=bH2MYqD+MNKTUTRGH7AksF2IF6mEC8j+PnrpL/MppCyYKxUHG1w3v2W9pCiipVHP6mZm3yQl0uqM/pV8CoDSaElM/roz6LyUGAt5wGZWNcqyKOqfmpqpZMuU216LZhWnzXqnsiTNIhza4wq4xa8jRaf8J1AZgd2uJoyeV0o20lw=
+	t=1715051181; cv=none; b=YMxEsYjlRbZTABgLXdNKSNbgkpg5iC/8Ixb8xMN910ZXM1D222fKpTbL94LTILmzlY8zobzo5jFZiJwnkLeOYi4HOmLNbn4ARjIsTQ3WvtiZq2VomcDAX/ztvbCfi3NOmVNZMU2ZuyjaTcMBWH+zb79j8TioAZ7OSwT2XqA4xOk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715047571; c=relaxed/simple;
-	bh=8iHTmb9VgE5jmJWE4hY5qzuKhGc1EcWsdCuEgTy1hEA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Qq6/0DnOL7mh/a97R3fo9VTUfVrMo+WVzDNahzr+n7gkxzI1dcWMehSiz1HtPUB4Pfw4cPiJhmOYwYIatVyYa59kjhO4d/AiWpfLqtTagpNqu+iKj7vKQc34R33r9nt7xBqVewxurV0JcrmzRhSK/DKwOPmN+41N+IctFh0q0Fs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NEOqBwYe; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NEOqBwYe"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DDB1C4AF63;
-	Tue,  7 May 2024 02:06:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1715047571;
-	bh=8iHTmb9VgE5jmJWE4hY5qzuKhGc1EcWsdCuEgTy1hEA=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=NEOqBwYeqAAem2uk2ZdaXFNs/omq5+8ej8VhBtzvMB5dEf13Awx5/8tCq4QYRcvyR
-	 yKtMOYJ8O5XsaVdUXYTTPS7Rf4MNkwnrYYws4sQBXcKRkscuWgTDJNVJrxl6P8vgsj
-	 Y04LHwkDsvaXNz8agW3SE9NHDsqxtkSqB4AZvu7dujusDXyA0TGL2J1r7klgdy/0vc
-	 yHWbhnk7jfyVwavlIdwqK7XmI70Ks25n95a7xHLHueW0aEP1IAPwkH5Abm9cetYgrP
-	 0BLyz60buMVxne/b+h+oUe3CsTn2bIkl0rvcuvQcOWxOSBVBuvNHSlXuKCiIK8RDFH
-	 3sCBWWeIn+v4g==
-Received: by mail-ej1-f42.google.com with SMTP id a640c23a62f3a-a599a298990so677662366b.2;
-        Mon, 06 May 2024 19:06:10 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCUEOGSkEdXFsiT37GjYD2U3cUx0rVgm8ukYXrSabYocIL6xjDTZX4KbYJ7xFwZZ/pG9Ua8T1ry3j6Qn2BmCssDiGMqUnu8w69+W5Xs/jJNeSWsYPU/ZMiU90Ecthe90yQo2GtazQfB6B20=
-X-Gm-Message-State: AOJu0YxsurbXV4bDntSSs/bjysqEj9YtywSJ1bxJb3DJXdg2bwXnWsMB
-	szQJgshpMf3MdmsQZTBz8iKen35bou7Iz7trKGMhyj6RZ+26e99wNqmFV98ZurEMPJzJ40Cpt7P
-	3+EfnKHuaTfbWkQz6K/pjdd3JfPQ=
-X-Google-Smtp-Source: AGHT+IEFjX3jGF9ey5LQCdka7emdknvXqArs24mMzgfIpLPQEjSIglWWf8tzG/XOVUPWcwL8NIN6F1Gk2dBgLe45FhU=
-X-Received: by 2002:a17:907:da9:b0:a59:c9ad:bd23 with SMTP id
- go41-20020a1709070da900b00a59c9adbd23mr3661378ejc.6.1715047569555; Mon, 06
- May 2024 19:06:09 -0700 (PDT)
+	s=arc-20240116; t=1715051181; c=relaxed/simple;
+	bh=T9IdUsz4ivWYLT4AQbkM7ttt3BkPndZEUHBetf6wO/M=;
+	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=OizdcRSaShSrlj/5B1sEuUe+hejQ8bXYCXElyeYOuu8tHZd0jlTnC8UMwtk9HQ9RAVEWH+RFM9zu09EaHfh/26HWHiy1d6jvg6sF+eRULsAPWO9q2O4YHYCjo/TISnjiCeMKfl317vOnHxSwX6T0DWHFybtTfskk7clh1vM9WXU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.20.42.173])
+	by gateway (Coremail) with SMTP id _____8AxpOqfmjlmrKcIAA--.11333S3;
+	Tue, 07 May 2024 11:06:07 +0800 (CST)
+Received: from [10.20.42.173] (unknown [10.20.42.173])
+	by localhost.localdomain (Coremail) with SMTP id AQAAf8Cxyt2cmjlmx4ETAA--.38491S3;
+	Tue, 07 May 2024 11:06:06 +0800 (CST)
+Subject: Re: [PATCH v8 4/6] LoongArch: KVM: Add vcpu search support from
+ physical cpuid
+To: Huacai Chen <chenhuacai@kernel.org>
+Cc: Tianrui Zhao <zhaotianrui@loongson.cn>, Juergen Gross <jgross@suse.com>,
+ Paolo Bonzini <pbonzini@redhat.com>, Jonathan Corbet <corbet@lwn.net>,
+ loongarch@lists.linux.dev, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org
+References: <20240428100518.1642324-1-maobibo@loongson.cn>
+ <20240428100518.1642324-5-maobibo@loongson.cn>
+ <CAAhV-H6kBO_RTTHoLfKdAtLO1Aqb0KmAJ6wn0wZrvbCkzMszDQ@mail.gmail.com>
+ <7335dcde-1b3a-1260-ac62-d2d9fcbd6a78@loongson.cn>
+ <CAAhV-H5WJ0o3bJZBq2zx7ejjFkFwYVTyVJEzJuAHEs+uMg-sxw@mail.gmail.com>
+ <b10b46ce-8219-8863-470f-9bfa173b22b0@loongson.cn>
+ <CAAhV-H7fbrOXTtSwBmR3kyTW7yhsifycjynky4HPrUJiS9s=cg@mail.gmail.com>
+ <540aa8dd-eada-1f77-0a20-38196fb5472a@loongson.cn>
+ <CAAhV-H7o3oG2KXc2Ou0aWXTLPSNiM3evSB5Z-5dH4bLRd_P_0Q@mail.gmail.com>
+ <61670353-90c6-6d0c-4430-7655b5251e17@loongson.cn>
+ <CAAhV-H5wNmgxGincGE7cJ8WvrpKFauAJvMHrPttW-LrKB4UeHg@mail.gmail.com>
+ <a6d49710-1580-809d-5dcf-ea4207257ae7@loongson.cn>
+ <CAAhV-H4ir++y+46-g43-9bLvY8cv79fB6bKbWgkhDzDV7QQg9g@mail.gmail.com>
+From: maobibo <maobibo@loongson.cn>
+Message-ID: <7f16cac7-c712-40d4-a3f4-cc761e0dea93@loongson.cn>
+Date: Tue, 7 May 2024 11:06:02 +0800
+User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20240428100518.1642324-1-maobibo@loongson.cn> <20240428100518.1642324-5-maobibo@loongson.cn>
- <CAAhV-H6kBO_RTTHoLfKdAtLO1Aqb0KmAJ6wn0wZrvbCkzMszDQ@mail.gmail.com>
- <7335dcde-1b3a-1260-ac62-d2d9fcbd6a78@loongson.cn> <CAAhV-H5WJ0o3bJZBq2zx7ejjFkFwYVTyVJEzJuAHEs+uMg-sxw@mail.gmail.com>
- <b10b46ce-8219-8863-470f-9bfa173b22b0@loongson.cn> <CAAhV-H7fbrOXTtSwBmR3kyTW7yhsifycjynky4HPrUJiS9s=cg@mail.gmail.com>
- <540aa8dd-eada-1f77-0a20-38196fb5472a@loongson.cn> <CAAhV-H7o3oG2KXc2Ou0aWXTLPSNiM3evSB5Z-5dH4bLRd_P_0Q@mail.gmail.com>
- <61670353-90c6-6d0c-4430-7655b5251e17@loongson.cn> <CAAhV-H5wNmgxGincGE7cJ8WvrpKFauAJvMHrPttW-LrKB4UeHg@mail.gmail.com>
- <a6d49710-1580-809d-5dcf-ea4207257ae7@loongson.cn>
-In-Reply-To: <a6d49710-1580-809d-5dcf-ea4207257ae7@loongson.cn>
-From: Huacai Chen <chenhuacai@kernel.org>
-Date: Tue, 7 May 2024 10:05:59 +0800
-X-Gmail-Original-Message-ID: <CAAhV-H4ir++y+46-g43-9bLvY8cv79fB6bKbWgkhDzDV7QQg9g@mail.gmail.com>
-Message-ID: <CAAhV-H4ir++y+46-g43-9bLvY8cv79fB6bKbWgkhDzDV7QQg9g@mail.gmail.com>
-Subject: Re: [PATCH v8 4/6] LoongArch: KVM: Add vcpu search support from
- physical cpuid
-To: maobibo <maobibo@loongson.cn>
-Cc: Tianrui Zhao <zhaotianrui@loongson.cn>, Juergen Gross <jgross@suse.com>, 
-	Paolo Bonzini <pbonzini@redhat.com>, Jonathan Corbet <corbet@lwn.net>, loongarch@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
-	kvm@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <CAAhV-H4ir++y+46-g43-9bLvY8cv79fB6bKbWgkhDzDV7QQg9g@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:AQAAf8Cxyt2cmjlmx4ETAA--.38491S3
+X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
+X-Coremail-Antispam: 1Uk129KBj9fXoW3KF1UtFWDJrWrGry5XF4rtFc_yoW8ArWDAo
+	W5Jr17tr18Jr1UJr1DJ34Dtryjyw1UJr4UAryUJrn8Jr1Utw1UZr18Gr1UJF47Gr1UJr47
+	JryUJrnrAFW5Xrn8l-sFpf9Il3svdjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8wcxFpf
+	9Il3svdxBIdaVrn0xqx4xG64xvF2IEw4CE5I8CrVC2j2Jv73VFW2AGmfu7bjvjm3AaLaJ3
+	UjIYCTnIWjp_UUUYx7kC6x804xWl14x267AKxVWUJVW8JwAFc2x0x2IEx4CE42xK8VAvwI
+	8IcIk0rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xG
+	Y2AK021l84ACjcxK6xIIjxv20xvE14v26r1I6r4UM28EF7xvwVC0I7IYx2IY6xkF7I0E14
+	v26r4j6F4UM28EF7xvwVC2z280aVAFwI0_Cr0_Gr1UM28EF7xvwVC2z280aVCY1x0267AK
+	xVW8Jr0_Cr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2x26I8E6xACxx
+	1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv
+	67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lc7I2V7IY0VAS07
+	AlzVAYIcxG8wCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02
+	F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GF
+	ylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7Cj
+	xVAFwI0_Jr0_Gr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r
+	4j6F4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07j8
+	sqAUUUUU=
 
-On Tue, May 7, 2024 at 9:40=E2=80=AFAM maobibo <maobibo@loongson.cn> wrote:
->
->
->
-> On 2024/5/6 =E4=B8=8B=E5=8D=8810:17, Huacai Chen wrote:
-> > On Mon, May 6, 2024 at 6:05=E2=80=AFPM maobibo <maobibo@loongson.cn> wr=
-ote:
-> >>
-> >>
-> >>
-> >> On 2024/5/6 =E4=B8=8B=E5=8D=885:40, Huacai Chen wrote:
-> >>> On Mon, May 6, 2024 at 5:35=E2=80=AFPM maobibo <maobibo@loongson.cn> =
-wrote:
-> >>>>
-> >>>>
-> >>>>
-> >>>> On 2024/5/6 =E4=B8=8B=E5=8D=884:59, Huacai Chen wrote:
-> >>>>> On Mon, May 6, 2024 at 4:18=E2=80=AFPM maobibo <maobibo@loongson.cn=
-> wrote:
-> >>>>>>
-> >>>>>>
-> >>>>>>
-> >>>>>> On 2024/5/6 =E4=B8=8B=E5=8D=883:06, Huacai Chen wrote:
-> >>>>>>> Hi, Bibo,
-> >>>>>>>
-> >>>>>>> On Mon, May 6, 2024 at 2:36=E2=80=AFPM maobibo <maobibo@loongson.=
-cn> wrote:
-> >>>>>>>>
-> >>>>>>>>
-> >>>>>>>>
-> >>>>>>>> On 2024/5/6 =E4=B8=8A=E5=8D=889:49, Huacai Chen wrote:
-> >>>>>>>>> Hi, Bibo,
-> >>>>>>>>>
-> >>>>>>>>> On Sun, Apr 28, 2024 at 6:05=E2=80=AFPM Bibo Mao <maobibo@loong=
-son.cn> wrote:
-> >>>>>>>>>>
-> >>>>>>>>>> Physical cpuid is used for interrupt routing for irqchips such=
- as
-> >>>>>>>>>> ipi/msi/extioi interrupt controller. And physical cpuid is sto=
-red
-> >>>>>>>>>> at CSR register LOONGARCH_CSR_CPUID, it can not be changed onc=
-e vcpu
-> >>>>>>>>>> is created and physical cpuid of two vcpus cannot be the same.
-> >>>>>>>>>>
-> >>>>>>>>>> Different irqchips have different size declaration about physi=
-cal cpuid,
-> >>>>>>>>>> max cpuid value for CSR LOONGARCH_CSR_CPUID on 3A5000 is 512, =
-max cpuid
-> >>>>>>>>>> supported by IPI hardware is 1024, 256 for extioi irqchip, and=
- 65536
-> >>>>>>>>>> for MSI irqchip.
-> >>>>>>>>>>
-> >>>>>>>>>> The smallest value from all interrupt controllers is selected =
-now,
-> >>>>>>>>>> and the max cpuid size is defines as 256 by KVM which comes fr=
-om
-> >>>>>>>>>> extioi irqchip.
-> >>>>>>>>>>
-> >>>>>>>>>> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
-> >>>>>>>>>> ---
-> >>>>>>>>>>       arch/loongarch/include/asm/kvm_host.h | 26 ++++++++
-> >>>>>>>>>>       arch/loongarch/include/asm/kvm_vcpu.h |  1 +
-> >>>>>>>>>>       arch/loongarch/kvm/vcpu.c             | 93 +++++++++++++=
-+++++++++++++-
-> >>>>>>>>>>       arch/loongarch/kvm/vm.c               | 11 ++++
-> >>>>>>>>>>       4 files changed, 130 insertions(+), 1 deletion(-)
-> >>>>>>>>>>
-> >>>>>>>>>> diff --git a/arch/loongarch/include/asm/kvm_host.h b/arch/loon=
-garch/include/asm/kvm_host.h
-> >>>>>>>>>> index 2d62f7b0d377..3ba16ef1fe69 100644
-> >>>>>>>>>> --- a/arch/loongarch/include/asm/kvm_host.h
-> >>>>>>>>>> +++ b/arch/loongarch/include/asm/kvm_host.h
-> >>>>>>>>>> @@ -64,6 +64,30 @@ struct kvm_world_switch {
-> >>>>>>>>>>
-> >>>>>>>>>>       #define MAX_PGTABLE_LEVELS     4
-> >>>>>>>>>>
-> >>>>>>>>>> +/*
-> >>>>>>>>>> + * Physical cpu id is used for interrupt routing, there are d=
-ifferent
-> >>>>>>>>>> + * definitions about physical cpuid on different hardwares.
-> >>>>>>>>>> + *  For LOONGARCH_CSR_CPUID register, max cpuid size if 512
-> >>>>>>>>>> + *  For IPI HW, max dest CPUID size 1024
-> >>>>>>>>>> + *  For extioi interrupt controller, max dest CPUID size is 2=
-56
-> >>>>>>>>>> + *  For MSI interrupt controller, max supported CPUID size is=
- 65536
-> >>>>>>>>>> + *
-> >>>>>>>>>> + * Currently max CPUID is defined as 256 for KVM hypervisor, =
-in future
-> >>>>>>>>>> + * it will be expanded to 4096, including 16 packages at most=
-. And every
-> >>>>>>>>>> + * package supports at most 256 vcpus
-> >>>>>>>>>> + */
-> >>>>>>>>>> +#define KVM_MAX_PHYID          256
-> >>>>>>>>>> +
-> >>>>>>>>>> +struct kvm_phyid_info {
-> >>>>>>>>>> +       struct kvm_vcpu *vcpu;
-> >>>>>>>>>> +       bool            enabled;
-> >>>>>>>>>> +};
-> >>>>>>>>>> +
-> >>>>>>>>>> +struct kvm_phyid_map {
-> >>>>>>>>>> +       int max_phyid;
-> >>>>>>>>>> +       struct kvm_phyid_info phys_map[KVM_MAX_PHYID];
-> >>>>>>>>>> +};
-> >>>>>>>>>> +
-> >>>>>>>>>>       struct kvm_arch {
-> >>>>>>>>>>              /* Guest physical mm */
-> >>>>>>>>>>              kvm_pte_t *pgd;
-> >>>>>>>>>> @@ -71,6 +95,8 @@ struct kvm_arch {
-> >>>>>>>>>>              unsigned long invalid_ptes[MAX_PGTABLE_LEVELS];
-> >>>>>>>>>>              unsigned int  pte_shifts[MAX_PGTABLE_LEVELS];
-> >>>>>>>>>>              unsigned int  root_level;
-> >>>>>>>>>> +       spinlock_t    phyid_map_lock;
-> >>>>>>>>>> +       struct kvm_phyid_map  *phyid_map;
-> >>>>>>>>>>
-> >>>>>>>>>>              s64 time_offset;
-> >>>>>>>>>>              struct kvm_context __percpu *vmcs;
-> >>>>>>>>>> diff --git a/arch/loongarch/include/asm/kvm_vcpu.h b/arch/loon=
-garch/include/asm/kvm_vcpu.h
-> >>>>>>>>>> index 0cb4fdb8a9b5..9f53950959da 100644
-> >>>>>>>>>> --- a/arch/loongarch/include/asm/kvm_vcpu.h
-> >>>>>>>>>> +++ b/arch/loongarch/include/asm/kvm_vcpu.h
-> >>>>>>>>>> @@ -81,6 +81,7 @@ void kvm_save_timer(struct kvm_vcpu *vcpu);
-> >>>>>>>>>>       void kvm_restore_timer(struct kvm_vcpu *vcpu);
-> >>>>>>>>>>
-> >>>>>>>>>>       int kvm_vcpu_ioctl_interrupt(struct kvm_vcpu *vcpu, stru=
-ct kvm_interrupt *irq);
-> >>>>>>>>>> +struct kvm_vcpu *kvm_get_vcpu_by_cpuid(struct kvm *kvm, int c=
-puid);
-> >>>>>>>>>>
-> >>>>>>>>>>       /*
-> >>>>>>>>>>        * Loongarch KVM guest interrupt handling
-> >>>>>>>>>> diff --git a/arch/loongarch/kvm/vcpu.c b/arch/loongarch/kvm/vc=
-pu.c
-> >>>>>>>>>> index 3a8779065f73..b633fd28b8db 100644
-> >>>>>>>>>> --- a/arch/loongarch/kvm/vcpu.c
-> >>>>>>>>>> +++ b/arch/loongarch/kvm/vcpu.c
-> >>>>>>>>>> @@ -274,6 +274,95 @@ static int _kvm_getcsr(struct kvm_vcpu *v=
-cpu, unsigned int id, u64 *val)
-> >>>>>>>>>>              return 0;
-> >>>>>>>>>>       }
-> >>>>>>>>>>
-> >>>>>>>>>> +static inline int kvm_set_cpuid(struct kvm_vcpu *vcpu, u64 va=
-l)
-> >>>>>>>>>> +{
-> >>>>>>>>>> +       int cpuid;
-> >>>>>>>>>> +       struct loongarch_csrs *csr =3D vcpu->arch.csr;
-> >>>>>>>>>> +       struct kvm_phyid_map  *map;
-> >>>>>>>>>> +
-> >>>>>>>>>> +       if (val >=3D KVM_MAX_PHYID)
-> >>>>>>>>>> +               return -EINVAL;
-> >>>>>>>>>> +
-> >>>>>>>>>> +       cpuid =3D kvm_read_sw_gcsr(csr, LOONGARCH_CSR_ESTAT);
-> >>>>>>>>>> +       map =3D vcpu->kvm->arch.phyid_map;
-> >>>>>>>>>> +       spin_lock(&vcpu->kvm->arch.phyid_map_lock);
-> >>>>>>>>>> +       if (map->phys_map[cpuid].enabled) {
-> >>>>>>>>>> +               /*
-> >>>>>>>>>> +                * Cpuid is already set before
-> >>>>>>>>>> +                * Forbid changing different cpuid at runtime
-> >>>>>>>>>> +                */
-> >>>>>>>>>> +               if (cpuid !=3D val) {
-> >>>>>>>>>> +                       /*
-> >>>>>>>>>> +                        * Cpuid 0 is initial value for vcpu, =
-maybe invalid
-> >>>>>>>>>> +                        * unset value for vcpu
-> >>>>>>>>>> +                        */
-> >>>>>>>>>> +                       if (cpuid) {
-> >>>>>>>>>> +                               spin_unlock(&vcpu->kvm->arch.p=
-hyid_map_lock);
-> >>>>>>>>>> +                               return -EINVAL;
-> >>>>>>>>>> +                       }
-> >>>>>>>>>> +               } else {
-> >>>>>>>>>> +                        /* Discard duplicated cpuid set */
-> >>>>>>>>>> +                       spin_unlock(&vcpu->kvm->arch.phyid_map=
-_lock);
-> >>>>>>>>>> +                       return 0;
-> >>>>>>>>>> +               }
-> >>>>>>>>>> +       }
-> >>>>>>>>> I have changed the logic and comments when I apply, you can dou=
-ble
-> >>>>>>>>> check whether it is correct.
-> >>>>>>>> I checkout the latest version, the modification in function
-> >>>>>>>> kvm_set_cpuid() is good for me.
-> >>>>>>> Now the modified version is like this:
-> >>>>>>>
-> >>>>>>> + if (map->phys_map[cpuid].enabled) {
-> >>>>>>> + /* Discard duplicated CPUID set operation */
-> >>>>>>> + if (cpuid =3D=3D val) {
-> >>>>>>> + spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
-> >>>>>>> + return 0;
-> >>>>>>> + }
-> >>>>>>> +
-> >>>>>>> + /*
-> >>>>>>> + * CPUID is already set before
-> >>>>>>> + * Forbid changing different CPUID at runtime
-> >>>>>>> + * But CPUID 0 is the initial value for vcpu, so allow
-> >>>>>>> + * changing from 0 to others
-> >>>>>>> + */
-> >>>>>>> + if (cpuid) {
-> >>>>>>> + spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
-> >>>>>>> + return -EINVAL;
-> >>>>>>> + }
-> >>>>>>> + }
-> >>>>>>> But I still doubt whether we should allow changing from 0 to othe=
-rs
-> >>>>>>> while map->phys_map[cpuid].enabled is 1.
-> >>>>>> It is necessary since the default sw cpuid is zero :-( And we can
-> >>>>>> optimize it in later, such as set INVALID cpuid in function
-> >>>>>> kvm_arch_vcpu_create() and logic will be simple in function kvm_se=
-t_cpuid().
-> >>>>> In my opinion, if a vcpu with a uninitialized default physid=3D0, t=
-hen
-> >>>>> map->phys_map[cpuid].enabled should be 0, then code won't come here=
-.
-> >>>>> And if a vcpu with a real physid=3D0, then map->phys_map[cpuid].ena=
-bled
-> >>>>> is 1, but we shouldn't allow it to change physid in this case.
-> >>>> yes, that is actually a problem.
-> >>>>
-> >>>> vcpu0 firstly set physid=3D0, and vcpu0 set physid=3D1 again is not =
-allowed.
-> >>>> vcpu0 firstly set physid=3D0, and vcpu1 set physid=3D1 is allowed.
-> >>>
-> >>> So can we simply drop the if (cpuid) checking? That means:
-> >>> + if (map->phys_map[cpuid].enabled) {
-> >>> + /* Discard duplicated CPUID set operation */
-> >>> + if (cpuid =3D=3D val) {
-> >>> + spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
-> >>> + return 0;
-> >>> + }
-> >>> +
-> >>> + spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
-> >>> + return -EINVAL;
-> >>> + }
-> >> yes, the similar modification such as following, since the secondary
-> >> scenario should be allowed.
-> >>    "vcpu0 firstly set physid=3D0, and vcpu1 set physid=3D1 is allowed =
-though
-> >> default sw cpuid is zero"
-> >>
-> >> --- a/arch/loongarch/kvm/vcpu.c
-> >> +++ b/arch/loongarch/kvm/vcpu.c
-> >> @@ -272,7 +272,7 @@ static inline int kvm_set_cpuid(struct kvm_vcpu
-> >> *vcpu, u64 val)
-> >>           cpuid =3D kvm_read_sw_gcsr(csr, LOONGARCH_CSR_CPUID);
-> >>
-> >>           spin_lock(&vcpu->kvm->arch.phyid_map_lock);
-> >> -       if (map->phys_map[cpuid].enabled) {
-> >> +       if ((cpuid !=3D KVM_MAX_PHYID) && map->phys_map[cpuid].enabled=
-) {
-> >>                   /* Discard duplicated CPUID set operation */
-> >>                   if (cpuid =3D=3D val) {
-> >>                           spin_unlock(&vcpu->kvm->arch.phyid_map_lock)=
-;
-> >> @@ -282,13 +282,9 @@ static inline int kvm_set_cpuid(struct kvm_vcpu
-> >> *vcpu, u64 val)
-> >>                   /*
-> >>                    * CPUID is already set before
-> >>                    * Forbid changing different CPUID at runtime
-> >> -                * But CPUID 0 is the initial value for vcpu, so allow
-> >> -                * changing from 0 to others
-> >>                    */
-> >> -               if (cpuid) {
-> >> -                       spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
-> >> -                       return -EINVAL;
-> >> -               }
-> >> +               spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
-> >> +               return -EINVAL;
-> >>           }
-> >>
-> >>           if (map->phys_map[val].enabled) {
-> >> @@ -1029,6 +1025,7 @@ int kvm_arch_vcpu_create(struct kvm_vcpu *vcpu)
-> >>
-> >>           /* Set cpuid */
-> >>           kvm_write_sw_gcsr(csr, LOONGARCH_CSR_TMID, vcpu->vcpu_id);
-> >> +       kvm_write_sw_gcsr(csr, LOONGARCH_CSR_CPUID, KVM_MAX_PHYID);
-> >>
-> >>           /* Start with no pending virtual guest interrupts */
-> >>           csr->csrs[LOONGARCH_CSR_GINTC] =3D 0;
-> > Very nice, but I think kvm_drop_cpuid() should also set to KVM_MAX_PHYI=
-D.
-> > Now I update my loongarch-kvm branch, you can test it again, and hope
-> > it is in the perfect status.
-> I sync and test the latest code from loongarch-kvm, pv ipi works well
-> with 256 vcpus. And the code looks good to me, thanks for your review in
-> short time.
-OK, if SWDBG also works well, I will send PR to Paolo tomorrow.
 
-Huacai
 
->
-> Regards
-> Bibo Mao
-> >
-> > Huacai
-> >>
-> >>
-> >>>
-> >>> Huacai
-> >>>
-> >>>>
-> >>>>
-> >>>>>
-> >>>>> Huacai
-> >>>>>
-> >>>>>>
-> >>>>>> Regards
-> >>>>>> Bibo Mao
-> >>>>>>
-> >>>>>>>
-> >>>>>>> Huacai
-> >>>>>>>
-> >>>>>>>>>
-> >>>>>>>>>> +
-> >>>>>>>>>> +       if (map->phys_map[val].enabled) {
-> >>>>>>>>>> +               /*
-> >>>>>>>>>> +                * New cpuid is already set with other vcpu
-> >>>>>>>>>> +                * Forbid sharing the same cpuid between diffe=
-rent vcpus
-> >>>>>>>>>> +                */
-> >>>>>>>>>> +               if (map->phys_map[val].vcpu !=3D vcpu) {
-> >>>>>>>>>> +                       spin_unlock(&vcpu->kvm->arch.phyid_map=
-_lock);
-> >>>>>>>>>> +                       return -EINVAL;
-> >>>>>>>>>> +               }
-> >>>>>>>>>> +
-> >>>>>>>>>> +               /* Discard duplicated cpuid set operation*/
-> >>>>>>>>>> +               spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
-> >>>>>>>>>> +               return 0;
-> >>>>>>>>>> +       }
-> >>>>>>>>>> +
-> >>>>>>>>>> +       kvm_write_sw_gcsr(csr, LOONGARCH_CSR_CPUID, val);
-> >>>>>>>>>> +       map->phys_map[val].enabled      =3D true;
-> >>>>>>>>>> +       map->phys_map[val].vcpu         =3D vcpu;
-> >>>>>>>>>> +       if (map->max_phyid < val)
-> >>>>>>>>>> +               map->max_phyid =3D val;
-> >>>>>>>>>> +       spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
-> >>>>>>>>>> +       return 0;
-> >>>>>>>>>> +}
-> >>>>>>>>>> +
-> >>>>>>>>>> +struct kvm_vcpu *kvm_get_vcpu_by_cpuid(struct kvm *kvm, int c=
-puid)
-> >>>>>>>>>> +{
-> >>>>>>>>>> +       struct kvm_phyid_map  *map;
-> >>>>>>>>>> +
-> >>>>>>>>>> +       if (cpuid >=3D KVM_MAX_PHYID)
-> >>>>>>>>>> +               return NULL;
-> >>>>>>>>>> +
-> >>>>>>>>>> +       map =3D kvm->arch.phyid_map;
-> >>>>>>>>>> +       if (map->phys_map[cpuid].enabled)
-> >>>>>>>>>> +               return map->phys_map[cpuid].vcpu;
-> >>>>>>>>>> +
-> >>>>>>>>>> +       return NULL;
-> >>>>>>>>>> +}
-> >>>>>>>>>> +
-> >>>>>>>>>> +static inline void kvm_drop_cpuid(struct kvm_vcpu *vcpu)
-> >>>>>>>>>> +{
-> >>>>>>>>>> +       int cpuid;
-> >>>>>>>>>> +       struct loongarch_csrs *csr =3D vcpu->arch.csr;
-> >>>>>>>>>> +       struct kvm_phyid_map  *map;
-> >>>>>>>>>> +
-> >>>>>>>>>> +       map =3D vcpu->kvm->arch.phyid_map;
-> >>>>>>>>>> +       cpuid =3D kvm_read_sw_gcsr(csr, LOONGARCH_CSR_ESTAT);
-> >>>>>>>>>> +       if (cpuid >=3D KVM_MAX_PHYID)
-> >>>>>>>>>> +               return;
-> >>>>>>>>>> +
-> >>>>>>>>>> +       if (map->phys_map[cpuid].enabled) {
-> >>>>>>>>>> +               map->phys_map[cpuid].vcpu =3D NULL;
-> >>>>>>>>>> +               map->phys_map[cpuid].enabled =3D false;
-> >>>>>>>>>> +               kvm_write_sw_gcsr(csr, LOONGARCH_CSR_CPUID, 0)=
-;
-> >>>>>>>>>> +       }
-> >>>>>>>>>> +}
-> >>>>>>>>> While kvm_set_cpuid() is protected by a spinlock, do kvm_drop_c=
-puid()
-> >>>>>>>>> and kvm_get_vcpu_by_cpuid() also need it?
-> >>>>>>>>>
-> >>>>>>>> It is good to me that spinlock is added in function kvm_drop_cpu=
-id().
-> >>>>>>>> And thinks for the efforts.
-> >>>>>>>>
-> >>>>>>>> Regards
-> >>>>>>>> Bibo Mao
-> >>>>>>>>>> +
-> >>>>>>>>>>       static int _kvm_setcsr(struct kvm_vcpu *vcpu, unsigned i=
-nt id, u64 val)
-> >>>>>>>>>>       {
-> >>>>>>>>>>              int ret =3D 0, gintc;
-> >>>>>>>>>> @@ -291,7 +380,8 @@ static int _kvm_setcsr(struct kvm_vcpu *vc=
-pu, unsigned int id, u64 val)
-> >>>>>>>>>>                      kvm_set_sw_gcsr(csr, LOONGARCH_CSR_ESTAT,=
- gintc);
-> >>>>>>>>>>
-> >>>>>>>>>>                      return ret;
-> >>>>>>>>>> -       }
-> >>>>>>>>>> +       } else if (id =3D=3D LOONGARCH_CSR_CPUID)
-> >>>>>>>>>> +               return kvm_set_cpuid(vcpu, val);
-> >>>>>>>>>>
-> >>>>>>>>>>              kvm_write_sw_gcsr(csr, id, val);
-> >>>>>>>>>>
-> >>>>>>>>>> @@ -943,6 +1033,7 @@ void kvm_arch_vcpu_destroy(struct kvm_vcp=
-u *vcpu)
-> >>>>>>>>>>              hrtimer_cancel(&vcpu->arch.swtimer);
-> >>>>>>>>>>              kvm_mmu_free_memory_cache(&vcpu->arch.mmu_page_ca=
-che);
-> >>>>>>>>>>              kfree(vcpu->arch.csr);
-> >>>>>>>>>> +       kvm_drop_cpuid(vcpu);
-> >>>>>>>>> I think this line should be before the above kfree(), otherwise=
- you
-> >>>>>>>>> get a "use after free".
-> >>>>>>>>>
-> >>>>>>>>> Huacai
-> >>>>>>>>>
-> >>>>>>>>>>
-> >>>>>>>>>>              /*
-> >>>>>>>>>>               * If the vCPU is freed and reused as another vCP=
-U, we don't want the
-> >>>>>>>>>> diff --git a/arch/loongarch/kvm/vm.c b/arch/loongarch/kvm/vm.c
-> >>>>>>>>>> index 0a37f6fa8f2d..6006a28653ad 100644
-> >>>>>>>>>> --- a/arch/loongarch/kvm/vm.c
-> >>>>>>>>>> +++ b/arch/loongarch/kvm/vm.c
-> >>>>>>>>>> @@ -30,6 +30,14 @@ int kvm_arch_init_vm(struct kvm *kvm, unsig=
-ned long type)
-> >>>>>>>>>>              if (!kvm->arch.pgd)
-> >>>>>>>>>>                      return -ENOMEM;
-> >>>>>>>>>>
-> >>>>>>>>>> +       kvm->arch.phyid_map =3D kvzalloc(sizeof(struct kvm_phy=
-id_map),
-> >>>>>>>>>> +                               GFP_KERNEL_ACCOUNT);
-> >>>>>>>>>> +       if (!kvm->arch.phyid_map) {
-> >>>>>>>>>> +               free_page((unsigned long)kvm->arch.pgd);
-> >>>>>>>>>> +               kvm->arch.pgd =3D NULL;
-> >>>>>>>>>> +               return -ENOMEM;
-> >>>>>>>>>> +       }
-> >>>>>>>>>> +
-> >>>>>>>>>>              kvm_init_vmcs(kvm);
-> >>>>>>>>>>              kvm->arch.gpa_size =3D BIT(cpu_vabits - 1);
-> >>>>>>>>>>              kvm->arch.root_level =3D CONFIG_PGTABLE_LEVELS - =
-1;
-> >>>>>>>>>> @@ -44,6 +52,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsign=
-ed long type)
-> >>>>>>>>>>              for (i =3D 0; i <=3D kvm->arch.root_level; i++)
-> >>>>>>>>>>                      kvm->arch.pte_shifts[i] =3D PAGE_SHIFT + =
-i * (PAGE_SHIFT - 3);
-> >>>>>>>>>>
-> >>>>>>>>>> +       spin_lock_init(&kvm->arch.phyid_map_lock);
-> >>>>>>>>>>              return 0;
-> >>>>>>>>>>       }
-> >>>>>>>>>>
-> >>>>>>>>>> @@ -51,7 +60,9 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
-> >>>>>>>>>>       {
-> >>>>>>>>>>              kvm_destroy_vcpus(kvm);
-> >>>>>>>>>>              free_page((unsigned long)kvm->arch.pgd);
-> >>>>>>>>>> +       kvfree(kvm->arch.phyid_map);
-> >>>>>>>>>>              kvm->arch.pgd =3D NULL;
-> >>>>>>>>>> +       kvm->arch.phyid_map =3D NULL;
-> >>>>>>>>>>       }
-> >>>>>>>>>>
-> >>>>>>>>>>       int kvm_vm_ioctl_check_extension(struct kvm *kvm, long e=
-xt)
-> >>>>>>>>>> --
-> >>>>>>>>>> 2.39.3
-> >>>>>>>>>>
-> >>>>>>>>
-> >>>>>>
-> >>>>
-> >>
->
->
+On 2024/5/7 上午10:05, Huacai Chen wrote:
+> On Tue, May 7, 2024 at 9:40 AM maobibo <maobibo@loongson.cn> wrote:
+>>
+>>
+>>
+>> On 2024/5/6 下午10:17, Huacai Chen wrote:
+>>> On Mon, May 6, 2024 at 6:05 PM maobibo <maobibo@loongson.cn> wrote:
+>>>>
+>>>>
+>>>>
+>>>> On 2024/5/6 下午5:40, Huacai Chen wrote:
+>>>>> On Mon, May 6, 2024 at 5:35 PM maobibo <maobibo@loongson.cn> wrote:
+>>>>>>
+>>>>>>
+>>>>>>
+>>>>>> On 2024/5/6 下午4:59, Huacai Chen wrote:
+>>>>>>> On Mon, May 6, 2024 at 4:18 PM maobibo <maobibo@loongson.cn> wrote:
+>>>>>>>>
+>>>>>>>>
+>>>>>>>>
+>>>>>>>> On 2024/5/6 下午3:06, Huacai Chen wrote:
+>>>>>>>>> Hi, Bibo,
+>>>>>>>>>
+>>>>>>>>> On Mon, May 6, 2024 at 2:36 PM maobibo <maobibo@loongson.cn> wrote:
+>>>>>>>>>>
+>>>>>>>>>>
+>>>>>>>>>>
+>>>>>>>>>> On 2024/5/6 上午9:49, Huacai Chen wrote:
+>>>>>>>>>>> Hi, Bibo,
+>>>>>>>>>>>
+>>>>>>>>>>> On Sun, Apr 28, 2024 at 6:05 PM Bibo Mao <maobibo@loongson.cn> wrote:
+>>>>>>>>>>>>
+>>>>>>>>>>>> Physical cpuid is used for interrupt routing for irqchips such as
+>>>>>>>>>>>> ipi/msi/extioi interrupt controller. And physical cpuid is stored
+>>>>>>>>>>>> at CSR register LOONGARCH_CSR_CPUID, it can not be changed once vcpu
+>>>>>>>>>>>> is created and physical cpuid of two vcpus cannot be the same.
+>>>>>>>>>>>>
+>>>>>>>>>>>> Different irqchips have different size declaration about physical cpuid,
+>>>>>>>>>>>> max cpuid value for CSR LOONGARCH_CSR_CPUID on 3A5000 is 512, max cpuid
+>>>>>>>>>>>> supported by IPI hardware is 1024, 256 for extioi irqchip, and 65536
+>>>>>>>>>>>> for MSI irqchip.
+>>>>>>>>>>>>
+>>>>>>>>>>>> The smallest value from all interrupt controllers is selected now,
+>>>>>>>>>>>> and the max cpuid size is defines as 256 by KVM which comes from
+>>>>>>>>>>>> extioi irqchip.
+>>>>>>>>>>>>
+>>>>>>>>>>>> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
+>>>>>>>>>>>> ---
+>>>>>>>>>>>>        arch/loongarch/include/asm/kvm_host.h | 26 ++++++++
+>>>>>>>>>>>>        arch/loongarch/include/asm/kvm_vcpu.h |  1 +
+>>>>>>>>>>>>        arch/loongarch/kvm/vcpu.c             | 93 ++++++++++++++++++++++++++-
+>>>>>>>>>>>>        arch/loongarch/kvm/vm.c               | 11 ++++
+>>>>>>>>>>>>        4 files changed, 130 insertions(+), 1 deletion(-)
+>>>>>>>>>>>>
+>>>>>>>>>>>> diff --git a/arch/loongarch/include/asm/kvm_host.h b/arch/loongarch/include/asm/kvm_host.h
+>>>>>>>>>>>> index 2d62f7b0d377..3ba16ef1fe69 100644
+>>>>>>>>>>>> --- a/arch/loongarch/include/asm/kvm_host.h
+>>>>>>>>>>>> +++ b/arch/loongarch/include/asm/kvm_host.h
+>>>>>>>>>>>> @@ -64,6 +64,30 @@ struct kvm_world_switch {
+>>>>>>>>>>>>
+>>>>>>>>>>>>        #define MAX_PGTABLE_LEVELS     4
+>>>>>>>>>>>>
+>>>>>>>>>>>> +/*
+>>>>>>>>>>>> + * Physical cpu id is used for interrupt routing, there are different
+>>>>>>>>>>>> + * definitions about physical cpuid on different hardwares.
+>>>>>>>>>>>> + *  For LOONGARCH_CSR_CPUID register, max cpuid size if 512
+>>>>>>>>>>>> + *  For IPI HW, max dest CPUID size 1024
+>>>>>>>>>>>> + *  For extioi interrupt controller, max dest CPUID size is 256
+>>>>>>>>>>>> + *  For MSI interrupt controller, max supported CPUID size is 65536
+>>>>>>>>>>>> + *
+>>>>>>>>>>>> + * Currently max CPUID is defined as 256 for KVM hypervisor, in future
+>>>>>>>>>>>> + * it will be expanded to 4096, including 16 packages at most. And every
+>>>>>>>>>>>> + * package supports at most 256 vcpus
+>>>>>>>>>>>> + */
+>>>>>>>>>>>> +#define KVM_MAX_PHYID          256
+>>>>>>>>>>>> +
+>>>>>>>>>>>> +struct kvm_phyid_info {
+>>>>>>>>>>>> +       struct kvm_vcpu *vcpu;
+>>>>>>>>>>>> +       bool            enabled;
+>>>>>>>>>>>> +};
+>>>>>>>>>>>> +
+>>>>>>>>>>>> +struct kvm_phyid_map {
+>>>>>>>>>>>> +       int max_phyid;
+>>>>>>>>>>>> +       struct kvm_phyid_info phys_map[KVM_MAX_PHYID];
+>>>>>>>>>>>> +};
+>>>>>>>>>>>> +
+>>>>>>>>>>>>        struct kvm_arch {
+>>>>>>>>>>>>               /* Guest physical mm */
+>>>>>>>>>>>>               kvm_pte_t *pgd;
+>>>>>>>>>>>> @@ -71,6 +95,8 @@ struct kvm_arch {
+>>>>>>>>>>>>               unsigned long invalid_ptes[MAX_PGTABLE_LEVELS];
+>>>>>>>>>>>>               unsigned int  pte_shifts[MAX_PGTABLE_LEVELS];
+>>>>>>>>>>>>               unsigned int  root_level;
+>>>>>>>>>>>> +       spinlock_t    phyid_map_lock;
+>>>>>>>>>>>> +       struct kvm_phyid_map  *phyid_map;
+>>>>>>>>>>>>
+>>>>>>>>>>>>               s64 time_offset;
+>>>>>>>>>>>>               struct kvm_context __percpu *vmcs;
+>>>>>>>>>>>> diff --git a/arch/loongarch/include/asm/kvm_vcpu.h b/arch/loongarch/include/asm/kvm_vcpu.h
+>>>>>>>>>>>> index 0cb4fdb8a9b5..9f53950959da 100644
+>>>>>>>>>>>> --- a/arch/loongarch/include/asm/kvm_vcpu.h
+>>>>>>>>>>>> +++ b/arch/loongarch/include/asm/kvm_vcpu.h
+>>>>>>>>>>>> @@ -81,6 +81,7 @@ void kvm_save_timer(struct kvm_vcpu *vcpu);
+>>>>>>>>>>>>        void kvm_restore_timer(struct kvm_vcpu *vcpu);
+>>>>>>>>>>>>
+>>>>>>>>>>>>        int kvm_vcpu_ioctl_interrupt(struct kvm_vcpu *vcpu, struct kvm_interrupt *irq);
+>>>>>>>>>>>> +struct kvm_vcpu *kvm_get_vcpu_by_cpuid(struct kvm *kvm, int cpuid);
+>>>>>>>>>>>>
+>>>>>>>>>>>>        /*
+>>>>>>>>>>>>         * Loongarch KVM guest interrupt handling
+>>>>>>>>>>>> diff --git a/arch/loongarch/kvm/vcpu.c b/arch/loongarch/kvm/vcpu.c
+>>>>>>>>>>>> index 3a8779065f73..b633fd28b8db 100644
+>>>>>>>>>>>> --- a/arch/loongarch/kvm/vcpu.c
+>>>>>>>>>>>> +++ b/arch/loongarch/kvm/vcpu.c
+>>>>>>>>>>>> @@ -274,6 +274,95 @@ static int _kvm_getcsr(struct kvm_vcpu *vcpu, unsigned int id, u64 *val)
+>>>>>>>>>>>>               return 0;
+>>>>>>>>>>>>        }
+>>>>>>>>>>>>
+>>>>>>>>>>>> +static inline int kvm_set_cpuid(struct kvm_vcpu *vcpu, u64 val)
+>>>>>>>>>>>> +{
+>>>>>>>>>>>> +       int cpuid;
+>>>>>>>>>>>> +       struct loongarch_csrs *csr = vcpu->arch.csr;
+>>>>>>>>>>>> +       struct kvm_phyid_map  *map;
+>>>>>>>>>>>> +
+>>>>>>>>>>>> +       if (val >= KVM_MAX_PHYID)
+>>>>>>>>>>>> +               return -EINVAL;
+>>>>>>>>>>>> +
+>>>>>>>>>>>> +       cpuid = kvm_read_sw_gcsr(csr, LOONGARCH_CSR_ESTAT);
+>>>>>>>>>>>> +       map = vcpu->kvm->arch.phyid_map;
+>>>>>>>>>>>> +       spin_lock(&vcpu->kvm->arch.phyid_map_lock);
+>>>>>>>>>>>> +       if (map->phys_map[cpuid].enabled) {
+>>>>>>>>>>>> +               /*
+>>>>>>>>>>>> +                * Cpuid is already set before
+>>>>>>>>>>>> +                * Forbid changing different cpuid at runtime
+>>>>>>>>>>>> +                */
+>>>>>>>>>>>> +               if (cpuid != val) {
+>>>>>>>>>>>> +                       /*
+>>>>>>>>>>>> +                        * Cpuid 0 is initial value for vcpu, maybe invalid
+>>>>>>>>>>>> +                        * unset value for vcpu
+>>>>>>>>>>>> +                        */
+>>>>>>>>>>>> +                       if (cpuid) {
+>>>>>>>>>>>> +                               spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
+>>>>>>>>>>>> +                               return -EINVAL;
+>>>>>>>>>>>> +                       }
+>>>>>>>>>>>> +               } else {
+>>>>>>>>>>>> +                        /* Discard duplicated cpuid set */
+>>>>>>>>>>>> +                       spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
+>>>>>>>>>>>> +                       return 0;
+>>>>>>>>>>>> +               }
+>>>>>>>>>>>> +       }
+>>>>>>>>>>> I have changed the logic and comments when I apply, you can double
+>>>>>>>>>>> check whether it is correct.
+>>>>>>>>>> I checkout the latest version, the modification in function
+>>>>>>>>>> kvm_set_cpuid() is good for me.
+>>>>>>>>> Now the modified version is like this:
+>>>>>>>>>
+>>>>>>>>> + if (map->phys_map[cpuid].enabled) {
+>>>>>>>>> + /* Discard duplicated CPUID set operation */
+>>>>>>>>> + if (cpuid == val) {
+>>>>>>>>> + spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
+>>>>>>>>> + return 0;
+>>>>>>>>> + }
+>>>>>>>>> +
+>>>>>>>>> + /*
+>>>>>>>>> + * CPUID is already set before
+>>>>>>>>> + * Forbid changing different CPUID at runtime
+>>>>>>>>> + * But CPUID 0 is the initial value for vcpu, so allow
+>>>>>>>>> + * changing from 0 to others
+>>>>>>>>> + */
+>>>>>>>>> + if (cpuid) {
+>>>>>>>>> + spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
+>>>>>>>>> + return -EINVAL;
+>>>>>>>>> + }
+>>>>>>>>> + }
+>>>>>>>>> But I still doubt whether we should allow changing from 0 to others
+>>>>>>>>> while map->phys_map[cpuid].enabled is 1.
+>>>>>>>> It is necessary since the default sw cpuid is zero :-( And we can
+>>>>>>>> optimize it in later, such as set INVALID cpuid in function
+>>>>>>>> kvm_arch_vcpu_create() and logic will be simple in function kvm_set_cpuid().
+>>>>>>> In my opinion, if a vcpu with a uninitialized default physid=0, then
+>>>>>>> map->phys_map[cpuid].enabled should be 0, then code won't come here.
+>>>>>>> And if a vcpu with a real physid=0, then map->phys_map[cpuid].enabled
+>>>>>>> is 1, but we shouldn't allow it to change physid in this case.
+>>>>>> yes, that is actually a problem.
+>>>>>>
+>>>>>> vcpu0 firstly set physid=0, and vcpu0 set physid=1 again is not allowed.
+>>>>>> vcpu0 firstly set physid=0, and vcpu1 set physid=1 is allowed.
+>>>>>
+>>>>> So can we simply drop the if (cpuid) checking? That means:
+>>>>> + if (map->phys_map[cpuid].enabled) {
+>>>>> + /* Discard duplicated CPUID set operation */
+>>>>> + if (cpuid == val) {
+>>>>> + spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
+>>>>> + return 0;
+>>>>> + }
+>>>>> +
+>>>>> + spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
+>>>>> + return -EINVAL;
+>>>>> + }
+>>>> yes, the similar modification such as following, since the secondary
+>>>> scenario should be allowed.
+>>>>     "vcpu0 firstly set physid=0, and vcpu1 set physid=1 is allowed though
+>>>> default sw cpuid is zero"
+>>>>
+>>>> --- a/arch/loongarch/kvm/vcpu.c
+>>>> +++ b/arch/loongarch/kvm/vcpu.c
+>>>> @@ -272,7 +272,7 @@ static inline int kvm_set_cpuid(struct kvm_vcpu
+>>>> *vcpu, u64 val)
+>>>>            cpuid = kvm_read_sw_gcsr(csr, LOONGARCH_CSR_CPUID);
+>>>>
+>>>>            spin_lock(&vcpu->kvm->arch.phyid_map_lock);
+>>>> -       if (map->phys_map[cpuid].enabled) {
+>>>> +       if ((cpuid != KVM_MAX_PHYID) && map->phys_map[cpuid].enabled) {
+>>>>                    /* Discard duplicated CPUID set operation */
+>>>>                    if (cpuid == val) {
+>>>>                            spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
+>>>> @@ -282,13 +282,9 @@ static inline int kvm_set_cpuid(struct kvm_vcpu
+>>>> *vcpu, u64 val)
+>>>>                    /*
+>>>>                     * CPUID is already set before
+>>>>                     * Forbid changing different CPUID at runtime
+>>>> -                * But CPUID 0 is the initial value for vcpu, so allow
+>>>> -                * changing from 0 to others
+>>>>                     */
+>>>> -               if (cpuid) {
+>>>> -                       spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
+>>>> -                       return -EINVAL;
+>>>> -               }
+>>>> +               spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
+>>>> +               return -EINVAL;
+>>>>            }
+>>>>
+>>>>            if (map->phys_map[val].enabled) {
+>>>> @@ -1029,6 +1025,7 @@ int kvm_arch_vcpu_create(struct kvm_vcpu *vcpu)
+>>>>
+>>>>            /* Set cpuid */
+>>>>            kvm_write_sw_gcsr(csr, LOONGARCH_CSR_TMID, vcpu->vcpu_id);
+>>>> +       kvm_write_sw_gcsr(csr, LOONGARCH_CSR_CPUID, KVM_MAX_PHYID);
+>>>>
+>>>>            /* Start with no pending virtual guest interrupts */
+>>>>            csr->csrs[LOONGARCH_CSR_GINTC] = 0;
+>>> Very nice, but I think kvm_drop_cpuid() should also set to KVM_MAX_PHYID.
+>>> Now I update my loongarch-kvm branch, you can test it again, and hope
+>>> it is in the perfect status.
+>> I sync and test the latest code from loongarch-kvm, pv ipi works well
+>> with 256 vcpus. And the code looks good to me, thanks for your review in
+>> short time.
+> OK, if SWDBG also works well, I will send PR to Paolo tomorrow.
+yes, sw debug works well with patch from qemu. And I will refresh patch 
+to qemu after it is merged.
+
+https://lore.kernel.org/all/20240218070025.218680-1-maobibo@loongson.cn/
+
+--- a/configs/targets/loongarch64-softmmu.mak
++++ b/configs/targets/loongarch64-softmmu.mak
+@@ -1,5 +1,6 @@
+  TARGET_ARCH=loongarch64
+  TARGET_BASE_ARCH=loongarch
+  TARGET_SUPPORTS_MTTCG=y
++TARGET_KVM_HAVE_GUEST_DEBUG=y
+  TARGET_XML_FILES= gdb-xml/loongarch-base32.xml 
+gdb-xml/loongarch-base64.xml gdb-xml/loongarch-fpu.xml
+  TARGET_NEED_FDT=y
+
+Regards
+Bibo Mao
+> 
+> Huacai
+> 
+>>
+>> Regards
+>> Bibo Mao
+>>>
+>>> Huacai
+>>>>
+>>>>
+>>>>>
+>>>>> Huacai
+>>>>>
+>>>>>>
+>>>>>>
+>>>>>>>
+>>>>>>> Huacai
+>>>>>>>
+>>>>>>>>
+>>>>>>>> Regards
+>>>>>>>> Bibo Mao
+>>>>>>>>
+>>>>>>>>>
+>>>>>>>>> Huacai
+>>>>>>>>>
+>>>>>>>>>>>
+>>>>>>>>>>>> +
+>>>>>>>>>>>> +       if (map->phys_map[val].enabled) {
+>>>>>>>>>>>> +               /*
+>>>>>>>>>>>> +                * New cpuid is already set with other vcpu
+>>>>>>>>>>>> +                * Forbid sharing the same cpuid between different vcpus
+>>>>>>>>>>>> +                */
+>>>>>>>>>>>> +               if (map->phys_map[val].vcpu != vcpu) {
+>>>>>>>>>>>> +                       spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
+>>>>>>>>>>>> +                       return -EINVAL;
+>>>>>>>>>>>> +               }
+>>>>>>>>>>>> +
+>>>>>>>>>>>> +               /* Discard duplicated cpuid set operation*/
+>>>>>>>>>>>> +               spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
+>>>>>>>>>>>> +               return 0;
+>>>>>>>>>>>> +       }
+>>>>>>>>>>>> +
+>>>>>>>>>>>> +       kvm_write_sw_gcsr(csr, LOONGARCH_CSR_CPUID, val);
+>>>>>>>>>>>> +       map->phys_map[val].enabled      = true;
+>>>>>>>>>>>> +       map->phys_map[val].vcpu         = vcpu;
+>>>>>>>>>>>> +       if (map->max_phyid < val)
+>>>>>>>>>>>> +               map->max_phyid = val;
+>>>>>>>>>>>> +       spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
+>>>>>>>>>>>> +       return 0;
+>>>>>>>>>>>> +}
+>>>>>>>>>>>> +
+>>>>>>>>>>>> +struct kvm_vcpu *kvm_get_vcpu_by_cpuid(struct kvm *kvm, int cpuid)
+>>>>>>>>>>>> +{
+>>>>>>>>>>>> +       struct kvm_phyid_map  *map;
+>>>>>>>>>>>> +
+>>>>>>>>>>>> +       if (cpuid >= KVM_MAX_PHYID)
+>>>>>>>>>>>> +               return NULL;
+>>>>>>>>>>>> +
+>>>>>>>>>>>> +       map = kvm->arch.phyid_map;
+>>>>>>>>>>>> +       if (map->phys_map[cpuid].enabled)
+>>>>>>>>>>>> +               return map->phys_map[cpuid].vcpu;
+>>>>>>>>>>>> +
+>>>>>>>>>>>> +       return NULL;
+>>>>>>>>>>>> +}
+>>>>>>>>>>>> +
+>>>>>>>>>>>> +static inline void kvm_drop_cpuid(struct kvm_vcpu *vcpu)
+>>>>>>>>>>>> +{
+>>>>>>>>>>>> +       int cpuid;
+>>>>>>>>>>>> +       struct loongarch_csrs *csr = vcpu->arch.csr;
+>>>>>>>>>>>> +       struct kvm_phyid_map  *map;
+>>>>>>>>>>>> +
+>>>>>>>>>>>> +       map = vcpu->kvm->arch.phyid_map;
+>>>>>>>>>>>> +       cpuid = kvm_read_sw_gcsr(csr, LOONGARCH_CSR_ESTAT);
+>>>>>>>>>>>> +       if (cpuid >= KVM_MAX_PHYID)
+>>>>>>>>>>>> +               return;
+>>>>>>>>>>>> +
+>>>>>>>>>>>> +       if (map->phys_map[cpuid].enabled) {
+>>>>>>>>>>>> +               map->phys_map[cpuid].vcpu = NULL;
+>>>>>>>>>>>> +               map->phys_map[cpuid].enabled = false;
+>>>>>>>>>>>> +               kvm_write_sw_gcsr(csr, LOONGARCH_CSR_CPUID, 0);
+>>>>>>>>>>>> +       }
+>>>>>>>>>>>> +}
+>>>>>>>>>>> While kvm_set_cpuid() is protected by a spinlock, do kvm_drop_cpuid()
+>>>>>>>>>>> and kvm_get_vcpu_by_cpuid() also need it?
+>>>>>>>>>>>
+>>>>>>>>>> It is good to me that spinlock is added in function kvm_drop_cpuid().
+>>>>>>>>>> And thinks for the efforts.
+>>>>>>>>>>
+>>>>>>>>>> Regards
+>>>>>>>>>> Bibo Mao
+>>>>>>>>>>>> +
+>>>>>>>>>>>>        static int _kvm_setcsr(struct kvm_vcpu *vcpu, unsigned int id, u64 val)
+>>>>>>>>>>>>        {
+>>>>>>>>>>>>               int ret = 0, gintc;
+>>>>>>>>>>>> @@ -291,7 +380,8 @@ static int _kvm_setcsr(struct kvm_vcpu *vcpu, unsigned int id, u64 val)
+>>>>>>>>>>>>                       kvm_set_sw_gcsr(csr, LOONGARCH_CSR_ESTAT, gintc);
+>>>>>>>>>>>>
+>>>>>>>>>>>>                       return ret;
+>>>>>>>>>>>> -       }
+>>>>>>>>>>>> +       } else if (id == LOONGARCH_CSR_CPUID)
+>>>>>>>>>>>> +               return kvm_set_cpuid(vcpu, val);
+>>>>>>>>>>>>
+>>>>>>>>>>>>               kvm_write_sw_gcsr(csr, id, val);
+>>>>>>>>>>>>
+>>>>>>>>>>>> @@ -943,6 +1033,7 @@ void kvm_arch_vcpu_destroy(struct kvm_vcpu *vcpu)
+>>>>>>>>>>>>               hrtimer_cancel(&vcpu->arch.swtimer);
+>>>>>>>>>>>>               kvm_mmu_free_memory_cache(&vcpu->arch.mmu_page_cache);
+>>>>>>>>>>>>               kfree(vcpu->arch.csr);
+>>>>>>>>>>>> +       kvm_drop_cpuid(vcpu);
+>>>>>>>>>>> I think this line should be before the above kfree(), otherwise you
+>>>>>>>>>>> get a "use after free".
+>>>>>>>>>>>
+>>>>>>>>>>> Huacai
+>>>>>>>>>>>
+>>>>>>>>>>>>
+>>>>>>>>>>>>               /*
+>>>>>>>>>>>>                * If the vCPU is freed and reused as another vCPU, we don't want the
+>>>>>>>>>>>> diff --git a/arch/loongarch/kvm/vm.c b/arch/loongarch/kvm/vm.c
+>>>>>>>>>>>> index 0a37f6fa8f2d..6006a28653ad 100644
+>>>>>>>>>>>> --- a/arch/loongarch/kvm/vm.c
+>>>>>>>>>>>> +++ b/arch/loongarch/kvm/vm.c
+>>>>>>>>>>>> @@ -30,6 +30,14 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+>>>>>>>>>>>>               if (!kvm->arch.pgd)
+>>>>>>>>>>>>                       return -ENOMEM;
+>>>>>>>>>>>>
+>>>>>>>>>>>> +       kvm->arch.phyid_map = kvzalloc(sizeof(struct kvm_phyid_map),
+>>>>>>>>>>>> +                               GFP_KERNEL_ACCOUNT);
+>>>>>>>>>>>> +       if (!kvm->arch.phyid_map) {
+>>>>>>>>>>>> +               free_page((unsigned long)kvm->arch.pgd);
+>>>>>>>>>>>> +               kvm->arch.pgd = NULL;
+>>>>>>>>>>>> +               return -ENOMEM;
+>>>>>>>>>>>> +       }
+>>>>>>>>>>>> +
+>>>>>>>>>>>>               kvm_init_vmcs(kvm);
+>>>>>>>>>>>>               kvm->arch.gpa_size = BIT(cpu_vabits - 1);
+>>>>>>>>>>>>               kvm->arch.root_level = CONFIG_PGTABLE_LEVELS - 1;
+>>>>>>>>>>>> @@ -44,6 +52,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+>>>>>>>>>>>>               for (i = 0; i <= kvm->arch.root_level; i++)
+>>>>>>>>>>>>                       kvm->arch.pte_shifts[i] = PAGE_SHIFT + i * (PAGE_SHIFT - 3);
+>>>>>>>>>>>>
+>>>>>>>>>>>> +       spin_lock_init(&kvm->arch.phyid_map_lock);
+>>>>>>>>>>>>               return 0;
+>>>>>>>>>>>>        }
+>>>>>>>>>>>>
+>>>>>>>>>>>> @@ -51,7 +60,9 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
+>>>>>>>>>>>>        {
+>>>>>>>>>>>>               kvm_destroy_vcpus(kvm);
+>>>>>>>>>>>>               free_page((unsigned long)kvm->arch.pgd);
+>>>>>>>>>>>> +       kvfree(kvm->arch.phyid_map);
+>>>>>>>>>>>>               kvm->arch.pgd = NULL;
+>>>>>>>>>>>> +       kvm->arch.phyid_map = NULL;
+>>>>>>>>>>>>        }
+>>>>>>>>>>>>
+>>>>>>>>>>>>        int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+>>>>>>>>>>>> --
+>>>>>>>>>>>> 2.39.3
+>>>>>>>>>>>>
+>>>>>>>>>>
+>>>>>>>>
+>>>>>>
+>>>>
+>>
+>>
+
