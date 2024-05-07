@@ -1,272 +1,476 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBBCF4A3E
-	for <virtualization@lists.linux-foundation.org>; Tue,  7 May 2024 01:34:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 665D04A06;
+	Tue,  7 May 2024 01:40:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715045700; cv=none; b=gY1VJ0A/vuvvQUV30VK1+U3Khc8ugdohb+3Dcw1UUoiLIFKET1PnN0BM6ipeFhEUInvv/hgAUk+kapCwTT4IKroDp96Ok8cLQ4UTeAs5DdDAMa6GyDJNEIVqXPMm8/XHoxwfff3fQDw/Qf9RXt4bbCOnWRJJI9Jn58Wbp51eWOI=
+	t=1715046034; cv=none; b=Ugj2xSQkeVCI1EbnpvSXX02TcrulKfoDTIZJofu0G2f3GICP/jaAPnrVICvUdo2Ag9C2oe+3nNkG0uUWyyL7hKFl7K/vrMColPjJUrFB1RyM2uNLwmerWpQLO8uvaDEfbhn9zcSCgZMCH/bPLA367eP7BqMwWUbskvum/7FF3XA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715045700; c=relaxed/simple;
-	bh=nflotAw23OF8DzsvPikj7Zp6lbojRMt3XmZ/DkGkNJg=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=CfWNSP4ICdes3y0y7uh0YzpxWxCg/QJ1Ble3vUSUOgGPpxN9mSTbhgwswu1uEs7oTQXyctzFwruLrT7QWStomMyxfBhwJ4Bxu7krbQ0BvevfalRA2Q/PHLKfNVLPBqr4+cQt76phl7CYHa72LZKIlw3o4Wvxhqxq/GAzAYB5Sw8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=fVDLd2c2; arc=none smtp.client-ip=140.211.166.133
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="fVDLd2c2"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 64B1E4033F
-	for <virtualization@lists.linux-foundation.org>; Tue,  7 May 2024 01:34:58 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -9.601
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id ng7s4d-a8R9l for <virtualization@lists.linux-foundation.org>;
- Tue,  7 May 2024 01:34:57 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::114a; helo=mail-yw1-x114a.google.com; envelope-from=3p4u5zgykaggykgtpimuumrk.ius@flex--seanjc.bounces.google.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org EB99A40156
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=reject dis=none) header.from=google.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EB99A40156
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20230601 header.b=fVDLd2c2
-Received: from mail-yw1-x114a.google.com (mail-yw1-x114a.google.com [IPv6:2607:f8b0:4864:20::114a])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id EB99A40156
-	for <virtualization@lists.linux-foundation.org>; Tue,  7 May 2024 01:34:56 +0000 (UTC)
-Received: by mail-yw1-x114a.google.com with SMTP id 00721157ae682-6204c4f4240so32337647b3.3
-        for <virtualization@lists.linux-foundation.org>; Mon, 06 May 2024 18:34:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1715045695; x=1715650495; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:cc:to:from:subject:message-id:references
-         :mime-version:in-reply-to:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=VvGkjH9SPvsjHvBH/WrCy4dSbt+wcqHhkwU5LfzuS0Q=;
-        b=fVDLd2c2fx1KhgbX6XeEVpm+51Yt2l3/ZDMpWSwi2bQliOxZkBf34uEaarKF5vcjBr
-         jlIcaUBJGcYD4EohUP+zziH/RRXvjPFRiSMiZGk1gV6PEIOAOvZnBQAcUH4w6RrrXZuP
-         VdRLcR1pskCBkcF/JW4ZOBRGRNe+snyvJOuN2L5nvuWBaAL7/LnbXhfr75qgnKxYJCAp
-         K9BMlFO26ROkFL4xTmTDIUq4E7uIrvUzTfX6q9/tPrtjx30o2Lddjy7HcUv5iXj/ibux
-         BhWkMvwiVMuWyqEegaXSZOvVGbDnDF5hGYjya5B/xwQRiM2Y9JcYagLdiSc8cDVbItmH
-         q03A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1715045695; x=1715650495;
-        h=content-transfer-encoding:cc:to:from:subject:message-id:references
-         :mime-version:in-reply-to:date:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=VvGkjH9SPvsjHvBH/WrCy4dSbt+wcqHhkwU5LfzuS0Q=;
-        b=ue5065dNBpwBfoeJl2sn7fc0U+f8muVFpvZSJJ+rr2BeNmx1um+qR469PlnQKXbAAH
-         jF3ypfpTo9oZdu5eAJpiB7NFz736sT29+vFdyKs6wYbmQmdOocD5FOBdfOBDG9SsIcKF
-         XAqlJRIzmfpvUuDwKQu2vvj/Bozpz+HaLD7gYi6e8Af3K08aigkTMr+6U/lEA88kBgDR
-         8s43H8/3/IitwA/yHXxBvLCPmyaV+0YksvFlOmn15xzNXjCnnvNPonyipcTsNQXDw6MG
-         I76PKXEZHuJQuvwUOFotX+Yjz750nzFYN9lTstCA7PTPNXKzn8IKut3laF5B5viTx+l6
-         OIqQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVj4dBR0g7XZkq/L8Po6gvnJaE4nc6gaUPMSzBrDA9HKmHTpEYzkcXnAeBDqAE8l9UMi+sAqSyJGg5iBiN5V+P0gHgKNMRQ85dAGfzafQiujUR0UDwobVOj5A==
-X-Gm-Message-State: AOJu0Yw12PPc8UP8ZTy5CRxTjw3rLs4M7+HYRddLloOrlh3qYn0Yzrl3
-	RSjkHJArJO6QpOreihfjwsk/RADv3U4TYD0naWyM3DsQwlYi3I5xM6E/6fNzql4ZqWBbLaWBfSU
-	JPQ==
-X-Google-Smtp-Source: AGHT+IEuRRNgC6bmH2Ym7Hdh0kKkoS5NCGgVEW4kTiZkpma4/j2gQOn7KVKqRXFpAim0ldEq7Pn05YmuCaI=
-X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
- (user=seanjc job=sendgmr) by 2002:a05:6902:1893:b0:de4:67d9:a2c6 with SMTP id
- cj19-20020a056902189300b00de467d9a2c6mr1291648ybb.2.1715045695256; Mon, 06
- May 2024 18:34:55 -0700 (PDT)
-Date: Mon, 6 May 2024 18:34:53 -0700
-In-Reply-To: <20240506.ohwe7eewu0oB@digikod.net>
+	s=arc-20240116; t=1715046034; c=relaxed/simple;
+	bh=zhiN59ahkzb6uVOukaAyw+JTy1kWHi53ygV7VzMNnmI=;
+	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=asgNBYFkpyRQSE0O3FkeslbPRynqMwl8Mx0jzygmmUz6hfludmM9q1KuvT16KxpyIwj6GXSxwJjvLAYVkmcor5zEbcOm3njyGiHSnFjfOlYBUAG21ZijFMvWP6ysuz0bNIJtnjZsH4Iypldx4JA09zYNEjpgfMD01NiSkwDX+m4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.20.42.173])
+	by gateway (Coremail) with SMTP id _____8Dxk+qKhjlmYqMIAA--.11119S3;
+	Tue, 07 May 2024 09:40:26 +0800 (CST)
+Received: from [10.20.42.173] (unknown [10.20.42.173])
+	by localhost.localdomain (Coremail) with SMTP id AQAAf8Bx1VaHhjlmIXMTAA--.22386S3;
+	Tue, 07 May 2024 09:40:26 +0800 (CST)
+Subject: Re: [PATCH v8 4/6] LoongArch: KVM: Add vcpu search support from
+ physical cpuid
+To: Huacai Chen <chenhuacai@kernel.org>
+Cc: Tianrui Zhao <zhaotianrui@loongson.cn>, Juergen Gross <jgross@suse.com>,
+ Paolo Bonzini <pbonzini@redhat.com>, Jonathan Corbet <corbet@lwn.net>,
+ loongarch@lists.linux.dev, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org
+References: <20240428100518.1642324-1-maobibo@loongson.cn>
+ <20240428100518.1642324-5-maobibo@loongson.cn>
+ <CAAhV-H6kBO_RTTHoLfKdAtLO1Aqb0KmAJ6wn0wZrvbCkzMszDQ@mail.gmail.com>
+ <7335dcde-1b3a-1260-ac62-d2d9fcbd6a78@loongson.cn>
+ <CAAhV-H5WJ0o3bJZBq2zx7ejjFkFwYVTyVJEzJuAHEs+uMg-sxw@mail.gmail.com>
+ <b10b46ce-8219-8863-470f-9bfa173b22b0@loongson.cn>
+ <CAAhV-H7fbrOXTtSwBmR3kyTW7yhsifycjynky4HPrUJiS9s=cg@mail.gmail.com>
+ <540aa8dd-eada-1f77-0a20-38196fb5472a@loongson.cn>
+ <CAAhV-H7o3oG2KXc2Ou0aWXTLPSNiM3evSB5Z-5dH4bLRd_P_0Q@mail.gmail.com>
+ <61670353-90c6-6d0c-4430-7655b5251e17@loongson.cn>
+ <CAAhV-H5wNmgxGincGE7cJ8WvrpKFauAJvMHrPttW-LrKB4UeHg@mail.gmail.com>
+From: maobibo <maobibo@loongson.cn>
+Message-ID: <a6d49710-1580-809d-5dcf-ea4207257ae7@loongson.cn>
+Date: Tue, 7 May 2024 09:40:22 +0800
+User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20240503131910.307630-1-mic@digikod.net> <20240503131910.307630-4-mic@digikod.net>
- <ZjTuqV-AxQQRWwUW@google.com> <20240506.ohwe7eewu0oB@digikod.net>
-Message-ID: <ZjmFPZd5q_hEBdBz@google.com>
-Subject: Re: [RFC PATCH v3 3/5] KVM: x86: Add notifications for Heki policy
- configuration and violation
-From: Sean Christopherson <seanjc@google.com>
-To: "=?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?=" <mic@digikod.net>
-Cc: Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
-	"H . Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>, Kees Cook <keescook@chromium.org>, 
-	Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, 
-	Vitaly Kuznetsov <vkuznets@redhat.com>, Wanpeng Li <wanpengli@tencent.com>, 
-	Rick P Edgecombe <rick.p.edgecombe@intel.com>, Alexander Graf <graf@amazon.com>, 
-	Angelina Vu <angelinavu@linux.microsoft.com>, 
-	Anna Trikalinou <atrikalinou@microsoft.com>, Chao Peng <chao.p.peng@linux.intel.com>, 
-	Forrest Yuan Yu <yuanyu@google.com>, James Gowans <jgowans@amazon.com>, 
-	James Morris <jamorris@linux.microsoft.com>, John Andersen <john.s.andersen@intel.com>, 
-	"Madhavan T . Venkataraman" <madvenka@linux.microsoft.com>, Marian Rotariu <marian.c.rotariu@gmail.com>, 
-	"Mihai =?utf-8?B?RG9uyJt1?=" <mdontu@bitdefender.com>, 
-	"=?utf-8?B?TmljdciZb3IgQ8OuyJt1?=" <nicu.citu@icloud.com>, Thara Gopinath <tgopinath@microsoft.com>, 
-	Trilok Soni <quic_tsoni@quicinc.com>, Wei Liu <wei.liu@kernel.org>, 
-	Will Deacon <will@kernel.org>, Yu Zhang <yu.c.zhang@linux.intel.com>, 
-	"=?utf-8?Q?=C8=98tefan_=C8=98icleru?=" <ssicleru@bitdefender.com>, dev@lists.cloudhypervisor.org, 
-	kvm@vger.kernel.org, linux-hardening@vger.kernel.org, 
-	linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, qemu-devel@nongnu.org, 
-	virtualization@lists.linux-foundation.org, x86@kernel.org, 
-	xen-devel@lists.xenproject.org
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+In-Reply-To: <CAAhV-H5wNmgxGincGE7cJ8WvrpKFauAJvMHrPttW-LrKB4UeHg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:AQAAf8Bx1VaHhjlmIXMTAA--.22386S3
+X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
+X-Coremail-Antispam: 1Uk129KBj9fXoW3KrWkJryxtFW8Ar1xXFWkuFX_yoW8Xw4rGo
+	W5JF47tr18Jr1UAr1DJ34Dtryjyw1UJr4UAryUJwnxJr1Ut34UZr18Gr15JF47Gr1UJr47
+	CryUJrnrZFW5Xrn8l-sFpf9Il3svdjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8wcxFpf
+	9Il3svdxBIdaVrn0xqx4xG64xvF2IEw4CE5I8CrVC2j2Jv73VFW2AGmfu7bjvjm3AaLaJ3
+	UjIYCTnIWjp_UUUY27kC6x804xWl14x267AKxVWUJVW8JwAFc2x0x2IEx4CE42xK8VAvwI
+	8IcIk0rVWrJVCq3wAFIxvE14AKwVWUXVWUAwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xG
+	Y2AK021l84ACjcxK6xIIjxv20xvE14v26r1I6r4UM28EF7xvwVC0I7IYx2IY6xkF7I0E14
+	v26r4j6F4UM28EF7xvwVC2z280aVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv6xkF7I0E14v2
+	6r4j6r4UJwAS0I0E0xvYzxvE52x082IY62kv0487Mc804VCY07AIYIkI8VC2zVCFFI0UMc
+	02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAF
+	wI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI48JMxk0xIA0c2IEe2xFo4
+	CEbIxvr21l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG
+	67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MI
+	IYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E
+	14v26r1j6r4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJV
+	W8JwCI42IY6I8E87Iv6xkF7I0E14v26r1j6r4UYxBIdaVFxhVjvjDU0xZFpf9x07j0FALU
+	UUUU=
 
-On Mon, May 06, 2024, Micka=C3=ABl Sala=C3=BCn wrote:
-> On Fri, May 03, 2024 at 07:03:21AM GMT, Sean Christopherson wrote:
-> > > ---
-> > >=20
-> > > Changes since v1:
-> > > * New patch. Making user space aware of Heki properties was requested=
- by
-> > >   Sean Christopherson.
-> >=20
-> > No, I suggested having userspace _control_ the pinning[*], not merely b=
-e notified
-> > of pinning.
-> >=20
-> >  : IMO, manipulation of protections, both for memory (this patch) and C=
-PU state
-> >  : (control registers in the next patch) should come from userspace.  I=
- have no
-> >  : objection to KVM providing plumbing if necessary, but I think usersp=
-ace needs to
-> >  : to have full control over the actual state.
-> >  :=20
-> >  : One of the things that caused Intel's control register pinning serie=
-s to stall
-> >  : out was how to handle edge cases like kexec() and reboot.  Deferring=
- to userspace
-> >  : means the kernel doesn't need to define policy, e.g. when to unprote=
-ct memory,
-> >  : and avoids questions like "should userspace be able to overwrite pin=
-ned control
-> >  : registers".
-> >  :=20
-> >  : And like the confidential VM use case, keeping userspace in the loop=
- is a big
-> >  : beneifit, e.g. the guest can't circumvent protections by coercing us=
-erspace into
-> >  : writing to protected memory.
-> >=20
-> > I stand by that suggestion, because I don't see a sane way to handle th=
-ings like
-> > kexec() and reboot without having a _much_ more sophisticated policy th=
-an would
-> > ever be acceptable in KVM.
-> >=20
-> > I think that can be done without KVM having any awareness of CR pinning=
- whatsoever.
-> > E.g. userspace just needs to ability to intercept CR writes and inject =
-#GPs.  Off
-> > the cuff, I suspect the uAPI could look very similar to MSR filtering. =
- E.g. I bet
-> > userspace could enforce MSR pinning without any new KVM uAPI at all.
-> >=20
-> > [*] https://lore.kernel.org/all/ZFUyhPuhtMbYdJ76@google.com
->=20
-> OK, I had concern about the control not directly coming from the guest,
-> especially in the case of pKVM and confidential computing, but I get you
 
-Hardware-based CoCo is completely out of scope, because KVM has zero visibi=
-lity
-into the guest (well, SNP technically allows trapping CR0/CR4, but KVM real=
-ly
-shouldn't intercept CR0/CR4 for SNP guests).
 
-And more importantly, _KVM_ doesn't define any policies for CoCo VMs.  KVM =
-might
-help enforce policies that are defined by hardware/firmware, but KVM doesn'=
-t
-define any of its own.
+On 2024/5/6 下午10:17, Huacai Chen wrote:
+> On Mon, May 6, 2024 at 6:05 PM maobibo <maobibo@loongson.cn> wrote:
+>>
+>>
+>>
+>> On 2024/5/6 下午5:40, Huacai Chen wrote:
+>>> On Mon, May 6, 2024 at 5:35 PM maobibo <maobibo@loongson.cn> wrote:
+>>>>
+>>>>
+>>>>
+>>>> On 2024/5/6 下午4:59, Huacai Chen wrote:
+>>>>> On Mon, May 6, 2024 at 4:18 PM maobibo <maobibo@loongson.cn> wrote:
+>>>>>>
+>>>>>>
+>>>>>>
+>>>>>> On 2024/5/6 下午3:06, Huacai Chen wrote:
+>>>>>>> Hi, Bibo,
+>>>>>>>
+>>>>>>> On Mon, May 6, 2024 at 2:36 PM maobibo <maobibo@loongson.cn> wrote:
+>>>>>>>>
+>>>>>>>>
+>>>>>>>>
+>>>>>>>> On 2024/5/6 上午9:49, Huacai Chen wrote:
+>>>>>>>>> Hi, Bibo,
+>>>>>>>>>
+>>>>>>>>> On Sun, Apr 28, 2024 at 6:05 PM Bibo Mao <maobibo@loongson.cn> wrote:
+>>>>>>>>>>
+>>>>>>>>>> Physical cpuid is used for interrupt routing for irqchips such as
+>>>>>>>>>> ipi/msi/extioi interrupt controller. And physical cpuid is stored
+>>>>>>>>>> at CSR register LOONGARCH_CSR_CPUID, it can not be changed once vcpu
+>>>>>>>>>> is created and physical cpuid of two vcpus cannot be the same.
+>>>>>>>>>>
+>>>>>>>>>> Different irqchips have different size declaration about physical cpuid,
+>>>>>>>>>> max cpuid value for CSR LOONGARCH_CSR_CPUID on 3A5000 is 512, max cpuid
+>>>>>>>>>> supported by IPI hardware is 1024, 256 for extioi irqchip, and 65536
+>>>>>>>>>> for MSI irqchip.
+>>>>>>>>>>
+>>>>>>>>>> The smallest value from all interrupt controllers is selected now,
+>>>>>>>>>> and the max cpuid size is defines as 256 by KVM which comes from
+>>>>>>>>>> extioi irqchip.
+>>>>>>>>>>
+>>>>>>>>>> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
+>>>>>>>>>> ---
+>>>>>>>>>>       arch/loongarch/include/asm/kvm_host.h | 26 ++++++++
+>>>>>>>>>>       arch/loongarch/include/asm/kvm_vcpu.h |  1 +
+>>>>>>>>>>       arch/loongarch/kvm/vcpu.c             | 93 ++++++++++++++++++++++++++-
+>>>>>>>>>>       arch/loongarch/kvm/vm.c               | 11 ++++
+>>>>>>>>>>       4 files changed, 130 insertions(+), 1 deletion(-)
+>>>>>>>>>>
+>>>>>>>>>> diff --git a/arch/loongarch/include/asm/kvm_host.h b/arch/loongarch/include/asm/kvm_host.h
+>>>>>>>>>> index 2d62f7b0d377..3ba16ef1fe69 100644
+>>>>>>>>>> --- a/arch/loongarch/include/asm/kvm_host.h
+>>>>>>>>>> +++ b/arch/loongarch/include/asm/kvm_host.h
+>>>>>>>>>> @@ -64,6 +64,30 @@ struct kvm_world_switch {
+>>>>>>>>>>
+>>>>>>>>>>       #define MAX_PGTABLE_LEVELS     4
+>>>>>>>>>>
+>>>>>>>>>> +/*
+>>>>>>>>>> + * Physical cpu id is used for interrupt routing, there are different
+>>>>>>>>>> + * definitions about physical cpuid on different hardwares.
+>>>>>>>>>> + *  For LOONGARCH_CSR_CPUID register, max cpuid size if 512
+>>>>>>>>>> + *  For IPI HW, max dest CPUID size 1024
+>>>>>>>>>> + *  For extioi interrupt controller, max dest CPUID size is 256
+>>>>>>>>>> + *  For MSI interrupt controller, max supported CPUID size is 65536
+>>>>>>>>>> + *
+>>>>>>>>>> + * Currently max CPUID is defined as 256 for KVM hypervisor, in future
+>>>>>>>>>> + * it will be expanded to 4096, including 16 packages at most. And every
+>>>>>>>>>> + * package supports at most 256 vcpus
+>>>>>>>>>> + */
+>>>>>>>>>> +#define KVM_MAX_PHYID          256
+>>>>>>>>>> +
+>>>>>>>>>> +struct kvm_phyid_info {
+>>>>>>>>>> +       struct kvm_vcpu *vcpu;
+>>>>>>>>>> +       bool            enabled;
+>>>>>>>>>> +};
+>>>>>>>>>> +
+>>>>>>>>>> +struct kvm_phyid_map {
+>>>>>>>>>> +       int max_phyid;
+>>>>>>>>>> +       struct kvm_phyid_info phys_map[KVM_MAX_PHYID];
+>>>>>>>>>> +};
+>>>>>>>>>> +
+>>>>>>>>>>       struct kvm_arch {
+>>>>>>>>>>              /* Guest physical mm */
+>>>>>>>>>>              kvm_pte_t *pgd;
+>>>>>>>>>> @@ -71,6 +95,8 @@ struct kvm_arch {
+>>>>>>>>>>              unsigned long invalid_ptes[MAX_PGTABLE_LEVELS];
+>>>>>>>>>>              unsigned int  pte_shifts[MAX_PGTABLE_LEVELS];
+>>>>>>>>>>              unsigned int  root_level;
+>>>>>>>>>> +       spinlock_t    phyid_map_lock;
+>>>>>>>>>> +       struct kvm_phyid_map  *phyid_map;
+>>>>>>>>>>
+>>>>>>>>>>              s64 time_offset;
+>>>>>>>>>>              struct kvm_context __percpu *vmcs;
+>>>>>>>>>> diff --git a/arch/loongarch/include/asm/kvm_vcpu.h b/arch/loongarch/include/asm/kvm_vcpu.h
+>>>>>>>>>> index 0cb4fdb8a9b5..9f53950959da 100644
+>>>>>>>>>> --- a/arch/loongarch/include/asm/kvm_vcpu.h
+>>>>>>>>>> +++ b/arch/loongarch/include/asm/kvm_vcpu.h
+>>>>>>>>>> @@ -81,6 +81,7 @@ void kvm_save_timer(struct kvm_vcpu *vcpu);
+>>>>>>>>>>       void kvm_restore_timer(struct kvm_vcpu *vcpu);
+>>>>>>>>>>
+>>>>>>>>>>       int kvm_vcpu_ioctl_interrupt(struct kvm_vcpu *vcpu, struct kvm_interrupt *irq);
+>>>>>>>>>> +struct kvm_vcpu *kvm_get_vcpu_by_cpuid(struct kvm *kvm, int cpuid);
+>>>>>>>>>>
+>>>>>>>>>>       /*
+>>>>>>>>>>        * Loongarch KVM guest interrupt handling
+>>>>>>>>>> diff --git a/arch/loongarch/kvm/vcpu.c b/arch/loongarch/kvm/vcpu.c
+>>>>>>>>>> index 3a8779065f73..b633fd28b8db 100644
+>>>>>>>>>> --- a/arch/loongarch/kvm/vcpu.c
+>>>>>>>>>> +++ b/arch/loongarch/kvm/vcpu.c
+>>>>>>>>>> @@ -274,6 +274,95 @@ static int _kvm_getcsr(struct kvm_vcpu *vcpu, unsigned int id, u64 *val)
+>>>>>>>>>>              return 0;
+>>>>>>>>>>       }
+>>>>>>>>>>
+>>>>>>>>>> +static inline int kvm_set_cpuid(struct kvm_vcpu *vcpu, u64 val)
+>>>>>>>>>> +{
+>>>>>>>>>> +       int cpuid;
+>>>>>>>>>> +       struct loongarch_csrs *csr = vcpu->arch.csr;
+>>>>>>>>>> +       struct kvm_phyid_map  *map;
+>>>>>>>>>> +
+>>>>>>>>>> +       if (val >= KVM_MAX_PHYID)
+>>>>>>>>>> +               return -EINVAL;
+>>>>>>>>>> +
+>>>>>>>>>> +       cpuid = kvm_read_sw_gcsr(csr, LOONGARCH_CSR_ESTAT);
+>>>>>>>>>> +       map = vcpu->kvm->arch.phyid_map;
+>>>>>>>>>> +       spin_lock(&vcpu->kvm->arch.phyid_map_lock);
+>>>>>>>>>> +       if (map->phys_map[cpuid].enabled) {
+>>>>>>>>>> +               /*
+>>>>>>>>>> +                * Cpuid is already set before
+>>>>>>>>>> +                * Forbid changing different cpuid at runtime
+>>>>>>>>>> +                */
+>>>>>>>>>> +               if (cpuid != val) {
+>>>>>>>>>> +                       /*
+>>>>>>>>>> +                        * Cpuid 0 is initial value for vcpu, maybe invalid
+>>>>>>>>>> +                        * unset value for vcpu
+>>>>>>>>>> +                        */
+>>>>>>>>>> +                       if (cpuid) {
+>>>>>>>>>> +                               spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
+>>>>>>>>>> +                               return -EINVAL;
+>>>>>>>>>> +                       }
+>>>>>>>>>> +               } else {
+>>>>>>>>>> +                        /* Discard duplicated cpuid set */
+>>>>>>>>>> +                       spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
+>>>>>>>>>> +                       return 0;
+>>>>>>>>>> +               }
+>>>>>>>>>> +       }
+>>>>>>>>> I have changed the logic and comments when I apply, you can double
+>>>>>>>>> check whether it is correct.
+>>>>>>>> I checkout the latest version, the modification in function
+>>>>>>>> kvm_set_cpuid() is good for me.
+>>>>>>> Now the modified version is like this:
+>>>>>>>
+>>>>>>> + if (map->phys_map[cpuid].enabled) {
+>>>>>>> + /* Discard duplicated CPUID set operation */
+>>>>>>> + if (cpuid == val) {
+>>>>>>> + spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
+>>>>>>> + return 0;
+>>>>>>> + }
+>>>>>>> +
+>>>>>>> + /*
+>>>>>>> + * CPUID is already set before
+>>>>>>> + * Forbid changing different CPUID at runtime
+>>>>>>> + * But CPUID 0 is the initial value for vcpu, so allow
+>>>>>>> + * changing from 0 to others
+>>>>>>> + */
+>>>>>>> + if (cpuid) {
+>>>>>>> + spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
+>>>>>>> + return -EINVAL;
+>>>>>>> + }
+>>>>>>> + }
+>>>>>>> But I still doubt whether we should allow changing from 0 to others
+>>>>>>> while map->phys_map[cpuid].enabled is 1.
+>>>>>> It is necessary since the default sw cpuid is zero :-( And we can
+>>>>>> optimize it in later, such as set INVALID cpuid in function
+>>>>>> kvm_arch_vcpu_create() and logic will be simple in function kvm_set_cpuid().
+>>>>> In my opinion, if a vcpu with a uninitialized default physid=0, then
+>>>>> map->phys_map[cpuid].enabled should be 0, then code won't come here.
+>>>>> And if a vcpu with a real physid=0, then map->phys_map[cpuid].enabled
+>>>>> is 1, but we shouldn't allow it to change physid in this case.
+>>>> yes, that is actually a problem.
+>>>>
+>>>> vcpu0 firstly set physid=0, and vcpu0 set physid=1 again is not allowed.
+>>>> vcpu0 firstly set physid=0, and vcpu1 set physid=1 is allowed.
+>>>
+>>> So can we simply drop the if (cpuid) checking? That means:
+>>> + if (map->phys_map[cpuid].enabled) {
+>>> + /* Discard duplicated CPUID set operation */
+>>> + if (cpuid == val) {
+>>> + spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
+>>> + return 0;
+>>> + }
+>>> +
+>>> + spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
+>>> + return -EINVAL;
+>>> + }
+>> yes, the similar modification such as following, since the secondary
+>> scenario should be allowed.
+>>    "vcpu0 firstly set physid=0, and vcpu1 set physid=1 is allowed though
+>> default sw cpuid is zero"
+>>
+>> --- a/arch/loongarch/kvm/vcpu.c
+>> +++ b/arch/loongarch/kvm/vcpu.c
+>> @@ -272,7 +272,7 @@ static inline int kvm_set_cpuid(struct kvm_vcpu
+>> *vcpu, u64 val)
+>>           cpuid = kvm_read_sw_gcsr(csr, LOONGARCH_CSR_CPUID);
+>>
+>>           spin_lock(&vcpu->kvm->arch.phyid_map_lock);
+>> -       if (map->phys_map[cpuid].enabled) {
+>> +       if ((cpuid != KVM_MAX_PHYID) && map->phys_map[cpuid].enabled) {
+>>                   /* Discard duplicated CPUID set operation */
+>>                   if (cpuid == val) {
+>>                           spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
+>> @@ -282,13 +282,9 @@ static inline int kvm_set_cpuid(struct kvm_vcpu
+>> *vcpu, u64 val)
+>>                   /*
+>>                    * CPUID is already set before
+>>                    * Forbid changing different CPUID at runtime
+>> -                * But CPUID 0 is the initial value for vcpu, so allow
+>> -                * changing from 0 to others
+>>                    */
+>> -               if (cpuid) {
+>> -                       spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
+>> -                       return -EINVAL;
+>> -               }
+>> +               spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
+>> +               return -EINVAL;
+>>           }
+>>
+>>           if (map->phys_map[val].enabled) {
+>> @@ -1029,6 +1025,7 @@ int kvm_arch_vcpu_create(struct kvm_vcpu *vcpu)
+>>
+>>           /* Set cpuid */
+>>           kvm_write_sw_gcsr(csr, LOONGARCH_CSR_TMID, vcpu->vcpu_id);
+>> +       kvm_write_sw_gcsr(csr, LOONGARCH_CSR_CPUID, KVM_MAX_PHYID);
+>>
+>>           /* Start with no pending virtual guest interrupts */
+>>           csr->csrs[LOONGARCH_CSR_GINTC] = 0;
+> Very nice, but I think kvm_drop_cpuid() should also set to KVM_MAX_PHYID.
+> Now I update my loongarch-kvm branch, you can test it again, and hope
+> it is in the perfect status.
+I sync and test the latest code from loongarch-kvm, pv ipi works well 
+with 256 vcpus. And the code looks good to me, thanks for your review in 
+short time.
 
-If pKVM on x86 comes along, then KVM will likely get in the business of def=
-ining
-policy, but until that happens, KVM needs to stay firmly out of the picture=
-.
+Regards
+Bibo Mao
+> 
+> Huacai
+>>
+>>
+>>>
+>>> Huacai
+>>>
+>>>>
+>>>>
+>>>>>
+>>>>> Huacai
+>>>>>
+>>>>>>
+>>>>>> Regards
+>>>>>> Bibo Mao
+>>>>>>
+>>>>>>>
+>>>>>>> Huacai
+>>>>>>>
+>>>>>>>>>
+>>>>>>>>>> +
+>>>>>>>>>> +       if (map->phys_map[val].enabled) {
+>>>>>>>>>> +               /*
+>>>>>>>>>> +                * New cpuid is already set with other vcpu
+>>>>>>>>>> +                * Forbid sharing the same cpuid between different vcpus
+>>>>>>>>>> +                */
+>>>>>>>>>> +               if (map->phys_map[val].vcpu != vcpu) {
+>>>>>>>>>> +                       spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
+>>>>>>>>>> +                       return -EINVAL;
+>>>>>>>>>> +               }
+>>>>>>>>>> +
+>>>>>>>>>> +               /* Discard duplicated cpuid set operation*/
+>>>>>>>>>> +               spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
+>>>>>>>>>> +               return 0;
+>>>>>>>>>> +       }
+>>>>>>>>>> +
+>>>>>>>>>> +       kvm_write_sw_gcsr(csr, LOONGARCH_CSR_CPUID, val);
+>>>>>>>>>> +       map->phys_map[val].enabled      = true;
+>>>>>>>>>> +       map->phys_map[val].vcpu         = vcpu;
+>>>>>>>>>> +       if (map->max_phyid < val)
+>>>>>>>>>> +               map->max_phyid = val;
+>>>>>>>>>> +       spin_unlock(&vcpu->kvm->arch.phyid_map_lock);
+>>>>>>>>>> +       return 0;
+>>>>>>>>>> +}
+>>>>>>>>>> +
+>>>>>>>>>> +struct kvm_vcpu *kvm_get_vcpu_by_cpuid(struct kvm *kvm, int cpuid)
+>>>>>>>>>> +{
+>>>>>>>>>> +       struct kvm_phyid_map  *map;
+>>>>>>>>>> +
+>>>>>>>>>> +       if (cpuid >= KVM_MAX_PHYID)
+>>>>>>>>>> +               return NULL;
+>>>>>>>>>> +
+>>>>>>>>>> +       map = kvm->arch.phyid_map;
+>>>>>>>>>> +       if (map->phys_map[cpuid].enabled)
+>>>>>>>>>> +               return map->phys_map[cpuid].vcpu;
+>>>>>>>>>> +
+>>>>>>>>>> +       return NULL;
+>>>>>>>>>> +}
+>>>>>>>>>> +
+>>>>>>>>>> +static inline void kvm_drop_cpuid(struct kvm_vcpu *vcpu)
+>>>>>>>>>> +{
+>>>>>>>>>> +       int cpuid;
+>>>>>>>>>> +       struct loongarch_csrs *csr = vcpu->arch.csr;
+>>>>>>>>>> +       struct kvm_phyid_map  *map;
+>>>>>>>>>> +
+>>>>>>>>>> +       map = vcpu->kvm->arch.phyid_map;
+>>>>>>>>>> +       cpuid = kvm_read_sw_gcsr(csr, LOONGARCH_CSR_ESTAT);
+>>>>>>>>>> +       if (cpuid >= KVM_MAX_PHYID)
+>>>>>>>>>> +               return;
+>>>>>>>>>> +
+>>>>>>>>>> +       if (map->phys_map[cpuid].enabled) {
+>>>>>>>>>> +               map->phys_map[cpuid].vcpu = NULL;
+>>>>>>>>>> +               map->phys_map[cpuid].enabled = false;
+>>>>>>>>>> +               kvm_write_sw_gcsr(csr, LOONGARCH_CSR_CPUID, 0);
+>>>>>>>>>> +       }
+>>>>>>>>>> +}
+>>>>>>>>> While kvm_set_cpuid() is protected by a spinlock, do kvm_drop_cpuid()
+>>>>>>>>> and kvm_get_vcpu_by_cpuid() also need it?
+>>>>>>>>>
+>>>>>>>> It is good to me that spinlock is added in function kvm_drop_cpuid().
+>>>>>>>> And thinks for the efforts.
+>>>>>>>>
+>>>>>>>> Regards
+>>>>>>>> Bibo Mao
+>>>>>>>>>> +
+>>>>>>>>>>       static int _kvm_setcsr(struct kvm_vcpu *vcpu, unsigned int id, u64 val)
+>>>>>>>>>>       {
+>>>>>>>>>>              int ret = 0, gintc;
+>>>>>>>>>> @@ -291,7 +380,8 @@ static int _kvm_setcsr(struct kvm_vcpu *vcpu, unsigned int id, u64 val)
+>>>>>>>>>>                      kvm_set_sw_gcsr(csr, LOONGARCH_CSR_ESTAT, gintc);
+>>>>>>>>>>
+>>>>>>>>>>                      return ret;
+>>>>>>>>>> -       }
+>>>>>>>>>> +       } else if (id == LOONGARCH_CSR_CPUID)
+>>>>>>>>>> +               return kvm_set_cpuid(vcpu, val);
+>>>>>>>>>>
+>>>>>>>>>>              kvm_write_sw_gcsr(csr, id, val);
+>>>>>>>>>>
+>>>>>>>>>> @@ -943,6 +1033,7 @@ void kvm_arch_vcpu_destroy(struct kvm_vcpu *vcpu)
+>>>>>>>>>>              hrtimer_cancel(&vcpu->arch.swtimer);
+>>>>>>>>>>              kvm_mmu_free_memory_cache(&vcpu->arch.mmu_page_cache);
+>>>>>>>>>>              kfree(vcpu->arch.csr);
+>>>>>>>>>> +       kvm_drop_cpuid(vcpu);
+>>>>>>>>> I think this line should be before the above kfree(), otherwise you
+>>>>>>>>> get a "use after free".
+>>>>>>>>>
+>>>>>>>>> Huacai
+>>>>>>>>>
+>>>>>>>>>>
+>>>>>>>>>>              /*
+>>>>>>>>>>               * If the vCPU is freed and reused as another vCPU, we don't want the
+>>>>>>>>>> diff --git a/arch/loongarch/kvm/vm.c b/arch/loongarch/kvm/vm.c
+>>>>>>>>>> index 0a37f6fa8f2d..6006a28653ad 100644
+>>>>>>>>>> --- a/arch/loongarch/kvm/vm.c
+>>>>>>>>>> +++ b/arch/loongarch/kvm/vm.c
+>>>>>>>>>> @@ -30,6 +30,14 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+>>>>>>>>>>              if (!kvm->arch.pgd)
+>>>>>>>>>>                      return -ENOMEM;
+>>>>>>>>>>
+>>>>>>>>>> +       kvm->arch.phyid_map = kvzalloc(sizeof(struct kvm_phyid_map),
+>>>>>>>>>> +                               GFP_KERNEL_ACCOUNT);
+>>>>>>>>>> +       if (!kvm->arch.phyid_map) {
+>>>>>>>>>> +               free_page((unsigned long)kvm->arch.pgd);
+>>>>>>>>>> +               kvm->arch.pgd = NULL;
+>>>>>>>>>> +               return -ENOMEM;
+>>>>>>>>>> +       }
+>>>>>>>>>> +
+>>>>>>>>>>              kvm_init_vmcs(kvm);
+>>>>>>>>>>              kvm->arch.gpa_size = BIT(cpu_vabits - 1);
+>>>>>>>>>>              kvm->arch.root_level = CONFIG_PGTABLE_LEVELS - 1;
+>>>>>>>>>> @@ -44,6 +52,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+>>>>>>>>>>              for (i = 0; i <= kvm->arch.root_level; i++)
+>>>>>>>>>>                      kvm->arch.pte_shifts[i] = PAGE_SHIFT + i * (PAGE_SHIFT - 3);
+>>>>>>>>>>
+>>>>>>>>>> +       spin_lock_init(&kvm->arch.phyid_map_lock);
+>>>>>>>>>>              return 0;
+>>>>>>>>>>       }
+>>>>>>>>>>
+>>>>>>>>>> @@ -51,7 +60,9 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
+>>>>>>>>>>       {
+>>>>>>>>>>              kvm_destroy_vcpus(kvm);
+>>>>>>>>>>              free_page((unsigned long)kvm->arch.pgd);
+>>>>>>>>>> +       kvfree(kvm->arch.phyid_map);
+>>>>>>>>>>              kvm->arch.pgd = NULL;
+>>>>>>>>>> +       kvm->arch.phyid_map = NULL;
+>>>>>>>>>>       }
+>>>>>>>>>>
+>>>>>>>>>>       int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+>>>>>>>>>> --
+>>>>>>>>>> 2.39.3
+>>>>>>>>>>
+>>>>>>>>
+>>>>>>
+>>>>
+>>
 
-> point.  It should indeed be quite similar to the MSR filtering on the
-> userspace side, except that we need another interface for the guest to
-> request such change (i.e. self-protection).
->=20
-> Would it be OK to keep this new KVM_HC_LOCK_CR_UPDATE hypercall but
-> forward the request to userspace with a VM exit instead?  That would
-> also enable userspace to get the request and directly configure the CR
-> pinning with the same VM exit.
-
-No?  Maybe?  I strongly suspect that full support will need a richer set of=
- APIs
-than a single hypercall.  E.g. to handle kexec(), suspend+resume, emulated =
-SMM,
-and so on and so forth.  And that's just for CR pinning.
-
-And hypercalls are hampered by the fact that VMCALL/VMMCALL don't allow for
-delegation or restriction, i.e. there's no way for the guest to communicate=
- to
-the hypervisor that a less privileged component is allowed to perform some =
-action,
-nor is there a way for the guest to say some chunk of CPL0 code *isn't* all=
-owed
-to request transition.  Delegation and restriction all has to be done out-o=
-f-band.
-
-It'd probably be more annoying to setup initially, but I think a synthetic =
-device
-with an MMIO-based interface would be more powerful and flexible in the lon=
-g run.
-Then userspace can evolve without needing to wait for KVM to catch up.
-
-Actually, potential bad/crazy idea.  Why does the _host_ need to define pol=
-icy?
-Linux already knows what assets it wants to (un)protect and when.  What's m=
-issing
-is a way for the guest kernel to effectively deprivilege and re-authenticat=
-e
-itself as needed.  We've been tossing around the idea of paired VMs+vCPUs t=
-o
-support VTLs and SEV's VMPLs, what if we usurped/piggybacked those ideas, w=
-ith a
-bit of pKVM mixed in?
-
-Borrowing VTL terminology, where VTL0 is the least privileged, userspace la=
-unches
-the VM at VTL0.  At some point, the guest triggers the deprivileging sequen=
-ce and
-userspace creates VTL1.  Userpace also provides a way for VTL0 restrict acc=
-ess to
-its memory, e.g. to effectively make the page tables for the kernel's direc=
-t map
-writable only from VTL1, to make kernel text RO (or XO), etc.  And VTL0 cou=
-ld then
-also completely remove its access to code that changes CR0/CR4.
-
-It would obviously require a _lot_ more upfront work, e.g. to isolate the k=
-ernel
-text that modifies CR0/CR4 so that it can be removed from VTL0, but that sh=
-ould
-be doable with annotations, e.g. tag relevant functions with __magic or wha=
-tever,
-throw them in a dedicated section, and then free/protect the section(s) at =
-the
-appropriate time.
-
-KVM would likely need to provide the ability to switch VTLs (or whatever th=
-ey get
-called), and host userspace would need to provide a decent amount of the ba=
-ckend
-mechanisms and "core" policies, e.g. to manage VTL0 memory, teardown (turn =
-off?)
-VTL1 on kexec(), etc.  But everything else could live in the guest kernel i=
-tself.
-E.g. to have CR pinning play nice with kexec(), toss the relevant kexec() c=
-ode into
-VTL1.  That way VTL1 can verify the kexec() target and tear itself down bef=
-ore
-jumping into the new kernel.=20
-
-This is very off the cuff and have-wavy, e.g. I don't have much of an idea =
-what
-it would take to harden kernel text patching, but keeping the policy in the=
- guest
-seems like it'd make everything more tractable than trying to define an ABI
-between Linux and a VMM that is rich and flexible enough to support all the
-fancy things Linux does (and will do in the future).
-
-Am I crazy?  Or maybe reinventing whatever that McAfee thing was that led t=
-o
-Intel implementing EPTP switching?
